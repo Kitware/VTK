@@ -122,7 +122,7 @@ void vtkImageIdealLowPass::ThreadedExecute(vtkImageData *inData,
     return;
     }
   
-  wholeExtent = this->Input->GetWholeExtent();
+  wholeExtent = this->GetInput()->GetWholeExtent();
   spacing = inData->GetSpacing();
 
   inPtr = (float *)(inData->GetScalarPointerForExtent(ext));
@@ -238,7 +238,7 @@ void vtkImageIdealLowPass::ThreadedExecute(vtkImageData *inData,
 
 void vtkImageIdealLowPass::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageFilter::PrintSelf(os,indent);
+  vtkImageToImageFilter::PrintSelf(os,indent);
 
   os << indent << "CutOff: ( "
      << this->CutOff[0] << ", "

@@ -73,7 +73,8 @@ proc HistogramWidgetRender {widget} {
    # setup the bins of the accumulate filter from the range of input data
    set accumulate [GetWidgetVariableValue $widget Accumulate]
    set numBins [expr $width / 2]
-   set data [[$accumulate GetInput] UpdateAndReturnData]
+   set data [$accumulate GetInput]
+   $data Update
    set inputRange [[[$data GetPointData] GetScalars] GetRange]
    set origin [lindex $inputRange 0]
    set spacing [expr 1.0 * ([lindex $inputRange 1] - $origin) / $numBins]
@@ -89,7 +90,8 @@ proc HistogramWidgetRender {widget} {
    $canvas SetDrawColor 0
 
    # get the histogram data
-   set data [[$accumulate GetOutput] UpdateAndReturnData]
+   set data [$accumulate GetOutput]
+   $data Update
    
    # scale the histogram max to fit the window
    set histRange [[[$data GetPointData] GetScalars] GetRange]
@@ -159,7 +161,8 @@ proc HistogramWidgetUpdateInteraction {widget x y} {
    set binMin [expr $origin + $spacing * $x]
    set binMax [expr $binMin + $spacing]
    # now get the height of the histogram
-   set data [[$accumulate GetOutput] UpdateAndReturnData]
+   set data [$accumulate GetOutput]
+   $data Update
    # make sure value is in extent
    set max [lindex [$data GetExtent] 1]
    if {$x < 0 || $x > $max} {

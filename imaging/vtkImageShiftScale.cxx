@@ -55,11 +55,11 @@ vtkImageShiftScale::vtkImageShiftScale()
 
 
 //----------------------------------------------------------------------------
-void vtkImageShiftScale::ExecuteImageInformation()
+void vtkImageShiftScale::ExecuteInformation()
 {
   if (this->OutputScalarType != -1)
     {
-    this->Output->SetScalarType(this->OutputScalarType);
+    this->GetOutput()->SetScalarType(this->OutputScalarType);
     }
 }
 
@@ -288,7 +288,7 @@ void vtkImageShiftScale::ThreadedExecute(vtkImageData *inData,
 
 void vtkImageShiftScale::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageFilter::PrintSelf(os,indent);
+  vtkImageToImageFilter::PrintSelf(os,indent);
 
   os << indent << "Shift: " << this->Shift << "\n";
   os << indent << "Scale: " << this->Scale << "\n";

@@ -56,7 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageFilter.h"
 #include "vtkLookupTable.h"
 
-class VTK_EXPORT vtkImageQuantizeRGBToIndex : public vtkImageFilter
+class VTK_EXPORT vtkImageQuantizeRGBToIndex : public vtkImageToImageFilter
 {
 public:
   vtkImageQuantizeRGBToIndex();

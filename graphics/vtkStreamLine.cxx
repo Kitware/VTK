@@ -56,7 +56,7 @@ void vtkStreamLine::Execute()
   int i, ptId, j, id;
   vtkIdList *pts;
   float tOffset, x[3], v[3], s, r;
-  vtkPolyData *output=(vtkPolyData *)this->Output;
+  vtkPolyData *output=this->GetOutput();
 
   this->vtkStreamer::Integrate();
   if ( this->NumberOfStreamers <= 0 ) {return;}
@@ -71,8 +71,7 @@ void vtkStreamLine::Execute()
   newPts ->Allocate(1000);
   newVectors  = vtkVectors::New();
   newVectors ->Allocate(1000);
-  if ( ((vtkDataSet *)this->Input)->GetPointData()->GetScalars() || 
-       this->SpeedScalars )
+  if ( this->GetInput()->GetPointData()->GetScalars() || this->SpeedScalars )
     {
     newScalars = vtkScalars::New();
     newScalars->Allocate(1000);

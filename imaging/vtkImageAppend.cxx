@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageCache.h"
+
 #include "vtkImageAppend.h"
 
 
@@ -62,7 +62,7 @@ vtkImageAppend::~vtkImageAppend()
 
 //----------------------------------------------------------------------------
 // This method tells the ouput it will have more components
-void vtkImageAppend::ExecuteImageInformation()
+void vtkImageAppend::ExecuteInformation()
 {
   int idx;
   int min, max, size, tmp;
@@ -81,13 +81,13 @@ void vtkImageAppend::ExecuteImageInformation()
   this->Shifts = new int [this->NumberOfInputs];
   
   // Find the outMin/max of the appended axis for this input.
-  inExt = this->Inputs[0]->GetWholeExtent();
+  inExt = this->GetInput()->GetWholeExtent();
   min = tmp = inExt[this->AppendAxis * 2];
   for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {
-    if (this->Inputs[idx] != NULL)
+    if (this->GetInput(idx) != NULL)
       {
-      inExt = this->Inputs[idx]->GetWholeExtent();
+      inExt = this->GetInput(idx)->GetWholeExtent();
       this->Shifts[idx] = tmp - inExt[this->AppendAxis*2];
       size = inExt[this->AppendAxis*2 + 1] - inExt[this->AppendAxis*2] + 1;
       tmp += size;
@@ -95,22 +95,22 @@ void vtkImageAppend::ExecuteImageInformation()
     }
   max = tmp - 1;
   
-  this->Inputs[0]->GetWholeExtent(outExt);
+  this->GetInput()->GetWholeExtent(outExt);
   outExt[this->AppendAxis*2] = min;
   outExt[this->AppendAxis*2 + 1] = max;
 
-  this->Output->SetWholeExtent(outExt);
+  this->GetOutput()->SetWholeExtent(outExt);
 }
 
 
 //----------------------------------------------------------------------------
-void vtkImageAppend::ComputeRequiredInputUpdateExtent(int inExt[6],
+void vtkImageAppend::ComputeInputUpdateExtent(int inExt[6],
 					      int outExt[6], int whichInput)
 {
   int min, max, shift, tmp, idx;
   int *extent;
 
-  if (this->Inputs[0] == NULL)
+  if (this->GetInput() == NULL)
     {
     vtkErrorMacro("No input");
     return;
@@ -120,7 +120,7 @@ void vtkImageAppend::ComputeRequiredInputUpdateExtent(int inExt[6],
   memcpy(inExt,outExt,sizeof(int)*6);
 
   // Find the outMin/max of the appended axis for this input.
-  extent = this->Inputs[whichInput]->GetWholeExtent();
+  extent = this->GetInput(whichInput)->GetWholeExtent();
   shift = this->Shifts[whichInput];
   min = extent[this->AppendAxis*2] + shift;
   max = extent[this->AppendAxis*2 + 1] + shift;
@@ -230,7 +230,7 @@ void vtkImageAppend::ThreadedExecute(vtkImageData **inData,
       // Get the input extent and output extent
       // the real out extent for this input may be clipped.
       memcpy(inExt, outExt, 6*sizeof(int));
-      this->ComputeRequiredInputUpdateExtent(inExt, outExt, idx1);
+      this->ComputeInputUpdateExtent(inExt, outExt, idx1);
       memcpy(cOutExt, inExt, 6*sizeof(int));
       cOutExt[this->AppendAxis*2] = 
 	inExt[this->AppendAxis*2] + this->Shifts[idx1];

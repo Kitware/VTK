@@ -51,14 +51,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageMapper_h
 
 #include "vtkMapper2D.h"
-#include "vtkStructuredPoints.h"
-#include "vtkStructuredPointsToImage.h"
-#include "vtkImageCache.h"
 
 class vtkWindow;
 class vtkViewport;
 class vtkActor2D;
-class vtkImageData;
+#include "vtkImageData.h"
 
 class VTK_EXPORT vtkImageMapper : public vtkMapper2D
 {
@@ -80,13 +77,9 @@ public:
   vtkGetMacro(ColorLevel, float);
 
   // Description:
-  // Set/Get the input for the image mapper.  The input can be either a
-  // vtkImageCache or a vtkStructuredPoints data set.
-  vtkSetObjectMacro(Input, vtkImageCache);
-  vtkGetObjectMacro(Input,vtkImageCache);
-  void SetInput(vtkStructuredPoints *spts)
-    {vtkStructuredPointsToImage *tmp = spts->MakeStructuredPointsToImage();
-     this->SetInput(tmp->GetOutput()); tmp->Delete();}
+  // Set/Get the input for the image mapper.  
+  vtkSetObjectMacro(Input, vtkImageData);
+  vtkGetObjectMacro(Input,vtkImageData);
 
   // Description:
   // Set/Get the current slice number. The axis Z in ZSlice does not
@@ -115,7 +108,7 @@ public:
   float GetColorScale();
 
 protected:
-  vtkImageCache* Input;
+  vtkImageData* Input;
   float ColorWindow;
   float ColorLevel;
  

@@ -44,19 +44,31 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Initialize static member that controls global data release after use by filter
 static int vtkDataObjectGlobalReleaseDataFlag = 0;
 
+//----------------------------------------------------------------------------
 vtkDataObject::vtkDataObject()
 {
   this->Source = NULL;
   this->DataReleased = 1;
   this->ReleaseDataFlag = 0;
   this->FieldData = vtkFieldData::New();
+  // --- streaming stuff ---
+  this->PipelineMTime = 0;
+  this->MemoryLimit = VTK_LARGE_INTEGER;
+  this->EstimatedMemorySize = 0;
+  this->PointLock = vtkMutexLock::New();
+  this->CellLock = vtkMutexLock::New();
 }
 
+//----------------------------------------------------------------------------
 vtkDataObject::~vtkDataObject()
 {
   this->FieldData->Delete();
+  this->PointLock->Delete();
+  this->CellLock->Delete();
 }
 
+
+//----------------------------------------------------------------------------
 // Determine the modified time of this object
 unsigned long int vtkDataObject::GetMTime()
 {
@@ -71,6 +83,7 @@ unsigned long int vtkDataObject::GetMTime()
   return result;
 }
 
+//----------------------------------------------------------------------------
 void vtkDataObject::Initialize()
 {
 //
@@ -80,6 +93,7 @@ void vtkDataObject::Initialize()
   this->FieldData->Initialize();
 };
 
+//----------------------------------------------------------------------------
 void vtkDataObject::SetGlobalReleaseDataFlag(int val)
 {
   if (val == vtkDataObjectGlobalReleaseDataFlag)
@@ -89,17 +103,20 @@ void vtkDataObject::SetGlobalReleaseDataFlag(int val)
   vtkDataObjectGlobalReleaseDataFlag = val;
 }
 
+//----------------------------------------------------------------------------
 int vtkDataObject::GetGlobalReleaseDataFlag()
 {
   return vtkDataObjectGlobalReleaseDataFlag;
 }
 
+//----------------------------------------------------------------------------
 void vtkDataObject::ReleaseData()
 {
   this->Initialize();
   this->DataReleased = 1;
 }
 
+//----------------------------------------------------------------------------
 int vtkDataObject::ShouldIReleaseData()
 {
   if ( vtkDataObjectGlobalReleaseDataFlag || this->ReleaseDataFlag )
@@ -112,23 +129,56 @@ int vtkDataObject::ShouldIReleaseData()
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkDataObject::Update()
 {
-  if (this->Source)
-    {
-    this->Source->Update();
-    }
+  this->UpdateInformation();
+  this->InternalUpdate();
 }
 
-void vtkDataObject::ForceUpdate()
+//----------------------------------------------------------------------------
+void vtkDataObject::UpdateInformation()
 {
   if (this->Source)
     {
-    this->Source->Modified();
-    this->Source->Update();
+    this->Source->UpdateInformation();
     }
 }
 
+//----------------------------------------------------------------------------
+// If there is no source, just assume user put data here.
+void vtkDataObject::InternalUpdate()
+{
+  vtkDebugMacro("InternalUpdate: VT: " << this->UpdateTime << ", PMT: "  
+		<< this->PipelineMTime);
+  
+  if (this->UpdateTime >= this->PipelineMTime && ! this->DataReleased)
+    {
+    return;
+    }
+  
+  this->ClipUpdateExtentWithWholeExtent();
+  if (this->Source)
+    {
+    this->Source->InternalUpdate(this);
+    }
+  this->DataReleased = 0;
+  this->UpdateTime.Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObject::CopyUpdateExtent(vtkDataObject *data)
+{
+  vtkErrorMacro("Concrete subclass did not implement CopyUpdateExtent");
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObject::CopyInformation(vtkDataObject *data)
+{
+  vtkErrorMacro("Concrete subclass did not implement CopyInformation");
+}
+
+//----------------------------------------------------------------------------
 void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
@@ -144,22 +194,35 @@ void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Release Data: " << (this->ReleaseDataFlag ? "On\n" : "Off\n");
   os << indent << "Data Released: " << (this->DataReleased ? "True\n" : "False\n");
+  
   os << indent << "Global Release Data: " 
      << (vtkDataObjectGlobalReleaseDataFlag ? "On\n" : "Off\n");
+
+  os << indent << "UpdateTime: " << this->UpdateTime << endl;
+  os << indent << "PipelineMTime: " << this->PipelineMTime << endl;
+  os << indent << "EstimatedMemorySize: " << this->EstimatedMemorySize << endl;
+  os << indent << "MemoryLimit: " << this->MemoryLimit << endl;
+  os << indent << "Locality: " << this->Locality << endl;
 
   os << indent << "Field Data:\n";
   this->FieldData->PrintSelf(os,indent.GetNextIndent());
 }
 
-void vtkDataObject::SetSource(vtkSource *_arg)
+void vtkDataObject::SetSource(vtkSource *arg)
 {
-  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting Source to " << _arg ); 
-  if (this->Source != _arg) 
-    { 
-		vtkSource *tmp = this->Source;
-    this->Source = _arg; 
-    if (tmp != NULL) { tmp->UnRegister(this); }
-    if (this->Source != NULL) { this->Source->Register(this); } 
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting Source to " << arg ); 
+  if (this->Source != arg) 
+    {
+    vtkSource *tmp = this->Source;
+    this->Source = arg; 
+    if (this->Source != NULL) 
+      { 
+      this->Source->Register(this); 
+      } 
+    if (tmp != NULL) 
+      { 
+      tmp->UnRegister(this); 
+      }
     this->Modified(); 
     } 
 }
@@ -179,3 +242,22 @@ void vtkDataObject::UnRegister(vtkObject *o)
   
   this->vtkObject::UnRegister(o);
 }
+
+
+//----------------------------------------------------------------------------
+unsigned long vtkDataObject::GetUpdateTime()
+{
+  return this->UpdateTime.GetMTime();
+}
+
+
+
+
+
+
+
+
+
+
+
+

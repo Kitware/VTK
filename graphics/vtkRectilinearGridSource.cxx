@@ -40,10 +40,28 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkRectilinearGridSource.h"
 
+//----------------------------------------------------------------------------
 vtkRectilinearGridSource::vtkRectilinearGridSource()
 {
-  this->Output = vtkRectilinearGrid::New();
-  this->Output->SetSource(this);
+  this->vtkSource::SetOutput(0,vtkRectilinearGrid::New());
+  this->ExecuteExtent[0] = this->ExecuteExtent[2] = this->ExecuteExtent[4] = 0;
+  this->ExecuteExtent[1] = this->ExecuteExtent[3] = this->ExecuteExtent[5] = 0;
 }
 
+//----------------------------------------------------------------------------
+vtkRectilinearGrid *vtkRectilinearGridSource::GetOutput()
+{
+  if (this->NumberOfOutputs < 1)
+    {
+    return NULL;
+    }
+  
+  return (vtkRectilinearGrid *)(this->Outputs[0]);
+}
+
+//----------------------------------------------------------------------------
+void vtkRectilinearGridSource::SetOutput(vtkRectilinearGrid *output)
+{
+  this->vtkSource::SetOutput(0, output);
+}
 

@@ -43,222 +43,219 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
 
+//----------------------------------------------------------------------------
 // Construct object.
 vtkPointSetToPointSetFilter::vtkPointSetToPointSetFilter()
 {
-  this->PolyData = vtkPolyData::New();
-  this->PolyData->SetSource(this);
-  
-  this->StructuredGrid = vtkStructuredGrid::New();
-  this->StructuredGrid->SetSource(this);
-  
-  this->UnstructuredGrid = vtkUnstructuredGrid::New();
-  this->UnstructuredGrid->SetSource(this);
-  
-  this->Output = NULL;
 }
 
+//----------------------------------------------------------------------------
 vtkPointSetToPointSetFilter::~vtkPointSetToPointSetFilter()
 {
-  this->PolyData->Delete();
-  this->StructuredGrid->Delete();
-  this->UnstructuredGrid->Delete();
-  this->Output = NULL;
 }
 
+//----------------------------------------------------------------------------
 // Specify the input data or filter.
 void vtkPointSetToPointSetFilter::SetInput(vtkPointSet *input)
 {
-  if ( this->Input != input )
+  vtkPointSet *oldInput = this->GetInput();
+  
+  if (oldInput != NULL)
     {
-    vtkDebugMacro(<<" setting Input to " << (void *)input);
-    if (this->Input) {this->Input->UnRegister(this);}
-    this->Input = input;
-    if (this->Input) {this->Input->Register(this);}
-    this->Modified();
-
-    if ( this->Input == NULL )
+    if (input == NULL || 
+	oldInput->GetDataObjectType() != input->GetDataObjectType())
       {
-      return;
-      }
-
-    if ( input->GetDataSetType() == VTK_POLY_DATA )
-      {
-      this->Output = this->PolyData;
-      }
-    else if ( input->GetDataSetType() == VTK_STRUCTURED_GRID )
-      {
-      this->Output = this->StructuredGrid;
-      }
-    else if ( input->GetDataSetType() == VTK_UNSTRUCTURED_GRID )
-      {
-      this->Output = this->UnstructuredGrid;
-      }
-    else
-      {
-      vtkErrorMacro(<<"Mismatch in data type");
+      vtkWarningMacro("Changing input type.  Deleting output");
+      this->SetOutput(NULL);
       }
     }
+  
+  if (input != NULL && this->vtkSource::GetOutput(0) == NULL)
+    {
+    this->vtkSource::SetOutput(0, input->MakeObject());
+    }
+  
+  this->vtkProcessObject::SetInput(0, input);
+}
+
+//----------------------------------------------------------------------------
+// Specify the input data or filter.
+vtkPointSet *vtkPointSetToPointSetFilter::GetInput()
+{
+  if (this->NumberOfInputs < 1)
+    {
+    return NULL;
+    }
+  
+  return (vtkPointSet *)(this->Inputs[0]);
 }
 
 
-// Update input to this filter and the filter itself. Note that we are 
-// overloading this method because the output is an abstract dataset type.
-// This requires special treatment.
-void vtkPointSetToPointSetFilter::Update()
+//----------------------------------------------------------------------------
+// Update input to this filter and the filter itself.
+void vtkPointSetToPointSetFilter::InternalUpdate(vtkDataObject *output)
 {
-  // make sure output has been created
-  if ( !this->Output )
-    {
-    vtkErrorMacro(<< "No output has been created...need to set input");
-    return;
-    }
-
-  // make sure input is available
-  if ( !this->Input )
-    {
-    vtkErrorMacro(<< "No input...can't execute!");
-    return;
-    }
-
+  int idx;
+  vtkDataSet *ds, *input = this->GetInput();
+  
   // prevent chasing our tail
   if (this->Updating)
     {
     return;
     }
 
-  this->Updating = 1;
-  this->Input->Update();
-  this->Updating = 0;
-
-  if (this->Input->GetMTime() > this->ExecuteTime ||
-  this->GetMTime() > this->ExecuteTime )
+  if (this->ComputeInputUpdateExtents(output))
     {
-    if ( this->Input->GetDataReleased() )
+    // Update the inputs
+    this->Updating = 1;
+    for (idx = 0; idx < this->NumberOfInputs; ++idx)
       {
-      this->Input->ForceUpdate();
+      if (this->Inputs[idx] != NULL)
+	{
+	this->Inputs[idx]->InternalUpdate();
+	}
       }
-
+    this->Updating = 0;
+    
+    // Execute
     if ( this->StartMethod )
       {
       (*this->StartMethod)(this->StartMethodArg);
       }
-    // clear points and point data output 
-    ((vtkDataSet *)this->Output)->CopyStructure((vtkDataSet *)this->Input);
-    // reset AbortExecute flag and Progress
+    // special copy structure call.
+    for (idx = 0; idx < this->NumberOfOutputs; ++idx)
+      {
+      ds = (vtkDataSet*)(this->Outputs[idx]);
+      if (ds)
+	{
+	// clear points and point data output 
+	ds->CopyStructure(input);
+	}  
+      }
+    // reset Abort flag
     this->AbortExecute = 0;
     this->Progress = 0.0;
     this->Execute();
-    this->ExecuteTime.Modified();
     if ( !this->AbortExecute )
       {
       this->UpdateProgress(1.0);
       }
-    this->SetDataReleased(0);
     if ( this->EndMethod )
       {
       (*this->EndMethod)(this->EndMethodArg);
       }
     }
 
-  if ( this->Input->ShouldIReleaseData() )
+  // clean up (release data)
+  for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {
-    this->Input->ReleaseData();
+    if (this->Inputs[idx] != NULL)
+      {
+      if ( this->Inputs[idx]->ShouldIReleaseData() )
+	{
+	this->Inputs[idx]->ReleaseData();
+	}
+      }  
     }
 }
 
-  
-// Get the output of this filter. If output is NULL, then input hasn't been
-// set, which is necessary for abstract filter objects.
+
+//----------------------------------------------------------------------------
+// Get the output of this filter. If output is NULL then input hasn't been set
+// which is necessary for abstract objects.
 vtkPointSet *vtkPointSetToPointSetFilter::GetOutput()
 {
-  if ( this->Output == NULL )
+  if (this->GetInput() == NULL )
     {
     vtkErrorMacro(<<"Abstract filters require input to be set before output can be retrieved");
+    return NULL;
     }
-  return (vtkPointSet *)this->Output;
+
+  // sanity check
+  if (this->NumberOfOutputs < 1)
+    {
+    vtkErrorMacro("Sanity check failed. We should have an output");
+    return NULL;
+    }
+
+  return (vtkPointSet *)this->Outputs[0];
 }
 
-// Get the output as vtkPolyData. Performs run-time checking.
+   
+//----------------------------------------------------------------------------
+// Get the output as vtkPolyData.
 vtkPolyData *vtkPointSetToPointSetFilter::GetPolyDataOutput() 
 {
-  return this->PolyData;
+  vtkDataSet *ds = this->GetOutput();
+  if (!ds) 
+    {
+    return NULL;
+    }
+  if (ds->GetDataObjectType() == VTK_POLY_DATA)
+    {
+    return (vtkPolyData *)ds;
+    }
+  return NULL;
 }
 
+//----------------------------------------------------------------------------
 // Get the output as vtkStructuredGrid. Performs run-time checking.
 vtkStructuredGrid *vtkPointSetToPointSetFilter::GetStructuredGridOutput()
 {
-  return this->StructuredGrid;
+  vtkDataSet *ds = this->GetOutput();
+  if (!ds) 
+    {
+    return NULL;
+    }
+  if (ds->GetDataObjectType() == VTK_STRUCTURED_GRID)
+    {
+    return (vtkStructuredGrid *)ds;
+    }
+  return NULL;
 }
 
+//----------------------------------------------------------------------------
 // Get the output as vtkUnstructuredGrid. Performs run-time checking.
 vtkUnstructuredGrid *vtkPointSetToPointSetFilter::GetUnstructuredGridOutput()
 {
-  return this->UnstructuredGrid;
+  vtkDataSet *ds = this->GetOutput();
+  if (!ds) 
+    {
+    return NULL;
+    }
+  if (ds->GetDataObjectType() == VTK_UNSTRUCTURED_GRID)
+    {
+    return (vtkUnstructuredGrid *)ds;
+    }
+  return NULL;
 }
 
-void vtkPointSetToPointSetFilter::UnRegister(vtkObject *o)
+//----------------------------------------------------------------------------
+int 
+vtkPointSetToPointSetFilter::ComputeInputUpdateExtents(vtkDataObject *data)
 {
-  // detect the circular loop source <-> data
-  // If we have two references and one of them is my data
-  // and I am not being unregistered by my data, break the loop.
-  if (this->ReferenceCount == 4 &&
-      this->PolyData != o && this->StructuredGrid != o &&
-      this->UnstructuredGrid != o &&
-      this->PolyData->GetNetReferenceCount() == 1 &&
-      this->StructuredGrid->GetNetReferenceCount() == 1 &&
-      this->UnstructuredGrid->GetNetReferenceCount() == 1)
+  vtkPointSet *output = (vtkPointSet*)data;
+  
+  if (this->NumberOfInputs > 1)
     {
-    this->PolyData->SetSource(NULL);
-    this->StructuredGrid->SetSource(NULL);
-    this->UnstructuredGrid->SetSource(NULL);
-    }
-  if (this->ReferenceCount == 3 &&
-      (this->PolyData == o || this->StructuredGrid == o ||
-      this->UnstructuredGrid == o) &&
-      (this->PolyData->GetNetReferenceCount() +
-      this->StructuredGrid->GetNetReferenceCount() +
-      this->UnstructuredGrid->GetNetReferenceCount()) == 4)
-    {
-    this->PolyData->SetSource(NULL);
-    this->StructuredGrid->SetSource(NULL);
-    this->UnstructuredGrid->SetSource(NULL);
+    vtkErrorMacro("Subclass did not implement ComputeInputUpdateExtent");
+    return 0;
     }
   
-  this->vtkObject::UnRegister(o);
+  this->GetInput()->CopyUpdateExtent(output);
+  return 1;
 }
 
-int vtkPointSetToPointSetFilter::InRegisterLoop(vtkObject *o)
-{
-  int num = 0;
-  int cnum = 0;
-  
-  if (this->PolyData->GetSource() == this)
-    {
-    num++;
-    cnum += this->PolyData->GetNetReferenceCount();
-    }
-  if (this->StructuredGrid->GetSource() == this)
-    {
-    num++;
-    cnum += this->StructuredGrid->GetNetReferenceCount();
-    }
-  if (this->UnstructuredGrid->GetSource() == this)
-    {
-    num++;
-    cnum += this->UnstructuredGrid->GetNetReferenceCount();
-    }
-  
-  // if no one outside is using us
-  // and our data objects are down to one net reference
-  // and we are being asked by one of our data objects
-  if (this->ReferenceCount == num &&
-      cnum == (num + 1) &&
-      (this->PolyData == o ||
-       this->StructuredGrid == o ||
-       this->UnstructuredGrid == o))
-    {
-    return 1;
-    }
-  return 0;
-}
+
+
+
+
+
+
+
+
+
+
+
+
+

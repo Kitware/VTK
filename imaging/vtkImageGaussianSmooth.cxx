@@ -63,7 +63,7 @@ void vtkImageGaussianSmooth::PrintSelf(ostream& os, vtkIndent indent)
 {
   // int idx;
   
-  this->vtkImageFilter::PrintSelf(os, indent);
+  this->vtkImageToImageFilter::PrintSelf(os, indent);
 
   //os << indent << "BoundaryRescale: " << this->BoundaryRescale << "\n";
 
@@ -111,12 +111,12 @@ void vtkImageGaussianSmooth::ComputeKernel(double *kernel, int min, int max,
   
 
 //----------------------------------------------------------------------------
-void vtkImageGaussianSmooth::ExecuteImageInformation()
+void vtkImageGaussianSmooth::ExecuteInformation()
 {
 }
 
 //----------------------------------------------------------------------------
-void vtkImageGaussianSmooth::ComputeRequiredInputUpdateExtent(int inExt[6], 
+void vtkImageGaussianSmooth::ComputeInputUpdateExtent(int inExt[6], 
 							      int outExt[6])
 {
   int *wholeExtent;
@@ -125,7 +125,7 @@ void vtkImageGaussianSmooth::ComputeRequiredInputUpdateExtent(int inExt[6],
   // copy
   memcpy((void *)inExt, (void *)outExt, 6 * sizeof(int));
   // Expand filtered axes
-  wholeExtent = this->Input->GetWholeExtent();
+  wholeExtent = this->GetInput()->GetWholeExtent();
   for (idx = 0; idx < this->Dimensionality; ++idx)
     {
     radius = (int)(this->StandardDeviations[idx] * this->RadiusFactors[idx]);
@@ -313,7 +313,7 @@ void vtkImageGaussianSmooth::ExecuteAxis(int axis,
   coords[2] = inExt[4];
   
   // get whole extent for boundary checking ...
-  wholeExtent = this->Input->GetWholeExtent();
+  wholeExtent = this->GetInput()->GetWholeExtent();
   wholeMin = wholeExtent[axis*2];
   wholeMax = wholeExtent[axis*2+1];  
 
@@ -453,7 +453,7 @@ void vtkImageGaussianSmooth::ThreadedExecute(vtkImageData *inData,
     // determine the number of pixels.
     total = this->Dimensionality * (outExt[1] - outExt[0] + 1) 
       * (outExt[3] - outExt[2] + 1) * (outExt[5] - outExt[4] + 1)
-      * this->Input->GetNumberOfScalarComponents();
+      * this->GetInput()->GetNumberOfScalarComponents();
     // pixels per update (50 updates)
     target = total / 50;
     }
@@ -466,7 +466,7 @@ void vtkImageGaussianSmooth::ThreadedExecute(vtkImageData *inData,
     }
 
   // Decompose
-  this->ComputeRequiredInputUpdateExtent(inExt, outExt);
+  this->ComputeInputUpdateExtent(inExt, outExt);
   switch (this->Dimensionality)
     {
     case 1:

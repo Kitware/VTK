@@ -388,7 +388,7 @@ void vtkMarchingCubes::Execute()
   vtkScalars *newScalars;
   vtkNormals *newNormals;
   vtkVectors *newGradients;
-  vtkStructuredPoints *input=(vtkStructuredPoints *)this->Input;
+  vtkStructuredPoints *input = this->GetInput();
   vtkPointData *pd=input->GetPointData();
   vtkScalars *inScalars=pd->GetScalars();
   int dims[3];

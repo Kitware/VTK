@@ -94,7 +94,7 @@ void vtkImageViewer::Render()
   if (this->ImageWindow->GetSize()[0] == 0 && this->ImageMapper->GetInput())
     {
     // get the size from the mappers input
-    this->ImageMapper->GetInput()->UpdateImageInformation();
+    this->ImageMapper->GetInput()->UpdateInformation();
     int *ext = this->ImageMapper->GetInput()->GetWholeExtent();
     this->ImageWindow->SetSize(ext[1] - ext[0] + 1, ext[3] - ext[2] + 1);
     }

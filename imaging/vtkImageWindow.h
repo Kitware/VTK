@@ -52,7 +52,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkWindow.h"
 #include "vtkActor2D.h"
-#include "vtkImageCache.h"
 #include "vtkImager.h"
 #include "vtkImageMapper.h"
 #include "vtkImagerCollection.h"

@@ -44,7 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // have any number of inputs. Steaming is not available in this class yet.
 
 // .SECTION See Also
-// vtkImageFilter vtImageInPlaceFilter vtkImageTwoInputFilter
+// vtkImageToImageFilter vtImageInPlaceFilter vtkImageTwoInputFilter
 // vtkImageTwoOutputFilter
 
 
@@ -54,9 +54,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 #include "vtkImageSource.h"
-#include "vtkStructuredPoints.h"
-#include "vtkStructuredPointsToImage.h"
-#include "vtkImageCache.h"
 #include "vtkMultiThreader.h"
 
 
@@ -72,27 +69,21 @@ public:
 
   // Description:
   // Set an Input of this filter. 
-  virtual void SetInput(int num, vtkImageCache *input);
-  void SetInput(int num, vtkStructuredPoints *spts)
-    {vtkStructuredPointsToImage *tmp = spts->MakeStructuredPointsToImage();
-     this->SetInput(num, tmp->GetOutput()); tmp->Delete();}
+  virtual void SetInput(int num, vtkImageData *input);
 
   // Description:
   // Adds an input to the first null position in the input list.
   // Expands the list memory if necessary
-  virtual void AddInput(vtkImageCache *input);
-  void AddInput(vtkStructuredPoints *spts)
-    {vtkStructuredPointsToImage *tmp = spts->MakeStructuredPointsToImage();
-     this->AddInput(tmp->GetOutput()); tmp->Delete();}
+  virtual void AddInput(vtkImageData *input);
   
   // Description:
   // Called by the cache
-  void InternalUpdate(vtkImageData *outData);
+  void InternalUpdate(vtkDataObject *outData);
 
   // Description:
   // This method gets the boundary of the inputs then computes and returns 
   // the boundary of the largest region that can be generated. 
-  void UpdateImageInformation();
+  void UpdateInformation();
 
   // Description:
   // This Method returns the MTime of the pipeline up to and including this
@@ -103,16 +94,13 @@ public:
 
   // Description:
   // Get one input to this filter.
-  vtkImageCache *GetInput(int num) {return this->Inputs[num];};
+  vtkImageData *GetInput(int num);
+  vtkImageData *GetInput();
 
-  // Description:
-  // Get the number of inputs to this filter
-  vtkGetMacro(NumberOfInputs, int);
-  
   // Description:
   // Turning bypass on will cause the filter to turn off and
   // simply pass the data from the first input (input0) through.  
-  // It is implemented for consistancy with vtkImageFilter.
+  // It is implemented for consistancy with vtkImageToImageFilter.
   vtkSetMacro(Bypass,int);
   vtkGetMacro(Bypass,int);
   vtkBooleanMacro(Bypass,int);
@@ -128,23 +116,23 @@ public:
 			       vtkImageData *outData,
 			       int extent[6], int threadId);
 
+  // Description:
+  // Putting this here until I merge graphics and imaging streaming.
+  virtual int SplitExtent(int splitExt[6], int startExt[6], 
+			  int num, int total);
 
 protected:
-  int NumberOfInputs;
-  vtkImageCache **Inputs;     // An Array of the inputs to the filter
   vtkMultiThreader *Threader;
   int Bypass;
   int Updating;
   int NumberOfThreads;
   
-  // Called to allocate the input array.  Copies old inputs.
-  void SetNumberOfInputs(int num);
-
-  virtual void ExecuteImageInformation();
-  virtual void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6],
+  virtual void ExecuteInformation();
+  virtual void ComputeInputUpdateExtent(int inExt[6], int outExt[6],
 						int whichInput);
   virtual void RecursiveStreamUpdate(vtkImageData *outData);
   virtual void Execute(vtkImageData **inDatas, vtkImageData *outData);
+
 };
 
 #endif

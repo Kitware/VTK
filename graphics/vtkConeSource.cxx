@@ -45,6 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkConeSource.h"
 #include "vtkMath.h"
 
+//----------------------------------------------------------------------------
 // Construct with default resolution 6, height 1.0, radius 0.5, and capping
 // on.
 vtkConeSource::vtkConeSource(int res)
@@ -56,6 +57,7 @@ vtkConeSource::vtkConeSource(int res)
   this->Capping = 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkConeSource::Execute()
 {
   float angle;
@@ -67,6 +69,8 @@ void vtkConeSource::Execute()
   vtkCellArray *newLines=0;
   vtkCellArray *newPolys=0;
   vtkPolyData *output = this->GetOutput();
+  
+  vtkDebugMacro("ConeSource Executing");
   
   if ( this->Resolution )
     {
@@ -101,9 +105,9 @@ void vtkConeSource::Execute()
   }
   newPoints = vtkPoints::New();
   newPoints->Allocate(numPts);
-//
-// Create cone
-//
+  //
+  // Create cone
+  //
   x[0] = this->Height / 2.0; // zero-centered
   x[1] = 0.0;
   x[2] = 0.0;
@@ -189,16 +193,41 @@ void vtkConeSource::Execute()
     }
 }
 
+//----------------------------------------------------------------------------
+void vtkConeSource::ExecuteInformation()
+{
+  int numTris, numPts;
+  unsigned long size;
+  
+  numPts = this->Resolution + 1;
+  numTris = this->Resolution;
+  size = numPts * 3 * sizeof(float);
+  size += numTris * 4 * sizeof(int);
+  // one more polygon if capping
+  if (this->Capping)
+    {
+    size += (this->Resolution + 1) * sizeof(int);
+    }
+  
+  // convert to kilobytes
+  size = (size / 1000) + 1;
+  
+  this->GetOutput()->SetEstimatedMemorySize(size);
+}
+
+//----------------------------------------------------------------------------
 void vtkConeSource::SetAngle(float angle)
 {
   this->SetRadius (this->Height * tan ((double) angle*vtkMath::DegreesToRadians()));
 }
 
+//----------------------------------------------------------------------------
 float vtkConeSource::GetAngle()
 {
   return atan2 (this->Radius, this->Height) / vtkMath::DegreesToRadians();
 }
 
+//----------------------------------------------------------------------------
 void vtkConeSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataSource::PrintSelf(os,indent);

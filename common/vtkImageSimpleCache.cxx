@@ -122,10 +122,10 @@ void vtkImageSimpleCache::Update()
   int *cachedExtent;
   
   // update if mtime indicates to do so
-  if (pipelineMTime > this->ExecuteTime)
+  if (pipelineMTime > this->UpdateTime)
     {
     // Make sure image information is up to date
-    this->UpdateImageInformation();
+    this->UpdateInformation();
     }
   
   this->ClipUpdateExtentWithWholeExtent();
@@ -140,7 +140,7 @@ void vtkImageSimpleCache::Update()
     }
   
   // if cache doesn't have the necessary data.
-  if (pipelineMTime > this->ExecuteTime || this->DataReleased ||
+  if (pipelineMTime > this->UpdateTime || this->DataReleased ||
       !this->CachedData || 
       (cachedExtent[0] > this->UpdateExtent[0] ||
        cachedExtent[1] < this->UpdateExtent[1] ||
@@ -156,7 +156,7 @@ void vtkImageSimpleCache::Update()
       this->AllocateData();
       this->Source->InternalUpdate(this->CachedData);
       // save the time and extent of the update for test "cache has data?"
-      this->ExecuteTime.Modified();
+      this->UpdateTime.Modified();
       this->DataReleased = 0;
       }
     }

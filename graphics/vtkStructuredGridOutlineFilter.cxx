@@ -40,142 +40,351 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkStructuredGridOutlineFilter.h"
 
+//----------------------------------------------------------------------------
+// ComputeDivisionExtents has done most of the work for us.
+// Now just connect the points.
 void vtkStructuredGridOutlineFilter::Execute()
 {
-  vtkStructuredGrid *input=(vtkStructuredGrid *)this->Input;
+  vtkStructuredGrid *input=this->GetInput();
+  int *ext, xInc, yInc, zInc;
   vtkPoints *inPts;
-  int i, j, k;
-  int idx, gridIdx;
-  int *dim, pts[2];
   vtkPoints *newPts;
   vtkCellArray *newLines;
-  vtkPolyData *output=(vtkPolyData *)this->Output;
-
-  vtkDebugMacro(<< "Creating structured grid outline");
-
-  if ( (inPts=input->GetPoints()) == NULL )
+  vtkPolyData *output=this->GetOutput();
+  int numPts, idx, offset, ids[2];
+  // for marching through the points along an edge.
+  int start, num, inc, id;
+  
+  if (this->ExecutePiece >= 12)
     {
-    vtkErrorMacro("No input!");
+    // thing should not have gotten this far.
     return;
     }
-  dim = input->GetDimensions();
+  
 
-  //  Allocate storage for lines and points
-  //
-  newPts = vtkPoints::New();
-  newPts->Allocate(4*(dim[0]+dim[1]+dim[2]));
-  newLines = vtkCellArray::New();
-  newLines->Allocate(newLines->EstimateSize(4*((dim[0]-1)+(dim[1]-1)+(dim[2]-1)),2));
-
-  //  Load data
-  //  x-data
-  //
-  for (idx=j=0; j<4; j++) 
+  // If all StructuredPointsSources were forced to give you exactly
+  // the update extent, this execute method would be trivial.
+  // However, Imaging does not have this requirement, and I have not
+  // made the readers "StreamingReady" ...
+  
+  // Find the start of this edge, the length of this edge, and increment.
+  ext = input->GetExtent();
+  xInc = 1;
+  yInc = ext[1]-ext[0]+1;
+  zInc = yInc * (ext[3]-ext[2]+1);
+  switch (this->ExecutePiece)
     {
-    if ( j == 0 )
-      {
-      gridIdx = 0;
-      }
-    else if ( j == 1)
-      {
-      gridIdx = (dim[1] - 1)*dim[0];
-      }
-    else if ( j == 2)
-      {
-      gridIdx = (dim[1] - 1)*dim[0] + (dim[2] - 1)*dim[0]*dim[1];
-      }
-    else
-      {
-      gridIdx = (dim[2] - 1)*dim[0]*dim[1];
-      }
-
-    for (i=0; i<dim[0]; i++)
-      {
-      newPts->InsertNextPoint(inPts->GetPoint(gridIdx+i));
-      }
-
+    case 0:
+      // start (0, 0, 0) increment z axis.
+      num = ext[5]-ext[4]+1;
+      start = (0-ext[0])*xInc + (0-ext[2])*yInc + (0-ext[4])*zInc;
+      inc = zInc;
+      break;
+    case 1:
+      // start (xMax, 0, 0) increment z axis.
+      num = ext[5]-ext[4]+1;
+      start = (ext[1]-ext[0])*xInc + (0-ext[2])*yInc + (0-ext[4])*zInc;
+      inc = zInc;
+      break;
+    case 2:
+      // start (0, yMax, 0) increment z axis.
+      num = ext[5]-ext[4]+1;
+      start = (0-ext[0])*xInc + (ext[3]-ext[2])*yInc + (0-ext[4])*zInc;
+      inc = zInc;
+      break;
+    case 3:
+      // start (xMax, yMax, 0) increment z axis.
+      num = ext[5]-ext[4]+1;
+      start = (ext[1]-ext[0])*xInc + (ext[3]-ext[2])*yInc + (0-ext[4])*zInc;
+      inc = zInc;
+      break;
+    case 4:
+      // start (0, 0, 0) increment y axis.
+      num = ext[3]-ext[2]+1;
+      start = (0-ext[0])*xInc + (0-ext[2])*yInc + (0-ext[4])*zInc;
+      inc = yInc;
+      break;
+    case 5:
+      // start (xMax, 0, 0) increment y axis.
+      num = ext[3]-ext[2]+1;
+      start = (ext[1]-ext[0])*xInc + (0-ext[2])*yInc + (0-ext[4])*zInc;
+      inc = yInc;
+      break;
+    case 6:
+      // start (0, 0, zMax) increment y axis.
+      num = ext[3]-ext[2]+1;
+      start = (0-ext[0])*xInc + (0-ext[2])*yInc + (ext[5]-ext[4])*zInc;
+      inc = yInc;
+      break;
+    case 7:
+      // start (xMax, 0, zMax) increment y axis.
+      num = ext[3]-ext[2]+1;
+      start = (ext[1]-ext[0])*xInc + (0-ext[2])*yInc + (ext[5]-ext[4])*zInc;
+      inc = yInc;
+      break;
+    case 8:
+      // start (0, 0, 0) increment x axis.
+      num = ext[1]-ext[0]+1;
+      start = (0-ext[0])*xInc + (0-ext[2])*yInc + (0-ext[4])*zInc;
+      inc = xInc;
+      break;
+    case 9:
+      // start (0, yMax, 0) increment x axis.
+      num = ext[1]-ext[0]+1;
+      start = (0-ext[0])*xInc + (ext[3]-ext[2])*yInc + (0-ext[4])*zInc;
+      inc = xInc;
+      break;
+    case 10:
+      // start (0, 0, zMax) increment x axis.
+      num = ext[1]-ext[0]+1;
+      start = (0-ext[0])*xInc + (0-ext[2])*yInc + (ext[5]-ext[4])*zInc;
+      inc = xInc;
+      break;
+    case 11:
+      // start (0, yMax, zMax) increment x axis.
+      num = ext[1]-ext[0]+1;
+      start = (0-ext[0])*xInc + (ext[3]-ext[2])*yInc + (ext[5]-ext[4])*zInc;
+      inc = xInc;
+      break;
+    }
+  
+  if (num < 2)
+    {
+    return;
     }
 
-  //  y-data
-  //
-  for (j=0; j<4; j++) 
+  // these already created in StreamExecuteStart
+  newPts = output->GetPoints();
+  newLines = output->GetLines();
+  offset = newPts->GetNumberOfPoints();
+  inPts = input->GetPoints();
+  numPts = inPts->GetNumberOfPoints();
+
+  // add points
+  for (idx = 0; idx < num; ++idx)
     {
-    if ( j == 0 )
+    id = start + idx * inc;
+    // sanity check
+    if (id < 0 || id >= numPts)
       {
-      gridIdx = 0;
+      vtkErrorMacro("Error stepping through points.");
+      return;
       }
-    else if ( j == 1)
-      {
-      gridIdx = dim[0] - 1;
-      }
-    else if ( j == 2)
-      {
-      gridIdx = (dim[0] - 1) + (dim[2]-1)*dim[0]*dim[1];
-      }
-    else
-      {
-      gridIdx = (dim[2] - 1)*dim[0]*dim[1];
-      }
-
-    for (i=0; i<dim[1]; i++)
-      {
-      newPts->InsertNextPoint(inPts->GetPoint(gridIdx+i*dim[0]));
-      }
-
+    newPts->InsertNextPoint(inPts->GetPoint(id));
     }
 
-  //  z-data
-  //
-  idx = dim[0]*dim[1];
-  for (j=0; j<4; j++) 
+  // add lines
+  for (idx = 1; idx < num; ++idx)
     {
-    if ( j == 0 )
-      {
-      gridIdx = 0;
-      }
-    else if ( j == 1)
-      {
-      gridIdx = (dim[0] - 1);
-      }
-    else if ( j == 2)
-      {
-      gridIdx = (dim[0] - 1) + (dim[1]-1)*dim[0];
-      }
-    else
-      {
-      gridIdx = (dim[1] - 1)*dim[0];
-      }
-        
-    for (i=0; i<dim[2]; i++)
-      {
-      newPts->InsertNextPoint(inPts->GetPoint(gridIdx+i*idx));
-      }
-
+    ids[0] = idx+offset-1;
+    ids[1] = idx+offset;
+    newLines->InsertNextCell(2, ids);
     }
-
-  // Create lines. Rely on the fact that x, then y, then z points have been 
-  // created.
-  //
-  idx = -1;
-  for (k=0; k<3; k++) //loop over x-y-z directions
-    {
-    for (i=0; i<4; i++)
-      {
-      idx++;
-      for (j=0; j<(dim[k]-1); j++) 
-        {
-        pts[0] = idx++;
-        pts[1] = idx;
-        newLines->InsertNextCell(2,pts);
-        }
-      }
-    }
-
-  // Update selves and release memory
-  //
-  output->SetPoints(newPts);
-  newPts->Delete();
-
-  output->SetLines(newLines);
-  newLines->Delete();
 }
+
+
+
+//----------------------------------------------------------------------------
+// Always stream into 12 pieces.
+int vtkStructuredGridOutlineFilter::GetNumberOfStreamDivisions()
+{
+  vtkPolyData *output = this->GetOutput();
+  int piece, numPieces;
+  int start, end;
+
+  output->GetUpdateExtent(piece, numPieces);
+  if (piece >= 12)
+    { // we do not support more than 12 pieces, so do not execute.
+    return 0;
+    }
+
+  this->ConvertPiece(piece, numPieces, start, end);
+  return (end - start + 1);
+}
+
+
+
+//----------------------------------------------------------------------------
+// Always stream into 12 pieces.
+int vtkStructuredGridOutlineFilter::ComputeDivisionExtents(vtkDataObject *out,
+						   int idx, int NumDivisions)
+{
+  vtkStructuredGrid *input = this->GetInput();
+  vtkPolyData *output = (vtkPolyData *)out;
+  int piece, numPieces;
+  int start, end;
+  int *ext, xMax, yMax, zMax;
+
+  output->GetUpdateExtent(piece, numPieces);
+
+  // special case: No output for a piece.
+  if (piece >= 12)
+    {
+    return 0;
+    }
+
+  // get range of edges for this request.
+  this->ConvertPiece(piece, numPieces, start, end);
+  
+  // GetNumberOfStreamDivisions magical split up request so the
+  // total is 12, and we are updating one of these 12.
+  piece = start + idx;
+  
+  // sanity check: Did GetNumberOfStreamDivisions do its job?
+  if (piece >= 12 || piece > end)
+    {
+    vtkErrorMacro("Force 12 divisions did not work.");
+    return 0;
+    }
+  
+  // Save the piece so execute can use this information.
+  this->ExecutePiece = piece;
+  this->ExecuteNumberOfPieces = 12;
+  
+  ext = input->GetWholeExtent();
+  xMax = ext[1];
+  yMax = ext[3];
+  zMax = ext[5];
+  switch (piece)
+    {
+    case 0:
+      input->SetUpdateExtent(0, 0, 0, 0, 0, zMax);
+      break;
+    case 1:
+      input->SetUpdateExtent(xMax, xMax, 0, 0, 0, zMax);
+      break;
+    case 2:
+      input->SetUpdateExtent(0, 0, yMax, yMax, 0, zMax);
+      break;
+    case 3:
+      input->SetUpdateExtent(xMax, xMax, yMax, yMax, 0, zMax);
+      break;
+    case 4:
+      input->SetUpdateExtent(0, 0, 0, yMax, 0, 0);
+      break;
+    case 5:
+      input->SetUpdateExtent(xMax, xMax, 0, yMax, 0, 0);
+      break;
+    case 6:
+      input->SetUpdateExtent(0, 0, 0, yMax, zMax, zMax);
+      break;
+    case 7:
+      input->SetUpdateExtent(xMax, xMax, 0, yMax, zMax, zMax);
+      break;
+    case 8:
+      input->SetUpdateExtent(0, xMax, 0, 0, 0, 0);
+      break;
+    case 9:
+      input->SetUpdateExtent(0, xMax, yMax, yMax, 0, 0);
+      break;
+    case 10:
+      input->SetUpdateExtent(0, xMax, 0, 0, zMax, zMax);
+      break;
+    case 11:
+      input->SetUpdateExtent(0, xMax, yMax, yMax, zMax, zMax);
+      break;
+    default:
+      vtkErrorMacro("Bad piece: This should never have happend.");
+      return 0;
+    }
+  return 1;
+}
+
+
+
+//----------------------------------------------------------------------------
+// Here we need to setup the output polydata.
+void vtkStructuredGridOutlineFilter::StreamExecuteStart()
+{
+  vtkPolyData *output = this->GetOutput();
+  vtkCellArray *lines;
+  vtkPoints *points;
+
+  lines = vtkCellArray::New();
+  output->SetLines(lines);
+  lines->Delete();
+
+  points = vtkPoints::New();
+  output->SetPoints(points);
+  points->Delete();
+}
+
+
+
+//----------------------------------------------------------------------------
+// For estimated size, we are ignoring alot of information....
+void vtkStructuredGridOutlineFilter::UpdateInformation()
+{
+  vtkStructuredGrid *input = this->GetInput();
+  vtkPolyData *output = this->GetOutput();
+  int *ext, nums[3];
+  long t1, t2;
+  long numPts, numLines;
+  long sizePt, sizeLine;
+  long size;
+
+  input->UpdateInformation();
+  
+  // for MPI stuff
+  output->SetLocality(input->GetLocality() + 1);
+
+  // this portion could be done in superclass.
+  t1 = input->GetPipelineMTime();
+  t2 = this->GetMTime();
+  if (t2 > t1)
+    {
+    t1 = t2;
+    }
+  output->SetPipelineMTime(t1);
+
+  // Estimate the size of the output.
+  ext = input->GetWholeExtent();
+  numPts = 4 * ((ext[1]-ext[0]+1) + (ext[3]-ext[2]+1) + (ext[5]-ext[4]+1));
+  numLines = numPts - 12;
+  sizePt = 3*sizeof(float);
+  sizeLine = 3*sizeof(int);
+  // size in kb.
+  size = (numPts*sizePt + numLines*sizeLine) / 1000;
+  if (size < 1)
+    {
+    size = 1;
+    }
+  output->SetEstimatedMemorySize(size);
+}
+
+
+
+
+
+
+
+//----------------------------------------------------------------------------
+// Since this filter produces 12 pieces (no more and no less) we need to 
+// convert the PieceOfNum into a range of 12.
+void vtkStructuredGridOutlineFilter::ConvertPiece(int piece, int numPieces,
+                                                  int &start, int &end)
+{
+  if (numPieces >= 12)
+    {
+    // start and end may be equal to larger than twelve. (empty pieces)
+    start = end = piece;
+    return;
+    }
+  start = piece * 12 / numPieces;
+  end = ((piece+1) * 12 / numPieces) - 1;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

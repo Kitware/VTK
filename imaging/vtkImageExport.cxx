@@ -48,7 +48,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //----------------------------------------------------------------------------
 vtkImageExport::vtkImageExport()
 {
-  this->Input = NULL;
   this->ImageFlip = NULL;
   this->ImageLowerLeft = 1;
 }
@@ -58,11 +57,6 @@ vtkImageExport::vtkImageExport()
 //----------------------------------------------------------------------------
 vtkImageExport::~vtkImageExport()
 {
-  if (this->Input)
-    {
-    this->Input->UnRegister(this);
-    this->Input = NULL;
-    }
   if (this->ImageFlip)
     {
     this->ImageFlip->UnRegister(this);
@@ -76,10 +70,25 @@ void vtkImageExport::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkProcessObject::PrintSelf(os,indent);
 
-  os << indent << "Input: (" << this->Input << ")\n";
-
   os << indent << "ImageLowerLeft: " 
      << (this->ImageLowerLeft ? "On\n" : "Off\n");
+}
+
+//----------------------------------------------------------------------------
+void vtkImageExport::SetInput(vtkImageData *input)
+{
+  this->vtkProcessObject::SetInput(0, input);
+}
+
+//----------------------------------------------------------------------------
+vtkImageData *vtkImageExport::GetInput()
+{
+  if (this->NumberOfInputs < 1)
+    {
+    return NULL;
+    }
+  
+  return (vtkImageData *)(this->Inputs[0]);
 }
 
 
@@ -87,7 +96,7 @@ void vtkImageExport::PrintSelf(ostream& os, vtkIndent indent)
 int vtkImageExport::GetDataMemorySize()
 {
   int size;
-  this->Input->UpdateImageInformation();
+  this->GetInput()->UpdateInformation();
   int *extent = this->GetInput()->GetWholeExtent();
 
   // take into consideration the scalar type
@@ -127,7 +136,7 @@ int vtkImageExport::GetDataMemorySize()
 //----------------------------------------------------------------------------
 void vtkImageExport::GetDataDimensions(int *dims)
 {
-  this->Input->UpdateImageInformation();
+  this->GetInput()->UpdateInformation();
   int *extent = this->GetInput()->GetWholeExtent();
   dims[0] = extent[1]-extent[0]+1;
   dims[1] = extent[3]-extent[2]+1;
@@ -230,31 +239,30 @@ void vtkImageExport::FinalExport(vtkImageData *data, int extent[6],
 
 //----------------------------------------------------------------------------
 // Breaks region into pieces with correct dimensionality.
-void vtkImageExport::RecursiveExport(int axis, vtkImageCache *cache,
+void vtkImageExport::RecursiveExport(int axis, vtkImageData *data,
 				     void **output)
 {
   int min, max, mid;
-  vtkImageData *data;
   
-  if (cache->GetUpdateExtentMemorySize() < cache->GetMemoryLimit())
+  if (data->GetUpdateExtentMemorySize() < data->GetMemoryLimit())
     {
-    data = cache->UpdateAndReturnData();
-    this->FinalExport(data,cache->GetUpdateExtent(),output);
+    data->Update();
+    this->FinalExport(data,data->GetUpdateExtent(),output);
     return;
     }
 
   // if the current request did not fit into memory
   // the we will split the current axis
-  cache->GetAxisUpdateExtent(axis, min, max);
+  data->GetAxisUpdateExtent(axis, min, max);
   if (min == max)
     {
     if (axis > 0)
       {
-      this->RecursiveExport(axis-1, cache, output);
+      this->RecursiveExport(axis-1, data, output);
       }
     else
       {
-      vtkWarningMacro("Cache too small to hold one row of pixels!!");
+      vtkWarningMacro("Input too small to hold one row of pixels!!");
       }
     return;
     }
@@ -265,26 +273,26 @@ void vtkImageExport::RecursiveExport(int axis, vtkImageCache *cache,
   if (axis == 1 && !this->ImageLowerLeft)
     {
     // first half
-    cache->SetAxisUpdateExtent(axis, mid+1, max);
-    this->RecursiveExport(axis,cache,output);
+    data->SetAxisUpdateExtent(axis, mid+1, max);
+    this->RecursiveExport(axis,data,output);
     
     // second half
-    cache->SetAxisUpdateExtent(axis, min, mid);
-    this->RecursiveExport(axis,cache,output);
+    data->SetAxisUpdateExtent(axis, min, mid);
+    this->RecursiveExport(axis,data,output);
     }
   else
     {
     // first half
-    cache->SetAxisUpdateExtent(axis, min, mid);
-    this->RecursiveExport(axis,cache,output);
+    data->SetAxisUpdateExtent(axis, min, mid);
+    this->RecursiveExport(axis,data,output);
     
     // second half
-    cache->SetAxisUpdateExtent(axis, mid+1, max);
-    this->RecursiveExport(axis,cache,output);
+    data->SetAxisUpdateExtent(axis, mid+1, max);
+    this->RecursiveExport(axis,data,output);
     }
     
   // restore original extent
-  cache->SetAxisUpdateExtent(axis, min, max);
+  data->SetAxisUpdateExtent(axis, min, max);
 }
 
 //----------------------------------------------------------------------------
@@ -292,17 +300,17 @@ void vtkImageExport::RecursiveExport(int axis, vtkImageCache *cache,
 void vtkImageExport::Export(void *output)
 {
   // Error checking
-  if ( this->Input == NULL )
+  if ( this->GetInput() == NULL )
     {
     vtkErrorMacro(<<"Export: Please specify an input!");
     return;
     }
   
   // Fill in image information.
-  this->Input->UpdateImageInformation();
-  this->Input->SetUpdateExtent(this->Input->GetWholeExtent());
+  this->GetInput()->UpdateInformation();
+  this->GetInput()->SetUpdateExtent(this->GetInput()->GetWholeExtent());
   this->UpdateProgress(0.0);
-  this->RecursiveExport(2, this->Input, &output); 
+  this->RecursiveExport(2, this->GetInput(), &output); 
 }
 
 //----------------------------------------------------------------------------
@@ -312,13 +320,13 @@ void vtkImageExport::Export(void *output)
 void *vtkImageExport::GetPointerToData()
 {
   // Error checking
-  if ( this->Input == NULL )
+  if ( this->GetInput() == NULL )
     {
     vtkErrorMacro(<<"Export: Please specify an input!");
     return 0;
     }
 
-  vtkImageCache *input = this->Input;
+  vtkImageData *input = this->GetInput();
 
   // flip data if necessary
   if (this->ImageLowerLeft == 0)
@@ -348,10 +356,10 @@ void *vtkImageExport::GetPointerToData()
   input->ReleaseDataFlagOff();
 
   this->UpdateProgress(0.0);
-  vtkImageData *data = input->UpdateAndReturnData();
+  input->Update();
   this->UpdateProgress(1.0);
 
-  return data->GetScalarPointer();
+  return input->GetScalarPointer();
 }
   
   

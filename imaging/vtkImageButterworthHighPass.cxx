@@ -121,7 +121,7 @@ void vtkImageButterworthHighPass::ThreadedExecute(vtkImageData *inData,
     return;
     }
   
-  wholeExtent = this->Input->GetWholeExtent();
+  wholeExtent = this->GetInput()->GetWholeExtent();
   spacing = inData->GetSpacing();
 
   inPtr = (float *)(inData->GetScalarPointerForExtent(ext));
@@ -244,7 +244,7 @@ void vtkImageButterworthHighPass::ThreadedExecute(vtkImageData *inData,
 
 void vtkImageButterworthHighPass::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageFilter::PrintSelf(os,indent);
+  vtkImageToImageFilter::PrintSelf(os,indent);
 
   os << indent << "Order: " << this->Order << "\n";
 

@@ -38,7 +38,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageCache.h"
 #include "vtkImageQuantizeRGBToIndex.h"
 #include "vtkTimerLog.h"
 #include <math.h>
@@ -70,7 +69,7 @@ public:
   void SetImageIncrement( int v[3] )
     { memcpy( this->ImageIncrement, v, 3*sizeof(int) ); };
 
-  void SetImageType( float type ) { this->ImageType = type; };
+  void SetImageType( float type ) { this->ImageType = (int)type; };
 
   void SetImage( void *image ) { this->Image = image; };
 
@@ -110,9 +109,9 @@ public:
 
   void GetAverageColor( int c[3] ) 
     { if ( this->AverageCount ) {
-      c[0] = this->AverageColor[0] / this->AverageCount;
-      c[1] = this->AverageColor[1] / this->AverageCount;
-      c[2] = this->AverageColor[2] / this->AverageCount; } };
+      c[0] = (int)(this->AverageColor[0] / this->AverageCount);
+      c[1] = (int)(this->AverageColor[1] / this->AverageCount);
+      c[2] = (int)(this->AverageColor[2] / this->AverageCount); } };
 
   void StartColorAveraging() 
     {if (this->Child1) 
@@ -352,7 +351,7 @@ static void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
 	  {
 	  if ( type == VTK_UNSIGNED_CHAR )
 	    {
-	    rgb[c]  = *rgbPtr;
+	    rgb[c]  = (int)(*rgbPtr);
 	    }
 	  else if ( type == VTK_UNSIGNED_SHORT )
 	    {
@@ -360,7 +359,7 @@ static void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
 	    }
 	  else
 	    {
-	    rgb[c] = *rgbPtr * 255.5;
+	    rgb[c] = (int)(*rgbPtr * 255.5);
 	    }
 	  rgbPtr++;	  
 	  }
@@ -539,14 +538,14 @@ void vtkColorQuantizeNode::Divide( int axis, int nextIndex )
 
   memcpy( newBounds, this->Bounds, 6*sizeof(int) );
 
-  newBounds[axis*2 + 1] = this->Median[axis];  
+  newBounds[axis*2 + 1] = (int)(this->Median[axis]);  
   this->Child1->SetBounds( newBounds );
 
-  newBounds[axis*2] = this->Median[axis] + 1;
-  newBounds[axis*2 + 1] = this->Bounds[axis*2 + 1];
+  newBounds[axis*2] = (int)(this->Median[axis] + 1);
+  newBounds[axis*2 + 1] = (int)(this->Bounds[axis*2 + 1]);
   this->Child2->SetBounds( newBounds );
 
-  this->SplitPoint = this->Median[axis];
+  this->SplitPoint = (int)(this->Median[axis]);
   this->Axis = axis;
 
   this->Child1->SetIndex( this->Index );
@@ -606,7 +605,7 @@ void vtkImageQuantizeRGBToIndex::Execute(vtkImageData *inData,
   outPtr = outData->GetScalarPointer();
   
   // Input must be 3 components (rgb)
-  if (this->Input->GetNumberOfScalarComponents() != 3)
+  if (this->GetInput()->GetNumberOfScalarComponents() != 3)
     {
     vtkErrorMacro("This filter can handles only 3 components");
     return;
@@ -654,8 +653,8 @@ void vtkImageQuantizeRGBToIndex::Execute(vtkImageData *inData,
 // Change the output type and number of components
 void vtkImageQuantizeRGBToIndex::ExecuteImageInformation()
 {
-  this->Output->SetNumberOfScalarComponents(1);
-  this->Output->SetScalarType(VTK_UNSIGNED_SHORT);
+  this->GetOutput()->SetNumberOfScalarComponents(1);
+  this->GetOutput()->SetScalarType(VTK_UNSIGNED_SHORT);
 }
 
 // Get ALL of the input.
@@ -664,7 +663,7 @@ void vtkImageQuantizeRGBToIndex::ComputeRequiredInputUpdateExtent(int inExt[6],
 {
   int *wholeExtent;
 
-  wholeExtent = this->Input->GetWholeExtent();
+  wholeExtent = this->GetInput()->GetWholeExtent();
   memcpy(inExt, wholeExtent, 6*sizeof(int));
 }
 
@@ -680,13 +679,13 @@ void vtkImageQuantizeRGBToIndex::InterceptCacheUpdate()
     return;
     }
   
-  this->Output->GetWholeExtent(wholeExtent);
-  this->Output->SetUpdateExtent(wholeExtent);
+  this->GetOutput()->GetWholeExtent(wholeExtent);
+  this->GetOutput()->SetUpdateExtent(wholeExtent);
 }
 
 void vtkImageQuantizeRGBToIndex::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageFilter::PrintSelf(os,indent);
+  vtkImageToImageFilter::PrintSelf(os,indent);
 
   os << indent << "Number Of Colors: " << this->NumberOfColors << endl;
   os << indent << "Lookup Table: " << endl << *this->LookupTable;

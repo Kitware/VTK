@@ -52,21 +52,21 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkDataSetToPolyDataFilter_h
 #define __vtkDataSetToPolyDataFilter_h
 
-#include "vtkDataSetFilter.h"
+#include "vtkPolyDataSource.h"
 #include "vtkPolyData.h"
+#include "vtkImageToStructuredPoints.h"
 
-class VTK_EXPORT vtkDataSetToPolyDataFilter : public vtkDataSetFilter
+class VTK_EXPORT vtkDataSetToPolyDataFilter : public vtkPolyDataSource
 {
 public:
-  vtkDataSetToPolyDataFilter();
   static vtkDataSetToPolyDataFilter *New() {
     return new vtkDataSetToPolyDataFilter;};
   const char *GetClassName() {return "vtkDataSetToPolyDataFilter";};
 
   // Description:
-  // Get the output of this filter.
-  vtkPolyData *GetOutput() {return (vtkPolyData *)this->Output;};
-
+  // Set / get the input data or filter.
+  virtual void SetInput(vtkDataSet *input);
+  vtkDataSet *GetInput();
 };
 
 #endif

@@ -102,6 +102,44 @@ vtkPLOT3DReader::~vtkPLOT3DReader()
     }
 }
 
+void vtkPLOT3DReader::ExecuteInformation()
+{
+  FILE *xyzFp;
+  int error = 0;
+  vtkStructuredGrid *output = this->GetOutput();
+
+  // must go through all the same checks as actual read.
+  if ( this->XYZFileName == NULL )
+    {
+    vtkErrorMacro(<< "Must specify geometry file");
+    return;
+    }
+  if ( (xyzFp = fopen(this->XYZFileName, "r")) == NULL)
+    {
+    vtkErrorMacro(<< "File: " << this->XYZFileName << " not found");
+    return;
+    }
+  if ( this->GetFileType(xyzFp) == VTK_ASCII )
+    {
+    vtkWarningMacro("reading ascii grid files currently not supported");
+    // error = this->ReadASCIIGrid(xyzFp);
+    }
+  else
+    {
+    fclose(xyzFp);
+    xyzFp = fopen(this->XYZFileName, "rb");
+    // reads the whole extent
+    error = this->ReadBinaryGridDimensions(xyzFp,output);
+    fclose(xyzFp);
+    }
+  
+  if ( error )
+    {
+    vtkErrorMacro(<<"Error reading XYZ file");
+    return;
+    }
+}
+
 void vtkPLOT3DReader::Execute()
 {
   FILE *xyzFp, *QFp, *funcFp;
@@ -205,9 +243,9 @@ void vtkPLOT3DReader::Execute()
       return;
       }
     }
-//
-// Read vector function file (if available)
-//
+  //
+  // Read vector function file (if available)
+  //
   if ( this->VectorFunctionFileName != NULL )
     {
     if ( (funcFp = fopen(this->VectorFunctionFileName, "r")) == NULL)
@@ -235,11 +273,11 @@ void vtkPLOT3DReader::Execute()
       return;
       }
     }
-//
-// Reading is finished; free any extra memory. Data objects that comprise the
-// output will not be released with the UnRegister() method since they are
-// registered more than once.
-//
+  //
+  // Reading is finished; free any extra memory. Data objects that comprise the
+  // output will not be released with the UnRegister() method since they are
+  // registered more than once.
+  //
   delete [] this->TempStorage;
   this->TempStorage = NULL;
 
@@ -284,9 +322,9 @@ int vtkPLOT3DReader::ReadBinaryGrid(FILE *fp,vtkStructuredGrid *output)
     {
     this->NumGrids = 1;
     }
-//
-// Loop over grids, reading one that has been specified
-//
+  //
+  // Loop over grids, reading one that has been specified
+  //
   for (gridFound=0, offset=0, maxGridSize=0, i=0; i<this->NumGrids; i++) 
     {
     //read dimensions
@@ -341,9 +379,9 @@ int vtkPLOT3DReader::ReadBinaryGrid(FILE *fp,vtkStructuredGrid *output)
       newPts->SetPoint(i,x);
       }
     }
-//
-// Now send data to ourselves
-//
+  //
+  // Now send data to ourselves
+  //
   this->Grid = newPts;
   this->Grid->Register(this);
   output->SetPoints(newPts);
@@ -351,6 +389,57 @@ int vtkPLOT3DReader::ReadBinaryGrid(FILE *fp,vtkStructuredGrid *output)
 
   vtkDebugMacro(<<"Read " << this->NumPts << " points");
   return 0;
+}
+
+// for UpdateInformation
+int vtkPLOT3DReader::ReadBinaryGridDimensions(FILE *fp,
+					      vtkStructuredGrid *output)
+{
+  vtkPoints *newPts;
+  int dim[3];
+  int i, gridFound, offset, gridSize, maxGridSize;
+  float x[3];
+  
+  if ( this->FileFormat == VTK_WHOLE_MULTI_GRID_NO_IBLANKING )
+    {
+    if (fread(&(this->NumGrids), sizeof(int), 1, fp) < 1 )
+      {
+      return 1;
+      }
+    vtkByteSwap::Swap4BE(&(this->NumGrids));
+    }
+  else
+    {
+    this->NumGrids = 1;
+    }
+  //
+  // Loop over grids, reading one that has been specified
+  //
+  for (gridFound=0, offset=0, maxGridSize=0, i=0; i<this->NumGrids; i++) 
+    {
+    //read dimensions
+    if ( fread (dim, sizeof(int), 3, fp) < 3 )
+      {
+      return 1;
+      }
+    vtkByteSwap::Swap4BERange(dim,3);
+    
+    gridSize = dim[0] * dim[1] * dim[2];
+
+    if ( i < this->GridNumber ) 
+      {
+      offset += 3*gridSize;
+      }
+    else if ( i == this->GridNumber ) 
+      {
+      gridFound = 1;
+      this->NumPts = gridSize;
+      output->SetWholeExtent(0,dim[0]-1, 0,dim[1]-1, 0,dim[2]-1);
+      return 0;
+      }
+    }
+  // could not find grid
+  return 1;
 }
 
 int vtkPLOT3DReader::ReadBinarySolution(FILE *fp,vtkStructuredGrid *output)
@@ -380,9 +469,9 @@ int vtkPLOT3DReader::ReadBinarySolution(FILE *fp,vtkStructuredGrid *output)
     vtkErrorMacro(<<"Data mismatch in solution file!");
     return 1;
     }
-//
-// Loop over dimensions, reading grid dimensions that have been specified
-//
+  //
+  // Loop over dimensions, reading grid dimensions that have been specified
+  //
   for (gridFound=0, offset=0, maxGridSize=0, i=0; i<numGrids; i++) 
     {
     //read dimensions
@@ -497,9 +586,9 @@ int vtkPLOT3DReader::ReadBinarySolution(FILE *fp,vtkStructuredGrid *output)
       newEnergy->SetScalar(i,this->TempStorage[i]);
       }
     }
-//
-// Register data for use by computation functions
-//
+  //
+  // Register data for use by computation functions
+  //
   this->Density = newDensity;
   this->Density->Register(this);
   newDensity->Delete();

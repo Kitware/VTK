@@ -84,6 +84,20 @@ public:
   vtkGetStringMacro(FileName);
 
   // Description:
+  // Specify the OutputString for use when writing to a character array.
+  // If no string is specified, ostrstream allocates one of its own.
+  // If a string is given, it is the users responsibility to delete the string.
+  void SetOutputString(char *str, int length);
+  vtkGetStringMacro(OutputString);
+  vtkGetMacro(OutputStringLength, int);
+
+  // Description:
+  // Enable writing to an OutputString instead of the default, a file.
+  vtkSetMacro(WriteToOutputString,int);
+  vtkGetMacro(WriteToOutputString,int);
+  vtkBooleanMacro(WriteToOutputString,int);
+
+  // Description:
   // Specify the header for the vtk data file.
   vtkSetStringMacro(Header);
   vtkGetStringMacro(Header);
@@ -139,44 +153,49 @@ public:
 
   // Description:
   // Open a vtk data file. Returns NULL if error.
-  FILE *OpenVTKFile();
+  virtual ostream *OpenVTKFile();
 
   // Description:
   // Write the header of a vtk data file. Returns 0 if error.
-  int WriteHeader(FILE *fp);
+  int WriteHeader(ostream *fp);
 
   // Description:
   // Write out the points of the data set.
-  int WritePoints(FILE *fp, vtkPoints *p);
+  int WritePoints(ostream *fp, vtkPoints *p);
 
   // Description:
   // Write out coordinates for rectilinear grids.
-  int WriteCoordinates(FILE *fp, vtkScalars *coords, int axes);
+  int WriteCoordinates(ostream *fp, vtkScalars *coords, int axes);
 
   // Description:
   // Write out the cells of the data set.
-  int WriteCells(FILE *fp, vtkCellArray *cells, char *label);
+  int WriteCells(ostream *fp, vtkCellArray *cells, char *label);
 
   // Description:
   // Write the cell data (e.g., scalars, vectors, ...) of a vtk dataset.
   // Returns 0 if error.
-  int WriteCellData(FILE *fp, vtkDataSet *ds);
+  int WriteCellData(ostream *fp, vtkDataSet *ds);
 
   // Description:
   // Write the point data (e.g., scalars, vectors, ...) of a vtk dataset.
   // Returns 0 if error.
-  int WritePointData(FILE *fp, vtkDataSet *ds);
+  int WritePointData(ostream *fp, vtkDataSet *ds);
 
   // Description:
   // Write out the field data.
-  int WriteFieldData(FILE *fp, vtkFieldData *f);
+  int WriteFieldData(ostream *fp, vtkFieldData *f);
   
   // Description:
   // Close a vtk file.
-  void CloseVTKFile(FILE *fp);
+  void CloseVTKFile(ostream *fp);
 
 
 protected:
+  int WriteToOutputString;
+  char *OutputString;
+  int OutputStringLength;
+  int UserOwnsOutputString;
+
   void WriteData(); //dummy method to allow this class to be instantiated and delegated to
 
   char *FileName;
@@ -191,13 +210,13 @@ protected:
   char *LookupTableName;
   char *FieldDataName;
 
-  int WriteArray(FILE *fp, int dataType, vtkDataArray *data, char *format, 
+  int WriteArray(ostream *fp, int dataType, vtkDataArray *data, char *format, 
 		 int num, int numComp);
-  int WriteScalarData(FILE *fp, vtkScalars *s, int num);
-  int WriteVectorData(FILE *fp, vtkVectors *v, int num);
-  int WriteNormalData(FILE *fp, vtkNormals *n, int num);
-  int WriteTCoordData(FILE *fp, vtkTCoords *tc, int num);
-  int WriteTensorData(FILE *fp, vtkTensors *t, int num);
+  int WriteScalarData(ostream *fp, vtkScalars *s, int num);
+  int WriteVectorData(ostream *fp, vtkVectors *v, int num);
+  int WriteNormalData(ostream *fp, vtkNormals *n, int num);
+  int WriteTCoordData(ostream *fp, vtkTCoords *tc, int num);
+  int WriteTensorData(ostream *fp, vtkTensors *t, int num);
 
 };
 

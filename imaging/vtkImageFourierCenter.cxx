@@ -39,7 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkImageCache.h"
+
 #include "vtkImageFourierCenter.h"
 
 
@@ -53,13 +53,13 @@ vtkImageFourierCenter::vtkImageFourierCenter()
 //----------------------------------------------------------------------------
 // This method tells the superclass which input extent is needed.
 // This gets the whole input (even though it may not be needed).
-void vtkImageFourierCenter::ComputeRequiredInputUpdateExtent(int inExt[6], 
+void vtkImageFourierCenter::ComputeInputUpdateExtent(int inExt[6], 
 							     int outExt[6])
 {
   int *extent;
 
   // Assumes that the input update extent has been initialized to output ...
-  extent = this->Input->GetWholeExtent();
+  extent = this->GetInput()->GetWholeExtent();
   memcpy(inExt, outExt, 6 * sizeof(int));
   inExt[this->Iteration*2] = extent[this->Iteration*2];
   inExt[this->Iteration*2 + 1] = extent[this->Iteration*2 + 1];
@@ -110,7 +110,7 @@ void vtkImageFourierCenter::ThreadedExecute(vtkImageData *inData,
   // Get stuff needed to loop through the pixel
   numberOfComponents = outData->GetNumberOfScalarComponents();
   outPtr0 = (float *)(outData->GetScalarPointerForExtent(outExt));
-  wholeExtent = this->Output->GetWholeExtent();
+  wholeExtent = this->GetOutput()->GetWholeExtent();
   // permute to make the filtered axis come first
   this->PermuteExtent(outExt, min0, max0, min1, max1, min2, max2);
   this->PermuteIncrements(inData->GetIncrements(), inInc0, inInc1, inInc2);

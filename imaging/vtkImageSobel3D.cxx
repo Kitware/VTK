@@ -40,7 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkImageData.h"
-#include "vtkImageCache.h"
+
 #include "vtkImageSobel3D.h"
 
 
@@ -61,14 +61,14 @@ vtkImageSobel3D::vtkImageSobel3D()
 //----------------------------------------------------------------------------
 void vtkImageSobel3D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkImageFilter::PrintSelf(os, indent);
+  this->vtkImageToImageFilter::PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------
-void vtkImageSobel3D::ExecuteImageInformation()
+void vtkImageSobel3D::ExecuteInformation()
 {
-  this->Output->SetNumberOfScalarComponents(3);
-  this->Output->SetScalarType(VTK_FLOAT);
+  this->GetOutput()->SetNumberOfScalarComponents(3);
+  this->GetOutput()->SetScalarType(VTK_FLOAT);
 }
 
 
@@ -224,7 +224,7 @@ void vtkImageSobel3D::ThreadedExecute(vtkImageData *inData,
   void *inPtr, *outPtr;
   int inExt[6];
   
-  this->ComputeRequiredInputUpdateExtent(inExt, outExt);  
+  this->ComputeInputUpdateExtent(inExt, outExt);  
   
   inPtr = inData->GetScalarPointerForExtent(inExt);
   outPtr = outData->GetScalarPointerForExtent(outExt);

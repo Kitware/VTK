@@ -40,10 +40,30 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkStructuredGridSource.h"
 
+//----------------------------------------------------------------------------
 vtkStructuredGridSource::vtkStructuredGridSource()
 {
-  this->Output = vtkStructuredGrid::New();
-  this->Output->SetSource(this);
+  this->vtkSource::SetOutput(0, vtkStructuredGrid::New());
+  this->ExecuteExtent[0] = this->ExecuteExtent[2] = this->ExecuteExtent[4] = 0;
+  this->ExecuteExtent[1] = this->ExecuteExtent[3] = this->ExecuteExtent[5] = 0;
+}
+
+//----------------------------------------------------------------------------
+vtkStructuredGrid *vtkStructuredGridSource::GetOutput()
+{
+  if (this->NumberOfOutputs < 1)
+    {
+    return NULL;
+    }
+  
+  return (vtkStructuredGrid *)(this->Outputs[0]);
+}
+
+
+//----------------------------------------------------------------------------
+void vtkStructuredGridSource::SetOutput(vtkStructuredGrid *output)
+{
+  this->vtkSource::SetOutput(0, output);
 }
 
 

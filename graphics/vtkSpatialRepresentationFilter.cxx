@@ -46,25 +46,11 @@ vtkSpatialRepresentationFilter::vtkSpatialRepresentationFilter()
   this->Level = 0;
   this->TerminalNodesRequested = 0;
 
-  this->Output = (vtkDataSet *) vtkPolyData::New(); //leaf representation
-  this->Output->SetSource(this);
-  for (int i=0; i <= VTK_MAX_SPATIAL_REP_LEVEL; i++) //intermediate representations
-    {
-    this->OutputList[i] = NULL;
-    }
+  this->vtkSource::SetOutput(0, vtkPolyData::New());
 }
 
 vtkSpatialRepresentationFilter::~vtkSpatialRepresentationFilter()
 {
-  if ( this->Output ) 
-    {
-    this->Output->Delete();
-    this->Output = NULL;
-    }
-  for (int i=0; i <= this->Level; i++) //superclass deletes OutputList[0]
-    {
-    if ( this->OutputList[i] != NULL ) {this->OutputList[i]->Delete();}
-    }
   if ( this->SpatialRepresentation )
     {
     this->SpatialRepresentation->UnRegister(this);
@@ -79,7 +65,7 @@ vtkPolyData *vtkSpatialRepresentationFilter::GetOutput()
     this->TerminalNodesRequested = 1;
     this->Modified();
     }
-  return (vtkPolyData *)this->Output;
+  return this->vtkPolyDataSource::GetOutput();
 }
 
 vtkPolyData *vtkSpatialRepresentationFilter::GetOutput(int level)
@@ -88,17 +74,16 @@ vtkPolyData *vtkSpatialRepresentationFilter::GetOutput(int level)
   level > this->SpatialRepresentation->GetMaxLevel() )
     {
     vtkErrorMacro(<<"Level requested is <0 or >= Locator's MaxLevel");
-    return this->OutputList[0];
+    return this->GetOutput();
     }
 
-  if ( this->OutputList[level] == NULL )
+  if ( this->Outputs[level] == NULL )
     {
-    this->OutputList[level] = vtkPolyData::New();
-    this->OutputList[level]->SetSource(this);
+    this->vtkSource::SetOutput(level, vtkPolyData::New());
     this->Modified(); //asking for new output
     }
 
-  return this->OutputList[level];
+  return (vtkPolyData *)(this->Outputs[level]);
 }
 
 void vtkSpatialRepresentationFilter::ResetOutput()
@@ -106,10 +91,7 @@ void vtkSpatialRepresentationFilter::ResetOutput()
   this->TerminalNodesRequested = 0;
   for ( int i=0; i <= VTK_MAX_SPATIAL_REP_LEVEL; i++)
     {
-    if ( this->OutputList[i] != NULL )
-      {
-      this->OutputList[i]->Delete();
-      }
+    this->vtkSource::SetOutput(i, NULL);
     }
 }
 
@@ -117,8 +99,11 @@ void vtkSpatialRepresentationFilter::ResetOutput()
 // Update input to this filter and the filter itself.
 void vtkSpatialRepresentationFilter::Update()
 {
+  vtkDataSet *input = this->GetInput();
+  vtkPolyData *output = this->GetOutput();
+  
   // make sure input is available
-  if ( !this->Input )
+  if ( ! input )
     {
     vtkErrorMacro(<< "No input...can't execute!");
     return;
@@ -131,42 +116,32 @@ void vtkSpatialRepresentationFilter::Update()
     }
 
   this->Updating = 1;
-  this->Input->Update();
+  input->Update();
   this->Updating = 0;
 
-  if (this->Input->GetMTime() > this->ExecuteTime ||
-      this->SpatialRepresentation->GetBuildTime() > this->ExecuteTime ||
-      this->GetMTime() > this->ExecuteTime )
+  // execute
+  if ( this->StartMethod )
     {
-    if ( this->Input->GetDataReleased() )
-      {
-      this->Input->ForceUpdate();
-      }
-
-    if ( this->StartMethod )
-      {
-      (*this->StartMethod)(this->StartMethodArg);
-      }
-    this->Output->Initialize(); //clear output
-    // reset AbortExecute flag and Progress
-    this->AbortExecute = 0;
-    this->Progress = 0.0;
-    this->Execute();
-    this->ExecuteTime.Modified();
-    if ( !this->AbortExecute )
-      {
-      this->UpdateProgress(1.0);
-      }
-    this->SetDataReleased(0);
-    if ( this->EndMethod )
-      {
-      (*this->EndMethod)(this->EndMethodArg);
-      }
+    (*this->StartMethod)(this->StartMethodArg);
+    }
+  output->Initialize(); //clear output
+  // reset AbortExecute flag and Progress
+  this->AbortExecute = 0;
+  this->Progress = 0.0;
+  this->Execute();
+  if ( !this->AbortExecute )
+    {
+    this->UpdateProgress(1.0);
+    }
+  if ( this->EndMethod )
+    {
+    (*this->EndMethod)(this->EndMethodArg);
     }
 
-  if ( this->Input->ShouldIReleaseData() )
+  // clean up
+  if ( input->ShouldIReleaseData() )
     {
-    this->Input->ReleaseData();
+    input->ReleaseData();
     }
 }
 
@@ -176,7 +151,7 @@ void vtkSpatialRepresentationFilter::Execute()
 {
   vtkDebugMacro(<<"Building OBB representation");
 
-  this->SpatialRepresentation->SetDataSet((vtkDataSet *)this->Input);
+  this->SpatialRepresentation->SetDataSet(this->GetInput());
   this->SpatialRepresentation->Update();
   this->Level = this->SpatialRepresentation->GetLevel();
 
@@ -187,7 +162,9 @@ void vtkSpatialRepresentationFilter::Execute()
 // Generate OBB representations at different requested levels.
 void vtkSpatialRepresentationFilter::GenerateOutput()
 {
-  int inputModified=(this->Input->GetMTime() > this->GetMTime() ? 1 : 0);
+  vtkDataSet *input = this->GetInput();
+  vtkPolyData *output;
+  int inputModified=(input->GetMTime() > this->GetMTime() ? 1 : 0);
   int i;
 
   //
@@ -197,9 +174,10 @@ void vtkSpatialRepresentationFilter::GenerateOutput()
     {
     for ( i=0; i <= this->Level; i++ )
       {
-      if ( this->OutputList[i] != NULL )
+      if ( i < this->NumberOfOutputs && this->Outputs[i] != NULL )
 	{
-	this->OutputList[i]->Initialize();
+	output = (vtkPolyData *)(this->Outputs[i]);
+	output->Initialize();
 	}
       }
     }
@@ -207,12 +185,12 @@ void vtkSpatialRepresentationFilter::GenerateOutput()
   //
   // Loop over all requested levels generating new levels as necessary
   //
-  for ( i=0; i <= this->Level; i++ )
+  for ( i=0; i <= this->Level && i < this->NumberOfOutputs; i++ )
     {
-    if ( this->OutputList[i] != NULL &&
-    this->OutputList[i]->GetNumberOfPoints() < 1 ) //compute OBB
+    output = (vtkPolyData *)(this->Outputs[i]);
+    if ( output != NULL && output->GetNumberOfPoints() < 1 ) //compute OBB
       {
-      this->SpatialRepresentation->GenerateRepresentation(i, this->OutputList[i]);
+      this->SpatialRepresentation->GenerateRepresentation(i, output);
       }
     }
   //
@@ -220,13 +198,14 @@ void vtkSpatialRepresentationFilter::GenerateOutput()
   //
   if ( this->TerminalNodesRequested )
     {
-    this->SpatialRepresentation->GenerateRepresentation(-1, (vtkPolyData *)this->Output);
+    output = this->GetOutput();
+    this->SpatialRepresentation->GenerateRepresentation(-1, output);
     }
 }
 
 void vtkSpatialRepresentationFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetFilter::PrintSelf(os,indent);
+  vtkSource::PrintSelf(os,indent);
 
   os << indent << "Level: " << this->Level << "\n";
 
@@ -239,4 +218,23 @@ void vtkSpatialRepresentationFilter::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Spatial Representation: (none)\n";
     }
+}
+
+//----------------------------------------------------------------------------
+// Specify the input data or filter.
+void vtkSpatialRepresentationFilter::SetInput(vtkDataSet *input)
+{
+  this->vtkProcessObject::SetInput(0, input);
+}
+
+//----------------------------------------------------------------------------
+// Specify the input data or filter.
+vtkDataSet *vtkSpatialRepresentationFilter::GetInput()
+{
+  if (this->NumberOfInputs < 1)
+    {
+    return NULL;
+    }
+  
+  return (vtkDataSet *)(this->Inputs[0]);
 }

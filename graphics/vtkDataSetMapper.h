@@ -53,8 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkGeometryFilter.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderer.h"
-#include "vtkImageCache.h"
-#include "vtkImageToStructuredPoints.h"
+#include "vtkImageData.h"
 
 
 class VTK_EXPORT vtkDataSetMapper : public vtkMapper 
@@ -68,13 +67,6 @@ public:
   void Render(vtkRenderer *ren, vtkActor *act);
 
   // Description:
-  // Specify the input data to map.
-  void SetInput(vtkDataSet *in);
-  void SetInput(vtkImageCache *cache)
-    {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
-    this->SetInput(tmp->GetOutput()); tmp->Delete();}
-  
-  // Description:
   // Get the internal poly data mapper used to map data set to graphics system.
   vtkGetObjectMacro(PolyDataMapper, vtkPolyDataMapper);
 
@@ -87,10 +79,6 @@ public:
   // Description:
   // Get the mtime also considering the lookup table.
   unsigned long GetMTime();
-
-  // Description:
-  // For legacy compatibility. Do not use.
-  void SetInput(vtkDataSet& in) {this->SetInput(&in);};
 
 protected:
   vtkGeometryFilter *GeometryExtractor;

@@ -45,9 +45,26 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkEdgeTable.h"
 #include "vtkPolyData.h"
 
+//----------------------------------------------------------------------------
+// Specify the input data or filter.
+void vtkDelaunay3D::SetInput(vtkPointSet *input)
+{
+  this->vtkProcessObject::SetInput(0, input);
+}
+
+//----------------------------------------------------------------------------
+// Specify the input data or filter.
+vtkPointSet *vtkDelaunay3D::GetInput()
+{
+  if (this->NumberOfInputs < 1)
+    {
+    return NULL;
+    }
+  
+  return (vtkPointSet *)(this->Inputs[0]);
+}
+
 // Structure used to represent sphere around tetrahedron
-//
-//BTX - begin tcl exclude
 //
 typedef struct _vtkDelaunaySphere 
 {
@@ -139,8 +156,6 @@ vtkDelaunaySphere *vtkSphereArray::Resize(int sz)
 
   return this->Array;
 }
-//ETX
-//
 
 
 // vtkDelaunay3D methods
@@ -155,10 +170,6 @@ vtkDelaunay3D::vtkDelaunay3D()
   this->BoundingTriangulation = 0;
   this->Offset = 2.5;
   this->Locator = NULL;
-
-  this->Output = vtkUnstructuredGrid::New();
-  this->Output->SetSource(this);
-  
   this->Spheres = NULL;
 }
 
@@ -460,8 +471,8 @@ void vtkDelaunay3D::Execute()
   vtkPoints *inPoints;
   vtkPoints *points;
   vtkUnstructuredGrid *Mesh;
-  vtkPointSet *input=(vtkPointSet *)this->Input;
-  vtkUnstructuredGrid *output=(vtkUnstructuredGrid *)this->Output;
+  vtkPointSet *input=this->GetInput();
+  vtkUnstructuredGrid *output=this->GetOutput();
   float x[3];
   int pts[4], npts, *tetraPts;
   vtkIdList *cells, *holeTetras;
@@ -1050,7 +1061,7 @@ void vtkDelaunay3D::InsertSphere(vtkUnstructuredGrid *Mesh, vtkPoints *points,
 
 void vtkDelaunay3D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPointSetFilter::PrintSelf(os,indent);
+  vtkUnstructuredGridSource::PrintSelf(os,indent);
 
   os << indent << "Alpha: " << this->Alpha << "\n";
   os << indent << "Tolerance: " << this->Tolerance << "\n";
@@ -1069,7 +1080,7 @@ void vtkDelaunay3D::PrintSelf(ostream& os, vtkIndent indent)
 
 unsigned long int vtkDelaunay3D::GetMTime()
 {
-  unsigned long mTime=this->vtkPointSetFilter::GetMTime();
+  unsigned long mTime=this->vtkUnstructuredGridSource::GetMTime();
   unsigned long time;
 
   if ( this->Locator != NULL )

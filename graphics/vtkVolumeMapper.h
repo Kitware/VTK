@@ -55,7 +55,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkAbstractMapper.h"
 #include "vtkStructuredPoints.h"
 #include "vtkImageToStructuredPoints.h"
-#include "vtkImageCache.h"
 
 class vtkRenderer;
 class vtkVolume;
@@ -127,10 +126,10 @@ public:
   // Description:
   // Set/Get the rgb texture input data
   void SetRGBTextureInput( vtkStructuredPoints *rgbTexture );
-  void SetRGBTextureInput(vtkImageCache *cache)
+  void SetRGBTextureInput(vtkImageData *cache)
     {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
     this->SetRGBTextureInput(tmp->GetOutput()); tmp->Delete();}
-  virtual vtkStructuredPoints *GetRGBTextureInput() {return this->RGBTextureInput;};
+  virtual vtkStructuredPoints *GetRGBTextureInput();
 
 
   virtual int GetMapperType()=0;
@@ -140,19 +139,11 @@ public:
   // Description:
   // Set/Get the input data
   void SetInput( vtkStructuredPoints * );
-  void SetInput(vtkImageCache *cache)
+  void SetInput(vtkImageData *cache)
     {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
     this->SetInput(tmp->GetOutput()); tmp->Delete();}
+  vtkStructuredPoints *GetInput();
 
-
-  // Description:
-  // OBSOLETE!!!! DO NOT USE!!!! Equivalent to SetInput()
-  // Set/Get the scalar input data
-  void SetScalarInput( vtkStructuredPoints *input ) {this->SetInput(input);};
-  void SetScalarInput(vtkImageCache *cache)
-    {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
-    this->SetScalarInput(tmp->GetOutput()); tmp->Delete();}
-  virtual vtkStructuredPoints *GetScalarInput() {return (vtkStructuredPoints *)this->Input;};
 
 //BTX
 
@@ -173,7 +164,6 @@ public:
 
 
 protected:
-  vtkStructuredPoints  *RGBTextureInput;
   int                  Clipping;
   float                ClippingPlanes[6];
   int                  ClippingRegionFlags;

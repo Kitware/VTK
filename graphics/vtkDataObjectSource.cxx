@@ -42,21 +42,24 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkDataObjectSource::vtkDataObjectSource()
 {
-  this->Output = vtkDataObject::New();
-  this->Output->SetSource(this);
+  this->SetOutput(vtkDataObject::New());
 }
 
-vtkDataObjectSource::~vtkDataObjectSource()
+
+//----------------------------------------------------------------------------
+vtkDataObject *vtkDataObjectSource::GetOutput()
 {
-  this->Output->Delete();
-  this->Output = NULL;
+  if (this->NumberOfOutputs < 1)
+    {
+    return NULL;
+    }
+  
+  return (vtkDataObject *)(this->Outputs[0]);
 }
 
-void vtkDataObjectSource::PrintSelf(ostream& os, vtkIndent indent)
+//----------------------------------------------------------------------------
+void vtkDataObjectSource::SetOutput(vtkDataObject *output)
 {
-  vtkSource::PrintSelf(os,indent);
-
+  this->vtkSource::SetOutput(0, output);
 }
-
-
 

@@ -60,16 +60,6 @@ vtkDataSetMapper::~vtkDataSetMapper()
     }
 }
 
-void vtkDataSetMapper::SetInput(vtkDataSet *in)
-{
-  if (in != this->Input )
-    {
-    if (this->Input) {this->Input->UnRegister(this);}
-    this->Input = in;
-    if (this->Input) {this->Input->Register(this);}
-    this->Modified();
-    }
-}
 
 void vtkDataSetMapper::ReleaseGraphicsResources( vtkWindow *renWin )
 {
@@ -84,25 +74,25 @@ void vtkDataSetMapper::ReleaseGraphicsResources( vtkWindow *renWin )
 //
 void vtkDataSetMapper::Render(vtkRenderer *ren, vtkActor *act)
 {
-//
-// make sure that we've been properly initialized
-//
-  if ( !this->Input )
+  //
+  // make sure that we've been properly initialized
+  //
+  if ( !this->GetInput() )
     {
     vtkErrorMacro(<< "No input!\n");
     return;
-    }
-//
-// Need a lookup table
-//
+    } 
+  //
+  // Need a lookup table
+  //
   if ( this->LookupTable == NULL )
     {
     this->CreateDefaultLookupTable();
     }
   this->LookupTable->Build();
-//
-// Now can create appropriate mapper
-//
+  //
+  // Now can create appropriate mapper
+  //
   if ( this->PolyDataMapper == NULL ) 
     {
     vtkGeometryFilter *gf = vtkGeometryFilter::New();
@@ -112,24 +102,24 @@ void vtkDataSetMapper::Render(vtkRenderer *ren, vtkActor *act)
     this->GeometryExtractor = gf;
     this->PolyDataMapper = pm;
     }
-//
-// share clipping planes with the PolyDataMapper
-//
+  //
+  // share clipping planes with the PolyDataMapper
+  //
   if (this->ClippingPlanes != this->PolyDataMapper->GetClippingPlanes()) 
     {
     this->PolyDataMapper->SetClippingPlanes(this->ClippingPlanes);
     }
-//
-// For efficiency: if input type is vtkPolyData, there's no need to pass it thru
-// the geometry filter.
-//
-  if ( this->Input->GetDataSetType() == VTK_POLY_DATA )
+  //
+  // For efficiency: if input type is vtkPolyData, there's no need to pass it thru
+  // the geometry filter.
+  //
+  if ( this->GetInput()->GetDataObjectType() == VTK_POLY_DATA )
     {
-    this->PolyDataMapper->SetInput((vtkPolyData *)this->Input);
+    this->PolyDataMapper->SetInput((vtkPolyData *)(this->GetInput()));
     }
   else
     {
-    this->GeometryExtractor->SetInput(this->Input);
+    this->GeometryExtractor->SetInput(this->GetInput());
     this->PolyDataMapper->SetInput(this->GeometryExtractor->GetOutput());
     }
   

@@ -108,11 +108,12 @@ void vtkProgrammableAttributeDataFilter::SetExecuteMethodArgDelete(void (*f)(voi
 
 void vtkProgrammableAttributeDataFilter::Update()
 {
-  unsigned long int mtime, dsMtime;
+  vtkDataSet *input = this->GetInput();
+  vtkDataSet *output = this->GetOutput();
   vtkDataSet *ds;
 
   // make sure input is available
-  if ( !this->Input )
+  if ( !input )
     {
     vtkErrorMacro(<< "No input...can't execute!");
     return;
@@ -126,68 +127,41 @@ void vtkProgrammableAttributeDataFilter::Update()
 
   // Update the inputs
   this->Updating = 1;
-
-  mtime = this->GetMTime();
-  this->Input->Update();
-  if (this->Input->GetMTime() > mtime )
-    {
-    mtime = this->Input->GetMTime();
-    }
-  
-  for (this->InputList->InitTraversal(); (ds = this->InputList->GetNextItem()); )
+  input->Update();
+  for (this->InputList->InitTraversal(); 
+       (ds = this->InputList->GetNextItem()); )
     {
     ds->Update();
-    dsMtime = ds->GetMTime();
-    if ( dsMtime > mtime )
-      {
-      mtime = dsMtime;
-      }
     }
   this->Updating = 0;
 
-  // see whether we need to execute
-  if ( mtime > this->ExecuteTime )
+  // execute
+  if ( this->StartMethod )
     {
-    if ( this->Input->GetDataReleased() )
-      {
-      this->Input->ForceUpdate();
-      }
-
-    for ( this->InputList->InitTraversal(); (ds=this->InputList->GetNextItem()); )
-      {
-      if ( ds->GetDataReleased() )
-	{
-	ds->ForceUpdate();
-	}
-      }
-
-    if ( this->StartMethod )
-      {
-      (*this->StartMethod)(this->StartMethodArg);
-      }
-    ((vtkDataSet *)this->Output)->CopyStructure((vtkDataSet *)this->Input);
-    // reset AbortExecute flag and Progress
-    this->AbortExecute = 0;
-    this->Progress = 0.0;
-    this->Execute();
-    this->ExecuteTime.Modified();
-    if ( !this->AbortExecute )
-      {
-      this->UpdateProgress(1.0);
-      }
-    this->SetDataReleased(0);
-    if ( this->EndMethod )
-      {
-      (*this->EndMethod)(this->EndMethodArg);
-      }
+    (*this->StartMethod)(this->StartMethodArg);
     }
-
-  if ( this->Input->ShouldIReleaseData() ) 
+  output->CopyStructure(input);
+  // reset AbortExecute flag and Progress
+  this->AbortExecute = 0;
+  this->Progress = 0.0;
+  this->Execute();
+  if ( !this->AbortExecute )
     {
-    this->Input->ReleaseData();
+    this->UpdateProgress(1.0);
+    }
+  if ( this->EndMethod )
+    {
+    (*this->EndMethod)(this->EndMethodArg);
     }
   
-  for (this->InputList->InitTraversal(); (ds = this->InputList->GetNextItem()); )
+  // clean up
+  if ( input->ShouldIReleaseData() ) 
+    {
+    input->ReleaseData();
+    }
+  
+  for (this->InputList->InitTraversal(); 
+       (ds = this->InputList->GetNextItem()); )
     {
     if ( ds->ShouldIReleaseData() )
       {
@@ -198,8 +172,8 @@ void vtkProgrammableAttributeDataFilter::Update()
 
 void vtkProgrammableAttributeDataFilter::Execute()
 {
-  vtkDataSet *input=(vtkDataSet *)this->Input;
-  vtkDataSet *output=(vtkDataSet *)this->Output;
+  vtkDataSet *input = this->GetInput();
+  vtkDataSet *output = this->GetOutput();
 
   vtkDebugMacro(<<"Executing programmable point data filter");
 
@@ -216,7 +190,7 @@ void vtkProgrammableAttributeDataFilter::Execute()
 
 void vtkProgrammableAttributeDataFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkFilter::PrintSelf(os,indent);
+  vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 
   os << indent << "Input DataSets:\n";
   this->InputList->PrintSelf(os,indent.GetNextIndent());

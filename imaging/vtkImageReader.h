@@ -121,7 +121,7 @@ public:
   // Description:
   // The number of dimensions stored in a file. This defaults to two.
   vtkSetMacro(FileDimensionality, int);
-  vtkGetMacro(FileDimensionality, int);
+  int GetFileDimensionality() {return this->FileDimensionality;}
   
   // Description:
   // Set/Get the spacing of the data in the file.
@@ -133,15 +133,9 @@ public:
   vtkSetVector3Macro(DataOrigin,float);
   vtkGetVector3Macro(DataOrigin,float);
 
-
-  // Description:
-  // Returns the cache.
-  vtkImageCache *GetOutput();
-
-
   // Description:
   // This method returns the largest data that can be generated.
-  void UpdateImageInformation();
+  void UpdateInformation();
 
   
   // Description:
@@ -189,11 +183,11 @@ public:
   // Description:
   // Set/Get the byte swapping to explicitely swap the bytes of a file.
   vtkSetMacro(SwapBytes,int);
-  vtkGetMacro(SwapBytes,int);
+  int GetSwapBytes() {return this->SwapBytes;}
   vtkBooleanMacro(SwapBytes,int);
 
 //BTX
-  vtkGetMacro(File,ifstream *);
+  ifstream *GetFile() {return this->File;}
   vtkGetVectorMacro(DataIncrements,int,4);
 //ETX
 

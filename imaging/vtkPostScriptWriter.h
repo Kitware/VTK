@@ -59,8 +59,8 @@ public:
 
 protected:
   virtual void WriteFile(ofstream *file, vtkImageData *data, int extent[6]);
-  virtual void WriteFileHeader(ofstream *, vtkImageCache *);
-  virtual void WriteFileTrailer(ofstream *, vtkImageCache *);
+  virtual void WriteFileHeader(ofstream *, vtkImageData *);
+  virtual void WriteFileTrailer(ofstream *, vtkImageData *);
 };
 
 #endif

@@ -50,36 +50,10 @@ vtkProgrammableFilter::vtkProgrammableFilter()
 {
   this->ExecuteMethod = NULL;
   this->ExecuteMethodArg = NULL;
-
-  this->OutputPolyData = vtkPolyData::New();
-  this->OutputPolyData->SetSource(this);
-  
-  this->OutputStructuredPoints = vtkStructuredPoints::New();
-  this->OutputStructuredPoints->SetSource(this);
-  
-  this->OutputStructuredGrid = vtkStructuredGrid::New();
-  this->OutputStructuredGrid->SetSource(this);
-  
-  this->OutputUnstructuredGrid = vtkUnstructuredGrid::New();
-  this->OutputUnstructuredGrid->SetSource(this);
-  
-  this->OutputRectilinearGrid = vtkRectilinearGrid::New();
-  this->OutputRectilinearGrid->SetSource(this);
-
-  //This is done because filter superclass assumes output is defined.
-  this->Output = this->OutputPolyData;
 }
 
 vtkProgrammableFilter::~vtkProgrammableFilter()
 {
-  this->OutputPolyData->Delete();
-  this->OutputStructuredPoints->Delete();
-  this->OutputStructuredGrid->Delete();
-  this->OutputUnstructuredGrid->Delete();
-  this->OutputRectilinearGrid->Delete();
-  // Output should only be one of the above. We set it to NULL
-  // so that we don't free it twice
-  this->Output = NULL;
   // delete the current arg if there is one and a delete meth
   if ((this->ExecuteMethodArg)&&(this->ExecuteMethodArgDelete))
     {
@@ -87,18 +61,6 @@ vtkProgrammableFilter::~vtkProgrammableFilter()
     }
 }
 
-// Specify the input data or filter.
-void vtkProgrammableFilter::SetInput(vtkDataSet *input)
-{
-  if ( this->Input != input )
-    {
-    vtkDebugMacro(<<" setting Input to " << (void *)input);
-    if (this->Input) {this->Input->UnRegister(this);}
-    this->Input = input;
-    if (this->Input) {this->Input->Register(this);}
-    this->Modified();
-    }
-}
 
 // Get the input as a concrete type. This method is typically used by the
 // writer of the filter function to get the input as a particular type (i.e.,
@@ -106,31 +68,31 @@ void vtkProgrammableFilter::SetInput(vtkDataSet *input)
 // the correct type of the input data.
 vtkPolyData *vtkProgrammableFilter::GetPolyDataInput()
 {
-  return (vtkPolyData *)this->Input;
+  return (vtkPolyData *)this->GetInput();
 }
 
 // Get the input as a concrete type.
 vtkStructuredPoints *vtkProgrammableFilter::GetStructuredPointsInput()
 {
-  return (vtkStructuredPoints *)this->Input;
+  return (vtkStructuredPoints *)this->GetInput();
 }
 
 // Get the input as a concrete type.
 vtkStructuredGrid *vtkProgrammableFilter::GetStructuredGridInput()
 {
-  return (vtkStructuredGrid *)this->Input;
+  return (vtkStructuredGrid *)this->GetInput();
 }
 
 // Get the input as a concrete type.
 vtkUnstructuredGrid *vtkProgrammableFilter::GetUnstructuredGridInput()
 {
-  return (vtkUnstructuredGrid *)this->Input;
+  return (vtkUnstructuredGrid *)this->GetInput();
 }
 
 // Get the input as a concrete type.
 vtkRectilinearGrid *vtkProgrammableFilter::GetRectilinearGridInput()
 {
-  return (vtkRectilinearGrid *)this->Input;
+  return (vtkRectilinearGrid *)this->GetInput();
 }
 
 // Specify the function to use to operate on the point attribute data. Note
@@ -161,40 +123,6 @@ void vtkProgrammableFilter::SetExecuteMethodArgDelete(void (*f)(void *))
 }
 
 
-// Get the output as a concrete type. This method is typically used by the
-// writer of the filter function to get the output as a particular type (i.e.,
-// it essentially does type casting). It is the users responsibility to know
-// the correct type of the output data.
-vtkPolyData *vtkProgrammableFilter::GetPolyDataOutput()
-{
-  return this->OutputPolyData;
-}
-
-// Get the output as a concrete type.
-vtkStructuredPoints *vtkProgrammableFilter::GetStructuredPointsOutput()
-{
-  return this->OutputStructuredPoints;
-}
-
-// Get the output as a concrete type.
-vtkStructuredGrid *vtkProgrammableFilter::GetStructuredGridOutput()
-{
-  return this->OutputStructuredGrid;
-}
-
-// Get the output as a concrete type.
-vtkUnstructuredGrid *vtkProgrammableFilter::GetUnstructuredGridOutput()
-{
-  return this->OutputUnstructuredGrid;
-}
-
-// Get the output as a concrete type.
-vtkRectilinearGrid *vtkProgrammableFilter::GetRectilinearGridOutput()
-{
-  return this->OutputRectilinearGrid;
-}
-
-
 void vtkProgrammableFilter::Execute()
 {
   vtkDebugMacro(<<"Executing programmable filter");
@@ -206,107 +134,3 @@ void vtkProgrammableFilter::Execute()
     }
 }
 
-void vtkProgrammableFilter::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkSource::PrintSelf(os,indent);
-
-  os << indent << "Execute Time: " <<this->ExecuteTime.GetMTime() << "\n";
-
-  if ( this->Input )
-    {
-    os << indent << "Input: (" << (void *)this->Input << ")\n";
-    }
-  else
-    {
-    os << indent << "Input: (none)\n";
-    }
-}
-
-
-void vtkProgrammableFilter::UnRegister(vtkObject *o)
-{
-  // detect the circular loop source <-> data
-  // If we have two references and one of them is my data
-  // and I am not being unregistered by my data, break the loop.
-  if (this->ReferenceCount == 6 &&
-      this->OutputPolyData != o && this->OutputStructuredGrid != o &&
-      this->OutputUnstructuredGrid != o && this->OutputStructuredPoints != o &&
-      this->OutputRectilinearGrid != o &&
-      this->OutputPolyData->GetNetReferenceCount() == 1 &&
-      this->OutputStructuredGrid->GetNetReferenceCount() == 1 &&
-      this->OutputUnstructuredGrid->GetNetReferenceCount() == 1 &&
-      this->OutputStructuredPoints->GetNetReferenceCount() == 1 &&
-      this->OutputRectilinearGrid->GetNetReferenceCount() == 1)
-    {
-    this->OutputPolyData->SetSource(NULL);
-    this->OutputStructuredGrid->SetSource(NULL);
-    this->OutputUnstructuredGrid->SetSource(NULL);
-    this->OutputStructuredPoints->SetSource(NULL);
-    this->OutputRectilinearGrid->SetSource(NULL);
-    }
-  if (this->ReferenceCount == 5 &&
-      (this->OutputPolyData == o || this->OutputStructuredGrid == o ||
-       this->OutputUnstructuredGrid == o || this->OutputRectilinearGrid == o ||
-       this->OutputStructuredPoints == o) &&
-      (this->OutputPolyData->GetNetReferenceCount() +
-       this->OutputStructuredPoints->GetNetReferenceCount() +
-       this->OutputRectilinearGrid->GetNetReferenceCount() +
-       this->OutputStructuredGrid->GetNetReferenceCount() +
-       this->OutputUnstructuredGrid->GetNetReferenceCount()) == 6)
-    {
-    this->OutputPolyData->SetSource(NULL);
-    this->OutputStructuredGrid->SetSource(NULL);
-    this->OutputUnstructuredGrid->SetSource(NULL);
-    this->OutputStructuredPoints->SetSource(NULL);
-    this->OutputRectilinearGrid->SetSource(NULL);
-    }
-  
-  this->vtkObject::UnRegister(o);
-}
-
-int vtkProgrammableFilter::InRegisterLoop(vtkObject *o)
-{
-  int num = 0;
-  int cnum = 0;
-  
-  if (this->OutputStructuredPoints->GetSource() == this)
-    {
-    num++;
-    cnum += this->OutputStructuredPoints->GetNetReferenceCount();
-    }
-  if (this->OutputRectilinearGrid->GetSource() == this)
-    {
-    num++;
-    cnum += this->OutputRectilinearGrid->GetNetReferenceCount();
-    }
-  if (this->OutputPolyData->GetSource() == this)
-    {
-    num++;
-    cnum += this->OutputPolyData->GetNetReferenceCount();
-    }
-  if (this->OutputStructuredGrid->GetSource() == this)
-    {
-    num++;
-    cnum += this->OutputStructuredGrid->GetNetReferenceCount();
-    }
-  if (this->OutputUnstructuredGrid->GetSource() == this)
-    {
-    num++;
-    cnum += this->OutputUnstructuredGrid->GetNetReferenceCount();
-    }
-  
-  // if no one outside is using us
-  // and our data objects are down to one net reference
-  // and we are being asked by one of our data objects
-  if (this->ReferenceCount == num &&
-      cnum == (num + 1) &&
-      (this->OutputPolyData == o ||
-       this->OutputStructuredPoints == o ||
-       this->OutputRectilinearGrid == o ||
-       this->OutputStructuredGrid == o ||
-       this->OutputUnstructuredGrid == o))
-    {
-    return 1;
-    }
-  return 0;
-}

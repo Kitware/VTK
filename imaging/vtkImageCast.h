@@ -52,9 +52,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageCast_h
 
 
-#include "vtkImageFilter.h"
+#include "vtkImageToImageFilter.h"
 
-class VTK_EXPORT vtkImageCast : public vtkImageFilter
+class VTK_EXPORT vtkImageCast : public vtkImageToImageFilter
 {
 public:
   vtkImageCast();
@@ -94,7 +94,7 @@ public:
 protected:
   int ClampOverflow;
   int OutputScalarType;
-  void ExecuteImageInformation();
+  void ExecuteInformation();
   void InternalUpdate(vtkImageData *data);
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
 		       int ext[6], int id);

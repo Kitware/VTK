@@ -36,7 +36,6 @@ mask2 ReleaseDataFlagOff
 
 vtkImageViewer viewer
 viewer SetInput [mask2 GetOutput]
-viewer SetZSlice 22
 viewer SetColorWindow 255
 viewer SetColorLevel 128
 #viewer DebugOn

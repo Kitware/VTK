@@ -53,83 +53,48 @@ vtkDelaunay2D::vtkDelaunay2D()
   this->Tolerance = 0.00001;
   this->BoundingTriangulation = 0;
   this->Offset = 1.0;
-  this->Source = NULL;
-
-  this->Output = vtkPolyData::New();
-  this->Output->SetSource(this);
 }
 
 vtkDelaunay2D::~vtkDelaunay2D()
 {
-  this->SetSource(NULL);
 }
 
-// Override update method because execution can branch two ways (via Input 
-// and Source).
-void vtkDelaunay2D::Update()
+//----------------------------------------------------------------------------
+// Specify the input data or filter.
+void vtkDelaunay2D::SetInput(vtkPointSet *input)
 {
-  // make sure input is available
-  if ( this->Input == NULL )
-    {
-    vtkErrorMacro(<< "No input...can't execute!");
-    return;
-    }
+  this->vtkProcessObject::SetInput(0, input);
+}
 
-  // prevent chasing our tail
-  if (this->Updating)
+//----------------------------------------------------------------------------
+// Specify the input data or filter.
+vtkPointSet *vtkDelaunay2D::GetInput()
+{
+  if (this->NumberOfInputs < 1)
     {
-    return;
+    return NULL;
     }
+  
+  return (vtkPointSet *)(this->Inputs[0]);
+}
 
-  this->Updating = 1;
-  this->Input->Update();
-  if ( this->Source )
-    {
-    this->Source->Update();
-    }
-  this->Updating = 0;
+//----------------------------------------------------------------------------
+// Specify the input data or filter.
+void vtkDelaunay2D::SetSource(vtkPolyData *input)
+{
+  this->vtkProcessObject::SetInput(1, input);
+}
 
-  if (this->Input->GetMTime() > this->ExecuteTime || 
-      (this->Source && this->Source->GetMTime() > this->ExecuteTime) || 
-      this->GetMTime() > this->ExecuteTime )
+//----------------------------------------------------------------------------
+// Specify the input data or filter.
+vtkPolyData *vtkDelaunay2D::GetSource()
+{
+  if (this->NumberOfInputs < 2)
     {
-    if ( this->Input->GetDataReleased() )
-      {
-      this->Input->ForceUpdate();
-      }
-    if ( this->Source && this->Source->GetDataReleased() ) 
-      {
-      this->Source->ForceUpdate();
-      }
-    if ( this->StartMethod )
-      {
-      (*this->StartMethod)(this->StartMethodArg);
-      }
-    this->Output->Initialize(); //clear output
-    // reset AbortExecute flag and Progress
-    this->AbortExecute = 0;
-    this->Progress = 0.0;
-    this->Execute();
-    this->ExecuteTime.Modified();
-    if ( !this->AbortExecute )
-      {
-      this->UpdateProgress(1.0);
-      }
-    this->SetDataReleased(0);
-    if ( this->EndMethod )
-      {
-      (*this->EndMethod)(this->EndMethodArg);
-      }
+    return NULL;
     }
-
-  if ( this->Input->ShouldIReleaseData() )
-    {
-    this->Input->ReleaseData();
-    }
-  if ( this->Source && this->Source->ShouldIReleaseData() ) 
-    {
-    this->Source->ReleaseData();
-    }
+  
+  return (vtkPolyData *)(this->Inputs[1]);
 }
 
 // Determine whether point x is inside of circumcircle of triangle
@@ -334,8 +299,8 @@ void vtkDelaunay2D::Execute()
   vtkPoints *inPoints;
   vtkPoints *points;
   vtkCellArray *triangles;
-  vtkPointSet *input=(vtkPointSet *)this->Input;
-  vtkPolyData *output=(vtkPolyData *)this->Output;
+  vtkPointSet *input= this->GetInput();
+  vtkPolyData *output= this->GetOutput();
   int nodes[4][3], pts[3], npts, *triPts, numNeiPts, *neiPts, ncells;
   vtkIdList *neighbors, *cells;
   double center[3], radius, tol, x[3];
@@ -528,10 +493,10 @@ void vtkDelaunay2D::Execute()
 
   // Finish up by recovering the boundary, or deleting all triangles connected 
   // to the bounding triangulation points or not satisfying alpha criterion,
-  if ( !this->BoundingTriangulation || this->Alpha > 0.0 || this->Source )
+  if ( !this->BoundingTriangulation || this->Alpha > 0.0 || this->GetSource() )
     {
     numTriangles = this->Mesh->GetNumberOfCells();
-    if ( this->Source ) 
+    if ( this->GetSource() ) 
       {
       triUse = this->RecoverBoundary();
       }
@@ -667,7 +632,7 @@ void vtkDelaunay2D::Execute()
     output->GetPointData()->PassData(input->GetPointData());
     }
 
-  if ( this->Alpha <= 0.0 && this->BoundingTriangulation && !this->Source )
+  if ( this->Alpha <= 0.0 && this->BoundingTriangulation && !this->GetSource() )
     {
     output->SetPolys(triangles);
     }
@@ -1067,9 +1032,8 @@ void vtkDelaunay2D::FillPolygons(vtkCellArray *polys, int *triUse)
 
 void vtkDelaunay2D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPointSetFilter::PrintSelf(os,indent);
+  vtkPolyDataSource::PrintSelf(os,indent);
 
-  os << indent << "Source: " << (void *)this->Source << "\n";
   os << indent << "Alpha: " << this->Alpha << "\n";
   os << indent << "Tolerance: " << this->Tolerance << "\n";
   os << indent << "Offset: " << this->Offset << "\n";

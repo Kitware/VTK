@@ -40,9 +40,22 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkDataSetToStructuredGridFilter.h"
 
-vtkDataSetToStructuredGridFilter::vtkDataSetToStructuredGridFilter()
+//----------------------------------------------------------------------------
+// Specify the input data or filter.
+void vtkDataSetToStructuredGridFilter::SetInput(vtkDataSet *input)
 {
-  this->Output = vtkStructuredGrid::New();
-  this->Output->SetSource(this);
+  this->vtkProcessObject::SetInput(0, input);
+}
+
+//----------------------------------------------------------------------------
+// Specify the input data or filter.
+vtkDataSet *vtkDataSetToStructuredGridFilter::GetInput()
+{
+  if (this->NumberOfInputs < 1)
+    {
+    return NULL;
+    }
+  
+  return (vtkDataSet *)(this->Inputs[0]);
 }
 

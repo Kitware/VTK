@@ -40,9 +40,53 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkDataSetToStructuredPointsFilter.h"
 
-vtkDataSetToStructuredPointsFilter::vtkDataSetToStructuredPointsFilter()
+//----------------------------------------------------------------------------
+// Specify the input data or filter.
+void vtkDataSetToStructuredPointsFilter::SetInput(vtkDataSet *input)
 {
-  this->Output = vtkStructuredPoints::New();
-  this->Output->SetSource(this);
+  this->vtkProcessObject::SetInput(0, input);
 }
+
+//----------------------------------------------------------------------------
+// Specify the input data or filter.
+vtkDataSet *vtkDataSetToStructuredPointsFilter::GetInput()
+{
+  if (this->NumberOfInputs < 1)
+    {
+    return NULL;
+    }
+  
+  return (vtkDataSet *)(this->Inputs[0]);
+}
+
+//----------------------------------------------------------------------------
+// All the DataSetToStructuredPointsFilters require all their input.
+int vtkDataSetToStructuredPointsFilter::ComputeInputUpdateExtents(
+                                                           vtkDataObject *data)
+{
+  vtkStructuredPoints *output = (vtkStructuredPoints*)data;
+  vtkDataSet *input = this->GetInput();
+  int *ext;
+  
+  if (input == NULL)
+    {
+    return 0;
+    }
+  
+  // Lets just check to see if the outputs UpdateExtent is valid.
+  ext = output->GetUpdateExtent();
+  if (ext[0] > ext[1] || ext[2] > ext[3] || ext[4] > ext[5])
+    {
+    return 0;
+    }
+  
+  input->SetUpdateExtent(0, 1);
+  return 1;
+}
+
+    
+
+
+
+
 

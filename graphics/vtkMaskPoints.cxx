@@ -41,6 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMaskPoints.h"
 #include "vtkMath.h"
 
+//----------------------------------------------------------------------------
 vtkMaskPoints::vtkMaskPoints()
 {
   this->OnRatio = 2;
@@ -49,6 +50,7 @@ vtkMaskPoints::vtkMaskPoints()
   this->MaximumNumberOfPoints = VTK_LARGE_INTEGER;
 }
 
+//----------------------------------------------------------------------------
 void vtkMaskPoints::Execute()
 {
   vtkPoints *newPts;
@@ -58,7 +60,7 @@ void vtkMaskPoints::Execute()
   int ptId, id;
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
-  vtkDataSet *input=(vtkDataSet *)this->Input;
+  vtkDataSet *input= this->GetInput();
   int numPts=input->GetNumberOfPoints();
   
   //
@@ -122,9 +124,9 @@ void vtkMaskPoints::Execute()
       outputPD->CopyData(pd,ptId,id);
       }
     }
-//
-// Update ourselves
-//
+  //
+  // Update ourselves
+  //
   output->SetPoints(newPts);
   newPts->Delete();
   
@@ -133,6 +135,28 @@ void vtkMaskPoints::Execute()
   vtkDebugMacro(<<"Masked " << numPts << " original points to " << id+1 << " points");
 }
 
+//----------------------------------------------------------------------------
+void vtkMaskPoints::ExecuteInformation()
+{
+  unsigned long numPts, size;
+  
+  // estimate the number of points in the input.
+  numPts = this->GetInput()->GetEstimatedMemorySize() * 1000 / 24;
+  // adjust
+  numPts = (numPts - this->Offset) * this->OnRatio;
+  if (numPts > this->MaximumNumberOfPoints)
+    {
+    numPts = this->MaximumNumberOfPoints;
+    }
+  
+  // Guess at size per point (convert to KBytes)
+  size = 1 + numPts * 24 / 1000;
+  
+  this->GetOutput()->SetEstimatedMemorySize(size);
+}
+
+
+//----------------------------------------------------------------------------
 void vtkMaskPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToPolyDataFilter::PrintSelf(os,indent);

@@ -100,10 +100,9 @@ void vtkProjectedTexture::Execute()
   float proj;
   float rightv[3], upv[3], diff[3];
   float sScale, tScale, sOffset, tOffset, sSize, tSize, s, t;
-  vtkDataSet *input=(vtkDataSet *) this->Input;
-
+  vtkDataSet *input = this->GetInput();
   float  *p;
-  vtkDataSet *output= (vtkDataSet *) this->Output;
+  vtkDataSet *output = this->GetOutput();
 
   vtkDebugMacro(<<"Generating texture coordinates!");
   numPts=input->GetNumberOfPoints();

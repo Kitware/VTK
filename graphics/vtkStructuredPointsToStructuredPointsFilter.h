@@ -51,21 +51,35 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkStructuredPointsToStructuredPointsFilter_h
 #define __vtkStructuredPointsToStructuredPointsFilter_h
 
-#include "vtkStructuredPointsFilter.h"
-#include "vtkStructuredPoints.h"
+#include "vtkStructuredPointsSource.h"
+#include "vtkImageToStructuredPoints.h"
 
-class VTK_EXPORT vtkStructuredPointsToStructuredPointsFilter : public vtkStructuredPointsFilter
+class VTK_EXPORT vtkStructuredPointsToStructuredPointsFilter : public vtkStructuredPointsSource
 {
 public:
-  vtkStructuredPointsToStructuredPointsFilter();
   static vtkStructuredPointsToStructuredPointsFilter *New() {
     return new vtkStructuredPointsToStructuredPointsFilter;};
   const char *GetClassName() {return "vtkStructuredPointsToStructuredPointsFilter";};
 
   // Description:
-  // Get the output of this filter.
-  vtkStructuredPoints *GetOutput() {return (vtkStructuredPoints *)this->Output;};
+  // Set / get the input data or filter.
+  void SetInput(vtkStructuredPoints *input);
+  void SetInput(vtkImageData *cache)
+    {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
+    this->SetInput(tmp->GetOutput()); tmp->Delete();}
+  vtkStructuredPoints *GetInput();
 
+  // Since input[0] and output are of same type, we can create this
+  // method that defaults to just copying information.
+  void ExecuteInformation();
+
+protected:
+  
+  // Since we know Inputs[0] is the same type as Outputs[0] we can
+  // use CopyUpdateExtent of the data object to propagate extents.
+  // It the filter has more than one input, all bets are off.
+  // It is then up to the subclass to implement this method.
+  int ComputeInputUpdateExtents(vtkDataObject *output);
 };
 
 #endif

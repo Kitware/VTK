@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageCache.h"
+
 #include "vtkImageAccumulate.h"
 #include <math.h>
 #include <stdlib.h>
@@ -202,7 +202,7 @@ void vtkImageAccumulate::Execute(vtkImageData *inData,
   outPtr = outData->GetScalarPointer();
   
   // Components turned into x, y and z
-  if (this->Input->GetNumberOfScalarComponents() > 3)
+  if (this->GetInput()->GetNumberOfScalarComponents() > 3)
     {
     vtkErrorMacro("This filter can handle upto 3 components");
     return;
@@ -276,24 +276,26 @@ void vtkImageAccumulate::Execute(vtkImageData *inData,
 
 
 //----------------------------------------------------------------------------
-void vtkImageAccumulate::ExecuteImageInformation()
+void vtkImageAccumulate::ExecuteInformation()
 {
-  this->Output->SetWholeExtent(this->ComponentExtent);
-  this->Output->SetOrigin(this->ComponentOrigin);
-  this->Output->SetSpacing(this->ComponentSpacing);
-  this->Output->SetNumberOfScalarComponents(1);
-  this->Output->SetScalarType(VTK_INT);
+  vtkImageData *output = this->GetOutput();
+  
+  output->SetWholeExtent(this->ComponentExtent);
+  output->SetOrigin(this->ComponentOrigin);
+  output->SetSpacing(this->ComponentSpacing);
+  output->SetNumberOfScalarComponents(1);
+  output->SetScalarType(VTK_INT);
 }
 
 //----------------------------------------------------------------------------
 // Get ALL of the input.
-void vtkImageAccumulate::ComputeRequiredInputUpdateExtent(int inExt[6], 
+void vtkImageAccumulate::ComputeInputUpdateExtent(int inExt[6], 
 							  int outExt[6])
 {
   int *wholeExtent;
 
   outExt = outExt;
-  wholeExtent = this->Input->GetWholeExtent();
+  wholeExtent = this->GetInput()->GetWholeExtent();
   memcpy(inExt, wholeExtent, 6*sizeof(int));
 }
 
@@ -310,13 +312,13 @@ void vtkImageAccumulate::InterceptCacheUpdate()
     return;
     }
   
-  this->Output->GetWholeExtent(wholeExtent);
-  this->Output->SetUpdateExtent(wholeExtent);
+  this->GetOutput()->GetWholeExtent(wholeExtent);
+  this->GetOutput()->SetUpdateExtent(wholeExtent);
 }
 
 void vtkImageAccumulate::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageFilter::PrintSelf(os,indent);
+  vtkImageToImageFilter::PrintSelf(os,indent);
 
   os << indent << "ComponentOrigin: ( "
      << this->ComponentOrigin[0] << ", "

@@ -95,8 +95,8 @@ public:
 
   // Description:
   // Specify the geometry to copy to each point.
-  vtkSetObjectMacro(Source,vtkPolyData);
-  vtkGetObjectMacro(Source,vtkPolyData);
+  void SetSource(vtkPolyData *source);
+  vtkPolyData *GetSource();
 
   // Description:
   // Turn on/off scaling of glyph with eigenvalues.
@@ -143,7 +143,6 @@ public:
 protected:
   void Execute();
 
-  vtkPolyData *Source; // Geometry to copy to each point
   int Scaling; // Determine whether scaling of geometry is performed
   float ScaleFactor; // Scale factor to use to scale geometry
   int ExtractEigenvalues; // Boolean controls eigenfunction extraction

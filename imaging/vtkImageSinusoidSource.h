@@ -84,7 +84,7 @@ public:
   vtkSetMacro(Amplitude, float);
   vtkGetMacro(Amplitude, float);
 
-  void UpdateImageInformation();
+  void UpdateInformation();
 
 private:
   int WholeExtent[6];

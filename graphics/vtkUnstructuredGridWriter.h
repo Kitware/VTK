@@ -63,11 +63,7 @@ public:
   // Description:
   // Specify the input data or filter.
   void SetInput(vtkUnstructuredGrid *input);
-  vtkUnstructuredGrid *GetInput() {return (vtkUnstructuredGrid *)this->Input;};
-                               
-  // Description:
-  // For legacy compatibiltiy. Do not use.
-  void SetInput(vtkUnstructuredGrid &input) {this->SetInput(&input);};
+  vtkUnstructuredGrid *GetInput();
 
 protected:
   void WriteData();

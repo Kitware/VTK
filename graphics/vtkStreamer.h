@@ -148,7 +148,7 @@ public:
   // terminal speed 0.0; vorticity computation off; integrations step length
   // 0.2; and maximum propagation time 100.0.
   static vtkStreamer *New() {return new vtkStreamer;};
-
+  
   // Description:
   // Specify the start of the streamline in the cell coordinate system. That
   // is, cellId and subId (if composite cell), and parametric coordinates.
@@ -180,14 +180,9 @@ public:
   float *GetStartPosition();
 
   // Description:
-  // Override update method because execution can branch two ways (via Input 
-  // and Source).
-  void Update();
-
-  // Description:
   // Specify the source object used to generate starting points.
-  vtkSetObjectMacro(Source,vtkDataSet);
-  vtkGetObjectMacro(Source,vtkDataSet);
+  void SetSource(vtkDataSet *source);
+  vtkDataSet *GetSource();
   
   // Description:
   // Specify the maximum length of the Streamer expressed in elapsed time.
@@ -265,9 +260,6 @@ protected:
 
   // starting from global x-y-z position
   float StartPosition[3];
-
-  //points used to seed streamlines  
-  vtkDataSet *Source; 
 
   //array of streamers
   vtkStreamArray *Streamers;

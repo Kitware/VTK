@@ -53,9 +53,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkimageLaplacian_h
 
 
-#include "vtkImageFilter.h"
+#include "vtkImageToImageFilter.h"
 
-class VTK_EXPORT vtkImageLaplacian : public vtkImageFilter
+class VTK_EXPORT vtkImageLaplacian : public vtkImageToImageFilter
 {
 public:
   vtkImageLaplacian();
@@ -71,7 +71,7 @@ public:
 protected:
   int Dimensionality;
 
-  void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
+  void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
 		       int ext[6], int id);
 };

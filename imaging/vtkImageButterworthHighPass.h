@@ -52,9 +52,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageButterworthHighPass_h
 
 
-#include "vtkImageFilter.h"
+#include "vtkImageToImageFilter.h"
 
-class VTK_EXPORT vtkImageButterworthHighPass : public vtkImageFilter
+class VTK_EXPORT vtkImageButterworthHighPass : public vtkImageToImageFilter
 {
 public:
   vtkImageButterworthHighPass();

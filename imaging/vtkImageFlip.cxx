@@ -51,24 +51,24 @@ vtkImageFlip::vtkImageFlip()
 
 //----------------------------------------------------------------------------
 // Image extent is modified by this filter.
-void vtkImageFlip::ExecuteImageInformation()
+void vtkImageFlip::ExecuteInformation()
 {
   int extent[6];
   int axis, temp;
 
   if ( ! this->PreserveImageExtent)
     {
-    this->Input->GetWholeExtent(extent);
+    this->GetInput()->GetWholeExtent(extent);
     axis = this->FilteredAxis;
     temp = extent[axis*2+1];
     extent[axis*2+1] = -temp;
-    this->Output->SetWholeExtent(extent);
+    this->GetOutput()->SetWholeExtent(extent);
     }
 }
 
 //----------------------------------------------------------------------------
 // What input should be requested.
-void vtkImageFlip::ComputeRequiredInputUpdateExtent(int inExt[6], 
+void vtkImageFlip::ComputeInputUpdateExtent(int inExt[6], 
 						    int outExt[6])
 {
   int axis, sum;
@@ -77,7 +77,7 @@ void vtkImageFlip::ComputeRequiredInputUpdateExtent(int inExt[6],
   // copy out to in
   memcpy((void *)inExt, (void *)outExt, 6 * sizeof(int));
   
-  wholeExtent = this->Output->GetWholeExtent();
+  wholeExtent = this->GetOutput()->GetWholeExtent();
   axis = this->FilteredAxis;
   if (this->PreserveImageExtent)
     {
@@ -194,7 +194,7 @@ void vtkImageFlip::ThreadedExecute(vtkImageData *inData,
   void *outPtr;
   
   outPtr = outData->GetScalarPointerForExtent(outExt);
-  this->ComputeRequiredInputUpdateExtent(inExt, outExt);
+  this->ComputeInputUpdateExtent(inExt, outExt);
 
   if (inData->GetScalarType() != outData->GetScalarType())
     {
@@ -253,7 +253,7 @@ void vtkImageFlip::ThreadedExecute(vtkImageData *inData,
 
 void vtkImageFlip::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageFilter::PrintSelf(os,indent);
+  vtkImageToImageFilter::PrintSelf(os,indent);
 
   os << indent << "FilteredAxis: " << this->FilteredAxis << "\n";
 

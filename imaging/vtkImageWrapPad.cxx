@@ -38,20 +38,20 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageCache.h"
+
 #include "vtkImageWrapPad.h"
 
 
 //----------------------------------------------------------------------------
 // Just clip the request.
-void vtkImageWrapPad::ComputeRequiredInputUpdateExtent(int inExt[6],
+void vtkImageWrapPad::ComputeInputUpdateExtent(int inExt[6],
 						       int outExt[6])
 {
   int idx;
   int min, max, width, imageMin, imageMax, imageWidth;
   int *wholeExtent;
   
-  wholeExtent = this->Input->GetWholeExtent();
+  wholeExtent = this->GetInput()->GetWholeExtent();
 
   // Clip
   for (idx = 0; idx < 3; ++idx)
@@ -222,7 +222,7 @@ void vtkImageWrapPad::ThreadedExecute(vtkImageData *inData,
 {
   int inExt[6];
   
-  this->ComputeRequiredInputUpdateExtent(inExt,outExt);
+  this->ComputeInputUpdateExtent(inExt,outExt);
 
   void *inPtr = inData->GetScalarPointerForExtent(inExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);

@@ -60,7 +60,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // of 0.0. ComputeNormal is on, ComputeGradients is off and ComputeScalars is on.
 vtkImageMarchingCubes::vtkImageMarchingCubes()
 {
-  this->Input = NULL;
   this->ContourValues = vtkContourValues::New();
   this->ComputeNormals = 1;
   this->ComputeGradients = 0;
@@ -73,11 +72,6 @@ vtkImageMarchingCubes::vtkImageMarchingCubes()
 vtkImageMarchingCubes::~vtkImageMarchingCubes()
 {
   this->ContourValues->Delete();
-  if (this->Input)
-    {
-    this->Input->UnRegister(this);
-    this->Input = NULL;
-    }
 }
 
 // Description:
@@ -95,26 +89,19 @@ unsigned long vtkImageMarchingCubes::GetMTime()
 
 void vtkImageMarchingCubes::Update()
 {
-  if ( ! this->Input)
+  if ( ! this->GetInput())
     {
     vtkErrorMacro("No Input");
     return;
     }
   
-  // Make sure virtual getMTime method is called since subclasses will overload
-  if ( this->GetMTime() > this->ExecuteTime ||
-       this->Input->GetPipelineMTime() > this->ExecuteTime)
+  if (this->GetOutput())
     {
-    if (this->Output)
-      {
-      this->Output->Initialize(); //clear output
-      }
-    this->AbortExecute = 0;
-    this->Progress = 0.0;
-    this->Execute();
-    this->ExecuteTime.Modified();
-    this->SetDataReleased(0);
+    this->GetOutput()->Initialize(); //clear output
     }
+  this->AbortExecute = 0;
+  this->Progress = 0.0;
+  this->Execute();
 }
 
 //----------------------------------------------------------------------------
@@ -129,7 +116,7 @@ void vtkImageMarchingCubes::Execute()
   float *values=this->ContourValues->GetValues();
   
   vtkDebugMacro("Starting Execute Method");
-  if ( ! this->Input)
+  if ( ! this->GetInput())
     {
     vtkErrorMacro(<< "No Input");
     return;
@@ -149,9 +136,9 @@ void vtkImageMarchingCubes::Execute()
     minSlicesPerChunk = 2;
     chunkOverlap = 1;
     }
-  this->Input->UpdateImageInformation();
+  this->GetInput()->UpdateInformation();
   // Each data type requires a different amount of memory.
-  switch (this->Input->GetScalarType())
+  switch (this->GetInput()->GetScalarType())
     {
     case VTK_FLOAT:
       temp = sizeof(float);
@@ -187,7 +174,7 @@ void vtkImageMarchingCubes::Execute()
       vtkErrorMacro(<< "Could not determine input scalar type.");
       return;
     }
-  this->Input->GetWholeExtent(extent);
+  this->GetInput()->GetWholeExtent(extent);
   // multiply by the area of each slice
   temp *= extent[1] - extent[0] + 1;
   temp *= extent[3] - extent[2] + 1;
@@ -270,8 +257,9 @@ void vtkImageMarchingCubes::Execute()
       extent[5] = zMax;
       }
     // Get the chunk from the input
-    this->Input->SetUpdateExtent(extent);
-    inData = this->Input->UpdateAndReturnData();
+    this->GetInput()->SetUpdateExtent(extent);
+    this->GetInput()->Update();
+    inData = this->GetInput();
     
     if ( this->StartMethod )
       {
@@ -287,9 +275,9 @@ void vtkImageMarchingCubes::Execute()
       (*this->EndMethod)(this->EndMethodArg);
       }
 
-    if (this->Input->ShouldIReleaseData())
+    if (this->GetInput()->ShouldIReleaseData())
       {
-      this->Input->ReleaseData();
+      this->GetInput()->ReleaseData();
       }
     }
   
@@ -894,20 +882,29 @@ int *vtkImageMarchingCubes::GetLocatorPointer(int cellX,int cellY,int edge)
 }
 
 //----------------------------------------------------------------------------
+void vtkImageMarchingCubes::SetInput(vtkImageData *input)
+{
+  this->vtkProcessObject::SetInput(0, input);
+}
+
+//----------------------------------------------------------------------------
+vtkImageData *vtkImageMarchingCubes::GetInput()
+{
+  if (this->NumberOfInputs < 1)
+    {
+    return NULL;
+    }
+  
+  return (vtkImageData *)(this->Inputs[0]);
+}
+
+  
+//----------------------------------------------------------------------------
 void vtkImageMarchingCubes::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataSource::PrintSelf(os,indent);
 
   this->ContourValues->PrintSelf(os,indent);
-
-  if ( this->Input )
-    {
-    os << indent << "Input: " << this->Input << "\n";
-    }
-  else
-    {
-    os << indent << "Input: (none)\n";
-    }
 
   os << indent << "ComputeScalars: " << this->ComputeScalars << "\n";
   os << indent << "ComputeNormals: " << this->ComputeNormals << "\n";

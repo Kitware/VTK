@@ -50,8 +50,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // initial sources are defined.
 vtkProgrammableGlyphFilter::vtkProgrammableGlyphFilter()
 {
-  this->Source = NULL;
-
   this->GlyphMethod = NULL;
   this->GlyphMethodArgDelete = NULL;
   this->GlyphMethodArg = NULL;
@@ -69,9 +67,27 @@ vtkProgrammableGlyphFilter::~vtkProgrammableGlyphFilter()
     {
     (*this->GlyphMethodArgDelete)(this->GlyphMethodArg);
     }
-
-  this->SetSource(NULL);
 }
+
+// Specify a source object at a specified table location.
+void vtkProgrammableGlyphFilter::SetSource(vtkPolyData *pd)
+{
+  this->vtkProcessObject::SetInput(1, pd);
+}
+
+// Get a pointer to a source object at a specified table location.
+vtkPolyData *vtkProgrammableGlyphFilter::GetSource()
+{
+  if (this->NumberOfInputs < 2)
+    {
+    return NULL;
+    }
+  else
+    {
+    return (vtkPolyData *)this->Inputs[1];
+    }
+}
+
 
 void vtkProgrammableGlyphFilter::Execute()
 {
@@ -102,10 +118,10 @@ void vtkProgrammableGlyphFilter::Execute()
     vtkErrorMacro(<<"No input points to glyph");
     }
 
-  sourcePD = this->Source->GetPointData();
-  sourceCD = this->Source->GetCellData();
-  numSourcePts = this->Source->GetNumberOfPoints();
-  numSourceCells = this->Source->GetNumberOfCells();
+  sourcePD = this->GetSource()->GetPointData();
+  sourceCD = this->GetSource()->GetCellData();
+  numSourcePts = this->GetSource()->GetNumberOfPoints();
+  numSourceCells = this->GetSource()->GetNumberOfCells();
 
   outputPD->CopyScalarsOff(); //'cause we control the coloring process
   outputCD->CopyScalarsOff();
@@ -145,8 +161,8 @@ void vtkProgrammableGlyphFilter::Execute()
       }
     }
 
-  // Loop over all points, invoking glyph method and Update(), then append output
-  // of source to output of this filter.
+  // Loop over all points, invoking glyph method and Update(), 
+  // then append output of source to output of this filter.
   //  
   this->Updating = 1; // to prevent infinite recursion
   this->PointData = input->GetPointData();
@@ -168,15 +184,15 @@ void vtkProgrammableGlyphFilter::Execute()
       (*this->GlyphMethod)(this->GlyphMethodArg);
       }
     
-    if ( this->Source ) 
+    if ( this->GetSource() ) 
       {
-      this->Source->Update();
+      this->GetSource()->Update();
     
-      sourcePts = this->Source->GetPoints();
-      numSourcePts = this->Source->GetNumberOfPoints();
-      numSourceCells = this->Source->GetNumberOfCells();
-      sourcePD = this->Source->GetPointData();
-      sourceCD = this->Source->GetCellData();
+      sourcePts = this->GetSource()->GetPoints();
+      numSourcePts = this->GetSource()->GetNumberOfPoints();
+      numSourceCells = this->GetSource()->GetNumberOfCells();
+      sourcePD = this->GetSource()->GetPointData();
+      sourceCD = this->GetSource()->GetCellData();
 
       if ( this->ColorMode == VTK_COLOR_BY_SOURCE )
         {
@@ -193,7 +209,7 @@ void vtkProgrammableGlyphFilter::Execute()
       
       for (cellId=0; cellId < numSourceCells; cellId++)
         {
-        cell = this->Source->GetCell(cellId);
+        cell = this->GetSource()->GetCell(cellId);
         cellPts = cell->GetPointIds();
         npts = cellPts->GetNumberOfIds();
         for (pts->Reset(), i=0; i < npts; i++) 
@@ -250,75 +266,6 @@ void vtkProgrammableGlyphFilter::Execute()
 }
 
 
-// Override update method because execution can branch two ways (via Input 
-// and Source).
-void vtkProgrammableGlyphFilter::Update()
-{
-  // make sure input is available
-  if ( this->Input == NULL || this->Source == NULL )
-    {
-    vtkErrorMacro(<< "No input or source...can't execute!");
-    return;
-    }
-
-  // prevent chasing our tail
-  if (this->Updating)
-    {
-    return;
-    }
-
-  this->Updating = 1;
-  this->Input->Update();
-  if ( this->Source )
-    {
-    this->Source->Update();
-    }
-  this->Updating = 0;
-
-  if (this->Input->GetMTime() > this->ExecuteTime || 
-  (this->Source && this->Source->GetMTime() > this->ExecuteTime) || 
-  this->GetMTime() > this->ExecuteTime )
-    {
-    if ( this->Input->GetDataReleased() )
-      {
-      this->Input->ForceUpdate();
-      }
-    if ( this->Source && this->Source->GetDataReleased() ) 
-      {
-      this->Source->ForceUpdate();
-      }
-
-    if ( this->StartMethod )
-      {
-      (*this->StartMethod)(this->StartMethodArg);
-      }
-    this->Output->Initialize(); //clear output
-    // reset AbortExecute flag and Progress
-    this->AbortExecute = 0;
-    this->Progress = 0.0;
-    this->Execute();
-    this->ExecuteTime.Modified();
-    if ( !this->AbortExecute )
-      {
-      this->UpdateProgress(1.0);
-      }
-    this->SetDataReleased(0);
-    if ( this->EndMethod )
-      {
-      (*this->EndMethod)(this->EndMethodArg);
-      }
-    }
-
-  if ( this->Input->ShouldIReleaseData() )
-    {
-    this->Input->ReleaseData();
-    }
-  if ( this->Source && this->Source->ShouldIReleaseData() ) 
-    {
-    this->Source->ReleaseData();
-    }
-}
-
 // Specify function to be called before object executes.
 void vtkProgrammableGlyphFilter::SetGlyphMethod(void (*f)(void *), void *arg)
 {
@@ -362,8 +309,6 @@ char *vtkProgrammableGlyphFilter::GetColorModeAsString(void)
 void vtkProgrammableGlyphFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
-
-  os << indent << "Source: " << (void *)this->Source << "\n";
 
   os << indent << "Color Mode: " << this->GetColorModeAsString() << endl;
   os << indent << "Point Id: " << this->PointId << "\n";

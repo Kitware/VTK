@@ -64,10 +64,25 @@ public:
 
   // Description:
   // Get the output of this source.
-  vtkPolyData *GetOutput() {return (vtkPolyData *)this->Output;};
+  vtkPolyData *GetOutput();
+  void SetOutput(vtkPolyData *output);
 
+protected:
+  
+  // Update extent of PolyData is specified in pieces.  
+  // Since all DataObjects should be able to set UpdateExent as pieces,
+  // just copy output->UpdateExtent  all Inputs.
+  int ComputeInputUpdateExtents(vtkDataObject *output);
+  
+  // Used by streaming: The extent of the output being processed
+  // by the execute method. Set in the ComputeInputUpdateExtents method.
+  int ExecutePiece;
+  int ExecuteNumberOfPieces;
 };
 
 #endif
+
+
+
 
 

@@ -48,9 +48,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkImageMagnify_h
 #define __vtkImageMagnify_h
 
-#include "vtkImageFilter.h"
+#include "vtkImageToImageFilter.h"
 
-class VTK_EXPORT vtkImageMagnify : public vtkImageFilter
+class VTK_EXPORT vtkImageMagnify : public vtkImageToImageFilter
 {
 public:
   vtkImageMagnify();
@@ -75,8 +75,8 @@ public:
 protected:
   int MagnificationFactors[3];
   int Interpolate;
-  void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
-  void ExecuteImageInformation();
+  void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
+  void ExecuteInformation();
 };
 
 #endif

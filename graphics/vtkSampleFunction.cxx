@@ -103,18 +103,51 @@ void vtkSampleFunction::SetSampleDimensions(int dim[3])
     }
 }
 
+void vtkSampleFunction::ExecuteInformation()
+{
+  int i;
+  float ar[3], origin[3];
+  vtkStructuredPoints *output = this->GetOutput();
+  
+  output->SetScalarType(VTK_FLOAT);
+  output->SetNumberOfScalarComponents(1);
+  
+  output->SetWholeExtent(0, this->SampleDimensions[0]-1,
+			 0, this->SampleDimensions[1]-1,
+			 0, this->SampleDimensions[2]-1);
+
+  output->SetDimensions(this->GetSampleDimensions());
+
+  for (i=0; i < 3; i++)
+    {
+    origin[i] = this->ModelBounds[2*i];
+    if ( this->SampleDimensions[i] <= 1 )
+      {
+      ar[i] = 1;
+      }
+    else
+      {
+      ar[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
+              / (this->SampleDimensions[i] - 1);
+      }
+    }
+  output->SetOrigin(origin);
+  output->SetSpacing(ar);
+}
+
+
 void vtkSampleFunction::Execute()
 {
   int ptId, i;
   vtkNormals *newNormals=NULL;
   int numPts;
-  float *p, s, ar[3], origin[3];
+  float *p, s;
   vtkStructuredPoints *output = this->GetOutput();
 
   vtkDebugMacro(<< "Sampling implicit function");
-//
-// Initialize self; create output objects
-//
+  //
+  // Initialize self; create output objects
+  //
 
   if ( !this->ImplicitFunction )
     {
@@ -133,35 +166,18 @@ void vtkSampleFunction::Execute()
     }
   this->Scalars->SetNumberOfScalars(numPts);
 
-  // Compute origin and aspect ratio
-  output->SetDimensions(this->GetSampleDimensions());
-  for (i=0; i < 3; i++)
-    {
-    origin[i] = this->ModelBounds[2*i];
-    if ( this->SampleDimensions[i] <= 1 )
-      {
-      ar[i] = 1;
-      }
-    else
-      {
-      ar[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
-              / (this->SampleDimensions[i] - 1);
-      }
-    }
-  output->SetOrigin(origin);
-  output->SetSpacing(ar);
-//
-// Traverse all points evaluating implicit function at each point
-//
+  //
+  // Traverse all points evaluating implicit function at each point
+  //
   for (ptId=0; ptId < numPts; ptId++ )
     {
     p = output->GetPoint(ptId);
     s = this->ImplicitFunction->FunctionValue(p);
     this->Scalars->SetScalar(ptId,s);
     }
-//
-// If normal computation turned on, compute them
-//
+  //
+  // If normal computation turned on, compute them
+  //
   if ( this->ComputeNormals )
     {
     float n[3];
@@ -178,17 +194,17 @@ void vtkSampleFunction::Execute()
       newNormals->SetNormal(ptId,n);
       }
     }
-//
-// If capping is turned on, set the distances of the outside of the volume
-// to the CapValue.
-//
+  //
+  // If capping is turned on, set the distances of the outside of the volume
+  // to the CapValue.
+  //
   if ( this->Capping )
     {
     this->Cap(this->Scalars);
     }
-//
-// Update self
-//
+  //
+  // Update self 
+  //
   output->GetPointData()->SetScalars(this->Scalars); //ref count is now 2
 
   if (newNormals)

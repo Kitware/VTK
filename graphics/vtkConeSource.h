@@ -94,6 +94,7 @@ public:
 
 protected:
   void Execute();
+  void ExecuteInformation();
   float Height;
   float Radius;
   int Resolution;

@@ -39,7 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkImageCache.h"
+
 #include "vtkImageSpatialFilter.h"
 
 
@@ -64,7 +64,7 @@ void vtkImageSpatialFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   int idx;
   
-  vtkImageFilter::PrintSelf(os, indent);
+  vtkImageToImageFilter::PrintSelf(os, indent);
 
   os << indent << "KernelSize: (" << this->KernelSize[0];
   for (idx = 1; idx < 3; ++idx)
@@ -88,18 +88,18 @@ void vtkImageSpatialFilter::PrintSelf(ostream& os, vtkIndent indent)
 // This method is passed a region that holds the image extent of this filters
 // input, and changes the region to hold the image extent of this filters
 // output.
-void vtkImageSpatialFilter::ExecuteImageInformation()
+void vtkImageSpatialFilter::ExecuteInformation()
 {
   int extent[6];
   float spacing[3];
   
-  this->Input->GetWholeExtent(extent);
-  this->Input->GetSpacing(spacing);
+  this->GetInput()->GetWholeExtent(extent);
+  this->GetInput()->GetSpacing(spacing);
 
   this->ComputeOutputWholeExtent(extent, this->HandleBoundaries);
-  this->Output->SetWholeExtent(extent);
+  this->GetOutput()->SetWholeExtent(extent);
   
-  this->Output->SetSpacing(spacing);
+  this->GetOutput()->SetSpacing(spacing);
 }
 
 //----------------------------------------------------------------------------
@@ -128,13 +128,13 @@ void vtkImageSpatialFilter::ComputeOutputWholeExtent(int extent[6],
 // an output region.  Before this method is called "region" should have the 
 // extent of the output region.  After this method finishes, "region" should 
 // have the extent of the required input region.
-void vtkImageSpatialFilter::ComputeRequiredInputUpdateExtent(int extent[6], 
+void vtkImageSpatialFilter::ComputeInputUpdateExtent(int extent[6], 
 							     int inExtent[6])
 {
   int idx;
   int *wholeExtent;
   
-  wholeExtent = this->Input->GetWholeExtent();
+  wholeExtent = this->GetInput()->GetWholeExtent();
   
   for (idx = 0; idx < 3; ++idx)
     {

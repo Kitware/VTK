@@ -47,9 +47,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageGaussianSmooth_h
 
 
-#include "vtkImageFilter.h"
+#include "vtkImageToImageFilter.h"
 
-class VTK_EXPORT vtkImageGaussianSmooth : public vtkImageFilter
+class VTK_EXPORT vtkImageGaussianSmooth : public vtkImageToImageFilter
 {
 public:
   vtkImageGaussianSmooth();
@@ -102,8 +102,8 @@ protected:
   float RadiusFactors[3];
   
   void ComputeKernel(double *kernel, int min, int max, double std);
-  void ExecuteImageInformation();
-  void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
+  void ExecuteInformation();
+  void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
   void ExecuteAxis(int axis, vtkImageData *inData, int inExt[6],
 		   vtkImageData *outData, int outExt[6],
 		   int *pcycle, int target, int *pcount, int total);

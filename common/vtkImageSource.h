@@ -45,35 +45,30 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // to the source.
 
 // .SECTION See Also
-// vtkImageCache vtkImageFilter
+// vtkImageFilter
 
 
 #ifndef __vtkImageSource_h
 #define __vtkImageSource_h
 
 #include "vtkImageData.h"
-#include "vtkProcessObject.h"
+#include "vtkSource.h"
 
-class vtkImageCache;
-
-class VTK_EXPORT vtkImageSource : public vtkProcessObject
+class VTK_EXPORT vtkImageSource : public vtkSource
 {
 public:
   vtkImageSource();
-  ~vtkImageSource();
   const char *GetClassName() {return "vtkImageSource";};
-  void PrintSelf(ostream& os, vtkIndent indent);
+  static vtkImageSource *New() {return new vtkImageSource;};
 
   // Description:
-  // This method sets the value of the cache's ReleaseDataFlag.  When this flag
-  // is set, the cache releases its data after every generate.  When a default
-  // cache is created, this flag is automatically set.
-  virtual void SetReleaseDataFlag(int value);
-  vtkBooleanMacro(ReleaseDataFlag, int);
-
+  // Get the output of this source.
+  void SetOutput(vtkImageData *output);
+  vtkImageData *GetOutput();
+  
   // Description:
-  // This method gets the value of the caches ReleaseDataFlag.
-  int  GetReleaseDataFlag();
+  // This method is called by the cache.
+  virtual void InternalUpdate(vtkDataObject *data);
 
   // Description:
   // This method can be used to intercept a generate call made to a cache.
@@ -82,62 +77,15 @@ public:
   virtual void InterceptCacheUpdate();
 
   // Description:
-  // This method is called by the cache.
-  virtual void InternalUpdate(vtkImageData *data);
-
-  // Description:
-  // This method can be called directly.
-  // It simply forwards the update to the cache.
-  virtual void Update();
-
-  // Description:
-  // This method updates the cache with the whole image extent.
-  virtual void UpdateWholeExtent();
-
-  // Description:
-  // This method updates the instance variables "WholeExtent", "Spacing",
-  // "Origin", "Bounds" etc.  It needs to be separate from "Update" because
-  // the image information may be needed to compute the required UpdateExtent
-  // of the input (see "vtkImageFilter").
-  virtual void UpdateImageInformation() = 0;
-
-  // Description:
-  // Returns the maximum MTime of this source and every object affecting
-  // this source's output. 
-  virtual unsigned long GetPipelineMTime();
-
-  // Description:
-  // Returns an object which will generate data for Regions.
-  vtkImageCache *GetOutput();
-
-  // Description:
-  // Use this method to specify a cache object for the filter.  
-  // If a cache has been set previously, it is deleted, and caches
-  // are not reference counted yet.  BE CAREFUL.
-  // The Source of the Cache is set as a side action.
-  virtual void SetCache(vtkImageCache *cache);
-
-  // Description:
-  // Returns the cache object of the source.  If one does not exist, a default
-  // is created.
-  vtkImageCache *GetCache();
-  
-  // Description:
-  // Subclasses can override this method to do custom streaming and
-  // splitting for multiprocessing.
-  virtual int SplitExtent(int splitExt[6], int startExt[6], 
-			  int num, int total);
-
-  // Description:
-  // This UnRegister method detects the small reference counting loop:
-  // ImageSource <-> ImageCache, and destructs anyway.
-  void UnRegister(vtkObject *o);
+  // Legacy.  Sets the UpdateExtent to the WholeExtent, and Updates.
+  void UpdateWholeExtent();
   
 protected:
-  vtkImageCache *Output;
-
-  virtual void Execute(vtkImageData *data); 
-  virtual void CheckCache();
+  // Used by streaming: The extent of the output being processed
+  // by the execute method. Set in the ComputeInputUpdateExtent method.
+  int ExecuteExtent[6];
+  
+  virtual void Execute(vtkImageData *data);   
 };
 
 

@@ -63,24 +63,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkProgrammableFilter_h
 #define __vtkProgrammableFilter_h
 
-#include "vtkFilter.h"
-#include "vtkDataSet.h"
+#include "vtkDataSetToDataSetFilter.h"
 
-class vtkPolyData;
-class vtkStructuredPoints;
-class vtkStructuredGrid;
-class vtkUnstructuredGrid;
-class vtkRectilinearGrid;
-class vtkImageCache;
-
-class VTK_EXPORT vtkProgrammableFilter : public vtkFilter
+class VTK_EXPORT vtkProgrammableFilter : public vtkDataSetToDataSetFilter
 {
 public:
   vtkProgrammableFilter();
   ~vtkProgrammableFilter();
   static vtkProgrammableFilter *New() {return new vtkProgrammableFilter;};
   const char *GetClassName() {return "vtkProgrammableFilter";};
-  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Specify the function to use to operate on the point attribute data. Note
@@ -90,10 +81,6 @@ public:
   // Description:
   // Set the arg delete method. This is used to free user memory.
   void SetExecuteMethodArgDelete(void (*f)(void *));
-
-  // Description:
-  // Specify the input data or filter.
-  void SetInput(vtkDataSet *input);
 
   // Description:
   // Get the input as a concrete type. This method is typically used by the
@@ -118,50 +105,12 @@ public:
   // Get the input as a concrete type.
   vtkRectilinearGrid *GetRectilinearGridInput();
 
-  // Description:
-  // Get the output as a concrete type. This method is typically used by the
-  // writer of the filter function to get the output as a particular type
-  // (i.e., it essentially does type casting). It is the users responsibility
-  // to know the correct type of the output data.
-  vtkPolyData *GetPolyDataOutput();
-
-  // Description:
-  // Get the output as a concrete type.
-  vtkStructuredPoints *GetStructuredPointsOutput();
-
-  // Description:
-  // Get the output as a concrete type.
-  vtkStructuredGrid *GetStructuredGridOutput();
-
-  // Description:
-  // Get the output as a concrete type.
-  vtkUnstructuredGrid *GetUnstructuredGridOutput();
-
-  // Description:
-  // Get the output as a concrete type.
-  vtkRectilinearGrid *GetRectilinearGridOutput();
-
-  // Description:
-  // Handle the source/data loop.
-  void UnRegister(vtkObject *o);
-
-  // Description:
-  // Test to see if this object is in a reference counting loop.
-  virtual int InRegisterLoop(vtkObject *);
-
 protected:
   void Execute();
 
   void (*ExecuteMethod)(void *); //function to invoke
   void (*ExecuteMethodArgDelete)(void *);
   void *ExecuteMethodArg;
-  
-  // objects used to support the retrieval of output
-  vtkPolyData *OutputPolyData;
-  vtkStructuredPoints *OutputStructuredPoints;
-  vtkStructuredGrid *OutputStructuredGrid;
-  vtkUnstructuredGrid *OutputUnstructuredGrid;
-  vtkRectilinearGrid *OutputRectilinearGrid;
   
 };
 

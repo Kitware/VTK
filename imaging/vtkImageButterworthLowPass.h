@@ -52,9 +52,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageButterworthLowPass_h
 
 
-#include "vtkImageFilter.h"
+#include "vtkImageToImageFilter.h"
 
-class VTK_EXPORT vtkImageButterworthLowPass : public vtkImageFilter
+class VTK_EXPORT vtkImageButterworthLowPass : public vtkImageToImageFilter
 {
 public:
   vtkImageButterworthLowPass();

@@ -40,23 +40,29 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkStructuredGridWriter.h"
 
+//----------------------------------------------------------------------------
 // Specify the input data or filter.
 void vtkStructuredGridWriter::SetInput(vtkStructuredGrid *input)
 {
-  if ( this->Input != input )
+  this->vtkProcessObject::SetInput(0, input);
+}
+
+//----------------------------------------------------------------------------
+// Specify the input data or filter.
+vtkStructuredGrid *vtkStructuredGridWriter::GetInput()
+{
+  if (this->NumberOfInputs < 1)
     {
-    vtkDebugMacro(<<" setting Input to " << (void *)input);
-    if (this->Input) {this->Input->UnRegister(this);}
-    this->Input = (vtkDataSet *) input;
-    if (this->Input) {this->Input->Register(this);}
-    this->Modified();
+    return NULL;
     }
+  
+  return (vtkStructuredGrid *)(this->Inputs[0]);
 }
 
 void vtkStructuredGridWriter::WriteData()
 {
-  FILE *fp;
-  vtkStructuredGrid *input=(vtkStructuredGrid *)this->Input;
+  ostream *fp;
+  vtkStructuredGrid *input= this->GetInput();
   int dim[3];
 
   vtkDebugMacro(<<"Writing vtk structured grid...");
@@ -65,13 +71,13 @@ void vtkStructuredGridWriter::WriteData()
     {
       return;
     }
-//
-// Write structured grid specific stuff
-//
-  fprintf(fp,"DATASET STRUCTURED_GRID\n");
+  //
+  // Write structured grid specific stuff
+  //
+  *fp << "DATASET STRUCTURED_GRID\n";
 
   input->GetDimensions(dim);
-  fprintf(fp,"DIMENSIONS %d %d %d\n", dim[0], dim[1], dim[2]);
+  *fp << "DIMENSIONS " << dim[0] << " " << dim[1] << " " << dim[2] << "\n";
 
   this->WritePoints(fp, input->GetPoints());
 

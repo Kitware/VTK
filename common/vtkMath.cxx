@@ -188,8 +188,8 @@ int vtkMath::SolveLinearSystem(double **A, double *x, int size)
 // if inverse not computed.
 int vtkMath::InvertMatrix(double **A, double **AI, int size)
 {
-  static int *index = NULL, maxSize=0;
-  static double *column = NULL;
+  int *index = NULL, maxSize=0;
+  double *column = NULL;
   int i, j;
   //
   // Check on allocation of working vectors
@@ -231,6 +231,9 @@ int vtkMath::InvertMatrix(double **A, double **AI, int size)
       }
     }
 
+  delete [] index;
+  delete [] column;
+
   return 1;
 }
 
@@ -241,8 +244,8 @@ int vtkMath::InvertMatrix(double **A, double **AI, int size)
 // found, method returns 0. 
 int vtkMath::LUFactorLinearSystem(double **A, int *index, int size)
 {
-  static double *scale = NULL;
-  static int maxSize=0;
+  double *scale = NULL;
+  int maxSize=0;
   int i, j, k;
   int maxI = 0;
   double largest, temp1, temp2, sum;
@@ -343,6 +346,8 @@ int vtkMath::LUFactorLinearSystem(double **A, int *index, int size)
 	}
       }
     }
+
+  delete [] scale;
 
   return 1;
 }
@@ -999,3 +1004,169 @@ int vtkMath::SolveLeastSquares(int numberOfSamples, double **xt, int xOrder,
   
   return 1;
 }
+
+//=============================================================================
+// Thread safe versions of math methods.
+//=============================================================================
+
+
+// Invert input square matrix A into matrix AI. Note that A is modified during
+// the inversion. The size variable is the dimension of the matrix. Returns 0
+// if inverse not computed.
+// -----------------------
+// For thread safe behavior, temporary arrays tmp1SIze and tmp2Size
+// of length size must be passsed in.
+int vtkMath::InvertMatrix(double **A, double **AI, int size,
+			  int *tmp1Size, double *tmp2Size)
+{
+  int i, j;
+
+  //
+  // Factor matrix; then begin solving for inverse one column at a time.
+  // Note: tmp1Size returned value is used later, tmp2Size is just working
+  // memory whose values are not used in LUSolveLinearSystem
+  //
+  if ( vtkMath::LUFactorLinearSystem(A, tmp1Size, size, tmp2Size) == 0 )
+    {
+    return 0;
+    }
+  
+  for ( i=0; i < size; i++ )
+    {
+    for ( j=0; j < size; j++ )
+      {
+      tmp2Size[j] = 0.0;
+      }
+    tmp2Size[i] = 1.0;
+
+    vtkMath::LUSolveLinearSystem(A,tmp1Size,tmp2Size,size);
+
+    for ( j=0; j < size; j++ )
+      {
+      AI[i][j] = tmp2Size[j];
+      }
+    }
+
+  return 1;
+}
+
+
+
+#define VTK_SMALL_NUMBER 1.0e-12
+
+// Factor linear equations Ax = b using LU decompostion A = LU where L is
+// lower triangular matrix and U is upper triangular matrix. Input is 
+// square matrix A, integer array of pivot indices index[0->n-1], and size
+// of square matrix n. Output factorization LU is in matrix A. If error is 
+// found, method returns 0.
+//------------------------------------------------------------------
+// For thread safe, temporary memory array tmpSize of length size
+// must be passed in.
+int vtkMath::LUFactorLinearSystem(double **A, int *index, int size,
+				  double *tmpSize)
+{
+  int i, j, k;
+  int maxI = 0;
+  double largest, temp1, temp2, sum;
+
+  //
+  // Loop over rows to get implicit scaling information
+  //
+  for ( i = 0; i < size; i++ ) 
+    {
+    for ( largest = 0.0, j = 0; j < size; j++ ) 
+      {
+      if ( (temp2 = fabs(A[i][j])) > largest )
+	{
+	largest = temp2;
+	}
+      }
+
+    if ( largest == 0.0 )
+      {
+      return 0;
+      }
+      tmpSize[i] = 1.0 / largest;
+    }
+  //
+  // Loop over all columns using Crout's method
+  //
+  for ( j = 0; j < size; j++ ) 
+    {
+    for (i = 0; i < j; i++) 
+      {
+      sum = A[i][j];
+      for ( k = 0; k < i; k++ )
+	{
+	sum -= A[i][k] * A[k][j];
+	}
+      A[i][j] = sum;
+      }
+    //
+    // Begin search for largest pivot element
+    //
+    for ( largest = 0.0, i = j; i < size; i++ ) 
+      {
+      sum = A[i][j];
+      for ( k = 0; k < j; k++ )
+	{
+	sum -= A[i][k] * A[k][j];
+	}
+      A[i][j] = sum;
+
+      if ( (temp1 = tmpSize[i]*fabs(sum)) >= largest ) 
+        {
+        largest = temp1;
+        maxI = i;
+        }
+      }
+    //
+    // Check for row interchange
+    //
+    if ( j != maxI ) 
+      {
+      for ( k = 0; k < size; k++ ) 
+        {
+        temp1 = A[maxI][k];
+        A[maxI][k] = A[j][k];
+        A[j][k] = temp1;
+        }
+      tmpSize[maxI] = tmpSize[j];
+      }
+    //
+    // Divide by pivot element and perform elimination
+    //
+    index[j] = maxI;
+
+    if ( fabs(A[j][j]) <= VTK_SMALL_NUMBER )
+      {
+      return 0;
+      }
+
+    if ( j != (size-1) ) 
+      {
+      temp1 = 1.0 / A[j][j];
+      for ( i = j + 1; i < size; i++ )
+	{
+	A[i][j] *= temp1;
+	}
+      }
+    }
+
+  return 1;
+}
+
+
+#undef VTK_SMALL_NUMBER
+
+
+
+
+
+
+
+
+
+
+
+

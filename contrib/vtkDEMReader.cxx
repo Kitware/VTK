@@ -39,7 +39,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkImageData.h"
-#include "vtkImageCache.h"
 #include "vtkDEMReader.h"
 
 #define VTK_SW	0
@@ -69,7 +68,7 @@ vtkDEMReader::~vtkDEMReader()
 }
 
 //----------------------------------------------------------------------------
-void vtkDEMReader::UpdateImageInformation()
+void vtkDEMReader::UpdateInformation()
 {
   float spacing[3], origin[3];
   int extent[6];
@@ -81,16 +80,23 @@ void vtkDEMReader::UpdateImageInformation()
   this->ComputeExtentOriginAndSpacing (extent, origin, spacing);
 
   // fill in the pertinent stuff from the header
-  this->Output->SetOrigin (origin);
-  this->Output->SetSpacing (spacing);
+  this->GetOutput()->SetOrigin(origin);
+  this->GetOutput()->SetSpacing(spacing);
 
-  this->Output->SetNumberOfScalarComponents(1);
-  this->Output->SetScalarType(VTK_FLOAT);
+  this->GetOutput()->SetNumberOfScalarComponents(1);
+  this->GetOutput()->SetScalarType(VTK_FLOAT);
 
   // whole dem must be read
-  this->Output->SetWholeExtent(extent);
-  this->Output->SetUpdateExtent(extent);
+  this->GetOutput()->SetWholeExtent(extent);
 }
+
+
+void vtkDEMReader::InterceptCacheUpdate()
+{
+  this->GetOutput()->SetUpdateExtent(this->GetOutput()->GetWholeExtent());
+}
+
+
 
 void vtkDEMReader::Execute(vtkImageData *data)
 {
@@ -315,7 +321,7 @@ int vtkDEMReader::ReadProfiles (vtkImageData *data)
   int status = 0;
   FILE *fp;
 
-  this->UpdateImageInformation ();
+  this->UpdateInformation ();
 
   if ((fp = fopen(this->FileName, "r")) == NULL)
     {
@@ -439,7 +445,7 @@ void vtkDEMReader::PrintSelf(ostream& os, vtkIndent indent)
      << (this->FileName ? this->FileName : "(none)") << "\n";
   if (this->FileName)
     {
-    this->UpdateImageInformation ();
+    this->UpdateInformation ();
     os << indent << "MapLabel: " << this->MapLabel << "\n";
     os << indent << "DEMLevel: " << this->DEMLevel << "\n";
     os << indent << "ElevationPattern: " << this->ElevationPattern

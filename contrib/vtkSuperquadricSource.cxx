@@ -169,7 +169,7 @@ void vtkSuperquadricSource::Execute()
   float thetaOffset, phiOffset;
   float texCoord[2];
 
-  vtkPolyData *output=(vtkPolyData *)this->Output;
+  vtkPolyData *output = this->GetOutput();
 
   dims[0] = this->Scale[0] * this->Size;
   dims[1] = this->Scale[1] * this->Size;

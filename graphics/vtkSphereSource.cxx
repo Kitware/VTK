@@ -44,6 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkNormals.h"
 #include "vtkMath.h"
 
+//----------------------------------------------------------------------------
 // Construct sphere with radius=0.5 and default resolution 8 in both Phi
 // and Theta directions. Theta ranges from (0,360) and phi (0,180) degrees.
 vtkSphereSource::vtkSphereSource(int res)
@@ -62,6 +63,7 @@ vtkSphereSource::vtkSphereSource(int res)
   this->EndPhi = 180.0;
 }
 
+//----------------------------------------------------------------------------
 void vtkSphereSource::Execute()
 {
   int i, j;
@@ -73,11 +75,12 @@ void vtkSphereSource::Execute()
   float x[3], n[3], deltaPhi, deltaTheta, phi, theta, radius, norm;
   float startTheta, endTheta, startPhi, endPhi;
   int pts[3], base, numPoles=0, thetaResolution, phiResolution;
-  vtkPolyData *output=(vtkPolyData *)this->Output;
-//
-// Set things up; allocate memory
-//
+  vtkPolyData *output = this->GetOutput();
+  //
+  // Set things up; allocate memory
+  //
 
+  vtkDebugMacro("SphereSource Executing");
 
   numPts = this->PhiResolution * this->ThetaResolution + 2;
   // creating triangles
@@ -89,9 +92,9 @@ void vtkSphereSource::Execute()
   newNormals->Allocate(numPts);
   newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(numPolys,3));
-//
-// Create sphere
-//
+  //
+  // Create sphere
+  //
   // Create north pole if needed
   if ( this->StartPhi <= 0.0 )
     {
@@ -210,9 +213,9 @@ void vtkSphereSource::Execute()
       newPolys->InsertNextCell(3,pts);
       }
     }
-//
-// Update ourselves and release memeory
-//
+  //
+  // Update ourselves and release memeory
+  //
   output->SetPoints(newPoints);
   newPoints->Delete();
 
@@ -236,4 +239,23 @@ void vtkSphereSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Radius: " << this->Radius << "\n";
   os << indent << "Center: (" << this->Center[0] << ", " 
      << this->Center[1] << ", " << this->Center[2] << ")\n";
+}
+
+
+//----------------------------------------------------------------------------
+void vtkSphereSource::ExecuteInformation()
+{
+  int numTris, numPts;
+  unsigned long size;
+  
+  // ignore poles
+  numPts = this->ThetaResolution * (this->PhiResolution + 1);
+  numTris = this->ThetaResolution * this->PhiResolution * 2;
+  size = numPts * 3 * sizeof(float);
+  size += numTris * 4 * sizeof(int);
+  
+  // convert to kilobytes
+  size = (size / 1000) + 1;
+  
+  this->GetOutput()->SetEstimatedMemorySize(size);
 }

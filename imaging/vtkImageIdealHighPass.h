@@ -51,9 +51,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageIdealHighPass_h
 
 
-#include "vtkImageFilter.h"
+#include "vtkImageToImageFilter.h"
 
-class VTK_EXPORT vtkImageIdealHighPass : public vtkImageFilter
+class VTK_EXPORT vtkImageIdealHighPass : public vtkImageToImageFilter
 {
 public:
   vtkImageIdealHighPass();

@@ -63,8 +63,22 @@ vtkStructuredGrid::vtkStructuredGrid()
   
   this->Blanking = 0;
   this->PointVisibility = NULL;
+
+  // -----------
+  // I do not like this method of defaulting to the whole dimensions.
+  this->UpdateExtent[0] = this->UpdateExtent[2] 
+    = this->UpdateExtent[4] = -VTK_LARGE_INTEGER;
+  this->UpdateExtent[1] = this->UpdateExtent[3] 
+    = this->UpdateExtent[5] = VTK_LARGE_INTEGER;
+
+  this->Extent[0] = this->Extent[2] = this->Extent[4] = 0;
+  this->Extent[1] = this->Extent[3] = this->Extent[5] = 0;
+
+  this->WholeExtent[0] = this->WholeExtent[2] = this->WholeExtent[4] = 0;
+  this->WholeExtent[1] = this->WholeExtent[3] = this->WholeExtent[5] = 0;
 }
 
+//----------------------------------------------------------------------------
 vtkStructuredGrid::vtkStructuredGrid(const vtkStructuredGrid& sg) :
 vtkPointSet(sg)
 {
@@ -86,6 +100,7 @@ vtkPointSet(sg)
     }
 }
 
+//----------------------------------------------------------------------------
 vtkStructuredGrid::~vtkStructuredGrid()
 {
   this->Initialize();
@@ -101,16 +116,23 @@ vtkStructuredGrid::~vtkStructuredGrid()
   this->Hexahedron->Delete();
 }
 
+//----------------------------------------------------------------------------
 // Copy the geometric and topological structure of an input structured grid.
 void vtkStructuredGrid::CopyStructure(vtkDataSet *ds)
 {
   vtkStructuredGrid *sg=(vtkStructuredGrid *)ds;
   vtkPointSet::CopyStructure(ds);
+  int i;
 
-  for (int i=0; i<3; i++)
+  for (i=0; i<3; i++)
     {
     this->Dimensions[i] = sg->Dimensions[i];
     }
+  for (i=0; i<6; i++)
+    {
+    this->Extent[i] = sg->Extent[i];
+    }
+
   this->DataDescription = sg->DataDescription;
 
   this->Blanking = sg->Blanking;
@@ -126,6 +148,7 @@ void vtkStructuredGrid::CopyStructure(vtkDataSet *ds)
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkStructuredGrid::Initialize()
 {
   vtkPointSet::Initialize(); 
@@ -137,6 +160,7 @@ void vtkStructuredGrid::Initialize()
   this->Blanking = 0;
 }
 
+//----------------------------------------------------------------------------
 int vtkStructuredGrid::GetCellType(int vtkNotUsed(cellId))
 {
   switch (this->DataDescription)
@@ -159,6 +183,7 @@ int vtkStructuredGrid::GetCellType(int vtkNotUsed(cellId))
     }
 }
 
+//----------------------------------------------------------------------------
 vtkCell *vtkStructuredGrid::GetCell(int cellId)
 {
   vtkCell *cell = NULL;
@@ -274,6 +299,7 @@ vtkCell *vtkStructuredGrid::GetCell(int cellId)
   return cell;
 }
 
+//----------------------------------------------------------------------------
 void vtkStructuredGrid::GetCell(int cellId, vtkGenericCell *cell)
 {
   int   idx;
@@ -388,6 +414,7 @@ void vtkStructuredGrid::GetCell(int cellId, vtkGenericCell *cell)
 }
 
 
+//----------------------------------------------------------------------------
 // Fast implementation of GetCellBounds().  Bounds are calculated without
 // constructing a cell.
 void vtkStructuredGrid::GetCellBounds(int cellId, float bounds[6])
@@ -432,29 +459,29 @@ void vtkStructuredGrid::GetCellBounds(int cellId, float bounds[6])
     case VTK_YZ_PLANE:
     case VTK_XZ_PLANE:
       if (this->DataDescription == VTK_XY_PLANE)
-	{
-	i = cellId % (this->Dimensions[0]-1);
-	j = cellId / (this->Dimensions[0]-1);
-	idx = i + j*this->Dimensions[0];
-	offset1 = 1;
-	offset2 = this->Dimensions[0];
-	}
+        {
+        i = cellId % (this->Dimensions[0]-1);
+        j = cellId / (this->Dimensions[0]-1);
+        idx = i + j*this->Dimensions[0];
+        offset1 = 1;
+        offset2 = this->Dimensions[0];
+        }
       else if (this->DataDescription == VTK_YZ_PLANE)
-	{
-	j = cellId % (this->Dimensions[1]-1);
-	k = cellId / (this->Dimensions[1]-1);
-	idx = j + k*this->Dimensions[1];
-	offset1 = 1;
-	offset2 = this->Dimensions[1];
-	}
+        {
+        j = cellId % (this->Dimensions[1]-1);
+        k = cellId / (this->Dimensions[1]-1);
+        idx = j + k*this->Dimensions[1];
+        offset1 = 1;
+        offset2 = this->Dimensions[1];
+        }
       else if (this->DataDescription == VTK_XZ_PLANE)
-	{
-	i = cellId % (this->Dimensions[0]-1);
-	k = cellId / (this->Dimensions[0]-1);
-	idx = i + k*this->Dimensions[0];
-	offset1 = 1;
-	offset2 = this->Dimensions[0];
-	}
+        {
+        i = cellId % (this->Dimensions[0]-1);
+        k = cellId / (this->Dimensions[0]-1);
+        idx = i + k*this->Dimensions[0];
+        offset1 = 1;
+        offset2 = this->Dimensions[0];
+        }
 
       this->Points->GetPoint(idx, x);
       bounds[0] = bounds[1] = x[0];
@@ -514,6 +541,7 @@ void vtkStructuredGrid::GetCellBounds(int cellId, float bounds[6])
 }
 
 
+//----------------------------------------------------------------------------
 // Turn on data blanking. Data blanking is the ability to turn off
 // portions of the grid when displaying or operating on it. Some data
 // (like finite difference data) routinely turns off data to simulate
@@ -532,6 +560,7 @@ void vtkStructuredGrid::BlankingOn()
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkStructuredGrid::AllocatePointVisibility()
 {
   if ( !this->PointVisibility )
@@ -547,6 +576,7 @@ void vtkStructuredGrid::AllocatePointVisibility()
     }
 }
 
+//----------------------------------------------------------------------------
 // Turn off data blanking.
 void vtkStructuredGrid::BlankingOff()
 {
@@ -557,6 +587,7 @@ void vtkStructuredGrid::BlankingOff()
     }
 }
 
+//----------------------------------------------------------------------------
 // Turn off a particular data point.
 void vtkStructuredGrid::BlankPoint(int ptId)
 {
@@ -567,6 +598,7 @@ void vtkStructuredGrid::BlankPoint(int ptId)
   this->PointVisibility->InsertScalar(ptId,0);
 }
 
+//----------------------------------------------------------------------------
 // Turn on a particular data point.
 void vtkStructuredGrid::UnBlankPoint(int ptId)
 {
@@ -577,34 +609,21 @@ void vtkStructuredGrid::UnBlankPoint(int ptId)
   this->PointVisibility->InsertScalar(ptId,1);
 }
 
+//----------------------------------------------------------------------------
 // Set dimensions of structured grid dataset.
 void vtkStructuredGrid::SetDimensions(int i, int j, int k)
 {
-  int dim[3];
-
-  dim[0] = i;
-  dim[1] = j;
-  dim[2] = k;
-  this->SetDimensions(dim);
+  this->SetExtent(0, i-1, 0, j-1, 0, k-1);
 }
 
+//----------------------------------------------------------------------------
 // Set dimensions of structured grid dataset.
 void vtkStructuredGrid::SetDimensions(int dim[3])
 {
-  int returnStatus=vtkStructuredData::SetDimensions(dim,this->Dimensions);
-
-  if ( returnStatus > 0 ) 
-    {
-    this->DataDescription = returnStatus;
-    this->Modified();
-    }
-
-   else if ( returnStatus < 0 ) //improperly specified
-    {
-    vtkErrorMacro (<< "Bad Dimensions, retaining previous values");
-    }
+  this->SetExtent(0, dim[0]-1, 0, dim[1]-1, 0, dim[2]-1);
 }
 
+//----------------------------------------------------------------------------
 // Get the points defining a cell. (See vtkDataSet for more info.)
 void vtkStructuredGrid::GetCellPoints(int cellId, vtkIdList *ptIds)
 {
@@ -701,15 +720,341 @@ void vtkStructuredGrid::GetCellPoints(int cellId, vtkIdList *ptIds)
       break;
     }
 }
+//============================= streaming stuff ==============================
 
+//----------------------------------------------------------------------------
+void vtkStructuredGrid::SetExtent(int extent[6])
+{
+  int description;
+
+  description = vtkStructuredData::SetExtent(extent, this->Extent);
+  if ( description < 0 ) //improperly specified
+    {
+    vtkErrorMacro (<< "Bad Extent, retaining previous values");
+    }
+  
+  if (description == VTK_UNCHANGED)
+    {
+    return;
+    }
+  
+  this->DataDescription = description;
+  
+  this->Modified();
+  this->Dimensions[0] = extent[1] - extent[0] + 1;
+  this->Dimensions[1] = extent[3] - extent[2] + 1;
+  this->Dimensions[2] = extent[5] - extent[4] + 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkStructuredGrid::SetExtent(int xMin, int xMax, int yMin, int yMax,
+				                          int zMin, int zMax)
+{
+  int extent[6];
+
+  extent[0] = xMin; extent[1] = xMax;
+  extent[2] = yMin; extent[3] = yMax;
+  extent[4] = zMin; extent[5] = zMax;
+  
+  this->SetExtent(extent);
+}
+
+//----------------------------------------------------------------------------
+int *vtkStructuredGrid::GetExtent()
+{
+  return this->Extent;
+}
+
+//----------------------------------------------------------------------------
+void vtkStructuredGrid::SetUpdateExtent(int extent[6])
+{
+  int idx;
+  
+  // If the requested extent is not completely in the data structure already,
+  // modify the data structure to cause the source to execute.
+  if (this->Extent[0] > extent[0] || this->Extent[1] < extent[1] || 
+      this->Extent[2] > extent[2] || this->Extent[3] < extent[3] ||
+      this->Extent[4] > extent[4] || this->Extent[5] < extent[5])
+    {
+    this->ReleaseData();
+    }
+  for (idx = 0; idx < 6; ++idx)
+    {
+    this->UpdateExtent[idx] = extent[idx];
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkStructuredGrid::SetUpdateExtent(int xMin, int xMax, int yMin, int yMax,
+				    int zMin, int zMax)
+{
+  int extent[6];
+
+  extent[0] = xMin; extent[1] = xMax;
+  extent[2] = yMin; extent[3] = yMax;
+  extent[4] = zMin; extent[5] = zMax;
+  
+  this->SetUpdateExtent(extent);
+}
+
+//----------------------------------------------------------------------------
+int *vtkStructuredGrid::GetUpdateExtent()
+{
+  return this->UpdateExtent;
+}
+
+//----------------------------------------------------------------------------
+void vtkStructuredGrid::GetUpdateExtent(int ext[6])
+{
+  ext[0] = this->UpdateExtent[0];
+  ext[1] = this->UpdateExtent[1];
+  ext[2] = this->UpdateExtent[2];
+  ext[3] = this->UpdateExtent[3];
+  ext[4] = this->UpdateExtent[4];
+  ext[5] = this->UpdateExtent[5];
+}
+
+//----------------------------------------------------------------------------
+void vtkStructuredGrid::SetUpdateExtentToWholeExtent()
+{
+  this->UpdateInformation();
+  this->SetUpdateExtent(this->WholeExtent);
+}
+
+//----------------------------------------------------------------------------
+void vtkStructuredGrid::CopyUpdateExtent(vtkDataObject *data)
+{
+  vtkStructuredGrid *grid = (vtkStructuredGrid*)(data);
+  int *ext;
+
+  if (data->GetDataObjectType() != VTK_STRUCTURED_GRID)
+    {
+    vtkErrorMacro("CopyUpdateExtent: Expecting vtkStructuredGrid");
+    return;
+    }
+
+  ext = grid->GetUpdateExtent();
+  this->SetUpdateExtent(ext);
+}
+
+//----------------------------------------------------------------------------
+void vtkStructuredGrid::CopyInformation(vtkDataObject *data)
+{
+  vtkStructuredGrid *grid = (vtkStructuredGrid*)(data);
+
+  // bad .... bad ... bad ...
+  if (strcmp(data->GetClassName(), "vtkStructuredGrid") != 0)
+    {
+    vtkErrorMacro("CopyInformation: Expecting vtkStructuredGrid, got " 
+                  << data->GetClassName());
+    return;
+    }
+
+  this->SetWholeExtent(grid->GetWholeExtent());
+}
+
+//----------------------------------------------------------------------------
+void vtkStructuredGrid::ClipUpdateExtentWithWholeExtent()
+{
+  if (this->UpdateExtent[0] < this->WholeExtent[0])
+    {
+    this->UpdateExtent[0] = this->WholeExtent[0];
+    }
+  if (this->UpdateExtent[2] < this->WholeExtent[2])
+    {
+    this->UpdateExtent[2] =  this->WholeExtent[2];
+    }
+  if (this->UpdateExtent[4] < this->WholeExtent[4])
+    {
+    this->UpdateExtent[4] =  this->WholeExtent[4];
+    }
+  if (this->UpdateExtent[1] >= this->WholeExtent[1])
+    {
+    this->UpdateExtent[1] = this->WholeExtent[1];
+    }
+  if (this->UpdateExtent[3] >= this->WholeExtent[3])
+    {
+    this->UpdateExtent[3] = this->WholeExtent[3];
+    }
+  if (this->UpdateExtent[5] >= this->WholeExtent[5])
+    {
+    this->UpdateExtent[5] = this->WholeExtent[5];
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkStructuredGrid::SetUpdateExtent(int piece, int numPieces)
+{
+  int *wholeDim;
+  int numPiecesInFirstHalf;
+  int size[3], mid, splitAxis;
+  int ext[6];
+
+  this->UpdateInformation();
+
+  // Start with the whole grid.
+  this->GetWholeExtent(ext);  
+
+  // keep splitting until we have only one piece.
+  // piece and numPieces will always be relative to the current ext. 
+  while (numPieces > 1)
+    {
+    size[0] = ext[1]-ext[0];
+    size[1] = ext[3]-ext[2];
+    size[2] = ext[5]-ext[4];
+    if (size[0] > size[1] && size[0] > size[2])
+      {
+      splitAxis = 0;
+      }
+    else if (size[1] > size[2])
+      {
+      splitAxis = 1;
+      }
+    else if (size[2] > 1)
+      {
+      splitAxis = 2;
+      }
+    else
+      {
+      // signal no more splits possible
+      splitAxis = -1;
+      }
+
+    if (splitAxis == -1)
+      {
+      // can not split any more.
+      if (piece == 0)
+        {
+        // just return the remaining piece
+        numPieces = 1;
+        }
+      else
+        {
+        // the rest must be empty how do we handle this?
+        numPieces = 1;
+        ext[0] = ext[2] = ext[4] = 0;
+        ext[1] = ext[3] = ext[5] = -1;
+        }
+      }
+    else
+      {
+      // split the chosen axis into two pieces.
+      mid = (size[splitAxis] / 2) + ext[splitAxis*2];
+      numPiecesInFirstHalf = (numPieces / 2);
+      if (piece < numPiecesInFirstHalf)
+        {
+        // piece is in the first half
+        // set extent to the first half of the previous value.
+        ext[splitAxis*2+1] = mid;
+        // piece must adjust.
+        numPieces = numPiecesInFirstHalf;
+        }
+      else
+        {
+        // piece is in the second half.
+        // set the extent to be the second half. (two halves share points)
+        ext[splitAxis*2] = mid;
+        // piece must adjust
+        numPieces = numPieces - numPiecesInFirstHalf;
+        piece -= numPiecesInFirstHalf;
+        }
+      }
+    } // end of while
+
+
+  // now transfer to UpdateExtent.
+  this->UpdateExtent[0] = ext[0];
+  this->UpdateExtent[1] = ext[1];
+  this->UpdateExtent[2] = ext[2];
+  this->UpdateExtent[3] = ext[3];
+  this->UpdateExtent[4] = ext[4];
+  this->UpdateExtent[5] = ext[5];
+}
+
+//----------------------------------------------------------------------------
+void vtkStructuredGrid::SetWholeExtent(int extent[6])
+{
+  int idx, modified = 0;
+  
+  for (idx = 0; idx < 6; ++idx)
+    {
+    if (this->WholeExtent[idx] != extent[idx])
+      {
+      modified = 1;
+      this->WholeExtent[idx] = extent[idx];
+      }
+    }
+  if (modified)
+    {
+    this->Modified();
+    }
+}
+//----------------------------------------------------------------------------
+void vtkStructuredGrid::SetWholeExtent(int xMin, int xMax,
+				   int yMin, int yMax, int zMin, int zMax)
+{
+  int extent[6];
+
+  extent[0] = xMin; extent[1] = xMax;
+  extent[2] = yMin; extent[3] = yMax;
+  extent[4] = zMin; extent[5] = zMax;
+  this->SetWholeExtent(extent);
+}
+
+//----------------------------------------------------------------------------
+void vtkStructuredGrid::GetWholeExtent(int extent[6])
+{
+  int idx;
+  
+  for (idx = 0; idx < 6; ++idx)
+    {
+    extent[idx] = this->WholeExtent[idx];
+    }
+}
+//----------------------------------------------------------------------------
+void vtkStructuredGrid::GetWholeExtent(int &xMin, int &xMax, 
+				       int &yMin, int &yMax,
+				       int &zMin, int &zMax)
+{
+  xMin = this->WholeExtent[0]; xMax = this->WholeExtent[1];
+  yMin = this->WholeExtent[2]; yMax = this->WholeExtent[3];
+  zMin = this->WholeExtent[4]; zMax = this->WholeExtent[5];
+}
+
+
+//----------------------------------------------------------------------------
 void vtkStructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPointSet::PrintSelf(os,indent);
+  int idx;
 
   os << indent << "Dimensions: (" << this->Dimensions[0] << ", "
                                   << this->Dimensions[1] << ", "
                                   << this->Dimensions[2] << ")\n";
 
   os << indent << "Blanking: " << (this->Blanking ? "On\n" : "Off\n");
+
+  os << indent << "UpdateExtent: " << this->UpdateExtent[0] << ", "
+     << this->UpdateExtent[1] << ", " << this->UpdateExtent[2] << ", "
+     << this->UpdateExtent[3] << ", " << this->UpdateExtent[4] << ", "
+     << this->UpdateExtent[5] << endl;
+
+  os << indent << "Extent: " << this->Extent[0] << ", "
+     << this->Extent[1] << ", " << this->Extent[2] << ", "
+     << this->Extent[3] << ", " << this->Extent[4] << ", "
+     << this->Extent[5] << endl;
+
+  os << indent << "EstimatedMemorySize: " << this->EstimatedMemorySize << endl;
+  os << indent << "MemoryLimit: " << this->MemoryLimit << endl;
+
+  os << indent << "WholeExtent: (" << this->WholeExtent[0];
+  for (idx = 1; idx < 6; ++idx)
+    {
+    os << ", " << this->WholeExtent[idx];
+    }
+  os << ")\n";
 }
+
+
+
 

@@ -38,15 +38,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageCache.h"
+
 #include "vtkImageDotProduct.h"
 
 
 //----------------------------------------------------------------------------
 // Colapse the first axis
-void vtkImageDotProduct::ExecuteImageInformation()
+void vtkImageDotProduct::ExecuteInformation()
 {
-  this->Output->SetNumberOfScalarComponents(1);
+  this->GetOutput()->SetNumberOfScalarComponents(1);
 }
 
 

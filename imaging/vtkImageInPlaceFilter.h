@@ -46,16 +46,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // or some other object is referencing the input region.  
 
 // .SECTION See Also
-// vtkImageFilter vtImageMultipleInputFilter vtkImageTwoInputFilter
+// vtkImageToImageFilter vtImageMultipleInputFilter vtkImageTwoInputFilter
 // vtkImageTwoOutputFilter
 
 
 #ifndef __vtkImageInPlaceFilter_h
 #define __vtkImageInPlaceFilter_h
 
-#include "vtkImageFilter.h"
+#include "vtkImageToImageFilter.h"
 
-class VTK_EXPORT vtkImageInPlaceFilter : public vtkImageFilter
+class VTK_EXPORT vtkImageInPlaceFilter : public vtkImageToImageFilter
 {
 public:
   static vtkImageInPlaceFilter *New() {return new vtkImageInPlaceFilter;};
@@ -63,11 +63,11 @@ public:
 
   // Description:
   // This method is called by the cache.  It eventually calls the
-  // Execute(vtkImageData *, vtkImageData *) method.  ImageInformation has
+  // Execute(vtkImageData *, vtkImageData *) method.  Information has
   // already been updated by this point, and outRegion is in local
   // coordinates.  This method will stream to get the input. Only the
   // UpdateExtent from output will get updated.
-  virtual void InternalUpdate(vtkImageData *outData);
+  virtual void InternalUpdate(vtkDataObject *data);
 
 protected:
   virtual void RecursiveStreamUpdate(vtkImageData *outData,int splitAxis);

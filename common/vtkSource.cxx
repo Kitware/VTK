@@ -45,119 +45,575 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define NULL 0
 #endif
 
+//----------------------------------------------------------------------------
 vtkSource::vtkSource()
 {
-  this->Output = NULL;
+  this->NumberOfOutputs = 0;
+  this->Outputs = NULL;
+  this->Updating = 0; 
 }
 
+//----------------------------------------------------------------------------
 vtkSource::~vtkSource()
 {
-  if (this->Output) 
-    { 
-    this->Output->SetSource(NULL);
-    this->Output->Delete();
+  int idx;
+  
+  for (idx = 0; idx < this->NumberOfOutputs; ++idx)
+    {
+    if (this->Outputs[idx])
+      {
+      this->Outputs[idx]->SetSource(NULL);
+      this->Outputs[idx]->UnRegister(this);
+      this->Outputs[idx] = NULL;
+      }
+    }
+  if (this->Outputs)
+    {
+    delete [] this->Outputs;
+    this->Outputs = NULL;
+    this->NumberOfOutputs = 0;
     }
 }
 
-int vtkSource::GetDataReleased()
+//----------------------------------------------------------------------------
+vtkDataObject *vtkSource::GetOutput(int i)
 {
-  if (this->Output)
+  if (this->NumberOfOutputs < i+1)
     {
-    return this->Output->GetDataReleased();
+    return NULL;
     }
-  vtkWarningMacro(<<"Output doesn't exist!");
-  return 1;
+  
+  return this->Outputs[i];
 }
 
-void vtkSource::SetDataReleased(int i)
-{
-  if (this->Output)
-    {
-    this->Output->SetDataReleased(i);
-    }
-  else
-    {
-    vtkWarningMacro(<<"Output doesn't exist!");
-    }
-}
-
+//----------------------------------------------------------------------------
 int vtkSource::GetReleaseDataFlag()
 {
-  if (this->Output)
+  if (this->GetOutput(0))
     {
-    return this->Output->GetReleaseDataFlag();
+    return this->GetOutput(0)->GetReleaseDataFlag();
     }
   vtkWarningMacro(<<"Output doesn't exist!");
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkSource::SetReleaseDataFlag(int i)
 {
-  if (this->Output)
+  int idx;
+  
+  for (idx = 0; idx < this->NumberOfOutputs; idx++)
     {
-    this->Output->SetReleaseDataFlag(i);
-    }
-  else
-    {
-    vtkWarningMacro(<<"Output doesn't exist!");
+    if (this->Outputs[idx])
+      {
+      this->Outputs[idx]->SetReleaseDataFlag(i);
+      }
     }
 }
 
+
+//----------------------------------------------------------------------------
 void vtkSource::Update()
 {
-  // Make sure virtual getMTime method is called since subclasses will overload
-  if ( this->GetMTime() > this->ExecuteTime )
+  if (this->GetOutput(0))
     {
-    if ( this->StartMethod )
+    this->GetOutput(0)->Update();
+    }
+}
+
+typedef vtkDataObject *vtkDataObjectPointer;
+//----------------------------------------------------------------------------
+// Called by constructor to set up output array.
+void vtkSource::SetNumberOfOutputs(int num)
+{
+  int idx;
+  vtkDataObjectPointer *outputs;
+
+  // in case nothing has changed.
+  if (num == this->NumberOfOutputs)
+    {
+    return;
+    }
+  
+  // Allocate new arrays.
+  outputs = new vtkDataObjectPointer[num];
+
+  // Initialize with NULLs.
+  for (idx = 0; idx < num; ++idx)
+    {
+    outputs[idx] = NULL;
+    }
+
+  // Copy old outputs
+  for (idx = 0; idx < num && idx < this->NumberOfOutputs; ++idx)
+    {
+    outputs[idx] = this->Outputs[idx];
+    }
+  
+  // delete the previous arrays
+  if (this->Outputs)
+    {
+    delete [] this->Outputs;
+    this->Outputs = NULL;
+    this->NumberOfOutputs = 0;
+    }
+  
+  // Set the new arrays
+  this->Outputs = outputs;
+  
+  this->NumberOfOutputs = num;
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+// Adds an output to the first null position in the output list.
+// Expands the list memory if necessary
+void vtkSource::AddOutput(vtkDataObject *output)
+{
+  int idx;
+  
+  if (output)
+    {
+    output->SetSource(this);
+    output->Register(this);
+    }
+  this->Modified();
+  
+  for (idx = 0; idx < this->NumberOfOutputs; ++idx)
+    {
+    if (this->Outputs[idx] == NULL)
       {
-      (*this->StartMethod)(this->StartMethodArg);
+      this->Outputs[idx] = output;
+      return;
       }
-    if (this->Output)
+    }
+  
+  this->SetNumberOfOutputs(this->NumberOfOutputs + 1);
+  this->Outputs[this->NumberOfOutputs - 1] = output;
+}
+
+//----------------------------------------------------------------------------
+// Adds an output to the first null position in the output list.
+// Expands the list memory if necessary
+void vtkSource::RemoveOutput(vtkDataObject *output)
+{
+  int idx, loc;
+  
+  if (!output)
+    {
+    return;
+    }
+  
+  // find the output in the list of outputs
+  loc = -1;
+  for (idx = 0; idx < this->NumberOfOutputs; ++idx)
+    {
+    if (this->Outputs[idx] == output)
       {
-      this->Output->Initialize(); //clear output
+      loc = idx;
       }
-    // reset AbortExecute flag and Progress
-    this->AbortExecute = 0;
-    this->Progress = 0.0;
-    this->Execute();
-    this->ExecuteTime.Modified();
-    if ( !this->AbortExecute )
+    }
+  if (loc == -1)
+    {
+    vtkDebugMacro("tried to remove an output that was not in the list");
+    return;
+    }
+  
+  this->Outputs[loc]->SetSource(NULL);
+  this->Outputs[loc]->UnRegister(this);
+  this->Outputs[loc] = NULL;
+
+  // if that was the last output, then shrink the list
+  if (loc == this->NumberOfOutputs - 1)
+    {
+    this->SetNumberOfOutputs(this->NumberOfOutputs - 1);
+    }
+  
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+// Set an Output of this filter. 
+void vtkSource::SetOutput(int idx, vtkDataObject *output)
+{
+  if (idx < 0)
+    {
+    vtkErrorMacro(<< "SetOutput: " << idx << ", cannot set output. ");
+    return;
+    }
+  // Expand array if necessary.
+  if (idx >= this->NumberOfOutputs)
+    {
+    this->SetNumberOfOutputs(idx + 1);
+    }
+  
+  // does this change anything?
+  if (output == this->Outputs[idx])
+    {
+    return;
+    }
+  
+  if (this->Outputs[idx])
+    {
+    this->Outputs[idx]->SetSource(NULL);
+    this->Outputs[idx]->UnRegister(this);
+    this->Outputs[idx] = NULL;
+    }
+  
+  if (output)
+    {
+    output->SetSource(this);
+    output->Register(this);
+    }
+
+  this->Outputs[idx] = output;
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+// Update input to this filter and the filter itself.
+// This is a streaming version of the update method.
+void vtkSource::InternalUpdate(vtkDataObject *output)
+{
+  int idx;
+  int numDivisions, division;
+
+  // prevent chasing our tail
+  if (this->Updating)
+    {
+    return;
+    }
+
+  // Let the source initialize the data for streaming.
+  // output->Initialize and CopyStructure ...
+  this->StreamExecuteStart();
+  
+  // Determine how many pieces we are going to process.
+  numDivisions = this->GetNumberOfStreamDivisions();
+  for (division = 0; division < numDivisions; ++division)
+    {
+    // Compute the update extent for all of the inputs.
+    if (this->ComputeDivisionExtents(output, division, numDivisions))
       {
-      this->UpdateProgress(1.0);
+      // Update the inputs
+      this->Updating = 1;
+      for (idx = 0; idx < this->NumberOfInputs; ++idx)
+	{
+	if (this->Inputs[idx] != NULL)
+	  {
+	  this->Inputs[idx]->InternalUpdate();
+	  }
+	}
+      this->Updating = 0;
+      
+      // Execute
+      if ( this->StartMethod )
+	{
+	(*this->StartMethod)(this->StartMethodArg);
+	}
+      // reset Abort flag
+      this->AbortExecute = 0;
+      this->Progress = 0.0;
+      this->Execute();
+      if ( !this->AbortExecute )
+	{
+	this->UpdateProgress(1.0);
+	}
+      if ( this->EndMethod )
+	{
+	(*this->EndMethod)(this->EndMethodArg);
+	}
       }
-    this->SetDataReleased(0);
-    if ( this->EndMethod )
+    }
+  
+  // Let the source clean up after streaming.
+  this->StreamExecuteEnd();
+  
+  for (idx = 0; idx < this->NumberOfInputs; ++idx)
+    {
+    if (this->Inputs[idx] != NULL)
       {
-      (*this->EndMethod)(this->EndMethodArg);
+      if ( this->Inputs[idx]->ShouldIReleaseData() )
+	{
+	this->Inputs[idx]->ReleaseData();
+	}
+      }  
+    }
+}
+
+//----------------------------------------------------------------------------
+// To facilitate a single Update method, we are putting data initialization
+// in this method.
+void vtkSource::StreamExecuteStart()
+{
+  int idx;
+  
+  // clear output (why isn't this ReleaseData.  Does it allocate data too?)
+  // Should it be done if StreamExecuteStart?
+  for (idx = 0; idx < this->NumberOfOutputs; idx++)
+    {
+    if (this->Outputs[idx])
+      {
+      this->Outputs[idx]->Initialize(); 
       }
     }
 }
 
+
+
+//----------------------------------------------------------------------------
+int vtkSource::ComputeDivisionExtents(vtkDataObject *output,
+				      int idx, int numDivisions)
+{
+  if (idx == 0 && numDivisions == 1)
+    {
+    return this->ComputeInputUpdateExtents(output);
+    }
+  if (this->NumberOfInputs > 0)
+    {
+    vtkErrorMacro("Source did not implement ComputeDivisionExtents");
+    return 0;
+    }
+  
+  return 1;
+}
+
+
+//----------------------------------------------------------------------------
+int vtkSource::ComputeInputUpdateExtents(vtkDataObject *output)
+{
+  if (this->NumberOfInputs > 0)
+    {
+    vtkErrorMacro("Subclass did not implement ComputeInputUpdateExtents");
+    }
+  return 1;
+}
+
+
+// This will have to be merged with the streaming update.
+#if 0
+//----------------------------------------------------------------------------
+// This Update supports the MPI and SharedMemoryPorts,
+void vtkSource::InternalUpdate()
+{
+  vtkDataObject *pd;
+  int idx;
+
+  // prevent chasing our tail
+  if (this->Updating)
+    {
+    return;
+    }
+
+  for (idx = 0; idx < this->NumberOfOutputs; ++idx)
+    {
+    if (this->Outputs[idx] != NULL)
+      {
+      this->Outputs[idx]->Initialize(); //clear output
+      }
+    }
+  
+  // The UpdateInformation has already started the non-blocking update.
+  // Here we should probably sort by locality, but
+  // dividing into two groups should do for now.
+
+  // UpdateInformation has started non blocking updates on the
+  // non local inputs, so update the local inputs next.
+  for (idx = 0; idx < this->NumberOfInputs; ++idx)
+    {
+    if (this->Inputs[idx] != NULL)
+      {
+      pd = this->Inputs[idx];
+      if (pd->GetLocality() != 0)
+	{
+	this->Updating = 1;
+	pd->InternalUpdate();
+	this->Updating = 0;
+	}
+      }
+    }
+  
+  // Now ask the non-local inputs (ports) to send there data.
+  for (idx = 0; idx < this->NumberOfInputs; ++idx)
+    {
+    if (this->Inputs[idx] != NULL)
+      {
+      pd = this->Inputs[idx];
+      if (pd->GetLocality() == 0)
+	{
+	this->Updating = 1;
+	pd->InternalUpdate();
+	this->Updating = 0;
+	}
+      }
+    }
+  
+  // execute
+  if ( this->StartMethod )
+    {
+    (*this->StartMethod)(this->StartMethodArg);
+    }
+  // reset Abort flag
+  this->AbortExecute = 0;
+  this->Progress = 0.0;
+  this->Execute();
+  if ( !this->AbortExecute )
+    {
+    this->UpdateProgress(1.0);
+    }
+  if ( this->EndMethod )
+    {
+    (*this->EndMethod)(this->EndMethodArg);
+    }
+
+  // clean up
+  for (idx = 0; idx < this->NumberOfInputs; ++idx)
+    {
+    if (this->Inputs[idx] != NULL)
+      {
+      pd = this->Inputs[idx];
+      if ( pd->ShouldIReleaseData() )
+	{
+	pd->ReleaseData();
+	}
+      }
+    }
+}
+#endif
+
+
+//----------------------------------------------------------------------------
+void vtkSource::UpdateInformation()
+{
+  unsigned long t1, t2, size;
+  int locality, l2, idx;
+  vtkDataObject *pd;
+
+  if (this->Outputs[0] == NULL)
+    {
+    return;
+    }
+  
+  // Update information on the input and
+  // compute information that is general to vtkDataObject.
+  t1 = this->GetMTime();
+  size = 0;
+  locality = 0;
+
+  for (idx = 0; idx < this->NumberOfInputs; ++idx)
+    {
+    if (this->Inputs[idx] != NULL)
+      {
+      pd = this->Inputs[idx];
+
+      this->Updating = 1;
+      pd->UpdateInformation();
+      this->Updating = 0;
+      
+      // for MPI port stuff
+      l2 = pd->GetLocality();
+      if (l2 > locality)
+	{
+	locality = l2;
+	}
+      
+      // Pipeline MTime stuff
+      t2 = pd->GetPipelineMTime();
+      if (t2 > t1)
+	{
+	t1 = t2;
+	}
+      // Pipeline MTime does not include the MTime of the data object itself.
+      // Factor these mtimes into the next PipelineMTime
+      t2 = pd->GetMTime();
+      if (t2 > t1)
+	{
+	t1 = t2;
+	}
+      
+      // Default estimated size is just the sum of the sizes of the inputs.
+      size += pd->GetEstimatedMemorySize();
+      }
+    }
+ 
+  for (idx = 0; idx < this->NumberOfOutputs; ++idx)
+    {
+    if (this->GetOutput(idx))
+      {
+      this->GetOutput(idx)->SetLocality(locality + 1);
+      this->GetOutput(idx)->SetEstimatedMemorySize(size);
+      this->GetOutput(idx)->SetPipelineMTime(t1);
+      }  
+    }
+  
+  // Call ExecuteInformation for subclass specific information.
+  // Some sources (readers) have an expensive ExecuteInformation method.
+  if (t1 > this->InformationTime.GetMTime())
+    {
+    this->ExecuteInformation();
+    this->InformationTime.Modified();
+    }
+
+}
+
+//----------------------------------------------------------------------------
 void vtkSource::Execute()
 {
   vtkErrorMacro(<< "Definition of Execute() method should be in subclass");
 }
 
+//----------------------------------------------------------------------------
+void vtkSource::ExecuteInformation()
+{
+  //vtkErrorMacro(<< "Subclass did not implement ExecuteInformation");
+}
+
+//----------------------------------------------------------------------------
 void vtkSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkProcessObject::PrintSelf(os,indent);
 
-  os << indent << "Execute Time: " << this->ExecuteTime.GetMTime() << "\n";
-
-  if ( this->Output )
+  if ( this->NumberOfOutputs)
     {
-    os << indent << "Output:\n";
-    this->Output->PrintSelf(os,indent.GetNextIndent());
+    int idx;
+    for (idx = 0; idx < this->NumberOfOutputs; ++idx)
+      {
+      os << indent << "Output " << idx << ": (" << this->Outputs[idx] << ")\n";
+      }
     }
   else
     {
-    os << indent << "No output generated for this filter\n";
+    os << indent <<"No Outputs\n";
     }
 }
 
 int vtkSource::InRegisterLoop(vtkObject *o)
 {
-  if (this->ReferenceCount == 1 && this->Output == o)
+  int idx;
+  int num = 0;
+  int cnum = 0;
+  int match = 0;
+  
+  for (idx = 0; idx < this->NumberOfOutputs; idx++)
+    {
+    if (this->Outputs[idx])
+      {
+      if (this->Outputs[idx] == o)
+	{
+	match = 1;
+	}
+      if (this->Outputs[idx]->GetSource() == this)
+	{
+	num++;
+	cnum += this->Outputs[idx]->GetNetReferenceCount();
+	}
+      }
+    }
+  
+  // if no one outside is using us
+  // and our data objects are down to one net reference
+  // and we are being asked by one of our data objects
+  if (this->ReferenceCount == num && cnum == (num + 1) && match)
     {
     return 1;
     }
@@ -166,15 +622,69 @@ int vtkSource::InRegisterLoop(vtkObject *o)
                            
 void vtkSource::UnRegister(vtkObject *o)
 {
+  int idx;
+  int done = 0;
+
   // detect the circular loop source <-> data
   // If we have two references and one of them is my data
   // and I am not being unregistered by my data, break the loop.
-  if (this->ReferenceCount == 2 && this->Output != NULL &&
-      this->Output->GetSource() == this && o != this->Output &&
-      this->Output->GetNetReferenceCount() == 1)
+  if (this->ReferenceCount == (this->NumberOfOutputs+1))
     {
-    this->Output->SetSource(NULL);
+    done = 1;
+    for (idx = 0; idx < this->NumberOfOutputs; idx++)
+      {
+      if (this->Outputs[idx])
+	{
+	if (this->Outputs[idx] == o)
+	  {
+	  done = 0;
+	  }
+	if (this->Outputs[idx]->GetNetReferenceCount() != 1)
+	  {
+	  done = 0;
+	  }
+	}
+      }
+    }
+  
+  if (this->ReferenceCount == this->NumberOfOutputs)
+    {
+    int match = 0;
+    int total = 0;
+    for (idx = 0; idx < this->NumberOfOutputs; idx++)
+      {
+      if (this->Outputs[idx])
+	{
+	if (this->Outputs[idx] == o)
+	  {
+	  match = 1;
+	  }
+	total += this->Outputs[idx]->GetNetReferenceCount();
+	}
+      }
+    if (total == 6 && match)
+      {
+      done = 1;
+      }
+    }
+    
+  if (done)
+    {
+    for (idx = 0; idx < this->NumberOfOutputs; idx++)
+      {
+      if (this->Outputs[idx])
+	{
+	this->Outputs[idx]->SetSource(NULL);
+	}
+      }
     }
   
   this->vtkObject::UnRegister(o);
 }
+
+
+
+
+
+
+

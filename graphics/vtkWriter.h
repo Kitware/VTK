@@ -81,11 +81,11 @@ public:
   // Description:
   // Convenient alias for Write() method.
   void Update();
+  
+  vtkDataObject *GetInput();
 
 protected:
   virtual void WriteData() = 0; //internal method subclasses must respond to
-  vtkDataObject *Input;
-
 };
 
 #endif

@@ -56,8 +56,6 @@ vtkClipVolume::vtkClipVolume(vtkImplicitFunction *cf)
   this->GenerateClipScalars = 0;
 
   this->GenerateClippedOutput = 0;
-  this->ClippedOutput = vtkUnstructuredGrid::New();
-  this->ClippedOutput->SetSource(this);
   this->MergeTolerance = 0.01;
   
   this->Mesh = NULL;
@@ -68,11 +66,12 @@ vtkClipVolume::vtkClipVolume(vtkImplicitFunction *cf)
   
   this->Triangulator = vtkDelaunay3D::New();
   this->Triangulator->SetLocator(this->MeshLocator);
+  this->vtkSource::SetOutput(1,vtkUnstructuredGrid::New());
+  this->Outputs[1]->Delete();
 }
 
 vtkClipVolume::~vtkClipVolume()
 {
-  this->ClippedOutput->Delete();
   if ( this->Locator )
     {
     this->Locator->UnRegister(this);
@@ -86,6 +85,16 @@ vtkClipVolume::~vtkClipVolume()
   this->MeshLocator->UnRegister(this);
   this->Triangulator->Delete();
   this->SetClipFunction(NULL);
+}
+
+vtkUnstructuredGrid *vtkClipVolume::GetClippedOutput()
+{
+  if (this->NumberOfOutputs < 2)
+    {
+    return NULL;
+    }
+  
+  return (vtkUnstructuredGrid *)(this->Outputs[1]);
 }
 
 // Overload standard modified time function. If Clip functions is modified,
@@ -116,7 +125,7 @@ unsigned long vtkClipVolume::GetMTime()
 //
 void vtkClipVolume::Execute()
 {
-  vtkStructuredPoints *input = (vtkStructuredPoints *)this->Input;
+  vtkStructuredPoints *input = this->GetInput();
   vtkUnstructuredGrid *output = this->GetOutput();
   vtkUnstructuredGrid *clippedOutput = this->GetClippedOutput();
   vtkUnstructuredGrid *outputPtr;
@@ -231,8 +240,8 @@ void vtkClipVolume::Execute()
   // If generating second output, setup clipped output
   if ( this->GenerateClippedOutput )
     {
-    this->ClippedOutput->Initialize();
-    this->ClippedOutput->Allocate(estimatedSize); //allocate storage for cells
+    this->GetClippedOutput()->Initialize();
+    this->GetClippedOutput()->Allocate(estimatedSize); //allocate storage for cells
     }
 
   // perform clipping on voxels - compute approriate numbers
@@ -367,9 +376,9 @@ void vtkClipVolume::Execute()
 
   if ( this->GenerateClippedOutput )
     {
-    this->ClippedOutput->SetPoints(newPoints);
-    this->ClippedOutput->GetPointData()->PassData(outPD);
-    this->ClippedOutput->Squeeze();
+    this->GetClippedOutput()->SetPoints(newPoints);
+    this->GetClippedOutput()->GetPointData()->PassData(outPD);
+    this->GetClippedOutput()->Squeeze();
     }
 
   output->SetPoints(newPoints);
@@ -655,71 +664,4 @@ void vtkClipVolume::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Generate Clip Scalars: " << (this->GenerateClipScalars ? "On\n" : "Off\n");
 
   os << indent << "Generate Clipped Output: " << (this->GenerateClippedOutput ? "On\n" : "Off\n");
-}
-
-void vtkClipVolume::UnRegister(vtkObject *o)
-{
-  // detect the circular loop source <-> data
-  // If we have two references and one of them is my data
-  // and I am not being unregistered by my data, break the loop.
-  if (this->ReferenceCount == 3 && this->Output != NULL &&
-      this->Output->GetSource() == this && o != this->Output &&
-      this->Output->GetNetReferenceCount() == 1 &&
-      this->ClippedOutput && 
-      this->ClippedOutput->GetNetReferenceCount() == 1 &&
-      o != this->ClippedOutput && 
-      this->ClippedOutput->GetSource() == this)
-    {
-    this->Output->SetSource(NULL);
-    this->ClippedOutput->SetSource(NULL);
-    }
-  // detect the circular loop source <-> data
-  // If we have two references and one of them is my data
-  // and I am not being unregistered by my data, break the loop.
-  if (this->ReferenceCount == 2 && this->Output != NULL &&
-      this->Output->GetSource() == this && o != this->Output &&
-      this->Output->GetNetReferenceCount() == 1)
-    {
-    this->Output->SetSource(NULL);
-    }
-  // detect the circular loop source <-> data
-  // If we have two references and one of them is my data
-  // and I am not being unregistered by my data, break the loop.
-  if (this->ReferenceCount == 2 && this->ClippedOutput != NULL &&
-      this->ClippedOutput->GetSource() == this && 
-      o != this->ClippedOutput &&
-      this->ClippedOutput->GetNetReferenceCount() == 1)
-    {
-    this->ClippedOutput->SetSource(NULL);
-    }
-  
-  this->vtkObject::UnRegister(o);
-}
-
-int vtkClipVolume::InRegisterLoop(vtkObject *o)
-{
-  int num = 0;
-  int cnum = 0;
-  
-  if (this->Output->GetSource() == this)
-    {
-    num++;
-    cnum += this->Output->GetNetReferenceCount();
-    }
-  if (this->ClippedOutput->GetSource() == this)
-    {
-    num++;
-    cnum += this->ClippedOutput->GetNetReferenceCount();
-    }
-  
-  // if no one outside is using us
-  // and our data objects are down to one net reference
-  // and we are being asked by one of our data objects
-  if (this->ReferenceCount == num &&
-      cnum == (num + 1) &&
-      (this->Output == o || this->ClippedOutput == o))
-    {
-    return 1;
-    }
-  return 0;
 }

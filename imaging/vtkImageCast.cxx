@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageCache.h"
+
 #include "vtkImageCast.h"
 
 
@@ -53,9 +53,9 @@ vtkImageCast::vtkImageCast()
 
 //----------------------------------------------------------------------------
 // Just change the Image type.
-void vtkImageCast::ExecuteImageInformation()
+void vtkImageCast::ExecuteInformation()
 {
-  this->Output->SetScalarType(this->OutputScalarType);
+  this->GetOutput()->SetScalarType(this->OutputScalarType);
 }
 
 //----------------------------------------------------------------------------
@@ -63,26 +63,26 @@ void vtkImageCast::ExecuteImageInformation()
 void vtkImageCast::InternalUpdate(vtkImageData *data)
 {
   
-  if (! this->Input || ! this->Output)
+  if (! this->GetInput() || ! this->GetOutput())
     {
     vtkErrorMacro("Update: Input or output is not set.");
     return;
     }
   
   // Do the scalar types already match
-  if (this->Input->GetScalarType() == this->Output->GetScalarType())
+  if (this->GetInput()->GetScalarType() == this->GetOutput()->GetScalarType())
     {
     int bypassSave = this->Bypass;
     // just copy by reference. (use Bypass)
     vtkDebugMacro("Update: Cast is not necessary.");
     this->Bypass = 1;
-    this->vtkImageFilter::InternalUpdate(data);
+    this->vtkImageToImageFilter::InternalUpdate(data);
     this->Bypass = bypassSave;
     return;
     }
   
   // call the superclass update which will cause an execute.
-  this->vtkImageFilter::InternalUpdate(data);
+  this->vtkImageToImageFilter::InternalUpdate(data);
 }
 
 //----------------------------------------------------------------------------
@@ -305,7 +305,7 @@ void vtkImageCast::ThreadedExecute(vtkImageData *inData,
 
 void vtkImageCast::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageFilter::PrintSelf(os,indent);
+  vtkImageToImageFilter::PrintSelf(os,indent);
 
   os << indent << "OutputScalarType: " << this->OutputScalarType << "\n";
   os << indent << "ClampOverflow: ";

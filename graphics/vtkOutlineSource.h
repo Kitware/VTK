@@ -63,6 +63,7 @@ public:
 
 protected:
   void Execute();
+  void ExecuteInformation();
   float Bounds[6];
 };
 

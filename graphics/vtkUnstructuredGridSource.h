@@ -62,9 +62,16 @@ public:
 
   // Description:
   // Get the output of this source.
-  vtkUnstructuredGrid *GetOutput() {
-    return (vtkUnstructuredGrid *)this->Output;};
-
+  vtkUnstructuredGrid *GetOutput();
+  void SetOutput(vtkUnstructuredGrid *output);
+  
+protected:
+  
+  // Since the Outputs[0] has the same UpdateExtent format
+  // as the generic DataObject we can copy the UpdateExtent
+  // as a default behavior.
+  int ComputeInputUpdateExtents(vtkDataObject *output);
+  
 };
 
 #endif

@@ -39,7 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkImageCache.h"
+
 #include "vtkImageLaplacian.h"
 
 
@@ -54,14 +54,14 @@ vtkImageLaplacian::vtkImageLaplacian()
 //----------------------------------------------------------------------------
 void vtkImageLaplacian::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkImageFilter::PrintSelf(os, indent);
+  this->vtkImageToImageFilter::PrintSelf(os, indent);
   os << indent << "Dimensionality: " << this->Dimensionality;
 }
 
 
 //----------------------------------------------------------------------------
 // Just clip the request.  The subclass may need to overwrite this method.
-void vtkImageLaplacian::ComputeRequiredInputUpdateExtent(int inExt[6], 
+void vtkImageLaplacian::ComputeInputUpdateExtent(int inExt[6], 
 							 int outExt[6])
 {
   int idx;
@@ -70,7 +70,7 @@ void vtkImageLaplacian::ComputeRequiredInputUpdateExtent(int inExt[6],
   // handle XYZ
   memcpy(inExt,outExt,sizeof(int)*6);
   
-  wholeExtent = this->Input->GetWholeExtent();
+  wholeExtent = this->GetInput()->GetWholeExtent();
   // update and Clip
   for (idx = 0; idx < 3; ++idx)
     {

@@ -119,5 +119,36 @@ void vtkLight::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
+void vtkLight::WriteSelf(ostream& os)
+{
+  os << this->FocalPoint[0] << " " << this->FocalPoint[1] << " "
+     << this->FocalPoint[2] << " ";
+  os << this->Position[0] << " " << this->Position[1] << " "
+     << this->Position[2] << " ";
+  os << this->Intensity << " ";
+  os << this->Color[0] << " " << this->Color[1] << " "
+     << this->Color[2] << " ";
+  os << this->Switch << " ";
+  os << this->Positional << " ";
+  os << this->Exponent << " ";
+  os << this->ConeAngle << " ";
+  os << this->AttenuationValues[0] << " " << this->AttenuationValues[1] << " "
+     << this->AttenuationValues[2] << " ";
+}
+
+void vtkLight::ReadSelf(istream& is)
+{
+  is >> this->FocalPoint[0] >> this->FocalPoint[1] >> this->FocalPoint[2] ;
+  is >> this->Position[0] >> this->Position[1] >> this->Position[2];
+  is >> this->Intensity;
+  is >> this->Color[0] >> this->Color[1] >> this->Color[2];
+  is >> this->Switch;
+  is >> this->Positional;
+  is >> this->Exponent;
+  is >> this->ConeAngle;
+  is >> this->AttenuationValues[0] >> this->AttenuationValues[1] 
+     >> this->AttenuationValues[2];
+}
+
 
 

@@ -54,6 +54,8 @@ vtkProcessObject::vtkProcessObject()
   this->EndMethodArg = NULL;
   this->AbortExecute = 0;
   this->Progress = 0.0;
+  this->NumberOfInputs = 0;
+  this->Inputs = NULL;
 }
 
 // Destructor for the vtkProcessObject class
@@ -71,10 +73,173 @@ vtkProcessObject::~vtkProcessObject()
     {
     (*this->EndMethodArgDelete)(this->EndMethodArg);
     }
+
+  int idx;
+  
+  for (idx = 0; idx < this->NumberOfInputs; ++idx)
+    {
+    if (this->Inputs[idx])
+      {
+      this->Inputs[idx]->UnRegister(this);
+      this->Inputs[idx] = NULL;
+      }
+    }
+  if (this->Inputs)
+    {
+    delete [] this->Inputs;
+    this->Inputs = NULL;
+    this->NumberOfInputs = 0;
+    }
 }
 
-// Update the progress of the process object. If a ProgressMethod exists, executes it. 
-// Then set the Progress ivar to amount. The parameter amount should range between (0,1).
+typedef vtkDataObject *vtkDataObjectPointer;
+//----------------------------------------------------------------------------
+// Called by constructor to set up input array.
+void vtkProcessObject::SetNumberOfInputs(int num)
+{
+  int idx;
+  vtkDataObjectPointer *inputs;
+
+  // in case nothing has changed.
+  if (num == this->NumberOfInputs)
+    {
+    return;
+    }
+  
+  // Allocate new arrays.
+  inputs = new vtkDataObjectPointer[num];
+
+  // Initialize with NULLs.
+  for (idx = 0; idx < num; ++idx)
+    {
+    inputs[idx] = NULL;
+    }
+
+  // Copy old inputs
+  for (idx = 0; idx < num && idx < this->NumberOfInputs; ++idx)
+    {
+    inputs[idx] = this->Inputs[idx];
+    }
+  
+  // delete the previous arrays
+  if (this->Inputs)
+    {
+    delete [] this->Inputs;
+    this->Inputs = NULL;
+    this->NumberOfInputs = 0;
+    }
+  
+  // Set the new arrays
+  this->Inputs = inputs;
+  
+  this->NumberOfInputs = num;
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+// Adds an input to the first null position in the input list.
+// Expands the list memory if necessary
+void vtkProcessObject::AddInput(vtkDataObject *input)
+{
+  int idx;
+  
+  if (input)
+    {
+    input->Register(this);
+    }
+  this->Modified();
+  
+  for (idx = 0; idx < this->NumberOfInputs; ++idx)
+    {
+    if (this->Inputs[idx] == NULL)
+      {
+      this->Inputs[idx] = input;
+      return;
+      }
+    }
+  
+  this->SetNumberOfInputs(this->NumberOfInputs + 1);
+  this->Inputs[this->NumberOfInputs - 1] = input;
+}
+
+//----------------------------------------------------------------------------
+// Adds an input to the first null position in the input list.
+// Expands the list memory if necessary
+void vtkProcessObject::RemoveInput(vtkDataObject *input)
+{
+  int idx, loc;
+  
+  if (!input)
+    {
+    return;
+    }
+  
+  // find the input in the list of inputs
+  loc = -1;
+  for (idx = 0; idx < this->NumberOfInputs; ++idx)
+    {
+    if (this->Inputs[idx] == input)
+      {
+      loc = idx;
+      }
+    }
+  if (loc == -1)
+    {
+    vtkDebugMacro("tried to remove an input that was not in the list");
+    return;
+    }
+  
+  this->Inputs[loc]->UnRegister(this);
+  this->Inputs[loc] = NULL;
+
+  // if that was the last input, then shrink the list
+  if (loc == this->NumberOfInputs - 1)
+    {
+    this->SetNumberOfInputs(this->NumberOfInputs - 1);
+    }
+  
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+// Set an Input of this filter. 
+void vtkProcessObject::SetInput(int idx, vtkDataObject *input)
+{
+  if (idx < 0)
+    {
+    vtkErrorMacro(<< "SetInput: " << idx << ", cannot set input. ");
+    return;
+    }
+  // Expand array if necessary.
+  if (idx >= this->NumberOfInputs)
+    {
+    this->SetNumberOfInputs(idx + 1);
+    }
+  
+  // does this change anything?
+  if (input == this->Inputs[idx])
+    {
+    return;
+    }
+  
+  if (this->Inputs[idx])
+    {
+    this->Inputs[idx]->UnRegister(this);
+    this->Inputs[idx] = NULL;
+    }
+  
+  if (input)
+    {
+    input->Register(this);
+    }
+
+  this->Inputs[idx] = input;
+  this->Modified();
+}
+
+// Update the progress of the process object. If a ProgressMethod exists, 
+// executes it. Then set the Progress ivar to amount. The parameter amount 
+// should range between (0,1).
 void vtkProcessObject::UpdateProgress(float amount)
 {
   this->Progress = amount;
@@ -166,6 +331,19 @@ void vtkProcessObject::SetEndMethodArgDelete(void (*f)(void *))
 void vtkProcessObject::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
+
+  if ( this->NumberOfInputs)
+    {
+    int idx;
+    for (idx = 0; idx < this->NumberOfInputs; ++idx)
+      {
+      os << indent << "Input " << idx << ": (" << this->Inputs[idx] << ")\n";
+      }
+    }
+  else
+    {
+    os << indent <<"No Inputs\n";
+    }
 
   if ( this->StartMethod )
     {

@@ -68,7 +68,7 @@ public:
   // Description:
   // Set / get the input data or filter.
   void SetInput(vtkDataObject *input);
-  vtkDataObject *GetInput() {return this->Input;};
+  vtkDataObject *GetInput();
               
   // Description:
   // Methods delegated to vtkDataWriter, see vtkDataWriter.

@@ -56,13 +56,19 @@ class VTK_EXPORT vtkStructuredGridSource : public vtkSource
 {
 public:
   vtkStructuredGridSource();
-  static vtkStructuredGridSource *New() {return new vtkStructuredGridSource;};
-  const char *GetClassName() {return "vtkStructuredGridSource";};
+  static vtkStructuredGridSource *New() {return new vtkStructuredGridSource;}
+  const char *GetClassName() {return "vtkStructuredGridSource";}
 
   // Description:
   // Get the output of this source.
-  vtkStructuredGrid *GetOutput() {return (vtkStructuredGrid *)this->Output;};
+  vtkStructuredGrid *GetOutput();
+  void SetOutput(vtkStructuredGrid *output);  
 
+protected:
+  // Used by streaming: The extent of the output being processed
+  // by the execute method. Set in the ComputeInputUpdateExtents method
+  // (in filter subclasses).
+  int ExecuteExtent[6];
 };
 
 #endif

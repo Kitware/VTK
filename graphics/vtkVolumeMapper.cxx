@@ -45,7 +45,6 @@ vtkVolumeMapper::vtkVolumeMapper()
 {
   int i;
 
-  this->RGBTextureInput = NULL;
   this->Clipping = 0;
   for ( i = 0; i < 3; i++ )
     {
@@ -60,109 +59,91 @@ vtkVolumeMapper::vtkVolumeMapper()
 
 vtkVolumeMapper::~vtkVolumeMapper()
 {
-  this->SetInput((vtkStructuredPoints *)NULL);
-  if (this->RGBTextureInput)
-    {
-    this->RGBTextureInput->Delete ();
-    this->RGBTextureInput = NULL;
-    }
 }
 
 void vtkVolumeMapper::Update()
 {
-  if ( this->Input )
+  if ( this->GetInput() )
     {
-    this->Input->Update();
+    this->GetInput()->Update();
     }
 
-  if ( this->RGBTextureInput )
+  if ( this->GetRGBTextureInput() )
     {
-    this->RGBTextureInput->Update();
+    this->GetRGBTextureInput()->Update();
     }
 }
 
 void vtkVolumeMapper::SetInput( vtkStructuredPoints *input )
 {
-  if ( (vtkDataSet *)input != this->Input )
-    {
-    // If we have data already, unregister it
-    if ( this->Input )
-      {
-      this->Input->UnRegister(this);
-      }
-    // Set the input data
-    this->Input = (vtkDataSet *)input;
-    // If this is not NULL, register it
-    if ( this->Input )
-      {
-      this->Input->Register(this);
-      }
-    // We've been modified!
-    this->Modified();    
-    }
+  this->vtkProcessObject::SetInput(0, input);
 }
+
+vtkStructuredPoints *vtkVolumeMapper::GetInput()
+{
+  if (this->NumberOfInputs < 1)
+    {
+    return NULL;
+    }
+  return (vtkStructuredPoints*)(this->Inputs[0]);
+}
+
 
 void vtkVolumeMapper::SetRGBTextureInput( vtkStructuredPoints *rgbTexture )
 {
   vtkPointData    *pd;
   vtkScalars      *scalars;
 
-  if ( rgbTexture != this->RGBTextureInput )
+  if ( rgbTexture )
     {
-    // If we are actually setting a texture (not NULL) then
-    // do some error checking to make sure it is of the right
-    // type with the right number of components
-    if ( rgbTexture )
+    rgbTexture->Update();
+    pd = rgbTexture->GetPointData();
+    if ( !pd )
       {
-      rgbTexture->Update();
-      pd = rgbTexture->GetPointData();
-      if ( !pd )
-	{
-	vtkErrorMacro( << "No PointData in texture!" );
-	return;
-	}
-      scalars = pd->GetScalars();
-      if ( !scalars )
-	{
-	vtkErrorMacro( << "No scalars in texture!" );
-	return;
-	}
-      if ( scalars->GetDataType() != VTK_UNSIGNED_CHAR )
-	{
-	vtkErrorMacro( << "Scalars in texture must be unsigned char!" );
-	return;      
-	}
-      if ( scalars->GetNumberOfComponents() != 3 )
-	{
-	vtkErrorMacro( << "Scalars must have 3 components (r, g, and b)" );
-	return;      
-	}
+      vtkErrorMacro( << "No PointData in texture!" );
+      return;
       }
-    // If we have a texture already, unregister it
-    if ( this->RGBTextureInput )
+    scalars = pd->GetScalars();
+    if ( !scalars )
       {
-      this->RGBTextureInput->UnRegister(this);
+      vtkErrorMacro( << "No scalars in texture!" );
+      return;
       }
-    // Set the texture
-    this->RGBTextureInput = rgbTexture;
-    // If this is not NULL, register it
-    if ( this->RGBTextureInput )
+    if ( scalars->GetDataType() != VTK_UNSIGNED_CHAR )
       {
-      this->RGBTextureInput->Register(this);
+      vtkErrorMacro( << "Scalars in texture must be unsigned char!" );
+      return;      
       }
-    // We've been modified!
-    this->Modified();
+    if ( scalars->GetNumberOfComponents() != 3 )
+      {
+      vtkErrorMacro( << "Scalars must have 3 components (r, g, and b)" );
+      return;      
+      }
     }
+  
+  this->vtkProcessObject::SetInput(1, rgbTexture);
+
 }
+
+vtkStructuredPoints *vtkVolumeMapper::GetRGBTextureInput()
+{
+  if (this->NumberOfInputs < 2)
+    {
+    return NULL;
+    }
+  return (vtkStructuredPoints *)(this->Inputs[1]);
+}
+
 
 // Print the vtkVolumeMapper
 void vtkVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkAbstractMapper::PrintSelf(os,indent);
 
-  if ( this->RGBTextureInput )
+  if ( this->GetRGBTextureInput() )
     {
-    os << indent << "RGBTextureInput: (" << this->RGBTextureInput << ")\n";
+    os << indent << "RGBTextureInput: (" << this->GetRGBTextureInput() 
+       << ")\n";
     }
   else
     {

@@ -39,7 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkImageCache.h"
+
 #include "vtkImageSobel2D.h"
 
 
@@ -66,10 +66,10 @@ void vtkImageSobel2D::PrintSelf(ostream& os, vtkIndent indent)
 
 
 //----------------------------------------------------------------------------
-void vtkImageSobel2D::ExecuteImageInformation()
+void vtkImageSobel2D::ExecuteInformation()
 {
-  this->Output->SetNumberOfScalarComponents(2);
-  this->Output->SetScalarType(VTK_FLOAT);
+  this->GetOutput()->SetNumberOfScalarComponents(2);
+  this->GetOutput()->SetScalarType(VTK_FLOAT);
 }
 
 
@@ -196,7 +196,7 @@ void vtkImageSobel2D::ThreadedExecute(vtkImageData *inData,
   void *inPtr, *outPtr;
   int inExt[6];
   
-  this->ComputeRequiredInputUpdateExtent(inExt, outExt);  
+  this->ComputeInputUpdateExtent(inExt, outExt);  
   
   inPtr = inData->GetScalarPointerForExtent(inExt);
   outPtr = outData->GetScalarPointerForExtent(outExt);

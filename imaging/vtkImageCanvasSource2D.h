@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageCanvasSource2D_h
 
 #include <math.h>
-#include "vtkImageData.h"
+#include "vtkStructuredPoints.h"
 
 //
 // Special classes for manipulating data
@@ -70,7 +70,7 @@ public:
 //
 
 
-class VTK_EXPORT vtkImageCanvasSource2D : public vtkImageData
+class VTK_EXPORT vtkImageCanvasSource2D : public vtkStructuredPoints
 {
 public:
 

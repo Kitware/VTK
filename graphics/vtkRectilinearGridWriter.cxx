@@ -40,23 +40,30 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkRectilinearGridWriter.h"
 
+//----------------------------------------------------------------------------
 // Specify the input data or filter.
 void vtkRectilinearGridWriter::SetInput(vtkRectilinearGrid *input)
 {
-  if ( this->Input != input )
-    {
-    vtkDebugMacro(<<" setting Input to " << (void *)input);
-    if (this->Input) {this->Input->UnRegister(this);}
-    this->Input = (vtkDataSet *) input;
-    if (this->Input) {this->Input->Register(this);}
-    this->Modified();
-    }
+  this->vtkProcessObject::SetInput(0, input);
 }
+
+//----------------------------------------------------------------------------
+// Specify the input data or filter.
+vtkRectilinearGrid *vtkRectilinearGridWriter::GetInput()
+{
+  if (this->NumberOfInputs < 1)
+    {
+    return NULL;
+    }
+  
+  return (vtkRectilinearGrid *)(this->Inputs[0]);
+}
+
 
 void vtkRectilinearGridWriter::WriteData()
 {
-  FILE *fp;
-  vtkRectilinearGrid *input=(vtkRectilinearGrid *)this->Input;
+  ostream *fp;
+  vtkRectilinearGrid *input = this->GetInput();
   int dim[3];
 
   vtkDebugMacro(<<"Writing vtk rectilinear grid...");
@@ -68,10 +75,10 @@ void vtkRectilinearGridWriter::WriteData()
   //
   // Write rectilinear grid specific stuff
   //
-  fprintf(fp,"DATASET RECTILINEAR_GRID\n");
+  *fp << "DATASET RECTILINEAR_GRID\n"; 
 
   input->GetDimensions(dim);
-  fprintf(fp,"DIMENSIONS %d %d %d\n", dim[0], dim[1], dim[2]);
+  *fp << "DIMENSIONS " << dim[0] << " " << dim[1] << " " << dim[2] < "\n";
 
   this->WriteCoordinates(fp, input->GetXCoordinates(), 0);
   this->WriteCoordinates(fp, input->GetYCoordinates(), 1);

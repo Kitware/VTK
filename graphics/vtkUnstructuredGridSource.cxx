@@ -40,10 +40,53 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkUnstructuredGridSource.h"
 
+//----------------------------------------------------------------------------
 vtkUnstructuredGridSource::vtkUnstructuredGridSource()
 {
-  this->Output = vtkUnstructuredGrid::New();
-  this->Output->SetSource(this);
+  this->vtkSource::SetOutput(0, vtkUnstructuredGrid::New());
 }
 
+//----------------------------------------------------------------------------
+vtkUnstructuredGrid *vtkUnstructuredGridSource::GetOutput()
+{
+  if (this->NumberOfOutputs < 1)
+    {
+    return NULL;
+    }
+  
+  return (vtkUnstructuredGrid *)(this->Outputs[0]);
+}
+
+//----------------------------------------------------------------------------
+void vtkUnstructuredGridSource::SetOutput(vtkUnstructuredGrid *output)
+{
+  this->vtkSource::SetOutput(0, output);
+}
+
+
+//----------------------------------------------------------------------------
+int vtkUnstructuredGridSource::ComputeInputUpdateExtents(vtkDataObject *data)
+{
+  int piece, numPieces;
+  vtkUnstructuredGrid *output = (vtkUnstructuredGrid *)data;
+  int idx;
+
+  output->GetUpdateExtent(piece, numPieces);
+    
+  // make sure piece is valid
+  if (piece < 0 || piece >= numPieces)
+    {
+    return 0;
+    }
+  
+  // just copy the Update extent as default behavior.
+  for (idx = 0; idx < this->NumberOfInputs; ++idx)
+    {
+    if (this->Inputs[idx])
+      {
+      this->Inputs[idx]->SetUpdateExtent(piece, numPieces);
+      }
+    }
+  return 1;
+}
 

@@ -40,94 +40,41 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkMergeDataObjectFilter.h"
 
+//----------------------------------------------------------------------------
 // Create object with no input or output.
 vtkMergeDataObjectFilter::vtkMergeDataObjectFilter()
 {
-  this->DataObject = NULL;
   this->OutputField = VTK_DATA_OBJECT_FIELD;
 }
 
+//----------------------------------------------------------------------------
 vtkMergeDataObjectFilter::~vtkMergeDataObjectFilter()
 {
-  if (this->DataObject) {this->DataObject->UnRegister(this);}
-  this->DataObject = NULL;
 }
 
-void vtkMergeDataObjectFilter::Update()
+//----------------------------------------------------------------------------
+// Specify a data object at a specified table location.
+void vtkMergeDataObjectFilter::SetDataObject(vtkDataObject *d)
 {
-  // make sure output has been created
-  if ( !this->Output )
-    {
-    vtkErrorMacro(<< "No output has been created...need to set input");
-    return;
-    }
+  this->vtkProcessObject::SetInput(1, d);
+}
 
-  // make sure input is available
-  if ( !this->Input )
+//----------------------------------------------------------------------------
+// Get a pointer to a data object at a specified table location.
+vtkDataObject *vtkMergeDataObjectFilter::GetDataObject()
+{
+  if (this->NumberOfInputs < 2)
     {
-    vtkErrorMacro(<< "No input...can't execute!");
-    return;
+    return NULL;
     }
-
-  // prevent chasing our tail
-  if (this->Updating)
+  else
     {
-    return;
-    }
-
-  this->Updating = 1;
-  this->Input->Update();
-  if ( this->DataObject )
-    {
-    this->DataObject->Update();
-    }
-  this->Updating = 0;
-
-  if ( this->Input->GetMTime() > this->ExecuteTime ||
-  (this->DataObject && this->DataObject->GetMTime() > this->ExecuteTime) || 
-  this->GetMTime() > this->ExecuteTime )
-    {
-    if ( this->Input->GetDataReleased() )
-      {
-      this->Input->ForceUpdate();
-      }
-    if ( this->DataObject && this->DataObject->GetDataReleased() ) 
-      {
-      this->DataObject->ForceUpdate();
-      }
-
-    if ( this->StartMethod )
-      {
-      (*this->StartMethod)(this->StartMethodArg);
-      }
-    // copy topological/geometric structure from input
-    ((vtkDataSet *)this->Output)->CopyStructure((vtkDataSet *)this->Input);
-    // reset AbortExecute flag and Progress
-    this->AbortExecute = 0;
-    this->Progress = 0.0;
-    this->Execute();
-    this->ExecuteTime.Modified();
-    if ( !this->AbortExecute )
-      {
-      this->UpdateProgress(1.0);
-      }
-    this->SetDataReleased(0);
-    if ( this->EndMethod )
-      {
-      (*this->EndMethod)(this->EndMethodArg);
-      }
-    }
-
-  if ( this->Input->ShouldIReleaseData() )
-    {
-    this->Input->ReleaseData();
-    }
-  if ( this->DataObject && this->DataObject->ShouldIReleaseData() ) 
-    {
-    this->DataObject->ReleaseData();
+    return this->Inputs[1];
     }
 }
 
+
+//----------------------------------------------------------------------------
 // Merge it all together
 void vtkMergeDataObjectFilter::Execute()
 {
@@ -164,18 +111,22 @@ void vtkMergeDataObjectFilter::Execute()
     }
 }
 
+//----------------------------------------------------------------------------
+// This is tricky.  If input and output are both structured, how
+// do we specify the update extent of the data object?
+int vtkMergeDataObjectFilter::ComputeInputUpdateExtents(vtkDataObject *data)
+{
+  vtkDataSet *output = (vtkDataSet*)data;
+  
+  this->GetInput()->CopyUpdateExtent(output);
+  return 1;
+}
+
+
+//----------------------------------------------------------------------------
 void vtkMergeDataObjectFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToDataSetFilter::PrintSelf(os,indent);
-
-  if ( this->DataObject )
-    {
-    os << indent << "Data Object: (" << this->DataObject << ")\n";
-    }
-  else
-    {
-    os << indent << "Data Object: (none)\n";
-    }
 
   os << indent << "Output Field: ";
   if ( this->OutputField == VTK_DATA_OBJECT_FIELD )

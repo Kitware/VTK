@@ -121,8 +121,8 @@ void vtkSweptSurface::Execute()
   float position[3], position1[3], position2[4]; 
   float orient1[3], orient2[3], orientation[3];
   float origin[3], spacing[3], bbox[24];
-  vtkStructuredPoints *input=(vtkStructuredPoints *)this->Input;
-  vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;
+  vtkStructuredPoints *input = this->GetInput();
+  vtkStructuredPoints *output = this->GetOutput();
 
   vtkDebugMacro(<<"Creating swept surface");
 
@@ -294,8 +294,8 @@ void vtkSweptSurface::SampleInput(vtkMatrix4x4 *m, int inDim[3],
 
   x[3] = 1.0; //homogeneous coordinates
 
-  origin = ((vtkStructuredPoints *)this->Output)->GetOrigin();
-  spacing = ((vtkStructuredPoints *)this->Output)->GetSpacing();
+  origin = this->GetOutput()->GetOrigin();
+  spacing = this->GetOutput()->GetSpacing();
 
   // Compute the change in voxel coordinates for each step change in world coordinates
   x[0] = origin[0];
@@ -448,8 +448,8 @@ void vtkSweptSurface::ComputeFootprint (vtkMatrix4x4 *m, int inDim[3],
 	}
       }
     }
-  origin = ((vtkStructuredPoints *)this->Output)->GetOrigin();
-  spacing = ((vtkStructuredPoints *)this->Output)->GetSpacing();
+  origin = this->GetOutput()->GetOrigin();
+  spacing = this->GetOutput()->GetSpacing();
 
   // Compute the footprint of the input in the workspace volume
   for (ii = 0; ii < 3; ii++) 
@@ -461,7 +461,7 @@ void vtkSweptSurface::ComputeFootprint (vtkMatrix4x4 *m, int inDim[3],
 
 unsigned long int vtkSweptSurface::GetMTime()
 {
-  unsigned long mtime=vtkStructuredPointsFilter::GetMTime();
+  unsigned long mtime=vtkStructuredPointsSource::GetMTime();
   unsigned long int transMtime;
   vtkTransform *t;
 
@@ -488,7 +488,7 @@ void vtkSweptSurface::ComputeBounds(float origin[3], float spacing[3], float bbo
   int i, j, k, ii, idx, dim;
   float *bounds;
   float xmin[3], xmax[3], x[4], xTrans[4], h;
-  vtkStructuredPoints *input=(vtkStructuredPoints *)this->Input;
+  vtkStructuredPoints *input = this->GetInput();
 
   // Compute eight points of bounding box (used later)
   bounds = input->GetBounds();
@@ -668,8 +668,8 @@ void vtkSweptSurface::ComputeBounds(float origin[3], float spacing[3], float bbo
       }
     }
 
-  ((vtkStructuredPoints *)(this->Output))->SetOrigin(origin);
-  ((vtkStructuredPoints *)(this->Output))->SetSpacing(spacing);
+  this->GetOutput()->SetOrigin(origin);
+  this->GetOutput()->SetSpacing(spacing);
 }
 
 // based on both path and bounding box of input, compute the number of 
@@ -716,7 +716,7 @@ int vtkSweptSurface::ComputeNumberOfSteps(vtkTransform *t1, vtkTransform *t2,
   // use magic factor to convert to number of steps. Takes into account
   // rotation (assuming maximum 90 degrees), data spacing of output, and 
   // effective size of voxel.
-  spacing = ((vtkStructuredPoints *)this->Output)->GetSpacing();
+  spacing = this->GetOutput()->GetSpacing();
   h = sqrt(spacing[0]*spacing[0] + spacing[1]*spacing[1] + 
            spacing[2]*spacing[2]) / 2.0;
   numSteps = (int) ((double)(1.414 * sqrt((double)maxDist2)) / h);

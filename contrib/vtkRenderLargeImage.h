@@ -72,7 +72,7 @@ public:
   // Returns which renderer is being used as the source for the pixel data.
   vtkGetObjectMacro(Input,vtkRenderer);
 
-  void UpdateImageInformation();
+  void UpdateInformation();
   
 protected:
   int Magnification;

@@ -40,23 +40,30 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkStructuredPointsWriter.h"
 
+//----------------------------------------------------------------------------
 // Specify the input data or filter.
 void vtkStructuredPointsWriter::SetInput(vtkStructuredPoints *input)
 {
-  if ( this->Input != input )
-    {
-    vtkDebugMacro(<<" setting Input to " << (void *)input);
-    if (this->Input) {this->Input->UnRegister(this);}
-    this->Input = (vtkDataSet *) input;
-    if (this->Input) {this->Input->Register(this);}
-    this->Modified();
-    }
+  this->vtkProcessObject::SetInput(0, input);
 }
+
+//----------------------------------------------------------------------------
+// Specify the input data or filter.
+vtkStructuredPoints *vtkStructuredPointsWriter::GetInput()
+{
+  if (this->NumberOfInputs < 1)
+    {
+    return NULL;
+    }
+  
+  return (vtkStructuredPoints *)(this->Inputs[0]);
+}
+
 
 void vtkStructuredPointsWriter::WriteData()
 {
-  FILE *fp;
-  vtkStructuredPoints *input=(vtkStructuredPoints *)this->Input;
+  ostream *fp;
+  vtkStructuredPoints *input=this->GetInput();
   int dim[3];
   float spacing[3], origin[3];
 
@@ -66,19 +73,19 @@ void vtkStructuredPointsWriter::WriteData()
       {
       return;
       }
-//
-// Write structured points specific stuff
-//
-  fprintf(fp,"DATASET STRUCTURED_POINTS\n");
+  //
+  // Write structured points specific stuff
+  //
+  *fp << "DATASET STRUCTURED_POINTS\n";
 
   input->GetDimensions(dim);
-  fprintf(fp,"DIMENSIONS %d %d %d\n", dim[0], dim[1], dim[2]);
+  *fp << "DIMENSIONS " << dim[0] << " " << dim[1] << " " << dim[2] << "\n";
 
   input->GetSpacing(spacing);
-  fprintf(fp,"SPACING %g %g %g\n", spacing[0], spacing[1], spacing[2]);
+  *fp << "SPACING " << spacing[0] << " " << spacing[1] << " " << spacing[2] << "\n";
 
   input->GetOrigin(origin);
-  fprintf(fp,"ORIGIN %g %g %g\n", origin[0], origin[1], origin[2]);
+  *fp << "ORIGIN " << origin[0] << " " << origin[1] << " " << origin[2] << "\n";
 
   this->WriteCellData(fp, input);
   this->WritePointData(fp, input);

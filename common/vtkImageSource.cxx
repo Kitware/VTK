@@ -38,79 +38,51 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageSimpleCache.h"
 #include "vtkImageSource.h"
-
-#include <stdio.h>
 
 //----------------------------------------------------------------------------
 vtkImageSource::vtkImageSource()
 {
-  this->Output = NULL;
+  this->vtkSource::SetOutput(0,vtkImageData::New());
+  this->Outputs[0]->Delete();
 }
-
 
 //----------------------------------------------------------------------------
-// Destructor: Delete the cache as well. (should caches by reference counted?)
-vtkImageSource::~vtkImageSource()
+// Specify the input data or filter.
+void vtkImageSource::SetOutput(vtkImageData *output)
 {
-  if (this->Output)
-    {
-    this->Output->UnRegister(this);
-    this->Output = NULL;
-    }
+  this->vtkSource::SetOutput(0, output);
 }
-
 
 //----------------------------------------------------------------------------
-void vtkImageSource::PrintSelf(ostream& os, vtkIndent indent)
+// Specify the input data or filter.
+vtkImageData *vtkImageSource::GetOutput()
 {
-  vtkProcessObject::PrintSelf(os,indent);
-
-  if (this->Output)
+  if (this->NumberOfOutputs < 1)
     {
-    os << indent << "Cache:\n";
-    this->Output->PrintSelf(os, indent.GetNextIndent());
+    return NULL;
     }
-  else
-    {
-    os << indent << "Cache: NULL \n";
-    }
-}
   
-
-
-//----------------------------------------------------------------------------
-// This method can be used to intercept a generate call made to a cache.
-// It allows a source to generate a larger region than was originally 
-// specified.  The default method does not alter the specified region extent.
-void vtkImageSource::InterceptCacheUpdate()
-{
+  return (vtkImageData *)(this->Outputs[0]);
 }
 
-
-//----------------------------------------------------------------------------
-// This method can be called directly.
-// It simply forwards the update to the cache.
-void vtkImageSource::Update()
-{
-  // Make sure there is an output.
-  this->CheckCache();
-
-  this->Output->Update();
-}
-
-  
 //----------------------------------------------------------------------------
 // This method is called by the cache.
-void vtkImageSource::InternalUpdate(vtkImageData *data)
+void vtkImageSource::InternalUpdate(vtkDataObject *data)
 {
+  vtkImageData *image = (vtkImageData *)data;
+
+  // since cache no longer exists we must allocate the scalars here
+  this->InterceptCacheUpdate();
+  image->SetExtent(image->GetUpdateExtent());
+  image->AllocateScalars();
+  
   this->AbortExecute = 0;
   if ( this->StartMethod )
     {
     (*this->StartMethod)(this->StartMethodArg);
     }
-  this->Execute(data);
+  this->Execute(image);
   if ( this->EndMethod )
     {
     (*this->EndMethod)(this->EndMethodArg);
@@ -118,12 +90,11 @@ void vtkImageSource::InternalUpdate(vtkImageData *data)
 }
 
 //----------------------------------------------------------------------------
-// This method updates the cache with the whole image extent.
-void vtkImageSource::UpdateWholeExtent()
+// This method can be used to intercept a generate call made to a cache.
+// It allows a source to generate a larger region than was originally 
+// specified.  The default method does not alter the specified region extent.
+void vtkImageSource::InterceptCacheUpdate()
 {
-  this->CheckCache();
-  this->GetOutput()->SetUpdateExtentToWholeExtent();
-  this->GetOutput()->Update();
 }
 
 //----------------------------------------------------------------------------
@@ -135,180 +106,10 @@ void vtkImageSource::Execute(vtkImageData *)
 }
 
 //----------------------------------------------------------------------------
-// Returns the cache object of the source.  If one does not exist, a default
-// is created.
-vtkImageCache *vtkImageSource::GetCache()
+void vtkImageSource::UpdateWholeExtent()
 {
-  this->CheckCache();
-  
-  return this->Output;
+  this->UpdateInformation();
+  this->GetOutput()->SetUpdateExtent(this->GetOutput()->GetWholeExtent());
+  this->InternalUpdate(this->GetOutput());
 }
-
-
-
-//----------------------------------------------------------------------------
-// Returns an object which will generate data for Regions.
-vtkImageCache *vtkImageSource::GetOutput()
-{
-  return this->GetCache();
-}
-
-
-
-
-//----------------------------------------------------------------------------
-// Returns the maximum mtime of this source and every object which effects
-// this sources output. 
-unsigned long vtkImageSource::GetPipelineMTime()
-{
-  return this->GetMTime();
-}
-
-
-//----------------------------------------------------------------------------
-// Use this method to specify a cache object for the filter.  
-// If a cache has been set previously, it is deleted, and caches
-// are not reference counted yet.  BE CAREFUL.
-// The Source of the Cache is set as a side action.
-void vtkImageSource::SetCache(vtkImageCache *cache)
-{
-  if (cache == this->Output)
-    {
-    return;
-    }
-  
-  if (cache)
-    {
-    // cache->ReleaseData();
-    cache->SetSource(this);
-    cache->Register(this);
-    }
-  
-  if (this->Output)
-    {
-    this->Output->UnRegister(this);
-    this->Output->SetSource(NULL);
-    this->Output = NULL;
-    }
-
-  this->Output = cache;
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
-// This method sets the value of the caches ReleaseDataFlag.  When this flag
-// is set, the cache releases its data after every generate.  When a default
-// cache is created, this flag is automatically set.
-void vtkImageSource::SetReleaseDataFlag(int value)
-{
-  this->CheckCache();
-  this->Output->SetReleaseDataFlag(value);
-}
-
-
-//----------------------------------------------------------------------------
-// This method gets the value of the caches ReleaseDataFlag.
-int vtkImageSource::GetReleaseDataFlag()
-{
-  this->CheckCache();
-  return this->Output->GetReleaseDataFlag();
-}
-
-//----------------------------------------------------------------------------
-// This private method creates a cache if one has not been set.
-// ReleaseDataFlag is turned on.
-void vtkImageSource::CheckCache()
-{
-  // create a default cache if one has not been set
-  if (this->Output == NULL)
-    {
-    this->Output = vtkImageSimpleCache::New();
-    this->Output->Register(this);
-    this->Output->Delete();
-    this->Output->SetSource(this);
-    this->Modified();
-    }
-}
-
-//----------------------------------------------------------------------------
-// For streaming and threads.  Splits output update extent into num pieces.
-// This method needs to be called num times.  Results must not overlap for
-// consistent starting extent.  Subclass can override this method.
-// This method returns the number of peices resulting from a successful split.
-// This can be from 1 to "total".  
-// If 1 is returned, the extent cannot be split.
-int vtkImageSource::SplitExtent(int splitExt[6], int startExt[6], 
-				int num, int total)
-{
-  int splitAxis;
-  int min, max;
-
-  vtkDebugMacro("SplitExtent: ( " << startExt[0] << ", " << startExt[1] << ", "
-		<< startExt[2] << ", " << startExt[3] << ", "
-		<< startExt[4] << ", " << startExt[5] << "), " 
-		<< num << " of " << total);
-
-  // start with same extent
-  memcpy(splitExt, startExt, 6 * sizeof(int));
-
-  splitAxis = 2;
-  min = startExt[4];
-  max = startExt[5];
-  while (min == max)
-    {
-    splitAxis--;
-    if (splitAxis < 0)
-      { // cannot split
-      vtkDebugMacro("  Cannot Split");
-      return 1;
-      }
-    min = startExt[splitAxis*2];
-    max = startExt[splitAxis*2+1];
-    }
-
-  // determine the actual number of pieces that will be generated
-  int range = max - min + 1;
-  int valuesPerThread = (int)ceil(range/(double)total);
-  int maxThreadIdUsed = (int)ceil(range/(double)valuesPerThread) - 1;
-  if (num < maxThreadIdUsed)
-    {
-    splitExt[splitAxis*2] = splitExt[splitAxis*2] + num*valuesPerThread;
-    splitExt[splitAxis*2+1] = splitExt[splitAxis*2] + valuesPerThread - 1;
-    }
-  if (num == maxThreadIdUsed)
-    {
-    splitExt[splitAxis*2] = splitExt[splitAxis*2] + num*valuesPerThread;
-    }
-  
-  vtkDebugMacro("  Split Piece: ( " <<splitExt[0]<< ", " <<splitExt[1]<< ", "
-		<< splitExt[2] << ", " << splitExt[3] << ", "
-		<< splitExt[4] << ", " << splitExt[5] << ")");
-
-  return maxThreadIdUsed + 1;
-}
-
-
-
-//----------------------------------------------------------------------------
-void vtkImageSource::UnRegister(vtkObject *o)
-{
-  // detect the circular loop source <-> cache
-  // If we have two references and one of them is my cache
-  // and I am not being unregistered by my cache, break the loop.
-  if (this->ReferenceCount == 2 && this->Output != NULL &&
-      this->Output->GetSource() == this && o != this->Output &&
-      this->Output->GetReferenceCount() == 1)
-    {
-    this->Output->SetSource(NULL);
-    }
-  
-  this->vtkObject::UnRegister(o);
-}
-
-  
-
-
-
-
-
 

@@ -41,7 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <ctype.h>
 #include <string.h>
 #include "vtkByteSwap.h"
-#include "vtkImageCache.h"
 #include "vtkImageImport.h"
 
 //----------------------------------------------------------------------------
@@ -115,17 +114,14 @@ void vtkImageImport::PrintSelf(ostream& os, vtkIndent indent)
 // This method returns the largest data that can be generated.
 void vtkImageImport::UpdateImageInformation()
 {
-  // Make sure we have an output.
-  this->CheckCache();
-    
   // set the extent
-  this->Output->SetWholeExtent(this->DataExtent);
+  this->GetOutput()->SetWholeExtent(this->DataExtent);
     
   // set the spacing
-  this->Output->SetSpacing(this->DataSpacing);
+  this->GetOutput()->SetSpacing(this->DataSpacing);
 
   // set the origin.
-  this->Output->SetOrigin(this->DataOrigin);
+  this->GetOutput()->SetOrigin(this->DataOrigin);
 
   // set data type
   this->GetOutput()->SetScalarType(this->DataScalarType);
@@ -135,7 +131,7 @@ void vtkImageImport::UpdateImageInformation()
 
 // A templated function to import the data and copy it into the output.
 template<class T>
-static void vtkImageImportExecute(vtkImageImport *self, vtkImageData *data, T *inPtr)
+void vtkImageImportExecute(vtkImageImport *self, vtkImageData *data, T *inPtr)
 {
   int i,j;
 

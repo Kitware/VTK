@@ -62,7 +62,7 @@ public:
 protected:
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
 		       int outExt[6], int id);
-  void ExecuteImageInformation();
+  void ExecuteInformation();
 };
 
 #endif

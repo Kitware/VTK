@@ -72,7 +72,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkProcessObject_h
 #define __vtkProcessObject_h
 
-#include "vtkObject.h"
+#include "vtkDataObject.h"
 
 class VTK_EXPORT vtkProcessObject : public vtkObject
 {
@@ -131,7 +131,15 @@ public:
   // left public for performance since it is used in inner loops
   int AbortExecute;
 
+  // Description:
+  // Return an array with all the inputs of this process object.
+  // This is useful for tracing back in the pipeline to contruct
+  // graphs etc.
+  vtkDataObject **GetInputs();
+  vtkGetMacro(NumberOfInputs,int);
+
 protected:
+  
   void (*StartMethod)(void *);
   void (*StartMethodArgDelete)(void *);
   void *StartMethodArg;
@@ -142,6 +150,17 @@ protected:
   void (*EndMethodArgDelete)(void *);
   void *EndMethodArg;
   float Progress;
+  int NumberOfInputs;
+  vtkDataObject **Inputs;     // An Array of the inputs to the filter
+
+  // Called to allocate the input array.  Copies old inputs.
+  void SetNumberOfInputs(int num);
+
+  // protected methods for setting inputs.
+  virtual void SetInput(int num, vtkDataObject *input);
+  virtual void AddInput(vtkDataObject *input);
+  virtual void RemoveInput(vtkDataObject *input);
+  
 };
 
 #endif

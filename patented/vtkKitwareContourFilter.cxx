@@ -49,7 +49,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkSynchronizedTemplates3D.h"
 #include "vtkGridSynchronizedTemplates3D.h"
 
-
 // Construct object with initial range (0,1) and single contour value
 // of 0.0.
 vtkKitwareContourFilter::vtkKitwareContourFilter()
@@ -133,7 +132,7 @@ void vtkKitwareContourFilter::Execute()
     }
 
   // If structured points and structured grid, use more efficient algorithms
-  if ( input->GetDataSetType() == VTK_STRUCTURED_POINTS )
+  if ( input->GetDataObjectType() == VTK_STRUCTURED_POINTS )
     {
     int dim = input->GetCell(0)->GetCellDimension();
 
@@ -144,7 +143,7 @@ void vtkKitwareContourFilter::Execute()
       }
     }
 
-  if ( input->GetDataSetType() == VTK_STRUCTURED_GRID )
+  if ( input->GetDataObjectType() == VTK_STRUCTURED_GRID )
     {
     int dim = input->GetCell(0)->GetCellDimension();
     // only do 3D structured grids (to be extended in the future)
@@ -274,7 +273,7 @@ void vtkKitwareContourFilter::Execute()
 void vtkKitwareContourFilter::StructuredPointsContour(int dim)
 {
   vtkPolyData *output;
-  vtkPolyData *thisOutput = (vtkPolyData *)this->Output;
+  vtkPolyData *thisOutput = this->GetOutput();
   int numContours=this->ContourValues->GetNumberOfContours();
   float *values=this->ContourValues->GetValues();
 
@@ -284,7 +283,7 @@ void vtkKitwareContourFilter::StructuredPointsContour(int dim)
     int i;
     
     syncTemp2D = vtkSynchronizedTemplates2D::New();
-    syncTemp2D->SetInput((vtkStructuredPoints *)this->Input);
+    syncTemp2D->SetInput((vtkStructuredPoints *)this->GetInput());
     syncTemp2D->SetDebug(this->Debug);
     syncTemp2D->SetNumberOfContours(numContours);
     for (i=0; i < numContours; i++)
@@ -304,7 +303,8 @@ void vtkKitwareContourFilter::StructuredPointsContour(int dim)
     int i;
     
     syncTemp3D = vtkSynchronizedTemplates3D::New();
-    syncTemp3D->SetInput((vtkStructuredPoints *)this->Input);
+    
+    syncTemp3D->SetInput((vtkStructuredPoints *)this->GetInput());
     syncTemp3D->SetComputeNormals (this->ComputeNormals);
     syncTemp3D->SetComputeGradients (this->ComputeGradients);
     syncTemp3D->SetComputeScalars (this->ComputeScalars);
@@ -331,7 +331,7 @@ void vtkKitwareContourFilter::StructuredPointsContour(int dim)
 void vtkKitwareContourFilter::StructuredGridContour(int dim)
 {
   vtkPolyData *output;
-  vtkPolyData *thisOutput = (vtkPolyData *)this->Output;
+  vtkPolyData *thisOutput = this->GetOutput();
   int numContours=this->ContourValues->GetNumberOfContours();
   float *values=this->ContourValues->GetValues();
 
@@ -341,7 +341,7 @@ void vtkKitwareContourFilter::StructuredGridContour(int dim)
     int i;
     
     gridTemp3D = vtkGridSynchronizedTemplates3D::New();
-    gridTemp3D->SetInput((vtkStructuredGrid *)this->Input);
+    gridTemp3D->SetInput((vtkStructuredGrid*)(this->GetInput()));
     gridTemp3D->SetComputeNormals (this->ComputeNormals);
     gridTemp3D->SetComputeGradients (this->ComputeGradients);
     gridTemp3D->SetComputeScalars (this->ComputeScalars);

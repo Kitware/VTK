@@ -53,18 +53,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkAppendPolyData_h
 #define __vtkAppendPolyData_h
 
-#include "vtkPolyData.h"
-#include "vtkFilter.h"
-#include "vtkPolyDataCollection.h"
+#include "vtkPolyDataToPolyDataFilter.h"
 
-class VTK_EXPORT vtkAppendPolyData : public vtkFilter
+class VTK_EXPORT vtkAppendPolyData : public vtkPolyDataToPolyDataFilter
 {
 public:
   vtkAppendPolyData();
   ~vtkAppendPolyData();
-  static vtkAppendPolyData *New() {return new vtkAppendPolyData;};
-  const char *GetClassName() {return "vtkAppendPolyData";};
-  void PrintSelf(ostream& os, vtkIndent indent);
+  static vtkAppendPolyData *New() {return new vtkAppendPolyData;}
+  const char *GetClassName() {return "vtkAppendPolyData";}
 
   // Description:
   // Add a dataset to the list of data to append.
@@ -74,30 +71,13 @@ public:
   // Remove a dataset from the list of data to append.
   void RemoveInput(vtkPolyData *);
 
-  // Description
-  // Return the list of inputs to this filter.
-  vtkPolyDataCollection *GetInput() {return this->InputList;};
-
   // Description:
-  // Override the default Update method since this filter has multiple
-  // inputs.
-  void Update();
-
-  // Description:
-  // Get the output of this filter.
-  vtkPolyData *GetOutput() {return (vtkPolyData *)this->Output;};
-
-  // Description:
-  // For legacy compatibility. Do not use.
-  void AddInput(vtkPolyData& in) {this->AddInput(&in);};
-  void RemoveInput(vtkPolyData& in) {this->RemoveInput(&in);};
+  // Get any input of this filter.
+  vtkPolyData *GetInput(int idx);
   
 protected:
   // Usual data generation method
   void Execute();
-  
-  // list of data sets to append together
-  vtkPolyDataCollection *InputList;
 };
 
 #endif

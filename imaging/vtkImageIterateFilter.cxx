@@ -38,7 +38,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageSimpleCache.h"
 #include "vtkImageIterateFilter.h"
 
 //----------------------------------------------------------------------------
@@ -60,7 +59,7 @@ vtkImageIterateFilter::~vtkImageIterateFilter()
 //----------------------------------------------------------------------------
 void vtkImageIterateFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageFilter::PrintSelf(os,indent);
+  vtkImageToImageFilter::PrintSelf(os,indent);
 
   os << indent << "NumberOfIterations: " << this->NumberOfIterations << "\n";
 
@@ -68,6 +67,32 @@ void vtkImageIterateFilter::PrintSelf(ostream& os, vtkIndent indent)
   // The variable is public to get around a compiler issue.
   // this->Iteration
 }
+
+
+//----------------------------------------------------------------------------
+vtkImageData *vtkImageIterateFilter::GetIterationInput()
+{
+  if (this->IterationCaches == NULL || this->Iteration == 0)
+    {
+    // error, or return input ???
+    return this->GetInput();
+    }
+  return this->IterationCaches[this->Iteration];
+}
+
+
+//----------------------------------------------------------------------------
+vtkImageData *vtkImageIterateFilter::GetIterationOutput()
+{
+  if (this->IterationCaches == NULL || 
+      this->Iteration == this->NumberOfIterations-1)
+    {
+    // error, or return output ???
+    return this->GetOutput();
+    }
+  return this->IterationCaches[this->Iteration+1];
+}
+
 
   
 //----------------------------------------------------------------------------
@@ -84,24 +109,24 @@ void vtkImageIterateFilter::RecursiveStreamUpdate(vtkImageData *outData)
   this->IterateRequiredInputUpdateExtent();
     
   // determine the amount of memory that will be used by the input region.
-  memory = this->Input->GetUpdateExtentMemorySize();
+  memory = this->GetInput()->GetUpdateExtentMemorySize();
   
   // Split the inRegion if we are streaming.
-  if ((memory > this->Input->GetMemoryLimit()))
+  if ((memory > this->GetInput()->GetMemoryLimit()))
     {
-    this->Output->GetUpdateExtent(outExt);
+    this->GetOutput()->GetUpdateExtent(outExt);
     if (this->SplitExtent(splitExt, outExt, 0, 2) > 1)
       { // yes we can split
       vtkDebugMacro(<< "RecursiveStreamUpdate: Splitting " 
                     << " : memory = " << memory);
-      this->Output->SetUpdateExtent(splitExt);
+      this->GetOutput()->SetUpdateExtent(splitExt);
       this->RecursiveStreamUpdate(outData);
       // Set the second half to update
       this->SplitExtent(splitExt, outExt, 1, 2);
-      this->Output->SetUpdateExtent(splitExt);
+      this->GetOutput()->SetUpdateExtent(splitExt);
       this->RecursiveStreamUpdate(outData);
       // Restore the original extent
-      this->Output->SetUpdateExtent(outExt);
+      this->GetOutput()->SetUpdateExtent(outExt);
       return;
       }
     else
@@ -114,7 +139,8 @@ void vtkImageIterateFilter::RecursiveStreamUpdate(vtkImageData *outData)
 
   // No Streaming required.
   // Get the input region (Update extent was set at start of this method).
-  inData = this->Input->UpdateAndReturnData();
+  this->GetInput()->Update();
+  inData = this->GetInput();
 
   // The StartMethod call is placed here to be after updating the input.
   if ( this->StartMethod )
@@ -140,27 +166,27 @@ void vtkImageIterateFilter::IterateExecute(vtkImageData *inData,
   int idx;
 
   // IterateCaches are all set up 
-  // see: SetNumberOfIterations() and UpdateImageInformation()
+  // see: SetNumberOfIterations() and UpdateInformation()
   for (idx = 0; idx < this->NumberOfIterations; ++idx)
     {
     this->Iteration = idx;
     // temporarily change input and output
-    this->Input = this->IterationCaches[idx];
-    this->Output = this->IterationCaches[idx + 1];
-    // Get the data
-    inData = this->Input->GetData();
-    outData = this->Output->GetData();
+    inData = this->IterationCaches[idx];
+    outData = this->IterationCaches[idx + 1];
+    
+    // since cache no longer exists we must allocate the scalars here
+    // This may be a bad place to allocate data (before input->update)
+    outData->SetExtent(outData->GetUpdateExtent());
+    outData->AllocateScalars();      
+    
     // execute for this iteration
     this->Execute(inData, outData);
     // Like the graphics pipeline this source releases inputs data.
-    if (this->Input->ShouldIReleaseData())
+    if (inData->ShouldIReleaseData())
       {
-      this->Input->ReleaseData();
+      inData->ReleaseData();
       }
     }
-  // restore the original input and output.
-  this->Input = this->IterationCaches[0];
-  this->Output = this->IterationCaches[this->NumberOfIterations];
 }
 
 
@@ -168,36 +194,29 @@ void vtkImageIterateFilter::IterateExecute(vtkImageData *inData,
 
 //----------------------------------------------------------------------------
 // This method sets the WholeExtent, Spacing and Origin of the output.
-void vtkImageIterateFilter::UpdateImageInformation()
+void vtkImageIterateFilter::UpdateInformation()
 {
-  vtkImageCache *in, *out;
+  vtkImageData *in, *out;
   int idx;
   
   // Make sure the Input has been set.
-  if ( ! this->Input)
+  if ( ! this->GetInput())
     {
-    vtkErrorMacro(<< "UpdateImageInformation: Input is not set.");
+    vtkErrorMacro(<< "UpdateInformation: Input is not set.");
     return;
     }
-  // make sure we have an output
-  this->CheckCache();
 
   // put the input and output into the cache list.
   // Iteration caches
-  this->IterationCaches[0] = this->Input;
-  this->IterationCaches[this->NumberOfIterations] = this->Output;
+  this->IterationCaches[0] = this->GetInput();
+  this->IterationCaches[this->NumberOfIterations] = this->GetOutput();
   
-  this->Input->UpdateImageInformation();
+  this->GetInput()->UpdateInformation();
   for (idx = 0; idx < this->NumberOfIterations; ++idx)
     {
     this->Iteration = idx;
-    in = this->IterationCaches[idx];
-    out = this->IterationCaches[idx+1];
-    
-    // temporarily overide the input and output (see comments in .h)
-    // passed as parameters?
-    this->Input = in;
-    this->Output = out;
+    in = this->GetIterationInput();
+    out = this->GetIterationOutput();
     
     // Set up the defaults
     out->SetWholeExtent(in->GetWholeExtent());
@@ -209,15 +228,18 @@ void vtkImageIterateFilter::UpdateImageInformation()
     if ( ! this->Bypass)
       {
       // Let the subclass modify the default.
-      this->ExecuteImageInformation();
+      this->ExecuteInformation(in, out);
       }
     }
 
-  // restore the original input and output.
-  this->Input = this->IterationCaches[0];
-  this->Output = this->IterationCaches[this->NumberOfIterations];
 }
 
+//----------------------------------------------------------------------------
+//  Called by the above for each decomposition
+void vtkImageIterateFilter::ExecuteInformation(vtkImageData *inData,
+					       vtkImageData *outData)
+{
+}
 
 
 //----------------------------------------------------------------------------
@@ -227,26 +249,21 @@ void vtkImageIterateFilter::UpdateImageInformation()
 // method is called.
 void vtkImageIterateFilter::IterateRequiredInputUpdateExtent()
 {
-  int idx;
+  vtkImageData *in, *out;
+  int inExt[6], idx;
   
   for (idx = this->NumberOfIterations - 1; idx >= 0; --idx)
     {
     this->Iteration = idx;
-    // Set up tempoary input and output
-    this->Input = this->IterationCaches[idx];
-    this->Output = this->IterationCaches[idx+1];
+    in = this->GetIterationInput();
+    out = this->GetIterationOutput();
     
     /* default value */
-    memcpy(this->Input->GetUpdateExtent(), this->Output->GetUpdateExtent(),
-	   6 * sizeof(int));
-    
-    this->ComputeRequiredInputUpdateExtent(this->Input->GetUpdateExtent(),
-					   this->Output->GetUpdateExtent());
+    out->GetUpdateExtent(inExt);
+    this->ComputeInputUpdateExtent(inExt, out->GetUpdateExtent());
+    in->SetUpdateExtent(inExt);
     }
   
-  // restore the original input and output.
-  this->Input = this->IterationCaches[0];
-  this->Output = this->IterationCaches[this->NumberOfIterations];
 }
 
 
@@ -281,11 +298,11 @@ void vtkImageIterateFilter::SetNumberOfIterations(int num)
     }
   
   // create new ones (first and last set later to input and output)
-  this->IterationCaches = (vtkImageCache **) new void *[num + 1];
+  this->IterationCaches = (vtkImageData **) new void *[num + 1];
   this->IterationCaches[0] = this->IterationCaches[num] = NULL;
   for (idx = 1; idx < num; ++idx)
     {
-    this->IterationCaches[idx] = vtkImageSimpleCache::New();
+    this->IterationCaches[idx] = vtkImageData::New();
     this->IterationCaches[idx]->ReleaseDataFlagOn();
     }
 

@@ -39,7 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkImageData.h"
-#include "vtkImageCache.h"
+
 #include "vtkImageDilateErode3D.h"
 #include "vtkImageEllipsoidSource.h"
 
@@ -125,7 +125,7 @@ void vtkImageDilateErode3D::SetKernelSize(int size0, int size1, int size2)
     this->Ellipse->GetOutput()->SetUpdateExtent(0, this->KernelSize[0]-1, 
 						0, this->KernelSize[1]-1, 
 						0, this->KernelSize[2]-1);
-    this->Ellipse->GetOutput()->UpdateAndReturnData();
+    this->Ellipse->GetOutput()->Update();
     }
 }
 
@@ -297,13 +297,14 @@ void vtkImageDilateErode3D::ThreadedExecute(vtkImageData *inData,
 					    int outExt[6], int id)
 {
   int inExt[6];
-  this->ComputeRequiredInputUpdateExtent(inExt,outExt);
+  this->ComputeInputUpdateExtent(inExt,outExt);
   void *inPtr = inData->GetScalarPointerForExtent(inExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
   vtkImageData *mask;
 
   // Error checking on mask
-  mask = this->Ellipse->GetOutput()->UpdateAndReturnData();
+  this->Ellipse->GetOutput()->Update();
+  mask = this->Ellipse->GetOutput();
   if (mask->GetScalarType() != VTK_UNSIGNED_CHAR)
     {
     vtkErrorMacro(<< "Execute: mask has wrong scalar type");

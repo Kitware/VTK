@@ -60,33 +60,33 @@ void vtkImageCityBlockDistance::InterceptCacheUpdate()
     return;
     }
   
-  if ( ! this->Input)
+  if ( ! this->GetInput())
     {
     vtkErrorMacro(<< "Input not set.");
     return;
     }
 
-  this->Output->GetUpdateExtent(updateExtent);
-  wholeExtent = this->Output->GetWholeExtent();
+  this->GetOutput()->GetUpdateExtent(updateExtent);
+  wholeExtent = this->GetOutput()->GetWholeExtent();
   for (idx = 0; idx < this->Dimensionality; ++idx)
     {
     updateExtent[idx*2] = wholeExtent[idx*2];
     updateExtent[idx*2+1] = wholeExtent[idx*2+1];
     }
-  this->Output->SetUpdateExtent(updateExtent);
+  this->GetOutput()->SetUpdateExtent(updateExtent);
 }
 
 
 //----------------------------------------------------------------------------
 // This method tells the superclass that the whole input array is needed
 // to compute any output region.
-void vtkImageCityBlockDistance::ComputeRequiredInputUpdateExtent(int inExt[6],
+void vtkImageCityBlockDistance::ComputeInputUpdateExtent(int inExt[6],
 								 int outExt[6])
 {
   int *wholeExtent;
 
   memcpy(inExt, outExt, 6 * sizeof(int));
-  wholeExtent = this->Input->GetWholeExtent();
+  wholeExtent = this->GetInput()->GetWholeExtent();
   inExt[this->Iteration * 2] = wholeExtent[this->Iteration * 2];
   inExt[this->Iteration * 2 + 1] = wholeExtent[this->Iteration * 2 + 1];
 }
@@ -109,7 +109,7 @@ void vtkImageCityBlockDistance::Execute(vtkImageData *inData,
   unsigned long count = 0;
   unsigned long target;
   
-  this->Output->GetUpdateExtent(outExt);
+  this->GetOutput()->GetUpdateExtent(outExt);
 
   // this filter expects that inputand output are short
   if (inData->GetScalarType() != VTK_SHORT ||

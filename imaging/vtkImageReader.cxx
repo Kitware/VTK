@@ -41,7 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <ctype.h>
 #include <string.h>
 #include "vtkByteSwap.h"
-#include "vtkImageCache.h"
+
 #include "vtkImageReader.h"
 
 //----------------------------------------------------------------------------
@@ -397,15 +397,12 @@ void vtkImageReader::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // This method returns the largest data that can be generated.
-void vtkImageReader::UpdateImageInformation()
+void vtkImageReader::UpdateInformation()
 {
   float spacing[3];
   int extent[6];
   float origin[3];
   
-  // Make sure we have an output.
-  this->CheckCache();
-    
   // set the extent, if the VOI has not been set then default to
   // the DataExtent
   if (this->DataVOI[0] || this->DataVOI[1] || 
@@ -413,21 +410,21 @@ void vtkImageReader::UpdateImageInformation()
       this->DataVOI[4] || this->DataVOI[5])
     {
     this->ComputeTransformedExtent(this->DataVOI,extent);
-    this->Output->SetWholeExtent(extent);
+    this->GetOutput()->SetWholeExtent(extent);
     }
   else
     {
     this->ComputeTransformedExtent(this->DataExtent,extent);
-    this->Output->SetWholeExtent(extent);
+    this->GetOutput()->SetWholeExtent(extent);
     }
     
   // set the spacing
   this->ComputeTransformedSpacing(spacing);
-  this->Output->SetSpacing(spacing);
+  this->GetOutput()->SetSpacing(spacing);
 
   // set the origin.
   this->ComputeTransformedOrigin(origin);
-  this->Output->SetOrigin(origin);
+  this->GetOutput()->SetOrigin(origin);
 
   this->GetOutput()->SetScalarType(this->DataScalarType);
   this->GetOutput()->
@@ -804,6 +801,11 @@ static void vtkImageReaderUpdate1(vtkImageReader *self,
 void vtkImageReader::Execute(vtkImageData *data)
 {
   void *ptr = NULL;
+  int *ext;
+  
+  ext = data->GetExtent();
+  vtkDebugMacro("Reading extent: " << ext[0] << ", " << ext[1] << ", " 
+	<< ext[2] << ", " << ext[3] << ", " << ext[4] << ", " << ext[5]);
   
   this->ComputeDataIncrements();
   
@@ -863,15 +865,6 @@ void vtkImageReader::SetDataScalarType(int type)
   this->DataScalarType = type;
   // Set the default output scalar type
   this->GetOutput()->SetScalarType(this->DataScalarType);
-}
-
-
-//----------------------------------------------------------------------------
-// Returns the cache.
-vtkImageCache *vtkImageReader::GetOutput()
-{
-  this->CheckCache();
-  return this->Output;
 }
 
 

@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageCache.h"
+
 #include "vtkImagePermute.h"
 
 //----------------------------------------------------------------------------
@@ -50,7 +50,7 @@ vtkImagePermute::vtkImagePermute()
 }
 
 //----------------------------------------------------------------------------
-void vtkImagePermute::ExecuteImageInformation() 
+void vtkImagePermute::ExecuteInformation() 
 {
   int idx, axis;
   int ext[6];
@@ -60,9 +60,9 @@ void vtkImagePermute::ExecuteImageInformation()
   float *inSpacing;
   int *inExt;
   
-  inExt = this->Input->GetWholeExtent();
-  inSpacing = this->Input->GetSpacing();
-  inOrigin = this->Input->GetOrigin();
+  inExt = this->GetInput()->GetWholeExtent();
+  inSpacing = this->GetInput()->GetSpacing();
+  inOrigin = this->GetInput()->GetOrigin();
   
   for (idx = 0; idx < 3; ++idx)
     {
@@ -73,14 +73,14 @@ void vtkImagePermute::ExecuteImageInformation()
     ext[idx*2+1] = inExt[axis*2+1];
     }
   
-  this->Output->SetWholeExtent(ext);
-  this->Output->SetSpacing(spacing);
-  this->Output->SetOrigin(origin);
+  this->GetOutput()->SetWholeExtent(ext);
+  this->GetOutput()->SetSpacing(spacing);
+  this->GetOutput()->SetOrigin(origin);
 }
 
 
 //----------------------------------------------------------------------------
-void vtkImagePermute::ComputeRequiredInputUpdateExtent(int inExt[6], 
+void vtkImagePermute::ComputeInputUpdateExtent(int inExt[6], 
 						       int outExt[6])
 {
   int idx, axis;
@@ -177,7 +177,7 @@ void vtkImagePermute::ThreadedExecute(vtkImageData *inData,
 {
   int inExt[6];
   
-  this->ComputeRequiredInputUpdateExtent(inExt,outExt);
+  this->ComputeInputUpdateExtent(inExt,outExt);
   
   void *inPtr = inData->GetScalarPointerForExtent(inExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
@@ -243,7 +243,7 @@ void vtkImagePermute::ThreadedExecute(vtkImageData *inData,
 
 void vtkImagePermute::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageFilter::PrintSelf(os,indent);
+  vtkImageToImageFilter::PrintSelf(os,indent);
 
     os << indent << "FilteredAxes: ( "
      << this->FilteredAxes[0] << ", "

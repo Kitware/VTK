@@ -114,6 +114,8 @@ public:
 
 protected:
   void Execute();
+  void ExecuteInformation();
+  
   float Radius;
   float Center[3];
   int ThetaResolution;

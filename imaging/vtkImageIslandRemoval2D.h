@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageIslandRemoval2D_h
 
 
-#include "vtkImageFilter.h"
+#include "vtkImageToImageFilter.h"
 
 
 
@@ -63,7 +63,7 @@ typedef struct{
 
 
 
-class VTK_EXPORT vtkImageIslandRemoval2D : public vtkImageFilter
+class VTK_EXPORT vtkImageIslandRemoval2D : public vtkImageToImageFilter
 {
 public:
 

@@ -51,21 +51,6 @@ vtkInterpolateDataSetAttributes::vtkInterpolateDataSetAttributes()
   this->InputList = vtkDataSetCollection::New();
 
   this->T = 0.0;
-
-  this->PolyData = vtkPolyData::New();
-  this->PolyData->SetSource(this);
-  
-  this->StructuredPoints = vtkStructuredPoints::New();
-  this->StructuredPoints->SetSource(this);
-  
-  this->StructuredGrid = vtkStructuredGrid::New();
-  this->StructuredGrid->SetSource(this);
-  
-  this->UnstructuredGrid = vtkUnstructuredGrid::New();
-  this->UnstructuredGrid->SetSource(this);
-  
-  this->RectilinearGrid = vtkRectilinearGrid::New();
-  this->RectilinearGrid->SetSource(this);
 }
 
 vtkInterpolateDataSetAttributes::~vtkInterpolateDataSetAttributes()
@@ -73,155 +58,43 @@ vtkInterpolateDataSetAttributes::~vtkInterpolateDataSetAttributes()
   this->InputList->Delete();
   this->InputList = NULL;
 
-  this->PolyData->Delete();
-  this->StructuredPoints->Delete();
-  this->StructuredGrid->Delete();
-  this->UnstructuredGrid->Delete();
-  this->RectilinearGrid->Delete();
-
-  // Output should only be one of the above. We set it to NULL
-  // so that we don't free it twice
-  this->Output = NULL;
 }
 
-// Add a dataset to the list of data to interpolate.
-void vtkInterpolateDataSetAttributes::AddInput(vtkDataSet *ds)
+//----------------------------------------------------------------------------
+// Adds an input to the first null position in the input list.
+// Expands the list memory if necessary
+void vtkInterpolateDataSetAttributes::AddInput(vtkDataSet *input)
 {
-  if ( ds != NULL && ! this->InputList->IsItemPresent(ds) )
+  if (this->NumberOfInputs == 0)
     {
-    vtkDebugMacro(<<" setting Input to " << (void *)ds);
-    this->Modified();
-    this->InputList->AddItem(ds);
-
-    if ( ds->GetDataSetType() == VTK_POLY_DATA )
-      {
-      this->Output = this->PolyData;
-      }
-
-    else if ( ds->GetDataSetType() == VTK_STRUCTURED_POINTS )
-      {
-      this->Output = this->StructuredPoints;
-      }
-
-    else if ( ds->GetDataSetType() == VTK_STRUCTURED_GRID )
-      {
-      this->Output = this->StructuredGrid;
-      }
-
-    else if ( ds->GetDataSetType() == VTK_UNSTRUCTURED_GRID )
-      {
-      this->Output = this->UnstructuredGrid;
-      }
-
-    else if ( ds->GetDataSetType() == VTK_RECTILINEAR_GRID )
-      {
-      this->Output = this->RectilinearGrid;
-      }
-
-    else
-      {
-      vtkErrorMacro(<<"Mismatch in data type");
-      }
+    this->SetInput(input);
+    }
+  else
+    {
+    this->vtkProcessObject::AddInput(input);
     }
 }
 
-// Remove a dataset from the list of data to interpolate.
-void vtkInterpolateDataSetAttributes::RemoveInput(vtkDataSet *ds)
+vtkDataSetCollection *vtkInterpolateDataSetAttributes::GetInputList()
 {
-  if ( this->InputList->IsItemPresent(ds) )
+  int i;
+  this->InputList->RemoveAllItems();
+  
+  for (i = 0; i < this->NumberOfInputs; i++)
     {
-    this->Modified();
-    this->InputList->RemoveItem(ds);
-    }
-}
-
-void vtkInterpolateDataSetAttributes::Update()
-{
-  unsigned long int mtime=0, dsMtime;
-  vtkDataSet *ds;
-  int dataSetType;
-
-  // make sure input is available
-  if ( this->InputList->GetNumberOfItems() < 2 )
-    {
-    vtkErrorMacro(<< "Need at least two inputs to interpolate!");
-    return;
-    }
-
-  // prevent chasing our tail
-  if (this->Updating)
-    {
-    return;
-    }
-
-  this->Updating = 1;
-  for (mtime=0, this->InputList->InitTraversal(); 
-  (ds = this->InputList->GetNextItem()); )
-    {
-    if ( mtime == 0 ) //first time
+    if (this->Inputs[i])
       {
-      dataSetType = ds->GetDataSetType();
-      }
-
-    if ( dataSetType != ds->GetDataSetType() )
-      {
-      vtkErrorMacro(<<"All input data sets must be of the same type!");
-      return;
-      }
-          
-    ds->Update();
-    dsMtime = ds->GetMTime();
-    if ( dsMtime > mtime )
-      {
-      mtime = dsMtime;
+      this->InputList->AddItem((vtkDataSet *)this->Inputs[i]);
       }
     }
-  this->Updating = 0;
-
-  if ( mtime > this->ExecuteTime || this->GetMTime() > this->ExecuteTime )
-    {
-    for (this->InputList->InitTraversal();(ds=this->InputList->GetNextItem());)
-      {
-      if ( ds->GetDataReleased() )
-        {
-        ds->ForceUpdate();
-        }
-      }
-
-    if ( this->StartMethod )
-      {
-      (*this->StartMethod)(this->StartMethodArg);
-      }
-    this->Output->Initialize(); //clear output
-    // reset AbortExecute flag and Progress
-    this->AbortExecute = 0;
-    this->Progress = 0.0;
-    this->Execute();
-    this->ExecuteTime.Modified();
-    if ( !this->AbortExecute )
-      {
-      this->UpdateProgress(1.0);
-      }
-    this->SetDataReleased(0);
-    if ( this->EndMethod )
-      {
-      (*this->EndMethod)(this->EndMethodArg);
-      }
-    }
-
-  for (this->InputList->InitTraversal();(ds = this->InputList->GetNextItem());)
-    {
-    if ( ds->ShouldIReleaseData() )
-      {
-      ds->ReleaseData();
-      }
-    }
+  return this->InputList;
 }
 
 // Interpolate the data
 void vtkInterpolateDataSetAttributes::Execute()
 {
-  int numPts, numCells, numInputs=this->InputList->GetNumberOfItems();
+  vtkDataSetCollection *inputList = this->GetInputList();
+  int numPts, numCells, numInputs = inputList->GetNumberOfItems();
   int i, lowDS, highDS;
   vtkDataSet *ds, *ds2;
   vtkDataSet *output = this->GetOutput();
@@ -230,6 +103,12 @@ void vtkInterpolateDataSetAttributes::Execute()
   vtkPointData *inputPD, *input2PD;
   vtkCellData *inputCD, *input2CD;
   float t;
+  
+  if ( inputList->GetNumberOfItems() < 2 )
+    {
+    vtkErrorMacro(<< "Need at least two inputs to interpolate!");
+    return;
+    }  
   
   vtkDebugMacro(<<"Interpolating data...");
 
@@ -254,8 +133,8 @@ void vtkInterpolateDataSetAttributes::Execute()
     t =1.0;
     }
   
-  ds = this->InputList->GetItem(lowDS);
-  ds2 = this->InputList->GetItem(highDS);
+  ds = inputList->GetItem(lowDS);
+  ds2 = inputList->GetItem(highDS);
 
   numPts = ds->GetNumberOfPoints();
   numCells = ds->GetNumberOfCells();
@@ -359,132 +238,32 @@ void vtkInterpolateDataSetAttributes::Execute()
     }
 }
 
-// Get the output as vtkPolyData.
-vtkPolyData *vtkInterpolateDataSetAttributes::GetPolyDataOutput() 
+//----------------------------------------------------------------------------
+int 
+vtkInterpolateDataSetAttributes::ComputeInputUpdateExtents(vtkDataObject *data)
 {
-  return this->PolyData;
+  vtkDataSet *output = (vtkDataSet*)data;
+  vtkDataSet *input;
+  int idx;
+  
+  // I do not like the InputList implementation, so ...
+  for (idx = 0; idx < this->NumberOfInputs; ++idx)
+    {
+    input = (vtkDataSet*)(this->Inputs[idx]);
+    if (input != NULL)
+      {
+      input->CopyUpdateExtent(output);
+      }
+    }
+  
+  return 1;
 }
 
-// Get the output as vtkStructuredPoints.
-vtkStructuredPoints *vtkInterpolateDataSetAttributes::GetStructuredPointsOutput() 
-{
-  return this->StructuredPoints;
-}
-
-// Get the output as vtkStructuredGrid.
-vtkStructuredGrid *vtkInterpolateDataSetAttributes::GetStructuredGridOutput()
-{
-  return this->StructuredGrid;
-}
-
-// Get the output as vtkUnstructuredGrid.
-vtkUnstructuredGrid *vtkInterpolateDataSetAttributes::GetUnstructuredGridOutput()
-{
-  return this->UnstructuredGrid;
-}
-
-// Get the output as vtkRectilinearGrid. 
-vtkRectilinearGrid *vtkInterpolateDataSetAttributes::GetRectilinearGridOutput()
-{
-  return this->RectilinearGrid;
-}
 
 void vtkInterpolateDataSetAttributes::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkFilter::PrintSelf(os,indent);
-
-  os << indent << "Input Data Sets:\n";
-  this->InputList->PrintSelf(os,indent.GetNextIndent());
+  vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 
   os << indent << "T: " << this->T << endl;
 }
 
-
-
-void vtkInterpolateDataSetAttributes::UnRegister(vtkObject *o)
-{
-  // detect the circular loop source <-> data
-  // If we have two references and one of them is my data
-  // and I am not being unregistered by my data, break the loop.
-  if (this->ReferenceCount == 6 &&
-      this->PolyData != o && this->StructuredGrid != o &&
-      this->UnstructuredGrid != o && this->StructuredPoints != o &&
-      this->RectilinearGrid != o &&
-      this->PolyData->GetNetReferenceCount() == 1 &&
-      this->StructuredGrid->GetNetReferenceCount() == 1 &&
-      this->UnstructuredGrid->GetNetReferenceCount() == 1 &&
-      this->StructuredPoints->GetNetReferenceCount() == 1 &&
-      this->RectilinearGrid->GetNetReferenceCount() == 1)
-    {
-    this->PolyData->SetSource(NULL);
-    this->StructuredGrid->SetSource(NULL);
-    this->UnstructuredGrid->SetSource(NULL);
-    this->StructuredPoints->SetSource(NULL);
-    this->RectilinearGrid->SetSource(NULL);
-    }
-  if (this->ReferenceCount == 5 &&
-      (this->PolyData == o || this->StructuredGrid == o ||
-       this->UnstructuredGrid == o || this->RectilinearGrid == o ||
-       this->StructuredPoints == o) &&
-      (this->PolyData->GetNetReferenceCount() +
-       this->StructuredPoints->GetNetReferenceCount() +
-       this->RectilinearGrid->GetNetReferenceCount() +
-       this->StructuredGrid->GetNetReferenceCount() +
-       this->UnstructuredGrid->GetNetReferenceCount()) == 6)
-    {
-    this->PolyData->SetSource(NULL);
-    this->StructuredGrid->SetSource(NULL);
-    this->UnstructuredGrid->SetSource(NULL);
-    this->StructuredPoints->SetSource(NULL);
-    this->RectilinearGrid->SetSource(NULL);
-    }
-  
-  this->vtkObject::UnRegister(o);
-}
-
-int vtkInterpolateDataSetAttributes::InRegisterLoop(vtkObject *o)
-{
-  int num = 0;
-  int cnum = 0;
-  
-  if (this->StructuredPoints->GetSource() == this)
-    {
-    num++;
-    cnum += this->StructuredPoints->GetNetReferenceCount();
-    }
-  if (this->RectilinearGrid->GetSource() == this)
-    {
-    num++;
-    cnum += this->RectilinearGrid->GetNetReferenceCount();
-    }
-  if (this->PolyData->GetSource() == this)
-    {
-    num++;
-    cnum += this->PolyData->GetNetReferenceCount();
-    }
-  if (this->StructuredGrid->GetSource() == this)
-    {
-    num++;
-    cnum += this->StructuredGrid->GetNetReferenceCount();
-    }
-  if (this->UnstructuredGrid->GetSource() == this)
-    {
-    num++;
-    cnum += this->UnstructuredGrid->GetNetReferenceCount();
-    }
-  
-  // if no one outside is using us
-  // and our data objects are down to one net reference
-  // and we are being asked by one of our data objects
-  if (this->ReferenceCount == num &&
-      cnum == (num + 1) &&
-      (this->PolyData == o ||
-       this->StructuredPoints == o ||
-       this->RectilinearGrid == o ||
-       this->StructuredGrid == o ||
-       this->UnstructuredGrid == o))
-    {
-    return 1;
-    }
-  return 0;
-}

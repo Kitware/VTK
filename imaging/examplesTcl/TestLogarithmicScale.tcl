@@ -10,7 +10,7 @@ source vtkImageInclude.tcl
 # Image pipeline
 
 vtkImageReader reader
-[reader GetCache] ReleaseDataFlagOff
+[reader GetOutput] ReleaseDataFlagOff
 reader SetDataByteOrderToLittleEndian
 reader SetDataExtent 0 255 0 255 1 93
 reader SetFilePrefix "../../../vtkdata/fullHead/headsq"

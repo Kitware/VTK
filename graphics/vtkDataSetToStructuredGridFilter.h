@@ -47,20 +47,23 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkDataSetToStructuredGridFilter_h
 #define __vtkDataSetToStructuredGridFilter_h
 
-#include "vtkDataSetFilter.h"
-#include "vtkStructuredGrid.h"
+#include "vtkStructuredGridSource.h"
+#include "vtkImageToStructuredPoints.h"
 
-class VTK_EXPORT vtkDataSetToStructuredGridFilter : public vtkDataSetFilter
+class VTK_EXPORT vtkDataSetToStructuredGridFilter : public vtkStructuredGridSource
 {
 public:
-  vtkDataSetToStructuredGridFilter();
   static vtkDataSetToStructuredGridFilter *New() {
     return new vtkDataSetToStructuredGridFilter;};
   const char *GetClassName() {return "vtkDataSetToStructuredGridFilter";};
 
   // Description:
-  // Get the output of this filter.
-  vtkStructuredGrid *GetOutput() {return (vtkStructuredGrid *)this->Output;};
+  // Set / get the input data or filter.
+  virtual void SetInput(vtkDataSet *input);
+  virtual void SetInput(vtkImageData *cache)
+    {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
+    this->SetInput(tmp->GetOutput()); tmp->Delete();}
+  vtkDataSet *GetInput();
 
 };
 

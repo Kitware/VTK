@@ -57,7 +57,7 @@ struct vtkImplicitModellerAppendInfo
   float               MaximumDistance;
 };
 
-
+//----------------------------------------------------------------------------
 // Construct with sample dimensions=(50,50,50), and so that model bounds are
 // automatically computed from the input. Capping is turned on with CapValue
 // equal to a large positive number.
@@ -98,6 +98,7 @@ vtkImplicitModeller::~vtkImplicitModeller()
     }
 }
 
+//----------------------------------------------------------------------------
 // Initialize the filter for appending data. You must invoke the
 // StartAppend() method before doing successive Appends(). It's also a
 // good idea to manually specify the model bounds; otherwise the input
@@ -128,7 +129,7 @@ void vtkImplicitModeller::StartAppend()
   newScalars->Delete();
 }
 
-
+//----------------------------------------------------------------------------
 // This is the multithreaded piece of the aoppend when doing per voxel
 // processing - it is called once pfor each thread, with each thread
 // taking a different slab of the output to work on.
@@ -591,6 +592,7 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
     }
 }
 
+//----------------------------------------------------------------------------
 // Method completes the append process.
 void vtkImplicitModeller::EndAppend()
 {
@@ -602,94 +604,67 @@ void vtkImplicitModeller::EndAppend()
 
   newScalars = (vtkScalars *) (this->GetOutput()->GetPointData()->GetScalars());
   numPts = newScalars->GetNumberOfScalars();
-//
-// Run through scalars and take square root
-//
+  //
+  // Run through scalars and take square root
+  //
   for (i=0; i<numPts; i++)
     {
     distance2 = newScalars->GetScalar(i);
     newScalars->SetScalar(i,sqrt(distance2));
     }
-//
-// If capping is turned on, set the distances of the outside faces of the volume
-// to the CapValue.
-//
+  //
+  // If capping is turned on, set the distances of 
+  // the outside faces of the volume
+  // to the CapValue.
+  //
   if ( this->Capping )
     {
     this->Cap(newScalars);
     }
 
-  this->ExecuteTime.Modified();
-  this->SetDataReleased(0);
 }
 
+
+//----------------------------------------------------------------------------
+void vtkImplicitModeller::ExecuteInformation()
+{
+  int i;
+  float ar[3], origin[3];
+  vtkStructuredPoints *output = this->GetOutput();
+  
+  output->SetScalarType(VTK_FLOAT);
+  output->SetNumberOfScalarComponents(1);
+  
+  output->SetWholeExtent(0, this->SampleDimensions[0]-1,
+			 0, this->SampleDimensions[1]-1,
+			 0, this->SampleDimensions[2]-1);
+
+  for (i=0; i < 3; i++)
+    {
+    origin[i] = this->ModelBounds[2*i];
+    if ( this->SampleDimensions[i] <= 1 )
+      {
+      ar[i] = 1;
+      }
+    else
+      {
+      ar[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
+              / (this->SampleDimensions[i] - 1);
+      }
+    }
+  output->SetOrigin(origin);
+  output->SetSpacing(ar);
+}
+
+
+//----------------------------------------------------------------------------
 void vtkImplicitModeller::Execute()
 {
   vtkDebugMacro(<< "Executing implicit model");
 
   this->StartAppend();
-  this->Append((vtkDataSet *)this->Input);
+  this->Append(this->GetInput());
   this->EndAppend();
-}
-
-// Special update methods handles possibility of appending data.
-void vtkImplicitModeller::Update()
-{
-  // make sure input is available
-  if ( !this->Input && ! this->DataAppended)
-    {
-    vtkErrorMacro(<< "No input...or data appended...can't execute!");
-    return;
-    }
-
-  // prevent chasing our tail
-  if (this->Updating)
-    {
-    return;
-    }
-
-  if ( this->Input )
-    {
-    this->DataAppended = 0;
-
-    this->Updating = 1;
-    this->Input->Update();
-    this->Updating = 0;
-
-    if (this->Input->GetMTime() > this->ExecuteTime ||
-	this->GetMTime() > this->ExecuteTime )
-      {
-      if ( this->Input->GetDataReleased() )
-        {
-        this->Input->ForceUpdate();
-        }
-
-      if ( this->StartMethod )
-	{
-	(*this->StartMethod)(this->StartMethodArg);
-	}
-      this->Output->Initialize(); //clear output
-      // reset AbortExecute flag and Progress
-      this->AbortExecute = 0;
-      this->Progress = 0.0;
-      this->Execute();
-      this->ExecuteTime.Modified();
-      if ( !this->AbortExecute )
-	{
-	this->UpdateProgress(1.0);
-	}
-      this->SetDataReleased(0);
-      if ( this->EndMethod )
-	{
-	(*this->EndMethod)(this->EndMethodArg);
-	}
-      }
-
-    if ( this->Input->ShouldIReleaseData() )
-      {
-      this->Input->ReleaseData();
-      }
-    }
 }
 
 // Compute ModelBounds from input geometry.
@@ -705,7 +680,7 @@ float vtkImplicitModeller::ComputeModelBounds()
        this->ModelBounds[2] >= this->ModelBounds[3] ||
        this->ModelBounds[4] >= this->ModelBounds[5] )
     {
-    bounds = ((vtkDataSet *)this->Input)->GetBounds();
+    bounds = this->GetInput()->GetBounds();
     }
   else
     {
@@ -755,6 +730,7 @@ float vtkImplicitModeller::ComputeModelBounds()
   return maxDist;  
 }
 
+//----------------------------------------------------------------------------
 // Set the i-j-k dimensions on which to sample the distance function.
 void vtkImplicitModeller::SetSampleDimensions(int i, int j, int k)
 {
@@ -767,6 +743,7 @@ void vtkImplicitModeller::SetSampleDimensions(int i, int j, int k)
   this->SetSampleDimensions(dim);
 }
 
+//----------------------------------------------------------------------------
 void vtkImplicitModeller::SetSampleDimensions(int dim[3])
 {
   int dataDim, i;
@@ -806,6 +783,7 @@ void vtkImplicitModeller::SetSampleDimensions(int dim[3])
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkImplicitModeller::Cap(vtkScalars *s)
 {
   int i,j,k;
@@ -830,7 +808,7 @@ void vtkImplicitModeller::Cap(vtkScalars *s)
       s->SetScalar(idx+i+j*this->SampleDimensions[0], this->CapValue);
       }
     }
-// j-k planes
+  // j-k planes
   i = 0;
   for (k=0; k<this->SampleDimensions[2]; k++)
     {
@@ -847,7 +825,7 @@ void vtkImplicitModeller::Cap(vtkScalars *s)
       s->SetScalar(i+j*this->SampleDimensions[0]+k*d01, this->CapValue);
       }
     }
-// i-k planes
+  // i-k planes
   j = 0;
   for (k=0; k<this->SampleDimensions[2]; k++)
     {
@@ -867,6 +845,30 @@ void vtkImplicitModeller::Cap(vtkScalars *s)
     }
 }
 
+//----------------------------------------------------------------------------
+void vtkImplicitModeller::StreamExecuteStart()
+{
+  int idx;
+  
+  if (this->GetInput() == NULL)
+    {
+    // we do not want to release the data because user might
+    // have called Append ...
+    return;
+    }
+  
+  // clear output (why isn't this ReleaseData.  Does it allocate data too?)
+  // Should it be done if StreamExecuteStart?
+  for (idx = 0; idx < this->NumberOfOutputs; idx++)
+    {
+    if (this->Outputs[idx])
+      {
+      this->Outputs[idx]->Initialize(); 
+      }
+    }  
+}
+
+//----------------------------------------------------------------------------
 char *vtkImplicitModeller::GetProcessModeAsString()
 {
   if (this->ProcessMode == VTK_CELL_MODE)
@@ -888,9 +890,12 @@ void vtkImplicitModeller::PrintSelf(ostream& os, vtkIndent indent)
                << this->SampleDimensions[1] << ", "
                << this->SampleDimensions[2] << ")\n";
   os << indent << "ModelBounds: \n";
-  os << indent << "  Xmin,Xmax: (" << this->ModelBounds[0] << ", " << this->ModelBounds[1] << ")\n";
-  os << indent << "  Ymin,Ymax: (" << this->ModelBounds[2] << ", " << this->ModelBounds[3] << ")\n";
-  os << indent << "  Zmin,Zmax: (" << this->ModelBounds[4] << ", " << this->ModelBounds[5] << ")\n";
+  os << indent << "  Xmin,Xmax: (" << this->ModelBounds[0] << ", " 
+     << this->ModelBounds[1] << ")\n";
+  os << indent << "  Ymin,Ymax: (" << this->ModelBounds[2] << ", " 
+     << this->ModelBounds[3] << ")\n";
+  os << indent << "  Zmin,Zmax: (" << this->ModelBounds[4] << ", " 
+     << this->ModelBounds[5] << ")\n";
 
   os << indent << "AdjustBounds: " << (this->AdjustBounds ? "On\n" : "Off\n");
   os << indent << "Adjust Distance: " << this->AdjustDistance << "\n";
@@ -902,3 +907,13 @@ void vtkImplicitModeller::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Process Mode: " << this->GetProcessModeAsString() << endl;
   os << indent << "Number Of Threads (for PerVoxel mode): " << this->NumberOfThreads << endl;
 }
+
+
+
+
+
+
+
+
+
+

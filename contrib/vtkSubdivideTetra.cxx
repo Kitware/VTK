@@ -45,20 +45,18 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct with all types of clipping turned off.
 vtkSubdivideTetra::vtkSubdivideTetra()
 {
-  this->Output = vtkUnstructuredGrid::New();
-  this->Output->SetSource(this);
 }
 
 void vtkSubdivideTetra::Execute()
 {
-  int numPts=((vtkDataSet *)this->Input)->GetNumberOfPoints();
-  int numCells=((vtkDataSet *)this->Input)->GetNumberOfCells();
-  vtkUnstructuredGrid *input=(vtkUnstructuredGrid *)this->Input;
+  vtkUnstructuredGrid *input=(vtkUnstructuredGrid *)this->GetInput();
+  int numPts = input->GetNumberOfPoints();
+  int numCells = input->GetNumberOfCells();
   vtkPoints *inPts=input->GetPoints();
   int cellId, i, pts[4];
   vtkCell *cell;
   vtkPointData *pd = input->GetPointData();
-  vtkUnstructuredGrid *output = (vtkUnstructuredGrid *)this->Output;
+  vtkUnstructuredGrid *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   vtkPoints *newPts;
   int ptId;
@@ -247,6 +245,6 @@ void vtkSubdivideTetra::Execute()
 
 void vtkSubdivideTetra::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkUnstructuredGridFilter::PrintSelf(os,indent);
+  vtkUnstructuredGridToUnstructuredGridFilter::PrintSelf(os,indent);
 }
 

@@ -68,17 +68,21 @@ vtkPolyDataMapper *vtkPolyDataMapper::New()
   return new vtkPolyDataMapper;
 }
 
-void vtkPolyDataMapper::SetInput(vtkPolyData *in)
+//----------------------------------------------------------------------------
+// Specify the input data or filter.
+void vtkPolyDataMapper::SetInput(vtkPolyData *input)
 {
-  if (in != this->Input )
-    {
-    vtkDebugMacro(<<" setting Input to " << (void *)in);
-    if (this->Input) {this->Input->UnRegister(this);}
-    this->Input = (vtkDataSet *) in;
-    if (this->Input) {this->Input->Register(this);}
-    this->Modified();
-    }
+  this->vtkProcessObject::SetInput(0, input);
 }
 
-
-
+//----------------------------------------------------------------------------
+// Specify the input data or filter.
+vtkPolyData *vtkPolyDataMapper::GetInput()
+{
+  if (this->NumberOfInputs < 1)
+    {
+    return NULL;
+    }
+  
+  return (vtkPolyData *)(this->Inputs[0]);
+}

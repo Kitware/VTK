@@ -39,7 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkImageCache.h"
+
 #include "vtkImageDivergence.h"
 
 
@@ -51,7 +51,7 @@ vtkImageDivergence::vtkImageDivergence()
 
 //----------------------------------------------------------------------------
 // Just clip the request.  The subclass may need to overwrite this method.
-void vtkImageDivergence::ComputeRequiredInputUpdateExtent(int inExt[6], 
+void vtkImageDivergence::ComputeInputUpdateExtent(int inExt[6], 
 							    int outExt[6])
 {
   int idx;
@@ -60,7 +60,7 @@ void vtkImageDivergence::ComputeRequiredInputUpdateExtent(int inExt[6],
   // handle XYZ
   memcpy(inExt,outExt,sizeof(int)*6);
   
-  wholeExtent = this->Input->GetWholeExtent();
+  wholeExtent = this->GetInput()->GetWholeExtent();
   // update and Clip
   for (idx = 0; idx < 3; ++idx)
     {
@@ -267,7 +267,7 @@ void vtkImageDivergence::ThreadedExecute(vtkImageData *inData,
 
 void vtkImageDivergence::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageFilter::PrintSelf(os,indent);
+  vtkImageToImageFilter::PrintSelf(os,indent);
 
   os << indent << "Dimensionality: " << this->Dimensionality << "\n";
 

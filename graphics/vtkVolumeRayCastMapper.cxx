@@ -123,19 +123,19 @@ void vtkVolumeRayCastMapper::InitializeRender( vtkRenderer *ren, vtkVolume *vol,
 					       VTKRayCastVolumeInfo *volumeInfo )
 {
   // make sure that we have scalar input and update the scalar input
-  if ( this->Input == NULL ) 
+  if ( this->GetInput() == NULL ) 
     {
     vtkErrorMacro(<< "No Input!");
     return;
     }
   else
     {
-    this->Input->Update();
+    this->GetInput()->Update();
     } 
 
-  if ( this->RGBTextureInput )
+  if ( this->GetRGBTextureInput() )
     {
-    this->RGBTextureInput->Update();
+    this->GetRGBTextureInput()->Update();
     }
 
   this->UpdateShadingTables( ren, vol );
@@ -633,7 +633,7 @@ void vtkVolumeRayCastMapper::GeneralImageInitialization( vtkRenderer *ren,
   vtkTransform           *worldToVolumeTransform;
   vtkTransform           *viewToVolumeTransform;
   vtkRayCaster           *ray_caster;
-  vtkStructuredPoints    *input = (vtkStructuredPoints *)this->Input;
+  vtkStructuredPoints    *input = this->GetInput();
   float                  spacing[3], data_origin[3];
   int                    i, j;
   int                    scalarDataSize[3];
@@ -763,7 +763,7 @@ void vtkVolumeRayCastMapper::UpdateShadingTables( vtkRenderer *ren,
 
   shading = volume_property->GetShade();
 
-  this->GradientEstimator->SetInput( (vtkStructuredPoints *)this->Input );
+  this->GradientEstimator->SetInput( this->GetInput() );
 
   if ( shading )
     {

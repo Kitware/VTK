@@ -40,10 +40,22 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkDataSetToPolyDataFilter.h"
 
-vtkDataSetToPolyDataFilter::vtkDataSetToPolyDataFilter()
+//----------------------------------------------------------------------------
+// Specify the input data or filter.
+void vtkDataSetToPolyDataFilter::SetInput(vtkDataSet *input)
 {
-  this->Output = vtkPolyData::New();
-  this->Output->SetSource(this);
+  this->vtkProcessObject::SetInput(0, input);
 }
 
+//----------------------------------------------------------------------------
+// Specify the input data or filter.
+vtkDataSet *vtkDataSetToPolyDataFilter::GetInput()
+{
+  if (this->NumberOfInputs < 1)
+    {
+    return NULL;
+    }
+  
+  return (vtkDataSet *)(this->Inputs[0]);
+}
 

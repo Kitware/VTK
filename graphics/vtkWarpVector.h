@@ -50,11 +50,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkWarpVector_h
 
 #include "vtkPointSetToPointSetFilter.h"
+#include "vtkMultiThreader.h"
 
 class VTK_EXPORT vtkWarpVector : public vtkPointSetToPointSetFilter
 {
 public:
-  vtkWarpVector() : ScaleFactor(1.0) {};
+  vtkWarpVector();
+  ~vtkWarpVector();
   static vtkWarpVector *New() {return new vtkWarpVector;};
   const char *GetClassName() {return "vtkWarpVector";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -64,9 +66,22 @@ public:
   vtkSetMacro(ScaleFactor,float);
   vtkGetMacro(ScaleFactor,float);
 
+  // Description:
+  // Get/Set the number of threads to create when rendering
+  vtkSetClampMacro( NumberOfThreads, int, 1, VTK_MAX_THREADS );
+  vtkGetMacro( NumberOfThreads, int );
+
+  // Description:
+  // public so that C function can call it.
+  void ThreadedExecute(int threadId, int numThreads);
+
 protected:
   void Execute();
+  int SplitPointRange(int threadId, int threadCount, int &min, int &max);
   float ScaleFactor;
+
+  vtkMultiThreader *Threader;
+  int NumberOfThreads;
 };
 
 #endif

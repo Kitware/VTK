@@ -96,8 +96,6 @@ vtkFieldDataToAttributeDataFilter::~vtkFieldDataToAttributeDataFilter()
 {
   int i;
 
-  this->Output = NULL;
-  
   for (i=0; i<4; i++)
     {
     if ( this->ScalarArrays[i] != NULL )
@@ -147,18 +145,20 @@ void vtkFieldDataToAttributeDataFilter::Execute()
   int num;
   vtkDataSetAttributes *attr;
   vtkFieldData *fd;
+  vtkDataSet *input = this->GetInput();
+  vtkDataSet *output = this->GetOutput();
 
   vtkDebugMacro(<<"Generating attribute data from field data");
 
   if ( this->OutputAttributeData == VTK_CELL_DATA )
     {
-    attr = ((vtkDataSet *)this->Output)->GetCellData();
-    num = ((vtkDataSet *)this->Input)->GetNumberOfCells();
+    attr = output->GetCellData();
+    num = input->GetNumberOfCells();
     }
   else
     {
-    attr = ((vtkDataSet *)this->Output)->GetPointData();
-    num = ((vtkDataSet *)this->Input)->GetNumberOfPoints();
+    attr = output->GetPointData();
+    num = input->GetNumberOfPoints();
     }
     
   if ( num < 1 )
@@ -170,15 +170,15 @@ void vtkFieldDataToAttributeDataFilter::Execute()
   fd = NULL;
   if ( this->InputField == VTK_DATA_OBJECT_FIELD )
     {
-    fd = this->GetInput()->GetFieldData();
+    fd = input->GetFieldData();
     }
   else if ( this->InputField == VTK_POINT_DATA_FIELD )
     {
-    fd = this->GetInput()->GetPointData()->GetFieldData();
+    fd = input->GetPointData()->GetFieldData();
     }
   else if ( this->InputField == VTK_CELL_DATA_FIELD )
     {
-    fd = this->GetInput()->GetCellData()->GetFieldData();
+    fd = input->GetCellData()->GetFieldData();
     }
   if ( fd == NULL )
     {
@@ -208,10 +208,8 @@ void vtkFieldDataToAttributeDataFilter::Execute()
                          this->NormalNormalize);
   this->ConstructFieldData(num, attr);
   
-  ((vtkDataSet *)this->Output)->GetPointData()->PassNoReplaceData(
-          ((vtkDataSet *)this->Input)->GetPointData());
-  ((vtkDataSet *)this->Output)->GetCellData()->PassNoReplaceData(
-          ((vtkDataSet *)this->Input)->GetCellData());
+  output->GetPointData()->PassNoReplaceData(input->GetPointData());
+  output->GetCellData()->PassNoReplaceData(input->GetCellData());
 }
 
 void vtkFieldDataToAttributeDataFilter::PrintSelf(ostream& os, 

@@ -42,12 +42,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define MARGIN 0.95
 
 void vtkPostScriptWriter::WriteFileTrailer(ofstream *file, 
-					   vtkImageCache *cache)
+					   vtkImageData *cache)
 {
   *file << "\ngrestore\nshowpage\n%%%%Trailer\n";
 }
 
-void vtkPostScriptWriter::WriteFileHeader(ofstream *file, vtkImageCache *cache)
+void vtkPostScriptWriter::WriteFileHeader(ofstream *file, vtkImageData *cache)
 {
   int min1, max1, min2, max2, min3, max3;
   int bpp;
@@ -165,7 +165,7 @@ void vtkPostScriptWriter::WriteFile(ofstream *file, vtkImageData *data,
       return; 
     }
   
-  wExtent = this->Input->GetWholeExtent();
+  wExtent = this->GetInput()->GetWholeExtent();
   area = ((extent[5] - extent[4] + 1)*(extent[3] - extent[2] + 1)*
 	  (extent[1] - extent[0] + 1)) / 
     ((wExtent[5] -wExtent[4] + 1)*(wExtent[3] -wExtent[2] + 1)*

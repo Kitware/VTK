@@ -67,7 +67,7 @@ void vtkIVWriter::WriteData()
   vtkDebugMacro("Writing OpenInventor file");
   fprintf(fp,"#Inventor V2.0 ascii\n");
   fprintf(fp,"# OpenInventor file written by the visualization toolkit\n\n");
-  this->WritePolyData((vtkPolyData *)this->Input, fp);
+  this->WritePolyData(this->GetInput(), fp);
   if (fclose(fp)) 
     {
     vtkErrorMacro(<< this->FileName << " did not close successfully. Check disk space.");

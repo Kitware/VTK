@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkImageData.h"
-#include "vtkImageCache.h"
+
 #include "vtkImageEllipsoidSource.h"
 
 //----------------------------------------------------------------------------
@@ -127,13 +127,12 @@ void vtkImageEllipsoidSource::GetWholeExtent(int extent[6])
 }
 
 //----------------------------------------------------------------------------
-void vtkImageEllipsoidSource::UpdateImageInformation()
+void vtkImageEllipsoidSource::UpdateInformation()
 {
-  this->CheckCache();
-  this->Output->SetSpacing(1.0, 1.0, 1.0);
-  this->Output->SetWholeExtent(this->WholeExtent);
-  this->Output->SetNumberOfScalarComponents(1);
-  this->Output->SetScalarType(this->OutputScalarType);
+  this->GetOutput()->SetSpacing(1.0, 1.0, 1.0);
+  this->GetOutput()->SetWholeExtent(this->WholeExtent);
+  this->GetOutput()->SetNumberOfScalarComponents(1);
+  this->GetOutput()->SetScalarType(this->OutputScalarType);
 }
 
 
@@ -206,7 +205,7 @@ void vtkImageEllipsoidSource::Execute(vtkImageData *data)
   int *extent;
   void *ptr;
   
-  extent = this->Output->GetUpdateExtent();
+  extent = this->GetOutput()->GetUpdateExtent();
   ptr = data->GetScalarPointerForExtent(extent);
   
   switch (data->GetScalarType())

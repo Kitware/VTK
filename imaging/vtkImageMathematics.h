@@ -112,7 +112,7 @@ protected:
   double ConstantK;
   double ConstantC;
   
-  void ExecuteImageInformation();
+  void ExecuteInformation();
   void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
 		       int extent[6], int id);
 };

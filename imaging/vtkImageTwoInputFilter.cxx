@@ -52,7 +52,7 @@ vtkImageTwoInputFilter::vtkImageTwoInputFilter()
 //----------------------------------------------------------------------------
 // Set the Input1 of this filter. If a ScalarType has not been set,
 // then the ScalarType of the input is used.
-void vtkImageTwoInputFilter::SetInput1(vtkImageCache *input)
+void vtkImageTwoInputFilter::SetInput1(vtkImageData *input)
 {
   vtkDebugMacro(<< "SetInput1: input = " << input->GetClassName()
 		<< " (" << input << ")");
@@ -65,7 +65,7 @@ void vtkImageTwoInputFilter::SetInput1(vtkImageCache *input)
   
   if (this->Inputs[0] != NULL)
     {
-    this->Inputs[0]->UnRegister(this);
+    this->GetInput(0)->UnRegister(this);
     this->Inputs[0] = NULL;
     }
   
@@ -83,7 +83,7 @@ void vtkImageTwoInputFilter::SetInput1(vtkImageCache *input)
 //----------------------------------------------------------------------------
 // Set the Input2 of this filter. If a ScalarType has not been set,
 // then the ScalarType of the input is used.
-void vtkImageTwoInputFilter::SetInput2(vtkImageCache *input)
+void vtkImageTwoInputFilter::SetInput2(vtkImageData *input)
 {
   vtkDebugMacro(<< "SetInput2: input = " << input->GetClassName()
 		<< " (" << input << ")");

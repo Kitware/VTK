@@ -75,6 +75,9 @@ vtkUnstructuredGrid::vtkUnstructuredGrid ()
   this->Connectivity = NULL;
   this->Allocate(1000,1000);
   this->Links = NULL;
+
+  this->UpdatePiece = 0;
+  this->UpdateNumberOfPieces = 1;
 }
 
 // Allocate memory space for data insertion. Execute this method before
@@ -353,6 +356,9 @@ int vtkUnstructuredGrid::GetNumberOfCells()
 void vtkUnstructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSet::PrintSelf(os,indent);
+
+  os << indent << "UpdateExtent: " << this->UpdatePiece << " of "
+     << this->UpdateNumberOfPieces << endl;
 }
 
 // Insert/create cell in object by type and list of point ids defining
@@ -553,3 +559,52 @@ int vtkUnstructuredGrid::InsertNextLinkedCell(int type, int npts, int *pts)
   return id;
 }
 
+//============================= streaming stuff ==============================
+
+//----------------------------------------------------------------------------
+void vtkUnstructuredGrid::SetUpdateExtent(int piece, int numPieces)
+{
+  if (this->UpdatePiece == piece && this->UpdateNumberOfPieces == numPieces)
+    {
+    return;
+    }
+  this->ReleaseData();
+  this->UpdatePiece = piece;
+  this->UpdateNumberOfPieces = numPieces;
+}
+
+void vtkUnstructuredGrid::GetUpdateExtent(int &piece, int &numPieces)
+{
+  piece = this->UpdatePiece;
+  numPieces = this->UpdateNumberOfPieces;
+}
+
+
+//----------------------------------------------------------------------------
+void vtkUnstructuredGrid::CopyUpdateExtent(vtkDataObject *data)
+{
+  int piece, numPieces;
+  vtkUnstructuredGrid *grid = (vtkUnstructuredGrid*)(data);
+
+  // this should be a safe typecast.
+  if (data->GetDataObjectType() != VTK_UNSTRUCTURED_GRID)
+    {
+    vtkErrorMacro("CopyUpdateExtent: Expecting unstructured grid");
+    return;
+    }
+
+  grid->GetUpdateExtent(piece, numPieces);
+  this->SetUpdateExtent(piece, numPieces);
+}
+
+//----------------------------------------------------------------------------
+void vtkUnstructuredGrid::CopyInformation(vtkDataObject *data)
+{
+  vtkUnstructuredGrid *grid = (vtkUnstructuredGrid*)(data);
+
+  // Stuff specific to this data type.  Do nothing if data types don't match?
+  if (strcmp(data->GetClassName(), "vtkUnstructuredGrid") == 0)
+    {
+    // no information I can think of yet.
+    }
+}

@@ -52,9 +52,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageSpatialFilter_h
 
 
-#include "vtkImageFilter.h"
+#include "vtkImageToImageFilter.h"
 
-class VTK_EXPORT vtkImageSpatialFilter : public vtkImageFilter
+class VTK_EXPORT vtkImageSpatialFilter : public vtkImageToImageFilter
 {
 public:
   vtkImageSpatialFilter();
@@ -76,9 +76,9 @@ protected:
   int   Strides[3];      // Shrink factor
   int   HandleBoundaries;     // Output shrinks if boundaries aren't handled
 
-  void ExecuteImageInformation();
+  void ExecuteInformation();
   void ComputeOutputWholeExtent(int extent[6], int handleBoundaries);
-  void ComputeRequiredInputUpdateExtent(int extent[6], int wholeExtent[6]);
+  void ComputeInputUpdateExtent(int extent[6], int wholeExtent[6]);
 
 };
 

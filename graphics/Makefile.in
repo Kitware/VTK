@@ -84,15 +84,14 @@ vtkCutter \
 vtkCylinder \
 vtkCylinderSource \
 vtkDashedStreamLine \
-vtkDataObjectFilter \
 vtkDataObjectReader \
 vtkDataObjectSource \
 vtkDataObjectToDataSetFilter \
 vtkDataObjectWriter \
 vtkDataReader \
-vtkDataSetFilter \
 vtkDataSetMapper \
 vtkDataSetReader \
+vtkDataSetSource \
 vtkDataSetToDataObjectFilter \
 vtkDataSetToDataSetFilter \
 vtkDataSetToPolyDataFilter \
@@ -119,7 +118,6 @@ vtkExtractVOI \
 vtkExtractVectorComponents \
 vtkFeatureEdges \
 vtkFieldDataToAttributeDataFilter \
-vtkFilter \
 vtkFiniteDifferenceGradientEstimator \
 vtkFollower \
 vtkFrustumCoverageCuller \
@@ -165,11 +163,10 @@ vtkPlanes \
 vtkPointDataToCellData \
 vtkPointLoad \
 vtkPointPicker \
-vtkPointSetFilter \
+vtkPointSetSource \
 vtkPointSetToPointSetFilter \
 vtkPointSource \
 vtkPolyDataConnectivityFilter \
-vtkPolyDataFilter \
 vtkPolyDataMapper \
 vtkPolyDataNormals \
 vtkPolyDataReader \
@@ -186,7 +183,6 @@ vtkProjectedPolyDataRayBounder \
 vtkProperty \
 vtkQuadric \
 vtkRayCaster \
-vtkRectilinearGridFilter \
 vtkRectilinearGridGeometryFilter \
 vtkRectilinearGridReader \
 vtkRectilinearGridSource \
@@ -220,7 +216,6 @@ vtkStreamLine \
 vtkStreamPoints \
 vtkStreamer \
 vtkStripper \
-vtkStructuredGridFilter \
 vtkStructuredGridGeometryFilter \
 vtkStructuredGridOutlineFilter \
 vtkStructuredGridReader \
@@ -228,9 +223,9 @@ vtkStructuredGridSource \
 vtkStructuredGridToPolyDataFilter \
 vtkStructuredGridToStructuredGridFilter \
 vtkStructuredGridWriter \
-vtkStructuredPointsFilter \
 vtkStructuredPointsGeometryFilter \
 vtkStructuredPointsReader \
+vtkStructuredPointsSource \
 vtkStructuredPointsToPolyDataFilter \
 vtkStructuredPointsToStructuredPointsFilter \
 vtkStructuredPointsToUnstructuredGridFilter \
@@ -254,9 +249,9 @@ vtkTriangularTexture \
 vtkTriangularTCoords \
 vtkTubeFilter \
 vtkUGFacetReader \
-vtkUnstructuredGridFilter \
 vtkUnstructuredGridReader \
 vtkUnstructuredGridSource \
+vtkUnstructuredGridToUnstructuredGridFilter \
 vtkUnstructuredGridWriter \
 vtkVRMLExporter \
 vtkVectorDot \

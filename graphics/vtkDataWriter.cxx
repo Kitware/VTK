@@ -60,8 +60,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // scalars, vectors, tensors, normals, and texture coordinates.
 vtkDataWriter::vtkDataWriter()
 {
-  this->FileName = NULL;
-
+  this->FileName = NULL;  
+  
   this->Header = new char[257];
   strcpy(this->Header,"vtk output");
   this->FileType = VTK_ASCII;
@@ -86,6 +86,11 @@ vtkDataWriter::vtkDataWriter()
 
   this->FieldDataName = new char[10];
   strcpy(this->FieldDataName,"FieldData");
+
+  this->WriteToOutputString = 0;
+  this->OutputString = NULL;
+  this->OutputStringLength = 0;
+  this->UserOwnsOutputString = 0;
 }
 
 vtkDataWriter::~vtkDataWriter()
@@ -128,22 +133,70 @@ vtkDataWriter::~vtkDataWriter()
     }
 }
 
-// Open a vtk data file. Returns NULL if error.
-FILE *vtkDataWriter::OpenVTKFile()
+void vtkDataWriter::SetOutputString(char *str, int strLength)
 {
-  FILE *fptr;
+  // just a sanity check
+  if ((str == NULL && strLength > 0) || (str != NULL && strLength <= 0))
+    {
+    vtkErrorMacro("str and strlength mismatch");
+    return;
+    }
+  
+  if (this->OutputString && ! this->UserOwnsOutputString)
+    {
+    delete [] this->OutputString;
+    }
+  this->OutputString = str;
+  this->OutputStringLength = strLength;
+  if (str)
+    {
+    this->UserOwnsOutputString = 1;
+    }
+  else
+    {
+    this->UserOwnsOutputString = 0;
+    }
+}
+
+
+// Open a vtk data file. Returns NULL if error.
+ostream *vtkDataWriter::OpenVTKFile()
+{
+  ostream *fptr;
 
   vtkDebugMacro(<<"Opening vtk file for writing...");
 
-  if ( !this->FileName )
+  if ((!this->WriteToOutputString) && ( !this->FileName ))
     {
     vtkErrorMacro(<< "No FileName specified! Can't write!");
     return NULL;
     }
 
-  if ( (fptr=fopen(this->FileName, "wb")) == NULL )
+  if (this->WriteToOutputString)
+    {
+    if (this->UserOwnsOutputString)
+      {
+      fptr = new ostrstream(this->OutputString, this->OutputStringLength);
+      }
+    else
+      {
+      if (this->OutputString)
+	{
+	delete [] this->OutputString;
+	this->OutputStringLength = 0;
+	}
+      fptr = new ostrstream();
+      }
+    } 
+  else 
+    {
+    fptr = new ofstream(this->FileName, ios::out);
+    }
+
+  if (fptr->fail())
     {
     vtkErrorMacro(<< "Unable to open file: "<< this->FileName);
+    delete fptr;
     return NULL;
     }
 
@@ -151,20 +204,20 @@ FILE *vtkDataWriter::OpenVTKFile()
 }
 
 // Write the header of a vtk data file. Returns 0 if error.
-int vtkDataWriter::WriteHeader(FILE *fp)
+int vtkDataWriter::WriteHeader(ostream *fp)
 {
   vtkDebugMacro(<<"Writing header...");
 
-  fprintf (fp, "# vtk DataFile Version 2.0\n");
-  fprintf (fp, "%s\n", this->Header);
+  *fp << "# vtk DataFile Version 2.0\n"; 
+  *fp << this->Header << "\n";
 
   if ( this->FileType == VTK_ASCII )
     {
-    fprintf (fp, "ASCII\n");
+    *fp << "ASCII\n";
     }
   else
     {
-    fprintf (fp, "BINARY\n");
+    *fp << "BINARY\n";
     }
 
   return 1;
@@ -172,7 +225,7 @@ int vtkDataWriter::WriteHeader(FILE *fp)
 
 // Write the cell data (e.g., scalars, vectors, ...) of a vtk dataset.
 // Returns 0 if error.
-int vtkDataWriter::WriteCellData(FILE *fp, vtkDataSet *ds)
+int vtkDataWriter::WriteCellData(ostream *fp, vtkDataSet *ds)
 {
   int numCells;
   vtkScalars *scalars;
@@ -199,10 +252,10 @@ int vtkDataWriter::WriteCellData(FILE *fp, vtkDataSet *ds)
     return 1;
     }
 
-  fprintf (fp, "CELL_DATA %d\n", numCells);
-//
-// Write scalar data
-//
+  *fp << "CELL_DATA " << numCells << "\n";
+  //
+  // Write scalar data
+  //
   if ( scalars && scalars->GetNumberOfScalars() > 0 )
     {
     if ( ! this->WriteScalarData(fp, scalars, numCells) )
@@ -210,9 +263,9 @@ int vtkDataWriter::WriteCellData(FILE *fp, vtkDataSet *ds)
       return 0;
       }
     }
-//
-// Write vector data
-//
+  //
+  // Write vector data
+  //
   if ( vectors && vectors->GetNumberOfVectors() > 0 )
     {
     if ( ! this->WriteVectorData(fp, vectors, numCells) )
@@ -220,9 +273,9 @@ int vtkDataWriter::WriteCellData(FILE *fp, vtkDataSet *ds)
       return 0;
       }
     }
-//
-// Write normals
-//
+  //
+  // Write normals
+  //
   if ( normals && normals->GetNumberOfNormals() > 0 )
     {
     if ( ! this->WriteNormalData(fp, normals, numCells) )
@@ -230,9 +283,9 @@ int vtkDataWriter::WriteCellData(FILE *fp, vtkDataSet *ds)
       return 0;
       }
     }
-//
-// Write texture coords
-//
+  //
+  // Write texture coords
+  //
   if ( tcoords && tcoords->GetNumberOfTCoords() > 0 )
     {
     if ( ! this->WriteTCoordData(fp, tcoords, numCells) )
@@ -240,9 +293,9 @@ int vtkDataWriter::WriteCellData(FILE *fp, vtkDataSet *ds)
       return 0;
       }
     }
-//
-// Write tensors
-//
+  //
+  // Write tensors
+  //
   if ( tensors && tensors->GetNumberOfTensors() > 0 )
     {
     if ( ! this->WriteTensorData(fp, tensors, numCells) )
@@ -250,9 +303,9 @@ int vtkDataWriter::WriteCellData(FILE *fp, vtkDataSet *ds)
       return 0;
       }
     }
-//
-// Write field
-//
+  //
+  // Write field
+  //
   if ( field && field->GetNumberOfTuples() > 0 )
     {
     if ( ! this->WriteFieldData(fp, field) )
@@ -266,7 +319,7 @@ int vtkDataWriter::WriteCellData(FILE *fp, vtkDataSet *ds)
 
 // Write the point data (e.g., scalars, vectors, ...) of a vtk dataset.
 // Returns 0 if error.
-int vtkDataWriter::WritePointData(FILE *fp, vtkDataSet *ds)
+int vtkDataWriter::WritePointData(ostream *fp, vtkDataSet *ds)
 {
   int numPts;
   vtkScalars *scalars;
@@ -293,10 +346,10 @@ int vtkDataWriter::WritePointData(FILE *fp, vtkDataSet *ds)
     return 1;
     }
 
-  fprintf (fp, "POINT_DATA %d\n", numPts);
-//
-// Write scalar data
-//
+  *fp << "POINT_DATA " << numPts << "\n";
+  //
+  // Write scalar data
+  //
   if ( scalars && scalars->GetNumberOfScalars() > 0 )
     {
     if ( ! this->WriteScalarData(fp, scalars, numPts) )
@@ -304,9 +357,9 @@ int vtkDataWriter::WritePointData(FILE *fp, vtkDataSet *ds)
       return 0;
       }
     }
-//
-// Write vector data
-//
+  //
+  // Write vector data
+  //
   if ( vectors && vectors->GetNumberOfVectors() > 0 )
     {
     if ( ! this->WriteVectorData(fp, vectors, numPts) )
@@ -314,9 +367,9 @@ int vtkDataWriter::WritePointData(FILE *fp, vtkDataSet *ds)
       return 0;
       }
     }
-//
-// Write normals
-//
+  //
+  // Write normals
+  //
   if ( normals && normals->GetNumberOfNormals() > 0 )
     {
     if ( ! this->WriteNormalData(fp, normals, numPts) )
@@ -324,9 +377,9 @@ int vtkDataWriter::WritePointData(FILE *fp, vtkDataSet *ds)
       return 0;
       }
     }
-//
-// Write texture coords
-//
+  //
+  // Write texture coords
+  //
   if ( tcoords && tcoords->GetNumberOfTCoords() > 0 )
     {
     if ( ! this->WriteTCoordData(fp, tcoords, numPts) )
@@ -334,9 +387,9 @@ int vtkDataWriter::WritePointData(FILE *fp, vtkDataSet *ds)
       return 0;
       }
     }
-//
-// Write tensors
-//
+  //
+  // Write tensors
+  //
   if ( tensors && tensors->GetNumberOfTensors() > 0 )
     {
     if ( ! this->WriteTensorData(fp, tensors, numPts) )
@@ -345,9 +398,9 @@ int vtkDataWriter::WritePointData(FILE *fp, vtkDataSet *ds)
       }
     }
 
-//
-// Write field
-//
+  //
+  // Write field
+  //
   if ( field && field->GetNumberOfTuples() > 0 )
     {
     if ( ! this->WriteFieldData(fp, field) )
@@ -360,11 +413,13 @@ int vtkDataWriter::WritePointData(FILE *fp, vtkDataSet *ds)
 }
 
 // Template to handle writing data in ascii or binary
+// We could change the format into C++ io standard ...
 template <class T>
-static void WriteDataArray(FILE *fp, T *data, int fileType, char *format, int num, int numComp)
+static void WriteDataArray(ostream *fp, T *data, int fileType, char *format, int num, int numComp)
 {
   int i, j, idx;
-
+  char str[1024];
+  
   if ( fileType == VTK_ASCII )
     {
     for (j=0; j<num; j++)
@@ -372,10 +427,10 @@ static void WriteDataArray(FILE *fp, T *data, int fileType, char *format, int nu
       for (i=0; i<numComp; i++)
 	{
 	idx = i + j*numComp;
-	fprintf (fp, format, *data++);
+	sprintf (str, format, *data++); *fp << str; 
 	if ( !((idx+1)%9) )
 	  {
-	  fprintf (fp,"\n");
+	  *fp << "\n";
 	  }
 	}
       }
@@ -394,23 +449,25 @@ static void WriteDataArray(FILE *fp, T *data, int fileType, char *format, int nu
 	vtkByteSwap::SwapWrite4BERange((float *)data,num*numComp, fp);
 	break;
       default:
-	fwrite (data, sizeof(T), num*numComp, fp);
+	fp->write ((unsigned char *)data, ( sizeof(T))*( num*numComp));
+
       }
     }
-  fprintf (fp,"\n");
+  *fp << "\n";
 }
 
 // Write out data to file specified.
-int vtkDataWriter::WriteArray(FILE *fp, int dataType, vtkDataArray *data, char *format, 
+int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkDataArray *data, char *format, 
 			      int num, int numComp)
 {
   int i, j, idx;
+  char str[1024];
   
   switch (dataType)
     {
     case VTK_BIT:
       {
-      fprintf (fp, format, "int");
+      sprintf (str, format, "int"); *fp << str; 
       if ( this->FileType == VTK_ASCII )
 	{
 	int s;
@@ -420,10 +477,10 @@ int vtkDataWriter::WriteArray(FILE *fp, int dataType, vtkDataArray *data, char *
 	    {
 	    idx = i + j*numComp;
 	    s = ((vtkBitArray *)data)->GetValue(i);
-	    fprintf (fp, "%d ", (s!=0.0?1:0));
+	    *fp << (s!=0.0?1:0); 
 	    if ( !((idx+1)%6) )
 	      {
-	      fprintf (fp,"\n");
+	      *fp << "\n";
 	      }
 	    }
 	  }
@@ -431,15 +488,16 @@ int vtkDataWriter::WriteArray(FILE *fp, int dataType, vtkDataArray *data, char *
       else
 	{
         unsigned char *cptr=((vtkUnsignedCharArray *)data)->GetPointer(0);
-	fwrite (cptr,sizeof(unsigned char),(num-1)/8+1,fp);
+	fp->write ((unsigned char *)cptr, (sizeof(unsigned char))*((num-1)/8+1));
+
 	}
-      fprintf (fp,"\n");
+      *fp << "\n";
       }
     break;
 
     case VTK_CHAR:
       {
-      fprintf (fp, format, "char");
+      sprintf (str, format, "char"); *fp << str; 
       char *s=((vtkCharArray *)data)->GetPointer(0);
       WriteDataArray(fp, s, this->FileType, "%i ", num, numComp);
       }
@@ -447,7 +505,7 @@ int vtkDataWriter::WriteArray(FILE *fp, int dataType, vtkDataArray *data, char *
 
     case VTK_UNSIGNED_CHAR:
       {
-      fprintf (fp, format, "unsigned_char");
+      sprintf (str, format, "unsigned_char"); *fp << str; 
       unsigned char *s=((vtkUnsignedCharArray *)data)->GetPointer(0);
       WriteDataArray(fp, s, this->FileType, "%i ", num, numComp);
       }
@@ -455,7 +513,7 @@ int vtkDataWriter::WriteArray(FILE *fp, int dataType, vtkDataArray *data, char *
     
     case VTK_SHORT:
       {
-      fprintf (fp, format, "short");
+      sprintf (str, format, "short"); *fp << str; 
       short *s=((vtkShortArray *)data)->GetPointer(0);
       WriteDataArray(fp, s, this->FileType, "%hd ", num, numComp);
       }
@@ -463,7 +521,7 @@ int vtkDataWriter::WriteArray(FILE *fp, int dataType, vtkDataArray *data, char *
 
     case VTK_UNSIGNED_SHORT:
       {
-      fprintf (fp, format, "unsigned_short");
+      sprintf (str, format, "unsigned_short"); *fp << str; 
       unsigned short *s=((vtkUnsignedShortArray *)data)->GetPointer(0);
       WriteDataArray(fp, s, this->FileType, "%hu ", num, numComp);
       }
@@ -471,7 +529,7 @@ int vtkDataWriter::WriteArray(FILE *fp, int dataType, vtkDataArray *data, char *
 
     case VTK_INT:
       {
-      fprintf (fp, format, "int");
+      sprintf (str, format, "int"); *fp << str; 
       int *s=((vtkIntArray *)data)->GetPointer(0);
       WriteDataArray(fp, s, this->FileType, "%d ", num, numComp);
       }
@@ -479,7 +537,7 @@ int vtkDataWriter::WriteArray(FILE *fp, int dataType, vtkDataArray *data, char *
 
     case VTK_UNSIGNED_INT:
       {
-      fprintf (fp, format, "unsigned_int");
+      sprintf (str, format, "unsigned_int"); *fp << str; 
       unsigned int *s=((vtkUnsignedIntArray *)data)->GetPointer(0);
       WriteDataArray(fp, s, this->FileType, "%d ", num, numComp);
       }
@@ -487,7 +545,7 @@ int vtkDataWriter::WriteArray(FILE *fp, int dataType, vtkDataArray *data, char *
 
     case VTK_LONG:
       {
-      fprintf (fp, format, "long");
+      sprintf (str, format, "long"); *fp << str; 
       long *s=((vtkLongArray *)data)->GetPointer(0);
       WriteDataArray(fp, s, this->FileType, "%d ", num, numComp);
       }
@@ -495,7 +553,7 @@ int vtkDataWriter::WriteArray(FILE *fp, int dataType, vtkDataArray *data, char *
 
     case VTK_UNSIGNED_LONG:
       {
-      fprintf (fp, format, "unsigned_long");
+      sprintf (str, format, "unsigned_long"); *fp << str; 
       unsigned long *s=((vtkUnsignedLongArray *)data)->GetPointer(0);
       WriteDataArray(fp, s, this->FileType, "%d ", num, numComp);
       }
@@ -503,7 +561,7 @@ int vtkDataWriter::WriteArray(FILE *fp, int dataType, vtkDataArray *data, char *
 
     case VTK_FLOAT:
       {
-      fprintf (fp, format, "float");
+      sprintf (str, format, "float"); *fp << str; 
       float *s=((vtkFloatArray *)data)->GetPointer(0);
       WriteDataArray(fp, s, this->FileType, "%g ", num, numComp);
       }
@@ -511,7 +569,7 @@ int vtkDataWriter::WriteArray(FILE *fp, int dataType, vtkDataArray *data, char *
 
     case VTK_DOUBLE:
       {
-      fprintf (fp, format, "double");
+      sprintf (str, format, "double"); *fp << str; 
       double *s=((vtkDoubleArray *)data)->GetPointer(0);
       WriteDataArray(fp, s, this->FileType, "%g ", num, numComp);
       }
@@ -523,41 +581,41 @@ int vtkDataWriter::WriteArray(FILE *fp, int dataType, vtkDataArray *data, char *
       return 0;
       }
     }
-  
+
   return 1;
 }
 
-int vtkDataWriter::WritePoints(FILE *fp, vtkPoints *points)
+int vtkDataWriter::WritePoints(ostream *fp, vtkPoints *points)
 {
   int numPts=points->GetNumberOfPoints();
   
-  fprintf (fp, "POINTS %d ", numPts);
+  *fp << "POINTS " << numPts << " ";
   return this->WriteArray(fp, points->GetDataType(), points->GetData(), "%s\n", numPts, 3);
 }
 
 // Write out coordinates for rectilinear grids.
-int vtkDataWriter::WriteCoordinates(FILE *fp, vtkScalars *coords, int axes)
+int vtkDataWriter::WriteCoordinates(ostream *fp, vtkScalars *coords, int axes)
 {
   int ncoords=coords->GetNumberOfScalars();
   
   if ( axes == 0 )
     {
-    fprintf (fp, "X_COORDINATES %d ", ncoords);
+    *fp << "X_COORDINATES " << ncoords << " ";
     }
   else if ( axes == 1)
     {
-    fprintf (fp, "Y_COORDINATES %d ", ncoords);
+    *fp << "Y_COORDINATES " << ncoords << " ";
     }
   else
     {
-    fprintf (fp, "Z_COORDINATES %d ", ncoords);
+    *fp << "Z_COORDINATES " << ncoords << " ";
     }
 
   return this->WriteArray(fp, coords->GetDataType(), coords->GetData(), "%s\n", ncoords, 1);
 }
 
 // Write out scalar data.
-int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int num)
+int vtkDataWriter::WriteScalarData(ostream *fp, vtkScalars *scalars, int num)
 {
   int i, j, size=0;
   char *name;
@@ -577,7 +635,7 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int num)
   if ( dataType != VTK_UNSIGNED_CHAR )
     {
     char format[1024];
-    fprintf (fp, "SCALARS ");
+    *fp << "SCALARS ";
     sprintf(format,"%s %%s %d\nLOOKUP_TABLE %s\n",this->ScalarsName, numComp, name);
     if (this->WriteArray(fp, scalars->GetDataType(), scalars->GetData(), format, num, numComp) == 0)
       {
@@ -589,7 +647,7 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int num)
     {
     int nvs = scalars->GetNumberOfComponents();
     unsigned char *data=((vtkUnsignedCharArray *)scalars->GetData())->GetPointer(0);
-    fprintf (fp, "COLOR_SCALARS %s %d\n", this->ScalarsName, nvs);
+    *fp << "COLOR_SCALARS " << this->ScalarsName << " " << nvs << "\n";
 
     if ( this->FileType == VTK_ASCII )
       {
@@ -597,84 +655,85 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int num)
         {
 	for (j=0; j<nvs; j++)
 	  {
-	  fprintf (fp, "%g ", (float)data[nvs*i+j]/255.0);
+	  *fp << ((float)data[nvs*i+j]/255.0) << " ";
 	  }
         if ( i != 0 && !(i%2) )
 	  {
-	  fprintf (fp,"\n");
+	  *fp << "\n";
 	  }
         }
       }
     else // binary type
       {
-      fwrite (data,sizeof(unsigned char),nvs*num,fp);
+      fp->write ((unsigned char *)data, (sizeof(unsigned char))*(nvs*num));
+
       }
 
-    fprintf (fp,"\n");
+    *fp << "\n";
     }
 
   //if lookup table, write it out
   if ( lut && size > 0 )
     {
-    fprintf (fp, "LOOKUP_TABLE %s %d\n", this->LookupTableName, size);
+    *fp << "LOOKUP_TABLE " << this->LookupTableName << " " << size << "\n";
     if ( this->FileType == VTK_ASCII )
       {
       float *c;
       for (i=0; i<size; i++)
         {
         c = lut->GetTableValue(i);
-        fprintf (fp, "%g %g %g %g\n", c[0], c[1], c[2], c[3]);
+        *fp << c[0] << " " << c[1] << " " << c[2] << " " << c[3] << "\n";
         }
       }
     else
       {
       unsigned char *colors=lut->GetPointer(0);
-      fwrite(colors,sizeof(unsigned char),4*size,fp);
+      fp->write((unsigned char *)colors, (sizeof(unsigned char)*4*size));
       }
-    fprintf (fp, "\n");
+    *fp << "\n";
     }
 
   return 1;
 }
 
-int vtkDataWriter::WriteVectorData(FILE *fp, vtkVectors *vectors, int num)
+int vtkDataWriter::WriteVectorData(ostream *fp, vtkVectors *vectors, int num)
 {
   char format[1024];
 
-  fprintf (fp, "VECTORS ");
+  *fp << "VECTORS ";
   sprintf(format, "%s %s\n", this->VectorsName, "%s");
   return this->WriteArray(fp, vectors->GetDataType(), vectors->GetData(), format, num, 3);
 }
 
-int vtkDataWriter::WriteNormalData(FILE *fp, vtkNormals *normals, int num)
+int vtkDataWriter::WriteNormalData(ostream *fp, vtkNormals *normals, int num)
 {
   char format[1024];
 
-  fprintf (fp, "NORMALS ");
+  *fp << "NORMALS ";
   sprintf(format, "%s %s\n", this->NormalsName, "%s");
   return this->WriteArray(fp, normals->GetDataType(), normals->GetData(), format, num, 3);
 }
 
-int vtkDataWriter::WriteTCoordData(FILE *fp, vtkTCoords *tcoords, int num)
+int vtkDataWriter::WriteTCoordData(ostream *fp, vtkTCoords *tcoords, int num)
 {
   int dim=tcoords->GetNumberOfComponents();
   char format[1024];
 
-  fprintf (fp, "TEXTURE_COORDINATES ");
+  *fp << "TEXTURE_COORDINATES ";
   sprintf(format, "%s %d %s\n", this->TCoordsName, dim, "%s");
   return this->WriteArray(fp, tcoords->GetDataType(), tcoords->GetData(), format, num, dim);
 }
 
-int vtkDataWriter::WriteTensorData(FILE *fp, vtkTensors *tensors, int num)
+int vtkDataWriter::WriteTensorData(ostream *fp, vtkTensors *tensors, int num)
 {
   char format[1024];
 
-  fprintf (fp, "TENSORS ");
+  *fp << "TENSORS "; 
   sprintf(format, "%s %s\n", this->TensorsName, "%s");
   return this->WriteArray(fp, tensors->GetDataType(), tensors->GetData(), format, num, 9);
 }
 
-int vtkDataWriter::WriteFieldData(FILE *fp, vtkFieldData *f)
+int vtkDataWriter::WriteFieldData(ostream *fp, vtkFieldData *f)
 {
   char format[1024];
   int i, numArrays=f->GetNumberOfArrays();
@@ -685,7 +744,7 @@ int vtkDataWriter::WriteFieldData(FILE *fp, vtkFieldData *f)
     {
     return 1;
     }
-  fprintf (fp, "FIELD %s %d\n", this->FieldDataName, numArrays);
+  *fp << "FIELD " << this->FieldDataName << " " << numArrays << "\n";
   
   for (i=0; i < numArrays; i++)
     {
@@ -699,14 +758,14 @@ int vtkDataWriter::WriteFieldData(FILE *fp, vtkFieldData *f)
       }
     else
       {
-      fprintf (fp, "NULL_ARRAY");
+      *fp << "NULL_ARRAY"; 
       }
     }
   
   return 1;
 }
 
-int vtkDataWriter::WriteCells(FILE *fp, vtkCellArray *cells, char *label)
+int vtkDataWriter::WriteCells(ostream *fp, vtkCellArray *cells, char *label)
 {
   int ncells=cells->GetNumberOfCells();
   int size=cells->GetNumberOfConnectivityEntries();
@@ -716,19 +775,19 @@ int vtkDataWriter::WriteCells(FILE *fp, vtkCellArray *cells, char *label)
     return 1;
     }
 
-  fprintf (fp, "%s %d %d\n", label, ncells, size);
+  *fp << label << " " << ncells << " " << size << "\n";
 
   if ( this->FileType == VTK_ASCII )
     {
     int npts, *pts, j;
     for (cells->InitTraversal(); cells->GetNextCell(npts,pts); )
       {
-      fprintf (fp, "%d ", npts);
+      *fp << npts << " ";
       for (j=0; j<npts; j++)
         {
-        fprintf (fp, "%d ", pts[j]);
+        *fp << pts[j] << " ";
         }
-      fprintf (fp, "\n");
+      *fp << "\n";
       }
     }
   else
@@ -737,7 +796,7 @@ int vtkDataWriter::WriteCells(FILE *fp, vtkCellArray *cells, char *label)
     vtkByteSwap::SwapWrite4BERange(cells->GetPointer(),size,fp);
     }
 
-  fprintf (fp,"\n");
+  *fp << "\n";
   return 1;
 }
 
@@ -747,13 +806,38 @@ void vtkDataWriter::WriteData()
 }
 
 // Close a vtk file.
-void vtkDataWriter::CloseVTKFile(FILE *fp)
+void vtkDataWriter::CloseVTKFile(ostream *fp)
 {
   vtkDebugMacro(<<"Closing vtk file\n");
+  
+  // this should not be necessary
+  if (this->OutputString && ! this->UserOwnsOutputString)
+    {
+    delete [] this->OutputString;
+    this->OutputString = NULL;
+    this->OutputStringLength = 0;
+    }
+  
   if ( fp != NULL )
     {
-    fclose(fp);
+    if (this->WriteToOutputString)
+      {
+      char *tmp;
+      ostrstream *ostr = (ostrstream*)(fp);
+      this->OutputStringLength = ostr->pcount();
+      tmp = ostr->str();
+      // just in case the user set the output string when an ostrstream was open.
+      if (this->UserOwnsOutputString && tmp != this->OutputString)
+	{
+	vtkWarningMacro("Ignoring UsersOutputString.  Write was in progress");
+	this->UserOwnsOutputString = 0;
+	}
+      this->OutputString = tmp;
+      }
+    delete fp;
+    fp = NULL;
     }
+
 }
 
 void vtkDataWriter::PrintSelf(ostream& os, vtkIndent indent)

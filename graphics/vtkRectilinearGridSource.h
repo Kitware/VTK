@@ -62,8 +62,13 @@ public:
 
   // Description:
   // Get the output of this source.
-  vtkRectilinearGrid *GetOutput() {return (vtkRectilinearGrid *)this->Output;};
+  vtkRectilinearGrid *GetOutput();
+  void SetOutput(vtkRectilinearGrid *output);
 
+protected:
+  // Used by streaming: The extent of the output being processed
+  // by the execute method. Set in the ComputeInputUpdateExtent method.
+  int ExecuteExtent[6];
 };
 
 #endif

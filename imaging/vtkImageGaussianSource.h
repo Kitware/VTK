@@ -77,7 +77,7 @@ public:
   vtkSetMacro(StandardDeviation, float);
   vtkGetMacro(StandardDeviation, float);
 
-  void UpdateImageInformation();
+  void UpdateInformation();
 
 private:
   float StandardDeviation;

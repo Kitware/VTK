@@ -38,12 +38,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageFilter - Generic filter that has one input..
+// .NAME vtkImageToImageFilter - an alias for vtkImageToImageFilter
 // .SECTION Description
-// vtkImageFilter is a filter superclass that hides much of the pipeline 
-// complexity. It handles breaking the pipeline execution into smaller
-// extents so that the vtkImageCache memory limits are observed. It 
-// also provides support for multithreading.
+// vtkImageToImageFilter is a legacy class and should not be used.
+// use vtk ImageToImageFilter instead.
 
 
 
@@ -51,88 +49,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageFilter_h
 
 
-#include "vtkImageSource.h"
-#include "vtkStructuredPoints.h"
-#include "vtkStructuredPointsToImage.h"
-#include "vtkImageCache.h"
-#include "vtkMultiThreader.h"
+#include "vtkImageToImageFilter.h"
 
-class VTK_EXPORT vtkImageFilter : public vtkImageSource
+class VTK_EXPORT vtkImageFilter : public vtkImageToImageFilter
 {
 public:
-  vtkImageFilter();
-  ~vtkImageFilter();
   static vtkImageFilter *New() {return new vtkImageFilter;};
   const char *GetClassName() {return "vtkImageFilter";};
-  void PrintSelf(ostream& os, vtkIndent indent);
-
-
-  // Description:
-  // Set the Input of a filter. 
-  virtual void SetInput(vtkImageCache *input);
-  void SetInput(vtkStructuredPoints *spts)
-    {vtkStructuredPointsToImage *tmp = spts->MakeStructuredPointsToImage();
-     this->SetInput(tmp->GetOutput()); tmp->Delete();}
-  
-
-  // Description:
-  // This method is called by the cache.  It eventually calls the
-  // Execute(vtkImageData *, vtkImageData *) method.
-  // ImageInformation has already been updated by this point, 
-  // and outRegion is in local coordinates.
-  // This method will stream to get the input, and loops over extra axes.
-  // Only the UpdateExtent from output will get updated.
-  virtual void InternalUpdate(vtkImageData *outData);
-  
-  // Description:
-  // This method sets the WholeExtent, Spacing and Origin of the output.
-  virtual void UpdateImageInformation();
-
-
-  // Description:
-  // This Method returns the MTime of the pipeline up to and including this
-  // filter Note: current implementation may create a cascade of
-  // GetPipelineMTime calls.  Each GetPipelineMTime call propagates the call
-  // all the way to the original source.
-  unsigned long int GetPipelineMTime();
 
   
-  // Description:
-  // Get input to this filter.
-  vtkGetObjectMacro(Input,vtkImageCache);
-
-  // Description:
-  // Turning bypass on will cause the filter to turn off and
-  // simply pass the data through.  This main purpose for this functionality
-  // is support for vtkImageDecomposedFilter.  InputMemoryLimit is ignored
-  // when Bypass in on.
-  vtkSetMacro(Bypass,int);
-  vtkGetMacro(Bypass,int);
-  vtkBooleanMacro(Bypass,int);
-
-  // Description:
-  // Get/Set the number of threads to create when rendering
-  vtkSetClampMacro( NumberOfThreads, int, 1, VTK_MAX_THREADS );
-  vtkGetMacro( NumberOfThreads, int );
-
-  // Description:
-  // subclasses should define this function
-  virtual void ThreadedExecute(vtkImageData *inData, 
-			       vtkImageData *outData,
-			       int extent[6], int threadId);
-  
-protected:
-  vtkImageCache *Input;     
-  vtkMultiThreader *Threader;
-  int Bypass;
-  int Updating;
-  int NumberOfThreads;
-  
-  virtual void ExecuteImageInformation();
-  virtual void ComputeRequiredInputUpdateExtent(int inExt[6],int outExt[6]);
-
-  virtual void RecursiveStreamUpdate(vtkImageData *outData);
-  virtual void Execute(vtkImageData *inData, vtkImageData *outData);
 };
 
 #endif

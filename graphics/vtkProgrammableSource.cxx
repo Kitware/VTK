@@ -52,36 +52,24 @@ vtkProgrammableSource::vtkProgrammableSource()
   this->ExecuteMethodArg = NULL;
   this->ExecuteMethodArgDelete = NULL;
 
-  this->PolyData = vtkPolyData::New();
-  this->PolyData->SetSource(this);
-  
-  this->StructuredPoints = vtkStructuredPoints::New();
-  this->StructuredPoints->SetSource(this);
-  
-  this->StructuredGrid = vtkStructuredGrid::New();
-  this->StructuredGrid->SetSource(this);
-  
-  this->UnstructuredGrid = vtkUnstructuredGrid::New();
-  this->UnstructuredGrid->SetSource(this);
-  
-  this->RectilinearGrid = vtkRectilinearGrid::New();
-  this->RectilinearGrid->SetSource(this);
+  this->vtkSource::SetOutput(0,vtkPolyData::New());
+  this->Outputs[0]->Delete();
 
-  //This is done because filter superclass assumes output is defined.
-  this->Output = this->PolyData;
+  this->vtkSource::SetOutput(1,vtkStructuredPoints::New());
+  this->Outputs[1]->Delete();
+
+  this->vtkSource::SetOutput(2,vtkStructuredGrid::New());
+  this->Outputs[2]->Delete();
+
+  this->vtkSource::SetOutput(3,vtkUnstructuredGrid::New());
+  this->Outputs[3]->Delete();
+
+  this->vtkSource::SetOutput(4,vtkRectilinearGrid::New());
+  this->Outputs[4]->Delete();
 }
 
 vtkProgrammableSource::~vtkProgrammableSource()
 {
-  this->StructuredPoints->Delete();
-  this->StructuredGrid->Delete();
-  this->UnstructuredGrid->Delete();
-  this->RectilinearGrid->Delete();
-  this->PolyData->Delete();
-  // Output should only be one of the above. We set it to NULL
-  // so that we don't free it twice
-  this->Output = NULL;
-
   // delete the current arg if there is one and a delete meth
   if ((this->ExecuteMethodArg)&&(this->ExecuteMethodArgDelete))
     {
@@ -123,31 +111,56 @@ void vtkProgrammableSource::SetExecuteMethodArgDelete(void (*f)(void *))
 // the correct type of the output data.
 vtkPolyData *vtkProgrammableSource::GetPolyDataOutput()
 {
-  return this->PolyData;
+  if (this->NumberOfOutputs < 5)
+    {
+    return NULL;
+    }
+  
+  return (vtkPolyData *)(this->Outputs[0]);
 }
 
 // Get the output as a concrete type.
 vtkStructuredPoints *vtkProgrammableSource::GetStructuredPointsOutput()
 {
-  return this->StructuredPoints;
+  if (this->NumberOfOutputs < 5)
+    {
+    return NULL;
+    }
+  
+  return (vtkStructuredPoints *)(this->Outputs[1]);
 }
 
 // Get the output as a concrete type.
 vtkStructuredGrid *vtkProgrammableSource::GetStructuredGridOutput()
 {
-  return this->StructuredGrid;
+  if (this->NumberOfOutputs < 5)
+    {
+    return NULL;
+    }
+  
+  return (vtkStructuredGrid *)(this->Outputs[2]);
 }
 
 // Get the output as a concrete type.
 vtkUnstructuredGrid *vtkProgrammableSource::GetUnstructuredGridOutput()
 {
-  return this->UnstructuredGrid;
+  if (this->NumberOfOutputs < 5)
+    {
+    return NULL;
+    }
+  
+  return (vtkUnstructuredGrid *)(this->Outputs[3]);
 }
 
 // Get the output as a concrete type.
 vtkRectilinearGrid *vtkProgrammableSource::GetRectilinearGridOutput()
 {
-  return this->RectilinearGrid;
+  if (this->NumberOfOutputs < 5)
+    {
+    return NULL;
+    }
+  
+  return (vtkRectilinearGrid *)(this->Outputs[4]);
 }
 
 
@@ -162,100 +175,6 @@ void vtkProgrammableSource::Execute()
     }
 }
 
-void vtkProgrammableSource::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkSource::PrintSelf(os,indent);
-
-  os << indent << "Execute Time: " <<this->ExecuteTime.GetMTime() << "\n";
-
-}
 
 
-void vtkProgrammableSource::UnRegister(vtkObject *o)
-{
-  // detect the circular loop source <-> data
-  // If we have two references and one of them is my data
-  // and I am not being unregistered by my data, break the loop.
-  if (this->ReferenceCount == 6 &&
-      this->PolyData != o && this->StructuredGrid != o &&
-      this->UnstructuredGrid != o && this->StructuredPoints != o &&
-      this->RectilinearGrid != o &&
-      this->PolyData->GetNetReferenceCount() == 1 &&
-      this->StructuredGrid->GetNetReferenceCount() == 1 &&
-      this->UnstructuredGrid->GetNetReferenceCount() == 1 &&
-      this->StructuredPoints->GetNetReferenceCount() == 1 &&
-      this->RectilinearGrid->GetNetReferenceCount() == 1)
-    {
-    this->PolyData->SetSource(NULL);
-    this->StructuredGrid->SetSource(NULL);
-    this->UnstructuredGrid->SetSource(NULL);
-    this->StructuredPoints->SetSource(NULL);
-    this->RectilinearGrid->SetSource(NULL);
-    }
-  if (this->ReferenceCount == 5 &&
-      (this->PolyData == o || this->StructuredGrid == o ||
-       this->UnstructuredGrid == o || this->RectilinearGrid == o ||
-       this->StructuredPoints == o) &&
-      (this->PolyData->GetNetReferenceCount() +
-       this->StructuredPoints->GetNetReferenceCount() +
-       this->RectilinearGrid->GetNetReferenceCount() +
-       this->StructuredGrid->GetNetReferenceCount() +
-       this->UnstructuredGrid->GetNetReferenceCount()) == 6)
-    {
-    this->PolyData->SetSource(NULL);
-    this->StructuredGrid->SetSource(NULL);
-    this->UnstructuredGrid->SetSource(NULL);
-    this->StructuredPoints->SetSource(NULL);
-    this->RectilinearGrid->SetSource(NULL);
-    }
-  
-  this->vtkObject::UnRegister(o);
-}
-
-int vtkProgrammableSource::InRegisterLoop(vtkObject *o)
-{
-  int num = 0;
-  int cnum = 0;
-  
-  if (this->StructuredPoints->GetSource() == this)
-    {
-    num++;
-    cnum += this->StructuredPoints->GetNetReferenceCount();
-    }
-  if (this->RectilinearGrid->GetSource() == this)
-    {
-    num++;
-    cnum += this->RectilinearGrid->GetNetReferenceCount();
-    }
-  if (this->PolyData->GetSource() == this)
-    {
-    num++;
-    cnum += this->PolyData->GetNetReferenceCount();
-    }
-  if (this->StructuredGrid->GetSource() == this)
-    {
-    num++;
-    cnum += this->StructuredGrid->GetNetReferenceCount();
-    }
-  if (this->UnstructuredGrid->GetSource() == this)
-    {
-    num++;
-    cnum += this->UnstructuredGrid->GetNetReferenceCount();
-    }
-  
-  // if no one outside is using us
-  // and our data objects are down to one net reference
-  // and we are being asked by one of our data objects
-  if (this->ReferenceCount == num &&
-      cnum == (num + 1) &&
-      (this->PolyData == o ||
-       this->StructuredPoints == o ||
-       this->RectilinearGrid == o ||
-       this->StructuredGrid == o ||
-       this->UnstructuredGrid == o))
-    {
-    return 1;
-    }
-  return 0;
-}
 

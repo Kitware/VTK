@@ -43,34 +43,34 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct with no start and end write methods or arguments.
 vtkWriter::vtkWriter()
 {
-  this->Input = NULL;
 }
 
 vtkWriter::~vtkWriter()
 {
-  if (this->Input != NULL)
-    {
-    this->Input->UnRegister(this);
-    this->Input = NULL;
-    }
 }
+
+vtkDataObject *vtkWriter::GetInput()
+{
+  if (this->NumberOfInputs < 1)
+    {
+    return NULL;
+    }
+  return this->Inputs[0];
+}
+
 
 // Write data to output. Method executes subclasses WriteData() method, as 
 // well as StartMethod() and EndMethod() methods.
 void vtkWriter::Write()
 {
   // make sure input is available
-  if ( !this->Input )
+  if ( !this->GetInput() )
     {
     vtkErrorMacro(<< "No input!");
     return;
     }
 
-  this->Input->Update();
-  if ( this->Input->GetDataReleased() )
-    {
-    this->Input->ForceUpdate();
-    }
+  this->GetInput()->Update();
   if ( this->StartMethod )
     {
     (*this->StartMethod)(this->StartMethodArg);
@@ -81,9 +81,9 @@ void vtkWriter::Write()
     (*this->EndMethod)(this->EndMethodArg);
     }
 
-  if ( this->Input->ShouldIReleaseData() )
+  if ( this->GetInput()->ShouldIReleaseData() )
     {
-    this->Input->ReleaseData();
+    this->GetInput()->ReleaseData();
     }
 }
 
@@ -97,12 +97,4 @@ void vtkWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkProcessObject::PrintSelf(os,indent);
 
-  if ( this->Input )
-    {
-    os << indent << "Input: (" << (void *)this->Input << ")\n";
-    }
-  else
-    {
-    os << indent << "Input: (none)\n";
-    }
 }

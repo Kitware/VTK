@@ -42,9 +42,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Initialize static member
 //
 #include "vtkTimeStamp.h"
+#include "vtkMutexLock.h"
 
 void vtkTimeStamp::Modified()
 {
+  static vtkMutexLock lock;
   static unsigned long vtkTimeStampTime = 0; 
+
+  lock.Lock();
   this->ModifiedTime = ++vtkTimeStampTime;
+  lock.Unlock();
 }
+
+
+
+
+
+
+
+
+
+
+

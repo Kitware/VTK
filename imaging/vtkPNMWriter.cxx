@@ -40,7 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkPNMWriter.h"
 
-void vtkPNMWriter::WriteFileHeader(ofstream *file, vtkImageCache *cache)
+void vtkPNMWriter::WriteFileHeader(ofstream *file, vtkImageData *cache)
 {
   int min1, max1, min2, max2, min3, max3;
   int bpp;
@@ -96,7 +96,7 @@ void vtkPNMWriter::WriteFile(ofstream *file, vtkImageData *data,
     }
   rowLength *= data->GetNumberOfScalarComponents();
 
-  wExtent = this->Input->GetWholeExtent();
+  wExtent = this->GetInput()->GetWholeExtent();
   area = ((extent[5] - extent[4] + 1)*(extent[3] - extent[2] + 1)*
 	  (extent[1] - extent[0] + 1)) / 
     ((wExtent[5] -wExtent[4] + 1)*(wExtent[3] -wExtent[2] + 1)*

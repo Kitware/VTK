@@ -39,15 +39,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkImageCache.h"
+
 #include "vtkImageMagnitude.h"
 
 
 //----------------------------------------------------------------------------
 // This method tells the superclass that the first axis will collapse.
-void vtkImageMagnitude::ExecuteImageInformation()
+void vtkImageMagnitude::ExecuteInformation()
 {
-  this->Output->SetNumberOfScalarComponents(1);
+  this->GetOutput()->SetNumberOfScalarComponents(1);
 }
 
 //----------------------------------------------------------------------------

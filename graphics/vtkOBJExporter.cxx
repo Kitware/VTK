@@ -166,7 +166,7 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
   trans->SetMatrix(*(anActor->vtkProp3D::GetMatrixPointer()));
     
   // we really want polydata
-  if ( ds->GetDataSetType() != VTK_POLY_DATA )
+  if ( ds->GetDataObjectType() != VTK_POLY_DATA )
     {
     gf = vtkGeometryFilter::New();
     gf->SetInput(ds);

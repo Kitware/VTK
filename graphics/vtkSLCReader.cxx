@@ -92,6 +92,59 @@ unsigned char* vtkSLCReader::Decode8BitData( unsigned char *in_ptr,
   return return_ptr;
 }
 
+
+// This will be needed when we make this an imaging filter.
+void vtkSLCReader::ExecuteInformation2()
+{
+  FILE *fp;
+  int   temp;
+  float f[3];
+  int   size[3];
+  int   magic_num;
+
+  vtkStructuredPoints *output = this->GetOutput();
+
+  // Initialize
+  if ((fp = fopen(this->FileName, "rb")) == NULL)
+    {
+    vtkErrorMacro(<< "File " << this->FileName << " not found");
+    return;
+    }
+
+  fscanf( fp, "%d", &magic_num );
+  if( magic_num != 11111 )
+    {
+    vtkErrorMacro(<< "SLC magic number is not correct");
+    return;
+    }
+
+  f[0] = f[1] = f[2] = 0.0;
+  output->SetOrigin(f);
+
+  fscanf( fp, "%d", size );
+  fscanf( fp, "%d", size+1 );
+  fscanf( fp, "%d", size+2 );
+  output->SetWholeExtent(0, size[0]-1, 0, size[1]-1, 0, size[2]-1);
+
+  // Skip Over bits_per_voxel Field */
+  fscanf( fp, "%d",   &temp );
+
+  fscanf( fp, "%f", f );
+  fscanf( fp, "%f", f+1 );
+  fscanf( fp, "%f", f+2 );
+  output->SetSpacing(f);
+
+  // Skip Over unit_type, data_origin, and data_modification 
+  fscanf( fp, "%d", &temp );
+  fscanf( fp, "%d", &temp );
+  fscanf( fp, "%d", &temp );
+
+  output->SetScalarType(VTK_UNSIGNED_CHAR);
+  output->SetNumberOfScalarComponents(1);
+
+  fclose( fp );
+}
+	  
 // Reads an SLC file and creates a vtkStructuredPoints dataset.
 void vtkSLCReader::Execute()
 {

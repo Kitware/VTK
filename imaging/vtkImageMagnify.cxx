@@ -39,7 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkImageMagnify.h"
-#include "vtkImageCache.h"
+
 
 
 //----------------------------------------------------------------------------
@@ -58,7 +58,7 @@ vtkImageMagnify::vtkImageMagnify()
 
 //----------------------------------------------------------------------------
 // Computes any global image information associated with regions.
-void vtkImageMagnify::ExecuteImageInformation()
+void vtkImageMagnify::ExecuteInformation()
 {
   float *spacing;
   int idx;
@@ -66,8 +66,8 @@ void vtkImageMagnify::ExecuteImageInformation()
   float outSpacing[3];
   int outExt[6];
   
-  inExt = this->Input->GetWholeExtent();
-  spacing = this->Input->GetSpacing();
+  inExt = this->GetInput()->GetWholeExtent();
+  spacing = this->GetInput()->GetSpacing();
   for (idx = 0; idx < 3; idx++)
     {
     // Scale the output extent
@@ -79,14 +79,14 @@ void vtkImageMagnify::ExecuteImageInformation()
     outSpacing[idx] = spacing[idx] / (float)(this->MagnificationFactors[idx]);
     }
   
-  this->Output->SetWholeExtent(outExt);
-  this->Output->SetSpacing(outSpacing);
+  this->GetOutput()->SetWholeExtent(outExt);
+  this->GetOutput()->SetSpacing(outSpacing);
 }
 
 //----------------------------------------------------------------------------
 // This method computes the Region of input necessary to generate outRegion.
 // It assumes offset and size are multiples of Magnify Factors.
-void vtkImageMagnify::ComputeRequiredInputUpdateExtent(int inExt[6],
+void vtkImageMagnify::ComputeInputUpdateExtent(int inExt[6],
 						       int outExt[6])
 {
   int idx;
@@ -291,7 +291,7 @@ void vtkImageMagnify::ThreadedExecute(vtkImageData *inData,
 				      int outExt[6], int id)
 {
   int inExt[6];
-  this->ComputeRequiredInputUpdateExtent(inExt,outExt);
+  this->ComputeInputUpdateExtent(inExt,outExt);
   void *inPtr = inData->GetScalarPointerForExtent(inExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
   
@@ -366,7 +366,7 @@ void vtkImageMagnify::ThreadedExecute(vtkImageData *inData,
 
 void vtkImageMagnify::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageFilter::PrintSelf(os,indent);
+  vtkImageToImageFilter::PrintSelf(os,indent);
 
   os << indent << "MagnificationFactors: ( "
      << this->MagnificationFactors[0] << ", "

@@ -39,7 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkImageCache.h"
+
 #include "vtkImageShrink3D.h"
 
 
@@ -55,7 +55,7 @@ vtkImageShrink3D::vtkImageShrink3D()
 //----------------------------------------------------------------------------
 void vtkImageShrink3D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageFilter::PrintSelf(os,indent);
+  vtkImageToImageFilter::PrintSelf(os,indent);
 
   os << indent << "ShrinkFactors: (" << this->ShrinkFactors[0] << ", "
      << this->ShrinkFactors[1] << ", " << this->ShrinkFactors[2] << ")\n";
@@ -68,7 +68,7 @@ void vtkImageShrink3D::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // This method computes the Region of input necessary to generate outRegion.
-void vtkImageShrink3D::ComputeRequiredInputUpdateExtent(int inExt[6], 
+void vtkImageShrink3D::ComputeInputUpdateExtent(int inExt[6], 
 							int outExt[6])
 {
   int idx;
@@ -93,14 +93,14 @@ void vtkImageShrink3D::ComputeRequiredInputUpdateExtent(int inExt[6],
 //----------------------------------------------------------------------------
 // Computes any global image information associated with regions.
 // Any problems with roundoff or negative numbers ???
-void vtkImageShrink3D::ExecuteImageInformation()
+void vtkImageShrink3D::ExecuteInformation()
 {
   int idx;
   int wholeExtent[6];
   float spacing[3];
   
-  this->Input->GetWholeExtent(wholeExtent);
-  this->Input->GetSpacing(spacing);
+  this->GetInput()->GetWholeExtent(wholeExtent);
+  this->GetInput()->GetSpacing(spacing);
 
   for (idx = 0; idx < 3; ++idx)
     {
@@ -115,8 +115,8 @@ void vtkImageShrink3D::ExecuteImageInformation()
     spacing[idx] *= (float)(this->ShrinkFactors[idx]);
     }
 
-  this->Output->SetWholeExtent(wholeExtent);
-  this->Output->SetSpacing(spacing);
+  this->GetOutput()->SetWholeExtent(wholeExtent);
+  this->GetOutput()->SetSpacing(spacing);
 }
 
 
@@ -239,7 +239,7 @@ void vtkImageShrink3D::ThreadedExecute(vtkImageData *inData,
   vtkDebugMacro(<< "Execute: inData = " << inData 
   << ", outData = " << outData);
 
-  this->ComputeRequiredInputUpdateExtent(inExt,outExt);
+  this->ComputeInputUpdateExtent(inExt,outExt);
   void *inPtr = inData->GetScalarPointerForExtent(inExt);
 
   // this filter expects that input is the same type as output.

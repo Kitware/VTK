@@ -75,14 +75,15 @@ typedef int vtkMutexType;
 
 //ETX
 
-class VTK_EXPORT vtkMutexLock : public vtkObject
+class VTK_EXPORT vtkMutexLock
 {
 public:
   vtkMutexLock();
   ~vtkMutexLock();
-  static vtkMutexLock *New() {return new vtkMutexLock;};
-  const char *GetClassName() {return "vtkMutexLock";};
-
+  static vtkMutexLock *New() {return new vtkMutexLock;}
+  const char *GetClassName() {return "vtkMutexLock";}
+  void Delete() {delete this;}
+  
   // Description:
   // Print method for vtkMutexLock
   void PrintSelf( ostream& os, vtkIndent index );

@@ -79,6 +79,13 @@ protected:
   // Description:
   // Reads the file name and builds a vtkStructuredPoints dataset.
   void Execute();
+
+  // Description:
+  // Not used now, but will be needed when this is made into an 
+  // imaging filter.
+  // Sets WholeExtent, Origin, Spacing, ScalarType 
+  // and NumberOfComponents of output.
+  void ExecuteInformation2();
   
   // Description:
   // Decodes an array of eight bit run-length encoded data.

@@ -41,23 +41,29 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkUnstructuredGridWriter.h"
 #include "vtkByteSwap.h"
 
+//----------------------------------------------------------------------------
 // Specify the input data or filter.
 void vtkUnstructuredGridWriter::SetInput(vtkUnstructuredGrid *input)
 {
-  if ( this->Input != input )
+  this->vtkProcessObject::SetInput(0, input);
+}
+
+//----------------------------------------------------------------------------
+// Specify the input data or filter.
+vtkUnstructuredGrid *vtkUnstructuredGridWriter::GetInput()
+{
+  if (this->NumberOfInputs < 1)
     {
-    vtkDebugMacro(<<" setting Input to " << (void *)input);
-    if (this->Input) {this->Input->UnRegister(this);}
-    this->Input = (vtkDataSet *) input;
-    if (this->Input) {this->Input->Register(this);}
-    this->Modified();
+    return NULL;
     }
+  
+  return (vtkUnstructuredGrid *)(this->Inputs[0]);
 }
 
 void vtkUnstructuredGridWriter::WriteData()
 {
-  FILE *fp;
-  vtkUnstructuredGrid *input=(vtkUnstructuredGrid *)this->Input;
+  ostream *fp;
+  vtkUnstructuredGrid *input=this->GetInput();
   int *types, ncells, cellId;
 
   vtkDebugMacro(<<"Writing vtk unstructured grid data...");
@@ -66,15 +72,15 @@ void vtkUnstructuredGridWriter::WriteData()
     {
     return;
     }
-//
-// Write unstructured grid specific stuff
-//
-  fprintf(fp,"DATASET UNSTRUCTURED_GRID\n");
+  //
+  // Write unstructured grid specific stuff
+  //
+  *fp << "DATASET UNSTRUCTURED_GRID\n"; 
   this->WritePoints(fp, input->GetPoints());
   this->WriteCells(fp, input->GetCells(),"CELLS");
-//
-// Cell types are a little more work
-//
+  //
+  // Cell types are a little more work
+  //
   ncells = input->GetCells()->GetNumberOfCells();
   types = new int[ncells];
   for (cellId=0; cellId < ncells; cellId++)
@@ -82,20 +88,20 @@ void vtkUnstructuredGridWriter::WriteData()
     types[cellId] = input->GetCellType(cellId);
     }
 
-  fprintf (fp, "CELL_TYPES %d\n", ncells);
+  *fp << "CELL_TYPES " << ncells << "\n";
   if ( this->FileType == VTK_ASCII )
     {
     for (cellId=0; cellId<ncells; cellId++)
       {
-      fprintf (fp, "%d\n", types[cellId]);
+      *fp << types[cellId] << "\n";
       }
     }
   else
     {
     // swap the bytes if necc
-    vtkByteSwap::SwapWrite4BERange(types,ncells,fp);
+    //vtkByteSwap::SwapWrite4BERange(types,ncells,fp);
     }
-  fprintf (fp,"\n");
+  *fp << "\n";
   delete [] types;
 
   this->WriteCellData(fp, input);

@@ -56,21 +56,28 @@ vtkDataSetReader::~vtkDataSetReader()
 {
   this->Reader->Delete();
   this->Reader = NULL;
-  if (this->Output)
-    {
-    this->Output->UnRegister(this);
-    this->Output = NULL;
-    }
 }
 
-vtkDataSet * vtkDataSetReader::GetOutput() {
-    if (!this->Reader->GetFileName ())
-      {
-      vtkWarningMacro(<< "FileName must be set");
-      return (vtkDataSet *) NULL;
-      }
-    this->Update();
-    return (vtkDataSet *) this->Output;
+vtkDataSet * vtkDataSetReader::GetOutput() 
+{
+  // check to see if an execute is necessary.
+  if (this->Outputs && this->Outputs[0] && 
+      this->Outputs[0]->GetUpdateTime() > this->GetMTime())
+    {
+    return (vtkDataSet *)(this->Outputs[0]);
+    }
+  
+  // The filename might have changed (changing the output).
+  // We need to re execute.
+  
+  if (!this->Reader->GetFileName ())
+    {
+    vtkWarningMacro(<< "FileName must be set");
+    return (vtkDataSet *) NULL;
+    }
+
+  this->Execute();
+  return (vtkDataSet *)this->Outputs[0];
 }
 
 unsigned long int vtkDataSetReader::GetMTime()
@@ -183,7 +190,7 @@ char *vtkDataSetReader::GetFieldDataName()
 void vtkDataSetReader::Execute()
 {
   char line[256];
-  vtkDataSet *output = NULL;
+  vtkDataObject *output;
   
   vtkDebugMacro(<<"Reading vtk dataset...");
 
@@ -224,6 +231,12 @@ void vtkDataSetReader::Execute()
     if ( ! strncmp(this->Reader->LowerCase(line),"polydata",8) )
       {
       vtkPolyDataReader *preader = vtkPolyDataReader::New();
+      // Can we use the old output?
+      output = this->Outputs ? this->Outputs[0] : NULL;
+      if (output && strcmp(output->GetClassName(), "vtkPolyData") == 0)
+	{
+	preader->SetOutput((vtkPolyData *)(output));
+	}
       preader->SetFileName(this->Reader->GetFileName());
       preader->SetInputString(this->Reader->GetInputString());
       preader->SetReadFromInputString(this->Reader->GetReadFromInputString());
@@ -235,14 +248,20 @@ void vtkDataSetReader::Execute()
       preader->SetLookupTableName(this->Reader->GetLookupTableName());
       preader->SetFieldDataName(this->Reader->GetFieldDataName());
       preader->Update();
-      output = preader->GetOutput();
-      output->Register(this);
+      // whether we used the old output or not, we need to set the output.
+      this->SetOutput(0, preader->GetOutput());
       preader->Delete();
       }
 
     else if ( ! strncmp(line,"structured_points",17) )
       {
       vtkStructuredPointsReader *preader = vtkStructuredPointsReader::New();
+      // Can we use the old output?
+      output = this->Outputs ? this->Outputs[0] : NULL;
+      if (output && strcmp(output->GetClassName(), "vtkStructuredPoints") == 0)
+	{
+	preader->SetOutput((vtkStructuredPoints *)(output));
+	}
       preader->SetFileName(this->Reader->GetFileName());
       preader->SetInputString(this->Reader->GetInputString());
       preader->SetReadFromInputString(this->Reader->GetReadFromInputString());
@@ -253,15 +272,20 @@ void vtkDataSetReader::Execute()
       preader->SetTCoordsName(this->Reader->GetTCoordsName());
       preader->SetLookupTableName(this->Reader->GetLookupTableName());
       preader->SetFieldDataName(this->Reader->GetFieldDataName());
-      preader->Update();
-      output = preader->GetOutput();
-      output->Register(this);
+      // whether we used the old output or not, we need to set the output.
+      this->SetOutput(0, preader->GetOutput());
       preader->Delete();
       }
 
     else if ( ! strncmp(line,"structured_grid",15) )
       {
       vtkStructuredGridReader *preader = vtkStructuredGridReader::New();
+      // Can we use the old output?
+      output = this->Outputs ? this->Outputs[0] : NULL;
+      if (output && strcmp(output->GetClassName(), "vtkStructuredGrid") == 0)
+	{
+	preader->SetOutput((vtkStructuredGrid *)(output));
+	}
       preader->SetFileName(this->Reader->GetFileName());
       preader->SetInputString(this->Reader->GetInputString());
       preader->SetReadFromInputString(this->Reader->GetReadFromInputString());
@@ -273,14 +297,20 @@ void vtkDataSetReader::Execute()
       preader->SetLookupTableName(this->Reader->GetLookupTableName());
       preader->SetFieldDataName(this->Reader->GetFieldDataName());
       preader->Update();
-      output = preader->GetOutput();
-      output->Register(this);
+      // whether we used the old output or not, we need to set the output.
+      this->SetOutput(0, preader->GetOutput());
       preader->Delete();
       }
 
     else if ( ! strncmp(line,"rectilinear_grid",16) )
       {
       vtkRectilinearGridReader *preader = vtkRectilinearGridReader::New();
+      // Can we use the old output?
+      output = this->Outputs ? this->Outputs[0] : NULL;
+      if (output && strcmp(output->GetClassName(), "vtkRectilinearGrid") == 0)
+	{
+	preader->SetOutput((vtkRectilinearGrid *)(output));
+	}
       preader->SetFileName(this->Reader->GetFileName());
       preader->SetInputString(this->Reader->GetInputString());
       preader->SetReadFromInputString(this->Reader->GetReadFromInputString());
@@ -292,14 +322,20 @@ void vtkDataSetReader::Execute()
       preader->SetLookupTableName(this->Reader->GetLookupTableName());
       preader->SetFieldDataName(this->Reader->GetFieldDataName());
       preader->Update();
-      output = preader->GetOutput();
-      output->Register(this);
+      // whether we used the old output or not, we need to set the output.
+      this->SetOutput(0, preader->GetOutput());
       preader->Delete();
       }
 
     else if ( ! strncmp(line,"unstructured_grid",17) )
       {
       vtkUnstructuredGridReader *preader = vtkUnstructuredGridReader::New();
+      // Can we use the old output?
+      output = this->Outputs ? this->Outputs[0] : NULL;
+      if (output && strcmp(output->GetClassName(), "vtkUnstructuredGrid") == 0)
+	{
+	preader->SetOutput((vtkUnstructuredGrid *)(output));
+	}
       preader->SetFileName(this->Reader->GetFileName());
       preader->SetInputString(this->Reader->GetInputString());
       preader->SetReadFromInputString(this->Reader->GetReadFromInputString());
@@ -311,11 +347,11 @@ void vtkDataSetReader::Execute()
       preader->SetLookupTableName(this->Reader->GetLookupTableName());
       preader->SetFieldDataName(this->Reader->GetFieldDataName());
       preader->Update();
-      output = preader->GetOutput();
-      output->Register(this);
+      // whether we used the old output or not, we need to set the output.
+      this->SetOutput(0, preader->GetOutput());
       preader->Delete();
       }
-
+    
     else
       {
       vtkErrorMacro(<< "Cannot read dataset type: " << line);
@@ -333,13 +369,6 @@ void vtkDataSetReader::Execute()
     vtkErrorMacro(<<"Expecting DATASET keyword, got " << line << " instead");
     }
   
-  // Create appropriate dataset
-  //
-  if ( this->Output )
-    {
-    this->Output->Delete();
-    }
-  this->Output = output;
 
   return;
 }

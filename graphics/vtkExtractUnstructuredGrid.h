@@ -58,9 +58,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkExtractUnstructuredGrid_h
 #define __vtkExtractUnstructuredGrid_h
 
-#include "vtkUnstructuredGridFilter.h"
+#include "vtkUnstructuredGridToUnstructuredGridFilter.h"
 
-class VTK_EXPORT vtkExtractUnstructuredGrid : public vtkUnstructuredGridFilter
+class VTK_EXPORT vtkExtractUnstructuredGrid : public vtkUnstructuredGridToUnstructuredGridFilter
 {
 public:
   vtkExtractUnstructuredGrid();
@@ -119,10 +119,6 @@ public:
   // Set / get a (xmin,xmax, ymin,ymax, zmin,zmax) bounding box to clip data.
   void SetExtent(float *extent);
   float *GetExtent() { return this->Extent;};
-
-  // Description:
-  // Get the output of this filter.
-  vtkUnstructuredGrid *GetOutput() {return (vtkUnstructuredGrid *)this->Output;};
 
 protected:
   void Execute();

@@ -69,7 +69,7 @@ public:
   const char *GetClassName() {return "vtkPNMReader";};
   
 protected:
-  void UpdateImageInformation();
+  void UpdateInformation();
 };
 
 #endif

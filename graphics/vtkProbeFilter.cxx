@@ -40,16 +40,48 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkProbeFilter.h"
 
+//----------------------------------------------------------------------------
 vtkProbeFilter::vtkProbeFilter()
 {
-  this->Source = NULL;
 }
 
+//----------------------------------------------------------------------------
 vtkProbeFilter::~vtkProbeFilter()
 {
-  this->SetSource((vtkDataSet *)NULL);
 }
 
+
+//----------------------------------------------------------------------------
+void vtkProbeFilter::SetSource(vtkDataSet *input)
+{
+  this->vtkProcessObject::SetInput(1, input);
+}
+
+//----------------------------------------------------------------------------
+vtkDataSet *vtkProbeFilter::GetSource()
+{
+  if (this->NumberOfInputs < 2)
+    {
+    return NULL;
+    }
+  
+  return (vtkDataSet *)(this->Inputs[1]);
+}
+
+//----------------------------------------------------------------------------
+int vtkProbeFilter::ComputeInputUpdateExtents(vtkDataObject *output)
+{
+  // this input has to be the same type as output.
+  this->GetInput()->CopyUpdateExtent(output);
+  
+  // we always need the whole source.
+  this->GetSource()->SetUpdateExtent(0, 1);
+  
+  return 1;
+}
+
+
+//----------------------------------------------------------------------------
 void vtkProbeFilter::Execute()
 {
   int ptId;
@@ -57,27 +89,28 @@ void vtkProbeFilter::Execute()
   vtkCell *cell;
   vtkPointData *pd, *outPD;
   int numPts, subId;
-  vtkDataSet *source=this->Source, *input=(vtkDataSet *)this->Input;
-  vtkDataSet *output=(vtkDataSet *)this->Output;
+  vtkDataSet *source = this->GetSource();
+  vtkDataSet *input = this->GetInput();
+  vtkDataSet *output= this->GetOutput();
   float pcoords[3], *weights=new float[source->GetMaxCellSize()];
 
   vtkDebugMacro(<<"Probing data");
 
   pd = source->GetPointData();
   numPts = input->GetNumberOfPoints();
-//
-// Allocate storage for output PointData
-//
+  //
+  // Allocate storage for output PointData
+  //
   outPD = output->GetPointData();
   outPD->InterpolateAllocate(pd);
-//
-// Use tolerance as a function of size of source data
-//
+  //
+  // Use tolerance as a function of size of source data
+  //
   tol2 = source->GetLength();
   tol2 = tol2*tol2 / 1000.0;
-//
-// Loop over all input points, interpolating source data
-//
+  //
+  // Loop over all input points, interpolating source data
+  //
   for (ptId=0; ptId < numPts; ptId++)
     {
     // Get the xyz coordinate of the point in the input dataset
@@ -98,82 +131,12 @@ void vtkProbeFilter::Execute()
   delete [] weights;
 }
 
-// Overload update method because execution can branch two ways (Input 
-// and Source). Also input and output are abstract.
-void vtkProbeFilter::Update()
-{
-  // make sure output has been created
-  if ( !this->Output )
-    {
-    vtkErrorMacro(<< "No output has been created...need to set input");
-    return;
-    }
 
-  // make sure input is available
-  if ( this->Source == NULL || this->Input == NULL )
-    {
-    vtkErrorMacro(<< "No input...can't execute!");
-    return;
-    }
-
-  // prevent chasing our tail
-  if (this->Updating)
-    {
-    return;
-    }
-
-  this->Updating = 1;
-  this->Source->Update();
-  this->Input->Update();
-  this->Updating = 0;
-
-  if (this->Source->GetMTime() > this->ExecuteTime || 
-  this->Input->GetMTime() > this->ExecuteTime || 
-  this->GetMTime() > this->ExecuteTime )
-    {
-    if ( this->Input->GetDataReleased() )
-      {
-      this->Input->ForceUpdate();
-      }
-    if ( this->Source->GetDataReleased() )
-      {
-      this->Source->ForceUpdate();
-      }
-
-    if ( this->StartMethod )
-      {
-      (*this->StartMethod)(this->StartMethodArg);
-      }
-    ((vtkDataSet *)this->Output)->CopyStructure((vtkDataSet *)this->Input);
-    // reset AbortExecute flag and Progress
-    this->AbortExecute = 0;
-    this->Progress = 0.0;
-    this->Execute();
-    this->ExecuteTime.Modified();
-    if ( !this->AbortExecute )
-      {
-      this->UpdateProgress(1.0);
-      }
-    this->SetDataReleased(0);
-    if ( this->EndMethod )
-      {
-      (*this->EndMethod)(this->EndMethodArg);
-      }
-    }
-
-  if ( this->Source->ShouldIReleaseData() )
-    {
-    this->Source->ReleaseData();
-    }
-  if ( this->Input->ShouldIReleaseData() )
-    {
-    this->Input->ReleaseData();
-    }
-}
-
+//----------------------------------------------------------------------------
 void vtkProbeFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToDataSetFilter::PrintSelf(os,indent);
+  vtkDataSet *source = this->GetSource();
 
-  os << indent << "Source: " << this->Source << "\n";
+  vtkDataSetToDataSetFilter::PrintSelf(os,indent);
+  os << indent << "Source: " << source << "\n";
 }

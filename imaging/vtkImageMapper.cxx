@@ -40,7 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 
 #include "vtkImageMapper.h"
-#include "vtkImageCache.h"
+
 
 #ifdef _WIN32
 #include "vtkOpenGLImageMapper.h"
@@ -64,7 +64,7 @@ vtkImageMapper::vtkImageMapper()
 {
   vtkDebugMacro(<< "vtkImageMapper::vtkImageMapper" );
 
-  this->Input = (vtkImageCache*) NULL;
+  this->Input = NULL;
 
   //this->ColorWindow = 255.0;
   //this->ColorLevel = 127.0;
@@ -79,7 +79,7 @@ vtkImageMapper::~vtkImageMapper()
 {
   if (this->Input)
     {
-    this->Input->UnRegister(this);
+    this->GetInput()->UnRegister(this);
     this->Input = NULL;
     }
 }
@@ -152,10 +152,10 @@ void vtkImageMapper::RenderStart(vtkViewport* viewport, vtkActor2D* actor)
     return;
     }
 
-  this->Input->UpdateImageInformation();
+  this->GetInput()->UpdateInformation();
   // start with the wholeExtent
-  memcpy(wholeExtent,this->Input->GetWholeExtent(),6*sizeof(int));
-  memcpy(displayExtent,this->Input->GetWholeExtent(),6*sizeof(int));
+  memcpy(wholeExtent,this->GetInput()->GetWholeExtent(),6*sizeof(int));
+  memcpy(displayExtent,this->GetInput()->GetWholeExtent(),6*sizeof(int));
 
   // Set The z values to the zslice
   displayExtent[4] = this->ZSlice;
@@ -216,14 +216,15 @@ void vtkImageMapper::RenderStart(vtkViewport* viewport, vtkActor2D* actor)
     displayExtent[3] = vSize[1] - pos[1];
     }
 
-  this->Input->SetUpdateExtent(displayExtent);
+  this->GetInput()->SetUpdateExtent(displayExtent);
 
   // set the position adjustment
   this->PositionAdjustment[0] = displayExtent[0];
   this->PositionAdjustment[1] = displayExtent[2];
     
   // Get the region from the input
-  data = this->Input->UpdateAndReturnData();
+  this->GetInput()->Update();
+  data = this->GetInput();
   if ( !data)
     {
     vtkErrorMacro(<< "Render: Could not get data from input.");
@@ -242,8 +243,8 @@ int vtkImageMapper::GetWholeZMin()
     {
     return 0;
     }
-  this->Input->UpdateImageInformation();
-  extent = this->Input->GetWholeExtent();
+  this->GetInput()->UpdateInformation();
+  extent = this->GetInput()->GetWholeExtent();
   return extent[4];
 }
 
@@ -256,8 +257,8 @@ int vtkImageMapper::GetWholeZMax()
     {
     return 0;
     }
-  this->Input->UpdateImageInformation();
-  extent = this->Input->GetWholeExtent();
+  this->GetInput()->UpdateInformation();
+  extent = this->GetInput()->GetWholeExtent();
   return extent[5];
 }
 

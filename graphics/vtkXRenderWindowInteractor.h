@@ -137,6 +137,11 @@ public:
   virtual void SetWidget(Widget);
   Widget GetWidget() {return this->top;};
 
+  // Description:
+  // Finish setting up a new window after the WindowRemap.
+  virtual void FinishSettingUpNewWindow();  
+  
+  
   // Description
   // This method will store the top level shell widget for the interactor.
   // This method and the method invocation sequence applies for:
@@ -183,11 +188,20 @@ protected:
   int PositionBeforeStereo[2];
   Widget TopLevelShell;
 
-  XtIntervalId AddTimeOut(XtAppContext app_context, unsigned long interval,
-			  XtTimerCallbackProc proc, XtPointer client_data) ;
+  virtual XtIntervalId ExtAddTimeOut(XtAppContext app_context, 
+				  unsigned long interval,
+				  XtTimerCallbackProc proc, 
+				  XtPointer client_data) ;
   void GetMousePosition(int *x, int *y); 
   void Timer(XtPointer client_data, XtIntervalId *id); 
   void Callback(Widget w, XtPointer client_data, XEvent *event, Boolean *ctd); 
+
+  void ExtXRenderWindowInteractorTimer(XtPointer,XtIntervalId *); 
+  void ExtXRenderWindowInteractorCallback(Widget,XtPointer,
+					  XEvent *,Boolean *);
 };
 
 #endif
+
+
+

@@ -39,7 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkImageCache.h"
+
 #include "vtkImageExtractComponents.h"
 
 
@@ -123,9 +123,9 @@ void vtkImageExtractComponents::SetComponents(int c1)
 
 //----------------------------------------------------------------------------
 // This method tells the superclass that only one component will remain.
-void vtkImageExtractComponents::ExecuteImageInformation()
+void vtkImageExtractComponents::ExecuteInformation()
 {
-  this->Output->SetNumberOfScalarComponents(this->NumberOfComponents);
+  this->GetOutput()->SetNumberOfScalarComponents(this->NumberOfComponents);
 }
 
 //----------------------------------------------------------------------------
@@ -315,7 +315,7 @@ void vtkImageExtractComponents::ThreadedExecute(vtkImageData *inData,
 
 void vtkImageExtractComponents::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageFilter::PrintSelf(os,indent);
+  vtkImageToImageFilter::PrintSelf(os,indent);
 
   os << indent << "NumberOfComponents: " << this->NumberOfComponents << endl;
   os << indent << "Components: ( "

@@ -40,9 +40,24 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkStructuredGridToPolyDataFilter.h"
 
-vtkStructuredGridToPolyDataFilter::vtkStructuredGridToPolyDataFilter()
+//----------------------------------------------------------------------------
+// Specify the input data or filter.
+void vtkStructuredGridToPolyDataFilter::SetInput(vtkStructuredGrid *input)
 {
-  this->Output = vtkPolyData::New();
-  this->Output->SetSource(this);
+  this->vtkProcessObject::SetInput(0, input);
 }
+
+//----------------------------------------------------------------------------
+// Specify the input data or filter.
+vtkStructuredGrid *vtkStructuredGridToPolyDataFilter::GetInput()
+{
+  if (this->NumberOfInputs < 1)
+    {
+    return NULL;
+    }
+  
+  return (vtkStructuredGrid *)(this->Inputs[0]);
+}
+
+
 

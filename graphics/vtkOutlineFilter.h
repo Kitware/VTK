@@ -61,6 +61,7 @@ public:
 protected:
   vtkOutlineSource *OutlineSource;
   void Execute();
+  void ExecuteInformation();
 };
 
 #endif

@@ -39,7 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkImageCache.h"
+
 #include "vtkImageGradientMagnitude.h"
 
 
@@ -55,7 +55,7 @@ vtkImageGradientMagnitude::vtkImageGradientMagnitude()
 //----------------------------------------------------------------------------
 void vtkImageGradientMagnitude::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkImageFilter::PrintSelf(os, indent);
+  this->vtkImageToImageFilter::PrintSelf(os, indent);
   os << indent << "HandleBoundaries: " << this->HandleBoundaries << "\n";
   os << indent << "Dimensionality: " << this->Dimensionality << "\n";
 }
@@ -64,12 +64,12 @@ void vtkImageGradientMagnitude::PrintSelf(ostream& os, vtkIndent indent)
 // This method is passed a region that holds the image extent of this filters
 // input, and changes the region to hold the image extent of this filters
 // output.
-void vtkImageGradientMagnitude::ExecuteImageInformation()
+void vtkImageGradientMagnitude::ExecuteInformation()
 {  
   int extent[6];
   int idx;
 
-  this->Input->GetWholeExtent(extent);
+  this->GetInput()->GetWholeExtent(extent);
   if ( ! this->HandleBoundaries)
     {
     // shrink output image extent.
@@ -80,19 +80,19 @@ void vtkImageGradientMagnitude::ExecuteImageInformation()
       }
     }
   
-  this->Output->SetWholeExtent(extent);
+  this->GetOutput()->SetWholeExtent(extent);
 }
 
 
 //----------------------------------------------------------------------------
 // This method computes the input extent necessary to generate the output.
-void vtkImageGradientMagnitude::ComputeRequiredInputUpdateExtent(int inExt[6],
+void vtkImageGradientMagnitude::ComputeInputUpdateExtent(int inExt[6],
 								 int outExt[6])
 {
   int *wholeExtent;
   int idx;
 
-  wholeExtent = this->Input->GetWholeExtent();
+  wholeExtent = this->GetInput()->GetWholeExtent();
   
   memcpy(inExt,outExt,6*sizeof(int));
   

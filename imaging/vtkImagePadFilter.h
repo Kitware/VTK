@@ -49,10 +49,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkImagePadFilter_h
 #define __vtkImagePadFilter_h
 
-class vtkImageCache;
-#include "vtkImageFilter.h"
+#include "vtkImageToImageFilter.h"
 
-class VTK_EXPORT vtkImagePadFilter : public vtkImageFilter
+class VTK_EXPORT vtkImagePadFilter : public vtkImageToImageFilter
 {
 public:
   vtkImagePadFilter();
@@ -77,8 +76,8 @@ protected:
   int OutputWholeExtent[6];
   int OutputNumberOfScalarComponents;
 
-  void ExecuteImageInformation();
-  void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
+  void ExecuteInformation();
+  void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
 };
 
 #endif

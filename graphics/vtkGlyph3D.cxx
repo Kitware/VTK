@@ -50,8 +50,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // initial sources are defined.
 vtkGlyph3D::vtkGlyph3D()
 {
-  this->NumberOfSources = 1;
-  this->Source = new vtkPolyData *[1]; this->Source[0] = NULL;
   this->Scaling = 1;
   this->ColorMode = VTK_COLOR_BY_SCALE;
   this->ScaleMode = VTK_SCALE_BY_SCALAR;
@@ -66,12 +64,6 @@ vtkGlyph3D::vtkGlyph3D()
 
 vtkGlyph3D::~vtkGlyph3D()
 {
-  // unregister all the sources
-  this->SetNumberOfSources(0);
-  if ( this->Source )
-    {
-    delete [] this->Source;
-    }
 }
 
 void vtkGlyph3D::Execute()
@@ -98,7 +90,8 @@ void vtkGlyph3D::Execute()
   float scale, den;
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
-  vtkDataSet *input = (vtkDataSet *)this->Input;
+  vtkDataSet *input = this->GetInput();
+  int numberOfSources = this->GetNumberOfSources();
   
   vtkDebugMacro(<<"Generating glyphs");
 
@@ -135,7 +128,7 @@ void vtkGlyph3D::Execute()
        ((!inVectors && this->VectorMode == VTK_USE_VECTOR) ||
         (!inNormals && this->VectorMode == VTK_USE_NORMAL))) )
     {
-    if ( this->Source[0] == NULL )
+    if ( this->GetSource(0) == NULL )
       {
       vtkErrorMacro(<<"Indexing on but don't have data to index with");
       pts->Delete();
@@ -158,14 +151,14 @@ void vtkGlyph3D::Execute()
     pd = NULL;
     numSourcePts = numSourceCells = 0;
     haveNormals = 1;
-    for (numSourcePts=numSourceCells=i=0; i < this->NumberOfSources; i++)
+    for (numSourcePts=numSourceCells=i=0; i < numberOfSources; i++)
       {
-      if ( this->Source[i] != NULL )
+      if ( this->GetSource(i) != NULL )
         {
-        numSourcePts += this->Source[i]->GetNumberOfPoints();
-        numSourceCells += this->Source[i]->GetNumberOfCells();
-        if ( !(sourceNormals = this->Source[i]->GetPointData()->GetNormals()) )
-          {
+        numSourcePts += this->GetSource(i)->GetNumberOfPoints();
+        numSourceCells += this->GetSource(i)->GetNumberOfCells();
+        if ( !(sourceNormals = this->GetSource(i)->GetPointData()->GetNormals()) )
+	  {
           haveNormals = 0;
           }
         }
@@ -173,11 +166,11 @@ void vtkGlyph3D::Execute()
     }
   else
     {
-    sourcePts = this->Source[0]->GetPoints();
+    sourcePts = this->GetSource(0)->GetPoints();
     numSourcePts = sourcePts->GetNumberOfPoints();
-    numSourceCells = this->Source[0]->GetNumberOfCells();
+    numSourceCells = this->GetSource(0)->GetNumberOfCells();
 
-    sourceNormals = this->Source[0]->GetPointData()->GetNormals();
+    sourceNormals = this->GetSource(0)->GetPointData()->GetNormals();
     if ( sourceNormals )
       {
       haveNormals = 1;
@@ -188,7 +181,7 @@ void vtkGlyph3D::Execute()
       }
 
     // Prepare to copy output.
-    pd = this->Source[0]->GetPointData();
+    pd = this->GetSource(0)->GetPointData();
     outputPD->CopyAllocate(pd,numPts*numSourcePts);
     }
 
@@ -245,8 +238,9 @@ void vtkGlyph3D::Execute()
     if ( inScalars ) 
       {
       s = inScalars->GetScalar(inPtId);
-      if ( this->ScaleMode == VTK_SCALE_BY_SCALAR || this->ScaleMode == VTK_DATA_SCALING_OFF )
-        {
+      if ( this->ScaleMode == VTK_SCALE_BY_SCALAR || 
+	   this->ScaleMode == VTK_DATA_SCALING_OFF )
+	{
         scale = s;
         }
       }
@@ -293,22 +287,21 @@ void vtkGlyph3D::Execute()
         }
 
       index = (int) ((float)(value - this->Range[0]) * 
-                     (this->NumberOfSources-1) / den);
-      index = (index < 0 ? 0 : 
-              (index >= this->NumberOfSources ? (this->NumberOfSources-1) : 
-               index));
+		     (numberOfSources-1) / den);
+      index = (index < 0 ? 0 :
+	(index >= numberOfSources ? (numberOfSources-1) : index));
 
-      if ( this->Source[index] != NULL )
+      if ( this->GetSource(index) != NULL )
         {
-        sourcePts = this->Source[index]->GetPoints();
-        sourceNormals = this->Source[index]->GetPointData()->GetNormals();
+        sourcePts = this->GetSource(index)->GetPoints();
+        sourceNormals = this->GetSource(index)->GetPointData()->GetNormals();
         numSourcePts = sourcePts->GetNumberOfPoints();
-        numSourceCells = this->Source[index]->GetNumberOfCells();
+        numSourceCells = this->GetSource(index)->GetNumberOfCells();
         }
       }
 
     // Make sure we're not indexing into empty glyph
-    if ( this->Source[index] == NULL )
+    if ( this->GetSource(index) == NULL )
       {
       continue;
       }
@@ -319,7 +312,7 @@ void vtkGlyph3D::Execute()
     // Copy all topology (transformation independent)
     for (cellId=0; cellId < numSourceCells; cellId++)
       {
-      cell = this->Source[index]->GetCell(cellId);
+      cell = this->GetSource(index)->GetCell(cellId);
       cellPts = cell->GetPointIds();
       npts = cellPts->GetNumberOfIds();
       for (pts->Reset(), i=0; i < npts; i++) 
@@ -452,182 +445,66 @@ void vtkGlyph3D::Execute()
   pts->Delete();
 }
 
-
-// Override update method because execution can branch two ways (via Input 
-// and Source).
-void vtkGlyph3D::Update()
+//----------------------------------------------------------------------------
+// Since indexing determines size of outputs, EstimatedMemorySize is
+// truly an estimate.  Ignore Indexing (although for a best estimate we
+// should average the size of the sources instead of using 0).
+void vtkGlyph3D::ExecuteInformation()
 {
-  int i;
-  unsigned long int mtime, latest;
-
-  // make sure input is available
-  for (i=0; i<this->NumberOfSources; i++)
+  unsigned long numPts, size;
+  
+  if (this->GetInput() == NULL || this->GetSource(0) == NULL)
     {
-    if ( this->Source[i] != NULL ) 
-      {
-      break;
-      }
-    }
-  if ( this->Input == NULL ||
-       (this->IndexMode == VTK_INDEXING_OFF && i != 0) ||
-       i >= this->NumberOfSources )
-    {
-    vtkErrorMacro(<< "No input...can't execute!");
+    vtkErrorMacro("Missing input or source");
     return;
     }
+  
+  // How many points in the input?
+  // Assume 24 bytes per point
+  numPts = this->GetInput()->GetEstimatedMemorySize() * 1000 / 24;
 
-  // prevent chasing our tail
-  if (this->Updating)
-    {
-    return;
-    }
-
-  this->Updating = 1;
-  this->Input->Update();
-  for (i=0; i<this->NumberOfSources; i++)
-    {
-    if ( this->Source[i] != NULL )
-      {
-      this->Source[i]->Update();
-      }
-    }
-  this->Updating = 0;
-
-  // get source modified time
-  for (i=0; i<this->NumberOfSources; i++)
-    {
-    latest = 0;
-    if ( this->Source[i] != NULL ) 
-      {
-      mtime = this->Source[i]->GetMTime();
-      if ( mtime > latest )
-        {
-        latest = mtime;
-        }
-      }
-    }
-
-  if (this->Input->GetMTime() > this->ExecuteTime ||
-      latest > this->ExecuteTime || 
-      this->GetMTime() > this->ExecuteTime )
-    {
-    if ( this->Input->GetDataReleased() )
-      {
-      this->Input->ForceUpdate();
-      }
-    for (i=0; i<this->NumberOfSources; i++)
-      {
-      if ( this->Source[i] != NULL && this->Source[i]->GetDataReleased() ) 
-        {
-        this->Source[i]->ForceUpdate();
-        }
-      }
-
-    if ( this->StartMethod )
-      {
-      (*this->StartMethod)(this->StartMethodArg);
-      }
-    this->Output->Initialize(); //clear output
-    // reset AbortExecute flag and Progress
-    this->AbortExecute = 0;
-    this->Progress = 0.0;
-    this->Execute();
-    this->ExecuteTime.Modified();
-    if ( !this->AbortExecute )
-      {
-      this->UpdateProgress(1.0);
-      }
-    this->SetDataReleased(0);
-    if ( this->EndMethod )
-      {
-      (*this->EndMethod)(this->EndMethodArg);
-      }
-    }
-
-  if ( this->Input->ShouldIReleaseData() )
-    {
-    this->Input->ReleaseData();
-    }
-  for (i=0; i<this->NumberOfSources; i++)
-    {
-    if ( this->Source[i] != NULL && this->Source[i]->ShouldIReleaseData() ) 
-      {
-        this->Source[i]->ReleaseData();
-      }
-    }
+  // size already in kilobytes
+  size = numPts * this->GetSource(0)->GetEstimatedMemorySize();
+  
+  this->GetOutput()->SetEstimatedMemorySize(size);
 }
+
 
 // Set the number of source objects in the glyph table. This should be
 // done prior to specifying more than one source.
 void vtkGlyph3D::SetNumberOfSources(int num)
 {
-  int idx;
-  
-  if ( num < 0 )
-    {
-    num = 0;
-    }
-  if (this->NumberOfSources == num)
-    {
-    return;
-    }
-  
-  this->Modified();
+  // one more because input has index 0.
+  this->SetNumberOfInputs(num+1);
+}
 
-  // get rid of old sources
-  for (idx = 0; idx < this->NumberOfSources; ++idx)
-    {
-    if (this->Source != NULL && this->Source[idx] != NULL)
-      {
-      this->Source[idx]->UnRegister(this);
-      this->Source[idx] = NULL;
-      }
-    }
-  if ( this->Source != NULL) 
-    {
-    delete [] this->Source;
-    }
-
-  // make a new array for the sources
-  this->Source = new vtkPolyData *[num];
-  this->NumberOfSources = num;
-  for (idx = 0; idx < this->NumberOfSources; ++idx)
-    {
-    this->Source[idx] = NULL;
-    }
+int vtkGlyph3D::GetNumberOfSources()
+{
+  // one less because input has index 0.
+  return this->NumberOfInputs - 1;
 }
 
 // Specify a source object at a specified table location.
 void vtkGlyph3D::SetSource(int id, vtkPolyData *pd)
 {
-  if ( id < 0 || id >= this->NumberOfSources )
+  if (id < 0)
     {
-    vtkErrorMacro(<<"Specify index between (0,NumberOfSources-1)");
+    vtkErrorMacro("Bad index " << id << " for source.");
     return;
     }
-  
-  if (this->Source[id] == pd)
-    {
-    return;
-    }
-  
-  this->Modified();
-  if (this->Source[id] != NULL) {this->Source[id]->UnRegister(this);}
-  this->Source[id] = pd;
-  if (this->Source[id] != NULL) {this->Source[id]->Register(this);}
+  this->vtkProcessObject::SetInput(id + 1, pd);
 }
 
 // Get a pointer to a source object at a specified table location.
 vtkPolyData *vtkGlyph3D::GetSource(int id)
 {
-  if ( id < 0 || id >= this->NumberOfSources )
+  if ( id < 0 || id >= this->GetNumberOfSources() )
     {
-    vtkErrorMacro(<<"Trying to retrieve undefiend source");
     return NULL;
     }
   else
     {
-    return this->Source[id];
+    return (vtkPolyData *)this->Inputs[id+1];
     }
 }
 
@@ -637,11 +514,11 @@ void vtkGlyph3D::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Color Mode: " << this->GetColorModeAsString() << endl;
 
-  if ( this->NumberOfSources < 2 )
+  if ( this->GetNumberOfSources() < 2 )
     {
-    if ( this->Source[0] != NULL )
+    if ( this->Inputs[1] != NULL )
       {
-      os << indent << "Source: (" << this->Source[0] << ")\n";
+      os << indent << "Source: (" << this->GetSource(0) << ")\n";
       }
     else
       {
@@ -650,7 +527,7 @@ void vtkGlyph3D::PrintSelf(ostream& os, vtkIndent indent)
     }
   else
     {
-    os << indent << "A table of " << this->NumberOfSources << " glyphs has been defined\n";
+    os << indent << "A table of " << this->GetNumberOfSources() << " glyphs has been defined\n";
     }
 
   os << indent << "Scaling: " << (this->Scaling ? "On\n" : "Off\n");

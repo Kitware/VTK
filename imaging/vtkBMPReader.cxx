@@ -60,7 +60,7 @@ vtkBMPReader::~vtkBMPReader()
     }
 }
 
-void vtkBMPReader::UpdateImageInformation()
+void vtkBMPReader::UpdateInformation()
 {
   int xsize, ysize;
   FILE *fp;
@@ -269,7 +269,7 @@ void vtkBMPReader::UpdateImageInformation()
   this->SetDataScalarTypeToUnsignedChar();
   this->SetNumberOfScalarComponents(3);
   
-  vtkImageReader::UpdateImageInformation();
+  vtkImageReader::UpdateInformation();
 }
 
 //----------------------------------------------------------------------------

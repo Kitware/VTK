@@ -241,7 +241,7 @@ typedef	enum {
 #define     EXTRASAMPLES_ASSOCIATEDALPHA 1
 #define     EXTRASAMPLES_UNASSOCIATEDALPHA 2
 
-void vtkTIFFWriter::WriteFileHeader(ofstream *file, vtkImageCache *cache)
+void vtkTIFFWriter::WriteFileHeader(ofstream *file, vtkImageData *cache)
 {
   int min0, max0, min1, max1, min2, max2;
   int bpp, i;

@@ -49,7 +49,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // scaling is turned off.
 vtkTensorGlyph::vtkTensorGlyph()
 {
-  this->Source = NULL;
   this->Scaling = 1;
   this->ScaleFactor = 1.0;
   this->ExtractEigenvalues = 1;
@@ -80,7 +79,7 @@ void vtkTensorGlyph::Execute()
   vtkTransform *trans = vtkTransform::New();
   vtkCell *cell;
   vtkIdList *cellPts;
-  int npts, *pts=new int[this->Source->GetMaxCellSize()];
+  int npts, *pts=new int[this->GetSource()->GetMaxCellSize()];
   int ptIncr, cellId;
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
   float *m[3], w[3], *v[3];
@@ -89,8 +88,8 @@ void vtkTensorGlyph::Execute()
   float xv[3], yv[3], zv[3];
   float maxScale;
   vtkPointData *pd, *outPD;
-  vtkDataSet *input=(vtkDataSet *)this->Input;
-  vtkPolyData *output=(vtkPolyData *)this->Output;
+  vtkDataSet *input = this->GetInput();
+  vtkPolyData *output = this->GetOutput();
   
   // set up working matrices
   m[0] = m0; m[1] = m1; m[2] = m2; 
@@ -112,36 +111,36 @@ void vtkTensorGlyph::Execute()
   //
   // Allocate storage for output PolyData
   //
-  sourcePts = this->Source->GetPoints();
+  sourcePts = this->GetSource()->GetPoints();
   numSourcePts = sourcePts->GetNumberOfPoints();
-  numSourceCells = this->Source->GetNumberOfCells();
+  numSourceCells = this->GetSource()->GetNumberOfCells();
 
   newPts = vtkPoints::New();
   newPts->Allocate(numPts*numSourcePts);
 
   // Setting up for calls to PolyData::InsertNextCell()
-  if ( (sourceCells=this->Source->GetVerts())->GetNumberOfCells() > 0 )
+  if ( (sourceCells=this->GetSource()->GetVerts())->GetNumberOfCells() > 0 )
     {
     cells = vtkCellArray::New();
     cells->Allocate(numPts*sourceCells->GetSize());
     output->SetVerts(cells);
     cells->Delete();
     }
-  if ( (sourceCells=this->Source->GetLines())->GetNumberOfCells() > 0 )
+  if ( (sourceCells=this->GetSource()->GetLines())->GetNumberOfCells() > 0 )
     {
     cells = vtkCellArray::New();
     cells->Allocate(numPts*sourceCells->GetSize());
     output->SetLines(cells);
     cells->Delete();
     }
-  if ( (sourceCells=this->Source->GetPolys())->GetNumberOfCells() > 0 )
+  if ( (sourceCells=this->GetSource()->GetPolys())->GetNumberOfCells() > 0 )
     {
     cells = vtkCellArray::New();
     cells->Allocate(numPts*sourceCells->GetSize());
     output->SetPolys(cells);
     cells->Delete();
     }
-  if ( (sourceCells=this->Source->GetStrips())->GetNumberOfCells() > 0 )
+  if ( (sourceCells=this->GetSource()->GetStrips())->GetNumberOfCells() > 0 )
     {
     cells = vtkCellArray::New();
     cells->Allocate(numPts*sourceCells->GetSize());
@@ -150,7 +149,7 @@ void vtkTensorGlyph::Execute()
     }
 
   // only copy scalar data through
-  pd = this->Source->GetPointData();
+  pd = this->GetSource()->GetPointData();
   if ( inScalars &&  this->ColorGlyphs ) 
     {
     newScalars = vtkScalars::New();
@@ -175,7 +174,7 @@ void vtkTensorGlyph::Execute()
     ptIncr = inPtId * numSourcePts;
     for (cellId=0; cellId < numSourceCells; cellId++)
       {
-      cell = this->Source->GetCell(cellId);
+      cell = this->GetSource()->GetCell(cellId);
       cellPts = cell->GetPointIds();
       npts = cellPts->GetNumberOfIds();
       for (i=0; i < npts; i++)
@@ -344,7 +343,7 @@ void vtkTensorGlyph::Execute()
 void vtkTensorGlyph::Update()
 {
   // make sure input is available
-  if ( this->Input == NULL || this->Source == NULL )
+  if ( this->GetInput() == NULL || this->GetSource() == NULL )
     {
     vtkErrorMacro(<< "No input...can't execute!");
     return;
@@ -355,60 +354,66 @@ void vtkTensorGlyph::Update()
       {
       return;
       }
+
+  // update the input
   this->Updating = 1;
-  this->Input->Update();
-  this->Source->Update();
+  this->GetInput()->Update();
+  this->GetSource()->Update();
   this->Updating = 0;
 
-  if ( this->Input->GetMTime() > this->ExecuteTime || 
-  this->Source->GetMTime() > this->ExecuteTime || 
-  this->GetMTime() > this->ExecuteTime )
+  // execute
+  if ( this->StartMethod )
     {
-    if ( this->Input->GetDataReleased() )
-      {
-      this->Input->ForceUpdate();
-      }
-    if ( this->Source->GetDataReleased() )
-      {
-      this->Source->ForceUpdate();
-      }
-
-    if ( this->StartMethod )
-      {
-      (*this->StartMethod)(this->StartMethodArg);
-      }
-    this->Output->Initialize(); //clear output
-    // reset AbortExecute flag and Progress
-    this->AbortExecute = 0;
-    this->Progress = 0.0;
-    this->Execute();
-    this->ExecuteTime.Modified();
-    if ( !this->AbortExecute )
-      {
-      this->UpdateProgress(1.0);
-      }
-    this->SetDataReleased(0);
-    if ( this->EndMethod )
-      {
-      (*this->EndMethod)(this->EndMethodArg);
-      }
+    (*this->StartMethod)(this->StartMethodArg);
+    }
+  this->GetOutput()->Initialize(); //clear output
+  // reset AbortExecute flag and Progress
+  this->AbortExecute = 0;
+  this->Progress = 0.0;
+  this->Execute();
+  if ( !this->AbortExecute )
+    {
+    this->UpdateProgress(1.0);
+    }
+  if ( this->EndMethod )
+    {
+    (*this->EndMethod)(this->EndMethodArg);
     }
 
-  if ( this->Input->ShouldIReleaseData() )
+  // clean up
+  if ( this->GetInput()->ShouldIReleaseData() )
     {
-    this->Input->ReleaseData();
+    this->GetInput()->ReleaseData();
     }
-  if ( this->Source->ShouldIReleaseData() )
+  if ( this->GetSource()->ShouldIReleaseData() )
     {
-    this->Source->ReleaseData();
+    this->GetSource()->ReleaseData();
     }
 }
+
+void vtkTensorGlyph::SetSource(vtkPolyData *source)
+{
+  this->vtkProcessObject::SetInput(1, source);
+}
+
+vtkPolyData *vtkTensorGlyph::GetSource()
+{
+  if (this->NumberOfInputs < 2)
+    {
+    return NULL;
+    }
+  return (vtkPolyData *)(this->Inputs[1]);
+  
+}
+
+
+
 
 void vtkTensorGlyph::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
 
-  os << indent << "Source: " << this->Source << "\n";
+  os << indent << "Source: " << this->GetSource() << "\n";
   os << indent << "Scaling: " << (this->Scaling ? "On\n" : "Off\n");
   os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
   os << indent << "Extract Eigenvalues: " << (this->ExtractEigenvalues ? "On\n" : "Off\n");

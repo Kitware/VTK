@@ -51,20 +51,23 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkStructuredPointsToPolyDataFilter_h
 #define __vtkStructuredPointsToPolyDataFilter_h
 
-#include "vtkStructuredPointsFilter.h"
-#include "vtkPolyData.h"
+#include "vtkPolyDataSource.h"
+#include "vtkImageToStructuredPoints.h"
 
-class VTK_EXPORT vtkStructuredPointsToPolyDataFilter : public vtkStructuredPointsFilter
+class VTK_EXPORT vtkStructuredPointsToPolyDataFilter : public vtkPolyDataSource
 {
 public:
-  vtkStructuredPointsToPolyDataFilter();
   static vtkStructuredPointsToPolyDataFilter *New() {
     return new vtkStructuredPointsToPolyDataFilter;};
   const char *GetClassName() {return "vtkStructuredPointsToPolyDataFilter";};
 
   // Description:
-  // Get the output of this filter.
-  vtkPolyData *GetOutput() {return (vtkPolyData *)this->Output;};
+  // Set / get the input data or filter.
+  void SetInput(vtkStructuredPoints *input);
+  void SetInput(vtkImageData *cache)
+    {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
+    this->SetInput(tmp->GetOutput()); tmp->Delete();}
+  vtkStructuredPoints *GetInput();
 
 };
 

@@ -60,6 +60,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkObject.h"
 #include "vtkFieldData.h"
+#include "vtkMutexLock.h"
+
 class vtkSource;
 
 class VTK_EXPORT vtkDataObject : public vtkObject
@@ -73,7 +75,8 @@ public:
 
   // Description:
   // Create concrete instance of this data object.
-  virtual vtkDataObject *MakeObject() {return new vtkDataObject;};
+  virtual vtkDataObject *MakeObject() {return new vtkDataObject;}
+  
 
   // Description:
   // Set/Get the source object creating this data object.
@@ -84,22 +87,15 @@ public:
   // Data objects are composite objects and need to check each part for MTime.
   unsigned long int GetMTime();
 
-  // Description:
-  // Provides opportunity for the data object to insure internal consistency 
-  // before access. Also causes owning source/filter (if any) to update itself.
-  virtual void Update();
-
   // Rescription:
   // Restore data object to initial state,
   virtual void Initialize();
 
   // Description:
-  // Force the data object to update itself no matter what.
-  virtual void ForceUpdate();
-
-  // Description:
   // Release data back to system to conserve memory resource. Used during
-  // visualization network execution.
+  // visualization network execution.  Releasing this data does not make 
+  // down-stream data invalid, so it does not modify the MTime of this 
+  // data object.
   void ReleaseData();
 
   // Description:
@@ -108,10 +104,9 @@ public:
   int ShouldIReleaseData();
 
   // Description:
-  // Set/Get the DataReleased ivar.
-  vtkSetMacro(DataReleased,int);
+  // Get the flag indicating the data has been released.
   vtkGetMacro(DataReleased,int);
-
+  
   // Description:
   // Turn on/off flag to control whether this object's data is released
   // after being used by a filter.
@@ -131,8 +126,7 @@ public:
   // Assign or retrieve field data to this data object.
   vtkSetObjectMacro(FieldData,vtkFieldData);
   vtkGetObjectMacro(FieldData,vtkFieldData);
-
-  // Description:
+  
   // Handle the source/data loop.
   void UnRegister(vtkObject *o);
 
@@ -142,12 +136,120 @@ public:
   // registration to properly free the objects.
   virtual int GetNetReferenceCount() {return this->ReferenceCount;};
 
+
+  //------------- streaming stuff ------------------
+
+  // Description:
+  // Provides opportunity for the data object to insure internal 
+  // consistency before access. Also causes owning source/filter 
+  // (if any) to update itself.
+  virtual void Update();
+
+  // Description:
+  // This is the same as Update, but it assumes that the "Information" 
+  // (including the PipelineMTime) is up to date.  
+  virtual void InternalUpdate();
+
+  // Description:
+  // This makes sure all "Information" associated with this data object
+  // is up to date.  Information is defined as any thing that is needed
+  // before the input is updated (like PipelineMTime for the execution check
+  // and EstimatedMemorySize for streaming).
+  virtual void UpdateInformation();
+  
+  // Description:
+  // A generic way of specifying an update extent.  Subclasses
+  // must decide what a piece is.
+  virtual void SetUpdateExtent(int piece, int numPieces)
+    { vtkErrorMacro("Subclass did not implement 'SetUpdateExtent'");}
+
+  // Description:
+  // Set/Get memory limit.  Make this smaller to stream.
+  // Setting value does not alter MTime.
+  void SetMemoryLimit(unsigned long v) {this->MemoryLimit = v;}
+  unsigned long GetMemoryLimit() {return this->MemoryLimit;}
+
+  // Description:
+  // One of the variables set when UpdateInformation is called.
+  // the estimated size of the data (in kilobytes) after the whole
+  // extent is updated.  Setting the value does not alter MTime.
+  void SetEstimatedMemorySize(unsigned long v) {this->EstimatedMemorySize = v;}
+  unsigned long GetEstimatedMemorySize() {return this->EstimatedMemorySize;}
+
+  // Description:
+  // Method implemented in the subclasses to make sure the update extent
+  // is not bigger than the whole extent.  Should be pure virtual.
+  virtual void ClipUpdateExtentWithWholeExtent() {}
+
+  // Description:
+  // PipelineMTime is the maximum of all the upstream source object mtimes.
+  // It does not include mtimes of the data objects.
+  // UpdateInformation must be called for the PipelineMTime to be correct.
+  // Only the source should set the PipelineMTime.
+  void SetPipelineMTime(long t) {this->PipelineMTime = t;}
+  long GetPipelineMTime() {return this->PipelineMTime;}
+  
+  // Description:
+  // Implement in the concrete data types.
+  // Copies the UpdateExtent from another dataset of the same type.
+  // Used by a filter during UpdateInformation to copy requested 
+  // piece from output to input.  
+  // This method should be pure virtual (in the future).
+  virtual void CopyUpdateExtent(vtkDataObject *data); 
+
+  // Description:
+  // Implement in the concrete data types.
+  // Copies "Information" (ie WholeDimensions) from another dataset 
+  // of the same type.  Used by a filter during UpdateInformation. 
+  // This method should be pure virtual (in the future).
+  virtual void CopyInformation(vtkDataObject *data); 
+
+  // Description:
+  // MutexLocks to keep multiple threads from stepping on each others toes.
+  // Here as a test for Multi-threaded execution. The alternative is temporary
+  // buffers.
+  vtkGetObjectMacro(PointLock, vtkMutexLock);
+  vtkGetObjectMacro(CellLock, vtkMutexLock);
+
+  // Description:
+  // Part of data's "Information".
+  // Are upstream filters local to the process?
+  void SetLocality(int val) {this->Locality = val;}
+  vtkGetMacro(Locality, int);
+  
+  // Description:
+  // Return class name of data type. This is one of VTK_STRUCTURED_GRID, 
+  // VTK_STRUCTURED_POINTS, VTK_UNSTRUCTURED_GRID, VTK_POLY_DATA, or
+  // VTK_RECTILINEAR_GRID (see vtkSetGet.h for definitions).
+  // THIS METHOD IS THREAD SAFE
+  virtual int GetDataObjectType() {return VTK_DATA_OBJECT;}
+  
+  // Description:
+  // Used by Threaded ports to determine if they should initiate an
+  // asynchronous update (still in development).
+  unsigned long GetUpdateTime();
+  
 protected:
   vtkSource *Source;
-  vtkFieldData *FieldData; //General field data associated with data object
-  
+  vtkFieldData *FieldData; //General field data associated with data object  
+
   int DataReleased; //keep track of data release during network execution
   int ReleaseDataFlag; //data will release after use by a filter
+
+  // ----- streaming stuff -----------
+
+  unsigned long MemoryLimit;
+  unsigned long EstimatedMemorySize;
+
+  unsigned long PipelineMTime;
+  vtkTimeStamp UpdateTime;
+  
+  // part of the "Information".  
+  // How many upstream filters are local to the process
+  int Locality;
+
+  vtkMutexLock *PointLock;
+  vtkMutexLock *CellLock;
 };
 
 #endif

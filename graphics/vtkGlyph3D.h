@@ -125,15 +125,10 @@ public:
   static vtkGlyph3D *New() {return new vtkGlyph3D;};
 
   // Description:
-  // Override update method because execution can branch two ways (via Input 
-  // and Source).
-  void Update();
-
-  // Description:
   // Get the number of source objects used to define the glyph
   // table. Specify the number of sources before defining a table of glyphs.
-  vtkGetMacro(NumberOfSources,int);
   void SetNumberOfSources(int num);
+  int GetNumberOfSources();
 
   // Description:
   // Set the source to use for he glyph.
@@ -223,7 +218,8 @@ public:
 
 protected:
   void Execute();
-
+  void ExecuteInformation();
+  
   int NumberOfSources; // Number of source objects
   vtkPolyData **Source; // Geometry to copy to each point
   int Scaling; // Determine whether scaling of geometry is performed

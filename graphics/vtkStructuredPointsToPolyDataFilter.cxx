@@ -40,9 +40,23 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkStructuredPointsToPolyDataFilter.h"
 
-vtkStructuredPointsToPolyDataFilter::vtkStructuredPointsToPolyDataFilter()
+
+//----------------------------------------------------------------------------
+// Specify the input data or filter.
+void vtkStructuredPointsToPolyDataFilter::SetInput(vtkStructuredPoints *input)
 {
-  this->Output = vtkPolyData::New();
-  this->Output->SetSource(this);
+  this->vtkProcessObject::SetInput(0, input);
+}
+
+//----------------------------------------------------------------------------
+// Specify the input data or filter.
+vtkStructuredPoints *vtkStructuredPointsToPolyDataFilter::GetInput()
+{
+  if (this->NumberOfInputs < 1)
+    {
+    return NULL;
+    }
+  
+  return (vtkStructuredPoints *)(this->Inputs[0]);
 }
 

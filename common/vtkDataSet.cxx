@@ -73,7 +73,6 @@ PointData(ds.PointData)
     {
     this->Bounds[i] = ds.Bounds[i];
     }
-  this->DataReleased = 1;
   this->ReleaseDataFlag = ds.ReleaseDataFlag;
 }
 

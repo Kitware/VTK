@@ -86,15 +86,13 @@ class VTK_EXPORT vtkDataObjectSource : public vtkSource
 {
 public:
   vtkDataObjectSource();
-  ~vtkDataObjectSource();
   static vtkDataObjectSource *New() {return new vtkDataObjectSource;};
   const char *GetClassName() {return "vtkDataObjectSource";};
-  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Get the output field of this source.
-  vtkDataObject *GetOutput() {return this->Output;};
-
+  vtkDataObject *GetOutput();
+  void SetOutput(vtkDataObject *);
 };
 
 #endif

@@ -48,10 +48,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageMaskBits_h
 
 
-#include "vtkImageFilter.h"
+#include "vtkImageToImageFilter.h"
 #include "vtkImageLogic.h"     // included for the boolean operators
 
-class VTK_EXPORT vtkImageMaskBits : public vtkImageFilter
+class VTK_EXPORT vtkImageMaskBits : public vtkImageToImageFilter
 {
  public:
   vtkImageMaskBits();

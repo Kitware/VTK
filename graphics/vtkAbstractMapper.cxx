@@ -41,38 +41,61 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkAbstractMapper.h"
 #include "vtkDataSet.h"
 
+//----------------------------------------------------------------------------
 // Construct with initial range (0,1).
 vtkAbstractMapper::vtkAbstractMapper()
 {
-  this->Input = NULL;
   this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = -1.0;
   this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = 1.0;
   this->Center[0] = this->Center[1] = this->Center[2] = 0.0;
   this->TimeToDraw = 0.0;
 }
 
+//----------------------------------------------------------------------------
 vtkAbstractMapper::~vtkAbstractMapper()
 {
 }
 
 
+//----------------------------------------------------------------------------
+void vtkAbstractMapper::SetInput(vtkDataSet *input)
+{
+  this->vtkProcessObject::SetInput(0, input);
+}
+
+//----------------------------------------------------------------------------
+vtkDataSet *vtkAbstractMapper::GetInput()
+{
+  if (this->NumberOfInputs < 1)
+    {
+    return NULL;
+    }
+  
+  return (vtkDataSet *)(this->Inputs[0]);
+}
+
+
+
+
+//----------------------------------------------------------------------------
 // Get the bounds for this Prop as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
 float *vtkAbstractMapper::GetBounds()
 {
   static float bounds[] = {-1.0,1.0, -1.0,1.0, -1.0,1.0};
 
-  if ( ! this->Input ) 
+  if ( ! this->GetInput() ) 
     {
     return bounds;
     }
   else
     {
-    this->Input->Update();
-    this->Input->GetBounds(this->Bounds);
+    this->GetInput()->Update();
+    this->GetInput()->GetBounds(this->Bounds);
     return this->Bounds;
     }
 }
 
+//----------------------------------------------------------------------------
 // Get the bounds for this Prop as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
 void vtkAbstractMapper::GetBounds(float bounds[6])
 {
@@ -83,6 +106,7 @@ void vtkAbstractMapper::GetBounds(float bounds[6])
     }
 }
 
+//----------------------------------------------------------------------------
 float *vtkAbstractMapper::GetCenter()
 {
   this->GetBounds();
@@ -93,6 +117,7 @@ float *vtkAbstractMapper::GetCenter()
   return this->Center;
 }
 
+//----------------------------------------------------------------------------
 float vtkAbstractMapper::GetLength()
 {
   double diff, l=0.0;
@@ -108,19 +133,27 @@ float vtkAbstractMapper::GetLength()
   return (float)sqrt(l);
 }
 
+//----------------------------------------------------------------------------
 void vtkAbstractMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkProcessObject::PrintSelf(os,indent);
 
-  if ( this->Input )
-    {
-    os << indent << "Input: (" << this->Input << ")\n";
-    }
-  else
-    {
-    os << indent << "Input: (none)\n";
-    }
   os << indent << "TimeToDraw: " << this->TimeToDraw << "\n";
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

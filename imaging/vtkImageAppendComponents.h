@@ -62,18 +62,12 @@ public:
   // Description:
   // Do not use these: They are for legacy compatability back when this was a
   // two input filter.
-  virtual void SetInput1(vtkImageCache *input){this->SetInput(0, input);}
-  void SetInput1(vtkStructuredPoints *spts)
-    {vtkStructuredPointsToImage *tmp = spts->MakeStructuredPointsToImage();
-     this->SetInput1(tmp->GetOutput()); tmp->Delete();}
-  virtual void SetInput2(vtkImageCache *input){this->SetInput(1, input);}
-  void SetInput2(vtkStructuredPoints *spts)
-    {vtkStructuredPointsToImage *tmp = spts->MakeStructuredPointsToImage();
-     this->SetInput2(tmp->GetOutput()); tmp->Delete();}
+  virtual void SetInput1(vtkImageData *input){this->SetInput(0, input);}
+  virtual void SetInput2(vtkImageData *input){this->SetInput(1, input);}
 
 protected:
   
-  void ExecuteImageInformation();
+  void ExecuteInformation();
   void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
 		       int extent[6], int id);
 };

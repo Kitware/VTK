@@ -64,78 +64,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkCastToConcrete_h
 #define __vtkCastToConcrete_h
 
-#include "vtkDataSetFilter.h"
-#include "vtkPolyData.h"
-#include "vtkStructuredGrid.h"
-#include "vtkStructuredPoints.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkRectilinearGrid.h"
+#include "vtkDataSetToDataSetFilter.h"
 
-class VTK_EXPORT vtkCastToConcrete : public vtkDataSetFilter
+class VTK_EXPORT vtkCastToConcrete : public vtkDataSetToDataSetFilter
 {
 
 public:
-  vtkCastToConcrete();
-  ~vtkCastToConcrete();
   static vtkCastToConcrete *New() {return new vtkCastToConcrete;};
   const char *GetClassName() {return "vtkCastToConcrete";};
 
-  // Description:
-  // Special method just passes Update through pipeline.
-  void Update();
-
-  // Description:
-  // Specify the input data or filter.
-  void SetInput(vtkDataSet *input);
-
-  // Description:
-  // Get the output of this filter. If output is NULL then input hasn't been
-  // set which is necessary for abstract objects.
-  vtkDataSet *GetOutput();
-
-  // Description:
-  // Get the output of this filter as type vtkPolyData. Performs run-time
-  // checking on type. Returns NULL if wrong type.
-  vtkPolyData *GetPolyDataOutput();
-
-  // Description:
-  // Get the output of this filter as type vtkStructuredPoints. Performs
-  // run-time checking on type. Returns NULL if wrong type.
-  vtkStructuredPoints *GetStructuredPointsOutput();
-
-  // Description:
-  // Get the output of this filter as type vtkStructuredGrid. Performs
-  // run-time checking on type. Returns NULL if wrong type.
-  vtkStructuredGrid *GetStructuredGridOutput();
-
-  // Description:
-  // Get the output of this filter as type vtkUnstructuredGrid. Performs
-  // run-time checking on type. Returns NULL if wrong type.
-  vtkUnstructuredGrid *GetUnstructuredGridOutput();
-
-  // Description:
-  // Get the output of this filter as type vtkUnstructuredGrid. Performs
-  // run-time checking on type. Returns NULL if wrong type.
-  vtkRectilinearGrid *GetRectilinearGridOutput();
-
-  // Description:
-  // Handle the source/data loop.
-  void UnRegister(vtkObject *o);
-
-  // Description:
-  // Test to see if this object is in a reference counting loop.
-  virtual int InRegisterLoop(vtkObject *);
-
 protected:
   void Execute(); //insures compatibility; satisfies abstract api in vtkFilter
-  
-  // objects used in the casting process
-  vtkPolyData *PolyData;
-  vtkStructuredPoints *StructuredPoints;
-  vtkStructuredGrid *StructuredGrid;
-  vtkUnstructuredGrid *UnstructuredGrid;
-  vtkRectilinearGrid *RectilinearGrid;
-
 };
 
 #endif

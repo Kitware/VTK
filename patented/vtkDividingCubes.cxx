@@ -95,7 +95,7 @@ void vtkDividingCubes::Execute()
   float origin[3], x[3], ar[3], h[3];
   int dim[3], jOffset, kOffset, sliceSize;
   int above, below, vertNum, n[3];
-  vtkStructuredPoints *input=(vtkStructuredPoints *)this->Input;
+  vtkStructuredPoints *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
   
   vtkDebugMacro(<< "Executing dividing cubes...");

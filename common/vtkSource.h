@@ -86,6 +86,11 @@ public:
   virtual void Update();
 
   // Description:
+  // Same as Update, except this method assumes that UpdateInformation
+  // has already been called, and assumes the output is out of date.
+  virtual void InternalUpdate(vtkDataObject *output);
+
+  // Description:
   // Turn on/off flag to control whether this object's data is released
   // after being used by a source.
   virtual void SetReleaseDataFlag(int);
@@ -93,29 +98,74 @@ public:
   vtkBooleanMacro(ReleaseDataFlag,int);
 
   // Description:
-  // Set/Get flag indicating whether data has been released since last 
-  // execution. Used during update method to determine whether to execute 
-  // or not.
-  virtual int GetDataReleased();
-  virtual void SetDataReleased(int flag);
-
-  // Description:
   // Handle the source/data loop.
   void UnRegister(vtkObject *o);
   
   // Description:
-  // Get the output as a DataObject, useful highlevel get output method.
-  vtkDataObject *GetOutputAsDataObject() {return this->Output;};
-  
-  // Description:
   // Test to see if this object is in a reference counting loop.
   virtual int InRegisterLoop(vtkObject *);
-  
+
+  // Description:
+  // Updates any global information about the data 
+  // (like spacing for images)
+  virtual void UpdateInformation();
+
+  // Description:
+  // Return an array with all the inputs of this process object.
+  // This is useful for tracing back in the pipeline to contruct
+  // graphs etc.
+  vtkDataObject **GetOutputs();
+  vtkGetMacro(NumberOfOutputs,int);
+    
 protected:
   virtual void Execute();
-  vtkTimeStamp ExecuteTime;
-  vtkDataObject *Output;
+
+  // By default, UpdateInformation calls this method to copy information
+  // unmodified from the input to the output.
+  virtual void ExecuteInformation();
+  
+  // ------------ streaming stuff --------------
+  // Default (old) behavior. NumberOfPieces = 1 
+  // and every thing done in Execute.  
+  // If a filter acts as a collector
+  // (i.e. initiates streaming), then it should initialize its output
+  // (and itself) in the StreamExecuteStart method which is called once.
+  // Execute is called multiple times.
+  virtual void StreamExecuteStart();
+  virtual void StreamExecuteEnd() {}
+  virtual int GetNumberOfStreamDivisions() {return 1;}
+
+  // Given the update extent of the passed in output and the
+  // stream divisions, this method set the ExecuteExtents in the 
+  // subclasses, and the UpdateExtents of all of the inputs.
+  // If no execution is necessary, this method returns 0 (1 otherwise).
+  virtual int ComputeDivisionExtents(vtkDataObject *output, 
+				     int division, int numDivisions);
+  // This is a convenience method that does the same as 
+  // ComputeDivisionExtents with no stream divisions.
+  virtual int ComputeInputUpdateExtents(vtkDataObject *output);
+
+  // Called to allocate the input array.  Copies old inputs.
+  void SetNumberOfOutputs(int num);
+
+  // method used internally for getting an output.
+  vtkDataObject *GetOutput(int idx);
+
+  // protected methods for setting inputs.
+  virtual void SetOutput(int num, vtkDataObject *output);
+  virtual void AddOutput(vtkDataObject *output);
+  virtual void RemoveOutput(vtkDataObject *output);
+
+  
+  
+  vtkDataObject **Outputs;     // An Array of the outputs to the filter
+  int NumberOfOutputs;
+  int Updating;
+  // Time when ExecuteInformation was last called.
+  vtkTimeStamp InformationTime;
 };
 
 #endif
+
+
 

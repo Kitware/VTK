@@ -12,7 +12,7 @@ vtkImageReader reader
   reader SetDataOrigin -127.5 -127.5 -47
   reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
   reader SetDataMask 0x7fff
-  reader UpdateWholeExtent
+  reader Update
 
 vtkTransform transform
   transform RotateX 10

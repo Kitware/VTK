@@ -43,19 +43,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkSubPixelPositionEdgels::vtkSubPixelPositionEdgels()
 {
-  this->GradMaps = NULL;
   this->TargetFlag = 0;
   this->TargetValue = 0.0;
 }
 
 vtkSubPixelPositionEdgels::~vtkSubPixelPositionEdgels()
 {
-  this->SetGradMaps(NULL);
 }
 
 void vtkSubPixelPositionEdgels::Execute()
 {
-  vtkPolyData *input=(vtkPolyData *)this->Input;
+  vtkPolyData *input = this->GetInput();
   int numPts=input->GetNumberOfPoints();
   vtkPoints *newPts;
   vtkNormals *newNormals;
@@ -80,12 +78,12 @@ void vtkSubPixelPositionEdgels::Execute()
   newPts = vtkPoints::New();
   newNormals = vtkNormals::New();
   
-  dimensions = this->GradMaps->GetDimensions();
-  spacing = this->GradMaps->GetSpacing();
-  origin = this->GradMaps->GetOrigin();
-  MapData = ((vtkFloatArray *)(this->GradMaps->GetPointData())->GetScalars()->GetData())->
-             GetPointer(0);
-  inVectors = this->GradMaps->GetPointData()->GetVectors();
+  dimensions = this->GetGradMaps()->GetDimensions();
+  spacing = this->GetGradMaps()->GetSpacing();
+  origin = this->GetGradMaps()->GetOrigin();
+  MapData = ((vtkFloatArray *)(this->GetGradMaps()->GetPointData())
+	     ->GetScalars()->GetData())->GetPointer(0);
+  inVectors = this->GetGradMaps()->GetPointData()->GetVectors();
 
   //
   // Loop over all points, adjusting locations
@@ -381,7 +379,7 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
 void vtkSubPixelPositionEdgels::Update()
 {
   // make sure input is available
-  if (this->Input == NULL || this->GradMaps == NULL)
+  if (this->GetInput() == NULL || this->GetGradMaps() == NULL)
     {
     vtkErrorMacro(<< "No input!");
     return;
@@ -393,54 +391,65 @@ void vtkSubPixelPositionEdgels::Update()
     return;
     }
 
+  // update our inputs
   this->Updating = 1;
-  this->Input->Update();
-  this->GradMaps->Update();
+  this->GetInput()->Update();
+  this->GetGradMaps()->Update();
   this->Updating = 0;
 
-  if (this->Input->GetMTime() > this->ExecuteTime || 
-  this->GradMaps->GetMTime() > this->ExecuteTime || 
-  this->GetMTime() > this->ExecuteTime || this->GetDataReleased() )
+  // execute
+  if ( this->StartMethod )
     {
-    if ( this->StartMethod )
-      {
-      (*this->StartMethod)(this->StartMethodArg);
-      }
-    this->Output->Initialize();
-    // reset AbortExecute flag and Progress
-    this->AbortExecute = 0;
-    this->Progress = 0.0;
-    this->Execute();
-    this->ExecuteTime.Modified();
-    if ( !this->AbortExecute )
-      {
-      this->UpdateProgress(1.0);
-      }
-    this->SetDataReleased(0);
-    if ( this->EndMethod )
-      {
-      (*this->EndMethod)(this->EndMethodArg);
-      }
+    (*this->StartMethod)(this->StartMethodArg);
+    }
+  this->GetOutput()->Initialize();
+  // reset AbortExecute flag and Progress
+  this->AbortExecute = 0;
+  this->Progress = 0.0;
+  this->Execute();
+  if ( !this->AbortExecute )
+    {
+    this->UpdateProgress(1.0);
+    }
+  if ( this->EndMethod )
+    {
+    (*this->EndMethod)(this->EndMethodArg);
     }
 
-  if ( this->Input->ShouldIReleaseData() )
+  // clean up
+  if ( this->GetInput()->ShouldIReleaseData() )
     {
-    this->Input->ReleaseData();
+    this->GetInput()->ReleaseData();
     }
-  if ( this->GradMaps->ShouldIReleaseData() )
+  if ( this->GetGradMaps()->ShouldIReleaseData() )
     {
-    this->GradMaps->ReleaseData();
+    this->GetGradMaps()->ReleaseData();
     }
 }
+
+void vtkSubPixelPositionEdgels::SetGradMaps(vtkStructuredPoints *gm)
+{
+  this->vtkProcessObject::SetInput(1, gm);
+}
+
+vtkStructuredPoints *vtkSubPixelPositionEdgels::GetGradMaps()
+{
+  if (this->NumberOfInputs < 1)
+    {
+    return NULL;
+    }
+  return (vtkStructuredPoints*)(this->Inputs[1]);
+}
+
 
 // Print the state of the class.
 void vtkSubPixelPositionEdgels::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 
-  if ( this->GradMaps )
+  if ( this->GetGradMaps() )
     {
-    os << indent << "Gradient Data: " << this->GradMaps << "\n";
+    os << indent << "Gradient Data: " << this->GetGradMaps() << "\n";
     }
   else
     {

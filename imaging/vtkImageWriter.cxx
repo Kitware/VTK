@@ -57,7 +57,6 @@ vtkImageWriter::vtkImageWriter()
   this->SetFilePrefix("");
   this->SetFilePattern("%s.%d");
   
-  this->Input = NULL;
   this->FileLowerLeft = 0;
 }
 
@@ -66,12 +65,6 @@ vtkImageWriter::vtkImageWriter()
 //----------------------------------------------------------------------------
 vtkImageWriter::~vtkImageWriter()
 {
-  if (this->Input)
-    {
-    this->Input->UnRegister(this);
-    this->Input = NULL;
-    }
-  
   // get rid of memory allocated for file names
   if (this->FilePrefix)
     {
@@ -96,8 +89,6 @@ void vtkImageWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkProcessObject::PrintSelf(os,indent);
 
-  os << indent << "Input: (" << this->Input << ")\n";
-
   os << indent << "FileName: " <<
     (this->FileName ? this->FileName : "(none)") << "\n";
   os << indent << "FilePrefix: " << 
@@ -107,6 +98,26 @@ void vtkImageWriter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "FileDimensionality: " << this->FileDimensionality << "\n";
 }
+
+
+//----------------------------------------------------------------------------
+void vtkImageWriter::SetInput(vtkImageData *input)
+{
+  this->vtkProcessObject::SetInput(0, input);
+}
+
+//----------------------------------------------------------------------------
+vtkImageData *vtkImageWriter::GetInput()
+{
+  if (this->NumberOfInputs < 1)
+    {
+    return NULL;
+    }
+  
+  return (vtkImageData *)(this->Inputs[0]);
+}
+
+
 
 //----------------------------------------------------------------------------
 // This function sets the name of the file. 
@@ -195,7 +206,7 @@ void vtkImageWriter::SetFilePattern(char *pattern)
 void vtkImageWriter::Write()
 {
   // Error checking
-  if ( this->Input == NULL )
+  if ( this->GetInput() == NULL )
     {
     vtkErrorMacro(<<"Write:Please specify an input!");
     return;
@@ -213,18 +224,18 @@ void vtkImageWriter::Write()
 	    (this->FilePattern ? strlen(this->FilePattern) : 1) + 10];
   
   // Fill in image information.
-  this->Input->UpdateImageInformation();
-  this->Input->SetUpdateExtent(this->Input->GetWholeExtent());
+  this->GetInput()->UpdateInformation();
+  this->GetInput()->SetUpdateExtent(this->GetInput()->GetWholeExtent());
   this->FileNumber = 1;
   this->UpdateProgress(0.0);
-  this->RecursiveWrite(2, this->Input, NULL);
+  this->RecursiveWrite(2, this->GetInput(), NULL);
   delete [] this->InternalFileName;
   this->InternalFileName = NULL;
 }
 
 //----------------------------------------------------------------------------
 // Breaks region itto pieces with correct dimensionality.
-void vtkImageWriter::RecursiveWrite(int axis, vtkImageCache *cache,
+void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
 				    ofstream *file)
 {
   int min, max, mid;
@@ -268,7 +279,8 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageCache *cache,
   // if so the just get the data and write it out
   if (cache->GetUpdateExtentMemorySize() < cache->GetMemoryLimit())
     {
-    data = cache->UpdateAndReturnData();
+    cache->Update();
+    data = cache;
     this->RecursiveWrite(axis,cache,data,file);
     if (file && fileOpenedHere)
       {
@@ -282,7 +294,7 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageCache *cache,
 
   // if the current request did not fit into memory
   // the we will split the current axis
-  this->Input->GetAxisUpdateExtent(axis, min, max);
+  this->GetInput()->GetAxisUpdateExtent(axis, min, max);
   if (min == max)
     {
     if (axis > 0)
@@ -346,7 +358,7 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageCache *cache,
 
 //----------------------------------------------------------------------------
 // same idea as the previous method, but it knows that the data is ready
-void vtkImageWriter::RecursiveWrite(int axis, vtkImageCache *cache,
+void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
 				    vtkImageData *data, ofstream *file)
 {
   int idx, min, max;
@@ -484,7 +496,7 @@ void vtkImageWriter::WriteFile(ofstream *file, vtkImageData *data,
   rowLength *= data->GetNumberOfScalarComponents();
   rowLength *= (extent[1] - extent[0] + 1);
 
-  wExtent = this->Input->GetWholeExtent();
+  wExtent = this->GetInput()->GetWholeExtent();
   area = (float) ((extent[5] - extent[4] + 1)*
 		  (extent[3] - extent[2] + 1)*
 		  (extent[1] - extent[0] + 1)) / 

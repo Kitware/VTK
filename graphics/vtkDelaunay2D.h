@@ -123,10 +123,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkDelaunay2D_h
 #define __vtkDelaunay2D_h
 
-#include "vtkPointSetFilter.h"
-#include "vtkPolyData.h"
+#include "vtkPointSet.h"
+#include "vtkPolyDataSource.h"
 
-class VTK_EXPORT vtkDelaunay2D : public vtkPointSetFilter
+class VTK_EXPORT vtkDelaunay2D : public vtkPolyDataSource
 {
 public:
   vtkDelaunay2D();
@@ -140,16 +140,11 @@ public:
   static vtkDelaunay2D *New() {return new vtkDelaunay2D;};
 
   // Description:
-  // Override update method because execution can branch two ways (via Input 
-  // and Source).
-  void Update();
-
-  // Description:
   // Specify the source object used to specify constrained edges and loops.
   // (This is optional.) If set, and lines/polygons are defined, a constrained
   // triangulation is created.
-  vtkSetObjectMacro(Source,vtkPolyData);
-  vtkGetObjectMacro(Source,vtkPolyData);
+  void SetSource(vtkPolyData *);
+  vtkPolyData *GetSource();
   
   // Description:
   // Specify alpha (or distance) value to control output of this filter.
@@ -182,13 +177,13 @@ public:
   vtkBooleanMacro(BoundingTriangulation,int);
 
   // Description:
-  // Get the output of this filter.
-  vtkPolyData *GetOutput() {return (vtkPolyData *)this->Output;};
+  // Set / get the input data or filter.
+  virtual void SetInput(vtkPointSet *input);
+  vtkPointSet *GetInput();
 
 protected:
   void Execute();
 
-  vtkPolyData *Source;
   double Alpha;
   double Tolerance;
   int BoundingTriangulation;

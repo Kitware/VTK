@@ -608,7 +608,7 @@ void vtkRIBExporter::WriteActor(vtkActor *anActor)
 	matrix->Element[3][2], matrix->Element[3][3]);
 
   // we really want polydata
-  if ( aDataSet->GetDataSetType() != VTK_POLY_DATA )
+  if ( aDataSet->GetDataObjectType() != VTK_POLY_DATA )
     {
     geometryFilter = vtkGeometryFilter::New();
     geometryFilter->SetInput(aDataSet);
@@ -1079,6 +1079,8 @@ void vtkRIBExporter::WriteTexture (vtkTexture *aTexture)
 
   vtkStructuredPoints *anImage = vtkStructuredPoints::New();
   anImage->SetDimensions (xsize, ysize, 1);
+  anImage->SetWholeExtent(0,xsize-1,0,ysize-1, 0, 0);
+  anImage->SetScalarType(mappedScalars->GetDataType());
   anImage->GetPointData()->SetScalars (mappedScalars);
   int bpp = mappedScalars->GetNumberOfComponents();
   // renderman and bmrt seem to require r,g,b and alpha in all their

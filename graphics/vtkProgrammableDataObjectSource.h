@@ -81,7 +81,7 @@ public:
 
   // Description:
   // Get the output data object.
-  vtkDataObject *GetOutput() {return this->Output;};
+  vtkDataObject *GetOutput();
 
 protected:
   void Execute();

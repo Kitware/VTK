@@ -119,6 +119,7 @@ public:
 
 protected:
   void Execute();
+  void ExecuteInformation();
   void Cap(vtkScalars *s);
 
   int SampleDimensions[3];

@@ -192,10 +192,6 @@ public:
   vtkGetMacro( NumberOfThreads, int );
 
   // Description:
-  // Special update methods handles possibility of appending data.
-  void Update();
-
-  // Description:
   // Initialize the filter for appending data. You must invoke the
   // StartAppend() method before doing successive Appends(). It's also a
   // good idea to manually specify the model bounds; otherwise the input
@@ -216,6 +212,14 @@ public:
 
 protected:
   void Execute();
+  void ExecuteInformation();
+  
+  // This handles to case where the output is already upto date
+  // because Appends were called explicitly by the user, and
+  // we have no input.  The other option was to expose UpdateTime
+  // in DataObject to allow EndAppend to indicate data is up to data.
+  void StreamExecuteStart();
+  
   void Cap(vtkScalars *s);
 
   vtkMultiThreader *Threader;

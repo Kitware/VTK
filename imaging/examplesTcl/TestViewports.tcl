@@ -9,7 +9,7 @@ reader SetDataExtent 0 255 0 255 1 93
 reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
 reader SetDataMask 0x7fff
 #reader DebugOn
-reader UpdateWholeExtent
+reader Update
 
 vtkImageMagnify magnify
 magnify SetInput [reader GetOutput]

@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageCache.h"
+
 #include "vtkImagePadFilter.h"
 
 
@@ -105,28 +105,28 @@ void vtkImagePadFilter::GetOutputWholeExtent(int extent[6])
 
 //----------------------------------------------------------------------------
 // Just change the Image extent.
-void vtkImagePadFilter::ExecuteImageInformation()
+void vtkImagePadFilter::ExecuteInformation()
 {
   if (this->OutputWholeExtent[0] > this->OutputWholeExtent[1])
     {
     // invalid setting, it has not been set, so default to whole Extent
-    this->Input->GetWholeExtent(this->OutputWholeExtent);
+    this->GetInput()->GetWholeExtent(this->OutputWholeExtent);
     }
-  this->Output->SetWholeExtent(this->OutputWholeExtent);
+  this->GetOutput()->SetWholeExtent(this->OutputWholeExtent);
   
   if (this->OutputNumberOfScalarComponents < 0)
     {
     // invalid setting, it has not been set, so default to input.
     this->OutputNumberOfScalarComponents 
-      = this->Input->GetNumberOfScalarComponents();
+      = this->GetInput()->GetNumberOfScalarComponents();
     }
-  this->Output->SetNumberOfScalarComponents(
+  this->GetOutput()->SetNumberOfScalarComponents(
 			    this->OutputNumberOfScalarComponents);
 }
 
 //----------------------------------------------------------------------------
 // Just clip the request.  The subclass may need to overwrite this method.
-void vtkImagePadFilter::ComputeRequiredInputUpdateExtent(int inExt[6], 
+void vtkImagePadFilter::ComputeInputUpdateExtent(int inExt[6], 
 							 int outExt[6])
 {
   int idx;
@@ -135,7 +135,7 @@ void vtkImagePadFilter::ComputeRequiredInputUpdateExtent(int inExt[6],
   // handle XYZ
   memcpy(inExt,outExt,sizeof(int)*6);
   
-  wholeExtent = this->Input->GetWholeExtent();
+  wholeExtent = this->GetInput()->GetWholeExtent();
   // Clip
   for (idx = 0; idx < 3; ++idx)
     {
@@ -160,7 +160,7 @@ void vtkImagePadFilter::ComputeRequiredInputUpdateExtent(int inExt[6],
 
 void vtkImagePadFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageFilter::PrintSelf(os,indent);
+  vtkImageToImageFilter::PrintSelf(os,indent);
 
   os << indent << "OutputNumberOfScalarComponents: " 
      << this->OutputNumberOfScalarComponents << "\n";

@@ -17,19 +17,20 @@ vtkOpenGLImageWindow \
 vtkXOpenGLTextMapper \
 vtkOpenGLPolyDataMapper2D 
 
-ABSTRACT_H = 
+ABSTRACT_H = \
+vtkImageFilter 
 
 CONCRETE_H = \
 vtkImagerCollection
 
 ABSTRACT = \
 vtkImageDecomposeFilter \
-vtkImageFilter \
 vtkImageInPlaceFilter \
 vtkImageIterateFilter \
 vtkImageMultipleInputFilter \
 vtkImagePadFilter \
 vtkImageSpatialFilter \
+vtkImageToImageFilter \
 vtkImageTwoInputFilter \
 vtkImageFourierFilter 
 
@@ -106,7 +107,6 @@ vtkImageSinusoidSource \
 vtkImageSkeleton2D \
 vtkImageSobel2D \
 vtkImageSobel3D \
-vtkImageStaticCache \
 vtkImageThreshold \
 vtkImageTranslateExtent \
 vtkImageVariance3D \

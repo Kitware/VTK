@@ -607,24 +607,24 @@ void vtkSelectPolyData::UnRegister(vtkObject *o)
   // If we have two references and one of them is my data
   // and I am not being unregistered by my data, break the loop.
   if (this->ReferenceCount == 4 &&
-      this->Output != o && this->UnselectedOutput != o &&
+      this->GetOutput() != o && this->UnselectedOutput != o &&
       this->SelectionEdges != o &&
-      this->Output->GetNetReferenceCount() == 1 &&
+      this->GetOutput()->GetNetReferenceCount() == 1 &&
       this->UnselectedOutput->GetNetReferenceCount() == 1 &&
       this->SelectionEdges->GetNetReferenceCount() == 1)
     {
-    this->Output->SetSource(NULL);
+    this->GetOutput()->SetSource(NULL);
     this->UnselectedOutput->SetSource(NULL);
     this->SelectionEdges->SetSource(NULL);
     }
   if (this->ReferenceCount == 3 &&
-      (this->Output == o || this->UnselectedOutput == o ||
+      (this->GetOutput() == o || this->UnselectedOutput == o ||
       this->SelectionEdges == o) &&
-      (this->Output->GetNetReferenceCount() +
+      (this->GetOutput()->GetNetReferenceCount() +
       this->UnselectedOutput->GetNetReferenceCount() +
       this->SelectionEdges->GetNetReferenceCount()) == 4)
     {
-    this->Output->SetSource(NULL);
+    this->GetOutput()->SetSource(NULL);
     this->UnselectedOutput->SetSource(NULL);
     this->SelectionEdges->SetSource(NULL);
     }
@@ -637,10 +637,10 @@ int vtkSelectPolyData::InRegisterLoop(vtkObject *o)
   int num = 0;
   int cnum = 0;
   
-  if (this->Output->GetSource() == this)
+  if (this->GetOutput()->GetSource() == this)
     {
     num++;
-    cnum += this->Output->GetNetReferenceCount();
+    cnum += this->GetOutput()->GetNetReferenceCount();
     }
   if (this->UnselectedOutput->GetSource() == this)
     {
@@ -658,7 +658,7 @@ int vtkSelectPolyData::InRegisterLoop(vtkObject *o)
   // and we are being asked by one of our data objects
   if (this->ReferenceCount == num &&
       cnum == (num + 1) &&
-      (this->Output == o ||
+      (this->GetOutput() == o ||
        this->UnselectedOutput == o ||
        this->SelectionEdges == o))
     {

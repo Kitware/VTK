@@ -68,7 +68,7 @@ class vtkMatrix4x4;
 #define VTK_RESLICE_LINEAR 1
 #define VTK_RESLICE_CUBIC 3
 
-class VTK_EXPORT vtkImageReslice : public vtkImageFilter
+class VTK_EXPORT vtkImageReslice : public vtkImageToImageFilter
 {
 public:
   vtkImageReslice();
@@ -184,8 +184,8 @@ protected:
   float OutputSpacing[3];
   int OutputExtent[6];
   float BackgroundLevel[4];
-  void ExecuteImageInformation();
-  void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
+  void ExecuteInformation();
+  void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
   
   vtkMatrix4x4 *IndexMatrix;
 

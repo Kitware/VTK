@@ -46,9 +46,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkSubdivideTetra_h
 #define __vtkSubdivideTetra_h
 
-#include "vtkUnstructuredGridFilter.h"
+#include "vtkUnstructuredGridToUnstructuredGridFilter.h"
 
-class VTK_EXPORT vtkSubdivideTetra : public vtkUnstructuredGridFilter
+class VTK_EXPORT vtkSubdivideTetra : public vtkUnstructuredGridToUnstructuredGridFilter
 {
 public:
   vtkSubdivideTetra();
@@ -56,9 +56,6 @@ public:
   const char *GetClassName() {return "vtkSubdivideTetra";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get the output of this filter.
-  vtkUnstructuredGrid *GetOutput() {return (vtkUnstructuredGrid *)this->Output;};
 
 protected:
   void Execute();

@@ -40,108 +40,72 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkAppendFilter.h"
 
+//----------------------------------------------------------------------------
 vtkAppendFilter::vtkAppendFilter()
 {
-  this->InputList = vtkDataSetCollection::New();
-}
-
-vtkAppendFilter::~vtkAppendFilter()
-{
-  this->InputList->Delete();
   this->InputList = NULL;
 }
 
+//----------------------------------------------------------------------------
+vtkAppendFilter::~vtkAppendFilter()
+{
+  if (this->InputList != NULL)
+    {
+    this->InputList->Delete();
+    this->InputList = NULL;
+    }
+}
+
+//----------------------------------------------------------------------------
 // Add a dataset to the list of data to append.
 void vtkAppendFilter::AddInput(vtkDataSet *ds)
 {
-  if ( ! this->InputList->IsItemPresent(ds) )
-    {
-    this->Modified();
-    this->InputList->AddItem(ds);
-    }
+  this->vtkProcessObject::AddInput(ds);
 }
 
+//----------------------------------------------------------------------------
+vtkDataSet *vtkAppendFilter::GetInput(int idx)
+{
+  if (idx >= this->NumberOfInputs || idx < 0)
+    {
+    return NULL;
+    }
+  
+  return (vtkDataSet *)(this->Inputs[idx]);
+}
+
+//----------------------------------------------------------------------------
 // Remove a dataset from the list of data to append.
 void vtkAppendFilter::RemoveInput(vtkDataSet *ds)
 {
-  if ( this->InputList->IsItemPresent(ds) )
-    {
-    this->Modified();
-    this->InputList->RemoveItem(ds);
-    }
+  this->vtkProcessObject::RemoveInput(ds);
 }
 
-void vtkAppendFilter::Update()
+//----------------------------------------------------------------------------
+vtkDataSetCollection *vtkAppendFilter::GetInputList()
 {
-  unsigned long int mtime, dsMtime;
-  vtkDataSet *ds;
-
-  // make sure input is available
-  if ( this->InputList->GetNumberOfItems() < 1 )
+  int idx;
+  
+  if (this->InputList)
     {
-    vtkErrorMacro(<< "No input...can't execute!");
-    return;
+    this->InputList->Delete();
     }
-
-  // prevent chasing our tail
-  if (this->Updating)
+  this->InputList = vtkDataSetCollection::New();
+  
+  for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {
-    return;
-    }
-
-  this->Updating = 1;
-  for (mtime=0, this->InputList->InitTraversal(); 
-  (ds = this->InputList->GetNextItem()); )
-    {
-    ds->Update();
-    dsMtime = ds->GetMTime();
-    if ( dsMtime > mtime )
+    if (this->Inputs[idx] != NULL)
       {
-      mtime = dsMtime;
+      this->InputList->AddItem((vtkDataSet*)(this->Inputs[idx]));
       }
-    }
-  this->Updating = 0;
-
-  if ( mtime > this->ExecuteTime || this->GetMTime() > this->ExecuteTime )
-    {
-    for (this->InputList->InitTraversal();(ds=this->InputList->GetNextItem());)
-      {
-      if ( ds->GetDataReleased() )
-	{
-	ds->ForceUpdate();
-	}
-      }
-
-    if ( this->StartMethod )
-      {
-      (*this->StartMethod)(this->StartMethodArg);
-      }
-    this->Output->Initialize(); //clear output
-    // reset AbortExecute flag and Progress
-    this->AbortExecute = 0;
-    this->Progress = 0.0;
-    this->Execute();
-    this->ExecuteTime.Modified();
-    if ( !this->AbortExecute )
-      {
-      this->UpdateProgress(1.0);
-      }
-    this->SetDataReleased(0);
-    if ( this->EndMethod )
-      {
-      (*this->EndMethod)(this->EndMethodArg);
-      }
-    }
-
-  for (this->InputList->InitTraversal();(ds = this->InputList->GetNextItem());)
-    {
-    if ( ds->ShouldIReleaseData() )
-      {
-      ds->ReleaseData();
-      }
-    }
+    }  
+  
+  return this->InputList;
 }
 
+
+
+//----------------------------------------------------------------------------
 // Append data sets into single unstructured grid
 void vtkAppendFilter::Execute()
 {
@@ -156,10 +120,10 @@ void vtkAppendFilter::Execute()
   vtkPointData *pd = NULL;
   vtkCellData *cd = NULL;
   vtkIdList *ptIds, *newPtIds;
-  int i;
+  int i, idx;
   vtkDataSet *ds;
   int ptId, cellId, newCellId;
-  vtkUnstructuredGrid *output = (vtkUnstructuredGrid *)this->Output;
+  vtkUnstructuredGrid *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
   
@@ -181,63 +145,66 @@ void vtkAppendFilter::Execute()
   tensorsPresentInCD = 1;
   fieldPresentInCD = 1;
 
-  for (this->InputList->InitTraversal(); (ds = this->InputList->GetNextItem()); )
+  for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {
-    numPts += ds->GetNumberOfPoints();
-    numCells += ds->GetNumberOfCells();
-    pd = ds->GetPointData();
-
-    if ( pd && pd->GetScalars() == NULL )
+    ds = (vtkDataSet *)(this->Inputs[idx]);
+    if (ds != NULL)
       {
-      scalarsPresentInPD &= 0;
+      numPts += ds->GetNumberOfPoints();
+      numCells += ds->GetNumberOfCells();
+      pd = ds->GetPointData();
+      
+      if ( pd && pd->GetScalars() == NULL )
+	{
+	scalarsPresentInPD &= 0;
+	}
+      if ( pd && pd->GetVectors() == NULL )
+	{
+	vectorsPresentInPD &= 0;
+	}
+      if ( pd && pd->GetNormals() == NULL )
+	{
+	normalsPresentInPD &= 0;
+	}
+      if ( pd && pd->GetTCoords() == NULL )
+	{
+	tcoordsPresentInPD &= 0;
+	}
+      if ( pd && pd->GetTensors() == NULL )
+	{
+	tensorsPresentInPD &= 0;
+	}
+      if ( pd && pd->GetFieldData() == NULL )
+	{
+	fieldPresentInPD &= 0;
+	}
+      
+      cd = ds->GetCellData();
+      if ( cd && cd->GetScalars() == NULL )
+	{
+	scalarsPresentInCD &= 0;
+	}
+      if ( cd && cd->GetVectors() == NULL )
+	{
+	vectorsPresentInCD &= 0;
+	}
+      if ( cd && cd->GetNormals() == NULL )
+	{
+	normalsPresentInCD &= 0;
+	}
+      if ( cd && cd->GetTCoords() == NULL )
+	{
+	tcoordsPresentInCD &= 0;
+	}
+      if ( cd && cd->GetTensors() == NULL )
+	{
+	tensorsPresentInCD &= 0;
+	}
+      if ( cd && cd->GetFieldData() == NULL )
+	{
+	fieldPresentInCD &= 0;
+	}
       }
-    if ( pd && pd->GetVectors() == NULL )
-      {
-      vectorsPresentInPD &= 0;
-      }
-    if ( pd && pd->GetNormals() == NULL )
-      {
-      normalsPresentInPD &= 0;
-      }
-    if ( pd && pd->GetTCoords() == NULL )
-      {
-      tcoordsPresentInPD &= 0;
-      }
-    if ( pd && pd->GetTensors() == NULL )
-      {
-      tensorsPresentInPD &= 0;
-      }
-    if ( pd && pd->GetFieldData() == NULL )
-      {
-      fieldPresentInPD &= 0;
-      }
-
-    cd = ds->GetCellData();
-    if ( cd && cd->GetScalars() == NULL )
-      {
-      scalarsPresentInCD &= 0;
-      }
-    if ( cd && cd->GetVectors() == NULL )
-      {
-      vectorsPresentInCD &= 0;
-      }
-    if ( cd && cd->GetNormals() == NULL )
-      {
-      normalsPresentInCD &= 0;
-      }
-    if ( cd && cd->GetTCoords() == NULL )
-      {
-      tcoordsPresentInCD &= 0;
-      }
-    if ( cd && cd->GetTensors() == NULL )
-      {
-      tensorsPresentInCD &= 0;
-      }
-    if ( cd && cd->GetFieldData() == NULL )
-      {
-      fieldPresentInCD &= 0;
-      }
-
     }
 
   if ( numPts < 1 || numCells < 1 )
@@ -306,35 +273,43 @@ void vtkAppendFilter::Execute()
   ptIds = vtkIdList::New(); ptIds->Allocate(VTK_CELL_SIZE);
   newPtIds = vtkIdList::New(); newPtIds->Allocate(VTK_CELL_SIZE);
 
-  for (ptOffset=0, cellOffset=0, this->InputList->InitTraversal(); 
-       (ds = this->InputList->GetNextItem());
-       ptOffset+=numPts, cellOffset+=numCells)
+  
+  ptOffset=0;
+  cellOffset=0;
+  for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {
-    numPts = ds->GetNumberOfPoints();
-    numCells = ds->GetNumberOfCells();
-    pd = ds->GetPointData();
-
-    // copy points and point data
-    for (ptId=0; ptId < numPts; ptId++)
+    ds = (vtkDataSet *)(this->Inputs[idx]);
+    if (ds != NULL)
       {
-      newPts->SetPoint(ptId+ptOffset,ds->GetPoint(ptId));
-      outputPD->CopyData(pd,ptId,ptId+ptOffset);
-      }
-
-    cd = ds->GetCellData();
-    // copy cell and cell data
-    for (cellId=0; cellId < numCells; cellId++)
-      {
-      ds->GetCellPoints(cellId, ptIds);
-      newPtIds->Reset ();
-      for (i=0; i < ptIds->GetNumberOfIds(); i++)
+      numPts = ds->GetNumberOfPoints();
+      numCells = ds->GetNumberOfCells();
+      pd = ds->GetPointData();
+      
+      // copy points and point data
+      for (ptId=0; ptId < numPts; ptId++)
 	{
-        newPtIds->InsertId(i,ptIds->GetId(i)+ptOffset);
+	newPts->SetPoint(ptId+ptOffset,ds->GetPoint(ptId));
+	outputPD->CopyData(pd,ptId,ptId+ptOffset);
 	}
-      newCellId = output->InsertNextCell(ds->GetCellType(cellId),newPtIds);
-      outputCD->CopyData(cd,cellId,newCellId);
-     }
+      
+      cd = ds->GetCellData();
+      // copy cell and cell data
+      for (cellId=0; cellId < numCells; cellId++)
+	{
+	ds->GetCellPoints(cellId, ptIds);
+	newPtIds->Reset ();
+	for (i=0; i < ptIds->GetNumberOfIds(); i++)
+	  {
+	  newPtIds->InsertId(i,ptIds->GetId(i)+ptOffset);
+	  }
+	newCellId = output->InsertNextCell(ds->GetCellType(cellId),newPtIds);
+	outputCD->CopyData(cd,cellId,newCellId);
+	}
+      }
+    ptOffset+=numPts;
+    cellOffset+=numCells;
     }
+  
   //
   // Update ourselves and release memory
   //
@@ -344,13 +319,16 @@ void vtkAppendFilter::Execute()
   newPtIds->Delete();
 }
 
+//----------------------------------------------------------------------------
 void vtkAppendFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkFilter::PrintSelf(os,indent);
-
-  os << indent << "Input DataSets:\n";
-  this->InputList->PrintSelf(os,indent.GetNextIndent());
+  vtkDataSetToUnstructuredGridFilter::PrintSelf(os,indent);
 }
+
+
+
+
+
 
 
 

@@ -40,9 +40,23 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkStructuredPointsToUnstructuredGridFilter.h"
 
-vtkStructuredPointsToUnstructuredGridFilter::vtkStructuredPointsToUnstructuredGridFilter()
+
+//----------------------------------------------------------------------------
+// Specify the input data or filter.
+void vtkStructuredPointsToUnstructuredGridFilter::SetInput(vtkStructuredPoints *input)
 {
-  this->Output = vtkUnstructuredGrid::New();
-  this->Output->SetSource(this);
+  this->vtkProcessObject::SetInput(0, input);
+}
+
+//----------------------------------------------------------------------------
+// Specify the input data or filter.
+vtkStructuredPoints *vtkStructuredPointsToUnstructuredGridFilter::GetInput()
+{
+  if (this->NumberOfInputs < 1)
+    {
+    return NULL;
+    }
+  
+  return (vtkStructuredPoints *)(this->Inputs[0]);
 }
 

@@ -239,7 +239,8 @@ proc UpdateQueryInteraction {widget x y} {
    }
 
    $input SetUpdateExtent $x $x $y $y $z $z
-   set data [$input UpdateAndReturnData]
+   $input Update
+   set data $input
    set numComps [$data GetNumberOfScalarComponents]
    set str ""
    for {set idx 0} {$idx < $numComps} {incr idx} {

@@ -29,7 +29,7 @@ my_close ReleaseDataFlagOff
 # for coverage (we could compare results to see if they are correct).
 my_close DebugOn
 my_close DebugOff
-my_close GetCache
+my_close GetOutput
 my_close GetPipelineMTime
 my_close GetCloseValue
 my_close GetOpenValue

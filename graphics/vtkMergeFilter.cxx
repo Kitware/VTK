@@ -48,264 +48,91 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Create object with no input or output.
 vtkMergeFilter::vtkMergeFilter()
 {
-  this->Geometry = NULL;
-  this->Scalars = NULL;
-  this->Vectors = NULL;
-  this->Normals = NULL;
-  this->TCoords = NULL;
-  this->Tensors = NULL;
-  this->FieldData = NULL;
-
-  this->Output = NULL;
-
-  this->PolyData = vtkPolyData::New();
-  this->PolyData->SetSource(this);
-  
-  this->StructuredPoints = vtkStructuredPoints::New();
-  this->StructuredPoints->SetSource(this);
-  
-  this->StructuredGrid = vtkStructuredGrid::New();
-  this->StructuredGrid->SetSource(this);
-  
-  this->UnstructuredGrid = vtkUnstructuredGrid::New();
-  this->UnstructuredGrid->SetSource(this);
-  
-  this->RectilinearGrid = vtkRectilinearGrid::New();
-  this->RectilinearGrid->SetSource(this);
 }
 
 vtkMergeFilter::~vtkMergeFilter()
 {
-  if (this->Geometry) {this->Geometry->UnRegister(this);}
-  this->Geometry = NULL;
-
-  this->PolyData->Delete();
-  this->StructuredPoints->Delete();
-  this->StructuredGrid->Delete();
-  this->UnstructuredGrid->Delete();
-  this->RectilinearGrid->Delete();
-  // Output should only be one of the above. We set it to NULL
-  // so that we don't free it twice
-  this->Output = NULL;
-  
-  this->SetScalars((vtkDataSet *)NULL);
-  this->SetVectors(NULL);
-  this->SetNormals(NULL);
-  this->SetTCoords(NULL);
-  this->SetTensors(NULL);
-  this->SetFieldData(NULL);  
 }
 
-void vtkMergeFilter::SetGeometry(vtkDataSet *input)
+void vtkMergeFilter::SetScalars(vtkDataSet *input)
 {
-  if ( this->Geometry != input )
-    {
-    vtkDebugMacro(<<" setting Geometry to " << (void *)input);
-    if (this->Geometry) {this->Geometry->UnRegister(this);}
-    this->Geometry = input;
-    if (this->Geometry) {this->Geometry->Register(this);}
-    this->Modified();
-    
-    if ( input->GetDataSetType() == VTK_POLY_DATA )
-      {
-      this->Output = this->PolyData;
-      }
-
-    else if ( input->GetDataSetType() == VTK_STRUCTURED_POINTS )
-      {
-      this->Output = this->StructuredPoints;
-      }
-
-    else if ( input->GetDataSetType() == VTK_STRUCTURED_GRID )
-      {
-      this->Output = this->StructuredGrid;
-      }
-
-    else if ( input->GetDataSetType() == VTK_UNSTRUCTURED_GRID )
-      {
-      this->Output = this->UnstructuredGrid;
-      }
-
-    else if ( input->GetDataSetType() == VTK_RECTILINEAR_GRID )
-      {
-      this->Output = this->RectilinearGrid;
-      }
-
-    else
-      {
-      vtkErrorMacro(<<"Mismatch in data type");
-      }
-
-    this->Modified();
-    }
+  this->vtkProcessObject::SetInput(1, input);
 }
-
-void vtkMergeFilter::Update()
+vtkDataSet *vtkMergeFilter::GetScalars()
 {
-  unsigned long int mtime=0, dsMtime;
-
-  // make sure geometry is defined
-  if ( this->Geometry == NULL )
+  if (this->NumberOfInputs < 2)
     {
-    vtkErrorMacro(<< "No geometry input...can't execute!");
-    return;
+    return NULL;
     }
-
-  // prevent chasing our tail
-  if (this->Updating)
-    {
-    return;
-    }
-
-  this->Updating = 1;
-  this->Geometry->Update();
-  mtime = this->Geometry->GetMTime();
-  
-  if ( this->Scalars ) 
-    {
-    this->Scalars->Update();
-    dsMtime = this->Scalars->GetMTime();
-    if ( dsMtime > mtime )
-      {
-      mtime = dsMtime;
-      }
-    }
-  if ( this->Vectors )
-    {
-    this->Vectors->Update();
-    dsMtime = this->Vectors->GetMTime();
-    if ( dsMtime > mtime )
-      {
-      mtime = dsMtime;
-      }
-    }
-  if ( this->Normals )
-    {
-    this->Normals->Update();
-    dsMtime = this->Normals->GetMTime();
-    if ( dsMtime > mtime )
-      {
-      mtime = dsMtime;
-      }
-    }
-  if ( this->TCoords )
-    {
-    this->TCoords->Update();
-    dsMtime = this->TCoords->GetMTime();
-    if ( dsMtime > mtime )
-      {
-      mtime = dsMtime;
-      }
-    }
-  if ( this->Tensors )
-    {
-    this->Tensors->Update();
-    dsMtime = this->Tensors->GetMTime();
-    if ( dsMtime > mtime )
-      {
-      mtime = dsMtime;
-      }
-    }
-  if ( this->FieldData )
-    {
-    this->FieldData->Update();
-    dsMtime = this->FieldData->GetMTime();
-    if ( dsMtime > mtime )
-      {
-      mtime = dsMtime;
-      }
-    }
-  this->Updating = 0;
-
-  if ( mtime > this->ExecuteTime || this->GetMTime() > this->ExecuteTime )
-    {
-    if ( this->Geometry->GetDataReleased() )
-      {
-      this->Geometry->ForceUpdate();
-      }
-    if ( this->Scalars && this->Scalars->GetDataReleased() ) 
-      {
-      this->Scalars->ForceUpdate();
-      }
-    if ( this->Vectors && this->Vectors->GetDataReleased() ) 
-      {
-      this->Vectors->ForceUpdate();
-      }
-    if ( this->Normals && this->Normals->GetDataReleased() ) 
-      {
-      this->Normals->ForceUpdate();
-      }
-    if ( this->TCoords && this->TCoords->GetDataReleased() ) 
-      {
-      this->TCoords->ForceUpdate();
-      }
-    if ( this->Tensors && this->Tensors->GetDataReleased() ) 
-      {
-      this->Tensors->ForceUpdate();
-      }
-    if ( this->FieldData && this->FieldData->GetDataReleased() ) 
-      {
-      this->FieldData->ForceUpdate();
-      }
-
-    if ( this->StartMethod )
-      {
-      (*this->StartMethod)(this->StartMethodArg);
-      }
-    this->Output->Initialize(); //clear output
-    // reset AbortExecute flag and Progress
-    this->AbortExecute = 0;
-    this->Progress = 0.0;
-    this->Execute();
-    this->ExecuteTime.Modified();
-    if ( !this->AbortExecute )
-      {
-      this->UpdateProgress(1.0);
-      }
-    this->SetDataReleased(0);
-    if ( this->EndMethod )
-      {
-      (*this->EndMethod)(this->EndMethodArg);
-      }
-    }
-  
-  if ( this->Geometry->ShouldIReleaseData() )
-    {
-    this->Geometry->ReleaseData();
-    }
-
-  if ( this->Scalars && this->Scalars->ShouldIReleaseData() ) 
-    {
-    this->Scalars->ReleaseData();
-    }
-
-  if ( this->Vectors && this->Vectors->ShouldIReleaseData() ) 
-    {
-    this->Vectors->ReleaseData();
-    }
-
-  if ( this->Normals && this->Normals->ShouldIReleaseData() ) 
-    {
-    this->Normals->ReleaseData();
-    }
-
-  if ( this->TCoords && this->TCoords->ShouldIReleaseData() ) 
-    {
-    this->TCoords->ReleaseData();
-    }
-
-  if ( this->Tensors && this->Tensors->ShouldIReleaseData() ) 
-    {
-    this->Tensors->ReleaseData();
-    }
-
-  if ( this->FieldData && this->FieldData->ShouldIReleaseData() ) 
-    {
-    this->FieldData->ReleaseData();
-    }
+  return (vtkDataSet *)(this->Inputs[1]);
 }
 
-// Merge it all together
+void vtkMergeFilter::SetVectors(vtkDataSet *input)
+{
+  this->vtkProcessObject::SetInput(2, input);
+}
+vtkDataSet *vtkMergeFilter::GetVectors()
+{
+  if (this->NumberOfInputs < 3)
+    {
+    return NULL;
+    }
+  return (vtkDataSet *)(this->Inputs[3]);
+}
+
+void vtkMergeFilter::SetNormals(vtkDataSet *input)
+{
+  this->vtkProcessObject::SetInput(3, input);
+}
+vtkDataSet *vtkMergeFilter::GetNormals()
+{
+  if (this->NumberOfInputs < 4)
+    {
+    return NULL;
+    }
+  return (vtkDataSet *)(this->Inputs[3]);
+}
+
+void vtkMergeFilter::SetTCoords(vtkDataSet *input)
+{
+  this->vtkProcessObject::SetInput(4, input);
+}
+vtkDataSet *vtkMergeFilter::GetTCoords()
+{
+  if (this->NumberOfInputs < 5)
+    {
+    return NULL;
+    }
+  return (vtkDataSet *)(this->Inputs[4]);
+}
+
+void vtkMergeFilter::SetTensors(vtkDataSet *input)
+{
+  this->vtkProcessObject::SetInput(5, input);
+}
+vtkDataSet *vtkMergeFilter::GetTensors()
+{
+  if (this->NumberOfInputs < 6)
+    {
+    return NULL;
+    }
+  return (vtkDataSet *)(this->Inputs[5]);
+}
+
+void vtkMergeFilter::SetFieldData(vtkDataSet *input)
+{
+  this->vtkProcessObject::SetInput(6, input);
+}
+vtkDataSet *vtkMergeFilter::GetFieldData()
+{
+  if (this->NumberOfInputs < 7)
+    {
+    return NULL;
+    }
+  return (vtkDataSet *)(this->Inputs[6]);
+}
+
+
 void vtkMergeFilter::Execute()
 {
   int numPts, numScalars=0, numVectors=0, numNormals=0, numTCoords=0;
@@ -326,29 +153,29 @@ void vtkMergeFilter::Execute()
   vtkTCoords *cellTCoords = NULL;
   vtkTensors *cellTensors = NULL;
   vtkFieldData *cellf = NULL;
-  vtkDataSet *output = (vtkDataSet *)this->Output;
+  vtkDataSet *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
   
   vtkDebugMacro(<<"Merging data!");
 
   // geometry needs to be copied
-  output->CopyStructure(this->Geometry);
-  if ( (numPts = this->Geometry->GetNumberOfPoints()) < 1 )
+  output->CopyStructure(this->GetInput());
+  if ( (numPts = this->GetInput()->GetNumberOfPoints()) < 1 )
     {
     vtkWarningMacro(<<"Nothing to merge!");
     }
-  numCells = this->Geometry->GetNumberOfCells();
+  numCells = this->GetInput()->GetNumberOfCells();
   
-  if ( this->Scalars ) 
+  if ( this->GetScalars() ) 
     {
-    pd = this->Scalars->GetPointData();
+    pd = this->GetScalars()->GetPointData();
     scalars = pd->GetScalars();
     if ( scalars != NULL )
       {
       numScalars = scalars->GetNumberOfScalars();
       }
-    cd = this->Scalars->GetCellData();
+    cd = this->GetScalars()->GetCellData();
     cellScalars = cd->GetScalars();
     if ( cellScalars != NULL )
       {
@@ -356,15 +183,15 @@ void vtkMergeFilter::Execute()
       }
     }
 
-  if ( this->Vectors ) 
+  if ( this->GetVectors() ) 
     {
-    pd = this->Vectors->GetPointData();
+    pd = this->GetVectors()->GetPointData();
     vectors = pd->GetVectors();
     if ( vectors != NULL )
       {
       numVectors= vectors->GetNumberOfVectors();
       }
-    cd = this->Vectors->GetCellData();
+    cd = this->GetVectors()->GetCellData();
     cellVectors = cd->GetVectors();
     if ( cellVectors != NULL )
       {
@@ -372,15 +199,15 @@ void vtkMergeFilter::Execute()
       }
     }
 
-  if ( this->Normals ) 
+  if ( this->GetNormals() ) 
     {
-    pd = this->Normals->GetPointData();
+    pd = this->GetNormals()->GetPointData();
     normals = pd->GetNormals();
     if ( normals != NULL )
       {
       numNormals= normals->GetNumberOfNormals();
       }
-    cd = this->Normals->GetCellData();
+    cd = this->GetNormals()->GetCellData();
     cellNormals = cd->GetNormals();
     if ( cellNormals != NULL )
       {
@@ -388,15 +215,15 @@ void vtkMergeFilter::Execute()
       }
     }
 
-  if ( this->TCoords ) 
+  if ( this->GetTCoords() ) 
     {
-    pd = this->TCoords->GetPointData();
+    pd = this->GetTCoords()->GetPointData();
     tcoords = pd->GetTCoords();
     if ( tcoords != NULL )
       {
       numTCoords= tcoords->GetNumberOfTCoords();
       }
-    cd = this->TCoords->GetCellData();
+    cd = this->GetTCoords()->GetCellData();
     cellTCoords = cd->GetTCoords();
     if ( cellTCoords != NULL )
       {
@@ -404,15 +231,15 @@ void vtkMergeFilter::Execute()
       }
     }
 
-  if ( this->Tensors ) 
+  if ( this->GetTensors() ) 
     {
-    pd = this->Tensors->GetPointData();
+    pd = this->GetTensors()->GetPointData();
     tensors = pd->GetTensors();
     if ( tensors != NULL )
       {
       numTensors = tensors->GetNumberOfTensors();
       }
-    cd = this->Tensors->GetCellData();
+    cd = this->GetTensors()->GetCellData();
     cellTensors = cd->GetTensors();
     if ( cellTensors != NULL )
       {
@@ -420,15 +247,15 @@ void vtkMergeFilter::Execute()
       }
     }
 
-  if ( this->FieldData ) 
+  if ( this->GetFieldData() ) 
     {
-    pd = this->FieldData->GetPointData();
+    pd = this->GetFieldData()->GetPointData();
     f = pd->GetFieldData();
     if ( f != NULL )
       {
       numTuples = f->GetNumberOfTuples();
       }
-    cd = this->FieldData->GetCellData();
+    cd = this->GetFieldData()->GetCellData();
     cellf = cd->GetFieldData();
     if ( cellf != NULL )
       {
@@ -492,190 +319,29 @@ void vtkMergeFilter::Execute()
     }
 }
 
-// Get the output as vtkPolyData.
-vtkPolyData *vtkMergeFilter::GetPolyDataOutput() 
+//----------------------------------------------------------------------------
+int vtkMergeFilter::ComputeInputUpdateExtents(vtkDataObject *data)
 {
-  return this->PolyData;
-}
-
-// Get the output as vtkStructuredPoints.
-vtkStructuredPoints *vtkMergeFilter::GetStructuredPointsOutput() 
-{
-  return this->StructuredPoints;
-}
-
-// Get the output as vtkStructuredGrid.
-vtkStructuredGrid *vtkMergeFilter::GetStructuredGridOutput()
-{
-  return this->StructuredGrid;
-}
-
-// Get the output as vtkUnstructuredGrid.
-vtkUnstructuredGrid *vtkMergeFilter::GetUnstructuredGridOutput()
-{
-  return this->UnstructuredGrid;
-}
-
-// Get the output as vtkRectilinearGrid. 
-vtkRectilinearGrid *vtkMergeFilter::GetRectilinearGridOutput()
-{
-  return this->RectilinearGrid;
+  vtkDataSet *output = (vtkDataSet*)data;
+  vtkDataSet *input;
+  int idx;
+  
+  for (idx = 0; idx < this->NumberOfInputs; ++idx)
+    {
+    input = (vtkDataSet *)(this->Inputs[idx]);
+    if (input)
+      {
+      input->CopyUpdateExtent(output);
+      }
+    
+    }
+  
+  return 1;
 }
 
 void vtkMergeFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkFilter::PrintSelf(os,indent);
+  vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 
-  if ( this->Geometry )
-    {
-    os << indent << "Geometry: (" << this->Geometry << ")\n";
-    os << indent << "Geometry type: " << this->Geometry->GetClassName() << "\n";
-    }
-  else
-    {
-    os << indent << "Geometry: (none)\n";
-    }
-
-  if ( this->Scalars )
-    {
-    os << indent << "Scalars: (" << this->Scalars << ")\n";
-    }
-  else
-    {
-    os << indent << "Scalars: (none)\n";
-    }
-
-  if ( this->Vectors )
-    {
-    os << indent << "Vectors: (" << this->Vectors << ")\n";
-    }
-  else
-    {
-    os << indent << "Vectors: (none)\n";
-    }
-
-  if ( this->Normals )
-    {
-    os << indent << "Normals: (" << this->Normals << ")\n";
-    }
-  else
-    {
-    os << indent << "Normals: (none)\n";
-    }
-
-  if ( this->TCoords )
-    {
-    os << indent << "TCoords: (" << this->TCoords << ")\n";
-    }
-  else
-    {
-    os << indent << "TCoords: (none)\n";
-    }
-
-  if ( this->Tensors )
-    {
-    os << indent << "Tensors: (" << this->Tensors << ")\n";
-    }
-  else
-    {
-    os << indent << "Tensors: (none)\n";
-    }
-
-  if ( this->FieldData )
-    {
-    os << indent << "Field Data: (" << this->FieldData << ")\n";
-    }
-  else
-    {
-    os << indent << "Field Data: (none)\n";
-    }
 }
 
-
-void vtkMergeFilter::UnRegister(vtkObject *o)
-{
-  // detect the circular loop source <-> data
-  // If we have two references and one of them is my data
-  // and I am not being unregistered by my data, break the loop.
-  if (this->ReferenceCount == 6 &&
-      this->PolyData != o && this->StructuredGrid != o &&
-      this->UnstructuredGrid != o && this->StructuredPoints != o &&
-      this->RectilinearGrid != o &&
-      this->PolyData->GetNetReferenceCount() == 1 &&
-      this->StructuredGrid->GetNetReferenceCount() == 1 &&
-      this->UnstructuredGrid->GetNetReferenceCount() == 1 &&
-      this->StructuredPoints->GetNetReferenceCount() == 1 &&
-      this->RectilinearGrid->GetNetReferenceCount() == 1)
-    {
-    this->PolyData->SetSource(NULL);
-    this->StructuredGrid->SetSource(NULL);
-    this->UnstructuredGrid->SetSource(NULL);
-    this->StructuredPoints->SetSource(NULL);
-    this->RectilinearGrid->SetSource(NULL);
-    }
-  if (this->ReferenceCount == 5 &&
-      (this->PolyData == o || this->StructuredGrid == o ||
-       this->UnstructuredGrid == o || this->RectilinearGrid == o ||
-       this->StructuredPoints == o) &&
-      (this->PolyData->GetNetReferenceCount() +
-       this->StructuredPoints->GetNetReferenceCount() +
-       this->RectilinearGrid->GetNetReferenceCount() +
-       this->StructuredGrid->GetNetReferenceCount() +
-       this->UnstructuredGrid->GetNetReferenceCount()) == 6)
-    {
-    this->PolyData->SetSource(NULL);
-    this->StructuredGrid->SetSource(NULL);
-    this->UnstructuredGrid->SetSource(NULL);
-    this->StructuredPoints->SetSource(NULL);
-    this->RectilinearGrid->SetSource(NULL);
-    }
-  
-  this->vtkObject::UnRegister(o);
-}
-
-int vtkMergeFilter::InRegisterLoop(vtkObject *o)
-{
-  int num = 0;
-  int cnum = 0;
-  
-  if (this->StructuredPoints->GetSource() == this)
-    {
-    num++;
-    cnum += this->StructuredPoints->GetNetReferenceCount();
-    }
-  if (this->RectilinearGrid->GetSource() == this)
-    {
-    num++;
-    cnum += this->RectilinearGrid->GetNetReferenceCount();
-    }
-  if (this->PolyData->GetSource() == this)
-    {
-    num++;
-    cnum += this->PolyData->GetNetReferenceCount();
-    }
-  if (this->StructuredGrid->GetSource() == this)
-    {
-    num++;
-    cnum += this->StructuredGrid->GetNetReferenceCount();
-    }
-  if (this->UnstructuredGrid->GetSource() == this)
-    {
-    num++;
-    cnum += this->UnstructuredGrid->GetNetReferenceCount();
-    }
-  
-  // if no one outside is using us
-  // and our data objects are down to one net reference
-  // and we are being asked by one of our data objects
-  if (this->ReferenceCount == num &&
-      cnum == (num + 1) &&
-      (this->PolyData == o ||
-       this->StructuredPoints == o ||
-       this->RectilinearGrid == o ||
-       this->StructuredGrid == o ||
-       this->UnstructuredGrid == o))
-    {
-    return 1;
-    }
-  return 0;
-}

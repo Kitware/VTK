@@ -51,9 +51,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkDataObjectFilter_h
 #define __vtkDataObjectFilter_h
 
-#include "vtkFilter.h"
+#include "vtkSource.h"
 
-class VTK_EXPORT vtkDataObjectFilter : public vtkFilter
+class VTK_EXPORT vtkDataObjectFilter : public vtkSource
 {
 public:
   static vtkDataObjectFilter *New() {return new vtkDataObjectFilter;};

@@ -49,9 +49,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageThreshold_h
 
 
-#include "vtkImageFilter.h"
+#include "vtkImageToImageFilter.h"
 
-class VTK_EXPORT vtkImageThreshold : public vtkImageFilter
+class VTK_EXPORT vtkImageThreshold : public vtkImageToImageFilter
 {
 public:
   vtkImageThreshold();
@@ -120,7 +120,7 @@ protected:
   
   int OutputScalarType;
 
-  void ExecuteImageInformation();
+  void ExecuteInformation();
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
 		       int extent[6], int id);
 };

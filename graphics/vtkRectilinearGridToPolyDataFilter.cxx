@@ -40,9 +40,23 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkRectilinearGridToPolyDataFilter.h"
 
-vtkRectilinearGridToPolyDataFilter::vtkRectilinearGridToPolyDataFilter()
+
+//----------------------------------------------------------------------------
+// Specify the input data or filter.
+void vtkRectilinearGridToPolyDataFilter::SetInput(vtkRectilinearGrid *input)
 {
-  this->Output = vtkPolyData::New();
-  this->Output->SetSource(this);
+  this->vtkProcessObject::SetInput(0, input);
+}
+
+//----------------------------------------------------------------------------
+// Specify the input data or filter.
+vtkRectilinearGrid *vtkRectilinearGridToPolyDataFilter::GetInput()
+{
+  if (this->NumberOfInputs < 1)
+    {
+    return NULL;
+    }
+  
+  return (vtkRectilinearGrid *)(this->Inputs[0]);
 }
 

@@ -319,6 +319,9 @@ class VTK_EXPORT vtkCamera : public vtkObject
     {return *this->GetCompositePerspectiveTransformMatrix(aspect,nearz,farz);}
   
     
+  void ReadSelf(istream& is);
+  void WriteSelf(ostream& os);
+
 
 protected:
   double WindowCenter[2];

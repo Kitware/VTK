@@ -71,7 +71,7 @@ public:
 protected:
   vtkImageEllipsoidSource *Ellipse;
     
-  void ExecuteImageInformation();
+  void ExecuteInformation();
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
 		       int extent[6], int id);
 };

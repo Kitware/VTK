@@ -73,9 +73,10 @@ public:
 
   // Description:
   // This method returns the largest region that can be generated.
-  void UpdateImageInformation();
+  void UpdateInformation();
   
 protected:
+  // vtkWindow is not a vtkDataObject, so we need our own ivar.
   vtkWindow *Input;
   void Execute(vtkImageData *data);
 };

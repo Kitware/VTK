@@ -49,20 +49,20 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkRectilinearGridToPolyDataFilter_h
 #define __vtkRectilinearGridToPolyDataFilter_h
 
-#include "vtkRectilinearGridFilter.h"
-#include "vtkPolyData.h"
+#include "vtkPolyDataSource.h"
+#include "vtkRectilinearGrid.h"
 
-class VTK_EXPORT vtkRectilinearGridToPolyDataFilter : public vtkRectilinearGridFilter
+class VTK_EXPORT vtkRectilinearGridToPolyDataFilter : public vtkPolyDataSource
 {
 public:
-  vtkRectilinearGridToPolyDataFilter();
   static vtkRectilinearGridToPolyDataFilter *New() {
     return new vtkRectilinearGridToPolyDataFilter;};
   const char *GetClassName() {return "vtkRectilinearGridToPolyDataFilter";};
 
   // Description:
-  // Get the output of this filter.
-  vtkPolyData *GetOutput() {return (vtkPolyData *)this->Output;};
+  // Set / get the input Grid or filter.
+  void SetInput(vtkRectilinearGrid *input);
+  vtkRectilinearGrid *GetInput();
 
 };
 

@@ -56,17 +56,17 @@ vtkImageMathematics::vtkImageMathematics()
 
 //----------------------------------------------------------------------------
 // The output extent is the intersection.
-void vtkImageMathematics::ExecuteImageInformation()
+void vtkImageMathematics::ExecuteInformation()
 {
   int ext[6], *ext2, idx;
 
-  this->Inputs[0]->GetWholeExtent(ext);
+  this->GetInput(0)->GetWholeExtent(ext);
   // two input take intersection
   if (this->Operation == VTK_ADD || this->Operation == VTK_SUBTRACT || 
       this->Operation == VTK_MULTIPLY || this->Operation == VTK_DIVIDE ||
       this->Operation == VTK_MIN || this->Operation == VTK_MAX || this->Operation == VTK_ATAN2) 
     {
-    ext2 = this->Inputs[1]->GetWholeExtent();
+    ext2 = this->GetInput(1)->GetWholeExtent();
     for (idx = 0; idx < 3; ++idx)
       {
       if (ext2[idx*2] > ext[idx*2])
@@ -80,7 +80,7 @@ void vtkImageMathematics::ExecuteImageInformation()
       }
     }
   
-  this->Output->SetWholeExtent(ext);
+  this->GetOutput()->SetWholeExtent(ext);
 }
 
 

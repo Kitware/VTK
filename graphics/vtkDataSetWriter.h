@@ -49,7 +49,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkDataWriter.h"
 #include "vtkImageToStructuredPoints.h"
-#include "vtkImageCache.h"
 
 class VTK_EXPORT vtkDataSetWriter : public vtkDataWriter
 {
@@ -62,15 +61,11 @@ public:
   // Description:
   // Set / get the input data or filter.
   void SetInput(vtkDataSet *input);
-  void SetInput(vtkImageCache *cache)
+  void SetInput(vtkImageData *cache)
     {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
     this->SetInput(tmp->GetOutput()); tmp->Delete();}
-  vtkDataSet *GetInput() {return (vtkDataSet *)this->Input;};
+  vtkDataSet *GetInput();
 
-  // Description:
-  // For legacy compatibility. Do not use.
-  void SetInput(vtkDataSet &input) {this->SetInput(&input);};
-  
 protected:
   void WriteData();
 

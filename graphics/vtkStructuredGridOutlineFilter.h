@@ -56,8 +56,18 @@ public:
     return new vtkStructuredGridOutlineFilter;};
   const char *GetClassName() {return "vtkStructuredGridOutlineFilter";};
 
+  //========================== Streaming stuff ===========================
+  
+  // Sets the inputs UpdatePiece.
+  void UpdateInformation();
+
 protected:
+  int GetNumberOfStreamDivisions();
+  int ComputeDivisionExtents(vtkDataObject *output, int idx, int NumDivisions);
+  void StreamExecuteStart();
   void Execute();
+
+  void ConvertPiece(int piece, int numPieces, int &start, int &end);
 };
 
 #endif

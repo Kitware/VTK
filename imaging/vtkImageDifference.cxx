@@ -110,14 +110,14 @@ vtkImageDifference::vtkImageDifference()
 
 //----------------------------------------------------------------------------
 // This method computes the input extent necessary to generate the output.
-void vtkImageDifference::ComputeRequiredInputUpdateExtent(int inExt[6],
+void vtkImageDifference::ComputeInputUpdateExtent(int inExt[6],
 							  int outExt[6],
 							  int whichInput)
 {
   int *wholeExtent;
   int idx;
 
-  wholeExtent = this->Inputs[whichInput]->GetWholeExtent();
+  wholeExtent = this->GetInput(whichInput)->GetWholeExtent();
   
   memcpy(inExt,outExt,6*sizeof(int));
   
@@ -338,7 +338,7 @@ void vtkImageDifference::ThreadedExecute(vtkImageData **inData,
 //----------------------------------------------------------------------------
 // Make sure both the inputs are the same size. Doesn't really change 
 // the output. Just performs a sanity check
-void vtkImageDifference::ExecuteImageInformation()
+void vtkImageDifference::ExecuteInformation()
 {
   int *in1Ext, *in2Ext;
   
@@ -346,18 +346,18 @@ void vtkImageDifference::ExecuteImageInformation()
   // we require that input 1 be set.
   if ( ! this->Inputs[0] || ! this->Inputs[1])
     {
-    vtkErrorMacro(<< "ExecuteImageInformation: Input is not set.");
+    vtkErrorMacro(<< "ExecuteInformation: Input is not set.");
     return;
     }
   
-  in1Ext = this->Inputs[0]->GetWholeExtent();
-  in2Ext = this->Inputs[1]->GetWholeExtent();
+  in1Ext = this->GetInput(0)->GetWholeExtent();
+  in2Ext = this->GetInput(1)->GetWholeExtent();
 
   if (in1Ext[0] != in2Ext[0] || in1Ext[1] != in2Ext[1] || 
       in1Ext[2] != in2Ext[2] || in1Ext[3] != in2Ext[3] || 
       in1Ext[4] != in2Ext[4] || in1Ext[5] != in2Ext[5])
     {
-    vtkErrorMacro("ExecuteImageInformation: Input are not the same size.");
+    vtkErrorMacro("ExecuteInformation: Input are not the same size.");
     return;
     }
 }

@@ -86,7 +86,7 @@ vtkPriorityQueue::~vtkPriorityQueue()
 void vtkPriorityQueue::Insert(float priority, int id)
 {
   int i, idx;
-  static vtkPriorityItem temp;
+  vtkPriorityItem temp;
 
   // check and make sure item hasn't been inserted before
   if ( id <= this->ItemLocation->GetMaxId() && 
@@ -142,7 +142,7 @@ int vtkPriorityQueue::Pop(int location)
 int vtkPriorityQueue::Pop(float &priority, int location)
 {
   int id, i, j, idx;
-  static vtkPriorityItem temp;
+  vtkPriorityItem temp;
 
   if ( this->MaxId < 0 )
     {

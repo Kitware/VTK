@@ -51,10 +51,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageMapToRGBA_h
 
 
-#include "vtkImageFilter.h"
+#include "vtkImageToImageFilter.h"
 #include "vtkScalarsToColors.h"
 
-class VTK_EXPORT vtkImageMapToRGBA : public vtkImageFilter
+class VTK_EXPORT vtkImageMapToRGBA : public vtkImageToImageFilter
 {
 public:
   vtkImageMapToRGBA();
@@ -69,7 +69,7 @@ public:
 protected:
   vtkScalarsToColors *LookupTable;
   
-  void ExecuteImageInformation();
+  void ExecuteInformation();
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
 		       int extent[6], int id);
 };

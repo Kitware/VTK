@@ -56,16 +56,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkInterpolateDataSetAttributes_h
 #define __vtkInterpolateDataSetAttributes_h
 
-#include "vtkFilter.h"
+#include "vtkDataSetToDataSetFilter.h"
 #include "vtkDataSetCollection.h"
 
-class vtkPolyData;
-class vtkStructuredPoints;
-class vtkStructuredGrid;
-class vtkUnstructuredGrid;
-class vtkRectilinearGrid;
-
-class VTK_EXPORT vtkInterpolateDataSetAttributes : public vtkFilter
+class VTK_EXPORT vtkInterpolateDataSetAttributes : public vtkDataSetToDataSetFilter
 {
 public:
   vtkInterpolateDataSetAttributes();
@@ -79,70 +73,21 @@ public:
   void AddInput(vtkDataSet *in);
 
   // Description:
-  // Remove a dataset from the list of data to interpolate.
-  void RemoveInput(vtkDataSet *in);
-
-  // Description:
   // Return the list of inputs to this filter.
-  vtkDataSetCollection *GetInputList() {return this->InputList;}
-
-  // Description:
-  // Update input to this filter and the filter itself. Note that we are 
-  // overloading this method because the output is an abstract dataset type
-  // and there are multiple inputs. This requires special treatment.
-  void Update();
-
-  // Description:
-  // Get the output of this filter. If output is NULL then input
-  // hasn't been set which is necessary for abstract objects.
-  vtkDataSet *GetOutput() {return (vtkDataSet *)this->Output;};
-
-  // Description:
-  // Get the output as vtkPolyData.
-  vtkPolyData *GetPolyDataOutput();
-
-  // Description:
-  // Get the output as vtkStructuredPoints.
-  vtkStructuredPoints *GetStructuredPointsOutput();
-
-  // Description:
-  // Get the output as vtkStructuredGrid.
-  vtkStructuredGrid *GetStructuredGridOutput();
-
-  // Description:
-  // Get the output as vtkUnstructuredGrid.
-  vtkUnstructuredGrid *GetUnstructuredGridOutput();
-
-  // Description:
-  // Get the output as vtkRectilinearGrid. 
-  vtkRectilinearGrid *GetRectilinearGridOutput();
+  vtkDataSetCollection *GetInputList();
   
   // Description:
   // Specify interpolation parameter t.
   vtkSetClampMacro(T,float,0.0,VTK_LARGE_FLOAT);
   vtkGetMacro(T,float);
 
-  // Description:
-  // Handle the source/data loop.
-  void UnRegister(vtkObject *o);
-
-  // Description:
-  // Test to see if this object is in a reference counting loop.
-  virtual int InRegisterLoop(vtkObject *);
-
 protected:
   void Execute();
-
+  int ComputeInputUpdateExtents(vtkDataObject *output);
+  
   vtkDataSetCollection *InputList; // list of data sets to interpolate 
   float T; // interpolation parameter
 
-  // objects used to support the retrieval of output
-  vtkPolyData *PolyData;
-  vtkStructuredPoints *StructuredPoints;
-  vtkStructuredGrid *StructuredGrid;
-  vtkUnstructuredGrid *UnstructuredGrid;
-  vtkRectilinearGrid *RectilinearGrid;
-  
 };
 
 #endif

@@ -50,9 +50,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageAccumulate_h
 
 
-#include "vtkImageFilter.h"
+#include "vtkImageToImageFilter.h"
 
-class VTK_EXPORT vtkImageAccumulate : public vtkImageFilter
+class VTK_EXPORT vtkImageAccumulate : public vtkImageToImageFilter
 {
 public:
   vtkImageAccumulate();
@@ -87,8 +87,8 @@ protected:
   float ComponentOrigin[3];
   int ComponentExtent[6];
 
-  void ExecuteImageInformation();
-  void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
+  void ExecuteInformation();
+  void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
   void Execute(vtkImageData *inData, vtkImageData *outData);
 };
 

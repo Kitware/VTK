@@ -64,6 +64,10 @@ public:
   void DeepCopy( vtkPiecewiseFunction *f );
 
   // Description:
+  // Return what type of dataset this is.
+  int GetDataObjectType() {return VTK_PIECEWISE_FUNCTION;};
+  
+  // Description:
   // Get the number of points used to specify the function
   int  GetSize();
 

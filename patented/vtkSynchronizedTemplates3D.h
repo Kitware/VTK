@@ -66,10 +66,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkSynchronizedTemplates3D_h
 #define __vtkSynchronizedTemplates3D_h
 
-#include "vtkStructuredPointsToPolyDataFilter.h"
+#include "vtkPolyDataSource.h"
+#include "vtkImageData.h"
 #include "vtkContourValues.h"
+#include "vtkMultiThreader.h"
 
-class VTK_EXPORT vtkSynchronizedTemplates3D : public vtkStructuredPointsToPolyDataFilter
+class VTK_EXPORT vtkSynchronizedTemplates3D : public vtkPolyDataSource
 {
 public:
   vtkSynchronizedTemplates3D();
@@ -78,7 +80,12 @@ public:
   ~vtkSynchronizedTemplates3D();
   const char *GetClassName() {return "vtkSynchronizedTemplates3D";};
   void PrintSelf(ostream& os, vtkIndent indent);
-
+  
+  // Description:
+  // Set/Get the source for the scalar data to contour.
+  void SetInput(vtkImageData *input);
+  vtkImageData *GetInput();
+  
   // Description:
   // Because we delegate to vtkContourValues
   unsigned long int GetMTime();
@@ -154,12 +161,62 @@ public:
   void GenerateValues(int numContours, float rangeStart, float rangeEnd)
     {this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);}
 
+  //-------- streaming stuff ------------
+
+  // Description:
+  // Needed by templated functions.
+  int *GetExecuteExtent() {return this->ExecuteExtent;}
+  int SplitExtent(int piece, int numPieces, int *ext);
+  int SplitExtent2(int piece, int numPieces, int *ext);
+  void ThreadedExecute(vtkImageData *data, int *exExt, int threadId);
+
+  // Description:
+  // Part of the streaming protocall.  This method returns the number of chunks
+  // required to meet the memory limit of the input.
+  int GetNumberOfStreamDivisions();
+
+  // Description:
+  // Get/Set the number of threads to create when rendering
+  vtkSetClampMacro( NumberOfThreads, int, 1, VTK_MAX_THREADS );
+  vtkGetMacro( NumberOfThreads, int );
+
+  // Description:
+  // Determines the chunk size fro streaming.  This filter will act like a collector:
+  // ask for many input pieces, but generate one output.  Limit is in KBytes
+  void SetInputMemoryLimit(unsigned long limit);
+  unsigned long GetInputMemoryLimit();
+
 protected:
-  void Execute();
   int ComputeNormals;
   int ComputeGradients;
   int ComputeScalars;
   vtkContourValues *ContourValues;
+
+  //------------ for streaming --------------
+  // default execute method breaks apart the execution and 
+  // calls StreamExecute multiple times..
+  void Execute();
+  void ExecuteInformation();
+  void StreamExecuteStart();
+  void StreamExecuteEnd();
+
+  // Description:
+  // Part of the streaming protocall.  This method sets the UpdateExtent of the 
+  // input and sets the ExecuteExtent for this filter.
+  int ComputeDivisionExtents(vtkDataObject *output, int idx, int numPieces);
+
+  // Stuff for multithreading
+  // this may be pushed into vtkFilter superclass
+  int ExecuteExtent[6];
+  // I don't think this is used
+  int MinimumPieceSize[3];
+  
+  int NumberOfThreads;
+  vtkMultiThreader *Threader;
+  // temporary outputs
+  vtkPolyData *Threads[VTK_MAX_THREADS];
+  void InitializeOutput(int *ext,vtkPolyData *o);
+  
 };
 
 

@@ -50,9 +50,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageLogarithmicScale_h
 
 
-#include "vtkImageFilter.h"
+#include "vtkImageToImageFilter.h"
 
-class VTK_EXPORT vtkImageLogarithmicScale : public vtkImageFilter
+class VTK_EXPORT vtkImageLogarithmicScale : public vtkImageToImageFilter
 {
 public:
   vtkImageLogarithmicScale();

@@ -65,9 +65,25 @@ void vtkOutlineFilter::Execute()
   // Let OutlineSource do all the work
   //
 
-  this->OutlineSource->SetBounds (((vtkDataSet *)this->Input)->GetBounds());
-  this->OutlineSource->Update ();
+  this->OutlineSource->SetBounds(this->GetInput()->GetBounds());
+  this->OutlineSource->Update();
 
-  output->CopyStructure (this->OutlineSource->GetOutput ());
+  output->CopyStructure(this->OutlineSource->GetOutput());
 
+}
+
+
+void vtkOutlineFilter::ExecuteInformation()
+{
+  vtkPolyData *output = this->GetOutput();
+  
+  vtkDebugMacro(<< "Creating dataset outline");
+
+  //
+  // Let OutlineSource do all the work
+  //
+
+  this->OutlineSource->UpdateInformation();
+  output->SetEstimatedMemorySize(
+    this->OutlineSource->GetOutput()->GetEstimatedMemorySize());
 }

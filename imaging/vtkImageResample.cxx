@@ -39,7 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkImageCache.h"
+
 #include "vtkImageResample.h"
 
 
@@ -110,13 +110,13 @@ float vtkImageResample::GetAxisMagnificationFactor(int axis)
   if (this->MagnificationFactors[axis] == 0.0)
     {
     float *inputSpacing;
-    if ( ! this->Input)
+    if ( ! this->GetInput())
       {
       vtkErrorMacro("GetMagnificationFactor: Input not set.");
       return 0.0;
       }
-    this->Input->UpdateImageInformation();
-    inputSpacing = this->Input->GetSpacing();
+    this->GetInput()->UpdateInformation();
+    inputSpacing = this->GetInput()->GetSpacing();
     this->MagnificationFactors[axis] = 
       inputSpacing[axis] / this->OutputSpacing[axis];
     
@@ -135,8 +135,8 @@ float vtkImageResample::GetAxisMagnificationFactor(int axis)
 //----------------------------------------------------------------------------
 // This method computes the Region of input necessary to generate outRegion.
 // It assumes offset and size are multiples of Magnify Factors.
-void vtkImageResample::ComputeRequiredInputUpdateExtent(int inExt[6], 
-							int outExt[6])
+void vtkImageResample::ComputeInputUpdateExtent(int inExt[6], 
+						int outExt[6])
 {
   int min, max, axis;
   float factor;
@@ -144,7 +144,7 @@ void vtkImageResample::ComputeRequiredInputUpdateExtent(int inExt[6],
   axis = this->Iteration;
   factor = this->GetAxisMagnificationFactor(axis);
 
-  vtkDebugMacro("ComputeRequiredInputUpdateExtent (axis " << axis 
+  vtkDebugMacro("ComputeInputUpdateExtent (axis " << axis 
 		<< ") factor " << factor);
   
   memcpy(inExt, outExt, 6 * sizeof(int));
@@ -162,17 +162,18 @@ void vtkImageResample::ComputeRequiredInputUpdateExtent(int inExt[6],
 
 //----------------------------------------------------------------------------
 // Computes any global image information associated with regions.
-void vtkImageResample::ExecuteImageInformation() 
+void vtkImageResample::ExecuteInformation(vtkImageData *inData, 
+					  vtkImageData *outData) 
 {
   int wholeMin, wholeMax, axis, ext[6];
   float spacing[3], factor;
 
   axis = this->Iteration;
-  this->Input->GetWholeExtent(ext);
+  inData->GetWholeExtent(ext);
   wholeMin = ext[axis*2];
   wholeMax = ext[axis*2+1];
   
-  this->Input->GetSpacing(spacing);
+  inData->GetSpacing(spacing);
 
   // Scale the output extent
   factor = this->GetAxisMagnificationFactor(axis);
@@ -184,8 +185,8 @@ void vtkImageResample::ExecuteImageInformation()
 
   ext[axis*2] = wholeMin;
   ext[axis*2+1] = wholeMax;
-  this->Output->SetWholeExtent(ext);
-  this->Output->SetSpacing(spacing);
+  outData->SetWholeExtent(ext);
+  outData->SetSpacing(spacing);
   
   // just in case  the input spacing has changed.
   if (this->OutputSpacing[axis] != 0.0)
@@ -316,7 +317,7 @@ void vtkImageResample::ThreadedExecute(vtkImageData *inData,
   int inExt[6];
 
   outPtr = outData->GetScalarPointerForExtent(outExt);
-  this->ComputeRequiredInputUpdateExtent(inExt,outExt);
+  this->ComputeInputUpdateExtent(inExt,outExt);
   inPtr = inData->GetScalarPointerForExtent(inExt);
   
   // this filter expects that input is the same type as output.

@@ -90,7 +90,7 @@ protected:
   short Depth;
   
   virtual void ComputeDataIncrements();
-  virtual void UpdateImageInformation();
+  virtual void UpdateInformation();
   virtual void Execute(vtkImageData *out);
   
 };

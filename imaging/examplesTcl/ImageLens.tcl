@@ -29,7 +29,7 @@ vtkImageEllipsoidSource mask
 mask SetRadius 40 40 30000
 mask SetCenter 100 100 0
 # set the correct size
-cast UpdateImageInformation
+cast UpdateInformation
 mask SetWholeExtent 0 511 0 255 0 0
 
 vtkImageMask clip1

@@ -79,13 +79,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkSpatialRepresentationFilter_h
 #define __vtkSpatialRepresentationFilter_h
 
-#include "vtkDataSetFilter.h"
-#include "vtkPolyData.h"
+#include "vtkPolyDataSource.h"
 #include "vtkLocator.h"
+#include "vtkImageToStructuredPoints.h"
 
 #define VTK_MAX_SPATIAL_REP_LEVEL 24
 
-class VTK_EXPORT vtkSpatialRepresentationFilter : public vtkDataSetFilter
+class VTK_EXPORT vtkSpatialRepresentationFilter : public vtkPolyDataSource
 {
 public:
   vtkSpatialRepresentationFilter();
@@ -105,13 +105,13 @@ public:
   vtkGetMacro(Level,int);
   
   // Description:
-  // Returns leaf nodes of the spatial representation.
-  vtkPolyData *GetOutput();
-
-  // Description:
   // A special form of the GetOutput() method that returns multiple outputs.
   vtkPolyData *GetOutput(int level);
 
+  // Description:
+  // Output of terminal nodes/leaves.
+  vtkPolyData *GetOutput();  
+  
   // Description:
   // Reset requested output levels
   void ResetOutput();
@@ -120,6 +120,13 @@ public:
   // Update input to this filter and the filter itself.
   void Update();
 
+  // Description:
+  // Set / get the input data or filter.
+  virtual void SetInput(vtkDataSet *input);
+  virtual void SetInput(vtkImageData *cache)
+    {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
+    this->SetInput(tmp->GetOutput()); tmp->Delete();}
+  vtkDataSet *GetInput();
 
 protected:
   void Execute();
@@ -129,7 +136,6 @@ protected:
   int TerminalNodesRequested;
 
   vtkLocator *SpatialRepresentation;
-  vtkPolyData *OutputList[VTK_MAX_SPATIAL_REP_LEVEL+1];
 };
 
 #endif

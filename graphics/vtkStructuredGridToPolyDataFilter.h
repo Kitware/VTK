@@ -49,20 +49,20 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkStructuredGridToPolyDataFilter_h
 #define __vtkStructuredGridToPolyDataFilter_h
 
-#include "vtkStructuredGridFilter.h"
-#include "vtkPolyData.h"
+#include "vtkPolyDataSource.h"
+#include "vtkStructuredGrid.h"
 
-class VTK_EXPORT vtkStructuredGridToPolyDataFilter : public vtkStructuredGridFilter
+class VTK_EXPORT vtkStructuredGridToPolyDataFilter : public vtkPolyDataSource
 {
 public:
-  vtkStructuredGridToPolyDataFilter();
   static vtkStructuredGridToPolyDataFilter *New() {
     return new vtkStructuredGridToPolyDataFilter;};
   const char *GetClassName() {return "vtkStructuredGridToPolyDataFilter";};
 
   // Description:
-  // Get the output of this filter.
-  vtkPolyData *GetOutput() {return (vtkPolyData *)this->Output;};
+  // Set / get the input Grid or filter.
+  void SetInput(vtkStructuredGrid *input);
+  vtkStructuredGrid *GetInput();
 
 };
 

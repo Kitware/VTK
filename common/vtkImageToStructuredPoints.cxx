@@ -40,10 +40,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkImageCache.h"
 #include "vtkImageToStructuredPoints.h"
 #include "vtkScalars.h"
-
+#include "vtkStructuredPoints.h"
 
 //----------------------------------------------------------------------------
 vtkImageToStructuredPoints::vtkImageToStructuredPoints()
@@ -56,11 +55,7 @@ vtkImageToStructuredPoints::vtkImageToStructuredPoints()
     this->Extent[idx*2+1] = VTK_LARGE_INTEGER;
     }
 
-  this->Input = NULL;
-  this->VectorInput = NULL;
-
-  this->Output = vtkImageData::New();
-  this->Output->SetSource(this);
+  this->SetOutput(0,vtkStructuredPoints::New());
 }
 
 
@@ -68,17 +63,6 @@ vtkImageToStructuredPoints::vtkImageToStructuredPoints()
 //----------------------------------------------------------------------------
 vtkImageToStructuredPoints::~vtkImageToStructuredPoints()
 {
-  if (this->Input) 
-    {
-    this->Input->UnRegister(this);
-    this->Input = NULL;
-    }
-  
-  if (this->VectorInput) 
-    {
-    this->VectorInput->UnRegister(this);
-    this->VectorInput = NULL;
-    }
 }
 
 
@@ -87,25 +71,55 @@ void vtkImageToStructuredPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkSource::PrintSelf(os,indent);
 
-  if (this->Input)
-    {
-    os << indent << "Input: (" << this->Input << ")\n";
-    }
-  else
-    {
-    os << indent << "Input: (none)\n";
-    }
-  if (this->VectorInput)
-    {
-    os << indent << "VectorInput: (" << this->VectorInput << ")\n";
-    }
-  else
-    {
-    os << indent << "VectorInput: (none)\n";
-    }
   os << indent << "Extent: (" << this->Extent[0] << ", " << this->Extent[1] 
      << ", " << this->Extent[2] << ", " << this->Extent[3] 
      << ", " << this->Extent[4] << ", " << this->Extent[5] << ")\n";
+}
+
+//----------------------------------------------------------------------------
+vtkStructuredPoints *vtkImageToStructuredPoints::GetOutput()
+{
+  if (this->NumberOfOutputs < 1)
+    {
+    return NULL;
+    }
+  
+  return (vtkStructuredPoints *)(this->Outputs[0]);
+}
+
+//----------------------------------------------------------------------------
+void vtkImageToStructuredPoints::SetInput(vtkImageData *input)
+{
+  this->vtkProcessObject::SetInput(0, input);
+}
+
+//----------------------------------------------------------------------------
+vtkImageData *vtkImageToStructuredPoints::GetInput()
+{
+  if (this->NumberOfInputs < 1)
+    {
+    return NULL;
+    }
+  
+  return (vtkImageData *)(this->Inputs[0]);
+}
+
+
+//----------------------------------------------------------------------------
+void vtkImageToStructuredPoints::SetVectorInput(vtkImageData *input)
+{
+  this->vtkProcessObject::SetInput(1, input);
+}
+
+//----------------------------------------------------------------------------
+vtkImageData *vtkImageToStructuredPoints::GetVectorInput()
+{
+  if (this->NumberOfInputs < 2)
+    {
+    return NULL;
+    }
+  
+  return (vtkImageData *)(this->Inputs[1]);
 }
 
 
@@ -149,149 +163,45 @@ void vtkImageToStructuredPoints::GetExtent(int num, int *extent)
     extent[idx] = this->Extent[idx];
     }
   
-}
+}  
 
-  
-
-//----------------------------------------------------------------------------
-void vtkImageToStructuredPoints::Update()
-{
-  unsigned long sInputMTime = 0;
-  unsigned long vInputMTime = 0;
-  
-  if ( ! this->Input)
-    {
-    vtkErrorMacro("Update: Input Not Set!");
-    return;
-    }
-  
-  sInputMTime = this->Input->GetPipelineMTime();
-  if (this->VectorInput)
-    {
-    vInputMTime = this->VectorInput->GetPipelineMTime();
-    }
-  if ((sInputMTime > this->ExecuteTime) || 
-      (vInputMTime > this->ExecuteTime) ||
-      this->GetMTime() > this->ExecuteTime)
-    {
-    vtkDebugMacro(<< "Update: Condition satisfied, executeTime = " 
-    << this->ExecuteTime
-    << ", modifiedTime = " << this->GetMTime() 
-    << ", scalar input MTime = " << sInputMTime
-    << ", released = " << this->Output->GetDataReleased());
-    
-    if ( this->StartMethod )
-      {
-      (*this->StartMethod)(this->StartMethodArg);
-      }
-    this->Output->Initialize(); //clear output
-    this->Execute();
-    this->ExecuteTime.Modified();
-    this->SetDataReleased(0);
-    if ( this->EndMethod )
-      {
-      (*this->EndMethod)(this->EndMethodArg);
-      }
-    }
-
-  if (this->Input->ShouldIReleaseData())
-    {
-    this->Input->ReleaseData();
-    }
-  if (this->VectorInput && this->VectorInput->ShouldIReleaseData())
-    {
-    this->VectorInput->ReleaseData();
-    }
-
-}
 
 
 //----------------------------------------------------------------------------
 void vtkImageToStructuredPoints::Execute()
 {
-  int extent[6];
-  float origin[3];
-  float spacing[3];
   int *uExtent, *wExtent;
-  
-  vtkImageData *output = (vtkImageData *)(this->Output);
-  vtkImageData *data;
-  vtkImageData *vData;
-  
-  // Get the extent with z axis.
-  this->GetExtent(3,extent);
 
-  // Fix the size of the cache (for streaming)
-  this->Input->UpdateImageInformation();
-  this->Input->SetUpdateExtent(extent);
-  if (this->VectorInput)
-    {
-    this->VectorInput->UpdateImageInformation();
-    this->VectorInput->SetUpdateExtent(extent);
-    vData = this->VectorInput->UpdateAndReturnData();
-    if (!vData)
-      {
-      vtkErrorMacro("Unable to generate data!");
-      return;
-      }
-    }
+  int idxX, idxY, idxZ, maxX, maxY, maxZ;
+  int inIncX, inIncY, inIncZ, rowLength;
+  unsigned char *inPtr1, *inPtr, *outPtr;
   
-  // we ignore memory limitations since we are going to structured point
-  data = this->Input->UpdateAndReturnData();
+  vtkStructuredPoints *output = this->GetOutput();
+  vtkImageData *data = this->GetInput();
+  vtkImageData *vData = this->GetVectorInput();
   
   if (!data)
     {
     vtkErrorMacro("Unable to generate data!");
     return;
     }
-  
-  // setup the structured points
-  uExtent = this->Input->GetUpdateExtent();
-  
+
+  uExtent = output->GetUpdateExtent();
   output->SetExtent(uExtent);
-  output->SetScalarType(data->GetScalarType());
-  output->SetNumberOfScalarComponents(data->GetNumberOfScalarComponents());
-  output->SetDimensions(uExtent[1] - uExtent[0] + 1,
-			uExtent[3] - uExtent[2] + 1,
-			uExtent[5] - uExtent[4] + 1);
-  output->SetSpacing(data->GetSpacing());
-
-  data->GetSpacing(spacing);
-  data->GetOrigin(origin);
-
-  origin[0] += (float)(uExtent[0]) * spacing[0]; 
-  origin[1] += (float)(uExtent[2]) * spacing[1]; 
-  origin[2] += (float)(uExtent[4]) * spacing[2];
-
-  output->SetOrigin(origin);
-  wExtent = data->GetExtent();
   
   // if the data extent matches the update extent then just pass the data
   // otherwise we must reformat and copy the data
+  wExtent = data->GetExtent();
   if (wExtent[0] == uExtent[0] && wExtent[1] == uExtent[1] &&
       wExtent[2] == uExtent[2] && wExtent[3] == uExtent[3] &&
       wExtent[4] == uExtent[4] && wExtent[5] == uExtent[5])
     {
     output->GetPointData()->PassData(data->GetPointData());
-    if (this->VectorInput)
-      {
-      vtkVectors *fv = vtkVectors::New(vData->GetScalarType());
-      output->GetPointData()->SetVectors(fv);
-      fv->SetData(vData->GetPointData()->GetScalars()->GetData());
-      fv->Delete();
-      }
     }
   else
     {
-    unsigned char *inPtr = (unsigned char *)
-      data->GetScalarPointerForExtent(uExtent);
-    unsigned char *outPtr = (unsigned char *) output->GetScalarPointer();
-    
-    int idxX, idxY, idxZ;
-    int maxX, maxY, maxZ;
-    int inIncX, inIncY, inIncZ;
-    int rowLength;
-    unsigned char *inPtr1;
+    inPtr = (unsigned char *) data->GetScalarPointerForExtent(uExtent);
+    outPtr = (unsigned char *) output->GetScalarPointer();
     
     // Get increments to march through data 
     data->GetIncrements(inIncX, inIncY, inIncZ);
@@ -315,37 +225,126 @@ void vtkImageToStructuredPoints::Execute()
 	outPtr += rowLength;
 	}
       }
-
-    if (this->VectorInput)
+    }
+  
+    
+  if (!vData)
+    {
+    return;
+    }  
+  // if the data extent matches the update extent then just pass the data
+  // otherwise we must reformat and copy the data
+  wExtent = vData->GetExtent();
+  if (wExtent[0] == uExtent[0] && wExtent[1] == uExtent[1] &&
+      wExtent[2] == uExtent[2] && wExtent[3] == uExtent[3] &&
+      wExtent[4] == uExtent[4] && wExtent[5] == uExtent[5])
+    {
+    vtkVectors *fv = vtkVectors::New(vData->GetScalarType());
+    output->GetPointData()->SetVectors(fv);
+    fv->SetData(vData->GetPointData()->GetScalars()->GetData());
+    fv->Delete();
+    }
+  else
+    {
+    vtkVectors *fv = vtkVectors::New(vData->GetScalarType());
+    output->GetPointData()->SetVectors(fv);
+    float *inPtr2 = (float *)(vData->GetScalarPointerForExtent(uExtent));
+    
+    fv->SetNumberOfVectors((maxZ+1)*(maxY+1)*(maxX+1));
+    vData->GetContinuousIncrements(uExtent, inIncX, inIncY, inIncZ);
+    int numComp = vData->GetNumberOfScalarComponents();
+    int idx = 0;
+    
+    // Loop through ouput pixels
+    for (idxZ = 0; idxZ <= maxZ; idxZ++)
       {
-      vtkVectors *fv = vtkVectors::New(vData->GetScalarType());
-      output->GetPointData()->SetVectors(fv);
-      float *inPtr2 = (float *)(vData->GetScalarPointerForExtent(uExtent));
-
-      fv->SetNumberOfVectors((maxZ+1)*(maxY+1)*(maxX+1));
-      vData->GetContinuousIncrements(uExtent, inIncX, inIncY, inIncZ);
-      int numComp = vData->GetNumberOfScalarComponents();
-      int idx = 0;
-
-      // Loop through ouput pixels
-      for (idxZ = 0; idxZ <= maxZ; idxZ++)
+      for (idxY = 0; idxY <= maxY; idxY++)
 	{
-	for (idxY = 0; idxY <= maxY; idxY++)
+	for (idxX = 0; idxX <= maxX; idxX++)
 	  {
-	  for (idxX = 0; idxX <= maxX; idxX++)
-	    {
-	    fv->SetVector(idx,inPtr2);
-	    inPtr2 += numComp;
-	    idx++;
-	    }
-	  inPtr2 += inIncY;
+	  fv->SetVector(idx,inPtr2);
+	  inPtr2 += numComp;
+	  idx++;
 	  }
-	inPtr2 += inIncZ;
+	inPtr2 += inIncY;
 	}
-      fv->Delete();
+      inPtr2 += inIncZ;
       }
+    fv->Delete();
     }
 }
+
+//----------------------------------------------------------------------------
+// Copy WholeExtent, Spacing and Origin.
+void vtkImageToStructuredPoints::ExecuteInformation()
+{
+  vtkImageData *input = this->GetInput();
+  vtkImageData *vInput = this->GetVectorInput();
+  vtkStructuredPoints *output = this->GetOutput();
+  int whole[6], *tmp;
+  float *spacing, *origin;
+  
+  if (output == NULL || input == NULL)
+    {
+    return;
+    }
+  
+  output->SetScalarType(input->GetScalarType());
+  output->SetNumberOfScalarComponents(input->GetNumberOfScalarComponents());
+  
+  // intersections for whole extent
+  input->GetWholeExtent(whole);
+  if (vInput)
+    {
+    tmp = vInput->GetWholeExtent();
+    if (tmp[0] > whole[0]) {whole[0] = tmp[0];}
+    if (tmp[2] > whole[2]) {whole[2] = tmp[2];}
+    if (tmp[4] > whole[4]) {whole[4] = tmp[4];}
+    if (tmp[1] < whole[1]) {whole[1] = tmp[1];}
+    if (tmp[3] < whole[1]) {whole[3] = tmp[3];}
+    if (tmp[5] < whole[1]) {whole[5] = tmp[5];}
+    }
+  // I would like to get rid of the clip feature of image to structured points.
+  // (now that structured points implements UpdateExtents).
+  if (this->Extent[0] > whole[0]) {whole[0] = this->Extent[0];}
+  if (this->Extent[2] > whole[2]) {whole[2] = this->Extent[2];}
+  if (this->Extent[4] > whole[4]) {whole[4] = this->Extent[4];}
+  if (this->Extent[1] < whole[1]) {whole[1] = this->Extent[1];}
+  if (this->Extent[3] < whole[3]) {whole[3] = this->Extent[3];}
+  if (this->Extent[5] < whole[5]) {whole[5] = this->Extent[5];}
+  
+  spacing = input->GetSpacing();
+  origin = input->GetOrigin();
+  
+  
+  output->SetWholeExtent(whole);
+  // Now should Origin and Spacing really be part of information?
+  // How about xyx arrays in RectilinearGrid of Points in StructuredGrid?
+  output->SetOrigin(origin);
+  output->SetSpacing(spacing);
+}
+
+//----------------------------------------------------------------------------
+int vtkImageToStructuredPoints::ComputeInputUpdateExtents(vtkDataObject *data)
+{
+  vtkStructuredPoints *output = (vtkStructuredPoints*)data;
+  vtkImageData *input;
+  
+  input = this->GetInput();
+  if (input)
+    {
+    input->SetUpdateExtent(output->GetUpdateExtent());
+    }
+
+  input = this->GetVectorInput();
+  if (input)
+    {
+    input->SetUpdateExtent(output->GetUpdateExtent());
+    }
+  
+  return 1;
+}
+
 
 
 

@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkAbstractMapper_h
 #define __vtkAbstractMapper_h
 
-#include "vtkProcessObject.h"
+#include "vtkImageToStructuredPoints.h"
 
 class vtkWindow;
 class vtkDataSet;
@@ -103,15 +103,17 @@ public:
 
   // Description:
   // Return the Input of this mapper.
-  vtkDataSet *GetInput() {return this->Input;};
+  void SetInput(vtkDataSet *input);
+  void SetInput(vtkImageData *cache)
+    {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
+    this->SetInput(tmp->GetOutput()); tmp->Delete();}  
+  vtkDataSet *GetInput();
 
   // Description:
   // Get the time required to draw the geometry last time it was rendered
   vtkGetMacro( TimeToDraw, float );
 
 protected:
-  vtkDataSet *Input;
-
   float TimeToDraw;
 
   float Bounds[6];

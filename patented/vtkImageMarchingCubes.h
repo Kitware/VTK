@@ -60,7 +60,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // contours to generate a series of evenly spaced contour values.
 // This filter can stream, so that the entire volume need not be loaded at
 // once.  Streaming is controlled using the instance variable
-// InputMemroyLimit, which has units KBytes.
+// InputMemoryLimit, which has units KBytes.
 
 // .SECTION Caveats
 // This filter is specialized to volumes. If you are interested in 
@@ -73,10 +73,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkImageMarchingCubes_h
 #define __vtkImageMarchingCubes_h
 
-#include "vtkImageCache.h"
+#include "vtkImageData.h"
 #include "vtkPolyDataSource.h"
-#include "vtkStructuredPoints.h"
-#include "vtkStructuredPointsToImage.h"
 #include "vtkContourValues.h"
 
 class VTK_EXPORT vtkImageMarchingCubes : public vtkPolyDataSource
@@ -90,11 +88,8 @@ public:
   
   // Description:
   // Set/Get the source for the scalar data to contour.
-  vtkSetObjectMacro(Input, vtkImageCache);
-  vtkGetObjectMacro(Input, vtkImageCache);
-  void SetInput(vtkStructuredPoints *spts)
-    {vtkStructuredPointsToImage *tmp = spts->MakeStructuredPointsToImage();
-     this->SetInput(tmp->GetOutput()); tmp->Delete();}
+  void SetInput(vtkImageData *input);
+  vtkImageData *GetInput();
   
   // Methods to set contour values
   void SetValue(int i, float value);
@@ -159,7 +154,6 @@ public:
   vtkGetMacro(InputMemoryLimit, int);
 
 protected:
-  vtkImageCache *Input;
   int NumberOfSlicesPerChunk;
   int InputMemoryLimit;
 

@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageCache.h"
+
 #include "vtkImageTranslateExtent.h"
 
 
@@ -57,7 +57,7 @@ vtkImageTranslateExtent::vtkImageTranslateExtent()
 //----------------------------------------------------------------------------
 void vtkImageTranslateExtent::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageFilter::PrintSelf(os,indent);
+  vtkImageToImageFilter::PrintSelf(os,indent);
 
   os << indent << "Translation: (" << this->Translation[0]
      << "," << this->Translation[1] << "," << this->Translation[2] << endl;
@@ -68,14 +68,14 @@ void vtkImageTranslateExtent::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // Change the WholeExtent
-void vtkImageTranslateExtent::ExecuteImageInformation()
+void vtkImageTranslateExtent::ExecuteInformation()
 {
   int idx, extent[6];
   float *spacing, origin[3];
   
-  this->Input->GetWholeExtent(extent);
-  this->Input->GetOrigin(origin);
-  spacing = this->Input->GetSpacing();
+  this->GetInput()->GetWholeExtent(extent);
+  this->GetInput()->GetOrigin(origin);
+  spacing = this->GetInput()->GetSpacing();
 
   if ( ! this->Bypass)
     {
@@ -90,35 +90,36 @@ void vtkImageTranslateExtent::ExecuteImageInformation()
       }
     }
   
-  this->Output->SetWholeExtent(extent);
-  this->Output->SetOrigin(origin);
+  this->GetOutput()->SetWholeExtent(extent);
+  this->GetOutput()->SetOrigin(origin);
 }
 
 
 //----------------------------------------------------------------------------
 // This method simply copies by reference the input data to the output.
-void vtkImageTranslateExtent::InternalUpdate(vtkImageData *outData)
+void vtkImageTranslateExtent::InternalUpdate(vtkDataObject *data)
 {
-  vtkImageData *inData;
+  vtkImageData *inData, *outData = (vtkImageData*)(data);
   int extent[6], idx;
   
   // Make sure the Input has been set.
-  if ( ! this->Input)
+  if ( ! this->GetInput())
     {
     vtkErrorMacro(<< "Input is not set.");
     return;
     }
 
-  this->Output->GetUpdateExtent(extent);
+  this->GetOutput()->GetUpdateExtent(extent);
   for (idx = 0; idx < 3; ++idx)
     {
     extent[idx*2] -= this->Translation[idx];
     extent[idx*2+1] -= this->Translation[idx];
     }
   
-  this->Input->SetUpdateExtent(extent);
+  this->GetInput()->SetUpdateExtent(extent);
 
-  inData = this->Input->UpdateAndReturnData();
+  this->GetInput()->Update();
+  inData = this->GetInput();
   // since inData can be larger than update extent.
   inData->GetExtent(extent);
   for (idx = 0; idx < 3; ++idx)
@@ -130,9 +131,9 @@ void vtkImageTranslateExtent::InternalUpdate(vtkImageData *outData)
   outData->GetPointData()->PassData(inData->GetPointData());
   
   // release input data
-  if (this->Input->ShouldIReleaseData())
+  if (this->GetInput()->ShouldIReleaseData())
     {
-    this->Input->ReleaseData();
+    this->GetInput()->ReleaseData();
     }
 }
 

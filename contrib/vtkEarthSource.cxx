@@ -6840,7 +6840,7 @@ void vtkEarthSource::Execute()
   vtkCellArray *newPolys;
   float x[3], base[3];
   int Pts[4000];
-  vtkPolyData *output=(vtkPolyData *)this->Output;
+  vtkPolyData *output = this->GetOutput();
   int npts, land, offset;
   int actualpts, actualpolys;
   float scale = 1.0/30000.0;

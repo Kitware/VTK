@@ -39,7 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkImageCache.h"
+
 #include "vtkImageNonMaximumSuppression.h"
 
 
@@ -55,12 +55,12 @@ vtkImageNonMaximumSuppression::vtkImageNonMaximumSuppression()
 // This method is passed a region that holds the image extent of this filters
 // input, and changes the region to hold the image extent of this filters
 // output.
-void vtkImageNonMaximumSuppression::ExecuteImageInformation()
+void vtkImageNonMaximumSuppression::ExecuteInformation()
 {
   int extent[6];
   int idx;
   
-  this->Inputs[0]->GetWholeExtent(extent);
+  this->GetInput(0)->GetWholeExtent(extent);
   if ( ! this->HandleBoundaries)
     {
     // shrink output image extent.
@@ -71,23 +71,23 @@ void vtkImageNonMaximumSuppression::ExecuteImageInformation()
       }
     }
 
-  this->Output->SetNumberOfScalarComponents
-    (this->Inputs[0]->GetNumberOfScalarComponents());
+  this->GetOutput()->SetNumberOfScalarComponents
+    (this->GetInput(0)->GetNumberOfScalarComponents());
   
-  this->Output->SetWholeExtent(extent);
+  this->GetOutput()->SetWholeExtent(extent);
 }
 
 
 //----------------------------------------------------------------------------
 // This method computes the input extent necessary to generate the output.
 void vtkImageNonMaximumSuppression::
-ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6],
+ComputeInputUpdateExtent(int inExt[6], int outExt[6],
 				 int whichInput)
 {
   int *wholeExtent;
   int idx;
 
-  wholeExtent = this->Inputs[0]->GetWholeExtent();
+  wholeExtent = this->GetInput(0)->GetWholeExtent();
   memcpy(inExt,outExt,6*sizeof(int));
   if (whichInput == 1)
     {

@@ -52,12 +52,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageToStructuredPoints_h
 
 #include "vtkSource.h"
-#include "vtkImageData.h"
-#include "vtkImageCache.h"
+#include "vtkStructuredPoints.h"
+
 class vtkVectors;
 
 class VTK_EXPORT vtkImageToStructuredPoints : public vtkSource
-  {
+{
 public:
   vtkImageToStructuredPoints();
   ~vtkImageToStructuredPoints();
@@ -68,13 +68,13 @@ public:
   
   // Description:
   // Set/Get the input object from the image pipeline.
-  vtkSetObjectMacro(Input,vtkImageCache);
-  vtkGetObjectMacro(Input,vtkImageCache);
+  void SetInput(vtkImageData *input);
+  vtkImageData *GetInput();
 
   // Description:
   // Set/Get the input object from the image pipeline.
-  vtkSetObjectMacro(VectorInput,vtkImageCache);
-  vtkGetObjectMacro(VectorInput,vtkImageCache);
+  void SetVectorInput(vtkImageData *input);
+  vtkImageData *GetVectorInput();
 
   // Description:
   // Set/Get the extent to translate explicitely.
@@ -82,19 +82,15 @@ public:
   void GetExtent(int dim, int *extent);
 
   // Description:
-  // Perform the conversion.
-  void Update();
-  
-  // Description:
   // Get the output of this source.
-  vtkImageData *GetOutput() {return (vtkImageData *)this->Output;};
-
+  vtkStructuredPoints *GetOutput();
+  
 protected:
-  vtkImageCache *Input;
-  vtkImageCache *VectorInput;
   int Extent[6];
 
   void Execute();
+  void ExecuteInformation();
+  int ComputeInputUpdateExtents(vtkDataObject *data);
 };
 
 

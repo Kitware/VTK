@@ -51,8 +51,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTimerLog.h"
 #ifndef _WIN32
 #include <limits.h>     // for CLK_TCK
+#else
+#include <winsock.h>    // for Sleep?
 #endif
 
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include <time.h>
 
 // initialze the class variables
@@ -374,4 +379,56 @@ void vtkTimerLog::SetMaxEntries(int a)
 int vtkTimerLog::GetMaxEntries()
 {
   return vtkTimerLog::MaxEntries;
+}
+
+/* Number of milliseconds to sleep. */
+void vtkTimerLog::Sleep(int ms)
+{
+#ifdef _WIN32
+  Sleep(ms);
+#else  
+  static struct timeval delay;
+  static struct timeval tv1, tv2;
+  static struct timezone tz;
+    
+  //timePtr->sec = tv.tv_sec;
+  //timePtr->usec = tv.tv_usec;
+
+  gettimeofday(&tv1, &tz);
+
+  tv2 = tv1;
+  tv2.tv_sec += ms/1000;
+  tv2.tv_usec += (ms%1000)*1000;
+  if (tv2.tv_usec > 1000000) 
+    {
+    tv2.tv_usec -= 1000000;
+    tv2.tv_sec += 1;
+    }
+  while (1) 
+    {
+    if (tv1.tv_sec > tv2.tv_sec)
+      {
+      break;
+      }
+    if (tv1.tv_sec == tv2.tv_sec && tv1.tv_usec > tv2.tv_usec)
+      {
+      break;
+      }
+    // tv2 is after tv1 continue
+    if (tv1.tv_usec > tv2.tv_usec)
+      {
+      delay.tv_sec = tv2.tv_sec - tv1.tv_sec - 1;
+      delay.tv_usec = tv2.tv_usec - tv1.tv_usec + 1000000;
+      }
+    else
+      {
+      delay.tv_sec = tv2.tv_sec - tv1.tv_sec;
+      delay.tv_usec = tv2.tv_usec - tv1.tv_usec;
+      }
+
+    select(0, (SELECT_MASK *) 0, (SELECT_MASK *) 0,
+	   (SELECT_MASK *) 0, &delay);
+    gettimeofday(&tv1, &tz);
+    }
+#endif    
 }

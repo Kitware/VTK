@@ -99,7 +99,7 @@ public:
   void Update();
 
   void SetInput(vtkPolyData *input);
-  vtkPolyData *GetInput() {return (vtkPolyData *)this->Input;};
+  vtkPolyData *GetInput();
 
 protected:
   double  SurfaceArea;
@@ -111,7 +111,6 @@ protected:
   double  Ky;
   double  Kz;
   double  NormalizedShapeIndex;
-  vtkPolyData *Input;
   vtkTimeStamp ExecuteTime;
 
 };

@@ -61,13 +61,13 @@ void vtkImageSkeleton2D::SetNumberOfIterations(int num)
 // an output region.  Before this method is called "region" should have the 
 // extent of the output region.  After this method finishes, "region" should 
 // have the extent of the required input region.
-void vtkImageSkeleton2D::ComputeRequiredInputUpdateExtent(int *inExt, 
+void vtkImageSkeleton2D::ComputeInputUpdateExtent(int *inExt, 
 							  int *outExt)
 {
   int idx;
   int *wholeExtent;
   
-  wholeExtent = this->Input->GetWholeExtent();
+  wholeExtent = this->GetInput()->GetWholeExtent();
 
   inExt[4] = outExt[4];
   inExt[5] = outExt[5];
@@ -300,7 +300,7 @@ void vtkImageSkeleton2D::ThreadedExecute(vtkImageData *inData,
     return;
     }
   
-  this->ComputeRequiredInputUpdateExtent(inExt, outExt); 
+  this->ComputeInputUpdateExtent(inExt, outExt); 
 
   // Make a temporary copy of the input data
   tempData = vtkImageData::New();

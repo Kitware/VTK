@@ -64,9 +64,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkDataSetToDataSetFilter_h
 #define __vtkDataSetToDataSetFilter_h
 
-#include "vtkDataSetFilter.h"
+#include "vtkDataSetSource.h"
 #include "vtkDataSet.h"
-#include "vtkImageCache.h"
+#include "vtkImageToStructuredPoints.h"
 
 class vtkPolyData;
 class vtkStructuredPoints;
@@ -74,7 +74,7 @@ class vtkStructuredGrid;
 class vtkUnstructuredGrid;
 class vtkRectilinearGrid;
 
-class VTK_EXPORT vtkDataSetToDataSetFilter : public vtkDataSetFilter
+class VTK_EXPORT vtkDataSetToDataSetFilter : public vtkDataSetSource
 {
 
 public:
@@ -87,15 +87,9 @@ public:
   // Description:
   // Specify the input data or filter.
   void SetInput(vtkDataSet *input);
-  void SetInput(vtkImageCache *cache)
+  void SetInput(vtkImageData *cache)
     {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
     this->SetInput(tmp->GetOutput()); tmp->Delete();}
-
-  // Description:
-  // Update input to this filter and the filter itself. Note that we are 
-  // overloading this method because the output is an abstract dataset type.
-  // This requires special treatment.
-  void Update();
 
   // Description:
   // Get the output of this filter. If output is NULL then input
@@ -123,20 +117,27 @@ public:
   vtkRectilinearGrid *GetRectilinearGridOutput();
   
   // Description:
-  // Handle the source/data loop.
-  void UnRegister(vtkObject *o);
+  // Get the input data or filter.
+  vtkDataSet *GetInput();
 
   // Description:
-  // Test to see if this object is in a reference counting loop.
-  virtual int InRegisterLoop(vtkObject *);
-
+  // This method is called by the data object. It assumes UpdateInformation
+  // has been called.  vtkDataSetToDataSetFilter has a special version of
+  // this method because it needs to "CopyStructure" from input to output.
+  // Also, this version will not let subclasses initiate stremaing.
+  void InternalUpdate(vtkDataObject *output);
+  
 protected:
-  // objects used to support the retrieval of output
-  vtkPolyData *PolyData;
-  vtkStructuredPoints *StructuredPoints;
-  vtkStructuredGrid *StructuredGrid;
-  vtkUnstructuredGrid *UnstructuredGrid;
-  vtkRectilinearGrid *RectilinearGrid;
+
+  // Since we know Inputs[0] is the same type as Outputs[0] we can
+  // use CopyUpdateExtent of the data object to propagate extents.
+  // It the filter has more than one input, all bets are off.
+  // It is then up to the subclass to implement this method.
+  int ComputeInputUpdateExtents(vtkDataObject *output);
+
 };
 
 #endif
+
+
+

@@ -67,6 +67,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkStructuredGridToPolyDataFilter.h"
 #include "vtkContourValues.h"
+#include "vtkMultiThreader.h"
 
 class VTK_EXPORT vtkGridSynchronizedTemplates3D : public vtkStructuredGridToPolyDataFilter
 {
@@ -153,12 +154,60 @@ public:
   void GenerateValues(int numContours, float rangeStart, float rangeEnd)
     {this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);}
 
+  //-------- streaming stuff ------------
+
+  // Description:
+  // Needed by templated functions.
+  int *GetExecuteExtent() {return this->ExecuteExtent;}
+  int SplitExtent(int piece, int numPieces, int *ext);
+  void ThreadedExecute(int *exExt, int threadId);
+
+  // Description:
+  // Part of the streaming protocall.  This method returns the number of chunks
+  // required to meet the memory limit of the input.
+  int GetNumberOfStreamDivisions();
+
+  // Description:
+  // Get/Set the number of threads to create when rendering
+  vtkSetClampMacro( NumberOfThreads, int, 1, VTK_MAX_THREADS );
+  vtkGetMacro( NumberOfThreads, int );
+
+  // Description:
+  // This filter will initiate streaming so that no piece requested
+  // from the input will be larger than this value (KiloBytes).
+  void SetInputMemoryLimit(long limit);
+
 protected:
-  void Execute();
   int ComputeNormals;
   int ComputeGradients;
   int ComputeScalars;
   vtkContourValues *ContourValues;
+
+  //------------ for streaming --------------
+  // default execute method breaks apart the execution and 
+  // calls StreamExecute multiple times..
+  void Execute();
+  void StreamExecuteStart();
+  void StreamExecuteEnd();
+  // Description:
+  // Updates output: EstimatedMemorySize
+  void ExecuteInformation();
+
+  // Description:
+  // Part of the streaming protocall.  This method sets the UpdateExtent of the 
+  // input and sets the ExecuteExtent for this filter.
+  int ComputeDivisionExtents(vtkDataObject *output, int idx, int numPieces);
+
+  // Stuff for multithreading
+  // this may be pushed into vtkFilter superclass
+  int ExecuteExtent[6];
+  int MinimumPieceSize[3];
+  int NumberOfThreads;
+  vtkMultiThreader *Threader;
+  // temporary outputs
+  vtkPolyData *Threads[VTK_MAX_THREADS];
+  void InitializeOutput(int *ext,vtkPolyData *o);
+
 };
 
 

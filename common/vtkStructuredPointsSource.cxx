@@ -42,7 +42,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkStructuredPointsSource::vtkStructuredPointsSource()
 {
-  this->Output = vtkStructuredPoints::New();
-  this->Output->SetSource(this);
+  this->vtkSource::SetOutput(0,vtkStructuredPoints::New());
+  this->Outputs[0]->Delete();
 }
 
+//----------------------------------------------------------------------------
+// Specify the input data or filter.
+void vtkStructuredPointsSource::SetOutput(vtkStructuredPoints *output)
+{
+  this->vtkSource::SetOutput(0, output);
+}
+
+//----------------------------------------------------------------------------
+// Specify the input data or filter.
+vtkStructuredPoints *vtkStructuredPointsSource::GetOutput()
+{
+  if (this->NumberOfOutputs < 1)
+    {
+    return NULL;
+    }
+  
+  return (vtkStructuredPoints *)(this->Outputs[0]);
+}

@@ -70,9 +70,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkDataSetToDataObjectFilter_h
 #define __vtkDataSetToDataObjectFilter_h
 
-#include "vtkDataSetFilter.h"
+#include "vtkDataObjectSource.h"
+#include "vtkDataSet.h"
 
-class VTK_EXPORT vtkDataSetToDataObjectFilter : public vtkDataSetFilter
+class VTK_EXPORT vtkDataSetToDataObjectFilter : public vtkDataObjectSource
 {
 public:
   vtkDataSetToDataObjectFilter();
@@ -84,10 +85,6 @@ public:
   static vtkDataSetToDataObjectFilter *New() {
     return new vtkDataSetToDataObjectFilter;};
 
-  // Description:
-  // Get the output of this filter as a vtkDataObject.
-  vtkDataObject *GetOutput() {return this->Output;};
-  
   // Description:
   // Turn on/off the conversion of dataset geometry to a data object.
   vtkSetMacro(Geometry,int);
@@ -118,9 +115,15 @@ public:
   vtkGetMacro(CellData,int);
   vtkBooleanMacro(CellData,int);
 
+  // Description:
+  // Cast input to DataSet.
+  virtual void SetInput(vtkDataSet *input);
+  vtkDataSet *GetInput();
+  
 protected:
   void Execute(); //generate output data
-
+  int ComputeInputUpdateExtents(vtkDataObject *output);
+  
   int Geometry;
   int Topology;
   int PointData;

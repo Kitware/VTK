@@ -38,17 +38,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageCache.h"
+
 #include "vtkImageMirrorPad.h"
 
 
 
 //----------------------------------------------------------------------------
 // Just clip the request.
-void vtkImageMirrorPad::ComputeRequiredInputUpdateExtent(int inExt[6], 
+void vtkImageMirrorPad::ComputeInputUpdateExtent(int inExt[6], 
 							 int outExt[6])
 {
-  int *wExtent = this->Input->GetWholeExtent();
+  int *wExtent = this->GetInput()->GetWholeExtent();
   int idx;
   
   // initialize inExt

@@ -21,12 +21,9 @@ vtkFloatTCoords		GetTCoord	301 3
 vtkFloatVectors		GetVector	301 3
 vtkGeometryFilter	GetExtent	301 6
 vtkGraymap		GetColor	313 4
-vtkImageCache           GetBounds       301 6
-vtkImageCache           GetCenter       301 3
-vtkImageCache		GetDimensions	304 3
-vtkImageCache           GetUpdateExtent 304 6
-vtkImageCache           GetWholeExtent  304 6
-vtkImageCache		GetScalarRange	301 2
+vtkImageData            GetUpdateExtent 304 6
+vtkImageData            GetWholeExtent  304 6
+vtkImageSpatialFilter   GetKernelSize   304 4
 vtkImageExport		GetDataDimensions 304 3
 vtkImageExport		GetDataExtent   304 6
 vtkImageExport		GetDataSpacing  301 3
@@ -62,8 +59,12 @@ vtkViewport		GetSize		304 2
 vtkViewport		GetOrigin	304 2 	
 vtkWindow		GetPosition	304 2
 vtkWindow		GetSize		304 2
+vtkRectilinearGrid      GetUpdateExtent 304 6
+vtkRectilinearGrid      GetWholeExtent  304 6
 vtkStructuredGridGeometryFilter	GetExtent	301 6
 vtkStructuredGrid	GetPoint	301 3
+vtkStructuredGrid       GetUpdateExtent 304 6
+vtkStructuredGrid       GetWholeExtent  304 6
 vtkStructuredPointsGeometryFilter	GetExtent	301 6
 vtkScalars 		GetRange	301 2
 vtkScalarBarActor 	GetPosition2	301 2
@@ -80,3 +81,5 @@ vtkVectors		GetVector 	301 3
 vtkVolume		GetBounds	301 6
 
 vtkDFALeader		GetTextPosition 301 2
+
+

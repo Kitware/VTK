@@ -321,7 +321,7 @@ static void FixVectors(float **prev, float **current, int iv, int ix, int iy)
 
 void vtkHyperStreamline::Execute()
 {
-  vtkDataSet *input=(vtkDataSet *)this->Input;
+  vtkDataSet *input = this->GetInput();
   vtkPointData *pd=input->GetPointData();
   vtkScalars *inScalars;
   vtkTensors *inTensors;
@@ -603,12 +603,12 @@ void vtkHyperStreamline::BuildTube()
   float xT[3], sFactor, normal[3], w[3];
   float theta=2.0*vtkMath::Pi()/this->NumberOfSides;
   vtkPointData *outPD;
-  vtkDataSet *input=(vtkDataSet *)this->Input;
-  vtkPolyData *output=(vtkPolyData *)this->Output;
+  vtkDataSet *input = this->GetInput();
+  vtkPolyData *output = this->GetOutput();
   int iv, ix, iy, numIntPts;
-//
-// Initialize
-//
+  //
+  // Initialize
+  //
   vtkDebugMacro(<<"Creating hyperstreamline tube");
   if ( this->NumberOfStreamers <= 0 )
     {
@@ -621,9 +621,9 @@ void vtkHyperStreamline::BuildTube()
   iv = this->IntegrationEigenvector;
   ix = (iv+1) % 3;
   iy = (iv+2) % 3;
-//
-// Allocate
-//
+  //
+  // Allocate
+  //
   newPts  = vtkPoints::New();
   newPts ->Allocate(2500);
   if ( input->GetPointData()->GetScalars() )
@@ -638,9 +638,9 @@ void vtkHyperStreamline::BuildTube()
   newStrips = vtkCellArray::New();
   newStrips->Allocate(newStrips->EstimateSize(3*this->NumberOfStreamers,
                                               VTK_CELL_SIZE));
-//
-// Loop over all hyperstreamlines generating points
-//
+  //
+  // Loop over all hyperstreamlines generating points
+  //
   for (ptId=0; ptId < this->NumberOfStreamers; ptId++)
     {
     if ( (numIntPts=this->Streamers[ptId].GetNumberOfPoints()) < 2 )
@@ -671,9 +671,9 @@ void vtkHyperStreamline::BuildTube()
     for ( npts=0, i=1; i < numIntPts && sPtr->cellId >= 0;
     i++, sPrev=sPtr, sPtr=this->Streamers[ptId].GetHyperPoint(i) )
       {
-//
-// Bracket steps and construct tube points
-//
+  //
+  // Bracket steps and construct tube points
+  //
       while ( dOffset >= sPrev->d && dOffset < sPtr->d )
         {
         r = (dOffset - sPrev->d) / (sPtr->d - sPrev->d);
@@ -743,9 +743,9 @@ void vtkHyperStreamline::BuildTube()
     ptOffset += this->NumberOfSides*npts;
 
     } //for all hyperstreamlines
-//
-// Update ourselves
-//
+  //
+  // Update ourselves
+  //
   output->SetPoints(newPts);
   newPts->Delete();
 

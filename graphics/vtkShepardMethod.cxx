@@ -75,7 +75,7 @@ float vtkShepardMethod::ComputeModelBounds(float origin[3], float spacing[3])
   this->ModelBounds[4] >= this->ModelBounds[5] )
     {
     adjustBounds = 1;
-    bounds = ((vtkDataSet *)this->Input)->GetBounds();
+    bounds = this->GetInput()->GetBounds();
     }
   else
     {
@@ -109,8 +109,8 @@ float vtkShepardMethod::ComputeModelBounds(float origin[3], float spacing[3])
             / (this->SampleDimensions[i] - 1);
     }
 
-  ((vtkStructuredPoints *)this->Output)->SetOrigin(origin);
-  ((vtkStructuredPoints *)this->Output)->SetSpacing(spacing);
+  this->GetOutput()->SetOrigin(origin);
+  this->GetOutput()->SetSpacing(spacing);
 
   return maxDist;  
 }
@@ -126,13 +126,13 @@ void vtkShepardMethod::Execute()
   int numPts, numNewPts, idx;
   int min[3], max[3];
   int jkFactor;
-  vtkDataSet *input=(vtkDataSet *)this->Input;
-  vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;
+  vtkDataSet *input = this->GetInput();
+  vtkStructuredPoints *output = this->GetOutput();
 
   vtkDebugMacro(<< "Executing Shepard method");
-//
-// Check input
-//
+  //
+  // Check input
+  //
   if ( (numPts=input->GetNumberOfPoints()) < 1 )
     {
     vtkErrorMacro(<<"Points must be defined!");
@@ -144,9 +144,9 @@ void vtkShepardMethod::Execute()
     vtkErrorMacro(<<"Scalars must be defined!");
     return;
     }
-//
-// Allocate
-//
+  //
+  // Allocate
+  //
   numNewPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
               * this->SampleDimensions[2];
 
@@ -162,9 +162,10 @@ void vtkShepardMethod::Execute()
 
   output->SetDimensions(this->GetSampleDimensions());
   maxDistance = this->ComputeModelBounds(origin,spacing);
-//
-// Traverse all input points. Each input point affects voxels within maxDistance.
-//
+  //
+  // Traverse all input points. 
+  // Each input point affects voxels within maxDistance.
+  //
   for (ptId=0; ptId < numPts; ptId++)
     {
     px = input->GetPoint(ptId);
@@ -241,9 +242,9 @@ void vtkShepardMethod::Execute()
         }
       }
     }
-//
-// Run through scalars and compute final values
-//
+  //
+  // Run through scalars and compute final values
+  //
   for (ptId=0; ptId<numNewPts; ptId++)
     {
     s = newScalars->GetScalar(ptId);
@@ -256,9 +257,9 @@ void vtkShepardMethod::Execute()
       newScalars->SetScalar(ptId,this->NullValue);
       }
     }
-//
-// Update self
-//
+  //
+  // Update self
+  //
   delete [] sum;
   output->GetPointData()->SetScalars(newScalars);
   newScalars->Delete();

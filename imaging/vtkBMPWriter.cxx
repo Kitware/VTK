@@ -45,7 +45,7 @@ vtkBMPWriter::vtkBMPWriter()
   this->FileLowerLeft = 1;
 }
 
-void vtkBMPWriter::WriteFileHeader(ofstream *file, vtkImageCache *cache)
+void vtkBMPWriter::WriteFileHeader(ofstream *file, vtkImageData *cache)
 {
   int min0, max0, min1, max1, min2, max2;
   int bpp;
@@ -136,7 +136,7 @@ void vtkBMPWriter::WriteFile(ofstream *file, vtkImageData *data,
   rowLength = extent[1] - extent[0] + 1;
   rowAdder = (4 - ((extent[1]-extent[0] + 1)*3)%4)%4;
 
-  wExtent = this->Input->GetWholeExtent();
+  wExtent = this->GetInput()->GetWholeExtent();
   area = ((extent[5] - extent[4] + 1)*(extent[3] - extent[2] + 1)*
 	  (extent[1] - extent[0] + 1)) / 
     ((wExtent[5] -wExtent[4] + 1)*(wExtent[3] -wExtent[2] + 1)*

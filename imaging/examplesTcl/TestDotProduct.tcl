@@ -14,6 +14,8 @@ reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
 reader SetDataMask 0x7fff
 #reader DebugOn
 
+
+
 vtkImageCast cast
 cast SetInput [reader GetOutput]
 cast SetOutputScalarType $VTK_FLOAT
@@ -40,10 +42,13 @@ magnitude SetInput2 [gradient GetOutput]
 #vtkImageViewer viewer
 vtkImageViewer viewer
 viewer SetInput [magnitude GetOutput]
-viewer SetZSlice 22
 viewer SetColorWindow 1000
 viewer SetColorLevel 300
 #viewer DebugOn
+
+puts [pnm Print]
+pnm UpdateInformation
+#puts [pnm Print]
 
 
 # make interface

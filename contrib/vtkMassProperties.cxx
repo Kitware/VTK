@@ -45,7 +45,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Constructs with initial 0 values.
 vtkMassProperties::vtkMassProperties()
 {
-  this->Input = NULL;
   this->SurfaceArea = 0.0;
   this->Volume  = 0.0;
   this->VolumeX = 0.0;
@@ -60,47 +59,49 @@ vtkMassProperties::vtkMassProperties()
 // Constructs with initial 0 values.
 vtkMassProperties::~vtkMassProperties()
 {
-  if (this->Input)
-    {
-    this->Input->UnRegister(this);
-    this->Input = NULL;
-    }
 }
 
 // Description:
 // Specifies the input data...
 void vtkMassProperties::SetInput(vtkPolyData *input)
 {
-  if ( this->Input != input )
-    {
-    vtkDebugMacro(<<" setting Input to " << (void *)input);
-    if (this->Input) {this->Input->UnRegister(this);}
-    this->Input = (vtkPolyData *) input;
-    if (this->Input) {this->Input->Register(this);}
-    this->Modified();
-    }
+  this->vtkProcessObject::SetInput(0, input);
 }
+
+//----------------------------------------------------------------------------
+vtkPolyData *vtkMassProperties::GetInput()
+{
+  if (this->NumberOfInputs < 1)
+    {
+    return NULL;
+    }
+  
+  return (vtkPolyData *)(this->Inputs[0]);
+}
+
+
 
 // Description:
 // Make sure input is available then call up execute method...
 void vtkMassProperties::Update()
 {
-
- // make sure input is available
-  if ( !this->Input )
+  vtkPolyData *input = this->GetInput();
+  
+  // make sure input is available
+  if ( ! input )
     {
     vtkErrorMacro(<< "No input...can't execute!");
     return;
     }
 
-  this->Input->Update();
+  input->Update();
 
-  if (this->Input->GetMTime() > this->ExecuteTime || 
+  if (input->GetMTime() > this->ExecuteTime || 
       this->GetMTime() > this->ExecuteTime )
     {
-    if ( this->Input->GetDataReleased() )
+    if ( input->GetDataReleased() )
       {
-      this->Input->ForceUpdate();
+      input->Update();
       }
     if ( this->StartMethod )
       {
@@ -122,9 +123,9 @@ void vtkMassProperties::Update()
       (*this->EndMethod)(this->EndMethodArg);
       }
     }
-  if ( this->Input->ShouldIReleaseData() )
+  if ( input->ShouldIReleaseData() )
     {
-    this->Input->ReleaseData();
+    input->ReleaseData();
     }
 
 }
@@ -135,7 +136,7 @@ void vtkMassProperties::Update()
 void vtkMassProperties::Execute()
 {
   vtkIdList *ptIds;
-  vtkPolyData *input=(vtkPolyData *)this->Input;
+  vtkPolyData *input = this->GetInput();
   int cellId, numCells, numPts, numIds;
   float *p;
   
@@ -311,7 +312,7 @@ void vtkMassProperties::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkProcessObject::PrintSelf(os,indent);
 
-  if (!this->Input) 
+  if (!this->GetInput()) 
     {
     return;
     }

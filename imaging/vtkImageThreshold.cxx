@@ -120,11 +120,11 @@ void vtkImageThreshold::ThresholdBetween(float lower, float upper)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageThreshold::ExecuteImageInformation()
+void vtkImageThreshold::ExecuteInformation()
 {
   if (this->OutputScalarType != -1)
     {
-    this->Output->SetScalarType(this->OutputScalarType);
+    this->GetOutput()->SetScalarType(this->OutputScalarType);
     }
 }
 
@@ -337,7 +337,7 @@ void vtkImageThreshold::ThreadedExecute(vtkImageData *inData,
 
 void vtkImageThreshold::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageFilter::PrintSelf(os,indent);
+  vtkImageToImageFilter::PrintSelf(os,indent);
 
   os << indent << "OutputScalarType: " << this->OutputScalarType << "\n";
   os << indent << "InValue: " << this->InValue << "\n";

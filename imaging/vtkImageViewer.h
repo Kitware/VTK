@@ -59,8 +59,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkObject.h"
 #include "vtkImageWindow.h"
-#include "vtkStructuredPoints.h"
-#include "vtkStructuredPointsToImage.h"
 
 // For placement of origin in the viewer.
 #define VTK_IMAGE_VIEWER_UPPER_LEFT 0
@@ -86,9 +84,8 @@ public:
   
   // Description:
   // Set/Get the input to the viewer.
-  void SetInput(vtkImageCache *in) {this->ImageMapper->SetInput(in);};
-  vtkImageCache *GetInput() { return this->ImageMapper->GetInput();};
-  void SetInput(vtkStructuredPoints *spts){this->ImageMapper->SetInput(spts);};
+  void SetInput(vtkImageData *in) {this->ImageMapper->SetInput(in);};
+  vtkImageData *GetInput() { return this->ImageMapper->GetInput();};
   
   // Description:
   // What is the possible Min/ Max z slices available.

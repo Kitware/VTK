@@ -45,10 +45,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkChairDisplay_h
 #define __vtkChairDisplay_h
 
-#include "vtkImageCache.h"
+#include "vtkImageData.h"
 #include "vtkPolyDataSource.h"
-#include "vtkStructuredPoints.h"
-#include "vtkStructuredPointsToImage.h"
 
 class VTK_EXPORT vtkChairDisplay : public vtkPolyDataSource
 {
@@ -61,11 +59,8 @@ public:
   
   // Description:
   // Set/Get the source for the scalar data to contour.
-  vtkSetObjectMacro(Input, vtkImageCache);
-  vtkGetObjectMacro(Input, vtkImageCache);
-  void SetInput(vtkStructuredPoints *spts)
-    {vtkStructuredPointsToImage *tmp = spts->MakeStructuredPointsToImage();
-     this->SetInput(tmp->GetOutput()); tmp->Delete();}
+  void SetInput(vtkImageData *input);
+  vtkImageData *GetInput();
   
   // Description:
   // Set/Get the size of the notch.
@@ -84,7 +79,6 @@ public:
                        int xstart, int ystart,int xsize, int ysize, int p2x);
   
 protected:
-  vtkImageCache *Input;
   vtkScalars *Scalars;
   vtkStructuredPoints *TextureOutput;
   

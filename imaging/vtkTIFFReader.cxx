@@ -151,7 +151,7 @@ long vtkTIFFReader::ReadTagLong(_vtkTifTag *tag, FILE *fp)
   return result;
 }
 
-void vtkTIFFReader::UpdateImageInformation()
+void vtkTIFFReader::UpdateInformation()
 {
   int xsize, ysize;
   FILE *fp;
@@ -351,6 +351,6 @@ void vtkTIFFReader::UpdateImageInformation()
   
   this->SetNumberOfScalarComponents(numComp);
   
-  vtkImageReader::UpdateImageInformation();
+  vtkImageReader::UpdateInformation();
 }
 

@@ -46,9 +46,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkImageTranslateExtent_h
 #define __vtkImageTranslateExtent_h
 
-#include "vtkImageFilter.h"
+#include "vtkImageToImageFilter.h"
 
-class VTK_EXPORT vtkImageTranslateExtent : public vtkImageFilter
+class VTK_EXPORT vtkImageTranslateExtent : public vtkImageToImageFilter
 {
 public:
   vtkImageTranslateExtent();
@@ -64,12 +64,12 @@ public:
 
   // Description:
   // This method simply copies by reference the input data to the output.
-  void InternalUpdate(vtkImageData *outData);
+  void InternalUpdate(vtkDataObject *data);
 
 protected:
   int Translation[3];
   
-  void ExecuteImageInformation();
+  void ExecuteInformation();
 };
 
 

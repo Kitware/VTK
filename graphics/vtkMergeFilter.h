@@ -48,18 +48,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkMergeFilter_h
 #define __vtkMergeFilter_h
 
-#include "vtkDataSet.h"
-#include "vtkFilter.h"
-#include "vtkImageCache.h"
-#include "vtkImageToStructuredPoints.h"
+#include "vtkDataSetToDataSetFilter.h"
 
-class vtkPolyData;
-class vtkStructuredPoints;
-class vtkStructuredGrid;
-class vtkUnstructuredGrid;
-class vtkRectilinearGrid;
-
-class VTK_EXPORT vtkMergeFilter : public vtkFilter
+class VTK_EXPORT vtkMergeFilter : public vtkDataSetToDataSetFilter
 {
 public:
   vtkMergeFilter();
@@ -69,93 +60,49 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Update the data, re-executing if required.
-  void Update();
-
-  // Description:
   // Specify object from which to extract geometry information.
-  void SetGeometry(vtkDataSet *input);
-  vtkDataSet *GetGeometry() {return (vtkDataSet *)this->Input;};
-
-  // Description:
-  // Get the output of this source. Different methods are available
-  // for a specific concrete type. In other words, you can get the
-  // output as the same type as the input (run-time error chacking is
-  // performed to enforce this).
-  vtkDataSet *GetOutput() {return (vtkDataSet *)this->Output;};
-  vtkPolyData *GetPolyDataOutput();
-  vtkStructuredPoints *GetStructuredPointsOutput();
-  vtkStructuredGrid *GetStructuredGridOutput();
-  vtkUnstructuredGrid *GetUnstructuredGridOutput();
-  vtkRectilinearGrid *GetRectilinearGridOutput();
+  void SetGeometry(vtkDataSet *input) {this->SetInput(input);};
+  vtkDataSet *GetGeometry() {return this->GetInput();};
 
   // Description:
   // Specify object from which to extract scalar information.
-  vtkSetObjectMacro(Scalars,vtkDataSet);
-  vtkGetObjectMacro(Scalars,vtkDataSet);
-  
-  void SetScalars(vtkImageCache *cache)
+  void SetScalars(vtkDataSet *);
+  vtkDataSet *GetScalars();
+  void SetScalars(vtkImageData *cache)
     {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
     this->SetScalars(tmp->GetOutput()); tmp->Delete();}
 
   // Description:
   // Set / get the object from which to extract vector information.
-  vtkSetObjectMacro(Vectors,vtkDataSet);
-  vtkGetObjectMacro(Vectors,vtkDataSet);
+  void SetVectors(vtkDataSet *);
+  vtkDataSet *GetVectors();
   
   // Description:
   // Set / get the object from which to extract normal information.
-  vtkSetObjectMacro(Normals,vtkDataSet);
-  vtkGetObjectMacro(Normals,vtkDataSet);
+  void SetNormals(vtkDataSet *);
+  vtkDataSet *GetNormals();
   
   // Description:
   // Set / get the object from which to extract texture coordinates
   // information.
-  vtkSetObjectMacro(TCoords,vtkDataSet);
-  vtkGetObjectMacro(TCoords,vtkDataSet);
+  void SetTCoords(vtkDataSet *);
+  vtkDataSet *GetTCoords();
 
   // Description:
   // Set / get the object from which to extract tensor data.
-  vtkSetObjectMacro(Tensors,vtkDataSet);
-  vtkGetObjectMacro(Tensors,vtkDataSet);
+  void SetTensors(vtkDataSet *);
+  vtkDataSet *GetTensors();
 
   // Description:
   // Set / get the object from which to extract field data.
-  vtkSetObjectMacro(FieldData,vtkDataSet);
-  vtkGetObjectMacro(FieldData,vtkDataSet);
+  void SetFieldData(vtkDataSet *);
+  vtkDataSet *GetFieldData();
   
-  // Description:
-  // For legacy compatibility. Do not use.
-  void SetGeometry(vtkDataSet &input) {this->SetGeometry(&input);}
-
-  // Description:
-  // Handle the source/data loop.
-  void UnRegister(vtkObject *o);
-
-  // Description:
-  // Test to see if this object is in a reference counting loop.
-  virtual int InRegisterLoop(vtkObject *);
-
 protected:
   // Usual data generation method
   void Execute();
-
-  vtkDataSet *Geometry; // output geometry
-  vtkDataSet *Scalars;  // scalars to merge
-  vtkDataSet *Vectors;  // vectors
-  vtkDataSet *Normals;  // normals
-  vtkDataSet *TCoords;  // texture coords
-  vtkDataSet *Tensors;  // tensors
-  vtkDataSet *FieldData;    // field data
-
-  // objects used to support the retrieval of output
-  vtkPolyData *PolyData;
-  vtkStructuredPoints *StructuredPoints;
-  vtkStructuredGrid *StructuredGrid;
-  vtkUnstructuredGrid *UnstructuredGrid;
-  vtkRectilinearGrid *RectilinearGrid;
-
-};
+  int ComputeInputUpdateExtents(vtkDataObject *data);
+  };
 
 #endif
 

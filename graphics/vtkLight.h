@@ -130,6 +130,9 @@ public:
   vtkSetVector3Macro(AttenuationValues,float);
   vtkGetVectorMacro(AttenuationValues,float,3);
 
+  void ReadSelf(istream& is);
+  void WriteSelf(ostream& os);
+  
 protected:
   float FocalPoint[3];
   float Position[3];

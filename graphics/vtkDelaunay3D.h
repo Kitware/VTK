@@ -109,12 +109,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkDelaunay3D_h
 #define __vtkDelaunay3D_h
 
-#include "vtkPointSetFilter.h"
-#include "vtkUnstructuredGrid.h"
+#include "vtkUnstructuredGridSource.h"
 
 class vtkSphereArray;
 
-class VTK_EXPORT vtkDelaunay3D : public vtkPointSetFilter
+class VTK_EXPORT vtkDelaunay3D : public vtkUnstructuredGridSource
 {
 public:
   vtkDelaunay3D();
@@ -156,11 +155,6 @@ public:
   vtkSetMacro(BoundingTriangulation,int);
   vtkGetMacro(BoundingTriangulation,int);
   vtkBooleanMacro(BoundingTriangulation,int);
-
-  // Description:
-  // Get the output of this filter.
-  vtkUnstructuredGrid *GetOutput() {
-    return (vtkUnstructuredGrid *)this->Output;};
 
   // Description:
   // Set / get a spatial locator for merging points. By default, 
@@ -220,6 +214,11 @@ public:
   // Description:
   // Return the MTime also considering the locator.
   unsigned long GetMTime();
+
+  // Description:
+  // Set / get the input data or filter.
+  virtual void SetInput(vtkPointSet *input);
+  vtkPointSet *GetInput();
 
   // Description:
   // For legacy compatibility. Do not use.

@@ -141,7 +141,7 @@ public:
 
   // Description:
   // Return the Clipped output.
-  vtkPolyData *GetClippedOutput() {return this->ClippedOutput;};
+  vtkPolyData *GetClippedOutput();
 
   // Description:
   // Specify a spatial locator for merging points. By default, an
@@ -162,18 +162,6 @@ public:
   // For legacy compatibility. Do not use.
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
 
-  // Description:
-  // Handle the source/data loop.
-  void UnRegister(vtkObject *o);
-
-  // Description:
-  // Test to see if this object is in a reference counting loop.
-  virtual int InRegisterLoop(vtkObject *);
-  
-  // Description:
-  // Update the filter and produce its output.
-  void Update();
-
 protected:
   void Execute();
   vtkImplicitFunction *ClipFunction;
@@ -184,7 +172,6 @@ protected:
   int GenerateClipScalars;
 
   int GenerateClippedOutput;
-  vtkPolyData *ClippedOutput;
 };
 
 #endif

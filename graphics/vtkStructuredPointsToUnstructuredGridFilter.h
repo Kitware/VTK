@@ -50,22 +50,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkStructuredPointsToUnstructuredGridFilter_h
 #define __vtkStructuredPointsToUnstructuredGridFilter_h
 
-#include "vtkStructuredPointsFilter.h"
-#include "vtkUnstructuredGrid.h"
+#include "vtkStructuredPoints.h"
+#include "vtkUnstructuredGridSource.h"
+#include "vtkImageToStructuredPoints.h"
 
-class VTK_EXPORT vtkStructuredPointsToUnstructuredGridFilter : public vtkStructuredPointsFilter
+class VTK_EXPORT vtkStructuredPointsToUnstructuredGridFilter : public vtkUnstructuredGridSource
 {
 public:
-  vtkStructuredPointsToUnstructuredGridFilter();
   static vtkStructuredPointsToUnstructuredGridFilter *New() {
     return new vtkStructuredPointsToUnstructuredGridFilter;};
   const char *GetClassName() {
     return "vtkStructuredPointsToUnstructuredGridFilter";};
 
   // Description:
-  // Get the output of this filter.
-  vtkUnstructuredGrid *GetOutput() {
-    return (vtkUnstructuredGrid *)this->Output;};
+  // Set / get the input data or filter.
+  void SetInput(vtkStructuredPoints *input);
+  void SetInput(vtkImageData *cache)
+    {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
+    this->SetInput(tmp->GetOutput()); tmp->Delete();}
+  vtkStructuredPoints *GetInput();
 
 };
 

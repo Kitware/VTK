@@ -92,7 +92,6 @@ vtkStreamer::vtkStreamer()
   this->StartSubId = 0;
   this->StartPCoords[0] = this->StartPCoords[1] = this->StartPCoords[2] = 0.5;
   this->StartPosition[0] = this->StartPosition[1] = this->StartPosition[2] = 0.0;
-  this->Source = NULL;
   this->Streamers = NULL;
   this->MaximumPropagationTime = 100.0;
   this->IntegrationDirection = VTK_INTEGRATE_FORWARD;
@@ -110,6 +109,7 @@ vtkStreamer::~vtkStreamer()
     {
     delete [] this->Streamers;
     }
+
   this->SetSource(NULL);
   if (this->Threader)
     {
@@ -117,6 +117,19 @@ vtkStreamer::~vtkStreamer()
     }
 }
 
+void vtkStreamer::SetSource(vtkDataSet *source)
+{
+  this->vtkProcessObject::SetInput(1, source);
+}
+
+vtkDataSet *vtkStreamer::GetSource()
+{
+  if (this->NumberOfInputs < 2)
+    {
+    return NULL;
+    }
+  return (vtkDataSet *)(this->Inputs[1]);
+}
 
 // Specify the start of the streamline in the cell coordinate system. That is,
 // cellId and subId (if composite cell), and parametric coordinates.
@@ -192,75 +205,6 @@ void vtkStreamer::SetStartPosition(float x, float y, float z)
 float *vtkStreamer::GetStartPosition()
 {
   return this->StartPosition;
-}
-
-// Override update method because execution can branch two ways (via Input 
-// and Source).
-void vtkStreamer::Update()
-{
-  // make sure input is available
-  if ( this->Input == NULL )
-    {
-    vtkErrorMacro(<< "No input...can't execute!");
-    return;
-    }
-
-  // prevent chasing our tail
-  if (this->Updating)
-    {
-    return;
-    }
-
-  this->Updating = 1;
-  this->Input->Update();
-  if ( this->Source )
-    {
-    this->Source->Update();
-    }
-  this->Updating = 0;
-
-  if (this->Input->GetMTime() > this->ExecuteTime || 
-  (this->Source && this->Source->GetMTime() > this->ExecuteTime) || 
-  this->GetMTime() > this->ExecuteTime )
-    {
-    if ( this->Input->GetDataReleased() )
-      {
-      this->Input->ForceUpdate();
-      }
-    if ( this->Source && this->Source->GetDataReleased() ) 
-      {
-      this->Source->ForceUpdate();
-      }
-
-    if ( this->StartMethod )
-      {
-      (*this->StartMethod)(this->StartMethodArg);
-      }
-    this->Output->Initialize(); //clear output
-    // reset AbortExecute flag and Progress
-    this->AbortExecute = 0;
-    this->Progress = 0.0;
-    this->Execute();
-    this->ExecuteTime.Modified();
-    if ( !this->AbortExecute )
-      {
-      this->UpdateProgress(1.0);
-      }
-    this->SetDataReleased(0);
-    if ( this->EndMethod )
-      {
-      (*this->EndMethod)(this->EndMethodArg);
-      }
-    }
-
-  if ( this->Input->ShouldIReleaseData() )
-    {
-    this->Input->ReleaseData();
-    }
-  if ( this->Source && this->Source->ShouldIReleaseData() ) 
-    {
-    this->Source->ReleaseData();
-    }
 }
 
 static VTK_THREAD_RETURN_TYPE vtkStreamer_ThreadedIntegrate( void *arg )
@@ -451,8 +395,8 @@ static VTK_THREAD_RETURN_TYPE vtkStreamer_ThreadedIntegrate( void *arg )
 
 void vtkStreamer::Integrate()
 {
-  vtkDataSet *input=this->GetInput();
-  vtkDataSet *source=this->Source;
+  vtkDataSet *input = this->GetInput();
+  vtkDataSet *source = this->GetSource();
   vtkPointData *pd=input->GetPointData();
   vtkScalars *inScalars;
   vtkVectors *inVectors;
@@ -494,7 +438,7 @@ void vtkStreamer::Integrate()
   // Create starting points
   //
   this->NumberOfStreamers = numSourcePts = offset = 1;
-  if ( this->Source )
+  if ( this->GetSource() )
     {
     this->NumberOfStreamers = numSourcePts = source->GetNumberOfPoints();
     }
@@ -507,7 +451,7 @@ void vtkStreamer::Integrate()
 
   this->Streamers = new vtkStreamArray[this->NumberOfStreamers];
 
-  if ( this->StartFrom == VTK_START_FROM_POSITION && !this->Source )
+  if ( this->StartFrom == VTK_START_FROM_POSITION && !this->GetSource() )
     {
     idx = this->Streamers[0].InsertNextStreamPoint();
     sPtr = this->Streamers[0].GetStreamPoint(idx);
@@ -519,7 +463,7 @@ void vtkStreamer::Integrate()
                                    sPtr->subId, sPtr->p, w);
     }
 
-  else if ( this->StartFrom == VTK_START_FROM_LOCATION && !this->Source )
+  else if ( this->StartFrom == VTK_START_FROM_LOCATION && !this->GetSource() )
     {
     idx = this->Streamers[0].InsertNextStreamPoint();
     sPtr = this->Streamers[0].GetStreamPoint(idx);
@@ -599,7 +543,6 @@ void vtkStreamer::Integrate()
   this->Threader->SetSingleMethod( vtkStreamer_ThreadedIntegrate, (void *)this );
   this->Threader->SingleMethodExecute();
 
-
   // Compute vorticity if desired.
   //
   if ( this->Vorticity )
@@ -634,12 +577,12 @@ void vtkStreamer::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
 
-  if ( this->StartFrom == VTK_START_FROM_POSITION && !this->Source)
+  if ( this->StartFrom == VTK_START_FROM_POSITION && !this->GetSource())
     {
     os << indent << "Starting Position: (" << this->StartPosition[0] << ","
        << this->StartPosition[1] << ", " << this->StartPosition[2] << ")\n";
     }
-  else if ( this->StartFrom == VTK_START_FROM_LOCATION && !this->Source)
+  else if ( this->StartFrom == VTK_START_FROM_LOCATION && !this->GetSource())
     {
     os << indent << "Starting Location:\n\tCell: " << this->StartCell 
        << "\n\tSubId: " << this->StartSubId << "\n\tP.Coordinates: ("
@@ -649,7 +592,7 @@ void vtkStreamer::PrintSelf(ostream& os, vtkIndent indent)
     }
   else
     {
-    os << indent << "Starting Source: " << (void *)this->Source << "\n";
+    os << indent << "Starting Source: " << (void *)this->GetSource() << "\n";
     }
 
   os << indent << "Maximum Propagation Time: " 

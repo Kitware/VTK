@@ -50,9 +50,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageShiftScale_h
 
 
-#include "vtkImageFilter.h"
+#include "vtkImageToImageFilter.h"
 
-class VTK_EXPORT vtkImageShiftScale : public vtkImageFilter
+class VTK_EXPORT vtkImageShiftScale : public vtkImageToImageFilter
 {
 public:
   vtkImageShiftScale();
@@ -97,7 +97,7 @@ protected:
   int OutputScalarType;
   int ClampOverflow;
   
-  void ExecuteImageInformation();
+  void ExecuteInformation();
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
 		       int extent[6], int id);
 };

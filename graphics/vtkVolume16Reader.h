@@ -145,6 +145,7 @@ public:
 
 protected:
   void Execute();
+  void ExecuteInformation();
   int   DataDimensions[2];
   unsigned short DataMask;
   int   SwapBytes;

@@ -157,8 +157,8 @@ void vtkDecimate::Execute()
   int totalEliminated=0;
   int size;
   int abortFlag = 0;
-  vtkPolyData *input=(vtkPolyData *)this->Input;
-  vtkPolyData *output=(vtkPolyData *)this->Output;
+  vtkPolyData *input=this->GetInput();
+  vtkPolyData *output=this->GetOutput();
 
 
   vtkDebugMacro(<<"Decimating mesh...");

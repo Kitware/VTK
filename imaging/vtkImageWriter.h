@@ -53,9 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <iostream.h>
 #include <fstream.h>
 #include "vtkProcessObject.h"
-#include "vtkImageCache.h"
-#include "vtkStructuredPoints.h"
-#include "vtkStructuredPointsToImage.h"
+#include "vtkImageData.h"
 
 class VTK_EXPORT vtkImageWriter : public vtkProcessObject
 {
@@ -94,18 +92,14 @@ public:
   
   // Description:
   // Set/Get the input object from the image pipeline.
-  vtkSetObjectMacro(Input,vtkImageCache);
-  vtkGetObjectMacro(Input,vtkImageCache);
-  void SetInput(vtkStructuredPoints *spts)
-    {vtkStructuredPointsToImage *tmp = spts->MakeStructuredPointsToImage();
-     this->SetInput(tmp->GetOutput()); tmp->Delete();}
+  void SetInput(vtkImageData *input);
+  vtkImageData *GetInput();
 
   // Description:
   // The main interface which triggers the writer to start.
   virtual void Write();
 
 protected:
-  vtkImageCache *Input;
   int FileDimensionality;
   char *FilePrefix;
   char *FilePattern;
@@ -115,12 +109,12 @@ protected:
   char *InternalFileName;
 
   
-  void RecursiveWrite(int dim, vtkImageCache *region, ofstream *file);
-  void RecursiveWrite(int dim, vtkImageCache *cache, 
+  void RecursiveWrite(int dim, vtkImageData *region, ofstream *file);
+  void RecursiveWrite(int dim, vtkImageData *cache, 
 		      vtkImageData *data, ofstream *file);
   virtual void WriteFile(ofstream *file, vtkImageData *data, int extent[6]);
-  virtual void WriteFileHeader(ofstream *, vtkImageCache *) {};
-  virtual void WriteFileTrailer(ofstream *, vtkImageCache *) {};
+  virtual void WriteFileHeader(ofstream *, vtkImageData *) {};
+  virtual void WriteFileTrailer(ofstream *, vtkImageData *) {};
 };
 
 #endif

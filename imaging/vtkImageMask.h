@@ -79,13 +79,11 @@ public:
 
   // Description:
   // Set the input to be masked.
-  void SetImageInput(vtkImageCache *in) {this->SetInput1(in);}
-  void SetImageInput(vtkStructuredPoints *in) {this->SetInput1(in);}
+  void SetImageInput(vtkImageData *in) {this->SetInput1(in);}
 
   // Description:
   // Set the mask to be used.
-  void SetMaskInput(vtkImageCache *in) {this->SetInput2(in);}
-  void SetMaskInput(vtkStructuredPoints *in) {this->SetInput2(in);}
+  void SetMaskInput(vtkImageData *in) {this->SetInput2(in);}
   
   // Description:
   // When Not Mask is on, the mask is passed through a boolean not

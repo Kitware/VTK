@@ -46,12 +46,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkUnstructuredGrid.h"
 #include "vtkFloatArray.h"
 
+//----------------------------------------------------------------------------
 // Instantiate object.
 vtkDataSetToDataObjectFilter::vtkDataSetToDataObjectFilter()
 {
-  this->Output = vtkDataObject::New();
-  this->Output->SetSource(this);
-
   this->Geometry = 1;
   this->Topology = 1;
   this->PointData = 1;
@@ -59,9 +57,10 @@ vtkDataSetToDataObjectFilter::vtkDataSetToDataObjectFilter()
   this->FieldData = 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkDataSetToDataObjectFilter::Execute()
 {
-  vtkDataSet *input = (vtkDataSet *)this->GetInput();
+  vtkDataSet *input = this->GetInput();
   vtkScalars *scalars;
   vtkVectors *vectors;
   vtkTensors *tensors;
@@ -76,14 +75,14 @@ void vtkDataSetToDataObjectFilter::Execute()
 
   if ( this->Geometry)
     {
-    if ( input->GetDataSetType() == VTK_POLY_DATA )
+    if ( input->GetDataObjectType() == VTK_POLY_DATA )
       {
       da = ((vtkPolyData *)input)->GetPoints()->GetData();
       fd->SetArray(arrayNum, da);
       fd->SetArrayName(arrayNum++, "Points");
       }
 
-    else if ( input->GetDataSetType() == VTK_STRUCTURED_POINTS )
+    else if ( input->GetDataObjectType() == VTK_STRUCTURED_POINTS )
       {
       vtkStructuredPoints *spts=(vtkStructuredPoints *)input;
 
@@ -110,14 +109,14 @@ void vtkDataSetToDataObjectFilter::Execute()
       spacing->Delete();
       }
     
-    else if ( input->GetDataSetType() == VTK_STRUCTURED_GRID )
+    else if ( input->GetDataObjectType() == VTK_STRUCTURED_GRID )
       {
       da = ((vtkStructuredGrid *)input)->GetPoints()->GetData();
       fd->SetArray(arrayNum, da);
       fd->SetArrayName(arrayNum++, "Points");
       }
     
-    else if ( input->GetDataSetType() == VTK_RECTILINEAR_GRID )
+    else if ( input->GetDataObjectType() == VTK_RECTILINEAR_GRID )
       {
       vtkRectilinearGrid *rgrid=(vtkRectilinearGrid *)input;
       da = rgrid->GetXCoordinates()->GetData();
@@ -131,7 +130,7 @@ void vtkDataSetToDataObjectFilter::Execute()
       fd->SetArrayName(arrayNum++, "ZCoordinates");
       }
     
-    else if ( input->GetDataSetType() == VTK_UNSTRUCTURED_GRID )
+    else if ( input->GetDataObjectType() == VTK_UNSTRUCTURED_GRID )
       {
       da = ((vtkUnstructuredGrid *)input)->GetPoints()->GetData();
       fd->SetArray(arrayNum, da);
@@ -147,7 +146,7 @@ void vtkDataSetToDataObjectFilter::Execute()
   
   if (this->Topology)
     {
-    if ( input->GetDataSetType() == VTK_POLY_DATA )
+    if ( input->GetDataObjectType() == VTK_POLY_DATA )
       {
       vtkPolyData *pd=(vtkPolyData *)input;
       vtkCellArray *ca;
@@ -177,7 +176,7 @@ void vtkDataSetToDataObjectFilter::Execute()
         }
       }
 
-    else if ( input->GetDataSetType() == VTK_STRUCTURED_POINTS )
+    else if ( input->GetDataObjectType() == VTK_STRUCTURED_POINTS )
       {
       vtkIntArray *dimensions=vtkIntArray::New();
       dimensions->SetNumberOfValues(3);
@@ -191,7 +190,7 @@ void vtkDataSetToDataObjectFilter::Execute()
       dimensions->Delete();
       }
     
-    else if ( input->GetDataSetType() == VTK_STRUCTURED_GRID )
+    else if ( input->GetDataObjectType() == VTK_STRUCTURED_GRID )
       {
       vtkIntArray *dimensions=vtkIntArray::New();
       dimensions->SetNumberOfValues(3);
@@ -205,7 +204,7 @@ void vtkDataSetToDataObjectFilter::Execute()
       dimensions->Delete();
       }
     
-    else if ( input->GetDataSetType() == VTK_RECTILINEAR_GRID )
+    else if ( input->GetDataObjectType() == VTK_RECTILINEAR_GRID )
       {
       vtkIntArray *dimensions=vtkIntArray::New();
       dimensions->SetNumberOfValues(3);
@@ -219,7 +218,7 @@ void vtkDataSetToDataObjectFilter::Execute()
       dimensions->Delete();
       }
     
-    else if ( input->GetDataSetType() == VTK_UNSTRUCTURED_GRID )
+    else if ( input->GetDataObjectType() == VTK_UNSTRUCTURED_GRID )
       {
       vtkCellArray *ca=((vtkUnstructuredGrid *)input)->GetCells();
       if ( ca != NULL && ca->GetNumberOfCells() > 0 )
@@ -354,13 +353,43 @@ void vtkDataSetToDataObjectFilter::Execute()
   vtkDebugMacro(<<"Created field data with " << fd->GetNumberOfArrays()
                 <<"arrays");
   
-  this->Output->SetFieldData(fd);
+  this->GetOutput()->SetFieldData(fd);
   fd->Delete();
 }
 
+//----------------------------------------------------------------------------
+// Specify the input data or filter.
+void vtkDataSetToDataObjectFilter::SetInput(vtkDataSet *input)
+{
+  this->vtkProcessObject::SetInput(0, input);
+}
+
+//----------------------------------------------------------------------------
+// Specify the input data or filter.
+vtkDataSet *vtkDataSetToDataObjectFilter::GetInput()
+{
+  if (this->NumberOfInputs < 1)
+    {
+    return NULL;
+    }
+  
+  return (vtkDataSet *)(this->Inputs[0]);
+}
+
+//----------------------------------------------------------------------------
+int 
+vtkDataSetToDataObjectFilter::ComputeInputUpdateExtents(vtkDataObject *output)
+{
+  // what should we do here?
+  this->GetInput()->SetUpdateExtent(0, 1);
+  return 1;  
+}
+
+
+//----------------------------------------------------------------------------
 void vtkDataSetToDataObjectFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetFilter::PrintSelf(os,indent);
+  vtkSource::PrintSelf(os,indent);
 
   os << indent << "Geometry: " << (this->Geometry ? "On\n" : "Off\n");
   os << indent << "Topology: " << (this->Topology ? "On\n" : "Off\n");

@@ -56,6 +56,7 @@ void vtkDashedStreamLine::Execute()
   float tOffset, x[3], v[3], r, xPrev[3], vPrev[3], scalarPrev;
   float s = 0;
   float xEnd[3], vEnd[3], sEnd;
+  vtkDataSet *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
   
   this->vtkStreamer::Integrate();
@@ -63,23 +64,23 @@ void vtkDashedStreamLine::Execute()
     {
     return;
     }
-//
-//  Convert streamer into lines. Lines may be dashed.
-//
+  //
+  //  Convert streamer into lines. Lines may be dashed.
+  //
   newPts = vtkPoints::New();
   newPts->Allocate(1000);
   newVectors = vtkVectors::New();
   newVectors->Allocate(1000);
-  if ( ((vtkDataSet *)this->Input)->GetPointData()->GetScalars() || this->SpeedScalars )
+  if ( input->GetPointData()->GetScalars() || this->SpeedScalars )
     {
     newScalars = vtkScalars::New();
     newScalars->Allocate(1000);
     }
   newLines = vtkCellArray::New();
   newLines->Allocate(newLines->EstimateSize(2*this->NumberOfStreamers,VTK_CELL_SIZE));
-//
-// Loop over all streamers generating points
-//
+  //
+  // Loop over all streamers generating points
+  //
   for (ptId=0; ptId < this->NumberOfStreamers; ptId++)
     {
     if ( this->Streamers[ptId].GetNumberOfPoints() < 2 )

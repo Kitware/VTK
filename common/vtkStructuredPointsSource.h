@@ -63,8 +63,8 @@ public:
 
   // Description:
   // Get the output of this source.
-  vtkStructuredPoints *GetOutput()
-    {return (vtkStructuredPoints *)this->Output;};
+  void SetOutput(vtkStructuredPoints *);
+  vtkStructuredPoints *GetOutput();
 
 };
 

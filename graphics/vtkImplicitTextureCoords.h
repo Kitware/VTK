@@ -109,13 +109,7 @@ public:
   // function (i.e., a rotation around the r-s-t=0.5 axis).
   vtkSetMacro(FlipTexture,int);
   vtkGetMacro(FlipTexture,int);
-  vtkBooleanMacro(FlipTexture,int);
-  
-  // Description:
-  // Update input to this filter and the filter itself. Note that we are 
-  // overloading this method because the output is an abstract dataset type.
-  // This requires special treatment.
-  void Update();
+  vtkBooleanMacro(FlipTexture,int);  
   
 protected:
   void Execute();

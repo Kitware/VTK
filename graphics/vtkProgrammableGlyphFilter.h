@@ -100,15 +100,10 @@ public:
   static vtkProgrammableGlyphFilter *New() {return new vtkProgrammableGlyphFilter;};
 
   // Description:
-  // Override update method because execution can branch two ways (via Input 
-  // and Source).
-  void Update();
-
-  // Description:
-  // Set/Get the source to use for this glyph. Note: you can change the source during
-  // execution of this filter.
-  vtkSetObjectMacro(Source,vtkPolyData);
-  vtkGetObjectMacro(Source,vtkPolyData);
+  // Set/Get the source to use for this glyph. 
+  // Note: you can change the source during execution of this filter.
+  void SetSource(vtkPolyData *source);
+  vtkPolyData *GetSource();
 
   // Description:
   // Specify function to be called for each input point.
@@ -148,7 +143,6 @@ public:
 protected:
   void Execute();
 
-  vtkPolyData *Source; // Geometry to copy to each point
   float Point[3]; // Coordinates of point
   int PointId; // Current point id during processing
   vtkPointData *PointData;

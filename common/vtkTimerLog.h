@@ -55,6 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <fstream.h>
 
 #ifdef _WIN32
+#include <winsock.h>  // for Sleep?
 #include <sys/types.h>
 #include <sys/timeb.h>
 #else
@@ -71,6 +72,21 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
+
+// select stuff here is for sleep method
+#ifndef NO_FD_SET
+#   define SELECT_MASK fd_set
+#else
+#   ifndef _AIX
+	typedef long fd_mask;
+#   endif
+#   if defined(_IBMR2)
+#	define SELECT_MASK void
+#   else
+#	define SELECT_MASK int
+#   endif
+#endif
+
 
 #include "vtkObject.h"
 #define VTK_LOG_EVENT_LENGTH 40
@@ -142,6 +158,10 @@ public:
   // a floating point value indicating the elapsed time in seconds.
   double GetElapsedTime();
 
+  // Description:
+  // Will be a platform independant sleep.
+  // Only works on unix for now.
+  static void Sleep(int ms);
 
 protected:
   static int               MaxEntries;

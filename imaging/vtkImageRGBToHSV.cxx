@@ -232,7 +232,7 @@ void vtkImageRGBToHSV::ThreadedExecute(vtkImageData *inData,
 
 void vtkImageRGBToHSV::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageFilter::PrintSelf(os,indent);
+  vtkImageToImageFilter::PrintSelf(os,indent);
 
   os << indent << "Maximum: " << this->Maximum << "\n";
 }

@@ -50,24 +50,28 @@ vtkDataObjectWriter::~vtkDataObjectWriter()
   this->Writer->Delete();
 }
 
-// Specify the input data or filter.
+//----------------------------------------------------------------------------
 void vtkDataObjectWriter::SetInput(vtkDataObject *input)
 {
-  if ( this->Input != input )
+  this->vtkProcessObject::SetInput(0, input);
+}
+
+//----------------------------------------------------------------------------
+vtkDataObject *vtkDataObjectWriter::GetInput()
+{
+  if (this->NumberOfInputs < 1)
     {
-    vtkDebugMacro(<<" setting Input to " << (void *)input);
-    if (this->Input) {this->Input->UnRegister(this);}
-    this->Input = input;
-    if (this->Input) {this->Input->Register(this);}
-    this->Modified();
+    return NULL;
     }
+  
+  return (vtkDataObject *)(this->Inputs[0]);
 }
 
 // Write FieldData data to file
 void vtkDataObjectWriter::WriteData()
 {
-  FILE *fp;
-  vtkFieldData *f=this->Input->GetFieldData();
+  ostream *fp;
+  vtkFieldData *f=this->GetInput()->GetFieldData();
 
   vtkDebugMacro(<<"Writing vtk FieldData data...");
 

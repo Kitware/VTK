@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageCache.h"
+
 #include "vtkImageClip.h"
 
 
@@ -48,7 +48,6 @@ vtkImageClip::vtkImageClip()
   int idx;
 
   this->Initialized = 0;
-  this->Input = NULL;
   for (idx = 0; idx < 3; ++idx)
     {
     this->OutputWholeExtent[idx*2]  = -VTK_LARGE_INTEGER;
@@ -62,7 +61,7 @@ void vtkImageClip::PrintSelf(ostream& os, vtkIndent indent)
 {
   int idx;
   
-  vtkImageFilter::PrintSelf(os,indent);
+  vtkImageToImageFilter::PrintSelf(os,indent);
 
   os << indent << "OutputWholeExtent: (" << this->OutputWholeExtent[0]
      << "," << this->OutputWholeExtent[1];
@@ -122,11 +121,11 @@ void vtkImageClip::GetOutputWholeExtent(int extent[6])
 
 //----------------------------------------------------------------------------
 // Change the WholeExtent
-void vtkImageClip::ExecuteImageInformation()
+void vtkImageClip::ExecuteInformation()
 {
   int idx, extent[6];
   
-  this->Input->GetWholeExtent(extent);
+  this->GetInput()->GetWholeExtent(extent);
   if ( ! this->Initialized)
     {
     this->SetOutputWholeExtent(extent);
@@ -154,7 +153,7 @@ void vtkImageClip::ExecuteImageInformation()
       }
     }
   
-  this->Output->SetWholeExtent(extent);
+  this->GetOutput()->SetWholeExtent(extent);
 }
 
 
@@ -162,42 +161,44 @@ void vtkImageClip::ExecuteImageInformation()
 // Sets the output whole extent to be the input whole extent.
 void vtkImageClip::ResetOutputWholeExtent()
 {
-  if ( ! this->Input)
+  if ( ! this->GetInput())
     {
     vtkWarningMacro("ResetOutputWholeExtent: No input");
     return;
     }
 
-  this->Input->UpdateImageInformation();
-  this->SetOutputWholeExtent(this->Input->GetWholeExtent());
+  this->GetInput()->UpdateInformation();
+  this->SetOutputWholeExtent(this->GetInput()->GetWholeExtent());
 }
 
 
 
 //----------------------------------------------------------------------------
 // This method simply copies by reference the input data to the output.
-void vtkImageClip::InternalUpdate(vtkImageData *outData)
+void vtkImageClip::InternalUpdate(vtkDataObject *outObject)
 {
+  vtkImageData *outData = (vtkImageData *)(outObject);
   vtkImageData *inData;
   
   // Make sure the Input has been set.
-  if ( ! this->Input)
+  if ( ! this->GetInput())
     {
     vtkErrorMacro(<< "Input is not set.");
     return;
     }
 
-  this->Input->SetUpdateExtent(this->Output->GetUpdateExtent());
-  inData = this->Input->UpdateAndReturnData();
+  this->GetInput()->SetUpdateExtent(this->GetOutput()->GetUpdateExtent());
+  this->GetInput()->Update();
+  inData = this->GetInput();
   // cliping will change the extent but since we are passing the data
   // we need to reset it back to the original input size
   outData->SetExtent(inData->GetExtent());
   outData->GetPointData()->PassData(inData->GetPointData());
   
   // release input data
-  if (this->Input->ShouldIReleaseData())
+  if (this->GetInput()->ShouldIReleaseData())
     {
-    this->Input->ReleaseData();
+    this->GetInput()->ReleaseData();
     }
 }
 

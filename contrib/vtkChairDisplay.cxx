@@ -69,6 +69,23 @@ vtkChairDisplay::~vtkChairDisplay()
     }
 }
 
+//----------------------------------------------------------------------------
+void vtkChairDisplay::SetInput(vtkImageData *input)
+{
+  this->vtkProcessObject::SetInput(0, input);
+}
+
+//----------------------------------------------------------------------------
+vtkImageData *vtkChairDisplay::GetInput()
+{
+  if (this->NumberOfInputs < 1)
+    {
+    return NULL;
+    }
+  
+  return (vtkImageData *)(this->Inputs[0]);
+}
+
 void vtkChairDisplay::Update()
 {
   if ( ! this->Input)
@@ -103,7 +120,6 @@ void vtkChairDisplay::Update()
       this->Execute(0);
       }
     this->ExecuteTime.Modified();
-    this->SetDataReleased(0);
     }
 }
 

@@ -109,18 +109,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // All filters must provide a method to update the visualization 
-  // pipeline. (Method interface inherited from vtkSource.)
-  void Update();
-
-  // Description:
   // Set the input to the filter.
-  virtual void SetInput(vtkDataObject *input);
-  vtkDataObject *GetInput() {return this->Input;};
+  void SetInput(vtkDataObject *input);
+  vtkDataObject *GetInput();
 
   // Description:
   // Control what type of data is generated for output.
-  vtkSetMacro(DataSetType,int);
+  void SetDataSetType(int);
   vtkGetMacro(DataSetType,int);
   void SetDataSetTypeToPolyData() {
     this->SetDataSetType(VTK_POLY_DATA);};
@@ -268,29 +263,14 @@ public:
     {this->SetSpacingComponent(arrayName, arrayComp, -1, -1);};
   void SetOriginComponent(char *arrayName, int arrayComp, int min, int max);
   void SetOriginComponent(char *arrayName, int arrayComp)
-    {this->SetOriginComponent(arrayName, arrayComp, -1, -1);};
-  
-  // Description:
-  // Handle the source/data loop.
-  void UnRegister(vtkObject *o);
-
-  // Description:
-  // Test to see if this object is in a reference counting loop.
-  virtual int InRegisterLoop(vtkObject *);
+    {this->SetOriginComponent(arrayName, arrayComp, -1, -1);};  
 
 protected:
   void Execute(); //generate output data
+  int ComputeInputUpdateExtents(vtkDataObject *output);
 
-  vtkDataObject *Input;
   char Updating;
 
-  // objects used to support the retrieval of output after mapping
-  vtkPolyData *PolyData;
-  vtkStructuredPoints *StructuredPoints;
-  vtkStructuredGrid *StructuredGrid;
-  vtkUnstructuredGrid *UnstructuredGrid;
-  vtkRectilinearGrid *RectilinearGrid;
-  
   // control flags used to generate the output dataset
   int DataSetType; //the type of dataset to generate
   

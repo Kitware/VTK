@@ -47,21 +47,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // VxComponent, VyComponent, and VzComponent.
 
 // .SECTION Caveats
-// This filter is unusual in that it creates multiple outputs. As a result,
-// it cannot take advantage of the convenience classes (e.g.,
-// vtkPolyDataToPolyDataFilter) for deriving concrete filters. Instead, it
-// overloads the Update() method of its superclasses and provides methods for
-// retrieving the output.
-//
+// This filter is unusual in that it creates multiple outputs. 
 // If you use the GetOutput() method, you will be retrieving the x vector component.
 
 #ifndef __vtkExtractVectorComponents_h
 #define __vtkExtractVectorComponents_h
 
-#include "vtkFilter.h"
+#include "vtkSource.h"
 #include "vtkDataSet.h"
 
-class VTK_EXPORT vtkExtractVectorComponents : public vtkFilter
+class VTK_EXPORT vtkExtractVectorComponents : public vtkSource
 {
 public:
   vtkExtractVectorComponents();
@@ -71,14 +66,12 @@ public:
   const char *GetClassName() {return "vtkExtractVectorComponents";};
 
   // Description:
-  // Update input to this filter and the filter itself. Note that we are 
-  // overloading this method because the output is an abstract dataset type.
-  // This requires special treatment.
-  void Update();
-
-  // Description:
   // Specify the input data or filter.
   virtual void SetInput(vtkDataSet *input);
+
+  // Description:
+  // Get the input data or filter.
+  vtkDataSet *GetInput();
 
   // Description:
   // Get the output dataset representing velocity x-component. If output is
@@ -111,20 +104,9 @@ public:
   // For legacy compatibility. Do not use.
   void SetInput(vtkDataSet &input) {this->SetInput(&input);};
 
-  // Description:
-  // Handle the source/data loop.
-  void UnRegister(vtkObject *o);
-
-  // Description:
-  // Test to see if this object is in a reference counting loop.
-  virtual int InRegisterLoop(vtkObject *);
-
 protected:
   void Execute();
-
-  //Note; inverited ivar Output serves as pointer to VxComponent
-  vtkDataSet *VyComponent;
-  vtkDataSet *VzComponent;
+  int ComputeInputUpdateExtents(vtkDataObject *output);
 };
 
 #endif

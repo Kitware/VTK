@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageCache.h"
+
 #include "vtkImageCorrelation.h"
 
 
@@ -52,36 +52,36 @@ vtkImageCorrelation::vtkImageCorrelation()
 
 //----------------------------------------------------------------------------
 // Grow the output image 
-void vtkImageCorrelation::ExecuteImageInformation()
+void vtkImageCorrelation::ExecuteInformation()
 {
   int extent1[6];
   
-  this->Inputs[0]->GetWholeExtent(extent1);
+  this->GetInput()->GetWholeExtent(extent1);
   
-  this->Output->SetNumberOfScalarComponents(1);
+  this->GetOutput()->SetNumberOfScalarComponents(1);
   
-  this->Output->SetWholeExtent(extent1);
-  this->Output->SetScalarType(VTK_FLOAT);
+  this->GetOutput()->SetWholeExtent(extent1);
+  this->GetOutput()->SetScalarType(VTK_FLOAT);
 }
 
 //----------------------------------------------------------------------------
 // Grow
-void vtkImageCorrelation::ComputeRequiredInputUpdateExtent(int inExt[6], 
+void vtkImageCorrelation::ComputeInputUpdateExtent(int inExt[6], 
 							   int outExt[6],
 							   int whichInput)
 {
   if (whichInput == 1)
     {
     // get the whole image for input 2
-    memcpy(inExt,this->Inputs[whichInput]->GetWholeExtent(),6*sizeof(int));
+    memcpy(inExt,this->GetInput(whichInput)->GetWholeExtent(),6*sizeof(int));
     }
   else
     {
     // try to get all the data required to handle the boundaries
     // but limit to the whole extent
     int idx;
-    int *i0WExtent = this->Inputs[0]->GetWholeExtent();
-    int *i1WExtent = this->Inputs[1]->GetWholeExtent();
+    int *i0WExtent = this->GetInput(0)->GetWholeExtent();
+    int *i1WExtent = this->GetInput(1)->GetWholeExtent();
     memcpy(inExt,outExt,6*sizeof(int));
     for (idx = 0; idx < 3; idx++)
       {
@@ -221,7 +221,7 @@ void vtkImageCorrelation::ThreadedExecute(vtkImageData **inData,
 					  vtkImageData *outData,
 					  int outExt[6], int id)
 {
-  int *in2Extent = this->Inputs[1]->GetWholeExtent();
+  int *in2Extent = this->GetInput(1)->GetWholeExtent();
   void *in1Ptr = inData[0]->GetScalarPointerForExtent(outExt);
   void *in2Ptr = inData[1]->GetScalarPointerForExtent(in2Extent);
   float *outPtr = (float *)outData->GetScalarPointerForExtent(outExt);

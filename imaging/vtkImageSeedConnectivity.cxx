@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageCache.h"
+
 #include "vtkImageSeedConnectivity.h"
 
 
@@ -128,7 +128,7 @@ void vtkImageSeedConnectivity::InterceptCacheUpdate()
     return;
     }
   
-  this->Output->SetUpdateExtent(this->Output->GetWholeExtent());
+  this->GetOutput()->SetUpdateExtent(this->GetOutput()->GetWholeExtent());
 }
 
 
@@ -172,7 +172,7 @@ void vtkImageSeedConnectivity::Execute(vtkImageData *inData,
   //-------
   // threshold to eliminate unknown values ( only intermediate and 0)
   inData->GetIncrements(inInc0, inInc1, inInc2);
-  this->Output->GetUpdateExtent(min0, max0, min1, max1, min2, max2);
+  this->GetOutput()->GetUpdateExtent(min0, max0, min1, max1, min2, max2);
   outData->GetIncrements(outInc0, outInc1, outInc2);
   inPtr2 = (unsigned char *)(inData->GetScalarPointer(min0,min1,min2));
   outPtr2 = (unsigned char *)(outData->GetScalarPointer(min0,min1,min2));
@@ -252,7 +252,7 @@ void vtkImageSeedConnectivity::Execute(vtkImageData *inData,
   this->Connector->SetUnconnectedValue(temp1);
   this->Connector->SetConnectedValue(temp2);
   this->Connector->MarkData(outData, this->Dimensionality, 
-			    this->Output->GetUpdateExtent());
+			    this->GetOutput()->GetUpdateExtent());
 
   this->UpdateProgress(0.9);
   if (this->AbortExecute)
@@ -290,7 +290,7 @@ void vtkImageSeedConnectivity::Execute(vtkImageData *inData,
 
 void vtkImageSeedConnectivity::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageFilter::PrintSelf(os,indent);
+  vtkImageToImageFilter::PrintSelf(os,indent);
 
   if ( this->Connector )
     {

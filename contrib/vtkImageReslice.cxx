@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <limits.h>
 #include <float.h>
 #include <math.h>
-#include "vtkImageCache.h"
 #include "vtkImageReslice.h"
 #include "vtkMath.h"
 
@@ -83,7 +82,7 @@ vtkImageReslice::~vtkImageReslice()
 //----------------------------------------------------------------------------
 void vtkImageReslice::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageFilter::PrintSelf(os,indent);
+  vtkImageToImageFilter::PrintSelf(os,indent);
 
   os << indent << "ResliceAxes: " << this->ResliceAxes << "\n";
   if (this->ResliceAxes)
@@ -226,16 +225,16 @@ vtkMatrix4x4 *vtkImageReslice::GetIndexMatrix()
 }
 
 //----------------------------------------------------------------------------
-static void ComputeRequiredInputUpdateExtentOptimized(vtkImageReslice *self,
-						      int inExt[6], 
-						      int outExt[6]);
+static void ComputeInputUpdateExtentOptimized(vtkImageReslice *self,
+					      int inExt[6], 
+					      int outExt[6]);
 
-void vtkImageReslice::ComputeRequiredInputUpdateExtent(int inExt[6], 
-						       int outExt[6])
+void vtkImageReslice::ComputeInputUpdateExtent(int inExt[6], 
+					       int outExt[6])
 {
   if (this->GetOptimization())
     {
-    ComputeRequiredInputUpdateExtentOptimized(this,inExt,outExt);
+    ComputeInputUpdateExtentOptimized(this,inExt,outExt);
     return;
     }
 
@@ -305,7 +304,7 @@ void vtkImageReslice::ComputeRequiredInputUpdateExtent(int inExt[6],
 }
 
 //----------------------------------------------------------------------------
-void vtkImageReslice::ExecuteImageInformation() 
+void vtkImageReslice::ExecuteInformation() 
 {
   int i,j;
   float inPoint[4], outPoint[4];
@@ -314,9 +313,9 @@ void vtkImageReslice::ExecuteImageInformation()
 
   int *inExt;
 
-  inExt = this->Input->GetWholeExtent();
-  inSpacing = this->Input->GetSpacing();
-  this->Input->GetOrigin(inOrigin);
+  inExt = this->GetInput()->GetWholeExtent();
+  inSpacing = this->GetInput()->GetSpacing();
+  this->GetInput()->GetOrigin(inOrigin);
   
   vtkTransform *transform = vtkTransform::New();
 
@@ -422,9 +421,9 @@ invertible");
       }
     }
   
-  this->Output->SetWholeExtent(this->OutputExtent);
-  this->Output->SetSpacing(this->OutputSpacing);
-  this->Output->SetOrigin(this->OutputOrigin);
+  this->GetOutput()->SetWholeExtent(this->OutputExtent);
+  this->GetOutput()->SetSpacing(this->OutputSpacing);
+  this->GetOutput()->SetOrigin(this->OutputOrigin);
 
   transform->Delete();
 }
@@ -1232,11 +1231,10 @@ static void vtkImageResliceExecute(vtkImageReslice *self,
 
 //----------------------------------------------------------------------------
 // The remainder of this file is the 'optimized' version of the code.
-
 //----------------------------------------------------------------------------
-static void ComputeRequiredInputUpdateExtentOptimized(vtkImageReslice *self,
-						      int inExt[6], 
-						      int outExt[6])
+static void ComputeInputUpdateExtentOptimized(vtkImageReslice *self,
+					      int inExt[6], 
+					      int outExt[6])
 {
   int i,j,k;
   int idX,idY,idZ;

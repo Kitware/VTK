@@ -92,7 +92,7 @@ int vtkPNMReaderGetInt(FILE *fp)
 }
   
 
-void vtkPNMReader::UpdateImageInformation()
+void vtkPNMReader::UpdateInformation()
 {
   int xsize, ysize, comp;
   char magic[80];
@@ -200,7 +200,7 @@ void vtkPNMReader::UpdateImageInformation()
   this->SetDataScalarTypeToUnsignedChar();
   this->SetNumberOfScalarComponents(comp);
   
-  vtkImageReader::UpdateImageInformation();
+  vtkImageReader::UpdateInformation();
 }
 
 

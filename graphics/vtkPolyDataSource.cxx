@@ -40,10 +40,68 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkPolyDataSource.h"
 
+//----------------------------------------------------------------------------
 vtkPolyDataSource::vtkPolyDataSource()
 {
-  this->Output = vtkPolyData::New();
-  this->Output->SetSource(this);
+  this->vtkSource::SetOutput(0, vtkPolyData::New());
+  this->ExecutePiece = this->ExecuteNumberOfPieces = 0;
 }
+
+//----------------------------------------------------------------------------
+vtkPolyData *vtkPolyDataSource::GetOutput()
+{
+  if (this->NumberOfOutputs < 1)
+    {
+    return NULL;
+    }
+  
+  return (vtkPolyData *)(this->Outputs[0]);
+}
+
+//----------------------------------------------------------------------------
+void vtkPolyDataSource::SetOutput(vtkPolyData *output)
+{
+  this->vtkSource::SetOutput(0, output);
+}
+
+
+//----------------------------------------------------------------------------
+int vtkPolyDataSource::ComputeInputUpdateExtents(vtkDataObject *data)
+{
+  int piece, numPieces;
+  vtkPolyData *output = (vtkPolyData *)data;
+  int idx;
+
+  output->GetUpdateExtent(piece, numPieces);
+  
+  // make sure piece is valid
+  if (piece < 0 || piece >= numPieces)
+    {
+    return 0;
+    }
+  
+  // just copy the Update extent as default behavior.
+  for (idx = 0; idx < this->NumberOfInputs; ++idx)
+    {
+    if (this->Inputs[idx])
+      {
+      this->Inputs[idx]->SetUpdateExtent(piece, numPieces);
+      }
+    }
+  
+  // Save the piece so execute can use this information.
+  this->ExecutePiece = piece;
+  this->ExecuteNumberOfPieces = numPieces;
+    
+  return 1;
+}
+
+  
+
+
+
+
+
+
 
 

@@ -40,6 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkOutlineSource.h"
 
+//----------------------------------------------------------------------------
 vtkOutlineSource::vtkOutlineSource()
 {
   for (int i=0; i<3; i++) 
@@ -49,6 +50,7 @@ vtkOutlineSource::vtkOutlineSource()
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkOutlineSource::Execute()
 {
   float *bounds;
@@ -59,13 +61,13 @@ void vtkOutlineSource::Execute()
   vtkPolyData *output = this->GetOutput();
   
   vtkDebugMacro(<< "Generating outline");
-//
-// Initialize
-//
+  //
+  // Initialize
+  //
   bounds = this->Bounds;
-//
-// Allocate storage and create outline
-//
+  //
+  // Allocate storage and create outline
+  //
   newPts = vtkPoints::New();
   newPts->Allocate(8);
   newLines = vtkCellArray::New();
@@ -112,9 +114,9 @@ void vtkOutlineSource::Execute()
   newLines->InsertNextCell(2,pts);
   pts[0] = 3; pts[1] = 7;
   newLines->InsertNextCell(2,pts);
-//
-// Update selves and release memory
-//
+  //
+  // Update selves and release memory
+  //
   output->SetPoints(newPts);
   newPts->Delete();
 
@@ -122,6 +124,15 @@ void vtkOutlineSource::Execute()
   newLines->Delete();
 }
 
+
+//----------------------------------------------------------------------------
+void vtkOutlineSource::ExecuteInformation()
+{
+  // an outline is always less than 1k
+  this->GetOutput()->SetEstimatedMemorySize(1);
+}
+
+//----------------------------------------------------------------------------
 void vtkOutlineSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataSource::PrintSelf(os,indent);

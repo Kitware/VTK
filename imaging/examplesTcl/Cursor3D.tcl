@@ -131,7 +131,7 @@ vtkVolumeProperty volumeProperty
 vtkVolumeRayCastCompositeFunction  compositeFunction
 
 vtkVolumeRayCastMapper volumeMapper
-    volumeMapper SetScalarInput [reader GetOutput]
+    volumeMapper SetInput [reader GetOutput]
     volumeMapper SetVolumeRayCastFunction compositeFunction
 
 vtkVolume volume

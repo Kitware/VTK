@@ -39,7 +39,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
-#include "vtkImageCache.h"
 #include "vtkRenderLargeImage.h"
 #include "vtkRenderWindow.h"
 
@@ -82,7 +81,7 @@ void vtkRenderLargeImage::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 // Description:
 // This method returns the largest region that can be generated.
-void vtkRenderLargeImage::UpdateImageInformation()
+void vtkRenderLargeImage::UpdateInformation()
 {
   if (this->Input == NULL )
     {
@@ -90,11 +89,8 @@ void vtkRenderLargeImage::UpdateImageInformation()
     return;
     }
 
-  // Make sure we have an output.
-  this->CheckCache();
-    
   // set the extent, if the VOI has not been set then default to
-  this->Output->SetWholeExtent(0, 
+  this->GetOutput()->SetWholeExtent(0, 
 			       this->Magnification*
 			       this->Input->GetRenderWindow()->GetSize()[0] - 1,
 			       0, 
@@ -103,14 +99,14 @@ void vtkRenderLargeImage::UpdateImageInformation()
 			       0, 0);
 
   // set the spacing
-  this->Output->SetSpacing(1.0, 1.0, 1.0);
+  this->GetOutput()->SetSpacing(1.0, 1.0, 1.0);
 
   // set the origin.
-  this->Output->SetOrigin(0.0, 0.0, 0.0);
+  this->GetOutput()->SetOrigin(0.0, 0.0, 0.0);
   
   // set the scalar components
-  this->Output->SetNumberOfScalarComponents(3);
-  this->Output->SetScalarType(VTK_UNSIGNED_CHAR);
+  this->GetOutput()->SetNumberOfScalarComponents(3);
+  this->GetOutput()->SetScalarType(VTK_UNSIGNED_CHAR);
 }
 
 
@@ -131,14 +127,14 @@ void vtkRenderLargeImage::Execute(vtkImageData *data)
   int x, y, row;
   int rowSize, rowStart, rowEnd, colStart, colEnd;
   
-  if (this->Output->GetScalarType() != VTK_UNSIGNED_CHAR)
+  if (this->GetOutput()->GetScalarType() != VTK_UNSIGNED_CHAR)
     {
     vtkErrorMacro("mismatch in scalar types!");
     return;
     }
   
   // Get the requested extents.
-  this->Output->GetUpdateExtent(inExtent);
+  this->GetOutput()->GetUpdateExtent(inExtent);
   // get and transform the increments
   data->GetIncrements(inIncr);
   

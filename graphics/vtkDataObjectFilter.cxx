@@ -43,18 +43,24 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Specify the input data or filter.
 void vtkDataObjectFilter::SetInput(vtkDataObject *input)
 {
-  if ( this->Input != input )
-    {
-    vtkDebugMacro(<<" setting Input to " << (void *)input);
-    if (this->Input) {this->Input->UnRegister(this);}
-    this->Input = input;
-    if (this->Input) {this->Input->Register(this);}
-    this->Modified();
-    }
+  this->vtkProcessObject::SetInput(0, input);
 }
 
 void vtkDataObjectFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkFilter::PrintSelf(os,indent);
+  vtkSource::PrintSelf(os,indent);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 

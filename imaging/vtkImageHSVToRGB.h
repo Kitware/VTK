@@ -51,9 +51,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageHSVToRGB_h
 
 
-#include "vtkImageFilter.h"
+#include "vtkImageToImageFilter.h"
 
-class VTK_EXPORT vtkImageHSVToRGB : public vtkImageFilter
+class VTK_EXPORT vtkImageHSVToRGB : public vtkImageToImageFilter
 {
 public:
   vtkImageHSVToRGB();

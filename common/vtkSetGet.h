@@ -18,7 +18,7 @@ not apply to the related textbook "The Visualization Toolkit" ISBN
 The authors hereby grant permission to use, copy, and distribute this
 software and its documentation for any purpose, provided that existing
 copyright notices are retained in all copies and that this notice is included
-verbatim in any distributions. Additionally, the authors grant permission to
+erbatim in any distributions. Additionally, the authors grant permission to
 modify this software and its documentation for any purpose, provided that
 such modifications are not distributed without the explicit consent of the
 authors and that existing copyright notices are retained in all copies. Some
@@ -96,12 +96,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_DOUBLE_MIN -1.0e+99L
 #define VTK_DOUBLE_MAX  1.0e+99L
 
-// These types are returned to distinguish dataset types
+// These types are returned to distinguish data object types
 #define VTK_POLY_DATA          0
 #define VTK_STRUCTURED_POINTS  1
 #define VTK_STRUCTURED_GRID    2
 #define VTK_RECTILINEAR_GRID   3
 #define VTK_UNSTRUCTURED_GRID  4
+#define VTK_PIECEWISE_FUNCTION  5
+#define VTK_IMAGE_DATA 6
+#define VTK_DATA_OBJECT 7
+#define VTK_DATA_SET 8
 
 // A macro to get the name of a type
 #define vtkImageScalarTypeNameMacro(type) \

@@ -32,8 +32,6 @@ vtkCell \
 vtkDataArray \
 vtkDataSet \
 vtkImplicitFunction \
-vtkImageCache \
-vtkImageSource \
 vtkLocator \
 vtkPointSet \
 vtkScalarsToColors \
@@ -65,7 +63,7 @@ vtkGenericCell \
 vtkHexahedron \
 vtkIdList \
 vtkImageData \
-vtkImageSimpleCache \
+vtkImageSource \
 vtkImageToStructuredPoints \
 vtkIndent \
 vtkIntArray \
@@ -108,7 +106,6 @@ vtkStructuredData \
 vtkStructuredGrid \
 vtkStructuredPoints \
 vtkStructuredPointsSource \
-vtkStructuredPointsToImage \
 vtkTCoords \
 vtkTensor \
 vtkTensors \

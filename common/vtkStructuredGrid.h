@@ -68,7 +68,7 @@ public:
  
   // Description:
   // Return what type of dataset this is.
-  int GetDataSetType() {return VTK_STRUCTURED_GRID;};
+  int GetDataObjectType() {return VTK_STRUCTURED_GRID;};
 
   // Description:
   // Create a similar type object
@@ -126,6 +126,60 @@ public:
   void GetPointCells(int ptId, vtkIdList &cellIds)
     {this->GetPointCells(ptId, &cellIds);}
 
+  // ----------- Stuff for streaming ---------------
+
+  // Description:
+  // Set/Get the whole extent of the data.
+  void SetWholeExtent(int extent[6]);
+  void SetWholeExtent(int xMin, int xMax,
+		      int yMin, int yMax, int zMin, int zMax);
+  void GetWholeExtent(int extent[6]);
+  int *GetWholeExtent() {return this->WholeExtent;}
+  void GetWholeExtent(int &xMin, int &xMax,
+		      int &yMin, int &yMax, int &zMin, int &zMax);
+
+  // Description:
+  // This extent is used to request just a piece of the grid.
+  // If the UpdateExtent is set before Update is called, then
+  // the Update call may only generate the portion of the data 
+  // requested.  The source has the option of generating more 
+  // than the requested extent.  If it does, then it will
+  // modify the UpdateExtent value to reflect the actual extent
+  // in the data.
+  void SetUpdateExtent(int extent[6]);
+  void SetUpdateExtent(int xMin, int xMax,
+		       int yMin, int yMax, int zMin, int zMax);
+  void SetUpdateExtentToWholeExtent();
+  int *GetUpdateExtent();
+  void GetUpdateExtent(int ext[6]);
+
+  // Description:
+  // The generic way of specifying the update extent.
+  // it blocks up the request. (taken from vtkGridSynchronizedTemplates)
+  void SetUpdateExtent(int idx, int numPieces);
+
+  // Description:
+  // This extent reflects what is in the structured grid currently.
+  // it is up to the source to set this during its update.
+  void SetExtent(int extent[6]);
+  void SetExtent(int xMin, int xMax,
+		 int yMin, int yMax, int zMin, int zMax);
+  int *GetExtent();
+
+  // Description:
+  // Called by superclass to limit UpdateExtent to be less than or equal
+  // to the WholeExtent.  It assumes that UpdateInformation has been 
+  // called.
+  void ClipUpdateExtentWithWholeExtent();
+
+  // Description:
+  // Just copies the UpdateExtent from another structured grid.
+  void CopyUpdateExtent(vtkDataObject *structuredGrid);
+
+  // Description:
+  // Just copies the WholeExtent from another structured grid.
+  void CopyInformation(vtkDataObject *structuredGrid);
+
 protected:
   // for the GetCell method
   vtkVertex *Vertex;
@@ -138,6 +192,16 @@ protected:
   int Blanking;
   vtkScalars *PointVisibility;
   void AllocatePointVisibility();
+
+  // -------- stuff for streaming ------------
+
+  // The dimensions if the whole structured grid were update.
+  int WholeExtent[6];
+  // The extent of what is currently in the structured grid.
+  int Extent[6];
+  // What will be generated on the next call to Update.
+  int UpdateExtent[6];
+
 };
 
 

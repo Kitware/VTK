@@ -40,7 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include<math.h>
 #include "vtkImageData.h"
-#include "vtkImageCache.h"
+
 #include "vtkImageOpenClose3D.h"
 
 
@@ -97,7 +97,7 @@ vtkImageOpenClose3D::~vtkImageOpenClose3D()
 //----------------------------------------------------------------------------
 void vtkImageOpenClose3D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageFilter::PrintSelf(os,indent);
+  vtkImageToImageFilter::PrintSelf(os,indent);
   os << indent << "Filter0: \n";
   this->Filter0->PrintSelf(os, indent.GetNextIndent());
   os << indent << "Filter1: \n";
@@ -156,27 +156,11 @@ void vtkImageOpenClose3D::Modified()
 
 
 //----------------------------------------------------------------------------
-// This method sets the cache object of the filter.
-// It justs feeds the request to the sub filter.
-void vtkImageOpenClose3D::SetCache(vtkImageCache *cache)
-{
-  vtkDebugMacro(<< "SetCache: (" << cache << ")");
-  
-  if ( ! this->Filter1)
-    {
-    vtkErrorMacro(<< "SetCache: Sub filter not created yet.");
-    return;
-    }
-  
-  this->Filter1->SetCache(cache);
-}
-  
-//----------------------------------------------------------------------------
 // This method returns the cache to make a connection
 // It justs feeds the request to the sub filter.
-vtkImageCache *vtkImageOpenClose3D::GetOutput()
+vtkImageData *vtkImageOpenClose3D::GetOutput()
 {
-  vtkImageCache *source;
+  vtkImageData *source;
 
   if ( ! this->Filter1)
     {
@@ -193,33 +177,13 @@ vtkImageCache *vtkImageOpenClose3D::GetOutput()
   
 
 //----------------------------------------------------------------------------
-// This method returns the l;ast cache of the internal pipline.
-vtkImageCache *vtkImageOpenClose3D::GetCache()
-{
-  vtkImageCache *cache;
-
-  if ( ! this->Filter1)
-    {
-    vtkErrorMacro(<< "GetCache: Sub filter not created yet.");
-    return NULL;
-    }
-  
-  cache = this->Filter1->GetCache();
-  vtkDebugMacro(<< "GetOutput: returning cache "
-                << cache->GetClassName() << " (" << cache << ")");
-
-  return cache;
-}
-  
-
-//----------------------------------------------------------------------------
 // This method considers the sub filters MTimes when computing this objects
 // MTime
 unsigned long int vtkImageOpenClose3D::GetMTime()
 {
   unsigned long int t1, t2;
   
-  t1 = this->vtkImageFilter::GetMTime();
+  t1 = this->vtkImageToImageFilter::GetMTime();
   if (this->Filter0)
     {
     t2 = this->Filter0->GetMTime();
@@ -279,28 +243,9 @@ unsigned long int vtkImageOpenClose3D::GetPipelineMTime()
 
 //----------------------------------------------------------------------------
 // Set the Input of the filter.
-void vtkImageOpenClose3D::SetInput(vtkImageCache *input)
+void vtkImageOpenClose3D::SetInput(vtkImageData *input)
 {
-  if (this->Input == input)
-    {
-    return;
-    }
-  
-  if (this->Input)
-    {
-    this->Input->UnRegister(this);
-    this->Input = NULL;
-    }
-  if (input)
-    {
-    input->Register(this);
-    }
-  
-  this->Input = input;
-  this->Modified();
-
-  vtkDebugMacro(<< "SetInput: " << input->GetClassName()
-		<< " (" << input << ")");
+  this->vtkProcessObject::SetInput(0, input);
 
   if ( ! this->Filter0 || ! this->Filter1)
     {

@@ -50,9 +50,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageExtractComponents_h
 
 
-#include "vtkImageFilter.h"
+#include "vtkImageToImageFilter.h"
 
-class VTK_EXPORT vtkImageExtractComponents : public vtkImageFilter
+class VTK_EXPORT vtkImageExtractComponents : public vtkImageToImageFilter
 {
 public:
   vtkImageExtractComponents();
@@ -76,7 +76,7 @@ protected:
   int NumberOfComponents;
   int Components[3];
 
-  void ExecuteImageInformation();
+  void ExecuteInformation();
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
 		       int ext[6], int id);
 };

@@ -56,9 +56,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 #include "vtkImageConnector.h"
-#include "vtkImageFilter.h"
+#include "vtkImageToImageFilter.h"
 
-class VTK_EXPORT vtkImageSeedConnectivity : public vtkImageFilter
+class VTK_EXPORT vtkImageSeedConnectivity : public vtkImageToImageFilter
 {
 public:
   vtkImageSeedConnectivity();

@@ -77,7 +77,7 @@ public:
 
   // Description:
   // updates the inage information, (Extent, Scalar type, etc).
-  void UpdateImageInformation();
+  void UpdateInformation();
 
 private:
   float Minimum;

@@ -71,6 +71,7 @@ vtkDataReader::vtkDataReader()
   this->FieldDataName = NULL;
   this->ScalarLut = NULL;
   this->InputString = NULL;
+  this->InputStringLength = 0;
   this->InputStringPos = 0;
   this->ReadFromInputString = 0;
   this->IS = NULL;
@@ -136,15 +137,32 @@ void vtkDataReader::SetSource(vtkSource *source)
     }
 }
 
-  
-void vtkDataReader::SetInputString(char* _arg, int len)
+
+void vtkDataReader::SetInputString(char* in)
+{ 
+  if (in != NULL)
+    {
+    this->SetInputString(in, strlen(in));
+    }
+  else
+    {
+    if (this->InputString)
+      {
+      delete [] this->InputString; 
+      }
+    this->InputString = NULL;
+    }
+}
+
+
+void vtkDataReader::SetInputString(char* in, int len)
 { 
   if (this->Debug)
     {
-    vtkDebugMacro(<< "setting InputString to " << _arg );
+    vtkDebugMacro(<< "setting InputString to " << in );
     }
 
-  if (this->InputString && _arg && strncmp(_arg, this->InputString, len) == 0)
+  if (this->InputString && in && strncmp(in, this->InputString, len) == 0)
     {
     return;
     }
@@ -153,14 +171,16 @@ void vtkDataReader::SetInputString(char* _arg, int len)
     {
     delete [] this->InputString; 
     }
-  if (_arg) 
+  if (in) 
     { 
     this->InputString = new char[len]; 
-    memcpy(this->InputString,_arg,len); 
+    memcpy(this->InputString,in,len); 
+    this->InputStringLength = len;
     } 
    else 
     { 
     this->InputString = NULL; 
+    this->InputStringLength = 0;
     } 
   this->Modified(); 
 } 
@@ -321,7 +341,7 @@ int vtkDataReader::OpenVTKFile()
     if (this->InputString)
       {
       vtkDebugMacro(<< "Reading from InputString");
-      this->IS = new istrstream(this->InputString,strlen(this->InputString));
+      this->IS = new istrstream(this->InputString, this->InputStringLength);
       return 1;
       }
     }
@@ -414,7 +434,7 @@ int vtkDataReader::ReadHeader()
 
   // if this is a binary file we need to make sure that we opened it 
   // as a binary file.
-  if (this->FileType == VTK_BINARY)
+  if (this->FileType == VTK_BINARY && this->ReadFromInputString == 0)
     {
     vtkDebugMacro(<< "Opening vtk file as binary");
     delete this->IS;
@@ -1551,6 +1571,117 @@ int vtkDataReader::ReadCells(int size, int *data)
                       << this->FileName);
         return 0;
         }
+      }
+    }
+
+  if ( this->Source )
+    {
+    float progress = this->Source->GetProgress();
+    this->Source->UpdateProgress(progress + 0.5*(1.0 - progress));
+    }
+
+  return 1;
+}
+
+int vtkDataReader::ReadCells(int size, int *data, 
+			     int skip1, int read2, int skip3)
+{
+  char line[256];
+  int i, numCellPts, junk, *tmp, *pTmp;
+
+  if ( this->FileType == VTK_BINARY)
+    {
+    // suck up newline
+    this->IS->getline(line,256);
+    // first read all the cells as one chunk (each cell has different length).
+    if (skip1 == 0 && skip3 == 0)
+      {
+      tmp = data;
+      }
+    else
+      {
+      tmp = new int[size];
+      }
+    this->IS->read((char *)tmp,sizeof(int)*size);
+    if (this->IS->eof())
+      {
+      vtkErrorMacro(<<"Error reading binary cell data!" << " for file: " 
+                    << this->FileName);
+      return 0;
+      }
+    vtkByteSwap::Swap4BERange(tmp,size);
+    if (tmp == data)
+      {
+      return;
+      }
+    // skip cells before the piece
+    pTmp = tmp;
+    while (skip1 > 0)
+      {
+      // the first value is the number of point ids
+      // skip these plus one for the number itself.
+      pTmp += *pTmp + 1;
+      --skip1;
+      }
+    // copy the cells in the piece 
+    // (ok, I am getting criptic with the loops and increments ...)
+    while (read2 > 0)
+      {
+      // the first value is the number of point ids
+      *data++ = i = *pTmp++;
+      while (i-- > 0)
+	{
+	*data++ = *pTmp++;
+	}
+      --read2;
+      }
+    // delete the temporary array
+    delete [] tmp;
+    }
+  else // ascii
+    {
+    // skip cells before the piece
+    for (i=0; i<skip1; i++)
+      {
+      if (!this->Read(&numCellPts))
+        {
+        vtkErrorMacro(<<"Error reading ascii cell data!" << " for file: " 
+                      << this->FileName);
+        return 0;
+        }
+      while (numCellPts-- > 0)
+	{
+	this->Read(&junk);
+	}
+      }
+    // read the cells in the piece
+    for (i=0; i<read2; i++)
+      {
+      if (!this->Read(data))
+        {
+        vtkErrorMacro(<<"Error reading ascii cell data!" << " for file: " 
+                      << this->FileName);
+        return 0;
+        }
+      numCellPts = *data++;
+      while (numCellPts-- > 0)
+	{
+	this->Read(data++);
+	}
+      }
+    // skip cells after the piece
+    for (i=0; i<skip3; i++)
+      {
+      if (!this->Read(&numCellPts))
+        {
+        vtkErrorMacro(<<"Error reading ascii cell data!" << " for file: " 
+                      << this->FileName);
+        return 0;
+        }
+      while (numCellPts-- > 0)
+	{
+	this->Read(&junk);
+	}
       }
     }
 

@@ -50,9 +50,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // I did not make this a subclass of in place filter because
 // the references on the data do not matter. I make no modifiactions
 // to the data.
-#include "vtkImageFilter.h"
+#include "vtkImageToImageFilter.h"
 
-class VTK_EXPORT vtkImageClip : public vtkImageFilter
+class VTK_EXPORT vtkImageClip : public vtkImageToImageFilter
 {
 public:
   vtkImageClip();
@@ -69,7 +69,7 @@ public:
   int *GetOutputWholeExtent() {return this->OutputWholeExtent;}
 
   void ResetOutputWholeExtent();
-  void InternalUpdate(vtkImageData *outData);
+  void InternalUpdate(vtkDataObject *outData);
 
 protected:
   // Time when OutputImageExtent was computed.
@@ -77,7 +77,7 @@ protected:
   int Initialized; // Set the OutputImageExtent for the first time.
   int OutputWholeExtent[6];
   
-  void ExecuteImageInformation();
+  void ExecuteInformation();
 };
 
 

@@ -42,22 +42,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkExtractVectorComponents::vtkExtractVectorComponents()
 {
-  this->VyComponent = NULL;
-  this->VzComponent = NULL;
 }
 
 vtkExtractVectorComponents::~vtkExtractVectorComponents()
 {
-  if (this->VyComponent) 
-    {
-    this->VyComponent->Delete();
-    this->VyComponent = NULL;
-    }
-  if (this->VzComponent) 
-    {
-    this->VzComponent->Delete();
-    this->VzComponent = NULL;
-    }
 }
 
 // Get the output dataset containing the indicated component. The component is 
@@ -65,36 +53,26 @@ vtkExtractVectorComponents::~vtkExtractVectorComponents()
 // component. By default, the x component is extracted.
 vtkDataSet *vtkExtractVectorComponents::GetOutput(int i)
 {
+  if ( this->NumberOfOutputs < 3 )
+    {
+    vtkErrorMacro(<<"Abstract filters require input to be set before output can be retrieved");
+    return NULL;
+    }
+  
   if ( i < 0 || i > 2 )
     {
     vtkErrorMacro(<<"Vector component must be between (0,2)");
     if ( i < 0 )
       {
-      return (vtkDataSet *)this->Output;
+      return (vtkDataSet *)this->Outputs[0];
       }
     if ( i > 2 )
       {
-      return (vtkDataSet *)this->VzComponent;
+      return (vtkDataSet *)this->Outputs[2];
       }
     }
 
-  if ( this->Output == NULL )
-    {
-    vtkErrorMacro(<<"Abstract filters require input to be set before output can be retrieved");
-    }
-
-  if ( i == 0 )
-    {
-    return (vtkDataSet *)this->Output;
-    }
-  else if ( i == 1 )
-    {
-    return (vtkDataSet *)this->VyComponent;
-    }
-  else
-    {
-    return (vtkDataSet *)this->VzComponent;
-    }
+  return (vtkDataSet *)this->Outputs[i];
 }
 
 // Get the output dataset representing velocity x-component. If output is NULL
@@ -103,11 +81,11 @@ vtkDataSet *vtkExtractVectorComponents::GetOutput(int i)
 // index of 0.)
 vtkDataSet *vtkExtractVectorComponents::GetVxComponent()
 {
-  if ( this->Output == NULL )
+  if ( this->NumberOfOutputs < 1)
     {
     vtkErrorMacro(<<"Abstract filters require input to be set before VxComponent can be retrieved");
     }
-  return (vtkDataSet *)this->Output;
+  return (vtkDataSet *)this->Outputs[0];
 }
 
 // Get the output dataset representing velocity y-component. If output is NULL
@@ -116,11 +94,11 @@ vtkDataSet *vtkExtractVectorComponents::GetVxComponent()
 // index of 1.)
 vtkDataSet *vtkExtractVectorComponents::GetVyComponent()
 {
-  if ( this->VyComponent == NULL )
+  if ( this->NumberOfOutputs < 2)
     {
     vtkErrorMacro(<<"Abstract filters require input to be set before VyComponent can be retrieved");
     }
-  return this->VyComponent;
+  return (vtkDataSet *)this->Outputs[1];
 }
 
 // Get the output dataset representing velocity z-component. If output is NULL
@@ -129,132 +107,43 @@ vtkDataSet *vtkExtractVectorComponents::GetVyComponent()
 // index of 2.)
 vtkDataSet *vtkExtractVectorComponents::GetVzComponent()
 {
-  if ( this->VzComponent == NULL )
+  if ( this->NumberOfOutputs < 3)
     {
     vtkErrorMacro(<<"Abstract filters require input to be set before VzComponent can be retrieved");
     }
-  return this->VzComponent;
+  return (vtkDataSet *)this->Outputs[2];
 }
 
 // Specify the input data or filter.
 void vtkExtractVectorComponents::SetInput(vtkDataSet *input)
 {
-  vtkDataSet *thisInput=(vtkDataSet *)this->Input;
-  
-  if ( thisInput != input )
-    {
-    vtkDebugMacro(<<" setting Input to " << (void *)input);
-    if (this->Input)
-      {
-      this->Input->UnRegister(this);
-      }
-    this->Input = (vtkDataObject *)(input);
-    if (this->Input)
-      {
-      this->Input->Register(this);
-      }
-    thisInput = input;
-    this->Modified();
-
-    if ( thisInput == NULL )
-      {
-      return;
-      }
-
-    if ( ! this->Output )
-      {
-      this->Output = thisInput->MakeObject();
-      this->Output->SetSource(this);
-      this->VyComponent = (vtkDataSet *)thisInput->MakeObject();
-      this->VyComponent->SetSource(this);
-      this->VzComponent = (vtkDataSet *)thisInput->MakeObject();
-      this->VzComponent->SetSource(this);
-      return;
-      }
-
-    // since the input has changed we might need to create a new output
-    if (strcmp(this->Output->GetClassName(),thisInput->GetClassName()))
-      {
-      this->Output->Delete();
-      this->VyComponent->Delete();
-      this->VzComponent->Delete();
-
-      this->Output = thisInput->MakeObject();
-      this->Output->SetSource(this);
-      this->VyComponent = (vtkDataSet *)thisInput->MakeObject();
-      this->VyComponent->SetSource(this);
-      this->VzComponent = (vtkDataSet *)thisInput->MakeObject();
-      this->VzComponent->SetSource(this);
-
-      vtkWarningMacro(<<" a new output had to be created since the input type changed.");
-      }
-    }
-}
-
-// Update input to this filter and the filter itself. Note that we are 
-// overloading this method because the output is an abstract dataset type.
-// This requires special treatment.
-void vtkExtractVectorComponents::Update()
-{
-  // make sure output has been created
-  if ( !this->Output )
-    {
-    vtkErrorMacro(<< "No output has been created...need to set input");
-    return;
-    }
-
-  // make sure input is available
-  if ( !this->Input )
-    {
-    vtkErrorMacro(<< "No input...can't execute!");
-    return;
-    }
-
-  // prevent chasing our tail
-  if (this->Updating)
+  if (this->NumberOfInputs > 0 && this->Inputs[0] == input )
     {
     return;
     }
 
-  this->Updating = 1;
-  this->Input->Update();
-  this->Updating = 0;
+  this->vtkProcessObject::SetInput(0, input);
 
-  if ( this->Input->GetMTime() > this->ExecuteTime ||
-  this->GetMTime() > this->ExecuteTime )
+  if ( input == NULL )
     {
-    if ( this->Input->GetDataReleased() )
-      {
-      this->Input->ForceUpdate();
-      }
-
-    if ( this->StartMethod )
-      {
-      (*this->StartMethod)(this->StartMethodArg);
-      }
-    // clear just point data output because structure is copied from input
-    ((vtkDataSet *)this->Output)->CopyStructure((vtkDataSet *)this->Input);
-    this->VyComponent->CopyStructure((vtkDataSet *)this->Input);
-    this->VzComponent->CopyStructure((vtkDataSet *)this->Input);
-    // reset AbortExecute flag and Progress
-    this->AbortExecute = 0;
-    this->Progress = 0.0;
-    this->Execute();
-    this->ExecuteTime.Modified();
-    if ( !this->AbortExecute )
-      {
-      this->UpdateProgress(1.0);
-      }
-    this->SetDataReleased(0);
-    if ( this->EndMethod )
-      {
-      (*this->EndMethod)(this->EndMethodArg);
-      }
+    return;
     }
 
-  if ( this->Input->ShouldIReleaseData() )
+  if (this->NumberOfOutputs < 3)
     {
-    this->Input->ReleaseData();
+    this->SetOutput(0,input->MakeObject());
+    this->SetOutput(1,input->MakeObject());
+    this->SetOutput(2,input->MakeObject());
+    return;
+    }
+
+  // since the input has changed we might need to create a new output
+  if (strcmp(this->Outputs[0]->GetClassName(),input->GetClassName()))
+    {
+    this->SetOutput(0,input->MakeObject());
+    this->SetOutput(1,input->MakeObject());
+    this->SetOutput(2,input->MakeObject());
+    vtkWarningMacro(<<" a new output had to be created since the input type changed.");
     }
 }
 
@@ -268,10 +157,15 @@ void vtkExtractVectorComponents::Execute()
 
   vtkDebugMacro(<<"Extracting vector components...");
 
-  pd = ((vtkDataSet *)this->Input)->GetPointData();
-  outVx = ((vtkDataSet *)this->Output)->GetPointData();  
-  outVy = this->VyComponent->GetPointData();  
-  outVz = this->VzComponent->GetPointData();  
+  // taken out of previous update method.
+  this->GetOutput()->CopyStructure(this->GetInput());
+  this->GetVyComponent()->CopyStructure(this->GetInput());
+  this->GetVzComponent()->CopyStructure(this->GetInput());
+  
+  pd = this->GetInput()->GetPointData();
+  outVx = this->GetOutput()->GetPointData();  
+  outVy = this->GetVyComponent()->GetPointData();  
+  outVz = this->GetVzComponent()->GetPointData();  
 
   if ( (vectors = pd->GetVectors()) == NULL ||
   (numVectors = vectors->GetNumberOfVectors()) < 1 )  
@@ -308,68 +202,28 @@ void vtkExtractVectorComponents::Execute()
   vz->Delete();
 }
 
-void vtkExtractVectorComponents::UnRegister(vtkObject *o)
+
+//----------------------------------------------------------------------------
+// Specify the input data or filter.
+vtkDataSet *vtkExtractVectorComponents::GetInput()
 {
-  // detect the circular loop source <-> data
-  // If we have two references and one of them is my data
-  // and I am not being unregistered by my data, break the loop.
-  if (this->ReferenceCount == 4 &&
-      this->Output != o && this->VyComponent != o &&
-      this->VzComponent != o &&
-      this->Output->GetNetReferenceCount() == 1 &&
-      this->VyComponent->GetNetReferenceCount() == 1 &&
-      this->VzComponent->GetNetReferenceCount() == 1)
+  if (this->NumberOfInputs < 1)
     {
-    this->Output->SetSource(NULL);
-    this->VyComponent->SetSource(NULL);
-    this->VzComponent->SetSource(NULL);
-    }
-  if (this->ReferenceCount == 3 &&
-      (this->Output == o || this->VyComponent == o ||
-      this->VzComponent == o) &&
-      (this->Output->GetNetReferenceCount() +
-      this->VyComponent->GetNetReferenceCount() +
-      this->VzComponent->GetNetReferenceCount()) == 4)
-    {
-    this->Output->SetSource(NULL);
-    this->VyComponent->SetSource(NULL);
-    this->VzComponent->SetSource(NULL);
+    return NULL;
     }
   
-  this->vtkObject::UnRegister(o);
+  return (vtkDataSet *)(this->Inputs[0]);
 }
 
-int vtkExtractVectorComponents::InRegisterLoop(vtkObject *o)
+
+
+//----------------------------------------------------------------------------
+// copy Update extent from output passed in to input.
+int 
+vtkExtractVectorComponents::ComputeInputUpdateExtents(vtkDataObject *output)
 {
-  int num = 0;
-  int cnum = 0;
-  
-  if (this->Output->GetSource() == this)
-    {
-    num++;
-    cnum += this->Output->GetNetReferenceCount();
-    }
-  if (this->VyComponent->GetSource() == this)
-    {
-    num++;
-    cnum += this->VyComponent->GetNetReferenceCount();
-    }
-  if (this->VzComponent->GetSource() == this)
-    {
-    num++;
-    cnum += this->VzComponent->GetNetReferenceCount();
-    }
-  
-  // if no one outside is using us
-  // and our data objects are down to one net reference
-  // and we are being asked by one of our data objects
-  if (this->ReferenceCount == num &&
-      cnum == (num + 1) &&
-      (this->Output == o ||
-       this->VyComponent == o ||
-       this->VzComponent == o))
-    {
-    return 1;
-    }
-  return 0;
+  this->GetInput()->CopyUpdateExtent(output);
+  return 1;  
 }
+
+

@@ -79,8 +79,8 @@ public:
 
   // Description:
   // Set/Get the gradient data for doing the position adjustments.
-  vtkSetObjectMacro(GradMaps,vtkStructuredPoints);
-  vtkGetObjectMacro(GradMaps,vtkStructuredPoints);
+  void SetGradMaps(vtkStructuredPoints *gm);
+  vtkStructuredPoints *GetGradMaps();
 
   // Description:
   // These methods can make the positioning look for a target scalar value
@@ -97,7 +97,6 @@ protected:
   void Move(int xdim, int ydim, int zdim, int x, int y,
 	    float *img, vtkVectors *inVecs, 
 	    float *result, int z, float *aspect, float *resultNormal);
-  vtkStructuredPoints *GradMaps;  
   // extension for target insted of maximum
   int TargetFlag;
   float TargetValue;

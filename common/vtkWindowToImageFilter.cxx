@@ -39,7 +39,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
-#include "vtkImageCache.h"
 #include "vtkWindowToImageFilter.h"
 #include "vtkWindow.h"
 
@@ -90,33 +89,29 @@ void vtkWindowToImageFilter::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // This method returns the largest region that can be generated.
-void vtkWindowToImageFilter::UpdateImageInformation()
+void vtkWindowToImageFilter::UpdateInformation()
 {
   if (this->Input == NULL )
     {
     vtkErrorMacro(<<"Please specify a renderer as input!");
     return;
     }
-
-  // Make sure we have an output.
-  this->CheckCache();
-    
+  vtkImageData *out = this->GetOutput();
+  
   // set the extent, if the VOI has not been set then default to
-  this->Output->SetWholeExtent(0, 
-			       this->Input->GetSize()[0] - 1,
-			       0, 
-			       this->Input->GetSize()[1] - 1,
-			       0, 0);
+  out->SetWholeExtent(0, this->Input->GetSize()[0] - 1,
+		      0, this->Input->GetSize()[1] - 1,
+		      0, 0);
   
   // set the spacing
-  this->Output->SetSpacing(1.0, 1.0, 1.0);
+  out->SetSpacing(1.0, 1.0, 1.0);
   
   // set the origin.
-  this->Output->SetOrigin(0.0, 0.0, 0.0);
+  out->SetOrigin(0.0, 0.0, 0.0);
   
   // set the scalar components
-  this->Output->SetNumberOfScalarComponents(3);
-  this->Output->SetScalarType(VTK_UNSIGNED_CHAR);
+  out->SetNumberOfScalarComponents(3);
+  out->SetScalarType(VTK_UNSIGNED_CHAR);
 }
 
 
@@ -126,20 +121,21 @@ void vtkWindowToImageFilter::UpdateImageInformation()
 // are assumed to be the same as the file extent/order.
 void vtkWindowToImageFilter::Execute(vtkImageData *data)
 {
+  vtkImageData *out = this->GetOutput();
   int outExtent[6];
   int outIncr[3];
   int *size;
   unsigned char *pixels, *outPtr, *pixels1;
   int idxY, rowSize;
   
-  if (this->Output->GetScalarType() != VTK_UNSIGNED_CHAR)
+  if (out->GetScalarType() != VTK_UNSIGNED_CHAR)
     {
     vtkErrorMacro("mismatch in scalar types!");
     return;
     }
   
   // Get the requested extents.
-  this->Output->GetUpdateExtent(outExtent);
+  out->GetUpdateExtent(outExtent);
   data->GetIncrements(outIncr);
   rowSize = (outExtent[1] - outExtent[0] + 1)*3;
   

@@ -56,7 +56,7 @@ public:
   static vtkPointSource *New() {return new vtkPointSource;};
   const char *GetClassName() {return "vtkPointSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
-
+  
   // Description:
   // Set the number of points to generate.
   vtkSetClampMacro(NumberOfPoints,int,1,VTK_LARGE_INTEGER);
@@ -74,6 +74,7 @@ public:
 
 protected:
   void Execute();
+  void ExecuteInformation();
   int NumberOfPoints;
   float Center[3];
   float Radius;

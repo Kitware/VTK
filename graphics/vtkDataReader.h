@@ -93,7 +93,7 @@ public:
   // Description:
   // Specify the InputString for use when reading from a character array.
   // Optionally include the length for binary strings.
-  vtkSetStringMacro(InputString);
+  void SetInputString(char *in);
   vtkGetStringMacro(InputString);
   void SetInputString(char *in, int len);
   
@@ -188,8 +188,12 @@ public:
   int ReadPoints(vtkPointSet *ps, int numPts);
 
   // Description:
-  // Read lookup table. Return 0 if error.
+  // Read a bunch of "cells". Return 0 if error.
   int ReadCells(int size, int *data);
+
+  // Description:
+  // Read a piece of the cells (for streaming complience)
+  int ReadCells(int size, int *data, int skip1, int read2, int skip3);
 
   // Description:
   // Read the coordinates for a rectilinear grid. The axes parameter specifies
@@ -256,6 +260,7 @@ protected:
 
   int ReadFromInputString;
   char *InputString;
+  int InputStringLength;
   int InputStringPos;
 
   vtkSetStringMacro(ScalarLut);

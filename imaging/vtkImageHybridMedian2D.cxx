@@ -82,9 +82,9 @@ void vtkImageHybridMedian2D::ThreadedExecute(vtkImageData *inData,
     return;
     }
 
-  this->ComputeRequiredInputUpdateExtent(inExt, outExt); 
+  this->ComputeInputUpdateExtent(inExt, outExt); 
   inData->GetIncrements(inInc0, inInc1, inInc2);
-  this->Input->GetWholeExtent(wholeMin0, wholeMax0, wholeMin1, wholeMax1,
+  this->GetInput()->GetWholeExtent(wholeMin0, wholeMax0, wholeMin1, wholeMax1,
 			      wholeMin2, wholeMax2);
   numComps = inData->GetNumberOfScalarComponents();
   outData->GetIncrements(outInc0, outInc1, outInc2);
