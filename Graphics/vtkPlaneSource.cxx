@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkPlaneSource, "1.62");
+vtkCxxRevisionMacro(vtkPlaneSource, "1.63");
 vtkStandardNewMacro(vtkPlaneSource);
 
 // Construct plane perpendicular to z-axis, resolution 1x1, width and height
@@ -158,9 +158,11 @@ int vtkPlaneSource::RequestData(
   output->SetPoints(newPoints);
   newPoints->Delete();
 
+  newNormals->SetName("Normals");
   output->GetPointData()->SetNormals(newNormals);
   newNormals->Delete();
 
+  newTCoords->SetName("TextureCoordinates");
   output->GetPointData()->SetTCoords(newTCoords);
   newTCoords->Delete();
 
