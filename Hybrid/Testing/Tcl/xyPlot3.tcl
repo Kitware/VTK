@@ -108,6 +108,8 @@ vtkXYPlotActor xyplot
     xyplot SetAxisTitleTextProperty $tprop
     xyplot SetAxisLabelTextProperty $tprop
 
+    xyplot SetLabelFormat "%-#6.2f"
+
 #Okay exercise data object stuff
 vtkDataSetToDataObjectFilter ds2do
     ds2do SetInput [probe GetOutput]
@@ -161,6 +163,9 @@ vtkXYPlotActor xyplot3
     eval $tprop SetColor [[xyplot3 GetProperty] GetColor]
     xyplot3 SetAxisTitleTextProperty $tprop
     xyplot3 SetAxisLabelTextProperty $tprop
+
+    [xyplot3 GetYAxisActor2D] SetLabelFormat "%4.f"
+    [xyplot3 GetXAxisActor2D] SetLabelFormat "%-#6.2f"
 
 # draw an outline
 vtkStructuredGridOutlineFilter outline

@@ -97,6 +97,7 @@ vtkXYPlotActor xyplot
     eval $tprop SetColor [[xyplot GetProperty] GetColor]
     xyplot SetAxisTitleTextProperty $tprop
     xyplot SetAxisLabelTextProperty $tprop
+    xyplot SetLabelFormat "%-#6.2f"
 
 vtkSphereSource vertexGlyph
 vtkXYPlotActor xyplot2
@@ -132,6 +133,7 @@ vtkXYPlotActor xyplot2
     eval $tprop SetColor [[xyplot2 GetProperty] GetColor]
     xyplot2 SetAxisTitleTextProperty $tprop
     xyplot2 SetAxisLabelTextProperty $tprop
+    xyplot2 SetLabelFormat [xyplot GetLabelFormat]
 
 vtkXYPlotActor xyplot3
     xyplot3 AddInput [probe GetOutput] Momentum 0
@@ -166,6 +168,7 @@ vtkXYPlotActor xyplot3
     eval $tprop SetColor [[xyplot3 GetProperty] GetColor]
     xyplot3 SetAxisTitleTextProperty $tprop
     xyplot3 SetAxisLabelTextProperty $tprop
+    xyplot3 SetLabelFormat "%4.f"
 
 # draw an outline
 vtkStructuredGridOutlineFilter outline
