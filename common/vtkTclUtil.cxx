@@ -478,7 +478,9 @@ int vtkTclNewInstanceCommand(ClientData cd, Tcl_Interp *interp,
   if (Tcl_FindHashEntry(&vtkInstanceLookup,argv[1]))
     { 
     Tcl_SetResult(interp, argv[1], TCL_VOLATILE);
-    Tcl_AppendResult(interp, ": a vtk object with that name already exists.");
+    Tcl_AppendResult(interp,
+		     ": a vtk object with that name already exists.",
+		     NULL);
     return TCL_ERROR;
     }
 
