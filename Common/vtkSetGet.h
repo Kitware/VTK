@@ -397,11 +397,10 @@ extern VTK_COMMON_EXPORT void vtkOutputWindowDisplayDebugText(const char*);
 //
 #define vtkGenericWarningMacro(x) \
 { if (vtkObject::GetGlobalWarningDisplay()) { \
-      char *vtkmsgbuff; ostrstream vtkmsg; \
+      vtkOStrStreamWrapper vtkmsg; \
       vtkmsg << "Generic Warning: In " __FILE__ ", line " << __LINE__ << "\n" x \
-      << "\n\n" << ends; \
-      vtkmsgbuff = vtkmsg.str(); \
-      vtkOutputWindowDisplayGenericWarningText(vtkmsgbuff);\
+      << "\n\n"; \
+      vtkOutputWindowDisplayGenericWarningText(vtkmsg.str());\
       vtkmsg.rdbuf()->freeze(0);}}
 
 //
@@ -413,11 +412,9 @@ extern VTK_COMMON_EXPORT void vtkOutputWindowDisplayDebugText(const char*);
 #else
 #define vtkDebugMacro(x) \
 { if (this->Debug && vtkObject::GetGlobalWarningDisplay()) \
-    { char *vtkmsgbuff; \
-      ostrstream vtkmsg; \
-      vtkmsg << "Debug: In " __FILE__ ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x  << "\n\n" << ends; \
-      vtkmsgbuff = vtkmsg.str(); \
-      vtkOutputWindowDisplayDebugText(vtkmsgbuff);\
+    { vtkOStrStreamWrapper vtkmsg; \
+      vtkmsg << "Debug: In " __FILE__ ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x  << "\n\n"; \
+      vtkOutputWindowDisplayDebugText(vtkmsg.str());\
       vtkmsg.rdbuf()->freeze(0);}}
 #endif
 //
@@ -442,19 +439,17 @@ extern VTK_COMMON_EXPORT void vtkOutputWindowDisplayDebugText(const char*);
    {                                                            \
    if (vtkObject::GetGlobalWarningDisplay())                    \
      {                                                          \
-     char *vtkmsgbuff;                                          \
-     ostrstream vtkmsg;                                         \
+     vtkOStrStreamWrapper vtkmsg;                               \
      vtkmsg << "ERROR: In " __FILE__ ", line " << __LINE__      \
             << "\n" << self->GetClassName() << " (" << self     \
-            << "): " x << "\n\n" << ends;                       \
-     vtkmsgbuff = vtkmsg.str();                                 \
+            << "): " x << "\n\n";                               \
      if ( self->HasObserver("ErrorEvent") )                     \
        {                                                        \
        self->InvokeEvent("ErrorEvent", vtkmsg.str());           \
        }                                                        \
      else                                                       \
        {                                                        \
-       vtkOutputWindowDisplayErrorText(vtkmsgbuff);             \
+       vtkOutputWindowDisplayErrorText(vtkmsg.str());           \
        }                                                        \
      vtkmsg.rdbuf()->freeze(0); vtkObject::BreakOnError();      \
      }                                                          \
@@ -468,19 +463,17 @@ extern VTK_COMMON_EXPORT void vtkOutputWindowDisplayDebugText(const char*);
    {                                                            \
    if (vtkObject::GetGlobalWarningDisplay())                    \
      {                                                          \
-     char *vtkmsgbuff;                                          \
-     ostrstream vtkmsg;                                         \
+     vtkOStrStreamWrapper vtkmsg;                               \
      vtkmsg << "Warning: In " __FILE__ ", line " << __LINE__    \
             << "\n" << self->GetClassName() << " (" << self     \
-            << "): " x << "\n\n" << ends;                       \
-     vtkmsgbuff = vtkmsg.str();                                 \
+            << "): " x << "\n\n";                               \
      if ( self->HasObserver("WarningEvent") )                   \
        {                                                        \
        self->InvokeEvent("WarningEvent", vtkmsg.str());         \
        }                                                        \
      else                                                       \
        {                                                        \
-       vtkOutputWindowDisplayWarningText(vtkmsgbuff);           \
+       vtkOutputWindowDisplayWarningText(vtkmsg.str());         \
        }                                                        \
      vtkmsg.rdbuf()->freeze(0);                                 \
      }                                                          \
@@ -574,8 +567,9 @@ virtual float *Get##name() \
 
 // Macro to implement the standard CollectRevisions method.
 #define vtkCxxRevisionMacro(thisClass, revision) \
-  void thisClass::CollectRevisions(ostream& os) \
+  void thisClass::CollectRevisions(ostream& sos) \
   { \
+    vtkOStreamWrapper os(sos); \
     this->Superclass::CollectRevisions(os); \
     os << #thisClass " " revision "\n"; \
   }

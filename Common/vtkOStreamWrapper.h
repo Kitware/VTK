@@ -1,0 +1,106 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkOStreamWrapper.h
+  Language:  C++
+  Date:      $Date$
+  Version:   $Revision$
+
+  Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen 
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even 
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
+// .NAME vtkOStreamWrapper - Wrapper for C++ ostream.  Internal VTK use only.
+// .SECTION Description
+// Provides a wrapper around the C++ ostream so that VTK source files
+// need not include the full C++ streams library.  This is intended to
+// prevent cluttering of the translation unit and speed up
+// compilation.  Experimentation has revealed between 10% and 60% less
+// time for compilation depending on the platform.  This wrapper is
+// used by the macros in vtkSetGet.h.
+
+#ifndef __vtkOStreamWrapper_h
+#define __vtkOStreamWrapper_h
+
+#ifndef __VTK_SYSTEM_INCLUDES__INSIDE
+Do_not_include_vtkOStreamWrapper_directly__vtkSystemIncludes_includes_it;
+#endif
+
+class vtkIndent;
+class vtkObjectBase;
+class vtkLargeInteger;
+
+class VTK_COMMON_EXPORT vtkOStreamWrapper
+{
+public:
+  // Description:
+  // Construct class to reference a real ostream.  All methods and
+  // operators will be forwarded.
+  vtkOStreamWrapper(ostream& os);
+  vtkOStreamWrapper(vtkOStreamWrapper& r);
+  
+  // Description:
+  // Forward this output operator to the real ostream.
+  vtkOStreamWrapper& operator << (const vtkIndent&);
+  vtkOStreamWrapper& operator << (vtkObjectBase&);
+  vtkOStreamWrapper& operator << (const vtkLargeInteger&);
+  vtkOStreamWrapper& operator << (ostream&);
+  vtkOStreamWrapper& operator << (const char*);
+  vtkOStreamWrapper& operator << (void*);
+  vtkOStreamWrapper& operator << (char);
+  vtkOStreamWrapper& operator << (short);
+  vtkOStreamWrapper& operator << (int);
+  vtkOStreamWrapper& operator << (long);
+  vtkOStreamWrapper& operator << (unsigned char);
+  vtkOStreamWrapper& operator << (unsigned short);
+  vtkOStreamWrapper& operator << (unsigned int);
+  vtkOStreamWrapper& operator << (unsigned long);
+  vtkOStreamWrapper& operator << (float);
+  vtkOStreamWrapper& operator << (double);
+#ifdef VTK_NEED_ID_TYPE_STREAM_OPERATORS
+  vtkOStreamWrapper& operator << (vtkIdType);
+#endif
+  vtkOStreamWrapper& operator << (void (*)(void*));
+  vtkOStreamWrapper& operator << (void* (*)(void*));
+  vtkOStreamWrapper& operator << (int (*)(void*));
+  vtkOStreamWrapper& operator << (int* (*)(void*));
+  vtkOStreamWrapper& operator << (float* (*)(void*));
+  vtkOStreamWrapper& operator << (const char* (*)(void*));
+  vtkOStreamWrapper& operator << (void (*)(void*, int*));
+  vtkOStreamWrapper& operator << (ostream& (&)(ostream&));
+  vtkOStreamWrapper& operator << (ios& (&)(ios&));
+  
+  // Description:
+  // Forward the write method to the real stream.
+  vtkOStreamWrapper& write(const char*, unsigned long);
+  
+  // Description:
+  // Get a reference to the real ostream.
+  ostream& GetOStream();
+
+  // Description:
+  // Allow conversion to the real ostream type.  This allows an
+  // instance of vtkOStreamWrapper to look like ostream when passing to a
+  // function argument.
+  operator ostream&();
+
+  // Description:
+  // Forward conversion to bool to the real ostream.
+  operator int();
+  
+  // Description:
+  // Forward the flush method to the real ostream.
+  void flush();
+protected:
+  // Reference to the real ostream.
+  ostream& ostr;
+private:
+  vtkOStreamWrapper& operator=(const vtkOStreamWrapper& r); // Not Implemented.
+};
+
+#endif

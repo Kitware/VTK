@@ -512,6 +512,11 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   int i,j;
   
   fprintf(fp,"// tcl wrapper for %s object\n//\n",data->ClassName);
+  if (strcmp("vtkObjectBase",data->ClassName) != 0)
+    {
+    // Block inclusion of full streams.
+    fprintf(fp,"#define VTK_STREAMS_FWD_ONLY\n");
+    }
   fprintf(fp,"#include \"vtkSystemIncludes.h\"\n");
   fprintf(fp,"#include \"%s.h\"\n\n",data->ClassName);
   fprintf(fp,"#include \"vtkTclUtil.h\"\n");

@@ -57,6 +57,7 @@ vtkHexahedron.cxx
 vtkHomogeneousTransform.cxx
 vtkIdList.cxx
 vtkIdListCollection.cxx
+vtkIdType.cxx
 vtkIdTypeArray.cxx
 vtkIdentityTransform.cxx
 vtkImageData.cxx
@@ -85,6 +86,8 @@ vtkMultiPartExtentTranslator.cxx
 vtkMultiThreader.cxx
 vtkMutexLock.cxx
 vtkNonLinearCell.cxx
+vtkOStrStreamWrapper.cxx
+vtkOStreamWrapper.cxx
 vtkObject.cxx
 vtkObjectBase.cxx
 vtkObjectFactory.cxx
@@ -208,9 +211,12 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkContainer
   vtkDebugLeaksManager
   vtkErrorCode
+  vtkIdType.cxx
   vtkImageIterator
   vtkImageProgressIterator
   vtkLargeInteger
+  vtkOStrStreamWrapper.cxx
+  vtkOStreamWrapper.cxx
   vtkOldStyleCallbackCommand
   vtkString
   WRAP_EXCLUDE

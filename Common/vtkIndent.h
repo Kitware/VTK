@@ -26,6 +26,9 @@
 
 #include "vtkSystemIncludes.h"
 
+class vtkIndent;
+VTK_COMMON_EXPORT ostream& operator<<(ostream& os, const vtkIndent& o);
+
 class VTK_COMMON_EXPORT vtkIndent
 {
 public:
@@ -43,7 +46,7 @@ public:
   //BTX
   // Description:
   // Print out the indentation. Basically output a bunch of spaces.
-  friend VTK_COMMON_EXPORT ostream& operator<<(ostream& os, vtkIndent& o); 
+  friend VTK_COMMON_EXPORT ostream& operator<<(ostream& os, const vtkIndent& o);
   //ETX
 
 protected:

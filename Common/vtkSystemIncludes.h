@@ -22,10 +22,8 @@
 // files. (This is particularly important as VTK moves towards ANSI
 // C++.)  For example, this include file enables user's to build VTK
 // with STL (i.e., use std::ostream and other standard ANSI C++
-// functionality). A compile-time flag (VTK_USE_ANSI_STDLIB) must be
-// set to enable ANSI C++ compliance. You'll probably also need to set
-// various compiler flags. For example, on WIndows for ANSI C++, use
-// /D "VTK_USE_ANSI_STDLIB" /GX /Zm1000.
+// functionality).  A configured flag in vtkConfigure.h
+// (VTK_USE_ANSI_STDLIB) must be set to enable ANSI C++ compliance.
 
 #ifndef __vtkSystemIncludes_h
 #define __vtkSystemIncludes_h
@@ -35,93 +33,26 @@
 #include "vtkWin32Header.h"
 #undef __VTK_SYSTEM_INCLUDES__INSIDE
 
-// include  generic stuff 
+// The language wrapper files do not need the real streams.  They
+// define VTK_STREAMS_FWD_ONLY so that the streams are only
+// forward-declared.  This significantly improves compile time on some
+// platforms.
+#if defined(VTK_STREAMS_FWD_ONLY)
+# include "vtkIOStreamFwd.h" // Forward-declare the C++ streams.
+#else
+# include "vtkIOStream.h"    // Include the real C++ streams.
+#endif
+
+#define __VTK_SYSTEM_INCLUDES__INSIDE
+#include "vtkIdType.h"            // Define vtkIdType and its stream operators.
+#include "vtkOStreamWrapper.h"    // Include the ostream wrapper.
+#include "vtkOStrStreamWrapper.h" // Include the ostrstream wrapper.
+#undef __VTK_SYSTEM_INCLUDES__INSIDE
+
+// Include generic stuff.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-// Handle changes for ANSI C++ ---------------------------------------------
-#ifdef VTK_USE_ANSI_STDLIB
-#include <iostream>
-#include <strstream>
-#include <fstream>
-#include <iomanip>
-using std::dec;
-using std::hex;
-using std::setw;
-using std::cerr;
-using std::cout;
-using std::cin;
-using std::ios;
-using std::endl;
-using std::ends;
-using std::ostream;
-using std::istream;
-using std::ostrstream;
-using std::istrstream;
-using std::strstream;
-using std::ofstream;
-using std::ifstream;
-using std::fstream;
-
-// otherwise, non-ANSI -----------------------------------------------------
-#else
-#ifdef _WIN32_WCE
-  #include "vtkWinCE.h"
-#else
-  #include <iostream.h>
-  #if defined(_MSC_VER)
-    #include <strstrea.h>
-  #else
-    #include <strstream.h>
-  #endif
-  #include <fstream.h>
-#endif // Win CE
-#endif 
-
-#define VTK_HAS_ID_TYPE
-#ifdef VTK_USE_64BIT_IDS
-#  define VTK_ID_TYPE_IS_NOT_BASIC_TYPE
-#  ifdef _WIN32
-typedef __int64 vtkIdType;
-
-// Provide ostream operator for __int64.
-// Allow includer to disable to avoid conflict with other libraries.
-#    ifndef VTK_HAVE_INT64_OSTREAM_OPERATOR
-inline ostream& __cdecl operator<<(ostream& os, __int64 val)
-{
-  // _i64toa can use up to 33 bytes (32 + null terminator).
-  char buf[33];
-  // Convert to string representation in base 10.
-  return (os << _i64toa(val, buf, 10));
-}
-#    endif
-
-// Provide istream operator for __int64.
-// Allow includer to disable to avoid conflict with other libraries.
-#    ifndef VTK_HAVE_INT64_ISTREAM_OPERATOR
-inline istream& __cdecl operator>>(istream& is, __int64& val)
-{
-  // Up to 33 bytes may be needed (32 + null terminator).
-  char buf[33];
-  is.width(33);
-  
-  // Read the string representation from the input.
-  if(is >> buf)
-    {
-    // Convert from string representation to integer.
-    val = _atoi64(buf);
-    }
-  return is;
-}
-#    endif
-
-#  else // _WIN32
-typedef long long vtkIdType;
-#  endif // _WIN32
-#else // VTK_USE_64BIT_IDS
-typedef int vtkIdType;
-#endif // VTK_USE_64BIT_IDS
 
 // Some constants used throughout the code
 #define VTK_LARGE_FLOAT 1.0e+38F

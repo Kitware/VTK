@@ -50,7 +50,7 @@ vtkIndent vtkIndent::GetNextIndent()
 }
  
 // Print out the indentation. Basically output a bunch of spaces.
-ostream& operator<<(ostream& os, vtkIndent& ind)
+ostream& operator<<(ostream& os, const vtkIndent& ind)
 {
   os << blanks + (VTK_NUMBER_OF_BLANKS-ind.Indent) ;
   return os;
