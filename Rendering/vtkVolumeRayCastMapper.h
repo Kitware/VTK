@@ -27,17 +27,19 @@
 #define __vtkVolumeRayCastMapper_h
 
 #include "vtkVolumeMapper.h"
-#include "vtkMultiThreader.h"
-#include "vtkVolumeRayCastFunction.h"
-#include "vtkEncodedGradientShader.h"
-#include "vtkEncodedGradientEstimator.h"
+#include "vtkMultiThreader.h"         // For VTK_THREAD_RETURN_TYPE
+#include "vtkVolumeRayCastFunction.h" // For VTKVRCStaticInfo 
+                                      // and VTKVRCDynamicInfo
 
-class  vtkRenderer;
-class  vtkVolume;
-class  vtkVolumeTransform;
-class  vtkPlaneCollection;
-class  vtkMultiThreader;
-class  vtkTimerLog;
+class vtkMultiThreader;
+class vtkPlaneCollection;
+class vtkRenderer;
+class vtkTimerLog;
+class vtkVolume;
+class vtkVolumeRayCastFunction;
+class vtkVolumeTransform;
+class vtkEncodedGradientEstimator;
+class vtkEncodedGradientShader;
 
 // Macro for floor of x
 #define vtkFloorFuncMacro(x)   (((x) < 0.0)?((int)((x)-1.0)):((int)(x)))
@@ -75,12 +77,12 @@ public:
   // Description:
   // Get / Set the volume ray cast function. This is used to process
   // values found along the ray to compute a final pixel value.
-  vtkSetObjectMacro( VolumeRayCastFunction, vtkVolumeRayCastFunction );
+  virtual void SetVolumeRayCastFunction(vtkVolumeRayCastFunction*);
   vtkGetObjectMacro( VolumeRayCastFunction, vtkVolumeRayCastFunction );
 
   // Description:
   // Set / Get the gradient estimator used to estimate normals
-  void SetGradientEstimator( vtkEncodedGradientEstimator *gradest );
+  virtual void SetGradientEstimator(vtkEncodedGradientEstimator *gradest);
   vtkGetObjectMacro( GradientEstimator, vtkEncodedGradientEstimator );
 
   // Description:

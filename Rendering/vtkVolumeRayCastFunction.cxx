@@ -17,10 +17,13 @@
 =========================================================================*/
 
 #include "vtkVolumeRayCastFunction.h"
-#include "vtkVolumeRayCastMapper.h"
-#include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkVolumeRayCastFunction, "1.18");
+#include "vtkEncodedGradientEstimator.h"
+#include "vtkEncodedGradientShader.h"
+#include "vtkVolume.h"
+#include "vtkVolumeRayCastMapper.h"
+
+vtkCxxRevisionMacro(vtkVolumeRayCastFunction, "1.19");
 
 // Grab everything we need for rendering now. This procedure will be called
 // during the initialization phase of ray casting. It is called once per 
