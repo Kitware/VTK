@@ -94,19 +94,19 @@ vtkRenderWindowInteractor iren
   iren SetRenderWindow renWin
 
 # add a frame around the volume
-vtkOutlineFilter frame
-  frame SetInput [reader GetOutput]
+vtkOutlineFilter outline
+  outline SetInput [reader GetOutput]
 
-vtkPolyDataMapper frameMapper
-  frameMapper SetInput [frame GetOutput]
+vtkPolyDataMapper outlineMapper
+  outlineMapper SetInput [outline GetOutput]
 
-vtkActor frameActor
-  frameActor SetMapper frameMapper
-  [frameActor GetProperty] SetColor 1.0000 0.8431 0.0000
+vtkActor outlineActor
+  outlineActor SetMapper outlineMapper
+  [outlineActor GetProperty] SetColor 1.0000 0.8431 0.0000
 
 # add the actors to the renderer, set the background and size
 ren1 AddActor actor
-ren1 AddActor frameActor
+ren1 AddActor outlineActor
 ren1 SetBackground 1 1 1
 renWin SetSize 500 500
 
