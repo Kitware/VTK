@@ -5,6 +5,7 @@ IF (VTK_USE_RENDERING)
   #
   IF (VTK_DATA_ROOT)
     FOREACH ( tfile 
+      dcubes
       mcubes
       TestSynchronizedTemplates2D
       TestSynchronizedTemplates3D
