@@ -21,6 +21,25 @@ vlScalars *vlAGraymap::MakeObject(int sze, int ext)
 }
 
 // Description:
+// Return a unsigned char gray for a particular point id.
+// (Note: gray value converted into full rgb triplet.)
+unsigned char *vlAGraymap::GetColor(int id)
+{
+  static unsigned char rgb[3];
+  rgb[0] = rgb[1] = rgb[2] = this->S[2*id];
+  return rgb;
+}
+
+// Description:
+// Copy gray components into user provided array for specified
+// point id.
+// (Note: gray value converted into full rgb triplet.)
+void vlAGraymap::GetColor(int id, unsigned char rgb[3])
+{
+  rgb[0] = rgb[1] = rgb[2] = this->S[2*id];
+}
+
+// Description:
 // Deep copy of scalars.
 vlAGraymap& vlAGraymap::operator=(const vlAGraymap& fs)
 {

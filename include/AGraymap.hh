@@ -62,10 +62,6 @@ protected:
 };
 
 // Description:
-// Return a rgb triplet at array location i.
-inline unsigned char *vlAGraymap::GetColor(int i) {return this->S.GetPtr(2*i);};
-
-// Description:
 // Set a rgb value at a particular array location. Does not do range 
 // checking.
 inline void vlAGraymap::SetColor(int i, unsigned char rgb[3]) 
