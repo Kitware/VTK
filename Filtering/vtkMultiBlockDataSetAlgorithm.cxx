@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkMultiBlockDataSetAlgorithm, "1.1");
+vtkCxxRevisionMacro(vtkMultiBlockDataSetAlgorithm, "1.2");
 vtkStandardNewMacro(vtkMultiBlockDataSetAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -43,7 +43,10 @@ vtkMultiBlockDataSet* vtkMultiBlockDataSetAlgorithm::GetOutput()
 //----------------------------------------------------------------------------
 vtkMultiBlockDataSet* vtkMultiBlockDataSetAlgorithm::GetOutput(int port)
 {
-  return vtkMultiBlockDataSet::SafeDownCast(this->GetOutputDataObject(port));
+  vtkDataObject* output = 
+    vtkCompositeDataPipeline::SafeDownCast(this->GetExecutive())->
+    GetCompositeOutputData(port);
+  return vtkMultiBlockDataSet::SafeDownCast(output);
 }
 
 //----------------------------------------------------------------------------
