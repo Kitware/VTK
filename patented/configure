@@ -12,15 +12,7 @@ ac_help=
 ac_default_prefix=/usr/local
 # Any additions from configure.in:
 ac_help="$ac_help
-  --with-tcl              build vtk the tcl based interpreter"
-ac_help="$ac_help
-  --with-java             build vtk with java support"
-ac_help="$ac_help
   --with-x                use the X Window System"
-ac_help="$ac_help
-  --disable-load          disallow dynamic loading and "load" command"
-ac_help="$ac_help
-  --with-shared               create shared libraries"
 
 # Initialize some variables set by options.
 # The variables have the same names as the options, with
@@ -523,6 +515,7 @@ fi
 
 
 
+
 #
 # check for some programs we use
 #
@@ -612,7 +605,7 @@ else
   yes;
 #endif
 EOF
-if { ac_try='${CC-cc} -E conftest.c'; { (eval echo configure:616: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } | egrep yes >/dev/null 2>&1; then
+if { ac_try='${CC-cc} -E conftest.c'; { (eval echo configure:609: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } | egrep yes >/dev/null 2>&1; then
   ac_cv_prog_gcc=yes
 else
   ac_cv_prog_gcc=no
@@ -692,7 +685,7 @@ else
   yes;
 #endif
 EOF
-if { ac_try='${CXX-g++} -E conftest.C'; { (eval echo configure:696: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } | egrep yes >/dev/null 2>&1; then
+if { ac_try='${CXX-g++} -E conftest.C'; { (eval echo configure:689: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } | egrep yes >/dev/null 2>&1; then
   ac_cv_prog_gxx=yes
 else
   ac_cv_prog_gxx=no
@@ -757,25 +750,53 @@ else
   echo "$ac_t""no" 1>&6
 fi
 
-echo $ac_n "checking whether ln -s works""... $ac_c" 1>&6
-if eval "test \"`echo '$''{'ac_cv_prog_LN_S'+set}'`\" = set"; then
-  echo $ac_n "(cached) $ac_c" 1>&6
-else
-  rm -f conftestdata
-if ln -s X conftestdata 2>/dev/null
+
+if test ! -r targets.make
 then
-  rm -f conftestdata
-  ac_cv_prog_LN_S="ln -s"
-else
-  ac_cv_prog_LN_S=ln
+    echo "Copying $srcdir/targets.make to build directory"
+    cp $srcdir/targets.make targets.make || exit 1
 fi
-fi
-LN_S="$ac_cv_prog_LN_S"
-if test "$ac_cv_prog_LN_S" = "ln -s"; then
-  echo "$ac_t""yes" 1>&6
-else
-  echo "$ac_t""no" 1>&6
-fi
+
+# get the common settings
+. ../vtkConfig.sh
+
+BIGENDIAN=$TMP_BIGENDIAN
+
+USE_TOOLKIT_FLAGS=$TMP_USE_TOOLKIT_FLAGS
+
+BUILD_TCL=$TMP_BUILD_TCL
+
+CLEAN_TCL=$TMP_CLEAN_TCL
+
+BUILD_JAVA=$TMP_BUILD_JAVA
+
+CLEAN_JAVA=$TMP_CLEAN_JAVA
+
+MAKEINCLUDE=$TMP_MAKEINCLUDE
+
+MAKEQUOTE=$TMP_MAKEQUOTE
+
+VTK_SHLIB_CFLAGS=$TMP_VTK_SHLIB_CFLAGS
+
+VTK_LIB_EXT=$TMP_VTK_LIB_EXT
+
+SHLIB_LD=$TMP_SHLIB_LD
+
+DL_LIBS=$TMP_DL_LIBS
+
+SHLIB_LD_LIBS=$TMP_SHLIB_LD_LIBS
+
+SHLIB_SUFFIX=$TMP_SHLIB_SUFFIX
+
+SHLIB_VERSION=$TMP_SHLIB_VERSION
+
+THREAD_FLAGS=$TMP_THREAD_FLAGS
+
+THREAD_LIBS=$TMP_THREAD_LIBS
+
+VTK_INLINE_FLAGS=$TMP_VTK_INLINE_FLAGS
+
+VTK_TEMPLATE_FLAGS=$TMP_VTK_TEMPLATE_FLAGS
 
 
 ac_aux_dir=
@@ -800,6 +821,63 @@ ac_configure=$ac_aux_dir/configure # This should be Cygnus configure.
 subdirs="tcl java"
 
 
+# Find the X include directories and libraries
+echo $ac_n "checking how to run the C preprocessor""... $ac_c" 1>&6
+# On Suns, sometimes $CPP names a directory.
+if test -n "$CPP" && test -d "$CPP"; then
+  CPP=
+fi
+if test -z "$CPP"; then
+if eval "test \"`echo '$''{'ac_cv_prog_CPP'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+    # This must be in double quotes, not single quotes, because CPP may get
+  # substituted into the Makefile and "${CC-cc}" will confuse make.
+  CPP="${CC-cc} -E"
+  # On the NeXT, cc -E runs the code through the compiler's parser,
+  # not just through cpp.
+  cat > conftest.$ac_ext <<EOF
+#line 841 "configure"
+#include "confdefs.h"
+#include <assert.h>
+Syntax Error
+EOF
+ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
+{ (eval echo configure:847: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+ac_err=`grep -v '^ *+' conftest.out`
+if test -z "$ac_err"; then
+  :
+else
+  echo "$ac_err" >&5
+  rm -rf conftest*
+  CPP="${CC-cc} -E -traditional-cpp"
+  cat > conftest.$ac_ext <<EOF
+#line 856 "configure"
+#include "confdefs.h"
+#include <assert.h>
+Syntax Error
+EOF
+ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
+{ (eval echo configure:862: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+ac_err=`grep -v '^ *+' conftest.out`
+if test -z "$ac_err"; then
+  :
+else
+  echo "$ac_err" >&5
+  rm -rf conftest*
+  CPP=/lib/cpp
+fi
+rm -f conftest*
+fi
+rm -f conftest*
+  ac_cv_prog_CPP="$CPP"
+fi
+  CPP="$ac_cv_prog_CPP"
+else
+  ac_cv_prog_CPP="$CPP"
+fi
+echo "$ac_t""$CPP" 1>&6
+
 echo $ac_n "checking for POSIXized ISC""... $ac_c" 1>&6
 if test -d /etc/conf/kconfig.d &&
   grep _POSIX_VERSION /usr/include/sys/unistd.h >/dev/null 2>&1
@@ -820,322 +898,6 @@ else
   ISC=
 fi
 
-
-#
-# Checks for header files.
-#
-echo $ac_n "checking how to run the C preprocessor""... $ac_c" 1>&6
-# On Suns, sometimes $CPP names a directory.
-if test -n "$CPP" && test -d "$CPP"; then
-  CPP=
-fi
-if test -z "$CPP"; then
-if eval "test \"`echo '$''{'ac_cv_prog_CPP'+set}'`\" = set"; then
-  echo $ac_n "(cached) $ac_c" 1>&6
-else
-    # This must be in double quotes, not single quotes, because CPP may get
-  # substituted into the Makefile and "${CC-cc}" will confuse make.
-  CPP="${CC-cc} -E"
-  # On the NeXT, cc -E runs the code through the compiler's parser,
-  # not just through cpp.
-  cat > conftest.$ac_ext <<EOF
-#line 843 "configure"
-#include "confdefs.h"
-#include <assert.h>
-Syntax Error
-EOF
-ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:849: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
-ac_err=`grep -v '^ *+' conftest.out`
-if test -z "$ac_err"; then
-  :
-else
-  echo "$ac_err" >&5
-  rm -rf conftest*
-  CPP="${CC-cc} -E -traditional-cpp"
-  cat > conftest.$ac_ext <<EOF
-#line 858 "configure"
-#include "confdefs.h"
-#include <assert.h>
-Syntax Error
-EOF
-ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:864: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
-ac_err=`grep -v '^ *+' conftest.out`
-if test -z "$ac_err"; then
-  :
-else
-  echo "$ac_err" >&5
-  rm -rf conftest*
-  CPP=/lib/cpp
-fi
-rm -f conftest*
-fi
-rm -f conftest*
-  ac_cv_prog_CPP="$CPP"
-fi
-  CPP="$ac_cv_prog_CPP"
-else
-  ac_cv_prog_CPP="$CPP"
-fi
-echo "$ac_t""$CPP" 1>&6
-
-# If we cannot run a trivial program, we must be cross compiling.
-echo $ac_n "checking whether cross-compiling""... $ac_c" 1>&6
-if eval "test \"`echo '$''{'ac_cv_c_cross'+set}'`\" = set"; then
-  echo $ac_n "(cached) $ac_c" 1>&6
-else
-  if test "$cross_compiling" = yes; then
-  ac_cv_c_cross=yes
-else
-cat > conftest.$ac_ext <<EOF
-#line 893 "configure"
-#include "confdefs.h"
-main(){return(0);}
-EOF
-{ (eval echo configure:897: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }
-if test -s conftest && (./conftest; exit) 2>/dev/null; then
-  ac_cv_c_cross=no
-else
-  ac_cv_c_cross=yes
-fi
-fi
-rm -fr conftest*
-fi
-
-echo "$ac_t""$ac_cv_c_cross" 1>&6
-cross_compiling=$ac_cv_c_cross
-
-echo $ac_n "checking for ANSI C header files""... $ac_c" 1>&6
-if eval "test \"`echo '$''{'ac_cv_header_stdc'+set}'`\" = set"; then
-  echo $ac_n "(cached) $ac_c" 1>&6
-else
-  cat > conftest.$ac_ext <<EOF
-#line 915 "configure"
-#include "confdefs.h"
-#include <stdlib.h>
-#include <stdarg.h>
-#include <string.h>
-#include <float.h>
-EOF
-ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:923: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
-ac_err=`grep -v '^ *+' conftest.out`
-if test -z "$ac_err"; then
-  rm -rf conftest*
-  ac_cv_header_stdc=yes
-else
-  echo "$ac_err" >&5
-  rm -rf conftest*
-  ac_cv_header_stdc=no
-fi
-rm -f conftest*
-
-if test $ac_cv_header_stdc = yes; then
-  # SunOS 4.x string.h does not declare mem*, contrary to ANSI.
-cat > conftest.$ac_ext <<EOF
-#line 938 "configure"
-#include "confdefs.h"
-#include <string.h>
-EOF
-if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
-  egrep "memchr" >/dev/null 2>&1; then
-  :
-else
-  rm -rf conftest*
-  ac_cv_header_stdc=no
-fi
-rm -f conftest*
-
-fi
-
-if test $ac_cv_header_stdc = yes; then
-  # ISC 2.0.2 stdlib.h does not declare free, contrary to ANSI.
-cat > conftest.$ac_ext <<EOF
-#line 956 "configure"
-#include "confdefs.h"
-#include <stdlib.h>
-EOF
-if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
-  egrep "free" >/dev/null 2>&1; then
-  :
-else
-  rm -rf conftest*
-  ac_cv_header_stdc=no
-fi
-rm -f conftest*
-
-fi
-
-if test $ac_cv_header_stdc = yes; then
-  # /bin/cc in Irix-4.0.5 gets non-ANSI ctype macros unless using -ansi.
-if test "$cross_compiling" = yes; then
-  :
-else
-cat > conftest.$ac_ext <<EOF
-#line 977 "configure"
-#include "confdefs.h"
-#include <ctype.h>
-#define ISLOWER(c) ('a' <= (c) && (c) <= 'z')
-#define TOUPPER(c) (ISLOWER(c) ? 'A' + ((c) - 'a') : (c))
-#define XOR(e, f) (((e) && !(f)) || (!(e) && (f)))
-int main () { int i; for (i = 0; i < 256; i++)
-if (XOR (islower (i), ISLOWER (i)) || toupper (i) != TOUPPER (i)) exit(2);
-exit (0); }
-
-EOF
-{ (eval echo configure:988: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }
-if test -s conftest && (./conftest; exit) 2>/dev/null; then
-  :
-else
-  ac_cv_header_stdc=no
-fi
-fi
-rm -fr conftest*
-fi
-fi
-
-echo "$ac_t""$ac_cv_header_stdc" 1>&6
-if test $ac_cv_header_stdc = yes; then
-  cat >> confdefs.h <<\EOF
-#define STDC_HEADERS 1
-EOF
-
-fi
-
-
-# Check whether --with-tcl or --without-tcl was given.
-if test "${with_tcl+set}" = set; then
-  withval="$with_tcl"
-  BUILD_TCL=build_tcl
-	 CLEAN_TCL=clean_tcl
-fi
-
-
-
-
-
-# Check whether --with-java or --without-java was given.
-if test "${with_java+set}" = set; then
-  withval="$with_java"
-  BUILD_JAVA=build_java
-	 CLEAN_JAVA=clean_java
-fi
-
-
-
-
-
-# Checks for typedefs, structures, and compiler characteristics.
-echo $ac_n "checking for working const""... $ac_c" 1>&6
-if eval "test \"`echo '$''{'ac_cv_c_const'+set}'`\" = set"; then
-  echo $ac_n "(cached) $ac_c" 1>&6
-else
-  cat > conftest.$ac_ext <<EOF
-#line 1036 "configure"
-#include "confdefs.h"
-
-int main() { return 0; }
-int t() {
-
-/* Ultrix mips cc rejects this.  */
-typedef int charset[2]; const charset x;
-/* SunOS 4.1.1 cc rejects this.  */
-char const *const *ccp;
-char **p;
-/* NEC SVR4.0.2 mips cc rejects this.  */
-struct point {int x, y;};
-static struct point const zero = {0,0};
-/* AIX XL C 1.02.0.0 rejects this.
-   It does not let you subtract one const X* pointer from another in an arm
-   of an if-expression whose if-part is not a constant expression */
-const char *g = "string";
-ccp = &g + (g ? g-g : 0);
-/* HPUX 7.0 cc rejects these. */
-++ccp;
-p = (char**) ccp;
-ccp = (char const *const *) p;
-{ /* SCO 3.2v4 cc rejects this.  */
-  char *t;
-  char const *s = 0 ? (char *) 0 : (char const *) 0;
-
-  *t++ = 0;
-}
-{ /* Someone thinks the Sun supposedly-ANSI compiler will reject this.  */
-  int x[] = {25, 17};
-  const int *foo = &x[0];
-  ++foo;
-}
-{ /* Sun SC1.0 ANSI compiler rejects this -- but not the above. */
-  typedef const int *iptr;
-  iptr p = 0;
-  ++p;
-}
-{ /* AIX XL C 1.02.0.0 rejects this saying
-     "k.c", line 2.27: 1506-025 (S) Operand must be a modifiable lvalue. */
-  struct s { int j; const int *ap[3]; };
-  struct s *b; b->j = 5;
-}
-{ /* ULTRIX-32 V3.1 (Rev 9) vcc rejects this */
-  const int foo = 10;
-}
-
-; return 0; }
-EOF
-if { (eval echo configure:1086: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
-  rm -rf conftest*
-  ac_cv_c_const=yes
-else
-  rm -rf conftest*
-  ac_cv_c_const=no
-fi
-rm -f conftest*
-
-fi
-
-echo "$ac_t""$ac_cv_c_const" 1>&6
-if test $ac_cv_c_const = no; then
-  cat >> confdefs.h <<\EOF
-#define const 
-EOF
-
-fi
-
-echo $ac_n "checking whether struct tm is in sys/time.h or time.h""... $ac_c" 1>&6
-if eval "test \"`echo '$''{'ac_cv_struct_tm'+set}'`\" = set"; then
-  echo $ac_n "(cached) $ac_c" 1>&6
-else
-  cat > conftest.$ac_ext <<EOF
-#line 1110 "configure"
-#include "confdefs.h"
-#include <sys/types.h>
-#include <time.h>
-int main() { return 0; }
-int t() {
-struct tm *tp; tp->tm_sec;
-; return 0; }
-EOF
-if { (eval echo configure:1119: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
-  rm -rf conftest*
-  ac_cv_struct_tm=time.h
-else
-  rm -rf conftest*
-  ac_cv_struct_tm=sys/time.h
-fi
-rm -f conftest*
-
-fi
-
-echo "$ac_t""$ac_cv_struct_tm" 1>&6
-if test $ac_cv_struct_tm = sys/time.h; then
-  cat >> confdefs.h <<\EOF
-#define TM_IN_SYS_TIME 1
-EOF
-
-fi
-
-
-# Find the X include directories and libraries
 # If we find X, set shell vars x_includes and x_libraries to the
 # paths, otherwise set no_x=yes.
 # Uses ac_ vars as temps to allow command line to override cache and checks.
@@ -1200,12 +962,12 @@ if test "$ac_x_includes" = NO; then
 
   # First, try using that file with no special directory specified.
 cat > conftest.$ac_ext <<EOF
-#line 1204 "configure"
+#line 966 "configure"
 #include "confdefs.h"
 #include <$x_direct_test_include>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:1209: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:971: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -1272,7 +1034,7 @@ if test "$ac_x_libraries" = NO; then
   ac_save_LIBS="$LIBS"
   LIBS="-l$x_direct_test_library $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 1276 "configure"
+#line 1038 "configure"
 #include "confdefs.h"
 
 int main() { return 0; }
@@ -1280,7 +1042,7 @@ int t() {
 ${x_direct_test_function}()
 ; return 0; }
 EOF
-if { (eval echo configure:1284: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+if { (eval echo configure:1046: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
   rm -rf conftest*
   LIBS="$ac_save_LIBS"
 # We can link X programs with no special library path.
@@ -1401,7 +1163,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lICE  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 1405 "configure"
+#line 1167 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 char IceConnectionNumber();
@@ -1411,7 +1173,7 @@ int t() {
 IceConnectionNumber()
 ; return 0; }
 EOF
-if { (eval echo configure:1415: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+if { (eval echo configure:1177: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -1447,7 +1209,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-ldnet  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 1451 "configure"
+#line 1213 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 char dnet_ntoa();
@@ -1457,7 +1219,7 @@ int t() {
 dnet_ntoa()
 ; return 0; }
 EOF
-if { (eval echo configure:1461: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+if { (eval echo configure:1223: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -1484,7 +1246,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-ldnet_stub  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 1488 "configure"
+#line 1250 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 char dnet_ntoa();
@@ -1494,7 +1256,7 @@ int t() {
 dnet_ntoa()
 ; return 0; }
 EOF
-if { (eval echo configure:1498: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+if { (eval echo configure:1260: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -1526,7 +1288,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lnsl  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 1530 "configure"
+#line 1292 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 char t_accept();
@@ -1536,7 +1298,7 @@ int t() {
 t_accept()
 ; return 0; }
 EOF
-if { (eval echo configure:1540: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+if { (eval echo configure:1302: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -1567,7 +1329,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lsocket  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 1571 "configure"
+#line 1333 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 char socket();
@@ -1577,7 +1339,7 @@ int t() {
 socket()
 ; return 0; }
 EOF
-if { (eval echo configure:1581: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+if { (eval echo configure:1343: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -1598,719 +1360,6 @@ fi
     fi
   fi
 fi
-
-
-# get byte swapping info
-echo $ac_n "checking whether byte ordering is bigendian""... $ac_c" 1>&6
-if eval "test \"`echo '$''{'ac_cv_c_bigendian'+set}'`\" = set"; then
-  echo $ac_n "(cached) $ac_c" 1>&6
-else
-  ac_cv_c_bigendian=unknown
-# See if sys/param.h defines the BYTE_ORDER macro.
-cat > conftest.$ac_ext <<EOF
-#line 1612 "configure"
-#include "confdefs.h"
-#include <sys/types.h>
-#include <sys/param.h>
-int main() { return 0; }
-int t() {
-
-#if !BYTE_ORDER || !BIG_ENDIAN || !LITTLE_ENDIAN
- bogus endian macros
-#endif
-; return 0; }
-EOF
-if { (eval echo configure:1624: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
-  rm -rf conftest*
-  # It does; now see whether it defined to BIG_ENDIAN or not.
-cat > conftest.$ac_ext <<EOF
-#line 1628 "configure"
-#include "confdefs.h"
-#include <sys/types.h>
-#include <sys/param.h>
-int main() { return 0; }
-int t() {
-
-#if BYTE_ORDER != BIG_ENDIAN
- not big endian
-#endif
-; return 0; }
-EOF
-if { (eval echo configure:1640: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
-  rm -rf conftest*
-  ac_cv_c_bigendian=yes
-else
-  rm -rf conftest*
-  ac_cv_c_bigendian=no
-fi
-rm -f conftest*
-
-fi
-rm -f conftest*
-
-if test $ac_cv_c_bigendian = unknown; then
-if test "$cross_compiling" = yes; then
-    { echo "configure: error: can not run test program while cross compiling" 1>&2; exit 1; }
-else
-cat > conftest.$ac_ext <<EOF
-#line 1657 "configure"
-#include "confdefs.h"
-main () {
-  /* Are we little or big endian?  From Harbison&Steele.  */
-  union
-  {
-    long l;
-    char c[sizeof (long)];
-  } u;
-  u.l = 1;
-  exit (u.c[sizeof (long) - 1] == 1);
-}
-EOF
-{ (eval echo configure:1670: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }
-if test -s conftest && (./conftest; exit) 2>/dev/null; then
-  ac_cv_c_bigendian=no
-else
-  ac_cv_c_bigendian=yes
-fi
-fi
-rm -fr conftest*
-fi
-fi
-
-echo "$ac_t""$ac_cv_c_bigendian" 1>&6
-if test $ac_cv_c_bigendian = yes; then
-  cat >> confdefs.h <<\EOF
-#define WORDS_BIGENDIAN 1
-EOF
-
-fi
-
-
-if test $ac_cv_c_bigendian = yes; then
-  BIGENDIAN="-DWORDS_BIGENDIAN"
-fi
-
-
-#------------------------------------------------------------------------------
-#       Some make programs require includes to be 
-#         .include "file"
-#     others...
-#         include file
-#------------------------------------------------------------------------------
-echo $ac_n "checking how make handles includes""... $ac_c" 1>&6
-cat > confmakeinc <<EOF
-
-EOF
-  cat > confmakefile <<EOF
-include confmakeinc
-
-all:
-EOF
-
-if make -f confmakefile >/dev/null 2>/dev/null; then
-    MAKEINCLUDE="include"
-    MAKEQUOTE=''
-    echo "$ac_t""common make include syntax" 1>&6
-else
-    MAKEINCLUDE=".include"
-    MAKEQUOTE='"'
-    echo "$ac_t""BSD make include syntax" 1>&6
-fi
-rm confmakefile confmakeinc
-
-
-
-
-# the following is an excerpt from the tcl7.5b2 configure.in
-#--------------------------------------------------------------------
-#	The statements below define a collection of symbols related to
-#	dynamic loading and shared libraries:
-#
-#	SHLIB_CFLAGS -	Flags to pass to cc when compiling the components
-#			of a shared library (may request position-independent
-#			code, among other things).
-#	SHLIB_LD -	Base command to use for combining object files
-#			into a shared library.
-#	SHLIB_LD_LIBS -	Dependent libraries for the linker to scan when
-#			creating shared libraries.  This symbol typically
-#			goes at the end of the "ld" commands that build
-#			shared libraries. The value of the symbol if
-#			"${LIBS}" if all of the dependent libraries should
-#			be specified when creating a shared library.  If
-#			dependent libraries should not be specified (as on
-#			SunOS 4.x, where they cause the link to fail, or in
-#			general if Tcl and Tk aren't themselves shared
-#			libraries), then this symbol has an empty string
-#			as its value.
-#	SHLIB_SUFFIX -	Suffix to use for the name of the shared library.  An
-#			empty string means we don't know how to use shared
-#			libraries on this platform.
-#	SHLIB_VERSION -	If this platform *requires* shared libraries to end
-#			in a version string, this provides a default version
-#			string to use;  it is an empty string on platforms
-#			where it isn't needed.
-#	LD_FLAGS -	Flags to pass to the compiler when linking object
-#			files into an executable application binary such
-#			as tclsh.
-#	LD_SEARCH_FLAGS-Flags to pass to ld, such as "-R /usr/local/tcl/lib",
-#			that tell the run-time dynamic linker where to look
-#			for shared libraries such as libtcl.so.  Depends on
-#			the variable LIB_INSTALL_DIR in the Makefile.
-#--------------------------------------------------------------------
-
-# Step 1: set the variable "system" to hold the name and version number
-# for the system.  This can usually be done via the "uname" command, but
-# there are a few systems, like Next, where this doesn't work.
-
-echo $ac_n "checking system version (for dynamic loading)""... $ac_c" 1>&6
-if test -f /usr/lib/NextStep/software_version; then
-  system=NEXTSTEP-`awk '/3/,/3/' /usr/lib/NextStep/software_version`
-else
-    system=`uname -s`-`uname -r`
-    if test "$?" -ne 0 ; then
-	echo "$ac_t""unknown (can't find uname command)" 1>&6
-	system=unknown
-    else
-	# Special check for weird MP-RAS system (uname returns weird
-	# results, and the version is kept in special file).
-    
-	if test -r /etc/.relid -a "X`uname -n`" = "X`uname -s`" ; then
-	    system=MP-RAS-`awk '{print $3}' /etc/.relid'`
-	fi
-	echo "$ac_t""$system" 1>&6
-    fi
-fi
-
-# Step 2: check for existence of -ldl library.  This is needed because
-# Linux can use either -ldl or -ldld for dynamic loading.
-
-echo $ac_n "checking for -ldl""... $ac_c" 1>&6
-ac_lib_var=`echo dl_dlopen | tr '.-/+' '___p'`
-if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
-  echo $ac_n "(cached) $ac_c" 1>&6
-else
-  ac_save_LIBS="$LIBS"
-LIBS="-ldl  $LIBS"
-cat > conftest.$ac_ext <<EOF
-#line 1796 "configure"
-#include "confdefs.h"
-/* Override any gcc2 internal prototype to avoid an error.  */
-char dlopen();
-
-int main() { return 0; }
-int t() {
-dlopen()
-; return 0; }
-EOF
-if { (eval echo configure:1806: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
-  rm -rf conftest*
-  eval "ac_cv_lib_$ac_lib_var=yes"
-else
-  rm -rf conftest*
-  eval "ac_cv_lib_$ac_lib_var=no"
-fi
-rm -f conftest*
-LIBS="$ac_save_LIBS"
-
-fi
-if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
-  echo "$ac_t""yes" 1>&6
-  have_dl=yes
-else
-  echo "$ac_t""no" 1>&6
-have_dl=no
-fi
-
-
-# Step 3: disable dynamic loading if requested via a command-line switch.
-
-# Check whether --enable-load or --disable-load was given.
-if test "${enable_load+set}" = set; then
-  enableval="$enable_load"
-  tcl_ok=$enableval
-else
-  tcl_ok=yes
-fi
-
-if test "$tcl_ok" = "no"; then
-    system=unknown
-fi
-
-# Step 4: set configuration options based on system name and version.
-
-fullSrcDir=`cd $srcdir; pwd`
-mustUseSharedLibs=no
-case $system in
-    AIX-*)
-	# AIX: can't link shared library extensions unless Tcl and Tk are
-	# also shared libraries.
-	mustUseSharedLibs=yes
-	SHLIB_CFLAGS=""
-	SHLIB_LD="$fullSrcDir/ldAix /bin/ld -e _nostart -berok -bM:SRE -bE:lib.exp -H512 -T512"
-	SHLIB_LD_LIBS='${LIBS}'
-	SHLIB_SUFFIX="..o"
-	SHLIB_VERSION=""
-	DL_LIBS=""
-	LD_FLAGS=""
-	LD_SEARCH_FLAGS=""
-	;;
-    HP-UX-*.08.*|HP-UX-*.09.*|HP-UX-*.10.*)
-	SHLIB_CFLAGS="+z"
-	SHLIB_LD="ld -b"
-	SHLIB_LD_LIBS=""
-	SHLIB_SUFFIX=".sl"
-	SHLIB_VERSION=""
-	DL_LIBS="-ldld"
-	LD_FLAGS="-Wl,-E"
-	LD_SEARCH_FLAGS='-Wl,+b,${LIB_INSTALL_DIR}'
-	;;
-    IRIX-4.*)
-	SHLIB_CFLAGS="-G 0"
-	SHLIB_SUFFIX="..o"
-	SHLIB_LD="echo tclLdAout $CC \{$SHLIB_CFLAGS\} | tclsh -r -G 0"
-	SHLIB_LD_LIBS=""
-	SHLIB_VERSION=""
-	DL_LIBS=""
-	LD_FLAGS="-Wl,-D,08000000"
-	LD_SEARCH_FLAGS='-rpath ${LIB_INSTALL_DIR}'
-	;;
-    IRIX-5.*)
-	SHLIB_CFLAGS=""
-	SHLIB_LD="ld -shared -rdata_shared"
-	SHLIB_LD_LIBS=""
-	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
-	DL_LIBS=""
-	LD_FLAGS=""
-	LD_SEARCH_FLAGS=""
-	;;
-    IRIX64-6* | IRIX-64-6*)
-	SHLIB_CFLAGS=""
-	SHLIB_LD="ld -shared -rdata_shared"
-	SHLIB_LD_LIBS=""
-	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
-	DL_LIBS=""
-	LD_FLAGS=""
-	LD_SEARCH_FLAGS=""
-	;;
-    Linux*)
-	SHLIB_CFLAGS="-fPIC"
-	SHLIB_LD_LIBS=""
-	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
-	if test "$have_dl" = yes; then
-	    SHLIB_LD="${CC} -shared"
-	    DL_LIBS="-ldl"
-	    LD_FLAGS="-rdynamic"
-	    LD_SEARCH_FLAGS=""
-	else
-	    ac_safe=`echo "dld.h" | tr './\055' '___'`
-echo $ac_n "checking for dld.h""... $ac_c" 1>&6
-if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
-  echo $ac_n "(cached) $ac_c" 1>&6
-else
-  cat > conftest.$ac_ext <<EOF
-#line 1915 "configure"
-#include "confdefs.h"
-#include <dld.h>
-EOF
-ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:1920: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
-ac_err=`grep -v '^ *+' conftest.out`
-if test -z "$ac_err"; then
-  rm -rf conftest*
-  eval "ac_cv_header_$ac_safe=yes"
-else
-  echo "$ac_err" >&5
-  rm -rf conftest*
-  eval "ac_cv_header_$ac_safe=no"
-fi
-rm -f conftest*
-fi
-if eval "test \"`echo '$ac_cv_header_'$ac_safe`\" = yes"; then
-  echo "$ac_t""yes" 1>&6
-  
-		SHLIB_LD="ld -shared"
-		DL_LIBS="-ldld"
-		LD_FLAGS=""
-		LD_SEARCH_FLAGS=""
-else
-  echo "$ac_t""no" 1>&6
-fi
-
-	fi
-	;;
-    MP-RAS-02*)
-	SHLIB_CFLAGS="-K PIC"
-	SHLIB_LD="cc -G"
-	SHLIB_LD_LIBS=""
-	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
-	DL_LIBS="-ldl"
-	LD_FLAGS=""
-	LD_SEARCH_FLAGS=""
-	;;
-    MP-RAS-*)
-	SHLIB_CFLAGS="-K PIC"
-	SHLIB_LD="cc -G"
-	SHLIB_LD_LIBS=""
-	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
-	DL_LIBS="-ldl"
-	LD_FLAGS="-Wl,-Bexport"
-	LD_SEARCH_FLAGS=""
-	;;
-    NetBSD-*|FreeBSD-*)
-	# Not available on all versions:  check for include file.
-	if test -f /usr/include/dlfcn.h; then
-	    SHLIB_CFLAGS="-fpic"
-	    SHLIB_LD="ld -Bshareable"
-	    SHLIB_LD_LIBS=""
-	    SHLIB_SUFFIX=".so"
-	    SHLIB_VERSION=".1.0"
-	    DL_LIBS=""
-	    LD_FLAGS=""
-	    LD_SEARCH_FLAGS=""
-	else
-	    SHLIB_CFLAGS=""
-	    SHLIB_LD="echo tclLdAout $CC \{$SHLIB_CFLAGS\} | tclsh -r -G 0"
-	    SHLIB_LD_LIBS=""
-	    SHLIB_SUFFIX="..o"
-	    SHLIB_VERSION=""
-	    DL_LIBS=""
-	    LD_FLAGS=""
-	    LD_SEARCH_FLAGS=""
-	fi
-	;;
-    NEXTSTEP-*)
-	SHLIB_CFLAGS=""
-	SHLIB_LD="cc -nostdlib -r"
-	SHLIB_LD_LIBS=""
-	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
-	DL_LIBS=""
-	LD_FLAGS=""
-	LD_SEARCH_FLAGS=""
-	;;
-    OSF1-1.012)
-	# OSF/1 1.[012] from OSF, and derivatives, including Paragon OSF/1
-	SHLIB_CFLAGS=""
-	# Hack: make package name same as library name
-	SHLIB_LD='ld -R -export $@:'
-	SHLIB_LD_LIBS=""
-	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
-	DL_LIBS=""
-	LD_FLAGS=""
-	LD_SEARCH_FLAGS=""
-	;;
-    OSF1-1.*)
-	# OSF/1 1.3 from OSF using ELF, and derivatives, including AD2
-	SHLIB_CFLAGS="-fpic"
-	SHLIB_LD="ld -shared"
-	SHLIB_LD_LIBS=""
-	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
-	DL_LIBS=""
-	LD_FLAGS=""
-	LD_SEARCH_FLAGS=""
-	;;
-    OSF1-V*)
-        # Digital OSF/1
-	SHLIB_CFLAGS=""
-	SHLIB_LD='ld -shared -expect_unresolved "*"'
-	SHLIB_LD_LIBS=""
-	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
-	DL_LIBS=""
-	LD_FLAGS=""
-	LD_SEARCH_FLAGS=""
-	;;
-    RISCos-*)
-	SHLIB_CFLAGS="-G 0"
-	SHLIB_LD="echo tclLdAout $CC \{$SHLIB_CFLAGS\} | tclsh -r -G 0"
-	SHLIB_LD_LIBS=""
-	SHLIB_SUFFIX="..o"
-	SHLIB_VERSION=""
-	DL_LIBS=""
-	LD_FLAGS="-Wl,-D,08000000"
-	LD_SEARCH_FLAGS=""
-	;;
-    SCO_SV-3.2*)
-        # Note, dlopen is available only on SCO 3.2.5 and greater.  However,
-        # this test works, since "uname -s" was non-standard in 3.2.4 and
-        # below.
-	SHLIB_CFLAGS="-Kpic -belf"
-	SHLIB_LD="ld -G"
-	SHLIB_LD_LIBS=""
-	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
-	DL_LIBS=""
-	LD_FLAGS="-belf -Wl,-Bexport"
-	LD_SEARCH_FLAGS=""
-	;;
-     SINIX*5.4*)
-	SHLIB_CFLAGS="-K PIC"
-	SHLIB_LD="cc -G"
-	SHLIB_LD_LIBS=""
-	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
-	DL_LIBS="-ldl"
-	LD_FLAGS=""
-	LD_SEARCH_FLAGS=""
-	;;
-    SunOS-4*)
-	SHLIB_CFLAGS="-PIC"
-	SHLIB_LD="ld"
-	SHLIB_LD_LIBS=""
-	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
-	DL_LIBS="-ldl"
-	LD_FLAGS=""
-	LD_SEARCH_FLAGS=""
-	;;
-    SunOS-5*)
-	SHLIB_CFLAGS="-PIC"
-	SHLIB_LD="/usr/ccs/bin/ld -G -z text"
-	SHLIB_LD_LIBS='${LIBS}'
-	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
-	DL_LIBS="-ldl"
-	LD_FLAGS=""
-	LD_SEARCH_FLAGS='-R ${LIB_INSTALL_DIR}'
-	;;
-    ULTRIX-4.*)
-	SHLIB_CFLAGS="-G 0"
-	SHLIB_SUFFIX="..o"
-	SHLIB_LD="echo tclLdAout $CC \{$SHLIB_CFLAGS\} | tclsh -r -G 0"
-	SHLIB_LD_LIBS=""
-	SHLIB_VERSION=""
-	DL_LIBS=""
-	LD_FLAGS="-Wl,-D,08000000"
-	LD_SEARCH_FLAGS=""
-	;;
-    UNIX_SV*)
-	SHLIB_CFLAGS="-K PIC"
-	SHLIB_LD="cc -G"
-	SHLIB_LD_LIBS=""
-	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
-	DL_LIBS="-ldl"
-	LD_FLAGS="-Wl,-Bexport"
-	LD_SEARCH_FLAGS=""
-	;;
-esac
-
-# If we're running gcc, then change the C flags for compiling shared
-# libraries to the right flags for gcc, instead of those for the
-# standard manufacturer compiler.
-if test "$CC" = "gcc" -o `$CC -v 2>&1 | grep -c gcc` != "0" ; then
-  SHLIB_CFLAGS="-fPIC"
-fi
-
-#
-# use shared libs
-#
-# Check whether --with-shared or --without-shared was given.
-if test "${with_shared+set}" = set; then
-  withval="$with_shared"
-  vtk_shared_ok=yes
-else
-  vtk_shared_ok=no
-fi
-
-if test "$vtk_shared_ok" = "yes" -a "${SHLIB_SUFFIX}" != "" ; then
-    VTK_SHLIB_CFLAGS="${SHLIB_CFLAGS}"
-    VTK_LD_SEARCH_FLAGS="${LD_SEARCH_FLAGS}"
-    VTK_LIB_EXT="${SHLIB_SUFFIX}${SHLIB_VERSION}"
-    RANLIB=":"
-else
-    SHLIB_LD_LIBS=""
-    VTK_SHLIB_CFLAGS=""
-    VTK_LD_SEARCH_FLAGS=""
-    VTK_LIB_EXT=".a"
-fi
-
-
-
-
-
-
-
-
-
-# on an HP unsing the native CC we need special +d flag for inlines
-VTK_INLINE_FLAGS=""
-if test $ac_cv_prog_gxx = no; then
-case $system in
-    HP-UX-*.08.*|HP-UX-*.09.*|HP-UX-*.10.*)
-	VTK_INLINE_FLAGS="+z"
-        echo $ac_n "checking whether ${CXX} accepts +d""... $ac_c" 1>&6
-        echo 'void f(){}' > conftest.cc
-        if test -z "`${CXX} +d -c conftest.cc 2>&1`"; then
-          echo "$ac_t""yes" 1>&6
-          VTK_INLINE_FLAGS="+d"
-        else
-          echo "$ac_t""no" 1>&6
-        fi
-        rm -f conftest*
-	;;
-esac
-fi
-
-
-# if we are not running g++ then we might need some other flags
-# to get the templates compiled correctly
-VTK_TEMPLATE_FLAGS=""
-if test $ac_cv_prog_gxx = no; then
-    echo $ac_n "checking whether ${CXX} accepts -ptall -no_prelink""... $ac_c" 1>&6
-  echo 'void f(){}' > conftest.cc
-if test -z "`${CXX} -ptall -no_prelink -c conftest.cc 2>&1`"; then
-  echo "$ac_t""yes" 1>&6
-  VTK_TEMPLATE_FLAGS="-ptall -no_prelink"
-else
-  echo "$ac_t""no" 1>&6
-fi
-rm -f conftest*
-    echo $ac_n "checking whether ${CXX} accepts -pto""... $ac_c" 1>&6
-  echo 'void f(){}' > conftest.cc
-if test -z "`${CXX} -pto -c conftest.cc 2>&1`"; then
-  echo "$ac_t""yes" 1>&6
-  VTK_TEMPLATE_FLAGS="-pto"
-else
-  echo "$ac_t""no" 1>&6
-fi
-rm -f conftest*
-fi
-
-
-if test "$CC" = "gcc" -o `$CC -v 2>&1 | grep -c gcc` != "0" ; then
-  SHLIB_CFLAGS="-fPIC"
-fi
-
-if test ! -r targets.make
-then
-    echo "Copying $srcdir/targets.make to build directory"
-    cp $srcdir/targets.make targets.make || exit 1
-fi
-
-# should use someday
-#AC_SUBST(VTK_LD_SEARCH_FLAGS)
-
-##########################
-##			##
-## Check thread support ##
-##			##
-##########################
-THREAD_LIBS=""
-THREAD_FLAGS=""
-use_sproc=no
-for ac_hdr in sys/prctl.h
-do
-ac_safe=`echo "$ac_hdr" | tr './\055' '___'`
-echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
-if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
-  echo $ac_n "(cached) $ac_c" 1>&6
-else
-  cat > conftest.$ac_ext <<EOF
-#line 2218 "configure"
-#include "confdefs.h"
-#include <$ac_hdr>
-EOF
-ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:2223: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
-ac_err=`grep -v '^ *+' conftest.out`
-if test -z "$ac_err"; then
-  rm -rf conftest*
-  eval "ac_cv_header_$ac_safe=yes"
-else
-  echo "$ac_err" >&5
-  rm -rf conftest*
-  eval "ac_cv_header_$ac_safe=no"
-fi
-rm -f conftest*
-fi
-if eval "test \"`echo '$ac_cv_header_'$ac_safe`\" = yes"; then
-  echo "$ac_t""yes" 1>&6
-    ac_tr_hdr=HAVE_`echo $ac_hdr | tr 'abcdefghijklmnopqrstuvwxyz./\055' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ___'`
-  cat >> confdefs.h <<EOF
-#define $ac_tr_hdr 1
-EOF
- use_sproc=yes
-else
-  echo "$ac_t""no" 1>&6
-fi
-done
-
-if test "$use_sproc" = "yes"; then
-case $system in
-    IRIX*)
-	THREAD_FLAGS="-DVTK_USE_SPROC"
-	;;
-esac
-fi
-
-use_pthreads=no
-for ac_hdr in pthread.h
-do
-ac_safe=`echo "$ac_hdr" | tr './\055' '___'`
-echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
-if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
-  echo $ac_n "(cached) $ac_c" 1>&6
-else
-  cat > conftest.$ac_ext <<EOF
-#line 2264 "configure"
-#include "confdefs.h"
-#include <$ac_hdr>
-EOF
-ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:2269: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
-ac_err=`grep -v '^ *+' conftest.out`
-if test -z "$ac_err"; then
-  rm -rf conftest*
-  eval "ac_cv_header_$ac_safe=yes"
-else
-  echo "$ac_err" >&5
-  rm -rf conftest*
-  eval "ac_cv_header_$ac_safe=no"
-fi
-rm -f conftest*
-fi
-if eval "test \"`echo '$ac_cv_header_'$ac_safe`\" = yes"; then
-  echo "$ac_t""yes" 1>&6
-    ac_tr_hdr=HAVE_`echo $ac_hdr | tr 'abcdefghijklmnopqrstuvwxyz./\055' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ___'`
-  cat >> confdefs.h <<EOF
-#define $ac_tr_hdr 1
-EOF
- use_pthreads=yes
-else
-  echo "$ac_t""no" 1>&6
-fi
-done
-
-if test "$use_pthreads" = "yes"; then
-  if test "$use_sproc" = "no"; then
-	THREAD_LIBS="-lpthread"
-	THREAD_FLAGS="-DVTK_USE_PTHREADS"
-  fi
-fi
-
-# on an HP with pthread we need to use -lcma
-# on dec alphas we have had problems as well
-if test "$use_pthreads" = "yes"; then
-case $system in
-    HP-UX-*.10.*)
-	THREAD_LIBS="-lcma"
-	;;
-    OSF1-V*)
-        THREAD_FLAGS=""
-        THREAD_LIBS=""
-        ;;
-esac
-fi
-
-
 
 
 trap '' 1 2 15
@@ -2444,18 +1493,12 @@ s%@mandir@%$mandir%g
 s%@CC@%$CC%g
 s%@CXX@%$CXX%g
 s%@RANLIB@%$RANLIB%g
-s%@LN_S@%$LN_S%g
-s%@subdirs@%$subdirs%g
-s%@CPP@%$CPP%g
+s%@BIGENDIAN@%$BIGENDIAN%g
+s%@USE_TOOLKIT_FLAGS@%$USE_TOOLKIT_FLAGS%g
 s%@BUILD_TCL@%$BUILD_TCL%g
 s%@CLEAN_TCL@%$CLEAN_TCL%g
 s%@BUILD_JAVA@%$BUILD_JAVA%g
 s%@CLEAN_JAVA@%$CLEAN_JAVA%g
-s%@X_CFLAGS@%$X_CFLAGS%g
-s%@X_PRE_LIBS@%$X_PRE_LIBS%g
-s%@X_LIBS@%$X_LIBS%g
-s%@X_EXTRA_LIBS@%$X_EXTRA_LIBS%g
-s%@BIGENDIAN@%$BIGENDIAN%g
 s%@MAKEINCLUDE@%$MAKEINCLUDE%g
 s%@MAKEQUOTE@%$MAKEQUOTE%g
 s%@VTK_SHLIB_CFLAGS@%$VTK_SHLIB_CFLAGS%g
@@ -2465,10 +1508,16 @@ s%@DL_LIBS@%$DL_LIBS%g
 s%@SHLIB_LD_LIBS@%$SHLIB_LD_LIBS%g
 s%@SHLIB_SUFFIX@%$SHLIB_SUFFIX%g
 s%@SHLIB_VERSION@%$SHLIB_VERSION%g
-s%@VTK_INLINE_FLAGS@%$VTK_INLINE_FLAGS%g
-s%@VTK_TEMPLATE_FLAGS@%$VTK_TEMPLATE_FLAGS%g
 s%@THREAD_FLAGS@%$THREAD_FLAGS%g
 s%@THREAD_LIBS@%$THREAD_LIBS%g
+s%@VTK_INLINE_FLAGS@%$VTK_INLINE_FLAGS%g
+s%@VTK_TEMPLATE_FLAGS@%$VTK_TEMPLATE_FLAGS%g
+s%@subdirs@%$subdirs%g
+s%@CPP@%$CPP%g
+s%@X_CFLAGS@%$X_CFLAGS%g
+s%@X_PRE_LIBS@%$X_PRE_LIBS%g
+s%@X_LIBS@%$X_LIBS%g
+s%@X_EXTRA_LIBS@%$X_EXTRA_LIBS%g
 
 CEOF
 EOF

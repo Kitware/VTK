@@ -12,11 +12,11 @@ ac_help=
 ac_default_prefix=/usr/local
 # Any additions from configure.in:
 ac_help="$ac_help
-  --with-mesa             use the mesa opengl package"
+  --without-gl          do not use the gl graphics classes"
 ac_help="$ac_help
-  --without-gl            do not use the gl graphics classes"
+  --with-mesa               use the mesa opengl package"
 ac_help="$ac_help
-  --with-shared           create shared libraries for vtk"
+  --with-shared               create shared libraries"
 ac_help="$ac_help
   --with-tcl              build vtk the tcl based interpreter"
 ac_help="$ac_help
@@ -41,6 +41,8 @@ ac_help="$ac_help
   --with-gemsio           include the gemsio classes"
 ac_help="$ac_help
   --with-gemsvolume       include the gemsvolume classes"
+ac_help="$ac_help
+  --disable-load          disallow dynamic loading and "load" command"
 
 # Initialize some variables set by options.
 # The variables have the same names as the options, with
@@ -632,7 +634,7 @@ else
   yes;
 #endif
 EOF
-if { ac_try='${CC-cc} -E conftest.c'; { (eval echo configure:636: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } | egrep yes >/dev/null 2>&1; then
+if { ac_try='${CC-cc} -E conftest.c'; { (eval echo configure:638: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } | egrep yes >/dev/null 2>&1; then
   ac_cv_prog_gcc=yes
 else
   ac_cv_prog_gcc=no
@@ -669,28 +671,634 @@ else
   test "${CFLAGS+set}" = set || CFLAGS="-g"
 fi
 
-
-#
-# should we use mesa
-#
-# Check whether --with-mesa or --without-mesa was given.
-if test "${with_mesa+set}" = set; then
-  withval="$with_mesa"
-  :
+for ac_prog in $CCC c++ g++ gcc CC cxx
+do
+# Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+if eval "test \"`echo '$''{'ac_cv_prog_CXX'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  if test -n "$CXX"; then
+  ac_cv_prog_CXX="$CXX" # Let the user override the test.
+else
+  IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS="${IFS}:"
+  for ac_dir in $PATH; do
+    test -z "$ac_dir" && ac_dir=.
+    if test -f $ac_dir/$ac_word; then
+      ac_cv_prog_CXX="$ac_prog"
+      break
+    fi
+  done
+  IFS="$ac_save_ifs"
+fi
+fi
+CXX="$ac_cv_prog_CXX"
+if test -n "$CXX"; then
+  echo "$ac_t""$CXX" 1>&6
+else
+  echo "$ac_t""no" 1>&6
 fi
 
+test -n "$CXX" && break
+done
+test -n "$CXX" || CXX="gcc"
+
+
+echo $ac_n "checking whether we are using GNU C++""... $ac_c" 1>&6
+if eval "test \"`echo '$''{'ac_cv_prog_gxx'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  cat > conftest.C <<EOF
+#ifdef __GNUC__
+  yes;
+#endif
+EOF
+if { ac_try='${CXX-g++} -E conftest.C'; { (eval echo configure:718: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } | egrep yes >/dev/null 2>&1; then
+  ac_cv_prog_gxx=yes
+else
+  ac_cv_prog_gxx=no
+fi
+fi
+
+echo "$ac_t""$ac_cv_prog_gxx" 1>&6
+if test $ac_cv_prog_gxx = yes; then
+  GXX=yes
+  if test "${CXXFLAGS+set}" != set; then
+    echo $ac_n "checking whether ${CXX-g++} accepts -g""... $ac_c" 1>&6
+if eval "test \"`echo '$''{'ac_cv_prog_gxx_g'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  echo 'void f(){}' > conftest.cc
+if test -z "`${CXX-g++} -g -c conftest.cc 2>&1`"; then
+  ac_cv_prog_gxx_g=yes
+else
+  ac_cv_prog_gxx_g=no
+fi
+rm -f conftest*
+
+fi
+
+echo "$ac_t""$ac_cv_prog_gxx_g" 1>&6
+    if test $ac_cv_prog_gxx_g = yes; then
+      CXXFLAGS="-g -O"
+    else
+      CXXFLAGS="-O"
+    fi
+  fi
+else
+  GXX=
+  test "${CXXFLAGS+set}" = set || CXXFLAGS="-g"
+fi
+
+
+# get byte swapping info
+# If we cannot run a trivial program, we must be cross compiling.
+echo $ac_n "checking whether cross-compiling""... $ac_c" 1>&6
+if eval "test \"`echo '$''{'ac_cv_c_cross'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  if test "$cross_compiling" = yes; then
+  ac_cv_c_cross=yes
+else
+cat > conftest.$ac_ext <<EOF
+#line 766 "configure"
+#include "confdefs.h"
+main(){return(0);}
+EOF
+{ (eval echo configure:770: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }
+if test -s conftest && (./conftest; exit) 2>/dev/null; then
+  ac_cv_c_cross=no
+else
+  ac_cv_c_cross=yes
+fi
+fi
+rm -fr conftest*
+fi
+
+echo "$ac_t""$ac_cv_c_cross" 1>&6
+cross_compiling=$ac_cv_c_cross
+
+echo $ac_n "checking whether byte ordering is bigendian""... $ac_c" 1>&6
+if eval "test \"`echo '$''{'ac_cv_c_bigendian'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  ac_cv_c_bigendian=unknown
+# See if sys/param.h defines the BYTE_ORDER macro.
+cat > conftest.$ac_ext <<EOF
+#line 790 "configure"
+#include "confdefs.h"
+#include <sys/types.h>
+#include <sys/param.h>
+int main() { return 0; }
+int t() {
+
+#if !BYTE_ORDER || !BIG_ENDIAN || !LITTLE_ENDIAN
+ bogus endian macros
+#endif
+; return 0; }
+EOF
+if { (eval echo configure:802: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
+  rm -rf conftest*
+  # It does; now see whether it defined to BIG_ENDIAN or not.
+cat > conftest.$ac_ext <<EOF
+#line 806 "configure"
+#include "confdefs.h"
+#include <sys/types.h>
+#include <sys/param.h>
+int main() { return 0; }
+int t() {
+
+#if BYTE_ORDER != BIG_ENDIAN
+ not big endian
+#endif
+; return 0; }
+EOF
+if { (eval echo configure:818: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
+  rm -rf conftest*
+  ac_cv_c_bigendian=yes
+else
+  rm -rf conftest*
+  ac_cv_c_bigendian=no
+fi
+rm -f conftest*
+
+fi
+rm -f conftest*
+
+if test $ac_cv_c_bigendian = unknown; then
+if test "$cross_compiling" = yes; then
+    { echo "configure: error: can not run test program while cross compiling" 1>&2; exit 1; }
+else
+cat > conftest.$ac_ext <<EOF
+#line 835 "configure"
+#include "confdefs.h"
+main () {
+  /* Are we little or big endian?  From Harbison&Steele.  */
+  union
+  {
+    long l;
+    char c[sizeof (long)];
+  } u;
+  u.l = 1;
+  exit (u.c[sizeof (long) - 1] == 1);
+}
+EOF
+{ (eval echo configure:848: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }
+if test -s conftest && (./conftest; exit) 2>/dev/null; then
+  ac_cv_c_bigendian=no
+else
+  ac_cv_c_bigendian=yes
+fi
+fi
+rm -fr conftest*
+fi
+fi
+
+echo "$ac_t""$ac_cv_c_bigendian" 1>&6
+if test $ac_cv_c_bigendian = yes; then
+  cat >> confdefs.h <<\EOF
+#define WORDS_BIGENDIAN 1
+EOF
+
+fi
+
+if test $ac_cv_c_bigendian = yes; then
+  BIGENDIAN="-DWORDS_BIGENDIAN"
+fi
+
+
+##########################
+##			##
+##	Starbase	##
+##			##
+##########################
+use_sbr=no
+echo $ac_n "checking how to run the C preprocessor""... $ac_c" 1>&6
+# On Suns, sometimes $CPP names a directory.
+if test -n "$CPP" && test -d "$CPP"; then
+  CPP=
+fi
+if test -z "$CPP"; then
+if eval "test \"`echo '$''{'ac_cv_prog_CPP'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+    # This must be in double quotes, not single quotes, because CPP may get
+  # substituted into the Makefile and "${CC-cc}" will confuse make.
+  CPP="${CC-cc} -E"
+  # On the NeXT, cc -E runs the code through the compiler's parser,
+  # not just through cpp.
+  cat > conftest.$ac_ext <<EOF
+#line 893 "configure"
+#include "confdefs.h"
+#include <assert.h>
+Syntax Error
+EOF
+ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
+{ (eval echo configure:899: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+ac_err=`grep -v '^ *+' conftest.out`
+if test -z "$ac_err"; then
+  :
+else
+  echo "$ac_err" >&5
+  rm -rf conftest*
+  CPP="${CC-cc} -E -traditional-cpp"
+  cat > conftest.$ac_ext <<EOF
+#line 908 "configure"
+#include "confdefs.h"
+#include <assert.h>
+Syntax Error
+EOF
+ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
+{ (eval echo configure:914: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+ac_err=`grep -v '^ *+' conftest.out`
+if test -z "$ac_err"; then
+  :
+else
+  echo "$ac_err" >&5
+  rm -rf conftest*
+  CPP=/lib/cpp
+fi
+rm -f conftest*
+fi
+rm -f conftest*
+  ac_cv_prog_CPP="$CPP"
+fi
+  CPP="$ac_cv_prog_CPP"
+else
+  ac_cv_prog_CPP="$CPP"
+fi
+echo "$ac_t""$CPP" 1>&6
+
+for ac_hdr in starbase.c.h
+do
+ac_safe=`echo "$ac_hdr" | tr './\055' '___'`
+echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
+if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  cat > conftest.$ac_ext <<EOF
+#line 942 "configure"
+#include "confdefs.h"
+#include <$ac_hdr>
+EOF
+ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
+{ (eval echo configure:947: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+ac_err=`grep -v '^ *+' conftest.out`
+if test -z "$ac_err"; then
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=yes"
+else
+  echo "$ac_err" >&5
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=no"
+fi
+rm -f conftest*
+fi
+if eval "test \"`echo '$ac_cv_header_'$ac_safe`\" = yes"; then
+  echo "$ac_t""yes" 1>&6
+    ac_tr_hdr=HAVE_`echo $ac_hdr | tr 'abcdefghijklmnopqrstuvwxyz./\055' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ___'`
+  cat >> confdefs.h <<EOF
+#define $ac_tr_hdr 1
+EOF
+ use_sbr=yes
+else
+  echo "$ac_t""no" 1>&6
+fi
+done
+
+
+if test "$use_sbr" = "yes"; then
+	SBR_LIBS="-ldld -lXwindow -lsb -lXhp11"
+	SBR_OBJ="\${SBR_OBJ}"
+	SBR_FLAGS="-DUSE_SBR ${SBR_INCLUDE}"
+else
+	SBR_LIBS=""
+	SBR_OBJ=""
+	SBR_FLAGS=""
+fi
+
+
+
+
+##########################
+##			##
+##	SGI GL		##
+##			##
+##########################
+use_glr=no
+for ac_hdr in gl/gl.h
+do
+ac_safe=`echo "$ac_hdr" | tr './\055' '___'`
+echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
+if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  cat > conftest.$ac_ext <<EOF
+#line 999 "configure"
+#include "confdefs.h"
+#include <$ac_hdr>
+EOF
+ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
+{ (eval echo configure:1004: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+ac_err=`grep -v '^ *+' conftest.out`
+if test -z "$ac_err"; then
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=yes"
+else
+  echo "$ac_err" >&5
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=no"
+fi
+rm -f conftest*
+fi
+if eval "test \"`echo '$ac_cv_header_'$ac_safe`\" = yes"; then
+  echo "$ac_t""yes" 1>&6
+    ac_tr_hdr=HAVE_`echo $ac_hdr | tr 'abcdefghijklmnopqrstuvwxyz./\055' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ___'`
+  cat >> confdefs.h <<EOF
+#define $ac_tr_hdr 1
+EOF
+ use_glr=yes
+else
+  echo "$ac_t""no" 1>&6
+fi
+done
 
 # Check whether --with-gl or --without-gl was given.
 if test "${with_gl+set}" = set; then
   withval="$with_gl"
-  :
+  use_glr=no
 fi
 
 
+if test "$use_glr" = "yes"; then
+	GLR_LIBS="-lgl"
+	GLR_OBJ="\${GLR_OBJ}"
+	GLR_FLAGS="-DUSE_GLR ${GLR_INCLUDE}"
+else
+	GLR_LIBS=""
+	GLR_OBJ=""
+	GLR_FLAGS=""
+fi
+
+
+
+
+##########################
+##			##
+##	OpenGL		##
+##			##
+##########################
+use_oglr=no
+# check for mesa
+use_mesa_oglr=no
+# Check whether --with-mesa or --without-mesa was given.
+if test "${with_mesa+set}" = set; then
+  withval="$with_mesa"
+  use_oglr=yes
+	 use_mesa_oglr=yes
+fi
+
+
+OGLR_INCLUDE=""
+for ac_hdr in GL/gl.h
+do
+ac_safe=`echo "$ac_hdr" | tr './\055' '___'`
+echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
+if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  cat > conftest.$ac_ext <<EOF
+#line 1073 "configure"
+#include "confdefs.h"
+#include <$ac_hdr>
+EOF
+ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
+{ (eval echo configure:1078: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+ac_err=`grep -v '^ *+' conftest.out`
+if test -z "$ac_err"; then
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=yes"
+else
+  echo "$ac_err" >&5
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=no"
+fi
+rm -f conftest*
+fi
+if eval "test \"`echo '$ac_cv_header_'$ac_safe`\" = yes"; then
+  echo "$ac_t""yes" 1>&6
+    ac_tr_hdr=HAVE_`echo $ac_hdr | tr 'abcdefghijklmnopqrstuvwxyz./\055' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ___'`
+  cat >> confdefs.h <<EOF
+#define $ac_tr_hdr 1
+EOF
+ use_oglr=yes
+else
+  echo "$ac_t""no" 1>&6
+fi
+done
+
+for ac_hdr in /usr/openwin/share/include/GL/glxmd.h
+do
+ac_safe=`echo "$ac_hdr" | tr './\055' '___'`
+echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
+if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  cat > conftest.$ac_ext <<EOF
+#line 1110 "configure"
+#include "confdefs.h"
+#include <$ac_hdr>
+EOF
+ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
+{ (eval echo configure:1115: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+ac_err=`grep -v '^ *+' conftest.out`
+if test -z "$ac_err"; then
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=yes"
+else
+  echo "$ac_err" >&5
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=no"
+fi
+rm -f conftest*
+fi
+if eval "test \"`echo '$ac_cv_header_'$ac_safe`\" = yes"; then
+  echo "$ac_t""yes" 1>&6
+    ac_tr_hdr=HAVE_`echo $ac_hdr | tr 'abcdefghijklmnopqrstuvwxyz./\055' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ___'`
+  cat >> confdefs.h <<EOF
+#define $ac_tr_hdr 1
+EOF
+ use_oglr=yes
+		OGLR_INCLUDE="-I/usr/openwin/share/include/"
+else
+  echo "$ac_t""no" 1>&6
+fi
+done
+
+
+if test "$use_oglr" = "yes"; then
+	OGLR_OBJ="\${OGLR_OBJ}"
+
+	if test "$use_mesa_oglr" = "yes"; then
+		OGLR_LIBS="\${MESA_LIB}"
+		OGLR_FLAGS="\${MESA_INCLUDE} -DUSE_OGLR"
+	else
+		OGLR_LIBS="-lGL"
+		OGLR_FLAGS="-DUSE_OGLR ${OGLR_INCLUDE}"
+	fi
+else
+	OGLR_LIBS=""
+	OGLR_OBJ=""
+	OGLR_FLAGS=""
+fi
+
+
+
+
+
+##########################
+##			##
+##	   XGL		##
+##			##
+##########################
+use_xglr=no
+# Check if the user set up XGL_HOME
+if test "X$XGL_HOME" = "X" ; then
+	XGL_HOME=/opt/SUNWits/Graphics-sw/xgl
+fi
+
+for ac_hdr in $XGL_HOME/include/xgl/xgl.h
+do
+ac_safe=`echo "$ac_hdr" | tr './\055' '___'`
+echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
+if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  cat > conftest.$ac_ext <<EOF
+#line 1180 "configure"
+#include "confdefs.h"
+#include <$ac_hdr>
+EOF
+ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
+{ (eval echo configure:1185: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+ac_err=`grep -v '^ *+' conftest.out`
+if test -z "$ac_err"; then
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=yes"
+else
+  echo "$ac_err" >&5
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=no"
+fi
+rm -f conftest*
+fi
+if eval "test \"`echo '$ac_cv_header_'$ac_safe`\" = yes"; then
+  echo "$ac_t""yes" 1>&6
+    ac_tr_hdr=HAVE_`echo $ac_hdr | tr 'abcdefghijklmnopqrstuvwxyz./\055' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ___'`
+  cat >> confdefs.h <<EOF
+#define $ac_tr_hdr 1
+EOF
+ use_xglr=yes
+  XGLR_INCLUDE=$XGL_HOME/include
+else
+  echo "$ac_t""no" 1>&6
+fi
+done
+
+for ac_hdr in /usr/openwin/include/xgl/xgl.h
+do
+ac_safe=`echo "$ac_hdr" | tr './\055' '___'`
+echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
+if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  cat > conftest.$ac_ext <<EOF
+#line 1218 "configure"
+#include "confdefs.h"
+#include <$ac_hdr>
+EOF
+ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
+{ (eval echo configure:1223: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+ac_err=`grep -v '^ *+' conftest.out`
+if test -z "$ac_err"; then
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=yes"
+else
+  echo "$ac_err" >&5
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=no"
+fi
+rm -f conftest*
+fi
+if eval "test \"`echo '$ac_cv_header_'$ac_safe`\" = yes"; then
+  echo "$ac_t""yes" 1>&6
+    ac_tr_hdr=HAVE_`echo $ac_hdr | tr 'abcdefghijklmnopqrstuvwxyz./\055' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ___'`
+  cat >> confdefs.h <<EOF
+#define $ac_tr_hdr 1
+EOF
+ use_xglr=yes
+  XGLR_INCLUDE=/usr/openwin/include
+else
+  echo "$ac_t""no" 1>&6
+fi
+done
+
+if test "$use_xglr" = "yes"; then
+	XGLR_LIBS="-lxgl"
+	XGLR_OBJ="\${XGLR_OBJ}"
+	XGLR_FLAGS="-DUSE_XGLR -I${XGLR_INCLUDE}"
+else
+	XGLR_LIBS=""
+	XGLR_OBJ=""
+	XGLR_FLAGS=""
+fi
+
+
+
+
+
+ac_save_path="$PATH"
+PATH=/usr/gfx
+# Extract the first word of "setmon", so it can be a program name with args.
+set dummy setmon; ac_word=$2
+echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
+if eval "test \"`echo '$''{'ac_cv_prog_HAVE_SETMON'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  if test -n "$HAVE_SETMON"; then
+  ac_cv_prog_HAVE_SETMON="$HAVE_SETMON" # Let the user override the test.
+else
+  IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS="${IFS}:"
+  for ac_dir in $PATH; do
+    test -z "$ac_dir" && ac_dir=.
+    if test -f $ac_dir/$ac_word; then
+      ac_cv_prog_HAVE_SETMON="-DHAVE_SETMON"
+      break
+    fi
+  done
+  IFS="$ac_save_ifs"
+fi
+fi
+HAVE_SETMON="$ac_cv_prog_HAVE_SETMON"
+if test -n "$HAVE_SETMON"; then
+  echo "$ac_t""$HAVE_SETMON" 1>&6
+else
+  echo "$ac_t""no" 1>&6
+fi
+
+PATH="$ac_save_path"
+
+
+#
+# use shared libs
+#
 # Check whether --with-shared or --without-shared was given.
 if test "${with_shared+set}" = set; then
   withval="$with_shared"
-  :
+  vtk_shared_ok=yes
+else
+  vtk_shared_ok=no
 fi
 
 
@@ -705,6 +1313,8 @@ fi
 
 
 
+
+USE_TOOLKIT_FLAGS=""
 
 # Check whether --with-java or --without-java was given.
 if test "${with_java+set}" = set; then
@@ -725,6 +1335,8 @@ if test "${with_graphics+set}" = set; then
 else
   graphicsdir=graphics
          BUILD_GRAPHICS=build_graphics
+         USE_GRAPHICS_LIBS="-L../graphics -lVTKGraphicsTcl"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../graphics -DUSE_GRAPHICS"
          DEPEND_GRAPHICS=depend_graphics
          CLEAN_GRAPHICS=clean_graphics
 fi
@@ -742,6 +1354,8 @@ else
   imagingdir=imaging
          BUILD_IMAGING=build_imaging
          DEPEND_IMAGING=depend_imaging
+         USE_IMAGING_LIBS="-L../imaging -lVTKImagingTcl"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../imaging -DUSE_IMAGING"
          CLEAN_IMAGING=clean_imaging
 fi
 
@@ -762,7 +1376,10 @@ if test "${with_patented+set}" = set; then
   withval="$with_patented"
   patenteddir=patented
          BUILD_PATENTED=build_patented
-         DEPEND_PATENTED=depend_patented
+         USE_PATENTED_LIBS="-L../patented -lVTKPatentedTcl"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../patented -DUSE_PATENTED"
+else
+  DEPEND_PATENTED=depend_patented
          CLEAN_PATENTED=clean_patented
 fi
 
@@ -776,6 +1393,8 @@ if test "${with_volume+set}" = set; then
   withval="$with_volume"
   volumedir=volume
          BUILD_VOLUME=build_volume
+         USE_VOLUME_LIBS="-L../volume -lVTKVolumeTcl"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../volume -DUSE_VOLUME"
          DEPEND_VOLUME=depend_volume
          CLEAN_VOLUME=clean_volume
 fi
@@ -791,6 +1410,8 @@ if test "${with_contrib+set}" = set; then
   contribdir=contrib
          BUILD_CONTRIB=build_contrib
          DEPEND_CONTRIB=depend_contrib
+         USE_CONTRIB_LIBS="-L../contrib -lVTKContribTcl"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../contrib -DUSE_CONTRIB"
          CLEAN_CONTRIB=clean_contrib
 fi
 
@@ -805,6 +1426,8 @@ if test "${with_geae+set}" = set; then
   geaedir=geae
          BUILD_GEAE=build_geae
          DEPEND_GEAE=depend_geae
+         USE_GEAE_LIBS="-L../geae -lVTKGeaeTcl"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../geae -DUSE_GEAE"
          CLEAN_GEAE=clean_geae
 fi
 
@@ -819,6 +1442,8 @@ if test "${with_gemsip+set}" = set; then
   gemsipdir=gemsip
          BUILD_GEMSIP=build_gemsip
          DEPEND_GEMSIP=depend_gemsip
+         USE_GEMSIP_LIBS="-L../gemsip -lVTKGemsipTcl"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../gemsip -DUSE_GEMSIP"
          CLEAN_GEMSIP=clean_gemsip
 fi
 
@@ -833,6 +1458,8 @@ if test "${with_gemsio+set}" = set; then
   gemsiodir=gemsio
          BUILD_GEMSIO=build_gemsio
          DEPEND_GEMSIO=depend_gemsio
+         USE_GEMSIO_LIBS="-L../gemsio -lVTKGemsioTcl"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../gemsio -DUSE_GEMSIO"
          CLEAN_GEMSIO=clean_gemsio
 fi
 
@@ -847,34 +1474,14 @@ if test "${with_gemsvolume+set}" = set; then
   gemsvolumedir=gemsvolume
          BUILD_GEMSVOLUME=build_gemsvolume
          DEPEND_GEMSVOLUME=depend_gemsvolume
+         USE_GEMSVOLUME_LIBS="-L../gemsvolume -lVTKGemsvolumeTcl"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../gemsvolume -DUSE_GEMSVOLUME"
          CLEAN_GEMSVOLUME=clean_gemsvolume
 fi
 
 
 
 
-
-
-ac_aux_dir=
-for ac_dir in $srcdir $srcdir/.. $srcdir/../..; do
-  if test -f $ac_dir/install-sh; then
-    ac_aux_dir=$ac_dir
-    ac_install_sh="$ac_aux_dir/install-sh -c"
-    break
-  elif test -f $ac_dir/install.sh; then
-    ac_aux_dir=$ac_dir
-    ac_install_sh="$ac_aux_dir/install.sh -c"
-    break
-  fi
-done
-if test -z "$ac_aux_dir"; then
-  { echo "configure: error: can not find install-sh or install.sh in $srcdir $srcdir/.. $srcdir/../.." 1>&2; exit 1; }
-fi
-ac_config_guess=$ac_aux_dir/config.guess
-ac_config_sub=$ac_aux_dir/config.sub
-ac_configure=$ac_aux_dir/configure # This should be Cygnus configure.
-
-subdirs="common $tcldir $graphicsdir $imagingdir $patenteddir $volumedir $contribdir $geaedir $gemsipdir $gemsiodir $gemsvolumedir $javadir"
 
 
 #------------------------------------------------------------------------------
@@ -918,6 +1525,660 @@ then
     echo "Copying $srcdir/Config.mk to build directory"
     cp $srcdir/Config.mk  Config.mk || exit 1
 fi
+
+
+# the following is an excerpt from the tcl7.5b2 configure.in
+#--------------------------------------------------------------------
+#	The statements below define a collection of symbols related to
+#	dynamic loading and shared libraries:
+#
+#	SHLIB_CFLAGS -	Flags to pass to cc when compiling the components
+#			of a shared library (may request position-independent
+#			code, among other things).
+#	SHLIB_LD -	Base command to use for combining object files
+#			into a shared library.
+#	SHLIB_LD_LIBS -	Dependent libraries for the linker to scan when
+#			creating shared libraries.  This symbol typically
+#			goes at the end of the "ld" commands that build
+#			shared libraries. The value of the symbol if
+#			"${LIBS}" if all of the dependent libraries should
+#			be specified when creating a shared library.  If
+#			dependent libraries should not be specified (as on
+#			SunOS 4.x, where they cause the link to fail, or in
+#			general if Tcl and Tk aren't themselves shared
+#			libraries), then this symbol has an empty string
+#			as its value.
+#	SHLIB_SUFFIX -	Suffix to use for the name of the shared library.  An
+#			empty string means we don't know how to use shared
+#			libraries on this platform.
+#	SHLIB_VERSION -	If this platform *requires* shared libraries to end
+#			in a version string, this provides a default version
+#			string to use;  it is an empty string on platforms
+#			where it isn't needed.
+#	LD_FLAGS -	Flags to pass to the compiler when linking object
+#			files into an executable application binary such
+#			as tclsh.
+#	LD_SEARCH_FLAGS-Flags to pass to ld, such as "-R /usr/local/tcl/lib",
+#			that tell the run-time dynamic linker where to look
+#			for shared libraries such as libtcl.so.  Depends on
+#			the variable LIB_INSTALL_DIR in the Makefile.
+#--------------------------------------------------------------------
+
+# Step 1: set the variable "system" to hold the name and version number
+# for the system.  This can usually be done via the "uname" command, but
+# there are a few systems, like Next, where this doesn't work.
+
+echo $ac_n "checking system version (for dynamic loading)""... $ac_c" 1>&6
+if test -f /usr/lib/NextStep/software_version; then
+  system=NEXTSTEP-`awk '/3/,/3/' /usr/lib/NextStep/software_version`
+else
+    system=`uname -s`-`uname -r`
+    if test "$?" -ne 0 ; then
+	echo "$ac_t""unknown (can't find uname command)" 1>&6
+	system=unknown
+    else
+	# Special check for weird MP-RAS system (uname returns weird
+	# results, and the version is kept in special file).
+    
+	if test -r /etc/.relid -a "X`uname -n`" = "X`uname -s`" ; then
+	    system=MP-RAS-`awk '{print $3}' /etc/.relid'`
+	fi
+	echo "$ac_t""$system" 1>&6
+    fi
+fi
+
+# Step 2: check for existence of -ldl library.  This is needed because
+# Linux can use either -ldl or -ldld for dynamic loading.
+
+echo $ac_n "checking for -ldl""... $ac_c" 1>&6
+ac_lib_var=`echo dl_dlopen | tr '.-/+' '___p'`
+if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  ac_save_LIBS="$LIBS"
+LIBS="-ldl  $LIBS"
+cat > conftest.$ac_ext <<EOF
+#line 1602 "configure"
+#include "confdefs.h"
+/* Override any gcc2 internal prototype to avoid an error.  */
+char dlopen();
+
+int main() { return 0; }
+int t() {
+dlopen()
+; return 0; }
+EOF
+if { (eval echo configure:1612: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; }; then
+  rm -rf conftest*
+  eval "ac_cv_lib_$ac_lib_var=yes"
+else
+  rm -rf conftest*
+  eval "ac_cv_lib_$ac_lib_var=no"
+fi
+rm -f conftest*
+LIBS="$ac_save_LIBS"
+
+fi
+if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
+  echo "$ac_t""yes" 1>&6
+  have_dl=yes
+else
+  echo "$ac_t""no" 1>&6
+have_dl=no
+fi
+
+
+# Step 3: disable dynamic loading if requested via a command-line switch.
+
+# Check whether --enable-load or --disable-load was given.
+if test "${enable_load+set}" = set; then
+  enableval="$enable_load"
+  tcl_ok=$enableval
+else
+  tcl_ok=yes
+fi
+
+if test "$tcl_ok" = "no"; then
+    system=unknown
+fi
+
+# Step 4: set configuration options based on system name and version.
+
+fullSrcDir=`cd $srcdir; pwd`
+mustUseSharedLibs=no
+case $system in
+    AIX-*)
+	# AIX: can't link shared library extensions unless Tcl and Tk are
+	# also shared libraries.
+	mustUseSharedLibs=yes
+	SHLIB_CFLAGS=""
+	SHLIB_LD="$fullSrcDir/ldAix /bin/ld -e _nostart -berok -bM:SRE -bE:lib.exp -H512 -T512"
+	SHLIB_LD_LIBS='${LIBS}'
+	SHLIB_SUFFIX="..o"
+	SHLIB_VERSION=""
+	DL_LIBS=""
+	LD_FLAGS=""
+	LD_SEARCH_FLAGS=""
+	;;
+    HP-UX-*.08.*|HP-UX-*.09.*|HP-UX-*.10.*)
+	SHLIB_CFLAGS="+z"
+	SHLIB_LD="ld -b"
+	SHLIB_LD_LIBS=""
+	SHLIB_SUFFIX=".sl"
+	SHLIB_VERSION=""
+	DL_LIBS="-ldld"
+	LD_FLAGS="-Wl,-E"
+	LD_SEARCH_FLAGS='-Wl,+b,${LIB_INSTALL_DIR}'
+	;;
+    IRIX-4.*)
+	SHLIB_CFLAGS="-G 0"
+	SHLIB_SUFFIX="..o"
+	SHLIB_LD="echo tclLdAout $CC \{$SHLIB_CFLAGS\} | tclsh -r -G 0"
+	SHLIB_LD_LIBS=""
+	SHLIB_VERSION=""
+	DL_LIBS=""
+	LD_FLAGS="-Wl,-D,08000000"
+	LD_SEARCH_FLAGS='-rpath ${LIB_INSTALL_DIR}'
+	;;
+    IRIX-5.*)
+	SHLIB_CFLAGS=""
+	SHLIB_LD="${CXX} -shared -rdata_shared"
+	SHLIB_LD_LIBS=""
+	SHLIB_SUFFIX=".so"
+	SHLIB_VERSION=""
+	DL_LIBS=""
+	LD_FLAGS=""
+	LD_SEARCH_FLAGS=""
+	;;
+    IRIX64-6* | IRIX-64-6*)
+	SHLIB_CFLAGS=""
+	SHLIB_LD="${CXX} -shared -rdata_shared"
+	SHLIB_LD_LIBS=""
+	SHLIB_SUFFIX=".so"
+	SHLIB_VERSION=""
+	DL_LIBS=""
+	LD_FLAGS=""
+	LD_SEARCH_FLAGS=""
+	;;
+    Linux*)
+	SHLIB_CFLAGS="-fPIC"
+	SHLIB_LD_LIBS=""
+	SHLIB_SUFFIX=".so"
+	SHLIB_VERSION=""
+	if test "$have_dl" = yes; then
+	    SHLIB_LD="${CC} -shared"
+	    DL_LIBS="-ldl"
+	    LD_FLAGS="-rdynamic"
+	    LD_SEARCH_FLAGS=""
+	else
+	    ac_safe=`echo "dld.h" | tr './\055' '___'`
+echo $ac_n "checking for dld.h""... $ac_c" 1>&6
+if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  cat > conftest.$ac_ext <<EOF
+#line 1721 "configure"
+#include "confdefs.h"
+#include <dld.h>
+EOF
+ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
+{ (eval echo configure:1726: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+ac_err=`grep -v '^ *+' conftest.out`
+if test -z "$ac_err"; then
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=yes"
+else
+  echo "$ac_err" >&5
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=no"
+fi
+rm -f conftest*
+fi
+if eval "test \"`echo '$ac_cv_header_'$ac_safe`\" = yes"; then
+  echo "$ac_t""yes" 1>&6
+  
+		SHLIB_LD="ld -shared"
+		DL_LIBS="-ldld"
+		LD_FLAGS=""
+		LD_SEARCH_FLAGS=""
+else
+  echo "$ac_t""no" 1>&6
+fi
+
+	fi
+	;;
+    MP-RAS-02*)
+	SHLIB_CFLAGS="-K PIC"
+	SHLIB_LD="cc -G"
+	SHLIB_LD_LIBS=""
+	SHLIB_SUFFIX=".so"
+	SHLIB_VERSION=""
+	DL_LIBS="-ldl"
+	LD_FLAGS=""
+	LD_SEARCH_FLAGS=""
+	;;
+    MP-RAS-*)
+	SHLIB_CFLAGS="-K PIC"
+	SHLIB_LD="cc -G"
+	SHLIB_LD_LIBS=""
+	SHLIB_SUFFIX=".so"
+	SHLIB_VERSION=""
+	DL_LIBS="-ldl"
+	LD_FLAGS="-Wl,-Bexport"
+	LD_SEARCH_FLAGS=""
+	;;
+    NetBSD-*|FreeBSD-*)
+	# Not available on all versions:  check for include file.
+	if test -f /usr/include/dlfcn.h; then
+	    SHLIB_CFLAGS="-fpic"
+	    SHLIB_LD="ld -Bshareable"
+	    SHLIB_LD_LIBS=""
+	    SHLIB_SUFFIX=".so"
+	    SHLIB_VERSION=".1.0"
+	    DL_LIBS=""
+	    LD_FLAGS=""
+	    LD_SEARCH_FLAGS=""
+	else
+	    SHLIB_CFLAGS=""
+	    SHLIB_LD="echo tclLdAout $CC \{$SHLIB_CFLAGS\} | tclsh -r -G 0"
+	    SHLIB_LD_LIBS=""
+	    SHLIB_SUFFIX="..o"
+	    SHLIB_VERSION=""
+	    DL_LIBS=""
+	    LD_FLAGS=""
+	    LD_SEARCH_FLAGS=""
+	fi
+	;;
+    NEXTSTEP-*)
+	SHLIB_CFLAGS=""
+	SHLIB_LD="cc -nostdlib -r"
+	SHLIB_LD_LIBS=""
+	SHLIB_SUFFIX=".so"
+	SHLIB_VERSION=""
+	DL_LIBS=""
+	LD_FLAGS=""
+	LD_SEARCH_FLAGS=""
+	;;
+    OSF1-1.012)
+	# OSF/1 1.[012] from OSF, and derivatives, including Paragon OSF/1
+	SHLIB_CFLAGS=""
+	# Hack: make package name same as library name
+	SHLIB_LD='ld -R -export $@:'
+	SHLIB_LD_LIBS=""
+	SHLIB_SUFFIX=".so"
+	SHLIB_VERSION=""
+	DL_LIBS=""
+	LD_FLAGS=""
+	LD_SEARCH_FLAGS=""
+	;;
+    OSF1-1.*)
+	# OSF/1 1.3 from OSF using ELF, and derivatives, including AD2
+	SHLIB_CFLAGS="-fpic"
+	SHLIB_LD="ld -shared"
+	SHLIB_LD_LIBS=""
+	SHLIB_SUFFIX=".so"
+	SHLIB_VERSION=""
+	DL_LIBS=""
+	LD_FLAGS=""
+	LD_SEARCH_FLAGS=""
+	;;
+    OSF1-V*)
+        # Digital OSF/1
+	SHLIB_CFLAGS=""
+	SHLIB_LD='ld -shared -expect_unresolved "*"'
+	SHLIB_LD_LIBS=""
+	SHLIB_SUFFIX=".so"
+	SHLIB_VERSION=""
+	DL_LIBS=""
+	LD_FLAGS=""
+	LD_SEARCH_FLAGS=""
+	;;
+    RISCos-*)
+	SHLIB_CFLAGS="-G 0"
+	SHLIB_LD="echo tclLdAout $CC \{$SHLIB_CFLAGS\} | tclsh -r -G 0"
+	SHLIB_LD_LIBS=""
+	SHLIB_SUFFIX="..o"
+	SHLIB_VERSION=""
+	DL_LIBS=""
+	LD_FLAGS="-Wl,-D,08000000"
+	LD_SEARCH_FLAGS=""
+	;;
+    SCO_SV-3.2*)
+        # Note, dlopen is available only on SCO 3.2.5 and greater.  However,
+        # this test works, since "uname -s" was non-standard in 3.2.4 and
+        # below.
+	SHLIB_CFLAGS="-Kpic -belf"
+	SHLIB_LD="ld -G"
+	SHLIB_LD_LIBS=""
+	SHLIB_SUFFIX=".so"
+	SHLIB_VERSION=""
+	DL_LIBS=""
+	LD_FLAGS="-belf -Wl,-Bexport"
+	LD_SEARCH_FLAGS=""
+	;;
+     SINIX*5.4*)
+	SHLIB_CFLAGS="-K PIC"
+	SHLIB_LD="cc -G"
+	SHLIB_LD_LIBS=""
+	SHLIB_SUFFIX=".so"
+	SHLIB_VERSION=""
+	DL_LIBS="-ldl"
+	LD_FLAGS=""
+	LD_SEARCH_FLAGS=""
+	;;
+    SunOS-4*)
+	SHLIB_CFLAGS="-PIC"
+	SHLIB_LD="ld"
+	SHLIB_LD_LIBS=""
+	SHLIB_SUFFIX=".so"
+	SHLIB_VERSION=""
+	DL_LIBS="-ldl"
+	LD_FLAGS=""
+	LD_SEARCH_FLAGS=""
+	;;
+    SunOS-5*)
+	SHLIB_CFLAGS="-PIC"
+	SHLIB_LD="/usr/ccs/bin/ld -G -z text"
+	SHLIB_LD_LIBS='${LIBS}'
+	SHLIB_SUFFIX=".so"
+	SHLIB_VERSION=""
+	DL_LIBS="-ldl"
+	LD_FLAGS=""
+	LD_SEARCH_FLAGS='-R ${LIB_INSTALL_DIR}'
+	;;
+    ULTRIX-4.*)
+	SHLIB_CFLAGS="-G 0"
+	SHLIB_SUFFIX="..o"
+	SHLIB_LD="echo tclLdAout $CC \{$SHLIB_CFLAGS\} | tclsh -r -G 0"
+	SHLIB_LD_LIBS=""
+	SHLIB_VERSION=""
+	DL_LIBS=""
+	LD_FLAGS="-Wl,-D,08000000"
+	LD_SEARCH_FLAGS=""
+	;;
+    UNIX_SV*)
+	SHLIB_CFLAGS="-K PIC"
+	SHLIB_LD="cc -G"
+	SHLIB_LD_LIBS=""
+	SHLIB_SUFFIX=".so"
+	SHLIB_VERSION=""
+	DL_LIBS="-ldl"
+	LD_FLAGS="-Wl,-Bexport"
+	LD_SEARCH_FLAGS=""
+	;;
+esac
+
+# If we're running gcc, then change the C flags for compiling shared
+# libraries to the right flags for gcc, instead of those for the
+# standard manufacturer compiler.
+if test "$CC" = "gcc" -o `$CC -v 2>&1 | grep -c gcc` != "0" ; then
+  SHLIB_CFLAGS="-fPIC"
+fi
+
+if test "$vtk_shared_ok" = "yes"; then
+    VTK_SHLIB_CFLAGS="${SHLIB_CFLAGS}"
+    VTK_LD_SEARCH_FLAGS="${LD_SEARCH_FLAGS}"
+    VTK_TCL_SHLIB_TARGET="vtktcl"
+    RANLIB=":"
+    TOOLKIT_DEPENDS=""
+    VTK_LIB_EXT="${SHLIB_SUFFIX}${SHLIB_VERSION}"
+else
+    VTK_LIB_EXT=".a"
+    SHLIB_LD_LIBS=""
+    VTK_SHLIB_CFLAGS=""
+    VTK_LD_SEARCH_FLAGS=""
+    TOOLKIT_DEPENDS="../common/libVTKCommonTcl.a"
+    if test "X$graphicsdir" != "X"; then
+       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ../graphics/libVTKGraphicsTcl.a"
+    fi
+    if test "X$imagingdir" != "X"; then
+       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ../imaging/libVTKImagingTcl.a"
+    fi
+    if test "X$patenteddir" != "X"; then
+       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ../patented/libVTKPatentedTcl.a"
+    fi
+    if test "X$volumedir" != "X"; then
+       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ../volume/libVTKVolumeTcl.a"
+    fi
+    if test "X$contribdir" != "X"; then
+       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ../contrib/libVTKContribTcl.a"
+    fi
+    if test "X$geaedir" != "X"; then
+       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ../geae/libVTKGeaeTcl.a"
+    fi
+    if test "X$gemsipdir" != "X"; then
+       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ../gemsip/libVTKGemsipTcl.a"
+    fi
+    if test "X$gemsiodir" != "X"; then
+       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ../gemsio/libVTKGemsioTcl.a"
+    fi
+    if test "X$gemsvolumedir" != "X"; then
+       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ../gemsvolume/libVTKGemsvolumeTcl.a"
+    fi
+fi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# on an HP using gcc with shared libraries we need to add a link flag
+#
+VTK_SHLIB_LINK_FLAGS=""
+if test "$vtk_shared_ok" = "yes"; then
+  if test $ac_cv_prog_gxx = yes; then
+    case $system in
+       HP-UX-*.08.*|HP-UX-*.09.*|HP-UX-*.10.*)
+	  VTK_SHLIB_LINK_FLAGS="-Wl,+s"
+	  ;;
+    esac
+  fi
+fi
+
+
+
+
+
+
+
+
+
+
+##########################
+##			##
+## Check thread support ##
+##			##
+##########################
+THREAD_LIBS=""
+THREAD_FLAGS=""
+use_sproc=no
+for ac_hdr in sys/prctl.h
+do
+ac_safe=`echo "$ac_hdr" | tr './\055' '___'`
+echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
+if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  cat > conftest.$ac_ext <<EOF
+#line 2014 "configure"
+#include "confdefs.h"
+#include <$ac_hdr>
+EOF
+ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
+{ (eval echo configure:2019: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+ac_err=`grep -v '^ *+' conftest.out`
+if test -z "$ac_err"; then
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=yes"
+else
+  echo "$ac_err" >&5
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=no"
+fi
+rm -f conftest*
+fi
+if eval "test \"`echo '$ac_cv_header_'$ac_safe`\" = yes"; then
+  echo "$ac_t""yes" 1>&6
+    ac_tr_hdr=HAVE_`echo $ac_hdr | tr 'abcdefghijklmnopqrstuvwxyz./\055' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ___'`
+  cat >> confdefs.h <<EOF
+#define $ac_tr_hdr 1
+EOF
+ use_sproc=yes
+else
+  echo "$ac_t""no" 1>&6
+fi
+done
+
+if test "$use_sproc" = "yes"; then
+case $system in
+    IRIX*)
+	THREAD_FLAGS="-DVTK_USE_SPROC"
+	;;
+esac
+fi
+
+use_pthreads=no
+for ac_hdr in pthread.h
+do
+ac_safe=`echo "$ac_hdr" | tr './\055' '___'`
+echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
+if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  cat > conftest.$ac_ext <<EOF
+#line 2060 "configure"
+#include "confdefs.h"
+#include <$ac_hdr>
+EOF
+ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
+{ (eval echo configure:2065: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+ac_err=`grep -v '^ *+' conftest.out`
+if test -z "$ac_err"; then
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=yes"
+else
+  echo "$ac_err" >&5
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=no"
+fi
+rm -f conftest*
+fi
+if eval "test \"`echo '$ac_cv_header_'$ac_safe`\" = yes"; then
+  echo "$ac_t""yes" 1>&6
+    ac_tr_hdr=HAVE_`echo $ac_hdr | tr 'abcdefghijklmnopqrstuvwxyz./\055' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ___'`
+  cat >> confdefs.h <<EOF
+#define $ac_tr_hdr 1
+EOF
+ use_pthreads=yes
+else
+  echo "$ac_t""no" 1>&6
+fi
+done
+
+if test "$use_pthreads" = "yes"; then
+  if test "$use_sproc" = "no"; then
+	THREAD_LIBS="-lpthread"
+	THREAD_FLAGS="-DVTK_USE_PTHREADS"
+  fi
+fi
+
+# on an HP with pthread we need to use -lcma
+# on dec alphas we have had problems as well
+if test "$use_pthreads" = "yes"; then
+case $system in
+    HP-UX-*.10.*)
+	THREAD_LIBS="-lcma"
+	;;
+    OSF1-V*)
+        THREAD_FLAGS=""
+        THREAD_LIBS=""
+        ;;
+esac
+fi
+
+
+
+
+# on an HP unsing the native CC we need special +d flag for inlines
+VTK_INLINE_FLAGS=""
+if test $ac_cv_prog_gxx = no; then
+case $system in
+    HP-UX-*.08.*|HP-UX-*.09.*|HP-UX-*.10.*)
+	VTK_INLINE_FLAGS="+z"
+        echo $ac_n "checking whether ${CXX} accepts +d""... $ac_c" 1>&6
+        echo 'void f(){}' > conftest.cc
+        if test -z "`${CXX} +d -c conftest.cc 2>&1`"; then
+          echo "$ac_t""yes" 1>&6
+          VTK_INLINE_FLAGS="+d"
+        else
+          echo "$ac_t""no" 1>&6
+        fi
+        rm -f conftest*
+	;;
+esac
+fi
+
+
+# if we are not running g++ then we might need some other flags
+# to get the templates compiled correctly
+VTK_TEMPLATE_FLAGS=""
+if test $ac_cv_prog_gxx = no; then
+    echo $ac_n "checking whether ${CXX} accepts -ptall -no_prelink""... $ac_c" 1>&6
+  echo 'void f(){}' > conftest.cc
+if test -z "`${CXX} -ptall -no_prelink -c conftest.cc 2>&1`"; then
+  echo "$ac_t""yes" 1>&6
+  VTK_TEMPLATE_FLAGS="-ptall -no_prelink"
+else
+  echo "$ac_t""no" 1>&6
+fi
+rm -f conftest*
+    echo $ac_n "checking whether ${CXX} accepts -pto""... $ac_c" 1>&6
+  echo 'void f(){}' > conftest.cc
+if test -z "`${CXX} -pto -c conftest.cc 2>&1`"; then
+  echo "$ac_t""yes" 1>&6
+  VTK_TEMPLATE_FLAGS="-pto"
+else
+  echo "$ac_t""no" 1>&6
+fi
+rm -f conftest*
+fi
+
+
+if test "$CC" = "gcc" -o `$CC -v 2>&1 | grep -c gcc` != "0" ; then
+  SHLIB_CFLAGS="-fPIC"
+fi
+
+ac_aux_dir=
+for ac_dir in $srcdir $srcdir/.. $srcdir/../..; do
+  if test -f $ac_dir/install-sh; then
+    ac_aux_dir=$ac_dir
+    ac_install_sh="$ac_aux_dir/install-sh -c"
+    break
+  elif test -f $ac_dir/install.sh; then
+    ac_aux_dir=$ac_dir
+    ac_install_sh="$ac_aux_dir/install.sh -c"
+    break
+  fi
+done
+if test -z "$ac_aux_dir"; then
+  { echo "configure: error: can not find install-sh or install.sh in $srcdir $srcdir/.. $srcdir/../.." 1>&2; exit 1; }
+fi
+ac_config_guess=$ac_aux_dir/config.guess
+ac_config_sub=$ac_aux_dir/config.sub
+ac_configure=$ac_aux_dir/configure # This should be Cygnus configure.
+
+subdirs="common $tcldir $graphicsdir $imagingdir $patenteddir $volumedir $contribdir $geaedir $gemsipdir $gemsiodir $gemsvolumedir $javadir"
+
 
 trap '' 1 2 15
 cat > confcache <<\EOF
@@ -1017,7 +2278,7 @@ done
 
 ac_given_srcdir=$srcdir
 
-trap 'rm -fr `echo "Makefile" | sed "s/:[^ ]*//g"` conftest*; exit 1' 1 2 15
+trap 'rm -fr `echo "Makefile vtkConfig.sh" | sed "s/:[^ ]*//g"` conftest*; exit 1' 1 2 15
 EOF
 cat >> $CONFIG_STATUS <<EOF
 
@@ -1048,6 +2309,24 @@ s%@oldincludedir@%$oldincludedir%g
 s%@infodir@%$infodir%g
 s%@mandir@%$mandir%g
 s%@CC@%$CC%g
+s%@CXX@%$CXX%g
+s%@BIGENDIAN@%$BIGENDIAN%g
+s%@CPP@%$CPP%g
+s%@SBR_OBJ@%$SBR_OBJ%g
+s%@SBR_FLAGS@%$SBR_FLAGS%g
+s%@SBR_LIBS@%$SBR_LIBS%g
+s%@GLR_OBJ@%$GLR_OBJ%g
+s%@GLR_FLAGS@%$GLR_FLAGS%g
+s%@GLR_LIBS@%$GLR_LIBS%g
+s%@OGLR_LIBS@%$OGLR_LIBS%g
+s%@OGLR_OBJ@%$OGLR_OBJ%g
+s%@OGLR_INCLUDE@%$OGLR_INCLUDE%g
+s%@OGLR_FLAGS@%$OGLR_FLAGS%g
+s%@XGLR_OBJ@%$XGLR_OBJ%g
+s%@XGLR_FLAGS@%$XGLR_FLAGS%g
+s%@XGL_HOME@%$XGL_HOME%g
+s%@XGLR_LIBS@%$XGLR_LIBS%g
+s%@HAVE_SETMON@%$HAVE_SETMON%g
 s%@BUILD_TCL@%$BUILD_TCL%g
 s%@CLEAN_TCL@%$CLEAN_TCL%g
 s%@BUILD_JAVA@%$BUILD_JAVA%g
@@ -1079,15 +2358,39 @@ s%@CLEAN_GEMSIO@%$CLEAN_GEMSIO%g
 s%@BUILD_GEMSVOLUME@%$BUILD_GEMSVOLUME%g
 s%@DEPEND_GEMSVOLUME@%$DEPEND_GEMSVOLUME%g
 s%@CLEAN_GEMSVOLUME@%$CLEAN_GEMSVOLUME%g
-s%@subdirs@%$subdirs%g
 s%@MAKEINCLUDE@%$MAKEINCLUDE%g
 s%@MAKEQUOTE@%$MAKEQUOTE%g
+s%@VTK_TCL_SHLIB_TARGET@%$VTK_TCL_SHLIB_TARGET%g
+s%@USE_GRAPHICS_LIBS@%$USE_GRAPHICS_LIBS%g
+s%@USE_IMAGING_LIBS@%$USE_IMAGING_LIBS%g
+s%@USE_PATENTED_LIBS@%$USE_PATENTED_LIBS%g
+s%@USE_VOLUME_LIBS@%$USE_VOLUME_LIBS%g
+s%@USE_CONTRIB_LIBS@%$USE_CONTRIB_LIBS%g
+s%@USE_GEAE_LIBS@%$USE_GEAE_LIBS%g
+s%@USE_GEMSIP_LIBS@%$USE_GEMSIP_LIBS%g
+s%@USE_GEMSIO_LIBS@%$USE_GEMSIO_LIBS%g
+s%@USE_GEMSVOLUME_LIBS@%$USE_GEMSVOLUME_LIBS%g
+s%@TOOLKIT_DEPENDS@%$TOOLKIT_DEPENDS%g
+s%@USE_TOOLKIT_FLAGS@%$USE_TOOLKIT_FLAGS%g
+s%@VTK_SHLIB_LINK_FLAGS@%$VTK_SHLIB_LINK_FLAGS%g
+s%@VTK_SHLIB_CFLAGS@%$VTK_SHLIB_CFLAGS%g
+s%@VTK_LIB_EXT@%$VTK_LIB_EXT%g
+s%@SHLIB_LD@%$SHLIB_LD%g
+s%@DL_LIBS@%$DL_LIBS%g
+s%@SHLIB_LD_LIBS@%$SHLIB_LD_LIBS%g
+s%@SHLIB_SUFFIX@%$SHLIB_SUFFIX%g
+s%@SHLIB_VERSION@%$SHLIB_VERSION%g
+s%@THREAD_FLAGS@%$THREAD_FLAGS%g
+s%@THREAD_LIBS@%$THREAD_LIBS%g
+s%@VTK_INLINE_FLAGS@%$VTK_INLINE_FLAGS%g
+s%@VTK_TEMPLATE_FLAGS@%$VTK_TEMPLATE_FLAGS%g
+s%@subdirs@%$subdirs%g
 
 CEOF
 EOF
 cat >> $CONFIG_STATUS <<EOF
 
-CONFIG_FILES=\${CONFIG_FILES-"Makefile"}
+CONFIG_FILES=\${CONFIG_FILES-"Makefile vtkConfig.sh"}
 EOF
 cat >> $CONFIG_STATUS <<\EOF
 for ac_file in .. $CONFIG_FILES; do if test "x$ac_file" != x..; then
