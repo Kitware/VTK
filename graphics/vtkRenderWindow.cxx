@@ -85,6 +85,10 @@ vtkRenderWindow::vtkRenderWindow()
   this->AbortCheckMethodArg = NULL;
   this->AbortCheckMethodArgDelete = NULL;
   this->Renderers = vtkRendererCollection::New();
+  this->NumLayers = 1;
+  this->Layers    = new float[2];
+  this->Layers[0] = 0.;
+  this->Layers[1] = 1.;
 }
 
 vtkRenderWindow::~vtkRenderWindow()
@@ -109,6 +113,11 @@ vtkRenderWindow::~vtkRenderWindow()
   if ((this->AbortCheckMethodArg)&&(this->AbortCheckMethodArgDelete))
     {
     (*this->AbortCheckMethodArgDelete)(this->AbortCheckMethodArg);
+    }
+  if (this->Layers != NULL)
+    {
+    delete [] this->Layers;
+    this->Layers = NULL;
     }
   
   this->Renderers->Delete();
@@ -703,6 +712,8 @@ int vtkRenderWindow::CheckAbortStatus()
 
 void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
+  int  i;
+
   vtkWindow::PrintSelf(os,indent);
 
   os << indent << "Borders: " << (this->Borders ? "On\n":"Off\n");
@@ -731,6 +742,20 @@ void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Motion Blur Frames: " << this->SubFrames << "\n";
   os << indent << "Swapbuffers: " << (this->SwapBuffers ? "On\n":"Off\n");
   os << indent << "StereoType: " << this->GetStereoTypeAsString() << "\n";
+  os << indent << "Number of Layers: " << this->NumLayers << "\n";
+  if (this->Layers != NULL)
+    {
+    os << indent << "Layers are at: ";
+    for (i = 0 ; i <= this->NumLayers ; i++)
+      {
+      os << this->Layers[i];
+      if (i != this->NumLayers)
+        {
+        os << ", ";
+        }
+      }
+    os << "\n";
+    }
 
   os << indent << "File Name: " 
      << (this->FileName ? this->FileName : "(none)") << "\n";
@@ -1003,4 +1028,73 @@ void vtkRenderWindow::UnRegister(vtkObject *o)
   this->vtkObject::UnRegister(o);
 }
 
-      
+     
+void vtkRenderWindow::SetLayers(int nl)
+{
+  int     i;
+  float  *layers;
+
+  if (nl < 1)
+    {
+    vtkErrorMacro(<< "Must be a positive number of layers.");
+    return;
+    }
+
+  // Allocate an array that is too big, so we don't have to worry about
+  // arrays of size 0 (a valid case).
+  layers = new float[nl];
+  for (i = 0 ; i < nl-1 ; i++)
+    {
+    layers[i] = ((float) i+1) / ((float) nl);
+    }
+
+  SetLayers(nl, layers);
+
+  delete [] layers;
+}
+
+
+void vtkRenderWindow::SetLayers(int nl, float *layers)
+{
+  int  i;
+
+  if (nl < 1)
+    {
+    vtkErrorMacro(<< "Must be a positive number of layers.");
+    return;
+    }
+
+  if (this->Layers != NULL)
+    {
+    // Prevent memory leak.
+    delete [] this->Layers;
+    }
+
+  // Copy over array.  Insert 0. at front and 1. at back.
+  this->NumLayers = nl;
+  this->Layers = new float[this->NumLayers+1];
+  this->Layers[0] = 0.;
+  this->Layers[this->NumLayers] = 1.;
+  for (i = 0 ; i < this->NumLayers-1 ; i++)
+    {
+    this->Layers[i+1] = layers[i];
+    }
+}
+
+
+void vtkRenderWindow::GetLayer(int layer, float &min, float &max)
+{
+  if (layer >= 0 && layer < this->NumLayers)
+    {
+    min = this->Layers[layer];
+    max = this->Layers[layer+1];
+    }
+  else
+    {
+    vtkErrorMacro(<< "Invalid layer: " << layer);
+    min = 0.;
+    max = 1.;
+    }
+} 
+
+
