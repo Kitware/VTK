@@ -76,7 +76,6 @@ public:
   // Set the file pointer to write to. This will override
   // a FileName if specified.
   void SetFilePointer(FILE *);
-  FILE *GetFilePointer();
   
 protected:
   vtkVRMLExporter();
