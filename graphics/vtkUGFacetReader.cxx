@@ -350,6 +350,8 @@ void vtkUGFacetReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "File Name: " 
      << (this->FileName ? this->FileName : "(none)") << "\n";
 
+  os << indent << "Part Number: " << this->PartNumber << "\n";
+
   os << indent << "Merging: " << (this->Merging ? "On\n" : "Off\n");
   if ( this->Locator )
     {
