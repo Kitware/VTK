@@ -28,7 +28,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkExecutive, "1.8");
+vtkCxxRevisionMacro(vtkExecutive, "1.9");
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_AFTER_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_BEFORE_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_DIRECTION, Integer);
@@ -402,8 +402,17 @@ vtkDataObject* vtkExecutive::GetOutputData(int port)
     return 0;
     }
 
-  // Bring the data object up to date.
-  this->UpdateDataObject();
+  // TEMPORARY: Do not update if inside an algorithm.  Technically we
+  // should not get here because algorithms are not supposed to ask
+  // the executive for anything during a ProcessRequest call.  The
+  // algorithm should get its output from the information object
+  // arguments passed to ProcessRequest.  This is a temporary hack
+  // because so many converted algorithms break this rule.
+  if(!this->InAlgorithm)
+    {
+    // Bring the data object up to date.
+    this->UpdateDataObject();
+    }
 
   // Return the data object.
   if(vtkInformation* info = this->GetOutputInformation(port))
@@ -457,6 +466,12 @@ vtkDataObject* vtkExecutive::GetInputData(int port, int index)
 //----------------------------------------------------------------------------
 int vtkExecutive::ProcessRequest(vtkInformation* request)
 {
+  // The algorithm should not invoke anything on the executive.
+  if(!this->CheckAlgorithm("ProcessRequest"))
+    {
+    return 0;
+    }
+
   if(request->Has(FORWARD_DIRECTION()))
     {
     // Request will be forwarded.
@@ -546,4 +561,25 @@ int vtkExecutive::CallAlgorithm(vtkInformation* request, int direction)
                                                this->GetOutputInformation());
   this->InAlgorithm = 0;
   return result;
+}
+
+//----------------------------------------------------------------------------
+int vtkExecutive::CheckAlgorithm(const char* method)
+{
+  if(this->InAlgorithm)
+    {
+    vtkErrorMacro(<< method << " invoked during another request.  "
+                  "Returning failure to algorithm "
+                  << this->Algorithm->GetClassName() << "("
+                  << this->Algorithm << ").");
+
+    // Tests should fail when this happens because there is a bug in
+    // the code.
+    if(getenv("DASHBOARD_TEST_FROM_CTEST") || getenv("DART_TEST_FROM_DART"))
+      {
+      abort();
+      }
+    return 0;
+    }
+  return 1;
 }

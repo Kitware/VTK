@@ -126,8 +126,6 @@ protected:
   vtkTimeStamp InformationTime;
   vtkTimeStamp DataTime;
 
-  int InProcessRequest;
-
 private:
   vtkDemandDrivenPipeline(const vtkDemandDrivenPipeline&);  // Not implemented.
   void operator=(const vtkDemandDrivenPipeline&);  // Not implemented.

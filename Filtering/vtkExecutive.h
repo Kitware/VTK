@@ -129,6 +129,8 @@ protected:
   vtkInformationVector** GetInputInformation();
   vtkInformationVector* GetOutputInformation();
 
+  int CheckAlgorithm(const char* method);
+
   virtual int ForwardDownstream(vtkInformation* request);
   virtual int ForwardUpstream(vtkInformation* request);
   virtual void CopyDefaultInformation(vtkInformation* request, int direction);

@@ -39,7 +39,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.10");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.11");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_DATA_OBJECT, Integer);
@@ -52,7 +52,6 @@ vtkInformationKeyMacro(vtkDemandDrivenPipeline, PIPELINE_MODIFIED_TIME, Unsigned
 //----------------------------------------------------------------------------
 vtkDemandDrivenPipeline::vtkDemandDrivenPipeline()
 {
-  this->InProcessRequest = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -70,6 +69,12 @@ void vtkDemandDrivenPipeline::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::ProcessRequest(vtkInformation* request)
 {
+  // The algorithm should not invoke anything on the executive.
+  if(!this->CheckAlgorithm("ProcessRequest"))
+    {
+    return 0;
+    }
+
   // Look for specially supported requests.
   if(this->Algorithm && request->Has(REQUEST_PIPELINE_MODIFIED_TIME()))
     {
@@ -248,6 +253,12 @@ int vtkDemandDrivenPipeline::Update(int port)
 //----------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::UpdatePipelineMTime()
 {
+  // The algorithm should not invoke anything on the executive.
+  if(!this->CheckAlgorithm("UpdatePipelineMTime"))
+    {
+    return 0;
+    }
+
   // Setup the request for pipeline modification time.
   vtkSmartPointer<vtkInformation> r = vtkSmartPointer<vtkInformation>::New();
   r->Set(REQUEST_PIPELINE_MODIFIED_TIME(), 1);
@@ -262,6 +273,12 @@ int vtkDemandDrivenPipeline::UpdatePipelineMTime()
 //----------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::UpdateDataObject()
 {
+  // The algorithm should not invoke anything on the executive.
+  if(!this->CheckAlgorithm("UpdateDataObject"))
+    {
+    return 0;
+    }
+
   // Update the pipeline mtime first.
   if(!this->UpdatePipelineMTime())
     {
@@ -282,20 +299,9 @@ int vtkDemandDrivenPipeline::UpdateDataObject()
 //----------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::UpdateInformation()
 {
-  // Avoid infinite recursion.
-  if(this->InProcessRequest)
+  // The algorithm should not invoke anything on the executive.
+  if(!this->CheckAlgorithm("UpdateInformation"))
     {
-    vtkErrorMacro("UpdateInformation invoked during another request.  "
-                  "Returning failure to algorithm "
-                  << this->Algorithm->GetClassName() << "("
-                  << this->Algorithm << ").");
-
-    // Tests should fail when this happens because there is a bug in
-    // the code.
-    if(getenv("DASHBOARD_TEST_FROM_CTEST") || getenv("DART_TEST_FROM_DART"))
-      {
-      abort();
-      }
     return 0;
     }
 
@@ -344,20 +350,9 @@ int vtkDemandDrivenPipeline::UpdateInformation()
 //----------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::UpdateData(int outputPort)
 {
-  // Avoid infinite recursion.
-  if(this->InProcessRequest)
+  // The algorithm should not invoke anything on the executive.
+  if(!this->CheckAlgorithm("UpdateData"))
     {
-    vtkErrorMacro("UpdateData invoked during another request.  "
-                  "Returning failure to algorithm "
-                  << this->Algorithm->GetClassName() << "("
-                  << this->Algorithm << ").");
-
-    // Tests should fail when this happens because there is a bug in
-    // the code.
-    if(getenv("DASHBOARD_TEST_FROM_CTEST") || getenv("DART_TEST_FROM_DART"))
-      {
-      abort();
-      }
     return 0;
     }
 
