@@ -110,7 +110,7 @@ int vtkTetra::EvaluatePosition(float x[3], float closestPoint[3],
     for (minDist2=LARGE_FLOAT,i=0; i<4; i++)
       {
       triangle = (vtkTriangle *) this->GetFace (i);
-      triangle->EvaluatePosition(x,closest,sub,pc,dist2,w);
+      triangle->EvaluatePosition(x,closest,sub,pc,dist2,(float *)w);
 
       if ( dist2 < minDist2 )
         {

@@ -380,7 +380,8 @@ int vtkPolyLine::EvaluatePosition(float x[3], float closestPoint[3],
     {
     line.Points.SetPoint(0,this->Points.GetPoint(i));
     line.Points.SetPoint(1,this->Points.GetPoint(i+1));
-    status = line.EvaluatePosition(x,closest,ignoreId,pc,dist2,lineWeights);
+    status = line.EvaluatePosition(x,closest,ignoreId,pc,dist2,
+				   (float *)lineWeights);
     if ( status != -1 && dist2 < minDist2 )
       {
       return_status = status;

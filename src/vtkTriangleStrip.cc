@@ -70,7 +70,8 @@ int vtkTriangleStrip::EvaluatePosition(float x[3], float closestPoint[3],
     tri.Points.SetPoint(0,this->Points.GetPoint(i));
     tri.Points.SetPoint(1,this->Points.GetPoint(i+1));
     tri.Points.SetPoint(2,this->Points.GetPoint(i+2));
-    status = tri.EvaluatePosition(x,closest,ignoreId,pc,dist2,tempWeights);
+    status = tri.EvaluatePosition(x,closest,ignoreId,pc,dist2,
+				  (float *)tempWeights);
     if ( status != -1 && dist2 < minDist2 )
       {
       return_status = status;
