@@ -14,7 +14,7 @@ freetype\builds\unix\ftconfig.h.in:
 
 src\base\ftmac.c:
   added: 
-#if TARGET_API_MAC_CARBON
+#if defined(FT_USE_CARBON_HEADER)
 #include <Carbon/Carbon.h>
 #else
 [...]
