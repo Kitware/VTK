@@ -490,7 +490,7 @@ int vtkTriangle::ProjectTo2D(float x1[3], float x2[3], float x3[3],
 // The first point is at (0,0); the next at (1,0); compute the other point relative 
 // to the first two.
 //
-  v1[0] = v1[2] = 0.0;
+  v1[0] = v1[1] = 0.0;
   v2[0] = 1.0; v2[1] = 0.0;
 
   for (int i=0; i < 3; i++) 
