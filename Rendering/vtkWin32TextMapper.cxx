@@ -16,9 +16,12 @@
 
 =========================================================================*/
 #include "vtkWin32TextMapper.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkWin32TextMapper, "1.28");
+#include "vtkObjectFactory.h"
+#include "vtkTextProperty.h"
+#include "vtkViewport.h"
+
+vtkCxxRevisionMacro(vtkWin32TextMapper, "1.29");
 
 //--------------------------------------------------------------------------
 vtkWin32TextMapper* vtkWin32TextMapper::New()
@@ -66,8 +69,11 @@ void vtkWin32TextMapper::GetSize(vtkViewport* viewport, int *size)
     return;
     }
 
+  vtkTextProperty *tprop = this->GetTextProperty();
+ 
   // Check to see whether we have to rebuild anything
-  if ( this->GetMTime() < this->BuildTime)
+  if (this->GetMTime() < this->BuildTime &&
+      tprop->GetMTime() < this->BuildTime)
     {
     size[0] = this->LastSize[0];
     size[1] = this->LastSize[1];
@@ -85,12 +91,12 @@ void vtkWin32TextMapper::GetSize(vtkViewport* viewport, int *size)
   vtkWindow*  window = viewport->GetVTKWindow();
   // Get the device context from the window
   HDC hdc = (HDC) window->GetGenericContext();
- 
+
   // Create the font
   LOGFONT fontStruct;
   char fontname[32];
   DWORD family;
-  switch (this->FontFamily)
+  switch (tprop->GetFontFamily())
     {
     case VTK_ARIAL:
       strcpy(fontname, "Arial");
@@ -110,16 +116,16 @@ void vtkWin32TextMapper::GetSize(vtkViewport* viewport, int *size)
           break;
     }
 #ifdef _WIN32_WCE
-  fontStruct.lfHeight = this->FontSize * window->GetDPI() / 72;  
+  fontStruct.lfHeight = tprop->GetFontSize() * window->GetDPI() / 72;  
 #else
-  fontStruct.lfHeight = MulDiv(this->FontSize, 
+  fontStruct.lfHeight = MulDiv(tprop->GetFontSize(), 
                                window->GetDPI(), 72);  
 #endif
   // height in logical units
   fontStruct.lfWidth = 0;  // default width
   fontStruct.lfEscapement = 0;
   fontStruct.lfOrientation = 0;
-  if (this->Bold == 1)
+  if (tprop->GetBold() == 1)
     {
     fontStruct.lfWeight = FW_BOLD;
     }
@@ -127,7 +133,7 @@ void vtkWin32TextMapper::GetSize(vtkViewport* viewport, int *size)
     {
     fontStruct.lfWeight = FW_NORMAL;
     }
-  fontStruct.lfItalic = this->Italic;
+  fontStruct.lfItalic = tprop->GetItalic();
   fontStruct.lfUnderline = 0;
   fontStruct.lfStrikeOut = 0;
   fontStruct.lfCharSet = ANSI_CHARSET;

@@ -21,33 +21,19 @@
 // vtkMapper2D that can be associated with a vtkActor2D and placed into a
 // vtkRenderer or vtkImager.
 //
-// To use vtkTextMapper, specify an input text string, a font size,
-// a font name, and whether to turn on bold or shadows (shadows make the
-// font more visible when on top of other objects). You'll also need to 
-// create a vtkActor2D and add it to the renderer or imager. You can create
-// multiple lines by embedding "\n" in the Input string.
-//
-// The position of the text can be controlled by setting the justification
-// to right, centered, or left. If you have specified multiple lines, all
-// lines will be justified the same way.
+// To use vtkTextMapper, specify an input text string.
 
 // .SECTION See Also
-// vtkMapper2D vtkActor2D vtkLegendBoxActor vtkCaptionActor2D vtkVectorText
+// vtkMapper2D vtkActor2D vtkLegendBoxActor vtkCaptionActor2D vtkVectorText vtkTextProperty
 
 #ifndef __vtkTextMapper_h
 #define __vtkTextMapper_h
 
 #include "vtkMapper2D.h"
-#include "vtkWindow.h"
-#include "vtkViewport.h"
-#include "vtkActor2D.h"
-#include "vtkProperty2D.h"
 
-// To be moved to SetGet.h at some point ?
-
-#define VTK_TEXT_GLOBAL_ANTIALIASING_SOME 0
-#define VTK_TEXT_GLOBAL_ANTIALIASING_NONE 1
-#define VTK_TEXT_GLOBAL_ANTIALIASING_ALL 2
+class vtkActor2D;
+class vtkTextProperty;
+class vtkViewport;
 
 class VTK_RENDERING_EXPORT vtkTextMapper : public vtkMapper2D
 {
@@ -56,97 +42,90 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Creates a new text mapper with Font size 12, bold off, italic off,
-  // and Arial font.
+  // Creates a new text mapper.
   static vtkTextMapper *New();
 
   // Description:
   // Return the size[2]/width/height of the rectangle required to draw this
   // mapper (in pixels).
   virtual void GetSize(vtkViewport*, int size[2]) {size[0]=size[0];};
-  int GetWidth(vtkViewport*v);
-  int GetHeight(vtkViewport*v);
-  
-  // Description:
-  // Return the font size required to make this mapper fit in a given 
-  // rectangle (in pixels).
-  virtual int GetConstrainedFontSize(vtkViewport*, int width, int height);
+  virtual int GetWidth(vtkViewport*v);
+  virtual int GetHeight(vtkViewport*v);
   
   // Description:
   // Set the input text string to the mapper.  The mapper recognizes "\n"
   // as a carriage return/linefeed (line separator).
-  void SetInput(const char *inputString);
+  virtual void SetInput(const char *inputString);
   vtkGetStringMacro(Input);
 
   // Description:
-  // Set the font size used by the mapper.  The subclasses can override
-  // this function since all font sizes may not be available (especially
-  // in X).
-  virtual void SetFontSize(int size);
+  // Set/Get the text property.
+  virtual void SetTextProperty(vtkTextProperty *p);
+  vtkGetObjectMacro(TextProperty,vtkTextProperty);
+  
+  // Description:
+  // Set/Get the font family. Three font types are allowed: Arial (VTK_ARIAL),
+  // Courier (VTK_COURIER), and Times (VTK_TIMES).
+  // Warning: these functions remain for backward compatibility. Please access
+  // the vtkTextProperty associated to the actor that use the text mapper.
+  virtual void SetFontFamily(int val);
+  virtual int GetFontFamily();
+  void SetFontFamilyToArial()   { this->SetFontFamily(VTK_ARIAL);  };
+  void SetFontFamilyToCourier() { this->SetFontFamily(VTK_COURIER);};
+  void SetFontFamilyToTimes()   { this->SetFontFamily(VTK_TIMES);  };
 
   // Description:
-  // Return the font size actually in use by the mapper.  This value may
-  // not match the value specified in the last SetFontSize if the last size
-  // was unavailable.
-  vtkGetMacro(FontSize, int);
+  // Set/Get the font size.
+  // Warning: these functions remain for backward compatibility. Please access
+  // the vtkTextProperty associated to the actor that use the text mapper.
+  virtual void SetFontSize(int size);
+  virtual int GetFontSize();
 
   // Description:
   // Enable/disable text bolding.
-  void SetBold(int val);
-  vtkGetMacro(Bold, int);
+  // Warning: these functions remain for backward compatibility. Please access
+  // the vtkTextProperty associated to the actor that use the text mapper.
+  virtual void SetBold(int val);
+  virtual int GetBold();
   vtkBooleanMacro(Bold, int);
 
   // Description:
   // Enable/disable text italic.
-  void SetItalic(int val);
-  vtkGetMacro(Italic, int);
+  // Warning: these functions remain for backward compatibility. Please access
+  // the vtkTextProperty associated to the actor that use the text mapper.
+  virtual void SetItalic(int val);
+  virtual int GetItalic();
   vtkBooleanMacro(Italic, int);
 
   // Description:
   // Enable/disable text shadows.
-  void SetShadow(int val);
-  vtkGetMacro(Shadow, int);
+  // Warning: these functions remain for backward compatibility. Please access
+  // the vtkTextProperty associated to the actor that use the text mapper.
+  virtual void SetShadow(int val);
+  virtual int GetShadow();
   vtkBooleanMacro(Shadow, int);
   
   // Description:
-  // Set/Get the font family.  Three font types are allowed: Arial (VTK_ARIAL),
-  // Courier (VTK_COURIER), and Times (VTK_TIMES).
-  void SetFontFamily(int val);
-  vtkGetMacro(FontFamily, int);
-  void SetFontFamilyToArial() {this->SetFontFamily(VTK_ARIAL);};
-  void SetFontFamilyToCourier() {this->SetFontFamily(VTK_COURIER);};
-  void SetFontFamilyToTimes() {this->SetFontFamily(VTK_TIMES);};
-
-  // Description:
-  // Set/Get the global antialiasing hint. Control whether to *globally* force
-  // text antialiasing (ALL), disable antialiasing (NONE) or allow antialising
-  // depending on the per-object AntiAliasing attribute (SOME).
-  static int GetGlobalAntiAliasing();
-  static void SetGlobalAntiAliasing(int val);
-  static void SetGlobalAntiAliasingToSome() {vtkTextMapper::SetGlobalAntiAliasing(VTK_TEXT_GLOBAL_ANTIALIASING_SOME);};
-  static void SetGlobalAntiAliasingToNone() {vtkTextMapper::SetGlobalAntiAliasing(VTK_TEXT_GLOBAL_ANTIALIASING_NONE);};
-  static void SetGlobalAntiAliasingToAll() {vtkTextMapper::SetGlobalAntiAliasing(VTK_TEXT_GLOBAL_ANTIALIASING_ALL);};
-    
-  // Description:
-  // Enable/disable the local aliasing hint.
-  vtkSetMacro(AntiAliasing, int);
-  vtkGetMacro(AntiAliasing, int);
-  vtkBooleanMacro(AntiAliasing, int);
-
-  // Description:
   // Set/Get the horizontal justification to left (default), centered,
   // or right.
-  vtkSetClampMacro(Justification,int,VTK_TEXT_LEFT,VTK_TEXT_RIGHT);
-  vtkGetMacro(Justification,int);
-  void SetJustificationToLeft() {this->SetJustification(VTK_TEXT_LEFT);};
-  void SetJustificationToCentered() {this->SetJustification(VTK_TEXT_CENTERED);};
-  void SetJustificationToRight() {this->SetJustification(VTK_TEXT_RIGHT);};
+  // Warning: these functions remain for backward compatibility. Please access
+  // the vtkTextProperty associated to the actor that use the text mapper.
+  virtual void SetJustification(int val);
+  virtual int GetJustification();
+  void SetJustificationToLeft()     
+    { this->SetJustification(VTK_TEXT_LEFT);};
+  void SetJustificationToCentered() 
+    { this->SetJustification(VTK_TEXT_CENTERED);};
+  void SetJustificationToRight()    
+    { this->SetJustification(VTK_TEXT_RIGHT);};
     
   // Description:
   // Set/Get the vertical justification to bottom (default), middle,
   // or top.
-  vtkSetClampMacro(VerticalJustification,int,VTK_TEXT_BOTTOM,VTK_TEXT_TOP);
-  vtkGetMacro(VerticalJustification,int);
+  // Warning: these functions remain for backward compatibility. Please access
+  // the vtkTextProperty associated to the actor that use the text mapper.
+  virtual void SetVerticalJustification(int val);
+  virtual int GetVerticalJustification();
   void SetVerticalJustificationToBottom() 
     {this->SetVerticalJustification(VTK_TEXT_BOTTOM);};
   void SetVerticalJustificationToCentered() 
@@ -158,10 +137,13 @@ public:
   // These methods can be used to control the spacing and placement of 
   // text (in the vertical direction). LineOffset is a vertical offset 
   // (measured in lines); LineSpacing is the spacing between lines.
-  vtkSetMacro(LineOffset, float);
-  vtkGetMacro(LineOffset, float);
-  vtkSetMacro(LineSpacing, float);
-  vtkGetMacro(LineSpacing, float);
+  // Warning: these functions remain for backward compatibility. Please access
+  // the vtkTextProperty associated to the actor that use the text mapper.
+  virtual void SetLineOffset(float val);
+  virtual float GetLineOffset();
+  virtual void SetLineSpacing(float val);
+  virtual float GetLineSpacing();
+
   vtkGetMacro(NumberOfLines,int);
   
   // Description:
@@ -172,27 +154,39 @@ public:
   // Determine the number of lines in the Input string (delimited by "\n").
   int  GetNumberOfLines(const char *input);
 
+  // Description:
+  // Set and return the font size required to make this mapper fit in a given 
+  // target rectangle (width * height, in pixels).
+  virtual int SetConstrainedFontSize(vtkViewport*, 
+                                     int targetWidth, int targetHeight);
+
+  // Description:
+  // Set and return the font size required to make each element of an array of
+  // mappers fit in a given rectangle (width * height, in pixels). 
+  // This font size is the smallest size that was required to fit the largest 
+  // mapper in this constraint. 
+  // The resulting maximum area of the mappers is also returned.
+  static int SetMultipleConstrainedFontSize(vtkViewport*, 
+                                            int targetWidth, int targetHeight,
+                                            vtkTextMapper** mappers, 
+                                            int nbOfMappers, 
+                                            int* maxResultingSize);
+
 protected:
   vtkTextMapper();
   ~vtkTextMapper();
 
-  int   Italic;
-  int   Bold;
-  int   Shadow;
-  int   FontSize;
-  int   FontFamily;
-  int   AntiAliasing;
   char* Input;
-  int   Justification;
-  int   VerticalJustification;
-  vtkTimeStamp FontMTime;
-  // these functions are used to parse, process, and render multiple lines 
-  int LineSize;
-  float LineOffset;
-  float LineSpacing;
+  vtkTextProperty *TextProperty;
+
+  int  LineSize;
   int  NumberOfLines;
   int  NumberOfLinesAllocated;
+
   vtkTextMapper **TextLines;
+
+  // These functions are used to parse, process, and render multiple lines 
+
   char *NextLine(const char *input, int lineNum);
   void GetMultiLineSize(vtkViewport* viewport, int size[2]);
   void RenderOverlayMultipleLines(vtkViewport *viewport, vtkActor2D *actor);

@@ -16,12 +16,18 @@
 
 =========================================================================*/
 #include "vtkWin32OpenGLTextMapper.h"
-#include <GL/gl.h>
-#include "vtkObjectFactory.h"
-#include "vtkgluPickMatrix.h"
-#include "vtkString.h"
 
-vtkCxxRevisionMacro(vtkWin32OpenGLTextMapper, "1.42");
+#include <GL/gl.h>
+
+#include "vtkActor2D.h"
+#include "vtkgluPickMatrix.h"
+#include "vtkObjectFactory.h"
+#include "vtkString.h"
+#include "vtkProperty2D.h"
+#include "vtkTextProperty.h"
+#include "vtkViewport.h"
+
+vtkCxxRevisionMacro(vtkWin32OpenGLTextMapper, "1.43");
 vtkStandardNewMacro(vtkWin32OpenGLTextMapper);
 
 struct vtkFontStruct
@@ -48,15 +54,16 @@ int vtkWin32OpenGLTextMapper::GetListBaseForFont(vtkTextMapper *tm,
 {
   int i, j;
   vtkWindow *win = vp->GetVTKWindow();
+  vtkTextProperty *tprop = tm->GetTextProperty();
 
   // has the font been cached ?
   for (i = 0; i < numCached; i++)
     {
     if (cache[i]->Window == win &&
-        cache[i]->Italic == tm->GetItalic() &&
-        cache[i]->Bold == tm->GetBold() &&
-        cache[i]->FontSize == tm->GetFontSize() &&
-        cache[i]->FontFamily == tm->GetFontFamily())
+        cache[i]->Italic == tprop->GetItalic() &&
+        cache[i]->Bold == tprop->GetBold() &&
+        cache[i]->FontSize == tprop->GetFontSize() &&
+        cache[i]->FontFamily == tprop->GetFontFamily())
       {
       // make this the most recently used
       if (i != 0)
@@ -108,10 +115,10 @@ int vtkWin32OpenGLTextMapper::GetListBaseForFont(vtkTextMapper *tm,
   
   // set the other info and build the font
   cache[numCached]->Window = win;
-  cache[numCached]->Italic = tm->GetItalic();
-  cache[numCached]->Bold = tm->GetBold();
-  cache[numCached]->FontSize = tm->GetFontSize();
-  cache[numCached]->FontFamily = tm->GetFontFamily();
+  cache[numCached]->Italic = tprop->GetItalic();
+  cache[numCached]->Bold = tprop->GetBold();
+  cache[numCached]->FontSize = tprop->GetFontSize();
+  cache[numCached]->FontFamily = tprop->GetFontFamily();
   wglUseFontBitmaps(hdc, 0, 255, cache[numCached]->ListBase); 
   
   // now resort the list
@@ -181,6 +188,8 @@ void vtkWin32OpenGLTextMapper::RenderOverlay(vtkViewport* viewport,
 {
   vtkDebugMacro (<< "RenderOverlay");
 
+  vtkTextProperty *tprop = this->GetTextProperty();
+
   // turn off texturing in case it is on
   glDisable( GL_TEXTURE_2D );
   
@@ -220,7 +229,7 @@ void vtkWin32OpenGLTextMapper::RenderOverlay(vtkViewport* viewport,
   int* actorPos = 
     actor->GetActualPositionCoordinate()->GetComputedViewportValue(viewport);
   ptDestOff.x = actorPos[0];
-  ptDestOff.y = static_cast<long>(actorPos[1] - this->LineOffset);
+  ptDestOff.y = static_cast<long>(actorPos[1] - tprop->GetLineOffset());
 
   // Set up the font color from the text actor
   unsigned char red = 0;
@@ -228,11 +237,29 @@ void vtkWin32OpenGLTextMapper::RenderOverlay(vtkViewport* viewport,
   unsigned char blue = 0;
   unsigned char alpha = 0;
   
-  float*  actorColor = actor->GetProperty()->GetColor();
+  // TOFIX: the default text prop color is set to a special (-1, -1, -1) value
+  // to maintain backward compatibility for a while. Text mapper classes will
+  // use the Actor2D color instead of the text prop color if this value is 
+  // found (i.e. if the text prop color has not been set).
+
+  float* actorColor = this->GetTextProperty()->GetColor();
+  if (actorColor[0] < 0.0 && actorColor[1] < 0.0 && actorColor[2] < 0.0)
+    {
+    actorColor = actor->GetProperty()->GetColor();
+    }
+
+  // TOFIX: same goes for opacity
+
+  float opacity = this->GetTextProperty()->GetOpacity();
+  if (opacity < 0.0)
+    {
+    opacity = actor->GetProperty()->GetOpacity();
+    }
+
   red = (unsigned char) (actorColor[0] * 255.0);
   green = (unsigned char) (actorColor[1] * 255.0);
   blue = (unsigned char) (actorColor[2] * 255.0);
-  alpha = (unsigned char) (actorColor[3] * 255.0);
+  alpha = (unsigned char) (opacity * 255.0);
   
   // Set up the shadow color
   float intensity;
@@ -258,7 +285,7 @@ void vtkWin32OpenGLTextMapper::RenderOverlay(vtkViewport* viewport,
   rect.right = rect.left + size[0];
   rect.top = rect.bottom + size[1];
   
-  switch (this->Justification)
+  switch (tprop->GetJustification())
     {
     int tmp;
     case VTK_TEXT_LEFT: 
@@ -273,7 +300,7 @@ void vtkWin32OpenGLTextMapper::RenderOverlay(vtkViewport* viewport,
       rect.right = rect.left;
       rect.left = rect.left - tmp;
     }
-  switch (this->VerticalJustification)
+  switch (tprop->GetVerticalJustification())
     {
     case VTK_TEXT_TOP: 
       rect.top = rect.bottom;
@@ -354,7 +381,7 @@ void vtkWin32OpenGLTextMapper::RenderOverlay(vtkViewport* viewport,
   glListBase(vtkWin32OpenGLTextMapper::GetListBaseForFont(this,viewport));
 
   // Set the colors for the shadow
-  if (this->Shadow)
+  if (tprop->GetShadow())
     {
     // set the colors for the foreground
     glColor4ub(shadowRed, shadowGreen, shadowBlue, alpha);
