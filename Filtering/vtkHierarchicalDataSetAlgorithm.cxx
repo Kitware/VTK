@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalDataSetAlgorithm, "1.1");
+vtkCxxRevisionMacro(vtkHierarchicalDataSetAlgorithm, "1.2");
 vtkStandardNewMacro(vtkHierarchicalDataSetAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -86,24 +86,34 @@ int vtkHierarchicalDataSetAlgorithm::ProcessRequest(
   vtkInformationVector* outputVector)
 {
   // generate the data
-  if(request->Has(vtkCompositeDataPipeline::REQUEST_COMPOSITE_DATA()))
+  if(request->Has(vtkCompositeDataPipeline::REQUEST_DATA()))
     {
-    int retVal = this->RequestCompositeData(request, inputVector, outputVector);
+    int retVal = this->RequestData(request, inputVector, outputVector);
     return retVal;
     }
 
   // execute information
-  if(request->Has(vtkCompositeDataPipeline::REQUEST_COMPOSITE_INFORMATION()))
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
     {
-    return this->RequestCompositeInformation(request, inputVector, outputVector);
+    if(request->Has(vtkStreamingDemandDrivenPipeline::FROM_OUTPUT_PORT()))
+      {
+      int outputPort = request->Get(
+        vtkStreamingDemandDrivenPipeline::FROM_OUTPUT_PORT());
+      vtkInformation* info = outputVector->GetInformationObject(outputPort);
+      if (info)
+        {
+        info->Set(
+          vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
+        }
+      }
+    return this->RequestInformation(request, inputVector, outputVector);
     }
 
   // set update extent
  if(request->Has(
-      vtkCompositeDataPipeline::REQUEST_COMPOSITE_UPDATE_EXTENT()))
+      vtkCompositeDataPipeline::REQUEST_UPDATE_EXTENT()))
     {
-    return this->ComputeCompositeInputUpdateExtent(
-      request, inputVector, outputVector);
+    return this->RequestUpdateExtent(request, inputVector, outputVector);
     }
 
  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
@@ -125,6 +135,8 @@ int vtkHierarchicalDataSetAlgorithm::FillInputPortInformation(
 {
   // now add our info
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkHierarchicalDataSet");
+  info->Set(vtkCompositeDataPipeline::INPUT_REQUIRED_COMPOSITE_DATA_TYPE(), 
+            "vtkHierarchicalDataSet");
   return 1;
 }
 

@@ -12,8 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkHierarchicalDataSetAlgorithm -
+// .NAME vtkHierarchicalDataSetAlgorithm - Superclass for algorithms that produce only vtkHierarchicalDataSet as output
 // .SECTION Description
+// Algorithms that take any type of data object (including composite dataset)
+// and produce a vtkHierarchicalDataSet in the output can subclass from this
+// class.
 
 
 #ifndef __vtkHierarchicalDataSetAlgorithm_h
@@ -52,21 +55,21 @@ protected:
 
   // This is called by the superclass.
   // This is the method you should override.
-  virtual int RequestCompositeInformation(vtkInformation*, 
-                                          vtkInformationVector**, 
-                                          vtkInformationVector*) {return 1;};
+  virtual int RequestInformation(vtkInformation*, 
+                                 vtkInformationVector**, 
+                                 vtkInformationVector*) {return 1;};
 
   // This is called by the superclass.
   // This is the method you should override.
-  virtual int RequestCompositeData(vtkInformation*, 
-                                   vtkInformationVector**, 
-                                   vtkInformationVector*) {return 1;};
+  virtual int RequestData(vtkInformation*, 
+                          vtkInformationVector**, 
+                          vtkInformationVector*) {return 1;};
 
   // This is called by the superclass.
   // This is the method you should override.
-  virtual int ComputeCompositeInputUpdateExtent(vtkInformation*,
-                                                vtkInformationVector**,
-                                                vtkInformationVector*)
+  virtual int RequestUpdateExtent(vtkInformation*,
+                                  vtkInformationVector**,
+                                  vtkInformationVector*)
     {
       return 1;
     };

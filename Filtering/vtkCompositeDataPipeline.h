@@ -33,6 +33,8 @@
 // without accessing a remote disk) whereas a cost of 1 implies that the
 // dataset cannot be produced by the current process.
 //
+// TODO : Fix this documentation. MARKED_FOR_UPDATE() is provided by
+// the source ----->
 // * REQUEST_COMPOSITE_UPDATE_EXTENT: Similar to REQUEST_UPDATE_EXTENT.
 // The consumers have to provide information about the extent (update blocks)
 // they require. This accomplished by adding a MARKED_FOR_UPDATE() key
@@ -82,47 +84,43 @@ public:
   virtual int ProcessRequest(vtkInformation* request);
 
   // Description:
-  // Bring the outputs up-to-date.
-  virtual int Update();
-  virtual int Update(int port);
-  virtual int UpdateInformation();
-  virtual int PropagateUpdateExtent(int outputPort);
-  virtual int UpdateData(int outputPort);
-
-  // Description:
   // Returns the data object stored with the COMPOSITE_DATA_SET() in the
   // output port
   vtkDataObject* GetCompositeOutputData(int port);
 
   // Description:
   // vtkCompositeDataPipeline specific keys
-  static vtkInformationIntegerKey*    REQUEST_COMPOSITE_DATA();
-  static vtkInformationIntegerKey*    REQUEST_COMPOSITE_INFORMATION();
-  static vtkInformationIntegerKey*    REQUEST_COMPOSITE_UPDATE_EXTENT();
+  static vtkInformationIntegerKey*    BEGIN_LOOP();
+  static vtkInformationIntegerKey*    END_LOOP();
   static vtkInformationStringKey*     COMPOSITE_DATA_TYPE_NAME();
-  static vtkInformationDataObjectKey* COMPOSITE_DATA_SET();
   static vtkInformationObjectBaseKey* COMPOSITE_DATA_INFORMATION();
   static vtkInformationIntegerKey*    MARKED_FOR_UPDATE();
   static vtkInformationDoubleKey*     UPDATE_COST();
+  static vtkInformationStringKey*     INPUT_REQUIRED_COMPOSITE_DATA_TYPE();
 
 protected:
   vtkCompositeDataPipeline();
   ~vtkCompositeDataPipeline();
 
+  virtual int ForwardUpstream(vtkInformation* request);
+  virtual int ForwardUpstream(int i, int j, vtkInformation* request);
+  virtual void CopyFromDataToInformation(
+    vtkDataObject* dobj, vtkInformation* inInfo);
+
   // Composite data pipeline times. Similar to superclass'
-  vtkTimeStamp CompositeDataInformationTime;
-  vtkTimeStamp CompositeDataTime;
   vtkTimeStamp SubPassTime;
 
   // If true, the producer is being driven in a loop (dumb filters
   // between composite consumer and producer)
   int InSubPass;
 
-  virtual int ExecuteCompositeData(vtkInformation* request);
-  virtual int ExecuteCompositeInformation(vtkInformation* request);
-
+  virtual int ExecuteDataObjectForBlock(vtkInformation* request);
   virtual int ExecuteDataObject(vtkInformation* request);
+
+  virtual int ExecuteInformationForBlock(vtkInformation* request);
   virtual int ExecuteInformation(vtkInformation* request);
+
+  virtual int ExecuteDataForBlock(vtkInformation* request);
   virtual int ExecuteData(vtkInformation* request);
 
   int CheckCompositeData(int port);
