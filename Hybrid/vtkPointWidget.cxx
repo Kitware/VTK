@@ -28,7 +28,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPointWidget, "1.1");
+vtkCxxRevisionMacro(vtkPointWidget, "1.2");
 vtkStandardNewMacro(vtkPointWidget);
 
 vtkPointWidget::vtkPointWidget()
@@ -57,6 +57,7 @@ vtkPointWidget::vtkPointWidget()
 
   //Manage the picking stuff
   this->CursorPicker = vtkCellPicker::New();
+  this->CursorPicker->PickFromListOn();
   this->CursorPicker->AddPickList(this->Actor);
   this->CursorPicker->SetTolerance(0.005); //need some fluff
 
