@@ -26,7 +26,7 @@
 
 #include <float.h>
 
-vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.43");
+vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.44");
 vtkStandardNewMacro(vtkBandedPolyDataContourFilter);
 
 // Construct object.
@@ -663,6 +663,12 @@ void vtkBandedPolyDataContourFilter::Execute()
             }
           cellId = this->InsertCell(newPolys,numPointsToAdd,newPolygon,
                                     cellId,s[mR],newScalars);
+          if ( this->GenerateContourEdges )
+            {
+            contourEdges->InsertNextCell(2);
+            contourEdges->InsertCellPoint(fullPoly[mR]);
+            contourEdges->InsertCellPoint(fullPoly[mL]);
+            }
           break;
           }
         else //find the next intersection points
