@@ -15,8 +15,9 @@
 #include "vtkInformationDataObjectKey.h"
 
 #include "vtkDataObject.h"
+#include "vtkGarbageCollector.h"
 
-vtkCxxRevisionMacro(vtkInformationDataObjectKey, "1.1");
+vtkCxxRevisionMacro(vtkInformationDataObjectKey, "1.1.2.1");
 
 //----------------------------------------------------------------------------
 vtkInformationDataObjectKey::vtkInformationDataObjectKey(const char* name, const char* location):
@@ -59,4 +60,11 @@ void vtkInformationDataObjectKey::Copy(vtkInformation* from,
                                        vtkInformation* to)
 {
   this->Set(to, this->Get(from));
+}
+
+//----------------------------------------------------------------------------
+void vtkInformationDataObjectKey::Report(vtkInformation* info,
+                                         vtkGarbageCollector* collector)
+{
+  collector->ReportReference(this->Get(info), this->GetName());
 }

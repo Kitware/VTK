@@ -14,13 +14,14 @@
 =========================================================================*/
 #include "vtkInformationVector.h"
 
+#include "vtkGarbageCollector.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationVector, "1.1");
+vtkCxxRevisionMacro(vtkInformationVector, "1.1.2.1");
 vtkStandardNewMacro(vtkInformationVector);
 
 class vtkInformationVectorInternals
@@ -34,6 +35,7 @@ public:
 vtkInformationVector::vtkInformationVector()
 {
   this->Internal = new vtkInformationVectorInternals;
+  this->GarbageCollecting = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -142,4 +144,40 @@ void vtkInformationVector::DeepCopy(vtkInformationVector* from)
     {
     this->Internal->Vector.clear();
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkInformationVector::UnRegister(vtkObjectBase *o)
+{
+  int check = (this->GetReferenceCount() > 1);
+  this->Superclass::UnRegister(o);
+  if(check && !this->GarbageCollecting)
+    {
+    vtkGarbageCollector::Check(this);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInformationVector::ReportReferences(vtkGarbageCollector* collector)
+{
+  this->Superclass::ReportReferences(collector);
+  vtkInformationVectorInternals::VectorType::const_iterator i;
+  for(i=this->Internal->Vector.begin(); i != this->Internal->Vector.end(); ++i)
+    {
+    collector->ReportReference((*i).GetPointer(), "Entry");
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInformationVector::GarbageCollectionStarting()
+{
+  this->GarbageCollecting = 1;
+  this->Superclass::GarbageCollectionStarting();
+}
+
+//----------------------------------------------------------------------------
+void vtkInformationVector::RemoveReferences()
+{
+  this->Internal->Vector.clear();
+  this->Superclass::RemoveReferences();
 }

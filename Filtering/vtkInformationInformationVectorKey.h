@@ -46,6 +46,10 @@ public:
   // object for this key, the value is removed from the second.
   virtual void Copy(vtkInformation* from, vtkInformation* to);
 
+  // Description:
+  // Report a reference this key has in the given information object.
+  virtual void Report(vtkInformation* info, vtkGarbageCollector* collector);
+
 private:
   vtkInformationInformationVectorKey(const vtkInformationInformationVectorKey&);  // Not implemented.
   void operator=(const vtkInformationInformationVectorKey&);  // Not implemented.

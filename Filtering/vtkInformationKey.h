@@ -74,6 +74,10 @@ public:
   // Remove this key from the given information object.
   void Remove(vtkInformation* info);
 
+  // Description:
+  // Report a reference this key has in the given information object.
+  virtual void Report(vtkInformation* info, vtkGarbageCollector* collector);
+
 protected:
   const char* Name;
   const char* Location;

@@ -14,9 +14,10 @@
 =========================================================================*/
 #include "vtkInformationInformationVectorKey.h"
 
+#include "vtkGarbageCollector.h"
 #include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkInformationInformationVectorKey, "1.1");
+vtkCxxRevisionMacro(vtkInformationInformationVectorKey, "1.1.2.1");
 
 //----------------------------------------------------------------------------
 vtkInformationInformationVectorKey::vtkInformationInformationVectorKey(const char* name, const char* location):
@@ -60,4 +61,11 @@ void vtkInformationInformationVectorKey::Copy(vtkInformation* from,
                                               vtkInformation* to)
 {
   this->Set(to, this->Get(from));
+}
+
+//----------------------------------------------------------------------------
+void vtkInformationInformationVectorKey::Report(vtkInformation* info,
+                                                vtkGarbageCollector* collector)
+{
+  collector->ReportReference(this->Get(info), this->GetName());
 }

@@ -29,8 +29,10 @@
 #include "vtkObject.h"
 
 class vtkDataObject;
+class vtkExecutive;
 class vtkInformationDataObjectKey;
 class vtkInformationDataObjectVectorKey;
+class vtkInformationExecutiveKey;
 class vtkInformationInformationKey;
 class vtkInformationInformationVectorKey;
 class vtkInformationIntegerKey;
@@ -135,15 +137,28 @@ public:
   int Has(vtkInformationDataObjectKey* key);
 
   // Description:
+  // Get/Set an entry storing a vtkExecutive instance.
+  void Set(vtkInformationExecutiveKey* key, vtkExecutive*);
+  vtkExecutive* Get(vtkInformationExecutiveKey* key);
+  void Remove(vtkInformationExecutiveKey* key);
+  int Has(vtkInformationExecutiveKey* key);
+
+  // Description:
   // Upcast the given key instance.
   vtkInformationKey* GetKey(vtkInformationDataObjectKey* key);
   vtkInformationKey* GetKey(vtkInformationDataObjectVectorKey* key);
+  vtkInformationKey* GetKey(vtkInformationExecutiveKey* key);
   vtkInformationKey* GetKey(vtkInformationInformationKey* key);
   vtkInformationKey* GetKey(vtkInformationInformationVectorKey* key);
   vtkInformationKey* GetKey(vtkInformationIntegerKey* key);
   vtkInformationKey* GetKey(vtkInformationIntegerVectorKey* key);
   vtkInformationKey* GetKey(vtkInformationStringKey* key);
   vtkInformationKey* GetKey(vtkInformationKey* key);
+
+  // Description:
+  // Initiate garbage collection when a reference is removed.
+  virtual void UnRegister(vtkObjectBase* o);
+
 protected:
   vtkInformation();
   ~vtkInformation();
@@ -156,6 +171,11 @@ protected:
   // Internal implementation details.
   vtkInformationInternals* Internal;
 
+  // Garbage collection support.
+  virtual void ReportReferences(vtkGarbageCollector*);
+  virtual void RemoveReferences();
+  virtual void GarbageCollectionStarting();
+  int GarbageCollecting;
 private:
   //BTX
   friend class vtkInformationKeyToInformationFriendship;

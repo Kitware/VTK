@@ -64,6 +64,10 @@ public:
   // existing vector contents are removed.
   void ShallowCopy(vtkInformationVector* from);
 
+  // Description:
+  // Initiate garbage collection when a reference is removed.
+  virtual void UnRegister(vtkObjectBase* o);
+
 protected:
   vtkInformationVector();
   ~vtkInformationVector();
@@ -71,6 +75,11 @@ protected:
   // Internal implementation details.
   vtkInformationVectorInternals* Internal;
 
+  // Garbage collection support.
+  virtual void ReportReferences(vtkGarbageCollector*);
+  virtual void RemoveReferences();
+  virtual void GarbageCollectionStarting();
+  int GarbageCollecting;
 private:
   vtkInformationVector(const vtkInformationVector&);  // Not implemented.
   void operator=(const vtkInformationVector&);  // Not implemented.
