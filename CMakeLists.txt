@@ -276,6 +276,11 @@ IF (VTK_WRAP_PYTHON)
   SUBDIRS(Wrapping/Python)
 ENDIF (VTK_WRAP_PYTHON)
 
+IF (VTK_WRAP_JAVA)
+  INCLUDE (${CMAKE_ROOT}/Modules/FindJava.cmake)
+  SUBDIRS(Wrapping/Java)
+ENDIF (VTK_WRAP_JAVA)
+
 CONFIGURE_FILE(
 ${VTK_SOURCE_DIR}/vtkConfigure.h.in 
 ${VTK_BINARY_DIR}/vtkConfigure.h)
