@@ -137,6 +137,22 @@ public:
   vtkAlgorithmOutput* GetOutputPort(int index);
 
   // Description:
+  // Get the number of input ports used by the algorithm.
+  int GetNumberOfInputPorts();
+
+  // Description:
+  // Get the number of output ports provided by the algorithm.
+  int GetNumberOfOutputPorts();
+
+  // Description:
+  // Get the number of input currently connected to a port.
+  int GetNumberOfInputConnections(int port);
+
+  // Description:
+  // Get the algorithm output port connected to an input port.
+  vtkAlgorithmOutput* GetInputConnection(int port, int index);
+
+  // Description:
   // Bring this algorithm's outputs up-to-date.
   virtual void Update();
 
@@ -162,14 +178,16 @@ protected:
   virtual void FillOutputPortInformation(vtkInformationVector* portInfo);
 
   // Description:
-  // Get/Set the number of input ports used by the algorithm.
-  int GetNumberOfInputPorts();
+  // Set the number of input ports used by the algorithm.
   void SetNumberOfInputPorts(int n);
 
   // Description:
-  // Get/Set the number of output ports provided by the algorithm.
-  int GetNumberOfOutputPorts();
+  // Set the number of output ports provided by the algorithm.
   void SetNumberOfOutputPorts(int n);
+
+  // Helper methods to check input/output port index ranges.
+  int InputPortIndexInRange(int index, const char* action);
+  int OutputPortIndexInRange(int index, const char* action);
 
   // Garbage collection support.
   virtual void ReportReferences(vtkGarbageCollector*);

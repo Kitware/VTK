@@ -24,7 +24,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.1");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.2");
 vtkStandardNewMacro(vtkAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -340,12 +340,8 @@ vtkAlgorithmOutput* vtkAlgorithm::GetOutput(int index)
 //----------------------------------------------------------------------------
 void vtkAlgorithm::SetInputConnection(int index, vtkAlgorithmOutput* input)
 {
-  // Make sure the index of the input port is in range.
-  if(index < 0 || index >= this->GetNumberOfInputPorts())
+  if(!this->InputPortIndexInRange(index, "connect"))
     {
-    vtkErrorMacro("Attempt to connect input port index " << index
-                  << " for an algorithm with "
-                  << this->GetNumberOfInputPorts() << " input ports.");
     return;
     }
 
@@ -391,12 +387,8 @@ void vtkAlgorithm::SetInputConnection(int index, vtkAlgorithmOutput* input)
 //----------------------------------------------------------------------------
 void vtkAlgorithm::AddInputConnection(int index, vtkAlgorithmOutput* input)
 {
-  // Make sure the index of the input port is in range.
-  if(index < 0 || index >= this->GetNumberOfInputPorts())
+  if(!this->InputPortIndexInRange(index, "connect"))
     {
-    vtkErrorMacro("Attempt to connect input port index " << index
-                  << " for an algorithm with "
-                  << this->GetNumberOfInputPorts() << " input ports.");
     return;
     }
 
@@ -418,12 +410,8 @@ void vtkAlgorithm::AddInputConnection(int index, vtkAlgorithmOutput* input)
 //----------------------------------------------------------------------------
 void vtkAlgorithm::RemoveInputConnection(int index, vtkAlgorithmOutput* input)
 {
-  // Make sure the index of the input port is in range.
-  if(index < 0 || index >= this->GetNumberOfInputPorts())
+  if(!this->InputPortIndexInRange(index, "disconnect"))
     {
-    vtkErrorMacro("Attempt to disconnect input port index " << index
-                  << " for an algorithm with "
-                  << this->GetNumberOfInputPorts() << " input ports.");
     return;
     }
 
@@ -445,12 +433,8 @@ void vtkAlgorithm::RemoveInputConnection(int index, vtkAlgorithmOutput* input)
 //----------------------------------------------------------------------------
 vtkAlgorithmOutput* vtkAlgorithm::GetOutputPort(int index)
 {
-  // Make sure the index of the output port is in range.
-  if(index < 0 || index >= this->GetNumberOfOutputPorts())
+  if(!this->OutputPortIndexInRange(index, "get"))
     {
-    vtkErrorMacro("Attempt to get output port index " << index
-                  << " for an algorithm with "
-                  << this->GetNumberOfOutputPorts() << " output ports.");
     return 0;
     }
 
@@ -504,6 +488,66 @@ void vtkAlgorithm::FillInputPortInformation(vtkInformationVector*)
 void vtkAlgorithm::FillOutputPortInformation(vtkInformationVector*)
 {
   vtkErrorMacro("vtkAlgorithm subclasses must have FillOutputPortInformation.");
+}
+
+//----------------------------------------------------------------------------
+int vtkAlgorithm::GetNumberOfInputConnections(int port)
+{
+  if(!this->InputPortIndexInRange(port, "get number of connections for"))
+    {
+    return 0;
+    }
+  return static_cast<int>(this->AlgorithmInternal->InputPorts[port].size());
+}
+
+//----------------------------------------------------------------------------
+vtkAlgorithmOutput* vtkAlgorithm::GetInputConnection(int port, int index)
+{
+  if(!this->InputPortIndexInRange(index, "get number of connections for"))
+    {
+    return 0;
+    }
+  if(index < 0 || index >= this->GetNumberOfInputConnections(port))
+    {
+    vtkErrorMacro("Attempt to get connection index " << index
+                  << " for input port " << port << ", which has "
+                  << this->GetNumberOfInputConnections(port)
+                  << " connections.");
+    return 0;
+    }
+  vtkAlgorithmInternals::Port& inputPort =
+    this->AlgorithmInternal->InputPorts[port];
+  return inputPort[index].Algorithm->GetOutputPort(inputPort[index].PortIndex);
+}
+
+//----------------------------------------------------------------------------
+int vtkAlgorithm::InputPortIndexInRange(int index, const char* action)
+{
+  // Make sure the index of the input port is in range.
+  if(index < 0 || index >= this->GetNumberOfInputPorts())
+    {
+    vtkErrorMacro("Attempt to " << (action?action:"access")
+                  << " input port index " << index
+                  << " for an algorithm with "
+                  << this->GetNumberOfInputPorts() << " input ports.");
+    return 0;
+    }
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkAlgorithm::OutputPortIndexInRange(int index, const char* action)
+{
+  // Make sure the index of the output port is in range.
+  if(index < 0 || index >= this->GetNumberOfOutputPorts())
+    {
+    vtkErrorMacro("Attempt to " << (action?action:"access")
+                  << " output port index " << index
+                  << " for an algorithm with "
+                  << this->GetNumberOfOutputPorts() << " output ports.");
+    return 0;
+    }
+  return 1;
 }
 
 //----------------------------------------------------------------------------
