@@ -75,9 +75,9 @@ class VTK_EXPORT vtkOpenGLPolyDataMapper : public vtkPolyDataMapper
 
   // Description:
   // Draw method for OpenGL.
-  void Draw(vtkRenderer *ren, vtkActor *a);
+  virtual void Draw(vtkRenderer *ren, vtkActor *a);
   
-  //BTX  begine tcl exclude
+  //BTX  begin tcl exclude
   
   // Description:
   // Get the lmcolor property, this is a pretty important little 
