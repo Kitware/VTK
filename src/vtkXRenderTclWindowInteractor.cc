@@ -25,15 +25,14 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <math.h>
 #include "tk.h"
 
-#if (TK_MAJOR_VERSION == 4)&&(TK_MINOR_VERSION == 0)
-extern "C" {
-  extern int TkXFileProc(ClientData clientData, int mask, int flags);
-}
-#endif
+// steal the first two elements of the TkMainInfo stuct
+// we don't care about the rest of the elements.
+typedef struct TkMainInfo {
+  int refCount;
+  struct TkWindow *winPtr;
+};
 
-
-#define TK_IS_DISPLAY   32
-
+extern TkMainInfo *tkMainWindowList;
 
 // returns 1 if done
 static int vtkTclEventProc(XtPointer clientData,XEvent *event)
@@ -63,34 +62,11 @@ static void vtkXTclTimerProc(ClientData clientData)
   vtkXRenderWindowInteractorTimer((XtPointer)clientData,&id);
 }
 
-typedef struct
-{
-  Visual	*visual;
-  int	depth;
-} OptionsRec;
-OptionsRec	Options;
-
-XtResource resources[] =
-{
-	{"visual", "Visual", XtRVisual, sizeof (Visual *),
-	XtOffsetOf (OptionsRec, visual), XtRImmediate, NULL},
-	{"depth", "Depth", XtRInt, sizeof (int),
-	XtOffsetOf (OptionsRec, depth), XtRImmediate, NULL},
-};
-
-XrmOptionDescRec Desc[] =
-{
-	{"-visual", "*visual", XrmoptionSepArg, NULL},
-	{"-depth", "*depth", XrmoptionSepArg, NULL}
-};
-
-
 // states
 #define VTKXI_START  0
 #define VTKXI_ROTATE 1
 #define VTKXI_ZOOM   2
 #define VTKXI_PAN    3
-
 
 // Description:
 // Construct object so that light follows camera motion.
@@ -149,89 +125,30 @@ void vtkXRenderWindowInteractor::Initialize()
   this->Initialized = 1;
   ren = (vtkXRenderWindow *)(this->RenderWindow);
 
-  // do initialization stuff if not initialized yet
-  // do we already have a display
+  // use the same display as tcl/tk
+  ren->SetDisplayId(Tk_Display(tkMainWindowList->winPtr));
   this->DisplayId = ren->GetDisplayId();
-  if (!this->DisplayId)
-    {
-    if (this->App)
-      {
-      any_initialized = 1;
-      app = this->App;
-      }
-    if (!any_initialized)
-      {
-      XtToolkitInitialize();
-      app = XtCreateApplicationContext();
-      any_initialized = 1;
-      }
-    this->App = app;
-    
-    this->DisplayId = 
-      XtOpenDisplay(this->App,NULL,"VTK","vtk",NULL,0,&argc,NULL);
-    }
   
   // get the info we need from the RenderingWindow
-  ren->SetDisplayId(this->DisplayId);
   depth   = ren->GetDesiredDepth();
   cmap    = ren->GetDesiredColormap();
   vis     = ren->GetDesiredVisual();
   size    = ren->GetSize();
   position= ren->GetPosition();
   
-  // do we have a window already
-  this->WindowId = ren->GetWindowId();
-  if (!this->WindowId)
-    {
-    this->top = XtVaAppCreateShell(this->RenderWindow->GetName(),"vtk",
-				   applicationShellWidgetClass,
-				   this->DisplayId,
-				   XtNdepth, depth,
-				   XtNcolormap, cmap,
-				   XtNvisual, vis,
-				   XtNx, position[0],
-				   XtNy, position[1],
-				   XtNwidth, size[0],
-				   XtNheight, size[1],
-				   XtNinput, True,
-				   XtNmappedWhenManaged, 0,
-				   NULL);
-    
-    XtRealizeWidget(this->top);
-
-    /* add callback */
-    XSync(this->DisplayId,False);
-    ren->SetWindowId(XtWindow(this->top));
-    this->WindowId = XtWindow(this->top);
-    }
-  
   size = ren->GetSize();
   ren->Render();
+  this->WindowId = ren->GetWindowId();
   size = ren->GetSize();
 
   this->Size[0] = size[0];
   this->Size[1] = size[1];
 
   XSelectInput(this->DisplayId,this->WindowId,
-	       
 	       KeyPressMask | ButtonPressMask | ExposureMask |
 		    StructureNotifyMask | ButtonReleaseMask);
 
   // add in tcl init stuff
-#if (TK_MAJOR_VERSION == 3)
-  Tk_CreateFileHandler(ConnectionNumber(this->DisplayId),
-		       TK_READABLE|TK_IS_DISPLAY, 
-		       (void (*)(void *,int)) NULL,
-		       (ClientData) this->DisplayId);
-#else
-#if (TK_MINOR_VERSION == 0)
-  Tk_CreateFileHandler2(ConnectionNumber(this->DisplayId), TkXFileProc,
-			(ClientData) this->DisplayId);
-#else
-  Tk_NotifyDisplay(this->DisplayId);
-#endif
-#endif
-
   Tk_CreateGenericHandler((Tk_GenericProc *)vtkTclEventProc,(ClientData)this);
 }
 
@@ -316,7 +233,6 @@ void  vtkXRenderWindowInteractor::EndPan()
 void vtkXRenderWindowInteractorCallback(Widget w,XtPointer client_data, 
 				    XEvent *event, Boolean *ctd)
 {
-  int *size;
   vtkXRenderWindowInteractor *me;
   XEvent marker;
   
@@ -625,7 +541,6 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,XtIntervalId *id)
 }  
 
 
-
 // Description:
 // Setup a new window before a WindowRemap
 void vtkXRenderWindowInteractor::SetupNewWindow(int Stereo)
@@ -660,28 +575,6 @@ void vtkXRenderWindowInteractor::SetupNewWindow(int Stereo)
       position = zero_pos;
       }
     }
-
-  this->oldTop = this->top;
-  
-  this->top = XtVaAppCreateShell(this->RenderWindow->GetName(),"vtk",
-				 applicationShellWidgetClass,
-				 this->DisplayId,
-				 XtNdepth, depth,
-				 XtNcolormap, cmap,
-				 XtNvisual, vis,
-				 XtNx, position[0],
-				 XtNy, position[1],
-				 XtNwidth, size[0],
-				 XtNheight, size[1],
-				 XtNmappedWhenManaged, 0,
-				 NULL);
-
-  XtRealizeWidget(this->top);
-
-  /* add callback */
-  XSync(this->DisplayId,False);
-  ren->SetNextWindowId(XtWindow(this->top));
-  this->WindowId = XtWindow(this->top);
 }
 
 // Description:
@@ -691,7 +584,8 @@ void vtkXRenderWindowInteractor::FinishSettingUpNewWindow()
   int *size;
 
   // free the previous widget
-  XtDestroyWidget(this->oldTop);
+  XSync(this->DisplayId,False);
+  this->WindowId = ((vtkXRenderWindow *)(this->RenderWindow))->GetWindowId();
   XSync(this->DisplayId,False);
 
   XSelectInput(this->DisplayId,this->WindowId,
