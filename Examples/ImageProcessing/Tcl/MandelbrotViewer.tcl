@@ -154,38 +154,37 @@ pack $equation \
 #
 # Override some of the bindings
 #
-set man_iren [[[$manView GetImageViewer] GetRenderWindow] GetInteractor]
-set man_istyle [$man_iren GetInteractorStyle]
+foreach {widget master slave} [list $manView 1 2 $julView 2 1] {
 
-set jul_iren [[[$julView GetImageViewer] GetRenderWindow] GetInteractor]
-set jul_istyle [$jul_iren GetInteractorStyle]
+    set iren [[[$widget GetImageViewer] GetRenderWindow] GetInteractor]
+    set istyle [$iren GetInteractorStyle]
 
-# Zoom in
+    # Zoom in
 
-$man_istyle AddObserver LeftButtonPressEvent   [list StartZoom $man_iren]
-$man_istyle AddObserver LeftButtonReleaseEvent [list EndZoom $man_iren 1 2]
+    $istyle RemoveObservers LeftButtonPressEvent
+    $istyle AddObserver LeftButtonPressEvent \
+            [list StartZoom $iren]
 
-$jul_istyle AddObserver LeftButtonPressEvent   [list StartZoom $jul_iren]
-$jul_istyle AddObserver LeftButtonReleaseEvent [list EndZoom $jul_iren 2 1]
+    $istyle RemoveObservers LeftButtonReleaseEvent
+    $istyle AddObserver LeftButtonReleaseEvent \
+            [list EndZoom $iren $master $slave]
 
-# Zoom out
+    # Zoom out
 
-$man_istyle RemoveObserver \
-      [::vtk::get_widget_variable_value $man_istyle RightButtonPressEventTag]
-$man_istyle AddObserver RightButtonPressEvent   [list ZoomOut $man_iren 1 2]
+    $istyle RemoveObservers RightButtonPressEvent
+    $istyle AddObserver RightButtonPressEvent \
+            [list ZoomOut $iren $master $slave]
 
-$man_istyle RemoveObserver \
-      [::vtk::get_widget_variable_value $man_istyle RightButtonReleaseEventTag]
+    $istyle RemoveObservers RightButtonReleaseEvent
+    
+    # Pan
+    
+    $istyle RemoveObservers MiddleButtonPressEvent
+    $istyle AddObserver MiddleButtonPressEvent \
+            [list Pan $iren $master $slave]
 
-$jul_istyle RemoveObserver \
-      [::vtk::get_widget_variable_value $jul_istyle RightButtonPressEventTag]
-$jul_istyle AddObserver RightButtonPressEvent   [list ZoomOut $jul_iren 2 1]
-
-# Pan
-
-$man_istyle AddObserver MiddleButtonPressEvent [list Pan $man_iren 1 2]
-
-$jul_istyle AddObserver MiddleButtonPressEvent [list Pan $jul_iren 2 1]
+    $istyle RemoveObservers MiddleButtonReleaseEvent
+}
 
 #
 # Update the display

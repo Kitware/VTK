@@ -111,36 +111,28 @@ proc HistogramWidgetBind {widget} {
     # Remove the usual ConfigureEvent and ExposeEvent observers and
     # use ours
 
-    $iren RemoveObserver \
-            [::vtk::get_widget_variable_value $iren ConfigureEventTag]
-
-    $iren RemoveObserver \
-            [::vtk::get_widget_variable_value $iren ExposeEventTag]
-
-    ::vtk::set_widget_variable_value $iren ExposeEventTag \
-            [$iren AddObserver ExposeEvent \
-            [list HistogramWidgetRender $widget]]
+    $iren RemoveObservers ConfigureEvent
+    $iren RemoveObservers ExposeEventTag
+    $iren AddObserver ExposeEvent \
+            [list HistogramWidgetRender $widget]
 
     # Remove the usual PickEvent and use ours for probing
 
     set istyle [$iren GetInteractorStyle]
 
-    $istyle RemoveObserver \
-            [::vtk::get_widget_variable_value $istyle PickEventTag]
-
-    ::vtk::set_widget_variable_value $istyle PickEventTag \
-            [$istyle AddObserver PickEvent \
-            [list HistogramWidgetUpdateInteraction $widget]]
+    $istyle RemoveObservers PickEvent
+    $istyle AddObserver PickEvent \
+            [list HistogramWidgetUpdateInteraction $widget]
 
     # Bind the left button so that it acts like the right button
 
-    ::vtk::set_widget_variable_value $istyle LeftButtonPressEventTag \
-            [$istyle AddObserver LeftButtonPressEvent \
-            "::vtk::cb_istyleimg_right_button_press_event $istyle"]
+    $istyle RemoveObservers LeftButtonPressEvent
+    $istyle AddObserver LeftButtonPressEvent \
+            "::vtk::cb_istyleimg_right_button_press_event $istyle"
 
-    ::vtk::set_widget_variable_value $istyle LeftButtonReleaseEventTag \
-            [$istyle AddObserver LeftButtonReleaseEvent \
-            "::vtk::cb_istyleimg_right_button_release_event $istyle"]
+    $istyle RemoveObservers LeftButtonReleaseEvent
+    $istyle AddObserver LeftButtonReleaseEvent \
+            "::vtk::cb_istyleimg_right_button_release_event $istyle"
 }
 
 # Probe the histogram
