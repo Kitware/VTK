@@ -48,6 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRayCaster.h"
 #include "vtkTimerLog.h"
 #include "vtkCuller.h"
+#include "vtkFrustumCoverageCuller.h"
 
 // Create a vtkRenderer with a black background, a white ambient light, 
 // two-sided lighting turned on, a viewport of (0,0,1,1), and backface culling
@@ -78,6 +79,10 @@ vtkRenderer::vtkRenderer()
   this->Volumes = vtkVolumeCollection::New();
 
   this->Cullers = vtkCullerCollection::New();  
+  vtkFrustumCoverageCuller *cull = vtkFrustumCoverageCuller::New();
+  cull->SetSortingStyleToBackToFront();
+  this->Cullers->AddItem(cull);
+  cull->Delete();
 }
 
 vtkRenderer::~vtkRenderer()
@@ -405,7 +410,6 @@ int vtkRenderer::UpdateGeometry()
     this->NumberOfPropsRenderedAsGeometry += 
       this->PropArray[i]->RenderOpaqueGeometry(this);
     }
-
 
   // loop through props and give them a chance to 
   // render themselves as translucent geometry

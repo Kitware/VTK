@@ -172,8 +172,14 @@ float *vtkLODProp3D::GetBounds()
     {
     if ( this->LODs[i].ID != VTK_INDEX_NOT_IN_USE )
       {
+      vtkProp3D *p = this->LODs[i].Prop3D;
+      if ( p->GetMTime() < this->GetMTime() )
+	{
+	this->GetMatrix( p->GetUserMatrix() );
+	}
+
       // Get the bounds of this entry
-      this->LODs[i].Prop3D->GetBounds(newBounds);
+      p->GetBounds(newBounds);
 
       // If this is the first entry, this is the current bounds
       if ( first )
@@ -297,12 +303,17 @@ int vtkLODProp3D::AddLOD( vtkMapper *m, float time )
 int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p, 
 			  vtkTexture *t, float time )
 {
-  int       index;
-  vtkActor  *actor;
+  int          index;
+  vtkActor     *actor;
+  vtkMatrix4x4 *matrix;
 
   index = this->GetNextEntryIndex();
 
   actor = vtkActor::New();
+  matrix = vtkMatrix4x4::New();
+  this->GetMatrix(matrix);
+  actor->SetUserMatrix(matrix);
+  matrix->Delete();
   actor->SetMapper( m );
   if ( p ) 
     {
@@ -335,12 +346,17 @@ int vtkLODProp3D::AddLOD( vtkVolumeMapper *m, float time )
 int vtkLODProp3D::AddLOD( vtkVolumeMapper *m, vtkVolumeProperty *p, 
 			  float time )
 {
-  int       index;
-  vtkVolume  *volume;
+  int           index;
+  vtkVolume     *volume;
+  vtkMatrix4x4  *matrix;
 
   index = this->GetNextEntryIndex();
 
   volume = vtkVolume::New();
+  matrix = vtkMatrix4x4::New();
+  this->GetMatrix(matrix);
+  volume->SetUserMatrix( matrix );
+  matrix->Delete();
   volume->SetMapper( m );
   if ( p ) 
     {
@@ -820,11 +836,11 @@ void vtkLODProp3D::SetAllocatedRenderTime( float t )
   this->AllocatedRenderTime = t;
 
   // Push the matrix down into the selected LOD
-  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
-  this->GetMatrix( matrix );
-  this->LODs[this->SelectedLODIndex].Prop3D->SetUserMatrix( matrix );
-  matrix->Delete();
-
+  vtkProp3D *p = this->LODs[this->SelectedLODIndex].Prop3D;
+  if ( p->GetMTime() < this->GetMTime() )
+    {
+    this->GetMatrix( p->GetUserMatrix() );
+    }
 }
 
 void vtkLODProp3D::PrintSelf(ostream& os, vtkIndent indent)

@@ -69,9 +69,8 @@ float vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
   int                 i, propLoop;
   float               full_w, full_h, part_w, part_h;
   float               *allocatedTimeList;
-  int                 last_non_zero;
   float               *distanceList;
-  int                 index;
+  int                 index1, index2;
   float               tmp;
 
   // We will create a center distance entry for each prop in the list
@@ -111,6 +110,7 @@ float vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
       
     // Get the bounds of the prop and compute an enclosing sphere
     bounds = prop->GetBounds();
+
     // We start with a coverage of 1.0 and set it to zero if the prop
     // is culled during the plane tests
     coverage = 1.0;
@@ -222,6 +222,18 @@ float vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
 	  }
 	}
       }
+    // This is a 2D prop - keep them at the end of the list in the same
+    // order they came in (by giving them all the same distance) and set
+    // the coverage to something small so that they won't get much
+    // allocated render time (because they aren't LOD it doesn't matter,
+    // and they generally do draw fast so you don't want to take too much
+    // time away from the 3D prop because you added a title to your
+    // window for example)
+    else
+      {
+      distanceList[propLoop] = VTK_LARGE_FLOAT;
+      coverage = 0.001;
+      }
       
     // Multiply the new allocated time by the previous allocated time
     coverage *= previous_time;
@@ -235,37 +247,44 @@ float vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
     total_time += coverage;
     }
   
-  // Remove all props that have no allocated render time or are not visible
-  // from the list. First, find the last non-zero entry in the list
-  last_non_zero = listLength - 1;
-  while ( last_non_zero >= 0 && allocatedTimeList[last_non_zero] == 0.0 )
+  // Now traverse the list from the beginning, swapping any zero entries back
+  // in the list, while preserving the order of the non-zero entries. This
+  // requires two indices for the two items we are comparing at any step.
+  // The second index always moves back by one, but the first index moves back
+  // by one only when it is pointing to something that has a non-zero value.
+  index1 = 0;
+  for ( index2 = 1; index2 < listLength; index2++ )
     {
-    last_non_zero--;
-    }
-
-  // Now traverse the list from the beginning, swapping any zero entries with
-  // the last non-zero entry and finding the new last non-zero
-  for ( propLoop = 0; propLoop < last_non_zero; propLoop++ )
-    {
-    if ( allocatedTimeList[propLoop] == 0.0 )
+    if ( allocatedTimeList[index1] == 0.0 )
       {
-      allocatedTimeList[propLoop] = allocatedTimeList[last_non_zero];
-      distanceList[propLoop]      = distanceList[last_non_zero];
-      propList[propLoop]          = propList[last_non_zero];
-
-      propList[last_non_zero]          = NULL;
-      allocatedTimeList[last_non_zero] = 0.0;
-      distanceList[last_non_zero]      = 0.0;
-
-      while ( last_non_zero >= 0 && allocatedTimeList[last_non_zero] == 0.0 )
+      if ( allocatedTimeList[index2] != 0.0 )
 	{
-	last_non_zero--;
+        allocatedTimeList[index1] = allocatedTimeList[index2];
+	distanceList[index1]      = distanceList[index2];
+	propList[index1]          = propList[index2];
+	
+	propList[index2]          = NULL;
+	allocatedTimeList[index2] = 0.0;
+	distanceList[index2]      = 0.0;
 	}
+      else
+	{
+	propList[index1]          = propList[index2]           = NULL;
+	allocatedTimeList[index1] = allocatedTimeList[index2]  = 0.0;
+	distanceList[index1]      = distanceList[index2]       = 0.0;
+	}
+      }
+
+    if ( allocatedTimeList[index1] != 0.0 )
+      {
+      index1++;
       }
     }
     
-  // Compute the new list length
-  listLength = last_non_zero + 1;
+  // Compute the new list length - index1 is always pointing to the
+  // first 0.0 entry or the last entry if none were zero (in which case
+  // we won't change the list length)
+  listLength = (allocatedTimeList[index1] == 0.0)?(index1):listLength;
 
   // Now reorder the list if sorting is on
   // Do it by a simple bubble sort - there probably aren't that
@@ -273,40 +292,42 @@ float vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
   
   if ( this->SortingStyle == VTK_CULLER_SORT_FRONT_TO_BACK )
     {
-    for ( propLoop = 0; propLoop <= last_non_zero; propLoop++ )
+    for ( propLoop = 1; propLoop < listLength; propLoop++ )
       {
-      index = propLoop;
-      while ( (index - 1) >= 0 && distanceList[index] < distanceList[index-1] )
+      index1 = propLoop;
+      while ( (index1 - 1) >= 0 && 
+	      distanceList[index1] < distanceList[index1-1] )
 	{
-	tmp = distanceList[index-1];
-	distanceList[index-1] = distanceList[index];
-	distanceList[index] = tmp;
+	tmp = distanceList[index1-1];
+	distanceList[index1-1] = distanceList[index1];
+	distanceList[index1] = tmp;
 
-	prop = propList[index-1];
-	propList[index-1] = propList[index];
-	propList[index] = prop;
+	prop = propList[index1-1];
+	propList[index1-1] = propList[index1];
+	propList[index1] = prop;
 
-	index--;
+	index1--;
 	}
       }
     }
 
   if ( this->SortingStyle == VTK_CULLER_SORT_BACK_TO_FRONT )
     {
-    for ( propLoop = 0; propLoop <= last_non_zero; propLoop++ )
+    for ( propLoop = 1; propLoop < listLength; propLoop++ )
       {
-      index = propLoop;
-      while ( (index - 1) >= 0 && distanceList[index] > distanceList[index-1] )
+      index1 = propLoop;
+      while ( (index1 - 1) >= 0 && 
+	      distanceList[index1] > distanceList[index1-1] )
 	{
-	tmp = distanceList[index-1];
-	distanceList[index-1] = distanceList[index];
-	distanceList[index] = tmp;
+	tmp = distanceList[index1-1];
+	distanceList[index1-1] = distanceList[index1];
+	distanceList[index1] = tmp;
 
-	prop = propList[index-1];
-	propList[index-1] = propList[index];
-	propList[index] = prop;
+	prop = propList[index1-1];
+	propList[index1-1] = propList[index1];
+	propList[index1] = prop;
 
-	index--;
+	index1--;
 	}
       }
     }
