@@ -97,38 +97,6 @@ void vtkXTextMapper::SetFontSize(int size)
   return;
 }
 
-int vtkXTextMapper::GetCompositingMode(vtkActor2D* actor)
-{
-
-  vtkProperty2D* tempProp = actor->GetProperty();
-  int compositeMode = tempProp->GetCompositingOperator();
-
-  switch (compositeMode)
-  {
-  case VTK_BLACK:
-	  return GXclear;
-  case VTK_NOT_DEST:
-	  return GXinvert;
-  case VTK_SRC_AND_DEST:
-	  return GXand;
-  case VTK_SRC_OR_DEST:
-	  return  GXor;
-  case VTK_NOT_SRC:
-	  return GXcopyInverted;
-  case VTK_SRC_XOR_DEST:
-	  return GXxor;
-  case VTK_SRC_AND_notDEST:
-	  return GXandReverse;
-  case VTK_SRC:
-	  return GXcopy;
-  case VTK_WHITE:
-	  return GXset;
-  default:
-	  return GXcopy;
-  }
-
-}
-
 void vtkXTextMapper::GetSize(vtkViewport* viewport, int *size)
 {
   // Get the window info
@@ -320,10 +288,6 @@ void vtkXTextMapper::RenderOverlay(vtkViewport* viewport, vtkActor2D* actor)
     }
   
     
-  // Set the compositing mode for the actor
-  int compositeMode = this->GetCompositingMode(actor);
-  XSetFunction(displayId, gc, compositeMode);
- 
   // Get the drawable to draw into
   Drawable drawable = (Drawable) window->GetGenericDrawable();
   if (!drawable) vtkErrorMacro(<<"Window returned NULL drawable!");

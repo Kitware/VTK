@@ -71,10 +71,6 @@ public:
   void SetFontSize(int size);
 
   // Description:
-  // Return the X compositing mode being used.
-  int GetCompositingMode(vtkActor2D* actor);
-
-  // Description:
   // Draw the text to the screen.
   void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor);
 

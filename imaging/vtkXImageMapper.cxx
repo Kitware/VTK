@@ -121,38 +121,6 @@ static void vtkXImageMapperClamps ( vtkImageData *data, float w,
     }  
 }
 
-int vtkXImageMapper::GetCompositingMode(vtkActor2D* actor)
-{
-
-  vtkProperty2D* tempProp = actor->GetProperty();
-  int compositeMode = tempProp->GetCompositingOperator();
-
-  switch (compositeMode)
-  {
-  case VTK_BLACK:
-	  return GXclear;
-  case VTK_NOT_DEST:
-	  return GXinvert;
-  case VTK_SRC_AND_DEST:
-	  return GXand;
-  case VTK_SRC_OR_DEST:
-	  return  GXor;
-  case VTK_NOT_SRC:
-	  return GXcopyInverted;
-  case VTK_SRC_XOR_DEST:
-	  return GXxor;
-  case VTK_SRC_AND_notDEST:
-	  return GXandReverse;
-  case VTK_SRC:
-	  return GXcopy;
-  case VTK_WHITE:
-	  return GXset;
-  default:
-	  return GXcopy;
-  }
-
-}
-
 int vtkXImageMapper::GetXWindowDepth(vtkWindow* window)
 {
   Window windowID = (Window) window->GetGenericWindowId();
@@ -798,12 +766,6 @@ void vtkXImageMapper::RenderData(vtkViewport* viewport, vtkImageData* data, vtkA
   // so subtract the height of the image times it's Y scale.
   //actPos[1] = actPos[1] - (int)(actorScale[1]*height);
   actPos[1] = actPos[1] - height + 1;
-
-  // Get the compositing mode for the actor
-  int compositeMode = this->GetCompositingMode(actor);
-
-  // Set the compositing mode in the graphics context (gc)
-  XSetFunction(displayId, gc, compositeMode);
 
   // Put the image on the screen
   vtkDebugMacro(<<"vtkXImageMapper::RenderData - Putting X image on screen.");

@@ -51,55 +51,24 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkObject.h"
 
-#define VTK_BLACK	        0   // BLACKNESS   // R2_BLACK
-#define VTK_NOT_DEST		1   // DSTINVERT   // R2_NOT
-#define VTK_SRC_AND_DEST	2   // SRCAND      // R2_MASKPEN
-#define VTK_SRC_OR_DEST		3   // SRCPAINT    // R2_MERGEPEN
-#define VTK_NOT_SRC		4   // NOTSRCCOPY  // R2_NOTCOPYPEN
-#define VTK_SRC_XOR_DEST	5   // SRCINVERT   // R2_XORPEN
-#define VTK_SRC_AND_notDEST	6   // SRCERASE    // R2_MERGEPENNOT
-#define VTK_SRC			7   // SRCCOPY    // R2_COPYPEN
-#define VTK_WHITE		8   // WHITENESS   // R2_WHITE
-
 class vtkViewport;
 
 class VTK_EXPORT vtkProperty2D : public vtkObject
 {
 public:
+  vtkProperty2D();
+  ~vtkProperty2D();
+  void PrintSelf(ostream& os, vtkIndent indent);
+
   // Description:
   // Creates a vtkProperty2D with the following default values:
-  // Opacity 1, Color (1,0,0), CompositingOperator VTK_SRC
-  vtkProperty2D();
-
-  ~vtkProperty2D();
+  // Opacity 1, Color (1,1,1)
   static vtkProperty2D *New() {return new vtkProperty2D;};
-  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set/Get the RGB color of this property.
   vtkSetVector3Macro(Color, float);
   vtkGetVectorMacro(Color, float, 3);
-
-  // Description:
-  // Set/Get the compositing operator to use.
-  vtkGetMacro(CompositingOperator, int);
-  vtkSetMacro(CompositingOperator, int);
-  void SetCompositingOperatorToBlack() {
-    this->CompositingOperator = VTK_BLACK;};
-  void SetCompositingOperatorToNotDest() {
-    this->CompositingOperator = VTK_NOT_DEST;};
-  void SetCompositingOperatorToSrcAndDest() {
-    this->CompositingOperator = VTK_SRC_AND_DEST;};
-  void SetCompositingOperatorToSrcOrDest() {
-    this->CompositingOperator = VTK_SRC_OR_DEST;};
-  void SetCompositingOperatorToNotSrc() {
-    this->CompositingOperator = VTK_NOT_SRC;};
-  void SetCompositingOperatorToSrcXorDest() {
-    this->CompositingOperator = VTK_SRC_XOR_DEST;};
-  void SetCompositingOperatorToSrcAndNotDest() {
-    this->CompositingOperator = VTK_SRC_AND_notDEST;};
-  void SetCompositingOperatorToSrc() {this->CompositingOperator = VTK_SRC;};
-  void SetCompositingOperatorToWhite() {this->CompositingOperator = VTK_WHITE;};
 
   // Description:
   // Set/Get the Opacity of this property.
@@ -112,7 +81,6 @@ public:
   
 protected:
   float Color[3];
-  int   CompositingOperator;
   float   Opacity;
 };
   

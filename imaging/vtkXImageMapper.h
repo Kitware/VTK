@@ -80,10 +80,6 @@ public:
   void RenderData(vtkViewport* viewport, vtkImageData* data, vtkActor2D* actor);
 
   // Description:
-  // Returns the X specific compositing operator.
-  int GetCompositingMode(vtkActor2D* actor);
-
-  // Description:
   // Returns the depth of the X window
   int GetXWindowDepth(vtkWindow* window);
 

@@ -59,10 +59,6 @@ public:
     {return new vtkXPolyDataMapper2D;};
 
   // Description:
-  // Return the appropriate X compositing mode for an actor.
-  int GetCompositingMode(vtkActor2D* actor);
-
-  // Description:
   // Actually draw the poly data.
   void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor);
 
