@@ -81,6 +81,7 @@ vtkWin32RenderWindowInteractor::vtkWin32RenderWindowInteractor()
   this->WindowId           = 0;
   this->TimerId            = timerId++;
   this->InstallMessageProc = 1;
+  this->MouseInWindow = 0;
 }
 
 vtkWin32RenderWindowInteractor::~vtkWin32RenderWindowInteractor() 
@@ -331,8 +332,44 @@ void vtkWin32RenderWindowInteractor::OnMouseMove(HWND wnd, UINT nFlags,
     {
     return;
     }
-  InteractorStyle->OnMouseMove(nFlags & MK_CONTROL, nFlags & MK_SHIFT, 
-                               X, this->Size[1] - Y - 1);
+
+  if (!this->MouseInWindow && 
+      (X >= 0 && X < this->Size[0] && Y >= 0 && Y < this->Size[1]))
+    {
+    this->InteractorStyle->OnEnter(nFlags & MK_CONTROL, nFlags & MK_SHIFT,
+				   X, this->Size[1] - Y - 1);
+    this->MouseInWindow = 1;
+    }
+ 
+  if (this->MouseInWindow && 
+      (X < 0 || X >= this->Size[0] || Y < 0 || Y >= this->Size[1]))
+    {
+    this->InteractorStyle->OnLeave(nFlags & MK_CONTROL, nFlags & MK_SHIFT,
+				   X, this->Size[1] - Y - 1);
+    this->MouseInWindow = 0;
+    }
+
+  this->InteractorStyle->OnMouseMove(nFlags & MK_CONTROL, nFlags & MK_SHIFT, 
+				     X, this->Size[1] - Y - 1);
+
+}
+
+void vtkWin32RenderWindowInteractor::OnNCMouseMove(HWND wnd, UINT nFlags, 
+						   int X, int Y) 
+{
+  if (!this->Enabled) 
+    {
+    return;
+    }
+
+  int *pos = this->RenderWindow->GetPosition();
+
+  if (this->MouseInWindow)
+    {
+    this->InteractorStyle->OnLeave(nFlags & MK_CONTROL, nFlags & MK_SHIFT,
+				   X-pos[0], this->Size[1] - (Y-pos[1]) - 1);
+    this->MouseInWindow = 0;
+    }
 }
 
 void vtkWin32RenderWindowInteractor::OnLButtonDown(HWND wnd,UINT nFlags, 
@@ -415,6 +452,10 @@ void vtkWin32RenderWindowInteractor::OnRButtonUp(HWND wnd,UINT nFlags,
 
 void vtkWin32RenderWindowInteractor::OnSize(HWND wnd,UINT nType, int X, int Y) {
   this->UpdateSize(X,Y);
+  if (this->Enabled)
+    {
+    this->InteractorStyle->OnConfigure(X,Y);
+    }
 }
 
 void vtkWin32RenderWindowInteractor::OnTimer(HWND wnd,UINT nIDEvent) 
@@ -541,7 +582,7 @@ LRESULT CALLBACK vtkHandleMessage2(HWND hWnd,UINT uMsg, WPARAM wParam,
       break;
       
     case WM_SIZE:
-      me->UpdateSize(LOWORD(lParam),HIWORD(lParam));
+      me->OnSize(hWnd,wParam,LOWORD(lParam),HIWORD(lParam));
       return CallWindowProc(me->OldProc,hWnd,uMsg,wParam,lParam);
       break;
       
@@ -572,7 +613,11 @@ LRESULT CALLBACK vtkHandleMessage2(HWND hWnd,UINT uMsg, WPARAM wParam,
     case WM_MOUSEMOVE:
       me->OnMouseMove(hWnd,wParam,MAKEPOINTS(lParam).x,MAKEPOINTS(lParam).y);
       break;
-      
+
+    case WM_NCMOUSEMOVE:
+      me->OnNCMouseMove(hWnd,wParam,MAKEPOINTS(lParam).x,MAKEPOINTS(lParam).y);
+      break;
+
     case WM_CLOSE:
       // Don't know what to put here ! Why so many callbacks ?
       if (me->ExitMethod) 

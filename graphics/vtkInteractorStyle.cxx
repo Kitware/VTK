@@ -802,9 +802,9 @@ void vtkInteractorStyle::OnChar(int ctrl, int shift,
     vtkAssemblyPath *path;
     this->FindPokedRenderer(this->LastPos[0],this->LastPos[1]);
     ac = this->CurrentRenderer->GetActors();
-    for (ac->InitTraversal(); anActor = ac->GetNextItem(); ) 
+    for (ac->InitTraversal(); (anActor = ac->GetNextItem()); ) 
       {
-      for (anActor->InitPathTraversal(); path=anActor->GetNextPath(); ) 
+      for (anActor->InitPathTraversal(); (path=anActor->GetNextPath()); ) 
         {
         aPart=(vtkActor *)path->GetLastNode()->GetProp();
         aPart->GetProperty()->SetRepresentationToWireframe();
@@ -822,9 +822,9 @@ void vtkInteractorStyle::OnChar(int ctrl, int shift,
     vtkAssemblyPath *path;
     this->FindPokedRenderer(this->LastPos[0],this->LastPos[1]);
     ac = this->CurrentRenderer->GetActors();
-    for (ac->InitTraversal(); anActor = ac->GetNextItem(); ) 
+    for (ac->InitTraversal(); (anActor = ac->GetNextItem()); ) 
       {
-      for (anActor->InitPathTraversal(); path=anActor->GetNextPath(); ) 
+      for (anActor->InitPathTraversal(); (path=anActor->GetNextPath()); ) 
         {
         aPart=(vtkActor *)path->GetLastNode()->GetProp();
         aPart->GetProperty()->SetRepresentationToSurface();
@@ -856,7 +856,7 @@ void vtkInteractorStyle::OnChar(int ctrl, int shift,
         rwi->GetPicker()->Pick(this->LastPos[0],this->LastPos[1], 0.0, 
                                this->CurrentRenderer);
         vtkAbstractPropPicker *picker;
-        if ( picker=vtkAbstractPropPicker::SafeDownCast(rwi->GetPicker()) )
+        if ( (picker=vtkAbstractPropPicker::SafeDownCast(rwi->GetPicker())) )
           {
           path = picker->GetPath();
           }
@@ -875,6 +875,29 @@ void vtkInteractorStyle::OnChar(int ctrl, int shift,
       break;
     }
 }
+
+//----------------------------------------------------------------------------
+// Overriding these method allows you to specify some special action to
+// be taken when the window size is modified, or when the mouse
+// enters or leaves the window.
+//----------------------------------------------------------------------------
+void vtkInteractorStyle::OnConfigure(int vtkNotUsed(width), 
+				     int vtkNotUsed(height))
+{
+}
+//----------------------------------------------------------------------------
+void vtkInteractorStyle::OnEnter(int ctrl, int shift, int vtkNotUsed(y), int vtkNotUsed(x))
+{
+  this->CtrlKey  = ctrl;
+  this->ShiftKey = shift;
+}
+//----------------------------------------------------------------------------
+void vtkInteractorStyle::OnLeave(int ctrl, int shift, int vtkNotUsed(y), int vtkNotUsed(x))
+{
+  this->CtrlKey  = ctrl;
+  this->ShiftKey = shift;
+}
+
 
 //----------------------------------------------------------------------------
 // By overriding the RotateCamera, RotateActor members we can

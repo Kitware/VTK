@@ -119,6 +119,7 @@ public:
   // Various methods that a Win32 window can redirect to this class to be 
   // handled.
   virtual void OnMouseMove  (HWND wnd, UINT nFlags, int X, int Y);
+  virtual void OnNCMouseMove(HWND wnd, UINT nFlags, int X, int Y);
   virtual void OnRButtonDown(HWND wnd, UINT nFlags, int X, int Y);
   virtual void OnRButtonUp  (HWND wnd, UINT nFlags, int X, int Y);
   virtual void OnMButtonDown(HWND wnd, UINT nFlags, int X, int Y);
@@ -155,6 +156,8 @@ protected:
   UINT    TimerId;
   WNDPROC OldProc;
   int     InstallMessageProc;
+
+  int     MouseInWindow;
 
   //BTX
   // Description:

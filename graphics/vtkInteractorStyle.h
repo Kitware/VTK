@@ -184,6 +184,12 @@ public:
 			    int repeatcount);
 
   // Description:
+  // These are more esoteric events, but are useful in some cases.
+  virtual void OnConfigure(int width, int height);
+  virtual void OnEnter(int ctrl, int shift, int x, int y);
+  virtual void OnLeave(int ctrl, int shift, int x, int y);
+
+  // Description:
   // OnTimer calls RotateCamera, RotateActor etc which should be overridden by
   // style subclasses.
   virtual void OnTimer();

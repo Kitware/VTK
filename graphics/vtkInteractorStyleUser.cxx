@@ -72,8 +72,19 @@ vtkInteractorStyleUser::vtkInteractorStyleUser()
   this->KeyReleaseMethod = NULL;
   this->KeyReleaseMethodArgDelete = NULL;
   this->KeyReleaseMethodArg = NULL;
-  this->CharMethodArgDelete = NULL;
+  this->EnterMethod = NULL;
+  this->EnterMethodArgDelete = NULL;
+  this->EnterMethodArg = NULL;
+  this->LeaveMethod = NULL;
+  this->LeaveMethodArgDelete = NULL;
+  this->LeaveMethodArg = NULL;
+  this->ConfigureMethod = NULL;
+  this->ConfigureMethodArgDelete = NULL;
+  this->ConfigureMethodArg = NULL;
   this->CharMethod = NULL;
+  this->CharMethodArgDelete = NULL;
+  this->CharMethodArg = NULL;
+
   this->LastPos[0] = this->LastPos[1] = 0;
   this->OldPos[0] = this->OldPos[1] = 0;
   this->Char = '\0';
@@ -192,6 +203,93 @@ void vtkInteractorStyleUser::SetKeyReleaseMethodArgDelete(void (*f)(void *))
   if ( f != this->KeyReleaseMethodArgDelete)
     {
     this->KeyReleaseMethodArgDelete = f;
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleUser::SetEnterMethod(void (*f)(void *), void *arg)
+{
+  if ( f != this->EnterMethod || 
+       arg != this->EnterMethodArg )
+    {
+    // delete the current arg if there is one and a delete meth
+    if ((this->EnterMethodArg)&&
+        (this->EnterMethodArgDelete))
+      {
+      (*this->EnterMethodArgDelete)(this->EnterMethodArg);
+      }
+    this->EnterMethod = f;
+    this->EnterMethodArg = arg;
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+// Called when a void* argument is being discarded.  Lets the user free it.
+void vtkInteractorStyleUser::SetEnterMethodArgDelete(void (*f)(void *))
+{
+  if ( f != this->EnterMethodArgDelete)
+    {
+    this->EnterMethodArgDelete = f;
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleUser::SetLeaveMethod(void (*f)(void *), void *arg)
+{
+  if ( f != this->LeaveMethod || 
+       arg != this->LeaveMethodArg )
+    {
+    // delete the current arg if there is one and a delete meth
+    if ((this->LeaveMethodArg)&&
+        (this->LeaveMethodArgDelete))
+      {
+      (*this->LeaveMethodArgDelete)(this->LeaveMethodArg);
+      }
+    this->LeaveMethod = f;
+    this->LeaveMethodArg = arg;
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+// Called when a void* argument is being discarded.  Lets the user free it.
+void vtkInteractorStyleUser::SetLeaveMethodArgDelete(void (*f)(void *))
+{
+  if ( f != this->LeaveMethodArgDelete)
+    {
+    this->LeaveMethodArgDelete = f;
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleUser::SetConfigureMethod(void (*f)(void *), void *arg)
+{
+  if ( f != this->ConfigureMethod || 
+       arg != this->ConfigureMethodArg )
+    {
+    // delete the current arg if there is one and a delete meth
+    if ((this->ConfigureMethodArg)&&
+        (this->ConfigureMethodArgDelete))
+      {
+      (*this->ConfigureMethodArgDelete)(this->ConfigureMethodArg);
+      }
+    this->ConfigureMethod = f;
+    this->ConfigureMethodArg = arg;
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+// Called when a void* argument is being discarded.  Lets the user free it.
+void vtkInteractorStyleUser::SetConfigureMethodArgDelete(void (*f)(void *))
+{
+  if ( f != this->ConfigureMethodArgDelete)
+    {
+    this->ConfigureMethodArgDelete = f;
     this->Modified();
     }
 }
@@ -328,6 +426,42 @@ void vtkInteractorStyleUser::OnMouseMove(int ctrl, int shift, int x, int y)
   else
     {
     this->vtkInteractorStyleTrackball::OnMouseMove(ctrl,shift,x,y);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleUser::OnConfigure(int vtkNotUsed(width), 
+					 int vtkNotUsed(height)) 
+{
+  if (this->ConfigureMethod)
+    {
+    (*this->ConfigureMethod)(this->ConfigureMethodArg);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleUser::OnEnter(int ctrl, int shift, int x, int y)
+{
+  this->ShiftKey = shift;
+  this->CtrlKey = ctrl;
+  this->LastPos[0] = x;
+  this->LastPos[1] = y;
+  if (this->EnterMethod)
+    {
+    (*this->EnterMethod)(this->EnterMethodArg);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleUser::OnLeave(int ctrl, int shift, int x, int y)
+{
+  this->ShiftKey = shift;
+  this->CtrlKey = ctrl;
+  this->LastPos[0] = x;
+  this->LastPos[1] = y;
+  if (this->LeaveMethod)
+    {
+    (*this->LeaveMethod)(this->LeaveMethodArg);
     }
 }
 

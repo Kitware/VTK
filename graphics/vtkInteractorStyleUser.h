@@ -106,6 +106,23 @@ public:
   void SetCharMethodArgDelete(void (*f)(void *));
 
   // Description:
+  // Set methods that will be called when the size of the render
+  // window changes (this method is called just before the window
+  // re-renders after the size change).  Call GetSize() on the
+  // interactor to find out the new size.
+  void SetConfigureMethod(void (*f)(void *), void *arg);
+  void SetConfigureMethodArgDelete(void (*f)(void *));
+
+  // Description:
+  // Set methods to be called when the mouse enters or leaves
+  // the window.  Use GetLastPos() to determine where the mouse
+  // pointer was when the event occurred.
+  void SetEnterMethod(void (*f)(void *), void *arg);
+  void SetEnterMethodArgDelete(void (*f)(void *));
+  void SetLeaveMethod(void (*f)(void *), void *arg);
+  void SetLeaveMethodArgDelete(void (*f)(void *));
+
+  // Description:
   // Get the most recent mouse position during mouse motion.  
   // In your user interaction method, you must use this to track
   // the mouse movement.  Do not use GetEventPosition(), which records
@@ -157,6 +174,11 @@ protected:
 
   void OnMouseMove(int ctrl, int shift, int X, int Y);
 
+  void OnConfigure(int width, int height);
+ 
+  void OnEnter(int ctrl, int shift, int X, int Y);
+  void OnLeave(int ctrl, int shift, int X, int Y);
+
   void OnTimer(void);
 
   int OldPos[2];
@@ -179,6 +201,18 @@ protected:
   void (*CharMethod)(void *);
   void (*CharMethodArgDelete)(void *);
   void *CharMethodArg;
+
+  void (*EnterMethod)(void *);
+  void (*EnterMethodArgDelete)(void *);
+  void *EnterMethodArg;
+
+  void (*LeaveMethod)(void *);
+  void (*LeaveMethodArgDelete)(void *);
+  void *LeaveMethodArg;
+
+  void (*ConfigureMethod)(void *);
+  void (*ConfigureMethodArgDelete)(void *);
+  void *ConfigureMethodArg;
 };
 
 #endif

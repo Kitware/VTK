@@ -333,7 +333,8 @@ void vtkXRenderWindowInteractor::Enable()
   XtAddEventHandler(this->top,
 		    KeyPressMask | KeyReleaseMask | ButtonPressMask | 
 		    ExposureMask | StructureNotifyMask | ButtonReleaseMask |
-		    EnterWindowMask | PointerMotionHintMask |PointerMotionMask,
+		    EnterWindowMask | LeaveWindowMask | 
+		    PointerMotionHintMask | PointerMotionMask,
 		    False,vtkXRenderWindowInteractorCallback,(XtPointer)this);
   this->Enabled = 1;
 
@@ -359,9 +360,10 @@ void vtkXRenderWindowInteractor::Disable()
   // we simply track the window size changes for a possible Enable()).
   // Expose events are disabled.
   XtRemoveEventHandler(this->top,
-		    KeyPressMask | ButtonPressMask | ExposureMask |
-		    ButtonReleaseMask | EnterWindowMask |
-                    PointerMotionHintMask | PointerMotionMask,
+		    KeyPressMask | KeyReleaseMask | ButtonPressMask | 
+		    ExposureMask | ButtonReleaseMask |
+		    EnterWindowMask | LeaveWindowMask | 
+		    PointerMotionHintMask | PointerMotionMask,
                     False,vtkXRenderWindowInteractorCallback,(XtPointer)this);
 
   this->Enabled = 0;
@@ -478,6 +480,8 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
 	// only render if we are currently accepting events
         if (me->GetEnabled())
           {
+	  me->InteractorStyle->OnConfigure(((XConfigureEvent *)event)->width,
+					   ((XConfigureEvent *)event)->height);
           me->GetRenderWindow()->Render();
           }
 	}
@@ -551,6 +555,27 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
         {
         XtSetKeyboardFocus(me->TopLevelShell, me->top);
         }
+      if (me->Enabled)
+	{
+	XEnterWindowEvent *e = (XEnterWindowEvent *)event;
+
+	me->InteractorStyle->OnEnter((e->state & ControlMask) != 0,
+				     (e->state & ShiftMask) != 0,
+				     e->x, me->Size[1] - e->y - 1);
+	}
+      }
+      break;
+
+    case LeaveNotify:
+      {
+      if (me->Enabled)
+	{
+	XLeaveWindowEvent *e = (XLeaveWindowEvent *)event;
+
+	me->InteractorStyle->OnLeave((e->state & ControlMask) != 0,
+				     (e->state & ShiftMask) != 0,
+				     e->x, me->Size[1] - e->y - 1);
+	}
       }
       break;
 
