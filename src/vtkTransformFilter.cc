@@ -53,12 +53,12 @@ void vtkTransformFilter::Execute()
   vtkFloatNormals *newNormals=NULL;
   int numPts;
   vtkPointSet *input=(vtkPointSet *)this->Input;
-  vtkPointSet *output=(vtkPointSet *)this->Output;
+  vtkPointSet *output= this->GetOutput();
 
   vtkDebugMacro(<<"Executing transformation");
-//
-// Check input
-//
+  //
+  // Check input
+  //
   if ( this->Transform == NULL )
     {
     vtkErrorMacro(<<"No transform defined!");
@@ -67,6 +67,7 @@ void vtkTransformFilter::Execute()
 
   inPts = input->GetPoints();
   pd = input->GetPointData();
+  outPD = output->GetPointData();
   inVectors = pd->GetVectors();
   inNormals = pd->GetNormals();
 
@@ -80,9 +81,9 @@ void vtkTransformFilter::Execute()
   newPts = new vtkFloatPoints(numPts);
   if ( inVectors ) newVectors = new vtkFloatVectors(numPts);
   if ( inNormals ) newNormals = new vtkFloatNormals(numPts);
-//
-// Loop over all points, updating position
-//
+  //
+  // Loop over all points, updating position
+  //
   this->Transform->MultiplyPoints(inPts,newPts);
 //
 // Ditto for vectors and normals
