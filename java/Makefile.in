@@ -27,15 +27,15 @@ VPATH         = @srcdir@
 
 #------------------------------------------------------------------------------
 LDLIBS = -L../common \
-        ${USE_CONTRIB_LIBS}	\
-        ${USE_GEAE_LIBS}	\
-        ${USE_GEMSIO_LIBS}	\
-        ${USE_GEMSVOLUME_LIBS}	\
-        ${USE_GEMSIP_LIBS}	\
-        ${USE_WORKING_LIBS}		\
-        ${USE_PATENTED_LIBS}		\
-	${USE_IMAGING_LIBS}	\
-	${USE_GRAPHICS_LIBS}	\
+        ${USE_CONTRIB_JAVA}	\
+        ${USE_GEAE_JAVA}	\
+        ${USE_GEMSIO_JAVA}	\
+        ${USE_GEMSVOLUME_JAVA}	\
+        ${USE_GEMSIP_JAVA}	\
+        ${USE_WORKING_JAVA}		\
+        ${USE_PATENTED_JAVA}		\
+	${USE_IMAGING_JAVA}	\
+	${USE_GRAPHICS_JAVA}	\
         -lVTKCommonJava \
         ${XLIBS} ${GRAPHICS_API_LIBS} ${DL_LIBS} ${THREAD_LIBS}
 
@@ -58,8 +58,8 @@ java_wrap: $(srcdir)/java_wrap.tab.c $(srcdir)/lex.yy.c
 vtk: libvtkJava$(SHLIB_SUFFIX)
 
 libvtkJava$(SHLIB_SUFFIX): 
-	$(SHLIB_LD) -o libvtkJava$(SHLIB_SUFFIX) -L. \
-	${XLDFLAGS} ${LDLIBS} \
+	$(CXX) ${CXX_FLAGS} ${VTK_SHLIB_BUILD_FLAGS} \
+	-o libvtkJava$(SHLIB_SUFFIX) -L. ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} ${JAVA_CXX_LIB}
 
 #------------------------------------------------------------------------------
