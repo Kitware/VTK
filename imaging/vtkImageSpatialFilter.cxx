@@ -170,6 +170,7 @@ void vtkImageSpatialFilter::ComputeInputUpdateExtent(int extent[6],
     return;
     }
 
+  wholeExtent = this->GetInput()->GetWholeExtent();
   for (idx = 0; idx < 3; ++idx)
     {
     // Magnify by strides
