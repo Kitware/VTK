@@ -91,8 +91,6 @@ IF (VTK_USE_RENDERING)
       smoothMeshOnMesh
       socbal
       spatialRepAll
-      SpherePuzzle
-      SpherePuzzleArrows
       splitVectors
       stereoDresdenMace
       StreamPolyData
@@ -108,6 +106,8 @@ IF (VTK_USE_RENDERING)
       TestGraphLayoutFilter
       testQuadricDecimation
       TestQuadricClustering
+      TestSpherePuzzle
+      TestSpherePuzzleArrows
       TestStructuredGrid
       TestTriangleFilter
       TransformConcatenation
