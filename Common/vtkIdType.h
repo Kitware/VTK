@@ -48,28 +48,17 @@ typedef int vtkIdType;
 // Visual Studio 6 does not provide these operators.
 #if defined(VTK_USE_64BIT_IDS) && defined(_MSC_VER) && (_MSC_VER < 1300)
 # if !defined(VTK_NO_INT64_OSTREAM_OPERATOR)
-ostream& operator << (ostream& os, __int64 id)
+VTK_COMMON_EXPORT ostream& vtkIdTypeOutput(ostream& os, __int64 id);
+inline ostream& operator << (ostream& os, __int64 id)
 {
-  // _i64toa can use up to 33 bytes (32 + null terminator).
-  char buf[33];
-  // Convert to string representation in base 10.
-  return (os << _i64toa(id, buf, 10));
+  return vtkIdTypeOutput(os, id);
 }
 # endif
 # if !defined(VTK_NO_INT64_ISTREAM_OPERATOR)
-istream& operator >> (istream& is, __int64& id)
+VTK_COMMON_EXPORT istream& vtkIdTypeInput(istream& is, __int64& id);
+inline istream& operator >> (istream& is, __int64& id)
 {
-  // Up to 33 bytes may be needed (32 + null terminator).
-  char buf[33];
-  is.width(33);
-  
-  // Read the string representation from the input.
-  if(is >> buf)
-    {
-    // Convert from string representation to integer.
-    id = _atoi64(buf);
-    }
-  return is;
+  return vtkIdTypeInput(is, id);
 }
 # endif
 #endif

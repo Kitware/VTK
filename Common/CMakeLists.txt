@@ -56,6 +56,7 @@ vtkHexahedron.cxx
 vtkHomogeneousTransform.cxx
 vtkIdList.cxx
 vtkIdListCollection.cxx
+vtkIdType.cxx
 vtkIdTypeArray.cxx
 vtkIdentityTransform.cxx
 vtkImageData.cxx
@@ -207,6 +208,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkCommand
   vtkDebugLeaksManager
   vtkErrorCode
+  vtkIdType.cxx
   vtkImageIterator
   vtkImageProgressIterator
   vtkLargeInteger
