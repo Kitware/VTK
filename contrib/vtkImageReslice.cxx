@@ -471,15 +471,15 @@ static void TricubicWithCheck(float *point, T *inPtr, T *outPtr,
   // work out the coefficents for the interpolation in advance
   fX[1] = fX[0]+1;
   fX[2] = fX[0]/2;
-  fX[3] = 2*(fX[0]-1)/3;
+  fX[3] = (fX[0]-1)/3;
 
   fY[1] = fY[0]+1;
   fY[2] = fY[0]/2;
-  fY[3] = 2*(fY[0]-1)/3;
+  fY[3] = (fY[0]-1)/3;
 
   fZ[1] = fZ[0]+1;
   fZ[2] = fZ[0]/2;
-  fZ[3] = 2*(fZ[0]-1)/3;
+  fZ[3] = (fZ[0]-1)/3;
 
   int OutOfBounds = 0;
 
