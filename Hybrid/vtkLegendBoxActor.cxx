@@ -554,11 +554,28 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
         {
         this->SymbolTransform[i]->SetInput(this->Symbol[i]);
         bounds = this->Symbol[i]->GetBounds();
-        sf = size[0]/(bounds[1]-bounds[0]);
-        if ( (size[1]/(bounds[3]-bounds[2])) < sf )
+
+        if ( (bounds[1]-bounds[0]) == 0.0 ) 
+          { 
+          sf = VTK_LARGE_FLOAT; 
+          }
+        else 
+          { 
+          sf = size[0]/(bounds[1]-bounds[0]); 
+          }
+        
+        if ( (bounds[3]-bounds[2]) == 0.0 )
+          {
+          if ( sf >= VTK_LARGE_FLOAT )          
+            {
+            sf = 1.0;
+            }
+          }
+        else if ( (size[1]/(bounds[3]-bounds[2])) < sf )
           {
           sf = size[1]/(bounds[3]-bounds[2]);
           }
+
         posY = p2[1] - this->Padding - (float)i*size[1] - 0.5*size[1] -
                        0.25*tempi[1];
         this->Transform[i]->Identity();
