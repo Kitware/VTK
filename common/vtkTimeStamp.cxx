@@ -44,11 +44,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTimeStamp.h"
 #include "vtkMutexLock.h"
 
+
+static vtkSimpleMutexLock TimeStampMutex;
+
+
 void vtkTimeStamp::Modified()
 {
   static unsigned long vtkTimeStampTime = 0; 
 
+  TimeStampMutex.Lock();
   this->ModifiedTime = ++vtkTimeStampTime;
+  TimeStampMutex.Unlock();
 }
 
 

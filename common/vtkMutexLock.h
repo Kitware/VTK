@@ -41,7 +41,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkMutexLock - mutual exclusion locking class
 // .SECTION Description
 // vtkMutexLock allows the locking of variables which are accessed 
-// through different threads
+// through different threads.  This header file also defines 
+// vtkSimpleMutexLock which is not a subclass of vtkObject.
 
 #ifndef __vtkMutexVariable_h
 #define __vtkMutexVariable_h
@@ -73,21 +74,16 @@ typedef int vtkMutexType;
 #endif
 #endif
 
-//ETX
-
-class VTK_EXPORT vtkMutexLock : public vtkObject
+// Mutex lock that is not a vtkObject.
+class VTK_EXPORT vtkSimpleMutexLock
 {
 public:
-  vtkMutexLock();
-  ~vtkMutexLock();
-  static vtkMutexLock *New() {return new vtkMutexLock;}
-  const char *GetClassName() {return "vtkMutexLock";}
+  vtkSimpleMutexLock();
+  ~vtkSimpleMutexLock();
+  static vtkSimpleMutexLock *New() {return new vtkSimpleMutexLock;}
+  const char *GetClassName() {return "vtkSimpleMutexLock";}
   void Delete() {delete this;}
   
-  // Description:
-  // Print method for vtkMutexLock
-  void PrintSelf( ostream& os, vtkIndent index );
-
   // Description:
   // Lock the vtkMutexLock
   void Lock( void );
@@ -99,5 +95,37 @@ public:
 protected:
   vtkMutexType   MutexLock;
 };
+
+//ETX
+
+class VTK_EXPORT vtkMutexLock : public vtkObject
+{
+public:
+  static vtkMutexLock *New() {return new vtkMutexLock;}
+  const char *GetClassName() {return "vtkMutexLock";}
+  void PrintSelf(ostream& os, vtkIndent indent);
+  
+  // Description:
+  // Lock the vtkMutexLock
+  void Lock( void );
+
+  // Description:
+  // Unlock the vtkMutexLock
+  void Unlock( void );
+
+protected:
+  vtkSimpleMutexLock   SimpleMutexLock;
+};
+
+
+inline void vtkMutexLock::Lock( void )
+{
+  this->SimpleMutexLock.Lock();
+}
+
+inline void vtkMutexLock::Unlock( void )
+{
+  this->SimpleMutexLock.Unlock();
+}
 
 #endif
