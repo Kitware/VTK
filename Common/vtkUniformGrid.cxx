@@ -31,7 +31,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkUniformGrid, "1.4");
+vtkCxxRevisionMacro(vtkUniformGrid, "1.5");
 vtkStandardNewMacro(vtkUniformGrid);
 
 vtkCxxSetObjectMacro(vtkUniformGrid,
@@ -60,14 +60,9 @@ vtkUniformGrid::vtkUniformGrid()
     this->Origin[idx] = 0.0;
     this->Spacing[idx] = 1.0;
     }
-#if 0
-  this->Extent[0] = this->Extent[2] = this->Extent[4] = 0;
-  this->Extent[1] = this->Extent[3] = this->Extent[5] = -1;
-#else
   int extent[6] = {0, -1, 0, -1, 0, -1};
   this->Information->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_3D_EXTENT);
   this->Information->Set(vtkDataObject::DATA_EXTENT(), extent, 6);
-#endif
 
   this->PointVisibility = vtkStructuredVisibilityConstraint::New();
   this->CellVisibility = vtkStructuredVisibilityConstraint::New();
@@ -106,16 +101,9 @@ void vtkUniformGrid::CopyStructure(vtkDataSet *ds)
     this->Spacing[i] = sPts->Spacing[i];
     this->Origin[i] = sPts->Origin[i];
     }
-#if 0
-  for (i=0; i<6; i++)
-    {
-    this->Extent[i] = sPts->Extent[i];
-    }
-#else
   this->Information->Set(vtkDataObject::DATA_EXTENT(),
                          sPts->Information->Get(vtkDataObject::DATA_EXTENT()),
                          6);
-#endif
   this->DataDescription = sPts->DataDescription;
   this->CopyInformation(sPts);
 

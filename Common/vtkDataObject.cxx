@@ -26,7 +26,7 @@
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationIntegerVectorKey.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.107");
+vtkCxxRevisionMacro(vtkDataObject, "1.108");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -419,15 +419,8 @@ void vtkDataObject::UpdateData()
     if (this->Source)
       {
       this->Source->UpdateData(this);
-#if 0
-      // This is now douplicated in the method "DataHasBeenGenerated"
-      // It can probably be removed from this method.
-      this->Information->Set(DATA_PIECE_NUMBER(), this->UpdatePiece);
-      this->Information->Set(DATA_NUMBER_OF_PIECES(), this->UpdateNumberOfPieces);
-      this->Information->Set(DATA_NUMBER_OF_GHOST_LEVELS(), this->UpdateGhostLevel);
-#endif
-      } 
-    } 
+      }
+    }
 
   // Filters, that can't handle more data than they request, set this flag.
   if (this->RequestExactExtent)
