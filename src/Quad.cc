@@ -112,7 +112,7 @@ int vtkQuad::EvaluatePosition(float x[3], float closestPoint[3],
         }
       }
 
-    for (j=0; j<2; j++) fcol[j] -= x[indices[j]];
+    for (j=0; j<2; j++) fcol[j] -= closestPoint[indices[j]];
 //
 //  compute determinants and generate improvements
 //
