@@ -43,6 +43,7 @@ vtkSurfaceReconstructionFilter \
 vtkVideoSource \
 vtkVolumeProMapper \
 vtkThinPlateSplineTransform \
+vtkLandmarkTransform \
 ${CONTROLLER_API_OBJ}
 
 #vtkOutputPort \
