@@ -2,16 +2,13 @@
 
   Program:   Visualization Toolkit
   Module:    vtkAbstractPicker.cxx
-  Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
 
-  Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen 
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
@@ -21,7 +18,7 @@
 #include "vtkOldStyleCallbackCommand.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkAbstractPicker, "1.9");
+vtkCxxRevisionMacro(vtkAbstractPicker, "1.10");
 
 // Construct object with initial tolerance of 1/40th of window. There are no
 // pick methods and picking is performed from the renderer's actors.

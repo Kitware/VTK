@@ -2,16 +2,13 @@
 
   Program:   Visualization Toolkit
   Module:    vtkQuadric.cxx
-  Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
 
-  Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen 
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
@@ -20,7 +17,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkQuadric, "1.4");
+vtkCxxRevisionMacro(vtkQuadric, "1.5");
 vtkStandardNewMacro(vtkQuadric);
 
 // Construct quadric with all coefficients = 1.

@@ -2,31 +2,14 @@
 
   Program:   Visualization Toolkit
   Module:    vtkSweptSurface.h
-  Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
 
-  Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen 
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
-
-     THIS CLASS IS PATENTED UNDER UNITED STATES PATENT NUMBER 5,542,036
-     "Implicit Modeling of Swept Volumes and Swept Surfaces"
-     Application of this software for commercial purposes requires 
-     a license grant from GE. Contact:
-
-         Carl B. Horton
-         Sr. Counsel, Intellectual Property
-         3000 N. Grandview Blvd., W-710
-         Waukesha, WI  53188
-         Phone:  (262) 513-4022
-         E-Mail: Carl.Horton@med.ge.com
-
-     for more information.
 
 =========================================================================*/
 // .NAME vtkSweptSurface - given a path and input geometry generate an (implicit) representation of a swept surface

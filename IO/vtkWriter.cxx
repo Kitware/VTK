@@ -2,16 +2,13 @@
 
   Program:   Visualization Toolkit
   Module:    vtkWriter.cxx
-  Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
 
-  Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen 
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
@@ -21,7 +18,7 @@
 #include "vtkDataObject.h"
 #include "vtkErrorCode.h"
 
-vtkCxxRevisionMacro(vtkWriter, "1.39");
+vtkCxxRevisionMacro(vtkWriter, "1.40");
 
 // Construct with no start and end write methods or arguments.
 vtkWriter::vtkWriter()

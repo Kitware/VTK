@@ -1,18 +1,15 @@
 /*=========================================================================
 
-Program:   Visualization Toolkit
-Module:    vtkWin32OpenGLRenderWindow.cxx
-Language:  C++
-Date:      $Date$
-Version:   $Revision$
+  Program:   Visualization Toolkit
+  Module:    vtkWin32OpenGLRenderWindow.cxx
 
-Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen 
-All rights reserved.
-See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-This software is distributed WITHOUT ANY WARRANTY; without even 
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
-PURPOSE.  See the above copyright notice for more information.
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 #include "vtkWin32OpenGLRenderWindow.h"
@@ -38,7 +35,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <GL/gl.h>
 #endif
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.120");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.121");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
