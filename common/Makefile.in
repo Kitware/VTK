@@ -21,6 +21,7 @@ vtkFloatTCoords \
 vtkFloatTensors \
 vtkFloatVectors \
 vtkImplicitFunctionCollection \
+vtkPlaneCollection \
 vtkPropCollection \
 vtkTransformCollection \
 vtkVersion

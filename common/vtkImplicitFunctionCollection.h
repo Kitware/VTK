@@ -43,7 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkImplicitFunctionCollection is an object that creates and manipulates
 // lists of objects of type vtkImplicitFunction. 
 // .SECTION See Also
-// vtkCollection
+// vtkCollection vtkPlaneCollection
 
 #ifndef __vtkImplicitFunctionCollection_h
 #define __vtkImplicitFunctionCollection_h
