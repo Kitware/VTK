@@ -1,6 +1,5 @@
-# A script to test DilationErode filter
-# First the image is thresholded.
-# It is the dilated with a spher of radius 5.
+# This scripts the reverse FFT. Pipeline is Reader->FFT->RFFT->Viewer.
+# Output should be the same as Reader.
 
 
 set sliceNumber 22
@@ -18,7 +17,6 @@ set VTK_IMAGE_TIME_AXIS          3
 set VTK_IMAGE_COMPONENT_AXIS     4
 
 
-
 # Image pipeline
 
 vtkImageShortReader reader;
@@ -26,33 +24,26 @@ reader SwapBytesOn;
 reader SetDimensions 256 256 93;
 reader SetFilePrefix "../../data/fullHead/headsq"
 reader SetPixelMask 0x7fff;
-reader SetOutputScalarType $VTK_SHORT;
-#reader DebugOn
+#reader DebugOn;
 
-vtkImageThreshold thresh;
-thresh SetInput [reader GetOutput];
-thresh SetOutputScalarType $VTK_UNSIGNED_CHAR;
-thresh ThresholdByUpper 2000.0;
-thresh SetInValue 255;
-thresh ReplaceInOn;
-thresh SetOutValue 0;
-thresh ReplaceOutOn;
-thresh ReleaseDataFlagOff;
+vtkImageFFT fft;
+fft SetDimensionality 2;
+fft SetInput [reader GetOutput];
+#fft DebugOn;
 
-vtkImageDilateErode dilate;
-dilate SetInput [thresh GetOutput];
-dilate SetDilateValue 255;
-dilate SetErodeValue 0;
-dilate SetKernelSize 5 5 5;
-dilate ReleaseDataFlagOff;
+vtkImageRFFT rfft;
+rfft SetDimensionality 2;
+rfft SetInput [fft GetOutput];
+rfft ReleaseDataFlagOff;
+#fft DebugOn;
+
 
 vtkImageXViewer viewer;
 viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS;
-viewer SetInput [dilate GetOutput];
-viewer SetExtent 0 255 0 255;
+viewer SetInput [rfft GetOutput];
 viewer SetCoordinate2 $sliceNumber;
-viewer SetColorWindow 255
-viewer SetColorLevel 128
+viewer SetColorWindow 3000
+viewer SetColorLevel 1500
 #viewer DebugOn;
 viewer Render;
 
@@ -67,15 +58,15 @@ button .slice.down -text "Slice Down" -command SliceDown
 frame .wl
 frame .wl.f1;
 label .wl.f1.windowLabel -text Window;
-scale .wl.f1.window -from 1 -to 300 -orient horizontal -command SetWindow
+scale .wl.f1.window -from 1 -to 4000 -orient horizontal -command SetWindow
 frame .wl.f2;
 label .wl.f2.levelLabel -text Level;
-scale .wl.f2.level -from 1 -to 150 -orient horizontal -command SetLevel
+scale .wl.f2.level -from 1 -to 2000 -orient horizontal -command SetLevel
 checkbutton .wl.video -text "Inverse Video" -variable inverseVideo -command SetInverseVideo
 
 
-.wl.f1.window set 256
-.wl.f2.level set 128
+.wl.f1.window set 3000
+.wl.f2.level set 1500
 
 
 pack .slice .wl -side left
