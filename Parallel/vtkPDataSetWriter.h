@@ -80,8 +80,6 @@ public:
 protected:
   vtkPDataSetWriter();
   ~vtkPDataSetWriter();
-  vtkPDataSetWriter(const vtkPDataSetWriter&);
-  void operator=(const vtkPDataSetWriter&);
 
 //BTX
   ostream *OpenFile();
@@ -103,6 +101,10 @@ protected:
   int UseRelativeFileNames;
 
   char *FilePattern;
+
+private:
+  vtkPDataSetWriter(const vtkPDataSetWriter&); // Not implemented
+  void operator=(const vtkPDataSetWriter&); // Not implemented
 };
 
 #endif

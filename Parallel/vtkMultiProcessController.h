@@ -40,7 +40,9 @@
 #ifndef __vtkMultiProcessController_h
 #define __vtkMultiProcessController_h
 
-#include "vtkCommunicator.h"
+#include "vtkObject.h"
+
+#include "vtkCommunicator.h" // Needed for direct access to communicator
 
 class vtkDataSet;
 class vtkImageData;

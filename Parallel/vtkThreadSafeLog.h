@@ -22,7 +22,6 @@
 #ifndef __vtkThreadSafeLog_h
 #define __vtkThreadSafeLog_h
 
-
 #include "vtkObject.h"
 
 #define VTK_THREAD_SAFE_LOG_MAX 1000
@@ -31,7 +30,8 @@ class VTK_PARALLEL_EXPORT vtkThreadSafeLog : public vtkObject
 {
 public:
   static vtkThreadSafeLog *New();
-  const char *GetClassName() {return "vtkThreadSafeLog";};
+  vtkTypeRevisionMacro(vtkThreadSafeLog, vtkObject);
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // some of the timeing features of vtkTimerLog.

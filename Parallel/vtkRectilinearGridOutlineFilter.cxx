@@ -18,7 +18,7 @@
 #include "vtkRectilinearGridOutlineFilter.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGridOutlineFilter, "1.3");
+vtkCxxRevisionMacro(vtkRectilinearGridOutlineFilter, "1.4");
 vtkStandardNewMacro(vtkRectilinearGridOutlineFilter);
 
 
@@ -203,4 +203,7 @@ void vtkRectilinearGridOutlineFilter::Execute()
   output->Squeeze();
 }
 
-
+void vtkRectilinearGridOutlineFilter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}

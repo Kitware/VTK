@@ -67,8 +67,6 @@ public:
 protected:
   vtkPDataSetReader();
   ~vtkPDataSetReader();
-  vtkPDataSetReader(const vtkPDataSetReader&);
-  void operator=(const vtkPDataSetReader&);
 
   virtual void ExecuteInformation();
   void ReadPVTKFileInformation(ifstream *fp);
@@ -97,6 +95,10 @@ protected:
   int NumberOfPieces;
   char **PieceFileNames;
   int **PieceExtents;
+
+private:
+  vtkPDataSetReader(const vtkPDataSetReader&); // Not implemented
+  void operator=(const vtkPDataSetReader&); // Not implemented
 };
 
 #endif

@@ -52,8 +52,6 @@ public:
 protected:
   vtkTransmitPolyDataPiece();
   ~vtkTransmitPolyDataPiece();
-  vtkTransmitPolyDataPiece(const vtkTransmitPolyDataPiece&);
-  void operator=(const vtkTransmitPolyDataPiece&);
 
   // Data generation method
   void Execute();
@@ -69,6 +67,10 @@ protected:
 
   int CreateGhostCells;
   vtkMultiProcessController *Controller;
+
+private:
+  vtkTransmitPolyDataPiece(const vtkTransmitPolyDataPiece&); // Not implemented
+  void operator=(const vtkTransmitPolyDataPiece&); // Not implemented
 };
 
 #endif

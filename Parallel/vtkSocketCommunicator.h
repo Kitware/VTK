@@ -34,8 +34,9 @@
 #ifndef __vtkSocketCommunicator_h
 #define __vtkSocketCommunicator_h
 
-#include "vtkByteSwap.h"
 #include "vtkCommunicator.h"
+
+#include "vtkByteSwap.h" // Needed for vtkSwap macros
 
 #ifdef VTK_WORDS_BIGENDIAN
 # define vtkSwap4 vtkByteSwap::Swap4LE

@@ -26,7 +26,7 @@
 #include "vtkPSphereSource.h"
 #include "vtkPolyDataMapper.h"
 
-vtkCxxRevisionMacro(vtkPipelineSize, "1.10");
+vtkCxxRevisionMacro(vtkPipelineSize, "1.11");
 vtkStandardNewMacro(vtkPipelineSize);
 
 unsigned long 
@@ -356,3 +356,7 @@ unsigned long vtkPipelineSize::GetNumberOfSubPieces(unsigned long memoryLimit,
   return subDivisions;
 }
 
+void vtkPipelineSize::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}

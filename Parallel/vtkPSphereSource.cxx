@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkLargeInteger.h"
 
-vtkCxxRevisionMacro(vtkPSphereSource, "1.8");
+vtkCxxRevisionMacro(vtkPSphereSource, "1.9");
 vtkStandardNewMacro(vtkPSphereSource);
 
 //----------------------------------------------------------------------------
@@ -254,4 +254,9 @@ unsigned long vtkPSphereSource::GetEstimatedMemorySize()
   sz >>= 10;
   
   return sz.CastToUnsignedLong();
+}
+
+void vtkPSphereSource::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
 }

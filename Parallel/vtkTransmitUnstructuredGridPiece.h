@@ -52,8 +52,6 @@ public:
 protected:
   vtkTransmitUnstructuredGridPiece();
   ~vtkTransmitUnstructuredGridPiece();
-  vtkTransmitUnstructuredGridPiece(const vtkTransmitUnstructuredGridPiece&);
-  void operator=(const vtkTransmitUnstructuredGridPiece&);
 
   // Data generation method
   void Execute();
@@ -64,6 +62,10 @@ protected:
  
   int CreateGhostCells;
   vtkMultiProcessController *Controller;
+
+private:
+  vtkTransmitUnstructuredGridPiece(const vtkTransmitUnstructuredGridPiece&); // Not implemented
+  void operator=(const vtkTransmitUnstructuredGridPiece&); // Not implemented
 };
 
 #endif

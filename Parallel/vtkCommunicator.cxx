@@ -31,7 +31,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedLongArray.h"
 
-vtkCxxRevisionMacro(vtkCommunicator, "1.14");
+vtkCxxRevisionMacro(vtkCommunicator, "1.15");
 
 template <class T>
 int SendDataArray(T* data, int length, int handle, int tag, vtkCommunicator *self)
@@ -63,6 +63,7 @@ void vtkCommunicator::SetUseCopy(int useCopy)
 
 void vtkCommunicator::PrintSelf(ostream& os, vtkIndent indent)
 {
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "Marshal string: ";
   if ( this->MarshalString )
     {

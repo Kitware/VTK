@@ -32,6 +32,7 @@ public:
   // Description:
   static vtkPipelineSize* New();
   vtkTypeRevisionMacro(vtkPipelineSize,vtkObject);
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Compute an estimate of how much memory a pipline will require in 

@@ -47,7 +47,7 @@ class vtkMPICommunicatorOpaqueComm;
 class VTK_PARALLEL_EXPORT vtkMPICommunicator : public vtkCommunicator
 {
 public:
-  vtkTypeRevisionMacro( vtkMPICommunicator,vtkObject);
+  vtkTypeRevisionMacro( vtkMPICommunicator,vtkCommunicator);
   
   // Description:
   // Creates an empty communicator.

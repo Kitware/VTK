@@ -46,8 +46,6 @@ public:
 protected:
   vtkCompressCompositer();
   ~vtkCompressCompositer();
-  vtkCompressCompositer(const vtkCompressCompositer&);
-  void operator=(const vtkCompressCompositer&);
   
   void Compress(vtkFloatArray *zIn, vtkDataArray *pIn,
                 vtkFloatArray *zOut, vtkDataArray *pOut);
@@ -64,6 +62,9 @@ protected:
 
   vtkTimerLog *Timer;
 
+private:
+  vtkCompressCompositer(const vtkCompressCompositer&); // Not implemented
+  void operator=(const vtkCompressCompositer&); // Not implemented
 };
 
 #endif

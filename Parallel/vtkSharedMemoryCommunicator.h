@@ -41,10 +41,8 @@ class vtkSimpleCriticalSection;
 
 class VTK_PARALLEL_EXPORT vtkSharedMemoryCommunicator : public vtkCommunicator
 {
-
 public:
-
-  vtkTypeRevisionMacro( vtkSharedMemoryCommunicator,vtkObject);
+  vtkTypeRevisionMacro( vtkSharedMemoryCommunicator,vtkCommunicator);
   
   // Description:
   // Creates an empty communicator.

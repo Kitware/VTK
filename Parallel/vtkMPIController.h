@@ -47,9 +47,7 @@
 // Do not remove this header file. This class contains methods
 // which take arguments defined in  vtkMPICommunicator.h by
 // reference.
-#include "vtkMPICommunicator.h"
-
-class vtkMPICommunicator;
+#include "vtkMPICommunicator.h" // Needed for direct access to communicator
 
 class VTK_PARALLEL_EXPORT vtkMPIController : public vtkMultiProcessController
 {

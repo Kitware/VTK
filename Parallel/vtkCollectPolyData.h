@@ -56,8 +56,6 @@ public:
 protected:
   vtkCollectPolyData();
   ~vtkCollectPolyData();
-  vtkCollectPolyData(const vtkCollectPolyData&);
-  void operator=(const vtkCollectPolyData&);
 
   // Data generation method
   void ComputeInputUpdateExtents(vtkDataObject *output);
@@ -68,6 +66,10 @@ protected:
   int Collected;
 
   vtkMultiProcessController *Controller;
+
+private:
+  vtkCollectPolyData(const vtkCollectPolyData&); // Not implemented
+  void operator=(const vtkCollectPolyData&); // Not implemented
 };
 
 #endif

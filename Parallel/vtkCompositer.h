@@ -59,12 +59,13 @@ public:
 protected:
   vtkCompositer();
   ~vtkCompositer();
-  vtkCompositer(const vtkCompositer&);
-  void operator=(const vtkCompositer&);
   
   vtkMultiProcessController *Controller;
   int NumberOfProcesses;
 
+private:
+  vtkCompositer(const vtkCompositer&); // Not implemented
+  void operator=(const vtkCompositer&); // Not implemented
 };
 
 #endif

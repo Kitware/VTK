@@ -190,8 +190,6 @@ public:
 protected:
   vtkCompositeManager();
   ~vtkCompositeManager();
-  vtkCompositeManager(const vtkCompositeManager&);
-  void operator=(const vtkCompositeManager&);
   
   void SetRendererSize(int x, int y);
   void MagnifyBuffer(vtkDataArray *localPdata, vtkDataArray* magPdata,
@@ -251,6 +249,10 @@ protected:
   int Manual;
 
   int FirstRender;
+
+private:
+  vtkCompositeManager(const vtkCompositeManager&); // Not implemented
+  void operator=(const vtkCompositeManager&); // Not implemented
 };
 
 #endif

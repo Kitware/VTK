@@ -70,9 +70,10 @@ public:
 protected:
   vtkTreeCompositer();
   ~vtkTreeCompositer();
-  vtkTreeCompositer(const vtkTreeCompositer&);
-  void operator=(const vtkTreeCompositer&);
-  
+
+private:
+  vtkTreeCompositer(const vtkTreeCompositer&); // Not implemented
+  void operator=(const vtkTreeCompositer&); // Not implemented
 };
 
 #endif
