@@ -26,7 +26,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkGlyph3D, "1.113");
+vtkCxxRevisionMacro(vtkGlyph3D, "1.114");
 vtkStandardNewMacro(vtkGlyph3D);
 
 // Construct object with scaling on, scaling mode is by scalar value,
@@ -73,6 +73,7 @@ void vtkGlyph3D::Execute()
   int requestedGhostLevel;
   unsigned char* inGhostLevels=0;
   vtkDataArray *inNormals, *sourceNormals = NULL;
+  vtkDataArray *sourceTCoords = NULL;
   vtkIdType numPts, numSourcePts, numSourceCells, inPtId, i;
   int index;
   vtkPoints *sourcePts = NULL;
@@ -80,14 +81,15 @@ void vtkGlyph3D::Execute()
   vtkDataArray *newScalars=NULL;
   vtkDataArray *newVectors=NULL;
   vtkDataArray *newNormals=NULL;
-  double x[3], v[3], vNew[3], s = 0.0, vMag = 0.0, value;
+  vtkDataArray *newTCoords = NULL;
+  double x[3], v[3], vNew[3], s = 0.0, vMag = 0.0, value, tc[3];
   vtkTransform *trans = vtkTransform::New();
   vtkCell *cell;
   vtkIdList *cellPts;
   int npts;
   vtkIdList *pts;
   vtkIdType ptIncr, cellId;
-  int haveVectors, haveNormals;
+  int haveVectors, haveNormals, haveTCoords = 0;
   double scalex,scaley,scalez, den;
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
@@ -179,6 +181,7 @@ void vtkGlyph3D::Execute()
   //
   outputPD->CopyVectorsOff();
   outputPD->CopyNormalsOff();
+  outputPD->CopyTCoordsOff();
 
   if (!this->GetSource(0))
     {
@@ -240,6 +243,16 @@ void vtkGlyph3D::Execute()
       haveNormals = 0;
       }
 
+    sourceTCoords = this->GetSource(0)->GetPointData()->GetTCoords();
+    if (sourceTCoords)
+      {
+      haveTCoords = 1;
+      }
+    else
+      {
+      haveTCoords = 0;
+      }
+    
     // Prepare to copy output.
     pd = input->GetPointData();
     outputPD->CopyAllocate(pd,numPts*numSourcePts);
@@ -291,7 +304,15 @@ void vtkGlyph3D::Execute()
     newNormals->Allocate(3*numPts*numSourcePts);
     newNormals->SetName("Normals");
     }
-
+  if (haveTCoords)
+    {
+    newTCoords = vtkFloatArray::New();
+    int numComps = sourceTCoords->GetNumberOfComponents();
+    newTCoords->SetNumberOfComponents(numComps);
+    newTCoords->Allocate(numComps*numPts*numSourcePts);
+    newTCoords->SetName("TCoords");
+    }
+    
   // Setting up for calls to PolyData::InsertNextCell()
   if (this->IndexMode != VTK_INDEXING_OFF )
     {
@@ -461,6 +482,15 @@ void vtkGlyph3D::Execute()
         }
       }
     
+    if (haveTCoords)
+      {
+      for (i = 0; i < numSourcePts; i++)
+        {
+        sourceTCoords->GetTuple(inPtId, tc);
+        newTCoords->InsertTuple(i+ptIncr, tc);
+        }
+      }
+    
     // determine scale factor from scalars if appropriate
     if ( inScalars )
       {
@@ -570,6 +600,12 @@ void vtkGlyph3D::Execute()
     newNormals->Delete();
     }
 
+  if (newTCoords)
+    {
+    outputPD->SetTCoords(newTCoords);
+    newTCoords->Delete();
+    }
+  
   output->Squeeze();
   trans->Delete();
   pts->Delete();
