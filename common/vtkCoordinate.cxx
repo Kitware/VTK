@@ -41,6 +41,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCoordinate.h"
 #include "vtkViewport.h"
 
+#define VTK_RINT(x) ((x > 0.0) ? (int)(x + 0.5) : (int)(x - 0.5))
+
 // Description:
 // Creates an Coordinate with the following defaults: 
 // value of  0, 0, 0 in world  coordinates
@@ -227,8 +229,8 @@ int *vtkCoordinate::GetComputedViewportValue(vtkViewport* viewport)
   viewport->DisplayToNormalizedDisplay(f[0],f[1]);
   viewport->NormalizedDisplayToViewport(f[0],f[1]);
   
-  this->ComputedViewportValue[0] = (int)rint(f[0]);
-  this->ComputedViewportValue[1] = (int)rint(f[1]);
+  this->ComputedViewportValue[0] = (int)VTK_RINT(f[0]);
+  this->ComputedViewportValue[1] = (int)VTK_RINT(f[1]);
 
   return this->ComputedViewportValue;
 }
@@ -255,8 +257,8 @@ int *vtkCoordinate::GetComputedLocalDisplayValue(vtkViewport* viewport)
   
   viewport->DisplayToLocalDisplay(a[0],a[1]);
 
-  this->ComputedDisplayValue[0] = (int)rint(a[0]);
-  this->ComputedDisplayValue[1] = (int)rint(a[1]);
+  this->ComputedDisplayValue[0] = (int)VTK_RINT(a[0]);
+  this->ComputedDisplayValue[1] = (int)VTK_RINT(a[1]);
 
   vtkDebugMacro("Returning LocalDisplayValue of : " << 
 		this->ComputedDisplayValue[0] << " , " << 
@@ -290,8 +292,8 @@ int *vtkCoordinate::GetComputedDisplayValue(vtkViewport* viewport)
     if (this->CoordinateSystem == VTK_DISPLAY ||
 	this->CoordinateSystem == VTK_VIEWPORT)
       {
-      this->ComputedDisplayValue[0] = (int)rint(val[0]);
-      this->ComputedDisplayValue[1] = (int)rint(val[1]);
+      this->ComputedDisplayValue[0] = (int)VTK_RINT(val[0]);
+      this->ComputedDisplayValue[1] = (int)VTK_RINT(val[1]);
       if (this->ReferenceCoordinate)
 	{
 	int *RefValue;
@@ -332,8 +334,8 @@ int *vtkCoordinate::GetComputedDisplayValue(vtkViewport* viewport)
       viewport->NormalizedDisplayToDisplay(val[0],val[1]);
     }
   
-  this->ComputedDisplayValue[0] = (int)rint(val[0]);
-  this->ComputedDisplayValue[1] = (int)rint(val[1]);
+  this->ComputedDisplayValue[0] = (int)VTK_RINT(val[0]);
+  this->ComputedDisplayValue[1] = (int)VTK_RINT(val[1]);
   
   // if we have a reference coordinate then get that first
   if (this->ReferenceCoordinate && this->CoordinateSystem != VTK_WORLD)
