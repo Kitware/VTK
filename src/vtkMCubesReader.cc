@@ -82,7 +82,6 @@ void vtkMCubesReader::Execute()
   vtkByteSwap swap;
   
   vtkDebugMacro(<<"Reading marching cubes file");
-  fprintf(stderr,"size of vtkIdList is %i\n",sizeof(vtkIdList));
   
   //
   // Initialize
