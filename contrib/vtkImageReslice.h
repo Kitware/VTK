@@ -183,23 +183,18 @@ public:
 		      int *inMin, int *inMax, int *outExt);
 //ETX
 
-#ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
-  // Obsolete method, but still convenient for switching between 
-  // nearest-neighbor and linear interpolation (default: off). 
-  void SetInterpolate(int t) 
-    {VTK_LEGACY_METHOD(SetInterpolationMode,"3.2");  
-    this->SetInterpolationMode((t ? VTK_RESLICE_LINEAR : VTK_RESLICE_NEAREST)); };
-  void InterpolateOn() 
-    {VTK_LEGACY_METHOD(SetInterpolationModeToLinear,"3.2");  
-    this->SetInterpolationModeToLinear(); }
-  void InterpolateOff() 
-    {VTK_LEGACY_METHOD(SetInterpolationModeToNearestNeighbor,"3.2");  
-    this->SetInterpolationModeToNearestNeighbor(); }
-  int GetInterpolate() 
-    {VTK_LEGACY_METHOD(GetInterpolationMode,"3.2"); 
-    return (this->GetInterpolationMode() != VTK_RESLICE_NEAREST); }
-#endif
+  // Convenient methods for switching between nearest-neighbor and linear
+  // interpolation (default: off). 
+  void SetInterpolate(int t) {
+    this->SetInterpolationMode((t ? VTK_RESLICE_LINEAR : 
+				    VTK_RESLICE_NEAREST)); };
+  void InterpolateOn() {
+    this->SetInterpolationModeToLinear(); };
+  void InterpolateOff() {
+    this->SetInterpolationModeToNearestNeighbor(); };
+  int GetInterpolate() {
+    return (this->GetInterpolationMode() != VTK_RESLICE_NEAREST); };
   
 protected:
   vtkImageReslice();
