@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageDataStreamer, "1.35");
+vtkCxxRevisionMacro(vtkImageDataStreamer, "1.36");
 vtkStandardNewMacro(vtkImageDataStreamer);
 vtkCxxSetObjectMacro(vtkImageDataStreamer,ExtentTranslator,vtkExtentTranslator);
 
@@ -38,9 +38,6 @@ vtkImageDataStreamer::vtkImageDataStreamer()
 
   this->SetNumberOfInputPorts(1);
   this->SetNumberOfOutputPorts(1);
-
-  this->Information->Set(
-    vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(),0);
 }
 
 vtkImageDataStreamer::~vtkImageDataStreamer()
@@ -112,9 +109,8 @@ int vtkImageDataStreamer::ProcessRequest(vtkInformation* request,
     // is this the first request
     if (!this->CurrentDivision)
       {
-      // tell the pipeline to loop
-      this->Information->Set(
-        vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(),1);
+      // Tell the pipeline to start looping.
+      request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
       this->AllocateOutputData(output);
       }
 
@@ -134,8 +130,8 @@ int vtkImageDataStreamer::ProcessRequest(vtkInformation* request,
     this->CurrentDivision++;
     if (this->CurrentDivision == this->NumberOfStreamDivisions)
       {
-      this->Information->Set(
-        vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(),0);
+      // Tell the pipeline to stop looping.
+      request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
       this->CurrentDivision = 0;
       }
     

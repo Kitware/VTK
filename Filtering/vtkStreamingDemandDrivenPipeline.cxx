@@ -28,7 +28,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.20");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.21");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -59,6 +59,7 @@ public:
 //----------------------------------------------------------------------------
 vtkStreamingDemandDrivenPipeline::vtkStreamingDemandDrivenPipeline()
 {
+  this->ContinueExecuting = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -169,7 +170,7 @@ int vtkStreamingDemandDrivenPipeline::Update(int port)
       retval =  
         this->PropagateUpdateExtent(port) && this->UpdateData(port) && retval;
       }
-    while (this->Algorithm->GetInformation()->Get(CONTINUE_EXECUTING()));
+    while (this->ContinueExecuting);
     return retval;
     }
   else
@@ -568,11 +569,42 @@ int vtkStreamingDemandDrivenPipeline::VerifyOutputInformation(int outputPort)
 }
 
 //----------------------------------------------------------------------------
+int vtkStreamingDemandDrivenPipeline::ExecuteData(vtkInformation* request)
+{
+  // Preserve the execution continuation flag in the request across
+  // iterations of the algorithm.
+  if(this->ContinueExecuting)
+    {
+    request->Set(CONTINUE_EXECUTING(), 1);
+    }
+  else
+    {
+    request->Remove(CONTINUE_EXECUTING());
+    }
+
+  // Let the superclass execute the filter.
+  int result = this->Superclass::ExecuteData(request);
+
+  // Preserve the execution continuation flag in the request across
+  // iterations of the algorithm.
+  if(request->Get(CONTINUE_EXECUTING()))
+    {
+    this->ContinueExecuting = 1;
+    }
+  else
+    {
+    this->ContinueExecuting = 0;
+    }
+
+  return result;
+}
+
+//----------------------------------------------------------------------------
 void
 vtkStreamingDemandDrivenPipeline::ExecuteDataStart(vtkInformation* request)
 {
   // Perform start operations only if not in an execute continuation.
-  if(!this->Algorithm->GetInformation()->Has(CONTINUE_EXECUTING()))
+  if(!this->ContinueExecuting)
     {
     this->Superclass::ExecuteDataStart(request);
     }
@@ -583,7 +615,7 @@ void
 vtkStreamingDemandDrivenPipeline::ExecuteDataEnd(vtkInformation* request)
 {
   // Perform end operations only if not in an execute continuation.
-  if(!this->Algorithm->GetInformation()->Has(CONTINUE_EXECUTING()))
+  if(!this->ContinueExecuting)
     {
     this->Superclass::ExecuteDataEnd(request);
     }
@@ -629,7 +661,7 @@ int vtkStreamingDemandDrivenPipeline::NeedToExecuteData(int outputPort)
     }
 
   // Has the algorithm asked to be executed again?
-  if(this->Algorithm->GetInformation()->Get(CONTINUE_EXECUTING()))
+  if(this->ContinueExecuting)
     {
     return 1;
     }

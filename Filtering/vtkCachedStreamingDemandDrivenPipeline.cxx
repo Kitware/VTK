@@ -25,7 +25,7 @@
 #include "vtkInformationVector.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkCachedStreamingDemandDrivenPipeline, "1.4");
+vtkCxxRevisionMacro(vtkCachedStreamingDemandDrivenPipeline, "1.5");
 vtkStandardNewMacro(vtkCachedStreamingDemandDrivenPipeline);
 
 
@@ -126,7 +126,7 @@ int vtkCachedStreamingDemandDrivenPipeline::Update(int port)
       retval =  
         this->PropagateUpdateExtent(port) && this->UpdateData(port) && retval;
       }
-    while (this->Algorithm->GetInformation()->Get(CONTINUE_EXECUTING()));
+    while (this->ContinueExecuting);
     return retval;
     }
   else
@@ -153,7 +153,7 @@ int vtkCachedStreamingDemandDrivenPipeline::NeedToExecuteData(int outputPort)
     }
 
   // Has the algorithm asked to be executed again?
-  if(this->Algorithm->GetInformation()->Get(CONTINUE_EXECUTING()))
+  if(this->ContinueExecuting)
     {
     return 1;
     }

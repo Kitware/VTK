@@ -126,8 +126,8 @@ public:
   static vtkInformationIntegerKey* REQUEST_UPDATE_EXTENT();
 
   // Description:
-  // Key for an algorithm to store in its own information to tell
-  // this executive to keep executing it.
+  // Key for an algorithm to store in a request to tell this executive
+  // to keep executing it.
   static vtkInformationIntegerKey* CONTINUE_EXECUTING();
 
   // Description:
@@ -178,6 +178,7 @@ protected:
   virtual int NeedToExecuteData(int outputPort);
 
   // Override these to handle the continue-executing option.
+  virtual int ExecuteData(vtkInformation* request);
   virtual void ExecuteDataStart(vtkInformation* request);
   virtual void ExecuteDataEnd(vtkInformation* request);
 
@@ -187,6 +188,9 @@ protected:
   // Remove update/whole extent when resetting pipeline information.
   virtual void ResetPipelineInformation(int port, vtkInformation*);
 
+  // Flag for when an algorithm returns with CONTINUE_EXECUTING in the
+  // request.
+  int ContinueExecuting;
 private:
   vtkStreamingDemandDrivenPipeline(const vtkStreamingDemandDrivenPipeline&);  // Not implemented.
   void operator=(const vtkStreamingDemandDrivenPipeline&);  // Not implemented.
