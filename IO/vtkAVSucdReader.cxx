@@ -34,7 +34,7 @@
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkAVSucdReader, "1.22");
+vtkCxxRevisionMacro(vtkAVSucdReader, "1.23");
 vtkStandardNewMacro(vtkAVSucdReader);
 
 //----------------------------------------------------------------------------
@@ -357,13 +357,13 @@ void vtkAVSucdReader::ExecuteInformation()
       this->ReadFloatBlock(this->NumberOfCellFields, mx);
       for(i=0; i < this->NumberOfCellFields; i++)
         {
-        this->NodeDataInfo[i].min = mx[i];
+        this->CellDataInfo[i].min = mx[i];
         }
       // read now the maximums for cell_data
       this->ReadFloatBlock(this->NumberOfCellFields, mx);
       for(i=0; i < this->NumberOfCellFields; i++)
         {
-        this->NodeDataInfo[i].max = mx[i];
+        this->CellDataInfo[i].max = mx[i];
         }
       delete [] mx;
 
