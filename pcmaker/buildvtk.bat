@@ -55,7 +55,7 @@ rem          doGEMSIP doGEMSVOLUME doGEAE doDFA
 
 echo beginning pcmaker config at >> %vtk_build_log%
 time /t >> %vtk_build_log%
-%vtk_source_tree%\pcmaker\Debug\pcmaker.exe %vtk_source_tree% %vtk_build_tree% c:\msdev 0 1 0 1 1 0 0 0 0 1 1 0 0 >> %vtk_build_log%
+%vtk_source_tree%\pcmaker\Debug\pcmaker.exe %vtk_source_tree% %vtk_build_tree% c:\msdev 0 1 0 1 1 1 0 0 0 1 1 0 0 >> %vtk_build_log%
 rem          | | | | | | | | | | | | DFA
 rem          | | | | | | | | | | | geae
 rem          | | | | | | | | | | gemsvolume
