@@ -26,14 +26,14 @@
 #include "vtkPoints.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkZLibDataCompressor.h"
-
+#include <errno.h>
 #if !defined(_WIN32) || defined(__CYGWIN__)
 # include <unistd.h> /* unlink */
 #else
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.33");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.34");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 
 //----------------------------------------------------------------------------
@@ -297,7 +297,9 @@ int vtkXMLWriter::WriteInternal()
 #endif
     if(!outFile || !*outFile)
       {
-      vtkErrorMacro("Error opening output file \"" << this->FileName << "\"");
+      int e = errno;
+      const char* err = strerror(e);
+      vtkErrorMacro("Error opening output file \"" << this->FileName << "\""  << " Last system error: " << err);
       this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
       return 0;
       }
