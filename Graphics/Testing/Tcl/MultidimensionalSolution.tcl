@@ -98,8 +98,8 @@ proc ExecuteDot {} {
    vtkFloatArray scalars
 
    for {set i 0} {$i < $numPts} {incr i} {
-       set v0 [$vectors0 GetTupleN $i 3]
-       set v1 [$vectors1 GetTupleN $i 3]
+       set v0 [$vectors0 GetTuple3 $i]
+       set v1 [$vectors1 GetTuple3 $i]
        
        set v0x [lindex $v0 0]
        set v0y [lindex $v0 1]
