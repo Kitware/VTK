@@ -65,21 +65,21 @@ vtkSubdivideTetra::vtkSubdivideTetra()
 void vtkSubdivideTetra::Execute()
 {
   vtkUnstructuredGrid *input=(vtkUnstructuredGrid *)this->GetInput();
-  int numPts = input->GetNumberOfPoints();
-  int numCells = input->GetNumberOfCells();
+  vtkIdType numPts = input->GetNumberOfPoints();
+  vtkIdType numCells = input->GetNumberOfCells();
   vtkPoints *inPts=input->GetPoints();
-  int cellId, i;
+  vtkIdType cellId, i;
   vtkIdType pts[4];
   vtkGenericCell *cell;
   vtkPointData *pd = input->GetPointData();
   vtkUnstructuredGrid *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   vtkPoints *newPts;
-  int ptId;
+  vtkIdType ptId;
 
   float weights[4], x0[3], x1[3], x2[3], x3[3], x[3];
-  int p0, p1, p2, p3, center;
-  int e01, e02, e03, e12, e13, e23;
+  int p0, p1, p2, p3;
+  vtkIdType center, e01, e02, e03, e12, e13, e23;
   vtkMergePoints *locator;
   
   vtkDebugMacro(<<"Executing mesh subdivide");

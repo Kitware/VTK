@@ -158,10 +158,11 @@ void vtkSurfaceReconstructionFilter::Execute()
     ~SurfacePoint() { delete []costs; neighbors->Delete(); }
   };
 
-  const int COUNT = input->GetNumberOfPoints();
+  const vtkIdType COUNT = input->GetNumberOfPoints();
   SurfacePoint *surfacePoints = new SurfacePoint[COUNT];
 
-  int i,j,k;
+  vtkIdType i, j;
+  int k;
 
   if ( COUNT < 1 )
     {
@@ -220,7 +221,7 @@ void vtkSurfaceReconstructionFilter::Execute()
     // first find the centroid of the neighbors
     CopyBToA(p->o,p->loc);
     int number=1;
-    int neighborIndex;
+    vtkIdType neighborIndex;
     for(j=0;j<p->neighbors->GetNumberOfIds();j++)
       {
       neighborIndex = p->neighbors->GetId(j);
@@ -312,7 +313,7 @@ void vtkSurfaceReconstructionFilter::Execute()
     while(nearby->GetNumberOfIds()>0)
       {
       // for each nearby point:
-      int iNearby,iNeighbor;
+      vtkIdType iNearby,iNeighbor;
       lowestCost = VTK_LARGE_FLOAT;
       for(i=0;i<nearby->GetNumberOfIds();i++)
         {

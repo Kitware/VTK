@@ -161,9 +161,9 @@ protected:
   void operator=(const vtkArcPlotter&) {};
 
   void Execute();
-  int  OffsetPoint(int ptId, vtkPoints *inPts, float n[3], vtkPoints *newPts,
-                   float offset, float *range, float val);
-  int  ProcessComponents(int numPts, vtkPointData *pd);
+  int  OffsetPoint(vtkIdType ptId, vtkPoints *inPts, float n[3],
+                   vtkPoints *newPts, float offset, float *range, float val);
+  int  ProcessComponents(vtkIdType numPts, vtkPointData *pd);
 
   vtkCamera *Camera;
   int       PlotMode;

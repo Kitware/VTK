@@ -85,7 +85,8 @@ void vtkArcPlotter::Execute()
   vtkPointData *inPD=input->GetPointData();
   vtkPoints *inPts;
   vtkCellArray *inLines;
-  int numPts, i, j;
+  int j;
+  vtkIdType numPts, i;
   float x[3], normal[3], point[3], aveNormal[3];
   int id;
   vtkIdType *pts, npts;
@@ -184,7 +185,7 @@ void vtkArcPlotter::Execute()
     
     // Now average the normal calculation to get smoother results
     //
-    int window = npts / 100;
+    vtkIdType window = npts / 100;
     if ( window < 5 )
       {
       window = 5;
@@ -250,9 +251,10 @@ void vtkArcPlotter::Execute()
   newLines->Delete();
 }
 
-int vtkArcPlotter::ProcessComponents(int numPts, vtkPointData *pd)
+int vtkArcPlotter::ProcessComponents(vtkIdType numPts, vtkPointData *pd)
 {
-  int i, j;
+  vtkIdType i;
+  int j;
   float *range;
   vtkFieldData *fd;
   
@@ -360,8 +362,9 @@ int vtkArcPlotter::ProcessComponents(int numPts, vtkPointData *pd)
 }
 
 
-int  vtkArcPlotter::OffsetPoint(int ptId, vtkPoints *inPts, float n[3], 
-                    vtkPoints *newPts, float offset, float *range, float v)
+int  vtkArcPlotter::OffsetPoint(vtkIdType ptId, vtkPoints *inPts, float n[3], 
+                                vtkPoints *newPts, float offset, float *range,
+                                float v)
 {
   float x[3], xNew[3];
   int i;

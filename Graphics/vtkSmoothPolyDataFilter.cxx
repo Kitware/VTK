@@ -67,7 +67,7 @@ vtkSmoothPolyDataFilter* vtkSmoothPolyDataFilter::New()
 // The following code defines a helper class for performing mesh smoothing
 // across the surface of another mesh.
 typedef struct _vtkSmoothPoint {
-    int     cellId;  // cell
+    vtkIdType     cellId;  // cell
     int     subId;   // cell sub id
     float   p[3];    // parametric coords in cell 
 } vtkSmoothPoint;

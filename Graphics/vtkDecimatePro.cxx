@@ -1485,7 +1485,7 @@ void vtkDecimatePro::InitializeQueue(int numPts)
 
 int vtkDecimatePro::Pop(float &error)
 {
-  int ptId;
+  vtkIdType ptId;
 
   // Try returning what's in queue
   if ( (ptId = this->Queue->Pop(error)) >= 0 )

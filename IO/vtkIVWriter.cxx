@@ -97,7 +97,7 @@ void vtkIVWriter::WriteData()
 void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
 {
   vtkPoints *points = NULL;
-  int i;
+  vtkIdType i;
   vtkCellArray *cells;
   vtkIdType npts;
   vtkIdType *indx;

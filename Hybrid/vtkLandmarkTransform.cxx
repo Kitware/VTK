@@ -97,7 +97,8 @@ void vtkLandmarkTransform::PrintSelf(ostream& os, vtkIndent indent)
  
 void vtkLandmarkTransform::InternalUpdate()
 {
-  int i, j;
+  vtkIdType i;
+  int j;
 
   if (this->SourceLandmarks == NULL || this->TargetLandmarks == NULL)
     {
@@ -116,7 +117,7 @@ void vtkLandmarkTransform::InternalUpdate()
 
   // Original python implementation by David G. Gobbi
 
-  const int N_PTS = this->SourceLandmarks->GetNumberOfPoints();
+  const vtkIdType N_PTS = this->SourceLandmarks->GetNumberOfPoints();
   if(N_PTS != this->TargetLandmarks->GetNumberOfPoints())
     {
     vtkErrorMacro("Update: Source and Target Landmarks contain a different number of points");
@@ -175,7 +176,7 @@ void vtkLandmarkTransform::InternalUpdate()
     AAT[i][1] = M[i][1]=0.0F; 
     AAT[i][2] = M[i][2]=0.0F; 
     }
-  int pt;
+  vtkIdType pt;
   float a[3],b[3];
   float sa=0.0F,sb=0.0F;
   for(pt=0;pt<N_PTS;pt++)

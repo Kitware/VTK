@@ -82,7 +82,7 @@ void vtkImageToPolyDataFilter::Execute()
   vtkAppendPolyData *append = vtkAppendPolyData::New();
   vtkPolyData *appendOutput;
   vtkScalars *inScalars = input->GetPointData()->GetScalars();
-  int numPixels=input->GetNumberOfPoints();
+  vtkIdType numPixels=input->GetNumberOfPoints();
   int dims[3], numComp=inScalars->GetData()->GetNumberOfComponents();
   float origin[3], spacing[3];
   vtkUnsignedCharArray *pixels;
@@ -275,8 +275,8 @@ void vtkImageToPolyDataFilter::RunLengthImage(vtkUnsignedCharArray *pixels,
                                              float spacing[3], 
                                              vtkPolyData *output)
 {
-  int i, j, id;
-  vtkIdType pts[4];
+  int i, j;
+  vtkIdType pts[4], id;
   vtkPoints *newPts;
   vtkCellArray *newPolys;
   float x[3], minX, maxX, minY, maxY;
@@ -838,9 +838,9 @@ int vtkImageToPolyDataFilter::BuildEdges(vtkUnsignedCharArray *vtkNotUsed(pixels
                                          vtkPolyData *edges)
 {
   float x[3];
-  int i, j, ptId, edgeCount, p0, p1, p2, p3;
+  int i, j, edgeCount;
+  vtkIdType ptId, p0, p1, p2, p3, startId, attrId, id[8], pts[4];
   vtkCellArray *edgeConn = edges->GetLines();
-  int pts[4], startId, attrId, id[8];
   vtkPoints *points = edges->GetPoints();
 
   // Build edges around perimeter of image. Note that the point ids
@@ -1166,9 +1166,9 @@ void vtkImageToPolyDataFilter::BuildPolygons(vtkUnsignedCharArray *vtkNotUsed(po
                                              vtkUnsignedCharArray *polyColors)
 {
   vtkPoints *points = edges->GetPoints();
-  int numPts = points->GetNumberOfPoints();
-  int i, j, k, ptId, cellId, *polyId, *polyId2, edgeId;
-  vtkIdType *cells, *pts, *cells2, npts;
+  vtkIdType numPts = points->GetNumberOfPoints(), ptId;
+  int i, j, k, *polyId, *polyId2, edgeId;
+  vtkIdType *cells, *pts, *cells2, npts, cellId;
   int numPolyPts, p1, p2;
   unsigned short ncells, ncells2;
   unsigned char *polyVisited, *ptr;
@@ -1264,8 +1264,8 @@ void vtkImageToPolyDataFilter::SmoothEdges(vtkUnsignedCharArray *pointDescr,
                                            vtkPolyData *edges)
 {
   vtkPoints *points=edges->GetPoints();
-  int numPts=points->GetNumberOfPoints();
-  int i, ptId, iterNum;
+  vtkIdType numPts=points->GetNumberOfPoints(), ptId;
+  int i, iterNum;
   int connId;
   float x[3], *xconn, xave[3], factor;
   unsigned short int ncells;
@@ -1321,8 +1321,7 @@ void vtkImageToPolyDataFilter::DecimateEdges(vtkPolyData *edges,
                                              float tol2)
 {
   vtkPoints *points=edges->GetPoints();
-  int numPts=points->GetNumberOfPoints();
-  int ptId, prevId, nextId;
+  vtkIdType numPts=points->GetNumberOfPoints(), ptId, prevId, nextId;
   vtkIdType npts;
   float *x, *xPrev, *xNext;
   unsigned short int ncells;

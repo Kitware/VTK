@@ -729,7 +729,8 @@ void vtkXYPlotActor::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkXYPlotActor::ComputeXRange(float range[2], float *lengths)
 {
-  int maxNum, numPts, ptId, dsNum;
+  int dsNum;
+  vtkIdType numPts, ptId, maxNum;
   float maxLength=0.0, xPrev[3], *x;
   vtkDataSet *ds;
 
@@ -865,10 +866,11 @@ void vtkXYPlotActor::ComputeYRange(float range[2])
 void vtkXYPlotActor::ComputeDORange(float xrange[2], float yrange[2], 
                                     float *lengths)
 {
-  int i, ptId, maxNum, num;
+  int i;
   vtkDataObject *dobj;
   vtkFieldData *field;
-  int doNum, numRows, numColumns, numTuples;
+  int doNum, numColumns;
+  vtkIdType numTuples, numRows, num, ptId, maxNum;
   float maxLength=0.0, x, y, xPrev = 0.0;
   vtkDataArray *array;
 
@@ -1010,7 +1012,8 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, float xRange[2],
                                     int numDS, int numDO)
 {
   float xyz[3]; xyz[2] = 0.0;
-  int i, id, numPts, numLinePts, ptId, dsNum, doNum, num;
+  int i, numLinePts, dsNum, doNum, num;
+  vtkIdType numPts, ptId, id;
   float length, x[3], xPrev[3];
   vtkScalars *scalars;
   vtkDataSet *ds;
@@ -1176,7 +1179,8 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, float xRange[2],
   else //plot data from data objects
     {
       vtkDataObject *dobj;
-      int numColumns, numRows, numTuples;
+      int numColumns;
+      vtkIdType numRows, numTuples;
       vtkDataArray *array;
       vtkFieldData *field;
       for ( doNum=0, this->DataObjectInputList->InitTraversal(); 
@@ -1575,10 +1579,10 @@ void vtkXYPlotActor::ClipPlotData(int *pos, int *pos2, vtkPolyData *pd)
   vtkPoints *newPoints;
   vtkCellArray *lines=pd->GetLines();
   vtkCellArray *newLines, *newVerts;
-  int numPts=pd->GetNumberOfPoints();
+  vtkIdType numPts=pd->GetNumberOfPoints();
   vtkIdType npts;
-  vtkIdType newPts[2], *pts;
-  int i, j, id;
+  vtkIdType newPts[2], *pts, i, id;
+  int j;
   float *x1, *x2, *px, *n, xint[3], t;
   float p1[2], p2[2];
 
@@ -1755,4 +1759,3 @@ float *vtkXYPlotActor::TransformPoint(int pos[2], int pos2[2], float x[3], float
 
   return xNew;
 }
-

@@ -117,9 +117,10 @@ void vtkProjectedTexture::SetFocalPoint(float x, float y, float z)
 void vtkProjectedTexture::Execute()
 {
   float tcoords[2];
-  int numPts;
+  vtkIdType numPts;
   vtkTCoords *newTCoords;
-  int i, j;
+  vtkIdType i;
+  int j;
   float proj;
   float rightv[3], upv[3], diff[3];
   float sScale, tScale, sOffset, tOffset, sSize, tSize, s, t;

@@ -102,8 +102,8 @@ vtkGLUTesselatorTriangleFilter::~vtkGLUTesselatorTriangleFilter()
 void vtkGLUTesselatorTriangleFilter::Execute()
 {
   vtkPolyData *input = this->GetInput();
-  int numCells=input->GetNumberOfCells();
-  int dim, i, j, pts[3], cellNum, numPts, numSimplices, newId, type;
+  vtkIdType numCells=input->GetNumberOfCells(), cellNum, newId;
+  int dim, i, j, pts[3], numPts, numSimplices, type;
   vtkIdList *ptIds=vtkIdList::New();
   vtkPoints *spts=vtkPoints::New();
   vtkPolyData *output=this->GetOutput();
@@ -111,7 +111,7 @@ void vtkGLUTesselatorTriangleFilter::Execute()
   vtkCellData *outCD=output->GetCellData();
   vtkCell *cell;
   int updateInterval;
-  int numPoints=input->GetNumberOfPoints();
+  vtkIdType numPoints=input->GetNumberOfPoints();
   
   output->Allocate(numPoints, numPoints);
   outCD->CopyAllocate(inCD,numPoints);

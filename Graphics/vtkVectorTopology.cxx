@@ -69,7 +69,8 @@ vtkVectorTopology::vtkVectorTopology()
 
 void vtkVectorTopology::Execute()
 {
-  int cellId, i, j, ptId, npts;
+  vtkIdType cellId, ptId;
+  int i, j, npts;
   int negative[3], positive[3], subId=0;
   float x[3], pcoords[3], *v;
   vtkCell *cell;
