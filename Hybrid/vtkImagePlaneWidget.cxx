@@ -40,7 +40,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.31");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.32");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -948,7 +948,8 @@ void vtkImagePlaneWidget::GenerateTexturePlane()
   this->SetResliceInterpolate(this->ResliceInterpolate);
 
   this->ColorMap->SetLookupTable(this->LookupTable);
-  this->ColorMap->SetOutputFormatToRGB();
+  this->ColorMap->SetOutputFormatToRGBA();
+  this->ColorMap->PassAlphaToOutputOn();
 
   this->TexturePlaneCoords->SetInput(this->PlaneSource->GetOutput());
   this->TexturePlaneCoords->AutomaticPlaneGenerationOff();
@@ -956,7 +957,7 @@ void vtkImagePlaneWidget::GenerateTexturePlane()
   this->TexturePlaneMapper->SetInput(this->TexturePlaneCoords->GetOutput());
 
   this->Texture->SetQualityTo32Bit();
-  this->Texture->MapColorScalarsThroughLookupTableOff();
+  this->Texture->MapColorScalarsThroughLookupTableOn();
   this->Texture->SetInterpolate(this->TextureInterpolate);
   this->Texture->RepeatOff();
   this->Texture->SetLookupTable(this->LookupTable);
@@ -1318,7 +1319,7 @@ void vtkImagePlaneWidget::SetLookupTable(vtkLookupTable* table)
 
 void vtkImagePlaneWidget::SetSlicePosition(float position)
 {
-  float amount = 0.0f; 
+  float amount = 0.0f;
   float planeOrigin[3];
   this->PlaneSource->GetOrigin(planeOrigin);
 
