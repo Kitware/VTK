@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.30");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.30.4.1");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 
@@ -775,6 +775,15 @@ void vtkCarbonRenderWindow::WindowInitialize()
   this->OwnWindow = 0;
   this->InitializeApplication();
   this->CreateAWindow(x,y,width,height);
+
+  // tell our renderers about us
+  vtkRenderer* ren;
+  for (this->Renderers->InitTraversal(); 
+       (ren = this->Renderers->GetNextItem());)
+    {
+    ren->SetRenderWindow(0);
+    ren->SetRenderWindow(this);
+    }
     
   // set the DPI
   this->SetDPI(72); // this may need to be more clever some day
