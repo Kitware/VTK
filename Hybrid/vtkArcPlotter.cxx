@@ -18,12 +18,14 @@
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkArcPlotter, "1.24");
+vtkCxxRevisionMacro(vtkArcPlotter, "1.25");
 vtkStandardNewMacro(vtkArcPlotter);
 
 vtkCxxSetObjectMacro(vtkArcPlotter,Camera,vtkCamera);
@@ -63,10 +65,21 @@ vtkArcPlotter::~vtkArcPlotter()
     }
 }
 
-void vtkArcPlotter::Execute()
+int vtkArcPlotter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkPolyData *input=this->GetInput();
-  vtkPolyData *output=this->GetOutput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPolyData *input = vtkPolyData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkPointData *inPD;
   vtkPoints *inPts;
   vtkCellArray *inLines;
@@ -84,12 +97,6 @@ void vtkArcPlotter::Execute()
   int plotNum, compNum;
   vtkPoints *projPts;
   
-  // Avoid segmentiation faults.
-  if (input == NULL || output == NULL)
-    {
-    return;
-    }
-  
   inPD = input->GetPointData();
   
   // Initialize
@@ -101,13 +108,13 @@ void vtkArcPlotter::Execute()
   !(inLines=input->GetLines()) || inLines->GetNumberOfCells() < 1 )
     {
     vtkErrorMacro(<< "No input data!");
-    return;
+    return 0;
     }
 
   // Process attribute data to determine ranges, number of components, etc.
   if ( this->ProcessComponents(numPts, inPD) <= 0 )
     {
-    return;
+    return 0;
     }
 
   // Allocate points for projection
@@ -244,6 +251,8 @@ void vtkArcPlotter::Execute()
   newPts->Delete();
   output->SetLines(newLines);
   newLines->Delete();
+
+  return 1;
 }
 
 int vtkArcPlotter::ProcessComponents(vtkIdType numPts, vtkPointData *pd)
@@ -373,7 +382,7 @@ int  vtkArcPlotter::OffsetPoint(vtkIdType ptId, vtkPoints *inPts, double n[3],
 
 unsigned long vtkArcPlotter::GetMTime()
 {
-  unsigned long mTime=this->vtkPolyDataToPolyDataFilter::GetMTime();
+  unsigned long mTime=this->Superclass::GetMTime();
   unsigned long cameraMTime;
 
   if ( this->Camera && ! this->UseDefaultNormal )

@@ -38,7 +38,7 @@
 #ifndef __vtkArcPlotter_h
 #define __vtkArcPlotter_h
 
-#include "vtkPolyDataToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
 #define VTK_PLOT_SCALARS    1
 #define VTK_PLOT_VECTORS    2
@@ -52,7 +52,7 @@ class vtkDataArray;
 class vtkPointData;
 class vtkPoints;
 
-class VTK_HYBRID_EXPORT vtkArcPlotter : public vtkPolyDataToPolyDataFilter 
+class VTK_HYBRID_EXPORT vtkArcPlotter : public vtkPolyDataAlgorithm 
 {
 public:
   // Description:
@@ -60,7 +60,7 @@ public:
   // VTK_SCALARS.
   static vtkArcPlotter *New();
 
-  vtkTypeRevisionMacro(vtkArcPlotter,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkArcPlotter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -135,7 +135,7 @@ protected:
   vtkArcPlotter();
   ~vtkArcPlotter();
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   int  OffsetPoint(vtkIdType ptId, vtkPoints *inPts, double n[3],
                    vtkPoints *newPts, double offset, 
                    double *range, double val);
