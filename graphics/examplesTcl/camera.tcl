@@ -21,11 +21,11 @@ camCBS SetXLength 1.5
 camCBS SetZLength 0.8
 camCBS SetCenter 0.4 0 0
 
-vtkAppendPolyData camAPD
-camAPD AddInput [camCBS GetOutput]
+vtkAppendFilter camAPD
 camAPD AddInput [camCS GetOutput]
+camAPD AddInput [camCBS GetOutput]
 
-vtkPolyDataMapper camMapper
+vtkDataSetMapper camMapper
     camMapper SetInput [camAPD GetOutput]
 vtkLODActor camActor
     camActor SetMapper camMapper
