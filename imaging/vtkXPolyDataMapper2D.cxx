@@ -81,7 +81,7 @@ void vtkXPolyDataMapper2D::Render(vtkViewport* viewport, vtkActor2D* actor)
   int numPts;
   vtkPolyData *input= (vtkPolyData *)this->Input;
   int npts, j;
-  vtkPoints *p;
+  vtkPoints *p, *displayPts;
   vtkCellArray *aPrim;
   vtkScalars *c=NULL;
   unsigned char *rgba;
@@ -164,9 +164,23 @@ void vtkXPolyDataMapper2D::Render(vtkViewport* viewport, vtkActor2D* actor)
   int compositeMode = this->GetCompositingMode(actor);
   XSetFunction(displayId, gc, compositeMode);
 
-  // Calculate the size of the bounding rectangle
-  // and draw the display list
+  // Transform the points, if necessary
   p = input->GetPoints();
+  if ( this->TransformCoordinate )
+    {
+    int *itmp, numPts = p->GetNumberOfPoints();
+    displayPts = vtkPoints::New();
+    displayPts->SetNumberOfPoints(numPts);
+    for ( j=0; j < numPts; j++ )
+      {
+      this->TransformCoordinate->SetValue(p->GetPoint(j));
+      itmp = this->TransformCoordinate->GetComputedDisplayValue(viewport);
+      displayPts->SetPoint(j, itmp[0], itmp[1], 0.0);
+      }
+    p = displayPts;
+    }
+
+  // Get colors
   if ( this->Colors )
     {
     c = this->Colors;
@@ -256,6 +270,10 @@ void vtkXPolyDataMapper2D::Render(vtkViewport* viewport, vtkActor2D* actor)
   XSync(displayId, False);
 
   delete [] points;
+  if ( this->TransformCoordinate )
+    {
+    p->Delete();
+    }
 }
 
 

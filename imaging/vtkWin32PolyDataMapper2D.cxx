@@ -184,7 +184,7 @@ void vtkWin32PolyDataMapper2D::Render(vtkViewport* viewport, vtkActor2D* actor)
     for ( j=0; j < numPts; j++ )
       {
       this->TransformCoordinate->SetValue(p->GetPoint(j));
-      itmp = this->TransformCoordinate->GetComputedLocalDisplayValue(viewport);
+      itmp = this->TransformCoordinate->GetComputedDisplayValue(viewport);
       displayPts->SetPoint(j,itmp[0], itmp[1], itmp[2]);
       }
     p = displayPts;
