@@ -38,7 +38,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.52");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.53");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper2D);
 #endif
 
@@ -207,7 +207,6 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     }
     
   // Clipping plane stuff
-
   clipPlanes = this->ClippingPlanes;
 
   if (clipPlanes == NULL)
@@ -241,6 +240,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     glClipPlane((GLenum)(GL_CLIP_PLANE0+i),planeEquation);
     }
 
+  double *dptr;
   aPrim = input->GetPolys();
   for (aPrim->InitTraversal(); aPrim->GetNextCell(npts,pts); cellNum++)
     { 
@@ -259,7 +259,10 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
           }
         glColor4ubv(rgba);
         }
-      glVertex2dv(p->GetPoint(pts[j]));
+      // this is done to work around an OpenGL bug, otherwise we could just
+      // call glVertex2dv
+      dptr = p->GetPoint(pts[j]);
+      glVertex3d(dptr[0],dptr[1],0);
       }
     glEnd();
     }
@@ -311,7 +314,10 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
           }
         glColor4ubv(rgba);
         }
-      glVertex2dv(p->GetPoint(pts[j]));
+      // this is done to work around an OpenGL bug, otherwise we could just
+      // call glVertex2dv
+      dptr = p->GetPoint(pts[j]);
+      glVertex3d(dptr[0],dptr[1],0);
       }
     glEnd();
     }
@@ -337,7 +343,10 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
           }
         glColor4ubv(rgba);
         }
-      glVertex2dv(p->GetPoint(pts[j]));
+      // this is done to work around an OpenGL bug, otherwise we could just
+      // call glVertex2dv
+      dptr = p->GetPoint(pts[j]);
+      glVertex3d(dptr[0],dptr[1],0);
       }
     }
   glEnd();
