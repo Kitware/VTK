@@ -141,7 +141,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   LookupTable1->SetValueRange(1, 1);
   LookupTable1->SetTableRange(0.197813, 0.710419);
   LookupTable1->SetVectorComponent(0);
-  LookupTable1->Build;
+  LookupTable1->Build();
 
   vtkPolyDataMapper* Mapper6 = vtkPolyDataMapper::New();
   Mapper6->SetInput(Geometry6->GetOutput());
@@ -235,9 +235,6 @@ int main( int argc, char* argv[] )
     // Set the number of processes to 2 for this example.
     contr->SetNumberOfProcesses(2);
     } 
-
-  int numProcs = contr->GetNumberOfProcesses();
-  int myId = contr->GetLocalProcessId();
 
   // Added for regression test.
   // ----------------------------------------------
