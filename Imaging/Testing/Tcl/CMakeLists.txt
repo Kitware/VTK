@@ -25,6 +25,7 @@ IF (VTK_USE_RENDERING)
         TestAllFlips
         TestAllLogic
         TestAllMaskBits
+        TestAllMathematics
         TestAllShrinks
         TestButterworthLowPass
         TestButterworthHighPass
