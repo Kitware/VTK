@@ -147,7 +147,7 @@ void vtkImageToStructuredPoints::Execute()
   vtkImageData *data = this->GetInput();
   vtkImageData *vData = this->GetVectorInput();
   
-  if (!data)
+  if (!data && !vData)
     {
     vtkErrorMacro("Unable to generate data!");
     return;
@@ -165,86 +165,87 @@ void vtkImageToStructuredPoints::Execute()
   
   // if the data extent matches the update extent then just pass the data
   // otherwise we must reformat and copy the data
-  wExtent = data->GetExtent();
-  if (wExtent[0] == uExtent[0] && wExtent[1] == uExtent[1] &&
-      wExtent[2] == uExtent[2] && wExtent[3] == uExtent[3] &&
-      wExtent[4] == uExtent[4] && wExtent[5] == uExtent[5])
+  if (data)
     {
-    output->GetPointData()->PassData(data->GetPointData());
-    }
-  else
-    {
-    inPtr = (unsigned char *) data->GetScalarPointerForExtent(uExtent);
-    outPtr = (unsigned char *) output->GetScalarPointer();
-    
-    // Get increments to march through data 
-    data->GetIncrements(inIncX, inIncY, inIncZ);
-
-    // find the region to loop over
-    rowLength = (uExtent[1] - uExtent[0]+1)*inIncX*data->GetScalarSize();
-    maxX = uExtent[1] - uExtent[0]; 
-    maxY = uExtent[3] - uExtent[2]; 
-    maxZ = uExtent[5] - uExtent[4];
-    inIncY *= data->GetScalarSize();
-    inIncZ *= data->GetScalarSize();
-    
-    // Loop through output pixels
-    for (idxZ = 0; idxZ <= maxZ; idxZ++)
+    wExtent = data->GetExtent();
+    if (wExtent[0] == uExtent[0] && wExtent[1] == uExtent[1] &&
+	wExtent[2] == uExtent[2] && wExtent[3] == uExtent[3] &&
+	wExtent[4] == uExtent[4] && wExtent[5] == uExtent[5])
       {
-      inPtr1 = inPtr + idxZ*inIncZ;
-      for (idxY = 0; idxY <= maxY; idxY++)
-	{
-	memcpy(outPtr,inPtr1,rowLength);
-	inPtr1 += inIncY;
-	outPtr += rowLength;
-	}
+      output->GetPointData()->PassData(data->GetPointData());
       }
-    }
-  
-    
-  if (!vData)
-    {
-    return;
-    }  
-  // if the data extent matches the update extent then just pass the data
-  // otherwise we must reformat and copy the data
-  wExtent = vData->GetExtent();
-  if (wExtent[0] == uExtent[0] && wExtent[1] == uExtent[1] &&
-      wExtent[2] == uExtent[2] && wExtent[3] == uExtent[3] &&
-      wExtent[4] == uExtent[4] && wExtent[5] == uExtent[5])
-    {
-    vtkVectors *fv = vtkVectors::New(vData->GetScalarType());
-    output->GetPointData()->SetVectors(fv);
-    fv->SetData(vData->GetPointData()->GetScalars()->GetData());
-    fv->Delete();
-    }
-  else
-    {
-    vtkVectors *fv = vtkVectors::New(vData->GetScalarType());
-    output->GetPointData()->SetVectors(fv);
-    float *inPtr2 = (float *)(vData->GetScalarPointerForExtent(uExtent));
-    
-    fv->SetNumberOfVectors((maxZ+1)*(maxY+1)*(maxX+1));
-    vData->GetContinuousIncrements(uExtent, inIncX, inIncY, inIncZ);
-    int numComp = vData->GetNumberOfScalarComponents();
-    int idx = 0;
-    
-    // Loop through ouput pixels
-    for (idxZ = 0; idxZ <= maxZ; idxZ++)
+    else
       {
-      for (idxY = 0; idxY <= maxY; idxY++)
+      inPtr = (unsigned char *) data->GetScalarPointerForExtent(uExtent);
+      outPtr = (unsigned char *) output->GetScalarPointer();
+      
+      // Get increments to march through data 
+      data->GetIncrements(inIncX, inIncY, inIncZ);
+      
+      // find the region to loop over
+      rowLength = (uExtent[1] - uExtent[0]+1)*inIncX*data->GetScalarSize();
+      maxX = uExtent[1] - uExtent[0]; 
+      maxY = uExtent[3] - uExtent[2]; 
+      maxZ = uExtent[5] - uExtent[4];
+      inIncY *= data->GetScalarSize();
+      inIncZ *= data->GetScalarSize();
+      
+      // Loop through output pixels
+      for (idxZ = 0; idxZ <= maxZ; idxZ++)
 	{
-	for (idxX = 0; idxX <= maxX; idxX++)
+	inPtr1 = inPtr + idxZ*inIncZ;
+	for (idxY = 0; idxY <= maxY; idxY++)
 	  {
-	  fv->SetVector(idx,inPtr2);
-	  inPtr2 += numComp;
-	  idx++;
+	  memcpy(outPtr,inPtr1,rowLength);
+	  inPtr1 += inIncY;
+	  outPtr += rowLength;
 	  }
-	inPtr2 += inIncY;
 	}
-      inPtr2 += inIncZ;
       }
-    fv->Delete();
+    }
+    
+  if (vData)
+    {
+    // if the data extent matches the update extent then just pass the data
+    // otherwise we must reformat and copy the data
+    wExtent = vData->GetExtent();
+    if (wExtent[0] == uExtent[0] && wExtent[1] == uExtent[1] &&
+	wExtent[2] == uExtent[2] && wExtent[3] == uExtent[3] &&
+	wExtent[4] == uExtent[4] && wExtent[5] == uExtent[5])
+      {
+      vtkVectors *fv = vtkVectors::New(vData->GetScalarType());
+      output->GetPointData()->SetVectors(fv);
+      fv->SetData(vData->GetPointData()->GetScalars()->GetData());
+      fv->Delete();
+      }
+    else
+      {
+      vtkVectors *fv = vtkVectors::New(vData->GetScalarType());
+      output->GetPointData()->SetVectors(fv);
+      float *inPtr2 = (float *)(vData->GetScalarPointerForExtent(uExtent));
+      
+      fv->SetNumberOfVectors((maxZ+1)*(maxY+1)*(maxX+1));
+      vData->GetContinuousIncrements(uExtent, inIncX, inIncY, inIncZ);
+      int numComp = vData->GetNumberOfScalarComponents();
+      int idx = 0;
+      
+      // Loop through ouput pixels
+      for (idxZ = 0; idxZ <= maxZ; idxZ++)
+	{
+	for (idxY = 0; idxY <= maxY; idxY++)
+	  {
+	  for (idxX = 0; idxX <= maxX; idxX++)
+	    {
+	    fv->SetVector(idx,inPtr2);
+	    inPtr2 += numComp;
+	    idx++;
+	    }
+	  inPtr2 += inIncY;
+	  }
+	inPtr2 += inIncZ;
+	}
+      fv->Delete();
+      }
     }
 }
 
@@ -258,16 +259,28 @@ void vtkImageToStructuredPoints::ExecuteInformation()
   int whole[6], *tmp;
   float *spacing, origin[3];
   
-  if (output == NULL || input == NULL)
+  if (output == NULL)
     {
     return;
     }
   
-  output->SetScalarType(input->GetScalarType());
-  output->SetNumberOfScalarComponents(input->GetNumberOfScalarComponents());
+  if (input)
+    {
+    output->SetScalarType(input->GetScalarType());
+    output->SetNumberOfScalarComponents(input->GetNumberOfScalarComponents());
+    input->GetWholeExtent(whole);    
+    spacing = input->GetSpacing();
+    input->GetOrigin(origin);
+    }
+  else
+    {
+    whole[0] = whole[2] = whole[4] = -VTK_LARGE_INTEGER;
+    whole[1] = whole[3] = whole[5] = VTK_LARGE_INTEGER;
+    spacing = vInput->GetSpacing();
+    vInput->GetOrigin(origin);
+    }
   
   // intersections for whole extent
-  input->GetWholeExtent(whole);
   if (vInput)
     {
     tmp = vInput->GetWholeExtent();
@@ -278,9 +291,7 @@ void vtkImageToStructuredPoints::ExecuteInformation()
     if (tmp[3] < whole[1]) {whole[3] = tmp[3];}
     if (tmp[5] < whole[1]) {whole[5] = tmp[5];}
     }
-  spacing = input->GetSpacing();
-  input->GetOrigin(origin);
-  
+    
   // slide min extent to 0,0,0 (I Hate this !!!!)
   this->Translate[0] = whole[0];
   this->Translate[1] = whole[2];
