@@ -20,11 +20,15 @@
 // .SECTION Description
 // this program tests vtkRectilinearGrid
 
+#include "vtkCell.h"
 #include "vtkDebugLeaks.h"
-#include "vtkRectilinearGrid.h"
-#include "vtkFloatArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
+#include "vtkGenericCell.h"
+#include "vtkIdList.h"
 #include "vtkLongArray.h"
+#include "vtkPointData.h"
+#include "vtkRectilinearGrid.h"
 #include "vtkShortArray.h"
 
 int TestORG(ostream& strm)

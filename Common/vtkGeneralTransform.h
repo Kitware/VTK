@@ -26,10 +26,12 @@
 // .SECTION see also
 // vtkTransform vtkPerspectiveTransform
 
-#include "vtkAbstractTransform.h"
-
 #ifndef __vtkGeneralTransform_h
 #define __vtkGeneralTransform_h
+
+#include "vtkAbstractTransform.h"
+
+#include "vtkMatrix4x4.h" // Needed for inline methods
 
 class VTK_COMMON_EXPORT vtkGeneralTransform : public vtkAbstractTransform
 {

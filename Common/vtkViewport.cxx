@@ -16,16 +16,15 @@
 
 =========================================================================*/
 #include "vtkViewport.h"
-#include "vtkWindow.h"
+
 #include "vtkActor2DCollection.h"
-#include "vtkPropCollection.h"
-#include "vtkProp.h"
+#include "vtkAssemblyPath.h"
 #include "vtkOldStyleCallbackCommand.h"
+#include "vtkProp.h"
+#include "vtkPropCollection.h"
+#include "vtkWindow.h"
 
-#include <stdlib.h>
-#include <string.h>
-
-vtkCxxRevisionMacro(vtkViewport, "1.51");
+vtkCxxRevisionMacro(vtkViewport, "1.52");
 
 // Create a vtkViewport with a black background, a white ambient light, 
 // two-sided lighting turned on, a viewport of (0,0,1,1), and backface culling

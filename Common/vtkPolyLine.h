@@ -24,9 +24,16 @@
 #define __vtkPolyLine_h
 
 #include "vtkCell.h"
-#include "vtkPoints.h"
-#include "vtkCellArray.h"
-#include "vtkLine.h"
+
+//#include "vtkPoints.h"
+//#include "vtkCellArray.h"
+//#include "vtkLine.h"
+class vtkPoints;
+class vtkCellArray;
+class vtkLine;
+class vtkDataArray;
+class vtkPointLocator;
+class vtkCellData;
 
 class VTK_COMMON_EXPORT vtkPolyLine : public vtkCell
 {

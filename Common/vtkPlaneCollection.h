@@ -26,7 +26,8 @@
 #define __vtkPlaneCollection_h
 
 #include "vtkCollection.h"
-#include "vtkPlane.h"
+
+#include "vtkPlane.h" // Needed for inline methods
 
 class VTK_COMMON_EXPORT vtkPlaneCollection : public vtkCollection
 {

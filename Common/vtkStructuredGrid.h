@@ -33,14 +33,15 @@
 #define __vtkStructuredGrid_h
 
 #include "vtkPointSet.h"
-#include "vtkStructuredData.h"
-#include "vtkUnsignedCharArray.h"
 
-class vtkVertex;
+#include "vtkStructuredData.h" // Needed for inline methods
+#include "vtkUnsignedCharArray.h" // Needed for inline methods
+
+class vtkEmptyCell;
+class vtkHexahedron;
 class vtkLine;
 class vtkQuad;
-class vtkHexahedron;
-class vtkEmptyCell;
+class vtkVertex;
 
 class VTK_COMMON_EXPORT vtkStructuredGrid : public vtkPointSet 
 {

@@ -22,8 +22,6 @@
 #define __vtkProcessStatistics_h
 
 #include "vtkObject.h"
-#include "vtkLine.h"
-#include "vtkPixel.h"
 
 class VTK_COMMON_EXPORT vtkProcessStatistics : public vtkObject
 {

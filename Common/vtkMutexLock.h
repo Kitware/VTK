@@ -30,17 +30,17 @@
 //BTX
 
 #ifdef VTK_USE_SPROC
-#include <abi_mutex.h>
+#include <abi_mutex.h> // Needed for SPROC implementation of mutex
 typedef abilock_t vtkMutexType;
 #endif
 
 #ifdef VTK_USE_PTHREADS
-#include <pthread.h>
+#include <pthread.h> // Needed for PTHREAD implementation of mutex
 typedef pthread_mutex_t vtkMutexType;
 #endif
  
 #ifdef VTK_USE_WIN32_THREADS
-#include <winbase.h>
+#include <winbase.h> // Needed for WIN32 implementation of mutex
 typedef HANDLE vtkMutexType;
 #endif
 

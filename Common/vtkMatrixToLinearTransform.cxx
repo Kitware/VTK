@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkMatrixToLinearTransform.h"
+
+#include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMatrixToLinearTransform, "1.11");
+vtkCxxRevisionMacro(vtkMatrixToLinearTransform, "1.12");
 vtkStandardNewMacro(vtkMatrixToLinearTransform);
 vtkCxxSetObjectMacro(vtkMatrixToLinearTransform,Input,vtkMatrix4x4);
 

@@ -28,7 +28,8 @@
 #define __vtkPropC_h
 
 #include "vtkCollection.h"
-#include "vtkProp.h"
+
+#include "vtkProp.h" // Needed for inline methods
 
 class VTK_COMMON_EXPORT vtkPropCollection : public vtkCollection
 {

@@ -16,16 +16,19 @@
 
 =========================================================================*/
 #include "vtkQuadraticHexahedron.h"
-#include "vtkPolyData.h"
-#include "vtkPointLocator.h"
+
+#include "vtkCellData.h"
+#include "vtkFloatArray.h"
+#include "vtkHexahedron.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPointLocator.h"
+#include "vtkPolyData.h"
 #include "vtkQuadraticEdge.h"
 #include "vtkQuadraticQuad.h"
-#include "vtkHexahedron.h"
-#include "vtkFloatArray.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.13");
+vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.14");
 vtkStandardNewMacro(vtkQuadraticHexahedron);
 
 // Construct the hex with 20 points + 7 extra points for internal

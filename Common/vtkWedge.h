@@ -29,9 +29,10 @@
 #define __vtkWedge_h
 
 #include "vtkCell3D.h"
-#include "vtkLine.h"
-#include "vtkTriangle.h"
-#include "vtkQuad.h"
+
+class vtkLine;
+class vtkTriangle;
+class vtkQuad;
 
 class vtkUnstructuredGrid;
 

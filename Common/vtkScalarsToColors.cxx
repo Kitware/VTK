@@ -17,9 +17,11 @@
 =========================================================================*/
 #include "vtkScalarsToColors.h"
 
+#include "vtkUnsignedCharArray.h"
+
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkScalarsToColors, "1.19");
+vtkCxxRevisionMacro(vtkScalarsToColors, "1.20");
 
 vtkScalarsToColors::vtkScalarsToColors()
 {

@@ -28,7 +28,6 @@
 #define __vtkContourValues_h
 
 #include "vtkObject.h"
-#include "vtkIntArray.h"
 
 class vtkFloatArray;
 

@@ -26,32 +26,32 @@
 #define __vtkUnstructuredGrid_h
 
 #include "vtkPointSet.h"
-#include "vtkIdList.h"
-#include "vtkCellArray.h"
-#include "vtkCellLinks.h"
-#include "vtkIntArray.h"
-#include "vtkUnsignedCharArray.h"
 
-class vtkVertex;
-class vtkPolyVertex;
-class vtkLine;
-class vtkPolyLine;
-class vtkTriangle;
-class vtkTriangleStrip;
-class vtkPixel;
-class vtkQuad;
-class vtkPolygon;
-class vtkTetra;
-class vtkVoxel;
+class vtkCellArray;
+class vtkCellLinks;
+class vtkConvexPointSet;
 class vtkHexahedron;
-class vtkWedge;
+class vtkIdList;
+class vtkIntArray;
+class vtkLine;
+class vtkPixel;
+class vtkPolyLine;
+class vtkPolyVertex;
+class vtkPolygon;
 class vtkPyramid;
+class vtkQuad;
 class vtkQuadraticEdge;
-class vtkQuadraticTriangle;
+class vtkQuadraticHexahedron;
 class vtkQuadraticQuad;
 class vtkQuadraticTetra;
-class vtkQuadraticHexahedron;
-class vtkConvexPointSet;
+class vtkQuadraticTriangle;
+class vtkTetra;
+class vtkTriangle;
+class vtkTriangleStrip;
+class vtkUnsignedCharArray;
+class vtkVertex;
+class vtkVoxel;
+class vtkWedge;
 
 class VTK_COMMON_EXPORT vtkUnstructuredGrid : public vtkPointSet {
 private:
@@ -124,9 +124,9 @@ public:
   // is useless but necessary since vtkDataSetToDataSetFilter does not
   // know what type of data it is working on.
   void SetUpdateExtent( int x1, int x2, int y1, int y2, int z1, int z2 )
-    { this->vtkPointSet::SetUpdateExtent( x1, x2, y1, y2, z1, z2 ); };
+    { this->Superclass::SetUpdateExtent( x1, x2, y1, y2, z1, z2 ); };
   void SetUpdateExtent( int ext[6] )
-    { this->vtkPointSet::SetUpdateExtent( ext ); };
+    { this->Superclass::SetUpdateExtent( ext ); };
 
 
   // Description:

@@ -124,8 +124,8 @@ protected:
   //ETX
   
 private:
-  vtkCollection(const vtkCollection&);
-  void operator=(const vtkCollection&);
+  vtkCollection(const vtkCollection&); // Not implemented
+  void operator=(const vtkCollection&); // Not implemented
 };
 
 

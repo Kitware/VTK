@@ -15,14 +15,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
 #include "vtkAbstractTransform.h"
+
+#include "vtkCriticalSection.h"
+#include "vtkDataArray.h"
+#include "vtkDebugLeaks.h"
 #include "vtkHomogeneousTransform.h"
 #include "vtkMath.h"
-#include "vtkDebugLeaks.h"
-#include "vtkCriticalSection.h"
+#include "vtkMatrix4x4.h"
+#include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkAbstractTransform, "1.22");
+vtkCxxRevisionMacro(vtkAbstractTransform, "1.23");
 
 //----------------------------------------------------------------------------
 vtkAbstractTransform::vtkAbstractTransform()
@@ -380,7 +383,7 @@ protected:
   void operator=(const vtkSimpleTransform&);
 };
 
-vtkCxxRevisionMacro(vtkSimpleTransform, "1.22");
+vtkCxxRevisionMacro(vtkSimpleTransform, "1.23");
 
 //----------------------------------------------------------------------------
 vtkTransformConcatenation::vtkTransformConcatenation()

@@ -37,10 +37,10 @@
 #define __vtkCellTypes_h
 
 #include "vtkObject.h"
-#include "vtkCellType.h"
-#include "vtkIntArray.h"
-#include "vtkUnsignedCharArray.h"
 
+#include "vtkIntArray.h" // Needed for inline methods
+#include "vtkUnsignedCharArray.h" // Needed for inline methods
+#include "vtkCellType.h" // Needed for VTK_EMPTY_CELL
 
 class VTK_COMMON_EXPORT vtkCellTypes : public vtkObject 
 {

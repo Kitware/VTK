@@ -24,7 +24,8 @@
 #define __vtkPolyVertex_h
 
 #include "vtkCell.h"
-#include "vtkVertex.h"
+
+class vtkVertex;
 
 class VTK_COMMON_EXPORT vtkPolyVertex : public vtkCell
 {

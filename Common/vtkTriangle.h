@@ -24,9 +24,11 @@
 #define __vtkTriangle_h
 
 #include "vtkCell.h"
-#include "vtkMath.h"
-#include "vtkLine.h"
-#include "vtkQuadric.h"
+
+#include "vtkMath.h" // Needed for inline methods
+
+class vtkLine;
+class vtkQuadric;
 
 class VTK_COMMON_EXPORT vtkTriangle : public vtkCell
 {

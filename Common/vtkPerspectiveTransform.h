@@ -47,6 +47,8 @@
 
 #include "vtkHomogeneousTransform.h"
 
+#include "vtkMatrix4x4.h" // Needed for inline methods
+
 class VTK_COMMON_EXPORT vtkPerspectiveTransform : public vtkHomogeneousTransform
 {
  public:
@@ -312,9 +314,10 @@ protected:
   vtkHomogeneousTransform *Input;
   vtkTransformConcatenation *Concatenation;
   vtkTransformConcatenationStack *Stack;
+
 private:
-  vtkPerspectiveTransform(const vtkPerspectiveTransform& t);  // Not implemented.
-  void operator=(const vtkPerspectiveTransform&);  // Not implemented.
+  vtkPerspectiveTransform(const vtkPerspectiveTransform&);  // Not implemented
+  void operator=(const vtkPerspectiveTransform&);  // Not implemented
 };
 
 

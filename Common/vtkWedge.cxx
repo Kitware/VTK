@@ -16,13 +16,19 @@
 
 =========================================================================*/
 #include "vtkWedge.h"
-#include "vtkMath.h"
-#include "vtkCellArray.h"
-#include "vtkPointLocator.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkWedge, "1.28");
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkLine.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPointLocator.h"
+#include "vtkQuad.h"
+#include "vtkTriangle.h"
+#include "vtkUnstructuredGrid.h"
+
+vtkCxxRevisionMacro(vtkWedge, "1.29");
 vtkStandardNewMacro(vtkWedge);
 
 static const float VTK_DIVERGED = 1.e6;

@@ -26,16 +26,15 @@
 #define __vtkMultiThreader_h
 
 #include "vtkObject.h"
-#include "vtkMutexLock.h"
 
 #ifdef VTK_USE_SPROC
-#include <sys/types.h>
-#include <unistd.h>
+//#include <sys/types.h>
+//#include <unistd.h>
 #endif
 
 #ifdef VTK_USE_PTHREADS
-#include <sys/types.h>
-#include <unistd.h>
+//#include <sys/types.h>
+//#include <unistd.h>
 #endif
 
 // If VTK_USE_SPROC is defined, then sproc() will be used to create
@@ -80,6 +79,8 @@ typedef int vtkThreadProcessIDType;
 // #define VTK_THREAD_RETURN_TYPE void
 #endif
 //ETX
+
+class vtkMutexLock;
 
 class VTK_COMMON_EXPORT vtkMultiThreader : public vtkObject 
 {

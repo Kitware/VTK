@@ -28,9 +28,9 @@
 #define __vtkTetra_h
 
 #include "vtkCell3D.h"
-#include "vtkLine.h"
-#include "vtkTriangle.h"
 
+class vtkLine;
+class vtkTriangle;
 class vtkUnstructuredGrid;
 
 class VTK_COMMON_EXPORT vtkTetra : public vtkCell3D

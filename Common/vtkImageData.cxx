@@ -16,26 +16,31 @@
 
 =========================================================================*/
 #include "vtkImageData.h"
-#include "vtkVertex.h"
-#include "vtkLine.h"
-#include "vtkPixel.h"
-#include "vtkVoxel.h"
-#include "vtkObjectFactory.h"
-#include "vtkExtentTranslator.h"
-#include "vtkLargeInteger.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkCharArray.h"
-#include "vtkUnsignedShortArray.h"
-#include "vtkShortArray.h"
-#include "vtkUnsignedIntArray.h"
-#include "vtkIntArray.h"
-#include "vtkUnsignedLongArray.h"
-#include "vtkLongArray.h"
-#include "vtkFloatArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkBitArray.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.142");
+#include "vtkBitArray.h"
+#include "vtkCellData.h"
+#include "vtkCharArray.h"
+#include "vtkDoubleArray.h"
+#include "vtkExtentTranslator.h"
+#include "vtkFloatArray.h"
+#include "vtkGenericCell.h"
+#include "vtkIntArray.h"
+#include "vtkLargeInteger.h"
+#include "vtkLine.h"
+#include "vtkLongArray.h"
+#include "vtkObjectFactory.h"
+#include "vtkPixel.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkShortArray.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkUnsignedIntArray.h"
+#include "vtkUnsignedLongArray.h"
+#include "vtkUnsignedShortArray.h"
+#include "vtkVertex.h"
+#include "vtkVoxel.h"
+
+vtkCxxRevisionMacro(vtkImageData, "1.143");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------

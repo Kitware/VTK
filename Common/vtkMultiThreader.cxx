@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkMultiThreader.h"
+
+#include "vtkMutexLock.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMultiThreader, "1.41");
+vtkCxxRevisionMacro(vtkMultiThreader, "1.42");
 vtkStandardNewMacro(vtkMultiThreader);
 
 // These are the includes necessary for multithreaded rendering on an SGI

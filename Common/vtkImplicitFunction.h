@@ -47,7 +47,8 @@
 #define __vtkImplicitFunction_h
 
 #include "vtkObject.h"
-#include "vtkAbstractTransform.h"
+
+class vtkAbstractTransform;
 
 class VTK_COMMON_EXPORT vtkImplicitFunction : public vtkObject
 {

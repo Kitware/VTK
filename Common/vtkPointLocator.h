@@ -40,11 +40,11 @@
 #define __vtkPointLocator_h
 
 #include "vtkLocator.h"
-#include "vtkPoints.h"
 
+class vtkCellArray;
 class vtkIdList;
 class vtkNeighborPoints;
-class vtkCellArray;
+class vtkPoints;
 
 class VTK_COMMON_EXPORT vtkPointLocator : public vtkLocator
 {

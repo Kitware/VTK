@@ -17,13 +17,15 @@
 =========================================================================*/
 #include "vtkAbstractMapper.h"
 
+#include "vtkCellData.h"
 #include "vtkDataSet.h"
 #include "vtkObjectFactory.h"
-#include "vtkPlanes.h"
 #include "vtkPlaneCollection.h"
+#include "vtkPlanes.h"
+#include "vtkPointData.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkAbstractMapper, "1.27");
+vtkCxxRevisionMacro(vtkAbstractMapper, "1.28");
 
 vtkCxxSetObjectMacro(vtkAbstractMapper,ClippingPlanes,vtkPlaneCollection);
 

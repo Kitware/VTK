@@ -26,10 +26,12 @@
 #define __vtkPolygon_h
 
 #include "vtkCell.h"
-#include "vtkPoints.h"
-#include "vtkLine.h"
-#include "vtkTriangle.h"
-#include "vtkQuad.h"
+
+class vtkFloatArray;
+class vtkLine;
+class vtkPoints;
+class vtkQuad;
+class vtkTriangle;
 
 class VTK_COMMON_EXPORT vtkPolygon : public vtkCell
 {

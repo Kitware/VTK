@@ -41,10 +41,13 @@
 #define __vtkDataSet_h
 
 #include "vtkDataObject.h"
-#include "vtkCellData.h"
-#include "vtkPointData.h"
-#include "vtkGenericCell.h"
-#include "vtkCellTypes.h"
+
+class vtkCell;
+class vtkCellData;
+class vtkCellTypes;
+class vtkGenericCell;
+class vtkIdList;
+class vtkPointData;
 
 class VTK_COMMON_EXPORT vtkDataSet : public vtkDataObject
 {

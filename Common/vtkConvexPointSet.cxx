@@ -16,16 +16,19 @@
 
 =========================================================================*/
 #include "vtkConvexPointSet.h"
-#include "vtkMath.h"
-#include "vtkCellArray.h"
-#include "vtkPointLocator.h"
-#include "vtkOrderedTriangulator.h"
-#include "vtkTetra.h"
-#include "vtkFloatArray.h"
-#include "vtkPointData.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkConvexPointSet, "1.14");
+#include "vtkCellArray.h"
+#include "vtkFloatArray.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkOrderedTriangulator.h"
+#include "vtkPointData.h"
+#include "vtkPointLocator.h"
+#include "vtkPoints.h"
+#include "vtkTetra.h"
+#include "vtkTriangle.h"
+
+vtkCxxRevisionMacro(vtkConvexPointSet, "1.15");
 vtkStandardNewMacro(vtkConvexPointSet);
 
 // Construct the hexahedron with eight points.

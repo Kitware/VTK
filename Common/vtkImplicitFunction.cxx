@@ -18,8 +18,9 @@
 #include "vtkImplicitFunction.h"
 
 #include "vtkMath.h"
+#include "vtkAbstractTransform.h"
 
-vtkCxxRevisionMacro(vtkImplicitFunction, "1.31");
+vtkCxxRevisionMacro(vtkImplicitFunction, "1.32");
 vtkCxxSetObjectMacro(vtkImplicitFunction,Transform,vtkAbstractTransform);
 
 vtkImplicitFunction::vtkImplicitFunction()

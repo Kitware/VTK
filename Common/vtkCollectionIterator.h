@@ -78,8 +78,8 @@ protected:
   vtkCollectionElement* Element;
   
 private:
-  vtkCollectionIterator(const vtkCollectionIterator&);
-  void operator=(const vtkCollectionIterator&);
+  vtkCollectionIterator(const vtkCollectionIterator&); // Not implemented
+  void operator=(const vtkCollectionIterator&); // Not implemented
 };
 
 #endif

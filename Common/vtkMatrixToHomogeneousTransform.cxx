@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkMatrixToHomogeneousTransform.h"
+
+#include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMatrixToHomogeneousTransform, "1.6");
+vtkCxxRevisionMacro(vtkMatrixToHomogeneousTransform, "1.7");
 vtkStandardNewMacro(vtkMatrixToHomogeneousTransform);
 vtkCxxSetObjectMacro(vtkMatrixToHomogeneousTransform,Input,vtkMatrix4x4);
 

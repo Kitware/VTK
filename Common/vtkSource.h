@@ -46,8 +46,8 @@
 #define __vtkSource_h
 
 #include "vtkProcessObject.h"
-#include "vtkDataObject.h"
 
+class vtkDataObject;
 class vtkErrorCode;
 
 class VTK_COMMON_EXPORT vtkSource : public vtkProcessObject

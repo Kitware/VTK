@@ -29,7 +29,9 @@
 #define __vtkActor2DCollection_h
 
 #include "vtkPropCollection.h"
-#include "vtkActor2D.h"
+
+#include "vtkActor2D.h" // Needed for inline methods
+
 class vtkViewport;
 
 class VTK_COMMON_EXPORT vtkActor2DCollection : public vtkPropCollection

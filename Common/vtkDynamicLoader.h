@@ -29,7 +29,7 @@
 // Ugly stuff for library handles
 // They are different on several different OS's
 #if defined(__hpux)
-# include <dl.h>
+# include <dl.h> // Needed for special dynamic loading on hp
   typedef shl_t vtkLibHandle;
 #elif defined(_WIN32)
   typedef HMODULE vtkLibHandle;

@@ -16,11 +16,16 @@
 
 =========================================================================*/
 #include "vtkPropAssembly.h"
-#include "vtkViewport.h"
-#include "vtkAssemblyNode.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPropAssembly, "1.20");
+#include "vtkAssemblyNode.h"
+#include "vtkAssemblyPath.h"
+#include "vtkAssemblyPaths.h"
+#include "vtkObjectFactory.h"
+#include "vtkProp.h"
+#include "vtkPropCollection.h"
+#include "vtkViewport.h"
+
+vtkCxxRevisionMacro(vtkPropAssembly, "1.21");
 vtkStandardNewMacro(vtkPropAssembly);
 
 // Construct object with no children.

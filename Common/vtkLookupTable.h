@@ -31,6 +31,8 @@
 
 #include "vtkScalarsToColors.h"
 
+#include "vtkUnsignedCharArray.h" // Needed for inline method
+
 #define VTK_RAMP_LINEAR 0
 #define VTK_RAMP_SCURVE 1
 #define VTK_RAMP_SQRT 2

@@ -26,7 +26,8 @@
 #define __vtkImplicitFunctionCollection_h
 
 #include "vtkCollection.h"
-#include "vtkImplicitFunction.h"
+
+#include "vtkImplicitFunction.h" // Needed for inline methods
 
 class VTK_COMMON_EXPORT vtkImplicitFunctionCollection : public vtkCollection
 {

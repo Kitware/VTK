@@ -24,7 +24,8 @@
 #define __vtkIdListCollection_h
 
 #include "vtkCollection.h"
-#include "vtkIdList.h"
+
+#include "vtkIdList.h" // Needed for inline methods
 
 class VTK_COMMON_EXPORT vtkIdListCollection : public vtkCollection
 {

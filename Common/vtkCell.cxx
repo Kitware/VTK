@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkCell.h"
-#include "vtkMarchingSquaresCases.h"
 
-vtkCxxRevisionMacro(vtkCell, "1.54");
+#include "vtkMarchingSquaresCases.h"
+#include "vtkPoints.h"
+
+vtkCxxRevisionMacro(vtkCell, "1.55");
 
 // Construct cell.
 vtkCell::vtkCell()

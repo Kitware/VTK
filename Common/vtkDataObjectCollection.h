@@ -24,7 +24,8 @@
 #define __vtkDataObjectCollection_h
 
 #include "vtkCollection.h"
-#include "vtkDataObject.h"
+
+#include "vtkDataObject.h" // Needed for inline methods
 
 class VTK_COMMON_EXPORT vtkDataObjectCollection : public vtkCollection
 {

@@ -26,7 +26,8 @@
 #define __vtkOverrideInformationCollection_h
 
 #include "vtkCollection.h"
-#include "vtkOverrideInformation.h"
+
+#include "vtkOverrideInformation.h" // Needed for inline methods
 
 class VTK_COMMON_EXPORT vtkOverrideInformationCollection : public vtkCollection
 {

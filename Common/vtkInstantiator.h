@@ -60,7 +60,7 @@
 
 // The vtkDebugLeaks singleton must be initialized before and
 // destroyed after the vtkInstantiator singleton.
-#include "vtkDebugLeaksManager.h"
+#include "vtkDebugLeaksManager.h" // Needed for proper singleton initialization
 
 class vtkInstantiatorInitialize;
 class vtkInstantiatorHashTable;

@@ -26,6 +26,9 @@
 // table logging.
 
 #include "vtkTimerLog.h"
+
+#include <stdarg.h>  // Needed for ...
+
 #ifndef _WIN32
 #include <limits.h>     // for CLK_TCK
 #include <sys/time.h>
@@ -38,7 +41,7 @@
 #endif
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTimerLog, "1.32");
+vtkCxxRevisionMacro(vtkTimerLog, "1.33");
 vtkStandardNewMacro(vtkTimerLog);
 
 // initialze the class variables

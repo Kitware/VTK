@@ -28,8 +28,9 @@
 #define __vtkTriangleStrip_h
 
 #include "vtkCell.h"
-#include "vtkLine.h"
-#include "vtkTriangle.h"
+
+class vtkLine;
+class vtkTriangle;
 
 class VTK_COMMON_EXPORT vtkTriangleStrip : public vtkCell
 {

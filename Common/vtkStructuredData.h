@@ -26,7 +26,8 @@
 #define __vtkStructuredData_h
 
 #include "vtkObject.h"
-#include "vtkIdList.h"
+
+class vtkIdList;
 
 #define VTK_UNCHANGED 0
 #define VTK_SINGLE_POINT 1

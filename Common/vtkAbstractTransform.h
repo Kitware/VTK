@@ -41,9 +41,13 @@
 #define __vtkAbstractTransform_h
 
 #include "vtkObject.h"
-#include "vtkMatrix4x4.h"
-#include "vtkPoints.h"
 
+
+//#include "vtkMatrix4x4.h"
+//#include "vtkPoints.h"
+class vtkDataArray;
+class vtkMatrix4x4;
+class vtkPoints;
 class vtkSimpleCriticalSection;
 
 

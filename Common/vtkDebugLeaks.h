@@ -30,8 +30,8 @@
 #define __vtkDebugLeaks_h
 
 #include "vtkObject.h"
-#include "vtkToolkits.h"
-#include "vtkDebugLeaksManager.h"
+
+#include "vtkDebugLeaksManager.h" // Needed for proper singleton initialization
 
 class vtkDebugLeaksHashTable;
 class vtkSimpleCriticalSection;

@@ -26,12 +26,14 @@
 #define __vtkImageData_h
 
 #include "vtkDataSet.h"
-#include "vtkStructuredData.h"
-class vtkVertex;
+
+#include "vtkStructuredData.h" // Needed for inline methods
+
+class vtkDataArray;
 class vtkLine;
 class vtkPixel;
+class vtkVertex;
 class vtkVoxel;
-
 
 class VTK_COMMON_EXPORT vtkImageData : public vtkDataSet
 {

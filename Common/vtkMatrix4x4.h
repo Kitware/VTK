@@ -190,8 +190,8 @@ protected:
   float FloatPoint[4];
   double DoublePoint[4];
 private:
-  vtkMatrix4x4(const vtkMatrix4x4&);  // Not implemented.
-  void operator= (const vtkMatrix4x4& source);  // Not implemented.
+  vtkMatrix4x4(const vtkMatrix4x4&);  // Not implemented
+  void operator= (const vtkMatrix4x4&);  // Not implemented
 };
 
 inline void vtkMatrix4x4::SetElement(int i, int j, double value)

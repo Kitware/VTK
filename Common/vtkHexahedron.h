@@ -29,8 +29,9 @@
 #define __vtkHexahedron_h
 
 #include "vtkCell3D.h"
-#include "vtkLine.h"
-#include "vtkQuad.h"
+
+class vtkLine;
+class vtkQuad;
 
 class VTK_COMMON_EXPORT vtkHexahedron : public vtkCell3D
 {

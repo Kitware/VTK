@@ -24,7 +24,8 @@
 #define __vtkPoints_h
 
 #include "vtkObject.h"
-#include "vtkDataArray.h"
+
+#include "vtkDataArray.h" // Needed for inline methods
 
 class vtkIdList;
 class vtkPoints;
@@ -221,11 +222,6 @@ inline vtkIdType vtkPoints::InsertNextPoint(double x, double y, double z)
   p[2] = z;
   return this->Data->InsertNextTuple(p);
 }
-
-
-// These include files are placed here so that if Points.h is included 
-// all other classes necessary for compilation are also included. 
-#include "vtkIdList.h"
 
 #endif
 

@@ -28,7 +28,8 @@
 #define __vtkHomogeneousTransform_h
 
 #include "vtkAbstractTransform.h"
-#include "vtkMatrix4x4.h"
+
+class vtkMatrix4x4;
 
 class VTK_COMMON_EXPORT vtkHomogeneousTransform : public vtkAbstractTransform
 {
@@ -93,6 +94,7 @@ protected:
   void InternalDeepCopy(vtkAbstractTransform *transform);
 
   vtkMatrix4x4 *Matrix;
+
 private:
   vtkHomogeneousTransform(const vtkHomogeneousTransform&);  // Not implemented.
   void operator=(const vtkHomogeneousTransform&);  // Not implemented.

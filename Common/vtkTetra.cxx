@@ -16,15 +16,18 @@
 
 =========================================================================*/
 #include "vtkTetra.h"
-#include "vtkMath.h"
-#include "vtkLine.h"
-#include "vtkTriangle.h"
-#include "vtkCellArray.h"
-#include "vtkPointLocator.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTetra, "1.74");
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkLine.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPointLocator.h"
+#include "vtkTriangle.h"
+#include "vtkUnstructuredGrid.h"
+
+vtkCxxRevisionMacro(vtkTetra, "1.75");
 vtkStandardNewMacro(vtkTetra);
 
 // Construct the tetra with four points.

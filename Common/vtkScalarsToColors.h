@@ -32,9 +32,9 @@
 #define __vtkScalarsToColors_h
 
 #include "vtkObject.h"
-#include "vtkUnsignedCharArray.h"
 
 class vtkDataArray;
+class vtkUnsignedCharArray;
 
 class VTK_COMMON_EXPORT vtkScalarsToColors : public vtkObject
 {

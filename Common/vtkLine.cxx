@@ -23,8 +23,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPointLocator.h"
+#include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkLine, "1.77");
+vtkCxxRevisionMacro(vtkLine, "1.78");
 vtkStandardNewMacro(vtkLine);
 
 // Construct the line with two points.

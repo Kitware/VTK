@@ -37,12 +37,13 @@
 #define __vtkNonLinearCell_h
 
 #include "vtkCell.h"
-#include "vtkPointLocator.h"
+
+#include "vtkPointLocator.h" // Needed for inline method
+#include "vtkPoints.h" // Needed for inline method
 
 class vtkPolyData;
 class vtkDataSet;
 class vtkUnstructuredGrid;
-
 
 class VTK_COMMON_EXPORT vtkNonLinearCell : public vtkCell
 {

@@ -46,7 +46,6 @@
 #define __vtkDataArray_h
 
 #include "vtkObject.h"
-#include "vtkLargeInteger.h"
 
 class vtkFloatArray;
 class vtkLookupTable;

@@ -36,7 +36,6 @@
 #ifndef __vtkWindowLevelLookupTable_h
 #define __vtkWindowLevelLookupTable_h
 
-#include "vtkObject.h"
 #include "vtkLookupTable.h"
 
 class VTK_COMMON_EXPORT vtkWindowLevelLookupTable : public vtkLookupTable

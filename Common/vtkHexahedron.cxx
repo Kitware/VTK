@@ -24,9 +24,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPointLocator.h"
+#include "vtkPoints.h"
 #include "vtkQuad.h"
 
-vtkCxxRevisionMacro(vtkHexahedron, "1.84");
+vtkCxxRevisionMacro(vtkHexahedron, "1.85");
 vtkStandardNewMacro(vtkHexahedron);
 
 static const float VTK_DIVERGED = 1.e6;

@@ -21,20 +21,20 @@
 // this program tests the CellBoundary method for each cell type
 
 #include "vtkDebugLeaks.h"
-
-#include "vtkIdList.h"
-#include "vtkVertex.h"
-#include "vtkVoxel.h"
-#include "vtkPolyVertex.h"
-#include "vtkTetra.h"
 #include "vtkHexahedron.h"
+#include "vtkIdList.h"
 #include "vtkLine.h"
-#include "vtkPolyLine.h"
-#include "vtkPolygon.h"
 #include "vtkPixel.h"
+#include "vtkPoints.h"
+#include "vtkPolyLine.h"
+#include "vtkPolyVertex.h"
+#include "vtkPolygon.h"
 #include "vtkQuad.h"
+#include "vtkTetra.h"
 #include "vtkTriangle.h"
 #include "vtkTriangleStrip.h"
+#include "vtkVertex.h"
+#include "vtkVoxel.h"
 
 int TestOCB(ostream& strm)
 {

@@ -16,12 +16,15 @@
 
 =========================================================================*/
 #include "vtkOrderedTriangulator.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkTetra.h"
-#include "vtkEdgeTable.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.45");
+#include "vtkCellArray.h"
+#include "vtkEdgeTable.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkTetra.h"
+#include "vtkUnstructuredGrid.h"
+
+vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.46");
 vtkStandardNewMacro(vtkOrderedTriangulator);
 
 #ifdef _WIN32_WCE

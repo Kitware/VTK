@@ -27,7 +27,6 @@
 #ifndef __vtkDataSetAttributes_h
 #define __vtkDataSetAttributes_h
 
-#include "vtkObject.h"
 #include "vtkFieldData.h"
 
 class VTK_COMMON_EXPORT vtkDataSetAttributes : public vtkFieldData

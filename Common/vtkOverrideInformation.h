@@ -25,7 +25,8 @@
 #define __vtkOverrideInformation_h
 
 #include "vtkObject.h"
-#include "vtkObjectFactory.h"
+
+class vtkObjectFactory;
 
 class VTK_COMMON_EXPORT vtkOverrideInformation : public vtkObject
 {

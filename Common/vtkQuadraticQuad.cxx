@@ -16,15 +16,18 @@
 
 =========================================================================*/
 #include "vtkQuadraticQuad.h"
-#include "vtkPolyData.h"
-#include "vtkPointLocator.h"
-#include "vtkMath.h"
-#include "vtkQuadraticEdge.h"
-#include "vtkQuad.h"
-#include "vtkFloatArray.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticQuad, "1.14");
+#include "vtkCellData.h"
+#include "vtkFloatArray.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPointLocator.h"
+#include "vtkPolyData.h"
+#include "vtkQuad.h"
+#include "vtkQuadraticEdge.h"
+
+vtkCxxRevisionMacro(vtkQuadraticQuad, "1.15");
 vtkStandardNewMacro(vtkQuadraticQuad);
 
 // Construct the line with two points.

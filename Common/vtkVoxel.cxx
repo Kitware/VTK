@@ -25,8 +25,9 @@
 #include "vtkPixel.h"
 #include "vtkPointData.h"
 #include "vtkPointLocator.h"
+#include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkVoxel, "1.75");
+vtkCxxRevisionMacro(vtkVoxel, "1.76");
 vtkStandardNewMacro(vtkVoxel);
 
 // Construct the voxel with eight points.

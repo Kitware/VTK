@@ -30,7 +30,8 @@
 #define __vtkMatrixToLinearTransform_h
 
 #include "vtkLinearTransform.h"
-#include "vtkMatrix4x4.h"
+
+class vtkMatrix4x4;
 
 class VTK_COMMON_EXPORT vtkMatrixToLinearTransform : public vtkLinearTransform
 {

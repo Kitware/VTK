@@ -16,21 +16,23 @@
 
 =========================================================================*/
 #include "vtkPoints.h"
-#include "vtkObjectFactory.h"
+
 #include "vtkBitArray.h"
 #include "vtkCharArray.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkShortArray.h"
-#include "vtkUnsignedShortArray.h"
-#include "vtkIntArray.h"
-#include "vtkUnsignedIntArray.h"
-#include "vtkLongArray.h"
-#include "vtkUnsignedLongArray.h"
-#include "vtkFloatArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
+#include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
+#include "vtkIntArray.h"
+#include "vtkLongArray.h"
+#include "vtkObjectFactory.h"
+#include "vtkShortArray.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkUnsignedIntArray.h"
+#include "vtkUnsignedLongArray.h"
+#include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkPoints, "1.46");
+vtkCxxRevisionMacro(vtkPoints, "1.47");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.

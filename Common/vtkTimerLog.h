@@ -28,25 +28,24 @@
 #ifndef __vtkTimerLog_h
 #define __vtkTimerLog_h
 
- #include "vtkSystemIncludes.h"
+#include "vtkObject.h"
 
 #ifdef _WIN32
 #ifndef _WIN32_WCE
-#include <sys/types.h>
-#include <sys/timeb.h>
+#include <sys/types.h> // Needed for Win32 implementation of timer
+#include <sys/timeb.h> // Needed for Win32 implementation of timer
 #endif
 #else
-#include <time.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <sys/times.h>
+#include <time.h>      // Needed for unix implementation of timer
+#include <sys/time.h>  // Needed for unix implementation of timer
+#include <sys/types.h> // Needed for unix implementation of timer
+#include <sys/times.h> // Needed for unix implementation of timer
 #endif
 
 // var args
 #ifndef _WIN32
-#include <unistd.h>
+#include <unistd.h>    // Needed for unix implementation of timer
 #endif
-#include <stdarg.h>
 
 // select stuff here is for sleep method
 #ifndef NO_FD_SET
@@ -63,7 +62,6 @@
 #endif
 
 
-#include "vtkObject.h"
 #define VTK_LOG_EVENT_LENGTH 40
 
 //BTX

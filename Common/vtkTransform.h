@@ -47,7 +47,8 @@
 #define __vtkTransform_h
 
 #include "vtkLinearTransform.h"
-#include "vtkMatrix4x4.h"
+
+#include "vtkMatrix4x4.h" // Needed for inline methods
 
 class VTK_COMMON_EXPORT vtkTransform : public vtkLinearTransform
 {
@@ -311,8 +312,8 @@ protected:
   double DoublePoint[4];
   float ReturnValue[4];
 private:
-  vtkTransform (const vtkTransform& t);  // Not implemented.
-  void operator=(const vtkTransform&);  // Not implemented.
+  vtkTransform (const vtkTransform&);  // Not implemented
+  void operator=(const vtkTransform&);  // Not implemented
 };
 
 #endif

@@ -41,6 +41,8 @@
 #include "vtkImplicitFunction.h"
 
 class vtkPlane;
+class vtkPoints;
+class vtkDataArray;
 
 class VTK_COMMON_EXPORT vtkPlanes : public vtkImplicitFunction
 {

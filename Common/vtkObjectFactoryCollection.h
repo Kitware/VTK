@@ -27,8 +27,8 @@
 #define __vtkObjectFactoryCollection_h
 
 #include "vtkCollection.h"
-#include "vtkObjectFactory.h"
-#include "vtkDebugLeaks.h"
+
+#include "vtkObjectFactory.h" // Needed for inline methods
 
 class VTK_COMMON_EXPORT vtkObjectFactoryCollection : public vtkCollection
 {
@@ -43,7 +43,8 @@ public:
   // Description:
   // Get the next ObjectFactory in the list. Return NULL when the end of the
   // list is reached.
-  vtkObjectFactory *GetNextItem() { return static_cast<vtkObjectFactory *>(this->GetNextItemAsObject());}
+  vtkObjectFactory *GetNextItem() 
+    { return static_cast<vtkObjectFactory *>(this->GetNextItemAsObject());}
 
 protected:
   vtkObjectFactoryCollection() {};

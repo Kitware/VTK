@@ -31,6 +31,8 @@
 
 #include "vtkDataSet.h"
 
+#include "vtkPoints.h" // Needed for inline methods
+
 class vtkPointLocator;
 
 class VTK_COMMON_EXPORT vtkPointSet : public vtkDataSet

@@ -39,7 +39,8 @@
 #define __vtkPriorityQueue_h
 
 #include "vtkObject.h"
-#include "vtkIdTypeArray.h"
+
+#include "vtkIdTypeArray.h" // Needed for inline methods
 
 class VTK_COMMON_EXPORT vtkPriorityQueue : public vtkObject
 {

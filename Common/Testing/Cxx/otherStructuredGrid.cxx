@@ -20,13 +20,16 @@
 // .SECTION Description
 // this program tests vtkStructuredGrid
 
-#include "vtkStructuredGrid.h"
-#include "vtkFloatArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkLongArray.h"
-#include "vtkShortArray.h"
-
+#include "vtkCell.h"
 #include "vtkDebugLeaks.h"
+#include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
+#include "vtkGenericCell.h"
+#include "vtkIdList.h"
+#include "vtkLongArray.h"
+#include "vtkPointData.h"
+#include "vtkShortArray.h"
+#include "vtkStructuredGrid.h"
 
 int TestOSG(ostream& strm)
 {

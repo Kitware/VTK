@@ -29,10 +29,10 @@
 #define __vtkPyramid_h
 
 #include "vtkCell3D.h"
-#include "vtkLine.h"
-#include "vtkTriangle.h"
-#include "vtkQuad.h"
 
+class vtkLine;
+class vtkQuad;
+class vtkTriangle;
 class vtkUnstructuredGrid;
 
 class VTK_COMMON_EXPORT vtkPyramid : public vtkCell3D

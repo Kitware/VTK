@@ -41,17 +41,17 @@
 //BTX
 
 #ifdef VTK_USE_SPROC
-#include <abi_mutex.h>
+#include <abi_mutex.h> // Needed for sproc implementation of mutex
 typedef abilock_t vtkCritSecType;
 #endif
 
 #ifdef VTK_USE_PTHREADS
-#include <pthread.h>
+#include <pthread.h> // Needed for pthreads implementation of mutex
 typedef pthread_mutex_t vtkCritSecType;
 #endif
  
 #ifdef VTK_USE_WIN32_THREADS
-#include <winbase.h>
+#include <winbase.h> // Needed for win32 implementation of mutex
 typedef CRITICAL_SECTION vtkCritSecType;
 #endif
 

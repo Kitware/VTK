@@ -16,13 +16,15 @@
 
 =========================================================================*/
 #include "vtkPointLocator.h"
-#include "vtkMath.h"
-#include "vtkIntArray.h"
-#include "vtkPolyData.h"
-#include "vtkObjectFactory.h"
-#include "vtkIdList.h"
 
-vtkCxxRevisionMacro(vtkPointLocator, "1.61");
+#include "vtkCellArray.h"
+#include "vtkIdList.h"
+#include "vtkIntArray.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
+
+vtkCxxRevisionMacro(vtkPointLocator, "1.62");
 vtkStandardNewMacro(vtkPointLocator);
 
 static const int VTK_INITIAL_SIZE=1000;

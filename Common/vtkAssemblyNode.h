@@ -46,8 +46,9 @@
 #define __vtkAssemblyNode_h
 
 #include "vtkObject.h"
-#include "vtkProp.h"
-#include "vtkMatrix4x4.h"
+
+class vtkProp;
+class vtkMatrix4x4;
 
 class VTK_COMMON_EXPORT vtkAssemblyNode : public vtkObject
 {
@@ -81,14 +82,14 @@ public:
 protected:
   vtkAssemblyNode();
   ~vtkAssemblyNode();
-  vtkAssemblyNode(const vtkAssemblyNode&);
+
 private:
   vtkProp *Prop; //reference to vtkProp
   vtkMatrix4x4 *Matrix; //associated matrix
   
 private:
-  void operator=(const vtkAssemblyNode&);  // Not implemented.
-  // Not implemented.
+  void operator=(const vtkAssemblyNode&); // Not implemented.
+  vtkAssemblyNode(const vtkAssemblyNode&); // Not implemented.
 };
 
 #endif

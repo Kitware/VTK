@@ -16,15 +16,21 @@
 
 =========================================================================*/
 #include "vtkRectilinearGrid.h"
-#include "vtkVertex.h"
-#include "vtkLine.h"
-#include "vtkPixel.h"
-#include "vtkVoxel.h"
-#include "vtkObjectFactory.h"
-#include "vtkFloatArray.h"
-#include "vtkExtentTranslator.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGrid, "1.57");
+#include "vtkCellData.h"
+#include "vtkExtentTranslator.h"
+#include "vtkFloatArray.h"
+#include "vtkGenericCell.h"
+#include "vtkLine.h"
+#include "vtkObjectFactory.h"
+#include "vtkPixel.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkVertex.h"
+#include "vtkVoxel.h"
+
+vtkCxxRevisionMacro(vtkRectilinearGrid, "1.58");
 vtkStandardNewMacro(vtkRectilinearGrid);
 
 vtkCxxSetObjectMacro(vtkRectilinearGrid,XCoordinates,vtkDataArray);

@@ -51,8 +51,8 @@ protected:
   ~vtkDataArrayCollectionIterator();  
   
 private:
-  vtkDataArrayCollectionIterator(const vtkDataArrayCollectionIterator&);
-  void operator=(const vtkDataArrayCollectionIterator&);
+  vtkDataArrayCollectionIterator(const vtkDataArrayCollectionIterator&); // Not implemented
+  void operator=(const vtkDataArrayCollectionIterator&); // Not implemented
 };
 
 #endif

@@ -16,12 +16,14 @@
 
 =========================================================================*/
 #include "vtkCellLinks.h"
-#include "vtkDataSet.h"
-#include "vtkCellArray.h"
-#include "vtkPolyData.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCellLinks, "1.26");
+#include "vtkCellArray.h"
+#include "vtkDataSet.h"
+#include "vtkGenericCell.h"
+#include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
+
+vtkCxxRevisionMacro(vtkCellLinks, "1.27");
 vtkStandardNewMacro(vtkCellLinks);
 
 void vtkCellLinks::Allocate(vtkIdType sz, vtkIdType ext)

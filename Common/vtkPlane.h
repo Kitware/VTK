@@ -25,7 +25,6 @@
 #ifndef __vtkPlane_h
 #define __vtkPlane_h
 
-#include <math.h>
 #include "vtkImplicitFunction.h"
 
 class VTK_COMMON_EXPORT vtkPlane : public vtkImplicitFunction
@@ -126,8 +125,9 @@ inline float vtkPlane::Evaluate(double normal[3], double origin[3],double x[3])
 
 inline float vtkPlane::DistanceToPlane(float x[3], float n[3], float p0[3])
 {
-  return ((float) fabs(n[0]*(x[0]-p0[0]) + n[1]*(x[1]-p0[1]) + 
-                       n[2]*(x[2]-p0[2])));
+#define vtkPlaneAbs(x) ((x)<0?-(x):(x))
+  return ((float) vtkPlaneAbs(n[0]*(x[0]-p0[0]) + n[1]*(x[1]-p0[1]) + 
+                              n[2]*(x[2]-p0[2])));
 }
 
 #endif

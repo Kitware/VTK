@@ -26,7 +26,8 @@
 #define __vtkPixel_h
 
 #include "vtkCell.h"
-#include "vtkLine.h"
+
+class vtkLine;
 
 class VTK_COMMON_EXPORT vtkPixel : public vtkCell
 {

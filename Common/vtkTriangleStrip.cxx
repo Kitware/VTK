@@ -16,12 +16,15 @@
 
 =========================================================================*/
 #include "vtkTriangleStrip.h"
+
 #include "vtkCellArray.h"
+#include "vtkFloatArray.h"
 #include "vtkLine.h"
 #include "vtkObjectFactory.h"
-#include "vtkFloatArray.h"
+#include "vtkTriangle.h"
+#include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkTriangleStrip, "1.70");
+vtkCxxRevisionMacro(vtkTriangleStrip, "1.71");
 vtkStandardNewMacro(vtkTriangleStrip);
 
 vtkTriangleStrip::vtkTriangleStrip()

@@ -28,7 +28,8 @@
 #define __vtkTransformCollection_h
 
 #include "vtkCollection.h"
-#include "vtkTransform.h"
+
+#include "vtkTransform.h" // Needed for inline methods
 
 class VTK_COMMON_EXPORT vtkTransformCollection : public vtkCollection
 {

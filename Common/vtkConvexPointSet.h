@@ -28,8 +28,6 @@
 #define __vtkConvexPointSet_h
 
 #include "vtkCell3D.h"
-#include "vtkLine.h"
-#include "vtkTriangle.h"
 
 class vtkUnstructuredGrid;
 class vtkCellArray;

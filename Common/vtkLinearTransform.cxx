@@ -16,9 +16,13 @@
 
 =========================================================================*/
 #include "vtkLinearTransform.h"
-#include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkLinearTransform, "1.31");
+#include "vtkDataArray.h"
+#include "vtkMath.h"
+#include "vtkMatrix4x4.h"
+#include "vtkPoints.h"
+
+vtkCxxRevisionMacro(vtkLinearTransform, "1.32");
 
 //------------------------------------------------------------------------
 void vtkLinearTransform::PrintSelf(ostream& os, vtkIndent indent)

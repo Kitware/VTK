@@ -26,8 +26,9 @@
 #define __vtkVoxel_h
 
 #include "vtkCell3D.h"
-#include "vtkLine.h"
-#include "vtkPixel.h"
+
+class vtkLine;
+class vtkPixel;
 
 class VTK_COMMON_EXPORT vtkVoxel : public vtkCell3D
 {

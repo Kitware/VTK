@@ -16,11 +16,18 @@
 
 =========================================================================*/
 #include "vtkDataSet.h"
+
+#include "vtkCell.h"
+#include "vtkCellData.h"
+#include "vtkCellTypes.h"
+#include "vtkGenericCell.h"
+#include "vtkIdList.h"
+#include "vtkPointData.h"
 #include "vtkSource.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkDataSet, "1.89");
+vtkCxxRevisionMacro(vtkDataSet, "1.90");
 
 //----------------------------------------------------------------------------
 // Constructor with default bounds (0,1, 0,1, 0,1).

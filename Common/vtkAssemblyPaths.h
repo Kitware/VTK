@@ -28,7 +28,8 @@
 #define __vtkAssemblyPaths_h
 
 #include "vtkCollection.h"
-#include "vtkAssemblyPath.h"
+
+#include "vtkAssemblyPath.h" // Needed for inline methods
 
 class vtkProp;
 

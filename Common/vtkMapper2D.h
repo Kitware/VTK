@@ -27,7 +27,6 @@
 #define __vtkMapper2D_h
 
 #include "vtkAbstractMapper.h"
-#include "vtkWindow.h"
 
 class vtkViewport;
 class vtkActor2D;

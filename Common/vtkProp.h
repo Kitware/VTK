@@ -29,12 +29,13 @@
 #define __vtkProp_h
 
 #include "vtkObject.h"
-#include "vtkAssemblyPaths.h"
 
-class vtkViewport;
-class vtkPropCollection;
-class vtkWindow;
+class vtkAssemblyPath;
+class vtkAssemblyPaths;
 class vtkMatrix4x4;
+class vtkPropCollection;
+class vtkViewport;
+class vtkWindow;
 
 class VTK_COMMON_EXPORT vtkProp : public vtkObject
 {

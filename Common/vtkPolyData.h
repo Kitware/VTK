@@ -38,10 +38,9 @@
 #define __vtkPolyData_h
 
 #include "vtkPointSet.h"
-#include "vtkPoints.h"
-#include "vtkCellArray.h"
-#include "vtkCellTypes.h"
-#include "vtkCellLinks.h"
+
+#include "vtkCellTypes.h" // Needed for inline methods
+#include "vtkCellLinks.h" // Needed for inline methods
 
 class vtkVertex;
 class vtkPolyVertex;
@@ -52,8 +51,6 @@ class vtkQuad;
 class vtkPolygon;
 class vtkTriangleStrip;
 class vtkEmptyCell;
-
-
 
 class VTK_COMMON_EXPORT vtkPolyData : public vtkPointSet 
 {

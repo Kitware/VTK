@@ -33,11 +33,12 @@
 #define __vtkViewport_h
 
 #include "vtkObject.h"
-#include "vtkPropCollection.h"
-#include "vtkActor2DCollection.h"
 
-class vtkWindow;
+class vtkActor2DCollection;
 class vtkAssemblyPath;
+class vtkProp;
+class vtkPropCollection;
+class vtkWindow;
 
 class VTK_COMMON_EXPORT vtkViewport : public vtkObject
 {

@@ -25,9 +25,11 @@
 #include "vtkPlane.h"
 #include "vtkPointData.h"
 #include "vtkPointLocator.h"
+#include "vtkPoints.h"
 #include "vtkPolygon.h"
+#include "vtkQuadric.h"
 
-vtkCxxRevisionMacro(vtkTriangle, "1.91");
+vtkCxxRevisionMacro(vtkTriangle, "1.92");
 vtkStandardNewMacro(vtkTriangle);
 
 // Construct the triangle with three points.
