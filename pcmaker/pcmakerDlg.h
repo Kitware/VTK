@@ -20,6 +20,8 @@ public:
 	BOOL	m_Contrib;
 	BOOL	m_Graphics;
 	BOOL	m_Imaging;
+	BOOL	m_GenericComp;
+	CString	m_WhereCompiler;
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides

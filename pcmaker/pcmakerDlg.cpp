@@ -24,10 +24,12 @@ CPcmakerDlg::CPcmakerDlg(CWnd* pParent /*=NULL*/)
 	m_WhereVTK = _T("");
 	m_WhereBuild = _T("");
 	m_BorlandComp = FALSE;
-	m_MSComp = TRUE;
+	m_MSComp = FALSE;
 	m_Contrib = TRUE;
 	m_Graphics = TRUE;
 	m_Imaging = TRUE;
+	m_GenericComp = TRUE;
+	m_WhereCompiler = _T("");
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -46,6 +48,9 @@ void CPcmakerDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_Contrib, m_Contrib);
 	DDX_Check(pDX, IDC_Graphics, m_Graphics);
 	DDX_Check(pDX, IDC_Imaging, m_Imaging);
+	DDX_Check(pDX, IDC_GenericComp, m_GenericComp);
+	DDX_Text(pDX, IDC_WHERECOMPILER, m_WhereCompiler);
+	DDV_MaxChars(pDX, m_WhereCompiler, 40);
 	//}}AFX_DATA_MAP
 }
 
@@ -63,8 +68,7 @@ BOOL CPcmakerDlg::OnInitDialog()
 {
 	this->m_WhereBuild = "C:\\vtkbin";
 	this->m_WhereVTK = "C:\\vtk";
-	//this->m_MSComp = TRUE;
-	//this->m_BorlandComp = FALSE;
+  this->m_WhereCompiler = "C:\\msdev";
 	CDialog::OnInitDialog();
 
 	// Set the icon for this dialog.  The framework does this automatically
@@ -114,7 +118,8 @@ HCURSOR CPcmakerDlg::OnQueryDragIcon()
 }
 
 extern void makeMakefile(const char *vtkHome, 
-			 const char *vtkBuild, int useMS, int useGeneric,
+			 const char *vtkBuild, const char *vtkCompiler, 
+       int useMS, int useGeneric,
 			 int useGraphics, int useImaging, int useContrib);
 
 void CPcmakerDlg::OnOK() 
@@ -138,13 +143,36 @@ void CPcmakerDlg::OnOK()
     }
   fclose(fp);
   
+  // make sure we can find the include files
+  sprintf(fname,"%s\\include\\stdio.h",this->m_WhereCompiler);
+  fp = fopen(fname,"r");
+  if (!fp)
+    {
+    sprintf(msg, "Unable to find %s !!!\nMake sure you correctly specified the location of your compiler.",
+      fname);
+    AfxMessageBox(msg);
+    return;
+    }
+  fclose(fp);
+
+  // make sure we can find opengl.lib files
+  sprintf(fname,"%s\\lib\\opengl32.lib",this->m_WhereCompiler);
+  fp = fopen(fname,"r");
+  if (!fp)
+    {
+    sprintf(msg, "Unable to find %s !!!\nMake sure you correctly specified the location of your compiler.\nIf your compiler location is correct, make sure you have a copy\n of opengl32.lib and glaux.lib in the lib subdirectory.", fname);
+    AfxMessageBox(msg);
+    return;
+    }
+  fclose(fp);
+
   // make sure only one compile is specified
-  if (this->m_MSComp && this->m_BorlandComp)
+  if ((this->m_MSComp + this->m_BorlandComp + this->m_GenericComp) > 1)
     {
     AfxMessageBox("Please specify only one compiler.");
     return;
     }
-  if (!this->m_MSComp && !this->m_BorlandComp)
+  if (!this->m_MSComp && !this->m_BorlandComp && !this->m_GenericComp)
     {
     AfxMessageBox("Please specify a compiler.");
     return;
@@ -155,7 +183,7 @@ void CPcmakerDlg::OnOK()
   if (_stat(this->m_WhereBuild,&statBuff) == -1)
     {
     // it didn't exist should we create it
-    sprintf(msg,"The build directory %s does not exist. Would you like me to create it ?",
+    sprintf(msg,"The build directory %s does not exist.\nWould you like me to create it ?",
             this->m_WhereBuild);
     if (AfxMessageBox(msg,MB_YESNO) == IDNO) return;
     if (_mkdir(this->m_WhereBuild) == -1)
@@ -174,8 +202,8 @@ void CPcmakerDlg::OnOK()
   sprintf(fname,"%s\\vtktcl\\src",this->m_WhereBuild);
   if (_stat(fname,&statBuff) == -1) _mkdir(fname);
   
-  makeMakefile(this->m_WhereVTK, this->m_WhereBuild, this->m_MSComp,
-	       this->m_GenericComp,
+  makeMakefile(this->m_WhereVTK, this->m_WhereBuild, this->m_WhereCompiler, 
+               this->m_MSComp, this->m_GenericComp,
 	       this->m_Graphics, this->m_Imaging, this->m_Contrib);
 
   CDialog::OnOK();

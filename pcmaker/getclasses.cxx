@@ -244,17 +244,38 @@ void MakeInit(char *fname, char *argv1)
   }
 }
 
+void MakeForce(char *fname)
+{
+  int i;
+  FILE *fp;
+
+  fp = fopen(fname,"w");
+  if (fp)
+  {
+ 	  for (i = 0; i < num_abstract_h; i++)
+	  {
+		fprintf(fp,"#include \"%s.h\"\n",abstract_h[i]);
+    }
+ 	  for (i = 0; i < num_concrete_h; i++)
+	  {
+		fprintf(fp,"#include \"%s.h\"\n",concrete_h[i]);
+    }  
+  fclose(fp);
+  }
+}
+
 void doMSHeader(FILE *fp, const char *vtkHome,
-                const char *vtkBuild);
+                const char *vtkBuild, const char *vtkCompiler);
 void doMSTclHeader(FILE *fp, const char *vtkHome,
-		   const char *vtkBuild);
+		   const char *vtkBuild, const char *vtkCompiler);
 void doHeader(FILE *fp, const char *vtkHome,
-	      const char *vtkBuild);
+	      const char *vtkBuild, const char *vtkCompiler);
 void doTclHeader(FILE *fp, const char *vtkHome,
-		 const char *vtkBuild);
+		 const char *vtkBuild, const char *vtkCompiler);
 
 
 void makeMakefile(const char *vtkHome, const char *vtkBuild,
+                  const char *vtkCompiler,
                   int useMS, int useGeneric,
 		  int useGraphics, int useImaging, int useContrib)
 {
@@ -321,17 +342,21 @@ void makeMakefile(const char *vtkHome, const char *vtkBuild,
   sprintf(fname,"%s\\vtktcl\\src\\vtktcl.cxx",vtkBuild);
   MakeInit(fname,"Vtktcl");
 
+  // we must create vtkPCForce.cxx
+  sprintf(fname,"%s\\vtkdll\\vtkPCForce.cxx",vtkBuild);
+  MakeForce(fname);
+
   // spit out a Makefile
-  sprintf(fname,"%s\\vtkdll\\vtkdll.mak",vtkBuild);
+  sprintf(fname,"%s\\vtkdll\\makefile",vtkBuild);
   ofp = fopen(fname,"w");
-  if (useGeneric) doHeader(ofp, vtkHome, vtkBuild);
-  if (useMS) doMSHeader(ofp, vtkHome, vtkBuild);
+  if (useGeneric) doHeader(ofp, vtkHome, vtkBuild, vtkCompiler);
+  if (useMS) doMSHeader(ofp, vtkHome, vtkBuild, vtkCompiler);
   fclose(ofp);
   
-  sprintf(fname,"%s\\vtktcl\\vtktcl.mak",vtkBuild);
+  sprintf(fname,"%s\\vtktcl\\makefile",vtkBuild);
   ofp = fopen(fname,"w");
-  if (useGeneric) doTclHeader(ofp, vtkHome, vtkBuild);
-  if (useMS) doMSTclHeader(ofp, vtkHome, vtkBuild);
+  if (useGeneric) doTclHeader(ofp, vtkHome, vtkBuild, vtkCompiler);
+  if (useMS) doMSTclHeader(ofp, vtkHome, vtkBuild, vtkCompiler);
   fclose(ofp);
   
 }
@@ -342,7 +367,7 @@ void makeMakefile(const char *vtkHome, const char *vtkBuild,
   Here are the different makefile methods
 *******************************************************************************/
 void doHeader(FILE *fp, const char *vtkHome,
-                const char *vtkBuild)
+              const char *vtkBuild, const char *vtkCompiler)
 {
   int i;
 
@@ -356,16 +381,19 @@ void doHeader(FILE *fp, const char *vtkHome,
   fprintf(fp,"\"$(OUTDIR)\" :\n");
   fprintf(fp,"    if not exist \"$(OUTDIR)/$(NULL)\" mkdir \"$(OUTDIR)\"\n");
   fprintf(fp,"\n");
-  fprintf(fp,"CPP_PROJ=/nologo /MD /GX /O2 /I \"%s\\common\" /I \"%s\\graphics\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
-    vtkHome,vtkHome);
-  fprintf(fp," \"_WINDOWS\" /D \"_WINDLL\" /D \"_AFXDLL\" /D \"_MBCS\" /D \"_USRDLL\" /D \"VTKDLL\"\\\n");
+  fprintf(fp,"CPP_PROJ=/nologo /MD /GX /O2 /I \"%s\\mfc\\include\" /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
+    vtkCompiler, vtkCompiler, vtkHome, vtkHome);
+  fprintf(fp," \"_WINDOWS\" /D \"_DLL\" /D \"_WINDLL\" /D \"_USRDLL\" /D \"_MBCS\" /D \"VTKDLL\"\\\n");
   fprintf(fp," /YX /Fo\"$(OUTDIR)/\" /c \n");
   fprintf(fp,"LINK32=link.exe\n");
-  fprintf(fp,"LINK32_FLAGS=opengl32.lib glaux.lib /nologo /version:1.3 /subsystem:windows\\\n");
+  fprintf(fp,"LINK32_FLAGS=/libpath:%s\\mfc\\lib /libpath:%s\\lib %s\\lib\\opengl32.lib %s\\lib\\glaux.lib /nologo /version:1.3 /subsystem:windows\\\n",
+    vtkCompiler, vtkCompiler, vtkCompiler, vtkCompiler);
   fprintf(fp," /dll /incremental:no /machine:I386\\\n");
   fprintf(fp," /out:\"$(OUTDIR)/vtkdll.dll\" /implib:\"$(OUTDIR)/vtkdll.lib\" \n");
   fprintf(fp,"LINK32_OBJS= \\\n");
   fprintf(fp,"    \"$(OUTDIR)\\StdAfx.obj\" \\\n");
+  fprintf(fp,"    \"$(OUTDIR)\\vtkdll.obj\" \\\n");
+  fprintf(fp,"    \"$(OUTDIR)\\vtkPCForce.obj\" \\\n");
   for (i = 0; i < num_abstract; i++)
   {
     fprintf(fp,"    \"$(OUTDIR)\\%s.obj\" \\\n",abstract[i]);
@@ -401,9 +429,9 @@ void doHeader(FILE *fp, const char *vtkHome,
   fprintf(fp,"################################################################################\n");
   fprintf(fp,"\n");
   fprintf(fp,"BuildCmds= \\\n");
-  fprintf(fp,"	$(CPP) /nologo /MD /GX /O2 /I \"%s\\common\" /I \"%s\\graphics\" /D \"NDEBUG\" /D \"WIN32\" /D \"_WINDOWS\"\\\n",
-    vtkHome,vtkHome);
-  fprintf(fp," /D \"_WINDLL\" /D \"_AFXDLL\" /D \"_MBCS\" /D \"_USRDLL\" /D \"VTKDLL\"\\\n");
+  fprintf(fp,"	$(CPP) /nologo /MD /GX /O2 /I \"%s\\mfc\\include\" /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /D \"NDEBUG\" /D \"WIN32\" /D \"_WINDOWS\"\\\n",
+    vtkCompiler, vtkCompiler, vtkHome,vtkHome);
+  fprintf(fp," /D \"_WINDLL\" /D \"_DLL\" /D \"_MBCS\" /D \"_USRDLL\" /D \"VTKDLL\"\\\n");
   fprintf(fp," /Fp\"$(OUTDIR)/vtkdll.pch\" /Yc\"stdafx.h\" /Fo\"$(OUTDIR)/\" /c %s\\vtkdll\\StdAfx.cpp \\\n",
 	  vtkHome);
   fprintf(fp,"	\n");
@@ -412,6 +440,11 @@ void doHeader(FILE *fp, const char *vtkHome,
 	  vtkHome);
   fprintf(fp,"   $(BuildCmds)\n");
   fprintf(fp,"\n");
+  fprintf(fp,"\"$(OUTDIR)\\vtkPCForce.obj\" : vtkPCForce.cxx \"$(OUTDIR)\"\n");
+  fprintf(fp,"  $(CPP) $(CPP_PROJ) vtkPCForce.cxx\n\n");
+  fprintf(fp,"\"$(OUTDIR)\\vtkdll.obj\" : %s\\vtkdll\\vtkdll.cpp \"$(OUTDIR)\"\n",
+	    vtkHome);
+  fprintf(fp,"  $(CPP) $(CPP_PROJ) %s\\vtkdll\\vtkdll.cpp\n\n",vtkHome);
 
   for (i = 0; i < num_abstract; i++)
   {
@@ -431,7 +464,7 @@ void doHeader(FILE *fp, const char *vtkHome,
 }
 
 void doTclHeader(FILE *fp, const char *vtkHome,
-		   const char *vtkBuild)
+		   const char *vtkBuild, const char *vtkCompiler)
 {
   int i;
 
@@ -446,19 +479,13 @@ void doTclHeader(FILE *fp, const char *vtkHome,
   fprintf(fp,"    if not exist \"$(OUTDIR)/$(NULL)\" mkdir \"$(OUTDIR)\"\n");
   fprintf(fp,"\n");
 
-  fprintf(fp,"!IF \"$(OS)\" == \"Windows_NT\"\n");
-  fprintf(fp,"NULL=\n");
-  fprintf(fp,"!ELSE \n");
-  fprintf(fp,"NULL=nul\n");
-  fprintf(fp,"!ENDIF \n");
-
-  fprintf(fp,"CPP_PROJ=/nologo /MD /GX /O2 /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
-    vtkHome, vtkHome, vtkHome, vtkHome, vtkHome);
-  fprintf(fp," \"_WINDOWS\" /D \"_WINDLL\" /D \"_AFXDLL\" /D \"_MBCS\" /D \"_USRDLL\"\\\n");
-  fprintf(fp," /Fp\"$(OUTDIR)/vtkdll.pch\" /YX /Fo\"$(OUTDIR)/\" /c \n");
+  fprintf(fp,"CPP_PROJ=/nologo /MD /GX /O2 /I \"%s\\mfc\\include\" /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
+    vtkCompiler, vtkCompiler, vtkHome, vtkHome, vtkHome, vtkHome, vtkHome);
+  fprintf(fp," \"_WINDOWS\" /D \"_DLL\" /D \"_WINDLL\" /D \"_USRDLL\" /D \"_MBCS\" \\\n");
+  fprintf(fp," /Fp\"$(OUTDIR)/vtktcl.pch\" /YX /Fo\"$(OUTDIR)/\" /c \n");
   fprintf(fp,"LINK32=link.exe\n");
-  fprintf(fp,"LINK32_FLAGS= mfcs42.lib msvcrt.lib ..\\vtkdll\\obj\\vtkdll.lib %s\\pcmaker\\tk42.lib %s\\pcmaker\\tcl76.lib /nologo /version:1.3 /subsystem:windows\\\n",
-	  vtkHome, vtkHome);
+  fprintf(fp,"LINK32_FLAGS=/libpath:%s\\mfc\\lib /libpath:%s\\lib ..\\vtkdll\\obj\\vtkdll.lib %s\\pcmaker\\tk42.lib %s\\pcmaker\\tcl76.lib /nologo /version:1.3 /subsystem:windows\\\n",
+	  vtkCompiler, vtkCompiler, vtkHome, vtkHome);
   fprintf(fp," /dll /incremental:no /pdb:\"$(OUTDIR)/vtktcl.pdb\" /machine:I386\\\n");
   fprintf(fp," /out:\"$(OUTDIR)/vtktcl.dll\" /implib:\"$(OUTDIR)/vtktcl.lib\" \n");
   fprintf(fp,"LINK32_OBJS= \\\n");
@@ -568,7 +595,7 @@ void doTclHeader(FILE *fp, const char *vtkHome,
 }
 
 void doMSHeader(FILE *fp, const char *vtkHome,
-                const char *vtkBuild)
+                const char *vtkBuild, const char *vtkCompiler)
 {
   int i;
 
@@ -889,7 +916,7 @@ void doMSHeader(FILE *fp, const char *vtkHome,
 }
 
 void doMSTclHeader(FILE *fp, const char *vtkHome,
-		   const char *vtkBuild)
+		   const char *vtkBuild, const char *vtkCompiler)
 {
   int i;
 
