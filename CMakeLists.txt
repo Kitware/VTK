@@ -33,7 +33,7 @@ LINK_DIRECTORIES(.)
 INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkDependentOption.cmake)
 INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkThirdParty.cmake)
 INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkExportKit.cmake)
-INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkMakeInstatiator.cmake)
+INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkMakeInstantiator.cmake)
 
 #-----------------------------------------------------------------------------
 # Platform configuration tests.
@@ -893,12 +893,15 @@ ENDIF(VTK_USE_PARALLEL)
 
 # Install cmake extensions so user projects can load them.
 INSTALL_FILES(/lib/vtk/CMake FILES
-              ${VTK_SOURCE_DIR}/CMake/vtkLoadCMakeExtensions.cmake)
+  ${VTK_SOURCE_DIR}/CMake/vtkLoadCMakeExtensions.cmake 
+  ${VTK_SOURCE_DIR}/CMake/vtkMakeInstantiator.cmake
+  ${VTK_SOURCE_DIR}/CMake/vtkMakeInstantiator.h.in
+  ${VTK_SOURCE_DIR}/CMake/vtkMakeInstantiator.cxx.in)
 FOREACH(cmd VTK_WRAP_TCL2 VTK_WRAP_PYTHON2 VTK_WRAP_JAVA2
-            VTK_GENERATE_JAVA_DEPENDENCIES)
+    VTK_GENERATE_JAVA_DEPENDENCIES)
   INSTALL_FILES(/lib/vtk/CMake FILES
     "${VTK_BINARY_DIR}/CMake/${CMAKE_SHARED_MODULE_PREFIX}cm${cmd}${CMAKE_SHARED_MODULE_SUFFIX}"
-  )
+    )
 ENDFOREACH(cmd)
 
 # Save the compiler settings so another project can import them.
