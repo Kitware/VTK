@@ -75,7 +75,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <string.h>
 
-struct vrmlPointerNode
+#include "vtkWin32Header.h"
+
+struct VTK_EXPORT vrmlPointerNode
 {
   void* Ptr;
   vrmlPointerNode* Next;
@@ -86,88 +88,25 @@ struct vrmlPointerNode
     }
 };
 
-class vrmlPointerList
+class VTK_EXPORT vrmlPointerList
 {
 public:
 
-  void Add(vrmlPointerNode* node)
-    {
-      node->Next = 0;
-      if (!this->Last)
-	{
-	this->Last = node;
-	this->First = node;
-	return;
-	}
-      this->Last->Next = node;
-      this->Last = node;
-    }
+  void Add(vrmlPointerNode* node);
+  
+  void CleanAll();
 
-  void CleanAll()
-    {
-      this->Current = this->First;
-      if (!this->Current) { return; }
-      while (this->DeleteAndNext());
-    }
+  vrmlPointerNode* DeleteAndNext();
 
-  vrmlPointerNode* DeleteAndNext()
-    {
-      if (this->Current)
-	{
-	vrmlPointerNode* tmp = this->Current;
-	this->Current = this->Current->Next;
-	if (tmp->Ptr)
-	  {
-	  free(tmp->Ptr);
-	  }
-	delete tmp;
-	return this->Current;
-	}
-      else
-	{
-	return 0;
-	}
-    }
+  vrmlPointerList();
+  ~vrmlPointerList();
 
-  vrmlPointerList()
-    {
-      this->First = 0;
-      this->Last = 0;
-      this->Current = 0;
-    }
-  ~vrmlPointerList()
-    {
-      this->CleanAll();
-    }
+  static void Initialize();
+  static void CleanUp();
 
-  static void Initialize()
-    {
-      if (!Heap)
-	{
-	Heap = new vrmlPointerList;
-	}
-    }
-  static void CleanUp()
-    {
-      delete Heap;
-      Heap = 0;
-    }
+  static void* AllocateMemory(size_t n);
 
-  static void* AllocateMemory(size_t n)
-    {
-      vrmlPointerNode* node = new vrmlPointerNode;
-      node->Ptr = malloc(n);
-      vrmlPointerList::Heap->Add(node);
-      return node->Ptr;
-    }
-
-  static char* StrDup(const char* str)
-    {
-      vrmlPointerNode* node = new vrmlPointerNode;
-      node->Ptr = strdup(str);
-      vrmlPointerList::Heap->Add(node);
-      return static_cast<char*>(node->Ptr);
-    }
+  static char* StrDup(const char* str);
 
 protected:
   vrmlPointerNode* First;
@@ -179,7 +118,7 @@ protected:
 };
 
 template <class T> 
-class VectorType
+class VTK_EXPORT VectorType
 {
 protected:
   T *Data;
