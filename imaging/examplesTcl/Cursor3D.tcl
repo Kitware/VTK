@@ -135,8 +135,8 @@ vtkVolumeRayCastMapper volumeMapper
     volumeMapper SetVolumeRayCastFunction compositeFunction
 
 vtkVolume volume
-    volume SetVolumeMapper volumeMapper
-    volume SetVolumeProperty volumeProperty
+    volume SetMapper volumeMapper
+    volume SetProperty volumeProperty
 
 # Create outline
 vtkOutlineFilter outline
