@@ -325,6 +325,11 @@ void vtkInputPort::UpdateInformation()
   this->Controller->Receive( &pmt, 1, 
                              this->RemoteProcessId,
                              vtkInputPort::INFORMATION_TRANSFER_TAG);
+  int maxNumPieces;
+  this->Controller->Receive( &maxNumPieces, 1, 
+                             this->RemoteProcessId,
+                             vtkInputPort::INFORMATION_TRANSFER_TAG);
+  output->SetMaximumNumberOfPieces(maxNumPieces);
 
   output->SetWholeExtent( wholeInformation );
     

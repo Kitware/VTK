@@ -146,6 +146,10 @@ void vtkOutputPort::TriggerUpdateInformation(int remoteProcessId)
   
   this->Controller->Send( &mtime, 1,
                           remoteProcessId, vtkInputPort::INFORMATION_TRANSFER_TAG );
+
+  int maxNumPieces = input->GetMaximumNumberOfPieces();
+  this->Controller->Send( &maxNumPieces, 1,
+                          remoteProcessId, vtkInputPort::INFORMATION_TRANSFER_TAG );
 }
 
 
