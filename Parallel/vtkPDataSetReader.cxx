@@ -469,7 +469,7 @@ void vtkPDataSetReader::ExecuteInformation()
     this->ReadPVTKFileInformation(file);
     this->VTKFileFlag = 0;
     }
-  else if (type == 4 && strncmp(value, "# vtk DataFile Version", 22) != 0)
+  else if (type == 4 && strncmp(value, "# vtk DataFile Version", 22) == 0)
     {
     // This is a vtk file not a PVTK file.
     this->ReadVTKFileInformation(file);
