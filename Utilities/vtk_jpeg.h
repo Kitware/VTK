@@ -18,7 +18,19 @@
 /* Use the jpeg library configured for VTK.  */
 #include "vtkToolkits.h"
 #ifdef VTK_USE_SYSTEM_JPEG
+  /* Work-around for a conflict between windows.h and jpeglib.h in cygwin.
+     If ADDRESS_TAG_BIT is defined then BaseTsd.h has been included and
+     INT32 has been defined with a typedef, so we must define XMD_H to
+     prevent the jpeg header from defining it again.  */
+# if defined(__CYGWIN__) && defined(ADDRESS_TAG_BIT) && !defined(XMD_H)
+#  define XMD_H
+#  define VTK_JPEG_XMD_H
+# endif
 # include <jpeglib.h>
+# if defined(VTK_JPEG_XMD_H)
+#  undef VTK_JPEG_XMD_H
+#  undef XMD_H
+# endif
 #else
 # include <vtkjpeg/jpeglib.h>
 #endif
