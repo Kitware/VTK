@@ -10,7 +10,7 @@ proc Pick {} {
   aRIB SetFilePrefix $RIBPrefix$frame
   aRIB SetTexturePrefix $RIBPrefix$frame
   aRIB BackgroundOn
-  aRIB SetInput renWin
+  aRIB SetRenderWindow renWin
   aRIB Write
   set frame [expr $frame + 1]
 }
