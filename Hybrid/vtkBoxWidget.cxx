@@ -37,7 +37,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkBoxWidget, "1.33");
+vtkCxxRevisionMacro(vtkBoxWidget, "1.34");
 vtkStandardNewMacro(vtkBoxWidget);
 
 vtkBoxWidget::vtkBoxWidget()
@@ -165,12 +165,6 @@ vtkBoxWidget::vtkBoxWidget()
   this->CurrentHandle = NULL;
 
   this->Transform = vtkTransform::New();
-
-  // set this to some sane default
-  this->InitialPropCenter[0] = this->InitialPropCenter[1] =
-      this->InitialPropCenter[2] = 0.0;
-  
- 
 }
 
 vtkBoxWidget::~vtkBoxWidget()
@@ -1166,20 +1160,6 @@ void vtkBoxWidget::PlaceWidget(float bds[6])
                              (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
                              (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
 
-  if (this->Prop3D)
-    {
-    propcenter = this->Prop3D->GetCenter();
-    for (i=0; i<3; i++)
-      {
-      this->InitialPropCenter[i] = propcenter[i];
-      }
-    }
-  else
-    {
-    this->InitialPropCenter[0] = this->InitialPropCenter[1] =
-        this->InitialPropCenter[2] = 0.0;
-    }
-      
   this->PositionHandles();
   this->ComputeNormals();
   this->SizeHandles();
@@ -1194,6 +1174,7 @@ void vtkBoxWidget::GetTransform(vtkTransform *t)
   double *p4 = pts + 3*4;
   double *p14 = pts + 3*14;
   double center[3], translate[3], scale[3], scaleVec[3][3];
+  double InitialCenter[3];
   float  position[3];
   int i;
 
@@ -1204,15 +1185,17 @@ void vtkBoxWidget::GetTransform(vtkTransform *t)
   // Translation
   for (i=0; i<3; i++)
     {
-    center[i] = p14[i] - 
+    InitialCenter[i] = 
       (this->InitialBounds[2*i+1]+this->InitialBounds[2*i]) / 2.0;
+    center[i] = p14[i] - InitialCenter[i];
     }
   if ( this->Prop3D ) //add in 
     {
-    this->Prop3D->GetPosition(position);
-    translate[0] = center[0] + position[0] + this->InitialPropCenter[0];
-    translate[1] = center[1] + position[1] + this->InitialPropCenter[1];
-    translate[2] = center[2] + position[2] + this->InitialPropCenter[2];
+    // the InitialCenter coincides with the initial prop GetCenter(), which
+    // is handy since we don't have to store the initial prop GetCenter()
+    translate[0] = center[0] + InitialCenter[0];
+    translate[1] = center[1] + InitialCenter[1];
+    translate[2] = center[2] + InitialCenter[2];
     }
   else
     {
@@ -1254,9 +1237,12 @@ void vtkBoxWidget::GetTransform(vtkTransform *t)
   
   if ( this->Prop3D ) //add in 
     {
-    t->Translate(-position[0] - this->InitialPropCenter[0],
-                 -position[1] - this->InitialPropCenter[1],
-                 -position[2] - this->InitialPropCenter[2]);
+    // At the very beginning, remove translation due to prop position and
+    // center of rotation imposed by the box itself (the initial box center
+    // coincides with the prop center)
+    t->Translate(- InitialCenter[0],
+                 - InitialCenter[1],
+                 - InitialCenter[2]);
     }
 }
 

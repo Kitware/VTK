@@ -309,15 +309,6 @@ protected:
   int ScalingEnabled;
   int RotationEnabled;
 
-  // This is to store the PropCenter at the same time as the InitialBounds.
-  // We need this to correctly handle off-centre PolyData.  Remember that
-  // GetTransform() yields a transform relative to first BoxWidget placement:
-  // this is also the reason that we need to store the Prop3D center at
-  // placement as Prop3D->GetCenter() can yield a transformed center if
-  // SetUserTransform() has been called, a popular use-case for the
-  // vtkBoxWidget.
-  float InitialPropCenter[6];
-
 private:
   vtkBoxWidget(const vtkBoxWidget&);  //Not implemented
   void operator=(const vtkBoxWidget&);  //Not implemented
