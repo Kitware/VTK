@@ -55,9 +55,9 @@
 
 #undef  FT_USE_MODULE
 #ifdef __cplusplus
-#define FT_USE_MODULE( x )  extern "C" const FT_Module_Class x;
+#define FT_USE_MODULE( x )  extern "C" const FT_Module_Class*  x;
 #else
-#define FT_USE_MODULE( x )  extern const FT_Module_Class x;
+#define FT_USE_MODULE( x )  extern const FT_Module_Class*  x;
 #endif
 
 
@@ -93,7 +93,7 @@
       /* notify errors, but don't stop */
       if ( error )
       {
-        FT_ERROR(( "FT_Add_Default_Module: Cannot install `%s', error = %x\n",
+        FT_ERROR(( "FT_Add_Default_Module: Cannot install `%s', error = 0x%x\n",
                    (*cur)->module_name, error ));
       }
       cur++;

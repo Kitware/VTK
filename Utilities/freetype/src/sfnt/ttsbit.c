@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    TrueType and OpenType embedded bitmap support (body).                */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002 by                                           */
+/*  Copyright 1996-2001, 2002, 2003, 2004 by                               */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -377,7 +377,7 @@
   /*************************************************************************/
   /*                                                                       */
   /* <Function>                                                            */
-  /*    TT_Load_SBit_Strikes                                               */
+  /*    tt_face_load_sbit_strikes                                          */
   /*                                                                       */
   /* <Description>                                                         */
   /*    Loads the table of embedded bitmap sizes for this face.            */
@@ -391,8 +391,8 @@
   /*    FreeType error code.  0 means success.                             */
   /*                                                                       */
   FT_LOCAL_DEF( FT_Error )
-  TT_Load_SBit_Strikes( TT_Face    face,
-                        FT_Stream  stream )
+  tt_face_load_sbit_strikes( TT_Face    face,
+                             FT_Stream  stream )
   {
     FT_Error   error  = 0;
     FT_Memory  memory = stream->memory;
@@ -471,7 +471,7 @@
     if ( version     != 0x00020000L ||
          num_strikes >= 0x10000L    )
     {
-      FT_ERROR(( "TT_Load_SBit_Strikes: invalid table version!\n" ));
+      FT_ERROR(( "tt_face_load_sbit_strikes: invalid table version!\n" ));
       error = SFNT_Err_Invalid_File_Format;
 
       goto Exit;
@@ -577,7 +577,7 @@
   /*************************************************************************/
   /*                                                                       */
   /* <Function>                                                            */
-  /*    TT_Free_SBit_Strikes                                               */
+  /*    tt_face_free_sbit_strikes                                          */
   /*                                                                       */
   /* <Description>                                                         */
   /*    Releases the embedded bitmap tables.                               */
@@ -586,7 +586,7 @@
   /*    face :: The target face object.                                    */
   /*                                                                       */
   FT_LOCAL_DEF( void )
-  TT_Free_SBit_Strikes( TT_Face  face )
+  tt_face_free_sbit_strikes( TT_Face  face )
   {
     FT_Memory       memory       = face->root.memory;
     TT_SBit_Strike  strike       = face->sbit_strikes;
@@ -621,23 +621,23 @@
 
 
   FT_LOCAL_DEF( FT_Error )
-  TT_Set_SBit_Strike( TT_Face    face,
-                      FT_Int     x_ppem,
-                      FT_Int     y_ppem,
-                      FT_ULong  *astrike_index )
+  tt_face_set_sbit_strike( TT_Face    face,
+                           FT_UInt    x_ppem,
+                           FT_UInt    y_ppem,
+                           FT_ULong  *astrike_index )
   {
-    FT_Int  i;
+    FT_ULong  i;
 
 
-    if ( x_ppem < 0 || x_ppem > 255 ||
+    if ( x_ppem > 255 ||
          y_ppem < 1 || y_ppem > 255 )
       return SFNT_Err_Invalid_PPem;
 
     for ( i = 0; i < face->num_sbit_strikes; i++ )
     {
-      if ( ( face->sbit_strikes[i].y_ppem  == y_ppem )    &&
-           ( ( x_ppem == 0 )                            ||
-             ( face->sbit_strikes[i].x_ppem == x_ppem ) ) )
+      if ( ( (FT_UInt)face->sbit_strikes[i].y_ppem == y_ppem )     &&
+           ( ( x_ppem == 0 )                                     ||
+             ( (FT_UInt)face->sbit_strikes[i].x_ppem == x_ppem ) ) )
       {
         *astrike_index = i;
         return SFNT_Err_Ok;
@@ -651,7 +651,7 @@
   /*************************************************************************/
   /*                                                                       */
   /* <Function>                                                            */
-  /*    Find_SBit_Range                                                    */
+  /*    find_sbit_range                                                    */
   /*                                                                       */
   /* <Description>                                                         */
   /*    Scans a given strike's ranges and return, for a given glyph        */
@@ -671,7 +671,7 @@
   /*    FreeType error code.  0 means the glyph index was found.           */
   /*                                                                       */
   static FT_Error
-  Find_SBit_Range( FT_UInt          glyph_index,
+  find_sbit_range( FT_UInt          glyph_index,
                    TT_SBit_Strike   strike,
                    TT_SBit_Range   *arange,
                    FT_ULong        *aglyph_offset )
@@ -754,7 +754,7 @@
   /*************************************************************************/
   /*                                                                       */
   /* <Function>                                                            */
-  /*    Find_SBit_Image                                                    */
+  /*    tt_find_sbit_image                                                 */
   /*                                                                       */
   /* <Description>                                                         */
   /*    Checks whether an embedded bitmap (an `sbit') exists for a given   */
@@ -779,25 +779,25 @@
   /*    SFNT_Err_Invalid_Argument if no sbit exists for the requested      */
   /*    glyph.                                                             */
   /*                                                                       */
-  static FT_Error
-  Find_SBit_Image( TT_Face          face,
-                   FT_UInt          glyph_index,
-                   FT_ULong         strike_index,
-                   TT_SBit_Range   *arange,
-                   TT_SBit_Strike  *astrike,
-                   FT_ULong        *aglyph_offset )
+  FT_LOCAL( FT_Error )
+  tt_find_sbit_image( TT_Face          face,
+                      FT_UInt          glyph_index,
+                      FT_ULong         strike_index,
+                      TT_SBit_Range   *arange,
+                      TT_SBit_Strike  *astrike,
+                      FT_ULong        *aglyph_offset )
   {
     FT_Error        error;
     TT_SBit_Strike  strike;
 
 
-    if ( !face->sbit_strikes                                ||
-         ( face->num_sbit_strikes <= (FT_Int)strike_index ) )
+    if ( !face->sbit_strikes                        ||
+         ( face->num_sbit_strikes <= strike_index ) )
       goto Fail;
 
     strike = &face->sbit_strikes[strike_index];
 
-    error = Find_SBit_Range( glyph_index, strike,
+    error = find_sbit_range( glyph_index, strike,
                              arange, aglyph_offset );
     if ( error )
       goto Fail;
@@ -819,7 +819,7 @@
   /*************************************************************************/
   /*                                                                       */
   /* <Function>                                                            */
-  /*    Load_SBit_Metrics                                                  */
+  /*    tt_load_sbit_metrics                                               */
   /*                                                                       */
   /* <Description>                                                         */
   /*    Gets the big metrics for a given SBit.                             */
@@ -843,10 +843,10 @@
   /*    positioned just after the metrics header in the `EBDT' table on    */
   /*    function exit.                                                     */
   /*                                                                       */
-  static FT_Error
-  Load_SBit_Metrics( FT_Stream        stream,
-                     TT_SBit_Range    range,
-                     TT_SBit_Metrics  metrics )
+  FT_LOCAL( FT_Error )
+  tt_load_sbit_metrics( FT_Stream        stream,
+                        TT_SBit_Range    range,
+                        TT_SBit_Metrics  metrics )
   {
     FT_Error  error = SFNT_Err_Ok;
 
@@ -918,7 +918,7 @@
   /*************************************************************************/
   /*                                                                       */
   /* <Function>                                                            */
-  /*    Crop_Bitmap                                                        */
+  /*    crop_bitmap                                                        */
   /*                                                                       */
   /* <Description>                                                         */
   /*    Crops a bitmap to its tightest bounding box, and adjusts its       */
@@ -930,7 +930,7 @@
   /*    metrics :: The corresponding metrics structure.                    */
   /*                                                                       */
   static void
-  Crop_Bitmap( FT_Bitmap*       map,
+  crop_bitmap( FT_Bitmap*       map,
                TT_SBit_Metrics  metrics )
   {
     /***********************************************************************/
@@ -1116,7 +1116,7 @@
     map->width      = 0;
     map->rows       = 0;
     map->pitch      = 0;
-    map->pixel_mode = ft_pixel_mode_mono;
+    map->pixel_mode = FT_PIXEL_MODE_MONO;
   }
 
 
@@ -1212,29 +1212,30 @@
                    TT_SBit_Range    range,
                    FT_ULong         ebdt_pos,
                    FT_ULong         glyph_offset,
-                   FT_Bitmap*       map,
+                   FT_GlyphSlot     slot,
                    FT_Int           x_offset,
                    FT_Int           y_offset,
                    FT_Stream        stream,
-                   TT_SBit_Metrics  metrics )
+                   TT_SBit_Metrics  metrics,
+                   FT_Int           depth )
   {
-    FT_Memory  memory = stream->memory;
-    FT_Error   error;
+    FT_Memory   memory = stream->memory;
+    FT_Bitmap*  map    = &slot->bitmap;
+    FT_Error    error;
 
 
     /* place stream at beginning of glyph data and read metrics */
     if ( FT_STREAM_SEEK( ebdt_pos + glyph_offset ) )
       goto Exit;
 
-    error = Load_SBit_Metrics( stream, range, metrics );
+    error = tt_load_sbit_metrics( stream, range, metrics );
     if ( error )
       goto Exit;
 
-    /* this function is recursive.  At the top-level call, the */
-    /* field map.buffer is NULL.  We thus begin by finding the */
-    /* dimensions of the higher-level glyph to allocate the    */
-    /* final pixmap buffer                                     */
-    if ( map->buffer == 0 )
+    /* This function is recursive.  At the top-level call, we  */
+    /* compute the dimensions of the higher-level glyph to     */
+    /* allocate the final pixmap buffer.                       */
+    if ( depth == 0 )
     {
       FT_Long  size;
 
@@ -1245,22 +1246,22 @@
       switch ( strike->bit_depth )
       {
       case 1:
-        map->pixel_mode = ft_pixel_mode_mono;
+        map->pixel_mode = FT_PIXEL_MODE_MONO;
         map->pitch      = ( map->width + 7 ) >> 3;
         break;
 
       case 2:
-        map->pixel_mode = ft_pixel_mode_pal2;
+        map->pixel_mode = FT_PIXEL_MODE_GRAY2;
         map->pitch      = ( map->width + 3 ) >> 2;
         break;
 
       case 4:
-        map->pixel_mode = ft_pixel_mode_pal4;
+        map->pixel_mode = FT_PIXEL_MODE_GRAY4;
         map->pitch      = ( map->width + 1 ) >> 1;
         break;
 
       case 8:
-        map->pixel_mode = ft_pixel_mode_grays;
+        map->pixel_mode = FT_PIXEL_MODE_GRAY;
         map->pitch      = map->width;
         break;
 
@@ -1274,7 +1275,8 @@
       if ( size == 0 )
         goto Exit;     /* exit successfully! */
 
-      if ( FT_ALLOC( map->buffer, size ) )
+      error = ft_glyphslot_alloc_bitmap( slot, size );
+      if (error)
         goto Exit;
     }
 
@@ -1336,7 +1338,7 @@
 
 
         /* find the range for this element */
-        error = Find_SBit_Range( comp->glyph_code,
+        error = find_sbit_range( comp->glyph_code,
                                  strike,
                                  &elem_range,
                                  &elem_offset );
@@ -1348,11 +1350,12 @@
                                  elem_range,
                                  ebdt_pos,
                                  elem_offset,
-                                 map,
+                                 slot,
                                  x_offset + comp->x_offset,
                                  y_offset + comp->y_offset,
                                  stream,
-                                 &elem_metrics );
+                                 &elem_metrics,
+                                 depth + 1 );
         if ( error )
           goto Fail_Memory;
       }
@@ -1369,7 +1372,7 @@
   /*************************************************************************/
   /*                                                                       */
   /* <Function>                                                            */
-  /*    TT_Load_SBit_Image                                                 */
+  /*    tt_face_load_sbit_image                                            */
   /*                                                                       */
   /* <Description>                                                         */
   /*    Loads a given glyph sbit image from the font resource.  This also  */
@@ -1400,16 +1403,15 @@
   /*    The `map.buffer' field is always freed before the glyph is loaded. */
   /*                                                                       */
   FT_LOCAL_DEF( FT_Error )
-  TT_Load_SBit_Image( TT_Face              face,
-                      FT_ULong             strike_index,
-                      FT_UInt              glyph_index,
-                      FT_UInt              load_flags,
-                      FT_Stream            stream,
-                      FT_Bitmap           *map,
-                      TT_SBit_MetricsRec  *metrics )
+  tt_face_load_sbit_image( TT_Face              face,
+                           FT_ULong             strike_index,
+                           FT_UInt              glyph_index,
+                           FT_UInt              load_flags,
+                           FT_Stream            stream,
+                           FT_Bitmap           *map,
+                           TT_SBit_MetricsRec  *metrics )
   {
     FT_Error        error;
-    FT_Memory       memory = stream->memory;
     FT_ULong        ebdt_pos, glyph_offset;
 
     TT_SBit_Strike  strike;
@@ -1417,8 +1419,8 @@
 
 
     /* Check whether there is a glyph sbit for the current index */
-    error = Find_SBit_Image( face, glyph_index, strike_index,
-                             &range, &strike, &glyph_offset );
+    error = tt_find_sbit_image( face, glyph_index, strike_index,
+                                &range, &strike, &glyph_offset );
     if ( error )
       goto Exit;
 
@@ -1432,19 +1434,10 @@
 
     ebdt_pos = FT_STREAM_POS();
 
-    /* clear the bitmap & load the bitmap */
-    if ( face->root.glyph->flags & FT_GLYPH_OWN_BITMAP )
-      FT_FREE( map->buffer );
-
-    map->rows = map->pitch = map->width = 0;
-
     error = Load_SBit_Image( strike, range, ebdt_pos, glyph_offset,
-                             map, 0, 0, stream, metrics );
+                             face->root.glyph, 0, 0, stream, metrics, 0 );
     if ( error )
       goto Exit;
-
-    /* the glyph slot owns this bitmap buffer */
-    face->root.glyph->flags |= FT_GLYPH_OWN_BITMAP;
 
     /* setup vertical metrics if needed */
     if ( strike->flags & 1 )
@@ -1464,7 +1457,7 @@
 
     /* Crop the bitmap now, unless specified otherwise */
     if ( load_flags & FT_LOAD_CROP_BITMAP )
-      Crop_Bitmap( map, metrics );
+      crop_bitmap( map, metrics );
 
   Exit:
     return error;

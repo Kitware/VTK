@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    High-level SFNT driver interface (body).                             */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002 by                                           */
+/*  Copyright 1996-2001, 2002, 2003, 2004 by                               */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -22,8 +22,9 @@
 
 #include "sfdriver.h"
 #include "ttload.h"
-#include "ttcmap.h"
 #include "sfobjs.h"
+
+#include "sferrors.h"
 
 #ifdef TT_CONFIG_OPTION_EMBEDDED_BITMAPS
 #include "ttsbit.h"
@@ -33,6 +34,18 @@
 #include "ttpost.h"
 #endif
 
+#include "ttcmap0.h"
+
+#include FT_SERVICE_GLYPH_DICT_H
+#include FT_SERVICE_POSTSCRIPT_NAME_H
+#include FT_SERVICE_SFNT_H
+#include FT_SERVICE_TT_CMAP_H
+
+
+ /*
+  *  SFNT TABLE SERVICE
+  *
+  */
 
   static void*
   get_sfnt_table( TT_Face      face,
@@ -79,11 +92,22 @@
   }
 
 
+  static const FT_Service_SFNT_TableRec  sfnt_service_sfnt_table =
+  {
+    (FT_SFNT_TableLoadFunc)tt_face_load_any,
+    (FT_SFNT_TableGetFunc) get_sfnt_table
+  };
+
+
 #ifdef TT_CONFIG_OPTION_POSTSCRIPT_NAMES
 
+ /*
+  *  GLYPH DICT SERVICE
+  *
+  */
 
   static FT_Error
-  get_sfnt_glyph_name( TT_Face     face,
+  sfnt_get_glyph_name( TT_Face     face,
                        FT_UInt     glyph_index,
                        FT_Pointer  buffer,
                        FT_UInt     buffer_max )
@@ -92,7 +116,7 @@
     FT_Error    error;
 
 
-    error = TT_Get_PS_Name( face, glyph_index, &gname );
+    error = tt_face_get_ps_name( face, glyph_index, &gname );
     if ( !error && buffer_max > 0 )
     {
       FT_UInt  len = (FT_UInt)( ft_strlen( gname ) );
@@ -109,16 +133,30 @@
   }
 
 
+  static const FT_Service_GlyphDictRec  sfnt_service_glyph_dict =
+  {
+    (FT_GlyphDict_GetNameFunc)  sfnt_get_glyph_name,
+    (FT_GlyphDict_NameIndexFunc)NULL
+  };
+
+#endif /* TT_CONFIG_OPTION_POSTSCRIPT_NAMES */
+
+
+ /*
+  *  POSTSCRIPT NAME SERVICE
+  *
+  */
+
   static const char*
-  get_sfnt_postscript_name( TT_Face  face )
+  sfnt_get_ps_name( TT_Face  face )
   {
     FT_Int       n, found_win, found_apple;
     const char*  result = NULL;
 
 
     /* shouldn't happen, but just in case to avoid memory leaks */
-    if ( face->root.internal->postscript_name )
-      return face->root.internal->postscript_name;
+    if ( face->postscript_name )
+      return face->postscript_name;
 
     /* scan the name table to see whether we have a Postscript name here, */
     /* either in Macintosh or Windows platform encodings                  */
@@ -149,7 +187,9 @@
       FT_Memory         memory = face->root.memory;
       TT_NameEntryRec*  name   = face->name_table.names + found_win;
       FT_UInt           len    = name->stringLength / 2;
-      FT_Error          error;
+      FT_Error          error  = SFNT_Err_Ok;
+
+      FT_UNUSED( error );
 
 
       if ( !FT_ALLOC( result, name->stringLength + 1 ) )
@@ -189,7 +229,9 @@
       FT_Memory         memory = face->root.memory;
       TT_NameEntryRec*  name   = face->name_table.names + found_apple;
       FT_UInt           len    = name->stringLength;
-      FT_Error          error;
+      FT_Error          error  = SFNT_Err_Ok;
+
+      FT_UNUSED( error );
 
 
       if ( !FT_ALLOC( result, len + 1 ) )
@@ -211,16 +253,46 @@
     }
 
   Exit:
-    face->root.internal->postscript_name = result;
+    face->postscript_name = result;
     return result;
   }
 
+  static const FT_Service_PsFontNameRec  sfnt_service_ps_name =
+  {
+    (FT_PsName_GetFunc)sfnt_get_ps_name
+  };
 
-#endif /* TT_CONFIG_OPTION_POSTSCRIPT_NAMES */
+
+ /*
+  *  TT CMAP INFO
+  *
+  */
+  static const FT_Service_TTCMapsRec  tt_service_get_cmap_info =
+  {
+    (TT_CMap_Info_GetFunc)tt_get_cmap_info
+  };
+
+
+ /*
+  *  SERVICE LIST
+  *
+  */
+
+  static const FT_ServiceDescRec  sfnt_services[] =
+  {
+    { FT_SERVICE_ID_SFNT_TABLE,           &sfnt_service_sfnt_table },
+    { FT_SERVICE_ID_POSTSCRIPT_FONT_NAME, &sfnt_service_ps_name },
+#ifdef TT_CONFIG_OPTION_POSTSCRIPT_NAMES
+    { FT_SERVICE_ID_GLYPH_DICT,           &sfnt_service_glyph_dict },
+#endif
+    { FT_SERVICE_ID_TT_CMAP,              &tt_service_get_cmap_info },
+
+    { NULL, NULL }
+  };
 
 
   FT_CALLBACK_DEF( FT_Module_Interface )
-  SFNT_Get_Interface( FT_Module    module,
+  sfnt_get_interface( FT_Module    module,
                       const char*  module_interface )
   {
     FT_UNUSED( module );
@@ -228,65 +300,64 @@
     if ( ft_strcmp( module_interface, "get_sfnt" ) == 0 )
       return (FT_Module_Interface)get_sfnt_table;
 
-#ifdef TT_CONFIG_OPTION_POSTSCRIPT_NAMES
-    if ( ft_strcmp( module_interface, "glyph_name" ) == 0 )
-      return (FT_Module_Interface)get_sfnt_glyph_name;
-#endif
+    if ( ft_strcmp( module_interface, "load_sfnt" ) == 0 )
+      return (FT_Module_Interface)tt_face_load_any;
 
-    if ( ft_strcmp( module_interface, "postscript_name" ) == 0 )
-      return (FT_Module_Interface)get_sfnt_postscript_name;
-
-    return 0;
+    return ft_service_list_lookup( sfnt_services, module_interface );
   }
 
 
   static
   const SFNT_Interface  sfnt_interface =
   {
-    TT_Goto_Table,
+    tt_face_goto_table,
 
-    SFNT_Init_Face,
-    SFNT_Load_Face,
-    SFNT_Done_Face,
-    SFNT_Get_Interface,
+    sfnt_init_face,
+    sfnt_load_face,
+    sfnt_done_face,
+    sfnt_get_interface,
 
-    TT_Load_Any,
-    TT_Load_SFNT_HeaderRec,
-    TT_Load_Directory,
+    tt_face_load_any,
+    tt_face_load_sfnt_header,
+    tt_face_load_directory,
 
-    TT_Load_Header,
-    TT_Load_Metrics_Header,
-    TT_Load_CMap,
-    TT_Load_MaxProfile,
-    TT_Load_OS2,
-    TT_Load_PostScript,
+    tt_face_load_header,
+    tt_face_load_metrics_header,
+    tt_face_load_cmap,
+    tt_face_load_max_profile,
+    tt_face_load_os2,
+    tt_face_load_postscript,
 
-    TT_Load_Names,
-    TT_Free_Names,
+    tt_face_load_names,
+    tt_face_free_names,
 
-    TT_Load_Hdmx,
-    TT_Free_Hdmx,
+    tt_face_load_hdmx,
+    tt_face_free_hdmx,
 
-    TT_Load_Kern,
-    TT_Load_Gasp,
-    TT_Load_PCLT,
+    tt_face_load_kern,
+    tt_face_load_gasp,
+    tt_face_load_pclt,
 
 #ifdef TT_CONFIG_OPTION_EMBEDDED_BITMAPS
 
     /* see `ttload.h' */
-    TT_Load_Bitmap_Header,
+    tt_face_load_bitmap_header,
 
-    /* see `ttsbit.h' */
-    TT_Set_SBit_Strike,
-    TT_Load_SBit_Strikes,
-    TT_Load_SBit_Image,
-    TT_Free_SBit_Strikes,
+    /* see `ttsbit.h' and `sfnt.h' */
+    tt_face_set_sbit_strike,
+    tt_face_load_sbit_strikes,
+    tt_find_sbit_image,
+    tt_load_sbit_metrics,
+    tt_face_load_sbit_image,
+    tt_face_free_sbit_strikes,
 
 #else /* TT_CONFIG_OPTION_EMBEDDED_BITMAPS */
 
     0,
     0,
     0,
+    0, 
+    0, 
     0,
     0,
 
@@ -295,8 +366,8 @@
 #ifdef TT_CONFIG_OPTION_POSTSCRIPT_NAMES
 
     /* see `ttpost.h' */
-    TT_Get_PS_Name,
-    TT_Free_Post_Names,
+    tt_face_get_ps_name,
+    tt_face_free_ps_names,
 
 #else /* TT_CONFIG_OPTION_POSTSCRIPT_NAMES */
 
@@ -305,9 +376,6 @@
 
 #endif /* TT_CONFIG_OPTION_POSTSCRIPT_NAMES */
 
-    /* see `ttcmap.h' */
-    TT_CharMap_Load,
-    TT_CharMap_Free,
   };
 
 
@@ -325,7 +393,7 @@
 
     (FT_Module_Constructor)0,
     (FT_Module_Destructor) 0,
-    (FT_Module_Requester)  SFNT_Get_Interface
+    (FT_Module_Requester)  sfnt_get_interface
   };
 
 

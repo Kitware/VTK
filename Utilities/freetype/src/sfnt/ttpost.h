@@ -30,12 +30,12 @@ FT_BEGIN_HEADER
 
 
   FT_LOCAL( FT_Error )
-  TT_Get_PS_Name( TT_Face      face,
-                  FT_UInt      idx,
-                  FT_String**  PSname );
+  tt_face_get_ps_name( TT_Face      face,
+                       FT_UInt      idx,
+                       FT_String**  PSname );
 
   FT_LOCAL( void )
-  TT_Free_Post_Names( TT_Face  face );
+  tt_face_free_ps_names( TT_Face  face );
 
 
 FT_END_HEADER

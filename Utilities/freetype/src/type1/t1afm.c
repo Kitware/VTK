@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    AFM support for Type 1 fonts (body).                                 */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002 by                                           */
+/*  Copyright 1996-2001, 2002, 2003 by                                     */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -56,10 +56,10 @@
                 FT_Byte*   limit,
                 T1_Font    type1 )
   {
-    FT_Byte*  p = *start;
-    FT_Int    len;
-    FT_UInt   result = 0;
-    char      temp[64];
+    FT_Byte*    p = *start;
+    FT_PtrDist  len;
+    FT_UInt     result = 0;
+    char        temp[64];
 
 
     /* skip whitespace */
@@ -72,7 +72,7 @@
     while ( IS_ALPHANUM( *p ) && p < limit )
       p++;
 
-    len = (FT_Int)( p - *start );
+    len = p - *start;
 
     if ( len > 0 && len < 64 )
     {
@@ -148,7 +148,7 @@
     FT_ULong  index2 = KERN_INDEX( pair2->glyph1, pair2->glyph2 );
 
 
-    return ( index1 - index2 );
+    return (int)( index1 - index2 );
   }
 
 

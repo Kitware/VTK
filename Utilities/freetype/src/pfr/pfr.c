@@ -24,5 +24,6 @@
 #include "pfrcmap.c"
 #include "pfrobjs.c"
 #include "pfrdrivr.c"
+#include "pfrsbit.c"
 
 /* END */

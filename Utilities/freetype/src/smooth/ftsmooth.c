@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    Anti-aliasing renderer interface (body).                             */
 /*                                                                         */
-/*  Copyright 2000-2001, 2002 by                                           */
+/*  Copyright 2000-2001, 2002, 2003, 2004 by                               */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -85,7 +85,7 @@
                       FT_GlyphSlot  slot,
                       FT_BBox*      cbox )
   {
-    FT_MEM_SET( cbox, 0, sizeof ( *cbox ) );
+    FT_MEM_ZERO( cbox, sizeof ( *cbox ) );
 
     if ( slot->format == render->glyph_format )
       FT_Outline_Get_CBox( &slot->outline, cbox );
@@ -94,10 +94,13 @@
 
   /* convert a slot's glyph image into a bitmap */
   static FT_Error
-  ft_smooth_render( FT_Renderer   render,
-                    FT_GlyphSlot  slot,
-                    FT_UInt       mode,
-                    FT_Vector*    origin )
+  ft_smooth_render_generic( FT_Renderer     render,
+                            FT_GlyphSlot    slot,
+                            FT_Render_Mode  mode,
+                            FT_Vector*      origin,
+                            FT_Render_Mode  required_mode,
+                            FT_Int          hmul,
+                            FT_Int          vmul )
   {
     FT_Error     error;
     FT_Outline*  outline = NULL;
@@ -117,7 +120,7 @@
     }
 
     /* check mode */
-    if ( mode != ft_render_mode_normal )
+    if ( mode != required_mode )
       return Smooth_Err_Cannot_Render_Glyph;
 
     outline = &slot->outline;
@@ -129,26 +132,35 @@
     /* compute the control box, and grid fit it */
     FT_Outline_Get_CBox( outline, &cbox );
 
-    cbox.xMin &= -64;
-    cbox.yMin &= -64;
-    cbox.xMax  = ( cbox.xMax + 63 ) & -64;
-    cbox.yMax  = ( cbox.yMax + 63 ) & -64;
+    cbox.xMin = FT_PIX_FLOOR( cbox.xMin );
+    cbox.yMin = FT_PIX_FLOOR( cbox.yMin );
+    cbox.xMax = FT_PIX_CEIL( cbox.xMax );
+    cbox.yMax = FT_PIX_CEIL( cbox.yMax );
 
-    width  = ( cbox.xMax - cbox.xMin ) >> 6;
-    height = ( cbox.yMax - cbox.yMin ) >> 6;
+    width  = (FT_UInt)( ( cbox.xMax - cbox.xMin ) >> 6 );
+    height = (FT_UInt)( ( cbox.yMax - cbox.yMin ) >> 6 );
     bitmap = &slot->bitmap;
     memory = render->root.memory;
 
     /* release old bitmap buffer */
-    if ( slot->flags & FT_GLYPH_OWN_BITMAP )
+    if ( slot->internal->flags & FT_GLYPH_OWN_BITMAP )
     {
       FT_FREE( bitmap->buffer );
-      slot->flags &= ~FT_GLYPH_OWN_BITMAP;
+      slot->internal->flags &= ~FT_GLYPH_OWN_BITMAP;
     }
 
     /* allocate new one, depends on pixel format */
     pitch = width;
-    bitmap->pixel_mode = ft_pixel_mode_grays;
+    if ( hmul )
+    {
+      width = width * hmul;
+      pitch = FT_PAD_CEIL( width, 4 );
+    }
+
+    if ( vmul )
+      height *= vmul;
+
+    bitmap->pixel_mode = FT_PIXEL_MODE_GRAY;
     bitmap->num_grays  = 256;
     bitmap->width      = width;
     bitmap->rows       = height;
@@ -157,7 +169,7 @@
     if ( FT_ALLOC( bitmap->buffer, (FT_ULong)pitch * height ) )
       goto Exit;
 
-    slot->flags |= FT_GLYPH_OWN_BITMAP;
+    slot->internal->flags |= FT_GLYPH_OWN_BITMAP;
 
     /* translate outline to render it into the bitmap */
     FT_Outline_Translate( outline, -cbox.xMin, -cbox.yMin );
@@ -165,19 +177,49 @@
     /* set up parameters */
     params.target = bitmap;
     params.source = outline;
-    params.flags  = ft_raster_flag_aa;
+    params.flags  = FT_RASTER_FLAG_AA;
+
+    /* implode outline if needed */
+    {
+      FT_Int      n;
+      FT_Vector*  vec;
+
+
+      if ( hmul )
+        for ( vec = outline->points, n = 0; n < outline->n_points; n++, vec++ )
+          vec->x *= hmul;
+
+      if ( vmul )
+        for ( vec = outline->points, n = 0; n < outline->n_points; n++, vec++ )
+          vec->y *= vmul;
+    }
 
     /* render outline into the bitmap */
     error = render->raster_render( render->raster, &params );
-    
+
+    /* deflate outline if needed */
+    {
+      FT_Int      n;
+      FT_Vector*  vec;
+
+
+      if ( hmul )
+        for ( vec = outline->points, n = 0; n < outline->n_points; n++, vec++ )
+          vec->x /= hmul;
+
+      if ( vmul )
+        for ( vec = outline->points, n = 0; n < outline->n_points; n++, vec++ )
+          vec->y /= vmul;
+    }
+
     FT_Outline_Translate( outline, cbox.xMin, cbox.yMin );
 
     if ( error )
       goto Exit;
 
-    slot->format      = ft_glyph_format_bitmap;
-    slot->bitmap_left = cbox.xMin >> 6;
-    slot->bitmap_top  = cbox.yMax >> 6;
+    slot->format      = FT_GLYPH_FORMAT_BITMAP;
+    slot->bitmap_left = (FT_Int)( cbox.xMin >> 6 );
+    slot->bitmap_top  = (FT_Int)( cbox.yMax >> 6 );
 
   Exit:
     if ( outline && origin )
@@ -187,11 +229,65 @@
   }
 
 
+  /* convert a slot's glyph image into a bitmap */
+  static FT_Error
+  ft_smooth_render( FT_Renderer     render,
+                    FT_GlyphSlot    slot,
+                    FT_Render_Mode  mode,
+                    FT_Vector*      origin )
+  {
+    if ( mode == FT_RENDER_MODE_LIGHT )
+      mode = FT_RENDER_MODE_NORMAL;
+
+    return ft_smooth_render_generic( render, slot, mode, origin,
+                                     FT_RENDER_MODE_NORMAL,
+                                     0, 0 );
+  }
+
+
+  /* convert a slot's glyph image into a horizontal LCD bitmap */
+  static FT_Error
+  ft_smooth_render_lcd( FT_Renderer     render,
+                        FT_GlyphSlot    slot,
+                        FT_Render_Mode  mode,
+                        FT_Vector*      origin )
+  {
+    FT_Error  error;
+
+    error = ft_smooth_render_generic( render, slot, mode, origin,
+                                      FT_RENDER_MODE_LCD,
+                                      3, 0 );
+    if ( !error )
+      slot->bitmap.pixel_mode = FT_PIXEL_MODE_LCD;
+
+    return error;
+  }
+
+
+  /* convert a slot's glyph image into a vertical LCD bitmap */
+  static FT_Error
+  ft_smooth_render_lcd_v( FT_Renderer     render,
+                          FT_GlyphSlot    slot,
+                          FT_Render_Mode  mode,
+                          FT_Vector*      origin )
+  {
+    FT_Error  error;
+
+    error = ft_smooth_render_generic( render, slot, mode, origin,
+                                      FT_RENDER_MODE_LCD_V,
+                                      0, 3 );
+    if ( !error )
+      slot->bitmap.pixel_mode = FT_PIXEL_MODE_LCD_V;
+
+    return error;
+  }
+
+
   FT_CALLBACK_TABLE_DEF
   const FT_Renderer_Class  ft_smooth_renderer_class =
   {
     {
-      ft_module_renderer,
+      FT_MODULE_RENDERER,
       sizeof( FT_RendererRec ),
 
       "smooth",
@@ -205,12 +301,71 @@
       (FT_Module_Requester)  0
     },
 
-    ft_glyph_format_outline,
+    FT_GLYPH_FORMAT_OUTLINE,
 
-    (FTRenderer_render)   ft_smooth_render,
-    (FTRenderer_transform)ft_smooth_transform,
-    (FTRenderer_getCBox)  ft_smooth_get_cbox,
-    (FTRenderer_setMode)  ft_smooth_set_mode,
+    (FT_Renderer_RenderFunc)   ft_smooth_render,
+    (FT_Renderer_TransformFunc)ft_smooth_transform,
+    (FT_Renderer_GetCBoxFunc)  ft_smooth_get_cbox,
+    (FT_Renderer_SetModeFunc)  ft_smooth_set_mode,
+
+    (FT_Raster_Funcs*)    &ft_grays_raster
+  };
+
+
+  FT_CALLBACK_TABLE_DEF
+  const FT_Renderer_Class  ft_smooth_lcd_renderer_class =
+  {
+    {
+      FT_MODULE_RENDERER,
+      sizeof( FT_RendererRec ),
+
+      "smooth-lcd",
+      0x10000L,
+      0x20000L,
+
+      0,    /* module specific interface */
+
+      (FT_Module_Constructor)ft_smooth_init,
+      (FT_Module_Destructor) 0,
+      (FT_Module_Requester)  0
+    },
+
+    FT_GLYPH_FORMAT_OUTLINE,
+
+    (FT_Renderer_RenderFunc)   ft_smooth_render_lcd,
+    (FT_Renderer_TransformFunc)ft_smooth_transform,
+    (FT_Renderer_GetCBoxFunc)  ft_smooth_get_cbox,
+    (FT_Renderer_SetModeFunc)  ft_smooth_set_mode,
+
+    (FT_Raster_Funcs*)    &ft_grays_raster
+  };
+
+
+
+  FT_CALLBACK_TABLE_DEF
+  const FT_Renderer_Class  ft_smooth_lcdv_renderer_class =
+  {
+    {
+      FT_MODULE_RENDERER,
+      sizeof( FT_RendererRec ),
+
+      "smooth-lcdv",
+      0x10000L,
+      0x20000L,
+
+      0,    /* module specific interface */
+
+      (FT_Module_Constructor)ft_smooth_init,
+      (FT_Module_Destructor) 0,
+      (FT_Module_Requester)  0
+    },
+
+    FT_GLYPH_FORMAT_OUTLINE,
+
+    (FT_Renderer_RenderFunc)   ft_smooth_render_lcd_v,
+    (FT_Renderer_TransformFunc)ft_smooth_transform,
+    (FT_Renderer_GetCBoxFunc)  ft_smooth_get_cbox,
+    (FT_Renderer_SetModeFunc)  ft_smooth_set_mode,
 
     (FT_Raster_Funcs*)    &ft_grays_raster
   };

@@ -2,7 +2,7 @@
 
   FreeType font driver for pcf fonts
 
-  Copyright (C) 2000-2001, 2002 by
+  Copyright (C) 2000, 2001, 2002, 2003 by
   Francesco Zappa Nardelli
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -31,6 +31,7 @@ THE SOFTWARE.
 
 #include <ft2build.h>
 #include FT_INTERNAL_DRIVER_H
+#include FT_INTERNAL_STREAM_H
 
 
 FT_BEGIN_HEADER
@@ -123,10 +124,10 @@ FT_BEGIN_HEADER
   } PCF_AccelRec, *PCF_Accel;
 
 
-  typedef struct  PCD_EncodingRec_
+  typedef struct  PCF_EncodingRec_
   {
-    FT_Long   enc;
-    FT_Short  glyph;
+    FT_Long    enc;
+    FT_UShort  glyph;
 
   } PCF_EncodingRec, *PCF_Encoding;
 
@@ -134,6 +135,9 @@ FT_BEGIN_HEADER
   typedef struct  PCF_FaceRec_
   {
     FT_FaceRec     root;
+
+    FT_StreamRec   gzip_stream;
+    FT_Stream      gzip_source;
 
     char*          charset_encoding;
     char*          charset_registry;
@@ -224,7 +228,6 @@ FT_BEGIN_HEADER
   FT_LOCAL( FT_Error )
   pcf_load_font( FT_Stream,
                  PCF_Face );
-
 
 FT_END_HEADER
 

@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    CFF token stream parser (body)                                       */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002 by                                           */
+/*  Copyright 1996-2001, 2002, 2003, 2004 by                               */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -38,6 +38,7 @@
     cff_kind_none = 0,
     cff_kind_num,
     cff_kind_fixed,
+    cff_kind_fixed_thousand,
     cff_kind_string,
     cff_kind_bool,
     cff_kind_delta,
@@ -64,11 +65,11 @@
 
 
   FT_LOCAL_DEF( void )
-  CFF_Parser_Init( CFF_Parser  parser,
+  cff_parser_init( CFF_Parser  parser,
                    FT_UInt     code,
                    void*       object )
   {
-    FT_MEM_SET( parser, 0, sizeof ( *parser ) );
+    FT_MEM_ZERO( parser, sizeof ( *parser ) );
 
     parser->top         = parser->stack;
     parser->object_code = code;
@@ -244,7 +245,7 @@
       if ( exp_sign )
         exp = -exp;
 
-      power_ten += exp;
+      power_ten += (FT_Int)exp;
     }
 
     /* raise to power of ten if needed */
@@ -333,7 +334,7 @@
       offset->x  = cff_parse_fixed_thousand( data++ );
       offset->y  = cff_parse_fixed_thousand( data   );
 
-      temp = ABS( matrix->yy );
+      temp = FT_ABS( matrix->yy );
 
       *upm = (FT_UShort)FT_DivFix( 0x10000L, FT_DivFix( temp, 1000 ) );
 
@@ -429,6 +430,8 @@
           CFF_FIELD( code, name, cff_kind_num )
 #define CFF_FIELD_FIXED( code, name ) \
           CFF_FIELD( code, name, cff_kind_fixed )
+#define CFF_FIELD_FIXED_1000( code, name ) \
+          CFF_FIELD( code, name, cff_kind_fixed_thousand )
 #define CFF_FIELD_STRING( code, name ) \
           CFF_FIELD( code, name, cff_kind_string )
 #define CFF_FIELD_BOOL( code, name ) \
@@ -480,7 +483,7 @@
 
 
   FT_LOCAL_DEF( FT_Error )
-  CFF_Parser_Run( CFF_Parser  parser,
+  cff_parser_run( CFF_Parser  parser,
                   FT_Byte*    start,
                   FT_Byte*    limit )
   {
@@ -542,16 +545,15 @@
         const CFF_Field_Handler*  field;
 
 
-        /* first of all, a trivial check */
-        if ( num_args < 1 )
-          goto Stack_Underflow;
-
         *parser->top = p;
         code = v;
         if ( v == 12 )
         {
           /* two byte operator */
           p++;
+          if ( p >= limit )
+            goto Syntax_Error;
+
           code = 0x100 | p[0];
         }
         code = code | parser->object_code;
@@ -565,6 +567,11 @@
             FT_Byte*  q = (FT_Byte*)parser->object + field->offset;
 
 
+            /* check that we have enough arguments -- except for */
+            /* delta encoded arrays, which can be empty          */
+            if ( field->kind != cff_kind_delta && num_args < 1 )
+              goto Stack_Underflow;
+
             switch ( field->kind )
             {
             case cff_kind_bool:
@@ -575,23 +582,27 @@
 
             case cff_kind_fixed:
               val = cff_parse_fixed( parser->stack );
+              goto Store_Number;
+
+            case cff_kind_fixed_thousand:
+              val = cff_parse_fixed_thousand( parser->stack );
 
             Store_Number:
               switch ( field->size )
               {
-              case 1:
+              case (8 / FT_CHAR_BIT):
                 *(FT_Byte*)q = (FT_Byte)val;
                 break;
 
-              case 2:
+              case (16 / FT_CHAR_BIT):
                 *(FT_Short*)q = (FT_Short)val;
                 break;
 
-              case 4:
+              case (32 / FT_CHAR_BIT):
                 *(FT_Int32*)q = (FT_Int)val;
                 break;
 
-              default:  /* for 64-bit systems where long is 8 bytes */
+              default:  /* for 64-bit systems */
                 *(FT_Long*)q = val;
               }
               break;
@@ -616,15 +627,15 @@
                   val += cff_parse_num( data++ );
                   switch ( field->size )
                   {
-                  case 1:
+                  case (8 / FT_CHAR_BIT):
                     *(FT_Byte*)q = (FT_Byte)val;
                     break;
 
-                  case 2:
+                  case (16 / FT_CHAR_BIT):
                     *(FT_Short*)q = (FT_Short)val;
                     break;
 
-                  case 4:
+                  case (32 / FT_CHAR_BIT):
                     *(FT_Int32*)q = (FT_Int)val;
                     break;
 

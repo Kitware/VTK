@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    Type 42 font parser (specification).                                 */
 /*                                                                         */
-/*  Copyright 2002 by Roberto Alameda.                                     */
+/*  Copyright 2002, 2003 by Roberto Alameda.                               */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
 /*  modified, and distributed under the terms of the FreeType project      */
@@ -31,9 +31,9 @@ FT_BEGIN_HEADER
     FT_Stream     stream;
 
     FT_Byte*      base_dict;
-    FT_Int        base_len;
+    FT_Long       base_len;
 
-    FT_Byte       in_memory;
+    FT_Bool       in_memory;
 
   } T42_ParserRec, *T42_Parser;
 
@@ -42,13 +42,14 @@ FT_BEGIN_HEADER
   {
     T42_ParserRec  parser;          /* parser used to read the stream */
 
-    FT_Int         num_chars;       /* number of characters in encoding */
+    FT_UInt        num_chars;       /* number of characters in encoding */
     PS_TableRec    encoding_table;  /* PS_Table used to store the       */
                                     /* encoding character names         */
 
-    FT_Int         num_glyphs;
+    FT_UInt        num_glyphs;
     PS_TableRec    glyph_names;
     PS_TableRec    charstrings;
+    PS_TableRec    swap_table;      /* For moving .notdef glyph to index 0. */
 
   } T42_LoaderRec, *T42_Loader;
 

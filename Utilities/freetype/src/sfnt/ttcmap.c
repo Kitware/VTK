@@ -86,7 +86,7 @@
   /*************************************************************************/
   /*                                                                       */
   /* <Function>                                                            */
-  /*    TT_CharMap_Load                                                    */
+  /*    tt_face_load_charmap                                               */
   /*                                                                       */
   /* <Description>                                                         */
   /*    Loads a given TrueType character map into memory.                  */
@@ -108,9 +108,9 @@
   /*    released.                                                          */
   /*                                                                       */
   FT_LOCAL_DEF( FT_Error )
-  TT_CharMap_Load( TT_Face       face,
-                   TT_CMapTable  cmap,
-                   FT_Stream     stream )
+  tt_face_load_charmap( TT_Face       face,
+                        TT_CMapTable  cmap,
+                        FT_Stream     stream )
   {
     FT_Error     error;
     FT_Memory    memory;
@@ -391,7 +391,7 @@
     return SFNT_Err_Ok;
 
   Fail:
-    TT_CharMap_Free( face, cmap );
+    tt_face_free_charmap( face, cmap );
     return error;
   }
 
@@ -399,7 +399,7 @@
   /*************************************************************************/
   /*                                                                       */
   /* <Function>                                                            */
-  /*    TT_CharMap_Free                                                    */
+  /*    tt_face_free_charmap                                               */
   /*                                                                       */
   /* <Description>                                                         */
   /*    Destroys a character mapping table.                                */
@@ -413,8 +413,8 @@
   /*    FreeType error code.  0 means success.                             */
   /*                                                                       */
   FT_LOCAL_DEF( FT_Error )
-  TT_CharMap_Free( TT_Face       face,
-                   TT_CMapTable  cmap )
+  tt_face_free_charmap( TT_Face       face,
+                        TT_CMapTable  cmap )
   {
     FT_Memory  memory;
 
@@ -629,11 +629,11 @@
      * This is relatively simplistic -- look for a subHeader containing
      * glyphs and then walk to the first glyph in that subHeader.
      */
-    while ( charCode < 0x10000 )
+    while ( charCode < 0x10000L )
     {
       char_lo = (FT_UInt)( charCode & 0xFF );
       char_hi = charCode >> 8;
-  
+
       if ( char_hi == 0 )
       {
         /* an 8-bit character code -- we use the subHeader 0 in this case */
@@ -655,16 +655,16 @@
           continue;
         }
       }
-  
+
       sh2      = cmap2->subHeaders + index1;
       char_lo -= sh2->firstCode;
-  
+
       if ( char_lo > (FT_UInt)sh2->entryCount )
       {
         charCode = ( char_hi + 1 ) << 8;
         continue;
       }
-      
+
       offset = sh2->idRangeOffset / 2 + char_lo;
       if ( offset >= (FT_UInt)cmap2->numGlyphId ||
            cmap2->glyphIdArray[offset] == 0     )
@@ -672,7 +672,7 @@
         charCode++;
         continue;
       }
-      
+
       return charCode;
     }
     return 0;
@@ -746,7 +746,7 @@
     /* directly                                                  */
 
     if ( seg4->idRangeOffset == 0 )
-      result = ( charCode + seg4->idDelta ) & 0xFFFFU;
+      result = (FT_UInt)( charCode + seg4->idDelta ) & 0xFFFFU;
     else
     {
       /* otherwise, we must use the glyphIdArray to do it */
@@ -813,7 +813,7 @@
 
     if ( seg4->idRangeOffset == 0 )
       return ( charCode );
-    
+
     while ( charCode <= (FT_UInt) seg4->endCount )
     {
       /* otherwise, we must use the glyphIdArray to do it */
@@ -890,12 +890,12 @@
 
 
     charCode++;
-    
+
     cmap6 = &cmap->c.cmap6;
-    
+
     if ( charCode < (FT_ULong) cmap6->firstCode )
       charCode = cmap6->firstCode;
-    
+
     charCode -= cmap6->firstCode;
 
     while ( charCode < (FT_UInt)cmap6->entryCount )
@@ -971,7 +971,8 @@
     cmap8_12->last_group = group;
 
   Found1:
-    return group->startGlyphID + (FT_UInt)( charCode - group->startCharCode );
+    return (FT_UInt)( group->startGlyphID +
+                      ( charCode - group->startCharCode ) );
   }
 
 
@@ -1016,7 +1017,7 @@
   Found:
     if ( charCode < group->startCharCode )
       charCode = group->startCharCode;
-    
+
     return charCode;
   }
 
@@ -1085,10 +1086,10 @@
 
     charCode++;
     cmap10 = &cmap->c.cmap10;
-    
+
     if ( charCode < cmap10->startCharCode )
       charCode = cmap10->startCharCode;
-    
+
     charCode -= cmap10->startCharCode;
 
     /* the overflow trick for comparison works here also since the number */

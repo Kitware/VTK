@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    CID-keyed Type1 parser (specification).                              */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002 by                                           */
+/*  Copyright 1996-2001, 2002, 2003, 2004 by                               */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -50,6 +50,9 @@ FT_BEGIN_HEADER
   /*    data_offset    :: The start position of the binary data (i.e., the */
   /*                      end of the data to be parsed.                    */
   /*                                                                       */
+  /*    binary_length  :: The length of the data after the `StartData'     */
+  /*                      command if the data format is hexadecimal.       */
+  /*                                                                       */
   /*    cid            :: A structure which holds the information about    */
   /*                      the current font.                                */
   /*                                                                       */
@@ -61,9 +64,11 @@ FT_BEGIN_HEADER
     FT_Stream     stream;
 
     FT_Byte*      postscript;
-    FT_Int        postscript_len;
+    FT_Long       postscript_len;
 
     FT_ULong      data_offset;
+
+    FT_Long       binary_length;
 
     CID_FaceInfo  cid;
     FT_Int        num_dict;
@@ -72,13 +77,13 @@ FT_BEGIN_HEADER
 
 
   FT_LOCAL( FT_Error )
-  CID_New_Parser( CID_Parser*    parser,
+  cid_parser_new( CID_Parser*    parser,
                   FT_Stream      stream,
                   FT_Memory      memory,
                   PSAux_Service  psaux );
 
   FT_LOCAL( void )
-  CID_Done_Parser( CID_Parser*  parser );
+  cid_parser_done( CID_Parser*  parser );
 
 
   /*************************************************************************/
@@ -87,24 +92,26 @@ FT_BEGIN_HEADER
   /*                                                                       */
   /*************************************************************************/
 
-#define CID_Skip_Spaces( p )  (p)->root.funcs.skip_spaces( &(p)->root )
-#define CID_Skip_Alpha( p )   (p)->root.funcs.skip_alpha ( &(p)->root )
+#define cid_parser_skip_spaces( p ) \
+          (p)->root.funcs.skip_spaces( &(p)->root )
+#define cid_parser_skip_PS_token( p ) \
+          (p)->root.funcs.skip_PS_token( &(p)->root )
 
-#define CID_ToInt( p )        (p)->root.funcs.to_int( &(p)->root )
-#define CID_ToFixed( p, t )   (p)->root.funcs.to_fixed( &(p)->root, t )
+#define cid_parser_to_int( p )        (p)->root.funcs.to_int( &(p)->root )
+#define cid_parser_to_fixed( p, t )   (p)->root.funcs.to_fixed( &(p)->root, t )
 
-#define CID_ToCoordArray( p, m, c )                          \
+#define cid_parser_to_coord_array( p, m, c )                          \
           (p)->root.funcs.to_coord_array( &(p)->root, m, c )
-#define CID_ToFixedArray( p, m, f, t )                          \
+#define cid_parser_to_fixed_array( p, m, f, t )                          \
           (p)->root.funcs.to_fixed_array( &(p)->root, m, f, t )
-#define CID_ToToken( p, t )                         \
+#define cid_parser_to_token( p, t )                         \
           (p)->root.funcs.to_token( &(p)->root, t )
-#define CID_ToTokenArray( p, t, m, c )                          \
+#define cid_parser_to_token_array( p, t, m, c )                          \
           (p)->root.funcs.to_token_array( &(p)->root, t, m, c )
 
-#define CID_Load_Field( p, f, o )                              \
+#define cid_parser_load_field( p, f, o )                              \
           (p)->root.funcs.load_field( &(p)->root, f, o, 0, 0 )
-#define CID_Load_Field_Table( p, f, o )                              \
+#define cid_parser_load_field_table( p, f, o )                              \
           (p)->root.funcs.load_field_table( &(p)->root, f, o, 0, 0 )
 
 

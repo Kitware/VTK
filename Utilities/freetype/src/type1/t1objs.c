@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    Type 1 objects manager (body).                                       */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002 by                                           */
+/*  Copyright 1996-2001, 2002, 2003, 2004 by                               */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -19,6 +19,7 @@
 #include <ft2build.h>
 #include FT_INTERNAL_DEBUG_H
 #include FT_INTERNAL_STREAM_H
+#include FT_TRUETYPE_IDS_H
 
 #include "t1gload.h"
 #include "t1load.h"
@@ -29,7 +30,7 @@
 #include "t1afm.h"
 #endif
 
-#include FT_INTERNAL_POSTSCRIPT_NAMES_H
+#include FT_SERVICE_POSTSCRIPT_CMAPS_H
 #include FT_INTERNAL_POSTSCRIPT_AUX_H
 
 
@@ -118,9 +119,9 @@
 
     if ( funcs )
       error = funcs->set_scale( (PSH_Globals)size->root.internal,
-                                 size->root.metrics.x_scale,
-                                 size->root.metrics.y_scale,
-                                 0, 0 );
+                                size->root.metrics.x_scale,
+                                size->root.metrics.y_scale,
+                                0, 0 );
     return error;
   }
 
@@ -275,10 +276,11 @@
                 FT_Int         num_params,
                 FT_Parameter*  params )
   {
-    FT_Error          error;
-    PSNames_Service   psnames;
-    PSAux_Service     psaux;
-    PSHinter_Service  pshinter;
+    FT_Error            error;
+    FT_Service_PsCMaps  psnames;
+    PSAux_Service       psaux;
+    T1_Font             type1 = &face->type1;
+    PS_FontInfo         info = &type1->font_info;
 
     FT_UNUSED( num_params );
     FT_UNUSED( params );
@@ -288,9 +290,8 @@
 
     face->root.num_faces = 1;
 
-    face->psnames = FT_Get_Module_Interface( FT_FACE_LIBRARY( face ),
-                                             "psnames" );
-    psnames = (PSNames_Service)face->psnames;
+    FT_FACE_FIND_GLOBAL_SERVICE( face, psnames, POSTSCRIPT_CMAPS );
+    face->psnames = psnames;
 
     face->psaux = FT_Get_Module_Interface( FT_FACE_LIBRARY( face ),
                                            "psaux" );
@@ -298,9 +299,8 @@
 
     face->pshinter = FT_Get_Module_Interface( FT_FACE_LIBRARY( face ),
                                               "pshinter" );
-    pshinter = (PSHinter_Service)face->pshinter;
 
-    /* open the tokenizer, this will also check the font format */
+    /* open the tokenizer; this will also check the font format */
     error = T1_Open_Face( face );
     if ( error )
       goto Exit;
@@ -317,22 +317,23 @@
       goto Exit;
     }
 
-    /* Now, load the font program into the face object */
+    /* now load the font program into the face object */
 
-    /* Init the face object fields */
-    /* Now set up root face fields */
+    /* initialize the face object fields */
+
+    /* set up root face fields */
     {
       FT_Face  root = (FT_Face)&face->root;
 
 
-      root->num_glyphs = face->type1.num_glyphs;
+      root->num_glyphs = type1->num_glyphs;
       root->face_index = face_index;
 
-      root->face_flags = FT_FACE_FLAG_SCALABLE;
+      root->face_flags  = FT_FACE_FLAG_SCALABLE;
       root->face_flags |= FT_FACE_FLAG_HORIZONTAL;
       root->face_flags |= FT_FACE_FLAG_GLYPH_NAMES;
 
-      if ( face->type1.font_info.is_fixed_pitch )
+      if ( info->is_fixed_pitch )
         root->face_flags |= FT_FACE_FLAG_FIXED_WIDTH;
 
       if ( face->blend )
@@ -342,45 +343,55 @@
 
       /* get style name -- be careful, some broken fonts only */
       /* have a `/FontName' dictionary entry!                 */
-      root->family_name = face->type1.font_info.family_name;
+      root->family_name = info->family_name;
+      /* assume "Regular" style if we don't know better */
+      root->style_name = (char *)"Regular";
       if ( root->family_name )
       {
-        char*  full   = face->type1.font_info.full_name;
+        char*  full   = info->full_name;
         char*  family = root->family_name;
 
 
         if ( full )
         {
-          while ( *family && *full == *family )
+          while ( *full )
           {
-            family++;
-            full++;
+            if ( *full == *family )
+            {
+              family++;
+              full++;
+            }
+            else
+            {
+              if ( *full == ' ' || *full == '-' )
+                full++;
+              else if ( *family == ' ' || *family == '-' )
+                family++;
+              else
+              {
+                if ( !*family )
+                  root->style_name = full;
+                break;
+              }
+            }
           }
-
-          root->style_name = ( *full == ' ' ? full + 1
-                                            : (char *)"Regular" );
         }
-        else
-          root->style_name = (char *)"Regular";
       }
       else
       {
         /* do we have a `/FontName'? */
-        if ( face->type1.font_name )
-        {
-          root->family_name = face->type1.font_name;
-          root->style_name  = (char *)"Regular";
-        }
+        if ( type1->font_name )
+          root->family_name = type1->font_name;
       }
 
       /* compute style flags */
       root->style_flags = 0;
-      if ( face->type1.font_info.italic_angle )
+      if ( info->italic_angle )
         root->style_flags |= FT_STYLE_FLAG_ITALIC;
-      if ( face->type1.font_info.weight )
+      if ( info->weight )
       {
-        if ( !ft_strcmp( face->type1.font_info.weight, "Bold"  ) ||
-             !ft_strcmp( face->type1.font_info.weight, "Black" ) )
+        if ( !ft_strcmp( info->weight, "Bold"  ) ||
+             !ft_strcmp( info->weight, "Black" ) )
           root->style_flags |= FT_STYLE_FLAG_BOLD;
       }
 
@@ -388,10 +399,10 @@
       root->num_fixed_sizes = 0;
       root->available_sizes = 0;
 
-      root->bbox.xMin =   face->type1.font_bbox.xMin             >> 16;
-      root->bbox.yMin =   face->type1.font_bbox.yMin             >> 16;
-      root->bbox.xMax = ( face->type1.font_bbox.xMax + 0xFFFFU ) >> 16;
-      root->bbox.yMax = ( face->type1.font_bbox.yMax + 0xFFFFU ) >> 16;
+      root->bbox.xMin =   type1->font_bbox.xMin             >> 16;
+      root->bbox.yMin =   type1->font_bbox.yMin             >> 16;
+      root->bbox.xMax = ( type1->font_bbox.xMax + 0xFFFFU ) >> 16;
+      root->bbox.yMax = ( type1->font_bbox.yMax + 0xFFFFU ) >> 16;
 
       /* Set units_per_EM if we didn't set it in parse_font_matrix. */
       if ( !root->units_per_EM )
@@ -400,13 +411,13 @@
       root->ascender  = (FT_Short)( root->bbox.yMax );
       root->descender = (FT_Short)( root->bbox.yMin );
       root->height    = (FT_Short)(
-                          ( ( root->ascender - root->descender ) * 12 ) / 10 );
+        ( ( root->ascender - root->descender ) * 12 ) / 10 );
 
       /* now compute the maximum advance width */
       root->max_advance_width =
         (FT_Short)( root->bbox.xMax );
       {
-        FT_Int  max_advance;
+        FT_Pos  max_advance;
 
 
         error = T1_Compute_Max_Advance( face, &max_advance );
@@ -420,14 +431,12 @@
 
       root->max_advance_height = root->height;
 
-      root->underline_position  = face->type1.font_info.underline_position;
-      root->underline_thickness = face->type1.font_info.underline_thickness;
+      root->underline_position  = (FT_Short)info->underline_position;
+      root->underline_thickness = (FT_Short)info->underline_thickness;
 
       root->internal->max_points   = 0;
       root->internal->max_contours = 0;
     }
-
-#ifdef FT_CONFIG_OPTION_USE_CMAPS
 
     {
       FT_Face  root = &face->root;
@@ -445,7 +454,7 @@
         /* first of all, try to synthetize a Unicode charmap */
         charmap.platform_id = 3;
         charmap.encoding_id = 1;
-        charmap.encoding    = ft_encoding_unicode;
+        charmap.encoding    = FT_ENCODING_UNICODE;
 
         FT_CMap_New( cmap_classes->unicode, NULL, &charmap, NULL );
 
@@ -453,29 +462,29 @@
         charmap.platform_id = 7;
         clazz               = NULL;
 
-        switch ( face->type1.encoding_type )
+        switch ( type1->encoding_type )
         {
         case T1_ENCODING_TYPE_STANDARD:
-          charmap.encoding    = ft_encoding_adobe_standard;
-          charmap.encoding_id = 0;
+          charmap.encoding    = FT_ENCODING_ADOBE_STANDARD;
+          charmap.encoding_id = TT_ADOBE_ID_STANDARD;
           clazz               = cmap_classes->standard;
           break;
 
         case T1_ENCODING_TYPE_EXPERT:
-          charmap.encoding    = ft_encoding_adobe_expert;
-          charmap.encoding_id = 1;
+          charmap.encoding    = FT_ENCODING_ADOBE_EXPERT;
+          charmap.encoding_id = TT_ADOBE_ID_EXPERT;
           clazz               = cmap_classes->expert;
           break;
 
         case T1_ENCODING_TYPE_ARRAY:
-          charmap.encoding    = ft_encoding_adobe_custom;
-          charmap.encoding_id = 2;
+          charmap.encoding    = FT_ENCODING_ADOBE_CUSTOM;
+          charmap.encoding_id = TT_ADOBE_ID_CUSTOM;
           clazz               = cmap_classes->custom;
           break;
 
         case T1_ENCODING_TYPE_ISOLATIN1:
-          charmap.encoding    = ft_encoding_latin_1;
-          charmap.encoding_id = 3;
+          charmap.encoding    = FT_ENCODING_ADOBE_LATIN_1;
+          charmap.encoding_id = TT_ADOBE_ID_LATIN_1;
           clazz               = cmap_classes->unicode;
           break;
 
@@ -486,86 +495,13 @@
         if ( clazz )
           FT_CMap_New( clazz, NULL, &charmap, NULL );
 
+#if 0
         /* Select default charmap */
         if (root->num_charmaps)
           root->charmap = root->charmaps[0];
+#endif
       }
     }
-
-#else /* !FT_CONFIG_OPTION_USE_CMAPS */
-
-    /* charmap support -- synthetize unicode charmap if possible */
-    {
-      FT_Face     root    = &face->root;
-      FT_CharMap  charmap = face->charmaprecs;
-
-
-      /* synthesize a Unicode charmap if there is support in the `PSNames' */
-      /* module                                                            */
-      if ( psnames )
-      {
-        if ( psnames->unicode_value )
-        {
-          error = psnames->build_unicodes(
-                    root->memory,
-                    face->type1.num_glyphs,
-                    (const char**)face->type1.glyph_names,
-                    &face->unicode_map );
-          if ( !error )
-          {
-            root->charmap        = charmap;
-            charmap->face        = (FT_Face)face;
-            charmap->encoding    = ft_encoding_unicode;
-            charmap->platform_id = 3;
-            charmap->encoding_id = 1;
-            charmap++;
-          }
-
-          /* simply clear the error in case of failure (which really) */
-          /* means that out of memory or no unicode glyph names       */
-          error = T1_Err_Ok;
-        }
-      }
-
-      /* now, support either the standard, expert, or custom encoding */
-      charmap->face        = (FT_Face)face;
-      charmap->platform_id = 7;  /* a new platform id for Adobe fonts? */
-
-      switch ( face->type1.encoding_type )
-      {
-      case T1_ENCODING_TYPE_STANDARD:
-        charmap->encoding    = ft_encoding_adobe_standard;
-        charmap->encoding_id = 0;
-        break;
-
-      case T1_ENCODING_TYPE_EXPERT:
-        charmap->encoding    = ft_encoding_adobe_expert;
-        charmap->encoding_id = 1;
-        break;
-
-      case T1_ENCODING_TYPE_ARRAY:
-        charmap->encoding    = ft_encoding_adobe_custom;
-        charmap->encoding_id = 2;
-        break;
-
-      case T1_ENCODING_TYPE_ISOLATIN1:
-        charmap->encoding    = ft_encoding_latin_1;
-        charmap->encoding_id = 3;
-        break;
-
-      default:
-        FT_ERROR(( "T1_Face_Init: invalid encoding\n" ));
-        error = T1_Err_Invalid_File_Format;
-        goto Exit;
-      }
-
-      root->charmaps     = face->charmaps;
-      root->num_charmaps = charmap - face->charmaprecs + 1;
-      face->charmaps[0]  = &face->charmaprecs[0];
-      face->charmaps[1]  = &face->charmaprecs[1];
-    }
-
-#endif /* !FT_CONFIG_OPTION_USE_CMAPS */
 
   Exit:
     return error;

@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    FreeType PFR data structures (specification only).                   */
 /*                                                                         */
-/*  Copyright 2002 by                                                      */
+/*  Copyright 2002, 2003 by                                                */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -52,19 +52,19 @@ FT_BEGIN_HEADER
     FT_UInt    max_blue_values;
     FT_UInt    max_x_orus;
     FT_UInt    max_y_orus;
-    
+
     FT_UInt    phy_font_max_size_high;
     FT_UInt    color_flags;
-    
+
     FT_UInt32  bct_max_size;
-    FT_UInt32  bct_set_max_size;        
+    FT_UInt32  bct_set_max_size;
     FT_UInt32  phy_bct_set_max_size;
-    
+
     FT_UInt    num_phy_fonts;
     FT_UInt    max_vert_stem_snap;
     FT_UInt    max_horz_stem_snap;
     FT_UInt    max_chars;
-  
+
   } PFR_HeaderRec, *PFR_Header;
 
 
@@ -73,7 +73,7 @@ FT_BEGIN_HEADER
   {
     PFR_FLAG_BLACK_PIXEL   = 1,
     PFR_FLAG_INVERT_BITMAP = 2
-  
+
   } PFR_HeaderFlags;
 
 
@@ -83,16 +83,16 @@ FT_BEGIN_HEADER
   {
     FT_UInt32  size;
     FT_UInt32  offset;
-    
+
     FT_Int32   matrix[4];
     FT_UInt    stroke_flags;
     FT_Int     stroke_thickness;
     FT_Int     bold_thickness;
     FT_Int32   miter_limit;
-    
+
     FT_UInt32  phys_size;
     FT_UInt32  phys_offset;
-  
+
   } PFR_LogFontRec, *PFR_LogFont;
 
 
@@ -104,7 +104,7 @@ FT_BEGIN_HEADER
     PFR_LOG_2BYTE_STROKE = 8,
     PFR_LOG_STROKE       = 4,
     PFR_LINE_JOIN_MASK   = 3
-    
+
   } PFR_LogFlags;
 
 
@@ -113,7 +113,7 @@ FT_BEGIN_HEADER
     PFR_LINE_JOIN_MITER = 0,
     PFR_LINE_JOIN_ROUND = 1,
     PFR_LINE_JOIN_BEVEL = 2
-    
+
   } PFR_LineJoinFlags;
 
 
@@ -124,7 +124,7 @@ FT_BEGIN_HEADER
     PFR_BITMAP_3BYTE_OFFSET   = 4,
     PFR_BITMAP_2BYTE_SIZE     = 2,
     PFR_BITMAP_2BYTE_CHARCODE = 1
-  
+
   } PFR_BitmapFlags;
 
 
@@ -133,7 +133,7 @@ FT_BEGIN_HEADER
     FT_UInt    char_code;
     FT_UInt    gps_size;
     FT_UInt32  gps_offset;
-  
+
   } PFR_BitmapCharRec, *PFR_BitmapChar;
 
 
@@ -153,17 +153,17 @@ FT_BEGIN_HEADER
     FT_UInt         x_ppm;
     FT_UInt         y_ppm;
     FT_UInt         flags;
-    
+
     FT_UInt32       gps_size;
     FT_UInt32       gps_offset;
-    
+
     FT_UInt32       bct_size;
     FT_UInt32       bct_offset;
-    
+
     /* optional */
     FT_UInt         num_bitmaps;
     PFR_BitmapChar  bitmaps;
-    
+
   } PFR_StrikeRec, *PFR_Strike;
 
 
@@ -175,7 +175,7 @@ FT_BEGIN_HEADER
     FT_Int     advance;
     FT_UInt    gps_size;
     FT_UInt32  gps_offset;
-  
+
   } PFR_CharRec, *PFR_Char;
 
 
@@ -186,16 +186,37 @@ FT_BEGIN_HEADER
     FT_UInt  standard;
     FT_UInt  num_stem_snaps;
     FT_Int*  stem_snaps;
-  
+
   } PFR_DimensionRec, *PFR_Dimension;
 
   /************************************************************************/
+
+  typedef struct PFR_KernItemRec_*  PFR_KernItem;
+
+  typedef struct  PFR_KernItemRec_
+  {
+    PFR_KernItem  next;
+    FT_UInt       pair_count;
+    FT_UInt       pair_size;
+    FT_Int        base_adj;
+    FT_UInt       flags;
+    FT_UInt32     offset;
+    FT_UInt32     pair1;
+    FT_UInt32     pair2;
+
+  } PFR_KernItemRec;
+
+#define PFR_KERN_INDEX( g1, g2 ) \
+  ( ( (FT_UInt32)(g1) << 16 ) | (FT_UInt16)(g2) )
+
+#define PFR_KERN_PAIR_INDEX( pair )  \
+          PFR_KERN_INDEX( (pair)->glyph1, (pair)->glyph2 )
 
   typedef struct  PFR_KernPairRec_
   {
     FT_UInt    glyph1;
     FT_UInt    glyph2;
-    FT_Vector  kerning;
+    FT_Int     kerning;
 
   } PFR_KernPairRec, *PFR_KernPair;
 
@@ -212,27 +233,39 @@ FT_BEGIN_HEADER
     FT_BBox            bbox;
     FT_UInt            flags;
     FT_UInt            standard_advance;
-    
+
+    FT_Int             ascent;   /* optional, bbox.yMax if not present */
+    FT_Int             descent;  /* optional, bbox.yMin if not present */
+    FT_Int             leading;  /* optional, 0 if not present         */
+
     PFR_DimensionRec   horizontal;
     PFR_DimensionRec   vertical;
 
     FT_String*         font_id;
+    FT_String*         family_name;
+    FT_String*         style_name;
 
     FT_UInt            num_strikes;
     FT_UInt            max_strikes;
     PFR_StrikeRec*     strikes;
-    
+
     FT_UInt            num_blue_values;
     FT_Int            *blue_values;
     FT_UInt            blue_fuzz;
     FT_UInt            blue_scale;
-    
+
     FT_UInt            num_chars;
     FT_UInt32          chars_offset;
     PFR_Char           chars;
 
     FT_UInt            num_kern_pairs;
-    PFR_KernPairRec   *kern_pairs;
+    PFR_KernItem       kern_items;
+    PFR_KernItem*      kern_items_tail;
+    PFR_KernPair       kern_pairs;
+
+    /* not part of the spec, but used during load */
+    FT_UInt32          bct_offset;
+    FT_Byte*           cursor;
 
   } PFR_PhyFontRec, *PFR_PhyFont;
 
@@ -252,9 +285,9 @@ FT_BEGIN_HEADER
 
   typedef enum PFR_KernFlags_
   {
-    PFR_KERN_2BYTE_ADJ   = 0x01,
-    PFR_KERN_2BYTE_CHAR  = 0x02
-  
+    PFR_KERN_2BYTE_CHAR  = 0x01,
+    PFR_KERN_2BYTE_ADJ   = 0x02
+
   } PFR_KernFlags;
 
 
@@ -267,7 +300,7 @@ FT_BEGIN_HEADER
     PFR_GLYPH_1BYTE_XYCOUNT = 0x04,
     PFR_GLYPH_XCOUNT        = 0x02,
     PFR_GLYPH_YCOUNT        = 0x01
-    
+
   } PFR_GlyphFlags;
 
 
@@ -276,7 +309,7 @@ FT_BEGIN_HEADER
   {
     FT_UInt  org;
     FT_UInt  cur;
-  
+
   } PFR_CoordRec, *PFR_Coord;
 
 
@@ -288,7 +321,7 @@ FT_BEGIN_HEADER
     FT_Int     y_delta;
     FT_UInt32  gps_offset;
     FT_UInt    gps_size;
-  
+
   } PFR_SubGlyphRec, *PFR_SubGlyph;
 
 
@@ -298,14 +331,14 @@ FT_BEGIN_HEADER
     PFR_SUBGLYPH_2BYTE_SIZE   = 0x40,
     PFR_SUBGLYPH_YSCALE       = 0x20,
     PFR_SUBGLYPH_XSCALE       = 0x10
-    
+
   } PFR_SubGlyphFlags;
 
 
   typedef struct  PFR_GlyphRec_
   {
     FT_Byte           format;
-    
+
     FT_UInt           num_x_control;
     FT_UInt           num_y_control;
     FT_UInt           max_xy_control;
@@ -316,10 +349,10 @@ FT_BEGIN_HEADER
     FT_UInt           num_subs;
     FT_UInt           max_subs;
     PFR_SubGlyphRec*  subs;
-    
+
     FT_GlyphLoader    loader;
     FT_Bool           path_begun;
-    
+
   } PFR_GlyphRec, *PFR_Glyph;
 
 

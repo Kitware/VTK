@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    FreeType outline management (body).                                  */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002 by                                           */
+/*  Copyright 1996-2001, 2002, 2003, 2004 by                               */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -26,6 +26,7 @@
 #include <ft2build.h>
 #include FT_OUTLINE_H
 #include FT_INTERNAL_OBJECTS_H
+#include FT_TRIGONOMETRY_H
 
 
   /*************************************************************************/
@@ -98,14 +99,14 @@
       tag   = FT_CURVE_TAG( tags[0] );
 
       /* A contour cannot start with a cubic control point! */
-      if ( tag == FT_Curve_Tag_Cubic )
+      if ( tag == FT_CURVE_TAG_CUBIC )
         goto Invalid_Outline;
 
       /* check first point to determine origin */
-      if ( tag == FT_Curve_Tag_Conic )
+      if ( tag == FT_CURVE_TAG_CONIC )
       {
         /* first point is conic control.  Yes, this happens. */
-        if ( FT_CURVE_TAG( outline->tags[last] ) == FT_Curve_Tag_On )
+        if ( FT_CURVE_TAG( outline->tags[last] ) == FT_CURVE_TAG_ON )
         {
           /* start at last point if it is on the curve */
           v_start = v_last;
@@ -137,7 +138,7 @@
         tag = FT_CURVE_TAG( tags[0] );
         switch ( tag )
         {
-        case FT_Curve_Tag_On:  /* emit a single line_to */
+        case FT_CURVE_TAG_ON:  /* emit a single line_to */
           {
             FT_Vector  vec;
 
@@ -151,7 +152,7 @@
             continue;
           }
 
-        case FT_Curve_Tag_Conic:  /* consume conic arcs */
+        case FT_CURVE_TAG_CONIC:  /* consume conic arcs */
           v_control.x = SCALED( point->x );
           v_control.y = SCALED( point->y );
 
@@ -169,7 +170,7 @@
             vec.x = SCALED( point->x );
             vec.y = SCALED( point->y );
 
-            if ( tag == FT_Curve_Tag_On )
+            if ( tag == FT_CURVE_TAG_ON )
             {
               error = func_interface->conic_to( &v_control, &vec, user );
               if ( error )
@@ -177,7 +178,7 @@
               continue;
             }
 
-            if ( tag != FT_Curve_Tag_Conic )
+            if ( tag != FT_CURVE_TAG_CONIC )
               goto Invalid_Outline;
 
             v_middle.x = ( v_control.x + vec.x ) / 2;
@@ -194,13 +195,13 @@
           error = func_interface->conic_to( &v_control, &v_start, user );
           goto Close;
 
-        default:  /* FT_Curve_Tag_Cubic */
+        default:  /* FT_CURVE_TAG_CUBIC */
           {
             FT_Vector  vec1, vec2;
 
 
             if ( point + 1 > limit                             ||
-                 FT_CURVE_TAG( tags[1] ) != FT_Curve_Tag_Cubic )
+                 FT_CURVE_TAG( tags[1] ) != FT_CURVE_TAG_CUBIC )
               goto Invalid_Outline;
 
             point += 2;
@@ -270,12 +271,12 @@
 
     anoutline->n_points    = (FT_UShort)numPoints;
     anoutline->n_contours  = (FT_Short)numContours;
-    anoutline->flags      |= ft_outline_owner;
+    anoutline->flags      |= FT_OUTLINE_OWNER;
 
     return FT_Err_Ok;
 
   Fail:
-    anoutline->flags |= ft_outline_owner;
+    anoutline->flags |= FT_OUTLINE_OWNER;
     FT_Outline_Done_Internal( memory, anoutline );
 
     return error;
@@ -334,7 +335,7 @@
       if ( end != n_points - 1 )
         goto Bad;
 
-      /* XXX: check the that array */
+      /* XXX: check the tags array */
       return 0;
     }
 
@@ -357,20 +358,17 @@
          source->n_contours != target->n_contours )
       return FT_Err_Invalid_Argument;
 
-    FT_MEM_COPY( target->points, source->points,
-                 source->n_points * sizeof ( FT_Vector ) );
+    FT_ARRAY_COPY( target->points, source->points, source->n_points );
 
-    FT_MEM_COPY( target->tags, source->tags,
-                 source->n_points * sizeof ( FT_Byte ) );
+    FT_ARRAY_COPY( target->tags, source->tags, source->n_points );
 
-    FT_MEM_COPY( target->contours, source->contours,
-                 source->n_contours * sizeof ( FT_Short ) );
+    FT_ARRAY_COPY( target->contours, source->contours, source->n_contours );
 
-    /* copy all flags, except the `ft_outline_owner' one */
-    is_owner      = target->flags & ft_outline_owner;
+    /* copy all flags, except the `FT_OUTLINE_OWNER' one */
+    is_owner      = target->flags & FT_OUTLINE_OWNER;
     target->flags = source->flags;
 
-    target->flags &= ~ft_outline_owner;
+    target->flags &= ~FT_OUTLINE_OWNER;
     target->flags |= is_owner;
 
     return FT_Err_Ok;
@@ -383,7 +381,7 @@
   {
     if ( outline )
     {
-      if ( outline->flags & ft_outline_owner )
+      if ( outline->flags & FT_OUTLINE_OWNER )
       {
         FT_FREE( outline->points   );
         FT_FREE( outline->tags     );
@@ -535,7 +533,7 @@
       first = last + 1;
     }
 
-    outline->flags ^= ft_outline_reverse_fill;
+    outline->flags ^= FT_OUTLINE_REVERSE_FILL;
   }
 
 
@@ -576,7 +574,7 @@
 
       /* now, look for another renderer that supports the same */
       /* format                                                */
-      renderer = FT_Lookup_Renderer( library, ft_glyph_format_outline,
+      renderer = FT_Lookup_Renderer( library, FT_GLYPH_FORMAT_OUTLINE,
                                      &node );
       update   = 1;
     }
@@ -608,8 +606,10 @@
     params.target = abitmap;
     params.flags  = 0;
 
-    if ( abitmap->pixel_mode == ft_pixel_mode_grays )
-      params.flags |= ft_raster_flag_aa;
+    if ( abitmap->pixel_mode == FT_PIXEL_MODE_GRAY  ||
+         abitmap->pixel_mode == FT_PIXEL_MODE_LCD   ||
+         abitmap->pixel_mode == FT_PIXEL_MODE_LCD_V )
+      params.flags |= FT_RASTER_FLAG_AA;
 
     return FT_Outline_Render( library, outline, &params );
   }
@@ -628,9 +628,9 @@
       return;
 
     xz = FT_MulFix( vector->x, matrix->xx ) +
-         FT_MulFix( vector->y, matrix->yx );
+         FT_MulFix( vector->y, matrix->xy );
 
-    yz = FT_MulFix( vector->x, matrix->xy ) +
+    yz = FT_MulFix( vector->x, matrix->yx ) +
          FT_MulFix( vector->y, matrix->yy );
 
     vector->x = xz;
@@ -650,6 +650,145 @@
 
     for ( ; vec < limit; vec++ )
       FT_Vector_Transform( vec, matrix );
+  }
+
+
+  typedef struct  FT_OrientationExtremumRec_
+  {
+    FT_Int   index;
+    FT_Long  pos;
+    FT_Int   first;
+    FT_Int   last;
+
+  } FT_OrientationExtremumRec;
+
+
+  static FT_Orientation
+  ft_orientation_extremum_compute( FT_OrientationExtremumRec*  extremum,
+                                   FT_Outline*                 outline )
+  {
+    FT_Vector  *point, *first, *last, *prev, *next;
+    FT_Vector*  points = outline->points;
+    FT_Angle    angle_in, angle_out;
+
+
+    /* compute the previous and next points in the same contour */
+    point = points + extremum->index;
+    first = points + extremum->first;
+    last  = points + extremum->last;
+
+    prev = point;
+    next = point;
+
+    do
+    {
+      prev = ( prev == first ) ? last : prev - 1;
+      if ( prev == point )
+        return FT_ORIENTATION_TRUETYPE;  /* degenerate case */
+
+    } while ( prev->x != point->x || prev->y != point->y );
+
+    do
+    {
+      next = ( next == last ) ? first : next + 1;
+      if ( next == point )
+        return FT_ORIENTATION_TRUETYPE;  /* shouldn't happen */
+
+    } while ( next->x != point->x || next->y != point->y );
+
+    /* now compute the orientation of the `out' vector relative */
+    /* to the `in' vector.                                      */
+    angle_in  = FT_Atan2( point->x - prev->x,  point->y - prev->y );
+    angle_out = FT_Atan2( next->x  - point->x, next->y  - point->y );
+
+    return ( FT_Angle_Diff( angle_in, angle_out ) >= 0 )
+             ? FT_ORIENTATION_TRUETYPE
+             : FT_ORIENTATION_POSTSCRIPT;
+  }
+
+
+  FT_EXPORT_DEF( FT_Orientation )
+  FT_Outline_Get_Orientation( FT_Outline*  outline )
+  {
+    FT_Orientation  result = FT_ORIENTATION_TRUETYPE;
+
+
+    if ( outline && outline->n_points > 0 )
+    {
+      FT_OrientationExtremumRec  xmin, ymin, xmax, ymax;
+      FT_Int                     n;
+      FT_Int                     first, last;
+      FT_Vector*                 points = outline->points;
+
+
+      xmin.pos = ymin.pos = +32768L;
+      xmax.pos = ymax.pos = -32768L;
+
+      xmin.index = ymin.index = xmax.index = ymax.index = -1;
+
+      first = 0;
+      for ( n = 0; n < outline->n_contours; n++, first = last + 1 )
+      {
+        last = outline->contours[n];
+
+        /* skip single-point contours; these are degenerated cases */
+        if ( last > first + 1 )
+        {
+          FT_Int  i;
+
+
+          for ( i = first; i < last; i++ )
+          {
+            FT_Pos  x = points[i].x;
+            FT_Pos  y = points[i].y;
+
+
+            if ( x < xmin.pos )
+            {
+              xmin.pos   = x;
+              xmin.index = i;
+              xmin.first = first;
+              xmin.last  = last;
+            }
+            if ( x > xmax.pos )
+            {
+              xmax.pos   = x;
+              xmax.index = i;
+              xmax.first = first;
+              xmax.last  = last;
+            }
+            if ( y < ymin.pos )
+            {
+              ymin.pos   = y;
+              ymin.index = i;
+              ymin.first = first;
+              ymin.last  = last;
+            }
+            if ( y > ymax.pos )
+            {
+              ymax.pos   = y;
+              ymax.index = i;
+              ymax.first = first;
+              ymax.last  = last;
+            }
+          }
+        }
+
+        if ( xmin.index >= 0 )
+          result = ft_orientation_extremum_compute( &xmin, outline );
+
+        else if ( xmax.index >= 0 )
+          result = ft_orientation_extremum_compute( &xmax, outline );
+
+        else if ( ymin.index >= 0 )
+          result = ft_orientation_extremum_compute( &ymin, outline );
+
+        else if ( ymax.index >= 0 )
+          result = ft_orientation_extremum_compute( &ymax, outline );
+      }
+    }
+
+    return result;
   }
 
 

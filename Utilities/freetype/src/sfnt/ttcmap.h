@@ -28,13 +28,13 @@ FT_BEGIN_HEADER
 
 
   FT_LOCAL( FT_Error )
-  TT_CharMap_Load( TT_Face       face,
-                   TT_CMapTable  cmap,
-                   FT_Stream     input );
+  tt_face_load_charmap( TT_Face       face,
+                        TT_CMapTable  cmap,
+                        FT_Stream     input );
 
   FT_LOCAL( FT_Error )
-  TT_CharMap_Free( TT_Face       face,
-                   TT_CMapTable  cmap );
+  tt_face_free_charmap( TT_Face       face,
+                        TT_CMapTable  cmap );
 
 
 FT_END_HEADER

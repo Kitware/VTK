@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    The FreeType glyph loader (body).                                    */
 /*                                                                         */
-/*  Copyright 2002 by                                                      */
+/*  Copyright 2002, 2003, 2004 by                                          */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg                       */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -19,6 +19,7 @@
 #include <ft2build.h>
 #include FT_INTERNAL_GLYPH_LOADER_H
 #include FT_INTERNAL_MEMORY_H
+#include FT_INTERNAL_OBJECTS_H
 
 #undef  FT_COMPONENT
 #define FT_COMPONENT  trace_gloader
@@ -181,14 +182,14 @@
   }
 
 
-  /* Ensure that we can add `n_points' and `n_contours' to our glyph. this */
-  /* function reallocates its outline tables if necessary.  Note that it   */
-  /* DOESN'T change the number of points within the loader!                */
+  /* Ensure that we can add `n_points' and `n_contours' to our glyph.      */
+  /* This function reallocates its outline tables if necessary.  Note that */
+  /* it DOESN'T change the number of points within the loader!             */
   /*                                                                       */
   FT_BASE_DEF( FT_Error )
   FT_GlyphLoader_CheckPoints( FT_GlyphLoader  loader,
-                               FT_UInt        n_points,
-                               FT_UInt        n_contours )
+                              FT_UInt         n_points,
+                              FT_UInt         n_contours )
   {
     FT_Memory    memory  = loader->memory;
     FT_Error     error   = FT_Err_Ok;
@@ -205,7 +206,7 @@
 
     if ( new_max > old_max )
     {
-      new_max = ( new_max + 7 ) & -8;
+      new_max = FT_PAD_CEIL( new_max, 8 );
 
       if ( FT_RENEW_ARRAY( base->points, old_max, new_max ) ||
            FT_RENEW_ARRAY( base->tags,   old_max, new_max ) )
@@ -225,7 +226,7 @@
               n_contours;
     if ( new_max > old_max )
     {
-      new_max = ( new_max + 3 ) & -4;
+      new_max = FT_PAD_CEIL( new_max, 4 );
       if ( FT_RENEW_ARRAY( base->contours, old_max, new_max ) )
         goto Exit;
 
@@ -261,7 +262,7 @@
     old_max = loader->max_subglyphs;
     if ( new_max > old_max )
     {
-      new_max = ( new_max + 1 ) & -2;
+      new_max = FT_PAD_CEIL( new_max, 2 );
       if ( FT_RENEW_ARRAY( base->subglyphs, old_max, new_max ) )
         goto Exit;
 
@@ -336,17 +337,17 @@
       FT_Outline*  in  = &source->base.outline;
 
 
-      FT_MEM_COPY( out->points, in->points,
-                   num_points * sizeof ( FT_Vector ) );
-      FT_MEM_COPY( out->tags, in->tags,
-                   num_points * sizeof ( char ) );
-      FT_MEM_COPY( out->contours, in->contours,
-                   num_contours * sizeof ( short ) );
+      FT_ARRAY_COPY( out->points, in->points,
+                     num_points );
+      FT_ARRAY_COPY( out->tags, in->tags,
+                     num_points );
+      FT_ARRAY_COPY( out->contours, in->contours,
+                     num_contours );
 
       /* do we need to copy the extra points? */
       if ( target->use_extra && source->use_extra )
-        FT_MEM_COPY( target->base.extra_points, source->base.extra_points,
-                     num_points * sizeof ( FT_Vector ) );
+        FT_ARRAY_COPY( target->base.extra_points, source->base.extra_points,
+                       num_points );
 
       out->n_points   = (short)num_points;
       out->n_contours = (short)num_contours;

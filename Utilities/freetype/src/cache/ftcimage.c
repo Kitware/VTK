@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    FreeType Image cache (body).                                         */
 /*                                                                         */
-/*  Copyright 2000-2001 by                                                 */
+/*  Copyright 2000-2001, 2003, 2004 by                                     */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -18,168 +18,100 @@
 
 #include <ft2build.h>
 #include FT_CACHE_H
-#include FT_CACHE_IMAGE_H
-#include FT_CACHE_INTERNAL_GLYPH_H
+#include FT_CACHE_INTERNAL_IMAGE_H
 #include FT_INTERNAL_MEMORY_H
 
+#include "ftccback.h"
 #include "ftcerror.h"
 
 
-  /* the FT_Glyph image node type */
-  typedef struct  FTC_ImageNodeRec_
-  {
-    FTC_GlyphNodeRec  gnode;
-    FT_Glyph          glyph;
-
-  } FTC_ImageNodeRec, *FTC_ImageNode;
-
-
-#define FTC_IMAGE_NODE( x )         ( (FTC_ImageNode)( x ) )
-#define FTC_IMAGE_NODE_GINDEX( x )  FTC_GLYPH_NODE_GINDEX( x )
-
-
-  /* the glyph image query */
-  typedef struct  FTC_ImageQueryRec_
-  {
-    FTC_GlyphQueryRec  gquery;
-    FTC_ImageDesc      desc;
-
-  } FTC_ImageQueryRec, *FTC_ImageQuery;
-
-
-#define FTC_IMAGE_QUERY( x )  ( (FTC_ImageQuery)( x ) )
-
-
-  /* the glyph image set type */
-  typedef struct  FTC_ImageFamilyRec_
-  {
-    FTC_GlyphFamilyRec  gfam;
-    FTC_ImageDesc       desc;
-
-  } FTC_ImageFamilyRec, *FTC_ImageFamily;
-
-
-#define FTC_IMAGE_FAMILY( x )         ( (FTC_ImageFamily)( x ) )
-#define FTC_IMAGE_FAMILY_MEMORY( x )  FTC_GLYPH_FAMILY_MEMORY( &(x)->gfam )
-
-
-  /*************************************************************************/
-  /*************************************************************************/
-  /*****                                                               *****/
-  /*****                    GLYPH IMAGE NODES                          *****/
-  /*****                                                               *****/
-  /*************************************************************************/
-  /*************************************************************************/
-
-
   /* finalize a given glyph image node */
-  FT_CALLBACK_DEF( void )
-  ftc_image_node_done( FTC_ImageNode  inode,
-                       FTC_Cache      cache )
+  FT_LOCAL_DEF( void )
+  ftc_inode_free( FTC_Node   ftcinode,
+                  FTC_Cache  cache )
   {
+    FTC_INode  inode = (FTC_INode)ftcinode;
+    FT_Memory  memory = cache->memory;
+
+
     if ( inode->glyph )
     {
       FT_Done_Glyph( inode->glyph );
       inode->glyph = NULL;
     }
 
-    ftc_glyph_node_done( FTC_GLYPH_NODE( inode ), cache );
+    FTC_GNode_Done( FTC_GNODE( inode ), cache );
+    FT_FREE( inode );
+  }
+
+
+  FT_EXPORT_DEF( void )
+  FTC_INode_Free( FTC_INode  inode,
+                  FTC_Cache  cache )
+  {
+    ftc_inode_free( FTC_NODE( inode ), cache );
   }
 
 
   /* initialize a new glyph image node */
-  FT_CALLBACK_DEF( FT_Error )
-  ftc_image_node_init( FTC_ImageNode   inode,
-                       FTC_GlyphQuery  gquery,
-                       FTC_Cache       cache )
+  FT_EXPORT_DEF( FT_Error )
+  FTC_INode_New( FTC_INode   *pinode,
+                 FTC_GQuery   gquery,
+                 FTC_Cache    cache )
   {
-    FTC_ImageFamily  ifam = FTC_IMAGE_FAMILY( gquery->query.family );
-    FT_Error         error;
-    FT_Face          face;
-    FT_Size          size;
+    FT_Memory  memory = cache->memory;
+    FT_Error   error;
+    FTC_INode  inode;
 
 
-    /* initialize its inner fields */
-    ftc_glyph_node_init( FTC_GLYPH_NODE( inode ),
-                         gquery->gindex,
-                         FTC_GLYPH_FAMILY( ifam ) );
-
-    /* we will now load the glyph image */
-    error = FTC_Manager_Lookup_Size( FTC_FAMILY( ifam )->cache->manager,
-                                     &ifam->desc.font,
-                                     &face, &size );
-    if ( !error )
+    if ( !FT_NEW( inode ) )
     {
-      FT_UInt  gindex     = FTC_GLYPH_NODE_GINDEX( inode );
-      FT_UInt  load_flags = FT_LOAD_DEFAULT;
-      FT_UInt  type       = ifam->desc.type;
+      FTC_GNode         gnode  = FTC_GNODE( inode );
+      FTC_Family        family = gquery->family;
+      FT_UInt           gindex = gquery->gindex;
+      FTC_IFamilyClass  clazz  = FTC_CACHE__IFAMILY_CLASS( cache );
 
 
-      if ( FTC_IMAGE_FORMAT( type ) == ftc_image_format_bitmap )
-      {
-        load_flags |= FT_LOAD_RENDER;
-        if ( type & ftc_image_flag_monochrome )
-          load_flags |= FT_LOAD_MONOCHROME;
+      /* initialize its inner fields */
+      FTC_GNode_Init( gnode, gindex, family );
 
-        /* disable embedded bitmaps loading if necessary */
-        if ( type & ftc_image_flag_no_sbits )
-          load_flags |= FT_LOAD_NO_BITMAP;
-      }
-      else if ( FTC_IMAGE_FORMAT( type ) == ftc_image_format_outline )
-      {
-        /* disable embedded bitmaps loading */
-        load_flags |= FT_LOAD_NO_BITMAP;
-
-        if ( type & ftc_image_flag_unscaled )
-          load_flags |= FT_LOAD_NO_SCALE;
-      }
-
-      if ( type & ftc_image_flag_unhinted )
-        load_flags |= FT_LOAD_NO_HINTING;
-
-      if ( type & ftc_image_flag_autohinted )
-        load_flags |= FT_LOAD_FORCE_AUTOHINT;
-
-      error = FT_Load_Glyph( face, gindex, load_flags );
-      if ( !error )
-      {
-        if ( face->glyph->format == ft_glyph_format_bitmap  ||
-             face->glyph->format == ft_glyph_format_outline )
-        {
-          /* ok, copy it */
-          FT_Glyph  glyph;
-
-
-          error = FT_Get_Glyph( face->glyph, &glyph );
-          if ( !error )
-          {
-            inode->glyph = glyph;
-            goto Exit;
-          }
-        }
-        else
-          error = FTC_Err_Invalid_Argument;
-      }
+      /* we will now load the glyph image */
+      error = clazz->family_load_glyph( family, gindex, cache,
+                                        &inode->glyph );
     }
 
-    /* in case of error */
-    ftc_glyph_node_done( FTC_GLYPH_NODE(inode), cache );
-
-  Exit:
+    *pinode = inode;
     return error;
   }
 
 
-  FT_CALLBACK_DEF( FT_ULong )
-  ftc_image_node_weight( FTC_ImageNode  inode )
+  FT_LOCAL_DEF( FT_Error )
+  ftc_inode_new( FTC_Node   *ftcpinode,
+                 FT_Pointer  ftcgquery,
+                 FTC_Cache   cache )
   {
-    FT_ULong  size  = 0;
-    FT_Glyph  glyph = inode->glyph;
+    FTC_INode  *pinode = (FTC_INode*)ftcpinode;
+    FTC_GQuery  gquery = (FTC_GQuery)ftcgquery;
+
+
+    return FTC_INode_New( pinode, gquery, cache );
+  }
+
+
+  FT_LOCAL_DEF( FT_ULong )
+  ftc_inode_weight( FTC_Node   ftcinode,
+                    FTC_Cache  ftccache )
+  {
+    FTC_INode  inode = (FTC_INode)ftcinode;
+    FT_ULong   size  = 0;
+    FT_Glyph   glyph = inode->glyph;
+
+    FT_UNUSED( ftccache );
 
 
     switch ( glyph->format )
     {
-    case ft_glyph_format_bitmap:
+    case FT_GLYPH_FORMAT_BITMAP:
       {
         FT_BitmapGlyph  bitg;
 
@@ -190,7 +122,7 @@
       }
       break;
 
-    case ft_glyph_format_outline:
+    case FT_GLYPH_FORMAT_OUTLINE:
       {
         FT_OutlineGlyph  outg;
 
@@ -212,176 +144,10 @@
   }
 
 
-  /*************************************************************************/
-  /*************************************************************************/
-  /*****                                                               *****/
-  /*****                    GLYPH IMAGE SETS                           *****/
-  /*****                                                               *****/
-  /*************************************************************************/
-  /*************************************************************************/
-
-
-  FT_CALLBACK_DEF( FT_Error )
-  ftc_image_family_init( FTC_ImageFamily  ifam,
-                         FTC_ImageQuery   iquery,
-                         FTC_Cache        cache )
+  FT_EXPORT_DEF( FT_ULong )
+  FTC_INode_Weight( FTC_INode  inode )
   {
-    FTC_Manager  manager = cache->manager;
-    FT_Error     error;
-    FT_Face      face;
-
-
-    ifam->desc = iquery->desc;
-
-    /* we need to compute "iquery.item_total" now */
-    error = FTC_Manager_Lookup_Face( manager,
-                                     iquery->desc.font.face_id,
-                                     &face );
-    if ( !error )
-    {
-      error = ftc_glyph_family_init( FTC_GLYPH_FAMILY( ifam ),
-                                     FTC_IMAGE_DESC_HASH( &ifam->desc ),
-                                     1,
-                                     face->num_glyphs,
-                                     FTC_GLYPH_QUERY( iquery ),
-                                     cache );
-    }
-
-    return error;
-  }
-
-
-  FT_CALLBACK_DEF( FT_Bool )
-  ftc_image_family_compare( FTC_ImageFamily  ifam,
-                            FTC_ImageQuery   iquery )
-  {
-    FT_Bool  result;
-
-
-    result = FT_BOOL( FTC_IMAGE_DESC_COMPARE( &ifam->desc, &iquery->desc ) );
-    if ( result )
-      FTC_GLYPH_FAMILY_FOUND( ifam, iquery );
-
-    return result;
-  }
-
-
-  /*************************************************************************/
-  /*************************************************************************/
-  /*****                                                               *****/
-  /*****                    GLYPH IMAGE CACHE                          *****/
-  /*****                                                               *****/
-  /*************************************************************************/
-  /*************************************************************************/
-
-
-
-  FT_CALLBACK_TABLE_DEF
-  const FTC_Cache_ClassRec  ftc_image_cache_class =
-  {
-    sizeof ( FTC_CacheRec ),
-    (FTC_Cache_InitFunc) ftc_cache_init,
-    (FTC_Cache_ClearFunc)ftc_cache_clear,
-    (FTC_Cache_DoneFunc) ftc_cache_done,
-
-    sizeof ( FTC_ImageFamilyRec ),
-    (FTC_Family_InitFunc)   ftc_image_family_init,
-    (FTC_Family_CompareFunc)ftc_image_family_compare,
-    (FTC_Family_DoneFunc)   ftc_glyph_family_done,
-
-    sizeof ( FTC_ImageNodeRec ),
-    (FTC_Node_InitFunc)   ftc_image_node_init,
-    (FTC_Node_WeightFunc) ftc_image_node_weight,
-    (FTC_Node_CompareFunc)ftc_glyph_node_compare,
-    (FTC_Node_DoneFunc)   ftc_image_node_done
-  };
-
-
-  /* documentation is in ftcimage.h */
-
-  FT_EXPORT_DEF( FT_Error )
-  FTC_ImageCache_New( FTC_Manager      manager,
-                      FTC_ImageCache  *acache )
-  {
-    return FTC_Manager_Register_Cache(
-             manager,
-             (FTC_Cache_Class)&ftc_image_cache_class,
-             FTC_CACHE_P( acache ) );
-  }
-
-
-  /* documentation is in ftcimage.h */
-
-  FT_EXPORT_DEF( FT_Error )
-  FTC_ImageCache_Lookup( FTC_ImageCache  cache,
-                         FTC_ImageDesc*  desc,
-                         FT_UInt         gindex,
-                         FT_Glyph       *aglyph,
-                         FTC_Node       *anode )
-  {
-    FTC_ImageQueryRec  iquery;
-    FTC_ImageNode      node;
-    FT_Error           error;
-
-
-    /* some argument checks are delayed to ftc_cache_lookup */
-    if ( !aglyph )
-      return FTC_Err_Invalid_Argument;
-
-    if ( anode )
-      *anode  = NULL;
-
-    iquery.gquery.gindex = gindex;
-    iquery.desc          = *desc;
-
-    error = ftc_cache_lookup( FTC_CACHE( cache ),
-                              FTC_QUERY( &iquery ),
-                              (FTC_Node*)(void*)&node );
-    if ( !error )
-    {
-      *aglyph = node->glyph;
-
-      if ( anode )
-      {
-        *anode = (FTC_Node)node;
-        FTC_NODE( node )->ref_count++;
-      }
-    }
-
-    return error;
-  }
-
-
-  /* backwards-compatibility functions */
-
-  FT_EXPORT_DEF( FT_Error )
-  FTC_Image_Cache_New( FTC_Manager       manager,
-                       FTC_Image_Cache  *acache )
-  {
-    return FTC_ImageCache_New( manager, (FTC_ImageCache*)acache );
-  }
-
-
-  FT_EXPORT_DEF( FT_Error )
-  FTC_Image_Cache_Lookup( FTC_Image_Cache  icache,
-                          FTC_Image_Desc*  desc,
-                          FT_UInt          gindex,
-                          FT_Glyph        *aglyph )
-  {
-    FTC_ImageDesc  desc0;
-
-
-    if ( !desc )
-      return FTC_Err_Invalid_Argument;
-
-    desc0.font = desc->font;
-    desc0.type = (FT_UInt32)desc->image_type;
-
-    return FTC_ImageCache_Lookup( (FTC_ImageCache)icache,
-                                   &desc0,
-                                   gindex,
-                                   aglyph,
-                                   NULL );
+    return ftc_inode_weight( FTC_NODE( inode ), NULL );
   }
 
 

@@ -2,7 +2,7 @@
 
     FreeType font driver for pcf fonts
 
-  Copyright 2000-2001 by
+  Copyright 2000, 2001, 2004 by
   Francesco Zappa Nardelli
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -30,27 +30,24 @@ THE SOFTWARE.
 
 
 #include <ft2build.h>
+#include FT_CONFIG_CONFIG_H
 
 
-  void
+FT_BEGIN_HEADER
+
+  FT_LOCAL( void )
   BitOrderInvert( unsigned char*  buf,
-                  int             nbytes);
+                  int             nbytes );
 
-  void
+  FT_LOCAL( void )
   TwoByteSwap( unsigned char*  buf,
-               int             nbytes);
+               int             nbytes );
 
-  void
+  FT_LOCAL( void )
   FourByteSwap( unsigned char*  buf,
-                int             nbytes);
+                int             nbytes );
 
-  int
-  RepadBitmap( char*           pSrc,
-               char*           pDst,
-               unsigned int    srcPad,
-               unsigned int    dstPad,
-               int             width,
-               int             height);
+FT_END_HEADER
 
 #endif /* __PCFUTIL_H__ */
 

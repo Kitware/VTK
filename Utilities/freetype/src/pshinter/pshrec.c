@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    FreeType PostScript hints recorder (body).                           */
 /*                                                                         */
-/*  Copyright 2001, 2002 by                                                */
+/*  Copyright 2001, 2002, 2003, 2004 by                                    */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -23,13 +23,15 @@
 #include "pshrec.h"
 #include "pshalgo.h"
 
+#include "pshnterr.h"
+
 #undef  FT_COMPONENT
 #define FT_COMPONENT  trace_pshrec
 
 #ifdef DEBUG_HINTER
-  extern PS_Hints  ps_debug_hints         = 0;
-  extern int       ps_debug_no_horz_hints = 0;
-  extern int       ps_debug_no_vert_hints = 0;
+  PS_Hints  ps_debug_hints         = 0;
+  int       ps_debug_no_horz_hints = 0;
+  int       ps_debug_no_vert_hints = 0;
 #endif
 
 
@@ -66,7 +68,7 @@
     if ( new_max > old_max )
     {
       /* try to grow the table */
-      new_max = ( new_max + 7 ) & -8;
+      new_max = FT_PAD_CEIL( new_max, 8 );
       if ( !FT_RENEW_ARRAY( table->hints, old_max, new_max ) )
         table->max_hints = new_max;
     }
@@ -140,7 +142,7 @@
 
     if ( new_max > old_max )
     {
-      new_max = ( new_max + 7 ) & -8;
+      new_max = FT_PAD_CEIL( new_max, 8 );
       if ( !FT_RENEW_ARRAY( mask->bytes, old_max, new_max ) )
         mask->max_bits = new_max * 8;
     }
@@ -237,7 +239,7 @@
 
     if ( new_max > old_max )
     {
-      new_max = ( new_max + 7 ) & -8;
+      new_max = FT_PAD_CEIL( new_max, 8 );
       if ( !FT_RENEW_ARRAY( table->masks, old_max, new_max ) )
         table->max_masks = new_max;
     }
@@ -316,8 +318,7 @@
     PS_Mask   mask;
 
 
-    /* allocate new mask, and grow it to "bit_count" bits */
-    error = ps_mask_table_alloc( table, memory, &mask );
+    error = ps_mask_table_last( table, memory, &mask );
     if ( error )
       goto Exit;
 
@@ -797,7 +798,7 @@
   ps_hints_init( PS_Hints   hints,
                  FT_Memory  memory )
   {
-    ft_memset( hints, 0, sizeof ( *hints ) );
+    FT_MEM_ZERO( hints, sizeof ( *hints ) );
     hints->memory = memory;
     return 0;
   }
@@ -820,7 +821,7 @@
       break;
 
     default:
-      hints->error     = FT_Err_Invalid_Argument;
+      hints->error     = PSH_Err_Invalid_Argument;
       hints->hint_type = hint_type;
 
       FT_ERROR(( "ps_hints_open: invalid charstring type!\n" ));
@@ -861,8 +862,9 @@
             FT_Memory  memory = hints->memory;
 
 
-            error = ps_dimension_add_t1stem( dim, stems[0], stems[1],
-                                             memory, NULL );
+            error = ps_dimension_add_t1stem(
+                      dim, (FT_Int)stems[0], (FT_Int)stems[1],
+                      memory, NULL );
             if ( error )
             {
               FT_ERROR(( "ps_hints_stem: could not add stem"
@@ -917,8 +919,9 @@
         /* add the three stems to our hints/masks table */
         for ( count = 0; count < 3; count++, stems += 2 )
         {
-          error = ps_dimension_add_t1stem( dim, stems[0], stems[1],
-                                           memory, &idx[count] );
+          error = ps_dimension_add_t1stem(
+                    dim, (FT_Int)stems[0], (FT_Int)stems[1],
+                    memory, &idx[count] );
           if ( error )
             goto Fail;
         }
@@ -932,7 +935,7 @@
       else
       {
         FT_ERROR(( "ps_hints_t1stem3: called with invalid hint type!\n" ));
-        error = FT_Err_Invalid_Argument;
+        error = PSH_Err_Invalid_Argument;
         goto Fail;
       }
     }
@@ -973,7 +976,7 @@
       else
       {
         /* invalid hint type */
-        error = FT_Err_Invalid_Argument;
+        error = PSH_Err_Invalid_Argument;
         goto Fail;
       }
     }
@@ -1008,18 +1011,18 @@
         FT_ERROR(( "ps_hints_t2mask: "
                    "called with invalid bitcount %d (instead of %d)\n",
                    bit_count, count1 + count2 ));
-        
+
         /* simply ignore the operator */
         return;
       }
 
       /* set-up new horizontal and vertical hint mask now */
-      error = ps_dimension_set_mask_bits( &dim[0], bytes, 0, count1,
+      error = ps_dimension_set_mask_bits( &dim[0], bytes, count2, count1,
                                           end_point, memory );
       if ( error )
         goto Fail;
 
-      error = ps_dimension_set_mask_bits( &dim[1], bytes, count1, count2,
+      error = ps_dimension_set_mask_bits( &dim[1], bytes, 0, count2,
                                           end_point, memory );
       if ( error )
         goto Fail;
@@ -1053,7 +1056,7 @@
         FT_ERROR(( "ps_hints_t2counter: "
                    "called with invalid bitcount %d (instead of %d)\n",
                    bit_count, count1 + count2 ));
-                   
+
         /* simply ignore the operator */
         return;
       }
@@ -1132,14 +1135,14 @@
   FT_LOCAL_DEF( void )
   t1_hints_funcs_init( T1_Hints_FuncsRec*  funcs )
   {
-    ft_memset( (char*)funcs, 0, sizeof ( *funcs ) );
+    FT_MEM_ZERO( (char*)funcs, sizeof ( *funcs ) );
 
     funcs->open  = (T1_Hints_OpenFunc)    t1_hints_open;
     funcs->close = (T1_Hints_CloseFunc)   ps_hints_close;
     funcs->stem  = (T1_Hints_SetStemFunc) t1_hints_stem;
     funcs->stem3 = (T1_Hints_SetStem3Func)ps_hints_t1stem3;
     funcs->reset = (T1_Hints_ResetFunc)   ps_hints_t1reset;
-    funcs->apply = (T1_Hints_ApplyFunc)   PS_HINTS_APPLY_FUNC;
+    funcs->apply = (T1_Hints_ApplyFunc)   ps_hints_apply;
   }
 
 
@@ -1164,7 +1167,8 @@
                   FT_Int     count,
                   FT_Fixed*  coords )
   {
-    FT_Pos  stems[32], y, n, total = count;
+    FT_Pos  stems[32], y, n;
+    FT_Int  total = count;
 
 
     y = 0;
@@ -1179,7 +1183,7 @@
       for ( n = 0; n < count * 2; n++ )
       {
         y       += coords[n];
-        stems[n] = ( y + 0x8000 ) >> 16;
+        stems[n] = ( y + 0x8000L ) >> 16;
       }
 
       /* compute lengths */
@@ -1197,14 +1201,14 @@
   FT_LOCAL_DEF( void )
   t2_hints_funcs_init( T2_Hints_FuncsRec*  funcs )
   {
-    ft_memset( funcs, 0, sizeof ( *funcs ) );
+    FT_MEM_ZERO( funcs, sizeof ( *funcs ) );
 
     funcs->open    = (T2_Hints_OpenFunc)   t2_hints_open;
     funcs->close   = (T2_Hints_CloseFunc)  ps_hints_close;
     funcs->stems   = (T2_Hints_StemsFunc)  t2_hints_stems;
     funcs->hintmask= (T2_Hints_MaskFunc)   ps_hints_t2mask;
     funcs->counter = (T2_Hints_CounterFunc)ps_hints_t2counter;
-    funcs->apply   = (T2_Hints_ApplyFunc)  PS_HINTS_APPLY_FUNC;
+    funcs->apply   = (T2_Hints_ApplyFunc)  ps_hints_apply;
   }
 
 

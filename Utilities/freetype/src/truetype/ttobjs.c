@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    Objects manager (body).                                              */
 /*                                                                         */
-/*  Copyright 1996-2001, 2002 by                                           */
+/*  Copyright 1996-2001, 2002, 2003, 2004 by                               */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -23,7 +23,6 @@
 #include FT_TRUETYPE_IDS_H
 #include FT_TRUETYPE_TAGS_H
 #include FT_INTERNAL_SFNT_H
-#include FT_INTERNAL_POSTSCRIPT_NAMES_H
 
 #include "ttgload.h"
 #include "ttpload.h"
@@ -34,6 +33,13 @@
 #include "ttinterp.h"
 #endif
 
+#ifdef TT_CONFIG_OPTION_UNPATENTED_HINTING
+#include FT_TRUETYPE_UNPATENTED_H
+#endif
+
+#ifdef TT_CONFIG_OPTION_GX_VAR_SUPPORT
+#include "ttgxvar.h"
+#endif
 
   /*************************************************************************/
   /*                                                                       */
@@ -57,7 +63,7 @@
   /*************************************************************************/
   /*                                                                       */
   /* <Function>                                                            */
-  /*    TT_Done_GlyphZone                                                  */
+  /*    tt_glyphzone_done                                                  */
   /*                                                                       */
   /* <Description>                                                         */
   /*    Deallocates a glyph zone.                                          */
@@ -66,25 +72,29 @@
   /*    zone :: A pointer to the target glyph zone.                        */
   /*                                                                       */
   FT_LOCAL_DEF( void )
-  TT_Done_GlyphZone( TT_GlyphZone  zone )
+  tt_glyphzone_done( TT_GlyphZone  zone )
   {
     FT_Memory  memory = zone->memory;
 
 
-    FT_FREE( zone->contours );
-    FT_FREE( zone->tags );
-    FT_FREE( zone->cur );
-    FT_FREE( zone->org );
+    if ( memory )
+    {
+      FT_FREE( zone->contours );
+      FT_FREE( zone->tags );
+      FT_FREE( zone->cur );
+      FT_FREE( zone->org );
 
-    zone->max_points   = zone->n_points   = 0;
-    zone->max_contours = zone->n_contours = 0;
+      zone->max_points   = zone->n_points   = 0;
+      zone->max_contours = zone->n_contours = 0;
+      zone->memory       = NULL;
+    }
   }
 
 
   /*************************************************************************/
   /*                                                                       */
   /* <Function>                                                            */
-  /*    TT_New_GlyphZone                                                   */
+  /*    tt_glyphzone_new                                                   */
   /*                                                                       */
   /* <Description>                                                         */
   /*    Allocates a new glyph zone.                                        */
@@ -103,7 +113,7 @@
   /*    FreeType error code.  0 means success.                             */
   /*                                                                       */
   FT_LOCAL_DEF( FT_Error )
-  TT_New_GlyphZone( FT_Memory     memory,
+  tt_glyphzone_new( FT_Memory     memory,
                     FT_UShort     maxPoints,
                     FT_Short      maxContours,
                     TT_GlyphZone  zone )
@@ -114,7 +124,7 @@
     if ( maxPoints > 0 )
       maxPoints += 2;
 
-    FT_MEM_SET( zone, 0, sizeof ( *zone ) );
+    FT_MEM_ZERO( zone, sizeof ( *zone ) );
     zone->memory = memory;
 
     if ( FT_NEW_ARRAY( zone->org,      maxPoints * 2 ) ||
@@ -122,7 +132,7 @@
          FT_NEW_ARRAY( zone->tags,     maxPoints     ) ||
          FT_NEW_ARRAY( zone->contours, maxContours   ) )
     {
-      TT_Done_GlyphZone( zone );
+      tt_glyphzone_done( zone );
     }
 
     return error;
@@ -133,7 +143,7 @@
   /*************************************************************************/
   /*                                                                       */
   /* <Function>                                                            */
-  /*    TT_Face_Init                                                       */
+  /*    tt_face_init                                                       */
   /*                                                                       */
   /* <Description>                                                         */
   /*    Initializes a given TrueType face object.                          */
@@ -154,8 +164,8 @@
   /*    FreeType error code.  0 means success.                             */
   /*                                                                       */
   FT_LOCAL_DEF( FT_Error )
-  TT_Face_Init( FT_Stream      stream,
-                TT_Face        face,
+  tt_face_init( FT_Stream      stream,
+                FT_Face        ttface,      /* TT_Face */
                 FT_Int         face_index,
                 FT_Int         num_params,
                 FT_Parameter*  params )
@@ -163,6 +173,7 @@
     FT_Error      error;
     FT_Library    library;
     SFNT_Service  sfnt;
+    TT_Face       face = (TT_Face)ttface;
 
 
     library = face->root.driver->root.library;
@@ -197,9 +208,43 @@
       goto Exit;
 
     if ( face->root.face_flags & FT_FACE_FLAG_SCALABLE )
-      error = TT_Load_Locations( face, stream ) ||
-              TT_Load_CVT      ( face, stream ) ||
-              TT_Load_Programs ( face, stream );
+    {
+
+#ifdef FT_CONFIG_OPTION_INCREMENTAL
+
+      if ( !face->root.internal->incremental_interface )
+        error = tt_face_load_loca( face, stream );
+      if ( !error )
+        error = tt_face_load_cvt( face, stream ) ||
+                tt_face_load_fpgm( face, stream );
+
+#else
+
+      if ( !error )
+        error = tt_face_load_loca( face, stream ) ||
+                tt_face_load_cvt( face, stream )  ||
+                tt_face_load_fpgm( face, stream );
+
+#endif
+
+    }
+
+#ifdef TT_CONFIG_OPTION_UNPATENTED_HINTING
+
+    /* Determine whether unpatented hinting is to be used for this face. */
+    face->unpatented_hinting = FT_BOOL
+       ( library->debug_hooks[ FT_DEBUG_HOOK_UNPATENTED_HINTING ] != NULL );
+
+    {
+      int  i;
+
+
+      for ( i = 0; i < num_params && !face->unpatented_hinting; i++ )
+        if ( params[i].tag == FT_PARAM_TAG_UNPATENTED_HINTING )
+          face->unpatented_hinting = TRUE;
+    }
+
+#endif /* TT_CONFIG_OPTION_UNPATENTED_HINTING */
 
     /* initialize standard glyph loading routines */
     TT_Init_Glyph_Loading( face );
@@ -216,7 +261,7 @@
   /*************************************************************************/
   /*                                                                       */
   /* <Function>                                                            */
-  /*    TT_Face_Done                                                       */
+  /*    tt_face_done                                                       */
   /*                                                                       */
   /* <Description>                                                         */
   /*    Finalizes a given face object.                                     */
@@ -225,8 +270,9 @@
   /*    face :: A pointer to the face object to destroy.                   */
   /*                                                                       */
   FT_LOCAL_DEF( void )
-  TT_Face_Done( TT_Face  face )
+  tt_face_done( FT_Face  ttface )           /* TT_Face */
   {
+    TT_Face       face   = (TT_Face)ttface;
     FT_Memory     memory = face->root.memory;
     FT_Stream     stream = face->root.stream;
 
@@ -253,6 +299,11 @@
     FT_FRAME_RELEASE( face->cvt_program );
     face->font_program_size = 0;
     face->cvt_program_size  = 0;
+
+#ifdef TT_CONFIG_OPTION_GX_VAR_SUPPORT
+    tt_done_blend( memory, face->blend );
+    face->blend = NULL;
+#endif
   }
 
 
@@ -266,7 +317,7 @@
   /*************************************************************************/
   /*                                                                       */
   /* <Function>                                                            */
-  /*    TT_Size_Init                                                       */
+  /*    tt_size_init                                                       */
   /*                                                                       */
   /* <Description>                                                         */
   /*    Initializes a new TrueType size object.                            */
@@ -278,8 +329,9 @@
   /*    FreeType error code.  0 means success.                             */
   /*                                                                       */
   FT_LOCAL_DEF( FT_Error )
-  TT_Size_Init( TT_Size  size )
+  tt_size_init( FT_Size  ttsize )           /* TT_Size */
   {
+    TT_Size   size  = (TT_Size)ttsize;
     FT_Error  error = TT_Err_Ok;
 
 
@@ -335,7 +387,7 @@
 
     /* reserve twilight zone */
     n_twilight = maxp->maxTwilightPoints;
-    error = TT_New_GlyphZone( memory, n_twilight, 0, &size->twilight );
+    error = tt_glyphzone_new( memory, n_twilight, 0, &size->twilight );
     if ( error )
       goto Fail_Memory;
 
@@ -436,7 +488,7 @@
 
   Fail_Memory:
 
-    TT_Size_Done( size );
+    tt_size_done( ttsize );
     return error;
 
 #endif /* TT_CONFIG_OPTION_BYTECODE_INTERPRETER */
@@ -447,7 +499,7 @@
   /*************************************************************************/
   /*                                                                       */
   /* <Function>                                                            */
-  /*    TT_Size_Done                                                       */
+  /*    tt_size_done                                                       */
   /*                                                                       */
   /* <Description>                                                         */
   /*    The TrueType size object finalizer.                                */
@@ -456,8 +508,9 @@
   /*    size :: A handle to the target size object.                        */
   /*                                                                       */
   FT_LOCAL_DEF( void )
-  TT_Size_Done( TT_Size  size )
+  tt_size_done( FT_Size  ttsize )           /* TT_Size */
   {
+    TT_Size    size = (TT_Size)ttsize;
 
 #ifdef TT_CONFIG_OPTION_BYTECODE_INTERPRETER
 
@@ -479,7 +532,7 @@
     size->storage_size = 0;
 
     /* twilight zone */
-    TT_Done_GlyphZone( &size->twilight );
+    tt_glyphzone_done( &size->twilight );
 
     FT_FREE( size->function_defs );
     FT_FREE( size->instruction_defs );
@@ -524,7 +577,7 @@
 
     face = (TT_Face)size->root.face;
 
-    metrics = &size->root.metrics;
+    metrics = &size->metrics;
 
     if ( metrics->x_ppem < 1 || metrics->y_ppem < 1 )
       return TT_Err_Invalid_PPem;
@@ -549,15 +602,17 @@
       size->ttmetrics.y_ratio = 0x10000L;
     }
 
-    /* Compute root ascender, descender, test height, and max_advance */
-    metrics->ascender    = ( FT_MulFix( face->root.ascender,
-                                        metrics->y_scale ) + 32 ) & -64;
-    metrics->descender   = ( FT_MulFix( face->root.descender,
-                                        metrics->y_scale ) + 32 ) & -64;
-    metrics->height      = ( FT_MulFix( face->root.height,
-                                        metrics->y_scale ) + 32 ) & -64;
-    metrics->max_advance = ( FT_MulFix( face->root.max_advance_width,
-                                        metrics->x_scale ) + 32 ) & -64;
+    /* Compute root ascender, descender, text height, and max_advance */
+    metrics->ascender =
+      FT_PIX_ROUND( FT_MulFix( face->root.ascender, metrics->y_scale ) );
+    metrics->descender =
+      FT_PIX_ROUND( FT_MulFix( face->root.descender, metrics->y_scale ) );
+    metrics->height =
+      FT_PIX_ROUND( FT_MulFix( face->root.height, metrics->y_scale ) );
+    metrics->max_advance =
+      FT_PIX_ROUND( FT_MulFix( face->root.max_advance_width,
+                               metrics->x_scale ) );
+
 
 #ifdef TT_CONFIG_OPTION_EMBEDDED_BITMAPS
     /* set to `invalid' by default */
@@ -673,7 +728,7 @@
     SFNT_Service      sfnt;
 
 
-    metrics = &size->root.metrics;
+    metrics = &size->metrics;
 
     if ( size->strike_index != 0xFFFFU )
       return TT_Err_Ok;
@@ -683,39 +738,39 @@
 
     sbit_metrics = &size->strike_metrics;
 
-    error = sfnt->set_sbit_strike(face,
-                                  metrics->x_ppem, metrics->y_ppem,
-                                  &strike_index);
+    error = sfnt->set_sbit_strike( face,
+                                   metrics->x_ppem, metrics->y_ppem,
+                                   &strike_index );
 
     if ( !error )
     {
       TT_SBit_Strike  strike = face->sbit_strikes + strike_index;
 
 
-      sbit_metrics->x_ppem      = metrics->x_ppem;
-      sbit_metrics->y_ppem      = metrics->y_ppem;
+      sbit_metrics->x_ppem = metrics->x_ppem;
+      sbit_metrics->y_ppem = metrics->y_ppem;
 #if 0
       /*
        * sbit_metrics->?_scale
        * are not used now.
        */
-      sbit_metrics->x_scale     = 1 << 16;
-      sbit_metrics->y_scale     = 1 << 16;
+      sbit_metrics->x_scale = 1 << 16;
+      sbit_metrics->y_scale = 1 << 16;
 #endif
 
-      sbit_metrics->ascender    = strike->hori.ascender << 6;
-      sbit_metrics->descender   = strike->hori.descender << 6;
+      sbit_metrics->ascender  = strike->hori.ascender << 6;
+      sbit_metrics->descender = strike->hori.descender << 6;
 
       /* XXX: Is this correct? */
-      sbit_metrics->height      = sbit_metrics->ascender -
-                                  sbit_metrics->descender;
+      sbit_metrics->height = sbit_metrics->ascender -
+                             sbit_metrics->descender;
 
       /* XXX: Is this correct? */
-      sbit_metrics->max_advance = ( strike->hori.min_origin_SB +
-                                    strike->hori.max_width     +
+      sbit_metrics->max_advance = ( strike->hori.min_origin_SB  +
+                                    strike->hori.max_width      +
                                     strike->hori.min_advance_SB ) << 6;
 
-      size->strike_index = strike_index;
+      size->strike_index = (FT_UInt)strike_index;
     }
     else
     {
@@ -738,7 +793,7 @@
   /*************************************************************************/
   /*                                                                       */
   /* <Function>                                                            */
-  /*    TT_Size_Reset                                                      */
+  /*    tt_size_reset                                                      */
   /*                                                                       */
   /* <Description>                                                         */
   /*    Resets a TrueType size when resolutions and character dimensions   */
@@ -748,7 +803,7 @@
   /*    size :: A handle to the target size object.                        */
   /*                                                                       */
   FT_LOCAL_DEF( FT_Error )
-  TT_Size_Reset( TT_Size  size )
+  tt_size_reset( TT_Size  size )
   {
     FT_Face   face;
     FT_Error  error = TT_Err_Ok;
@@ -788,7 +843,7 @@
   /*************************************************************************/
   /*                                                                       */
   /* <Function>                                                            */
-  /*    TT_Driver_Init                                                     */
+  /*    tt_driver_init                                                     */
   /*                                                                       */
   /* <Description>                                                         */
   /*    Initializes a given TrueType driver object.                        */
@@ -800,7 +855,7 @@
   /*    FreeType error code.  0 means success.                             */
   /*                                                                       */
   FT_LOCAL_DEF( FT_Error )
-  TT_Driver_Init( TT_Driver  driver )
+  tt_driver_init( FT_Module  driver )       /* TT_Driver */
   {
     FT_Error  error;
 
@@ -815,7 +870,7 @@
   /*************************************************************************/
   /*                                                                       */
   /* <Function>                                                            */
-  /*    TT_Driver_Done                                                     */
+  /*    tt_driver_done                                                     */
   /*                                                                       */
   /* <Description>                                                         */
   /*    Finalizes a given TrueType driver.                                 */
@@ -824,9 +879,11 @@
   /*    driver :: A handle to the target TrueType driver.                  */
   /*                                                                       */
   FT_LOCAL_DEF( void )
-  TT_Driver_Done( TT_Driver  driver )
+  tt_driver_done( FT_Module  ttdriver )     /* TT_Driver */
   {
 #ifdef TT_CONFIG_OPTION_BYTECODE_INTERPRETER
+    TT_Driver  driver = (TT_Driver)ttdriver;
+
 
     /* destroy the execution context */
     if ( driver->context )
@@ -835,7 +892,7 @@
       driver->context = NULL;
     }
 #else
-    FT_UNUSED( driver );
+    FT_UNUSED( ttdriver );
 #endif
 
   }

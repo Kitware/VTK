@@ -51,6 +51,11 @@ FT_BEGIN_HEADER
   ah_angle( FT_Vector*  v );
 
 
+  FT_LOCAL( AH_Angle )
+  ah_angle_diff( AH_Angle  angle1,
+                 AH_Angle  angle2 );
+
+
 FT_END_HEADER
 
 #endif /* __AHANGLES_H__ */

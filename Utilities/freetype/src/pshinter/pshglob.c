@@ -5,7 +5,7 @@
 /*    PostScript hinter global hinting management (body).                  */
 /*    Inspired by the new auto-hinter module.                              */
 /*                                                                         */
-/*  Copyright 2001, 2002 by                                                */
+/*  Copyright 2001, 2002, 2003, 2004 by                                    */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used        */
@@ -23,7 +23,7 @@
 #include "pshglob.h"
 
 #ifdef DEBUG_HINTER
-  extern PSH_Globals  ps_debug_globals = 0;
+  PSH_Globals  ps_debug_globals = 0;
 #endif
 
 
@@ -52,7 +52,7 @@
     if ( count > 0 )
     {
       width->cur = FT_MulFix( width->org, scale );
-      width->fit = FT_RoundFix( width->cur );
+      width->fit = FT_PIX_ROUND( width->cur );
 
       width++;
       count--;
@@ -72,11 +72,13 @@
           w = stand->cur;
 
         width->cur = w;
-        width->fit = FT_RoundFix( w );
+        width->fit = FT_PIX_ROUND( w );
       }
     }
   }
 
+
+#if 0
 
   /* org_width is is font units, result in device pixels, 26.6 format */
   FT_LOCAL_DEF( FT_Pos )
@@ -121,6 +123,8 @@
 
     return width;
   }
+
+#endif /* 0 */
 
 
   /*************************************************************************/
@@ -373,7 +377,7 @@
     /* parameter to the raw bluescale value.  Here is why:    */
     /*                                                        */
     /*   We need to suppress overshoots for all pointsizes.   */
-    /*   At 300dpi that satisfy:                              */
+    /*   At 300dpi that satisfies:                            */
     /*                                                        */
     /*      pointsize < 240*bluescale + 0.49                  */
     /*                                                        */
@@ -392,7 +396,16 @@
     /*                                                        */
     /*      "scale < bluescale"                               */
     /*                                                        */
-    blues->no_overshoots = FT_BOOL( scale < blues->blue_scale );
+    /* Note that `blue_scale' is stored 1000 times its real   */
+    /* value, and that `scale' converts from font units to    */
+    /* fractional pixels.                                     */
+    /*                                                        */
+
+    /* 1000 / 64 = 125 / 8 */
+    if ( scale >= 0x20C49BAL )
+      blues->no_overshoots = FT_BOOL( scale < blues->blue_scale * 8 / 125 );
+    else
+      blues->no_overshoots = FT_BOOL( scale * 125 < blues->blue_scale * 8 );
 
     /*                                                        */
     /*  The blue threshold is the font units distance under   */
@@ -408,7 +421,7 @@
 
 
       while ( threshold > 0 && FT_MulFix( threshold, scale ) > 32 )
-        threshold --;
+        threshold--;
 
       blues->blue_threshold = threshold;
     }
@@ -444,7 +457,7 @@
         zone->cur_delta  = FT_MulFix( zone->org_delta,  scale );
 
         /* round scaled reference position */
-        zone->cur_ref = ( zone->cur_ref + 32 ) & -64;
+        zone->cur_ref = FT_PIX_ROUND( zone->cur_ref );
 
 #if 0
         if ( zone->cur_ref > zone->cur_top )
@@ -526,7 +539,7 @@
 
     no_shoots = blues->no_overshoots;
 
-    /* lookup stem top in top zones table */
+    /* look up stem top in top zones table */
     table = &blues->normal_top;
     count = table->count;
     zone  = table->zones;
@@ -534,10 +547,10 @@
     for ( ; count > 0; count--, zone++ )
     {
       delta = stem_top - zone->org_bottom;
-      if ( delta < 0 )
+      if ( delta < -blues->blue_fuzz )
         break;
 
-      if ( stem_top <= zone->org_top )
+      if ( stem_top <= zone->org_top + blues->blue_fuzz )
       {
         if ( no_shoots || delta <= blues->blue_threshold )
         {
@@ -556,12 +569,12 @@
     for ( ; count > 0; count--, zone-- )
     {
       delta = zone->org_top - stem_bot;
-      if ( delta < 0 )
+      if ( delta < -blues->blue_fuzz )
         break;
 
-      if ( stem_bot >= zone->org_bottom )
+      if ( stem_bot >= zone->org_bottom - blues->blue_fuzz )
       {
-        if ( no_shoots || delta < blues->blue_shift )
+        if ( no_shoots || delta < blues->blue_threshold )
         {
           alignment->align    |= PSH_BLUE_ALIGN_BOT;
           alignment->align_bot = zone->cur_ref;
@@ -629,7 +642,7 @@
         PSH_Width      write = dim->stdw.widths;
 
 
-        write->org = priv->standard_width[1];
+        write->org = priv->standard_width[0];
         write++;
 
         read = priv->snap_widths;
@@ -640,7 +653,7 @@
           read++;
         }
 
-        dim->stdw.count = write - dim->stdw.widths;
+        dim->stdw.count = priv->num_snap_widths + 1;
       }
 
       /* copy standard heights */
@@ -649,9 +662,8 @@
         PSH_Width      write = dim->stdw.widths;
 
 
-        write->org = priv->standard_height[1];
+        write->org = priv->standard_height[0];
         write++;
-
         read = priv->snap_heights;
         for ( count = priv->num_snap_heights; count > 0; count-- )
         {
@@ -660,7 +672,7 @@
           read++;
         }
 
-        dim->stdw.count = write - dim->stdw.widths;
+        dim->stdw.count = priv->num_snap_heights + 1;
       }
 
       /* copy blue zones */
@@ -672,13 +684,9 @@
                            priv->family_blues, priv->num_family_other_blues,
                            priv->family_other_blues, priv->blue_fuzz, 1 );
 
-      globals->blues.blue_scale = priv->blue_scale
-                                  ? priv->blue_scale
-                                  : 0x28937L;   /* 0.039625 * 0x400000L */
-
-      globals->blues.blue_shift = priv->blue_shift
-                                  ? priv->blue_shift
-                                  : 7;
+      globals->blues.blue_scale = priv->blue_scale;
+      globals->blues.blue_shift = priv->blue_shift;
+      globals->blues.blue_fuzz  = priv->blue_fuzz;
 
       globals->dimension[0].scale_mult  = 0;
       globals->dimension[0].scale_delta = 0;
@@ -695,7 +703,7 @@
   }
 
 
-  static FT_Error
+  FT_LOCAL_DEF( FT_Error )
   psh_globals_set_scale( PSH_Globals  globals,
                          FT_Fixed     x_scale,
                          FT_Fixed     y_scale,

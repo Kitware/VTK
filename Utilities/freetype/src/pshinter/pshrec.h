@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    Postscript (Type1/Type2) hints recorder (specification).             */
 /*                                                                         */
-/*  Copyright 2001, 2002 by                                                */
+/*  Copyright 2001, 2002, 2003 by                                          */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -123,10 +123,6 @@ FT_BEGIN_HEADER
     PS_Mask_TableRec  counters;
 
   } PS_DimensionRec, *PS_Dimension;
-
-
-  /* magic value used within PS_HintsRec */
-#define PS_HINTS_MAGIC  0x68696e74   /* "hint" */
 
 
   /* glyph hints descriptor                                */

@@ -1,6 +1,6 @@
 /*
  * Copyright 2000 Computing Research Labs, New Mexico State University
- * Copyright 2001, 2002 Francesco Zappa Nardelli
+ * Copyright 2001, 2002, 2003, 2004 Francesco Zappa Nardelli
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -163,7 +163,7 @@
     { (char *)"_MULE_RELATIVE_COMPOSE",  BDF_INTEGER,  1, { 0 } },
   };
 
-  static unsigned long
+  static const unsigned long
   _num_bdf_properties = sizeof ( _bdf_properties ) /
                         sizeof ( _bdf_properties[0] );
 
@@ -183,10 +183,10 @@
   (*hash_free_func)( hashnode  node );
 
   static hashnode*
-  hash_bucket( char*       key,
-               hashtable*  ht )
+  hash_bucket( const char*  key,
+               hashtable*   ht )
   {
-    char*          kp  = key;
+    const char*    kp  = key;
     unsigned long  res = 0;
     hashnode*      bp  = ht->table, *ndp;
 
@@ -224,7 +224,7 @@
 
     if ( FT_NEW_ARRAY( ht->table, ht->size ) )
       goto Exit;
-    FT_MEM_SET( ht->table, 0, sizeof ( hashnode ) * ht->size );
+    FT_MEM_ZERO( ht->table, sizeof ( hashnode ) * ht->size );
 
     for ( i = 0, bp = obp; i < sz; i++, bp++ )
     {
@@ -255,7 +255,7 @@
 
     if ( FT_NEW_ARRAY( ht->table, sz ) )
       goto Exit;
-    FT_MEM_SET( ht->table, 0, sizeof ( hashnode ) * sz );
+    FT_MEM_ZERO( ht->table, sizeof ( hashnode ) * sz );
 
   Exit:
     return error;
@@ -317,7 +317,7 @@
 
 
   static hashnode
-  hash_lookup( char*       key,
+  hash_lookup( const char* key,
                hashtable*  ht )
   {
     hashnode *np = hash_bucket( key, ht );
@@ -391,7 +391,7 @@
 
   /* An empty string for empty fields. */
 
-  static char  empty[1] = { 0 };   /* XXX eliminate this */
+  static const char  empty[1] = { 0 };      /* XXX eliminate this */
 
 
   /* Assume the line is NULL-terminated and that the `list' parameter */
@@ -427,7 +427,7 @@
     }
 
     /* Prepare the separator bitmap. */
-    FT_MEM_SET( seps, 0, 32 );
+    FT_MEM_ZERO( seps, 32 );
 
     /* If the very last character of the separator string is a plus, then */
     /* set the `mult' flag to indicate that multiple separators should be */
@@ -468,7 +468,7 @@
       }
 
       /* Assign the field appropriately. */
-      list->field[list->used++] = ( ep > sp ) ? sp : empty;
+      list->field[list->used++] = ( ep > sp ) ? sp : (char*)empty;
 
       sp = ep;
 
@@ -511,7 +511,7 @@
     }
 
     if ( final_empty )
-      list->field[list->used++] = empty;
+      list->field[list->used++] = (char*)empty;
 
     if ( list->used == list->size )
     {
@@ -641,7 +641,7 @@
   {
     _bdf_line_func_t  cb;
     unsigned long     lineno;
-    int               n, res, done, refill, bytes, hold;
+    int               n, done, refill, bytes, hold;
     char              *ls, *le, *pp, *pe, *hp;
     char              *buf = 0;
     FT_Memory         memory = stream->memory;
@@ -661,7 +661,7 @@
     lineno = 1;
     buf[0] = 0;
 
-    res = done = 0;
+    done = 0;
     pp = ls = le = buf;
 
     bytes = 65536L;
@@ -696,7 +696,7 @@
           le -= n;
           n   = pe - pp;
 
-          FT_MEM_COPY( buf, pp, n );
+          FT_MEM_MOVE( buf, pp, n );
 
           pp     = buf + n;
           bytes  = 65536L - n;
@@ -993,7 +993,7 @@
     }
 
     p = font->user_props + font->nuser_props;
-    FT_MEM_SET( p, 0, sizeof ( bdf_property_t ) );
+    FT_MEM_ZERO( p, sizeof ( bdf_property_t ) );
 
     n = (unsigned long)( ft_strlen( name ) + 1 );
     if ( FT_NEW_ARRAY( p->name, n ) )
@@ -1341,7 +1341,7 @@
       }
 
       fp = font->props + font->props_size;
-      FT_MEM_SET( fp, 0, sizeof ( bdf_property_t ) );
+      FT_MEM_ZERO( fp, sizeof ( bdf_property_t ) );
       font->props_size++;
     }
 
@@ -1404,7 +1404,7 @@
     /* present, and the SPACING property should override the default       */
     /* spacing.                                                            */
     if ( ft_memcmp( name, "DEFAULT_CHAR", 12 ) == 0 )
-      font->default_glyph = fp->value.int32;
+      font->default_char = fp->value.int32;
     else if ( ft_memcmp( name, "FONT_ASCENT", 11 ) == 0 )
       font->font_ascent = fp->value.int32;
     else if ( ft_memcmp( name, "FONT_DESCENT", 12 ) == 0 )
@@ -1443,7 +1443,6 @@
     unsigned char*     bp;
     unsigned long      i, slen, nibbles;
 
-    _bdf_line_func_t*  next;
     _bdf_parse_t*      p;
     bdf_glyph_t*       glyph;
     bdf_font_t*        font;
@@ -1451,11 +1450,11 @@
     FT_Memory          memory;
     FT_Error           error = BDF_Err_Ok;
 
+    FT_UNUSED( call_data );
     FT_UNUSED( lineno );        /* only used in debug mode */
 
 
-    next = (_bdf_line_func_t *)call_data;
-    p    = (_bdf_parse_t *)    client_data;
+    p = (_bdf_parse_t *)client_data;
 
     font   = p->font;
     memory = font->memory;
@@ -1599,9 +1598,8 @@
                                font->glyphs_size,
                                font->glyphs_size + 64 ) )
             goto Exit;
-          FT_MEM_SET( font->glyphs + font->glyphs_size,
-                      0,
-                      sizeof ( bdf_glyph_t ) * 64 ); /* FZ inutile */
+          FT_MEM_ZERO( font->glyphs + font->glyphs_size,
+                       sizeof ( bdf_glyph_t ) * 64 ); /* FZ inutile */
           font->glyphs_size += 64;
         }
 
@@ -1772,14 +1770,14 @@
 
       /* Determine the overall font bounding box as the characters are */
       /* loaded so corrections can be done later if indicated.         */
-      p->maxas    = (short)MAX( glyph->bbx.ascent, p->maxas );
-      p->maxds    = (short)MAX( glyph->bbx.descent, p->maxds );
+      p->maxas    = (short)FT_MAX( glyph->bbx.ascent, p->maxas );
+      p->maxds    = (short)FT_MAX( glyph->bbx.descent, p->maxds );
 
       p->rbearing = (short)( glyph->bbx.width + glyph->bbx.x_offset );
 
-      p->maxrb    = (short)MAX( p->rbearing, p->maxrb );
-      p->minlb    = (short)MIN( glyph->bbx.x_offset, p->minlb );
-      p->maxlb    = (short)MAX( glyph->bbx.x_offset, p->maxlb );
+      p->maxrb    = (short)FT_MAX( p->rbearing, p->maxrb );
+      p->minlb    = (short)FT_MIN( glyph->bbx.x_offset, p->minlb );
+      p->maxlb    = (short)FT_MAX( glyph->bbx.x_offset, p->maxlb );
 
       if ( !( p->flags & _BDF_DWIDTH ) )
       {
@@ -1884,7 +1882,7 @@
       /*                                                                  */
       /* This is *always* done regardless of the options, because X11     */
       /* requires these two fields to compile fonts.                      */
-      if ( bdf_get_font_property( p->font, (char *)"FONT_ASCENT" ) == 0 )
+      if ( bdf_get_font_property( p->font, "FONT_ASCENT" ) == 0 )
       {
         p->font->font_ascent = p->font->bbx.ascent;
         ft_sprintf( nbuf, "%hd", p->font->bbx.ascent );
@@ -1896,7 +1894,7 @@
         p->font->modified = 1;
       }
 
-      if ( bdf_get_font_property( p->font, (char *)"FONT_DESCENT" ) == 0 )
+      if ( bdf_get_font_property( p->font, "FONT_DESCENT" ) == 0 )
       {
         p->font->font_descent = p->font->bbx.descent;
         ft_sprintf( nbuf, "%hd", p->font->bbx.descent );
@@ -2050,8 +2048,8 @@
       error = hash_init( (hashtable *)p->font->internal,memory );
       if ( error )
         goto Exit;
-      p->font->spacing       = p->opts->font_spacing;
-      p->font->default_glyph = -1;
+      p->font->spacing      = p->opts->font_spacing;
+      p->font->default_char = -1;
 
       goto Exit;
     }
@@ -2203,96 +2201,98 @@
                  bdf_font_t*    *font )
   {
     unsigned long  lineno;
-    _bdf_parse_t   p;
+    _bdf_parse_t   *p;
 
-    FT_Memory      memory = NULL;
+    FT_Memory      memory = extmemory;
     FT_Error       error  = BDF_Err_Ok;
 
 
-    FT_MEM_SET( &p, 0, sizeof ( _bdf_parse_t ) );
+    if ( FT_ALLOC( p, sizeof ( _bdf_parse_t ) ) )
+      goto Exit;
 
-    p.opts   = (bdf_options_t*)( ( opts != 0 ) ? opts : &_bdf_opts );
-    p.minlb  = 32767;
-    p.memory = extmemory;  /* only during font creation */
+    memory    = NULL;
+    p->opts   = (bdf_options_t*)( ( opts != 0 ) ? opts : &_bdf_opts );
+    p->minlb  = 32767;
+    p->memory = extmemory;  /* only during font creation */
 
     error = _bdf_readstream( stream, _bdf_parse_start,
-                             (void *)&p, &lineno );
+                             (void *)p, &lineno );
     if ( error )
       goto Exit;
 
-    if ( p.font != 0 )
+    if ( p->font != 0 )
     {
       /* If the font is not proportional, set the font's monowidth */
       /* field to the width of the font bounding box.              */
-      memory = p.font->memory;
+      memory = p->font->memory;
 
-      if ( p.font->spacing != BDF_PROPORTIONAL )
-        p.font->monowidth = p.font->bbx.width;
+      if ( p->font->spacing != BDF_PROPORTIONAL )
+        p->font->monowidth = p->font->bbx.width;
 
       /* If the number of glyphs loaded is not that of the original count, */
       /* indicate the difference.                                          */
-      if ( p.cnt != p.font->glyphs_used + p.font->unencoded_used )
+      if ( p->cnt != p->font->glyphs_used + p->font->unencoded_used )
       {
-        FT_TRACE2(( "bdf_load_font: " ACMSG15, p.cnt,
-                    p.font->glyphs_used + p.font->unencoded_used ));
-        p.font->modified = 1;
+        FT_TRACE2(( "bdf_load_font: " ACMSG15, p->cnt,
+                    p->font->glyphs_used + p->font->unencoded_used ));
+        p->font->modified = 1;
       }
 
       /* Once the font has been loaded, adjust the overall font metrics if */
       /* necessary.                                                        */
-      if ( p.opts->correct_metrics != 0 &&
-           ( p.font->glyphs_used > 0 || p.font->unencoded_used > 0 ) )
+      if ( p->opts->correct_metrics != 0 &&
+           ( p->font->glyphs_used > 0 || p->font->unencoded_used > 0 ) )
       {
-        if ( p.maxrb - p.minlb != p.font->bbx.width )
+        if ( p->maxrb - p->minlb != p->font->bbx.width )
         {
           FT_TRACE2(( "bdf_load_font: " ACMSG3,
-                      p.font->bbx.width, p.maxrb - p.minlb ));
-          p.font->bbx.width = (unsigned short)( p.maxrb - p.minlb );
-          p.font->modified  = 1;
+                      p->font->bbx.width, p->maxrb - p->minlb ));
+          p->font->bbx.width = (unsigned short)( p->maxrb - p->minlb );
+          p->font->modified  = 1;
         }
 
-        if ( p.font->bbx.x_offset != p.minlb )
+        if ( p->font->bbx.x_offset != p->minlb )
         {
           FT_TRACE2(( "bdf_load_font: " ACMSG4,
-                      p.font->bbx.x_offset, p.minlb ));
-          p.font->bbx.x_offset = p.minlb;
-          p.font->modified     = 1;
+                      p->font->bbx.x_offset, p->minlb ));
+          p->font->bbx.x_offset = p->minlb;
+          p->font->modified     = 1;
         }
 
-        if ( p.font->bbx.ascent != p.maxas )
+        if ( p->font->bbx.ascent != p->maxas )
         {
           FT_TRACE2(( "bdf_load_font: " ACMSG5,
-                      p.font->bbx.ascent, p.maxas ));
-          p.font->bbx.ascent = p.maxas;
-          p.font->modified   = 1;
+                      p->font->bbx.ascent, p->maxas ));
+          p->font->bbx.ascent = p->maxas;
+          p->font->modified   = 1;
         }
 
-        if ( p.font->bbx.descent != p.maxds )
+        if ( p->font->bbx.descent != p->maxds )
         {
           FT_TRACE2(( "bdf_load_font: " ACMSG6,
-                      p.font->bbx.descent, p.maxds ));
-          p.font->bbx.descent  = p.maxds;
-          p.font->bbx.y_offset = (short)( -p.maxds );
-          p.font->modified     = 1;
+                      p->font->bbx.descent, p->maxds ));
+          p->font->bbx.descent  = p->maxds;
+          p->font->bbx.y_offset = (short)( -p->maxds );
+          p->font->modified     = 1;
         }
 
-        if ( p.maxas + p.maxds != p.font->bbx.height )
+        if ( p->maxas + p->maxds != p->font->bbx.height )
         {
           FT_TRACE2(( "bdf_load_font: " ACMSG7,
-                      p.font->bbx.height, p.maxas + p.maxds ));
-          p.font->bbx.height = (unsigned short)( p.maxas + p.maxds );
+                      p->font->bbx.height, p->maxas + p->maxds ));
+          p->font->bbx.height = (unsigned short)( p->maxas + p->maxds );
         }
 
-        if ( p.flags & _BDF_SWIDTH_ADJ )
+        if ( p->flags & _BDF_SWIDTH_ADJ )
           FT_TRACE2(( "bdf_load_font: " ACMSG8 ));
       }
     }
 
-    if ( p.flags & _BDF_START )
+    if ( p->flags & _BDF_START )
     {
       {
         /* The ENDFONT field was never reached or did not exist. */
-        if ( !( p.flags & _BDF_GLYPHS ) )
+        if ( !( p->flags & _BDF_GLYPHS ) )
           /* Error happened while parsing header. */
           FT_ERROR(( "bdf_load_font: " ERRMSG2, lineno ));
         else
@@ -2303,28 +2303,34 @@
 
     /* Free up the list used during the parsing. */
     if ( memory != NULL )
-      FT_FREE( p.list.field );
+      FT_FREE( p->list.field );
 
-    if ( p.font != 0 )
+    if ( p->font != 0 )
     {
       /* Make sure the comments are NULL terminated if they exist. */
-      memory = p.font->memory;
+      memory = p->font->memory;
 
-      if ( p.font->comments_len > 0 ) {
-        if ( FT_RENEW_ARRAY( p.font->comments,
-                             p.font->comments_len,
-                             p.font->comments_len + 1 ) )
+      if ( p->font->comments_len > 0 ) {
+        if ( FT_RENEW_ARRAY( p->font->comments,
+                             p->font->comments_len,
+                             p->font->comments_len + 1 ) )
           goto Exit;
 
-        p.font->comments[p.font->comments_len] = 0;
+        p->font->comments[p->font->comments_len] = 0;
       }
     }
     else if ( error == BDF_Err_Ok )
       error = BDF_Err_Invalid_File_Format;
 
-    *font = p.font;
+    *font = p->font;
 
   Exit:
+    if ( p )
+    {
+      memory = extmemory;
+      FT_FREE( p );
+    }
+
     return error;
   }
 
@@ -2412,7 +2418,7 @@
 
   FT_LOCAL_DEF( bdf_property_t * )
   bdf_get_font_property( bdf_font_t*  font,
-                         char*        name )
+                         const char*  name )
   {
     hashnode  hn;
 
