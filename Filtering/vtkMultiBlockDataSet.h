@@ -51,12 +51,21 @@ public:
   virtual int GetDataObjectType() {return VTK_MULTI_BLOCK_DATA_SET;}
 
   // Description:
-  // Add a dataset to the collection.
-  void AddDataSet(vtkDataObject* data);
+  // Add a dataset to the collection. Returns the index of
+  // the added dataset.
+  unsigned int AddDataSet(vtkDataObject* data);
 
-  // Rescription:
+  // Description:
   // Restore data object to initial state,
   virtual void Initialize();
+
+  // Description:
+  // Returns the number of datasets
+  unsigned int GetNumberOfDataSets();
+
+  // Description:
+  // Returns dataset with given id
+  vtkDataObject* GetDataSet(unsigned int idx);
 
 //BTX
   // Note that vtkMultiBlockDataIterator is dependent on the implementation
