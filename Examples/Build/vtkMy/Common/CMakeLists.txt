@@ -4,80 +4,38 @@
 # Here is where you can add the name of your local common classes.
 #
 
-SOURCE_FILES (Common_SRCS
+SET (Common_SRCS
   vtkBar.cxx
 )
 
 # --------------------------------------------------------------------------
 # You probably do not need to modify anything below this line
 
-#
-# Create the vtkmyCommon C++ library
-#
+# Create the vtkmyCommon C++ library.
+ADD_LIBRARY (vtkmyCommon ${Common_SRCS})
+TARGET_LINK_LIBRARIES (vtkmyCommon vtkCommon)
 
-ADD_LIBRARY (vtkmyCommon Common_SRCS)
-
-#
-# Create the vtkmyCommon Tcl library
-#
-
+# Create the vtkmyCommon Tcl library.
 IF (VTK_WRAP_TCL AND VTKMY_WRAP_TCL)
-
-  VTK_WRAP_TCL (vtkmyCommonTCL CommonTCL_SRCS Common_SRCS)
-  ADD_LIBRARY (vtkmyCommonTCL CommonTCL_SRCS)
-  TARGET_LINK_LIBRARIES (vtkmyCommonTCL 
-                         vtkCommonTCL 
-                         ${TCL_LIBRARY})
-
+  VTK_WRAP_TCL (vtkmyCommonTCL CommonTCL_SRCS ${Common_SRCS})
+  ADD_LIBRARY (vtkmyCommonTCL ${CommonTCL_SRCS})
+  TARGET_LINK_LIBRARIES (vtkmyCommonTCL vtkmyCommon vtkCommonTCL)
 ENDIF (VTK_WRAP_TCL AND VTKMY_WRAP_TCL)
 
-#
-# Create the vtkmyCommon Python library
-#
-
+# Create the vtkmyCommon Python library.
 IF (VTK_WRAP_PYTHON AND VTKMY_WRAP_PYTHON)
-
-  VTK_WRAP_PYTHON (vtkmyCommonPython CommonPython_SRCS Common_SRCS)
-
+  VTK_WRAP_PYTHON (vtkmyCommonPython CommonPython_SRCS ${Common_SRCS})
   IF (APPLE)
-    ADD_LIBRARY (vtkmyCommonPython MODULE CommonPython_SRCS)
+    ADD_LIBRARY (vtkmyCommonPython MODULE ${CommonPython_SRCS})
   ELSE (APPLE)
-    ADD_LIBRARY (vtkmyCommonPython SHARED CommonPython_SRCS)
-    TARGET_LINK_LIBRARIES (vtkmyCommonPython 
-	                   vtkCommonPython)
+    ADD_LIBRARY (vtkmyCommonPython SHARED ${CommonPython_SRCS})
   ENDIF (APPLE)
-
-  IF(WIN32)
-    TARGET_LINK_LIBRARIES (vtkmyCommonPython 
-	                   vtkCommonPython
-                           debug ${PYTHON_DEBUG_LIBRARY} 
-                           optimized ${PYTHON_LIBRARY})
-  ELSE(WIN32)
-    TARGET_LINK_LIBRARIES (vtkmyCommonPython 
-	                   vtkCommonPython
-                           ${PYTHON_LIBRARY})
-  ENDIF(WIN32)
-
+  TARGET_LINK_LIBRARIES (vtkmyCommonPython vtkmyCommon vtkCommonPython)
 ENDIF (VTK_WRAP_PYTHON AND VTKMY_WRAP_PYTHON)
 
-#
-# Create the vtkmyCommon Java library
-#
-
+# Create the vtkmyCommon Java library.
 IF (VTK_WRAP_JAVA AND VTKMY_WRAP_JAVA)
-
-  VTK_WRAP_JAVA (vtkmyCommonJava CommonJava_SRCS Common_SRCS)
-  ADD_LIBRARY (vtkmyCommonJava SHARED CommonJava_SRCS)
-  TARGET_LINK_LIBRARIES (vtkmyCommonJava 
-                         vtkCommonJava)
-
+  VTK_WRAP_JAVA (vtkmyCommonJava CommonJava_SRCS ${Common_SRCS})
+  ADD_LIBRARY (vtkmyCommonJava SHARED ${CommonJava_SRCS})
+  TARGET_LINK_LIBRARIES (vtkmyCommonJava vtkmyCommon vtkCommonJava)
 ENDIF (VTK_WRAP_JAVA AND VTKMY_WRAP_JAVA)
-
-#
-# Link to VTK and local
-#
-
-LINK_LIBRARIES (
-  vtkmyCommon
-  vtkCommon 
-)

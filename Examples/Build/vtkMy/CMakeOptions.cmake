@@ -18,25 +18,21 @@ ENDIF (USE_VTK_FILE)
 
 IF (USE_VTK_FILE)
 
+  # Standard CMake option for building libraries shared or static by default.
   OPTION(BUILD_SHARED_LIBS 
          "Build with shared libraries." 
          ${VTK_BUILD_SHARED_LIBS})
-
-  # This value has to be set so that it can be use in vtkmyConfigure.h.in
-  # otherwise the BUILD_SHARED_LIB from VTK's vtkConfigure.h file is picked
-  # first :(
-
-  SET(VTKMY_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS} CACHE INTERNAL 
-      "Is this VTKMY built with shared libraries.")
+  # Copy the CMake option to a setting with VTKMY_ prefix for use in
+  # our project.  This name is used in vtkmyConfigure.h.in.
+  SET(VTKMY_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
 
   #
   # Output path(s)
   #
-
-  SET (LIBRARY_OUTPUT_PATH ${VTKMY_BINARY_DIR}/bin/ CACHE PATH 
+  SET (LIBRARY_OUTPUT_PATH ${VTKMY_BINARY_DIR}/bin CACHE PATH
        "Single output directory for building all libraries.")
 
-  SET (EXECUTABLE_OUTPUT_PATH ${VTKMY_BINARY_DIR}/bin/ CACHE PATH 
+  SET (EXECUTABLE_OUTPUT_PATH ${VTKMY_BINARY_DIR}/bin CACHE PATH
        "Single output directory for building all executables.")
 
   MARK_AS_ADVANCED (
@@ -44,16 +40,18 @@ IF (USE_VTK_FILE)
     EXECUTABLE_OUTPUT_PATH
   )
 
-  IF (VTK_LIBRARY_PATH AND VTK_EXECUTABLE_PATH)
+  # If this is a build tree, provide an option for putting
+  # this project's executables and libraries in with VTK's.
+  IF (EXISTS ${VTK_DIR}/bin)
     OPTION(USE_VTK_OUTPUT_PATHS
-           "Use VTK library path (VTK_LIBRARY_PATH) and executable path (VTK_EXECUTABLE_PATH) as project's LIBRARY_OUTPUT_PATH and EXECUTABLE_OUTPUT_PATH."
+           "Use VTK's output directory for this project's executables and libraries."
            OFF)
     MARK_AS_ADVANCED (USE_VTK_OUTPUT_PATHS)
     IF (USE_VTK_OUTPUT_PATHS)
-      SET (LIBRARY_OUTPUT_PATH ${VTK_LIBRARY_PATH})
-      SET (EXECUTABLE_OUTPUT_PATH ${VTK_EXECUTABLE_PATH})
+      SET (LIBRARY_OUTPUT_PATH ${VTK_DIR}/bin)
+      SET (EXECUTABLE_OUTPUT_PATH ${VTK_DIR}/bin)
     ENDIF (USE_VTK_OUTPUT_PATHS)
-  ENDIF (VTK_LIBRARY_PATH AND VTK_EXECUTABLE_PATH)
+  ENDIF (EXISTS ${VTK_DIR}/bin)
 
 ENDIF (USE_VTK_FILE)
 
@@ -77,34 +75,12 @@ IF (VTK_WRAP_TCL)
          "Wrap classes into the TCL interpreted language." 
          ON)
 
-  IF (VTKMY_WRAP_TCL)
-
-    IF (NOT VTK_WRAP_TCL_EXE)
-
-      MESSAGE("Error. Unable to find VTK_WRAP_TCL_EXE, please edit this value to specify the correct location of the VTK Tcl wrapper.")
-      MARK_AS_ADVANCED(CLEAR VTK_WRAP_TCL_EXE)
-      SET (VTKMY_CAN_BUILD 0)
-
-    ELSE (NOT VTK_WRAP_TCL_EXE)
-
-      FIND_FILE (VTK_WRAP_HINTS hints ${VTKMY_SOURCE_DIR}/Wrapping)
-      MARK_AS_ADVANCED(VTK_WRAP_HINTS)
-
-      IF (USE_INSTALLED_VTK)
-        INCLUDE (${CMAKE_ROOT}/Modules/FindTCL.cmake)
-      ENDIF (USE_INSTALLED_VTK)
-
-      IF (TCL_INCLUDE_PATH)
-        INCLUDE_DIRECTORIES(${TCL_INCLUDE_PATH})
-      ENDIF (TCL_INCLUDE_PATH)
-
-    ENDIF (NOT VTK_WRAP_TCL_EXE)
-  ENDIF (VTKMY_WRAP_TCL)
-
 ELSE (VTK_WRAP_TCL)
 
   IF (VTKMY_WRAP_TCL)
-    MESSAGE("Warning. VTKMY_WRAP_TCL is ON but the VTK version you have chosen has not support for Tcl (VTK_WRAP_TCL is OFF). Please set VTKMY_WRAP_TCL to OFF.")
+    MESSAGE("Warning. VTKMY_WRAP_TCL is ON but the VTK version you have "
+            "chosen has not support for Tcl (VTK_WRAP_TCL is OFF).  "
+            "Please set VTKMY_WRAP_TCL to OFF.")
     SET (VTKMY_WRAP_TCL OFF)
   ENDIF (VTKMY_WRAP_TCL)
 
@@ -121,40 +97,20 @@ IF (VTK_WRAP_PYTHON)
          ON)
 
   IF (VTKMY_WRAP_PYTHON)
-
-    IF (NOT VTK_WRAP_PYTHON_EXE)
-
-      MESSAGE("Error. Unable to find VTK_WRAP_PYTHON_EXE, please edit this value to specify the correct location of the VTK Python wrapper.")
-      MARK_AS_ADVANCED(CLEAR VTK_WRAP_PYTHON_EXE)
-      SET (VTKMY_CAN_BUILD 0)
-
-    ELSE (NOT VTK_WRAP_PYTHON_EXE)
-
-      FIND_FILE(VTK_WRAP_HINTS hints ${VTKMY_SOURCE_DIR}/Wrapping )
-      MARK_AS_ADVANCED(VTK_WRAP_HINTS)
-
-      IF (USE_INSTALLED_VTK)
-        INCLUDE (${CMAKE_ROOT}/Modules/FindPythonLibs.cmake)
-      ENDIF (USE_INSTALLED_VTK)
-
-      IF (PYTHON_INCLUDE_PATH)
-        INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
-      ENDIF (PYTHON_INCLUDE_PATH)
-
-      IF (WIN32)
-        IF (NOT BUILD_SHARED_LIBS)
-          MESSAGE("Error. Python support requires BUILD_SHARED_LIBS to be ON.")
-          SET (VTKMY_CAN_BUILD 0)
-        ENDIF (NOT BUILD_SHARED_LIBS)  
-      ENDIF (WIN32)
-
-    ENDIF (NOT VTK_WRAP_PYTHON_EXE)
+    IF (WIN32)
+      IF (NOT BUILD_SHARED_LIBS)
+        MESSAGE("Error. Python support requires BUILD_SHARED_LIBS to be ON.")
+        SET (VTKMY_CAN_BUILD 0)
+      ENDIF (NOT BUILD_SHARED_LIBS)  
+    ENDIF (WIN32)
   ENDIF (VTKMY_WRAP_PYTHON)
 
 ELSE (VTK_WRAP_PYTHON)
 
   IF (VTKMY_WRAP_PYTHON)
-    MESSAGE("Warning. VTKMY_WRAP_PYTHON is ON but the VTK version you have chosen has not support for Python (VTK_WRAP_PYTHON is OFF). Please set VTKMY_WRAP_PYTHON to OFF.")
+    MESSAGE("Warning. VTKMY_WRAP_PYTHON is ON but the VTK version you have "
+            "chosen has not support for Python (VTK_WRAP_PYTHON is OFF).  "
+            "Please set VTKMY_WRAP_PYTHON to OFF.")
     SET (VTKMY_WRAP_PYTHON OFF)
   ENDIF (VTKMY_WRAP_PYTHON)
 
@@ -171,60 +127,28 @@ IF (VTK_WRAP_JAVA)
          ON)
 
   IF (VTKMY_WRAP_JAVA)
+    IF (WIN32)
+      IF (NOT BUILD_SHARED_LIBS)
+        MESSAGE("Error. Java support requires BUILD_SHARED_LIBS to be ON.")
+        SET (VTKMY_CAN_BUILD 0)
+      ENDIF (NOT BUILD_SHARED_LIBS)  
+    ENDIF (WIN32)
 
-    IF (NOT VTK_WRAP_JAVA_EXE)
-      MESSAGE("Error. Unable to find VTK_WRAP_JAVA_EXE, please edit this value to specify the correct location of the VTK Java wrapper.")
-      MARK_AS_ADVANCED(CLEAR VTK_WRAP_JAVA_EXE)
-      SET (VTKMY_CAN_BUILD 0)
-    ENDIF (NOT VTK_WRAP_JAVA_EXE)
-
-    IF (NOT VTK_PARSE_JAVA_EXE)
-      MESSAGE("Error. Unable to find VTK_PARSE_JAVA_EXE, please edit this value to specify the correct location of the VTK Java parser.")
-      MARK_AS_ADVANCED(CLEAR VTK_PARSE_JAVA_EXE)
-      SET (VTKMY_CAN_BUILD 0)
-    ENDIF (NOT VTK_PARSE_JAVA_EXE)
-
-    IF (VTK_WRAP_JAVA_EXE AND VTK_PARSE_JAVA_EXE)
-
-      FIND_FILE(VTK_WRAP_HINTS hints ${VTKMY_SOURCE_DIR}/Wrapping )
-      MARK_AS_ADVANCED(VTK_WRAP_HINTS)
-
-      IF (USE_INSTALLED_VTK)
-        INCLUDE (${CMAKE_ROOT}/Modules/FindJNI.cmake)
-      ENDIF (USE_INSTALLED_VTK)
-
-      IF (JAVA_INCLUDE_PATH)
-        INCLUDE_DIRECTORIES(${JAVA_INCLUDE_PATH})
-      ENDIF (JAVA_INCLUDE_PATH)
-
-      IF (JAVA_INCLUDE_PATH2)
-        INCLUDE_DIRECTORIES(${JAVA_INCLUDE_PATH2})
-      ENDIF (JAVA_INCLUDE_PATH2)
-
-      IF (JAVA_AWT_INCLUDE_PATH)
-        INCLUDE_DIRECTORIES(${JAVA_AWT_INCLUDE_PATH})
-      ENDIF (JAVA_AWT_INCLUDE_PATH)
-
-      IF (NOT VTK_JAVA_HOME)
-        SET (VTK_JAVA_HOME ${VTKMY_BINARY_DIR}/java/vtk CACHE PATH "Path to Java install")
-      ENDIF (NOT VTK_JAVA_HOME)
-
-      IF (WIN32)
-        IF (NOT BUILD_SHARED_LIBS)
-          MESSAGE("Error. Java support requires BUILD_SHARED_LIBS to be ON.")
-          SET (VTKMY_CAN_BUILD 0)
-        ENDIF (NOT BUILD_SHARED_LIBS)  
-      ENDIF (WIN32)
-
-    ENDIF (VTK_WRAP_JAVA_EXE AND VTK_PARSE_JAVA_EXE)
+    # Tell the java wrappers where to go.
+    SET(VTK_JAVA_HOME ${VTKMY_BINARY_DIR}/java/vtkmy)
+    MAKE_DIRECTORY(${VTK_JAVA_HOME})
   ENDIF (VTKMY_WRAP_JAVA)
 
 ELSE (VTK_WRAP_JAVA)
 
   IF (VTKMY_WRAP_JAVA)
-    MESSAGE("Warning. VTKMY_WRAP_JAVA is ON but the VTK version you have chosen has not support for Java (VTK_WRAP_JAVA is OFF). Please set VTKMY_WRAP_JAVA to OFF.")
+    MESSAGE("Warning. VTKMY_WRAP_JAVA is ON but the VTK version you have "
+            "chosen has not support for Java (VTK_WRAP_JAVA is OFF).  "
+            "Please set VTKMY_WRAP_JAVA to OFF.")
     SET (VTKMY_WRAP_JAVA OFF)
   ENDIF (VTKMY_WRAP_JAVA)
 
 ENDIF (VTK_WRAP_JAVA)
 
+# Setup our local hints file in case wrappers need them.
+SET(VTK_WRAP_HINTS ${VTKMY_SOURCE_DIR}/Wrapping/hints)

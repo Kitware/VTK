@@ -11,163 +11,47 @@ SOURCE_FILES (Unsorted_SRCS
 # --------------------------------------------------------------------------
 # You probably do not need to modify anything below this line
 
-#
-# Create the vtkmyUnsorted C++ library
-#
-
-ADD_LIBRARY (vtkmyUnsorted Unsorted_SRCS)
-
-#
-# Create the vtkmyUnsorted Tcl library
-#
-
-IF (VTK_WRAP_TCL AND VTKMY_WRAP_TCL)
-
-  VTK_WRAP_TCL (vtkmyUnsortedTCL UnsortedTCL_SRCS Unsorted_SRCS)
-  ADD_LIBRARY (vtkmyUnsortedTCL UnsortedTCL_SRCS)
-  TARGET_LINK_LIBRARIES (vtkmyUnsortedTCL 
-                         vtkIOTCL 
-                         vtkGraphicsTCL 
-                         vtkmyImagingTCL
-                         vtkImagingTCL 
-                         vtkFilteringTCL 
-                         vtkmyCommonTCL
-                         vtkCommonTCL
-                         ${TCL_LIBRARY})
-  IF (VTK_USE_HYBRID)
-    TARGET_LINK_LIBRARIES (vtkmyUnsortedTCL vtkHybridTCL)
-  ENDIF (VTK_USE_HYBRID)
-
-  IF (VTK_USE_PARALLEL)
-    TARGET_LINK_LIBRARIES (vtkmyUnsortedTCL vtkParallelTCL)
-  ENDIF (VTK_USE_PARALLEL)
-
-  IF (VTK_USE_PATENTED)
-    TARGET_LINK_LIBRARIES (vtkmyUnsortedTCL vtkPatentedTCL)
-  ENDIF (VTK_USE_PATENTED)
-
-  IF (VTK_USE_RENDERING)
-    TARGET_LINK_LIBRARIES (vtkmyUnsortedTCL vtkRenderingTCL)
-  ENDIF (VTK_USE_RENDERING)
-
-ENDIF (VTK_WRAP_TCL AND VTKMY_WRAP_TCL)
-
-#
-# Create the vtkmyUnsorted Python library
-#
-
-IF (VTK_WRAP_PYTHON AND VTKMY_WRAP_PYTHON)
-
-  VTK_WRAP_PYTHON (vtkmyUnsortedPython UnsortedPython_SRCS Unsorted_SRCS)
-
-  IF (APPLE)
-    ADD_LIBRARY (vtkmyUnsortedPython MODULE UnsortedPython_SRCS)
-  ELSE (APPLE)
-    ADD_LIBRARY (vtkmyUnsortedPython SHARED UnsortedPython_SRCS)
-  ENDIF (APPLE)
-
-  IF (WIN32)
-    TARGET_LINK_LIBRARIES (vtkmyUnsortedPython 
-                           vtkIOPython
-                           vtkGraphicsPython
-                           vtkmyImagingPython
-                           vtkImagingPython
-                           vtkFilteringPython
-                           vtkmyCommonPython
-                           vtkCommonPython
-                           debug ${PYTHON_DEBUG_LIBRARY} 
-                           optimized ${PYTHON_LIBRARY})
-  ELSE (WIN32)
-    TARGET_LINK_LIBRARIES (vtkmyUnsortedPython 
-                           vtkIOPython
-                           vtkGraphicsPython
-                           vtkmyImagingPython
-                           vtkImagingPython
-                           vtkFilteringPython
-                           vtkmyCommonPython
-                           vtkCommonPython
-                           ${PYTHON_LIBRARY})
-  ENDIF (WIN32)
-
-  IF (VTK_USE_HYBRID)
-    TARGET_LINK_LIBRARIES (vtkmyUnsortedPython vtkHybridPython)
-  ENDIF (VTK_USE_HYBRID)
-
-  IF (VTK_USE_PARALLEL)
-    TARGET_LINK_LIBRARIES (vtkmyUnsortedPython vtkParallelPython)
-  ENDIF (VTK_USE_PARALLEL)
-
-  IF (VTK_USE_PATENTED)
-    TARGET_LINK_LIBRARIES (vtkmyUnsortedPython vtkPatentedPython)
-  ENDIF (VTK_USE_PATENTED)
-
-  IF (VTK_USE_RENDERING)
-    TARGET_LINK_LIBRARIES (vtkmyUnsortedPython vtkRenderingPython)
-  ENDIF (VTK_USE_RENDERING)
-
-ENDIF (VTK_WRAP_PYTHON AND VTKMY_WRAP_PYTHON)
-
-#
-# Create the vtkmyUnsorted Java library
-#
-
-IF (VTK_WRAP_JAVA AND VTKMY_WRAP_JAVA)
-
-  VTK_WRAP_JAVA (vtkmyUnsortedJava UnsortedJava_SRCS Unsorted_SRCS)
-  ADD_LIBRARY (vtkmyUnsortedJava SHARED UnsortedJava_SRCS)
-  TARGET_LINK_LIBRARIES (vtkmyUnsortedJava 
-                         vtkIOJava
-                         vtkGraphicsJava
-                         vtkmyImagingJava
-                         vtkImagingJava 
-                         vtkFilteringJava
-                         vtkmyCommonJava
-                         vtkCommonJava)
-  IF (VTK_USE_HYBRID)
-    TARGET_LINK_LIBRARIES (vtkmyUnsortedJava vtkHybridJava)
-  ENDIF (VTK_USE_HYBRID)
-
-  IF (VTK_USE_PARALLEL)
-    TARGET_LINK_LIBRARIES (vtkmyUnsortedJava vtkParallelJava)
-  ENDIF (VTK_USE_PARALLEL)
-
-  IF (VTK_USE_PATENTED)
-    TARGET_LINK_LIBRARIES (vtkmyUnsortedJava vtkPatentedJava)
-  ENDIF (VTK_USE_PATENTED)
-
-  IF (VTK_USE_RENDERING)
-    TARGET_LINK_LIBRARIES (vtkmyUnsortedJava vtkRenderingJava)
-  ENDIF (VTK_USE_RENDERING)
-
-ENDIF (VTK_WRAP_JAVA AND VTKMY_WRAP_JAVA)
-
-#
-# Link to VTK and local
-#
-
-LINK_LIBRARIES (
-  vtkmyUnsorted
-  vtkIO
-  vtkGraphics
-  vtkmyImaging 
-  vtkImaging 
-  vtkFiltering
-  vtkmyCommon
-  vtkCommon
-)
+# Create the vtkmyUnsorted C++ library.
+ADD_LIBRARY (vtkmyUnsorted ${Unsorted_SRCS})
+TARGET_LINK_LIBRARIES(vtkmyUnsorted vtkmyImaging vtkGraphics vtkIO)
 
 IF (VTK_USE_HYBRID)
-  LINK_LIBRARIES (vtkHybrid)
+  TARGET_LINK_LIBRARIES (vtkmyUnsorted vtkHybrid)
 ENDIF (VTK_USE_HYBRID)
 
 IF (VTK_USE_PARALLEL)
-  LINK_LIBRARIES (vtkParallel)
+  TARGET_LINK_LIBRARIES (vtkmyUnsorted vtkParallel)
 ENDIF (VTK_USE_PARALLEL)
 
 IF (VTK_USE_PATENTED)
-  LINK_LIBRARIES (vtkPatented)
+  TARGET_LINK_LIBRARIES (vtkmyUnsorted vtkPatented)
 ENDIF (VTK_USE_PATENTED)
 
 IF (VTK_USE_RENDERING)
-  LINK_LIBRARIES (vtkRendering)
+  TARGET_LINK_LIBRARIES (vtkmyUnsorted vtkRendering)
 ENDIF (VTK_USE_RENDERING)
+
+# Create the vtkmyUnsorted Tcl library.
+IF (VTK_WRAP_TCL AND VTKMY_WRAP_TCL)
+  VTK_WRAP_TCL (vtkmyUnsortedTCL UnsortedTCL_SRCS ${Unsorted_SRCS})
+  ADD_LIBRARY (vtkmyUnsortedTCL ${UnsortedTCL_SRCS})
+  TARGET_LINK_LIBRARIES (vtkmyUnsortedTCL vtkmyCommonTCL vtkmyUnsorted)
+ENDIF (VTK_WRAP_TCL AND VTKMY_WRAP_TCL)
+
+# Create the vtkmyUnsorted Python library.
+IF (VTK_WRAP_PYTHON AND VTKMY_WRAP_PYTHON)
+  VTK_WRAP_PYTHON (vtkmyUnsortedPython UnsortedPython_SRCS ${Unsorted_SRCS})
+  IF (APPLE)
+    ADD_LIBRARY (vtkmyUnsortedPython MODULE ${UnsortedPython_SRCS})
+  ELSE (APPLE)
+    ADD_LIBRARY (vtkmyUnsortedPython SHARED ${UnsortedPython_SRCS})
+  ENDIF (APPLE)
+  TARGET_LINK_LIBRARIES(vtkmyUnsortedPython vtkmyCommonPython vtkmyUnsorted)
+ENDIF (VTK_WRAP_PYTHON AND VTKMY_WRAP_PYTHON)
+
+# Create the vtkmyUnsorted Java library.
+IF (VTK_WRAP_JAVA AND VTKMY_WRAP_JAVA)
+  VTK_WRAP_JAVA (vtkmyUnsortedJava UnsortedJava_SRCS ${Unsorted_SRCS})
+  ADD_LIBRARY (vtkmyUnsortedJava SHARED ${UnsortedJava_SRCS})
+  TARGET_LINK_LIBRARIES(vtkmyUnsortedJava vtkmyCommonJava vtkmyUnsorted)
+ENDIF (VTK_WRAP_JAVA AND VTKMY_WRAP_JAVA)
