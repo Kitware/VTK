@@ -5,14 +5,14 @@ IF (VTK_USE_RENDERING)
   #
   IF (VTK_DATA_ROOT)
     FOREACH ( tfile
-      CamBlur.tcl
+      CamBlur
       cells 
       ImageActor
       pickCells
       rotations
-      TestStyleJoystickActor.tcl
-      TestStyleTrackballActor.tcl
-      TestStyleTrackballCamera.tcl
+      TestStyleJoystickActor
+      TestStyleTrackballActor
+      TestStyleTrackballCamera
     )
       ADD_TEST(${tfile}-image ${VTK_EXECUTABLE}
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
