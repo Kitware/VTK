@@ -337,7 +337,7 @@ void vtkVoxel::Contour(float value, vtkScalars *cellScalars,
                        vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd)
 {
   static int CASE_MASK[8] = {1,2,4,8,16,32,64,128};
-  TRIANGLE_CASES *triCase;
+  VTK_TRIANGLE_CASES *triCase;
   EDGE_LIST  *edge;
   int i, j, index, *vert;
   static int vertMap[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
@@ -354,7 +354,7 @@ void vtkVoxel::Contour(float value, vtkScalars *cellScalars,
       }
     }
   
-  triCase = VTK_MARCHING_CUBES_TRICASES + index;
+  triCase = VTK_TRIANGLE_CASES::GetCases() + index;
   edge = triCase->edges;
 
   for ( ; edge[0] > -1; edge += 3 )
