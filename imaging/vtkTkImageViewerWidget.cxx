@@ -334,7 +334,7 @@ static void vtkTkImageViewerWidget_EventProc(ClientData clientData,
 //----------------------------------------------------------------------------
 // vtkTkImageViewerWidget_Init
 // Called upon system startup to create vtkTkImageViewerWidget command.
-extern "C" {int Vtktkimageviewerwidget_Init(Tcl_Interp *interp);}
+extern "C" {VTK_EXPORT int Vtktkimageviewerwidget_Init(Tcl_Interp *interp);}
 int Vtktkimageviewerwidget_Init(Tcl_Interp *interp)
 {
   if (Tcl_PkgProvide(interp, "Vtktkimageviewerwidget", "1.2") != TCL_OK) 
