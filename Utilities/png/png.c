@@ -642,6 +642,9 @@ png_sig_bytes(void)
 }
 #endif
 
+#if defined(_MSC_VER)
+#pragma warning ( disable : 4702 )
+#endif
 png_charp PNGAPI
 png_get_copyright(png_structp png_ptr)
 {

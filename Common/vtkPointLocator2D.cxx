@@ -21,7 +21,7 @@
 #include "vtkPolyData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPointLocator2D, "1.20");
+vtkCxxRevisionMacro(vtkPointLocator2D, "1.21");
 vtkStandardNewMacro(vtkPointLocator2D);
 
 class vtkNeighborPoints2D
@@ -910,7 +910,7 @@ int vtkPointLocator2D::IsInsertedPoint(float x[2])
     float *pt;
 
     // the InsertionLevel stuff is wacky 
-    for (lvtk=0; lvtk <= -1; lvtk++)
+    for (lvtk=0; lvtk <= 0; lvtk++)
       {
       this->GetBucketNeighbors (ijk, this->Divisions, lvtk);
 

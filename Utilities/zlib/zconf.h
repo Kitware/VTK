@@ -278,7 +278,7 @@ typedef uLong FAR uLongf;
 #   pragma map(inflate_trees_free,"INTRFR")
 #endif
 
-#if defined(WIN32)
+#if defined(_MSC_VER)
 #pragma warning ( disable : 4100 ) /* unreferenced variable */
 #pragma warning ( disable : 4127 ) /* cond expr is constant */
 #pragma warning ( disable : 4131 ) /* Old style declaration */
