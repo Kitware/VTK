@@ -94,7 +94,8 @@ protected:
   void Execute();
   virtual void Execute(vtkImageData *data);
 
-  void ComputeRequiredInputUpdateExtent( int in[6], int out[6] ) 
+  void ComputeRequiredInputUpdateExtent( int *vtkNotUsed(in), 
+					 int *vtkNotUsed(out) ) 
     { vtkErrorMacro( << "Obsolete method: Use ComputeInputUpdateExtent" ); };
 };
 
