@@ -73,6 +73,8 @@ vtkOpenGLTexture::~vtkOpenGLTexture()
       GLuint tempIndex;
 #ifdef GL_VERSION_1_1
       tempIndex = this->Index;
+      // NOTE: Sun's OpenGL seems to require disabling of texture before delete
+      glDisable(GL_TEXTURE_2D);
       glDeleteTextures(1, &tempIndex);
 #else
       glDeleteLists(this->Index,1);
@@ -93,6 +95,8 @@ void vtkOpenGLTexture::ReleaseGraphicsResources(vtkWindow *vtkNotUsed(renWin))
     GLuint tempIndex;
 #ifdef GL_VERSION_1_1
     tempIndex = this->Index;
+    // NOTE: Sun's OpenGL seems to require disabling of texture before delete
+    glDisable(GL_TEXTURE_2D);
     glDeleteTextures(1, &tempIndex);
 #else
     glDeleteLists(this->Index,1);
