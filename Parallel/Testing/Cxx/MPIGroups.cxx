@@ -27,6 +27,7 @@
 #include "vtkDebugLeaks.h"
 #include "vtkParallelFactory.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkMPIGroup.h"
 
 static const int NUM_PROC_PER_GROUP = 2;
 
