@@ -204,7 +204,27 @@ vtkXOpenGLTextMapper::~vtkXOpenGLTextMapper()
 }
 
 void vtkXOpenGLTextMapper::RenderOpaqueGeometry(vtkViewport* viewport, 
-						vtkActor2D* actor)
+                                                    vtkActor2D* actor)
+{
+  float*  actorColor = actor->GetProperty()->GetColor();
+  if ( actorColor[3] == 1.0 )
+    {
+    this->RenderGeometry( viewport, actor );
+    }
+}
+
+void vtkXOpenGLTextMapper::RenderTranslucentGeometry(vtkViewport* viewport, 
+                                                     vtkActor2D* actor)
+{
+  float*  actorColor = actor->GetProperty()->GetColor();
+  if ( actorColor[3] != 1.0 )
+    {
+    this->RenderGeometry( viewport, actor );
+    }
+}
+
+void vtkXOpenGLTextMapper::RenderGeometry(vtkViewport* viewport, 
+                                          vtkActor2D* actor)
 {
   vtkDebugMacro (<< "RenderOpaqueGeometry");
 
@@ -244,11 +264,14 @@ void vtkXOpenGLTextMapper::RenderOpaqueGeometry(vtkViewport* viewport,
   unsigned char red = 0;
   unsigned char green = 0;
   unsigned char blue = 0;
+  unsigned char alpha = 0;
+  
   float*  actorColor = actor->GetProperty()->GetColor();
   red = (unsigned char) (actorColor[0] * 255.0);
   green = (unsigned char) (actorColor[1] * 255.0);
   blue = (unsigned char) (actorColor[2] * 255.0);
-
+  alpha = (unsigned char) (actorColor[3] * 255.0);
+  
   // Set up the shadow color
   float intensity;
   intensity = (red + green + blue)/3.0;
@@ -336,7 +359,7 @@ void vtkXOpenGLTextMapper::RenderOpaqueGeometry(vtkViewport* viewport,
     {
     pos[0]++; pos[1]--;
     // set the colors for the foreground
-    glColor3ub(shadowRed, shadowGreen, shadowBlue);
+    glColor3ub(shadowRed, shadowGreen, shadowBlue, alpha);
     glRasterPos3f((2.0 * (GLfloat)(pos[0]) / vsize[0] - 1), 
 		  (2.0 * (GLfloat)(pos[1]) / vsize[1] - 1), 
 		  (front)?(-1):(.99999));
@@ -347,7 +370,7 @@ void vtkXOpenGLTextMapper::RenderOpaqueGeometry(vtkViewport* viewport,
     }
   
   // set the colors for the foreground
-  glColor3ub(red, green, blue);
+  glColor3ub(red, green, blue, alpha);
 
   glRasterPos3f((2.0 * (GLfloat)(pos[0]) / vsize[0] - 1), 
 		(2.0 * (GLfloat)(pos[1]) / vsize[1] - 1), 

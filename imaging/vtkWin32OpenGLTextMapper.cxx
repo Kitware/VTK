@@ -214,7 +214,26 @@ vtkWin32OpenGLTextMapper::~vtkWin32OpenGLTextMapper()
 void vtkWin32OpenGLTextMapper::RenderOpaqueGeometry(vtkViewport* viewport, 
                                                     vtkActor2D* actor)
 {
-  vtkDebugMacro (<< "RenderOpaqueGeometry");
+  float*  actorColor = actor->GetProperty()->GetColor();
+  if ( actorColor[3] == 1.0 )
+    {
+    this->RenderGeometry( viewport, actor );
+    }
+}
+void vtkWin32OpenGLTextMapper::RenderTranslucentGeometry(vtkViewport* viewport, 
+                                                         vtkActor2D* actor)
+{
+  float*  actorColor = actor->GetProperty()->GetColor();
+  if ( actorColor[3] != 1.0 )
+    {
+    this->RenderGeometry( viewport, actor );
+    }
+}
+
+void vtkWin32OpenGLTextMapper::RenderGeometry(vtkViewport* viewport, 
+                                              vtkActor2D* actor)
+{
+vtkDebugMacro (<< "RenderOpaqueGeometry");
 
   // turn off texturing in case it is on
   glDisable( GL_TEXTURE_2D );
@@ -261,11 +280,14 @@ void vtkWin32OpenGLTextMapper::RenderOpaqueGeometry(vtkViewport* viewport,
   unsigned char red = 0;
   unsigned char green = 0;
   unsigned char blue = 0;
+  unsigned char alpha = 0;
+  
   float*  actorColor = actor->GetProperty()->GetColor();
   red = (unsigned char) (actorColor[0] * 255.0);
   green = (unsigned char) (actorColor[1] * 255.0);
   blue = (unsigned char) (actorColor[2] * 255.0);
-
+  alpha = (unsigned char) (actorColor[3] * 255.0);
+  
   // Set up the shadow color
   float intensity;
   intensity = (red + green + blue)/3.0;
@@ -370,7 +392,7 @@ void vtkWin32OpenGLTextMapper::RenderOpaqueGeometry(vtkViewport* viewport,
     {
     rect.left++; rect.bottom--;
     // set the colors for the foreground
-    glColor3ub(shadowRed, shadowGreen, shadowBlue);
+    glColor4ub(shadowRed, shadowGreen, shadowBlue, alpha);
     glRasterPos3f((2.0 * (GLfloat)(rect.left) / vsize[0] - 1), 
 		  (2.0 * (GLfloat)(rect.bottom) / vsize[1] - 1), 
 		  (front)?(-1):(.9999));
@@ -381,7 +403,7 @@ void vtkWin32OpenGLTextMapper::RenderOpaqueGeometry(vtkViewport* viewport,
     }
   
   // set the colors for the foreground
-  glColor3ub(red, green, blue);
+  glColor4ub(red, green, blue, alpha);
   glRasterPos3f((2.0 * (GLfloat)(rect.left) / vsize[0] - 1), 
 		(2.0 * (GLfloat)(rect.bottom) / vsize[1] - 1), 
 		(front)?(-1):(.9999));
