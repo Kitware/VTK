@@ -16,11 +16,15 @@
 
 =========================================================================*/
 #include "vtkTransformToGrid.h"
-#include "vtkObjectFactory.h"
-#include "vtkIdentityTransform.h"
 
-vtkCxxRevisionMacro(vtkTransformToGrid, "1.8");
+#include "vtkAbstractTransform.h"
+#include "vtkIdentityTransform.h"
+#include "vtkObjectFactory.h"
+
+vtkCxxRevisionMacro(vtkTransformToGrid, "1.9");
 vtkStandardNewMacro(vtkTransformToGrid);
+
+vtkCxxSetObjectMacro(vtkTransformToGrid,Input,vtkAbstractTransform);
 
 //----------------------------------------------------------------------------
 vtkTransformToGrid::vtkTransformToGrid()

@@ -28,7 +28,8 @@
 #define __vtkTransformToGrid_h
 
 #include "vtkImageSource.h"
-#include "vtkAbstractTransform.h"
+
+class vtkAbstractTransform;
 
 class VTK_HYBRID_EXPORT vtkTransformToGrid : public vtkImageSource
 {
@@ -39,7 +40,7 @@ public:
 
   // Description:
   // Set/Get the transform which will be converted into a grid.
-  vtkSetObjectMacro(Input,vtkAbstractTransform);
+  virtual void SetInput(vtkAbstractTransform*);
   vtkGetObjectMacro(Input,vtkAbstractTransform);
 
   // Description:
