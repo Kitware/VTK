@@ -28,7 +28,7 @@ class vlIdList {
 public:
   vlIdList(const int sz=128, const int ext=100):Ia(sz,ext) {};
   ~vlIdList() {};
-  vlIdList &operator=(const vlIdList& ids) {this->Ia = ids.Ia;};
+  vlIdList &operator=(const vlIdList& ids) {this->Ia = ids.Ia; return *this;};
   void Squeeze() {this->Ia.Squeeze();};
 
   int GetNumberOfIds() {return (this->Ia.GetMaxId() + 1);};
