@@ -20,7 +20,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageHybridMedian2D, "1.15");
+vtkCxxRevisionMacro(vtkImageHybridMedian2D, "1.15.8.1");
 vtkStandardNewMacro(vtkImageHybridMedian2D);
 
 //----------------------------------------------------------------------------
@@ -181,7 +181,7 @@ void vtkImageHybridMedian2D::ThreadedExecute(vtkImageData *inData,
             }
           if (idx0+1 > wholeMax0 && idx1+1 > wholeMax1)
             {
-            ptr -= inInc0 + inInc1;
+            ptr += inInc0 + inInc1;
             array[icount++] = *ptr;
             }
           // Upper Left
