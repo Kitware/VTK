@@ -48,7 +48,7 @@ struct DICOMTagInfo
   doublebyte group;
   doublebyte element;
   DICOMParser::VRTypes datatype;
-  char* description;
+  const char* description;
 };
 
 
