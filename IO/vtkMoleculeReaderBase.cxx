@@ -18,6 +18,8 @@
 #include "vtkCellType.h"
 #include "vtkDataArray.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -25,7 +27,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkMoleculeReaderBase, "1.16");
+vtkCxxRevisionMacro(vtkMoleculeReaderBase, "1.17");
 
 static double vtkMoleculeReaderBaseCovRadius[103] = {
 0.32 , 1.6 , 0.68 , 0.352 , 0.832 , 0.72 ,
@@ -126,6 +128,8 @@ vtkMoleculeReaderBase::vtkMoleculeReaderBase()
   this->RGB = NULL;
   this->Radii = NULL;
   this->NumberOfAtoms = 0;
+
+  this->SetNumberOfInputPorts(0);
 }
 
 vtkMoleculeReaderBase::~vtkMoleculeReaderBase()
@@ -152,34 +156,45 @@ vtkMoleculeReaderBase::~vtkMoleculeReaderBase()
     }
 }
 
-void vtkMoleculeReaderBase::Execute()
+int vtkMoleculeReaderBase::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the ouptut
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   FILE *fp;
 
   if (!this->FileName) 
     {
-    return;
+    return 0;
     }
 
   if ((fp = fopen(this->FileName, "r")) == NULL) 
     {
     vtkErrorMacro(<< "File " << this->FileName << " not found");
-    return;
+    return 0;
     }
   vtkDebugMacro(<< "opening base file " << this->FileName);
-  this->ReadMolecule(fp);
+  this->ReadMolecule(fp, output);
   fclose(fp);
 
-  this->GetOutput()->Squeeze();
+  output->Squeeze();
+
+  return 1;
 }
 
-int vtkMoleculeReaderBase::ReadMolecule(FILE *fp)
+int vtkMoleculeReaderBase::ReadMolecule(FILE *fp, vtkPolyData *output)
 {
   int i;
   vtkCellArray *newBonds;
 
   vtkDebugMacro(<< "Scanning the Molecule file");
-  vtkPolyData *output = this->GetOutput();
 
   if ( !this->AtomType )
     {
@@ -514,5 +529,3 @@ void vtkMoleculeReaderBase::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "HBScale: " << this->HBScale << endl;
   os << indent << "BScale: " << this->BScale << endl;
 }
-
-

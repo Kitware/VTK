@@ -16,20 +16,20 @@ vtkGaussianCubeReader reader
     reader SetBScale 1.9
     reader Update
 
-set range [[[[reader GetOutput 1] GetPointData] GetScalars] GetRange]
+set range [[[[reader GetGridOutput] GetPointData] GetScalars] GetRange]
 set min [lindex $range 0]
 set max [lindex $range 1]
 
 set xform [reader GetTransform]
 
 vtkImageShiftScale readerSS
-  readerSS SetInput [reader GetOutput 1]
+  readerSS SetInput [reader GetGridOutput]
   readerSS SetShift [expr $min * -1]
   readerSS SetScale [expr 255 / [expr $max - $min]]
   readerSS SetOutputScalarTypeToUnsignedChar
 
 vtkOutlineFilter bounds
-    bounds SetInput [reader GetOutput 1]
+    bounds SetInput [reader GetGridOutput]
 
 vtkPolyDataMapper boundsMapper
     boundsMapper SetInput [bounds GetOutput]
@@ -39,7 +39,7 @@ vtkActor boundsActor
     [boundsActor GetProperty] SetColor 0 0 0
 
 vtkContourFilter contour
-    contour SetInput [reader GetOutput 1]
+    contour SetInput [reader GetGridOutput]
     eval contour GenerateValues 5 0 .05
 
 

@@ -48,8 +48,8 @@ protected:
   char *FileName;
   vtkTransform *Transform;
 
-  void Execute();
-  void ExecuteInformation();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   
   void ReadSpecificMolecule(FILE* fp);
 

@@ -23,7 +23,7 @@
 #ifndef __vtkMoleculeReaderBase_h
 #define __vtkMoleculeReaderBase_h
 
-#include "vtkPolyDataSource.h"
+#include "vtkPolyDataAlgorithm.h"
 
 class vtkCellArray;
 class vtkFloatArray;
@@ -32,10 +32,10 @@ class vtkIdTypeArray;
 class vtkUnsignedCharArray;
 class vtkPoints;
 
-class VTK_IO_EXPORT vtkMoleculeReaderBase : public vtkPolyDataSource 
+class VTK_IO_EXPORT vtkMoleculeReaderBase : public vtkPolyDataAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkMoleculeReaderBase,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkMoleculeReaderBase,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   vtkSetStringMacro(FileName);
@@ -60,8 +60,8 @@ protected:
   // a scaling factor to compute bonds with hydrogen atoms
   int NumberOfAtoms;
 
-  virtual void Execute();
-  int ReadMolecule(FILE *fp);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int ReadMolecule(FILE *fp, vtkPolyData *output);
   int MakeAtomType(const char *atype);
   int MakeBonds(vtkPoints*, vtkIdTypeArray*, vtkCellArray*);
 

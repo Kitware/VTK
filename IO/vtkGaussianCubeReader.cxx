@@ -16,16 +16,18 @@
 
 #include "vtkImageData.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTransform.h"
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkGaussianCubeReader, "1.13");
+vtkCxxRevisionMacro(vtkGaussianCubeReader, "1.14");
 vtkStandardNewMacro(vtkGaussianCubeReader);
 
 // Construct object with merging set to true.
@@ -34,11 +36,12 @@ vtkGaussianCubeReader::vtkGaussianCubeReader()
   this->FileName = NULL;
   this->Transform = vtkTransform::New();
   // Add the second output for the grid data
- 
+
+  this->SetNumberOfOutputPorts(2);
   vtkImageData *grid;
   grid = vtkImageData::New();
   grid->ReleaseData();
-  this->AddOutput(grid);
+  this->GetExecutive()->SetOutputData(1, grid);
   grid->Delete();
 }
 
@@ -52,8 +55,15 @@ vtkGaussianCubeReader::~vtkGaussianCubeReader()
   // must delete the second output added
 }
 
-void vtkGaussianCubeReader::Execute()
+int vtkGaussianCubeReader::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   FILE *fp;
   char Title[256];
   char data_name[256];
@@ -68,13 +78,13 @@ void vtkGaussianCubeReader::Execute()
 
   if (!this->FileName)
     {
-    return;
+    return 0;
     }
 
   if ((fp = fopen(this->FileName, "r")) == NULL)
     {
     vtkErrorMacro(<< "File " << this->FileName << " not found");
-    return;
+    return 0;
     }
 
   fgets(Title, 256, fp);
@@ -110,13 +120,16 @@ void vtkGaussianCubeReader::Execute()
   Transform->SetMatrix(elements);
   Transform->Inverse();
 
-  ReadMolecule(fp);
+  this->ReadMolecule(fp, output);
 
-  grid->SetWholeExtent(0, n1-1,
-                       0, n2-1,
-                       0, n3-1);
-  grid->SetUpdateExtent(grid->GetWholeExtent());
-  grid->SetExtent(grid->GetWholeExtent());
+  vtkInformation *gridInfo = this->GetExecutive()->GetOutputInformation(1);
+  gridInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+                0, n1-1, 0, n2-1, 0, n3-1);
+  gridInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+                gridInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),
+                6);
+  grid->SetExtent(
+    gridInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
 
   grid->SetOrigin(0, 0, 0);
   grid->SetSpacing(1, 1, 1);
@@ -142,6 +155,8 @@ void vtkGaussianCubeReader::Execute()
       }
     }
   fclose(fp);
+
+  return 1;
 }
 
 void vtkGaussianCubeReader::ReadSpecificMolecule(FILE* fp)
@@ -160,7 +175,12 @@ void vtkGaussianCubeReader::ReadSpecificMolecule(FILE* fp)
 
 vtkImageData *vtkGaussianCubeReader::GetGridOutput()
 {
-  return vtkImageData::SafeDownCast(this->Outputs[1]);
+  if (this->GetNumberOfOutputPorts() < 2)
+    {
+    return NULL;
+    }
+  return vtkImageData::SafeDownCast(
+    this->GetExecutive()->GetOutputData(1));
 }
 
 void vtkGaussianCubeReader::PrintSelf(ostream& os, vtkIndent indent)
@@ -182,25 +202,26 @@ void vtkGaussianCubeReader::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 // Default implementation - copy information from first input to all outputs
-void vtkGaussianCubeReader::ExecuteInformation()
+int vtkGaussianCubeReader::RequestInformation(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *vtkNotUsed(outputVector))
 {
-  // first invoke default supoerclass method
-  this->Superclass::ExecuteInformation();
-
   // the set the information for the imagedat output
-  vtkImageData *grid = this->GetGridOutput();
+  vtkInformation *gridInfo = this->GetExecutive()->GetOutputInformation(1);
+
   FILE *fp;
   char Title[256];
   
   if (!this->FileName)
     {
-    return;
+    return 0;
     }
   
   if ((fp = fopen(this->FileName, "r")) == NULL)
     {
     vtkErrorMacro(<< "File " << this->FileName << " not found");
-    return;
+    return 0;
     }
   
   fgets(Title, 256, fp);
@@ -216,13 +237,15 @@ void vtkGaussianCubeReader::ExecuteInformation()
   fscanf(fp, "%d %lf %lf %lf", &n3, &tmpd, &tmpd, &tmpd);
   
   vtkDebugMacro(<< "Grid Size " << n1 << " " << n2 << " " << n3);
-  grid->SetWholeExtent(0, n1-1, 0, n2-1, 0, n3-1);
-
-  grid->SetOrigin(0, 0, 0);
-  grid->SetSpacing(1, 1, 1);
-  grid->SetScalarTypeToFloat();
+  gridInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+                0, n1-1, 0, n2-1, 0, n3-1);
+  gridInfo->Set(vtkDataObject::ORIGIN(), 0, 0, 0);
+  gridInfo->Set(vtkDataObject::SPACING(), 1, 1, 1);
+  gridInfo->Set(vtkDataObject::SCALAR_TYPE(), VTK_FLOAT);
 
   fclose(fp);
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
