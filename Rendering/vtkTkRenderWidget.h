@@ -58,23 +58,4 @@ struct vtkTkRenderWidget
 #endif
 };
 
-// This widget requires access to structures that are normally 
-// not visible to Tcl/Tk applications. For this reason you must
-// have access to tkInt.h
-// #include "tkInt.h"
-
-#ifdef _WIN32
-extern "C" {
-#include "tkWinInt.h" 
-}
 #endif
-
-#endif
-
-
-
-
-
-
-
-
