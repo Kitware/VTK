@@ -62,6 +62,6 @@ ELSE (VTK_DATA_ROOT)
            -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
 ENDIF (VTK_DATA_ROOT)
 
-ADD_TEST(PrintSelf-Parallel ${TCLSHCOMMAND}
+ADD_TEST(PrintSelf-Parallel ${TCL_TCLSH}
          ${VTK_SOURCE_DIR}/Common/Testing/Tcl/PrintSelfCheck.tcl  
          ${VTK_SOURCE_DIR}/Parallel)

@@ -183,6 +183,6 @@ IF (VTK_USE_RENDERING)
 
 ENDIF (VTK_USE_RENDERING)
 
-ADD_TEST(PrintSelf-Graphics ${TCLSHCOMMAND}
+ADD_TEST(PrintSelf-Graphics ${TCL_TCLSH}
          ${VTK_SOURCE_DIR}/Common/Testing/Tcl/PrintSelfCheck.tcl  
          ${VTK_SOURCE_DIR}/Graphics)
