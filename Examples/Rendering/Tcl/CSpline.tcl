@@ -5,7 +5,7 @@
 # First we include the vtktcl package which will make available 
 # all of the vtk commands to Tcl
 #
-package require vtktcl
+package require vtktcl_interactor
 
 # Load the color definitions
 ::vtktcl::load_script colors
@@ -42,26 +42,26 @@ for {set i 0} {$i < $numberOfInputPoints} {incr i 1} {
 
 # Create a polydata to be glyphed.
 vtkPolyData inputData
-  inputData SetPoints inputPoints
+inputData SetPoints inputPoints
 
 # Use sphere as glyph source.
 vtkSphereSource balls
-  balls SetRadius .01
-  balls SetPhiResolution 10
-  balls SetThetaResolution 10
+balls SetRadius .01
+balls SetPhiResolution 10
+balls SetThetaResolution 10
 
 vtkGlyph3D glyphPoints
-  glyphPoints SetInput inputData
-  glyphPoints SetSource [balls GetOutput]
+glyphPoints SetInput inputData
+glyphPoints SetSource [balls GetOutput]
 
 vtkPolyDataMapper glyphMapper
-  glyphMapper SetInput [glyphPoints GetOutput]
+glyphMapper SetInput [glyphPoints GetOutput]
 
 vtkActor glyph
-  glyph SetMapper glyphMapper
-  eval   [glyph GetProperty] SetDiffuseColor $tomato
-  [glyph GetProperty] SetSpecular .3
-  [glyph GetProperty] SetSpecularPower 30
+glyph SetMapper glyphMapper
+eval   [glyph GetProperty] SetDiffuseColor $tomato
+[glyph GetProperty] SetSpecular .3
+[glyph GetProperty] SetSpecularPower 30
 
 # Generate the polyline for the spline.
 vtkPoints points
@@ -79,7 +79,7 @@ for {set i 0} {$i< $numberOfOutputPoints} {incr i 1} {
 
 # Create the polyline.
 vtkCellArray lines
-  lines InsertNextCell $numberOfOutputPoints
+lines InsertNextCell $numberOfOutputPoints
 for {set i 0} {$i < $numberOfOutputPoints} {incr i 1} {
   lines InsertCellPoint $i
 }
@@ -88,27 +88,28 @@ profileData SetLines lines
 
 # Add thickness to the resulting line.
 vtkTubeFilter profileTubes
-  profileTubes SetNumberOfSides 8
-  profileTubes SetInput profileData
-  profileTubes SetRadius .005
+profileTubes SetNumberOfSides 8
+profileTubes SetInput profileData
+profileTubes SetRadius .005
 
 vtkPolyDataMapper profileMapper
-  profileMapper SetInput [profileTubes GetOutput]
+profileMapper SetInput [profileTubes GetOutput]
 
 vtkActor profile
-  profile SetMapper profileMapper
-  eval  [profile GetProperty] SetDiffuseColor $banana
-  [profile GetProperty] SetSpecular .3
-  [profile GetProperty] SetSpecularPower 30
+profile SetMapper profileMapper
+eval  [profile GetProperty] SetDiffuseColor $banana
+[profile GetProperty] SetSpecular .3
+[profile GetProperty] SetSpecularPower 30
 
 
 # Now create the RenderWindow, Renderer and Interactor
 #
 vtkRenderer ren1
 vtkRenderWindow renWin
-    renWin AddRenderer ren1
+renWin AddRenderer ren1
+
 vtkRenderWindowInteractor iren
-    iren SetRenderWindow renWin
+iren SetRenderWindow renWin
 
 # Add the actors
 ren1 AddActor glyph

@@ -1,9 +1,9 @@
-package require vtktcl
-
 # This example demonstrates the use of fields and use of 
 # vtkProgrammableDataObjectSource. It creates fields the hard way 
 # (as compared to reading a vtk field file), but shows you how to
 # interface to your own raw data.
+
+package require vtktcl_interactor
 
 set xAxis INTEREST_RATE
 set yAxis MONTHLY_PAYMENT
@@ -13,7 +13,7 @@ set scalar TIME_LATE
 # Parse an ascii file and manually create a field. Then construct a 
 # dataset from the field.
 vtkProgrammableDataObjectSource dos
-    dos SetExecuteMethod parseFile
+dos SetExecuteMethod parseFile
 
 proc parseFile {} {
    global VTK_DATA_ROOT
@@ -99,65 +99,68 @@ proc parseFile {} {
 # DataObjectToDataSetFilter can create geometry using
 # fields from DataObject's FieldData
 vtkDataObjectToDataSetFilter do2ds
-    do2ds SetInput [dos GetOutput]
+do2ds SetInput [dos GetOutput]
 # We are generating polygonal data
-    do2ds SetDataSetTypeToPolyData
-    do2ds DefaultNormalizeOn
+do2ds SetDataSetTypeToPolyData
+do2ds DefaultNormalizeOn
 # All we need is points. Assign them.
-    do2ds SetPointComponent 0 $xAxis 0 
-    do2ds SetPointComponent 1 $yAxis 0
-    do2ds SetPointComponent 2 $zAxis 0 
+do2ds SetPointComponent 0 $xAxis 0 
+do2ds SetPointComponent 1 $yAxis 0
+do2ds SetPointComponent 2 $zAxis 0 
 
 # RearrangeFields is used to move fields between DataObject's
 # FieldData, PointData and CellData.
 vtkRearrangeFields rf
-    rf SetInput [do2ds GetOutput]
+rf SetInput [do2ds GetOutput]
 # Add an operation to "move TIME_LATE from DataObject's FieldData to
 # PointData"
-    rf AddOperation MOVE $scalar DATA_OBJECT POINT_DATA
+rf AddOperation MOVE $scalar DATA_OBJECT POINT_DATA
 # Force the filter to execute. This is need to force the pipeline
 # to execute so that we can find the range of the array TIME_LATE
-    rf Update
+rf Update
 # Set max to the second (GetRange return [min,max]) of the "range of the 
 # array called $scalar in the PointData of the output of rf"
-    set max [lindex [[[[rf GetOutput] GetPointData] GetArray $scalar] GetRange 0] 1]
+set max [lindex [[[[rf GetOutput] GetPointData] GetArray $scalar] GetRange 0] 1]
 
 # Use an ArrayCalculator to normalize TIME_LATE
 vtkArrayCalculator calc
-    calc SetInput [rf GetOutput]
+calc SetInput [rf GetOutput]
 # Working on point data
-    calc SetAttributeModeToUsePointData
+calc SetAttributeModeToUsePointData
 # Map $scalar to s. When setting function, we can use s to
 # represent the array $scalar (TIME_LATE) 
-    calc AddScalarVariable s $scalar 0
+calc AddScalarVariable s $scalar 0
 # Divide $scalar by $max (applies division to all components of the array)
-    calc SetFunction "s / $max"
+calc SetFunction "s / $max"
 # The output array will be called resArray
-    calc SetResultArrayName resArray
+calc SetResultArrayName resArray
 
 # Use AssignAttribute to make resArray the active scalar field
 vtkAssignAttribute aa
-    aa SetInput [calc GetOutput]
-    aa Assign resArray SCALARS POINT_DATA
-    aa Update
+aa SetInput [calc GetOutput]
+aa Assign resArray SCALARS POINT_DATA
+aa Update
 
 # construct pipeline for original population
 # GaussianSplatter -> Contour -> Mapper -> Actor
 vtkGaussianSplatter popSplatter
-    popSplatter SetInput [aa GetOutput]
-    popSplatter SetSampleDimensions 50 50 50
-    popSplatter SetRadius 0.05
-    popSplatter ScalarWarpingOff
+popSplatter SetInput [aa GetOutput]
+popSplatter SetSampleDimensions 50 50 50
+popSplatter SetRadius 0.05
+popSplatter ScalarWarpingOff
+
 vtkContourFilter popSurface
-    popSurface SetInput [popSplatter GetOutput]
-    popSurface SetValue 0 0.01
+popSurface SetInput [popSplatter GetOutput]
+popSurface SetValue 0 0.01
+
 vtkPolyDataMapper popMapper
-    popMapper SetInput [popSurface GetOutput]
-    popMapper ScalarVisibilityOff
+popMapper SetInput [popSurface GetOutput]
+popMapper ScalarVisibilityOff
+
 vtkActor popActor
-    popActor SetMapper popMapper
-    [popActor GetProperty] SetOpacity 0.3
-    [popActor GetProperty] SetColor .9 .9 .9
+popActor SetMapper popMapper
+[popActor GetProperty] SetOpacity 0.3
+[popActor GetProperty] SetColor .9 .9 .9
 
 # This is for decoration only.
 proc CreateAxes {} {
@@ -166,60 +169,68 @@ proc CreateAxes {} {
     popSplatter Update
     set bounds [[popSplatter GetOutput] GetBounds]
     vtkAxes axes
-     axes SetOrigin [lindex $bounds 0]  [lindex $bounds 2]  [lindex $bounds 4]
-     axes SetScaleFactor [expr [[popSplatter GetOutput] GetLength]/5.0]
-
+    axes SetOrigin [lindex $bounds 0]  [lindex $bounds 2]  [lindex $bounds 4]
+    axes SetScaleFactor [expr [[popSplatter GetOutput] GetLength]/5.0]
+    
     vtkTubeFilter axesTubes
-     axesTubes SetInput [axes GetOutput]
-     axesTubes SetRadius [expr [axes GetScaleFactor]/25.0]
-     axesTubes SetNumberOfSides 6
-
+    axesTubes SetInput [axes GetOutput]
+    axesTubes SetRadius [expr [axes GetScaleFactor]/25.0]
+    axesTubes SetNumberOfSides 6
+    
     vtkPolyDataMapper axesMapper
-     axesMapper SetInput [axesTubes GetOutput]
+    axesMapper SetInput [axesTubes GetOutput]
+
     vtkActor axesActor
-     axesActor SetMapper axesMapper
+    axesActor SetMapper axesMapper
 
     # Label the axes.
     vtkVectorText XText
-     XText SetText $xAxis
+    XText SetText $xAxis
+
     vtkPolyDataMapper XTextMapper
-     XTextMapper SetInput [XText GetOutput]
+    XTextMapper SetInput [XText GetOutput]
+
     vtkFollower XActor
-     XActor SetMapper XTextMapper
-     XActor SetScale 0.02 .02 .02
-     XActor SetPosition 0.35 -0.05 -0.05
-     [XActor GetProperty] SetColor 0 0 0
+    XActor SetMapper XTextMapper
+    XActor SetScale 0.02 .02 .02
+    XActor SetPosition 0.35 -0.05 -0.05
+    [XActor GetProperty] SetColor 0 0 0
 
     vtkVectorText YText
-     YText SetText $yAxis
-    vtkPolyDataMapper YTextMapper
-     YTextMapper SetInput [YText GetOutput]
-    vtkFollower YActor
-     YActor SetMapper YTextMapper
-     YActor SetScale 0.02 .02 .02
-     YActor SetPosition -0.05 0.35 -0.05
-     [YActor GetProperty] SetColor 0 0 0
+    YText SetText $yAxis
 
+    vtkPolyDataMapper YTextMapper
+    YTextMapper SetInput [YText GetOutput]
+
+    vtkFollower YActor
+    YActor SetMapper YTextMapper
+    YActor SetScale 0.02 .02 .02
+    YActor SetPosition -0.05 0.35 -0.05
+    [YActor GetProperty] SetColor 0 0 0
+    
     vtkVectorText ZText
-     ZText SetText $zAxis
+    ZText SetText $zAxis
+
     vtkPolyDataMapper ZTextMapper
-     ZTextMapper SetInput [ZText GetOutput]
+    ZTextMapper SetInput [ZText GetOutput]
+    
     vtkFollower ZActor
-     ZActor SetMapper ZTextMapper
-     ZActor SetScale 0.02 .02 .02
-     ZActor SetPosition -0.05 -0.05 0.35
-     [ZActor GetProperty] SetColor 0 0 0
+    ZActor SetMapper ZTextMapper
+    ZActor SetScale 0.02 .02 .02
+    ZActor SetPosition -0.05 -0.05 0.35
+    [ZActor GetProperty] SetColor 0 0 0
 }
 CreateAxes
 
 # Create the render window, renderer, interactor
 vtkRenderer ren1
 vtkRenderWindow renWin
-    renWin AddRenderer ren1
-    renWin SetWindowName "vtk - Field Data"
-    renWin SetSize 500 500
+renWin AddRenderer ren1
+renWin SetWindowName "vtk - Field Data"
+renWin SetSize 500 500
+
 vtkRenderWindowInteractor iren
-    iren SetRenderWindow renWin
+iren SetRenderWindow renWin
 
 # Add the actors to the renderer, set the background and size
 ren1 AddActor axesActor
@@ -231,10 +242,10 @@ ren1 SetBackground 1 1 1
 
 # Set the default camera position
 vtkCamera camera
-    camera SetClippingRange .274 13.72
-    camera SetFocalPoint 0.433816 0.333131 0.449
-    camera SetPosition -1.96987 1.15145 1.49053
-    camera SetViewUp 0.378927 0.911821 0.158107
+camera SetClippingRange .274 13.72
+camera SetFocalPoint 0.433816 0.333131 0.449
+camera SetPosition -1.96987 1.15145 1.49053
+camera SetViewUp 0.378927 0.911821 0.158107
 ren1 SetActiveCamera camera
 # Assign the camera to the followers.
 XActor SetCamera camera

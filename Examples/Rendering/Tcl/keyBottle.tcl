@@ -1,6 +1,8 @@
 # This example demonstrates keyframe animation. It changes the
 # camera's azimuth by interpolating given azimuth values (using splines)
 
+package require vtktcl
+
 # Get keyframe procs
 # See KeyFrame.tcl for details.
 source KeyFrame.tcl
@@ -11,49 +13,50 @@ set NumberOfFrames 1200
 
 # Create bottle profile. This is the object to be rendered.
 vtkPoints points
-  points InsertPoint 0 0.01 0.0 0.0
-  points InsertPoint 1 1.5 0.0 0.0
-  points InsertPoint 2 1.5 0.0 3.5
-  points InsertPoint 3 1.25 0.0 3.75
-  points InsertPoint 4 0.75 0.0 4.00
-  points InsertPoint 5 0.6 0.0 4.35
-  points InsertPoint 6 0.7 0.0 4.65
-  points InsertPoint 7 1.0 0.0 4.75
-  points InsertPoint 8 1.0 0.0 5.0
-  points InsertPoint 9 0.01 0.0 5.0
-vtkCellArray lines
-  lines InsertNextCell 10;#number of points
-  lines InsertCellPoint 0
-  lines InsertCellPoint 1
-  lines InsertCellPoint 2
-  lines InsertCellPoint 3
-  lines InsertCellPoint 4
-  lines InsertCellPoint 5
-  lines InsertCellPoint 6
-  lines InsertCellPoint 7
-  lines InsertCellPoint 8
-  lines InsertCellPoint 9
-vtkPolyData profile
-    profile SetPoints points
-    profile SetLines lines
+points InsertPoint 0 0.01 0.0 0.0
+points InsertPoint 1 1.5 0.0 0.0
+points InsertPoint 2 1.5 0.0 3.5
+points InsertPoint 3 1.25 0.0 3.75
+points InsertPoint 4 0.75 0.0 4.00
+points InsertPoint 5 0.6 0.0 4.35
+points InsertPoint 6 0.7 0.0 4.65
+points InsertPoint 7 1.0 0.0 4.75
+points InsertPoint 8 1.0 0.0 5.0
+points InsertPoint 9 0.01 0.0 5.0
 
+vtkCellArray lines
+lines InsertNextCell 10;#number of points
+lines InsertCellPoint 0
+lines InsertCellPoint 1
+lines InsertCellPoint 2
+lines InsertCellPoint 3
+lines InsertCellPoint 4
+lines InsertCellPoint 5
+lines InsertCellPoint 6
+lines InsertCellPoint 7
+lines InsertCellPoint 8
+lines InsertCellPoint 9
+
+vtkPolyData profile
+profile SetPoints points
+profile SetLines lines
 
 # Extrude profile to make bottle
 vtkRotationalExtrusionFilter extrude
-  extrude SetInput profile
-  extrude SetResolution 60
-    
+extrude SetInput profile
+extrude SetResolution 60
+
 vtkPolyDataMapper map
-    map SetInput [extrude GetOutput]
+map SetInput [extrude GetOutput]
 
 vtkActor bottle
-    bottle SetMapper map
-    [bottle GetProperty] SetColor 0.3800 0.7000 0.1600
+bottle SetMapper map
+[bottle GetProperty] SetColor 0.3800 0.7000 0.1600
 
 # Create the RenderWindow, Renderer
 vtkRenderer ren1
 vtkRenderWindow renWin
-    renWin AddRenderer ren1
+renWin AddRenderer ren1
 
 # Add the actor to the renderer, set the background and size#
 ren1 AddActor bottle
