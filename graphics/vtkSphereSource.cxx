@@ -57,6 +57,8 @@ vtkSphereSource::vtkSphereSource(int res)
 
   this->ThetaResolution = res;
   this->PhiResolution = res;
+  this->Theta = 0.0;
+  this->Phi = 0.0;
 }
 
 void vtkSphereSource::Execute()

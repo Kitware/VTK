@@ -52,6 +52,8 @@ vtkTexturedSphereSource::vtkTexturedSphereSource(int res)
   this->Radius = 0.5;
   this->ThetaResolution = res;
   this->PhiResolution = res;
+  this->Theta = 0.0;
+  this->Phi = 0.0;
 }
 
 void vtkTexturedSphereSource::Execute()
