@@ -32,7 +32,7 @@
 // input, and then invoking the "On" method to activate it. (You can also
 // specify a bounding box to help position the widget.) Prior to invoking the
 // On() method, the user may also wish to use the PlaceWidget() to initially
-// position it. The 'W' (for "widget") keypresses also can be used to
+// position it. The 'i' (for "interactor") keypresses also can be used to
 // turn the widgets on and off (methods exist to change the key value
 // and enable keypress activiation).
 // 
