@@ -190,10 +190,10 @@ iren Initialize
 # get the user interface to select the cases
 # if we are not running regression tests
 #
-if { [info command rtExMath] == "" } {source mccasesui.tcl}
-
+if { [info command rtExMath] == "" } {
+  source mccasesui.tcl
+} else {
+  wm withdraw .
+}
 #renWin SetFileName marching.tcl.ppm
 #renWin SaveImageAsPPM
-
-
-wm withdraw .
