@@ -43,7 +43,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkTextureMapToPlane is a filter that generates 2D texture coordinates
 // by mapping input dataset points onto a plane. The plane can either be
 // user specified or generated automatically. (A least squares method is
-// used to generate the plane.)
+// used to generate the plane automatically.)
+//
+// There are two ways you can specify the plane. The first is to provide a plane 
+// normal. In this case the points are projected to a plane, and the points are
+// then mapped into the user specified s-t coordinate range. For more control,
+// you can specify a plane with three points: an origin and two points defining
+// the two axes of the plane. (This is compatible with the vtkPlaneSource.) Using
+// the second method, points may fall outside of the user specified s-t coordinate 
+// range. Modulo arithmetic is then used to map the points into the specified s-t
+// texture coordinate range.
+
+// .SECTION See Also
+// vtkPlaneSource vtkTextureMapToBox
 
 #ifndef __vtkTextureMapToPlane_h
 #define __vtkTextureMapToPlane_h
@@ -56,6 +68,21 @@ public:
   vtkTextureMapToPlane();
   char *GetClassName() {return "vtkTextureMapToPlane";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Specify a point defining the origin of the plane.
+  vtkSetVector3Macro(Origin,float);
+  vtkGetVectorMacro(Origin,float,3);
+
+  // Description:
+  // Specify a point defining the first axis of the plane.
+  vtkSetVector3Macro(Point1,float);
+  vtkGetVectorMacro(Point1,float,3);
+
+  // Description:
+  // Specify a point defining the second axis of the plane.
+  vtkSetVector3Macro(Point2,float);
+  vtkGetVectorMacro(Point2,float,3);
 
   // Description:
   // Specify plane normal.
@@ -81,10 +108,15 @@ public:
 protected:
   void Execute();
   void ComputeNormal();
+
+  float Origin[3];
+  float Point1[3];
+  float Point2[3];
   float Normal[3];
   float SRange[2];
   float TRange[2];
   int AutomaticPlaneGeneration;
+
 };
 
 #endif

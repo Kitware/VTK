@@ -47,6 +47,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct with s,t range=(0,1) and automatic plane generation turned on.
 vtkTextureMapToPlane::vtkTextureMapToPlane()
 {
+  // all zero - indicates that using normal is preferred
+  this->Origin[0] = this->Origin[1] = this->Origin[2] = 0.0;
+  this->Point1[0] = this->Point1[1] = this->Point1[2] = 0.0;
+  this->Point2[0] = this->Point2[1] = this->Point2[2] = 0.0;
+
   this->Normal[0] = 0.0;
   this->Normal[1] = 0.0;
   this->Normal[2] = 1.0;
@@ -74,9 +79,10 @@ void vtkTextureMapToPlane::Execute()
   vtkDataSet *output=this->Output;
 
   vtkDebugMacro(<<"Generating texture coordinates!");
-  if ( (numPts=this->Input->GetNumberOfPoints()) < 3 )
+  if ( (numPts=this->Input->GetNumberOfPoints()) < 3 && 
+  this->AutomaticPlaneGeneration )
     {
-    vtkErrorMacro(<< "Not enough points to map with\n");
+    vtkErrorMacro(<< "Not enough points for automatic plane mapping\n");
     return;
     }
 //
@@ -85,64 +91,106 @@ void vtkTextureMapToPlane::Execute()
   newTCoords = new vtkFloatTCoords(numPts,2);
 //
 //  Compute least squares plane if on automatic mode; otherwise use
-//  point and normal specified.
+//  normal specified or plane specified
 //
-  if ( this->AutomaticPlaneGeneration )
-    this->ComputeNormal();
-
-  math.Normalize (this->Normal);
-//
-//  Now project each point onto plane generating s,t texture coordinates
-//
-//  Create local s-t coordinate system.  Need to find the two axes on
-//  the plane and encompassing all the points.  Hence use the bounding
-//  box as a reference.
-//
-  for (minProj=1.0, i=0; i<3; i++) 
+  if ( this->AutomaticPlaneGeneration || 
+  (this->Origin[0] == 0.0 && this->Origin[1] == 0.0 && this->Origin[2] == 0.0
+  && this->Point1[0] == 0.0 && this->Point1[1] == 0.0 && this->Point1[2] == 0.0) )
     {
-    axis[0] = axis[1] = axis[2] = 0.0;
-    axis[i] = 1.0;
-    if ( (proj=fabs(math.Dot(this->Normal,axis))) < minProj ) 
+
+    if ( this->AutomaticPlaneGeneration ) this->ComputeNormal();
+
+    math.Normalize (this->Normal);
+    //
+    //  Now project each point onto plane generating s,t texture coordinates
+    //
+    //  Create local s-t coordinate system.  Need to find the two axes on
+    //  the plane and encompassing all the points.  Hence use the bounding
+    //  box as a reference.
+    //
+    for (minProj=1.0, i=0; i<3; i++) 
       {
-      minProj = proj;
-      dir = i;
+      axis[0] = axis[1] = axis[2] = 0.0;
+      axis[i] = 1.0;
+      if ( (proj=fabs(math.Dot(this->Normal,axis))) < minProj ) 
+        {
+        minProj = proj;
+        dir = i;
+        }
       }
-    }
-  axis[0] = axis[1] = axis[2] = 0.0;
-  axis[dir] = 1.0;
+    axis[0] = axis[1] = axis[2] = 0.0;
+    axis[dir] = 1.0;
 
-  math.Cross (this->Normal, axis, tAxis);
-  math.Normalize (tAxis);
+    math.Cross (this->Normal, axis, tAxis);
+    math.Normalize (tAxis);
 
-  math.Cross (tAxis, this->Normal, sAxis);
-//
-//  Construct projection matrices
-//
-//
-//  Arrange s-t axes so that parametric location of points will fall
-//  between s_range and t_range.  Simplest to do by projecting maximum
-//  corner of bounding box unto plane and backing out scale factors.
-//
-  bounds = output->GetBounds();
-  for (i=0; i<3; i++) axis[i] = bounds[2*i+1] - bounds[2*i];
+    math.Cross (tAxis, this->Normal, sAxis);
+    //
+    //  Construct projection matrices
+    //
+    //  Arrange s-t axes so that parametric location of points will fall
+    //  between s_range and t_range.  Simplest to do by projecting maximum
+    //  corner of bounding box unto plane and backing out scale factors.
+    //
+    bounds = output->GetBounds();
+    for (i=0; i<3; i++) axis[i] = bounds[2*i+1] - bounds[2*i];
 
-  s = math.Dot(sAxis,axis);
-  t = math.Dot(tAxis,axis);
+    s = math.Dot(sAxis,axis);
+    t = math.Dot(tAxis,axis);
 
-  sSf = (this->SRange[1] - this->SRange[0]) / s;
-  tSf = (this->TRange[1] - this->TRange[0]) / t;
-//
-//  Now can loop over all points, computing parametric coordinates.
-//
-  for (i=0; i<numPts; i++) 
+    sSf = (this->SRange[1] - this->SRange[0]) / s;
+    tSf = (this->TRange[1] - this->TRange[0]) / t;
+
+    //
+    //  Now can loop over all points, computing parametric coordinates.
+    //
+    for (i=0; i<numPts; i++) 
+      {
+      p = output->GetPoint(i);
+      for (j=0; j<3; j++) axis[j] = p[j] - bounds[2*j];
+
+      tcoords[0] = this->SRange[0] + math.Dot(sAxis,axis) * sSf;
+      tcoords[1] = this->TRange[0] + math.Dot(tAxis,axis) * tSf;
+
+      newTCoords->SetTCoord(i,tcoords);
+      }
+    } //compute plane and/or parametric range
+
+  else //use the axes specified
     {
-    p = output->GetPoint(i);
-    for (j=0; j<3; j++) axis[j] = p[j] - bounds[2*j];
+    float num, sDenom, tDenom;
 
-    tcoords[0] = this->SRange[0] + math.Dot(sAxis,axis) * sSf;
-    tcoords[1] = this->TRange[0] + math.Dot(tAxis,axis) * tSf;
+    for ( i=0; i < 3; i++ ) //compute axes
+      {
+      sAxis[i] = this->Point1[i] - this->Origin[i];
+      tAxis[i] = this->Point2[i] - this->Origin[i];
+      }
 
-    newTCoords->SetTCoord(i,tcoords);
+    sDenom = math.Dot(sAxis,sAxis);
+    tDenom = math.Dot(tAxis,tAxis);
+
+    if ( sDenom == 0.0 || tDenom == 0.0 )
+      {
+      vtkErrorMacro("Bad plane definition");
+      sDenom = tDenom = 1.0;
+      }
+
+    // compute s-t coordinates
+    for (i=0; i < numPts; i++) 
+      {
+      p = output->GetPoint(i);
+      for (j=0; j<3; j++) axis[j] = p[j] - this->Origin[i];
+
+      //s-coordinate
+      num = sAxis[0]*axis[0] + sAxis[1]*axis[1] + sAxis[2]*axis[2];
+      tcoords[0] = num / sDenom;
+
+      //t-coordinate
+      num = tAxis[0]*axis[0] + tAxis[1]*axis[1] + tAxis[2]*axis[2];
+      tcoords[1] = num / tDenom;
+
+      newTCoords->SetTCoord(i,tcoords);
+      }
     }
 //
 // Update ourselves
