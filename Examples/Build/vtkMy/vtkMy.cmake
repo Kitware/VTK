@@ -1,17 +1,4 @@
 #
-# Try to find VTK and include its settings (otherwise complain)
-#
-
-INCLUDE (${CMAKE_ROOT}/Modules/FindVTK.cmake)
-
-IF (USE_VTK_FILE)
-  INCLUDE (${USE_VTK_FILE})
-ELSE (USE_VTK_FILE)
-  MESSAGE("Warning. This project is supposed to work with VTK, which might be found on your system as different flavours: installed VTK, or (multiple) built VTK. Please, make sure that the VTK_INSTALL_PATH or VTK_BINARY_PATH setting reflect which VTK you are planning to use, then set one of the USE_INSTALLED_VTK or USE_BUILT_VTK to ON.")
-  SET (VTKMY_CAN_BUILD 0)
-ENDIF (USE_VTK_FILE)
-
-#
 # Output path(s)
 #
 
@@ -21,10 +8,27 @@ SET (LIBRARY_OUTPUT_PATH ${VTKMY_BINARY_DIR}/bin/ CACHE PATH
 SET (EXECUTABLE_OUTPUT_PATH ${VTKMY_BINARY_DIR}/bin/ CACHE PATH 
      "Single output directory for building all executables.")
 
-MARK_AS_ADVANCED(
+MARK_AS_ADVANCED (
   LIBRARY_OUTPUT_PATH 
   EXECUTABLE_OUTPUT_PATH
 )
+
+#
+# Try to find VTK and include its settings (otherwise complain)
+#
+
+INCLUDE (${CMAKE_ROOT}/Modules/FindVTK.cmake)
+
+IF (USE_VTK_FILE)
+
+  INCLUDE (${USE_VTK_FILE})
+
+ELSE (USE_VTK_FILE)
+
+  MESSAGE("Warning. This project is supposed to work with VTK, which might be found on your system as different flavours: installed VTK, or (multiple) built VTK. Please, make sure that the VTK_INSTALL_PATH or VTK_BINARY_PATH setting reflect which VTK you are planning to use, then set one of the USE_INSTALLED_VTK or USE_BUILT_VTK to ON.")
+  SET (VTKMY_CAN_BUILD 0)
+
+ENDIF (USE_VTK_FILE)
 
 #
 # Build shared libs ?
@@ -32,21 +36,21 @@ MARK_AS_ADVANCED(
 # Defaults to the same VTK setting.
 #
 
-IF (VTKMY_CAN_BUILD)
+IF (USE_VTK_FILE)
 
   OPTION(BUILD_SHARED_LIBS 
          "Build with shared libraries." 
          ${VTK_BUILD_SHARED_LIBS})
 
-ENDIF (VTKMY_CAN_BUILD)
+ENDIF (USE_VTK_FILE)
 
 #
 # Wrap Tcl, Java, Python
 #
 # Rational: even if your VTK was wrapped, it does not mean that you want to 
 # wrap your own local classes. 
-# Default value is OFF as the VTK cache might have set them to ON but the wrappers 
-# might not be present (or yet not found).
+# Default value is OFF as the VTK cache might have set them to ON but 
+# the wrappers might not be present (or yet not found).
 #
 
 #
