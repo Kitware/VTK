@@ -566,7 +566,7 @@ int vtkPolygon::PointInPolygon (float x[3], int numPts, float *pts,
     }
 }
 
-#define VTK_POLYGON_TOLERANCE 1.0e-09
+#define VTK_POLYGON_TOLERANCE 1.0e-06
 
 // Triangulate polygon. 
 //
@@ -625,12 +625,10 @@ public:
 vtkPolyVertexList::vtkPolyVertexList(vtkIdList *ptIds, vtkPoints *pts,
                                      float tol2)
 {
-  int i;
-  vtkPolyVertex *vtx;
   int numVerts = ptIds->GetNumberOfIds();
   this->NumberOfVerts = numVerts; 
   this->Array = new vtkPolyVertex [numVerts];
-  this->Head = this->Array;
+  int i;
 
   // now load the data into the array
   float *x;
@@ -652,19 +650,28 @@ vtkPolyVertexList::vtkPolyVertexList(vtkIdList *ptIds, vtkPoints *pts,
       }
     }
 
-  // make sure that there are no coincident vertices
-  for (i=0; i<numVerts; i++)
+  // Make sure that there are no coincident vertices.
+  // Beware of multiple coincident vertices.
+  vtkPolyVertex *vtx, *next;
+  this->Head = this->Array;
+
+  for (vtx=this->Head, i=0; i<numVerts; i++)
     {
-    vtx = this->Array + i;
-    if ( vtkMath::Distance2BetweenPoints(vtx->x,vtx->next->x) < tol2 )
+    next = vtx->next;
+    float d2 = vtkMath::Distance2BetweenPoints(vtx->x,next->x);
+    if ( vtkMath::Distance2BetweenPoints(vtx->x,next->x) < tol2 )
       {
-      if ( this->Head == vtx->next )
+      next->next->previous = vtx;
+      vtx->next = next->next;
+      if ( next == this->Head )
         {
-        this->Head = vtx->next->next;
+        this->Head = vtx;
         }
-      vtx->next->next->previous = vtx;
-      vtx->next = vtx->next->next;
       this->NumberOfVerts--;
+      }
+    else //can move forward
+      {
+      vtx = next;
       }
     }
 }
