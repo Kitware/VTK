@@ -34,7 +34,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkExtentTranslator.h"
 
-vtkCxxRevisionMacro(vtkPDataSetReader, "1.22");
+vtkCxxRevisionMacro(vtkPDataSetReader, "1.23");
 vtkStandardNewMacro(vtkPDataSetReader);
 
 //----------------------------------------------------------------------------
@@ -659,7 +659,7 @@ void vtkPDataSetReader::ReadPVTKFileInformation(ifstream *file)
         this->DataType = VTK_RECTILINEAR_GRID;
         this->StructuredFlag = 1;
         }
-      else if (strcmp(val, "vtkImageData") == 0)
+      else if (strcmp(val, "vtkImageData") == 0 || strcmp(val, "vtkStructuredPoints") == 0)
         {
         this->DataType = VTK_IMAGE_DATA;
         this->StructuredFlag = 1;

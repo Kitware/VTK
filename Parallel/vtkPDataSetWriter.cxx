@@ -24,7 +24,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkRectilinearGrid.h"
 
-vtkCxxRevisionMacro(vtkPDataSetWriter, "1.8");
+vtkCxxRevisionMacro(vtkPDataSetWriter, "1.9");
 vtkStandardNewMacro(vtkPDataSetWriter);
 
 //----------------------------------------------------------------------------
@@ -171,6 +171,7 @@ void vtkPDataSetWriter::Write()
         this->WriteUnstructuredMetaData(input, fileRoot, fileName, fptr);
         break;
       case VTK_IMAGE_DATA:
+      case VTK_STRUCTURED_POINTS:
         this->WriteImageMetaData((vtkImageData*)input, fileRoot, fileName, fptr);
         break;
       case VTK_RECTILINEAR_GRID:

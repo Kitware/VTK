@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSource.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.91");
+vtkCxxRevisionMacro(vtkDataObject, "1.92");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,FieldData,vtkFieldData);
@@ -672,14 +672,16 @@ void vtkDataObject::InternalDataObjectCopy(vtkDataObject *src)
     {
     this->WholeExtent[idx] = src->WholeExtent[idx];
     this->Extent[idx] = src->Extent[idx];
-    this->UpdateExtent[idx] = src->UpdateExtent[idx];
+    // Copying these update variables caused me no end of grief.
+    //this->UpdateExtent[idx] = src->UpdateExtent[idx];
     }
   this->Piece = src->Piece;
   this->NumberOfPieces = src->NumberOfPieces;
   this->MaximumNumberOfPieces = src->MaximumNumberOfPieces;
-  this->UpdateNumberOfPieces = src->UpdateNumberOfPieces;
-  this->UpdatePiece = src->UpdatePiece;
-  this->UpdateGhostLevel = src->UpdateGhostLevel;
+  // Copying these update variables caused me no end of grief.
+  //this->UpdateNumberOfPieces = src->UpdateNumberOfPieces;
+  //this->UpdatePiece = src->UpdatePiece;
+  //this->UpdateGhostLevel = src->UpdateGhostLevel;
   this->ReleaseDataFlag = src->ReleaseDataFlag;
   this->PipelineMTime = src->PipelineMTime;
   this->UpdateTime = src->UpdateTime;
