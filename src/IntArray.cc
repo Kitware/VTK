@@ -58,7 +58,7 @@ vlIntArray::vlIntArray(const vlIntArray& ia)
 
 }
 
-vlIntArray& vlIntArray::operator=(vlIntArray& ia)
+vlIntArray& vlIntArray::operator=(const vlIntArray& ia)
 {
   int i;
 
@@ -80,7 +80,7 @@ vlIntArray& vlIntArray::operator=(vlIntArray& ia)
 //
 // Copy on write if used by more than one object
 //
-void vlIntArray::operator+=(vlIntArray& ia)
+void vlIntArray::operator+=(const vlIntArray& ia)
 {
   int i, sz;
 

@@ -60,7 +60,7 @@ vlCharArray::vlCharArray(const vlCharArray& ia)
 
 }
 
-vlCharArray& vlCharArray::operator=(vlCharArray& ia)
+vlCharArray& vlCharArray::operator=(const vlCharArray& ia)
 {
   int i;
 
@@ -82,7 +82,7 @@ vlCharArray& vlCharArray::operator=(vlCharArray& ia)
 //
 // Copy on write if used by more than one object
 //
-vlCharArray& vlCharArray::operator+=(vlCharArray& ia)
+vlCharArray& vlCharArray::operator+=(const vlCharArray& ia)
 {
   int i, sz;
 

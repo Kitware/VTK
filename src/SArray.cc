@@ -60,7 +60,7 @@ vlShortArray::vlShortArray(const vlShortArray& sa)
 
 }
 
-vlShortArray& vlShortArray::operator=(vlShortArray& sa)
+vlShortArray& vlShortArray::operator=(const vlShortArray& sa)
 {
   int i;
 
@@ -82,7 +82,7 @@ vlShortArray& vlShortArray::operator=(vlShortArray& sa)
 //
 // Copy on write if used by more than one object
 //
-vlShortArray& vlShortArray::operator+=(vlShortArray& sa)
+vlShortArray& vlShortArray::operator+=(const vlShortArray& sa)
 {
   int i, sz;
 
