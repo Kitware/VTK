@@ -17,14 +17,17 @@
 #include "vtkCell.h"
 #include "vtkCellArray.h"
 #include "vtkDataSet.h"
+#include "vtkExecutive.h"
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkTensorGlyph, "1.54");
+vtkCxxRevisionMacro(vtkTensorGlyph, "1.55");
 vtkStandardNewMacro(vtkTensorGlyph);
 
 // Construct object with scaling on and scale factor 1.0. Eigenvalues are 
@@ -42,15 +45,32 @@ vtkTensorGlyph::vtkTensorGlyph()
   this->ThreeGlyphs = 0;
   this->Symmetric = 0;
   this->Length = 1.0;
+
+  this->SetNumberOfInputPorts(2);
 }
 
 vtkTensorGlyph::~vtkTensorGlyph()
 {
-  this->SetSource(NULL);
 }
 
-void vtkTensorGlyph::Execute()
+int vtkTensorGlyph::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *sourceInfo = inputVector[1]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *source = vtkPolyData::SafeDownCast(
+    sourceInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkDataArray *inTensors;
   double tensor[9];
   vtkDataArray *inScalars;
@@ -78,18 +98,10 @@ void vtkTensorGlyph::Execute()
   double xv[3], yv[3], zv[3];
   double maxScale;
   vtkPointData *pd, *outPD;
-  vtkDataSet *input = this->GetInput();
-  vtkPolyData *output = this->GetOutput();
-
-  if (this->GetSource() == NULL)
-    {
-    vtkErrorMacro("No source.");
-    return;
-    }
 
   numDirs = (this->ThreeGlyphs?3:1)*(this->Symmetric+1);
   
-  pts = new vtkIdType[this->GetSource()->GetMaxCellSize()];
+  pts = new vtkIdType[source->GetMaxCellSize()];
   trans = vtkTransform::New();
   matrix = vtkMatrix4x4::New();
   
@@ -108,20 +120,20 @@ void vtkTensorGlyph::Execute()
   if ( !inTensors || numPts < 1 )
     {
     vtkErrorMacro(<<"No data to glyph!");
-    return;
+    return 0;
     }
   //
   // Allocate storage for output PolyData
   //
-  sourcePts = this->GetSource()->GetPoints();
+  sourcePts = source->GetPoints();
   numSourcePts = sourcePts->GetNumberOfPoints();
-  numSourceCells = this->GetSource()->GetNumberOfCells();
+  numSourceCells = source->GetNumberOfCells();
 
   newPts = vtkPoints::New();
   newPts->Allocate(numDirs*numPts*numSourcePts);
 
   // Setting up for calls to PolyData::InsertNextCell()
-  if ( (sourceCells=this->GetSource()->GetVerts())->GetNumberOfCells() > 0 )
+  if ( (sourceCells=source->GetVerts())->GetNumberOfCells() > 0 )
     {
     cells = vtkCellArray::New();
     cells->Allocate(numDirs*numPts*sourceCells->GetSize());
@@ -412,21 +424,32 @@ void vtkTensorGlyph::Execute()
   output->Squeeze();
   trans->Delete();
   matrix->Delete();
+
+  return 1;
 }
 
 void vtkTensorGlyph::SetSource(vtkPolyData *source)
 {
-  this->vtkProcessObject::SetNthInput(1, source);
+  this->SetInput(1, source);
 }
 
 vtkPolyData *vtkTensorGlyph::GetSource()
 {
-  if (this->NumberOfInputs < 2)
+  if (this->GetNumberOfInputConnections(1) < 1)
     {
     return NULL;
     }
-  return (vtkPolyData *)(this->Inputs[1]);
-  
+  return vtkPolyData::SafeDownCast(this->GetExecutive()->GetInputData(1, 0));
+}
+
+int vtkTensorGlyph::FillInputPortInformation(int port, vtkInformation *info)
+{
+  if (port == 1)
+    {
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
+    return 1;
+    }
+  return this->Superclass::FillInputPortInformation(port, info);
 }
 
 void vtkTensorGlyph::PrintSelf(ostream& os, vtkIndent indent)

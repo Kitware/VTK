@@ -76,12 +76,12 @@
 #ifndef __vtkTensorGlyph_h
 #define __vtkTensorGlyph_h
 
-#include "vtkDataSetToPolyDataFilter.h"
+#include "vtkDataSetToPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkTensorGlyph : public vtkDataSetToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkTensorGlyph : public vtkDataSetToPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkTensorGlyph,vtkDataSetToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkTensorGlyph,vtkDataSetToPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description
@@ -183,7 +183,8 @@ protected:
   vtkTensorGlyph();
   ~vtkTensorGlyph();
 
-  void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
 
   int Scaling; // Determine whether scaling of geometry is performed
   double ScaleFactor; // Scale factor to use to scale geometry
