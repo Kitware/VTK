@@ -48,8 +48,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkScalarTree.h"
 #include "vtkObjectFactory.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkTimerLog.h"
-
 
 
 //------------------------------------------------------------------------------
@@ -308,9 +306,6 @@ void vtkContourGrid::Execute()
 	int computeScalars = this->ComputeScalars;
 	int useScalarTree = this->UseScalarTree;
 	vtkScalarTree *scalarTree = this->ScalarTree;
-	vtkTimerLog *timer = vtkTimerLog::New();
-
-	timer->StartTimer();
 
   vtkDebugMacro(<< "Executing contour filter");
 
@@ -339,10 +334,6 @@ void vtkContourGrid::Execute()
 			vtkErrorMacro(<< "Execute: Unknown ScalarType");
 		return;
 		}	
-
-	timer->StopTimer();
-	vtkErrorMacro(<<"elapsed time: " << timer->GetElapsedTime());
-	timer->Delete();
 }
 
 // Specify a spatial locator for merging points. By default, 
