@@ -29,9 +29,8 @@
 
 #include "vtkStreamTracer.h"
 
-#include "vtkSmartPointer.h"
-
-#include <vector>
+#include "vtkSmartPointer.h" // This is a leaf node. No need to
+#include <vtkstd/vector>     // use PIMPL to avoid compile time penalty.
 
 class vtkInterpolatedVelocityField;
 class vtkMultiProcessController;
