@@ -22,7 +22,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkRenderWindow, "1.137");
+vtkCxxRevisionMacro(vtkRenderWindow, "1.138");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -136,7 +136,7 @@ void vtkRenderWindow::SetSubFrames(int subFrames)
     }
 }
 
-void vtkRenderWindow::SetDesiredUpdateRate(float rate)
+void vtkRenderWindow::SetDesiredUpdateRate(double rate)
 {
   vtkRenderer *aren;
 
@@ -289,7 +289,7 @@ void vtkRenderWindow::Render()
     this->CurrentSubFrame++;
     if (this->CurrentSubFrame >= this->SubFrames)
       {
-      float num;
+      double num;
       unsigned char *p2 = new unsigned char [3*size[0]*size[1]];
       
       num = this->SubFrames;
@@ -331,7 +331,7 @@ void vtkRenderWindow::Render()
     // if we had some accumulation occur
     if (this->AccumulationBuffer)
       {
-      float num;
+      double num;
       unsigned char *p2 = new unsigned char [3*size[0]*size[1]];
 
       if (this->AAFrames) 
@@ -520,7 +520,7 @@ void vtkRenderWindow::DoFDRender()
     float *p1;
     vtkRenderer *aren;
     vtkCamera *acam;
-    float focalDisk;
+    double focalDisk;
     double *vpn, *dpoint;
     double vec[3];
     vtkTransform *aTrans = vtkTransform::New();

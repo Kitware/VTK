@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkArcPlotter, "1.23");
+vtkCxxRevisionMacro(vtkArcPlotter, "1.24");
 vtkStandardNewMacro(vtkArcPlotter);
 
 vtkCxxSetObjectMacro(vtkArcPlotter,Camera,vtkCamera);
@@ -80,7 +80,7 @@ void vtkArcPlotter::Execute()
   vtkFloatArray *lineNormals;
   vtkPoints *newPts;
   vtkCellArray *newLines;
-  float *range, offset;
+  double *range, offset;
   int plotNum, compNum;
   vtkPoints *projPts;
   
@@ -250,7 +250,7 @@ int vtkArcPlotter::ProcessComponents(vtkIdType numPts, vtkPointData *pd)
 {
   vtkIdType i;
   int j;
-  float *range;
+  double *range;
   
   this->Data = NULL;
   switch (this->PlotMode)
@@ -321,7 +321,7 @@ int vtkArcPlotter::ProcessComponents(vtkIdType numPts, vtkPointData *pd)
     delete [] this->Tuple;
     }
   
-  this->DataRange = new float [2*this->NumberOfComponents];
+  this->DataRange = new double [2*this->NumberOfComponents];
   this->Tuple = new double [this->NumberOfComponents];
 
   for (i=this->StartComp; i <= this->EndComp; i++)
@@ -354,13 +354,13 @@ int vtkArcPlotter::ProcessComponents(vtkIdType numPts, vtkPointData *pd)
 
 
 int  vtkArcPlotter::OffsetPoint(vtkIdType ptId, vtkPoints *inPts, double n[3], 
-                                vtkPoints *newPts, float offset, float *range,
-                                float v)
+                                vtkPoints *newPts, double offset, 
+                                double *range, double v)
 {
   double x[3], xNew[3];
   int i;
-  float median = (range[0] + range[1])/2.0;
-  float denom = range[1] - range[0];
+  double median = (range[0] + range[1])/2.0;
+  double denom = range[1] - range[0];
   
   inPts->GetPoint(ptId, x);
   for (i=0; i<3; i++)

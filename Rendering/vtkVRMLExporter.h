@@ -47,8 +47,8 @@ public:
 
   // Description:
   // Specify the Speed of navigation. Default is 4.
-  vtkSetMacro(Speed,float);
-  vtkGetMacro(Speed,float);
+  vtkSetMacro(Speed,double);
+  vtkGetMacro(Speed,double);
 
   // Description:
   // Set the file pointer to write to. This will override
@@ -67,7 +67,7 @@ protected:
                       FILE *fp);
   char *FileName;
   FILE *FilePointer;
-  float Speed;
+  double Speed;
 private:
   vtkVRMLExporter(const vtkVRMLExporter&);  // Not implemented.
   void operator=(const vtkVRMLExporter&);  // Not implemented.

@@ -66,10 +66,10 @@ public:
   
   // Description:
   // Sets window/level for mapping pixels to colors.
-  float GetColorWindow() {return this->ImageMapper->GetColorWindow();};
-  float GetColorLevel() {return this->ImageMapper->GetColorLevel();};
-  void SetColorWindow(float s) {this->ImageMapper->SetColorWindow(s);};
-  void SetColorLevel(float s) {this->ImageMapper->SetColorLevel(s);};
+  double GetColorWindow() {return this->ImageMapper->GetColorWindow();};
+  double GetColorLevel() {return this->ImageMapper->GetColorLevel();};
+  void SetColorWindow(double s) {this->ImageMapper->SetColorWindow(s);};
+  void SetColorLevel(double s) {this->ImageMapper->SetColorLevel(s);};
 
   // Description:
   // These are here for using a tk window.

@@ -38,49 +38,49 @@ public:
   
   // Description:
   // Set/Get the center of function.
-  vtkSetVector3Macro(Center, float);
-  vtkGetVector3Macro(Center, float);
+  vtkSetVector3Macro(Center, double);
+  vtkGetVector3Macro(Center, double);
 
   // Description:
   // Set/Get the Maximum value of the function.
-  vtkSetMacro(Maximum, float);
-  vtkGetMacro(Maximum, float);
+  vtkSetMacro(Maximum, double);
+  vtkGetMacro(Maximum, double);
 
   // Description:
   // Set/Get the standard deviation of the function.
-  vtkSetMacro(StandardDeviation, float);
-  vtkGetMacro(StandardDeviation, float);
+  vtkSetMacro(StandardDeviation, double);
+  vtkGetMacro(StandardDeviation, double);
 
   // Description:
   // Set the natural frequencies in x,y and z
-  vtkSetMacro(XFreq, float);
-  vtkGetMacro(XFreq, float);
-  vtkSetMacro(YFreq, float);
-  vtkGetMacro(YFreq, float);
-  vtkSetMacro(ZFreq, float);
-  vtkGetMacro(ZFreq, float);
+  vtkSetMacro(XFreq, double);
+  vtkGetMacro(XFreq, double);
+  vtkSetMacro(YFreq, double);
+  vtkGetMacro(YFreq, double);
+  vtkSetMacro(ZFreq, double);
+  vtkGetMacro(ZFreq, double);
 
-  vtkSetMacro(XMag, float);
-  vtkGetMacro(XMag, float);
-  vtkSetMacro(YMag, float);
-  vtkGetMacro(YMag, float);
-  vtkSetMacro(ZMag, float);
-  vtkGetMacro(ZMag, float);
+  vtkSetMacro(XMag, double);
+  vtkGetMacro(XMag, double);
+  vtkSetMacro(YMag, double);
+  vtkGetMacro(YMag, double);
+  vtkSetMacro(ZMag, double);
+  vtkGetMacro(ZMag, double);
 
 protected:
   vtkRTAnalyticSource();
   ~vtkRTAnalyticSource() {};
 
-  float XFreq;
-  float YFreq;
-  float ZFreq;
-  float XMag;
-  float YMag;
-  float ZMag;
-  float StandardDeviation;
+  double XFreq;
+  double YFreq;
+  double ZFreq;
+  double XMag;
+  double YMag;
+  double ZMag;
+  double StandardDeviation;
   int WholeExtent[6];
-  float Center[3];
-  float Maximum;
+  double Center[3];
+  double Maximum;
 
   virtual void ExecuteInformation();
   virtual void ExecuteData(vtkDataObject *data);

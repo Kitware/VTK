@@ -28,7 +28,7 @@
 #include <sys/stat.h>
 
 vtkStandardNewMacro(vtkTesting);
-vtkCxxRevisionMacro(vtkTesting, "1.2");
+vtkCxxRevisionMacro(vtkTesting, "1.3");
 vtkCxxSetObjectMacro(vtkTesting, RenderWindow, vtkRenderWindow);
 
 
@@ -193,7 +193,7 @@ int vtkTesting::LookForFile(const char* newFileName)
     }
 }
 
-int vtkTesting::RegressionTest(float thresh)
+int vtkTesting::RegressionTest(double thresh)
 {
   vtkWindowToImageFilter *rt_w2if = vtkWindowToImageFilter::New(); 
   rt_w2if->SetInput(this->RenderWindow);
@@ -244,7 +244,7 @@ int vtkTesting::RegressionTest(float thresh)
   rt_w2if->Delete(); 
   rt_png->Delete(); 
 
-  float minError = rt_id->GetThresholdedError();
+  double minError = rt_id->GetThresholdedError();
   if (minError <= thresh) 
     { 
     rt_id->Delete(); 
@@ -254,7 +254,7 @@ int vtkTesting::RegressionTest(float thresh)
   // If the test failed with the first image (foo.png)
   // check if there are images of the form foo_N.png
   // (where N=1,2,3...) and compare against them.
-  float error=0;
+  double error=0;
   int count=1, errIndex=-1;
   char* newFileName;
   while (1)
@@ -317,7 +317,7 @@ int vtkTesting::RegressionTest(float thresh)
     // write out the difference image scaled and gamma adjusted
     // for the dashboard
     int* rt_size = rt_png->GetOutput()->GetDimensions();
-    float rt_magfactor=1.0;
+    double rt_magfactor=1.0;
     if ( rt_size[1] > 250.0)
       {
       rt_magfactor = 250.0 / rt_size[1];
@@ -396,7 +396,7 @@ int vtkTesting::RegressionTest(float thresh)
 }
 
 int vtkTesting::Test(int argc, char *argv[], vtkRenderWindow *rw, 
-                              float thresh ) 
+                     double thresh ) 
 {
   vtkTesting * testing = vtkTesting::New();
   int imageIndex=-1;

@@ -84,8 +84,7 @@ public:
     DO_INTERACTOR = 3
   };
 
-  static int Test(int argc, char *argv[], vtkRenderWindow *rw, 
-    float thresh );
+  static int Test(int argc, char *argv[], vtkRenderWindow *rw, double thresh);
 //ETX
   
   // Description:
@@ -96,7 +95,7 @@ public:
 
   // Description:
   // Perform the test and return result.
-  virtual int RegressionTest(float thresh);
+  virtual int RegressionTest(double thresh);
 
   // Description:
   // Set and get the render window that will be used for regression testing.

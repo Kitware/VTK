@@ -55,8 +55,8 @@ protected:
   long          Index;
   static   long GlobalIndex;
   vtkRenderWindow *RenderWindow;   // RenderWindow used for previous render
-  float Coords[12];
-  float TCoords[8];
+  double Coords[12];
+  double TCoords[8];
   int TextureSize[2];
 private:
   vtkMesaImageActor(const vtkMesaImageActor&);  // Not implemented.

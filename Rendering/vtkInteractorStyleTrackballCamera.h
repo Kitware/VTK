@@ -65,7 +65,7 @@ protected:
   vtkInteractorStyleTrackballCamera();
   ~vtkInteractorStyleTrackballCamera();
 
-  float MotionFactor;
+  double MotionFactor;
 
 private:
   vtkInteractorStyleTrackballCamera(const vtkInteractorStyleTrackballCamera&);  // Not implemented.

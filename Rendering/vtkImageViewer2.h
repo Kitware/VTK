@@ -91,10 +91,10 @@ public:
   
   // Description:
   // Set window and level for mapping pixels to colors.
-  float GetColorWindow() {return this->WindowLevel->GetWindow();}
-  float GetColorLevel() {return this->WindowLevel->GetLevel();}
-  void SetColorWindow(float s) {this->WindowLevel->SetWindow(s);}
-  void SetColorLevel(float s) {this->WindowLevel->SetLevel(s);}
+  double GetColorWindow() {return this->WindowLevel->GetWindow();}
+  double GetColorLevel() {return this->WindowLevel->GetLevel();}
+  void SetColorWindow(double s) {this->WindowLevel->SetWindow(s);}
+  void SetColorLevel(double s) {this->WindowLevel->SetLevel(s);}
 
   // Description:
   // These are here when using a Tk window.

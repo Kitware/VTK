@@ -338,8 +338,8 @@ public:
   // will pick the correct resolution to meet your desired update rate
   // in frames per second. A value of zero indicates that they can use
   // all the time they want to.
-  void SetDesiredUpdateRate(float);
-  vtkGetMacro(DesiredUpdateRate,float);
+  void SetDesiredUpdateRate(double);
+  vtkGetMacro(DesiredUpdateRate,double);
 
   // Description:
   // Get the number of layers for renderers.  Each renderer should have
@@ -431,7 +431,7 @@ protected:
   int CurrentSubFrame;         // what one are we on
   unsigned char *ResultFrame;  // used for any non immediate rendering
   int   SwapBuffers;
-  float DesiredUpdateRate;
+  double DesiredUpdateRate;
   int   AbortRender;
   int   InAbortCheck;
   int   InRender;

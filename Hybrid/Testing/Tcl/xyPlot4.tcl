@@ -160,7 +160,7 @@ vtkXYPlotActor xyplot3
     [xyplot3 GetProperty] SetColor 0 0 1
     [xyplot3 GetProperty] SetPointSize 3
     xyplot3 LegendOn
-    xyplot3 SetLegendPosition 0.8 0.35
+    xyplot3 SetLegendPosition 0.8 0.28
     xyplot3 SetLegendPosition2 0.20 0.20
     # Set text prop color (same color for backward compat with test)
     # Assign same object to all text props

@@ -122,14 +122,14 @@ public:
   // them how quickly they need to render.  This update is in effect only
   // when the camera is being rotated, or zoomed.  When the interactor is
   // still, the StillUpdateRate is used instead.
-  vtkSetClampMacro(DesiredUpdateRate,float,0.0001f,VTK_LARGE_FLOAT);
-  vtkGetMacro(DesiredUpdateRate,float);
+  vtkSetClampMacro(DesiredUpdateRate,double,0.0001,VTK_LARGE_FLOAT);
+  vtkGetMacro(DesiredUpdateRate,double);
 
   // Description:
   // Set/Get the desired update rate when movement has stopped.
   // See the SetDesiredUpdateRate method.
-  vtkSetClampMacro(StillUpdateRate,float,0.0001f,VTK_LARGE_FLOAT);
-  vtkGetMacro(StillUpdateRate,float);
+  vtkSetClampMacro(StillUpdateRate,double,0.0001,VTK_LARGE_FLOAT);
+  vtkGetMacro(StillUpdateRate,double);
 
   // Description:
   // See whether interactor has been initialized yet.
@@ -190,8 +190,8 @@ public:
   // Description:
   // Set the total Dolly value to use when flying to (FlyTo()) a
   // specified point. Negative values fly away from the point.
-  vtkSetMacro(Dolly,float);
-  vtkGetMacro(Dolly,float);
+  vtkSetMacro(Dolly,double);
+  vtkGetMacro(Dolly,double);
 
   // Description:
   // Set/Get information about the current event. 
@@ -336,8 +336,8 @@ protected:
   int   Style;
   int   LightFollowCamera;
   int   ActorMode;
-  float DesiredUpdateRate;
-  float StillUpdateRate;  
+  double DesiredUpdateRate;
+  double StillUpdateRate;  
 
   // Event information
   int   ControlKey;
@@ -352,7 +352,7 @@ protected:
   
   // control the fly to
   int NumberOfFlyFrames;
-  float Dolly;
+  double Dolly;
   
 private:
   vtkRenderWindowInteractor(const vtkRenderWindowInteractor&);  // Not implemented.

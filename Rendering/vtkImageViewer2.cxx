@@ -23,7 +23,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkImageViewer2, "1.21");
+vtkCxxRevisionMacro(vtkImageViewer2, "1.22");
 vtkStandardNewMacro(vtkImageViewer2);
 
 //----------------------------------------------------------------------------
@@ -131,15 +131,15 @@ public:
         static_cast<vtkInteractorStyleImage *>(caller);
 
       int *size = this->IV->GetRenderWindow()->GetSize();
-      float window = this->InitialWindow;
-      float level = this->InitialLevel;
+      double window = this->InitialWindow;
+      double level = this->InitialLevel;
       
       // Compute normalized delta
 
-      float dx = 4.0 * 
+      double dx = 4.0 * 
         (isi->GetWindowLevelCurrentPosition()[0] - 
          isi->GetWindowLevelStartPosition()[0]) / size[0];
-      float dy = 4.0 * 
+      double dy = 4.0 * 
         (isi->GetWindowLevelStartPosition()[1] - 
          isi->GetWindowLevelCurrentPosition()[1]) / size[1];
       
@@ -175,8 +175,8 @@ public:
       
       // Compute new window level
 
-      float newWindow = dx + window;
-      float newLevel;
+      double newWindow = dx + window;
+      double newLevel;
       newLevel = level - dy;
       
       // Stay away from zero and really
@@ -196,8 +196,8 @@ public:
     }
   
   vtkImageViewer2 *IV;
-  float InitialWindow;
-  float InitialLevel;
+  double InitialWindow;
+  double InitialLevel;
 };
 
 

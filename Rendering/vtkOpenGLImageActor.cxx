@@ -30,7 +30,7 @@
 #endif
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.23");
+vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.24");
 vtkStandardNewMacro(vtkOpenGLImageActor);
 #endif
 
@@ -438,8 +438,8 @@ void vtkOpenGLImageActor::Load(vtkRenderer *ren)
   glBegin( GL_QUADS );
   for (int i = 0; i < 4; i++ )
     {
-    glTexCoord2fv( this->TCoords + i*2 );
-    glVertex3fv(this->Coords + i*3);
+    glTexCoord2dv( this->TCoords + i*2 );
+    glVertex3dv(this->Coords + i*3);
     }  
   glEnd();
   // Turn lighting back on

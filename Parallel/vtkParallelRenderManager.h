@@ -270,7 +270,7 @@ public:
     RENDER_RMI_TAG=34532,
     COMPUTE_VISIBLE_PROP_BOUNDS_RMI_TAG=54636,
     WIN_INFO_INT_TAG=87834,
-    WIN_INFO_FLOAT_TAG=87835,
+    WIN_INFO_DOUBLE_TAG=87835,
     REN_INFO_INT_TAG=87836,
     REN_INFO_DOUBLE_TAG=87837,
     LIGHT_INFO_DOUBLE_TAG=87838,
@@ -402,9 +402,9 @@ protected:
     int UseCompositing;
   };
 
-  struct RenderWindowInfoFloat
+  struct RenderWindowInfoDouble
   {
-    float DesiredUpdateRate;
+    double DesiredUpdateRate;
   };
   
   struct RendererInfoInt
@@ -430,7 +430,7 @@ protected:
   };
 
   static const int WIN_INFO_INT_SIZE;
-  static const int WIN_INFO_FLOAT_SIZE;
+  static const int WIN_INFO_DOUBLE_SIZE;
   static const int REN_INFO_INT_SIZE;
   static const int REN_INFO_DOUBLE_SIZE;
   static const int LIGHT_INFO_DOUBLE_SIZE;

@@ -34,8 +34,8 @@ public:
 
   // Description:
   // Set radius of earth.
-  vtkSetClampMacro(Radius,float,0.0,VTK_LARGE_FLOAT);
-  vtkGetMacro(Radius,float);
+  vtkSetClampMacro(Radius,double,0.0,VTK_LARGE_FLOAT);
+  vtkGetMacro(Radius,double);
 
   // Description:
   // Turn on every nth entity. This controls how much detail the model
@@ -59,7 +59,7 @@ protected:
 
   void Execute();
 
-  float Radius;
+  double Radius;
   int OnRatio;
   int Outline;
 private:

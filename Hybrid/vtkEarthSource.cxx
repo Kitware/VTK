@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkEarthSource, "1.25");
+vtkCxxRevisionMacro(vtkEarthSource, "1.26");
 vtkStandardNewMacro(vtkEarthSource);
 
 // Description:
@@ -6820,12 +6820,12 @@ void vtkEarthSource::Execute()
   vtkPoints *newPoints;
   vtkFloatArray *newNormals;
   vtkCellArray *newPolys;
-  float x[3], base[3];
+  double x[3], base[3];
   vtkIdType Pts[4000];
   vtkPolyData *output = this->GetOutput();
   int npts, land, offset;
   int actualpts, actualpolys;
-  float scale = 1.0/30000.0;
+  double scale = 1.0/30000.0;
 
   //
   // Set things up; allocate memory

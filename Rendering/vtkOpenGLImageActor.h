@@ -54,8 +54,8 @@ protected:
   vtkTimeStamp   LoadTime;
   long          Index;
   vtkRenderWindow *RenderWindow;   // RenderWindow used for previous render
-  float Coords[12];
-  float TCoords[8];
+  double Coords[12];
+  double TCoords[8];
   int TextureSize[2];
 private:
   vtkOpenGLImageActor(const vtkOpenGLImageActor&);  // Not implemented.

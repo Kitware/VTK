@@ -21,7 +21,7 @@
 #include "vtkImageData.h"
 #include "vtkImagingFactory.h"
 
-vtkCxxRevisionMacro(vtkImageMapper, "1.47");
+vtkCxxRevisionMacro(vtkImageMapper, "1.48");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -103,12 +103,12 @@ vtkImageMapper* vtkImageMapper::New()
   return (vtkImageMapper*)ret;
 }
 
-float vtkImageMapper::GetColorShift()
+double vtkImageMapper::GetColorShift()
 {
   return this->ColorWindow /2.0 - this->ColorLevel;
 }
 
-float vtkImageMapper::GetColorScale()
+double vtkImageMapper::GetColorScale()
 {
   return 255.0 / this->ColorWindow;
 }
@@ -145,16 +145,18 @@ void vtkImageMapper::RenderStart(vtkViewport* viewport, vtkActor2D* actor)
     // start with the wholeExtent
     int wholeExtent[6];
     memcpy(wholeExtent,this->GetInput()->GetWholeExtent(),6*sizeof(int));
-    memcpy(this->DisplayExtent,this->GetInput()->GetWholeExtent(),6*sizeof(int));
+    memcpy(this->DisplayExtent,
+           this->GetInput()->GetWholeExtent(),6*sizeof(int));
     // Set The z values to the zslice
     this->DisplayExtent[4] = this->ZSlice;
     this->DisplayExtent[5] = this->ZSlice;
 
     // scale currently not handled
-    //float *scale = actor->GetScale();
+    //double *scale = actor->GetScale();
 
     // get the position
-    int *pos = actor->GetPositionCoordinate()->GetComputedViewportValue(viewport);
+    int *pos = 
+      actor->GetPositionCoordinate()->GetComputedViewportValue(viewport);
 
     // Get the viewport coordinates
     double vCoords[4];

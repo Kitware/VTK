@@ -92,20 +92,20 @@ public:
 
   // Description:
   // Set the radius of the "median" value of the first plotted component.
-  vtkSetClampMacro(Radius,float,0.0,VTK_LARGE_FLOAT);
-  vtkGetMacro(Radius,float);
+  vtkSetClampMacro(Radius,double,0.0,VTK_LARGE_FLOAT);
+  vtkGetMacro(Radius,double);
 
   // Description:
   // Set the height of the plot. (The radius combined with the height
   // define the location of the plot relative to the generating polyline.)
-  vtkSetClampMacro(Height,float,0.0,VTK_LARGE_FLOAT);
-  vtkGetMacro(Height,float);
+  vtkSetClampMacro(Height,double,0.0,VTK_LARGE_FLOAT);
+  vtkGetMacro(Height,double);
 
   // Description:
   // Specify an offset that translates each subsequent plot (if there is
   // more than one component plotted) from the defining arc (i.e., polyline).
-  vtkSetClampMacro(Offset, float, 0.0, VTK_LARGE_FLOAT);
-  vtkGetMacro(Offset, float);
+  vtkSetClampMacro(Offset, double, 0.0, VTK_LARGE_FLOAT);
+  vtkGetMacro(Offset, double);
 
   // Description:
   // Set a boolean to control whether to use default normals.
@@ -137,22 +137,23 @@ protected:
 
   void Execute();
   int  OffsetPoint(vtkIdType ptId, vtkPoints *inPts, double n[3],
-                   vtkPoints *newPts, float offset, float *range, float val);
+                   vtkPoints *newPts, double offset, 
+                   double *range, double val);
   int  ProcessComponents(vtkIdType numPts, vtkPointData *pd);
 
   vtkCamera *Camera;
   int       PlotMode;
   int       PlotComponent;
-  float     Radius;
-  float     Height;
-  float     Offset;
+  double     Radius;
+  double     Height;
+  double     Offset;
   float     DefaultNormal[3];
   int       UseDefaultNormal;
   int       FieldDataArray;
   
 private:
   vtkDataArray *Data;
-  float    *DataRange;
+  double    *DataRange;
   double   *Tuple;
   int       NumberOfComponents;
   int       ActiveComponent;

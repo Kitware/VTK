@@ -61,8 +61,8 @@ static void RenderRMI(void *arg, void *, int, int);
 static void ComputeVisiblePropBoundsRMI(void *arg, void *, int, int);
 const int vtkParallelRenderManager::WIN_INFO_INT_SIZE = 
   sizeof(vtkParallelRenderManager::RenderWindowInfoInt)/sizeof(int);
-const int vtkParallelRenderManager::WIN_INFO_FLOAT_SIZE =
-  sizeof(vtkParallelRenderManager::RenderWindowInfoFloat)/sizeof(float);
+const int vtkParallelRenderManager::WIN_INFO_DOUBLE_SIZE =
+  sizeof(vtkParallelRenderManager::RenderWindowInfoDouble)/sizeof(double);
 const int vtkParallelRenderManager::REN_INFO_INT_SIZE =
   sizeof(vtkParallelRenderManager::RendererInfoInt)/sizeof(int);
 const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.14");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.15");
 
 vtkParallelRenderManager::vtkParallelRenderManager()
 {
@@ -480,7 +480,7 @@ void vtkParallelRenderManager::StopServices()
 void vtkParallelRenderManager::StartRender()
 {
   vtkParallelRenderManager::RenderWindowInfoInt winInfoInt;
-  vtkParallelRenderManager::RenderWindowInfoFloat winInfoFloat;
+  vtkParallelRenderManager::RenderWindowInfoDouble winInfoDouble;
   vtkParallelRenderManager::RendererInfoInt renInfoInt;
   vtkParallelRenderManager::RendererInfoDouble renInfoDouble;
   vtkParallelRenderManager::LightInfoDouble lightInfoDouble;
@@ -551,7 +551,7 @@ void vtkParallelRenderManager::StartRender()
   winInfoInt.NumberOfRenderers = 1;
   winInfoInt.ImageReductionFactor = this->ImageReductionFactor;
   winInfoInt.UseCompositing = this->UseCompositing;
-  winInfoFloat.DesiredUpdateRate = this->RenderWindow->GetDesiredUpdateRate();
+  winInfoDouble.DesiredUpdateRate = this->RenderWindow->GetDesiredUpdateRate();
 
   for (id = 0; id < numProcs; id++)
     {
@@ -568,10 +568,10 @@ void vtkParallelRenderManager::StartRender()
                            vtkParallelRenderManager::WIN_INFO_INT_SIZE, 
                            id,
                            vtkParallelRenderManager::WIN_INFO_INT_TAG);
-    this->Controller->Send((float *)(&winInfoFloat), 
-                           vtkParallelRenderManager::WIN_INFO_FLOAT_SIZE,
+    this->Controller->Send((float *)(&winInfoDouble), 
+                           vtkParallelRenderManager::WIN_INFO_DOUBLE_SIZE,
                            id, 
-                           vtkParallelRenderManager::WIN_INFO_FLOAT_TAG);
+                           vtkParallelRenderManager::WIN_INFO_DOUBLE_TAG);
     this->SendWindowInformation();
     }
 
@@ -1570,7 +1570,7 @@ static void ComputeVisiblePropBoundsRMI(void *arg, void *, int, int)
 void vtkParallelRenderManager::SatelliteStartRender()
 {
   vtkParallelRenderManager::RenderWindowInfoInt winInfoInt;
-  vtkParallelRenderManager::RenderWindowInfoFloat winInfoFloat;
+  vtkParallelRenderManager::RenderWindowInfoDouble winInfoDouble;
   vtkParallelRenderManager::RendererInfoInt renInfoInt;
   vtkParallelRenderManager::RendererInfoDouble renInfoDouble;
   vtkParallelRenderManager::LightInfoDouble lightInfoDouble;
@@ -1604,17 +1604,17 @@ void vtkParallelRenderManager::SatelliteStartRender()
     return;
     }
   
-  if (!this->Controller->Receive((float *)(&winInfoFloat),
-                                 vtkParallelRenderManager::WIN_INFO_FLOAT_SIZE, 
+  if (!this->Controller->Receive((float *)(&winInfoDouble),
+                                 vtkParallelRenderManager::WIN_INFO_DOUBLE_SIZE, 
                                  this->RootProcessId,
-                                 vtkParallelRenderManager::WIN_INFO_FLOAT_TAG))
+                                 vtkParallelRenderManager::WIN_INFO_DOUBLE_TAG))
     {
     return;
     }
   
   this->ReceiveWindowInformation();
 
-  this->RenderWindow->SetDesiredUpdateRate(winInfoFloat.DesiredUpdateRate);
+  this->RenderWindow->SetDesiredUpdateRate(winInfoDouble.DesiredUpdateRate);
   this->UseCompositing = winInfoInt.UseCompositing;
   this->ImageReductionFactor = winInfoInt.ImageReductionFactor;
   this->FullImageSize[0] = winInfoInt.FullSize[0];

@@ -54,8 +54,8 @@ public:
   
   // Description:
   // Radius of the earth.
-  vtkSetMacro(Radius, float);
-  vtkGetMacro(Radius, float);
+  vtkSetMacro(Radius, double);
+  vtkGetMacro(Radius, double);
   
   // Description:
   // Because the data can be so large, here is an option to clip
@@ -88,7 +88,7 @@ protected:
   void SetGridName(char *name);
   char *GridFileName;
 
-  float Radius;
+  double Radius;
   vtkFloatArray *DepthValues;
   int NumberOfGhostLevels;
 

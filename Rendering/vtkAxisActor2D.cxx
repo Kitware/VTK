@@ -23,7 +23,7 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkAxisActor2D, "1.38");
+vtkCxxRevisionMacro(vtkAxisActor2D, "1.39");
 vtkStandardNewMacro(vtkAxisActor2D);
 
 vtkCxxSetObjectMacro(vtkAxisActor2D,LabelTextProperty,vtkTextProperty);
@@ -675,22 +675,128 @@ void vtkAxisActor2D::UpdateAdjustedRange()
   this->AdjustedRangeBuildTime.Modified();
 }
 
+// this is a helper function that computes some useful functions
+// for an axis. It returns the number of ticks
+int vtkAxisActor2DComputeTicks(double sRange[2], double &interval,
+                               double &root)
+{  
+  // first we try assuming the first value is reasonable
+  int numTicks = 0;
+  double range    = fabs(sRange[1]-sRange[0]);
+  int rootPower   = static_cast<int>(floor(log10(range)-1));
+  root     = pow(10.0,rootPower);
+  // val will be between 10 and 100 inclusive of 10 but not 100 
+  double val      = range/root;
+  // first we check for an exact match
+  for (numTicks = 5; numTicks < 9; ++numTicks)
+    {
+    if (fabs(val/(numTicks-1.0) - floor(val/(numTicks-1.0))) < .0001)
+      {
+      interval = val*root/(numTicks-1.0);
+      return numTicks;
+      }
+    }
+  
+  // if there isn't an exact match find a reasonable value
+  int newIntScale = 10;
+  if (val > 10)
+    {
+    newIntScale = 12;
+    }
+  if (val > 12)
+    {
+    newIntScale = 15;
+    }
+  if (val > 15)
+    {
+    newIntScale = 18;
+    }
+  if (val > 18)
+    {
+    newIntScale = 20;
+    }
+  if (val > 20)
+    {
+    newIntScale = 25;
+    }
+  if (val > 25)
+    {
+    newIntScale = 30;
+    }
+  if (val > 30)
+    {
+    newIntScale = 40;
+    }
+  if (val > 40)
+    {
+    newIntScale = 50;
+    }
+  if (val > 50)
+    {
+    newIntScale = 60;
+    }
+  if (val > 60)
+    {
+    newIntScale = 70;
+    }
+  if (val > 70)
+    {
+    newIntScale = 80;
+    }
+  if (val > 80)
+    {
+    newIntScale = 90;
+    }
+  if (val > 90)
+    {
+    newIntScale = 100;
+    }
+  
+  // how many ticks should we have
+  switch (newIntScale)
+    {
+    case 12:
+    case 20:
+    case 40:
+    case 80:
+      numTicks = 5;
+      break;
+    case 18:
+    case 30:
+    case 60:
+    case 90:
+      numTicks = 7;
+      break;
+    case 10:
+    case 15:
+    case 25:
+    case 50:
+    case 100:
+      numTicks = 6;
+      break;
+    case 70:
+      numTicks = 8;
+      break;
+    }
+
+  interval = newIntScale*root/(numTicks-1.0);
+  return numTicks;
+}
+
 //----------------------------------------------------------------------------
-#define VTK_NUM_DIVS 11
+//this method takes an initial range and an initial number of ticks and then
+//computes a final range and number of ticks so that two properties are
+//satisfied. First the final range includes at least the initial range, and
+//second the final range divided by the number of ticks (minus one) will be a
+//reasonable interval
 void vtkAxisActor2D::ComputeRange(double inRange[2], 
                                   double outRange[2],
-                                  int inNumTicks, 
+                                  int vtkNotUsed(inNumTicks), 
                                   int &numTicks, 
                                   double &interval)
 {
-  static double divs[VTK_NUM_DIVS] = {10.0, 8.0, 5.0, 4.0, 2.0, 1.0,
-                                     0.5, 0.25, 0.20, 0.125, 0.10};
-  double range = fabs(inRange[1]-inRange[0]), sRange[2];
-  double logFactor = (double)pow((double)(10.0), (double)(floor(log10(range))));
-  double lastInterval;
-  int j;
-
   // Handle the range
+  double sRange[2];
   if ( inRange[0] < inRange[1] )
     {
     sRange[0] = inRange[0];
@@ -714,44 +820,36 @@ void vtkAxisActor2D::ComputeRange(double inRange[2],
       sRange[0] = inRange[0] - inRange[0]/perturb;
       sRange[1] = inRange[0] + inRange[0]/perturb;
       }
-    //recompute range
-    range = fabs(sRange[1]-sRange[0]);
-    //recompute logfactor
-    logFactor = (double)pow((double)(10.0), (double)(floor(log10(range))));
-    //recompute inRange so things get flipped correctly at the end
-    inRange[0] = sRange[0];
-    inRange[1] = sRange[1];
     }
 
-  // let's figure out the interval. We'll loop until we find something with the
-  // right number of tick marks.
-  lastInterval = logFactor * divs[0];
-  for ( j=1; j < VTK_NUM_DIVS; j++ )
+  double root;
+  numTicks = vtkAxisActor2DComputeTicks(sRange, interval, root);
+  
+  // is the starting point reasonable?
+  if (fabs(sRange[0]/root - floor(sRange[0]/root)) < 0.01)
     {
-    interval = logFactor * divs[j];
-    if ( ((inNumTicks-1)*interval) < range )
+    outRange[0] = sRange[0];
+    outRange[1] = outRange[0] + (numTicks-1.0)*interval;
+    }
+  else
+    {
+    // OK the starting point is not a good number, so we must widen the range
+    // First see if the current range will handle moving the start point
+    outRange[0] = floor(sRange[0]/root)*root;
+    if (outRange[0]+(numTicks-1.0)*interval <= sRange[1])
       {
-      break;
+      outRange[1] = outRange[0] + (numTicks-1.0)*interval;
       }
-    lastInterval = interval;
-    }
-  interval = lastInterval;
-
-  numTicks = (int) ceil(range/interval) + 1; //trim number of extra ticks
-
-  // Get the start value of the range
-  for ( j=0; j < VTK_NUM_DIVS; j++ )
-    {
-    outRange[0] = ((int)floor(sRange[0]/(logFactor*divs[j]))) * logFactor*divs[j];
-    if ( (outRange[0] + (numTicks-1)*interval) >= sRange[1] )
+    else
       {
-      break;
+      // Finally in this case we must switch to a larger range to
+      // have reasonable starting and ending values
+      sRange[0] = outRange[0];
+      numTicks = vtkAxisActor2DComputeTicks(sRange, interval, root);
+      outRange[1] = outRange[0] + (numTicks-1.0)*interval;
       }
     }
-
-  // Get the end value of the range
-  outRange[1] = outRange[0] + (numTicks-1)*interval;
-
+  
   // Adust if necessary
   if ( inRange[0] > inRange[1] )
     {
@@ -760,9 +858,8 @@ void vtkAxisActor2D::ComputeRange(double inRange[2],
     outRange[0] = sRange[0];
     interval = -interval;
     }
-
+  
 }
-#undef VTK_NUM_DIVS
 
 //----------------------------------------------------------------------------
 // Position text with respect to a point (xTick) where the angle of the line

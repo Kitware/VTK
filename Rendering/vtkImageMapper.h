@@ -44,13 +44,13 @@ public:
 
   // Description:
   // Set/Get the window value for window/level
-  vtkSetMacro(ColorWindow, float);
-  vtkGetMacro(ColorWindow, float);
+  vtkSetMacro(ColorWindow, double);
+  vtkGetMacro(ColorWindow, double);
   
   // Description:
   // Set/Get the level value for window/level
-  vtkSetMacro(ColorLevel, float);
-  vtkGetMacro(ColorLevel, float);
+  vtkSetMacro(ColorLevel, double);
+  vtkGetMacro(ColorLevel, double);
 
   // Description:
   // Set/Get the current slice number. The axis Z in ZSlice does not
@@ -75,8 +75,8 @@ public:
 
   // Description:
   // Methods used internally for performing the Window/Level mapping.
-  float GetColorShift();
-  float GetColorScale();
+  double GetColorShift();
+  double GetColorScale();
 
   // Public for templated functions. * *  Should remove this * *
   int DisplayExtent[6];
@@ -115,8 +115,8 @@ protected:
   vtkImageMapper();
   ~vtkImageMapper();
 
-  float ColorWindow;
-  float ColorLevel;
+  double ColorWindow;
+  double ColorLevel;
 
   int PositionAdjustment[2];
   int ZSlice;

@@ -104,7 +104,7 @@ protected:
   void SelectRepresentation();
   void CreateLatLong();
   
-  float MotionFactor;
+  double MotionFactor;
 
 private:
   vtkInteractorStyleTerrain(const vtkInteractorStyleTerrain&);  // Not implemented.
