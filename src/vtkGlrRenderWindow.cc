@@ -1053,13 +1053,6 @@ float *vtkGlrRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2 )
     *(f_z_ptr++) = ((double)value - z_min)/z_range;
   }
 
-  // Get the camera matrix and invert
-  // matrix = this->renderer->GetActiveCamera()->GetViewTransform();
-
-  // matrix.Invert();
-
-  // Loop through each pixel and convert to world coordinates
-
   return ( f_z_data );
 }
 

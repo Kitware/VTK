@@ -1050,6 +1050,7 @@ int vtkXglrRenderWindow::GetRemapWindow(void)
 
 float *vtkXglrRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2  )
 {
+  vtkErrorMacro(<< "GetZbufferData() not implemented yet for XGL.\n");
 
   return NULL ;
 }
@@ -1057,5 +1058,10 @@ float *vtkXglrRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2  )
 void vtkXglrRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
                                           float *buffer )
 {
+  vtkErrorMacro(<< "SetZbufferData() not implemented yet for XGL.\n");
 
 }
+
+
+
+

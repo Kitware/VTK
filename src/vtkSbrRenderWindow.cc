@@ -1390,7 +1390,7 @@ void vtkSbrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
 
 float *vtkSbrRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2  )
 {
-  // To be filled in soon...
+  vtkErrorMacro(<< "GetZbufferData() not implemented yet for SB.\n");
 
   return NULL ;
 }
@@ -1398,7 +1398,14 @@ float *vtkSbrRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2  )
 void vtkSbrRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
                                           float *buffer )
 {
-  // To be filled in soon...
+  vtkErrorMacro(<< "SetZbufferData() not implemented yet for SB.\n");
 
 }
+
+
+
+
+
+
+
 
