@@ -78,8 +78,8 @@ static float ComputeSingleTriangleError(float x[3], float x1[3], float x2[3]);
 vtkDecimatePro::vtkDecimatePro()
 {
   this->Neighbors = new vtkIdList(VTK_MAX_TRIS_PER_VERTEX);
-  this->V = new vtkVertexArray(VTK_MAX_TRIS_PER_VERTEX+1);
-  this->T = new vtkTriArray(VTK_MAX_TRIS_PER_VERTEX+1);
+  this->V = new vtkProVertexArray(VTK_MAX_TRIS_PER_VERTEX+1);
+  this->T = new vtkProTriArray(VTK_MAX_TRIS_PER_VERTEX+1);
   this->EdgeLengths = vtkPriorityQueue::New();
   
   this->InflectionPoints = vtkFloatArray::New();
@@ -449,7 +449,7 @@ int vtkDecimatePro::EvaluateVertex(int ptId, unsigned short int numTris, int *tr
                           int fedges[2])
 {
   int numVerts, numNei, numFEdges;
-  vtkLocalTri t;
+  vtkProLocalTri t;
   vtkProLocalVertex sn;
   int startVertex, nextVertex;
   int i, j, *verts, numNormals, vtype;
