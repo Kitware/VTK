@@ -38,11 +38,11 @@ public:
 
   // Description:
   // Begin the rendering process.
-  void Start(void);
+  virtual void Start(void);
 
   // Description:
   // End the rendering process and display the image.
-  void Frame(void);
+  virtual void Frame(void);
 
   // Description:
   // Specify various window parameters.
@@ -91,11 +91,11 @@ public:
   // Description:
   // Set the name of the window. This appears at the top of the window
   // normally.
-  virtual void SetWindowName(char *);
+  virtual void SetWindowName(const char *);
   
   // Description:
   // Set this RenderWindow's window id to a pre-existing window.
-  void SetWindowInfo(void *);
+  virtual void SetWindowInfo(void *);
 
   //BTX
   virtual void *GetGenericDisplayId() {return (void *)this->ContextId;};
@@ -116,11 +116,11 @@ public:
       vtkWarningMacro("Method not implemented.");
       return 0;
     }
-  void SetWindowInfo(char*)
+  virtual void SetWindowInfo(char*)
     {
       vtkWarningMacro("Method not implemented.");
     }
-  void SetParentInfo(char*)
+  virtual void SetParentInfo(char*)
     {
       vtkWarningMacro("Method not implemented.");
     }
@@ -155,13 +155,13 @@ public:
 
   // Description:
   // Make this windows OpenGL context the current context.
-  void MakeCurrent();
+  virtual void MakeCurrent();
 
   // Description:
   // If called, allow MakeCurrent() to skip cache-check when called.
   // MakeCurrent() reverts to original behavior of cache-checking
   // on the next render.
-  void SetForceMakeCurrent();
+  virtual void SetForceMakeCurrent();
 
   // Description:
   // Check to see if an event is pending for this window.
@@ -197,8 +197,8 @@ public:
   // Description:
   // Hide or Show the mouse cursor, it is nice to be able to hide the
   // default cursor if you want VTK to display a 3D cursor instead.
-  void HideCursor();
-  void ShowCursor();
+  virtual void HideCursor();
+  virtual void ShowCursor();
   
   void UpdateSizeAndPosition(int xPos, int yPos, int xSize, int ySize);
 
