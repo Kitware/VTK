@@ -304,7 +304,7 @@ int TestOrientationMarkerWidget( int argc, char *argv[] )
   int nPoints = 120;
   double dx = 0.8 / nPoints;
 
-  vtkPoints* points  = vtkPoints::New();
+  vtkPoints* points  = vtkPoints::New(VTK_DOUBLE);
   vtkCellArray* line = vtkCellArray::New();
   line->InsertNextCell( nPoints + 80 );
 
@@ -361,7 +361,7 @@ int TestOrientationMarkerWidget( int argc, char *argv[] )
   cube->SetFaceTextScale( 0.666667 );
 
   vtkPropCollection* props = vtkPropCollection::New();
-  cube->GetActors(props);
+  cube->GetActors( props );
 
   vtkAppendPolyData* append = vtkAppendPolyData::New();
 
@@ -370,7 +370,7 @@ int TestOrientationMarkerWidget( int argc, char *argv[] )
   transformFilter->SetTransform( transform );
 
   vtkCollectionSimpleIterator sit;
-  props->InitTraversal(sit);
+  props->InitTraversal( sit );
   vtkActor *node;
   int nprops = props->GetNumberOfItems();
 
@@ -384,7 +384,7 @@ int TestOrientationMarkerWidget( int argc, char *argv[] )
     if ( node && i == 0 || i == (nprops - 1) )
       {
       vtkPolyData* poly = vtkPolyData::SafeDownCast(node->GetMapper()->GetInput());
-      if(poly)
+      if ( poly )
         {
         transformFilter->SetInput( poly );
         transform->Identity();
@@ -400,6 +400,7 @@ int TestOrientationMarkerWidget( int argc, char *argv[] )
       }
     }
 
+  props->Delete();  
   transformFilter->Delete();
 
   // the final actor the widget will follow
@@ -593,6 +594,7 @@ int TestOrientationMarkerWidget( int argc, char *argv[] )
   iren->Delete();
   renderer->Delete();
   renWin->Delete();
+  widget->Delete();
 
   return !retVal;
 }
