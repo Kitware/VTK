@@ -82,6 +82,7 @@ vtkImageLogic \
 vtkImageLuminance \
 vtkImageMagnify \
 vtkImageMagnitude \
+vtkImageMandelbrotSource \
 vtkImageMapper \
 vtkImageMapToRGBA \
 vtkImageMask \
