@@ -56,7 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageHybridMedian2D_h
 
 
-#include "vtkImageMedianFilter.h"
+#include "vtkImageSpatialFilter.h"
 
 class VTK_EXPORT vtkImageHybridMedian2D : public vtkImageSpatialFilter
 {
