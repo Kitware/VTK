@@ -92,7 +92,6 @@ void vtkEdgeTable::Initialize()
     delete [] this->Table;
     this->Table = NULL;
     this->TableMaxId = -1;
-    this->TableSize = 0;
 
     if ( this->StoreAttributes )
       {
@@ -108,12 +107,13 @@ void vtkEdgeTable::Initialize()
       }
     }//if table defined
 
-  if ( this->Points )
+    if ( this->Points )
     {
     this->Points->Delete();
     this->Points = NULL;
     }
     
+  this->TableSize = 0;
   this->NumberOfEdges = 0;
   this->StoreAttributes = 0;
 }
@@ -283,6 +283,10 @@ int vtkEdgeTable::InsertEdge(int p1, int p2)
     this->Table[index]->Allocate(6,12);
     if ( this->StoreAttributes )
       {
+      if ( this->Attributes[index] )
+        {
+	this->Attributes[index]->Delete();
+        }
       this->Attributes[index] = vtkIdList::New();
       this->Attributes[index]->Allocate(6,12);
       }
