@@ -48,8 +48,9 @@
 #else
   #define dicom_stream 
 
+  #include <iostream.h>
   #include <fstream.h>
-  #include <string.h>
+  #include <iomanip.h>
 #endif
 
 #ifdef DICOM_DLL
