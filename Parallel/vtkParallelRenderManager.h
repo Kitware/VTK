@@ -424,6 +424,7 @@ protected:
     double CameraPosition[3];
     double CameraFocalPoint[3];
     double CameraViewUp[3];
+    double WindowCenter[2];
     double CameraClippingRange[2];
     double CameraViewAngle;
     double Background[3];
