@@ -15,9 +15,13 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Create "disk" with hole in center centered at origin. 
-//
+// .NAME vlDiskSource - create a disk with hole in center
+// .SECTION Description
+// vlDiskSource creates a polygonal disk with a hole in the center. The 
+// disk has zero height. The user can specify the inner and outer radius
+// of the disk, and the radial and circumferential resolution of the 
+// polygonal representation.
+
 #ifndef __vlDiskSource_h
 #define __vlDiskSource_h
 

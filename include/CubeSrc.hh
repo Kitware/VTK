@@ -13,9 +13,12 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Created cube centered at origin
-//
+// .NAME vlCubeSource - create a polygonal representation of a cube
+// .SECTION Description
+// vlCubeSource creates a cube centered at origin. The cube is represented
+// with four-sided polygons. It is possible to specify the length, width, 
+// and height of the cube independently.
+
 #ifndef __vlCubeSource_h
 #define __vlCubeSource_h
 

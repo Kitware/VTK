@@ -13,9 +13,13 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Created cylinder centered at origin
-//
+// .NAME vlCylinderSource - generate a cylinder centered at origin
+// .SECTION Description
+// vlCylinderSource creates a polygonal cylinder centered at the origin.
+// The height and radius of the cylinder can be specified, as well as the
+// number of sides. It is also possible to control whether the cylinder is
+// open-ended or capped.
+
 #ifndef __vlCylinderSource_h
 #define __vlCylinderSource_h
 

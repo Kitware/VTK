@@ -13,11 +13,17 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Create cone centered at origin. If resolution=0 line is created; if 
-// resolution=1, single triangle; resolution=2, two crossed triangles; 
-// resolution > 2, 3D cone.
-//
+// .NAME vlConeSource - generate polygonal cone 
+// .SECTION Description
+// vlConeSource creates a cone centered at origin. Depending upon the
+// resolution of this object, different representations are created.
+// If resolution=0 a line is created; if resolution=1, a single
+// triangle is created; if resolution=2, two crossed triangles are
+// created. For resolution > 2, a 3D cone (with resolution sides) is
+// created. It is also possible to control whether the bottom of the
+// cone is capped with a (resolution-sided) polygon, and to specify 
+// the height and radius of the cone.
+
 #ifndef __vlConeSource_h
 #define __vlConeSource_h
 

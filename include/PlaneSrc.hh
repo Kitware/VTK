@@ -13,9 +13,12 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Create nxm array of quadrilaterals
-//
+// .NAME - create an array of quadrilaterals located in the plane
+// .SECTION Description
+// vlPlaneSource creates an m x n array of quadrilaterals oriented in a 
+// plane. The plane is centered at the origin. It is possible to control
+// the resolution of the plane in both directions (i.e., set m,n).
+
 #ifndef __vlPlaneSource_h
 #define __vlPlaneSource_h
 
