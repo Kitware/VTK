@@ -5,6 +5,20 @@ IF (HAVE_PNG)
   # Add tests, with the data
   #
   IF (VTK_DATA_ROOT)
+    ADD_TEST(PolyDataMapperAllPolygons-image ${VTK_EXECUTABLE}
+      ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+      ${VTK_SOURCE_DIR}/Graphics/Testing/Tcl/PolyDataMapperAllPolygons.tcl
+      -D ${VTK_DATA_ROOT}
+      -V Baseline/Graphics/PolyDataMapperAllPolygons.png
+      -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+
+    ADD_TEST(PolyDataMapperAllWireframe-image ${VTK_EXECUTABLE}
+      ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+      ${VTK_SOURCE_DIR}/Graphics/Testing/Tcl/PolyDataMapperAllWireframe.tcl
+      -D ${VTK_DATA_ROOT}
+      -V Baseline/Graphics/PolyDataMapperAllWireframe.png
+      -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+
     ADD_TEST(socbal-image ${VTK_EXECUTABLE}
       ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
       ${VTK_SOURCE_DIR}/Graphics/Testing/Tcl/socbal.tcl
