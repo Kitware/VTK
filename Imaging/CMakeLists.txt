@@ -117,19 +117,22 @@ vtkImageTwoInputFilter
 vtkImageFourierFilter 
 )
 
-ADD_LIBRARY(vtkImaging Imaging_SRCS)
+IF(VTK_MAKE_INSTANTIATOR)
+  # Setup vtkInstantiator registration for this library's classes.
+  VTK_MAKE_INSTANTIATOR(vtkImagingInstantiator ImagingInstantiator_SRCS
+                        Imaging_SRCS
+                        EXPORT_MACRO VTK_IMAGING_EXPORT
+                        HEADER_LOCATION ${VTK_BINARY_DIR})
+  ADD_LIBRARY(vtkImaging Imaging_SRCS ImagingInstantiator_SRCS)
+  INSTALL_FILES(/include/vtk .h ${VTK_BINARY_DIR}/vtkImagingInstantiator)
+ELSE(VTK_MAKE_INSTANTIATOR)
+  ADD_LIBRARY(vtkImaging Imaging_SRCS)
+ENDIF(VTK_MAKE_INSTANTIATOR)
 
 # Allow the user to customize their build with some local options
 #
 INCLUDE (${VTK_BINARY_DIR}/Imaging/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/Imaging/LocalUserOptions.cmake OPTIONAL)
-
-IF(VTK_MAKE_INSTANTIATOR)
-  # Setup vtkInstantiator registration for this library's classes.
-  VTK_MAKE_INSTANTIATOR(vtkImagingInstantiator Imaging_SRCS Imaging_SRCS
-                        EXPORT_MACRO VTK_IMAGING_EXPORT
-                        HEADER_LOCATION ${VTK_BINARY_DIR})
-ENDIF(VTK_MAKE_INSTANTIATOR)
 
 # if we are wrapping into Tcl then add the library and extra 
 # source files

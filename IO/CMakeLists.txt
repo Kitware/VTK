@@ -63,13 +63,7 @@ vtkVolumeReader
 vtkWriter
 )
 
-ADD_LIBRARY(vtkIO IO_SRCS)
 LINK_LIBRARIES( vtkpng vtkzlib vtkjpeg)
-
-# Allow the user to customize their build with some local options
-#
-INCLUDE (${VTK_BINARY_DIR}/IO/LocalUserOptions.cmake OPTIONAL) 
-INCLUDE (${VTK_SOURCE_DIR}/IO/LocalUserOptions.cmake OPTIONAL) 
 
 # if we are wrapping into Tcl then add the library and extra 
 # source files
@@ -78,10 +72,20 @@ WRAP_EXCLUDE_FILES(vtkPLY)
 
 IF(VTK_MAKE_INSTANTIATOR)
   # Setup vtkInstantiator registration for this library's classes.
-  VTK_MAKE_INSTANTIATOR(vtkIOInstantiator IO_SRCS IO_SRCS
+  VTK_MAKE_INSTANTIATOR(vtkIOInstantiator IOInstantiator_SRCS
+                        IO_SRCS
                         EXPORT_MACRO VTK_IO_EXPORT
                         HEADER_LOCATION ${VTK_BINARY_DIR})
+  ADD_LIBRARY(vtkIO IO_SRCS IOInstantiator_SRCS)
+  INSTALL_FILES(/include/vtk .h ${VTK_BINARY_DIR}/vtkIOInstantiator)
+ELSE(VTK_MAKE_INSTANTIATOR)
+  ADD_LIBRARY(vtkIO IO_SRCS)
 ENDIF(VTK_MAKE_INSTANTIATOR)
+
+# Allow the user to customize their build with some local options
+#
+INCLUDE (${VTK_BINARY_DIR}/IO/LocalUserOptions.cmake OPTIONAL) 
+INCLUDE (${VTK_SOURCE_DIR}/IO/LocalUserOptions.cmake OPTIONAL) 
 
 IF (VTK_WRAP_TCL)
   VTK_WRAP_TCL(vtkIOTCL IOTCL_SRCS IO_SRCS)

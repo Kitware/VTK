@@ -152,19 +152,22 @@ vtkDicer
 vtkInterpolatingSubdivisionFilter
 )
 
-ADD_LIBRARY(vtkGraphics Graphics_SRCS)
+IF(VTK_MAKE_INSTANTIATOR)
+  # Setup vtkInstantiator registration for this library's classes.
+  VTK_MAKE_INSTANTIATOR(vtkGraphicsInstantiator GraphicsInstantiator_SRCS
+                        Graphics_SRCS
+                        EXPORT_MACRO VTK_GRAPHICS_EXPORT
+                        HEADER_LOCATION ${VTK_BINARY_DIR})
+  ADD_LIBRARY(vtkGraphics Graphics_SRCS GraphicsInstantiator_SRCS)
+  INSTALL_FILES(/include/vtk .h ${VTK_BINARY_DIR}/vtkGraphicsInstantiator)
+ELSE(VTK_MAKE_INSTANTIATOR)
+  ADD_LIBRARY(vtkGraphics Graphics_SRCS)
+ENDIF(VTK_MAKE_INSTANTIATOR)
 
 # Allow the user to customize their build with some local options
 #
 INCLUDE (${VTK_BINARY_DIR}/Graphics/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/Graphics/LocalUserOptions.cmake OPTIONAL)
-
-IF(VTK_MAKE_INSTANTIATOR)
-  # Setup vtkInstantiator registration for this library's classes.
-  VTK_MAKE_INSTANTIATOR(vtkGraphicsInstantiator Graphics_SRCS Graphics_SRCS
-                        EXPORT_MACRO VTK_GRAPHICS_EXPORT
-                        HEADER_LOCATION ${VTK_BINARY_DIR})
-ENDIF(VTK_MAKE_INSTANTIATOR)
 
 # if we are wrapping into Tcl then add the library and extra 
 # source files

@@ -53,19 +53,22 @@ IF (VTK_USE_MPI)
   INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
 ENDIF (VTK_USE_MPI)
 
-ADD_LIBRARY(vtkParallel Parallel_SRCS)
+IF(VTK_MAKE_INSTANTIATOR)
+  # Setup vtkInstantiator registration for this library's classes.
+  VTK_MAKE_INSTANTIATOR(vtkParallelInstantiator ParallelInstantiator_SRCS
+                        Parallel_SRCS
+                        EXPORT_MACRO VTK_PARALLEL_EXPORT
+                        HEADER_LOCATION ${VTK_BINARY_DIR})
+  ADD_LIBRARY(vtkParallel Parallel_SRCS ParallelInstantiator_SRCS)
+  INSTALL_FILES(/include/vtk .h ${VTK_BINARY_DIR}/vtkParallelInstantiator)
+ELSE(VTK_MAKE_INSTANTIATOR)
+  ADD_LIBRARY(vtkParallel Parallel_SRCS)
+ENDIF(VTK_MAKE_INSTANTIATOR)
 
 # Allow the user to customize their build with some local options
 #
 INCLUDE (${VTK_BINARY_DIR}/Parallel/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/Parallel/LocalUserOptions.cmake OPTIONAL)
-
-IF(VTK_MAKE_INSTANTIATOR)
-  # Setup vtkInstantiator registration for this library's classes.
-  VTK_MAKE_INSTANTIATOR(vtkParallelInstantiator Parallel_SRCS Parallel_SRCS
-                        EXPORT_MACRO VTK_PARALLEL_EXPORT
-                        HEADER_LOCATION ${VTK_BINARY_DIR})
-ENDIF(VTK_MAKE_INSTANTIATOR)
 
 IF (WIN32)
   LINK_LIBRARIES( wsock32 )

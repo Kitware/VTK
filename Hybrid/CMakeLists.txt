@@ -40,19 +40,22 @@ WRAP_EXCLUDE_FILES(vtkVRML)
 
 INCLUDE (${CMAKE_ROOT}/Modules/FindOpenGL.cmake)
 
-ADD_LIBRARY(vtkHybrid Hybrid_SRCS)
+IF(VTK_MAKE_INSTANTIATOR)
+  # Setup vtkInstantiator registration for this library's classes.
+  VTK_MAKE_INSTANTIATOR(vtkHybridInstantiator HybridInstantiator_SRCS
+                        Hybrid_SRCS
+                        EXPORT_MACRO VTK_HYBRID_EXPORT
+                        HEADER_LOCATION ${VTK_BINARY_DIR})
+  ADD_LIBRARY(vtkHybrid Hybrid_SRCS HybridInstantiator_SRCS)
+  INSTALL_FILES(/include/vtk .h ${VTK_BINARY_DIR}/vtkHybridInstantiator)
+ELSE(VTK_MAKE_INSTANTIATOR)
+  ADD_LIBRARY(vtkHybrid Hybrid_SRCS)
+ENDIF(VTK_MAKE_INSTANTIATOR)
 
 # Allow the user to customize their build with some local options
 #
 INCLUDE (${VTK_BINARY_DIR}/Hybrid/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/Hybrid/LocalUserOptions.cmake OPTIONAL)
-
-IF(VTK_MAKE_INSTANTIATOR)
-  # Setup vtkInstantiator registration for this library's classes.
-  VTK_MAKE_INSTANTIATOR(vtkHybridInstantiator Hybrid_SRCS Hybrid_SRCS
-                        EXPORT_MACRO VTK_HYBRID_EXPORT
-                        HEADER_LOCATION ${VTK_BINARY_DIR})
-ENDIF(VTK_MAKE_INSTANTIATOR)
 
 IF (VTK_WRAP_TCL)
   VTK_WRAP_TCL(vtkHybridTCL HybridTCL_SRCS Hybrid_SRCS)

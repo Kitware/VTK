@@ -233,32 +233,36 @@ IF (VTK_MANGLE_MESA)
   ENDIF (MESA_LIBRARY)
 ENDIF(VTK_MANGLE_MESA)
 
-IF (HAVE_OPENGL_SRCS)
-  ADD_LIBRARY(vtkRendering Rendering_SRCS RenderingOpenGL_SRCS)
-ELSE (HAVE_OPENGL_SRCS)
-  ADD_LIBRARY(vtkRendering Rendering_SRCS)
-ENDIF (HAVE_OPENGL_SRCS)
+IF(VTK_MAKE_INSTANTIATOR)
+  IF(HAVE_OPENGL_SRCS)
+    # Setup vtkInstantiator registration for this library's classes.
+    VTK_MAKE_INSTANTIATOR(vtkRenderingInstantiator RenderingInstantiator_SRCS
+                          Rendering_SRCS RenderingOpenGL_SRCS
+                          EXPORT_MACRO VTK_RENDERING_EXPORT
+                          HEADER_LOCATION ${VTK_BINARY_DIR})
+    ADD_LIBRARY(vtkRendering Rendering_SRCS RenderingOpenGL_SRCS
+                             RenderingInstantiator_SRCS)
+  ELSE(HAVE_OPENGL_SRCS)
+    # Setup vtkInstantiator registration for this library's classes.
+    VTK_MAKE_INSTANTIATOR(vtkRenderingInstantiator RenderingInstantiator_SRCS
+                          Rendering_SRCS
+                          EXPORT_MACRO VTK_RENDERING_EXPORT
+                          HEADER_LOCATION ${VTK_BINARY_DIR})
+    ADD_LIBRARY(vtkRendering Rendering_SRCS RenderingInstantiator_SRCS)
+  ENDIF(HAVE_OPENGL_SRCS)
+  INSTALL_FILES(/include/vtk .h ${VTK_BINARY_DIR}/vtkRenderingInstantiator)
+ELSE(VTK_MAKE_INSTANTIATOR)
+  IF (HAVE_OPENGL_SRCS)
+    ADD_LIBRARY(vtkRendering Rendering_SRCS RenderingOpenGL_SRCS)
+  ELSE (HAVE_OPENGL_SRCS)
+    ADD_LIBRARY(vtkRendering Rendering_SRCS)
+  ENDIF (HAVE_OPENGL_SRCS)
+ENDIF(VTK_MAKE_INSTANTIATOR)
 
 # Allow the user to customize their build with some local options
 #
 INCLUDE (${VTK_BINARY_DIR}/Rendering/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/Rendering/LocalUserOptions.cmake OPTIONAL)
-
-IF(VTK_MAKE_INSTANTIATOR)
-  IF(HAVE_OPENGL_SRCS)
-    # Setup vtkInstantiator registration for this library's classes.
-    VTK_MAKE_INSTANTIATOR(vtkRenderingInstantiator Rendering_SRCS
-                          Rendering_SRCS RenderingOpenGL_SRCS
-                          EXPORT_MACRO VTK_RENDERING_EXPORT
-                          HEADER_LOCATION ${VTK_BINARY_DIR})
-  ELSE(HAVE_OPENGL_SRCS)
-    # Setup vtkInstantiator registration for this library's classes.
-    VTK_MAKE_INSTANTIATOR(vtkRenderingInstantiator Rendering_SRCS
-                          Rendering_SRCS
-                          EXPORT_MACRO VTK_RENDERING_EXPORT
-                          HEADER_LOCATION ${VTK_BINARY_DIR})
-  ENDIF(HAVE_OPENGL_SRCS)
-ENDIF(VTK_MAKE_INSTANTIATOR)
 
 IF (VTK_WRAP_TCL)
   SOURCE_FILES(RenderingTCL_SRCS 

@@ -162,8 +162,6 @@ vtkFunctionSet
 vtkInitialValueProblemSolver
 )
 
-ADD_LIBRARY(vtkCommon Common_SRCS)
-
 IF (WIN32)
   SOURCE_FILES(Common_SRCS vtkWin32OutputWindow)
 ENDIF (WIN32)
@@ -174,17 +172,22 @@ WRAP_EXCLUDE_FILES(
   vtkOldStyleCallbackCommand
 )
 
+IF(VTK_MAKE_INSTANTIATOR)
+  # Setup vtkInstantiator registration for this library's classes.
+  VTK_MAKE_INSTANTIATOR(vtkCommonInstantiator CommonInstantiator_SRCS
+                        Common_SRCS
+                        EXPORT_MACRO VTK_COMMON_EXPORT
+                        HEADER_LOCATION ${VTK_BINARY_DIR})
+  ADD_LIBRARY(vtkCommon Common_SRCS CommonInstantiator_SRCS)
+  INSTALL_FILES(/include/vtk .h ${VTK_BINARY_DIR}/vtkCommonInstantiator)
+ELSE(VTK_MAKE_INSTANTIATOR)
+  ADD_LIBRARY(vtkCommon Common_SRCS)
+ENDIF(VTK_MAKE_INSTANTIATOR)
+
 # Allow the user to customize their build with some local options
 #
 INCLUDE (${VTK_BINARY_DIR}/Common/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/Common/LocalUserOptions.cmake OPTIONAL)
-
-IF(VTK_MAKE_INSTANTIATOR)
-  # Setup vtkInstantiator registration for this library's classes.
-  VTK_MAKE_INSTANTIATOR(vtkCommonInstantiator Common_SRCS Common_SRCS
-                        EXPORT_MACRO VTK_COMMON_EXPORT
-                        HEADER_LOCATION ${VTK_BINARY_DIR})
-ENDIF(VTK_MAKE_INSTANTIATOR)
 
 # if we are wrapping into Tcl then add the library and extra 
 # source files

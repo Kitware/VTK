@@ -75,19 +75,22 @@ vtkUnstructuredGridToPolyDataFilter
 vtkUnstructuredGridToUnstructuredGridFilter
 )
 
-ADD_LIBRARY(vtkFiltering Filtering_SRCS)
+IF(VTK_MAKE_INSTANTIATOR)
+  # Setup vtkInstantiator registration for this library's classes.
+  VTK_MAKE_INSTANTIATOR(vtkFilteringInstantiator FilteringInstantiator_SRCS
+                        Filtering_SRCS
+                        EXPORT_MACRO VTK_FILTERING_EXPORT
+                        HEADER_LOCATION ${VTK_BINARY_DIR})
+  ADD_LIBRARY(vtkFiltering Filtering_SRCS FilteringInstantiator_SRCS)
+  INSTALL_FILES(/include/vtk .h ${VTK_BINARY_DIR}/vtkFilteringInstantiator)
+ELSE(VTK_MAKE_INSTANTIATOR)
+  ADD_LIBRARY(vtkFiltering Filtering_SRCS)
+ENDIF(VTK_MAKE_INSTANTIATOR)
 
 # Allow the user to customize their build with some local options
 #
 INCLUDE (${VTK_BINARY_DIR}/Filtering/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/Filtering/LocalUserOptions.cmake OPTIONAL)
-
-IF(VTK_MAKE_INSTANTIATOR)
-  # Setup vtkInstantiator registration for this library's classes.
-  VTK_MAKE_INSTANTIATOR(vtkFilteringInstantiator Filtering_SRCS Filtering_SRCS
-                        EXPORT_MACRO VTK_FILTERING_EXPORT
-                        HEADER_LOCATION ${VTK_BINARY_DIR})
-ENDIF(VTK_MAKE_INSTANTIATOR)
 
 # if we are wrapping into Tcl then add the library and extra 
 # source files
