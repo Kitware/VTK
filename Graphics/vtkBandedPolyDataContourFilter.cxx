@@ -17,6 +17,7 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkEdgeTable.h"
+#include "vtkExecutive.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -28,7 +29,7 @@
 
 #include <float.h>
 
-vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.45");
+vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.46");
 vtkStandardNewMacro(vtkBandedPolyDataContourFilter);
 
 // Construct object.
@@ -37,8 +38,10 @@ vtkBandedPolyDataContourFilter::vtkBandedPolyDataContourFilter()
   this->ContourValues = vtkContourValues::New();
   this->Clipping = 0;
   this->ScalarMode = VTK_SCALAR_MODE_INDEX;
-  this->SetNthOutput(1,vtkPolyData::New());
-  this->Outputs[1]->Delete();
+
+  vtkPolyData *output2 = vtkPolyData::New();
+  this->GetExecutive()->SetOutputData(1, output2);
+  output2->Delete();
   this->ClipTolerance = FLT_EPSILON;
   this->GenerateContourEdges = 0;
   this->InputScalarsSelection = NULL;
