@@ -51,6 +51,9 @@ TARGET_LINK_LIBRARIES(vtkpython
   vtkGraphics
   vtkImaging
   ${PYTHON_UTIL_LIBRARY_LIB})
+IF(VTK_WRAP_TCL)
+  TARGET_LINK_LIBRARIES(vtkpython ${TCL_LIBRARY} ${TK_LIBRARY})
+ENDIF(VTK_WRAP_TCL)
 
 IF(BORLAND)
   SET(KITS Common Filtering Graphics IO Imaging)
