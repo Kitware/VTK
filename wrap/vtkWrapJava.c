@@ -217,7 +217,7 @@ void output_temp(FILE *fp, int i, int aType, char *Id, int aCount)
       (i != MAX_ARGS)&&(aType%10 != 9)&&(aType%1000 != 303))
     {
     fprintf(fp,"[%i]",aCount);
-    fprintf(fp,";\n  void *tempArray");
+    fprintf(fp,";\n  void *tempArray%i",i);
     }
 
   fprintf(fp,";\n");
@@ -261,21 +261,21 @@ void get_args(FILE *fp, int i)
       break;
     case 301:
     case 307:
-      fprintf(fp,"  tempArray = (void *)(env->GetDoubleArrayElements(id%i,NULL));\n",i);
+      fprintf(fp,"  tempArray%i = (void *)(env->GetDoubleArrayElements(id%i,NULL));\n",i,i);
       for (j = 0; j < currentFunction->ArgCounts[i]; j++)
 	{
-	fprintf(fp,"  temp%i[%i] = ((jdouble *)tempArray)[%i];\n",i,j,j);
+	fprintf(fp,"  temp%i[%i] = ((jdouble *)tempArray%i)[%i];\n",i,j,i,j);
 	}
-      fprintf(fp,"  env->ReleaseDoubleArrayElements(id%i,(jdouble *)tempArray,0);\n",i);      
+      fprintf(fp,"  env->ReleaseDoubleArrayElements(id%i,(jdouble *)tempArray%i,0);\n",i,i);      
       break;
     case 304:
     case 306:
-      fprintf(fp,"  tempArray = (void *)(env->GetIntArrayElements(id%i,NULL));\n",i);
+      fprintf(fp,"  tempArray%i = (void *)(env->GetIntArrayElements(id%i,NULL));\n",i,i);
       for (j = 0; j < currentFunction->ArgCounts[i]; j++)
 	{
-	fprintf(fp,"  temp%i[%i] = ((jint *)tempArray)[%i];\n",i,j,j);
+	fprintf(fp,"  temp%i[%i] = ((jint *)tempArray%i)[%i];\n",i,j,i,j);
 	}
-      fprintf(fp,"  env->ReleaseIntArrayElements(id%i,(jint *)tempArray,0);\n",i);      
+      fprintf(fp,"  env->ReleaseIntArrayElements(id%i,(jint *)tempArray%i,0);\n",i,i);      
       break;
     case 2:    
     case 9: break;
