@@ -18,11 +18,14 @@ vtkActor2D img
 
 vtkTextMapper mapText
   mapText SetInput "Text Overlay"
+  [mapText GetTextProperty] SetFontSize 15
+  [mapText GetTextProperty] SetColor 0 1 1
+  [mapText GetTextProperty] BoldOn
+  [mapText GetTextProperty] ShadowOn
 
 vtkActor2D txt
   txt SetMapper mapText
-  txt SetPosition 128 128
- [txt GetProperty] SetColor 1 1 0
+  txt SetPosition 138 128
 
 vtkRenderer ren1
   ren1 AddActor2D img
