@@ -14,7 +14,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 //
-// Define cell array
+// Supplemental object to CellArray to allow random access into cells.
+// The "location" field is the location in the CellArray list in terms of an 
+// integer offset.  An integer offset was used instead of a pointer for easy 
+// storage and inter-process communication.
 //
 #ifndef __vlCellList_h
 #define __vlCellList_h
@@ -22,8 +25,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Object.hh"
 
 struct vlCell_s {
-    unsigned char type;
-    int loc;
+    unsigned char type; //from CellTypes.hh
+    int loc; //location in associated CellArray object
 };
 
 class vlCellList : public vlObject {
@@ -36,7 +39,7 @@ public:
   unsigned char GetCellType(const int id) {return this->Array[id].type;};
   int GetCellLocation(const int id) {return this->Array[id].loc;};
   void InsertCell(const int id, const unsigned char type, const int loc);
-  int InsertNextCell(const unsigned char type, const int pos);
+  int InsertNextCell(const unsigned char type, const int loc);
   void Squeeze();
   void Reset();
 

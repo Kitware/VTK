@@ -42,6 +42,7 @@ public:
   int GetCellType(int cellId);
   vlMapper *MakeMapper();
   void Initialize();
+  void GetCellPoints(int cellId, vlIdList *ptIds);
   void GetPointCells(int ptId, vlIdList *cellIds);
 
   // Can't use macros to set/get following cell arrays.  This is due to tricks

@@ -176,6 +176,86 @@ void vlStructuredDataSet::Initialize()
     }
 }
 
+void vlStructuredDataSet::GetCellPoints(int cellId, vlIdList *ptIds)
+{
+  int i, j, k, idx, loc[3], npts;
+  int iMin, iMax, jMin, jMax, kMin, kMax;
+  int d01 = this->Dimensions[0]*this->Dimensions[1];
+ 
+  ptIds->Reset();
+
+  switch (this->DataDescription)
+    {
+    case SINGLE_POINT: // cellId can only be = 0
+      iMin = iMax = jMin = jMax = kMin = kMax = 0;
+      break;
+
+    case X_LINE:
+      jMin = jMax = kMin = kMax = 0;
+      iMin = cellId;
+      iMax = cellId + 1;
+      break;
+
+    case Y_LINE:
+      iMin = iMax = kMin = kMax = 0;
+      jMin = cellId;
+      jMax = cellId + 1;
+      break;
+
+    case Z_LINE:
+      iMin = iMax = jMin = jMax = 0;
+      kMin = cellId;
+      kMax = cellId + 1;
+      break;
+
+    case XY_PLANE:
+      kMin = kMax = 0;
+      iMin = cellId % (this->Dimensions[0]-1);
+      iMax = iMin + 1;
+      jMin = cellId / (this->Dimensions[0]-1);
+      jMax = jMin + 1;
+      break;
+
+    case YZ_PLANE:
+      iMin = iMax = 0;
+      jMin = cellId % (this->Dimensions[1]-1);
+      jMax = jMin + 1;
+      kMin = cellId / (this->Dimensions[1]-1);
+      kMax = kMin + 1;
+      break;
+
+    case XZ_PLANE:
+      jMin = jMax = 0;
+      iMin = cellId % (this->Dimensions[0]-1);
+      iMax = iMin + 1;
+      kMin = cellId / (this->Dimensions[0]-1);
+      kMax = kMin + 1;
+      break;
+
+    case XYZ_GRID:
+      iMin = cellId % (this->Dimensions[0] - 1);
+      iMax = iMin + 1;
+      jMin = (cellId / (this->Dimensions[0] - 1)) % (this->Dimensions[1] - 1);
+      jMax = jMin + 1;
+      kMin = cellId / ((this->Dimensions[0] - 1) * (this->Dimensions[1] - 1));
+      kMax = kMin + 1;
+      break;
+    }
+
+  // Extract point ids
+  for (npts=0,loc[2]=kMin; loc[2]<=kMax; loc[2]++)
+    {
+    for (loc[1]=jMin; loc[1]<=jMax; loc[1]++)
+      {
+      for (loc[0]=iMin; loc[0]<=iMax; loc[0]++)
+        {
+        idx = loc[0] + loc[1]*this->Dimensions[0] + loc[2]*d01;
+        ptIds->InsertId(npts++,idx);
+        }
+      }
+    }
+}
+
 void vlStructuredDataSet::GetPointCells(int ptId, vlIdList *cellIds)
 {
   int ptDim[3], cellDim[3];

@@ -39,6 +39,8 @@ public:
   vlCell *GetCell(int cellId) {return this->DataSet->GetCell(cellId);}
   int GetCellType(int cellId) {return this->DataSet->GetCellType(cellId);}
   void Initialize();
+  void GetCellPoints(int cellId, vlIdList *ptIds)
+    {this->DataSet->GetCellPoints(cellId, ptIds);};
   void GetPointCells(int ptId, vlIdList *cellIds)
     {this->DataSet->GetPointCells(ptId, cellIds);};
   int FindCell(float x[3], vlCell *cell, float tol2) 

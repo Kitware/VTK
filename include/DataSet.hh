@@ -55,6 +55,7 @@ public:
   virtual int GetCellType(int cellId) = 0;
 
   // topological inquiries to get neighbors and cells that use a point
+  virtual void GetCellPoints(int cellId, vlIdList *ptIds) = 0;
   virtual void GetPointCells(int ptId, vlIdList *cellIds) = 0;
   virtual void GetCellNeighbors(int cellId, vlIdList *ptIds, 
                                 vlIdList *cellIds);

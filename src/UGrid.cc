@@ -238,6 +238,16 @@ void vlUnstructuredGrid::BuildLinks()
   this->Links->BuildLinks(this);
 }
 
+void vlUnstructuredGrid::GetCellPoints(int cellId, vlIdList *ptIds)
+{
+  int i, loc, numPts, *pts;
+
+  loc = this->Cells->GetCellLocation(cellId);
+  this->Connectivity->GetCell(loc,numPts,pts); 
+
+  for (i=0; i<numPts; i++) ptIds->SetId(i,pts[i]);
+}
+
 void vlUnstructuredGrid::GetPointCells(int ptId, vlIdList *cellIds)
 {
   int *cells;

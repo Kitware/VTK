@@ -440,6 +440,53 @@ void vlPolyData::BuildLinks()
   this->Links->BuildLinks(this);
 }
 
+void vlPolyData::GetCellPoints(int cellId, vlIdList *ptIds)
+{
+  int i, loc, numPts, *pts;
+  unsigned char type;
+
+  if ( this->Cells == NULL ) this->BuildCells();
+
+  type = this->Cells->GetCellType(cellId);
+  loc = this->Cells->GetCellLocation(cellId);
+
+  switch (type)
+    {
+    case vlPOINT:
+     this->Verts->GetCell(loc,numPts,pts);
+     break;
+
+    case vlPOLY_POINTS:
+     this->Verts->GetCell(loc,numPts,pts);
+     break;
+
+    case vlLINE: 
+      this->Lines->GetCell(loc,numPts,pts);
+      break;
+
+    case vlPOLY_LINE:
+      this->Lines->GetCell(loc,numPts,pts);
+      break;
+
+    case vlTRIANGLE:
+      this->Polys->GetCell(loc,numPts,pts);
+      break;
+
+    case vlQUAD:
+      this->Polys->GetCell(loc,numPts,pts);
+      break;
+
+    case vlPOLYGON:
+      this->Polys->GetCell(loc,numPts,pts);
+      break;
+
+    case vlTRIANGLE_STRIP:
+      this->Strips->GetCell(loc,numPts,pts);
+      break;
+    }
+  for (i=0; i<numPts; i++) ptIds->SetId(i,pts[i]);
+}
+
 void vlPolyData::GetPointCells(int ptId, vlIdList *cellIds)
 {
   int *cells;
@@ -479,6 +526,9 @@ void vlPolyData::InsertNextCell(int type, int npts, int pts[MAX_CELL_SIZE])
     case vlTRIANGLE_STRIP:
       this->Strips->InsertNextCell(npts,pts);
       break;
+
+    default:
+      vlErrorMacro(<<"Bad cell type! Can't insert!");
     }
 }
 

@@ -14,7 +14,11 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 //
-// Define link array
+// Supplemental object to CellArray and CellList to allow access from points
+// to cells using the points.  LinkList is a collection of Links, each link 
+// representing a dynamic list of cell id's using the point.  The information
+// provided by this object can be used to determine neighbors and construct 
+// other local topological information.
 //
 #ifndef __vlLinkList_h
 #define __vlLinkList_h
