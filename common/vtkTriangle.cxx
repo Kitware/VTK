@@ -808,7 +808,7 @@ void vtkTriangle::Clip(float value, vtkFloatScalars *cellScalars,
 // Description:
 // Given a point x, determine whether it is inside (within the
 // tolerance squared, tol2) the triangle defined by the three 
-// coordinate values p1, p2, p3. Method is via comparing dor products.
+// coordinate values p1, p2, p3. Method is via comparing dot products.
 // (Note: in current implementation the tolerance only works in the
 // neighborhood of the three vertices of the triangle.
 int vtkTriangle::PointInTriangle(float x[3], float p1[3], float p2[3], 
@@ -849,7 +849,7 @@ int vtkTriangle::PointInTriangle(float x[3], float p1[3], float p2[3],
 //
 //  Check whether normals go in same direction
 //
-  if ( (vtkMath::Dot(n1,n2) >= 0.0) && (vtkMath::Dot(n2,n3) >= 0.0) )
+  if ( (vtkMath::Dot(n1,n2) > 0.0) && (vtkMath::Dot(n2,n3) > 0.0) )
     {
     return 1;
     }
