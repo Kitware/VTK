@@ -36,7 +36,7 @@
 #define vtkCloseSocketMacro(sock) (close(sock))
 #endif
 
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.52");
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.53");
 vtkStandardNewMacro(vtkSocketCommunicator);
 
 //----------------------------------------------------------------------------
@@ -292,7 +292,7 @@ int vtkSocketCommunicator::GetPort(int sock)
 #else
   int sizebuf = sizeof(sockinfo);
 #endif
-  if(getsockname(sock, (sockaddr*)&sockinfo, &sizebuf) != 0)
+  if(getsockname(sock, reinterpret_cast<sockaddr*>(&sockinfo), &sizebuf) != 0)
     {
     vtkErrorMacro("No port found for socket " << sock);
     return 0;
@@ -330,7 +330,7 @@ int vtkSocketCommunicator::OpenSocket(int port, const char* )
   setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (void *) &opt, sizeof(int));
 #endif
 
-  if ( bind(sock, (sockaddr *)&server, sizeof(server)) )
+  if ( bind(sock, reinterpret_cast<sockaddr*>(&server), sizeof(server)) )
     {
     vtkErrorMacro("Can not bind socket to port " << port);
     return 0;
@@ -448,7 +448,7 @@ int vtkSocketCommunicator::ConnectTo ( char* hostName, int port )
   memcpy(&name.sin_addr, hp->h_addr, hp->h_length);
   name.sin_port = htons(port);
 
-  if( connect(this->Socket, (sockaddr *)&name, sizeof(name)) < 0)
+  if( connect(this->Socket, reinterpret_cast<sockaddr*>(&name), sizeof(name)) < 0)
     {
     vtkErrorMacro("Can not connect to " << hostName << " on port " << port);
     return 0;

@@ -38,7 +38,7 @@
 #define VTK_FTFC_DEBUG_CD 0
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.6");
+vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.7");
 vtkInstantiatorNewMacro(vtkFreeTypeUtilities);
 
 //----------------------------------------------------------------------------
@@ -849,7 +849,7 @@ int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
       continue;
       }
 
-    bitmap_glyph = (FT_BitmapGlyph)glyph;
+    bitmap_glyph = reinterpret_cast<FT_BitmapGlyph>(glyph);
     bitmap = &bitmap_glyph->bitmap;
 
     if (bitmap->width && bitmap->rows)
@@ -1034,7 +1034,7 @@ int vtkFreeTypeUtilitiesRenderString(
       continue;
       }
 
-    bitmap_glyph = (FT_BitmapGlyph)glyph;
+    bitmap_glyph = reinterpret_cast<FT_BitmapGlyph>(glyph);
     bitmap = &bitmap_glyph->bitmap;
 
     if (bitmap->pixel_mode != FT_PIXEL_MODE_GRAY)
