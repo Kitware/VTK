@@ -42,12 +42,9 @@ public:
 
   _vlLink_s &GetLink(int ptId);
   unsigned short GetNcells(int ptId);
-  int *GetCells(int ptId);
-  void IncrementLinkCount(int ptId);
-  void AllocateLinks(int n);
-  void InsertCellReference(int ptId, unsigned short pos, int cellId);
-  void InsertNextCellReference(int ptId, int cellId);
   void BuildLinks(vlDataSet *data);
+  int *GetCells(int ptId);
+  void InsertNextCellReference(int ptId, int cellId);
 
   void DeletePoint(int ptId);
   void RemoveCellReference(int cellId, int ptId);
@@ -57,6 +54,10 @@ public:
   void Reset();
 
 private:
+  void IncrementLinkCount(int ptId);
+  void AllocateLinks(int n);
+  void InsertCellReference(int ptId, unsigned short pos, int cellId);
+
   _vlLink_s *Array;   // pointer to data
   int Size;       // allocated size of data
   int MaxId;     // maximum index inserted thus far

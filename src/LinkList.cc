@@ -18,7 +18,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 vlLinkList::vlLinkList(int sz, int ext)
 {
-  static _vlLink_s linkInit = {0,0};
+  static _vlLink_s linkInit = {0,NULL};
 
   this->Size = sz;
   this->Array = new _vlLink_s[sz];
@@ -30,6 +30,14 @@ vlLinkList::vlLinkList(int sz, int ext)
 
 vlLinkList::~vlLinkList()
 {
+  if ( this->Array == NULL ) return;
+
+  for (int i=0; i<=this->MaxId; i++)
+    {
+    if ( this->Array[i].cells != NULL ) 
+      delete [] this->Array[i].cells;
+    }
+
   delete [] this->Array;
 }
 
@@ -101,7 +109,8 @@ void vlLinkList::BuildLinks(vlDataSet *data)
     }
 
   // now allocate storage for the links
-   this->AllocateLinks(numPts);
+  this->AllocateLinks(numPts);
+  this->MaxId = numPts - 1;
 
   // fill out lists with references to cells
   linkLoc = new unsigned short[numPts];
