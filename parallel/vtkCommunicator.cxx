@@ -45,6 +45,28 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkStructuredPointsReader.h"
 #include "vtkStructuredPointsWriter.h"
 #include "vtkImageClip.h"
+#include "vtkCharArray.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkIntArray.h"
+#include "vtkUnsignedLongArray.h"
+#include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
+#include "vtkIdTypeArray.h"
+
+template <class T>
+static int SendDataArray(T* data, int length, int handle, int tag, vtkCommunicator *self)
+{
+
+  self->Send(data, length, handle, tag);
+
+  return 1;
+}
+
+template <class T>
+static int ReceiveDataArray(T* data, int length, int handle, int tag, vtkDataArray *array)
+{
+  return 1;
+}
 
 vtkCommunicator::vtkCommunicator()
 {
@@ -121,6 +143,64 @@ int vtkCommunicator::Send(vtkDataObject* data, int remoteHandle,
   return 0;
 }
 
+int vtkCommunicator::Send(vtkDataArray* data, int remoteHandle, int tag)
+{
+
+  if (data == NULL)
+    {
+    this->MarshalDataLength = 0;
+    this->Send( &this->MarshalDataLength, 1,      
+		remoteHandle, tag);
+    return 1;
+    }
+
+  int type = data->GetDataType();
+  this->Send( &type, 1, remoteHandle, tag);
+
+  vtkIdType size = data->GetSize();
+  this->Send( &size, 1, remoteHandle, tag);
+
+  // now send the raw array
+  switch (type)
+    {
+
+    case VTK_CHAR:
+      return SendDataArray(static_cast<char*>(data->GetVoidPointer(type)), 
+			  size, remoteHandle, tag, this);
+
+    case VTK_UNSIGNED_CHAR:
+      return SendDataArray(static_cast<unsigned char*>(data->GetVoidPointer(type)), 
+			  size, remoteHandle, tag, this);
+
+    case VTK_INT:
+      return SendDataArray(static_cast<int*>(data->GetVoidPointer(type)), 
+			  size, remoteHandle, tag, this);
+
+    case VTK_UNSIGNED_LONG:
+      return SendDataArray(static_cast<unsigned long*>(data->GetVoidPointer(type)), 
+			  size, remoteHandle, tag, this);
+
+    case VTK_FLOAT:
+      return SendDataArray(static_cast<float*>(data->GetVoidPointer(type)), 
+			  size, remoteHandle, tag, this);
+
+    case VTK_DOUBLE:
+      return SendDataArray(static_cast<double*>(data->GetVoidPointer(type)), 
+			  size, remoteHandle, tag, this);
+
+    case VTK_ID_TYPE:
+      return SendDataArray(static_cast<vtkIdType*>(data->GetVoidPointer(type)), 
+			  size, remoteHandle, tag, this);
+
+    default:
+      vtkErrorMacro(<<"Unsupported data type!");
+      return 0; // could not marshal data
+
+    }
+
+}
+
+
 int vtkCommunicator::Receive(vtkDataObject* data, int remoteHandle, 
 			     int tag)
 {
@@ -160,6 +240,101 @@ int vtkCommunicator::Receive(vtkDataObject* data, int remoteHandle,
 
   // we should really look at status to determine success
   return 1;
+}
+
+int vtkCommunicator::Receive(vtkDataArray* data, int remoteHandle, 
+			     int tag)
+{
+  int size;
+  int type;
+  char *c = 0;
+  unsigned char *uc = 0;
+  int *i = 0;
+  unsigned long *ul = 0;
+  float *f = 0;
+  double *d = 0;
+  vtkIdType *idt = 0;
+  
+
+  // First receive the data type.
+  if (!this->Receive( &type, 1, remoteHandle, tag))
+    {
+    vtkErrorMacro("Could not receive data!");
+    return 0;
+    }
+
+  // Next receive the data length.
+  if (!this->Receive( &size, 1, remoteHandle, tag))
+    {
+    vtkErrorMacro("Could not receive data!");
+    return 0;
+    }
+  
+  if (size < 0)
+    {
+    vtkErrorMacro("Bad data length");
+    return 0;
+    }
+  
+  if (size == 0)
+    { // This indicates a NULL object was sent. Do nothing.
+    return 1;   
+    }
+  
+  // Receive the raw data array
+  switch (type)
+    {
+
+    case VTK_CHAR:
+      c = new char[size];
+      this->Receive(c, size, remoteHandle, tag);
+      static_cast<vtkCharArray*>(data)->SetArray(c, size, 1);
+      break;
+
+    case VTK_UNSIGNED_CHAR:
+      uc = new unsigned char[size];
+      this->Receive(uc, size, remoteHandle, tag);
+      static_cast<vtkUnsignedCharArray*>(data)->SetArray(uc, size, 1);
+      break;
+
+    case VTK_INT:
+      i = new int[size];
+      this->Receive(i, size, remoteHandle, tag);
+      static_cast<vtkIntArray*>(data)->SetArray(i, size, 1);
+      break;
+
+    case VTK_UNSIGNED_LONG:
+      ul = new unsigned long[size];
+      this->Receive(ul, size, remoteHandle, tag);
+      static_cast<vtkUnsignedLongArray*>(data)->SetArray(ul, size, 1);
+      break;
+
+    case VTK_FLOAT:
+      f = new float[size];
+      this->Receive(f, size, remoteHandle, tag);
+      static_cast<vtkFloatArray*>(data)->SetArray(f, size, 1);
+      break;
+
+    case VTK_DOUBLE:
+      d = new double[size];
+      this->Receive(d, size, remoteHandle, tag);
+      static_cast<vtkDoubleArray*>(data)->SetArray(d, size, 1);
+      break;
+
+    case VTK_ID_TYPE:
+      idt = new vtkIdType[size];
+      this->Receive(idt, size, remoteHandle, tag);
+      static_cast<vtkIdTypeArray*>(data)->SetArray(idt, size, 1);
+      break;
+
+    default:
+      vtkErrorMacro(<<"Unsupported data type!");
+      return 0; // could not marshal data
+
+    }
+
+  return 1;
+
 }
 
 int vtkCommunicator::WriteObject(vtkDataObject *data)

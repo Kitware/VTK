@@ -48,6 +48,7 @@ class vtkSharedMemoryCommunicatorMessage
 {
 public:
   vtkDataObject *Object;
+  vtkDataArray  *Array;
   void          *Data;
   int            DataLength;
   int            Tag;
@@ -195,6 +196,42 @@ int vtkSharedMemoryCommunicator::Send(vtkDataObject* object,
   return 1;
 }
 
+int vtkSharedMemoryCommunicator::Send(vtkDataArray* object, 
+				      int dataLength,
+				      int remoteThreadId, int tag)
+{
+  vtkSharedMemoryCommunicatorMessage* message;
+  vtkSharedMemoryCommunicator* receiveCommunicator;
+  receiveCommunicator = this->Parent->Communicators[remoteThreadId];
+
+  // >>>>>>>>>> Lock >>>>>>>>>>
+  receiveCommunicator->MessageListLock->Lock();
+  // Create and copy the message.
+  message = receiveCommunicator->NewMessage(object, NULL, dataLength);
+  message->SendId = this->LocalThreadId;
+  message->Tag = tag;
+  
+  receiveCommunicator->AddMessage(message);
+
+  // Check to see if the other process is blocked waiting for this message.
+  if (receiveCommunicator->WaitingForId == this->LocalThreadId ||
+      receiveCommunicator->WaitingForId == 
+      vtkMultiProcessController::ANY_SOURCE)
+    {
+    
+    // Do this here before the MessageList is unlocked (avoids a race condition).
+    receiveCommunicator->WaitingForId = 
+      vtkMultiProcessController::INVALID_SOURCE;
+    // Tell the receiving thread that there is a new message.
+    this->SignalNewMessage(receiveCommunicator);
+    }
+
+  receiveCommunicator->MessageListLock->Unlock();
+  // <<<<<<<<< Unlock <<<<<<<<<<
+
+  return 1;
+}
+
 
 int vtkSharedMemoryCommunicator::Receive(vtkDataObject* object, 
 					 void *data, int dataLength,
@@ -250,8 +287,55 @@ int vtkSharedMemoryCommunicator::Receive(vtkDataObject* object,
   return 1;
 }
 
-vtkSharedMemoryCommunicatorMessage *vtkSharedMemoryCommunicator::NewMessage(
-  vtkDataObject* object, void* data, int dataLength)
+int vtkSharedMemoryCommunicator::Receive(vtkDataArray* object, 
+					 int dataLength,
+					 int remoteThreadId, int tag)
+{
+  vtkSharedMemoryCommunicatorMessage* message;
+
+  // >>>>>>>>>> Lock >>>>>>>>>>
+  this->MessageListLock->Lock();
+  
+  // Look for the message (has it arrived before me?).
+  message = this->FindMessage(remoteThreadId, tag);
+  while (message == NULL)
+    {
+    
+    this->WaitingForId = remoteThreadId;
+    // Temporarily unlock the mutex until we receive the message.
+    this->MessageListLock->Unlock();
+    // Block until the message arrives.
+    this->WaitForNewMessage();
+    // Now lock the mutex again.  The message should be here.
+    this->MessageListLock->Lock();
+    message = this->FindMessage(remoteThreadId, tag);
+    if (message == NULL)
+      {
+      vtkErrorMacro("I passed through the gate, but there is no message.");
+      }
+    }
+
+  // Copy the message to the receive data/object.
+  if (object && message->Array)
+    {
+    // The array was already copied into the message.
+    // We can shallow copy here even if deep copy was set.
+    ((vtkDataArray *)object)->DeepCopy(message->Array);
+    }
+
+
+  // Delete the message.
+  this->DeleteMessage(message);
+
+  this->MessageListLock->Unlock();
+  // <<<<<<<<< Unlock <<<<<<<<<
+
+  return 1;
+}
+
+vtkSharedMemoryCommunicatorMessage 
+*vtkSharedMemoryCommunicator::NewMessage(vtkDataObject* object, 
+					 void* data, int dataLength)
 {
   vtkSharedMemoryCommunicatorMessage *message = 
     new vtkSharedMemoryCommunicatorMessage;
@@ -272,6 +356,42 @@ vtkSharedMemoryCommunicatorMessage *vtkSharedMemoryCommunicator::NewMessage(
     else
       {
       message->Object->ShallowCopy(object);
+      }
+    }
+  if (data && dataLength > 0)
+    {
+    message->Data = (void *)(new unsigned char[dataLength]);
+    message->DataLength = dataLength;
+    memcpy(message->Data, data, dataLength);
+    }
+
+  return message;
+}
+
+vtkSharedMemoryCommunicatorMessage 
+*vtkSharedMemoryCommunicator::NewMessage(vtkDataArray* object, 
+					 void* data, int dataLength)
+{
+  vtkSharedMemoryCommunicatorMessage *message = 
+    new vtkSharedMemoryCommunicatorMessage;
+
+  message->Next = message->Previous = NULL;
+  message->Tag = 0;
+  message->Object = NULL;
+  message->Array = NULL;
+  message->Data = NULL;
+  message->DataLength = 0;
+
+  if (object)
+    {
+    message->Array = object->MakeObject();
+    if (this->ForceDeepCopy)
+      {
+      message->Array->DeepCopy(object);
+      }
+    else
+      {
+      message->Array->DeepCopy(object);
       }
     }
   if (data && dataLength > 0)
@@ -395,6 +515,14 @@ int vtkSharedMemoryCommunicator::Send(char* data, int length,
 }
 
 //----------------------------------------------------------------------------
+int vtkSharedMemoryCommunicator::Send(unsigned char* data, int length, 
+				      int remoteThreadId, int tag)
+{
+  length = length * sizeof(unsigned char);
+  return this->Send(NULL, (void*)data, length, remoteThreadId, tag);
+}
+
+//----------------------------------------------------------------------------
 int vtkSharedMemoryCommunicator::Send(float* data, int length, 
 				      int remoteThreadId, int tag)
 {
@@ -407,6 +535,14 @@ int vtkSharedMemoryCommunicator::Send(double* data, int length,
 				      int remoteThreadId, int tag)
 {
   length = length * sizeof(double);
+  return this->Send(NULL, (void*)data, length, remoteThreadId, tag);
+}
+
+//----------------------------------------------------------------------------
+int vtkSharedMemoryCommunicator::Send(vtkIdType* data, int length, 
+				      int remoteThreadId, int tag)
+{
+  length = length * sizeof(vtkIdType);
   return this->Send(NULL, (void*)data, length, remoteThreadId, tag);
 }
 
@@ -436,6 +572,14 @@ int vtkSharedMemoryCommunicator::Receive(char* data, int length,
 }
 
 //----------------------------------------------------------------------------
+int vtkSharedMemoryCommunicator::Receive(unsigned char* data, int length, 
+					 int remoteThreadId, int tag)
+{
+  length = length * sizeof(unsigned char);
+  return this->Receive(NULL, (void*)data, length, remoteThreadId, tag);
+}
+
+//----------------------------------------------------------------------------
 int vtkSharedMemoryCommunicator::Receive(float* data, int length, 
 					 int remoteThreadId, int tag)
 {
@@ -452,6 +596,14 @@ int vtkSharedMemoryCommunicator::Receive(double* data, int length,
 }
 
 //----------------------------------------------------------------------------
+int vtkSharedMemoryCommunicator::Receive(vtkIdType* data, int length, 
+					 int remoteThreadId, int tag)
+{
+  length = length * sizeof(vtkIdType);
+  return this->Receive(NULL, (void*)data, length, remoteThreadId, tag);
+}
+
+//----------------------------------------------------------------------------
 int vtkSharedMemoryCommunicator::Send(vtkDataObject* data, 
 				      int remoteThreadId, int tag)
 { 
@@ -463,4 +615,18 @@ int vtkSharedMemoryCommunicator::Receive(vtkDataObject* data,
 					 int remoteThreadId, int tag)
 {
   return this->Receive(data, NULL, 0, remoteThreadId, tag);
+}
+
+//----------------------------------------------------------------------------
+int vtkSharedMemoryCommunicator::Send(vtkDataArray* data, 
+				      int remoteThreadId, int tag)
+{ 
+  return this->Send(data, 0, remoteThreadId, tag);
+}
+
+//----------------------------------------------------------------------------
+int vtkSharedMemoryCommunicator::Receive(vtkDataArray* data, 
+					 int remoteThreadId, int tag)
+{
+  return this->Receive(data, 0, remoteThreadId, tag);
 }
