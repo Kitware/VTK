@@ -70,6 +70,13 @@ suppress umc __glce_common_listable
 suppress umc __glMipsCopyDispatch
 suppress umc vtkOpenGLRenderWindow::GetPixelData(int,int,int,int,int)
 suppress umr vtkRenderWindow::Render
+suppress umr vtkImageComposite::Execute(void)
+suppress umc vtkImageComposite::Execute(void)
+suppress umc memcpy; fwrite; vtkImageWindow::WritePPMImageFile(void)
+suppress umr _write; _xflsbuf; fwrite; vtkImageWindow::WritePPMImageFile(void)
+suppress umr vtkRenderer::GetZ(int,int)
+suppress umr vtkPostScriptWriter::WriteFile(ofstream*,vtkImageData*,int*)
+suppress umc vtkRenderer::GetZ(int,int)
 suppress umc _malloc; operator new(unsigned int); operator new(unsigned int); vtkOpenGLRenderWindow::GetPixelData(int,int,int,int,int)
 suppress umr _malloc; operator new(unsigned int); operator new(unsigned int); vtkOpenGLRenderWindow::GetPixelData(int,int,int,int,int)
 suppress umr vtkRenderWindow::DoFDRender
