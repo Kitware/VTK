@@ -24,18 +24,28 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkReflectionFilter, "1.9");
+vtkCxxRevisionMacro(vtkReflectionFilter, "1.10");
 vtkStandardNewMacro(vtkReflectionFilter);
 
 //---------------------------------------------------------------------------
 vtkReflectionFilter::vtkReflectionFilter()
 {
-  this->Plane = VTK_USE_X_MIN;
+  this->Plane = USE_X_MIN;
+  this->Center = 0.0;
 }
 
 //---------------------------------------------------------------------------
 vtkReflectionFilter::~vtkReflectionFilter()
 {
+}
+
+//---------------------------------------------------------------------------
+void vtkReflectionFilter::FlipVector(float tuple[3], int mirrorDir[3])
+{
+  for(int j=0; j<3; j++)
+    {
+    tuple[j] *= mirrorDir[j];
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -54,8 +64,9 @@ void vtkReflectionFilter::Execute()
   float tuple[3];
   vtkPoints *outPoints;
   float point[3];
-  float constant;
-  int ptId, cellId;
+  float constant[3] = {0.0, 0.0, 0.0};
+  int mirrorDir[3] = { 1, 1, 1};
+  int ptId, cellId, j;
   vtkGenericCell *cell = vtkGenericCell::New();
   vtkIdList *ptIds = vtkIdList::New();
 
@@ -91,141 +102,68 @@ void vtkReflectionFilter::Execute()
   // Copy reflected points.
   switch (this->Plane)
     {
-    case VTK_USE_X_MIN:
-      constant = 2*bounds[0];
-      for (i = 0; i < numPts; i++)
-        {
-        input->GetPoint(i, point);
-        ptId =
-          outPoints->InsertNextPoint(-point[0] + constant, point[1], point[2]);
-        outPD->CopyData(inPD, i, ptId);
-        if (inPtVectors)
-          {
-          inPtVectors->GetTuple(i, tuple);
-          tuple[0] = -tuple[0];
-          outPtVectors->SetTuple(ptId, tuple);
-          }
-        if (inPtNormals)
-          {
-          inPtNormals->GetTuple(i, tuple);
-          tuple[0] = -tuple[0];
-          outPtNormals->SetTuple(ptId, tuple);
-          }
-        }
+    case USE_X_MIN:
+      constant[0] = 2*bounds[0];
+      mirrorDir[0] = -1;
       break;
-    case VTK_USE_X_MAX:
-      constant = 2*bounds[1];
-      for (i = 0; i < numPts; i++)
-        {
-        input->GetPoint(i, point);
-        ptId =
-          outPoints->InsertNextPoint(-point[0] + constant, point[1], point[2]);
-        outPD->CopyData(inPD, i, ptId);
-        if (inPtVectors)
-          {
-          inPtVectors->GetTuple(i, tuple);
-          tuple[0] = -tuple[0];
-          outPtVectors->SetTuple(ptId, tuple);
-          }
-        if (inPtNormals)
-          {
-          inPtNormals->GetTuple(i, tuple);
-          tuple[0] = -tuple[0];
-          outPtNormals->SetTuple(ptId, tuple);
-          }
-        }
+    case USE_X_MAX:
+      constant[0] = 2*bounds[1];
+      mirrorDir[0] = -1;
       break;
-    case VTK_USE_Y_MIN:
-      constant = 2*bounds[2];
-      for (i = 0; i < numPts; i++)
-        {
-        input->GetPoint(i, point);
-        ptId =
-          outPoints->InsertNextPoint(point[0], -point[1] + constant, point[2]);
-        outPD->CopyData(inPD, i, ptId);
-        if (inPtVectors)
-          {
-          inPtVectors->GetTuple(i, tuple);
-          tuple[1] = -tuple[1];
-          outPtVectors->SetTuple(ptId, tuple);
-          }
-        if (inPtNormals)
-          {
-          inPtNormals->GetTuple(i, tuple);
-          tuple[1] = -tuple[1];
-          outPtNormals->SetTuple(ptId, tuple);
-          }
-        }
+    case USE_X:
+      constant[0] = this->Center;
+      mirrorDir[0] = -1;
       break;
-    case VTK_USE_Y_MAX:
-      constant = 2*bounds[3];
-      for (i = 0; i < numPts; i++)
-        {
-        input->GetPoint(i, point);
-        ptId =
-          outPoints->InsertNextPoint(point[0], -point[1] + constant, point[2]);
-        outPD->CopyData(inPD, i, ptId);
-        if (inPtVectors)
-          {
-          inPtVectors->GetTuple(i, tuple);
-          tuple[1] = -tuple[1];
-          outPtVectors->SetTuple(ptId, tuple);
-          }
-        if (inPtNormals)
-          {
-          inPtNormals->GetTuple(i, tuple);
-          tuple[1] = -tuple[1];
-          outPtNormals->SetTuple(ptId, tuple);
-          }
-        }
+    case USE_Y_MIN:
+      constant[1] = 2*bounds[2];
+      mirrorDir[1] = -1;
       break;
-    case VTK_USE_Z_MIN:
-      constant = 2*bounds[4];
-      for (i = 0; i < numPts; i++)
-        {
-        input->GetPoint(i, point);
-        ptId =
-          outPoints->InsertNextPoint(point[0], point[1], -point[2] + constant);
-        outPD->CopyData(inPD, i, ptId);
-        if (inPtVectors)
-          {
-          inPtVectors->GetTuple(i, tuple);
-          tuple[2] = -tuple[2];
-          outPtVectors->SetTuple(ptId, tuple);
-          }
-        if (inPtNormals)
-          {
-          inPtNormals->GetTuple(i, tuple);
-          tuple[2] = -tuple[2];
-          outPtNormals->SetTuple(ptId, tuple);
-          }
-        }
+    case USE_Y_MAX:
+      constant[1] = 2*bounds[3];
+      mirrorDir[1] = -1;
       break;
-    case VTK_USE_Z_MAX:
-      constant = 2*bounds[5];
-      for (i = 0; i < numPts; i++)
-        {
-        input->GetPoint(i, point);
-        ptId =
-          outPoints->InsertNextPoint(point[0], point[1], -point[2] + constant);
-        outPD->CopyData(inPD, i, ptId);
-        if (inPtVectors)
-          {
-          inPtVectors->GetTuple(i, tuple);
-          tuple[2] = -tuple[2];
-          outPtVectors->SetTuple(ptId, tuple);
-          }
-        if (inPtNormals)
-          {
-          inPtNormals->GetTuple(i, tuple);
-          tuple[2] = -tuple[2];
-          outPtNormals->SetTuple(ptId, tuple);
-          }
-        }
+    case USE_Y:
+      constant[1] = this->Center;
+      mirrorDir[1] = -1;
+      break;
+    case USE_Z_MIN:
+      constant[2] = 2*bounds[4];
+      mirrorDir[2] = -1;
+      break;
+    case USE_Z_MAX:
+      constant[2] = 2*bounds[5];
+      mirrorDir[2] = -1;
+      break;
+    case USE_Z:
+      constant[2] = this->Center;
+      mirrorDir[2] = -1;
       break;
     }
+
+  for (i = 0; i < numPts; i++)
+    {
+    input->GetPoint(i, point);
+    ptId =
+      outPoints->InsertNextPoint( mirrorDir[0]*point[0] + constant[0], 
+                                  mirrorDir[1]*point[1] + constant[1], 
+                                  mirrorDir[2]*point[2] + constant[2] );
+    outPD->CopyData(inPD, i, ptId);
+    if (inPtVectors)
+      {
+      inPtVectors->GetTuple(i, tuple);
+      this->FlipVector(tuple, mirrorDir);
+      outPtVectors->SetTuple(ptId, tuple);
+      }
+    if (inPtNormals)
+      {
+      inPtNormals->GetTuple(i, tuple);
+      this->FlipVector(tuple, mirrorDir);
+      outPtNormals->SetTuple(ptId, tuple);
+      }
+    }
+
   
-  int numCellPts, j, cellType;
+  int numCellPts,  cellType;
   vtkIdType *newCellPts;
   vtkIdList *cellPts;
   
@@ -243,55 +181,46 @@ void vtkReflectionFilter::Execute()
     input->GetCell(i, cell);
     numCellPts = cell->GetNumberOfPoints();
     cellType = cell->GetCellType();
-    newCellPts = new vtkIdType[numCellPts];
     cellPts = cell->GetPointIds();
-    for (j = numCellPts-1; j >= 0; j--)
+    // Triangle strips with even number of triangles have
+    // to be handled specially. A degenerate triangle is
+    // introduce to flip all the triangles properly.
+    if (cellType == VTK_TRIANGLE_STRIP && numCellPts % 2 == 0)
       {
-      newCellPts[numCellPts-1-j] = cellPts->GetId(j) + numPts;
+      numCellPts++;  
+      newCellPts = new vtkIdType[numCellPts];
+      newCellPts[0] = cellPts->GetId(0) + numPts;
+      newCellPts[1] = cellPts->GetId(2) + numPts;
+      newCellPts[2] = cellPts->GetId(1) + numPts;
+      newCellPts[3] = cellPts->GetId(2) + numPts;
+      for (j = 4; j < numCellPts; j++)
+        {
+        newCellPts[j] = cellPts->GetId(j-1) + numPts;
+        }
+      }
+    else
+      {
+      newCellPts = new vtkIdType[numCellPts];
+      for (j = numCellPts-1; j >= 0; j--)
+        {
+        newCellPts[numCellPts-1-j] = cellPts->GetId(j) + numPts;
+        }
       }
     cellId = output->InsertNextCell(cellType, numCellPts, newCellPts);
+    delete [] newCellPts;
     outCD->CopyData(inCD, i, cellId);
     if (inCellVectors)
       {
       inCellVectors->GetTuple(i, tuple);
-      switch (this->Plane)
-        {
-        case VTK_USE_X_MIN:
-        case VTK_USE_X_MAX:
-          tuple[0] = -tuple[0];
-          break;
-        case VTK_USE_Y_MIN:
-        case VTK_USE_Y_MAX:
-          tuple[1] = -tuple[1];
-          break;
-        case VTK_USE_Z_MIN:
-        case VTK_USE_Z_MAX:
-          tuple[2] = -tuple[2];
-          break;
-        }
+      this->FlipVector(tuple, mirrorDir);
       outCellVectors->SetTuple(cellId, tuple);
       }
     if (inCellNormals)
       {
       inCellNormals->GetTuple(i, tuple);
-      switch (this->Plane)
-        {
-        case VTK_USE_X_MIN:
-        case VTK_USE_X_MAX:
-          tuple[0] = -tuple[0];
-          break;
-        case VTK_USE_Y_MIN:
-        case VTK_USE_Y_MAX:
-          tuple[1] = -tuple[1];
-          break;
-        case VTK_USE_Z_MIN:
-        case VTK_USE_Z_MAX:
-          tuple[2] = -tuple[2];
-          break;
-        }
+      this->FlipVector(tuple, mirrorDir);
       outCellNormals->SetTuple(cellId, tuple);
       }
-    delete [] newCellPts;
     }
   
   cell->Delete();
