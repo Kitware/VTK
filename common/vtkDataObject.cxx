@@ -575,7 +575,8 @@ int vtkDataObject::UpdateExtentIsOutsideOfTheExtent()
     {
     case VTK_PIECES_EXTENT:
       if ( this->UpdatePiece != this->Piece ||
-	   this->UpdateNumberOfPieces != this->NumberOfPieces )
+	   this->UpdateNumberOfPieces != this->NumberOfPieces ||
+	   this->UpdateGhostLevel != this->GhostLevel)
 	{
         return 1;
 	}
