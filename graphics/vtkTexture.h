@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .NAME vtkTexture - handles properties associated with a texture map
 // .SECTION Description
 // vtkTexture is an object that handles loading and binding of texture
-// maps. It obtains its data from an input structured points dataset type.
+// maps. It obtains its data from an input image data dataset type.
 // Thus you can create visualization pipelines to read, process, and 
 // construct textures. Note that textures will only work if texture
 // coordinates are also defined, and if the rendering system supports 
@@ -69,7 +69,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkTexture_h
 
 #include "vtkObject.h"
-#include "vtkStructuredPoints.h"
+#include "vtkImageData.h"
 #include "vtkLookupTable.h"
 #include "vtkScalars.h"
 
@@ -140,8 +140,8 @@ public:
 
   // Description:
   // Specify the data for the texture map.
-  vtkSetObjectMacro(Input,vtkStructuredPoints);
-  vtkGetObjectMacro(Input,vtkStructuredPoints);
+  vtkSetObjectMacro(Input,vtkImageData);
+  vtkGetObjectMacro(Input,vtkImageData);
   
   // Description:
   // Specify the lookup table to convert scalars if necessary
@@ -166,7 +166,7 @@ protected:
   int   Interpolate;
   int   Quality;
   int   MapColorScalarsThroughLookupTable;
-  vtkStructuredPoints *Input;
+  vtkImageData *Input;
   vtkLookupTable *LookupTable;
   vtkScalars *MappedScalars;
   
