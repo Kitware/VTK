@@ -110,6 +110,10 @@ public:
   // Description:
   // Is a valid image specified on the command line areguments?
   int IsValidImageSpecified();
+
+  // Description:
+  // Is the interactive mode specified?
+  int IsInteractiveModeSpecified();
   
 protected:
   vtkTesting();
