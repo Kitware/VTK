@@ -316,6 +316,7 @@ int TestNonTypeTemplate()
 
 //----------------------------------------------------------------------------
 
+#if !defined(VTK_CXX_SGI)
 int TestBinaryWriting()
 {
   int result = 1;
@@ -327,6 +328,7 @@ int TestBinaryWriting()
     }
   return result;
 }
+#endif
 
 //----------------------------------------------------------------------------
 
@@ -344,6 +346,8 @@ int main()
   DO_TEST(TestFullySpecializedClass);
   DO_TEST(TestIfScope);
   DO_TEST(TestNonTypeTemplate);
+#if !defined(VTK_CXX_SGI)
   DO_TEST(TestBinaryWriting);
+#endif
   return result;
 }
