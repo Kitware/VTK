@@ -83,11 +83,11 @@ void CheckAndAdd(char *name, const char *vtkHome)
     }
 
   // if control reaches here then it hasn't been found yet
-  sprintf(fname,"%s/volume/%s",vtkHome,name);
+  sprintf(fname,"%s/working/%s",vtkHome,name);
   if (!stat(fname,&statBuff))
     {
     // add this to the depend list
-    sprintf(depends[num],"volume/%s",name);
+    sprintf(depends[num],"working/%s",name);
     strcpy(names[num],name);
     num++;
     // now recurse

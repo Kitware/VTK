@@ -48,9 +48,9 @@ build_patented: targets ${BUILD_TCL} ${BUILD_JAVA}
 	cd patented;    ${MAKE} -${MAKEFLAGS} targets.make
 	cd patented;    ${MAKE} -${MAKEFLAGS} all
 
-build_volume: targets ${BUILD_TCL} ${BUILD_JAVA}
-	cd volume;    ${MAKE} -${MAKEFLAGS} targets.make
-	cd volume;    ${MAKE} -${MAKEFLAGS} all
+build_working: targets ${BUILD_TCL} ${BUILD_JAVA}
+	cd working;    ${MAKE} -${MAKEFLAGS} targets.make
+	cd working;    ${MAKE} -${MAKEFLAGS} all
 
 build_tcl: targets
 	cd tcl;        ${MAKE} -${MAKEFLAGS} all
@@ -106,8 +106,8 @@ depend_imaging:
 depend_patented:
 	cd patented;    ${MAKE} -${MAKEFLAGS} depend
 
-depend_volume:
-	cd volume;    ${MAKE} -${MAKEFLAGS} depend
+depend_working:
+	cd working;    ${MAKE} -${MAKEFLAGS} depend
 
 depend_contrib:
 	cd contrib; ${MAKE} -${MAKEFLAGS} depend
@@ -145,8 +145,8 @@ clean_imaging:
 clean_patented:
 	cd patented;    ${MAKE} -${MAKEFLAGS} clean
 
-clean_volume:
-	cd volume;    ${MAKE} -${MAKEFLAGS} clean
+clean_working:
+	cd working;    ${MAKE} -${MAKEFLAGS} clean
 
 clean_contrib:
 	cd contrib;   ${MAKE} -${MAKEFLAGS} clean
@@ -180,8 +180,8 @@ install_imaging:
 install_patented: 
 	cd patented;    ${MAKE} -${MAKEFLAGS} @INSTALL_TARGET@
 
-install_volume: 
-	cd volume;    ${MAKE} -${MAKEFLAGS} @INSTALL_TARGET@
+install_working: 
+	cd working;    ${MAKE} -${MAKEFLAGS} @INSTALL_TARGET@
 
 install_gemsio: 
 	cd gemsio;     ${MAKE} -${MAKEFLAGS} @INSTALL_TARGET@

@@ -32,7 +32,7 @@ ac_help="$ac_help
 ac_help="$ac_help
   --with-patented           include the patented classes"
 ac_help="$ac_help
-  --with-volume           include the volume classes"
+  --with-working           include development classes"
 ac_help="$ac_help
   --with-contrib          include the contrib classes"
 ac_help="$ac_help
@@ -2337,16 +2337,16 @@ if test "${with_patented+set}" = set; then
 fi
 
 
-# Check whether --with-volume or --without-volume was given.
-if test "${with_volume+set}" = set; then
-  withval="$with_volume"
-  volumedir=volume
-         USE_VOLUME_LIBS="-L../volume -lVTKVolumeTcl"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../volume -DVTK_USE_VOLUME"
-         INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_volume"
-         BUILD_TOOLKITS="${BUILD_TOOLKITS} build_volume"
-         DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_volume"
-         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_volume"
+# Check whether --with-working or --without-working was given.
+if test "${with_working+set}" = set; then
+  withval="$with_working"
+  workingdir=working
+         USE_WORKING_LIBS="-L../working -lVTKWorkingTcl"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../working -DVTK_USE_WORKING"
+         INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_working"
+         BUILD_TOOLKITS="${BUILD_TOOLKITS} build_working"
+         DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_working"
+         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_working"
 fi
 
 
@@ -2835,8 +2835,8 @@ else
     if test "X$patenteddir" != "X"; then
        TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ../patented/libVTKPatentedTcl.a"
     fi
-    if test "X$volumedir" != "X"; then
-       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ../volume/libVTKVolumeTcl.a"
+    if test "X$workingdir" != "X"; then
+       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ../working/libVTKWorkingTcl.a"
     fi
     if test "X$contribdir" != "X"; then
        TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ../contrib/libVTKContribTcl.a"
@@ -3156,7 +3156,7 @@ ac_config_guess=$ac_aux_dir/config.guess
 ac_config_sub=$ac_aux_dir/config.sub
 ac_configure=$ac_aux_dir/configure # This should be Cygnus configure.
 
-subdirs="common $tcldir $graphicsdir $imagingdir $patenteddir $volumedir $contribdir $geaedir $gemsipdir $gemsiodir $gemsvolumedir $javadir"
+subdirs="common $tcldir $graphicsdir $imagingdir $patenteddir $workingdir $contribdir $geaedir $gemsipdir $gemsiodir $gemsvolumedir $javadir"
 
 
 trap '' 1 2 15
@@ -3329,7 +3329,7 @@ s%@VTK_TCL_SHLIB_TARGET@%$VTK_TCL_SHLIB_TARGET%g
 s%@USE_GRAPHICS_LIBS@%$USE_GRAPHICS_LIBS%g
 s%@USE_IMAGING_LIBS@%$USE_IMAGING_LIBS%g
 s%@USE_PATENTED_LIBS@%$USE_PATENTED_LIBS%g
-s%@USE_VOLUME_LIBS@%$USE_VOLUME_LIBS%g
+s%@USE_WORKING_LIBS@%$USE_WORKING_LIBS%g
 s%@USE_CONTRIB_LIBS@%$USE_CONTRIB_LIBS%g
 s%@USE_GEAE_LIBS@%$USE_GEAE_LIBS%g
 s%@USE_GEMSIP_LIBS@%$USE_GEMSIP_LIBS%g
@@ -3481,7 +3481,7 @@ if test "$no_recursion" != yes; then
     esac
   done
 
-  for ac_config_dir in common $tcldir $graphicsdir $imagingdir $patenteddir $volumedir $contribdir $geaedir $gemsipdir $gemsiodir $gemsvolumedir $javadir; do
+  for ac_config_dir in common $tcldir $graphicsdir $imagingdir $patenteddir $workingdir $contribdir $geaedir $gemsipdir $gemsiodir $gemsvolumedir $javadir; do
 
     # Do not complain, so a configure script can configure whichever
     # parts of a large source tree are present.

@@ -184,15 +184,15 @@ AC_ARG_WITH(patented,
          DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_patented"
          CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_patented",)
 
-AC_ARG_WITH(volume,
-         [  --with-volume           include the volume classes],
-         volumedir=volume
-         USE_VOLUME_LIBS="-L../volume -lVTKVolumeTcl"
-         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../volume -DVTK_USE_VOLUME"
-         INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_volume"
-         BUILD_TOOLKITS="${BUILD_TOOLKITS} build_volume"
-         DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_volume"
-         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_volume",)
+AC_ARG_WITH(working,
+         [  --with-working           include development classes],
+         workingdir=working
+         USE_WORKING_LIBS="-L../working -lVTKWorkingTcl"
+         USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I$(srcdir)/../working -DVTK_USE_WORKING"
+         INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_working"
+         BUILD_TOOLKITS="${BUILD_TOOLKITS} build_working"
+         DEPEND_TOOLKITS="${DEPEND_TOOLKITS} depend_working"
+         CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_working",)
 
 AC_ARG_WITH(contrib,
          [  --with-contrib          include the contrib classes],
@@ -551,8 +551,8 @@ else
     if test "X$patenteddir" != "X"; then
        TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ../patented/libVTKPatentedTcl.a"
     fi
-    if test "X$volumedir" != "X"; then
-       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ../volume/libVTKVolumeTcl.a"
+    if test "X$workingdir" != "X"; then
+       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ../working/libVTKWorkingTcl.a"
     fi
     if test "X$contribdir" != "X"; then
        TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ../contrib/libVTKContribTcl.a"
@@ -576,7 +576,7 @@ AC_SUBST(VTK_TCL_SHLIB_TARGET)
 AC_SUBST(USE_GRAPHICS_LIBS)
 AC_SUBST(USE_IMAGING_LIBS)
 AC_SUBST(USE_PATENTED_LIBS)
-AC_SUBST(USE_VOLUME_LIBS)
+AC_SUBST(USE_WORKING_LIBS)
 AC_SUBST(USE_CONTRIB_LIBS)
 AC_SUBST(USE_GEAE_LIBS)
 AC_SUBST(USE_GEMSIP_LIBS)
@@ -697,7 +697,7 @@ if test "$CC" = "gcc" -o `$CC -v 2>&1 | grep -c gcc` != "0" ; then
   SHLIB_CFLAGS="-fPIC"
 fi
 
-AC_CONFIG_SUBDIRS(common $tcldir $graphicsdir $imagingdir $patenteddir $volumedir $contribdir $geaedir $gemsipdir $gemsiodir $gemsvolumedir $javadir)
+AC_CONFIG_SUBDIRS(common $tcldir $graphicsdir $imagingdir $patenteddir $workingdir $contribdir $geaedir $gemsipdir $gemsiodir $gemsvolumedir $javadir)
 
 AC_OUTPUT(Makefile system.make)
 
