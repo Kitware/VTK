@@ -84,7 +84,7 @@ vtkUnsignedCharArray *vtkScalarsToColors::MapScalars(vtkDataArray *scalars,
 // Map a set of scalar values through the table
 void vtkScalarsToColors::MapScalarsThroughTable(vtkScalars *scalars, 
                                                 unsigned char *output,
-						int outputFormat)
+                                                int outputFormat)
 {
   switch (outputFormat)
     {
@@ -99,11 +99,11 @@ void vtkScalarsToColors::MapScalarsThroughTable(vtkScalars *scalars,
     }
 
   this->MapScalarsThroughTable2(scalars->GetVoidPointer(0),
-				output,
-				scalars->GetDataType(),
-				scalars->GetNumberOfScalars(),
-				scalars->GetNumberOfComponents(),
-				outputFormat);
+                                output,
+                                scalars->GetDataType(),
+                                scalars->GetNumberOfScalars(),
+                                scalars->GetNumberOfComponents(),
+                                outputFormat);
 }
 
 vtkUnsignedCharArray *vtkScalarsToColors::ConvertUnsignedCharToRGBA(
@@ -167,7 +167,7 @@ vtkUnsignedCharArray *vtkScalarsToColors::ConvertUnsignedCharToRGBA(
     switch (numComp)
       {
       case 1:
-        alpha = (unsigned char)(this->Alpha*255);
+        alpha = static_cast<unsigned char>(this->Alpha*255);
         for (i=0; i<numTuples; i++)
           {
           *nptr++ = *cptr;
@@ -183,12 +183,12 @@ vtkUnsignedCharArray *vtkScalarsToColors::ConvertUnsignedCharToRGBA(
           *nptr++ = *cptr;
           *nptr++ = *cptr;
           *nptr++ = *cptr++;
-          *nptr++ = (unsigned char) ((*cptr)*this->Alpha); cptr++;
+          *nptr++ = static_cast<unsigned char>((*cptr)*this->Alpha); cptr++;
           }
         break;
 
       case 3:
-        alpha = (unsigned char)(this->Alpha*255);
+        alpha = static_cast<unsigned char>(this->Alpha*255);
         for (i=0; i<numTuples; i++)
           {
           *nptr++ = *cptr++;
@@ -204,7 +204,7 @@ vtkUnsignedCharArray *vtkScalarsToColors::ConvertUnsignedCharToRGBA(
           *nptr++ = *cptr++;
           *nptr++ = *cptr++;
           *nptr++ = *cptr++;
-          *nptr++ = (unsigned char)((*cptr)*this->Alpha); cptr++;
+          *nptr++ = static_cast<unsigned char>((*cptr)*this->Alpha); cptr++;
           }
         break;
 
