@@ -643,9 +643,17 @@ void vtkWin32OpenGLRenderWindow::WindowInitialize (void)
         }
       else
         {
+	DWORD style;
+	if (this->Borders)
+	  {
+	  style = WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/;
+	  }
+	else
+	  {
+	  style = WS_POPUP | WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/;
+	  }
         this->WindowId = CreateWindow(
-	  "vtkOpenGL", this->WindowName,
-	  WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/,
+	  "vtkOpenGL", this->WindowName, style,
 	  x,y, width+2*GetSystemMetrics(SM_CXFRAME),
 	  height+2*GetSystemMetrics(SM_CYFRAME) +GetSystemMetrics(SM_CYCAPTION),
 	  NULL, NULL, this->ApplicationInstance, NULL);
