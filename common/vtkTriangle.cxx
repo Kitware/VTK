@@ -536,7 +536,7 @@ int vtkTriangle::BarycentricCoords(float x[2], float  x1[2], float x2[2],
   a1[0] = x1[0]; a1[1] = x2[0]; a1[2] = x3[0]; 
   a2[0] = x1[1]; a2[1] = x2[1]; a2[2] = x3[1]; 
   a3[0] = 1.0;   a3[1] = 1.0;   a3[2] = 1.0;   
-  p[0] = x[0]; p[1] = x[1]; p[2] = x[2];
+  p[0] = x[0]; p[1] = x[1]; p[2] = 1.0;
 
   //
   //   Now solve system of equations for barycentric coordinates
