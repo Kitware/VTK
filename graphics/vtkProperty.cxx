@@ -80,6 +80,8 @@ vtkProperty::vtkProperty()
   this->FrontfaceCulling = 0;
   this->PointSize = 1.0;
   this->LineWidth = 1.0;
+  this->LineStipplePattern = 0xFFFF;
+  this->LineStippleRepeatFactor = 1;
 }
 
 // Assign one property to another. 
@@ -104,6 +106,8 @@ void vtkProperty::DeepCopy(vtkProperty *p)
     this->SetFrontfaceCulling(p->GetFrontfaceCulling());
     this->SetPointSize(p->GetPointSize());
     this->SetLineWidth(p->GetLineWidth());
+    this->SetLineStipplePattern(p->GetLineStipplePattern());
+    this->SetLineStippleRepeatFactor(p->GetLineStippleRepeatFactor());
     }
 }
 
@@ -192,6 +196,9 @@ void vtkProperty::PrintSelf(ostream& os, vtkIndent indent)
      << (this->BackfaceCulling ? "On\n" : "Off\n");
   os << indent << "Frontface Culling: " 
      << (this->FrontfaceCulling ? "On\n" : "Off\n");
-  os << indent << "PointSize: " << this->PointSize << "\n";
-  os << indent << "LineWidth: " << this->LineWidth << "\n";
+  os << indent << "Point size: " << this->PointSize << "\n";
+  os << indent << "Line width: " << this->LineWidth << "\n";
+  os << indent << "Line stipple pattern: " << this->LineStipplePattern << "\n";
+  os << indent << "Line stipple repeat factor: " << this->LineStippleRepeatFactor << "\n";
+
 }

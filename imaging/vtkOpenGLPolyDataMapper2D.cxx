@@ -218,6 +218,18 @@ void vtkOpenGLPolyDataMapper2D::RenderOpaqueGeometry(vtkViewport* viewport,
   // Set the LineWidth
   glLineWidth(actor->GetProperty()->GetLineWidth());
 
+  // Set the LineStipple
+  if (actor->GetProperty()->GetLineStipplePattern() != 0xFFFF)
+    {
+    glEnable (GL_LINE_STIPPLE);
+    glLineStipple (actor->GetProperty()->GetLineStippleRepeatFactor(), 
+                   actor->GetProperty()->GetLineStipplePattern());
+    }
+  else
+    {
+    glDisable (GL_LINE_STIPPLE);
+    }
+
   aPrim = input->GetLines();
   for (aPrim->InitTraversal(); aPrim->GetNextCell(npts,pts); cellNum++)
     {

@@ -186,6 +186,20 @@ public:
   vtkGetMacro(LineWidth,float);
 
   // Description:
+  // Set/Get the stippling pattern of a Line, as a 16-bit binary pattern 
+  // (1 = pixel on, 0 = pixel off).
+  // This is only implemented for OpenGL. The default is 0xFFFF.
+  vtkSetMacro(LineStipplePattern,int);
+  vtkGetMacro(LineStipplePattern,int);
+
+  // Description:
+  // Set/Get the stippling repeat factor of a Line, which specifies how
+  // many times each bit in the pattern is to be repeated.
+  // This is only implemented for OpenGL. The default is 1.
+  vtkSetClampMacro(LineStippleRepeatFactor,int,1,VTK_LARGE_INTEGER);
+  vtkGetMacro(LineStippleRepeatFactor,int);
+
+  // Description:
   // Set/Get the diameter of a point. The size is expressed in screen units.
   // This is only implemented for OpenGL. The default is 1.0.
   vtkSetClampMacro(PointSize,float,0,VTK_LARGE_FLOAT);
@@ -225,6 +239,8 @@ protected:
   float Opacity;
   float PointSize;
   float LineWidth;
+  int   LineStipplePattern;
+  int   LineStippleRepeatFactor;
   int   Interpolation; 
   int   Representation;
   int   EdgeVisibility;

@@ -156,6 +156,17 @@ void vtkOpenGLProperty::Render(vtkActor *vtkNotUsed(anActor),
 
   // Set the LineWidth
   glLineWidth (this->LineWidth);
+
+  // Set the LineStipple
+  if (this->LineStipplePattern != 0xFFFF)
+    {
+    glEnable (GL_LINE_STIPPLE);
+    glLineStipple (this->LineStippleRepeatFactor, this->LineStipplePattern);
+    }
+  else
+    {
+    glDisable (GL_LINE_STIPPLE);
+    }
 }
 
 // Implement base class method.
