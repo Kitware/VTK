@@ -95,14 +95,14 @@ public:
   // Description:
   // Set/Get the spacing (typically in mm) between image voxels.
   // Default: (1.0, 1.0, 1.0).
-  vtkSetVector3Macro(DataSpacing,float);
-  vtkGetVector3Macro(DataSpacing,float);
+  vtkSetVector3Macro(DataSpacing,double);
+  vtkGetVector3Macro(DataSpacing,double);
   
   // Description:
   // Set/Get the origin of the data, i.e. the coordinates (usually in mm)
   // of voxel (0,0,0).  Default: (0.0, 0.0, 0.0). 
-  vtkSetVector3Macro(DataOrigin,float);
-  vtkGetVector3Macro(DataOrigin,float);  
+  vtkSetVector3Macro(DataOrigin,double);
+  vtkGetVector3Macro(DataOrigin,double);  
 
   // Description:
   // Get/Set the whole extent of the image.  This is the largest possible
@@ -122,8 +122,8 @@ public:
   typedef void (*UpdateInformationCallbackType)(void*);
   typedef int (*PipelineModifiedCallbackType)(void*);
   typedef int* (*WholeExtentCallbackType)(void*);
-  typedef float* (*SpacingCallbackType)(void*);
-  typedef float* (*OriginCallbackType)(void*);
+  typedef double* (*SpacingCallbackType)(void*);
+  typedef double* (*OriginCallbackType)(void*);
   typedef const char* (*ScalarTypeCallbackType)(void*); 
   typedef int (*NumberOfComponentsCallbackType)(void*);
   typedef void (*PropagateUpdateExtentCallbackType)(void*, int*);
@@ -157,14 +157,14 @@ public:
   // Description:
   // Set/Get the callback for getting the spacing of the input image
   // from a third-party pipeline.  The callback should return a vector
-  // of three float values describing the spacing (dx dy dz).
+  // of three double values describing the spacing (dx dy dz).
   vtkSetMacro(SpacingCallback, SpacingCallbackType);
   vtkGetMacro(SpacingCallback, SpacingCallbackType);
 
   // Description:
   // Set/Get the callback for getting the origin of the input image
   // from a third-party pipeline.  The callback should return a vector
-  // of three float values describing the origin (x0 y0 z0).
+  // of three double values describing the origin (x0 y0 z0).
   vtkSetMacro(OriginCallback, OriginCallbackType);
   vtkGetMacro(OriginCallback, OriginCallbackType);
 
@@ -243,8 +243,8 @@ protected:
 
   int WholeExtent[6];
   int DataExtent[6];
-  float DataSpacing[3];
-  float DataOrigin[3];
+  double DataSpacing[3];
+  double DataOrigin[3];
 
   void* CallbackUserData;
   

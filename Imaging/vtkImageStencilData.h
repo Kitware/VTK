@@ -72,16 +72,16 @@ public:
   // This must be called before the stencil is Updated, ideally 
   // in the ExecuteInformation method of the imaging filter that
   // is using the stencil.
-  vtkSetVector3Macro(Spacing, float);
-  vtkGetVector3Macro(Spacing, float);
+  vtkSetVector3Macro(Spacing, double);
+  vtkGetVector3Macro(Spacing, double);
 
   // Description:
   // Set the desired origin for the stencil.
   // This must be called before the stencil is Updated, ideally 
   // in the ExecuteInformation method of the imaging filter that
   // is using the stencil.
-  vtkSetVector3Macro(Origin, float);
-  vtkGetVector3Macro(Origin, float);
+  vtkSetVector3Macro(Origin, double);
+  vtkGetVector3Macro(Origin, double);
 
   // Description:
   // Set the extent of the data.  This is should be called only 
@@ -93,14 +93,14 @@ public:
   // Description:
   // Save the previous data spacing.  This should be called only by
   // vtkImageStencilSource.
-  vtkSetVector3Macro(OldSpacing, float);
-  vtkGetVector3Macro(OldSpacing, float);
+  vtkSetVector3Macro(OldSpacing, double);
+  vtkGetVector3Macro(OldSpacing, double);
 
   // Description: 
   // Save the previous data origin.  This should be called only by
   // vtkImageStencilSource.
-  vtkSetVector3Macro(OldOrigin, float);
-  vtkGetVector3Macro(OldOrigin, float);
+  vtkSetVector3Macro(OldOrigin, double);
+  vtkGetVector3Macro(OldOrigin, double);
 
   // Description:
   // Allocate space for the sub-extents.  This is called by
@@ -145,13 +145,13 @@ protected:
   // Description:
   // Previous Spacing and Origin values, so that it is possible to
   // know when an update is required because they have changed.
-  float OldSpacing[3];
-  float OldOrigin[3];
+  double OldSpacing[3];
+  double OldOrigin[3];
 
   // Description:
   // The Spacing and Origin of the data.
-  float Spacing[3];
-  float Origin[3];
+  double Spacing[3];
+  double Origin[3];
   
   // Description:
   // The actual 'data' is stored here.

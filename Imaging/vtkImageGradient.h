@@ -17,7 +17,7 @@
 // vtkImageGradient computes the gradient vector of an image.  The vector
 // results are stored as scalar components. The Dimensionality determines
 // whether to perform a 2d or 3d gradient. The default is two dimensional 
-// XY gradient.  OutputScalarType is always float. Gradient is computed using
+// XY gradient.  OutputScalarType is always double. Gradient is computed using
 // central differences.
 
 

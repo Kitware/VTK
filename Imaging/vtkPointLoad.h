@@ -42,8 +42,8 @@ public:
 
   // Description:
   // Set/Get value of applied load.
-  vtkSetMacro(LoadValue,float);
-  vtkGetMacro(LoadValue,float);
+  vtkSetMacro(LoadValue,double);
+  vtkGetMacro(LoadValue,double);
 
   // Description:
   // Specify the dimensions of the volume. A stress tensor will be computed for
@@ -59,13 +59,13 @@ public:
   // Description:
   // Specify the region in space over which the tensors are computed. The point
   // load is assumed to be applied at top center of the volume.
-  vtkSetVector6Macro(ModelBounds,float);
-  vtkGetVectorMacro(ModelBounds,float,6);
+  vtkSetVector6Macro(ModelBounds,double);
+  vtkGetVectorMacro(ModelBounds,double,6);
 
   // Description:
   // Set/Get Poisson's ratio.
-  vtkSetMacro(PoissonsRatio,float);
-  vtkGetMacro(PoissonsRatio,float);
+  vtkSetMacro(PoissonsRatio,double);
+  vtkGetMacro(PoissonsRatio,double);
 
   // Description:
   // Turn on/off computation of effective stress scalar. These methods do 
@@ -82,10 +82,10 @@ protected:
   virtual void ExecuteInformation();
   virtual void ExecuteData(vtkDataObject *);
 
-  float LoadValue;
-  float PoissonsRatio;
+  double LoadValue;
+  double PoissonsRatio;
   int SampleDimensions[3];
-  float ModelBounds[6];
+  double ModelBounds[6];
 
 private:
   vtkPointLoad(const vtkPointLoad&);  // Not implemented.

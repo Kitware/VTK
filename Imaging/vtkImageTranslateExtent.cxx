@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageTranslateExtent, "1.21");
+vtkCxxRevisionMacro(vtkImageTranslateExtent, "1.22");
 vtkStandardNewMacro(vtkImageTranslateExtent);
 
 //----------------------------------------------------------------------------
@@ -51,7 +51,7 @@ void vtkImageTranslateExtent::ExecuteInformation(vtkImageData *inData,
                                                  vtkImageData *outData)
 {
   int idx, extent[6];
-  float *spacing, origin[3];
+  double *spacing, origin[3];
   
   inData->GetWholeExtent(extent);
   inData->GetOrigin(origin);
@@ -64,7 +64,7 @@ void vtkImageTranslateExtent::ExecuteInformation(vtkImageData *inData,
     extent[2*idx] += this->Translation[idx];
     extent[2*idx+1] += this->Translation[idx];
     // change origin so the data does not shift
-    origin[idx] -= (float)(this->Translation[idx]) * spacing[idx];
+    origin[idx] -= (double)(this->Translation[idx]) * spacing[idx];
     }
   
   outData->SetWholeExtent(extent);

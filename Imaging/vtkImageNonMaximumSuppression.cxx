@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageNonMaximumSuppression, "1.48");
+vtkCxxRevisionMacro(vtkImageNonMaximumSuppression, "1.49");
 vtkStandardNewMacro(vtkImageNonMaximumSuppression);
 
 //----------------------------------------------------------------------------
@@ -114,7 +114,7 @@ void vtkImageNonMaximumSuppressionExecute(vtkImageNonMaximumSuppression *self,
   unsigned long count = 0;
   unsigned long target;
   int useZMin, useZMax, useYMin, useYMax, useXMin, useXMax;
-  float d, normalizeFactor, vector[3], *ratio;
+  double d, normalizeFactor, vector[3], *ratio;
   int neighborA, neighborB;
   int *wholeExtent, *inIncs;
   int axesNum;
@@ -165,13 +165,13 @@ void vtkImageNonMaximumSuppressionExecute(vtkImageNonMaximumSuppression *self,
         useXMax = ((idxX + outExt[0]) >= wholeExtent[1]) ? 0 : inIncs[0];
 
         // calculate the neighbors
-        d = vector[0] = (float)*in2Ptr * ratio[0];
+        d = vector[0] = (double)*in2Ptr * ratio[0];
         normalizeFactor = (d * d);
-        d = vector[1] = (float)in2Ptr[1] * ratio[1];
+        d = vector[1] = (double)in2Ptr[1] * ratio[1];
         normalizeFactor += (d * d);
         if (axesNum == 3)
           {
-          d = vector[2] = (float)in2Ptr[2] * ratio[2];
+          d = vector[2] = (double)in2Ptr[2] * ratio[2];
           normalizeFactor += (d * d);
           }
         if (normalizeFactor)

@@ -36,13 +36,13 @@ public:
   // Description:
   // Set desired spacing.  
   // Zero is a reserved value indicating spacing has not been set.
-  void SetAxisOutputSpacing(int axis, float spacing);
+  void SetAxisOutputSpacing(int axis, double spacing);
   
   // Description:
   // Set/Get Magnification factors.
   // Zero is a reserved value indicating values have not been computed.
-  void SetAxisMagnificationFactor(int axis, float factor);
-  float GetAxisMagnificationFactor(int axis);
+  void SetAxisMagnificationFactor(int axis, double factor);
+  double GetAxisMagnificationFactor(int axis);
   
   // Description:
   // Dimensionality is the number of axes which are considered during
@@ -56,8 +56,8 @@ protected:
   vtkImageResample();
   ~vtkImageResample() {};
 
-  float MagnificationFactors[3];
-  float OutputSpacing[3];
+  double MagnificationFactors[3];
+  double OutputSpacing[3];
   int Dimensionality;
   
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);

@@ -70,7 +70,7 @@
 #define VTK_ACCUMULATION_MODE_MAX 1
 #define VTK_ACCUMULATION_MODE_SUM 2
 
-class vtkFloatArray;
+class vtkDoubleArray;
 
 class VTK_IMAGING_EXPORT vtkGaussianSplatter : public vtkDataSetToImageFilter 
 {
@@ -96,29 +96,29 @@ public:
   // the sampling is performed. If any of the (min,max) bounds values are
   // min >= max, then the bounds will be computed automatically from the input
   // data. Otherwise, the user-specified bounds will be used.
-  vtkSetVector6Macro(ModelBounds,float);
-  vtkGetVectorMacro(ModelBounds,float,6);
+  vtkSetVector6Macro(ModelBounds,double);
+  vtkGetVectorMacro(ModelBounds,double,6);
 
   // Description:
   // Set / get the radius of propagation of the splat. This value is expressed
   // as a percentage of the length of the longest side of the sampling
   // volume. Smaller numbers greatly reduce execution time.
-  vtkSetClampMacro(Radius,float,0.0,1.0);
-  vtkGetMacro(Radius,float);
+  vtkSetClampMacro(Radius,double,0.0,1.0);
+  vtkGetMacro(Radius,double);
 
   // Description:
   // Multiply Gaussian splat distribution by this value. If ScalarWarping
   // is on, then the Scalar value will be multiplied by the ScaleFactor
   // times the Gaussian function.
-  vtkSetClampMacro(ScaleFactor,float,0.0,VTK_LARGE_FLOAT);
-  vtkGetMacro(ScaleFactor,float);
+  vtkSetClampMacro(ScaleFactor,double,0.0,VTK_DOUBLE_MAX);
+  vtkGetMacro(ScaleFactor,double);
 
   // Description:
   // Set / get the sharpness of decay of the splats. This is the
   // exponent constant in the Gaussian equation. Normally this is
   // a negative value.
-  vtkSetMacro(ExponentFactor,float);
-  vtkGetMacro(ExponentFactor,float);
+  vtkSetMacro(ExponentFactor,double);
+  vtkGetMacro(ExponentFactor,double);
 
   // Description:
   // Turn on/off the generation of elliptical splats. If normal warping is
@@ -134,8 +134,8 @@ public:
   // along other two axes. So Eccentricity > 1 creates needles with the
   // long axis in the direction of the normal; Eccentricity<1 creates
   // pancakes perpendicular to the normal vector.
-  vtkSetClampMacro(Eccentricity,float,0.001,VTK_LARGE_FLOAT);
-  vtkGetMacro(Eccentricity,float);
+  vtkSetClampMacro(Eccentricity,double,0.001,VTK_DOUBLE_MAX);
+  vtkGetMacro(Eccentricity,double);
 
   // Description:
   // Turn on/off the scaling of splats by scalar value.
@@ -154,8 +154,8 @@ public:
   // Description:
   // Specify the cap value to use. (This instance variable only has effect 
   // if the ivar Capping is on.)
-  vtkSetMacro(CapValue,float);
-  vtkGetMacro(CapValue,float);
+  vtkSetMacro(CapValue,double);
+  vtkGetMacro(CapValue,double);
 
   // Description:
   // Specify the scalar accumulation mode. This mode expresses how scalar
@@ -176,8 +176,8 @@ public:
   // Description:
   // Set the Null value for output points not receiving a contribution from the
   // input points. (This is the initial value of the voxel samples.)
-  vtkSetMacro(NullValue,float);
-  vtkGetMacro(NullValue,float);
+  vtkSetMacro(NullValue,double);
+  vtkGetMacro(NullValue,double);
 
   // Description:
   // Compute the size of the sample bounding box automatically from the
@@ -190,42 +190,42 @@ protected:
 
   virtual void ExecuteInformation();
   virtual void ExecuteData(vtkDataObject *);
-  void Cap(vtkFloatArray *s);
+  void Cap(vtkDoubleArray *s);
 
   int SampleDimensions[3]; // dimensions of volume to splat into
-  float Radius; // maximum distance splat propagates (as fraction 0->1)
-  float ExponentFactor; // scale exponent of gaussian function
-  float ModelBounds[6]; // bounding box of splatting dimensions
+  double Radius; // maximum distance splat propagates (as fraction 0->1)
+  double ExponentFactor; // scale exponent of gaussian function
+  double ModelBounds[6]; // bounding box of splatting dimensions
   int NormalWarping; // on/off warping of splat via normal
-  float Eccentricity;// elliptic distortion due to normals
+  double Eccentricity;// elliptic distortion due to normals
   int ScalarWarping; // on/off warping of splat via scalar
-  float ScaleFactor; // splat size influenced by scale factor
+  double ScaleFactor; // splat size influenced by scale factor
   int Capping; // Cap side of volume to close surfaces
-  float CapValue; // value to use for capping
+  double CapValue; // value to use for capping
   int AccumulationMode; // how to combine scalar values
 
-  float Gaussian(float x[3]);  
-  float EccentricGaussian(float x[3]);  
-  float ScalarSampling(float s) 
+  double Gaussian(double x[3]);  
+  double EccentricGaussian(double x[3]);  
+  double ScalarSampling(double s) 
     {return this->ScaleFactor * s;}
-  float PositionSampling(float) 
+  double PositionSampling(double) 
     {return this->ScaleFactor;}
-  void SetScalar(int idx, float dist2, vtkFloatArray *newScalars);
+  void SetScalar(int idx, double dist2, vtkDoubleArray *newScalars);
 
 //BTX
 private:
-  float Radius2;
-  float (vtkGaussianSplatter::*Sample)(float x[3]);
-  float (vtkGaussianSplatter::*SampleFactor)(float s);
+  double Radius2;
+  double (vtkGaussianSplatter::*Sample)(double x[3]);
+  double (vtkGaussianSplatter::*SampleFactor)(double s);
   char *Visited;
-  float Eccentricity2;
-  float *P;
-  float *N;
-  float S;
-  float Origin[3];
-  float Spacing[3];
-  float SplatDistance[3];
-  float NullValue;
+  double Eccentricity2;
+  double *P;
+  double *N;
+  double S;
+  double Origin[3];
+  double Spacing[3];
+  double SplatDistance[3];
+  double NullValue;
 //ETX
 
 private:

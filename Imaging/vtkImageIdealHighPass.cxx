@@ -18,18 +18,18 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageIdealHighPass, "1.18");
+vtkCxxRevisionMacro(vtkImageIdealHighPass, "1.19");
 vtkStandardNewMacro(vtkImageIdealHighPass);
 
 //----------------------------------------------------------------------------
 vtkImageIdealHighPass::vtkImageIdealHighPass()
 {
-  this->CutOff[0] = this->CutOff[1] = this->CutOff[2] = VTK_LARGE_FLOAT;
+  this->CutOff[0] = this->CutOff[1] = this->CutOff[2] = VTK_DOUBLE_MAX;
 }
 
 
 //----------------------------------------------------------------------------
-void vtkImageIdealHighPass::SetXCutOff(float cutOff)
+void vtkImageIdealHighPass::SetXCutOff(double cutOff)
 {
   if (cutOff == this->CutOff[0])
     {
@@ -39,7 +39,7 @@ void vtkImageIdealHighPass::SetXCutOff(float cutOff)
   this->Modified();
 }
 //----------------------------------------------------------------------------
-void vtkImageIdealHighPass::SetYCutOff(float cutOff)
+void vtkImageIdealHighPass::SetYCutOff(double cutOff)
 {
   if (cutOff == this->CutOff[1])
     {
@@ -49,7 +49,7 @@ void vtkImageIdealHighPass::SetYCutOff(float cutOff)
   this->Modified();
 }
 //----------------------------------------------------------------------------
-void vtkImageIdealHighPass::SetZCutOff(float cutOff)
+void vtkImageIdealHighPass::SetZCutOff(double cutOff)
 {
   if (cutOff == this->CutOff[2])
     {
@@ -71,16 +71,16 @@ void vtkImageIdealHighPass::ThreadedExecute(vtkImageData *inData,
 {
   int idx0, idx1, idx2;
   int min0, max0;
-  float *inPtr;
-  float *outPtr;
+  double *inPtr;
+  double *outPtr;
   int *wholeExtent;
-  float *spacing;
+  double *spacing;
   int inInc0, inInc1, inInc2;
   int outInc0, outInc1, outInc2;
-  float temp0, temp1, temp2, mid0, mid1, mid2;
+  double temp0, temp1, temp2, mid0, mid1, mid2;
   // normalization factors
-  float norm0, norm1, norm2;
-  float sum1, sum0;
+  double norm0, norm1, norm2;
+  double sum1, sum0;
   unsigned long count = 0;
   unsigned long target;
 
@@ -91,30 +91,30 @@ void vtkImageIdealHighPass::ThreadedExecute(vtkImageData *inData,
                   << inData->GetNumberOfScalarComponents());
     return;
     }
-  if (inData->GetScalarType() != VTK_FLOAT || 
-      outData->GetScalarType() != VTK_FLOAT)
+  if (inData->GetScalarType() != VTK_DOUBLE || 
+      outData->GetScalarType() != VTK_DOUBLE)
     {
-    vtkErrorMacro("Expecting input and output to be of type float");
+    vtkErrorMacro("Expecting input and output to be of type double");
     return;
     }
   
   wholeExtent = this->GetInput()->GetWholeExtent();
   spacing = inData->GetSpacing();
 
-  inPtr = (float *)(inData->GetScalarPointerForExtent(ext));
-  outPtr = (float *)(outData->GetScalarPointerForExtent(ext));
+  inPtr = (double *)(inData->GetScalarPointerForExtent(ext));
+  outPtr = (double *)(outData->GetScalarPointerForExtent(ext));
 
   inData->GetContinuousIncrements(ext, inInc0, inInc1, inInc2);
   outData->GetContinuousIncrements(ext, outInc0, outInc1, outInc2);  
   
   min0 = ext[0];
   max0 = ext[1];
-  mid0 = (float)(wholeExtent[0] + wholeExtent[1] + 1) / 2.0;
-  mid1 = (float)(wholeExtent[2] + wholeExtent[3] + 1) / 2.0;
-  mid2 = (float)(wholeExtent[4] + wholeExtent[5] + 1) / 2.0;
+  mid0 = (double)(wholeExtent[0] + wholeExtent[1] + 1) / 2.0;
+  mid1 = (double)(wholeExtent[2] + wholeExtent[3] + 1) / 2.0;
+  mid2 = (double)(wholeExtent[4] + wholeExtent[5] + 1) / 2.0;
   if ( this->CutOff[0] == 0.0)
     {
-    norm0 = VTK_LARGE_FLOAT;
+    norm0 = VTK_DOUBLE_MAX;
     }
   else
     {
@@ -122,7 +122,7 @@ void vtkImageIdealHighPass::ThreadedExecute(vtkImageData *inData,
     }
   if ( this->CutOff[1] == 0.0)
     {
-    norm1 = VTK_LARGE_FLOAT;
+    norm1 = VTK_DOUBLE_MAX;
     }
   else
     {
@@ -130,7 +130,7 @@ void vtkImageIdealHighPass::ThreadedExecute(vtkImageData *inData,
     }
   if ( this->CutOff[2] == 0.0)
     {
-    norm2 = VTK_LARGE_FLOAT;
+    norm2 = VTK_DOUBLE_MAX;
     }
   else
     {
@@ -144,7 +144,7 @@ void vtkImageIdealHighPass::ThreadedExecute(vtkImageData *inData,
   for (idx2 = ext[4]; idx2 <= ext[5]; ++idx2)
     {
     // distance to min (this axis' contribution)
-    temp2 = (float)idx2;
+    temp2 = (double)idx2;
     // Wrap back to 0.
     if (temp2 > mid2)
       {
@@ -164,7 +164,7 @@ void vtkImageIdealHighPass::ThreadedExecute(vtkImageData *inData,
         count++;
         }
       // distance to min (this axis' contribution)
-      temp1 = (float)idx1;
+      temp1 = (double)idx1;
       // Wrap back to 0.
       if (temp1 > mid1)
         {
@@ -177,7 +177,7 @@ void vtkImageIdealHighPass::ThreadedExecute(vtkImageData *inData,
       for (idx0 = min0; idx0 <= max0; ++idx0)
         {
         // distance to min (this axis' contribution)
-        temp0 = (float)idx0;
+        temp0 = (double)idx0;
         // Wrap back to 0.
         if (temp0 > mid0)
           {

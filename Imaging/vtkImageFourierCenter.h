@@ -18,7 +18,7 @@
 // Is used for dispaying images in frequency space.  FFT converts spatial
 // images into frequency space, but puts the zero frequency at the origin.
 // This filter shifts the zero frequency to the center of the image.
-// Input and output are assumed to be floats.
+// Input and output are assumed to be doubles.
 
 #ifndef __vtkImageFourierCenter_h
 #define __vtkImageFourierCenter_h

@@ -23,7 +23,7 @@
 #include "vtkPointLocator.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkSurfaceReconstructionFilter, "1.27");
+vtkCxxRevisionMacro(vtkSurfaceReconstructionFilter, "1.28");
 vtkStandardNewMacro(vtkSurfaceReconstructionFilter);
 
 vtkSurfaceReconstructionFilter::vtkSurfaceReconstructionFilter()
@@ -33,35 +33,35 @@ vtkSurfaceReconstructionFilter::vtkSurfaceReconstructionFilter()
 }
 
 // some simple routines for vector math
-void vtkCopyBToA(float* a,float* b) 
+void vtkCopyBToA(double* a,double* b) 
 { 
   for(int i=0;i<3;i++) 
     {
     a[i] = b[i]; 
     }
 }
-void vtkSubtractBFromA(float* a,float* b) 
+void vtkSubtractBFromA(double* a,double* b) 
 { 
   for(int i=0;i<3;i++) 
     {
     a[i] -= b[i]; 
     }
 }
-void vtkAddBToA(float* a,float* b) 
+void vtkAddBToA(double* a,double* b) 
 { 
   for(int i=0;i<3;i++) 
     {
     a[i] += b[i]; 
     }
 }
-void vtkMultiplyBy(float* a,float f) 
+void vtkMultiplyBy(double* a,double f) 
 { 
   for(int i=0;i<3;i++) 
     {
     a[i] *= f; 
     }
 }
-void vtkDivideBy(float* a,float f) 
+void vtkDivideBy(double* a,double f) 
 { 
   for(int i=0;i<3;i++) 
     {
@@ -70,13 +70,13 @@ void vtkDivideBy(float* a,float f)
 }
 
 // Routines for matrix creation
-void vtkSRFreeMatrix(float **m, long nrl, long nrh, long ncl, long nch);
-float **vtkSRMatrix(long nrl, long nrh, long ncl, long nch);
-void vtkSRFreeVector(float *v, long nl, long nh);
-float *vtkSRVector(long nl, long nh);
+void vtkSRFreeMatrix(double **m, long nrl, long nrh, long ncl, long nch);
+double **vtkSRMatrix(long nrl, long nrh, long ncl, long nch);
+void vtkSRFreeVector(double *v, long nl, long nh);
+double *vtkSRVector(long nl, long nh);
 
 // set a matrix to zero
-void vtkSRMakeZero(float **m,long nrl, long nrh, long ncl, long nch) 
+void vtkSRMakeZero(double **m,long nrl, long nrh, long ncl, long nch) 
 { 
   int i,j; 
   for(i=nrl;i<=nrh;i++) 
@@ -89,10 +89,10 @@ void vtkSRMakeZero(float **m,long nrl, long nrh, long ncl, long nch)
 }
 
 // add v*Transpose(v) to m, where v is 3x1 and m is 3x3
-void vtkSRAddOuterProduct(float **m,float *v);
+void vtkSRAddOuterProduct(double **m,double *v);
 
 // scalar multiply a matrix
-void vtkSRMultiply(float **m,float f,long nrl, long nrh, long ncl, long nch)
+void vtkSRMultiply(double **m,double f,long nrl, long nrh, long ncl, long nch)
 { 
   int i,j; 
   for(i=nrl;i<=nrh;i++) 
@@ -124,10 +124,10 @@ void vtkSurfaceReconstructionFilter::ExecuteData(vtkDataObject *outp)
 
   struct SurfacePoint 
   {
-    float loc[3];
-    float o[3],n[3]; // plane centre and normal
+    double loc[3];
+    double o[3],n[3]; // plane centre and normal
     vtkIdList *neighbors; // id's of points within LocalRadius of this point
-    float *costs; // should have same length as neighbors, cost for corresponding points
+    double *costs; // should have same length as neighbors, cost for corresponding points
     char isVisited;
 
     // simple constructor to initialise the members
@@ -186,8 +186,8 @@ void vtkSurfaceReconstructionFilter::ExecuteData(vtkDataObject *outp)
   // 2. Estimate a plane at each point using local points
   // --------------------------------------------------------------------------
   {
-  float *pointi;
-  float **covar,*v3d,*eigenvalues,**eigenvectors;
+  double *pointi;
+  double **covar,*v3d,*eigenvalues,**eigenvectors;
   covar = vtkSRMatrix(0,2,0,2);
   v3d = vtkSRVector(0,2);
   eigenvalues = vtkSRVector(0,2);
@@ -247,7 +247,7 @@ void vtkSurfaceReconstructionFilter::ExecuteData(vtkDataObject *outp)
   for(i=0;i<COUNT;i++)
     {
     SurfacePoint *p = &surfacePoints[i];
-    p->costs = new float[p->neighbors->GetNumberOfIds()];
+    p->costs = new double[p->neighbors->GetNumberOfIds()];
 
     // compute cost between all its neighbors
     // (bit inefficient to do this for every point, as cost is symmetric)
@@ -284,7 +284,7 @@ void vtkSurfaceReconstructionFilter::ExecuteData(vtkDataObject *outp)
       nearby->InsertNextId(surfacePoints[first].neighbors->GetId(j));
       }
     
-    float cost,lowestCost;
+    double cost,lowestCost;
     int cheapestNearby = 0, connectedVisited = 0;
     
     // repeat until nearby is empty:
@@ -292,7 +292,7 @@ void vtkSurfaceReconstructionFilter::ExecuteData(vtkDataObject *outp)
       {
       // for each nearby point:
       vtkIdType iNearby,iNeighbor;
-      lowestCost = VTK_LARGE_FLOAT;
+      lowestCost = VTK_FLOAT_MAX;
       for(i=0;i<nearby->GetNumberOfIds();i++)
         {
         iNearby = nearby->GetId(i);
@@ -363,7 +363,7 @@ void vtkSurfaceReconstructionFilter::ExecuteData(vtkDataObject *outp)
   // --------------------------------------------------------------------------
   {
   // need to know the bounding rectangle
-  float bounds[6];
+  double bounds[6];
   for(i=0;i<3;i++)
     {
     bounds[i*2]=input->GetBounds()[i*2];
@@ -376,7 +376,7 @@ void vtkSurfaceReconstructionFilter::ExecuteData(vtkDataObject *outp)
     // spacing guessed as cube root of (volume divided by number of points)
     this->SampleSpacing = pow((double)(bounds[1]-bounds[0])*
                               (bounds[3]-bounds[2])*(bounds[5]-bounds[4]) /
-                              (float)COUNT, (double)(1.0/3.0));
+                              (double)COUNT, (double)(1.0/3.0));
  
     vtkDebugMacro(<<"Estimated sample spacing as: " << this->SampleSpacing );
     }
@@ -388,8 +388,8 @@ void vtkSurfaceReconstructionFilter::ExecuteData(vtkDataObject *outp)
     bounds[i*2+1]+=this->SampleSpacing*2;
     }
 
-  float topleft[3] = {bounds[0],bounds[2],bounds[4]};
-  float bottomright[3] = {bounds[1],bounds[3],bounds[5]};
+  double topleft[3] = {bounds[0],bounds[2],bounds[4]};
+  double bottomright[3] = {bounds[1],bounds[3],bounds[5]};
   int dim[3];
   for(i=0;i<3;i++)
     {
@@ -424,8 +424,8 @@ void vtkSurfaceReconstructionFilter::ExecuteData(vtkDataObject *outp)
   int x,y,z;
   int iClosestPoint;
   int zOffset,yOffset,offset;
-  float probeValue;
-  float point[3],temp[3];
+  double probeValue;
+  double point[3],temp[3];
   for(z=0;z<dim[2];z++)
     {
     zOffset = z*dim[1]*dim[0];
@@ -469,7 +469,7 @@ void vtkSurfaceReconstructionFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Sample Spacing:" << this->SampleSpacing << "\n";
 }
 
-void vtkSRAddOuterProduct(float **m,float *v)
+void vtkSRAddOuterProduct(double **m,double *v)
 {
   int i,j;
   for(i=0;i<3;i++)
@@ -485,11 +485,11 @@ void vtkSRAddOuterProduct(float **m,float *v)
 #define VTK_FREE_ARG char*
 
 // allocate a float vector with subscript range v[nl..nh]
-float *vtkSRVector(long nl, long nh)        
+double *vtkSRVector(long nl, long nh)        
 { 
-  float *v;
+  double *v;
 
-  v = new float [nh-nl+1+VTK_NR_END];
+  v = new double [nh-nl+1+VTK_NR_END];
   if (!v) 
     {
     vtkGenericWarningMacro(<<"allocation failure in vector()");
@@ -500,13 +500,13 @@ float *vtkSRVector(long nl, long nh)
 }
 
 // allocate a float matrix with subscript range m[nrl..nrh][ncl..nch]
-float **vtkSRMatrix(long nrl, long nrh, long ncl, long nch)        
+double **vtkSRMatrix(long nrl, long nrh, long ncl, long nch)        
 {
   long i, nrow=nrh-nrl+1,ncol=nch-ncl+1;
-  float **m;
+  double **m;
 
   // allocate pointers to rows
-  m = new float * [nrow+VTK_NR_END];
+  m = new double * [nrow+VTK_NR_END];
   if (!m) 
     {
     vtkGenericWarningMacro(<<"allocation failure 1 in Matrix()");
@@ -517,7 +517,7 @@ float **vtkSRMatrix(long nrl, long nrh, long ncl, long nch)
   m -= nrl;
 
   // allocate rows and set pointers to them
-  m[nrl] = new float[nrow*ncol+VTK_NR_END];
+  m[nrl] = new double[nrow*ncol+VTK_NR_END];
   if (!m[nrl]) 
     {
     vtkGenericWarningMacro("allocation failure 2 in Matrix()");
@@ -535,14 +535,14 @@ float **vtkSRMatrix(long nrl, long nrh, long ncl, long nch)
   return m;
 }
 
-// free a float vector allocated with SRVector()
-void vtkSRFreeVector(float *v, long nl, long vtkNotUsed(nh))
+// free a double vector allocated with SRVector()
+void vtkSRFreeVector(double *v, long nl, long vtkNotUsed(nh))
 { 
   delete [] (v+nl-VTK_NR_END);
 }
 
-// free a float matrix allocated by Matrix()
-void vtkSRFreeMatrix(float **m, long nrl, long vtkNotUsed(nrh),
+// free a double matrix allocated by Matrix()
+void vtkSRFreeMatrix(double **m, long nrl, long vtkNotUsed(nrh),
                      long ncl, long vtkNotUsed(nch))
         
 {

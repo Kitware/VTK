@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkPointLoad, "1.44");
+vtkCxxRevisionMacro(vtkPointLoad, "1.45");
 vtkStandardNewMacro(vtkPointLoad);
 
 // Construct with ModelBounds=(-1,1,-1,1,-1,1), SampleDimensions=(50,50,50),
@@ -85,7 +85,7 @@ void vtkPointLoad::ExecuteInformation()
 
   // Set volume origin and data spacing
   int i;  
-  float spacing[3];
+  double spacing[3];
   for (i=0; i<3; i++)
     {
     spacing[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
@@ -111,15 +111,15 @@ void vtkPointLoad::ExecuteData(vtkDataObject *outp)
 {
   int i, j, k;
   vtkFloatArray *newTensors;
-  float tensor[9];
+  double tensor[9];
   vtkIdType numPts;
-  float P, twoPi, xP[3], rho, rho2, rho3, rho5, nu;
-  float x, x2, y, y2, z, z2, rhoPlusz2, zPlus2rho, txy, txz, tyz;
-  float sx, sy, sz, seff;
+  double P, twoPi, xP[3], rho, rho2, rho3, rho5, nu;
+  double x, x2, y, y2, z, z2, rhoPlusz2, zPlus2rho, txy, txz, tyz;
+  double sx, sy, sz, seff;
   vtkImageData *output = this->AllocateOutputData(outp);
   vtkFloatArray *newScalars = 
     vtkFloatArray::SafeDownCast(output->GetPointData()->GetScalars());
-  float *spacing, *origin;
+  double *spacing, *origin;
   
   vtkDebugMacro(<< "Computing point load stress tensors");
 
@@ -170,7 +170,7 @@ void vtkPointLoad::ExecuteData(vtkDataObject *outp)
           tensor[2] = 0.0; // Component(2,0);
           tensor[5] = 0.0; // Component(2,1);
           newTensors->InsertNextTuple(tensor);
-          float val = VTK_LARGE_FLOAT;
+          double val = VTK_LARGE_FLOAT;
           newScalars->InsertTuple(pointCount,&val);
           pointCount++;
           continue;

@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkShepardMethod, "1.42");
+vtkCxxRevisionMacro(vtkShepardMethod, "1.43");
 vtkStandardNewMacro(vtkShepardMethod);
 
 // Construct with sample dimensions=(50,50,50) and so that model bounds are
@@ -45,9 +45,9 @@ vtkShepardMethod::vtkShepardMethod()
 }
 
 // Compute ModelBounds from input geometry.
-float vtkShepardMethod::ComputeModelBounds(float origin[3], float spacing[3])
+double vtkShepardMethod::ComputeModelBounds(double origin[3], double spacing[3])
 {
-  float *bounds, maxDist;
+  double *bounds, maxDist;
   int i, adjustBounds=0;
 
   // compute model bounds if not set previously
@@ -99,7 +99,7 @@ float vtkShepardMethod::ComputeModelBounds(float origin[3], float spacing[3])
 void vtkShepardMethod::ExecuteInformation()
 {
   int i;
-  float ar[3], origin[3];
+  double ar[3], origin[3];
   vtkImageData *output = this->GetOutput();
   
   output->SetScalarType(VTK_FLOAT);
@@ -130,9 +130,9 @@ void vtkShepardMethod::ExecuteData(vtkDataObject *outp)
 {
   vtkIdType ptId, i;
   int j, k;
-  float *px, x[3], s, *sum, spacing[3], origin[3];
+  double *px, x[3], s, *sum, spacing[3], origin[3];
   
-  float maxDistance, distance2, inScalar;
+  double maxDistance, distance2, inScalar;
   vtkDataArray *inScalars;
   vtkIdType numPts, numNewPts, idx;
   int min[3], max[3];
@@ -163,7 +163,7 @@ void vtkShepardMethod::ExecuteData(vtkDataObject *outp)
   numNewPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
               * this->SampleDimensions[2];
 
-  sum = new float[numNewPts];
+  sum = new double[numNewPts];
   for (i=0; i<numNewPts; i++) 
     {
     newScalars->SetComponent(i,0,0.0);
@@ -194,8 +194,8 @@ void vtkShepardMethod::ExecuteData(vtkDataObject *outp)
     
     for (i=0; i<3; i++) //compute dimensional bounds in data set
       {
-      float amin = (float)((px[i] - maxDistance) - origin[i]) / spacing[i];
-      float amax = (float)((px[i] + maxDistance) - origin[i]) / spacing[i];
+      double amin = (double)((px[i] - maxDistance) - origin[i]) / spacing[i];
+      double amax = (double)((px[i] + maxDistance) - origin[i]) / spacing[i];
       min[i] = (int) amin;
       max[i] = (int) amax;
       
@@ -220,8 +220,8 @@ void vtkShepardMethod::ExecuteData(vtkDataObject *outp)
 
     for (i=0; i<3; i++) //compute dimensional bounds in data set
       {
-      min[i] = (int) ((float)((px[i] - maxDistance) - origin[i]) / spacing[i]);
-      max[i] = (int) ((float)((px[i] + maxDistance) - origin[i]) / spacing[i]);
+      min[i] = (int) ((double)((px[i] - maxDistance) - origin[i]) / spacing[i]);
+      max[i] = (int) ((double)((px[i] + maxDistance) - origin[i]) / spacing[i]);
       if (min[i] < 0)
         {
         min[i] = 0;
@@ -248,8 +248,8 @@ void vtkShepardMethod::ExecuteData(vtkDataObject *outp)
 
           if ( distance2 == 0.0 )
             {
-            sum[idx] = VTK_LARGE_FLOAT;
-            newScalars->SetComponent(idx,0,VTK_LARGE_FLOAT);
+            sum[idx] = VTK_FLOAT_MAX;
+            newScalars->SetComponent(idx,0,VTK_FLOAT_MAX);
             }
           else
             {

@@ -51,8 +51,8 @@ public:
   // Description: 
   // Specify the spacing of the 3D sampling grid. If not set, a
   // reasonable guess will be made.
-  vtkGetMacro(SampleSpacing,float);
-  vtkSetMacro(SampleSpacing,float);
+  vtkGetMacro(SampleSpacing,double);
+  vtkSetMacro(SampleSpacing,double);
 
 protected:
   vtkSurfaceReconstructionFilter();
@@ -62,7 +62,7 @@ protected:
   virtual void ExecuteData(vtkDataObject *);
 
   int NeighborhoodSize;
-  float SampleSpacing;
+  double SampleSpacing;
 private:
   vtkSurfaceReconstructionFilter(const vtkSurfaceReconstructionFilter&);  // Not implemented.
   void operator=(const vtkSurfaceReconstructionFilter&);  // Not implemented.

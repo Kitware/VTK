@@ -66,13 +66,13 @@ public:
   // the pixels are not diffused.  This causes diffusion to avoid sharp edges.
   // If the GradientMagnitudeThreshold is set, then gradient magnitude is used 
   // for comparison instead of pixel differences.
-  vtkSetMacro(DiffusionThreshold,float);
-  vtkGetMacro(DiffusionThreshold,float);
+  vtkSetMacro(DiffusionThreshold,double);
+  vtkGetMacro(DiffusionThreshold,double);
   
   // Description:
   // Set/Get the difference factor
-  vtkSetMacro(DiffusionFactor,float);
-  vtkGetMacro(DiffusionFactor,float);
+  vtkSetMacro(DiffusionFactor,double);
+  vtkGetMacro(DiffusionFactor,double);
 
   // Description:
   // Choose neighbors to diffuse (6 faces, 12 edges, 8 corners).
@@ -97,8 +97,8 @@ protected:
   ~vtkImageAnisotropicDiffusion3D() {};
 
   int NumberOfIterations;
-  float DiffusionThreshold;
-  float DiffusionFactor;  
+  double DiffusionThreshold;
+  double DiffusionFactor;  
   // to determine which neighbors to diffuse
   int Faces;
   int Edges;
@@ -109,7 +109,7 @@ protected:
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
                        int extent[6], int id);
   void Iterate(vtkImageData *in, vtkImageData *out, 
-               float ar0, float ar1, float ar3, int *coreExtent, int count);
+               double ar0, double ar1, double ar3, int *coreExtent, int count);
 private:
   vtkImageAnisotropicDiffusion3D(const vtkImageAnisotropicDiffusion3D&);  // Not implemented.
   void operator=(const vtkImageAnisotropicDiffusion3D&);  // Not implemented.

@@ -20,7 +20,7 @@
 #include <ctype.h>
 #include <string.h>
 
-vtkCxxRevisionMacro(vtkImageExport, "1.25");
+vtkCxxRevisionMacro(vtkImageExport, "1.26");
 vtkStandardNewMacro(vtkImageExport);
 
 //----------------------------------------------------------------------------
@@ -261,13 +261,13 @@ int* vtkImageExport::WholeExtentCallbackFunction(void* userData)
     WholeExtentCallback();
 }
 
-float* vtkImageExport::SpacingCallbackFunction(void* userData)
+double* vtkImageExport::SpacingCallbackFunction(void* userData)
 {
   return static_cast<vtkImageExport*>(userData)->
     SpacingCallback();
 }
 
-float* vtkImageExport::OriginCallbackFunction(void* userData)
+double* vtkImageExport::OriginCallbackFunction(void* userData)
 {
   return static_cast<vtkImageExport*>(userData)->
     OriginCallback();
@@ -333,12 +333,12 @@ int* vtkImageExport::WholeExtentCallback()
   return this->GetInput()->GetWholeExtent();
 }
 
-float* vtkImageExport::SpacingCallback()
+double* vtkImageExport::SpacingCallback()
 {
   return this->GetInput()->GetSpacing();
 }
 
-float* vtkImageExport::OriginCallback()
+double* vtkImageExport::OriginCallback()
 {
   return this->GetInput()->GetOrigin();
 }
@@ -433,30 +433,30 @@ void vtkImageExport::GetDataExtent(int *ptr)
   this->GetInput()->GetWholeExtent(ptr); 
 }
  
-float *vtkImageExport::GetDataSpacing() 
+double *vtkImageExport::GetDataSpacing() 
 { 
-  static float defaultspacing[3] = {1, 1, 1}; 
+  static double defaultspacing[3] = {1, 1, 1}; 
   if (this->GetInput() == NULL) { return defaultspacing; }
   this->GetInput()->UpdateInformation();
   return this->GetInput()->GetSpacing(); 
 }
 
-void vtkImageExport::GetDataSpacing(float *ptr) 
+void vtkImageExport::GetDataSpacing(double *ptr) 
 { 
   if (this->GetInput() == NULL) { ptr[0] = ptr[1] = ptr[2] = 0.0; return; }
   this->GetInput()->UpdateInformation();
   this->GetInput()->GetSpacing(ptr); 
 }
 
-float *vtkImageExport::GetDataOrigin() 
+double *vtkImageExport::GetDataOrigin() 
 { 
-  static float defaultorigin[3] = {0, 0, 0};
+  static double defaultorigin[3] = {0, 0, 0};
   if (this->GetInput() == NULL) { return defaultorigin; }
   this->GetInput()->UpdateInformation();
   return this->GetInput()->GetOrigin(); 
 }
 
-void vtkImageExport::GetDataOrigin(float *ptr) 
+void vtkImageExport::GetDataOrigin(double *ptr) 
 { 
   if (this->GetInput() == NULL) { ptr[0] = ptr[1] = ptr[2] = 0.0; return; }
   this->GetInput()->UpdateInformation();

@@ -19,7 +19,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageAnisotropicDiffusion2D, "1.43");
+vtkCxxRevisionMacro(vtkImageAnisotropicDiffusion2D, "1.44");
 vtkStandardNewMacro(vtkImageAnisotropicDiffusion2D);
 
 //----------------------------------------------------------------------------
@@ -119,7 +119,7 @@ void vtkImageAnisotropicDiffusion2D::ThreadedExecute(vtkImageData *inData,
                                                      int outExt[6], int id)
 {
   int inExt[6];
-  float *ar;
+  double *ar;
   int idx;
   vtkImageData *temp;
   
@@ -142,13 +142,13 @@ void vtkImageAnisotropicDiffusion2D::ThreadedExecute(vtkImageData *inData,
   vtkImageData *in = vtkImageData::New();
   in->SetExtent(inExt);
   in->SetNumberOfScalarComponents(inData->GetNumberOfScalarComponents());
-  in->SetScalarType(VTK_FLOAT);
+  in->SetScalarType(VTK_DOUBLE);
   in->CopyAndCastFrom(inData,inExt);
   
   vtkImageData *out = vtkImageData::New();
   out->SetExtent(inExt);
   out->SetNumberOfScalarComponents(inData->GetNumberOfScalarComponents());
-  out->SetScalarType(VTK_FLOAT);
+  out->SetScalarType(VTK_DOUBLE);
   
   // Loop performing the diffusion
   // Note: region extent could get smaller as the diffusion progresses
@@ -158,7 +158,7 @@ void vtkImageAnisotropicDiffusion2D::ThreadedExecute(vtkImageData *inData,
     {
     if (!id)
       {
-      this->UpdateProgress((float)(this->NumberOfIterations - idx)
+      this->UpdateProgress((double)(this->NumberOfIterations - idx)
                            /this->NumberOfIterations);
       }
     this->Iterate(in, out, ar[0], ar[1], outExt, idx);
@@ -177,11 +177,11 @@ void vtkImageAnisotropicDiffusion2D::ThreadedExecute(vtkImageData *inData,
 
 //----------------------------------------------------------------------------
 // This method performs one pass of the diffusion filter.
-// The inData and outData are assumed to have data type float,
+// The inData and outData are assumed to have data type double,
 // and have the same extent.
 void vtkImageAnisotropicDiffusion2D::Iterate(vtkImageData *inData, 
                                              vtkImageData *outData,
-                                             float ar0, float ar1,
+                                             double ar0, double ar1,
                                              int *coreExtent, int count)
 {
   int idx0, idx1, idx2;
@@ -189,11 +189,11 @@ void vtkImageAnisotropicDiffusion2D::Iterate(vtkImageData *inData,
   int outInc0, outInc1, outInc2;
   int inMin0, inMax0, inMin1, inMax1, inMin2, inMax2;
   int min0, max0, min1, max1, min2, max2;
-  float *inPtr0, *inPtr1, *inPtr2;
-  float *outPtr0, *outPtr1, *outPtr2;
-  float th0, th1, th01;
-  float df0, df1, df01;
-  float temp, sum;
+  double *inPtr0, *inPtr1, *inPtr2;
+  double *outPtr0, *outPtr1, *outPtr2;
+  double th0, th1, th01;
+  double df0, df1, df01;
+  double temp, sum;
   int idxC, maxC;
 
   maxC = inData->GetNumberOfScalarComponents();
@@ -258,13 +258,13 @@ void vtkImageAnisotropicDiffusion2D::Iterate(vtkImageData *inData,
   max2 = inMax2;
   
   
-  inPtr2 = (float *)(inData->GetScalarPointer(min0, min1, min2));
-  outPtr2 = (float *)(outData->GetScalarPointer(min0, min1, min2));
+  inPtr2 = (double *)(inData->GetScalarPointer(min0, min1, min2));
+  outPtr2 = (double *)(outData->GetScalarPointer(min0, min1, min2));
 
   for (idxC = 0; idxC < maxC; idxC++)
     {
-    inPtr2 = (float *)(inData->GetScalarPointer(min0, min1, min2));
-    outPtr2 = (float *)(outData->GetScalarPointer(min0, min1, min2));
+    inPtr2 = (double *)(inData->GetScalarPointer(min0, min1, min2));
+    outPtr2 = (double *)(outData->GetScalarPointer(min0, min1, min2));
     inPtr2 += idxC;
     outPtr2 += idxC;
     
@@ -284,7 +284,7 @@ void vtkImageAnisotropicDiffusion2D::Iterate(vtkImageData *inData,
           // Special case for gradient magnitude threhsold 
           if (this->GradientMagnitudeThreshold)
             {
-            float d0, d1;
+            double d0, d1;
             // compute the gradient magnitude (central differences).
             d0  = (idx0 != inMax0) ? inPtr0[inInc0] : *inPtr0;
             d0 -= (idx0 != inMin0) ? inPtr0[-inInc0] : *inPtr0;
@@ -302,7 +302,7 @@ void vtkImageAnisotropicDiffusion2D::Iterate(vtkImageData *inData,
             else
               {
               // hack to diffuse
-              th0 = th1 = th01 = VTK_LARGE_FLOAT;
+              th0 = th1 = th01 = VTK_DOUBLE_MAX;
               }
             }
         

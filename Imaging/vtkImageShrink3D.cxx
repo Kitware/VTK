@@ -19,7 +19,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageShrink3D, "1.58");
+vtkCxxRevisionMacro(vtkImageShrink3D, "1.59");
 vtkStandardNewMacro(vtkImageShrink3D);
 
 //----------------------------------------------------------------------------
@@ -151,7 +151,7 @@ void vtkImageShrink3D::ExecuteInformation(vtkImageData *inData,
 {
   int idx;
   int wholeExtent[6];
-  float spacing[3];
+  double spacing[3];
   
 
   inData->GetWholeExtent(wholeExtent);
@@ -161,11 +161,11 @@ void vtkImageShrink3D::ExecuteInformation(vtkImageData *inData,
     {
     // Scale the output extent
     wholeExtent[2*idx] = 
-      (int)(ceil((float)(wholeExtent[2*idx] - this->Shift[idx]) 
-                 / (float)(this->ShrinkFactors[idx])));
+      (int)(ceil((double)(wholeExtent[2*idx] - this->Shift[idx]) 
+                 / (double)(this->ShrinkFactors[idx])));
     wholeExtent[2*idx+1] = (int)(floor(
-     (float)(wholeExtent[2*idx+1]-this->Shift[idx]-this->ShrinkFactors[idx]+1)
-         / (float)(this->ShrinkFactors[idx])));
+     (double)(wholeExtent[2*idx+1]-this->Shift[idx]-this->ShrinkFactors[idx]+1)
+         / (double)(this->ShrinkFactors[idx])));
      // make sure WholeExtent is valid when the ShrinkFactors are set on an
      // axis with no Extent beforehand
      if (wholeExtent[2*idx+1]<wholeExtent[2*idx])
@@ -173,7 +173,7 @@ void vtkImageShrink3D::ExecuteInformation(vtkImageData *inData,
        wholeExtent[2*idx+1] = wholeExtent[2*idx];
        }
     // Change the data spacing
-    spacing[idx] *= (float)(this->ShrinkFactors[idx]);
+    spacing[idx] *= (double)(this->ShrinkFactors[idx]);
     }
 
   outData->SetWholeExtent(wholeExtent);
@@ -222,7 +222,7 @@ void vtkImageShrink3DExecute(vtkImageShrink3D *self,
   int tmpInc0, tmpInc1, tmpInc2;
   T *tmpPtr0, *tmpPtr1, *tmpPtr2;
   int factor0, factor1, factor2;
-  float sum, norm;
+  double sum, norm;
   unsigned long count = 0;
   unsigned long target;
   int idxC, maxC, maxX;
@@ -264,7 +264,7 @@ void vtkImageShrink3DExecute(vtkImageShrink3D *self,
   
   if (self->GetMean())
     {
-    norm = 1.0 / (float)(factor0 * factor1 * factor2);
+    norm = 1.0 / (double)(factor0 * factor1 * factor2);
     // Loop through output pixels
     for (idxC = 0; idxC < maxC; idxC++)
       {
@@ -298,7 +298,7 @@ void vtkImageShrink3DExecute(vtkImageShrink3D *self,
                 inPtr0 = inPtr1;
                 for (inIdx0 = 0; inIdx0 < factor0; ++inIdx0)
                   {
-                  sum += (float)(*inPtr0);
+                  sum += (double)(*inPtr0);
                   inPtr0 += inInc0;
                   }
                 inPtr1 += inInc1;

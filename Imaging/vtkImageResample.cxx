@@ -17,7 +17,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageResample, "1.38");
+vtkCxxRevisionMacro(vtkImageResample, "1.39");
 vtkStandardNewMacro(vtkImageResample);
 
 //----------------------------------------------------------------------------
@@ -35,7 +35,7 @@ vtkImageResample::vtkImageResample()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageResample::SetAxisOutputSpacing(int axis, float spacing)
+void vtkImageResample::SetAxisOutputSpacing(int axis, double spacing)
 {
   if (axis < 0 || axis > 2)
     {
@@ -57,7 +57,7 @@ void vtkImageResample::SetAxisOutputSpacing(int axis, float spacing)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageResample::SetAxisMagnificationFactor(int axis, float factor)
+void vtkImageResample::SetAxisMagnificationFactor(int axis, double factor)
 {
   if (axis < 0 || axis > 2)
     {
@@ -76,7 +76,7 @@ void vtkImageResample::SetAxisMagnificationFactor(int axis, float factor)
 }
 
 //----------------------------------------------------------------------------
-float vtkImageResample::GetAxisMagnificationFactor(int axis)
+double vtkImageResample::GetAxisMagnificationFactor(int axis)
 {
   if (axis < 0 || axis > 2)
     {
@@ -86,7 +86,7 @@ float vtkImageResample::GetAxisMagnificationFactor(int axis)
   
   if (this->MagnificationFactors[axis] == 0.0)
     {
-    float *inputSpacing;
+    double *inputSpacing;
     if ( ! this->GetInput())
       {
       vtkErrorMacro("GetMagnificationFactor: Input not set.");
@@ -113,7 +113,7 @@ void vtkImageResample::ExecuteInformation(vtkImageData *inData,
                                           vtkImageData *outData) 
 {
   int wholeMin, wholeMax, axis, ext[6];
-  float spacing[3], factor;
+  double spacing[3], factor;
 
   inData->GetWholeExtent(ext);
   inData->GetSpacing(spacing);
@@ -130,8 +130,8 @@ void vtkImageResample::ExecuteInformation(vtkImageData *inData,
       factor = this->GetAxisMagnificationFactor(axis);
       }
 
-    wholeMin = (int)(ceil((float)(wholeMin) * factor));
-    wholeMax = (int)(floor((float)(wholeMax) * factor));
+    wholeMin = (int)(ceil((double)(wholeMin) * factor));
+    wholeMax = (int)(floor((double)(wholeMax) * factor));
     
     // Change the data spacing
     spacing[axis] /= factor;

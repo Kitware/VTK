@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGradient, "1.42");
+vtkCxxRevisionMacro(vtkImageGradient, "1.43");
 vtkStandardNewMacro(vtkImageGradient);
 
 //----------------------------------------------------------------------------
@@ -67,7 +67,7 @@ void vtkImageGradient::ExecuteInformation(vtkImageData *inData,
     }
 
   outData->SetWholeExtent(extent);
-  outData->SetScalarType(VTK_FLOAT);
+  outData->SetScalarType(VTK_DOUBLE);
   outData->SetNumberOfScalarComponents(this->Dimensionality);
 }
 
@@ -112,7 +112,7 @@ void vtkImageGradient::ComputeInputUpdateExtent(int inExt[6],
 template <class T>
 void vtkImageGradientExecute(vtkImageGradient *self,
                              vtkImageData *inData, T *inPtr,
-                             vtkImageData *outData, float *outPtr,
+                             vtkImageData *outData, double *outPtr,
                              int outExt[6], int id)
 {
   int idxX, idxY, idxZ;
@@ -124,7 +124,7 @@ void vtkImageGradientExecute(vtkImageGradient *self,
   int axesNum;
   int *inExt = inData->GetExtent();
   int *wholeExtent, *inIncs;
-  float r[3], d;
+  double r[3], d;
   int useZMin, useZMax, useYMin, useYMax, useXMin, useXMax;
   
   // find the region to loop over
@@ -181,23 +181,23 @@ void vtkImageGradientExecute(vtkImageGradient *self,
         useXMax = ((idxX + outExt[0]) >= wholeExtent[1]) ? 0 : inIncs[0];
 
         // do X axis
-        d = (float)(inPtr[useXMin]);
-        d -= (float)(inPtr[useXMax]);
+        d = (double)(inPtr[useXMin]);
+        d -= (double)(inPtr[useXMax]);
         d *= r[0]; // multiply by the data spacing
         *outPtr = d;
         outPtr++;
         
         // do y axis
-        d = (float)(inPtr[useYMin]);
-        d -= (float)(inPtr[useYMax]);
+        d = (double)(inPtr[useYMin]);
+        d -= (double)(inPtr[useYMax]);
         d *= r[1]; // multiply by the data spacing
         *outPtr = d;
         outPtr++;
         if (axesNum == 3)
           {
           // do z axis
-          d = (float)(inPtr[useZMin]);
-          d -= (float)(inPtr[useZMax]);
+          d = (double)(inPtr[useZMin]);
+          d -= (double)(inPtr[useZMax]);
           d *= r[2]; // multiply by the data spacing
           *outPtr = d;
           outPtr++;
@@ -223,7 +223,7 @@ void vtkImageGradient::ThreadedExecute(vtkImageData *inData,
 {
   vtkDataArray *inArray;
   void *inPtr;
-  float *outPtr = (float *)(outData->GetScalarPointerForExtent(outExt));
+  double *outPtr = (double *)(outData->GetScalarPointerForExtent(outExt));
   
   inArray = inData->GetPointData()->GetScalars(this->InputScalarsSelection);
   inPtr = inArray->GetVoidPointer(0);
@@ -237,10 +237,10 @@ void vtkImageGradient::ThreadedExecute(vtkImageData *inData,
     }
 
   // this filter expects that input is the same type as output.
-  if (outData->GetScalarType() != VTK_FLOAT)
+  if (outData->GetScalarType() != VTK_DOUBLE)
     {
     vtkErrorMacro(<< "Execute: output ScalarType, " << outData->GetScalarType()
-                  << ", must be float\n");
+                  << ", must be double\n");
     return;
     }
   

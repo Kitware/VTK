@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGradientMagnitude, "1.34");
+vtkCxxRevisionMacro(vtkImageGradientMagnitude, "1.35");
 vtkStandardNewMacro(vtkImageGradientMagnitude);
 
 //----------------------------------------------------------------------------
@@ -125,7 +125,7 @@ void vtkImageGradientMagnitudeExecute(vtkImageGradientMagnitude *self,
   unsigned long target;
   int axesNum;
   int *wholeExtent, *inIncs;
-  float r[3], d, sum;
+  double r[3], d, sum;
   int useZMin, useZMax, useYMin, useYMax, useXMin, useXMax;
   int *inExt = inData->GetExtent();
 
@@ -183,20 +183,20 @@ void vtkImageGradientMagnitudeExecute(vtkImageGradientMagnitude *self,
         for (idxC = 0; idxC < maxC; idxC++)
           {
           // do X axis
-          d = (float)(inPtr[useXMin]);
-          d -= (float)(inPtr[useXMax]);
+          d = (double)(inPtr[useXMin]);
+          d -= (double)(inPtr[useXMax]);
           d *= r[0]; // multiply by the data spacing
           sum = d * d;
           // do y axis
-          d = (float)(inPtr[useYMin]);
-          d -= (float)(inPtr[useYMax]);
+          d = (double)(inPtr[useYMin]);
+          d -= (double)(inPtr[useYMax]);
           d *= r[1]; // multiply by the data spacing
           sum += (d * d);
           if (axesNum == 3)
             {
             // do z axis
-            d = (float)(inPtr[useZMin]);
-            d -= (float)(inPtr[useZMax]);
+            d = (double)(inPtr[useZMin]);
+            d -= (double)(inPtr[useZMax]);
             d *= r[2]; // multiply by the data spacing
             sum += (d * d);
             }

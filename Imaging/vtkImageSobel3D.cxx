@@ -18,7 +18,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageSobel3D, "1.29");
+vtkCxxRevisionMacro(vtkImageSobel3D, "1.30");
 vtkStandardNewMacro(vtkImageSobel3D);
 
 //----------------------------------------------------------------------------
@@ -60,7 +60,7 @@ void vtkImageSobel3DExecute(vtkImageSobel3D *self,
                             vtkImageData *outData, int *outExt, 
                             float *outPtr, int id)
 {
-  float r0, r1, r2, *r;
+  double r0, r1, r2, *r;
   // For looping though output (and input) pixels.
   int min0, max0, min1, max1, min2, max2;
   int outIdx0, outIdx1, outIdx2;
@@ -71,7 +71,7 @@ void vtkImageSobel3DExecute(vtkImageSobel3D *self,
   // For sobel function convolution (Left Right incs for each axis)
   int inInc0L, inInc0R, inInc1L, inInc1R, inInc2L, inInc2R;
   T *inPtrL, *inPtrR;
-  float sum;
+  double sum;
   // Boundary of input image
   int inWholeMin0, inWholeMax0, inWholeMin1, inWholeMax1;
   int inWholeMin2, inWholeMax2;
@@ -139,13 +139,13 @@ void vtkImageSobel3DExecute(vtkImageSobel3D *self,
         inPtrL = inPtr0 + inInc0L;
         inPtrR = inPtr0 + inInc0R;
         sum = 2.0 * (*inPtrR - *inPtrL);
-        sum += (float)(inPtrR[inInc1L] + inPtrR[inInc1R] 
+        sum += (double)(inPtrR[inInc1L] + inPtrR[inInc1R] 
                 + inPtrR[inInc2L] + inPtrR[inInc2R]);
-        sum += (float)(0.586 * (inPtrR[inInc1L+inInc2L] + inPtrR[inInc1L+inInc2R]
+        sum += (double)(0.586 * (inPtrR[inInc1L+inInc2L] + inPtrR[inInc1L+inInc2R]
                          + inPtrR[inInc1R+inInc2L] + inPtrR[inInc1R+inInc2R]));
-        sum -= (float)(inPtrL[inInc1L] + inPtrL[inInc1R] 
+        sum -= (double)(inPtrL[inInc1L] + inPtrL[inInc1R] 
                 + inPtrL[inInc2L] + inPtrL[inInc2R]);
-        sum -= (float)(0.586 * (inPtrL[inInc1L+inInc2L] + inPtrL[inInc1L+inInc2R]
+        sum -= (double)(0.586 * (inPtrL[inInc1L+inInc2L] + inPtrL[inInc1L+inInc2R]
                          + inPtrL[inInc1R+inInc2L] + inPtrL[inInc1R+inInc2R]));
         *outPtrV = sum * r0;
         ++outPtrV;
@@ -153,13 +153,13 @@ void vtkImageSobel3DExecute(vtkImageSobel3D *self,
         inPtrL = inPtr0 + inInc1L;
         inPtrR = inPtr0 + inInc1R;
         sum = 2.0 * (*inPtrR - *inPtrL);
-        sum += (float)(inPtrR[inInc0L] + inPtrR[inInc0R] 
+        sum += (double)(inPtrR[inInc0L] + inPtrR[inInc0R] 
                 + inPtrR[inInc2L] + inPtrR[inInc2R]);
-        sum += (float)(0.586 * (inPtrR[inInc0L+inInc2L] + inPtrR[inInc0L+inInc2R]
+        sum += (double)(0.586 * (inPtrR[inInc0L+inInc2L] + inPtrR[inInc0L+inInc2R]
                          + inPtrR[inInc0R+inInc2L] + inPtrR[inInc0R+inInc2R]));
-        sum -= (float)(inPtrL[inInc0L] + inPtrL[inInc0R] 
+        sum -= (double)(inPtrL[inInc0L] + inPtrL[inInc0R] 
                 + inPtrL[inInc2L] + inPtrL[inInc2R]);
-        sum -= (float)(0.586 * (inPtrL[inInc0L+inInc2L] + inPtrL[inInc0L+inInc2R]
+        sum -= (double)(0.586 * (inPtrL[inInc0L+inInc2L] + inPtrL[inInc0L+inInc2R]
                          + inPtrL[inInc0R+inInc2L] + inPtrL[inInc0R+inInc2R]));
         *outPtrV = sum * r1;
         ++outPtrV;
@@ -167,15 +167,15 @@ void vtkImageSobel3DExecute(vtkImageSobel3D *self,
         inPtrL = inPtr0 + inInc2L;
         inPtrR = inPtr0 + inInc2R;
         sum = 2.0 * (*inPtrR - *inPtrL);
-        sum += (float)(inPtrR[inInc0L] + inPtrR[inInc0R] 
+        sum += (double)(inPtrR[inInc0L] + inPtrR[inInc0R] 
                 + inPtrR[inInc1L] + inPtrR[inInc1R]);
-        sum += (float)(0.586 * (inPtrR[inInc0L+inInc1L] + inPtrR[inInc0L+inInc1R]
+        sum += (double)(0.586 * (inPtrR[inInc0L+inInc1L] + inPtrR[inInc0L+inInc1R]
                          + inPtrR[inInc0R+inInc1L] + inPtrR[inInc0R+inInc1R]));
-        sum -= (float)(inPtrL[inInc0L] + inPtrL[inInc0R] 
+        sum -= (double)(inPtrL[inInc0L] + inPtrL[inInc0R] 
                 + inPtrL[inInc1L] + inPtrL[inInc1R]);
-        sum -= (float)(0.586 * (inPtrL[inInc0L+inInc1L] + inPtrL[inInc0L+inInc1R]
+        sum -= (double)(0.586 * (inPtrL[inInc0L+inInc1L] + inPtrL[inInc0L+inInc1R]
                          + inPtrL[inInc0R+inInc1L] + inPtrL[inInc0R+inInc1R]));
-        *outPtrV = sum * r2;
+        *outPtrV = static_cast<float>(sum * r2);
         ++outPtrV;
 
         outPtr0 += outInc0;

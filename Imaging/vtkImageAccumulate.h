@@ -50,8 +50,8 @@ public:
   // then some of these spacing values are ignored.
   // For a 1D histogram with 10 bins spanning the values 1000 to 2000,
   // this spacing should be set to 100, 0, 0
-  vtkSetVector3Macro(ComponentSpacing, float);
-  vtkGetVector3Macro(ComponentSpacing, float);
+  vtkSetVector3Macro(ComponentSpacing, double);
+  vtkGetVector3Macro(ComponentSpacing, double);
 
   // Description:
   // Set/Get - The component origin is the location of bin (0, 0, 0).
@@ -60,8 +60,8 @@ public:
   // The origin of the output ends up being the same as the componenet origin.
   // For a 1D histogram with 10 bins spanning the values 1000 to 2000,
   // this origin should be set to 1000, 0, 0
-  vtkSetVector3Macro(ComponentOrigin, float);
-  vtkGetVector3Macro(ComponentOrigin, float);
+  vtkSetVector3Macro(ComponentOrigin, double);
+  vtkGetVector3Macro(ComponentOrigin, double);
 
   // Description:
   // Set/Get - The component extent sets the number/extent of the bins.
@@ -100,8 +100,8 @@ protected:
   vtkImageAccumulate();
   ~vtkImageAccumulate();
 
-  float ComponentSpacing[3];
-  float ComponentOrigin[3];
+  double ComponentSpacing[3];
+  double ComponentOrigin[3];
   int ComponentExtent[6];
 
   void ExecuteInformation(vtkImageData *input, vtkImageData *output);

@@ -63,15 +63,15 @@ public:
   // the pixels are not diffused.  This causes diffusion to avoid sharp edges.
   // If the GradientMagnitudeThreshold is set, then gradient magnitude is used 
   // for comparison instead of pixel differences.
-  vtkSetMacro(DiffusionThreshold,float);
-  vtkGetMacro(DiffusionThreshold,float);
+  vtkSetMacro(DiffusionThreshold,double);
+  vtkGetMacro(DiffusionThreshold,double);
   
   // Description:
   // The diffusion factor specifies  how much neighboring pixels effect each other.
   // No diffusion occurs with a factor of 0, and a diffusion factor of 1 causes
   // the pixel to become the average of all its neighbors.
-  vtkSetMacro(DiffusionFactor,float);
-  vtkGetMacro(DiffusionFactor,float);
+  vtkSetMacro(DiffusionFactor,double);
+  vtkGetMacro(DiffusionFactor,double);
 
   // Description:
   // Choose neighbors to diffuse (6 faces, 12 edges, 8 corners).
@@ -96,8 +96,8 @@ protected:
   ~vtkImageAnisotropicDiffusion2D() {};
 
   int NumberOfIterations;
-  float DiffusionThreshold;
-  float DiffusionFactor;  
+  double DiffusionThreshold;
+  double DiffusionFactor;  
   // to determine which neighbors to diffuse
   int Faces;
   int Edges;
@@ -108,7 +108,7 @@ protected:
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
                        int extent[6], int id);
   void Iterate(vtkImageData *in, vtkImageData *out, 
-               float ar0, float ar1, int *coreExtent, int count);
+               double ar0, double ar1, int *coreExtent, int count);
 private:
   vtkImageAnisotropicDiffusion2D(const vtkImageAnisotropicDiffusion2D&);  // Not implemented.
   void operator=(const vtkImageAnisotropicDiffusion2D&);  // Not implemented.

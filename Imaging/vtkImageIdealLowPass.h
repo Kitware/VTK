@@ -18,7 +18,7 @@
 // frequency domain by a vtkImageFFT filter.  A vtkImageRFFT filter
 // can be used to convert the output back into the spatial domain.
 // vtkImageIdealLowPass just sets a portion of the image to zero.  The result
-// is an image with a lot of ringing.  Input and Output must be floats.
+// is an image with a lot of ringing.  Input and Output must be doubles.
 // Dimensionality is set when the axes are set.  Defaults to 2D on X and Y
 // axes.
 
@@ -44,21 +44,21 @@ public:
   // Set/Get the cutoff frequency for each axis.
   // The values are specified in the order X, Y, Z, Time.
   // Units: Cycles per world unit (as defined by the data spacing).
-  vtkSetVector3Macro(CutOff,float);
-  void SetCutOff(float v) {this->SetCutOff(v, v, v);}
-  void SetXCutOff(float v);
-  void SetYCutOff(float v);
-  void SetZCutOff(float v);
-  vtkGetVector3Macro(CutOff,float);
-  float GetXCutOff() {return this->CutOff[0];}
-  float GetYCutOff() {return this->CutOff[1];}
-  float GetZCutOff() {return this->CutOff[2];}
+  vtkSetVector3Macro(CutOff,double);
+  void SetCutOff(double v) {this->SetCutOff(v, v, v);}
+  void SetXCutOff(double v);
+  void SetYCutOff(double v);
+  void SetZCutOff(double v);
+  vtkGetVector3Macro(CutOff,double);
+  double GetXCutOff() {return this->CutOff[0];}
+  double GetYCutOff() {return this->CutOff[1];}
+  double GetZCutOff() {return this->CutOff[2];}
 
 protected:
   vtkImageIdealLowPass();
   ~vtkImageIdealLowPass() {};
 
-  float CutOff[3];
+  double CutOff[3];
   
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
                        int outExt[6], int id);

@@ -24,7 +24,7 @@
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.37");
+vtkCxxRevisionMacro(vtkImageReslice, "1.38");
 vtkStandardNewMacro(vtkImageReslice);
 vtkCxxSetObjectMacro(vtkImageReslice, InformationInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkImageReslice,ResliceAxes,vtkMatrix4x4);
@@ -41,14 +41,14 @@ vtkImageReslice::vtkImageReslice()
   this->OutputDimensionality = 3;
 
   // flag to use default Spacing
-  this->OutputSpacing[0] = VTK_FLOAT_MAX;
-  this->OutputSpacing[1] = VTK_FLOAT_MAX;
-  this->OutputSpacing[2] = VTK_FLOAT_MAX;
+  this->OutputSpacing[0] = VTK_DOUBLE_MAX;
+  this->OutputSpacing[1] = VTK_DOUBLE_MAX;
+  this->OutputSpacing[2] = VTK_DOUBLE_MAX;
 
   // ditto
-  this->OutputOrigin[0] = VTK_FLOAT_MAX;
-  this->OutputOrigin[1] = VTK_FLOAT_MAX;
-  this->OutputOrigin[2] = VTK_FLOAT_MAX;
+  this->OutputOrigin[0] = VTK_DOUBLE_MAX;
+  this->OutputOrigin[1] = VTK_DOUBLE_MAX;
+  this->OutputOrigin[2] = VTK_DOUBLE_MAX;
 
   // ditto
   this->OutputExtent[0] = VTK_INT_MIN;
@@ -338,8 +338,8 @@ void vtkImageReslice::ComputeInputUpdateExtent(int inExt[6],
     }
 
   int i,j,k;
-  float point[4],f;
-  float *inSpacing,*inOrigin,*outSpacing,*outOrigin,inInvSpacing[3];
+  double point[4],f;
+  double *inSpacing,*inOrigin,*outSpacing,*outOrigin,inInvSpacing[3];
 
   int wrap = (this->Wrap || this->InterpolationMode != VTK_RESLICE_NEAREST);
   
@@ -461,10 +461,10 @@ void vtkImageReslice::ComputeInputUpdateExtent(int inExt[6],
 
 //----------------------------------------------------------------------------
 void vtkImageReslice::GetAutoCroppedOutputBounds(vtkImageData *input,
-                                                 float bounds[6])
+                                                 double bounds[6])
 {
   int i, j;
-  float inSpacing[3], inOrigin[3];
+  double inSpacing[3], inOrigin[3];
   int inWholeExt[6];
   double f;
   double point[4];
@@ -486,8 +486,8 @@ void vtkImageReslice::GetAutoCroppedOutputBounds(vtkImageData *input,
   
   for (i = 0; i < 3; i++)
     {
-    bounds[2*i] = VTK_FLOAT_MAX;
-    bounds[2*i+1] = -VTK_FLOAT_MAX;
+    bounds[2*i] = VTK_DOUBLE_MAX;
+    bounds[2*i+1] = -VTK_DOUBLE_MAX;
     }
     
   for (i = 0; i < 8; i++)
@@ -548,11 +548,11 @@ void vtkImageReslice::ExecuteInformation(vtkImageData *input,
                                          vtkImageData *output) 
 {
   int i,j;
-  float inSpacing[3], inOrigin[3];
+  double inSpacing[3], inOrigin[3];
   int inWholeExt[6];
-  float outSpacing[3], outOrigin[3];
+  double outSpacing[3], outOrigin[3];
   int outWholeExt[6];
-  float maxBounds[6];
+  double maxBounds[6];
 
   vtkImageData *information = this->InformationInput;
   if (!information)
@@ -632,7 +632,7 @@ void vtkImageReslice::ExecuteInformation(vtkImageData *input,
       e = inWholeExt[2*i];
       }
 
-    if (this->OutputSpacing[i] == VTK_FLOAT_MAX)
+    if (this->OutputSpacing[i] == VTK_DOUBLE_MAX)
       {
       outSpacing[i] = s;
       }
@@ -667,7 +667,7 @@ void vtkImageReslice::ExecuteInformation(vtkImageData *input,
       {
       outOrigin[i] = 0;
       }
-    else if (this->OutputOrigin[i] == VTK_FLOAT_MAX)
+    else if (this->OutputOrigin[i] == VTK_DOUBLE_MAX)
       {
       if (this->AutoCropOutput)
         { // set origin so edge of extent is edge of bounds
@@ -787,7 +787,7 @@ inline int vtkResliceRound(float x)
 }
 
 // convert a float into an integer plus a fraction  
-inline int vtkResliceFloor(float x, float &f)
+inline int vtkResliceFloor(double x, double &f)
 {
   int ix = vtkResliceFloor(x);
   f = x - ix;
@@ -1616,13 +1616,13 @@ void vtkImageResliceExecute(vtkImageReslice *self,
   int inExt[6], inInc[3];
   unsigned long count = 0;
   unsigned long target;
-  float point[4];
-  float f;
-  float *inSpacing, *inOrigin, *outSpacing, *outOrigin, inInvSpacing[3];
+  double point[4];
+  double f;
+  double *inSpacing, *inOrigin, *outSpacing, *outOrigin, inInvSpacing[3];
   void *background;
   int (*interpolate)(void *&outPtr, const void *inPtr,
                      const int inExt[6], const int inInc[3],
-                     int numscalars, const float point[3],
+                     int numscalars, const double point[3],
                      int mode, const void *background);
   void (*setpixels)(void *&out, const void *in, int numscalars, int n);
 
@@ -1909,7 +1909,7 @@ void vtkImageReslice::OptimizedComputeInputUpdateExtent(int inExt[6],
     return;
     }
 
-  float newmat[4][4];
+  double newmat[4][4];
   for (int i = 0; i < 4; i++)
     {
     newmat[i][0] = matrix->GetElement(i,0);
@@ -2401,7 +2401,7 @@ void vtkOptimizedExecute(vtkImageReslice *self,
   unsigned long target;
   int r1, r2;
   int iter, idXmin, idXmax;
-  float temp[3];
+  double temp[3];
   F inOrigin[3], inInvSpacing[3];
   F xAxis[4], yAxis[4], zAxis[4], origin[4]; 
   F inPoint0[4];
@@ -3407,10 +3407,10 @@ vtkMatrix4x4 *vtkImageReslice::GetIndexMatrix()
     }
 
   int isIdentity = 0;
-  float inOrigin[3];
-  float inSpacing[3];
-  float outOrigin[3];
-  float outSpacing[3];
+  double inOrigin[3];
+  double inSpacing[3];
+  double outOrigin[3];
+  double outSpacing[3];
 
   this->GetInput()->GetSpacing(inSpacing);
   this->GetInput()->GetOrigin(inOrigin);
@@ -3524,7 +3524,7 @@ void vtkImageReslice::OptimizedThreadedExecute(vtkImageData *inData,
   // the IndexMatrix
   vtkAbstractTransform *newtrans = this->OptimizedTransform;
 
-  float newmat[4][4];
+  double newmat[4][4];
   for (int i = 0; i < 4; i++)
     {
     newmat[i][0] = matrix->GetElement(i,0);

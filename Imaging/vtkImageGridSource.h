@@ -15,7 +15,7 @@
 // .NAME vtkImageGridSource - Create an image of a grid.
 // .SECTION Description
 // vtkImageGridSource produces an image of a grid.  The
-// default output type is float.
+// default output type is double.
 
 #ifndef __vtkImageGridSource_h
 #define __vtkImageGridSource_h
@@ -42,19 +42,19 @@ public:
 
   // Description:
   // Set the grey level of the lines. Default 1.0.
-  vtkSetMacro(LineValue,float);
-  vtkGetMacro(LineValue,float);
+  vtkSetMacro(LineValue,double);
+  vtkGetMacro(LineValue,double);
 
   // Description:
   // Set the grey level of the fill. Default 0.0.
-  vtkSetMacro(FillValue,float);
-  vtkGetMacro(FillValue,float);
+  vtkSetMacro(FillValue,double);
+  vtkGetMacro(FillValue,double);
 
   // Description:
   // Set/Get the data type of pixels in the imported data.
   // As a convenience, the OutputScalarType is set to the same value.
   vtkSetMacro(DataScalarType,int);
-  void SetDataScalarTypeToFloat(){this->SetDataScalarType(VTK_FLOAT);}
+  void SetDataScalarTypeToDouble(){this->SetDataScalarType(VTK_DOUBLE);}
   void SetDataScalarTypeToInt(){this->SetDataScalarType(VTK_INT);}
   void SetDataScalarTypeToShort(){this->SetDataScalarType(VTK_SHORT);}
   void SetDataScalarTypeToUnsignedShort()
@@ -73,13 +73,13 @@ public:
 
   // Description:
   // Set/Get the pixel spacing.
-  vtkSetVector3Macro(DataSpacing,float);
-  vtkGetVector3Macro(DataSpacing,float);
+  vtkSetVector3Macro(DataSpacing,double);
+  vtkGetVector3Macro(DataSpacing,double);
   
   // Description:
   // Set/Get the origin of the data.
-  vtkSetVector3Macro(DataOrigin,float);
-  vtkGetVector3Macro(DataOrigin,float);
+  vtkSetVector3Macro(DataOrigin,double);
+  vtkGetVector3Macro(DataOrigin,double);
 
 protected:
   vtkImageGridSource();
@@ -88,14 +88,14 @@ protected:
   int GridSpacing[3];
   int GridOrigin[3];
 
-  float LineValue;
-  float FillValue;
+  double LineValue;
+  double FillValue;
 
   int DataScalarType;
 
   int DataExtent[6];
-  float DataSpacing[3];
-  float DataOrigin[3];
+  double DataSpacing[3];
+  double DataOrigin[3];
 
   virtual void ExecuteInformation();
   virtual void ExecuteData(vtkDataObject *data);

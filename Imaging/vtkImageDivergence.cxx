@@ -19,7 +19,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageDivergence, "1.26");
+vtkCxxRevisionMacro(vtkImageDivergence, "1.27");
 vtkStandardNewMacro(vtkImageDivergence);
 
 //----------------------------------------------------------------------------
@@ -90,7 +90,7 @@ void vtkImageDivergenceExecute(vtkImageDivergence *self,
   unsigned long count = 0;
   unsigned long target;
   int *wholeExtent, *inIncs;
-  float r[3], d, sum;
+  double r[3], d, sum;
   int useMin[3], useMax[3];
   
   // find the region to loop over
@@ -147,8 +147,8 @@ void vtkImageDivergenceExecute(vtkImageDivergence *self,
         for (idxC = 0; idxC < maxC; idxC++)
           {
           // do X axis
-          d = (float)(inPtr[useMin[idxC]]);
-          d -= (float)(inPtr[useMax[idxC]]);
+          d = (double)(inPtr[useMin[idxC]]);
+          d -= (double)(inPtr[useMax[idxC]]);
           sum += d * r[idxC];
           inPtr++;
           }

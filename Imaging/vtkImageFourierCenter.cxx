@@ -19,7 +19,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageFourierCenter, "1.17");
+vtkCxxRevisionMacro(vtkImageFourierCenter, "1.18");
 vtkStandardNewMacro(vtkImageFourierCenter);
 
 //----------------------------------------------------------------------------
@@ -51,8 +51,8 @@ void vtkImageFourierCenter::ThreadedExecute(vtkImageData *inData,
                                             vtkImageData *outData,
                                             int outExt[6], int threadId)
 {
-  float *inPtr0, *inPtr1, *inPtr2;
-  float *outPtr0, *outPtr1, *outPtr2;
+  double *inPtr0, *inPtr1, *inPtr2;
+  double *outPtr0, *outPtr1, *outPtr2;
   int inInc0, inInc1, inInc2;
   int outInc0, outInc1, outInc2;
   int *wholeExtent, wholeMin0, wholeMax0, mid0;
@@ -62,20 +62,20 @@ void vtkImageFourierCenter::ThreadedExecute(vtkImageData *inData,
   int inCoords[3];
   unsigned long count = 0;
   unsigned long target;
-  float startProgress;
+  double startProgress;
 
-  startProgress = this->GetIteration()/(float)(this->GetNumberOfIterations());
+  startProgress = this->GetIteration()/(double)(this->GetNumberOfIterations());
   
-  // this filter expects that the input be floats.
-  if (inData->GetScalarType() != VTK_FLOAT)
+  // this filter expects that the input be doubles.
+  if (inData->GetScalarType() != VTK_DOUBLE)
     {
-    vtkErrorMacro(<< "Execute: Input must be be type float.");
+    vtkErrorMacro(<< "Execute: Input must be be type double.");
     return;
     }
-  // this filter expects that the output be floats.
-  if (outData->GetScalarType() != VTK_FLOAT)
+  // this filter expects that the output be doubles.
+  if (outData->GetScalarType() != VTK_DOUBLE)
     {
-    vtkErrorMacro(<< "Execute: Output must be be type float.");
+    vtkErrorMacro(<< "Execute: Output must be be type double.");
     return;
     }
   // this filter expects input to have 1 or two components
@@ -88,7 +88,7 @@ void vtkImageFourierCenter::ThreadedExecute(vtkImageData *inData,
 
   // Get stuff needed to loop through the pixel
   numberOfComponents = outData->GetNumberOfScalarComponents();
-  outPtr0 = (float *)(outData->GetScalarPointerForExtent(outExt));
+  outPtr0 = (double *)(outData->GetScalarPointerForExtent(outExt));
   wholeExtent = this->GetOutput()->GetWholeExtent();
   // permute to make the filtered axis come first
   this->PermuteExtent(outExt, min0, max0, min1, max1, min2, max2);
@@ -119,7 +119,7 @@ void vtkImageFourierCenter::ThreadedExecute(vtkImageData *inData,
       inIdx0 -= (wholeMax0 - wholeMin0 + 1);
       }
     inCoords[this->Iteration] = inIdx0;
-    inPtr0 = (float *)(inData->GetScalarPointer(inCoords));
+    inPtr0 = (double *)(inData->GetScalarPointer(inCoords));
     
     // loop over other axes
     inPtr2 = inPtr0;

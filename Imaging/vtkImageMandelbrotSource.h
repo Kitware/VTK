@@ -122,7 +122,7 @@ protected:
 
   virtual void ExecuteData(vtkDataObject *outData);
   virtual void ExecuteInformation();
-  float EvaluateSet(double p[4]);
+  double EvaluateSet(double p[4]);
 private:
   vtkImageMandelbrotSource(const vtkImageMandelbrotSource&);  // Not implemented.
   void operator=(const vtkImageMandelbrotSource&);  // Not implemented.

@@ -205,24 +205,24 @@ public:
 
   // Description:
   // Set background grey level (for single-component images).
-  void SetBackgroundLevel(float v) { this->SetBackgroundColor(v,v,v,v); };
-  float GetBackgroundLevel() { return this->GetBackgroundColor()[0]; };
+  void SetBackgroundLevel(double v) { this->SetBackgroundColor(v,v,v,v); };
+  double GetBackgroundLevel() { return this->GetBackgroundColor()[0]; };
 
   // Description:
   // Set the voxel spacing for the output data.  The default output
   // spacing is the input spacing permuted through the ResliceAxes.
-  vtkSetVector3Macro(OutputSpacing, float);
-  vtkGetVector3Macro(OutputSpacing, float);
+  vtkSetVector3Macro(OutputSpacing, double);
+  vtkGetVector3Macro(OutputSpacing, double);
   void SetOutputSpacingToDefault() {
-    this->SetOutputSpacing(VTK_FLOAT_MAX, VTK_FLOAT_MAX, VTK_FLOAT_MAX); };
+    this->SetOutputSpacing(VTK_DOUBLE_MAX, VTK_DOUBLE_MAX, VTK_DOUBLE_MAX); };
 
   // Description:
   // Set the origin for the output data.  The default output origin
   // is the input origin permuted through the ResliceAxes.
-  vtkSetVector3Macro(OutputOrigin, float);
-  vtkGetVector3Macro(OutputOrigin, float);
+  vtkSetVector3Macro(OutputOrigin, double);
+  vtkGetVector3Macro(OutputOrigin, double);
   void SetOutputOriginToDefault() {
-    this->SetOutputOrigin(VTK_FLOAT_MAX, VTK_FLOAT_MAX, VTK_FLOAT_MAX); };
+    this->SetOutputOrigin(VTK_DOUBLE_MAX, VTK_DOUBLE_MAX, VTK_DOUBLE_MAX); };
 
   // Description:
   // Set the extent for the output data.  The default output extent
@@ -291,8 +291,8 @@ protected:
   int InterpolationMode;
   int Optimization;
   float BackgroundColor[4];
-  float OutputOrigin[3];
-  float OutputSpacing[3];
+  double OutputOrigin[3];
+  double OutputSpacing[3];
   int OutputExtent[6];
   int OutputDimensionality;
   int TransformInputSampling;
@@ -301,7 +301,7 @@ protected:
   vtkMatrix4x4 *IndexMatrix;
   vtkAbstractTransform *OptimizedTransform;
 
-  void GetAutoCroppedOutputBounds(vtkImageData *input, float bounds[6]);
+  void GetAutoCroppedOutputBounds(vtkImageData *input, double bounds[6]);
   void ExecuteInformation(vtkImageData *input, vtkImageData *output);
   void ExecuteInformation();
   void ComputeInputUpdateExtents(vtkDataObject *output);

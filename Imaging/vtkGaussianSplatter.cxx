@@ -14,14 +14,14 @@
 =========================================================================*/
 #include "vtkGaussianSplatter.h"
 
-#include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGaussianSplatter, "1.53");
+vtkCxxRevisionMacro(vtkGaussianSplatter, "1.54");
 vtkStandardNewMacro(vtkGaussianSplatter);
 
 // Construct object with dimensions=(50,50,50); automatic computation of 
@@ -86,7 +86,7 @@ void vtkGaussianSplatter::ExecuteInformation()
   output->SetWholeExtent(0, this->SampleDimensions[0] - 1, 
                          0, this->SampleDimensions[1] - 1, 
                          0, this->SampleDimensions[2] - 1);
-  output->SetScalarType(VTK_FLOAT);
+  output->SetScalarType(VTK_DOUBLE);
   output->SetNumberOfScalarComponents(1);
 }
 
@@ -98,10 +98,10 @@ void vtkGaussianSplatter::ExecuteData(vtkDataObject *outp)
   vtkPointData *pd;
   vtkDataArray *inNormals=NULL;
   vtkDataArray *inScalars=NULL;
-  float loc[3], dist2, cx[3];
+  double loc[3], dist2, cx[3];
   vtkImageData *output = this->AllocateOutputData(outp);
-  vtkFloatArray *newScalars = 
-    vtkFloatArray::SafeDownCast(output->GetPointData()->GetScalars());
+  vtkDoubleArray *newScalars = 
+    vtkDoubleArray::SafeDownCast(output->GetPointData()->GetScalars());
   vtkDataSet *input= this->GetInput();
   int sliceSize=this->SampleDimensions[0]*this->SampleDimensions[1];
   
@@ -170,7 +170,7 @@ void vtkGaussianSplatter::ExecuteData(vtkDataObject *outp)
     if ( ! (ptId % progressInterval) )
       {
       vtkDebugMacro(<<"Inserting point #" << ptId);
-      this->UpdateProgress ((float)ptId/numPts);
+      this->UpdateProgress ((double)ptId/numPts);
       abortExecute = this->GetAbortExecute();
       }
 
@@ -245,7 +245,7 @@ void vtkGaussianSplatter::ExecuteData(vtkDataObject *outp)
 // input data.
 void vtkGaussianSplatter::ComputeModelBounds()
 {
-  float *bounds, maxDist;
+  double *bounds, maxDist;
   int i, adjustBounds=0;
   vtkImageData *output = this->GetOutput();
   vtkDataSet *input= this->GetInput();
@@ -358,7 +358,7 @@ void vtkGaussianSplatter::SetSampleDimensions(int dim[3])
     }
 }
 
-void vtkGaussianSplatter::Cap(vtkFloatArray *s)
+void vtkGaussianSplatter::Cap(vtkDoubleArray *s)
 {
   int i,j,k;
   vtkIdType idx;
@@ -422,7 +422,7 @@ void vtkGaussianSplatter::Cap(vtkFloatArray *s)
 //
 //  Gaussian sampling
 //
-float vtkGaussianSplatter::Gaussian (float cx[3])
+double vtkGaussianSplatter::Gaussian (double cx[3])
 {
   return ((cx[0]-P[0])*(cx[0]-P[0]) + (cx[1]-P[1])*(cx[1]-P[1]) +
           (cx[2]-P[2])*(cx[2]-P[2]) );
@@ -431,9 +431,9 @@ float vtkGaussianSplatter::Gaussian (float cx[3])
 //
 //  Ellipsoidal Gaussian sampling
 //
-float vtkGaussianSplatter::EccentricGaussian (float cx[3])
+double vtkGaussianSplatter::EccentricGaussian (double cx[3])
 {
-  float   v[3], r2, z2, rxy2, mag;
+  double   v[3], r2, z2, rxy2, mag;
 
   v[0] = cx[0] - this->P[0];
   v[1] = cx[1] - this->P[1];
@@ -463,10 +463,10 @@ float vtkGaussianSplatter::EccentricGaussian (float cx[3])
   return (rxy2/this->Eccentricity2 + z2);
 }
     
-void vtkGaussianSplatter::SetScalar(int idx, float dist2, 
-                                    vtkFloatArray *newScalars)
+void vtkGaussianSplatter::SetScalar(int idx, double dist2, 
+                                    vtkDoubleArray *newScalars)
 {
-  float v = (this->*SampleFactor)(this->S) * exp((double)
+  double v = (this->*SampleFactor)(this->S) * exp((double)
             (this->ExponentFactor*(dist2)/(this->Radius2)));
 
   if ( ! this->Visited[idx] )
@@ -476,7 +476,7 @@ void vtkGaussianSplatter::SetScalar(int idx, float dist2,
     }
   else
     {
-    float s = newScalars->GetValue(idx);
+    double s = newScalars->GetValue(idx);
     switch (this->AccumulationMode)
       {
       case VTK_ACCUMULATION_MODE_MIN:

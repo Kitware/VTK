@@ -43,7 +43,7 @@ public:
 
   // Description:
   // Compute the ModelBounds based on the input geometry.
-  float ComputeModelBounds(float origin[3], float ar[3]);
+  double ComputeModelBounds(double origin[3], double ar[3]);
 
   // Description:
   // Set the i-j-k dimensions on which to sample the distance function.
@@ -57,14 +57,14 @@ public:
   // Description:
   // Specify distance away from surface of input geometry to sample. Smaller
   // values make large increases in performance.
-  vtkSetClampMacro(MaximumDistance,float,0.0,1.0);
-  vtkGetMacro(MaximumDistance,float);
+  vtkSetClampMacro(MaximumDistance,double,0.0,1.0);
+  vtkGetMacro(MaximumDistance,double);
 
   // Description:
   // Specify the position in space to perform the voxelization.
-  void SetModelBounds(float bounds[6]);
-  void SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax);
-  vtkGetVectorMacro(ModelBounds,float,6);
+  void SetModelBounds(double bounds[6]);
+  void SetModelBounds(double xmin, double xmax, double ymin, double ymax, double zmin, double zmax);
+  vtkGetVectorMacro(ModelBounds,double,6);
 
   // Description:
   // The the volume out to a specified filename.
@@ -79,8 +79,8 @@ protected:
   virtual void ExecuteData(vtkDataObject *);
 
   int SampleDimensions[3];
-  float MaximumDistance;
-  float ModelBounds[6];
+  double MaximumDistance;
+  double ModelBounds[6];
 private:
   vtkVoxelModeller(const vtkVoxelModeller&);  // Not implemented.
   void operator=(const vtkVoxelModeller&);  // Not implemented.

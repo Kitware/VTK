@@ -19,7 +19,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageLaplacian, "1.27");
+vtkCxxRevisionMacro(vtkImageLaplacian, "1.28");
 vtkStandardNewMacro(vtkImageLaplacian);
 
 //----------------------------------------------------------------------------
@@ -93,7 +93,7 @@ void vtkImageLaplacianExecute(vtkImageLaplacian *self,
   unsigned long target;
   int axesNum;
   int *wholeExtent, *inIncs;
-  float r[3], d, sum;
+  double r[3], d, sum;
   int useZMin, useZMax, useYMin, useYMax, useXMin, useXMax;
   
   // find the region to loop over
@@ -147,21 +147,21 @@ void vtkImageLaplacianExecute(vtkImageLaplacian *self,
           {
           // do X axis
           d = -2.0*(*inPtr);
-          d += (float)(inPtr[useXMin]);
-          d += (float)(inPtr[useXMax]);
+          d += (double)(inPtr[useXMin]);
+          d += (double)(inPtr[useXMax]);
           sum = d * r[0];
 
           // do y axis
           d = -2.0*(*inPtr);
-          d += (float)(inPtr[useYMin]);
-          d += (float)(inPtr[useYMax]);
+          d += (double)(inPtr[useYMin]);
+          d += (double)(inPtr[useYMax]);
           sum = sum + d * r[1];
           if (axesNum == 3)
             {
             // do z axis
             d = -2.0*(*inPtr);
-            d += (float)(inPtr[useZMin]);
-            d += (float)(inPtr[useZMax]);
+            d += (double)(inPtr[useZMin]);
+            d += (double)(inPtr[useZMax]);
             sum = sum + d * r[2];
             }
           *outPtr = (T)sum;

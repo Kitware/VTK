@@ -17,7 +17,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageMagnify, "1.43");
+vtkCxxRevisionMacro(vtkImageMagnify, "1.44");
 vtkStandardNewMacro(vtkImageMagnify);
 
 //----------------------------------------------------------------------------
@@ -37,10 +37,10 @@ vtkImageMagnify::vtkImageMagnify()
 void vtkImageMagnify::ExecuteInformation(vtkImageData *inData, 
                                          vtkImageData *outData)
 {
-  float *spacing;
+  double *spacing;
   int idx;
   int *inExt;
-  float outSpacing[3];
+  double outSpacing[3];
   int outExt[6];
   
   inExt = inData->GetWholeExtent();
@@ -53,7 +53,7 @@ void vtkImageMagnify::ExecuteInformation(vtkImageData *inData,
       (inExt[idx*2+1] - inExt[idx*2] + 1)*this->MagnificationFactors[idx] - 1;
     
     // Change the data spacing
-    outSpacing[idx] = spacing[idx] / (float)(this->MagnificationFactors[idx]);
+    outSpacing[idx] = spacing[idx] / (double)(this->MagnificationFactors[idx]);
     }
   
   outData->SetWholeExtent(outExt);
@@ -72,10 +72,10 @@ void vtkImageMagnify::ComputeInputUpdateExtent(int inExt[6],
   for (idx = 0; idx < 3; idx++)
     {
     // For Min. Round Down
-    inExt[idx*2] = (int)(floor((float)(outExt[idx*2]) / 
-                               (float)(this->MagnificationFactors[idx])));
-    inExt[idx*2+1] = (int)(floor((float)(outExt[idx*2+1]) / 
-                                 (float)(this->MagnificationFactors[idx])));
+    inExt[idx*2] = (int)(floor((double)(outExt[idx*2]) / 
+                               (double)(this->MagnificationFactors[idx])));
+    inExt[idx*2+1] = (int)(floor((double)(outExt[idx*2+1]) / 
+                                 (double)(this->MagnificationFactors[idx])));
     }
 }
 
@@ -105,7 +105,7 @@ void vtkImageMagnifyExecute(vtkImageMagnify *self,
   int magYIdx, magY;
   int magZIdx, magZ;
   T *inPtrZ, *inPtrY, *inPtrX, *outPtrC;
-  float iMag, iMagP = 0.0, iMagPY = 0.0, iMagPZ = 0.0, iMagPYZ = 0.0;
+  double iMag, iMagP = 0.0, iMagPY = 0.0, iMagPZ = 0.0, iMagPYZ = 0.0;
   T dataP = 0, dataPX = 0, dataPY = 0, dataPZ = 0;
   T dataPXY = 0, dataPXZ = 0, dataPYZ = 0, dataPXYZ = 0;
   int interpSetup;
@@ -227,14 +227,14 @@ void vtkImageMagnifyExecute(vtkImageMagnify *self,
               interpSetup = 1;
               }
             *outPtrC = (T)
-              ((float)dataP*(magXIdx + 1)*iMagP + 
-               (float)dataPX*(magX - magXIdx - 1)*iMagP +
-               (float)dataPY*(magXIdx + 1)*iMagPY + 
-               (float)dataPXY*(magX - magXIdx - 1)*iMagPY +
-               (float)dataPZ*(magXIdx + 1)*iMagPZ + 
-               (float)dataPXZ*(magX - magXIdx - 1)*iMagPZ +
-               (float)dataPYZ*(magXIdx + 1)*iMagPYZ + 
-               (float)dataPXYZ*(magX - magXIdx - 1)*iMagPYZ);
+              ((double)dataP*(magXIdx + 1)*iMagP + 
+               (double)dataPX*(magX - magXIdx - 1)*iMagP +
+               (double)dataPY*(magXIdx + 1)*iMagPY + 
+               (double)dataPXY*(magX - magXIdx - 1)*iMagPY +
+               (double)dataPZ*(magXIdx + 1)*iMagPZ + 
+               (double)dataPXZ*(magX - magXIdx - 1)*iMagPZ +
+               (double)dataPYZ*(magXIdx + 1)*iMagPYZ + 
+               (double)dataPXYZ*(magX - magXIdx - 1)*iMagPYZ);
             }
           outPtrC += maxC;
           if (!magXIdx) 

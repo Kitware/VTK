@@ -19,7 +19,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageSobel2D, "1.27");
+vtkCxxRevisionMacro(vtkImageSobel2D, "1.28");
 vtkStandardNewMacro(vtkImageSobel2D);
 
 //----------------------------------------------------------------------------
@@ -63,7 +63,7 @@ void vtkImageSobel2DExecute(vtkImageSobel2D *self,
                             vtkImageData *outData, int *outExt, 
                             float *outPtr, int id)
 {
-  float r0, r1, *r;
+  double r0, r1, *r;
   // For looping though output (and input) pixels.
   int min0, max0, min1, max1, min2, max2;
   int outIdx0, outIdx1, outIdx2;
@@ -74,7 +74,7 @@ void vtkImageSobel2DExecute(vtkImageSobel2D *self,
   // For sobel function convolution (Left Right incs for each axis)
   int inInc0L, inInc0R, inInc1L, inInc1R;
   T *inPtrL, *inPtrR;
-  float sum;
+  double sum;
   // Boundary of input image
   int inWholeMin0,inWholeMax0;
   int inWholeMin1,inWholeMax1;
@@ -139,8 +139,8 @@ void vtkImageSobel2DExecute(vtkImageSobel2D *self,
         inPtrL = inPtr0 + inInc0L;
         inPtrR = inPtr0 + inInc0R;
         sum = 2.0 * (*inPtrR - *inPtrL);
-        sum += (float)(inPtrR[inInc1L] + inPtrR[inInc1R]);
-        sum -= (float)(inPtrL[inInc1L] + inPtrL[inInc1R]);
+        sum += (double)(inPtrR[inInc1L] + inPtrR[inInc1R]);
+        sum -= (double)(inPtrL[inInc1L] + inPtrL[inInc1R]);
         
         *outPtrV = sum * r0;
         ++outPtrV;
@@ -148,9 +148,9 @@ void vtkImageSobel2DExecute(vtkImageSobel2D *self,
         inPtrL = inPtr0 + inInc1L;
         inPtrR = inPtr0 + inInc1R;
         sum = 2.0 * (*inPtrR - *inPtrL);
-        sum += (float)(inPtrR[inInc0L] + inPtrR[inInc0R]);
-        sum -= (float)(inPtrL[inInc0L] + inPtrL[inInc0R]);
-        *outPtrV = sum * r1;
+        sum += (double)(inPtrR[inInc0L] + inPtrR[inInc0R]);
+        sum -= (double)(inPtrL[inInc0L] + inPtrL[inInc0R]);
+        *outPtrV = static_cast<float>(sum * r1);
         
         outPtr0 += outInc0;
         inPtr0 += inInc0;

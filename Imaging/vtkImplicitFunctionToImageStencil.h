@@ -42,8 +42,8 @@ public:
 
   // Description:
   // Set the threshold value for the implicit function.
-  vtkSetMacro(Threshold, float);
-  vtkGetMacro(Threshold, float);
+  vtkSetMacro(Threshold, double);
+  vtkGetMacro(Threshold, double);
 
 protected:
   vtkImplicitFunctionToImageStencil();
@@ -53,7 +53,7 @@ protected:
                        int extent[6], int threadId);
 
   vtkImplicitFunction *Input;
-  float Threshold;
+  double Threshold;
 private:
   vtkImplicitFunctionToImageStencil(const vtkImplicitFunctionToImageStencil&);  // Not implemented.
   void operator=(const vtkImplicitFunctionToImageStencil&);  // Not implemented.

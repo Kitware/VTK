@@ -29,7 +29,7 @@ pnm SetFileName "$VTK_DATA_ROOT/Data/masonry.bmp"
 
 vtkImageCast cast2
 cast2 SetInput [pnm GetOutput]
-cast2 SetOutputScalarTypeToFloat
+cast2 SetOutputScalarTypeToDouble
 
 vtkImageDotProduct magnitude
 magnitude SetInput1 [cast2 GetOutput]

@@ -18,7 +18,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageFlip, "1.36");
+vtkCxxRevisionMacro(vtkImageFlip, "1.37");
 vtkStandardNewMacro(vtkImageFlip);
 
 //----------------------------------------------------------------------------
@@ -40,8 +40,8 @@ vtkImageFlip::vtkImageFlip()
 void vtkImageFlip::ExecuteInformation(vtkImageData *input, 
                                       vtkImageData *output) 
 {
-  float spacing[3];
-  float origin[3];
+  double spacing[3];
+  double origin[3];
   int wholeExt[6];
    
   input->GetWholeExtent(wholeExt);

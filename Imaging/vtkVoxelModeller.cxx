@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVoxelModeller, "1.53");
+vtkCxxRevisionMacro(vtkVoxelModeller, "1.54");
 vtkStandardNewMacro(vtkVoxelModeller);
 
 // Construct an instance of vtkVoxelModeller with its sample dimensions
@@ -47,14 +47,14 @@ vtkVoxelModeller::vtkVoxelModeller()
 }
 
 // Specify the position in space to perform the voxelization.
-void vtkVoxelModeller::SetModelBounds(float bounds[6])
+void vtkVoxelModeller::SetModelBounds(double bounds[6])
 {
   vtkVoxelModeller::SetModelBounds(bounds[0], bounds[1], bounds[2], bounds[3],
                                    bounds[4], bounds[5]);
 }
 
-void vtkVoxelModeller::SetModelBounds(float xmin, float xmax, float ymin,
-                                      float ymax, float zmin, float zmax)
+void vtkVoxelModeller::SetModelBounds(double xmin, double xmax, double ymin,
+                                      double ymax, double zmin, double zmax)
 {
   if (this->ModelBounds[0] != xmin || this->ModelBounds[1] != xmax ||
       this->ModelBounds[2] != ymin || this->ModelBounds[3] != ymax ||
@@ -73,7 +73,7 @@ void vtkVoxelModeller::SetModelBounds(float xmin, float xmax, float ymin,
 void vtkVoxelModeller::ExecuteInformation()
 {
   int i;
-  float ar[3], origin[3];
+  double ar[3], origin[3];
   vtkImageData *output = this->GetOutput();
   
   output->SetScalarType(VTK_BIT);
@@ -104,18 +104,18 @@ void vtkVoxelModeller::ExecuteData(vtkDataObject *outp)
 {
   vtkIdType cellNum, i;
   int j, k;
-  float *bounds, adjBounds[6];
+  double *bounds, adjBounds[6];
   vtkCell *cell;
-  float maxDistance, pcoords[3];
+  double maxDistance, pcoords[3];
   vtkIdType numPts, idx, numCells;
   int subId;
   int min[3], max[3];
-  float x[3], distance2;
+  double x[3], distance2;
   int jkFactor;
   vtkDataSet *input=this->GetInput();
-  float *weights=new float[input->GetMaxCellSize()];
-  float closestPoint[3];
-  float voxelHalfWidth[3], origin[3], spacing[3];
+  double *weights=new double[input->GetMaxCellSize()];
+  double closestPoint[3];
+  double voxelHalfWidth[3], origin[3], spacing[3];
   vtkImageData *output = this->AllocateOutputData(outp);
   vtkBitArray *newScalars = 
     vtkBitArray::SafeDownCast(output->GetPointData()->GetScalars());
@@ -159,8 +159,8 @@ void vtkVoxelModeller::ExecuteData(vtkDataObject *outp)
     // compute dimensional bounds in data set
     for (i=0; i<3; i++)
       {
-      min[i] = (int) ((float)(adjBounds[2*i] - origin[i]) / spacing[i]);
-      max[i] = (int) ((float)(adjBounds[2*i+1] - origin[i]) / spacing[i]);
+      min[i] = (int) ((double)(adjBounds[2*i] - origin[i]) / spacing[i]);
+      max[i] = (int) ((double)(adjBounds[2*i+1] - origin[i]) / spacing[i]);
       if (min[i] < 0)
         {
         min[i] = 0;
@@ -202,9 +202,9 @@ void vtkVoxelModeller::ExecuteData(vtkDataObject *outp)
 }
 
 // Compute the ModelBounds based on the input geometry.
-float vtkVoxelModeller::ComputeModelBounds(float origin[3], float spacing[3])
+double vtkVoxelModeller::ComputeModelBounds(double origin[3], double spacing[3])
 {
-  float *bounds, maxDist;
+  double *bounds, maxDist;
   int i, adjustBounds=0;
 
   // compute model bounds if not set previously
@@ -303,7 +303,7 @@ void vtkVoxelModeller::Write(char *fname)
 {
   FILE *fp;
   int i, j, k;
-  float origin[3], spacing[3];
+  double origin[3], spacing[3];
   
   vtkDataArray *newScalars;
   int idx;

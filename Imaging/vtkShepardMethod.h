@@ -51,7 +51,7 @@ public:
   
   // Description:
   // Compute ModelBounds from input geometry.
-  float ComputeModelBounds(float origin[3], float ar[3]);
+  double ComputeModelBounds(double origin[3], double ar[3]);
 
   // Description:
   // Specify i-j-k dimensions on which to sample input points.
@@ -71,19 +71,19 @@ public:
   // of 1.0 will cause each input point to influence all points in the 
   // structured point dataset. Values less than 1.0 can improve performance
   // significantly.
-  vtkSetClampMacro(MaximumDistance,float,0.0,1.0);
-  vtkGetMacro(MaximumDistance,float);
+  vtkSetClampMacro(MaximumDistance,double,0.0,1.0);
+  vtkGetMacro(MaximumDistance,double);
 
   // Description:
   // Specify the position in space to perform the sampling.
-  vtkSetVector6Macro(ModelBounds,float);
-  vtkGetVectorMacro(ModelBounds,float,6);
+  vtkSetVector6Macro(ModelBounds,double);
+  vtkGetVectorMacro(ModelBounds,double,6);
 
   // Description:
   // Set the Null value for output points not receiving a contribution from the
   // input points.
-  vtkSetMacro(NullValue,float);
-  vtkGetMacro(NullValue,float);
+  vtkSetMacro(NullValue,double);
+  vtkGetMacro(NullValue,double);
 
 protected:
   vtkShepardMethod();
@@ -93,9 +93,9 @@ protected:
   virtual void ExecuteData(vtkDataObject *);
 
   int SampleDimensions[3];
-  float MaximumDistance;
-  float ModelBounds[6];
-  float NullValue;
+  double MaximumDistance;
+  double ModelBounds[6];
+  double NullValue;
 private:
   vtkShepardMethod(const vtkShepardMethod&);  // Not implemented.
   void operator=(const vtkShepardMethod&);  // Not implemented.

@@ -18,7 +18,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageStencilData, "1.10");
+vtkCxxRevisionMacro(vtkImageStencilData, "1.11");
 vtkStandardNewMacro(vtkImageStencilData);
 
 //----------------------------------------------------------------------------
@@ -248,10 +248,10 @@ void vtkImageStencilData::UpdateData()
 //----------------------------------------------------------------------------
 int vtkImageStencilData::SpacingOrOriginHasChanged()
 {
-  float *spacing = this->Spacing;
-  float *origin = this->Origin;
-  float *ospacing = this->OldSpacing;
-  float *oorigin = this->OldOrigin;
+  double *spacing = this->Spacing;
+  double *origin = this->Origin;
+  double *ospacing = this->OldSpacing;
+  double *oorigin = this->OldOrigin;
 
   return (spacing[0] != ospacing[0] || origin[0] != oorigin[0] ||
           spacing[1] != ospacing[1] || origin[1] != oorigin[1] ||

@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImplicitFunctionToImageStencil, "1.7");
+vtkCxxRevisionMacro(vtkImplicitFunctionToImageStencil, "1.8");
 vtkStandardNewMacro(vtkImplicitFunctionToImageStencil);
 vtkCxxSetObjectMacro(vtkImplicitFunctionToImageStencil,Input, vtkImplicitFunction);
 
@@ -51,16 +51,16 @@ void vtkImplicitFunctionToImageStencil::PrintSelf(ostream& os,
 // set up the clipping extents from an implicit function by brute force
 // (i.e. by evaluating the function at each and every voxel)
 void vtkImplicitFunctionToImageStencil::ThreadedExecute(vtkImageStencilData 
-                                                                      *data,
+                                                        *data,
                                                         int extent[6], int id)
 {
   vtkImplicitFunction *function = this->Input;
-  float *spacing = data->GetSpacing();
-  float *origin = data->GetOrigin();
-  float threshold = this->Threshold;
+  double *spacing = data->GetSpacing();
+  double *origin = data->GetOrigin();
+  double threshold = this->Threshold;
 
   // for conversion of (idX,idY,idZ) into (x,y,z)
-  float point[3];
+  double point[3];
 
   // for keeping track of progress
   unsigned long count = 0;

@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageMandelbrotSource, "1.35");
+vtkCxxRevisionMacro(vtkImageMandelbrotSource, "1.36");
 vtkStandardNewMacro(vtkImageMandelbrotSource);
 
 //----------------------------------------------------------------------------
@@ -232,8 +232,8 @@ void vtkImageMandelbrotSource::GetSizeCX(double s[4])
 void vtkImageMandelbrotSource::ExecuteInformation()
 {
   int idx, axis;
-  float origin[3];
-  float spacing[3];
+  double origin[3];
+  double spacing[3];
   vtkImageData *output = this->GetOutput();
   
   output->SetWholeExtent(this->WholeExtent);
@@ -393,7 +393,7 @@ void vtkImageMandelbrotSource::ExecuteData(vtkDataObject *output)
 
 
 //----------------------------------------------------------------------------
-float vtkImageMandelbrotSource::EvaluateSet(double p[4])
+double vtkImageMandelbrotSource::EvaluateSet(double p[4])
 {
   unsigned short count = 0;
   double v0, v1;
@@ -422,10 +422,10 @@ float vtkImageMandelbrotSource::EvaluateSet(double p[4])
 
   if (count == this->MaximumNumberOfIterations)
     {
-    return (float)count;
+    return (double)count;
     }
 
-  return (float)count + (4.0 - v0)/(v1 - v0);
+  return (double)count + (4.0 - v0)/(v1 - v0);
 }
 
 

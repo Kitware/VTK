@@ -51,15 +51,15 @@ public:
   // Specify a new data spacing explicitly.  The default is to
   // use the spacing of the Input, or of the InformationInput
   // if InformationInput is set.
-  vtkSetVector3Macro(OutputSpacing, float);
-  vtkGetVector3Macro(OutputSpacing, float);
+  vtkSetVector3Macro(OutputSpacing, double);
+  vtkGetVector3Macro(OutputSpacing, double);
 
   // Description:
   // Specify a new data origin explicitly.  The default is to
   // use the origin of the Input, or of the InformationInput
   // if InformationInput is set.
-  vtkSetVector3Macro(OutputOrigin, float);
-  vtkGetVector3Macro(OutputOrigin, float);
+  vtkSetVector3Macro(OutputOrigin, double);
+  vtkGetVector3Macro(OutputOrigin, double);
 
   // Description:
   // Set the Origin of the output so that image coordinate (0,0,0)
@@ -77,19 +77,19 @@ public:
 
   // Description:
   // Apply a scale factor to the spacing. 
-  vtkSetVector3Macro(SpacingScale, float);
-  vtkGetVector3Macro(SpacingScale, float);
+  vtkSetVector3Macro(SpacingScale, double);
+  vtkGetVector3Macro(SpacingScale, double);
 
   // Description:
   // Apply a translation to the origin.
-  vtkSetVector3Macro(OriginTranslation, float);
-  vtkGetVector3Macro(OriginTranslation, float);
+  vtkSetVector3Macro(OriginTranslation, double);
+  vtkGetVector3Macro(OriginTranslation, double);
 
   // Description:
   // Apply a scale to the origin.  The scale is applied
   // before the translation.
-  vtkSetVector3Macro(OriginScale, float);
-  vtkGetVector3Macro(OriginScale, float);
+  vtkSetVector3Macro(OriginScale, double);
+  vtkGetVector3Macro(OriginScale, double);
 
 protected:
   vtkImageChangeInformation();
@@ -102,12 +102,12 @@ protected:
   int ExtentTranslation[3];
   int FinalExtentTranslation[3];
   
-  float OutputSpacing[3];
-  float SpacingScale[3];
+  double OutputSpacing[3];
+  double SpacingScale[3];
 
-  float OutputOrigin[3];
-  float OriginScale[3];
-  float OriginTranslation[3];
+  double OutputOrigin[3];
+  double OriginScale[3];
+  double OriginTranslation[3];
   
   void ComputeInputUpdateExtent(int extent[6], int wholeExtent[6]);
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);

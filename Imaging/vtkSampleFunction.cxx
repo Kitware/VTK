@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkSampleFunction, "1.65");
+vtkCxxRevisionMacro(vtkSampleFunction, "1.66");
 vtkStandardNewMacro(vtkSampleFunction);
 vtkCxxSetObjectMacro(vtkSampleFunction,ImplicitFunction,vtkImplicitFunction);
 
@@ -87,7 +87,7 @@ void vtkSampleFunction::SetSampleDimensions(int dim[3])
 void vtkSampleFunction::ExecuteInformation()
 {
   int i;
-  float ar[3], origin[3];
+  double ar[3], origin[3];
   vtkImageData *output = this->GetOutput();
   
   output->SetScalarType(VTK_FLOAT);
@@ -119,7 +119,7 @@ void vtkSampleFunction::ExecuteData(vtkDataObject *outp)
   vtkIdType idx, i, j, k;
   vtkFloatArray *newNormals=NULL;
   vtkIdType numPts;
-  float p[3], s;
+  double p[3], s;
   vtkImageData *output=this->GetOutput();
 
   output->SetExtent(output->GetUpdateExtent());
@@ -143,7 +143,7 @@ void vtkSampleFunction::ExecuteData(vtkDataObject *outp)
   //
   int extent[6];
   output->GetUpdateExtent(extent);
-  float spacing[3];
+  double spacing[3];
   output->GetSpacing(spacing);
 
   for ( idx=0, k=extent[4]; k <= extent[5]; k++ )
@@ -165,7 +165,7 @@ void vtkSampleFunction::ExecuteData(vtkDataObject *outp)
   //
   if ( this->ComputeNormals )
     {
-    float n[3];
+    double n[3];
     newNormals = vtkFloatArray::New(); 
     newNormals->SetNumberOfComponents(3);
     newNormals->SetNumberOfTuples(numPts);

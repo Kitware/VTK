@@ -69,10 +69,10 @@ public:
   // Get miscellaneous additional information about the data.
   int *GetDataExtent();
   void GetDataExtent(int *ptr);
-  float *GetDataSpacing();
-  void GetDataSpacing(float *ptr);
-  float *GetDataOrigin();
-  void GetDataOrigin(float *ptr);
+  double *GetDataSpacing();
+  void GetDataSpacing(double *ptr);
+  double *GetDataOrigin();
+  void GetDataOrigin(double *ptr);
 
   // Description:
   // Set/Get the input object from the image pipeline.
@@ -123,8 +123,8 @@ public:
   typedef void (*UpdateInformationCallbackType)(void*);
   typedef int (*PipelineModifiedCallbackType)(void*);
   typedef int* (*WholeExtentCallbackType)(void*);
-  typedef float* (*SpacingCallbackType)(void*);
-  typedef float* (*OriginCallbackType)(void*);
+  typedef double* (*SpacingCallbackType)(void*);
+  typedef double* (*OriginCallbackType)(void*);
   typedef const char* (*ScalarTypeCallbackType)(void*); 
   typedef int (*NumberOfComponentsCallbackType)(void*);
   typedef void (*PropagateUpdateExtentCallbackType)(void*, int*);
@@ -155,8 +155,8 @@ protected:
   virtual int PipelineModifiedCallback();
   virtual void UpdateDataCallback();  
   virtual int* WholeExtentCallback();
-  virtual float* SpacingCallback();
-  virtual float* OriginCallback();
+  virtual double* SpacingCallback();
+  virtual double* OriginCallback();
   virtual const char* ScalarTypeCallback();
   virtual int NumberOfComponentsCallback();
   virtual void PropagateUpdateExtentCallback(int*);
@@ -176,8 +176,8 @@ private:
   static void UpdateInformationCallbackFunction(void*);
   static int PipelineModifiedCallbackFunction(void*);
   static int* WholeExtentCallbackFunction(void*);
-  static float* SpacingCallbackFunction(void*);
-  static float* OriginCallbackFunction(void*);
+  static double* SpacingCallbackFunction(void*);
+  static double* OriginCallbackFunction(void*);
   static const char* ScalarTypeCallbackFunction(void*); 
   static int NumberOfComponentsCallbackFunction(void*);
   static void PropagateUpdateExtentCallbackFunction(void*, int*);
