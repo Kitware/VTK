@@ -574,8 +574,6 @@ int vtkPolygon::Triangulate(vtkIdList *outTris)
 {
   int success;
   float *bounds, d;
-  int numVerts=this->PointIds->GetNumberOfIds();
-  int *verts = new int[numVerts];
 
   bounds = this->GetBounds();
   
@@ -1004,7 +1002,6 @@ void vtkPolygon::Contour(float value, vtkScalars *cellScalars,
                         vtkCellData *inCd, int cellId, vtkCellData *outCd)
 {
   int i, success;
-  int numVerts=this->Points->GetNumberOfPoints();
   float *bounds, d;
   int p1, p2, p3;
 
@@ -1154,8 +1151,6 @@ int vtkPolygon::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 {
   int i, success;
   float *bounds, d;
-  int numVerts=this->PointIds->GetNumberOfIds();
-  int *verts = new int[numVerts];
 
   pts->Reset();
   ptIds->Reset();
@@ -1288,7 +1283,6 @@ void vtkPolygon::Clip(float value, vtkScalars *cellScalars,
                       int insideOut)
 {
   int i, success;
-  int numVerts=this->Points->GetNumberOfPoints();
   float *bounds, d;
   int p1, p2, p3;
 
