@@ -21,47 +21,27 @@
 #ifndef __vtkPDataSetReader_h
 #define __vtkPDataSetReader_h
 
-#include "vtkSource.h"
+#include "vtkDataSetAlgorithm.h"
 
 class vtkDataSet;
 
-class VTK_PARALLEL_EXPORT vtkPDataSetReader : public vtkSource
+class VTK_PARALLEL_EXPORT vtkPDataSetReader : public vtkDataSetAlgorithm
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent);
-  vtkTypeRevisionMacro(vtkPDataSetReader,vtkSource);
+  vtkTypeRevisionMacro(vtkPDataSetReader,vtkDataSetAlgorithm);
   static vtkPDataSetReader *New();
 
-  // Description:
-  // Let everyone know we have one output before the output is set.
-  virtual int GetNumberOfOutputs() { return 1;}
-  
   // Description:
   // This file to open and read.
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
 
   // Description:
-  // The output of this reader depends on the file choosen.
-  // You cannot get the output until the filename is set.
-  void SetOutput(vtkDataSet *output);
-  virtual vtkDataSet* GetOutput();
-  virtual vtkDataSet* GetOutput(int idx);
-
-  // Description:
-  // We need to define this so that the output gets created.
-  virtual void Update();
-
-  // Description:
   // This is set when UpdateInformation is called. 
   // It shows the type of the output.
   vtkGetMacro(DataType, int);
   
-  // Description:
-  // This method can be used to find out the type of output expected without
-  // needing to read the whole file.
-  virtual int ReadOutputType();
-
   // Description:
   // Called to determine if the file can be read by the reader.
   int CanReadFile(const char* filename);
@@ -70,15 +50,33 @@ protected:
   vtkPDataSetReader();
   ~vtkPDataSetReader();
 
-  virtual void ExecuteInformation();
-  void ReadPVTKFileInformation(ifstream *fp);
-  void ReadVTKFileInformation(ifstream *fp);
+  virtual int CreateOutput(vtkInformation* request, 
+                           vtkInformationVector** inputVector, 
+                           vtkInformationVector* outputVector);
+  void ReadPVTKFileInformation(ifstream *fp,
+                               vtkInformation* request, 
+                               vtkInformationVector** inputVector,
+                               vtkInformationVector* outputVector);
+  void ReadVTKFileInformation(ifstream *fp,
+                               vtkInformation* request, 
+                               vtkInformationVector** inputVector,
+                               vtkInformationVector* outputVector);
 
-  virtual void Execute();
-  void PolyDataExecute();
-  void UnstructuredGridExecute();
-  void ImageDataExecute();
-  void StructuredGridExecute();
+  virtual int RequestData(vtkInformation*, 
+                          vtkInformationVector**, 
+                          vtkInformationVector*);
+  int PolyDataExecute(vtkInformation*, 
+                      vtkInformationVector**, 
+                      vtkInformationVector*);
+  int UnstructuredGridExecute(vtkInformation*, 
+                              vtkInformationVector**, 
+                              vtkInformationVector*);
+  int ImageDataExecute(vtkInformation*, 
+                       vtkInformationVector**, 
+                       vtkInformationVector*);
+  int StructuredGridExecute(vtkInformation*, 
+                            vtkInformationVector**, 
+                            vtkInformationVector*);
 
   void CoverExtent(int ext[6], int *pieceMask);
 
