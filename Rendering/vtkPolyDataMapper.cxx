@@ -21,7 +21,7 @@
 #include "vtkPolyData.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkPolyDataMapper, "1.35");
+vtkCxxRevisionMacro(vtkPolyDataMapper, "1.36");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -164,7 +164,8 @@ void vtkPolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-int vtkPolyDataMapper::FillInputPortInformation(int port, vtkInformation* info)
+int vtkPolyDataMapper::FillInputPortInformation(
+  int vtkNotUsed( port ), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
   return 1;

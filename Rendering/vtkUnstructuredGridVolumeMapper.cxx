@@ -19,7 +19,7 @@
 #include "vtkInformation.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridVolumeMapper, "1.5");
+vtkCxxRevisionMacro(vtkUnstructuredGridVolumeMapper, "1.6");
 
 // Construct a vtkUnstructuredGridVolumeMapper with empty scalar input and
 // clipping off.
@@ -81,7 +81,7 @@ void vtkUnstructuredGridVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 int vtkUnstructuredGridVolumeMapper::FillInputPortInformation(
-  int port, vtkInformation* info)
+  int vtkNotUsed( port ), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
   return 1;

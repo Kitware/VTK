@@ -24,7 +24,7 @@
 #include "vtkWindow.h"
 
 
-vtkCxxRevisionMacro(vtkImageMapper, "1.51");
+vtkCxxRevisionMacro(vtkImageMapper, "1.52");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -274,7 +274,8 @@ int vtkImageMapper::GetWholeZMax()
 }
 
 //----------------------------------------------------------------------------
-int vtkImageMapper::FillInputPortInformation(int port, vtkInformation* info)
+int vtkImageMapper::FillInputPortInformation(
+  int vtkNotUsed( port ), vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
   return 1;
