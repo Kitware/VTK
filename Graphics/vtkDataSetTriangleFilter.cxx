@@ -19,6 +19,8 @@
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkOrderedTriangulator.h"
 #include "vtkPointData.h"
@@ -27,7 +29,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkRectilinearGrid.h"
 
-vtkCxxRevisionMacro(vtkDataSetTriangleFilter, "1.23");
+vtkCxxRevisionMacro(vtkDataSetTriangleFilter, "1.24");
 vtkStandardNewMacro(vtkDataSetTriangleFilter);
 
 vtkDataSetTriangleFilter::vtkDataSetTriangleFilter()
@@ -43,32 +45,41 @@ vtkDataSetTriangleFilter::~vtkDataSetTriangleFilter()
   this->Triangulator = NULL;
 }
 
-void vtkDataSetTriangleFilter::Execute()
+int vtkDataSetTriangleFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkDataSet *input = this->GetInput();
-  if (!input)
-    {
-    return;
-    }
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   if (input->IsA("vtkStructuredPoints") ||
       input->IsA("vtkStructuredGrid") || 
       input->IsA("vtkImageData") ||
       input->IsA("vtkRectilinearGrid"))
     {
-    this->StructuredExecute();
+    this->StructuredExecute(input, output);
     }
   else
     {
-    this->UnstructuredExecute();
+    this->UnstructuredExecute(input, output);
     }
 
   vtkDebugMacro(<<"Produced " << this->GetOutput()->GetNumberOfCells() << " cells");
+
+  return 1;
 }
 
-void vtkDataSetTriangleFilter::StructuredExecute()
+void vtkDataSetTriangleFilter::StructuredExecute(vtkDataSet *input,
+                                                 vtkUnstructuredGrid *output)
 {
-  vtkDataSet *input = this->GetInput();
-  vtkUnstructuredGrid *output = this->GetOutput();
   int dimensions[3], i, j, k, l, m;
   vtkIdType newCellId, inId;
   vtkGenericCell *cell = vtkGenericCell::New();
@@ -180,10 +191,10 @@ void vtkDataSetTriangleFilter::StructuredExecute()
 // to create templates on the fly. Once the templates are created then they
 // are used to produce the final triangulation.
 //
-void vtkDataSetTriangleFilter::UnstructuredExecute()
+void vtkDataSetTriangleFilter::UnstructuredExecute(vtkDataSet *dataSetInput,
+                                                   vtkUnstructuredGrid *output)
 {
-  vtkPointSet *input = (vtkPointSet*) this->GetInput(); //has to be
-  vtkUnstructuredGrid *output = this->GetOutput();
+  vtkPointSet *input = (vtkPointSet*) dataSetInput; //has to be
   vtkIdType numCells = input->GetNumberOfCells();
   vtkGenericCell *cell;
   vtkIdType newCellId, j;
@@ -296,6 +307,12 @@ void vtkDataSetTriangleFilter::UnstructuredExecute()
   cellPts->Delete();
   cellPtIds->Delete();
   cell->Delete();
+}
+
+int vtkDataSetTriangleFilter::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  return 1;
 }
 
 void vtkDataSetTriangleFilter::PrintSelf(ostream& os, vtkIndent indent)

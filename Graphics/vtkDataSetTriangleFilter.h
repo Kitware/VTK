@@ -31,15 +31,15 @@
 #ifndef __vtkDataSetTriangleFilter_h
 #define __vtkDataSetTriangleFilter_h
 
-#include "vtkDataSetToUnstructuredGridFilter.h"
+#include "vtkUnstructuredGridAlgorithm.h"
 
 class vtkOrderedTriangulator;
 
-class VTK_GRAPHICS_EXPORT vtkDataSetTriangleFilter : public vtkDataSetToUnstructuredGridFilter
+class VTK_GRAPHICS_EXPORT vtkDataSetTriangleFilter : public vtkUnstructuredGridAlgorithm
 {
 public:
   static vtkDataSetTriangleFilter *New();
-  vtkTypeRevisionMacro(vtkDataSetTriangleFilter,vtkDataSetToUnstructuredGridFilter);
+  vtkTypeRevisionMacro(vtkDataSetTriangleFilter,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
@@ -47,14 +47,16 @@ protected:
   ~vtkDataSetTriangleFilter();
 
   // Usual data generation method
-  void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
 
   // Used to triangulate 3D cells
   vtkOrderedTriangulator *Triangulator;
 
   // Different execute methods depending on whether input is structured or not
-  void StructuredExecute();
-  void UnstructuredExecute();
+  void StructuredExecute(vtkDataSet *, vtkUnstructuredGrid *);
+  void UnstructuredExecute(vtkDataSet *, vtkUnstructuredGrid *);
   
 private:
   vtkDataSetTriangleFilter(const vtkDataSetTriangleFilter&);  // Not implemented.
