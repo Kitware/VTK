@@ -24,7 +24,7 @@
 #include "vtkOldStyleCallbackCommand.h"
 #include "vtkCallbackCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyle, "1.61");
+vtkCxxRevisionMacro(vtkInteractorStyle, "1.62");
 
 //----------------------------------------------------------------------------
 vtkInteractorStyle *vtkInteractorStyle::New() 
@@ -1299,6 +1299,7 @@ void vtkInteractorStyle::PrintSelf(ostream& os, vtkIndent indent)
   
   os << indent << "State: " << this->State << endl;
   os << indent << "UseTimers: " << this->UseTimers << endl;
+  os << indent << "HandleObservers: " << this->HandleObservers << endl;
 }
 
 //----------------------------------------------------------------------------
