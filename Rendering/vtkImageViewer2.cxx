@@ -23,10 +23,11 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkImageViewer2, "1.23");
+vtkCxxRevisionMacro(vtkImageViewer2, "1.24");
 vtkStandardNewMacro(vtkImageViewer2);
 
 //----------------------------------------------------------------------------
+// Construct the vtkImageViewer2 with AutoResetCameraClippingRange On by default
 vtkImageViewer2::vtkImageViewer2()
 {
   this->RenderWindow = vtkRenderWindow::New();
@@ -42,6 +43,7 @@ vtkImageViewer2::vtkImageViewer2()
   
   this->Interactor = 0;
   this->InteractorStyle = 0;
+  this->AutoResetCameraClippingRange = 1;
 }
 
 
@@ -86,11 +88,11 @@ void vtkImageViewer2::SetPosition(int a[2])
   this->SetPosition(a[0],a[1]);
 }
 
+//----------------------------------------------------------------------------
 class vtkImageViewer2Callback : public vtkCommand
 {
 public:
-  static vtkImageViewer2Callback *New() {
-    return new vtkImageViewer2Callback; }
+  static vtkImageViewer2Callback *New() { return new vtkImageViewer2Callback; }
   
   void Execute(vtkObject *caller, 
                unsigned long event, 
@@ -200,7 +202,7 @@ public:
   double InitialLevel;
 };
 
-
+//----------------------------------------------------------------------------
 void vtkImageViewer2::SetupInteractor(vtkRenderWindowInteractor *rwi)
 {
   if (this->Interactor && rwi != this->Interactor)
@@ -231,6 +233,7 @@ void vtkImageViewer2::SetupInteractor(vtkRenderWindowInteractor *rwi)
   this->Renderer->GetActiveCamera()->ParallelProjectionOn();
 }
 
+//----------------------------------------------------------------------------
 void vtkImageViewer2::Render()
 {
   if (this->FirstRender)
@@ -256,22 +259,36 @@ void vtkImageViewer2::Render()
 }
 
 
+//----------------------------------------------------------------------------
 void vtkImageViewer2::SetOffScreenRendering(int i)
 {
   this->RenderWindow->SetOffScreenRendering(i);
 }
 
+//----------------------------------------------------------------------------
 int vtkImageViewer2::GetOffScreenRendering()
 {
   return this->RenderWindow->GetOffScreenRendering();
 }
 
+//----------------------------------------------------------------------------
 void vtkImageViewer2::OffScreenRenderingOn()
 {
   this->SetOffScreenRendering(1);
 }
 
+//----------------------------------------------------------------------------
 void vtkImageViewer2::OffScreenRenderingOff()
 {
   this->SetOffScreenRendering(0);
+}
+
+//----------------------------------------------------------------------------
+void vtkImageViewer2::SetZSlice(int s)
+{
+  this->ImageActor->SetZSlice(s);
+  if(this->AutoResetCameraClippingRange)
+    {
+    this->Renderer->ResetCameraClippingRange();
+    }
 }

@@ -27,7 +27,8 @@
 // zooming, and panning. The image is placed in the 3D scene at a
 // depth based on the z-coordinate of the particular image slice. Each
 // call to SetZSlice() changes the image data (slice) displayed AND
-// changes the depth of the displayed slice in the 3D scene.
+// changes the depth of the displayed slice in the 3D scene. This can
+// be controlled by the AutoResetCameraClippingRange ivar.
 //
 // It is possible to mix images and geometry, using the methods:
 //
@@ -41,7 +42,7 @@
 // portions of your geometry that are behind the displayed slice will
 // be obscured. A more general framework (with respect to viewing
 // direction) for achieving this effect is provided by the
-// ImagePlaneWidgets.
+// vtkImagePlaneWidget .
 //
 
 // .SECTION See Also
@@ -55,7 +56,6 @@
 #include "vtkRenderWindow.h" // For inline methods
 #include "vtkImageActor.h" // For inline methods
 #include "vtkImageMapToWindowLevelColors.h" // For inline methods
-#include "vtkRenderer.h" // For inline methods
 
 class vtkInteractorStyleImage;
 
@@ -86,13 +86,14 @@ public:
   int GetWholeZMax() {return this->ImageActor->GetWholeZMax();}
   
   // Description:
+  vtkGetMacro(AutoResetCameraClippingRange,int);
+  vtkSetMacro(AutoResetCameraClippingRange,int);
+  vtkBooleanMacro(AutoResetCameraClippingRange,int);
+  
+  // Description:
   // Set/Get the current z-slice to display.
   int GetZSlice() {return this->ImageActor->GetZSlice();}
-  void SetZSlice(int s)
-    {
-    this->ImageActor->SetZSlice(s);
-    this->Renderer->ResetCameraClippingRange(); 
-    }
+  void SetZSlice(int s);
   
   // Description:
   // Set window and level for mapping pixels to colors.
@@ -149,6 +150,7 @@ protected:
   vtkRenderer     *Renderer;
   vtkImageActor   *ImageActor;
   int FirstRender;
+  int AutoResetCameraClippingRange;
   vtkRenderWindowInteractor *Interactor;
   vtkInteractorStyleImage *InteractorStyle;
 
