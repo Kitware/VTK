@@ -84,10 +84,9 @@ class vtkScalarTree;
 class VTK_EXPORT vtkContourFilter : public vtkDataSetToPolyDataFilter
 {
 public:
-
-// Description:
-// Construct object with initial range (0,1) and single contour value
-// of 0.0.
+  // Description:
+  // Construct object with initial range (0,1) and single contour value
+  // of 0.0.
   vtkContourFilter();
 
   static vtkContourFilter *New() {return new vtkContourFilter;};
@@ -109,19 +108,21 @@ public:
   unsigned long int GetMTime();
 
   // Description:
-  // Set/Get the computation of normals. Normal computation is failrly expensive
-  // in both time and storage. If the output data will be processed by filters
-  // that modify topology or geometry, it may be wise to turn Normals and Gradients off.
+  // Set/Get the computation of normals. Normal computation is failrly
+  // expensive in both time and storage. If the output data will be
+  // processed by filters that modify topology or geometry, it may be
+  // wise to turn Normals and Gradients off.
   vtkSetMacro(ComputeNormals,int);
   vtkGetMacro(ComputeNormals,int);
   vtkBooleanMacro(ComputeNormals,int);
 
   // Description:
-  // Set/Get the computation of gradients. Gradient computation is fairly expensive
-  // in both time and storage. Note that if ComputeNormals is on, gradients will
-  // have to be calculated, but will not be stored in the output dataset.
-  // If the output data will be processed by filters that modify topology or
-  // geometry, it may be wise to turn Normals and Gradients off.
+  // Set/Get the computation of gradients. Gradient computation is
+  // fairly expensive in both time and storage. Note that if
+  // ComputeNormals is on, gradients will have to be calculated, but
+  // will not be stored in the output dataset.  If the output data
+  // will be processed by filters that modify topology or geometry, it
+  // may be wise to turn Normals and Gradients off.
   vtkSetMacro(ComputeGradients,int);
   vtkGetMacro(ComputeGradients,int);
   vtkBooleanMacro(ComputeGradients,int);
@@ -138,18 +139,17 @@ public:
   vtkGetMacro(UseScalarTree,int);
   vtkBooleanMacro(UseScalarTree,int);
 
-
-// Description:
-// Specify a spatial locator for merging points. By default, 
-// an instance of vtkMergePoints is used.
+  // Description:
+  // Specify a spatial locator for merging points. By default, 
+  // an instance of vtkMergePoints is used.
   void SetLocator(vtkPointLocator *locator);
 
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
   vtkGetObjectMacro(Locator,vtkPointLocator);
 
   // Description:
-  // Create default locator. Used to create one when none is specified. The locator is
-  // used to merge coincident points.
+  // Create default locator. Used to create one when none is
+  // specified. The locator is used to merge coincident points.
   void CreateDefaultLocator();
 
 protected:

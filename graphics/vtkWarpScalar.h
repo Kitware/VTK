@@ -54,8 +54,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // along the z-axis. If scalars are also present, these are copied through
 // and can be used to color the surface.
 //
-// Note that the filter passes both its point data and cell data to its output, 
-// except for normals, since these are distorted by the warping.
+// Note that the filter passes both its point data and cell data to
+// its output, except for normals, since these are distorted by the
+// warping.
 
 
 #ifndef __vtkWarpScalar_h

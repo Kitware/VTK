@@ -111,12 +111,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkGlyph3D : public vtkDataSetToPolyDataFilter
 {
 public:
-
-// Description
-// Construct object with scaling on, scaling mode is by scalar value, 
-// scale factor = 1.0, the range is (0,1), orient geometry is on, and
-// orientation is by vector. Clamping and indexing are turned off. No
-// initial sources are defined.
+  // Description
+  // Construct object with scaling on, scaling mode is by scalar value, 
+  // scale factor = 1.0, the range is (0,1), orient geometry is on, and
+  // orientation is by vector. Clamping and indexing are turned off. No
+  // initial sources are defined.
   vtkGlyph3D();
 
   ~vtkGlyph3D();
@@ -124,12 +123,10 @@ public:
   const char *GetClassName() {return "vtkGlyph3D";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-
-// Description:
-// Override update method because execution can branch two ways (via Input 
-// and Source).
+  // Description:
+  // Override update method because execution can branch two ways (via Input 
+  // and Source).
   void Update();
-
 
   // Description:
   // Get the number of source objects used to define the glyph
@@ -140,15 +137,13 @@ public:
   // These are used to load the table of sources
   void SetSource(vtkPolyData *pd) {this->SetSource(0,pd);};
 
-// Description:
-// Specify a source object at a specified table location.
+  // Description:
+  // Specify a source object at a specified table location.
   void SetSource(int id, vtkPolyData *pd);
 
-
-// Description:
-// Get a pointer to a source object at a specified table location.
+  // Description:
+  // Get a pointer to a source object at a specified table location.
   vtkPolyData *GetSource(int id=0);
-
 
   // Description:
   // Turn on/off scaling of source geometry.

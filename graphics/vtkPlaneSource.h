@@ -40,24 +40,26 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkPlaneSource - create an array of quadrilaterals located in a plane
 // .SECTION Description
-// vtkPlaneSource creates an m x n array of quadrilaterals arranged as a
-// regular tiling in a plane. The plane is defined by specifying an origin
-// point, and then two other points that, together with the origin, define two
-// axes for the plane. These axes do not have to be orthogonal - so you can 
-// create a parallelogram. (The axes must not be parallel.) By default, the 
-// plane is centered at the origin and perpendicular to the z-axis, with 
-// width and height of length 1. The resolution of the plane (i.e., number 
-// of subdivisions) is controlled by the ivars XResolution and YResolution.
+// vtkPlaneSource creates an m x n array of quadrilaterals arranged as
+// a regular tiling in a plane. The plane is defined by specifying an
+// origin point, and then two other points that, together with the
+// origin, define two axes for the plane. These axes do not have to be
+// orthogonal - so you can create a parallelogram. (The axes must not
+// be parallel.) By default, the plane is centered at the origin and
+// perpendicular to the z-axis, with width and height of length 1. The
+// resolution of the plane (i.e., number of subdivisions) is
+// controlled by the ivars XResolution and YResolution.
 //
-// There are three conveience methods that allow you to easily move the plane. 
-// The first, SetNormal(), allows you to specify the plane normal. The effect
-// of this method is to rotate the plane around the center of the plane, 
-// aligning the plane normal with the specified normal. The second, SetCenter(),
-// translates the center of the plane to the specified center point. The third
-// method, Push(), allows you to translate the plane along the plane normal by 
-// the distance specified. (Negative Push values translate the plane in the 
-// negative normal direction.)  Note that the SetNormal(), SetCenter() and Push() 
-// methods modify the Origin, Point1, and/or Point2 ivars.
+// There are three conveience methods that allow you to easily move
+// the plane.  The first, SetNormal(), allows you to specify the plane
+// normal. The effect of this method is to rotate the plane around the
+// center of the plane, aligning the plane normal with the specified
+// normal. The second, SetCenter(), translates the center of the plane
+// to the specified center point. The third method, Push(), allows you
+// to translate the plane along the plane normal by the distance
+// specified. (Negative Push values translate the plane in the
+// negative normal direction.)  Note that the SetNormal(), SetCenter()
+// and Push() methods modify the Origin, Point1, and/or Point2 ivars.
 
 // .SECTION Caveats
 // The normal to the plane will point in the direction of the cross product
@@ -72,10 +74,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPlaneSource : public vtkPolyDataSource 
 {
 public:
-
-// Description:
-// Construct plane perpendicular to z-axis, resolution 1x1, width and height 1.0,
-// and centered at the origin.
+  // Description:
+  // Construct plane perpendicular to z-axis, resolution 1x1, width
+  // and height 1.0, and centered at the origin.
   vtkPlaneSource();
 
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -94,8 +95,8 @@ public:
 
   // Convenience functions.
 
-// Description:
-// Set the number of x-y subdivisions in the plane.
+  // Description:
+  // Set the number of x-y subdivisions in the plane.
   void SetResolution(const int xR, const int yR);
 
   void GetResolution(int& xR,int& yR) {xR=this->XResolution; yR=this->YResolution;};
@@ -133,12 +134,11 @@ public:
   void SetNormal(float n[3]);
   vtkGetVectorMacro(Normal,float,3);
 
-
-// Description:
-// Translate the plane in the direction of the normal by the distance specified.
-// Negative values move the plane in the opposite direction.
+  // Description:
+  // Translate the plane in the direction of the normal by the
+  // distance specified.  Negative values move the plane in the
+  // opposite direction.
   void Push(float distance);
-
 
 protected:
   void Execute();

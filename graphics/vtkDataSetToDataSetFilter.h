@@ -104,8 +104,8 @@ public:
   // get the output as a dataset - requires setting input first
 
   // Description:
-  // Get the output of this filter. If output is NULL then input hasn't been set
-  // which is necessary for abstract objects.
+  // Get the output of this filter. If output is NULL then input
+  // hasn't been set which is necessary for abstract objects.
   vtkDataSet *GetOutput();
 
   // get the output in different forms - does run-time checking
