@@ -65,31 +65,36 @@ VolumeTextureMapper2D_XMajorDirection( T *data_ptr,
 				       int directionFlag,
 				       vtkVolumeTextureMapper2D *me )
 {
-  int            i, j, k;
-  int            istart, iend, iinc;
-  unsigned char  *tptr;
-  T              *dptr;
-  unsigned short *nptr;
-  unsigned char  *gptr;
-  float          v[12], t[8];
-  unsigned char  *rgbArray = me->GetRGBArray();
-  unsigned char  *scalarOpacityArray = me->GetScalarOpacityArray();
-  float          gradientOpacityConstant = me->GetGradientOpacityConstant();
-  float          *gradientOpacityArray;
-  unsigned char  *gradientMagnitudes;
-  unsigned short *encodedNormals;
-  float          *redDiffuseShadingTable;
-  float          *greenDiffuseShadingTable;
-  float          *blueDiffuseShadingTable;
-  float          *redSpecularShadingTable;
-  float          *greenSpecularShadingTable;
-  float          *blueSpecularShadingTable;
-  int            shade;
-  float          tmpval;
-  int            cropping, croppingFlags;
-  float          *croppingBounds;
-  int            flag[3], tmpFlag, index;
-  int            clipLow, clipHigh;
+  int              i, j, k;
+  int              istart, iend, iinc;
+  unsigned char    *tptr;
+  T                *dptr;
+  unsigned short   *nptr;
+  unsigned char    *gptr;
+  float            v[12], t[8];
+  unsigned char    *rgbArray = me->GetRGBArray();
+  unsigned char    *scalarOpacityArray = me->GetScalarOpacityArray();
+  float            gradientOpacityConstant = me->GetGradientOpacityConstant();
+  float            *gradientOpacityArray;
+  unsigned char    *gradientMagnitudes;
+  unsigned short   *encodedNormals;
+  float            *redDiffuseShadingTable;
+  float            *greenDiffuseShadingTable;
+  float            *blueDiffuseShadingTable;
+  float            *redSpecularShadingTable;
+  float            *greenSpecularShadingTable;
+  float            *blueSpecularShadingTable;
+  int              shade;
+  float            tmpval;
+  int              cropping, croppingFlags;
+  float            *croppingBounds;
+  int              flag[3], tmpFlag, index;
+  int              clipLow, clipHigh;
+  vtkRenderWindow  *renWin = me->GetRenderWindow();
+  float            spacing[3], origin[3];
+
+  me->GetDataSpacing( spacing );
+  me->GetDataOrigin( origin );
 
   if ( directionFlag )
     {
@@ -104,26 +109,29 @@ VolumeTextureMapper2D_XMajorDirection( T *data_ptr,
     iinc    = -1;
     }
 
-  t[0] = 0.0;
-  t[1] = 0.0;
-  t[2] = 0.0;
-  t[3] = (float)size[2] / (float)tsize[1];
-  t[4] = (float)size[1] / (float)tsize[0];
-  t[5] = (float)size[2] / (float)tsize[1];
-  t[6] = (float)size[1] / (float)tsize[0];
-  t[7] = 0.0;
+  float offset[2];
+  offset[0] = 0.5 / (float)tsize[0];
+  offset[1] = 0.5 / (float)tsize[1];
+  t[0] = offset[0];
+  t[1] = offset[1];
+  t[2] = offset[0];
+  t[3] = ((float)size[2] / (float)tsize[1]) - offset[1];
+  t[4] = ((float)size[1] / (float)tsize[0]) - offset[0];
+  t[5] = ((float)size[2] / (float)tsize[1]) - offset[1];
+  t[6] = ((float)size[1] / (float)tsize[0]) - offset[0];
+  t[7] = offset[1];
 
-  v[1] = 0.0;
-  v[2] = 0.0;
+  v[1] = origin[1];
+  v[2] = origin[2];
 
-  v[4] = 0.0;
-  v[5] = size[2];
+  v[4] = origin[1];
+  v[5] = spacing[2] * size[2] + origin[2];
 
-  v[7] = size[1];
-  v[8] = size[2];
+  v[7] = spacing[1] * size[1] + origin[1];
+  v[8] = spacing[2] * size[2] + origin[2];
 
-  v[10] = size[1];
-  v[11] = 0.0;
+  v[10] = spacing[1] * size[1] + origin[1];
+  v[11] = origin[2];
 
   cropping       = me->GetCropping();
   croppingFlags  = me->GetCroppingRegionFlags();
@@ -161,6 +169,8 @@ VolumeTextureMapper2D_XMajorDirection( T *data_ptr,
     {
     gradientMagnitudes = NULL;
     }
+
+  renWin = me->GetRenderWindow();
 
   for ( i = istart; i != iend; i+=iinc )
     {
@@ -304,7 +314,12 @@ VolumeTextureMapper2D_XMajorDirection( T *data_ptr,
 	}
       }
 
-    v[0] = v[3] = v[6] = v[9] = i;
+    if ( renWin->CheckAbortStatus() )
+      {
+      return;
+      }
+
+    v[0] = v[3] = v[6] = v[9] = (float)i * spacing[0] + origin[0];
     me->RenderRectangle( v, t, texture, tsize);
     }
 }
@@ -343,6 +358,11 @@ VolumeTextureMapper2D_YMajorDirection( T *data_ptr,
   float          *croppingBounds;
   int            flag[3], tmpFlag, index;
   int            clipLow, clipHigh;
+  vtkRenderWindow  *renWin = me->GetRenderWindow();
+  float            spacing[3], origin[3];
+
+  me->GetDataSpacing( spacing );
+  me->GetDataOrigin( origin );
 
   if ( directionFlag )
     {
@@ -357,26 +377,30 @@ VolumeTextureMapper2D_YMajorDirection( T *data_ptr,
     jinc    = -1;
     }
 
-  t[0] = 0.0;
-  t[1] = 0.0;
-  t[2] = (float)size[0] / (float)tsize[0];
-  t[3] = 0.0;
-  t[4] = (float)size[0] / (float)tsize[0];
-  t[5] = (float)size[2] / (float)tsize[1];
-  t[6] = 0.0;
-  t[7] = (float)size[2] / (float)tsize[1];
+  float offset[2];
+  offset[0] = 0.5 / (float)tsize[0];
+  offset[1] = 0.5 / (float)tsize[1];
 
-  v[0] = 0.0;
-  v[2] = 0.0;
+  t[0] = offset[0];
+  t[1] = offset[1];
+  t[2] = ((float)size[0] / (float)tsize[0]) - offset[0];
+  t[3] = offset[1];
+  t[4] = ((float)size[0] / (float)tsize[0]) - offset[0];
+  t[5] = ((float)size[2] / (float)tsize[1]) - offset[1];
+  t[6] = offset[0];
+  t[7] = ((float)size[2] / (float)tsize[1]) - offset[1];
 
-  v[3] = size[0];
-  v[5] = 0.0;
+  v[0] = origin[0];
+  v[2] = origin[2];
 
-  v[6] = size[0];
-  v[8] = size[2];
+  v[3] = spacing[0] * size[0] + origin[0];
+  v[5] = origin[2];
 
-  v[9] = 0.0;
-  v[11] = size[2];
+  v[6] = spacing[0] * size[0] + origin[0];
+  v[8] = spacing[2] * size[2] + origin[1];
+
+  v[9] = origin[0];
+  v[11] = spacing[2] * size[2] + origin[2];
 
   cropping       = me->GetCropping();
   croppingFlags  = me->GetCroppingRegionFlags();
@@ -557,7 +581,12 @@ VolumeTextureMapper2D_YMajorDirection( T *data_ptr,
 	}
       }
 
-    v[1] = v[4] = v[7] = v[10] = j;
+    if ( renWin->CheckAbortStatus() )
+      {
+      return;
+      }
+
+    v[1] = v[4] = v[7] = v[10] = spacing[1] * (float)j + origin[1];
     me->RenderRectangle( v, t, texture, tsize);
     }
 }
@@ -596,6 +625,11 @@ VolumeTextureMapper2D_ZMajorDirection( T *data_ptr,
   float          *croppingBounds;
   int            flag[3], tmpFlag, index;
   int            clipLow, clipHigh;
+  vtkRenderWindow  *renWin = me->GetRenderWindow();
+  float            spacing[3], origin[3];
+
+  me->GetDataSpacing( spacing );
+  me->GetDataOrigin( origin );
 
   if ( directionFlag )
     {
@@ -610,26 +644,30 @@ VolumeTextureMapper2D_ZMajorDirection( T *data_ptr,
     kinc    = -1;
     }
 
-  t[0] = 0.0;
-  t[1] = 0.0;
-  t[2] = (float)size[0] / (float)tsize[0];
-  t[3] = 0.0;
-  t[4] = (float)size[0] / (float)tsize[0];
-  t[5] = (float)size[1] / (float)tsize[1];
-  t[6] = 0.0;
-  t[7] = (float)size[1] / (float)tsize[1];
+  float offset[2];
+  offset[0] = 0.5 / (float)tsize[0];
+  offset[1] = 0.5 / (float)tsize[1];
 
-  v[0] = 0.0;
-  v[1] = 0.0;
+  t[0] = offset[0];
+  t[1] = offset[1];
+  t[2] = ((float)size[0] / (float)tsize[0]) - offset[0];
+  t[3] = offset[1];
+  t[4] = ((float)size[0] / (float)tsize[0]) - offset[0];
+  t[5] = ((float)size[1] / (float)tsize[1]) - offset[1];
+  t[6] = offset[0];
+  t[7] = ((float)size[1] / (float)tsize[1]) - offset[1];
 
-  v[3] = size[0];
-  v[4] = 0.0;
+  v[0] = origin[0];
+  v[1] = origin[1];
 
-  v[6] = size[0];
-  v[7] = size[1];
+  v[3] = spacing[0] * size[0] + origin[0];
+  v[4] = origin[1];
 
-  v[9] = 0.0;
-  v[10] = size[1];
+  v[6] = spacing[0] * size[0] + origin[0];
+  v[7] = spacing[1] * size[1] + origin[1];
+
+  v[9] = origin[0];
+  v[10] = spacing[1] * size[1] + origin[1];
 
   cropping       = me->GetCropping();
   croppingFlags  = me->GetCroppingRegionFlags();
@@ -810,7 +848,12 @@ VolumeTextureMapper2D_ZMajorDirection( T *data_ptr,
 	}
       }
 
-    v[2] = v[5] = v[8] = v[11] = k;
+    if ( renWin->CheckAbortStatus() )
+      {
+      return;
+      }
+
+    v[2] = v[5] = v[8] = v[11] = spacing[2] * (float)k + origin[2];
     me->RenderRectangle( v, t, texture, tsize);
     }
 }

@@ -56,6 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class vtkVolume;
 class vtkRenderer;
+class vtkRenderWindow;
 
 class VTK_EXPORT vtkVolumeTextureMapper : public vtkVolumeMapper
 {
@@ -96,7 +97,9 @@ public:
   unsigned short *GetEncodedNormals(){return this->EncodedNormals;};
   unsigned char *GetGradientMagnitudes(){return this->GradientMagnitudes;};
   vtkGetMacro( Shade, int );
-
+  vtkGetObjectMacro( RenderWindow, vtkRenderWindow );
+  vtkGetVectorMacro( DataOrigin, float, 3 );
+  vtkGetVectorMacro( DataSpacing, float, 3 );
 //ETX
 
   // Description:
@@ -131,10 +134,15 @@ protected:
   float          *GreenSpecularShadingTable;
   float          *BlueSpecularShadingTable;
 
+  float          DataOrigin[3];
+  float          DataSpacing[3];
+
   unsigned short *EncodedNormals;
   unsigned char  *GradientMagnitudes;
 
   float          SampleDistance;
+  
+  vtkRenderWindow *RenderWindow;
 };
 
 

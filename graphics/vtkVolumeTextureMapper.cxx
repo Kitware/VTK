@@ -125,6 +125,9 @@ void vtkVolumeTextureMapper::InitializeRender( vtkRenderer *ren,
   float *tmpArray;
   int   colorChannels;
 
+  // Hang on to the render window - we'll need it to test for abort
+  this->RenderWindow = ren->GetRenderWindow();
+
   vol->UpdateTransferFunctions( ren );
 
   vol->UpdateScalarOpacityforSampleSize( ren, this->SampleDistance );
@@ -231,6 +234,9 @@ void vtkVolumeTextureMapper::InitializeRender( vtkRenderer *ren,
     {
     this->GradientMagnitudes = NULL;
     }
+
+  this->GetInput()->GetOrigin( this->DataOrigin );
+  this->GetInput()->GetSpacing( this->DataSpacing );
 }
 
 // Print the vtkVolumeTextureMapper
