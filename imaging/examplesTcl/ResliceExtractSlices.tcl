@@ -146,7 +146,7 @@ vtkImager imager4
 
 vtkImageWindow imgWin
   imgWin EraseOff
-  imgWin DoubleBufferOn
+  #imgWin DoubleBufferOn
   imgWin AddImager imager1
   imgWin AddImager imager2
   imgWin AddImager imager3
