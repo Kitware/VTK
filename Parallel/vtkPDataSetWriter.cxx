@@ -81,13 +81,28 @@ vtkPDataSetWriter::~vtkPDataSetWriter()
 
 
 //----------------------------------------------------------------------------
+void vtkPDataSetWriter::SetNumberOfPieces(int num)
+{
+  if (num == this->NumberOfPieces)
+    {
+    return;
+    }
+
+  this->Modified();
+  this->NumberOfPieces = num;
+
+  // Default behavior is for the single process to stream the pieces.
+  this->StartPiece = 0;
+  this->EndPiece = num-1;
+}
+
+//----------------------------------------------------------------------------
 void vtkPDataSetWriter::Write()
 {
   int i;
   int length;
   char *fileRoot;
   char *fileName;
-  char *savedFileName;
 
   ostream *fptr;
   vtkDataSet *input = this->GetInput();
@@ -179,16 +194,29 @@ void vtkPDataSetWriter::Write()
     }
 
   // Now write the pieces assigned to this writer.
-  savedFileName = this->FileName;
+  vtkDataSetWriter *writer = vtkDataSetWriter::New();
+  writer->SetFileTypeToBinary();
+  vtkDataObject *copy;
   for (i = this->StartPiece; i <= this->EndPiece; ++i)
     {
     sprintf(fileName, this->FilePattern, fileRoot, i);
+    writer->SetFileName(fileName);
     input->SetUpdateExtent(i, this->NumberOfPieces, this->GhostLevel);
-    this->FileName = fileName;
-    this->vtkDataSetWriter::Write();
+    input->Update();
+    copy = input->MakeObject();
+    copy->ShallowCopy(input);
+    // I am putting this in here because shallow copy does not copy the
+    // UpdateExtentInitializedFlag, and I do not want to touch ShallowCopy
+    // in ParaViews release.
+    copy->SetUpdateExtent(input->GetUpdateExtent());
+    copy->SetRequestExactExtent(1);
+    writer->SetInput(vtkDataSet::SafeDownCast(copy));
+    writer->Write();
+    copy->Delete();
+    copy = NULL;
     }
-  this->FileName = savedFileName;
-  savedFileName = NULL;
+  writer->Delete();
+  writer = NULL;
   delete [] fileName;
   delete [] fileRoot;
 }

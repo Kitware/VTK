@@ -43,6 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPDataSetReader.h"
 #include "vtkDataSetReader.h"
 #include "vtkStructuredPointsReader.h"
+#include "vtkStructuredGridReader.h"
 #include "vtkAppendPolyData.h"
 #include "vtkAppendFilter.h"
 #include "vtkPolyData.h"
@@ -633,8 +634,11 @@ void vtkPDataSetReader::Execute()
     case VTK_IMAGE_DATA:
       this->ImageDataExecute();
       break;
+    case VTK_STRUCTURED_GRID:
+      this->StructuredGridExecute();
+      break;
     default:
-      vtkErrorMacro("We do not handle vtkStructuredGrid yet.");
+      vtkErrorMacro("We do not handle vtkRectilinear yet.");
       return;
     }
 }
@@ -837,6 +841,173 @@ void vtkPDataSetReader::ImageDataExecute()
     }
 
   delete [] pieceMask;
+  reader->Delete();
+}
+
+
+//----------------------------------------------------------------------------
+// Structured data is trickier.  Which files to load?
+void vtkPDataSetReader::StructuredGridExecute()
+{
+  vtkStructuredGrid *output;
+  vtkStructuredGrid *tmp;
+  vtkStructuredGrid **pieces;
+  int count = 0;
+  vtkStructuredGridReader *reader;
+  vtkPoints *newPts;
+  int uExt[6];
+  int ext[6];
+  int *pieceMask;
+  int i;
+  int pIncY, pIncZ, cIncY, cIncZ;
+  int ix, iy, iz;
+  float *pt;
+  vtkIdType inId, outId;
+  vtkIdType numPts, numCells;
+
+  // Use out internal method to get the output because GetOutput calls
+  // UpdateInformation.
+  output = vtkStructuredGrid::SafeDownCast(this->CheckOutput());
+  if (output == NULL)
+    {
+    vtkErrorMacro("Could not create output.");
+    return;
+    }
+
+  // Allocate the data object.
+  output->SetExtent(uExt);
+
+  // Get the pieces that will be read.
+  pieceMask = new int[this->NumberOfPieces];
+  for (i = 0; i < this->NumberOfPieces; ++i)
+    {
+    pieceMask[i] = 0;
+    }
+  output->GetUpdateExtent(uExt);
+  this->CoverExtent(uExt, pieceMask);
+
+  // Now read the pieces.
+  pieces = new vtkStructuredGrid*[this->NumberOfPieces];
+  reader = vtkStructuredGridReader::New();
+  for (i = 0; i < this->NumberOfPieces; ++i)
+    {
+    if (pieceMask[i])
+      {
+      tmp = vtkStructuredGrid::New();
+      reader->SetOutput(tmp);
+      reader->SetFileName(this->PieceFileNames[i]);
+      reader->Update();
+      if (tmp->GetNumberOfCells() > 0)
+        {
+        pieces[count] = tmp;
+        // Sanity check: extent is correct.  Ignore electric slide.
+        tmp->GetExtent(ext);
+        if (ext[1] - ext[0] != this->PieceExtents[i][1] - this->PieceExtents[i][0] ||
+            ext[3] - ext[2] != this->PieceExtents[i][3] - this->PieceExtents[i][2] ||
+            ext[5] - ext[4] != this->PieceExtents[i][5] - this->PieceExtents[i][4])
+          {
+          vtkErrorMacro("Unexpected extent in VTK file: " << this->PieceFileNames[i]);
+          }
+        else
+          {
+          // Reverse the electric slide.
+          tmp->SetExtent(this->PieceExtents[i]);
+          }
+        ++count;
+        }
+      else
+        {
+        tmp->Delete();
+        }
+      }
+    }
+
+  // Anything could happen with files.
+  if (count <= 0)
+    {
+    delete [] pieces;
+    delete [] pieceMask;
+    reader->Delete();
+    }
+
+  // Allocate the points.
+  cIncY = uExt[1]-uExt[0];
+  pIncY = cIncY+1;
+  cIncZ = cIncY*(uExt[3]-uExt[2]);
+  pIncZ = pIncY*(uExt[3]-uExt[2]+1);
+  numPts = pIncZ * (uExt[5]-uExt[4]+1);
+  numCells = cIncY * (uExt[5]-uExt[4]);
+  output->SetExtent(uExt);
+  newPts = vtkPoints::New();
+  newPts->SetNumberOfPoints(numPts);
+  // Copy allocate gymnastics.
+  vtkDataSetAttributes::FieldList ptList(count);
+  vtkDataSetAttributes::FieldList cellList(count);
+  ptList.InitializeFieldList(pieces[0]->GetPointData());
+  cellList.InitializeFieldList(pieces[0]->GetCellData());
+  for (i = 1; i < count; ++i)
+    {
+    ptList.IntersectFieldList(pieces[i]->GetPointData());
+    cellList.IntersectFieldList(pieces[i]->GetCellData());
+    }
+  output->GetPointData()->CopyAllocate(ptList,numPts);
+  output->GetCellData()->CopyAllocate(cellList,numCells);
+  // Now append the pieces.
+  for (i = 0; i < count; ++i)
+    {
+    pieces[i]->GetExtent(ext);
+
+    // Copy point data first.
+    inId = 0;
+    for (iz = ext[4]; iz <= ext[5]; ++iz)
+      {
+      for (iy = ext[2]; iy <= ext[3]; ++iy)
+        {
+        for (ix = ext[0]; ix <= ext[1]; ++ix)
+          {
+          // For clipping.  I know it is bad to have this condition 
+          // in the inner most loop, but we had to read the data ...
+          if (iz <= uExt[5] && iz >= uExt[4] && 
+              iy <= uExt[3] && iy >= uExt[2] && 
+              ix <= uExt[1] && ix >= uExt[0])
+            {
+            outId = (ix-uExt[0]) + pIncY*(iy-uExt[2]) + pIncZ*(iz-uExt[4]);
+            pt = pieces[i]->GetPoint(inId);
+            newPts->SetPoint(outId, pt);
+            output->GetPointData()->CopyData(ptList, pieces[i]->GetPointData(), i, 
+                                             inId, outId); 
+            }
+          ++inId;
+          }
+        }
+      }
+    // Copy cell data now.
+    inId = 0;
+    for (iz = ext[4]; iz < ext[5]; ++iz)
+      {
+      for (iy = ext[2]; iy < ext[3]; ++iy)
+        {
+        for (ix = ext[0]; ix < ext[1]; ++ix)
+          {
+          outId = (ix-uExt[0]) + cIncY*(iy-uExt[2]) + cIncZ*(iz-uExt[4]);
+          output->GetCellData()->CopyData(cellList, pieces[i]->GetCellData(), i,
+                                          inId, outId); 
+          ++inId;
+          }
+        }
+      }
+    }
+  output->SetPoints(newPts);
+  newPts->Delete();
+
+  for (i = 0; i < count; ++i)
+    {
+    pieces[i]->Delete();
+    pieces[i] = NULL;
+    }
+  delete [] pieces;
+  delete [] pieceMask;
+
   reader->Delete();
 }
 

@@ -95,6 +95,7 @@ protected:
   void PolyDataExecute();
   void UnstructuredGridExecute();
   void ImageDataExecute();
+  void StructuredGridExecute();
 
   void CoverExtent(int ext[6], int *pieceMask);
 
