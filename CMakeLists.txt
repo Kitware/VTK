@@ -925,7 +925,10 @@ ENDIF(VTK_NEED_PYTHON_EXECUTABLE)
 
 #-----------------------------------------------------------------------------
 # Configure the default VTK_DATA_ROOT for the location of VTKData.
-FIND_PATH(VTK_DATA_ROOT VTKData.readme ${VTK_SOURCE_DIR}/../VTKData $ENV{VTK_DATA_ROOT})
+FIND_PATH(VTK_DATA_ROOT VTKData.readme 
+  ${VTK_SOURCE_DIR}/../VTKData 
+  ${VTK_SOURCE_DIR}/../../VTKData 
+  $ENV{VTK_DATA_ROOT})
 
 #-----------------------------------------------------------------------------
 # Configure files with settings for use by the build.
