@@ -19,6 +19,7 @@ IF (VTK_USE_RENDERING)
       ScalarBar
       TestBunykRayCastFunction
       TestFlyTo
+      TestLinearRayIntegration
       TestLODProp3D
       TestOnePoint
       TestParallelCoordinates

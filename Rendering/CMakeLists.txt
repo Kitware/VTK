@@ -98,11 +98,12 @@ vtkTextMapper.cxx
 vtkTextProperty.cxx
 vtkTexture.cxx
 vtkUnstructuredGridBunykRayCastFunction.cxx
+vtkUnstructuredGridLinearRayIntegrator.cxx
+vtkUnstructuredGridTestRayIntegrator.cxx
 vtkUnstructuredGridVolumeMapper.cxx
 vtkUnstructuredGridVolumeRayCastFunction.cxx
 vtkUnstructuredGridVolumeRayCastIterator.cxx
 vtkUnstructuredGridVolumeRayIntegrator.cxx
-vtkUnstructuredGridTestRayIntegrator.cxx
 vtkUnstructuredGridVolumeRayCastMapper.cxx
 vtkVRMLExporter.cxx
 vtkVolume.cxx

@@ -40,7 +40,7 @@
 VTK_THREAD_RETURN_TYPE UnstructuredGridVolumeRayCastMapper_CastRays( void *arg );
 
 
-vtkCxxRevisionMacro(vtkUnstructuredGridVolumeRayCastMapper, "1.16");
+vtkCxxRevisionMacro(vtkUnstructuredGridVolumeRayCastMapper, "1.17");
 vtkStandardNewMacro(vtkUnstructuredGridVolumeRayCastMapper);
 
 vtkCxxSetObjectMacro(vtkUnstructuredGridVolumeRayCastMapper, RayCastFunction,
@@ -497,12 +497,13 @@ void vtkUnstructuredGridVolumeRayCastMapper::CastRays( int threadID, int threadC
                                                           scalars,
                                                           nearIntersections,
                                                           farIntersections);
+        if (numIntersections < 1) break;
         this->RayIntegrator->Integrate(intersectionLengths,
                                        nearIntersections,
                                        farIntersections,
                                        color);
-        } while ((numIntersections > 0) && (color[3] < 0.99));
-     
+        } while (color[3] < 0.99);
+
       if ( color[3] > 0.0 )
         {
         int val;
