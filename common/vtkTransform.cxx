@@ -126,8 +126,8 @@ vtkTransform::vtkTransform ()
   this->Identity();
 
   this->Point[0] = this->Point[1] = this->Point[2] = this->Point[3] = 0.0;
-  this->DoublePoint[0] = this->DoublePoint[1] = this->DoublePoint[2] = this->DoublePoint[3] = 0.0;
-  this->Orientation[0] = this->Orientation[1] = this->Orientation[2] = 0.0;
+  this->DoublePoint[0] = 
+    this->DoublePoint[1] = this->DoublePoint[2] = this->DoublePoint[3] = 0.0;
 }
 
 // Copy constructor. Creates an instance of vtkTransform and then
@@ -176,7 +176,6 @@ void vtkTransform::DeepCopy(vtkTransform *t)
   for ( i=0; i < 3; i++)
     {
     this->Point[i] = t->Point[i];
-    this->Orientation[i] = t->Orientation[i];
     }
 
   this->Modified();
@@ -675,12 +674,12 @@ float *vtkTransform::GetOrientation ()
 
   z = alpha / vtkMath::DegreesToRadians();
 
-  this->Orientation[0] = x;
-  this->Orientation[1] = y;
-  this->Orientation[2] = z;
+  this->ReturnValue[0] = x;
+  this->ReturnValue[1] = y;
+  this->ReturnValue[2] = z;
+  this->ReturnValue[3] = 0.0;
 
-
-  return this->Orientation;
+  return this->ReturnValue;
 }
 
 
@@ -701,7 +700,6 @@ float *vtkTransform::GetOrientationWXYZ ()
   float	scaleX, scaleY, scaleZ;
   vtkTransform *temp1 = vtkTransform::New();
   float quat[4];
-  static float WXYZ[4];
   float mag;
   
   vtkIdentityMatrix::MakeIdentity(ScratchPad);
@@ -756,26 +754,26 @@ float *vtkTransform::GetOrientationWXYZ ()
       }
     }
   
-  // calc the wxyz
+  // calc the return value wxyz
   mag = sqrt(quat[1]*quat[1] + quat[2]*quat[2] + quat[3]*quat[3]);
 
   if (mag)
     {
-    WXYZ[0] = 180.0*2.0*acos(quat[0])/3.1415926;
-    WXYZ[1] = quat[1]/mag;
-    WXYZ[2] = quat[2]/mag;
-    WXYZ[3] = quat[3]/mag;
+    this->ReturnValue[0] = 180.0*2.0*acos(quat[0])/3.1415926;
+    this->ReturnValue[1] = quat[1]/mag;
+    this->ReturnValue[2] = quat[2]/mag;
+    this->ReturnValue[3] = quat[3]/mag;
     }
   else
     {
-    WXYZ[0] = 0;
-    WXYZ[1] = 0;
-    WXYZ[2] = 0;
-    WXYZ[3] = 1;
+    this->ReturnValue[0] = 0;
+    this->ReturnValue[1] = 0;
+    this->ReturnValue[2] = 0;
+    this->ReturnValue[3] = 1;
     }
   
   temp1->Delete();
-  return WXYZ;
+  return this->ReturnValue;
 
 } // vtkTransform::GetOrientationWXYZ 
 
@@ -785,13 +783,12 @@ float *vtkTransform::GetOrientationWXYZ ()
 // component of the 4x4 matrix.
 float *vtkTransform::GetPosition()
 {
-  static float pos[3];
+  this->ReturnValue[0] = (**this->Stack).Element[0][3];
+  this->ReturnValue[1] = (**this->Stack).Element[1][3];
+  this->ReturnValue[2] = (**this->Stack).Element[2][3];
+  this->ReturnValue[3] = 0.0;
 
-  pos[0] = (**this->Stack).Element[0][3];
-  pos[1] = (**this->Stack).Element[1][3];
-  pos[2] = (**this->Stack).Element[2][3];
-
-  return pos;
+  return this->ReturnValue;
 }
 
 // Return the x, y, z scale factors of the current transformation matrix.
@@ -809,7 +806,6 @@ void vtkTransform::GetScale (float *px, float *py, float *pz)
 float *vtkTransform::GetScale()
 {
   int	i;
-  static float scale[3];
   vtkMatrix4x4 *temp;
 
   temp = *this->Stack;
@@ -818,12 +814,13 @@ float *vtkTransform::GetScale()
 
   for (i = 0; i < 3; i++) 
     {
-    scale[i] = sqrt (temp->Element[0][i] * temp->Element[0][i] +
-                     temp->Element[1][i] * temp->Element[1][i] +
-                     temp->Element[2][i] * temp->Element[2][i]);
+    this->ReturnValue[i] = sqrt (temp->Element[0][i] * temp->Element[0][i] +
+				 temp->Element[1][i] * temp->Element[1][i] +
+				 temp->Element[2][i] * temp->Element[2][i]);
     }
+  this->ReturnValue[3] = 0.0;
 
-  return scale;
+  return this->ReturnValue;
 }
 
 // Returns the current transformation matrix.

@@ -287,8 +287,7 @@ protected:
   vtkMatrix4x4 **StackBottom;
   float Point[4];
   double DoublePoint[4];
-  float Orientation[3];
-
+  float ReturnValue[4];
 };
 
 
