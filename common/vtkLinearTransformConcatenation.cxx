@@ -179,6 +179,29 @@ void vtkLinearTransformConcatenation::Concatenate(vtkLinearTransform *trans)
 }
 
 //----------------------------------------------------------------------------
+// concatenate a set of transforms in order.
+void vtkLinearTransformConcatenation::Concatenate(vtkLinearTransform *t1,
+						  vtkLinearTransform *t2,
+						  vtkLinearTransform *t3,
+						  vtkLinearTransform *t4)
+{
+  if (this->PreMultiplyFlag)
+    {
+    this->Concatenate(t1); 
+    this->Concatenate(t2);
+    if (t3) { this->Concatenate(t3); }
+    if (t4) { this->Concatenate(t4); }
+    }
+  else
+    {
+    if (t4) { this->Concatenate(t4); }
+    if (t3) { this->Concatenate(t3); }
+    this->Concatenate(t2);
+    this->Concatenate(t1);
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkLinearTransformConcatenation::Inverse()
 {
   this->InverseFlag = !this->InverseFlag;

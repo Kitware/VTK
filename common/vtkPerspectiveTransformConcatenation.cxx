@@ -179,6 +179,30 @@ void vtkPerspectiveTransformConcatenation::Concatenate(vtkPerspectiveTransform *
 }
 
 //----------------------------------------------------------------------------
+// concatenate a set of transforms in order.
+void vtkPerspectiveTransformConcatenation::Concatenate(
+					     vtkPerspectiveTransform *t1,
+					     vtkPerspectiveTransform *t2,
+					     vtkPerspectiveTransform *t3,
+					     vtkPerspectiveTransform *t4)
+{
+  if (this->PreMultiplyFlag)
+    {
+    this->Concatenate(t1); 
+    this->Concatenate(t2);
+    if (t3) { this->Concatenate(t3); }
+    if (t4) { this->Concatenate(t4); }
+    }
+  else
+    {
+    if (t4) { this->Concatenate(t4); }
+    if (t3) { this->Concatenate(t3); }
+    this->Concatenate(t2);
+    this->Concatenate(t1);
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkPerspectiveTransformConcatenation::Inverse()
 {
   this->InverseFlag = !this->InverseFlag;

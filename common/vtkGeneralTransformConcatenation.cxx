@@ -170,6 +170,29 @@ void vtkGeneralTransformConcatenation::Concatenate(vtkGeneralTransform *trans)
   this->Modified();
 }
 
+//----------------------------------------------------------------------------
+// concatenate a set of transforms in order.
+void vtkGeneralTransformConcatenation::Concatenate(vtkGeneralTransform *t1,
+						   vtkGeneralTransform *t2,
+						   vtkGeneralTransform *t3,
+						   vtkGeneralTransform *t4)
+{
+  if (this->PreMultiplyFlag)
+    {
+    this->Concatenate(t1); 
+    this->Concatenate(t2);
+    if (t3) { this->Concatenate(t3); }
+    if (t4) { this->Concatenate(t4); }
+    }
+  else
+    {
+    if (t4) { this->Concatenate(t4); }
+    if (t3) { this->Concatenate(t3); }
+    this->Concatenate(t2);
+    this->Concatenate(t1);
+    }
+}
+
 //------------------------------------------------------------------------
 // Check the InverseFlag, and perform a forward or reverse transform
 // as appropriate.

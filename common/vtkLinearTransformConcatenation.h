@@ -62,9 +62,21 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
-  // Concatenate the current transform with the specified transform,
-  // taking the PreMultiply flag into consideration.
+  // Concatenate the current transform with the specified transform(s),
+  // taking the PreMultiply flag into consideration.  If you specify
+  // multiple transforms, then (assuming that your current transform
+  // is called 't') the result is t*t1*t2*t3*t4 in PreMultiply mode,
+  // or t1*t2*t3*t4*t in PostMultiply mode.
   void Concatenate(vtkLinearTransform *transform);
+  void Concatenate(vtkLinearTransform *t1,
+		   vtkLinearTransform *t2) { this->Concatenate(t1,t2,0,0); };
+  void Concatenate(vtkLinearTransform *t1,
+		   vtkLinearTransform *t2,
+		   vtkLinearTransform *t3) { this->Concatenate(t1,t2,t3,0); };
+  void Concatenate(vtkLinearTransform *t1,
+		   vtkLinearTransform *t2,
+		   vtkLinearTransform *t3,
+		   vtkLinearTransform *t4);
 
   // Description:
   // Sets the internal state of the transform to post multiply. All
