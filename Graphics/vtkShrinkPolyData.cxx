@@ -302,6 +302,11 @@ void vtkShrinkPolyData::Execute()
   // Initialize
   vtkDebugMacro(<<"Shrinking polygonal data");
 
+  if (this->GetInput() == NULL || this->GetInput()->GetPoints() == NULL)
+    {
+    return;
+    }
+  
   // get the input pointer for templating
   void *inPtr = this->GetInput()->GetPoints()->GetVoidPointer(0);
 

@@ -120,7 +120,7 @@ void vtkWarpVector::Execute()
   // First, copy the input to the output as a starting point
   output->CopyStructure( input );
 
-  if (input == NULL)
+  if (input == NULL || input->GetPoints() == NULL)
     {
     return;
     }

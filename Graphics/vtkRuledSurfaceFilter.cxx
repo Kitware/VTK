@@ -92,13 +92,15 @@ void vtkRuledSurfaceFilter::Execute()
   vtkDebugMacro(<<"Creating a ruled surface");
 
   inPts = input->GetPoints();
-  numPts = inPts->GetNumberOfPoints();
   inLines = input->GetLines();
-  numLines=inLines->GetNumberOfCells();
-
-  if ( !inPts || numPts < 1 || !inLines || numLines < 2 )
+  if ( !inPts || !inLines)
     {
-    vtkDebugMacro(<< "No input data!\n");
+    return;
+    }
+  numLines=inLines->GetNumberOfCells();
+  numPts = inPts->GetNumberOfPoints();
+  if (numPts < 1 || numLines < 2 )
+    {
     return;
     }
   

@@ -67,5 +67,8 @@ void vtkStructuredPointsToUnstructuredGridFilter::ComputeInputUpdateExtents(
   this->vtkUnstructuredGridSource::ComputeInputUpdateExtents(output);
 
   // assume that we cannot handle more than the requested extent.
-  this->GetInput()->RequestExactExtentOn();
+  if (this->GetInput())
+    {
+    this->GetInput()->RequestExactExtentOn();
+    }
 }

@@ -537,6 +537,11 @@ void vtkVoxelContoursToSurfaceFilter::Execute()
 
   // Get the bounds of the input contours
   input->GetBounds( contourBounds );
+  
+  if (contourBounds[0] > contourBounds[1])
+    { // empty input
+    return;
+    }
 
   // From the bounds, compute the grid size, and origin
   

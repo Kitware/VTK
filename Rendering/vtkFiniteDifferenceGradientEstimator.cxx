@@ -363,9 +363,14 @@ static VTK_THREAD_RETURN_TYPE vtkSwitchOnDataType( void *arg )
     (((ThreadInfoStruct *)(arg))->UserData);
   scalars = estimator->Input->GetPointData()->GetActiveScalars();
 
+  if (scalars == NULL)
+    {
+    return VTK_THREAD_RETURN_VALUE;
+    }
+  
   // Find the data type of the Input and call the correct 
   // templated function to actually compute the normals and magnitudes
-
+  
   switch ( scalars->GetDataType() )
     {
     case VTK_CHAR:

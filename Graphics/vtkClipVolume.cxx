@@ -140,6 +140,7 @@ unsigned long vtkClipVolume::GetMTime()
 void vtkClipVolume::Execute()
 {
   vtkImageData *input = this->GetInput();
+  if (input == NULL) {return;}
   vtkUnstructuredGrid *output = this->GetOutput();
   vtkUnstructuredGrid *clippedOutput = this->GetClippedOutput();
   vtkUnstructuredGrid *outputPtr;

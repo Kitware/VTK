@@ -82,7 +82,7 @@ void vtkArcPlotter::Execute()
 {
   vtkPolyData *input=this->GetInput();
   vtkPolyData *output=this->GetOutput();
-  vtkPointData *inPD=input->GetPointData();
+  vtkPointData *inPD;
   vtkPoints *inPts;
   vtkCellArray *inLines;
   int j;
@@ -97,6 +97,14 @@ void vtkArcPlotter::Execute()
   float *range, offset;
   int plotNum, compNum;
   vtkPoints *projPts;
+  
+  // Avoid segmentiation faults.
+  if (input == NULL || output == NULL)
+    {
+    return;
+    }
+  
+  inPD = input->GetPointData();
   
   // Initialize
   //

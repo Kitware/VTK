@@ -168,55 +168,78 @@ void vtkAppendPolyData::Execute()
   numCells = 0;
   sizePolys = numPolys = 0;
 
-  // These are used to determine which fields are available for appending
-  vtkDataSetAttributes::FieldList ptList(this->NumberOfInputs);
-  vtkDataSetAttributes::FieldList cellList(this->NumberOfInputs);
-  int firstPD=1;
-  int firstCD=1;
+  int countPD=0;
+  int countCD=0;
 
+  // These Field lists are very picky.  Count the number of non empty inputs
+  // so we can initialize them properly.
   for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {
     ds = (vtkPolyData *)(this->Inputs[idx]);
     if (ds != NULL)
       {
-      if ( ds->GetNumberOfPoints() <= 0 && ds->GetNumberOfCells() <= 0 )
+      if ( ds->GetNumberOfPoints() > 0)
         {
-        continue; //no input, just skip
-        }
+	++countPD;
+	}
+      if (ds->GetNumberOfCells() > 0 )  
+	{
+	++countCD;
+	} // for a data set that has cells
+      } // for a non NULL input
+    } // for each input
 
-      // keep track of the size of the poly cell array
-      if (ds->GetPolys())
+  // These are used to determine which fields are available for appending
+  vtkDataSetAttributes::FieldList ptList(countPD);
+  vtkDataSetAttributes::FieldList cellList(countCD);  
+  
+  countPD = countCD = 0;
+  for (idx = 0; idx < this->NumberOfInputs; ++idx)
+    {
+    ds = (vtkPolyData *)(this->Inputs[idx]);
+    if (ds != NULL)
+      {
+      // Skip points and cells if there are no points.  Empty inputs may have no arrays.
+      if ( ds->GetNumberOfPoints() > 0)
         {
-        numPolys += ds->GetPolys()->GetNumberOfCells();
-        sizePolys += ds->GetPolys()->GetNumberOfConnectivityEntries();
-        }
-      
-      numPts += ds->GetNumberOfPoints();
-      numCells += ds->GetNumberOfCells();
-
-      inPD = ds->GetPointData();
-      if ( firstPD )
-        {
-        ptList.InitializeFieldList(inPD);
-        firstPD = 0;
-        }
-      else
-        {
-        ptList.IntersectFieldList(inPD);
-        }
-      
-      inCD = ds->GetCellData();
-      if ( firstCD )
-        {
-        cellList.InitializeFieldList(inCD);
-        firstCD = 0;
-        }
-      else
-        {
-        cellList.IntersectFieldList(inCD);
-        }
-      }//for non-empty dataset
-    }//for each input
+	numPts += ds->GetNumberOfPoints();
+	// Take intersection of available point data fields.
+	inPD = ds->GetPointData();
+	if ( countPD == 0 )
+	  {
+	  ptList.InitializeFieldList(inPD);
+	  }
+	else
+	  {
+	  ptList.IntersectFieldList(inPD);
+	  }
+	++countPD;
+	} // for a data set that has points
+	
+      // Although we cannot have cells without points ... let's not nest.
+      if (ds->GetNumberOfCells() > 0 )  
+	{
+	// keep track of the size of the poly cell array
+	if (ds->GetPolys())
+	  {
+	  numPolys += ds->GetPolys()->GetNumberOfCells();
+	  sizePolys += ds->GetPolys()->GetNumberOfConnectivityEntries();
+	  }
+	numCells += ds->GetNumberOfCells();
+	
+	inCD = ds->GetCellData();
+	if ( countCD == 0 )
+	  {
+	  cellList.InitializeFieldList(inCD);
+	  }
+	else
+	  {
+	  cellList.IntersectFieldList(inCD);
+	  }
+	++countCD;
+	} // for a data set that has cells
+      } // for a non NULL input
+    } // for each input
 
   if ( numPts < 1 || numCells < 1 )
     {
@@ -308,6 +331,7 @@ void vtkAppendPolyData::Execute()
   // loop over all input sets
   vtkIdType ptOffset = 0;
   vtkIdType cellOffset = 0;
+  countPD = countCD = 0;
   for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {
     this->UpdateProgress(0.2 + 0.8*idx/this->NumberOfInputs);
@@ -372,8 +396,9 @@ void vtkAppendPolyData::Execute()
         // append the remainder of the field data
         for (ptId=0; ptId < numPts; ptId++)
           {
-          outputPD->CopyData(ptList,inPD,idx,ptId,ptId+ptOffset);
+          outputPD->CopyData(ptList,inPD,countPD,ptId,ptId+ptOffset);
           }
+	++countPD;
         }
 
       if (ds->GetNumberOfCells() > 0)
@@ -383,8 +408,9 @@ void vtkAppendPolyData::Execute()
         // copy cell data
         for (cellId=0; cellId < numCells; cellId++)
           {
-          outputCD->CopyData(cellList,inCD,idx,cellId,cellId+cellOffset);
+          outputCD->CopyData(cellList,inCD,countCD,cellId,cellId+cellOffset);
           }
+	++countCD;
         
         // copy the cells
         pPolys = this->AppendCells(pPolys, inPolys, ptOffset);

@@ -97,6 +97,7 @@ void vtkConnectivityFilter::Execute()
   int maxCellsInRegion;
   int largestRegionId = 0;
   vtkDataSet *input= this->GetInput();
+  if (input == NULL) {return;}
   vtkUnstructuredGrid *output = this->GetOutput();
   vtkPointData *pd=input->GetPointData(), *outputPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outputCD=output->GetCellData();

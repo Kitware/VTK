@@ -127,6 +127,10 @@ void vtkClipDataSet::Execute()
   vtkDataSet *input = this->GetInput();
   vtkUnstructuredGrid *output = this->GetOutput();
   vtkUnstructuredGrid *clippedOutput = this->GetClippedOutput();
+  if (input == NULL)
+    {
+    return;
+    }
   vtkIdType numPts = input->GetNumberOfPoints();
   vtkIdType numCells = input->GetNumberOfCells();
   vtkPointData *inPD=input->GetPointData(), *outPD = output->GetPointData();

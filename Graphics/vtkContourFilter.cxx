@@ -128,6 +128,7 @@ void vtkContourFilter::Execute()
   vtkCellArray *newVerts, *newLines, *newPolys;
   vtkPoints *newPts;
   vtkDataSet *input=this->GetInput();
+  if (input == NULL) {return;}
   vtkPolyData *output=this->GetOutput();
   vtkIdType numCells, estimatedSize;
   vtkPointData *inPd=input->GetPointData(), *outPd=output->GetPointData();
