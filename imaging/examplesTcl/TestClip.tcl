@@ -50,7 +50,7 @@ canvas SetDrawColor 100 255 100
 canvas FillPixel 450 350
 
 vtkImageClip clip
-clip SetInput canvas
+clip SetInput [canvas GetOutput]
 clip SetOutputWholeExtent 0 255 0 255 0 0
 clip ReleaseDataFlagOff
 
