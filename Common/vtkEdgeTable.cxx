@@ -18,7 +18,7 @@
 #include "vtkVoidArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkEdgeTable, "1.37");
+vtkCxxRevisionMacro(vtkEdgeTable, "1.38");
 vtkStandardNewMacro(vtkEdgeTable);
 
 // Instantiate object based on maximum point id.
@@ -568,7 +568,7 @@ int vtkEdgeTable::InitPointInsertion(vtkPoints *newPts, vtkIdType estSize)
   return 1;
 }
 
-int vtkEdgeTable::InsertUniquePoint(vtkIdType p1, vtkIdType p2, float x[3],
+int vtkEdgeTable::InsertUniquePoint(vtkIdType p1, vtkIdType p2, double x[3],
                                     vtkIdType &ptId)
 {
   int loc = this->IsEdge(p1,p2);

@@ -115,7 +115,7 @@ public:
   // Insert a unique point on the specified edge. Invoke this method only
   // after InitPointInsertion() has been called. Return 0 if point was 
   // already in the list, otherwise return 1.
-  int InsertUniquePoint(vtkIdType p1, vtkIdType p2, float x[3],
+  int InsertUniquePoint(vtkIdType p1, vtkIdType p2, double x[3],
                         vtkIdType &ptId);
 
   // Description:
