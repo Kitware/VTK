@@ -4,15 +4,18 @@
 
 #include <stdio.h>
 #include <string.h>
-
-#define SAVEIMAGE( rw )                                 \
-  if( (argc >= 2) && (strcmp("-S", argv[argc-1]) == 0) )     \
-    {                                                   \
-    char save_filename[100];                                 \
-                                                        \
-    sprintf( save_filename, "%s.cxx.ppm", argv[0] );             \
-    rw->SetFileName( save_filename );                        \
-    rw->SaveImageAsPPM();                               \
-							\
-    exit( 1 );						\
+#include "vtkWindowToImageFilter.h"
+#include "vtkTIFFWriter.h"
+#define SAVEIMAGE( rw ) \
+  if( (argc >= 2) && (strcmp("-S", argv[argc-1]) == 0) ) \
+    { \
+    char save_filename[1024]; \
+    vtkWindowToImageFilter *w2if = vtkWindowToImageFilter::New(); \
+    vtkTIFFWriter *rttiffw = vtkTIFFWriter::New(); \
+    sprintf( save_filename, "%s.cxx.tif", argv[0] ); \
+    w2if->SetInput(rw);\
+    rttiffw->SetInput(w2if->GetOutput());\
+    rttiffw->SetFileName(save_filename); \
+    rttiffw->Write(); \
+    exit( 1 ); \
     }
