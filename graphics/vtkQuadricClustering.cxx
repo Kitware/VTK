@@ -105,7 +105,7 @@ void vtkQuadricClustering::Execute()
   this->Append(input);
   if (this->UseInputPoints)
     {
-    this->EndAppendUsingPoints(input->GetPoints());
+    this->EndAppendUsingPoints(input);
     }
   else
     {
@@ -322,33 +322,40 @@ int vtkQuadricClustering::HashPoint(float point[3])
 {
   int xBinCoord, yBinCoord, zBinCoord, binId;
   
-  if (point[0] < this->Bounds[1])
+  xBinCoord = int((point[0] - this->Bounds[0]) / this->XBinSize);
+  if (xBinCoord < 0)
     {
-    xBinCoord = int((point[0] - this->Bounds[0]) / this->XBinSize);
+    xBinCoord = 0;
     }
-  else
+  if (xBinCoord >= this->NumberOfXDivisions)
     {
     xBinCoord = this->NumberOfXDivisions - 1;
     }
-  if (point[1] < this->Bounds[3])
+
+  yBinCoord = int((point[1] - this->Bounds[2]) / this->YBinSize);
+  if (yBinCoord < 0)
     {
-    yBinCoord = int((point[1] - this->Bounds[2]) / this->YBinSize);
+    yBinCoord = 0;
     }
-  else
+  if (yBinCoord >= this->NumberOfYDivisions)
     {
     yBinCoord = this->NumberOfYDivisions - 1;
     }
-  if (point[2] < this->Bounds[5])
+
+  zBinCoord = int((point[2] - this->Bounds[4]) / this->ZBinSize);
+  if (zBinCoord < 0)
     {
-    zBinCoord = int((point[2] - this->Bounds[4]) / this->ZBinSize);
+    zBinCoord = 0;
     }
-  else
+  if (zBinCoord >= this->NumberOfZDivisions)
     {
     zBinCoord = this->NumberOfZDivisions - 1;
     }
-  
+
+
   binId = xBinCoord * this->NumberOfYDivisions * this->NumberOfZDivisions + 
     yBinCoord * this->NumberOfZDivisions + zBinCoord;
+
 
   return binId;
 }
@@ -475,9 +482,10 @@ void vtkQuadricClustering::GetNumberOfDivisions(int div[3])
 
 
 //----------------------------------------------------------------------------
-void vtkQuadricClustering::EndAppendUsingPoints(vtkPoints *inputPoints)
+void vtkQuadricClustering::EndAppendUsingPoints(vtkPolyData *input)
 {
-  int         i;
+  int         i, outPtId;
+  vtkPoints   *inputPoints = input->GetPoints();
   vtkPoints   *outputPoints = vtkPoints::New();
   vtkPolyData *output = this->GetOutput();
   int         numPoints, numBins, binId;
@@ -491,6 +499,9 @@ void vtkQuadricClustering::EndAppendUsingPoints(vtkPoints *inputPoints)
     vtkErrorMacro("Missing Array:  Did you call StartAppend?");
     return;
     }
+
+  // Prepare to copy point data to output
+  output->GetPointData()->CopyAllocate(input->GetPointData(), this->NumberOfBinsUsed);
 
   // Allocate and initialize an array to hold errors for each bin.
   numBins = this->NumberOfXDivisions * this->NumberOfYDivisions 
@@ -507,9 +518,9 @@ void vtkQuadricClustering::EndAppendUsingPoints(vtkPoints *inputPoints)
     {
     inputPoints->GetPoint(i, pt);
     binId = this->HashPoint(pt);
-
+    outPtId = this->QuadricArray[binId].VertexId;
     // Sanity check.
-    if (this->QuadricArray[binId].VertexId == -1)
+    if (outPtId == -1)
       {
       vtkErrorMacro("Point hash mismatch.");
       continue;
@@ -525,8 +536,10 @@ void vtkQuadricClustering::EndAppendUsingPoints(vtkPoints *inputPoints)
     if (e < minError[binId])
       {
       minError[binId] = e;
-      outputPoints->InsertPoint(this->QuadricArray[binId].VertexId, pt);
-      // We could copy point data here too.
+      outputPoints->InsertPoint(outPtId, pt);
+
+      // Since this is the same point as the input point, copy point data here too.
+      output->GetPointData()->CopyData(input->GetPointData(),i,outPtId);
       }
     }
 

@@ -168,7 +168,7 @@ protected:
   // Description:
   // This method will rep[lace the quadric  generated points with the
   // input points with the lowest error.
-  void EndAppendUsingPoints(vtkPoints *points);
+  void EndAppendUsingPoints(vtkPolyData *input);
   int UseInputPoints;
 
   int NumberOfXDivisions;
