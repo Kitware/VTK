@@ -18,15 +18,16 @@ ABSTRACT =
 
 CONCRETE = \
 vtkEarthSource \
-#vtkHershey \
 vtkIVWriter \
 vtkOBJReader \
 vtkRenderInterlacedStereo \
 vtkRenderLargeImage \
 vtkRIBExporter \
 vtkRIBLight \
-vtkRIBProperty \
-vtkVectorTextSource
+vtkRIBProperty 
+
+#vtkHershey \
+#vtkVectorTextSource
 
 #------------------------------------------------------------------------------
 # Autoconfig defines that can be overridden in user.make
