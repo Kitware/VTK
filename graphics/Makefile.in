@@ -124,6 +124,7 @@ vtkDecimatePro \
 vtkDelaunay2D \
 vtkDelaunay3D \
 vtkDicer \
+vtkImageDifference \
 vtkDiskSource \
 vtkEdgePoints \
 vtkElevationFilter \
