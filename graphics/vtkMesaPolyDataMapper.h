@@ -71,7 +71,7 @@ public:
 
   // Description:
   // Implement superclass render method.
-  void Render(vtkRenderer *ren, vtkActor *a);
+  virtual void RenderPiece(vtkRenderer *ren, vtkActor *a);
 
   // Description:
   // Release any graphics resources that are being consumed by this mapper.

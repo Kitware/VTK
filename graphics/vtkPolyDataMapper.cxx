@@ -58,9 +58,26 @@ vtkPolyDataMapper::vtkPolyDataMapper()
 {
   this->Piece = 0;
   this->NumberOfPieces = 1;
+  this->NumberOfSubPieces = 1;
   this->GhostLevel = 0;
+  this->MemoryLimit = 0;
 }
 
+void vtkPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act) 
+{
+  int currentPiece, nPieces;
+  this->RenderPiece(ren, act);
+
+  nPieces = this->NumberOfPieces * this->NumberOfSubPieces;
+  for(int i=1; i<this->NumberOfSubPieces; i++)
+    {
+    // If more than one pieces, render in loop.
+    currentPiece = this->NumberOfSubPieces * this->Piece + i;
+    this->GetInput()->SetUpdateExtent(currentPiece, nPieces,
+ 				      this->GhostLevel);
+    this->RenderPiece(ren, act);
+    }
+}
 
 //----------------------------------------------------------------------------
 void vtkPolyDataMapper::SetInput(vtkPolyData *input)
@@ -80,18 +97,66 @@ vtkPolyData *vtkPolyDataMapper::GetInput()
   return (vtkPolyData *)(this->Inputs[0]);
 }
 
+const float vtkPolyDataMapper::MEMORY_THRESHOLD=0.8;
 
 // Update the network connected to this mapper.
 void vtkPolyDataMapper::Update()
 {
-  if (this->GetInput() ) 
+  int currentPiece, nPieces = this->NumberOfPieces;
+  unsigned long prevSize, newSize=0;
+  vtkPolyData* input = this->GetInput();
+
+// If the estimated pipeline memory usage is larger than
+// the memory limit, break the current piece into sub-pieces.
+  if (this->GetInput()) 
     {
-    this->GetInput()->SetUpdateExtent(this->Piece, this->NumberOfPieces,
-				      this->GhostLevel);
+    if (this->MemoryLimit)
+      {
+      while(1)
+	{
+	nPieces = this->NumberOfPieces * this->NumberOfSubPieces;
+	input->SetUpdateExtent(0, nPieces, this->GhostLevel);
+	input->PropagateUpdateExtent();
+      
+	prevSize = newSize;
+	newSize = input->GetEstimatedPipelineMemorySize();
+	
+	if (newSize <= this->MemoryLimit)
+	  {
+	  break;
+	  }
+	else if  ( prevSize && ((float)newSize/(float)prevSize 
+		   > vtkPolyDataMapper::MEMORY_THRESHOLD) )
+	  {
+	  // If we do not gain by adding more pieces, stop.
+	  // This will occur, for example, if the input can not
+	  // be divided further (i.e. each piece has one cell (or point?) ).
+	  vtkWarningMacro("Estimated memory size can not be made smaller than the request memory size, using: " << newSize << ".");
+	  break;
+	  }
+	else
+	  {
+	  this->NumberOfSubPieces *= 2;
+	  }
+	}
+      }
+
+    currentPiece = this->NumberOfSubPieces * this->Piece;
+    input->SetUpdateExtent(currentPiece, nPieces, this->GhostLevel);
     }
+
   this->vtkMapper::Update();
 }
 
+void vtkPolyDataMapper::SetMemoryLimit(unsigned long limit)
+{
+  if (this->MemoryLimit != limit)
+    {
+    this->MemoryLimit = limit;
+    this->NumberOfSubPieces = 1;
+    this->Modified();
+    }
+}
 
 void vtkPolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -100,4 +165,7 @@ void vtkPolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Piece : " << this->Piece << endl;
   os << indent << "NumberOfPieces : " << this->NumberOfPieces << endl;
   os << indent << "GhostLevel: " << this->GhostLevel << endl;
+  os << indent << "Memory limit: " << this->MemoryLimit << endl;
+  os << indent << "Number of sub pieces: " << this->NumberOfSubPieces
+     << endl;
 }

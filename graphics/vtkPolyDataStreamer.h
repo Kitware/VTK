@@ -43,6 +43,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .SECTION Description
 // vtkPolyDataStreamer initiates streaming by requesting pieces from its 
 // single input it appends these pieces it to the requested output.
+// Note that since vtkPolyDataStreamer uses an append filter, all the
+// polygons generated have to be kept in memory before rendering. If
+// these do not fit in the memory, it is possible to make the vtkPolyDataMapper
+// stream. Since the mapper will render each piece separately, all the
+// polygons do not have to stored in memory.
 // .SECTION Note
 // The output may be slightly different if the pipeline does not handle 
 // ghost cells properly (i.e. you might see seames between the pieces).

@@ -45,6 +45,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // to graphics primitives. vtkPolyDataMapper serves as a superclass for
 // device-specific poly data mappers, that actually do the mapping to the
 // rendering/graphics hardware/software.
+// It is now possible to set a memory limit for the pipeline in the mapper.
+// If the total estimated memory usage of the pipeline is larger than
+// this limit, the mapper will divide the data into pieces and render
+// each in a for loop.
 
 #ifndef __vtkPolyDataMapper_h
 #define __vtkPolyDataMapper_h
@@ -61,8 +65,12 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Implement required Render method. Just a dummy routine here.
-  virtual void Render(vtkRenderer *, vtkActor *) {};
+  // Implemented by sub classes. Actual rendering is done here.
+  virtual void RenderPiece(vtkRenderer *ren, vtkActor *act) = 0;
+
+  // Description:
+  // This calls RenderPiece (in a for loop is streaming is necessary).
+  virtual void Render(vtkRenderer *ren, vtkActor *act);
 
   // Description:
   // Specify the input data to map.
@@ -79,6 +87,15 @@ public:
   vtkGetMacro(Piece, int);
   vtkSetMacro(NumberOfPieces, int);
   vtkGetMacro(NumberOfPieces, int);
+
+  // Description:
+  // If this limit is greater than zero, the mapper will stream
+  // (if NumberofPieces > 1 and if the pieces require more memory
+  // than this limit, the mapper will sub-divide each piece) .
+  // Each piece generated during streaming will be rendered in
+  // a for loop.
+  void SetMemoryLimit(unsigned long limit);
+  vtkGetMacro(MemoryLimit, unsigned long);
   
   // Description:
   // Set the number of ghost cells to return.
@@ -91,8 +108,12 @@ protected:
   vtkPolyDataMapper(const vtkPolyDataMapper&) {};
   void operator=(const vtkPolyDataMapper&) {};
 
+  static const float MEMORY_THRESHOLD;
+
+  unsigned long MemoryLimit;
   int Piece;
   int NumberOfPieces;
+  int NumberOfSubPieces;
   int GhostLevel;
 };
 

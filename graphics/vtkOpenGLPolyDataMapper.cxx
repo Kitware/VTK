@@ -125,7 +125,7 @@ GLenum vtkOpenGLPolyDataMapper::GetLmcolorMode(vtkProperty *prop)
 //
 // Receives from Actor -> maps data to primitives
 //
-void vtkOpenGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
+void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer *ren, vtkActor *act)
 {
   int numPts;
   vtkPolyData *input= this->GetInput();
@@ -149,18 +149,10 @@ void vtkOpenGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
     }
   else
     {
-    if ( input->GetDataReleased() )
-      {
-      this->InvokeEvent(vtkCommand::StartEvent,NULL);
-      input->Update();
-      this->InvokeEvent(vtkCommand::EndEvent,NULL);
-      }
-    else
-      {
-      this->InvokeEvent(vtkCommand::StartEvent,NULL);
-      input->Update();
-      this->InvokeEvent(vtkCommand::EndEvent,NULL);
-      }
+    this->InvokeEvent(vtkCommand::StartEvent,NULL);
+    input->Update();
+    this->InvokeEvent(vtkCommand::EndEvent,NULL);
+
     numPts = input->GetNumberOfPoints();
     } 
 
