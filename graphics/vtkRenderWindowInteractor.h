@@ -47,8 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // or cells; switching in/out of stereo mode; property changes such as
 // wireframe and surface; and a toggle to force the light to be placed at
 // camera viewpoint (pointing in view direction).
-
-// .SECTION Event Bindings
+// 
 // Specific devices have different camera bindings. The bindings are on both
 // mouse events as well as keyboard presses. See vtkXRenderWindowInteractor  
 // and vtkWin32RenderWindowInteractor for specific information.

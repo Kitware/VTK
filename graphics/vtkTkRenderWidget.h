@@ -47,10 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // be used to create a vtkRenderer and etc. You can also specify a 
 // vtkRenderWindow to be used when creating the widget by using
 // the -rw option. It also takes -width and -height options.
-
-
-// .SECTION Event Bindings
-// Events can be bound on this widget just liek any other Tk widget.
+// Events can be bound on this widget just like any other Tk widget.
 
 // .SECTION See Also
 // vtkRenderWindow vtkRenderer

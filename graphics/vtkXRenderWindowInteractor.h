@@ -44,11 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // event bindings to common graphics functions. For example, camera
 // zoom-in/zoom-out, azimuth, and roll. It is one of the window system
 // specific subclasses of vtkRenderWindowInteractor.
-
-// .SECTION see also
-// vtkRenderWindowInteractor vtkXRenderWindow
-
-// .SECTION Event Bindings
+// 
 // Mouse bindings: Button 1 - rotate; Button 2 - pan; and Button 3 - zoom.
 // The distance from the center of the renderer viewport determines
 // how quickly to rotate, pan and zoom.
@@ -60,6 +56,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //    p - pick actor under mouse pointer (if pickable)
 //    3 - toggle in/out of 3D mode (if supported by renderer)
 //    e - exit
+
+// .SECTION see also
+// vtkRenderWindowInteractor vtkXRenderWindow
+
 
 #ifndef __vtkXRenderWindowInteractor_h
 #define __vtkXRenderWindowInteractor_h

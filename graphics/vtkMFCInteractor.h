@@ -46,11 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // event bindings to common graphics functions. For example, camera
 // zoom-in/zoom-out, azimuth, and roll. It is one of the window system
 // specific subclasses of vtkRenderWindowInteractor.
-
-// .SECTION see also
-// vtkRenderWindowInteractor vtkWin32OpenGLRenderWindow
-
-// .SECTION Event Bindings
+//
 // Mouse bindings: Button 1 - rotate, Button 2 - pan, Button 3 - zoom
 // The distance from the center of the renderer viewport determines
 // how quickly to rotate, pan and zoom.
@@ -59,6 +55,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //    w - turn all actors wireframe
 //    s - turn all actors surface
 //    e - exits
+
+// .SECTION see also
+// vtkRenderWindowInteractor vtkWin32OpenGLRenderWindow
+
 
 
 #ifndef __vtkMFCInteractor_h
