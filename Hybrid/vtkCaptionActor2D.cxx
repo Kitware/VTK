@@ -95,6 +95,8 @@ vtkCaptionActor2D::vtkCaptionActor2D()
   this->Italic = 1;
   this->Shadow = 1;
   this->FontFamily = VTK_ARIAL;
+  this->Justification = VTK_TEXT_LEFT;
+  this->VerticalJustification = VTK_TEXT_BOTTOM;
 
   // What is actually drawn
   this->CaptionMapper = vtkTextMapper::New();
