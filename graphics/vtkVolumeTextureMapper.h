@@ -112,6 +112,8 @@ public:
 protected:
   vtkVolumeTextureMapper();
   ~vtkVolumeTextureMapper();
+  vtkVolumeTextureMapper(const vtkVolumeTextureMapper &) {};
+  void operator=(const vtkVolumeTextureMapper &)  {};
 
   void InitializeRender( vtkRenderer *ren, vtkVolume *vol );
 
