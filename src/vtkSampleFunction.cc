@@ -142,8 +142,15 @@ void vtkSampleFunction::Execute()
   for (i=0; i < 3; i++)
     {
     origin[i] = this->ModelBounds[2*i];
-    ar[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
-            / (this->SampleDimensions[i] - 1);
+    if ( this->SampleDimensions[i] <= 1 )
+      {
+      ar[i] = 1;
+      }
+    else
+      {
+      ar[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
+              / (this->SampleDimensions[i] - 1);
+      }
     }
   output->SetOrigin(origin);
   output->SetAspectRatio(ar);
@@ -262,5 +269,7 @@ void vtkSampleFunction::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "  Xmin,Xmax: (" << this->ModelBounds[0] << ", " << this->ModelBounds[1] << ")\n";
   os << indent << "  Ymin,Ymax: (" << this->ModelBounds[2] << ", " << this->ModelBounds[3] << ")\n";
   os << indent << "  Zmin,Zmax: (" << this->ModelBounds[4] << ", " << this->ModelBounds[5] << ")\n";
+
+  os << indent << "Capping: " << (this->Capping ? "On\n" : "Off\n");
 }
 
