@@ -126,6 +126,7 @@ void vtkSmoothPolyDataFilter::Execute()
     {
     output->CopyStructure(input);
     output->GetPointData()->PassData(input->GetPointData());
+    output->GetCellData()->PassData(input->GetCellData());
     vtkWarningMacro(<<"Number of iterations == 0: passing data through unchanged");
     return;
     }
@@ -465,6 +466,7 @@ void vtkSmoothPolyDataFilter::Execute()
 // Update output. Only point coordinates have changed.
 //
   output->GetPointData()->PassData(input->GetPointData());
+  output->GetCellData()->PassData(input->GetCellData());
 
   if ( this->GenerateErrorScalars )
     {
