@@ -41,11 +41,21 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkVectorNorm - generate scalars from Euclidean norm of vectors
 // .SECTION Description
 // vtkVectorNorm is a filter that generates scalar values by computing
-// euclidean norm of vector triplets. Scalars can be normalized 
+// Euclidean norm of vector triplets. Scalars can be normalized 
 // 0<=s<=1 if desired.
+//
+// Note that this filter operates on point or cell attribute data, or
+// both.  By default, the filter operates on both point and cell data
+// if vector point and cell data, respectively, are available from the
+// input. Alternatively, you can choose to generate scalar norm values
+// for just cell or point data.
 
 #ifndef __vtkVectorNorm_h
 #define __vtkVectorNorm_h
+
+#define VTK_ATTRIBUTE_MODE_DEFAULT 0
+#define VTK_ATTRIBUTE_MODE_USE_POINT_DATA 1
+#define VTK_ATTRIBUTE_MODE_USE_CELL_DATA 2
 
 #include "vtkDataSetToDataSetFilter.h"
 
@@ -63,9 +73,29 @@ public:
   vtkGetMacro(Normalize,int);
   vtkBooleanMacro(Normalize,int);
 
+  // Description:
+  // Control how the filter works to generate scalar data from the
+  // input vector data. By default, (AttributeModeToDefault) the
+  // filter will generate the scalar norm for point and cell data (if
+  // vector data present in the input). Alternatively, you can
+  // explicitly set the filter to generate point data
+  // (AttributeModeToUsePointData) or cell data
+  // (AttributeModeToUseCellData).
+  vtkSetMacro(AttributeMode,int);
+  vtkGetMacro(AttributeMode,int);
+  void SetAttributeModeToDefault() 
+    {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_DEFAULT);};
+  void SetAttributeModeToUsePointData() 
+    {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_POINT_DATA);};
+  void SetAttributeModeToUseCellData() 
+    {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_CELL_DATA);};
+  char *GetAttributeModeAsString();
+
 protected:
   void Execute();
+
   int Normalize;  // normalize 0<=n<=1 if true.
+  int AttributeMode; //control whether to use point or cell data, or both
 };
 
 #endif

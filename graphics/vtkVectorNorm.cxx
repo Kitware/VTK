@@ -40,72 +40,139 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkVectorNorm.h"
-#include "vtkScalars.h"
 
 // Description:
 // Construct with normalize flag off.
 vtkVectorNorm::vtkVectorNorm()
 {
   this->Normalize = 0;
+  this->AttributeMode = VTK_ATTRIBUTE_MODE_DEFAULT;
 }
 
 void vtkVectorNorm::Execute()
 {
-  int i, numVectors;
+  int i, numVectors, computePtScalars=1, computeCellScalars=1;
   vtkScalars *newScalars;
   float *v, s, maxScalar;
-  vtkPointData *pd, *outPD;
-  vtkVectors *inVectors;
-  vtkDataSet *input = (vtkDataSet *)this->Input;
+  vtkVectors *ptVectors, *cellVectors;
+  vtkDataSet *input = this->GetInput();
   vtkDataSet *output = this->GetOutput();
-  //
+  vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
+  vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
+
   // Initialize
-  //
-  vtkDebugMacro(<<"Normalizing vectors!");
+  vtkDebugMacro(<<"Computing norm of vectors!");
 
-  pd = input->GetPointData();
-  outPD = output->GetPointData();
-  inVectors = pd->GetVectors();
-
-  if ( (numVectors=inVectors->GetNumberOfVectors()) < 1 )
+  ptVectors = pd->GetVectors();
+  cellVectors = cd->GetVectors();
+  if (!ptVectors || this->AttributeMode == VTK_ATTRIBUTE_MODE_USE_CELL_DATA)
     {
-    vtkErrorMacro(<< "No input vectors!\n");
+    computePtScalars = 0;
+    }
+
+  if (!cellVectors || this->AttributeMode == VTK_ATTRIBUTE_MODE_USE_POINT_DATA)
+    {
+    computeCellScalars = 0;
+    }
+
+  if ( !computeCellScalars && !computePtScalars )
+    {
+    vtkErrorMacro(<< "No vector norm to compute!");
     return;
     }
 
-//
-// Allocate
-//
-  newScalars = vtkScalars::New();
-  newScalars->SetNumberOfScalars(numVectors);
+  // Allocate / operate on point data
+  if ( computePtScalars )
+    {
+    numVectors = ptVectors->GetNumberOfVectors();
+    newScalars = vtkScalars::New();
+    newScalars->SetNumberOfScalars(numVectors);
 
-  for (maxScalar=0.0, i=0; i < numVectors; i++)
-    {
-    v = inVectors->GetVector(i);
-    s = sqrt((double)v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
-    if ( s > maxScalar ) maxScalar = s;
-    newScalars->SetScalar(i,s);
-    }
-//
-// If necessary, normalize
-//
-  if ( this->Normalize && maxScalar > 0.0 )
-    {
-    for (i=0; i < numVectors; i++)
+    for (maxScalar=0.0, i=0; i < numVectors; i++)
       {
-      s = newScalars->GetScalar(i);
-      s /= maxScalar;
+      v = ptVectors->GetVector(i);
+      s = sqrt((double)v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
+      if ( s > maxScalar ) maxScalar = s;
       newScalars->SetScalar(i,s);
-      }
-    }
-//
-// Update self and release memory
-//
-  outPD->CopyScalarsOff();
-  outPD->PassData(pd);
 
-  outPD->SetScalars(newScalars);
-  newScalars->Delete();
+      if ( ! (i % 20000) ) 
+        {
+        vtkDebugMacro(<<"Computing point vector norm #" << i);
+        this->UpdateProgress (0.5*i/numVectors);
+        }
+      }
+
+    // If necessary, normalize
+    if ( this->Normalize && maxScalar > 0.0 )
+      {
+      for (i=0; i < numVectors; i++)
+        {
+        s = newScalars->GetScalar(i);
+        s /= maxScalar;
+        newScalars->SetScalar(i,s);
+        }
+      }
+
+    outPD->SetScalars(newScalars);
+    newScalars->Delete();
+    }//if computing point scalars
+
+  // Allocate / operate on cell data
+  if ( computeCellScalars )
+    {
+    numVectors = cellVectors->GetNumberOfVectors();
+    newScalars = vtkScalars::New();
+    newScalars->SetNumberOfScalars(numVectors);
+
+    for (maxScalar=0.0, i=0; i < numVectors; i++)
+      {
+      v = cellVectors->GetVector(i);
+      s = sqrt((double)v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
+      if ( s > maxScalar ) maxScalar = s;
+      newScalars->SetScalar(i,s);
+      if ( ! (i % 20000) ) 
+        {
+        vtkDebugMacro(<<"Computing cell vector norm #" << i);
+        this->UpdateProgress (0.5*i/numVectors+0.5);
+        }
+      }
+
+    // If necessary, normalize
+    if ( this->Normalize && maxScalar > 0.0 )
+      {
+      for (i=0; i < numVectors; i++)
+        {
+        s = newScalars->GetScalar(i);
+        s /= maxScalar;
+        newScalars->SetScalar(i,s);
+        }
+      }
+
+    outCD->SetScalars(newScalars);
+    newScalars->Delete();
+    }//if computing cell scalars
+
+  // Pass appropriate data through to output
+  outPD->PassNoReplaceData(pd);
+  outCD->PassNoReplaceData(cd);
+}
+
+// Description:
+// Return the method for generating scalar data as a string.
+char *vtkVectorNorm::GetAttributeModeAsString(void)
+{
+  if ( this->AttributeMode == VTK_ATTRIBUTE_MODE_DEFAULT )
+    {
+    return "Default";
+    }
+  else if ( this->AttributeMode == VTK_ATTRIBUTE_MODE_USE_POINT_DATA )
+    {
+    return "UsePointData";
+    }
+  else 
+    {
+    return "UseCellData";
+    }
 }
 
 void vtkVectorNorm::PrintSelf(ostream& os, vtkIndent indent)
@@ -113,5 +180,7 @@ void vtkVectorNorm::PrintSelf(ostream& os, vtkIndent indent)
   vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 
   os << indent << "Normalize: " << (this->Normalize ? "On\n" : "Off\n");
+  os << indent << "Attribute Mode: " << this->GetAttributeModeAsString() 
+     << endl;
 }
 
