@@ -125,33 +125,38 @@ vtkXYPlotActor xyplot2
 vtkDataSetToDataObjectFilter ds2do
     ds2do SetInput [probe GetOutput]
 vtkDataSetToDataObjectFilter ds2do2
-    ds2do2 SetInput [probe2 GetOutput]
+    ds2do2 SetInput [probe GetOutput]
 vtkDataSetToDataObjectFilter ds2do3
-    ds2do3 SetInput [probe3 GetOutput]
+    ds2do3 SetInput [probe GetOutput]
 vtkXYPlotActor xyplot3
     xyplot3 AddDataObjectInput [ds2do GetOutput]
     xyplot3 SetDataObjectXComponent 0 2
-    xyplot3 SetDataObjectYComponent 0 4
+    xyplot3 SetDataObjectYComponent 0 5
     xyplot3 SetPlotColor 0 1 0 0
+    xyplot3 SetPlotLabel 0 "Mx"
     xyplot3 AddDataObjectInput [ds2do2 GetOutput]
     xyplot3 SetDataObjectXComponent 1 2
-    xyplot3 SetDataObjectYComponent 1 5
+    xyplot3 SetDataObjectYComponent 1 6
     xyplot3 SetPlotColor 1 0 1 0
+    xyplot3 SetPlotLabel 1 "My"
     xyplot3 AddDataObjectInput [ds2do3 GetOutput]
     xyplot3 SetDataObjectXComponent 2 2
-    xyplot3 SetDataObjectYComponent 2 6
+    xyplot3 SetDataObjectYComponent 2 7
     xyplot3 SetPlotColor 2 0 0 1
+    xyplot3 SetPlotLabel 2 "Mz"
     [xyplot3 GetPositionCoordinate] SetValue 0.0 0.0 0
     [xyplot3 GetPosition2Coordinate] SetValue 1.0 0.33 0;#relative to Position
     xyplot3 SetXValuesToIndex
-    xyplot3 SetXRange -1 32
     xyplot3 SetNumberOfXLabels 6
-    xyplot3 SetTitle "Pressure vs. Point Id"
-    xyplot3 SetXTitle "Probe Length"
-    xyplot3 SetYTitle "P"
+    xyplot3 SetTitle "Momentum Component vs. Point Id"
+    xyplot3 SetXTitle "Point Id"
+    xyplot3 SetYTitle "M"
     xyplot3 PlotPointsOn
     [xyplot3 GetProperty] SetColor 0 0 1
     [xyplot3 GetProperty] SetPointSize 3
+    xyplot3 LegendOn
+    xyplot3 SetLegendPosition 0.8 0.35
+    xyplot3 SetLegendPosition2 0.20 0.20
 
 # draw an outline
 vtkStructuredGridOutlineFilter outline
@@ -179,8 +184,8 @@ ren1 AddActor lineActor
 
 ren2 SetBackground 1 1 1
 ren2 SetViewport 0.5 0.0 1.0 1.0
-#ren2 AddActor2D xyplot
-#ren2 AddActor2D xyplot2
+ren2 AddActor2D xyplot
+ren2 AddActor2D xyplot2
 ren2 AddActor2D xyplot3
 renWin SetSize 500 250
 
