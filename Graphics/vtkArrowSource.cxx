@@ -24,7 +24,7 @@
 #include "vtkTransform.h"
 #include "vtkTransformFilter.h"
 
-vtkCxxRevisionMacro(vtkArrowSource, "1.6");
+vtkCxxRevisionMacro(vtkArrowSource, "1.7");
 vtkStandardNewMacro(vtkArrowSource);
 
 vtkArrowSource::vtkArrowSource()
@@ -84,7 +84,7 @@ int vtkArrowSource::RequestData(
   append->AddInput(tf0->GetPolyDataOutput());
   append->AddInput(tf1->GetPolyDataOutput());
 
-  if (output->GetUpdatePiece() == 0)
+  if (output->GetUpdatePiece() == 0 && numPieces > 0)
     {
     append->Update();
     output->ShallowCopy(append->GetOutput());
