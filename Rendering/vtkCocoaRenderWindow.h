@@ -22,9 +22,6 @@
 #define __vtkCocoaRenderWindow_h
 
 #include "vtkOpenGLRenderWindow.h"
-#include <OpenGL/gl.h> // Needed for types used in public interface
-
-class vtkIdList;
 
 class VTK_RENDERING_EXPORT vtkCocoaRenderWindow : public vtkOpenGLRenderWindow
 {
