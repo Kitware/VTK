@@ -726,7 +726,7 @@ vtkTransform::~vtkTransform ()
 
   for (n=this->Stack-this->StackBottom+1, i=0; i < n; i++)
     {
-    this->Stack[i]->Delete();
+    this->StackBottom[i]->Delete();
     }
 
   delete [] this->Stack;
