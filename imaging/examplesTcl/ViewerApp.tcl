@@ -230,7 +230,6 @@ proc SupportBypass {lastFilter lastFiltersConsumer} {
    set bypassOutputs($currentFilter) $lastFiltersConsumer
    set bypassState($lastFiltersConsumer) 0
    while {[$currentFilter GetNumberOfInputs] > 0} {
-      puts "Tracing back a step"
       set bypassInputs($currentFilter) [[$currentFilter GetInput] GetSource]
       set bypassOutputs($bypassInputs($currentFilter)) $currentFilter
       set currentFilter $bypassInputs($currentFilter)
