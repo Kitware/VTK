@@ -123,6 +123,7 @@ inline int vtkCellArray::GetNumberOfCells() {return this->NumberOfCells;}
 
 // Description:
 // Create a cell by specifying the number of points and an array of point id's.
+// Return the cell id of the cell.
 inline int vtkCellArray::InsertNextCell(int npts, int* pts)
 {
   int i = this->Ia->GetMaxId() + 1;
@@ -133,11 +134,11 @@ inline int vtkCellArray::InsertNextCell(int npts, int* pts)
   this->NumberOfCells++;
   this->InsertLocation += npts + 1;
 
-  return this->NumberOfCells;
+  return this->NumberOfCells - 1;
 }
 
 // Description:
-// Create a cell by specifying a list of point ids.
+// Create a cell by specifying a list of point ids. Return the cell id of the cell.
 inline int vtkCellArray::InsertNextCell(vtkIdList &pts)
 {
   int npts = pts.GetNumberOfIds();
@@ -149,19 +150,19 @@ inline int vtkCellArray::InsertNextCell(vtkIdList &pts)
   this->NumberOfCells++;
   this->InsertLocation += npts + 1;
 
-  return this->NumberOfCells;
+  return this->NumberOfCells - 1;
 }
 
 // Description:
 // Create cells by specifying count, and then adding points one at a time using
 // method InsertCellPoint(). If you don't know the count initially, use the
-// method UpdateCellCount() to complete the cell.
+// method UpdateCellCount() to complete the cell. Return the cell id of the cell.
 inline int vtkCellArray::InsertNextCell(int npts)
 {
   this->InsertLocation = this->Ia->InsertNextValue(npts) + 1;
   this->NumberOfCells++;
 
-  return this->NumberOfCells;
+  return this->NumberOfCells - 1;
 }
 
 // Description:
@@ -181,7 +182,7 @@ inline void vtkCellArray::UpdateCellCount(int npts)
 }
 
 // Description:
-// Insert a cell object.
+// Insert a cell object. Return the cell id of the cell.
 inline int vtkCellArray::InsertNextCell(vtkCell *cell)
 {
   int npts = cell->GetNumberOfPoints();
@@ -193,7 +194,7 @@ inline int vtkCellArray::InsertNextCell(vtkCell *cell)
   this->NumberOfCells++;
   this->InsertLocation += npts + 1;
 
-  return this->NumberOfCells;
+  return this->NumberOfCells - 1;
 }
 
 // Description:
