@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkExtractVectorComponents, "1.46");
+vtkCxxRevisionMacro(vtkExtractVectorComponents, "1.47");
 vtkStandardNewMacro(vtkExtractVectorComponents);
 
 vtkExtractVectorComponents::vtkExtractVectorComponents()
@@ -243,9 +243,9 @@ void vtkExtractVectorComponents::Execute()
                         (VTK_TT *)vz->GetVoidPointer(0));
       }
 
-    outVx->CopyScalarsOff();
     outVx->PassData(pd);
-    outVx->SetScalars(vx);
+    outVx->AddArray(vx);
+    outVx->SetActiveScalars(vx->GetName());
     vx->Delete();
     
     if (this->ExtractToFieldData)
@@ -255,13 +255,13 @@ void vtkExtractVectorComponents::Execute()
       }
     else
       {
-      outVy->CopyScalarsOff();
       outVy->PassData(pd);
-      outVy->SetScalars(vy);
+      outVy->AddArray(vy);
+      outVy->SetActiveScalars(vy->GetName());
       
-      outVz->CopyScalarsOff();
       outVz->PassData(pd);
-      outVz->SetScalars(vz);
+      outVz->AddArray(vz);
+      outVz->SetActiveScalars(vz->GetName());
       }
     vy->Delete();
     vz->Delete();
@@ -291,9 +291,9 @@ void vtkExtractVectorComponents::Execute()
                         (VTK_TT *)vzc->GetVoidPointer(0));
       }
 
-    outVxc->CopyScalarsOff();
     outVxc->PassData(cd);
-    outVxc->SetScalars(vxc);
+    outVxc->AddArray(vxc);
+    outVxc->SetActiveScalars(vxc->GetName());
     vxc->Delete();
     
     if (this->ExtractToFieldData)
@@ -303,13 +303,13 @@ void vtkExtractVectorComponents::Execute()
       }
     else
       {
-      outVyc->CopyScalarsOff();
       outVyc->PassData(cd);
-      outVyc->SetScalars(vyc);
+      outVyc->AddArray(vyc);
+      outVyc->SetActiveScalars(vyc->GetName());
       
-      outVzc->CopyScalarsOff();
       outVzc->PassData(cd);
-      outVzc->SetScalars(vzc);
+      outVzc->AddArray(vzc);
+      outVzc->SetActiveScalars(vzc->GetName());
       }
     vyc->Delete();
     vzc->Delete();

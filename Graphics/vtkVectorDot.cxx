@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkVectorDot, "1.37");
+vtkCxxRevisionMacro(vtkVectorDot, "1.38");
 vtkStandardNewMacro(vtkVectorDot);
 
 // Construct object with scalar range is (-1,1).
@@ -118,10 +118,10 @@ void vtkVectorDot::Execute()
 
   // Update self and relase memory
   //
-  outPD->CopyScalarsOff();
   outPD->PassData(input->GetPointData());
 
-  outPD->SetScalars(newScalars);
+  int idx = outPD->AddArray(newScalars);
+  outPD->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
   newScalars->Delete();
 }
 

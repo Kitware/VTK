@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkPieceScalars, "1.13");
+vtkCxxRevisionMacro(vtkPieceScalars, "1.14");
 vtkStandardNewMacro(vtkPieceScalars);
 
 //----------------------------------------------------------------------------
@@ -68,11 +68,13 @@ void vtkPieceScalars::Execute()
   pieceColors->SetName("Piece");  
   if (this->CellScalarsFlag)
     {
-    output->GetCellData()->SetScalars(pieceColors);
+    output->GetCellData()->AddArray(pieceColors);
+    output->GetCellData()->SetActiveScalars(pieceColors->GetName());
     }
   else
     {
-    output->GetPointData()->SetScalars(pieceColors);
+    output->GetPointData()->AddArray(pieceColors);
+    output->GetPointData()->SetActiveScalars(pieceColors->GetName());
     }
     
   pieceColors->Delete();

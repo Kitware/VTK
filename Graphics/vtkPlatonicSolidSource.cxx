@@ -20,7 +20,7 @@
 #include "vtkCellData.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkPlatonicSolidSource, "1.2");
+vtkCxxRevisionMacro(vtkPlatonicSolidSource, "1.3");
 vtkStandardNewMacro(vtkPlatonicSolidSource);
 
 // The geometry and topology of each solid. Solids are centered at
@@ -166,7 +166,8 @@ void vtkPlatonicSolidSource::Execute()
   // Assemble the output
   output->SetPoints(pts);
   output->SetPolys(polys);
-  output->GetCellData()->SetScalars(colors);
+  int idx = output->GetCellData()->AddArray(colors);
+  output->GetCellData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
 
   pts->Delete();
   polys->Delete();

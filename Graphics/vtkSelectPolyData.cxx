@@ -28,7 +28,7 @@
 #include "vtkTriangleFilter.h"
 #include "vtkTriangleStrip.h"
 
-vtkCxxRevisionMacro(vtkSelectPolyData, "1.28");
+vtkCxxRevisionMacro(vtkSelectPolyData, "1.29");
 vtkStandardNewMacro(vtkSelectPolyData);
 
 vtkCxxSetObjectMacro(vtkSelectPolyData,Loop,vtkPoints);
@@ -511,7 +511,8 @@ void vtkSelectPolyData::Execute()
       }//for all boundary points
 
     output->CopyStructure(this->Mesh); //pass geometry/topology unchanged
-    outPD->SetScalars(selectionScalars);
+    int idx = outPD->AddArray(selectionScalars);
+    outPD->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     outPD->CopyScalarsOff();
     outPD->PassData(inPD);
     outCD->PassData(inCD);

@@ -23,7 +23,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkStreamPoints, "1.39");
+vtkCxxRevisionMacro(vtkStreamPoints, "1.40");
 vtkStandardNewMacro(vtkStreamPoints);
 
 // Construct object with time increment set to 1.0.
@@ -136,7 +136,8 @@ void vtkStreamPoints::Execute()
 
   if ( newScalars ) 
     {
-    output->GetPointData()->SetScalars(newScalars);
+    int idx = output->GetPointData()->AddArray(newScalars);
+    output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     newScalars->Delete();
     }
 

@@ -25,7 +25,7 @@
 #include "vtkPolygon.h"
 #include "vtkTriangleFilter.h"
 
-vtkCxxRevisionMacro(vtkSmoothPolyDataFilter, "1.39");
+vtkCxxRevisionMacro(vtkSmoothPolyDataFilter, "1.40");
 vtkStandardNewMacro(vtkSmoothPolyDataFilter);
 
 // The following code defines a helper class for performing mesh smoothing
@@ -619,7 +619,8 @@ void vtkSmoothPolyDataFilter::Execute()
       newScalars->SetComponent(i,0,
                                sqrt(vtkMath::Distance2BetweenPoints(x1,x2)));
       }
-    output->GetPointData()->SetScalars(newScalars);
+    int idx = output->GetPointData()->AddArray(newScalars);
+    output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     newScalars->Delete();
     }
 

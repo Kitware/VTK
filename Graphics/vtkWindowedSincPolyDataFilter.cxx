@@ -25,7 +25,7 @@
 #include "vtkTriangle.h"
 #include "vtkTriangleFilter.h"
 
-vtkCxxRevisionMacro(vtkWindowedSincPolyDataFilter, "1.34");
+vtkCxxRevisionMacro(vtkWindowedSincPolyDataFilter, "1.35");
 vtkStandardNewMacro(vtkWindowedSincPolyDataFilter);
 
 // Construct object with number of iterations 20; passband .1;
@@ -694,7 +694,8 @@ void vtkWindowedSincPolyDataFilter::Execute()
       newScalars->SetComponent(i,0,
                                sqrt(vtkMath::Distance2BetweenPoints(x1,x2)));
       }
-    output->GetPointData()->SetScalars(newScalars);
+    int idx = output->GetPointData()->AddArray(newScalars);
+    output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     newScalars->Delete();
     }
   

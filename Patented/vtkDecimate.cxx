@@ -39,7 +39,7 @@
 #include "vtkPolyData.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkDecimate, "1.77");
+vtkCxxRevisionMacro(vtkDecimate, "1.78");
 vtkStandardNewMacro(vtkDecimate);
 
 //-----  This hack needed to compile using gcc3 on OSX until new stdc++.dylib
@@ -539,7 +539,8 @@ void vtkDecimate::CreateOutput(vtkIdType numPts, vtkIdType numTris,
   newPolys->Delete();
   if ( this->GenerateErrorScalars )
     {
-    outputPD->SetScalars(newScalars);
+    int idx = outputPD->AddArray(newScalars);
+    outputPD->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     newScalars->Delete();
     delete [] VertexError;
     }

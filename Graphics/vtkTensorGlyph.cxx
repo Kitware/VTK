@@ -24,7 +24,7 @@
 #include "vtkPolyData.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkTensorGlyph, "1.53");
+vtkCxxRevisionMacro(vtkTensorGlyph, "1.54");
 vtkStandardNewMacro(vtkTensorGlyph);
 
 // Construct object with scaling on and scale factor 1.0. Eigenvalues are 
@@ -398,7 +398,8 @@ void vtkTensorGlyph::Execute()
 
   if ( newScalars )
     {
-    outPD->SetScalars(newScalars);
+    int idx = outPD->AddArray(newScalars);
+    outPD->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     newScalars->Delete();
     }
 

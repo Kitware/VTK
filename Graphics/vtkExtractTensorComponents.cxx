@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkExtractTensorComponents, "1.27");
+vtkCxxRevisionMacro(vtkExtractTensorComponents, "1.28");
 vtkStandardNewMacro(vtkExtractTensorComponents);
 
 // Construct object to extract nothing and to not pass tensor data
@@ -191,7 +191,8 @@ void vtkExtractTensorComponents::Execute()
   //
   if ( this->ExtractScalars )
     {
-    outPD->SetScalars(newScalars);
+    int idx = outPD->AddArray(newScalars);
+    outPD->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     newScalars->Delete();
     }
   if ( this->ExtractVectors ) 

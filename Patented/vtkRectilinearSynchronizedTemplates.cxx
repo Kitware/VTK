@@ -48,7 +48,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkRectilinearSynchronizedTemplates, "1.8");
+vtkCxxRevisionMacro(vtkRectilinearSynchronizedTemplates, "1.9");
 vtkStandardNewMacro(vtkRectilinearSynchronizedTemplates);
 
 //----------------------------------------------------------------------------
@@ -553,7 +553,8 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *exEx
       {
       newScalars->SetName(inScalars->GetName());
       }
-    output->GetPointData()->SetScalars(newScalars);
+    int idx = output->GetPointData()->AddArray(newScalars);
+    output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     newScalars->Delete();
     newScalars = NULL;
     }

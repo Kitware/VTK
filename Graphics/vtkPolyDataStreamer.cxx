@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPolyDataStreamer, "1.15");
+vtkCxxRevisionMacro(vtkPolyDataStreamer, "1.16");
 vtkStandardNewMacro(vtkPolyDataStreamer);
 
 //----------------------------------------------------------------------------
@@ -115,7 +115,8 @@ void vtkPolyDataStreamer::Execute()
   output->SetUpdateGhostLevel(outGhost);
   if (pieceColors)
     {
-    output->GetCellData()->SetScalars(pieceColors);
+    int idx = output->GetCellData()->AddArray(pieceColors);
+    output->GetCellData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     pieceColors->Delete();
     }
   append->Delete();

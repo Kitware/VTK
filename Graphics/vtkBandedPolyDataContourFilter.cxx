@@ -25,7 +25,7 @@
 
 #include <float.h>
 
-vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.35");
+vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.36");
 vtkStandardNewMacro(vtkBandedPolyDataContourFilter);
 
 // Construct object.
@@ -720,7 +720,9 @@ void vtkBandedPolyDataContourFilter::Execute()
   output->SetPoints(newPts);
   newPts->Delete();
 
-  outCD->SetScalars(newScalars);
+  int arrayIdx = outCD->AddArray(newScalars);
+  outCD->SetActiveAttribute(arrayIdx, vtkDataSetAttributes::SCALARS);
+  
   newScalars->Delete();
   
   output->Squeeze();

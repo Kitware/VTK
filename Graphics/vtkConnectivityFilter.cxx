@@ -27,7 +27,7 @@
 #include "vtkPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkConnectivityFilter, "1.70");
+vtkCxxRevisionMacro(vtkConnectivityFilter, "1.71");
 vtkStandardNewMacro(vtkConnectivityFilter);
 
 // Construct with default extraction mode to extract largest regions.
@@ -235,10 +235,6 @@ void vtkConnectivityFilter::Execute()
   // everything that has been visited.
   //
   //Pass through point data that has been visited
-  if ( this->ColorRegions )
-    {
-    outputPD->CopyScalarsOff();
-    }
   outputPD->CopyAllocate(pd);
   outputCD->CopyAllocate(cd);
 
@@ -254,7 +250,8 @@ void vtkConnectivityFilter::Execute()
   // if coloring regions; send down new scalar data
   if ( this->ColorRegions )
     {
-    outputPD->SetScalars(this->NewScalars);
+    int idx = outputPD->AddArray(this->NewScalars);
+    outputPD->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     }
   this->NewScalars->Delete();
 

@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVectorNorm, "1.42");
+vtkCxxRevisionMacro(vtkVectorNorm, "1.43");
 vtkStandardNewMacro(vtkVectorNorm);
 
 // Construct with normalize flag off.
@@ -106,7 +106,8 @@ void vtkVectorNorm::Execute()
         }
       }
 
-    outPD->SetScalars(newScalars);
+    int idx = outPD->AddArray(newScalars);
+    outPD->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     newScalars->Delete();
     outPD->CopyScalarsOff();
     }//if computing point scalars
@@ -146,7 +147,8 @@ void vtkVectorNorm::Execute()
         }
       }
 
-    outCD->SetScalars(newScalars);
+    int idx = outCD->AddArray(newScalars);
+    outCD->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     newScalars->Delete();
     outCD->CopyScalarsOff();
     }//if computing cell scalars

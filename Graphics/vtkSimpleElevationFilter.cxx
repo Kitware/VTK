@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkSimpleElevationFilter, "1.17");
+vtkCxxRevisionMacro(vtkSimpleElevationFilter, "1.18");
 vtkStandardNewMacro(vtkSimpleElevationFilter);
 
 // Construct object with LowPoint=(0,0,0) and HighPoint=(0,0,1). Scalar
@@ -95,7 +95,8 @@ void vtkSimpleElevationFilter::Execute()
   output->GetCellData()->PassData(input->GetCellData());
 
   newScalars->SetName("Elevation");
-  output->GetPointData()->SetScalars(newScalars);
+  output->GetPointData()->AddArray(newScalars);
+  output->GetPointData()->SetActiveScalars(newScalars->GetName());
   newScalars->Delete();
 }
 

@@ -41,7 +41,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageMarchingCubes, "1.55");
+vtkCxxRevisionMacro(vtkImageMarchingCubes, "1.56");
 vtkStandardNewMacro(vtkImageMarchingCubes);
 
 //----------------------------------------------------------------------------
@@ -278,7 +278,8 @@ void vtkImageMarchingCubes::Execute()
   this->Triangles = NULL;
   if (this->ComputeScalars)
     {
-    output->GetPointData()->SetScalars(this->Scalars);
+    int idx = output->GetPointData()->AddArray(this->Scalars);
+    output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     this->Scalars->Delete();
     this->Scalars = NULL;
     }

@@ -23,7 +23,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkGlyph2D, "1.21");
+vtkCxxRevisionMacro(vtkGlyph2D, "1.22");
 vtkStandardNewMacro(vtkGlyph2D);
 
 void vtkGlyph2D::Execute()
@@ -127,7 +127,6 @@ void vtkGlyph2D::Execute()
 
   // Allocate storage for output PolyData
   //
-  outputPD->CopyScalarsOff();
   outputPD->CopyVectorsOff();
   outputPD->CopyNormalsOff();
   if ( this->IndexMode != VTK_INDEXING_OFF )
@@ -427,7 +426,8 @@ void vtkGlyph2D::Execute()
 
   if (newScalars)
     {
-    outputPD->SetScalars(newScalars);
+    outputPD->AddArray(newScalars);
+    outputPD->SetActiveScalars(newScalars->GetName());
     newScalars->Delete();
     }
 

@@ -22,7 +22,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkHyperStreamline, "1.56");
+vtkCxxRevisionMacro(vtkHyperStreamline, "1.57");
 vtkStandardNewMacro(vtkHyperStreamline);
 
 //
@@ -771,7 +771,8 @@ void vtkHyperStreamline::BuildTube()
 
   if ( newScalars )
     {
-    outPD->SetScalars(newScalars);
+    int idx = outPD->AddArray(newScalars);
+    outPD->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     newScalars->Delete();
     }
 

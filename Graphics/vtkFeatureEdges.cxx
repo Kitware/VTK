@@ -26,7 +26,7 @@
 #include "vtkCellData.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkFeatureEdges, "1.66");
+vtkCxxRevisionMacro(vtkFeatureEdges, "1.67");
 vtkStandardNewMacro(vtkFeatureEdges);
 
 // Construct object with feature angle = 30; all types of edges, except 
@@ -155,7 +155,6 @@ void vtkFeatureEdges::Execute()
     {
     newScalars = vtkFloatArray::New();
     newScalars->Allocate(numCells/10,numCells);
-    outCD->CopyScalarsOff();
     }
 
   outPD->CopyAllocate(pd, numPts);
@@ -339,7 +338,8 @@ void vtkFeatureEdges::Execute()
 
   if ( this->Coloring )
     {
-    outCD->SetScalars(newScalars);
+    int idx = outCD->AddArray(newScalars);
+    outCD->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     newScalars->Delete();
     }
 }

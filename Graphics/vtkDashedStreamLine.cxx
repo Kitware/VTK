@@ -21,7 +21,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkDashedStreamLine, "1.41");
+vtkCxxRevisionMacro(vtkDashedStreamLine, "1.42");
 vtkStandardNewMacro(vtkDashedStreamLine);
 
 vtkDashedStreamLine::vtkDashedStreamLine()
@@ -160,7 +160,9 @@ void vtkDashedStreamLine::Execute()
 
   if ( newScalars )
     {
-    output->GetPointData()->SetScalars(newScalars);
+    int idx = output->GetPointData()->AddArray(newScalars);
+    output->GetPointData()->SetActiveAttribute(idx,
+                                               vtkDataSetAttributes::SCALARS);
     newScalars->Delete();
     }
 

@@ -26,7 +26,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkGlyph3D, "1.110");
+vtkCxxRevisionMacro(vtkGlyph3D, "1.111");
 vtkStandardNewMacro(vtkGlyph3D);
 
 // Construct object with scaling on, scaling mode is by scalar value,
@@ -177,7 +177,6 @@ void vtkGlyph3D::Execute()
 
   // Allocate storage for output PolyData
   //
-  outputPD->CopyScalarsOff();
   outputPD->CopyVectorsOff();
   outputPD->CopyNormalsOff();
 
@@ -549,7 +548,8 @@ void vtkGlyph3D::Execute()
 
   if (newScalars)
     {
-    outputPD->SetScalars(newScalars);
+    int idx = outputPD->AddArray(newScalars);
+    outputPD->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     newScalars->Delete();
     }
 

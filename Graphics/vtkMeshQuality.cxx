@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkTetra.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality, "1.5");
+vtkCxxRevisionMacro(vtkMeshQuality, "1.6");
 vtkStandardNewMacro(vtkMeshQuality);
 
 //----------------------------------------------------------------------------
@@ -104,8 +104,9 @@ void vtkMeshQuality::Execute()
       vtkErrorMacro(<<"Nothing to be calculated!!!!");
       }
     }
-     
-  celld->SetScalars(scalars);
+  
+  int idx = celld->AddArray(scalars);
+  celld->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
   this->GetOutput()->SetFieldData(celld);
   celld->Delete();
   id->Delete();

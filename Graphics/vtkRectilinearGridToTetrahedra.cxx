@@ -24,7 +24,7 @@
 #include "vtkIdList.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGridToTetrahedra, "1.8");
+vtkCxxRevisionMacro(vtkRectilinearGridToTetrahedra, "1.9");
 vtkStandardNewMacro(vtkRectilinearGridToTetrahedra);
 
 // ways to convert to a voxel to tetrahedra.
@@ -307,7 +307,8 @@ void vtkRectilinearGridToTetrahedra::GridToTetMesh(vtkRectilinearGrid *RectGrid,
   if(RememberVoxelId)
     {
     TetOriginalVoxel->Squeeze();
-    TetMesh->GetCellData()->SetScalars(TetOriginalVoxel);
+    int idx = TetMesh->GetCellData()->AddArray(TetOriginalVoxel);
+    TetMesh->GetCellData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     TetOriginalVoxel->Delete();
     }
 

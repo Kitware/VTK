@@ -45,7 +45,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplates2D, "1.34");
+vtkCxxRevisionMacro(vtkSynchronizedTemplates2D, "1.35");
 vtkStandardNewMacro(vtkSynchronizedTemplates2D);
 
 //----------------------------------------------------------------------------
@@ -481,7 +481,8 @@ void vtkSynchronizedTemplates2D::Execute()
 
   if (newScalars)
     {
-    output->GetPointData()->SetScalars(newScalars);
+    int idx = output->GetPointData()->AddArray(newScalars);
+    output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     newScalars->Delete();
     }
 

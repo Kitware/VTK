@@ -24,7 +24,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkStreamLine, "1.57");
+vtkCxxRevisionMacro(vtkStreamLine, "1.58");
 vtkStandardNewMacro(vtkStreamLine);
 
 // Construct object with step size set to 1.0.
@@ -219,7 +219,8 @@ void vtkStreamLine::Execute()
 
   if ( newScalars ) 
     {
-    output->GetPointData()->SetScalars(newScalars);
+    int idx = output->GetPointData()->AddArray(newScalars);
+    output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     newScalars->Delete();
     }
 
