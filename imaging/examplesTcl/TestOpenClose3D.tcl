@@ -26,6 +26,13 @@ my_close SetOpenValue 0
 my_close SetCloseValue 255
 my_close SetKernelSize 5 5 3
 my_close ReleaseDataFlagOff
+# for coverage (we could compare results to see if they are correct).
+my_close DebugOn
+my_close DebugOff
+my_close GetCache
+my_close GetPipelineMTime
+my_close GetCloseValue
+my_close GetOpenValue
 #my_close SetProgressMethod {set pro [my_close GetProgress]; puts "Completed $pro"; flush stdout}
 
 vtkImageViewer viewer
