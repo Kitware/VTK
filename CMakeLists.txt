@@ -843,9 +843,6 @@ INSTALL_FILES(/lib/vtk .cmake VTKBuildSettings)
 # Save library dependencies.
 EXPORT_LIBRARY_DEPENDENCIES(${VTK_BINARY_DIR}/VTKLibraryDepends.cmake)
 
-# Create the VTKConfig.cmake file containing the VTK configuration.
-INCLUDE(${VTK_SOURCE_DIR}/vtkGenerateVTKConfig.cmake)
-
 # Install some files.
 INSTALL_FILES(/include/vtk .h vtkConfigure vtkToolkits)
 INSTALL_FILES(/lib/vtk .cmake UseVTK VTKLibraryDepends)
@@ -865,6 +862,12 @@ SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${VTK_REQUIRED_EXE_LINKER_
 # Allow local additions to this file without CVS conflicts.
 INCLUDE(${VTK_BINARY_DIR}/LocalUserOptions.cmake OPTIONAL)
 INCLUDE(${VTK_SOURCE_DIR}/LocalUserOptions.cmake OPTIONAL)
+
+#-----------------------------------------------------------------------------
+# The commands in this directory are intended to be executed as
+# the end of the whole configuration process, as a "last step".
+# This directory is typically the last SUBDIRS in the main CMakeLists.txt.
+SUBDIRS(Utilities/LastConfigureStep)
 
 # If the version of CMake was too old, complain and build nothing.
 # These should be the last lines in this file.

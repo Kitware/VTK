@@ -95,7 +95,7 @@ SET(VTK_LIBRARY_DEPENDS_FILE "${VTK_BINARY_DIR}/VTKLibraryDepends.cmake")
 #-----------------------------------------------------------------------------
 # Configure VTKConfig.cmake for the build tree.
 CONFIGURE_FILE(${VTK_SOURCE_DIR}/VTKConfig.cmake.in
-               ${VTK_BINARY_DIR}/VTKConfig.cmake @ONLY)
+               ${VTK_BINARY_DIR}/VTKConfig.cmake @ONLY IMMEDIATE)
 
 # Hack to give source tree access for a build tree configuration.
 STRING(ASCII 35 VTK_STRING_POUND)
@@ -203,4 +203,4 @@ SET(VTK_LIBRARY_DEPENDS_FILE "${CMAKE_INSTALL_PREFIX}/lib/vtk/VTKLibraryDepends.
 #-----------------------------------------------------------------------------
 # Configure VTKConfig.cmake for the install tree.
 CONFIGURE_FILE(${VTK_SOURCE_DIR}/VTKConfig.cmake.in
-               ${VTK_BINARY_DIR}/Utilities/VTKConfig.cmake @ONLY)
+               ${VTK_BINARY_DIR}/Utilities/VTKConfig.cmake @ONLY IMMEDIATE)
