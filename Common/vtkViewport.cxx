@@ -134,8 +134,11 @@ void vtkViewport::AddProp(vtkProp *p)
 }
 void vtkViewport::RemoveProp(vtkProp *p)
 {
-  p->ReleaseGraphicsResources(this->VTKWindow);
-  this->Props->RemoveItem(p);
+  if (p)
+    {
+    p->ReleaseGraphicsResources(this->VTKWindow);
+    this->Props->RemoveItem(p);
+    }
 }
 
 // look through the props and get all the actors
