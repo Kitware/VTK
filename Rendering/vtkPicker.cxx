@@ -36,7 +36,7 @@
 #include "vtkBox.h"
 #include "vtkImageActor.h"
 
-vtkCxxRevisionMacro(vtkPicker, "1.86");
+vtkCxxRevisionMacro(vtkPicker, "1.87");
 vtkStandardNewMacro(vtkPicker);
 
 // Construct object with initial tolerance of 1/40th of window. There are no
@@ -398,19 +398,23 @@ int vtkPicker::Pick(double selectionX, double selectionY, double selectionZ,
         //  Have the ray endpoints in data space, now need to compare this
         //  with the displayed image bounds.
         imageActor->GetDisplayBounds(bounds);
+
+        t = VTK_DOUBLE_MAX;
+
         for (i = 0; i < 3; i++)
           {
-          if (bounds[2*i] == bounds[2*i+1])
+          if (bounds[2*i] == bounds[2*i+1] && p2Mapper[i] != p1Mapper[i])
             {
-            t = (p2World[i] - bounds[2*i])/(p2World[i] - p1World[i]);
+            t = (p2World[i] - bounds[2*i])/(p2Mapper[i] - p1Mapper[i]);
             break;
             }
           }
-        if (i < 3)
+
+        if (t < VTK_DOUBLE_MAX)
           {
-          hitPosition[0] = (1.0 - t)*p1World[0] + t*p2World[0];
-          hitPosition[1] = (1.0 - t)*p1World[1] + t*p2World[1];
-          hitPosition[2] = (1.0 - t)*p1World[2] + t*p2World[2];
+          hitPosition[0] = (1.0 - t)*p1Mapper[0] + t*p2Mapper[0];
+          hitPosition[1] = (1.0 - t)*p1Mapper[1] + t*p2Mapper[1];
+          hitPosition[2] = (1.0 - t)*p1Mapper[2] + t*p2Mapper[2];
           if ((bounds[0] == bounds[1] || (hitPosition[0] >= bounds[0]-tol &&
                                           hitPosition[0] <= bounds[1]+tol)) &&
               (bounds[2] == bounds[3] || (hitPosition[1] >= bounds[2]-tol &&
@@ -420,7 +424,10 @@ int vtkPicker::Pick(double selectionX, double selectionY, double selectionZ,
             {
             picked = 1;
             this->Prop3Ds->AddItem((vtkProp3D *)prop);
-            this->PickedPositions->InsertNextPoint(hitPosition);
+            this->PickedPositions->InsertNextPoint
+              ((1.0 - t)*p1World[0] + t*p2World[0],
+               (1.0 - t)*p1World[1] + t*p2World[1],
+               (1.0 - t)*p1World[2] + t*p2World[2]);
             }
           }
         }//if visible and pickable not transparent and has mapper
