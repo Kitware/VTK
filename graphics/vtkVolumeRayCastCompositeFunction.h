@@ -88,6 +88,8 @@ public:
 protected:
   vtkVolumeRayCastCompositeFunction();
   ~vtkVolumeRayCastCompositeFunction();
+  vtkVolumeRayCastCompositeFunction(const vtkVolumeRayCastCompositeFunction&) {};
+  void operator=(const vtkVolumeRayCastCompositeFunction&) {};
 
 //BTX
   void SpecificFunctionInitialize( vtkRenderer *ren,

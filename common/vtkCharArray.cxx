@@ -237,8 +237,26 @@ void vtkCharArray::GetTuple(const int i, float * tuple)
     }
 }
 
+void vtkCharArray::GetTuple(const int i, double * tuple) 
+{
+  char *t = this->Array + this->NumberOfComponents*i;
+  for (int j=0; j<this->NumberOfComponents; j++)
+    {
+    tuple[j] = (double)t[j];
+    }
+}
+
 // Set the tuple value at the ith location in the array.
 void vtkCharArray::SetTuple(const int i, const float * tuple)
+{
+  int loc = i * this->NumberOfComponents; 
+  for (int j=0; j<this->NumberOfComponents; j++)
+    {
+    this->Array[loc+j] = (char)tuple[j];
+    }
+}
+
+void vtkCharArray::SetTuple(const int i, const double * tuple)
 {
   int loc = i * this->NumberOfComponents; 
   for (int j=0; j<this->NumberOfComponents; j++)
@@ -259,8 +277,31 @@ void vtkCharArray::InsertTuple(const int i, const float * tuple)
     }
 }
 
+void vtkCharArray::InsertTuple(const int i, const double * tuple)
+{
+  char *t = this->WritePointer(i*this->NumberOfComponents,this->NumberOfComponents);
+
+  for (int j=0; j<this->NumberOfComponents; j++)
+    {
+    *t++ = (char)*tuple++;
+    }
+}
+
 // Insert (memory allocation performed) the tuple onto the end of the array.
 int vtkCharArray::InsertNextTuple(const float * tuple)
+{
+  int i = this->MaxId + 1;
+  char *t = this->WritePointer(i,this->NumberOfComponents);
+
+  for (i=0; i<this->NumberOfComponents; i++)
+    {
+    *t++ = (char)*tuple++;
+    }
+
+  return this->MaxId / this->NumberOfComponents;
+}
+
+int vtkCharArray::InsertNextTuple(const double * tuple)
 {
   int i = this->MaxId + 1;
   char *t = this->WritePointer(i,this->NumberOfComponents);

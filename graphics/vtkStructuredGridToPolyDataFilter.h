@@ -67,6 +67,8 @@ public:
 protected:  
   vtkStructuredGridToPolyDataFilter() {};
   ~vtkStructuredGridToPolyDataFilter() {};
+  vtkStructuredGridToPolyDataFilter(const vtkStructuredGridToPolyDataFilter&) {};
+  void operator=(const vtkStructuredGridToPolyDataFilter&) {};
 
 };
 

@@ -87,6 +87,8 @@ public:
 protected:
   vtkAttributeDataToFieldDataFilter();
   ~vtkAttributeDataToFieldDataFilter() {};
+  vtkAttributeDataToFieldDataFilter(const vtkAttributeDataToFieldDataFilter&) {};
+  void operator=(const vtkAttributeDataToFieldDataFilter&) {};
 
   void Execute(); //generate output data
 

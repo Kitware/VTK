@@ -112,6 +112,8 @@ public:
 protected:
   vtkStructuredData() {};
   ~vtkStructuredData() {};
+  vtkStructuredData(const vtkStructuredData&) {};
+  void operator=(const vtkStructuredData&) {};
   
 };
 

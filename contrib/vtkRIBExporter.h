@@ -131,6 +131,8 @@ public:
 protected:
   vtkRIBExporter();
   ~vtkRIBExporter();
+  vtkRIBExporter(const vtkRIBExporter&) {};
+  void operator=(const vtkRIBExporter&) {};
 
   int Background;
   int Size[2];

@@ -90,6 +90,8 @@ public:
 protected:
   vtkExtractPolyDataGeometry(vtkImplicitFunction *f=NULL);
   ~vtkExtractPolyDataGeometry();
+  vtkExtractPolyDataGeometry(const vtkExtractPolyDataGeometry&) {};
+  void operator=(const vtkExtractPolyDataGeometry&) {};
 
   // Usual data generation method
   void Execute();

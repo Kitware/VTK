@@ -106,6 +106,8 @@ public:
 protected:
   vtkSTLReader();
   ~vtkSTLReader();
+  vtkSTLReader(const vtkSTLReader&) {};
+  void operator=(const vtkSTLReader&) {};
 
   char *FileName;
   int Merging;

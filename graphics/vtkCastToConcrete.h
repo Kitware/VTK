@@ -76,6 +76,9 @@ public:
 protected:
   vtkCastToConcrete() {};
   ~vtkCastToConcrete() {};
+  vtkCastToConcrete(const vtkCastToConcrete&) {};
+  void operator=(const vtkCastToConcrete&) {};
+
   void Execute(); //insures compatibility; satisfies abstract api in vtkFilter
 };
 

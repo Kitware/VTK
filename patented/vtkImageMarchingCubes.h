@@ -154,6 +154,8 @@ public:
 protected:
   vtkImageMarchingCubes();
   ~vtkImageMarchingCubes();
+  vtkImageMarchingCubes(const vtkImageMarchingCubes&) {};
+  void operator=(const vtkImageMarchingCubes&) {};
 
   int NumberOfSlicesPerChunk;
   int InputMemoryLimit;

@@ -118,60 +118,66 @@ void vtkAppendPolyData::Execute()
     ds = (vtkPolyData *)(this->Inputs[idx]);
     if (ds != NULL && ds->GetNumberOfCells() > 0)
       {
+      ds = (vtkPolyData *)(this->Inputs[idx]);
+      if ( ds->GetNumberOfPoints() <= 0 && ds->GetNumberOfCells() <= 0 )
+        {
+        continue; //no input, just skip
+        }
+
       numPts += ds->GetNumberOfPoints();
       numCells += ds->GetNumberOfCells();
       pd = ds->GetPointData();
       
       if ( pd && pd->GetScalars() == NULL )
-	{
-	scalarsPresentInPD &= 0;
-	}
+        {
+        scalarsPresentInPD &= 0;
+        }
       if ( pd && pd->GetVectors() == NULL )
-	{
-	vectorsPresentInPD &= 0;
-	}
+        {
+        vectorsPresentInPD &= 0;
+        }
       if ( pd && pd->GetNormals() == NULL )
-	{
-	normalsPresentInPD &= 0;
-	}
+        {
+        normalsPresentInPD &= 0;
+        }
       if ( pd && pd->GetTCoords() == NULL )
-	{
-	tcoordsPresentInPD &= 0;
-	}
+        {
+        tcoordsPresentInPD &= 0;
+        }
       if ( pd && pd->GetTensors() == NULL )
-	{
-	tensorsPresentInPD &= 0;
-	}
+        {
+        tensorsPresentInPD &= 0;
+        }
       if ( pd && pd->GetFieldData() == NULL )
-	{
-	fieldPresentInPD &= 0;
-	}
+        {
+        fieldPresentInPD &= 0;
+        }
       
       cd = ds->GetCellData();
       if ( cd && cd->GetScalars() == NULL )
-	{
-	scalarsPresentInCD &= 0;
-	}
+        {
+        scalarsPresentInCD &= 0;
+        }
       if ( cd && cd->GetVectors() == NULL )
-	{
-	vectorsPresentInCD &= 0;
-	}
+        {
+        vectorsPresentInCD &= 0;
+        }
       if ( cd && cd->GetNormals() == NULL )
-	{
-	normalsPresentInCD &= 0;
-	}
+        {
+        normalsPresentInCD &= 0;
+        }
       if ( cd && cd->GetTCoords() == NULL )
-	{
-	tcoordsPresentInCD &= 0;
-	}
+        {
+        tcoordsPresentInCD &= 0;
+        }
       if ( cd && cd->GetTensors() == NULL )
-	{
-	tensorsPresentInCD &= 0;
-	}
+        {
+        tensorsPresentInCD &= 0;
+        }
       if ( cd && cd->GetFieldData() == NULL )
-	{
-	fieldPresentInCD &= 0;
-	}
+        {
+        fieldPresentInCD &= 0;
+        }
       }
     }
 
@@ -274,53 +280,53 @@ void vtkAppendPolyData::Execute()
       
       // copy points and point data
       for (ptId=0; ptId < numPts; ptId++)
-	{
-	newPts->SetPoint(ptId+ptOffset,inPts->GetPoint(ptId));
-	outputPD->CopyData(pd,ptId,ptId+ptOffset);
-	}
+        {
+        newPts->SetPoint(ptId+ptOffset,inPts->GetPoint(ptId));
+        outputPD->CopyData(pd,ptId,ptId+ptOffset);
+        }
       
       // copy cell data
       for (cellId=0; cellId < numCells; cellId++)
-	{
-	outputCD->CopyData(cd,cellId,cellId+cellOffset);
-	}
+        {
+        outputCD->CopyData(cd,cellId,cellId+cellOffset);
+        }
       
       // copy the cells
       for (inVerts->InitTraversal(); inVerts->GetNextCell(npts,pts); )
-	{
-	newVerts->InsertNextCell(npts);
-	for (i=0; i < npts; i++)
-	  {
-	  newVerts->InsertCellPoint(pts[i]+ptOffset);
-	  }
-	}
+        {
+        newVerts->InsertNextCell(npts);
+        for (i=0; i < npts; i++)
+          {
+          newVerts->InsertCellPoint(pts[i]+ptOffset);
+          }
+        }
       
       for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); )
-	{
-	newLines->InsertNextCell(npts);
-	for (i=0; i < npts; i++)
-	  {
-	  newLines->InsertCellPoint(pts[i]+ptOffset);
-	  }
-	}
+        {
+        newLines->InsertNextCell(npts);
+        for (i=0; i < npts; i++)
+          {
+          newLines->InsertCellPoint(pts[i]+ptOffset);
+          }
+        }
       
       for (inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); )
-	{
-	newPolys->InsertNextCell(npts);
-	for (i=0; i < npts; i++)
-	  {
-	  newPolys->InsertCellPoint(pts[i]+ptOffset);
-	  }
-	}
+        {
+        newPolys->InsertNextCell(npts);
+        for (i=0; i < npts; i++)
+          {
+          newPolys->InsertCellPoint(pts[i]+ptOffset);
+          }
+        }
       
       for (inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
-	{
-	newStrips->InsertNextCell(npts);
-	for (i=0; i < npts; i++)
-	  {
-	  newStrips->InsertCellPoint(pts[i]+ptOffset);
-	  }
-	}
+        {
+        newStrips->InsertNextCell(npts);
+        for (i=0; i < npts; i++)
+          {
+          newStrips->InsertCellPoint(pts[i]+ptOffset);
+          }
+        }
       }
     ptOffset += numPts; 
     cellOffset += numCells;

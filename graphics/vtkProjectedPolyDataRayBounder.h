@@ -99,6 +99,8 @@ public:
 protected:
   vtkProjectedPolyDataRayBounder();
   ~vtkProjectedPolyDataRayBounder();
+  vtkProjectedPolyDataRayBounder(const vtkProjectedPolyDataRayBounder&) {};
+  void operator=(const vtkProjectedPolyDataRayBounder&) {};
 
   vtkPolyData   *PolyData;
   vtkActor      *ActorMatrixSource;

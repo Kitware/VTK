@@ -182,6 +182,8 @@ public:
 protected:
   vtkOBBTree();
   ~vtkOBBTree();
+  vtkOBBTree(const vtkOBBTree&) {};
+  void operator=(const vtkOBBTree&) {};
 
   // Compute an OBB from the list of cells given.  This used to be
   // public but should not have been.  A public call has been added

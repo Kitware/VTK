@@ -108,6 +108,8 @@ public:
 protected:
   vtkImageMapper();
   ~vtkImageMapper();
+  vtkImageMapper(const vtkImageMapper&) {};
+  void operator=(const vtkImageMapper&) {};
 
   vtkImageData* Input;
   float ColorWindow;

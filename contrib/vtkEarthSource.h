@@ -83,6 +83,9 @@ public:
 protected:
   vtkEarthSource();
   ~vtkEarthSource() {};
+  vtkEarthSource(const vtkEarthSource&) {};
+  void operator=(const vtkEarthSource&) {};
+
   void Execute();
 
   float Radius;

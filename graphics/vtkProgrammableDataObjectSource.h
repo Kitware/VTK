@@ -84,6 +84,9 @@ public:
 protected:
   vtkProgrammableDataObjectSource();
   ~vtkProgrammableDataObjectSource();
+  vtkProgrammableDataObjectSource(const vtkProgrammableDataObjectSource&) {};
+  void operator=(const vtkProgrammableDataObjectSource&) {};
+
   void Execute();
 
   void (*ExecuteMethod)(void *); //function to invoke

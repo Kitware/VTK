@@ -34,6 +34,8 @@ public:
 protected:
   vtkWin32OffscreenRenderWindow();
   ~vtkWin32OffscreenRenderWindow();
+  vtkWin32OffscreenRenderWindow(const vtkWin32OffscreenRenderWindow&) {};
+  void operator=(const vtkWin32OffscreenRenderWindow&) {};
 
   HBITMAP MhBitmap, MhOldBitmap;
   int MBpp, MZBpp;

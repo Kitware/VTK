@@ -112,6 +112,9 @@ public:
 protected:
   vtkTextureMapToCylinder();
   ~vtkTextureMapToCylinder() {};
+  vtkTextureMapToCylinder(const vtkTextureMapToCylinder&) {};
+  void operator=(const vtkTextureMapToCylinder&) {};
+
   void Execute();
 
   float Point1[3];

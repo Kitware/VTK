@@ -92,6 +92,8 @@ public:
 protected:
   vtkExtractVOI();
   ~vtkExtractVOI() {};
+  vtkExtractVOI(const vtkExtractVOI&) {};
+  void operator=(const vtkExtractVOI&) {};
 
   void Execute();
 

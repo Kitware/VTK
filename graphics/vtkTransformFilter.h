@@ -80,6 +80,9 @@ public:
 protected:
   vtkTransformFilter();
   ~vtkTransformFilter();
+  vtkTransformFilter(const vtkTransformFilter&) {};
+  void operator=(const vtkTransformFilter&) {};
+
   void Execute();
   vtkTransform *Transform;
 };

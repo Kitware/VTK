@@ -72,6 +72,8 @@ public:
 protected:  
   vtkStructuredPointsToPolyDataFilter() {};
   ~vtkStructuredPointsToPolyDataFilter() {};
+  vtkStructuredPointsToPolyDataFilter(const vtkStructuredPointsToPolyDataFilter&) {};
+  void operator=(const vtkStructuredPointsToPolyDataFilter&) {};
 
 };
 

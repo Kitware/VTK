@@ -261,6 +261,10 @@ class VTK_EXPORT vtkTransform : public vtkObject
   vtkSetVector4Macro(DoublePoint,double);
 
   // Description:
+  // Make a copy of this transform.
+  void DeepCopy(vtkTransform *t);
+
+  // Description:
   // For legacy compatibility. Do not use.
   void Multiply4x4(vtkMatrix4x4 &a, vtkMatrix4x4 &b, vtkMatrix4x4 &c)
     {this->Multiply4x4(&a,&b,&c);}
@@ -269,13 +273,13 @@ class VTK_EXPORT vtkTransform : public vtkObject
   void GetTranspose (vtkMatrix4x4 &transpose){this->GetTranspose(&transpose);}
   void GetInverse(vtkMatrix4x4& inverse){this->GetInverse(&inverse);}
   vtkMatrix4x4& GetMatrix() {return *(this->GetMatrixPointer());}
-  vtkTransform &operator=(const vtkTransform &t);
   
   
 protected:
   vtkTransform ();
-  vtkTransform (const vtkTransform& t);
   ~vtkTransform ();
+  vtkTransform (const vtkTransform& t);
+  void operator=(const vtkTransform&) {};
 
   int PreMultiplyFlag;
   int StackSize;

@@ -93,6 +93,9 @@ public:
 protected:
   vtkTriangularTexture();
   ~vtkTriangularTexture() {};
+  vtkTriangularTexture(const vtkTriangularTexture&) {};
+  void operator=(const vtkTriangularTexture&) {};
+
   void Execute();
 
   int XSize;

@@ -82,6 +82,8 @@ public:
 protected:
   vtkImageFlip();
   ~vtkImageFlip() {};
+  vtkImageFlip(const vtkImageFlip&) {};
+  void operator=(const vtkImageFlip&) {};
 
   int FilteredAxis;
   int PreserveImageExtent;

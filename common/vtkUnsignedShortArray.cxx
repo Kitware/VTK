@@ -243,8 +243,27 @@ void vtkUnsignedShortArray::GetTuple(const int i, float * tuple)
     }
 }
 
+void vtkUnsignedShortArray::GetTuple(const int i, double * tuple) 
+{
+  unsigned short *t = this->Array + this->NumberOfComponents*i;
+  for (int j=0; j<this->NumberOfComponents; j++)
+    {
+    tuple[j] = (double)t[j];
+    }
+}
+
 // Set the tuple value at the ith location in the array.
 void vtkUnsignedShortArray::SetTuple(const int i, const float * tuple)
+{
+  int loc = i * this->NumberOfComponents; 
+
+  for (int j=0; j<this->NumberOfComponents; j++) 
+    {
+    this->Array[loc+j] = (unsigned short)tuple[j];
+    }
+}
+
+void vtkUnsignedShortArray::SetTuple(const int i, const double * tuple)
 {
   int loc = i * this->NumberOfComponents; 
 
@@ -266,8 +285,31 @@ void vtkUnsignedShortArray::InsertTuple(const int i, const float * tuple)
     }
 }
 
+void vtkUnsignedShortArray::InsertTuple(const int i, const double * tuple)
+{
+  unsigned short *t = this->WritePointer(i*this->NumberOfComponents,this->NumberOfComponents);
+
+  for (int j=0; j<this->NumberOfComponents; j++)
+    {
+    *t++ = (unsigned short)*tuple++;
+    }
+}
+
 // Insert (memory allocation performed) the tuple onto the end of the array.
 int vtkUnsignedShortArray::InsertNextTuple(const float * tuple)
+{
+  int i = this->MaxId + 1;
+  unsigned short *t = this->WritePointer(i,this->NumberOfComponents);
+
+  for (i=0; i<this->NumberOfComponents; i++)
+    {
+    *t++ = (unsigned short)*tuple++;
+    }
+
+  return this->MaxId / this->NumberOfComponents;
+}
+
+int vtkUnsignedShortArray::InsertNextTuple(const double * tuple)
 {
   int i = this->MaxId + 1;
   unsigned short *t = this->WritePointer(i,this->NumberOfComponents);

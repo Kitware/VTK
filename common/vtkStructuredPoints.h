@@ -70,6 +70,10 @@ public:
   int GetDataObjectType() {return VTK_STRUCTURED_POINTS;}
 
 protected:
+  vtkStructuredPoints();
+  ~vtkStructuredPoints() {};
+  vtkStructuredPoints(const vtkStructuredPoints&) {};
+  void operator=(const vtkStructuredPoints&) {};
 
   // Description:
   // This is an experiment.  When a structured points UpdateExtent
@@ -77,8 +81,6 @@ protected:
   // structured points source will always produce all of their output!.
   int ClipUpdateExtentWithWholeExtent();
   
-protected:
-  vtkStructuredPoints();
 
 };
 

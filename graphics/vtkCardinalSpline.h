@@ -73,6 +73,8 @@ public:
 protected:
   vtkCardinalSpline();
   ~vtkCardinalSpline() {};
+  vtkCardinalSpline(const vtkCardinalSpline&) {};
+  void operator=(const vtkCardinalSpline&) {};
 
   void Fit1D (int n, float *x, float *y, float *w, float coefficients[][4],
 	      int leftConstraint, float leftValue, int rightConstraint, float rightValue);

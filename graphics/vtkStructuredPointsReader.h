@@ -134,6 +134,9 @@ public:
 protected:
   vtkStructuredPointsReader();
   ~vtkStructuredPointsReader();
+  vtkStructuredPointsReader(const vtkStructuredPointsReader&) {};
+  void operator=(const vtkStructuredPointsReader&) {};
+
   void Execute();
   vtkDataReader *Reader;
 };

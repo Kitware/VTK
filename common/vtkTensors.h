@@ -117,6 +117,8 @@ public:
 protected:
   vtkTensors(int dataType=VTK_FLOAT);
   ~vtkTensors();
+  vtkTensors(const vtkTensors&) {};
+  void operator=(const vtkTensors&) {};
 
   vtkTensor *T;
 

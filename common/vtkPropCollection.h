@@ -83,6 +83,8 @@ class VTK_EXPORT vtkPropCollection : public vtkCollection
 protected:
   vtkPropCollection() {};
   ~vtkPropCollection() {};
+  vtkPropCollection(const vtkPropCollection&) {};
+  void operator=(const vtkPropCollection&) {};
   
 };
 

@@ -89,7 +89,10 @@ class VTK_EXPORT vtkMapper : public vtkAbstractMapper
 public:
   const char *GetClassName() {return "vtkMapper";};
   void PrintSelf(ostream& os, vtkIndent indent);
-  void operator=(const vtkMapper& m);
+
+  // Description:
+  // Make a shallow copy of this mapper.
+  void ShallowCopy(vtkMapper *m);
 
   // Description:
   // Overload standard modified time function. If lookup table is modified,
@@ -215,6 +218,8 @@ public:
 protected:
   vtkMapper();
   ~vtkMapper();
+  vtkMapper(const vtkMapper&) {};
+  void operator=(const vtkMapper&) {};
 
   vtkScalars *Colors;
 

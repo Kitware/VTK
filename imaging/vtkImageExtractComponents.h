@@ -74,6 +74,8 @@ public:
 protected:
   vtkImageExtractComponents();
   ~vtkImageExtractComponents() {};
+  vtkImageExtractComponents(const vtkImageExtractComponents&) {};
+  void operator=(const vtkImageExtractComponents&) {};
 
   int NumberOfComponents;
   int Components[3];

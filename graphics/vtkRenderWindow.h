@@ -342,6 +342,9 @@ public:
 protected:
   vtkRenderWindow();
   ~vtkRenderWindow();
+  vtkRenderWindow(const vtkRenderWindow&) {};
+  void operator=(const vtkRenderWindow&) {};
+
   virtual void DoStereoRender();
   virtual void DoFDRender();
   virtual void DoAARender();

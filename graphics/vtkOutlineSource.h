@@ -63,6 +63,8 @@ public:
 protected:
   vtkOutlineSource();
   ~vtkOutlineSource() {};
+  vtkOutlineSource(const vtkOutlineSource&) {};
+  void operator=(const vtkOutlineSource&) {};
 
   void Execute();
   void ExecuteInformation();

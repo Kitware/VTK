@@ -72,6 +72,8 @@ public:
 protected:
   vtkOpenGLTexture();
   ~vtkOpenGLTexture();
+  vtkOpenGLTexture(const vtkOpenGLTexture&) {};
+  void operator=(const vtkOpenGLTexture&) {};
 
   unsigned char *ResampleToPowerOfTwo(int &xsize, int &ysize, 
                                       unsigned char *dptr, int bpp);

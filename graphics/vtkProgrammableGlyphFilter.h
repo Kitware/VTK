@@ -143,6 +143,9 @@ public:
 protected:
   vtkProgrammableGlyphFilter();
   ~vtkProgrammableGlyphFilter();
+  vtkProgrammableGlyphFilter(const vtkProgrammableGlyphFilter&) {};
+  void operator=(const vtkProgrammableGlyphFilter&) {};
+
   void Execute();
 
   float Point[3]; // Coordinates of point

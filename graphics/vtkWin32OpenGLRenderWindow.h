@@ -222,6 +222,8 @@ public:
 protected:
   vtkWin32OpenGLRenderWindow();
   ~vtkWin32OpenGLRenderWindow();
+  vtkWin32OpenGLRenderWindow(const vtkWin32OpenGLRenderWindow&) {};
+  void operator=(const vtkWin32OpenGLRenderWindow&) {};
 
   HINSTANCE ApplicationInstance;
   HPALETTE  Palette;

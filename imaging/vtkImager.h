@@ -92,6 +92,8 @@ public:
 protected:
   vtkImager();
   ~vtkImager() {};
+  vtkImager(const vtkImager&) {};
+  void operator=(const vtkImager&) {};
 
 };
 

@@ -80,6 +80,8 @@ public:
 protected:
   vtkAssemblyPaths() {};
   ~vtkAssemblyPaths() {};
+  vtkAssemblyPaths(const vtkAssemblyPaths&) {};
+  void operator=(const vtkAssemblyPaths&) {};
   
 };
 

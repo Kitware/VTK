@@ -78,6 +78,8 @@ public:
 protected:
   vtkImplicitFunctionCollection() {};
   ~vtkImplicitFunctionCollection() {};
+  vtkImplicitFunctionCollection(const vtkImplicitFunctionCollection&) {};
+  void operator=(const vtkImplicitFunctionCollection&) {};
   
 };
 

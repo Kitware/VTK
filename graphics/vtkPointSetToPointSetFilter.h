@@ -111,6 +111,8 @@ public:
 protected:
   vtkPointSetToPointSetFilter();
   ~vtkPointSetToPointSetFilter();
+  vtkPointSetToPointSetFilter(const vtkPointSetToPointSetFilter&) {};
+  void operator=(const vtkPointSetToPointSetFilter&) {};
 
   // Since we know Inputs[0] is the same type as Outputs[0] we can
   // use CopyUpdateExtent of the data object to propaget extents.

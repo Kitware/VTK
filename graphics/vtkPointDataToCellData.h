@@ -79,6 +79,8 @@ public:
 protected:
   vtkPointDataToCellData();
   ~vtkPointDataToCellData() {};
+  vtkPointDataToCellData(const vtkPointDataToCellData&) {};
+  void operator=(const vtkPointDataToCellData&) {};
 
   void Execute();
 

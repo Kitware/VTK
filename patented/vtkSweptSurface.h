@@ -167,6 +167,9 @@ public:
 protected:
   vtkSweptSurface();
   ~vtkSweptSurface();
+  vtkSweptSurface(const vtkSweptSurface&) {};
+  void operator=(const vtkSweptSurface&) {};
+
   void Execute();
 
   void ComputeBounds(float origin[3], float ar[3], float bbox[24]);

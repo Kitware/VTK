@@ -59,6 +59,8 @@ public:
 protected:
   vtkImageDotProduct() {};
   ~vtkImageDotProduct() {};
+  vtkImageDotProduct(const vtkImageDotProduct&) {};
+  void operator=(const vtkImageDotProduct&) {};
 
   void ExecuteInformation(vtkImageData **inDatas, vtkImageData *outData);
   void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,

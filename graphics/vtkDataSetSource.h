@@ -62,6 +62,8 @@ public:
 protected:  
   vtkDataSetSource();
   ~vtkDataSetSource() {};
+  vtkDataSetSource(const vtkDataSetSource&) {};
+  void operator=(const vtkDataSetSource&) {};
 
 };
 

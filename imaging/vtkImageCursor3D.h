@@ -75,6 +75,8 @@ public:
 protected:
   vtkImageCursor3D();
   ~vtkImageCursor3D() {};
+  vtkImageCursor3D(const vtkImageCursor3D&) {};
+  void operator=(const vtkImageCursor3D&) {};
 
   float CursorPosition[3];
   float CursorValue;

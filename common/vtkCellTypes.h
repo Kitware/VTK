@@ -121,9 +121,11 @@ public:
   // Initialize object without releasing memory.
   void Reset();
 
-private:
+protected:
   vtkCellTypes() : Array(NULL),Size(0),MaxId(-1),Extend(1000) {};
   ~vtkCellTypes();
+  vtkCellTypes(const vtkCellTypes&) {};
+  void operator=(const vtkCellTypes&) {};
 
   _vtkCell_s *Array;   // pointer to data
   int Size;            // allocated size of data

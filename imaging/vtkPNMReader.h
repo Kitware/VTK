@@ -71,6 +71,8 @@ public:
 protected:
   vtkPNMReader() {};
   ~vtkPNMReader() {};
+  vtkPNMReader(const vtkPNMReader&) {};
+  void operator=(const vtkPNMReader&) {};
   void UpdateInformation();
 };
 

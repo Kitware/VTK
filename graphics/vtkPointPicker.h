@@ -67,6 +67,9 @@ public:
 protected:
   vtkPointPicker();
   ~vtkPointPicker() {};
+  vtkPointPicker(const vtkPointPicker&) {};
+  void operator=(const vtkPointPicker&) {};
+
   int PointId; //picked point
 
   float IntersectWithLine(float p1[3], float p2[3], float tol, 

@@ -70,6 +70,9 @@ public:
 protected:
   vtkImageConstantPad();
   ~vtkImageConstantPad() {};
+  vtkImageConstantPad(const vtkImageConstantPad&) {};
+  void operator=(const vtkImageConstantPad&) {};
+
   float Constant;
   
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 

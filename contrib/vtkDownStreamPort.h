@@ -97,6 +97,8 @@ public:
 protected:
   vtkDownStreamPort();
   ~vtkDownStreamPort();  
+  vtkDownStreamPort(const vtkDownStreamPort&) {};
+  void operator=(const vtkDownStreamPort&) {};
   
   vtkMultiProcessController *Controller;
   int UpStreamProcessId;

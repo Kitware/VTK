@@ -86,19 +86,23 @@ public:
   // Description:
   // Copy the tuple value into a user-provided array.
   void GetTuple(const int i, float * tuple);
+  void GetTuple(const int i, double * tuple);
   
   // Description:
   // Set the tuple value at the ith location in the array.
   void SetTuple(const int i, const float * tuple);
+  void SetTuple(const int i, const double * tuple);
 
   // Description:
   // Insert (memory allocation performed) the tuple into the ith location
   // in the array.
   void InsertTuple(const int i, const float * tuple);
+  void InsertTuple(const int i, const double * tuple);
 
   // Description:
   // Insert (memory allocation performed) the tuple onto the end of the array.
   int InsertNextTuple(const float * tuple);
+  int InsertNextTuple(const double * tuple);
   
   // Description:
   // Get the data at a particular index.
@@ -160,9 +164,11 @@ public:
   void DeepCopy(vtkDataArray &da) {this->DeepCopy(&da);}
 
 
-private:
+protected:
   vtkUnsignedLongArray(int numComp=1);
   ~vtkUnsignedLongArray();
+  vtkUnsignedLongArray(const vtkUnsignedLongArray&) {};
+  void operator=(const vtkUnsignedLongArray&) {};
 
   unsigned long *Array;   // pointer to data
   unsigned long *Resize(const int sz);  // function to resize data

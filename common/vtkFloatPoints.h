@@ -76,6 +76,8 @@ public:
 protected:
   vtkFloatPoints():vtkPoints(VTK_FLOAT) {};
   ~vtkFloatPoints() {};
+  vtkFloatPoints(const vtkFloatPoints&) {};
+  void operator=(const vtkFloatPoints&) {};
 
 };
 

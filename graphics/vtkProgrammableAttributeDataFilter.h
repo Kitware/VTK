@@ -141,6 +141,9 @@ public:
 protected:
   vtkProgrammableAttributeDataFilter();
   ~vtkProgrammableAttributeDataFilter();
+  vtkProgrammableAttributeDataFilter(const vtkProgrammableAttributeDataFilter&) {};
+  void operator=(const vtkProgrammableAttributeDataFilter&) {};
+
   void Execute();
   vtkDataSetCollection *InputList; //list of datasets to process
   void (*ExecuteMethod)(void *); //function to invoke

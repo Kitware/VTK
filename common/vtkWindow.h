@@ -135,6 +135,8 @@ public:
 protected:
   vtkWindow();
   ~vtkWindow();
+  vtkWindow(const vtkWindow&) {};
+  void operator=(const vtkWindow&) {};
 
   char *WindowName;
   int Size[2];

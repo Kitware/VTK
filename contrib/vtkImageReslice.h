@@ -173,6 +173,8 @@ public:
 protected:
   vtkImageReslice();
   ~vtkImageReslice();
+  vtkImageReslice(const vtkImageReslice&) {};
+  void operator=(const vtkImageReslice&) {};
 
   vtkMatrix4x4 *ResliceAxes;
   vtkTransform *ResliceTransform;

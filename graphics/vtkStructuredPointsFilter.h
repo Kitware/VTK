@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkStructuredGridWriter.h
+  Module:    vtkStructuredPointsFilter.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,40 +38,46 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkStructuredGridWriter - write vtk structured grid data file
+// .NAME vtkStructuredPointsFilter - filter that takes vtkStructuredPoints as input
 // .SECTION Description
-// vtkStructuredGridWriter is a source object that writes ASCII or binary 
-// structured grid data files in vtk format. See text for format details.
+// vtkStructuredPointsFilter is a filter that takes a single
+// vtkStructuredPoints data object as input.
 
-// .SECTION Caveats
-// Binary files written on one system may not be readable on other systems.
+// .SECTION See Also
+// vtkStructuredPointsToPolyDataFilter
+// vtkStructuredPointsToStructuredPointsFilter
 
-#ifndef __vtkStructuredGridWriter_h
-#define __vtkStructuredGridWriter_h
+#ifndef __vtkStructuredPointsFilter_h
+#define __vtkStructuredPointsFilter_h
 
-#include "vtkDataWriter.h"
-#include "vtkStructuredGrid.h"
+#include "vtkFilter.h"
+#include "vtkStructuredPoints.h"
+#include "vtkImageToStructuredPoints.h"
 
-class VTK_EXPORT vtkStructuredGridWriter : public vtkDataWriter
+class VTK_EXPORT vtkStructuredPointsFilter : public vtkFilter 
 {
 public:
-  static vtkStructuredGridWriter *New() {return new vtkStructuredGridWriter;};
-  const char *GetClassName() {return "vtkStructuredGridWriter";};
-  void PrintSelf(ostream& os, vtkIndent indent);
+  static vtkStructuredPointsFilter *New() {
+    return new vtkStructuredPointsFilter;};
+  const char *GetClassName() {return "vtkStructuredPointsFilter";};
 
   // Description:
   // Set / get the input data or filter.
-  void SetInput(vtkStructuredGrid *input);
-  vtkStructuredGrid *GetInput();
-                               
-protected:
-  vtkStructuredGridWriter() {};
-  ~vtkStructuredGridWriter() {};
-  vtkStructuredGridWriter(const vtkStructuredGridWriter&) {};
-  void operator=(const vtkStructuredGridWriter&) {};
+  void SetInput(vtkStructuredPoints *input);
+  void SetInput(vtkImageData *image)
+    {vtkImageToStructuredPoints *tmp = image->MakeImageToStructuredPoints();
+    this->SetInput(tmp->GetOutput()); tmp->Delete();}
+  vtkStructuredPoints *GetInput() {return (vtkStructuredPoints *)this->Input;};
 
-  void WriteData();
-
+  // Description:
+  // For legacy compatibiltiy. Do not use.
+  //void SetInput(vtkStructuredPoints &input) {this->SetInput(&input);};
+  
+protected:  
+  vtkStructuredPointsFilter() {};
+  ~vtkStructuredPointsFilter() {};
+  vtkStructuredPointsFilter(const vtkStructuredPointsFilter&) {};
+  void operator=(const vtkStructuredPointsFilter&) {};
 };
 
 #endif

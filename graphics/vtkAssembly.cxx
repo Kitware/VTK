@@ -76,12 +76,10 @@ void vtkAssembly::RemovePart(vtkActor *actor)
 }
 
 // Copy another assembly.
-vtkAssembly& vtkAssembly::operator=(const vtkAssembly& assembly)
+void vtkAssembly::ShallowCopy(vtkAssembly *assembly)
 {
-  *((vtkActor *)this) = assembly;
+  this->vtkActor::ShallowCopy(assembly);
   this->DeletePaths();
-  
-  return *this;
 }
 
 // Render this assembly and all its Parts. The rendering process is recursive.
@@ -223,7 +221,7 @@ void vtkAssembly::BuildPaths(vtkAssemblyPaths *paths, vtkActorCollection *path)
   vtkMatrix4x4 *matrix;
   vtkActorCollection *childPath;
 
-  *copy = *this;
+  copy->ShallowCopy(this);
 
   if ( path->GetNumberOfItems() < 1 ) //we're starting at the top of the hierarchy
     {
@@ -259,14 +257,14 @@ void vtkAssembly::BuildPaths(vtkAssemblyPaths *paths, vtkActorCollection *path)
       for ( path->InitTraversal(); (actor = path->GetNextActor()); )
         {
         copy = vtkActor::New();
-        *copy = *actor;
+        copy->ShallowCopy(actor);
 
         if ( actor->GetUserMatrix() )
           {
           matrix = vtkMatrix4x4::New();
           matrix->DeepCopy(actor->GetUserMatrix());
           copy->SetUserMatrix(matrix);
-	  matrix->Delete();
+          matrix->Delete();
           }
 
         childPath->AddItem(copy);
@@ -309,7 +307,7 @@ void vtkAssembly::ApplyProperties()
   for (this->Parts->InitTraversal(); (part = this->Parts->GetNextActor()); )
     {
     actorProp = part->GetProperty();
-    *actorProp = *prop;
+    actorProp->DeepCopy(prop);
     part->ApplyProperties();
     }
 }
@@ -386,13 +384,13 @@ float *vtkAssembly::GetBounds()
         for (n = 0; n < 3; n++)
           {
           if (bbox[i*3+n] < this->Bounds[n*2])
-	    {
-	    this->Bounds[n*2] = bbox[i*3+n];
-	    }
+            {
+            this->Bounds[n*2] = bbox[i*3+n];
+            }
           if (bbox[i*3+n] > this->Bounds[n*2+1])
-	    {
-	    this->Bounds[n*2+1] = bbox[i*3+n];
-	    }
+            {
+            this->Bounds[n*2+1] = bbox[i*3+n];
+            }
           }
         }//for each point of box
       }//if mapper

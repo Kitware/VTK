@@ -65,6 +65,8 @@ public:
 protected:
   vtkImageDivergence();
   ~vtkImageDivergence() {};
+  vtkImageDivergence(const vtkImageDivergence&) {};
+  void operator=(const vtkImageDivergence&) {};
 
   int Dimensionality;
 

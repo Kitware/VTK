@@ -72,6 +72,8 @@ public:
 protected:
   vtkDataSetToUnstructuredGridFilter() {};
   ~vtkDataSetToUnstructuredGridFilter() {};
+  vtkDataSetToUnstructuredGridFilter(const vtkDataSetToUnstructuredGridFilter&) {};
+  void operator=(const vtkDataSetToUnstructuredGridFilter&) {};
   
 
 };

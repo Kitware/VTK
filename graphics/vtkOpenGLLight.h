@@ -63,6 +63,8 @@ public:
 protected:  
   vtkOpenGLLight() {};
   ~vtkOpenGLLight() {};
+  vtkOpenGLLight(const vtkOpenGLLight&) {};
+  void operator=(const vtkOpenGLLight&) {};
 };
 
 #endif

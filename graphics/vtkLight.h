@@ -129,12 +129,18 @@ public:
   vtkSetVector3Macro(AttenuationValues,float);
   vtkGetVectorMacro(AttenuationValues,float,3);
 
+  // Description:
+  // Perform deep copy of this light.
+  void DeepCopy(vtkLight *light);
+
   void ReadSelf(istream& is);
   void WriteSelf(ostream& os);
   
 protected:
   vtkLight();
   ~vtkLight() {};
+  vtkLight(const vtkLight&) {};
+  void operator=(const vtkLight&) {};
 
   float FocalPoint[3];
   float Position[3];

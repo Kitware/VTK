@@ -242,6 +242,8 @@ protected:
 
   vtkDataObject();
   ~vtkDataObject();
+  vtkDataObject(const vtkDataObject&) {};
+  void operator=(const vtkDataObject&) {};
 
   // Description:
   // Method implemented in the subclasses to make sure the update extent

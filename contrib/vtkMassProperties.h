@@ -102,6 +102,8 @@ public:
 protected:
   vtkMassProperties();
   ~vtkMassProperties();
+  vtkMassProperties(const vtkMassProperties&) {};
+  void operator=(const vtkMassProperties&) {};
 
   double  SurfaceArea;
   double  Volume ;

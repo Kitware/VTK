@@ -224,6 +224,8 @@ protected:
   // culling turned off.
   vtkViewport();
   ~vtkViewport();
+  vtkViewport(const vtkViewport&) {};
+  void operator=(const vtkViewport&) {};
 
 
   vtkPropCollection *Props;

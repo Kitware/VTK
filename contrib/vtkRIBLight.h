@@ -69,6 +69,8 @@ public:
 protected:
   vtkRIBLight();
   ~vtkRIBLight();
+  vtkRIBLight(const vtkRIBLight&) {};
+  void operator=(const vtkRIBLight&) {};
 
   vtkLight *Light;
   int Shadows;

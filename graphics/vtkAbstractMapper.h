@@ -131,6 +131,8 @@ public:
 protected:
   vtkAbstractMapper();
   ~vtkAbstractMapper();
+  vtkAbstractMapper(const vtkAbstractMapper&) {};
+  void operator=(const vtkAbstractMapper&) {};
 
   float TimeToDraw;
 

@@ -108,6 +108,8 @@ public:
 protected:
   vtkImageMandelbrotSource();
   ~vtkImageMandelbrotSource();
+  vtkImageMandelbrotSource(const vtkImageMandelbrotSource&) {};
+  void operator=(const vtkImageMandelbrotSource&) {};
 
   int ProjectionAxes[3];
 

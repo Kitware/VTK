@@ -213,6 +213,8 @@ public:
 protected:
   vtkRayCaster();
   ~vtkRayCaster();
+  vtkRayCaster(const vtkRayCaster&) {};
+  void operator=(const vtkRayCaster&) {};
 
   // Description:
   // Zoom the small image up the full size using nearest neighbor 

@@ -93,6 +93,8 @@ public:
 protected:
   vtkImageQuantizeRGBToIndex();
   ~vtkImageQuantizeRGBToIndex();
+  vtkImageQuantizeRGBToIndex(const vtkImageQuantizeRGBToIndex&) {};
+  void operator=(const vtkImageQuantizeRGBToIndex&) {};
 
   vtkLookupTable  *LookupTable;
   int             NumberOfColors;

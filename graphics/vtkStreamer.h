@@ -244,6 +244,8 @@ public:
 protected:
   vtkStreamer();
   ~vtkStreamer();
+  vtkStreamer(const vtkStreamer&) {};
+  void operator=(const vtkStreamer&) {};
 
   // Integrate data
   void Integrate();

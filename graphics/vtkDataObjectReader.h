@@ -97,6 +97,8 @@ public:
 protected:
   vtkDataObjectReader();
   ~vtkDataObjectReader();
+  vtkDataObjectReader(const vtkDataObjectReader&) {};
+  void operator=(const vtkDataObjectReader&) {};
 
   void Execute();
   vtkDataReader *Reader;

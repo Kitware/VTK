@@ -233,6 +233,8 @@ public:
 protected:
   vtkDelaunay3D();
   ~vtkDelaunay3D();
+  vtkDelaunay3D(const vtkDelaunay3D&) {};
+  void operator=(const vtkDelaunay3D&) {};
 
   void Execute();
 

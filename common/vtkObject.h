@@ -175,6 +175,8 @@ public:
 protected:
   vtkObject(); 
   virtual ~vtkObject(); 
+  vtkObject(const vtkObject&) {};
+  void operator=(const vtkObject&) {};
 
   unsigned char Debug;         // Enable debug messages
   vtkTimeStamp MTime; // Keep track of modification time

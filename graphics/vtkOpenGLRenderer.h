@@ -77,6 +77,8 @@ public:
 protected:
   vtkOpenGLRenderer();
   ~vtkOpenGLRenderer() {};
+  vtkOpenGLRenderer(const vtkOpenGLRenderer&) {};
+  void operator=(const vtkOpenGLRenderer&) {};
   
 
 };

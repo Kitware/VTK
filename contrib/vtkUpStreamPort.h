@@ -94,6 +94,8 @@ public:
 protected:
   vtkUpStreamPort();
   ~vtkUpStreamPort();  
+  vtkUpStreamPort(const vtkUpStreamPort&) {};
+  void operator=(const vtkUpStreamPort&) {};
   
   int Tag;
   

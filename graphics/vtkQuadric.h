@@ -77,6 +77,8 @@ public:
 protected:
   vtkQuadric();
   ~vtkQuadric() {};
+  vtkQuadric(const vtkQuadric&) {};
+  void operator=(const vtkQuadric&) {};
 
   float Coefficients[10];
 

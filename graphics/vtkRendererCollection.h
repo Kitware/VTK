@@ -89,6 +89,8 @@ class VTK_EXPORT vtkRendererCollection : public vtkCollection
 protected:  
   vtkRendererCollection() {};
   ~vtkRendererCollection() {};
+  vtkRendererCollection(const vtkRendererCollection&) {};
+  void operator=(const vtkRendererCollection&) {};
 };
 
 

@@ -141,6 +141,9 @@ public:
 protected:
   vtkTensorGlyph();
   ~vtkTensorGlyph();
+  vtkTensorGlyph(const vtkTensorGlyph&) {};
+  void operator=(const vtkTensorGlyph&) {};
+
   void Execute();
 
   int Scaling; // Determine whether scaling of geometry is performed

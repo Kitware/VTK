@@ -188,8 +188,9 @@ public:
   
 protected:
   vtkStructuredGrid();
-  vtkStructuredGrid(const vtkStructuredGrid& sg);
   ~vtkStructuredGrid();
+  vtkStructuredGrid(const vtkStructuredGrid& sg);
+  void operator=(const vtkStructuredGrid&) {};
 
   // for the GetCell method
   vtkVertex *Vertex;

@@ -69,6 +69,8 @@ class VTK_EXPORT vtkImagerCollection : public vtkCollection
 protected:  
   vtkImagerCollection() {};
   ~vtkImagerCollection() {};
+  vtkImagerCollection(const vtkImagerCollection&) {};
+  void operator=(const vtkImagerCollection&) {};
 };
 
 inline void vtkImagerCollection::AddItem(vtkImager *a) 

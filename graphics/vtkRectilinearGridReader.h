@@ -130,6 +130,9 @@ public:
 protected:
   vtkRectilinearGridReader();
   ~vtkRectilinearGridReader();
+  vtkRectilinearGridReader(const vtkRectilinearGridReader&) {};
+  void operator=(const vtkRectilinearGridReader&) {};
+
   void Execute();
   vtkDataReader *Reader;
 

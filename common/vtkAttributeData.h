@@ -132,6 +132,8 @@ protected:
   // dataType is VTK_FLOAT.
   vtkAttributeData(int dataType=VTK_FLOAT);
   ~vtkAttributeData();
+  vtkAttributeData(const vtkAttributeData&) {};
+  void operator=(const vtkAttributeData&) {};
 
   vtkDataArray *Data;  // Array which represents data
 

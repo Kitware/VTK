@@ -133,6 +133,8 @@ public:
 protected:
   vtkSpline();
   ~vtkSpline ();
+  vtkSpline(const vtkSpline&) {};
+  void operator=(const vtkSpline&) {};
 
   unsigned long ComputeTime;
   int ClampValue;

@@ -112,6 +112,8 @@ public:
 protected:
   vtkImageAnisotropicDiffusion2D();
   ~vtkImageAnisotropicDiffusion2D() {};
+  vtkImageAnisotropicDiffusion2D(const vtkImageAnisotropicDiffusion2D&) {};
+  void operator=(const vtkImageAnisotropicDiffusion2D&) {};
 
   int NumberOfIterations;
   float DiffusionThreshold;

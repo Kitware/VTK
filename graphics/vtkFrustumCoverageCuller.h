@@ -117,6 +117,8 @@ public:
 protected:
   vtkFrustumCoverageCuller();
   ~vtkFrustumCoverageCuller() {};
+  vtkFrustumCoverageCuller(const vtkFrustumCoverageCuller&) {};
+  void operator=(const vtkFrustumCoverageCuller&) {};
 
   float        MinimumCoverage;
   float        MaximumCoverage;

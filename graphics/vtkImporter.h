@@ -121,6 +121,8 @@ public:
 protected:
   vtkImporter();
   ~vtkImporter();
+  vtkImporter(const vtkImporter&) {};
+  void operator=(const vtkImporter&) {};
 
   int OpenImportFile();
   void CloseImportFile();

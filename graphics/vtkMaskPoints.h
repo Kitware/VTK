@@ -83,6 +83,8 @@ public:
 protected:
   vtkMaskPoints();
   ~vtkMaskPoints() {};
+  vtkMaskPoints(const vtkMaskPoints&) {};
+  void operator=(const vtkMaskPoints&) {};
 
   void Execute();
   void ExecuteInformation();

@@ -208,6 +208,8 @@ public:
 protected:
   vtkMultiThreader();
   ~vtkMultiThreader();
+  vtkMultiThreader(const vtkMultiThreader&) {};
+  void operator=(const vtkMultiThreader&) {};
 
   // The number of threads to use
   int                        NumberOfThreads;

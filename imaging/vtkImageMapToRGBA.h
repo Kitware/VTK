@@ -71,6 +71,9 @@ public:
 protected:
   vtkImageMapToRGBA();
   ~vtkImageMapToRGBA();
+  vtkImageMapToRGBA(const vtkImageMapToRGBA&) {};
+  void operator=(const vtkImageMapToRGBA&) {};
+
   vtkScalarsToColors *LookupTable;
   
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);

@@ -167,6 +167,8 @@ public:
 protected:
   vtkClipVolume(vtkImplicitFunction *cf=NULL);
   ~vtkClipVolume();
+  vtkClipVolume(const vtkClipVolume&) {};
+  void operator=(const vtkClipVolume&) {};
 
   void Execute();
   void ClipVoxel(float value, vtkScalars *cellScalars, int flip,

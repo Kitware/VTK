@@ -65,6 +65,9 @@ public:
 protected:
   vtkSTLWriter();
   ~vtkSTLWriter() {};
+  vtkSTLWriter(const vtkSTLWriter&) {};
+  void operator=(const vtkSTLWriter&) {};
+
   void WriteData();
 
   void WriteBinarySTL(vtkPoints *pts, vtkCellArray *polys);

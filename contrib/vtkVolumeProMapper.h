@@ -239,6 +239,8 @@ public:
 protected:
   vtkVolumeProMapper();
   ~vtkVolumeProMapper();
+  vtkVolumeProMapper(const vtkVolumeProMapper&) {};
+  void operator=(const vtkVolumeProMapper&) {};
 
   // Update the camera - set the camera matrix
   void UpdateCamera( vtkRenderer *, vtkVolume * );

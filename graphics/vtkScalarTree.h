@@ -136,6 +136,9 @@ public:
 protected:
   vtkScalarTree();
   ~vtkScalarTree();
+  vtkScalarTree(const vtkScalarTree&) {};
+  void operator=(const vtkScalarTree&) {};
+
   vtkDataSet *DataSet;
   vtkScalars *Scalars;
   int MaxLevel;

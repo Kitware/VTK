@@ -76,6 +76,8 @@ public:
 protected:
   vtkFloatScalars():vtkScalars(VTK_FLOAT) {};
   ~vtkFloatScalars() {};
+  vtkFloatScalars(const vtkFloatScalars&) {};
+  void operator=(const vtkFloatScalars&) {};
   
 };
 

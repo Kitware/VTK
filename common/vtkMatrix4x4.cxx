@@ -424,22 +424,6 @@ void vtkMatrix4x4::DeepCopy(double Elements[16], vtkMatrix4x4 *source)
     }
 }
 
-vtkMatrix4x4& vtkMatrix4x4::operator= (const vtkMatrix4x4& source)
-{
-  int i, j;
-
-  this->Modified();
-  for (i = 0; i < 4; ++i)
-    {
-    for (j = 0; j < 4; ++j)
-      {
-      this->Element[i][j] = source.Element[i][j];
-      }
-    }
-
-  return *this;
-}
-
 // Transpose the matrix and put it into out. 
   
 void vtkMatrix4x4::Transpose (vtkMatrix4x4 *in,vtkMatrix4x4 *out)

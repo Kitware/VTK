@@ -128,6 +128,8 @@ public:
 protected:
   vtkVectors(int dataType=VTK_FLOAT);
   ~vtkVectors() {};
+  vtkVectors(const vtkVectors&) {};
+  void operator=(const vtkVectors&) {};
 
   float MaxNorm;
   vtkTimeStamp ComputeTime; // Time at which MaxNorm computed

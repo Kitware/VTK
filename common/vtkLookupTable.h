@@ -182,6 +182,8 @@ public:
 protected:
   vtkLookupTable(int sze=256, int ext=256);
   ~vtkLookupTable();
+  vtkLookupTable(const vtkLookupTable&) {};
+  void operator=(const vtkLookupTable&) {};
 
   int NumberOfColors;
   vtkUnsignedCharArray *Table;

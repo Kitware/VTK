@@ -75,6 +75,8 @@ public:
 protected:
   vtkImageTwoInputFilter();
   ~vtkImageTwoInputFilter() {};
+  vtkImageTwoInputFilter(const vtkImageTwoInputFilter&) {};
+  void operator=(const vtkImageTwoInputFilter&) {};
 
 };
 

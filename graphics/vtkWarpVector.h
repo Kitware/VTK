@@ -76,6 +76,9 @@ public:
 protected:
   vtkWarpVector();
   ~vtkWarpVector();
+  vtkWarpVector(const vtkWarpVector&) {};
+  void operator=(const vtkWarpVector&) {};
+
   void Execute();
   int SplitPointRange(int threadId, int threadCount, int &min, int &max);
   float ScaleFactor;

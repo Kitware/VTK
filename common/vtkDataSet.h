@@ -314,6 +314,7 @@ protected:
   vtkDataSet();
   ~vtkDataSet();  
   vtkDataSet(const vtkDataSet& ds);
+  void operator=(const vtkDataSet&) {};  
 
   vtkCellData *CellData;   // Scalars, vectors, etc. associated w/ each cell
   vtkPointData *PointData;   // Scalars, vectors, etc. associated w/ each point

@@ -90,6 +90,8 @@ public:
 protected:
   vtkExtractGrid();
   ~vtkExtractGrid() {};
+  vtkExtractGrid(const vtkExtractGrid&) {};
+  void operator=(const vtkExtractGrid&) {};
 
   void Execute();
 

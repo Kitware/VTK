@@ -82,6 +82,8 @@ public:
 protected:
   vtkDiskSource();
   ~vtkDiskSource() {};
+  vtkDiskSource(const vtkDiskSource&) {};
+  void operator=(const vtkDiskSource&) {};
 
   void Execute();
   float InnerRadius;

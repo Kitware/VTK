@@ -73,6 +73,8 @@ public:
 protected:
   vtkStructuredPointsToUnstructuredGridFilter() {};
   ~vtkStructuredPointsToUnstructuredGridFilter() {};
+  vtkStructuredPointsToUnstructuredGridFilter(const vtkStructuredPointsToUnstructuredGridFilter&) {};
+  void operator=(const vtkStructuredPointsToUnstructuredGridFilter&) {};
 };
 
 #endif

@@ -69,7 +69,7 @@ public:
 
   // Description:
   // Shallow copy.
-  vtkProp3D &operator=(const vtkProp3D& Prop3D);
+  void ShallowCopy(vtkProp3D *Prop3D);
 
   // Description:
   // Set/Get/Add the position of the Prop3D in world coordinates.
@@ -249,6 +249,8 @@ public:
 protected:
   vtkProp3D();
   ~vtkProp3D();
+  vtkProp3D(const vtkProp3D&) {};
+  void operator=(const vtkProp3D&) {};
 
   vtkMatrix4x4  *UserMatrix;
   vtkMatrix4x4  *Matrix;

@@ -99,7 +99,7 @@ class VTK_EXPORT vtkActor : public vtkProp3D
 
   // Description:
   // Shallow copy of an actor.
-  vtkActor &operator=(const vtkActor& actor);
+  void ShallowCopy(vtkActor *actor);
 
   // Description:
   // Release any graphics resources that are being consumed by this actor.
@@ -199,6 +199,8 @@ class VTK_EXPORT vtkActor : public vtkProp3D
 protected:
   vtkActor();
   ~vtkActor();
+  vtkActor(const vtkActor&) {};
+  void operator=(const vtkActor&) {};
 
   vtkProperty *Property; 
   vtkProperty *BackfaceProperty; 

@@ -88,6 +88,9 @@ public:
 protected:
   vtkStructuredGridGeometryFilter();
   ~vtkStructuredGridGeometryFilter() {};
+  vtkStructuredGridGeometryFilter(const vtkStructuredGridGeometryFilter&) {};
+  void operator=(const vtkStructuredGridGeometryFilter&) {};
+
   void Execute();
   int Extent[6];
 };

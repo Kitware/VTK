@@ -134,6 +134,9 @@ public:
 protected:
   vtkUnstructuredGridReader();
   ~vtkUnstructuredGridReader();
+  vtkUnstructuredGridReader(const vtkUnstructuredGridReader&) {};
+  void operator=(const vtkUnstructuredGridReader&) {};
+
   void Execute();
   vtkDataReader *Reader;
 

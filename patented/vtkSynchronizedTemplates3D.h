@@ -179,14 +179,17 @@ public:
   vtkGetMacro( NumberOfThreads, int );
 
   // Description:
-  // Determines the chunk size fro streaming.  This filter will act like a collector:
-  // ask for many input pieces, but generate one output.  Limit is in KBytes
+  // Determines the chunk size fro streaming.  This filter will act like a
+  // collector: ask for many input pieces, but generate one output.  Limit is
+  // in KBytes
   void SetInputMemoryLimit(unsigned long limit);
   unsigned long GetInputMemoryLimit();
 
 protected:
   vtkSynchronizedTemplates3D();
   ~vtkSynchronizedTemplates3D();
+  vtkSynchronizedTemplates3D(const vtkSynchronizedTemplates3D&) {};
+  void operator=(const vtkSynchronizedTemplates3D&) {};
 
   int ComputeNormals;
   int ComputeGradients;
@@ -202,8 +205,8 @@ protected:
   void StreamExecuteEnd();
 
   // Description:
-  // Part of the streaming protocall.  This method sets the UpdateExtent of the 
-  // input and sets the ExecuteExtent for this filter.
+  // Part of the streaming protocall.  This method sets the UpdateExtent of
+  // the input and sets the ExecuteExtent for this filter.
   int ComputeDivisionExtents(vtkDataObject *output, int idx, int numPieces);
 
   // Stuff for multithreading

@@ -93,6 +93,8 @@ public:
 protected:
   vtkImageShiftScale();
   ~vtkImageShiftScale() {};
+  vtkImageShiftScale(const vtkImageShiftScale&) {};
+  void operator=(const vtkImageShiftScale&) {};
 
   float Shift;
   float Scale;

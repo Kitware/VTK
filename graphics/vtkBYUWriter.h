@@ -105,6 +105,8 @@ public:
 protected:
   vtkBYUWriter();
   ~vtkBYUWriter();
+  vtkBYUWriter(const vtkBYUWriter&) {};
+  void operator=(const vtkBYUWriter&) {};
 
   void WriteData();
 

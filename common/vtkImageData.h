@@ -327,8 +327,9 @@ public:
   
 protected:
   vtkImageData();
-  vtkImageData(const vtkImageData& v);
   ~vtkImageData();
+  vtkImageData(const vtkImageData& v);
+  void operator=(const vtkImageData&) {};
 
   vtkImageToStructuredPoints *ImageToStructuredPoints;
 

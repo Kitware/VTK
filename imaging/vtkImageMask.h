@@ -95,6 +95,8 @@ public:
 protected:
   vtkImageMask();
   ~vtkImageMask();
+  vtkImageMask(const vtkImageMask&) {};
+  void operator=(const vtkImageMask&) {};
 
   float *MaskedOutputValue;
   int MaskedOutputValueLength;

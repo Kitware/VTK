@@ -92,6 +92,8 @@ public:
 protected:
   vtkImageSimpleCache();
   ~vtkImageSimpleCache();
+  vtkImageSimpleCache(const vtkImageSimpleCache&) {};
+  void operator=(const vtkImageSimpleCache&) {};
 
   vtkImageData *CachedData;
   vtkTimeStamp GenerateTime;

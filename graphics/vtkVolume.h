@@ -126,6 +126,9 @@ public:
   // etc.
   unsigned long GetRedrawMTime();
 
+  // Description:
+  // Make a shallow copy of this volume.
+  void ShallowCopy(vtkVolume *volume);
 
   // Description:
   // For legacy compatibility. Do not use.
@@ -139,7 +142,6 @@ public:
 
   // Description:
   // For legacy compatibility. Do not use.
-  vtkVolume &operator=(const vtkVolume& volume);
   void SetVolumeProperty(vtkVolumeProperty& property) 
     {this->SetProperty(&property);}
 
@@ -253,9 +255,10 @@ public:
 protected:
   vtkVolume();
   ~vtkVolume();
+  vtkVolume(const vtkVolume&) {};
+  void operator=(const vtkVolume&) {};
 
   vtkVolumeMapper              *Mapper;
-
   vtkVolumeProperty            *Property;
 
   // The rgb transfer function array - for unsigned char data this

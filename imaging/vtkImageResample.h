@@ -87,6 +87,8 @@ public:
 protected:
   vtkImageResample();
   ~vtkImageResample() {};
+  vtkImageResample(const vtkImageResample&) {};
+  void operator=(const vtkImageResample&) {};
 
   float MagnificationFactors[3];
   float OutputSpacing[3];

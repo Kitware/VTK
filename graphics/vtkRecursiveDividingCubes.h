@@ -90,6 +90,9 @@ public:
 protected:
   vtkRecursiveDividingCubes();
   ~vtkRecursiveDividingCubes();
+  vtkRecursiveDividingCubes(const vtkRecursiveDividingCubes&) {};
+  void operator=(const vtkRecursiveDividingCubes&) {};
+
   void Execute();
   void SubDivide(float origin[3], float h[3], float values[8]);
 

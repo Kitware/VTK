@@ -100,6 +100,8 @@ public:
 protected:
   vtkPolyVertex();
   ~vtkPolyVertex();
+  vtkPolyVertex(const vtkPolyVertex&) {};
+  void operator=(const vtkPolyVertex&) {};
 
   vtkVertex *Vertex;
 

@@ -172,6 +172,8 @@ public:
 protected:
   vtkPolygon();
   ~vtkPolygon();
+  vtkPolygon(const vtkPolygon&) {};
+  void operator=(const vtkPolygon&) {};
 
   // variables used by instances of this class
   float   Tolerance; // Intersection tolerance

@@ -85,6 +85,8 @@ class VTK_EXPORT vtkRenderWindowCollection : public vtkCollection
 protected:
   vtkRenderWindowCollection() {};
   ~vtkRenderWindowCollection() {};
+  vtkRenderWindowCollection(const vtkRenderWindowCollection&) {};
+  void operator=(const vtkRenderWindowCollection&) {};
 };
 
 

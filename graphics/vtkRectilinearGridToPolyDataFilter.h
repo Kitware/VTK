@@ -67,6 +67,8 @@ public:
 protected:
   vtkRectilinearGridToPolyDataFilter() {};
   ~vtkRectilinearGridToPolyDataFilter() {};
+  vtkRectilinearGridToPolyDataFilter(const vtkRectilinearGridToPolyDataFilter&) {};
+  void operator=(const vtkRectilinearGridToPolyDataFilter&) {};
 };
 
 #endif

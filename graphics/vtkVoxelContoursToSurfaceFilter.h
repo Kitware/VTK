@@ -89,6 +89,9 @@ public:
 protected:
   vtkVoxelContoursToSurfaceFilter();
   ~vtkVoxelContoursToSurfaceFilter();
+  vtkVoxelContoursToSurfaceFilter(const vtkVoxelContoursToSurfaceFilter&) {};
+  void operator=(const vtkVoxelContoursToSurfaceFilter&) {};
+
   void    Execute();
 
   int     MemoryLimitInBytes;

@@ -64,6 +64,8 @@ public:
 protected:
   vtkHedgeHog() { this->ScaleFactor = 1.0;};
   ~vtkHedgeHog() {};
+  vtkHedgeHog(const vtkHedgeHog&) {};
+  void operator=(const vtkHedgeHog&) {};
 
   void Execute();
   float ScaleFactor;

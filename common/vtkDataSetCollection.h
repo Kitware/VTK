@@ -84,6 +84,8 @@ public:
 protected:
   vtkDataSetCollection() {};
   ~vtkDataSetCollection() {};
+  vtkDataSetCollection(const vtkDataSetCollection&) {};
+  void operator=(const vtkDataSetCollection&) {};
 
 };
 

@@ -58,6 +58,8 @@ public:
 protected:
   vtkImageMagnitude() {};
   ~vtkImageMagnitude() {};
+  vtkImageMagnitude(const vtkImageMagnitude&) {};
+  void operator=(const vtkImageMagnitude&) {};
 
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,

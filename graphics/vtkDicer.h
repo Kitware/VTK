@@ -89,6 +89,8 @@ public:
 protected:
   vtkDicer();
   ~vtkDicer() {};
+  vtkDicer(const vtkDicer&) {};
+  void operator=(const vtkDicer&) {};
 
   // Usual data generation method
   void Execute();

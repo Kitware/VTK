@@ -77,6 +77,8 @@ public:
 protected:
   vtkWindowToImageFilter();
   ~vtkWindowToImageFilter();
+  vtkWindowToImageFilter(const vtkWindowToImageFilter&) {};
+  void operator=(const vtkWindowToImageFilter&) {};
 
   // vtkWindow is not a vtkDataObject, so we need our own ivar.
   vtkWindow *Input;

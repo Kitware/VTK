@@ -173,6 +173,8 @@ public:
 protected:
   vtkMultiProcessController();
   ~vtkMultiProcessController();
+  vtkMultiProcessController(const vtkMultiProcessController&) {};
+  void operator=(const vtkMultiProcessController&) {};
   
   int MaximumNumberOfProcesses;
   int NumberOfProcesses;

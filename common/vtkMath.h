@@ -323,6 +323,9 @@ public:
 protected:
   vtkMath() {};
   ~vtkMath() {};
+  vtkMath(const vtkMath&) {};
+  void operator=(const vtkMath&) {};
+  
   static long Seed;
 };
 

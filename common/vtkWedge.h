@@ -104,6 +104,8 @@ public:
 protected:
   vtkWedge();
   ~vtkWedge();
+  vtkWedge(const vtkWedge&) {};
+  void operator=(const vtkWedge&) {};
 
   vtkLine *Line;
   vtkTriangle *Triangle;

@@ -80,6 +80,9 @@ public:
 protected:
   vtkShrinkPolyData(float sf=0.5);
   ~vtkShrinkPolyData() {};
+  vtkShrinkPolyData(const vtkShrinkPolyData&) {};
+  void operator=(const vtkShrinkPolyData&) {};
+
   void Execute();
   float ShrinkFactor;
 };

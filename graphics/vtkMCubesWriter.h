@@ -74,6 +74,8 @@ public:
 protected:
   vtkMCubesWriter();
   ~vtkMCubesWriter();
+  vtkMCubesWriter(const vtkMCubesWriter&) {};
+  void operator=(const vtkMCubesWriter&) {};
 
   void WriteData();
   char *LimitsFileName;

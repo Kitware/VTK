@@ -94,6 +94,8 @@ public:
 protected:
   vtkMergeDataObjectFilter();
   ~vtkMergeDataObjectFilter();
+  vtkMergeDataObjectFilter(const vtkMergeDataObjectFilter&) {};
+  void operator=(const vtkMergeDataObjectFilter&) {};
 
   // Usual data generation method
   void Execute();

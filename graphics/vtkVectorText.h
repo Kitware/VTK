@@ -63,6 +63,9 @@ public:
 protected:
   vtkVectorText();
   ~vtkVectorText();
+  vtkVectorText(const vtkVectorText&) {};
+  void operator=(const vtkVectorText&) {};
+
   void Execute();
   char *Text;
   char *Letters[127];

@@ -148,6 +148,8 @@ public:
 protected:
   vtkColorTransferFunction();
   ~vtkColorTransferFunction();
+  vtkColorTransferFunction(const vtkColorTransferFunction&) {};
+  void operator=(const vtkColorTransferFunction&) {};
 
   // Determines the function value outside of defined points
   // in each of the R,G,B transfer functions.

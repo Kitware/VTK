@@ -126,6 +126,8 @@ protected:
   
   vtkThreadController();
   ~vtkThreadController();
+  vtkThreadController(const vtkThreadController&) {};
+  void operator=(const vtkThreadController&) {};
 
   // Initialize and clean up in main thread.
   void CreateThreadInfoObjects();

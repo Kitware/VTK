@@ -86,17 +86,14 @@ vtkActor::~vtkActor()
 }
 
 // Shallow copy of an actor.
-vtkActor& vtkActor::operator=(const vtkActor& actor)
+void vtkActor::ShallowCopy(vtkActor *actor)
 {
-  this->SetUserMatrix(actor.UserMatrix);
-  this->SetMapper(actor.Mapper);
-  this->SetProperty(actor.Property);
-  this->SetBackfaceProperty(actor.BackfaceProperty);
-  this->SetTexture(actor.Texture);
+  this->vtkProp3D::ShallowCopy(actor);
 
-  *((vtkProp3D *)this) = actor;
-
-  return *this;
+  this->SetMapper(actor->GetMapper());
+  this->SetProperty(actor->GetProperty());
+  this->SetBackfaceProperty(actor->GetBackfaceProperty());
+  this->SetTexture(actor->GetTexture());
 }
 
 
@@ -486,8 +483,7 @@ void vtkActor::BuildPaths(vtkAssemblyPaths *vtkNotUsed(paths),
   vtkActor *copy= vtkActor::New();
   vtkActor *previous;
 
-  *copy = *this;
-
+  copy->ShallowCopy(this);
   previous = path->GetLastActor();
 
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();

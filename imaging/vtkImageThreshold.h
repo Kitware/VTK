@@ -112,6 +112,8 @@ public:
 protected:
   vtkImageThreshold();
   ~vtkImageThreshold() {};
+  vtkImageThreshold(const vtkImageThreshold&) {};
+  void operator=(const vtkImageThreshold&) {};
 
   float UpperThreshold;
   float LowerThreshold;

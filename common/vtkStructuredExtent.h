@@ -53,6 +53,7 @@ class VTK_EXPORT vtkStructuredExtent : public vtkExtent
 {
 public:
   static vtkStructuredExtent *New() {return new vtkStructuredExtent;};
+
   const char *GetClassName() {return "vtkStructuredExtent";}
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -73,9 +74,10 @@ public:
   void WriteSelf(ostream& os);
 
 protected:
-
   vtkStructuredExtent();
   ~vtkStructuredExtent() {};
+  vtkStructuredExtent(const vtkStructuredExtent&) {};
+  void operator=(const vtkStructuredExtent&) {};
 
   // This is the way the extent was specified before these objects.
   int Extent[6];

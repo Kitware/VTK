@@ -140,6 +140,8 @@ public:
 protected:
   vtkBooleanTexture();
   ~vtkBooleanTexture() {};
+  vtkBooleanTexture(const vtkBooleanTexture&) {};
+  void operator=(const vtkBooleanTexture&) {};
 
   void Execute();
 

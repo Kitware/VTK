@@ -99,6 +99,9 @@ public:
 protected:
   vtkVoxelModeller();
   ~vtkVoxelModeller() {};
+  vtkVoxelModeller(const vtkVoxelModeller&) {};
+  void operator=(const vtkVoxelModeller&) {};
+
   void Execute();
   int SampleDimensions[3];
   float MaximumDistance;

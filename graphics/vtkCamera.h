@@ -324,6 +324,8 @@ class VTK_EXPORT vtkCamera : public vtkObject
 protected:
   vtkCamera();
   ~vtkCamera();
+  vtkCamera(const vtkCamera&) {};
+  void operator=(const vtkCamera&) {};
 
   double WindowCenter[2];
   double FocalPoint[3];

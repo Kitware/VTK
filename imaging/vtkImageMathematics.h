@@ -109,6 +109,8 @@ public:
 protected:
   vtkImageMathematics();
   ~vtkImageMathematics() {};
+  vtkImageMathematics(const vtkImageMathematics&) {};
+  void operator=(const vtkImageMathematics&) {};
 
   int Operation;
   double ConstantK;

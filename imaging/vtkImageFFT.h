@@ -75,6 +75,8 @@ public:
 protected:
   vtkImageFFT() {};
   ~vtkImageFFT() {};
+  vtkImageFFT(const vtkImageFFT&) {};
+  void operator=(const vtkImageFFT&) {};
 
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
   void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);

@@ -71,6 +71,9 @@ public:
 protected:
   vtkStructuredPointsWriter() {};
   ~vtkStructuredPointsWriter() {};
+  vtkStructuredPointsWriter(const vtkStructuredPointsWriter&) {};
+  void operator=(const vtkStructuredPointsWriter&) {};
+
   void WriteData();
 
 };

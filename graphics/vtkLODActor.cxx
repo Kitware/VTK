@@ -356,7 +356,7 @@ void vtkLODActor::BuildPaths(vtkAssemblyPaths *vtkNotUsed(paths),
   vtkMapper *mapper;
 
   // shallow copy
-  *((vtkActor *)copy) = *this;
+  copy->ShallowCopy(this);
   this->LODMappers->InitTraversal();
   while ( (mapper = this->LODMappers->GetNextItem()) )
     {

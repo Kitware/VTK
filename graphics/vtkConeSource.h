@@ -94,6 +94,8 @@ public:
 protected:
   vtkConeSource(int res=6);
   ~vtkConeSource() {};
+  vtkConeSource(const vtkConeSource&) {};
+  void operator=(const vtkConeSource&) {};
 
   void Execute();
   void ExecuteInformation();

@@ -83,6 +83,8 @@ public:
 protected:
   vtkImageNonMaximumSuppression();
   ~vtkImageNonMaximumSuppression() {};
+  vtkImageNonMaximumSuppression(const vtkImageNonMaximumSuppression&) {};
+  void operator=(const vtkImageNonMaximumSuppression&) {};
 
   int HandleBoundaries;
   int Dimensionality;

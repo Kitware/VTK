@@ -142,6 +142,8 @@ class VTK_EXPORT vtkIdList : public vtkObject
 protected:
   vtkIdList(const int sz=512, const int ext=1000);
   ~vtkIdList();
+  vtkIdList(const vtkIdList&) {};
+  void operator=(const vtkIdList&) {};
 
   vtkIntArray *Ia;
 };

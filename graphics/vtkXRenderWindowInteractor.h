@@ -167,6 +167,8 @@ public:
 protected:
   vtkXRenderWindowInteractor();
   ~vtkXRenderWindowInteractor();
+  vtkXRenderWindowInteractor(const vtkXRenderWindowInteractor&) {};
+  void operator=(const vtkXRenderWindowInteractor&) {};
 
   Display *DisplayId;
   Window WindowId;

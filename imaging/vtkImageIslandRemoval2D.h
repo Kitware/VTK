@@ -94,6 +94,8 @@ public:
 protected:
   vtkImageIslandRemoval2D();
   ~vtkImageIslandRemoval2D() {};
+  vtkImageIslandRemoval2D(const vtkImageIslandRemoval2D&) {};
+  void operator=(const vtkImageIslandRemoval2D&) {};
 
   int AreaThreshold;
   int SquareNeighborhood;

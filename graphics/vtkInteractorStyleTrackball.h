@@ -91,6 +91,8 @@ public:
 protected:
   vtkInteractorStyleTrackball();
   ~vtkInteractorStyleTrackball();
+  vtkInteractorStyleTrackball(const vtkInteractorStyleTrackball&) {};
+  void operator=(const vtkInteractorStyleTrackball&) {};
 
   // used to track picked objects in actor mode
   // reason for existence: user may use any kind of picker.  Interactor

@@ -273,6 +273,9 @@ public:
 protected:
   vtkDecimate();
   ~vtkDecimate();
+  vtkDecimate(const vtkDecimate&) {};
+  void operator=(const vtkDecimate&) {};
+
   void Execute();
 
   float InitialFeatureAngle; // dihedral angle constraint

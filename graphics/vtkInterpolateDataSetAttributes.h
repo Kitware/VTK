@@ -82,6 +82,8 @@ public:
 protected:
   vtkInterpolateDataSetAttributes();
   ~vtkInterpolateDataSetAttributes();
+  vtkInterpolateDataSetAttributes(const vtkInterpolateDataSetAttributes&) {};
+  void operator=(const vtkInterpolateDataSetAttributes&) {};
 
   void Execute();
   int ComputeInputUpdateExtents(vtkDataObject *output);

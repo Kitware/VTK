@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class VTK_EXPORT vtkIndent
 {
- public:
+public:
   void Delete() {delete this;};
   vtkIndent(int ind=0) {this->Indent=ind;};
   static vtkIndent *New() {return new vtkIndent;};
@@ -69,7 +69,7 @@ class VTK_EXPORT vtkIndent
   friend VTK_EXPORT ostream& operator<<(ostream& os, vtkIndent& o); 
   //ETX
 
- protected:
+protected:
   int Indent;
   
 };

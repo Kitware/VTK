@@ -86,6 +86,8 @@ public:
 protected:
   vtkWriter();
   ~vtkWriter();
+  vtkWriter(const vtkWriter&) {};
+  void operator=(const vtkWriter&) {};
 
   virtual void WriteData() = 0; //internal method subclasses must respond to
 };

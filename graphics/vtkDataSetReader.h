@@ -161,6 +161,8 @@ public:
 protected:
   vtkDataSetReader();
   ~vtkDataSetReader();
+  vtkDataSetReader(const vtkDataSetReader&) {};
+  void operator=(const vtkDataSetReader&) {};
 
   void Execute();
   vtkDataReader *Reader;

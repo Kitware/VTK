@@ -60,6 +60,8 @@ public:
 protected:  
   vtkReferenceCount();
   ~vtkReferenceCount();
+  vtkReferenceCount(const vtkReferenceCount&) {};
+  void operator=(const vtkReferenceCount&) {};
 
 };
 

@@ -125,6 +125,8 @@ public:
 protected:
   vtkLine();
   ~vtkLine() {};
+  vtkLine(const vtkLine&) {};
+  void operator=(const vtkLine&) {};
 
 };
 

@@ -182,6 +182,8 @@ public:
 protected:
   vtkDelaunay2D();
   ~vtkDelaunay2D();
+  vtkDelaunay2D(const vtkDelaunay2D&) {};
+  void operator=(const vtkDelaunay2D&) {};
 
   void Execute();
 

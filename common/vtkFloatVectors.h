@@ -76,6 +76,8 @@ public:
 protected:
   vtkFloatVectors():vtkVectors(VTK_FLOAT) {};
   ~vtkFloatVectors() {};
+  vtkFloatVectors(const vtkFloatVectors&) {};
+  void operator=(const vtkFloatVectors&) {};
   
 };
 

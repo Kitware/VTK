@@ -66,6 +66,9 @@ public:
 protected:
   vtkStructuredPointsSource();
   ~vtkStructuredPointsSource() {};
+  vtkStructuredPointsSource(const vtkStructuredPointsSource&) {};
+  void operator=(const vtkStructuredPointsSource&) {};
+
   // Used by streaming: The extent of the output being processed
   // by the execute method. Set in the ComputeInputUpdateExtent method.
   int ExecuteExtent[6];

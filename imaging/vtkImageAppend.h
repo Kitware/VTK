@@ -71,6 +71,8 @@ public:
 protected:
   vtkImageAppend();
   ~vtkImageAppend();
+  vtkImageAppend(const vtkImageAppend&) {};
+  void operator=(const vtkImageAppend&) {};
 
   int AppendAxis;
   // Array holds the AppendAxisExtent shift for each input.

@@ -242,6 +242,8 @@ public:
 protected:
   vtkDataSetAttributes();
   ~vtkDataSetAttributes();
+  vtkDataSetAttributes(const vtkDataSetAttributes&) {};
+  void operator=(const vtkDataSetAttributes&) {};
 
   // special methods to support managing data
   void InterpolateTuple(vtkDataArray *fromData, vtkDataArray *toData, int toId,

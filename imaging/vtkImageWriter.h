@@ -100,6 +100,8 @@ public:
 protected:
   vtkImageWriter();
   ~vtkImageWriter();
+  vtkImageWriter(const vtkImageWriter&) {};
+  void operator=(const vtkImageWriter&) {};
 
   int FileDimensionality;
   char *FilePrefix;

@@ -124,6 +124,8 @@ public:
 protected:
   vtkImageToImageFilter();
   ~vtkImageToImageFilter();
+  vtkImageToImageFilter(const vtkImageToImageFilter&) {};
+  void operator=(const vtkImageToImageFilter&) {};
 
   vtkMultiThreader *Threader;
   int Bypass;

@@ -153,12 +153,14 @@ public:
   unsigned long int GetMTime();
 
   // Description:
-  // For legacy compatibility. Do not use.
-  vtkAssembly &operator=(const vtkAssembly& assembly);
+  // Shallow copy of an assembly.
+  void ShallowCopy(vtkAssembly *assembly);
 
 protected:
   vtkAssembly();
   ~vtkAssembly();
+  vtkAssembly(const vtkAssembly&) {};
+  void operator=(const vtkAssembly&) {};
 
   vtkActorCollection *Parts;
 

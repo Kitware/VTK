@@ -106,6 +106,8 @@ public:
 protected:
   vtkImageDifference();
   ~vtkImageDifference() {};
+  vtkImageDifference(const vtkImageDifference&) {};
+  void operator=(const vtkImageDifference&) {};
 
   float ErrorPerThread[VTK_MAX_THREADS];
   float ThresholdedErrorPerThread[VTK_MAX_THREADS];

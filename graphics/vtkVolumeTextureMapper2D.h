@@ -80,6 +80,8 @@ public:
 protected:
   vtkVolumeTextureMapper2D();
   ~vtkVolumeTextureMapper2D();
+  vtkVolumeTextureMapper2D(const vtkVolumeTextureMapper2D&) {};
+  void operator=(const vtkVolumeTextureMapper2D&) {};
 
   void InitializeRender( vtkRenderer *ren, vtkVolume *vol );
 

@@ -111,6 +111,8 @@ public:
 protected:
   vtkImplicitFunction();
   ~vtkImplicitFunction();
+  vtkImplicitFunction(const vtkImplicitFunction&) {};
+  void operator=(const vtkImplicitFunction&) {};
 
   vtkTransform *Transform;
 

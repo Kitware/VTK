@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // contoured at zero to extract the surface. The default values for
 // neighborhood size and sample spacing should give reasonable results for
 // most uses but can be set if desired. This procedure is based on the PhD
-// work of Hugues Hoppe: http://www.research.microsoft.com/~hoppe
+// work of Hugues Hoppe: http://www.research.microsoft.com/-hoppe
 
 #ifndef __vtkSurfaceReconstructionFilter_h
 #define __vtkSurfaceReconstructionFilter_h
@@ -85,6 +85,10 @@ public:
 
 protected:
   vtkSurfaceReconstructionFilter();
+  ~vtkSurfaceReconstructionFilter() {};
+  vtkSurfaceReconstructionFilter(const vtkSurfaceReconstructionFilter&) {};
+  void operator=(const vtkSurfaceReconstructionFilter&) {};
+
   void Execute();
 
   int NeighborhoodSize;

@@ -76,6 +76,8 @@ public:
 protected:
   vtkFloatTCoords():vtkTCoords(VTK_FLOAT) {};
   ~vtkFloatTCoords() {};
+  vtkFloatTCoords(const vtkFloatTCoords&) {};
+  void operator=(const vtkFloatTCoords&) {};
   
 };
 

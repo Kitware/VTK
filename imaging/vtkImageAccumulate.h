@@ -80,6 +80,8 @@ public:
 protected:
   vtkImageAccumulate();
   ~vtkImageAccumulate() {};
+  vtkImageAccumulate(const vtkImageAccumulate&) {};
+  void operator=(const vtkImageAccumulate&) {};
 
   float ComponentSpacing[3];
   float ComponentOrigin[3];

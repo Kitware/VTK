@@ -119,6 +119,8 @@ public:
 protected:
   vtkPlane();
   ~vtkPlane() {};
+  vtkPlane(const vtkPlane&) {};
+  void operator=(const vtkPlane&) {};
 
   float Normal[3];
   float Origin[3];

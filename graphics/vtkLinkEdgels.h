@@ -101,6 +101,8 @@ public:
 protected:
   vtkLinkEdgels();
   ~vtkLinkEdgels() {};
+  vtkLinkEdgels(const vtkLinkEdgels&) {};
+  void operator=(const vtkLinkEdgels&) {};
 
   void Execute();
   void LinkEdgels(int xdim, int ydim,float *image, vtkVectors *inVectors,

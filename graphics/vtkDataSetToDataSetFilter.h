@@ -128,6 +128,8 @@ public:
 protected:
   vtkDataSetToDataSetFilter();
   ~vtkDataSetToDataSetFilter();
+  vtkDataSetToDataSetFilter(const vtkDataSetToDataSetFilter&) {};
+  void operator=(const vtkDataSetToDataSetFilter&) {};
 
 
   // Since we know Inputs[0] is the same type as Outputs[0] we can

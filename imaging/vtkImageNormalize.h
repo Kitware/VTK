@@ -60,6 +60,8 @@ public:
 protected:
   vtkImageNormalize() {};
   ~vtkImageNormalize() {};
+  vtkImageNormalize(const vtkImageNormalize&) {};
+  void operator=(const vtkImageNormalize&) {};
 
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,

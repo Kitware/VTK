@@ -103,9 +103,11 @@ public:
   void MarkData(vtkImageData *data, int dimensionality, int ext[6]);
 
 
-private:
+protected:
   vtkImageConnector();
   ~vtkImageConnector();
+  vtkImageConnector(const vtkImageConnector&) {};
+  void operator=(const vtkImageConnector&) {};
 
   unsigned char ConnectedValue;
   unsigned char UnconnectedValue;

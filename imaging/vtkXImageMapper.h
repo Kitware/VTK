@@ -107,6 +107,8 @@ public:
 protected:
   vtkXImageMapper();
   ~vtkXImageMapper();
+  vtkXImageMapper(const vtkXImageMapper&) {};
+  void operator=(const vtkXImageMapper&) {};
 
   XImage          *Image;
   unsigned char   *DataOut;

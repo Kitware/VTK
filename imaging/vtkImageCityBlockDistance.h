@@ -69,6 +69,8 @@ public:
 protected:
   vtkImageCityBlockDistance();
   ~vtkImageCityBlockDistance() {};
+  vtkImageCityBlockDistance(const vtkImageCityBlockDistance&) {};
+  void operator=(const vtkImageCityBlockDistance&) {};
 
   void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
   void Execute(vtkImageData *inData, vtkImageData *outData);

@@ -76,6 +76,8 @@ public:
 protected:
   vtkFloatNormals():vtkNormals(VTK_FLOAT) {};
   ~vtkFloatNormals() {};
+  vtkFloatNormals(const vtkFloatNormals&) {};
+  void operator=(const vtkFloatNormals&) {};
 
 };
 

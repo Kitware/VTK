@@ -59,6 +59,8 @@ public:
 protected:
   vtkSubdivideTetra();
   ~vtkSubdivideTetra() {};
+  vtkSubdivideTetra(const vtkSubdivideTetra&) {};
+  void operator=(const vtkSubdivideTetra&) {};
 
   void Execute();
 

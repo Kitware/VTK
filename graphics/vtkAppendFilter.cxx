@@ -150,60 +150,64 @@ void vtkAppendFilter::Execute()
     ds = (vtkDataSet *)(this->Inputs[idx]);
     if (ds != NULL)
       {
+      if ( ds->GetNumberOfPoints() <= 0 && ds->GetNumberOfCells() <= 0 )
+        {
+        continue; //no input, just skip
+        }
       numPts += ds->GetNumberOfPoints();
       numCells += ds->GetNumberOfCells();
       pd = ds->GetPointData();
       
       if ( pd && pd->GetScalars() == NULL )
-	{
-	scalarsPresentInPD &= 0;
-	}
+        {
+        scalarsPresentInPD &= 0;
+        }
       if ( pd && pd->GetVectors() == NULL )
-	{
-	vectorsPresentInPD &= 0;
-	}
+        {
+        vectorsPresentInPD &= 0;
+        }
       if ( pd && pd->GetNormals() == NULL )
-	{
-	normalsPresentInPD &= 0;
-	}
+        {
+        normalsPresentInPD &= 0;
+        }
       if ( pd && pd->GetTCoords() == NULL )
-	{
-	tcoordsPresentInPD &= 0;
-	}
+        {
+        tcoordsPresentInPD &= 0;
+        }
       if ( pd && pd->GetTensors() == NULL )
-	{
-	tensorsPresentInPD &= 0;
-	}
+        {
+        tensorsPresentInPD &= 0;
+        }
       if ( pd && pd->GetFieldData() == NULL )
-	{
-	fieldPresentInPD &= 0;
-	}
+        {
+        fieldPresentInPD &= 0;
+        }
       
       cd = ds->GetCellData();
       if ( cd && cd->GetScalars() == NULL )
-	{
-	scalarsPresentInCD &= 0;
-	}
+        {
+        scalarsPresentInCD &= 0;
+        }
       if ( cd && cd->GetVectors() == NULL )
-	{
-	vectorsPresentInCD &= 0;
-	}
+        {
+        vectorsPresentInCD &= 0;
+        }
       if ( cd && cd->GetNormals() == NULL )
-	{
-	normalsPresentInCD &= 0;
-	}
+        {
+        normalsPresentInCD &= 0;
+        }
       if ( cd && cd->GetTCoords() == NULL )
-	{
-	tcoordsPresentInCD &= 0;
-	}
+        {
+        tcoordsPresentInCD &= 0;
+        }
       if ( cd && cd->GetTensors() == NULL )
-	{
-	tensorsPresentInCD &= 0;
-	}
+        {
+        tensorsPresentInCD &= 0;
+        }
       if ( cd && cd->GetFieldData() == NULL )
-	{
-	fieldPresentInCD &= 0;
-	}
+        {
+        fieldPresentInCD &= 0;
+        }
       }
     }
 
@@ -287,24 +291,24 @@ void vtkAppendFilter::Execute()
       
       // copy points and point data
       for (ptId=0; ptId < numPts; ptId++)
-	{
-	newPts->SetPoint(ptId+ptOffset,ds->GetPoint(ptId));
-	outputPD->CopyData(pd,ptId,ptId+ptOffset);
-	}
+        {
+        newPts->SetPoint(ptId+ptOffset,ds->GetPoint(ptId));
+        outputPD->CopyData(pd,ptId,ptId+ptOffset);
+        }
       
       cd = ds->GetCellData();
       // copy cell and cell data
       for (cellId=0; cellId < numCells; cellId++)
-	{
-	ds->GetCellPoints(cellId, ptIds);
-	newPtIds->Reset ();
-	for (i=0; i < ptIds->GetNumberOfIds(); i++)
-	  {
-	  newPtIds->InsertId(i,ptIds->GetId(i)+ptOffset);
-	  }
-	newCellId = output->InsertNextCell(ds->GetCellType(cellId),newPtIds);
-	outputCD->CopyData(cd,cellId,newCellId);
-	}
+        {
+        ds->GetCellPoints(cellId, ptIds);
+        newPtIds->Reset ();
+        for (i=0; i < ptIds->GetNumberOfIds(); i++)
+          {
+          newPtIds->InsertId(i,ptIds->GetId(i)+ptOffset);
+          }
+        newCellId = output->InsertNextCell(ds->GetCellType(cellId),newPtIds);
+        outputCD->CopyData(cd,cellId,newCellId);
+        }
       }
     ptOffset+=numPts;
     cellOffset+=numCells;

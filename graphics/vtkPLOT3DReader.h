@@ -199,6 +199,8 @@ public:
 protected:
   vtkPLOT3DReader();
   ~vtkPLOT3DReader();
+  vtkPLOT3DReader(const vtkPLOT3DReader&) {};
+  void operator=(const vtkPLOT3DReader&) {};
 
   void Execute();
   void ExecuteInformation();

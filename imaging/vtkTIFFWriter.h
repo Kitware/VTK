@@ -57,6 +57,8 @@ public:
 protected:
   vtkTIFFWriter() {};
   ~vtkTIFFWriter() {};
+  vtkTIFFWriter(const vtkTIFFWriter&) {};
+  void operator=(const vtkTIFFWriter&) {};
 
   virtual void WriteFile(ofstream *file, vtkImageData *data, 
 			 int ext[6]);

@@ -68,6 +68,8 @@ public:
 protected:
   vtkDataSetWriter() {};
   ~vtkDataSetWriter() {};
+  vtkDataSetWriter(const vtkDataSetWriter&) {};
+  void operator=(const vtkDataSetWriter&) {};
 
   void WriteData();
 

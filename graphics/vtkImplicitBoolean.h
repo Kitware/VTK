@@ -122,6 +122,8 @@ public:
 protected:
   vtkImplicitBoolean();
   ~vtkImplicitBoolean();
+  vtkImplicitBoolean(const vtkImplicitBoolean&) {};
+  void operator=(const vtkImplicitBoolean&) {};
 
   vtkImplicitFunctionCollection *FunctionList;
 

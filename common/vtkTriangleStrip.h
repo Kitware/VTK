@@ -110,6 +110,8 @@ public:
 protected:
   vtkTriangleStrip();
   ~vtkTriangleStrip();
+  vtkTriangleStrip(const vtkTriangleStrip&) {};
+  void operator=(const vtkTriangleStrip&) {};
 
   vtkLine *Line;
   vtkTriangle *Triangle;

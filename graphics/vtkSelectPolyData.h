@@ -186,6 +186,9 @@ public:
 protected:
   vtkSelectPolyData();
   ~vtkSelectPolyData();
+  vtkSelectPolyData(const vtkSelectPolyData&) {};
+  void operator=(const vtkSelectPolyData&) {};
+
   void Execute();
 
   int GenerateSelectionScalars;

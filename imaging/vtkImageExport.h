@@ -129,8 +129,10 @@ public:
 protected:
   vtkImageExport();
   ~vtkImageExport();
-  vtkImageFlip *ImageFlip;
+  vtkImageExport(const vtkImageExport&) {};
+  void operator=(const vtkImageExport&) {};
 
+  vtkImageFlip *ImageFlip;
   int ImageLowerLeft;
   int DataDimensions[3];
 };

@@ -150,6 +150,8 @@ public:
 protected:
   vtkTetra();
   ~vtkTetra();
+  vtkTetra(const vtkTetra&) {};
+  void operator=(const vtkTetra&) {};
 
   vtkLine *Line;
   vtkTriangle *Triangle;

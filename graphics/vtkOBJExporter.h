@@ -71,6 +71,8 @@ public:
 protected:
   vtkOBJExporter();
   ~vtkOBJExporter();
+  vtkOBJExporter(const vtkOBJExporter&) {};
+  void operator=(const vtkOBJExporter&) {};
 
   void WriteData();
   void WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMat, int &id);

@@ -67,6 +67,8 @@ public:
 protected:
   vtkImageEuclideanToPolar();
   ~vtkImageEuclideanToPolar() {};
+  vtkImageEuclideanToPolar(const vtkImageEuclideanToPolar&) {};
+  void operator=(const vtkImageEuclideanToPolar&) {};
 
   float ThetaMaximum;
   

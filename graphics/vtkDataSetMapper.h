@@ -81,6 +81,8 @@ public:
 protected:
   vtkDataSetMapper();
   ~vtkDataSetMapper();
+  vtkDataSetMapper(const vtkDataSetMapper&) {};
+  void operator=(const vtkDataSetMapper&) {};
 
   vtkGeometryFilter *GeometryExtractor;
   vtkPolyDataMapper *PolyDataMapper;

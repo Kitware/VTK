@@ -174,6 +174,8 @@ public:
 protected:
   vtkConnectivityFilter();
   ~vtkConnectivityFilter();
+  vtkConnectivityFilter(const vtkConnectivityFilter&) {};
+  void operator=(const vtkConnectivityFilter&) {};
 
   // Usual data generation method
   void Execute();

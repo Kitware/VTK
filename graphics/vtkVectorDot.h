@@ -72,6 +72,9 @@ public:
 protected:
   vtkVectorDot();
   ~vtkVectorDot() {};
+  vtkVectorDot(const vtkVectorDot&) {};
+  void operator=(const vtkVectorDot&) {};
+
   void Execute();
   float ScalarRange[2];
 };

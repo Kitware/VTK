@@ -134,6 +134,8 @@ public:
 protected:
   vtkEdgeTable();
   ~vtkEdgeTable();
+  vtkEdgeTable(const vtkEdgeTable&) {};
+  void operator=(const vtkEdgeTable&) {};
 
   vtkIdList **Table;
   vtkIdList **Attributes;

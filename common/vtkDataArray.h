@@ -211,6 +211,8 @@ protected:
   // Construct object with default tuple dimension (number of components) of 1.
   vtkDataArray(int numComp=1);
   ~vtkDataArray() {};
+  vtkDataArray(const vtkDataArray&) {};
+  void operator=(const vtkDataArray&) {};
 
   int Size;      // allocated size of data
   int MaxId;     // maximum index inserted thus far

@@ -79,6 +79,9 @@ public:
 protected:
   vtkThresholdPoints();
   ~vtkThresholdPoints() {};
+  vtkThresholdPoints(const vtkThresholdPoints&) {};
+  void operator=(const vtkThresholdPoints&) {};
+
   // Usual data generation method
   void Execute();
 

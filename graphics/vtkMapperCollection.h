@@ -87,6 +87,8 @@ class VTK_EXPORT vtkMapperCollection : public vtkCollection
 protected:  
   vtkMapperCollection() {};
   ~vtkMapperCollection() {};
+  vtkMapperCollection(const vtkMapperCollection&) {};
+  void operator=(const vtkMapperCollection&) {};
 };
 
 

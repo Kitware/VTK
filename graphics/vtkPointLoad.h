@@ -102,6 +102,9 @@ public:
 protected:
   vtkPointLoad();
   ~vtkPointLoad() {};
+  vtkPointLoad(const vtkPointLoad&) {};
+  void operator=(const vtkPointLoad&) {};
+
   void Execute();
 
   float LoadValue;

@@ -115,6 +115,8 @@ public:
 protected:
   vtkThreshold();
   ~vtkThreshold() {};
+  vtkThreshold(const vtkThreshold&) {};
+  void operator=(const vtkThreshold&) {};
 
   // Usual data generation method
   void Execute();

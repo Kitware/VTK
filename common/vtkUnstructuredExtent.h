@@ -55,6 +55,7 @@ class VTK_EXPORT vtkUnstructuredExtent : public vtkExtent
 {
 public:
   static vtkUnstructuredExtent *New() {return new vtkUnstructuredExtent;};
+
   const char *GetClassName() {return "vtkUnstructuredExtent";}
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -78,10 +79,11 @@ public:
   void WriteSelf(ostream& os);
 
 protected:
-  
   vtkUnstructuredExtent();
   ~vtkUnstructuredExtent() {};
-
+  vtkUnstructuredExtent(const vtkUnstructuredExtent&) {};
+  void operator=(const vtkUnstructuredExtent&) {};
+  
   // This is the way the extent was specified before these objects.
   int Extent[2];
 };

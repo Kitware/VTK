@@ -132,6 +132,8 @@ public:
 protected:
   vtkGaussianSplatter();
   ~vtkGaussianSplatter() {};
+  vtkGaussianSplatter(const vtkGaussianSplatter&) {};
+  void operator=(const vtkGaussianSplatter&) {};
 
   void Execute();
   void Cap(vtkScalars *s);

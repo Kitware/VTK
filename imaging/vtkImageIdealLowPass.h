@@ -78,6 +78,8 @@ public:
 protected:
   vtkImageIdealLowPass();
   ~vtkImageIdealLowPass() {};
+  vtkImageIdealLowPass(const vtkImageIdealLowPass&) {};
+  void operator=(const vtkImageIdealLowPass&) {};
 
   float CutOff[3];
   

@@ -146,6 +146,8 @@ public:
 protected:
   vtkCoordinate();
   ~vtkCoordinate();
+  vtkCoordinate(const vtkCoordinate&) {};
+  void operator=(const vtkCoordinate&) {};
 
   float Value[3];
   int   CoordinateSystem;

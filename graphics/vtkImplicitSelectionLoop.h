@@ -118,6 +118,8 @@ public:
 protected:
   vtkImplicitSelectionLoop();
   ~vtkImplicitSelectionLoop();
+  vtkImplicitSelectionLoop(const vtkImplicitSelectionLoop&) {};
+  void operator=(const vtkImplicitSelectionLoop&) {};
 
   vtkPoints *Loop;
   float Normal[3];

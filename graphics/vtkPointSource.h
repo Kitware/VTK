@@ -74,6 +74,9 @@ public:
 protected:
   vtkPointSource(int numPts=10);
   ~vtkPointSource() {};
+  vtkPointSource(const vtkPointSource&) {};
+  void operator=(const vtkPointSource&) {};
+
   void Execute();
   void ExecuteInformation();
 

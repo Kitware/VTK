@@ -100,6 +100,9 @@ public:
 protected:
   vtkWarpScalar();
   ~vtkWarpScalar() {};
+  vtkWarpScalar(const vtkWarpScalar&) {};
+  void operator=(const vtkWarpScalar&) {};
+
   void Execute();
 
   float ScaleFactor;

@@ -120,6 +120,8 @@ public:
 protected:
   vtkViewRays(void);
   ~vtkViewRays(void);
+  vtkViewRays(const vtkViewRays&) {};
+  void operator=(const vtkViewRays&) {};
 
   vtkRenderer     *Renderer;		// Renderer contains a camera
   int             Size[2];		// Number of view rays

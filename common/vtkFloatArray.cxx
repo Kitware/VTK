@@ -224,6 +224,15 @@ void vtkFloatArray::GetTuple(const int i, float * tuple)
     }
 }
 
+void vtkFloatArray::GetTuple(const int i, double * tuple) 
+{
+  float *t = this->Array + this->NumberOfComponents*i;
+  for (int j=0; j<this->NumberOfComponents; j++)
+    {
+    tuple[j] = (double)t[j];
+    }
+}
+
 // Set the tuple value at the ith location in the array.
 void vtkFloatArray::SetTuple(const int i, const float * tuple)
 {
@@ -231,6 +240,15 @@ void vtkFloatArray::SetTuple(const int i, const float * tuple)
   for (int j=0; j<this->NumberOfComponents; j++)
     {
     this->Array[loc+j] = tuple[j];
+    }
+}
+
+void vtkFloatArray::SetTuple(const int i, const double * tuple)
+{
+  int loc = i * this->NumberOfComponents; 
+  for (int j=0; j<this->NumberOfComponents; j++)
+    {
+    this->Array[loc+j] = (float)tuple[j];
     }
 }
 
@@ -243,6 +261,16 @@ void vtkFloatArray::InsertTuple(const int i, const float * tuple)
   for (int j=0; j<this->NumberOfComponents; j++)
     {
     *t++ = *tuple++;
+    }
+}
+
+void vtkFloatArray::InsertTuple(const int i, const double * tuple)
+{
+  float *t = this->WritePointer(i*this->NumberOfComponents,this->NumberOfComponents);
+
+  for (int j=0; j<this->NumberOfComponents; j++)
+    {
+    *t++ = (float)*tuple++;
     }
 }
 
@@ -259,6 +287,19 @@ int vtkFloatArray::InsertNextTuple(const float * tuple)
 
   return this->MaxId / this->NumberOfComponents;
 
+}
+
+int vtkFloatArray::InsertNextTuple(const double * tuple)
+{
+  int i = this->MaxId + 1;
+  float *t = this->WritePointer(i,this->NumberOfComponents);
+
+  for (i=0; i<this->NumberOfComponents; i++)
+    {
+    *t++ = (float)*tuple++;
+    }
+
+  return this->MaxId / this->NumberOfComponents;
 }
 
 // Return the data component at the ith tuple and jth component location.

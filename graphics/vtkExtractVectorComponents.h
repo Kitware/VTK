@@ -105,6 +105,8 @@ public:
 protected:
   vtkExtractVectorComponents();
   ~vtkExtractVectorComponents();
+  vtkExtractVectorComponents(const vtkExtractVectorComponents&) {};
+  void operator=(const vtkExtractVectorComponents&) {};
 
   void Execute();
   int ComputeInputUpdateExtents(vtkDataObject *output);

@@ -76,7 +76,7 @@ public:
 
   // Description:
   // Assign one property to another. 
-  vtkProperty &operator=(const vtkProperty& p);
+  void DeepCopy(vtkProperty *p);
 
   // Description:
   // This method causes the property to set up whatever is required for
@@ -209,6 +209,8 @@ public:
 protected:
   vtkProperty();
   ~vtkProperty() {};
+  vtkProperty(const vtkProperty&) {};
+  void operator=(const vtkProperty&) {};
 
   float Color[3];
   float AmbientColor[3];

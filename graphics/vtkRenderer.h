@@ -283,6 +283,9 @@ public:
 protected:
   vtkRenderer();
   ~vtkRenderer();
+  vtkRenderer(const vtkRenderer&) {};
+  void operator=(const vtkRenderer&) {};
+
   vtkRayCaster *RayCaster;
 
   vtkCamera *ActiveCamera;

@@ -203,6 +203,8 @@ public:
 protected:
   vtkPicker();
   ~vtkPicker();
+  vtkPicker(const vtkPicker&) {};
+  void operator=(const vtkPicker&) {};
 
   void MarkPicked(vtkActor *assem, vtkActor *a, vtkMapper *m, 
                   float tMin, float mapperPos[3]);

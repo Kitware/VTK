@@ -212,6 +212,8 @@ public:
 protected:
   vtkProp();
   ~vtkProp() {};
+  vtkProp(const vtkProp&) {};
+  void operator=(const vtkProp&) {};
 
   int Visibility;
   float AllocatedRenderTime;

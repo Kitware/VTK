@@ -124,19 +124,19 @@ vtkTransform::vtkTransform (const vtkTransform& t)
   // now copy each matrix in the stack
   for ( n=t.Stack-t.StackBottom+1, i=0; i < n; i++ )
     {
-    this->StackBottom[i] = new vtkMatrix4x4(*(t.Stack[i]));
+    this->StackBottom[i] = vtkMatrix4x4::New();
     (this->StackBottom[i])->DeepCopy(t.Stack[i]);
     }
 
   this->Stack = this->StackBottom + (n - 1);
 }
 
-vtkTransform& vtkTransform::operator=(const vtkTransform& t)
+void vtkTransform::DeepCopy(vtkTransform *t)
 {
   int i, n;
 
-  this->PreMultiplyFlag = t.PreMultiplyFlag;
-  this->StackSize = t.StackSize;
+  this->PreMultiplyFlag = t->PreMultiplyFlag;
+  this->StackSize = t->StackSize;
   // free old memory
   if (this->StackBottom)
     {
@@ -147,21 +147,20 @@ vtkTransform& vtkTransform::operator=(const vtkTransform& t)
     delete [] this->StackBottom;
     } 
   this->StackBottom = new vtkMatrix4x4 *[this->StackSize];
-  for ( n=t.Stack-t.StackBottom+1, i=0; i < n; i++ )
+  for ( n=t->Stack-t->StackBottom+1, i=0; i < n; i++ )
     {
     this->StackBottom[i] = vtkMatrix4x4::New();
-    (this->StackBottom[i])->DeepCopy(t.Stack[i]);
+    (this->StackBottom[i])->DeepCopy(t->Stack[i]);
     }
   this->Stack = this->StackBottom + (n - 1);
 
   for ( i=0; i < 3; i++)
     {
-    this->Point[i] = t.Point[i];
-    this->Orientation[i] = t.Orientation[i];
+    this->Point[i] = t->Point[i];
+    this->Orientation[i] = t->Orientation[i];
     }
 
   this->Modified();
-  return *this;
 }
 
 // Deletes the transformation on the top of the stack and sets the top 

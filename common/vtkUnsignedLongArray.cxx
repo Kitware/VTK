@@ -244,8 +244,27 @@ void vtkUnsignedLongArray::GetTuple(const int i, float * tuple)
     }
 }
 
+void vtkUnsignedLongArray::GetTuple(const int i, double * tuple) 
+{
+  unsigned long *t = this->Array + this->NumberOfComponents*i;
+  for (int j=0; j<this->NumberOfComponents; j++)
+    {
+    tuple[j] = (double)t[j];
+    }
+}
+
 // Set the tuple value at the ith location in the array.
 void vtkUnsignedLongArray::SetTuple(const int i, const float * tuple)
+{
+  int loc = i * this->NumberOfComponents; 
+
+  for (int j=0; j<this->NumberOfComponents; j++) 
+    {
+    this->Array[loc+j] = (unsigned long)tuple[j];
+    }
+}
+
+void vtkUnsignedLongArray::SetTuple(const int i, const double * tuple)
 {
   int loc = i * this->NumberOfComponents; 
 
@@ -258,6 +277,16 @@ void vtkUnsignedLongArray::SetTuple(const int i, const float * tuple)
 // Insert (memory allocation performed) the tuple into the ith location
 // in the array.
 void vtkUnsignedLongArray::InsertTuple(const int i, const float * tuple)
+{
+  unsigned long *t = this->WritePointer(i*this->NumberOfComponents,this->NumberOfComponents);
+
+  for (int j=0; j<this->NumberOfComponents; j++)
+    {
+    *t++ = (unsigned long)*tuple++;
+    }
+}
+
+void vtkUnsignedLongArray::InsertTuple(const int i, const double * tuple)
 {
   unsigned long *t = this->WritePointer(i*this->NumberOfComponents,this->NumberOfComponents);
 
@@ -280,3 +309,17 @@ int vtkUnsignedLongArray::InsertNextTuple(const float * tuple)
 
   return this->MaxId / this->NumberOfComponents;
 }
+
+int vtkUnsignedLongArray::InsertNextTuple(const double * tuple)
+{
+  int i = this->MaxId + 1;
+  unsigned long *t = this->WritePointer(i,this->NumberOfComponents);
+
+  for (i=0; i<this->NumberOfComponents; i++)
+    {
+    *t++ = (unsigned long)*tuple++;
+    }
+
+  return this->MaxId / this->NumberOfComponents;
+}
+

@@ -93,6 +93,8 @@ public:
 protected:
   vtkImageCast();
   ~vtkImageCast() {};
+  vtkImageCast(const vtkImageCast&) {};
+  void operator=(const vtkImageCast&) {};
 
   int ClampOverflow;
   int OutputScalarType;

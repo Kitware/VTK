@@ -81,38 +81,22 @@ vtkProperty::vtkProperty()
 }
 
 // Assign one property to another. 
-vtkProperty& vtkProperty::operator=(const vtkProperty& p)
+void vtkProperty::DeepCopy(vtkProperty *p)
 {
-  this->Color[0] = p.Color[0];
-  this->Color[1] = p.Color[1];
-  this->Color[2] = p.Color[2];
+  this->SetColor(p->GetColor());
+  this->SetAmbientColor(p->GetAmbientColor());
+  this->SetDiffuseColor(p->GetDiffuseColor());
+  this->SetSpecularColor(p->GetSpecularColor());
+  this->SetEdgeColor(p->GetEdgeColor());
 
-  this->AmbientColor[0] = p.AmbientColor[0];
-  this->AmbientColor[1] = p.AmbientColor[1];
-  this->AmbientColor[2] = p.AmbientColor[2];
-
-  this->DiffuseColor[0] = p.DiffuseColor[0];
-  this->DiffuseColor[1] = p.DiffuseColor[1];
-  this->DiffuseColor[2] = p.DiffuseColor[2];
-
-  this->SpecularColor[0] = p.SpecularColor[0];
-  this->SpecularColor[1] = p.SpecularColor[1];
-  this->SpecularColor[2] = p.SpecularColor[2];
-
-  this->EdgeColor[0] = p.EdgeColor[0];
-  this->EdgeColor[1] = p.EdgeColor[1];
-  this->EdgeColor[2] = p.EdgeColor[2];
-
-  this->Ambient = p.Ambient;
-  this->Diffuse = p.Diffuse;
-  this->Specular = p.Specular;
-  this->SpecularPower = p.SpecularPower;
-  this->Opacity = p.Opacity;
-  this->Interpolation = p.Interpolation;
-  this->Representation = p.Representation;
-  this->EdgeVisibility = p.EdgeVisibility;
-
-  return *this;
+  this->SetAmbient(p->GetAmbient());
+  this->SetDiffuse(p->GetDiffuse());
+  this->SetSpecular(p->GetSpecular());
+  this->SetSpecularPower(p->GetSpecularPower());
+  this->SetOpacity(p->GetOpacity());
+  this->SetInterpolation(p->GetInterpolation());
+  this->SetRepresentation(p->GetRepresentation());
+  this->SetEdgeVisibility(p->GetEdgeVisibility());
 }
 
 

@@ -69,6 +69,8 @@ public:
 protected:
   vtkPolyDataSource();
   ~vtkPolyDataSource() {};
+  vtkPolyDataSource(const vtkPolyDataSource&) {};
+  void operator=(const vtkPolyDataSource&) {};
   
   // Update extent of PolyData is specified in pieces.  
   // Since all DataObjects should be able to set UpdateExent as pieces,

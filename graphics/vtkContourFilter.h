@@ -158,6 +158,8 @@ public:
 protected:
   vtkContourFilter();
   ~vtkContourFilter();
+  vtkContourFilter(const vtkContourFilter&) {};
+  void operator=(const vtkContourFilter&) {};
 
   void Execute();
 

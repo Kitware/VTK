@@ -113,6 +113,9 @@ public:
 protected:
   vtkShepardMethod();
   ~vtkShepardMethod() {};
+  vtkShepardMethod(const vtkShepardMethod&) {};
+  void operator=(const vtkShepardMethod&) {};
+
   void Execute();
 
   int SampleDimensions[3];

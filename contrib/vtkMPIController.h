@@ -107,6 +107,8 @@ protected:
 
   vtkMPIController();
   ~vtkMPIController();
+  vtkMPIController(const vtkMPIController&) {};
+  void operator=(const vtkMPIController&) {};
 
 };
 

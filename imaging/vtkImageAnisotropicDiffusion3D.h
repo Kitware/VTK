@@ -115,6 +115,8 @@ public:
 protected:
   vtkImageAnisotropicDiffusion3D();
   ~vtkImageAnisotropicDiffusion3D() {};
+  vtkImageAnisotropicDiffusion3D(const vtkImageAnisotropicDiffusion3D&) {};
+  void operator=(const vtkImageAnisotropicDiffusion3D&) {};
 
   int NumberOfIterations;
   float DiffusionThreshold;

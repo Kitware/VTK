@@ -71,6 +71,8 @@ public:
 protected:
   vtkStructuredGridToStructuredGridFilter() {};
   ~vtkStructuredGridToStructuredGridFilter() {};
+  vtkStructuredGridToStructuredGridFilter(const vtkStructuredGridToStructuredGridFilter&) {};
+  void operator=(const vtkStructuredGridToStructuredGridFilter&) {};
   
   // Since we know Inputs[0] is the same type as Outputs[0] we can
   // use CopyUpdateExtent of the data object to propagate extents.

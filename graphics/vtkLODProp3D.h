@@ -194,6 +194,8 @@ public:
 protected:
   vtkLODProp3D();
   ~vtkLODProp3D();
+  vtkLODProp3D(const vtkLODProp3D&) {};
+  void operator=(const vtkLODProp3D&) {};
 
   vtkLODProp3DEntry *LODs;
   int               NumberOfEntries;

@@ -64,7 +64,6 @@ class VTK_EXPORT vtkMatrix4x4 : public vtkObject
   // which is inefficient.
 
  public:
-  vtkMatrix4x4(const vtkMatrix4x4& m);
   double Element[4][4];
 
   // Description:
@@ -159,7 +158,6 @@ class VTK_EXPORT vtkMatrix4x4 : public vtkObject
   const double *operator[](unsigned int i) const
     { return &(this->Element[i][0]); }  
   void operator= (double element);
-  vtkMatrix4x4& operator= (const vtkMatrix4x4& source);
   void Adjoint(vtkMatrix4x4 &in,vtkMatrix4x4 &out){this->Adjoint(&in,&out);}
   float Determinant(vtkMatrix4x4 &in) {return this->Determinant(&in);}
   void Invert(vtkMatrix4x4 &in,vtkMatrix4x4 &out)
@@ -170,6 +168,8 @@ class VTK_EXPORT vtkMatrix4x4 : public vtkObject
 protected:
   vtkMatrix4x4();
   ~vtkMatrix4x4() {};
+  vtkMatrix4x4(const vtkMatrix4x4&);
+  void operator= (const vtkMatrix4x4& source);
   
 };
 

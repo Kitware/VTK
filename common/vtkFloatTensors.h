@@ -76,6 +76,8 @@ public:
 protected:
   vtkFloatTensors():vtkTensors(VTK_FLOAT) {};
   ~vtkFloatTensors() {};
+  vtkFloatTensors(const vtkFloatTensors&) {};
+  void operator=(const vtkFloatTensors&) {};
   
 };
 

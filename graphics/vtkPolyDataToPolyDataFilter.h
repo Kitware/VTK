@@ -75,6 +75,8 @@ public:
 protected:  
   vtkPolyDataToPolyDataFilter() {};
   ~vtkPolyDataToPolyDataFilter() {};
+  vtkPolyDataToPolyDataFilter(const vtkPolyDataToPolyDataFilter&) {};
+  void operator=(const vtkPolyDataToPolyDataFilter&) {};
 
 };
 

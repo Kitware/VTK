@@ -114,6 +114,9 @@ public:
 protected:
   vtkSphereSource(int res=8);
   ~vtkSphereSource() {};
+  vtkSphereSource(const vtkSphereSource&) {};
+  void operator=(const vtkSphereSource&) {};
+
   void Execute();
   void ExecuteInformation();
   

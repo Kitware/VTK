@@ -212,6 +212,8 @@ public:
 protected:
   vtkImplicitModeller();
   ~vtkImplicitModeller();
+  vtkImplicitModeller(const vtkImplicitModeller&) {};
+  void operator=(const vtkImplicitModeller&) {};
 
   void Execute();
   void ExecuteInformation();

@@ -57,6 +57,8 @@ public:
 protected:
   vtkImageLuminance() {};
   ~vtkImageLuminance() {};
+  vtkImageLuminance(const vtkImageLuminance&) {};
+  void operator=(const vtkImageLuminance&) {};
   
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 

@@ -89,6 +89,8 @@ public:
 protected:
   vtkAppendFilter();
   ~vtkAppendFilter();
+  vtkAppendFilter(const vtkAppendFilter&) {};
+  void operator=(const vtkAppendFilter&) {};
 
   // Usual data generation method
   void Execute();

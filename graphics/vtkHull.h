@@ -119,6 +119,8 @@ public:
 protected:
   vtkHull();
   ~vtkHull();
+  vtkHull(const vtkHull&) {};
+  void operator=(const vtkHull&) {};
 
   // The planes - 4 floats per plane for A, B, C, D
   float     *Planes;

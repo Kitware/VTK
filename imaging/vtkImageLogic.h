@@ -88,6 +88,8 @@ public:
 protected:
   vtkImageLogic();
   ~vtkImageLogic() {};
+  vtkImageLogic(const vtkImageLogic&) {};
+  void operator=(const vtkImageLogic&) {};
 
   int Operation;
   float OutputTrueValue;

@@ -306,6 +306,8 @@ public:
 protected:
   vtkDecimatePro();
   ~vtkDecimatePro();
+  vtkDecimatePro(const vtkDecimatePro&) {};
+  void operator=(const vtkDecimatePro&) {};
 
   void Execute();
 

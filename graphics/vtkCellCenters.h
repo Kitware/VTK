@@ -79,6 +79,8 @@ public:
 protected:
   vtkCellCenters();
   ~vtkCellCenters() {};
+  vtkCellCenters(const vtkCellCenters&) {};
+  void operator=(const vtkCellCenters&) {};
 
   void Execute();
 

@@ -160,6 +160,9 @@ public:
 protected:
   vtkKitwareContourFilter();
   ~vtkKitwareContourFilter();
+  vtkKitwareContourFilter(const vtkKitwareContourFilter&) {};
+  void operator=(const vtkKitwareContourFilter&) {};
+  
   void Execute();
 
   vtkContourValues *ContourValues;

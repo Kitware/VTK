@@ -70,6 +70,8 @@ public:
 protected:  
   vtkPolyDataMapper() {};
   ~vtkPolyDataMapper() {};
+  vtkPolyDataMapper(const vtkPolyDataMapper&) {};
+  void operator=(const vtkPolyDataMapper&) {};
 
 };
 

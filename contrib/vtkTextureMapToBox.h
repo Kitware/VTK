@@ -98,6 +98,8 @@ public:
 protected:
   vtkTextureMapToBox();
   ~vtkTextureMapToBox() {};
+  vtkTextureMapToBox(const vtkTextureMapToBox&) {};
+  void operator=(const vtkTextureMapToBox&) {};
 
   void Execute();
   float Box[6];

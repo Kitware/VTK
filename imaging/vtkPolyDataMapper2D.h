@@ -139,6 +139,8 @@ public:
 protected:
   vtkPolyDataMapper2D();
   ~vtkPolyDataMapper2D();
+  vtkPolyDataMapper2D(const vtkPolyDataMapper2D&) {};
+  void operator=(const vtkPolyDataMapper2D&) {};
 
   vtkPolyData* Input;
   vtkScalars *Colors;

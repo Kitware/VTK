@@ -119,6 +119,8 @@ public:
 protected:
   vtkSource();
   ~vtkSource();
+  vtkSource(const vtkSource&) {};
+  void operator=(const vtkSource&) {};
 
   virtual void Execute();
 

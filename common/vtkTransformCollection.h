@@ -80,6 +80,8 @@ public:
 protected:
   vtkTransformCollection() {};
   ~vtkTransformCollection() {};
+  vtkTransformCollection(const vtkTransformCollection&) {};
+  void operator=(const vtkTransformCollection&) {};
 
 };
 

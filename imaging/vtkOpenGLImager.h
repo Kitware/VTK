@@ -69,6 +69,8 @@ public:
 protected:
   vtkOpenGLImager() {};
   ~vtkOpenGLImager() {};
+  vtkOpenGLImager(const vtkOpenGLImager&) {};
+  void operator=(const vtkOpenGLImager&) {};
 };
 
 

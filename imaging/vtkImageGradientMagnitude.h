@@ -78,6 +78,8 @@ public:
 protected:
   vtkImageGradientMagnitude();
   ~vtkImageGradientMagnitude() {};
+  vtkImageGradientMagnitude(const vtkImageGradientMagnitude&) {};
+  void operator=(const vtkImageGradientMagnitude&) {};
 
   int HandleBoundaries;
   int Dimensionality;

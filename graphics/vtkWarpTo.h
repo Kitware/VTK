@@ -75,6 +75,9 @@ public:
 protected:
   vtkWarpTo(); 
   ~vtkWarpTo() {};
+  vtkWarpTo(const vtkWarpTo&) {};
+  void operator=(const vtkWarpTo&) {};
+
   void Execute();
   float ScaleFactor;
   float Position[3];

@@ -134,6 +134,8 @@ public:
 protected:
   vtkPolyDataReader();
   ~vtkPolyDataReader();
+  vtkPolyDataReader(const vtkPolyDataReader&) {};
+  void operator=(const vtkPolyDataReader&) {};
 
   void Execute();
   vtkDataReader *Reader;

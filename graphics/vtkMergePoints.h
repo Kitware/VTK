@@ -76,6 +76,8 @@ public:
 protected:
   vtkMergePoints() {};
   ~vtkMergePoints() {};
+  vtkMergePoints(const vtkMergePoints&) {};
+  void operator=(const vtkMergePoints&) {};
   
 };
 

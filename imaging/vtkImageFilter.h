@@ -60,6 +60,8 @@ public:
 protected:  
   vtkImageFilter() {};
   ~vtkImageFilter() {};
+  vtkImageFilter(const vtkImageFilter&) {};
+  void operator=(const vtkImageFilter&) {};
 };
 
 #endif

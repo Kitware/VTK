@@ -92,6 +92,8 @@ public:
 protected:
   vtkSubPixelPositionEdgels();
   ~vtkSubPixelPositionEdgels();
+  vtkSubPixelPositionEdgels(const vtkSubPixelPositionEdgels&) {};
+  void operator=(const vtkSubPixelPositionEdgels&) {};
 
   // Usual data generation method
   void Execute();

@@ -90,6 +90,8 @@ public:
 protected:
   vtkActorCollection() {};
   ~vtkActorCollection() {};
+  vtkActorCollection(const vtkActorCollection&) {};
+  void operator=(const vtkActorCollection&) {};
     
 };
 

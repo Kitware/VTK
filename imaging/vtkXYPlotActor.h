@@ -229,6 +229,8 @@ public:
 protected:
   vtkXYPlotActor();
   ~vtkXYPlotActor();
+  vtkXYPlotActor(const vtkXYPlotActor&) {};
+  void operator=(const vtkXYPlotActor&) {};
 
   vtkCoordinate *Position2Coordinate;
   vtkDataSetCollection *InputList; //list of data sets to plot

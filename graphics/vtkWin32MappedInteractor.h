@@ -125,6 +125,8 @@ public:
 protected:
   vtkWin32MappedInteractor();
   ~vtkWin32MappedInteractor();
+  vtkWin32MappedInteractor(const vtkWin32MappedInteractor&) {};
+  void operator=(const vtkWin32MappedInteractor&) {};
 
   HWND  WindowId;
   UINT  TimerId;

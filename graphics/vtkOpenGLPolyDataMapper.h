@@ -57,7 +57,7 @@ class vtkOpenGLRenderer;
 
 class VTK_EXPORT vtkOpenGLPolyDataMapper : public vtkPolyDataMapper
 {
- public:
+public:
   static vtkOpenGLPolyDataMapper *New() {return new vtkOpenGLPolyDataMapper;};
   const char *GetClassName() {return "vtkOpenGLPolyDataMapper";};
 
@@ -85,9 +85,11 @@ class VTK_EXPORT vtkOpenGLPolyDataMapper : public vtkPolyDataMapper
   GLenum GetLmcolorMode(vtkProperty *prop);
   //ETX
 
- private:
+protected:
   vtkOpenGLPolyDataMapper();
   ~vtkOpenGLPolyDataMapper();
+  vtkOpenGLPolyDataMapper(const vtkOpenGLPolyDataMapper&) {};
+  void operator=(const vtkOpenGLPolyDataMapper&) {};
 
   int ListId;
   vtkRenderWindow *RenderWindow;   // RenderWindow used for the previous render

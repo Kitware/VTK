@@ -100,6 +100,8 @@ public:
 protected:
   vtkScaledTextActor();
   ~vtkScaledTextActor();
+  vtkScaledTextActor(const vtkScaledTextActor&) {};
+  void operator=(const vtkScaledTextActor&) {};
 
   int MinimumSize[2];
   

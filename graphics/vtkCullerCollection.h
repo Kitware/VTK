@@ -87,6 +87,8 @@ class VTK_EXPORT vtkCullerCollection : public vtkCollection
 protected:
   vtkCullerCollection() {};
   ~vtkCullerCollection() {};
+  vtkCullerCollection(const vtkCullerCollection&) {};
+  void operator=(const vtkCullerCollection&) {};
   
 };
 

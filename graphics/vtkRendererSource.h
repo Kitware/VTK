@@ -85,6 +85,9 @@ public:
 protected:
   vtkRendererSource();
   ~vtkRendererSource();
+  vtkRendererSource(const vtkRendererSource&) {};
+  void operator=(const vtkRendererSource&) {};
+
   void Execute();
   vtkRenderer *Input;
   int WholeWindow;

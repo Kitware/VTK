@@ -205,6 +205,8 @@ public:
 protected:
   vtkScalars(int dataType=VTK_FLOAT, int numComp=1);
   ~vtkScalars();
+  vtkScalars(const vtkScalars&) {};
+  void operator=(const vtkScalars&) {};
 
   float Range[8];
   vtkTimeStamp ComputeTime;

@@ -66,6 +66,9 @@ public:
 protected:
   vtkStructuredGridSource();
   ~vtkStructuredGridSource() {};
+  vtkStructuredGridSource(const vtkStructuredGridSource&) {};
+  void operator=(const vtkStructuredGridSource&) {};
+
   // Used by streaming: The extent of the output being processed
   // by the execute method. Set in the ComputeInputUpdateExtents method
   // (in filter subclasses).

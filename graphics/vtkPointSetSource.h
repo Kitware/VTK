@@ -62,6 +62,8 @@ public:
 protected:
   vtkPointSetSource();
   ~vtkPointSetSource() {};
+  vtkPointSetSource(const vtkPointSetSource&) {};
+  void operator=(const vtkPointSetSource&) {};
 
 };
 

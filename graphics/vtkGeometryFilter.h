@@ -156,6 +156,8 @@ public:
 protected:
   vtkGeometryFilter();
   ~vtkGeometryFilter();
+  vtkGeometryFilter(const vtkGeometryFilter&) {};
+  void operator=(const vtkGeometryFilter&) {};
 
   void Execute();
   int PointMinimum;

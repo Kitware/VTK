@@ -188,6 +188,8 @@ public:
 protected:
   vtkPointLocator();
   ~vtkPointLocator();
+  vtkPointLocator(const vtkPointLocator&) {};
+  void operator=(const vtkPointLocator&) {};
 
   // place points in appropriate buckets
   void GetBucketNeighbors(int ijk[3], int ndivs[3], int level);

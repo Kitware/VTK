@@ -125,6 +125,8 @@ public:
 protected:
   vtkMFCInteractor();
   ~vtkMFCInteractor();
+  vtkMFCInteractor(const vtkMFCInteractor&) {};
+  void operator=(const vtkMFCInteractor&) {};
 
   HANDLE Mutex;
   HWND  WindowId;

@@ -191,6 +191,8 @@ public:
 protected:
   vtkDataWriter();
   ~vtkDataWriter();
+  vtkDataWriter(const vtkDataWriter&) {};
+  void operator=(const vtkDataWriter&) {};
 
   int WriteToOutputString;
   char *OutputString;

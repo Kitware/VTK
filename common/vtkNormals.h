@@ -118,6 +118,8 @@ public:
 protected:
   vtkNormals(int dataType=VTK_FLOAT);
   ~vtkNormals() {};
+  vtkNormals(const vtkNormals&) {};
+  void operator=(const vtkNormals&) {};
   
 };
 

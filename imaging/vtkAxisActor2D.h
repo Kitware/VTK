@@ -244,6 +244,8 @@ public:
 protected:
   vtkAxisActor2D();
   ~vtkAxisActor2D();
+  vtkAxisActor2D(const vtkAxisActor2D&) {};
+  void operator=(const vtkAxisActor2D&) {};
 
   vtkCoordinate *Point1Coordinate;
   vtkCoordinate *Point2Coordinate;

@@ -58,6 +58,7 @@ class VTK_EXPORT vtkExtent : public vtkObject
 {
 public:
   static vtkExtent *New() {return new vtkExtent;};
+
   const char *GetClassName() {return "vtkExtent";}
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -79,10 +80,11 @@ public:
   virtual void WriteSelf(ostream& os);
 
 protected:
-
   vtkExtent();
   ~vtkExtent() {};
-  
+  vtkExtent(const vtkExtent&) {};
+  void operator=(const vtkExtent&) {};
+
   int SeriesIndex;
 };
 

@@ -65,6 +65,9 @@ public:
 protected:
   vtkCyberReader();
   ~vtkCyberReader();
+  vtkCyberReader(const vtkCyberReader&) {};
+  void operator=(const vtkCyberReader&) {};
+  
   void Execute();
   char *FileName;
 };

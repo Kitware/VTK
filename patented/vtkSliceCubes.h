@@ -122,6 +122,9 @@ public:
 protected:
   vtkSliceCubes();
   ~vtkSliceCubes();
+  vtkSliceCubes(const vtkSliceCubes&) {};
+  void operator=(const vtkSliceCubes&) {};
+
   void Execute();
 
   vtkVolumeReader *Reader;

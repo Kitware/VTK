@@ -127,6 +127,8 @@ public:
 protected:
   vtkTCoords(int dataType=VTK_FLOAT, int dim=2);
   ~vtkTCoords() {};
+  vtkTCoords(const vtkTCoords&) {};
+  void operator=(const vtkTCoords&) {};
   
 };
 

@@ -106,6 +106,9 @@ public:
 protected:
   vtkProgrammableFilter();
   ~vtkProgrammableFilter();
+  vtkProgrammableFilter(const vtkProgrammableFilter&) {};
+  void operator=(const vtkProgrammableFilter&) {};
+
   void Execute();
 
   void (*ExecuteMethod)(void *); //function to invoke

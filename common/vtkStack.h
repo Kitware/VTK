@@ -86,6 +86,8 @@ public:
 protected:
   vtkStack();
   ~vtkStack();
+  vtkStack(const vtkStack&) {};
+  void operator=(const vtkStack&) {};
 
   int NumberOfItems;
   vtkStackElement *Top;

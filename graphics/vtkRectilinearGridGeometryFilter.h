@@ -90,6 +90,9 @@ public:
 protected:
   vtkRectilinearGridGeometryFilter();
   ~vtkRectilinearGridGeometryFilter() {};
+  vtkRectilinearGridGeometryFilter(const vtkRectilinearGridGeometryFilter&) {};
+  void operator=(const vtkRectilinearGridGeometryFilter&) {};
+
   void Execute();
   int Extent[6];
 };

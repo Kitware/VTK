@@ -124,6 +124,9 @@ public:
 protected:
   vtkTubeFilter();
   ~vtkTubeFilter() {};
+  vtkTubeFilter(const vtkTubeFilter&) {};
+  void operator=(const vtkTubeFilter&) {};
+
   // Usual data generation method
   void Execute();
 

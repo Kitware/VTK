@@ -139,6 +139,8 @@ public:
 protected:
   vtkProcessObject();
   ~vtkProcessObject();
+  vtkProcessObject(const vtkProcessObject&) {};
+  void operator=(const vtkProcessObject&) {};
   
   void (*StartMethod)(void *);
   void (*StartMethodArgDelete)(void *);

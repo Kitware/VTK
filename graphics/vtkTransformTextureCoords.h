@@ -122,6 +122,9 @@ public:
 protected:
   vtkTransformTextureCoords();
   ~vtkTransformTextureCoords() {};
+  vtkTransformTextureCoords(const vtkTransformTextureCoords&) {};
+  void operator=(const vtkTransformTextureCoords&) {};
+
   void Execute();
 
   float Origin[3]; //point around which map rotates

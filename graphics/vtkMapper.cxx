@@ -108,12 +108,12 @@ unsigned long vtkMapper::GetMTime()
   return mTime;
 }
 
-void vtkMapper::operator=(const vtkMapper& m)
+void vtkMapper::ShallowCopy(vtkMapper *m)
 {
-  this->SetLookupTable(m.LookupTable);
+  this->SetLookupTable(m->GetLookupTable());
 
-  this->SetScalarVisibility(m.ScalarVisibility);
-  this->SetScalarRange(m.ScalarRange[0], m.ScalarRange[1]);
+  this->SetScalarVisibility(m->GetScalarVisibility());
+  this->SetScalarRange(m->GetScalarRange());
 }
 
 // a side effect of this is that this->Colors is also set

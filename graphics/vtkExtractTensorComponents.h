@@ -166,6 +166,8 @@ public:
 protected:
   vtkExtractTensorComponents();
   ~vtkExtractTensorComponents() {};
+  vtkExtractTensorComponents(const vtkExtractTensorComponents&) {};
+  void operator=(const vtkExtractTensorComponents&) {};
 
   void Execute();
 

@@ -81,6 +81,8 @@ public:
 protected:  
   vtkPolyDataCollection() {};
   ~vtkPolyDataCollection() {};
+  vtkPolyDataCollection(const vtkPolyDataCollection&) {};
+  void operator=(const vtkPolyDataCollection&) {};
 };
 
 

@@ -94,6 +94,8 @@ public:
 protected:
   vtkAppendPolyData();
   ~vtkAppendPolyData();
+  vtkAppendPolyData(const vtkAppendPolyData&) {};
+  void operator=(const vtkAppendPolyData&) {};
 
   // Flag for selecting parallel streaming bejhavior
   int ParallelStreaming;

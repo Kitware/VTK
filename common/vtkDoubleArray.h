@@ -86,23 +86,23 @@ public:
   // Description:
   // Copy the tuple value into a user-provided array.
   void GetTuple(const int i, float * tuple);
-  virtual void GetTuple(const int i, double * tuple);
+  void GetTuple(const int i, double * tuple);
 
   // Description:
   // Set the tuple value at the ith location in the array.
   void SetTuple(const int i, const float * tuple);
-  virtual void SetTuple(const int i, const double * tuple);
+  void SetTuple(const int i, const double * tuple);
 
   // Description:
   // Insert (memory allocation performed) the tuple into the ith location
   // in the array.
   void InsertTuple(const int i, const float * tuple);
-  virtual void InsertTuple(const int i, const double * tuple);
+  void InsertTuple(const int i, const double * tuple);
 
   // Description:
   // Insert (memory allocation performed) the tuple onto the end of the array.
   int InsertNextTuple(const float * tuple);
-  virtual int InsertNextTuple(const double * tuple);
+  int InsertNextTuple(const double * tuple);
 
   // Description:
   // Resize object to just fit data requirement. Reclaims extra memory.
@@ -162,9 +162,11 @@ public:
   // For legacy compatibility. Do not use.
   void DeepCopy(vtkDataArray &da) {this->DeepCopy(&da);}
 
-private:
+protected:
   vtkDoubleArray(int numComp=1);
   ~vtkDoubleArray();
+  vtkDoubleArray(const vtkDoubleArray&) {};
+  void operator=(const vtkDoubleArray&) {};
 
   double *Array;   // pointer to data
   double *Resize(const int sz);  // function to resize data

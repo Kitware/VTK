@@ -75,6 +75,9 @@ public:
 protected:
   vtkWorldPointPicker ();
   ~vtkWorldPointPicker() {};
+  vtkWorldPointPicker(const vtkWorldPointPicker&) {};
+  void operator=(const vtkWorldPointPicker&) {};
+
   int PointId; //picked point
   void Initialize();
 };

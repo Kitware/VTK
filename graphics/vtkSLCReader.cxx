@@ -48,6 +48,14 @@ vtkSLCReader::vtkSLCReader()
   this->FileName = NULL;
 }
 
+vtkSLCReader::~vtkSLCReader()
+  {
+  if (this->FileName)
+    {
+    delete [] this->FileName;
+    }
+  };
+
 // Decodes an array of eight bit run-length encoded data.
 unsigned char* vtkSLCReader::Decode8BitData( unsigned char *in_ptr, 
                                                int size )

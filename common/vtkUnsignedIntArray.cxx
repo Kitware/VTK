@@ -242,8 +242,27 @@ void vtkUnsignedIntArray::GetTuple(const int i, float * tuple)
     }
 }
 
+void vtkUnsignedIntArray::GetTuple(const int i, double * tuple) 
+{
+  unsigned int *t = this->Array + this->NumberOfComponents*i;
+  for (int j=0; j<this->NumberOfComponents; j++)
+    {
+    tuple[j] = (double)t[j];
+    }
+}
+
 // Set the tuple value at the ith location in the array.
 void vtkUnsignedIntArray::SetTuple(const int i, const float * tuple)
+{
+  int loc = i * this->NumberOfComponents; 
+
+  for (int j=0; j<this->NumberOfComponents; j++) 
+    {
+    this->Array[loc+j] = (unsigned int)tuple[j];
+    }
+}
+
+void vtkUnsignedIntArray::SetTuple(const int i, const double * tuple)
 {
   int loc = i * this->NumberOfComponents; 
 
@@ -256,6 +275,16 @@ void vtkUnsignedIntArray::SetTuple(const int i, const float * tuple)
 // Insert (memory allocation performed) the tuple into the ith location
 // in the array.
 void vtkUnsignedIntArray::InsertTuple(const int i, const float * tuple)
+{
+  unsigned int *t = this->WritePointer(i*this->NumberOfComponents,this->NumberOfComponents);
+
+  for (int j=0; j<this->NumberOfComponents; j++)
+    {
+    *t++ = (unsigned int)*tuple++;
+    }
+}
+
+void vtkUnsignedIntArray::InsertTuple(const int i, const double * tuple)
 {
   unsigned int *t = this->WritePointer(i*this->NumberOfComponents,this->NumberOfComponents);
 
@@ -278,3 +307,17 @@ int vtkUnsignedIntArray::InsertNextTuple(const float * tuple)
 
   return this->MaxId / this->NumberOfComponents;
 }
+
+int vtkUnsignedIntArray::InsertNextTuple(const double * tuple)
+{
+  int i = this->MaxId + 1;
+  unsigned int *t = this->WritePointer(i,this->NumberOfComponents);
+
+  for (i=0; i<this->NumberOfComponents; i++)
+    {
+    *t++ = (unsigned int)*tuple++;
+    }
+
+  return this->MaxId / this->NumberOfComponents;
+}
+

@@ -64,6 +64,8 @@ public:
 protected:
   vtkUnstructuredGridToUnstructuredGridFilter() {};
   ~vtkUnstructuredGridToUnstructuredGridFilter() {};
+  vtkUnstructuredGridToUnstructuredGridFilter(const vtkUnstructuredGridToUnstructuredGridFilter&) {};
+  void operator=(const vtkUnstructuredGridToUnstructuredGridFilter&) {};
 };
 
 #endif

@@ -117,6 +117,8 @@ public:
 protected:
   vtkLODActor();
   ~vtkLODActor();
+  vtkLODActor(const vtkLODActor&) {};
+  void operator=(const vtkLODActor&) {};
 
   vtkActor            *Device;
   vtkMapperCollection *LODMappers;

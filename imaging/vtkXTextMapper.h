@@ -82,6 +82,8 @@ public:
 protected:
   vtkXTextMapper() {};
   ~vtkXTextMapper() {};
+  vtkXTextMapper(const vtkXTextMapper&) {};
+  void operator=(const vtkXTextMapper&) {};
 
   Font CurrentFont;
 };

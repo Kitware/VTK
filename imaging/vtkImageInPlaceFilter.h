@@ -72,6 +72,8 @@ public:
 protected:
   vtkImageInPlaceFilter() {};
   ~vtkImageInPlaceFilter() {};
+  vtkImageInPlaceFilter(const vtkImageInPlaceFilter&) {};
+  void operator=(const vtkImageInPlaceFilter&) {};
 
   virtual void RecursiveStreamUpdate(vtkImageData *outData,int splitAxis);
   void CopyData(vtkImageData *in, vtkImageData *out);

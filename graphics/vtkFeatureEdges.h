@@ -126,6 +126,8 @@ public:
 protected:
   vtkFeatureEdges();
   ~vtkFeatureEdges();
+  vtkFeatureEdges(const vtkFeatureEdges&) {};
+  void operator=(const vtkFeatureEdges&) {};
 
   // Usual data generation method
   void Execute();
