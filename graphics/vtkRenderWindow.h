@@ -264,6 +264,8 @@ public:
   vtkSetMacro(AbortRender,int);
   vtkGetMacro(InAbortCheck,int);
   virtual int CheckAbortStatus();
+  virtual int GetEventPending() { return 0;};
+  
   
   void SetAbortCheckMethod(void (*f)(void *), void *arg);
   void SetAbortCheckMethodArgDelete(void (*f)(void *));

@@ -60,6 +60,31 @@ vtkXRenderWindow::~vtkXRenderWindow()
   if (this->Interactor) this->Interactor->Delete();
 }
 
+int vtkXRenderWindowFoundMatch;
+
+Bool vtkXRenderWindowPredProc(Display *disp, XEvent *event, char *arg)
+{
+  Window win = (Window)arg;
+  
+  if ((((XAnyEvent *)event)->window == win) &&
+      ((event->type == ButtonPress)))
+    vtkXRenderWindowFoundMatch = 1;
+
+  return 0;
+  
+}
+
+int vtkXRenderWindow::GetEventPending()
+{
+  XEvent report;
+  
+  vtkXRenderWindowFoundMatch = 0;
+  XCheckIfEvent(this->DisplayId, &report, vtkXRenderWindowPredProc, 
+		(char *)this->WindowId);
+  return vtkXRenderWindowFoundMatch;
+}
+
+
 // Description:
 // Get the size of the screen in pixels
 int *vtkXRenderWindow::GetScreenSize()

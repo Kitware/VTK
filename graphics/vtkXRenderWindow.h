@@ -84,7 +84,8 @@ public:
   virtual int      GetDesiredDepth()    = 0;
   virtual Colormap GetDesiredColormap() = 0;
   virtual Visual  *GetDesiredVisual()   = 0;
-
+  virtual  int GetEventPending();
+  
 protected:
   Window   ParentId;
   Window   WindowId;
