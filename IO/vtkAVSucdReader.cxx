@@ -36,7 +36,7 @@
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkAVSucdReader, "1.19");
+vtkCxxRevisionMacro(vtkAVSucdReader, "1.20");
 vtkStandardNewMacro(vtkAVSucdReader);
 
 vtkAVSucdReader::vtkAVSucdReader()
@@ -490,7 +490,7 @@ void vtkAVSucdReader::ReadBinaryCellTopology(vtkIntArray *materials,
   for(i=0; i < this->NumberOfCells; i++)
     {
     *list++ = ctype[4*i+2];
-    if(Ctype[4*i+3] == vtkAVSucdReader::PYR)
+    if(ctype[4*i+3] == vtkAVSucdReader::PYR)
       { //UCD ordering is 0,1,2,3,4 => VTK ordering is 1,2,3,4,0
       *list++ = topology_list[++k2] - 1;
       *list++ = topology_list[++k2] - 1;
@@ -501,7 +501,7 @@ void vtkAVSucdReader::ReadBinaryCellTopology(vtkIntArray *materials,
       }
      else
       {
-       for(j=0; j < Ctype[4*i+2]; j++)
+       for(j=0; j < ctype[4*i+2]; j++)
          {
          *list++ = topology_list[k2++] - 1;
          }
