@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkBase64Utility, "1.1");
+vtkCxxRevisionMacro(vtkBase64Utility, "1.1.2.1");
 vtkStandardNewMacro(vtkBase64Utility);
 
 //----------------------------------------------------------------------------
