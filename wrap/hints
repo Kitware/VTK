@@ -48,6 +48,7 @@ vtkImageData            GetWholeExtent  304 6
 vtkImageData            GetDimensions   304 3
 vtkImageData		GetOrigin   	301 3
 vtkImageData		GetSpacing   	301 3
+vtkImageClip            GetOutputWholeExtent 304 6
 vtkImageSpatialFilter   GetKernelSize   304 3
 vtkImageExport		GetDataDimensions 304 3
 vtkImageExport		GetDataExtent   304 6
