@@ -70,13 +70,13 @@ proc OpenFile {} {
         $ren RemoveActor actor
         if { [string match *.g $filename] } {
             set reader byu
-            byu SetGeometryFilename $filename
+            byu SetGeometryFileName $filename
         } elseif { [string match *.stl $filename] } {
             set reader stl
-            stl SetFilename $filename
+            stl SetFileName $filename
         } elseif { [string match *.vtk $filename] } {
             set reader vtk
-            vtk SetFilename $filename
+            vtk SetFileName $filename
         } else {
             puts "Can't read this file"
             return

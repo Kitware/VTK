@@ -10,7 +10,7 @@ source vtkInclude.tcl
 # create pipeline
 #
 vtkRectilinearGridReader reader
-    reader SetFilename "../../../data/RectGrid.vtk"
+    reader SetFileName "../../../data/RectGrid.vtk"
     reader DebugOn
     reader Update
 vtkRectilinearGridGeometryFilter plane
