@@ -132,7 +132,7 @@ public:
 template <class T>
 class vtkOTLinkedList
 {
-private:
+public:
   class ListContainer //the container for the data
   {
   public:
@@ -510,6 +510,8 @@ void vtkOTTetra::GetFacePoints(int i, vtkOTFace& face)
   }
 
 //------------------------------------------------------------------------
+ 
+extern "C" {
 static int SortOnPointIds(const void *val1, const void *val2)
 {
   if (((vtkOTPoint *)val1)->Id < ((vtkOTPoint *)val2)->Id)
@@ -525,7 +527,7 @@ static int SortOnPointIds(const void *val1, const void *val2)
     return (0);
     }
 }
-
+}
 //------------------------------------------------------------------------
 // See whether point is in sphere of tetrahedron
 int vtkOTTetra::InSphere(double x[3])
