@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkOBJReader, "1.23");
+vtkCxxRevisionMacro(vtkOBJReader, "1.24");
 vtkStandardNewMacro(vtkOBJReader);
 
 // Description:
@@ -82,6 +82,15 @@ Per-face tcoords and normals are supported by duplicating
 the vertices on each face as necessary. 
 
 ---------------------------------------------------------*/
+
+// a replacement for isspace()
+int is_whitespace(char c)
+{
+  if ( c==' ' || c=='\t' || c=='\n' || c=='\r' || c=='\v' || c=='\f')
+    return 1;
+  else
+    return 0;
+}
 
 void vtkOBJReader::Execute()
 {
@@ -184,7 +193,7 @@ void vtkOBJReader::Execute()
       while (everything_ok && pChar<pEnd) 
         {
         // find the first non-whitespace character
-        while (isspace(*pChar) && pChar<pEnd) { pChar++; }
+        while (is_whitespace(*pChar) && pChar<pEnd) { pChar++; }
 
         if (pChar<pEnd)         // there is still data left on this line
           {
@@ -231,7 +240,7 @@ void vtkOBJReader::Execute()
             }
           // skip over what we just read
           // (find the first whitespace character)
-          while (!isspace(*pChar) && pChar<pEnd) { pChar++; }
+          while (!is_whitespace(*pChar) && pChar<pEnd) { pChar++; }
 
           }
 
