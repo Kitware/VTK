@@ -28,9 +28,9 @@
 // Since vtkContainer and vtkAbstractList provide some pure 
 // virtual methods, each object of type container will have
 // v-tabe.
-//
-// The reference counting scheme used in vtkContainer is not
-// used with debug leaks yet.
+
+// .SECTION See Also
+// vtkAbstractIterator, vtkAbstractList, vtkAbstractMap
 
 #include "vtkObject.h"
 #include "vtkString.h"

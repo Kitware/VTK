@@ -51,7 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // are dynamic array (vector) and linked list.
 
 // .SECTION See also
-// vtkContainer
+// vtkContainer vtkAbstractMap
 
 #include "vtkContainer.h"
 

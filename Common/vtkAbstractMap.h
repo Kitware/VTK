@@ -44,13 +44,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // vtkAbstractMap is a an abstract templated superclass of all
 // containers that implement map data structure.
 //
-// Map data structure is a one dimensional sequence of pairs
-// of key and data. On the higher level, it implements mapping
-// from key values to data elements. It can be implemented using
-// array of pairs, hash table, or different trees.
+// Map data structure is a one dimensional set of pairs. Each pair 
+// contains a key and associated data. On the higher level, it 
+// implements mapping from key values to data elements. It can be 
+// implemented using array of pairs, hash table, or different trees.
 
 // .SECTION See also
-// vtkContainer
+// vtkContainer vtkAbstractList
 
 #include "vtkContainer.h"
 
