@@ -148,6 +148,8 @@ public:
   // Set/Get the scalar data.
   int SetScalars(vtkDataArray* da) 
     { return this->SetAttribute(da, SCALARS); }
+  int SetScalars(const char* name)
+    { return this->SetActiveAttribute(name, SCALARS); }
   void SetScalars(vtkScalars* scalars)
     { this->SetAttributeData(scalars, SCALARS); }
   vtkScalars* GetScalars();
@@ -160,6 +162,8 @@ public:
     { return this->SetAttribute(da, VECTORS); }
   void SetVectors(vtkVectors* vectors)
     { this->SetAttributeData(vectors, VECTORS); }
+  int SetVectors(const char* name)
+    { return this->SetActiveAttribute(name, VECTORS); }
   vtkVectors* GetVectors();
   vtkDataArray* GetActiveVectors() 
     { return this->GetActiveAttribute(VECTORS); }
@@ -170,6 +174,8 @@ public:
     { return this->SetAttribute(da, NORMALS); }
   void SetNormals(vtkNormals* normals)
     { this->SetAttributeData(normals, NORMALS); }
+  int SetNormals(const char* name)
+    { return this->SetActiveAttribute(name, NORMALS); }
   vtkNormals* GetNormals();
   vtkDataArray* GetActiveNormals() 
     { return this->GetActiveAttribute(NORMALS); }
@@ -180,6 +186,8 @@ public:
     { return this->SetAttribute(da, TCOORDS); }
   void SetTCoords(vtkTCoords* tcoords)
     { this->SetAttributeData(tcoords, TCOORDS); }
+  int SetTCoords(const char* name)
+    { return this->SetActiveAttribute(name, TCOORDS); }
   vtkTCoords* GetTCoords();
   vtkDataArray* GetActiveTCoords() 
     { return this->GetActiveAttribute(TCOORDS); }
@@ -190,9 +198,23 @@ public:
     { return this->SetAttribute(da, TENSORS); }
   void SetTensors(vtkTensors* Tensors)
     { this->SetAttributeData(Tensors, TENSORS); }
+  int SetTensors(const char* name)
+    { return this->SetActiveAttribute(name, TENSORS); }
   vtkTensors* GetTensors();
   vtkDataArray* GetActiveTensors() 
     { return this->GetActiveAttribute(TENSORS); }
+
+  // Description:
+  // Make the array with the given name the active attribute.
+  // Attribute types are:
+  //  vtkDataSetAttributes::SCALARS = 0
+  //  vtkDataSetAttributes::VECTORS = 1
+  //  vtkDataSetAttributes::NORMALS = 2
+  //  vtkDataSetAttributes::TCOORDS = 3
+  //  vtkDataSetAttributes::TENSORS = 4
+  // Returns the index of the array if succesful, -1 if the array 
+  // is not in the list of arrays.
+  int SetActiveAttribute(const char* name, int attributeType);
 
   // Description:
   // Get the field data.
@@ -297,6 +319,10 @@ public:
     NUM_ATTRIBUTES
   };
 
+  enum AttributeLimitTypes {
+    MAX, EXACT
+  };
+
   // This public class is used to perform set operations, other misc. 
   // operations on fields. For example, vtkAppendFilter uses it to 
   // determine which attributes the input datasets share in common.
@@ -392,13 +418,17 @@ protected:
 
   virtual void RemoveArray(int index);
 
+  static int NumberOfAttributeComponents[NUM_ATTRIBUTES];
+  static int AttributeLimits[NUM_ATTRIBUTES];
+  static char AttributeNames[NUM_ATTRIBUTES][10];
+
 private:
   int SetAttribute(vtkDataArray* da, int attributeType);
   void SetAttributeData(vtkAttributeData* newAtt, int attributeType);
   vtkAttributeData* GetAttributeData(int attributeType);
-  void SetActiveAttribute(int index, int attributeType);
-  int SetActiveAttribute(const char* name, int attributeType);
+  int SetActiveAttribute(int index, int attributeType);
   int FindOffFlag(const char* field);
+  static int CheckNumberOfComponents(vtkDataArray* da, int attributeType);
   void CopyFieldFlags(const vtkDataSetAttributes* source);
   void ClearFieldFlags();
 
