@@ -26,7 +26,7 @@
 
 typedef double (*SqMatPtr)[4];
 
-vtkCxxRevisionMacro(vtkProp3D, "1.30");
+vtkCxxRevisionMacro(vtkProp3D, "1.31");
 
 // Construct with the following defaults: origin(0,0,0) 
 // position=(0,0,0) and orientation=(0,0,0). No user defined 
@@ -97,7 +97,7 @@ unsigned long int vtkProp3D::GetMTime()
 
 unsigned long int vtkProp3D::GetUserTransformMatrixMTime()
 {
-  unsigned long mTime;
+  unsigned long mTime = 0;
   unsigned long time;
 
   // Factored out of GetMTime because there are times we want
