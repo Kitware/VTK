@@ -97,7 +97,6 @@ template <class T>
 static void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self, 
 				       vtkImageData *data, 
 				       T *dataPtr,
-				       int type,
 				       float shift, float scale,
 				       int *actorPos, int *vsize)
 {
@@ -210,7 +209,6 @@ template <class T>
 static void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self, 
 					    vtkImageData *data, 
 					    T *dataPtr,
-					    int type,
 					    float shift, float scale,
 					    int *actorPos, int *vsize)
 {
@@ -237,11 +235,13 @@ static void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self,
 
   glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
 
-  // find the number of bits to use for the fraction:
+  // Find the number of bits to use for the fraction:
   // continue increasing the bits until there is an overflow
   // in the worst case, then decrease by 1.
+  // The "*2.0" and "*1.0" ensure that the comparison is done
+  // with double-precision math.
   int bitShift = 0;
-  while (((long)(1 << bitShift)*scale)*USHRT_MAX*2.0 < INT_MAX)
+  while (((long)(1 << bitShift)*scale)*USHRT_MAX*2.0 < INT_MAX*1.0)
     {
     bitShift++;
     }
@@ -332,7 +332,6 @@ static void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self,
 static void vtkOpenGLImageMapperRenderChar(vtkOpenGLImageMapper *self, 
 					   vtkImageData *data, 
 					   unsigned char *dataPtr,
-					   int type,
 					   int *actorPos, int *vsize)
 {
   int* tempExt = self->GetInput()->GetUpdateExtent();
@@ -364,7 +363,7 @@ static void vtkOpenGLImageMapperRenderChar(vtkOpenGLImageMapper *self,
       {
       glPixelStorei( GL_UNPACK_ROW_LENGTH, inInc1/bpp );
       }
-    glDrawPixels(width, height, GL_RGB, type, (void *)dataPtr);
+    glDrawPixels(width, height, GL_RGB, GL_UNSIGNED_BYTE, (void *)dataPtr);
     }
   else if (bpp == 4)
     { // feed through RGBA bytes without reformatting
@@ -372,7 +371,7 @@ static void vtkOpenGLImageMapperRenderChar(vtkOpenGLImageMapper *self,
       {
       glPixelStorei( GL_UNPACK_ROW_LENGTH, inInc1/bpp );
       }
-    glDrawPixels(width, height, GL_RGBA, type, (void *)dataPtr);
+    glDrawPixels(width, height, GL_RGBA, GL_UNSIGNED_BYTE, (void *)dataPtr);
     }      
   else 
     { // feed through other bytes without reformatting
@@ -502,44 +501,36 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
 
   switch (data->GetScalarType())
     {
-#ifdef GL_DOUBLE
     case VTK_DOUBLE:  
       vtkOpenGLImageMapperRender(this, data,
 				 (double *)(ptr0), 
-				 GL_DOUBLE,
 				 shift, scale, actorPos, vsize);
       break;
-#endif
     case VTK_FLOAT:  
       vtkOpenGLImageMapperRender(this, data,
 				 (float *)(ptr0), 
-				 GL_FLOAT,
 				 shift, scale, actorPos, vsize);
       break;
     case VTK_INT:    
       vtkOpenGLImageMapperRender(this, data,
 				 (int *)(ptr0),
-				 GL_INT,
 				 shift, scale, actorPos, vsize);
       break;
     case VTK_UNSIGNED_INT: 
       vtkOpenGLImageMapperRender(this, data,
                                  (unsigned int *)(ptr0),  
-                                 GL_UNSIGNED_INT,
                                  shift, scale, actorPos, vsize);
     
       break; 
     case VTK_SHORT:  
       vtkOpenGLImageMapperRenderShort(this, data,
 				      (short *)(ptr0),
-				      GL_SHORT,
 				      shift, scale, actorPos, vsize);
       
       break; 
     case VTK_UNSIGNED_SHORT: 
       vtkOpenGLImageMapperRenderShort(this, data,
 				      (unsigned short *)(ptr0),  
-				      GL_UNSIGNED_SHORT,
 				      shift, scale, actorPos, vsize);
     
       break; 
@@ -548,14 +539,12 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
 	{
 	vtkOpenGLImageMapperRenderChar(this, data,
 				       (unsigned char *)(ptr0),  
-				       GL_UNSIGNED_BYTE,
 				       actorPos, vsize);
 	}
       else
 	{
 	vtkOpenGLImageMapperRenderShort(this, data,
 					(unsigned char *)(ptr0),  
-					GL_UNSIGNED_BYTE,
 					shift, scale, actorPos, vsize);
 	}
       break;
