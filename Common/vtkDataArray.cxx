@@ -30,7 +30,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkDataArray, "1.62");
+vtkCxxRevisionMacro(vtkDataArray, "1.63");
 
 // Construct object with default tuple dimension (number of components) of 1.
 vtkDataArray::vtkDataArray(vtkIdType numComp)
@@ -248,21 +248,6 @@ void vtkDataArray::SetLookupTable(vtkLookupTable* lut)
     this->Modified();
     }
 }
-
-// default double behaviour
-void vtkDataArray::GetTuple(vtkIdType i, double * tuple)
-{
-  int c;
-  int numComp=this->GetNumberOfComponents();
-  double *ftuple=new double[numComp];
-  this->GetTuple(i,ftuple);
-  for (c = 0; c < numComp;  c++)
-    {
-    tuple[c] = ftuple[c];
-    }
-  delete [] ftuple;
-}
-
 
 double* vtkDataArray::GetTupleN(vtkIdType i, int n)
 {
