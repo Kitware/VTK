@@ -33,7 +33,6 @@ vtkOBJReader \
 vtkOutputPort \
 vtkPolyDataCollector \
 vtkProjectedTexture \
-vtkPropPicker \
 vtkRenderLargeImage \
 vtkRIBExporter \
 vtkRIBLight \
