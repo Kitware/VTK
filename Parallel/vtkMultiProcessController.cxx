@@ -51,10 +51,10 @@ protected:
   void operator=(const vtkMultiProcessControllerRMI&);
 };
 
-vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.17");
+vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.18");
 vtkStandardNewMacro(vtkMultiProcessControllerRMI);
 
-vtkCxxRevisionMacro(vtkMultiProcessController, "1.17");
+vtkCxxRevisionMacro(vtkMultiProcessController, "1.18");
 
 //----------------------------------------------------------------------------
 // An RMI function that will break the "ProcessRMIs" loop.
@@ -261,6 +261,22 @@ void vtkMultiProcessController::SetMultipleMethod( int index,
     this->MultipleMethod[index] = f;
     this->MultipleData[index]   = data;
     }
+}
+
+//----------------------------------------------------------------------------
+int vtkMultiProcessController::RemoveFirstRMI(int tag)
+{
+  vtkMultiProcessControllerRMI *rmi = NULL;
+  this->RMIs->InitTraversal();
+  while ( (rmi = (vtkMultiProcessControllerRMI*)(this->RMIs->GetNextItemAsObject())) )
+    {
+    if (rmi->Tag == tag)
+      {
+      this->RMIs->RemoveItem(rmi);
+      return 1;
+      }
+    }
+  return 0;
 }
 
 //----------------------------------------------------------------------------

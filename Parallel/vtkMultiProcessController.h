@@ -168,6 +168,10 @@ public:
   void AddRMI(vtkRMIFunctionType, void *localArg, int tag);
   
   // Description:
+  // Remove the first RMI matching the tag.
+  int RemoveFirstRMI(int tag);
+
+  // Description:
   // Take an RMI away.
   void RemoveRMI(vtkRMIFunctionType f, void *arg, int tag)
     {f = f; arg = arg; tag = tag; vtkErrorMacro("RemoveRMI Not Implemented Yet");};
