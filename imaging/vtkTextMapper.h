@@ -72,7 +72,7 @@ public:
   // Description:
   // Draw the text to the screen.  This function is implemented in
   // the subclasses.
-  virtual void Render(vtkViewport* viewport, vtkActor2D* actor) = 0;
+  virtual void Render(vtkViewport*, vtkActor2D*) {};
 
   // Description:
   // Set the input to the mapper.  The mapper doesn't parse the string
