@@ -42,19 +42,6 @@ set pd_id 0
 
 set class_list(null) 1
 
-#
-# defect_list contains the following for each directory evaluated:
-#
-# <directory>.class_count		<# classes>
-# <directory>.class_print_count		<# classes that should have a printself>
-# <directory>.printself_miss_count	<# printself methods missing>
-# <directory>.super_miss_count		<# superclass prints missing>
-# <directory>.ivar_count		<# ivars that should be printed>
-# <directory>.ivar_miss_count		<# ivars not printed that should>
-#
-
-set defect_list(null) 0
-
 proc list_contains { string } {
 
   global class_list
@@ -482,7 +469,7 @@ proc check_for_defects { print } {
 
   # Loop through list and print printself defects
   if { $printself_miss_count > 0 && $print } {
-    puts $pd_id "\tPrintSelf DEFECTS: "
+    puts $pd_id "  PrintSelf DEFECTS: "
     set searchid [array startsearch class_list]
 
     while { [array anymore class_list $searchid] } {
@@ -495,7 +482,7 @@ proc check_for_defects { print } {
 
         if { [class_has_ivars $curr_class] == 1 } {
           if { $class_list($element) != 1 } {
-            puts $pd_id "\t\t$curr_class does not have a PrintSelf method"
+            puts $pd_id "    $curr_class does not have a PrintSelf method"
           }
         }
       }
@@ -531,7 +518,7 @@ proc check_for_defects { print } {
 
   # Loop through list and print superclass defects
   if { $super_miss_count > 0  && $print } {
-    puts $pd_id "\tSuperclass DEFECTS: "
+    puts $pd_id "  Superclass DEFECTS: "
     set searchid [array startsearch class_list]
 
     while { [array anymore class_list $searchid] } {
@@ -545,7 +532,11 @@ proc check_for_defects { print } {
         if { [class_has_ivars $curr_class] == 1 &&
              $class_list($element) != 1 } {
 
-            puts $pd_id "\t\t$curr_class did not print superclass $element"
+            set start [expr $end + 4]
+            set end [expr [string wordend $element $start] - 1]
+            set parent [string range $element $start $end]
+
+            puts $pd_id "    $curr_class did not print superclass $parent"
         }
       }
     }
@@ -577,7 +568,7 @@ proc check_for_defects { print } {
 
   # Loop through list and print ivar defects
   if { $ivar_miss_count > 0 && $print } {
-    puts $pd_id "\tIvar DEFECTS: "
+    puts $pd_id "  Ivar DEFECTS: "
     set searchid [array startsearch class_list]
 
     while { [array anymore class_list $searchid] } {
@@ -594,7 +585,7 @@ proc check_for_defects { print } {
           set end [expr [string wordend $element $start] - 1]
           set ivar [string range $element $start $end]
 
-          puts $pd_id "\t\t$curr_class does not print ivar: $ivar"
+          puts $pd_id "    $curr_class does not print ivar: $ivar"
         }
       }
     }
@@ -663,6 +654,15 @@ proc print_totals {} {
   puts $pr_id "		-------	------	-------	-----	------	------"
   puts $pr_id " "
   puts $pr_id "TOTALS\t\t$total_class_count\t$total_class_print_count\t$total_super_miss_count\t$total_printself_miss_count\t$total_ivar_count\t$total_ivar_miss_count"
+  puts $pr_id " "
+  puts $pr_id "Key: "
+  puts $pr_id "  Classes: Number of classes in directory."
+  puts $pr_id "  PS Opp : Number of classes that should have a printself method."
+  puts $pr_id "  S Miss : Number of superclasses not printed."
+  puts $pr_id "  PS Miss: Number of printself methods not declared."
+  puts $pr_id "  Ivars  : Number of internal variables that should be printed."
+  puts $pr_id "  I Miss : Number of internal variables not printed."
+  puts $pr_id " "
   puts $pr_id " "
   puts $pr_id "PrintSelf Results: $total_defects defects found."
   puts $pr_id " "
