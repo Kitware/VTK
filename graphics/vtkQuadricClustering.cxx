@@ -173,33 +173,29 @@ void vtkQuadricClustering::Append(vtkPolyData *pd)
   float triPts[3][3], quadric[9], quadric4x4[4][4];
   int i, j, numPts, binIds[3];
   int triPtIds[3];
-  int vertexId;
+  int vertexId, abort=0, tenth;
   
-  // Check for mis use of the Append methods.
+  // Check for mis-use of the Append methods.
   if (this->OutputTriangleArray == NULL)
     {
     vtkErrorMacro("Missing Array:  Did you call StartAppend?");
     return;
     }
 
-  if (numTris == 0)
+  if ( !numTris )
     {
     return;
     }      
   
+  tenth = numTris/10 + 1;
   inputTris->InitTraversal();
-  
-  for (i = 0; i < numTris && !this->AbortExecute ; i++)
+  for (i = 0; i < numTris && !abort ; i++)
     {
-    if ( ! (i % 10000) ) 
+    if ( !(i % tenth) ) 
       {
-      vtkDebugMacro(<<"Visiting polygon #" << i);
+      vtkDebugMacro(<<"Visiting triangle #" << i);
       this->UpdateProgress(0.8 * i/numTris);
-      if (this->GetAbortExecute())
-        {
-        this->AbortExecute = 1;
-        break;
-        }
+      abort = this->GetAbortExecute();
       }
     inputTris->GetNextCell(numPts, cellPtIds);
     for (j = 0; j < 3; j++)
@@ -233,19 +229,18 @@ void vtkQuadricClustering::Append(vtkPolyData *pd)
       quadric[8] = quadric4x4[2][3];
       this->AddQuadric(binIds[j], quadric);
       }
-    if (binIds[0] == binIds[1] || binIds[0] == binIds[2] ||
-      	binIds[1] == binIds[2])
+    if (binIds[0] != binIds[1] && binIds[0] != binIds[2] &&
+      	binIds[1] != binIds[2])
       {
-      }
       this->OutputTriangleArray->InsertNextCell(3, triPtIds);
+      }
     }
-
 }
 
 //----------------------------------------------------------------------------
 void vtkQuadricClustering::EndAppend()
 {
-  int i;
+  int i, abort=0, tenth, numBuckets;
   vtkPoints *outputPoints = vtkPoints::New();
   float newPt[3];
   vtkPolyData *output = this->GetOutput();
@@ -257,26 +252,20 @@ void vtkQuadricClustering::EndAppend()
     return;
     }
 
-  for (i = 0; i < this->NumberOfXDivisions *
-         this->NumberOfYDivisions * this->NumberOfZDivisions &&
-         !this->AbortExecute; i++)
+  numBuckets = this->NumberOfXDivisions * this->NumberOfYDivisions * this->NumberOfZDivisions;
+  tenth = numBuckets/10 + 1;
+  for (i = 0; !abort && i < numBuckets; i++ )
     {
-    if ( ! (i % 1000) ) 
+    if ( ! (i % tenth) ) 
       {
       vtkDebugMacro(<<"Finding point in bin #" << i);
-      this->UpdateProgress (0.2*i/this->NumberOfXDivisions *
-        this->NumberOfYDivisions * this->NumberOfZDivisions);
-      if (this->GetAbortExecute())
-        {
-        this->AbortExecute = 1;
-        break;
-        }
+      this->UpdateProgress (0.8+0.2*i/numBuckets);
+      abort = this->GetAbortExecute();
       }
 
     if (this->QuadricArray[i].VertexId != -1)
       {
-      this->ComputeRepresentativePoint(this->QuadricArray[i].Quadric, i,
-                                       newPt);
+      this->ComputeRepresentativePoint(this->QuadricArray[i].Quadric, i, newPt);
       outputPoints->InsertPoint(this->QuadricArray[i].VertexId, newPt);
       }
     }
@@ -291,7 +280,7 @@ void vtkQuadricClustering::EndAppend()
   this->OutputTriangleArray = NULL;
 
   // Tell the data is is up to date 
-  // (incase the user calls this method directly).
+  // (in case the user calls this method directly).
   output->DataHasBeenGenerated();
 }
 
