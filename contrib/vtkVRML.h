@@ -30,7 +30,6 @@ public:
          Data=new T[Allocated];
          if(Data==(T *)'\0')
          {
-            cout << "Vector.Reserve failed.  newSize=" << newSize << endl;
             return;
          }
          memcpy((void*)Data, (void*)temp, oldSize*sizeof(T));
