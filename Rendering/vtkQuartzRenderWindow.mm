@@ -204,10 +204,11 @@ void vtkQuartzRenderWindow::SetSize(int x, int y)
       if (!resizing)
         {
         resizing = 1;
+        //22 added since that is the size of the title bar
 	NSRect sizeRect = NSMakeRect(this->Position[0],
 				     this->Position[1],
 				     this->Size[0],
-				     this->Size[1]);
+				     this->Size[1]+22);
 	[(vtkQuartzWindow *)this->WindowId setFrame:sizeRect display:YES];
         resizing = 0;
         }
@@ -388,9 +389,20 @@ void vtkQuartzRenderWindow::WindowInitialize (void)
         sprintf(windowName,"Visualization Toolkit - Quartz #%i",count++);
         this->SetWindowName(windowName);
         delete [] windowName;
- 
-        ctRect = NSMakeRect(50, 50, 350, 350);
-        glRect = NSMakeRect(0,0,400,400);
+        if ((this->Size[0]+this->Size[1])==0)
+            {
+            this->Size[0]=300;
+            this->Size[1]=300;
+            }
+        if ((this->Position[0]+this->Position[1])==0)
+            {
+            this->Position[0]=50;
+            this->Position[1]=50;
+            }
+        //22 added since that is the size of the title bar
+        ctRect = NSMakeRect(this->Position[0],this->Position[1],
+                            this->Size[0], this->Size[1]+22);
+        glRect = NSMakeRect(0,0,this->Size[0],this->Size[1]);
         /* create window */
         
 	this->WindowId = (void *)[[[vtkQuartzWindow alloc] initWithContentRect:ctRect 									styleMask:NSTitledWindowMask|NSClosableWindowMask|
