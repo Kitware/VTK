@@ -53,6 +53,8 @@ void vlSTLReader::Execute()
 
   vlDebugMacro(<< "Read " << newPts->GetNumberOfPoints() << " points");
   vlDebugMacro(<< "Read " << newPolys->GetNumberOfCells() << " triangles");
+
+  fclose(fp);
 //
 // Since we sized the dynamic arrays arbitrarily to begin with 
 // need to resize them to fit data
