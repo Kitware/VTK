@@ -40,6 +40,7 @@ class vtkRenderer : public vtkObject
 {
 public:
   vtkRenderer();
+  ~vtkRenderer();
   char *GetClassName() {return "vtkRenderer";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -154,6 +155,7 @@ public:
 protected:
   vtkVolumeRenderer *VolumeRenderer;
   vtkCamera *ActiveCamera;
+  vtkLight  *CreatedLight;
   vtkLightCollection Lights;
   vtkActorCollection Actors;
   float Ambient[3];  
@@ -167,7 +169,9 @@ protected:
   int   Erase;
   float Aspect[2];
   float Center[2];
-
+  int   SelfCreatedCamera;
+  int   SelfCreatedLight;
+  
   void (*StartRenderMethod)(void *);
   void (*StartRenderMethodArgDelete)(void *);
   void *StartRenderMethodArg;
