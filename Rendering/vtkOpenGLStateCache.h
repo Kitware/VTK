@@ -83,8 +83,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define vtkOpenGLCall_glLineWidth vtkOpenGLStateCache::CurrentGLCache->glLineWidth
 #define vtkOpenGLCall_glLineStipple vtkOpenGLStateCache::CurrentGLCache->glLineStipple
 #define vtkOpenGLCall_glDepthRange vtkOpenGLStateCache::CurrentGLCache->glDepthRange
-#define vtkOpenGLCall_glNewList vtkOpenGLStateCache::CurrentGLCache->glNewList
-#define vtkOpenGLCall_glEndList vtkOpenGLStateCache::CurrentGLCache->glEndList
 #define vtkOpenGLCall_glPolygonOffset vtkOpenGLStateCache::CurrentGLCache->glPolygonOffset
 
 #define vtkOpenGLCall_glPushMatrix glPushMatrix
@@ -122,6 +120,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define vtkOpenGLCall_glRasterPos3f glRasterPos3f
 #define vtkOpenGLCall_glDrawPixels glDrawPixels
 #define vtkOpenGLCall_glRasterPos2f glRasterPos2f
+#define vtkOpenGLCall_glNewList glNewList
+#define vtkOpenGLCall_glEndList glEndList
 
 class vtkOpenGLStateCache  
 {
@@ -594,26 +594,6 @@ public:
         }
     }
   
-  //============DisplayLists==============
-  // strange logic employed to force NewList to be compiled first
-  // before it is executed.  Apparently SGI's do a poor job of list
-  // compilation if you try to compile and exec rather than compiling
-  // first and exec when the list is done.
-  GLuint compile_and_exec,listnum;
-  inline void glNewList(GLuint idx,GLenum mode) {
-    if(mode==GL_COMPILE_AND_EXECUTE)
-      compile_and_exec=1; /* arm the compile and exec */
-    else
-      compile_and_exec=0;
-    listnum=idx;
-    ::glNewList(idx,mode);
-  } 
-  inline void glEndList(){
-    ::glEndList();
-    if(compile_and_exec)
-      ::glCallList(listnum);
-    compile_and_exec=0; // disarm compile and exec
-  }
 #ifdef GL_VERSION_1_1
   // enable GL_POLYGON_OFFSET_FILL = 0x8037
   GLfloat PolygonOffset_bucket[2];
