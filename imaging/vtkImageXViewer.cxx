@@ -350,9 +350,9 @@ static void vtkImageXViewerRenderColor(vtkImageXViewer *self,
       if (blue > 255) blue = 255;
 
       *outPtr++ = (unsigned char)(255);
-      *outPtr++ = (unsigned char)(blue);
-      *outPtr++ = (unsigned char)(green);
       *outPtr++ = (unsigned char)(red);
+      *outPtr++ = (unsigned char)(green);
+      *outPtr++ = (unsigned char)(blue);
 
       redPtr0 += inInc0;
       greenPtr0 += inInc0;
