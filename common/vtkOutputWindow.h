@@ -71,6 +71,18 @@ public:
   // Return the singleton instance with no reference counting.
   static vtkOutputWindow* GetInstance();
   virtual void DisplayText(const char*);
+  // Description:
+  // If PromptUser is set to true then each time a line of text
+  // is displayed, the user is asked if they want to keep getting
+  // messages.
+  vtkBooleanMacro(PromptUser,int);
+  vtkSetMacro(PromptUser, int);
+protected:
+  vtkOutputWindow(); 
+  virtual ~vtkOutputWindow(); 
+  vtkOutputWindow(const vtkOutputWindow&) {};
+  void operator=(const vtkOutputWindow&) {};
+  int PromptUser;
 private:
   static vtkOutputWindow* Instance;
 };

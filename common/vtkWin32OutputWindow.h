@@ -65,7 +65,13 @@ public:
   static LRESULT APIENTRY WndProc(HWND hWnd, UINT message, 
 				  WPARAM wParam, LPARAM lParam);
   //ETX
-private:
+private: 
+  vtkWin32OutputWindow() {}; 
+  virtual ~vtkWin32OutputWindow() {}; 
+  vtkWin32OutputWindow(const vtkWin32OutputWindow&) {};
+  void operator=(const vtkWin32OutputWindow&) {};
+  
+  void PromptText(const char* text);
   static void AddText(const char*);
   static int Initialize();
   static HWND OutputWindow;

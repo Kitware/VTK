@@ -90,6 +90,11 @@ void vtkWin32OutputWindow::DisplayText(const char* text)
     {
     return;
     }
+  if(this->PromptUser)
+    {
+    this->PromptText(text);
+    return;
+    }
   
   // Create a buffer big enough to hold the entire text
   char* buffer = new char[strlen(text)+1];
@@ -216,4 +221,17 @@ int vtkWin32OutputWindow::Initialize()
   // show the top level container window
   ShowWindow(win, SW_SHOW);
   return 1;
+}
+
+
+void vtkWin32OutputWindow::PromptText(const char* text)
+{
+  ostrstream vtkmsg;
+  vtkmsg << text << "\nPress Cancel to supress any further messages." << ends;
+  if (MessageBox(NULL, vtkmsg.str(), "Error",
+		 MB_ICONERROR | MB_OKCANCEL) == IDCANCEL) 
+    { 
+    vtkObject::GlobalWarningDisplayOff(); 
+    }
+  vtkmsg.rdbuf()->freeze(0);
 }
