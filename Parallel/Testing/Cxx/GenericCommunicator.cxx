@@ -383,7 +383,7 @@ int main(int argc, char** argv)
 
   // Added for regression test.
   // ----------------------------------------------
-  int retVal;
+  int retVal = 1;
   GenericCommunicatorArgs_tmp args;
   args.retVal = &retVal;
   args.argc = argc;
