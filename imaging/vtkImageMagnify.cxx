@@ -149,9 +149,9 @@ static void vtkImageMagnifyExecute(vtkImageMagnify *self,
   int magYIdx, magY;
   int magZIdx, magZ;
   T *inPtrZ, *inPtrY, *inPtrX, *outPtrC;
-  float iMag, iMagP, iMagPY, iMagPZ, iMagPYZ;
-  T dataP, dataPX, dataPY, dataPZ;
-  T dataPXY, dataPXZ, dataPYZ, dataPXYZ;
+  float iMag, iMagP = 0.0, iMagPY = 0.0, iMagPZ = 0.0, iMagPYZ = 0.0;
+  T dataP = 0, dataPX = 0, dataPY = 0, dataPZ = 0;
+  T dataPXY = 0, dataPXZ = 0, dataPYZ = 0, dataPXYZ = 0;
   int interpSetup;
   
   interpolate = self->GetInterpolate();

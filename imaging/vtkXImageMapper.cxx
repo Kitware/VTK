@@ -477,7 +477,7 @@ static void vtkXImageMapperRenderColor(vtkXImageMapper *mapper,
   T lower, upper;
   unsigned char lower_val, upper_val;
   int colors[256];
-  unsigned char lowerPixel, upperPixel;
+  unsigned char lowerPixel = 0, upperPixel = 0;
   int colorIdx;
   int visualDepth, visualClass;
 

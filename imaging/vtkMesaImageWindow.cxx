@@ -382,7 +382,7 @@ int vtkMesaImageWindow::GetDesiredDepth()
 Visual *vtkMesaImageWindow::GetDesiredVisual ()
 {
   XVisualInfo *v;
-  Visual *vis;
+  Visual *vis = NULL;
   
   // get the default visual to use 
   v = this->GetDesiredVisualInfo();

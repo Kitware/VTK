@@ -306,7 +306,7 @@ void vtkSurfaceReconstructionFilter::Execute()
       }
     
     float cost,lowestCost;
-    int cheapestNearby,connectedVisited;
+    int cheapestNearby = 0, connectedVisited = 0;
     
     // repeat until nearby is empty:
     while(nearby->GetNumberOfIds()>0)

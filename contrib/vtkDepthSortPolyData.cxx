@@ -144,8 +144,8 @@ void vtkDepthSortPolyData::Execute()
   int numCells=input->GetNumberOfCells();
   vtkCellData *inCD=input->GetCellData();
   vtkCellData *outCD=output->GetCellData();
-  vtkScalars *sortScalars;
-  unsigned int *scalars;
+  vtkScalars *sortScalars = NULL;
+  unsigned int *scalars = NULL;
   double x[3];
   double vector[3];
   double origin[3];

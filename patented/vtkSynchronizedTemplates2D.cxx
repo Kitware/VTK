@@ -151,7 +151,7 @@ static void ContourImage(vtkSynchronizedTemplates2D *self,
   int *isect1Ptr, *isect2Ptr;
   int ptIds[2];
   int *tablePtr;
-  int v0, v1, v2;
+  int v0, v1 = 0, v2;
   int idx, vidx;
   float s0, s1, s2, value;
   int i, j;

@@ -263,7 +263,7 @@ int vtkXMesaTextMapper::GetListBaseForFont(vtkTextMapper *tm,
     }
   
   // save the current context
-  GLXContext ctx;
+  GLXContext ctx = NULL;
   
   // OK the font is not cached
   // so we need to make room for a new font

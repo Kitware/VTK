@@ -202,7 +202,7 @@ void vtkImageCacheFilter::UpdateData(vtkDataObject *outObject)
   if (flag == 0)
     {
     unsigned long bestTime = VTK_LARGE_INTEGER;
-    int bestIdx;
+    int bestIdx = 0;
 
     // we need to update.
     inData->SetUpdateExtent(uExt);

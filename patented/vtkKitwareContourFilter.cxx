@@ -284,7 +284,7 @@ void vtkKitwareContourFilter::StructuredPointsContour(int dim)
 //
 void vtkKitwareContourFilter::StructuredGridContour(int dim)
 {
-  vtkPolyData *output;
+  vtkPolyData *output = NULL;
   vtkPolyData *thisOutput = this->GetOutput();
   int numContours=this->ContourValues->GetNumberOfContours();
   float *values=this->ContourValues->GetValues();

@@ -210,11 +210,11 @@ int vtkCubeAxesActor2D::RenderOverlay(vtkViewport *viewport)
 // with the boundary of the viewport (minus borders).
 int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
 {
-  float bounds[6], slope, minSlope, num, den;
+  float bounds[6], slope = 0.0, minSlope, num, den;
   float pts[8][3], d2, d2Min, min;
-  int i, idx;
-  int xIdx, yIdx, zIdx, zIdx2, renderedSomething=0;
-  int xAxes, yAxes, zAxes;
+  int i, idx = 0;
+  int xIdx, yIdx = 0, zIdx = 0, zIdx2, renderedSomething=0;
+  int xAxes = 0, yAxes, zAxes;
 
   // Initialization
   if ( !this->Camera )

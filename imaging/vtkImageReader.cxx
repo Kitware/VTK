@@ -661,7 +661,7 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
   int inExtent[6];
   int dataExtent[6];
   int comp, pixelSkip;
-  long filePos, correction;
+  long filePos, correction = 0;
   unsigned long count = 0;
   unsigned short DataMask;
   unsigned long target;

@@ -992,12 +992,9 @@ void vtkGridSynchronizedTemplates3D::Execute()
   int idx, offset, num, ptIdx, newIdx, numCellPts, *cellPts, newCellPts[3];
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outPD;
-  vtkPolyData *threadOut;
+  vtkPolyData *threadOut = NULL;
   vtkPointData *threadPD;
   vtkCellArray *threadTris;
-  vtkStructuredGrid *input = this->GetInput();
-  int numPieces = output->GetUpdateNumberOfPieces();
-
   
   if (this->NumberOfThreads <= 1)
     {

@@ -369,7 +369,7 @@ void vtkMultiProcessController::ProcessRMI(int remoteProcessId,
                                            void *arg, int argLength,
                                            int rmiTag)
 {
-  vtkMultiProcessControllerRMI *rmi;
+  vtkMultiProcessControllerRMI *rmi = NULL;
   int found = 0;
 
   // find the rmi

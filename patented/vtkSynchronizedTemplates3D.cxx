@@ -734,11 +734,10 @@ void vtkSynchronizedTemplates3D::Execute()
   int idx, offset, num, ptIdx, newIdx, numCellPts, *cellPts, newCellPts[3];
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outPD;
-  vtkPolyData *threadOut;
+  vtkPolyData *threadOut = 0;
   vtkPointData *threadPD;
   vtkCellArray *threadTris;
   vtkImageData *input = this->GetInput();
-  int *ext = input->GetWholeExtent();
 
   // Just in case some one changed the maximum number of threads.
   if (this->NumberOfThreads <= 1)

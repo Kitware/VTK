@@ -768,7 +768,7 @@ void vtkXYPlotActor::ComputeDORange(float xrange[2], float yrange[2],
   vtkDataObject *dobj;
   vtkFieldData *field;
   int doNum, numRows, numColumns, numTuples;
-  float maxLength=0.0, x, y, xPrev;
+  float maxLength=0.0, x, y, xPrev = 0.0;
   vtkDataArray *array;
 
   xrange[0] = yrange[0] = VTK_LARGE_FLOAT;
@@ -898,7 +898,7 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, float xRange[2],
   vtkDataSet *ds;
   vtkCellArray *lines;
   vtkPoints *pts;
-  int clippingRequired;
+  int clippingRequired = 0;
 
   // Allocate resources for the polygonal plots
   //

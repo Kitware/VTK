@@ -145,13 +145,13 @@ void vtkLabeledDataMapper::RenderOverlay(vtkViewport *viewport,
 void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport, 
 						vtkActor2D *actor)
 {
-  int i, j, numComp, pointIdLabels, activeComp;
+  int i, j, numComp = 0, pointIdLabels, activeComp = 0;
   char string[1024], format[1024];
   float val, x[3];
   vtkDataSet *input=this->GetInput();
   vtkPointData *pd=input->GetPointData();
   vtkDataArray *data;
-  float *tuple;
+  float *tuple = NULL;
   vtkFieldData *fd;
 
   if ( ! input )

@@ -177,7 +177,7 @@ vtkTiffLong vtkTIFFReader::ReadTagLong(_vtkTifTag *tag, FILE *fp)
 
 void vtkTIFFReader::ExecuteInformation()
 {
-  int xsize, ysize;
+  int xsize = 0, ysize = 0;
   FILE *fp;
   short stmp;
   vtkTiffLong IFDOffset;
@@ -186,7 +186,7 @@ void vtkTIFFReader::ExecuteInformation()
   int i;
   short numTags;
   vtkTiffLong ltmp;
-  int numComp, bpp;
+  int numComp = 0, bpp = 0;
   int numSlices = 1;
   
   if (!this->FileName && !this->FilePattern)

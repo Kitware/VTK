@@ -201,7 +201,7 @@ static int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dim
   T *slice0, *slice1, *slice2, *slice3;
   vtkStructuredPoints *sp;
   vtkFloatArray *floatScalars=NULL;
-  int numTriangles=0, numComp;
+  int numTriangles=0, numComp = 0;
   float s[8];
   int i, j, k, idx, jOffset, ii, index, *vert, jj, sliceSize=0;
   static int CASE_MASK[8] = {1,2,4,8,16,32,64,128};
@@ -453,7 +453,7 @@ void vtkSliceCubes::Execute()
   int dims[3], imageRange[2];
   float xmin[3], xmax[3];
   float origin[3], Spacing[3];
-  int numTriangles;
+  int numTriangles = 0;
 
   // check input/initalize
   vtkDebugMacro(<< "Executing slice cubes");

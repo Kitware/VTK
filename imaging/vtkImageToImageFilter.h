@@ -99,7 +99,7 @@ public:
   virtual int SplitExtent(int splitExt[6], int startExt[6], 
 			  int num, int total);
   
-
+//BTX
 #ifndef VTK_REMOVE_LEGACY_CODE
   // Legacy !!!!!!!!!!!!!!! ---------------------------------
   
@@ -117,7 +117,7 @@ public:
     { this->LegacyHack = 0; }
   int LegacyHack;
 #endif
-  
+//ETX
 protected:
   vtkImageToImageFilter();
   ~vtkImageToImageFilter();

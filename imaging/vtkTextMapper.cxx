@@ -292,7 +292,7 @@ void vtkTextMapper::GetMultiLineSize(vtkViewport* viewport, int size[2])
 void vtkTextMapper::RenderOverlayMultipleLines(vtkViewport *viewport, 
                                                vtkActor2D *actor)    
 {
-  float offset;
+  float offset = 0.0;
   int size[2];
   // make sure LineSize is up to date 
   this->GetMultiLineSize(viewport,size);
@@ -327,7 +327,7 @@ void vtkTextMapper::RenderOverlayMultipleLines(vtkViewport *viewport,
 void vtkTextMapper::RenderOpaqueGeometryMultipleLines(vtkViewport *viewport, 
                                                       vtkActor2D *actor)    
 {
-  float offset;
+  float offset = 0.0;
   int size[2];
   // make sure LineSize is up to date 
   this->GetMultiLineSize(viewport,size);

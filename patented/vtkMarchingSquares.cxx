@@ -301,7 +301,7 @@ void vtkMarchingSquares::Execute()
   vtkPointData *pd;
   vtkPoints *newPts;
   vtkCellArray *newLines;
-  vtkScalars *inScalars, *newScalars;
+  vtkScalars *inScalars, *newScalars = NULL;
   int i, dims[3], roi[6], dataSize, dim, plane=0;
   int *ext;
   float origin[3], ar[3];

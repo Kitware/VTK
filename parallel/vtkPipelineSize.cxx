@@ -275,7 +275,7 @@ GenericComputeOutputMemorySize( vtkSource *src, vtkDataObject *output,
                                 unsigned long size[2] )
 {
   int idx;
-  unsigned long tmp;
+  unsigned long tmp = 0;
   vtkLargeInteger sz = 0;
   
   

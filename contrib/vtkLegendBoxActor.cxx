@@ -431,7 +431,7 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
     //
     //Find the longest string and symbol width ratio
     int length, maxLength;
-    int maxTextMapper;
+    int maxTextMapper = 0;
     char *str;
     int tempi[2], fontSize;
     float sf, twr, swr, *bounds;

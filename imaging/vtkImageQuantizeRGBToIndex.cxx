@@ -261,7 +261,7 @@ static void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
   vtkColorQuantizeNode *root, *tmp;
   vtkColorQuantizeNode *leafNodes[65536];
   int                  numLeafNodes;
-  int                  maxdevAxis, maxdevLeafNode;
+  int                  maxdevAxis = 0, maxdevLeafNode = 0;
   float                maxdev, dev;
   int                  leaf, axis;
   int                  cannotDivideFurther;
