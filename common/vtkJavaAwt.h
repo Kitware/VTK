@@ -3,11 +3,11 @@
 #include "jawt_md.h"
 #endif
 
+#ifdef VTK_USE_JAWT
 extern "C" JNIEXPORT void  JNICALL Java_vtk_vtkPanel_RenderCreate(JNIEnv *env, 
                                                                   jobject canvas,
                                                                   jobject id0)
 {
-#ifdef VTK_USE_JAWT
   JAWT awt;
   JAWT_DrawingSurface* ds;
   JAWT_DrawingSurfaceInfo* dsi;
@@ -76,8 +76,13 @@ extern "C" JNIEXPORT void  JNICALL Java_vtk_vtkPanel_RenderCreate(JNIEnv *env,
   
   /* Free the drawing surface */
   awt.FreeDrawingSurface(ds);
-#endif
 }
+#else
+extern "C" JNIEXPORT void  JNICALL Java_vtk_vtkPanel_RenderCreate(JNIEnv *vtkNotUsed(env), 
+                                                                  jobject vtkNotUsed(canvas),
+                                                                  jobject vtkNotUsed(id0))
+{
+#endif
 
 
 
