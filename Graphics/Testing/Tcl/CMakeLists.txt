@@ -133,6 +133,7 @@ IF (VTK_USE_RENDERING)
       teapotHulls
       TenEllip
       TestBandedContourFilter
+      TestBoxFunction
       TestButtonSource
       TestCellDerivs
       TestCurvatures
