@@ -70,10 +70,6 @@ public:
   // To simplify filter superclasses,
   int GetDataObjectType() {return VTK_STRUCTURED_POINTS;}
 
-  // Description:
-  // Internal method in a class we hope to remove
-  virtual void PropagateUpdateExtent();
-
 protected:
   vtkStructuredPoints();
   ~vtkStructuredPoints() {};

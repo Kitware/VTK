@@ -61,15 +61,6 @@ vtkStructuredPoints* vtkStructuredPoints::New()
 
 vtkStructuredPoints::vtkStructuredPoints()
 {
-  this->SetScalarType(VTK_FLOAT);
-}
-
-void vtkStructuredPoints::PropagateUpdateExtent()
-{
-  // Make sure the extent is the whole extent
-  this->SetUpdateExtent( this->WholeExtent );
-
-  this->vtkImageData::PropagateUpdateExtent();
 }
 
 

@@ -91,7 +91,9 @@ vtkImageData::vtkImageData()
 
   this->NumberOfScalarComponents = 1;
 
+  // Making the default float for structured points.
   this->ScalarType = VTK_VOID;
+  this->SetScalarType(VTK_FLOAT);
 
   // for automatic conversion
   this->ImageToStructuredPoints = NULL;
@@ -1095,7 +1097,9 @@ void vtkImageData::SetUpdateExtent(int piece, int numPieces, int ghostLevel)
 void vtkImageData::UpdateData()
 {
   this->vtkDataObject::UpdateData();
-  
+
+  // This stuff should really be vtkImageToStructuredPoints.
+
   if (this->UpdateNumberOfPieces == 1)
     {
     // Either the piece has not been used to set the update extent,
@@ -1295,7 +1299,7 @@ void vtkImageData::UpdateData()
     levels->Delete();
     levels = NULL;
     }
-  
+
 }
 
 //----------------------------------------------------------------------------
