@@ -27,6 +27,8 @@ VTK_LIB_FILE  = @VTK_LIB_FILE@
 EXAMPLES = otherJacobi \
 	otherMath \
 	otherMatrix4x4 \
+	otherLotkin \
+	otherCellBoundaries \
 	otherArrays
   
 CXX_FLAGS = ${CPPFLAGS} ${USER_CXXFLAGS} ${CXXFLAGS} -I${srcdir} \
@@ -47,6 +49,12 @@ all: ${EXAMPLES}
 
 otherJacobi: otherJacobi.o rtOtherTestBase.o ${VTKLIB}
 	${CXX} -o otherJacobi ${CXX_FLAGS} otherJacobi.o \
+	rtOtherTestBase.o ${LDLIBS} -lm
+otherCellBoundaries: otherCellBoundaries.o rtOtherTestBase.o ${VTKLIB}
+	${CXX} -o otherCellBoundaries ${CXX_FLAGS} otherCellBoundaries.o \
+	rtOtherTestBase.o ${LDLIBS} -lm
+otherLotkin: otherLotkin.o rtOtherTestBase.o ${VTKLIB}
+	${CXX} -o otherLotkin ${CXX_FLAGS} otherLotkin.o \
 	rtOtherTestBase.o ${LDLIBS} -lm
 otherArrays: otherArrays.o rtOtherTestBase.o ${VTKLIB}
 	${CXX} -o otherArrays ${CXX_FLAGS} otherArrays.o \
