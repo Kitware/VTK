@@ -52,7 +52,7 @@ vtkCamera::vtkCamera()
 
   this->ViewPlaneNormal[0] = 0.0;
   this->ViewPlaneNormal[1] = 0.0;
-  this->ViewPlaneNormal[2] = 1.0;
+  this->ViewPlaneNormal[2] = -1.0;
 
   this->Orientation[0] = 0.0;
   this->Orientation[1] = 0.0;
