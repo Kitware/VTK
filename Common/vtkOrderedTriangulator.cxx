@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkEdgeTable.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.32");
+vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.33");
 vtkStandardNewMacro(vtkOrderedTriangulator);
 
 #ifdef _WIN32_WCE
@@ -1153,6 +1153,7 @@ void vtkOrderedTriangulator::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "PreSorted: " << (this->PreSorted ? "On\n" : "Off\n");
+  os << indent << "UseTwoSortIds: " << (this->UseTwoSortIds ? "On\n" : "Off\n");
 
 }
 
