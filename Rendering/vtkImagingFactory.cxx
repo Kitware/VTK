@@ -23,30 +23,61 @@
 
 #ifdef VTK_USE_OGLR
 #include "vtkOpenGLImageMapper.h"
+#ifdef VTK_USE_FREETYPE
+#include "vtkOpenGLFreeTypeTextMapper.h"
+#else
 #include "vtkXOpenGLTextMapper.h"
+#endif
 #include "vtkOpenGLPolyDataMapper2D.h"
 #endif
 
 #if defined(VTK_MANGLE_MESA)
 #include "vtkMesaImageMapper.h"
+#ifdef VTK_USE_FREETYPE
+#include "vtkOpenGLFreeTypeTextMapper.h"
+#else
 #include "vtkXMesaTextMapper.h"
+#endif
 #include "vtkMesaPolyDataMapper2D.h"
 #endif
 
 #ifdef _WIN32
 #include "vtkOpenGLImageMapper.h"
+#ifdef VTK_USE_FREETYPE
+#include "vtkOpenGLFreeTypeTextMapper.h"
+#else
 #include "vtkWin32OpenGLTextMapper.h"
+#endif
 #include "vtkOpenGLPolyDataMapper2D.h"
+#else
+#ifdef VTK_USE_QUARTZ
+#include "vtkOpenGLImageMapper.h"
+#include "vtkOpenGLPolyDataMapper2D.h"
+#ifdef VTK_USE_FREETYPE
+#include "vtkOpenGLFreeTypeTextMapper.h"
+#else
+#include "vtkQuartzTextMapper.h"
+#endif
+#include "vtkQuartzImageMapper.h"
+#endif
 #endif
 
 #ifdef VTK_USE_CARBON
 #include "vtkOpenGLImageMapper.h"
+#ifdef VTK_USE_FREETYPE
+#include "vtkOpenGLFreeTypeTextMapper.h"
+#else
 #include "vtkCarbonTextMapper.h"
+#endif
 #include "vtkOpenGLPolyDataMapper2D.h"
 #endif
 #ifdef VTK_USE_COCOA
 #include "vtkOpenGLImageMapper.h"
+#ifdef VTK_USE_FREETYPE
+#include "vtkOpenGLFreeTypeTextMapper.h"
+#else
 #include "vtkCocoaTextMapper.h"
+#endif
 #include "vtkOpenGLPolyDataMapper2D.h"
 #endif
 
@@ -54,7 +85,7 @@
 static vtkSimpleCriticalSection vtkUseMesaClassesCriticalSection;
 int vtkImagingFactory::UseMesaClasses = 0;
 
-vtkCxxRevisionMacro(vtkImagingFactory, "1.24");
+vtkCxxRevisionMacro(vtkImagingFactory, "1.25");
 vtkStandardNewMacro(vtkImagingFactory);
 
 const char *vtkImagingFactoryGetRenderLibrary()
@@ -128,10 +159,18 @@ vtkObject* vtkImagingFactory::CreateInstance(const char* vtkclassname )
 #if defined(VTK_MANGLE_MESA)
       if ( vtkImagingFactory::UseMesaClasses )
         {
+#ifdef VTK_USE_FREETYPE
+        return vtkOpenGLFreeTypeTextMapper::New();
+#else
         return vtkXMesaTextMapper::New();
+#endif
         }
 #endif
+#ifdef VTK_USE_FREETYPE
+      return vtkOpenGLFreeTypeTextMapper::New();
+#else
       return vtkXOpenGLTextMapper::New();
+#endif
       }
     if(strcmp(vtkclassname, "vtkImageMapper") == 0)
       {
@@ -161,7 +200,11 @@ vtkObject* vtkImagingFactory::CreateInstance(const char* vtkclassname )
     {
     if(strcmp(vtkclassname, "vtkTextMapper") == 0)
       {
+#ifdef VTK_USE_FREETYPE
+      return vtkOpenGLFreeTypeTextMapper::New();
+#else
       return vtkWin32OpenGLTextMapper::New();
+#endif
       }
     if(strcmp(vtkclassname, "vtkImageMapper") == 0)
       {
@@ -179,7 +222,11 @@ vtkObject* vtkImagingFactory::CreateInstance(const char* vtkclassname )
     {
     if(strcmp(vtkclassname, "vtkTextMapper") == 0)
       {
+#ifdef VTK_USE_FREETYPE
+      return vtkOpenGLFreeTypeTextMapper::New();
+#else
       return vtkCarbonTextMapper::New();
+#endif
       }
     if(strcmp(vtkclassname, "vtkImageMapper") == 0)
       {
@@ -196,7 +243,11 @@ vtkObject* vtkImagingFactory::CreateInstance(const char* vtkclassname )
     {
     if(strcmp(vtkclassname, "vtkTextMapper") == 0)
       {
+#ifdef VTK_USE_FREETYPE
+        return vtkOpenGLFreeTypeTextMapper::New();
+#else
       return vtkCocoaTextMapper::New();
+#endif
       }
     if(strcmp(vtkclassname, "vtkImageMapper") == 0)
       {
