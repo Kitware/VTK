@@ -30,7 +30,7 @@
 #include "vtkSphere.h"
 #include "vtkSphereSource.h"
 
-vtkCxxRevisionMacro(vtkSphereWidget, "1.14");
+vtkCxxRevisionMacro(vtkSphereWidget, "1.15");
 vtkStandardNewMacro(vtkSphereWidget);
 
 vtkSphereWidget::vtkSphereWidget()
@@ -200,8 +200,10 @@ void vtkSphereWidget::SetEnabled(int enabling)
   this->Interactor->Render();
 }
 
-void vtkSphereWidget::ProcessEvents(vtkObject* object, unsigned long event,
-                                  void* clientdata, void* vtkNotUsed(calldata))
+void vtkSphereWidget::ProcessEvents(vtkObject* vtkNotUsed(object), 
+                                    unsigned long event,
+                                    void* clientdata, 
+                                    void* vtkNotUsed(calldata))
 {
   vtkSphereWidget* self = reinterpret_cast<vtkSphereWidget *>( clientdata );
 

@@ -32,7 +32,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSphereSource.h"
 
-vtkCxxRevisionMacro(vtkLineWidget, "1.14");
+vtkCxxRevisionMacro(vtkLineWidget, "1.15");
 vtkStandardNewMacro(vtkLineWidget);
 
 vtkLineWidget::vtkLineWidget()
@@ -228,8 +228,10 @@ void vtkLineWidget::SetEnabled(int enabling)
   this->Interactor->Render();
 }
 
-void vtkLineWidget::ProcessEvents(vtkObject* object, unsigned long event,
-                                  void* clientdata, void* vtkNotUsed(calldata))
+void vtkLineWidget::ProcessEvents(vtkObject* vtkNotUsed(object), 
+                                  unsigned long event,
+                                  void* clientdata, 
+                                  void* vtkNotUsed(calldata))
 {
   vtkLineWidget* self = reinterpret_cast<vtkLineWidget *>( clientdata );
 

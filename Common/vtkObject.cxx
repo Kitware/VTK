@@ -56,11 +56,11 @@ class vtkObserver
   ~vtkObserver();
   void PrintSelf(ostream& os, vtkIndent indent);
   
-  float Priority;
   vtkCommand *Command;
   unsigned long Event;
   unsigned long Tag;
   vtkObserver *Next;
+  float Priority;
 };
 
 void vtkObserver::PrintSelf(ostream& os, vtkIndent indent)
@@ -288,7 +288,7 @@ vtkObject *vtkObject::SafeDownCast(vtkObject *o)
 
 void vtkObject::CollectRevisions(ostream& os)
 {
-  os << "vtkObject 1.74\n";
+  os << "vtkObject 1.75\n";
 }
 
 //----------------------------------Command/Observer stuff-------------------

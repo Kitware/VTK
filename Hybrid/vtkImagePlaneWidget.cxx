@@ -38,7 +38,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.23");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.24");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty,vtkProperty);
@@ -254,8 +254,10 @@ void vtkImagePlaneWidget::SetEnabled(int enabling)
   this->Interactor->Render();
 }
 
-void vtkImagePlaneWidget::ProcessEvents(vtkObject* object, unsigned long event,
-                                        void* clientdata, void* vtkNotUsed(calldata))
+void vtkImagePlaneWidget::ProcessEvents(vtkObject* vtkNotUsed(object), 
+                                        unsigned long event,
+                                        void* clientdata, 
+                                        void* vtkNotUsed(calldata))
 {
   vtkImagePlaneWidget* self = 
     reinterpret_cast<vtkImagePlaneWidget *>( clientdata );

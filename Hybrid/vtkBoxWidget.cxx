@@ -32,7 +32,7 @@
 #include "vtkSphereSource.h"
 #include "vtkRenderWindowInteractor.h"
 
-vtkCxxRevisionMacro(vtkBoxWidget, "1.14");
+vtkCxxRevisionMacro(vtkBoxWidget, "1.15");
 vtkStandardNewMacro(vtkBoxWidget);
 
 vtkBoxWidget::vtkBoxWidget()
@@ -322,7 +322,7 @@ void vtkBoxWidget::SetEnabled(int enabling)
   this->Interactor->Render();
 }
 
-void vtkBoxWidget::ProcessEvents(vtkObject* object, 
+void vtkBoxWidget::ProcessEvents(vtkObject* vtkNotUsed(object), 
                                  unsigned long event,
                                  void* clientdata, 
                                  void* vtkNotUsed(calldata))
