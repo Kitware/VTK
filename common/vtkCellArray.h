@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkCellArray - object represents cell connectivity
+// .NAME vtkCellArray - object to represent cell connectivity
 // .SECTION Description
 // vtkCellArray is a supporting object that explicitly represents cell 
 // connectivity. The cell array structure is a raw integer list
@@ -94,7 +94,8 @@ public:
   void InsertCellPoint(int id);
   void UpdateCellCount(int npts);
 
-  int GetLocation(int npts);
+  int GetInsertLocation(int npts);
+  int GetTraversalLocation(int npts);
   
   void ReverseCell(int loc);
   void ReplaceCell(int loc, int npts, int *pts);
@@ -111,7 +112,8 @@ public:
 
 protected:
   int NumberOfCells;
-  int Location;
+  int InsertLocation;     //keep track of current insertion point
+  int TraversalLocation;   //keep track of traversal position
   vtkIntArray *Ia;
 };
 
@@ -129,7 +131,7 @@ inline int vtkCellArray::InsertNextCell(int npts, int* pts)
   for ( *ptr++ = npts, i = 0; i < npts; i++) *ptr++ = *pts++;
 
   this->NumberOfCells++;
-  this->Location += npts + 1;
+  this->InsertLocation += npts + 1;
 
   return this->NumberOfCells;
 }
@@ -145,7 +147,7 @@ inline int vtkCellArray::InsertNextCell(vtkIdList &pts)
   for ( *ptr++ = npts, i = 0; i < npts; i++) *ptr++ = pts.GetId(i);
 
   this->NumberOfCells++;
-  this->Location += npts + 1;
+  this->InsertLocation += npts + 1;
 
   return this->NumberOfCells;
 }
@@ -156,7 +158,7 @@ inline int vtkCellArray::InsertNextCell(vtkIdList &pts)
 // method UpdateCellCount() to complete the cell.
 inline int vtkCellArray::InsertNextCell(int npts)
 {
-  this->Location = this->Ia->InsertNextValue(npts) + 1;
+  this->InsertLocation = this->Ia->InsertNextValue(npts) + 1;
   this->NumberOfCells++;
 
   return this->NumberOfCells;
@@ -167,7 +169,7 @@ inline int vtkCellArray::InsertNextCell(int npts)
 // to the list of cells.
 inline void vtkCellArray::InsertCellPoint(int id) 
 {
-  this->Ia->InsertValue(this->Location++,id);
+  this->Ia->InsertValue(this->InsertLocation++,id);
 }
 
 // Description:
@@ -175,7 +177,7 @@ inline void vtkCellArray::InsertCellPoint(int id)
 // update the number of points defining the cell.
 inline void vtkCellArray::UpdateCellCount(int npts) 
 {
-  this->Ia->SetValue(this->Location-npts-1, npts);
+  this->Ia->SetValue(this->InsertLocation-npts-1, npts);
 }
 
 // Description:
@@ -189,7 +191,7 @@ inline int vtkCellArray::InsertNextCell(vtkCell *cell)
   for ( *ptr++ = npts, i = 0; i < npts; i++) *ptr++ = cell->PointIds.GetId(i);
 
   this->NumberOfCells++;
-  this->Location += npts + 1;
+  this->InsertLocation += npts + 1;
 
   return this->NumberOfCells;
 }
@@ -211,7 +213,8 @@ inline int vtkCellArray::EstimateSize(int numCells, int maxPtsPerCell)
 inline void vtkCellArray::Reset() 
 {
   this->NumberOfCells = 0;
-  this->Location = 0;
+  this->InsertLocation = 0;
+  this->TraversalLocation = 0;
   this->Ia->Reset();
 }
 
@@ -222,7 +225,7 @@ inline void vtkCellArray::Squeeze() {this->Ia->Squeeze();}
 // Description:
 // A cell traversal methods that is more efficient than vtkDataSet traversal
 // methods.  InitTraversal() initializes the traversal of the list of cells.
-inline void vtkCellArray::InitTraversal() {this->Location=0;}
+inline void vtkCellArray::InitTraversal() {this->TraversalLocation=0;}
 
 // Description:
 // A cell traversal methods that is more efficient than vtkDataSet traversal
@@ -230,11 +233,12 @@ inline void vtkCellArray::InitTraversal() {this->Location=0;}
 // is encountered, 0 is returned.
 inline int vtkCellArray::GetNextCell(int& npts, int* &pts)
 {
-  if ( this->Ia->GetMaxId() >= 0 && this->Location <= this->Ia->GetMaxId() ) 
+  if ( this->Ia->GetMaxId() >= 0 && 
+  this->TraversalLocation <= this->Ia->GetMaxId() ) 
     {
-    npts = this->Ia->GetValue(this->Location++);
-    pts = this->Ia->GetPointer(this->Location);
-    this->Location += npts;
+    npts = this->Ia->GetValue(this->TraversalLocation++);
+    pts = this->Ia->GetPointer(this->TraversalLocation);
+    this->TraversalLocation += npts;
     return 1;
     }
   else
@@ -265,10 +269,17 @@ inline void vtkCellArray::GetCell(int loc, int &npts, int* &pts)
 }
 
 // Description:
-// Computes the current location within the internal array. Used in conjunction
-// with GetCell(int loc,...).
-inline int vtkCellArray::GetLocation(int npts) {
-  return (this->Location - npts - 1);
+// Computes the current insertion location within the internal array. 
+// Used in conjunction with GetCell(int loc,...).
+inline int vtkCellArray::GetInsertLocation(int npts) {
+  return (this->InsertLocation - npts - 1);
+}
+
+// Description:
+// Computes the current traversal location within the internal array. Used 
+// in conjunction with GetCell(int loc,...).
+inline int vtkCellArray::GetTraversalLocation(int npts) {
+  return (this->TraversalLocation - npts - 1);
 }
 
 // Description:
@@ -309,7 +320,8 @@ inline int *vtkCellArray::GetPointer()
 inline int *vtkCellArray::WritePointer(const int ncells, const int size)
 {
   this->NumberOfCells = ncells;
-  this->Location = 0;
+  this->InsertLocation = 0;
+  this->TraversalLocation = 0;
   return this->Ia->WritePointer(0,size);
 }
 

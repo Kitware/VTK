@@ -254,7 +254,7 @@ int vtkUnstructuredGrid::InsertNextCell(int type, vtkIdList& ptIds)
 
   // insert type and storage information   
   return 
-    this->Cells->InsertNextCell(type,this->Connectivity->GetLocation(npts));
+    this->Cells->InsertNextCell(type,this->Connectivity->GetInsertLocation(npts));
 }
 
 // Description:
@@ -265,7 +265,7 @@ int vtkUnstructuredGrid::InsertNextCell(int type, int npts, int *pts)
   this->Connectivity->InsertNextCell(npts,pts);
 
   return
-    this->Cells->InsertNextCell(type,this->Connectivity->GetLocation(npts));
+    this->Cells->InsertNextCell(type,this->Connectivity->GetInsertLocation(npts));
 }
 
 void vtkUnstructuredGrid::SetCells(int *types, vtkCellArray *cells)
@@ -286,7 +286,7 @@ void vtkUnstructuredGrid::SetCells(int *types, vtkCellArray *cells)
   // build types
   for (i=0, cells->InitTraversal(); cells->GetNextCell(npts,pts); i++)
     {
-    this->Cells->InsertNextCell(types[i],cells->GetLocation(npts));
+    this->Cells->InsertNextCell(types[i],cells->GetTraversalLocation(npts));
     }
 }
 

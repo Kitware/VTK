@@ -432,32 +432,32 @@ void vtkPolyData::BuildCells()
   for (inVerts->InitTraversal(); inVerts->GetNextCell(npts,pts); )
     {
     if ( npts > 1 )
-      cells->InsertNextCell(VTK_POLY_VERTEX,inVerts->GetLocation(npts));
+      cells->InsertNextCell(VTK_POLY_VERTEX,inVerts->GetTraversalLocation(npts));
     else
-      cells->InsertNextCell(VTK_VERTEX,inVerts->GetLocation(npts));
+      cells->InsertNextCell(VTK_VERTEX,inVerts->GetTraversalLocation(npts));
     }
 
   for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); )
     {
     if ( npts > 2 )
-      cells->InsertNextCell(VTK_POLY_LINE,inLines->GetLocation(npts));
+      cells->InsertNextCell(VTK_POLY_LINE,inLines->GetTraversalLocation(npts));
     else
-      cells->InsertNextCell(VTK_LINE,inLines->GetLocation(npts));
+      cells->InsertNextCell(VTK_LINE,inLines->GetTraversalLocation(npts));
     }
 
   for (inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); )
     {
     if ( npts == 3 )
-      cells->InsertNextCell(VTK_TRIANGLE,inPolys->GetLocation(npts));
+      cells->InsertNextCell(VTK_TRIANGLE,inPolys->GetTraversalLocation(npts));
     else if ( npts == 4 )
-      cells->InsertNextCell(VTK_QUAD,inPolys->GetLocation(npts));
+      cells->InsertNextCell(VTK_QUAD,inPolys->GetTraversalLocation(npts));
     else
-      cells->InsertNextCell(VTK_POLYGON,inPolys->GetLocation(npts));
+      cells->InsertNextCell(VTK_POLYGON,inPolys->GetTraversalLocation(npts));
     }
 
   for (inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
     {
-    cells->InsertNextCell(VTK_TRIANGLE_STRIP,inStrips->GetLocation(npts));
+    cells->InsertNextCell(VTK_TRIANGLE_STRIP,inStrips->GetTraversalLocation(npts));
     }
 }
 
@@ -590,17 +590,17 @@ int vtkPolyData::InsertNextCell(int type, int npts, int *pts)
     {
     case VTK_VERTEX: case VTK_POLY_VERTEX:
       this->Verts->InsertNextCell(npts,pts);
-      id = this->Cells->InsertNextCell(type, this->Verts->GetLocation(npts));
+      id = this->Cells->InsertNextCell(type, this->Verts->GetInsertLocation(npts));
       break;
 
     case VTK_LINE: case VTK_POLY_LINE:
       this->Lines->InsertNextCell(npts,pts);
-      id = this->Cells->InsertNextCell(type, this->Lines->GetLocation(npts));
+      id = this->Cells->InsertNextCell(type, this->Lines->GetInsertLocation(npts));
       break;
 
     case VTK_TRIANGLE: case VTK_QUAD: case VTK_POLYGON:
       this->Polys->InsertNextCell(npts,pts);
-      id = this->Cells->InsertNextCell(type, this->Polys->GetLocation(npts));
+      id = this->Cells->InsertNextCell(type, this->Polys->GetInsertLocation(npts));
       break;
 
     case VTK_PIXEL: //need to rearrange vertices
@@ -611,13 +611,13 @@ int vtkPolyData::InsertNextCell(int type, int npts, int *pts)
       pixPts[2] = pts[3];
       pixPts[3] = pts[2];
       this->Polys->InsertNextCell(npts,pixPts);
-      id = this->Cells->InsertNextCell(VTK_QUAD, this->Polys->GetLocation(npts));
+      id = this->Cells->InsertNextCell(VTK_QUAD, this->Polys->GetInsertLocation(npts));
       break;
       }
 
     case VTK_TRIANGLE_STRIP:
       this->Strips->InsertNextCell(npts,pts);
-      id = this->Cells->InsertNextCell(type, this->Strips->GetLocation(npts));
+      id = this->Cells->InsertNextCell(type, this->Strips->GetInsertLocation(npts));
       break;
 
     default:
@@ -647,17 +647,17 @@ int vtkPolyData::InsertNextCell(int type, vtkIdList &pts)
     {
     case VTK_VERTEX: case VTK_POLY_VERTEX:
       this->Verts->InsertNextCell(pts);
-      id = this->Cells->InsertNextCell(type, this->Verts->GetLocation(npts));
+      id = this->Cells->InsertNextCell(type, this->Verts->GetInsertLocation(npts));
       break;
 
     case VTK_LINE: case VTK_POLY_LINE:
       this->Lines->InsertNextCell(pts);
-      id = this->Cells->InsertNextCell(type, this->Lines->GetLocation(npts));
+      id = this->Cells->InsertNextCell(type, this->Lines->GetInsertLocation(npts));
       break;
 
     case VTK_TRIANGLE: case VTK_QUAD: case VTK_POLYGON:
       this->Polys->InsertNextCell(pts);
-      id = this->Cells->InsertNextCell(type, this->Polys->GetLocation(npts));
+      id = this->Cells->InsertNextCell(type, this->Polys->GetInsertLocation(npts));
       break;
 
     case VTK_PIXEL: //need to rearrange vertices
@@ -668,13 +668,13 @@ int vtkPolyData::InsertNextCell(int type, vtkIdList &pts)
       pixPts[2] = pts.GetId(3);
       pixPts[3] = pts.GetId(2);
       this->Polys->InsertNextCell(4,pixPts);
-      id = this->Cells->InsertNextCell(VTK_QUAD, this->Polys->GetLocation(npts));
+      id = this->Cells->InsertNextCell(VTK_QUAD, this->Polys->GetInsertLocation(npts));
       break;
       }
 
     case VTK_TRIANGLE_STRIP:
       this->Strips->InsertNextCell(pts);
-      id = this->Cells->InsertNextCell(type, this->Strips->GetLocation(npts));
+      id = this->Cells->InsertNextCell(type, this->Strips->GetInsertLocation(npts));
       break;
 
     default:
