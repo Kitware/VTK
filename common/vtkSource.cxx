@@ -715,6 +715,8 @@ void vtkSource::SetNthOutput(int idx, vtkDataObject *newOutput)
     }
   // now actually make the link that was registered previously.
   this->Outputs[idx] = newOutput;
+
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
