@@ -158,6 +158,7 @@ protected:
   ~vtkCutter();
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   void UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output);
   void DataSetCutter(vtkDataSet *input, vtkPolyData *output);
   vtkImplicitFunction *CutFunction;

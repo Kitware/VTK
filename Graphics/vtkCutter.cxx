@@ -27,11 +27,12 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCutter, "1.79");
+vtkCxxRevisionMacro(vtkCutter, "1.80");
 vtkStandardNewMacro(vtkCutter);
 vtkCxxSetObjectMacro(vtkCutter,CutFunction,vtkImplicitFunction);
 
@@ -608,6 +609,16 @@ void vtkCutter::CreateDefaultLocator()
     this->Locator->Register(this);
     this->Locator->Delete();
     }
+}
+
+int vtkCutter::RequestUpdateExtent(
+  vtkInformation *,
+  vtkInformationVector **inputVector,
+  vtkInformationVector *)
+{
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
+  return 1;
 }
 
 void vtkCutter::PrintSelf(ostream& os, vtkIndent indent)
