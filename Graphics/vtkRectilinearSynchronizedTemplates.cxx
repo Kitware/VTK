@@ -11,18 +11,6 @@
      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 
-
-     THIS CLASS IS PATENT PENDING.
-
-     Application of this software for commercial purposes requires 
-     a license grant from Kitware. Contact:
-         Ken Martin
-         Kitware
-         28 Corporate Drive Suite 204,
-         Clifton Park, NY 12065
-         Phone:1-518-371-3971 
-     for more information.
-
 =========================================================================*/
 #include "vtkRectilinearSynchronizedTemplates.h"
 
@@ -51,7 +39,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkRectilinearSynchronizedTemplates, "1.21");
+vtkCxxRevisionMacro(vtkRectilinearSynchronizedTemplates, "1.1");
 vtkStandardNewMacro(vtkRectilinearSynchronizedTemplates);
 
 //----------------------------------------------------------------------------
@@ -435,25 +423,55 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *exEx
           v0 = v1;
           // this flag keeps up from computing gradient for grid point 0 twice.
           g0 = 0;
+          *isect2Ptr = -1;
+          *(isect2Ptr + 1) = -1;
+          *(isect2Ptr + 2) = -1;
           if (i < xMax)
             {
             s1 = (inPtrX + xInc);
             v1 = (*s1 < value ? 0 : 1);
             if (v0 ^ v1)
               {
-              t = (value - (double)(*s0)) / ((double)(*s1) - (double)(*s0));
-              x1 = xCoords->GetComponent(i-inExt[0], 0);
-              x2 = xCoords->GetComponent(i-inExt[0]+1, 0);
-              x[0] = x1 + t*(x2-x1);
-              x[1] = y;
-              
-              *isect2Ptr = newPts->InsertNextPoint(x);
-              VTK_RECT_CSP3PA(i+1,j,k,s1);
-              outPD->InterpolateEdge(inPD, *isect2Ptr, edgePtId, edgePtId+1, t);              
-              }
-            else
-              {
-              *isect2Ptr = -1;
+              // watch for degenerate points
+              if (*s0 == value)
+                {
+                if (i > xMin && *(isect2Ptr-3) > -1)
+                  {
+                  *isect2Ptr = *(isect2Ptr-3);
+                  }
+                else if (j > yMin && *(isect2Ptr - yisectstep + 1) > -1)
+                  {
+                  *isect2Ptr = *(isect2Ptr - yisectstep + 1);
+                  }
+                else if (k > zMin && *(isect1Ptr+2) > -1)
+                  {
+                  *isect2Ptr = *(isect1Ptr+2);
+                  }
+                }
+              else if (*s1 == value)
+                {
+                if (j > yMin && *(isect2Ptr - yisectstep +4) > -1)
+                  {
+                  *isect2Ptr = *(isect2Ptr - yisectstep + 4);
+                  }
+                else if (k > zMin && i < xMax && *(isect1Ptr + 5) > -1)
+                  {
+                  *isect2Ptr = *(isect1Ptr + 5);
+                  }
+                }
+              // if the edge has not been set yet then it is a new point
+              if (*isect2Ptr == -1)
+                {
+                t = (value - (double)(*s0)) / ((double)(*s1) - (double)(*s0));
+                x1 = xCoords->GetComponent(i-inExt[0], 0);
+                x2 = xCoords->GetComponent(i-inExt[0]+1, 0);
+                x[0] = x1 + t*(x2-x1);
+                x[1] = y;
+                
+                *isect2Ptr = newPts->InsertNextPoint(x);
+                VTK_RECT_CSP3PA(i+1,j,k,s1);
+                outPD->InterpolateEdge(inPD, *isect2Ptr, edgePtId, edgePtId+1, t);
+                }
               }
             }
           if (j < yMax)
@@ -462,19 +480,43 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *exEx
             v2 = (*s2 < value ? 0 : 1);
             if (v0 ^ v2)
               {
-              t = (value - (double)(*s0)) / ((double)(*s2) - (double)(*s0));
-              x[0] = xCoords->GetComponent(i-inExt[0], 0);
-              
-              y2 = yCoords->GetComponent(j-inExt[2]+1, 0);
-              x[1] = y + t*(y2-y);
-              
-              *(isect2Ptr + 1) = newPts->InsertNextPoint(x);
-              VTK_RECT_CSP3PA(i,j+1,k,s2);
-              outPD->InterpolateEdge(inPD, *(isect2Ptr+1), edgePtId, edgePtId+yInc, t);     
-              }
-            else
-              {
-              *(isect2Ptr + 1) = -1;
+              // watch for degen points
+              if (*s0 == value)
+                {
+                if (*isect2Ptr > -1)
+                  {
+                  *(isect2Ptr + 1) = *isect2Ptr;
+                  }
+                else if (i > xMin && *(isect2Ptr-3) > -1)
+                  {
+                  *(isect2Ptr + 1) = *(isect2Ptr-3);
+                  }
+                else if (j > yMin && *(isect2Ptr - yisectstep + 1) > -1)
+                  {
+                  *(isect2Ptr + 1) = *(isect2Ptr - yisectstep + 1);
+                  }
+                else if (k > zMin && *(isect1Ptr+2) > -1)
+                  {
+                  *(isect2Ptr + 1) = *(isect1Ptr+2);
+                  }
+                }
+              else if (*s2 == value && k > zMin && *(isect1Ptr + yisectstep + 2) > -1)
+                {
+                *(isect2Ptr+1) = *(isect1Ptr + yisectstep + 2);
+                }
+              // if the edge has not been set yet then it is a new point
+              if (*(isect2Ptr + 1) == -1)
+                {
+                t = (value - (double)(*s0)) / ((double)(*s2) - (double)(*s0));
+                x[0] = xCoords->GetComponent(i-inExt[0], 0);
+                
+                y2 = yCoords->GetComponent(j-inExt[2]+1, 0);
+                x[1] = y + t*(y2-y);
+                
+                *(isect2Ptr + 1) = newPts->InsertNextPoint(x);
+                VTK_RECT_CSP3PA(i,j+1,k,s2);
+                outPD->InterpolateEdge(inPD, *(isect2Ptr+1), edgePtId, edgePtId+yInc, t);
+                }
               }
             }
           if (k < zMax)
@@ -483,19 +525,42 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *exEx
             v3 = (*s3 < value ? 0 : 1);
             if (v0 ^ v3)
               {
-              t = (value - (double)(*s0)) / ((double)(*s3) - (double)(*s0));
-              xz[0] = xCoords->GetComponent(i-inExt[0], 0);
-              
-              z2 = zCoords->GetComponent(k-inExt[4]+1, 0);
-              xz[2] = z + t*(z2-z);
-              
-              *(isect2Ptr + 2) = newPts->InsertNextPoint(xz);
-              VTK_RECT_CSP3PA(i,j,k+1,s3);
-              outPD->InterpolateEdge(inPD, *(isect2Ptr+2), edgePtId, edgePtId+zInc, t);     
-              }
-            else
-              {
-              *(isect2Ptr + 2) = -1;
+              // watch for degen points
+              if (*s0 == value)
+                {
+                if (*isect2Ptr > -1)
+                  {
+                  *(isect2Ptr + 2) = *isect2Ptr;
+                  }
+                else if (*(isect2Ptr+1) > -1)
+                  {
+                  *(isect2Ptr + 2) = *(isect2Ptr+1);
+                  }
+                else if (i > xMin && *(isect2Ptr-3) > -1)
+                  {
+                  *(isect2Ptr + 2) = *(isect2Ptr-3);
+                  }
+                else if (j > yMin && *(isect2Ptr - yisectstep + 1) > -1)
+                  {
+                  *(isect2Ptr + 2) = *(isect2Ptr - yisectstep + 1);
+                  }
+                else if (k > zMin && *(isect1Ptr+2) > -1)
+                  {
+                  *(isect2Ptr + 2) = *(isect1Ptr+2);
+                  }
+                }
+              if (*(isect2Ptr + 2) == -1)
+                {
+                t = (value - (double)(*s0)) / ((double)(*s3) - (double)(*s0));
+                xz[0] = xCoords->GetComponent(i-inExt[0], 0);
+                
+                z2 = zCoords->GetComponent(k-inExt[4]+1, 0);
+                xz[2] = z + t*(z2-z);
+                
+                *(isect2Ptr + 2) = newPts->InsertNextPoint(xz);
+                VTK_RECT_CSP3PA(i,j,k+1,s3);
+                outPD->InterpolateEdge(inPD, *(isect2Ptr+2), edgePtId, edgePtId+zInc, t);
+                }
               }
             }
           // To keep track of ids for interpolating attributes.
@@ -530,8 +595,13 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *exEx
               tablePtr++;
               ptIds[2] = *(isect1Ptr + offsets[*tablePtr]);
               tablePtr++;
-              outCellId = newPolys->InsertNextCell(3,ptIds);
-              outCD->CopyData(inCD, inCellId, outCellId);
+              if (ptIds[0] != ptIds[1] &&
+                  ptIds[0] != ptIds[2] &&
+                  ptIds[1] != ptIds[2])
+                {
+                outCellId = newPolys->InsertNextCell(3,ptIds);
+                outCD->CopyData(inCD, inCellId, outCellId);
+                }
               }
             }
           inPtrX += xInc;

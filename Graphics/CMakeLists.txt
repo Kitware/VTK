@@ -73,6 +73,7 @@ vtkGlyph2D.cxx
 vtkGlyph3D.cxx
 vtkGlyphSource2D.cxx
 vtkGraphLayoutFilter.cxx
+vtkGridSynchronizedTemplates3D.cxx
 vtkHierarchicalDataSetGeometryFilter.cxx
 vtkHedgeHog.cxx
 vtkHierarchicalDataExtractLevel.cxx
@@ -131,6 +132,7 @@ vtkRearrangeFields.cxx
 vtkRectangularButtonSource.cxx
 vtkRectilinearGridGeometryFilter.cxx
 vtkRectilinearGridToTetrahedra.cxx
+vtkRectilinearSynchronizedTemplates.cxx
 vtkRecursiveDividingCubes.cxx
 vtkReflectionFilter.cxx
 vtkRegularPolygonSource.cxx

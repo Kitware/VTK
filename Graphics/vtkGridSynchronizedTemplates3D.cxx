@@ -11,18 +11,6 @@
      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 
-
-     THIS CLASS IS PATENT PENDING.
-
-     Application of this software for commercial purposes requires 
-     a license grant from Kitware. Contact:
-         Ken Martin
-         Kitware
-         28 Corporate Drive Suite 204,
-         Clifton Park, NY 12065
-         Phone:1-518-371-3971 
-     for more information.
-
 =========================================================================*/
 #include "vtkSynchronizedTemplates3D.h"
 
@@ -53,7 +41,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGridSynchronizedTemplates3D, "1.79");
+vtkCxxRevisionMacro(vtkGridSynchronizedTemplates3D, "1.1");
 vtkStandardNewMacro(vtkGridSynchronizedTemplates3D);
 
 struct vtkGridSynchronizedTemplates3DThreadStruct
@@ -541,6 +529,9 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self,
           v0 = v1;
           // this flag keeps up from computing gradient for grid point 0 twice.
           g0 = 0;
+          *isect2Ptr = -1;
+          *(isect2Ptr + 1) = -1;
+          *(isect2Ptr + 2) = -1;
           if (i < XMax)
             {
             p1 = (inPtPtrX + 3);
@@ -548,17 +539,44 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self,
             v1 = (*s1 < value ? 0 : 1);
             if (v0 ^ v1)
               {
-              t = (value - (double)(*s0)) / ((double)(*s1) - (double)(*s0));
-              x[0] = p0[0] + t*(p1[0] - p0[0]);
-              x[1] = p0[1] + t*(p1[1] - p0[1]);
-              x[2] = p0[2] + t*(p1[2] - p0[2]);
-              *isect2Ptr = newPts->InsertNextPoint(x);
-              VTK_CSP3PA(i+1,j,k,s1,p1,grad,norm);
-              outPD->InterpolateEdge(inPD, *isect2Ptr, edgePtId, edgePtId+1, t);
-              }
-            else
-              {
-              *isect2Ptr = -1;
+              // watch for degenerate points
+              if (*s0 == value)
+                {
+                if (i > XMin && *(isect2Ptr-3) > -1)
+                  {
+                  *isect2Ptr = *(isect2Ptr-3);
+                  }
+                else if (j > XMin && *(isect2Ptr - yisectstep + 1) > -1)
+                  {
+                  *isect2Ptr = *(isect2Ptr - yisectstep + 1);
+                  }
+                else if (k > ZMin && *(isect1Ptr+2) > -1)
+                  {
+                  *isect2Ptr = *(isect1Ptr+2);
+                  }
+                }
+              else if (*s1 == value)
+                {
+                if (j > YMin && *(isect2Ptr - yisectstep +4) > -1)
+                  {
+                  *isect2Ptr = *(isect2Ptr - yisectstep + 4);
+                  }
+                else if (k > ZMin && i < XMax && *(isect1Ptr + 5) > -1)
+                  {
+                  *isect2Ptr = *(isect1Ptr + 5);
+                  }
+                }
+              // if the edge has not been set yet then it is a new point
+              if (*isect2Ptr == -1)
+                {
+                t = (value - (double)(*s0)) / ((double)(*s1) - (double)(*s0));
+                x[0] = p0[0] + t*(p1[0] - p0[0]);
+                x[1] = p0[1] + t*(p1[1] - p0[1]);
+                x[2] = p0[2] + t*(p1[2] - p0[2]);
+                *isect2Ptr = newPts->InsertNextPoint(x);
+                VTK_CSP3PA(i+1,j,k,s1,p1,grad,norm);
+                outPD->InterpolateEdge(inPD, *isect2Ptr, edgePtId, edgePtId+1, t);
+                }
               }
             }
           if (j < YMax)
@@ -568,17 +586,42 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self,
             v2 = (*s2 < value ? 0 : 1);
             if (v0 ^ v2)
               {
-              t = (value - (double)(*s0)) / ((double)(*s2) - (double)(*s0));
-              x[0] = p0[0] + t*(p2[0] - p0[0]);
-              x[1] = p0[1] + t*(p2[1] - p0[1]);
-              x[2] = p0[2] + t*(p2[2] - p0[2]);
-              *(isect2Ptr + 1) = newPts->InsertNextPoint(x);
-              VTK_CSP3PA(i,j+1,k,s2,p2,grad,norm);
-              outPD->InterpolateEdge(inPD, *(isect2Ptr+1), edgePtId, edgePtId+incY, t);     
-              }
-            else
-              {
-              *(isect2Ptr + 1) = -1;
+              // watch for degen points
+              if (*s0 == value)
+                {
+                if (*isect2Ptr > -1)
+                  {
+                  *(isect2Ptr + 1) = *isect2Ptr;
+                  }
+                else if (i > XMin && *(isect2Ptr-3) > -1)
+                  {
+                  *(isect2Ptr + 1) = *(isect2Ptr-3);
+                  }
+                else if (j > YMin && *(isect2Ptr - yisectstep + 1) > -1)
+                  {
+                  *(isect2Ptr + 1) = *(isect2Ptr - yisectstep + 1);
+                  }
+                else if (k > ZMin && *(isect1Ptr+2) > -1)
+                  {
+                  *(isect2Ptr + 1) = *(isect1Ptr+2);
+                  }
+                }
+              else if (*s2 == value && k > ZMin && *(isect1Ptr + yisectstep + 2) > -1)
+                {
+                *(isect2Ptr+1) = *(isect1Ptr + yisectstep + 2);
+                }
+              // if the edge has not been set yet then it is a new point
+              if (*(isect2Ptr + 1) == -1)
+                {
+                t = (value - (double)(*s0)) / ((double)(*s2) - (double)(*s0));
+                x[0] = p0[0] + t*(p2[0] - p0[0]);
+                x[1] = p0[1] + t*(p2[1] - p0[1]);
+                x[2] = p0[2] + t*(p2[2] - p0[2]);
+                *(isect2Ptr + 1) = newPts->InsertNextPoint(x);
+                VTK_CSP3PA(i,j+1,k,s2,p2,grad,norm);
+                outPD->InterpolateEdge(inPD, *(isect2Ptr+1), edgePtId, 
+                                       edgePtId+incY, t);     
+                }
               }
             }
           if (k < ZMax)
@@ -588,17 +631,41 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self,
             v3 = (*s3 < value ? 0 : 1);
             if (v0 ^ v3)
               {
-              t = (value - (double)(*s0)) / ((double)(*s3) - (double)(*s0));
-              x[0] = p0[0] + t*(p3[0] - p0[0]);
-              x[1] = p0[1] + t*(p3[1] - p0[1]);
-              x[2] = p0[2] + t*(p3[2] - p0[2]);
-              *(isect2Ptr + 2) = newPts->InsertNextPoint(x);
-              VTK_CSP3PA(i,j,k+1,s3,p3,grad,norm);
-              outPD->InterpolateEdge(inPD, *(isect2Ptr+2), edgePtId, edgePtId+incZ, t);     
-              }
-            else
-              {
-              *(isect2Ptr + 2) = -1;
+              // watch for degen points
+              if (*s0 == value)
+                {
+                if (*isect2Ptr > -1)
+                  {
+                  *(isect2Ptr + 2) = *isect2Ptr;
+                  }
+                else if (*(isect2Ptr+1) > -1)
+                  {
+                  *(isect2Ptr + 2) = *(isect2Ptr+1);
+                  }
+                else if (i > XMin && *(isect2Ptr-3) > -1)
+                  {
+                  *(isect2Ptr + 2) = *(isect2Ptr-3);
+                  }
+                else if (j > YMin && *(isect2Ptr - yisectstep + 1) > -1)
+                  {
+                  *(isect2Ptr + 2) = *(isect2Ptr - yisectstep + 1);
+                  }
+                else if (k > ZMin && *(isect1Ptr+2) > -1)
+                  {
+                  *(isect2Ptr + 2) = *(isect1Ptr+2);
+                  }
+                }
+              if (*(isect2Ptr + 2) == -1)
+                {
+                t = (value - (double)(*s0)) / ((double)(*s3) - (double)(*s0));
+                x[0] = p0[0] + t*(p3[0] - p0[0]);
+                x[1] = p0[1] + t*(p3[1] - p0[1]);
+                x[2] = p0[2] + t*(p3[2] - p0[2]);
+                *(isect2Ptr + 2) = newPts->InsertNextPoint(x);
+                VTK_CSP3PA(i,j,k+1,s3,p3,grad,norm);
+                outPD->InterpolateEdge(inPD, *(isect2Ptr+2), 
+                                       edgePtId, edgePtId+incZ, t);     
+                }
               }
             }
           
@@ -637,8 +704,13 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self,
                 tablePtr++;
                 ptIds[2] = *(isect1Ptr + offsets[*tablePtr]);
                 tablePtr++;
-                outCellId = newPolys->InsertNextCell(3,ptIds);
-                outCD->CopyData(inCD, inCellId, outCellId);
+                if (ptIds[0] != ptIds[1] &&
+                    ptIds[0] != ptIds[2] &&
+                    ptIds[1] != ptIds[2])
+                  {
+                  outCellId = newPolys->InsertNextCell(3,ptIds);
+                  outCD->CopyData(inCD, inCellId, outCellId);
+                  }
                 }
               }
             }

@@ -13,14 +13,12 @@ SET( Kit_SRCS
 vtkDecimate.cxx
 vtkDiscreteMarchingCubes.cxx
 vtkDividingCubes.cxx
-vtkGridSynchronizedTemplates3D.cxx
 vtkImageMarchingCubes.cxx
 vtkKitwareContourFilter.cxx
 vtkKitwareCutter.cxx
 vtkMarchingContourFilter.cxx
 vtkMarchingCubes.cxx
 vtkMarchingSquares.cxx
-vtkRectilinearSynchronizedTemplates.cxx
 vtkSliceCubes.cxx
 vtkSweptSurface.cxx
 )

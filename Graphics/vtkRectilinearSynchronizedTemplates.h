@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkGridSynchronizedTemplates3D.h
+  Module:    vtkRectilinearSynchronizedTemplates.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -11,48 +11,38 @@
      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 
-
-     THIS CLASS IS PATENT PENDING.
-
-     Application of this software for commercial purposes requires 
-     a license grant from Kitware. Contact:
-         Ken Martin
-         Kitware
-         28 Corporate Drive Suite 204,
-         Clifton Park, NY 12065
-         Phone:1-518-371-3971 
-     for more information.
-
 =========================================================================*/
-// .NAME vtkGridSynchronizedTemplates3D - generate isosurface from structured grids
+// .NAME vtkRectilinearSynchronizedTemplates - generate isosurface from rectilinear grid
 
 // .SECTION Description
-// vtkGridSynchronizedTemplates3D is a 3D implementation of the synchronized 
-// template algorithm.
+// vtkRectilinearSynchronizedTemplates is a 3D implementation (for rectilinear
+// grids) of the synchronized template algorithm. Note that vtkContourFilter
+// will automatically use this class when appropriate.
 
 // .SECTION Caveats
-// This filter is specialized to 3D grids.
+// This filter is specialized to rectilinear grids.
 
 // .SECTION See Also
-// vtkContourFilter vtkSynchronizedTemplates3D
+// vtkContourFilter vtkSynchronizedTemplates2D vtkSynchronizedTemplates3D
 
-#ifndef __vtkGridSynchronizedTemplates3D_h
-#define __vtkGridSynchronizedTemplates3D_h
+#ifndef __vtkRectilinearSynchronizedTemplates_h
+#define __vtkRectilinearSynchronizedTemplates_h
 
 #include "vtkPolyDataAlgorithm.h"
-#include "vtkContourValues.h" // Because it passes all the calls to it
+#include "vtkContourValues.h" // Passes calls through
 
+class vtkRectilinearGrid;
 class vtkKitwareContourFilter;
-class vtkMultiThreader;
-class vtkStructuredGrid;
+class vtkDataArray;
 
-class VTK_PATENTED_EXPORT vtkGridSynchronizedTemplates3D : public vtkPolyDataAlgorithm
+class VTK_GRAPHICS_EXPORT vtkRectilinearSynchronizedTemplates : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkGridSynchronizedTemplates3D *New();
-  vtkTypeRevisionMacro(vtkGridSynchronizedTemplates3D,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  static vtkRectilinearSynchronizedTemplates *New();
 
+  vtkTypeRevisionMacro(vtkRectilinearSynchronizedTemplates,vtkPolyDataAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent);
+  
   // Description:
   // Because we delegate to vtkContourValues
   unsigned long int GetMTime();
@@ -131,18 +121,6 @@ public:
   // Description:
   // Needed by templated functions.
   int *GetExecuteExtent() {return this->ExecuteExtent;}
-  void ThreadedExecute(int *exExt, int threadId, vtkStructuredGrid *input,
-                       vtkInformation *outInfo);
-
-  // Description:
-  // Get/Set the number of threads to create when rendering
-  vtkSetClampMacro( NumberOfThreads, int, 1, VTK_MAX_THREADS );
-  vtkGetMacro( NumberOfThreads, int );
-
-  // Description:
-  // This filter will initiate streaming so that no piece requested
-  // from the input will be larger than this value (KiloBytes).
-  void SetInputMemoryLimit(long limit);
 
   // Description:
   // If you want to contour by an arbitrary array, then set its name here.
@@ -150,38 +128,57 @@ public:
   vtkGetStringMacro(InputScalarsSelection);
   void SelectInputScalars(const char *fieldName) 
     {this->SetInputScalarsSelection(fieldName);}
+
+  // Description:
+  // Set/get which component of the scalar array to contour on; defaults to 0.
+  vtkSetMacro(ArrayComponent, int);
+  vtkGetMacro(ArrayComponent, int);
+
+  // Description:
+  // Compute the spacing between this point and its 6 neighbors.  This method
+  // needs to be public so it can be accessed from a templated function.
+  void ComputeSpacing(vtkRectilinearGrid *data, int i, int j, int k,
+                      int extent[6], double spacing[6]);
   
 protected:
-  vtkGridSynchronizedTemplates3D();
-  ~vtkGridSynchronizedTemplates3D();
-
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  vtkRectilinearSynchronizedTemplates();
+  ~vtkRectilinearSynchronizedTemplates();
 
   int ComputeNormals;
   int ComputeGradients;
   int ComputeScalars;
   vtkContourValues *ContourValues;
 
-  int NumberOfThreads;
-  vtkMultiThreader *Threader;
-  int MinimumPieceSize[3];
-  int ExecuteExtent[6];
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
 
-  vtkPolyData *Threads[VTK_MAX_THREADS];
+  int ExecuteExtent[6];
 
   char *InputScalarsSelection;
   vtkSetStringMacro(InputScalarsSelection);
+
+  int ArrayComponent;
+
+  void* GetScalarsForExtent(vtkDataArray *array, int extent[6],
+                            vtkRectilinearGrid *input);
 
 private:
   //BTX
   friend class VTK_PATENTED_EXPORT vtkKitwareContourFilter;
   //ETX
+  
 private:
-  vtkGridSynchronizedTemplates3D(const vtkGridSynchronizedTemplates3D&);  // Not implemented.
-  void operator=(const vtkGridSynchronizedTemplates3D&);  // Not implemented.
+  vtkRectilinearSynchronizedTemplates(const vtkRectilinearSynchronizedTemplates&);  // Not implemented.
+  void operator=(const vtkRectilinearSynchronizedTemplates&);  // Not implemented.
 };
 
+// template table.
+//BTX
+
+extern int VTK_RECTILINEAR_SYNCHONIZED_TEMPLATES_TABLE_1[];
+extern int VTK_RECTILINEAR_SYNCHONIZED_TEMPLATES_TABLE_2[];
+
+//ETX
 
 #endif
