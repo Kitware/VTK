@@ -133,13 +133,13 @@ public:
 
   // Description:
   // Get the size of the header computed by this object.
-  int GetHeaderSize();
-  int GetHeaderSize(int slice);
+  unsigned long GetHeaderSize();
+  unsigned long GetHeaderSize(int slice);
 
   // Description:
   // If there is a tail on the file, you want to explicitly set the
   // header size.
-  void SetHeaderSize(int size);
+  void SetHeaderSize(unsigned long size);
   
   // Description:
   // Set/Get the Data mask.
@@ -227,7 +227,7 @@ protected:
   int SwapBytes;
 
   int FileDimensionality;
-  int HeaderSize;
+  unsigned long HeaderSize;
   int DataScalarType;
   int ManualHeaderSize;
   int Initialized;

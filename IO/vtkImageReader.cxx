@@ -478,7 +478,7 @@ void vtkImageReader::ExecuteInformation()
 
 //----------------------------------------------------------------------------
 // Manual initialization.
-void vtkImageReader::SetHeaderSize(int size)
+void vtkImageReader::SetHeaderSize(unsigned long size)
 {
   if (size != this->HeaderSize)
     {
@@ -568,12 +568,12 @@ void vtkImageReader::OpenFile()
 }
 
 
-int vtkImageReader::GetHeaderSize()
+unsigned long vtkImageReader::GetHeaderSize()
 {
   return this->GetHeaderSize(this->DataExtent[4]);
 }
 
-int vtkImageReader::GetHeaderSize(int idx)
+unsigned long vtkImageReader::GetHeaderSize(int idx)
 {
   if (!this->FileName && !this->FilePattern)
     {
@@ -591,10 +591,10 @@ int vtkImageReader::GetHeaderSize(int idx)
     // Get the size of the header from the size of the image
     this->File->seekg(0,ios::end);
     
-    return (int)(this->File->tellg() - 
-      (long)this->DataIncrements[this->GetFileDimensionality()]);
+    return (unsigned long)(this->File->tellg() - 
+      (unsigned long)this->DataIncrements[this->GetFileDimensionality()]);
     }
-  
+
   return this->HeaderSize;
 }
 
@@ -639,7 +639,14 @@ void vtkImageReader::OpenAndSeekFile(int dataExtent[6], int idx)
   this->File->seekg((long)streamStart, ios::beg);
   if (this->File->fail())
     {
-    vtkWarningMacro("File operation failed.");
+    cerr << "File operation failed: " << streamStart << ", ext: "
+		      << dataExtent[0] << ", " << dataExtent[1] << ", "
+		      << dataExtent[2] << ", " << dataExtent[3] << ", "
+	   << dataExtent[4] << ", " << dataExtent[5] << endl;
+    cerr << "Header size: " << this->GetHeaderSize(idx) << ", file ext: "
+		      << this->DataExtent[0] << ", " << this->DataExtent[1] << ", "
+		      << this->DataExtent[2] << ", " << this->DataExtent[3] << ", "
+	 << this->DataExtent[4] << ", " << this->DataExtent[5] << endl;
     return;
     }
 	
