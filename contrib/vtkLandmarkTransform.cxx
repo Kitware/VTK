@@ -121,6 +121,14 @@ void vtkLandmarkTransform::InternalUpdate()
     return;
     }
 
+  // -- if no points, stop here
+
+  if (N_PTS == 0)
+    {
+    this->Matrix->Identity();
+    return;
+    }
+
   int i;
 
   // -- find the centroid of each set --
@@ -145,6 +153,17 @@ void vtkLandmarkTransform::InternalUpdate()
   target_centroid[0] /= N_PTS;
   target_centroid[1] /= N_PTS;
   target_centroid[2] /= N_PTS;
+
+  // -- if only one point, stop right here
+
+  if (N_PTS == 1)
+    {
+    this->Matrix->Identity();
+    this->Matrix->Element[0][3] = target_centroid[0] - source_centroid[0];
+    this->Matrix->Element[1][3] = target_centroid[1] - source_centroid[1];
+    this->Matrix->Element[2][3] = target_centroid[2] - source_centroid[2];
+    return;
+    }
 
   // -- build the 3x3 matrix M --
 
@@ -225,10 +244,24 @@ void vtkLandmarkTransform::InternalUpdate()
   // the eigenvector with the largest eigenvalue is the quaternion we want
   // (they are sorted in decreasing order for us by JacobiN)
   float quat[4]; 
-  quat[0] = eigenvectors[0][0];
-  quat[1] = eigenvectors[1][0];
-  quat[2] = eigenvectors[2][0];
-  quat[3] = eigenvectors[3][0];
+
+  // first: if eigenvalues are equal, then choose the one with the
+  // largest w component (otherwise, just use the first eigenvector)
+  if (eigenvalues[0] == eigenvalues[1] &&
+      fabs(eigenvectors[0][0]) > fabs(eigenvectors[0][1]))
+    {
+    quat[0] = eigenvectors[0][1];
+    quat[1] = eigenvectors[1][1];
+    quat[2] = eigenvectors[2][1];
+    quat[3] = eigenvectors[3][1];
+    }
+  else
+    {
+    quat[0] = eigenvectors[0][0];
+    quat[1] = eigenvectors[1][0];
+    quat[2] = eigenvectors[2][0];
+    quat[3] = eigenvectors[3][0];
+    }
 
   // convert it to a rotation matrix
   double w = quat[0];
