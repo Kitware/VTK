@@ -82,8 +82,7 @@ int Mace( int argc, char *argv[] )
   cone->Delete();
   glyph->Delete();
   spikeMapper->Delete();
-  // Purposely leaking to test new dashboard check for leaks:
-  //spikeActor->Delete();
+  spikeActor->Delete();
 
   return !retVal;
 }
