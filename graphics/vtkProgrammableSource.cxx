@@ -50,6 +50,7 @@ vtkProgrammableSource::vtkProgrammableSource()
 {
   this->ExecuteMethod = NULL;
   this->ExecuteMethodArg = NULL;
+  this->ExecuteMethodArgDelete = NULL;
 
   this->PolyData = vtkPolyData::New();
   this->PolyData->SetSource(this);
