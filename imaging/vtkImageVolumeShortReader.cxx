@@ -274,7 +274,7 @@ void vtkImageVolumeShortReaderGenerateData2d(vtkImageVolumeShortReader *self,
 void vtkImageVolumeShortReader::UpdateRegion2d(vtkImageRegion *region)
 {
   void *ptr;
-  int image = region->GetDefaultCoordinate2();
+  int image = region->GetDefaultCoordinate2() + this->First;
 
   
   // Get the region to fill from the cache
