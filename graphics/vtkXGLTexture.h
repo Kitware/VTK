@@ -38,10 +38,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkKXglrTexture - starbase texture map object
+// .NAME vtkXglrTexture - XGL texture map object
 // .SECTION Description
 // vtkXGLTexture is a concrete implementation of the abstract class vtkTexture.
-// currently we don't support texture mapping on starbase.
 
 #ifndef __vtkXGLTexture_h
 #define __vtkXGLTexture_h
