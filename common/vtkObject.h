@@ -67,6 +67,7 @@ public:
 
 #ifdef _WIN32
   // avoid dll boundary problems
+  void* operator new( size_t tSize, const char *, int);
   void* operator new( size_t tSize );
   void operator delete( void* p );
 #endif 
