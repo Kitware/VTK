@@ -120,7 +120,7 @@ int vtkTriangleStrip::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
 }
 
 void vtkTriangleStrip::Contour(float value, vtkFloatScalars *cellScalars, 
-                              vtkFloatPoints *points, vtkCellArray *verts, 
+                              vtkPointLocator *locator, vtkCellArray *verts, 
                               vtkCellArray *lines, vtkCellArray *polys, 
                               vtkFloatScalars *scalars)
 {
@@ -138,8 +138,8 @@ void vtkTriangleStrip::Contour(float value, vtkFloatScalars *cellScalars,
     triScalars.SetScalar(1,cellScalars->GetScalar(i+1));
     triScalars.SetScalar(2,cellScalars->GetScalar(i+2));
 
-    tri.Contour(value, &triScalars, points, verts,
-                 lines, polys, scalars);
+    tri.Contour(value, &triScalars, locator, verts,
+                lines, polys, scalars);
     }
 }
 

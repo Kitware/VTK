@@ -41,6 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMarchingSquares.hh"
 #include "vtkMarchingSquaresCases.hh"
 #include "vtkStructuredPoints.hh"
+#include "vtkMergePoints.hh"
 #include "vtkMath.hh"
 #include "vtkUnsignedCharScalars.hh"
 #include "vtkShortScalars.hh"
@@ -60,6 +61,9 @@ vtkMarchingSquares::vtkMarchingSquares()
   this->ImageRange[0] = 0; this->ImageRange[1] = VTK_LARGE_INTEGER;
   this->ImageRange[2] = 0; this->ImageRange[3] = VTK_LARGE_INTEGER;
   this->ImageRange[4] = 0; this->ImageRange[5] = 0;
+
+  this->Locator = NULL;
+  this->SelfCreatedLocator = 0;
 }
 
 
@@ -129,8 +133,8 @@ void vtkMarchingSquares::SetImageRange(int imin, int imax, int jmin, int jmax,
 template <class T>
 void ContourImage(T *scalars, vtkScalars *newScalars, int roi[6], int dir[3],
                   int start[2], int end[2], int offset[3], float ar[3], 
-                  float origin[3], float *values, int numValues, vtkFloatPoints *p, 
-                  vtkCellArray *lines)
+                  float origin[3], float *values, int numValues, 
+                  vtkPointLocator *p, vtkCellArray *lines)
 {
   int i, j;
   int ptIds[2];
@@ -217,8 +221,11 @@ void ContourImage(T *scalars, vtkScalars *newScalars, int roi[6], int dir[3],
               {
               x[dir[jj]] = x1[dir[jj]] + t * (x2[dir[jj]] - x1[dir[jj]]);
               }
-            ptIds[ii] = p->InsertNextPoint(x);
-            newScalars->InsertScalar(ptIds[ii],value);
+            if ( (ptIds[ii] = p->IsInsertedPoint(x)) < 0 )
+              {
+              ptIds[ii] = p->InsertNextPoint(x);
+              newScalars->InsertScalar(ptIds[ii],value);
+              }
             }
           lines->InsertNextCell(2,ptIds);
           }//for each line
@@ -241,7 +248,7 @@ void vtkMarchingSquares::Execute()
   float origin[3], ar[3];
   char *type;
   vtkPolyData *output = this->GetOutput();
-  int start[2], end[2], offset[3], dir[3];
+  int start[2], end[2], offset[3], dir[3], estimatedSize;
 
   vtkDebugMacro(<< "Executing marching squares");
 //
@@ -321,10 +328,17 @@ void vtkMarchingSquares::Execute()
 //
 // Allocate necessary objects
 //
-  newPts = new vtkFloatPoints(5000,25000);
-  newLines = new vtkCellArray();
-  newLines->Allocate(newLines->EstimateSize(2500,2));
+  estimatedSize = (int) (this->NumberOfContours * sqrt((double)dims[0]*dims[1]));
+  estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
+  if (estimatedSize < 1024) estimatedSize = 1024;
 
+  newPts = new vtkFloatPoints(estimatedSize,estimatedSize);
+  newLines = new vtkCellArray();
+  newLines->Allocate(newLines->EstimateSize(estimatedSize,2));
+
+  // locator used to merge potentially duplicate points
+  if ( this->Locator == NULL ) this->CreateDefaultLocator();
+  this->Locator->InitPointInsertion (newPts, this->Input->GetBounds());
 //
 // Check data type and execute appropriate function
 //
@@ -335,7 +349,7 @@ void vtkMarchingSquares::Execute()
     unsigned char *scalars = ((vtkUnsignedCharScalars *)inScalars)->GetPtr(0);
     newScalars = new vtkUnsignedCharScalars(5000,25000);
     ContourImage(scalars,newScalars,roi,dir,start,end,offset,ar,origin,
-                 this->Values,this->NumberOfContours,newPts,newLines);
+                 this->Values,this->NumberOfContours,this->Locator,newLines);
     }
 
   else if ( !strcmp(type,"short") )
@@ -343,7 +357,7 @@ void vtkMarchingSquares::Execute()
     short *scalars = ((vtkShortScalars *)inScalars)->GetPtr(0);
     newScalars = new vtkShortScalars(5000,25000);
     ContourImage(scalars,newScalars,roi,dir,start,end,offset,ar,origin,
-                 this->Values,this->NumberOfContours,newPts,newLines);
+                 this->Values,this->NumberOfContours,this->Locator,newLines);
     }
   
   else if ( !strcmp(type,"float") )
@@ -351,7 +365,7 @@ void vtkMarchingSquares::Execute()
     float *scalars = ((vtkFloatScalars *)inScalars)->GetPtr(0);
     newScalars = new vtkFloatScalars(5000,25000);
     ContourImage(scalars,newScalars,roi,dir,start,end,offset,ar,origin,
-                 this->Values,this->NumberOfContours,newPts,newLines);
+                 this->Values,this->NumberOfContours,this->Locator,newLines);
     }
 
   else if ( !strcmp(type,"int") )
@@ -359,7 +373,7 @@ void vtkMarchingSquares::Execute()
     int *scalars = ((vtkIntScalars *)inScalars)->GetPtr(0);
     newScalars = new vtkFloatScalars(5000,25000);
     ContourImage(scalars,newScalars,roi,dir,start,end,offset,ar,origin,
-                 this->Values,this->NumberOfContours,newPts,newLines);
+                 this->Values,this->NumberOfContours,this->Locator,newLines);
     }
 
   else //use general method - temporarily copies image
@@ -369,7 +383,7 @@ void vtkMarchingSquares::Execute()
     newScalars = new vtkFloatScalars(5000,25000);
     float *scalars = image->GetPtr(0);
     ContourImage(scalars,newScalars,roi,dir,start,end,offset,ar,origin,
-                 this->Values,this->NumberOfContours,newPts,newLines);
+                 this->Values,this->NumberOfContours,this->Locator,newLines);
     delete image;
     }
   
@@ -389,7 +403,29 @@ void vtkMarchingSquares::Execute()
   output->GetPointData()->SetScalars(newScalars);
   newScalars->Delete();
 
+  this->Locator->Initialize();
   output->Squeeze();
+}
+
+// Description:
+// Specify a spatial locator for merging points. By default, 
+// an instance of vtkMergePoints is used.
+void vtkMarchingSquares::SetLocator(vtkPointLocator *locator)
+{
+  if ( this->Locator != locator ) 
+    {
+    if ( this->SelfCreatedLocator ) this->Locator->Delete();
+    this->SelfCreatedLocator = 0;
+    this->Locator = locator;
+    this->Modified();
+    }
+}
+
+void vtkMarchingSquares::CreateDefaultLocator()
+{
+  if ( this->SelfCreatedLocator ) this->Locator->Delete();
+  this->Locator = new vtkMergePoints;
+  this->SelfCreatedLocator = 1;
 }
 
 void vtkMarchingSquares::PrintSelf(ostream& os, vtkIndent indent)
@@ -403,6 +439,15 @@ void vtkMarchingSquares::PrintSelf(ostream& os, vtkIndent indent)
   for ( i=0; i<this->NumberOfContours; i++)
     {
     os << indent << "  Value " << i << ": " << this->Values[i] << "\n";
+    }
+
+  if ( this->Locator )
+    {
+    os << indent << "Locator: " << this->Locator << "\n";
+    }
+  else
+    {
+    os << indent << "Locator: (none)\n";
     }
 }
 

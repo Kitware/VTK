@@ -44,6 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMergePoints.hh"
 #include "vtkMarchingSquares.hh"
 #include "vtkMarchingCubes.hh"
+#include "vtkMath.hh"
 
 // Description:
 // Construct object with initial range (0,1) and single contour value
@@ -57,6 +58,9 @@ vtkContourFilter::vtkContourFilter()
   this->ComputeNormals = 1;
   this->ComputeGradients = 0;
   this->ComputeScalars = 1;
+
+  this->Locator = NULL;
+  this->SelfCreatedLocator = 0;
 }
 
 // Description:
@@ -122,12 +126,15 @@ void vtkContourFilter::Execute()
   vtkFloatPoints *newPts;
   cellScalars.ReferenceCountingOff();
   vtkPolyData *output = this->GetOutput();
+  int numCells, estimatedSize;
   
   vtkDebugMacro(<< "Executing contour filter");
 
-  if ( ! (inScalars = this->Input->GetPointData()->GetScalars()) )
+  numCells = this->Input->GetNumberOfCells();
+  inScalars = this->Input->GetPointData()->GetScalars();
+  if ( ! inScalars || numCells < 1 )
     {
-    vtkErrorMacro(<<"No scalar data to contour");
+    vtkErrorMacro(<<"No data to contour");
     return;
     }
 
@@ -145,27 +152,36 @@ void vtkContourFilter::Execute()
 
   range = inScalars->GetRange();
 //
-// Create objects to hold output of contour operation
+// Create objects to hold output of contour operation. First estimate allocation size.
 //
-  newPts = new vtkFloatPoints(10000,25000);
-  newVerts = new vtkCellArray(10000,25000);
-  newLines = new vtkCellArray(10000,25000);
-  newPolys = new vtkCellArray(10000,25000);
-  newScalars = new vtkFloatScalars(10000,25000);
+  estimatedSize = (int) pow ((double) numCells, .75);
+  estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
+  if (estimatedSize < 1024) estimatedSize = 1024;
+
+  newPts = new vtkFloatPoints(estimatedSize,estimatedSize);
+  newVerts = new vtkCellArray(estimatedSize,estimatedSize);
+  newLines = new vtkCellArray(estimatedSize,estimatedSize);
+  newPolys = new vtkCellArray(estimatedSize,estimatedSize);
+  newScalars = new vtkFloatScalars(estimatedSize,estimatedSize);
+
+  // locator used to merge potentially duplicate points
+  if ( this->Locator == NULL ) this->CreateDefaultLocator();
+  this->Locator->InitPointInsertion (newPts, this->Input->GetBounds());
 //
 // Loop over all contour values.  Then for each contour value, 
 // loop over all cells.
 //
-  for (i=0; i<this->NumberOfContours; i++)
+  for (i=0; i < this->NumberOfContours; i++)
     {
     value = this->Values[i];
-    for (cellId=0; cellId<Input->GetNumberOfCells(); cellId++)
+    for (cellId=0; cellId < numCells; cellId++)
       {
       cell = Input->GetCell(cellId);
       cellPts = cell->GetPointIds();
       inScalars->GetScalars(*cellPts,cellScalars);
 
-      cell->Contour(value, &cellScalars, newPts, newVerts, newLines, newPolys, newScalars);
+      cell->Contour(value, &cellScalars, this->Locator, 
+                    newVerts, newLines, newPolys, newScalars);
 
       } // for all cells
     } // for all contour values
@@ -194,6 +210,7 @@ void vtkContourFilter::Execute()
   if (newPolys->GetNumberOfCells()) output->SetPolys(newPolys);
   newPolys->Delete();
 
+  this->Locator->Initialize();//releases leftover memory
   output->Squeeze();
 }
 
@@ -242,6 +259,26 @@ void vtkContourFilter::StructuredPointsContour(int dim)
   output->Initialize();
 }
 
+// Description:
+// Specify a spatial locator for merging points. By default, 
+// an instance of vtkMergePoints is used.
+void vtkContourFilter::SetLocator(vtkPointLocator *locator)
+{
+  if ( this->Locator != locator ) 
+    {
+    if ( this->SelfCreatedLocator ) this->Locator->Delete();
+    this->SelfCreatedLocator = 0;
+    this->Locator = locator;
+    this->Modified();
+    }
+}
+
+void vtkContourFilter::CreateDefaultLocator()
+{
+  if ( this->SelfCreatedLocator ) this->Locator->Delete();
+  this->Locator = new vtkMergePoints;
+  this->SelfCreatedLocator = 1;
+}
 
 void vtkContourFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -254,6 +291,15 @@ void vtkContourFilter::PrintSelf(ostream& os, vtkIndent indent)
   for ( i=0; i<this->NumberOfContours; i++)
     {
     os << indent << "  Value " << i << ": " << this->Values[i] << "\n";
+    }
+
+  if ( this->Locator )
+    {
+    os << indent << "Locator: " << this->Locator << "\n";
+    }
+  else
+    {
+    os << indent << "Locator: (none)\n";
     }
 }
 

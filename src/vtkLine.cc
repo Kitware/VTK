@@ -41,6 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkLine.hh"
 #include "vtkMath.hh"
 #include "vtkCellArray.hh"
+#include "vtkPointLocator.hh"
 
 static vtkMath math; //avoid lots of construction
 
@@ -187,7 +188,7 @@ static LINE_CASES lineCases[4]= {
   {{-1,-1}}};
 
 void vtkLine::Contour(float value, vtkFloatScalars *cellScalars, 
-		      vtkFloatPoints *points, vtkCellArray *verts, 
+		      vtkPointLocator *locator, vtkCellArray *verts, 
 		      vtkCellArray *vtkNotUsed(lines), 
 		      vtkCellArray *vtkNotUsed(polys), 
 		      vtkFloatScalars *scalars)
@@ -217,9 +218,12 @@ void vtkLine::Contour(float value, vtkFloatScalars *cellScalars,
     x2 = this->Points.GetPoint(vert[1]);
     for (i=0; i<3; i++) x[i] = x1[i] + t * (x2[i] - x1[i]);
 
-    pts[0] = points->InsertNextPoint(x);
+    if ( (pts[0] = locator->IsInsertedPoint(x)) < 0 )
+      {
+      pts[0] = locator->InsertNextPoint(x);
+      scalars->InsertScalar(pts[0],value);
+      }
     verts->InsertNextCell(1,pts);
-    scalars->InsertNextScalar(value);
     }
 }
 

@@ -701,13 +701,13 @@ void vtkPolygon::SplitLoop (int fedges[2], int numVerts, int *verts,
   return;
 }
 
-int vtkPolygon::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
+int vtkPolygon::CellBoundary(int vtkNotUsed(subId), float pcoords[3], vtkIdList& pts)
 {
   return 0;
 }
 
 void vtkPolygon::Contour(float value, vtkFloatScalars *cellScalars, 
-                        vtkFloatPoints *points,
+                        vtkPointLocator *locator,
                         vtkCellArray *verts, vtkCellArray *lines, 
                         vtkCellArray *polys, vtkFloatScalars *scalars)
 {
@@ -748,7 +748,7 @@ void vtkPolygon::Contour(float value, vtkFloatScalars *cellScalars,
       triScalars.SetScalar(1,cellScalars->GetScalar(i+1));
       triScalars.SetScalar(2,cellScalars->GetScalar(i+2));
 
-      tri.Contour(value, &triScalars, points, verts,
+      tri.Contour(value, &triScalars, locator, verts,
                    lines, polys, scalars);
       }
     }
@@ -877,9 +877,39 @@ int vtkPolygon::Triangulate(int vtkNotUsed(index), vtkFloatPoints &pts)
   return success;
 }
 
-void vtkPolygon::Derivatives(int subId, float pcoords[3], float *values, 
+// Sample at three points to compute derivatives in local r-s coordinate system.
+// Project vectors into 3D model coordinate system
+#define VTK_SAMPLE_DISTANCE 0.01
+void vtkPolygon::Derivatives(int vtkNotUsed(subId), float pcoords[3], float *values, 
                              int dim, float *derivs)
 {
+  int i, j;
+  float p0[3], p10[3], l10, p20[3], l20, n[3];
+  float x[3][3], value;
+  int numVerts=this->PointIds.GetNumberOfIds();
+  float *weights = new float[numVerts];
 
+  //setup parametric system
+  this->ParameterizePolygon(p0, p10, l10, p20, l20, n);
+
+  //compute positions of three sample points
+  for (i=0; i<3; i++)
+    {
+    x[0][i] = p0[i] + pcoords[0]*p10[i] + pcoords[1]*p20[i];
+    x[1][i] = p0[i] + (pcoords[0]+VTK_SAMPLE_DISTANCE)*p10[i] + pcoords[1]*p20[i];
+    x[2][i] = p0[i] + pcoords[0]*p10[i] + (pcoords[1]+VTK_SAMPLE_DISTANCE)*p20[i];
+    }
+
+  //for each sample point, compute values and data values.
+
+  this->ComputeWeights(x[0],weights);
+  for ( j=0; j < dim; i++)
+    {
+    value = 0.0;
+    for ( i=0; i < numVerts; i++ )
+      {
+      value += weights[i] * values[numVerts*j + i];
+      }
+    }
 }
 

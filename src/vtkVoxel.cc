@@ -43,6 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkLine.hh"
 #include "vtkPixel.hh"
 #include "vtkCellArray.hh"
+#include "vtkPointLocator.hh"
 
 static vtkMath math;  
 
@@ -266,7 +267,7 @@ static int faces[6][4] = { {0,2,4,6}, {1,3,5,7},
 #include "vtkMarchingCubesCases.hh"
 
 void vtkVoxel::Contour(float value, vtkFloatScalars *cellScalars, 
-		       vtkFloatPoints *points,
+		       vtkPointLocator *locator,
 		       vtkCellArray *vtkNotUsed(verts), 
 		       vtkCellArray *vtkNotUsed(lines), 
 		       vtkCellArray *polys, vtkFloatScalars *scalars)
@@ -297,8 +298,11 @@ void vtkVoxel::Contour(float value, vtkFloatScalars *cellScalars,
       x1 = this->Points.GetPoint(vert[0]);
       x2 = this->Points.GetPoint(vert[1]);
       for (j=0; j<3; j++) x[j] = x1[j] + t * (x2[j] - x1[j]);
-      pts[i] = points->InsertNextPoint(x);
-      scalars->InsertNextScalar(value);
+      if ( (pts[i] = locator->IsInsertedPoint(x)) < 0 )
+        {
+        pts[i] = locator->InsertNextPoint(x);
+        scalars->InsertScalar(pts[i],value);
+        }
       }
     polys->InsertNextCell(3,pts);
     }

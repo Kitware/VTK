@@ -41,6 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkVertex.hh"
 #include "vtkMath.hh"
 #include "vtkCellArray.hh"
+#include "vtkPointLocator.hh"
 
 static vtkMath math;
 
@@ -106,7 +107,7 @@ int vtkVertex::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
 }
 
 void vtkVertex::Contour(float value, vtkFloatScalars *cellScalars, 
-			vtkFloatPoints *points,                      
+			vtkPointLocator *locator,
 			vtkCellArray *verts, 
 			vtkCellArray *vtkNotUsed(lines), 
 			vtkCellArray *vtkNotUsed(polys), 
@@ -115,8 +116,8 @@ void vtkVertex::Contour(float value, vtkFloatScalars *cellScalars,
   if ( value == cellScalars->GetScalar(0) )
     {
     int pts[1];
-    scalars->InsertNextScalar(value);
-    pts[0] = points->InsertNextPoint(this->Points.GetPoint(0));
+    pts[0] = locator->InsertNextPoint(this->Points.GetPoint(0));
+    scalars->InsertScalar(pts[0],value);
     verts->InsertNextCell(1,pts);
     }
 }

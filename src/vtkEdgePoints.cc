@@ -86,6 +86,8 @@ void vtkEdgePoints::Execute()
   newPts = new vtkFloatPoints(5000,10000);
   newScalars = new vtkFloatScalars(5000,10000);
   newVerts = new vtkCellArray(5000,10000);
+
+  this->Locator.InitPointInsertion (newPts, this->Input->GetBounds());
 //
 // Traverse all edges. Since edges are not explicitly represented, use a
 // trick: traverse all cells and obtain cell edges and then cell edge
@@ -110,7 +112,7 @@ void vtkEdgePoints::Execute()
       {
       if ( cell->GetCellDimension() < 2 ) //only points can be generated
         {
-        cell->Contour(this->Value, &cellScalars, newPts, newVerts, NULL, 
+        cell->Contour(this->Value, &cellScalars, &this->Locator, newVerts, NULL, 
                       NULL, newScalars);
         }
 
@@ -142,9 +144,12 @@ void vtkEdgePoints::Execute()
               edge->Points.GetPoint(1,x1);
               r = (this->Value - s0) / (s1 - s0);
               for (i=0; i<3; i++) x[i] = x0[i] + r * (x1[i] - x0[i]);
-              pts[0] = newPts->InsertNextPoint(x);
-              newScalars->InsertScalar(pts[0],this->Value);
-              newVerts->InsertNextCell(1,pts);
+              if ( (pts[0] = this->Locator.IsInsertedPoint(x)) < 0 )
+                {
+                pts[0] = this->Locator.InsertNextPoint(x);
+                newScalars->InsertScalar(pts[0],this->Value);
+                newVerts->InsertNextCell(1,pts);
+                }
               }
             }
           } //for each edge
@@ -166,6 +171,7 @@ void vtkEdgePoints::Execute()
   output->GetPointData()->SetScalars(newScalars);
   newScalars->Delete();
 
+  this->Locator.Initialize();//free up any extra memory
   output->Squeeze();
 }
 

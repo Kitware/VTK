@@ -44,6 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMath.hh"
 #include "vtkCellArray.hh"
 #include "vtkLine.hh"
+#include "vtkPointLocator.hh"
 
 static vtkPolygon poly;
 static vtkMath math;
@@ -242,7 +243,7 @@ static LINE_CASES lineCases[] = {
 };
 
 void vtkTriangle::Contour(float value, vtkFloatScalars *cellScalars, 
-			  vtkFloatPoints *points,
+			  vtkPointLocator *locator,
 			  vtkCellArray *vtkNotUsed(verts), 
 			  vtkCellArray *lines, 
 			  vtkCellArray *vtkNotUsed(polys), 
@@ -274,8 +275,11 @@ void vtkTriangle::Contour(float value, vtkFloatScalars *cellScalars,
       x1 = this->Points.GetPoint(vert[0]);
       x2 = this->Points.GetPoint(vert[1]);
       for (j=0; j<3; j++) x[j] = x1[j] + t * (x2[j] - x1[j]);
-      pts[i] = points->InsertNextPoint(x);
-      scalars->InsertNextScalar(value);
+      if ( (pts[i] = locator->IsInsertedPoint(x)) < 0 )
+        {
+        pts[i] = locator->InsertNextPoint(x);
+        scalars->InsertScalar(pts[i],value);
+        }
       }
     lines->InsertNextCell(2,pts);
     }
@@ -347,18 +351,83 @@ int vtkTriangle::Triangulate(int vtkNotUsed(index), vtkFloatPoints &pts)
   return 1;
 }
 
-void vtkTriangle::Derivatives(int subId, float pcoords[3], float *values, 
-                              int dim, float *derivs)
+// Used a staged computation: first compute derivatives in local x'-y' coordinate 
+// system; then convert into x-y-z modelling system.
+void vtkTriangle::Derivatives(int vtkNotUsed(subId), float vtkNotUsed(pcoords)[3], 
+                              float *values, int dim, float *derivs)
 {
-  int i, idx;
+  float v0[2], v1[2], v2[2], v[3], v10[3], v20[3], lenX;
+  float *x0, *x1, *x2, n[3];
+  double *J[2], J0[2], J1[2];
+  double *JI[2], JI0[2], JI1[2];
+  float functionDerivs[6], sum[2], dBydx, dBydy;
+  int i, j;
 
-  // The following code is incorrect. Will be fixed in future release.
-  for (i=0; i<dim; i++)
+  // Project points of triangle into 2D system
+  x0 = this->Points.GetPoint(0);
+  x1 = this->Points.GetPoint(1);
+  x2 = this->Points.GetPoint(2);
+  poly.ComputeNormal (x0, x1, x2, n);
+
+  for (i=0; i < 3; i++) 
     {
-    idx = i*dim;
-    derivs[idx] = 0.0;
-    derivs[idx+1] = 0.0;
-    derivs[idx+2] = 0.0;
+    v10[i] = x1[i] - x0[i];
+    v[i] = x2[i] - x0[i];
+    }
+
+  math.Cross(n,v10,v20); //creates local y' axis
+
+  if ( (lenX=math.Normalize(v10)) <= 0.0 || math.Normalize(v20) <= 0.0 ) //degenerate
+    {
+    for ( j=0; j < dim; j++ )
+      for ( i=0; i < 3; i++ )
+        derivs[j*dim + i] = 0.0;
+    return;
+    }
+
+  v0[0] = v0[1] = 0.0; //convert points to 2D (i.e., local system)
+  v1[0] = lenX; v1[1] = 0.0;
+  v2[0] = math.Dot(v,v10);
+  v2[1] = math.Dot(v,v20);
+
+  // Compute interpolation function derivatives
+  functionDerivs[0] = -1; //r derivatives
+  functionDerivs[1] = 1;
+  functionDerivs[2] = 0;
+  functionDerivs[3] = -1; //s derivatives
+  functionDerivs[4] = 0;
+  functionDerivs[5] = 1;
+
+  // Compute Jacobian: Jacobian is constant for a triangle.
+  J[0] = J0; J[1] = J1;
+  JI[0] = JI0; JI[1] = JI1;
+
+  J[0][0] = v1[0] - v0[0];
+  J[1][0] = v2[0] - v0[0];
+  J[0][1] = v1[1] - v0[1];
+  J[1][1] = v2[1] - v0[1];
+
+  // Compute inverse Jacobian
+  math.InvertMatrix(J,JI,2);
+
+  // Loop over "dim" derivative values. For each set of values, compute derivatives
+  // in local system and then transform into modelling system.
+  // First compute derivatives in local x'-y' coordinate system
+  for ( j=0; j < dim; j++ )
+    {
+    sum[0] = sum[1] = 0.0;
+    for ( i=0; i < 3; i++) //loop over interp. function derivatives
+      {
+      sum[0] += functionDerivs[i] * values[dim*i + j]; 
+      sum[1] += functionDerivs[3 + i] * values[dim*i + j];
+      }
+    dBydx = sum[0]*JI[0][0] + sum[1]*JI[0][1];
+    dBydy = sum[0]*JI[1][0] + sum[1]*JI[1][1];
+
+    // Transform into global system (dot product with global axes)
+    derivs[3*j] = dBydx * v10[0] + dBydy * v20[0];
+    derivs[3*j + 1] = dBydx * v10[1] + dBydy * v20[1];
+    derivs[3*j + 2] = dBydx * v10[2] + dBydy * v20[2];
     }
 }
 
@@ -471,37 +540,31 @@ int vtkTriangle::BarycentricCoords(float x[2], float  x1[2], float x2[2],
 }
 
 // Description:
-// Project triangle defined in 3D to 2D coordinates. Returns 0 if degenerate triagnle;
+// Project triangle defined in 3D to 2D coordinates. Returns 0 if degenerate triangle;
 // non-zero value otherwise. Input points are x1->x3; output 2D points are v1->v3.
 int vtkTriangle::ProjectTo2D(float x1[3], float x2[3], float x3[3],
                              float v1[2], float v2[2], float v3[2])
 {
-  float *pt1, *pt2, *pt3, n[3];
-  float v21[3], v31[3], v[3];
-//
-// Get normal for triangle
-//
-  pt1 = this->Points.GetPoint(0);
-  pt2 = this->Points.GetPoint(1);
-  pt3 = this->Points.GetPoint(2);
+  float n[3], v21[3], v31[3], v[3], xLen;
 
-  poly.ComputeNormal (pt1, pt2, pt3, n);
-//
-// The first point is at (0,0); the next at (1,0); compute the other point relative 
-// to the first two.
-//
-  v1[0] = v1[1] = 0.0;
-  v2[0] = 1.0; v2[1] = 0.0;
+  // Get normal for triangle
+  poly.ComputeNormal (x1, x2, x3, n);
 
   for (int i=0; i < 3; i++) 
     {
-    v21[i] = pt2[i] - pt1[i];
-    v31[i] = pt3[i] - pt1[i];
+    v21[i] = x2[i] - x1[i];
+    v31[i] = x3[i] - x1[i];
     }
 
-  if ( math.Normalize(v21) <= 0.0 ) return 0;
+  if ( (xLen=math.Normalize(v21)) <= 0.0 ) return 0;
+
+  // The first point is at (0,0); the next at (xLen,0); compute the other point relative 
+  // to the first two.
+  v1[0] = v1[1] = 0.0;
+  v2[0] = xLen; v2[1] = 0.0;
 
   math.Cross(n,v21,v);
+
   v3[0] = math.Dot(v31,v21);
   v3[1] = math.Dot(v31,v);
 

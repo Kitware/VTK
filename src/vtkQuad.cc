@@ -44,7 +44,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMath.hh"
 #include "vtkCellArray.hh"
 #include "vtkLine.hh"
+#include "vtkPointLocator.hh"
 
+static vtkPolygon poly; //just used as hooks into methods
 static vtkMath math;
 
 // Description:
@@ -342,7 +344,7 @@ static LINE_CASES lineCases[] = {
 };
 
 void vtkQuad::Contour(float value, vtkFloatScalars *cellScalars, 
-		      vtkFloatPoints *points, 
+		      vtkPointLocator *locator, 
 		      vtkCellArray *vtkNotUsed(verts), 
 		      vtkCellArray *lines, 
 		      vtkCellArray *vtkNotUsed(polys), 
@@ -373,13 +375,15 @@ void vtkQuad::Contour(float value, vtkFloatScalars *cellScalars,
       x1 = this->Points.GetPoint(vert[0]);
       x2 = this->Points.GetPoint(vert[1]);
       for (j=0; j<3; j++) x[j] = x1[j] + t * (x2[j] - x1[j]);
-      pts[i] = points->InsertNextPoint(x);
-      scalars->InsertNextScalar(value);
+      if ( (pts[i] = locator->IsInsertedPoint(x)) < 0 )
+        {
+        pts[i] = locator->InsertNextPoint(x);
+        scalars->InsertScalar(pts[i],value);
+        }
       }
     lines->InsertNextCell(2,pts);
     }
 }
-
 
 vtkCell *vtkQuad::GetEdge(int edgeId)
 {
@@ -471,18 +475,83 @@ int vtkQuad::Triangulate(int vtkNotUsed(index), vtkFloatPoints &pts)
   return 1;
 }
 
-void vtkQuad::Derivatives(int subId, float pcoords[3], float *values, 
-                          int dim, float *derivs)
+void vtkQuad::Derivatives(int vtkNotUsed(subId), float pcoords[3], 
+                          float *values, int dim, float *derivs)
 {
-  int i, idx;
+  float v0[2], v1[2], v2[2], v3[3], v10[3], v20[3], lenX;
+  float *x0, *x1, *x2, *x3, n[3], vec20[3], vec30[3];
+  double *J[2], J0[2], J1[2];
+  double *JI[2], JI0[2], JI1[2];
+  float funcDerivs[8], sum[2], dBydx, dBydy;
+  int i, j;
 
-  // The following code is incorrect. Will be fixed in future release.
-  for (i=0; i<dim; i++)
+  // Project points of quad into 2D system
+  x0 = this->Points.GetPoint(0);
+  x1 = this->Points.GetPoint(1);
+  x2 = this->Points.GetPoint(2);
+  x3 = this->Points.GetPoint(3);
+  poly.ComputeNormal (x0, x1, x2, n);
+
+  for (i=0; i < 3; i++) 
     {
-    idx = i*dim;
-    derivs[idx] = 0.0;
-    derivs[idx+1] = 0.0;
-    derivs[idx+2] = 0.0;
+    v10[i] = x1[i] - x0[i];
+    vec20[i] = x2[i] - x0[i];
+    vec30[i] = x3[i] - x0[i];
+    }
+
+  math.Cross(n,v10,v20); //creates local y' axis
+
+  if ( (lenX=math.Normalize(v10)) <= 0.0 || math.Normalize(v20) <= 0.0 ) //degenerate
+    {
+    for ( j=0; j < dim; j++ )
+      for ( i=0; i < 3; i++ )
+        derivs[j*dim + i] = 0.0;
+    return;
+    }
+
+  v0[0] = v0[1] = 0.0; //convert points to 2D (i.e., local system)
+  v1[0] = lenX; v1[1] = 0.0;
+  v2[0] = math.Dot(vec20,v10);
+  v2[1] = math.Dot(vec20,v20);
+  v3[0] = math.Dot(vec30,v10);
+  v3[1] = math.Dot(vec30,v20);
+
+  this->InterpolationDerivs(pcoords, funcDerivs);
+
+  // Compute Jacobian and inverse Jacobian
+  J[0] = J0; J[1] = J1;
+  JI[0] = JI0; JI[1] = JI1;
+
+  J[0][0] = v0[0]*funcDerivs[0] + v1[0]*funcDerivs[1] +
+            v2[0]*funcDerivs[2] + v3[0]*funcDerivs[3];
+  J[0][1] = v0[1]*funcDerivs[0] + v1[1]*funcDerivs[1] +
+            v2[1]*funcDerivs[2] + v3[1]*funcDerivs[3];
+  J[1][0] = v0[0]*funcDerivs[4] + v1[0]*funcDerivs[5] +
+            v2[0]*funcDerivs[6] + v3[0]*funcDerivs[7];
+  J[1][1] = v0[1]*funcDerivs[4] + v1[0]*funcDerivs[5] +
+            v2[1]*funcDerivs[6] + v3[0]*funcDerivs[7];
+
+  // Compute inverse Jacobian
+  math.InvertMatrix(J,JI,2);
+
+  // Loop over "dim" derivative values. For each set of values, compute derivatives
+  // in local system and then transform into modelling system.
+  // First compute derivatives in local x'-y' coordinate system
+  for ( j=0; j < dim; j++ )
+    {
+    sum[0] = sum[1] = 0.0;
+    for ( i=0; i < 4; i++) //loop over interp. function derivatives
+      {
+      sum[0] += funcDerivs[i] * values[dim*i + j]; 
+      sum[1] += funcDerivs[3 + i] * values[dim*i + j];
+      }
+    dBydx = sum[0]*JI[0][0] + sum[1]*JI[0][1];
+    dBydy = sum[0]*JI[1][0] + sum[1]*JI[1][1];
+
+    // Transform into global system (dot product with global axes)
+    derivs[3*j] = dBydx * v10[0] + dBydy * v20[0];
+    derivs[3*j + 1] = dBydx * v10[1] + dBydy * v20[1];
+    derivs[3*j + 2] = dBydx * v10[2] + dBydy * v20[2];
     }
 }
 

@@ -45,6 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMath.hh"
 #include "vtkCellArray.hh"
 #include "vtkLine.hh"
+#include "vtkPointLocator.hh"
 
 static vtkPlane vtkAPlane;
 
@@ -189,7 +190,7 @@ int vtkPixel::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
 static int edges[4][2] = { {0,1}, {1,3}, {3,2}, {2,0} };
 
 void vtkPixel::Contour(float value, vtkFloatScalars *cellScalars,
-		       vtkFloatPoints *points, 
+		       vtkPointLocator *locator, 
 		       vtkCellArray *vtkNotUsed(verts),
 		       vtkCellArray *lines, 
 		       vtkCellArray *vtkNotUsed(polys), 
@@ -220,8 +221,11 @@ void vtkPixel::Contour(float value, vtkFloatScalars *cellScalars,
       x1 = this->Points.GetPoint(vert[0]);
       x2 = this->Points.GetPoint(vert[1]);
       for (j=0; j<3; j++) x[j] = x1[j] + t * (x2[j] - x1[j]);
-      pts[i] = points->InsertNextPoint(x);
-      scalars->InsertNextScalar(value);
+      if ( (pts[i] = locator->IsInsertedPoint(x)) < 0 )
+        {
+        pts[i] = locator->InsertNextPoint(x);
+        scalars->InsertScalar(pts[i],value);
+        }
       }
     lines->InsertNextCell(2,pts);
     }

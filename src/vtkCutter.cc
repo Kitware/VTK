@@ -39,12 +39,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkCutter.hh"
+#include "vtkMergePoints.hh"
+#include <math.h>
 
 // Description:
 // Construct with user-specified implicit function.
 vtkCutter::vtkCutter(vtkImplicitFunction *cf)
 {
   this->CutFunction = cf;
+
+  this->Locator = NULL;
+  this->SelfCreatedLocator = 0;
 }
 
 // Description:
@@ -78,6 +83,7 @@ void vtkCutter::Execute()
   vtkFloatPoints *newPoints;
   float value, *x, s;
   vtkPolyData *output = this->GetOutput();
+  int estimatedSize, numCells=this->Input->GetNumberOfCells();
   
   vtkDebugMacro(<< "Executing cutter");
   cellScalars.ReferenceCountingOff();
@@ -93,17 +99,25 @@ void vtkCutter::Execute()
 //
 // Create objects to hold output of contour operation
 //
-  newPoints = new vtkFloatPoints(1000,10000);
-  newVerts = new vtkCellArray(1000,1000);
-  newLines = new vtkCellArray(1000,10000);
-  newPolys = new vtkCellArray(1000,10000);
-  newScalars = new vtkFloatScalars(3000,30000);
+  estimatedSize = (int) pow ((double) numCells, .75);
+  estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
+  if (estimatedSize < 1024) estimatedSize = 1024;
+
+  newPoints = new vtkFloatPoints(estimatedSize,estimatedSize/2);
+  newVerts = new vtkCellArray(estimatedSize,estimatedSize/2);
+  newLines = new vtkCellArray(estimatedSize,estimatedSize/2);
+  newPolys = new vtkCellArray(estimatedSize,estimatedSize/2);
+  newScalars = new vtkFloatScalars(estimatedSize,estimatedSize/2);
+
+  // locator used to merge potentially duplicate points
+  if ( this->Locator == NULL ) this->CreateDefaultLocator();
+  this->Locator->InitPointInsertion (newPoints, this->Input->GetBounds());
 //
 // Loop over all cells creating scalar function determined by evaluating cell
 // points using cut function.
 //
   value = 0.0;
-  for (cellId=0; cellId<Input->GetNumberOfCells(); cellId++)
+  for (cellId=0; cellId < numCells; cellId++)
     {
     cell = Input->GetCell(cellId);
     cellPts = cell->GetPoints();
@@ -114,7 +128,8 @@ void vtkCutter::Execute()
       cellScalars.SetScalar(i,s);
       }
 
-    cell->Contour(value, &cellScalars, newPoints, newVerts, newLines, newPolys, newScalars);
+    cell->Contour(value, &cellScalars, this->Locator, 
+                  newVerts, newLines, newPolys, newScalars);
 
     } // for all cells
 //
@@ -136,7 +151,29 @@ void vtkCutter::Execute()
   output->GetPointData()->SetScalars(newScalars);
   newScalars->Delete();
 
+  this->Locator->Initialize();//release any extra memory
   output->Squeeze();
+}
+
+// Description:
+// Specify a spatial locator for merging points. By default, 
+// an instance of vtkMergePoints is used.
+void vtkCutter::SetLocator(vtkPointLocator *locator)
+{
+  if ( this->Locator != locator ) 
+    {
+    if ( this->SelfCreatedLocator ) this->Locator->Delete();
+    this->SelfCreatedLocator = 0;
+    this->Locator = locator;
+    this->Modified();
+    }
+}
+
+void vtkCutter::CreateDefaultLocator()
+{
+  if ( this->SelfCreatedLocator ) this->Locator->Delete();
+  this->Locator = new vtkMergePoints;
+  this->SelfCreatedLocator = 1;
 }
 
 void vtkCutter::PrintSelf(ostream& os, vtkIndent indent)
@@ -144,4 +181,13 @@ void vtkCutter::PrintSelf(ostream& os, vtkIndent indent)
   vtkDataSetToPolyFilter::PrintSelf(os,indent);
 
   os << indent << "Cut Function: " << this->CutFunction << "\n";
+
+  if ( this->Locator )
+    {
+    os << indent << "Locator: " << this->Locator << "\n";
+    }
+  else
+    {
+    os << indent << "Locator: (none)\n";
+    }
 }

@@ -443,11 +443,10 @@ int vtkPolyLine::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
     if ( pcoords[0] < 0.0 ) return 0;
     else return 1;
     }
-
 }
 
 void vtkPolyLine::Contour(float value, vtkFloatScalars *cellScalars,
-                         vtkFloatPoints *points, vtkCellArray *verts, 
+                         vtkPointLocator *locator, vtkCellArray *verts, 
                          vtkCellArray *lines, vtkCellArray *polys, 
                          vtkFloatScalars *scalars)
 {
@@ -463,7 +462,7 @@ void vtkPolyLine::Contour(float value, vtkFloatScalars *cellScalars,
     lineScalars.SetScalar(0,cellScalars->GetScalar(i));
     lineScalars.SetScalar(1,cellScalars->GetScalar(i+1));
 
-    line.Contour(value, &lineScalars, points, verts,
+    line.Contour(value, &lineScalars, locator, verts,
                  lines, polys, scalars);
     }
 
