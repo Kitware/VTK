@@ -54,6 +54,7 @@ EXAMPLES = VisQuad \
 	alphaFreq \
 	bluntStr \
 	contQuad \
+	expCos \
 	finance \
 	medical1 \
 	medical2 \
@@ -170,6 +171,9 @@ bluntStr: bluntStr.o ${VTKLIB}
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 contQuad: contQuad.o ${VTKLIB}
 	${CXX} -o contQuad ${CXX_FLAGS} contQuad.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+expCos: expCos.o ${VTKLIB}
+	${CXX} -o expCos ${CXX_FLAGS} expCos.o ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 finance: finance.o ${VTKLIB}
 	${CXX} -o finance ${CXX_FLAGS} finance.o ${XLDFLAGS} ${LDLIBS} \
