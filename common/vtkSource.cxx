@@ -76,8 +76,6 @@ vtkSource::vtkSource()
 //----------------------------------------------------------------------------
 vtkSource::~vtkSource()
 {
-  int idx;
-
   UnRegisterAllOutputs();
   if (this->Outputs)
     {
