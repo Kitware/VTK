@@ -282,9 +282,13 @@ void *vtkPythonGetPointerFromObject(PyObject *obj, char *result_type)
     }
   else
     {
+    char error_string[256];
 #ifdef VTKPYTHONDEBUG
     vtkGenericWarningMacro("vtk bad argument, type conversion failed.");
-#endif  
+#endif
+    sprintf(error_string,"method requires a %s object, a %s object was provided.",
+	    result_type,((vtkObject *)ptr)->GetClassName());
+    PyErr_SetString(PyExc_ValueError,error_string);
     return NULL;
     }
 }
