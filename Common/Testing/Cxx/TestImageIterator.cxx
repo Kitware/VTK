@@ -36,8 +36,8 @@ int DoTest(T*)
     = new vtkImageProgressIterator<T>(id,ext,0,0);
   delete it;
   delete ipt;
-  return 0;
   id->Delete();
+  return 0;
 }
 
 int main()
