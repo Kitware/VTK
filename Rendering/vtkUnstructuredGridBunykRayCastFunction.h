@@ -70,7 +70,7 @@ class vtkUnstructuredGrid;
 // We manage the memory for the list of intersections ourself - this is the
 // storage used. We keep 10,000 elements in each array, and we can have up to 
 // 1,000 arrays.
-#define VTK_BUNYKRCF_MAX_ARRAYS 1000
+#define VTK_BUNYKRCF_MAX_ARRAYS 10000
 #define VTK_BUNYKRCF_ARRAY_SIZE 10000
 
 class VTK_RENDERING_EXPORT vtkUnstructuredGridBunykRayCastFunction : public vtkUnstructuredGridVolumeRayCastFunction
@@ -149,6 +149,8 @@ public:
   double **GetColorTable() {return this->ColorTable;}
   double *GetColorTableShift() {return this->ColorTableShift;}
   double *GetColorTableScale() {return this->ColorTableScale;}
+
+  vtkGetMacro( ScalarOpacityUnitDistance, double );
   
 //ETX
   
@@ -297,6 +299,11 @@ protected:
   // the color table and all saved arrays for computing it, 
   // and will reconstruct them with the right size.
   void          SetNumberOfComponents( int num );
+
+  // Hang on to this value (from vtkVolumeProperty) since the CastRay method
+  // will need access to it to correct the opacity for the actual length
+  // through each cell
+  double ScalarOpacityUnitDistance;
   
 //ETX
   
