@@ -27,7 +27,7 @@
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.34.2.3");
+vtkCxxRevisionMacro(vtkImageReslice, "1.34.2.4");
 vtkStandardNewMacro(vtkImageReslice);
 vtkCxxSetObjectMacro(vtkImageReslice, InformationInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkImageReslice,ResliceAxes,vtkMatrix4x4);
@@ -2591,7 +2591,7 @@ void vtkOptimizedExecute(vtkImageReslice *self,
           }
         else // optimize for nearest-neighbor interpolation
           {
-          for (int idX = r1; idX <= r2; idX++)
+          for (int idX = idXmin; idX <= idXmax; idX++)
             {
             inPoint[0] = inPoint1[0] + idX*xAxis[0];
             inPoint[1] = inPoint1[1] + idX*xAxis[1];
