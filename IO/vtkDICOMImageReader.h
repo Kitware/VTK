@@ -24,12 +24,10 @@
 #ifndef __vtkDICOMImageReader_h
 #define __vtkDICOMImageReader_h
 
-// #include "DICOMParser.h"
-// #include "DICOMAppHelper.h"
 #include "vtkImageReader2.h"
 
 //BTX
-class myvector;
+class vtkDICOMImageReaderVector;
 class DICOMParser;
 class DICOMAppHelper;
 //ETX
@@ -50,10 +48,10 @@ class VTK_IO_EXPORT vtkDICOMImageReader : public vtkImageReader2
   // Set the filename for the file to read. If this method is used,
   // the reader will only read a single file.
   void SetFileName(const char* fn)
-    {
+  {
     this->DirectoryName = NULL;
     this->vtkImageReader2::SetFileName(fn);
-    }
+  }
 
   // Description:
   // Returns the filename.
@@ -73,7 +71,7 @@ class VTK_IO_EXPORT vtkDICOMImageReader : public vtkImageReader2
   // Returns the directory name.
   vtkGetStringMacro(DirectoryName);
 
- protected:
+protected:
   //
   // Setup the volume size
   //
@@ -88,16 +86,16 @@ class VTK_IO_EXPORT vtkDICOMImageReader : public vtkImageReader2
   // What file extensions are supported?
   // 
   virtual const char* GetFileExensions()
-    {
+  {
     return ".dcm";
-    }
+  }
 
   // Description: 
   // Return a descriptive name for the file format that might be useful in a GUI.
   virtual const char* GetDescriptiveName()
-    {
+  {
     return "DICOM";
-    }
+  }
   
   virtual void ExecuteInformation();
   virtual void ExecuteData(vtkDataObject *out);
@@ -123,9 +121,9 @@ class VTK_IO_EXPORT vtkDICOMImageReader : public vtkImageReader2
   DICOMAppHelper* AppHelper;
   
   //
-  // myvector wants to be a PIMPL and it will be, but not quite yet.
+  // vtkDICOMImageReaderVector wants to be a PIMPL and it will be, but not quite yet.
   //
-  myvector* DICOMFileNames;
+  vtkDICOMImageReaderVector* DICOMFileNames;
   char* DirectoryName;
 
 private:
