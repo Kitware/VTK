@@ -43,7 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Initialize static member
 //
 #include "vtkTimeStamp.h"
-#include "vtkMutexLock.h"
+#include "vtkCriticalSection.h"
 #include "vtkObjectFactory.h"
 
 //-------------------------------------------------------------------------
@@ -59,15 +59,15 @@ vtkTimeStamp* vtkTimeStamp::New()
   return new vtkTimeStamp;
 }
 
-static vtkSimpleMutexLock TimeStampMutex;
+static vtkSimpleCriticalSection TimeStampCritSec;
 
 void vtkTimeStamp::Modified()
 {
   static unsigned long vtkTimeStampTime = 0; 
 
-  TimeStampMutex.Lock();
+  TimeStampCritSec.Lock();
   this->ModifiedTime = ++vtkTimeStampTime;
-  TimeStampMutex.Unlock();
+  TimeStampCritSec.Unlock();
 }
 
 
