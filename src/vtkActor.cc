@@ -192,7 +192,7 @@ float *vtkActor::GetOrientation ()
 // Description:
 // Add to the current orientation. See SetOrientation and GetOrientation for 
 // more details. This basically does a GetOrientation adds the passed in
-// arguents and then calls SetOrientation.
+// arguments and then calls SetOrientation.
 void vtkActor::AddOrientation (float a1,float a2,float a3)
 {
   float *orient;
