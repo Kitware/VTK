@@ -14,7 +14,7 @@ What you should do:
 
 - Copy this vtkMy directory to a different out-of-source place, and remove all CVS subdirs to avoid any accidental commit to the main VTK CVS.
 
-- Fill the subdirs with your own classes. Remove the dummy classes if needed. For each CMakeList.txt in the package dirs, add or remove the class(es) pertaining to this directory (SOURCE_FILES command).
+- Fill the subdirs with your own classes. Remove the dummy classes if needed. For each CMakeList.txt in the package dirs, add or remove the class(es) pertaining to this directory (SOURCE_FILES command). Depending on the directory, your class must #include "vtkmy*Win32Header.h" (see dummy vlasses for example) and use the according VTK_MY_*_EXPORT macro after the 'class' keyword to ensure proper DLL build. 
 
 - Run CMake as usual. Use your vtkMy local dir as source dir, and choose whatever build directory. Your VTK build- or install- directory should be found automatically.
 
@@ -35,5 +35,3 @@ Ideally, if you plan to exchange or distribute your modules then you should rena
   - In all *Win32Header.h files and VTK headers, change VTK_MY_*_EXPORT to VTK_SB_*_EXPORT. Sorry for the inconvenience, but the wrappers expect this symbol to start with VTK_, thus VTKMY_*_EXPORT could not be used.
 
 Any prefix should work, but make sure that your class names start with 'vtk', otherwise the wrappers will fail (hence the vtksb or vtkmy prefix, not sbvtk or myvtk). A safe bet is to use something starting 'vtk' in a consistent way.
-
- 
