@@ -42,18 +42,21 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRenderer.h"
 
 // Description:
-// Instantiate object with no renderer; tolerance set to 0.01; and 
-// select invisible off.
+// Instantiate object with no renderer; window selection turned off; 
+// tolerance set to 0.01; and select invisible off.
 vtkSelectVisiblePoints::vtkSelectVisiblePoints()
 {
   this->Renderer = NULL;
+  this->SelectionWindow = 0;
+  this->Selection[0] = this->Selection[2] = 0;
+  this->Selection[1] = this->Selection[3] = 1600;
   this->Tolerance = 0.01;
   this->SelectInvisible = 0;
 }
 
 void vtkSelectVisiblePoints::Execute()
 {
-  int ptId, id;
+  int ptId, id, visible;
   vtkPoints *outPts;
   vtkDataSet *input=(vtkDataSet *)this->Input;
   vtkPolyData *output=this->GetOutput();
@@ -71,20 +74,30 @@ void vtkSelectVisiblePoints::Execute()
   x[3] = 1.0;
   for (id=(-1), ptId=0; ptId < numPts; ptId++)
     {
+    // perform conversion
     input->GetPoint(ptId,x);
     this->Renderer->SetWorldPoint(x);
     this->Renderer->WorldToDisplay();
     this->Renderer->GetDisplayPoint(dx);
-    z = this->Renderer->GetZ(dx[0], dx[1]);
-    diff = fabs(z-dx[2]);
-    vtkDebugMacro(<<"z,dx[2]:" << z << " " << dx[2] << "\n");
-    if ( (diff <= this->Tolerance && !this->SelectInvisible) ||
-    (diff > this->Tolerance && this->SelectInvisible) )
+    visible = 0;
+
+    // check whether visible and in selection window 
+    if ( !this->SelectionWindow ||
+    (dx[0] >= this->Selection[0] && dx[0] <= this->Selection[1] &&
+     dx[1] >= this->Selection[2] && dx[1] <= this->Selection[3]) )
+      {
+      z = this->Renderer->GetZ(dx[0], dx[1]);
+      diff = fabs(z-dx[2]);
+      if ( diff <= this->Tolerance ) visible = 1;
+      }
+
+    if ( (visible && !this->SelectInvisible) ||
+    (!visible && this->SelectInvisible) )
       {
       id = outPts->InsertNextPoint(x);
       outPD->CopyData(inPD,ptId,id);
       }
-    }
+    }//for all points
 
   output->SetPoints(outPts);
   outPts->Delete();
@@ -113,6 +126,15 @@ void vtkSelectVisiblePoints::PrintSelf(ostream& os, vtkIndent indent)
   vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
 
   os << indent << "Renderer: " << this->Renderer << "\n";
+  os << indent << "Selection Window: " 
+     << (this->SelectionWindow ? "On\n" : "Off\n");
+
+  os << indent << "Selection: \n";
+  os << indent << "  Xmin,Xmax: (" << this->Selection[0] << ", " 
+     << this->Selection[1] << ")\n";
+  os << indent << "  Ymin,Ymax: (" << this->Selection[2] << ", " 
+     << this->Selection[3] << ")\n";
+
   os << indent << "Tolerance: " << this->Tolerance << "\n";
   os << indent << "Select Invisible: " 
      << (this->SelectInvisible ? "On\n" : "Off\n");

@@ -49,7 +49,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //
 // Points that are visible (or if the ivar SelectInvisible is on,
 // invisible points) are passed to the output. Associated data
-// attribites are passed to the output as well.
+// attributes are passed to the output as well.
+//
+// This filter also allows you to specify a rectangular window in display
+// (pixel) coordinates in which the visible points must lie. This can be
+// used as a sort of local "brushing" operation to select just data within
+// a window.
 // 
 // .SECTION Caveats
 // You must carefully synchronize the execution of this filter. The
@@ -80,6 +85,19 @@ public:
   vtkGetObjectMacro(Renderer,vtkRenderer);
 
   // Description:
+  // Set/Get the flag which enables selection in a rectangular display
+  // region.
+  vtkSetMacro(SelectionWindow,int);
+  vtkGetMacro(SelectionWindow,int);
+  vtkBooleanMacro(SelectionWindow,int);
+
+  // Description:
+  // Specify the selection window in display coordinates. You must specify
+  // a rectangular region using (xmin,xmax,ymin,ymax).
+  vtkSetVector4Macro(Selection,int);
+  vtkGetVectorMacro(Selection,int,4);
+
+  // Description:
   // Set/Get the flag which enables inverse selection; i.e., invisible points
   // are selected.
   vtkSetMacro(SelectInvisible,int);
@@ -87,7 +105,9 @@ public:
   vtkBooleanMacro(SelectInvisible,int);
 
   // Description:
-  // Set/Get a tolerance to use to determine whether a point is visible.
+  // Set/Get a tolerance to use to determine whether a point is visible. A
+  // tolerance is usually required because the conversion from world space
+  // to display space during rendering introduces numerical round-off.
   vtkSetClampMacro(Tolerance,float,0.0,VTK_LARGE_FLOAT);
   vtkGetMacro(Tolerance,float);
 
@@ -98,6 +118,9 @@ protected:
   void Execute();
 
   vtkRenderer *Renderer;
+
+  int SelectionWindow;
+  int Selection[4];
   int SelectInvisible;
   float Tolerance;
 
