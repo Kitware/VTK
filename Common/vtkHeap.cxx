@@ -127,4 +127,10 @@ char* vtkHeap::StrDup(const char* str)
   return static_cast<char*>(node->Ptr);
 }
 
+void vtkHeap::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkObject::PrintSelf(os,indent);
+
+  os << indent << "Number of Allocations: " << this->NumberOfAllocations << "\n";
+}
 

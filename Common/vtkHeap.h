@@ -77,6 +77,8 @@ class VTK_EXPORT vtkHeap : public vtkObject
 {
 public:
   static vtkHeap *New();
+  vtkTypeMacro(vtkHeap,vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Allocate the memory requested.
