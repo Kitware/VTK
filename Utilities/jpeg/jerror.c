@@ -25,6 +25,7 @@
 #include "jerror.h"
 
 #ifdef USE_WINDOWS_MESSAGEBOX
+#undef INT32
 #include <windows.h>
 #endif
 

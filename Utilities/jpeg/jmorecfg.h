@@ -157,8 +157,8 @@ typedef short INT16;
 
 /* INT32 must hold at least signed 32-bit values. */
 
-#if !defined(XMD_H) && !defined(_BASETSD_H_) && !(defined(__CYGWIN__) && defined(USE_WINDOWS_MESSAGEBOX))  /* X11/xmd.h and VC6 correctly defines INT32 */
-typedef int INT32;
+#if !defined(XMD_H) && !defined(_BASETSD_H_)
+#define INT32 int
 #endif
 
 /* Datatype used for image dimensions.  The JPEG standard only supports
