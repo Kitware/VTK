@@ -21,6 +21,7 @@ vlThresholdTextureCoords::vlThresholdTextureCoords()
 {
   this->LowerThreshold = 0.0;
   this->UpperThreshold = 1.0;
+  this->TextureDimension = 2;
 
   this->ThresholdFunction = &vlThresholdTextureCoords::Upper;
 }
