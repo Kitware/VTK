@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageRGBToHSV, "1.23");
+vtkCxxRevisionMacro(vtkImageRGBToHSV, "1.24");
 vtkStandardNewMacro(vtkImageRGBToHSV);
 
 //----------------------------------------------------------------------------
@@ -33,10 +33,10 @@ vtkImageRGBToHSV::vtkImageRGBToHSV()
 //----------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 template <class T>
-static void vtkImageRGBToHSVExecute(vtkImageRGBToHSV *self,
-                                    vtkImageData *inData,
-                                    vtkImageData *outData,
-                                    int outExt[6], int id, T *)
+void vtkImageRGBToHSVExecute(vtkImageRGBToHSV *self,
+                             vtkImageData *inData,
+                             vtkImageData *outData,
+                             int outExt[6], int id, T *)
 {
   vtkImageIterator<T> inIt(inData, outExt);
   vtkImageProgressIterator<T> outIt(outData, outExt, self, id);

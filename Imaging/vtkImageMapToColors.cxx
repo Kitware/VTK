@@ -18,7 +18,7 @@
 #include "vtkImageMapToColors.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageMapToColors, "1.17");
+vtkCxxRevisionMacro(vtkImageMapToColors, "1.18");
 vtkStandardNewMacro(vtkImageMapToColors);
 
 //----------------------------------------------------------------------------
@@ -134,11 +134,11 @@ void vtkImageMapToColors::ExecuteInformation(vtkImageData *inData,
 //----------------------------------------------------------------------------
 // This non-templated function executes the filter for any type of data.
 
-static void vtkImageMapToColorsExecute(vtkImageMapToColors *self,
-                                       vtkImageData *inData, void *inPtr,
-                                       vtkImageData *outData, 
-                                       unsigned char *outPtr,
-                                       int outExt[6], int id)
+void vtkImageMapToColorsExecute(vtkImageMapToColors *self,
+                                vtkImageData *inData, void *inPtr,
+                                vtkImageData *outData, 
+                                unsigned char *outPtr,
+                                int outExt[6], int id)
 {
   int idxY, idxZ;
   int extX, extY, extZ;

@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkImageProgressIterator.h"
 
-vtkCxxRevisionMacro(vtkImageShiftScale, "1.42");
+vtkCxxRevisionMacro(vtkImageShiftScale, "1.43");
 vtkStandardNewMacro(vtkImageShiftScale);
 
 //----------------------------------------------------------------------------
@@ -52,10 +52,10 @@ void vtkImageShiftScale::ExecuteInformation(vtkImageData *inData,
 //----------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 template <class IT, class OT>
-static void vtkImageShiftScaleExecute(vtkImageShiftScale *self,
-                                      vtkImageData *inData,
-                                      vtkImageData *outData,
-                                      int outExt[6], int id,  IT *, OT *)
+void vtkImageShiftScaleExecute(vtkImageShiftScale *self,
+                               vtkImageData *inData,
+                               vtkImageData *outData,
+                               int outExt[6], int id,  IT *, OT *)
 {
   vtkImageIterator<IT> inIt(inData, outExt);
   vtkImageProgressIterator<OT> outIt(outData, outExt, self, id);
@@ -113,10 +113,10 @@ static void vtkImageShiftScaleExecute(vtkImageShiftScale *self,
 
 //----------------------------------------------------------------------------
 template <class T>
-static void vtkImageShiftScaleExecute1(vtkImageShiftScale *self,
-                                      vtkImageData *inData,
-                                      vtkImageData *outData,
-                                      int outExt[6], int id, T *)
+void vtkImageShiftScaleExecute1(vtkImageShiftScale *self,
+                                vtkImageData *inData,
+                                vtkImageData *outData,
+                                int outExt[6], int id, T *)
 {
   switch (outData->GetScalarType())
     {

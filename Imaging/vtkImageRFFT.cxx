@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageRFFT, "1.27");
+vtkCxxRevisionMacro(vtkImageRFFT, "1.28");
 vtkStandardNewMacro(vtkImageRFFT);
 
 //----------------------------------------------------------------------------
@@ -51,7 +51,7 @@ void vtkImageRFFT::ComputeInputUpdateExtent(int inExt[6],
 // This templated execute method handles any type input, but the output
 // is always floats.
 template <class T>
-static void vtkImageRFFTExecute(vtkImageRFFT *self,
+void vtkImageRFFTExecute(vtkImageRFFT *self,
                          vtkImageData *inData, int inExt[6], T *inPtr,
                          vtkImageData *outData, int outExt[6], float *outPtr,
                          int id)

@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageShrink3D, "1.51");
+vtkCxxRevisionMacro(vtkImageShrink3D, "1.52");
 vtkStandardNewMacro(vtkImageShrink3D);
 
 //----------------------------------------------------------------------------
@@ -179,9 +179,9 @@ void vtkImageShrink3D::ExecuteInformation(vtkImageData *inData,
 
 template <class T>
 #ifdef _WIN32_WCE
-static int __cdecl compare(const T *y1,const T *y2)
+int __cdecl vtkiscompare(const T *y1,const T *y2)
 #else
-static int compare(const T *y1,const T *y2)
+int vtkiscompare(const T *y1,const T *y2)
 #endif
 {
   if ( *y1 <  *y2) 
@@ -200,10 +200,10 @@ static int compare(const T *y1,const T *y2)
 //----------------------------------------------------------------------------
 // The templated execute function handles all the data types.
 template <class T>
-static void vtkImageShrink3DExecute(vtkImageShrink3D *self,
-                                    vtkImageData *inData, T *inPtr,
-                                    vtkImageData *outData, T *outPtr,
-                                    int outExt[6], int id)
+void vtkImageShrink3DExecute(vtkImageShrink3D *self,
+                             vtkImageData *inData, T *inPtr,
+                             vtkImageData *outData, T *outPtr,
+                             int outExt[6], int id)
 {
   int outIdx0, outIdx1, outIdx2, inIdx0, inIdx1, inIdx2;
   int inInc0, inInc1, inInc2;
@@ -221,11 +221,11 @@ static void vtkImageShrink3DExecute(vtkImageShrink3D *self,
   // black magic to force the correct version of the comparison function
   // to be instantiated AND used.
 #ifdef _WIN32_WCE
-  int (__cdecl *compareF1)(const T*, const T*) = compare;
+  int (__cdecl *compareF1)(const T*, const T*) = vtkiscompare;
   int (__cdecl *compareFn)(const void*, const void*)
     = (int (__cdecl *)(const void*, const void*)) compareF1;
 #else
-  int (*compareF1)(const T*, const T*) = compare;
+  int (*compareF1)(const T*, const T*) = vtkiscompare;
   int (*compareFn)(const void*, const void*)
     = (int (*)(const void*, const void*)) compareF1;
 #endif

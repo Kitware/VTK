@@ -18,7 +18,7 @@
 #include "vtkImageSeparableConvolution.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageSeparableConvolution, "1.9");
+vtkCxxRevisionMacro(vtkImageSeparableConvolution, "1.10");
 vtkStandardNewMacro(vtkImageSeparableConvolution);
 
 // Actually do the convolution
@@ -183,10 +183,10 @@ void vtkImageSeparableConvolution::ComputeInputUpdateExtent(int inExt[6],
 }
 
 template <class T>
-static void vtkImageSeparableConvolutionExecute ( vtkImageSeparableConvolution* self,
-                                                  vtkImageData* inData,
-                                                  vtkImageData* outData,
-                                                  T* vtkNotUsed ( dummy ) )
+void vtkImageSeparableConvolutionExecute ( vtkImageSeparableConvolution* self,
+                                           vtkImageData* inData,
+                                           vtkImageData* outData,
+                                           T* vtkNotUsed ( dummy ) )
 {
   T *inPtr0, *inPtr1, *inPtr2;
   float *outPtr0, *outPtr1, *outPtr2;

@@ -18,7 +18,7 @@
 #include "vtkImageMagnify.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageMagnify, "1.40");
+vtkCxxRevisionMacro(vtkImageMagnify, "1.41");
 vtkStandardNewMacro(vtkImageMagnify);
 
 //----------------------------------------------------------------------------
@@ -88,10 +88,10 @@ void vtkImageMagnify::ComputeInputUpdateExtent(int inExt[6],
 // 2d even though operation is 1d.
 // Note: Slight misalignment (pixel replication is not nearest neighbor).
 template <class T>
-static void vtkImageMagnifyExecute(vtkImageMagnify *self,
-                                  vtkImageData *inData, T *inPtr, int inExt[6],
-                                  vtkImageData *outData, T *outPtr,
-                                  int outExt[6], int id)
+void vtkImageMagnifyExecute(vtkImageMagnify *self,
+                            vtkImageData *inData, T *inPtr, int inExt[6],
+                            vtkImageData *outData, T *outPtr,
+                            int outExt[6], int id)
 {
   int idxC, idxX, idxY, idxZ;
   int inIdxX, inIdxY, inIdxZ;

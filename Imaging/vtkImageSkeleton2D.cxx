@@ -18,7 +18,7 @@
 #include "vtkImageSkeleton2D.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageSkeleton2D, "1.30");
+vtkCxxRevisionMacro(vtkImageSkeleton2D, "1.31");
 vtkStandardNewMacro(vtkImageSkeleton2D);
 
 //----------------------------------------------------------------------------
@@ -80,10 +80,10 @@ void vtkImageSkeleton2D::ComputeInputUpdateExtent(int inExt[6],
 // but it is the only way I can think of to get the 
 // desired results with a 3x3 kernel.
 template <class T>
-static void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
-                                      vtkImageData *inData, T *inPtr, 
-                                      vtkImageData *outData, int *outExt, 
-                                      T *outPtr, int id)
+void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
+                               vtkImageData *inData, T *inPtr, 
+                               vtkImageData *outData, int *outExt, 
+                               T *outPtr, int id)
 {
   // For looping though output (and input) pixels.
   int outMin0, outMax0, outMin1, outMax1, outMin2, outMax2, numComps;

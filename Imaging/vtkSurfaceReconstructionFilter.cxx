@@ -21,7 +21,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSurfaceReconstructionFilter, "1.22");
+vtkCxxRevisionMacro(vtkSurfaceReconstructionFilter, "1.23");
 vtkStandardNewMacro(vtkSurfaceReconstructionFilter);
 
 vtkSurfaceReconstructionFilter::vtkSurfaceReconstructionFilter()
@@ -31,35 +31,35 @@ vtkSurfaceReconstructionFilter::vtkSurfaceReconstructionFilter()
 }
 
 // some simple routines for vector math
-static void CopyBToA(float* a,float* b) 
+void vtkCopyBToA(float* a,float* b) 
 { 
   for(int i=0;i<3;i++) 
     {
     a[i] = b[i]; 
     }
 }
-static void SubtractBFromA(float* a,float* b) 
+void vtkSubtractBFromA(float* a,float* b) 
 { 
   for(int i=0;i<3;i++) 
     {
     a[i] -= b[i]; 
     }
 }
-static void AddBToA(float* a,float* b) 
+void vtkAddBToA(float* a,float* b) 
 { 
   for(int i=0;i<3;i++) 
     {
     a[i] += b[i]; 
     }
 }
-static void MultiplyBy(float* a,float f) 
+void vtkMultiplyBy(float* a,float f) 
 { 
   for(int i=0;i<3;i++) 
     {
     a[i] *= f; 
     }
 }
-static void DivideBy(float* a,float f) 
+void vtkDivideBy(float* a,float f) 
 { 
   for(int i=0;i<3;i++) 
     {
@@ -68,13 +68,13 @@ static void DivideBy(float* a,float f)
 }
 
 // Routines for matrix creation
-static void FreeMatrix(float **m, long nrl, long nrh, long ncl, long nch);
-static float **Matrix(long nrl, long nrh, long ncl, long nch);
-static void FreeVector(float *v, long nl, long nh);
-static float *SRVector(long nl, long nh);
+void vtkSRFreeMatrix(float **m, long nrl, long nrh, long ncl, long nch);
+float **vtkSRMatrix(long nrl, long nrh, long ncl, long nch);
+void vtkSRFreeVector(float *v, long nl, long nh);
+float *vtkSRVector(long nl, long nh);
 
 // set a matrix to zero
-static void MakeZero(float **m,long nrl, long nrh, long ncl, long nch) 
+void vtkSRMakeZero(float **m,long nrl, long nrh, long ncl, long nch) 
 { 
   int i,j; 
   for(i=nrl;i<=nrh;i++) 
@@ -87,10 +87,10 @@ static void MakeZero(float **m,long nrl, long nrh, long ncl, long nch)
 }
 
 // add v*Transpose(v) to m, where v is 3x1 and m is 3x3
-static void AddOuterProduct(float **m,float *v);
+void vtkSRAddOuterProduct(float **m,float *v);
 
 // scalar multiply a matrix
-static void Multiply(float **m,float f,long nrl, long nrh, long ncl, long nch)
+void vtkSRMultiply(float **m,float f,long nrl, long nrh, long ncl, long nch)
 { 
   int i,j; 
   for(i=nrl;i<=nrh;i++) 
@@ -151,7 +151,7 @@ void vtkSurfaceReconstructionFilter::Execute()
   for(i=0;i<COUNT;i++)
     {
     SurfacePoint *p = &surfacePoints[i];
-    CopyBToA(p->loc,input->GetPoint(i));
+    vtkCopyBToA(p->loc,input->GetPoint(i));
         locator->FindClosestNPoints(this->NeighborhoodSize,p->loc,locals);
     int iNeighbor;
     for(j=0;j<locals->GetNumberOfIds();j++)
@@ -175,31 +175,31 @@ void vtkSurfaceReconstructionFilter::Execute()
   {
   float *pointi;
   float **covar,*v3d,*eigenvalues,**eigenvectors;
-  covar = Matrix(0,2,0,2);
-  v3d = SRVector(0,2);
-  eigenvalues = SRVector(0,2);
-  eigenvectors = Matrix(0,2,0,2);
+  covar = vtkSRMatrix(0,2,0,2);
+  v3d = vtkSRVector(0,2);
+  eigenvalues = vtkSRVector(0,2);
+  eigenvectors = vtkSRMatrix(0,2,0,2);
   for(i=0;i<COUNT;i++)
     {
     SurfacePoint *p = &surfacePoints[i];
     
     // first find the centroid of the neighbors
-    CopyBToA(p->o,p->loc);
+    vtkCopyBToA(p->o,p->loc);
     int number=1;
     vtkIdType neighborIndex;
     for(j=0;j<p->neighbors->GetNumberOfIds();j++)
       {
       neighborIndex = p->neighbors->GetId(j);
       pointi = input->GetPoint(neighborIndex);
-      AddBToA(p->o,pointi);
+      vtkAddBToA(p->o,pointi);
       number++;
       }
-    DivideBy(p->o,number);
+    vtkDivideBy(p->o,number);
     // then compute the covariance matrix
-    MakeZero(covar,0,2,0,2);
+    vtkSRMakeZero(covar,0,2,0,2);
     for(k=0;k<3;k++)
       v3d[k] = p->loc[k] - p->o[k];
-    AddOuterProduct(covar,v3d);
+    vtkSRAddOuterProduct(covar,v3d);
     for(j=0;j<p->neighbors->GetNumberOfIds();j++)
       {
       neighborIndex = p->neighbors->GetId(j);
@@ -208,9 +208,9 @@ void vtkSurfaceReconstructionFilter::Execute()
         {
         v3d[k] = pointi[k] - p->o[k];
         }
-      AddOuterProduct(covar,v3d);
+      vtkSRAddOuterProduct(covar,v3d);
       }
-    Multiply(covar,1.0/number,0,2,0,2);
+    vtkSRMultiply(covar,1.0/number,0,2,0,2);
     // then extract the third eigenvector
     vtkMath::Jacobi(covar,eigenvalues,eigenvectors);
     // third eigenvector (column 2, ordered by eigenvalue magnitude) is plane normal
@@ -219,10 +219,10 @@ void vtkSurfaceReconstructionFilter::Execute()
       p->n[k] = eigenvectors[k][2];
       }
     }
-  FreeMatrix(covar,0,2,0,2);
-  FreeVector(v3d,0,2);
-  FreeVector(eigenvalues,0,2);
-  FreeMatrix(eigenvectors,0,2,0,2);
+  vtkSRFreeMatrix(covar,0,2,0,2);
+  vtkSRFreeVector(v3d,0,2);
+  vtkSRFreeVector(eigenvalues,0,2);
+  vtkSRFreeMatrix(eigenvectors,0,2,0,2);
   }
 
   //time(&t2);
@@ -317,7 +317,7 @@ void vtkSurfaceReconstructionFilter::Execute()
                       surfacePoints[connectedVisited].n)<0.0F)
         {
         // flip this normal
-        MultiplyBy(surfacePoints[cheapestNearby].n,-1);
+        vtkMultiplyBy(surfacePoints[cheapestNearby].n,-1);
         }
       // add this nearby point to visited
       if(surfacePoints[cheapestNearby].isVisited != 0)
@@ -429,8 +429,8 @@ void vtkSurfaceReconstructionFilter::Execute()
           vtkErrorMacro (<< "Internal error");
           return;
           }
-        CopyBToA(temp,point);
-        SubtractBFromA(temp,surfacePoints[iClosestPoint].loc);
+        vtkCopyBToA(temp,point);
+        vtkSubtractBFromA(temp,surfacePoints[iClosestPoint].loc);
         probeValue = vtkMath::Dot(temp,surfacePoints[iClosestPoint].n);
         volScalars->InsertValue(offset,probeValue);
         }
@@ -456,7 +456,7 @@ void vtkSurfaceReconstructionFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Sample Spacing:" << this->SampleSpacing << "\n";
 }
 
-static void AddOuterProduct(float **m,float *v)
+void vtkSRAddOuterProduct(float **m,float *v)
 {
   int i,j;
   for(i=0;i<3;i++)
@@ -472,7 +472,7 @@ static void AddOuterProduct(float **m,float *v)
 #define VTK_FREE_ARG char*
 
 // allocate a float vector with subscript range v[nl..nh]
-static float *SRVector(long nl, long nh)        
+float *vtkSRVector(long nl, long nh)        
 { 
   float *v;
 
@@ -487,8 +487,7 @@ static float *SRVector(long nl, long nh)
 }
 
 // allocate a float matrix with subscript range m[nrl..nrh][ncl..nch]
-static float **Matrix(long nrl, long nrh, long ncl, long nch)
-        
+float **vtkSRMatrix(long nrl, long nrh, long ncl, long nch)        
 {
   long i, nrow=nrh-nrl+1,ncol=nch-ncl+1;
   float **m;
@@ -524,14 +523,14 @@ static float **Matrix(long nrl, long nrh, long ncl, long nch)
 }
 
 // free a float vector allocated with SRVector()
-static void FreeVector(float *v, long nl, long vtkNotUsed(nh))
+void vtkSRFreeVector(float *v, long nl, long vtkNotUsed(nh))
 { 
   delete [] (v+nl-VTK_NR_END);
 }
 
 // free a float matrix allocated by Matrix()
-static void FreeMatrix(float **m, long nrl, long vtkNotUsed(nrh),
-                       long ncl, long vtkNotUsed(nch))
+void vtkSRFreeMatrix(float **m, long nrl, long vtkNotUsed(nrh),
+                     long ncl, long vtkNotUsed(nch))
         
 {
   delete [] (m[nrl]+ncl-VTK_NR_END);

@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageStencil, "1.6");
+vtkCxxRevisionMacro(vtkImageStencil, "1.7");
 vtkStandardNewMacro(vtkImageStencil);
 
 //----------------------------------------------------------------------------
@@ -98,7 +98,7 @@ void vtkImageStencil::ExecuteInformation(vtkImageData *input,
 // copy a pixel, advance the output pointer but not the input pointer
 
 template<class T>
-static inline void vtkCopyPixel(T *&out, const T *in, int numscalars)
+inline void vtkCopyPixel(T *&out, const T *in, int numscalars)
 {
   do
     {
@@ -111,8 +111,7 @@ static inline void vtkCopyPixel(T *&out, const T *in, int numscalars)
 // Convert background color from float to appropriate type
 
 template <class T>
-static void vtkAllocBackground(vtkImageStencil *self,
-                               T *&background)
+void vtkAllocBackground(vtkImageStencil *self, T *&background)
 {
   int numComponents = self->GetOutput()->GetNumberOfScalarComponents();
   int scalarType = self->GetOutput()->GetScalarType();
@@ -141,8 +140,7 @@ static void vtkAllocBackground(vtkImageStencil *self,
 
 //----------------------------------------------------------------------------
 template <class T>
-static void vtkFreeBackground(vtkImageStencil *vtkNotUsed(self),
-                              T *&background)
+void vtkFreeBackground(vtkImageStencil *vtkNotUsed(self), T *&background)
 {
   delete [] background;
   background = NULL;
@@ -150,11 +148,11 @@ static void vtkFreeBackground(vtkImageStencil *vtkNotUsed(self),
 
 //----------------------------------------------------------------------------
 template <class T>
-static void vtkImageStencilExecute(vtkImageStencil *self,
-                                   vtkImageData *inData, T *inPtr,
-                                   vtkImageData *in2Data,T *in2Ptr,
-                                   vtkImageData *outData, T *outPtr,
-                                   int outExt[6], int id)
+void vtkImageStencilExecute(vtkImageStencil *self,
+                            vtkImageData *inData, T *inPtr,
+                            vtkImageData *in2Data,T *in2Ptr,
+                            vtkImageData *outData, T *outPtr,
+                            int outExt[6], int id)
 {
   int numscalars, inIncX;
   int idX, idY, idZ;

@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkImageProgressIterator.h"
 
-vtkCxxRevisionMacro(vtkImageThreshold, "1.38");
+vtkCxxRevisionMacro(vtkImageThreshold, "1.39");
 vtkStandardNewMacro(vtkImageThreshold);
 
 //----------------------------------------------------------------------------
@@ -118,10 +118,10 @@ void vtkImageThreshold::ExecuteInformation(vtkImageData *inData,
 //----------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 template <class IT, class OT>
-static void vtkImageThresholdExecute(vtkImageThreshold *self,
-                                     vtkImageData *inData,
-                                     vtkImageData *outData, 
-                                     int outExt[6], int id, IT *, OT *)
+void vtkImageThresholdExecute(vtkImageThreshold *self,
+                              vtkImageData *inData,
+                              vtkImageData *outData, 
+                              int outExt[6], int id, IT *, OT *)
 {
   vtkImageIterator<IT> inIt(inData, outExt);
   vtkImageProgressIterator<OT> outIt(outData, outExt, self, id);
@@ -230,10 +230,10 @@ static void vtkImageThresholdExecute(vtkImageThreshold *self,
 
 //----------------------------------------------------------------------------
 template <class T>
-static void vtkImageThresholdExecute1(vtkImageThreshold *self,
-                                      vtkImageData *inData,
-                                      vtkImageData *outData,
-                                      int outExt[6], int id, T *)
+void vtkImageThresholdExecute1(vtkImageThreshold *self,
+                               vtkImageData *inData,
+                               vtkImageData *outData,
+                               int outExt[6], int id, T *)
 {
   switch (outData->GetScalarType())
     {

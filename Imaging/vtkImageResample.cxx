@@ -18,7 +18,7 @@
 #include "vtkImageResample.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageResample, "1.34");
+vtkCxxRevisionMacro(vtkImageResample, "1.35");
 vtkStandardNewMacro(vtkImageResample);
 
 // Macro for trilinear interpolation - do four linear interpolations on
@@ -200,11 +200,11 @@ void vtkImageResample::ExecuteInformation(vtkImageData *inData,
 
 //----------------------------------------------------------------------------
 template <class T>
-static void vtkImageResampleExecuteNI(vtkImageResample *self,
-                                      vtkImageData *inData, 
-                                      T *inPtr, int vtkNotUsed(inExt)[6],
-                                      vtkImageData *outData, T *outPtr,
-                                      int outExt[6], int id)
+void vtkImageResampleExecuteNI(vtkImageResample *self,
+                               vtkImageData *inData, 
+                               T *inPtr, int vtkNotUsed(inExt)[6],
+                               vtkImageData *outData, T *outPtr,
+                               int outExt[6], int id)
 {
   float magX = self->GetAxisMagnificationFactor(0);
   float magY = self->GetAxisMagnificationFactor(1);
@@ -301,11 +301,11 @@ static void vtkImageResampleExecuteNI(vtkImageResample *self,
 
 //----------------------------------------------------------------------------
 template <class T>
-static void vtkImageResampleExecute2D(vtkImageResample *self,
-                                      vtkImageData *inData, 
-                                      T *inPtr, int inExt[6],
-                                      vtkImageData *outData, T *outPtr,
-                                      int outExt[6], int id)
+void vtkImageResampleExecute2D(vtkImageResample *self,
+                               vtkImageData *inData, 
+                               T *inPtr, int inExt[6],
+                               vtkImageData *outData, T *outPtr,
+                               int outExt[6], int id)
 {
   float magX = self->GetAxisMagnificationFactor(0);
   float magY = self->GetAxisMagnificationFactor(1);
@@ -475,11 +475,11 @@ static void vtkImageResampleExecute2D(vtkImageResample *self,
 
 //----------------------------------------------------------------------------
 template <class T>
-static void vtkImageResampleExecute3D(vtkImageResample *self,
-                                      vtkImageData *inData, T *inPtr, 
-                                      int inExt[6],
-                                      vtkImageData *outData, T *outPtr,
-                                      int outExt[6], int id)
+void vtkImageResampleExecute3D(vtkImageResample *self,
+                               vtkImageData *inData, T *inPtr, 
+                               int inExt[6],
+                               vtkImageData *outData, T *outPtr,
+                               int outExt[6], int id)
 {
   float magZ = self->GetAxisMagnificationFactor(2);
   float magX = self->GetAxisMagnificationFactor(0);
@@ -709,10 +709,10 @@ static void vtkImageResampleExecute3D(vtkImageResample *self,
 }
 
 template <class T>
-static void vtkImageResampleExecute(vtkImageResample *self,
-                                  vtkImageData *inData, T *inPtr, int inExt[6],
-                                  vtkImageData *outData, T *outPtr,
-                                  int outExt[6], int id)
+void vtkImageResampleExecute(vtkImageResample *self,
+                             vtkImageData *inData, T *inPtr, int inExt[6],
+                             vtkImageData *outData, T *outPtr,
+                             int outExt[6], int id)
 {
   float magZ = self->GetAxisMagnificationFactor(2);
 

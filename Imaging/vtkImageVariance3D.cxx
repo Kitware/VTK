@@ -20,7 +20,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageVariance3D, "1.22");
+vtkCxxRevisionMacro(vtkImageVariance3D, "1.23");
 vtkStandardNewMacro(vtkImageVariance3D);
 
 //----------------------------------------------------------------------------
@@ -120,11 +120,11 @@ void vtkImageVariance3D::ExecuteInformation(vtkImageData *vtkNotUsed(inData),
 // If the filter needs to be faster, the function could be duplicated
 // for strictly center (no boundary ) processing.
 template <class T>
-static void vtkImageVariance3DExecute(vtkImageVariance3D *self,
-                                      vtkImageData *mask,
-                                      vtkImageData *inData, T *inPtr, 
-                                      vtkImageData *outData, int *outExt, 
-                                      float *outPtr, int id)
+void vtkImageVariance3DExecute(vtkImageVariance3D *self,
+                               vtkImageData *mask,
+                               vtkImageData *inData, T *inPtr, 
+                               vtkImageData *outData, int *outExt, 
+                               float *outPtr, int id)
 {
   int *kernelMiddle, *kernelSize;
   // For looping though output (and input) pixels.

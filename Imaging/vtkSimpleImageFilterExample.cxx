@@ -18,7 +18,7 @@
 #include "vtkSimpleImageFilterExample.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSimpleImageFilterExample, "1.7");
+vtkCxxRevisionMacro(vtkSimpleImageFilterExample, "1.8");
 vtkStandardNewMacro(vtkSimpleImageFilterExample);
 
 // The switch statement in Execute will call this method with
@@ -26,16 +26,16 @@ vtkStandardNewMacro(vtkSimpleImageFilterExample);
 // that the output data type is the same as the input data type.
 // This is not always the case.
 template <class IT>
-static void vtkSimpleImageFilterExampleExecute(vtkImageData* input,
-                                               vtkImageData* output,
-                                               IT* inPtr, IT* outPtr)
+void vtkSimpleImageFilterExampleExecute(vtkImageData* input,
+                                        vtkImageData* output,
+                                        IT* inPtr, IT* outPtr)
 {
   int dims[3];
   input->GetDimensions(dims);
   if (input->GetScalarType() != output->GetScalarType())
     {
     vtkGenericWarningMacro(<< "Execute: input ScalarType, " << input->GetScalarType()
-                  << ", must match out ScalarType " << output->GetScalarType());
+    << ", must match out ScalarType " << output->GetScalarType());
     return;
     }
   

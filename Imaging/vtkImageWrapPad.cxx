@@ -18,7 +18,7 @@
 #include "vtkImageWrapPad.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageWrapPad, "1.23");
+vtkCxxRevisionMacro(vtkImageWrapPad, "1.24");
 vtkStandardNewMacro(vtkImageWrapPad);
 
 //----------------------------------------------------------------------------
@@ -69,10 +69,10 @@ void vtkImageWrapPad::ComputeInputUpdateExtent(int inExt[6],
 //----------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 template <class T>
-static void vtkImageWrapPadExecute(vtkImageWrapPad *self,
-                                   vtkImageData *inData, T *vtkNotUsed(inPtr),
-                                   vtkImageData *outData, T *outPtr,
-                                   int outExt[6], int id)
+void vtkImageWrapPadExecute(vtkImageWrapPad *self,
+                            vtkImageData *inData, T *vtkNotUsed(inPtr),
+                            vtkImageData *outData, T *outPtr,
+                            int outExt[6], int id)
 {
   int min0, max0;
   int imageMin0, imageMax0, imageMin1, imageMax1, 

@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageSobel3D, "1.27");
+vtkCxxRevisionMacro(vtkImageSobel3D, "1.28");
 vtkStandardNewMacro(vtkImageSobel3D);
 
 //----------------------------------------------------------------------------
@@ -58,10 +58,10 @@ void vtkImageSobel3D::ExecuteInformation(vtkImageData *vtkNotUsed(inData),
 // it handles boundaries. Pixels are just replicated to get values 
 // out of extent.
 template <class T>
-static void vtkImageSobel3DExecute(vtkImageSobel3D *self,
-                                   vtkImageData *inData, T *inPtr, 
-                                   vtkImageData *outData, int *outExt, 
-                                   float *outPtr, int id)
+void vtkImageSobel3DExecute(vtkImageSobel3D *self,
+                            vtkImageData *inData, T *inPtr, 
+                            vtkImageData *outData, int *outExt, 
+                            float *outPtr, int id)
 {
   float r0, r1, r2, *r;
   // For looping though output (and input) pixels.
