@@ -132,8 +132,14 @@ protected:
   // Description:
   // This method is the one that should be used by subclasses, right now the 
   // default implementation is to call the backwards compatibility method
-  virtual void ExecuteData(vtkDataObject *vtkNotUsed(output)) {
-    this->Execute(); };
+  virtual void ExecuteData(vtkDataObject *output);
+
+  // Description:
+  // This detects when the UpdateExtent will generate no data.
+  // This condition is satisfied when the UpdateExtent has 
+  // zero volume (0,-1,...) or the UpdateNumberOfPieces is 0.
+  // The source uses this call to determine whether to call Execute.
+  int UpdateExtentIsEmpty(vtkDataObject *output);
 
   // Description:
   // This method is the old style execute method
