@@ -342,6 +342,14 @@ vtkActor aPolyVertexActor
   [aPolyVertexActor GetProperty] BackfaceCullingOn
 
 
+if { [info command vtkRIBProperty] != "" } {
+  vtkRIBProperty aProperty
+
+} else {
+  vtkProperty aProperty
+}
+aTriangleActor SetProperty aProperty
+
 ren1 SetBackground .1 .2 .4
 
 ren1 AddActor aVoxelActor; [aVoxelActor GetProperty] SetDiffuseColor 1 0 0
@@ -357,9 +365,20 @@ ren1 AddActor aPolyLineActor; [aPolyLineActor GetProperty] SetDiffuseColor 1 1 1
 ren1 AddActor aVertexActor; [aVertexActor GetProperty] SetDiffuseColor 1 1 1
 ren1 AddActor aPolyVertexActor; [aPolyVertexActor GetProperty] SetDiffuseColor 1 1 1
 
+if { [info command vtkRIBLight] != "" } {
+  vtkRIBLight aLight
+   aLight ShadowsOn
+} else {
+  vtkLight aLight
+}
+ren1 AddLight aLight
+
 [ren1 GetActiveCamera] Azimuth 30
 [ren1 GetActiveCamera] Elevation 20
 [ren1 GetActiveCamera] Dolly 1.25
+
+eval aLight SetFocalPoint [[ren1 GetActiveCamera] GetFocalPoint]
+eval aLight SetPosition [[ren1 GetActiveCamera] GetPosition]
 renWin Render
 
 vtkVRMLExporter vrml
