@@ -45,7 +45,7 @@ public:
   // special operators
   vlCharArray &operator=(const vlCharArray& ia);
   void operator+=(const vlCharArray& ia);
-  void operator+=(const char i) {this->InsertNextValue(i);};
+  void operator+=(const char i);
   char& operator[](const int i);
 
   // miscellaneous methods
@@ -87,6 +87,10 @@ inline int vlCharArray::InsertNextValue(const char i)
 {
   this->InsertValue (++this->MaxId,i); 
   return this->MaxId;
+}
+void vlCharArray::operator+=(const char i) 
+{
+  this->InsertNextValue(i);
 }
 
 // Description:

@@ -32,7 +32,7 @@ public:
   vlFloatTCoords(int sz, int d=2, int ext=1000):TC(d*sz,d*ext) {this->Dimension=d;};
   ~vlFloatTCoords() {};
   int Allocate(const int sz, const int dim=2, const int ext=1000) {return this->TC.Allocate(dim*sz,dim*ext);};
-  void Initialize() {return this->TC.Initialize();};
+  void Initialize() {this->TC.Initialize();};
   char *GetClassName() {return "vlFloatTCoords";};
 
   // vlTCoords interface
