@@ -45,9 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 vtkSTLReader* vtkSTLReader::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -59,9 +57,6 @@ vtkSTLReader* vtkSTLReader::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkSTLReader;
 }
-
-
-
 
 #define VTK_ASCII 0
 #define VTK_BINARY 1
@@ -117,7 +112,6 @@ void vtkSTLReader::Execute()
     return;
     }
 
-  //
   // Initialize
   //
   if ((fp = fopen(this->FileName, "r")) == NULL)
@@ -130,7 +124,7 @@ void vtkSTLReader::Execute()
   newPts->Allocate(5000,10000);
   newPolys = vtkCellArray::New();
   newPolys->Allocate(10000,20000);
-  //
+
   // Depending upon file type, read differently
   //
   if ( this->GetSTLFileType(fp) == VTK_ASCII )
@@ -179,15 +173,15 @@ void vtkSTLReader::Execute()
       for (i=0; i < 3; i++) 
         {
         x = newPts->GetPoint(pts[i]);
-	this->Locator->InsertUniquePoint(x, nodes[i]);
+        this->Locator->InsertUniquePoint(x, nodes[i]);
         }
 
       if ( nodes[0] != nodes[1] &&
-	   nodes[0] != nodes[2] && 
-	   nodes[1] != nodes[2] )
-	{
+           nodes[0] != nodes[2] && 
+           nodes[1] != nodes[2] )
+        {
         mergedPolys->InsertNextCell(3,nodes);
-	}
+        }
       }
 
       newPts->Delete();
@@ -229,19 +223,20 @@ int vtkSTLReader::ReadBinarySTL(FILE *fp, vtkPoints *newPts, vtkCellArray *newPo
   facet_t facet;
 
   vtkDebugMacro(<< " Reading BINARY STL file");
-//
-//  File is read to obtain raw information as well as bounding box
-//
+
+  //  File is read to obtain raw information as well as bounding box
+  //
   fread (header, 1, 80, fp);
   fread (&ulint, 1, 4, fp);
   vtkByteSwap::Swap4LE(&ulint);
-//
-// Many .stl files contain bogus count.  Hence we will ignore and read 
-//   until end of file.
-//
+
+  // Many .stl files contain bogus count.  Hence we will ignore and read 
+  //   until end of file.
+  //
   if ( (numTris = (int) ulint) <= 0 )
     {
-    vtkDebugMacro(<< "Bad binary count: attempting to correct (" << numTris << ")");
+    vtkDebugMacro(<< "Bad binary count: attempting to correct (" 
+                  << numTris << ")");
     }
 
   for ( i=0; fread(&facet,48,1,fp) > 0; i++ )
@@ -286,13 +281,13 @@ int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts, vtkCellArray *newPol
   int pts[3];
 
   vtkDebugMacro(<< " Reading ASCII STL file");
-//
-//  Ingest header and junk to get to first vertex
-//
+
+  //  Ingest header and junk to get to first vertex
+  //
   fgets (line, 255, fp);
-/*
- *  Go into loop, reading  facet normal and vertices
- */
+
+  //  Go into loop, reading  facet normal and vertices
+  //
   while (fscanf(fp,"%*s %*s %f %f %f\n", x, x+1, x+2)!=EOF) 
     {
     fgets (line, 255, fp);
@@ -302,8 +297,8 @@ int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts, vtkCellArray *newPol
     pts[1] = newPts->InsertNextPoint(x);
     fscanf (fp, "%*s %f %f %f\n", x,x+1,x+2);
     pts[2] = newPts->InsertNextPoint(x);
-    fgets (line, 255, fp); /* end loop */
-    fgets (line, 255, fp); /* end facet */
+    fgets (line, 255, fp); // end loop
+    fgets (line, 255, fp); // end facet
 
     newPolys->InsertNextCell(3,pts);
 
@@ -321,24 +316,22 @@ int vtkSTLReader::GetSTLFileType(FILE *fp)
 {
   unsigned char header[256];
   int type, i;
-	int numChars;
+  int numChars;
 
-//
-//  Read a little from the file to figure what type it is.
-//
-	/* skip 255 characters so we are past any first line comment */
+  //  Read a little from the file to figure what type it is.
+  //
+  // skip 255 characters so we are past any first line comment */
   numChars = fread ((unsigned char *)header, 1, 255, fp);
   for (i = 0, type=VTK_ASCII; i< numChars && type == VTK_ASCII; i++) // don't test \0
     {
-		if (header[i] > 127)
-		  {
-		  type = VTK_BINARY;
-		  }
+    if (header[i] > 127)
+      {
+      type = VTK_BINARY;
+      }
     }
 
-		//
-// Reset file for reading
-//
+  // Reset file for reading
+  //
   rewind (fp);
   return type;
 }
