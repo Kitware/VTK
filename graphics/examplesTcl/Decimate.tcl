@@ -35,13 +35,14 @@ pack .mbar.help -side right
 
 menu .mbar.file.menu
     .mbar.file.menu add command -label Open -command OpenFile
-    .mbar.file.menu add command -label Save -command SaveFile
+    .mbar.file.menu add command -label Save -command SaveFile -state disabled
     .mbar.file.menu add command -label Exit -command exit
 
 menu .mbar.edit.menu
-    .mbar.edit.menu add command -label Clean -command Clean
-    .mbar.edit.menu add command -label Decimate -command Decimate
-    .mbar.edit.menu add command -label Triangulate -command Triangulate
+    .mbar.edit.menu add command -label Clean -command Clean -state disabled
+    .mbar.edit.menu add command -label Decimate -command Decimate -state disabled
+    .mbar.edit.menu add command -label Triangulate -command Triangulate \
+	    -state disabled
     .mbar.edit.menu add command -label "Undo/Redo" -command Undo
 
 menu .mbar.view.menu
@@ -77,24 +78,26 @@ vtkTkRenderWidget .window -width 300 -height 300
     BindTkRenderWidget .window
 pack .window -side top -anchor nw -padx 3 -pady 3 -fill both -expand 1
 
+vtkRenderer Renderer
+set RenWin [.window GetRenderWindow]
+$RenWin AddRenderer Renderer
+
 # Status bar
 label .status -text "(No data)"
 pack .status -side top -anchor w -expand 1 -fill x
 
 # Procedure to set particular views
 proc UpdateView {x y z vx vy vz} {
-    global ren renWin
-
-    set camera [$ren GetActiveCamera]
+    set camera [Renderer GetActiveCamera]
     $camera SetViewPlaneNormal $x $y $z
     $camera SetViewUp $vx $vy $vz
-    $ren ResetCamera
+    Renderer ResetCamera
     Render
 }
 
 # Procedure opens file and resets view
 proc OpenFile {} {
-    global ren renWin
+    global RenWin
 
     set types {
         {{BYU}                                  {.g}          }
@@ -104,9 +107,9 @@ proc OpenFile {} {
     }
     set filename [tk_getOpenFile -filetypes $types]
     if { $filename != "" } {
-        $ren RemoveActor bannerActor
-        $ren RemoveActor actor
-        $ren RemoveActor FEdgesActor
+        Renderer RemoveActor bannerActor
+        Renderer RemoveActor actor
+        Renderer RemoveActor FEdgesActor
         if { [info commands reader] != "" } {reader Delete}
         if { [string match *.g $filename] } {
             vtkBYUReader reader
@@ -124,21 +127,36 @@ proc OpenFile {} {
 
         reader Update
 
+        PreviousPolyData CopyStructure [reader GetOutput]
+        [PreviousPolyData GetPointData] PassData [[reader GetOutput] GetPointData]
         PolyData CopyStructure [reader GetOutput]
         [PolyData GetPointData] PassData [[reader GetOutput] GetPointData]
-        mapper SetInput PolyData
 
-        if { [[reader GetOutput] GetNumberOfCells] <= 0 } {
-            $ren AddActor bannerActor
-        } else {
-            $ren AddActor actor
-            UpdateFEdges
-        }
-        .mbar.file.menu activate 2        
-        $ren ResetCamera
-        $renWin Render
+        UpdateMenus
+
+        Renderer ResetCamera
+        $RenWin Render
 
 	UpdateStatistics
+    }
+}
+
+# Procedure updates the menus, actors, etc. after a read occurs
+proc UpdateMenus {} {
+
+    if { [PolyData GetNumberOfCells] <= 0 } {
+	Renderer AddActor bannerActor
+	.mbar.edit.menu entryconfigure 1 -state disabled
+	.mbar.edit.menu entryconfigure 2 -state disabled
+	.mbar.edit.menu entryconfigure 3 -state disabled
+	.mbar.file.menu entryconfigure 1 -state disabled
+    } else {
+	Renderer AddActor actor
+	UpdateFEdges
+	.mbar.edit.menu entryconfigure 1 -state normal
+	.mbar.edit.menu entryconfigure 2 -state normal
+	.mbar.edit.menu entryconfigure 3 -state normal
+	.mbar.file.menu entryconfigure 2 -state normal
     }
 }
 
@@ -184,22 +202,22 @@ proc UpdateUndo {filter} {
 
 # Undo last edit
 proc Undo {} {
+    TempPolyData CopyStructure PolyData
+    [TempPolyData GetPointData] PassData [PolyData GetPointData]
 
-        TempPolyData CopyStructure PolyData
-        [TempPolyData GetPointData] PassData [PolyData GetPointData]
+    PolyData CopyStructure PreviousPolyData
+    [PolyData GetPointData] PassData [PreviousPolyData GetPointData]
+    PolyData Modified
 
-        PolyData CopyStructure PreviousPolyData
-        [PolyData GetPointData] PassData [PreviousPolyData GetPointData]
-        PolyData Modified
-
-        PreviousPolyData CopyStructure TempPolyData
-        [PreviousPolyData GetPointData] PassData [TempPolyData GetPointData]
+    PreviousPolyData CopyStructure TempPolyData
+    [PreviousPolyData GetPointData] PassData [TempPolyData GetPointData]
 
     UpdateStatistics
 }
 
 # Create pipeline
 vtkPolyDataMapper   mapper
+    mapper SetInput PolyData
 vtkActor actor
     actor SetMapper mapper
 
@@ -223,40 +241,35 @@ vtkPolyDataMapper FEdgesMapper
 vtkActor FEdgesActor
     FEdgesActor SetMapper FEdgesMapper
 
-set renWin [.window GetRenderWindow]
-set ren   [$renWin MakeRenderer]
-
-$ren AddActor bannerActor
-[$ren GetActiveCamera] Zoom 1.25
+Renderer AddActor bannerActor
+[Renderer GetActiveCamera] Zoom 1.25
 
 # Procedure manages surface display
 proc UpdateSurface {} {
-    global ren renWin
-    global Surface
+    global Surface RenWin
 
-   if { ! $Surface } {
-	$ren RemoveActor actor
-   } else {
-        $ren AddActor actor
-   }
-   $renWin Render
+    if { ! $Surface } {
+	Renderer RemoveActor actor
+    } else {
+        Renderer AddActor actor
+    }
+    $RenWin Render
 }
 
 # Procedure manages feature edge on/off
 proc UpdateFEdges {} {
-    global ren renWin
-    global FEdges BEdges NMEdges
+    global FEdges BEdges NMEdges RenWin
 
-   if { ! $FEdges && ! $BEdges && ! $NMEdges } {
-	$ren RemoveActor FEdgesActor
-   } else {
-        set actors [$ren GetActors]
-        if { [$actors GetNumberOfItems] < 2 } {$ren AddActor FEdgesActor}
+    if { ! $FEdges && ! $BEdges && ! $NMEdges } {
+	Renderer RemoveActor FEdgesActor
+    } else {
+        set actors [Renderer GetActors]
+        if { [$actors GetNumberOfItems] < 2 } {Renderer AddActor FEdgesActor}
 	FeatureEdges SetBoundaryEdges $BEdges
 	FeatureEdges SetFeatureEdges $FEdges
 	FeatureEdges SetNonManifoldEdges $NMEdges
-   }
-   $renWin Render
+    }
+    $RenWin Render
 }
 
 # Procedure updates data statistics
@@ -317,7 +330,7 @@ proc UpdateDecimationGUI {} {
 }
 
 proc ApplyDecimation {} {
-    global deciReduction deciPreserve renWin
+    global deciReduction deciPreserve RenWin
 
     deci SetInput PolyData    
 
@@ -327,7 +340,7 @@ proc ApplyDecimation {} {
 
     UpdateUndo "deci"
 
-    $renWin Render
+    $RenWin Render
     UpdateStatistics
     CloseDecimate
 }  
@@ -378,7 +391,7 @@ proc UpdateCleanGUI {} {
 }
 
 proc ApplyClean {} {
-    global renWin
+    global RenWin
 
     cleaner SetInput PolyData
     cleaner SetTolerance [.clean.f1.s get]
@@ -386,7 +399,7 @@ proc ApplyClean {} {
 
     UpdateUndo "cleaner"
 
-    $renWin Render
+    $RenWin Render
     UpdateStatistics
     CloseClean
 }
@@ -419,14 +432,14 @@ proc UpdateTriGUI {} {
 }
 
 proc ApplyTri {} {
-    global renWin
+    global RenWin
 
     tri SetInput PolyData
     tri Update
 
     UpdateUndo "tri"
 
-    $renWin Render
+    $RenWin Render
     UpdateStatistics
     CloseTri
 }
