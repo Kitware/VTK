@@ -21,7 +21,6 @@
 // vtkImageGradientMagnitude computes the gradient magnitude of an image.
 // Setting the dimensionality determines whether the gradient is computed on
 // 2D images, or 3D volumes.  The default is two dimensional XY images.
-// OutputScalarType is always float.
 
 // .SECTION See Also
 // vtkImageGradient vtkImageMagnitude
