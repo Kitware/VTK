@@ -97,6 +97,18 @@ public:
   void SetForceMakeCurrent();
 
   // Description:
+  // Get report of capabilities for the render window
+  const char *ReportCapabilities();
+
+  // Description:
+  // Does this render window support OpenGL? 0-false, 1-true
+  int SupportsOpenGL();
+
+  // Description:
+  // Is this render window using hardware acceleration? 0-false, 1-true
+  int IsDirect();
+
+  // Description:
   // Xwindow get set functions
   virtual void *GetGenericDisplayId() {return (void *)this->GetDisplayId();};
   virtual void *GetGenericWindowId();
