@@ -20,7 +20,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkBrownianPoints, "1.33");
+vtkCxxRevisionMacro(vtkBrownianPoints, "1.34");
 vtkStandardNewMacro(vtkBrownianPoints);
 
 vtkBrownianPoints::vtkBrownianPoints()
@@ -63,9 +63,10 @@ void vtkBrownianPoints::Execute()
     this->MaximumSpeed = 1.0;
     }
 
+  int tenth = numPts/10 + 1;
   for (i=0; i<numPts; i++)
     {
-    if ( ! (i % 10000) ) 
+    if ( ! (i % tenth) ) 
       {
       this->UpdateProgress ((float)i/numPts);
       if (this->GetAbortExecute())
@@ -79,7 +80,7 @@ void vtkBrownianPoints::Execute()
       {
       for (j=0; j<3; j++)
         {
-        v[j] = vtkMath::Random(0,speed);
+        v[j] = vtkMath::Random(-1.0,1.0);
         }
       norm = vtkMath::Norm(v);
       for (j=0; j<3; j++)
@@ -89,10 +90,9 @@ void vtkBrownianPoints::Execute()
       }
     else
       {
-      for (j=0; j<3; j++)
-        {
-        v[j] = 0.0;
-        }
+      v[0] = 0.0;
+      v[1] = 0.0;
+      v[2] = 0.0;
       }
 
     newVectors->SetTuple(i,v);
