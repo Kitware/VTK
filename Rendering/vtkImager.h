@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkActor2DCollection.h"
 #include "vtkActor2D.h"
 #include "vtkViewport.h"
-
+#include "vtkWindow.h"
 
 class vtkImageWindow;
 
@@ -74,8 +74,8 @@ public:
 
   // Description:
   // Get the image window that an imager is attached to.
-  vtkImageWindow* GetImageWindow() {return (vtkImageWindow*) this->VTKWindow;};
-  vtkWindow *GetVTKWindow() {return (vtkWindow*) this->VTKWindow;};
+  vtkImageWindow* GetImageWindow();
+  vtkWindow *GetVTKWindow() {return static_cast<vtkWindow*>(this->VTKWindow);};
 
   
   //BTX

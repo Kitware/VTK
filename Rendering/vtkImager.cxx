@@ -210,4 +210,8 @@ unsigned int vtkImager::GetPickedId()
 }
 
 
+vtkImageWindow *vtkImager::GetImageWindow()
+{
+  return static_cast<vtkImageWindow*>(this->VTKWindow);
+}
 

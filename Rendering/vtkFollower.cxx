@@ -45,6 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFollower.h"
 #include "vtkCamera.h"
 #include "vtkObjectFactory.h"
+#include "vtkRenderer.h"
 
 //-----------------------------------------------------------------------------
 vtkFollower* vtkFollower::New()
@@ -53,7 +54,7 @@ vtkFollower* vtkFollower::New()
   vtkObject* ret = vtkObjectFactory::CreateInstance("vtkFollower");
   if(ret)
     {
-    return (vtkFollower*)ret;
+    return static_cast<vtkFollower*>(ret);
     }
   // If the factory was unable to create the object, then create it here.
   return new vtkFollower;
@@ -196,7 +197,7 @@ int vtkFollower::RenderOpaqueGeometry(vtkViewport *vp)
 
   if (this->GetIsOpaque())
     {
-    vtkRenderer *ren = (vtkRenderer *)vp;
+    vtkRenderer *ren = static_cast<vtkRenderer *>(vp);
     this->Render(ren);
     return 1;
     }
@@ -218,7 +219,7 @@ int vtkFollower::RenderTranslucentGeometry(vtkViewport *vp)
 
   if (!this->GetIsOpaque())
     {
-    vtkRenderer *ren = (vtkRenderer *)vp;
+    vtkRenderer *ren = static_cast<vtkRenderer *>(vp);
     this->Render(ren);
     return 1;
     }
