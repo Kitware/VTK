@@ -15,9 +15,13 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Read MOVIE.BYU Files
-//
+// .NAME vlBYUReader - read MOVIE.BYU polygon files
+// .SECTION Description
+// vlBYUReader is a source object that reads MOVIE.BYU polygon files.
+// These files consist of a geometry file (.g), a scalar file (.s), a 
+// displacement or vector file (.d), and a 2D texture coordinate file
+// (.t).
+
 #ifndef __vlBYUReader_h
 #define __vlBYUReader_h
 

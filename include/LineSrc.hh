@@ -13,9 +13,12 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Create line centered at origin
-//
+// .NAME vlLineSource - create a line defined by two end points
+// .SECTION Description
+// vlLineSource is a source object that creates a polyline defined by
+// two endpoints. The number of segments composing the polyline is
+// controlled by setting the object resolution.
+
 #ifndef __vlLineSource_h
 #define __vlLineSource_h
 

@@ -13,8 +13,11 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Create cloud of points centered at specified point
+// .NAME vlPointSource - create a random cloud of points
+// .SECTION Description
+// vlPointSource is a source object that creates a user-specified number 
+// of points within a specified radius about a specified center point. 
+// The location of the points is random within the sphere.
 //
 #ifndef __vlPointSource_h
 #define __vlPointSource_h
