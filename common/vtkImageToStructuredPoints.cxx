@@ -728,7 +728,7 @@ vtkImageToStructuredPoints::ReformatRegionData(vtkImageRegion *region)
   int min, max;
   int colorScalars;
   
-  dataAxes = region->GetDataOrder();
+  dataAxes = region->GetMemoryOrder();
   region->SetAxes(VTK_IMAGE_DIMENSIONS, dataAxes);
   dataExtent = region->GetData()->GetExtent();
   regionExtent = region->GetExtent();
@@ -786,7 +786,7 @@ vtkImageToStructuredPoints::ReformatRegionData(vtkImageRegion *region)
 		    VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS);
       region->SetAxes(VTK_IMAGE_COMPONENT_AXIS, VTK_IMAGE_X_AXIS, 
 		    VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS);
-      temp->SetDataOrder(VTK_IMAGE_COMPONENT_AXIS, VTK_IMAGE_X_AXIS, 
+      temp->SetMemoryOrder(VTK_IMAGE_COMPONENT_AXIS, VTK_IMAGE_X_AXIS, 
 			 VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS);
       temp->SetExtent(4, region->GetExtent());
       temp->CopyRegionData(region);
@@ -798,7 +798,7 @@ vtkImageToStructuredPoints::ReformatRegionData(vtkImageRegion *region)
       {
       temp = vtkImageRegion::New();
       temp->SetScalarType(region->GetScalarType());
-      temp->SetDataOrder(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS);
+      temp->SetMemoryOrder(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS);
       temp->SetExtent(3, regionExtent);
       temp->CopyRegionData(region);
       scalars = temp->GetData()->GetPointData()->GetScalars();

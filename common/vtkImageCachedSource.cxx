@@ -51,6 +51,12 @@ vtkImageCachedSource::vtkImageCachedSource()
 		VTK_IMAGE_Z_AXIS,
 		VTK_IMAGE_TIME_AXIS,
 		VTK_IMAGE_COMPONENT_AXIS);
+  this->StartMethod = NULL;
+  this->StartMethodArgDelete = NULL;
+  this->StartMethodArg = NULL;
+  this->EndMethod = NULL;
+  this->EndMethodArgDelete = NULL;
+  this->EndMethodArg = NULL;
 }
 
 
@@ -117,6 +123,13 @@ void vtkImageCachedSource::UpdatePointData(int dim, vtkImageRegion *region)
   int min, max;
   int axis = this->Axes[dim - 1];
   
+  // Since this is the first method called by the cache, start end methods
+  // must be placed here.  But since this is a recursive method, ...
+  if (dim == VTK_IMAGE_DIMENSIONS)
+    {
+    if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);  
+    }
+  
   // Terminate recursion?
   if (dim == this->Dimensionality)
     {
@@ -142,6 +155,13 @@ void vtkImageCachedSource::UpdatePointData(int dim, vtkImageRegion *region)
     {
     this->CheckCache();
     this->Output->CacheRegion(region);
+    }
+
+  // Since this is the first method called by the cache, start end methods
+  // must be placed here.  But since this is a recursive method, ...
+  if (dim == VTK_IMAGE_DIMENSIONS)
+    {
+    if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);  
     }
 }
 
@@ -327,36 +347,6 @@ void vtkImageCachedSource::SetOutputScalarType(int value)
   this->Output->SetScalarType(value);
 }
 
-
-//----------------------------------------------------------------------------
-void vtkImageCachedSource::SetOutputDataOrder(int num, int *axes)
-{
-  this->CheckCache();
-  this->Output->SetDataOrder(num, axes);
-  this->Output->GetDataOrder(VTK_IMAGE_DIMENSIONS, this->OutputDataOrder);
-}
-
-
-//----------------------------------------------------------------------------
-void vtkImageCachedSource::GetOutputDataOrder(int num, int *axes)
-{
-  int idx;
-  
-  if (num > VTK_IMAGE_DIMENSIONS)
-    {
-    vtkWarningMacro("GetOutputDataOrder: "<< num <<" dimensions are too many");
-    num = VTK_IMAGE_DIMENSIONS;
-    }
-  for (idx = 0; idx < num; ++idx)
-    {
-    axes[idx] = this->OutputDataOrder[idx];
-    }
-}
-
-
-
-
-
 //----------------------------------------------------------------------------
 // Description:
 // This method returns the caches ScalarType.
@@ -407,6 +397,66 @@ void vtkImageCachedSource::CheckCache()
 
 
 
+//----------------------------------------------------------------------------
+// Description:
+// Specify function to be called before object executes.
+void vtkImageCachedSource::SetStartMethod(void (*f)(void *), void *arg)
+{
+  if ( f != this->StartMethod || arg != this->StartMethodArg )
+    {
+    // delete the current arg if there is one and a delete meth
+    if ((this->StartMethodArg)&&(this->StartMethodArgDelete))
+      {
+      (*this->StartMethodArgDelete)(this->StartMethodArg);
+      }
+    this->StartMethod = f;
+    this->StartMethodArg = arg;
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// Specify function to be called after object executes.
+void vtkImageCachedSource::SetEndMethod(void (*f)(void *), void *arg)
+{
+  if ( f != this->EndMethod || arg != this->EndMethodArg )
+    {
+    // delete the current arg if there is one and a delete meth
+    if ((this->EndMethodArg)&&(this->EndMethodArgDelete))
+      {
+      (*this->EndMethodArgDelete)(this->EndMethodArg);
+      }
+    this->EndMethod = f;
+    this->EndMethodArg = arg;
+    this->Modified();
+    }
+}
+
+
+//----------------------------------------------------------------------------
+// Description:
+// Set the arg delete method. This is used to free user memory.
+void vtkImageCachedSource::SetStartMethodArgDelete(void (*f)(void *))
+{
+  if ( f != this->StartMethodArgDelete)
+    {
+    this->StartMethodArgDelete = f;
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// Set the arg delete method. This is used to free user memory.
+void vtkImageCachedSource::SetEndMethodArgDelete(void (*f)(void *))
+{
+  if ( f != this->EndMethodArgDelete)
+    {
+    this->EndMethodArgDelete = f;
+    this->Modified();
+    }
+}
 
 
 

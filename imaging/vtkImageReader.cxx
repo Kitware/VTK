@@ -82,7 +82,7 @@ vtkImageReader::vtkImageReader()
   this->ManualHeaderSize = 0;
 
   // Left over from short reader
-  this->PixelMask = 0xffff;
+  this->DataMask = 0xffff;
   this->SwapBytes = 0;
 }
 
@@ -103,7 +103,7 @@ vtkImageReader::~vtkImageReader()
     }
 }
 
-void vtkImageReader::SetFileByteOrderToBigEndian()
+void vtkImageReader::SetDataByteOrderToBigEndian()
 {
 #ifndef VTK_WORDS_BIGENDIAN
   this->SwapBytesOn();
@@ -112,7 +112,7 @@ void vtkImageReader::SetFileByteOrderToBigEndian()
 #endif
 }
 
-void vtkImageReader::SetFileByteOrderToLittleEndian()
+void vtkImageReader::SetDataByteOrderToLittleEndian()
 {
 #ifdef VTK_WORDS_BIGENDIAN
   this->SwapBytesOn();
@@ -121,15 +121,15 @@ void vtkImageReader::SetFileByteOrderToLittleEndian()
 #endif
 }
 
-void vtkImageReader::SetFileByteOrder(int byteOrder)
+void vtkImageReader::SetDataByteOrder(int byteOrder)
 {
   if ( byteOrder == VTK_FILE_BYTE_ORDER_BIG_ENDIAN )
-    this->SetFileByteOrderToBigEndian();
+    this->SetDataByteOrderToBigEndian();
   else
-    this->SetFileByteOrderToLittleEndian();
+    this->SetDataByteOrderToLittleEndian();
 }
 
-int vtkImageReader::GetFileByteOrder()
+int vtkImageReader::GetDataByteOrder()
 {
 #ifdef VTK_WORDS_BIGENDIAN
   if ( this->SwapBytes )
@@ -144,7 +144,7 @@ int vtkImageReader::GetFileByteOrder()
 #endif
 }
 
-char *vtkImageReader::GetFileByteOrderAsString()
+char *vtkImageReader::GetDataByteOrderAsString()
 {
 #ifdef VTK_WORDS_BIGENDIAN
   if ( this->SwapBytes )
@@ -172,6 +172,14 @@ void vtkImageReader::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "FileName: " << this->FileName << "\n";
     }
 
+  os << indent << "DataMemoryOrder: (" 
+     << vtkImageAxisNameMacro(this->DataMemoryOrder[0]);
+  for (idx = 1; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    os << ", " << vtkImageAxisNameMacro(this->DataMemoryOrder[idx]);
+    }
+  os << ")\n";
+  
   os << indent << "DataScalarType: " 
      << vtkImageScalarTypeNameMacro(this->DataScalarType) << "\n";
 
@@ -214,6 +222,19 @@ void vtkImageReader::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
+void vtkImageReader::SetDataMemoryOrder(int dim, int *axes)
+{
+  this->SetAxes(dim, axes);
+  this->GetAxes(VTK_IMAGE_DIMENSIONS, this->DataMemoryOrder);
+}
+
+//----------------------------------------------------------------------------
+void vtkImageReader::GetDataMemoryOrder(int dim, int *axes)
+{
+  this->GetAxes(dim, axes);
+}
+  
+//----------------------------------------------------------------------------
 void vtkImageReader::SetDataDimensions(int num, int *size)
 {
   int idx;
@@ -255,6 +276,7 @@ void vtkImageReader::SetDataExtent(int num, int *extent)
   this->Initialized = 0;
   this->Modified();
 }
+
 //----------------------------------------------------------------------------
 void vtkImageReader::GetDataExtent(int num, int *extent)
 {
@@ -606,14 +628,14 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageRegion *region,
 	  {
 
 	  // Copy pixel into the output.
-	  if (self->PixelMask == 0xffff)
+	  if (self->DataMask == 0xffff)
 	    {
 	    *outPtr0 = (OT)(*inPtr);
 	    }
 	  else
 	    {
 	    // left over from short reader (what about other types.
-	    *outPtr0 = (OT)((short)(*inPtr) & self->PixelMask);
+	    *outPtr0 = (OT)((short)(*inPtr) & self->DataMask);
 	    }
 	  
 	  // move to next pixel

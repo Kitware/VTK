@@ -52,7 +52,6 @@ vtkImageCache::vtkImageCache()
   
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
-    this->DataOrder[idx] = idx;
     this->Spacing[idx] = 1.0;
     this->Origin[idx] = 0.0;
     this->ImageExtent[idx*2] = this->ImageExtent[idx*2+1] = 0;
@@ -61,6 +60,13 @@ vtkImageCache::vtkImageCache()
     this->Bounds[idx*2] = this->Bounds[idx*2+1] = 0.0;
     this->Axes[idx] = idx;
     }
+
+  // Default memory organization
+  this->MemoryOrder[0] = VTK_IMAGE_COMPONENT_AXIS;
+  this->MemoryOrder[1] = VTK_IMAGE_X_AXIS;
+  this->MemoryOrder[2] = VTK_IMAGE_Y_AXIS;
+  this->MemoryOrder[3] = VTK_IMAGE_Z_AXIS;
+  this->MemoryOrder[4] = VTK_IMAGE_TIME_AXIS;
   
   this->Source = NULL;
   
@@ -128,32 +134,41 @@ void vtkImageCache::PrintSelf(ostream& os, vtkIndent indent)
     os << ", " << this->Bounds[idx];
     }
   os << ")\n";
+
+  os << indent << "MemoryOrder: (" 
+     << vtkImageAxisNameMacro(this->MemoryOrder[0]);
+  for (idx = 1; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    os << ", " << vtkImageAxisNameMacro(this->MemoryOrder[idx]);
+    }
+  os << ")\n";
+  
 }
   
     
 
 
 //----------------------------------------------------------------------------
-void vtkImageCache::GetDataOrder(int num, int *axes)
+void vtkImageCache::GetMemoryOrder(int num, int *axes)
 {
   int idx;
   
   if (num > VTK_IMAGE_DIMENSIONS)
     {
-    vtkWarningMacro("GetDataOrder: " << num << " dimensions is too many");
+    vtkWarningMacro("GetMemoryOrder: " << num << " dimensions is too many");
     num = VTK_IMAGE_DIMENSIONS;
     }
   for (idx = 0; idx < num; ++idx)
     {
-    axes[idx] = this->DataOrder[idx];
+    axes[idx] = this->MemoryOrder[idx];
     }
 }
 
 
 //----------------------------------------------------------------------------
-void vtkImageCache::SetDataOrder(int num, int *axes)
+void vtkImageCache::SetMemoryOrder(int num, int *axes)
 {
-  vtkImageRegion::CompleteUnspecifiedAxes(num, axes, this->DataOrder);
+  vtkImageRegion::CompleteUnspecifiedAxes(num, axes, this->MemoryOrder);
   this->Modified();
   this->ReleaseData();
 }
@@ -306,7 +321,7 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
   region->ReleaseData();
   
   // Like ScalarType, this should by dynamic and not fixed.
-  region->SetDataOrder(VTK_IMAGE_DIMENSIONS, this->DataOrder);
+  region->SetMemoryOrder(VTK_IMAGE_DIMENSIONS, this->MemoryOrder);
   
   // If the extent has no "volume", just return.
   if (region->GetVolume() <= 0)
@@ -368,7 +383,7 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
     tempRegion->SetAxes(VTK_IMAGE_DIMENSIONS, region->GetAxes());
     tempRegion->SetExtent(VTK_IMAGE_DIMENSIONS, region->GetExtent());
     tempRegion->SetScalarType(saveScalarType);
-    tempRegion->SetDataOrder(this->DataOrder);
+    tempRegion->SetMemoryOrder(this->MemoryOrder);
     vtkWarningMacro(<< "UpdateRegion: Have to copy data from type "
         << vtkImageScalarTypeNameMacro(this->ScalarType) << " to type "
         << vtkImageScalarTypeNameMacro(saveScalarType));
@@ -615,6 +630,15 @@ void vtkImageCache::GetBounds(int num, float *bounds)
 }
 
 
+void vtkImageCache::SetGlobalReleaseDataFlag(int val)
+{
+  // not implemented yet ...
+}
+
+int  vtkImageCache::GetGlobalReleaseDataFlag()
+{
+  // not implemented yet ...
+}
 
 
 

@@ -75,15 +75,13 @@ public:
 
 
   // Description:
-  // Different methods for setting the axes.  Other instance variables
-  // like Extent, and Increments are relative to the Axes of the region.
-  // This allows the coordinate system of the region to be supperficially
-  // changed.
+  // Different methods for setting and getting the axes.  
+  // The only function of the Axes instance variable is to specify 
+  // a context for the other filter instance variables.  
+  // The affect of this variable is local to this region, and does not
+  // change the behavior of any filter that operates on this region.
   void SetAxes(int dim, int *axes);
   vtkImageSetMacro(Axes, int);
-
-  // Description:
-  // Different methods for getting the axes.
   void GetAxes(int dim, int *axes);  
   vtkImageGetMacro(Axes, int);
   int *GetAxes() {return this->Axes;};
@@ -112,11 +110,11 @@ public:
   // Description:
   // Set/Get the data order of the region.
   // The data along the first axis is colocated in memory.
-  void SetDataOrder(int num, int *axes);
-  vtkImageSetMacro(DataOrder, int);
-  void GetDataOrder(int num, int *axes);
-  vtkImageGetMacro(DataOrder, int);
-  int *GetDataOrder() {return this->DataOrder;}
+  void SetMemoryOrder(int num, int *axes);
+  vtkImageSetMacro(MemoryOrder, int);
+  void GetMemoryOrder(int num, int *axes);
+  vtkImageGetMacro(MemoryOrder, int);
+  int *GetMemoryOrder() {return this->MemoryOrder;}
   
   
   // Stuff to use region as an vtkImageSource.
@@ -260,7 +258,7 @@ public:
 protected:
   vtkImageData *Data;   // Data is stored in this object.
   int ScalarType;         // Remember the pixel type of this region.
-  int DataOrder[VTK_IMAGE_DIMENSIONS]; 
+  int MemoryOrder[VTK_IMAGE_DIMENSIONS]; 
 
   // Defines the relative coordinate system
   int Axes[VTK_IMAGE_DIMENSIONS]; // Coordinate system of this region.

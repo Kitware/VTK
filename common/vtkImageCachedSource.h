@@ -65,6 +65,11 @@ public:
   virtual void UpdatePointData(int dim, vtkImageRegion *region); 
   virtual void UpdateImageInformation(vtkImageRegion *region) = 0;
 
+  void SetStartMethod(void (*f)(void *), void *arg);
+  void SetEndMethod(void (*f)(void *), void *arg);
+  void SetStartMethodArgDelete(void (*f)(void *));
+  void SetEndMethodArgDelete(void (*f)(void *));
+  
   virtual unsigned long GetPipelineMTime();
   vtkImageCache *GetOutput();
 
@@ -86,14 +91,16 @@ public:
   int  GetOutputScalarType();
   
   // Description:
-  // These methods set the value of the caches DataOrder.  A local copy
-  // is kept to satify macros.
-  void SetOutputDataOrder(int num, int *axes);
-  vtkImageSetMacro(OutputDataOrder, int);
-  void GetOutputDataOrder(int num, int *axes);
-  vtkImageGetMacro(OutputDataOrder, int);
-    
-  // Set/Get the coordinate system for this filter.
+  // Different methods for setting and getting the axes.  
+  // The only function of the Axes instance variable is to specify 
+  // a context for the other instance variables: Extent, Increments.
+  // It also affects the behavior of GetPointer methods.  Axes vector is
+  // used to label the arguements.  When the axes get modified, the region
+  // superficially gets transposed, because all the variables and methods
+  // are affected.
+  // The affect of this variable is local to this region, and does not
+  // change the behavior of any filter that operates on this region.
+  
   virtual void SetAxes(int dim, int *axes);
   vtkImageSetMacro(Axes,int);
   void GetAxes(int dim, int *axes);
@@ -111,11 +118,17 @@ public:
   
 protected:
   vtkImageCache *Output;
-  int Dimensionality;             // execute method expects this number of axes
-  int Axes[VTK_IMAGE_DIMENSIONS]; // reorder the axes
+  int Dimensionality;             
+  int Axes[VTK_IMAGE_DIMENSIONS]; 
   int ExecuteScalars;
   int ExecuteVectors;
-  int OutputDataOrder[VTK_IMAGE_DIMENSIONS];
+
+  void (*StartMethod)(void *);
+  void (*StartMethodArgDelete)(void *);
+  void *StartMethodArg;
+  void (*EndMethod)(void *);
+  void (*EndMethodArgDelete)(void *);
+  void *EndMethodArg;
   
   virtual void UpdatePointData(vtkImageRegion *region); 
   virtual void CheckCache();

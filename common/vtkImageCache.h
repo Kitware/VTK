@@ -86,6 +86,14 @@ public:
   vtkBooleanMacro(ReleaseDataFlag,int);
 
   // Description:
+  // Turn on/off flag to control whether every object releases its data
+  // after being used by a filter.
+  void SetGlobalReleaseDataFlag(int val);
+  void GlobalReleaseDataFlagOn() {this->SetGlobalReleaseDataFlag(1);};
+  void GlobalReleaseDataFlagOff() {this->SetGlobalReleaseDataFlag(0);};
+  int  GetGlobalReleaseDataFlag(); 
+  
+  // Description:
   // Subclass implements this method to delete any cached data.
   virtual void ReleaseData() = 0;
 
@@ -104,12 +112,16 @@ public:
   vtkGetMacro(ScalarType,int);
 
   // Description:
-  // Set/Get the data order of regions stored and returned by this cache.
-  // The data along the first axis is colocated in memory.
-  void SetDataOrder(int num, int *axes);
-  vtkImageSetMacro(DataOrder, int);
-  void GetDataOrder(int num, int *axes);
-  vtkImageGetMacro(DataOrder, int);
+  // Set/Get the memory order of regions stored and returned by this cache.
+  // The data along the first axis is colocated in memory.  NOTE: THIS WILL 
+  // NOT AFFECT THE BEHAVIOR OF THE PIPELINE, ONLY THE SPEED OF PROCESSING.
+  // Unless you are trying to tune your application, you will not need this 
+  // method.  The underlying memory order is abstracted and hidden by
+  // vtkImageRegion.
+  void SetMemoryOrder(int num, int *axes);
+  vtkImageSetMacro(MemoryOrder, int);
+  void GetMemoryOrder(int num, int *axes);
+  vtkImageGetMacro(MemoryOrder, int);
 
   // Description:
   // These methods allow direct access to the cached image information.
@@ -164,8 +176,8 @@ protected:
   // The cache manipulates (and returns) regions with this data type.
   int ScalarType;
 
-  // The cache returns Regions with this underlying data order.
-  int DataOrder[VTK_IMAGE_DIMENSIONS];
+  // The cache returns Regions with this underlying memoyy order.
+  int MemoryOrder[VTK_IMAGE_DIMENSIONS];
   
   void GenerateUnCachedRegionData(vtkImageRegion *region);
   // Description:

@@ -46,8 +46,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct an instance of vtkImageRegion with no data.
 vtkImageRegion::vtkImageRegion()
 {
-  int idx;
-  
   this->Data = NULL;
   this->ScalarType = VTK_VOID;
   this->Axes[0] = VTK_IMAGE_X_AXIS;
@@ -59,10 +57,12 @@ vtkImageRegion::vtkImageRegion()
   this->Increments[0] = this->Increments[1] = this->Increments[2]
     = this->Increments[3] = this->Increments[4] = 0;
   
-  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
-    {
-    this->DataOrder[idx] = idx;
-    }
+  // Default memory organization
+  this->MemoryOrder[0] = VTK_IMAGE_COMPONENT_AXIS;
+  this->MemoryOrder[1] = VTK_IMAGE_X_AXIS;
+  this->MemoryOrder[2] = VTK_IMAGE_Y_AXIS;
+  this->MemoryOrder[3] = VTK_IMAGE_Z_AXIS;
+  this->MemoryOrder[4] = VTK_IMAGE_TIME_AXIS;
   
   this->SetExtent(0,0, 0,0, 0,0, 0,0, 0,0);
   this->SetImageExtent(0,0, 0,0, 0,0, 0,0, 0,0);
@@ -95,10 +95,11 @@ void vtkImageRegion::PrintSelf(ostream& os, vtkIndent indent)
     }
   os << ")\n";
   
-  os << indent << "DataOrder: (" << vtkImageAxisNameMacro(this->DataOrder[0]);
+  os << indent << "MemoryOrder: (" 
+     << vtkImageAxisNameMacro(this->MemoryOrder[0]);
   for (idx = 1; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
-    os << ", " << vtkImageAxisNameMacro(this->DataOrder[idx]);
+    os << ", " << vtkImageAxisNameMacro(this->MemoryOrder[idx]);
     }
   os << ")\n";
   
@@ -533,7 +534,7 @@ void vtkImageRegion::SetExtent(int dim, int *extent)
     {
     int saveAxes[VTK_IMAGE_DIMENSIONS];
     this->GetAxes(VTK_IMAGE_DIMENSIONS, saveAxes);
-    this->SetAxes(VTK_IMAGE_DIMENSIONS, this->DataOrder);
+    this->SetAxes(VTK_IMAGE_DIMENSIONS, this->MemoryOrder);
     this->Data->SetExtent(dim, this->Extent);
     this->Data->GetIncrements(VTK_IMAGE_DIMENSIONS, this->Increments);
     this->SetAxes(VTK_IMAGE_DIMENSIONS, saveAxes);
@@ -959,36 +960,36 @@ void vtkImageRegion::SetScalarType(int type)
 
 
 //----------------------------------------------------------------------------
-void vtkImageRegion::SetDataOrder(int num, int *order)
+void vtkImageRegion::SetMemoryOrder(int num, int *order)
 {
   if (this->Data && this->Data->AreScalarsAllocated())
     {
-    vtkErrorMacro("SetDataOrder: Data has already been allocated.");
+    vtkErrorMacro("SetMemoryOrder: Data has already been allocated.");
     return;
     }
   
   this->Modified();
-  vtkImageRegion::CompleteUnspecifiedAxes(num, order, this->DataOrder);
+  vtkImageRegion::CompleteUnspecifiedAxes(num, order, this->MemoryOrder);
   if (this->Data)
     {
-    this->Data->SetAxes(VTK_IMAGE_DIMENSIONS, this->DataOrder);
+    this->Data->SetAxes(VTK_IMAGE_DIMENSIONS, this->MemoryOrder);
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkImageRegion::GetDataOrder(int num, int *order)
+void vtkImageRegion::GetMemoryOrder(int num, int *order)
 {
   int idx;
   
   if (num > VTK_IMAGE_DIMENSIONS)
     {
-    vtkWarningMacro("GetDataOrder: " << num << " axes is too many");
+    vtkWarningMacro("GetMemoryOrder: " << num << " axes is too many");
     num = VTK_IMAGE_DIMENSIONS;
     }
 
   for (idx = 0; idx < num; ++idx)
     {
-    order[idx] = this->DataOrder[idx];
+    order[idx] = this->MemoryOrder[idx];
     }
 }
 
@@ -999,7 +1000,7 @@ void vtkImageRegion::GetDataOrder(int num, int *order)
 // Description:
 // If the data of this region is not going to be set explicitely, this
 // method can be used to make a new data object for the region.
-// Extent, ScalarType, and DataOrder should be set before this method
+// Extent, ScalarType, and MemoryOrder should be set before this method
 // is called.
 void vtkImageRegion::MakeData()
 {
@@ -1013,11 +1014,11 @@ void vtkImageRegion::MakeData()
 
   this->GetAxes(VTK_IMAGE_DIMENSIONS, saveAxes);
   // change to data coordinates
-  this->SetAxes(VTK_IMAGE_DIMENSIONS, this->DataOrder);
+  this->SetAxes(VTK_IMAGE_DIMENSIONS, this->MemoryOrder);
   
   this->Data = vtkImageData::New();
   this->Data->SetScalarType(this->ScalarType);
-  this->Data->SetAxes(VTK_IMAGE_DIMENSIONS, this->DataOrder);
+  this->Data->SetAxes(VTK_IMAGE_DIMENSIONS, this->MemoryOrder);
   this->Data->SetExtent(VTK_IMAGE_DIMENSIONS, this->Extent);
   this->Data->GetIncrements(VTK_IMAGE_DIMENSIONS, this->Increments);
 
@@ -1052,8 +1053,8 @@ void vtkImageRegion::SetData(vtkImageData *data)
   // Set the scalar type
   this->ScalarType = data->GetScalarType();
   
-  // set the DataOrder of this region
-  data->GetAxes(VTK_IMAGE_DIMENSIONS, this->DataOrder);
+  // set the MemoryOrder of this region
+  data->GetAxes(VTK_IMAGE_DIMENSIONS, this->MemoryOrder);
   
   // Compute the increments.
   // Note that this implies that the extent of the data is fixed.
