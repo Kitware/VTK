@@ -38,10 +38,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkSliceCubes - generate isosurface(s) from volume three slices at a time
+// .NAME vtkSliceCubes - generate isosurface(s) from volume four slices at a time
 // .SECTION Description
 // vtkSliceCubes is a special version of the marching cubes filter. Instead
-// of ingesting an entire volume at once it processes only three slices at
+// of ingesting an entire volume at once it processes only four slices at
 // a time. This way it can generate isosurfaces from huge volumes. Also, the 
 // output of this object is written to a marching cubes triangle file. That
 // way output triangles do not need to be held in memory.
@@ -59,30 +59,60 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // (and most process objects in the system). It's specialized to handle very 
 // large data.
 //
+// This object only extracts a single isosurface. This compares with the other
+// contouring objects in vtk that generate multiple surfaces.
+//
 // To read the output file use vtkMCubesReader.
 
 // .SECTION See Also
-// vtkMarchingCubes vtkContourFilter vtkMCubesReader
+// vtkMarchingCubes vtkContourFilter vtkMCubesReader vtkDividingCubes
 
 #ifndef __vtkSliceCubes_h
 #define __vtkSliceCubes_h
 
-#include "vtkWriter.hh"
+#include "vtkObject.hh"
 #include "vtkVolume16Source.hh"
 #include "vtkMCubesReader.hh"
 
-class vtkSliceCubes : public vtkWriter
+class vtkSliceCubes : public vtkObject
 {
 public:
   vtkSliceCubes();
   char *GetClassName() {return "vtkSliceCubes";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // methods to make it look like a filter
+  void Write() {this->Update();};
+  void Update();
+
+  // Description:
+  // Set/get object to read slices.
+  vtkSetObjectMacro(Reader,vtkVolume16Source);
+  vtkGetObjectMacro(Reader,vtkVolume16Source);
+
+  // Description:
+  // Specify file name of marching cubes output file.
+  vtkSetStringMacro(Filename);
+  vtkGetStringMacro(Filename);
+
+  // Description:
+  // Set/get isosurface contour value.
+  vtkSetMacro(Value,short);
+  vtkGetMacro(Value,short);
+
+  // Description:
+  // Specify file name of marching cubes limits file. The limits file
+  // speeds up subsequent reading of output triangle file.
+  vtkSetStringMacro(LimitsFilename);
+  vtkGetStringMacro(LimitsFilename);
+
 protected:
-  void WriteData();
+  void Execute();
 
   vtkVolume16Source *Reader;
   char *Filename;  
+  short Value;
+  char *LimitsFilename;
 };
 
 #endif

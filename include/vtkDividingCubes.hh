@@ -78,14 +78,13 @@ public:
 
 protected:
   void Execute();
-  void SubDivide(float origin[3], float h[3], float values[8]);
-  void AddPoint(float x[3]);
+  void SubDivide(float origin[3], int dim[3], float h[3], float values[8]);
 
   float Value;
   float Distance;
   int Increment;
 
-  // wworking variables
+  // working variable
   int Count;
 };
 

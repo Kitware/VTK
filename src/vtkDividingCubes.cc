@@ -42,6 +42,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMath.hh"
 #include "vtkVoxel.hh"
 
+// Description:
+// Construct object with Value=0.0, Distance=0.1, and Increment=1.
 vtkDividingCubes::vtkDividingCubes()
 {
   this->Value = 0.0;
@@ -50,12 +52,13 @@ vtkDividingCubes::vtkDividingCubes()
   this->Count = 0;
 }
 
-static float X[3]; //origin of current voxel
-static float Ar[3]; //aspect ratio of current voxel
 static float Normals[8][3]; //voxel normals
 static vtkFloatPoints *NewPts; //points being generated
 static vtkFloatNormals *NewNormals; //points being generated
 static vtkCellArray *NewVerts; //verts being generated
+static vtkFloatNormals *SubNormals; //sub-volume normals
+static vtkFloatScalars *SubScalars; //sub-volume scalars
+static int SubSliceSize;
 
 void vtkDividingCubes::Execute()
 {
@@ -63,11 +66,10 @@ void vtkDividingCubes::Execute()
   vtkScalars *inScalars;
   vtkIdList voxelPts(8);
   vtkFloatScalars voxelScalars(8);
-  float origin[3];
+  float origin[3], x[3], ar[3], h[3];
   int dim[3], jOffset, kOffset, sliceSize;
-  int above, below, vertNum;
+  int above, below, vertNum, n[3];
   vtkStructuredPoints *input=(vtkStructuredPoints *)this->Input;
-  vtkMath math;
   voxelScalars.ReferenceCountingOff();
   vtkPolyData *output = this->GetOutput();
   
@@ -91,32 +93,42 @@ void vtkDividingCubes::Execute()
     return;
     }
   input->GetDimensions(dim);
-  input->GetAspectRatio(Ar);
+  input->GetAspectRatio(ar);
   input->GetOrigin(origin);
 
   // creating points
-  NewPts = new vtkFloatPoints(500000,1000000);
-  NewNormals = new vtkFloatNormals(500000,1000000);
-  NewVerts = new vtkCellArray(500000,1000000);
+  NewPts = new vtkFloatPoints(500000,500000);
+  NewNormals = new vtkFloatNormals(500000,500000);
+  NewVerts = new vtkCellArray(500000,500000);
+  NewVerts->InsertNextCell(0); //temporary cell count
 //
 // Loop over all cells checking to see which straddle the specified value. Since
 // we know that we are working with a volume, can create appropriate data directly.
 //
   sliceSize = dim[0] * dim[1];
+  for (i=0; i<3; i++) //compute subvoxel widths and subvolume dimensions
+    {
+    n[i] = ((int) ceil((double)ar[i]/this->Distance)) + 1;
+    h[i] = (float)ar[i]/(n[i]-1);
+    }
+  SubSliceSize = n[0] * n[1];
+  SubNormals = new vtkFloatNormals(n[0]*n[1]*n[2]);
+  SubScalars = new vtkFloatScalars(n[0]*n[1]*n[2]);
+
   for ( k=0; k < (dim[2]-1); k++)
     {
     kOffset = k*sliceSize;
-    X[2] = origin[2] + k*Ar[2];
+    x[2] = origin[2] + k*ar[2];
 
     for ( j=0; j < (dim[1]-1); j++)
       {
       jOffset = j*dim[0];
-      X[1] = origin[1] + j*Ar[1];
+      x[1] = origin[1] + j*ar[1];
 
       for ( i=0; i < (dim[0]-1); i++)
         {
         idx  = i + jOffset + kOffset;
-        X[0] = origin[0] + i*Ar[0];
+        x[0] = origin[0] + i*ar[0];
 
         // get point ids of this voxel
         voxelPts.SetId(0, idx);
@@ -149,18 +161,22 @@ void vtkDividingCubes::Execute()
             input->GetPointGradient(i+1,j,k+1, inScalars, Normals[5]);
             input->GetPointGradient(i,j+1,k+1, inScalars, Normals[6]);
             input->GetPointGradient(i+1,j+1,k+1, inScalars, Normals[7]);
-	    for (ii=0; ii<8; ii++) math.Normalize(Normals[ii]);
 
-            this->SubDivide(X, Ar, voxelScalars.GetPtr(0));
+            this->SubDivide(x, n, h, voxelScalars.GetPtr(0));
             }
           }
         }
       }
     }
-  vtkDebugMacro(<< "Created " << NewPts->GetNumberOfPoints() << "points");
+
+  NewVerts->UpdateCellCount(NewPts->GetNumberOfPoints());
+  vtkDebugMacro(<< "Created " << NewPts->GetNumberOfPoints() << " points");
 //
 // Update ourselves and release memory
 //
+  SubNormals->Delete();
+  SubScalars->Delete();
+
   output->SetPoints(NewPts);
   NewPts->Delete();
 
@@ -173,107 +189,112 @@ void vtkDividingCubes::Execute()
   output->Squeeze();
 }
 
-static int ScalarInterp[8][8] = {{0,8,12,24,16,22,20,26},
-                                 {8,1,24,13,22,17,26,21},
-                                 {12,24,2,9,20,26,18,23},
-                                 {24,13,9,3,26,21,23,19},
-                                 {16,22,20,26,4,10,14,25},
-                                 {22,17,26,21,10,5,25,15},
-                                 {20,26,18,23,14,25,6,11},
-                                 {26,21,23,19,25,15,11,7}};
+#define POINTS_PER_POLY_VERTEX 10000
 
-void vtkDividingCubes::SubDivide(float origin[3], float h[3], float values[8])
+void vtkDividingCubes::SubDivide(float origin[3], int dim[3], float h[3],
+                                 float values[8])
 {
-  int i;
-  float hNew[3];
+  int i, j, k, ii, vertNum, id;
+  float s;
+  int kOffset, jOffset, idx, above, below;
+  float p[3], w[8], n[3], *normal, offset[3];
+  static vtkIdList subVoxelPts(8);
+  static vtkVoxel subVoxel;
+  static vtkFloatScalars subVoxelScalars(8);
+  static vtkFloatNormals subVoxelNormals(8);
+  static vtkMath math;
+  subVoxelScalars.ReferenceCountingOff();
+  subVoxelScalars.Reset();
+  subVoxelNormals.ReferenceCountingOff();
+  subVoxelNormals.Reset();
 
-  for (i=0; i<3; i++) hNew[i] = h[i] / 2.0;
-
-  // if subdivided far enough, create point and end termination
-  if ( h[0] < this->Distance && h[1] < this->Distance && h[2] < this->Distance )
+  // Compute normals and scalars on subvoxel array
+  for (k=0; k < dim[2]; k++)
     {
-    int i, pts[1];
-    float x[3], n[3];
-    float p[3], w[8];
-    static vtkVoxel voxel;
-
-    for (i=0; i <3; i++) x[i] = origin[i] + hNew[i];
-
-    if ( ! (this->Count++ % this->Increment) ) //add a point
+    kOffset = k * SubSliceSize;
+    p[2] = k * h[2];
+    for (j=0; j < dim[1]; j++)
       {
-      pts[0] = NewPts->InsertNextPoint(x);
-      NewVerts->InsertNextCell(1,pts);
-      for (i=0; i<3; i++) p[i] = (x[i] - X[i]) / Ar[i];
-      voxel.InterpolationFunctions(p,w);
-      for (n[0]=n[1]=n[2]=0.0, i=0; i<8; i++)
-	{
-	n[0] += Normals[i][0]*w[i];
-	n[1] += Normals[i][1]*w[i];
-	n[2] += Normals[i][2]*w[i];
-	}
-      NewNormals->InsertNormal(pts[0],n);
+      jOffset = j * dim[0];
+      p[1] = j * h[1];
+      for (i=0; i < dim[0]; i++)
+        {
+        idx = i + jOffset + kOffset;
+        p[0] = i * h[0];
+
+        subVoxel.InterpolationFunctions(p,w);
+        s = n[0] = n[1] = n[2] = 0.0;
+        for (ii=0; ii<8; ii++)
+          {
+          s += values[ii]*w[ii];
+          n[0] += Normals[ii][0]*w[ii];
+          n[1] += Normals[ii][1]*w[ii];
+          n[2] += Normals[ii][2]*w[ii];
+          }
+        SubScalars->SetScalar(idx,s);
+        SubNormals->SetNormal(idx,n);
+        }
       }
-    
-    return;
     }
 
-  // otherwise, create eight sub-voxels and recurse
-  else
+  // loop over sub-volume determining whether contour passes through subvoxels.
+  // If so, generate center point in subvoxel.
+  for (i=0; i<3; i++) offset[i] = origin[i] + (h[i] / 2.0);
+  for (k=0; k < (dim[2]-1); k++)
     {
-    int j, k, idx, above, below, ii;
-    float x[3];
-    float newValues[8];
-    float s[27], scalar;
-
-    for (i=0; i<8; i++) s[i] = values[i];
-
-    s[8] = (s[0] + s[1]) / 2.0; // edge verts
-    s[9] = (s[2] + s[3]) / 2.0;
-    s[10] = (s[4] + s[5]) / 2.0;
-    s[11] = (s[6] + s[7]) / 2.0;
-    s[12] = (s[0] + s[2]) / 2.0;
-    s[13] = (s[1] + s[3]) / 2.0;
-    s[14] = (s[4] + s[6]) / 2.0;
-    s[15] = (s[5] + s[7]) / 2.0;
-    s[16] = (s[0] + s[4]) / 2.0;
-    s[17] = (s[1] + s[5]) / 2.0;
-    s[18] = (s[2] + s[6]) / 2.0;
-    s[19] = (s[3] + s[7]) / 2.0;
-
-    s[20] = (s[0] + s[2] + s[4] + s[6]) / 4.0; // face verts
-    s[21] = (s[1] + s[3] + s[5] + s[7]) / 4.0;
-    s[22] = (s[0] + s[1] + s[4] + s[5]) / 4.0;
-    s[23] = (s[2] + s[3] + s[6] + s[7]) / 4.0;
-    s[24] = (s[0] + s[1] + s[2] + s[3]) / 4.0;
-    s[25] = (s[4] + s[5] + s[6] + s[7]) / 4.0;
-
-    s[26] = (s[0] + s[1] + s[2] + s[3] + s[4] + s[5] + s[6] + s[7]) / 8.0; //middle
-
-    for (k=0; k < 2; k++)
+    kOffset = k * SubSliceSize;
+    p[2] = offset[2] + k * h[2];
+    for (j=0; j < (dim[1]-1); j++)
       {
-      x[2] = origin[2] +  k*hNew[2];
-
-      for (j=0; j < 2; j++)
+      jOffset = j * dim[0];
+      p[1] = offset[1] + j * h[1];
+      for (i=0; i < (dim[0]-1); i++)
         {
-        x[1] = origin[1] +  j*hNew[1];
+        idx = i + jOffset + kOffset;
+        p[0] = offset[0] + i * h[0];
 
-        for (i=0; i < 2; i++)
+        // get point ids of this voxel
+        subVoxelPts.SetId(0, idx);
+        subVoxelPts.SetId(1, idx + 1);
+        subVoxelPts.SetId(2, idx + dim[0]);
+        subVoxelPts.SetId(3, idx + dim[0] + 1);
+        subVoxelPts.SetId(4, idx + SubSliceSize);
+        subVoxelPts.SetId(5, idx + SubSliceSize + 1);
+        subVoxelPts.SetId(6, idx + SubSliceSize + dim[0]);
+        subVoxelPts.SetId(7, idx + SubSliceSize + dim[0] + 1);
+
+        // get scalars of this voxel
+        SubScalars->GetScalars(subVoxelPts,subVoxelScalars);
+
+        // loop over 8 points of voxel to check if cell straddles value
+        for ( above=below=0, vertNum=0; vertNum < 8; vertNum++ )
           {
-          idx = i + j*2 + k*4;
-          x[0] = origin[0] +  i*hNew[0];
+          if ( subVoxelScalars.GetScalar(vertNum) >= this->Value )
+            above = 1;
+          else if ( subVoxelScalars.GetScalar(vertNum) < this->Value )
+            below = 1;
+          }
 
-          for (above=below=0,ii=0; ii<8; ii++)
+        if ( (above && below) && !(this->Count++ % this->Increment) )
+          { //generate center point
+          SubNormals->GetNormals(subVoxelPts,subVoxelNormals);
+          for (n[0]=n[1]=n[2]=0.0, vertNum=0; vertNum < 8; vertNum++)
             {
-            scalar = s[ScalarInterp[idx][ii]];
-
-            if ( scalar >= this->Value ) above = 1;
-            else if ( scalar < this->Value ) below = 1;
-
-            newValues[ii] = scalar;
+            normal = subVoxelNormals.GetNormal(vertNum);
+            n[0] += normal[0];
+            n[1] += normal[1];
+            n[2] += normal[2];
             }
+          math.Normalize(n);
 
-          if ( above && below )
-            this->SubDivide(x, hNew, newValues);
+          id = NewPts->InsertNextPoint(p);
+          NewVerts->InsertCellPoint(id);
+          NewNormals->InsertNormal(id,n);
+
+          if ( !(NewPts->GetNumberOfPoints() % POINTS_PER_POLY_VERTEX) )
+            {
+            vtkDebugMacro(<<"point# "<<NewPts->GetNumberOfPoints());
+            }
           }
         }
       }
