@@ -23,7 +23,7 @@
 
 #include <algorithm>
 
-vtkCxxRevisionMacro(vtkSubGroup, "1.5");
+vtkCxxRevisionMacro(vtkSubGroup, "1.6");
 vtkStandardNewMacro(vtkSubGroup);
 
 vtkSubGroup::vtkSubGroup()
@@ -122,7 +122,10 @@ int vtkSubGroup::Initialize(int p0=0, int p1=0, int me=0, int itag=0, vtkCommuni
 
   for (i=p0, ii=0; i<=p1; i++)
     {
-    if (i == me) this->myLocalRank = ii;
+    if (i == me)
+      {
+      this->myLocalRank = ii;
+      }
     this->members[ii++] = i;
     }
 
@@ -150,7 +153,10 @@ int vtkSubGroup::computeFanInTargets()
     {
     int other = this->myLocalRank ^ i;
 
-    if (other >= this->nmembers) continue;
+    if (other >= this->nmembers) 
+      {
+      continue;
+      }
 
     if (this->myLocalRank > other)
       {
@@ -178,7 +184,10 @@ void vtkSubGroup::moveRoot(int root)
 }
 void vtkSubGroup::restoreRoot(int root)
 {
-  if (root == 0) return;
+  if (root == 0) 
+    {
+    return;
+    }
 
   this->moveRoot(root);
 
@@ -197,7 +206,10 @@ void vtkSubGroup::restoreRoot(int root)
 }
 void vtkSubGroup::setUpRoot(int root)
 {
-  if (root == 0) return;
+  if (root == 0) 
+    {
+    return;
+    }
 
   this->moveRoot(root);
 
@@ -311,8 +323,8 @@ int vtkSubGroup::getLocalRank(int processId)
   if ( (localRank < 0) || (localRank >= this->nmembers)) return -1;
   else return localRank;
 }
-#define MINOP  if (tempbuf[p] < buf[p]) buf[p] = tempbuf[p];
-#define MAXOP  if (tempbuf[p] > buf[p]) buf[p] = tempbuf[p];
+#define MINOP  if (tempbuf[p] < buf[p]) {buf[p] = tempbuf[p];}
+#define MAXOP  if (tempbuf[p] > buf[p]) {buf[p] = tempbuf[p];}
 #define SUMOP  buf[p] += tempbuf[p];
 
 #define REDUCE(Type, name, op) \
@@ -324,8 +336,14 @@ int vtkSubGroup::Reduce##name(Type *data, Type *to, int size, int root) \
     for (i=0; i<size; i++) to[i] = data[i];\
     return 0;\
     }\
-  if ( (root < 0) || (root >= this->nmembers)) return 1;\
-  if (root != 0) this->setUpRoot(root); \
+  if ( (root < 0) || (root >= this->nmembers)) \
+    { \
+    return 1;\
+    } \
+  if (root != 0) \
+    { \
+    this->setUpRoot(root); \
+    } \
   Type *buf, *tempbuf; \
   tempbuf = new Type [size]; \
   if (this->nTo > 0)      \
@@ -336,7 +354,10 @@ int vtkSubGroup::Reduce##name(Type *data, Type *to, int size, int root) \
     {        \
     buf = to;\
     } \
-  if (buf != data) memcpy(buf, data, size * sizeof(Type));\
+  if (buf != data) \
+    { \
+    memcpy(buf, data, size * sizeof(Type));\
+    } \
   for (i=0; i < this->nFrom; i++) \
    {                              \
     this->comm->Receive(tempbuf, size,\
@@ -349,7 +370,10 @@ int vtkSubGroup::Reduce##name(Type *data, Type *to, int size, int root) \
     this->comm->Send(buf, size, this->members[this->fanInTo], this->tag);\
     delete [] buf;\
     }\
-  if (root != 0) this->restoreRoot(root);\
+  if (root != 0) \
+    { \
+    this->restoreRoot(root);\
+    } \
   return 0; \
 }
 
@@ -365,9 +389,18 @@ REDUCE(int, Sum, SUMOP)
 int vtkSubGroup::Broadcast(Type *data, int length, int root) \
 { \
   int i;\
-  if (this->nmembers == 1) return 0;\
-  if ( (root < 0) || (root >= this->nmembers)) return 1;\
-  if (root != 0) this->setUpRoot(root); \
+  if (this->nmembers == 1) \
+    { \
+    return 0;\
+    } \
+  if ( (root < 0) || (root >= this->nmembers)) \
+    { \
+    return 1;\
+    } \
+  if (root != 0) \
+    { \
+    this->setUpRoot(root); \
+    } \
   if (this->nTo > 0) \
     {                \
     this->comm->Receive(data, length, this->members[this->fanInTo], this->tag);\
@@ -376,7 +409,10 @@ int vtkSubGroup::Broadcast(Type *data, int length, int root) \
     {                                   \
     this->comm->Send(data, length, this->members[this->fanInFrom[i]], this->tag); \
     } \
-  if (root != 0) this->restoreRoot(root); \
+  if (root != 0) \
+    { \
+      this->restoreRoot(root); \
+    } \
   return 0; \
 }
 
@@ -395,7 +431,10 @@ int vtkSubGroup::Gather(Type *data, Type *to, int length, int root)\
     for (i=0; i<length; i++) to[i] = data[i];\
     return 0;\
     }\
-  if ( (root < 0) || (root >= this->nmembers)) return 1;\
+  if ( (root < 0) || (root >= this->nmembers)) \
+    { \
+    return 1;\
+    } \
   this->setGatherPattern(root, length);\
   if (this->nSend > 0)\
     {                 \
@@ -493,7 +532,10 @@ int vtkSubGroup::MergeSortedUnique(int *list1, int len1, int *list2, int len2,
 
   int *newl = new int [len1 + len2];
 
-  if (newl == NULL) return 0;
+  if (newl == NULL)
+    {
+    return 0;
+    }
 
   while ((i1 < len1) || (i2 < len2))
     {
@@ -530,14 +572,20 @@ int vtkSubGroup::MakeSortedUnique(int *list, int len, int **newList)
   int *newl;
 
   newl = new int [len];
-  if (newl == NULL) return 0;
+  if (newl == NULL)
+    {
+    return 0;
+    }
 
   memcpy(newl, list, len * sizeof(int));
   vtkstd::sort(newl, newl + len);
 
   for (i=1, newlen=1; i<len; i++)
     {
-    if (newl[i] == newl[newlen-1]) continue;
+    if (newl[i] == newl[newlen-1]) 
+      {
+      continue;
+      }
 
     newl[newlen++] = newl[i];
     }
@@ -568,7 +616,10 @@ void vtkSubGroup::PrintSubGroup() const
       cout << "fanInFrom[" << i << "] = " << this->fanInFrom[i] << endl;
       }
     }
-  if (this->nTo > 0) cout << "fanInTo = " << this->fanInTo << endl;
+  if (this->nTo > 0) 
+    {
+    cout << "fanInTo = " << this->fanInTo << endl;
+    }
 
   cout << "(Gather setup ) nRecv: " << this->nRecv << ", nSend: " << this->nSend << endl;
   if (this->nRecv > 0)
@@ -594,7 +645,10 @@ void vtkSubGroup::PrintSubGroup() const
   for (i=0; i<this->nmembers; i++)
     {
     cout << "  " << this->members[i];
-    if (i && (i%20 == 0)) cout << endl;
+    if (i && (i%20 == 0))
+      {
+      cout << endl;
+      }
     }
   cout << endl;
   cout << "comm: " << this->comm;
@@ -612,7 +666,10 @@ void vtkSubGroup::PrintSelf(ostream &os, vtkIndent indent)
       os << indent << "fanInFrom[" << i << "] = " << this->fanInFrom[i] << endl;
       }
     }
-  if (this->nTo > 0) os << indent << "fanInTo = " << this->fanInTo << endl;
+  if (this->nTo > 0) 
+    { 
+    os << indent << "fanInTo = " << this->fanInTo << endl;
+    }
 
   os << indent << "(Gather setup ) nRecv: " << this->nRecv << ", nSend: " << this->nSend << endl;
   if (this->nRecv > 0)
@@ -638,7 +695,10 @@ void vtkSubGroup::PrintSelf(ostream &os, vtkIndent indent)
   for (i=0; i<this->nmembers; i++)
     {
     os << indent << "  " << this->members[i];
-    if (i && (i%20 == 0)) os << indent << endl;
+    if (i && (i%20 == 0))
+      {
+      os << indent << endl;
+      }
     }
   os << indent << endl;
   os << indent << "comm: " << this->comm;
