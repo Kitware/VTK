@@ -86,7 +86,10 @@ public:
   // all scalar types: check for NULL return value. 
   virtual unsigned char *GetPtr(const int id) {return NULL;};
 
-  void GetScalars(vlIdList& ptId, vlFloatScalars& fs);
+  // Description:
+  // Get the scalar values for the point ids specified.
+  virtual void GetScalars(vlIdList& ptIds, vlFloatScalars& fs);
+
   virtual void ComputeRange();
   float *GetRange();
   void GetRange(float range[8]);

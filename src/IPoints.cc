@@ -35,3 +35,11 @@ float *vlIntPoints::GetPoint(int i)
   x[0] = (float)iptr[0]; x[1] = (float)iptr[1]; x[2] = (float)iptr[2];
   return x;
 };
+
+void vlIntPoints::GetPoints(vlIdList& ptId, vlFloatPoints& fp)
+{
+  for (int i=0; i<ptId.GetNumberOfIds(); i++)
+    {
+    fp.InsertPoint(i,this->GetPoint(ptId.GetId(i)));
+    }
+}

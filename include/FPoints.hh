@@ -44,6 +44,7 @@ public:
   void SetPoint(int id, float x[3]);
   void InsertPoint(int id, float *x);
   int InsertNextPoint(float *x);
+  void GetPoints(vlIdList& ptId, vlFloatPoints& fp);
 
   // miscellaneous
   vlFloatPoints &operator=(const vlFloatPoints& fp);

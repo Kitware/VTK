@@ -70,7 +70,10 @@ public:
   // Reclaim any extra memory.
   virtual void Squeeze() = 0; // reclaim memory
 
-  void GetPoints(vlIdList& ptId, vlFloatPoints& fp);
+  // Description:
+  // Get the point coordinates for the point ids specified.
+  virtual void GetPoints(vlIdList& ptId, vlFloatPoints& fp);
+
   virtual void ComputeBounds();
   float *GetBounds();
 

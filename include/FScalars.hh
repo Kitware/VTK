@@ -39,10 +39,11 @@ public:
   vlScalars *MakeObject(int sze, int ext=1000);
   int GetNumberOfScalars() {return (this->S.GetMaxId()+1);};
   void Squeeze() {this->S.Squeeze();};
-  float GetScalar(int i) {return this->S[i];};
+  float GetScalar(int i) {return this->S.GetValue(i);};
   void SetScalar(int i, float s) {this->S[i] = s;};
   void InsertScalar(int i, float s) {S.InsertValue(i,s);};
   int InsertNextScalar(float s) {return S.InsertNextValue(s);};
+  void GetScalars(vlIdList& ptIds, vlFloatScalars& fs);
 
   // miscellaneous
   vlFloatScalars &operator=(const vlFloatScalars& fs);

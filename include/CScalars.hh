@@ -46,8 +46,11 @@ public:
   void InsertScalar(int i, char s) {S.InsertValue(i,s);};
   int InsertNextScalar(char s) {return S.InsertNextValue(s);};
   int InsertNextScalar(float s) {return S.InsertNextValue((char)s);};
+  void GetScalars(vlIdList& ptIds, vlFloatScalars& fs);
 
   // miscellaneous
+  unsigned char *GetPtr(const int id);
+  unsigned char *WritePtr(const int id, const int number);
   vlCharScalars &operator=(const vlCharScalars& cs);
   void operator+=(const vlCharScalars& cs) {this->S += cs.S;};
   void Reset() {this->S.Reset();};
@@ -55,5 +58,22 @@ public:
 protected:
   vlCharArray S;
 };
+
+// Description:
+// Get pointer to scalar data at location "id" in the array. Meant for reading 
+// data. 
+inline unsigned char *vlCharScalars::GetPtr(const int id)
+{
+  return this->S.GetPtr(id);
+}
+
+// Description:
+// Get pointer to data. Useful for direct writes into object. MaxId is bumped
+// by number (and memory allocated if necessary). Id is the locaation you 
+// wish to write into; number is the number of scalars to write.
+inline unsigned char *vlCharScalars::WritePtr(const int id, const int number)
+{
+  return this->S.WritePtr(id,number);
+}
 
 #endif

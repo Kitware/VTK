@@ -46,6 +46,7 @@ public:
   void InsertScalar(int i, short s) {S.InsertValue(i,s);};
   int InsertNextScalar(short s) {return S.InsertNextValue(s);};
   int InsertNextScalar(float s) {return S.InsertNextValue((short)s);};
+  void GetScalars(vlIdList& ptIds, vlFloatScalars& fs);
 
   // miscellaneous
   vlShortScalars &operator=(const vlShortScalars& ss);

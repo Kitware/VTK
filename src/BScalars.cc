@@ -27,3 +27,11 @@ vlBitScalars& vlBitScalars::operator=(const vlBitScalars& cs)
   this->S = cs.S;
   return *this;
 }
+
+void vlBitScalars::GetScalars(vlIdList& ptId, vlFloatScalars& fs)
+{
+  for (int i=0; i<ptId.GetNumberOfIds(); i++)
+    {
+    fs.InsertScalar(i,(float)this->S.GetValue(ptId.GetId(i)));
+    }
+}

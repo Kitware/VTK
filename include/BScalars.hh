@@ -47,6 +47,7 @@ public:
   void InsertScalar(int i, int s) {S.InsertValue(i,s);};
   int InsertNextScalar(int s) {return S.InsertNextValue(s);};
   int InsertNextScalar(float s) {return S.InsertNextValue((int)s);};
+  void GetScalars(vlIdList& ptIds, vlFloatScalars& fs);
 
   // miscellaneous
   vlBitScalars &operator=(const vlBitScalars& cs);

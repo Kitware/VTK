@@ -27,3 +27,11 @@ vlFloatScalars& vlFloatScalars::operator=(const vlFloatScalars& fs)
   this->S = fs.S;
   return *this;
 }
+
+void vlFloatScalars::GetScalars(vlIdList& ptId, vlFloatScalars& fs)
+{
+  for (int i=0; i<ptId.GetNumberOfIds(); i++)
+    {
+    fs.InsertScalar(i,this->S.GetValue(ptId.GetId(i)));
+    }
+}

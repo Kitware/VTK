@@ -28,3 +28,10 @@ vlFloatPoints& vlFloatPoints::operator=(const vlFloatPoints& fp)
   return *this;
 }
 
+void vlFloatPoints::GetPoints(vlIdList& ptId, vlFloatPoints& fp)
+{
+  for (int i=0; i<ptId.GetNumberOfIds(); i++)
+    {
+    fp.InsertPoint(i,this->P.GetPtr(3*ptId.GetId(i)));
+    }
+}
