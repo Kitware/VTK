@@ -37,6 +37,7 @@ int otherFieldData(int,char *[])
     // this must have been a UMR in the past that was suppressed
     fa->Allocate(20);
     fa->SetTuple1(0,0.0);
+    fa->SetTuple1(2,0.0);
     fd->AddArray(fa);
     fa->Delete();
     }
