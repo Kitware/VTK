@@ -2,17 +2,19 @@
 #include <stdlib.h>
 #include <string.h>
 
-extern void OutputUNIXDepends(char *file, FILE *fp, const char *vtkHome);
+extern void OutputUNIXDepends(char *file, FILE *fp);
+extern void AddToDepends(const char *filename);
+extern void BuildDepends(const char *vtkHome);
+void SetupDepends(const char *vtkLocal, const char *vtkHome, int argc, char *argv[]);
+
+int concrete_num, concrete_start, concrete_end;
+int abstract_num, abstract_start, abstract_end;
+int concrete_h_num, concrete_h_start, concrete_h_end;
+int abstract_h_num, abstract_h_start, abstract_h_end;
 
 int main (int argc, char *argv[])
 {
-  int concrete;
-  int cxx;
-  int concrete_num, concrete_start, concrete_end;
-  int abstract_num, abstract_start, abstract_end;
-  int concrete_h_num, concrete_h_start, concrete_h_end;
-  int abstract_h_num, abstract_h_start, abstract_h_end;
-  int i, typenum;
+  int i;
   FILE *fp;
   char *vtkLocal = argv[1];
   char vtkHome[256];
@@ -48,7 +50,9 @@ int main (int argc, char *argv[])
   abstract_num = abstract_end - abstract_start + 1;
   concrete_h_num = concrete_h_end - concrete_h_start + 1;
   abstract_h_num = abstract_h_end - abstract_h_start + 1;
-  
+
+  SetupDepends(vtkLocal,vtkHome,argc,argv);
+
   /* concrete should be called first */
   fp = fopen("targets.make","w");
   if (!fp)
@@ -64,14 +68,14 @@ int main (int argc, char *argv[])
       {
       fprintf(fp,"%s.o : %s/%s.cxx ",argv[i],vtkLocal,argv[i]);
       sprintf(filename,"%s/%s.cxx",vtkLocal,argv[i]);
-      OutputUNIXDepends(filename,fp,vtkHome);
+      OutputUNIXDepends(filename,fp);
       fprintf(fp,"\n");
       }
     for (i = abstract_start; i <= abstract_end; i++)
       {
       fprintf(fp,"%s.o : %s/%s.cxx ",argv[i],vtkLocal, argv[i]);
       sprintf(filename,"%s/%s.cxx",vtkLocal,argv[i]);
-      OutputUNIXDepends(filename,fp,vtkHome);
+      OutputUNIXDepends(filename,fp);
       fprintf(fp,"\n");
       }
     fprintf(fp,"\n\n");
@@ -85,12 +89,12 @@ int main (int argc, char *argv[])
     fprintf(fp,"vtkXRenderWindowInteractor.o : %s/vtkXRenderWindowInteractor.cxx",
 	    vtkLocal,vtkLocal,argv[i]);
     sprintf(filename,"%s/vtkXRenderWindowInteractor.cxx",vtkLocal);
-    OutputUNIXDepends(filename,fp,vtkHome);
+    OutputUNIXDepends(filename,fp);
     fprintf(fp,"\n");
     fprintf(fp,"vtkXRenderTclWindowInteractor.o : %s/vtkXRenderTclWindowInteractor.cxx",
 	    vtkLocal,vtkLocal,argv[i]);
     sprintf(filename,"%s/vtkXRenderTclWindowInteractor.cxx",vtkLocal);
-    OutputUNIXDepends(filename,fp,vtkHome);
+    OutputUNIXDepends(filename,fp);
     fprintf(fp,"\n");
     }
       
@@ -103,7 +107,7 @@ int main (int argc, char *argv[])
       fprintf(fp,"tcl/%sTcl.cxx : %s/%s.h %s/common/vtkTclUtil.h %s/tcl/cpp_parse.y ",
 	      argv[i],vtkLocal,argv[i],vtkHome,vtkHome);
       sprintf(filename,"%s/%s.h",vtkLocal,argv[i]);
-      OutputUNIXDepends(filename,fp,vtkHome);
+      OutputUNIXDepends(filename,fp);
       fprintf(fp,"\n");
       }
     }
@@ -234,4 +238,54 @@ int main (int argc, char *argv[])
     }
 
   return 0;
+}
+
+
+
+
+// all files which will have OutputUNIXDepends called for should be "setup" first in thsi function
+void SetupDepends(const char *vtkLocal, const char *vtkHome, int argc, char *argv[])
+{
+  char filename[256];
+  int i;
+
+  // for all the .cxx files generate depends
+  if ((concrete_num + abstract_num) > 0)
+    {
+    for (i = concrete_start; i <= concrete_end; i++)
+      {
+      sprintf(filename,"%s/%s.cxx",vtkLocal,argv[i]);
+      AddToDepends(filename);
+      }
+    for (i = abstract_start; i <= abstract_end; i++)
+      {
+      sprintf(filename,"%s/%s.cxx",vtkLocal,argv[i]);
+      AddToDepends(filename);
+      }
+    }
+
+
+  // if this is the graphics library we need to add dependencies
+  // for two odd classes vtkXRenderWindowInteractor and
+  // vtkXRenderTclWindowInteractor
+  if (!strcmp(vtkLocal + strlen(vtkLocal) - 8,"graphics"))
+    {
+    sprintf(filename,"%s/vtkXRenderWindowInteractor.cxx",vtkLocal);
+    AddToDepends(filename);
+    sprintf(filename,"%s/vtkXRenderTclWindowInteractor.cxx",vtkLocal);
+    AddToDepends(filename);
+    }
+      
+  // generate depends for all the tcl wrappers
+  for (i = 2; i < argc; i++)
+    {
+    if (strcmp(argv[i],"concrete")&&strcmp(argv[i],"abstract")&&
+	strcmp(argv[i],"concrete_h")&&strcmp(argv[i],"abstract_h"))
+      {
+      sprintf(filename,"%s/%s.h",vtkLocal,argv[i]);
+      AddToDepends(filename);
+      }
+    }
+
+  BuildDepends(vtkHome);
 }
