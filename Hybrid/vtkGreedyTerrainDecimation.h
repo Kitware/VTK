@@ -107,8 +107,8 @@ public:
   // good idea to make sure this is less than a tessellated mesh
   // at full resolution.) You need to set this value only when
   // the error measure is set to NumberOfTriangles.
-  vtkSetClampMacro(NumberOfTriangles,unsigned int,2,VTK_UNSIGNED_INT_MAX);
-  vtkGetMacro(NumberOfTriangles,unsigned int);
+  vtkSetClampMacro(NumberOfTriangles,vtkIdType,2,VTK_LONG_MAX);
+  vtkGetMacro(NumberOfTriangles,vtkIdType);
 
   // Description:
   // Specify the reduction of the mesh (represented as a fraction).  Note
@@ -146,12 +146,12 @@ protected:
   void Execute();
 
   //ivars that the API addresses
-  int          ErrorMeasure;
-  unsigned int NumberOfTriangles;
-  float        Reduction;
-  float        AbsoluteError;
-  float        RelativeError;
-  int          BoundaryVertexDeletion; //Can we delete boundary vertices?
+  int       ErrorMeasure;
+  vtkIdType NumberOfTriangles;
+  float     Reduction;
+  float     AbsoluteError;
+  float     RelativeError;
+  int       BoundaryVertexDeletion; //Can we delete boundary vertices?
 
   //Used for convenience
   vtkPolyData    *Mesh;
@@ -165,6 +165,8 @@ protected:
   int            Dimensions[3];
   double         Origin[3];
   double         Spacing[3];
+  vtkIdType      MaximumNumberOfTriangles;
+  float          Length;
 
   //Bookeeping arrays
   vtkPriorityQueue                           *TerrainError; //errors for each pt in height field
@@ -192,7 +194,7 @@ protected:
   void ComputeImageCoordinates(vtkIdType inputPtId, int ij[2]);
   int InCircle (double x[3], double x1[3], double x2[3], double x3[3]);
   int FindTriangle(double x[3], vtkIdType ptIds[3], vtkIdType tri,
-                         double tol, vtkIdType nei[3], vtkIdList *neighbors);
+                         double tol, vtkIdType nei[3], vtkIdList *neighbors, int& status);
   void CheckEdge(vtkIdType ptId, double x[3], vtkIdType p1, vtkIdType p2,
                  vtkIdType tri);
 
