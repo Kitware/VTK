@@ -430,8 +430,16 @@ AC_ARG_WITH(imaging,
          USE_IMAGING_LIBS="-L../imaging -lVTKImagingTcl"
          USE_IMAGING_FLAG="-I$(srcdir)/../imaging -DUSE_IMAGING")
 
+AC_ARG_WITH(borescope,
+         [  --with-borescope        include the borescope classes],
+         [vtk_use_borescope=yes] 
+         USE_BORESCOPE_LIBS="-L../borescope -lVTKBorescopeTcl"
+         USE_BORESCOPE_FLAG="-I$(srcdir)/../borescope -DUSE_BORESCOPE",
+         [vtk_use_borescope=no]) 
+
 USE_GRAPHICS_DEPENDS=""
 USE_IMAGING_DEPENDS=""
+USE_BORESCOPE_DEPENDS=""
 COMMON_DEPENDS=""
 
 if test "$vtk_shared_ok" = "yes"; then
@@ -449,6 +457,9 @@ else
     if test "$vtk_use_imaging" = "yes"; then
        USE_IMAGING_DEPENDS="../imaging/libVTKImagingTcl.a"
     fi
+    if test "$vtk_use_borescope" = "yes"; then
+       USE_BORESCOPE_DEPENDS="../borescope/libVTKBorescopeTcl.a"
+    fi
 fi
 
 AC_SUBST(USE_GRAPHICS_FLAG)
@@ -458,6 +469,10 @@ AC_SUBST(USE_GRAPHICS_DEPENDS)
 AC_SUBST(USE_IMAGING_FLAG)
 AC_SUBST(USE_IMAGING_LIBS)
 AC_SUBST(USE_IMAGING_DEPENDS)
+
+AC_SUBST(USE_BORESCOPE_FLAG)
+AC_SUBST(USE_BORESCOPE_LIBS)
+AC_SUBST(USE_BORESCOPE_DEPENDS)
 
 AC_SUBST(VTK_SHLIB_CFLAGS)
 AC_SUBST(COMMON_DEPENDS)

@@ -20,6 +20,8 @@ BUILD_GRAPHICS    = @BUILD_GRAPHICS@
 CLEAN_GRAPHICS    = @CLEAN_GRAPHICS@
 BUILD_IMAGING     = @BUILD_IMAGING@
 CLEAN_IMAGING     = @CLEAN_IMAGING@
+BUILD_BORESCOPE   = @BUILD_BORESCOPE@
+CLEAN_BORESCOPE   = @CLEAN_BORESCOPE@
 
 #------------------------------------------------------------------------------
 # Include user-editable defines.
@@ -29,7 +31,7 @@ CLEAN_IMAGING     = @CLEAN_IMAGING@
 #------------------------------------------------------------------------------
 
 all: ${BUILD_TCL} build_common \
-	${BUILD_GRAPHICS} ${BUILD_IMAGING} \
+	${BUILD_GRAPHICS} ${BUILD_IMAGING} ${BUILD_BORESCOPE}\
 	${BUILD_TCL}${BUILD_TCL}
 
 build_common:
@@ -41,6 +43,9 @@ build_graphics:
 build_imaging:
 	cd imaging;    ${MAKE} -${MAKEFLAGS} all
 
+build_borescope:
+	cd borescope;  ${MAKE} -${MAKEFLAGS} all
+
 build_tcl:
 	cd tcl;        ${MAKE} -${MAKEFLAGS} all
 
@@ -51,7 +56,7 @@ build_tclbuild_tcl:
 #------------------------------------------------------------------------------
 # Clean up all files that were built by make.
 
-clean: ${CLEAN_TCL} ${CLEAN_GRAPHICS} ${CLEAN_IMAGING}
+clean: ${CLEAN_TCL} ${CLEAN_GRAPHICS} ${CLEAN_IMAGING} ${CLEAN_BORESCOPE}
 	cd common;    ${MAKE} -${MAKEFLAGS} clean
 	rm -f config.cache
 
@@ -63,4 +68,7 @@ clean_graphics:
 
 clean_imaging:
 	cd imaging;   ${MAKE} -${MAKEFLAGS} clean
+
+clean_borescope:
+	cd borescope; ${MAKE} -${MAKEFLAGS} clean
 

@@ -21,6 +21,8 @@ ac_help="$ac_help
   --without-graphics      do not include the graphics classes"
 ac_help="$ac_help
   --without-imaging       do not include the imaging classes"
+ac_help="$ac_help
+  --with-borescope        include the borescope classes"
 
 # Initialize some variables set by options.
 # The variables have the same names as the options, with
@@ -580,6 +582,20 @@ fi
 
 
 
+# Check whether --with-imaging or --without-imaging was given.
+if test "${with_imaging+set}" = set; then
+  withval="$with_imaging"
+  :
+else
+  borescopedir=borescope
+         BUILD_BORESCOPE=build_borescope
+         CLEAN_BORESCOPE=clean_borescope
+fi
+
+
+
+
+
 ac_aux_dir=
 for ac_dir in $srcdir $srcdir/.. $srcdir/../..; do
   if test -f $ac_dir/install-sh; then
@@ -599,7 +615,7 @@ ac_config_guess=$ac_aux_dir/config.guess
 ac_config_sub=$ac_aux_dir/config.sub
 ac_configure=$ac_aux_dir/configure # This should be Cygnus configure.
 
-subdirs="common $tcldir $graphicsdir $imagingdir"
+subdirs="common $tcldir $graphicsdir $imagingdir $borescopedir"
 
 
 #------------------------------------------------------------------------------
@@ -784,6 +800,8 @@ s%@BUILD_GRAPHICS@%$BUILD_GRAPHICS%g
 s%@CLEAN_GRAPHICS@%$CLEAN_GRAPHICS%g
 s%@BUILD_IMAGING@%$BUILD_IMAGING%g
 s%@CLEAN_IMAGING@%$CLEAN_IMAGING%g
+s%@BUILD_BORESCOPE@%$BUILD_BORESCOPE%g
+s%@CLEAN_BORESCOPE@%$CLEAN_BORESCOPE%g
 s%@subdirs@%$subdirs%g
 s%@MAKEINCLUDE@%$MAKEINCLUDE%g
 s%@MAKEQUOTE@%$MAKEQUOTE%g
@@ -876,7 +894,7 @@ if test "$no_recursion" != yes; then
     esac
   done
 
-  for ac_config_dir in common $tcldir $graphicsdir $imagingdir; do
+  for ac_config_dir in common $tcldir $graphicsdir $imagingdir $borescopedir; do
 
     # Do not complain, so a configure script can configure whichever
     # parts of a large source tree are present.
