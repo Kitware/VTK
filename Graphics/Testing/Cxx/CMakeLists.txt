@@ -26,6 +26,7 @@ IF (VTK_USE_RENDERING)
   ADD_EXECUTABLE(Mace Mace)
   ADD_EXECUTABLE(expCos expCos)
   ADD_EXECUTABLE(volProt volProt)
+  ADD_EXECUTABLE(RGrid RGrid)
 
   #
   # Add tests, with the data
@@ -48,6 +49,7 @@ IF (VTK_USE_RENDERING)
                 -V Baseline/Graphics/volProt.png)
   ELSE (VTK_DATA_ROOT)
     ADD_TEST(Mace ${CXX_TEST_PATH}/Mace )
+    ADD_TEST(RGrid ${CXX_TEST_PATH}/RGrid )
     ADD_TEST(expCos ${CXX_TEST_PATH}/expCos )
     ADD_TEST(CellLocator ${CXX_TEST_PATH}/CellLocator)
     ADD_TEST(PointLocator ${CXX_TEST_PATH}/PointLocator)
