@@ -54,7 +54,6 @@ vtkImageSpatialFilter::vtkImageSpatialFilter()
     {
     this->KernelSize[idx] = 1;
     this->KernelMiddle[idx] = 0;
-    this->Strides[idx] = 1;
     }
   
   this->HandleBoundaries = 1;
@@ -82,13 +81,6 @@ void vtkImageSpatialFilter::PrintSelf(ostream& os, vtkIndent indent)
     }
   os << ").\n";
 
-  os << indent << "Strides: (" << this->Strides[0];
-  for (idx = 1; idx < 3; ++idx)
-    {
-    os << ", " << this->Strides[idx];
-    }
-  os << ").\n";
-
 }
 
 
@@ -110,11 +102,6 @@ void vtkImageSpatialFilter::ExecuteImageInformation()
   this->ComputeOutputWholeExtent(extent, this->HandleBoundaries);
   this->Output->SetWholeExtent(extent);
   
-  for(idx = 0; idx < 3; ++idx)
-    {
-    // Change the data spacing.
-    spacing[idx] *= (float)(this->Strides[idx]);
-    }
   this->Output->SetSpacing(spacing);
 }
 
@@ -136,16 +123,6 @@ void vtkImageSpatialFilter::ComputeOutputWholeExtent(int *extent,
       }
     }
   
-  for(idx = 0; idx < 3; ++idx)
-    {
-    // Scale the output extent because of strides
-    extent[idx*2] = 
-      (int)(ceil(((float)extent[idx*2]) /((float)this->Strides[idx])));
-    extent[idx*2+1] = 
-      (int)(floor((((float)extent[idx*2+1]+1.0) /
-		   ((float)this->Strides[idx]))-1.0));
-    // Change the data spacing.
-    }
 }
 
 
@@ -157,19 +134,23 @@ void vtkImageSpatialFilter::ComputeOutputWholeExtent(int *extent,
 // extent of the output region.  After this method finishes, "region" should 
 // have the extent of the required input region.
 void vtkImageSpatialFilter::ComputeRequiredInputUpdateExtent(int *extent, 
-							     int *wholeExtent)
+							     int *inExtent)
 {
   int idx;
+  int *wholeExtent;
+  
+  wholeExtent = this->Input->GetWholeExtent();
   
   for (idx = 0; idx < 3; ++idx)
     {
     // Magnify by strides
-    extent[idx*2] = wholeExtent[idx*2]*this->Strides[idx];
-    extent[idx*2+1] = (wholeExtent[idx*2+1]+1)*this->Strides[idx] - 1;
+    extent[idx*2] = inExtent[idx*2];
+    extent[idx*2+1] = inExtent[idx*2+1];
+
     // Expand to get inRegion Extent
     extent[idx*2] -= this->KernelMiddle[idx];
     extent[idx*2+1] += (this->KernelSize[idx]-1) - this->KernelMiddle[idx];
-
+    
     // If the expanded region is out of the IMAGE Extent (grow min)
     if (extent[idx*2] < wholeExtent[idx*2])
       {
