@@ -14,10 +14,9 @@
 =========================================================================*/
 #include "vtkInformationKeyVectorKey.h"
 
-#include "vtkDebugLeaks.h"
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationKeyVectorKey, "1.2");
+vtkCxxRevisionMacro(vtkInformationKeyVectorKey, "1.3");
 
 //----------------------------------------------------------------------------
 vtkInformationKeyVectorKey::vtkInformationKeyVectorKey(const char* name, const char* location):
@@ -69,9 +68,7 @@ void vtkInformationKeyVectorKey::Set(vtkInformation* info,
     {
     vtkInformationKeyVectorValue* v =
       new vtkInformationKeyVectorValue;
-#ifdef VTK_DEBUG_LEAKS
-    vtkDebugLeaks::ConstructClass("vtkInformationKeyVectorValue");
-#endif
+    this->ConstructClass("vtkInformationKeyVectorValue");
     v->Value.insert(v->Value.begin(), value, value+length);
     this->SetAsObjectBase(info, v);
     v->Delete();

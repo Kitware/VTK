@@ -19,7 +19,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationKey, "1.5");
+vtkCxxRevisionMacro(vtkInformationKey, "1.6");
 
 class vtkInformationKeyToInformationFriendship
 {
@@ -37,16 +37,24 @@ public:
 };
 
 //----------------------------------------------------------------------------
+// Purposely not initialized.  ClassInitialize will handle it.
+vtkstd::vector<vtkInformationKey*>* vtkInformationKeyInstances;
+
+//----------------------------------------------------------------------------
 vtkInformationKey::vtkInformationKey(const char* name, const char* location)
 {
   // Save the name and location.
   this->Name = name;
   this->Location = location;
+
+  // Register this instance for deletion by the singleton.
+  vtkInformationKeyInstances->push_back(this);
 }
 
 //----------------------------------------------------------------------------
 vtkInformationKey::~vtkInformationKey()
 {
+  this->SetReferenceCount(0);
 }
 
 //----------------------------------------------------------------------------
@@ -56,13 +64,13 @@ void vtkInformationKey::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkInformationKey::UnRegister(vtkObjectBase *)
+void vtkInformationKey::Register(vtkObjectBase*)
 {
-  this->ReferenceCount--;
-  if (this->ReferenceCount <= 0)
-    {
-    delete this;
-    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInformationKey::UnRegister(vtkObjectBase*)
+{
 }
 
 //----------------------------------------------------------------------------
@@ -100,4 +108,43 @@ void vtkInformationKey::Remove(vtkInformation* info)
 void vtkInformationKey::Report(vtkInformation*, vtkGarbageCollector*)
 {
   // Report nothing by default.
+}
+
+//----------------------------------------------------------------------------
+#ifdef VTK_DEBUG_LEAKS
+void vtkInformationKey::ConstructClass(const char* name)
+{
+  vtkDebugLeaks::ConstructClass(name);
+}
+#else
+void vtkInformationKey::ConstructClass(const char*)
+{
+}
+#endif
+
+//----------------------------------------------------------------------------
+void vtkInformationKey::ClassInitialize()
+{
+  // Allocate the singleton storing pointers to all information keys.
+  vtkInformationKeyInstances = new vtkstd::vector<vtkInformationKey*>;
+}
+
+//----------------------------------------------------------------------------
+void vtkInformationKey::ClassFinalize()
+{
+  if(vtkInformationKeyInstances)
+    {
+    // Delete all information keys.
+    for(vtkstd::vector<vtkInformationKey*>::iterator i =
+          vtkInformationKeyInstances->begin();
+        i != vtkInformationKeyInstances->end(); ++i)
+      {
+      vtkInformationKey* key = *i;
+      delete key;
+      }
+
+    // Delete the singleton storing pointers to all information keys.
+    delete vtkInformationKeyInstances;
+    vtkInformationKeyInstances = 0;
+    }
 }

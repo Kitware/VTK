@@ -26,7 +26,12 @@
 #include "vtkSLCReader.h"
 #include "vtkTIFFReader.h"
 
-vtkCxxRevisionMacro(vtkImageReader2Factory, "1.17");
+// Destroying the prototype readers requires information keys.
+// Include the manager here to make sure the keys are not destroyed
+// until after the AvailableReaders singleton has been destroyed.
+#include "vtkInformationKeyManager.h"
+
+vtkCxxRevisionMacro(vtkImageReader2Factory, "1.18");
 vtkStandardNewMacro(vtkImageReader2Factory);
 
 class vtkImageReader2FactoryCleanup

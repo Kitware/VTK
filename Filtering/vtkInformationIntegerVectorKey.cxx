@@ -15,12 +15,11 @@
 #include "vtkInformationIntegerVectorKey.h"
 
 #include "vtkInformation.h" // For vtkErrorWithObjectMacro
-#include "vtkDebugLeaks.h"
 
 #include <vtkstd/algorithm>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationIntegerVectorKey, "1.4");
+vtkCxxRevisionMacro(vtkInformationIntegerVectorKey, "1.5");
 
 //----------------------------------------------------------------------------
 vtkInformationIntegerVectorKey
@@ -96,9 +95,7 @@ void vtkInformationIntegerVectorKey::Set(vtkInformation* info, int* value,
       // Allocate a new value.
       vtkInformationIntegerVectorValue* v =
         new vtkInformationIntegerVectorValue;
-#ifdef VTK_DEBUG_LEAKS
-      vtkDebugLeaks::ConstructClass("vtkInformationIntegerVectorValue");
-#endif
+      this->ConstructClass("vtkInformationIntegerVectorValue");
       v->Value.insert(v->Value.begin(), value, value+length);
       this->SetAsObjectBase(info, v);
       v->Delete();

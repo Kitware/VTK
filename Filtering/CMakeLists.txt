@@ -106,6 +106,7 @@ vtkInformationInformationVectorKey.cxx
 vtkInformationIntegerKey.cxx
 vtkInformationIntegerVectorKey.cxx
 vtkInformationKey.cxx
+vtkInformationKeyManager.cxx
 vtkInformationKeyVectorKey.cxx
 vtkInformationObjectBaseKey.cxx
 vtkInformationStringKey.cxx
@@ -243,6 +244,7 @@ vtkInformationInformationVectorKey
 vtkInformationIntegerKey
 vtkInformationIntegerVectorKey
 vtkInformationKey
+vtkInformationKeyManager
 vtkInformationKeyVectorKey
 vtkInformationObjectBaseKey
 vtkInformationStringKey
@@ -282,6 +284,7 @@ vtkViewport
 SET_SOURCE_FILES_PROPERTIES(
   vtkImageIterator.cxx
   vtkImageProgressIterator.cxx
+  vtkInformationKeyManager.cxx
   WRAP_EXCLUDE
 )
 
