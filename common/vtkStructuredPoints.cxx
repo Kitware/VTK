@@ -89,10 +89,6 @@ vtkDataSet(v)
 
 vtkStructuredPoints::~vtkStructuredPoints()
 {
-  if (this->StructuredPointsToImage)
-    {
-    this->StructuredPointsToImage->Delete();
-    }
   this->Vertex->Delete();
   this->Line->Delete();
   this->Pixel->Delete();

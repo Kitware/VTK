@@ -83,10 +83,6 @@ vtkImageCache::vtkImageCache()
 //----------------------------------------------------------------------------
 vtkImageCache::~vtkImageCache()
 {
-  if (this->ImageToStructuredPoints)
-    {
-    this->ImageToStructuredPoints->Delete();
-    }
   this->ReleaseData();
   // get rid of reference count.
   this->SetSource(NULL);
