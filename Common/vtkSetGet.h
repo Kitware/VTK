@@ -227,23 +227,7 @@ virtual void Set##name (type* _arg) \
     if (this->name != NULL) { this->name->Register(this); } \
     this->Modified(); \
     } \
-  } 
-
-//
-// Identical to vtkSetObjectMacro. Left in for legacy compatibility.
-//
-#define vtkSetReferenceCountedObjectMacro(name,type) \
-virtual void Set##name (type* _arg) \
-  { \
-  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " << #name " to " << _arg ); \
-  if (this->name != _arg) \
-    { \
-    if (this->name != NULL) { this->name->UnRegister(this); }\
-    this->name = _arg; \
-    if (this->name != NULL) { this->name->Register(this); } \
-    this->Modified(); \
-    } \
-  } 
+  }
 
 //
 // Get pointer to object.  Creates member Get"name" (e.g., GetPoints()).
