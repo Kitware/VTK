@@ -294,7 +294,13 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
     vtkColorScalars *mappedScalars;
     unsigned char *txtrData;
     
-    // get some info
+    // make sure it is updated and then get some info
+    if (aTexture->GetInput() == NULL)
+      {
+      vtkErrorMacro(<< "texture has no input!\n");
+      return;
+      }
+    aTexture->GetInput()->Update();
     size = aTexture->GetInput()->GetDimensions();
     scalars = (aTexture->GetInput()->GetPointData())->GetScalars();
 

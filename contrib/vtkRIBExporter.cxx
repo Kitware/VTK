@@ -879,7 +879,13 @@ void vtkRIBExporter::WriteTexture (vtkTexture *aTexture)
     fprintf (this->FilePtr, "\"%s\" \"%s\" ", wrap, wrap);
     fprintf (this->FilePtr, "\"%s\" 1 1\n", "box");
 
-    // get some info
+    // do an Update and get some info
+    if (aTexture->GetInput() == NULL)
+      {
+      vtkErrorMacro(<< "texture has no input!\n");
+      return;
+      }
+    aTexture->GetInput()->Update();
     size = aTexture->GetInput()->GetDimensions();
     scalars = (aTexture->GetInput()->GetPointData())->GetScalars();
 
