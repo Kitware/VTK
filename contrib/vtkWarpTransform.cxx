@@ -51,6 +51,19 @@ void vtkWarpTransform::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "InverseFlag: " << this->InverseFlag << "\n";
 }
 
+//----------------------------------------------------------------------------
+vtkWarpTransform::vtkWarpTransform()
+{
+  this->InverseFlag = 0;
+  this->InverseTolerance = 0.001;
+  this->InverseIterations = 500;
+}
+
+//----------------------------------------------------------------------------
+vtkWarpTransform::~vtkWarpTransform()
+{
+} 
+
 //------------------------------------------------------------------------
 // Check the InverseFlag, and perform a forward or reverse transform
 // as appropriate.
@@ -126,28 +139,135 @@ void vtkWarpTransform::InternalTransformDerivative(const double input[3],
 }
 
 //----------------------------------------------------------------------------
-// To invert the transformation, just set the InverseFlag.
-void vtkWarpTransform::Inverse()
+// We use Newton's method to iteratively invert the transformation.  
+// This is actally quite robust as long as the Jacobian matrix is never
+// singular.
+void vtkWarpTransform::InverseTransformPoint(const double point[3], 
+					     double output[3])
 {
-  this->InverseFlag = !this->InverseFlag;
-  this->Modified();
-}
+  double inverse[3],lastInverse[3];
+  double deltaP[3], deltaI[3];
+  double derivative[3][3];
 
-//----------------------------------------------------------------------------
-// convert float to double and back again
-void vtkWarpTransform::ForwardTransformPoint(const float point[3], 
-					     float output[3])
-{
-  double dpoint[3];
-  dpoint[0] = point[0]; 
-  dpoint[1] = point[1]; 
-  dpoint[2] = point[2];
-
-  this->ForwardTransformPoint(dpoint,dpoint);
+  double errorSquared, lastErrorSquared, gradient[3];
+  double toleranceSquared = (this->InverseTolerance*
+			     this->InverseTolerance);
  
-  output[0] = dpoint[0]; 
-  output[1] = dpoint[1]; 
-  output[2] = dpoint[2];
+  // first guess at inverse point
+  this->ForwardTransformPoint(point,inverse);
+  
+  inverse[0] -= 2*(inverse[0]-point[0]);
+  inverse[1] -= 2*(inverse[1]-point[1]);
+  inverse[2] -= 2*(inverse[2]-point[2]);
+
+  // put the inverse point back through the transform
+  this->ForwardTransformDerivative(inverse,deltaP,derivative);
+
+  // how far off are we?
+  deltaP[0] -= point[0];
+  deltaP[1] -= point[1];
+  deltaP[2] -= point[2];
+
+  // add errors for each dimension
+  errorSquared = deltaP[0]*deltaP[0] +
+                 deltaP[1]*deltaP[1] +
+                 deltaP[2]*deltaP[2];
+
+  // do a maximum 500 iterations, usually less than 10 are required
+  int n = this->InverseIterations;
+  int i;
+  for (i = 0; i < n && errorSquared > toleranceSquared; i++)
+    {
+    // save previous error
+    lastErrorSquared = errorSquared;
+    
+    // here is the critical step in Newton's method
+    vtkMath::LinearSolve3x3(derivative,deltaP,deltaI);
+
+    // save the inverse
+    lastInverse[0] = inverse[0];
+    lastInverse[1] = inverse[1];
+    lastInverse[2] = inverse[2];
+
+    // calculate the gradient of errorSquared
+    gradient[0] = deltaP[0]*derivative[0][0]*2;
+    gradient[1] = deltaP[1]*derivative[1][1]*2;
+    gradient[2] = deltaP[2]*derivative[2][2]*2;
+
+    // calculate the new inverse
+    inverse[0] -= deltaI[0];
+    inverse[1] -= deltaI[1];
+    inverse[2] -= deltaI[2];
+
+    // put the inverse point back through the transform
+    this->ForwardTransformDerivative(inverse,deltaP,derivative);
+
+    // how far off are we?
+    deltaP[0] -= point[0];
+    deltaP[1] -= point[1];
+    deltaP[2] -= point[2];
+
+    // add errors for each dimension
+    errorSquared = deltaP[0]*deltaP[0] +
+                   deltaP[1]*deltaP[1] +
+                   deltaP[2]*deltaP[2];
+
+    if (errorSquared > lastErrorSquared)
+      { // the error is increasing, backtrack 
+	// see Numerical Recipes 9.7 for rationale
+
+      // derivative of errorSquared for lastError
+      double lastErrorSquaredD = (gradient[0]*deltaI[0] +
+				  gradient[1]*deltaI[1] +
+				  gradient[2]*deltaI[2]);
+
+      // quadratic approximation to find best fractional distance
+      double f = lastErrorSquaredD/
+	  (2*(errorSquared-lastErrorSquared-lastErrorSquaredD));
+
+      if (f < 0.1)
+	{
+	f = 0.1;
+	}
+      if (f > 0.5)
+	{
+	f = 0.5;
+	}
+
+      // calculate inverse using fractional distance
+      inverse[0] = lastInverse[0] - f*deltaI[0];
+      inverse[1] = lastInverse[1] - f*deltaI[1];
+      inverse[2] = lastInverse[2] - f*deltaI[2];
+
+      // put the inverse point back through the transform
+      this->ForwardTransformDerivative(inverse,deltaP,derivative);
+      
+      // how far off are we?
+      deltaP[0] -= point[0];
+      deltaP[1] -= point[1];
+      deltaP[2] -= point[2];
+      
+      // add errors for each dimension
+      errorSquared = deltaP[0]*deltaP[0] +
+	             deltaP[1]*deltaP[1] +
+                     deltaP[2]*deltaP[2];
+      }
+    }
+
+  output[0] = inverse[0];
+  output[1] = inverse[1];
+  output[2] = inverse[2];
+
+  vtkDebugMacro("Inverse Iterations: " << (i+1));
+
+  if (i >= this->InverseIterations)
+    {
+    vtkWarningMacro("InverseTransformPoint: no convergence (" <<
+		    point[0] << ", " << point[1] << ", " << point[2] << 
+		    ") error = " << sqrt(errorSquared) << " after " <<
+		    i << " iterations.");
+    }
+
 }
 
 //----------------------------------------------------------------------------
@@ -168,26 +288,11 @@ void vtkWarpTransform::InverseTransformPoint(const float point[3],
 }
 
 //----------------------------------------------------------------------------
-// convert float to double and back again
-void vtkWarpTransform::ForwardTransformDerivative(const float point[3],
-						  float output[3],
-						  float derivative[3][3])
+// To invert the transformation, just set the InverseFlag.
+void vtkWarpTransform::Inverse()
 {
-  double dpoint[3];
-  double dderivative[3][3];
-  for (int i = 0; i < 3; i++)
-    {
-    dderivative[i][0] = derivative[i][0];
-    dpoint[i] = point[i];
-    } 
-
-  this->ForwardTransformDerivative(dpoint,dpoint,dderivative);
- 
-  for (int j = 0; j < 3; j++)
-    {
-    derivative[j][0] = dderivative[j][0];
-    output[j] = dpoint[j];
-    } 
+  this->InverseFlag = !this->InverseFlag;
+  this->Modified();
 }
 
 

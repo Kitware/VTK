@@ -42,10 +42,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .NAME vtkWarpTransform - superclass for nonlinear geometric transformations
 // .SECTION Description
 // vtkWarpTransform provides a generic interface for nonlinear 
-// warp transformations.  These are also commonly known as morphological
-// transformations.
+// warp transformations.
 // .SECTION see also
-// vtkThinPlateSplineTransform
+// vtkThinPlateSplineTransform vtkGridTransform vtkGeneralTransform
 
 
 #ifndef __vtkWarpTransform_h
@@ -62,10 +61,25 @@ public:
 
   // Description:
   // Invert the transformation.  Warp transformations are usually
-  // inverted using an iterative technique such as Newton's method,
-  // and the inverse transform is far more computationally expensive
-  // than the forward transform.
+  // inverted using an iterative technique such as Newton's method.
+  // The inverse transform is usually around five or six times as
+  // computationally expensive as the forward transform.
   void Inverse();
+
+  // Description:
+  // Set the tolerance for inverse transformation.
+  // The default is 0.001.
+  vtkSetMacro(InverseTolerance,double);
+  vtkGetMacro(InverseTolerance,double);
+
+  // Description:
+  // Set the maximum number of iterations for the inverse
+  // transformation.  The default is 500, but usually only 
+  // 2 to 5 iterations are used.  The inversion method
+  // is fairly robust, and it should converge for nearly all smooth
+  // transformations that do not fold back on themselves.
+  vtkSetMacro(InverseIterations,int);
+  vtkGetMacro(InverseIterations,int);
 
   // Description:
   // This will calculate the transformation without calling Update.
@@ -74,7 +88,7 @@ public:
   void InternalTransformPoint(const double in[3], double out[3]);
 
   // Description:
-  // This will calculate the transformation as well as its derivative
+  // This will calculate the transformation, as well as its derivative
   // without calling Update.  Meant for use only within other VTK
   // classes.
   void InternalTransformDerivative(const float in[3], float out[3],
@@ -83,33 +97,36 @@ public:
 				   double derivative[3][3]);
 
 protected:
-  vtkWarpTransform() { this->InverseFlag = 0; };
-  ~vtkWarpTransform() {};
+  vtkWarpTransform();
+  ~vtkWarpTransform();
   vtkWarpTransform(const vtkWarpTransform&) {};
   void operator=(const vtkWarpTransform&) {};
 
   // Description:
   // If the InverseFlag is set to 0, then a call to InternalTransformPoint
   // results in a call to ForwardTransformPoint. 
-  virtual void ForwardTransformPoint(const float in[3], float out[3]);
+  virtual void ForwardTransformPoint(const float in[3], float out[3]) = 0;
   virtual void ForwardTransformPoint(const double in[3], double out[3]) = 0;
-
-  // Description:
-  // If the InverseFlag is set to 1, then a call to InternalTransformPoint
-  // results in a call to InverseTransformPoint.
-  virtual void InverseTransformPoint(const float in[3], float out[3]);
-  virtual void InverseTransformPoint(const double in[3], double out[3]) = 0;
 
   // Description:
   // Calculate the forward transform as well as the derivative.  The
   // derivative of the inverse transform can be computed as the inverse
   // of the derivative of the forward transform.
   virtual void ForwardTransformDerivative(const float in[3], float out[3],
-					  float derivative[3][3]);
+					  float derivative[3][3]) = 0;
   virtual void ForwardTransformDerivative(const double in[3], double out[3],
 					  double derivative[3][3]) = 0;
 
+  // Description:
+  // If the InverseFlag is set to 1, then a call to InternalTransformPoint
+  // results in a call to InverseTransformPoint.  The inverse transformation
+  // is calculated from using Newton's method.
+  virtual void InverseTransformPoint(const float in[3], float out[3]);
+  virtual void InverseTransformPoint(const double in[3], double out[3]);
+
   int InverseFlag;
+  int InverseIterations;
+  double InverseTolerance;
 };
 
 #endif
