@@ -29,7 +29,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDICOMImageReader, "1.15");
+vtkCxxRevisionMacro(vtkDICOMImageReader, "1.16");
 vtkStandardNewMacro(vtkDICOMImageReader);
 
 class vtkDICOMImageReaderVector : public vtkstd::vector<vtkstd::string>
@@ -43,7 +43,6 @@ vtkDICOMImageReader::vtkDICOMImageReader()
   this->AppHelper = new DICOMAppHelper();
   this->DirectoryName = NULL;
   this->DICOMFileNames = new vtkDICOMImageReaderVector();
-  this->FileName = NULL;
 }
 
 vtkDICOMImageReader::~vtkDICOMImageReader()
@@ -51,6 +50,11 @@ vtkDICOMImageReader::~vtkDICOMImageReader()
   delete this->Parser;
   delete this->AppHelper;
   delete this->DICOMFileNames;
+
+  if (this->DirectoryName) 
+    { 
+    delete [] this->DirectoryName; 
+    }
 }
 
 void vtkDICOMImageReader::PrintSelf(ostream& os, vtkIndent indent)
@@ -362,23 +366,35 @@ void vtkDICOMImageReader::SetupOutputInformation(int num_slices)
 
 void vtkDICOMImageReader::SetDirectoryName(const char* dn)
 {
-  if (dn == NULL)
-    {
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << 
+                "): setting DirectoryName to " << (dn ? dn : "(null)") ); 
+  if ( this->DirectoryName == NULL && dn == NULL) 
+    { 
     return;
-    }
-  int len = static_cast<int>(strlen(dn));
-  if (this->DirectoryName != NULL)
-    {
-    delete [] this->DirectoryName;
-    }
-  this->DirectoryName = new char[len+1];
-  strcpy(this->DirectoryName, dn);
-  if (this->FileName != NULL)
+    } 
+  if (this->FileName)
     {
     delete [] this->FileName;
     this->FileName = NULL;
     }
-  this->Modified();
+  if ( this->DirectoryName && dn && (!strcmp(this->DirectoryName,dn))) 
+    { 
+    return;
+    }
+  if (this->DirectoryName) 
+    { 
+    delete [] this->DirectoryName; 
+    } 
+  if (dn) 
+    { 
+    this->DirectoryName = new char[strlen(dn)+1]; 
+    strcpy(this->DirectoryName,dn); 
+    } 
+   else 
+    { 
+    this->DirectoryName = NULL; 
+    } 
+  this->Modified(); 
 }
 
 float* vtkDICOMImageReader::GetPixelSpacing()
