@@ -45,11 +45,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkWin32ImageWindow.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+#ifndef VTK_REMOVE_LEGACY_CODE
+//-------------------------------------------------------------------------
 vtkWin32PolyDataMapper2D* vtkWin32PolyDataMapper2D::New()
 {
+  vtkGenericWarningMacro(<<"Obsolete native imaging class: " 
+                         <<"use OpenGL version instead");
+
   // First try to create the object from the vtkObjectFactory
   vtkObject* ret = vtkObjectFactory::CreateInstance("vtkWin32PolyDataMapper2D");
   if(ret)
@@ -59,8 +61,6 @@ vtkWin32PolyDataMapper2D* vtkWin32PolyDataMapper2D::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkWin32PolyDataMapper2D;
 }
-
-
 
 
 void vtkWin32PolyDataMapper2D::RenderOverlay(vtkViewport* viewport, 
@@ -265,5 +265,5 @@ void vtkWin32PolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   DeleteObject(brush);
 }
 
-
+#endif
   

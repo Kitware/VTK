@@ -5,6 +5,7 @@
 #include "vtkObjectFactory.h"
 
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 
 //----------------------------------------------------------------------------
 vtkXImageMapper* vtkXImageMapper::New()
@@ -845,3 +846,4 @@ void vtkXImageMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NumberOfColors: " << this->NumberOfColors << "\n";
 }
 
+#endif

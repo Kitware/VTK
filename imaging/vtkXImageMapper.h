@@ -62,6 +62,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkActor2D;
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 class VTK_EXPORT vtkXImageMapper : public vtkImageMapper
 {
 public:
@@ -116,7 +117,7 @@ protected:
   int             DataOutSize;
   int             NumberOfColors;
 };
-
+#endif
 
 #endif
 

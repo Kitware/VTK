@@ -44,10 +44,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 vtkWin32ImageWindow* vtkWin32ImageWindow::New()
 {
+  vtkGenericWarningMacro(<<"Obsolete native imaging class: " 
+                         <<"use OpenGL version instead");
+
   // First try to create the object from the vtkObjectFactory
   vtkObject* ret = vtkObjectFactory::CreateInstance("vtkWin32ImageWindow");
   if(ret)
@@ -860,3 +864,4 @@ void vtkWin32ImageWindow::ResumeScreenRendering()
   this->Size[1] = this->ScreenWindowSize[1];
   this->DeviceContext = this->ScreenDeviceContext;
 }
+#endif

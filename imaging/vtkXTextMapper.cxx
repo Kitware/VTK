@@ -42,9 +42,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkXTextMapper.h"
 #include "vtkObjectFactory.h"
 
+#ifndef VTK_REMOVE_LEGACY_CODE
+//mark this class for future legacy-related changes
+#endif
 //-------------------------------------------------------------------------
 vtkXTextMapper* vtkXTextMapper::New()
 {
+  vtkGenericWarningMacro(<<"Obsolete native imaging class: " 
+                         <<"use OpenGL version instead");
+
   // First try to create the object from the vtkObjectFactory
   vtkObject* ret = vtkObjectFactory::CreateInstance("vtkXTextMapper");
   if(ret)

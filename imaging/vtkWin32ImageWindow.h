@@ -39,7 +39,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkWin32ImageWindow - 2D display window for Windows
+// .NAME vtkWin32ImageWindow - (obsolete)2D display window for Windows
 // .SECTION Description
 // vtkWin32ImageWindow is a concrete subclass of vtkImageWindow.
 // It handles 2D rendering under windows.
@@ -53,6 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include 	"vtkImageWindow.h"
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 class VTK_EXPORT vtkWin32ImageWindow : public vtkImageWindow 
 {
 public:
@@ -158,5 +159,7 @@ protected:
   HBITMAP BackBuffer;
   BITMAPINFO DataHeader;
 };
+
+#endif
 
 #endif

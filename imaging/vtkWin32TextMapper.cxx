@@ -43,11 +43,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkWin32ImageWindow.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+#ifndef VTK_REMOVE_LEGACY_CODE
+//mark this class for future legacy-related changes
+#endif
+//--------------------------------------------------------------------------
 vtkWin32TextMapper* vtkWin32TextMapper::New()
 {
+  vtkGenericWarningMacro(<<"Obsolete native imaging class: " 
+                         <<"use OpenGL version instead");
+
   // First try to create the object from the vtkObjectFactory
   vtkObject* ret = vtkObjectFactory::CreateInstance("vtkWin32TextMapper");
   if(ret)
@@ -57,9 +61,6 @@ vtkWin32TextMapper* vtkWin32TextMapper::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkWin32TextMapper;
 }
-
-
-
 
 vtkWin32TextMapper::vtkWin32TextMapper()
 {

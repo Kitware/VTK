@@ -46,6 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 
 //------------------------------------------------------------------------------
 vtkXPolyDataMapper2D* vtkXPolyDataMapper2D::New()
@@ -261,6 +262,4 @@ void vtkXPolyDataMapper2D::RenderOverlay(vtkViewport* viewport, vtkActor2D* acto
     p->Delete();
     }
 }
-
-
-  
+#endif

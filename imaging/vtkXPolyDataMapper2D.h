@@ -52,6 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkPolyDataMapper2D.h"
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 class VTK_EXPORT vtkXPolyDataMapper2D : public vtkPolyDataMapper2D
 {
 public:
@@ -69,7 +70,7 @@ protected:
   void operator=(const vtkXPolyDataMapper2D&) {};
   
 };
-
+#endif
 
 #endif
 

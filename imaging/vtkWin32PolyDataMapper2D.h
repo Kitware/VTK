@@ -38,7 +38,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkWin32PolyDataMapper2D - 2D PolyData support for windows
+// .NAME vtkWin32PolyDataMapper2D - (obsolete) 2D PolyData support for windows
 // .SECTION Description
 // vtkWin32PolyDataMapper2D provides 2D PolyData annotation support for 
 // vtk under windows.  Normally the user should use vtkPolyDataMapper2D 
@@ -52,6 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkPolyDataMapper2D.h"
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 class VTK_EXPORT vtkWin32PolyDataMapper2D : public vtkPolyDataMapper2D
 {
 public:
@@ -69,7 +70,7 @@ protected:
   void operator=(const vtkWin32PolyDataMapper2D&) {};
   
 };
-
+#endif
 
 #endif
 
