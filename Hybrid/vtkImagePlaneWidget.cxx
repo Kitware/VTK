@@ -40,7 +40,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.33");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.34");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -1469,7 +1469,11 @@ void vtkImagePlaneWidget::GenerateCursor()
 {
   // Construct initial points
   this->CursorPoints->SetNumberOfPoints(4);
-
+  this->CursorPoints->InsertPoint(0,0.0,0.0,0.0);
+  this->CursorPoints->InsertPoint(1,0.0,0.0,0.0);
+  this->CursorPoints->InsertPoint(2,0.0,0.0,0.0);
+  this->CursorPoints->InsertPoint(3,0.0,0.0,0.0);
+  
   this->CursorPolyData->SetPoints(this->CursorPoints);
 
   this->CursorMapper->SetInput(this->CursorPolyData);
