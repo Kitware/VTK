@@ -45,7 +45,8 @@ vtkImplicitBoolean theCream
 vtkSampleFunction theConeSample
     theConeSample SetImplicitFunction theCone
     theConeSample SetModelBounds -1 1.5 -1.25 1.25 -1.25 1.25 
-    theConeSample SetSampleDimensions 60 60 60
+    theConeSample SetSampleDimensions 60 70 80
+    theConeSample CappingOn
     theConeSample ComputeNormalsOff
 vtkContourFilter theConeSurface
     theConeSurface SetInput [theConeSample GetOutput]
