@@ -32,6 +32,7 @@ vtkImageExport		GetDataSpacing  301 3
 vtkImageExport		GetDataOrigin   301 3
 vtkImageSpatialFilter	GetKernelSize   304 4
 vtkIntPoints		GetPoint	301 3
+vtkLODProp3D		GetBounds	301 6
 vtkLookupTable		GetTableValue	301 4
 vtkAbstractMapper3D 	GetBounds	301 6
 vtkAbstractMapper3D	GetCenter	301 3
@@ -81,6 +82,7 @@ vtkTransform		GetScale	301 3
 vtkTransform		GetPoint	301 3
 vtkVectors		GetVector 	301 3
 vtkVolume		GetBounds	301 6
+
 
 vtkDFALeader		GetTextPosition 301 2
 
