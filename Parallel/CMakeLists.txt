@@ -1,8 +1,10 @@
 SOURCE_FILES ( Parallel_SRCS
 vtkBranchExtentTranslator 
+vtkClipPlane
 vtkCommunicator 
 vtkCompositeManager 
 vtkCutMaterial 
+vtkCutPlane
 vtkExtractPolyDataPiece 
 vtkExtractUnstructuredGridPiece 
 vtkInputPort 
