@@ -19,30 +19,30 @@ This file is part of the vis library
 #include "RenderM.hh"
 
 #ifdef USE_KGLR
-#include "KglrRen.hh"
+#include "KglrRenW.hh"
 #endif
 
 vlRenderMaster::vlRenderMaster()
 {
 }
 
-vlRenderer *vlRenderMaster::MakeRenderer(char *type)
+vlRenderWindow *vlRenderMaster::MakeRenderWindow(char *type)
 {
 
 #ifdef USE_KGLR
   if (!strncmp("kglr",type,4))
     {
-    vlKglrRenderer *ren;
-    ren = new vlKglrRenderer;
-    return (vlRenderer *)ren;
+    vlKglrRenderWindow *ren;
+    ren = new vlKglrRenderWindow;
+    return (vlRenderWindow *)ren;
     }
 #endif
 
-  cerr <<"RenderMaster Error: unable to return renderer.\n";
-  return (vlRenderer *)NULL;
+  cerr <<"RenderMaster Error: unable to return render window.\n";
+  return (vlRenderWindow *)NULL;
 }
 
-vlRenderer *vlRenderMaster::MakeRenderer(void)
+vlRenderWindow *vlRenderMaster::MakeRenderWindow(void)
 {
-  return (this->MakeRenderer(getenv("VL_RENDERER")));
+  return (this->MakeRenderWindow(getenv("VL_RENDERER")));
 }

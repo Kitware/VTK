@@ -30,15 +30,6 @@ vlRenderer::vlRenderer()
   this->Background[2] = 0;
 
   this->BackLight = 1;
-
-  strcpy(this->name,"Visualization Library");
-}
-
-void vlRenderer::SetBackground(float R, float G, float B)
-{
-  this->Background[0] = R;
-  this->Background[1] = G;
-  this->Background[2] = B;
 }
 
 void vlRenderer::SetActiveCamera(vlCamera *cam)
@@ -54,11 +45,4 @@ void vlRenderer::AddLights(vlLight *light)
 void vlRenderer::AddActors(vlActor *actor)
 {
   this->Actors.AddMember(actor);
-}
-
-void vlRenderer::GetBackground(float *result)
-{
-  result[0] = this->Background[0];
-  result[1] = this->Background[1];
-  result[2] = this->Background[2];
 }

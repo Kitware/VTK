@@ -31,19 +31,25 @@ public:
   float Ambient[3];  
   float Background[3];  
   int BackLight;
-  char name[80];
 
 public:
   vlRenderer();
+  virtual char *GetClassName() {return "vlRenderer";};
   void AddLights(vlLight *);
   void AddActors(vlActor *);
   void SetActiveCamera(vlCamera *);
-  void GetBackground(float *);
-  void SetBackground(float ,float ,float);
+
+  vlSetVector3Macro(Background,float);
+  vlGetVectorMacro(Background,float);
+
+  vlSetVector3Macro(Ambient,float);
+  vlGetVectorMacro(Ambient,float);
+
+  vlSetMacro(BackLight,int);
+  vlGetMacro(BackLight,int);
+  vlBooleanMacro(BackLight,int);
+
   virtual void Render() = 0;
-  virtual vlActor  *MakeActor() = 0;
-  virtual vlLight  *MakeLight() = 0;
-  virtual vlCamera *MakeCamera() = 0;
   virtual vlGeometryPrimitive *GetPrimitive(char *) = 0;
 };
 

@@ -17,14 +17,15 @@ This file is part of the vis library
 #define __vlRenderMaster_hh
 
 #include "Object.hh"
-#include "Renderer.hh"
+#include "RenderW.hh"
 
 class vlRenderMaster : public vlObject
 {
  public:
   vlRenderMaster();
-  vlRenderer *MakeRenderer(char *ren);
-  vlRenderer *MakeRenderer(void);
+  virtual char *GetClassName() {return "vlRenderMaster";};
+  vlRenderWindow *MakeRenderWindow(char *ren);
+  vlRenderWindow *MakeRenderWindow(void);
 };
 
 #endif
