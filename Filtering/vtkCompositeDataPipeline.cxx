@@ -31,7 +31,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkStructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.2");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.3");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,REQUEST_COMPOSITE_DATA,Integer);
@@ -805,7 +805,7 @@ int vtkCompositeDataPipeline::CheckCompositeData(int port)
       {
       // Try to create an instance of the correct type.
       data = this->NewDataObject(dt);
-      outInfo->Set(COMPOSITE_DATA_SET(), data);
+      data->SetPipelineInformation(outInfo);
       if(data)
         {
         data->Delete();
@@ -816,6 +816,7 @@ int vtkCompositeDataPipeline::CheckCompositeData(int port)
   return 1;
 }
 
+
 //----------------------------------------------------------------------------
 vtkDataObject* vtkCompositeDataPipeline::GetCompositeOutputData(int port)
 {
@@ -823,6 +824,8 @@ vtkDataObject* vtkCompositeDataPipeline::GetCompositeOutputData(int port)
     {
     return 0;
     }
+
+  this->CheckCompositeData(port);
 
   // Return the data object.
   if(vtkInformation* info = this->GetOutputInformation(port))
