@@ -35,7 +35,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.6");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.7");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,BEGIN_LOOP,Integer);
@@ -50,11 +50,13 @@ vtkInformationKeyMacro(vtkCompositeDataPipeline,INPUT_REQUIRED_COMPOSITE_DATA_TY
 vtkCompositeDataPipeline::vtkCompositeDataPipeline()
 {
   this->InSubPass = 0;
+  this->InformationCache = vtkInformation::New();
 }
 
 //----------------------------------------------------------------------------
 vtkCompositeDataPipeline::~vtkCompositeDataPipeline()
 {
+  this->InformationCache->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -705,6 +707,11 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request)
         prevInput->Register(this);
 
         vtkDebugMacro("EXECUTING: " << this->Algorithm->GetClassName());
+        // Store the information (whole_extent and maximum_number_of_pieces)
+        // before looping. Otherwise, executeinformation will cause
+        // changes (because we pretend that the max. number of pieces is
+        // one to process the whole block)
+        this->PushInformation(inInfo);
         for (unsigned int k=0; k<numLevels; k++)
           {
           unsigned int numDataSets = dataInf->GetNumberOfDataSets(k);
@@ -722,6 +729,7 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request)
               inInfo->Remove(vtkDataObject::DATA_OBJECT());
               inInfo->Set(vtkDataObject::DATA_OBJECT(), dobj);
 
+              // Process the whole dataset
               this->CopyFromDataToInformation(dobj, inInfo);
 
               r->Set(REQUEST_DATA_OBJECT(), 1);
@@ -747,6 +755,14 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request)
               }
             }
           }
+        // Restore the extent information and force it to be
+        // copied to the output. Composite sources should set
+        // MAXIMUM_NUMBER_OF_PIECES to -1 anyway (and handle
+        // piece requests properly).
+        this->PopInformation(inInfo);
+        r->Set(REQUEST_INFORMATION(), 1);
+        this->CopyDefaultInformation(r, vtkExecutive::RequestDownstream);
+                
         vtkDataObject* curInput = inInfo->Get(vtkDataObject::DATA_OBJECT());
         if (curInput != prevInput)
           {
@@ -858,6 +874,52 @@ void vtkCompositeDataPipeline::CopyFromDataToInformation(
   else
     {
     inInfo->Set(MAXIMUM_NUMBER_OF_PIECES(), 1);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataPipeline::PushInformation(vtkInformation* inInfo)
+{
+  if (inInfo->Has(WHOLE_EXTENT()))
+    {
+    this->InformationCache->Set(WHOLE_EXTENT(), inInfo->Get(WHOLE_EXTENT()), 6);
+    }
+  else
+    {
+    this->InformationCache->Remove(WHOLE_EXTENT());
+    }
+
+  if (inInfo->Has(MAXIMUM_NUMBER_OF_PIECES()))
+    {
+    this->InformationCache->Set(MAXIMUM_NUMBER_OF_PIECES(),
+                                inInfo->Get(MAXIMUM_NUMBER_OF_PIECES()));
+    }
+  else
+    {
+    this->InformationCache->Remove(MAXIMUM_NUMBER_OF_PIECES());
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataPipeline::PopInformation(vtkInformation* inInfo)
+{
+  if (this->InformationCache->Has(WHOLE_EXTENT()))
+    {
+    inInfo->Set(WHOLE_EXTENT(), this->InformationCache->Get(WHOLE_EXTENT()), 6);
+    }
+  else
+    {
+    inInfo->Remove(WHOLE_EXTENT());
+    }
+
+  if (this->InformationCache->Has(MAXIMUM_NUMBER_OF_PIECES()))
+    {
+    inInfo->Set(MAXIMUM_NUMBER_OF_PIECES(),
+                this->InformationCache->Get(MAXIMUM_NUMBER_OF_PIECES()));
+    }
+  else
+    {
+    inInfo->Remove(MAXIMUM_NUMBER_OF_PIECES());
     }
 }
 

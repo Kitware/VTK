@@ -104,8 +104,11 @@ protected:
 
   virtual int ForwardUpstream(vtkInformation* request);
   virtual int ForwardUpstream(int i, int j, vtkInformation* request);
+
   virtual void CopyFromDataToInformation(
     vtkDataObject* dobj, vtkInformation* inInfo);
+  virtual void PushInformation(vtkInformation*);
+  virtual void PopInformation (vtkInformation*);
 
   // Composite data pipeline times. Similar to superclass'
   vtkTimeStamp SubPassTime;
@@ -124,6 +127,8 @@ protected:
   virtual int ExecuteData(vtkInformation* request);
 
   int CheckCompositeData(int port);
+
+  vtkInformation* InformationCache;
 
 private:
   vtkCompositeDataPipeline(const vtkCompositeDataPipeline&);  // Not implemented.
