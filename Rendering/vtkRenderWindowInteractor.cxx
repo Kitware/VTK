@@ -27,7 +27,7 @@
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
 
-vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.96");
+vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.97");
 
 vtkCxxSetObjectMacro(vtkRenderWindowInteractor,Picker,vtkAbstractPicker);
 
@@ -100,7 +100,7 @@ vtkRenderWindowInteractor *vtkRenderWindowInteractor::New()
 
 void vtkRenderWindowInteractor::Render()
 {
-  if (this->RenderWindow)
+  if (this->RenderWindow && this->Enabled)
     {
     this->RenderWindow->Render();
     }
