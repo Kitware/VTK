@@ -41,6 +41,23 @@ vtkActor contourActor
   contourActor SetMapper map2
   [contourActor GetProperty] SetColor 1 0 0
   [contourActor GetProperty] SetRepresentationToWireframe
+
+
+# Triangulate
+vtkDataSetTriangleFilter tris
+  tris SetInput [reader GetOutput]
+
+vtkShrinkFilter shrink
+  shrink SetInput [tris GetOutput]
+  shrink SetShrinkFactor .8
+
+vtkDataSetMapper map3
+  map3 SetInput [shrink GetOutput]
+  map3 SetScalarRange 0 26
+
+vtkActor triActor
+  triActor SetMapper map3
+  triActor AddPosition 2 0 0 
   
 # Create graphics stuff
 #
@@ -54,6 +71,7 @@ vtkRenderWindowInteractor iren
 #
 ren1 AddActor clipActor
 ren1 AddActor contourActor
+ren1 AddActor triActor
 
 ren1 SetBackground 1 1 1
 
