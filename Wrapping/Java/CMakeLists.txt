@@ -20,6 +20,7 @@ IF(JAVA_COMPILE)
               Regression
               TestVTKCanvas
               TestInternalFrames
+              ImagePlaneWidget
               AxesActor)
         ADD_CUSTOM_COMMAND(SOURCE VTKJava
                          COMMAND ${JAVA_COMPILE}

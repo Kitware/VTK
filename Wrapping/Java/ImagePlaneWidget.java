@@ -1,0 +1,165 @@
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import java.io.*;
+import vtk.*;
+
+// Example of complex 3D widget in use.  Note that widgets must belong
+// to the vtkCanvas object in order for mutex locking to work properly.
+public class ImagePlaneWidget extends JPanel {
+
+  public ImagePlaneWidget(String path) {
+    setLayout(new BorderLayout());
+
+    ImageCanvas renWin = new ImageCanvas();
+    add(renWin, BorderLayout.CENTER);
+
+    JFrame frame = new JFrame("ImagePlaneWidget Test");
+    frame.setBounds(10, 10, 512, 512);
+    frame.getContentPane().add(this, BorderLayout.CENTER);
+    frame.pack();
+    frame.setVisible(true);
+    frame.addWindowListener(new WindowAdapter() 
+      {
+        public void windowClosing(WindowEvent e) {System.exit(0);}
+      });
+
+    //Start by loading some data.
+    vtkVolume16Reader v16 = new vtkVolume16Reader();
+    v16.SetDataDimensions(64, 64);
+    v16.SetDataByteOrderToLittleEndian();
+    v16.SetFilePrefix(path);
+    v16.SetImageRange (1, 93);
+    v16.SetDataSpacing(3.2, 3.2, 1.5);
+    v16.Update();
+
+    renWin.setImageData(v16.GetOutput());
+
+  }
+
+  private class ImageCanvas extends vtkCanvas {
+    
+    protected vtkImagePlaneWidget planeWidgetX = null;
+    protected vtkImagePlaneWidget planeWidgetY = null;
+    protected vtkImagePlaneWidget planeWidgetZ = null;
+    private vtkImageData id = null;
+    private vtkCellPicker picker = null;
+    
+    public ImageCanvas() {
+      super();
+
+      //The shared picker enables us to use 3 planes at one time
+      //and gets the picking order right
+      picker = new vtkCellPicker();
+      picker.SetTolerance(0.005);
+      
+    }
+
+    public void setImageData(vtkImageData _id) {
+      this.id = _id;
+
+      //The 3 image plane widgets are used to probe the dataset.
+      planeWidgetX = new vtkImagePlaneWidget();
+      planeWidgetX.DisplayTextOn();
+      planeWidgetX.SetInput(id);
+      planeWidgetX.SetInteractor(iren);
+      planeWidgetX.SetPlaneOrientationToXAxes();
+      planeWidgetX.SetSliceIndex(32);
+      planeWidgetX.SetPicker(picker);
+      planeWidgetX.SetKeyPressActivationValue('x');
+      planeWidgetX.GetPlaneProperty().SetColor(1, 0, 0);
+      planeWidgetX.On();
+
+      planeWidgetY = new vtkImagePlaneWidget();
+      planeWidgetY.DisplayTextOn();
+      planeWidgetY.SetInput(id);
+      planeWidgetY.SetInteractor(iren);
+      planeWidgetY.SetPlaneOrientationToYAxes();
+      planeWidgetY.SetSliceIndex(32);
+      planeWidgetY.SetPicker(picker);
+      planeWidgetY.SetKeyPressActivationValue('y');
+      planeWidgetY.GetPlaneProperty().SetColor(1, 1, 0);
+      planeWidgetY.SetLookupTable(planeWidgetX.GetLookupTable());
+      planeWidgetY.On();
+     
+     //for the z-slice, turn off texture interpolation:
+     //interpolation is now nearest neighbour, to demonstrate
+     //cross-hair cursor snapping to pixel centers
+      planeWidgetZ = new vtkImagePlaneWidget();
+      planeWidgetZ.DisplayTextOn();
+      planeWidgetZ.SetInput(id);
+      planeWidgetZ.TextureInterpolateOff();
+      planeWidgetZ.SetInteractor(iren);
+      planeWidgetZ.SetPlaneOrientationToZAxes();
+      planeWidgetZ.SetSliceIndex(46);
+      planeWidgetZ.SetPicker(picker);
+      planeWidgetZ.SetKeyPressActivationValue('z');
+      planeWidgetZ.GetPlaneProperty().SetColor (0, 0, 1);
+      planeWidgetZ.SetLookupTable(planeWidgetX.GetLookupTable());
+      planeWidgetZ.On();
+
+      //An outline is shown for context.
+      vtkOutlineFilter outline = new vtkOutlineFilter();
+      outline.SetInput (id);
+      
+      vtkPolyDataMapper outlineMapper = new vtkPolyDataMapper();
+      outlineMapper.SetInput ( outline.GetOutput()  );
+      
+      vtkActor outlineActor = new vtkActor();
+      outlineActor.SetMapper(outlineMapper);
+      
+      ren.AddActor(outlineActor);
+      
+      //Add the outline actor to the renderer, set the background and size
+      ren.GetCullers().RemoveAllItems();
+      
+      ren.SetBackground(0.1, 0.1, 0.2);
+      
+    }
+    
+  }
+
+  static public void printUsage(String err) {
+    if (!err.equals("")) {
+      System.err.println("Error: " + err);
+    }
+    System.err.println("Usage: java ImagePlaneWidget [-D path]");
+    System.err.println("Where:");
+    System.err.println("      path is location of your VTKData directory");
+    System.exit(-1);
+  }
+
+
+  public static void main(String[] argv) {
+    int argSize = argv.length;
+
+    String pathToVTKData = "";
+
+    int argCurrent = 0;
+
+    try {
+      while (argSize > argCurrent) {
+	if (argv[argCurrent].equals("-D")) {
+	  ++argCurrent;
+	  pathToVTKData = argv[argCurrent];
+	  ++argCurrent;
+	}
+	else {
+	  ImagePlaneWidget.printUsage("");
+	} 
+      }
+    }
+    catch (Exception e) {
+      ImagePlaneWidget.printUsage("");
+    }
+
+    if (pathToVTKData.equals(""))
+      ImagePlaneWidget.printUsage("");
+
+    File f = new File(pathToVTKData + "/Data/headsq");
+    if (!f.exists() || !f.canRead() || !f.isDirectory())
+      ImagePlaneWidget.printUsage(f.getAbsolutePath() + " does not exist or cannot be read.");
+
+    new ImagePlaneWidget(f.getAbsolutePath() + "/quarter");
+  }
+}
