@@ -109,7 +109,7 @@ void vtkWindowToImageFilter::Execute(vtkImageData *data)
   int outExtent[6];
   int outIncr[3];
   int *size;
-  unsigned char *pixels, *outPtr;
+  unsigned char *pixels, *outPtr, *pixels1;
   int idxY, rowSize;
   
   if (this->Output->GetScalarType() != VTK_UNSIGNED_CHAR)
@@ -127,16 +127,17 @@ void vtkWindowToImageFilter::Execute(vtkImageData *data)
   size = this->Input->GetSize();
 
   pixels = this->Input->GetPixelData(0,0,size[0] - 1, size[1] - 1, 1); 
-
+  pixels1 = pixels;
+  
   outPtr = 
     (unsigned char *)data->GetScalarPointer(outExtent[0], outExtent[2],0);
   
   // Loop through ouput pixels
   for (idxY = outExtent[2]; idxY <= outExtent[3]; idxY++)
     {
-    memcpy(outPtr,pixels,rowSize);
+    memcpy(outPtr,pixels1,rowSize);
     outPtr += outIncr[1];
-    pixels = pixels + size[0]*3;
+    pixels1 = pixels1 + size[0]*3;
     }
   
   // free the memory
