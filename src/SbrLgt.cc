@@ -41,25 +41,43 @@ void vlSbrLight::Render(vlSbrRenderer *ren,int light_index)
   color[1] = this->Intensity * this->Color[1];
   color[2] = this->Intensity * this->Color[2];
   
-  dx = this->Position[0] - this->FocalPoint[0];
-  dy = this->Position[1] - this->FocalPoint[1];
-  dz = this->Position[2] - this->FocalPoint[2];
+  dx = this->FocalPoint[0] - this->Position[0];
+  dy = this->FocalPoint[1] - this->Position[1];
+  dz = this->FocalPoint[2] - this->Position[2];
   
   // define the light source
-  light_source(fd, light_index, DIRECTIONAL,
-	       color[0], color[1], color[2],
-	       dx, dy, dz);
-
+  if (!this->Positional)
+    {
+    light_source(fd, light_index, DIRECTIONAL,
+		 color[0], color[1], color[2],
+		 -dx, -dy, -dz);
+    }
+  else
+    {
+    light_source(fd, light_index, POSITIONAL,
+		 color[0], color[1], color[2],
+		 this->Position[0], 
+		 this->Position[1], 
+		 this->Position[2]);
+    light_model(fd, light_index, ATTEN_LIGHT | SPOT_LIGHT | CONE_LIGHT,
+		(int)this->Exponent, 1.0, this->ConeAngle,
+		dx, dy, dz);
+    light_attenuation(fd, light_index, 1, 
+		      this->AttenuationValues[0],
+		      this->AttenuationValues[1],
+		      this->AttenuationValues[2]);
+    }
+  
   light_flag |= (0x0001 << light_index);
   vlDebugMacro(<< "Defining front light\n");
   
-  // define another mirror light if backlit is on
-  if (ren->GetBackLight()) 
+  // define another mirror light if backlit is on and not positional
+  if (ren->GetBackLight() && !this->Positional) 
     {
     light_index++;
     light_source(fd, light_index, DIRECTIONAL,
 		 color[0], color[1], color[2],
-		 -dx, -dy, -dz);
+		 dx, dy, dz);
     vlDebugMacro(<< "Defining back light\n");
     light_flag |= (0x0001 << light_index);
     }
