@@ -56,7 +56,6 @@ vtkImageToStructuredPoints::vtkImageToStructuredPoints()
   this->ScalarInput = NULL;
   this->VectorInput = NULL;
   this->WholeImage = 1;
-  this->ColorScalars = 0;
   this->InputMemoryLimit = 500000;  // A very big image indeed (in kB).
   this->SetSplitOrder(VTK_IMAGE_TIME_AXIS, VTK_IMAGE_Z_AXIS,
 		      VTK_IMAGE_Y_AXIS, VTK_IMAGE_X_AXIS);
@@ -349,6 +348,7 @@ vtkScalars *vtkImageToStructuredPoints::ScalarExecute(vtkImageRegion *region)
 {
   vtkScalars *scalars;
   long volumeLimit;
+  int dim, min, max;
   
   // Convert memory limit to volume limit.
   volumeLimit = 1000 * this->InputMemoryLimit;
@@ -400,12 +400,14 @@ vtkScalars *vtkImageToStructuredPoints::ScalarExecute(vtkImageRegion *region)
   // This may involve a copy.
   scalars = this->ReformatRegionData(region);
 
-  // If ColorScalars are required, convert (with no copy)
-  if (this->ColorScalars)
+  // If we have more than one component then we want color
+  // scalars. Also if we have one component and it is 
+  // unsigned char then use color scalars.
+  region->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, min, max);
+  dim = max - min + 1;
+  if ((dim > 1)||
+      (this->ScalarInput->GetScalarType() == VTK_UNSIGNED_CHAR))
     {
-    int dim, min, max;
-    region->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, min, max);
-    dim = max - min + 1;
     scalars = this->CreateColorScalars(scalars, dim);
     }
   
@@ -723,6 +725,8 @@ vtkImageToStructuredPoints::ReformatRegionData(vtkImageRegion *region)
   int reformat = 0;
   vtkImageRegion *temp = NULL;
   vtkScalars *scalars;
+  int min, max;
+  int colorScalars;
   
   dataAxes = region->GetDataOrder();
   region->SetAxes(VTK_IMAGE_DIMENSIONS, dataAxes);
@@ -730,9 +734,12 @@ vtkImageToStructuredPoints::ReformatRegionData(vtkImageRegion *region)
   regionExtent = region->GetExtent();
   
   // Determine if we need to copy the data
-  if (this->ColorScalars)
+  region->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, min, max);
+  if (((max - min + 1) > 1)||
+      (region->GetScalarType() == VTK_UNSIGNED_CHAR))
     {
     // Color scalars need to be unsigned char
+    colorScalars = 1;
     if (region->GetScalarType() != VTK_UNSIGNED_CHAR)
       {
       reformat = 1;
@@ -771,7 +778,7 @@ vtkImageToStructuredPoints::ReformatRegionData(vtkImageRegion *region)
   if (reformat)
     {
     vtkDebugMacro("Reformatting region");
-    if (this->ColorScalars)
+    if (colorScalars)
       {
       temp = vtkImageRegion::New();
       temp->SetScalarType(VTK_UNSIGNED_CHAR);
