@@ -1,34 +1,4 @@
 
-proc decipadString { str before total } {
-    set x [string first "." $str]
-    if { $x == -1 } { 
-	set str "${str}.0"
-    }
-
-    set x [string first "." $str]
-    while { $x >= 0 && $x < $before } {
-	set str " $str"
-	set x [string first "." $str]
-    }
-
-    if { [string length $str] >= $total } {
-        return [string range $str 0 [expr $total - 1]]
-    }
-
-    while { [string length $str] < $total } {
-        set str "${str}0"
-    }
-    return $str
-}
-
-# Convenience script to pad a string out to a given length
-proc padString { str amount } {
-    while { [string length $str] < $amount } {
-        set str " $str"
-    }
-    return $str
-}
-
 proc IncrementFileName { validImage count } {
     set res ""
     regsub {\.png} $validImage _${count}.png res
@@ -74,16 +44,33 @@ for {set i  1} {$i < [expr $argc - 1]} {incr i} {
 
 set threshold -1
 
+# Create a timer to get CPU time.  Use tcl time command to get wall time.
+vtkTimerLog rtTimer
+set rtStartCPU [rtTimer GetCPUTime]
 #catch {source $file; if {[info commands iren] == "iren"} {renWin Render}}
-source $file; if {[info commands iren] == "iren"} {renWin Render}
+set rtRawWallTimeResult [time {
+    source $file; if {[info commands iren] == "iren"} {renWin Render}
 
-# run the event loop quickly to map any tkwidget windows
-wm withdraw .
-update
+    # run the event loop quickly to map any tkwidget windows
+    wm withdraw .
+    update
+} 1]
+set rtEndCPU [rtTimer GetCPUTime]
+set rtCPUTime [expr $rtEndCPU - $rtStartCPU]
+set rtWallTime [expr [lindex $rtRawWallTimeResult 0] / 1000000.0]
+
+# output measurements for Dart
+puts ""
+puts -nonewline "<DartMeasurement name=\"WallTime\" type=\"numeric/double\">"
+puts -nonewline "$rtWallTime"
+puts "</DartMeasurement>"
+puts -nonewline "<DartMeasurement name=\"CPUTime\" type=\"numeric/double\">"
+puts -nonewline "$rtCPUTime"
+puts "</DartMeasurement>"
 
 # current directory
 if {$validImageFound != 0} {
-   
+
    vtkWindowToImageFilter rt_w2if
    # look for a renderWindow ImageWindow or ImageViewer
    # first check for some common names
@@ -135,7 +122,7 @@ if {$validImageFound != 0} {
    rt_id SetInput [rt_w2if GetOutput]
    rt_id SetImage [rt_png GetOutput]
    rt_id Update
-   set imageError [decipadString [rt_id GetThresholdedError] 4 9]
+   set imageError [rt_id GetThresholdedError]
    rt_w2if Delete 
    set minError [rt_id GetThresholdedError]
 
@@ -155,11 +142,13 @@ if {$validImageFound != 0} {
 	   set error [rt_id GetThresholdedError]
 	   if { $error <= $threshold } { 
 	       set testFailed 0
+	       set imageError $error
 	       break
 	   } else {
-	       if { $error > $minError } {
+	       if { $error < $minError } {
 		   set errIndex $count;
 		   set minError $error;
+		   set imageError $error
 	       }
 	   }
 	   incr count 1
@@ -178,20 +167,61 @@ if {$validImageFound != 0} {
 	   
 	   if {[catch {set channel [open $validImage.diff.png w]}] == 0 } {
 	       close $channel
+	       
+               # write out the difference image in full resolution
 	       vtkPNGWriter rt_pngw2
 	       rt_pngw2 SetFileName $validImage.diff.png
 	       rt_pngw2 SetInput [rt_id GetOutput]
 	       rt_pngw2 Write 
+
+               
+               # write out the difference image scaled and gamma adjusted
+               # for the dashboard
+               set rt_size [[rt_png GetOutput] GetDimensions]
+               if { [lindex rt_size 1] <= 250.0} {
+                   set rt_magfactor 1.0
+               } else {
+                   set rt_magfactor [expr 250.0 / [lindex $rt_size 1]]
+               }
+
+	       vtkImageResample rt_shrink
+               rt_shrink SetInput [rt_id GetOutput]
+               rt_shrink InterpolateOn
+               rt_shrink SetAxisMagnificationFactor 0 $rt_magfactor 
+               rt_shrink SetAxisMagnificationFactor 1 $rt_magfactor 
+
+               vtkImageShiftScale rt_gamma
+               rt_gamma SetInput [rt_shrink GetOutput]
+               rt_gamma SetShift 0
+               rt_gamma SetScale 10
+
+               vtkPNGWriter rt_pngw_dashboard
+               rt_pngw_dashboard SetFileName $validImage.diff.small.png
+               rt_pngw_dashboard SetInput [rt_gamma GetOutput]
+               rt_pngw_dashboard Write
 	   }
 	   puts "Failed Image Test with error: $imageError"
+
+	   puts -nonewline "<DartMeasurement name=\"ImageError\" type=\"numeric/double\">"
+	   puts -nonewline "$imageError"
+	   puts "</DartMeasurement>"
+	   
+	   puts -nonewline "<DartMeasurementFile name=\"Difference Image\" type=\"image/png\">"
+	   puts -nonewline "$validImage.diff.small.png"
+	   puts "</DartMeasurementFile>"
+	   
 	   vtkCommand DeleteAllObjects
 	   catch {destroy .top}
 	   catch {destroy .geo}
 	   exit 1; 
        }
-   } 
+   }
+   
+   # output the image error even if a test passed
+   puts -nonewline "<DartMeasurement name=\"ImageError\" type=\"numeric/double\">"
+   puts -nonewline "$imageError"
+   puts "</DartMeasurement>"
 }
-
 
 vtkCommand DeleteAllObjects
 catch {destroy .top}
