@@ -115,7 +115,7 @@ void vtkImage3dShrinkFilter::ComputeOutputImageInformation(
     imageBounds[2*idx+1] = (imageBounds[2*idx+1] - this->Shift[idx])
       / this->ShrinkFactors[idx];
     // Change the aspect ratio.
-    aspectRatio[idx] /= (float)(this->ShrinkFactors[idx]);
+    aspectRatio[idx] *= (float)(this->ShrinkFactors[idx]);
     }
 
   outRegion->SetImageBounds3d(imageBounds);

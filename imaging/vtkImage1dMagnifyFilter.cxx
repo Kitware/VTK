@@ -109,7 +109,7 @@ void vtkImage1dMagnifyFilter::ComputeOutputImageInformation(
     }
   
   // Change the aspect ratio.
-  aspectRatio *= (float)(this->MagnificationFactor);
+  aspectRatio /= (float)(this->MagnificationFactor);
 
   outRegion->SetImageBounds1d(imageBounds);
   outRegion->SetAspectRatio1d(aspectRatio);

@@ -77,6 +77,8 @@ vtkImage3dDilateErodeFilter::SetKernelSize(int size0, int size1, int size2)
   double f0, f1, f2, radius0, radius1, radius2;
   
   
+  this->Modified();
+  
   this->KernelSize[0] = size0;
   this->KernelSize[1] = size1;
   this->KernelSize[2] = size2;
