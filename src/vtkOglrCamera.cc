@@ -253,7 +253,7 @@ void vtkOglrCamera::Render(vtkCamera *cam, vtkOglrRenderer *ren)
     
     glClearDepth( (GLclampd)( 1.0 ) );
     vtkDebugMacro(<< "glClear\n");
-    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    glClear((GLbitfield)(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
     }
 
   // if we have a stereo renderer, draw other eye next time 

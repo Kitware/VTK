@@ -54,7 +54,8 @@ void vtkOglrProperty::Render(vtkProperty *prop, vtkRenderer *ren)
 // Actual property render method.
 void vtkOglrProperty::Render(vtkProperty *prop, vtkOglrRenderer *ren)
 {
-  int i, method;
+  int i;
+  GLenum method;
   float Ambient, Diffuse, Specular;
   float *AmbientColor, *DiffuseColor, *SpecularColor;
   float Info[4];
