@@ -110,8 +110,8 @@ public:
   virtual double EvaluateScalar(double u[3], double Pt[3], double Du[9]);
 
 protected:
-  vtkParametricTorus(void);
-  ~vtkParametricTorus(void);
+  vtkParametricTorus();
+  ~vtkParametricTorus();
 
   // Variables
   double RingRadius;
