@@ -61,6 +61,7 @@ public:
 
   void DebugOn();
   void Modified();
+  void SetOutputScalarType(int type);
   void SetInput(vtkImageCache *Input);
   void SetInput(vtkStructuredPoints *spts)
     {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}

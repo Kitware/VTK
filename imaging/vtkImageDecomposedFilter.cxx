@@ -115,6 +115,25 @@ void vtkImageDecomposedFilter::DebugOn()
 
 //----------------------------------------------------------------------------
 // Description:
+// Change output type of all filters.  If you want to change only the last,
+// get the cache and change it.
+void vtkImageDecomposedFilter::SetOutputScalarType(int type)
+{
+  int idx;
+  
+  for (idx = 0; idx < 4; ++idx)
+    {
+    if (this->Filters[idx])
+      {
+      this->Filters[idx]->SetOutputScalarType(type);
+      }
+    }
+}
+
+
+
+//----------------------------------------------------------------------------
+// Description:
 // Pass modified message to sub filters.
 void vtkImageDecomposedFilter::Modified()
 {
