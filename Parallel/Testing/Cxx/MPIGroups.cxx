@@ -30,7 +30,6 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
 //    reinterpret_cast<MPIGroupsArgs_tmp*>(arg);
 
   int myId = controller->GetLocalProcessId();
-  int numProcs = controller->GetNumberOfProcesses();
 
   vtkMPICommunicator* localComm = vtkMPICommunicator::New();
   vtkMPIGroup* localGroup= vtkMPIGroup::New();
