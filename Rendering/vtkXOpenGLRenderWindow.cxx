@@ -88,7 +88,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.34");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.35");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -928,7 +928,7 @@ void vtkXOpenGLRenderWindow::MakeCurrent()
 
 void vtkXOpenGLRenderWindow::SetForceMakeCurrent()
 {
-  this.ForceMakeCurrent = 1;
+  this->ForceMakeCurrent = 1;
 }
 
 int vtkXOpenGLRenderWindowFoundMatch;
