@@ -49,7 +49,6 @@ sphere SetPhiResolution 50
 
 vtkPolyDataMapper mapper
 mapper SetInput [sphere GetOutput]
-mapper ImmediateModeRenderingOn
 
 vtkActor actor
 actor SetMapper mapper
@@ -63,7 +62,7 @@ ren1 AddVolume volume
 ren1 AddActor actor
 ren1 SetBackground 0.1 0.2 0.4
 [ren1 GetActiveCamera] Zoom 1.6
-ren1 Render
+renWin Render
 
 set lights [ren1 GetLights]
 $lights InitTraversal
