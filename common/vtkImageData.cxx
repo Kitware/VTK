@@ -1422,7 +1422,8 @@ int vtkImageData::GetScalarType()
   tmp = this->GetPointData()->GetScalars();
   if (tmp && tmp->GetDataType() != this->ScalarType)
     {
-      vtkErrorMacro("ScalarType " << tmp->GetDataType() << " does not match current scalars of type " << this->ScalarType);
+    // this happens when filters are being bypassed.  Don't error...
+    //vtkErrorMacro("ScalarType " << tmp->GetDataType() << " does not match current scalars of type " << this->ScalarType);
     }
   
   return this->ScalarType;
@@ -1810,7 +1811,7 @@ void vtkImageData::ComputeEstimatedWholeMemorySize()
   double size = (float)this->NumberOfScalarComponents;
   int idx;
   
-  switch (this->ScalarType)
+  switch (this->GetScalarType())
     {
     case VTK_FLOAT:
       size *= sizeof(float);
