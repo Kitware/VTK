@@ -29,6 +29,7 @@ vlActor::vlActor()
 {
   this->Mapper = NULL;
   this->Property = NULL;
+  this->Texture = NULL;
 
   this->Origin[0] = 0.0;
   this->Origin[1] = 0.0;
