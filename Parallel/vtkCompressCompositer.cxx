@@ -56,7 +56,7 @@
 
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkCompressCompositer, "1.7");
+vtkCxxRevisionMacro(vtkCompressCompositer, "1.8");
 vtkStandardNewMacro(vtkCompressCompositer);
 
 
@@ -192,7 +192,7 @@ void vtkCompressCompositer::Compress(vtkFloatArray *zIn, vtkDataArray *pIn,
       }
     else 
       {
-      vtkErrorMacro("Pixels have unexpected number of components.");
+      vtkGenericWarningMacro("Pixels have unexpected number of components.");
       return;
       }
     }
@@ -206,7 +206,7 @@ void vtkCompressCompositer::Compress(vtkFloatArray *zIn, vtkDataArray *pIn,
     }
   else
     {
-    vtkErrorMacro("Unexpected pixel type.");
+    vtkGenericWarningMacro("Unexpected pixel type.");
     return;
     }
 
@@ -287,7 +287,7 @@ void vtkCompressCompositer::Uncompress(vtkFloatArray *zIn, vtkDataArray *pIn,
       }
     else 
       {
-      vtkErrorMacro("Pixels have unexpected number of components.");
+      vtkGenericWarningMacro("Pixels have unexpected number of components.");
       return;
       }
     }
@@ -301,7 +301,7 @@ void vtkCompressCompositer::Uncompress(vtkFloatArray *zIn, vtkDataArray *pIn,
     }
   else
     {
-    vtkErrorMacro("Unexpected pixel type.");
+    vtkGenericWarningMacro("Unexpected pixel type.");
     return;
     }
 
@@ -473,7 +473,7 @@ void vtkCompressCompositer::CompositeImagePair(
       }
     else 
       {
-      vtkErrorMacro("Pixels have unexpected number of components.");
+      vtkGenericWarningMacro("Pixels have unexpected number of components.");
       return;
       }
     }
@@ -488,7 +488,7 @@ void vtkCompressCompositer::CompositeImagePair(
     }
   else
     {
-    vtkErrorMacro("Unexpected pixel type.");
+    vtkGenericWarningMacro("Unexpected pixel type.");
     return;
     }
 

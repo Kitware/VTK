@@ -43,19 +43,22 @@ public:
   virtual void CompositeBuffer(vtkDataArray *pBuf, vtkFloatArray *zBuf,
                                vtkDataArray *pTmp, vtkFloatArray *zTmp);
 
+  // Description:
+  // I am granting access to these methods and making them static
+  // So I can create a TileDisplayCompositer which uses compression.
+  static void Compress(vtkFloatArray *zIn, vtkDataArray *pIn,
+                       vtkFloatArray *zOut, vtkDataArray *pOut);
+
+  static void Uncompress(vtkFloatArray *zIn, vtkDataArray *pIn,
+                         vtkDataArray *pOut, int finalLength);
+
+  static void CompositeImagePair(vtkFloatArray *localZ, vtkDataArray *localP,
+                                 vtkFloatArray *remoteZ, vtkDataArray *remoteP,
+                                 vtkFloatArray *outZ, vtkDataArray *outP); 
 protected:
   vtkCompressCompositer();
   ~vtkCompressCompositer();
   
-  void Compress(vtkFloatArray *zIn, vtkDataArray *pIn,
-                vtkFloatArray *zOut, vtkDataArray *pOut);
-
-  void Uncompress(vtkFloatArray *zIn, vtkDataArray *pIn,
-                  vtkDataArray *pOut, int finalLength);
-
-  void CompositeImagePair(vtkFloatArray *localZ, vtkDataArray *localP,
-                          vtkFloatArray *remoteZ, vtkDataArray *remoteP,
-                          vtkFloatArray *outZ, vtkDataArray *outP); 
 
   vtkDataArray *InternalPData;
   vtkFloatArray *InternalZData;
