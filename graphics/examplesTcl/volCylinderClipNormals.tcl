@@ -73,7 +73,7 @@ iren Initialize
 
 
 renWin SetFileName "valid/volCylinderClipNormals.ppm"
-renWin SaveImageAsPPM
+#renWin SaveImageAsPPM
 
 wm withdraw .
 
