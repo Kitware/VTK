@@ -19,7 +19,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPlane, "1.38");
+vtkCxxRevisionMacro(vtkPlane, "1.39");
 vtkStandardNewMacro(vtkPlane);
 
 // Construct plane passing through origin and normal to z-axis.
@@ -135,20 +135,20 @@ void vtkPlane::EvaluateGradient(float vtkNotUsed(x)[3], float n[3])
 // normal n and point p0, compute an intersection. The parametric
 // coordinate along the line is returned in t, and the coordinates of 
 // intersection are returned in x. A zero is returned if the plane and line
-// are parallel.
+// do not intersect between (0<=t<=1). If the plane and line are parallel,
+// zero is returned and t is set to VTK_LARGE_FLOAT.
 int vtkPlane::IntersectWithLine(float p1[3], float p2[3], float n[3], 
                                float p0[3], float& t, float x[3])
 {
   float num, den, p21[3];
   float fabsden, fabstolerance;
-  //
+
   // Compute line vector
   // 
   p21[0] = p2[0] - p1[0];
   p21[1] = p2[1] - p1[1];
   p21[2] = p2[2] - p1[2];
 
-  //
   // Compute denominator.  If ~0, line and plane are parallel.
   // 
   num = vtkMath::Dot(n,p0) - ( n[0]*p1[0] + n[1]*p1[1] + n[2]*p1[2] ) ;
@@ -177,9 +177,11 @@ int vtkPlane::IntersectWithLine(float p1[3], float p2[3], float n[3],
     }
   if ( fabsden <= fabstolerance )
     {
+    t = VTK_LARGE_FLOAT;
     return 0;
     }
 
+  // valid intersection
   t = num / den;
 
   x[0] = p1[0] + t*p21[0];

@@ -95,7 +95,8 @@ public:
   // normal n and point p0, compute an intersection. The parametric
   // coordinate along the line is returned in t, and the coordinates of 
   // intersection are returned in x. A zero is returned if the plane and line
-  // are parallel.
+  // do not intersect between (0<=t<=1). If the plane and line are parallel,
+  // zero is returned and t is set to VTK_LARGE_FLOAT.
   static int IntersectWithLine(float p1[3], float p2[3], float n[3], 
                                float p0[3], float& t, float x[3]);
 
