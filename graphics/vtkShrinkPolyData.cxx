@@ -42,9 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkShrinkPolyData.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 vtkShrinkPolyData* vtkShrinkPolyData::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -56,10 +54,6 @@ vtkShrinkPolyData* vtkShrinkPolyData::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkShrinkPolyData;
 }
-
-
-
-
 
 vtkShrinkPolyData::vtkShrinkPolyData(float sf)
 {
@@ -82,7 +76,8 @@ void vtkShrinkPolyData::Execute()
   vtkPolyData *input = this->GetInput();
   vtkPolyData *output= this->GetOutput();
   vtkPointData *pointData = output->GetPointData(); 
-  //
+  int   abort=0;
+
   // Initialize
   //
   vtkDebugMacro(<<"Shrinking polygonal data");
@@ -94,7 +89,7 @@ void vtkShrinkPolyData::Execute()
   inLines = input->GetLines();
   inPolys = input->GetPolys();
   inStrips = input->GetStrips();
-  //
+
   // Count the number of new points and other primitives that 
   // need to be created.
   //
@@ -119,7 +114,7 @@ void vtkShrinkPolyData::Execute()
     numNewPts += (npts-2) * 3;
     polyAllocSize += (npts - 2) * 4;
     }
-  //
+
   // Allocate
   //
   newPoints = vtkPoints::New();
@@ -135,10 +130,10 @@ void vtkShrinkPolyData::Execute()
   newPolys->Allocate(polyAllocSize);
 
   pointData->CopyAllocate(pd);
-  //
+
   // Copy vertices (no shrinking necessary)
   //
-  for (inVerts->InitTraversal(); inVerts->GetNextCell(npts,pts); )
+  for (inVerts->InitTraversal(); inVerts->GetNextCell(npts,pts) && !abort; )
     {
     newVerts->InsertNextCell(npts);
     for (j=0; j<npts; j++)
@@ -147,11 +142,13 @@ void vtkShrinkPolyData::Execute()
       newVerts->InsertCellPoint(newId);
       pointData->CopyData(pd,pts[j],newId);
       }    
+    abort = GetAbortExecute();
     }
-  //
+  this->UpdateProgress (0.10);
+
   // Lines need to be shrunk, and if polyline, split into separate pieces
   //
-  for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); )
+  for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts) && !abort; )
     {
     for (j=0; j<(npts-1); j++)
       {
@@ -178,11 +175,13 @@ void vtkShrinkPolyData::Execute()
 
       newLines->InsertNextCell(2,newIds);
       }
+    abort = GetAbortExecute();
     }
-  //
+  this->UpdateProgress (0.25);
+
   // Polygons need to be shrunk
   //
-  for (inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); )
+  for (inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts) && !abort; )
     {
     for (center[0]=center[1]=center[2]=0.0, j=0; j<npts; j++)
       {
@@ -198,7 +197,6 @@ void vtkShrinkPolyData::Execute()
       center[k] /= npts;
       }
 
-    
     newPolys->InsertNextCell(npts);
     for (j=0; j<npts; j++)
       {
@@ -211,12 +209,14 @@ void vtkShrinkPolyData::Execute()
       newPolys->InsertCellPoint(newId);
       pointData->CopyData(pd,pts[j],newId);
       }
+    abort = GetAbortExecute();
     }
-  //
+  this->UpdateProgress (0.75);
+
   // Triangle strips need to be shrunk and split into separate pieces.
   //
   int tmp;
-  for (inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
+  for (inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts) && !abort; )
     {
     for (j=0; j<(npts-2); j++)
       {
@@ -258,8 +258,9 @@ void vtkShrinkPolyData::Execute()
         }
       newPolys->InsertNextCell(3,newIds);
       }
+    abort = GetAbortExecute();
     }
-  //
+
   // Update self and release memory
   //
   output->SetPoints(newPoints);

@@ -76,7 +76,6 @@ void vtkShrinkFilter::Execute()
   vtkIdList *ptIds, *newPtIds;
   vtkDataSet *input= this->GetInput();
   vtkUnstructuredGrid *output = this->GetOutput();
-
   int   tenth;
   float decimal;
 

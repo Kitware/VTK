@@ -143,6 +143,13 @@ void vtkRuledSurfaceFilter::Execute()
   inLines->GetNextCell(npts,pts);
   for (i=0; i<numLines; i++)
     {
+    //abort/progress methods
+    this->UpdateProgress ((float)i/numLines);
+    if (this->GetAbortExecute())
+      {
+      break; //out of line loop
+      }
+
     inLines->GetNextCell(npts2,pts2); //get the next edge
 
     // Determine whether this stripe should be generated
@@ -175,7 +182,6 @@ void vtkRuledSurfaceFilter::Execute()
         }
       }//add far boundary of surface
     }//for all selected line pairs
-
 }
 
 void  vtkRuledSurfaceFilter::Resample(vtkPolyData *output, vtkPoints *inPts, 
