@@ -67,10 +67,10 @@ class vtkIdList;
 class vtkDoubleArray;
 
 //PIMPL Encapsulation for STL containers
-class vtkGreedyTerrainDecimationQueueType;
-class vtkGreedyTerrainDecimationTerrainInfoType;
-class vtkGreedyTerrainDecimationPointInfoType;
-class vtkGreedyTerrainDecimationTriangleInfoType;
+struct vtkGreedyTerrainDecimationQueueType;
+struct vtkGreedyTerrainDecimationTerrainInfoType;
+struct vtkGreedyTerrainDecimationPointInfoType;
+struct vtkGreedyTerrainDecimationTriangleInfoType;
 
 #define VTK_ERROR_NUMBER_OF_TRIANGLES 0
 #define VTK_ERROR_SPECIFIED_REDUCTION 1

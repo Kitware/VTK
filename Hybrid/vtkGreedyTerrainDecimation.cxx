@@ -37,7 +37,7 @@
 #pragma warning(pop)
 #endif
 
-vtkCxxRevisionMacro(vtkGreedyTerrainDecimation, "1.6");
+vtkCxxRevisionMacro(vtkGreedyTerrainDecimation, "1.7");
 vtkStandardNewMacro(vtkGreedyTerrainDecimation);
 
 // Define some constants describing vertices
@@ -50,18 +50,17 @@ vtkStandardNewMacro(vtkGreedyTerrainDecimation);
 #define VTK_BOUNDARY_EDGE 2
 
 //Supporting classes for points and triangles
-class vtkTriangleInfo;
-class vtkTerrainInfo
+struct vtkTriangleInfo;
+struct vtkTerrainInfo
 {
-public:
-  vtkTerrainInfo():TriangleId(VTK_VERTEX_NO_TRIANGLE),Error(VTK_LARGE_FLOAT) {}
+  vtkTerrainInfo():TriangleId(VTK_VERTEX_NO_TRIANGLE),InputPointId(0),Error(0.0f) {}
   vtkIdType TriangleId;
+  vtkIdType InputPointId;
   float     Error;
 };
 
-class vtkTriangleInfo
+struct vtkTriangleInfo
 {
-public:
   double    Normal[3]; //plane equation info
   double    Constant;
 };
@@ -69,12 +68,13 @@ public:
 // PIMPL STL encapsulation----------------------------------------------------------------
 //
 // Maps input point ids to owning mesh triangle and its current error.
-class vtkGreedyTerrainDecimationTerrainInfoType : public vtkstd::vector<vtkTerrainInfo> 
+struct vtkGreedyTerrainDecimationTerrainInfoType : public vtkstd::vector<vtkTerrainInfo> 
 {
-public:
   typedef vtkstd::vector<vtkTerrainInfo> Superclass;
   typedef Superclass::size_type size_type; //typedefs are not inherited on some systems
-  typedef Superclass::pointer pointer;
+  typedef Superclass::const_iterator pointer;
+  vtkGreedyTerrainDecimationTerrainInfoType():
+    vtkstd::vector<vtkTerrainInfo>() {}
   vtkGreedyTerrainDecimationTerrainInfoType(size_type n, const vtkTerrainInfo& value):
     vtkstd::vector<vtkTerrainInfo>(n,value) {}
 };
@@ -86,23 +86,22 @@ struct CompareError
   bool operator()(const vtkGreedyTerrainDecimationTerrainInfoType::pointer p1,
                   const vtkGreedyTerrainDecimationTerrainInfoType::pointer p2) const
     {
-      return (p1->Error < p2->Error);
+      return ((*p1).Error < (*p2).Error);
     }
 };
 
-class vtkGreedyTerrainDecimationQueueType : 
-  public vtkstd::priority_queue<vtkGreedyTerrainDecimationTerrainInfoType::pointer> 
+struct vtkGreedyTerrainDecimationQueueType : 
+  public vtkstd::priority_queue<vtkGreedyTerrainDecimationTerrainInfoType::pointer,
+                                vtkstd::vector<vtkGreedyTerrainDecimationTerrainInfoType::pointer>,
+                                CompareError> 
 {
-  typedef vtkstd::priority_queue<vtkGreedyTerrainDecimationTerrainInfoType> Superclass;
-  vtkGreedyTerrainDecimationQueueType(const CompareError& compare):
-    vtkstd::priority_queue<vtkGreedyTerrainDecimationTerrainInfoType::pointer>(compare) {}
 };
 
 // Maps inserted mesh point id to input point id.
-class vtkGreedyTerrainDecimationPointInfoType : public vtkstd::vector<vtkIdType> {};
+struct vtkGreedyTerrainDecimationPointInfoType : public vtkstd::vector<vtkIdType> {};
 
 // Holds extra information about mesh triangles.
-class vtkGreedyTerrainDecimationTriangleInfoType : public vtkstd::vector<vtkTriangleInfo> {};
+struct vtkGreedyTerrainDecimationTriangleInfoType : public vtkstd::vector<vtkTriangleInfo> {};
 
 
 // Begin vtkGreedyTerrainDecimation class implementation-----------------------------------
@@ -674,7 +673,7 @@ void vtkGreedyTerrainDecimation::Execute()
 
   // Instantiate the priority queue of errors. The queue holds pointers to the terrain info
   // which actually holds the error value (plus owning triangle).
-  this->TerrainError = new vtkGreedyTerrainDecimationQueueType(CompareError());
+  this->TerrainError = new vtkGreedyTerrainDecimationQueueType();
   
   // Create the initial Delaunay triangulation (two triangles 
   // connecting the four corners of the height image).
@@ -761,19 +760,19 @@ void vtkGreedyTerrainDecimation::Execute()
 
   // While error metric not satisfied, add point with greatest error
   //
-/*
-  while ( (inputPtId = this->TerrainError->Pop(0, error)) >= 0 )
+  while ( ! this->TerrainError->empty() )
     {
-    if ( this->SatisfiesErrorMeasure(error) )
+    if ( this->SatisfiesErrorMeasure((*this->TerrainError->top()).Error) )
       {
       break;
       }
     else
       {
-      this->AddPointToTriangulation(inputPtId);
+      this->AddPointToTriangulation((*this->TerrainError->top()).InputPointId);
       }
+    this->TerrainError->pop();
     }
-*/
+
   // Create output poly data
   //
   delete this->TerrainError;
