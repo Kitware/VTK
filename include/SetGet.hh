@@ -170,19 +170,13 @@ void Set##name (type _arg1, type _arg2) \
   if ((name[0] != _arg1)||(name[1] != _arg2)) \
     { \
     Modified(); \
+    name[0] = _arg1; \
+    name[1] = _arg2; \
     } \
-  name[0] = _arg1; \
-  name[1] = _arg2; \
   }; \
 void Set##name (type _arg[2]) \
   { \
-  if (Debug)   cerr << "In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): setting " << #name " to (" << _arg[0] << "," << _arg[1] << ")\n\n"; \
-  if ((name[0] != _arg[0])||(name[1] != _arg[1])) \
-    { \
-    Modified(); \
-    } \
-  name[0] = _arg[0]; \
-  name[1] = _arg[1]; \
+  Set##name (_arg[0], _arg[1]); \
   } 
 
 #define vlSetVector3Macro(name,type) \
@@ -192,21 +186,14 @@ void Set##name (type _arg1, type _arg2, type _arg3) \
   if ((name[0] != _arg1)||(name[1] != _arg2)||(name[2] != _arg3)) \
     { \
     Modified(); \
+    name[0] = _arg1; \
+    name[1] = _arg2; \
+    name[2] = _arg3; \
     } \
-  name[0] = _arg1; \
-  name[1] = _arg2; \
-  name[2] = _arg3; \
   }; \
 void Set##name (type _arg[3]) \
   { \
-  if (Debug)   cerr << "In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): setting " << #name " to (" << _arg[0] << "," << _arg[1] << "," << _arg[2] << ")\n\n"; \
-  if ((name[0] != _arg[0])||(name[1] != _arg[1])||(name[2] != _arg[2])) \
-    { \
-    Modified(); \
-    } \
-  name[0] = _arg[0]; \
-  name[1] = _arg[1]; \
-  name[2] = _arg[2]; \
+  Set##name (_arg[0], _arg[1], _arg[2]);\
   } 
 
 #define vlSetVector4Macro(name,type) \
@@ -216,41 +203,63 @@ void Set##name (type _arg1, type _arg2, type _arg3, type _arg4) \
   if ((name[0] != _arg1)||(name[1] != _arg2)||(name[2] != _arg3)||(name[3] != _arg4)) \
     { \
     Modified(); \
+    name[0] = _arg1; \
+    name[1] = _arg2; \
+    name[2] = _arg3; \
+    name[3] = _arg4; \
     } \
-  name[0] = _arg1; \
-  name[1] = _arg2; \
-  name[2] = _arg3; \
-  name[3] = _arg4; \
   }; \
 void Set##name (type _arg[4]) \
   { \
-  if (Debug)   cerr << "In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): setting " << #name " to (" << _arg[0] << "," << _arg[1] << "," << _arg[2] << "," << _arg[3] << ")\n\n"; \
-  if ((name[0] != _arg[0])||(name[1] != _arg[1])||(name[2] != _arg[2])||(name[3] != _arg[3])) \
-    { \
-    Modified(); \
-    } \
-  name[0] = _arg[0]; \
-  name[1] = _arg[1]; \
-  name[2] = _arg[2]; \
-  name[3] = _arg[3]; \
+  Set##name (_arg[0], _arg[1], _arg[2], _arg[3]);\
   } 
 
 //
-// Get vector macro returns pointer to type (i.e., array of type). 
-// Example: float *GetColor()
+// General set vector macro creates a single method that copies specified
+// number of values into object.
+// Examples: void SetColor(c,3)
 //
-#define vlGetVectorMacro(name,type) \
-type *Get##name () { \
+#define vlSetVectorMacro(name,type,count) \
+void Set##name(type data[], int count) \
+{ \
+  for (int i=0; i<count; i++) if ( data[i] != name[i] ) break; \
+  if ( i < count ) \
+    { \
+    Modified(); \
+    for (i=0; i<count; i++) name[i] = data[i]; \
+    } \
+}
+
+//
+// Get vector macro defines two methods. One returns pointer to type 
+// (i.e., array of type). This is for efficiency. The second copies data
+// into user provided array. This is more object-oriented.
+// Examples: float *GetColor() and void GetColor(float c[count]).
+//
+#define vlGetVectorMacro(name,type,count) \
+type *Get##name () \
+{ \
   if (Debug)   cerr << "In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): returning " << #name " pointer " << name << "\n\n"; \
   return name; \
-} 
+} \
+void Get##name (type data[count]) \
+{ \
+  for (int i=0; i<count; i++) data[i] = name[i]; \
+}
 
 //
 // This macro is used for  debug statements in instance methods
 // vlDebugMacro(<< "this is debug info" << this->SomeVariable);
 //
 #define vlDebugMacro(x) \
-  if (Debug) cerr << "In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\n\n"
+  if (Debug) cerr << "DEBUG: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\n\n"
+
+//
+// This macro is used to print out warning messages.
+// vlWarningMacro(<< "Warning message" << variable);
+//
+#define vlWarningMacro(x) \
+  cerr << "WARNING: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\n\n"
 
 //
 // This macro is used to print out errors
