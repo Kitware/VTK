@@ -62,15 +62,6 @@ class VTK_EXPORT vtkDirectionEncoder : public vtkObject
 {
 public:
   // Description:
-  // Create a default instance of this class with
-  // ZeroNormalTolerance = 0.0
-  vtkDirectionEncoder();
-
-  // Description:
-  // Print the variables of this class
-  void PrintSelf(ostream& os, vtkIndent indent);
-
-  // Description:
   // Get the name of this class
   const char *GetClassName() {return "vtkDirectionEncoder";};
 
