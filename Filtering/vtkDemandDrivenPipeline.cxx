@@ -38,7 +38,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.1.2.5");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.1.2.6");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, DOWNSTREAM_KEYS_TO_COPY, KeyVector);
@@ -223,7 +223,7 @@ int vtkDemandDrivenPipeline::Update()
 //----------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::Update(int port)
 {
-  if(!this->UpdateDataObject() || !this->UpdateInformation())
+  if(!this->UpdateInformation())
     {
     return 0;
     }
@@ -331,6 +331,12 @@ int vtkDemandDrivenPipeline::UpdateInformation()
       {
       abort();
       }
+    return 0;
+    }
+
+  // Do the data-object creation pass before the information pass.
+  if(!this->UpdateDataObject())
+    {
     return 0;
     }
 
