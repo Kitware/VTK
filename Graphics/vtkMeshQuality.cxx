@@ -34,7 +34,7 @@
 #include "vtkCell.h"
 #include "vtkCellTypes.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality,"1.12");
+vtkCxxRevisionMacro(vtkMeshQuality,"1.13");
 vtkStandardNewMacro(vtkMeshQuality);
 
 typedef double (*CellQualityType)( vtkCell* );
@@ -72,8 +72,6 @@ vtkMeshQuality::vtkMeshQuality()
   this->QuadQualityMeasure = VTK_QUALITY_EDGE_RATIO;
   this->TetQualityMeasure = VTK_QUALITY_RADIUS_RATIO;
   this->HexQualityMeasure = VTK_QUALITY_RADIUS_RATIO;
-  this->Volume = 0;
-  this->CompatibilityMode = 0;
 }
 
 vtkMeshQuality::~vtkMeshQuality()
@@ -158,7 +156,6 @@ void vtkMeshQuality::Execute()
       break;
     case VTK_QUALITY_EDGE_RATIO:
       TetQuality = TetEdgeRatio;
-      break;
     default:
       TetQuality = NULL;
       break;
@@ -169,11 +166,6 @@ void vtkMeshQuality::Execute()
   if ( this->SaveCellQuality )
     {
     quality = vtkDoubleArray::New();
-    quality->SetNumberOfTuples( N );
-    quality->SetName( "Quality" );
-    out->GetCellData()->AddArray( quality );
-    out->GetCellData()->SetActiveAttribute( "Quality", vtkDataSetAttributes::SCALARS );
-    quality->Delete();
     if ( this->CompatibilityMode )
       {
       if ( this->Volume )
@@ -188,6 +180,15 @@ void vtkMeshQuality::Execute()
     else
       {
       quality->SetNumberOfComponents(1);
+      }
+    quality->SetNumberOfTuples( N );
+    quality->SetName( "Quality" );
+    out->GetCellData()->AddArray( quality );
+    out->GetCellData()->SetActiveAttribute( "Quality", vtkDataSetAttributes::SCALARS );
+    quality->Delete();
+
+    if ( ! this->CompatibilityMode )
+      {
       if ( this->Volume )
         {
         volume = vtkDoubleArray::New();
@@ -195,6 +196,7 @@ void vtkMeshQuality::Execute()
         volume->SetNumberOfTuples( N );
         volume->SetName( "Volume" );
         out->GetCellData()->AddArray( volume );
+        volume->Delete();
         }
       }
     }
@@ -209,6 +211,10 @@ void vtkMeshQuality::Execute()
       q = TriangleQuality( cell );
       if ( q > qtriM )
         {
+        if ( qtrim > qtriM )
+          {
+          qtrim = q;
+          }
         qtriM = q;
         }
       else if ( q < qtrim )
@@ -223,6 +229,10 @@ void vtkMeshQuality::Execute()
       q = QuadQuality( cell );
       if ( q > qquaM )
         {
+        if ( qquam > qquaM )
+          {
+          qquam = q;
+          }
         qquaM = q;
         }
       else if ( q < qquam )
@@ -237,6 +247,10 @@ void vtkMeshQuality::Execute()
       q = TetQuality( cell );
       if ( q > qtetM )
         {
+        if ( qtetm > qtetM )
+          {
+          qtetm = q;
+          }
         qtetM = q;
         }
       else if ( q < qtetm )
@@ -259,6 +273,10 @@ void vtkMeshQuality::Execute()
       q = HexahedronQuality( cell );
       if ( q > qhexM )
         {
+        if ( qhexm > qhexM )
+          {
+          qhexm = q;
+          }
         qhexM = q;
         }
       else if ( q < qhexm )
@@ -286,113 +304,113 @@ void vtkMeshQuality::Execute()
       }
     }
 
-  if ( ntri )
+  switch ( ntri )
     {
-      Eqtri  /= (double) ntri;
-      Eqtri2 /= (double) ntri;
-      if ( ntri == 1 )
-        {
-        if ( qtrim == VTK_DOUBLE_MAX )
-          {
-          qtrim = qtriM;
-          }
-        else
-          {
-          qtriM = qtrim;
-          }
-        }
-    }
-  else
-    {
+  case 0:
     qtrim = Eqtri = qtriM = Eqtri2 = 0.;
+    break;
+  case 1:
+    if ( qtrim == VTK_DOUBLE_MAX )
+      {
+      qtrim = qtriM;
+      }
+    else
+      {
+      qtriM = qtrim;
+      }
+    // fall through
+  default:
+    Eqtri  /= (double) ntri;
+    Eqtri2 /= (double) ntri;
     }
   
-  if ( nqua )
+  switch ( nqua )
     {
-      Eqqua  /= (double) nqua;
-      Eqqua2 /= (double) nqua;
-      if ( nqua == 1 )
-        {
-        if ( qquam == VTK_DOUBLE_MAX )
-          {
-          qquam = qquaM;
-          }
-        else
-          {
-          qquaM = qquam;
-          }
-        }
-     }
-  else
-    {
+  case 0:
     qquam = Eqqua = qquaM = Eqqua2 = 0.;
+    break;
+  case 1:
+    if ( qquam == VTK_DOUBLE_MAX )
+      {
+      qquam = qquaM;
+      }
+    else
+      {
+      qquaM = qquam;
+      }
+    // fall through
+  default:
+    Eqqua  /= (double) nqua;
+    Eqqua2 /= (double) nqua;
     }
   
-  if ( ntet )
+  switch ( ntet )
     {
-      Eqtet  /= (double) ntet;
-      Eqtet2 /= (double) ntet;
-      if ( ntet == 1 )
-        {
-        if ( qtetm == VTK_DOUBLE_MAX )
-          {
-          qtetm = qtetM;
-          }
-        else
-          {
-          qtetM = qtetm;
-          }
-        }
-     }
-  else
-    {
+  case 0:
     qtetm = Eqtet = qtetM = Eqtet2 = 0.;
+    break;
+  case 1:
+    if ( qtetm == VTK_DOUBLE_MAX )
+      {
+      qtetm = qtetM;
+      }
+    else
+      {
+      qtetM = qtetm;
+      }
+    // fall through
+  default:
+    Eqtet  /= (double) ntet;
+    Eqtet2 /= (double) ntet;
     }
-  
-  if ( nhex )
+
+  switch ( nhex )
     {
-      Eqhex  /= (double) nhex;
-      Eqhex2 /= (double) nhex;
-      if ( nhex == 1 )
-        {
-        if ( qhexm == VTK_DOUBLE_MAX )
-          {
-          qhexm = qhexM;
-          }
-        else
-          {
-          qhexM = qhexm;
-          }
-        }
-     }
-  else
-    {
+  case 0:
     qhexm = Eqhex = qhexM = Eqhex2 = 0.;
+    break;
+  case 1:
+    if ( qhexm == VTK_DOUBLE_MAX )
+      {
+      qhexm = qhexM;
+      }
+    else
+      {
+      qhexM = qhexm;
+      }
+    // fall through
+  default:
+    Eqhex  /= (double) nhex;
+    Eqhex2 /= (double) nhex;
     }
-  
+
   quality = vtkDoubleArray::New();
   quality->SetName( "Mesh Triangle Quality" );
   quality->SetNumberOfComponents(4);
   quality->InsertNextTuple4( qtrim, Eqtri, qtriM, Eqtri2 );
   out->GetFieldData()->AddArray( quality );
+  quality->Delete();
 
   quality = vtkDoubleArray::New();
   quality->SetName( "Mesh Quadrilateral Quality" );
   quality->SetNumberOfComponents(4);
   quality->InsertNextTuple4( qquam, Eqqua, qquaM, Eqqua2 );
   out->GetFieldData()->AddArray( quality );
+  quality->Delete();
 
   quality = vtkDoubleArray::New();
   quality->SetName( "Mesh Tetrahedron Quality" );
   quality->SetNumberOfComponents(4);
   quality->InsertNextTuple4( qtetm, Eqtet, qtetM, Eqtet2 );
   out->GetFieldData()->AddArray( quality );
+  quality->Delete();
 
   quality = vtkDoubleArray::New();
   quality->SetName( "Mesh Hexahedron Quality" );
   quality->SetNumberOfComponents(4);
   quality->InsertNextTuple4( qhexm, Eqhex, qhexM, Eqhex2 );
   out->GetFieldData()->AddArray( quality );
+  quality->Delete();
 }
 
 double vtkMeshQuality::TriangleRadiusRatio( vtkCell* cell )
