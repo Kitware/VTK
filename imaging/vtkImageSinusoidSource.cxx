@@ -140,9 +140,27 @@ void vtkImageSinusoidSource::SetWholeExtent(int xMin, int xMax,
 //----------------------------------------------------------------------------
 void vtkImageSinusoidSource::UpdateInformation()
 {
-  this->GetOutput()->SetWholeExtent(this->WholeExtent);
-  this->GetOutput()->SetScalarType(VTK_FLOAT);
-  this->GetOutput()->SetNumberOfScalarComponents(1);
+  vtkImageData *output = this->GetOutput();
+  unsigned long mem;
+
+  output->SetWholeExtent(this->WholeExtent);
+  output->SetScalarType(VTK_FLOAT);
+  output->SetNumberOfScalarComponents(1);
+
+  // What if we are trying to process a VERY large 2D image?
+  mem = output->GetScalarSize();
+  mem = mem * (this->WholeExtent[1] - this->WholeExtent[0] + 1);
+  mem = mem * (this->WholeExtent[3] - this->WholeExtent[2] + 1);
+  mem = mem / 1000;
+  mem = mem * (this->WholeExtent[5] - this->WholeExtent[4] + 1);
+  if (mem < 1)
+    {
+    mem = 1;
+    }
+  
+  output->SetEstimatedWholeMemorySize(mem);
+  // Do not allow less than 1Kb per piece.
+  output->SetMaximumNumberOfPieces(mem);
 }
 
 void vtkImageSinusoidSource::Execute(vtkImageData *data)

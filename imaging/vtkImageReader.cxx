@@ -407,9 +407,12 @@ void vtkImageReader::PrintSelf(ostream& os, vtkIndent indent)
 // This method returns the largest data that can be generated.
 void vtkImageReader::UpdateInformation()
 {
+  vtkImageData *output = this->GetOutput();
+  unsigned long mem;
   float spacing[3];
   int extent[6];
   float origin[3];
+  
   
   // set the extent, if the VOI has not been set then default to
   // the DataExtent
@@ -418,25 +421,39 @@ void vtkImageReader::UpdateInformation()
       this->DataVOI[4] || this->DataVOI[5])
     {
     this->ComputeTransformedExtent(this->DataVOI,extent);
-    this->GetOutput()->SetWholeExtent(extent);
+    output->SetWholeExtent(extent);
     }
   else
     {
     this->ComputeTransformedExtent(this->DataExtent,extent);
-    this->GetOutput()->SetWholeExtent(extent);
+    output->SetWholeExtent(extent);
     }
     
   // set the spacing
   this->ComputeTransformedSpacing(spacing);
-  this->GetOutput()->SetSpacing(spacing);
+  output->SetSpacing(spacing);
 
   // set the origin.
   this->ComputeTransformedOrigin(origin);
-  this->GetOutput()->SetOrigin(origin);
+  output->SetOrigin(origin);
 
-  this->GetOutput()->SetScalarType(this->DataScalarType);
-  this->GetOutput()->
-    SetNumberOfScalarComponents(this->NumberOfScalarComponents);
+  output->SetScalarType(this->DataScalarType);
+  output->SetNumberOfScalarComponents(this->NumberOfScalarComponents);
+
+  // What if we are trying to process a VERY large 2D image?
+  mem = output->GetScalarSize();
+  mem = mem * (extent[1] - extent[0] + 1);
+  mem = mem * (extent[3] - extent[2] + 1);
+  mem = mem / 1000;
+  mem = mem * (extent[5] - extent[4] + 1);
+  if (mem < 1)
+    {
+    mem = 1;
+    }
+  
+  output->SetEstimatedWholeMemorySize(mem);
+  // Do not allow less than 1Kb per piece.
+  output->SetMaximumNumberOfPieces(mem);
 }
 
 
