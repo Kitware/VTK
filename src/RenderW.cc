@@ -45,6 +45,7 @@ vlRenderWindow::vlRenderWindow()
   SubBuffer = NULL;
   CurrentSubFrame = 0;
   ResultFrame = NULL;
+  FileName = NULL;
 }
 
 // Description:
