@@ -272,6 +272,37 @@ int vtkTkRenderWidget_Height( const struct vtkTkRenderWidget *self)
    return self->Height;
 }
 
+
+/*
+ *----------------------------------------------------------------------
+ *
+ * vtkTkRenderWidget_Destroy ---
+ *
+ *	This procedure is invoked by Tcl_EventuallyFree or Tcl_Release
+ *	to clean up the internal structure of a canvas at a safe time
+ *	(when no-one is using it anymore).
+ *
+ * Results:
+ *	None.
+ *
+ * Side effects:
+ *	Everything associated with the canvas is freed up.
+ *
+ *----------------------------------------------------------------------
+ */
+
+static void vtkTkRenderWidget_Destroy(char *memPtr)
+{
+  struct vtkTkRenderWidget *self = (struct vtkTkRenderWidget *)memPtr;
+
+  if (self->SelfCreatedRenderWindow && self->RenderWindow)
+    {
+    self->RenderWindow->Delete();
+    self->RenderWindow = NULL;
+    }
+  ckfree((char *) memPtr);
+}
+
 //----------------------------------------------------------------------------
 // This gets called to handle vtkTkRenderWidget window configuration events
 // Possibly X dependent
@@ -314,35 +345,6 @@ static void vtkTkRenderWidget_EventProc(ClientData clientData,
     }
 }
 
-/*
- *----------------------------------------------------------------------
- *
- * vtkTkRenderWidget_Destroy ---
- *
- *	This procedure is invoked by Tcl_EventuallyFree or Tcl_Release
- *	to clean up the internal structure of a canvas at a safe time
- *	(when no-one is using it anymore).
- *
- * Results:
- *	None.
- *
- * Side effects:
- *	Everything associated with the canvas is freed up.
- *
- *----------------------------------------------------------------------
- */
-
-static void vtkTkRenderWidget_Destroy(char *memPtr)
-{
-  struct vtkTkRenderWidget *self = (struct vtkTkRenderWidget *)memPtr;
-
-  if (self->SelfCreatedRenderWindow && this->RenderWindow)
-    {
-    self->RenderWindow->Delete();
-    self->RenderWindow = NULL;
-    }
-  ckfree((char *) memPtr);
-}
 
 
 //----------------------------------------------------------------------------
