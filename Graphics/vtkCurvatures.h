@@ -19,25 +19,25 @@
 //
 // Gauss Curvature
 // discrete Gauss curvature (K) computation,
-// K(vertex v) = 2*PI-\sum_{facet neighbs f of v} (angle_f at v)
-// The contribution of every facet is for the moment weighted by Area(facet)/3
-// The units of Gaussian Curvature are [1/m^2]
+// \f$K(vertex v) = 2*PI-\sum_{facet neighbs f of v} (angle_f at v)\f$
+// The contribution of every facet is for the moment weighted by \f$Area(facet)/3\f$
+// The units of Gaussian Curvature are \f$[1/m^2]\f$
 //
 // Mean Curvature
-// H(vertex v) = average over edges neighbs e of H(e)
-// H(edge e) = length(e)*dihedral_angle(e)
+// \f$H(vertex v) = average over edges neighbs e of H(e)\f$
+// \f$H(edge e) = length(e)*dihedral_angle(e)\f$
 // NB: dihedral_angle is the ORIENTED angle between -PI and PI,
 // this means that the surface is assumed to be orientable
 // the computation creates the orientation
 // The units of Mean Curvature are [1/m]
 //
-// Maximum (k_max) and Minimum (k_min) Principal Curvatures
-// k_max = H + sqrt(H^2 - K)
-// k_min = H - sqrt(H^2 - K)
+// Maximum (\f$k_max\f$) and Minimum (\f$k_min\f$) Principal Curvatures
+// \f$k_max = H + sqrt(H^2 - K)\f$
+// \f$k_min = H - sqrt(H^2 - K)\f$
 // Excepting spherical and planar surfaces which have equal principal curvatures,
 // the curvature at a point on a surface varies with the direction one "sets off"
 // from the point. For all directions, the curvature will pass through two extrema:
-// a minimum (k_min) and a maximum (k_max) which occur at mutually orthogonal
+// a minimum (\f$k_min\f$) and a maximum (\f$k_max\f$) which occur at mutually orthogonal
 // directions to each other.
 //
 // NB. The sign of the Gauss curvature is a geometric ivariant, it should be +ve
@@ -117,11 +117,11 @@ protected:
   void GetMeanCurvature(vtkPolyData *output);
   
   //Description:
-  // Maximum principal curvature k_max = H + sqrt(H^2 -K)
+  // Maximum principal curvature \f$k_max = H + sqrt(H^2 -K)\f$
   void GetMaximumCurvature(vtkPolyData *input, vtkPolyData *output);
   
   //Description:
-  // Minimum principal curvature k_min = H - sqrt(H^2 -K)
+  // Minimum principal curvature \f$k_min = H - sqrt(H^2 -K)\f$
   void GetMinimumCurvature(vtkPolyData *input, vtkPolyData *output);
   
 

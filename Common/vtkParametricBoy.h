@@ -104,7 +104,7 @@ public:
   //
   // This function performs the mapping fn(u,v)->(x,y,x), returning it
   // as Pt. It also returns the partial derivatives Du and Dv.
-  // Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv)
+  // \f$Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv)\f$
   void Evaluate(double uvw[3], double Pt[3], double Duvw[9]);
 
   // Description:
