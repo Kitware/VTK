@@ -292,6 +292,7 @@ protected:
 
   int VideoChannel;
   int VideoInput;
+  int VideoInputForColor;
   int VideoFormat;
 
   float Opacity;

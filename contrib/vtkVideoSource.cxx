@@ -105,6 +105,7 @@ vtkVideoSource::vtkVideoSource()
 
   this->VideoChannel = 0;
   this->VideoInput = VTK_VIDEO_MONO;
+  this->VideoInputForColor = VTK_VIDEO_YC;
   this->VideoFormat = VTK_VIDEO_RS170;
 
   this->FlipFrames = 0;
@@ -274,7 +275,6 @@ void vtkVideoSource::PrintSelf(ostream& os, vtkIndent indent)
 // to read the above information, and should not access any information 
 // except for the above.  These methods include the following:
 //
-// AdvanceFrameBuffer()
 // InternalGrab()
 
 //----------------------------------------------------------------------------
@@ -430,13 +430,13 @@ void vtkVideoSource::InternalGrab()
   unsigned char *ptr;
   int *lptr;
 
+  // get a thread lock on the frame buffer
+  this->FrameBufferMutex->Lock();
+
   if (this->AutoAdvance)
     { 
     this->AdvanceFrameBuffer(1);
     }
-
-  // get a thread lock on the frame buffer
-  this->FrameBufferMutex->Lock();
 
   index = this->FrameBufferIndex % this->FrameBufferSize;
   while (index < 0)
@@ -538,7 +538,7 @@ static void *vtkVideoSourceGrabThread(struct ThreadInfoStruct *data)
 #ifdef _WIN32
       Sleep((int)(1000*remaining));
 #else
-#if defined(__FreeBSD__) || defined(__linux__) || defined(sgi)
+#if defined(__FreeBSD__) || defined(linux) || defined(sgi)
       struct timespec sleep_time, dummy;
       sleep_time.tv_sec = (int)remaining;
       sleep_time.tv_nsec = (int)(1000000000*(remaining-sleep_time.tv_sec));
@@ -622,6 +622,39 @@ void vtkVideoSource::SetOutputFormat(int format)
       this->UpdateFrameBuffer();
       }
     this->FrameBufferMutex->Unlock();
+    }
+
+  // set video format to match the output format
+  if (this->OutputFormat == VTK_RGB || this->OutputFormat == VTK_RGBA)
+    {
+    if (this->VideoFormat == VTK_VIDEO_RS170)
+      {
+      this->SetVideoFormat(VTK_VIDEO_NTSC);
+      }
+    if (this->VideoFormat == VTK_VIDEO_CCIR)
+      {
+      this->SetVideoFormat(VTK_VIDEO_PAL);
+      }
+    if (this->VideoInput == VTK_VIDEO_MONO)
+      {
+      this->SetVideoInput(this->VideoInputForColor);
+      }
+    }
+  if (this->OutputFormat == VTK_LUMINANCE)
+    {
+    if (this->VideoFormat == VTK_VIDEO_NTSC)
+      {
+      this->SetVideoFormat(VTK_VIDEO_RS170);
+      }
+    if (this->VideoFormat == VTK_VIDEO_PAL)
+      {
+      this->SetVideoFormat(VTK_VIDEO_CCIR);
+      }
+    if (this->VideoInput == VTK_VIDEO_YC || this->VideoInput == VTK_VIDEO_COMPOSITE)
+      {
+      this->VideoInputForColor = this->VideoInput;
+      this->SetVideoInput(VTK_VIDEO_MONO);
+      }
     }
 }
 
@@ -710,16 +743,12 @@ void vtkVideoSource::SetFrameBufferSize(int bufsize)
 // Rotate the buffers
 void vtkVideoSource::AdvanceFrameBuffer(int n)
 {
-  this->FrameBufferMutex->Lock();
-
   int i = (this->FrameBufferIndex - n) % this->FrameBufferSize;
   while (i < 0) 
     {
     i += this->FrameBufferSize;
     }
   this->FrameBufferIndex = i;
-
-  this->FrameBufferMutex->Unlock();
 }
 
 //----------------------------------------------------------------------------
@@ -818,7 +847,6 @@ void vtkVideoSource::UnpackRasterLine(char *outPtr, char *rowPtr,
 void vtkVideoSource::Execute(vtkImageData *data)
 {
   int i,j;
-  int index = this->FrameBufferIndex;
 
   // state that we have 'used up' the frame which was just grabbed
   this->FrameGrabbed = 0;
@@ -932,6 +960,9 @@ void vtkVideoSource::Execute(vtkImageData *data)
   int saveOutputExtent4 = outputExtent[4];
   outputExtent[4] = firstOutputExtent4;
 
+  this->FrameBufferMutex->Lock();
+
+  int index = this->FrameBufferIndex;
   int frame;
   for (frame = firstFrame; frame <= finalFrame; frame++)
     {
@@ -1010,6 +1041,8 @@ void vtkVideoSource::Execute(vtkImageData *data)
     // restore the output extent once the first frame is done
     outputExtent[4] = saveOutputExtent4;
     }
+
+  this->FrameBufferMutex->Unlock();
 }
 
 
