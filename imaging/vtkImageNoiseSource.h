@@ -85,8 +85,8 @@ protected:
   float Maximum;
   int WholeExtent[6];
 
-  void ExecuteInformation();
-  void ExecuteData(vtkDataObject *data);
+  virtual void ExecuteInformation();
+  virtual void ExecuteData(vtkDataObject *data);
 };
 
 

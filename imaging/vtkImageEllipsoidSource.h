@@ -125,8 +125,8 @@ protected:
   float OutValue;
   int OutputScalarType;
   
-  void ExecuteInformation();
-  void ExecuteData(vtkDataObject *outData);
+  virtual void ExecuteInformation();
+  virtual void ExecuteData(vtkDataObject *outData);
 };
 
 

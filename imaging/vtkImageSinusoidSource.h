@@ -96,8 +96,8 @@ protected:
   float Phase;
   float Amplitude;
 
-  void ExecuteInformation();
-  void ExecuteData(vtkDataObject *data);
+  virtual void ExecuteInformation();
+  virtual void ExecuteData(vtkDataObject *data);
 };
 
 

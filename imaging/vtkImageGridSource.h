@@ -126,8 +126,8 @@ protected:
   float DataSpacing[3];
   float DataOrigin[3];
 
-  void ExecuteInformation();
-  void ExecuteData(vtkDataObject *data);
+  virtual void ExecuteInformation();
+  virtual void ExecuteData(vtkDataObject *data);
 };
 
 
