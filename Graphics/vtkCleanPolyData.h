@@ -57,16 +57,16 @@
 #ifndef __vtkCleanPolyData_h
 #define __vtkCleanPolyData_h
 
-#include "vtkPolyDataToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
 class vtkPointLocator;
 
-class VTK_GRAPHICS_EXPORT vtkCleanPolyData : public vtkPolyDataToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkCleanPolyData : public vtkPolyDataAlgorithm
 {
 public:
   static vtkCleanPolyData *New();
   void PrintSelf(ostream& os, vtkIndent indent);
-  vtkTypeRevisionMacro(vtkCleanPolyData,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkCleanPolyData,vtkPolyDataAlgorithm);
 
   // Description:
   // By default ToleranceIsAbsolute is false and Tolerance is
@@ -121,7 +121,7 @@ public:
 
   // Description:
   // Create default locator. Used to create one when none is specified.
-  void CreateDefaultLocator(void);
+  void CreateDefaultLocator(vtkPolyData *input = 0);
 
   // Description:
   // Release locator
@@ -153,9 +153,9 @@ protected:
  ~vtkCleanPolyData();
 
   // Usual data generation method
-  void Execute();
-  void ExecuteInformation();
-  virtual void ComputeInputUpdateExtents(vtkDataObject *output);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   int   PointMerging;
   double Tolerance;
@@ -173,5 +173,3 @@ private:
 };
 
 #endif
-
-

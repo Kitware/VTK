@@ -17,11 +17,14 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkMergePoints.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkCleanPolyData, "1.75");
+vtkCxxRevisionMacro(vtkCleanPolyData, "1.76");
 vtkStandardNewMacro(vtkCleanPolyData);
 
 //---------------------------------------------------------------------------
@@ -65,59 +68,84 @@ void vtkCleanPolyData::OperateOnBounds(double in[6], double out[6])
 }
 
 //--------------------------------------------------------------------------
-void vtkCleanPolyData::ExecuteInformation()
+int vtkCleanPolyData::RequestInformation(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
   if (this->PieceInvariant)
     {
-    this->GetOutput()->SetMaximumNumberOfPieces(1);
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
+                 1);
     }
   else
     {
-    this->GetOutput()->SetMaximumNumberOfPieces(-1);
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
+                 -1);
     }
+
+  return 1;
 }
 
-
 //--------------------------------------------------------------------------
-void vtkCleanPolyData::ComputeInputUpdateExtents(vtkDataObject *output)
+int vtkCleanPolyData::RequestUpdateExtent(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkPolyData *input = this->GetInput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  if (input == NULL)
-    {
-    return;
-    }
   if (this->PieceInvariant)
     {
     // Although piece > 1 is handled by superclass, we should be thorough.
-    if (output->GetUpdatePiece() == 0)
+    if (outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) == 0)
       {
-      input->SetUpdatePiece(0);
-      input->SetUpdateNumberOfPieces(1);
+      inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
+      inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+                  1);
       }
     else
       {
-      input->SetUpdatePiece(-1);
-      input->SetUpdateNumberOfPieces(0);
+      inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), -1);
+      inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+                  0);
       }
     }
   else
     {
-    input->SetUpdateNumberOfPieces(output->GetUpdateNumberOfPieces());
-    input->SetUpdatePiece(output->GetUpdatePiece());
-    input->SetUpdateGhostLevel(output->GetUpdateGhostLevel());
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+                outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
+                outInfo->Get(
+                  vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+                outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
     }
+
+  return 1;
 }
 
 //--------------------------------------------------------------------------
-void vtkCleanPolyData::Execute()
-{  
-  vtkPolyData *input = this->GetInput(); //always defined on entry into Execute
-  if ( !input )
-    {
-    vtkErrorMacro("Input not defined");
-    return;
-    }
+int vtkCleanPolyData::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
+{
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPolyData *input = vtkPolyData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  
   vtkPoints   *inPts = input->GetPoints();
   vtkIdType   numPts = input->GetNumberOfPoints();
 
@@ -125,7 +153,7 @@ void vtkCleanPolyData::Execute()
   if ( (numPts<1) || (inPts == NULL ) )
     {
     vtkDebugMacro(<<"No data to Operate On!");
-    return;
+    return 0;
     }
   vtkIdType *updatedPts = new vtkIdType[input->GetMaxCellSize()];
 
@@ -156,7 +184,7 @@ void vtkCleanPolyData::Execute()
   // that all inserted points lie inside it
   if ( this->PointMerging )
     {
-    this->CreateDefaultLocator();
+    this->CreateDefaultLocator(input);
     if (this->ToleranceIsAbsolute) 
       {
       this->Locator->SetTolerance(this->AbsoluteTolerance);
@@ -179,7 +207,6 @@ void vtkCleanPolyData::Execute()
       }
     }
   
-  vtkPolyData  *output   = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData  *outputCD = output->GetCellData();
   outputPD->CopyAllocate(inputPD);
@@ -565,6 +592,8 @@ void vtkCleanPolyData::Execute()
     output->SetStrips(newStrips);
     newStrips->Delete();
     }
+
+  return 1;
 }
 
 //------------------------------------------------------------------------
@@ -593,7 +622,7 @@ void vtkCleanPolyData::SetLocator(vtkPointLocator *locator)
 //--------------------------------------------------------------------------
 // Method manages creation of locators. It takes into account the potential
 // change of tolerance (zero to non-zero).
-void vtkCleanPolyData::CreateDefaultLocator() 
+void vtkCleanPolyData::CreateDefaultLocator(vtkPolyData *input) 
 {
   double tol;
   if (this->ToleranceIsAbsolute) 
@@ -602,9 +631,9 @@ void vtkCleanPolyData::CreateDefaultLocator()
     } 
   else 
     {
-    if (this->GetInput())
+    if (input)
       {
-      tol = this->Tolerance*this->GetInput()->GetLength();
+      tol = this->Tolerance*input->GetLength();
       }
     else
       {
