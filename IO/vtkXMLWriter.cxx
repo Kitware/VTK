@@ -27,7 +27,7 @@
 #include "vtkPoints.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.17");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.18");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 
 //----------------------------------------------------------------------------
@@ -479,6 +479,8 @@ int vtkXMLWriter::WriteBinaryData(void* data, int numWords, int wordType)
       return 0;
       }    
     }
+  
+  return 1;
 }
 
 //----------------------------------------------------------------------------
