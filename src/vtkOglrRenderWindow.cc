@@ -953,7 +953,7 @@ void vtkOglrRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
     {
     for (xloop = 0; xloop <= (abs(x2-x1)); xloop++)
       {
-      buffer[xloop] += (*p_data) << 24; p_data++; 
+      buffer[xloop]  = (*p_data) << 24; p_data++; 
       buffer[xloop] += (*p_data) << 16; p_data++;
       buffer[xloop] += (*p_data) <<  8; p_data++;
       buffer[xloop] += (*p_data)      ; p_data++;
