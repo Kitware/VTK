@@ -15,6 +15,9 @@ IF (VTK_USE_RENDERING)
       Plot3DScalars
       Plot3DVectors
       ParticleReader
+      gaussian
+      caffeine
+      TestXYZMol
       )
       ADD_TEST(${tfile}-image ${VTK_EXECUTABLE}
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 

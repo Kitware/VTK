@@ -31,6 +31,7 @@ vtkEnSightGoldReader.cxx
 vtkEnSightMasterServerReader.cxx
 vtkEnSightReader.cxx
 vtkGESignaReader.cxx
+vtkGaussianCubeReader.cxx
 vtkGenericEnSightReader.cxx
 vtkIVWriter.cxx
 vtkImageReader.cxx
@@ -44,8 +45,10 @@ vtkJPEGWriter.cxx
 vtkMCubesReader.cxx
 vtkMCubesWriter.cxx
 vtkMedicalImageReader2.cxx
+vtkMoleculeReaderBase.cxx
 vtkOBJReader.cxx
 vtkOutputStream.cxx
+vtkPDBReader.cxx
 vtkPLOT3DReader.cxx
 vtkPLY.cxx
 vtkPLYReader.cxx
@@ -114,12 +117,14 @@ vtkXMLUnstructuredDataWriter.cxx
 vtkXMLUnstructuredGridReader.cxx
 vtkXMLUnstructuredGridWriter.cxx
 vtkXMLWriter.cxx
+vtkXYZMolReader.cxx
 vtkZLibDataCompressor.cxx
 )
 
 SET_SOURCE_FILES_PROPERTIES(
 vtkDataCompressor
 vtkEnSightReader
+vtkMoleculeReaderBase
 vtkVolumeReader
 vtkWriter
 vtkXMLDataReader
@@ -135,7 +140,6 @@ vtkXMLStructuredDataWriter
 vtkXMLUnstructuredDataReader
 vtkXMLUnstructuredDataWriter
 vtkXMLWriter
-
 ABSTRACT
 )
 
