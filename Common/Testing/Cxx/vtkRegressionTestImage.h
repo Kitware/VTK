@@ -126,15 +126,14 @@ int vtkRegressionTestImage2(int argc, char *argv[], vtkWindow *rw,
       newFileName = IncrementFileName(fname, errIndex);
       rt_png->SetFileName(newFileName);
       delete[] newFileName;
-      rt_png->Update();
-      rt_id->Update();
       }
     else
       {
       rt_png->SetFileName(fname);
-      rt_png->Update();
-      rt_id->Update();
       }
+
+    rt_png->Update();
+    rt_id->Update();
 
     if (rt_dout) 
       { 
