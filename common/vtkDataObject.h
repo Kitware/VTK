@@ -81,6 +81,10 @@ public:
   vtkGetObjectMacro(Source,vtkSource);
   
   // Description:
+  // Data objects are composite objects and need to check each part for MTime.
+  unsigned long int GetMTime();
+
+  // Description:
   // Provides opportunity for the data object to insure internal consistency 
   // before access. Also causes owning source/filter (if any) to update itself.
   virtual void Update();
@@ -125,20 +129,16 @@ public:
 
   // Description:
   // Assign or retrieve field data to this data object.
-  void SetFieldData(vtkFieldData &fd);
-  vtkFieldData *GetFieldData() {return this->FieldData;};
+  vtkSetObjectMacro(FieldData,vtkFieldData);
+  vtkGetObjectMacro(FieldData,vtkFieldData);
 
   //BTX - begin tcl exclude
   // Description:
   // This method is to be used only by the source (i.e., the filter generating
   // this data object). The source is not reference counted by this data object to
-  // avoid mutually referenceing loops.
+  // avoid mutually referencing loops.
   void SetSource(vtkSource *source);
   //ETX
-  
-  // Description:
-  // For legacy compatibility: Do not use.
-  void SetFieldData(vtkFieldData *fd) {this->SetFieldData(*fd);}
   
 protected:
   vtkSource *Source;
