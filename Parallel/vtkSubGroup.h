@@ -88,10 +88,8 @@ public:
 
 protected:
   vtkSubGroup();
-  vtkSubGroup(const vtkSubGroup&);
   ~vtkSubGroup();
-  vtkSubGroup &operator=(const vtkSubGroup&);
-  
+
 private:
   int computeFanInTargets();
   void restoreRoot(int rootLoc);
@@ -122,5 +120,7 @@ private:
   
   vtkCommunicator *comm;
 
+  vtkSubGroup(const vtkSubGroup&); // Not implemented
+  void operator=(const vtkSubGroup&); // Not implemented
 };
 #endif

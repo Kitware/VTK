@@ -32,7 +32,7 @@
 #include <time.h>
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkModelMetadata, "1.3");
+vtkCxxRevisionMacro(vtkModelMetadata, "1.4");
 vtkStandardNewMacro(vtkModelMetadata);
 
 #undef FREE
@@ -302,15 +302,6 @@ void vtkModelMetadata::Reset()
 {
   this->FreeAllIvars();
   this->InitializeAllIvars();
-}
-
-vtkModelMetadata& vtkModelMetadata::operator= (const vtkModelMetadata &mmd)
-{
-  this->Reset();
-
-  this->MergeModelMetadata(&mmd);
-
-  return *this;
 }
 
 //-------------------------------------------------

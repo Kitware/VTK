@@ -26,7 +26,7 @@
 #endif
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkSubGroup, "1.10");
+vtkCxxRevisionMacro(vtkSubGroup, "1.11");
 vtkStandardNewMacro(vtkSubGroup);
 
 vtkSubGroup::vtkSubGroup()
@@ -40,73 +40,6 @@ vtkSubGroup::vtkSubGroup()
   this->nFrom = this->nTo = this->fanInTo = 0;
   this->nRecv = this->nSend = 0;
   this->gatherRoot = this->gatherLength = -1;
-}
-vtkSubGroup::vtkSubGroup(const vtkSubGroup &sg)
-{
-  int i=0;
-
-  this->tag = sg.tag;
-  this->nFrom = sg.nFrom;
-  this->nTo = sg.nTo;
-  this->sendId = sg.sendId;
-  this->sendOffset = sg.sendOffset;
-  this->sendLength = sg.sendLength;
-  for (i=0; i<20; i++)
-    {
-    this->recvId[i] = sg.recvId[i];
-    this->recvOffset[i] = sg.recvOffset[i];
-    this->recvLength[i] = sg.recvLength[i];
-    this->fanInFrom[i] = sg.fanInFrom[i];
-    }
-  this->fanInTo = sg.fanInTo;
-  this->nSend = sg.nSend;
-  this->nRecv = sg.nRecv;
-  this->gatherRoot = sg.gatherRoot;
-  this->gatherLength = sg.gatherLength;
-
-  this->nmembers = sg.nmembers;
-  for (i=0; i<this->nmembers; i++)
-    {
-    this->members[i] = sg.members[i];
-    }
-
-  this->myLocalRank = sg.myLocalRank;
-  this->comm = sg.comm;
-}
-
-vtkSubGroup &vtkSubGroup::operator= (const vtkSubGroup &sg)
-{
-  int i=0;
-
-  this->tag = sg.tag;
-  this->nFrom = sg.nFrom;
-  this->nTo = sg.nTo;
-  this->sendId = sg.sendId;
-  this->sendOffset = sg.sendOffset;
-  this->sendLength = sg.sendLength;
-  for (i=0; i<20; i++)
-    {
-    this->recvId[i] = sg.recvId[i];
-    this->recvOffset[i] = sg.recvOffset[i];
-    this->recvLength[i] = sg.recvLength[i];
-    this->fanInFrom[i] = sg.fanInFrom[i];
-    }
-  this->fanInTo = sg.fanInTo;
-  this->nSend = sg.nSend;
-  this->nRecv = sg.nRecv;
-  this->gatherRoot = sg.gatherRoot;
-  this->gatherLength = sg.gatherLength;
-
-  this->nmembers = sg.nmembers;
-  for (i=0; i<this->nmembers; i++)
-    {
-    this->members[i] = sg.members[i];
-    }
-
-  this->myLocalRank = sg.myLocalRank;
-  this->comm = sg.comm;
-
-  return *this;
 }
 
 int vtkSubGroup::Initialize(int p0=0, int p1=0, int me=0, int itag=0, vtkCommunicator *c=NULL)

@@ -909,7 +909,6 @@ private:
 
 private:
   vtkModelMetadata(const vtkModelMetadata&); // Not implemented
-//  void operator=(const vtkModelMetadata&); // Not implemented
-  vtkModelMetadata& operator=(const vtkModelMetadata&);
+  void operator=(const vtkModelMetadata&); // Not implemented
 };
 #endif
