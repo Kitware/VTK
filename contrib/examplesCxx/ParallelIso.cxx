@@ -17,6 +17,20 @@
 #include "vtkMath.h"
 
 
+// callback to test streaming / ports by seeing what extents are being read in.
+void reader_start_callback(void *arg)
+{
+  vtkImageReader *reader = (vtkImageReader*)(arg);
+  int *e;
+  
+  e = reader->GetOutput()->GetUpdateExtent();
+  
+  cerr << "Reading: " << e[0] << ", " << e[1] << ", " << e[2] << ", " 
+       << e[3] << ", " << e[4] << ", " << e[5] << endl; 
+}
+
+
+
 // call back to set the iso surface value.
 void callback(void *arg, int id)
 { 
@@ -61,6 +75,7 @@ VTK_THREAD_RETURN_TYPE process( void *vtkNotUsed(arg) )
   reader->SetDataExtent(0, 127, 0, 127, 1, 93);
   reader->SetFilePrefix("../../../vtkdata/headsq/half");
   reader->SetDataSpacing(1.6, 1.6, 1.5);
+  reader->SetStartMethod(reader_start_callback, (void*)(reader));
   
   iso = vtkSynchronizedTemplates3D::New();
   iso->SetInput(reader->GetOutput());
@@ -166,7 +181,7 @@ VTK_THREAD_RETURN_TYPE process( void *vtkNotUsed(arg) )
     val = 500.0;
     while (val < 1800.0)
       {
-      cerr << "iso value: " << val << endl;
+      cerr << "------------------------------------------iso value: " << val << endl;
       // set the local value
       iso->SetValue(0, val);
       for (i = 1; i < numProcs; ++i)
@@ -185,9 +200,9 @@ VTK_THREAD_RETURN_TYPE process( void *vtkNotUsed(arg) )
       
       // now render the results
       renWindow->Render();
-      sprintf(filename, "iso%d.ppm", (int)(val));
-      renWindow->SetFileName(filename);
-      renWindow->SaveImageAsPPM();
+      //sprintf(filename, "iso%d.ppm", (int)(val));
+      //renWindow->SetFileName(filename);
+      //renWindow->SaveImageAsPPM();
       val += 400.0;
       }
     
