@@ -24,7 +24,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedIntArray.h"
 
-vtkCxxRevisionMacro(vtkDepthSortPolyData, "1.23");
+vtkCxxRevisionMacro(vtkDepthSortPolyData, "1.24");
 vtkStandardNewMacro(vtkDepthSortPolyData);
 
 vtkCxxSetObjectMacro(vtkDepthSortPolyData,Camera,vtkCamera);
@@ -74,36 +74,42 @@ typedef struct _vtkSortValues {
   vtkIdType cellId;
 } vtkSortValues;
 
-static int CompareBackToFront(const void *val1, const void *val2)
-{
-  if (((vtkSortValues *)val1)->z > ((vtkSortValues *)val2)->z)
-    {
-    return (-1);
-    }
-  else if (((vtkSortValues *)val1)->z < ((vtkSortValues *)val2)->z)
-    {
-    return (1);
-    }
-  else
-    {
-    return (0);
-    }
+extern "C" 
+{  
+  static int CompareBackToFront(const void *val1, const void *val2)
+  {
+    if (((vtkSortValues *)val1)->z > ((vtkSortValues *)val2)->z)
+      {
+      return (-1);
+      }
+    else if (((vtkSortValues *)val1)->z < ((vtkSortValues *)val2)->z)
+      {
+      return (1);
+      }
+    else
+      {
+      return (0);
+      }
+  }
 }
 
-static int CompareFrontToBack(const void *val1, const void *val2)
+extern "C" 
 {
-  if (((vtkSortValues *)val1)->z < ((vtkSortValues *)val2)->z)
-    {
-    return (-1);
-    }
-  else if (((vtkSortValues *)val1)->z > ((vtkSortValues *)val2)->z)
-    {
-    return (1);
-    }
-  else
-    {
-    return (0);
-    }
+  static int CompareFrontToBack(const void *val1, const void *val2)
+  {
+    if (((vtkSortValues *)val1)->z < ((vtkSortValues *)val2)->z)
+      {
+      return (-1);
+      }
+    else if (((vtkSortValues *)val1)->z > ((vtkSortValues *)val2)->z)
+      {
+      return (1);
+      }
+    else
+      {
+      return (0);
+      }
+  }
 }
 
 void vtkDepthSortPolyData::Execute()
