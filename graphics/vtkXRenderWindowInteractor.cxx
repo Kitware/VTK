@@ -693,7 +693,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
           {
           me->HighlightActor(me->InteractionActor);
           }
-        else
+        else if (me->ActorMode)
           {
           me->HighlightActor(NULL);
           }

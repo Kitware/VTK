@@ -668,7 +668,7 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
         {
         me->HighlightActor(me->InteractionActor);
         }
-      else
+      else if (me->ActorMode)
         {
         me->HighlightActor(NULL);
         }
@@ -791,7 +791,7 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
         {
         me->HighlightActor(me->InteractionActor);
         }
-      else
+      else if (me->ActorMode)
         {
         me->HighlightActor(NULL);
         }
@@ -915,7 +915,7 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
         {
         me->HighlightActor(me->InteractionActor);
         }
-      else
+      else if (me->ActorMode)
         {
         me->HighlightActor(NULL);
         }
