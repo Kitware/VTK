@@ -496,6 +496,32 @@ unsigned long int vtkVolume::GetRedrawMTime()
       }
     }
 
+  if ( this->Property != NULL )
+    {
+    time = this->Property->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    if ( this->Property->GetGrayTransferFunction() != NULL )
+      {
+      time = this->Property->GetGrayTransferFunction()->GetMTime();
+      mTime = ( time > mTime ? time : mTime );
+      }
+    if ( this->Property->GetRGBTransferFunction() != NULL )
+      {
+      time = this->Property->GetRGBTransferFunction()->GetMTime();
+      mTime = ( time > mTime ? time : mTime );
+      }
+    if ( this->Property->GetScalarOpacity() != NULL )
+      {
+      time = this->Property->GetScalarOpacity()->GetMTime();
+      mTime = ( time > mTime ? time : mTime );
+      }
+    if ( this->Property->GetGradientOpacity() != NULL )
+      {
+      time = this->Property->GetGradientOpacity()->GetMTime();
+      mTime = ( time > mTime ? time : mTime );
+      }
+    }
+
   return mTime;
 }
 
