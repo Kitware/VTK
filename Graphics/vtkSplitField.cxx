@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkSplitField, "1.15");
+vtkCxxRevisionMacro(vtkSplitField, "1.16");
 vtkStandardNewMacro(vtkSplitField);
 
 char vtkSplitField::FieldLocationNames[3][12] 
@@ -135,7 +135,7 @@ void vtkSplitField::SetInputField(const char* name,
 
   if (attrType == -1)
     {
-    this->SetInputField(name, fieldLoc);
+    this->SetInputField(name, loc);
     }
   else
     {
