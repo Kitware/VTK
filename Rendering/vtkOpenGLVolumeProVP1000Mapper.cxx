@@ -46,6 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkVolume.h"
 #include <GL/gl.h>
 #include "vtkObjectFactory.h"
+#include "vtkRenderWindow.h"
 
 vtkOpenGLVolumeProVP1000Mapper* vtkOpenGLVolumeProVP1000Mapper::New()
 {
@@ -64,12 +65,13 @@ void vtkOpenGLVolumeProVP1000Mapper::RenderImageBuffer(vtkRenderer  *ren,
                                                        int          size[2],
                                                        unsigned int *outData)
 {
-  float depthVal;
+  float depthVal, nearestPt[3], testZ, minZ;
   float planeCoords[4][4];
   float tCoords[4][2];
-  int i, j;
+  int i, j, k;
   int textureSize[2];
   unsigned int *textureData;
+  float bounds[6];
   
   textureSize[0] = textureSize[1] = 32;
   while (textureSize[0] < size[0])
@@ -97,10 +99,40 @@ void vtkOpenGLVolumeProVP1000Mapper::RenderImageBuffer(vtkRenderer  *ren,
       }
     }
   
-  ren->SetWorldPoint(vol->GetCenter()[0],
-                     vol->GetCenter()[1],
-                     vol->GetCenter()[2],
-                     1.0);
+  if ( ! this->IntermixIntersectingGeometry )
+    {
+    ren->SetWorldPoint(vol->GetCenter()[0],
+                       vol->GetCenter()[1],
+                       vol->GetCenter()[2],
+                       1.0);
+    }
+  else
+    {
+    minZ = 1;
+    vol->GetBounds(bounds);
+    
+    for (k = 0; k < 2; k++)
+      {
+      for (j = 0; j < 2; j++)
+        {
+        for (i = 0; i < 2; i++)
+          {
+          ren->SetWorldPoint(bounds[i+0], bounds[j+2], bounds[k+4], 1.0);
+          ren->WorldToDisplay();
+          testZ = ren->GetDisplayPoint()[2];
+          if (testZ < minZ)
+            {
+            minZ = testZ;
+            nearestPt[0] = bounds[i+0];
+            nearestPt[1] = bounds[j+2];
+            nearestPt[2] = bounds[k+4];
+            }
+          }
+        }
+      }
+    ren->SetWorldPoint(nearestPt[0], nearestPt[1], nearestPt[2], 1.0);
+    }
+  
   ren->WorldToView();
   depthVal = ren->GetViewPoint()[2];
   
@@ -161,4 +193,28 @@ void vtkOpenGLVolumeProVP1000Mapper::RenderImageBuffer(vtkRenderer  *ren,
   glFlush();
   
   delete [] textureData;
+}
+
+void vtkOpenGLVolumeProVP1000Mapper::GetDepthBufferValues(vtkRenderer *ren,
+                                                          int size[2],
+                                                          unsigned int *outData)
+{
+  float *zData;
+  int i, length, rescale;
+  
+  zData = ren->GetRenderWindow()->GetZbufferData(0, 0, size[0]-1, size[1]-1);
+  if ( ! zData )
+    {
+    vtkErrorMacro("could not get Z buffer data");
+    return;
+    }
+
+  length = size[0]*size[1];
+  
+  rescale = 16777215; // 2^24 - 1
+  
+  for (i = 0; i < length; i++)
+    {
+    outData[i] = (unsigned int)(zData[i] * rescale);
+   }
 }

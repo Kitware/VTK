@@ -86,6 +86,11 @@ protected:
                           vtkVolume    *vol,
                           int          size[2],
                           unsigned int *outData );
+  
+  // Get the OpenGL depth buffer values in a the form needed for the
+  // VolumePro board
+  virtual void GetDepthBufferValues( vtkRenderer *ren, int size[2],
+                                     unsigned int *outData);
 };
 
 

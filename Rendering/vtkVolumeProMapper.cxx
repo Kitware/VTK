@@ -118,7 +118,7 @@ vtkVolumeProMapper::vtkVolumeProMapper()
 
   this->Cut = NULL;
   
-
+  this->IntermixIntersectingGeometry = 0;
 }
 
 // Destroy the mapper. Delete the context, volume build time, and the

@@ -53,9 +53,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // and library files, and you will need to perform the following steps:
 //
 // 1. Run cmake, and set the VTK_USE_VOLUMEPRO flag to true.
-// 2. If the libary file (VLI_LIBRARY_FOR_VG500) is not found by cmake, set
+// 2. If the libary file (VLI_LIBRARY_FOR_VP1000) is not found by cmake, set
 //    the path to that file, and rerun cmake.
-// 3. If the header file (VLI_INCLUDE_PATH_FOR_VG500) is not found by cmake,
+// 3. If the header file (VLI_INCLUDE_PATH_FOR_VP1000) is not found by cmake,
 //    set the path to that file, and rerun cmake.
 // 4. Rebuild VTK.
 //
@@ -135,11 +135,19 @@ protected:
                                   unsigned int * outData )
     {(void)vol; (void)size; (void)outData;}
 
+  // Get the depth buffer values
+  virtual void GetDepthBufferValues( vtkRenderer *vtkNotUsed(ren),
+                                     int size[2],
+                                     unsigned int *outData )
+    { (void)outData; }
+  
   // Keep track of the size of the data loaded so we know if we can
   // simply update when a change occurs or if we need to release and
   // create again
   int LoadedDataSize[3];
+
   VLIImageBuffer *ImageBuffer;
+  VLIDepthBuffer *DepthBuffer;
 };
 
 

@@ -224,7 +224,14 @@ public:
 					   unsigned int * vtkNotUsed(xSize),
 					   unsigned int * vtkNotUsed(ySize),
 					   unsigned int * vtkNotUsed(zSize)) {};
- 
+
+  // Description:
+  // Specify whether any geometry intersects the volume.
+  // Does nothing with VG500
+  vtkSetClampMacro(IntermixIntersectingGeometry, int, 0, 1);
+  vtkGetMacro(IntermixIntersectingGeometry, int);
+  vtkBooleanMacro(IntermixIntersectingGeometry, int);
+  
 protected:
   vtkVolumeProMapper();
   ~vtkVolumeProMapper();
@@ -293,6 +300,9 @@ protected:
   int                  WrongVLIVersion;
   int                  DisplayedMessage;
 
+  // The embedded geometry flag
+  int IntermixIntersectingGeometry;
+  
 private:
   vtkVolumeProMapper(const vtkVolumeProMapper&);  // Not implemented.
   void operator=(const vtkVolumeProMapper&);  // Not implemented.

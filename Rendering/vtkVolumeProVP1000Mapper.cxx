@@ -50,7 +50,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkGraphicsFactory.h"
 #include "vtkToolkits.h"
 #include "vtkDebugLeaks.h"
-#include "vtkStructuredPointsWriter.h"
 
 vtkVolumeProVP1000Mapper::vtkVolumeProVP1000Mapper()
 {
@@ -111,6 +110,7 @@ vtkVolumeProVP1000Mapper::vtkVolumeProVP1000Mapper()
     }
   
   this->ImageBuffer = NULL;
+  this->DepthBuffer = NULL;
 }
 
 
@@ -158,6 +158,12 @@ vtkVolumeProVP1000Mapper::~vtkVolumeProVP1000Mapper()
     {
     this->ImageBuffer->Release();
     this->ImageBuffer = NULL;
+    }
+  
+  if (this->DepthBuffer)
+    {
+    this->DepthBuffer->Release();
+    this->DepthBuffer = NULL;
     }
 
   // Free the context if necessary
@@ -229,15 +235,20 @@ void vtkVolumeProVP1000Mapper::UpdateCamera( vtkRenderer *ren, vtkVolume * vtkNo
   VLIVector3D viewUpVLI ( viewUpVTK );
 
   // Create a camera from this matrix
-  VLIMatrix viewMatrixVLI = VLIMatrix::LookAt(positionVLI, focalPointVLI, viewUpVLI );
+  VLIMatrix viewMatrixVLI = VLIMatrix::LookAt(positionVLI, focalPointVLI,
+                                              viewUpVLI );
   status = this->Context->GetCamera().SetViewMatrix( viewMatrixVLI );
 
   double clippingRange[2], parallelScale;
   ren->GetActiveCamera()->GetClippingRange(clippingRange);
   parallelScale = ren->GetActiveCamera()->GetParallelScale();
 
-//  VLIMatrix projectionMatrixVLI = VLIMatrix::Ortho (-40.0, 40.0, -40.0, 40.0, -40.0, 40.0);
-  VLIMatrix projectionMatrixVLI = VLIMatrix::Ortho(-parallelScale, parallelScale, -parallelScale, parallelScale, clippingRange[0], clippingRange[1]);
+  VLIMatrix projectionMatrixVLI = VLIMatrix::Ortho(-parallelScale,
+                                                   parallelScale,
+                                                   -parallelScale,
+                                                   parallelScale,
+                                                   clippingRange[0],
+                                                   clippingRange[1]);
   
   status = this->Context->GetCamera().SetProjectionMatrix( projectionMatrixVLI );
 
@@ -804,12 +815,11 @@ void vtkVolumeProVP1000Mapper::UpdateVolume( vtkRenderer * vtkNotUsed(ren), vtkV
        this->SubVolume[3] < dataSize[1] &&
        this->SubVolume[5] < dataSize[2] )
     {
-    VLIVolumeRange volRange ( 
-						  (this->SubVolume[1]-this->SubVolume[0]) + 1,
-                          (this->SubVolume[3]-this->SubVolume[2]) + 1,
-                          (this->SubVolume[5]-this->SubVolume[4]) + 1,
-                          this->SubVolume[0], this->SubVolume[2],
-                          this->SubVolume[4] );
+    VLIVolumeRange volRange ((this->SubVolume[1]-this->SubVolume[0]) + 1,
+                             (this->SubVolume[3]-this->SubVolume[2]) + 1,
+                             (this->SubVolume[5]-this->SubVolume[4]) + 1,
+                             this->SubVolume[0], this->SubVolume[2],
+                             this->SubVolume[4] );
     status = 
       this->Volume->SetActiveSubVolume( volRange );
     if ( status != kVLIOK )
@@ -902,7 +912,6 @@ void vtkVolumeProVP1000Mapper::Render( vtkRenderer *ren, vtkVolume *vol )
       break;
     }
 
-//  status = this->Volume->Update(this->Volume, this->Volume->GetRange(), 0, 0, 0, kVLIUseSource);
   int *windowSize;
   windowSize = ren->GetRenderWindow()->GetSize();
   
@@ -926,7 +935,52 @@ void vtkVolumeProVP1000Mapper::Render( vtkRenderer *ren, vtkVolume *vol )
   
   this->Context->SetRayTermination(1.0, VLIfalse);
 
-  status = this->Volume->Render(this->Context, this->ImageBuffer);
+  if ( ! this->IntermixIntersectingGeometry )
+    {
+    status = this->Volume->Render(this->Context, this->ImageBuffer);
+    }
+  else
+    {
+    VLIImageRange iRange = VLIImageRange(windowSize[0], windowSize[1]);
+    if ( ! this->DepthBuffer )
+      {
+      this->DepthBuffer = VLIDepthBuffer::Create(kVLIBoard0, windowSize[0],
+                                                 windowSize[1]);
+      this->DepthBuffer->SetBorderValue(0);
+      this->DepthBuffer->SetInputLimits(iRange);
+      status = this->Context->SetDepthTest(VLIContext::kDepthBuffer1,
+                                           VLIContext::kDepthTestLess);
+      }
+    unsigned int *depthData = new unsigned int[windowSize[0]*windowSize[1]];
+    this->GetDepthBufferValues(ren, windowSize, depthData);
+    
+    status = this->DepthBuffer->Update(depthData,
+                                       VLIImageRange(windowSize[0],
+                                                     windowSize[1]));
+    if ( status != kVLIOK )
+      {
+      switch ( status )
+        {
+        case kVLIErrArgument:
+          vtkErrorMacro( << "Invalid argument for updating depth buffer!" );
+          break;
+        case kVLIErrAlloc:
+          vtkErrorMacro( << "Not enough resources to update depth buffer!" );
+          break;
+        default:
+          // Don't know what the error is, but can't update the depth buffer.
+          // Shouldn't get to this error message.
+          vtkErrorMacro( << "Unknown error updating depth buffer!" );
+          break;
+        }
+      return;
+      }
+    this->ImageBuffer->Clear(iRange, 0);
+    status = this->Volume->Render(this->Context, this->ImageBuffer, 0, 0,    
+                                  this->DepthBuffer);
+    
+    delete [] depthData;
+    }
   
   if ( status != kVLIOK )
     {
