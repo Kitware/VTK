@@ -24,8 +24,6 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #ifndef __vlCellTypes_h
 #define __vlCellTypes_h
 
-class vlCell;
-
 #define vlNULL_ELEMENT 0
 #define vlVERTEX 1
 #define vlPOLY_VERTEX 2
@@ -39,12 +37,6 @@ class vlCell;
 #define vlTETRA 10
 #define vlVOXEL 11
 #define vlHEXAHEDRON 12
-
-class vlCellTypes
-{
-public:
-  vlCell *MapType(int type);
-};
 
 #endif
 
