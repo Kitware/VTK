@@ -36,7 +36,7 @@
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkAVSucdReader, "1.11");
+vtkCxxRevisionMacro(vtkAVSucdReader, "1.12");
 vtkStandardNewMacro(vtkAVSucdReader);
 
 vtkAVSucdReader::vtkAVSucdReader()
@@ -163,7 +163,7 @@ void vtkAVSucdReader::ReadFile()
 
 void vtkAVSucdReader::ExecuteInformation()
 {
-  char magic_number;
+  char magic_number='\0';
   long TrueFileLength, CalculatedFileLength;
   int i, k, *ncomp_list;
 
@@ -202,7 +202,7 @@ void vtkAVSucdReader::ExecuteInformation()
     this->fs = NULL;
 
     this->fs = new ifstream(this->FileName, ios::in);
-    char c, buf[100];
+    char c='\0', buf[100];
     while(this->fs->get(c) && c == '#')
       {
       this->fs->get(buf, 100, '\n'); this->fs->get(c);
@@ -514,7 +514,6 @@ void vtkAVSucdReader::ReadBinaryCellTopology(vtkIntArray *materials,
       default:
         vtkErrorMacro( << "cell type: " << Ctype[4*i+3] << "not supported\n");
         return;
-        break;
       }
     }
   delete [] Ctype;

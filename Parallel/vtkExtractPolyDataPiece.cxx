@@ -24,7 +24,7 @@
 #include "vtkPolyData.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkExtractPolyDataPiece, "1.16");
+vtkCxxRevisionMacro(vtkExtractPolyDataPiece, "1.17");
 vtkStandardNewMacro(vtkExtractPolyDataPiece);
 
 //=============================================================================
@@ -132,9 +132,9 @@ void vtkExtractPolyDataPiece::Execute()
   vtkPoints *newPoints;
   vtkUnsignedCharArray* cellGhostLevels = 0;
   vtkUnsignedCharArray* pointGhostLevels = 0;
-  vtkIdType ptId, newId, numPts, i;
+  vtkIdType ptId=0, newId, numPts, i;
   int numCellPts;
-  double *x;
+  double *x=NULL;
 
   // Pipeline update piece will tell us what to generate.
   ghostLevel = output->GetUpdateGhostLevel();
