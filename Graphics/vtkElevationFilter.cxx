@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkElevationFilter, "1.47");
+vtkCxxRevisionMacro(vtkElevationFilter, "1.48");
 vtkStandardNewMacro(vtkElevationFilter);
 
 // Construct object with LowPoint=(0,0,0) and HighPoint=(0,0,1). Scalar
@@ -132,7 +132,7 @@ void vtkElevationFilter::Execute()
 
   // Update self
   //
-  this->GetOutput()->GetPointData()->CopyScalarsOff();
+  this->GetInput()->GetPointData()->CopyScalarsOff();
   this->GetOutput()->GetPointData()->PassData(input->GetPointData());
 
   this->GetOutput()->GetCellData()->PassData(input->GetCellData());
