@@ -125,7 +125,7 @@ void vtkGESignaReader::ExecuteInformation()
   spacingZ = spacingZ + tmpZ;
   
   float origX, origY, origZ;
-  fseek(fp, imgHdrOffset + 160, SEEK_SET);
+  fseek(fp, imgHdrOffset + 154, SEEK_SET);
   // read TLHC
   fread(&origX, 4, 1, fp);
   vtkByteSwap::Swap4BE(&origX);
