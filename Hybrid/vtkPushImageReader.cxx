@@ -53,7 +53,7 @@ public:
     }
 };
 
-vtkCxxRevisionMacro(vtkPushImageReader, "1.2");
+vtkCxxRevisionMacro(vtkPushImageReader, "1.3");
 vtkStandardNewMacro(vtkPushImageReader);
 
 vtkPushImageReader::vtkPushImageReader()
@@ -121,7 +121,10 @@ static void vtkPushImageReaderUpdate(vtkPushImageReader *self,
   if (self->GetFileDimensionality() == 3)
     {
     self->ComputeInternalFileName(0);
-    self->OpenFile();
+    if ( !self->OpenFile() )
+      {
+      return;
+      }
     }
   outPtr2 = outPtr;
   int currSlice = self->GetCurrentSlice();
@@ -130,7 +133,10 @@ static void vtkPushImageReaderUpdate(vtkPushImageReader *self,
     if (self->GetFileDimensionality() == 2)
       {
       self->ComputeInternalFileName(idx2);
-      self->OpenFile();
+      if ( !self->OpenFile() )
+        {
+        return;
+        }
       }
     outPtr1 = outPtr2;
     for (idx1 = outExtent[2]; 

@@ -103,7 +103,7 @@ public:
   vtkPushPipeline *PushPipeline;
 };
 
-vtkCxxRevisionMacro(vtkPushPipeline, "1.2");
+vtkCxxRevisionMacro(vtkPushPipeline, "1.3");
 vtkStandardNewMacro(vtkPushPipeline);
 
 vtkPushPipeline::vtkPushPipeline()
@@ -139,6 +139,8 @@ vtkPushPipeline::~vtkPushPipeline()
     }
   dmi->Delete();
   this->DataMap->Delete();
+
+  this->Windows->Delete();
 }
 
 void vtkPushPipeline::AddPusher(vtkProcessObject* pusher)
