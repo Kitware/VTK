@@ -16,7 +16,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // .NAME vlPolyDataCollection - maintain a list of polygonal data objects
 // .SECTION Description
 // vlPolyDataCollection is an object that creates and manipulates lists of
-// datasets. See also vlDataSetCollection and vlCollection and subclasses.
+// datasets of type vlPolyData. See also vlDataSetCollection and vlCollection
+// and subclasses. 
 
 #ifndef __vlPolyDataCollection_hh
 #define __vlPolyDataCollection_hh
