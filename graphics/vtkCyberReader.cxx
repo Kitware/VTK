@@ -109,8 +109,12 @@ vtkCyberReader::~vtkCyberReader()
 
 /* math tools */
 
+#ifndef MAX
 #define MAX(a,b)	((a)>(b)?(a):(b))		/* return greater of a and b */
+#endif
+#ifndef MIN
 #define MIN(a,b)	((a)<(b)?(a):(b))		/* return lesser of a and b */
+#endif
 #define ABS(i)		((i)<0?-(i):(i))		/* integer absolute value */
 #define DELTA(a,b)	(ABS((a)-(b)))			/* int absolute difference */
 #define SCALE(n,s)	((((n)*(s))+50)/100)	/* int scale n by s percent */
