@@ -285,6 +285,7 @@ void CreateToolkitsH(CPcmakerDlg *vals)
       if(vals->m_AnsiCpp)
         {
         fprintf(ofp,"%s", AnsiDefine);
+        fprintf(ofp,"#define NOMINMAX\n");
         }
       fclose(ofp);    
       }
@@ -1186,19 +1187,24 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
 
   fprintf(fp,"NONINCREMENTAL : %sdll.dll\n\n",vals->adlg.m_LibPrefix);
 
-
+  const char* ansiFlags = "/GX /Zm1000";
+  if(!vals->m_AnsiCpp)
+    {
+    ansiFlags = "";
+    }
+  
   if (debugFlag)
     {
-    fprintf(fp,"CPP_PROJ=/nologo /D \"STRICT\" /D \"_DEBUG\" /MDd /W3 /Od /Zi /I \"%s\\include\" /I \"%s\" /I \"%s\\common\" /I \"%s\\imaging\" /I \"%s\\graphics\" /D \"NDEBUG\" /D \"WIN32\" \\\n",
-            vals->m_WhereCompiler, vals->m_WhereBuild, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+    fprintf(fp,"CPP_PROJ=/nologo /D \"STRICT\" /D \"_DEBUG\" %s /MDd /W3 /Od /Zi /I \"%s\\include\" /I \"%s\" /I \"%s\\common\" /I \"%s\\imaging\" /I \"%s\\graphics\" /D \"NDEBUG\" /D \"WIN32\" \\\n",
+            ansiFlags, vals->m_WhereCompiler, vals->m_WhereBuild, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
   else
     {
     /* would like to use compiler option /Ox but this option includes /Og which
        causes several problems in subexpressions and loop optimizations.  Therefore
        we include all the compiler options that /Ox uses except for /Og */
-    fprintf(fp,"CPP_PROJ=/nologo /D \"STRICT\" /MD /W3 /Ob1 /Oi /Ot /Oy /Gs /I \"%s\\include\" /I \"%s\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /D \"NDEBUG\" /D \"WIN32\" \\\n",
-	    vals->m_WhereCompiler, vals->m_WhereBuild, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+    fprintf(fp,"CPP_PROJ=/nologo /D \"STRICT\" %s /MD /W3 /Ob1 /Oi /Ot /Oy /Gs /I \"%s\\include\" /I \"%s\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /D \"NDEBUG\" /D \"WIN32\" \\\n",
+	    ansiFlags, vals->m_WhereCompiler, vals->m_WhereBuild, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
   if (vals->m_Patented) 
     {
