@@ -25,8 +25,7 @@
  #endif
 #endif
 
-#cmakedefine VTK_USE_QUARTZ
-#ifdef VTK_USE_QUARTZ
+#if defined (VTK_USE_CARBON) || defined(VTK_USE_COCOA)
  #undef VTK_USE_OGLR
 #endif
 
