@@ -123,6 +123,11 @@ public:
   void SelectInputScalars(const char *fieldName) 
     {this->SetInputScalarsSelection(fieldName);}
   
+  // Description:
+  // Set/get which component of the scalar array to contour on; defaults to 0.
+  vtkSetMacro(ArrayComponent, int);
+  vtkGetMacro(ArrayComponent, int);
+  
 protected:
   vtkSynchronizedTemplates2D();
   ~vtkSynchronizedTemplates2D();
@@ -131,7 +136,8 @@ protected:
   vtkContourValues *ContourValues;
 
   int ComputeScalars;
-
+  int ArrayComponent;
+  
   char *InputScalarsSelection;
   vtkSetStringMacro(InputScalarsSelection);
 

@@ -50,7 +50,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.70");
+vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.71");
 vtkStandardNewMacro(vtkSynchronizedTemplates3D);
 
 //----------------------------------------------------------------------------
@@ -79,6 +79,8 @@ vtkSynchronizedTemplates3D::vtkSynchronizedTemplates3D()
     this->Threads[idx] = NULL;
     }
   this->InputScalarsSelection = NULL;
+  
+  this->ArrayComponent = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -165,67 +167,68 @@ void vtkSynchronizedTemplates3DInitializeOutput(int *ext,vtkImageData *input,
 // Calculate the gradient using central difference.
 template <class T>
 void vtkSTComputePointGradient(int i, int j, int k, T *s, int *wholeExt, 
-                               int yInc, int zInc, float *spacing, float n[3])
+                               int xInc, int yInc, int zInc, int comp,
+                               float *spacing, float n[3])
 {
   float sp, sm;
 
   // x-direction
   if ( i == wholeExt[0] )
     {
-    sp = *(s+1);
-    sm = *s;
+    sp = *(s+xInc+comp);
+    sm = *(s+comp);
     n[0] = (sp - sm) / spacing[0];
     }
   else if ( i == wholeExt[1] )
     {
-    sp = *s;
-    sm = *(s-1);
+    sp = *(s+comp);
+    sm = *(s-xInc+comp);
     n[0] = (sp - sm) / spacing[0];
     }
   else
     {
-    sp = *(s+1);
-    sm = *(s-1);
+    sp = *(s+xInc+comp);
+    sm = *(s-xInc+comp);
     n[0] = 0.5 * (sp - sm) / spacing[0];
     }
 
   // y-direction
   if ( j == wholeExt[2] )
     {
-    sp = *(s+yInc);
-    sm = *s;
+    sp = *(s+yInc+comp);
+    sm = *(s+comp);
     n[1] = (sp - sm) / spacing[1];
     }
   else if ( j == wholeExt[3] )
     {
-    sp = *s;
-    sm = *(s-yInc);
+    sp = *(s+comp);
+    sm = *(s-yInc+comp);
     n[1] = (sp - sm) / spacing[1];
     }
   else
     {
-    sp = *(s+yInc);
-    sm = *(s-yInc);
+    sp = *(s+yInc+comp);
+    sm = *(s-yInc+comp);
     n[1] = 0.5 * (sp - sm) / spacing[1];
     }
 
   // z-direction
   if ( k == wholeExt[4] )
     {
-    sp = *(s+zInc);
-    sm = *s;
+    sp = *(s+zInc+comp);
+    sm = *(s+comp);
     n[2] = (sp - sm) / spacing[2];
     }
   else if ( k == wholeExt[5] )
     {
-    sp = *s;
-    sm = *(s-zInc);
+    sp = *(s+comp);
+    sm = *(s-zInc+comp);
     n[2] = (sp - sm) / spacing[2];
     }
   else
     {
-    sp = *(s+zInc);
-    sm = *(s-zInc);
+    sp = *(s+zInc+comp);
+    sm = *(s-zInc+comp);
     n[2] = 0.5 * (sp - sm) / spacing[2];
     }
 }
@@ -236,10 +239,10 @@ if (NeedGradients) \
 { \
   if (!g0) \
     { \
-    vtkSTComputePointGradient(i, j, k, s0, wholeExt, yInc, zInc, spacing, n0); \
+    vtkSTComputePointGradient(i, j, k, s0, wholeExt, xInc, yInc, zInc, comp, spacing, n0); \
     g0 = 1; \
     } \
-  vtkSTComputePointGradient(i2, j2, k2, s, wholeExt, yInc, zInc, spacing, n1); \
+  vtkSTComputePointGradient(i2, j2, k2, s, wholeExt, xInc, yInc, zInc, comp, spacing, n1); \
   for (jj=0; jj<3; jj++) \
     { \
     n[jj] = n0[jj] + t * (n1[jj] - n0[jj]); \
@@ -277,7 +280,7 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
   T *inPtrX, *inPtrY, *inPtrZ;
   T *s0, *s1, *s2, *s3;
   int xMin, xMax, yMin, yMax, zMin, zMax;
-  int yInc, zInc;
+  int xInc, yInc, zInc;
   float *origin = data->GetOrigin();
   float *spacing = data->GetSpacing();
   int *isect1Ptr, *isect2Ptr;
@@ -310,7 +313,8 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
   vtkFloatArray *newGradients = NULL;
   vtkPoints *newPts;
   vtkCellArray *newPolys;
-
+  int comp = self->GetArrayComponent();
+  
   if (ComputeScalars)
     {
     newScalars = vtkFloatArray::New();
@@ -338,7 +342,8 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
   
   // increments to move through scalars Compute these ourself because
   // we may be contouring an array other than scalars.
-  yInc = (inExt[1]-inExt[0]+1);
+  xInc = self->GetInput()->GetNumberOfScalarComponents();
+  yInc = xInc*(inExt[1]-inExt[0]+1);
   zInc = yInc*(inExt[3]-inExt[2]+1);
 
   wholeExt = self->GetInput()->GetWholeExtent();
@@ -379,7 +384,7 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
     {
     value = values[vidx];
     inPtrZ = ptr;
-    s2 = inPtrZ;
+    s2 = inPtrZ + comp;
     v2 = (*s2 < value ? 0 : 1);
 
     //==================================================================
@@ -425,7 +430,7 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
 
         y = origin[1] + j*spacing[1];
         xz[1] = y;
-        s1 = inPtrY;
+        s1 = inPtrY + comp;
         v1 = (*s1 < value ? 0 : 1);
         
         inPtrX = inPtrY;
@@ -437,7 +442,7 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
           g0 = 0;
           if (i < xMax)
             {
-            s1 = (inPtrX + 1);
+            s1 = (inPtrX + xInc + comp);
             v1 = (*s1 < value ? 0 : 1);
             if (v0 ^ v1)
               {
@@ -455,7 +460,7 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
             }
           if (j < yMax)
             {
-            s2 = (inPtrX + yInc);
+            s2 = (inPtrX + yInc + comp);
             v2 = (*s2 < value ? 0 : 1);
             if (v0 ^ v2)
               {
@@ -473,7 +478,7 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
             }
           if (k < zMax)
             {
-            s3 = (inPtrX + zInc);
+            s3 = (inPtrX + zInc + comp);
             v3 = (*s3 < value ? 0 : 1);
             if (v0 ^ v3)
               {
@@ -525,7 +530,7 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
               outCD->CopyData(inCD, inCellId, outCellId);
               }
             }
-          ++inPtrX;
+          inPtrX += xInc;
           isect2Ptr += 3;
           isect1Ptr += 3;
           // To keep track of ids for copying cell attributes..
@@ -602,7 +607,6 @@ void vtkSynchronizedTemplates3D::ThreadedExecute(vtkImageData *data,
 
   vtkDebugMacro(<< "Executing 3D structured contour");
   
-  
   if (this->NumberOfThreads <= 1)
     { // Special case when only one thread (fast, no copy).
     output = this->GetOutput();
@@ -627,22 +631,22 @@ void vtkSynchronizedTemplates3D::ThreadedExecute(vtkImageData *data,
     {
     vtkErrorMacro("No scalars for contouring.");
     }
-  if (inScalars->GetNumberOfComponents() == 1 )
+  int numComps = inScalars->GetNumberOfComponents();
+  
+  if (this->ArrayComponent >= numComps)
     {
-    ptr = data->GetArrayPointerForExtent(inScalars, exExt);
-    switch (inScalars->GetDataType())
-      {
-      vtkTemplateMacro7(ContourImage, this, exExt, data, output, 
-                         (VTK_TT *)ptr, threadId, 
-                        this->GetInputScalarsSelection());
-      }
-    }  
-  else //multiple components - have to convert
-    {
-    vtkErrorMacro("Cannot handle multiple components yet.");
+    vtkErrorMacro("Scalars have " << numComps << " components. "
+                  "ArrayComponent must be smaller than " << numComps);
     return;
     }
-
+  
+  ptr = data->GetArrayPointerForExtent(inScalars, exExt);
+  switch (inScalars->GetDataType())
+    {
+    vtkTemplateMacro7(ContourImage, this, exExt, data, output, 
+                      (VTK_TT *)ptr, threadId, 
+                      this->GetInputScalarsSelection());
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -1025,7 +1029,8 @@ void vtkSynchronizedTemplates3D::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "InputScalarsSelection: " 
        << this->InputScalarsSelection << endl;
-    }
+    }  
+  os << indent << "ArrayComponent: " << this->ArrayComponent << endl;
 }
 
 

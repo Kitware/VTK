@@ -69,6 +69,12 @@ public:
   // of 0.0.
   static vtkKitwareContourFilter *New();
 
+  // Description:
+  // Set/get which component of the scalar array to contour on; defaults to 0.
+  // Currently this feature only works if the input is a vtkImageData.
+  vtkSetMacro(ArrayComponent, int);
+  vtkGetMacro(ArrayComponent, int);
+
 protected:
   vtkKitwareContourFilter();
   ~vtkKitwareContourFilter();
@@ -83,6 +89,9 @@ protected:
   void StructuredGridContour(int dim);
   //default if not structured data
   void DataSetContour();
+  
+  int ArrayComponent;
+  
 private:
   vtkKitwareContourFilter(const vtkKitwareContourFilter&);  // Not implemented.
   void operator=(const vtkKitwareContourFilter&);  // Not implemented.
