@@ -50,7 +50,9 @@ vtkTransform identity
 identity Identity
 
 set rotatedAngle 60
-vtkTransform rotated
+
+# a perspective transform tests the generalized transform path in the code
+vtkPerspectiveTransform rotated
 rotated RotateX $rotatedAngle
 
 weightedTrans SetNumberOfTransforms 2
