@@ -17,7 +17,7 @@
 =========================================================================*/
 #include "vtkImageIterateFilter.h"
 
-vtkCxxRevisionMacro(vtkImageIterateFilter, "1.31");
+vtkCxxRevisionMacro(vtkImageIterateFilter, "1.32");
 
 //----------------------------------------------------------------------------
 vtkImageIterateFilter::vtkImageIterateFilter()
@@ -204,7 +204,7 @@ void vtkImageIterateFilter::SetNumberOfIterations(int num)
     {
     for (idx = 1; idx < this->NumberOfIterations; ++idx)
       {
-      this->IterationData[idx]->UnRegister(this);
+      this->IterationData[idx]->Delete();
       this->IterationData[idx] = NULL;
       }
     delete [] this->IterationData;
