@@ -68,6 +68,7 @@ void vtkDividingCubes::Execute()
   int above, below, vertNum;
   vtkStructuredPoints *input=(vtkStructuredPoints *)this->Input;
   vtkMath math;
+  voxelScalars.ReferenceCountingOff();
 
   vtkDebugMacro(<< "Executing dividing cubes...");
 //

@@ -308,7 +308,7 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int numPts)
 
     else if ( !strcmp(type,"unsigned char") )
       {
-      fprintf (fp, "%s char\nLOOKUP_TABLE %s\n", this->ScalarsName, name);
+      fprintf (fp, "%s unsigned_char\nLOOKUP_TABLE %s\n", this->ScalarsName, name);
       if ( this->FileType == ASCII )
         {
         unsigned char s;

@@ -380,7 +380,7 @@ int vtkDataReader::ReadScalarData(FILE *fp, vtkDataSet *ds, int numPts)
     scalars->Delete();
     }
 
-  else if ( ! strncmp(line, "unsigned char", 13) )
+  else if ( ! strncmp(line, "unsigned_char", 13) )
     {
     vtkUnsignedCharScalars *scalars = new vtkUnsignedCharScalars(numPts);
     unsigned char *ptr = scalars->WritePtr(0,numPts);
