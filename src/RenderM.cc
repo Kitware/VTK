@@ -34,6 +34,8 @@ vlRenderMaster::vlRenderMaster()
 {
 }
 
+// Description:
+// Create named renderer type.
 vlRenderWindow *vlRenderMaster::MakeRenderWindow(char *type)
 {
 
@@ -68,6 +70,9 @@ vlRenderWindow *vlRenderMaster::MakeRenderWindow(char *type)
   return (vlRenderWindow *)NULL;
 }
 
+// Description:
+// Create renderer based on environment variable VL_RENDERER. If VL_RENDERER
+// not defined, then use default renderer kglr.
 vlRenderWindow *vlRenderMaster::MakeRenderWindow(void)
 {
   char *temp;
@@ -77,4 +82,12 @@ vlRenderWindow *vlRenderMaster::MakeRenderWindow(void)
   if (!temp) temp = "kglr";
 
   return (this->MakeRenderWindow(temp));
+}
+
+void vlRenderMaster::PrintSelf(ostream& os, vlIndent indent)
+{
+  if (this->ShouldIPrint(vlRenderMaster::GetClassName()))
+    {
+    vlObject::PrintSelf(os,indent);
+    }
 }

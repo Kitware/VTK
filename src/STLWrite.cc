@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -30,20 +28,6 @@ vlSTLWriter::~vlSTLWriter()
   if ( this->Filename ) delete [] this->Filename;
 }
 
-void vlSTLWriter::PrintSelf(ostream& os, vlIndent indent)
-{
-  if (this->ShouldIPrint(vlSTLWriter::GetClassName()))
-    {
-    this->PrintWatchOn(); // watch for multiple inheritance
-
-    vlPolyFilter::PrintSelf(os,indent);
-    vlWriter::PrintSelf(os,indent);
-
-    os << indent << "Filename: " << this->Filename << "\n";
-    this->PrintWatchOff(); // stop worrying about it now
-    }
-}
-
 void vlSTLWriter::Write()
 {
   vlPoints *pts;
@@ -64,8 +48,10 @@ void vlSTLWriter::Write()
     return;
     }
 
+  this->StartWrite(this->StartWriteArg);
   if ( this->WriteMode == STL_BINARY ) this->WriteBinarySTL(pts,polys);
   else this->WriteAsciiSTL(pts,polys);
+  this->EndWrite(this->EndWriteArg);
 }
 
 static char header[]="Visualization Library generated SLA File                                        ";
@@ -162,6 +148,20 @@ void vlSTLWriter::WriteBinarySTL(vlPoints *pts, vlCellArray *polys)
     fwrite (n, 4, 3, fp);
 
     fwrite (&ibuff2, 2, 1, fp);
+    }
+}
+
+void vlSTLWriter::PrintSelf(ostream& os, vlIndent indent)
+{
+  if (this->ShouldIPrint(vlSTLWriter::GetClassName()))
+    {
+    this->PrintWatchOn(); // watch for multiple inheritance
+
+    vlPolyFilter::PrintSelf(os,indent);
+    vlWriter::PrintSelf(os,indent);
+
+    os << indent << "Filename: " << this->Filename << "\n";
+    this->PrintWatchOff(); // stop worrying about it now
     }
 }
 

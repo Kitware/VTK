@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -17,20 +15,28 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "Writer.hh"
 
-void vlWriter::SetStartWrite(void (*f)())
+// Description:
+// Specify a function to be called before data is written.
+// Function will be called with argument provided.
+void vlWriter::SetStartWrite(void (*f)(void *), void *arg)
 {
   if ( f != this->StartWrite )
     {
     this->StartWrite = f;
+    this->StartWriteArg = arg;
     this->Modified();
     }
 }
 
-void vlWriter::SetEndWrite(void (*f)())
+// Description:
+// Specify a function to be called after data is written.
+// Function will be called with argument provided.
+void vlWriter::SetEndWrite(void (*f)(void *), void *arg)
 {
   if ( f != this->EndWrite )
     {
     this->EndWrite = f;
+    this->EndWriteArg = arg;
     this->Modified();
     }
 }

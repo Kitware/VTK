@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -41,9 +39,13 @@ public:
   char *GetClassName() {return "vlSTLWriter";};
   void PrintSelf(ostream& os, vlIndent indent);
 
+  // Description:
+  // Specify the name of the file to write.
   vlSetStringMacro(Filename);
   vlGetStringMacro(Filename);
 
+  // Description:
+  // Specify type of file to write (ascii or binary).
   vlSetClampMacro(WriteMode,int,STL_ASCII,STL_BINARY);
   vlGetMacro(WriteMode,int);
 

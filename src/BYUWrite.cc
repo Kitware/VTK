@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -17,6 +15,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "BYUWrite.hh"
 
+// Description:
+// Create object so that it writes displacement, scalar, and texture files
+// (if data is available).
 vlBYUWriter::vlBYUWriter()
 {
   this->GeometryFilename = NULL;
@@ -37,27 +38,8 @@ vlBYUWriter::~vlBYUWriter()
   if ( this->TextureFilename ) delete [] this->TextureFilename;
 }
 
-void vlBYUWriter::PrintSelf(ostream& os, vlIndent indent)
-{
-  if (this->ShouldIPrint(vlBYUWriter::GetClassName()))
-    {
-    this->PrintWatchOn(); // watch for multiple inheritance
-
-    vlPolyFilter::PrintSelf(os,indent);
-    vlWriter::PrintSelf(os,indent);
-
-    os << indent << "Geometry Filename: " << this->GeometryFilename << "\n";
-    os << indent << "Write Displacement: " << (this->WriteDisplacement ? "On\n" : "Off\n");
-    os << indent << "Displacement Filename: " << this->DisplacementFilename << "\n";
-    os << indent << "Write Scalar: " << (this->WriteScalar ? "On\n" : "Off\n");
-    os << indent << "Scalar Filename: " << this->ScalarFilename << "\n";
-    os << indent << "Write Texture: " << (this->WriteTexture ? "On\n" : "Off\n");
-    os << indent << "Texture Filename: " << this->TextureFilename << "\n";
-
-    this->PrintWatchOff(); // stop worrying about it now
-    }
-}
-
+// Description:
+// Write out data in MOVIE.BYU format.
 void vlBYUWriter::Write()
 {
   FILE *geomFp;
@@ -217,3 +199,25 @@ void vlBYUWriter::WriteTextureFile(int numPts)
 
   vlDebugMacro(<<"Wrote " << numPts << " texture coordinates");
 }
+
+void vlBYUWriter::PrintSelf(ostream& os, vlIndent indent)
+{
+  if (this->ShouldIPrint(vlBYUWriter::GetClassName()))
+    {
+    this->PrintWatchOn(); // watch for multiple inheritance
+
+    vlPolyFilter::PrintSelf(os,indent);
+    vlWriter::PrintSelf(os,indent);
+
+    os << indent << "Geometry Filename: " << this->GeometryFilename << "\n";
+    os << indent << "Write Displacement: " << (this->WriteDisplacement ? "On\n" : "Off\n");
+    os << indent << "Displacement Filename: " << this->DisplacementFilename << "\n";
+    os << indent << "Write Scalar: " << (this->WriteScalar ? "On\n" : "Off\n");
+    os << indent << "Scalar Filename: " << this->ScalarFilename << "\n";
+    os << indent << "Write Texture: " << (this->WriteTexture ? "On\n" : "Off\n");
+    os << indent << "Texture Filename: " << this->TextureFilename << "\n";
+
+    this->PrintWatchOff(); // stop worrying about it now
+    }
+}
+

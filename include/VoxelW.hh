@@ -13,6 +13,11 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
+// .NAME vlVoxelWriter - write out 0/1 voxel data from vlVoxelModeller
+// .SECTION Description
+// vlVoxelWriter writes a binary 0/1 voxel file. vlVoxelWriter writes only
+// structured points data.
+
 #ifndef __vlVoxelWriter_h
 #define __vlVoxelWriter_h
 
@@ -28,6 +33,8 @@ public:
   char *GetClassName() {return "vlVoxelWriter";};
   void PrintSelf(ostream& os, vlIndent indent);
 
+  // Description:
+  // Specify name of file to write.
   vlSetStringMacro(Filename);
   vlGetStringMacro(Filename);
 

@@ -26,21 +26,8 @@ vlVoxelWriter::~vlVoxelWriter()
   if ( this->Filename ) delete [] this->Filename;
 }
 
-void vlVoxelWriter::PrintSelf(ostream& os, vlIndent indent)
-{
-  if (this->ShouldIPrint(vlVoxelWriter::GetClassName()))
-    {
-    this->PrintWatchOn(); // watch for multiple inheritance
-
-    vlStructuredPointsFilter::PrintSelf(os,indent);
-    vlWriter::PrintSelf(os,indent);
-
-    os << indent << "Filename: " << this->Filename << "\n";
-    this->PrintWatchOff(); // stop worrying about it now
-    }
-}
-
-
+// Description:
+// Write voxel data out.
 void vlVoxelWriter::Write()
 {
   FILE *fp;
@@ -114,4 +101,19 @@ void vlVoxelWriter::Write()
 
   fclose(fp);
 }
+
+void vlVoxelWriter::PrintSelf(ostream& os, vlIndent indent)
+{
+  if (this->ShouldIPrint(vlVoxelWriter::GetClassName()))
+    {
+    this->PrintWatchOn(); // watch for multiple inheritance
+
+    vlStructuredPointsFilter::PrintSelf(os,indent);
+    vlWriter::PrintSelf(os,indent);
+
+    os << indent << "Filename: " << this->Filename << "\n";
+    this->PrintWatchOff(); // stop worrying about it now
+    }
+}
+
 
