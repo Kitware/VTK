@@ -33,7 +33,7 @@
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.210");
+vtkCxxRevisionMacro(vtkRenderer, "1.211");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -218,7 +218,7 @@ void vtkRenderer::Render(void)
   this->PropArrayCount = 0;
   vtkCollectionSimpleIterator pit;
   for ( this->Props->InitTraversal(pit); 
-        aProp = this->Props->GetNextProp(pit); )
+        (aProp = this->Props->GetNextProp(pit)); )
     {
     if ( aProp->GetVisibility() )
       {
