@@ -118,6 +118,12 @@ public:
 
   // Description:
   // Add an array to the end of the array list, and set the name
+  // return the new array index. if array with given name
+  // already exists - overwrites it
+  int AddReplaceArray(vtkDataArray *array, char *name);
+
+  // Description:
+  // Add an array to the end of the array list, and set the name
   // return the new array index. returns -1 if array with given name
   // already exists and does not overwrite it
   int AddNoReplaceArray(vtkDataArray *array, char *name);

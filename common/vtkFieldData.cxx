@@ -308,7 +308,7 @@ vtkDataArray *vtkFieldData::GetArray(int i)
 int vtkFieldData::GetNumberOfComponents()
 {
   int i, numComp;
-  
+
   for ( i=numComp=0; i < this->NumberOfArrays; i++ )
     {
     if ( this->Data[i] != NULL )
@@ -324,7 +324,7 @@ int vtkFieldData::GetNumberOfComponents()
 int vtkFieldData::GetNumberOfTuples()
 {
   int i, numTuples = 0;
-  
+
   for ( i=0; i < this->NumberOfArrays; i++ )
     {
     if ( this->Data[i] != NULL )
@@ -450,7 +450,7 @@ void vtkFieldData::InsertComponent(const int i, const int j, const float c)
 void vtkFieldData::DeepCopy(vtkFieldData *f)
 {
   vtkDataArray *data, *newData;
-  
+
   this->SetNumberOfArrays(f->GetNumberOfArrays());
 
   for ( int i=0; i < this->NumberOfArrays; i++ )
@@ -496,7 +496,7 @@ void vtkFieldData::Squeeze()
 void vtkFieldData::Reset()
 {
   int i;
-  
+
   for ( i=0; i < this->NumberOfArrays; i++ )
     {
     if ( this->Data[i] != NULL )
@@ -506,7 +506,7 @@ void vtkFieldData::Reset()
     }
 }
 
-// Get a field from a list of ids. Supplied field f should have same types 
+// Get a field from a list of ids. Supplied field f should have same types
 // and number of data arrays as this one (i.e., like MakeObject() returns).
 void vtkFieldData::GetField(vtkIdList *ptIds, vtkFieldData *f)
 {
@@ -520,15 +520,15 @@ void vtkFieldData::GetField(vtkIdList *ptIds, vtkFieldData *f)
 
 void vtkFieldData::SetArrayName(int i, char *name)
 {
-  if ( i < 0 ) 
+  if ( i < 0 )
     {
     i = 0;
     }
-  else if (i >= this->NumberOfArrays) 
+  else if (i >= this->NumberOfArrays)
     {
     this->SetNumberOfArrays(i+1);
     }
-  
+
   if (this->ArrayNames == NULL)
     {
     this->ArrayNames = new char *[this->NumberOfArrays+1];
@@ -537,18 +537,18 @@ void vtkFieldData::SetArrayName(int i, char *name)
       this->ArrayNames[j] = NULL;
       }
     }
-  
+
   if ( this->ArrayNames[i] != NULL )
     {
     delete [] this->ArrayNames[i];
     }
-  
+
   if (name != NULL)
     {
     this->ArrayNames[i] = new char[strlen(name)+1];
     strcpy(this->ArrayNames[i],name);
     }
-  else 
+  else
     {
     this->ArrayNames[i] = NULL;
     }
@@ -628,6 +628,22 @@ int vtkFieldData::AddArray(vtkDataArray *array, char *name)
   int n = this->AddArray(array);
   this->SetArrayName(n,name);
   return n;
+}
+
+int vtkFieldData::AddReplaceArray(vtkDataArray *array, char *name)
+{
+    int index;
+    vtkDataArray *oldarray = this->GetArray(name, index);
+    if (index==-1)
+    {
+      index = this->AddArray(array, name);
+    }
+    else
+    {
+      this->SetArray(index, array);
+      this->SetArrayName(index, name);
+    }
+    return index;
 }
 
 int vtkFieldData::AddNoReplaceArray(vtkDataArray *array, char *name)
