@@ -56,6 +56,9 @@ medical2: medical2.o ${VTKLIB}
 medical3: medical3.o ${VTKLIB}
 	${CXX} -o medical3 ${CXX_FLAGS} medical3.o ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+sweptMac: sweptMac.o ${VTKLIB}
+	${CXX} -o sweptMac ${CXX_FLAGS} sweptMac.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 
 #------------------------------------------------------------------------------
 
