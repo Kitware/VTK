@@ -148,7 +148,7 @@ int Test(ostream& strm)
 }
 
 
-int main()
+int otherColorTransferFunction(int, char *[])
 {
   vtkDebugLeaks::PromptUserOff();
 
