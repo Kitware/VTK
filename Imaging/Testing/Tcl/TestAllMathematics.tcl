@@ -14,6 +14,7 @@ sphere1 SetRadius 30 30 0
 sphere1 SetInValue .75
 sphere1 SetOutValue .3
 sphere1 SetOutputScalarTypeToFloat
+sphere1 SetWholeExtent 0 99 0 74 0 0
 
 vtkImageEllipsoidSource sphere2
 sphere2 SetCenter 60 30 0
@@ -21,6 +22,7 @@ sphere2 SetRadius 20 20 20
 sphere2 SetInValue .2
 sphere2 SetOutValue .5
 sphere2 SetOutputScalarTypeToFloat
+sphere2 SetWholeExtent 0 99 0 74 0 0
 
 set mathematics "\
 Add \
