@@ -90,7 +90,8 @@ void Test(ostream& strm)
   float *fData = new float[128];
   double *dData = new double[128];
 
-  for (int k = 0; k < 128; k++)
+  int k;
+  for (k = 0; k < 128; k++)
     {
     *(cData+k) = static_cast<char>(static_cast<float>(k)/255.0);
     *(ucData+k) = static_cast<unsigned char>(static_cast<float>(k)/255.0);
