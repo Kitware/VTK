@@ -95,6 +95,11 @@ vtkPointSet             GetPoint                301 3
 vtkPoints               GetBounds               301 6
 vtkPoints               GetPoint                301 3
 vtkPolyDataMapper       GetBounds               301 6
+vtkPolygon              FitEllipse              301 6
+vtkPolygon              ConvertEllipseToImplicit 301 5
+vtkPolyLine             FitEllipse              301 6
+vtkPolyLine             ConvertEllipseToImplicit 301 5
+vtkPolyLine             EllipseToImplicit       301 3
 vtkProjectedPolyDataRayBounder GetRayBounds     301 2
 vtkProp3D               GetBounds               301 6
 vtkProp3D               GetCenter               301 3

@@ -53,6 +53,7 @@ IF (VTK_USE_RENDERING)
       extractUGrid
       ExtractTensors
       extractVectors
+      FitEllipse
       geomFilter
       glyph2D
       hull
@@ -142,6 +143,7 @@ IF (VTK_USE_RENDERING)
       Delaunay2DTransform
       Disk
       extractPolyData
+      FitEllipse
       glyph2D
       Hyper
       KlineBottle
