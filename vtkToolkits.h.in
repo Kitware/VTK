@@ -8,12 +8,18 @@
 /* what rendering libraries to use */
 #cmakedefine OPENGL_LIBRARY
 #ifdef OPENGL_LIBRARY
-#ifndef _WIN32
-  #define VTK_USE_OGLR 
-#endif
+ #ifndef _WIN32
+   #define VTK_USE_OGLR 
+ #endif
 #endif
 
-#cmakedefine VTK_USE_MESA 
+#cmakedefine VTK_MANGLE_MESA 
+#ifdef VTK_MANGLE_MESA
+ #ifndef _WIN32
+   #define VTK_USE_OGLR 
+ #endif
+#endif
+
 #cmakedefine VTK_USE_QUARTZ
 
 /* use MPI */
