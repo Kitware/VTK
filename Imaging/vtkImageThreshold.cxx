@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkImageProgressIterator.h"
 
-vtkCxxRevisionMacro(vtkImageThreshold, "1.39");
+vtkCxxRevisionMacro(vtkImageThreshold, "1.40");
 vtkStandardNewMacro(vtkImageThreshold);
 
 //----------------------------------------------------------------------------
@@ -134,57 +134,72 @@ void vtkImageThresholdExecute(vtkImageThreshold *self,
   IT temp;
   
   // Make sure the thresholds are valid for the input scalar range
-  if (self->GetLowerThreshold() < (float) inData->GetScalarTypeMin())
+  if (static_cast<double>(self->GetLowerThreshold()) < inData->GetScalarTypeMin())
     {
     lowerThreshold = (IT) inData->GetScalarTypeMin();
     }
-  else if (self->GetLowerThreshold() > (float) inData->GetScalarTypeMax())
+  else 
     {
-    lowerThreshold = (IT) inData->GetScalarTypeMax();
+    if (static_cast<double>(self->GetLowerThreshold()) >
+        inData->GetScalarTypeMax())
+      {
+      lowerThreshold = (IT) inData->GetScalarTypeMax();
+      }
+    else
+      {
+      lowerThreshold = (IT) self->GetLowerThreshold();
+      }
     }
-  else
-    {
-    lowerThreshold = (IT) self->GetLowerThreshold();
-    }
-  if (self->GetUpperThreshold() > (float) inData->GetScalarTypeMax())
+  if (static_cast<double>(self->GetUpperThreshold())
+      > inData->GetScalarTypeMax())
     {
     upperThreshold = (IT) inData->GetScalarTypeMax();
     }
-  else if (self->GetUpperThreshold() < (float) inData->GetScalarTypeMin())
+  else 
     {
-    upperThreshold = (IT) inData->GetScalarTypeMin();
+    if (static_cast<double>(self->GetUpperThreshold())
+        < inData->GetScalarTypeMin())
+      {
+      upperThreshold = (IT) inData->GetScalarTypeMin();
+      }
+    else
+      {
+      upperThreshold = (IT) self->GetUpperThreshold();
+      }
     }
-  else
-    {
-    upperThreshold = (IT) self->GetUpperThreshold();
-    }
-
+  
   // Make sure the replacement values are within the output scalar range
-  if (self->GetInValue() < (float) outData->GetScalarTypeMin())
+  if (static_cast<double>(self->GetInValue()) < outData->GetScalarTypeMin())
     {
     inValue = (OT) outData->GetScalarTypeMin();
     }
-  else if (self->GetInValue() > (float) outData->GetScalarTypeMax())
+  else 
     {
-    inValue = (OT) outData->GetScalarTypeMax();
+    if (static_cast<double>(self->GetInValue()) > outData->GetScalarTypeMax())
+      {
+      inValue = (OT) outData->GetScalarTypeMax();
+      }
+    else
+      {
+      inValue = (OT) self->GetInValue();
+      }
     }
-  else
-    {
-    inValue = (OT) self->GetInValue();
-    }
-  if (self->GetOutValue() > (float) outData->GetScalarTypeMax())
+  if (static_cast<double>(self->GetOutValue()) > outData->GetScalarTypeMax())
     {
     outValue = (OT) outData->GetScalarTypeMax();
     }
-  else if (self->GetOutValue() < (float) outData->GetScalarTypeMin())
+  else 
     {
-    outValue = (OT) outData->GetScalarTypeMin();
+    if (static_cast<double>(self->GetOutValue()) < outData->GetScalarTypeMin())
+      {
+      outValue = (OT) outData->GetScalarTypeMin();
+      }
+    else
+      {
+      outValue = (OT) self->GetOutValue();
+      }
     }
-  else
-    {
-    outValue = (OT) self->GetOutValue();
-    }
-
+  
   // Loop through output pixels
   while (!outIt.IsAtEnd())
     {
