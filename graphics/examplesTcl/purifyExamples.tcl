@@ -18,7 +18,7 @@ set noTest {
    rtExamples.tcl polyViewer.tcl KeyFrame.tcl cameraKey.tcl timing.tcl 
    Decimate.tcl connPineRoot.tcl aniIso.tcl deciHawa.tcl 
    deciPineRoot.tcl deleted.tcl mcTest.tcl viewMCubesFile.tcl
-   volTkInteractor.tcl spikeColor.tcl tkwin.tcl 3dsToRIB.tcl
+   volTkInteractor.tcl spikeColor.tcl tkwin.tcl 
    purifyExamples.tcl 
 
    genHead.tcl genPineRoot.tcl headBone.tcl pineRoot.tcl hawaii.tcl

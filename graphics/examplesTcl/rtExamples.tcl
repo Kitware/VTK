@@ -56,7 +56,7 @@ set noTest {
     rtExamples.tcl polyViewer.tcl KeyFrame.tcl cameraKey.tcl timing.tcl 
     Decimate.tcl connPineRoot.tcl deciHawa.tcl 
     deciPineRoot.tcl deleted.tcl mcTest.tcl viewMCubesFile.tcl
-    volTkInteractor.tcl spikeColor.tcl tkwin.tcl 3dsToRIB.tcl backdrop.tcl
+    volTkInteractor.tcl spikeColor.tcl tkwin.tcl backdrop.tcl
     ShotNoiseInclude.tcl TestFeatureAnd.tcl TestHistogram.tcl 
     TestHistogramEqualization.tcl TestMIPFilter.tcl
     TestSubsample3D.tcl
