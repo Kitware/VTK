@@ -20,7 +20,7 @@
 
 #include "math.h"
 
-vtkCxxRevisionMacro(vtkGridTransform, "1.20.2.1");
+vtkCxxRevisionMacro(vtkGridTransform, "1.20.2.2");
 vtkStandardNewMacro(vtkGridTransform);
 
 vtkCxxSetObjectMacro(vtkGridTransform,DisplacementGrid,vtkImageData);
@@ -1182,6 +1182,7 @@ void vtkGridTransform::InternalUpdate()
       grid->GetScalarType() != VTK_UNSIGNED_CHAR &&
       grid->GetScalarType() != VTK_SHORT &&
       grid->GetScalarType() != VTK_UNSIGNED_SHORT &&
+      grid->GetScalarType() != VTK_FLOAT &&
       grid->GetScalarType() != VTK_DOUBLE)
     {
     vtkErrorMacro(<< "TransformPoint: displacement grid is of unsupported numerical type");
