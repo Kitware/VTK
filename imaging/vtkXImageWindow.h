@@ -164,8 +164,6 @@ protected:
   int                  VisualClass;
   Colormap             ColorMap;
   GC                   Gc;
-  Pixmap               IconPixmap;
-  XEvent               report;
   int	               Offset;
   XColor               Colors[256];
   int                  NumberOfColors;
