@@ -72,6 +72,8 @@ class vtkUnstructuredGrid;
 class vtkOTMesh;
 class vtkCellArray;
 class vtkMemoryPool;
+class vtkIdList;
+class vtkPoints;
 
 class VTK_COMMON_EXPORT vtkOrderedTriangulator : public vtkObject
 {
@@ -128,7 +130,7 @@ public:
 
   // Description:
   // Tells the triangulator that a second sort id is provided
-  // for each point and should also be considered when sorting
+  // for each point and should also be considered when sorting.
   vtkSetMacro(UseTwoSortIds,int);
   vtkGetMacro(UseTwoSortIds,int);
   vtkBooleanMacro(UseTwoSortIds,int);
@@ -163,6 +165,12 @@ public:
   // classified "outside." The method returns the number of tetrahedron
   // of the type requested.    
   vtkIdType AddTetras(int classification, vtkCellArray *connectivity);
+  
+  // Description:
+  // Add the tetrahedra classified (0=inside,1=outside) to the list
+  // of ids and coordinates provided. These assume that the first four points
+  // form a tetrahedron, the next four the next, and so on.
+  vtkIdType AddTetras(int classification, vtkIdList *ptIds, vtkPoints *pts);
   
   // Description:
   // Add the triangle faces classified (2=boundary) to the connectivity

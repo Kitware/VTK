@@ -21,7 +21,7 @@
 #include "vtkEdgeTable.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.36");
+vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.37");
 vtkStandardNewMacro(vtkOrderedTriangulator);
 
 #ifdef _WIN32_WCE
@@ -1099,6 +1099,36 @@ vtkIdType vtkOrderedTriangulator::AddTetras(int classification,
 
   return numTetras;
 }
+
+vtkIdType vtkOrderedTriangulator::AddTetras(int classification, 
+                                            vtkIdList *ptIds, 
+                                            vtkPoints *pts)
+{
+  vtkOTLinkedList<vtkOTTetra*>::Iterator tptr;
+  vtkOTTetra::TetraClassification type; //inside, outside
+  vtkIdType numTetras=0;
+  int i;
+
+  // loop over all tetras getting the ones with the classification requested
+  for (tptr=this->Mesh->Tetras.Begin(); 
+       tptr != this->Mesh->Tetras.End(); ++tptr)
+    {
+    type = (*tptr)->GetType();
+
+    if ( type == classification || classification == vtkOTTetra::All)
+      {
+      numTetras++;
+      for (i=0; i<4; i++)
+        {
+        ptIds->InsertNextId((*tptr)->Points[i]->Id);
+        pts->InsertNextPoint((*tptr)->Points[i]->X);
+        }
+      }
+    }//for all tetras
+
+  return numTetras;
+}
+
 
 vtkIdType vtkOrderedTriangulator::AddTetras(int classification, 
                                             vtkUnstructuredGrid *ugrid)
