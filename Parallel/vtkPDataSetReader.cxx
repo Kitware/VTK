@@ -31,7 +31,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSource.h"
 
-vtkCxxRevisionMacro(vtkPDataSetReader, "1.16");
+vtkCxxRevisionMacro(vtkPDataSetReader, "1.17");
 vtkStandardNewMacro(vtkPDataSetReader);
 
 //----------------------------------------------------------------------------
@@ -846,7 +846,7 @@ void vtkPDataSetReader::SkipFieldData(ifstream *file)
   // Read the number of arrays specified
   for (i=0; i<numArrays; i++)
     {
-    long length;
+    long length=0;
     char buffer[256];
     *file >> buffer; 
     *file >> numComp;
