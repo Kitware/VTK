@@ -689,14 +689,11 @@ VTK_PREPARE_CMAKEDEFINE("" JAVA_AWT_INCLUDE_PATH VTK_USE_JAWT)
 #-----------------------------------------------------------------------------
 # Configure the Tk library for vtkRendering.
 IF(VTK_USE_RENDERING)
-  IF(VTK_WRAP_TCL)
+  IF(VTK_WRAP_TCL OR VTK_WRAP_PYTHON)
     SET(VTK_INCLUDE_NEED_TK 1)
     SET(VTK_DISABLE_TK_INIT ${VTK_USE_COCOA} CACHE INTERNAL
-          "Disables the automatic initialization of Tk widgets when loading the rendering library.")
-  ENDIF(VTK_WRAP_TCL)
-  IF(VTK_WRAP_PYTHON)
-    SET(VTK_INCLUDE_NEED_TK 1)
-  ENDIF(VTK_WRAP_PYTHON)
+        "Disables the automatic initialization of Tk widgets when loading the rendering library.")
+  ENDIF(VTK_WRAP_TCL OR VTK_WRAP_PYTHON)
 ENDIF(VTK_USE_RENDERING)
 
 IF(VTK_INCLUDE_NEED_TK)
