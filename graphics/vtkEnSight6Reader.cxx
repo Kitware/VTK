@@ -1901,7 +1901,7 @@ int vtkEnSight6Reader::CreateStructuredGridOutput(int partId,
   int i, j;
   vtkPoints *points = vtkPoints::New();
   float point[3];
-  int numPts, numLines, moreCoords;
+  int numPts, numLines, moreCoords, moreBlanking;
   float coords[6];
   int iblanks[10];
   
@@ -2010,6 +2010,7 @@ int vtkEnSight6Reader::CreateStructuredGridOutput(int partId,
     }
   
   numLines = numPts / 10;
+  moreBlanking = numPts % 10;
   ((vtkStructuredGrid*)this->GetOutput(partId))->SetPoints(points);
   if (iblanked)
     {
@@ -2026,6 +2027,23 @@ int vtkEnSight6Reader::CreateStructuredGridOutput(int partId,
           {
           ((vtkStructuredGrid*)this->GetOutput(partId))->BlankPoint(i*numLines+j);
           }
+        }
+      }
+    if (moreBlanking != 0)
+      {
+      this->ReadNextDataLine(line);
+      strcpy(formatLine, "");
+      strcpy(tempLine, "");
+      for (j = 0; j < moreBlanking; j++)
+        {
+        strcat(formatLine, " %d");
+        sscanf(line, formatLine, &iblanks[j]);
+        if (!iblanks[j])
+          {
+          ((vtkStructuredGrid*)this->GetOutput(partId))->BlankPoint(i*numLines+j);
+          }
+        strcat(tempLine, " %*d");
+        strcpy(formatLine, tempLine);
         }
       }
     }
