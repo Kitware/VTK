@@ -84,6 +84,39 @@ void vtkImageTwoOutputFilter::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
+void vtkImageTwoOutputFilter::SetFilteredAxes(int num, int *axes)
+{
+  int idx;
+  int modified = 0;
+  
+  if (num > 4)
+    {
+    vtkWarningMacro("SetFilteredAxes: Too many axes");
+    num = 4;
+    }
+  
+  for (idx = 0; idx < num; ++idx)
+    {
+    if (this->FilteredAxes[idx] != axes[idx])
+      {
+      modified = 1;
+      this->FilteredAxes[idx] = axes[idx];
+      }
+    }
+  if (num != this->NumberOfFilteredAxes)
+    {
+    modified = 1;
+    this->NumberOfFilteredAxes = num;
+    }
+  
+  if (modified)
+    {
+    this->Modified();
+    this->SetExecutionAxes(num, this->FilteredAxes);
+    }
+}
+
+//----------------------------------------------------------------------------
 // Description:
 // This Method returns the MTime of the pipeline upto and including this filter
 // Note: current implementation may create a cascade of GetPipelineMTime calls.
