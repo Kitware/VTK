@@ -17,7 +17,7 @@
 #include "vtkFunctionSet.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkRungeKutta4, "1.12");
+vtkCxxRevisionMacro(vtkRungeKutta4, "1.13");
 vtkStandardNewMacro(vtkRungeKutta4);
 
 vtkRungeKutta4::vtkRungeKutta4() 
@@ -49,7 +49,7 @@ void vtkRungeKutta4::Initialize()
   for(int i=0; i<3; i++)
     {
     this->NextDerivs[i] = 
-      new float[this->FunctionSet->GetNumberOfFunctions()];
+      new double[this->FunctionSet->GetNumberOfFunctions()];
     }
 }
   
@@ -58,9 +58,9 @@ void vtkRungeKutta4::Initialize()
 // Press et al. (Cambridge University Press) or
 // Applied Numerical Analysis by C. F. Gerald and P. O. Wheatley
 // (Addison Wesley)
-int vtkRungeKutta4::ComputeNextStep(float* xprev, float* dxprev, float* xnext, 
-                                    float t, float& delT, float& delTActual,
-                                    float, float, float, float& error)
+int vtkRungeKutta4::ComputeNextStep(double* xprev, double* dxprev, double* xnext, 
+                                    double t, double& delT, double& delTActual,
+                                    double, double, double, double& error)
 {
 
   int i, numDerivs, numVals;

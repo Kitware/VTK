@@ -31,7 +31,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkVertex.h"
 
-vtkCxxRevisionMacro(vtkPolyData, "1.155");
+vtkCxxRevisionMacro(vtkPolyData, "1.156");
 vtkStandardNewMacro(vtkPolyData);
 
 //----------------------------------------------------------------------------
@@ -310,7 +310,7 @@ void vtkPolyData::GetCell(vtkIdType cellId, vtkGenericCell *cell)
   vtkIdType       *pts=0;
   vtkIdType       numPts;
   unsigned char   type;
-  float           x[3];
+  double           x[3];
 
   if ( !this->Cells )
     {
@@ -392,7 +392,7 @@ void vtkPolyData::CopyCells(vtkPolyData *pd, vtkIdList *idList,
   vtkIdList *pointMap = vtkIdList::New(); //maps old pt ids into new
   vtkIdList *cellPts, *newCellPts = vtkIdList::New();
   vtkGenericCell *cell = vtkGenericCell::New();
-  float x[3];
+  double x[3];
   vtkPointData *outPD = this->GetPointData();
   vtkCellData *outCD = this->GetCellData();
   
@@ -459,12 +459,12 @@ void vtkPolyData::CopyCells(vtkPolyData *pd, vtkIdList *idList,
 //----------------------------------------------------------------------------
 // Fast implementation of GetCellBounds().  Bounds are calculated without
 // constructing a cell.
-void vtkPolyData::GetCellBounds(vtkIdType cellId, float bounds[6])
+void vtkPolyData::GetCellBounds(vtkIdType cellId, double bounds[6])
 {
   int i, loc;
   vtkIdType *pts, numPts;
   unsigned char type;
-  float x[3];
+  double x[3];
 
   if ( !this->Cells )
     {
@@ -502,8 +502,8 @@ void vtkPolyData::GetCellBounds(vtkIdType cellId, float bounds[6])
       return;
     }
 
-  bounds[0] = bounds[2] = bounds[4] =  VTK_LARGE_FLOAT;
-  bounds[1] = bounds[3] = bounds[5] = -VTK_LARGE_FLOAT;
+  bounds[0] = bounds[2] = bounds[4] =  VTK_DOUBLE_MAX;
+  bounds[1] = bounds[3] = bounds[5] = -VTK_DOUBLE_MAX;
 
   for (i=0; i < numPts; i++)
     {
@@ -553,10 +553,10 @@ void vtkPolyData::ComputeBounds()
     int t, i;
     vtkIdType *pts = 0;
     vtkIdType npts = 0;
-    float x[3];
+    double x[3];
 
-    this->Bounds[0] = this->Bounds[2] = this->Bounds[4] =  VTK_LARGE_FLOAT;
-    this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_LARGE_FLOAT;
+    this->Bounds[0] = this->Bounds[2] = this->Bounds[4] =  VTK_DOUBLE_MAX;
+    this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_DOUBLE_MAX;
 
     vtkCellArray *cella[4];
 
@@ -1157,28 +1157,28 @@ void vtkPolyData::Allocate(vtkPolyData *inPolyData, vtkIdType numCells,
   if ( numVerts > 0 )
     {
     cells = vtkCellArray::New();
-    cells->Allocate((int)((float)numVerts/total*numCells),extSize);
+    cells->Allocate((int)((double)numVerts/total*numCells),extSize);
     this->SetVerts(cells);
     cells->Delete();
     }
   if ( numLines > 0 )
     {
     cells = vtkCellArray::New();
-    cells->Allocate((int)((float)numLines/total*numCells),extSize);
+    cells->Allocate((int)((double)numLines/total*numCells),extSize);
     this->SetLines(cells);
     cells->Delete();
     }
   if ( numPolys > 0 )
     {
     cells = vtkCellArray::New();
-    cells->Allocate((int)((float)numPolys/total*numCells),extSize);
+    cells->Allocate((int)((double)numPolys/total*numCells),extSize);
     this->SetPolys(cells);
     cells->Delete();
     }
   if ( numStrips > 0 )
     {
     cells = vtkCellArray::New();
-    cells->Allocate((int)((float)numStrips/total*numCells),extSize);
+    cells->Allocate((int)((double)numStrips/total*numCells),extSize);
     this->SetStrips(cells);
     cells->Delete();
     }
@@ -1407,7 +1407,7 @@ int vtkPolyData::InsertNextLinkedPoint(int numLinks)
 // built). This method adds the point and then allocates memory for the
 // links to the cells.  (To use this method, make sure points are available
 // and BuildLinks() has been invoked.)
-int vtkPolyData::InsertNextLinkedPoint(float x[3], int numLinks)
+int vtkPolyData::InsertNextLinkedPoint(double x[3], int numLinks)
 {
   this->Links->InsertNextPoint(numLinks);
   return this->Points->InsertNextPoint(x);

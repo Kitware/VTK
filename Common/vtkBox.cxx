@@ -16,7 +16,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkBox, "1.3");
+vtkCxxRevisionMacro(vtkBox, "1.4");
 vtkStandardNewMacro(vtkBox);
 
 // Construct the box centered at the origin and each side length 1.0.
@@ -32,9 +32,9 @@ vtkBox::vtkBox()
 }
 
 // Set the bounds in various ways
-void vtkBox::SetBounds(float xMin, float xMax,
-                       float yMin, float yMax,
-                       float zMin, float zMax)
+void vtkBox::SetBounds(double xMin, double xMax,
+                       double yMin, double yMax,
+                       double zMin, double zMax)
 {
   if ( this->XMin[0] != xMin || this->XMax[0] != xMax || 
        this->XMin[1] != yMin || this->XMax[1] != yMax || 
@@ -57,15 +57,15 @@ void vtkBox::SetBounds(float xMin, float xMax,
     }
 }
 
-void vtkBox::SetBounds(float bounds[6])
+void vtkBox::SetBounds(double bounds[6])
 {
   this->SetBounds(bounds[0],bounds[1], bounds[2],bounds[3], 
                   bounds[4],bounds[5]);
 }
 
-void vtkBox::GetBounds(float &xMin, float &xMax,
-                       float &yMin, float &yMax,
-                       float &zMin, float &zMax)
+void vtkBox::GetBounds(double &xMin, double &xMax,
+                       double &yMin, double &yMax,
+                       double &zMin, double &zMax)
 {
   xMin = this->XMin[0];
   yMin = this->XMin[1];
@@ -75,7 +75,7 @@ void vtkBox::GetBounds(float &xMin, float &xMax,
   zMax = this->XMax[2];
 }
 
-void vtkBox::GetBounds(float bounds[6])
+void vtkBox::GetBounds(double bounds[6])
 {
   for (int i=0; i<3; i++)
     {
@@ -86,9 +86,9 @@ void vtkBox::GetBounds(float bounds[6])
 
 // Evaluate box equation. This differs from the similar vtkPlanes
 // (with six planes) because of the "rounded" nature of the corners.
-float vtkBox::EvaluateFunction(float x[3])
+double vtkBox::EvaluateFunction(double x[3])
 {
-  float diff, dist, minDistance=(-VTK_LARGE_FLOAT), t, distance=0.0;
+  double diff, dist, minDistance=(-VTK_DOUBLE_MAX), t, distance=0.0;
   int inside=1;
   for (int i=0; i<3; i++)
     {
@@ -148,11 +148,11 @@ float vtkBox::EvaluateFunction(float x[3])
 }
 
 // Evaluate box gradient.
-void vtkBox::EvaluateGradient(float x[3], float n[3])
+void vtkBox::EvaluateGradient(double x[3], double n[3])
 {
   int i, loc[3], minAxis=0;
-  float dist, minDist=VTK_LARGE_FLOAT, center[3];
-  float inDir[3], outDir[3];
+  double dist, minDist=VTK_DOUBLE_MAX, center[3];
+  double inDir[3], outDir[3];
   
   // Compute the location of the point with respect to the box.
   // Ultimately the point will lie in one of 27 separate regions around
@@ -251,13 +251,13 @@ void vtkBox::EvaluateGradient(float x[3], float n[3])
 // directions, coord[3] is the location of hit, and t is the parametric
 // coordinate along line. (Notes: the intersection ray dir[3] is NOT
 // normalized.  Valid intersections will only occur between 0<=t<=1.)
-char vtkBox::IntersectBox (float bounds[6], float origin[3], float dir[3], 
-                           float coord[3], float& t)
+char vtkBox::IntersectBox (double bounds[6], double origin[3], double dir[3], 
+                           double coord[3], double& t)
 {
   char    inside=1;
   char    quadrant[3];
   int     i, whichPlane=0;
-  float   maxT[3], candidatePlane[3];
+  double  maxT[3], candidatePlane[3];
 
   //  First find closest planes
   //

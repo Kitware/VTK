@@ -17,12 +17,13 @@
 #include "vtkMarchingSquaresCases.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkCell, "1.61");
+vtkCxxRevisionMacro(vtkCell, "1.62");
 
 // Construct cell.
 vtkCell::vtkCell()
 {
   this->Points = vtkPoints::New();
+  this->Points->SetDataTypeToDouble();
   this->PointIds = vtkIdList::New();
   // Consistent Register/Deletes (ShallowCopy uses Register.)
   this->Points->Register(this);
@@ -68,127 +69,15 @@ void vtkCell::DeepCopy(vtkCell *c)
   this->PointIds->DeepCopy(c->PointIds);
 }
 
-#define VTK_RIGHT 0
-#define VTK_LEFT 1
-#define VTK_MIDDLE 2
-
-// Bounding box intersection modified from Graphics Gems Vol I. The method
-// returns a non-zero value if the bounding box is hit. Origin[3] starts
-// the ray, dir[3] is the vector components of the ray in the x-y-z
-// directions, coord[3] is the location of hit, and t is the parametric
-// coordinate along line. (Notes: the intersection ray dir[3] is NOT
-// normalized.  Valid intersections will only occur between 0<=t<=1.)
-char vtkCell::HitBBox (float bounds[6], float origin[3], float dir[3], 
-                      float coord[3], float& t)
-{
-  vtkGenericWarningMacro(<<"vtkCell::HitBBox() is obsolete. Use vtkBox::IntersectBox() instead. This method will be removed in future versions.");
-
-  char    inside=1;
-  char    quadrant[3];
-  int     i, whichPlane=0;
-  float   maxT[3], candidatePlane[3];
-
-  //  First find closest planes
-  //
-  for (i=0; i<3; i++) 
-    {
-    if ( origin[i] < bounds[2*i] ) 
-      {
-      quadrant[i] = VTK_LEFT;
-      candidatePlane[i] = bounds[2*i];
-      inside = 0;
-      }
-    else if ( origin[i] > bounds[2*i+1] ) 
-      {
-      quadrant[i] = VTK_RIGHT;
-      candidatePlane[i] = bounds[2*i+1];
-      inside = 0;
-      }
-    else 
-      {
-      quadrant[i] = VTK_MIDDLE;
-      }
-    }
-
-  //  Check whether origin of ray is inside bbox
-  //
-  if (inside) 
-    {
-    coord[0] = origin[0];
-    coord[1] = origin[1];
-    coord[2] = origin[2];
-    t = 0;
-    return 1;
-    }
-  
-  //  Calculate parametric distances to plane
-  //
-  for (i=0; i<3; i++)
-    {
-    if ( quadrant[i] != VTK_MIDDLE && dir[i] != 0.0 )
-      {
-      maxT[i] = (candidatePlane[i]-origin[i]) / dir[i];
-      }
-    else
-      {
-      maxT[i] = -1.0;
-      }
-    }
-
-  //  Find the largest parametric value of intersection
-  //
-  for (i=0; i<3; i++)
-    {
-    if ( maxT[whichPlane] < maxT[i] )
-      {
-      whichPlane = i;
-      }
-    }
-
-  //  Check for valid intersection along line
-  //
-  if ( maxT[whichPlane] > 1.0 || maxT[whichPlane] < 0.0 )
-    {
-    return 0;
-    }
-  else
-    {
-    t = maxT[whichPlane];
-    }
-
-  //  Intersection point along line is okay.  Check bbox.
-  //
-  for (i=0; i<3; i++) 
-    {
-    if (whichPlane != i) 
-      {
-      coord[i] = origin[i] + maxT[whichPlane]*dir[i];
-      if ( coord[i] < bounds[2*i] || coord[i] > bounds[2*i+1] )
-        {
-        return 0;
-        }
-      } 
-    else 
-      {
-      coord[i] = candidatePlane[i];
-      }
-    }
-
-    return 1;
-}
-#undef VTK_RIGHT 
-#undef VTK_LEFT
-#undef VTK_MIDDLE
-
 // Compute cell bounding box (xmin,xmax,ymin,ymax,zmin,zmax). Return pointer
-// to array of six float values.
-float *vtkCell::GetBounds ()
+// to array of six double values.
+double *vtkCell::GetBounds ()
 {
-  float x[3];
+  double x[3];
   int i, numPts=this->Points->GetNumberOfPoints();
 
-  this->Bounds[0] = this->Bounds[2] = this->Bounds[4] =  VTK_LARGE_FLOAT;
-  this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_LARGE_FLOAT;
+  this->Bounds[0] = this->Bounds[2] = this->Bounds[4] =  VTK_DOUBLE_MAX;
+  this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_DOUBLE_MAX;
 
   for (i=0; i<numPts; i++)
     {
@@ -207,7 +96,7 @@ float *vtkCell::GetBounds ()
 
 // Compute cell bounding box (xmin,xmax,ymin,ymax,zmin,zmax). Copy result into
 // user provided array.
-void vtkCell::GetBounds(float bounds[6])
+void vtkCell::GetBounds(double bounds[6])
 {
   this->GetBounds();
   for (int i=0; i < 6; i++)
@@ -217,7 +106,7 @@ void vtkCell::GetBounds(float bounds[6])
 }
 
 // Compute Length squared of cell (i.e., bounding box diagonal squared).
-float vtkCell::GetLength2 ()
+double vtkCell::GetLength2 ()
 {
   double diff, l=0.0;
   int i;
@@ -228,11 +117,11 @@ float vtkCell::GetLength2 ()
     diff = this->Bounds[2*i+1] - this->Bounds[2*i];
     l += diff * diff;
     }
-  if(l > VTK_LARGE_FLOAT)
+  if(l > VTK_DOUBLE_MAX)
     {
-    return VTK_LARGE_FLOAT;
+    return VTK_DOUBLE_MAX;
     }
-  return static_cast<float>(l);
+  return l;
 }
 
 // Return center of the cell in parametric coordinates.
@@ -240,7 +129,7 @@ float vtkCell::GetLength2 ()
 // at (0.5,0.5,0.5). The return value is the subId that
 // the center is in (if a composite cell). If you want the
 // center in x-y-z space, invoke the EvaluateLocation() method.
-int vtkCell::GetParametricCenter(float pcoords[3])
+int vtkCell::GetParametricCenter(double pcoords[3])
 {
   pcoords[0] = pcoords[1] = pcoords[2] = 0.5;
   return 0;
@@ -248,10 +137,10 @@ int vtkCell::GetParametricCenter(float pcoords[3])
 
 // This method works fine for all "rectangular" cells, not triangular
 // and tetrahedral topologies.
-float vtkCell::GetParametricDistance(float pcoords[3])
+double vtkCell::GetParametricDistance(double pcoords[3])
 {
   int i;
-  float pDist, pDistMax=0.0f;
+  double pDist, pDistMax=0.0f;
 
   for (i=0; i<3; i++)
     {
@@ -286,7 +175,7 @@ void vtkCell::PrintSelf(ostream& os, vtkIndent indent)
 
   if ( numIds > 0 )
     {
-    float *bounds=this->GetBounds();
+    double *bounds=this->GetBounds();
 
     os << indent << "Bounds: \n";
     os << indent << "  Xmin,Xmax: (" << bounds[0] << ", " << bounds[1] << ")\n";
@@ -340,7 +229,7 @@ vtkMarchingSquaresLineCases* vtkMarchingSquaresLineCases::GetCases()
 }
 
 // Usually overridden. Only composite cells do not override this.
-float *vtkCell::GetParametricCoords()
+double *vtkCell::GetParametricCoords()
 {
-  return static_cast<float*>(NULL);
+  return static_cast<double*>(NULL);
 }

@@ -46,7 +46,7 @@ public:
   class Item
   {
   public:
-    float priority;
+    double priority;
     vtkIdType id;
   };
   //ETX
@@ -65,7 +65,7 @@ public:
   // Description:
   // Insert id with priority specified. The id is generally an
   // index like a point id or cell id.
-  void Insert(float priority, vtkIdType id);
+  void Insert(double priority, vtkIdType id);
 
   // Description:
   // Removes item at specified location from tree; then reorders and
@@ -73,7 +73,7 @@ public:
   // is exhausted, then a value < 0 is returned. (Note: the location
   // is not the same as deleting an id; id is mapped to location.)
 //BTX
-  vtkIdType Pop(vtkIdType location, float &priority);
+  vtkIdType Pop(vtkIdType location, double &priority);
 //ETX    
 
   // Description:
@@ -85,7 +85,7 @@ public:
   // Peek into the queue without actually removing anything. Returns the
   // id and the priority.
 //BTX
-  vtkIdType Peek(vtkIdType location, float &priority);
+  vtkIdType Peek(vtkIdType location, double &priority);
 //ETX    
   
   // Description:
@@ -95,13 +95,13 @@ public:
 
   // Description:
   // Delete entry in queue with specified id. Returns priority value
-  // associated with that id; or VTK_LARGE_FLOAT if not in queue.
-  float DeleteId(vtkIdType id);
+  // associated with that id; or VTK_LARGE_DOUBLE if not in queue.
+  double DeleteId(vtkIdType id);
 
   // Description:
   // Get the priority of an entry in the queue with specified id. Returns
-  // priority value of that id or VTK_LARGE_FLOAT if not in queue.
-  float GetPriority(vtkIdType id);
+  // priority value of that id or VTK_LARGE_DOUBLE if not in queue.
+  double GetPriority(vtkIdType id);
 
   // Description:
   // Return the number of items in this queue.
@@ -128,9 +128,9 @@ private:
   void operator=(const vtkPriorityQueue&);  // Not implemented.
 };
 
-inline float vtkPriorityQueue::DeleteId(vtkIdType id)
+inline double vtkPriorityQueue::DeleteId(vtkIdType id)
 {
-  float priority=VTK_LARGE_FLOAT;
+  double priority=VTK_DOUBLE_MAX;
   int loc;
 
   if ( id <= this->ItemLocation->GetMaxId() &&  
@@ -141,7 +141,7 @@ inline float vtkPriorityQueue::DeleteId(vtkIdType id)
   return priority;
 }
 
-inline float vtkPriorityQueue::GetPriority(vtkIdType id)
+inline double vtkPriorityQueue::GetPriority(vtkIdType id)
 {
   int loc;
 
@@ -150,10 +150,10 @@ inline float vtkPriorityQueue::GetPriority(vtkIdType id)
     {
     return this->Array[loc].priority;
     }
-  return VTK_LARGE_FLOAT;
+  return VTK_DOUBLE_MAX;
 }
 
-inline vtkIdType vtkPriorityQueue::Peek(vtkIdType location, float &priority)
+inline vtkIdType vtkPriorityQueue::Peek(vtkIdType location, double &priority)
 {
   if ( this->MaxId < 0 )
     {

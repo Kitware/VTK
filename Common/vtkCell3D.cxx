@@ -22,9 +22,9 @@
 #include "vtkTetra.h"
 #include "vtkPoints.h"
 #include "vtkCellArray.h"
-#include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
 
-vtkCxxRevisionMacro(vtkCell3D, "1.41");
+vtkCxxRevisionMacro(vtkCell3D, "1.42");
 
 vtkCell3D::vtkCell3D()
 {
@@ -50,7 +50,7 @@ vtkCell3D::~vtkCell3D()
     }
 }
 
-void vtkCell3D::Clip(float value, vtkDataArray *cellScalars, 
+void vtkCell3D::Clip(double value, vtkDataArray *cellScalars, 
                      vtkPointLocator *locator, vtkCellArray *tets,
                      vtkPointData *inPD, vtkPointData *outPD,
                      vtkCellData *inCD, vtkIdType cellId,
@@ -64,7 +64,7 @@ void vtkCell3D::Clip(float value, vtkDataArray *cellScalars,
   int type;
   vtkIdType id, ptId;
   vtkIdType internalId[VTK_CELL_SIZE];
-  float s1, s2, x[3], t, p1[3], p2[3], deltaScalar;
+  double s1, s2, x[3], t, p1[3], p2[3], deltaScalar;
   int allInside=1, allOutside=1;
   
   // Create a triangulator if necessary.
@@ -74,7 +74,7 @@ void vtkCell3D::Clip(float value, vtkDataArray *cellScalars,
     this->Triangulator->PreSortedOff();
     this->Triangulator->UseTemplatesOn();
     this->ClipTetra = vtkTetra::New();
-    this->ClipScalars = vtkFloatArray::New();
+    this->ClipScalars = vtkDoubleArray::New();
     this->ClipScalars->SetNumberOfTuples(4);
     }
 
@@ -104,7 +104,7 @@ void vtkCell3D::Clip(float value, vtkDataArray *cellScalars,
                                         (numPts + numEdges));
 
   // Cells with fixed topology are triangulated with templates.
-  float *p, *pPtr = this->GetParametricCoords();
+  double *p, *pPtr = this->GetParametricCoords();
   if ( this->IsPrimaryCell() )
     {
     // Some cell types support templates for interior clipping. Templates
@@ -184,7 +184,7 @@ void vtkCell3D::Clip(float value, vtkDataArray *cellScalars,
   // intersections come from clipping value. Have to be careful of 
   // intersections near exisiting points (causes bad Delaunay behavior).
   // Intersections near existing points are collapsed to existing point.
-  float pc[3], *pc1, *pc2;
+  double pc[3], *pc1, *pc2;
   for (int edgeNum=0; edgeNum < numEdges; edgeNum++)
     {
     cell3D->GetEdgePoints(edgeNum, verts);

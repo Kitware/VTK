@@ -22,14 +22,14 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkHeap.h"
 #include "vtkDataArray.h"
-#include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
 
 #include <vtkstd/list>
 #include <vtkstd/vector>
 #include <vtkstd/stack>
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.67");
+vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.68");
 vtkStandardNewMacro(vtkOrderedTriangulator);
 
 #ifdef _WIN32_WCE
@@ -322,12 +322,12 @@ vtkOrderedTriangulator::~vtkOrderedTriangulator()
 }
 
 //------------------------------------------------------------------------
-void vtkOrderedTriangulator::InitTriangulation(float xmin, float xmax,
-                                               float ymin, float ymax,
-                                               float zmin, float zmax,
+void vtkOrderedTriangulator::InitTriangulation(double xmin, double xmax,
+                                               double ymin, double ymax,
+                                               double zmin, double zmax,
                                                int numPts)
 {
-  float bounds[6];
+  double bounds[6];
   bounds[0] = xmin;
   bounds[1] = xmax;
   bounds[2] = ymin;
@@ -341,7 +341,7 @@ void vtkOrderedTriangulator::InitTriangulation(float xmin, float xmax,
 }
 
 //------------------------------------------------------------------------
-void vtkOrderedTriangulator::InitTriangulation(float bounds[6], int numPts)
+void vtkOrderedTriangulator::InitTriangulation(double bounds[6], int numPts)
 {
   this->Heap->Reset();
   this->Mesh->Reset();
@@ -367,7 +367,7 @@ void vtkOrderedTriangulator::Initialize()
   // Set up the internal data structures. Space for six extra points
   // is allocated for the bounding triangulation.
   int numPts = this->MaximumNumberOfPoints;
-  float *bounds=this->Bounds;
+  double *bounds=this->Bounds;
   
   // Create the initial Delaunay triangulation which is a
   // bounding octahedron: 6 points & 4 tetra.
@@ -479,8 +479,8 @@ void vtkOrderedTriangulator::Initialize()
 
 //------------------------------------------------------------------------
 // Add a point to the list of points to be triangulated.
-vtkIdType vtkOrderedTriangulator::InsertPoint(vtkIdType id, float x[3],
-                                              float p[3], int type)
+vtkIdType vtkOrderedTriangulator::InsertPoint(vtkIdType id, double x[3],
+                                              double p[3], int type)
 {
   vtkIdType idx = this->NumberOfPoints++;
   if ( idx > this->MaximumNumberOfPoints )
@@ -508,7 +508,7 @@ vtkIdType vtkOrderedTriangulator::InsertPoint(vtkIdType id, float x[3],
 //------------------------------------------------------------------------
 // Add a point to the list of points to be triangulated.
 vtkIdType vtkOrderedTriangulator::InsertPoint(vtkIdType id, vtkIdType sortid,
-                                              float x[3], float p[3], int type)
+                                              double x[3], double p[3], int type)
 {
   vtkIdType idx = this->NumberOfPoints++;
   if ( idx > this->MaximumNumberOfPoints )
@@ -537,7 +537,7 @@ vtkIdType vtkOrderedTriangulator::InsertPoint(vtkIdType id, vtkIdType sortid,
 // Add a point to the list of points to be triangulated.
 vtkIdType vtkOrderedTriangulator::InsertPoint(vtkIdType id, vtkIdType sortid,
                                               vtkIdType sortid2,
-                                              float x[3], float p[3], int type)
+                                              double x[3], double p[3], int type)
 {
   vtkIdType idx = this->NumberOfPoints++;
   if ( idx > this->MaximumNumberOfPoints )
@@ -979,7 +979,7 @@ void vtkOTMesh::DumpInsertionCavity(double x[3])
 
   //write out points
   int numFaces = (int)this->CavityFaces.size();
-  cout << "POINTS " << 3*numFaces+1 << " float\n";
+  cout << "POINTS " << 3*numFaces+1 << " double\n";
   
   for (fptr=this->CavityFaces.begin(); 
        fptr != this->CavityFaces.end(); ++fptr)
@@ -1033,7 +1033,7 @@ vtkOTMesh::WalkToTetra(OTTetra *tetra, double x[3], int depth, double bc[4])
                               tetra->Points[2]->P, tetra->Points[3]->P, bc);
 
   // find the most negative face
-  for ( negValue=VTK_LARGE_FLOAT, numNeg=j=0; j<4; j++ )
+  for ( negValue=VTK_DOUBLE_MAX, numNeg=j=0; j<4; j++ )
     {
     if ( bc[j] < -0.000001 ) //if close enough that's okay
       {
@@ -1295,7 +1295,8 @@ void vtkOrderedTriangulator::InitTetraTraversal()
 // Retrieve a single tetra. Used in conjunction with InitTetraTraversal().
 // Returns 0 when the list is exhausted.
 int vtkOrderedTriangulator::GetNextTetra(int classification, vtkTetra *tet,
-                            vtkDataArray *cellScalars,vtkFloatArray *tetScalars)
+                                         vtkDataArray *cellScalars,
+                                         vtkDoubleArray *tetScalars)
 {
   OTTetra *tetra;
   int i;
@@ -1316,7 +1317,9 @@ int vtkOrderedTriangulator::GetNextTetra(int classification, vtkTetra *tet,
       {
       tet->PointIds->SetId(i,tetra->Points[i]->Id);
       tet->Points->SetPoint(i,tetra->Points[i]->X);
-      tetScalars->SetTuple(i,cellScalars->GetTuple(tetra->Points[i]->OriginalId));
+      tetScalars->SetTuple(i,
+                           cellScalars->GetTuple(
+                             tetra->Points[i]->OriginalId));
       }
     ++this->Mesh->CurrentTetra;
     return 1;

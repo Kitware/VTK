@@ -92,6 +92,10 @@ public:
   vtkSetVector3Macro(Value,float);
   vtkGetVector3Macro(Value,float);
   void SetValue(float a, float b) { this->SetValue(a,b,0.0);}
+  void SetValue(double a, double b) {
+    this->SetValue((float)a,(float)b); }
+  void SetValue(double *a) {
+    this->SetValue((float)a[0],(float)a[1],(float)a[2]); }
   
   // Description:
   // If this coordinate is relative to another coordinate,

@@ -57,21 +57,21 @@ public:
   // Standard vtkDataSet API methods. See vtkDataSet for more information.
   vtkIdType GetNumberOfCells();
   vtkIdType GetNumberOfPoints();
-  float *GetPoint(vtkIdType ptId);
-  void GetPoint(vtkIdType id, float x[3]);
+  double *GetPoint(vtkIdType ptId);
+  void GetPoint(vtkIdType id, double x[3]);
   vtkCell *GetCell(vtkIdType cellId);
   void GetCell(vtkIdType cellId, vtkGenericCell *cell);
-  void GetCellBounds(vtkIdType cellId, float bounds[6]);
-  vtkIdType FindPoint(float x, float y, float z) { return this->vtkDataSet::FindPoint(x, y, z);};
-  vtkIdType FindPoint(float x[3]);
-  vtkIdType FindCell(float x[3], vtkCell *cell, vtkIdType cellId, float tol2, 
-                     int& subId, float pcoords[3], float *weights);
-  vtkIdType FindCell(float x[3], vtkCell *cell, vtkGenericCell *gencell,
-                     vtkIdType cellId, float tol2, int& subId, 
-                     float pcoords[3], float *weights);
-  vtkCell *FindAndGetCell(float x[3], vtkCell *cell, vtkIdType cellId, 
-                          float tol2, int& subId, float pcoords[3],
-                          float *weights);
+  void GetCellBounds(vtkIdType cellId, double bounds[6]);
+  vtkIdType FindPoint(double x, double y, double z) { return this->vtkDataSet::FindPoint(x, y, z);};
+  vtkIdType FindPoint(double x[3]);
+  vtkIdType FindCell(double x[3], vtkCell *cell, vtkIdType cellId, double tol2, 
+                     int& subId, double pcoords[3], double *weights);
+  vtkIdType FindCell(double x[3], vtkCell *cell, vtkGenericCell *gencell,
+                     vtkIdType cellId, double tol2, int& subId, 
+                     double pcoords[3], double *weights);
+  vtkCell *FindAndGetCell(double x[3], vtkCell *cell, vtkIdType cellId, 
+                          double tol2, int& subId, double pcoords[3],
+                          double *weights);
   int GetCellType(vtkIdType cellId);
   void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds)
     {vtkStructuredData::GetCellPoints(cellId,ptIds,this->DataDescription,
@@ -100,7 +100,7 @@ public:
   // The voxel is specified by the array ijk[3], and the parametric coordinates
   // in the cell are specified with pcoords[3]. The function returns a 0 if the
   // point x is outside of the volume, and a 1 if inside the volume.
-  int ComputeStructuredCoordinates(float x[3], int ijk[3], float pcoords[3]);
+  int ComputeStructuredCoordinates(double x[3], int ijk[3], double pcoords[3]);
   
   // Description:
   // Given structured coordinates (i,j,k) for a voxel cell, compute the eight 
@@ -117,7 +117,7 @@ public:
   // dataset, compute the gradient vector from the scalar data at that point. 
   // The scalars s are the scalars from which the gradient is to be computed.
   // This method will treat structured point datasets of any dimension.
-  void GetPointGradient(int i, int j, int k, vtkDataArray *s, float g[3]);
+  void GetPointGradient(int i, int j, int k, vtkDataArray *s, double g[3]);
 
   // Description:
   // Return the dimensionality of the data.
@@ -207,8 +207,8 @@ public:
 
   // Description:
   // For access to data from tcl
-  float GetScalarComponentAsFloat(int x, int y, int z, int component);
-  void SetScalarComponentFromFloat(int x, int y, int z, int component, float v);
+  double GetScalarComponentAsDouble(int x, int y, int z, int component);
+  void SetScalarComponentFromDouble(int x, int y, int z, int component, double v);
   
   // Description:
   // Allocate the vtkScalars object associated with this object.
@@ -243,17 +243,17 @@ public:
   // Description:
   // Set the spacing (width,height,length) of the cubical cells that
   // compose the data set.
-  vtkSetVector3Macro(Spacing,float);
-  vtkGetVector3Macro(Spacing,float);
+  vtkSetVector3Macro(Spacing,double);
+  vtkGetVector3Macro(Spacing,double);
   
   // Description:
   // Set the origin of the data. The origin plus spacing determine the
   // position in space of the points.
-  vtkSetVector3Macro(Origin,float);
-  vtkGetVector3Macro(Origin,float);
+  vtkSetVector3Macro(Origin,double);
+  vtkGetVector3Macro(Origin,double);
   
   // Description:
-  // Set/Get the data scalar type (i.e VTK_FLOAT).
+  // Set/Get the data scalar type (i.e VTK_DOUBLE).
   void SetScalarTypeToFloat(){this->SetScalarType(VTK_FLOAT);};
   void SetScalarTypeToDouble(){this->SetScalarType(VTK_DOUBLE);};
   void SetScalarTypeToInt(){this->SetScalarType(VTK_INT);};
@@ -337,8 +337,8 @@ protected:
   int DataDescription;
   int Increments[3];
 
-  float Origin[3];
-  float Spacing[3];
+  double Origin[3];
+  double Spacing[3];
   int ScalarType;
   int NumberOfScalarComponents;
 
@@ -352,9 +352,9 @@ private:
 };
 
 
-inline void vtkImageData::GetPoint(vtkIdType id, float x[3])
+inline void vtkImageData::GetPoint(vtkIdType id, double x[3])
 {
-  float *p=this->GetPoint(id);
+  double *p=this->GetPoint(id);
   x[0] = p[0]; x[1] = p[1]; x[2] = p[2];
 }
 

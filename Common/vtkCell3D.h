@@ -29,7 +29,7 @@
 class vtkOrderedTriangulator;
 class vtkTetra;
 class vtkCellArray;
-class vtkFloatArray;
+class vtkDoubleArray;
 
 class VTK_COMMON_EXPORT vtkCell3D : public vtkCell
 {
@@ -64,7 +64,7 @@ public:
   // generated contouring primitives. (Note: the CopyAllocate() method must
   // be invoked on both the output cell and point data. The cellId refers to
   // the cell from which the cell data is copied.)  (Satisfies vtkCell API.)
-  virtual void Clip(float value, vtkDataArray *cellScalars, 
+  virtual void Clip(double value, vtkDataArray *cellScalars, 
                     vtkPointLocator *locator, vtkCellArray *connectivity,
                     vtkPointData *inPd, vtkPointData *outPd,
                     vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd, 
@@ -78,19 +78,19 @@ public:
   // Set the tolerance for merging clip intersection points that are near
   // the vertices of cells. This tolerance is used to prevent the generation
   // of degenerate tetrahedra during clipping.
-  vtkSetClampMacro(MergeTolerance,float,0.0001,0.25);
-  vtkGetMacro(MergeTolerance,float);
+  vtkSetClampMacro(MergeTolerance,double,0.0001,0.25);
+  vtkGetMacro(MergeTolerance,double);
 
 protected:
   vtkCell3D();
   ~vtkCell3D();
   
   vtkOrderedTriangulator *Triangulator;
-  float                   MergeTolerance;
+  double                  MergeTolerance;
 
   //used to support clipping
   vtkTetra               *ClipTetra;
-  vtkFloatArray          *ClipScalars;
+  vtkDoubleArray         *ClipScalars;
 
 private:
   vtkCell3D(const vtkCell3D&);  // Not implemented.

@@ -29,7 +29,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataSetAttributes, "1.70");
+vtkCxxRevisionMacro(vtkDataSetAttributes, "1.71");
 vtkStandardNewMacro(vtkDataSetAttributes);
 
 //--------------------------------------------------------------------------
@@ -552,6 +552,22 @@ void vtkDataSetAttributes::InterpolateAllocate(vtkDataSetAttributes* pd,
 void vtkDataSetAttributes::InterpolatePoint(vtkDataSetAttributes *fromPd, 
                                             vtkIdType toId, vtkIdList *ptIds, 
                                             float *weights)
+{
+  int i;
+  for(i=this->RequiredArrays.BeginIndex(); !this->RequiredArrays.End(); 
+      i=this->RequiredArrays.NextIndex())
+    {
+    this->InterpolateTuple(fromPd->Data[i], 
+                           this->Data[this->TargetIndices[i]], 
+                           toId, ptIds, weights);
+    }
+}
+
+// Interpolate data from points and interpolation weights. Make sure that the 
+// method InterpolateAllocate() has been invoked before using this method.
+void vtkDataSetAttributes::InterpolatePoint(vtkDataSetAttributes *fromPd, 
+                                            vtkIdType toId, vtkIdList *ptIds, 
+                                            double *weights)
 {
   int i;
   for(i=this->RequiredArrays.BeginIndex(); !this->RequiredArrays.End(); 
@@ -1288,6 +1304,550 @@ void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *fromData1,
         {
         ii = idx + i;
         c = (float)from1[ii] + t * (float)(from2[ii] - from1[ii]);
+        *to++ = (vtkIdType) c;
+        }
+      }
+      break;
+
+    default:
+      vtkErrorMacro(<<"Unsupported data type during interpolation!");
+    }
+}
+
+// double versions
+void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *fromData, 
+                                            vtkDataArray *toData, 
+                                            vtkIdType toId, vtkIdList *ptIds, 
+                                            double *weights)
+{
+  int numComp=fromData->GetNumberOfComponents(), i;
+  vtkIdType j, numIds=ptIds->GetNumberOfIds();
+  vtkIdType *ids=ptIds->GetPointer(0);
+  vtkIdType idx=toId*numComp;
+  double c;
+  
+  switch (fromData->GetDataType())
+    {
+    case VTK_BIT:
+      {
+      vtkBitArray *from=(vtkBitArray *)fromData;
+      vtkBitArray *to=(vtkBitArray *)toData;
+      for (i=0; i<numComp; i++)
+        {
+        for (c=0, j=0; j<numIds; j++)
+          {
+          c += weights[j]*from->GetValue(ids[j]*numComp+i);
+          }
+        to->InsertValue(idx+i, (int)c);
+        }
+      }
+      break;
+
+    case VTK_CHAR:
+      {
+      char *from=((vtkCharArray *)fromData)->GetPointer(0);
+      char *to=((vtkCharArray *)toData)->WritePointer(idx,numComp);
+      for (i=0; i<numComp; i++)
+        {
+        for (c=0, j=0; j<numIds; j++)
+          {
+          c += weights[j]*from[ids[j]*numComp+i];
+          }
+        *to++ = (char) c;
+        }
+      }
+      break;
+
+    case VTK_UNSIGNED_CHAR:
+      {
+      unsigned char *to=((vtkUnsignedCharArray *)toData)->WritePointer(idx,numComp);
+      unsigned char *from=((vtkUnsignedCharArray *)fromData)->GetPointer(0);
+      for (i=0; i<numComp; i++)
+        {
+        for (c=0, j=0; j<numIds; j++)
+          {
+          c += weights[j]*from[ids[j]*numComp+i];
+          }
+        *to++ = (unsigned char) c;
+        }
+      }
+      break;
+
+    case VTK_SHORT:
+      {
+      short *to=((vtkShortArray *)toData)->WritePointer(idx,numComp);
+      short *from=((vtkShortArray *)fromData)->GetPointer(0);
+      for (i=0; i<numComp; i++)
+        {
+        for (c=0, j=0; j<numIds; j++)
+          {
+          c += weights[j]*from[ids[j]*numComp+i];
+          }
+        *to++ = (short) c;
+        }
+      }
+      break;
+
+    case VTK_UNSIGNED_SHORT:
+      {
+      unsigned short *to=((vtkUnsignedShortArray *)toData)->WritePointer(idx,numComp);
+      unsigned short *from=((vtkUnsignedShortArray *)fromData)->GetPointer(0);
+      for (i=0; i<numComp; i++)
+        {
+        for (c=0, j=0; j<numIds; j++)
+          {
+          c += weights[j]*from[ids[j]*numComp+i];
+          }
+        *to++ = (unsigned short) c;
+        }
+      }
+      break;
+
+    case VTK_INT:
+      {
+      int *to=((vtkIntArray *)toData)->WritePointer(idx,numComp);
+      int *from=((vtkIntArray *)fromData)->GetPointer(0);
+      for (i=0; i<numComp; i++)
+        {
+        for (c=0, j=0; j<numIds; j++)
+          {
+          c += weights[j]*from[ids[j]*numComp+i];
+          }
+        *to++ = (int) c;
+        }
+      }
+      break;
+
+    case VTK_UNSIGNED_INT:
+      {
+      unsigned int *to=((vtkUnsignedIntArray *)toData)->WritePointer(idx,numComp);
+      unsigned int *from=((vtkUnsignedIntArray *)fromData)->GetPointer(0);
+      for (i=0; i<numComp; i++)
+        {
+        for (c=0, j=0; j<numIds; j++)
+          {
+          c += weights[j]*from[ids[j]*numComp+i];
+          }
+        *to++ = (unsigned int) c;
+        }
+      }
+      break;
+
+    case VTK_LONG:
+      {
+      long *to=((vtkLongArray *)toData)->WritePointer(idx,numComp);
+      long *from=((vtkLongArray *)fromData)->GetPointer(0);
+      for (i=0; i<numComp; i++)
+        {
+        for (c=0, j=0; j<numIds; j++)
+          {
+          c += weights[j]*(double)from[ids[j]*numComp+i];
+          }
+        *to++ = (long) c;
+        }
+      }
+      break;
+
+    case VTK_UNSIGNED_LONG:
+      {
+      unsigned long *to=((vtkUnsignedLongArray *)toData)->WritePointer(idx,numComp);
+      unsigned long *from=((vtkUnsignedLongArray *)fromData)->GetPointer(0);
+      for (i=0; i<numComp; i++)
+        {
+        for (c=0, j=0; j<numIds; j++)
+          {
+          c += weights[j]*(double)from[ids[j]*numComp+i];
+          }
+        *to++ = (unsigned long) c;
+        }
+      }
+      break;
+
+    case VTK_FLOAT:
+      {
+      float *to=((vtkFloatArray *)toData)->WritePointer(idx,numComp);
+      float *from=((vtkFloatArray *)fromData)->GetPointer(0);
+      for (i=0; i<numComp; i++)
+        {
+        for (c=0.0, j=0; j<numIds; j++)
+          {
+          c += weights[j]*from[ids[j]*numComp+i];
+          }
+        *to++ = c;
+        }
+      }
+      break;
+
+    case VTK_DOUBLE:
+      {
+      double *to=((vtkDoubleArray *)toData)->WritePointer(idx,numComp);
+      double *from=((vtkDoubleArray *)fromData)->GetPointer(0);
+      for (i=0; i<numComp; i++)
+        {
+        for (c=0.0, j=0; j<numIds; j++)
+          {
+          c += weights[j]*from[ids[j]*numComp+i];
+          }
+        *to++ = (double) c;
+        }
+      }
+      break;
+
+    case VTK_ID_TYPE:
+      {
+      vtkIdType *to=((vtkIdTypeArray *)toData)->WritePointer(idx,numComp);
+      vtkIdType *from=((vtkIdTypeArray *)fromData)->GetPointer(0);
+      for (i=0; i<numComp; i++)
+        {
+        for (c=0, j=0; j<numIds; j++)
+          {
+          c += weights[j]*(double)from[ids[j]*numComp+i];
+          }
+        *to++ = (vtkIdType) c;
+        }
+      }
+      break;
+
+    default:
+      vtkErrorMacro(<<"Unsupported data type during copy!");
+    }
+}
+
+void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *fromData,
+                                            vtkDataArray *toData,
+                                            vtkIdType toId, vtkIdType id1,
+                                            vtkIdType id2, double t)
+{
+  int i, numComp=fromData->GetNumberOfComponents();
+  vtkIdType idx=toId*numComp;
+  vtkIdType idx1=id1*numComp, idx2=id2*numComp;
+  double c;
+  
+  switch (fromData->GetDataType())
+    {
+    case VTK_BIT:
+      {
+      vtkBitArray *from=(vtkBitArray *)fromData;
+      vtkBitArray *to=(vtkBitArray *)toData;
+      for (i=0; i<numComp; i++)
+        {
+        c = from->GetValue(idx1+i)+ t * (from->GetValue(idx2+i) - from->GetValue(idx1+i));
+        to->InsertValue(idx+i, (int)c);
+        }
+      }
+      break;
+
+    case VTK_CHAR:
+      {
+      char *to=((vtkCharArray *)toData)->WritePointer(idx,numComp);
+      char *from=((vtkCharArray *)fromData)->GetPointer(0);
+      for (i=0; i<numComp; i++)
+        {
+        c = from[idx1+i] + t * (from[idx2+i] - from[idx1+i]);
+        *to++ = (char) c;
+        }
+      }
+      break;
+
+    case VTK_UNSIGNED_CHAR:
+      {
+      unsigned char *to=((vtkUnsignedCharArray *)toData)->WritePointer(idx,numComp);
+      unsigned char *from=((vtkUnsignedCharArray *)fromData)->GetPointer(0);
+      for (i=0; i<numComp; i++)
+        {
+        c = from[idx1+i] + t * (from[idx2+i] - from[idx1+i]);
+        *to++ = (unsigned char) c;
+        }
+      }
+      break;
+
+    case VTK_SHORT:
+      {
+      short *to=((vtkShortArray *)toData)->WritePointer(idx,numComp);
+      short *from=((vtkShortArray *)fromData)->GetPointer(0);
+      for (i=0; i<numComp; i++)
+        {
+        c = from[idx1+i] + t * (from[idx2+i] - from[idx1+i]);
+        *to++ = (short) c;
+        }
+      }
+      break;
+
+    case VTK_UNSIGNED_SHORT:
+      {
+      unsigned short *to=((vtkUnsignedShortArray *)toData)->WritePointer(idx,numComp);
+      unsigned short *from=((vtkUnsignedShortArray *)fromData)->GetPointer(0);
+      for (i=0; i<numComp; i++)
+        {
+        c = from[idx1+i] + t * (from[idx2+i] - from[idx1+i]);
+        *to++ = (unsigned short) c;
+        }
+      }
+      break;
+
+    case VTK_INT:
+      {
+      int *to=((vtkIntArray *)toData)->WritePointer(idx,numComp);
+      int *from=((vtkIntArray *)fromData)->GetPointer(0);
+      for (i=0; i<numComp; i++)
+        {
+        c = from[idx1+i] + t * (from[idx2+i] - from[idx1+i]);
+        *to++ = (int) c;
+        }
+      }
+      break;
+
+    case VTK_UNSIGNED_INT:
+      {
+      unsigned int *to=((vtkUnsignedIntArray *)toData)->WritePointer(idx,numComp);
+      unsigned int *from=((vtkUnsignedIntArray *)fromData)->GetPointer(0);
+      for (i=0; i<numComp; i++)
+        {
+        c = from[idx1+i] + t * (from[idx2+i] - from[idx1+i]);
+        *to++ = (unsigned int) c;
+        }
+      }
+      break;
+
+    case VTK_LONG:
+      {
+      long *to=((vtkLongArray *)toData)->WritePointer(idx,numComp);
+      long *from=((vtkLongArray *)fromData)->GetPointer(0);
+      for (i=0; i<numComp; i++)
+        {
+        c = (double)from[idx1+i] + t * (double)(from[idx2+i] - from[idx1+i]);
+        *to++ = (long) c;
+        }
+      }
+      break;
+
+    case VTK_UNSIGNED_LONG:
+      {
+      unsigned long *to=((vtkUnsignedLongArray *)toData)->WritePointer(idx,numComp);
+      unsigned long *from=((vtkUnsignedLongArray *)fromData)->GetPointer(0);
+      for (i=0; i<numComp; i++)
+        {
+        c = (double)from[idx1+i] + t * (double)(from[idx2+i] - from[idx1+i]);
+        *to++ = (unsigned long) c;
+        }
+      }
+      break;
+
+    case VTK_FLOAT:
+      {
+      float *to=((vtkFloatArray *)toData)->WritePointer(idx,numComp);
+      float *from=((vtkFloatArray *)fromData)->GetPointer(0);
+      for (i=0; i<numComp; i++)
+        {
+        c = (1.0 - t) * from[idx1+i] + t * from[idx2+i];
+        *to++ = c;
+        }
+      }
+      break;
+
+    case VTK_DOUBLE:
+      {
+      double *to=((vtkDoubleArray *)toData)->WritePointer(idx,numComp);
+      double *from=((vtkDoubleArray *)fromData)->GetPointer(0);
+      for (i=0; i<numComp; i++)
+        {
+        c = (1.0 - t) * from[idx1+i] + t * from[idx2+i];
+        *to++ = (double) c;
+        }
+      }
+      break;
+
+    case VTK_ID_TYPE:
+      {
+      vtkIdType *to=((vtkIdTypeArray *)toData)->WritePointer(idx,numComp);
+      vtkIdType *from=((vtkIdTypeArray *)fromData)->GetPointer(0);
+      for (i=0; i<numComp; i++)
+        {
+        c = (double)from[idx1+i] + t * (double)(from[idx2+i] - from[idx1+i]);
+        *to++ = (vtkIdType) c;
+        }
+      }
+      break;
+
+    default:
+      vtkErrorMacro(<<"Unsupported data type during copy!");
+    }
+}
+
+void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *fromData1,
+                                            vtkDataArray *fromData2, 
+                                            vtkDataArray *toData, vtkIdType id,
+                                            double t)
+{
+  int i, numComp=fromData1->GetNumberOfComponents();
+  vtkIdType idx=id*numComp, ii;
+  double c;
+
+  switch (fromData1->GetDataType())
+    {
+    case VTK_BIT:
+      {
+      vtkBitArray *from1=(vtkBitArray *)fromData1;
+      vtkBitArray *from2=(vtkBitArray *)fromData2;
+      vtkBitArray *to=(vtkBitArray *)toData;
+      for (i=0; i<numComp; i++)
+        {
+        ii = idx + i;
+        c = from1->GetValue(ii)+ t * (from2->GetValue(ii) - from1->GetValue(ii));
+        to->InsertValue(ii, (int)c);
+        }
+      }
+      break;
+
+    case VTK_CHAR:
+      {
+      char *to=((vtkCharArray *)toData)->WritePointer(idx,numComp);
+      char *from1=((vtkCharArray *)fromData1)->GetPointer(0);
+      char *from2=((vtkCharArray *)fromData2)->GetPointer(0);
+      for (i=0; i<numComp; i++)
+        {
+        ii = idx + i;
+        c = from1[ii] + t * (from2[ii] - from1[ii]);
+        *to++ = (char) c;
+        }
+      }
+      break;
+
+    case VTK_UNSIGNED_CHAR:
+      {
+      unsigned char *to=((vtkUnsignedCharArray *)toData)->WritePointer(idx,numComp);
+      unsigned char *from1=((vtkUnsignedCharArray *)fromData1)->GetPointer(0);
+      unsigned char *from2=((vtkUnsignedCharArray *)fromData2)->GetPointer(0);
+      for (i=0; i<numComp; i++)
+        {
+        ii = idx + i;
+        c = from1[ii] + t * (from2[ii] - from1[ii]);
+        *to++ = (unsigned char) c;
+        }
+      }
+      break;
+
+    case VTK_SHORT:
+      {
+      short *to=((vtkShortArray *)toData)->WritePointer(idx,numComp);
+      short *from1=((vtkShortArray *)fromData1)->GetPointer(0);
+      short *from2=((vtkShortArray *)fromData2)->GetPointer(0);
+      for (i=0; i<numComp; i++)
+        {
+        ii = idx + i;
+        c = from1[ii] + t * (from2[ii] - from1[ii]);
+        *to++ = (short) c;
+        }
+      }
+      break;
+
+    case VTK_UNSIGNED_SHORT:
+      {
+      unsigned short *to=((vtkUnsignedShortArray *)toData)->WritePointer(idx,numComp);
+      unsigned short *from1=((vtkUnsignedShortArray *)fromData1)->GetPointer(0);
+      unsigned short *from2=((vtkUnsignedShortArray *)fromData2)->GetPointer(0);
+      for (i=0; i<numComp; i++)
+        {
+        ii = idx + i;
+        c = from1[ii] + t * (from2[ii] - from1[ii]);
+        *to++ = (unsigned short) c;
+        }
+      }
+      break;
+
+    case VTK_INT:
+      {
+      int *to=((vtkIntArray *)toData)->WritePointer(idx,numComp);
+      int *from1=((vtkIntArray *)fromData1)->GetPointer(0);
+      int *from2=((vtkIntArray *)fromData2)->GetPointer(0);
+      for (i=0; i<numComp; i++)
+        {
+        ii = idx + i;
+        c = from1[ii] + t * (from2[ii] - from1[ii]);
+        *to++ = (int) c;
+        }
+      }
+      break;
+
+    case VTK_UNSIGNED_INT:
+      {
+      unsigned int *to=((vtkUnsignedIntArray *)toData)->WritePointer(idx,numComp);
+      unsigned int *from1=((vtkUnsignedIntArray *)fromData1)->GetPointer(0);
+      unsigned int *from2=((vtkUnsignedIntArray *)fromData2)->GetPointer(0);
+      for (i=0; i<numComp; i++)
+        {
+        ii = idx + i;
+        c = from1[ii] + t * (from2[ii] - from1[ii]);
+        *to++ = (unsigned int) c;
+        }
+      }
+      break;
+
+    case VTK_LONG:
+      {
+      long *to=((vtkLongArray *)toData)->WritePointer(idx,numComp);
+      long *from1=((vtkLongArray *)fromData1)->GetPointer(0);
+      long *from2=((vtkLongArray *)fromData2)->GetPointer(0);
+      for (i=0; i<numComp; i++)
+        {
+        ii = idx + i;
+        c = (double)from1[ii] + t * (double)(from2[ii] - from1[ii]);
+        *to++ = (long) c;
+        }
+      }
+      break;
+
+    case VTK_UNSIGNED_LONG:
+      {
+      unsigned long *to=((vtkUnsignedLongArray *)toData)->WritePointer(idx,numComp);
+      unsigned long *from1=((vtkUnsignedLongArray *)fromData1)->GetPointer(0);
+      unsigned long *from2=((vtkUnsignedLongArray *)fromData2)->GetPointer(0);
+      for (i=0; i<numComp; i++)
+        {
+        ii = idx + i;
+        c = (double)from1[ii] + t * (double)(from2[ii] - from1[ii]);
+        *to++ = (unsigned long) c;
+        }
+      }
+      break;
+
+    case VTK_FLOAT:
+      {
+      float *to=((vtkFloatArray *)toData)->WritePointer(idx,numComp);
+      float *from1=((vtkFloatArray *)fromData1)->GetPointer(0);
+      float *from2=((vtkFloatArray *)fromData2)->GetPointer(0);
+      for (i=0; i<numComp; i++)
+        {
+        ii = idx + i;
+        c = (1.0 - t) * from1[ii] + t * from2[ii];
+        *to++ = c;
+        }
+      }
+      break;
+
+    case VTK_DOUBLE:
+      {
+      double *to=((vtkDoubleArray *)toData)->WritePointer(idx,numComp);
+      double *from1=((vtkDoubleArray *)fromData1)->GetPointer(0);
+      double *from2=((vtkDoubleArray *)fromData2)->GetPointer(0);
+      for (i=0; i<numComp; i++)
+        {
+        ii = idx + i;
+        c = (1.0 - t) * from1[ii] + t * from2[ii];
+        *to++ = (double) c;
+        }
+      }
+      break;
+
+    case VTK_ID_TYPE:
+      {
+      vtkIdType *to=((vtkIdTypeArray *)toData)->WritePointer(idx,numComp);
+      vtkIdType *from1=((vtkIdTypeArray *)fromData1)->GetPointer(0);
+      vtkIdType *from2=((vtkIdTypeArray *)fromData2)->GetPointer(0);
+      for (i=0; i<numComp; i++)
+        {
+        ii = idx + i;
+        c = (double)from1[ii] + t * (double)(from2[ii] - from1[ii]);
         *to++ = (vtkIdType) c;
         }
       }

@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkFunctionSet.h"
 
-vtkCxxRevisionMacro(vtkRungeKutta45, "1.10");
+vtkCxxRevisionMacro(vtkRungeKutta45, "1.11");
 vtkStandardNewMacro(vtkRungeKutta45);
 
 // Cash-Karp parameters
@@ -78,17 +78,17 @@ void vtkRungeKutta45::Initialize()
   for(int i=0; i<6; i++)
     {
     this->NextDerivs[i] = 
-      new float[this->FunctionSet->GetNumberOfFunctions()];
+      new double[this->FunctionSet->GetNumberOfFunctions()];
     }
 }
 
-int vtkRungeKutta45::ComputeNextStep(float* xprev, float* dxprev, 
-                                     float* xnext, float t, float& delT,
-                                     float& delTActual,
-                                     float minStep, float maxStep, 
-                                     float maxError, float& estErr )
+int vtkRungeKutta45::ComputeNextStep(double* xprev, double* dxprev, 
+                                     double* xnext, double t, double& delT,
+                                     double& delTActual,
+                                     double minStep, double maxStep, 
+                                     double maxError, double& estErr )
 {
-  estErr = VTK_LARGE_FLOAT;
+  estErr = VTK_DOUBLE_MAX;
 
   // Step size should always be positive. We'll check anyway.
   if (minStep < 0)
@@ -103,7 +103,7 @@ int vtkRungeKutta45::ComputeNextStep(float* xprev, float* dxprev,
   delTActual = delT;
 
   // No step size control if minStep == maxStep == delT
-  float absDT = fabs(delT);
+  double absDT = fabs(delT);
   if ( ((minStep == absDT) && (maxStep == absDT)) || 
        (maxError <= 0.0) )
     {
@@ -139,11 +139,11 @@ int vtkRungeKutta45::ComputeNextStep(float* xprev, float* dxprev,
     // 0.9 is a safety factor to prevent infinite loops (see reference)
     if ( errRatio > 1 )
       {
-      tmp = 0.9*delT*pow(errRatio, static_cast<double>(-0.25));
+      tmp = 0.9*delT*pow(errRatio, -0.25);
       }
     else
       {
-      tmp = 0.9*delT*pow(errRatio, static_cast<double>(-0.2));
+      tmp = 0.9*delT*pow(errRatio, -0.2);
       }
     tmp2 = fabs(tmp);
     
@@ -194,9 +194,9 @@ int vtkRungeKutta45::ComputeNextStep(float* xprev, float* dxprev,
 }
 
 // Calculate next time step
-int vtkRungeKutta45::ComputeAStep(float* xprev, float* dxprev, 
-                  float* xnext, float t, float& delT, 
-                  float& error)
+int vtkRungeKutta45::ComputeAStep(double* xprev, double* dxprev, 
+                  double* xnext, double t, double& delT, 
+                  double& error)
 {
   int i, j, k, numDerivs, numVals;
 
@@ -290,7 +290,7 @@ int vtkRungeKutta45::ComputeAStep(float* xprev, float* dxprev,
       }
     err += delT*sum*delT*sum;
     }
-  error = static_cast<float>(sqrt(err));
+  error = sqrt(err);
 
   int numZero = 0;
   for(i=0; i<numDerivs; i++)

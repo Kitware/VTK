@@ -30,7 +30,7 @@ vtkDataArrayTemplate<T>::vtkDataArrayTemplate(vtkIdType numComp):
 {
   this->Array = 0;
   this->TupleSize = 3;
-  this->Tuple = new float[this->TupleSize]; //used for conversion
+  this->Tuple = new double[this->TupleSize]; //used for conversion
   this->SaveUserArray = 0;
 }
 
@@ -286,30 +286,30 @@ void vtkDataArrayTemplate<T>::SetNumberOfTuples(vtkIdType number)
 // Get a pointer to a tuple at the ith location. This is a dangerous method
 // (it is not thread safe since a pointer is returned).
 template <class T>
-float* vtkDataArrayTemplate<T>::GetTuple(vtkIdType i)
+double* vtkDataArrayTemplate<T>::GetTuple(vtkIdType i)
 {
 #if 1
   if(this->TupleSize < this->NumberOfComponents)
     {
     this->TupleSize = this->NumberOfComponents;
     delete [] this->Tuple;
-    this->Tuple = new float[this->TupleSize];
+    this->Tuple = new double[this->TupleSize];
     }
 
   T* t = this->Array + this->NumberOfComponents*i;
   for(int j=0; j < this->NumberOfComponents; ++j)
     {
-    this->Tuple[j] = static_cast<float>(t[j]);
+    this->Tuple[j] = static_cast<double>(t[j]);
     }
   return this->Tuple;
 #else
   // Use this version along with purify or valgrind to detect code
   // that saves the pointer returned by GetTuple.
   T* t = this->Array + this->NumberOfComponents*i;
-  float* newTuple = new float[this->NumberOfComponents];
+  double* newTuple = new double[this->NumberOfComponents];
   for(int j=0; j < this->NumberOfComponents; ++j)
     {
-    newTuple[j] = static_cast<float>(t[j]);
+    newTuple[j] = static_cast<double>(t[j]);
     }
   delete [] this->Tuple;
   this->Tuple = newTuple;
@@ -319,16 +319,6 @@ float* vtkDataArrayTemplate<T>::GetTuple(vtkIdType i)
 
 //----------------------------------------------------------------------------
 // Copy the tuple value into a user-provided array.
-template <class T>
-void vtkDataArrayTemplate<T>::GetTuple(vtkIdType i, float* tuple)
-{
-  T* t = this->Array + this->NumberOfComponents*i;
-  for(int j=0; j < this->NumberOfComponents; ++j)
-    {
-    tuple[j] = static_cast<float>(t[j]);
-    }
-}
-
 template <class T>
 void vtkDataArrayTemplate<T>::GetTuple(vtkIdType i, double* tuple)
 {
@@ -420,9 +410,9 @@ vtkIdType vtkDataArrayTemplate<T>::InsertNextTuple(const double* tuple)
 // Return the data component at the ith tuple and jth component location.
 // Note that i<NumberOfTuples and j<NumberOfComponents.
 template <class T>
-float vtkDataArrayTemplate<T>::GetComponent(vtkIdType i, int j)
+double vtkDataArrayTemplate<T>::GetComponent(vtkIdType i, int j)
 {
-  return static_cast<float>(this->GetValue(i*this->NumberOfComponents + j));
+  return static_cast<double>(this->GetValue(i*this->NumberOfComponents + j));
 }
 
 //----------------------------------------------------------------------------
@@ -432,7 +422,7 @@ float vtkDataArrayTemplate<T>::GetComponent(vtkIdType i, int j)
 // SetNumberOfComponents()).
 template <class T>
 void vtkDataArrayTemplate<T>::SetComponent(vtkIdType i, int j,
-                                           float c)
+                                           double c)
 {
   this->SetValue(i*this->NumberOfComponents + j, static_cast<T>(c));
 }
@@ -440,7 +430,7 @@ void vtkDataArrayTemplate<T>::SetComponent(vtkIdType i, int j,
 //----------------------------------------------------------------------------
 template <class T>
 void vtkDataArrayTemplate<T>::InsertComponent(vtkIdType i, int j,
-                                              float c)
+                                              double c)
 {
   this->InsertValue(i*this->NumberOfComponents + j, static_cast<T>(c));
 }

@@ -49,37 +49,37 @@ public:
   // OutOfDomain = 1,
   // NotInitialized = 2,
   // UnexpectedValue = 3
-  virtual int ComputeNextStep(float* xprev, float* xnext, float t,
-                              float& delT, float maxError, float& error) 
+  virtual int ComputeNextStep(double* xprev, double* xnext, double t,
+                              double& delT, double maxError, double& error) 
     {
-      float minStep = delT;
-      float maxStep = delT;
-      float delTActual;
+      double minStep = delT;
+      double maxStep = delT;
+      double delTActual;
       return this->ComputeNextStep(xprev, 0, xnext, t, delT, delTActual,
                                    minStep, maxStep, maxError, error);
     }
-  virtual int ComputeNextStep(float* xprev, float* dxprev, float* xnext, 
-                              float t, float& delT, 
-                              float maxError, float& error)
+  virtual int ComputeNextStep(double* xprev, double* dxprev, double* xnext, 
+                              double t, double& delT, 
+                              double maxError, double& error)
     {
-      float minStep = delT;
-      float maxStep = delT;
-      float delTActual;
+      double minStep = delT;
+      double maxStep = delT;
+      double delTActual;
       return this->ComputeNextStep(xprev, dxprev, xnext, t, delT, delTActual,
                                    minStep, maxStep, maxError, error);
     }
-  virtual int ComputeNextStep(float* xprev, float* xnext, 
-                              float t, float& delT, float& delTActual,
-                              float minStep, float maxStep,
-                              float maxError, float& error)
+  virtual int ComputeNextStep(double* xprev, double* xnext, 
+                              double t, double& delT, double& delTActual,
+                              double minStep, double maxStep,
+                              double maxError, double& error)
     {
       return this->ComputeNextStep(xprev, 0, xnext, t, delT, delTActual,
                                    minStep, maxStep, maxError, error);
     }
-  virtual int ComputeNextStep(float* xprev, float* dxprev, float* xnext, 
-                              float t, float& delT, float& delTActual,
-                              float minStep, float maxStep, 
-                              float maxError, float& error);
+  virtual int ComputeNextStep(double* xprev, double* dxprev, double* xnext, 
+                              double t, double& delT, double& delTActual,
+                              double minStep, double maxStep, 
+                              double maxError, double& error);
 
 protected:
   vtkRungeKutta2();

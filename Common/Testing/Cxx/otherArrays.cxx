@@ -33,7 +33,7 @@ int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
 {
   float tuple1[SIZE/100];
   double tuple3[SIZE/100];
-  float *tuple2;
+  double *tuple2;
   int i;
   int errors = 0;
   
@@ -100,30 +100,12 @@ int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
     strm << "FAILED" << endl;
     }
 
-  strm << "\tGetTuple(i, float *tuple)...";
-  ptr->GetTuple (3, tuple1);
-  passed = 1;
-  for (i = 0; i < 10; i++)
-    {
-    strm << tuple1[i] << " ";
-    if (tuple1[i] != (30 + i))
-      {
-      passed = 0;
-      break;
-      }
-    }
-  if (passed) strm << "OK" << endl;
-  else
-    {
-    errors++;
-    strm << "FAILED" << endl;
-    }
-
   strm << "\tGetTuple(i, double *tuple)...";
   ptr->GetTuple (4, tuple3);
   passed = 1;
   for (i = 0; i < 10; i++)
     {
+    tuple1[i] = static_cast<float>(tuple3[i]);
     strm << tuple3[i] << " ";
     if (tuple3[i] != (40 + i))
       {
@@ -194,13 +176,13 @@ int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
 
   strm << "\tSetTuple(i, float *tuple)...";
   ptr->SetTuple (99, tuple1);
-  for (i=0; i < 10; i++) tuple1[i] = 0;
-  ptr->GetTuple (99, tuple1);
+  for (i=0; i < 10; i++) tuple3[i] = 0;
+  ptr->GetTuple (99, tuple3);
   passed = 1;
   for (i = 0; i < 10; i++)
     {
-    strm << tuple1[i] << " ";
-    if (tuple1[i] != (30 + i))
+    strm << tuple3[i] << " ";
+    if (tuple3[i] != (40 + i))
       {
       passed = 0;
       break;
@@ -234,36 +216,15 @@ int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
     strm << "FAILED" << endl;
     }
 
-  strm << "\tvtkDataArray::SetTuple(i, double *tuple)...";
-  ptr->vtkDataArray::SetTuple (99, tuple3);
+  strm << "\tInsertTuple(i, float *tuple)...";
+  ptr->InsertTuple (100, tuple1);
   for (i=0; i < 10; i++) tuple3[i] = 0;
-  ptr->GetTuple (99, tuple3);
+  ptr->GetTuple (100, tuple3);
   passed = 1;
   for (i = 0; i < 10; i++)
     {
     strm << tuple3[i] << " ";
     if (tuple3[i] != (40 + i))
-      {
-      passed = 0;
-      break;
-      }
-    }
-  if (passed) strm << "OK" << endl;
-  else
-    {
-    errors++;
-    strm << "FAILED" << endl;
-    }
-
-  strm << "\tInsertTuple(i, float *tuple)...";
-  ptr->InsertTuple (100, tuple1);
-  for (i=0; i < 10; i++) tuple1[i] = 0;
-  ptr->GetTuple (100, tuple1);
-  passed = 1;
-  for (i = 0; i < 10; i++)
-    {
-    strm << tuple1[i] << " ";
-    if (tuple1[i] != (30 + i))
       {
       passed = 0;
       break;
@@ -297,35 +258,14 @@ int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
     strm << "FAILED" << endl;
     }
 
-  strm << "\tvtkDataArray::InsertTuple(i, double *tuple)...";
-  ptr->vtkDataArray::InsertTuple (100, tuple3);
-  for (i=0; i < 10; i++) tuple3[i] = 0;
-  ptr->GetTuple (100, tuple3);
+  strm << "\tInsertNextTuple(float *tuple)...";
+  for (i=0; i < 10; i++) tuple1[i] = 30 + i;
+  ptr->GetTuple (ptr->InsertNextTuple (tuple1), tuple3);
   passed = 1;
   for (i = 0; i < 10; i++)
     {
     strm << tuple3[i] << " ";
-    if (tuple3[i] != (40 + i))
-      {
-      passed = 0;
-      break;
-      }
-    }
-  if (passed) strm << "OK" << endl;
-  else
-    {
-    errors++;
-    strm << "FAILED" << endl;
-    }
-
-  strm << "\tInsertNextTuple(float *tuple)...";
-  for (i=0; i < 10; i++) tuple1[i] = 30 + i;
-  ptr->GetTuple (ptr->InsertNextTuple (tuple1), tuple1);
-  passed = 1;
-  for (i = 0; i < 10; i++)
-    {
-    strm << tuple1[i] << " ";
-    if (tuple1[i] != (30 + i))
+    if (tuple3[i] != (30 + i))
       {
       strm << "Expected " << 30 + 1 << " ";
       passed = 0;
@@ -360,29 +300,8 @@ int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
     strm << "FAILED" << endl;
     }
 
-  strm << "\tvtkDataArray::InsertNextTuple(double *tuple)...";
-  for (i=0; i < 10; i++) tuple3[i] = 40 + i;
-  ptr->GetTuple (ptr->vtkDataArray::InsertNextTuple (tuple3), tuple3);
-  passed = 1;
-  for (i = 0; i < 10; i++)
-    {
-    strm << tuple3[i] << " ";
-    if (tuple3[i] != (40 + i))
-      {
-      strm << "Expected " << 40 + 1;
-      passed = 0;
-      break;
-      }
-    }
-  if (passed) strm << "OK" << endl;
-  else
-    {
-    errors++;
-    strm << "FAILED" << endl;
-    }
-
   strm << "\tvtkDataArray::GetData...";
-  vtkFloatArray *farray = vtkFloatArray::New();
+  vtkDoubleArray *farray = vtkDoubleArray::New();
   farray->SetNumberOfComponents(1);
   ptr->vtkDataArray::GetData (0, 59, 1, 1,  farray);
   passed = 1;
@@ -750,6 +669,7 @@ int otherArrays(int, char *[])
   vtkDebugLeaks::PromptUserOff();
 
   ostrstream vtkmsg_with_warning_C4701; 
-  return otherArraysTest(vtkmsg_with_warning_C4701);
+//  return otherArraysTest(vtkmsg_with_warning_C4701);
+  return otherArraysTest(cerr);
 
 } 

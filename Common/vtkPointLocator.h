@@ -69,8 +69,8 @@ public:
   // method requires separate x-y-z values.
   // These methods are thread safe if BuildLocator() is directly or
   // indirectly called from a single thread first.
-  virtual vtkIdType FindClosestPoint(const float x[3]);
-  vtkIdType FindClosestPoint(float x, float y, float z);
+  virtual vtkIdType FindClosestPoint(const double x[3]);
+  vtkIdType FindClosestPoint(double x, double y, double z);
 
   // Description:
   // Given a position x and a radius r, return the id of the point 
@@ -78,24 +78,24 @@ public:
   // These methods are thread safe if BuildLocator() is directly or
   // indirectly called from a single thread first. dist2 returns the squared
   // distance to the point.
-  vtkIdType FindClosestPointWithinRadius(float radius, const float x[3],
-                                         float& dist2);
-  vtkIdType FindClosestPointWithinRadius(float radius, const float x[3], 
-                                         float inputDataLength, float& dist2);
+  vtkIdType FindClosestPointWithinRadius(double radius, const double x[3],
+                                         double& dist2);
+  vtkIdType FindClosestPointWithinRadius(double radius, const double x[3], 
+                                         double inputDataLength, double& dist2);
 
   // Description:
   // Initialize the point insertion process. The newPts is an object
   // representing point coordinates into which incremental insertion methods
   // place their data. Bounds are the box that the points lie in.
   // Not thread safe.
-  virtual int InitPointInsertion(vtkPoints *newPts, const float bounds[6]);
+  virtual int InitPointInsertion(vtkPoints *newPts, const double bounds[6]);
 
   // Description:
   // Initialize the point insertion process. The newPts is an object
   // representing point coordinates into which incremental insertion methods
   // place their data. Bounds are the box that the points lie in.
   // Not thread safe.
-  virtual int InitPointInsertion(vtkPoints *newPts, const float bounds[6], 
+  virtual int InitPointInsertion(vtkPoints *newPts, const double bounds[6], 
                                  vtkIdType estSize);
 
   // Description:
@@ -106,7 +106,7 @@ public:
   // newPts have been supplied, the bounds has been set properly, and that 
   // divs are properly set. (See InitPointInsertion().)
   // Not thread safe.
-  virtual void InsertPoint(vtkIdType ptId, const float x[3]);
+  virtual void InsertPoint(vtkIdType ptId, const double x[3]);
 
   // Description:
   // Incrementally insert a point into search structure. The method returns
@@ -117,19 +117,19 @@ public:
   // supplied, the bounds has been set properly, and that divs are 
   // properly set. (See InitPointInsertion().)
   // Not thread safe.
-  virtual vtkIdType InsertNextPoint(const float x[3]);
+  virtual vtkIdType InsertNextPoint(const double x[3]);
 
   // Description:
   // Determine whether point given by x[3] has been inserted into points list.
   // Return id of previously inserted point if this is true, otherwise return
   // -1. This method is thread safe.
-  vtkIdType IsInsertedPoint(float x, float  y, float z)
+  vtkIdType IsInsertedPoint(double x, double  y, double z)
     {
-    float xyz[3];
+    double xyz[3];
     xyz[0] = x; xyz[1] = y; xyz[2] = z;
     return this->IsInsertedPoint (xyz);
     };
-  virtual vtkIdType IsInsertedPoint(const float x[3]);
+  virtual vtkIdType IsInsertedPoint(const double x[3]);
 
   // Description:
   // Determine whether point given by x[3] has been inserted into points list.
@@ -139,7 +139,7 @@ public:
   // Note this combines the functionality of IsInsertedPoint() followed
   // by a call to InsertNextPoint().
   // This method is not thread safe.
-  virtual int InsertUniquePoint(const float x[3], vtkIdType &ptId);
+  virtual int InsertUniquePoint(const double x[3], vtkIdType &ptId);
 
   // Description:
   // Given a position x, return the id of the point closest to it. This method
@@ -147,7 +147,7 @@ public:
   // indicates that no point was found.
   // This method is thread safe if  BuildLocator() is directly or
   // indirectly called from a single thread first.
-  virtual vtkIdType FindClosestInsertedPoint(const float x[3]);
+  virtual vtkIdType FindClosestInsertedPoint(const double x[3]);
 
   // Description:
   // Find the closest N points to a position. This returns the closest
@@ -156,8 +156,8 @@ public:
   // The returned points are sorted from closest to farthest.
   // These methods are thread safe if BuildLocator() is directly or
   // indirectly called from a single thread first.
-  virtual void FindClosestNPoints(int N, const float x[3], vtkIdList *result);
-  virtual void FindClosestNPoints(int N, float x, float y, float z,
+  virtual void FindClosestNPoints(int N, const double x[3], vtkIdList *result);
+  virtual void FindClosestNPoints(int N, double x, double y, double z,
                                   vtkIdList *result);
 
   // Description:
@@ -166,19 +166,19 @@ public:
   // limit the search to a maximum number of points evaluated, M. 
   // These methods are thread safe if BuildLocator() is directly or
   // indirectly called from a single thread first.
-  virtual void FindDistributedPoints(int N, const float x[3], 
+  virtual void FindDistributedPoints(int N, const double x[3], 
                                      vtkIdList *result, int M);
-  virtual void FindDistributedPoints(int N, float x, float y, 
-                                     float z, vtkIdList *result, int M);
+  virtual void FindDistributedPoints(int N, double x, double y, 
+                                     double z, vtkIdList *result, int M);
 
   // Description:
   // Find all points within a specified radius R of position x.
   // The result is not sorted in any specific manner.
   // These methods are thread safe if BuildLocator() is directly or
   // indirectly called from a single thread first.
-  virtual void FindPointsWithinRadius(float R, const float x[3],
+  virtual void FindPointsWithinRadius(double R, const double x[3],
                                       vtkIdList *result);
-  virtual void FindPointsWithinRadius(float R, float x, float y, float z, 
+  virtual void FindPointsWithinRadius(double R, double x, double y, double z, 
                                       vtkIdList *result);
   
   // Description:
@@ -186,7 +186,7 @@ public:
   // contains the point. It is possible that NULL is returned. The user
   // provides an ijk array that is the indices into the locator.
   // This method is thread safe.
-  virtual vtkIdList *GetPointsInBucket(const float x[3], int ijk[3]);
+  virtual vtkIdList *GetPointsInBucket(const double x[3], int ijk[3]);
 
   // Description:
   // See vtkLocator interface documentation.
@@ -204,29 +204,29 @@ protected:
   void GetBucketNeighbors(vtkNeighborPoints* buckets,
                           const int ijk[3], const int ndivs[3], int level);
   void GetOverlappingBuckets(vtkNeighborPoints* buckets, 
-                             const float x[3], const int ijk[3], float dist,
+                             const double x[3], const int ijk[3], double dist,
                              int level);
   void GetOverlappingBuckets(vtkNeighborPoints* buckets,
-                             const float x[3], float dist,
+                             const double x[3], double dist,
                              int prevMinLevel[3],
                              int prevMaxLevel[3]);
   void GenerateFace(int face, int i, int j, int k, 
                     vtkPoints *pts, vtkCellArray *polys);
-  float Distance2ToBucket(const float x[3], const int nei[3]);
-  float Distance2ToBounds(const float x[3], const float bounds[6]);
+  double Distance2ToBucket(const double x[3], const int nei[3]);
+  double Distance2ToBounds(const double x[3], const double bounds[6]);
 
   vtkPoints *Points; // Used for merging points
   int Divisions[3]; // Number of sub-divisions in x-y-z directions
   int NumberOfPointsPerBucket; //Used with previous boolean to control subdivide
-  float Bounds[6]; // bounds of points
+  double Bounds[6]; // bounds of points
   vtkIdList **HashTable; // lists of point ids in buckets
   vtkIdType NumberOfBuckets; // total size of hash table
-  float H[3]; // width of each bucket in x-y-z directions
+  double H[3]; // width of each bucket in x-y-z directions
 
-  float InsertionTol2;
+  double InsertionTol2;
   vtkIdType InsertionPointId;
 
-  float InsertionLevel; 
+  double InsertionLevel; 
 private:
   vtkPointLocator(const vtkPointLocator&);  // Not implemented.
   void operator=(const vtkPointLocator&);  // Not implemented.

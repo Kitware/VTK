@@ -71,7 +71,7 @@ public:
   vtkCell *GetCell(vtkIdType cellId);
   void GetCell(vtkIdType cellId, vtkGenericCell *cell);
   int GetCellType(vtkIdType cellId);
-  void GetCellBounds(vtkIdType cellId, float bounds[6]);
+  void GetCellBounds(vtkIdType cellId, double bounds[6]);
   void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
                         vtkIdList *cellIds);
   
@@ -275,7 +275,7 @@ public:
   // and BuildLinks() has been invoked.) Of the two methods below, one inserts
   // a point coordinate and the other just makes room for cell links.
   int InsertNextLinkedPoint(int numLinks); 
-  int InsertNextLinkedPoint(float x[3], int numLinks); 
+  int InsertNextLinkedPoint(double x[3], int numLinks); 
   
   // Description:
   // Add a new cell to the cell data structure (after cell pointers have been

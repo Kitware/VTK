@@ -14,14 +14,14 @@
 =========================================================================*/
 #include "vtkPlanes.h"
 
-#include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
 #include "vtkPoints.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkPlanes, "1.11");
+vtkCxxRevisionMacro(vtkPlanes, "1.12");
 vtkStandardNewMacro(vtkPlanes);
 vtkCxxSetObjectMacro(vtkPlanes,Points,vtkPoints);
 
@@ -77,27 +77,29 @@ void vtkPlanes::SetNormals(vtkDataArray* normals)
 }
 
 // Evaluate plane equations. Return smallest absolute value.
-float vtkPlanes::EvaluateFunction(float x[3])
+double vtkPlanes::EvaluateFunction(double x[3])
 {
   int numPlanes, i;
-  float val, maxVal;
-
+  double val, maxVal;
+  double normal[3], point[3];
+  
   if ( !this->Points || ! this->Normals )
     {
     vtkErrorMacro(<<"Please define points and/or normals!");
-    return VTK_LARGE_FLOAT;
+    return VTK_DOUBLE_MAX;
     }
 
   if ( (numPlanes=this->Points->GetNumberOfPoints()) != this->Normals->GetNumberOfTuples() )
     {
     vtkErrorMacro(<<"Number of normals/points inconsistent!");
-    return VTK_LARGE_FLOAT;
+    return VTK_DOUBLE_MAX;
     }
-
-  for (maxVal=-VTK_LARGE_FLOAT, i=0; i < numPlanes; i++)
+  
+  for (maxVal=-VTK_DOUBLE_MAX, i=0; i < numPlanes; i++)
     {
-    val = this->Plane->Evaluate(this->Normals->GetTuple(i),
-                         this->Points->GetPoint(i), x);
+    this->Normals->GetTuple(i,normal);
+    this->Points->GetPoint(i,point);
+    val = this->Plane->Evaluate(normal, point,  x);
     if (val > maxVal )
       {
       maxVal = val;
@@ -108,27 +110,31 @@ float vtkPlanes::EvaluateFunction(float x[3])
 }
 
 // Evaluate planes gradient.
-void vtkPlanes::EvaluateGradient(float x[3], float n[3])
+void vtkPlanes::EvaluateGradient(double x[3], double n[3])
 {
   int numPlanes, i;
-  float val, maxVal, *nTemp;
-
+  double val, maxVal;
+  double nTemp[3];
+  double pTemp[3];
+  
   if ( !this->Points || ! this->Normals )
     {
     vtkErrorMacro(<<"Please define points and/or normals!");
     return;
     }
 
-  if ( (numPlanes=this->Points->GetNumberOfPoints()) != this->Normals->GetNumberOfTuples() )
+  if ( (numPlanes=this->Points->GetNumberOfPoints()) != 
+       this->Normals->GetNumberOfTuples() )
     {
     vtkErrorMacro(<<"Number of normals/points inconsistent!");
     return;
     }
 
-  for (maxVal=-VTK_LARGE_FLOAT, i=0; i < numPlanes; i++)
+  for (maxVal=-VTK_DOUBLE_MAX, i=0; i < numPlanes; i++)
     {
-    nTemp = this->Normals->GetTuple(i);
-    val = this->Plane->Evaluate(nTemp,this->Points->GetPoint(i), x);
+    this->Normals->GetTuple(i, nTemp);
+    this->Points->GetPoint(i, pTemp);
+    val = this->Plane->Evaluate(nTemp, pTemp, x);
     if ( val > maxVal )
       {
       maxVal = val;
@@ -139,10 +145,10 @@ void vtkPlanes::EvaluateGradient(float x[3], float n[3])
     }
 }
 
-void vtkPlanes::SetFrustumPlanes(float planes[24])
+void vtkPlanes::SetFrustumPlanes(double planes[24])
 {
   int i;
-  float *plane, n[3], x[3];
+  double *plane, n[3], x[3];
 
   for (i=0; i<24; i++)
     {
@@ -159,7 +165,7 @@ void vtkPlanes::SetFrustumPlanes(float planes[24])
   // okay, need to allocate stuff
   this->Modified();
   vtkPoints *pts = vtkPoints::New();
-  vtkFloatArray *normals = vtkFloatArray::New();
+  vtkDoubleArray *normals = vtkDoubleArray::New();
 
   pts->SetNumberOfPoints(6);
   normals->SetNumberOfComponents(3);
@@ -194,10 +200,10 @@ void vtkPlanes::SetFrustumPlanes(float planes[24])
   normals->Delete();
 }
 
-void vtkPlanes::SetBounds(float bounds[6])
+void vtkPlanes::SetBounds(double bounds[6])
 {
   int i;
-  float n[3], x[3];
+  double n[3], x[3];
 
   for (i=0; i<6; i++)
     {
@@ -214,7 +220,7 @@ void vtkPlanes::SetBounds(float bounds[6])
   // okay, need to allocate stuff
   this->Modified();
   vtkPoints *pts = vtkPoints::New();
-  vtkFloatArray *normals = vtkFloatArray::New();
+  vtkDoubleArray *normals = vtkDoubleArray::New();
 
   pts->SetNumberOfPoints(6);
   normals->SetNumberOfComponents(3);
@@ -272,10 +278,10 @@ void vtkPlanes::SetBounds(float bounds[6])
   normals->Delete();
 }
 
-void vtkPlanes::SetBounds(float xmin, float xmax, float ymin, float ymax,
-                          float zmin, float zmax)
+void vtkPlanes::SetBounds(double xmin, double xmax, double ymin, double ymax,
+                          double zmin, double zmax)
 {
-  float bounds[6];
+  double bounds[6];
   bounds[0] = xmin;
   bounds[1] = xmax;
   bounds[2] = ymin;
@@ -302,11 +308,16 @@ int vtkPlanes::GetNumberOfPlanes()
   
 vtkPlane *vtkPlanes::GetPlane(int i)
 {
+  double normal[3];
+  double point[3];
+  
   if ( i >= 0 && i < this->GetNumberOfPlanes() )
     {
     vtkPlane *plane = vtkPlane::New();
-    plane->SetNormal(this->Normals->GetTuple(i));
-    plane->SetOrigin(this->Points->GetPoint(i));
+    this->Normals->GetTuple(i,normal);
+    this->Points->GetPoint(i,point);
+    plane->SetNormal(normal);
+    plane->SetOrigin(point);
     return plane;
     }
   else

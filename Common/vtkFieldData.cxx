@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkIdList.h"
 
-vtkCxxRevisionMacro(vtkFieldData, "1.50");
+vtkCxxRevisionMacro(vtkFieldData, "1.51");
 vtkStandardNewMacro(vtkFieldData);
 
 vtkFieldData::BasicIterator::BasicIterator(const int* list, 
@@ -352,7 +352,7 @@ void vtkFieldData::SetArray(int i, vtkDataArray *data)
       {
       delete [] this->Tuple;
       }
-    this->Tuple = new float[this->TupleSize];
+    this->Tuple = new double[this->TupleSize];
     }
 }
 
@@ -769,8 +769,8 @@ void vtkFieldData::SetNumberOfTuples(const vtkIdType number)
 
 // Return a tuple consisting of a concatentation of all data from all
 // the different arrays. Note that everything is converted to and from
-// float values.
-float *vtkFieldData::GetTuple(const vtkIdType i)
+// double values.
+double *vtkFieldData::GetTuple(const vtkIdType i)
 {
   int count=0;
 
@@ -785,7 +785,7 @@ float *vtkFieldData::GetTuple(const vtkIdType i)
 
 // Copy the ith tuple value into a user provided tuple array. Make
 // sure that you've allocated enough space for the copy.
-void vtkFieldData::GetTuple(const vtkIdType i, float * tuple)
+void vtkFieldData::GetTuple(const vtkIdType i, double * tuple)
 {
   this->GetTuple(i); //side effect fills in this->Tuple
   for (int j=0; j<this->TupleSize; j++)
@@ -796,7 +796,7 @@ void vtkFieldData::GetTuple(const vtkIdType i, float * tuple)
 
 // Set the tuple value at the ith location. Set operations
 // mean that no range chaecking is performed, so they're faster.
-void vtkFieldData::SetTuple(const vtkIdType i, const float * tuple)
+void vtkFieldData::SetTuple(const vtkIdType i, const double * tuple)
 {
   int count=0;
 
@@ -809,7 +809,7 @@ void vtkFieldData::SetTuple(const vtkIdType i, const float * tuple)
 
 // Insert the tuple value at the ith location. Range checking is
 // performed and memory allocates as necessary.
-void vtkFieldData::InsertTuple(const vtkIdType i, const float * tuple)
+void vtkFieldData::InsertTuple(const vtkIdType i, const double * tuple)
 {
   int count=0;
 
@@ -822,7 +822,7 @@ void vtkFieldData::InsertTuple(const vtkIdType i, const float * tuple)
 
 // Insert the tuple value at the end of the tuple matrix. Range
 // checking is performed and memory is allocated as necessary.
-vtkIdType vtkFieldData::InsertNextTuple(const float * tuple)
+vtkIdType vtkFieldData::InsertNextTuple(const double * tuple)
 {
   vtkIdType id=this->GetNumberOfTuples();
 
@@ -831,7 +831,7 @@ vtkIdType vtkFieldData::InsertNextTuple(const float * tuple)
 }
 
 // Get the component value at the ith tuple (or row) and jth component (or column).
-float vtkFieldData::GetComponent(const vtkIdType i, const int j)
+double vtkFieldData::GetComponent(const vtkIdType i, const int j)
 {
   this->GetTuple(i);
   return this->Tuple[j];
@@ -839,7 +839,7 @@ float vtkFieldData::GetComponent(const vtkIdType i, const int j)
 
 // Set the component value at the ith tuple (or row) and jth component (or column).
 // Range checking is not performed, so set the object up properly before invoking.
-void vtkFieldData::SetComponent(const vtkIdType i, const int j, const float c)
+void vtkFieldData::SetComponent(const vtkIdType i, const int j, const double c)
 {
   this->GetTuple(i);
   this->Tuple[j] = c;
@@ -849,7 +849,7 @@ void vtkFieldData::SetComponent(const vtkIdType i, const int j, const float c)
 // Insert the component value at the ith tuple (or row) and jth component (or column).
 // Range checking is performed and memory allocated as necessary o hold data.
 void vtkFieldData::InsertComponent(const vtkIdType i, const int j,
-                                   const float c)
+                                   const double c)
 {
   this->GetTuple(i);
   this->Tuple[j] = c;

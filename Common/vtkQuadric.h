@@ -35,26 +35,26 @@ public:
 
   // Description
   // Evaluate quadric equation.
-  float EvaluateFunction(float x[3]);
-  float EvaluateFunction(float x, float y, float z)
+  double EvaluateFunction(double x[3]);
+  double EvaluateFunction(double x, double y, double z)
     {return this->vtkImplicitFunction::EvaluateFunction(x, y, z); } ;
 
   // Description
   // Evaluate the gradient to the quadric equation.
-  void EvaluateGradient(float x[3], float g[3]);
+  void EvaluateGradient(double x[3], double g[3]);
   
   // Description
   // Set / get the 10 coefficients of the quadric equation.
-  void SetCoefficients(float a[10]);
-  void SetCoefficients(float a0, float a1, float a2, float a3, float a4, 
-                       float a5, float a6, float a7, float a8, float a9);
-  vtkGetVectorMacro(Coefficients,float,10);
+  void SetCoefficients(double a[10]);
+  void SetCoefficients(double a0, double a1, double a2, double a3, double a4, 
+                       double a5, double a6, double a7, double a8, double a9);
+  vtkGetVectorMacro(Coefficients,double,10);
 
 protected:
   vtkQuadric();
   ~vtkQuadric() {};
 
-  float Coefficients[10];
+  double Coefficients[10];
 
 private:
   vtkQuadric(const vtkQuadric&);  // Not implemented.

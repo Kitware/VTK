@@ -15,7 +15,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkIdTypeArray, "1.8");
+vtkCxxRevisionMacro(vtkIdTypeArray, "1.9");
 vtkStandardNewMacro(vtkIdTypeArray);
 
 // Instantiate object.
@@ -24,7 +24,7 @@ vtkIdTypeArray::vtkIdTypeArray(vtkIdType numComp)
   this->NumberOfComponents = (numComp < 1 ? 1 : numComp);
   this->Array = NULL;
   this->TupleSize = 3;
-  this->Tuple = new float[this->TupleSize]; //used for conversion
+  this->Tuple = new double[this->TupleSize]; //used for conversion
   this->SaveUserArray = 0;
 }
 
@@ -251,31 +251,21 @@ void vtkIdTypeArray::SetNumberOfTuples(vtkIdType number)
 
 // Get a pointer to a tuple at the ith location. This is a dangerous method
 // (it is not thread safe since a pointer is returned).
-float *vtkIdTypeArray::GetTuple(vtkIdType i) 
+double *vtkIdTypeArray::GetTuple(vtkIdType i) 
 {
   if ( this->TupleSize < this->NumberOfComponents )
     {
     this->TupleSize = this->NumberOfComponents;
     delete [] this->Tuple;
-    this->Tuple = new float[this->TupleSize];
+    this->Tuple = new double[this->TupleSize];
     }
 
   vtkIdType *t = this->Array + this->NumberOfComponents*i;
   for (int j=0; j<this->NumberOfComponents; j++)
     {
-    this->Tuple[j] = (float)t[j];
+    this->Tuple[j] = (double)t[j];
     }
   return this->Tuple;
-}
-
-// Copy the tuple value into a user-provided array.
-void vtkIdTypeArray::GetTuple(vtkIdType i, float * tuple) 
-{
-  vtkIdType *t = this->Array + this->NumberOfComponents*i;
-  for (int j=0; j<this->NumberOfComponents; j++)
-    {
-    tuple[j] = (float)t[j];
-    }
 }
 
 void vtkIdTypeArray::GetTuple(vtkIdType i, double * tuple) 

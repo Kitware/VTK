@@ -26,7 +26,7 @@
 
 #include "vtkObject.h"
 
-class vtkFloatArray;
+class vtkDoubleArray;
 
 class VTK_COMMON_EXPORT vtkContourValues : public vtkObject
 {
@@ -40,22 +40,22 @@ public:
 
   // Description:
   // Set the ith contour value.
-  void SetValue(int i, float value);
+  void SetValue(int i, double value);
 
   // Description:
   // Get the ith contour value. The return value will be clamped if the
   // index i is out of range.
-  float GetValue(int i);
+  double GetValue(int i);
 
   // Description:
   // Return a pointer to a list of contour values. The contents of the
   // list will be garbage if the number of contours <= 0.
-  float *GetValues();
+  double *GetValues();
 
   // Description:
   // Fill a supplied list with contour values. Make sure you've
   // allocated memory of size GetNumberOfContours().
-  void GetValues(float *contourValues);
+  void GetValues(double *contourValues);
 
   // Description:
   // Set the number of contours to place into the list. You only really
@@ -70,19 +70,19 @@ public:
   // Description:
   // Generate numContours equally spaced contour values between specified
   // range. Contour values will include min/max range values.
-  void GenerateValues(int numContours, float range[2]);
+  void GenerateValues(int numContours, double range[2]);
 
   // Description:
   // Generate numContours equally spaced contour values between specified
   // range. Contour values will include min/max range values.
-  void GenerateValues(int numContours, float rangeStart, float rangeEnd);
+  void GenerateValues(int numContours, double rangeStart, double rangeEnd);
 
 
 protected:
   vtkContourValues();
   ~vtkContourValues();
 
-  vtkFloatArray *Contours;
+  vtkDoubleArray *Contours;
 
 private:
   vtkContourValues(const vtkContourValues&);  // Not implemented.

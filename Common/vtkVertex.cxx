@@ -22,7 +22,7 @@
 #include "vtkPointLocator.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkVertex, "1.61");
+vtkCxxRevisionMacro(vtkVertex, "1.62");
 vtkStandardNewMacro(vtkVertex);
 
 // Construct the vertex with a single point.
@@ -43,11 +43,11 @@ vtkVertex::vtkVertex()
 }
 
 // Make a new vtkVertex object with the same information as this object.
-int vtkVertex::EvaluatePosition(float x[3], float* closestPoint,
-                                int& subId, float pcoords[3], 
-                                float& dist2, float *weights)
+int vtkVertex::EvaluatePosition(double x[3], double* closestPoint,
+                                int& subId, double pcoords[3], 
+                                double& dist2, double *weights)
 {
-  float X[3];
+  double X[3];
 
   subId = 0;
   pcoords[1] = pcoords[2] = 0.0;
@@ -74,8 +74,8 @@ int vtkVertex::EvaluatePosition(float x[3], float* closestPoint,
 }
 
 void vtkVertex::EvaluateLocation(int& vtkNotUsed(subId), 
-                                 float vtkNotUsed(pcoords)[3], float x[3],
-                                 float *weights)
+                                 double vtkNotUsed(pcoords)[3], double x[3],
+                                 double *weights)
 {
   this->Points->GetPoint(0, x);
 
@@ -86,7 +86,7 @@ void vtkVertex::EvaluateLocation(int& vtkNotUsed(subId),
 // and whether the point is inside or outside of the cell. The cell boundary 
 // is defined by a list of points (pts) that specify a vertex (1D cell). 
 // If the return value of the method is != 0, then the point is inside the cell.
-int vtkVertex::CellBoundary(int vtkNotUsed(subId), float pcoords[3], 
+int vtkVertex::CellBoundary(int vtkNotUsed(subId), double pcoords[3], 
                             vtkIdList *pts)
 {
 
@@ -108,7 +108,7 @@ int vtkVertex::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
 // scalar values at each cell point. The point locator is essentially a 
 // points list that merges points as they are inserted (i.e., prevents 
 // duplicates). 
-void vtkVertex::Contour(float value, vtkDataArray *cellScalars, 
+void vtkVertex::Contour(double value, vtkDataArray *cellScalars, 
                         vtkPointLocator *locator,
                         vtkCellArray *verts, 
                         vtkCellArray *vtkNotUsed(lines), 
@@ -133,11 +133,11 @@ void vtkVertex::Contour(float value, vtkDataArray *cellScalars,
 // Intersect with a ray. Return parametric coordinates (both line and cell)
 // and global intersection coordinates, given ray definition and tolerance. 
 // The method returns non-zero value if intersection occurs.
-int vtkVertex::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
-                                float x[3], float pcoords[3], int& subId)
+int vtkVertex::IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
+                                double x[3], double pcoords[3], int& subId)
 {
   int i;
-  float X[3], ray[3], rayFactor, projXYZ[3];
+  double X[3], ray[3], rayFactor, projXYZ[3];
 
   subId = 0;
   pcoords[1] = pcoords[2] = 0.0;
@@ -197,9 +197,9 @@ int vtkVertex::Triangulate(int vtkNotUsed(index),vtkIdList *ptIds,
 // Get the derivative of the vertex. Returns (0.0, 0.0, 0.0) for all 
 // dimensions.
 void vtkVertex::Derivatives(int vtkNotUsed(subId), 
-                            float vtkNotUsed(pcoords)[3], 
-                            float *vtkNotUsed(values), 
-                            int dim, float *derivs)
+                            double vtkNotUsed(pcoords)[3], 
+                            double *vtkNotUsed(values), 
+                            int dim, double *derivs)
 {
   int i, idx;
 
@@ -212,13 +212,13 @@ void vtkVertex::Derivatives(int vtkNotUsed(subId),
     }
 }
 
-void vtkVertex::Clip(float value, vtkDataArray *cellScalars, 
+void vtkVertex::Clip(double value, vtkDataArray *cellScalars, 
                      vtkPointLocator *locator, vtkCellArray *verts,
                      vtkPointData *inPd, vtkPointData *outPd,
                      vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
                      int insideOut)
 {
-  float s, x[3];
+  double s, x[3];
   int newCellId;
   vtkIdType pts[1];
   
@@ -239,13 +239,14 @@ void vtkVertex::Clip(float value, vtkDataArray *cellScalars,
 
 // Compute interpolation functions
 //
-void vtkVertex::InterpolationFunctions(float vtkNotUsed(pcoords)[3], float weights[1])
+void vtkVertex::InterpolationFunctions(double vtkNotUsed(pcoords)[3], 
+                                       double weights[1])
 {
   weights[0] = 1.0;
 }
 
-static float vtkVertexCellPCoords[3] = {0.0,0.0,0.0};
-float *vtkVertex::GetParametricCoords()
+static double vtkVertexCellPCoords[3] = {0.0,0.0,0.0};
+double *vtkVertex::GetParametricCoords()
 {
   return vtkVertexCellPCoords;
 }

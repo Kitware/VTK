@@ -74,6 +74,7 @@ public:
   // Description:
   // Compute the norm of n-vector.
   static float Norm(const float* x, int n); 
+  static double Norm(const double* x, int n); 
 
   // Description:
   // Compute the norm of 3-vector.
@@ -154,6 +155,8 @@ public:
   // Calculate the determinant of a 2x2 matrix: | a b | | c d |
   static double Determinant2x2(double a, double b, double c, double d) {
     return (a * d - b * c);};
+  static double Determinant2x2(const double c1[2], const double c2[2]) {
+    return (c1[0]*c2[1] - c2[0]*c1[1]);};
 
   // Description:
   // LU Factorization of a 3x3 matrix.  The diagonal elements are the
@@ -216,6 +219,12 @@ public:
   static float Determinant3x3(const float c1[3], 
                               const float c2[3], 
                               const float c3[3]);
+
+  // Description:
+  // Compute determinant of 3x3 matrix. Three columns of matrix are input.
+  static double Determinant3x3(const double c1[3], 
+                               const double c2[3], 
+                               const double c3[3]);
 
   // Description:
   // Calculate the determinant of a 3x3 matrix in the form:
@@ -540,6 +549,14 @@ inline double vtkMath::Normalize2D(double x[3])
 inline float vtkMath::Determinant3x3(const float c1[3], 
                                      const float c2[3], 
                                      const float c3[3])
+{
+  return c1[0]*c2[1]*c3[2] + c2[0]*c3[1]*c1[2] + c3[0]*c1[1]*c2[2] -
+         c1[0]*c3[1]*c2[2] - c2[0]*c1[1]*c3[2] - c3[0]*c2[1]*c1[2];
+}
+
+inline double vtkMath::Determinant3x3(const double c1[3], 
+                                      const double c2[3], 
+                                      const double c3[3])
 {
   return c1[0]*c2[1]*c3[2] + c2[0]*c3[1]*c1[2] + c3[0]*c1[1]*c2[2] -
          c1[0]*c3[1]*c2[2] - c2[0]*c1[1]*c3[2] - c3[0]*c2[1]*c1[2];

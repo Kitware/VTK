@@ -16,7 +16,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPlane, "1.40");
+vtkCxxRevisionMacro(vtkPlane, "1.41");
 vtkStandardNewMacro(vtkPlane);
 
 // Construct plane passing through origin and normal to z-axis.
@@ -31,25 +31,8 @@ vtkPlane::vtkPlane()
   this->Origin[2] = 0.0;
 }
 
-// Project a point x onto plane defined by origin and normal. The 
-// projected point is returned in xproj. NOTE : normal assumed to
-// have magnitude 1.
-void vtkPlane::ProjectPoint(float x[3], float origin[3], float normal[3], float xproj[3])
-{
-  float t, xo[3];
-
-  xo[0] = x[0] - origin[0];
-  xo[1] = x[1] - origin[1];
-  xo[2] = x[2] - origin[2];
-
-  t = vtkMath::Dot(normal,xo);
-
-  xproj[0] = x[0] - t * normal[0];
-  xproj[1] = x[1] - t * normal[1];
-  xproj[2] = x[2] - t * normal[2];
-}
-
-void vtkPlane::ProjectPoint(double x[3], double origin[3], double normal[3], double xproj[3])
+void vtkPlane::ProjectPoint(double x[3], double origin[3], 
+                            double normal[3], double xproj[3])
 {
   double t, xo[3];
 
@@ -64,7 +47,7 @@ void vtkPlane::ProjectPoint(double x[3], double origin[3], double normal[3], dou
   xproj[2] = x[2] - t * normal[2];
 }
 
-void vtkPlane::Push(float distance)
+void vtkPlane::Push(double distance)
 {
   int i;
 
@@ -82,10 +65,10 @@ void vtkPlane::Push(float distance)
 // Project a point x onto plane defined by origin and normal. The 
 // projected point is returned in xproj. NOTE : normal NOT required to
 // have magnitude 1.
-void vtkPlane::GeneralizedProjectPoint(float x[3], float origin[3],
-                                       float normal[3], float xproj[3])
+void vtkPlane::GeneralizedProjectPoint(double x[3], double origin[3],
+                                       double normal[3], double xproj[3])
 {
-  float t, xo[3], n2;
+  double t, xo[3], n2;
 
   xo[0] = x[0] - origin[0];
   xo[1] = x[1] - origin[1];
@@ -110,7 +93,7 @@ void vtkPlane::GeneralizedProjectPoint(float x[3], float origin[3],
 
 
 // Evaluate plane equation for point x[3].
-float vtkPlane::EvaluateFunction(float x[3])
+double vtkPlane::EvaluateFunction(double x[3])
 {
   return ( this->Normal[0]*(x[0]-this->Origin[0]) + 
            this->Normal[1]*(x[1]-this->Origin[1]) + 
@@ -118,7 +101,7 @@ float vtkPlane::EvaluateFunction(float x[3])
 }
 
 // Evaluate function gradient at point x[3].
-void vtkPlane::EvaluateGradient(float vtkNotUsed(x)[3], float n[3])
+void vtkPlane::EvaluateGradient(double vtkNotUsed(x)[3], double n[3])
 {
   for (int i=0; i<3; i++)
     {
@@ -133,12 +116,12 @@ void vtkPlane::EvaluateGradient(float vtkNotUsed(x)[3], float n[3])
 // coordinate along the line is returned in t, and the coordinates of 
 // intersection are returned in x. A zero is returned if the plane and line
 // do not intersect between (0<=t<=1). If the plane and line are parallel,
-// zero is returned and t is set to VTK_LARGE_FLOAT.
-int vtkPlane::IntersectWithLine(float p1[3], float p2[3], float n[3], 
-                               float p0[3], float& t, float x[3])
+// zero is returned and t is set to VTK_LARGE_DOUBLE.
+int vtkPlane::IntersectWithLine(double p1[3], double p2[3], double n[3], 
+                               double p0[3], double& t, double x[3])
 {
-  float num, den, p21[3];
-  float fabsden, fabstolerance;
+  double num, den, p21[3];
+  double fabsden, fabstolerance;
 
   // Compute line vector
   // 
@@ -174,7 +157,7 @@ int vtkPlane::IntersectWithLine(float p1[3], float p2[3], float n[3],
     }
   if ( fabsden <= fabstolerance )
     {
-    t = VTK_LARGE_FLOAT;
+    t = VTK_DOUBLE_MAX;
     return 0;
     }
 

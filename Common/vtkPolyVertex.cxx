@@ -23,7 +23,7 @@
 #include "vtkPoints.h"
 #include "vtkVertex.h"
 
-vtkCxxRevisionMacro(vtkPolyVertex, "1.62");
+vtkCxxRevisionMacro(vtkPolyVertex, "1.63");
 vtkStandardNewMacro(vtkPolyVertex);
 
 vtkPolyVertex::vtkPolyVertex()
@@ -36,16 +36,16 @@ vtkPolyVertex::~vtkPolyVertex()
   this->Vertex->Delete();
 }
 
-int vtkPolyVertex::EvaluatePosition(float x[3], float* closestPoint,
-                                   int& subId, float pcoords[3], 
-                                   float& minDist2, float *weights)
+int vtkPolyVertex::EvaluatePosition(double x[3], double* closestPoint,
+                                   int& subId, double pcoords[3], 
+                                   double& minDist2, double *weights)
 {
   int numPts=this->Points->GetNumberOfPoints();
-  float X[3];
-  float dist2;
+  double X[3];
+  double dist2;
   int i;
 
-  for (minDist2=VTK_LARGE_FLOAT, i=0; i<numPts; i++)
+  for (minDist2=VTK_DOUBLE_MAX, i=0; i<numPts; i++)
     {
     this->Points->GetPoint(i, X);
     dist2 = vtkMath::Distance2BetweenPoints(X,x);
@@ -79,8 +79,8 @@ int vtkPolyVertex::EvaluatePosition(float x[3], float* closestPoint,
 }
 
 void vtkPolyVertex::EvaluateLocation(int& subId, 
-                                     float vtkNotUsed(pcoords)[3], 
-                                     float x[3], float *weights)
+                                     double vtkNotUsed(pcoords)[3], 
+                                     double x[3], double *weights)
 {
   int i;
   this->Points->GetPoint(subId, x);
@@ -92,7 +92,7 @@ void vtkPolyVertex::EvaluateLocation(int& subId,
   weights[subId] = 1.0;
 }
 
-int vtkPolyVertex::CellBoundary(int subId, float pcoords[3], vtkIdList *pts)
+int vtkPolyVertex::CellBoundary(int subId, double pcoords[3], vtkIdList *pts)
 {
   pts->SetNumberOfIds(1);
   pts->SetId(0,this->PointIds->GetId(subId));
@@ -107,7 +107,7 @@ int vtkPolyVertex::CellBoundary(int subId, float pcoords[3], vtkIdList *pts)
     }
 }
 
-void vtkPolyVertex::Contour(float value, vtkDataArray *cellScalars, 
+void vtkPolyVertex::Contour(double value, vtkDataArray *cellScalars, 
                             vtkPointLocator *locator, vtkCellArray *verts,
                             vtkCellArray *vtkNotUsed(lines), 
                             vtkCellArray *vtkNotUsed(polys), 
@@ -136,9 +136,9 @@ void vtkPolyVertex::Contour(float value, vtkDataArray *cellScalars,
 //
 // Intersect with sub-vertices
 //
-int vtkPolyVertex::IntersectWithLine(float p1[3], float p2[3], 
-                                    float tol, float& t, float x[3], 
-                                    float pcoords[3], int& subId)
+int vtkPolyVertex::IntersectWithLine(double p1[3], double p2[3], 
+                                    double tol, double& t, double x[3], 
+                                    double pcoords[3], int& subId)
 {
   int subTest, numPts=this->Points->GetNumberOfPoints();
 
@@ -171,9 +171,9 @@ int vtkPolyVertex::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 }
 
 void vtkPolyVertex::Derivatives(int vtkNotUsed(subId), 
-                                float vtkNotUsed(pcoords)[3], 
-                                float *vtkNotUsed(values), 
-                                int dim, float *derivs)
+                                double vtkNotUsed(pcoords)[3], 
+                                double *vtkNotUsed(values), 
+                                int dim, double *derivs)
 {
   int i, idx;
 
@@ -186,13 +186,13 @@ void vtkPolyVertex::Derivatives(int vtkNotUsed(subId),
     }
 }
 
-void vtkPolyVertex::Clip(float value, vtkDataArray *cellScalars, 
+void vtkPolyVertex::Clip(double value, vtkDataArray *cellScalars, 
                          vtkPointLocator *locator, vtkCellArray *verts,
                          vtkPointData *inPd, vtkPointData *outPd,
                          vtkCellData *inCd, vtkIdType cellId,
                          vtkCellData *outCd, int insideOut)
 {
-  float s, x[3];
+  double s, x[3];
   int i, newCellId, numPts=this->Points->GetNumberOfPoints();
   vtkIdType pts[1];
   
@@ -214,7 +214,7 @@ void vtkPolyVertex::Clip(float value, vtkDataArray *cellScalars,
 }
 
 // Return the center of the point cloud in parametric coordinates.
-int vtkPolyVertex::GetParametricCenter(float pcoords[3])
+int vtkPolyVertex::GetParametricCenter(double pcoords[3])
 {
   pcoords[0] = pcoords[1] = pcoords[2] = 0.5;
   return (this->Points->GetNumberOfPoints() / 2);

@@ -15,22 +15,22 @@
 #include "vtkDataArray.h"
 #include "vtkBitArray.h"
 #include "vtkCharArray.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkShortArray.h"
-#include "vtkUnsignedShortArray.h"
-#include "vtkIntArray.h"
-#include "vtkUnsignedIntArray.h"
-#include "vtkLongArray.h"
-#include "vtkUnsignedLongArray.h"
-#include "vtkFloatArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkIdTypeArray.h"
-#include "vtkLookupTable.h"
 #include "vtkCriticalSection.h"
+#include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
+#include "vtkIntArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkIdList.h"
+#include "vtkLookupTable.h"
+#include "vtkLongArray.h"
 #include "vtkMath.h"
+#include "vtkShortArray.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkUnsignedIntArray.h"
+#include "vtkUnsignedLongArray.h"
+#include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkDataArray, "1.60");
+vtkCxxRevisionMacro(vtkDataArray, "1.61");
 
 // Construct object with default tuple dimension (number of components) of 1.
 vtkDataArray::vtkDataArray(vtkIdType numComp)
@@ -126,7 +126,7 @@ void vtkDataArray::DeepCopy(vtkDataArray *da)
                         this,numTuples,this->NumberOfComponents);
 
       case VTK_BIT:
-        {//bit not supported, using generic float API
+        {//bit not supported, using generic double API
         for (int i=0; i < numTuples; i++)
           {
           this->SetTuple(i, da->GetTuple(i));
@@ -148,9 +148,9 @@ void vtkDataArray::DeepCopy(vtkDataArray *da)
 }
 
 // These can be overridden for more efficiency
-float vtkDataArray::GetComponent(vtkIdType i, int j)
+double vtkDataArray::GetComponent(vtkIdType i, int j)
 {
-  float *tuple=new float[this->NumberOfComponents], c;
+  double *tuple=new double[this->NumberOfComponents], c;
 
   this->GetTuple(i,tuple);
   c =  tuple[j];
@@ -159,9 +159,9 @@ float vtkDataArray::GetComponent(vtkIdType i, int j)
   return c;
 }
 
-void vtkDataArray::SetComponent(vtkIdType i, int j, float c)
+void vtkDataArray::SetComponent(vtkIdType i, int j, double c)
 {
-  float *tuple=new float[this->NumberOfComponents];
+  double *tuple=new double[this->NumberOfComponents];
 
   if ( i < this->GetNumberOfTuples() )
     {
@@ -181,9 +181,9 @@ void vtkDataArray::SetComponent(vtkIdType i, int j, float c)
   delete [] tuple;
 }
 
-void vtkDataArray::InsertComponent(vtkIdType i, int j, float c)
+void vtkDataArray::InsertComponent(vtkIdType i, int j, double c)
 {
-  float *tuple=new float[this->NumberOfComponents];
+  double *tuple=new double[this->NumberOfComponents];
 
   if ( i < this->GetNumberOfTuples() )
     {
@@ -204,12 +204,12 @@ void vtkDataArray::InsertComponent(vtkIdType i, int j, float c)
 }
 
 void vtkDataArray::GetData(vtkIdType tupleMin, vtkIdType tupleMax, int compMin,
-                           int compMax, vtkFloatArray* data)
+                           int compMax, vtkDoubleArray* data)
 {
   int i, j;
   int numComp=this->GetNumberOfComponents();
-  float *tuple=new float[numComp];
-  float *ptr=data->WritePointer(0,(tupleMax-tupleMin+1)*(compMax-compMin+1));
+  double *tuple=new double[numComp];
+  double *ptr=data->WritePointer(0,(tupleMax-tupleMin+1)*(compMax-compMin+1));
   
   for (j=tupleMin; j <= tupleMax; j++)
     {
@@ -254,7 +254,7 @@ void vtkDataArray::GetTuple(vtkIdType i, double * tuple)
 {
   int c;
   int numComp=this->GetNumberOfComponents();
-  float *ftuple=new float[numComp];
+  double *ftuple=new double[numComp];
   this->GetTuple(i,ftuple);
   for (c = 0; c < numComp;  c++)
     {
@@ -264,7 +264,7 @@ void vtkDataArray::GetTuple(vtkIdType i, double * tuple)
 }
 
 
-float* vtkDataArray::GetTupleN(vtkIdType i, int n)
+double* vtkDataArray::GetTupleN(vtkIdType i, int n)
 {
   int numComp = this->GetNumberOfComponents();
   if (numComp != n)
@@ -275,7 +275,7 @@ float* vtkDataArray::GetTupleN(vtkIdType i, int n)
   return this->GetTuple(i);
 }
 
-float vtkDataArray::GetTuple1(vtkIdType i)
+double vtkDataArray::GetTuple1(vtkIdType i)
 {
   int numComp = this->GetNumberOfComponents();
   if (numComp != 1)
@@ -285,37 +285,24 @@ float vtkDataArray::GetTuple1(vtkIdType i)
     }
   return *(this->GetTuple(i));
 }
-float* vtkDataArray::GetTuple2(vtkIdType i)
+double* vtkDataArray::GetTuple2(vtkIdType i)
 {
   return this->GetTupleN(i, 2);
 }
-float* vtkDataArray::GetTuple3(vtkIdType i)
+double* vtkDataArray::GetTuple3(vtkIdType i)
 {
   return this->GetTupleN(i, 3);
 }
-float* vtkDataArray::GetTuple4(vtkIdType i)
+double* vtkDataArray::GetTuple4(vtkIdType i)
 {
   return this->GetTupleN(i, 4);
 }
-float* vtkDataArray::GetTuple9(vtkIdType i)
+double* vtkDataArray::GetTuple9(vtkIdType i)
 {
   return this->GetTupleN(i, 9);
 }
 
-void vtkDataArray::SetTuple(vtkIdType i, const double * tuple)
-{
-  int c;
-  int numComp=this->GetNumberOfComponents();
-  float *ftuple=new float[numComp];
-  for (c = 0; c < numComp;  c++)
-    {
-    ftuple[c] = (float)(tuple[c]);
-    }
-  this->SetTuple(i,ftuple);
-  delete [] ftuple;
-}
-
-void vtkDataArray::SetTuple1(vtkIdType i, float value)
+void vtkDataArray::SetTuple1(vtkIdType i, double value)
 {
   int numComp = this->GetNumberOfComponents();
   if (numComp != 1)
@@ -325,9 +312,9 @@ void vtkDataArray::SetTuple1(vtkIdType i, float value)
     }
   this->SetTuple(i, &value);
 }
-void vtkDataArray::SetTuple2(vtkIdType i, float val0, float val1)
+void vtkDataArray::SetTuple2(vtkIdType i, double val0, double val1)
 {
-  float tuple[2];
+  double tuple[2];
   int numComp = this->GetNumberOfComponents();
   if (numComp != 2)
     {
@@ -338,10 +325,10 @@ void vtkDataArray::SetTuple2(vtkIdType i, float val0, float val1)
   tuple[1] = val1;
   this->SetTuple(i, tuple);
 }
-void vtkDataArray::SetTuple3(vtkIdType i, float val0, float val1, 
-                               float val2)
+void vtkDataArray::SetTuple3(vtkIdType i, double val0, double val1, 
+                               double val2)
 {
-  float tuple[3];
+  double tuple[3];
   int numComp = this->GetNumberOfComponents();
   if (numComp != 3)
     {
@@ -353,10 +340,10 @@ void vtkDataArray::SetTuple3(vtkIdType i, float val0, float val1,
   tuple[2] = val2;
   this->SetTuple(i, tuple);
 }
-void vtkDataArray::SetTuple4(vtkIdType i, float val0, float val1, 
-                             float val2, float val3)
+void vtkDataArray::SetTuple4(vtkIdType i, double val0, double val1, 
+                             double val2, double val3)
 {
-  float tuple[4];
+  double tuple[4];
   int numComp = this->GetNumberOfComponents();
   if (numComp != 4)
     {
@@ -369,11 +356,11 @@ void vtkDataArray::SetTuple4(vtkIdType i, float val0, float val1,
   tuple[3] = val3;
   this->SetTuple(i, tuple);
 }
-void vtkDataArray::SetTuple9(vtkIdType i, float val0, float val1, 
-                             float val2,  float val3, float val4, 
-                             float val5, float val6,float val7, float val8)
+void vtkDataArray::SetTuple9(vtkIdType i, double val0, double val1, 
+                             double val2,  double val3, double val4, 
+                             double val5, double val6,double val7, double val8)
 {
-  float tuple[9];
+  double tuple[9];
   int numComp = this->GetNumberOfComponents();
   if (numComp != 9)
     {
@@ -392,20 +379,7 @@ void vtkDataArray::SetTuple9(vtkIdType i, float val0, float val1,
   this->SetTuple(i, tuple);
 }
 
-void vtkDataArray::InsertTuple(vtkIdType i, const double * tuple)
-{
-  int c;
-  int numComp=this->GetNumberOfComponents();
-  float *ftuple=new float[numComp];
-  for (c = 0; c < numComp;  c++)
-    {
-    ftuple[c] = (float)(tuple[c]);
-    }
-  this->InsertTuple(i,ftuple);
-  delete [] ftuple;
-}
-
-void vtkDataArray::InsertTuple1(vtkIdType i, float value)
+void vtkDataArray::InsertTuple1(vtkIdType i, double value)
 {
   int numComp = this->GetNumberOfComponents();
   if (numComp != 1)
@@ -415,9 +389,9 @@ void vtkDataArray::InsertTuple1(vtkIdType i, float value)
     }
   this->InsertTuple(i, &value);
 }
-void vtkDataArray::InsertTuple2(vtkIdType i, float val0, float val1)
+void vtkDataArray::InsertTuple2(vtkIdType i, double val0, double val1)
 {
-  float tuple[2];
+  double tuple[2];
   int numComp = this->GetNumberOfComponents();
   if (numComp != 2)
     {
@@ -428,10 +402,10 @@ void vtkDataArray::InsertTuple2(vtkIdType i, float val0, float val1)
   tuple[1] = val1;
   this->InsertTuple(i, tuple);
 }
-void vtkDataArray::InsertTuple3(vtkIdType i, float val0, float val1, 
-                                float val2)
+void vtkDataArray::InsertTuple3(vtkIdType i, double val0, double val1, 
+                                double val2)
 {
-  float tuple[3];
+  double tuple[3];
   int numComp = this->GetNumberOfComponents();
   if (numComp != 3)
     {
@@ -443,10 +417,10 @@ void vtkDataArray::InsertTuple3(vtkIdType i, float val0, float val1,
   tuple[2] = val2;
   this->InsertTuple(i, tuple);
 }
-void vtkDataArray::InsertTuple4(vtkIdType i, float val0, float val1, 
-                                float val2, float val3)
+void vtkDataArray::InsertTuple4(vtkIdType i, double val0, double val1, 
+                                double val2, double val3)
 {
-  float tuple[4];
+  double tuple[4];
   int numComp = this->GetNumberOfComponents();
   if (numComp != 4)
     {
@@ -459,11 +433,11 @@ void vtkDataArray::InsertTuple4(vtkIdType i, float val0, float val1,
   tuple[3] = val3;
   this->InsertTuple(i, tuple);
 }
-void vtkDataArray::InsertTuple9(vtkIdType i, float val0, float val1, 
-                                float val2,  float val3, float val4, 
-                                float val5, float val6,float val7, float val8)
+void vtkDataArray::InsertTuple9(vtkIdType i, double val0, double val1, 
+                                double val2,  double val3, double val4, 
+                                double val5, double val6,double val7, double val8)
 {
-  float tuple[9];
+  double tuple[9];
   int numComp = this->GetNumberOfComponents();
   if (numComp != 9)
     {
@@ -482,21 +456,7 @@ void vtkDataArray::InsertTuple9(vtkIdType i, float val0, float val1,
   this->InsertTuple(i, tuple);
 }
 
-vtkIdType vtkDataArray::InsertNextTuple(const double * tuple)
-{
-  int c;
-  int numComp=this->GetNumberOfComponents();
-  float *ftuple=new float[numComp];
-  for (c = 0; c < numComp;  c++)
-    {
-    ftuple[c] = (float)(tuple[c]);
-    }
-  int ret = this->InsertNextTuple(ftuple);
-  delete [] ftuple;
-  return ret;
-}
-
-void vtkDataArray::InsertNextTuple1(float value)
+void vtkDataArray::InsertNextTuple1(double value)
 {
   int numComp = this->GetNumberOfComponents();
   if (numComp != 1)
@@ -506,9 +466,9 @@ void vtkDataArray::InsertNextTuple1(float value)
     }
   this->InsertNextTuple(&value);
 }
-void vtkDataArray::InsertNextTuple2(float val0, float val1)
+void vtkDataArray::InsertNextTuple2(double val0, double val1)
 {
-  float tuple[2];
+  double tuple[2];
   int numComp = this->GetNumberOfComponents();
   if (numComp != 2)
     {
@@ -519,10 +479,10 @@ void vtkDataArray::InsertNextTuple2(float val0, float val1)
   tuple[1] = val1;
   this->InsertNextTuple(tuple);
 }
-void vtkDataArray::InsertNextTuple3(float val0, float val1, 
-                                    float val2)
+void vtkDataArray::InsertNextTuple3(double val0, double val1, 
+                                    double val2)
 {
-  float tuple[3];
+  double tuple[3];
   int numComp = this->GetNumberOfComponents();
   if (numComp != 3)
     {
@@ -534,10 +494,10 @@ void vtkDataArray::InsertNextTuple3(float val0, float val1,
   tuple[2] = val2;
   this->InsertNextTuple(tuple);
 }
-void vtkDataArray::InsertNextTuple4(float val0, float val1, 
-                                    float val2, float val3)
+void vtkDataArray::InsertNextTuple4(double val0, double val1, 
+                                    double val2, double val3)
 {
-  float tuple[4];
+  double tuple[4];
   int numComp = this->GetNumberOfComponents();
   if (numComp != 4)
     {
@@ -550,12 +510,12 @@ void vtkDataArray::InsertNextTuple4(float val0, float val1,
   tuple[3] = val3;
   this->InsertNextTuple(tuple);
 }
-void vtkDataArray::InsertNextTuple9(float val0, float val1, 
-                                    float val2,  float val3, float val4, 
-                                    float val5, float val6,float val7, 
-                                    float val8)
+void vtkDataArray::InsertNextTuple9(double val0, double val1, 
+                                    double val2,  double val3, double val4, 
+                                    double val5, double val6,double val7, 
+                                    double val8)
 {
-  float tuple[9];
+  double tuple[9];
   int numComp = this->GetNumberOfComponents();
   if (numComp != 9)
     {
@@ -577,7 +537,7 @@ void vtkDataArray::InsertNextTuple9(float val0, float val1,
 unsigned long vtkDataArray::GetActualMemorySize()
 {
   unsigned long numPrims;
-  float size = 0.0;
+  double size = 0.0;
   // The allocated array may be larger than the number of primatives used.
   //numPrims = this->GetNumberOfTuples() * this->GetNumberOfComponents();
   numPrims = this->GetSize();
@@ -585,51 +545,51 @@ unsigned long vtkDataArray::GetActualMemorySize()
   switch (this->GetDataType())
     {
     case VTK_BIT:
-      size = (float)sizeof(char)/8.0;
+      size = (double)sizeof(char)/8.0;
       break;
 
     case VTK_CHAR:
-      size = (float)sizeof(char);
+      size = (double)sizeof(char);
       break;
 
     case VTK_UNSIGNED_CHAR:
-      size = (float)sizeof(unsigned char);
+      size = (double)sizeof(unsigned char);
       break;
 
     case VTK_SHORT:
-      size = (float)sizeof(short);
+      size = (double)sizeof(short);
       break;
 
     case VTK_UNSIGNED_SHORT:
-      size = (float)sizeof(unsigned short);
+      size = (double)sizeof(unsigned short);
       break;
 
     case VTK_INT:
-      size = (float)sizeof(int);
+      size = (double)sizeof(int);
       break;
 
     case VTK_UNSIGNED_INT:
-      size = (float)sizeof(unsigned int);
+      size = (double)sizeof(unsigned int);
       break;
 
     case VTK_LONG:
-      size = (float)sizeof(long);
+      size = (double)sizeof(long);
       break;
 
     case VTK_UNSIGNED_LONG:
-      size = (float)sizeof(unsigned long);
+      size = (double)sizeof(unsigned long);
       break;
 
     case VTK_FLOAT:
-      size = (float)sizeof(float);
+      size = (double)sizeof(float);
       break;
 
     case VTK_DOUBLE:
-      size = (float)sizeof(double);
+      size = (double)sizeof(double);
       break;
 
     case VTK_ID_TYPE:
-      size = (float)sizeof(vtkIdType);
+      size = (double)sizeof(vtkIdType);
       break;
 
     default:
@@ -680,8 +640,8 @@ vtkDataArray* vtkDataArray::CreateDataArray(int dataType)
       return vtkIdTypeArray::New();
 
     default:
-      vtkGenericWarningMacro(<<"Unsupported data type! Setting to VTK_FLOAT");
-      return vtkFloatArray::New();
+      vtkGenericWarningMacro(<<"Unsupported data type! Setting to VTK_DOUBLE");
+      return vtkDoubleArray::New();
     }
 }
 
@@ -728,7 +688,7 @@ void vtkDataArray::GetTuples(vtkIdList *ptIds, vtkDataArray *da)
     vtkTemplateMacro3(vtkCopyTuples1, (VTK_TT *)this->GetVoidPointer(0), da,
                       ptIds );
     // This is not supported by the template macro.
-    // Switch to using the float interface.
+    // Switch to using the double interface.
     case VTK_BIT:
       {
       vtkIdType num=ptIds->GetNumberOfIds();
@@ -790,7 +750,7 @@ void vtkDataArray::GetTuples(vtkIdType p1, vtkIdType p2, vtkDataArray *da)
     vtkTemplateMacro4(vtkCopyTuples1, (VTK_TT *)this->GetVoidPointer(0), da,
                       p1, p2 );
     // This is not supported by the template macro.
-    // Switch to using the float interface.
+    // Switch to using the double interface.
     case VTK_BIT:
       {
       vtkIdType num=p2-p1+1;
@@ -806,7 +766,7 @@ void vtkDataArray::GetTuples(vtkIdType p1, vtkIdType p2, vtkDataArray *da)
     }
 }
 
-void vtkDataArray::FillComponent(int j, float c)
+void vtkDataArray::FillComponent(int j, double c)
 {
   if (j < 0 || j >= this->GetNumberOfComponents())
     {
@@ -856,10 +816,10 @@ void vtkDataArray::CopyComponent(int j, vtkDataArray *from,
     }
 }
 
-float vtkDataArray::GetMaxNorm()
+double vtkDataArray::GetMaxNorm()
 {
   vtkIdType i;
-  float norm, maxNorm;
+  double norm, maxNorm;
   int nComponents = this->GetNumberOfComponents();
 
   maxNorm = 0.0;

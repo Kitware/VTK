@@ -26,7 +26,7 @@
 #include "vtkQuad.h"
 #include "vtkVertex.h"
 
-vtkCxxRevisionMacro(vtkStructuredGrid, "1.97");
+vtkCxxRevisionMacro(vtkStructuredGrid, "1.98");
 vtkStandardNewMacro(vtkStructuredGrid);
 
 vtkCxxSetObjectMacro(vtkStructuredGrid,
@@ -284,7 +284,7 @@ void vtkStructuredGrid::GetCell(vtkIdType cellId, vtkGenericCell *cell)
   vtkIdType   idx;
   int   i, j, k;
   int   d01, offset1, offset2;
-  float x[3];
+  double x[3];
  
   // Make sure data is defined
   if ( ! this->Points )
@@ -412,17 +412,17 @@ void vtkStructuredGrid::GetCell(vtkIdType cellId, vtkGenericCell *cell)
 //----------------------------------------------------------------------------
 // Fast implementation of GetCellBounds().  Bounds are calculated without
 // constructing a cell.
-void vtkStructuredGrid::GetCellBounds(vtkIdType cellId, float bounds[6])
+void vtkStructuredGrid::GetCellBounds(vtkIdType cellId, double bounds[6])
 {
   vtkIdType idx = 0;
   int i, j, k;
   vtkIdType d01;
   int offset1 = 0;
   int offset2 = 0;
-  float x[3];
+  double x[3];
   
-  bounds[0] = bounds[2] = bounds[4] =  VTK_LARGE_FLOAT;
-  bounds[1] = bounds[3] = bounds[5] = -VTK_LARGE_FLOAT;
+  bounds[0] = bounds[2] = bounds[4] =  VTK_DOUBLE_MAX;
+  bounds[1] = bounds[3] = bounds[5] = -VTK_DOUBLE_MAX;
   
   // Make sure data is defined
   if ( ! this->Points )

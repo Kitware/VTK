@@ -50,13 +50,13 @@ public:
 
   // Description
   // Evaluate plane equations. Return smallest absolute value.
-  float EvaluateFunction(float x[3]);
-  float EvaluateFunction(float x, float y, float z)
+  double EvaluateFunction(double x[3]);
+  double EvaluateFunction(double x, double y, double z)
     {return this->vtkImplicitFunction::EvaluateFunction(x, y, z); } ;
 
   // Description
   // Evaluate planes gradient.
-  void EvaluateGradient(float x[3], float n[3]);
+  void EvaluateGradient(double x[3], double n[3]);
 
   // Description:
   // Specify a list of points defining points through which the planes pass.
@@ -72,15 +72,15 @@ public:
   // Description:
   // An alternative method to specify six planes defined by the camera view 
   // frustrum. See vtkCamera::GetFrustumPlanes() documentation.
-  void SetFrustumPlanes(float planes[24]);
+  void SetFrustumPlanes(double planes[24]);
 
   // Description:
   // An alternative method to specify six planes defined by a bounding box.
   // The bounding box is a six-vector defined as (xmin,xmax,ymin,ymax,zmin,zmax).
   // It defines six planes orthogonal to the x-y-z coordinate axes.
-  void SetBounds(float bounds[6]);
-  void SetBounds(float xmin, float xmax, float ymin, float ymax,
-                 float zmin, float zmax);
+  void SetBounds(double bounds[6]);
+  void SetBounds(double xmin, double xmax, double ymin, double ymax,
+                 double zmin, double zmax);
 
   // Description:
   // Return the number of planes in the set of planes.
@@ -102,8 +102,8 @@ protected:
   vtkPlane *Plane;
 
 private:
-  float Planes[24];
-  float Bounds[6];
+  double Planes[24];
+  double Bounds[6];
 
 private:
   vtkPlanes(const vtkPlanes&);  // Not implemented.

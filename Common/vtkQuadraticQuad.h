@@ -38,6 +38,8 @@ class vtkQuadraticEdge;
 class vtkQuad;
 class vtkPointData;
 class vtkCellData;
+class vtkDataArray;
+class vtkDoubleArray;
 
 class VTK_COMMON_EXPORT vtkQuadraticQuad : public vtkNonLinearCell
 {
@@ -55,26 +57,26 @@ public:
   vtkCell *GetEdge(int);
   vtkCell *GetFace(int) {return 0;}
 
-  int CellBoundary(int subId, float pcoords[3], vtkIdList *pts);
-  void Contour(float value, vtkDataArray *cellScalars, 
+  int CellBoundary(int subId, double pcoords[3], vtkIdList *pts);
+  void Contour(double value, vtkDataArray *cellScalars, 
                vtkPointLocator *locator, vtkCellArray *verts, 
                vtkCellArray *lines, vtkCellArray *polys, 
                vtkPointData *inPd, vtkPointData *outPd,
                vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd);
-  int EvaluatePosition(float x[3], float* closestPoint,
-                       int& subId, float pcoords[3], 
-                       float& dist2, float *weights);
-  void EvaluateLocation(int& subId, float pcoords[3], float x[3],
-                        float *weights);
+  int EvaluatePosition(double x[3], double* closestPoint,
+                       int& subId, double pcoords[3], 
+                       double& dist2, double *weights);
+  void EvaluateLocation(int& subId, double pcoords[3], double x[3],
+                        double *weights);
   int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts);
-  void Derivatives(int subId, float pcoords[3], float *values, 
-                   int dim, float *derivs);
-  virtual float *GetParametricCoords();
+  void Derivatives(int subId, double pcoords[3], double *values, 
+                   int dim, double *derivs);
+  virtual double *GetParametricCoords();
 
   // Description:
   // Clip this quadratic quad using scalar value provided. Like contouring, 
   // except that it cuts the quad to produce linear triangles.
-  void Clip(float value, vtkDataArray *cellScalars, 
+  void Clip(double value, vtkDataArray *cellScalars, 
             vtkPointLocator *locator, vtkCellArray *polys,
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
@@ -83,14 +85,14 @@ public:
   // Description:
   // Line-edge intersection. Intersection has to occur within [0,1] parametric
   // coordinates and with specified tolerance.
-  int IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
-                        float x[3], float pcoords[3], int& subId);
+  int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
+                        double x[3], double pcoords[3], int& subId);
 
   
   // Description:
   // Quadratic quad specific methods. 
-  static void InterpolationFunctions(float pcoords[3], float weights[8]);
-  static void InterpolationDerivs(float pcoords[3], float derivs[16]);
+  static void InterpolationFunctions(double pcoords[3], double weights[8]);
+  static void InterpolationDerivs(double pcoords[3], double derivs[16]);
 
 protected:
   vtkQuadraticQuad();
@@ -100,11 +102,11 @@ protected:
   vtkQuad          *Quad;
   vtkPointData     *PointData;
   vtkCellData      *CellData;
-  vtkFloatArray    *Scalars;
+  vtkDoubleArray    *Scalars;
 
-  void Subdivide(float *weights);
+  void Subdivide(double *weights);
   void InterpolateAttributes(vtkPointData *inPd, vtkCellData *inCd,
-                             vtkIdType cellId, float *weights);
+                             vtkIdType cellId, double *weights);
 
 private:
   vtkQuadraticQuad(const vtkQuadraticQuad&);  // Not implemented.

@@ -49,26 +49,26 @@ public:
   int GetNumberOfEdges() {return 3;};
   int GetNumberOfFaces() {return 0;};
   vtkCell *GetFace(int) {return 0;};
-  int CellBoundary(int subId, float pcoords[3], vtkIdList *pts);
-  void Contour(float value, vtkDataArray *cellScalars, 
+  int CellBoundary(int subId, double pcoords[3], vtkIdList *pts);
+  void Contour(double value, vtkDataArray *cellScalars, 
                vtkPointLocator *locator, vtkCellArray *verts,
                vtkCellArray *lines, vtkCellArray *polys, 
                vtkPointData *inPd, vtkPointData *outPd,
                vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd);
-  int EvaluatePosition(float x[3], float* closestPoint,
-                       int& subId, float pcoords[3],
-                       float& dist2, float *weights);
-  void EvaluateLocation(int& subId, float pcoords[3], float x[3],
-                        float *weights);
+  int EvaluatePosition(double x[3], double* closestPoint,
+                       int& subId, double pcoords[3],
+                       double& dist2, double *weights);
+  void EvaluateLocation(int& subId, double pcoords[3], double x[3],
+                        double *weights);
   int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts);
-  void Derivatives(int subId, float pcoords[3], float *values, 
-                   int dim, float *derivs);
-  virtual float *GetParametricCoords();
+  void Derivatives(int subId, double pcoords[3], double *values, 
+                   int dim, double *derivs);
+  virtual double *GetParametricCoords();
 
   // Description:
   // Clip this triangle using scalar value provided. Like contouring, except
   // that it cuts the triangle to produce other triangles.
-  void Clip(float value, vtkDataArray *cellScalars, 
+  void Clip(double value, vtkDataArray *cellScalars, 
             vtkPointLocator *locator, vtkCellArray *polys,
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
@@ -77,26 +77,26 @@ public:
   // Description:
   // Plane intersection plus in/out test on triangle. The in/out test is 
   // performed using tol as the tolerance.
-  int IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
-                        float x[3], float pcoords[3], int& subId);
+  int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
+                        double x[3], double pcoords[3], int& subId);
 
   // Description:
   // Return the center of the triangle in parametric coordinates.
-  int GetParametricCenter(float pcoords[3]);
+  int GetParametricCenter(double pcoords[3]);
 
   // Description:
   // Return the distance of the parametric coordinate provided to the
   // cell. If inside the cell, a distance of zero is returned. 
-  float GetParametricDistance(float pcoords[3]);
+  double GetParametricDistance(double pcoords[3]);
 
   // Description:
   // Compute the center of the triangle.
-  static void TriangleCenter(float p1[3], float p2[3], float p3[3], 
-                             float center[3]);
+  static void TriangleCenter(double p1[3], double p2[3], double p3[3], 
+                             double center[3]);
 
   // Description:
   // Compute the area of a triangle in 3D.
-  static float TriangleArea(float p1[3], float p2[3], float p3[3]);
+  static double TriangleArea(double p1[3], double p2[3], double p3[3]);
   
   // Description:
   // Compute the circumcenter (center[3]) and radius squared (method
@@ -132,45 +132,35 @@ public:
   // Compute the triangle normal from a points list, and a list of point ids
   // that index into the points list.
   static void ComputeNormal(vtkPoints *p, int numPts, vtkIdType *pts,
-                            float n[3]);
+                            double n[3]);
 
   // Description:
   // Compute the triangle normal from three points.
-  static void ComputeNormal(float v1[3], float v2[3], float v3[3], float n[3]);
+  static void ComputeNormal(double v1[3], double v2[3], double v3[3], double n[3]);
 
   // Description:
   // Compute the (unnormalized) triangle normal direction from three points.
-  static void ComputeNormalDirection(float v1[3], float v2[3], float v3[3],
-                                     float n[3]);
-  
-  // Description:
-  // Compute the triangle normal from three points (double-precision version).
-  static void ComputeNormal(double v1[3], double v2[3], double v3[3], 
-                            double n[3]);
-  
-  // Description:
-  // Compute the (unnormalized) triangle normal direction from three points
-  // (double precision version).
   static void ComputeNormalDirection(double v1[3], double v2[3], double v3[3],
                                      double n[3]);
-
+  
   // Description:
   // Given a point x, determine whether it is inside (within the
   // tolerance squared, tol2) the triangle defined by the three 
   // coordinate values p1, p2, p3. Method is via comparing dot products.
   // (Note: in current implementation the tolerance only works in the
   // neighborhood of the three vertices of the triangle.
-  static int PointInTriangle(float x[3], float x1[3], float x2[3], float x3[3], 
-                             float tol2);
+  static int PointInTriangle(double x[3], double x1[3], 
+                             double x2[3], double x3[3], 
+                             double tol2);
 
   // Description:
   // Calculate the error quadric for this triangle.  Return the
   // quadric as a 4x4 matrix or a vtkQuadric.  (from Peter
   // Lindstrom's Siggraph 2000 paper, "Out-of-Core Simplification of
   // Large Polygonal Models")
-  static void ComputeQuadric(float x1[3], float x2[3], float x3[3],
-                             float quadric[4][4]);
-  static void ComputeQuadric(float x1[3], float x2[3], float x3[3],
+  static void ComputeQuadric(double x1[3], double x2[3], double x3[3],
+                             double quadric[4][4]);
+  static void ComputeQuadric(double x1[3], double x2[3], double x3[3],
                              vtkQuadric *quadric);
   
 
@@ -185,39 +175,10 @@ private:
   void operator=(const vtkTriangle&);  // Not implemented.
 };
 
-inline int vtkTriangle::GetParametricCenter(float pcoords[3])
+inline int vtkTriangle::GetParametricCenter(double pcoords[3])
 {
   pcoords[0] = pcoords[1] = 0.333f; pcoords[2] = 0.0;
   return 0;
-}
-
-inline void vtkTriangle::ComputeNormalDirection(float v1[3], float v2[3], 
-                                       float v3[3], float n[3])
-{
-  float ax, ay, az, bx, by, bz;
-
-  // order is important!!! maintain consistency with triangle vertex order 
-  ax = v3[0] - v2[0]; ay = v3[1] - v2[1]; az = v3[2] - v2[2];
-  bx = v1[0] - v2[0]; by = v1[1] - v2[1]; bz = v1[2] - v2[2];
-
-  n[0] = (ay * bz - az * by);
-  n[1] = (az * bx - ax * bz);
-  n[2] = (ax * by - ay * bx);
-}
-
-inline void vtkTriangle::ComputeNormal(float v1[3], float v2[3], 
-                                       float v3[3], float n[3])
-{
-  float length;
-  
-  vtkTriangle::ComputeNormalDirection(v1, v2, v3, n);
-  
-  if ( (length = static_cast<float>(sqrt((n[0]*n[0] + n[1]*n[1] + n[2]*n[2])))) != 0.0 )
-    {
-    n[0] /= length;
-    n[1] /= length;
-    n[2] /= length;
-    }
 }
 
 inline void vtkTriangle::ComputeNormalDirection(double v1[3], double v2[3], 
@@ -249,21 +210,21 @@ inline void vtkTriangle::ComputeNormal(double v1[3], double v2[3],
     }
 }
 
-inline void vtkTriangle::TriangleCenter(float p1[3], float p2[3], float p3[3],
-                                       float center[3])
+inline void vtkTriangle::TriangleCenter(double p1[3], double p2[3], 
+                                        double p3[3], double center[3])
 {
   center[0] = (p1[0]+p2[0]+p3[0]) / 3.0f;
   center[1] = (p1[1]+p2[1]+p3[1]) / 3.0f;
   center[2] = (p1[2]+p2[2]+p3[2]) / 3.0f;
 }
 
-inline float vtkTriangle::TriangleArea(float p1[3], float p2[3], float p3[3])
+inline double vtkTriangle::TriangleArea(double p1[3], double p2[3], double p3[3])
 {
-  float a,b,c;
+  double a,b,c;
   a = vtkMath::Distance2BetweenPoints(p1,p2);
   b = vtkMath::Distance2BetweenPoints(p2,p3);
   c = vtkMath::Distance2BetweenPoints(p3,p1);
-  return static_cast<float>(0.25* sqrt(fabs((double)4.0*a*c - (a-b+c)*(a-b+c))));
+  return (0.25* sqrt(fabs(4.0*a*c - (a-b+c)*(a-b+c))));
 } 
 
 #endif

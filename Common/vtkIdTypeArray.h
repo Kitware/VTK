@@ -65,11 +65,10 @@ public:
   // Description:
   // Get a pointer to a tuple at the ith location. This is a dangerous method
   // (it is not thread safe since a pointer is returned).
-  float *GetTuple(vtkIdType i);
+  double *GetTuple(vtkIdType i);
   
   // Description:
   // Copy the tuple value into a user-provided array.
-  void GetTuple(vtkIdType i, float * tuple);
   void GetTuple(vtkIdType i, double * tuple);
 
   // Description:
@@ -150,7 +149,7 @@ protected:
   vtkIdType *ResizeAndExtend(vtkIdType sz);  // function to resize data
 
   int TupleSize; //used for data conversion
-  float *Tuple;
+  double *Tuple;
 
   int SaveUserArray;
 private:

@@ -26,7 +26,7 @@
 #include "vtkPolygon.h"
 #include "vtkQuadric.h"
 
-vtkCxxRevisionMacro(vtkTriangle, "1.101");
+vtkCxxRevisionMacro(vtkTriangle, "1.102");
 vtkStandardNewMacro(vtkTriangle);
 
 // Construct the triangle with three points.
@@ -55,18 +55,18 @@ vtkTriangle::~vtkTriangle()
 
 // Create a new cell and copy this triangle's information into the cell.
 // Returns a poiner to the new cell created.
-int vtkTriangle::EvaluatePosition(float x[3], float* closestPoint,
-                                 int& subId, float pcoords[3], 
-                                 float& dist2, float *weights)
+int vtkTriangle::EvaluatePosition(double x[3], double* closestPoint,
+                                 int& subId, double pcoords[3], 
+                                 double& dist2, double *weights)
 {
   int i, j;
-  float pt1[3], pt2[3], pt3[3], n[3], fabsn;
-  float rhs[2], c1[2], c2[2];
-  float det;
-  float maxComponent;
+  double pt1[3], pt2[3], pt3[3], n[3], fabsn;
+  double rhs[2], c1[2], c2[2];
+  double det;
+  double maxComponent;
   int idx=0, indices[2];
-  float dist2Point, dist2Line1, dist2Line2;
-  float *closest, closestPoint1[3], closestPoint2[3], cp[3];
+  double dist2Point, dist2Line1, dist2Line2;
+  double *closest, closestPoint1[3], closestPoint2[3], cp[3];
 
   subId = 0;
 
@@ -82,7 +82,7 @@ int vtkTriangle::EvaluatePosition(float x[3], float* closestPoint,
   // Project point to plane
   //
   vtkPlane::GeneralizedProjectPoint(x,pt1,n,cp);
-  
+    
   // Construct matrices.  Since we have over determined system, need to find
   // which 2 out of 3 equations to use to develop equations. (Any 2 should 
   // work since we've projected point to plane.)
@@ -151,7 +151,7 @@ int vtkTriangle::EvaluatePosition(float x[3], float* closestPoint,
     }
   else
     {
-    float t;
+    double t;
     if (closestPoint)
       {
       if ( pcoords[0] < 0.0 && pcoords[1] < 0.0 )
@@ -246,11 +246,11 @@ int vtkTriangle::EvaluatePosition(float x[3], float* closestPoint,
     }
 }
 
-void vtkTriangle::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3],
-                                   float x[3], float *weights)
+void vtkTriangle::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3],
+                                   double x[3], double *weights)
 {
-  float u3;
-  float pt0[3], pt1[3], pt2[3];
+  double u3;
+  double pt0[3], pt1[3], pt2[3];
   int i;
 
   this->Points->GetPoint(0, pt0);
@@ -269,12 +269,12 @@ void vtkTriangle::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3],
   weights[2] = pcoords[1];
 }
 
-int vtkTriangle::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
+int vtkTriangle::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
                               vtkIdList *pts)
 {
-  float t1=pcoords[0]-pcoords[1];
-  float t2=0.5*(1.0-pcoords[0])-pcoords[1];
-  float t3=2.0*pcoords[0]+pcoords[1]-1.0;
+  double t1=pcoords[0]-pcoords[1];
+  double t2=0.5*(1.0-pcoords[0])-pcoords[1];
+  double t3=2.0*pcoords[0]+pcoords[1]-1.0;
 
   pts->SetNumberOfIds(2);
 
@@ -332,7 +332,7 @@ static LINE_CASES lineCases[] = {
 
 static int edges[3][2] = { {0,1}, {1,2}, {2,0} };
 
-void vtkTriangle::Contour(float value, vtkDataArray *cellScalars, 
+void vtkTriangle::Contour(double value, vtkDataArray *cellScalars, 
                           vtkPointLocator *locator,
                           vtkCellArray *vtkNotUsed(verts), 
                           vtkCellArray *lines, 
@@ -347,7 +347,7 @@ void vtkTriangle::Contour(float value, vtkDataArray *cellScalars,
   int i, j, index, *vert;
   vtkIdType pts[2];
   int e1, e2, newCellId;
-  float t, x1[3], x2[3], x[3], deltaScalar;
+  double t, x1[3], x2[3], x[3], deltaScalar;
 
   // Build the case table
   for ( i=0, index = 0; i < 3; i++)
@@ -415,7 +415,8 @@ void vtkTriangle::Contour(float value, vtkDataArray *cellScalars,
     }
 }
 
-// Get the edge specified by edgeId (range 0 to 2) and return that edge's coordinates.
+// Get the edge specified by edgeId (range 0 to 2) and return that edge's
+// coordinates.
 vtkCell *vtkTriangle::GetEdge(int edgeId)
 {
   int edgeIdPlus1 = edgeId + 1;
@@ -438,14 +439,14 @@ vtkCell *vtkTriangle::GetEdge(int edgeId)
 
 // Plane intersection plus in/out test on triangle. The in/out test is 
 // performed using tol as the tolerance.
-int vtkTriangle::IntersectWithLine(float p1[3], float p2[3], float tol, 
-                                  float& t, float x[3], float pcoords[3], 
+int vtkTriangle::IntersectWithLine(double p1[3], double p2[3], double tol, 
+                                  double& t, double x[3], double pcoords[3], 
                                   int& subId)
 {
-  float pt1[3], pt2[3], pt3[3], n[3];
-  float tol2 = tol*tol;
-  float closestPoint[3];
-  float dist2, weights[3];
+  double pt1[3], pt2[3], pt3[3], n[3];
+  double tol2 = tol*tol;
+  double closestPoint[3];
+  double dist2, weights[3];
   
   subId = 0;
 
@@ -535,16 +536,16 @@ int vtkTriangle::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
   return 1;
 }
 
-// Used a staged computation: first compute derivatives in local x'-y' coordinate 
-// system; then convert into x-y-z modelling system.
-void vtkTriangle::Derivatives(int vtkNotUsed(subId), float vtkNotUsed(pcoords)[3], 
-                              float *values, int dim, float *derivs)
+// Used a staged computation: first compute derivatives in local x'-y'
+// coordinate system; then convert into x-y-z modelling system.
+void vtkTriangle::Derivatives(int vtkNotUsed(subId), double vtkNotUsed(pcoords)[3], 
+                              double *values, int dim, double *derivs)
 {
-  float v0[2], v1[2], v2[2], v[3], v10[3], v20[3], lenX;
-  float x0[3], x1[3], x2[3], n[3];
+  double v0[2], v1[2], v2[2], v[3], v10[3], v20[3], lenX;
+  double x0[3], x1[3], x2[3], n[3];
   double *J[2], J0[2], J1[2];
   double *JI[2], JI0[2], JI1[2];
-  float functionDerivs[6], sum[2], dBydx, dBydy;
+  double functionDerivs[6], sum[2], dBydx, dBydy;
   int i, j;
 
   // Project points of triangle into 2D system
@@ -599,8 +600,8 @@ void vtkTriangle::Derivatives(int vtkNotUsed(subId), float vtkNotUsed(pcoords)[3
   // Compute inverse Jacobian
   vtkMath::InvertMatrix(J,JI,2);
 
-  // Loop over "dim" derivative values. For each set of values, compute derivatives
-  // in local system and then transform into modelling system.
+  // Loop over "dim" derivative values. For each set of values, compute
+  // derivatives in local system and then transform into modelling system.
   // First compute derivatives in local x'-y' coordinate system
   for ( j=0; j < dim; j++ )
     {
@@ -623,9 +624,9 @@ void vtkTriangle::Derivatives(int vtkNotUsed(subId), float vtkNotUsed(pcoords)[3
 // Compute the triangle normal from a points list, and a list of point ids
 // that index into the points list.
 void vtkTriangle::ComputeNormal(vtkPoints *p, int vtkNotUsed(numPts),
-                                vtkIdType *pts, float n[3])
+                                vtkIdType *pts, double n[3])
 {
-  float v1[3], v2[3], v3[3];
+  double v1[3], v2[3], v3[3];
 
   p->GetPoint(pts[0],v1);
   p->GetPoint(pts[1],v2);
@@ -671,7 +672,7 @@ double vtkTriangle::Circumcircle(double  x1[2], double x2[2], double x3[2],
   if ( vtkMath::SolveLinearSystem(A,rhs,2) == 0 )
     {
     center[0] = center[1] = 0.0;
-    return VTK_LARGE_FLOAT;
+    return VTK_DOUBLE_MAX;
     }
   else
     {
@@ -689,9 +690,9 @@ double vtkTriangle::Circumcircle(double  x1[2], double x2[2], double x3[2],
     sum += diff*diff;
     }
 
-  if ( (sum /= 3.0) > VTK_LARGE_FLOAT )
+  if ( (sum /= 3.0) > VTK_DOUBLE_MAX )
     {
-    return VTK_LARGE_FLOAT;
+    return VTK_DOUBLE_MAX;
     }
   else
     {
@@ -742,8 +743,9 @@ int vtkTriangle::BarycentricCoords(double x[2], double  x1[2], double x2[2],
     }
 }
 
-// Project triangle defined in 3D to 2D coordinates. Returns 0 if degenerate triangle;
-// non-zero value otherwise. Input points are x1->x3; output 2D points are v1->v3.
+// Project triangle defined in 3D to 2D coordinates. Returns 0 if degenerate
+// triangle; non-zero value otherwise. Input points are x1->x3; output 2D
+// points are v1->v3.
 int vtkTriangle::ProjectTo2D(double x1[3], double x2[3], double x3[3],
                              double v1[2], double v2[2], double v3[2])
 {
@@ -763,8 +765,8 @@ int vtkTriangle::ProjectTo2D(double x1[3], double x2[3], double x3[3],
     return 0;
     }
 
-  // The first point is at (0,0); the next at (xLen,0); compute the other point relative 
-  // to the first two.
+  // The first point is at (0,0); the next at (xLen,0); compute the other
+  // point relative to the first two.
   v1[0] = v1[1] = 0.0;
   v2[0] = xLen; v2[1] = 0.0;
 
@@ -798,7 +800,7 @@ static TRIANGLE_CASES triangleCases[] = {
 
 // Clip this triangle using scalar value provided. Like contouring, except
 // that it cuts the triangle to produce other triangles.
-void vtkTriangle::Clip(float value, vtkDataArray *cellScalars, 
+void vtkTriangle::Clip(double value, vtkDataArray *cellScalars, 
                        vtkPointLocator *locator, vtkCellArray *tris,
                        vtkPointData *inPd, vtkPointData *outPd,
                        vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
@@ -811,7 +813,7 @@ void vtkTriangle::Clip(float value, vtkDataArray *cellScalars,
   int e1, e2, newCellId;
   vtkIdType pts[3];
   int vertexId;
-  float t, x1[3], x2[3], x[3], deltaScalar;
+  double t, x1[3], x2[3], x[3], deltaScalar;
 
   // Build the case table
   if ( insideOut )
@@ -860,7 +862,8 @@ void vtkTriangle::Clip(float value, vtkDataArray *cellScalars,
         vert = edges[edge[i]];
 
         // calculate a preferred interpolation direction
-        deltaScalar = (cellScalars->GetComponent(vert[1],0) - cellScalars->GetComponent(vert[0],0));
+        deltaScalar = (cellScalars->GetComponent(vert[1],0) - 
+                       cellScalars->GetComponent(vert[0],0));
         if (deltaScalar > 0)
           {
           e1 = vert[0]; e2 = vert[1];
@@ -912,11 +915,11 @@ void vtkTriangle::Clip(float value, vtkDataArray *cellScalars,
 // coordinate values p1, p2, p3. Method is via comparing dot products.
 // (Note: in current implementation the tolerance only works in the
 // neighborhood of the three vertices of the triangle.
-int vtkTriangle::PointInTriangle(float x[3], float p1[3], float p2[3], 
-                                 float p3[3], float tol2)
+int vtkTriangle::PointInTriangle(double x[3], double p1[3], double p2[3], 
+                                 double p3[3], double tol2)
 {
-  float       x1[3], x2[3], x3[3], v13[3], v21[3], v32[3];
-  float       n1[3], n2[3], n3[3];
+  double       x1[3], x2[3], x3[3], v13[3], v21[3], v32[3];
+  double       n1[3], n2[3], n3[3];
   int           i;
 
   //  Compute appropriate vectors
@@ -961,11 +964,11 @@ int vtkTriangle::PointInTriangle(float x[3], float p1[3], float p2[3],
 }
 
 //----------------------------------------------------------------------------
-float vtkTriangle::GetParametricDistance(float pcoords[3])
+double vtkTriangle::GetParametricDistance(double pcoords[3])
 {
   int i;
-  float pDist, pDistMax=0.0f;
-  float pc[3];
+  double pDist, pDistMax=0.0f;
+  double pc[3];
 
   pc[0] = pcoords[0];
   pc[1] = pcoords[1];
@@ -996,13 +999,13 @@ float vtkTriangle::GetParametricDistance(float pcoords[3])
 
 
 //----------------------------------------------------------------------------
-void vtkTriangle::ComputeQuadric(float x1[3], float x2[3], float x3[3],
-                                 float quadric[4][4])
+void vtkTriangle::ComputeQuadric(double x1[3], double x2[3], double x3[3],
+                                 double quadric[4][4])
 {
-  float crossX1X2[3], crossX2X3[3], crossX3X1[3];
-  float determinantABC;
-  float ABCx[3][3];
-  float n[4];
+  double crossX1X2[3], crossX2X3[3], crossX3X1[3];
+  double determinantABC;
+  double ABCx[3][3];
+  double n[4];
   int i, j;
   
   for (i = 0; i < 3; i++)
@@ -1031,10 +1034,10 @@ void vtkTriangle::ComputeQuadric(float x1[3], float x2[3], float x3[3],
     }
 }
 
-void vtkTriangle::ComputeQuadric(float x1[3], float x2[3], float x3[3],
+void vtkTriangle::ComputeQuadric(double x1[3], double x2[3], double x3[3],
                                  vtkQuadric *quadric)
 {
-  float quadricMatrix[4][4];
+  double quadricMatrix[4][4];
   
   ComputeQuadric(x1, x2, x3, quadricMatrix);
   quadric->SetCoefficients(quadricMatrix[0][0], quadricMatrix[1][1],
@@ -1044,8 +1047,9 @@ void vtkTriangle::ComputeQuadric(float x1[3], float x2[3], float x3[3],
                            2*quadricMatrix[2][3], quadricMatrix[3][3]);
 }
 
-static float vtkTriangleCellPCoords[9] = {0.0,0.0,0.0, 1.0,0.0,0.0, 0.0,1.0,0.0};
-float *vtkTriangle::GetParametricCoords()
+static double vtkTriangleCellPCoords[9] = 
+{0.0,0.0,0.0, 1.0,0.0,0.0, 0.0,1.0,0.0};
+double *vtkTriangle::GetParametricCoords()
 {
   return vtkTriangleCellPCoords;
 }

@@ -99,6 +99,8 @@ public:
   // given cell or point ids and associated interpolation weights.
   void InterpolatePoint(vtkDataSetAttributes *fromPd, vtkIdType toId, 
                         vtkIdList *ids, float *weights);
+  void InterpolatePoint(vtkDataSetAttributes *fromPd, vtkIdType toId, 
+                        vtkIdList *ids, double *weights);
   
   // Description:
   // Interpolate data from the two points p1,p2 (forming an edge) and an 
@@ -360,13 +362,22 @@ protected:
   vtkDataSetAttributes();
   ~vtkDataSetAttributes();
 
-  // special methods to support managing data
+  // TODO: remove as double conversion progresses
   void InterpolateTuple(vtkDataArray *fromData, vtkDataArray *toData,
                         vtkIdType toId, vtkIdList *ptIds, float *weights);
   void InterpolateTuple(vtkDataArray *fromData, vtkDataArray *toData,
                         vtkIdType toId, vtkIdType id1, vtkIdType id2, float t);
   void InterpolateTuple(vtkDataArray *fromData1, vtkDataArray *fromData2, 
                         vtkDataArray *toData, vtkIdType id, float t);
+
+  // special methods to support managing data
+  void InterpolateTuple(vtkDataArray *fromData, vtkDataArray *toData,
+                        vtkIdType toId, vtkIdList *ptIds, double *weights);
+  void InterpolateTuple(vtkDataArray *fromData, vtkDataArray *toData,
+                        vtkIdType toId, vtkIdType id1, vtkIdType id2, 
+                        double t);
+  void InterpolateTuple(vtkDataArray *fromData1, vtkDataArray *fromData2, 
+                        vtkDataArray *toData, vtkIdType id, double t);
 
   // Description:
   // Initialize all of the object's data to NULL

@@ -39,20 +39,20 @@ int TestOCP(ostream& strm)
   vtkIdList *ids = vtkIdList::New();
   int j;
   int n;
-  float dist2;
+  double dist2;
   int subId;
 
   strm << "Test vtkCell::EvaluatePosition Start" << endl;
 
   vtkVertex *vertex = vtkVertex::New();
-  float vertexCoords[3], vertexWeights[2];
-  float vertexPoint[2][3] = {{10.0, 20.0, 30.0}, {0, 0, 0}};
-  float vertexClosest[3];
+  double vertexCoords[3], vertexWeights[2];
+  double vertexPoint[2][3] = {{10.0, 20.0, 30.0}, {0, 0, 0}};
+  double vertexClosest[3];
 
   vertex->GetPointIds()->SetId(0,0);
   vertex->GetPoints()->SetPoint (0, 10.0, 20.0, 30.0);
 
-  n = sizeof(vertexPoint) / (3 * sizeof(float));
+  n = sizeof(vertexPoint) / (3 * sizeof(double));
   for (j = 0; j < n; j++)
     {
     vertex->EvaluatePosition (&vertexPoint[j][0], &vertexClosest[0], subId, &vertexCoords[0], dist2, &vertexWeights[0]);
@@ -66,9 +66,9 @@ int TestOCP(ostream& strm)
     }
   
   vtkPolyVertex *polyVertex = vtkPolyVertex::New();
-  float polyVertexCoords[1], polyVertexWeights[2];
-  float polyVertexPoint[3][3] = {{10.0, 20.0, 30.0}, {30.0, 20.0, 10.0}, {0, 0, 0}};
-  float polyVertexClosest[3];
+  double polyVertexCoords[1], polyVertexWeights[2];
+  double polyVertexPoint[3][3] = {{10.0, 20.0, 30.0}, {30.0, 20.0, 10.0}, {0, 0, 0}};
+  double polyVertexClosest[3];
 
   polyVertex->GetPointIds()->SetNumberOfIds(2);
   polyVertex->GetPointIds()->SetId(0,0);
@@ -78,7 +78,7 @@ int TestOCP(ostream& strm)
   polyVertex->GetPoints()->SetPoint (0, 10.0, 20.0, 30.0);
   polyVertex->GetPoints()->SetPoint (1, 30.0, 20.0, 10.0);
 
-  n = sizeof(polyVertexPoint) / (3 * sizeof(float));
+  n = sizeof(polyVertexPoint) / (3 * sizeof(double));
   for (j = 0; j < n; j++)
     {
     polyVertex->EvaluatePosition (&polyVertexPoint[j][0], &polyVertexClosest[0], subId, &polyVertexCoords[0], dist2, &polyVertexWeights[0]);
@@ -92,16 +92,16 @@ int TestOCP(ostream& strm)
     }
 
   vtkLine *line = vtkLine::New();
-  float lineCoords[3], lineWeights[2];
-  float linePoint[3][3] = {{10.0, 20.0, 30.0}, {30.0, 20.0, 10.0}, {0, 0, 0}};
-  float lineClosest[3];
+  double lineCoords[3], lineWeights[2];
+  double linePoint[3][3] = {{10.0, 20.0, 30.0}, {30.0, 20.0, 10.0}, {0, 0, 0}};
+  double lineClosest[3];
 
   line->GetPointIds()->SetId(0,0);
   line->GetPointIds()->SetId(1,1);
   line->GetPoints()->SetPoint (0, 10.0, 20.0, 30.0);
   line->GetPoints()->SetPoint (1, 30.0, 20.0, 10.0);
   
-  n = sizeof(linePoint) / (3 * sizeof(float));
+  n = sizeof(linePoint) / (3 * sizeof(double));
   for (j = 0; j < n; j++)
     {
     line->EvaluatePosition (&linePoint[j][0], &lineClosest[0], subId, &lineCoords[0], dist2, &lineWeights[0]);
@@ -115,9 +115,9 @@ int TestOCP(ostream& strm)
     }
 
   vtkPolyLine *polyLine = vtkPolyLine::New();
-  float polyLineCoords[3], polyLineWeights[3];
-  float polyLinePoint[4][3] = {{10.0, 20.0, 30.0}, {10.0, 30.0, 30.0}, {10.0, 30.0, 40.0}, {0, 0, 0}};
-  float polyLineClosest[3];
+  double polyLineCoords[3], polyLineWeights[3];
+  double polyLinePoint[4][3] = {{10.0, 20.0, 30.0}, {10.0, 30.0, 30.0}, {10.0, 30.0, 40.0}, {0, 0, 0}};
+  double polyLineClosest[3];
 
   polyLine->GetPointIds()->SetNumberOfIds(3);
   polyLine->GetPointIds()->SetId(0,0);
@@ -129,7 +129,7 @@ int TestOCP(ostream& strm)
   polyLine->GetPoints()->SetPoint (1, 10.0, 30.0, 30.0);
   polyLine->GetPoints()->SetPoint (2, 10.0, 30.0, 40.0);
   
-  n = sizeof(polyLinePoint) / (3 * sizeof(float));
+  n = sizeof(polyLinePoint) / (3 * sizeof(double));
   for (j = 0; j < n; j++)
     {
     polyLine->EvaluatePosition (&polyLinePoint[j][0], &polyLineClosest[0], subId, &polyLineCoords[0], dist2, &polyLineWeights[0]);
@@ -143,9 +143,9 @@ int TestOCP(ostream& strm)
     }
 
   vtkTriangle *triangle = vtkTriangle::New();
-  float triangleCoords[3], triangleWeights[3], trianglePosition[3];
-  float trianglePoint[4][3] = {{10.0, 10.0, 10.0}, {12.0, 10.0, 10.0}, {11.0, 12.0, 12.0}, {11, 11, 11}};
-  float triangleClosest[3];
+  double triangleCoords[3], triangleWeights[3], trianglePosition[3];
+  double trianglePoint[4][3] = {{10.0, 10.0, 10.0}, {12.0, 10.0, 10.0}, {11.0, 12.0, 12.0}, {11, 11, 11}};
+  double triangleClosest[3];
 
   triangle->GetPointIds()->SetId(0,0);
   triangle->GetPointIds()->SetId(1,1);
@@ -155,7 +155,7 @@ int TestOCP(ostream& strm)
   triangle->GetPoints()->SetPoint (1, 12.0, 10.0, 10.0);
   triangle->GetPoints()->SetPoint (2, 11.0, 12.0, 12.0);
   
-  n = sizeof(trianglePoint) / (3 * sizeof(float));
+  n = sizeof(trianglePoint) / (3 * sizeof(double));
   for (j = 0; j < n; j++)
     {
     triangle->EvaluatePosition (&trianglePoint[j][0], &triangleClosest[0], subId, &triangleCoords[0], dist2, &triangleWeights[0]);
@@ -172,9 +172,9 @@ int TestOCP(ostream& strm)
 
   
   vtkTriangleStrip *triangleStrip = vtkTriangleStrip::New();
-  float triangleStripCoords[3], triangleStripWeights[4], triangleStripPosition[3];
-  float triangleStripPoint[5][3] = {{10.0, 10.0, 10.0}, {12.0, 10.0, 10.0}, {11.0, 12.0, 10.0}, {13, 10, 10}, {11, 11, 10}};
-  float triangleStripClosest[3];
+  double triangleStripCoords[3], triangleStripWeights[4], triangleStripPosition[3];
+  double triangleStripPoint[5][3] = {{10.0, 10.0, 10.0}, {12.0, 10.0, 10.0}, {11.0, 12.0, 10.0}, {13, 10, 10}, {11, 11, 10}};
+  double triangleStripClosest[3];
 
   triangleStrip->GetPointIds()->SetNumberOfIds(4);
   triangleStrip->GetPointIds()->SetId(0,0);
@@ -188,7 +188,7 @@ int TestOCP(ostream& strm)
   triangleStrip->GetPoints()->SetPoint (2, 11.0, 12.0, 10.0);
   triangleStrip->GetPoints()->SetPoint (3, 13.0, 10.0, 10.0);
 
-  n = sizeof(triangleStripPoint) / (3 * sizeof(float));
+  n = sizeof(triangleStripPoint) / (3 * sizeof(double));
   for (j = 0; j < n; j++)
     {
     triangleStrip->EvaluatePosition (&triangleStripPoint[j][0], &triangleStripClosest[0], subId, &triangleStripCoords[0], dist2, &triangleStripWeights[0]);
@@ -204,9 +204,9 @@ int TestOCP(ostream& strm)
     }
 
   vtkQuad *quad = vtkQuad::New();
-  float quadCoords[2], quadWeights[4], quadPosition[3];
-  float quadPoint[5][3] = {{10.0, 10.0, 10.0}, {12.0, 10.0, 10.0}, {12.0, 12.0, 10.0}, {10, 12, 10}, {11, 11, 10.1}};
-  float quadClosest[3];
+  double quadCoords[2], quadWeights[4], quadPosition[3];
+  double quadPoint[5][3] = {{10.0, 10.0, 10.0}, {12.0, 10.0, 10.0}, {12.0, 12.0, 10.0}, {10, 12, 10}, {11, 11, 10.1}};
+  double quadClosest[3];
 
   quad->GetPointIds()->SetId(0,0);
   quad->GetPointIds()->SetId(1,1);
@@ -218,7 +218,7 @@ int TestOCP(ostream& strm)
   quad->GetPoints()->SetPoint (2, 12.0, 12.0, 10.0);
   quad->GetPoints()->SetPoint (3, 10.0, 12.0, 10.0);
 
-  n = sizeof(quadPoint) / (3 * sizeof(float));
+  n = sizeof(quadPoint) / (3 * sizeof(double));
   for (j = 0; j < n; j++)
     {
     quad->EvaluatePosition (&quadPoint[j][0], &quadClosest[0], subId, &quadCoords[0], dist2, &quadWeights[0]);
@@ -234,9 +234,9 @@ int TestOCP(ostream& strm)
     }
 
   vtkPixel *pixel = vtkPixel::New();
-  float pixelCoords[3], pixelWeights[4], pixelPosition[3];
-  float pixelPoint[5][3] = {{10.0, 10.0, 10.0}, {12.0, 10.0, 10.0}, {12.0, 12.0, 10.0}, {10, 12, 10}, {11, 11, 10.1}};
-  float pixelClosest[3];
+  double pixelCoords[3], pixelWeights[4], pixelPosition[3];
+  double pixelPoint[5][3] = {{10.0, 10.0, 10.0}, {12.0, 10.0, 10.0}, {12.0, 12.0, 10.0}, {10, 12, 10}, {11, 11, 10.1}};
+  double pixelClosest[3];
 
   pixel->GetPointIds()->SetId(0,0);
   pixel->GetPointIds()->SetId(1,1);
@@ -248,7 +248,7 @@ int TestOCP(ostream& strm)
   pixel->GetPoints()->SetPoint (3, 12.0, 12.0, 10.0);
   pixel->GetPoints()->SetPoint (2, 10.0, 12.0, 10.0);
 
-  n = sizeof(pixelPoint) / (3 * sizeof(float));
+  n = sizeof(pixelPoint) / (3 * sizeof(double));
   for (j = 0; j < n; j++)
     {
     pixel->EvaluatePosition (&pixelPoint[j][0], &pixelClosest[0], subId, &pixelCoords[0], dist2, &pixelWeights[0]);
@@ -264,9 +264,9 @@ int TestOCP(ostream& strm)
     }
 
   vtkPolygon *polygon = vtkPolygon::New();
-  float polygonCoords[2], polygonWeights[4], polygonPosition[3];
-  float polygonPoint[5][3] = {{0.0, 0.0, 0.0}, {1.0, 0.0, 0.0}, {1.0, 1.0, 0.0}, {0, 1, 0}, {.5, .5, 0}};
-  float polygonClosest[3];
+  double polygonCoords[2], polygonWeights[4], polygonPosition[3];
+  double polygonPoint[5][3] = {{0.0, 0.0, 0.0}, {1.0, 0.0, 0.0}, {1.0, 1.0, 0.0}, {0, 1, 0}, {.5, .5, 0}};
+  double polygonClosest[3];
 
   polygon->GetPointIds()->SetNumberOfIds(4);
   polygon->GetPointIds()->SetId(0,0);
@@ -280,7 +280,7 @@ int TestOCP(ostream& strm)
   polygon->GetPoints()->SetPoint(2, 1.0, 1.0, 0.0);
   polygon->GetPoints()->SetPoint(3, 0.0, 1.0, 0.0);
   
-  n = sizeof(polygonPoint) / (3 * sizeof(float));
+  n = sizeof(polygonPoint) / (3 * sizeof(double));
   for (j = 0; j < n; j++)
     {
     polygon->EvaluatePosition (&polygonPoint[j][0], &polygonClosest[0], subId, &polygonCoords[0], dist2, &polygonWeights[0]);
@@ -297,9 +297,9 @@ int TestOCP(ostream& strm)
 
   
   vtkTetra *tetra = vtkTetra::New();
-  float tetraCoords[3], tetraWeights[4], tetraPosition[3];
-  float tetraPoint[5][3] = {{10, 10, 10}, {12, 10, 10}, {11, 12, 10}, {11, 11, 12}, {11, 11, 11}};
-  float tetraClosest[3];
+  double tetraCoords[3], tetraWeights[4], tetraPosition[3];
+  double tetraPoint[5][3] = {{10, 10, 10}, {12, 10, 10}, {11, 12, 10}, {11, 11, 12}, {11, 11, 11}};
+  double tetraClosest[3];
 
   tetra->GetPointIds()->SetNumberOfIds(4);
   tetra->GetPointIds()->SetId(0,0);
@@ -311,7 +311,7 @@ int TestOCP(ostream& strm)
   tetra->GetPoints()->SetPoint(2, 11.0, 12.0, 10.0);
   tetra->GetPoints()->SetPoint(3, 11.0, 11.0, 12.0);
 
-  n = sizeof(tetraPoint) / (3 * sizeof(float));
+  n = sizeof(tetraPoint) / (3 * sizeof(double));
   for (j = 0; j < n; j++)
     {
     tetra->EvaluatePosition (&tetraPoint[j][0], &tetraClosest[0], subId, &tetraCoords[0], dist2, &tetraWeights[0]);
@@ -327,11 +327,11 @@ int TestOCP(ostream& strm)
     }
 
   vtkVoxel *voxel = vtkVoxel::New();
-  float voxelCoords[3], voxelWeights[8], voxelPosition[3];
-  float voxelPoint[9][3] = {{10, 10, 10}, {12, 10, 10}, {12, 12, 10}, {10, 12, 10},
+  double voxelCoords[3], voxelWeights[8], voxelPosition[3];
+  double voxelPoint[9][3] = {{10, 10, 10}, {12, 10, 10}, {12, 12, 10}, {10, 12, 10},
                             {10, 10, 12}, {12, 10, 12}, {12, 12, 12}, {10, 12, 12},
                             {11, 11, 11}};
-  float voxelClosest[3];
+  double voxelClosest[3];
 
   voxel->GetPointIds()->SetNumberOfIds(8);
   voxel->GetPointIds()->SetId(0,0);
@@ -352,7 +352,7 @@ int TestOCP(ostream& strm)
   voxel->GetPoints()->SetPoint(7, 12, 12, 12);
   voxel->GetPoints()->SetPoint(6, 10, 12, 12);
 
-  n = sizeof(voxelPoint) / (3 * sizeof(float));
+  n = sizeof(voxelPoint) / (3 * sizeof(double));
   for (j = 0; j < n; j++)
     {
     voxel->EvaluatePosition (&voxelPoint[j][0], &voxelClosest[0], subId, &voxelCoords[0], dist2, &voxelWeights[0]);
@@ -368,11 +368,11 @@ int TestOCP(ostream& strm)
     }
 
   vtkHexahedron *hexahedron = vtkHexahedron::New();
-  float hexahedronCoords[3], hexahedronWeights[8], hexahedronPosition[3];
-  float hexahedronPoint[9][3] = {{10, 10, 10}, {12, 10, 10}, {12, 12, 10}, {10, 12, 10},
+  double hexahedronCoords[3], hexahedronWeights[8], hexahedronPosition[3];
+  double hexahedronPoint[9][3] = {{10, 10, 10}, {12, 10, 10}, {12, 12, 10}, {10, 12, 10},
                                  {10, 10, 12}, {12, 10, 12}, {12, 12, 12}, {10, 12, 12},
                                  {11, 11, 11}};
-  float hexahedronClosest[3];
+  double hexahedronClosest[3];
 
   hexahedron->GetPointIds()->SetNumberOfIds(8);
   hexahedron->GetPointIds()->SetId(0,0);
@@ -393,7 +393,7 @@ int TestOCP(ostream& strm)
   hexahedron->GetPoints()->SetPoint(6, 12, 12, 12);
   hexahedron->GetPoints()->SetPoint(7, 10, 12, 12);
 
-  n = sizeof(hexahedronPoint) / (3 * sizeof(float));
+  n = sizeof(hexahedronPoint) / (3 * sizeof(double));
   for (j = 0; j < n; j++)
     {
     hexahedron->EvaluatePosition (&hexahedronPoint[j][0], &hexahedronClosest[0], subId, &hexahedronCoords[0], dist2, &hexahedronWeights[0]);

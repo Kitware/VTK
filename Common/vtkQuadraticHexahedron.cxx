@@ -15,7 +15,7 @@
 #include "vtkQuadraticHexahedron.h"
 
 #include "vtkCellData.h"
-#include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkHexahedron.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -25,7 +25,7 @@
 #include "vtkQuadraticEdge.h"
 #include "vtkQuadraticQuad.h"
 
-vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.18");
+vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.19");
 vtkStandardNewMacro(vtkQuadraticHexahedron);
 
 // Construct the hex with 20 points + 7 extra points for internal
@@ -52,7 +52,7 @@ vtkQuadraticHexahedron::vtkQuadraticHexahedron()
 
   this->PointData = vtkPointData::New();
   this->CellData = vtkCellData::New();
-  this->Scalars = vtkFloatArray::New();
+  this->Scalars = vtkDoubleArray::New();
   this->Scalars->SetNumberOfTuples(8);
 }
 
@@ -88,7 +88,7 @@ static int HexEdges[12][3] = { {0,1,8}, {1,2,9}, {3,2,10}, {0,3,11},
                                {4,5,12}, {5,6,13}, {7,6,14}, {4,7,15},
                                {0,4,16}, {1,5,17}, {3,7,19}, {2,6,18} };
 
-static float MidPoints[7][3] = { {0.0,0.5,0.5}, {1.0,0.5,0.5}, 
+static double MidPoints[7][3] = { {0.0,0.5,0.5}, {1.0,0.5,0.5}, 
                                  {0.5,0.0,0.5}, {0.5,1.0,0.5},
                                  {0.5,0.5,0.0}, {0.5,0.5,1.0},
                                  {0.5,0.5,0.5} };
@@ -124,8 +124,8 @@ void vtkQuadraticHexahedron::Subdivide(vtkPointData *inPd, vtkCellData *inCd,
                                        vtkIdType cellId)
 {
   int numMidPts, i, j;
-  float weights[20];
-  float x[3];
+  double weights[20];
+  double x[3];
 
   //Copy point and cell attribute data
   this->PointData->CopyAllocate(inPd,27);
@@ -138,17 +138,20 @@ void vtkQuadraticHexahedron::Subdivide(vtkPointData *inPd, vtkCellData *inCd,
   
   //Interpolate new values
   this->PointIds->SetNumberOfIds(20);
-  float *p = ((vtkFloatArray *)this->Points->GetData())->GetPointer(0);
+  double *p;
   for ( numMidPts=0; numMidPts < 7; numMidPts++ )
     {
     this->InterpolationFunctions(MidPoints[numMidPts], weights);
 
-    for (j=0; j<3; j++) 
+    x[0] = 0.0;
+    x[1] = 0.0;
+    x[2] = 0.0;
+    for (i=0; i<20; i++) 
       {
-      x[j] = 0.0;
-      for (i=0; i<20; i++) 
+      p = this->Points->GetPoint(i);
+      for (j=0; j<3; j++) 
         {
-        x[j] += p[3*i+j] * weights[i];
+        x[j] += p[j] * weights[i];
         }
       }
     this->Points->SetPoint(20+numMidPts,x);
@@ -158,21 +161,21 @@ void vtkQuadraticHexahedron::Subdivide(vtkPointData *inPd, vtkCellData *inCd,
   this->PointIds->SetNumberOfIds(27);
 }
 
-static const float VTK_DIVERGED = 1.e6;
+static const double VTK_DIVERGED = 1.e6;
 static const int VTK_HEX_MAX_ITERATION=10;
-static const float VTK_HEX_CONVERGED=1.e-03;
+static const double VTK_HEX_CONVERGED=1.e-03;
 
-int vtkQuadraticHexahedron::EvaluatePosition(float* x, 
-                                             float* closestPoint, 
-                                             int& subId, float pcoords[3],
-                                             float& dist2, float *weights)
+int vtkQuadraticHexahedron::EvaluatePosition(double* x, 
+                                             double* closestPoint, 
+                                             int& subId, double pcoords[3],
+                                             double& dist2, double *weights)
 {
   int iteration, converged;
-  float  params[3];
-  float  fcol[3], rcol[3], scol[3], tcol[3];
+  double  params[3];
+  double  fcol[3], rcol[3], scol[3], tcol[3];
   int i, j;
-  float  d, pt[3];
-  float derivs[60];
+  double  d, pt[3];
+  double derivs[60];
 
   //  set initial position for Newton's method
   subId = 0;
@@ -266,7 +269,7 @@ int vtkQuadraticHexahedron::EvaluatePosition(float* x,
     }
   else
     {
-    float pc[3], w[20];
+    double pc[3], w[20];
     if (closestPoint)
       {
       for (i=0; i<3; i++) //only approximate, not really true for warped hexa
@@ -284,7 +287,7 @@ int vtkQuadraticHexahedron::EvaluatePosition(float* x,
           pc[i] = pcoords[i];
           }
         }
-      this->EvaluateLocation(subId, pc, closestPoint, (float *)w);
+      this->EvaluateLocation(subId, pc, closestPoint, (double *)w);
       dist2 = vtkMath::Distance2BetweenPoints(closestPoint,x);
       }
     return 0;
@@ -292,11 +295,11 @@ int vtkQuadraticHexahedron::EvaluatePosition(float* x,
 }
 
 void vtkQuadraticHexahedron::EvaluateLocation(int& vtkNotUsed(subId), 
-                                              float pcoords[3], 
-                                              float x[3], float *weights)
+                                              double pcoords[3], 
+                                              double x[3], double *weights)
 {
   int i, j;
-  float pt[3];
+  double pt[3];
 
   this->InterpolationFunctions(pcoords, weights);
 
@@ -311,13 +314,13 @@ void vtkQuadraticHexahedron::EvaluateLocation(int& vtkNotUsed(subId),
     }
 }
 
-int vtkQuadraticHexahedron::CellBoundary(int subId, float pcoords[3], 
+int vtkQuadraticHexahedron::CellBoundary(int subId, double pcoords[3], 
                                          vtkIdList *pts)
 {
   return this->Hex->CellBoundary(subId, pcoords, pts);
 }
 
-void vtkQuadraticHexahedron::Contour(float value, 
+void vtkQuadraticHexahedron::Contour(double value, 
                                      vtkDataArray* vtkNotUsed(cellScalars), 
                                      vtkPointLocator* locator, 
                                      vtkCellArray *verts, 
@@ -349,17 +352,17 @@ void vtkQuadraticHexahedron::Contour(float value,
 
 // Line-hex intersection. Intersection has to occur within [0,1] parametric
 // coordinates and with specified tolerance.
-int vtkQuadraticHexahedron::IntersectWithLine(float* p1, float* p2, 
-                                              float tol, float& t,
-                                              float* x, float* pcoords, 
+int vtkQuadraticHexahedron::IntersectWithLine(double* p1, double* p2, 
+                                              double tol, double& t,
+                                              double* x, double* pcoords, 
                                               int& subId)
 {
   int intersection=0;
-  float tTemp;
-  float pc[3], xTemp[3];
+  double tTemp;
+  double pc[3], xTemp[3];
   int faceNum;
 
-  t = VTK_LARGE_FLOAT;
+  t = VTK_DOUBLE_MAX;
   for (faceNum=0; faceNum<6; faceNum++)
     {
     for (int i=0; i<8; i++)
@@ -426,13 +429,13 @@ int vtkQuadraticHexahedron::Triangulate(int vtkNotUsed(index),
 // Given parametric coordinates compute inverse Jacobian transformation
 // matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
 // function derivatives.
-void vtkQuadraticHexahedron::JacobianInverse(float pcoords[3], 
+void vtkQuadraticHexahedron::JacobianInverse(double pcoords[3], 
                                              double **inverse, 
-                                             float derivs[60])
+                                             double derivs[60])
 {
   int i, j;
   double *m[3], m0[3], m1[3], m2[3];
-  float x[3];
+  double x[3];
 
   // compute interpolation function derivatives
   this->InterpolationDerivs(pcoords, derivs);
@@ -464,11 +467,11 @@ void vtkQuadraticHexahedron::JacobianInverse(float pcoords[3],
 }
 
 void vtkQuadraticHexahedron::Derivatives(int vtkNotUsed(subId), 
-                                         float pcoords[3], float *values, 
-                                         int dim, float *derivs)
+                                         double pcoords[3], double *values, 
+                                         int dim, double *derivs)
 {
   double *jI[3], j0[3], j1[3], j2[3];
-  float functionDerivs[60], sum[3];
+  double functionDerivs[60], sum[3];
   int i, j, k;
 
   // compute inverse Jacobian and interpolation function derivatives
@@ -495,7 +498,7 @@ void vtkQuadraticHexahedron::Derivatives(int vtkNotUsed(subId),
 
 // Clip this quadratic hex using scalar value provided. Like contouring, 
 // except that it cuts the hex to produce tetrahedra.
-void vtkQuadraticHexahedron::Clip(float value, 
+void vtkQuadraticHexahedron::Clip(double value, 
                                   vtkDataArray* vtkNotUsed(cellScalars), 
                                   vtkPointLocator* locator, vtkCellArray* tets,
                                   vtkPointData* inPd, vtkPointData* outPd,
@@ -521,25 +524,25 @@ void vtkQuadraticHexahedron::Clip(float value,
 }
 
 // Compute interpolation functions for the twenty nodes.
-void vtkQuadraticHexahedron::InterpolationFunctions(float pcoords[3], 
-                                                    float weights[20])
+void vtkQuadraticHexahedron::InterpolationFunctions(double pcoords[3], 
+                                                    double weights[20])
 {
   //VTK needs parametric coordinates to be between (0,1). Isoparametric
   //shape functions are formulated between (-1,1). Here we do a 
   //coordinate system conversion from (0,1) to (-1,1).
-  float r = 2.0*(pcoords[0]-0.5);
-  float s = 2.0*(pcoords[1]-0.5);
-  float t = 2.0*(pcoords[2]-0.5);
+  double r = 2.0*(pcoords[0]-0.5);
+  double s = 2.0*(pcoords[1]-0.5);
+  double t = 2.0*(pcoords[2]-0.5);
 
-  float rm = 1.0 - r;
-  float rp = 1.0 + r;
-  float sm = 1.0 - s;
-  float sp = 1.0 + s;
-  float tm = 1.0 - t;
-  float tp = 1.0 + t;
-  float r2 = 1.0 - r*r;
-  float s2 = 1.0 - s*s;
-  float t2 = 1.0 - t*t;
+  double rm = 1.0 - r;
+  double rp = 1.0 + r;
+  double sm = 1.0 - s;
+  double sp = 1.0 + s;
+  double tm = 1.0 - t;
+  double tp = 1.0 + t;
+  double r2 = 1.0 - r*r;
+  double s2 = 1.0 - s*s;
+  double t2 = 1.0 - t*t;
 
   //The eight corner points
   weights[0] = 0.125 * rm * sm * tm * (-r - s - t - 2.0);
@@ -567,22 +570,22 @@ void vtkQuadraticHexahedron::InterpolationFunctions(float pcoords[3],
 }
 
 // Derivatives in parametric space.
-void vtkQuadraticHexahedron::InterpolationDerivs(float pcoords[3], 
-                                                 float derivs[60])
+void vtkQuadraticHexahedron::InterpolationDerivs(double pcoords[3], 
+                                                 double derivs[60])
 {
   //VTK needs parametric coordinates to be between (0,1). Isoparametric
   //shape functions are formulated between (-1,1). Here we do a 
   //coordinate system conversion from (0,1) to (-1,1).
-  float r = 2.0*(pcoords[0]-0.5);
-  float s = 2.0*(pcoords[1]-0.5);
-  float t = 2.0*(pcoords[2]-0.5);
+  double r = 2.0*(pcoords[0]-0.5);
+  double s = 2.0*(pcoords[1]-0.5);
+  double t = 2.0*(pcoords[2]-0.5);
 
-  float rm = 1.0 - r;
-  float rp = 1.0 + r;
-  float sm = 1.0 - s;
-  float sp = 1.0 + s;
-  float tm = 1.0 - t;
-  float tp = 1.0 + t;
+  double rm = 1.0 - r;
+  double rp = 1.0 + r;
+  double sm = 1.0 - s;
+  double sp = 1.0 + s;
+  double tm = 1.0 - t;
+  double tp = 1.0 + t;
 
   //r-derivatives
   derivs[0] = -0.125*(sm*tm - 2.0*r*sm*tm - s*sm*tm - t*sm*tm - 2.0*sm*tm);
@@ -651,14 +654,14 @@ void vtkQuadraticHexahedron::InterpolationDerivs(float pcoords[3],
   derivs[59] = -0.5*t*rm*sp;
 }
 
-static float vtkQHexCellPCoords[60] = {0.0,0.0,0.0, 1.0,0.0,0.0, 1.0,1.0,0.0, 
+static double vtkQHexCellPCoords[60] = {0.0,0.0,0.0, 1.0,0.0,0.0, 1.0,1.0,0.0, 
                                        0.0,1.0,0.0, 0.0,0.0,1.0, 1.0,0.0,1.0,
                                        1.0,1.0,1.0, 0.0,1.0,1.0, 0.5,0.0,0.0,
                                        1.0,0.5,1.0, 0.5,1.0,0.0, 0.0,0.5,0.0,
                                        0.5,0.0,1.0, 1.0,0.5,1.0, 0.5,1.0,1.0,
                                        0.0,0.5,1.0, 0.0,0.0,0.5, 1.0,0.0,0.5,
                                        1.0,1.0,0.5, 0.0,1.0,0.5};
-float *vtkQuadraticHexahedron::GetParametricCoords()
+double *vtkQuadraticHexahedron::GetParametricCoords()
 {
   return vtkQHexCellPCoords;
 }

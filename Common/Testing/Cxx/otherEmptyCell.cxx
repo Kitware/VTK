@@ -31,7 +31,7 @@ void TestOEC(ostream& strm)
   cell2->DeepCopy(cell);
   vtkIdList *ids = vtkIdList::New();
   vtkPoints *pts = vtkPoints::New();
-  float v = 0.0;
+  double v = 0.0;
   vtkFloatArray *cellScalars = vtkFloatArray::New();
   vtkPointLocator *locator = vtkPointLocator::New();
   vtkCellArray *verts = vtkCellArray::New();
@@ -43,12 +43,12 @@ void TestOEC(ostream& strm)
   vtkCellData *outCd = vtkCellData::New();
   int cellId = 0;
   int inOut = 0;
-  float t, tol = 0.0;
-  float x[3];
-  float c[3];
-  float p[3];
-  float d;
-  float w[3];
+  double t, tol = 0.0;
+  double x[3];
+  double c[3];
+  double p[3];
+  double d;
+  double w[3];
   int s;
 
   strm << "Testing EmptyCell" << endl;

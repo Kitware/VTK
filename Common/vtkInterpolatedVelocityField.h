@@ -59,7 +59,7 @@ public:
   // Description:
   // Evaluate the velocity field, f, at (x, y, z, t).
   // For now, t is ignored.
-  virtual int FunctionValues(float* x, float* f);
+  virtual int FunctionValues(double* x, double* f);
 
   // Description:
   // Add a dataset used for the implicit function evaluation.
@@ -83,8 +83,8 @@ public:
   // Returns the interpolation weights cached from last evaluation
   // if the cached cell is valid (returns 1). Otherwise, it does not
   // change w and returns 0.
-  int GetLastWeights(float* w);
-  int GetLastLocalCoordinates(float pcoords[3]);
+  int GetLastWeights(double* w);
+  int GetLastLocalCoordinates(double pcoords[3]);
 
   // Description:
   // Turn caching on/off.
@@ -114,9 +114,9 @@ protected:
 
   vtkGenericCell* GenCell; // last cell
   vtkGenericCell* Cell;
-  float* Weights; // last weights
+  double* Weights; // last weights
   int WeightsSize;
-  float LastPCoords[3]; // last local coordinates
+  double LastPCoords[3]; // last local coordinates
   vtkIdType LastCellId;
   int CacheHit;
   int CacheMiss;
@@ -129,9 +129,9 @@ protected:
 
   vtkInterpolatedVelocityFieldDataSetsType* DataSets;
 
-  int FunctionValues(vtkDataSet* ds, float* x, float* f);
+  int FunctionValues(vtkDataSet* ds, double* x, double* f);
 
-  static const float TOLERANCE_SCALE;
+  static const double TOLERANCE_SCALE;
 
 private:
   vtkInterpolatedVelocityField(const vtkInterpolatedVelocityField&);  // Not implemented.

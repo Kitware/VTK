@@ -283,8 +283,8 @@ public:
   // Locality is used internally by the pipeline update mechanism.
   // It is used to get parralel execution when a filter has multiple
   // inputs with ports upstream.
-  vtkSetMacro(Locality, float);
-  vtkGetMacro(Locality, float);
+  vtkSetMacro(Locality, double);
+  vtkGetMacro(Locality, double);
 
   // Description:
   // An object that will translate pieces into structured extents.
@@ -393,7 +393,7 @@ protected:
   // 0.0 : no ports.
   // 1.0 : my source is a port.
   // 0.5 : the next upstream filter is a port ...
-  float Locality;  
+  double Locality;  
 
 private:
   // Helper method for the ShallowCopy and DeepCopy methods.

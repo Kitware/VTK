@@ -38,17 +38,17 @@ public:
   int GetNumberOfFaces() {return 0;};
   vtkCell *GetEdge(int) {return 0;};
   vtkCell *GetFace(int) {return 0;};
-  void Clip(float value, vtkDataArray *cellScalars, 
+  void Clip(double value, vtkDataArray *cellScalars, 
             vtkPointLocator *locator, vtkCellArray *pts,
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
             int insideOut);
-  int EvaluatePosition(float x[3], float* closestPoint, 
-                       int& subId, float pcoords[3], 
-                       float& dist2, float *weights);
-  void EvaluateLocation(int& subId, float pcoords[3], float x[3],
-                        float *weights);
-  virtual float *GetParametricCoords();
+  int EvaluatePosition(double x[3], double* closestPoint, 
+                       int& subId, double pcoords[3], 
+                       double& dist2, double *weights);
+  void EvaluateLocation(int& subId, double pcoords[3], double x[3],
+                        double *weights);
+  virtual double *GetParametricCoords();
 
   // Description:
   // Given parametric coordinates of a point, return the closest cell
@@ -56,14 +56,14 @@ public:
   // cell boundary is defined by a list of points (pts) that specify a vertex
   // (1D cell).  If the return value of the method is != 0, then the point is
   // inside the cell.
-  int CellBoundary(int subId, float pcoords[3], vtkIdList *pts);
+  int CellBoundary(int subId, double pcoords[3], vtkIdList *pts);
 
   // Description:
   // Generate contouring primitives. The scalar list cellScalars are
   // scalar values at each cell point. The point locator is essentially a 
   // points list that merges points as they are inserted (i.e., prevents 
   // duplicates). 
-  void Contour(float value, vtkDataArray *cellScalars, 
+  void Contour(double value, vtkDataArray *cellScalars, 
                vtkPointLocator *locator, vtkCellArray *verts1, 
                vtkCellArray *lines, vtkCellArray *verts2, 
                vtkPointData *inPd, vtkPointData *outPd,
@@ -73,8 +73,8 @@ public:
   // Intersect with a ray. Return parametric coordinates (both line and cell)
   // and global intersection coordinates, given ray definition and tolerance. 
   // The method returns non-zero value if intersection occurs.
-  int IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
-                        float x[3], float pcoords[3], int& subId);
+  int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
+                        double x[3], double pcoords[3], int& subId);
   
   // Description:
   // Triangulate the vertex. This method fills pts and ptIds with information
@@ -84,12 +84,12 @@ public:
   // Description:
   // Get the derivative of the vertex. Returns (0.0, 0.0, 0.0) for all 
   // dimensions.
-  void Derivatives(int subId, float pcoords[3], float *values, 
-                   int dim, float *derivs);
+  void Derivatives(int subId, double pcoords[3], double *values, 
+                   int dim, double *derivs);
 
   // Description:
   // Vertex specific methods.
-  static void InterpolationFunctions(float pcoords[3], float weights[1]);
+  static void InterpolationFunctions(double pcoords[3], double weights[1]);
 
 protected:
   vtkVertex();

@@ -41,7 +41,7 @@ int TestOCB(ostream& strm)
   strm << "Test vtkCell::CellBoundary Start" << endl;
 
   vtkVertex *vertex = vtkVertex::New();
-  float vertexCoords[1][1];
+  double vertexCoords[1][1];
 
   vertex->GetPointIds()->SetId(0,0);
   
@@ -59,7 +59,7 @@ int TestOCB(ostream& strm)
     }
   
   vtkPolyVertex *polyVertex = vtkPolyVertex::New();
-  float polyVertexCoords[1][1];
+  double polyVertexCoords[1][1];
 
   polyVertex->GetPointIds()->SetNumberOfIds(2);
   polyVertex->GetPointIds()->SetId(0,0);
@@ -82,7 +82,7 @@ int TestOCB(ostream& strm)
     }
   
   vtkLine *line = vtkLine::New();
-  float lineCoords[2][1];
+  double lineCoords[2][1];
 
   line->GetPointIds()->SetId(0,0);
   line->GetPointIds()->SetId(1,1);
@@ -102,7 +102,7 @@ int TestOCB(ostream& strm)
     }
   
   vtkPolyLine *polyLine = vtkPolyLine::New();
-  float polyLineCoords[3][1];
+  double polyLineCoords[3][1];
 
   polyLine->GetPointIds()->SetNumberOfIds(3);
   polyLine->GetPointIds()->SetId(0,0);
@@ -127,7 +127,7 @@ int TestOCB(ostream& strm)
     }
   
   vtkTriangle *triangle = vtkTriangle::New();
-  float triangleCoords[3][2];
+  double triangleCoords[3][2];
 
   triangle->GetPointIds()->SetId(0,0);
   triangle->GetPointIds()->SetId(1,1);
@@ -149,7 +149,7 @@ int TestOCB(ostream& strm)
     }
   
   vtkTriangleStrip *triangleStrip = vtkTriangleStrip::New();
-  float triangleStripCoords[3][2];
+  double triangleStripCoords[3][2];
 
   triangleStrip->GetPointIds()->SetNumberOfIds(4);
   triangleStrip->GetPointIds()->SetId(0,0);
@@ -176,7 +176,7 @@ int TestOCB(ostream& strm)
     }
   
   vtkQuad *quad = vtkQuad::New();
-  float quadCoords[4][2];
+  double quadCoords[4][2];
 
   quad->GetPointIds()->SetId(0,0);
   quad->GetPointIds()->SetId(1,1);
@@ -200,7 +200,7 @@ int TestOCB(ostream& strm)
     }
 
   vtkPixel *pixel = vtkPixel::New();
-  float pixelCoords[4][2];
+  double pixelCoords[4][2];
 
   pixel->GetPointIds()->SetId(0,0);
   pixel->GetPointIds()->SetId(1,1);
@@ -224,7 +224,7 @@ int TestOCB(ostream& strm)
     }
   
   vtkPolygon *polygon = vtkPolygon::New();
-  float polygonCoords[4][2];
+  double polygonCoords[4][2];
 
   polygon->GetPointIds()->SetNumberOfIds(4);
   polygon->GetPointIds()->SetId(0,0);
@@ -255,7 +255,7 @@ int TestOCB(ostream& strm)
     }
   
   vtkTetra *tetra = vtkTetra::New();
-  float tetraCoords[4][3];
+  double tetraCoords[4][3];
 
   tetra->GetPointIds()->SetNumberOfIds(4);
   tetra->GetPointIds()->SetId(0,0);
@@ -280,7 +280,7 @@ int TestOCB(ostream& strm)
     }
   
   vtkVoxel *voxel = vtkVoxel::New();
-  float voxelCoords[6][3];
+  double voxelCoords[6][3];
 
   voxel->GetPointIds()->SetNumberOfIds(8);
   voxel->GetPointIds()->SetId(0,0);
@@ -311,7 +311,7 @@ int TestOCB(ostream& strm)
     }
 
   vtkHexahedron *hexahedron = vtkHexahedron::New();
-  float hexahedronCoords[6][3];
+  double hexahedronCoords[6][3];
 
   hexahedron->GetPointIds()->SetNumberOfIds(8);
   hexahedron->GetPointIds()->SetId(0,0);

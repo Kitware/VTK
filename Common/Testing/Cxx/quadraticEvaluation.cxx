@@ -26,14 +26,14 @@
 #include "vtkQuadraticHexahedron.h"
 #include "vtkQuadraticTetra.h"
 
-void  ComputeDataValues(vtkPoints *pts, float *edgeValues)
+void  ComputeDataValues(vtkPoints *pts, double *edgeValues)
 {
-  float x[3];
+  double x[3];
   int numPts = pts->GetNumberOfPoints();
   for (int i=0; i<numPts; i++)
     {
     pts->GetPoint(i,x);
-    float dem = (1.0 + x[0]);
+    double dem = (1.0 + x[0]);
     if(fabs(dem) < 1.e-08)
       {
       edgeValues[i] = 0;
@@ -48,7 +48,7 @@ void  ComputeDataValues(vtkPoints *pts, float *edgeValues)
 int TestQE(ostream& strm)
 {
   // actual test
-  float dist2;
+  double dist2;
   int subId;
 
   //-----------------------------------------------------------
@@ -81,9 +81,9 @@ int TestQE(ostream& strm)
   strm << "Test vtkCell::EvaluatePosition Start" << endl;
 
   // vtkQuadraticEdge
-  float edgePCoords[3], edgeWeights[3], edgePosition[3];
-  float edgePoint[1][3] = {{0.25, 0.125, 0.0}};
-  float edgeClosest[3];
+  double edgePCoords[3], edgeWeights[3], edgePosition[3];
+  double edgePoint[1][3] = {{0.25, 0.125, 0.0}};
+  double edgeClosest[3];
 
   edge->GetPointIds()->SetId(0,0);
   edge->GetPointIds()->SetId(1,1);
@@ -97,9 +97,9 @@ int TestQE(ostream& strm)
                          dist2, edgeWeights);
 
   // vtkQuadraticTriangle
-  float triPCoords[3], triWeights[6], triPosition[3];
-  float triPoint[1][3] = {{0.5, 0.266667, 0.0}};
-  float triClosest[3];
+  double triPCoords[3], triWeights[6], triPosition[3];
+  double triPoint[1][3] = {{0.5, 0.266667, 0.0}};
+  double triClosest[3];
 
   tri->GetPointIds()->SetId(0,0);
   tri->GetPointIds()->SetId(1,1);
@@ -120,9 +120,9 @@ int TestQE(ostream& strm)
 
   
   // vtkQuadraticQuad
-  float quadPCoords[3], quadWeights[8], quadPosition[3];
-  float quadPoint[1][3] = {{0.25, 0.33, 0.0}};
-  float quadClosest[3];
+  double quadPCoords[3], quadWeights[8], quadPosition[3];
+  double quadPoint[1][3] = {{0.25, 0.33, 0.0}};
+  double quadClosest[3];
   
   quad->GetPointIds()->SetId(0,0);
   quad->GetPointIds()->SetId(1,1);
@@ -146,9 +146,9 @@ int TestQE(ostream& strm)
                          dist2, quadWeights);
 
   // vtkQuadraticTetra
-  float tetraPCoords[3], tetraWeights[10], tetraPosition[3];
-  float tetraPoint[1][3] = {{0.5, 0.266667, 0.333333}};
-  float tetraClosest[3];
+  double tetraPCoords[3], tetraWeights[10], tetraPosition[3];
+  double tetraPoint[1][3] = {{0.5, 0.266667, 0.333333}};
+  double tetraClosest[3];
   
   tetra->GetPointIds()->SetId(0,0);
   tetra->GetPointIds()->SetId(1,1);
@@ -177,9 +177,9 @@ int TestQE(ostream& strm)
 
   
   // vtkQuadraticHexahedron
-  float hexPCoords[3], hexWeights[20], hexPosition[3];
-  float hexPoint[1][3] = {{0.25, 0.33333, 0.666667}};
-  float hexClosest[3];
+  double hexPCoords[3], hexWeights[20], hexPosition[3];
+  double hexPoint[1][3] = {{0.25, 0.33333, 0.666667}};
+  double hexClosest[3];
   
   hex->GetPointIds()->SetId(0,0);
   hex->GetPointIds()->SetId(1,1);
@@ -255,27 +255,27 @@ int TestQE(ostream& strm)
   strm << "Test vtkCell::CellDerivs Start" << endl;
 
   // vtkQuadraticEdge - temporarily commented out
-//  float edgeValues[3], edgeDerivs[3];
+//  double edgeValues[3], edgeDerivs[3];
 //  ComputeDataValues(edge->Points,edgeValues);
 //  edge->Derivatives(subId, edgePCoords, edgeValues, 1, edgeDerivs);
   
   // vtkQuadraticTriangle
-  float triValues[6], triDerivs[3];
+  double triValues[6], triDerivs[3];
   ComputeDataValues(tri->Points,triValues);
   tri->Derivatives(subId, triPCoords, triValues, 1, triDerivs);
   
   // vtkQuadraticQuad
-  float quadValues[8], quadDerivs[3];
+  double quadValues[8], quadDerivs[3];
   ComputeDataValues(quad->Points,quadValues);
   quad->Derivatives(subId, quadPCoords, quadValues, 1, quadDerivs);
   
   // vtkQuadraticTetra
-  float tetraValues[10], tetraDerivs[3];
+  double tetraValues[10], tetraDerivs[3];
   ComputeDataValues(tetra->Points,tetraValues);
   tetra->Derivatives(subId, tetraPCoords, tetraValues, 1, tetraDerivs);
   
   // vtkQuadraticHexahedron
-  float hexValues[20], hexDerivs[3];
+  double hexValues[20], hexDerivs[3];
   ComputeDataValues(hex->Points,hexValues);
   hex->Derivatives(subId, hexPCoords, hexValues, 1, hexDerivs);
   

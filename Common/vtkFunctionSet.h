@@ -36,10 +36,10 @@ public:
 
   // Description:
   // Evaluate functions at x_j.
-  // x and f have to point to valid float arrays of appropriate 
+  // x and f have to point to valid double arrays of appropriate 
   // sizes obtained with GetNumberOfFunctions() and
   // GetNumberOfIndependentVariables.
-  virtual int FunctionValues(float* x, float* f) = 0;
+  virtual int FunctionValues(double* x, double* f) = 0;
 
   // Description:
   // Return the number of functions. Note that this is constant for 

@@ -67,21 +67,21 @@ public:
   // Standard vtkDataSet API methods. See vtkDataSet for more information.
   vtkIdType GetNumberOfCells();
   vtkIdType GetNumberOfPoints();
-  float *GetPoint(vtkIdType ptId);
-  void GetPoint(vtkIdType id, float x[3]);
+  double *GetPoint(vtkIdType ptId);
+  void GetPoint(vtkIdType id, double x[3]);
   vtkCell *GetCell(vtkIdType cellId);
   void GetCell(vtkIdType cellId, vtkGenericCell *cell);
-  void GetCellBounds(vtkIdType cellId, float bounds[6]);
-  int FindPoint(float x, float y, float z) { return this->vtkDataSet::FindPoint(x, y, z);};
-  vtkIdType FindPoint(float x[3]);
-  vtkIdType FindCell(float x[3], vtkCell *cell, vtkIdType cellId, float tol2,
-                     int& subId, float pcoords[3], float *weights);
-  vtkIdType FindCell(float x[3], vtkCell *cell, vtkGenericCell *gencell,
-                     vtkIdType cellId, float tol2, int& subId, 
-                     float pcoords[3], float *weights);
-  vtkCell *FindAndGetCell(float x[3], vtkCell *cell, vtkIdType cellId, 
-                          float tol2, int& subId, float pcoords[3],
-                          float *weights);
+  void GetCellBounds(vtkIdType cellId, double bounds[6]);
+  int FindPoint(double x, double y, double z) { return this->vtkDataSet::FindPoint(x, y, z);};
+  vtkIdType FindPoint(double x[3]);
+  vtkIdType FindCell(double x[3], vtkCell *cell, vtkIdType cellId, double tol2,
+                     int& subId, double pcoords[3], double *weights);
+  vtkIdType FindCell(double x[3], vtkCell *cell, vtkGenericCell *gencell,
+                     vtkIdType cellId, double tol2, int& subId, 
+                     double pcoords[3], double *weights);
+  vtkCell *FindAndGetCell(double x[3], vtkCell *cell, vtkIdType cellId, 
+                          double tol2, int& subId, double pcoords[3],
+                          double *weights);
   int GetCellType(vtkIdType cellId);
   void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds)
     {vtkStructuredData::GetCellPoints(cellId,ptIds,this->DataDescription,
@@ -112,7 +112,7 @@ public:
   // The cell is specified by the array ijk[3], and the parametric coordinates
   // in the cell are specified with pcoords[3]. The function returns a 0 if the
   // point x is outside of the grid, and a 1 if inside the grid.
-  int ComputeStructuredCoordinates(float x[3], int ijk[3], float pcoords[3]);
+  int ComputeStructuredCoordinates(double x[3], int ijk[3], double pcoords[3]);
 
   // Description:
   // Given a location in structured coordinates (i-j-k), return the point id.
@@ -211,7 +211,7 @@ protected:
   vtkDataArray *ZCoordinates;
 
   // Hang on to some space for returning points when GetPoint(id) is called.
-  float PointReturn[3];
+  double PointReturn[3];
 
 private:
   // Description:

@@ -44,7 +44,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.114");
+vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.115");
 vtkStandardNewMacro(vtkUnstructuredGrid);
 
 vtkUnstructuredGrid::vtkUnstructuredGrid ()
@@ -337,7 +337,7 @@ void vtkUnstructuredGrid::GetCell(vtkIdType cellId, vtkGenericCell *cell)
 {
   int i;
   int    loc;
-  float  x[3];
+  double  x[3];
   vtkIdType *pts, numPts;
   
   cell->SetCellType((int)Types->GetValue(cellId));
@@ -363,18 +363,18 @@ void vtkUnstructuredGrid::GetCell(vtkIdType cellId, vtkGenericCell *cell)
 
 // Fast implementation of GetCellBounds().  Bounds are calculated without
 // constructing a cell.
-void vtkUnstructuredGrid::GetCellBounds(vtkIdType cellId, float bounds[6])
+void vtkUnstructuredGrid::GetCellBounds(vtkIdType cellId, double bounds[6])
 {
   int i;
   int loc;
-  float x[3];
+  double x[3];
   vtkIdType *pts, numPts;
   
   loc = this->Locations->GetValue(cellId);
   this->Connectivity->GetCell(loc,numPts,pts);
 
-  bounds[0] = bounds[2] = bounds[4] =  VTK_LARGE_FLOAT;
-  bounds[1] = bounds[3] = bounds[5] = -VTK_LARGE_FLOAT;
+  bounds[0] = bounds[2] = bounds[4] =  VTK_DOUBLE_MAX;
+  bounds[1] = bounds[3] = bounds[5] = -VTK_DOUBLE_MAX;
 
   for (i=0; i < numPts; i++)
     {
@@ -1021,7 +1021,7 @@ void vtkUnstructuredGrid::RemoveGhostCells(int level)
   vtkPoints *newPoints;
   int i, ptId, newId, numPts;
   int numCellPts;
-  float *x;
+  double *x;
   vtkPointData*   pd    = this->GetPointData();
   vtkPointData*   outPD = newGrid->GetPointData();
   vtkCellData*    cd    = this->GetCellData();

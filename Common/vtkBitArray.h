@@ -51,11 +51,10 @@ public:
   // Description:
   // Get a pointer to a tuple at the ith location. This is a dangerous method
   // (it is not thread safe since a pointer is returned).
-  float *GetTuple(vtkIdType i);
+  double *GetTuple(vtkIdType i);
 
   // Description:
   // Copy the tuple value into a user-provided array.
-  void GetTuple(vtkIdType i, float * tuple);
   void GetTuple(vtkIdType i, double * tuple);
   
   // Description:
@@ -79,7 +78,7 @@ public:
   // Note that i is less then NumberOfTuples and j is less then 
   // NumberOfComponents. Make sure enough memory has been allocated (use 
   // SetNumberOfTuples() and  SetNumberOfComponents()).
-  void SetComponent(vtkIdType i, int j, float c);
+  void SetComponent(vtkIdType i, int j, double c);
 
   // Description:
   // Free any unneeded memory.
@@ -114,7 +113,7 @@ public:
   // Description:
   // Insert the data component at ith tuple and jth component location. 
   // Note that memory allocation is performed as necessary to hold the data.
-  virtual void InsertComponent(vtkIdType i, int j, float c);
+  virtual void InsertComponent(vtkIdType i, int j, double c);
 
   // Description:
   // Direct manipulation of the underlying data.
@@ -153,7 +152,7 @@ protected:
     // function to resize data
 
   int TupleSize; //used for data conversion
-  float *Tuple;
+  double *Tuple;
 
   int SaveUserArray;
 

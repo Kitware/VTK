@@ -65,19 +65,19 @@ public:
   // Description:
   // Evaluate function at position x-y-z and return value. Point x[3] is
   // transformed through transform (if provided).
-  float FunctionValue(const float x[3]);
-  float FunctionValue(float x, float y, float z) {
-    float xyz[3] = {x, y, z}; return this->FunctionValue(xyz); };
+  double FunctionValue(const double x[3]);
+  double FunctionValue(double x, double y, double z) {
+    double xyz[3] = {x, y, z}; return this->FunctionValue(xyz); };
 
   // Description:
   // Evaluate function gradient at position x-y-z and pass back vector. Point
   // x[3] is transformed through transform (if provided).
-  void FunctionGradient(const float x[3], float g[3]);
-  float *FunctionGradient(const float x[3]) {
+  void FunctionGradient(const double x[3], double g[3]);
+  double *FunctionGradient(const double x[3]) {
     this->FunctionGradient(x,this->ReturnValue);
     return this->ReturnValue; };
-  float *FunctionGradient(float x, float y, float z) {
-    float xyz[3] = {x, y, z}; return this->FunctionGradient(xyz); };
+  double *FunctionGradient(double x, double y, double z) {
+    double xyz[3] = {x, y, z}; return this->FunctionGradient(xyz); };
 
   // Description:
   // Set/Get a transformation to apply to input points before
@@ -90,23 +90,23 @@ public:
   // generally not call this method directly, you should use 
   // FunctionValue() instead.  This method must be implemented by 
   // any derived class. 
-  virtual float EvaluateFunction(float x[3]) = 0;
-  float EvaluateFunction(float x, float y, float z) {
-    float xyz[3] = {x, y, z}; return this->EvaluateFunction(xyz); };
+  virtual double EvaluateFunction(double x[3]) = 0;
+  double EvaluateFunction(double x, double y, double z) {
+    double xyz[3] = {x, y, z}; return this->EvaluateFunction(xyz); };
 
   // Description:
   // Evaluate function gradient at position x-y-z and pass back vector. 
   // You should generally not call this method directly, you should use 
   // FunctionGradient() instead.  This method must be implemented by 
   // any derived class. 
-  virtual void EvaluateGradient(float x[3], float g[3]) = 0;
+  virtual void EvaluateGradient(double x[3], double g[3]) = 0;
 
 protected:
   vtkImplicitFunction();
   ~vtkImplicitFunction();
 
   vtkAbstractTransform *Transform;
-  float ReturnValue[3];
+  double ReturnValue[3];
 private:
   vtkImplicitFunction(const vtkImplicitFunction&);  // Not implemented.
   void operator=(const vtkImplicitFunction&);  // Not implemented.

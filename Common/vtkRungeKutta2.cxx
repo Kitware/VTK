@@ -17,7 +17,7 @@
 #include "vtkFunctionSet.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkRungeKutta2, "1.13");
+vtkCxxRevisionMacro(vtkRungeKutta2, "1.14");
 vtkStandardNewMacro(vtkRungeKutta2);
 
 vtkRungeKutta2::vtkRungeKutta2() 
@@ -29,9 +29,9 @@ vtkRungeKutta2::~vtkRungeKutta2()
 }
 
 // Calculate next time step
-int vtkRungeKutta2::ComputeNextStep(float* xprev, float* dxprev, float* xnext, 
-                                    float t, float& delT, float& delTActual,
-                                    float, float, float, float& error)
+int vtkRungeKutta2::ComputeNextStep(double* xprev, double* dxprev, double* xnext, 
+                                    double t, double& delT, double& delTActual,
+                                    double, double, double, double& error)
 {
   int i, numDerivs, numVals;
 
@@ -68,7 +68,7 @@ int vtkRungeKutta2::ComputeNextStep(float* xprev, float* dxprev, float* xnext,
     }
   else if ( !this->FunctionSet->FunctionValues(this->Vals, this->Derivs) )
     {
-    memcpy(xnext, this->Vals, (numVals-1)*sizeof(float));
+    memcpy(xnext, this->Vals, (numVals-1)*sizeof(double));
     return OUT_OF_DOMAIN;
     }
 
@@ -82,7 +82,7 @@ int vtkRungeKutta2::ComputeNextStep(float* xprev, float* dxprev, float* xnext,
   // Obtain the derivatives at x_i + dt/2 * dx_i
   if (!this->FunctionSet->FunctionValues(this->Vals, this->Derivs))
     {
-    memcpy(xnext, this->Vals, (numVals-1)*sizeof(float));
+    memcpy(xnext, this->Vals, (numVals-1)*sizeof(double));
     return OUT_OF_DOMAIN;
     }
     

@@ -19,7 +19,7 @@
 #include "vtkPointLocator.h"
 #include "vtkSource.h"
 
-vtkCxxRevisionMacro(vtkPointSet, "1.78");
+vtkCxxRevisionMacro(vtkPointSet, "1.79");
 
 vtkCxxSetObjectMacro(vtkPointSet,Points,vtkPoints);
 
@@ -70,7 +70,7 @@ void vtkPointSet::Initialize()
 //----------------------------------------------------------------------------
 void vtkPointSet::ComputeBounds()
 {
-  float *bounds;
+  double *bounds;
 
   if ( this->Points )
     {
@@ -104,7 +104,7 @@ unsigned long int vtkPointSet::GetMTime()
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkPointSet::FindPoint(float x[3])
+vtkIdType vtkPointSet::FindPoint(double x[3])
 {
   if ( !this->Points )
     {
@@ -131,15 +131,15 @@ vtkIdType vtkPointSet::FindPoint(float x[3])
 #define VTK_MAX_WALK 12
 
 //----------------------------------------------------------------------------
-vtkIdType vtkPointSet::FindCell(float x[3], vtkCell *cell,
+vtkIdType vtkPointSet::FindCell(double x[3], vtkCell *cell,
                                 vtkGenericCell *gencell, vtkIdType cellId,
-                                float tol2, int& subId, float pcoords[3],
-                                float *weights)
+                                double tol2, int& subId, double pcoords[3],
+                                double *weights)
 {
   vtkIdType       ptId;
   int             walk;
-  float           closestPoint[3];
-  float           dist2;
+  double           closestPoint[3];
+  double           dist2;
   vtkIdList       *cellIds, *ptIds;
   int             initialCellProvided = 1;
 
@@ -195,13 +195,17 @@ vtkIdType vtkPointSet::FindCell(float x[3], vtkCell *cell,
         }
 
       // See whether this randomly choosen cell contains the point      
+      double dx[3];
+      dx[0] = x[0];
+      dx[1] = x[1];
+      dx[2] = x[2];
       if ( ( gencell && 
-             gencell->EvaluatePosition(x,closestPoint,subId,
+             gencell->EvaluatePosition(dx,closestPoint,subId,
                                        pcoords, dist2,weights) == 1
              && dist2 <= tol2 )  ||
            ( !gencell && 
-             cell->EvaluatePosition(x,closestPoint,subId,
-                                       pcoords, dist2,weights) == 1
+             cell->EvaluatePosition(dx,closestPoint,subId,
+                                    pcoords, dist2,weights) == 1
              && dist2 <= tol2 ) )
         {
         cellIds->Delete();
@@ -283,9 +287,9 @@ vtkIdType vtkPointSet::FindCell(float x[3], vtkCell *cell,
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkPointSet::FindCell(float x[3], vtkCell *cell, vtkIdType cellId,
-                                float tol2, int& subId, float pcoords[3],
-                                float *weights)
+vtkIdType vtkPointSet::FindCell(double x[3], vtkCell *cell, vtkIdType cellId,
+                               double tol2, int& subId,double pcoords[3],
+                               double *weights)
 {
   return
     this->FindCell( x, cell, NULL, cellId, tol2, subId, pcoords, weights );

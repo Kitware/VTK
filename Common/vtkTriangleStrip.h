@@ -43,33 +43,33 @@ public:
   int GetNumberOfFaces() {return 0;};
   vtkCell *GetEdge(int edgeId);
   vtkCell *GetFace(int vtkNotUsed(faceId)) {return 0;};
-  int CellBoundary(int subId, float pcoords[3], vtkIdList *pts);
-  void Contour(float value, vtkDataArray *cellScalars, 
+  int CellBoundary(int subId, double pcoords[3], vtkIdList *pts);
+  void Contour(double value, vtkDataArray *cellScalars, 
                vtkPointLocator *locator, vtkCellArray *verts, 
                vtkCellArray *lines, vtkCellArray *polys, 
                vtkPointData *inPd, vtkPointData *outPd,
                vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd);
-  void Clip(float value, vtkDataArray *cellScalars, 
+  void Clip(double value, vtkDataArray *cellScalars, 
             vtkPointLocator *locator, vtkCellArray *polys,
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
             int insideOut);
 
-  int EvaluatePosition(float x[3], float* closestPoint,
-                       int& subId, float pcoords[3],
-                       float& dist2, float *weights);
-  void EvaluateLocation(int& subId, float pcoords[3], float x[3],
-                        float *weights);
-  int IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
-                        float x[3], float pcoords[3], int& subId);
+  int EvaluatePosition(double x[3], double* closestPoint,
+                       int& subId, double pcoords[3],
+                       double& dist2, double *weights);
+  void EvaluateLocation(int& subId, double pcoords[3], double x[3],
+                        double *weights);
+  int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
+                        double x[3], double pcoords[3], int& subId);
   int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts);
-  void Derivatives(int subId, float pcoords[3], float *values, 
-                   int dim, float *derivs);
+  void Derivatives(int subId, double pcoords[3], double *values, 
+                   int dim, double *derivs);
   int IsPrimaryCell() {return 0;}
 
   // Description:
   // Return the center of the point cloud in parametric coordinates.
-  int GetParametricCenter(float pcoords[3]);
+  int GetParametricCenter(double pcoords[3]);
 
   // Description:
   // Given a triangle strip, decompose it into a list of (triangle) 

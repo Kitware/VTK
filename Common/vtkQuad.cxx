@@ -26,10 +26,10 @@
 #include "vtkPoints.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuad, "1.90");
+vtkCxxRevisionMacro(vtkQuad, "1.91");
 vtkStandardNewMacro(vtkQuad);
 
-static const float VTK_DIVERGED = 1.e6;
+static const double VTK_DIVERGED = 1.e6;
 
 // Construct the quad with four points.
 vtkQuad::vtkQuad()
@@ -57,35 +57,36 @@ vtkQuad::~vtkQuad()
 }
 
 static const int VTK_QUAD_MAX_ITERATION=20;
-static const float VTK_QUAD_CONVERGED=1.e-04;
+static const double VTK_QUAD_CONVERGED=1.e-04;
 
-inline static void ComputeNormal(vtkQuad *self, float pt1[3], float pt2[3],
-                                 float pt3[3], float n[3])
+inline static void ComputeNormal(vtkQuad *self, double pt1[3], double pt2[3],
+                                 double pt3[3], double n[3])
 {
   vtkTriangle::ComputeNormal (pt1, pt2, pt3, n);
   
   // If first three points are co-linear, then use fourth point
   //
+  double pt4[3];
   if ( n[0] == 0.0 && n[1] == 0.0 && n[2] == 0.0 )
     {
-    float *pt4 = self->Points->GetPoint(3);
+    self->Points->GetPoint(3,pt4);
     vtkTriangle::ComputeNormal (pt2, pt3, pt4, n);
     }
 }
 
-int vtkQuad::EvaluatePosition(float x[3], float* closestPoint,
-                             int& subId, float pcoords[3], 
-                             float& dist2, float *weights)
+int vtkQuad::EvaluatePosition(double x[3], double* closestPoint,
+                             int& subId, double pcoords[3], 
+                             double& dist2, double *weights)
 {
   int i, j;
-  float pt1[3], pt2[3], pt3[3], pt[3], n[3];
-  float det;
-  float maxComponent;
+  double pt1[3], pt2[3], pt3[3], pt[3], n[3];
+  double det;
+  double maxComponent;
   int idx=0, indices[2];
   int iteration, converged;
-  float  params[2];
-  float  fcol[2], rcol[2], scol[2], cp[3];
-  float derivs[8];
+  double  params[2];
+  double  fcol[2], rcol[2], scol[2], cp[3];
+  double derivs[8];
 
   subId = 0;
   pcoords[0] = pcoords[1] = params[0] = params[1] = 0.5;
@@ -212,8 +213,8 @@ int vtkQuad::EvaluatePosition(float x[3], float* closestPoint,
     }
   else
     {
-    float t;
-    float pt4[3];
+    double t;
+    double pt4[3];
     
     if (closestPoint)
       {
@@ -272,11 +273,11 @@ int vtkQuad::EvaluatePosition(float x[3], float* closestPoint,
     }
 }
 
-void vtkQuad::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3], 
-                               float x[3], float *weights)
+void vtkQuad::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3], 
+                               double x[3], double *weights)
 {
   int i, j;
-  float pt[3];
+  double pt[3];
 
   this->InterpolationFunctions(pcoords, weights);
 
@@ -293,7 +294,7 @@ void vtkQuad::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3],
 
 // Compute iso-parametrix interpolation functions
 //
-void vtkQuad::InterpolationFunctions(float pcoords[3], float sf[4])
+void vtkQuad::InterpolationFunctions(double pcoords[3], double sf[4])
 {
   double rm, sm;
 
@@ -306,7 +307,7 @@ void vtkQuad::InterpolationFunctions(float pcoords[3], float sf[4])
   sf[3] = rm * pcoords[1];
 }
 
-void vtkQuad::InterpolationDerivs(float pcoords[3], float derivs[8])
+void vtkQuad::InterpolationDerivs(double pcoords[3], double derivs[8])
 {
   double rm, sm;
 
@@ -323,11 +324,11 @@ void vtkQuad::InterpolationDerivs(float pcoords[3], float derivs[8])
   derivs[7] = rm;
 }
 
-int vtkQuad::CellBoundary(int vtkNotUsed(subId), float pcoords[3], 
+int vtkQuad::CellBoundary(int vtkNotUsed(subId), double pcoords[3], 
                           vtkIdList *pts)
 {
-  float t1=pcoords[0]-pcoords[1];
-  float t2=1.0-pcoords[0]-pcoords[1];
+  double t1=pcoords[0]-pcoords[1];
+  double t2=1.0-pcoords[0]-pcoords[1];
 
   pts->SetNumberOfIds(2);
 
@@ -396,7 +397,7 @@ static LINE_CASES lineCases[] = {
   {{-1, -1, -1, -1, -1}}
 };
 
-void vtkQuad::Contour(float value, vtkDataArray *cellScalars, 
+void vtkQuad::Contour(double value, vtkDataArray *cellScalars, 
                       vtkPointLocator *locator, 
                       vtkCellArray *vtkNotUsed(verts), 
                       vtkCellArray *lines, 
@@ -411,7 +412,7 @@ void vtkQuad::Contour(float value, vtkDataArray *cellScalars,
   int newCellId;
   vtkIdType pts[2];
   int e1, e2;
-  float t, x1[3], x2[3], x[3], deltaScalar;
+  double t, x1[3], x2[3], x[3], deltaScalar;
 
   // Build the case table
   for ( i=0, index = 0; i < 4; i++)
@@ -504,13 +505,13 @@ vtkCell *vtkQuad::GetEdge(int edgeId)
 // splits the quad into two triangles and intersects them (because the
 // quad may be non-planar).
 //
-int vtkQuad::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
-                              float x[3], float pcoords[3], int& subId)
+int vtkQuad::IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
+                              double x[3], double pcoords[3], int& subId)
 {
   int diagonalCase;
-  float d1 = vtkMath::Distance2BetweenPoints(this->Points->GetPoint(0), 
+  double d1 = vtkMath::Distance2BetweenPoints(this->Points->GetPoint(0), 
                                              this->Points->GetPoint(2));
-  float d2 = vtkMath::Distance2BetweenPoints(this->Points->GetPoint(1), 
+  double d2 = vtkMath::Distance2BetweenPoints(this->Points->GetPoint(1), 
                                              this->Points->GetPoint(3));
   subId = 0;
   
@@ -593,7 +594,7 @@ int vtkQuad::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
 int vtkQuad::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
                          vtkPoints *pts)
 {
-  float d1, d2;
+  double d1, d2;
 
   pts->Reset();
   ptIds->Reset();
@@ -640,14 +641,14 @@ int vtkQuad::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
   return 1;
 }
 
-void vtkQuad::Derivatives(int vtkNotUsed(subId), float pcoords[3], 
-                          float *values, int dim, float *derivs)
+void vtkQuad::Derivatives(int vtkNotUsed(subId), double pcoords[3], 
+                          double *values, int dim, double *derivs)
 {
-  float v0[2], v1[2], v2[2], v3[2], v10[3], v20[3], lenX;
-  float x0[3], x1[3], x2[3], x3[3], n[3], vec20[3], vec30[3];
+  double v0[2], v1[2], v2[2], v3[2], v10[3], v20[3], lenX;
+  double x0[3], x1[3], x2[3], x3[3], n[3], vec20[3], vec30[3];
   double *J[2], J0[2], J1[2];
   double *JI[2], JI0[2], JI1[2];
-  float funcDerivs[8], sum[2], dBydx, dBydy;
+  double funcDerivs[8], sum[2], dBydx, dBydy;
   int i, j;
 
   // Project points of quad into 2D system
@@ -782,7 +783,7 @@ static QUAD_CASES quadCasesComplement[] = {
 
 // Clip this quad using scalar value provided. Like contouring, except
 // that it cuts the quad to produce other quads and/or triangles.
-void vtkQuad::Clip(float value, vtkDataArray *cellScalars, 
+void vtkQuad::Clip(double value, vtkDataArray *cellScalars, 
                    vtkPointLocator *locator, vtkCellArray *polys,
                    vtkPointData *inPd, vtkPointData *outPd,
                    vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
@@ -796,8 +797,8 @@ void vtkQuad::Clip(float value, vtkDataArray *cellScalars,
   int newCellId;
   vtkIdType pts[4];
   int vertexId;
-  float t, x1[3], x2[3], x[3], deltaScalar;
-  float scalar0, scalar1, e1Scalar;
+  double t, x1[3], x2[3], x[3], deltaScalar;
+  double scalar0, scalar1, e1Scalar;
 
   // Build the index into the case table
   if ( insideOut )
@@ -912,9 +913,9 @@ void vtkQuad::Clip(float value, vtkDataArray *cellScalars,
     }
 }
 
-static float vtkQuadCellPCoords[12] = {0.0,0.0,0.0, 1.0,0.0,0.0,
+static double vtkQuadCellPCoords[12] = {0.0,0.0,0.0, 1.0,0.0,0.0,
                                        1.0,1.0,0.0, 0.0,1.0,0.0};
-float *vtkQuad::GetParametricCoords()
+double *vtkQuad::GetParametricCoords()
 {
   return vtkQuadCellPCoords;
 }

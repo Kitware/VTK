@@ -70,12 +70,12 @@ public:
   // Description:
   // Standard vtkDataSet API methods. See vtkDataSet for more information.
   vtkIdType GetNumberOfPoints() {return vtkPointSet::GetNumberOfPoints();}
-  float *GetPoint(vtkIdType ptId) {return this->vtkPointSet::GetPoint(ptId);}
-  void GetPoint(vtkIdType ptId, float p[3])
+  double *GetPoint(vtkIdType ptId) {return this->vtkPointSet::GetPoint(ptId);}
+  void GetPoint(vtkIdType ptId, double p[3])
     {this->vtkPointSet::GetPoint(ptId,p);}
   vtkCell *GetCell(vtkIdType cellId);
   void GetCell(vtkIdType cellId, vtkGenericCell *cell);
-  void GetCellBounds(vtkIdType cellId, float bounds[6]);
+  void GetCellBounds(vtkIdType cellId, double bounds[6]);
   int GetCellType(vtkIdType cellId);
   vtkIdType GetNumberOfCells();
   void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds);

@@ -20,7 +20,7 @@
 #include "vtkCell.h"
 #include "vtkDebugLeaks.h"
 #include "vtkDoubleArray.h"
-#include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
 #include "vtkLongArray.h"
@@ -42,15 +42,15 @@ int TestORG(ostream& strm)
   vtkRectilinearGrid *rg2Dyz = vtkRectilinearGrid::New();
   vtkRectilinearGrid *rg3D = vtkRectilinearGrid::New();
   
-  vtkFloatArray *xdata = vtkFloatArray::New();
-  vtkFloatArray *ydata = vtkFloatArray::New();
-  vtkFloatArray *zdata = vtkFloatArray::New();
+  vtkDoubleArray *xdata = vtkDoubleArray::New();
+  vtkDoubleArray *ydata = vtkDoubleArray::New();
+  vtkDoubleArray *zdata = vtkDoubleArray::New();
 
   for (i = 0; i < 20; i++)
     {
-    xdata->InsertNextValue((float) i);
-    ydata->InsertNextValue((float) i);
-    zdata->InsertNextValue((float) i);
+    xdata->InsertNextValue((double) i);
+    ydata->InsertNextValue((double) i);
+    zdata->InsertNextValue((double) i);
     }
 
   rg3D->SetDimensions(20,20,20);
@@ -299,7 +299,7 @@ int TestORG(ostream& strm)
 
   // Test GetCellBounds
   
-  float bounds[6];
+  double bounds[6];
   rg3D->GetCellBounds(k * (19 * 19) + j * 19 + i, bounds);
   strm << "GetCellBounds(rg3D): "
        << bounds[0] << ", " << bounds[1] << ", "
@@ -350,7 +350,7 @@ int TestORG(ostream& strm)
     
   // Test GetPoint
   
-  float point[6];
+  double point[6];
   rg3D->GetPoint(k * (20 * 20) + j * 20 + i, point);
   strm << "GetPoint(rg3D): "
        << point[0] << ", " << point[1] << ", " << point[2] << endl;
@@ -385,7 +385,7 @@ int TestORG(ostream& strm)
 
   // Test FindPoint
   
-  float point3D[3] = {10, 12, 14};
+  double point3D[3] = {10, 12, 14};
 
   rg3D->GetPoint(rg3D->FindPoint(point3D), point);
   strm << "FindPoint("
@@ -430,7 +430,7 @@ int TestORG(ostream& strm)
 
   // Test FindAndGetCell
   
-  float pcoords[3], weights[8];
+  double pcoords[3], weights[8];
   int subId;
   vtkCell *dummyCell = NULL;
   

@@ -89,8 +89,8 @@ public:
   // Description:
   // Specify absolute tolerance (in world coordinates) for performing
   // geometric operations.
-  vtkSetClampMacro(Tolerance,float,0.0f,VTK_LARGE_FLOAT);
-  vtkGetMacro(Tolerance,float);
+  vtkSetClampMacro(Tolerance,double,0.0f,VTK_DOUBLE_MAX);
+  vtkGetMacro(Tolerance,double);
 
   // Description:
   // Boolean controls whether to maintain list of entities in each bucket.
@@ -134,7 +134,7 @@ protected:
 
   vtkDataSet *DataSet;
   int Automatic; // boolean controls automatic subdivision (or uses user spec.)
-  float Tolerance; // for performing merging
+  double Tolerance; // for performing merging
   int MaxLevel;
   int Level;
   int RetainCellLists;

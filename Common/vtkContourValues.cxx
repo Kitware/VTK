@@ -13,16 +13,16 @@
 
 =========================================================================*/
 #include "vtkContourValues.h"
-#include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkContourValues, "1.19");
+vtkCxxRevisionMacro(vtkContourValues, "1.20");
 vtkStandardNewMacro(vtkContourValues);
 
 // Construct object with a single contour value at 0.0.
 vtkContourValues::vtkContourValues()
 {
-  this->Contours = vtkFloatArray::New();
+  this->Contours = vtkDoubleArray::New();
   this->Contours->Allocate(64);
   this->Contours->InsertValue(0,0.0);
 }
@@ -33,7 +33,7 @@ vtkContourValues::~vtkContourValues()
 }
 
 // Set the ith contour value.
-void vtkContourValues::SetValue(int i, float value) 
+void vtkContourValues::SetValue(int i, double value) 
 {
   int numContours=this->Contours->GetMaxId()+1;
   i = (i < 0 ? 0 : i);
@@ -47,7 +47,7 @@ void vtkContourValues::SetValue(int i, float value)
 
 // Get the ith contour value. The return value will be clamped if the
 // index i is out of range.
-float vtkContourValues::GetValue(int i) 
+double vtkContourValues::GetValue(int i) 
 {
   i = (i < 0 ? 0 : i);
   i = (i > this->Contours->GetMaxId() ? this->Contours->GetMaxId() : i);
@@ -56,14 +56,14 @@ float vtkContourValues::GetValue(int i)
 
 // Return a pointer to a list of contour values. The contents of the
 // list will be garbage if the number of contours <= 0.
-float *vtkContourValues::GetValues() 
+double *vtkContourValues::GetValues() 
 {
   return this->Contours->GetPointer(0);
 }
 
 // Fill a supplied list with contour values. Make sure you've
 // allocated memory of size GetNumberOfContours().
-void vtkContourValues::GetValues(float *contourValues)
+void vtkContourValues::GetValues(double *contourValues)
 {
   int i, numContours=this->Contours->GetMaxId()+1;
 
@@ -81,7 +81,7 @@ void vtkContourValues::SetNumberOfContours(const int number)
   int    currentNumber = this->Contours->GetMaxId()+1;
   int    n = ( number < 0 ? 0 : number);
   int    i;
-  float  *oldValues = NULL;
+  double  *oldValues = NULL;
 
   if ( n != currentNumber )
     {
@@ -90,7 +90,7 @@ void vtkContourValues::SetNumberOfContours(const int number)
     // Keep a copy of the old values
     if ( currentNumber > 0 )
       {
-      oldValues = new float[currentNumber];
+      oldValues = new double[currentNumber];
       for ( i = 0; i < currentNumber; i++ )
         {
         oldValues[i] = this->Contours->GetValue(i);
@@ -123,10 +123,10 @@ void vtkContourValues::SetNumberOfContours(const int number)
 
 // Generate numContours equally spaced contour values between specified
 // range. Contour values will include min/max range values.
-void vtkContourValues::GenerateValues(int numContours, float rangeStart, 
-                                     float rangeEnd)
+void vtkContourValues::GenerateValues(int numContours, double rangeStart, 
+                                     double rangeEnd)
 {
-  float range[2];
+  double range[2];
 
   range[0] = rangeStart;
   range[1] = rangeEnd;
@@ -135,9 +135,9 @@ void vtkContourValues::GenerateValues(int numContours, float rangeStart,
 
 // Generate numContours equally spaced contour values between specified
 // range. Contour values will include min/max range values.
-void vtkContourValues::GenerateValues(int numContours, float range[2])
+void vtkContourValues::GenerateValues(int numContours, double range[2])
 {
-  float val, incr;
+  double val, incr;
   int i;
 
   this->SetNumberOfContours(numContours);

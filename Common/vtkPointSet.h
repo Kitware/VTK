@@ -49,15 +49,15 @@ public:
   // Description:
   // See vtkDataSet for additional information.
   vtkIdType GetNumberOfPoints();
-  float *GetPoint(vtkIdType ptId) {return this->Points->GetPoint(ptId);};
-  void GetPoint(vtkIdType ptId, float x[3]) {this->Points->GetPoint(ptId,x);};
-  vtkIdType FindPoint(float x[3]);
-  vtkIdType FindPoint(float x, float y, float z) { return this->vtkDataSet::FindPoint(x, y, z);};
-  vtkIdType FindCell(float x[3], vtkCell *cell, vtkIdType cellId, float tol2,
-               int& subId, float pcoords[3], float *weights);
-  vtkIdType FindCell(float x[3], vtkCell *cell, vtkGenericCell *gencell,
-               vtkIdType cellId, float tol2, int& subId, 
-               float pcoords[3], float *weights);
+  double *GetPoint(vtkIdType ptId) {return this->Points->GetPoint(ptId);};
+  void GetPoint(vtkIdType ptId, double x[3]) {this->Points->GetPoint(ptId,x);};
+  vtkIdType FindPoint(double x[3]);
+  vtkIdType FindPoint(double x, double y, double z) { return this->vtkDataSet::FindPoint(x, y, z);};
+  vtkIdType FindCell(double x[3], vtkCell *cell, vtkIdType cellId, double tol2,
+               int& subId, double pcoords[3], double *weights);
+  vtkIdType FindCell(double x[3], vtkCell *cell, vtkGenericCell *gencell,
+               vtkIdType cellId, double tol2, int& subId, 
+               double pcoords[3], double *weights);
 
   // Description:
   // Get MTime which also considers its vtkPoints MTime.

@@ -79,7 +79,7 @@ class  vtkIdList;
 class  vtkPoints;
 class  vtkTetra;
 class  vtkDataArray;
-class  vtkFloatArray;
+class  vtkDoubleArray;
 struct vtkOTMesh;
 struct vtkOTTemplates;
 
@@ -106,9 +106,9 @@ public:
   // Description:
   // Initialize the triangulation process. Provide a bounding box and
   // the maximum number of points to be inserted.
-  void InitTriangulation(float xmin, float xmax, float ymin, float ymax,
-                         float zmin, float zmax, int numPts);
-  void InitTriangulation(float bounds[6], int numPts);
+  void InitTriangulation(double xmin, double xmax, double ymin, double ymax,
+                         double zmin, double zmax, int numPts);
+  void InitTriangulation(double bounds[6], int numPts);
 
   // Description:
   // For each point to be inserted, provide an id, a position x, parametric
@@ -123,11 +123,11 @@ public:
   // point with UpdatePointType(). (Note: the algorithm triangulated with the
   // parametric coordinate p[3] and creates tetras with the global coordinate
   // x[3]. These may be the same.)
-  vtkIdType InsertPoint(vtkIdType id, float x[3], float p[3], int type);
-  vtkIdType InsertPoint(vtkIdType id, vtkIdType sortid, float x[3], float p[3],
-                        int type);
+  vtkIdType InsertPoint(vtkIdType id, double x[3], double p[3], int type);
+  vtkIdType InsertPoint(vtkIdType id, vtkIdType sortid, double x[3], 
+                        double p[3], int type);
   vtkIdType InsertPoint(vtkIdType id, vtkIdType sortid,  vtkIdType sortid2, 
-                        float x[3], float p[3], int type);
+                        double x[3], double p[3], int type);
 
   // Description:
   // Perform the triangulation. (Complete all calls to InsertPoint() prior
@@ -223,7 +223,7 @@ public:
   // and then invoke GetNextTetra() until the method returns 0.
   void InitTetraTraversal();
   int  GetNextTetra(int classification, vtkTetra *tet,
-                    vtkDataArray *cellScalars, vtkFloatArray *tetScalars);
+                    vtkDataArray *cellScalars, vtkDoubleArray *tetScalars);
   
 protected:
   vtkOrderedTriangulator();
@@ -235,7 +235,7 @@ private:
   vtkOTMesh *Mesh;
   int        NumberOfPoints; //number of points inserted
   int        MaximumNumberOfPoints; //maximum possible number of points to be inserted
-  float      Bounds[6];
+  double     Bounds[6];
   int        PreSorted;
   int        UseTwoSortIds;
   vtkHeap   *Heap;

@@ -42,28 +42,28 @@ public:
 
   // Description
   // Evaluate box defined by the two points (pMin,pMax).
-  float EvaluateFunction(float x[3]);
-  float EvaluateFunction(float x, float y, float z)
+  double EvaluateFunction(double x[3]);
+  double EvaluateFunction(double x, double y, double z)
     {return this->vtkImplicitFunction::EvaluateFunction(x, y, z); }
 
   // Description
   // Evaluate the gradient of the box.
-  void EvaluateGradient(float x[3], float n[3]);
+  void EvaluateGradient(double x[3], double n[3]);
 
   // Description:
   // Set / get the bounding box using various methods.
-  vtkSetVector3Macro(XMin,float);
-  vtkGetVector3Macro(XMin,float);
-  vtkSetVector3Macro(XMax,float);
-  vtkGetVector3Macro(XMax,float);
-  void SetBounds(float xMin, float xMax,
-                 float yMin, float yMax,
-                 float zMin, float zMax);
-  void SetBounds(float bounds[6]);
-  void GetBounds(float &xMin, float &xMax,
-                 float &yMin, float &yMax,
-                 float &zMin, float &zMax);
-  void GetBounds(float bounds[6]);
+  vtkSetVector3Macro(XMin,double);
+  vtkGetVector3Macro(XMin,double);
+  vtkSetVector3Macro(XMax,double);
+  vtkGetVector3Macro(XMax,double);
+  void SetBounds(double xMin, double xMax,
+                 double yMin, double yMax,
+                 double zMin, double zMax);
+  void SetBounds(double bounds[6]);
+  void GetBounds(double &xMin, double &xMax,
+                 double &yMin, double &yMax,
+                 double &zMin, double &zMax);
+  void GetBounds(double bounds[6]);
 
   // Description:
   // Bounding box intersection modified from Graphics Gems Vol I. The method
@@ -72,15 +72,15 @@ public:
   // directions, coord[3] is the location of hit, and t is the parametric
   // coordinate along line. (Notes: the intersection ray dir[3] is NOT
   // normalized.  Valid intersections will only occur between 0<=t<=1.)
-  static char IntersectBox(float bounds[6], float origin[3], float dir[3], 
-                           float coord[3], float& t);
+  static char IntersectBox(double bounds[6], double origin[3], double dir[3], 
+                           double coord[3], double& t);
 
 protected:
   vtkBox();
   ~vtkBox() {}
 
-  float XMin[3];
-  float XMax[3];
+  double XMin[3];
+  double XMax[3];
 
 private:
   vtkBox(const vtkBox&);  // Not implemented.

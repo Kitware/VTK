@@ -49,7 +49,7 @@ int TestOSG(ostream& strm)
         {
         for (i = 0; i < 20; i++)
           {
-          xyzpoints->InsertNextPoint((float) i, (float) j, (float) k);
+          xyzpoints->InsertNextPoint((double) i, (double) j, (double) k);
           }
         }
     }
@@ -61,7 +61,7 @@ int TestOSG(ostream& strm)
     {
     for (i = 0; i < 20; i++)
       {
-      xypoints->InsertNextPoint((float) i, (float) j, 0.0);
+      xypoints->InsertNextPoint((double) i, (double) j, 0.0);
       }
     }
   sg2Dxy->SetDimensions(20,20,1);
@@ -72,7 +72,7 @@ int TestOSG(ostream& strm)
     {
     for (i = 0; i < 20; i++)
       {
-      xzpoints->InsertNextPoint((float) i, 0.0, (float) k);
+      xzpoints->InsertNextPoint((double) i, 0.0, (double) k);
       }
     }
   sg2Dxz->SetDimensions(20,1,20);
@@ -83,7 +83,7 @@ int TestOSG(ostream& strm)
     {
     for (j = 0; j < 20; j++)
       {
-      yzpoints->InsertNextPoint(0.0, (float) j, (float) k);
+      yzpoints->InsertNextPoint(0.0, (double) j, (double) k);
       }
     }
   sg2Dyz->SetDimensions(1,20,20);
@@ -92,7 +92,7 @@ int TestOSG(ostream& strm)
   vtkPoints *xpoints = vtkPoints::New();
   for (i = 0; i < 20; i++)
     {
-    xpoints->InsertNextPoint((float) i, 0.0, 0.0);
+    xpoints->InsertNextPoint((double) i, 0.0, 0.0);
     }
   sg1Dx->SetDimensions(20,1,1);
   sg1Dx->SetPoints(xpoints); xpoints->Delete();
@@ -100,7 +100,7 @@ int TestOSG(ostream& strm)
   vtkPoints *ypoints = vtkPoints::New();
   for (j = 0; j < 20; j++)
     {
-    ypoints->InsertNextPoint(0.0, (float) j, 0.0);
+    ypoints->InsertNextPoint(0.0, (double) j, 0.0);
     }
   sg1Dy->SetDimensions(1,20,1);
   sg1Dy->SetPoints(ypoints); ypoints->Delete();
@@ -109,7 +109,7 @@ int TestOSG(ostream& strm)
   vtkPoints *zpoints = vtkPoints::New();
   for (k = 0; k < 20; k++)
     {
-    zpoints->InsertNextPoint(0.0, 0.0, (float) k);
+    zpoints->InsertNextPoint(0.0, 0.0, (double) k);
     }
   sg1Dz->SetDimensions(1,1,20);
   sg1Dz->SetPoints(zpoints); zpoints->Delete();
@@ -335,7 +335,7 @@ int TestOSG(ostream& strm)
 
   // Test GetCellBounds
   
-  float bounds[6];
+  double bounds[6];
   sg3D->GetCellBounds(k * (19 * 19) + j * 19 + i, bounds);
   strm << "GetCellBounds(sg3D): "
        << bounds[0] << ", " << bounds[1] << ", "
@@ -386,7 +386,7 @@ int TestOSG(ostream& strm)
     
   // Test GetPoint
   
-  float point[6];
+  double point[6];
   sg3D->GetPoint(k * (20 * 20) + j * 20 + i, point);
   strm << "GetPoint(sg3D): "
        << point[0] << ", " << point[1] << ", " << point[2] << endl;
@@ -421,7 +421,7 @@ int TestOSG(ostream& strm)
 
   // Test FindPoint
   
-  float point3D[3] = {10, 12, 14};
+  double point3D[3] = {10, 12, 14};
 
   sg3D->GetPoint(sg3D->FindPoint(point3D), point);
   strm << "FindPoint("
@@ -466,7 +466,7 @@ int TestOSG(ostream& strm)
 
   // Test FindAndGetCell
   
-  float pcoords[3], weights[8];
+  double pcoords[3], weights[8];
   int subId;
   vtkCell *dummyCell = 0;
   

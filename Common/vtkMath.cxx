@@ -15,7 +15,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMath, "1.82");
+vtkCxxRevisionMacro(vtkMath, "1.83");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -1775,6 +1775,17 @@ void vtkMath::Orthogonalize3x3(const double A[3][3], double B[3][3])
 }
 
 float vtkMath::Norm(const float* x, int n)
+{
+  double sum=0;
+  for (int i=0; i<n; i++)
+    {
+    sum += x[i]*x[i];
+    }
+
+  return sqrt(sum);
+}
+
+double vtkMath::Norm(const double* x, int n)
 {
   double sum=0;
   for (int i=0; i<n; i++)

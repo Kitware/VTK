@@ -30,7 +30,7 @@ class vtkUnstructuredGrid;
 class vtkCellArray;
 class vtkTriangle;
 class vtkTetra;
-class vtkFloatArray;
+class vtkDoubleArray;
 
 class VTK_COMMON_EXPORT vtkConvexPointSet : public vtkCell3D
 {
@@ -46,7 +46,7 @@ public:
   // See vtkCell3D API for description of these methods.
   virtual void GetEdgePoints(int vtkNotUsed(edgeId), int* &vtkNotUsed(pts)) {}
   virtual void GetFacePoints(int vtkNotUsed(faceId), int* &vtkNotUsed(pts)) {}
-  virtual float *GetParametricCoords();
+  virtual double *GetParametricCoords();
 
   // Description:
   // See the vtkCell API for descriptions of these methods.
@@ -74,7 +74,7 @@ public:
   // Description:
   // Satisfy the vtkCell API. This method contours by triangulating the
   // cell and then contouring the resulting tetrahedra.
-  virtual void Contour(float value, vtkDataArray *cellScalars, 
+  virtual void Contour(double value, vtkDataArray *cellScalars, 
                        vtkPointLocator *locator, vtkCellArray *verts, 
                        vtkCellArray *lines, vtkCellArray *polys,
                        vtkPointData *inPd, vtkPointData *outPd,
@@ -84,7 +84,7 @@ public:
   // Satisfy the vtkCell API. This method contours by triangulating the
   // cell and then adding clip-edge intersection points into the
   // triangulation; extracting the clipped region.
-  virtual void Clip(float value, vtkDataArray *cellScalars, 
+  virtual void Clip(double value, vtkDataArray *cellScalars, 
                     vtkPointLocator *locator, vtkCellArray *connectivity,
                     vtkPointData *inPd, vtkPointData *outPd,
                     vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd, 
@@ -94,20 +94,20 @@ public:
   // Satisfy the vtkCell API. This method determines the subId, pcoords,
   // and weights by triangulating the convex point set, and then 
   // determining which tetrahedron the point lies in.
-  virtual int EvaluatePosition(float x[3], float* closestPoint,
-                               int& subId, float pcoords[3],
-                               float& dist2, float *weights);
+  virtual int EvaluatePosition(double x[3], double* closestPoint,
+                               int& subId, double pcoords[3],
+                               double& dist2, double *weights);
 
   // Description:
   // The inverse of EvaluatePosition.
-  virtual void EvaluateLocation(int& subId, float pcoords[3], float x[3],
-                                float *weights);
+  virtual void EvaluateLocation(int& subId, double pcoords[3], double x[3],
+                                double *weights);
   
   // Description:
   // Triangulates the cells and then intersects them to determine the
   // intersection point.
-  virtual int IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
-                                float x[3], float pcoords[3], int& subId);
+  virtual int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
+                                double x[3], double pcoords[3], int& subId);
 
   // Description:
   // Triangulate using methods of vtkOrderedTriangulator.
@@ -116,18 +116,18 @@ public:
   // Description:
   // Computes derivatives by triangulating and from subId and pcoords,
   // evaluating derivatives on the resulting tetrahedron.
-  virtual void Derivatives(int subId, float pcoords[3], float *values, 
-                           int dim, float *derivs);
+  virtual void Derivatives(int subId, double pcoords[3], double *values, 
+                           int dim, double *derivs);
 
   // Description:
   // Returns the set of points forming a face of the triangulation of these
   // points that are on the boundary of the cell that are closest 
   // parametrically to the point specified.
-  virtual int CellBoundary(int subId, float pcoords[3], vtkIdList *pts);
+  virtual int CellBoundary(int subId, double pcoords[3], vtkIdList *pts);
   
   // Description:
   // Return the center of the cell in parametric coordinates. 
-  virtual int GetParametricCenter(float pcoords[3]);
+  virtual int GetParametricCenter(double pcoords[3]);
 
   // Description:
   // A convex point set is triangulated prior to any operations on it so
@@ -141,18 +141,18 @@ protected:
   vtkTetra      *Tetra;
   vtkIdList     *TetraIds;
   vtkPoints     *TetraPoints;
-  vtkFloatArray *TetraScalars;
+  vtkDoubleArray *TetraScalars;
 
   vtkCellArray  *BoundaryTris;
   vtkTriangle   *Triangle;
-  vtkFloatArray *ParametricCoords;
+  vtkDoubleArray *ParametricCoords;
 
 private:
   vtkConvexPointSet(const vtkConvexPointSet&);  // Not implemented.
   void operator=(const vtkConvexPointSet&);  // Not implemented.
 };
 
-inline int vtkConvexPointSet::GetParametricCenter(float pcoords[3])
+inline int vtkConvexPointSet::GetParametricCenter(double pcoords[3])
 {
   pcoords[0] = pcoords[1] = pcoords[2] = 0.5;
   return 0;

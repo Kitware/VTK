@@ -72,7 +72,7 @@ public:
   vtkIdType GetNumberOfCells();
   virtual vtkCell *GetCell(vtkIdType cellId);
   virtual void GetCell(vtkIdType cellId, vtkGenericCell *cell);
-  virtual void GetCellBounds(vtkIdType cellId, float bounds[6]);
+  virtual void GetCellBounds(vtkIdType cellId, double bounds[6]);
   virtual void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds);
   void GetPointCells(vtkIdType ptId, vtkIdList *cellIds);
 

@@ -29,7 +29,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkPoints, "1.50");
+vtkCxxRevisionMacro(vtkPoints, "1.51");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -88,12 +88,12 @@ void vtkPoints::ComputeBounds()
 {
   vtkIdType i;
   int j;
-  float *x;
+  double *x;
 
   if ( this->GetMTime() > this->ComputeTime )
     {
-    this->Bounds[0] = this->Bounds[2] = this->Bounds[4] =  VTK_LARGE_FLOAT;
-    this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_LARGE_FLOAT;
+    this->Bounds[0] = this->Bounds[2] = this->Bounds[4] =  VTK_DOUBLE_MAX;
+    this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_DOUBLE_MAX;
     for (i=0; i<this->GetNumberOfPoints(); i++)
       {
       x = this->GetPoint(i);
@@ -115,14 +115,14 @@ void vtkPoints::ComputeBounds()
 }
 
 // Return the bounds of the points.
-float *vtkPoints::GetBounds()
+double *vtkPoints::GetBounds()
 {
   this->ComputeBounds();
   return this->Bounds;
 }
 
 // Return the bounds of the points.
-void vtkPoints::GetBounds(float bounds[6])
+void vtkPoints::GetBounds(double bounds[6])
 {
   this->ComputeBounds();
   for (int i=0; i<6; i++)
@@ -281,7 +281,7 @@ void vtkPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   
-  float *bounds;
+  double *bounds;
 
   os << indent << "Data: " << this->Data << "\n";
   if ( this->Data )

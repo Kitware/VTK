@@ -24,7 +24,7 @@
 
 #include "vtkCell.h"
 
-class vtkFloatArray;
+class vtkDoubleArray;
 class vtkLine;
 class vtkPoints;
 class vtkQuad;
@@ -44,43 +44,43 @@ public:
   int GetNumberOfFaces() {return 0;};
   vtkCell *GetEdge(int edgeId);
   vtkCell *GetFace(int) {return 0;};
-  int CellBoundary(int subId, float pcoords[3], vtkIdList *pts);
-  void Contour(float value, vtkDataArray *cellScalars, 
+  int CellBoundary(int subId, double pcoords[3], vtkIdList *pts);
+  void Contour(double value, vtkDataArray *cellScalars, 
                vtkPointLocator *locator,vtkCellArray *verts, 
                vtkCellArray *lines, vtkCellArray *polys,
                vtkPointData *inPd, vtkPointData *outPd,
                vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd);
-  void Clip(float value, vtkDataArray *cellScalars, 
+  void Clip(double value, vtkDataArray *cellScalars, 
             vtkPointLocator *locator, vtkCellArray *tris,
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
             int insideOut);
-  int EvaluatePosition(float x[3], float* closestPoint,
-                       int& subId, float pcoords[3],
-                       float& dist2, float *weights);
-  void EvaluateLocation(int& subId, float pcoords[3], float x[3],
-                        float *weights);
-  int IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
-                        float x[3], float pcoords[3], int& subId);
+  int EvaluatePosition(double x[3], double* closestPoint,
+                       int& subId, double pcoords[3],
+                       double& dist2, double *weights);
+  void EvaluateLocation(int& subId, double pcoords[3], double x[3],
+                        double *weights);
+  int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
+                        double x[3], double pcoords[3], int& subId);
   int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts);
-  void Derivatives(int subId, float pcoords[3], float *values, 
-                   int dim, float *derivs);
+  void Derivatives(int subId, double pcoords[3], double *values, 
+                   int dim, double *derivs);
   int IsPrimaryCell() {return 0;}
 
   // Description:
   // Polygon specific methods.
   static void ComputeNormal(vtkPoints *p, int numPts, vtkIdType *pts,
-                            float n[3]);
-  static void ComputeNormal(vtkPoints *p, float n[3]);
+                            double n[3]);
+  static void ComputeNormal(vtkPoints *p, double n[3]);
   
   // Description:
   // Compute the polygon normal from an array of points. This version assumes
   // that the polygon is convex, and looks for the first valid normal.
-  static void ComputeNormal(int numPts, float *pts, float n[3]);
+  static void ComputeNormal(int numPts, double *pts, double n[3]);
 
   // Description:
   // Compute interpolation weights using 1/r**2 normalized sum.
-  void ComputeWeights(float x[3], float *weights);
+  void ComputeWeights(double x[3], double *weights);
 
 
   // Description:
@@ -89,16 +89,16 @@ public:
   // t-axis vector. (These are expressed in the modeling coordinate system and
   // are vectors of dimension [3].) The values l20 and l20 are the lengths of
   // the vectors p10 and p20, and n is the polygon normal.
-  int ParameterizePolygon(float p0[3], float p10[3], float &l10, 
-                          float p20[3], float &l20, float n[3]);
+  int ParameterizePolygon(double p0[3], double p10[3], double &l10, 
+                          double p20[3], double &l20, double n[3]);
   
   // Description:
   // Determine whether point is inside polygon. Function uses ray-casting
   // to determine if point is inside polygon. Works for arbitrary polygon shape
   // (e.g., non-convex). Returns 0 if point is not in polygon; 1 if it is.
   // Can also return -1 to indicate degenerate polygon.
-  static int PointInPolygon(float x[3], int numPts, float *pts, 
-                            float bounds[6], float n[3]);  
+  static int PointInPolygon(double x[3], int numPts, double *pts, 
+                            double bounds[6], double n[3]);  
 
   // Description:
   // Triangulate this polygon. The user must provide the vtkIdList outTris.
@@ -114,23 +114,23 @@ public:
   // error. The method returns 1 if there is an intersection, and 0 if
   // not. A single point of intersection x[3] is also returned if there
   // is an intersection.
-  static int IntersectPolygonWithPolygon(int npts, float *pts, float bounds[6],
-                                         int npts2, float *pts2, 
-                                         float bounds2[3], float tol,
-                                         float x[3]);
+  static int IntersectPolygonWithPolygon(int npts, double *pts, double bounds[6],
+                                         int npts2, double *pts2, 
+                                         double bounds2[3], double tol,
+                                         double x[3]);
 
 protected:
   vtkPolygon();
   ~vtkPolygon();
 
   // variables used by instances of this class
-  float   Tolerance; // Intersection tolerance
+  double   Tolerance; // Intersection tolerance
   int     SuccessfulTriangulation; // Stops recursive tri. if necessary
-  float   Normal[3]; //polygon normal
+  double   Normal[3]; //polygon normal
   vtkIdList *Tris;
   vtkTriangle *Triangle;
   vtkQuad *Quad;
-  vtkFloatArray *TriScalars;
+  vtkDoubleArray *TriScalars;
   vtkLine *Line;
 
   // Helper methods for triangulation------------------------------

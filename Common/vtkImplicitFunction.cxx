@@ -17,7 +17,7 @@
 #include "vtkMath.h"
 #include "vtkAbstractTransform.h"
 
-vtkCxxRevisionMacro(vtkImplicitFunction, "1.33");
+vtkCxxRevisionMacro(vtkImplicitFunction, "1.34");
 vtkCxxSetObjectMacro(vtkImplicitFunction,Transform,vtkAbstractTransform);
 
 vtkImplicitFunction::vtkImplicitFunction()
@@ -32,15 +32,15 @@ vtkImplicitFunction::~vtkImplicitFunction()
 
 // Evaluate function at position x-y-z and return value. Point x[3] is
 // transformed through transform (if provided).
-float vtkImplicitFunction::FunctionValue(const float x[3])
+double vtkImplicitFunction::FunctionValue(const double x[3])
 {
   if ( ! this->Transform )
     {
-    return this->EvaluateFunction((float *)x);
+    return this->EvaluateFunction((double *)x);
     }
   else //pass point through transform
     {
-    float pt[3];
+    double pt[3];
     this->Transform->TransformPoint(x,pt);
     return this->EvaluateFunction(pt);
     }
@@ -52,11 +52,11 @@ float vtkImplicitFunction::FunctionValue(const float x[3])
      inside-out by a flip.  It takes up too many valuable CPU cycles
      to check the determinant on every function evaluation, though.
   {
-    float pt[3];
-    float A[3][3];
+    double pt[3];
+    double A[3][3];
     this->Transform->Update();
     this->Transform->InternalTransformDerivative(x,pt,A);
-    float val = this->EvaluateFunction((float *)pt);
+    double val = this->EvaluateFunction((double *)pt);
 
     if (vtkMath::Determinant3x3(A) < 0)
       {
@@ -72,19 +72,19 @@ float vtkImplicitFunction::FunctionValue(const float x[3])
 
 // Evaluate function gradient at position x-y-z and pass back vector. Point
 // x[3] is transformed through transform (if provided).
-void vtkImplicitFunction::FunctionGradient(const float x[3], float g[3])
+void vtkImplicitFunction::FunctionGradient(const double x[3], double g[3])
 {
   if ( ! this->Transform )
     {
-    this->EvaluateGradient((float *)x,g);
+    this->EvaluateGradient((double *)x,g);
     }
   else //pass point through transform
     {
-    float pt[3];
-    float A[3][3];
+    double pt[3];
+    double A[3][3];
     this->Transform->Update();
     this->Transform->InternalTransformDerivative(x,pt,A);
-    this->EvaluateGradient((float *)pt,g);
+    this->EvaluateGradient((double *)pt,g);
 
     // The gradient must be transformed using the same math as is
     // use for a normal to a surface: it must be multiplied by the

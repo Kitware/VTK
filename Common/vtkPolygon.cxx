@@ -16,7 +16,7 @@
 
 #include "vtkCellArray.h"
 #include "vtkDataSet.h"
-#include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkLine.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -27,7 +27,7 @@
 #include "vtkTriangle.h"
 #include "vtkBox.h"
 
-vtkCxxRevisionMacro(vtkPolygon, "1.103");
+vtkCxxRevisionMacro(vtkPolygon, "1.104");
 vtkStandardNewMacro(vtkPolygon);
 
 // Instantiate polygon.
@@ -37,7 +37,7 @@ vtkPolygon::vtkPolygon()
   this->Tris->Allocate(VTK_CELL_SIZE);
   this->Triangle = vtkTriangle::New();
   this->Quad = vtkQuad::New();
-  this->TriScalars = vtkFloatArray::New();
+  this->TriScalars = vtkDoubleArray::New();
   this->TriScalars->Allocate(3);
   this->Line = vtkLine::New();
 }
@@ -67,11 +67,11 @@ vtkPolygon::~vtkPolygon()
 // that index into the points list. This version will handle non-convex
 // polygons.
 void vtkPolygon::ComputeNormal(vtkPoints *p, int numPts, vtkIdType *pts,
-                               float *n)
+                               double *n)
 {
   int i;
-  float v0[3], v1[3], v2[3];
-  float ax, ay, az, bx, by, bz;
+  double v0[3], v1[3], v2[3];
+  double ax, ay, az, bx, by, bz;
 // 
 // Check for special triangle case. Saves extra work.
 // 
@@ -109,13 +109,13 @@ void vtkPolygon::ComputeNormal(vtkPoints *p, int numPts, vtkIdType *pts,
   vtkMath::Normalize(n);
 }
 
-// Compute the polygon normal from a list of floating points. This version
+// Compute the polygon normal from a list of doubleing points. This version
 // will handle non-convex polygons.
-void vtkPolygon::ComputeNormal(vtkPoints *p, float *n)
+void vtkPolygon::ComputeNormal(vtkPoints *p, double *n)
 {
   int i, numPts;
-  float v0[3], v1[3], v2[3];
-  float ax, ay, az, bx, by, bz;
+  double v0[3], v1[3], v2[3];
+  double ax, ay, az, bx, by, bz;
 
   // Polygon is assumed non-convex -> need to accumulate cross products to 
   // find correct normal.
@@ -145,13 +145,13 @@ void vtkPolygon::ComputeNormal(vtkPoints *p, float *n)
 
 // Compute the polygon normal from an array of points. This version assumes
 // that the polygon is convex, and looks for the first valid normal.
-void vtkPolygon::ComputeNormal (int numPts, float *pts, float n[3])
+void vtkPolygon::ComputeNormal (int numPts, double *pts, double n[3])
 {
   int i;
-  float *v1, *v2, *v3;
-  float length;
-  float ax, ay, az;
-  float bx, by, bz;
+  double *v1, *v2, *v3;
+  double length;
+  double ax, ay, az;
+  double bx, by, bz;
 
   //  Because some polygon vertices are colinear, need to make sure
   //  first non-zero normal is found.
@@ -186,13 +186,13 @@ void vtkPolygon::ComputeNormal (int numPts, float *pts, float n[3])
     } //over all points
 }
 
-int vtkPolygon::EvaluatePosition(float x[3], float* closestPoint,
-                                 int& vtkNotUsed(subId), float pcoords[3], 
-                                 float& minDist2, float *weights)
+int vtkPolygon::EvaluatePosition(double x[3], double* closestPoint,
+                                 int& vtkNotUsed(subId), double pcoords[3], 
+                                 double& minDist2, double *weights)
 {
   int i;
-  float p0[3], p10[3], l10, p20[3], l20, n[3], cp[3];
-  float ray[3];
+  double p0[3], p10[3], l10, p20[3], l20, n[3], cp[3];
+  double ray[3];
 
   this->ParameterizePolygon(p0, p10, l10, p20, l20, n);
   this->ComputeWeights(x,weights);
@@ -208,7 +208,7 @@ int vtkPolygon::EvaluatePosition(float x[3], float* closestPoint,
   if ( pcoords[0] >= 0.0 && pcoords[0] <= 1.0 &&
        pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
        (this->PointInPolygon(cp, this->Points->GetNumberOfPoints(), 
-                             ((vtkFloatArray *)this->Points->GetData())
+                             ((vtkDoubleArray *)this->Points->GetData())
                              ->GetPointer(0), this->GetBounds(),n)
         == VTK_POLYGON_INSIDE) )
     {
@@ -226,15 +226,15 @@ int vtkPolygon::EvaluatePosition(float x[3], float* closestPoint,
   //
   else
     {
-    float t, dist2;
+    double t, dist2;
     int numPts;
-    float closest[3];
-    float pt1[3], pt2[3];
+    double closest[3];
+    double pt1[3], pt2[3];
 
     if (closestPoint)
       {
       numPts = this->Points->GetNumberOfPoints();
-      for (minDist2=VTK_LARGE_FLOAT,i=0; i<numPts; i++)
+      for (minDist2=VTK_DOUBLE_MAX,i=0; i<numPts; i++)
         {
         this->Points->GetPoint(i, pt1);
         this->Points->GetPoint((i+1)%numPts, pt2);
@@ -252,11 +252,11 @@ int vtkPolygon::EvaluatePosition(float x[3], float* closestPoint,
     }
 }
 
-void vtkPolygon::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3], 
-                                  float x[3], float *weights)
+void vtkPolygon::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3], 
+                                  double x[3], double *weights)
 {
   int i;
-  float p0[3], p10[3], l10, p20[3], l20, n[3];
+  double p0[3], p10[3], l10, p20[3], l20, n[3];
 
   this->ParameterizePolygon(p0, p10, l10, p20, l20, n);
   for (i=0; i<3; i++)
@@ -272,13 +272,13 @@ void vtkPolygon::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3],
 // t-axis vector. (These are expressed in the modelling coordinate system and
 // are vectors of dimension [3].) The values l20 and l20 are the lengths of
 // the vectors p10 and p20, and n is the polygon normal.
-int vtkPolygon::ParameterizePolygon(float *p0, float *p10, float& l10, 
-                                   float *p20,float &l20, float *n)
+int vtkPolygon::ParameterizePolygon(double *p0, double *p10, double& l10, 
+                                   double *p20,double &l20, double *n)
 {
   int i, j;
-  float s, t, p[3], p1[3], p2[3], sbounds[2], tbounds[2];
+  double s, t, p[3], p1[3], p2[3], sbounds[2], tbounds[2];
   int numPts=this->Points->GetNumberOfPoints();
-  float x1[3], x2[3];
+  double x1[3], x2[3];
 
   //  This is a two pass process: first create a p' coordinate system
   //  that is then adjusted to insure that the polygon points are all in
@@ -362,11 +362,11 @@ int vtkPolygon::ParameterizePolygon(float *p0, float *p10, float& l10,
 // Can also return -1 to indicate degenerate polygon. Note: a point in
 // bounding box check is NOT performed prior to in/out check. You may want
 // to do this to improve performance.
-int vtkPolygon::PointInPolygon (float x[3], int numPts, float *pts, 
-                                float bounds[6], float *n)
+int vtkPolygon::PointInPolygon (double x[3], int numPts, double *pts, 
+                                double bounds[6], double *n)
 {
-  float *x1, *x2, xray[3], u, v;
-  float rayMag, mag=1, ray[3];
+  double *x1, *x2, xray[3], u, v;
+  double rayMag, mag=1, ray[3];
   int testResult, rayOK, status, numInts, i;
   int iterNumber;
   int maxComp, comps[2];
@@ -536,7 +536,7 @@ int vtkPolygon::PointInPolygon (float x[3], int numPts, float *pts,
 int vtkPolygon::Triangulate(vtkIdList *outTris)
 {
   int success;
-  float *bounds, d;
+  double *bounds, d;
 
   bounds = this->GetBounds();
   
@@ -562,31 +562,31 @@ int vtkPolygon::Triangulate(vtkIdList *outTris)
 typedef struct _vtkPolyVertex 
   {
   int     id;
-  float   x[3];
-  float   measure;
+  double   x[3];
+  double   measure;
   _vtkPolyVertex*    next;
   _vtkPolyVertex*    previous;
   } vtkLocalPolyVertex;
 
 class vtkPolyVertexList { //structure to support triangulation
 public:
-  vtkPolyVertexList(vtkIdList *ptIds, vtkPoints *pts, float tol2);
+  vtkPolyVertexList(vtkIdList *ptIds, vtkPoints *pts, double tol2);
   ~vtkPolyVertexList();
   
   int ComputeNormal();
-  float ComputeMeasure(vtkLocalPolyVertex *vtx);
+  double ComputeMeasure(vtkLocalPolyVertex *vtx);
   void RemoveVertex(int i, vtkIdList *, vtkPriorityQueue *);
-  int CanRemoveVertex(int id, float tol);
+  int CanRemoveVertex(int id, double tol);
   
   int NumberOfVerts;
   vtkLocalPolyVertex *Array;
   vtkLocalPolyVertex *Head;
-  float Normal[3];
+  double Normal[3];
 };
     
 // tolerance is squared
 vtkPolyVertexList::vtkPolyVertexList(vtkIdList *ptIds, vtkPoints *pts,
-                                     float tol2)
+                                     double tol2)
 {
   int numVerts = ptIds->GetNumberOfIds();
   this->NumberOfVerts = numVerts; 
@@ -594,11 +594,11 @@ vtkPolyVertexList::vtkPolyVertexList(vtkIdList *ptIds, vtkPoints *pts,
   int i;
 
   // now load the data into the array
-  float *x;
+  double x[3];
   for (i=0; i<numVerts; i++)
     {
     this->Array[i].id = i;
-    x = pts->GetPoint(i);
+    pts->GetPoint(i,x);
     this->Array[i].x[0] = x[0];
     this->Array[i].x[1] = x[1];
     this->Array[i].x[2] = x[2];
@@ -686,7 +686,7 @@ void vtkPolyVertexList::RemoveVertex(int i, vtkIdList *tris,
 int vtkPolyVertexList::ComputeNormal()
 {
   vtkLocalPolyVertex *vtx=this->Head;
-  float v1[3], v2[3], n[3], *anchor=vtx->x;
+  double v1[3], v2[3], n[3], *anchor=vtx->x;
 
   this->Normal[0] = this->Normal[1] = this->Normal[2] = 0.0;
   for (vtx=vtx->next; vtx->next!=this->Head; vtx=vtx->next)
@@ -716,9 +716,9 @@ int vtkPolyVertexList::ComputeNormal()
 // the sign of the measure is determined by dotting the local
 // vector with the normal (concave features return a negative
 // measure).
-float vtkPolyVertexList::ComputeMeasure(vtkLocalPolyVertex *vtx)
+double vtkPolyVertexList::ComputeMeasure(vtkLocalPolyVertex *vtx)
 {
-  float v1[3], v2[3], v3[3], v4[3], area, perimeter;
+  double v1[3], v2[3], v3[3], v4[3], area, perimeter;
 
   for (int i=0; i<3; i++)
     {
@@ -733,7 +733,7 @@ float vtkPolyVertexList::ComputeMeasure(vtkLocalPolyVertex *vtx)
     }
   else if ( area == 0.0 )
     {
-    return (vtx->measure = -VTK_LARGE_FLOAT); //concave or bad triangle
+    return (vtx->measure = -VTK_DOUBLE_MAX); //concave or bad triangle
     }
   else
     {
@@ -747,10 +747,10 @@ float vtkPolyVertexList::ComputeMeasure(vtkLocalPolyVertex *vtx)
 // comparison to determine whether ear-cut is valid, and may
 // resort to line-plane intersections to resolve possible
 // instersections with ear-cut.
-int vtkPolyVertexList::CanRemoveVertex(int id, float tolerance)
+int vtkPolyVertexList::CanRemoveVertex(int id, double tolerance)
 {
   int i, sign, currentSign;
-  float v[3], sN[3], *sPt, val, s, t;
+  double v[3], sN[3], *sPt, val, s, t;
   vtkLocalPolyVertex *currentVtx, *previous, *next, *vtx;
 
   // Check for simple case
@@ -890,17 +890,17 @@ int vtkPolygon::EarCutTriangulation ()
 }
 
 
-int vtkPolygon::CellBoundary(int vtkNotUsed(subId), float pcoords[3], 
+int vtkPolygon::CellBoundary(int vtkNotUsed(subId), double pcoords[3], 
                              vtkIdList *pts)
 {
   int i, numPts=this->PointIds->GetNumberOfIds();
-  float x[3], *weights;
+  double x[3], *weights;
   int closestPoint=0, previousPoint, nextPoint;
-  float largestWeight=0.0;
-  float p0[3], p10[3], l10, p20[3], l20, n[3];
+  double largestWeight=0.0;
+  double p0[3], p10[3], l10, p20[3], l20, n[3];
 
   pts->Reset();
-  weights = new float[numPts];
+  weights = new double[numPts];
 
   // determine global coordinates given parametric coordinates
   this->ParameterizePolygon(p0, p10, l10, p20, l20, n);
@@ -948,7 +948,7 @@ int vtkPolygon::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
   if ( pcoords[0] >= 0.0 && pcoords[0] <= 1.0 &&
        pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
        (this->PointInPolygon(x, this->Points->GetNumberOfPoints(), 
-                             ((vtkFloatArray *)this->Points->GetData())
+                             ((vtkDoubleArray *)this->Points->GetData())
                              ->GetPointer(0), this->GetBounds(),n)
         == VTK_POLYGON_INSIDE) )
     {
@@ -960,7 +960,7 @@ int vtkPolygon::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
     }
 }
 
-void vtkPolygon::Contour(float value, vtkDataArray *cellScalars, 
+void vtkPolygon::Contour(double value, vtkDataArray *cellScalars, 
                          vtkPointLocator *locator,
                          vtkCellArray *verts, vtkCellArray *lines, 
                          vtkCellArray *polys,
@@ -969,7 +969,7 @@ void vtkPolygon::Contour(float value, vtkDataArray *cellScalars,
                          vtkCellData *outCd)
 {
   int i, success;
-  float *bounds, d;
+  double *bounds, d;
   int p1, p2, p3;
 
   this->TriScalars->SetNumberOfTuples(3);
@@ -1037,11 +1037,11 @@ vtkCell *vtkPolygon::GetEdge(int edgeId)
 //
 // Compute interpolation weights using 1/r**2 normalized sum.
 //
-void vtkPolygon::ComputeWeights(float x[3], float *weights)
+void vtkPolygon::ComputeWeights(double x[3], double *weights)
 {
   int i;
   int numPts=this->Points->GetNumberOfPoints();
-  float sum, pt[3];
+  double sum, pt[3];
 
   for (sum=0.0, i=0; i<numPts; i++)
     {
@@ -1072,15 +1072,15 @@ void vtkPolygon::ComputeWeights(float x[3], float *weights)
 //
 // Intersect this plane with finite line defined by p1 & p2 with tolerance tol.
 //
-int vtkPolygon::IntersectWithLine(float p1[3], float p2[3], float tol,float& t,
-                                 float x[3], float pcoords[3], int& subId)
+int vtkPolygon::IntersectWithLine(double p1[3], double p2[3], double tol,double& t,
+                                 double x[3], double pcoords[3], int& subId)
 {
-  float pt1[3], n[3];
-  float tol2 = tol*tol;
-  float closestPoint[3];
-  float dist2;
+  double pt1[3], n[3];
+  double tol2 = tol*tol;
+  double closestPoint[3];
+  double dist2;
   int npts = this->GetNumberOfPoints();
-  float *weights;
+  double *weights;
 
   subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
@@ -1099,7 +1099,7 @@ int vtkPolygon::IntersectWithLine(float p1[3], float p2[3], float tol,float& t,
 
   // Evaluate position
   //
-  weights = new float[npts];
+  weights = new double[npts];
   if ( this->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights) >= 0)
     {
     if ( dist2 <= tol2 ) 
@@ -1117,7 +1117,7 @@ int vtkPolygon::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
                             vtkPoints *pts)
 {
   int i, success;
-  float *bounds, d;
+  double *bounds, d;
 
   pts->Reset();
   ptIds->Reset();
@@ -1153,8 +1153,8 @@ int vtkPolygon::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 // this method actually returns the derivative of the interpolation
 // function  which  is obtained using 1/r**2 normalized sum.
 #define VTK_SAMPLE_DISTANCE 0.01
-void vtkPolygon::Derivatives(int vtkNotUsed(subId), float pcoords[3], 
-                             float *values, int dim, float *derivs)
+void vtkPolygon::Derivatives(int vtkNotUsed(subId), double pcoords[3], 
+                             double *values, int dim, double *derivs)
 {
   int i, j, k, idx;
 
@@ -1177,11 +1177,11 @@ void vtkPolygon::Derivatives(int vtkNotUsed(subId), float pcoords[3],
     return;
     }
 
-  float p0[3], p10[3], l10, p20[3], l20, n[3];
-  float x[3][3], l1, l2, v1[3], v2[3];
+  double p0[3], p10[3], l10, p20[3], l20, n[3];
+  double x[3][3], l1, l2, v1[3], v2[3];
   int numVerts=this->PointIds->GetNumberOfIds();
-  float *weights = new float[numVerts];
-  float *sample = new float[dim*3];
+  double *weights = new double[numVerts];
+  double *sample = new double[dim*3];
 
   //setup parametric system and check for degeneracy
   if ( this->ParameterizePolygon(p0, p10, l10, p20, l20, n) == 0 )
@@ -1243,14 +1243,14 @@ void vtkPolygon::Derivatives(int vtkNotUsed(subId), float pcoords[3],
   delete [] sample;
 }
 
-void vtkPolygon::Clip(float value, vtkDataArray *cellScalars, 
+void vtkPolygon::Clip(double value, vtkDataArray *cellScalars, 
                       vtkPointLocator *locator, vtkCellArray *tris,
                       vtkPointData *inPD, vtkPointData *outPD,
                       vtkCellData *inCD, vtkIdType cellId, vtkCellData *outCD,
                       int insideOut)
 {
   int i, success;
-  float *bounds, d;
+  double *bounds, d;
   int p1, p2, p3;
 
   this->TriScalars->SetNumberOfTuples(3);
@@ -1300,15 +1300,15 @@ void vtkPolygon::Clip(float value, vtkDataArray *cellScalars,
 // error. The method returns 1 if there is an intersection, and 0 if
 // not. A single point of intersection x[3] is also returned if there
 // is an intersection.
-int vtkPolygon::IntersectPolygonWithPolygon(int npts, float *pts,float bounds[6],
-                                            int npts2, float *pts2, 
-                                            float bounds2[6], float tol2,
-                                            float x[3])
+int vtkPolygon::IntersectPolygonWithPolygon(int npts, double *pts,double bounds[6],
+                                            int npts2, double *pts2, 
+                                            double bounds2[6], double tol2,
+                                            double x[3])
 {
-  float n[3], coords[3];
+  double n[3], coords[3];
   int i, j;
-  float *p1, *p2, ray[3];
-  float t;
+  double *p1, *p2, ray[3];
+  double t;
 
   //  Intersect each edge of first polygon against second
   //

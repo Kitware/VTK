@@ -51,8 +51,8 @@ public:
   // Description:
   // Set/Get the normalized error measure used to control the 
   // tessellation of the cell.
-  vtkSetClampMacro(Error,float,0.001f,1.0f);
-  vtkGetMacro(Error,float);
+  vtkSetClampMacro(Error,double,0.001f,1.0f);
+  vtkGetMacro(Error,double);
 
   // Description:
   // Non-linear cells require special treatment (tessellation) when 
@@ -94,10 +94,10 @@ protected:
   vtkNonLinearCell();
   ~vtkNonLinearCell() {}
 
-  float Error;
+  double Error;
 
   // inline helper for tessellation- used by subclasses
-  vtkIdType InsertPoint(vtkPointLocator *locator, vtkPoints *pts, float *x)
+  vtkIdType InsertPoint(vtkPointLocator *locator, vtkPoints *pts, double *x)
     {
       if ( locator != NULL ) 
         {

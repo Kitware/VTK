@@ -22,7 +22,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.31");
+vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.32");
 vtkStandardNewMacro(vtkInterpolatedVelocityField);
 
 typedef vtkstd::vector< vtkDataSet* > DataSetsTypeBase;
@@ -63,7 +63,7 @@ vtkInterpolatedVelocityField::~vtkInterpolatedVelocityField()
 
 static int tmp_count=0;
 // Evaluate u,v,w at x,y,z,t
-int vtkInterpolatedVelocityField::FunctionValues(float* x, float* f)
+int vtkInterpolatedVelocityField::FunctionValues(double* x, double* f)
 {
   vtkDataSet* ds=0;
   if(!this->LastDataSet && !this->DataSets->empty())
@@ -101,19 +101,19 @@ int vtkInterpolatedVelocityField::FunctionValues(float* x, float* f)
   return retVal;
 }
 
-const float vtkInterpolatedVelocityField::TOLERANCE_SCALE = 1.0E-8;
+const double vtkInterpolatedVelocityField::TOLERANCE_SCALE = 1.0E-8;
 
 // Evaluate u,v,w at x,y,z,t
 int vtkInterpolatedVelocityField::FunctionValues(vtkDataSet* dataset,
-                                                 float* x, 
-                                                 float* f)
+                                                 double* x, 
+                                                 double* f)
 {
   int i, j, subId , numPts, id;
   vtkDataArray* vectors;
-  float vec[3];
-  float dist2;
+  double vec[3];
+  double dist2;
   int ret;
-
+  
   for(i=0; i<3; i++)
     {
     f[i] = 0;
@@ -127,7 +127,7 @@ int vtkInterpolatedVelocityField::FunctionValues(vtkDataSet* dataset,
     return 0;
     }
 
-  float tol2 = 
+  double tol2 = 
     dataset->GetLength() * vtkInterpolatedVelocityField::TOLERANCE_SCALE;
 
   int found = 0;
@@ -220,11 +220,11 @@ void vtkInterpolatedVelocityField::AddDataSet(vtkDataSet* dataset)
     {
     this->WeightsSize = size;
     delete[] this->Weights;
-    this->Weights = new float[size]; 
+    this->Weights = new double[size]; 
     }
 }
 
-int vtkInterpolatedVelocityField::GetLastWeights(float* w)
+int vtkInterpolatedVelocityField::GetLastWeights(double* w)
 {
   int j, numPts;
 
@@ -246,7 +246,7 @@ int vtkInterpolatedVelocityField::GetLastWeights(float* w)
     }
 }
 
-int vtkInterpolatedVelocityField::GetLastLocalCoordinates(float pcoords[3])
+int vtkInterpolatedVelocityField::GetLastLocalCoordinates(double pcoords[3])
 {
   int j;
 

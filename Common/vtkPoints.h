@@ -110,13 +110,12 @@ public:
   vtkIdType GetNumberOfPoints() { return this->Data->GetNumberOfTuples();};
 
   // Description:
-  // Return a pointer to a float point x[3] for a specific id.
-  float *GetPoint(vtkIdType id) { return this->Data->GetTuple(id);};
+  // Return a pointer to a double point x[3] for a specific id.
+  double *GetPoint(vtkIdType id) { return this->Data->GetTuple(id);};
 
   // Description:
   // Copy point components into user provided array v[3] for specified
   // id.
-  void GetPoint(vtkIdType id, float x[3]) { this->Data->GetTuple(id,x);};
   void GetPoint(vtkIdType id, double x[3]) { this->Data->GetTuple(id,x);};
 
   // Description:
@@ -160,17 +159,17 @@ public:
 
   // Description:
   // Return the bounds of the points.
-  float *GetBounds();
+  double *GetBounds();
 
   // Description:
   // Return the bounds of the points.
-  void GetBounds(float bounds[6]);
+  void GetBounds(double bounds[6]);
 
 protected:
   vtkPoints(int dataType=VTK_FLOAT);
   ~vtkPoints();
 
-  float Bounds[6];
+  double Bounds[6];
   vtkTimeStamp ComputeTime; // Time at which bounds computed
   vtkDataArray *Data;  // Array which represents data
 

@@ -37,7 +37,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.145");
+vtkCxxRevisionMacro(vtkImageData, "1.146");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -64,9 +64,9 @@ vtkImageData::vtkImageData()
 
   this->NumberOfScalarComponents = 1;
 
-  // Making the default float for structured points.
+  // Making the default double for structured points.
   this->ScalarType = VTK_VOID;
-  this->SetScalarType(VTK_FLOAT);
+  this->SetScalarType(VTK_DOUBLE);
 
 }
 
@@ -153,11 +153,11 @@ unsigned long vtkImageData::GetEstimatedMemorySize()
   // Multiply by the number of bytes per scalar
   switch (this->GetScalarType())
     {
-    case VTK_FLOAT:
-      size *= sizeof(float);
-      break;
     case VTK_DOUBLE:
       size *= sizeof(double);
+      break;
+    case VTK_FLOAT:
+      size *= sizeof(float);
       break;
     case VTK_INT:
       size *= sizeof(int);
@@ -221,9 +221,9 @@ vtkCell *vtkImageData::GetCell(vtkIdType cellId)
   int iMin, iMax, jMin, jMax, kMin, kMax;
   int *dims = this->GetDimensions();
   int d01 = dims[0]*dims[1];
-  float x[3];
-  float *origin = this->GetOrigin();
-  float *spacing = this->GetSpacing();
+  double x[3];
+  double *origin = this->GetOrigin();
+  double *spacing = this->GetSpacing();
 
   iMin = iMax = jMin = jMax = kMin = kMax = 0;
   
@@ -327,9 +327,9 @@ void vtkImageData::GetCell(vtkIdType cellId, vtkGenericCell *cell)
   int iMin, iMax, jMin, jMax, kMin, kMax;
   int *dims = this->GetDimensions();
   int d01 = dims[0]*dims[1];
-  float *origin = this->GetOrigin();
-  float *spacing = this->GetSpacing();
-  float x[3];
+  double *origin = this->GetOrigin();
+  double *spacing = this->GetSpacing();
+  double x[3];
 
   iMin = iMax = jMin = jMax = kMin = kMax = 0;
   
@@ -426,12 +426,12 @@ void vtkImageData::GetCell(vtkIdType cellId, vtkGenericCell *cell)
 //----------------------------------------------------------------------------
 // Fast implementation of GetCellBounds().  Bounds are calculated without
 // constructing a cell.
-void vtkImageData::GetCellBounds(vtkIdType cellId, float bounds[6])
+void vtkImageData::GetCellBounds(vtkIdType cellId, double bounds[6])
 {
   int loc[3], iMin, iMax, jMin, jMax, kMin, kMax;
-  float x[3];
-  float *origin = this->GetOrigin();
-  float *spacing = this->GetSpacing();
+  double x[3];
+  double *origin = this->GetOrigin();
+  double *spacing = this->GetSpacing();
   int *dims = this->GetDimensions();
 
   iMin = iMax = jMin = jMax = kMin = kMax = 0;
@@ -499,8 +499,8 @@ void vtkImageData::GetCellBounds(vtkIdType cellId, float bounds[6])
     }
 
 
-  bounds[0] = bounds[2] = bounds[4] =  VTK_LARGE_FLOAT;
-  bounds[1] = bounds[3] = bounds[5] = -VTK_LARGE_FLOAT;
+  bounds[0] = bounds[2] = bounds[4] =  VTK_DOUBLE_MAX;
+  bounds[1] = bounds[3] = bounds[5] = -VTK_DOUBLE_MAX;
   
   // Extract point coordinates
   for (loc[2]=kMin; loc[2]<=kMax; loc[2]++)
@@ -524,12 +524,12 @@ void vtkImageData::GetCellBounds(vtkIdType cellId, float bounds[6])
 }
 
 //----------------------------------------------------------------------------
-float *vtkImageData::GetPoint(vtkIdType ptId)
+double *vtkImageData::GetPoint(vtkIdType ptId)
 {
-  static float x[3];
+  static double x[3];
   int i, loc[3];
-  float *origin = this->GetOrigin();
-  float *spacing = this->GetSpacing();
+  double *origin = this->GetOrigin();
+  double *spacing = this->GetSpacing();
   int *dims = this->GetDimensions();
 
   x[0] = x[1] = x[2] = 0.0;
@@ -597,12 +597,12 @@ float *vtkImageData::GetPoint(vtkIdType ptId)
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkImageData::FindPoint(float x[3])
+vtkIdType vtkImageData::FindPoint(double x[3])
 {
   int i, loc[3];
-  float d;
-  float *origin = this->GetOrigin();
-  float *spacing = this->GetSpacing();
+  double d;
+  double *origin = this->GetOrigin();
+  double *spacing = this->GetSpacing();
   int *dims = this->GetDimensions();
 
   //
@@ -627,22 +627,22 @@ vtkIdType vtkImageData::FindPoint(float x[3])
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkImageData::FindCell(float x[3], vtkCell *vtkNotUsed(cell), 
+vtkIdType vtkImageData::FindCell(double x[3], vtkCell *vtkNotUsed(cell), 
                                  vtkGenericCell *vtkNotUsed(gencell),
                                  vtkIdType vtkNotUsed(cellId), 
-                                  float vtkNotUsed(tol2), 
-                                  int& subId, float pcoords[3], 
-                                  float *weights)
+                                  double vtkNotUsed(tol2), 
+                                  int& subId, double pcoords[3], 
+                                  double *weights)
 {
   return
     this->FindCell( x, (vtkCell *)NULL, 0, 0.0, subId, pcoords, weights );
 }
 
 //----------------------------------------------------------------------------
-vtkIdType vtkImageData::FindCell(float x[3], vtkCell *vtkNotUsed(cell), 
+vtkIdType vtkImageData::FindCell(double x[3], vtkCell *vtkNotUsed(cell), 
                                  vtkIdType vtkNotUsed(cellId),
-                                 float vtkNotUsed(tol2), 
-                                 int& subId, float pcoords[3], float *weights)
+                                 double vtkNotUsed(tol2), 
+                                 int& subId, double pcoords[3], double *weights)
 {
   int loc[3];
   int *dims = this->GetDimensions();
@@ -663,23 +663,23 @@ vtkIdType vtkImageData::FindCell(float x[3], vtkCell *vtkNotUsed(cell),
 }
 
 //----------------------------------------------------------------------------
-vtkCell *vtkImageData::FindAndGetCell(float x[3],
+vtkCell *vtkImageData::FindAndGetCell(double x[3],
                                       vtkCell *vtkNotUsed(cell),
                                       vtkIdType vtkNotUsed(cellId),
-                                      float vtkNotUsed(tol2), int& subId, 
-                                      float pcoords[3], float *weights)
+                                      double vtkNotUsed(tol2), int& subId, 
+                                      double pcoords[3], double *weights)
 {
   int i, j, k, loc[3];
   vtkIdType npts, idx;
   int *dims = this->GetDimensions();
   vtkIdType d01 = dims[0]*dims[1];
-  float xOut[3];
+  double xOut[3];
   int iMax = 0;
   int jMax = 0;
   int kMax = 0;;
   vtkCell *cell = NULL;
-  float *origin = this->GetOrigin();
-  float *spacing = this->GetSpacing();
+  double *origin = this->GetOrigin();
+  double *spacing = this->GetSpacing();
 
   if ( this->ComputeStructuredCoordinates(x, loc, pcoords) == 0 )
     {
@@ -812,15 +812,15 @@ int vtkImageData::GetCellType(vtkIdType vtkNotUsed(cellId))
 //----------------------------------------------------------------------------
 void vtkImageData::ComputeBounds()
 {
-  float *origin = this->GetOrigin();
-  float *spacing = this->GetSpacing();
+  double *origin = this->GetOrigin();
+  double *spacing = this->GetSpacing();
   
   if ( this->Extent[0] > this->Extent[1] || 
        this->Extent[2] > this->Extent[3] ||
        this->Extent[4] > this->Extent[5] )
     {
-    this->Bounds[0] = this->Bounds[2] = this->Bounds[4] =  VTK_LARGE_FLOAT;
-    this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_LARGE_FLOAT;
+    this->Bounds[0] = this->Bounds[2] = this->Bounds[4] =  VTK_DOUBLE_MAX;
+    this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_DOUBLE_MAX;
     return;
     }
   this->Bounds[0] = origin[0] + (this->Extent[0] * spacing[0]);
@@ -843,7 +843,7 @@ void vtkImageData::ComputeBounds()
 void vtkImageData::GetVoxelGradient(int i, int j, int k, vtkDataArray *s, 
                                     vtkDataArray *g)
 {
-  float gv[3];
+  double gv[3];
   int ii, jj, kk, idx=0;
 
   for ( kk=0; kk < 2; kk++)
@@ -865,12 +865,12 @@ void vtkImageData::GetVoxelGradient(int i, int j, int k, vtkDataArray *s,
 // The scalars s are the scalars from which the gradient is to be computed.
 // This method will treat structured point datasets of any dimension.
 void vtkImageData::GetPointGradient(int i,int j,int k, vtkDataArray *s, 
-                                    float g[3])
+                                    double g[3])
 {
   int *dims=this->GetDimensions();
-  float *ar=this->GetSpacing();
+  double *ar=this->GetSpacing();
   vtkIdType ijsize=dims[0]*dims[1];
-  float sp, sm;
+  double sp, sm;
 
   // x-direction
   if ( dims[0] == 1 )
@@ -966,13 +966,13 @@ void vtkImageData::SetDimensions(int dim[3])
 // The voxel is specified by the array ijk[3], and the parametric coordinates
 // in the cell are specified with pcoords[3]. The function returns a 0 if the
 // point x is outside of the volume, and a 1 if inside the volume.
-int vtkImageData::ComputeStructuredCoordinates(float x[3], int ijk[3], 
-                                               float pcoords[3])
+int vtkImageData::ComputeStructuredCoordinates(double x[3], int ijk[3], 
+                                               double pcoords[3])
 {
   int i;
-  float d, floatLoc;
-  float *origin = this->GetOrigin();
-  float *spacing = this->GetSpacing();
+  double d, doubleLoc;
+  double *origin = this->GetOrigin();
+  double *spacing = this->GetSpacing();
   int *dims = this->GetDimensions();
   
   //
@@ -981,12 +981,12 @@ int vtkImageData::ComputeStructuredCoordinates(float x[3], int ijk[3],
   for (i=0; i<3; i++) 
     {
     d = x[i] - origin[i];
-    floatLoc = d / spacing[i];
+    doubleLoc = d / spacing[i];
     // Floor for negtive indexes.
-    ijk[i] = (int) (floor(floatLoc));
+    ijk[i] = (int) (floor(doubleLoc));
     if ( ijk[i] >= this->Extent[i*2] && ijk[i] < this->Extent[i*2 + 1] )
       {
-      pcoords[i] = floatLoc - (float)ijk[i];
+      pcoords[i] = doubleLoc - (double)ijk[i];
       }
 
     else if ( ijk[i] < this->Extent[i*2] || ijk[i] > this->Extent[i*2+1] ) 
@@ -1374,7 +1374,7 @@ void vtkImageData::ComputeIncrements()
 }
 
 //----------------------------------------------------------------------------
-float vtkImageData::GetScalarComponentAsFloat(int x, int y, int z, int comp)
+double vtkImageData::GetScalarComponentAsDouble(int x, int y, int z, int comp)
 {
   void *ptr;
   
@@ -1394,26 +1394,26 @@ float vtkImageData::GetScalarComponentAsFloat(int x, int y, int z, int comp)
   
   switch (this->ScalarType)
     {
-    case VTK_FLOAT:
-      return *(((float *)ptr) + comp);
     case VTK_DOUBLE:
       return *(((double *)ptr) + comp);
+    case VTK_FLOAT:
+      return *(((float *)ptr) + comp);
     case VTK_INT:
-      return (float)(*(((int *)ptr) + comp));
+      return (double)(*(((int *)ptr) + comp));
     case VTK_UNSIGNED_INT:
-      return (float)(*(((unsigned int *)ptr) + comp));
+      return (double)(*(((unsigned int *)ptr) + comp));
     case VTK_LONG:
-      return (float)(*(((long *)ptr) + comp));
+      return (double)(*(((long *)ptr) + comp));
     case VTK_UNSIGNED_LONG:
-      return (float)(*(((unsigned long *)ptr) + comp));
+      return (double)(*(((unsigned long *)ptr) + comp));
     case VTK_SHORT:
-      return (float)(*(((short *)ptr) + comp));
+      return (double)(*(((short *)ptr) + comp));
     case VTK_UNSIGNED_SHORT:
-      return (float)(*(((unsigned short *)ptr) + comp));
+      return (double)(*(((unsigned short *)ptr) + comp));
     case VTK_UNSIGNED_CHAR:
-      return (float)(*(((unsigned char *)ptr) + comp));
+      return (double)(*(((unsigned char *)ptr) + comp));
     case VTK_CHAR:
-      return (float)(*(((char *)ptr) + comp));
+      return (double)(*(((char *)ptr) + comp));
     }
 
   vtkErrorMacro("Unknown Scalar type");
@@ -1421,7 +1421,7 @@ float vtkImageData::GetScalarComponentAsFloat(int x, int y, int z, int comp)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageData::SetScalarComponentFromFloat(int x, int y, int z, int comp, float v)
+void vtkImageData::SetScalarComponentFromDouble(int x, int y, int z, int comp, double v)
 {
   void *ptr;
   
@@ -1441,16 +1441,16 @@ void vtkImageData::SetScalarComponentFromFloat(int x, int y, int z, int comp, fl
   
   switch (this->ScalarType)
     {
-    case VTK_FLOAT:
-      {
-      float* pp = ((float*)ptr) + comp;
-      *pp = (float)v;
-      break;
-      }
     case VTK_DOUBLE:
       {
       double* pp = ((double*)ptr) + comp;
       *pp = (double)v;
+      break;
+      }
+    case VTK_FLOAT:
+      {
+      float* pp = ((float*)ptr) + comp;
+      *pp = (float)v;
       break;
       }
     case VTK_INT:
@@ -1660,11 +1660,11 @@ void vtkImageData::AllocateScalars()
     case VTK_LONG:           
       scalars = vtkLongArray::New();
       break;
-    case VTK_FLOAT:          
-      scalars = vtkFloatArray::New();
-      break;
-    case VTK_DOUBLE:         
+    case VTK_DOUBLE:          
       scalars = vtkDoubleArray::New();
+      break;
+    case VTK_FLOAT:         
+      scalars = vtkFloatArray::New();
       break;
     default:
       vtkErrorMacro("Could not allocate data type.");
@@ -1690,10 +1690,10 @@ int vtkImageData::GetScalarSize()
   // allocate the new scalars
   switch (this->ScalarType)
     {
-    case VTK_FLOAT:
-      return sizeof(float);
     case VTK_DOUBLE:
       return sizeof(double);
+    case VTK_FLOAT:
+      return sizeof(float);
     case VTK_INT:
     case VTK_UNSIGNED_INT:
       return sizeof(int);

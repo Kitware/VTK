@@ -24,18 +24,18 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkDataSet, "1.92");
+vtkCxxRevisionMacro(vtkDataSet, "1.93");
 
 //----------------------------------------------------------------------------
 // Constructor with default bounds (0,1, 0,1, 0,1).
 vtkDataSet::vtkDataSet ()
 {
-  this->Bounds[0] = VTK_LARGE_FLOAT;
-  this->Bounds[1] = -VTK_LARGE_FLOAT;
-  this->Bounds[2] = VTK_LARGE_FLOAT;
-  this->Bounds[3] = -VTK_LARGE_FLOAT;
-  this->Bounds[4] = VTK_LARGE_FLOAT;
-  this->Bounds[5] = -VTK_LARGE_FLOAT;
+  this->Bounds[0] = VTK_DOUBLE_MAX;
+  this->Bounds[1] = -VTK_DOUBLE_MAX;
+  this->Bounds[2] = VTK_DOUBLE_MAX;
+  this->Bounds[3] = -VTK_DOUBLE_MAX;
+  this->Bounds[4] = VTK_DOUBLE_MAX;
+  this->Bounds[5] = -VTK_DOUBLE_MAX;
 
   this->PointData = vtkPointData::New();
   this->CellData = vtkCellData::New();
@@ -67,12 +67,12 @@ void vtkDataSet::ComputeBounds()
 {
   int j;
   vtkIdType i;
-  float *x;
+  double *x;
 
   if ( this->GetMTime() > this->ComputeTime )
     {
-    this->Bounds[0] = this->Bounds[2] = this->Bounds[4] =  VTK_LARGE_FLOAT;
-    this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_LARGE_FLOAT;
+    this->Bounds[0] = this->Bounds[2] = this->Bounds[4] =  VTK_DOUBLE_MAX;
+    this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_DOUBLE_MAX;
     for (i=0; i<this->GetNumberOfPoints(); i++)
       {
       x = this->GetPoint(i);
@@ -133,14 +133,14 @@ double *vtkDataSet::GetScalarRange()
 //----------------------------------------------------------------------------
 // Return a pointer to the geometry bounding box in the form
 // (xmin,xmax, ymin,ymax, zmin,zmax).
-float *vtkDataSet::GetBounds()
+double *vtkDataSet::GetBounds()
 {
   this->ComputeBounds();
   return this->Bounds;
 }
   
 //----------------------------------------------------------------------------
-void vtkDataSet::GetBounds(float bounds[6])
+void vtkDataSet::GetBounds(double bounds[6])
 {
   this->ComputeBounds();
   for (int i=0; i<6; i++)
@@ -151,7 +151,7 @@ void vtkDataSet::GetBounds(float bounds[6])
   
 //----------------------------------------------------------------------------
 // Get the center of the bounding box.
-float *vtkDataSet::GetCenter()
+double *vtkDataSet::GetCenter()
 {
   this->ComputeBounds();
   for (int i=0; i<3; i++)
@@ -162,7 +162,7 @@ float *vtkDataSet::GetCenter()
 }
 
 //----------------------------------------------------------------------------
-void vtkDataSet::GetCenter(float center[3])
+void vtkDataSet::GetCenter(double center[3])
 {
   this->ComputeBounds();
   for (int i=0; i<3; i++)
@@ -173,7 +173,7 @@ void vtkDataSet::GetCenter(float center[3])
   
 //----------------------------------------------------------------------------
 // Return the length of the diagonal of the bounding box.
-float vtkDataSet::GetLength()
+double vtkDataSet::GetLength()
 {
   double diff, l=0.0;
   int i;
@@ -186,11 +186,11 @@ float vtkDataSet::GetLength()
     l += diff * diff;
     }
   diff = sqrt(l);
-  if(diff > VTK_LARGE_FLOAT)
+  if(diff > VTK_DOUBLE_MAX)
     {
-    return VTK_LARGE_FLOAT;
+    return VTK_DOUBLE_MAX;
     }
-  return static_cast<float>(diff);
+  return static_cast<double>(diff);
 }
 
 //----------------------------------------------------------------------------
@@ -208,9 +208,9 @@ unsigned long int vtkDataSet::GetMTime()
 }
 
 //----------------------------------------------------------------------------
-vtkCell *vtkDataSet::FindAndGetCell (float x[3], vtkCell *cell,
-                                     vtkIdType cellId, float tol2, int& subId,
-                                     float pcoords[3], float *weights)
+vtkCell *vtkDataSet::FindAndGetCell (double x[3], vtkCell *cell,
+                                     vtkIdType cellId, double tol2, int& subId,
+                                     double pcoords[3], double *weights)
 {
   int newCell = this->FindCell(x,cell,cellId,tol2,subId,pcoords,weights);
   if (newCell >= 0 )
@@ -270,13 +270,21 @@ void vtkDataSet::GetCellTypes(vtkCellTypes *types)
 //----------------------------------------------------------------------------
 // Default implementation. This is very slow way to compute this information.
 // Subclasses should override this method for efficiency.
-void vtkDataSet::GetCellBounds(vtkIdType cellId, float bounds[6])
+void vtkDataSet::GetCellBounds(vtkIdType cellId, double bounds[6])
 {
   vtkGenericCell *cell = vtkGenericCell::New();
 
   this->GetCell(cellId, cell);
-  cell->GetBounds(bounds);
-
+  // TODO: clean double
+  double dbounds[6];
+  cell->GetBounds(dbounds);
+  bounds[0] = (double)dbounds[0];
+  bounds[1] = (double)dbounds[1];
+  bounds[2] = (double)dbounds[2];
+  bounds[3] = (double)dbounds[3];
+  bounds[4] = (double)dbounds[4];
+  bounds[5] = (double)dbounds[5];
+  
   cell->Delete();
 }
 
@@ -418,7 +426,7 @@ void vtkDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  float *bounds;
+  double *bounds;
 
   os << indent << "Number Of Points: " << this->GetNumberOfPoints() << "\n";
   os << indent << "Number Of Cells: " << this->GetNumberOfCells() << "\n";

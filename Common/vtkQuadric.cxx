@@ -17,7 +17,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkQuadric, "1.5");
+vtkCxxRevisionMacro(vtkQuadric, "1.6");
 vtkStandardNewMacro(vtkQuadric);
 
 // Construct quadric with all coefficients = 1.
@@ -36,10 +36,10 @@ vtkQuadric::vtkQuadric()
 }
 
 // Set the 10 coefficients of the quadric equation.
-void vtkQuadric::SetCoefficients(float a[10])
+void vtkQuadric::SetCoefficients(double a[10])
 {
   int i;
-  float *c=this->Coefficients;
+  double *c=this->Coefficients;
 
   for (i=0; i < 10; i++ )
     {
@@ -60,18 +60,18 @@ void vtkQuadric::SetCoefficients(float a[10])
 }
 
 // Evaluate quadric equation.
-float vtkQuadric::EvaluateFunction(float x[3])
+double vtkQuadric::EvaluateFunction(double x[3])
 {
-  float *a = this->Coefficients;
+  double *a = this->Coefficients;
   return ( a[0]*x[0]*x[0] + a[1]*x[1]*x[1] + a[2]*x[2]*x[2] +
            a[3]*x[0]*x[1] + a[4]*x[1]*x[2] + a[5]*x[0]*x[2] +
            a[6]*x[0] + a[7]*x[1] + a[8]*x[2] + a[9] );
 }
 
 // Evaluate the gradient to the quadric equation.
-void vtkQuadric::EvaluateGradient(float x[3], float n[3])
+void vtkQuadric::EvaluateGradient(double x[3], double n[3])
 {
-  float *a=this->Coefficients;
+  double *a=this->Coefficients;
 
   n[0] = 2.0*a[0]*x[0] + a[3]*x[1] + a[5]*x[2] + a[6];
   n[1] = 2.0*a[1]*x[1] + a[3]*x[0] + a[4]*x[2] + a[7];
@@ -80,10 +80,10 @@ void vtkQuadric::EvaluateGradient(float x[3], float n[3])
 
 
 // Set the 10 coefficients of the quadric equation.
-void vtkQuadric::SetCoefficients(float a0,float a1,float a2,float a3, float a4, 
-                                float a5,float a6,float a7,float a8, float a9)
+void vtkQuadric::SetCoefficients(double a0,double a1,double a2,double a3, double a4, 
+                                double a5,double a6,double a7,double a8, double a9)
 {
-  float a[10];
+  double a[10];
 
   a[0] = a0; a[1] = a1; a[2] = a2; a[3] = a3; a[4] = a4; 
   a[5] = a5; a[6] = a6; a[7] = a7; a[8] = a8; a[9] = a9; 

@@ -36,7 +36,7 @@
 #include "vtkConvexPointSet.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkGenericCell, "1.20");
+vtkCxxRevisionMacro(vtkGenericCell, "1.21");
 vtkStandardNewMacro(vtkGenericCell);
 
 // Construct cell.
@@ -105,26 +105,26 @@ vtkCell *vtkGenericCell::GetFace(int faceId)
   return this->Cell->GetFace(faceId);
 }
 
-int vtkGenericCell::CellBoundary(int subId, float pcoords[3], vtkIdList *pts)
+int vtkGenericCell::CellBoundary(int subId, double pcoords[3], vtkIdList *pts)
 {
   return this->Cell->CellBoundary(subId, pcoords, pts);
 }
 
-int vtkGenericCell::EvaluatePosition(float x[3], float closestPoint[3], 
-                                    int& subId, float pcoords[3], 
-                                    float& dist2, float *weights)
+int vtkGenericCell::EvaluatePosition(double x[3], double closestPoint[3], 
+                                    int& subId, double pcoords[3], 
+                                    double& dist2, double *weights)
 {
   return this->Cell->EvaluatePosition(x, closestPoint, subId, 
                                       pcoords, dist2, weights);
 }
 
-void vtkGenericCell::EvaluateLocation(int& subId, float pcoords[3], 
-                                     float x[3], float *weights)
+void vtkGenericCell::EvaluateLocation(int& subId, double pcoords[3], 
+                                     double x[3], double *weights)
 {
   this->Cell->EvaluateLocation(subId, pcoords, x, weights);
 }
 
-void vtkGenericCell::Contour(float value, vtkDataArray *cellScalars, 
+void vtkGenericCell::Contour(double value, vtkDataArray *cellScalars, 
                              vtkPointLocator *locator, vtkCellArray *verts, 
                              vtkCellArray *lines, vtkCellArray *polys, 
                              vtkPointData *inPd, vtkPointData *outPd,
@@ -135,7 +135,7 @@ void vtkGenericCell::Contour(float value, vtkDataArray *cellScalars,
                       inPd, outPd, inCd, cellId, outCd);
 }
 
-void vtkGenericCell::Clip(float value, vtkDataArray *cellScalars, 
+void vtkGenericCell::Clip(double value, vtkDataArray *cellScalars, 
                           vtkPointLocator *locator, vtkCellArray *connectivity,
                           vtkPointData *inPd, vtkPointData *outPd,
                           vtkCellData *inCd, vtkIdType cellId,
@@ -145,8 +145,8 @@ void vtkGenericCell::Clip(float value, vtkDataArray *cellScalars,
                    outPd, inCd, cellId, outCd, insideOut);
 }
 
-int vtkGenericCell::IntersectWithLine(float p1[3], float p2[3], float tol,
-                                      float& t, float x[3], float pcoords[3],
+int vtkGenericCell::IntersectWithLine(double p1[3], double p2[3], double tol,
+                                      double& t, double x[3], double pcoords[3],
                                       int& subId)
 {
   return this->Cell->IntersectWithLine(p1, p2, tol, t, x, pcoords, subId);
@@ -157,18 +157,18 @@ int vtkGenericCell::Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts)
   return this->Cell->Triangulate(index, ptIds, pts);
 }
 
-void vtkGenericCell::Derivatives(int subId, float pcoords[3], float *values, 
-                                 int dim, float *derivs)
+void vtkGenericCell::Derivatives(int subId, double pcoords[3], double *values, 
+                                 int dim, double *derivs)
 {
   this->Cell->Derivatives(subId, pcoords, values, dim, derivs);
 }
 
-int vtkGenericCell::GetParametricCenter(float pcoords[3])
+int vtkGenericCell::GetParametricCenter(double pcoords[3])
 {
   return this->Cell->GetParametricCenter(pcoords);
 }
 
-float *vtkGenericCell::GetParametricCoords()
+double *vtkGenericCell::GetParametricCoords()
 {
   return this->Cell->GetParametricCoords();
 }

@@ -15,7 +15,7 @@
 #include "vtkBitArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkBitArray, "1.56");
+vtkCxxRevisionMacro(vtkBitArray, "1.57");
 vtkStandardNewMacro(vtkBitArray);
 
 // Instantiate object.
@@ -24,7 +24,7 @@ vtkBitArray::vtkBitArray(vtkIdType numComp)
   this->NumberOfComponents = (numComp < 1 ? 1 : numComp);
   this->Array = NULL;
   this->TupleSize = 3;
-  this->Tuple = new float[this->TupleSize]; //used for conversion
+  this->Tuple = new double[this->TupleSize]; //used for conversion
   this->SaveUserArray = 0;
 }
 
@@ -265,35 +265,25 @@ void vtkBitArray::SetNumberOfTuples(vtkIdType number)
 
 // Get a pointer to a tuple at the ith location. This is a dangerous method
 // (it is not thread safe since a pointer is returned).
-float *vtkBitArray::GetTuple(vtkIdType i)
+double *vtkBitArray::GetTuple(vtkIdType i)
 {
   if ( this->TupleSize < this->NumberOfComponents )
     {
     this->TupleSize = this->NumberOfComponents;
     delete [] this->Tuple;
-    this->Tuple = new float[this->TupleSize];
+    this->Tuple = new double[this->TupleSize];
     }
 
   int loc = this->NumberOfComponents*i;
   for (int j=0; j<this->NumberOfComponents; j++)
     {
-    this->Tuple[j] = (float)this->GetValue(loc+j);
+    this->Tuple[j] = (double)this->GetValue(loc+j);
     }
 
   return this->Tuple;
 }
 
 // Copy the tuple value into a user-provided array.
-void vtkBitArray::GetTuple(vtkIdType i, float * tuple)
-{
-  vtkIdType loc = this->NumberOfComponents*i;
-
-  for (int j=0; j<this->NumberOfComponents; j++)
-    {
-    tuple[j] = (float)this->GetValue(loc+j);
-    }
-}
-
 void vtkBitArray::GetTuple(vtkIdType i, double * tuple)
 {
   vtkIdType loc = this->NumberOfComponents*i;
@@ -369,7 +359,7 @@ vtkIdType vtkBitArray::InsertNextTuple(const double * tuple)
 }
 
 
-void vtkBitArray::InsertComponent(vtkIdType i, int j, float c)
+void vtkBitArray::InsertComponent(vtkIdType i, int j, double c)
 {
   this->InsertValue(i*this->NumberOfComponents + j, 
                     static_cast<int>(c));
@@ -379,7 +369,7 @@ void vtkBitArray::InsertComponent(vtkIdType i, int j, float c)
 // Note that i<NumberOfTuples and j<NumberOfComponents. Make sure enough
 // memory has been allocated (use SetNumberOfTuples() and 
 // SetNumberOfComponents()).
-void vtkBitArray::SetComponent(vtkIdType i, int j, float c)
+void vtkBitArray::SetComponent(vtkIdType i, int j, double c)
 {
   this->SetValue(i*this->NumberOfComponents + j, static_cast<int>(c));
 }

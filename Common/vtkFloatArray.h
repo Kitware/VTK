@@ -95,19 +95,6 @@ public:
   void SetArray(float* array, vtkIdType size, int save)
     { this->RealSuperclass::SetArray(array, size, save); }
 
-  // Description:
-  // Backward compatibility implementation of GetTuple for
-  // vtkFloatArray.  This signature should probably be removed.
-  virtual float* GetTuple(vtkIdType i)
-    { return this->Array + this->NumberOfComponents*i; }
-
-  // Description:
-  // The backward compatibility implementation of one-argument
-  // GetTuple hides these signatures.  Make them available.
-  virtual void GetTuple(vtkIdType i, float* x)
-    { this->RealSuperclass::GetTuple(i, x); }
-  virtual void GetTuple(vtkIdType i, double* x)
-    { this->RealSuperclass::GetTuple(i, x); }
 protected:
   vtkFloatArray(vtkIdType numComp=1);
   ~vtkFloatArray();

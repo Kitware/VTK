@@ -25,10 +25,10 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkWedge, "1.33");
+vtkCxxRevisionMacro(vtkWedge, "1.34");
 vtkStandardNewMacro(vtkWedge);
 
-static const float VTK_DIVERGED = 1.e6;
+static const double VTK_DIVERGED = 1.e6;
 
 // Construct the wedge with six points.
 vtkWedge::vtkWedge()
@@ -58,17 +58,17 @@ vtkWedge::~vtkWedge()
 }
 
 static const int VTK_MAX_ITERATION=10;
-static const float VTK_CONVERGED=1.e-03;
-int vtkWedge::EvaluatePosition(float x[3], float* closestPoint,
-                              int& subId, float pcoords[3], 
-                              float& dist2, float *weights)
+static const double VTK_CONVERGED=1.e-03;
+int vtkWedge::EvaluatePosition(double x[3], double* closestPoint,
+                              int& subId, double pcoords[3], 
+                              double& dist2, double *weights)
 {
   int iteration, converged;
-  float  params[3];
-  float  fcol[3], rcol[3], scol[3], tcol[3];
+  double  params[3];
+  double  fcol[3], rcol[3], scol[3], tcol[3];
   int i, j;
-  float  d, pt[3];
-  float derivs[18];
+  double  d, pt[3];
+  double derivs[18];
 
   //  set initial position for Newton's method
   subId = 0;
@@ -161,7 +161,7 @@ int vtkWedge::EvaluatePosition(float x[3], float* closestPoint,
     }
   else
     {
-    float pc[3], w[6];
+    double pc[3], w[6];
     if (closestPoint)
       {
       for (i=0; i<3; i++) //only approximate, not really true for warped hexa
@@ -179,18 +179,18 @@ int vtkWedge::EvaluatePosition(float x[3], float* closestPoint,
           pc[i] = pcoords[i];
           }
         }
-      this->EvaluateLocation(subId, pc, closestPoint, (float *)w);
+      this->EvaluateLocation(subId, pc, closestPoint, (double *)w);
       dist2 = vtkMath::Distance2BetweenPoints(closestPoint,x);
       }
     return 0;
     }
 }
 
-void vtkWedge::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3], 
-                                float x[3], float *weights)
+void vtkWedge::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3], 
+                                double x[3], double *weights)
 {
   int i, j;
-  float pt[3];
+  double pt[3];
 
   this->InterpolationFunctions(pcoords, weights);
 
@@ -207,18 +207,18 @@ void vtkWedge::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3],
 
 // Returns the closest face to the point specified. Closeness is measured
 // parametrically.
-int vtkWedge::CellBoundary(int vtkNotUsed(subId), float pcoords[3], 
+int vtkWedge::CellBoundary(int vtkNotUsed(subId), double pcoords[3], 
                            vtkIdList *pts)
 {
   int i;
 
   // define 9 planes that separate regions
-  static float normals[9][3] = { 
+  static double normals[9][3] = { 
     {0.0,0.83205,-0.5547}, {-0.639602,-0.639602,-0.426401}, {0.83205,0.0,-0.5547},
     {0.0,0.83205,0.5547}, {-0.639602,-0.639602,0.426401}, {0.83205,0.0,0.5547},
     {-0.707107,0.707107,0.0}, {0.447214,0.894427,0.0}, {0.894427,0.447214,0.0} };
-  static float point[3] = {0.333333,0.333333,0.5};
-  float vals[9];
+  static double point[3] = {0.333333,0.333333,0.5};
+  double vals[9];
 
   // evaluate 9 plane equations
   for (i=0; i<9; i++)
@@ -366,7 +366,7 @@ static TRIANGLE_CASES triCases[] = {
   {{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}}  //63
 };
 
-void vtkWedge::Contour(float value, vtkDataArray *cellScalars, 
+void vtkWedge::Contour(double value, vtkDataArray *cellScalars, 
                        vtkPointLocator *locator,
                        vtkCellArray *vtkNotUsed(verts), 
                        vtkCellArray *vtkNotUsed(lines), 
@@ -379,7 +379,7 @@ void vtkWedge::Contour(float value, vtkDataArray *cellScalars,
   EDGE_LIST  *edge;
   int i, j, index, *vert, v1, v2, newCellId;
   vtkIdType pts[3];
-  float t, x1[3], x2[3], x[3], deltaScalar;
+  double t, x1[3], x2[3], x[3], deltaScalar;
 
   // Build the case table
   for ( i=0, index = 0; i < 6; i++)
@@ -508,16 +508,17 @@ vtkCell *vtkWedge::GetFace(int faceId)
 
 // Intersect faces against line.
 //
-int vtkWedge::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
-                               float x[3], float pcoords[3], int& subId)
+int vtkWedge::IntersectWithLine(double p1[3], double p2[3], 
+                                double tol, double& t,
+                                double x[3], double pcoords[3], int& subId)
 {
   int intersection=0;
-  float pt1[3], pt2[3], pt3[3], pt4[3];
-  float tTemp;
-  float pc[3], xTemp[3];
+  double pt1[3], pt2[3], pt3[3], pt4[3];
+  double tTemp;
+  double pc[3], xTemp[3];
   int faceNum;
 
-  t = VTK_LARGE_FLOAT;
+  t = VTK_DOUBLE_MAX;
 
   //first intersect the triangle faces
   for (faceNum=0; faceNum<2; faceNum++)
@@ -530,7 +531,8 @@ int vtkWedge::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
     this->Triangle->Points->SetPoint(1,pt2);
     this->Triangle->Points->SetPoint(2,pt3);
 
-    if ( this->Triangle->IntersectWithLine(p1, p2, tol, tTemp, xTemp, pc, subId) )
+    if ( this->Triangle->IntersectWithLine(p1, p2, tol, tTemp, xTemp, 
+                                           pc, subId) )
       {
       intersection = 1;
       if ( tTemp < t )
@@ -592,7 +594,8 @@ int vtkWedge::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
   return intersection;
 }
 
-int vtkWedge::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, vtkPoints *pts)
+int vtkWedge::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, 
+                          vtkPoints *pts)
 {
   ptIds->Reset();
   pts->Reset();
@@ -607,11 +610,11 @@ int vtkWedge::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, vtkPoints *pt
 }
 
 
-void vtkWedge::Derivatives(int vtkNotUsed(subId), float pcoords[3],
-                           float *values, int dim, float *derivs)
+void vtkWedge::Derivatives(int vtkNotUsed(subId), double pcoords[3],
+                           double *values, int dim, double *derivs)
 {
   double *jI[3], j0[3], j1[3], j2[3];
-  float functionDerivs[18], sum[3], value;
+  double functionDerivs[18], sum[3], value;
   int i, j, k;
 
   // compute inverse Jacobian and interpolation function derivatives
@@ -639,7 +642,7 @@ void vtkWedge::Derivatives(int vtkNotUsed(subId), float pcoords[3],
 
 // Compute iso-parametrix interpolation functions
 //
-void vtkWedge::InterpolationFunctions(float pcoords[3], float sf[6])
+void vtkWedge::InterpolationFunctions(double pcoords[3], double sf[6])
 {
   sf[0] = (1.0 - pcoords[0] - pcoords[1]) * (1.0 - pcoords[2]);
   sf[1] = pcoords[0] * (1.0 - pcoords[2]);
@@ -649,7 +652,7 @@ void vtkWedge::InterpolationFunctions(float pcoords[3], float sf[6])
   sf[5] = pcoords[1] * pcoords[2];
 }
 
-void vtkWedge::InterpolationDerivs(float pcoords[3], float derivs[18])
+void vtkWedge::InterpolationDerivs(double pcoords[3], double derivs[18])
 {
   // r-derivatives
   derivs[0] = -1.0 + pcoords[2];
@@ -679,11 +682,12 @@ void vtkWedge::InterpolationDerivs(float pcoords[3], float derivs[18])
 // Given parametric coordinates compute inverse Jacobian transformation
 // matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
 // function derivatives. Returns 0 if no inverse exists.
-int vtkWedge::JacobianInverse(float pcoords[3], double **inverse, float derivs[18])
+int vtkWedge::JacobianInverse(double pcoords[3], double **inverse, 
+                              double derivs[18])
 {
   int i, j;
   double *m[3], m0[3], m1[3], m2[3];
-  float x[3];
+  double x[3];
 
   // compute interpolation function derivatives
   this->InterpolationDerivs(pcoords,derivs);
@@ -734,10 +738,10 @@ void vtkWedge::GetFacePoints(int faceId, int* &pts)
   pts = this->GetFaceArray(faceId);
 }
 
-static float vtkWedgeCellPCoords[18] = {0.0,0.0,0.0, 1.0,0.0,0.0, 0.5,0.5,1.0,
+static double vtkWedgeCellPCoords[18] = {0.0,0.0,0.0, 1.0,0.0,0.0, 0.5,0.5,1.0,
                                         0.0,1.0,0.0, 1.0,1.0,0.0, 0.5,1.0,1.0};
 
-float *vtkWedge::GetParametricCoords()
+double *vtkWedge::GetParametricCoords()
 {
   return vtkWedgeCellPCoords;
 }

@@ -130,12 +130,12 @@ public:
   virtual vtkCell *GetFace(int faceId) = 0;
 
   // Description:
-  // Given parametric coordinates of a point, return the closest cell boundary,
-  // and whether the point is inside or outside of the cell. The cell boundary 
-  // is defined by a list of points (pts) that specify a face (3D cell), edge 
-  // (2D cell), or vertex (1D cell). If the return value of the method is != 0, 
-  // then the point is inside the cell.
-  virtual int CellBoundary(int subId, float pcoords[3], vtkIdList *pts) = 0;
+  // Given parametric coordinates of a point, return the closest cell
+  // boundary, and whether the point is inside or outside of the cell. The
+  // cell boundary is defined by a list of points (pts) that specify a face
+  // (3D cell), edge (2D cell), or vertex (1D cell). If the return value of
+  // the method is != 0, then the point is inside the cell.
+  virtual int CellBoundary(int subId, double pcoords[3], vtkIdList *pts) = 0;
 
   // Description:
   // Given a point x[3] return inside(=1) or outside(=0) cell; evaluate
@@ -152,16 +152,16 @@ public:
   // topological dimension 2 or less, since a point in 3D can project onto
   // the cell within parametric limits but be "far" from the cell.  Thus the
   // value dist2 may be checked to determine true in/out.
-  virtual int EvaluatePosition(float x[3], float* closestPoint, 
-                               int& subId, float pcoords[3], 
-                               float& dist2, float *weights) = 0;
+  virtual int EvaluatePosition(double x[3], double* closestPoint, 
+                               int& subId, double pcoords[3], 
+                               double& dist2, double *weights) = 0;
 
   // Description:
   // Determine global coordinate (x[3]) from subId and parametric coordinates.
   // Also returns interpolation weights. (The number of weights is equal to
   // the number of points in the cell.)
-  virtual void EvaluateLocation(int& subId, float pcoords[3], 
-                                float x[3], float *weights) = 0;
+  virtual void EvaluateLocation(int& subId, double pcoords[3], 
+                                double x[3], double *weights) = 0;
 
   // Description:
   // Generate contouring primitives. The scalar list cellScalars are
@@ -175,7 +175,7 @@ public:
   // generated contouring primitives. (Note: the CopyAllocate() method
   // must be invoked on both the output cell and point data. The 
   // cellId refers to the cell from which the cell data is copied.)
-  virtual void Contour(float value, vtkDataArray *cellScalars, 
+  virtual void Contour(double value, vtkDataArray *cellScalars, 
                        vtkPointLocator *locator, vtkCellArray *verts, 
                        vtkCellArray *lines, vtkCellArray *polys, 
                        vtkPointData *inPd, vtkPointData *outPd,
@@ -193,7 +193,7 @@ public:
   // passed to the generated contouring primitives. (Note: the CopyAllocate() 
   // method must be invoked on both the output cell and point data. The
   // cellId refers to the cell from which the cell data is copied.)
-  virtual void Clip(float value, vtkDataArray *cellScalars, 
+  virtual void Clip(double value, vtkDataArray *cellScalars, 
                     vtkPointLocator *locator, vtkCellArray *connectivity,
                     vtkPointData *inPd, vtkPointData *outPd,
                     vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd, 
@@ -203,8 +203,9 @@ public:
   // Intersect with a ray. Return parametric coordinates (both line and cell)
   // and global intersection coordinates, given ray definition and tolerance. 
   // The method returns non-zero value if intersection occurs.
-  virtual int IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
-                                float x[3], float pcoords[3], int& subId) = 0;
+  virtual int IntersectWithLine(double p1[3], double p2[3], 
+                                double tol, double& t, double x[3], 
+                                double pcoords[3], int& subId) = 0;
 
   // Description:
   // Generate simplices of proper dimension. If cell is 3D, tetrahedron are 
@@ -228,25 +229,25 @@ public:
   // ....()8), and 9 deriv values are returned
   // ((d(vx)/dx),(d(vx)/dy),(d(vx)/dz), (d(vy)/dx),(d(vy)/dy), (d(vy)/dz),
   // (d(vz)/dx),(d(vz)/dy),(d(vz)/dz)).
-  virtual void Derivatives(int subId, float pcoords[3], float *values, 
-                           int dim, float *derivs) = 0;
+  virtual void Derivatives(int subId, double pcoords[3], double *values, 
+                           int dim, double *derivs) = 0;
 
 
   // Description:
   // Compute cell bounding box (xmin,xmax,ymin,ymax,zmin,zmax). Copy result
   // into user provided array.
-  void GetBounds(float bounds[6]);
+  void GetBounds(double bounds[6]);
 
 
   // Description:
   // Compute cell bounding box (xmin,xmax,ymin,ymax,zmin,zmax). Return pointer
-  // to array of six float values.
-  float *GetBounds();
+  // to array of six double values.
+  double *GetBounds();
 
 
   // Description:
   // Compute Length squared of cell (i.e., bounding box diagonal squared).
-  float GetLength2();
+  double GetLength2();
 
 
   // Description:
@@ -254,7 +255,7 @@ public:
   // parametric center is not always located at (0.5,0.5,0.5). The return
   // value is the subId that the center is in (if a composite cell). If you
   // want the center in x-y-z space, invoke the EvaluateLocation() method.
-  virtual int GetParametricCenter(float pcoords[3]);
+  virtual int GetParametricCenter(double pcoords[3]);
 
 
   // Description:
@@ -263,7 +264,7 @@ public:
   // used during picking to get the correct cell picked. (The tolerance
   // will occasionally allow cells to be picked who are not really
   // intersected "inside" the cell.)
-  virtual float GetParametricDistance(float pcoords[3]);
+  virtual double GetParametricDistance(double pcoords[3]);
 
 
   // Description:
@@ -283,21 +284,8 @@ public:
   // the cell is a primary type (i.e., IsPrimaryCell() is true). Note that
   // 3D parametric coordinates are returned no matter what the topological
   // dimension of the cell.
-  virtual float *GetParametricCoords();
+  virtual double *GetParametricCoords();
 
-
-  // Description:
-  // (Now Obsolete: use vtkBox::IntersectBox() instead.)
-  // Bounding box intersection modified from Graphics Gems Vol I. The method
-  // returns a non-zero value if the bounding box is hit. Origin[3] starts
-  // the ray, dir[3] is the vector components of the ray in the x-y-z
-  // directions, coord[3] is the location of hit, and t is the parametric
-  // coordinate along line. (Notes: the intersection ray dir[3] is NOT
-  // normalized.  Valid intersections will only occur between 0<=t<=1.)
-  static char HitBBox(float bounds[6], float origin[3], float dir[3], 
-                      float coord[3], float& t);
-
-  
   // left public for quick computational access
   vtkPoints *Points;
   vtkIdList *PointIds;
@@ -306,7 +294,7 @@ protected:
   vtkCell();
   ~vtkCell();
 
-  float Bounds[6];
+  double Bounds[6];
 
 private:
   vtkCell(const vtkCell&);  // Not implemented.

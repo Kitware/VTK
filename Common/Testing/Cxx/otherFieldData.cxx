@@ -66,7 +66,7 @@ int otherFieldData(int,char *[])
     return 1;
     }
   
-  float tuple[10];
+  double tuple[10];
   fd->GetTuple(2);
   fd->SetTuple(2, tuple);
   fd->InsertTuple(2, tuple);
