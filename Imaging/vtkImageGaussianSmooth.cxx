@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGaussianSmooth, "1.41");
+vtkCxxRevisionMacro(vtkImageGaussianSmooth, "1.42");
 vtkStandardNewMacro(vtkImageGaussianSmooth);
 
 //----------------------------------------------------------------------------
@@ -104,12 +104,24 @@ void vtkImageGaussianSmooth::RequestUpdateExtent (
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
 
   int wholeExtent[6], inExt[6];
-  int idx, radius;
 
   outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt);
 
   // Expand filtered axes
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtent);
+
+  this->InternalRequestUpdateExtent(inExt, wholeExtent);
+
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt, 6);
+}
+
+//----------------------------------------------------------------------------
+void vtkImageGaussianSmooth::InternalRequestUpdateExtent(int *inExt,
+                                                         int *wholeExtent)
+{
+  int idx, radius;
+
+  // Expand filtered axes
   for (idx = 0; idx < this->Dimensionality; ++idx)
     {
     radius = (int)(this->StandardDeviations[idx] * this->RadiusFactors[idx]);
@@ -125,8 +137,6 @@ void vtkImageGaussianSmooth::RequestUpdateExtent (
       inExt[idx*2+1] = wholeExtent[idx*2+1];
       }
     }
-
-  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt, 6);
 }
 
 //----------------------------------------------------------------------------
@@ -424,7 +434,7 @@ void vtkImageGaussianSmooth::ExecuteAxis(int axis,
 //----------------------------------------------------------------------------
 // This method decomposes the gaussian and smooths along each axis.
 void vtkImageGaussianSmooth::ThreadedRequestData(
-  vtkInformation *request,
+  vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector,
   vtkImageData ***inData,
@@ -459,9 +469,12 @@ void vtkImageGaussianSmooth::ThreadedRequestData(
     }
 
   // Decompose
-  this->RequestUpdateExtent(request, inputVector, outputVector);
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  int wholeExt[6];
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExt);
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt);
+  this->InternalRequestUpdateExtent(inExt, wholeExt);
 
   switch (this->Dimensionality)
     {

@@ -21,7 +21,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageTranslateExtent, "1.23");
+vtkCxxRevisionMacro(vtkImageTranslateExtent, "1.24");
 vtkStandardNewMacro(vtkImageTranslateExtent);
 
 //----------------------------------------------------------------------------
@@ -55,15 +55,12 @@ void vtkImageTranslateExtent::ExecuteInformation (
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
 
-  vtkImageData *inData = vtkImageData::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-
   int idx, extent[6];
-  double *spacing, origin[3];
+  double spacing[3], origin[3];
   
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent);
-  inData->GetOrigin(origin);
-  spacing = inData->GetSpacing();
+  inInfo->Get(vtkDataObject::ORIGIN(), origin);
+  inInfo->Get(vtkDataObject::SPACING(), spacing);
 
   // TranslateExtent the OutputWholeExtent with the input WholeExtent
   for (idx = 0; idx < 3; ++idx)

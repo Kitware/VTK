@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageStencil, "1.15");
+vtkCxxRevisionMacro(vtkImageStencil, "1.16");
 vtkStandardNewMacro(vtkImageStencil);
 
 //----------------------------------------------------------------------------
@@ -91,15 +91,13 @@ void vtkImageStencil::ExecuteInformation (
 {
   // get the info object
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkImageData *input = vtkImageData::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // need to set the spacing and origin of the stencil to match the output
   vtkImageStencilData *stencil = this->GetStencil();
   if (stencil)
     {
-    stencil->SetSpacing(input->GetSpacing());
-    stencil->SetOrigin(input->GetOrigin());
+    stencil->SetSpacing(inInfo->Get(vtkDataObject::SPACING()));
+    stencil->SetOrigin(inInfo->Get(vtkDataObject::ORIGIN()));
     }
 }
 

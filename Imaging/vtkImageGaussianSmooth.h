@@ -79,6 +79,7 @@ protected:
   
   void ComputeKernel(double *kernel, int min, int max, double std);
   void RequestUpdateExtent (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  void InternalRequestUpdateExtent(int *, int*);
   void ExecuteAxis(int axis, vtkImageData *inData, int inExt[6],
                    vtkImageData *outData, int outExt[6],
                    int *pcycle, int target, int *pcount, int total);

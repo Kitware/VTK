@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageThreshold, "1.45");
+vtkCxxRevisionMacro(vtkImageThreshold, "1.46");
 vtkStandardNewMacro(vtkImageThreshold);
 
 //----------------------------------------------------------------------------
@@ -105,16 +105,15 @@ void vtkImageThreshold::ExecuteInformation (
   // get the info objects
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkImageData *inData = vtkImageData::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   if (this->OutputScalarType != -1)
     {
-    outInfo->Set(vtkDataObject::SCALAR_TYPE(),this->OutputScalarType);
+    outInfo->Set(vtkDataObject::SCALAR_TYPE(), this->OutputScalarType);
     }
   else
     {
-    outInfo->Set(vtkDataObject::SCALAR_TYPE(),inData->GetPipelineScalarType());
+    outInfo->Set(vtkDataObject::SCALAR_TYPE(),
+                 inInfo->Get(vtkDataObject::SCALAR_TYPE()));
     }
 }
 
