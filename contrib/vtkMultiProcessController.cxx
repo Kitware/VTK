@@ -147,6 +147,13 @@ void vtkMultiProcessController::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << nextIndent << rmi->Tag << endl;
     }
+  
+  os << indent << "Send Wait Time: " << this->SendWaitTime << endl;
+  os << indent << "Send Time: " << this->SendTime << endl;
+  os << indent << "Receive Wait Time: " << this->ReceiveWaitTime << endl;
+  os << indent << "Receive Time: " << this->ReceiveTime << endl;
+  os << indent << "Read Time: " << this->ReadTime << endl;
+  os << indent << "Write Time: " << this->WriteTime << endl;
 }
 
 static vtkMultiProcessController *GLOBAL_VTK_MP_CONTROLLER = NULL;

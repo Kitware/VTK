@@ -1840,6 +1840,8 @@ void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Input String: (None)\n";
     }
 
+  os << indent << "Input String Length: " << this->InputStringLength << endl;
+
   if ( this->ScalarsName )
     {
     os << indent << "Scalars Name: " << this->ScalarsName << "\n";
