@@ -430,15 +430,19 @@ void vtkXRenderWindowInteractorCallback(Widget w,XtPointer client_data,
 
 	case XK_w : //change all actors to wireframe
 	  {
-	  vtkActorCollection *ac;
-	  vtkActor *anActor;
+	  vtkActorCollection *ac, *pc;
+	  vtkActor *anActor, *aPart;
 	  
           me->FindPokedRenderer(((XKeyEvent*)event)->x,
 				me->Size[1] - ((XKeyEvent*)event)->y);
 	  ac = me->CurrentRenderer->GetActors();
-	  for (ac->InitTraversal(); anActor = ac->GetNextItem(); )
+	  for (ac->InitTraversal(); (anActor = ac->GetNextItem()); )
 	    {
-	    anActor->GetProperty()->SetWireframe();
+            pc = anActor->GetComposingParts();
+            for (pc->InitTraversal(); (aPart = pc->GetNextItem()); )
+              {
+              aPart->GetProperty()->SetWireframe();
+              }
 	    }
 	  
 	  me->RenderWindow->Render();
@@ -447,15 +451,19 @@ void vtkXRenderWindowInteractorCallback(Widget w,XtPointer client_data,
 
 	case XK_s : //change all actors to "surface" or solid
 	  {
-	  vtkActorCollection *ac;
-	  vtkActor *anActor;
+	  vtkActorCollection *ac, *pc;
+	  vtkActor *anActor, *aPart;
 	  
           me->FindPokedRenderer(((XKeyEvent*)event)->x,
 			        me->Size[1] - ((XKeyEvent*)event)->y);
 	  ac = me->CurrentRenderer->GetActors();
-	  for (ac->InitTraversal(); anActor = ac->GetNextItem(); )
+	  for (ac->InitTraversal(); (anActor = ac->GetNextItem()); )
 	    {
-	    anActor->GetProperty()->SetSurface();
+            pc = anActor->GetComposingParts();
+            for (pc->InitTraversal(); (aPart = pc->GetNextItem()); )
+              {
+              aPart->GetProperty()->SetSurface();
+              }
 	    }
 	  
 	  me->RenderWindow->Render();
