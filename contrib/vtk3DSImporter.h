@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtk3DSImporter - spline abstract class
+// .NAME vtk3DSImporter - imports 3D Studio files.
 // .SECTION Description
 // vtk3DSImporter imports 3D Studio files into vtk.
 // .SECTION See Also
