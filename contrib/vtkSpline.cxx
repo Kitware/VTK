@@ -82,7 +82,7 @@ void vtkSpline::RemoveAllPoints ()
 // Evaluate a 1D Spline
 float vtkSpline::Evaluate (float t)
 {
-  int i;
+  int i, index;
   int size = this->PiecewiseFunction->GetSize ();
   float *intervals;
   float *coefficients;
@@ -101,20 +101,20 @@ float vtkSpline::Evaluate (float t)
   if (t > intervals[size - 1]) t = intervals[size - 1];
 
   // find pointer to cubic spline coefficient
-  for (i = 0; i < size; i++) {
-	if (t < intervals[i]) break;
-  }
-
-  i--;
+  for (i = 1; i < size; i++)
+    {
+    index = i - 1;
+    if (t < intervals[i]) break;
+    }
 
   // calculate offset within interval
-  t = (t - intervals[i]) / (intervals[i+1] - intervals[i]);
+  t = (t - intervals[index]) / (intervals[index+1] - intervals[index]);
 
   // evaluate y
-  return (t * (t * (t * *(coefficients + i * 4 + 3)
-                      + *(coefficients + i * 4 + 2))
-                      + *(coefficients + i * 4 + 1))
-                      + *(coefficients + i * 4));
+  return (t * (t * (t * *(coefficients + index * 4 + 3)
+                      + *(coefficients + index * 4 + 2))
+                      + *(coefficients + index * 4 + 1))
+                      + *(coefficients + index * 4));
 }
 
 // Description:
@@ -141,3 +141,25 @@ void vtkSpline::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Piecewise Function:\n";
   this->PiecewiseFunction->PrintSelf(os,indent.GetNextIndent());
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
