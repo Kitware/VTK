@@ -226,8 +226,14 @@ void vtkAttributeData::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Data: " << this->Data << "\n";
   if ( this->Data )
     {
-    os << indent << "Data Array Name: " 
-       << this->Data->GetName() << "\n";
+    if ( this->Data->GetName() )
+      {
+      os << indent << "Data Array Name: " << this->Data->GetName() << "\n";
+      }
+    else
+      {
+      os << indent << "Data Array Name: (none)\n";
+      }
     }
 }
 
