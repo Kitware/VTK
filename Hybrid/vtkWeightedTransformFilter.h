@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkWeightedTransformFilter -- transform based on per-point or per-cell weighting functions.
+// .NAME vtkWeightedTransformFilter - transform based on per-point or per-cell weighting functions.
 // .SECTION Description
 
 // vtkWeightedTransformFilter is a filter that can be used to "skin"

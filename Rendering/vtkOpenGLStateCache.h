@@ -12,13 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-//*************************************************************************
-/*
-  GlStateCache_Cache============================================
-  This simply checks for redundancies in state-change requests and
-  only calls the real OpenGL call if there has in fact been a change.
-  This cannot, however, fix problems with the ordering of calls.
-*/
+// .NAME vtkOpenGLStateCache - checks for redundancies in state-change requests 
+// .SECTION Description
+// This simply checks for redundancies in state-change requests and
+// only calls the real OpenGL call if there has in fact been a change.
+// This cannot, however, fix problems with the ordering of calls.
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 #if defined(__APPLE__) && (defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA))

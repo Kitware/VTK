@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageDataStreamer - Initiates streaming on image data.
+// .NAME vtkMemoryLimitImageDataStreamer - Initiates streaming on image data.
 // .SECTION Description
 // To satisfy a request, this filter calls update on its input
 // many times with smaller update extents.  All processing up stream

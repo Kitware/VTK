@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkActor2DCollection
+// .NAME vtkActor2DCollection -  a list of 2D actors
 // .SECTION Description
 // vtkActor2DCollection is a subclass of vtkCollection.  vtkActor2DCollection
 // maintains a collection of vtkActor2D objects that is sorted by layer

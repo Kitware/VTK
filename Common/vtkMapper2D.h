@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMapper2D
+// .NAME vtkMapper2D - abstract class specifies interface for objects which render 2D actors
 // .SECTION Description
 // vtkMapper2D is an abstract class which defines the interface for objects
 // which render two dimensional actors (vtkActor2D).

@@ -12,19 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkVolumeShearWarpMapper - Abstract class for a Shear Warp Volume Mapper
-
+// .NAME vtkOpenGLVolumeShearWarpMapper - Class for a Shear Warp Volume Mapper
+//
 // .SECTION Description
 // vtkVolumeShearWarpMapper is a base class for volume mappers using
 // the shear-warp factorization algorithm.
-
+//
 // .SECTION see also
-// vtkVolumeMapper, vtkVolumeShearWarpMapper
-
+// vtkVolumeMapper vtkVolumeShearWarpMapper
+//
 // .SECTION Thanks
 // Thanks to Stefan Bruckner for developing and contributing this code
 // and to Namkug Kim for some fixing and tidying of the code
-
+//
 // .SECTION References
 // P. Lacroute. "Fast Volume Rendering Using a Shear-
 // Warp Factorization of the Viewing Transformation"
@@ -34,10 +34,10 @@
 // a shear-warp factorization of the viewing transformation"
 // Proceedings of the 21st annual conference
 // on Computer graphics and interactive techniques,
-// pages 451–458, 1994.
+// pages 451-458, 1994.
 //
 // "The InverseWarp: Non-Invasive Integration of Shear-Warp
-//  Volume Rendering into Polygon Rendering Pipelines"
+// Volume Rendering into Polygon Rendering Pipelines"
 // Stefan Bruckner, Dieter Schmalstiegy, Helwig Hauserz,
 // M. Eduard Groller
 

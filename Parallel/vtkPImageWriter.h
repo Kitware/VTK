@@ -12,9 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageWriter - Writes images to files.
+// .NAME vtkPImageWriter - Writes images to files.
 // .SECTION Description
-// vtkImageWriter writes images to files with any data type. The data type of
+// vtkPImageWriter writes images to files with any data type. The data type of
 // the file is the same scalar type as the input.  The dimensionality
 // determines whether the data will be written in one or multiple files.
 // This class is used as the superclass of most image writing classes 
