@@ -103,12 +103,21 @@ public:
 class vtkHyperArray { //;prevent man page generation
 public:
   vtkHyperArray();
-  ~vtkHyperArray() {if (this->Array) delete [] this->Array;};
+  ~vtkHyperArray()
+    {
+      if (this->Array)
+	{
+	delete [] this->Array;
+	}
+    };
   int GetNumberOfPoints() {return this->MaxId + 1;};
   vtkHyperPoint *GetHyperPoint(int i) {return this->Array + i;};
   vtkHyperPoint *InsertNextHyperPoint() 
     {
-    if ( ++this->MaxId >= this->Size ) this->Resize(this->MaxId);
+    if ( ++this->MaxId >= this->Size )
+      {
+      this->Resize(this->MaxId);
+      }
     return this->Array + this->MaxId;
     }
   vtkHyperPoint *Resize(int sz); //reallocates data

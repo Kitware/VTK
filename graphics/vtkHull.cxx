@@ -133,7 +133,9 @@ int vtkHull::AddPlane( float A, float B, float C )
 
     // Copy the planes and delete the old storage space
     for ( i = 0; i < this->NumberOfPlanes*4; i++ )
+      {
       this->Planes[i] = tmp_pointer[i];
+      }
     if ( tmp_pointer )
       {
       delete [] tmp_pointer;
@@ -445,10 +447,11 @@ void vtkHull::ComputePlaneDistances()
   // Initialize all planes to the first vertex value
   input->GetPoint( 0, coord );
   for ( j = 0; j < this->NumberOfPlanes; j++ )
+    {
     this->Planes[j*4 + 3] = -( this->Planes[j*4 + 0] * coord[0] +
 			       this->Planes[j*4 + 1] * coord[1] +
 			       this->Planes[j*4 + 2] * coord[2] );
-
+    }
   // For all other vertices in the geometry, check if it produces a larger
   // D value for each of the planes.
   for ( i = 1; i < input->GetNumberOfPoints(); i++ )
@@ -459,7 +462,10 @@ void vtkHull::ComputePlaneDistances()
       v =  -( this->Planes[j*4 + 0] * coord[0] +
 	      this->Planes[j*4 + 1] * coord[1] +
 	      this->Planes[j*4 + 2] * coord[2] );
-      if ( v > this->Planes[j*4 + 3] ) this->Planes[j*4 + 3] = v;
+      if ( v > this->Planes[j*4 + 3] )
+	{
+	this->Planes[j*4 + 3] = v;
+	}
       }
     }
   
@@ -532,9 +538,13 @@ void vtkHull::ClipPolygonsFromPlanes( vtkPoints *out_points,
 	  if ( (previous_d > 0) != (d > 0) )
 	    {
 	    if ( k > 0 ) 
+	      {
 	      q = k - 1;
+	      }
 	    else
+	      {
 	      q = vert_count - 1;
+	      }
 
 	    crosspoint = -previous_d / (d - previous_d);
 	    new_verts[new_vert_count*3 + 0] =
@@ -566,7 +576,9 @@ void vtkHull::ClipPolygonsFromPlanes( vtkPoints *out_points,
     if ( vert_count > 0 )
       {
       for ( j = 0; j < vert_count; j++ )
+	{
 	pnts[j] = out_points->InsertNextPoint( (verts + j*3) );
+	}
       out_polys->InsertNextCell( vert_count, pnts );
       }
     }
@@ -604,7 +616,10 @@ void vtkHull::CreateInitialPolygon( float *verts, int i )
   while (dot_product > 0.9 || dot_product < -0.9)
     {
     j++;
-    if ( j >= this->NumberOfPlanes ) j = 0;
+    if ( j >= this->NumberOfPlanes )
+      {
+      j = 0;
+      }
     dot_product = 
       this->Planes[i*4 + 0] * this->Planes[j*4 + 0] +
       this->Planes[i*4 + 1] * this->Planes[j*4 + 1] +
@@ -674,7 +689,9 @@ void vtkHull::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number Of Planes: " << this->NumberOfPlanes << endl;
 
   for ( i = 0; i < this->NumberOfPlanes; i++ )
+    {
     os << indent << "Plane " << i << ":  " << this->Planes[i*4] << " " <<
       this->Planes[i*4+1] << " " << this->Planes[i*4+2] << 
       " " << this->Planes[i*4+3] << endl;
+    }
 }
