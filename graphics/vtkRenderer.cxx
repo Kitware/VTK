@@ -232,6 +232,10 @@ void vtkRenderer::Render(void)
       rx2 = (int)(this->Viewport[2]*(this->RenderWindow->GetSize()[0] - 1));
       ry2 = (int)(this->Viewport[3]*(this->RenderWindow->GetSize()[1] - 1));
       this->RenderWindow->SetPixelData(rx1,ry1,rx2,ry2,this->BackingImage,0);
+      if (this->EndRenderMethod) 
+       {
+       (*this->EndRenderMethod)(this->EndRenderMethodArg);
+       }
       return;
       }
     }
