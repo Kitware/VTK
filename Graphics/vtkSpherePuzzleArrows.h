@@ -25,7 +25,7 @@ class vtkCellArray;
 class vtkPoints;
 class vtkSpherePuzzle;
 
-class VTK_EXPORT vtkSpherePuzzleArrows : public vtkPolyDataAlgorithm 
+class VTK_GRAPHICS_EXPORT vtkSpherePuzzleArrows : public vtkPolyDataAlgorithm 
 {
 public:
   vtkTypeRevisionMacro(vtkSpherePuzzleArrows,vtkPolyDataAlgorithm);

@@ -71,7 +71,7 @@
 
 #include "vtkMarchingCubes.h"
 
-class VTK_EXPORT vtkDiscreteMarchingCubes : public vtkMarchingCubes
+class VTK_PATENTED_EXPORT vtkDiscreteMarchingCubes : public vtkMarchingCubes
 {
 public:
   static vtkDiscreteMarchingCubes *New();

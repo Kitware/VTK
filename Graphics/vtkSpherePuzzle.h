@@ -25,7 +25,7 @@
 
 class vtkTransform;
 
-class VTK_EXPORT vtkSpherePuzzle : public vtkPolyDataAlgorithm 
+class VTK_GRAPHICS_EXPORT vtkSpherePuzzle : public vtkPolyDataAlgorithm 
 {
 public:
   vtkTypeRevisionMacro(vtkSpherePuzzle,vtkPolyDataAlgorithm);
