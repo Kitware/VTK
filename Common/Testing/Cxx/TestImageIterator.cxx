@@ -27,7 +27,7 @@
 #include "vtkImageData.h"
 
 template<class T>
-int DoTest(T*)
+inline int DoTest(T*)
 {
   int ext[6] = { 0, 0, 0, 0, 0, 0 };
   vtkImageData *id = vtkImageData::New();
@@ -40,6 +40,7 @@ int DoTest(T*)
   id->Delete();
   return 0;
 }
+
 
 int main()
 {
