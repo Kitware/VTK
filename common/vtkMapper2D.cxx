@@ -38,11 +38,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-
 #include "vtkMapper2D.h"
+#include "vtkViewport.h"
+#include "vtkActor2D.h"
 
 void vtkMapper2D::PrintSelf(ostream& os, vtkIndent indent)
 {
-	this->vtkObject::PrintSelf(os, indent);
+  this->vtkAbstractMapper::PrintSelf(os, indent);
 }
 

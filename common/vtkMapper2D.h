@@ -49,11 +49,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkMapper2D_h
 #define __vtkMapper2D_h
 
-#include "vtkViewport.h"
+#include "vtkAbstractMapper.h"
 #include "vtkWindow.h"
-#include "vtkActor2D.h"
 
-class VTK_EXPORT vtkMapper2D : public vtkObject
+class vtkViewport;
+class vtkActor2D;
+
+class VTK_EXPORT vtkMapper2D : public vtkAbstractMapper
 {
 public:
   static vtkMapper2D* New() {return new vtkMapper2D;};
@@ -64,12 +66,6 @@ public:
   virtual void RenderOverlay(vtkViewport*, vtkActor2D*) {};
   virtual void RenderOpaqueGeometry(vtkViewport*, vtkActor2D*) {};
   virtual void RenderTranslucentGeometry(vtkViewport*, vtkActor2D*) {};
-
-  // Description:
-  // Release any graphics resources that are being consumed by this mapper.
-  // The parameter window could be used to determine which graphic
-  // resources to release.
-  virtual void ReleaseGraphicsResources(vtkWindow *) {};
 
 protected:
   vtkMapper2D() {};
