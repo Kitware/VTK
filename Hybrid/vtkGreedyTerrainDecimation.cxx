@@ -29,7 +29,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkGreedyTerrainDecimation, "1.21");
+vtkCxxRevisionMacro(vtkGreedyTerrainDecimation, "1.22");
 vtkStandardNewMacro(vtkGreedyTerrainDecimation);
 
 // Define some constants describing vertices
@@ -531,7 +531,7 @@ vtkIdType vtkGreedyTerrainDecimation::AddPointToTriangulation(vtkIdType inputPtI
       nodes[0][0] = ptId; nodes[0][1] = p2; nodes[0][2] = nei[1];
       this->Mesh->ReplaceCell(tri[0], 3, nodes[0]);
 
-      nodes[1][0] = ptId; nodes[1][1] = p1; nodes[1][2] = nei[1];
+      nodes[1][0] = ptId; nodes[1][1] = nei[1]; nodes[1][2] = p1;
       this->Mesh->ReplaceCell(nei[0], 3, nodes[1]);
 
       this->Mesh->InsertNextLinkedPoint(4);
@@ -541,7 +541,7 @@ vtkIdType vtkGreedyTerrainDecimation::AddPointToTriangulation(vtkIdType inputPtI
       tri[1] = nei[0];
 
       //create two new triangles
-      nodes[2][0] = ptId; nodes[2][1] = p2; nodes[2][2] = nei[2];
+      nodes[2][0] = ptId; nodes[2][1] = nei[2]; nodes[2][2] = p2;
       tri[2] = this->Mesh->InsertNextLinkedCell(VTK_TRIANGLE, 3, nodes[2]);
 
       nodes[3][0] = ptId; nodes[3][1] = p1; nodes[3][2] = nei[2];
@@ -569,14 +569,14 @@ vtkIdType vtkGreedyTerrainDecimation::AddPointToTriangulation(vtkIdType inputPtI
       //replace one triangle
       this->Mesh->RemoveReferenceToCell(nei[2],tri[0]);
 
-      nodes[0][0] = ptId; nodes[0][1] = nei[1]; nodes[0][2] = p1;
+      nodes[0][0] = ptId; nodes[0][1] = p1; nodes[0][2] = nei[1];
       this->Mesh->ReplaceCell(tri[0], 3, nodes[0]);
 
       this->Mesh->InsertNextLinkedPoint(2);
       this->Mesh->AddReferenceToCell(ptId,tri[0]);
 
       //create one new triangles
-      nodes[1][0] = ptId; nodes[1][1] = p1; nodes[1][2] = nei[2];
+      nodes[1][0] = ptId; nodes[1][1] = nei[2]; nodes[1][2] = p1;
       tri[1] = this->Mesh->InsertNextLinkedCell(VTK_TRIANGLE, 3, nodes[1]);
 
       // Check edge neighbors for Delaunay criterion.
