@@ -150,6 +150,7 @@ std::ostream& vtkIOStreamPrintTemplate(std::ostream& os, T value, char type)
 #   define VTK_TYPE_INT64_MAX_DIG 32
 #  endif
 
+#  if !defined(VTK_ISTREAM_SUPPORTS_LONG_LONG)
 static int vtkIOStreamScanStream(istream& is, char* buffer)
 {
   // Prepare to write to buffer.
@@ -273,7 +274,9 @@ istream& vtkIOStreamScanTemplate(istream& is, T& value, char type)
   is.clear(state);
   return is;  
 }
+#  endif
 
+#  if !defined(VTK_OSTREAM_SUPPORTS_LONG_LONG)
 // Print a vtkIOStreamSLL or vtkIOStreamULL value to an output stream.
 template <class T>
 ostream& vtkIOStreamPrintTemplate(ostream& os, T value, char type)
@@ -306,8 +309,10 @@ ostream& vtkIOStreamPrintTemplate(ostream& os, T value, char type)
     }
   return os;
 }
+#  endif
 # endif // end implementation for VTK_USE_ANSI_STDLIB not defined
 
+# if !defined(VTK_ISTREAM_SUPPORTS_LONG_LONG)
 // Implement input stream operator for vtkIOStreamSLL.
 istream& vtkIOStreamScan(istream& is, vtkIOStreamSLL& value)
 {
@@ -319,7 +324,9 @@ istream& vtkIOStreamScan(istream& is, vtkIOStreamULL& value)
 {
   return vtkIOStreamScanTemplate(is, value, 'u');
 }
+#endif
 
+# if !defined(VTK_OSTREAM_SUPPORTS_LONG_LONG)
 // Implement output stream operator for vtkIOStreamSLL.
 ostream& vtkIOStreamPrint(ostream& os, vtkIOStreamSLL value)
 {
@@ -331,5 +338,6 @@ ostream& vtkIOStreamPrint(ostream& os, vtkIOStreamULL value)
 {
   return vtkIOStreamPrintTemplate(os, value, 'u');
 }
+# endif
 
 #endif
