@@ -31,24 +31,25 @@
 
 =========================================================================*/
 #include "vtkSliceCubes.h"
-#include <stdio.h>
-#include "vtkMarchingCubesCases.h"
-#include "vtkMath.h"
+
 #include "vtkByteSwap.h"
 #include "vtkCharArray.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkShortArray.h"
-#include "vtkUnsignedShortArray.h"
-#include "vtkIntArray.h"
-#include "vtkUnsignedIntArray.h"
-#include "vtkLongArray.h"
-#include "vtkUnsignedLongArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
+#include "vtkImageData.h"
+#include "vtkIntArray.h"
+#include "vtkLongArray.h"
+#include "vtkMarchingCubesCases.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkShortArray.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkUnsignedIntArray.h"
+#include "vtkUnsignedLongArray.h"
+#include "vtkUnsignedShortArray.h"
 #include "vtkVolumeReader.h"
 
-vtkCxxRevisionMacro(vtkSliceCubes, "1.57");
+vtkCxxRevisionMacro(vtkSliceCubes, "1.58");
 vtkStandardNewMacro(vtkSliceCubes);
 
 vtkCxxSetObjectMacro(vtkSliceCubes,Reader,vtkVolumeReader);

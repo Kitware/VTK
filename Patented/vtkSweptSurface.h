@@ -56,9 +56,10 @@
 
 #include "vtkImageToImageFilter.h"
 
-class vtkTransformCollection;
-class vtkTransform;
+class vtkDataArray;
 class vtkMatrix4x4;
+class vtkTransform;
+class vtkTransformCollection;
 
 class VTK_PATENTED_EXPORT vtkSweptSurface : public vtkImageToImageFilter
 {

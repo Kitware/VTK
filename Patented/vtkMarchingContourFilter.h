@@ -73,6 +73,7 @@
 
 #include "vtkContourValues.h" // Needed for direct access to ContourValues
 
+class vtkPointLocator;
 class vtkScalarTree;
 
 class VTK_PATENTED_EXPORT vtkMarchingContourFilter : public vtkDataSetToPolyDataFilter

@@ -31,12 +31,13 @@
 =========================================================================*/
 #include "vtkSweptSurface.h"
 
+#include "vtkImageData.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkTransformCollection.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkSweptSurface, "1.75");
+vtkCxxRevisionMacro(vtkSweptSurface, "1.76");
 vtkStandardNewMacro(vtkSweptSurface);
 
 vtkCxxSetObjectMacro(vtkSweptSurface,Transforms, vtkTransformCollection);

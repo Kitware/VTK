@@ -30,21 +30,23 @@
      for more information.
 
 =========================================================================*/
-#include <math.h>
 #include "vtkMarchingContourFilter.h"
-#include "vtkStructuredPoints.h"
+
 #include "vtkCell.h"
-#include "vtkMergePoints.h"
-#include "vtkContourValues.h"
-#include "vtkScalarTree.h"
-
 #include "vtkContourFilter.h"
-#include "vtkMarchingSquares.h"
-#include "vtkMarchingCubes.h"
+#include "vtkContourValues.h"
 #include "vtkImageMarchingCubes.h"
+#include "vtkMarchingCubes.h"
+#include "vtkMarchingSquares.h"
+#include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
+#include "vtkScalarTree.h"
+#include "vtkStructuredPoints.h"
 
-vtkCxxRevisionMacro(vtkMarchingContourFilter, "1.20");
+#include <math.h>
+
+vtkCxxRevisionMacro(vtkMarchingContourFilter, "1.21");
 vtkStandardNewMacro(vtkMarchingContourFilter);
 
 // Construct object with initial range (0,1) and single contour value
