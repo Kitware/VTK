@@ -52,6 +52,34 @@ void GetDepends(int index)
 }
 
 
+extern void OutputPCDepends(char *file, FILE *fp, const char *vtkHome, char *extraPtr[],
+			    int extra_num)
+{
+  int i;
+
+  fprintf(fp,"DEPENDS=\\\n");
+  num = 0;
+
+  // find this entry in DependsStructArray
+  for (i = 0; i < NumInDepends; i++)
+    {
+    if ( !strcmp(file,DependsStructArray[i]->name) )
+      break;
+    }
+
+  if ( i == NumInDepends ) // need to add the file (and any new files it needs)
+    AddToDepends(file, vtkHome, extraPtr, extra_num);
+
+  GetDepends(i);
+
+  // now output the results
+  for (i = 0; i < num; i++)
+    {
+    fprintf(fp,"  \"%s\"\\\n",DependsStructArray[ dependIndices[i] ]->name);
+    }
+  fprintf(fp,"\n");
+}
+
 extern void OutputUNIXDepends(char *file, FILE *fp, const char *vtkHome, char *extraPtr[],
 			      int extra_num)
 {
