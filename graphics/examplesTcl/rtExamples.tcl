@@ -49,7 +49,8 @@ if { $argv != ""} {
 
 # remove files that are not suitable for regression tests or simply don't 
 # work right now
-set noTest {
+set otherTest [lsort [glob -nocomplain {other*.tcl}]]
+set noTestTemp {
     rt.tcl rtAll.tcl rib.tcl TkInteractor.tcl TkRenderWidget.tcl 
     RenderWidget.tcl purifyExamples.tcl
     mccases.tcl mccasesui.tcl InteractorDemo.tcl
@@ -62,7 +63,9 @@ set noTest {
     Timing.tcl WindowLevelInterface.tcl
     stCone.tcl
     vtkHistogramWidget.tcl
-    vtkImageInclude.tcl rtProcessCPUTimes.tcl CPUTimeTable.tcl}
+    vtkImageInclude.tcl rtProcessCPUTimes.tcl CPUTimeTable.tcl
+    rtOtherTclExamples.tcl rtOtherCxxExamples.tcl}
+set noTest [concat $noTestTemp $otherTest]
 
 for {set i 0} {$i < [llength $noTest]} {incr i} {
     if {[set pos [lsearch $files [lindex $noTest $i]]] != -1} {

@@ -59,8 +59,10 @@ foreach afile $allFiles {
 
 # remove files that are not suitable for regression tests or simply don't 
 # work right now
-set noTest {
+set otherTest [lsort [glob -nocomplain {other*}]]
+set noTestTemp {
     VRMLServer XMace2 config.status configure configure.in CVS Makefile.in}
+set noTest [concat $noTestTemp $otherTest]
 
 for {set i 0} {$i < [llength $noTest]} {incr i} {
     if {[set pos [lsearch $files [lindex $noTest $i]]] != -1} {
