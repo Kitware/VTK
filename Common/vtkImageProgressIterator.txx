@@ -51,7 +51,7 @@ void vtkImageProgressIterator<DType>::NextSpan()
     this->SpanEndPointer += this->ContinuousIncrements[2];
     this->SliceEndPointer += this->Increments[2];
     }
-  if (this->ID)
+  if (!this->ID)
     {
     if (this->Count2 == this->Target)
       {
