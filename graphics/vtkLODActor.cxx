@@ -212,6 +212,11 @@ void vtkLODActor::Render(vtkRenderer *ren)
 // does not matter if mapper is in mapper collection.
 void vtkLODActor::AddLODMapper(vtkMapper *mapper)
 {
+  if (this->SelfCreatedLODs)
+    {
+    this->DeleteSelfCreatedLODs();
+    }
+  
   if (this->Mapper == NULL)
     {
     this->SetMapper(mapper);
