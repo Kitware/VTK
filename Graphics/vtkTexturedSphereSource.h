@@ -23,14 +23,14 @@
 #ifndef __vtkTexturedSphereSource_h
 #define __vtkTexturedSphereSource_h
 
-#include "vtkPolyDataSource.h"
+#include "vtkPolyDataAlgorithm.h"
 
 #define VTK_MAX_SPHERE_RESOLUTION 1024
 
-class VTK_GRAPHICS_EXPORT vtkTexturedSphereSource : public vtkPolyDataSource 
+class VTK_GRAPHICS_EXPORT vtkTexturedSphereSource : public vtkPolyDataAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkTexturedSphereSource,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkTexturedSphereSource,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -67,7 +67,7 @@ protected:
   vtkTexturedSphereSource(int res=8);
   ~vtkTexturedSphereSource() {};
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   double Radius;
   double Theta;
   double Phi;
@@ -80,5 +80,3 @@ private:
 };
 
 #endif
-
-

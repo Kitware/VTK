@@ -27,7 +27,7 @@
 #ifndef __vtkGlyphSource2D_h
 #define __vtkGlyphSource2D_h
 
-#include "vtkPolyDataSource.h"
+#include "vtkPolyDataAlgorithm.h"
 
 #define VTK_NO_GLYPH 0
 #define VTK_VERTEX_GLYPH 1
@@ -46,10 +46,10 @@ class vtkPoints;
 class vtkUnsignedCharArray;
 class vtkCellArray;
 
-class VTK_GRAPHICS_EXPORT vtkGlyphSource2D : public vtkPolyDataSource 
+class VTK_GRAPHICS_EXPORT vtkGlyphSource2D : public vtkPolyDataAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkGlyphSource2D,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkGlyphSource2D,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -131,7 +131,7 @@ protected:
   vtkGlyphSource2D();
   ~vtkGlyphSource2D() {};
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   double Center[3];
   double Scale;
@@ -176,5 +176,3 @@ private:
 };
 
 #endif
-
-

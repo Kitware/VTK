@@ -15,11 +15,13 @@
 #include "vtkOutlineCornerSource.h"
 
 #include "vtkCellArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkOutlineCornerSource, "1.9");
+vtkCxxRevisionMacro(vtkOutlineCornerSource, "1.10");
 vtkStandardNewMacro(vtkOutlineCornerSource);
 
 //----------------------------------------------------------------------------
@@ -30,14 +32,17 @@ vtkOutlineCornerSource::vtkOutlineCornerSource()
 }
 
 //----------------------------------------------------------------------------
-void vtkOutlineCornerSource::Execute()
+int vtkOutlineCornerSource::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
   double *bounds;
   double inner_bounds[6];
 
   int i, j, k;
-
-  vtkDebugMacro(<< "Generating outline");
 
   // Initialize
   double delta;
@@ -53,7 +58,8 @@ void vtkOutlineCornerSource::Execute()
   // Allocate storage and create outline
   vtkPoints *newPts;
   vtkCellArray *newLines;
-  vtkPolyData *output = this->GetOutput();
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
   
   newPts = vtkPoints::New();
   newPts->Allocate(32);
@@ -100,8 +106,9 @@ void vtkOutlineCornerSource::Execute()
 
   output->SetLines(newLines);
   newLines->Delete();
-}
 
+  return 1;
+}
 
 //----------------------------------------------------------------------------
 void vtkOutlineCornerSource::PrintSelf(ostream& os, vtkIndent indent)

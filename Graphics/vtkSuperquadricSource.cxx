@@ -23,6 +23,8 @@
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
@@ -30,7 +32,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSuperquadricSource, "1.22");
+vtkCxxRevisionMacro(vtkSuperquadricSource, "1.23");
 vtkStandardNewMacro(vtkSuperquadricSource);
 
 static void evalSuperquadric(double u, double v, 
@@ -59,6 +61,8 @@ vtkSuperquadricSource::vtkSuperquadricSource(int res)
   this->SetThetaResolution(res);
   this->PhiResolution = 0;
   this->SetPhiResolution(res);
+
+  this->SetNumberOfInputPorts(0);
 }
 
 void vtkSuperquadricSource::SetPhiResolution(int i)
@@ -129,8 +133,18 @@ void vtkSuperquadricSource::SetPhiRoundness(double e)
 
 static const double SQ_SMALL_OFFSET = 0.01;
 
-void vtkSuperquadricSource::Execute()
+int vtkSuperquadricSource::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the ouptut
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   int i, j;
   vtkIdType numPts;
   vtkPoints *newPoints; 
@@ -152,13 +166,12 @@ void vtkSuperquadricSource::Execute()
   double thetaOffset, phiOffset;
   double texCoord[2];
 
-  vtkPolyData *output = this->GetOutput();
-
   dims[0] = this->Scale[0] * this->Size;
   dims[1] = this->Scale[1] * this->Size;
   dims[2] = this->Scale[2] * this->Size;
 
-  if(this->Toroidal) {
+  if(this->Toroidal)
+    {
     phiLim[0] = -vtkMath::Pi();
     phiLim[1] =  vtkMath::Pi();
 
@@ -168,10 +181,10 @@ void vtkSuperquadricSource::Execute()
     alpha = (1.0 / this->Thickness);
     dims[0] /= (alpha + 1.0);
     dims[1] /= (alpha + 1.0);
-    dims[2] /= (alpha + 1.0);
-    
-  }
-  else { 
+    dims[2] /= (alpha + 1.0);    
+    }
+  else
+    { 
     //Ellipsoidal
     phiLim[0] = -vtkMath::Pi() / 2.0;
     phiLim[1] =  vtkMath::Pi() / 2.0;
@@ -180,7 +193,7 @@ void vtkSuperquadricSource::Execute()
     thetaLim[1] =  vtkMath::Pi();
 
     alpha = 0.0;
-  }
+    }
 
   deltaPhi = (phiLim[1] - phiLim[0]) / this->PhiResolution;
   deltaPhiTex = 1.0 / this->PhiResolution;
@@ -192,7 +205,6 @@ void vtkSuperquadricSource::Execute()
 
   phiSubsegs = this->PhiResolution / phiSegs;
   thetaSubsegs = this->ThetaResolution / thetaSegs;
-
 
   numPts = (this->PhiResolution + phiSegs)*(this->ThetaResolution + thetaSegs);
   // creating triangles
@@ -217,8 +229,10 @@ void vtkSuperquadricSource::Execute()
   newPolys->Allocate(newPolys->EstimateSize(numStrips,ptsPerStrip));
 
   // generate!
-  for(iq = 0; iq < phiSegs; iq++) {
-    for(i = 0; i <= phiSubsegs; i++) {
+  for(iq = 0; iq < phiSegs; iq++)
+    {
+    for(i = 0; i <= phiSubsegs; i++)
+      {
       phi = phiLim[0] + deltaPhi*(i + iq*phiSubsegs);
       texCoord[1] = deltaPhiTex*(i + iq*phiSubsegs);
 
@@ -238,8 +252,10 @@ void vtkSuperquadricSource::Execute()
         phiOffset =  0.0;
         }
       
-      for(jq = 0; jq < thetaSegs; jq++) {
-        for(j = 0; j <= thetaSubsegs; j++) {
+      for(jq = 0; jq < thetaSegs; jq++)
+        {
+        for(j = 0; j <= thetaSubsegs; j++)
+          {
           theta = thetaLim[0] + deltaTheta*(j + jq*thetaSubsegs);
           texCoord[0] = deltaThetaTex*(j + jq*thetaSubsegs);
           
@@ -285,10 +301,10 @@ void vtkSuperquadricSource::Execute()
           newPoints->InsertNextPoint(pt);
           newNormals->InsertNextTuple(nv);
           newTCoords->InsertNextTuple(texCoord);
+          }
         }
       }
     }
-  }
 
   // mesh!
   // build triangle strips for efficiency....
@@ -296,19 +312,23 @@ void vtkSuperquadricSource::Execute()
   
   rowOffset = this->ThetaResolution+thetaSegs;
   
-  for(iq = 0; iq < phiSegs; iq++) {
-    for(i = 0; i < phiSubsegs; i++) {
+  for(iq = 0; iq < phiSegs; iq++)
+    {
+    for(i = 0; i < phiSubsegs; i++)
+      {
       pbase = rowOffset*(i +iq*(phiSubsegs+1));
-      for(jq = 0; jq < thetaSegs; jq++) {
+      for(jq = 0; jq < thetaSegs; jq++)
+        {
         base = pbase + jq*(thetaSubsegs+1);
-        for(j = 0; j <= thetaSubsegs; j++) {
+        for(j = 0; j <= thetaSubsegs; j++)
+          {
           ptidx[2*j] = base + rowOffset + j;
           ptidx[2*j+1] = base + j;
-        }
+          }
         newPolys->InsertNextCell(ptsPerStrip, ptidx);
+        }
       }
     }
-  }
   delete[] ptidx;
 
   output->SetPoints(newPoints);
@@ -322,6 +342,8 @@ void vtkSuperquadricSource::Execute()
 
   output->SetStrips(newPolys);
   newPolys->Delete();
+
+  return 1;
 }
 
 void vtkSuperquadricSource::PrintSelf(ostream& os, vtkIndent indent)
@@ -382,4 +404,3 @@ static void evalSuperquadric(double u, double v,  // parametric coords
   nrm[1] = 1.0/dims[1]       * sf(v+dv, 2.0-n);
   nrm[2] = 1.0/dims[2] * cf2 * cf(u+du, 2.0-e, 0.0);
 }
-

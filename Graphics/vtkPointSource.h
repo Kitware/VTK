@@ -23,16 +23,16 @@
 #ifndef __vtkPointSource_h
 #define __vtkPointSource_h
 
-#include "vtkPolyDataSource.h"
+#include "vtkPolyDataAlgorithm.h"
 
 #define VTK_POINT_UNIFORM   1
 #define VTK_POINT_SHELL     0
 
-class VTK_GRAPHICS_EXPORT vtkPointSource : public vtkPolyDataSource 
+class VTK_GRAPHICS_EXPORT vtkPointSource : public vtkPolyDataAlgorithm 
 {
 public:
   static vtkPointSource *New();
-  vtkTypeRevisionMacro(vtkPointSource,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkPointSource,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
@@ -67,8 +67,7 @@ protected:
   vtkPointSource(vtkIdType numPts=10);
   ~vtkPointSource() {};
 
-  void Execute();
-  void ExecuteInformation();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   vtkIdType NumberOfPoints;
   double Center[3];

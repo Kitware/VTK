@@ -16,13 +16,16 @@
 
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
 #include <math.h>
-vtkCxxRevisionMacro(vtkLineSource, "1.45");
+vtkCxxRevisionMacro(vtkLineSource, "1.46");
 vtkStandardNewMacro(vtkLineSource);
 
 vtkLineSource::vtkLineSource(int res)
@@ -36,17 +39,34 @@ vtkLineSource::vtkLineSource(int res)
   this->Point2[2] =  0.0;
 
   this->Resolution = (res < 1 ? 1 : res);
+
+  this->SetNumberOfInputPorts(0);
 }
 
-
-
-void vtkLineSource::ExecuteInformation()
+int vtkLineSource::RequestInformation(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
-  this->GetOutput()->SetMaximumNumberOfPieces(-1);
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
+               -1);
+  return 1;
 }
 
-void vtkLineSource::Execute()
+int vtkLineSource::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the ouptut
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   int numLines=this->Resolution;
   int numPts=this->Resolution+1;
   double x[3], tc[3], v[3];
@@ -54,14 +74,11 @@ void vtkLineSource::Execute()
   vtkPoints *newPoints; 
   vtkFloatArray *newTCoords; 
   vtkCellArray *newLines;
-  vtkPolyData *output = this->GetOutput();
   
-  if (output->GetUpdatePiece() > 0)
+  if (outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) > 0)
     {
-    return;
+    return 0;
     }
-
-  vtkDebugMacro(<<"Creating line");
 
   newPoints = vtkPoints::New();
   newPoints->Allocate(numPts);
@@ -110,6 +127,8 @@ void vtkLineSource::Execute()
 
   output->SetLines(newLines);
   newLines->Delete();
+
+  return 1;
 }
 
 void vtkLineSource::PrintSelf(ostream& os, vtkIndent indent)
@@ -125,6 +144,4 @@ void vtkLineSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Point 2: (" << this->Point2[0] << ", "
                                << this->Point2[1] << ", "
                                << this->Point2[2] << ")\n";
-
-
 }

@@ -17,12 +17,14 @@
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkTexturedSphereSource, "1.30");
+vtkCxxRevisionMacro(vtkTexturedSphereSource, "1.31");
 vtkStandardNewMacro(vtkTexturedSphereSource);
 
 // Construct sphere with radius=0.5 and default resolution 8 in both Phi
@@ -35,10 +37,22 @@ vtkTexturedSphereSource::vtkTexturedSphereSource(int res)
   this->PhiResolution = res;
   this->Theta = 0.0;
   this->Phi = 0.0;
+
+  this->SetNumberOfInputPorts(0);
 }
 
-void vtkTexturedSphereSource::Execute()
+int vtkTexturedSphereSource::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the ouptut
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   int i, j;
   int numPts;
   int numPolys;
@@ -48,7 +62,6 @@ void vtkTexturedSphereSource::Execute()
   vtkCellArray *newPolys;
   double x[3], deltaPhi, deltaTheta, phi, theta, radius, norm;
   vtkIdType pts[3];
-  vtkPolyData *output = this->GetOutput();
   double tc[2];
   
   //
@@ -131,6 +144,8 @@ void vtkTexturedSphereSource::Execute()
 
   output->SetPolys(newPolys);
   newPolys->Delete();
+
+  return 1;
 }
 
 void vtkTexturedSphereSource::PrintSelf(ostream& os, vtkIndent indent)

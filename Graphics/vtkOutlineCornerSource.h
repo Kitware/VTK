@@ -42,7 +42,7 @@ protected:
   vtkOutlineCornerSource();
   ~vtkOutlineCornerSource() {};
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   double CornerFactor;
 private:
@@ -51,5 +51,3 @@ private:
 };
 
 #endif
-
-

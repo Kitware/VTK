@@ -21,13 +21,13 @@
 #ifndef __vtkLineSource_h
 #define __vtkLineSource_h
 
-#include "vtkPolyDataSource.h"
+#include "vtkPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkLineSource : public vtkPolyDataSource 
+class VTK_GRAPHICS_EXPORT vtkLineSource : public vtkPolyDataAlgorithm 
 {
 public:
   static vtkLineSource *New();
-  vtkTypeRevisionMacro(vtkLineSource,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkLineSource,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -49,8 +49,8 @@ protected:
   vtkLineSource(int res=1);
   ~vtkLineSource() {};
 
-  void Execute();
-  void ExecuteInformation();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   double Point1[3];
   double Point2[3];
   int Resolution;
@@ -60,5 +60,3 @@ private:
 };
 
 #endif
-
-

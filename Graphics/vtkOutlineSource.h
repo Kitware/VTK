@@ -24,16 +24,16 @@
 #ifndef __vtkOutlineSource_h
 #define __vtkOutlineSource_h
 
-#include "vtkPolyDataSource.h"
+#include "vtkPolyDataAlgorithm.h"
 
 #define VTK_BOX_TYPE_AXIS_ALIGNED 0
 #define VTK_BOX_TYPE_ORIENTED     1
 
-class VTK_GRAPHICS_EXPORT vtkOutlineSource : public vtkPolyDataSource 
+class VTK_GRAPHICS_EXPORT vtkOutlineSource : public vtkPolyDataAlgorithm 
 {
 public:
   static vtkOutlineSource *New();
-  vtkTypeRevisionMacro(vtkOutlineSource,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkOutlineSource,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -64,7 +64,7 @@ protected:
   vtkOutlineSource();
   ~vtkOutlineSource() {}
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   int   BoxType;
   double Bounds[6];
   double Corners[24];
@@ -75,5 +75,3 @@ private:
 };
 
 #endif
-
-

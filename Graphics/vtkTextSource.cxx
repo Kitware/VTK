@@ -15,13 +15,15 @@
 #include "vtkTextSource.h"
 
 #include "vtkCellArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkTextSource, "1.47");
+vtkCxxRevisionMacro(vtkTextSource, "1.48");
 vtkStandardNewMacro(vtkTextSource);
 
 #define vtkfont_width 9
@@ -151,6 +153,8 @@ vtkTextSource::vtkTextSource()
   this->BackgroundColor[1] = 0.0;
   this->BackgroundColor[2] = 0.0;
   this->BackgroundColor[3] = 1.0;
+
+  this->SetNumberOfInputPorts(0);
 }
 
 vtkTextSource::~vtkTextSource()
@@ -161,8 +165,18 @@ vtkTextSource::~vtkTextSource()
     }
 }
 
-void vtkTextSource::Execute()
+int vtkTextSource::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the ouptut
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   int row, col;
   vtkPoints *newPoints; 
   vtkCellArray *newPolys;
@@ -177,12 +191,11 @@ void vtkTextSource::Execute()
   int drawingBlack = 0;
   unsigned char white[4];
   unsigned char black[4];
-  vtkPolyData *output = this->GetOutput();
   
   if (this->Text == NULL)
     {
     vtkErrorMacro (<< "Text is not set!");
-    return;
+    return 0;
     }
 
   // convert colors to unsigned char
@@ -422,6 +435,8 @@ void vtkTextSource::Execute()
 
   output->SetPolys(newPolys);
   newPolys->Delete();
+
+  return 1;
 }
 
 void vtkTextSource::PrintSelf(ostream& os, vtkIndent indent)

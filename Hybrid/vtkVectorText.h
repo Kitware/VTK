@@ -32,13 +32,13 @@
 #ifndef __vtkVectorText_h
 #define __vtkVectorText_h
 
-#include "vtkPolyDataSource.h"
+#include "vtkPolyDataAlgorithm.h"
 
-class VTK_HYBRID_EXPORT vtkVectorText : public vtkPolyDataSource 
+class VTK_HYBRID_EXPORT vtkVectorText : public vtkPolyDataAlgorithm 
 {
 public:
   static vtkVectorText *New();
-  vtkTypeRevisionMacro(vtkVectorText,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkVectorText,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -50,7 +50,7 @@ protected:
   vtkVectorText();
   ~vtkVectorText();
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   char *Text;
   char *Letters[127];
 
@@ -60,5 +60,3 @@ private:
 };
 
 #endif
-
-

@@ -33,12 +33,12 @@
 #ifndef __vtkTextSource_h
 #define __vtkTextSource_h
 
-#include "vtkPolyDataSource.h"
+#include "vtkPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkTextSource : public vtkPolyDataSource 
+class VTK_GRAPHICS_EXPORT vtkTextSource : public vtkPolyDataAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkTextSource,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkTextSource,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -70,7 +70,7 @@ protected:
   vtkTextSource();
   ~vtkTextSource();
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   char *Text;
   int  Backing;
   double ForegroundColor[4];
@@ -81,5 +81,3 @@ private:
 };
 
 #endif
-
-

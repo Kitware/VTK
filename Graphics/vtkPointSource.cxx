@@ -16,6 +16,8 @@
 
 #include "vtkCellArray.h"
 #include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
@@ -23,7 +25,7 @@
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkPointSource, "1.44");
+vtkCxxRevisionMacro(vtkPointSource, "1.45");
 vtkStandardNewMacro(vtkPointSource);
 
 //----------------------------------------------------------------------------
@@ -38,19 +40,28 @@ vtkPointSource::vtkPointSource(vtkIdType numPts)
   this->Radius = 0.5;
 
   this->Distribution = VTK_POINT_UNIFORM;
+
+  this->SetNumberOfInputPorts(0);
 }
 
 //----------------------------------------------------------------------------
-void vtkPointSource::Execute()
+int vtkPointSource::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the ouptut
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType i;
   double theta, rho, cosphi, sinphi, radius;
   double x[3];
   vtkPoints *newPoints;
   vtkCellArray *newVerts;
-  vtkPolyData *output = this->GetOutput();
-  
-  vtkDebugMacro(<< "Generating random cloud of points...");
 
   newPoints = vtkPoints::New();
   newPoints->Allocate(this->NumberOfPoints);
@@ -96,13 +107,9 @@ void vtkPointSource::Execute()
 
   output->SetVerts(newVerts);
   newVerts->Delete();
-}
 
-//----------------------------------------------------------------------------
-void vtkPointSource::ExecuteInformation()
-{
+  return 1;
 }
-
 
 //----------------------------------------------------------------------------
 void vtkPointSource::PrintSelf(ostream& os, vtkIndent indent)

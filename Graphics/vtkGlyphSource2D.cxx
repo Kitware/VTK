@@ -17,11 +17,13 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkGlyphSource2D, "1.14");
+vtkCxxRevisionMacro(vtkGlyphSource2D, "1.15");
 vtkStandardNewMacro(vtkGlyphSource2D);
 
 //----------------------------------------------------------------------------
@@ -40,14 +42,22 @@ vtkGlyphSource2D::vtkGlyphSource2D()
   this->Dash = 0;
   this->RotationAngle = 0.0;
   this->GlyphType = VTK_VERTEX_GLYPH;
+
+  this->SetNumberOfInputPorts(0);
 }
 
 //----------------------------------------------------------------------------
-void vtkGlyphSource2D::Execute()
+int vtkGlyphSource2D::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
-  vtkPolyData *output = (vtkPolyData *)this->GetOutput();
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  vtkDebugMacro(<<"Generating 2D glyph");
+  // get the ouptut
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
   
   //Allocate storage
   vtkPoints *pts = vtkPoints::New();
@@ -137,6 +147,8 @@ void vtkGlyphSource2D::Execute()
 
   output->GetCellData()->SetScalars(colors);
   colors->Delete();
+
+  return 1;
 }
 
 void vtkGlyphSource2D::ConvertColor()
@@ -498,7 +510,6 @@ void vtkGlyphSource2D::CreateDash(vtkPoints *pts, vtkCellArray *lines,
   colors->InsertNextValue(this->RGB[2]);
 }
 
-
 //----------------------------------------------------------------------------
 void vtkGlyphSource2D::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -559,4 +570,3 @@ void vtkGlyphSource2D::PrintSelf(ostream& os, vtkIndent indent)
       break;
     }
 }
-

@@ -15,13 +15,15 @@
 #include "vtkVectorText.h"
 
 #include "vtkCellArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataReader.h"
 #include "vtkTransformPolyDataFilter.h"
 
-vtkCxxRevisionMacro(vtkVectorText, "1.33");
+vtkCxxRevisionMacro(vtkVectorText, "1.34");
 vtkStandardNewMacro(vtkVectorText);
 
 char *VTK_VECTOR_TEXT_33 = (char *) "11 0.438482 "
@@ -1639,12 +1641,22 @@ vtkVectorText::vtkVectorText()
   this->Letters[124] = VTK_VECTOR_TEXT_124;
   this->Letters[125] = VTK_VECTOR_TEXT_125;
   this->Letters[126] = VTK_VECTOR_TEXT_126;
-  
+
+  this->SetNumberOfInputPorts(0);
 }
 
-void vtkVectorText::Execute()
+int vtkVectorText::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
-  vtkPolyData *output = this->GetOutput();
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the ouptut
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkPoints *newPoints;
   vtkCellArray *newPolys;
   int ptOffset = 0;
@@ -1660,7 +1672,7 @@ void vtkVectorText::Execute()
   if (this->Text == NULL)
     {
     vtkErrorMacro (<< "Text is not set!");
-    return;
+    return 0;
     }
 
   // Set things up; allocate memory
@@ -1725,6 +1737,8 @@ void vtkVectorText::Execute()
   
   output->SetPolys(newPolys);
   newPolys->Delete();
+
+  return 1;
 }
   
 void vtkVectorText::PrintSelf(ostream& os, vtkIndent indent)

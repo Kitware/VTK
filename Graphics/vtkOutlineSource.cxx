@@ -15,11 +15,13 @@
 #include "vtkOutlineSource.h"
 
 #include "vtkCellArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkOutlineSource, "1.34");
+vtkCxxRevisionMacro(vtkOutlineSource, "1.35");
 vtkStandardNewMacro(vtkOutlineSource);
 
 //----------------------------------------------------------------------------
@@ -57,19 +59,29 @@ vtkOutlineSource::vtkOutlineSource()
   this->Corners[21] = 1.0;
   this->Corners[22] = 1.0;
   this->Corners[23] = 1.0;
+
+  this->SetNumberOfInputPorts(0);
 }
 
 //----------------------------------------------------------------------------
-void vtkOutlineSource::Execute()
+int vtkOutlineSource::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the ouptut
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   double *bounds;
   double x[3];
   vtkIdType pts[2];
   vtkPoints *newPts;
   vtkCellArray *newLines;
-  vtkPolyData *output = this->GetOutput();
   
-  vtkDebugMacro(<< "Generating outline");
   //
   // Initialize
   //
@@ -145,8 +157,9 @@ void vtkOutlineSource::Execute()
 
   output->SetLines(newLines);
   newLines->Delete();
-}
 
+  return 1;
+}
 
 //----------------------------------------------------------------------------
 void vtkOutlineSource::PrintSelf(ostream& os, vtkIndent indent)
