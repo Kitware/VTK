@@ -58,6 +58,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 
 //--------------------------------------------------------------------------
+char vtkDataSetAttributes::AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][10] =
+  { "Scalars",
+    "Vectors",
+    "Normals",
+    "TCoords",
+    "Tensors" };
 
 vtkDataSetAttributes* vtkDataSetAttributes::New()
 {
@@ -1391,28 +1397,21 @@ int vtkDataSetAttributes::SetActiveAttribute(int index, int attributeType)
     }
 }
 
-// Scalars set to NOLIMIT and 1024 (limit is arbitrary, so make it big.)
-int vtkDataSetAttributes::NumberOfAttributeComponents[vtkDataSetAttributes::NUM_ATTRIBUTES] 
-= { 0, 
-    3, 
-    3, 
-    3, 
+    // Scalars set to NOLIMIT and 1024 (limit is arbitrary, so make it big.)
+int vtkDataSetAttributes::NumberOfAttributeComponents[vtkDataSetAttributes::NUM_ATTRIBUTES]
+= { 0,
+    3,
+    3,
+    3,
     9};
 
 int vtkDataSetAttributes::AttributeLimits[vtkDataSetAttributes::NUM_ATTRIBUTES]
-= { NOLIMIT, 
-    EXACT, 
-    EXACT, 
+= { NOLIMIT,
+    EXACT,
+    EXACT,
     MAX,
     EXACT };
 
-char vtkDataSetAttributes::AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][10] 
-= { "Scalars",
-    "Vectors",
-    "Normals",
-    "TCoords",
-    "Tensors" };
- 
 int vtkDataSetAttributes::CheckNumberOfComponents(vtkDataArray* da,
 						  int attributeType)
 {

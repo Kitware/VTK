@@ -42,6 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkWin32OutputWindow.h"
 #include "vtkObjectFactory.h"
 
+HWND vtkWin32OutputWindow::OutputWindow = 0;
+
 vtkWin32OutputWindow* vtkWin32OutputWindow::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -55,17 +57,17 @@ vtkWin32OutputWindow* vtkWin32OutputWindow::New()
 }
 
 
-LRESULT APIENTRY vtkWin32OutputWindow::WndProc(HWND hWnd, UINT message, 
-					       WPARAM wParam, 
+LRESULT APIENTRY vtkWin32OutputWindow::WndProc(HWND hWnd, UINT message,
+					       WPARAM wParam,
 					       LPARAM lParam)
-{ 
-  switch (message) 
+{
+  switch (message)
     {
     case WM_SIZE:
       {
-      int w = LOWORD(lParam);  // width of client area 
-      int h = HIWORD(lParam); // height of client area  
-      
+      int w = LOWORD(lParam);  // width of client area
+      int h = HIWORD(lParam); // height of client area
+
       MoveWindow(vtkWin32OutputWindow::OutputWindow,
 		 0, 0, w, h, true);
       }
@@ -79,9 +81,6 @@ LRESULT APIENTRY vtkWin32OutputWindow::WndProc(HWND hWnd, UINT message,
     }
   return DefWindowProc(hWnd, message, wParam, lParam);
 }
-
- 
-HWND vtkWin32OutputWindow::OutputWindow = 0;
 
 // Display text in the window, and translate the \n to \r\n.
 
