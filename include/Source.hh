@@ -1,26 +1,24 @@
 //
 // Abstract class for specifying behavior of data sources
 //
-#ifndef Source_h
-#define Source_h
+#ifndef vlSource_h
+#define vlSource_h
 
-#include "Params.h"
-#include "TimeSt.h"
-#include "RefCount.h"
+#include "Object.h"
 
-class Source : virtual public TimeStamp, virtual public RefCount {
+class vlSource : virtual public vlObject {
 public:
-  Source() : startMethod(0), endMethod(0) {};
-  virtual ~Source() {};
-  virtual void execute();
-  virtual void update();
-  void setStartMethod(void (*f)());
-  void setEndMethod(void (*f)());
+  vlSource() : StartMethod(0), EndMethod(0) {};
+  virtual ~vlSource() {};
+  virtual void Execute();
+  virtual void Update();
+  void SetStartMethod(void (*f)());
+  void SetEndMethod(void (*f)());
 
 protected:
-  void (*startMethod)();
-  void (*endMethod)();
-  TimeStamp executeTime;
+  void (*StartMethod)();
+  void (*EndMethod)();
+  vlTimeStamp ExecuteTime;
 };
 
 #endif

@@ -1,20 +1,19 @@
 //
 // Abstract class for specifying shrinkFilter behaviour
 //
-#ifndef ShrinkFilter_h
-#define ShrinkFilter_h
+#ifndef __vlShrinkFilter_h
+#define __vlShrinkFilter_h
 
-#include "Params.h"
 #include "DataSetF.h"
 #include "PolyData.h"
 
-class ShrinkFilter : public DataSetFilter, public PolyData {
+class vlShrinkFilter : public vlDataSetFilter, public vlPolyData {
 public:
-  ShrinkFilter(const float sf=0.5) {shrinkFactor = sf;};
-  virtual ~ShrinkFilter() {};
-  virtual void execute();
+  vlShrinkFilter(const float sf=0.5) {this->ShrinkFactor = sf;};
+  virtual ~vlShrinkFilter() {};
+  virtual void Execute();
 private:
-  float shrinkFactor;
+  float ShrinkFactor;
 };
 
 #endif

@@ -1,21 +1,20 @@
 //
-// Abstract class for specifying shrinkFilter behaviour
+// Class to shrink PolyData
 //
-#ifndef ShrinkPolyData_h
-#define ShrinkPolyData_h
+#ifndef __vlShrinkPolyData_h
+#define __vlShrinkPolyData_h
 
-#include "Params.h"
 #include "P2PF.h"
 
-class ShrinkPolyData : public PolyToPolyFilter {
+class vlShrinkPolyData : public vlPolyToPolyFilter {
 public:
-  ShrinkPolyData() {shrinkFactor = 0.5;};
-  virtual ~ShrinkPolyData() {};
-  virtual void execute();
-  void setShrinkFactor(float sf);
-  float getShrinkFactor();
+  vlShrinkPolyData() {this->ShrinkFactor = 0.5;};
+  virtual ~vlShrinkPolyData() {};
+  virtual void Execute();
+  void SetShrinkFactor(float sf);
+  float GetShrinkFactor();
 private:
-  float shrinkFactor;
+  float ShrinkFactor;
 };
 
 #endif
