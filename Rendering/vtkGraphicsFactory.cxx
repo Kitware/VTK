@@ -60,19 +60,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkOpenGLVolumeRayCastMapper.h"
 #endif
 
-#ifdef VTK_USE_MESA
-#include "vtkMesaActor.h"
-#include "vtkMesaCamera.h"
-#include "vtkMesaImageActor.h"
-#include "vtkMesaLight.h"
-#include "vtkMesaProperty.h"
-#include "vtkMesaPolyDataMapper.h"
-#include "vtkMesaRenderer.h"
-#include "vtkMesaRenderWindow.h"
-#include "vtkMesaTexture.h"
-#include "vtkMesaVolumeTextureMapper2D.h"
-#endif
-
 #ifdef _WIN32
 #include "vtkOpenGLActor.h"
 #include "vtkOpenGLCamera.h"
@@ -123,7 +110,7 @@ const char *vtkGraphicsFactory::GetRenderLibrary()
       {
       temp = "Win32OpenGL";
       }
-    else if (strcmp("Mesa",temp) && strcmp("OpenGL",temp) && 
+    else if (strcmp("OpenGL",temp) && 
 	     strcmp("Win32OpenGL",temp))
       {
       vtkGenericWarningMacro(<<"VTK_RENDERER set to unsupported type:" << temp);
@@ -131,26 +118,9 @@ const char *vtkGraphicsFactory::GetRenderLibrary()
       }
     }
 
-  // if the environment variable is set to openGL and the user
-  //  does not have opengl but they do have mesa, then use it
-#ifndef VTK_USE_OGLR
-#ifdef VTK_USE_MESA
-  if ( temp != NULL )
-    {
-    if (!strcmp("OpenGL",temp))
-      {
-       temp = "Mesa";
-      }
-    }
-#endif
-#endif
-  
   // if nothing is set then work down the list of possible renderers
   if ( !temp )
     {
-#ifdef VTK_USE_MESA
-    temp = "Mesa";
-#endif
 #ifdef VTK_USE_OGLR
     temp = "OpenGL";
 #endif
@@ -268,56 +238,7 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
     }
 #endif
 	
-#ifdef VTK_USE_MESA
-  if (!strcmp("Mesa",rl))
-    {
-    if(strcmp(vtkclassname, "vtkActor") == 0)
-      {
-      return vtkMesaActor::New();
-      }
-    if(strcmp(vtkclassname, "vtkCamera") == 0)
-      {
-      return vtkMesaCamera::New();
-      }
-    if(strcmp(vtkclassname, "vtkImageActor") == 0)
-      {
-      return vtkMesaImageActor::New();
-      }
-    if(strcmp(vtkclassname, "vtkLight") == 0)
-      {
-      return vtkMesaLight::New();
-      }
-    if(strcmp(vtkclassname, "vtkProperty") == 0)
-      {
-      return vtkMesaProperty::New();
-      }
-    if(strcmp(vtkclassname, "vtkPolyDataMapper") == 0)
-      {
-      return vtkMesaPolyDataMapper::New();
-      }
-    if(strcmp(vtkclassname, "vtkRenderer") == 0)
-      {
-      return vtkMesaRenderer::New();
-      }
-    if(strcmp(vtkclassname, "vtkRenderWindow") == 0)
-      {
-      return vtkMesaRenderWindow::New();
-      }
-    if(strcmp(vtkclassname, "vtkTexture") == 0)
-      {
-      return vtkMesaTexture::New();
-      }
-    if(strcmp(vtkclassname, "vtkVolumeTextureMapper2D") == 0)
-      {
-      return vtkMesaVolumeTextureMapper2D::New();
-      }
-    if(strcmp(vtkclassname, "vtkVolumeRayCastMapper") == 0)
-      {
-      return vtkMesaVolumeRayCastMapper::New();
-      }
-    }
-#endif
- vtkGenericWarningMacro("Attempting to create an OpenGL or Mesa based object with a VTK that is not linked/configured with Mesa/OpenGL.");
+ vtkGenericWarningMacro("Attempting to create an OpenGL  based object with a VTK that is not linked/configured with OpenGL.");
   abort();
   return 0;
 }
