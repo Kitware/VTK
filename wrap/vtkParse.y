@@ -65,7 +65,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
   void checkSigSize(char *arg)
     {
-    if (strlen(currentFunction->Signature) + strlen(arg) > 
+    if (strlen(currentFunction->Signature) + strlen(arg) + 3 > 
         sigAllocatedLength)
       {
       currentFunction->Signature = (char *)

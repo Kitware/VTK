@@ -47,7 +47,7 @@ YYCONST static char yysccsid[] = "@(#)yaccpar	1.8 (Berkeley +Cygnus.28) 01/20/91
 
   void checkSigSize(char *arg)
     {
-    if (strlen(currentFunction->Signature) + strlen(arg) > 
+    if (strlen(currentFunction->Signature) + strlen(arg) + 3 > 
         sigAllocatedLength)
       {
       currentFunction->Signature = (char *)
