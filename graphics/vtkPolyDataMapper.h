@@ -87,6 +87,8 @@ public:
   vtkGetMacro(Piece, int);
   vtkSetMacro(NumberOfPieces, int);
   vtkGetMacro(NumberOfPieces, int);
+  vtkSetMacro(NumberOfSubPieces, int);
+  vtkGetMacro(NumberOfSubPieces, int);
 
   // Description:
   // Set the number of ghost cells to return.

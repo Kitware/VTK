@@ -107,7 +107,8 @@ void vtkPolyDataMapper::Update()
   if (this->GetInput()) 
     {
     currentPiece = this->NumberOfSubPieces * this->Piece;
-    input->SetUpdateExtent(currentPiece, nPieces, this->GhostLevel);
+    input->SetUpdateExtent(currentPiece, this->NumberOfSubPieces*nPieces, 
+                           this->GhostLevel);
     }
 
   this->vtkMapper::Update();
