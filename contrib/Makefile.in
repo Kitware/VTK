@@ -26,6 +26,7 @@ vtkDepthSortPolyData \
 vtkEarthSource \
 vtkGridTransform \
 vtkIVWriter \
+vtkImagePolyDataClippingExtents \
 vtkImageToPolyDataFilter \
 vtkIterativeClosestPointTransform \
 vtkLandmarkTransform \
