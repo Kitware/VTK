@@ -29,10 +29,6 @@
 // Shift key is accelerator in mouse and key modes
 // Ctrl and Shift together causes Roll in mouse and key modes
 //
-// Stationary 'look' can be achieved by holding both mouse buttons down
-// and steering with the mouse.
-// Stationary 'look' can also be achieved by holding 'Z' (or 'A') and
-// steering with mouse in forward (or reverse) motion mode.
 // By default, one "step" of motion corresponds to 1/250th of the diagonal
 // of bounding box of visible actors, '+' and '-' keys allow user to
 // increase or decrease step size.
@@ -41,6 +37,11 @@
 #define __vtkInteractorStyleFlight_h
 
 #include "vtkInteractorStyle.h"
+class vtkCamera;
+class vtkPerspectiveTransform;
+//BTX
+class CPIDControl;
+//ETX
 
 class VTK_RENDERING_EXPORT vtkInteractorStyleFlight : public vtkInteractorStyle
 {
@@ -53,13 +54,6 @@ public:
   // Move the Eye/Camera to a specific location (no intermediate
   // steps are taken
   void JumpTo(double campos[3], double focpos[3]);
-
-  // Description:
-  // rotate the camera round z axis by 360 degrees for viewing scene
-  // this routine starts a timer and disables key/mouse events preventing
-  // user interaction until finished (not fully implemented yet)
-  // the number of steps can be supplied.
-  void PerformAzimuthalScan(int numsteps);
 
   // Description:
   // Set the basic unit step size : by default 1/250 of bounding diagonal
@@ -88,14 +82,18 @@ public:
   vtkBooleanMacro(DisableMotion,int);
 
   // Description:
-  // Fix the "up" vector: also use FixedUpVector
-  vtkSetMacro(FixUpVector,int);
-  vtkGetMacro(FixUpVector,int);
-  vtkBooleanMacro(FixUpVector,int);
+  // When flying, apply a restorative force to the "Up" vector.
+  // This is activated when the current 'up' is close to the actual 'up'
+  // (as defined in DefaultUpVector). This prevents excessive twisting forces
+  // when viewing from arbitrary angles, but keep the horizon level when
+  // the user is flying over terrain.
+  vtkSetMacro(RestoreUpVector,int);
+  vtkGetMacro(RestoreUpVector,int);
+  vtkBooleanMacro(RestoreUpVector,int);
 
-  // Specify fixed "up"
-  vtkGetVectorMacro(FixedUpVector,double,3);
-  vtkSetVectorMacro(FixedUpVector,double,3);
+  // Specify "up" (by default {0,0,1} but can be changed)
+  vtkGetVectorMacro(DefaultUpVector,double,3);
+  vtkSetVectorMacro(DefaultUpVector,double,3);
 
   // Description:
   // Concrete implementation of Mouse event bindings for flight
@@ -112,51 +110,53 @@ public:
   virtual void OnChar();
   virtual void OnKeyDown();
   virtual void OnKeyUp();
-
-  // Description:
-  // Mouse and key events set correct motion states, OnTimer performs 
-  // the motion
   virtual void OnTimer();
+  //
+  virtual void ForwardFly();
+  virtual void ReverseFly();
+  //
+  virtual void StartForwardFly();
+  virtual void EndForwardFly();
+  virtual void StartReverseFly();
+  virtual void EndReverseFly();
 
 protected:
-  vtkInteractorStyleFlight();
+   vtkInteractorStyleFlight();
   ~vtkInteractorStyleFlight();
 
   // Description:
   // Routines used internally for computing motion and steering
-  void DoTimerStart(void);
-  void DoTimerStop(void);
-  void UpdateMouseSteering(int x, int y);
-  void FlyByMouse(void);
-  void FlyByKey(void);
-  void ComputeLRVector(double vector[3]);
-  void MotionAlongVector(double vector[3], double amount);
-  void SetupMotionVars(void);
-  void AzimuthScan(void);
+  void UpdateSteering(vtkCamera *cam);
+  void UpdateMouseSteering(vtkCamera *cam);
+  void FlyByMouse(vtkCamera* cam);
+  void FlyByKey(vtkCamera* cam);
+  void GetLRVector(double vector[3], vtkCamera* cam);
+  void MotionAlongVector(double vector[3], double amount, vtkCamera* cam);
+  void SetupMotionVars(vtkCamera *cam);
+  void FinishCamera(vtkCamera* cam);
   //
   //
   unsigned char KeysDown;
-  int           Flying;
-  int           Reversing;
-  int           TimerRunning;
-  int           AzimuthScanning;
   int           DisableMotion;
-  int           FixUpVector;
-  int           X2;
-  int           Y2;
+  int           RestoreUpVector;
   double        DiagonalLength;
   double        MotionStepSize;
   double        MotionUserScale;
   double        MotionAccelerationFactor;
   double        AngleStepSize;
   double        AngleAccelerationFactor;
-  double        YawAngle;
-  double        PitchAngle;
-  double        FixedUpVector[3];
+  double        DefaultUpVector[3];
   double        AzimuthStepSize;
-
-  int LastPos[2];
-
+  double        IdealFocalPoint[3];
+  vtkPerspectiveTransform *Transform;
+  double        DeltaYaw;
+  double        lYaw;
+  double        DeltaPitch;
+  double        lPitch;
+//BTX
+  CPIDControl  *PID_Yaw;
+  CPIDControl  *PID_Pitch;
+//ETX
 private:
   vtkInteractorStyleFlight(const vtkInteractorStyleFlight&);  // Not implemented.
   void operator=(const vtkInteractorStyleFlight&);  // Not implemented.
