@@ -54,10 +54,10 @@ class QVTK_EXPORT QVTKWidget : public QWidget
 
   Q_PROPERTY(bool automaticImageCacheEnabled
              READ isAutomaticImageCacheEnabled
-             WRITE setAutomaticImageCacheEnabled);
+             WRITE setAutomaticImageCacheEnabled)
   Q_PROPERTY(double maxRenderRateForImageCache
              READ maxRenderRateForImageCache
-             WRITE setMaxRenderRateForImageCache);
+             WRITE setMaxRenderRateForImageCache)
 
   public:
 #if QT_VERSION < 0x040000
