@@ -172,6 +172,8 @@ public:
 
   void WorldToView();
   void ViewToWorld();
+  virtual void ViewToWorld(float &wx, float &wy, float &wz);
+  virtual void WorldToView(float &wx, float &wy, float &wz);
 
   vtkGetObjectMacro(RayCaster,vtkRayCaster);
   float GetZ (int x, int y);

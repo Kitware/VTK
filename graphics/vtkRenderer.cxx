@@ -481,6 +481,36 @@ void vtkRenderer::ViewToWorld()
   this->SetWorldPoint(result);
 }
 
+void vtkRenderer::ViewToWorld(float &x, float &y, float &z)
+{
+  vtkMatrix4x4 mat;
+  float result[4];
+
+  // get the perspective transformation from the active camera 
+  mat = this->ActiveCamera->GetCompositePerspectiveTransform(1,0,1);
+  
+  // use the inverse matrix 
+  mat.Invert();
+ 
+  // Transform point to world coordinates 
+  result[0] = x;
+  result[1] = y;
+  result[2] = z;
+  result[3] = 1.0;
+
+  mat.Transpose();
+  mat.PointMultiply(result,result);
+  
+  // Get the transformed vector & set WorldPoint 
+  // while we are at it try to keep w at one
+  if (result[3])
+    {
+    x = result[0] / result[3];
+    y = result[1] / result[3];
+    z = result[2] / result[3];
+    }
+}
+
 // Description:
 // Convert world point coordinates to view coordinates.
 void vtkRenderer::WorldToView()
@@ -510,6 +540,32 @@ void vtkRenderer::WorldToView()
     }
 }
 
+// Description:
+// Convert world point coordinates to view coordinates.
+void vtkRenderer::WorldToView(float &x, float &y, float &z)
+{
+  vtkMatrix4x4 matrix;
+  float     view[4];
+
+  // get the perspective transformation from the active camera 
+  matrix = this->ActiveCamera->GetCompositePerspectiveTransform(1,0,1);
+
+  view[0] = x*matrix[0][0] + y*matrix[0][1] +
+    z*matrix[0][2] + matrix[0][3];
+  view[1] = x*matrix[1][0] + y*matrix[1][1] +
+    z*matrix[1][2] + matrix[1][3];
+  view[2] = x*matrix[2][0] + y*matrix[2][1] +
+    z*matrix[2][2] + matrix[2][3];
+  view[3] = x*matrix[3][0] + y*matrix[3][1] +
+    z*matrix[3][2] + matrix[3][3];
+
+  if (view[3] != 0.0)
+    {
+    x = view[0]/view[3];
+    y = view[1]/view[3];
+    z = view[2]/view[3];
+    }
+}
 
 void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
 {
