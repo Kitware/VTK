@@ -10,6 +10,7 @@ IF (VTK_USE_RENDERING)
       TestPLYReadWrite
       TestPolygonWriters
       TestJPEGReader
+      TestTIFFReader
       Plot3DScalars
       Plot3DVectors
       ParticleReader
