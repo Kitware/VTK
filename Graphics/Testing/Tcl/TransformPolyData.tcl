@@ -6,44 +6,44 @@ renWin SetSize 600 300
 
 # set up first set of polydata
 vtkPlaneSource p1
-p1 SetOrigin  0.5  0.501 -0.5
-p1 SetPoint1 -0.5  0.501 -0.5
-p1 SetPoint2  0.5  0.501  0.5
+p1 SetOrigin  0.5  0.508 -0.5
+p1 SetPoint1 -0.5  0.508 -0.5
+p1 SetPoint2  0.5  0.508  0.5
 p1 SetXResolution 5
 p1 SetYResolution 5
 
 vtkPlaneSource p2
-p2 SetOrigin -0.501  0.5 -0.5
-p2 SetPoint1 -0.501 -0.5 -0.5
-p2 SetPoint2 -0.501  0.5  0.5
+p2 SetOrigin -0.508  0.5 -0.5
+p2 SetPoint1 -0.508 -0.5 -0.5
+p2 SetPoint2 -0.508  0.5  0.5
 p2 SetXResolution 5
 p2 SetYResolution 5
 
 vtkPlaneSource p3
-p3 SetOrigin -0.5 -0.501 -0.5
-p3 SetPoint1  0.5 -0.501 -0.5
-p3 SetPoint2 -0.5 -0.501  0.5
+p3 SetOrigin -0.5 -0.508 -0.5
+p3 SetPoint1  0.5 -0.508 -0.5
+p3 SetPoint2 -0.5 -0.508  0.5
 p3 SetXResolution 5
 p3 SetYResolution 5
 
 vtkPlaneSource p4
-p4 SetOrigin  0.501 -0.5 -0.5
-p4 SetPoint1  0.501  0.5 -0.5
-p4 SetPoint2  0.501 -0.5  0.5
+p4 SetOrigin  0.508 -0.5 -0.5
+p4 SetPoint1  0.508  0.5 -0.5
+p4 SetPoint2  0.508 -0.5  0.5
 p4 SetXResolution 5
 p4 SetYResolution 5
 
 vtkPlaneSource p5
-p5 SetOrigin  0.5  0.5 -0.501
-p5 SetPoint1  0.5 -0.5 -0.501
-p5 SetPoint2 -0.5  0.5 -0.501
+p5 SetOrigin  0.5  0.5 -0.508
+p5 SetPoint1  0.5 -0.5 -0.508
+p5 SetPoint2 -0.5  0.5 -0.508
 p5 SetXResolution 5
 p5 SetYResolution 5
 
 vtkPlaneSource p6
-p6 SetOrigin  0.5  0.5  0.501
-p6 SetPoint1 -0.5  0.5  0.501
-p6 SetPoint2  0.5 -0.5  0.501
+p6 SetOrigin  0.5  0.5  0.508
+p6 SetPoint1 -0.5  0.5  0.508
+p6 SetPoint2  0.5 -0.5  0.508
 p6 SetXResolution 5
 p6 SetYResolution 5
 
