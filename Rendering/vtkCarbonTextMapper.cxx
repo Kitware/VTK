@@ -23,7 +23,7 @@
 #include "vtkgluPickMatrix.h"
 #include "vtkString.h"
 
-vtkCxxRevisionMacro(vtkCarbonTextMapper, "1.1");
+vtkCxxRevisionMacro(vtkCarbonTextMapper, "1.2");
 vtkStandardNewMacro(vtkCarbonTextMapper);
 
 struct vtkFontStruct
@@ -92,7 +92,7 @@ void vtkCarbonTextMapper::GetSize(vtkViewport* viewport, int *size)
   // Get the device context from the window
   AGLDrawable hdc = (AGLDrawable) window->GetGenericContext();
 
-  // Create the font
+  // Get the font number
   switch (this->FontFamily)
   {
     case VTK_ARIAL:
@@ -202,7 +202,8 @@ int vtkCarbonTextMapper::GetListBaseForFont(vtkViewport *vp)
   if (cache[numCached]->FontSize < 9)
     cache[numCached]->FontSize = 9; // minimum font size (or it goes blank!)
   aglUseFont((AGLContext)win->GetGenericDisplayId(), cache[numCached]->FontFamily,
-             normal, cache[numCached]->FontSize, 0, 255, cache[numCached]->ListBase);
+             normal+(italic*this->Italic) + (bold*this->Bold) +
+             (shadow*this->Shadow), cache[numCached]->FontSize, 0, 255, cache[numCached]->ListBase);
   GLenum err = aglGetError();
   if (AGL_NO_ERROR != err)
     cout << "vtkCarbonMapper AGLError: "<<(char *)aglErrorString(err)<<"\n";
@@ -242,13 +243,6 @@ void vtkCarbonTextMapper::ReleaseGraphicsResources(vtkWindow *win)
       }
     }
 
-// as long as we delete the lists above, there should be nothing else.
-//  if ( this->Font ) 
-//    {
-//    DeleteObject( this->Font );
-//    this->Font = 0;
-//    }
-  
   this->LastWindow = NULL;
   
   // very important
@@ -301,7 +295,6 @@ void vtkCarbonTextMapper::RenderOverlay(vtkViewport* viewport,
 
   int size[2];
   this->GetSize(viewport, size);
-  size[0]=40;size[1]=20;
 
   // Get the device context from the window
   AGLDrawable hdc = (AGLDrawable) window->GetGenericContext();
