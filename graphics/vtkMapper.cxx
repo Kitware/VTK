@@ -87,7 +87,7 @@ vtkMapper::~vtkMapper()
     }
   if ( this->Colors != NULL )
     {
-    this->Colors->Delete();
+    this->Colors->UnRegister(this);
     }
 }
 
@@ -266,10 +266,19 @@ vtkScalars *vtkMapper::GetColors()
       scalars = vtkScalars::New();
       numScalars = dataArray->GetNumberOfTuples();
       scalars->SetNumberOfScalars(numScalars);
-      for (i = 0; i < numScalars; i++)
+      if (dataArray->GetNumberOfComponents() == 1)
         {
-        scalars->
-          InsertScalar(i, dataArray->GetComponent(i, this->ArrayComponent));
+        scalars->SetData(dataArray);
+        }
+      else
+        { // I do not know how useful it is to color by a componenet.
+        // This could probably be done with out a copy
+        // by using active component.
+        for (i = 0; i < numScalars; i++)
+          {
+          scalars->
+            InsertScalar(i, dataArray->GetComponent(i, this->ArrayComponent));
+          }
         }
       }
     }
@@ -294,10 +303,19 @@ vtkScalars *vtkMapper::GetColors()
       scalars = vtkScalars::New();
       numScalars = dataArray->GetNumberOfTuples();
       scalars->SetNumberOfScalars(numScalars);
-      for (i = 0; i < numScalars; i++)
+      if (dataArray->GetNumberOfComponents() == 1)
         {
-        scalars->
-          InsertScalar(i, dataArray->GetComponent(i, this->ArrayComponent));
+        scalars->SetData(dataArray);
+        }
+      else
+        { // I do not know how useful it is to color by a componenet.
+        // This could probably be done with out a copy
+        // by using active component.
+        for (i = 0; i < numScalars; i++)
+          {
+          scalars->
+            InsertScalar(i, dataArray->GetComponent(i, this->ArrayComponent));
+          }
         }
       }
     }
@@ -328,7 +346,7 @@ vtkScalars *vtkMapper::GetColors()
 
     if (this->Colors)
       {
-      this->Colors->Delete();
+      this->Colors->UnRegister(this);
       }
     this->Colors = scalars;
     this->Colors->Register(this);
@@ -339,7 +357,7 @@ vtkScalars *vtkMapper::GetColors()
     {
     if ( this->Colors )
       {
-      this->Colors->Delete();
+      this->Colors->UnRegister(this);
       }
     this->Colors = NULL;
     }
