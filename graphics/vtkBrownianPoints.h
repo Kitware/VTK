@@ -53,7 +53,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_EXPORT vtkBrownianPoints : public vtkDataSetToDataSetFilter
 {
 public:
+  // Description:
+  // Create instance with minimum speed 0.0, maximum speed 1.0.
   static vtkBrownianPoints *New();
+
   vtkTypeMacro(vtkBrownianPoints,vtkDataSetToDataSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 

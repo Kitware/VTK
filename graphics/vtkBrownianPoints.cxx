@@ -44,9 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 vtkBrownianPoints* vtkBrownianPoints::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -58,9 +56,6 @@ vtkBrownianPoints* vtkBrownianPoints::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkBrownianPoints;
 }
-
-
-
 
 vtkBrownianPoints::vtkBrownianPoints()
 {
@@ -88,10 +83,10 @@ void vtkBrownianPoints::Execute()
     }
 
   newVectors = vtkVectors::New();
-  newVectors->Allocate(numPts);
-//
-// Check consistency of minumum and maximum speed
-//  
+  newVectors->SetNumberOfVectors(numPts);
+
+  // Check consistency of minumum and maximum speed
+  //  
   if ( this->MinimumSpeed > this->MaximumSpeed )
     {
     vtkErrorMacro(<< " Minimum speed > maximum speed; reset to (0,1).");
@@ -101,6 +96,15 @@ void vtkBrownianPoints::Execute()
 
   for (i=0; i<numPts; i++)
     {
+    if ( ! (i % 10000) ) 
+      {
+      this->UpdateProgress ((float)i/numPts);
+      if (this->GetAbortExecute())
+	{
+	break;
+	}
+      }
+
     speed = vtkMath::Random(this->MinimumSpeed,this->MaximumSpeed);
     if ( speed != 0.0 )
       {
@@ -111,7 +115,7 @@ void vtkBrownianPoints::Execute()
       norm = vtkMath::Norm(v);
       for (j=0; j<3; j++)
 	{
-	v[j] *= (speed / norm);
+        v[j] *= (speed / norm);
 	}
       }
     else
@@ -122,11 +126,11 @@ void vtkBrownianPoints::Execute()
 	}
       }
 
-    newVectors->InsertNextVector(v);
+    newVectors->SetVector(i,v);
     }
-//
-// Update ourselves
-//
+
+  // Update ourselves
+  //
   output->GetPointData()->CopyVectorsOff();
   output->GetPointData()->PassData(input->GetPointData());
 
