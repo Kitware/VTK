@@ -39,12 +39,14 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkVideoSource - Superclass of video digitizers
+// .NAME vtkVideoSource - Superclass of video input devices for VTK
 // .SECTION Description
-// vtkVideoSource is a superclass for video input interfaces for VTK.  
-// The most important methods are Grab() (grab a single frame), 
-// Play() (grab frames continuously), and Stop() (stop grabbing 
-// continuously)
+// vtkVideoSource is a superclass for video input interfaces for VTK.
+// The goal is to provide an interface which is very similar to the
+// interface of a VCR, where the 'tape' is an internal frame buffer
+// capable of holding a preset number of video frames.  Specialized
+// versions of this class record input from various video input sources.
+// This base class records input from a noise source.
 
 // .SECTION See Also
 // vtkWin32VideoSource vtkMILVideoSource
@@ -66,38 +68,48 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);   
 
   // Description:
-  // Initialize the hardware.  This is called automatically
-  // on the first Update or Grab.
-  virtual void Initialize();
+  // Record incoming video at the specified FrameRate.  The recording
+  // continues indefinitely until Stop() is called. 
+  virtual void Record();
 
   // Description:
-  // Release the video driver.  This is called automatically
-  // when the vtkVideoSource is destroyed.
-  virtual void ReleaseSystemResources();
-
-  // Description:
-  // Grab a single frame or multiple frames.
-  virtual void Grab(int n);
-  void Grab() { this->Grab(1); }
-
-  // Description:
-  // Go into continuous grab mode.  The video source will be
-  // automatically Modified() every time a new frame arrives.
+  // Play through the 'tape' sequentially at the specified frame rate.
+  // If you have just finished Recoding, you should call Rewind() first.
   virtual void Play();
 
   // Description:
-  // End continuous grab mode.
+  // Stop recording or playing.
   virtual void Stop();
 
   // Description:
-  // Are we in continuous grab mode?
-  vtkGetMacro(Playing,int);
+  // Rewind to the frame immediately before the frame that has the 
+  // earliest timestamp.  Subsequent Play, Record, or Grab operations
+  // will start on the next frame.
+  virtual void Rewind();
 
   // Description:
-  // Set the frame rate for 'Play' mode.  The default is 30 frames/s 
-  // for most video digitizers.
-  vtkSetMacro(FrameRate,float);
-  vtkGetMacro(FrameRate,float);
+  // FastForward to the last frame that was recorded (i.e. to the frame
+  // that has the most recent timestamp).
+  virtual void FastForward();
+
+  // Description:
+  // Seek forwards or backwards by the specified number of frames
+  // (positive is forward, negative is backward).
+  virtual void Seek(int n); 
+
+  // Description:
+  // Grab a single video frame.
+  virtual void Grab();
+
+  // Description:
+  // Are we in record mode? (record mode and play mode are mutually
+  // exclusive).
+  vtkGetMacro(Recording,int);
+
+  // Description:
+  // Are we in play mode? (record mode and play mode are mutually
+  // exclusive).
+  vtkGetMacro(Playing,int);
 
   // Description:
   // Set the full-frame size.  This must be an allowed size for the device,
@@ -106,10 +118,15 @@ public:
   // The default is usually 320x240x1, but can be device specific.  
   // The 'depth' should always be 1 (unless you have a device that
   // can handle 3D acquisition).
+  virtual void SetFrameSize(int x, int y, int z);
   virtual void SetFrameSize(int dim[3]) { 
     this->SetFrameSize(dim[0], dim[1], dim[2]); };
-  virtual void SetFrameSize(int x, int y, int z);
   vtkGetVector3Macro(FrameSize,int);
+
+  // Description:
+  // Request a particular frame rate (default 30 frames per second).
+  virtual void SetFrameRate(float rate);
+  vtkGetMacro(FrameRate,float);
 
   // Description:
   // Set the output format.  This must be appropriate for device,
@@ -121,8 +138,8 @@ public:
   vtkGetMacro(OutputFormat,int);
 
   // Description:
-  // Set size of the frame buffer, i.e. the number of frames to
-  // store. 
+  // Set size of the frame buffer, i.e. the number of frames that
+  // the 'tape' can store.
   virtual void SetFrameBufferSize(int FrameBufferSize);
   vtkGetMacro(FrameBufferSize,int);
 
@@ -140,16 +157,6 @@ public:
   vtkBooleanMacro(AutoAdvance,int);
   vtkSetMacro(AutoAdvance,int)
   vtkGetMacro(AutoAdvance,int);
-
-  // Description:
-  // Advance the buffer by one frame or n frames. 
-  virtual void Advance(int n); 
-  virtual void Advance() { this->Advance(-1); };
-
-  // Description:
-  // Rewind the buffer by one frame or n frames.
-  virtual void Rewind(int n) { this->Advance(-n); };
-  virtual void Rewind() { this->Advance(-1); };
 
   // Description:
   // Set the clip rectangle for the frames.  The video will be clipped 
@@ -186,39 +193,45 @@ public:
 
   // Description:
   // For RGBA output only (4 scalar components), set the opacity.  This
-  // will not modify the contents of the framebuffer, only subsequently
-  // grabbed frames.
+  // will not modify the existing contents of the framebuffer, only
+  // subsequently grabbed frames.
   vtkSetMacro(Opacity,float);
   vtkGetMacro(Opacity,float);  
 
   // Description:
-  // Enable a video preview window if supported by driver.
-  vtkSetMacro(Preview,int);
-  vtkBooleanMacro(Preview,int);
-  vtkGetMacro(Preview,int);
+  // Get the number of frames captured since the beginning of the 
+  // last Record session.
+  vtkGetMacro(FrameCount, int);
 
   // Description:
   // Get a time stamp in seconds (resolution of milliseconds) for
-  // a video frame.   Time began on Jan 1, 1970.
+  // a video frame.   Time began on Jan 1, 1970.  You can specify
+  // a number (negative or positive) to specify the position of the
+  // video frame relative to the current frame.
   virtual double GetFrameTimeStamp(int frame);
   virtual double GetFrameTimeStamp() { return this->GetFrameTimeStamp(0); };
 
   // Description:
-  // Set this flag to automatically do a grab on each Update.  This might
-  // be less CPU-intensive than Play() for doing screen animations. 
-  virtual void SetGrabOnUpdate(int yesno);
-  vtkBooleanMacro(GrabOnUpdate,int);
-  vtkGetMacro(GrabOnUpdate,int);
+  // Initialize the hardware.  This is called automatically
+  // on the first Update or Grab.
+  virtual void Initialize();
+
+  // Description:
+  // Release the video driver.  This is called automatically
+  // when the vtkVideoSource is destroyed.
+  virtual void ReleaseSystemResources();
 
   // Description:
   // The internal function which actually does the grab.  You will
   // definitely want to override this if you develop a vtkVideoSource
-  // subclass.
+  // subclass. 
   virtual void InternalGrab();
 
   // Description:
-  // This method returns the largest data that can be generated.
-  void UpdateInformation();
+  // And internal variable which marks the beginning of a Record session.
+  // These methods are for internal use only.
+  void SetStartTimeStamp(double t) { this->StartTimeStamp = t; };
+  double GetStartTimeStamp() { return this->StartTimeStamp; };
 
 protected:
   vtkVideoSource();
@@ -246,16 +259,16 @@ protected:
   int LastNumberOfScalarComponents;
   int LastOutputExtent[6];
 
+  int Recording;
   int Playing;
   float FrameRate;
+  int FrameCount;
+  double StartTimeStamp;
 
   int AutoAdvance;
   int NumberOfOutputFrames;
 
   float Opacity;
-  int Preview;
-
-  int GrabOnUpdate;
 
   // true if Execute() must apply a vertical flip to each frame
   int FlipFrames;
@@ -263,16 +276,12 @@ protected:
   // set if output needs to be cleared to be cleared before being written
   int OutputNeedsInitialization;
 
-  // set if a frame has been grabbed in the 'GrabOnUpdate' hack
-  int FrameGrabbed;
-
   // An example of asynchrony
   vtkMultiThreader *PlayerThreader;
   int PlayerThreadId;
 
   // A mutex for the frame buffer: must be applied when any of the
   // below data is modified.
-
   vtkMutexLock *FrameBufferMutex;
 
   // set according to the needs of the hardware:

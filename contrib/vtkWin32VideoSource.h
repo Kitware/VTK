@@ -63,38 +63,60 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);   
 
   // Description:
-  // See vtkVideoSource
-  void Initialize();
-  void ReleaseSystemResources();
+  // Standard VCR functionality: Record incoming video.
+  void Record();
 
-  void Grab(int n);
-  void Grab() { this->Grab(1); };
+  // Description:
+  // Standard VCR functionality: Play recorded video.
   void Play();
+
+  // Description:
+  // Standard VCR functionality: Stop recording or playing.
   void Stop();
 
+  // Description:
+  // Grab a single video frame.
+  void Grab();
+ 
+  // Description:
+  // Request a particular frame size (set the third value to 1).
   void SetFrameSize(int x, int y, int z);
   
+  // Description:
+  // Request a particular frame rate (default 30 frames per second).
   void SetFrameRate(float rate);
 
+  // Description:
+  // Request a particular output format (default: VTK_RGB).
   void SetOutputFormat(int format);
 
   // Description:
-  // turn on/off the preview window
+  // Turn on/off the preview (overlay) window.
   void SetPreview(int p);
+  vtkBooleanMacro(Preview,int);
+  vtkGetMacro(Preview,int);
 
   // Description:
-  // bring up a modal dialog box for video format selection
+  // Bring up a modal dialog box for video format selection.
   void VideoFormatDialog();
 
   // Description:
-  // bring up a modal dialog box for video input selection 
+  // Bring up a modal dialog box for video input selection.
   void VideoSourceDialog();
+
+  // Description:
+  // Initialize the driver (this is called automatically when the
+  // first grab is done).
+  void Initialize();
+
+  // Description:
+  // Free the driver (this is called automatically inside the
+  // destructor).
+  void ReleaseSystemResources();
 
   // Description:
   // For internal use only
   void InternalGrab(LPVIDEOHDR VideoHdrPtr);
-  void SetBeginTimeStamp(double t) { this->BeginTimeStamp = t; };
-  double GetBeginTimeStamp() { return this->BeginTimeStamp; };
 
 protected:
   vtkWin32VideoSource();
@@ -111,9 +133,9 @@ protected:
   LPBITMAPINFO BitMapPtr;
   int BitMapSize;
 
-  int FatalVFWError;
+  int Preview;
 
-  double BeginTimeStamp;
+  int FatalVFWError;
 
   void CheckBuffer();
   void UnpackRasterLine(char *outptr, char *inptr, 

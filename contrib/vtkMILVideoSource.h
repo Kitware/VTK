@@ -86,16 +86,27 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);   
 
   // Description:
-  // See vtkVideoSource
-  void Initialize();
-  void ReleaseSystemResources();
+  // Standard VCR functionality: Record incoming video.
+  void Record();
 
-  void Grab(int n);
-  void Grab() { this->Grab(1); };
+  // Description:
+  // Standard VCR functionality: Play recorded video.
   void Play();
+
+  // Description:
+  // Standard VCR functionality: Stop recording or playing.
   void Stop();
 
+  // Description:
+  // Grab a single video frame.
+  void Grab();
+ 
+  // Description:
+  // Request a particular frame size (set the third value to 1).
   void SetFrameSize(int x, int y, int z);
+  
+  // Description:
+  // Request a particular output format (default: VTK_RGB).
   void SetOutputFormat(int format);
 
   // Description:
@@ -181,6 +192,16 @@ public:
   vtkGetMacro(MILSysID,long);
   vtkGetMacro(MILDigID,long);
   vtkGetMacro(MILBufID,long);
+
+  // Description:
+  // Initialize the driver (this is called automatically when the
+  // first grab is done).
+  void Initialize();
+
+  // Description:
+  // Free the driver (this is called automatically inside the
+  // destructor).
+  void ReleaseSystemResources();
 
   // Description:
   // For internal use only

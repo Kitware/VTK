@@ -67,7 +67,9 @@ vtkWin32VideoSource::vtkWin32VideoSource()
   this->Initialized = 0;
 
   this->FrameRate = 30;
-
+  this->OutputFormat = VTK_RGB;
+  this->NumberOfScalarComponents = 3;
+  this->FrameBufferBitsPerPixel = 24;
   this->FlipFrames = 0;
   this->FrameBufferRowAlignment = 4;
 
@@ -75,10 +77,11 @@ vtkWin32VideoSource::vtkWin32VideoSource()
   this->ParentWnd = NULL;
   this->BitMapSize = 0;
   this->BitMapPtr = NULL;
+  this->WndClassName[0] = '\0';
+
+  this->Preview = 0;
 
   this->FatalVFWError = 0;
-
-  this->BeginTimeStamp = 0.0;
 }
 
 //----------------------------------------------------------------------------
@@ -98,6 +101,8 @@ vtkWin32VideoSource::~vtkWin32VideoSource()
 void vtkWin32VideoSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkVideoSource::PrintSelf(os,indent);
+
+  os << indent << "Preview: " << (this->Preview ? "On\n" : "Off\n");
 }
 
 //----------------------------------------------------------------------------
@@ -152,7 +157,7 @@ LRESULT PASCAL vtkWin32VideoSourceStatusCallbackProc(HWND hwndC, int nID,
 
   if (nID == IDS_CAP_BEGIN)
     {
-    self->SetBeginTimeStamp(vtkTimerLog::GetCurrentTime());
+    self->SetStartTimeStamp(vtkTimerLog::GetCurrentTime());
     //cerr << "start of capture\n";
     }
 
@@ -411,23 +416,30 @@ void vtkWin32VideoSource::SetPreview(int p)
 //----------------------------------------------------------------------------
 void vtkWin32VideoSource::ReleaseSystemResources()
 {
-  if (this->Playing)
+  if (this->Playing || this->Recording)
     {
     this->Stop();
     }  
 
   if (this->CapWnd)
     {
+    //MessageBox(this->ParentWnd, "capDriverDisconnect(this->CapWnd)", "", MB_OK | MB_ICONEXCLAMATION);
     capDriverDisconnect(this->CapWnd);
+    //MessageBox(this->ParentWnd, "DestroyWindow(this->CapWnd)", "", MB_OK | MB_ICONEXCLAMATION);
     DestroyWindow(this->CapWnd);
     this->CapWnd = NULL;
     }
   if (this->ParentWnd)
     {
+    //MessageBox(this->ParentWnd, "DestroyWindow(this->ParentWnd)", "", MB_OK | MB_ICONEXCLAMATION);
     DestroyWindow(this->ParentWnd);
     this->ParentWnd = NULL;
     }
-  UnregisterClass(this->WndClassName,GetModuleHandle(NULL));
+  if (this->WndClassName[0] != '\0')
+    {
+    UnregisterClass(this->WndClassName,GetModuleHandle(NULL));
+    this->WndClassName[0] = '\0';
+    }
 
   this->FatalVFWError = 1;
   this->Initialized = 0;
@@ -460,7 +472,8 @@ void vtkWin32VideoSource::InternalGrab(LPVIDEOHDR lpVHdr)
 
   int index = this->FrameBufferIndex;
   
-  this->FrameBufferTimeStamps[index] = this->GetBeginTimeStamp() + \
+  this->FrameCount++;
+  this->FrameBufferTimeStamps[index] = this->StartTimeStamp + \
                                        0.001 * lpVHdr->dwTimeCaptured;
 
   unsigned char *ptr = (unsigned char *)
@@ -511,15 +524,9 @@ void vtkWin32VideoSource::InternalGrab(LPVIDEOHDR lpVHdr)
 }
 
 //----------------------------------------------------------------------------
-void vtkWin32VideoSource::Grab(int numFrames)
+void vtkWin32VideoSource::Grab()
 {
-  if (numFrames > this->FrameBufferSize || numFrames < 1)
-    {
-    vtkErrorMacro(<< "Grab: # of frames must be at least 1");
-    return;
-    }
-
-  if (this->Playing)
+  if (this->Recording)
     {
     return;
     }
@@ -531,16 +538,12 @@ void vtkWin32VideoSource::Grab(int numFrames)
     return;
     }
 
-  // just do the grabs, the callback does the rest
-  int f;
-  for (f = 0; f < numFrames; f++) 
-    {
-    capGrabFrameNoStop(this->CapWnd);
-    }
+  // just do the grab, the callback does the rest
+  capGrabFrameNoStop(this->CapWnd);
 }
 
 //----------------------------------------------------------------------------
-void vtkWin32VideoSource::Play()
+void vtkWin32VideoSource::Record()
 {
   this->Initialize();
   if (!this->Initialized)
@@ -548,23 +551,38 @@ void vtkWin32VideoSource::Play()
     return;
     }
 
-  if (!this->Playing)
+  if (this->Playing)
     {
-    this->Playing = 1;
+    this->Stop();
+    }
+
+  if (!this->Recording)
+    {
+    this->Recording = 1;
     this->Modified();
     capCaptureSequenceNoFile(this->CapWnd);
     }
 }
     
 //----------------------------------------------------------------------------
+void vtkWin32VideoSource::Play()
+{
+  this->vtkVideoSource::Play();
+}
+    
+//----------------------------------------------------------------------------
 void vtkWin32VideoSource::Stop()
 {
-  if (this->Playing)
+  if (this->Recording)
     {
-    this->Playing = 0;
+    this->Recording = 0;
     this->Modified();
 
     capCaptureStop(this->CapWnd);
+    }
+  else if (this->Playing)
+    {
+    this->vtkVideoSource::Stop();
     }
 }
 
@@ -1037,8 +1055,9 @@ void vtkWin32VideoSource::DoVFWFormatCheck()
 	  {
 	  this->OutputFormat = VTK_RGB;
 	  this->NumberOfScalarComponents = 3;
-	  }	  
+	  }
 	break;
+      case 24:
       case 32:
 	if (this->OutputFormat != VTK_RGBA)
 	  {

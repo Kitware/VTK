@@ -444,12 +444,12 @@ void vtkMILVideoSource::ReleaseSystemResources()
 {
   if (this->MILDigID)
     {
-    if (this->Playing)
+    if (this->Recording)
       {
       MdigHalt(this->MILDigID);
       }
     MdigGrabWait(this->MILDigID,M_GRAB_END);
-    this->Playing = 0;
+    this->Recording = 0;
     }
   /*
   if (this->MILDispID != 0)
@@ -541,6 +541,10 @@ void vtkMILVideoSource::InternalGrab()
   int index = this->FrameBufferIndex;
 
   this->FrameBufferTimeStamps[index] = vtkTimerLog::GetCurrentTime();
+  if (this->FrameCount++ == 0)
+    {
+    this->StartTimeStamp = this->FrameBufferTimeStamps[index];
+    }
 
   void *ptr = ((vtkScalars *)this->FrameBuffer[index])->GetVoidPointer(0);
   int depth = this->FrameBufferBitsPerPixel/8;
@@ -580,13 +584,8 @@ void vtkMILVideoSource::InternalGrab()
 // This particular implementation just copies random noise into the frames,
 // you will certainly want to override this method (also note that this
 // is the only method which you really have to override)
-void vtkMILVideoSource::Grab(int numFrames)
+void vtkMILVideoSource::Grab()
 {
-  if (numFrames > this->FrameBufferSize || numFrames < 1)
-    {
-    vtkErrorMacro(<< "Grab: # of frames must be at least 1");
-    }
-
   // ensure that the hardware is initialized.
   this->Initialize();
   if (!this->Initialized)
@@ -594,24 +593,26 @@ void vtkMILVideoSource::Grab(int numFrames)
     return;
     }
 
-  int f;
-  for (f = 0; f < numFrames; f++) 
+  if (!this->Recording)
     {
-    if (!this->Playing)
-      {
-      MdigGrab(this->MILDigID,this->MILBufID);
-      MdigGrabWait(this->MILDigID,M_GRAB_END);
-      this->InternalGrab();
-      }
-    else
-      {
-      this->ForceGrab = 1;
-      }
+    MdigGrab(this->MILDigID,this->MILBufID);
+    MdigGrabWait(this->MILDigID,M_GRAB_END);
+    this->InternalGrab();
+    }
+  else
+    {
+    this->ForceGrab = 1;
     }
 }
 
 //----------------------------------------------------------------------------
 void vtkMILVideoSource::Play()
+{
+  vtkVideoSource::Play();
+}
+
+//----------------------------------------------------------------------------
+void vtkMILVideoSource::Record()
 {
   this->Initialize();
   if (!this->Initialized)
@@ -621,10 +622,16 @@ void vtkMILVideoSource::Play()
 
   if (this->Playing)
     {
+    this->Stop();
+    }
+
+  if (this->Recording)
+    {
     return;
     }
 
-  this->Playing = 1;
+  this->Recording = 1;
+  this->FrameCount = 0;
 
   MdigInquire(this->MILDigID,M_GRAB_FRAME_END_HANDLER_PTR,
 	      &this->OldHookFunction);
@@ -645,12 +652,17 @@ void vtkMILVideoSource::Play()
 //----------------------------------------------------------------------------
 void vtkMILVideoSource::Stop()
 {
-  if (!this->Playing)
+  if (this->Playing)
+    {
+    vtkVideoSource::Stop();
+    }
+
+  if (!this->Recording)
     {
     return;
     }
 
-  this->Playing = 0;
+  this->Recording = 0;
 
   MdigHalt(this->MILDigID);
   MdigHookFunction(this->MILDigID,M_GRAB_FRAME_END,
@@ -898,11 +910,11 @@ void vtkMILVideoSource::SetSaturationLevel(float saturation)
 void vtkMILVideoSource::AllocateMILDigitizer()
 {
   char *format = "M_NTSC";
-  int playing = this->Playing;
+  int recording = this->Recording;
 
   if (this->MILDigID)
     {
-    if (playing)
+    if (recording)
       {
       this->Stop();
       }
@@ -1005,9 +1017,9 @@ void vtkMILVideoSource::AllocateMILDigitizer()
 
   if (this->MILDigID && this->MILBufID)
     {
-    if (playing)
+    if (recording)
       {
-      this->Play();
+      this->Record();
       }
     }
 }
@@ -1015,11 +1027,11 @@ void vtkMILVideoSource::AllocateMILDigitizer()
 //----------------------------------------------------------------------------
 void vtkMILVideoSource::AllocateMILBuffer()
 {
-  int playing = this->Playing;
+  int recording = this->Recording;
 
   if (this->MILDigID != 0)
     {
-    if (playing)
+    if (recording)
       {
       this->Stop();
       }
@@ -1069,9 +1081,9 @@ void vtkMILVideoSource::AllocateMILBuffer()
 
   if (this->MILDigID != 0 && this->MILBufID != 0)
     {
-    if (playing)
+    if (recording)
       {
-      this->Play();
+      this->Record();
       }
     }
 }
