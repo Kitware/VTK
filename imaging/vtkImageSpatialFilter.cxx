@@ -108,7 +108,7 @@ void vtkImageSpatialFilter::ExecuteImageInformation()
 //----------------------------------------------------------------------------
 // Description:
 // A helper method to compute output image extent
-void vtkImageSpatialFilter::ComputeOutputWholeExtent(int *extent, 
+void vtkImageSpatialFilter::ComputeOutputWholeExtent(int extent[6], 
 						     int handleBoundaries)
 {
   int idx;
@@ -133,8 +133,8 @@ void vtkImageSpatialFilter::ComputeOutputWholeExtent(int *extent,
 // an output region.  Before this method is called "region" should have the 
 // extent of the output region.  After this method finishes, "region" should 
 // have the extent of the required input region.
-void vtkImageSpatialFilter::ComputeRequiredInputUpdateExtent(int *extent, 
-							     int *inExtent)
+void vtkImageSpatialFilter::ComputeRequiredInputUpdateExtent(int extent[6], 
+							     int inExtent[6])
 {
   int idx;
   int *wholeExtent;

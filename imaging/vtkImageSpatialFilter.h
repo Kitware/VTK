@@ -73,8 +73,8 @@ public:
 protected:
   
   void ExecuteImageInformation();
-  void ComputeOutputWholeExtent(int *extent, int handleBoundaries);
-  void ComputeRequiredInputUpdateExtent(int *extent, int *wholeExtent);
+  void ComputeOutputWholeExtent(int extent[6], int handleBoundaries);
+  void ComputeRequiredInputUpdateExtent(int extent[6], int wholeExtent[6]);
 
 };
 
