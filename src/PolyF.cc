@@ -26,10 +26,10 @@ void vlPolyFilter::Update()
 
   if (this->Input->GetMTime() > this->GetMTime() || this->GetMTime() > this->ExecuteTime )
     {
-    if ( this->StartMethod ) (*this->StartMethod)();
+    if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
     this->Execute();
     this->ExecuteTime.Modified();
-    if ( this->EndMethod ) (*this->EndMethod)();
+    if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
     }
 }
 

@@ -15,20 +15,32 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "Filter.hh"
 
-void vlFilter::SetStartMethod(void (*f)())
+vlFilter::vlFilter()
 {
-  if ( f != this->StartMethod )
+  this->StartMethod = NULL;
+  this->StartMethodArg = NULL;
+  this->EndMethod = NULL;
+  this->EndMethodArg = NULL;
+
+  this->Updating = 0;
+}
+
+void vlFilter::SetStartMethod(void (*f)(void *), void *arg)
+{
+  if ( f != this->StartMethod || arg != this->StartMethodArg )
     {
     this->StartMethod = f;
+    this->StartMethodArg = arg;
     this->Modified();
     }
 }
 
-void vlFilter::SetEndMethod(void (*f)())
+void vlFilter::SetEndMethod(void (*f)(void *), void *arg)
 {
-  if ( f != this->EndMethod )
+  if ( f != this->EndMethod || arg != this->EndMethodArg )
     {
     this->EndMethod = f;
+    this->EndMethodArg = arg;
     this->Modified();
     }
 }
