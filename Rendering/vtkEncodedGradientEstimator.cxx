@@ -16,12 +16,16 @@
 
 =========================================================================*/
 #include "vtkEncodedGradientEstimator.h"
+
 #include "vtkRecursiveSphereDirectionEncoder.h"
 #include "vtkTimerLog.h"
+#include "vtkImageData.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkEncodedGradientEstimator, "1.30");
+vtkCxxRevisionMacro(vtkEncodedGradientEstimator, "1.31");
+
+vtkCxxSetObjectMacro(vtkEncodedGradientEstimator, Input, vtkImageData );
 
 // Construct a vtkEncodedGradientEstimator with initial values of NULL for
 // the Input, EncodedNormal, and GradientMagnitude. Also,

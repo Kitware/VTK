@@ -16,21 +16,24 @@
 
 =========================================================================*/
 #include "vtkFiniteDifferenceGradientEstimator.h"
+
 #include "vtkCharArray.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkShortArray.h"
-#include "vtkUnsignedShortArray.h"
-#include "vtkIntArray.h"
-#include "vtkUnsignedIntArray.h"
-#include "vtkLongArray.h"
-#include "vtkUnsignedLongArray.h"
-#include "vtkFloatArray.h"
+#include "vtkDirectionEncoder.h"
 #include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
+#include "vtkImageData.h"
+#include "vtkIntArray.h"
+#include "vtkLongArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkShortArray.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkUnsignedIntArray.h"
+#include "vtkUnsignedLongArray.h"
+#include "vtkUnsignedShortArray.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFiniteDifferenceGradientEstimator, "1.31");
+vtkCxxRevisionMacro(vtkFiniteDifferenceGradientEstimator, "1.32");
 vtkStandardNewMacro(vtkFiniteDifferenceGradientEstimator);
 
 // This is the templated function that actually computes the EncodedNormal

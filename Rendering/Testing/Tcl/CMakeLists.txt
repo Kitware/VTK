@@ -56,8 +56,6 @@ ADD_TEST(TestSetObjectMacro-Rendering ${TCL_TCLSH}
          ${VTK_SOURCE_DIR}/Common/Testing/Tcl/FindString.tcl
          "${VTK_SOURCE_DIR}/Rendering/vtk\\\\*.h"
          "vtkSetObjectMacro"
-         ${VTK_SOURCE_DIR}/Rendering/vtkAbstractPropPicker.h
-         ${VTK_SOURCE_DIR}/Rendering/vtkEncodedGradientEstimator.h
          ${VTK_SOURCE_DIR}/Rendering/vtkExporter.h
          ${VTK_SOURCE_DIR}/Rendering/vtkFollower.h
          ${VTK_SOURCE_DIR}/Rendering/vtkImporter.h
