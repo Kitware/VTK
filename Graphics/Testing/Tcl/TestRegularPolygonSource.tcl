@@ -36,7 +36,6 @@ polygonActor SetMapper polygonMapper
 [polygonActor GetProperty] SetColor 1 0 0
 [polygonActor GetProperty] SetAmbient 1
 
-
 # Create the RenderWindow, Renderer and both Actors
 #
 vtkRenderer ren1
@@ -52,15 +51,6 @@ ren1 AddActor polygonActor
 
 ren1 SetBackground 0 0 0
 renWin SetSize 200 200
-
-vtkCamera camera
-camera SetClippingRange 2.33313 10.7185
-camera SetFocalPoint 1.991 0.995479 1.00426
-camera SetPosition -1.37536 3.76441 -3.17546
-camera SetViewAngle 30
-camera SetViewUp -0.301807 0.664711 0.683427
-
-ren1 SetActiveCamera camera
 renWin Render
 
 iren AddObserver UserEvent {wm deiconify .vtkInteract}
