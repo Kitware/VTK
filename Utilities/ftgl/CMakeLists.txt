@@ -72,7 +72,17 @@ IF (BUILD_EXAMPLES)
     LINK_LIBRARIES (${GLUT_LIBRARY})
 
     IF (VTK_USE_X)
-      LINK_LIBRARIES(-lXt -lXmu)
+      LINK_LIBRARIES (-lXt)
+      FIND_LIBRARY (XMU_LIBRARY Xmu
+        /usr/lib 
+        /usr/local/lib 
+        /opt/graphics/OpenGL/lib 
+        /usr/openwin/lib 
+        /usr/X11R6/lib
+      )
+      IF (XMU_LIBRARY)
+        LINK_LIBRARIES (-lXmu)
+      ENDIF (XMU_LIBRARY)
       LINK_LIBRARIES(${CMAKE_X_LIBS})
     ENDIF (VTK_USE_X)
 
