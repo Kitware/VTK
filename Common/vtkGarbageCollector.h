@@ -78,8 +78,7 @@
 
 #include "vtkObject.h"
 
-class vtkGarbageCollectorQueue;
-class vtkGarbageCollectorQueued;
+class vtkGarbageCollectorInternals;
 
 class VTK_COMMON_EXPORT vtkGarbageCollector : public vtkObject
 {
@@ -102,11 +101,8 @@ public:
   void ReportReference(vtkObjectBase*, const char*);
 
 protected:
-  vtkGarbageCollector(vtkGarbageCollectorQueue*,
-                      vtkGarbageCollectorQueued*);
+  vtkGarbageCollector(vtkGarbageCollectorInternals*);
   ~vtkGarbageCollector();
-
-  void CheckReferenceLoops(vtkObjectBase* root);
 
   // Description:
   // Prevent normal vtkObject reference counting behavior.
@@ -116,17 +112,22 @@ protected:
   // Prevent normal vtkObject reference counting behavior.
   virtual void UnRegister(vtkObjectBase*);
 
-  // The set of objects that have been queued during the BFS.
-  vtkGarbageCollectorQueued* Queued;
+  // Forward call to given object.
+  void ReportReferences(vtkObjectBase*);
+  static void RemoveReferences(vtkObjectBase*);
+  static void GarbageCollectionStarting(vtkObjectBase*);
+  static void GarbageCollectionFinishing(vtkObjectBase*);
 
-  // The queue of objects to be processed in the BFS.
-  vtkGarbageCollectorQueue* Queue;
+  // Forward call to the internal implementation.
+  void CheckReferenceLoops(vtkObjectBase* root);
 
-  // The net reference count of the objects explored by the BFS.
-  int NetCount;
+private:
+  // Internal implementation details.
+  vtkGarbageCollectorInternals* Internal;
 
-  // The object currently being explored.
-  vtkObjectBase* Current;
+  //BTX
+  friend class vtkGarbageCollectorInternals;
+  //ETX
 private:
   vtkGarbageCollector(const vtkGarbageCollector&);  // Not implemented.
   void operator=(const vtkGarbageCollector&);  // Not implemented.

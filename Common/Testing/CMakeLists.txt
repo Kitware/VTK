@@ -28,6 +28,7 @@ IF(PYTHON_EXECUTABLE)
            vtkDebugLeaksManager.h
            vtkDynamicLoader.h
            vtkErrorCode.h
+           vtkGarbageCollector.h
            vtkHashMap.h
            vtkHashMapIterator.h
            vtkIdListCollection.h
