@@ -610,7 +610,6 @@ void vtkQuad::Derivatives(int vtkNotUsed(subId), float pcoords[3],
   double *J[2], J0[2], J1[2];
   double *JI[2], JI0[2], JI1[2];
   float funcDerivs[8], sum[2], dBydx, dBydy;
-  float idet;
   int i, j;
 
   // Project points of quad into 2D system
