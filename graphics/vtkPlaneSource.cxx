@@ -224,6 +224,7 @@ void vtkPlaneSource::SetNormal(float N[3])
   transform.GetPoint(p);
   for (i=0; i < 3; i++) this->Point2[i] = p[i] / p[3];
 
+  for (i=0; i < 3; i++) this->Normal[i] = n[i];
   this->Modified();
 }
 
