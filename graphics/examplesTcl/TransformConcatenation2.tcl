@@ -12,9 +12,9 @@ if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdat
 # the others
 
 
-# set up a dummy vtkLinearTransform namespace 
-# (yes, this is a hack, but it works nicely)
-vtkIdentityTransform vtkLinearTransform
+# set up a dummy vtkLinearTransformConcatenation namespace
+# (this is a hack - I wish the wrappers would do static functions properly)
+vtkLinearTransformConcatenation vtkLinearConcatenation
 
 # create a rendering window and renderer
 vtkRenderer ren1
@@ -53,7 +53,7 @@ t2t Translate 0 1.6 0
 vtkTransform t2r
 
 # concatenate with initial transform
-set t2 [vtkLinearTransform Concatenate t1 t2t t2r]
+set t2 [vtkLinearConcatenation Concatenate t1 t2t t2r]
 
 vtkDataSetMapper m2
 m2 SetInput [c2 GetOutput]
@@ -77,7 +77,7 @@ t3t Translate 0 1.6 0
 vtkTransform t3r
 
 # concatenate with previous segment
-set t3 [vtkLinearTransform Concatenate $t2 t3t t3r]
+set t3 [vtkLinearConcatenation Concatenate $t2 t3t t3r]
 
 vtkDataSetMapper m3
 m3 SetInput [c3 GetOutput]
