@@ -56,7 +56,7 @@
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkUnstructuredGridLinearRayIntegrator, "1.5");
+vtkCxxRevisionMacro(vtkUnstructuredGridLinearRayIntegrator, "1.6");
 vtkStandardNewMacro(vtkUnstructuredGridLinearRayIntegrator);
 
 vtkUnstructuredGridLinearRayIntegrator::vtkUnstructuredGridLinearRayIntegrator()
@@ -66,6 +66,8 @@ vtkUnstructuredGridLinearRayIntegrator::vtkUnstructuredGridLinearRayIntegrator()
   this->NumIndependentComponents = 0;
 }
 
+//-----------------------------------------------------------------------------
+
 vtkUnstructuredGridLinearRayIntegrator::~vtkUnstructuredGridLinearRayIntegrator()
 {
   for (int c = 0; c < this->NumIndependentComponents; c++)
@@ -74,6 +76,8 @@ vtkUnstructuredGridLinearRayIntegrator::~vtkUnstructuredGridLinearRayIntegrator(
     }
   delete[] this->ControlPoints;
 }
+
+//-----------------------------------------------------------------------------
 
 void vtkUnstructuredGridLinearRayIntegrator::PrintSelf(ostream &os,
                                                        vtkIndent indent)
@@ -298,6 +302,8 @@ void vtkUnstructuredGridLinearRayIntegrator::Integrate(
         nearInterpolant = farInterpolant;
         }
       }
+      delete[] nearScalars;
+      delete[] farScalars;
     }
   else
     {
