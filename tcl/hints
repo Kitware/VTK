@@ -47,6 +47,8 @@ vtkStructuredPoints	GetPoint	301 3
 vtkStreamer		GetStartPosition	301 3
 vtkTCoords		GetTCoord	301 3
 vtkTransform		GetOrientation	301 3
+vtkTransform		GetPosition	301 3
+vtkTransform		GetScale	301 3
 vtkTransform		GetPoint	301 3
 vtkVectors		GetVector 	301 3
 vtkVolume		GetBounds	301 6
