@@ -1,6 +1,11 @@
 #ifndef    __FTGL__
 #define    __FTGL__
 
+#if defined(VTKFTGL)
+#include "vtkfreetypeConfig.h"
+#include "vtkftglConfig.h"
+#endif
+
 // To include debug memory manager by Paul Nettle (midnight@FluidStudios.com)
 // http://www.FluidStudios.com/publications.html
 // Get this code and use it. It will open your eyes:)

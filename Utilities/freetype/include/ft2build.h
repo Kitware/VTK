@@ -33,6 +33,10 @@
 
 #include <freetype/config/ftheader.h>
 
+#if defined(VTKFREETYPE)
+#include "vtkfreetypeConfig.h"
+#endif
+
 #endif /* __FT2_BUILD_GENERIC_H__ */
 
 

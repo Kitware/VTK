@@ -19,3 +19,15 @@ src\base\ftmac.c:
 #else
 [...]
 #endif
+
+src\raster\ftrend1.c:
+  replaced:
+   pitch = ( ( width + 15 ) >> 4 ) << 1;
+  by the old code:
+   pitch = ( width + 7 ) >> 3;
+
+include\ft2build.h:
+  added:
+#if defined(VTKFREETYPE)
+#include "vtkfreetypeConfig.h"
+#endif

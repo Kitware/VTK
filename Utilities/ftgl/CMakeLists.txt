@@ -10,18 +10,15 @@ INCLUDE_REGULAR_EXPRESSION(".*")
 #
 INCLUDE_DIRECTORIES (
   ${VTKFTGL_SOURCE_DIR}/src
-  ${VTK_SOURCE_DIR}/Utilities/freetype/include
+  ${VTKFTGL_BINARY_DIR}
+  ${VTKFREETYPE_SOURCE_DIR}/include
+  ${VTKFREETYPE_BINARY_DIR}
 )
 
 #
 # Do not use the STL (portability issue)
 #
-SET (FTGL_FLAGS_TEMP "-DFTGL_DO_NOT_USE_STL")
-
-#
-# Do not use texture fonts (crash on Type1 fonts)
-#
-SET (FTGL_FLAGS_TEMP "${FTGL_FLAGS_TEMP} -DFTGL_DO_NOT_USE_TEXTURE_FONT")
+SET (VTKFTGL_DO_NOT_USE_STL 1)
 
 #
 # Source files
@@ -33,24 +30,30 @@ SOURCE_FILES (FTGL_SRCS
   src/FTFont.cpp
   src/FTGLBitmapFont.cpp
   src/FTGLPixmapFont.cpp
-  src/FTGLTextureFont.cpp
   src/FTGlyph.cpp
   src/FTGlyphContainer.cpp
   src/FTLibrary.cpp
   src/FTPixmapGlyph.cpp
   src/FTSize.cpp
-  src/FTTextureGlyph.cpp
 )
+
+#
+# Do not use texture fonts (crash on Type1 fonts)
+#
+SET (VTKFTGL_DO_NOT_USE_TEXTURE_FONT 1)
+IF (NOT VTKFTGL_DO_NOT_USE_TEXTURE_FONT)
+  SOURCE_FILES (FTGL_SRCS
+    src/FTGLTextureFont.cpp
+    src/FTTextureGlyph.cpp
+  )
+ENDIF (NOT VTKFTGL_DO_NOT_USE_TEXTURE_FONT)
 
 #
 # Do not use vector fonts (we only need pixmap and bitmaps and vector fonts
 # needs glu). Might be an option at some point, but set it to 'true' for now.
 #
-SET (FTGL_DO_NOT_USE_VECTORISER 1)
-
-IF (FTGL_DO_NOT_USE_VECTORISER)
-  SET (FTGL_FLAGS_TEMP "${FTGL_FLAGS_TEMP} -DFTGL_DO_NOT_USE_VECTORISER")
-ELSE (FTGL_DO_NOT_USE_VECTORISER)
+SET (VTKFTGL_DO_NOT_USE_VECTORISER 1)
+IF (NOT VTKFTGL_DO_NOT_USE_VECTORISER)
   SOURCE_FILES (FTGL_SRCS
     src/FTExtrdGlyph.cpp
     src/FTGLExtrdFont.cpp
@@ -65,22 +68,22 @@ ELSE (FTGL_DO_NOT_USE_VECTORISER)
     INCLUDE_DIRECTORIES (${GLU_INCLUDE_PATH})
   ENDIF (GLU_INCLUDE_PATH)
   LINK_LIBRARIES (${GLU_LIBRARY})
-ENDIF (FTGL_DO_NOT_USE_VECTORISER)
+ENDIF (NOT VTKFTGL_DO_NOT_USE_VECTORISER)
 
 #
 # Shared/static lib settings)
 #
 IF (BUILD_SHARED_LIBS)
-  ADD_DEFINITIONS(-DFTGL_LIBRARY)
+  SET (VTKFTGL_DLL 1)
 ELSE (BUILD_SHARED_LIBS)
-  ADD_DEFINITIONS(-DFTGL_LIBRARY_STATIC)
+  SET (VTKFTGL_STATIC 1)
 ENDIF (BUILD_SHARED_LIBS)
 
 #
 # Win32 flags (and shared/static lib settings)
 #
 IF (WIN32)
-  SET (FTGL_FLAGS_TEMP "${FTGL_FLAGS_TEMP} -DUSE_STD_NAMESPACE -DWIN32")
+  SET (VTKFTGL_WIN32_FLAGS 1) # -DUSE_STD_NAMESPACE and -DWIN32
 ENDIF (WIN32)
 
 #
@@ -88,7 +91,7 @@ ENDIF (WIN32)
 #
 IF (UNIX)
   # IF(CMAKE_SYSTEM MATCHES "HP-UX.*")
-  SET (FTGL_FLAGS_TEMP "${FTGL_FLAGS_TEMP} -D_HPUX_SOURCE")
+  SET (VTKFTGL_HPUX_SOURCE 1)
   # ENDIF(CMAKE_SYSTEM MATCHES "HP-UX.*")
 ENDIF (UNIX)
 
@@ -96,8 +99,8 @@ ENDIF (UNIX)
 # Apple flags
 #
 IF (APPLE)
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated -fpascal-strings")
-  SET(CMAKE_CXX_SHLIB_LINK_FLAGS 
+  SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated -fpascal-strings")
+  SET (CMAKE_CXX_SHLIB_LINK_FLAGS 
   "${CMAKE_CXX_SHLIB_LINK_FLAGS} -multiply_defined suppress -framework Carbon")
 ENDIF (APPLE)
 
@@ -111,15 +114,8 @@ ENDIF (OPENGL_INCLUDE_PATH)
 LINK_LIBRARIES (${OPENGL_LIBRARY})
 
 #
-# FTGL Flags (will be used later in Rendering)
-#
-SET (FTGL_FLAGS "${FTGL_FLAGS_TEMP}" CACHE STRING "FTGL flags.")
-MARK_AS_ADVANCED (FTGL_FLAGS)
-
-#
 # Define the library (and install it)
 #
-ADD_DEFINITIONS(${FTGL_FLAGS})
 ADD_LIBRARY (vtkftgl FTGL_SRCS)
 TARGET_LINK_LIBRARIES(vtkftgl
   vtkfreetype
@@ -131,6 +127,13 @@ INSTALL_TARGETS (/lib/vtk vtkftgl)
 #
 CONFIGURE_FILE (${VTKFTGL_SOURCE_DIR}/.NoDartCoverage
                 ${VTKFTGL_BINARY_DIR}/.NoDartCoverage)
+
+#
+# Create the configuration file
+#
+ADD_DEFINITIONS (-DVTKFTGL)
+CONFIGURE_FILE(${VTKFTGL_SOURCE_DIR}/vtkftglConfig.h.in
+               ${VTKFTGL_BINARY_DIR}/vtkftglConfig.h)
 
 #
 # Build examples (testing purposes)
@@ -175,8 +178,8 @@ IF (FTGL_BUILD_EXAMPLES)
       # - Avoid the glutCreateMenu_ATEXIT_HACK pb.
       # - Sort-of a hack to avoid the bug in glut.h to avoid
       #   ambiguity between 'std::exit(int)' and 'std::exit(int)' in function
-      ADD_DEFINITIONS("-DGLUT_DISABLE_ATEXIT_HACK")
-      ADD_DEFINITIONS("-DGLUT_BUILDING_LIB")
+      ADD_DEFINITIONS (-DGLUT_DISABLE_ATEXIT_HACK)
+      ADD_DEFINITIONS (-DGLUT_BUILDING_LIB)
 	ENDIF (WIN32)
 
     #

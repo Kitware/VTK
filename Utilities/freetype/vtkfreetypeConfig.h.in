@@ -1,0 +1,26 @@
+#ifndef _freetypeConfig_h
+#define _freetypeConfig_h
+
+/* 
+   Static or shared lib flags
+*/
+#cmakedefine VTKFREETYPE_DLL
+#cmakedefine VTKFREETYPE_STATIC
+
+/* 
+   HPUX workaround
+*/
+#cmakedefine VTKFREETYPE_HPUX_SOURCE
+#if defined(VTKFREETYPE_HPUX_SOURCE) && !defined(_HPUX_SOURCE)
+#define _HPUX_SOURCE
+#endif
+
+/* 
+   Carbon framework
+*/
+#cmakedefine VTKFREETYPE_TARGET_API_MAC_CARBON
+#if defined(VTKFREETYPE_TARGET_API_MAC_CARBON) && !defined(TARGET_API_MAC_CARBON)
+#define TARGET_API_MAC_CARBON
+#endif
+
+#endif

@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h> // exit()
 
+#include "FTGL.h"
+
 #ifdef __APPLE_CC__
   #include <GLUT/glut.h>
 #else
