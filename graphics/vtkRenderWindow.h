@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // VRex projector, or the eye will be swapped.
 
 // .SECTION see also
-// vtkRenderer vtkRenderMaster vtkRenderWindowInteractor
+// vtkRenderer vtkRenderWindowInteractor
 
 #ifndef __vtkRenderWindow_h
 #define __vtkRenderWindow_h
