@@ -82,6 +82,9 @@ vtkMergeFilter::~vtkMergeFilter()
   this->StructuredGrid->Delete();
   this->UnstructuredGrid->Delete();
   this->RectilinearGrid->Delete();
+  // Output should only be one of the above. We set it to NULL
+  // so that we don't free it twice
+  this->Output = NULL;
 }
 
 void vtkMergeFilter::SetGeometry(vtkDataSet *input)
