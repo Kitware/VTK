@@ -44,9 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 vtkTubeFilter* vtkTubeFilter::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -58,9 +56,6 @@ vtkTubeFilter* vtkTubeFilter::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkTubeFilter;
 }
-
-
-
 
 // Construct object with radius 0.5, radius variation turned off, the number 
 // of sides set to 3, and radius factor of 10.
@@ -76,6 +71,8 @@ vtkTubeFilter::vtkTubeFilter()
   
   this->UseDefaultNormal = 0;
   this->Capping = 0;
+  this->OnRatio = 1;
+  this->Offset = 0;
 }
 
 void vtkTubeFilter::Execute()
@@ -109,7 +106,6 @@ void vtkTubeFilter::Execute()
   float capNorm[3];
   int capPointFlag;
 
-  //
   // Initialize
   //
   vtkDebugMacro(<<"Creating tube");
@@ -143,9 +139,9 @@ void vtkTubeFilter::Execute()
     if ( this->UseDefaultNormal )
       {
       for ( i=0; i < numPts; i++)
-	      {
-	      inNormals->SetNormal(i,this->DefaultNormal);
-	      }
+        {
+        inNormals->SetNormal(i,this->DefaultNormal);
+        }
       }
     else
       {
@@ -153,10 +149,8 @@ void vtkTubeFilter::Execute()
       // This allows each different polylines to share vertices, but have
       // their normals (and hence their tubes) calculated independently
       generate_normals = 1;
-      
       }      
     }
-  //
   // If varying width, get appropriate info.
   //
   if ( this->VaryRadius == VTK_VARY_RADIUS_BY_SCALAR && 
@@ -176,7 +170,7 @@ void vtkTubeFilter::Execute()
   newNormals->Allocate(numNewPts);
   newStrips = vtkCellArray::New();
   newStrips->Allocate(newStrips->EstimateSize(1,numNewPts));
-  //
+
   //  Create points along the line that are later connected into a 
   //  triangle strip.
   //
@@ -209,7 +203,7 @@ void vtkTubeFilter::Execute()
         return;
         }
       }
-    //
+
     // Use "averaged" segment to create beveled effect. 
     // Watch out for first and last points.
     //
@@ -310,7 +304,8 @@ void vtkTubeFilter::Execute()
       vtkMath::Cross(s,n,w);
       if ( vtkMath::Normalize(w) == 0.0)
         {
-        vtkErrorMacro(<<"Bad normal s = " << s[0] << " " << s[1] << " " << s[2] << " n = " << n[0] << " " << n[1] << " " << n[2]);
+        vtkErrorMacro(<<"Bad normal s = " << s[0] << " " << s[1] << " " << s[2] 
+                      << " n = " << n[0] << " " << n[1] << " " << n[2]);
         if (deleteNormals)
           {
           inNormals->Delete();
@@ -365,11 +360,11 @@ void vtkTubeFilter::Execute()
         newNormals->InsertNormal(ptId,normal);
         outPD->CopyData(pd,pts[j],ptId);
         }
-      }
-    //
+      }//for all points in polyline
+
     // Generate the strips
     //
-    for (k=0; k<this->NumberOfSides; k++)
+    for (k=this->Offset; k<(this->NumberOfSides+this->Offset); k+=this->OnRatio)
       {
       i1 = (k+1) % this->NumberOfSides;
       newStrips->InsertNextCell(npts*2);
@@ -379,11 +374,11 @@ void vtkTubeFilter::Execute()
         newStrips->InsertCellPoint(ptOffset+i2+i1);
         newStrips->InsertCellPoint(ptOffset+i2+k);
         }
-      } //for this line
+      } //for each side of the tube
 
     ptOffset += this->NumberOfSides*npts;
     single_polyline->Delete();
-  }
+    }//for each polyline
 
   // Take care of capping
   if (this->Capping)
@@ -444,7 +439,6 @@ void vtkTubeFilter::Execute()
   capPoints->Delete();
   capNormals->Delete();
 
-  //
   // Update ourselves
   //
   if ( deleteNormals )
@@ -470,11 +464,14 @@ void vtkTubeFilter::PrintSelf(ostream& os, vtkIndent indent)
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 
   os << indent << "Radius: " << this->Radius << "\n";
-  os << indent << "Vary Radius: " << (this->VaryRadius ? "On\n" : "Off\n");
+  os << indent << "Vary Radius: " << this->GetVaryRadiusAsString() << endl;
   os << indent << "Radius Factor: " << this->RadiusFactor << "\n";
   os << indent << "Number Of Sides: " << this->NumberOfSides << "\n";
+  os << indent << "On Ratio: " << this->OnRatio << "\n";
+  os << indent << "Offset: " << this->Offset << "\n";
 
-  os << indent << "Use Default Normal: " << (this->UseDefaultNormal ? "On\n" : "Off\n");
+  os << indent << "Use Default Normal: " 
+     << (this->UseDefaultNormal ? "On\n" : "Off\n");
   os << indent << "Default Normal: " << "( " << this->DefaultNormal[0] <<
      ", " << this->DefaultNormal[1] << ", " << this->DefaultNormal[2] <<
      " )\n";

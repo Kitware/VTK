@@ -48,7 +48,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // scalar or vector value. If the radius varies with scalar value the radius
 // is linearly adjusted. If the radius varies with vector value, a mass
 // flux preserving variation is used. The number of sides for the tube also 
-// can be specified.
+// can be specified. You can also specify which of the sides are visible. This
+// is useful for generating interesting striping effects.
 
 // .SECTION Caveats
 // The number of tube sides must be greater than 3. If you wish to use fewer
@@ -128,8 +129,21 @@ public:
   vtkGetMacro(Capping,int);
   vtkBooleanMacro(Capping,int);
 
-protected:
+  // Description:
+  // Control the striping of the tools. If OnRatio is greater than 1,
+  // then every nth tube side is turned on, beginning with the Offset
+  // side.
+  vtkSetClampMacro(OnRatio,int,1,VTK_LARGE_INTEGER);
+  vtkGetMacro(OnRatio,int);
 
+  // Description:
+  // Control the striping of the tools. The offset sets the
+  // first tube side that is visible. Offset is generally used with
+  // OnRatio to create nifty striping effects.
+  vtkSetClampMacro(Offset,int,0,VTK_LARGE_INTEGER);
+  vtkGetMacro(Offset,int);
+
+protected:
   vtkTubeFilter();
   ~vtkTubeFilter() {};
   vtkTubeFilter(const vtkTubeFilter&) {};
@@ -144,8 +158,9 @@ protected:
   float RadiusFactor; //maxium allowablew radius
   float DefaultNormal[3];
   int UseDefaultNormal;
-
   int Capping;
+  int OnRatio; //control the generation of the sides of the tube
+  int Offset;  //control the generation of the sides
   
 };
 
