@@ -83,7 +83,7 @@ int *vtkMergePoints::MergePoints()
 
       for (j=0; j<3; j++)
 	{
-        ijk[j] = (int) ((float)((p[j] - this->Bounds[2*j])*0.999 / 
+        ijk[j] = (int) ((float)((p[j] - this->Bounds[2*j]) / 
               (this->Bounds[2*j+1] - this->Bounds[2*j])) * (this->Divisions[j] - 1));
 	}
 
@@ -125,7 +125,7 @@ int vtkMergePoints::IsInsertedPoint(float x[3])
 //
   for (i=0; i<3; i++) 
     {
-    ijk[i] = (int) ((float) ((x[i] - this->Bounds[2*i])*0.999 / 
+    ijk[i] = (int) ((float) ((x[i] - this->Bounds[2*i]) / 
              (this->Bounds[2*i+1] - this->Bounds[2*i])) * (this->Divisions[i] - 1));
     }
 
