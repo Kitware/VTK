@@ -805,29 +805,26 @@ void outputFunction2(FILE *fp, FileInfo *data)
   
   /* output the method table */
   /* for each function in the array */
-  if (data->NumberOfSuperClasses || !data->IsAbstract)
+  fprintf(fp,"static PyMethodDef Py%sMethods[] = {\n",data->ClassName);
+  
+  for (fnum = 0; fnum < numberOfWrappedFunctions; fnum++)
     {
-    fprintf(fp,"static PyMethodDef Py%sMethods[] = {\n",data->ClassName);
-  
-    for (fnum = 0; fnum < numberOfWrappedFunctions; fnum++)
+    if (wrappedFunctions[fnum]->Name)
       {
-      if (wrappedFunctions[fnum]->Name)
-        {
-        fprintf(fp,"  {\"%s\",		(PyCFunction)Py%s_%s, 1,\n   \"%s\\n\\n%s\"},\n",
-                wrappedFunctions[fnum]->Name, data->ClassName, 
-                wrappedFunctions[fnum]->Name, wrappedFunctions[fnum]->Signature,
-                quote_string(wrappedFunctions[fnum]->Comment,1000));
-        }
+      fprintf(fp,"  {\"%s\",		(PyCFunction)Py%s_%s, 1,\n   \"%s\\n\\n%s\"},\n",
+              wrappedFunctions[fnum]->Name, data->ClassName, 
+              wrappedFunctions[fnum]->Name, wrappedFunctions[fnum]->Signature,
+              quote_string(wrappedFunctions[fnum]->Comment,1000));
       }
-  
-    if (!strcmp("vtkObject",data->ClassName))
-      {
-      fprintf(fp,"  {\"GetAddressAsString\",  (PyCFunction)Py%s_GetAddressAsString, 1,\n   \"V.GetAddressAsString(string) -> string\\n\\n Get address of C++ object in format 'Addr=%%p' after casting to\\n the specified type.  You can get the same information from V.__this__.\"},\n", data->ClassName);
-      fprintf(fp,"  {\"AddObserver\",  (PyCFunction)Py%s_AddObserver, 1,\n   \"V.AddObserver(int, function) -> int\\n\\n Add an event callback function(vtkObject, int) for an event type.\\n Returns a handle that can be used with RemoveEvent(int).\"},\n", data->ClassName);
-      }
-    
-    fprintf(fp,"  {NULL,	       	NULL}\n};\n\n");
     }
+  
+  if (!strcmp("vtkObject",data->ClassName))
+    {
+    fprintf(fp,"  {\"GetAddressAsString\",  (PyCFunction)Py%s_GetAddressAsString, 1,\n   \"V.GetAddressAsString(string) -> string\\n\\n Get address of C++ object in format 'Addr=%%p' after casting to\\n the specified type.  You can get the same information from V.__this__.\"},\n", data->ClassName);
+    fprintf(fp,"  {\"AddObserver\",  (PyCFunction)Py%s_AddObserver, 1,\n   \"V.AddObserver(int, function) -> int\\n\\n Add an event callback function(vtkObject, int) for an event type.\\n Returns a handle that can be used with RemoveEvent(int).\"},\n", data->ClassName);
+    }
+  
+  fprintf(fp,"  {NULL,	       	NULL}\n};\n\n");
 }
 
 
@@ -1037,7 +1034,10 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     currentFunction = data->Functions + i;
     outputFunction(fp, data);
     }
-  outputFunction2(fp, data);
+  if (data->NumberOfSuperClasses || !data->IsAbstract)
+    {
+    outputFunction2(fp, data);
+    }
   
   /* the docstring for the class */
   if (data->NumberOfSuperClasses || !data->IsAbstract)

@@ -8,12 +8,6 @@
 # define YYOPTIM 1
 # define YYLMAX 2048
 # define output(c) (void)putc(c,yyout)
-#if defined(__cplusplus) || defined(__STDC__)
-
-#if defined(__STDC__)
-int yylook(void);
-int yyback(int *, int);
-#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,7 +30,6 @@ extern "C" {
 }
 #endif
 
-#endif
 
 # define input() (((yytchar=yysptr>yysbuf?U(*--yysptr):getc(yyin))==10?(yylineno++,yytchar):yytchar)==EOF?0:yytchar)
 # define unput(c) {yytchar= (c);if(yytchar=='\n')yylineno--;*yysptr++=yytchar;}
