@@ -13,7 +13,7 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlCharScalars - char representation of scalar data
+// .NAME vlCharScalars - unsigned char representation of scalar data
 // .SECTION Description
 // vlCharScalars is a concrete implementation of vlScalars. Scalars are
 // represented using char values.
