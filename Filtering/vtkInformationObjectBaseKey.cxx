@@ -17,7 +17,7 @@
 #include "vtkGarbageCollector.h"
 #include "vtkInformation.h" // For vtkErrorWithObjectMacro
 
-vtkCxxRevisionMacro(vtkInformationObjectBaseKey, "1.2");
+vtkCxxRevisionMacro(vtkInformationObjectBaseKey, "1.3");
 
 //----------------------------------------------------------------------------
 vtkInformationObjectBaseKey
@@ -25,6 +25,7 @@ vtkInformationObjectBaseKey
                               const char* requiredClass):
   vtkInformationKey(name, location), RequiredClass(requiredClass)
 {
+  vtkFilteringInformationKeyManager::Register(this);
 }
 
 //----------------------------------------------------------------------------

@@ -14,12 +14,13 @@
 =========================================================================*/
 #include "vtkInformationIntegerKey.h"
 
-vtkCxxRevisionMacro(vtkInformationIntegerKey, "1.4");
+vtkCxxRevisionMacro(vtkInformationIntegerKey, "1.5");
 
 //----------------------------------------------------------------------------
 vtkInformationIntegerKey::vtkInformationIntegerKey(const char* name, const char* location):
   vtkInformationKey(name, location)
 {
+  vtkFilteringInformationKeyManager::Register(this);
 }
 
 //----------------------------------------------------------------------------

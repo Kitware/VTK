@@ -28,7 +28,6 @@
 
 #include "vtkObjectBase.h"
 #include "vtkObject.h" // Need vtkTypeRevisionMacro
-#include "vtkInformationKeyManager.h" // Needed for proper singleton initialization
 
 class vtkInformation;
 
@@ -90,14 +89,6 @@ protected:
 
   // Helper for debug leaks support.
   void ConstructClass(const char*);
-
-  // Static key instance management methods.
-  static void ClassInitialize();
-  static void ClassFinalize();
-
-  //BTX
-  friend class vtkInformationKeyManager;
-  //ETX
 
 private:
   vtkInformationKey(const vtkInformationKey&);  // Not implemented.

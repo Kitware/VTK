@@ -16,12 +16,13 @@
 
 #include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkInformationInformationKey, "1.1");
+vtkCxxRevisionMacro(vtkInformationInformationKey, "1.2");
 
 //----------------------------------------------------------------------------
 vtkInformationInformationKey::vtkInformationInformationKey(const char* name, const char* location):
   vtkInformationKey(name, location)
 {
+  vtkFilteringInformationKeyManager::Register(this);
 }
 
 //----------------------------------------------------------------------------

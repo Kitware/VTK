@@ -16,12 +16,13 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationKeyVectorKey, "1.3");
+vtkCxxRevisionMacro(vtkInformationKeyVectorKey, "1.4");
 
 //----------------------------------------------------------------------------
 vtkInformationKeyVectorKey::vtkInformationKeyVectorKey(const char* name, const char* location):
   vtkInformationKey(name, location)
 {
+  vtkFilteringInformationKeyManager::Register(this);
 }
 
 //----------------------------------------------------------------------------

@@ -54,6 +54,7 @@ vtkEmptyCell.cxx
 vtkExecutive.cxx
 vtkExplicitCell.cxx
 vtkFieldData.cxx
+vtkFilteringInformationKeyManager.cxx
 vtkGenericAdaptorCell.cxx
 vtkGenericAttribute.cxx
 vtkGenericAttributeCollection.cxx
@@ -106,7 +107,6 @@ vtkInformationInformationVectorKey.cxx
 vtkInformationIntegerKey.cxx
 vtkInformationIntegerVectorKey.cxx
 vtkInformationKey.cxx
-vtkInformationKeyManager.cxx
 vtkInformationKeyVectorKey.cxx
 vtkInformationObjectBaseKey.cxx
 vtkInformationStringKey.cxx
@@ -213,6 +213,7 @@ vtkDataSetToStructuredPointsFilter
 vtkDataSetToUnstructuredGridFilter
 vtkExecutive
 vtkExplicitCell
+vtkFilteringInformationKeyManager
 vtkGenericAdaptorCell
 vtkGenericAttribute
 vtkGenericCellIterator
@@ -244,7 +245,6 @@ vtkInformationInformationVectorKey
 vtkInformationIntegerKey
 vtkInformationIntegerVectorKey
 vtkInformationKey
-vtkInformationKeyManager
 vtkInformationKeyVectorKey
 vtkInformationObjectBaseKey
 vtkInformationStringKey
@@ -282,9 +282,9 @@ vtkViewport
 )
 
 SET_SOURCE_FILES_PROPERTIES(
+  vtkFilteringInformationKeyManager.cxx
   vtkImageIterator.cxx
   vtkImageProgressIterator.cxx
-  vtkInformationKeyManager.cxx
   WRAP_EXCLUDE
 )
 

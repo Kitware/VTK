@@ -14,12 +14,13 @@
 =========================================================================*/
 #include "vtkInformationUnsignedLongKey.h"
 
-vtkCxxRevisionMacro(vtkInformationUnsignedLongKey, "1.4");
+vtkCxxRevisionMacro(vtkInformationUnsignedLongKey, "1.5");
 
 //----------------------------------------------------------------------------
 vtkInformationUnsignedLongKey::vtkInformationUnsignedLongKey(const char* name, const char* location):
   vtkInformationKey(name, location)
 {
+  vtkFilteringInformationKeyManager::Register(this);
 }
 
 //----------------------------------------------------------------------------

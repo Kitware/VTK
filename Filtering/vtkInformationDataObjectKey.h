@@ -22,6 +22,8 @@
 
 #include "vtkInformationKey.h"
 
+#include "vtkFilteringInformationKeyManager.h" // Manage instances of this type.
+
 class vtkDataObject;
 
 class VTK_FILTERING_EXPORT vtkInformationDataObjectKey : public vtkInformationKey

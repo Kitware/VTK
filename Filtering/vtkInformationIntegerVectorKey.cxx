@@ -19,7 +19,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationIntegerVectorKey, "1.5");
+vtkCxxRevisionMacro(vtkInformationIntegerVectorKey, "1.6");
 
 //----------------------------------------------------------------------------
 vtkInformationIntegerVectorKey
@@ -27,6 +27,7 @@ vtkInformationIntegerVectorKey
                                  int length):
   vtkInformationKey(name, location), RequiredLength(length)
 {
+  vtkFilteringInformationKeyManager::Register(this);
 }
 
 //----------------------------------------------------------------------------
