@@ -10,9 +10,17 @@ source vtkImageInclude.tcl
 
 vtkBMPReader image
   image SetFileName "$VTK_DATA/beach.bmp"
+  image Update
+
+vtkStructuredPoints sp
+eval sp SetDimensions [[image GetOutput] GetDimensions]
+eval sp SetExtent [[image GetOutput] GetExtent]
+sp SetScalarType [[image GetOutput] GetScalarType] 
+sp SetNumberOfScalarComponents [[image GetOutput] GetNumberOfScalarComponents] 
+[sp GetPointData] SetScalars [[[image GetOutput] GetPointData] GetScalars]
 
 vtkImageLuminance luminance
-  luminance SetInput [image GetOutput]
+  luminance SetInput sp
 
 vtkTIFFWriter tiff1
   tiff1 SetInput [image GetOutput]
