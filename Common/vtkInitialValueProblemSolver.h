@@ -94,10 +94,6 @@ public:
                               float maxError, float& error) = 0;
 
   // Description:
-  // Create concrete instance of the object.
-  virtual vtkInitialValueProblemSolver *MakeObject()=0;
-  
-  // Description:
   // Set / get the dataset used for the implicit function evaluation.
   virtual void SetFunctionSet(vtkFunctionSet* functionset);
   vtkGetObjectMacro(FunctionSet,vtkFunctionSet);

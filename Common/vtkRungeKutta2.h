@@ -84,13 +84,6 @@ public:
                               float minStep, float maxStep, 
                               float maxError, float& error);
 
-  // Description:
-  // Create concrete instance of this object.
-  virtual vtkInitialValueProblemSolver* MakeObject() 
-    {
-      return vtkRungeKutta2::New();
-    }
-
 protected:
   vtkRungeKutta2();
   ~vtkRungeKutta2();
