@@ -143,7 +143,7 @@ void vtkParticleReader::ExecuteInformation()
 {
   vtkPolyData *output = this->GetOutput();
 
-  //output->SetMaximumNumberOfPieces(-1);
+  output->SetMaximumNumberOfPieces(-1);
 }
 
 
