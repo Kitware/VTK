@@ -23,7 +23,7 @@
 
 #include <png.h>
 
-vtkCxxRevisionMacro(vtkPNGWriter, "1.13");
+vtkCxxRevisionMacro(vtkPNGWriter, "1.14");
 vtkStandardNewMacro(vtkPNGWriter);
 
 vtkCxxSetObjectMacro(vtkPNGWriter,Result,vtkUnsignedCharArray);
@@ -107,23 +107,29 @@ void vtkPNGWriter::Write()
   this->InternalFileName = NULL;
 }
 
-void vtkPNGWriteInit(png_structp png_ptr, png_bytep data, 
-                     png_size_t sizeToWrite)
+extern "C"
 {
-  vtkPNGWriter *self = 
-    vtkPNGWriter::SafeDownCast(static_cast<vtkObject *>
-                               (png_get_io_ptr(png_ptr)));
-  if (self)
-    {
+  void vtkPNGWriteInit(png_structp png_ptr, png_bytep data, 
+                       png_size_t sizeToWrite)
+  {
+    vtkPNGWriter *self = 
+      vtkPNGWriter::SafeDownCast(static_cast<vtkObject *>
+                                 (png_get_io_ptr(png_ptr)));
+    if (self)
+      {
       vtkUnsignedCharArray *uc = self->GetResult();
       // write to the uc array
       unsigned char *ptr = uc->WritePointer(uc->GetMaxId()+1,sizeToWrite);
       memcpy(ptr, data, sizeToWrite);
-    }
+      }
+  }
 }
 
-void vtkPNGWriteFlush(png_structp vtkNotUsed(png_ptr))
+extern "C"
 {
+  void vtkPNGWriteFlush(png_structp vtkNotUsed(png_ptr))
+  {
+  }
 }
 
 

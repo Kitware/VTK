@@ -83,7 +83,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.21");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.22");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -871,17 +871,20 @@ void vtkXOpenGLRenderWindow::MakeCurrent()
 
 int vtkXOpenGLRenderWindowFoundMatch;
 
-Bool vtkXOpenGLRenderWindowPredProc(Display *vtkNotUsed(disp), XEvent *event, 
-                              char *arg)
+extern "C"
 {
-  Window win = (Window)arg;
-  
-  if (((reinterpret_cast<XAnyEvent *>(event))->window == win) &&
-      ((event->type == ButtonPress)))
-    vtkXOpenGLRenderWindowFoundMatch = 1;
-
-  return 0;
-  
+  Bool vtkXOpenGLRenderWindowPredProc(Display *vtkNotUsed(disp), 
+                                      XEvent *event, 
+                                      char *arg)
+  {
+    Window win = (Window)arg;
+    
+    if (((reinterpret_cast<XAnyEvent *>(event))->window == win) &&
+        ((event->type == ButtonPress)))
+      vtkXOpenGLRenderWindowFoundMatch = 1;
+    
+    return 0; 
+  }
 }
 
 void *vtkXOpenGLRenderWindow::GetGenericContext()
