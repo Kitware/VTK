@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSource.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.89");
+vtkCxxRevisionMacro(vtkDataObject, "1.90");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,FieldData,vtkFieldData);
@@ -506,10 +506,7 @@ int vtkDataObject::VerifyUpdateExtent()
     case VTK_PIECES_EXTENT:
       if ( 0 && this->UpdatePiece >= this->UpdateNumberOfPieces ||
         this->UpdatePiece < 0 )
-        { // This does nothing for the moment. I want to request nothing.
-        vtkErrorMacro( << "Invalid update piece " << this->UpdatePiece
-        << ". Must be between 0 and " 
-        << this->UpdateNumberOfPieces - 1);
+        {
         retval = 0;
         }
       break;
