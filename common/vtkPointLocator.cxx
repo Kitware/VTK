@@ -90,6 +90,7 @@ vtkPointLocator::vtkPointLocator()
 
 vtkPointLocator::~vtkPointLocator()
 {
+  if ( this->Points ) this->Points->UnRegister(this);
   this->FreeSearchStructure();
 }
 

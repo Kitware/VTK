@@ -57,6 +57,22 @@ vtkProcessObject::vtkProcessObject()
   this->Progress = 0.0;
 }
 
+vtkProcessObject::~vtkProcessObject()
+{
+  if ((this->StartMethodArg)&&(this->StartMethodArgDelete))
+    {
+    (*this->StartMethodArgDelete)(this->StartMethodArg);
+    }
+  if ((this->ProgressMethodArg)&&(this->ProgressMethodArgDelete))
+    {
+    (*this->ProgressMethodArgDelete)(this->ProgressMethodArg);
+    }
+  if ((this->EndMethodArg)&&(this->EndMethodArgDelete))
+    {
+    (*this->EndMethodArgDelete)(this->EndMethodArg);
+    }
+}
+
 // Description:
 // Update the progress of the process object. If a ProgressMethod exists, executes it. 
 // Then set the Progress ivar to amount. The parameter amount should range between (0,1).

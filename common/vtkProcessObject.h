@@ -76,6 +76,7 @@ class VTK_EXPORT vtkProcessObject : public vtkObject
 {
 public:
   vtkProcessObject();
+  ~vtkProcessObject();
   static vtkProcessObject *New() {return new vtkProcessObject;};
   const char *GetClassName() {return "vtkProcessObject";};
   void PrintSelf(ostream& os, vtkIndent indent);

@@ -68,16 +68,16 @@ vtkTransform::vtkTransform (const vtkTransform& t)
 
   this->PreMultiplyFlag = t.PreMultiplyFlag;
   this->StackSize = t.StackSize;
-  this->Stack = new vtkMatrix4x4 *[this->StackSize];
+  this->StackBottom = new vtkMatrix4x4 *[this->StackSize];
 
   // now copy each matrix in the stack
   for ( n=t.Stack-t.StackBottom+1, i=0; i < n; i++ )
     {
-    this->Stack[i] = new vtkMatrix4x4(*(t.Stack[i]));
-    *(this->Stack[i]) = *(t.Stack[i]);
+    this->StackBottom[i] = new vtkMatrix4x4(*(t.Stack[i]));
+    *(this->StackBottom[i]) = *(t.Stack[i]);
     }
 
-  this->StackBottom = this->Stack + (n - 1);
+  this->Stack = this->StackBottom + (n - 1);
 }
 
 vtkTransform& vtkTransform::operator=(const vtkTransform& t)
@@ -86,13 +86,22 @@ vtkTransform& vtkTransform::operator=(const vtkTransform& t)
 
   this->PreMultiplyFlag = t.PreMultiplyFlag;
   this->StackSize = t.StackSize;
-  this->Stack = new vtkMatrix4x4 *[this->StackSize];
+  // free old memory
+  if (this->StackBottom)
+    {
+    for (n=this->Stack-this->StackBottom+1, i=0; i < n; i++)
+      {
+      this->StackBottom[i]->Delete();
+      }
+    delete [] this->StackBottom;
+    } 
+  this->StackBottom = new vtkMatrix4x4 *[this->StackSize];
   for ( n=t.Stack-t.StackBottom+1, i=0; i < n; i++ )
     {
-    this->Stack[i] = vtkMatrix4x4::New();
-    *(this->Stack[i]) = *(t.Stack[i]);
+    this->StackBottom[i] = vtkMatrix4x4::New();
+    *(this->StackBottom[i]) = *(t.Stack[i]);
     }
-  this->StackBottom = this->Stack + (n - 1);
+  this->Stack = this->StackBottom + (n - 1);
 
   for ( i=0; i < 3; i++)
     {
@@ -729,7 +738,7 @@ vtkTransform::~vtkTransform ()
     this->StackBottom[i]->Delete();
     }
 
-  delete [] this->Stack;
+  delete [] this->StackBottom;
 }
 
 void vtkTransform::PrintSelf (ostream& os, vtkIndent indent)
