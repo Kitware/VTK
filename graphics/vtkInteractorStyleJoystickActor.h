@@ -39,8 +39,21 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
-// .NAME vtkInteractorStyleJoystickActor - Manipulation of an implicit plane.
+// .NAME vtkInteractorStyleJoystickActor - manipulate objects in the scene independently of one another
+// .SECTION Description
+// The class vtkInteractorStyleJoystickActor allows the user to interact
+// with (rotate, zoom, etc.) separate objects in the scene independent of
+// each other.  The position of the mouse relative to the center of the
+// object determines the speed of the object's motion.  The mouse's velocity
+// detemines the acceleration of the object's motion, so the object will
+// continue moving even when the mouse is not moving.
+// For a 3-button mouse, the left button is for rotation, the right button
+// for zooming, the middle button for panning, and ctrl + left button for
+// spinning.  (With fewer mouse buttons, ctrl + shift + left button is
+// for zooming, and shift + left button is for panning.)
+// .SECTION See Also
+// vtkInteractorStyleJoystickCamera vtkInteractorStyleTrackballActor
+// vtkInteractorStyleTrackballCamera
 
 #ifndef __vtkInteractorStyleJoystickActor_h
 #define __vtkInteractorStyleJoystickActor_h
@@ -59,16 +72,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_EXPORT vtkInteractorStyleJoystickActor : public vtkInteractorStyle
 {
 public:
-  // Description:
-  // This class must be supplied with a vtkRenderWindowInteractor wrapper or
-  // parent. This class should not normally be instantiated by application
-  // programmers.
   static vtkInteractorStyleJoystickActor *New();
 
   vtkTypeMacro(vtkInteractorStyleJoystickActor, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Generic event bindings must be overridden in subclasses
+  // Description:
+  // Event bindings controlling the effects of pressing mouse buttons
+  // or moving the mouse.
   void OnMouseMove  (int ctrl, int shift, int x, int y);
   void OnLeftButtonDown(int ctrl, int shift, int x, int y);
   void OnLeftButtonUp  (int ctrl, int shift, int x, int y);

@@ -39,19 +39,16 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkInteractorStyleSwitch - switch interactor style between joystick and trackball mode
+// .NAME vtkInteractorStyleSwitch - class to swap between interactory styles
 // .SECTION Description
-// vtkInteractorStyleSwitch is a convenience class that manages the switching
-// between the two most common VTK interactor styles: 
-// vtkInteractorStyleJoystick and vtkInteractorStyleTrackball, and the two
-// common modes: camera or object mode. The class intercepts events, and if
-// keystroke "j" or "t" is received, then the mode is switched to 
-// vtkInteractorStyleJoystick and vtkInteractorStyleTrackball, respectively.
-// If the keystroke "c" or "o" is received, then the mode of interaction
-// is changed between the camera and actor, respectively.
-
+// The class vtkInteractorStyleSwitch allows handles interactively switching
+// between four interactor styles -- joystick actor, joystick camera,
+// trackball actor, and trackball camera.  Type 'j' or 't' to select
+// joystick or trackball, and type 'c' or 'a' to select camera or actor.
+// The default interactor style is joystick camera.
 // .SECTION See Also
-// vtkInteractorStyle vtkInteractorStyleTrackball vtkInteractorStyleJoystick
+// vtkInteractorStyleJoystickActor vtkInteractorStyleJoystickCamera
+// vtkInteractorStyleTrackballActor vtkInteractorStyleTrackballCamera
 
 #ifndef __vtkInteractorStyleSwitch_h
 #define __vtkInteractorStyleSwitch_h
@@ -73,6 +70,11 @@ public:
   static vtkInteractorStyleSwitch *New();
   vtkTypeMacro(vtkInteractorStyleSwitch, vtkInteractorStyle);
   
+  // Description:
+  // Event bindings controlling the effects of pressing mouse buttons
+  // or moving the mouse.  The correct subclass method is called
+  // depending on the current mode (trackball or joystick, camera
+  // or actor).
   void OnLeftButtonDown(int ctrl, int shift, int x, int y);
   void OnLeftButtonUp(int ctrl, int shift, int x, int y);
   void OnMiddleButtonDown(int ctrl, int shift, int x, int y);

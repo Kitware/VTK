@@ -39,16 +39,21 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
-// .NAME vtkInteractorStyleTrackballActor - Manipulation of an implicit plane.
-
+// .NAME vtkInteractorStyleTrackballActor - manipulate objects in the scene independent of each other
 // .SECTION Description
-// vtkInteractorStyleTrackballActor Allows interactive definition of a plane
-// by manipulating a vtkPlane's parameters.  
-// The center of the plane is hot.  The center provides
-// rotation (left mouse button), XY translation relative to camera (middle),
-// and translation along camera's view-plane normal (right).
+// vtkInteractorStyleTrackballActor allows the user to interact with (rotate,
+// pan, etc.) objects in the scene indendent of each other.  The position
+// of the mouse relative to the center of the object determine's the speed
+// at which the object moves.  When the mouse stops moving, so does the
+// object being manipulated.
+// For a 3-button mouse, the left button is for rotation, the right button
+// for zooming, the middle button for panning, and ctrl + left button for
+// spinning.  (With fewer mouse buttons, ctrl + shift + left button is
+// for zooming, and shift + left button is for panning.)
 
+// .SECTION See Also
+// vtkInteractorStyleTrackballCamera vtkInteractorStyleJoystickActor
+// vtkInteractorStyleJoystickCamera
 
 #ifndef __vtkInteractorStyleTrackballActor_h
 #define __vtkInteractorStyleTrackballActor_h
@@ -66,16 +71,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_EXPORT vtkInteractorStyleTrackballActor : public vtkInteractorStyle
 {
 public:
-  // Description:
-  // This class must be supplied with a vtkRenderWindowInteractor wrapper or
-  // parent. This class should not normally be instantiated by application
-  // programmers.
   static vtkInteractorStyleTrackballActor *New();
-
   vtkTypeMacro(vtkInteractorStyleTrackballActor, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Generic event bindings must be overridden in subclasses
+  // Description:
+  // Event bindings controlling the effects of pressing mouse buttons
+  // or moving the mouse.
   void OnMouseMove  (int ctrl, int shift, int x, int y);
   void OnLeftButtonDown(int ctrl, int shift, int x, int y);
   void OnLeftButtonUp  (int ctrl, int shift, int x, int y);
