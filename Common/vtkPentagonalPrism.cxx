@@ -29,7 +29,7 @@
 #include "vtkMath.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkPentagonalPrism, "1.9");
+vtkCxxRevisionMacro(vtkPentagonalPrism, "1.10");
 vtkStandardNewMacro(vtkPentagonalPrism);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -266,19 +266,19 @@ void vtkPentagonalPrism::InterpolationDerivs(double pcoords[3], double derivs[30
   derivs[3] =  n*( 2*b*g*r + (b*f - a*g)*s - b*h - c*g)*(t - 1.0);
   derivs[4] = -n*(-2*d*f*r - d*(f + g)*s + d*h + e*f)*(t - 1.0);
   //Second pentagon
-  derivs[5] = -n*(-2*a*b*r + (a*a + b*b)*s + a*c - b*c)*(t - 0.0);
-  derivs[6] =  n*( 2*d*g*r + d*(f + g)*s - d*h - e*g)*(t - 0.0);
-  derivs[7] = -n*( 2*a*f*r + (a*g - b*f)*s - a*h + c*f)*(t - 0.0);
-  derivs[8] =  n*( 2*b*g*r + (b*f - a*g)*s - b*h - c*g)*(t - 0.0);
-  derivs[9] = -n*(-2*d*f*r - d*(f + g)*s + d*h + e*f)*(t - 0.0);
+  derivs[5] =  n*(-2*a*b*r + (a*a + b*b)*s + a*c - b*c)*(t - 0.0);
+  derivs[6] = -n*( 2*d*g*r + d*(f + g)*s - d*h - e*g)*(t - 0.0);
+  derivs[7] =  n*( 2*a*f*r + (a*g - b*f)*s - a*h + c*f)*(t - 0.0);
+  derivs[8] = -n*( 2*b*g*r + (b*f - a*g)*s - b*h - c*g)*(t - 0.0);
+  derivs[9] =  n*(-2*d*f*r - d*(f + g)*s + d*h + e*f)*(t - 0.0);
 
   // s-derivatives
   //First pentagon
-  derivs[10] =  n*(-2*a*b*s + (a*a + b*b)*r + a*c - b*c)*(t - 1.0);
-  derivs[11] = -n*( 2*d*f*s + d*(f + g)*r - d*h - e*f)*(t - 1.0);
-  derivs[12] =  n*(-2*b*g*s + (a*g - b*f)*r + b*h + c*g)*(t - 1.0);
-  derivs[13] = -n*(-2*a*f*s + (b*f - a*g)*r + a*h - c*f)*(t - 1.0);
-  derivs[14] =  n*(-2*d*g*s - d*(f + g)*r + d*h + e*g)*(t - 1.0);
+  derivs[10] = -n*(-2*a*b*s + (a*a + b*b)*r + a*c - b*c)*(t - 1.0);
+  derivs[11] =  n*( 2*d*f*s + d*(f + g)*r - d*h - e*f)*(t - 1.0);
+  derivs[12] = -n*(-2*b*g*s + (a*g - b*f)*r + b*h + c*g)*(t - 1.0);
+  derivs[13] =  n*(-2*a*f*s + (b*f - a*g)*r + a*h - c*f)*(t - 1.0);
+  derivs[14] = -n*(-2*d*g*s - d*(f + g)*r + d*h + e*g)*(t - 1.0);
   //Second pentagon
   derivs[15] =  n*(-2*a*b*s + (a*a + b*b)*r + a*c - b*c)*(t - 0.0);
   derivs[16] = -n*( 2*d*f*s + d*(f + g)*r - d*h - e*f)*(t - 0.0);
