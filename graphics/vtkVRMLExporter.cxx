@@ -290,6 +290,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   pm->SetScalarRange(anActor->GetMapper()->GetScalarRange());
   pm->SetScalarVisibility(anActor->GetMapper()->GetScalarVisibility());
   pm->SetLookupTable(anActor->GetMapper()->GetLookupTable());
+  pm->SetScalarMode(anActor->GetMapper()->GetScalarMode());
 
   points = pd->GetPoints();
   pntData = pd->GetPointData();
