@@ -24,7 +24,7 @@
 
 #include <png.h>
 
-vtkCxxRevisionMacro(vtkPNGWriter, "1.17");
+vtkCxxRevisionMacro(vtkPNGWriter, "1.18");
 vtkStandardNewMacro(vtkPNGWriter);
 
 vtkCxxSetObjectMacro(vtkPNGWriter,Result,vtkUnsignedCharArray);
@@ -282,10 +282,13 @@ void vtkPNGWriter::WriteSlice(vtkImageData *data)
   delete [] row_pointers;
   png_destroy_write_struct(&png_ptr, &info_ptr);
 
-  fflush(fp);
-  if (ferror(fp))
+  if (fp)
     {
-    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    fflush(fp);
+    if (ferror(fp))
+      {
+      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+      }
     }
   
   if (fp)
