@@ -109,15 +109,14 @@ void vtkScalarsToColors::MapScalarsThroughTable(vtkScalars *scalars,
 vtkUnsignedCharArray *vtkScalarsToColors::ConvertUnsignedCharToRGBA(
   vtkUnsignedCharArray *colors, int numComp, int numTuples)
 {
-  unsigned char *cptr = colors->GetPointer(0);
-  vtkUnsignedCharArray *newColors = vtkUnsignedCharArray::New();
-
   if ( numComp == 4 && this->Alpha >= 1.0 )
     {
-    newColors->SetArray(cptr, numTuples, 0);
-    return newColors;
+    colors->Register(this);
+    return colors;
     }
     
+  unsigned char *cptr = colors->GetPointer(0);
+  vtkUnsignedCharArray *newColors = vtkUnsignedCharArray::New();
   newColors->SetNumberOfComponents(4);
   newColors->SetNumberOfTuples(numTuples);
   unsigned char *nptr = newColors->GetPointer(0);
