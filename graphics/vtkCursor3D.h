@@ -81,7 +81,6 @@ public:
 
   // Description:
   // Turn on/off the wireframe axes.
-  // 
   vtkSetMacro(Axes,int);
   vtkGetMacro(Axes,int);
   vtkBooleanMacro(Axes,int);
@@ -115,6 +114,10 @@ public:
   // Description:
   // Get the focus for this filter.
   vtkPolyData *GetFocus() {return (vtkPolyData *)this->Focus;};
+
+  // Convenience methods turn all wires on or off.
+  void AllOn();
+  void AllOff();
 
 protected:
   void Execute();

@@ -194,6 +194,7 @@ void vtkCursor3D::Execute()
 //
   if ( this->Outline ) 
     {
+    // First triad
     x[0] = this->ModelBounds[0]; 
     x[1] = this->ModelBounds[2]; 
     x[2] = this->ModelBounds[4];
@@ -208,6 +209,61 @@ void vtkCursor3D::Execute()
     x[0] = this->ModelBounds[0]; 
     x[1] = this->ModelBounds[3]; 
     x[2] = this->ModelBounds[4];
+    ptIds[1] = newPts->InsertNextPoint(x);
+    newLines->InsertNextCell(2,ptIds);
+
+    x[0] = this->ModelBounds[0]; 
+    x[1] = this->ModelBounds[2]; 
+    x[2] = this->ModelBounds[5];
+    ptIds[1] = newPts->InsertNextPoint(x);
+    newLines->InsertNextCell(2,ptIds);
+
+    // Second triad
+    x[0] = this->ModelBounds[1]; 
+    x[1] = this->ModelBounds[3]; 
+    x[2] = this->ModelBounds[5];
+    ptIds[0] = newPts->InsertNextPoint(x);
+
+    x[0] = this->ModelBounds[0]; 
+    x[1] = this->ModelBounds[3]; 
+    x[2] = this->ModelBounds[5];
+    ptIds[1] = newPts->InsertNextPoint(x);
+    newLines->InsertNextCell(2,ptIds);
+
+    x[0] = this->ModelBounds[1]; 
+    x[1] = this->ModelBounds[2]; 
+    x[2] = this->ModelBounds[5];
+    ptIds[1] = newPts->InsertNextPoint(x);
+    newLines->InsertNextCell(2,ptIds);
+
+    x[0] = this->ModelBounds[1]; 
+    x[1] = this->ModelBounds[3]; 
+    x[2] = this->ModelBounds[4];
+    ptIds[1] = newPts->InsertNextPoint(x);
+    newLines->InsertNextCell(2,ptIds);
+
+    // Fill in remaining lines
+    x[0] = this->ModelBounds[1]; 
+    x[1] = this->ModelBounds[2]; 
+    x[2] = this->ModelBounds[4];
+    ptIds[0] = newPts->InsertNextPoint(x);
+
+    x[0] = this->ModelBounds[1]; 
+    x[1] = this->ModelBounds[3]; 
+    x[2] = this->ModelBounds[4];
+    ptIds[1] = newPts->InsertNextPoint(x);
+    newLines->InsertNextCell(2,ptIds);
+
+    x[0] = this->ModelBounds[1]; 
+    x[1] = this->ModelBounds[2]; 
+    x[2] = this->ModelBounds[5];
+    ptIds[1] = newPts->InsertNextPoint(x);
+    newLines->InsertNextCell(2,ptIds);
+
+
+    x[0] = this->ModelBounds[0]; 
+    x[1] = this->ModelBounds[3]; 
+    x[2] = this->ModelBounds[4];
     ptIds[0] = newPts->InsertNextPoint(x);
 
     x[0] = this->ModelBounds[1]; 
@@ -217,6 +273,13 @@ void vtkCursor3D::Execute()
     newLines->InsertNextCell(2,ptIds);
 
     x[0] = this->ModelBounds[0]; 
+    x[1] = this->ModelBounds[3]; 
+    x[2] = this->ModelBounds[5];
+    ptIds[1] = newPts->InsertNextPoint(x);
+    newLines->InsertNextCell(2,ptIds);
+
+
+    x[0] = this->ModelBounds[0]; 
     x[1] = this->ModelBounds[2]; 
     x[2] = this->ModelBounds[5];
     ptIds[0] = newPts->InsertNextPoint(x);
@@ -228,11 +291,6 @@ void vtkCursor3D::Execute()
     newLines->InsertNextCell(2,ptIds);
 
     x[0] = this->ModelBounds[0]; 
-    x[1] = this->ModelBounds[3]; 
-    x[2] = this->ModelBounds[5];
-    ptIds[0] = newPts->InsertNextPoint(x);
-
-    x[0] = this->ModelBounds[1]; 
     x[1] = this->ModelBounds[3]; 
     x[2] = this->ModelBounds[5];
     ptIds[1] = newPts->InsertNextPoint(x);
@@ -365,6 +423,28 @@ void vtkCursor3D::SetModelBounds(float *bounds)
 {
   this->SetModelBounds(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4],
                        bounds[5]);
+}
+
+// Description:
+// Turn every part of the 3D cursor on.
+void vtkCursor3D::AllOn()
+{
+  OutlineOn();
+  AxesOn();
+  XShadowsOn();
+  YShadowsOn();
+  ZShadowsOn();
+}
+
+// Description:
+// Turn every part of the 3D cursor off.
+void vtkCursor3D::AllOff()
+{
+  OutlineOff();
+  AxesOff();
+  XShadowsOff();
+  YShadowsOff();
+  ZShadowsOff();
 }
 
 void vtkCursor3D::PrintSelf(ostream& os, vtkIndent indent)
