@@ -170,6 +170,7 @@ vtkInteractorStyle \
 vtkInteractorStyleFlight \
 vtkInteractorStyleJoystickCamera \
 vtkInteractorStyleTrackball \
+vtkInteractorStyleTrackballActor \
 vtkInteractorStyleTrackballCamera \
 vtkInteractorStyleUser \
 vtkInterpolateDataSetAttributes \
