@@ -31,7 +31,6 @@
 #include "vtkDataSetToUnstructuredGridFilter.h"
 
 class vtkIdList;
-class vtkUnstructuredGrid;
 class vtkExtractCellsSTLCloak;
 
 class VTK_PARALLEL_EXPORT vtkExtractCells : public vtkDataSetToUnstructuredGridFilter
@@ -45,7 +44,7 @@ public:
   // Description:
   // Set the list of cell IDs that the output vtkUnstructuredGrid
   // will be composed of.  Replaces any other cell ID list supplied
-  // so far.
+  // so far.  (Set to NULL to free memory used by cell list.)
 
   void SetCellList(vtkIdList *l); 
 
@@ -55,18 +54,11 @@ public:
 
   void AddCellList(vtkIdList *l);
 
-  void GetCellIds( vtkIdList *ids );
-
   // Description:
   // Add this range of cell IDs to those that will be included
   // in the output vtkUnstructuredGrid.
 
   void AddCellRange(vtkIdType from, vtkIdType to);
-
-  // Description:
-  //   Release the memory allocated to hold the cell ID list.
-
-  void FreeCellList(); 
 
 protected:
 

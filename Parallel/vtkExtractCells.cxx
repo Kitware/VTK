@@ -30,7 +30,7 @@
 #include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkExtractCells, "1.7");
+vtkCxxRevisionMacro(vtkExtractCells, "1.8");
 vtkStandardNewMacro(vtkExtractCells);
 
 #include <vtkstd/set>
@@ -502,23 +502,3 @@ void vtkExtractCells::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 }
 
-
-void vtkExtractCells::GetCellIds( vtkIdList *array )
-{     
-  if ( array )
-    { 
-    array->Reset();
-
-    vtkstd::set<vtkIdType>::iterator cur = this->CellList->IdTypeSet.begin();
-    vtkstd::set<vtkIdType>::iterator end = this->CellList->IdTypeSet.end();
-    for ( ; cur!=end; cur++)
-      {
-      array->InsertNextId( (vtkIdType)(*cur) );
-      }
-    }
-}   
-
-void vtkExtractCells::FreeCellList()
-{
-   vtkErrorMacro( "TODO" );
-}
