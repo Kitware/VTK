@@ -40,7 +40,7 @@
 #include "vtkTransform.h"
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.14");
+vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.15");
 vtkStandardNewMacro(vtkImplicitPlaneWidget);
 
 vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()
@@ -568,9 +568,17 @@ void vtkImplicitPlaneWidget::OnMiddleButtonDown()
   int X = this->Interactor->GetEventPosition()[0];
   int Y = this->Interactor->GetEventPosition()[1];
 
+  // Okay, we can process this. See if we've picked anything.
+  // Make sure it's in the activated renderer
+  vtkRenderer *ren = this->Interactor->FindPokedRenderer(X,Y);
+  if ( ren != this->CurrentRenderer )
+    {
+    this->State = vtkImplicitPlaneWidget::Outside;
+    return;
+    }
+  
   // Okay, we can process this.
   vtkAssemblyPath *path;
-  this->CurrentRenderer = this->Interactor->FindPokedRenderer(X,Y);
   this->Picker->Pick(X,Y,0.0,this->CurrentRenderer);
   path = this->Picker->GetPath();
   
@@ -618,10 +626,18 @@ void vtkImplicitPlaneWidget::OnRightButtonDown()
   int X = this->Interactor->GetEventPosition()[0];
   int Y = this->Interactor->GetEventPosition()[1];
 
+  // Okay, we can process this. See if we've picked anything.
+  // Make sure it's in the activated renderer
+  vtkRenderer *ren = this->Interactor->FindPokedRenderer(X,Y);
+  if ( ren != this->CurrentRenderer )
+    {
+    this->State = vtkImplicitPlaneWidget::Outside;
+    return;
+    }
+  
   // Okay, we can process this. Try to pick handles first;
   // if no handles picked, then pick the bounding box.
   vtkAssemblyPath *path;
-  this->CurrentRenderer = this->Interactor->FindPokedRenderer(X,Y);
   this->Picker->Pick(X,Y,0.0,this->CurrentRenderer);
   path = this->Picker->GetPath();
   if ( path == NULL ) //nothing picked
