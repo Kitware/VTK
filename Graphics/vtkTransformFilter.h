@@ -52,7 +52,7 @@ public:
 
   // Description:
   // Specify the transform object used to transform points.
-  void SetTransform(vtkAbstractTransform*);
+  virtual void SetTransform(vtkAbstractTransform*);
   vtkGetObjectMacro(Transform,vtkAbstractTransform);
 
 protected:
