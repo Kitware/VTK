@@ -49,6 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkXGLLight.h"
 #include "vtkXGLActor.h"
 #include "vtkXGLPolyDataMapper.h"
+#include "vtkRenderWindowInteractor.h"
 
 // some globals left over from some Sun code
 Xgl_sys_state xglr_sys_state = 0;  // XGLR System State object 
@@ -108,6 +109,152 @@ void vtkXGLRenderWindow::Start(void)
   if (!this->Context) this->Initialize();
 }
 
+// Ask each renderer owned by this RenderWindow to render its image and 
+// synchronize this process.
+void vtkXGLRenderWindow::Render()
+{
+  int *size;
+  int x,y;
+  float *p1;
+
+  vtkDebugMacro(<< "Starting Render Method.\n");
+
+  // if we are in the middle of an abort check the return now
+  if (this->InAbortCheck) return;
+  // reset the Abort flag
+  this->AbortRender = 0;
+  
+  if ( this->Interactor && ! this->Interactor->GetInitialized() )
+    this->Interactor->Initialize();
+
+  if ((!this->AccumulationBuffer)&&
+      (this->SubFrames || this->AAFrames || this->FDFrames))
+    {
+    // get the size
+    size = this->GetSize();
+
+    this->AccumulationBuffer = new float [3*size[0]*size[1]];
+    memset(this->AccumulationBuffer,0,3*size[0]*size[1]*sizeof(float));
+    }
+  
+  // handle any sub frames
+  if (this->SubFrames)
+    {
+    // get the size
+    size = this->GetSize();
+
+    // draw the images
+    this->DoAARender();
+
+    // now accumulate the images 
+    if ((!this->AAFrames) && (!this->FDFrames))
+      {
+      p1 = this->AccumulationBuffer;
+      unsigned char *p2;
+      unsigned char *p3;
+      if (this->ResultFrame)
+	{
+	p2 = this->ResultFrame;
+	}
+      else
+	{
+	p2 = this->GetPixelData(0,0,size[0]-1,size[1]-1,!this->DoubleBuffer);
+	}
+      p3 = p2;
+      for (y = 0; y < size[1]; y++)
+	{
+	for (x = 0; x < size[0]; x++)
+	  {
+	  *p1 += *p2; p1++; p2++;
+	  *p1 += *p2; p1++; p2++;
+	  *p1 += *p2; p1++; p2++;
+	  }
+	}
+      delete [] p3;
+      }
+    
+    // if this is the last sub frame then convert back into unsigned char
+    this->CurrentSubFrame++;
+    if (this->CurrentSubFrame == this->SubFrames)
+      {
+      float num;
+      unsigned char *p2 = new unsigned char [3*size[0]*size[1]];
+      
+      num = this->SubFrames;
+      if (this->AAFrames) num *= this->AAFrames;
+      if (this->FDFrames) num *= this->FDFrames;
+
+      this->ResultFrame = p2;
+      p1 = this->AccumulationBuffer;
+      for (y = 0; y < size[1]; y++)
+	{
+	for (x = 0; x < size[0]; x++)
+	  {
+	  *p2 = (unsigned char)(*p1/num); p1++; p2++;
+	  *p2 = (unsigned char)(*p1/num); p1++; p2++;
+	  *p2 = (unsigned char)(*p1/num); p1++; p2++;
+	  }
+	}
+      
+      this->CurrentSubFrame = 0;
+      this->Renderers->Render2D();
+      this->CopyResultFrame();
+
+      // free any memory
+      delete [] this->AccumulationBuffer;
+      this->AccumulationBuffer = NULL;
+      }
+    }
+  else // no subframes
+    {
+    // get the size
+    size = this->GetSize();
+
+    this->DoAARender();
+    // if we had some accumulation occur
+    if (this->AccumulationBuffer)
+      {
+      float num;
+      unsigned char *p2 = new unsigned char [3*size[0]*size[1]];
+
+      if (this->AAFrames) 
+	{
+	num = this->AAFrames;
+	}
+      else
+	{
+	num = 1;
+	}
+      if (this->FDFrames) num *= this->FDFrames;
+
+      this->ResultFrame = p2;
+      p1 = this->AccumulationBuffer;
+      for (y = 0; y < size[1]; y++)
+	{
+	for (x = 0; x < size[0]; x++)
+	  {
+	  *p2 = (unsigned char)(*p1/num); p1++; p2++;
+	  *p2 = (unsigned char)(*p1/num); p1++; p2++;
+	  *p2 = (unsigned char)(*p1/num); p1++; p2++;
+	  }
+	}
+      
+      delete [] this->AccumulationBuffer;
+      this->AccumulationBuffer = NULL;
+      }
+    
+    this->Renderers->Render2D();
+    this->CopyResultFrame();
+    }  
+
+  if (this->ResultFrame) 
+    {
+    delete [] this->ResultFrame;
+    this->ResultFrame = NULL;
+    }
+
+}
+
 // Update system if needed due to stereo rendering.
 void vtkXGLRenderWindow::StereoUpdate(void)
 {
@@ -156,6 +303,10 @@ void vtkXGLRenderWindow::Frame(void)
 		   XGL_CTX_NEW_FRAME_HLHSR_ACTION | XGL_CTX_NEW_FRAME_CLEAR,
 		   0);
     }
+  xgl_context_flush(this->Context, XGL_FLUSH_GEOM_DATA);
+  xgl_context_flush(this->Context, XGL_FLUSH_SYNCHRONIZE);
+  xgl_context_flush(this->Context, XGL_FLUSH_BUFFERS);
+  XSync(this->DisplayId,False);    
 }
 
 /*

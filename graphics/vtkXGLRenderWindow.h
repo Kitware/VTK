@@ -83,6 +83,11 @@ public:
   virtual void SetFullScreen(int);
 
   // Description:
+  // Override the Render method because XGL swaps buffers
+  // in a different manner from other APIs
+  virtual void Render();
+  
+  // Description:
   // Resize the window.
   void WindowRemap(void);
 
