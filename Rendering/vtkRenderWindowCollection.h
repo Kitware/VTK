@@ -45,6 +45,14 @@ class VTK_RENDERING_EXPORT vtkRenderWindowCollection : public vtkCollection
   vtkRenderWindow *GetNextItem() {
     return static_cast<vtkRenderWindow *>(this->GetNextItemAsObject());};
   
+  //BTX
+  // Description: 
+  // Reentrant safe way to get an object in a collection. Just pass the
+  // same cookie back and forth. 
+  vtkRenderWindow *GetNextRenderWindow(vtkCollectionSimpleIterator &cookie) {
+    return static_cast<vtkRenderWindow *>(this->GetNextItemAsObject(cookie));};
+  //ETX
+
 protected:
   vtkRenderWindowCollection() {};
   ~vtkRenderWindowCollection() {};
