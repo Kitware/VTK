@@ -26,7 +26,7 @@ extern "C" {
 
 //-------------------------------------------------------------------------
 vtkStandardNewMacro(vtkTIFFReader);
-vtkCxxRevisionMacro(vtkTIFFReader, "1.43");
+vtkCxxRevisionMacro(vtkTIFFReader, "1.44");
 
 class vtkTIFFReaderInternal
 {
@@ -448,7 +448,6 @@ void vtkTIFFReader::ReadImageInternal( void* vtkNotUsed(in), void* outPtr,
       return;
       }
     int xx, yy;
-    unsigned char *simage = (unsigned char *)tempImage;
     uint32* ssimage = tempImage;
     unsigned char *fimage = (unsigned char *)outPtr;
     for ( yy = 0; yy < height; yy ++ )
@@ -460,12 +459,6 @@ void vtkTIFFReader::ReadImageInternal( void* vtkNotUsed(in), void* outPtr,
              yy >= this->InternalExtents[2] && 
              yy <= this->InternalExtents[3] )
           {       
-          /*
-          unsigned char red   = *(simage);
-          unsigned char green = *(simage+1);
-          unsigned char blue  = *(simage+2);
-          unsigned char alpha = *(simage+3);
-          */
           unsigned char red   = static_cast<unsigned char>(TIFFGetR(*ssimage));
           unsigned char green = static_cast<unsigned char>(TIFFGetG(*ssimage));
           unsigned char blue  = static_cast<unsigned char>(TIFFGetB(*ssimage));
@@ -477,7 +470,6 @@ void vtkTIFFReader::ReadImageInternal( void* vtkNotUsed(in), void* outPtr,
           *(fimage+3) = alpha;//alpha;
           fimage += 4;
           }
-        simage += 4;
         ssimage ++;
         }
       }
@@ -563,7 +555,7 @@ int vtkTIFFReader::EvaluateImageAt( void* out, void* in )
 {
   unsigned char *image = (unsigned char *)out;
   unsigned char *source = (unsigned char *)in;
-  int increment = 0;
+  int increment;
   unsigned short red, green, blue, alpha;
   switch ( this->GetFormat() )
     {

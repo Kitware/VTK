@@ -27,7 +27,7 @@
 
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.57");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.58");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -311,7 +311,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
     stringRead = sscanf(line, " %*s %*s %s", subLine);
     if (stringRead == 1)
       {
-      stringRead = sscanf(line, " %*s %s %s", subLine1, subLine2);
+      sscanf(line, " %*s %s %s", subLine1, subLine2);
       if (strncmp(subLine1,"ensight",7) == 0)
         {
         if (strncmp(subLine2,"gold",4) == 0)
@@ -516,7 +516,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
 
 void vtkGenericEnSightReader::SetCaseFileName(const char* fileName)
 {
-  char *endingSlash = NULL;
+  char *endingSlash;
   char *path, *newFileName;
   int position, numChars;
   

@@ -22,7 +22,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkParticleReader, "1.18");
+vtkCxxRevisionMacro(vtkParticleReader, "1.19");
 vtkStandardNewMacro(vtkParticleReader);
 
 // These are copied right from vtkImageReader.
@@ -220,17 +220,14 @@ void vtkParticleReader::Execute()
       }
     }
   delete [] data;
-  data = ptr = NULL;
+  ptr = NULL;
 
   output->SetPoints(points);
   points->Delete();
-  points = NULL;
   output->SetVerts(verts);
   verts->Delete();
-  verts = NULL;
   output->GetPointData()->SetScalars(array);
   array->Delete();
-  array = NULL;
 }
 
 

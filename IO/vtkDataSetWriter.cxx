@@ -22,7 +22,7 @@
 #include "vtkStructuredPointsWriter.h"
 #include "vtkUnstructuredGridWriter.h"
 
-vtkCxxRevisionMacro(vtkDataSetWriter, "1.36");
+vtkCxxRevisionMacro(vtkDataSetWriter, "1.37");
 vtkStandardNewMacro(vtkDataSetWriter);
 
 //----------------------------------------------------------------------------
@@ -47,7 +47,7 @@ vtkDataSet *vtkDataSetWriter::GetInput()
 void vtkDataSetWriter::WriteData()
 {
   int type;
-  vtkDataWriter *writer = NULL;
+  vtkDataWriter *writer;
   vtkDataSet *input = this->GetInput();
   
   vtkDebugMacro(<<"Writing vtk dataset...");

@@ -36,7 +36,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkDataWriter, "1.108");
+vtkCxxRevisionMacro(vtkDataWriter, "1.109");
 vtkStandardNewMacro(vtkDataWriter);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -671,7 +671,7 @@ int vtkDataWriter::WriteScalarData(ostream *fp, vtkDataArray *scalars, int num)
     name = this->LookupTableName;
     }
 
-  char* scalarsName = 0;
+  char* scalarsName;
   // Buffer size is size of array name times four because 
   // in theory there could be array name consisting of only
   // weird symbols.
@@ -785,7 +785,7 @@ int vtkDataWriter::WriteVectorData(ostream *fp, vtkDataArray *vectors, int num)
 
   *fp << "VECTORS ";
 
-  char* vectorsName = 0;
+  char* vectorsName;
   // Buffer size is size of array name times four because 
   // in theory there could be array name consisting of only
   // weird symbols.
@@ -818,7 +818,7 @@ int vtkDataWriter::WriteNormalData(ostream *fp, vtkDataArray *normals, int num)
 {
   char format[1024];
 
-  char* normalsName = 0;
+  char* normalsName;
   // Buffer size is size of array name times four because 
   // in theory there could be array name consisting of only
   // weird symbols.
@@ -853,7 +853,7 @@ int vtkDataWriter::WriteTCoordData(ostream *fp, vtkDataArray *tcoords, int num)
   int dim=tcoords->GetNumberOfComponents();
   char format[1024];
 
-  char* tcoordsName = 0;
+  char* tcoordsName;
   // Buffer size is size of array name times four because 
   // in theory there could be array name consisting of only
   // weird symbols.
@@ -889,7 +889,7 @@ int vtkDataWriter::WriteTensorData(ostream *fp, vtkDataArray *tensors, int num)
 {
   char format[1024];
 
-  char* tensorsName = 0;
+  char* tensorsName;
   // Buffer size is size of array name times four because 
   // in theory there could be array name consisting of only
   // weird symbols.
@@ -1104,7 +1104,6 @@ void vtkDataWriter::CloseVTKFile(ostream *fp)
       this->OutputString = tmp;
       }
     delete fp;
-    fp = NULL;
     }
 
 }

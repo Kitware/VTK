@@ -30,7 +30,7 @@ extern "C" {
 }
 
 
-vtkCxxRevisionMacro(vtkJPEGReader, "1.21");
+vtkCxxRevisionMacro(vtkJPEGReader, "1.22");
 vtkStandardNewMacro(vtkJPEGReader);
 
 
@@ -191,7 +191,7 @@ int vtkJPEGReaderUpdate2(vtkJPEGReader *self, OT *outPtr,
     }
 
   // read the bulk data
-  unsigned int remainingRows = cinfo.output_height;
+  unsigned int remainingRows;
   while (cinfo.output_scanline < cinfo.output_height)
     {
     remainingRows = cinfo.output_height - cinfo.output_scanline;

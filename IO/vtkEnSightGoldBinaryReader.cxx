@@ -31,7 +31,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.53");
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.54");
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 // This is half the precision of an int.
@@ -217,7 +217,7 @@ int vtkEnSightGoldBinaryReader::ReadGeometryFile(char* fileName, int timeStep)
     
     this->ReadLine(line); // part description line
     char *name = strdup(line);
-    lineRead = this->ReadLine(line);
+    this->ReadLine(line);
     
     if (strncmp(line, "block", 5) == 0)
       {
@@ -340,7 +340,7 @@ int vtkEnSightGoldBinaryReader::SkipTimeStep()
       return 0;
       }
     this->ReadLine(line); // part description line
-    lineRead = this->ReadLine(line);
+    this->ReadLine(line);
     
     if (strncmp(line, "block", 5) == 0)
       {
@@ -392,7 +392,7 @@ int vtkEnSightGoldBinaryReader::SkipTimeStep()
 int vtkEnSightGoldBinaryReader::SkipStructuredGrid(char line[256])
 {
   char subLine[80];
-  int lineRead = 1;
+  int lineRead;
   int iblanked = 0;
   int dimensions[3];
   int numPts;
@@ -801,7 +801,7 @@ int vtkEnSightGoldBinaryReader::SkipUnstructuredGrid(char line[256])
 int vtkEnSightGoldBinaryReader::SkipRectilinearGrid(char line[256])
 {
   char subLine[80];
-  int lineRead = 1;
+  int lineRead;
   int iblanked = 0;
   int dimensions[3];
   int numPts;
@@ -853,7 +853,7 @@ int vtkEnSightGoldBinaryReader::SkipRectilinearGrid(char line[256])
 int vtkEnSightGoldBinaryReader::SkipImageData(char line[256])
 {
   char subLine[80];
-  int lineRead = 1;
+  int lineRead;
   int iblanked = 0;
   int dimensions[3];
   float origin[3], delta[3];
@@ -1043,7 +1043,7 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(char* fileName,
   char line[80];
   int partId, numPts, i, lineRead;
   vtkFloatArray *scalars;
-  float* scalarsRead = NULL;
+  float* scalarsRead;
   vtkDataSet *output;
   
   // Initialize
@@ -2800,7 +2800,7 @@ int vtkEnSightGoldBinaryReader::CreateStructuredGridOutput(int partId,
                                                            const char* name)
 {
   char subLine[80];
-  int lineRead = 1;
+  int lineRead;
   int iblanked = 0;
   int dimensions[3];
   int i;
@@ -2934,7 +2934,7 @@ int vtkEnSightGoldBinaryReader::CreateRectilinearGridOutput(int partId,
                                                             const char* name)
 {
   char subLine[80];
-  int lineRead = 1;
+  int lineRead;
   int iblanked = 0;
   int dimensions[3];
   int i;
@@ -3058,7 +3058,7 @@ int vtkEnSightGoldBinaryReader::CreateImageDataOutput(int partId,
                                                       const char* name)
 {
   char subLine[80];
-  int lineRead = 1;
+  int lineRead;
   int iblanked = 0;
   int dimensions[3];
   float origin[3], delta[3];

@@ -24,7 +24,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkPLOT3DReader, "1.81");
+vtkCxxRevisionMacro(vtkPLOT3DReader, "1.82");
 vtkStandardNewMacro(vtkPLOT3DReader);
 
 #define VTK_RHOINF 1.0
@@ -400,7 +400,7 @@ int vtkPLOT3DReader::VerifySettings(char* buf, int vtkNotUsed(bufSize))
 int vtkPLOT3DReader::GetNumberOfOutputsInternal(FILE* xyzFp, int verify)
 {
   int numGrid=0;
-  int numOutputs=0;
+  int numOutputs;
 
   if ( this->MultiGrid )
     {

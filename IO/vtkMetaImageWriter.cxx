@@ -23,7 +23,7 @@
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMetaImageWriter, "1.7");
+vtkCxxRevisionMacro(vtkMetaImageWriter, "1.8");
 vtkStandardNewMacro(vtkMetaImageWriter);
 
 //----------------------------------------------------------------------------
@@ -123,7 +123,7 @@ void vtkMetaImageWriter::Write()
   id->GetOrigin(origin);
   id->GetSpacing(spacing);
 
-  const char* scalar_type = 0;
+  const char* scalar_type;
   switch ( id->GetScalarType() )
     {
   case VTK_CHAR:           scalar_type = "MET_CHAR"; break;

@@ -17,7 +17,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPNMReader, "1.31");
+vtkCxxRevisionMacro(vtkPNMReader, "1.32");
 vtkStandardNewMacro(vtkPNMReader);
 
 char vtkPNMReaderGetChar(FILE *fp)
@@ -123,7 +123,7 @@ void vtkPNMReader::ExecuteInformation()
   ysize = vtkPNMReaderGetInt(fp);
 
   // read max pixel value into comp for now
-  comp = vtkPNMReaderGetInt(fp);
+  vtkPNMReaderGetInt(fp);
   // if file is ascii, any amount of whitespace may follow.
   // if file is binary, a single whitespace character will follow.
   // We only support binary ppm and pgm files right now.  So the next

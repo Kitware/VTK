@@ -520,7 +520,6 @@ void vtkPLY::ply_put_element(PlyFile *plyfile, void *elem_ptr)
   char **other_ptr;
 
   elem = plyfile->which_elem;
-  elem_data = (char *)elem_ptr;
   other_ptr = (char **) (((char *) elem_ptr) + elem->other_offset);
 
   /* write out either to an ascii or binary file */
@@ -597,7 +596,6 @@ void vtkPLY::ply_put_element(PlyFile *plyfile, void *elem_ptr)
       }
       else {
         item = elem_data + prop->offset;
-        item_size = ply_type_size[prop->internal_type];
         get_stored_item ((void *) item, prop->internal_type,
                          &int_val, &uint_val, &double_val);
         write_binary_item (plyfile, int_val, uint_val, double_val,
@@ -1507,7 +1505,7 @@ void vtkPLY::ascii_get_element(PlyFile *plyfile, char *elem_ptr)
   int which_word;
   char *elem_data,*item=0;
   char *item_ptr;
-  int item_size=0;
+  int item_size;
   int int_val;
   unsigned int uint_val;
   double double_val;

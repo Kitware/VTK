@@ -20,7 +20,7 @@
 #include "vtkPointData.h"
 #include "vtk_tiff.h"
 
-vtkCxxRevisionMacro(vtkTIFFWriter, "1.35");
+vtkCxxRevisionMacro(vtkTIFFWriter, "1.36");
 vtkStandardNewMacro(vtkTIFFWriter);
 
 //----------------------------------------------------------------------------
@@ -110,7 +110,7 @@ void vtkTIFFWriter::WriteFileHeader(ofstream *file, vtkImageData *data)
     return;
     }
 
-  int predictor = 0;
+  int predictor;
   ostream* ost = file;
 
   // Find the length of the rows to write.
@@ -161,7 +161,7 @@ void vtkTIFFWriter::WriteFileHeader(ofstream *file, vtkImageData *data)
     delete [] sample_info;
     }
 
-  int compression = COMPRESSION_PACKBITS;
+  int compression;
   switch ( this->Compression )
     {
   case vtkTIFFWriter::PackBits: compression = COMPRESSION_PACKBITS; break;
@@ -207,7 +207,6 @@ void vtkTIFFWriter::WriteFile(ofstream *, vtkImageData *data,
   int extent[6])
 {
   int idx1, idx2;
-  int rowLength; // in bytes
   void *ptr;
 
   // Make sure we actually have data.
@@ -226,19 +225,12 @@ void vtkTIFFWriter::WriteFile(ofstream *, vtkImageData *data,
     }
 
   // take into consideration the scalar type
-  switch (data->GetScalarType())
+  if( data->GetScalarType() != VTK_UNSIGNED_CHAR 
+   || data->GetScalarType() != VTK_UNSIGNED_SHORT)
     {
-  case VTK_UNSIGNED_CHAR:
-    rowLength = sizeof(unsigned char); 
-    break;
-  case VTK_UNSIGNED_SHORT:
-    rowLength = sizeof(unsigned short);
-  default:
     vtkErrorMacro("TIFFWriter only accepts unsigned char scalars!");
     return; 
     }
-  rowLength *= data->GetNumberOfScalarComponents();
-  rowLength *= (extent[1] - extent[0] + 1);
 
   int row = 0;
   for (idx2 = extent[4]; idx2 <= extent[5]; ++idx2)

@@ -28,7 +28,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightReader, "1.50");
+vtkCxxRevisionMacro(vtkEnSightReader, "1.51");
 
 //----------------------------------------------------------------------------
 typedef vtkstd::vector< vtkSmartPointer<vtkIdList> > vtkEnSightReaderCellIdsTypeBase;
@@ -1017,7 +1017,6 @@ int vtkEnSightReader::ReadCaseFile()
           }
         this->TimeSetFileNameNumbers->AddItem(filenameNumbers);
         filenameNumbers->Delete();
-        filenameNumbers = NULL;
         this->ReadLine(line);
         }
       vtkFloatArray *timeValues = vtkFloatArray::New();
@@ -1063,7 +1062,6 @@ int vtkEnSightReader::ReadCaseFile()
         }
       this->TimeSets->AddItem(timeValues);
       timeValues->Delete();
-      timeValues = NULL;
       }
     }
   
@@ -1105,7 +1103,6 @@ int vtkEnSightReader::ReadCaseFile()
       filenameNums->Delete();
       filenameNums = NULL;
       numSteps->Delete();
-      numSteps = NULL;
       }
     }
 

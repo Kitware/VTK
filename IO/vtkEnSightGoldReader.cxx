@@ -29,7 +29,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.46");
+vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.47");
 vtkStandardNewMacro(vtkEnSightGoldReader);
 
 //----------------------------------------------------------------------------
@@ -123,7 +123,7 @@ int vtkEnSightGoldReader::ReadGeometryFile(char* fileName, int timeStep)
     
     this->ReadNextDataLine(line); // part description line
     char *name = strdup(line);
-    lineRead = this->ReadNextDataLine(line);
+    this->ReadNextDataLine(line);
     
     if (strncmp(line, "block", 5) == 0)
       {
@@ -1374,7 +1374,6 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
         newLines[i] = NULL;
         }
       delete [] newLines;
-      newLines = NULL;
       }
     else if (strncmp(line, "tria3", 5) == 0 ||
              strncmp(line, "tria6", 5) == 0)
@@ -1672,7 +1671,7 @@ int vtkEnSightGoldReader::CreateStructuredGridOutput(int partId,
                                                      const char* name)
 {
   char subLine[256];
-  int lineRead = 1;
+  int lineRead;
   int iblanked = 0;
   int dimensions[3];
   int i;
@@ -1767,7 +1766,7 @@ int vtkEnSightGoldReader::CreateRectilinearGridOutput(int partId,
                                                       const char* name)
 {
   char subLine[256];
-  int lineRead = 1;
+  int lineRead;
   int iblanked = 0;
   int dimensions[3];
   int i;
@@ -1872,7 +1871,7 @@ int vtkEnSightGoldReader::CreateImageDataOutput(int partId,
                                                 const char* name)
 {
   char subLine[256];
-  int lineRead = 1;
+  int lineRead;
   int iblanked = 0;
   int dimensions[3];
   int i;

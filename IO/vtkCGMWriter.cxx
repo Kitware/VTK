@@ -24,7 +24,7 @@
 #include "vtkCellData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCGMWriter, "1.15");
+vtkCxxRevisionMacro(vtkCGMWriter, "1.16");
 vtkStandardNewMacro(vtkCGMWriter);
 
 vtkCxxSetObjectMacro(vtkCGMWriter, Viewport, vtkViewport);
@@ -2308,7 +2308,6 @@ static int cgmSetTextPath(cgmImagePtr im, int tpath)
     return 0; /* memory allocation failed */
     }
   esp=es;
-  octet_count = 0;
 
   if (!cgmcomhead(es, 5, 17, 2)) 
     {
@@ -2443,7 +2442,7 @@ static int cgmSetMarkerType(cgmImagePtr im, int mtype)
   /* set Param_List_Len to 2 (signed int at index precision) */
 
   /* add in the value of mtype */
-  es += cgmAppShort(es, (short int) mtype);
+  //es += cgmAppShort(es, (short int) mtype);
 
   octet_count = 4; /* we just know this */
 
@@ -2518,7 +2517,7 @@ static int cgmSetMarkerSize(cgmImagePtr im, int msize)
       }
     octet_count = 2;
     es += 2;
-    es += cgmAppShort(es, (short int) msize);
+    //es += cgmAppShort(es, (short int) msize);
     octet_count += 2;
     }
 
@@ -2581,7 +2580,7 @@ static int cgmSetMarkerColor(cgmImagePtr im, int mcolor)
   *es =  0377 & mcolor; /* mask off last 8 bits and put in es */
   es++;
 
-  es += cgmAppNull(es, 1);
+  //es += cgmAppNull(es, 1);
 
   octet_count = 4; /* we just know this; 2 octets of header,
                     * 1 octet of data, 1 octet of null data */
@@ -2940,7 +2939,7 @@ static int cgmImageAddColor(cgmImagePtr im, int si, int ei)
   if (curly % 4) 
     {
     octet_count += curly;
-    ctsp += cgmAppNull(ctsp, curly);
+    //ctsp += cgmAppNull(ctsp, curly);
     }
   /* add it to the buffer */
   if (cgmAddElem(im, cts, octet_count)) 
@@ -4461,8 +4460,6 @@ static int cgmImageEndCgm (cgmImagePtr im)
     if (cgmAddElem(im, efile, 2)) 
       {
       free(efile);
-      efile = 0;
-      efilep = 0;
       }
     else 
       {
