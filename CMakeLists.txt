@@ -285,11 +285,22 @@ IF (VTK_WRAP_PYTHON)
   ENDIF (NOT VTK_BUILD_SHARED_LIBS)  
 ENDIF (VTK_WRAP_PYTHON)
 
-# python executable is used by some tests
-# whether VTK_WRAP_PYTHON is on or not.
-# do not add a VTK_WRAP_PYTHON to this if.
+# python executable is used by some tests whether VTK_WRAP_PYTHON is
+# on or not.  do not add a VTK_WRAP_PYTHON to this if.
+SET(VTK_NEED_PYTHON_EXECUTABLE 0)
 IF(BUILD_TESTING)
  IF (DART_ROOT)
+   SET(VTK_NEED_PYTHON_EXECUTABLE 1)
+ ENDIF (DART_ROOT)
+ENDIF(BUILD_TESTING)
+
+# If VTK_WRAP_PYTHON is on, then we need python executable to compile
+# scripts.
+IF(VTK_WRAP_PYTHON)
+  SET(VTK_NEED_PYTHON_EXECUTABLE 1)
+ENDIF(VTK_WRAP_PYTHON)
+
+IF(VTK_NEED_PYTHON_EXECUTABLE)
   FIND_PROGRAM(PYTHON_EXECUTABLE
     NAMES python2.2 python2.1 python1.6 python1.5 python
     PATHS
@@ -301,8 +312,7 @@ IF(BUILD_TESTING)
     [HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore\\1.5\\InstallPath]
 )
   MARK_AS_ADVANCED(PYTHON_EXECUTABLE)
- ENDIF (DART_ROOT)
-ENDIF(BUILD_TESTING)
+ENDIF(VTK_NEED_PYTHON_EXECUTABLE)
 
 IF (VTK_WRAP_JAVA)
   INCLUDE (${CMAKE_ROOT}/Modules/FindJNI.cmake)

@@ -18,84 +18,6 @@ IF(VTK_USE_CARBON)
   ENDIF(VTK_APPLE_RESOURCE)
 ENDIF(VTK_USE_CARBON)
 
-ADD_CUSTOM_TARGET(vtkpython_pyc ALL echo "...")
-
-FOREACH(dir
-  ${VTK_BINARY_DIR}/Wrapping/Python/vtk/gtk
-  ${VTK_BINARY_DIR}/Wrapping/Python/vtk/qt
-  ${VTK_BINARY_DIR}/Wrapping/Python/vtk/tk
-  ${VTK_BINARY_DIR}/Wrapping/Python/vtk/util
-  ${VTK_BINARY_DIR}/Wrapping/Python/vtk/wx
-  ${VTK_BINARY_DIR}/Wrapping/Python/vtk/testing
-  ${VTK_BINARY_DIR}/Wrapping/Python/vtk/test
-  )
-  MAKE_DIRECTORY(${dir})
-ENDFOREACH(dir)
-SET(VTK_PYTHON_LIBRARY_FILES "")
-FOREACH(file
-  vtk/gtk/GtkVTKRenderWindow
-  vtk/gtk/__init__
-  vtk/gtk/GtkVTKRenderWindowInteractor
-  vtk/qt/QVTKRenderWidget
-  vtk/qt/__init__
-  vtk/qt/QVTKRenderWindowInteractor
-  vtk/__helper
-  vtk/__init__
-  vtk/common
-  vtk/filtering
-  vtk/graphics
-  vtk/hybrid
-  vtk/imaging
-  vtk/io
-  vtk/parallel
-  vtk/patented
-  vtk/rendering
-  vtk/required
-  vtk/tk/__init__
-  vtk/tk/vtkLoadPythonTkWidgets
-  vtk/tk/vtkTkImageViewerWidget
-  vtk/tk/vtkTkRenderWidget
-  vtk/tk/vtkTkRenderWindowInteractor
-  vtk/tk/vtkTkPhotoImage
-  vtk/util/__init__
-  vtk/util/vtkMethodParser
-  vtk/util/misc
-  vtk/util/vtkConstants
-  vtk/util/vtkImageExportToArray
-  vtk/util/vtkImageImportFromArray
-  vtk/util/colors
-  vtk/wx/__init__
-  vtk/wx/wxVTKRenderWindow
-  vtk/wx/wxVTKRenderWindowInteractor
-  vtk/test/BlackBox
-  vtk/test/Testing
-  vtk/test/__init__
-  QVTKRenderWidget
-  vtkRenderWidget
-  vtkTkImageViewerWidget
-  vtkTkRenderWidget
-  vtkpython
-  vtkpythontk
-  wxVTKRenderWindow
-  )
-  SET(src "${VTK_SOURCE_DIR}/Wrapping/Python/${file}.py")
-  SET(tgt "${VTK_BINARY_DIR}/Wrapping/Python/${file}.pyc")
-  ADD_CUSTOM_COMMAND(SOURCE ${src}
-    COMMAND ${PYTHON_EXECUTABLE}
-    ARGS -c "\"import" "py_compile;py_compile.compile('${src}','${tgt}','${tgt}')\""
-    TARGET vtkpython_pyc
-    OUTPUTS ${tgt}
-    )
-  SET(VTK_PYTHON_LIBRARY_FILES ${VTK_PYTHON_LIBRARY_FILES} ${tgt})
-ENDFOREACH(file)
-
-ADD_CUSTOM_COMMAND(
-  SOURCE vtkpython_pyc
-  COMMAND echo 
-  ARGS ".."
-  DEPENDS ${VTK_PYTHON_LIBRARY_FILES}
-  TARGET vtkpython_pyc
-  )
 
 FIND_LIBRARY(UTIL_LIBRARY
   NAMES util
@@ -177,6 +99,95 @@ IF (VTK_USE_PARALLEL)
 ENDIF (VTK_USE_PARALLEL)
 
 INSTALL_TARGETS(/bin vtkpython)    
+
+# Precompile python scripts
+SET(VTK_COMPILE_PYTHON_SCRIPTS 0)
+IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
+  SET(VTK_COMPILE_PYTHON_SCRIPTS 1)
+ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
+IF(NOT PYTHON_EXECUTABLE)
+  SET(VTK_COMPILE_PYTHON_SCRIPTS 0)
+ENDIF(NOT PYTHON_EXECUTABLE)
+
+IF(VTK_COMPILE_PYTHON_SCRIPTS)
+  ADD_CUSTOM_TARGET(vtkpython_pyc ALL echo "...")
+  FOREACH(dir
+    ${VTK_BINARY_DIR}/Wrapping/Python/vtk/gtk
+    ${VTK_BINARY_DIR}/Wrapping/Python/vtk/qt
+    ${VTK_BINARY_DIR}/Wrapping/Python/vtk/tk
+    ${VTK_BINARY_DIR}/Wrapping/Python/vtk/util
+    ${VTK_BINARY_DIR}/Wrapping/Python/vtk/wx
+    ${VTK_BINARY_DIR}/Wrapping/Python/vtk/testing
+    ${VTK_BINARY_DIR}/Wrapping/Python/vtk/test
+    )
+    MAKE_DIRECTORY(${dir})
+  ENDFOREACH(dir)
+  SET(VTK_PYTHON_LIBRARY_FILES "")
+  FOREACH(file
+    vtk/gtk/GtkVTKRenderWindow
+    vtk/gtk/__init__
+    vtk/gtk/GtkVTKRenderWindowInteractor
+    vtk/qt/QVTKRenderWidget
+    vtk/qt/__init__
+    vtk/qt/QVTKRenderWindowInteractor
+    vtk/__helper
+    vtk/__init__
+    vtk/common
+    vtk/filtering
+    vtk/graphics
+    vtk/hybrid
+    vtk/imaging
+    vtk/io
+    vtk/parallel
+    vtk/patented
+    vtk/rendering
+    vtk/required
+    vtk/tk/__init__
+    vtk/tk/vtkLoadPythonTkWidgets
+    vtk/tk/vtkTkImageViewerWidget
+    vtk/tk/vtkTkRenderWidget
+    vtk/tk/vtkTkRenderWindowInteractor
+    vtk/tk/vtkTkPhotoImage
+    vtk/util/__init__
+    vtk/util/vtkMethodParser
+    vtk/util/misc
+    vtk/util/vtkConstants
+    vtk/util/vtkImageExportToArray
+    vtk/util/vtkImageImportFromArray
+    vtk/util/colors
+    vtk/wx/__init__
+    vtk/wx/wxVTKRenderWindow
+    vtk/wx/wxVTKRenderWindowInteractor
+    vtk/test/BlackBox
+    vtk/test/Testing
+    vtk/test/__init__
+    QVTKRenderWidget
+    vtkRenderWidget
+    vtkTkImageViewerWidget
+    vtkTkRenderWidget
+    vtkpython
+    vtkpythontk
+    wxVTKRenderWindow
+    )
+    SET(src "${VTK_SOURCE_DIR}/Wrapping/Python/${file}.py")
+    SET(tgt "${VTK_BINARY_DIR}/Wrapping/Python/${file}.pyc")
+    ADD_CUSTOM_COMMAND(SOURCE ${src}
+      COMMAND ${PYTHON_EXECUTABLE}
+      ARGS -c "\"import" "py_compile;py_compile.compile('${src}','${tgt}','${tgt}')\""
+      TARGET vtkpython_pyc
+      OUTPUTS ${tgt}
+      )
+    SET(VTK_PYTHON_LIBRARY_FILES ${VTK_PYTHON_LIBRARY_FILES} ${tgt})
+  ENDFOREACH(file)
+
+  ADD_CUSTOM_COMMAND(
+    SOURCE vtkpython_pyc
+    COMMAND echo 
+    ARGS ".."
+    DEPENDS ${VTK_PYTHON_LIBRARY_FILES}
+    TARGET vtkpython_pyc
+    )
+ENDIF(VTK_COMPILE_PYTHON_SCRIPTS)
 
 # Allow the user to customize their build with some local options
 #
