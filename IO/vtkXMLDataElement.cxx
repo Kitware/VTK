@@ -20,7 +20,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkXMLDataElement, "1.18");
+vtkCxxRevisionMacro(vtkXMLDataElement, "1.19");
 vtkStandardNewMacro(vtkXMLDataElement);
 
 //----------------------------------------------------------------------------
@@ -828,9 +828,9 @@ void vtkXMLDataElement::SeekInlineDataPosition(vtkXMLDataParser* parser)
     {
     // Scan for the start of the actual inline data.
     char c=0;
-    parser->SeekG(this->GetXMLByteIndex());
     stream->clear(stream->rdstate() & ~ios::eofbit);
     stream->clear(stream->rdstate() & ~ios::failbit);
+    parser->SeekG(this->GetXMLByteIndex());
     while(stream->get(c) && (c != '>'));
     while(stream->get(c) && this->IsSpace(c));
     unsigned long pos = parser->TellG();
