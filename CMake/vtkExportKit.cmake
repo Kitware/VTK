@@ -18,7 +18,7 @@ MACRO(VTK_EXPORT_KIT kit ukit sources)
   STRING(ASCII 35 POUND)
   STRING(ASCII 36 DOLLAR)
   STRING(ASCII 64 AT)
-  WRITE_FILE(${CMAKE_CURRENT_BINARY_DIR}/vtk${kit}Kit.cmake.in
+  WRITE_FILE(${CMAKE_CURRENT_BINARY_DIR}/vtk${kit}Kit.cmake.in.tmp
     "${POUND} Directory containing class headers.\n"
     "SET(VTK_${ukit}_HEADER_DIR \"${AT}VTK_${ukit}_HEADER_DIR${AT}\")\n"
     "\n"
@@ -42,6 +42,10 @@ MACRO(VTK_EXPORT_KIT kit ukit sources)
     "  SET(VTK_CLASS_WRAP_EXCLUDE_${DOLLAR}{class} 1)\n"
     "ENDFOREACH(class)\n"
     )
+  EXEC_PROGRAM(${CMAKE_COMMAND} ARGS -E copy_if_different 
+    ${CMAKE_CURRENT_BINARY_DIR}/vtk${kit}Kit.cmake.in.tmp
+    ${CMAKE_CURRENT_BINARY_DIR}/vtk${kit}Kit.cmake.in OUTPUT_VARIABLE OUT)
+    
   SET(VTK_${ukit}_HEADER_DIR ${CMAKE_INSTALL_PREFIX}/include/vtk)
   CONFIGURE_FILE(${CMAKE_CURRENT_BINARY_DIR}/vtk${kit}Kit.cmake.in
                  ${VTK_BINARY_DIR}/Utilities/InstallOnly/vtk${kit}Kit.cmake
