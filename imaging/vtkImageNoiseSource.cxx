@@ -128,7 +128,7 @@ void vtkImageNoiseSource::Execute(vtkImageData *data)
   
   // Get increments to march through data 
   data->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
-  outPtr = data->GetScalarPointer(outExt[0],outExt[2],outExt[4]);
+  outPtr = (float *) data->GetScalarPointer(outExt[0],outExt[2],outExt[4]);
   
 
   // Loop through ouput pixels
