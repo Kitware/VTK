@@ -3,6 +3,13 @@
 
 #include "vtkString.h"
 
+#define TEST(test, name) \
+  if ( test ) \
+    {\
+    cout << __LINE__ << ": " << #name << " Does not work" << endl;\
+    res = 1;\
+    }
+
 int TestString(int, char* argv[])
 {
   int res = 0;
@@ -13,78 +20,55 @@ int TestString(int, char* argv[])
     res = 1;
     }
   char *dup = vtkString::Duplicate(argv[0]);
-  if ( vtkString::Compare(dup, argv[0]) != 0 )
-    {
-    cout << "Compare does not work" << endl;
-    res = 1;
-    }
-  if ( !vtkString::Equals(dup, argv[0] ) )
-    {
-    cout << "Equals does not work" << endl;
-    res = 1;
-    }
+  TEST( ( vtkString::Compare(dup, argv[0]) != 0 ), Compare);
+  TEST( (!vtkString::Equals(dup, argv[0] ) ), Equals);
   delete [] dup;
+
   const char* str = "TestString";
-  if ( !vtkString::StartsWith(str, "Test") )
-    {
-    cout << "StartsWith does not work" << endl;
-    res =1;
-    }
-  if ( !vtkString::EndsWith(str, "String") )
-    {
-    cout << "EndsWith does not work" << endl;
-    res =1;
-    }
+  TEST( (!vtkString::StartsWith(str, "Test") ), StartsWith );
+  TEST( ( vtkString::StartsWith(str, 0) ), StartsWith );
+  TEST( (!vtkString::EndsWith(str, "String") ), EndsWith );
+  TEST( ( vtkString::EndsWith(str, 0) ), EndsWith );
+
   dup = new char[ vtkString::Length(argv[0]) + 1 ];
   vtkString::Copy(dup, argv[0]);
-   if ( vtkString::Compare(dup, argv[0]) != 0 )
-    {
-    cout << "Compare does not work" << endl;
-    res = 1;
-    }
-  if ( !vtkString::Equals(dup, argv[0] ) )
-    {
-    cout << "Equals does not work" << endl;
-    res = 1;
-    }
+  TEST( ( vtkString::Compare(dup, argv[0])), Compare );
+  TEST( (!vtkString::Equals(dup, argv[0])), Equals );
   delete [] dup;
-  if ( vtkString::Compare("a", "b") != -1 )
-    {
-    cout << "Compare does not work" << endl;
-    res = 1;
-    }
-  if ( vtkString::Compare("b", "a") != 1 )
-    {
-    cout << "Compare does not work" << endl;
-    res = 1;
-    }
+
+  dup = vtkString::Duplicate(0);
+  TEST( (dup), Duplicate(0) );
+  delete [] dup;
+
+  TEST( ( vtkString::Equals("FoObAr", "fOoBaR" ) ), Equals );
+  TEST( (!vtkString::EqualsCase("FoObAr", "fOoBaR" ) ), EqualsCase );
+
+  TEST( (vtkString::Compare("a", "b")!=-1 ), Compare );
+  TEST( (vtkString::Compare("b", "a")!= 1 ), Compare );
+
+  TEST( (vtkString::CompareCase("A", "b")!=-1 ), CompareCase );
+  TEST( (vtkString::CompareCase("b", "A")!= 1 ), CompareCase );
+
+  TEST( (vtkString::Compare("A", 0)!= 1 ), Compare );
+  TEST( (vtkString::Compare(0, "A")!=-1 ), Compare );
+
+  TEST( (vtkString::CompareCase("A", 0)!= 1 ), CompareCase );
+  TEST( (vtkString::CompareCase(0, "A")!=-1 ), CompareCase );
+
   char *hello_world = vtkString::Append("Hello", "World");
-  if ( !vtkString::Equals(hello_world, "HelloWorld") )
-    {
-    cout << "Append does not work" << endl;
-    res = 1;
-    }
+  TEST( (!vtkString::Equals(hello_world, "HelloWorld") ), Append );
   delete [] hello_world;
+
   char *hello_ = vtkString::Append("Hello", 0);
-  if ( !vtkString::Equals(hello_, "Hello") )
-    {
-    cout << "Append does not work for second string empty" << endl;
-    res = 1;
-    }
+  TEST( (!vtkString::Equals(hello_, "Hello") ), Append );
   delete [] hello_;
+
   char *_world = vtkString::Append(0, "World");
-  if ( !vtkString::Equals(_world, "World") )
-    {
-    cout << "Append does not work for first string empty" << endl;
-    res = 1;
-    }
+  TEST( (!vtkString::Equals(_world, "World") ), Append );
   delete [] _world;
+
   char *empty = vtkString::Append(0,0);
-  if ( empty )
-    {
-    cout << "Append does not work: string not empty" << endl;
-    res = 1;
-    }
+  TEST( ( empty ), Append );
   
   return res;
 }
