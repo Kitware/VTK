@@ -91,6 +91,7 @@ protected:
   void operator=(const vtkWriter&) {};
 
   virtual void WriteData() = 0; //internal method subclasses must respond to
+  vtkTimeStamp WriteTime;
 };
 
 #endif
