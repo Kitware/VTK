@@ -26,7 +26,7 @@
 #include "vtkRungeKutta2.h"
 #include "vtkGenericDataSet.h"
 
-vtkCxxRevisionMacro(vtkGenericStreamer, "1.2");
+vtkCxxRevisionMacro(vtkGenericStreamer, "1.3");
 vtkCxxSetObjectMacro(vtkGenericStreamer,Integrator,vtkInitialValueProblemSolver);
 
 #define VTK_START_FROM_POSITION 0
@@ -450,7 +450,7 @@ void vtkGenericStreamer::Integrate()
   vtkGenericDataSet *input  = this->GetInput();
   vtkDataSet *source = this->GetSource();
 //  vtkPointData *pd   = input->GetPointData();//FIXME
-  vtkDataArray *inScalars;
+  vtkDataArray *inScalars=0;
   vtkDataArray *inVectors=0;
   vtkIdType numSourcePts, idx, idxNext;
   vtkGenericStreamer::StreamPoint *sNext, *sPtr;
