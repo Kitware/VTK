@@ -15,6 +15,7 @@
 #include "vtkSpherePuzzle.h"
 
 #include "vtkAppendPolyData.h"
+#include "vtkGarbageCollector.h"
 #include "vtkLinearExtrusionFilter.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -26,7 +27,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSpherePuzzle, "1.13");
+vtkCxxRevisionMacro(vtkSpherePuzzle, "1.14");
 vtkStandardNewMacro(vtkSpherePuzzle);
 
 //----------------------------------------------------------------------------
@@ -99,6 +100,10 @@ void vtkSpherePuzzle::Reset()
 //----------------------------------------------------------------------------
 void vtkSpherePuzzle::Execute()
 {
+  // We are about to create/destroy alot of objects.  Defer garbage
+  // collection until we are done.
+  vtkGarbageCollector::DeferredCollectionPush();
+
   int i, j, k, num;
   int color;
   vtkAppendPolyData *append = vtkAppendPolyData::New();
@@ -180,6 +185,9 @@ void vtkSpherePuzzle::Execute()
   scalars->Delete();
   append->Delete();
   tf->Delete();
+
+  // We are done creating/destroying objects.
+  vtkGarbageCollector::DeferredCollectionPop();
 }
 
 
