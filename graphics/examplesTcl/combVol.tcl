@@ -76,6 +76,7 @@ eval [outlineActor GetProperty] SetColor $banana
 ren1 AddActor isoActor
 isoActor VisibilityOn
 ren1 AddActor cut
+set opacity 1
 [cut GetProperty] SetOpacity .06
 ren1 SetBackground 1 1 1
 renWin SetSize 640 480
@@ -95,11 +96,11 @@ iren SetUserMethod {wm deiconify .vtkInteract}
 # Cut: generates n cut planes normal to camera's view plane
 #
 proc Cut {n} {
-  global cam1
+  global cam1 opacity
   eval plane SetNormal [$cam1 GetViewPlaneNormal]
   eval plane SetOrigin [$cam1 GetFocalPoint]
   eval cutter GenerateValues $n -15 15
-  clut SetAlphaRange [[cut GetProperty] GetOpacity] [[cut GetProperty] GetOpacity]
+  clut SetAlphaRange $opacity $opacity
   renWin Render
 }
 
