@@ -23,7 +23,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 #include "PolySrc.hh"
 
-#define MAX_RESOLUTION MAX_VERTS
+#define MAX_RESOLUTION MAX_CELL_SIZE
 
 class vlConeSource : public vlPolySource 
 {

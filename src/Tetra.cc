@@ -29,10 +29,10 @@ float vlTetra::EvaluatePosition(float x[3], int& subId, float pcoords[3])
   subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
 
-  pt1 = this->Points->GetPoint(0);
-  pt2 = this->Points->GetPoint(1);
-  pt3 = this->Points->GetPoint(2);
-  pt4 = this->Points->GetPoint(3);
+  pt1 = this->Points.GetPoint(0);
+  pt2 = this->Points.GetPoint(1);
+  pt3 = this->Points.GetPoint(2);
+  pt4 = this->Points.GetPoint(3);
 
   for (i=0; i<3; i++)
     {  
@@ -73,10 +73,10 @@ void vlTetra::EvaluateLocation(int& subId, float pcoords[3], float x[3])
   float *pt1, *pt2, *pt3, *pt4;
   int i;
 
-  pt1 = this->Points->GetPoint(0);
-  pt2 = this->Points->GetPoint(1);
-  pt3 = this->Points->GetPoint(2);
-  pt4 = this->Points->GetPoint(3);
+  pt1 = this->Points.GetPoint(0);
+  pt2 = this->Points.GetPoint(1);
+  pt3 = this->Points.GetPoint(2);
+  pt4 = this->Points.GetPoint(3);
 
   u4 = 1.0 - pcoords[0] - pcoords[1] - pcoords[2];
 

@@ -36,6 +36,7 @@ public:
   void ComputeNormal(float v1[3], float v2[3], float v3[3], float n[3]);
   void ComputeNormal(vlFloatPoints *p, float n[3]);
 
+  int CellDimension() {return 2;};
   float EvaluatePosition(float x[3], int& subId, float pcoords[3]);
   void EvaluateLocation(int& subId, float pcoords[3], float x[3]);
 
@@ -43,6 +44,15 @@ public:
                           float p20[3], float &l20, float n[3]);
 
   int PointInPolygon(float bounds[6], float x[3], float n[3]);  
+
+  int Triangulate(vlIdList &outTris);
+  int FastTriangulate(int numVerts, int *verts, vlIdList& Tris);
+  int CanSplitLoop(int fedges[2], int numVerts, int *verts, int& n1, int *l1,
+                   int& n2, int *l2, float& ar);
+  void SplitLoop (int fedges[2], int numVerts, int *verts, int& n1, int *l1, 
+                  int& n2, int* l2);
+
+
 };
 
 #endif

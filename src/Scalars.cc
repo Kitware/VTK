@@ -30,7 +30,7 @@ void vlScalars::GetScalars(vlIdList& ptId, vlFloatScalars& fs)
 {
   for (int i=0; i<ptId.NumberOfIds(); i++)
     {
-    fs.InsertScalar(i,this->GetScalar(ptId[i]));
+    fs.InsertScalar(i,this->GetScalar(ptId.GetId(i)));
     }
 }
 void vlScalars::ComputeRange()

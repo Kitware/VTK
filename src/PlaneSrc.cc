@@ -38,7 +38,7 @@ void vlPlaneSource::SetResolution(const int xR, const int yR)
 void vlPlaneSource::Execute()
 {
   float x[3], tc[2], n[3], xinc, yinc;
-  int pts[MAX_VERTS];
+  int pts[MAX_CELL_SIZE];
   int i, j;
   int numPts;
   int numPolys;

@@ -20,12 +20,19 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "vlMath.hh"
 #include "Line.hh"
 #include "Plane.hh"
+#include "DataSet.hh"
 
 #define FAILURE 0
 #define INTERSECTION 2
 #define OUTSIDE 3
 #define INSIDE 4
 #define ON_LINE 6
+
+//
+// In many of the functions that follow, the Points and PointIds members 
+// of the Cell are assumed initialized.  This is usually done indirectly
+// through the GetCell(id) method in the DataSet objects.
+//
 
 void vlPolygon::ComputeNormal(vlPoints *p, int numPts, int *pts, float *n)
 {
@@ -159,12 +166,11 @@ float vlPolygon::EvaluatePosition(float x[3], int& subId, float pcoords[3])
   int ignoreId, numPts;
   vlFloatPoints pts(2);
 
-  numPts = this->Points->NumberOfPoints();
-  line.SetPoints(&pts);
+  numPts = this->Points.NumberOfPoints();
   for (minDist2=LARGE_FLOAT,i=0; i<numPts - 1; i++)
     {
-    pts.SetPoint(0,this->Points->GetPoint(i));
-    pts.SetPoint(1,this->Points->GetPoint(i+1));
+    line.Points.SetPoint(0,this->Points.GetPoint(i));
+    line.Points.SetPoint(1,this->Points.GetPoint(i+1));
     dist2 = line.EvaluatePosition(x, ignoreId, pc);
     if ( dist2 < minDist2 )
       {
@@ -204,9 +210,9 @@ int vlPolygon::ParameterizePolygon(float *p0, float *p10, float& l10,
 //  the range 0<=s,t<=1.  The p' system is defined by the polygon normal, 
 //  first vertex and the first edge.
 //
-  this->ComputeNormal (this->Points,n);
-  x1 = this->Points->GetPoint(0);
-  x2 = this->Points->GetPoint(1);
+  this->ComputeNormal (&this->Points,n);
+  x1 = this->Points.GetPoint(0);
+  x2 = this->Points.GetPoint(1);
   for (i=0; i<3; i++) 
     {
     p0[i] = x1[i];
@@ -228,7 +234,7 @@ int vlPolygon::ParameterizePolygon(float *p0, float *p10, float& l10,
 
   for(i=1; i<numPts; i++) 
     {
-    x1 = this->Points->GetPoint(i);
+    x1 = this->Points.GetPoint(i);
     for(j=0; j<3; j++) p[j] = x1[j] - p0[j];
     s = math.Dot(p,p10) / l10;
     t = math.Dot(p,p20) / l20;
@@ -278,7 +284,7 @@ int vlPolygon::PointInPolygon (float bounds[6], float *x, float *n)
   int deltaVotes;
   vlMath math;
   vlLine line;
-  int numPts=this->Points->NumberOfPoints();
+  int numPts=this->Points.NumberOfPoints();
 //
 //  Define a ray to fire.  The ray is a random ray normal to the
 //  normal of the face.  The length of the ray is a function of the
@@ -366,8 +372,8 @@ int vlPolygon::PointInPolygon (float bounds[6], float *x, float *n)
 //
       for (numInts=0, testResult=CERTAIN, i=0; i<numPts; i++) 
         {
-        x1 = this->Points->GetPoint(i);
-        x2 = this->Points->GetPoint((i+1)%numPts);
+        x1 = this->Points.GetPoint(i);
+        x2 = this->Points.GetPoint((i+1)%numPts);
 //
 //   Fire the ray and compute the number of intersections.  Be careful of 
 //   degenerate cases (e.g., ray intersects at vertex).
@@ -399,4 +405,233 @@ int vlPolygon::PointInPolygon (float bounds[6], float *x, float *n)
     return OUTSIDE;
   else
     return INSIDE;
+}
+
+#define TOLERANCE 1.0e-06
+
+static  float   Tolerance; // Intersection tolerance
+static  int     SuccessfulTriangulation; // Stops recursive tri. if necessary
+static  float   Normal[3]; //polygon normal
+
+//
+//  Triangulate loop.  Use recursive divide and conquer based on plane 
+//  splitting  to reduce loop into triangles.  The cell is presumed 
+//  properly initialized (i.e., Points and PointIds).
+//
+int vlPolygon::Triangulate(vlIdList &outTris)
+{
+  int i, success;
+  float *bounds, d;
+  int verts[MAX_CELL_SIZE];
+  int numVerts=this->PointIds.NumberOfIds();
+  static vlIdList Tris((MAX_CELL_SIZE-2)*3);
+
+  bounds = this->GetBounds();
+  
+  d = sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
+           (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
+           (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
+  Tolerance = TOLERANCE * d;
+  SuccessfulTriangulation = 1;
+  this->ComputeNormal(&this->Points, Normal);
+
+  for (i=0; i<numVerts; i++) verts[i] = i;
+  Tris.Reset();
+  outTris.Reset();
+
+  success = this->FastTriangulate(numVerts, verts, Tris);
+
+  if ( !success ) // Use slower but always successful technique.
+    {
+    vlErrorMacro(<<"Couldn't triangulate");
+    }
+  else // Copy the point id's into the supplied Id array
+    {
+    for (i=0; i<Tris.NumberOfIds(); i++)
+      {
+      outTris.InsertId(i,this->PointIds.GetId(Tris.GetId(i)));
+      }
+    }
+}
+
+int vlPolygon::FastTriangulate (int numVerts, int *verts, vlIdList& Tris)
+{
+  int i,j;
+  int n1, n2;
+  int l1[MAX_CELL_SIZE], l2[MAX_CELL_SIZE];
+  int fedges[2];
+  float max, ar;
+  int maxI, maxJ;
+
+  if ( !SuccessfulTriangulation )
+    return 0;
+
+  switch (numVerts) 
+    {
+//
+//  In loops of less than 3 vertices no elements are created
+//
+    case 0: case 1: case 2:
+      return 1;
+//
+//  A loop of three vertices makes one triangle!  Replace an old
+//  polygon with a newly created one.  
+//
+    case 3:
+//
+//  Create a triangle
+//
+      Tris.InsertNextId(verts[0]);
+      Tris.InsertNextId(verts[1]);
+      Tris.InsertNextId(verts[2]);
+
+      return 1;
+//
+//  Loops greater than three vertices must be subdivided.  This is
+//  done by finding the best splitting plane and creating two loop and 
+//  recursively triangulating.  To find the best splitting plane, try
+//  all possible combinations, keeping track of the one that gives the
+//  largest dihedral angle combination.
+//
+    default:
+      max = 0.0;
+      maxI = maxJ = -1;
+      for (i=0; i<(numVerts-2); i++) 
+        {
+        for (j=i+2; j<numVerts; j++) 
+          {
+          if ( ((j+1) % numVerts) != i ) 
+            {
+            fedges[0] = verts[i];
+            fedges[1] = verts[j];
+
+            if ( this->CanSplitLoop(fedges, numVerts, verts, 
+            n1, l1, n2, l2, ar) && ar > max ) 
+              {
+              max = ar;
+              maxI = i;
+              maxJ = j;
+              }
+            }
+          }
+        }
+
+      if ( maxI > -1 ) 
+        {
+        fedges[0] = verts[maxI];
+        fedges[1] = verts[maxJ];
+
+        this->SplitLoop (fedges, numVerts, verts, n1, l1, n2, l2);
+
+        this->FastTriangulate (n1, l1, Tris);
+        this->FastTriangulate (n2, l2, Tris);
+
+        return 1;
+
+        }
+  
+      SuccessfulTriangulation = 0;
+
+      return 0;
+    }
+}
+
+//
+//  Determine whether the loop can be split / build loops
+//
+int vlPolygon::CanSplitLoop (int fedges[2], int numVerts, int *verts, 
+                             int& n1, int *l1, int& n2, int *l2, float& ar)
+{
+  int i, sign;
+  float *x, val, absVal, *sPt, *s2Pt, v21[3], sN[3];
+  float den, dist=LARGE_FLOAT;
+  void SplitLoop();
+  vlMath math;
+  vlPlane plane;
+//
+//  Create two loops from the one using the splitting vertices provided.
+//
+  SplitLoop (fedges, numVerts, verts, n1, l1, n2, l2);
+//
+//  Create splitting plane.  Splitting plane is parallel to the loop
+//  plane normal and contains the splitting vertices fedges[0] and fedges[1].
+//
+  sPt = this->Points.GetPoint(fedges[0]);
+  s2Pt = this->Points.GetPoint(fedges[1]);
+  for (i=0; i<3; i++) v21[i] = s2Pt[i] - sPt[i];
+
+  math.Cross (v21,Normal,sN);
+  if ( (den=math.Norm(sN)) != 0.0 )
+    for (i=0; i<3; i++)
+      sN[i] /= den;
+  else
+    return 0;
+//
+//  This plane can only be split if all points of each loop lie on the
+//  same side of the splitting plane.  Also keep track of the minimum 
+//  distance to the plane.
+//
+  for (sign=0, i=0; i < n1; i++) // first loop
+    {
+    if ( !(l1[i] == fedges[0] || l1[i] == fedges[1]) ) 
+      {
+      x = this->Points.GetPoint(l1[i]);
+      val = plane.Evaluate(sN,sPt,x);
+      absVal = (float) fabs((double)val);
+      dist = (absVal < dist ? absVal : dist);
+      if ( !sign )
+        sign = (val > Tolerance ? 1 : -1);
+      else if ( sign != (val > 0 ? 1 : -1) )
+        return 0;
+      }
+    }
+
+  sign *= -1;
+  for (i=0; i < n2; i++) // second loop
+    {
+    if ( !(l2[i] == fedges[0] || l2[i] == fedges[1]) ) 
+      {
+      x = this->Points.GetPoint(l2[i]);
+      val = plane.Evaluate(sN,sPt,x);
+      absVal = (float) fabs((double)val);
+      dist = (absVal < dist ? absVal : dist);
+      if ( !sign )
+        sign = (val > Tolerance ? 1 : -1);
+      else if ( sign != (val > 0 ? 1 : -1) )
+        return 0;
+      }
+    }
+//
+//  Compute aspect ratio
+//
+  ar = (dist*dist)/(v21[0]*v21[0] + v21[1]*v21[1] + v21[2]*v21[2]);
+  return 1;
+}
+
+//
+//  Creates two loops from splitting plane provided
+//
+void vlPolygon::SplitLoop (int fedges[2], int numVerts, int *verts, 
+                           int& n1, int *l1, int& n2, int* l2)
+{
+  int i;
+  int *loop;
+  int *count;
+
+  n1 = n2 = 0;
+  loop = l1;
+  count = &n1;
+
+  for (i=0; i < numVerts; i++) 
+    {
+    loop[(*count)++] = verts[i];
+    if ( verts[i] == fedges[0] || verts[i] == fedges[1] ) 
+      {
+      loop = (loop == l1 ? l2 : l1);
+      count = (count == &n1 ? &n2 : &n1);
+      loop[(*count)++] = verts[i];
+      }
+    }
+
+  return;
 }

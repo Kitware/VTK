@@ -37,9 +37,9 @@ float vlTriangle::EvaluatePosition(float x[3], int& subId, float pcoords[3])
 //
 // Get normal for triangle
 //
-  pt1 = this->Points->GetPoint(0);
-  pt2 = this->Points->GetPoint(1);
-  pt3 = this->Points->GetPoint(2);
+  pt1 = this->Points.GetPoint(0);
+  pt2 = this->Points.GetPoint(1);
+  pt3 = this->Points.GetPoint(2);
 
   poly.ComputeNormal (pt1, pt2, pt3, n);
 //
@@ -102,9 +102,9 @@ void vlTriangle::EvaluateLocation(int& subId, float pcoords[3], float x[3])
   float *pt1, *pt2, *pt3;
   int i;
 
-  pt1 = this->Points->GetPoint(0);
-  pt2 = this->Points->GetPoint(1);
-  pt3 = this->Points->GetPoint(2);
+  pt1 = this->Points.GetPoint(0);
+  pt2 = this->Points.GetPoint(1);
+  pt3 = this->Points.GetPoint(2);
 
   u3 = 1.0 - pcoords[0] - pcoords[1];
 

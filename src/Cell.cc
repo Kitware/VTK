@@ -17,6 +17,18 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "Cell.hh"
 //
+// Instantiate cell from outside
+//
+void vlCell::Initialize(int npts, int *pts, vlPoints *p)
+{
+  for (int i=0; i<npts; i++)
+    {
+    this->PointIds.InsertId(i,pts[i]);
+    this->Points.SetPoint(i,p->GetPoint(pts[i]));
+    }
+}
+ 
+//
 //  Bounding box intersection modified from Graphics Gems Vol I.
 //  Note: the intersection ray is assumed normalized such that
 //  valid intersections can only occur between [0,1].
@@ -111,9 +123,9 @@ float *vlCell::GetBounds ()
   bounds[0] = bounds[2] = bounds[4] =  LARGE_FLOAT;
   bounds[1] = bounds[3] = bounds[5] = -LARGE_FLOAT;
 
-  for (i=0; i<this->Points->NumberOfPoints(); i++)
+  for (i=0; i<this->Points.NumberOfPoints(); i++)
     {
-    x = this->Points->GetPoint(i);
+    x = this->Points.GetPoint(i);
     for (j=0; j<3; j++)
       {
       if ( x[j] < bounds[2*j] ) bounds[2*j] = x[j];

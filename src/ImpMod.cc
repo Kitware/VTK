@@ -16,6 +16,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include "ImpMod.hh"
+#include "FScalars.hh"
 
 vlImplicitModeller::vlImplicitModeller()
 {
@@ -81,10 +82,81 @@ void vlImplicitModeller::SetModelBounds(float xmin, float xmax, float ymin, floa
 
 void vlImplicitModeller::Execute()
 {
+  int cellNum, i, j, k;
+  float *bounds, adjBounds[6];
+  vlCell *cell;
+  float maxDistance, pcoords[3];
+  vlFloatScalars *newScalars;
+  int numPts, idx;
+  int subId;
+  int min[3], max[3];
+  float x[3], prevDistance, distance;
+  int jkFactor;
 //
-// Initialize self; check input
+// Initialize self; create output objects
 //
   this->Initialize();
 
-  
+  if ( this->Dimension[0] <= 1 || this->Dimension[1] <= 1 ||
+  this->Dimension[2] <= 1 )
+    {
+    vlErrorMacro(<<"Bad dimensions, requires volume cells");
+    return;
+    }
+
+  numPts = this->Dimension[0] * this->Dimension[1] * this->Dimension[2];
+  newScalars = new vlFloatScalars(numPts);
+
+  maxDistance = this->ComputeModelBounds();
+//
+// Traverse all cells; computing distance function on volume points.
+//
+  for (cellNum=0; cellNum < this->Input->NumberOfCells(); cellNum++)
+    {
+    cell = this->Input->GetCell(cellNum);
+    bounds = cell->GetBounds();
+    for (i=0; i<3; i++)
+      {
+      adjBounds[2*i] = bounds[2*i] - maxDistance;
+      adjBounds[2*i+1] = bounds[2*i+1] + maxDistance;
+      }
+
+    // compute dimensional bounds in data set
+    for (i=0; i<3; i++)
+      {
+      min[i] = (adjBounds[2*i] - this->Origin[i]) / this->AspectRatio[i];
+      max[i] = (adjBounds[2*i+1] - this->Origin[i]) / this->AspectRatio[i];
+      if (min[i] < 0) min[i] = 0;
+      if (max[i] >= this->Dimension[i]) max[i] = this->Dimension[i] - 1;
+      }
+
+    jkFactor = this->Dimension[0]*this->Dimension[1];
+    for (k = min[2]; k <= max[k]; k++) 
+      {
+      x[2] = this->AspectRatio[2] * k + this->Origin[2];
+      for (j = min[1]; j <= max[1]; j++)
+        {
+        x[1] = this->AspectRatio[1] * j + this->Origin[1];
+        for (i = min[0]; i <= max[0]; i++) 
+          {
+          x[0] = this->AspectRatio[0] * i + this->Origin[0];
+          idx = jkFactor*k + this->Dimension[0]*j + i;
+          prevDistance = newScalars->GetScalar(idx);
+          distance = cell->EvaluatePosition(x,subId,pcoords);
+          if (distance < prevDistance)
+            newScalars->SetScalar(idx,distance);
+          }
+        }
+      }
+    }
+//
+// Update self
+//
+  this->PointData.SetScalars(newScalars);
+
+}
+
+float vlImplicitModeller::ComputeModelBounds()
+{
+  return 1.0;
 }

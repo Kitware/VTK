@@ -30,7 +30,7 @@ void vlVectors::GetVectors(vlIdList& ptId, vlFloatVectors& fp)
 {
   for (int i=0; i<ptId.NumberOfIds(); i++)
     {
-    fp.InsertVector(i,this->GetVector(ptId[i]));
+    fp.InsertVector(i,this->GetVector(ptId.GetId(i)));
     }
 }
 void vlVectors::ComputeMaxNorm()

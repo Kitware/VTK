@@ -24,7 +24,7 @@ void vlTCoords::GetTCoords(vlIdList& ptId, vlFloatTCoords& ftc)
 {
   for (int i=0; i<ptId.NumberOfIds(); i++)
     {
-    ftc.InsertTCoord(i,this->GetTCoord(ptId[i]));
+    ftc.InsertTCoord(i,this->GetTCoord(ptId.GetId(i)));
     }
 }
 

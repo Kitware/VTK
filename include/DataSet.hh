@@ -24,8 +24,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "FPoints.hh"
 #include "PtData.hh"
 #include "Mapper.hh"
-
-#define MAX_CELL_SIZE 128
+#include "Cell.hh"
 
 class vlDataSet : virtual public vlObject 
 {
@@ -33,14 +32,14 @@ public:
   vlDataSet();
   char *GetClassName() {return "vlDataSet";};
   void PrintSelf(ostream& os, vlIndent indent);
+
   virtual vlDataSet *MakeObject() = 0;
   virtual int NumberOfCells() = 0;
   virtual int NumberOfPoints() = 0;
-  virtual int CellDimension(int cellId) = 0;
-  virtual void CellPoints(int cellId, vlIdList& ptId) = 0;
+  virtual float *GetPoint(int ptId) = 0;
+  virtual vlCell *GetCell(int cellId) = 0;
+  virtual vlMapper *MakeMapper() = 0;
   virtual void Initialize();
-  virtual float *GetPoint(int i) = 0;
-  virtual void GetPoints(vlIdList& ptId, vlFloatPoints& fp) = 0;
   virtual void Update() {};
 
   unsigned long int GetMTime();
@@ -51,8 +50,6 @@ public:
   float GetLength();
   
   vlPointData *GetPointData() {return &this->PointData;};
-
-  virtual vlMapper *MakeMapper() = 0;
 
 protected:
   vlPointData PointData;   // Scalars, vectors, etc. associated w/ each point

@@ -31,8 +31,8 @@ float vlLine::EvaluatePosition(float x[3], int& subId, float pcoords[3])
   subId = 0;
   pcoords[1] = pcoords[2] = 0.0;
 
-  a1 = this->Points->GetPoint(0);
-  a2 = this->Points->GetPoint(1);
+  a1 = this->Points.GetPoint(0);
+  a2 = this->Points.GetPoint(1);
 //
 //   Determine appropriate vectors
 // 
@@ -75,8 +75,8 @@ float vlLine::EvaluatePosition(float x[3], int& subId, float pcoords[3])
 void vlLine::EvaluateLocation(int& subId, float pcoords[3], float x[3])
 {
   int i;
-  float *a1 = this->Points->GetPoint(0);
-  float *a2 = this->Points->GetPoint(1);
+  float *a1 = this->Points.GetPoint(0);
+  float *a2 = this->Points.GetPoint(1);
 
   for (i=0; i<3; i++) 
     {

@@ -21,6 +21,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Plane.hh"
 #include "vlMath.hh"
 
+//
+// Note: the ordering of the Points and PointIds is important.  See text.
+//
+
 #define MAX_ITERATION 10
 #define CONVERGED 1.e-03
 
@@ -44,9 +48,9 @@ float vlQuad::EvaluatePosition(float x[3], int& subId, float pcoords[3])
 //
 // Get normal for quadrilateral
 //
-  pt1 = this->Points->GetPoint(0);
-  pt2 = this->Points->GetPoint(1);
-  pt3 = this->Points->GetPoint(2);
+  pt1 = this->Points.GetPoint(0);
+  pt2 = this->Points.GetPoint(1);
+  pt3 = this->Points.GetPoint(2);
 
   poly.ComputeNormal (pt1, pt2, pt3, n);
 //
@@ -90,7 +94,7 @@ float vlQuad::EvaluatePosition(float x[3], int& subId, float pcoords[3])
       }
     for (i=0; i<4; i++)
       {
-      pt = this->Points->GetPoint(i);
+      pt = this->Points.GetPoint(i);
       for (j=0; j<2; j++)
         {
         fcol[j] += pt[indices[j]] * sf[i];
@@ -169,7 +173,7 @@ void vlQuad::EvaluateLocation(int& subId, float pcoords[3], float x[3])
   x[0] = x[1] = x[2] = 0.0;
   for (i=0; i<4; i++)
     {
-    pt = this->Points->GetPoint(i);
+    pt = this->Points.GetPoint(i);
     for (j=0; j<3; j++)
       {
       x[j] += pt[j] * sf[i];

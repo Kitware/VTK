@@ -24,7 +24,7 @@ void vlNormals::GetNormals(vlIdList& ptId, vlFloatNormals& fp)
 {
   for (int i=0; i<ptId.NumberOfIds(); i++)
     {
-    fp.InsertNormal(i,this->GetNormal(ptId[i]));
+    fp.InsertNormal(i,this->GetNormal(ptId.GetId(i)));
     }
 }
 

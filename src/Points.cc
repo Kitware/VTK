@@ -30,7 +30,7 @@ void vlPoints::GetPoints(vlIdList& ptId, vlFloatPoints& fp)
 {
   for (int i=0; i<ptId.NumberOfIds(); i++)
     {
-    fp.InsertPoint(i,this->GetPoint(ptId[i]));
+    fp.InsertPoint(i,this->GetPoint(ptId.GetId(i)));
     }
 }
 void vlPoints::ComputeBounds()

@@ -16,7 +16,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 //
-// Structured points (e.g., volume, image, etc.)
+// Structured points (e.g., volume(3D), image(2D), etc.)
 //
 #ifndef __vlStructuredPoints_h
 #define __vlStructuredPoints_h
@@ -25,27 +25,33 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "IdList.hh"
 #include "FPoints.hh"
 
+#define SINGLE_POINT 0
+#define X_LINE 1
+#define Y_LINE 2
+#define Z_LINE 3
+#define XY_PLANE 4
+#define YZ_PLANE 5
+#define XZ_PLANE 6
+#define XYZ_GRID 7
+
 class vlStructuredPoints : public vlDataSet {
 public:
   vlStructuredPoints();
   vlStructuredPoints(const vlStructuredPoints& v);
   ~vlStructuredPoints();
-  vlDataSet *MakeObject() {return new vlStructuredPoints(*this);};
   char *GetClassName() {return "vlStructuredPoints";};
   void PrintSelf(ostream& os, vlIndent indent);
-  int NumberOfCells() 
-    {int nCells=(Dimension[0]-1)*(Dimension[1]-1)*(Dimension[2]-1);
-     return (nCells < 0 ? 0 : nCells);};
-  int NumberOfPoints() 
-    {int nPts=Dimension[0]*Dimension[1]*Dimension[2];
-     return (nPts < 0 ? 0 : nPts);};
-  int CellDimension(int cellId);
-  float *GetPoint(int i);
-  void GetPoints(vlIdList& ptId, vlFloatPoints& fp);
-  void CellPoints(int cellId, vlIdList& ptId);
+
+  // dataset interface
+  vlDataSet *MakeObject() {return new vlStructuredPoints(*this);};
+  int NumberOfCells();
+  int NumberOfPoints(); 
+  float *GetPoint(int ptId);
+  vlCell *GetCell(int cellId);
   vlMapper *MakeMapper() {return (vlMapper *)0;};
 
-  vlSetVector3Macro(Dimension,int);
+  void SetDimension(int i, int j, int k);
+  void SetDimension(int dim[3]);
   vlGetVectorMacro(Dimension,int);
 
   vlSetVector3Macro(AspectRatio,float);
@@ -56,8 +62,9 @@ public:
 
 protected:
   int Dimension[3];
-  float AspectRatio[3];
   float Origin[3];
+  float AspectRatio[3];
+  int DataDescription;
 };
 
 #endif

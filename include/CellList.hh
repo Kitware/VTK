@@ -21,7 +21,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 #include "Object.hh"
 
-struct vlCell {
+struct vlCell_s {
     unsigned char type;
     int loc;
 };
@@ -32,20 +32,20 @@ public:
   vlCellList(const int sz, const int ext);
   ~vlCellList();
   char *GetClassName() {return "vlCellList";};
-  vlCell &GetCell(const int id) {return this->Array[id];};
+  vlCell_s &GetCell(const int id) {return this->Array[id];};
   unsigned char GetCellType(const int id) {return this->Array[id].type;};
-  int GetCellLoc(const int id) {return this->Array[id].loc;};
+  int GetCellLocation(const int id) {return this->Array[id].loc;};
   void InsertCell(const int id, const unsigned char type, const int loc);
   int InsertNextCell(const unsigned char type, const int pos);
   void Squeeze();
   void Reset();
 
 private:
-  vlCell *Array;   // pointer to data
+  vlCell_s *Array;   // pointer to data
   int Size;       // allocated size of data
   int MaxId;     // maximum index inserted thus far
   int Extend;     // grow array by this point
-  vlCell *Resize(const int sz);  // function to resize data
+  vlCell_s *Resize(const int sz);  // function to resize data
 };
 
 #endif

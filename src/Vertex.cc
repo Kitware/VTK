@@ -28,7 +28,7 @@ float vlPoint::EvaluatePosition(float x[3], int& subId, float pcoords[3])
   subId = 0;
   pcoords[1] = pcoords[2] = 0.0;
 
-  X = this->Points->GetPoint(0);
+  X = this->Points.GetPoint(0);
 
   dist2 = math.Distance2BetweenPoints(X,x);
 
@@ -46,7 +46,7 @@ float vlPoint::EvaluatePosition(float x[3], int& subId, float pcoords[3])
 
 void vlPoint::EvaluateLocation(int& subId, float pcoords[3], float x[3])
 {
-  float *X = this->Points->GetPoint(0);
+  float *X = this->Points.GetPoint(0);
   x[0] = X[0];
   x[1] = X[1];
   x[2] = X[2];

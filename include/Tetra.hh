@@ -29,6 +29,7 @@ public:
   vlTetra() {};
   char *GetClassName() {return "vlTetra";};
 
+  int CellDimension() {return 3;};
   float EvaluatePosition(float x[3], int& subId, float pcoords[3]);
   void EvaluateLocation(int& subId, float pcoords[3], float x[3]);
 

@@ -21,25 +21,36 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #ifndef __vlCell_h
 #define __vlCell_h
 
+#define MAX_CELL_SIZE 128
 #define TOL 1.e-05 // Tolerance for geometric calculation
 
 #include "Object.hh"
 #include "FPoints.hh"
+#include "IdList.hh"
 
 class vlCell : public vlObject
 {
 public:
-  vlCell():Points(0) {};
+  vlCell(): Points(MAX_CELL_SIZE), PointIds(MAX_CELL_SIZE) {};
+  void Initialize(int npts, int *pts, vlPoints *p);
   char *GetClassName() {return "vlCell";};
 
-  void SetPoints(vlFloatPoints *pts) {this->Points = pts;};
+  // Because these objects (cells and derived classes) are computational 
+  // objects, and because they are used internally, do not use memory 
+  // reference counting.
+  // Point coordinates for cell.
+  vlFloatPoints *GetPoints() {return &this->Points;};
+
+  // Point ids for cell.
+  vlIdList *GetPointIds() {return &this->PointIds;};
+
+  // Dimensionality of cell (0,1,2, or 3)
+  virtual int CellDimension() = 0;
 
   // return inside cell (!=0) if <= tolerance squared; evaluate parametric 
   // coordinates, sub-cell id (if cell is composite), and distance squared 
   // of point x[3] to cell.
   virtual float EvaluatePosition(float x[3], int& subId, float pcoords[3]) = 0;
-//  virtual int EvaluatePosition(float x[3], float& tol2,
-//                               int& subId, float pcoords[3], float& dist2) = 0;
 
   // Determine global coordinate from subId and parametric coordinates
   virtual void EvaluateLocation(int& subId, float pcoords[3], float x[3]) = 0;
@@ -50,8 +61,9 @@ public:
   // Quick intersection of cell bounding box.  Returns != 0 for hit.
   char HitBBox(float bounds[6], float origin[3], float dir[3], float coord[3]);
 
-protected:
-  vlFloatPoints *Points;
+  // left public for quick computational access
+  vlFloatPoints Points;
+  vlIdList PointIds;
 
 };
 

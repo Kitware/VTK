@@ -19,7 +19,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 vlCellList::vlCellList(const int sz, const int ext)
 {
   this->Size = sz;
-  this->Array = new vlCell[sz];
+  this->Array = new vlCell_s[sz];
   this->Extend = ext;
   this->MaxId = -1;
 }
@@ -34,7 +34,7 @@ vlCellList::~vlCellList()
 //
 void vlCellList::InsertCell(const int id, const unsigned char type, const int loc)
 {
-  vlCell *cell;
+  vlCell_s *cell;
 
   if ( id >= this->Size ) this->Resize(id);
   if ( id > this->MaxId ) this->MaxId = id;
@@ -64,17 +64,17 @@ void vlCellList::Reset()
 //
 // Private function does "reallocate"
 //
-vlCell *vlCellList::Resize(const int sz)
+vlCell_s *vlCellList::Resize(const int sz)
 {
   int i;
-  vlCell *newArray;
+  vlCell_s *newArray;
   int newSize;
 
   if ( sz >= this->Size )  newSize = this->Size + 
     this->Extend*(((sz-this->Size)/this->Extend)+1);
   else newSize = sz;
 
-  if ( (newArray = new vlCell[newSize]) == 0 )
+  if ( (newArray = new vlCell_s[newSize]) == 0 )
   {
     vlErrorMacro(<< "Cannot allocate memory\n");
     return 0;

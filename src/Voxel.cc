@@ -20,198 +20,65 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "vlMath.hh"
 
 //
-//  Method to calculate parametric coordinates in an eight noded
-//  linear brick element from global coordinates.  Note: the natural 
-//  formulation calls for r,s,t parametric coordinates to range range 
-//  from -1<=r,s,t<=1. We need to shift to 0<=r,s,t<=1.
-//  Uses Newton's method to solve the non-linear equations.
+// Note: the ordering of the Points and PointIds is important.  See text.
 //
-#define MAX_ITERATION 10
-#define CONVERGED 1.e-03
 
 float vlBrick::EvaluatePosition(float x[3], int& subId, float pcoords[3])
 {
-  int iteration, converged;
-  float  params[3];
-  float  fcol[3], rcol[3], scol[3], tcol[3];
-  int i,j,numPts,idx;
-  float  d, *pt;
+  float *pt1, *pt2, *pt3, *pt4;
+  int i;
   float closestPoint[3];
-  vlMath math;
-  float sf[8], derivs[24];
-//
-//  set initial position for Newton's method
-//
+  float l21, l31, l41;
+  vlMath math;  
+
   subId = 0;
-  pcoords[0] = pcoords[1] = pcoords[2] = params[0] = params[1] = params[2] = 0.0;
 //
-//  enter iteration loop
-///
-  for (iteration=converged=0; !converged && (iteration < MAX_ITERATION);
-  iteration++) 
-    {
+// Get coordinate system
 //
-//  calculate element shape functions and derivatives
+  pt1 = this->Points.GetPoint(0);
+  pt2 = this->Points.GetPoint(1);
+  pt3 = this->Points.GetPoint(2);
+  pt4 = this->Points.GetPoint(4);
 //
-    this->ShapeFunctions(pcoords, sf);
-    this->ShapeDerivs(pcoords, derivs);
+// Develop parametric coordinates
 //
-//  calculate newton functions
-//
-    for (i=0; i<3; i++) 
-      {
-      fcol[i] = rcol[i] = scol[i] = tcol[i] = 0.0;
-      }
-    for (i=0; i<8; i++)
-      {
-      pt = this->Points->GetPoint(i);
-      for (j=0; j<3; j++)
-        {
-        fcol[j] += pt[j] * sf[i];
-        rcol[j] += pt[j] * derivs[i];
-        scol[j] += pt[j] * derivs[i+8];
-        tcol[j] += pt[j] * derivs[i+16];
-        }
-      }
+  pcoords[0] = (x[0] - pt1[0]) / (pt2[0] - pt1[0]);
+  pcoords[1] = (x[1] - pt1[1]) / (pt3[1] - pt1[1]);
+  pcoords[2] = (x[2] - pt1[2]) / (pt4[2] - pt1[2]);
 
-    for (i=0; i<3; i++) fcol[i] -= x[i];
-//
-//  compute determinates and generate improvements
-//
-    if ( (d=math.Determinate3x3(rcol,scol,tcol)) == 0.0 )
-      {
-      return LARGE_FLOAT;
-      }
-
-    pcoords[0] = params[0] - math.Determinate3x3 (fcol,scol,tcol) / d;
-    pcoords[1] = params[1] - math.Determinate3x3 (rcol,fcol,tcol) / d;
-    pcoords[2] = params[2] - math.Determinate3x3 (rcol,scol,fcol) / d;
-//
-//  check for convergence
-//
-    if ( ((fabs(pcoords[0]-params[0])) < CONVERGED) &&
-    ((fabs(pcoords[1]-params[1])) < CONVERGED) &&
-    ((fabs(pcoords[2]-params[2])) < CONVERGED) )
-      {
-      converged = 1;
-      }
-//
-//  if not converged, repeat
-//
-    else 
-      {
-      params[0] = pcoords[0];
-      params[1] = pcoords[1];
-      params[2] = pcoords[2];
-      }
-    }
-//
-//  if not converged, set the parametric coordinates to arbitrary values
-//  outside of element
-//
-  if ( !converged )
+  if ( pcoords[0] >= -1.0 && pcoords[1] <= 1.0 &&
+  pcoords[1] >= -1.0 && pcoords[1] <= 1.0 &&
+  pcoords[2] >= -1.0 && pcoords[2] <= 1.0 )
     {
-    pcoords[0] = pcoords[1] =  pcoords[2] = 10.0;
-    return LARGE_FLOAT;
+    return 0.0; // inside brick
     }
   else
     {
-    if ( pcoords[0] >= -1.0 && pcoords[1] <= 1.0 &&
-    pcoords[1] >= -1.0 && pcoords[1] <= 1.0 &&
-    pcoords[2] >= -1.0 && pcoords[2] <= 1.0 )
+    for (i=0; i<3; i++)
       {
-      for(i=0; i<3; i++) pcoords[i] = 0.5*(pcoords[i]+1.0); // shift to (0,1)
-      return 0.0; // inside brick
+      if (pcoords[i] < -1.0) pcoords[i] = -1.0;
+      if (pcoords[i] > 1.0) pcoords[i] = 1.0;
       }
-    else
-      {
-      for (i=0; i<3; i++)
-        {
-        if (pcoords[i] < -1.0) pcoords[i] = -1.0;
-        if (pcoords[i] > 1.0) pcoords[i] = 1.0;
-        }
-      this->EvaluateLocation(subId, pcoords, closestPoint);
-      for(i=0; i<3; i++) pcoords[i] = 0.5*(pcoords[i]+1.0); // shift to (0,1)
-      return math.Distance2BetweenPoints(closestPoint,x);
-      }
+    this->EvaluateLocation(subId, pcoords, closestPoint);
+    return math.Distance2BetweenPoints(closestPoint,x);
     }
-}
-//
-// Compute iso-parametrix shape functions
-//
-void vlBrick::ShapeFunctions(float pcoords[3], float sf[8])
-{
-  double rm, rp, sm, sp, tm, tp;
-
-  rm = 1. - pcoords[0];
-  rp = 1. + pcoords[0];
-  sm = 1. - pcoords[1];
-  sp = 1. + pcoords[1];
-  tm = 1. - pcoords[2];
-  tp = 1. + pcoords[2];
-
-  sf[0] = 0.125*rm*sm*tm;
-  sf[1] = 0.125*rp*sm*tm;
-  sf[2] = 0.125*rp*sp*tm;
-  sf[3] = 0.125*rm*sp*tm;
-  sf[4] = 0.125*rm*sm*tp;
-  sf[5] = 0.125*rp*sm*tp;
-  sf[6] = 0.125*rp*sp*tp;
-  sf[7] = 0.125*rm*sp*tp;
-}
-
-void vlBrick::ShapeDerivs(float pcoords[3], float derivs[24])
-{
-  double rm, rp, sm, sp, tm, tp;
-
-  rm = 1. - pcoords[0];
-  rp = 1. + pcoords[0];
-  sm = 1. - pcoords[1];
-  sp = 1. + pcoords[1];
-  tm = 1. - pcoords[2];
-  tp = 1. + pcoords [2];
-
-  derivs[0] = -0.125*sm*tm;
-  derivs[1] = 0.125*sm*tm;
-  derivs[2] = 0.125*sp*tm;
-  derivs[3] = -0.125*sp*tm;
-  derivs[4] = -0.125*sm*tp;
-  derivs[5] = 0.125*sm*tp;
-  derivs[6] = 0.125*sp*tp;
-  derivs[7] = -0.125*sp*tp;
-  derivs[8] = -0.125*rm*tm;
-  derivs[9] = -0.125*rp*tm;
-  derivs[10] = 0.125*rp*tm;
-  derivs[11] = 0.125*rm*tm;
-  derivs[12] = -0.125*rm*tp;
-  derivs[13] = -0.125*rp*tp;
-  derivs[14] = 0.125*rp*tp;
-  derivs[15] = 0.125*rm*tp;
-  derivs[16] = -0.125*rm*sm;
-  derivs[17] = -0.125*rp*sm;
-  derivs[18] = -0.125*rp*sp;
-  derivs[19] = -0.125*rm*sp;
-  derivs[20] = 0.125*rm*sm;
-  derivs[21] = 0.125*rp*sm;
-  derivs[22] = 0.125*rp*sp;
-  derivs[23] = 0.125*rm*sp;
 }
 
 void vlBrick::EvaluateLocation(int& subId, float pcoords[3], float x[3])
 {
-  int i, j;
-  float sf[8], *pt, pc[3];
+  float *pt1, *pt2, *pt3, *pt4;
+  int i;
 
-  for (i=0;i<3;i++) pc[i] = 2.0*pcoords[i] - 1.0; //shift to -1<=r,s,t<=1
-  this->ShapeFunctions(pc, sf);
+  pt1 = this->Points.GetPoint(0);
+  pt2 = this->Points.GetPoint(1);
+  pt3 = this->Points.GetPoint(2);
+  pt4 = this->Points.GetPoint(4);
 
-  x[0] = x[1] = x[2] = 0.0;
-  for (i=0; i<8; i++)
+  for (i=0; i<3; i++)
     {
-    pt = this->Points->GetPoint(i);
-    for (j=0; j<3; j++)
-      {
-      x[j] += pt[j] * sf[i];
-      }
+    x[i] = pt1[i] + pcoords[0]*(pt2[i] - pt1[i]) +
+                    pcoords[1]*(pt3[i] - pt1[i]) +
+                    pcoords[2]*(pt4[i] - pt1[i]);
     }
+
 }

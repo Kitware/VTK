@@ -18,6 +18,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "TriStrip.hh"
 #include "Triangle.hh"
 
+//
+// Note: the ordering of the Points and PointIds is important.  See text.
+//
+
 float vlTriangleStrip::EvaluatePosition(float x[3], int& subId, float pcoords[3])
 {
   vlTriangle tri;
@@ -27,12 +31,11 @@ float vlTriangleStrip::EvaluatePosition(float x[3], int& subId, float pcoords[3]
 
   pcoords[2] = 0.0;
 
-  tri.SetPoints(&pts);
-  for (minDist2=LARGE_FLOAT,i=0; i<this->Points->NumberOfPoints()-2; i++)
+  for (minDist2=LARGE_FLOAT,i=0; i<this->Points.NumberOfPoints()-2; i++)
     {
-    pts.SetPoint(0,this->Points->GetPoint(i));
-    pts.SetPoint(1,this->Points->GetPoint(i+1));
-    pts.SetPoint(2,this->Points->GetPoint(i+2));
+    tri.Points.SetPoint(0,this->Points.GetPoint(i));
+    tri.Points.SetPoint(1,this->Points.GetPoint(i+1));
+    tri.Points.SetPoint(2,this->Points.GetPoint(i+2));
     dist2 = tri.EvaluatePosition(x, ignoreId, pc);
     if ( dist2 < minDist2 )
       {
@@ -49,9 +52,9 @@ float vlTriangleStrip::EvaluatePosition(float x[3], int& subId, float pcoords[3]
 void vlTriangleStrip::EvaluateLocation(int& subId, float pcoords[3], float x[3])
 {
   int i;
-  float *pt1 = this->Points->GetPoint(subId);
-  float *pt2 = this->Points->GetPoint(subId+1);
-  float *pt3 = this->Points->GetPoint(subId+2);
+  float *pt1 = this->Points.GetPoint(subId);
+  float *pt2 = this->Points.GetPoint(subId+1);
+  float *pt3 = this->Points.GetPoint(subId+2);
   float u3 = 1.0 - pcoords[0] - pcoords[1];
 
   for (i=0; i<3; i++)

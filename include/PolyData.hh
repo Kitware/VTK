@@ -23,34 +23,35 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "DataSet.hh"
 #include "FPoints.hh"
 #include "CellArr.hh"
-
-#define MAX_VERTS MAX_CELL_SIZE
+#include "CellList.hh"
+#include "LinkList.hh"
 
 class vlPolyData : public vlDataSet 
 {
 public:
-  // dataset interface
   vlPolyData();
   vlPolyData(const vlPolyData& pd);
   ~vlPolyData();
-  vlDataSet *MakeObject();
   char *GetClassName() {return "vlPolyData";};
   void PrintSelf(ostream& os, vlIndent indent);
-  int NumberOfCells();
+
+  // dataset interface
+  vlDataSet *MakeObject();
   int NumberOfPoints();
-  int CellDimension(int cellId);
-  void CellPoints(int cellId, vlIdList& ptId);
-  void Initialize();
-  float *GetPoint(int i) {return this->Points->GetPoint(i);};
-  void GetPoints(vlIdList& ptId, vlFloatPoints& fp);
-  void ComputeBounds();
+  int NumberOfCells();
+  float *GetPoint(int ptId) {return this->Points->GetPoint(ptId);};
+  vlCell *GetCell(int cellId);
   vlMapper *MakeMapper();
+  void Initialize();
+
+  void ComputeBounds();
 
   // PolyData specific stuff follows
   vlSetObjectMacro(Points,vlPoints);
   vlGetObjectMacro(Points,vlPoints);
 
-  // Can't use macros to support traversal methods
+  // Can't use macros to set/get following cell arrays.  This is due to tricks
+  // required to support traversal methods.
   void SetVerts (vlCellArray* v);
   vlCellArray *GetVerts();
 
@@ -68,7 +69,38 @@ public:
   int NumberOfPolys();
   int NumberOfStrips();
 
-private:
+  // following stuff supports cell structure
+  vlBooleanMacro(LoadVerts,int);
+  vlSetMacro(LoadVerts,int);
+  vlGetMacro(LoadVerts,int);
+
+  vlBooleanMacro(LoadLines,int);
+  vlSetMacro(LoadLines,int);
+  vlGetMacro(LoadLines,int);
+
+  vlBooleanMacro(LoadPolys,int);
+  vlSetMacro(LoadPolys,int);
+  vlGetMacro(LoadPolys,int);
+
+  vlBooleanMacro(LoadStrips,int);
+  vlSetMacro(LoadStrips,int);
+  vlGetMacro(LoadStrips,int);
+
+  LoadAll() {this->LoadVertsOn(); this->LoadLinesOn(); 
+             this->LoadPolysOn(); this->LoadStripsOn();};
+  LoadNone() {this->LoadVertsOff(); this->LoadLinesOff(); 
+             this->LoadPolysOff(); this->LoadStripsOff();};
+
+  SetReadOnly() {this->SetWritable(0);};
+  vlBooleanMacro(Writable,int);
+  vlSetMacro(Writable,int)
+  vlGetMacro(Writable,int);
+  
+  vlBooleanMacro(TriangleMesh,int);
+  vlSetMacro(TriangleMesh,int);
+  vlGetMacro(TriangleMesh,int);
+
+protected:
   // point data (i.e., scalars, vectors, normals, tcoords) inherited
   vlPoints *Points;
   vlCellArray *Verts;
@@ -77,6 +109,18 @@ private:
   vlCellArray *Strips;
   // dummy static member below used as a trick to simplify traversal
   static vlCellArray *Dummy;
+  // supports building Cell structure
+  int LoadVerts;
+  int LoadLines;
+  int LoadPolys;
+  int LoadStrips;
+  int TriangleMesh;
+  int Writable;
+  vlCellList *Cells;
+  vlLinkList *Links;
+  void BuildCells();
+  void BuildLinks();
+
 };
 
 #endif

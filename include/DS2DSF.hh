@@ -3,8 +3,8 @@
   Program:   Visualization Library
   Module:    DS2DSF.hh
   Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
+  Date:      2/17/94
+  Version:   1.8
 
 This file is part of the Visualization Library. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
@@ -30,16 +30,15 @@ public:
   ~vlDataSetToDataSetFilter();
   char *GetClassName() {return "vlDataSetToDataSetFilter";};
   void PrintSelf(ostream& os, vlIndent indent);
+
+  // dataset interface
   vlDataSet *MakeObject() {return this->DataSet->MakeObject();};
   int NumberOfCells() {return this->DataSet->NumberOfCells();}
   int NumberOfPoints() {return this->DataSet->NumberOfPoints();}
-  int CellDimension(int cellId) {return this->DataSet->CellDimension(cellId);}
-  void CellPoints(int cellId, vlIdList& ptId) 
-    {this->DataSet->CellPoints(cellId, ptId);}
-  void Initialize();
   float *GetPoint(int i) {return this->DataSet->GetPoint(i);}
-  void GetPoints(vlIdList& ptId, vlFloatPoints& fp)
-    {this->DataSet->GetPoints(ptId,fp);}
+  vlCell *GetCell(int cellId) {return this->DataSet->GetCell(cellId);}
+  void Initialize();
+
   void ComputeBounds() {this->DataSet->ComputeBounds();};
   vlMapper *MakeMapper();
   void Update();

@@ -31,6 +31,8 @@ public:
   char *GetClassName() {return "vlImplicitModeller";};
   void PrintSelf(ostream& os, vlIndent indent);
 
+  float ComputeModelBounds();
+
   vlSetClampMacro(MaximumDistance,float,0.0,1.0);
   vlGetMacro(MaximumDistance,float);
 
