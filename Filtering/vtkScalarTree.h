@@ -63,7 +63,7 @@ public:
   // Description:
   // Begin to traverse the cells based on a scalar value. Returned cells
   // will have scalar values that span the scalar value specified.
-  virtual void InitTraversal(float scalarValue) = 0;
+  virtual void InitTraversal(double scalarValue) = 0;
 
   // Description:
   // Return the next cell that may contain scalar value specified to
@@ -81,7 +81,7 @@ protected:
   vtkDataArray *Scalars;    //the scalars of the DataSet
 
   vtkTimeStamp BuildTime; //time at which tree was built
-  float        ScalarValue; //current scalar value for traversal
+  double       ScalarValue; //current scalar value for traversal
 
 private:
   vtkScalarTree(const vtkScalarTree&);  // Not implemented.

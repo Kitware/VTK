@@ -31,15 +31,15 @@ public:
   vtkTypeRevisionMacro(vtkPiecewiseFunctionShiftScale, vtkPiecewiseFunctionToPiecewiseFunctionFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
   
-  vtkSetMacro(PositionShift, float);
-  vtkSetMacro(PositionScale, float);
-  vtkSetMacro(ValueShift, float);
-  vtkSetMacro(ValueScale, float);
+  vtkSetMacro(PositionShift, double);
+  vtkSetMacro(PositionScale, double);
+  vtkSetMacro(ValueShift, double);
+  vtkSetMacro(ValueScale, double);
   
-  vtkGetMacro(PositionShift, float);
-  vtkGetMacro(PositionScale, float);
-  vtkGetMacro(ValueShift, float);
-  vtkGetMacro(ValueScale, float);
+  vtkGetMacro(PositionShift, double);
+  vtkGetMacro(PositionScale, double);
+  vtkGetMacro(ValueShift, double);
+  vtkGetMacro(ValueScale, double);
   
 protected:
   vtkPiecewiseFunctionShiftScale();
@@ -49,10 +49,10 @@ protected:
   
   vtkPiecewiseFunction *Input;
   
-  float PositionShift;
-  float PositionScale;
-  float ValueShift;
-  float ValueScale;
+  double PositionShift;
+  double PositionScale;
+  double ValueShift;
+  double ValueScale;
   
 private:
   vtkPiecewiseFunctionShiftScale(const vtkPiecewiseFunctionShiftScale&);  // Not implemented

@@ -16,12 +16,12 @@
 
 #include "vtkCell.h"
 #include "vtkDataSet.h"
-#include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkSimpleScalarTree, "1.7");
+vtkCxxRevisionMacro(vtkSimpleScalarTree, "1.8");
 vtkStandardNewMacro(vtkSimpleScalarTree);
 
 class vtkScalarNode {};
@@ -73,9 +73,9 @@ void vtkSimpleScalarTree::BuildTree()
   vtkIdType numNodes, node, numLeafs, leaf, numParentLeafs;
   vtkCell *cell;
   vtkIdList *cellPts;
-  vtkScalarRange<float> *tree, *parent;
-  float *s;
-  vtkFloatArray *cellScalars;
+  vtkScalarRange<double> *tree, *parent;
+  double *s;
+  vtkDoubleArray *cellScalars;
 
   // Check input...see whether we have to rebuild
   //
@@ -101,7 +101,7 @@ void vtkSimpleScalarTree::BuildTree()
     }
 
   this->Initialize();
-  cellScalars = vtkFloatArray::New();
+  cellScalars = vtkDoubleArray::New();
   cellScalars->Allocate(100);
   
   // Compute the number of levels in the tree
@@ -115,13 +115,13 @@ void vtkSimpleScalarTree::BuildTree()
     }
 
   this->LeafOffset = offset = numNodes - prod;
-  vtkScalarRange<float> *TTree;
+  vtkScalarRange<double> *TTree;
   this->TreeSize = numNodes - (prod - numLeafs);
-  this->Tree = TTree = new vtkScalarRange<float>[this->TreeSize];
+  this->Tree = TTree = new vtkScalarRange<double>[this->TreeSize];
   for ( i=0; i < this->TreeSize; i++ )
     {
-    TTree[i].min = VTK_LARGE_FLOAT;
-    TTree[i].max = -VTK_LARGE_FLOAT;
+    TTree[i].min = VTK_DOUBLE_MAX;
+    TTree[i].max = -VTK_DOUBLE_MAX;
     }
 
   // Loop over all cells getting range of scalar data and place into leafs
@@ -187,11 +187,11 @@ void vtkSimpleScalarTree::BuildTree()
 
 // Begin to traverse the cells based on a scalar value. Returned cells
 // will have scalar values that span the scalar value specified.
-void vtkSimpleScalarTree::InitTraversal(float scalarValue)
+void vtkSimpleScalarTree::InitTraversal(double scalarValue)
 {
   this->BuildTree();
-  vtkScalarRange<float> *TTree = 
-    static_cast< vtkScalarRange<float> * > (this->Tree);
+  vtkScalarRange<double> *TTree = 
+    static_cast< vtkScalarRange<double> * > (this->Tree);
 
   this->ScalarValue = scalarValue;
   this->TreeIndex = this->TreeSize;
@@ -236,8 +236,8 @@ int vtkSimpleScalarTree::FindStartLeaf(vtkIdType index, int level)
 
   else //recursion terminated
     {
-    vtkScalarRange<float> *tree = static_cast< 
-      vtkScalarRange<float>*>(this->Tree) + index;
+    vtkScalarRange<double> *tree = static_cast< 
+      vtkScalarRange<double>*>(this->Tree) + index;
 
     if ( tree->min > this->ScalarValue || tree->max < this->ScalarValue )
       {
@@ -294,18 +294,11 @@ int vtkSimpleScalarTree::FindNextLeaf(vtkIdType childIndex, int childLevel)
 // initialize traversal. The value NULL is returned if the list is
 // exhausted. Make sure that InitTraversal() has been invoked first or
 // you'll get erratic behavior.
-vtkCell *vtkSimpleScalarTree::GetNextCell(vtkIdType& cellId, vtkIdList* &cellPts,
-                                    vtkDataArray *cellScalars)
+vtkCell *vtkSimpleScalarTree::GetNextCell(vtkIdType& cellId, 
+                                          vtkIdList* &cellPts,
+                                          vtkDataArray *cellScalars)
 {
-  vtkFloatArray* array = vtkFloatArray::SafeDownCast(cellScalars);
-  if (!array)
-    {
-    vtkErrorMacro("Expected a float array in scalars, got an array of type:"
-                  << cellScalars->GetDataType());
-    return 0;
-    }
-
-  float *s, min=VTK_LARGE_FLOAT, max=(-VTK_LARGE_FLOAT);
+  double s, min=VTK_DOUBLE_MAX, max=(-VTK_DOUBLE_MAX);
   vtkIdType i, numScalars;
   vtkCell *cell;
   vtkIdType numCells = this->DataSet->GetNumberOfCells();
@@ -318,18 +311,18 @@ vtkCell *vtkSimpleScalarTree::GetNextCell(vtkIdType& cellId, vtkIdList* &cellPts
       cell = this->DataSet->GetCell(this->CellId);
       cellPts = cell->GetPointIds();
       numScalars = cellPts->GetNumberOfIds();
-      array->SetNumberOfTuples(numScalars);
-      this->Scalars->GetTuples(cellPts, array);
-      s = array->GetPointer(0);
+      cellScalars->SetNumberOfTuples(numScalars);
+      this->Scalars->GetTuples(cellPts, cellScalars);
       for (i=0; i < numScalars; i++)
         {
-        if ( s[i] < min )
+        s = cellScalars->GetTuple1(i);
+        if ( s < min )
           {
-          min = s[i];
+          min = s;
           }
-        if ( s[i] > max )
+        if ( s > max )
           {
-          max = s[i];
+          max = s;
           }
         }
       if ( this->ScalarValue >= min && this->ScalarValue <= max )

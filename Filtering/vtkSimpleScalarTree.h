@@ -35,7 +35,6 @@
 #include "vtkScalarTree.h"
 
 //BTX
-class vtkFloatArray;
 class vtkScalarNode;
 //ETX
 
@@ -82,7 +81,7 @@ public:
   // Description:
   // Begin to traverse the cells based on a scalar value. Returned cells
   // will have scalar values that span the scalar value specified.
-  virtual void InitTraversal(float scalarValue);
+  virtual void InitTraversal(double scalarValue);
 
   // Description:
   // Return the next cell that may contain scalar value specified to
