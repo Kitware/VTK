@@ -53,6 +53,9 @@ typedef float    FTGL_FLOAT;
   #pragma warning( disable : 4275 )
   #pragma warning( disable : 4786 )
 
+  // Disable the usual'function ... not inlined' triggered by /W4
+  #pragma warning( disable : 4710 )
+
 #if ( _MSC_VER >= 1300 ) // Visual studio .NET
 
 #pragma warning( disable : 4244 ) // conversion [...] possible loss of data
