@@ -28,7 +28,7 @@
 #include <sys/stat.h>
 
 vtkStandardNewMacro(vtkTesting);
-vtkCxxRevisionMacro(vtkTesting, "1.1");
+vtkCxxRevisionMacro(vtkTesting, "1.2");
 vtkCxxSetObjectMacro(vtkTesting, RenderWindow, vtkRenderWindow);
 
 
@@ -422,12 +422,11 @@ int vtkTesting::Test(int argc, char *argv[], vtkRenderWindow *rw,
       }
     }
 
-  int frontBuffer = 0;
+  testing->FrontBufferOff();
   for (i=0; i<argc; i++)
     {
     if ( strcmp("-FrontBuffer", argv[i]) == 0 )
       {
-      frontBuffer = 1;
       testing->FrontBufferOn();
       }
     }
