@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkImageReader2.h"
 
-vtkCxxRevisionMacro(vtkImageReader2Collection, "1.4");
+vtkCxxRevisionMacro(vtkImageReader2Collection, "1.5");
 vtkStandardNewMacro(vtkImageReader2Collection);
 
 void vtkImageReader2Collection::AddItem(vtkImageReader2 *f) 
@@ -31,4 +31,10 @@ void vtkImageReader2Collection::AddItem(vtkImageReader2 *f)
 vtkImageReader2 *vtkImageReader2Collection::GetNextItem() 
 { 
   return static_cast<vtkImageReader2*>(this->GetNextItemAsObject());
+}
+
+//----------------------------------------------------------------------------
+void vtkImageReader2Collection::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
 }

@@ -43,6 +43,8 @@ class VTK_IO_EXPORT vtkPNMReader : public vtkImageReader
 public:
   static vtkPNMReader *New();
   vtkTypeRevisionMacro(vtkPNMReader,vtkImageReader);
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
+
   //Description: create a clone of this object.
   virtual vtkImageReader2* MakeObject() { return vtkPNMReader::New(); }
   int CanReadFile(const char* fname); 

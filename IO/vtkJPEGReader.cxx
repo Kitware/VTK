@@ -24,7 +24,7 @@ extern "C" {
 }
 
 
-vtkCxxRevisionMacro(vtkJPEGReader, "1.12");
+vtkCxxRevisionMacro(vtkJPEGReader, "1.13");
 vtkStandardNewMacro(vtkJPEGReader);
 
 
@@ -343,3 +343,9 @@ int vtkJPEGReader::CanReadFile(const char* fname)
 #pragma warning( default : 4611 )
 #endif 
 
+
+//----------------------------------------------------------------------------
+void vtkJPEGReader::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

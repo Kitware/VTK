@@ -19,7 +19,7 @@
 #include "vtkByteSwap.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkGESignaReader, "1.13");
+vtkCxxRevisionMacro(vtkGESignaReader, "1.14");
 vtkStandardNewMacro(vtkGESignaReader);
 
 
@@ -447,4 +447,8 @@ void vtkGESignaReader::ExecuteData(vtkDataObject *output)
   vtkGESignaReaderUpdate(this, data, (unsigned short *)(outPtr));
 }
 
-
+//----------------------------------------------------------------------------
+void vtkGESignaReader::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

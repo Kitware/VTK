@@ -20,7 +20,7 @@
 
 #include <png.h>
 
-vtkCxxRevisionMacro(vtkPNGReader, "1.13");
+vtkCxxRevisionMacro(vtkPNGReader, "1.14");
 vtkStandardNewMacro(vtkPNGReader);
 
 void vtkPNGReader::ExecuteInformation()
@@ -353,4 +353,10 @@ int vtkPNGReader::CanReadFile(const char* fname)
   
   fclose(fp);
   return 1; 
+}
+
+//----------------------------------------------------------------------------
+void vtkPNGReader::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
 }

@@ -18,7 +18,7 @@
 #include "vtkPNMReader.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPNMReader, "1.27");
+vtkCxxRevisionMacro(vtkPNMReader, "1.28");
 vtkStandardNewMacro(vtkPNMReader);
 
 char vtkPNMReaderGetChar(FILE *fp)
@@ -221,4 +221,10 @@ int vtkPNMReader::CanReadFile(const char* fname)
             (magic[1] >= '1' && magic[1] <= '6'));
   fclose(fp);
   return ok;
+}
+
+//----------------------------------------------------------------------------
+void vtkPNMReader::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
 }

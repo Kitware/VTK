@@ -33,6 +33,7 @@ class VTK_IO_EXPORT vtkJPEGReader : public vtkImageReader2
 public:
   static vtkJPEGReader *New();
   vtkTypeRevisionMacro(vtkJPEGReader,vtkImageReader2);
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   //Description: create a clone of this object.
   virtual vtkImageReader2* MakeObject() { return vtkJPEGReader::New(); }

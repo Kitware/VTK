@@ -47,6 +47,10 @@ extern "C" {
 #include <tiffio.h>
 }
 
+//-------------------------------------------------------------------------
+vtkStandardNewMacro(vtkTIFFReader);
+vtkCxxRevisionMacro(vtkTIFFReader, "1.36");
+
 class vtkTIFFReaderInternal
 {
 public:
@@ -162,9 +166,6 @@ int vtkTIFFReaderInternal::CanRead()
            ( !this->TileDepth ) &&
            ( this->BitsPerSample == 8 ) );
 }
-
-//-------------------------------------------------------------------------
-vtkStandardNewMacro(vtkTIFFReader);
 
 vtkTIFFReader::vtkTIFFReader()
 {
@@ -642,3 +643,8 @@ int vtkTIFFReader::CanReadFile(const char* fname)
   return res;
 }
 
+//----------------------------------------------------------------------------
+void vtkTIFFReader::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

@@ -27,7 +27,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkEnSight6Reader, "1.33");
+vtkCxxRevisionMacro(vtkEnSight6Reader, "1.34");
 vtkStandardNewMacro(vtkEnSight6Reader);
 
 //----------------------------------------------------------------------------
@@ -2072,4 +2072,10 @@ int vtkEnSight6Reader::CreateStructuredGridOutput(int partId,
   // reading next line to check for EOF
   lineRead = this->ReadNextDataLine(line);
   return lineRead;
+}
+
+//----------------------------------------------------------------------------
+void vtkEnSight6Reader::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
 }

@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkIVWriter, "1.25");
+vtkCxxRevisionMacro(vtkIVWriter, "1.26");
 vtkStandardNewMacro(vtkIVWriter);
 
 void vtkIVWriter::WriteData()
@@ -223,4 +223,8 @@ void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
 }
 
 
-
+//----------------------------------------------------------------------------
+void vtkIVWriter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkPostScriptWriter, "1.17");
+vtkCxxRevisionMacro(vtkPostScriptWriter, "1.18");
 vtkStandardNewMacro(vtkPostScriptWriter);
 
 #define VTK_MARGIN 0.95
@@ -203,5 +203,8 @@ void vtkPostScriptWriter::WriteFile(ofstream *file, vtkImageData *data,
   
 }
 
-
-
+//----------------------------------------------------------------------------
+void vtkPostScriptWriter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

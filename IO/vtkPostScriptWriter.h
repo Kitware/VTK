@@ -33,6 +33,7 @@ class VTK_IO_EXPORT vtkPostScriptWriter : public vtkImageWriter
 public:
   static vtkPostScriptWriter *New();
   vtkTypeRevisionMacro(vtkPostScriptWriter,vtkImageWriter);
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
   vtkPostScriptWriter() {};

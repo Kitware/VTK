@@ -34,6 +34,7 @@ class VTK_IO_EXPORT vtkImageReader2Collection : public vtkCollection
 public:
   vtkTypeRevisionMacro(vtkImageReader2Collection,vtkCollection);
   static vtkImageReader2Collection *New();
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Add an implicit function to the list.

@@ -60,7 +60,8 @@ class VTK_IO_EXPORT vtkTIFFReader : public vtkImageReader2
 {
 public:
   static vtkTIFFReader *New();
-  vtkTypeMacro(vtkTIFFReader,vtkImageReader2);
+  vtkTypeRevisionMacro(vtkTIFFReader,vtkImageReader2);
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description: is the given file name a png file?
   virtual int CanReadFile(const char* fname);

@@ -26,7 +26,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.32");
+vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.33");
 vtkStandardNewMacro(vtkEnSightGoldReader);
 
 //----------------------------------------------------------------------------
@@ -1878,4 +1878,10 @@ int vtkEnSightGoldReader::CreateImageDataOutput(int partId, char line[256])
   // reading next line to check for EOF
   lineRead = this->ReadNextDataLine(line);
   return lineRead;
+}
+
+//----------------------------------------------------------------------------
+void vtkEnSightGoldReader::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
 }

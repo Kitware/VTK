@@ -27,7 +27,7 @@
 #include "vtkByteSwap.h"
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.23");
+vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.24");
 vtkStandardNewMacro(vtkEnSight6BinaryReader);
 
 //----------------------------------------------------------------------------
@@ -2567,4 +2567,10 @@ int vtkEnSight6BinaryReader::ReadFloatArray(float *result,
     }
   
   return 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkEnSight6BinaryReader::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
 }

@@ -27,7 +27,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.26");
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.27");
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 //----------------------------------------------------------------------------
@@ -2900,4 +2900,10 @@ int vtkEnSightGoldBinaryReader::ReadFloatArray(float *result,
     }
   
   return 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkEnSightGoldBinaryReader::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
 }

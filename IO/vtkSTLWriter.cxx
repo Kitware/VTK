@@ -22,7 +22,7 @@
 #include "vtkPolyData.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkSTLWriter, "1.45");
+vtkCxxRevisionMacro(vtkSTLWriter, "1.46");
 vtkStandardNewMacro(vtkSTLWriter);
 
 vtkSTLWriter::vtkSTLWriter()
@@ -166,3 +166,8 @@ void vtkSTLWriter::WriteBinarySTL(vtkPoints *pts, vtkCellArray *polys)
   fclose (fp);
 }
 
+//----------------------------------------------------------------------------
+void vtkSTLWriter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}

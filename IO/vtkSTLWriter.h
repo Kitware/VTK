@@ -36,6 +36,7 @@ class VTK_IO_EXPORT vtkSTLWriter : public vtkPolyDataWriter
 public:
   static vtkSTLWriter *New();
   vtkTypeRevisionMacro(vtkSTLWriter,vtkPolyDataWriter);
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
   vtkSTLWriter();

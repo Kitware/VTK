@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkTIFFWriter, "1.21");
+vtkCxxRevisionMacro(vtkTIFFWriter, "1.22");
 vtkStandardNewMacro(vtkTIFFWriter);
 
 #if (_MIPS_SZLONG == 64)
@@ -478,4 +478,10 @@ void vtkTIFFWriter::WriteFile(ofstream *file, vtkImageData *data,
         }
       }
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkTIFFWriter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
 }

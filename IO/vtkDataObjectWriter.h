@@ -30,6 +30,7 @@
 #ifndef __vtkDataObjectWriter_h
 #define __vtkDataObjectWriter_h
 
+#include "vtkWriter.h"
 #include "vtkDataWriter.h" // Neds data because it calls methods on it
 
 class VTK_IO_EXPORT vtkDataObjectWriter : public vtkWriter

@@ -20,7 +20,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkBMPWriter, "1.19");
+vtkCxxRevisionMacro(vtkBMPWriter, "1.20");
 vtkStandardNewMacro(vtkBMPWriter);
 
 vtkBMPWriter::vtkBMPWriter()
@@ -181,5 +181,8 @@ void vtkBMPWriter::WriteFile(ofstream *file, vtkImageData *data,
     }
 }
 
-
-
+//----------------------------------------------------------------------------
+void vtkBMPWriter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+}
