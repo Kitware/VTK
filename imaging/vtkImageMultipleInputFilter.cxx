@@ -240,25 +240,22 @@ VTK_THREAD_RETURN_TYPE vtkImageMultiThreadedExecute( void *arg )
 
 //----------------------------------------------------------------------------
 // The execute method created by the subclass.
-void vtkImageMultipleInputFilter::Execute()
+void vtkImageMultipleInputFilter::ExecuteData(vtkDataObject *out)
 {
-  vtkImageData *output = this->GetOutput();
-
+  vtkImageData *output = vtkImageData::SafeDownCast(out);
+  if (!output)
+    {
+    vtkWarningMacro("ExecuteData called without ImageData output");
+    return;
+    }
   output->SetExtent(output->GetUpdateExtent());
   output->AllocateScalars();
-  this->Execute((vtkImageData**)(this->Inputs), output);
-}
 
-//----------------------------------------------------------------------------
-// The execute method created by the subclass.
-void vtkImageMultipleInputFilter::Execute(vtkImageData **inDatas, 
-					  vtkImageData *outData)
-{
   vtkImageMultiThreadStruct str;
   
   str.Filter = this;
-  str.Inputs = inDatas;
-  str.Output = outData;
+  str.Inputs = (vtkImageData **)this->GetInputs();
+  str.Output = output;
   
   this->Threader->SetNumberOfThreads(this->NumberOfThreads);
   

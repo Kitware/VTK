@@ -90,12 +90,9 @@ protected:
 					 int whichInput );
 
 
-  void Execute();
-  void Execute(vtkImageData *outData) {this->vtkImageSource::Execute(outData);};
-  virtual void Execute(vtkImageData **inDatas, vtkImageData **outDatas);
+  void ExecuteData(vtkDataObject *out);
 
   // this should never be called
-  virtual void Execute(vtkImageData **, vtkImageData *) {};
   virtual void ThreadedExecute(vtkImageData **inDatas, 
 			       vtkImageData *outData,
 			       int extent[6], int threadId);

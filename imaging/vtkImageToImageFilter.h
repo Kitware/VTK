@@ -135,13 +135,11 @@ protected:
   virtual void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
 
   // This is called by the superclass.
-  void Execute();
-
-  // This one is not currently used
-  void Execute(vtkImageData *outData) { this->vtkImageSource::Execute(outData); };
-
   // This is the method you should override.
-  virtual void Execute(vtkImageData *inData, vtkImageData *outData);
+  void ExecuteData(vtkDataObject *output);
+  
+  // The method that starts the multithreading
+  void MultiThread(vtkImageData *output);
 
   void ComputeInputUpdateExtents( vtkDataObject *output );
   virtual void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);

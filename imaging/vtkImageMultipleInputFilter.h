@@ -125,9 +125,7 @@ protected:
 					 int whichInput );
 
 
-  void Execute();
-  void Execute(vtkImageData *outData) {this->vtkImageSource::Execute(outData);};
-  virtual void Execute(vtkImageData **inDatas, vtkImageData *outData);
+  void ExecuteData(vtkDataObject *output);
 
   // This one gets called by the superclass.
   void ExecuteInformation();
