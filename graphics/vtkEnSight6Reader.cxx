@@ -3011,30 +3011,32 @@ void vtkEnSight6Reader::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetSource::PrintSelf(os,indent);
 
-  os << indent << "CaseFileName: " << this->CaseFileName << "\n";
-  os << indent << "FilePath: " << this->FilePath << "\n";
+  os << indent << "CaseFileName: "
+     << (this->CaseFileName ? this->CaseFileName : "(none)") << endl;
+  os << indent << "FilePath: "
+     << (this->FilePath ? this->FilePath : "(none)") << endl;
   os << indent << "NumberOfComplexScalarsPerNode: "
-     << this->NumberOfComplexScalarsPerNode;
+     << this->NumberOfComplexScalarsPerNode << endl;
   os << indent << "NumberOfVectorsPerElement :"
-     << this->NumberOfVectorsPerElement;
+     << this->NumberOfVectorsPerElement << endl;
   os << indent << "NumberOfTensorsSymmPerElement: "
-     << this->NumberOfTensorsSymmPerElement;
+     << this->NumberOfTensorsSymmPerElement << endl;
   os << indent << "NumberOfComplexVectorsPerNode: "
-     << this->NumberOfComplexVectorsPerNode;
+     << this->NumberOfComplexVectorsPerNode << endl;
   os << indent << "NumberOfScalarsPerElement: "
-     << this->NumberOfScalarsPerElement;
+     << this->NumberOfScalarsPerElement << endl;
   os << indent << "NumberOfComplexVectorsPerElement: "
-     << this->NumberOfComplexVectorsPerElement;
+     << this->NumberOfComplexVectorsPerElement << endl;
   os << indent << "NumberOfComplexScalarsPerElement: "
-     << this->NumberOfComplexScalarsPerElement;
+     << this->NumberOfComplexScalarsPerElement << endl;
   os << indent << "NumberOfTensorsSymmPerNode: "
-     << this->NumberOfTensorsSymmPerNode;
+     << this->NumberOfTensorsSymmPerNode << endl;
   os << indent << "NumberOfScalarsPerMeasuredNode: "
-     << this->NumberOfScalarsPerMeasuredNode;
+     << this->NumberOfScalarsPerMeasuredNode << endl;
   os << indent << "NumberOfVectorsPerMeasuredNode: "
-     << this->NumberOfVectorsPerMeasuredNode;
+     << this->NumberOfVectorsPerMeasuredNode << endl;
   os << indent << "NumberOfScalarsPerNode: "
-     << this->NumberOfScalarsPerNode;
+     << this->NumberOfScalarsPerNode << endl;
   os << indent << "NumberOfVectorsPerNode: "
-     << this->NumberOfVectorsPerNode;
+     << this->NumberOfVectorsPerNode << endl;
 }
