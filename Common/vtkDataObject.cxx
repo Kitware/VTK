@@ -24,9 +24,10 @@
 #include "vtkTrivialProducer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.104");
+vtkCxxRevisionMacro(vtkDataObject, "1.105");
 vtkStandardNewMacro(vtkDataObject);
 
+vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
 vtkCxxSetObjectMacro(vtkDataObject,FieldData,vtkFieldData);
 
 // Initialize static member that controls global data release 
@@ -38,6 +39,8 @@ vtkDataObject::vtkDataObject()
 {
   this->Source = NULL;
   this->ProducerPort = 0;
+
+  this->Information = 0;
 
   // We have to assume that if a user is creating the data on their own,
   // then they will fill it with valid data.
@@ -95,6 +98,7 @@ vtkDataObject::vtkDataObject()
 //----------------------------------------------------------------------------
 vtkDataObject::~vtkDataObject()
 {
+  this->SetInformation(0);
   this->SetProducerPort(0);
   this->SetFieldData(NULL);
 

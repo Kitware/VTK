@@ -36,6 +36,7 @@
 
 class vtkAlgorithmOutput;
 class vtkFieldData;
+class vtkInformation;
 class vtkProcessObject;
 class vtkSource;
 class vtkSourceToDataObjectFriendship;
@@ -61,6 +62,11 @@ public:
   // Set/Get the algorithm output port producing this data object.
   vtkGetObjectMacro(ProducerPort, vtkAlgorithmOutput);
   virtual void SetProducerPort(vtkAlgorithmOutput*);
+
+  // Description:
+  // Set/Get the information object associated with this data object.
+  vtkGetObjectMacro(Information, vtkInformation);
+  virtual void SetInformation(vtkInformation*);
 
   // Description:
   // Data objects are composite objects and need to check each part for MTime.
@@ -403,6 +409,9 @@ protected:
   virtual void RemoveReferences();
   virtual void GarbageCollectionStarting();
   int GarbageCollecting;
+
+  // Arbitrary extra information associated with this data object.
+  vtkInformation* Information;
 
   //BTX
   friend class vtkSourceToDataObjectFriendship;
