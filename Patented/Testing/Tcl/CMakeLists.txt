@@ -5,22 +5,8 @@ IF (VTK_USE_RENDERING)
   #
   IF (VTK_DATA_ROOT)
     FOREACH ( tfile 
-      dcubes
-      deciBrain
-      deciBrainErrors
-      financialField
-      genHead
-      headBone
-      iceCream
-      imageMCAll
-      mcubes
-      nc
-      sweepAuto
-      sweptVtk
       sync3dAll
       TestGridSynchronizedTemplates3D
-      TestImageMarchingCubes
-      TestMarchingSquares
       TestRectilinearSynchronizedTemplates
       TestSynchronizedTemplates2D
       TestSynchronizedTemplates3D

@@ -10,18 +10,10 @@ SET(KIT_JAVA_LIBS vtkGraphicsJava vtkImagingJava)
 SET(KIT_LIBS vtkGraphics vtkImaging vtkIO)
 
 SET( Kit_SRCS
-vtkDecimate.cxx
-vtkDividingCubes.cxx
 vtkGridSynchronizedTemplates3D.cxx
-vtkImageMarchingCubes.cxx
 vtkKitwareContourFilter.cxx
 vtkKitwareCutter.cxx
-vtkMarchingContourFilter.cxx
-vtkMarchingCubes.cxx
-vtkMarchingSquares.cxx
 vtkRectilinearSynchronizedTemplates.cxx
-vtkSliceCubes.cxx
-vtkSweptSurface.cxx
 vtkSynchronizedTemplates2D.cxx
 vtkSynchronizedTemplates3D.cxx
 )
