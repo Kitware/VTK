@@ -94,8 +94,8 @@ public:
 
   // Description
   // Specify the implicit function with which to perform the
-  // clipping. If you do not define an implicit function, then the input
-  // scalar data will be used for clipping.
+  // clipping. If you do not define an implicit function, 
+  // then the selected input scalar data will be used for clipping.
   vtkSetObjectMacro(ClipFunction,vtkImplicitFunction);
   vtkGetObjectMacro(ClipFunction,vtkImplicitFunction);
 
@@ -140,7 +140,7 @@ public:
   vtkGetStringMacro(InputScalarsSelection);
   void SelectInputScalars(const char *fieldName) 
     {this->SetInputScalarsSelection(fieldName);}
-  
+
 protected:
   vtkClipDataSet(vtkImplicitFunction *cf=NULL);
   ~vtkClipDataSet();
