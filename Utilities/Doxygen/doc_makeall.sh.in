@@ -1,6 +1,6 @@
 # -------------------------------------------------------------------------
 # Doxygen documentation batch
-# modified by S. Barre (Time-stamp: <2002-07-29 11:09:48 barre>
+# modified by S. Barre (Time-stamp: <2002-10-25 20:33:26 barre>
 # -------------------------------------------------------------------------
 
 # Path to several tools (_PROG to avoid the typical GZIP env var pb)
@@ -358,6 +358,14 @@ fi
 if test "x$PERL_PROG" != "xNOTFOUND" ; then
     $PERL_PROG $PATH_TO_VTK_DOX_SCRIPTS/doc_rmpath.pl \
         --to "$INTERMEDIATE_DOX_DIR" \
+        --html "$OUTPUT_DIRECTORY/html"
+fi
+
+# ----------------------------------------------------------------------------
+# clean the HTML pages to remove layout pbs
+
+if test "x$PERL_PROG" != "xNOTFOUND" ; then
+    $PERL_PROG $PATH_TO_VTK_DOX_SCRIPTS/doc_cleanhtml.pl \
         --html "$OUTPUT_DIRECTORY/html"
 fi
 

@@ -1,29 +1,4 @@
-body {
-  background-color: #97A8C9;
-  color: #000000;
-}
-
-div.div-page { 
-  background-color: #FFFFFF; 
-  margin-left: 1em;
-  margin-right: 1em;
-  margin-top: 1em;
-  margin-bottom: 0.1em;
-
-  padding-left: 1em;
-  padding-right: 1em;
-  padding-top: 0.5em;
-  padding-bottom: 0.5em;
-
-  border: 2px solid #0D299A; 
-  border-width: 2px;
-  border-color: #0D299A; 
-}
-
 div.div-footer { 
-  margin-left: 1em;
-  margin-right: 1em;
-  margin-bottom: 0.2em;
   text-align: right; 
   font-size: 9pt; 
 }
@@ -134,12 +109,6 @@ TD.mdname {
   font-weight: bold; 
   color: #602020; 
 /*  width: 600px; */
-}
-
-/* Table surrounding the method name + params */
-
-table.table-md-params { 
-  width: 90%; 
 }
 
 /* Separator between methods group (usually empty, seems not supported by IE) */
