@@ -71,8 +71,12 @@ static Tk_ConfigSpec vtkTkImageViewerWidgetConfigSpecs[] = {
 
 
 // Forward prototypes
-static void vtkTkImageViewerWidget_EventProc(ClientData clientData, 
-                                             XEvent *eventPtr);
+extern "C"
+{
+  static void vtkTkImageViewerWidget_EventProc(ClientData clientData, 
+                                               XEvent *eventPtr);
+}
+
 static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self);
 extern int vtkImageViewerCommand(ClientData cd, Tcl_Interp *interp,
                                  int argc, char *argv[]);
@@ -109,81 +113,84 @@ int vtkTkImageViewerWidget_Configure(Tcl_Interp *interp,
 // This function is called when the ImageViewer widget name is 
 // evaluated in a Tcl script.  It will compare string parameters
 // to choose the appropriate method to invoke.
-int vtkTkImageViewerWidget_Widget(ClientData clientData, Tcl_Interp *interp,
-                                  int argc, char *argv[]) 
+extern "C"
 {
-  struct vtkTkImageViewerWidget *self = 
-    (struct vtkTkImageViewerWidget *)clientData;
-  int result = TCL_OK;
-  
-  // Check to see if the command has enough arguments.
-  if (argc < 2) 
-    {
-    Tcl_AppendResult(interp, "wrong # args: should be \"",
-                     argv[0], " ?options?\"", NULL);
-    return TCL_ERROR;
-    }
-  
-  // Make sure the widget is not deleted during this function
-  Tk_Preserve((ClientData)self);
-  
-  
-  // Handle render call to the widget
-  if (strncmp(argv[1], "render", VTK_MAX(1, strlen(argv[1]))) == 0 || 
-      strncmp(argv[1], "Render", VTK_MAX(1, strlen(argv[1]))) == 0) 
-    {
-    // make sure we have a window
-    if (self->ImageViewer == NULL)
+  int vtkTkImageViewerWidget_Widget(ClientData clientData, Tcl_Interp *interp,
+                                    int argc, char *argv[]) 
+  {
+    struct vtkTkImageViewerWidget *self = 
+      (struct vtkTkImageViewerWidget *)clientData;
+    int result = TCL_OK;
+    
+    // Check to see if the command has enough arguments.
+    if (argc < 2) 
       {
-      vtkTkImageViewerWidget_MakeImageViewer(self);
+      Tcl_AppendResult(interp, "wrong # args: should be \"",
+                       argv[0], " ?options?\"", NULL);
+      return TCL_ERROR;
       }
-    self->ImageViewer->Render();
-    }
-  // Handle configure method
-  else if (!strncmp(argv[1], "configure", VTK_MAX(1, strlen(argv[1])))) 
-    {
-    if (argc == 2) 
+    
+    // Make sure the widget is not deleted during this function
+    Tk_Preserve((ClientData)self);
+    
+    
+    // Handle render call to the widget
+    if (strncmp(argv[1], "render", VTK_MAX(1, strlen(argv[1]))) == 0 || 
+        strncmp(argv[1], "Render", VTK_MAX(1, strlen(argv[1]))) == 0) 
       {
-      /* Return list of all configuration parameters */
-      result = Tk_ConfigureInfo(interp, self->TkWin, 
-                                vtkTkImageViewerWidgetConfigSpecs,
-                                (char *)self, (char *)NULL, 0);
+      // make sure we have a window
+      if (self->ImageViewer == NULL)
+        {
+        vtkTkImageViewerWidget_MakeImageViewer(self);
+        }
+      self->ImageViewer->Render();
       }
-    else if (argc == 3) 
+    // Handle configure method
+    else if (!strncmp(argv[1], "configure", VTK_MAX(1, strlen(argv[1])))) 
       {
-      /* Return a specific configuration parameter */
-      result = Tk_ConfigureInfo(interp, self->TkWin, 
-                                vtkTkImageViewerWidgetConfigSpecs,
-                                (char *)self, argv[2], 0);
+      if (argc == 2) 
+        {
+        /* Return list of all configuration parameters */
+        result = Tk_ConfigureInfo(interp, self->TkWin, 
+                                  vtkTkImageViewerWidgetConfigSpecs,
+                                  (char *)self, (char *)NULL, 0);
+        }
+      else if (argc == 3) 
+        {
+        /* Return a specific configuration parameter */
+        result = Tk_ConfigureInfo(interp, self->TkWin, 
+                                  vtkTkImageViewerWidgetConfigSpecs,
+                                  (char *)self, argv[2], 0);
+        }
+      else 
+        {
+        /* Execute a configuration change */
+        result = vtkTkImageViewerWidget_Configure(interp, self, argc-2, 
+                                                  argv+2, TK_CONFIG_ARGV_ONLY);
+        }
+      }
+    else if (!strcmp(argv[1], "GetImageViewer"))
+      { // Get ImageViewerWindow is my own method
+      // Create a ImageViewerWidget if one has not been set yet.
+      result = vtkTkImageViewerWidget_MakeImageViewer(self);
+      if (result != TCL_ERROR)
+        {
+        // Return the name (Make Tcl copy the string)
+        Tcl_SetResult(interp, self->IV, TCL_VOLATILE);
+        }
       }
     else 
       {
-      /* Execute a configuration change */
-      result = vtkTkImageViewerWidget_Configure(interp, self, argc-2, 
-                                           argv+2, TK_CONFIG_ARGV_ONLY);
+      // Unknown method name.
+      Tcl_AppendResult(interp, "vtkTkImageViewerWidget: Unknown option: ", argv[1], 
+                       "\n", "Try: configure or GetImageViewer\n", NULL);
+      result = TCL_ERROR;
       }
-    }
-  else if (!strcmp(argv[1], "GetImageViewer"))
-    { // Get ImageViewerWindow is my own method
-    // Create a ImageViewerWidget if one has not been set yet.
-    result = vtkTkImageViewerWidget_MakeImageViewer(self);
-    if (result != TCL_ERROR)
-      {
-      // Return the name (Make Tcl copy the string)
-      Tcl_SetResult(interp, self->IV, TCL_VOLATILE);
-      }
-    }
-  else 
-    {
-    // Unknown method name.
-    Tcl_AppendResult(interp, "vtkTkImageViewerWidget: Unknown option: ", argv[1], 
-                     "\n", "Try: configure or GetImageViewer\n", NULL);
-    result = TCL_ERROR;
-    }
-
-  // Unlock the object so it can be deleted.
-  Tk_Release((ClientData)self);
-  return result;
+    
+    // Unlock the object so it can be deleted.
+    Tk_Release((ClientData)self);
+    return result;
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -195,68 +202,71 @@ int vtkTkImageViewerWidget_Widget(ClientData clientData, Tcl_Interp *interp,
 //     * Creates an event handler for this window
 //     * Creates a command that handles this object
 //     * Configures this vtkTkImageViewerWidget for the given arguments
-int vtkTkImageViewerWidget_Cmd(ClientData clientData, 
-                               Tcl_Interp *interp, 
-                               int argc, char **argv)
+extern "C"
 {
-  char *name;
-  Tk_Window main = (Tk_Window)clientData;
-  Tk_Window tkwin;
-  struct vtkTkImageViewerWidget *self;
-  
-  // Make sure we have an instance name.
-  if (argc <= 1) 
-    {
-    Tcl_ResetResult(interp);
-    Tcl_AppendResult(interp, 
-                     "wrong # args: should be \"pathName read filename\"", 
-                     NULL);
-    return(TCL_ERROR);
-    }
-  
-  // Create the window.
-  name = argv[1];
-  // Possibly X dependent
-  tkwin = Tk_CreateWindowFromPath(interp, main, name, (char *) NULL);
-  if (tkwin == NULL) 
-    {
-    return TCL_ERROR;
-    }
-  
-  // Tcl needs this for setting options and matching event bindings.
-  Tk_SetClass(tkwin, (char *) "vtkTkImageViewerWidget");
-  
-  // Create vtkTkImageViewerWidget data structure 
-  self = (struct vtkTkImageViewerWidget *)
-    ckalloc(sizeof(struct vtkTkImageViewerWidget));
-
-  self->TkWin = tkwin;
-  self->Interp = interp;
-  self->Width = 0;
-  self->Height = 0;
-  self->ImageViewer = NULL;
-  self->IV = NULL;
-  
-  // ...
-  // Create command event handler
-  Tcl_CreateCommand(interp, Tk_PathName(tkwin), vtkTkImageViewerWidget_Widget, 
-                    (ClientData)self, (void (*)(ClientData)) NULL);
-  Tk_CreateEventHandler(tkwin, ExposureMask | StructureNotifyMask,
-                        vtkTkImageViewerWidget_EventProc, (ClientData)self);
-  
-  // Configure vtkTkImageViewerWidget widget
-  if (vtkTkImageViewerWidget_Configure(interp, self, argc-2, argv+2, 0) 
-      == TCL_ERROR) 
-    {
-    Tk_DestroyWindow(tkwin);
-    Tcl_DeleteCommand(interp, (char *) "vtkTkImageViewerWidget");
-    // Don't free it, if we do a crash occurs later...
-    //free(self);  
-    return TCL_ERROR;
-    }
-  
-  Tcl_AppendResult(interp, Tk_PathName(tkwin), NULL);
-  return TCL_OK;
+  int vtkTkImageViewerWidget_Cmd(ClientData clientData, 
+                                 Tcl_Interp *interp, 
+                                 int argc, char **argv)
+  {
+    char *name;
+    Tk_Window main = (Tk_Window)clientData;
+    Tk_Window tkwin;
+    struct vtkTkImageViewerWidget *self;
+    
+    // Make sure we have an instance name.
+    if (argc <= 1) 
+      {
+      Tcl_ResetResult(interp);
+      Tcl_AppendResult(interp, 
+                       "wrong # args: should be \"pathName read filename\"", 
+                       NULL);
+      return(TCL_ERROR);
+      }
+    
+    // Create the window.
+    name = argv[1];
+    // Possibly X dependent
+    tkwin = Tk_CreateWindowFromPath(interp, main, name, (char *) NULL);
+    if (tkwin == NULL) 
+      {
+      return TCL_ERROR;
+      }
+    
+    // Tcl needs this for setting options and matching event bindings.
+    Tk_SetClass(tkwin, (char *) "vtkTkImageViewerWidget");
+    
+    // Create vtkTkImageViewerWidget data structure 
+    self = (struct vtkTkImageViewerWidget *)
+      ckalloc(sizeof(struct vtkTkImageViewerWidget));
+    
+    self->TkWin = tkwin;
+    self->Interp = interp;
+    self->Width = 0;
+    self->Height = 0;
+    self->ImageViewer = NULL;
+    self->IV = NULL;
+    
+    // ...
+    // Create command event handler
+    Tcl_CreateCommand(interp, Tk_PathName(tkwin), vtkTkImageViewerWidget_Widget, 
+                      (ClientData)self, (void (*)(ClientData)) NULL);
+    Tk_CreateEventHandler(tkwin, ExposureMask | StructureNotifyMask,
+                          vtkTkImageViewerWidget_EventProc, (ClientData)self);
+    
+    // Configure vtkTkImageViewerWidget widget
+    if (vtkTkImageViewerWidget_Configure(interp, self, argc-2, argv+2, 0) 
+        == TCL_ERROR) 
+      {
+      Tk_DestroyWindow(tkwin);
+      Tcl_DeleteCommand(interp, (char *) "vtkTkImageViewerWidget");
+      // Don't free it, if we do a crash occurs later...
+      //free(self);  
+      return TCL_ERROR;
+      }
+    
+    Tcl_AppendResult(interp, Tk_PathName(tkwin), NULL);
+    return TCL_OK;
+  }
 }
 
 
@@ -280,93 +290,98 @@ int vtkTkImageViewerWidget_Height( const struct vtkTkImageViewerWidget *self)
    return self->Height;
 }
 
-
-static void vtkTkImageViewerWidget_Destroy(char *memPtr)
+extern "C"
 {
-  struct vtkTkImageViewerWidget *self = (struct vtkTkImageViewerWidget *)memPtr;
-
-  if (self->ImageViewer)
-    {
-    int netRefCount = 0;
-    netRefCount =  self->ImageViewer->GetReferenceCount();
-    if (self->ImageViewer->GetRenderWindow()->GetInteractor() && 
-        self->ImageViewer->GetRenderWindow()->GetInteractor()->GetRenderWindow() == self->ImageViewer->GetRenderWindow() &&
-        self->ImageViewer->GetRenderWindow()->GetInteractor()->GetReferenceCount() == 1)
+  static void vtkTkImageViewerWidget_Destroy(char *memPtr)
+  {
+    struct vtkTkImageViewerWidget *self = (struct vtkTkImageViewerWidget *)memPtr;
+    
+    if (self->ImageViewer)
       {
-      netRefCount = netRefCount - 1;
+      int netRefCount = 0;
+      netRefCount =  self->ImageViewer->GetReferenceCount();
+      if (self->ImageViewer->GetRenderWindow()->GetInteractor() && 
+          self->ImageViewer->GetRenderWindow()->GetInteractor()->GetRenderWindow() == self->ImageViewer->GetRenderWindow() &&
+          self->ImageViewer->GetRenderWindow()->GetInteractor()->GetReferenceCount() == 1)
+        {
+        netRefCount = netRefCount - 1;
+        }
+      if (netRefCount > 1)
+        {
+        vtkGenericWarningMacro("A TkImageViewerWidget is being destroyed before it associated vtkImageViewer is destroyed. This is very bad and usually due to the order in which objects are being destroyed. Always destroy the vtkImageViewer before destroying the user interface components.");
+        return;
+        }
+      // Squash the ImageViewer's WindowID
+      self->ImageViewer->SetWindowId ( (void*)NULL );
+      self->ImageViewer->UnRegister(NULL);
+      self->ImageViewer = NULL;
+      ckfree (self->IV);
       }
-    if (netRefCount > 1)
-      {
-      vtkGenericWarningMacro("A TkImageViewerWidget is being destroyed before it associated vtkImageViewer is destroyed. This is very bad and usually due to the order in which objects are being destroyed. Always destroy the vtkImageViewer before destroying the user interface components.");
-      return;
-      }
-    // Squash the ImageViewer's WindowID
-    self->ImageViewer->SetWindowId ( (void*)NULL );
-    self->ImageViewer->UnRegister(NULL);
-    self->ImageViewer = NULL;
-    ckfree (self->IV);
+    ckfree((char *) memPtr);
   }
-  ckfree((char *) memPtr);
 }
 
 //----------------------------------------------------------------------------
 // This gets called to handle vtkTkImageViewerWidget wind configuration events
 // Possibly X dependent
-static void vtkTkImageViewerWidget_EventProc(ClientData clientData, 
-                                             XEvent *eventPtr) 
+extern "C"
 {
-  struct vtkTkImageViewerWidget *self = 
-    (struct vtkTkImageViewerWidget *)clientData;
-  
-  switch (eventPtr->type) 
-    {
-    case Expose:
-      if ((eventPtr->xexpose.count == 0)
-          /* && !self->UpdatePending*/) 
-                {
-                // bid this in tcl now
-                //self->ImageViewer->Render();
-                }
-      break;
-    case ConfigureNotify:
-      if ( 1 /*Tk_IsMapped(self->TkWin)*/ ) 
-        {
-        self->Width = Tk_Width(self->TkWin);
-        self->Height = Tk_Height(self->TkWin);
-        //Tk_GeometryRequest(self->TkWin,self->Width,self->Height);
-        if (self->ImageViewer)
-          {
-#ifdef VTK_USE_CARBON
-          TkWindow *winPtr = (TkWindow *)self->TkWin;
-          self->ImageViewer->SetPosition(winPtr->privatePtr->xOff,
-                                         winPtr->privatePtr->yOff);
-#else
-          self->ImageViewer->SetPosition(Tk_X(self->TkWin),Tk_Y(self->TkWin));
-#endif
-          self->ImageViewer->SetSize(self->Width, self->Height);
-          }
-        
-        //vtkTkImageViewerWidget_PostRedisplay(self);
-        }
-      break;
-    case MapNotify:
-      break;
-    case DestroyNotify:
-#if _WIN32
-    if (self->ImageViewer->GetRenderWindow()->GetGenericWindowId())
+  static void vtkTkImageViewerWidget_EventProc(ClientData clientData, 
+                                               XEvent *eventPtr) 
+  {
+    struct vtkTkImageViewerWidget *self = 
+      (struct vtkTkImageViewerWidget *)clientData;
+    
+    switch (eventPtr->type) 
       {
-      SetWindowLong((HWND)self->ImageViewer->GetRenderWindow()->GetGenericWindowId(),
-                    GWL_USERDATA,(LONG)((TkWindow *)self->TkWin)->window);
-      SetWindowLong((HWND)self->ImageViewer->GetRenderWindow()->GetGenericWindowId(),
-                    GWL_WNDPROC,(LONG)TkWinChildProc);
-      }
+      case Expose:
+        if ((eventPtr->xexpose.count == 0)
+            /* && !self->UpdatePending*/) 
+          {
+          // bid this in tcl now
+          //self->ImageViewer->Render();
+          }
+        break;
+      case ConfigureNotify:
+        if ( 1 /*Tk_IsMapped(self->TkWin)*/ ) 
+          {
+          self->Width = Tk_Width(self->TkWin);
+          self->Height = Tk_Height(self->TkWin);
+          //Tk_GeometryRequest(self->TkWin,self->Width,self->Height);
+          if (self->ImageViewer)
+            {
+#ifdef VTK_USE_CARBON
+            TkWindow *winPtr = (TkWindow *)self->TkWin;
+            self->ImageViewer->SetPosition(winPtr->privatePtr->xOff,
+                                           winPtr->privatePtr->yOff);
+#else
+            self->ImageViewer->SetPosition(Tk_X(self->TkWin),Tk_Y(self->TkWin));
 #endif
-      Tcl_EventuallyFree( (ClientData) self, vtkTkImageViewerWidget_Destroy );
-      break;
-    default:
-      // nothing
-      ;
-    }
+            self->ImageViewer->SetSize(self->Width, self->Height);
+            }
+          
+          //vtkTkImageViewerWidget_PostRedisplay(self);
+          }
+        break;
+      case MapNotify:
+        break;
+      case DestroyNotify:
+#if _WIN32
+        if (self->ImageViewer->GetRenderWindow()->GetGenericWindowId())
+          {
+          SetWindowLong((HWND)self->ImageViewer->GetRenderWindow()->GetGenericWindowId(),
+                        GWL_USERDATA,(LONG)((TkWindow *)self->TkWin)->window);
+          SetWindowLong((HWND)self->ImageViewer->GetRenderWindow()->GetGenericWindowId(),
+                        GWL_WNDPROC,(LONG)TkWinChildProc);
+          }
+#endif
+        Tcl_EventuallyFree( (ClientData) self, vtkTkImageViewerWidget_Destroy );
+        break;
+      default:
+        // nothing
+        ;
+      }
+  }
 }
 
 
