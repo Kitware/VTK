@@ -14,11 +14,6 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include "Decimate.hh"
-#include "vlMath.hh"
-#include "Triangle.hh"
-#include "Plane.hh"
-#include "Polygon.hh"
-#include "Line.hh"
 
 // Description:
 // Create object with target reduction of 90%, feature angle of 30 degrees, 
@@ -45,80 +40,6 @@ vlDecimate::vlDecimate()
   this->Degree = MAX_CELL_SIZE;
 }
 
-#define TOLERANCE 1.0e-05
-
-#define COMPLEX_VERTEX 0
-#define SIMPLE_VERTEX 1
-#define BOUNDARY_VERTEX 2
-#define INTERIOR_EDGE_VERTEX 3
-#define CORNER_VERTEX 4
-
-#define ELIMINATED_DISTANCE_TO_PLANE 5
-#define ELIMINATED_DISTANCE_TO_EDGE 6
-#define FAILED_DEGREE_TEST 7
-#define FAILED_NON_MANIFOLD 8
-#define FAILED_ZERO_AREA_TEST 9
-#define FAILED_ZERO_NORMAL_TEST 10
-#define FAILED_TO_TRIANGULATE 11
-
-//
-// Special classes for manipulating data
-//
-class vlVertexArray {
-public:
-  vlVertexArray(const int sz) 
-    {this->MaxId = -1; this->Array = new struct vlVertex[sz];};
-  ~vlVertexArray() {if (this->Array) delete [] this->Array;};
-  int GetNumberOfVertices() {return this->MaxId + 1;};
-  void InsertNextVertex(vlVertex& v) 
-    {this->MaxId++; this->Array[this->MaxId] = v;};
-  struct vlVertex& GetVertex(int i) {return this->Array[i];};
-  void Reset() {this->MaxId = -1;};
-
-  struct vlVertex *Array;  // pointer to data
-  int MaxId;             // maximum index inserted thus far
-};
-
-class vlTriArray {
-public:
-  vlTriArray(const int sz) 
-    {this->MaxId = -1; this->Array = new struct vlTri[sz];};
-  ~vlTriArray() {if (this->Array) delete [] this->Array;};
-  int GetNumberOfTriangles() {return this->MaxId + 1;};
-  void InsertNextTriangle(vlTri& t) 
-    {this->MaxId++; this->Array[this->MaxId] = t;};
-  struct vlTri& GetTriangle(int i) {return this->Array[i];};
-  void Reset() {this->MaxId = -1;};
-
-  struct vlTri *Array;  // pointer to data
-  int MaxId;            // maximum index inserted thus far
-};
-
-#define MAX_TRIS_PER_VERTEX MAX_CELL_SIZE
-#define MAX_SQUAWKS 10
-//
-//  Static variables visible in this file
-//
-static vlPlane plane; // eliminate constructor overhead
-static vlLine line;
-static vlTriangle triangle;
-static vlMath math;
-
-static vlPolyData *Mesh; // operate on this data structure
-static float Pt[3], Normal[3]; // least squares plane point & normal
-static float Angle, Distance; // current feature angle and distance 
-static float CosAngle; // Cosine of dihedral angle
-
-static float Tolerance; // Intersection tolerance
-static float AspectRatio2; // Allowable aspect ratio 
-static int ContinueTriangulating; // Stops recursive tri. if necessary 
-static int Squawks; // Control output 
-
-// temporary working arrays
-static vlVertexArray V(2*MAX_TRIS_PER_VERTEX); //cycle of vertices around point
-static vlTriArray T(2*MAX_TRIS_PER_VERTEX); //cycle of triangles around point
-
-
 //
 //  Reduce triangles in mesh by given amount or until total number of
 //  iterations completes
@@ -140,15 +61,13 @@ void vlDecimate::Execute()
   int numFEdges;
   VertexPtr fedges[2];
   int vtype;
-  int npts, *pts, newCellPts[MAX_CELL_SIZE];
+  int npts, *pts;
   VertexPtr verts[MAX_TRIS_PER_VERTEX];
   VertexPtr l1[MAX_TRIS_PER_VERTEX], l2[MAX_TRIS_PER_VERTEX];
   int n1, n2, cellId;
   float ar, criterion;
   int totalEliminated=0;
   int *map, numNewPts, size;
-  vlPointData *pd;
-  vlFloatPoints *newPts;
   vlPolyData *input=(vlPolyData *)this->Input;
 
   vlDebugMacro(<<"Decimating mesh...");
@@ -341,6 +260,21 @@ void vlDecimate::Execute()
 //
 //  Update output. This means renumbering points.
 //
+  this->CreateOutput(numPts, numTris, totalEliminated, input->GetPointData(), inPts);
+}
+
+void vlDecimate::CreateOutput(int numPts, int numTris, int numEliminated,
+                              vlPointData *pd, vlPoints *inPts)
+{
+  int *map, numNewPts, size;
+  int i;
+  int newCellPts[MAX_CELL_SIZE];
+  unsigned short int ncells;
+  int *cells;
+  int ptId, cellId, npts, *pts;
+  vlFloatPoints *newPts;
+  vlCellArray *newPolys;
+
   vlDebugMacro (<<"Creating output...");
 
   map = new int[numPts];
@@ -352,7 +286,6 @@ void vlDecimate::Execute()
     if ( ncells > 0 ) map[ptId] = numNewPts++;
     }
 
-  pd = input->GetPointData();
   this->PointData.CopyAllocate(pd,numNewPts);
   newPts = new vlFloatPoints(numNewPts);
 
@@ -367,7 +300,7 @@ void vlDecimate::Execute()
 
   // Now renumber connectivity
   newPolys = new vlCellArray;
-  newPolys->Allocate(newPolys->EstimateSize(3,numTris-totalEliminated));
+  newPolys->Allocate(newPolys->EstimateSize(3,numTris-numEliminated));
 
   for (cellId=0; cellId < numTris; cellId++)
     {
@@ -384,7 +317,6 @@ void vlDecimate::Execute()
   this->SetPoints(newPts);
   this->SetPolys(newPolys);
 }
-
 
 //
 //  Build loop around vertex in question.  Basic intent of routine is
@@ -707,11 +639,11 @@ void vlDecimate::EvaluateLoop (int ptId, int& vtype, int& numFEdeges,
       if ( numFEdges >= 2 ) 
         numFEdges++;
       else 
-        fedges[numFEdges] = V.Array + (i+1);
+        fedges[numFEdges++] = V.Array + (i+1);
       }
     }
 //
-//  Final vtypeification
+//  Final classification
 //
   if ( vtype == SIMPLE_VERTEX && numFEdges == 2 ) 
     {
