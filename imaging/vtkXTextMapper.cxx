@@ -177,12 +177,24 @@ void vtkXTextMapper::GetSize(vtkViewport* viewport, int *size)
 
 void vtkXTextMapper::RenderOverlay(vtkViewport* viewport, vtkActor2D* actor)
 {
+  vtkDebugMacro (<< "RenderOpaqueGeometry");
+
+  if ( this->NumberOfLines > 1 )
+    {
+    this->RenderMultipleLines(viewport, actor);
+    return;
+    }
+
+  // Check for input
   if (this->Input == NULL) 
     {
-    vtkDebugMacro (<<"vtkXTextMapper::Render - No input");
+    vtkDebugMacro (<<"Render - No input");
     return;
     }
   
+  int size[2];
+  this->GetSize(viewport,size);
+
   // Get the window info
   vtkWindow*  window = viewport->GetVTKWindow();
   Display* displayId = (Display*) window->GetGenericDisplayId();
@@ -272,19 +284,29 @@ void vtkXTextMapper::RenderOverlay(vtkViewport* viewport, vtkActor2D* actor)
   // a side effect is that this->CurrentFont will be set so that
   // we can use it here. That saves the expensice process of 
   // computing it again
-  int size[2];
-  this->GetSize(viewport,size);
   XSetFont(displayId, gc, this->CurrentFont);
   
   // adjust actorPos to account for justification
   int pos[2];
   pos[0] = actorPos[0];
-  pos[1] = actorPos[1];
+  pos[1] = actorPos[1] - (this->LineOffset * this->LineSpacing * size[1]);
   switch (this->Justification)
     {
     // do nothing for case 0 left
-    case 1: pos[0] = pos[0] - size[0] / 2; break;
-    case 2: pos[0] = pos[0] - size[0]; break;
+    case VTK_TEXT_LEFT: break;
+    case VTK_TEXT_CENTERED: pos[0] = pos[0] - size[0] / 2; break;
+    case VTK_TEXT_RIGHT: pos[0] = pos[0] - size[0]; break;
+    }
+  switch (this->VerticalJustification)
+    {
+    case VTK_TEXT_TOP: 
+      pos[1] = pos[1] - size[1];
+      break;
+    case VTK_TEXT_CENTERED:
+      pos[1] = pos[1] - size[1]/2;
+      break;
+    case VTK_TEXT_BOTTOM: 
+      break;
     }
   
     

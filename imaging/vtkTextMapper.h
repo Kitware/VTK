@@ -47,14 +47,18 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // To use vtkTextMapper, specify an input text string, a font size,
 // a font name, and whether to turn on bold or shadows (shadows make the
 // font more visible when on top of other objects). You'll also need to 
-// create a vtkActor2D and add it to the renderer or imager.
+// create a vtkActor2D and add it to the renderer or imager. You can create
+// multiple lines by embedding "\n" in the Input string.
+//
+// The position of the text can be controlled by setting the justification
+// to right, centered, or left. If you have specified multiple lines, all
+// lines will be justified the same way.
 
 // .SECTION See Also
 // vtkMapper2D vtkActor2D
 
 #ifndef __vtkTextMapper_h
 #define __vtkTextMapper_h
-
 
 #include "vtkMapper2D.h"
 #include "vtkWindow.h"
@@ -66,6 +70,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_COURIER   1
 #define VTK_TIMES     2
 
+#define VTK_TEXT_LEFT     0
+#define VTK_TEXT_CENTERED 1
+#define VTK_TEXT_RIGHT    2
+
+#define VTK_TEXT_BOTTOM 0
+#define VTK_TEXT_TOP    2
+
 class VTK_EXPORT vtkTextMapper : public vtkMapper2D
 {
 public:
@@ -76,18 +87,20 @@ public:
 
   // Description:
   // Creates a new text mapper with Font size 12, bold off, italic off,
-  // and Arial font
+  // and Arial font.
   static vtkTextMapper *New();
 
   // Description:
-  // What is the size of the rectangle required to draw this
-  // mapper ?
-  virtual void GetSize(vtkViewport* viewport, int *size) {};
+  // Return the size[2]/width/height of the rectangle required to draw this
+  // mapper (in pixels).
+  virtual void GetSize(vtkViewport* viewport, int size[2]) {};
+  int GetWidth(vtkViewport* viewport);
+  int GetHeight(vtkViewport* viewport);
   
   // Description:
-  // Set the input text string to the mapper.  The mapper doesn't parse 
-  // the string for carriage returns or line feeds.
-  vtkSetStringMacro(Input);
+  // Set the input text string to the mapper.  The mapper recognizes "\n"
+  // as a carriage return/linefeed (line separator).
+  void SetInput(char *inputString);
   vtkGetStringMacro(Input);
 
   // Description:
@@ -119,7 +132,8 @@ public:
 
   // Description:
   // Enable/disable text shadows.
-  void SetShadow(int val);
+  void SetShadow(int val) {if (val == this->Shadow) { return; }
+    this->Shadow = val; this->Modified();};
   vtkGetMacro(Shadow, int);
   vtkBooleanMacro(Shadow, int);
   
@@ -134,25 +148,58 @@ public:
   void SetFontFamilyToTimes() {this->SetFontFamily(VTK_TIMES);};
 
   // Description:
-  // Set/Get the horizontal justification to Left (default), centered 
+  // Set/Get the horizontal justification to left (default), centered,
   // or right.
-  vtkSetClampMacro(Justification,int,0,2);
+  vtkSetClampMacro(Justification,int,VTK_TEXT_LEFT,VTK_TEXT_RIGHT);
   vtkGetMacro(Justification,int);
-  void SetJustificationToLeft() {this->SetJustification(0);};
-  void SetJustificationToCentered() {this->SetJustification(1);};
-  void SetJustificationToRight() {this->SetJustification(2);};
+  void SetJustificationToLeft() {this->SetJustification(VTK_TEXT_LEFT);};
+  void SetJustificationToCentered() {this->SetJustification(VTK_TEXT_CENTERED);};
+  void SetJustificationToRight() {this->SetJustification(VTK_TEXT_RIGHT);};
     
+  // Description:
+  // Set/Get the vertical justification to bottom (default), middle,
+  // or top.
+  vtkSetClampMacro(VerticalJustification,int,VTK_TEXT_BOTTOM,VTK_TEXT_TOP);
+  vtkGetMacro(VerticalJustification,int);
+  void SetVerticalJustificationToBottom() 
+    {this->SetVerticalJustification(VTK_TEXT_BOTTOM);};
+  void SetVerticalJustificationToCentered() 
+    {this->SetVerticalJustification(VTK_TEXT_CENTERED);};
+  void SetVerticalJustificationToTop() 
+    {this->SetVerticalJustification(VTK_TEXT_TOP);};
+    
+  // Description:
+  // These methods can be used to control the spacing and placement of 
+  // text (in the vertical direction). LineOffset is a vertical offset 
+  // (measured in lines); LineSpacing is the spacing between lines.
+  vtkSetMacro(LineOffset, float);
+  vtkGetMacro(LineOffset, float);
+  vtkSetMacro(LineSpacing, float);
+  vtkGetMacro(LineSpacing, float);
+
 protected:
   int   Italic;
-  int	Bold;
+  int   Bold;
   int   Shadow;
   int   FontSize;
   int   FontFamily;
   char* Input;
   int   Justification;
+  int   VerticalJustification;
   vtkTimeStamp FontMTime;
+  
+  // these functions are used to parse, process, and render multiple lines 
+  float LineOffset;
+  float LineSpacing;
+  int  NumberOfLines;
+  int  NumberOfLinesAllocated;
+  vtkTextMapper **TextLines;
+  int  GetNumberOfLines(char *input);
+  char *NextLine(char *input, int lineNum);
+  void GetMultiLineSize(vtkViewport* viewport, int size[2]);
+  void RenderMultipleLines(vtkViewport *viewport, vtkActor2D *actor);
+  
 };
-
 
 #endif
 

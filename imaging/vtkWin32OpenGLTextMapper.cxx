@@ -44,18 +44,18 @@ struct vtkFontStruct
 {
   vtkWindow *Window;
   int   Italic;
-  int	Bold;
+  int   Bold;
   int   FontSize;
   int   FontFamily;
   int   ListBase;
 };
   
 static vtkFontStruct *cache[10] = {NULL,NULL,NULL,NULL,NULL,
-				   NULL,NULL,NULL,NULL,NULL};
+                                   NULL,NULL,NULL,NULL,NULL};
 static numCached = 0;
 
 int vtkWin32OpenGLTextMapper::GetListBaseForFont(vtkTextMapper *tm, 
-						 vtkViewport *vp)
+                                                 vtkViewport *vp)
 {
   int i, j;
   vtkWindow *win = vp->GetVTKWindow();
@@ -64,21 +64,21 @@ int vtkWin32OpenGLTextMapper::GetListBaseForFont(vtkTextMapper *tm,
   for (i = 0; i < numCached; i++)
     {
     if (cache[i]->Window == win &&
-	cache[i]->Italic == tm->GetItalic() &&
-	cache[i]->Bold == tm->GetBold() &&
-	cache[i]->FontSize == tm->GetFontSize() &&
-	cache[i]->FontFamily == tm->GetFontFamily())
+        cache[i]->Italic == tm->GetItalic() &&
+        cache[i]->Bold == tm->GetBold() &&
+        cache[i]->FontSize == tm->GetFontSize() &&
+        cache[i]->FontFamily == tm->GetFontFamily())
       {
       // make this the most recently used
       if (i != 0)
-	{
-	vtkFontStruct *tmp = cache[i];
-	for (j = i-1; j >= 0; j--)
-	  {
-	  cache[j+1] = cache[j];
-	  }
-	cache[0] = tmp;
-	}
+        {
+        vtkFontStruct *tmp = cache[i];
+        for (j = i-1; j >= 0; j--)
+          {
+          cache[j+1] = cache[j];
+          }
+        cache[0] = tmp;
+        }
       return cache[0]->ListBase;
       }
     }
@@ -90,7 +90,7 @@ int vtkWin32OpenGLTextMapper::GetListBaseForFont(vtkTextMapper *tm,
   if (numCached == 10)
     {
     wglMakeCurrent((HDC)cache[9]->Window->GetGenericContext(), 
-		   (HGLRC)cache[9]->Window->GetGenericDisplayId());
+                   (HGLRC)cache[9]->Window->GetGenericDisplayId());
     glDeleteLists(cache[9]->ListBase,255);
     wglMakeCurrent(hdc, (HGLRC)win->GetGenericDisplayId());
     numCached = 9;
@@ -107,12 +107,12 @@ int vtkWin32OpenGLTextMapper::GetListBaseForFont(vtkTextMapper *tm,
       done = 1;
       cache[numCached]->ListBase += 260;
       for (i = 0; i < numCached; i++)
-	{
-	if (cache[i]->ListBase == cache[numCached]->ListBase)
-	  {
-	  done = 0;
-	  }
-	}
+        {
+        if (cache[i]->ListBase == cache[numCached]->ListBase)
+          {
+          done = 0;
+          }
+        }
       }
     while (!done);
     }
@@ -151,9 +151,9 @@ void vtkWin32OpenGLTextMapper::ReleaseGraphicsResources(vtkWindow *win)
       // resort them
       numCached--;
       for (j = i; j < numCached; j++)
-	{
-	cache[j] = cache[j+1];
-	}
+        {
+        cache[j] = cache[j+1];
+        }
       cache[numCached] = NULL;
       }
     }
@@ -170,22 +170,32 @@ vtkWin32OpenGLTextMapper::vtkWin32OpenGLTextMapper()
 }
 
 void vtkWin32OpenGLTextMapper::RenderOpaqueGeometry(vtkViewport* viewport, 
-						    vtkActor2D* actor)
+                                                    vtkActor2D* actor)
 {
-  vtkDebugMacro (<< "vtkWin32OpenGLTextMapper::RenderOpaqueGeometry");
+  vtkDebugMacro (<< "RenderOpaqueGeometry");
 
   // Check for input
-  if (this->Input == NULL) 
+  if ( this->NumberOfLines > 1 )
     {
+    this->RenderMultipleLines(viewport, actor);
     return;
     }
+
+  if ( this->Input == NULL ) 
+    {
+    vtkErrorMacro (<<"Render - No input");
+    return;
+    }
+
+  int size[2];
+  this->GetSize(viewport, size);
 
   // Get the position of the text actor
   POINT ptDestOff;
   int* actorPos = 
     actor->GetPositionCoordinate()->GetComputedViewportValue(viewport);
   ptDestOff.x = actorPos[0];
-  ptDestOff.y = actorPos[1];
+  ptDestOff.y = actorPos[1] - (this->LineOffset * this->LineSpacing * size[1]);
 
   // Set up the font color from the text actor
   unsigned char red = 0;
@@ -217,8 +227,6 @@ void vtkWin32OpenGLTextMapper::RenderOpaqueGeometry(vtkViewport* viewport,
   rect.bottom = ptDestOff.y;
   rect.right = ptDestOff.x;
 
-  int size[2];
-  this->GetSize(viewport, size);
   rect.right = rect.left + size[0];
   rect.top = rect.bottom + size[1];
   
@@ -226,18 +234,31 @@ void vtkWin32OpenGLTextMapper::RenderOpaqueGeometry(vtkViewport* viewport,
   switch (this->Justification)
     {
     int tmp;
-    case 0: winJust = DT_LEFT; break;
-    case 1:
+    case VTK_TEXT_LEFT: winJust = DT_LEFT; break;
+    case VTK_TEXT_CENTERED:
       winJust = DT_CENTER;
       tmp = rect.right - rect.left + 1;
       rect.left = rect.left - tmp/2;
       rect.right = rect.left + tmp;
       break;
-    case 2: 
+    case VTK_TEXT_RIGHT: 
       winJust = DT_RIGHT;
       tmp = rect.right - rect.left + 1;
-      rect.left = rect.right;
-      rect.right = rect.right - tmp;
+      rect.right = rect.left;
+      rect.left = rect.left - tmp;
+    }
+  switch (this->VerticalJustification)
+    {
+    case VTK_TEXT_TOP: 
+      rect.top = rect.bottom;
+      rect.bottom = rect.bottom - size[1];
+      break;
+    case VTK_TEXT_CENTERED:
+      rect.bottom = rect.bottom - size[1]/2;
+      rect.top = rect.bottom + size[1];
+      break;
+    case VTK_TEXT_BOTTOM: 
+      break;
     }
   
   // push a 2D matrix on the stack

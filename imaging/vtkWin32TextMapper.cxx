@@ -50,6 +50,12 @@ vtkWin32TextMapper::vtkWin32TextMapper()
 
 void vtkWin32TextMapper::GetSize(vtkViewport* viewport, int *size)
 {
+  if ( this->NumberOfLines > 1 )
+    {
+    this->GetMultiLineSize(viewport, size);
+    return;
+    }
+
   // Check to see whether we have to rebuild anything
   if ( this->GetMTime() < this->BuildTime)
     {
@@ -143,14 +149,24 @@ void vtkWin32TextMapper::GetSize(vtkViewport* viewport, int *size)
 void vtkWin32TextMapper::RenderOverlay(vtkViewport* viewport, 
 				       vtkActor2D* actor)
 {
-  vtkDebugMacro (<< "vtkWin32TextMapper::Render");
+  vtkDebugMacro (<< "RenderOverlay");
+
+  // Check for input
+  if ( this->NumberOfLines > 1 )
+    {
+    this->RenderMultipleLines(viewport, actor);
+    return;
+    }
 
   // Check for input
   if (this->Input == NULL) 
     {
-    vtkErrorMacro (<<"vtkWin32TextMapper::Render - No input");
+    vtkErrorMacro (<<"Render - No input");
     return;
     }
+
+  int size[2];
+  this->GetSize(viewport, size);
 
   // Get the window information for display
   vtkWindow*  window = viewport->GetVTKWindow();
@@ -162,7 +178,7 @@ void vtkWin32TextMapper::RenderOverlay(vtkViewport* viewport,
   int* actorPos = 
     actor->GetPositionCoordinate()->GetComputedLocalDisplayValue(viewport);
   ptDestOff.x = actorPos[0];
-  ptDestOff.y = actorPos[1];
+  ptDestOff.y = actorPos[1] - (this->LineOffset * this->LineSpacing * size[1]);
 
   // Set up the font color from the text actor
   unsigned char red = 0;
@@ -195,8 +211,6 @@ void vtkWin32TextMapper::RenderOverlay(vtkViewport* viewport,
   rect.bottom = ptDestOff.y;
   rect.right = ptDestOff.x;
 
-  int size[2];
-  this->GetSize(viewport, size);
   SelectObject(hdc, this->Font);
   rect.right = rect.left + size[0];
   rect.top = rect.bottom - size[1];
@@ -208,18 +222,31 @@ void vtkWin32TextMapper::RenderOverlay(vtkViewport* viewport,
   switch (this->Justification)
     {
     int tmp;
-    case 0: winJust = DT_LEFT; break;
-    case 1:
+    case VTK_TEXT_LEFT: winJust = DT_LEFT; break;
+    case VTK_TEXT_CENTERED:
       winJust = DT_CENTER;
       tmp = rect.right - rect.left + 1;
       rect.left = rect.left - tmp/2;
       rect.right = rect.left + tmp;
       break;
-    case 2: 
+    case VTK_TEXT_RIGHT: 
       winJust = DT_RIGHT;
       tmp = rect.right - rect.left + 1;
       rect.left = rect.right;
       rect.right = rect.right - tmp;
+    }
+  switch (this->VerticalJustification)
+    {
+    case VTK_TEXT_TOP: 
+      rect.top = rect.bottom;
+      rect.bottom = rect.bottom - size[1];
+      break;
+    case VTK_TEXT_CENTERED:
+      rect.bottom = rect.bottom - size[1]/2;
+      rect.top = rect.bottom + size[1];
+      break;
+    case VTK_TEXT_BOTTOM: 
+      break;
     }
 
   // Set the colors for the shadow

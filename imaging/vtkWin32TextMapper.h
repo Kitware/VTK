@@ -66,7 +66,7 @@ public:
   // Description:
   // What is the size of the rectangle required to draw this
   // mapper ?
-  void GetSize(vtkViewport* viewport, int *size);
+  void GetSize(vtkViewport* viewport, int size[2]);
 
 protected:
   vtkTimeStamp  BuildTime;

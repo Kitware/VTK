@@ -60,7 +60,13 @@ vtkTextMapper::vtkTextMapper()
   this->Italic = 0;
   this->Shadow = 0;
   this->FontFamily = VTK_ARIAL;
-  this->Justification = 0;
+  this->Justification = VTK_TEXT_LEFT;
+
+  this->TextLines = NULL;
+  this->NumberOfLines = 0;
+  this->NumberOfLinesAllocated = 0;
+  this->LineOffset = 0.0;
+  this->LineSpacing = 0.9;
 }
 
 vtkTextMapper *vtkTextMapper::New()
@@ -85,7 +91,6 @@ vtkTextMapper *vtkTextMapper::New()
 
 }
 
-
 vtkTextMapper::~vtkTextMapper()
 {
   if (this->Input)
@@ -93,13 +98,23 @@ vtkTextMapper::~vtkTextMapper()
     delete [] this->Input;
     this->Input = NULL;
     }
+
+  if ( this->TextLines != NULL )
+    {
+    for (int i=0; i < this->NumberOfLinesAllocated; i++)
+      {
+      this->TextLines[i]->Delete();
+      }
+    delete [] this->TextLines;
+    }
+  
 }
-
-
 
 //----------------------------------------------------------------------------
 void vtkTextMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
+  os << indent << "Line Offset: " << this->LineOffset;
+  os << indent << "Line Spacing: " << this->LineSpacing;
   os << indent << "Bold: " << (this->Bold ? "On\n" : "Off\n");
   os << indent << "Italic: " << (this->Italic ? "On\n" : "Off\n");
   os << indent << "Shadow: " << (this->Shadow ? "On\n" : "Off\n");
@@ -117,21 +132,186 @@ void vtkTextMapper::PrintSelf(ostream& os, vtkIndent indent)
   vtkMapper2D::PrintSelf(os,indent);
 }
 
-
-void vtkTextMapper::SetShadow(int val) 
+int vtkTextMapper::GetWidth(vtkViewport* viewport)
 {
-  if (val == this->Shadow)
-    {
-    return;
-    }
-  
-  this->Shadow = val; 
-  this->Modified();
+  int size[2];
+  this->GetSize(viewport, size);
+  return size[0];
 }
 
+int vtkTextMapper::GetHeight(vtkViewport* viewport)
+{
+  int size[2];
+  this->GetSize(viewport, size);
+  return size[1];
+}
 
+// Parse the input and create multiple text mappers if multiple lines
+// (delimited by \n) are specified.
+void vtkTextMapper::SetInput(char *input)
+{
+  int numLines = this->GetNumberOfLines(input);
 
+  if ( numLines <= 1) // a line with no "\n"
+    {
+    this->NumberOfLines = 0;
+    this->LineOffset = 0.0;
+    if ( this->Input && input && (!strcmp(this->Input,input))) 
+      {
+      return;
+      }
+    
+    if (this->Input) 
+      { 
+      delete [] this->Input; 
+      }
+    
+    if (input)
+      {
+      this->Input = new char[strlen(input)+1];
+      strcpy(this->Input,input);
+      }
+     else
+      {
+      this->Input = NULL;
+      }
+    this->Modified();
+    }
 
+  else //multiple lines
+    {
+    char *line;
+    int i;
 
+    if ( numLines > this->NumberOfLinesAllocated )
+      {
+      // delete old stuff
+      if ( this->TextLines )
+        {
+        for (i=0; i < this->NumberOfLinesAllocated; i++)
+          {
+          this->TextLines[i]->Delete();
+          }
+        delete [] this->TextLines;
+        }
+      
+      // allocate new text mappers
+      this->NumberOfLinesAllocated = numLines;
+      this->TextLines = new vtkTextMapper *[numLines];
+      for (i=0; i < numLines; i++)
+        {
+        this->TextLines[i] = vtkTextMapper::New();
+        }
+      } //if we need to reallocate
+    
+    // set the input strings
+    this->NumberOfLines = numLines;
+    for (i=0; i < this->NumberOfLines; i++)
+      {
+      line = this->NextLine(input, i);
+      this->TextLines[i]->SetInput( line );
+      delete [] line;
+      }
+    }
+}
 
+// Determine the number of lines in the Input string (delimited by "\n").
+int vtkTextMapper::GetNumberOfLines(char *input)
+{
+  if ( input == NULL )
+    {
+    return 0;
+    }
+
+  int numLines=1;
+  char *ptr = input;
+
+  while ( ptr != NULL )
+    {
+    if ( (ptr=strstr(ptr,"\n")) != NULL )
+      {
+      numLines++;
+      ptr++; //skip over \n
+      }
+    }
+  
+  return numLines;
+}
+
+// Get the next \n delimited line. Returns a string that
+// must be freed by the calling function.
+char *vtkTextMapper::NextLine(char *input, int lineNum)
+{
+  char *line, *ptr, *ptrEnd;
+  int strLen;
+
+  ptr = input;
+  for (int i=0; i != lineNum; i++)
+    {
+    ptr = strstr(ptr,"\n");
+    ptr++;
+    }
+  ptrEnd = strstr(ptr,"\n");
+  if ( ptrEnd == NULL )
+    {
+    ptrEnd = strchr(ptr, '\0');
+    }
+  
+  strLen = ptrEnd - ptr;
+  line = new char[strLen+1];
+  strncpy(line, ptr, strLen);
+  line[strLen] = '\0';
+
+  return line;
+}
+
+// Get the size of a multi-line text string
+void vtkTextMapper::GetMultiLineSize(vtkViewport* viewport, int size[2])
+{
+  int i;
+  int lineSize[2];
+  
+  lineSize[0] = lineSize[1] = size[0] = size[1] = 0;
+  for ( i=0; i < this->NumberOfLines; i++ )
+    {
+    this->TextLines[i]->GetSize(viewport, lineSize);
+    size[0] = (lineSize[0] > size[0] ? lineSize[0] : size[0]);
+    size[1] = (lineSize[1] > size[1] ? lineSize[1] : size[1]);
+    }
+  
+  // add in the line spacing
+  size[1] += this->NumberOfLines * this->LineSpacing * size[1];
+}
+
+void vtkTextMapper::RenderMultipleLines(vtkViewport *viewport, 
+                                        vtkActor2D *actor)    
+{
+  float offset;
+
+  switch (this->VerticalJustification)
+    {
+    case VTK_TEXT_TOP:
+      offset = 1.0;
+      break;
+    case VTK_TEXT_CENTERED:
+      offset = -this->NumberOfLines/2.0 + 1;
+      break;
+    case VTK_TEXT_BOTTOM:
+      offset = -(this->NumberOfLines - 1.0);
+      break;
+    }
+
+  for (int lineNum=0; lineNum < this->NumberOfLines; lineNum++)
+    {
+    this->TextLines[lineNum]->SetItalic(this->Italic);
+    this->TextLines[lineNum]->SetBold(this->Bold);
+    this->TextLines[lineNum]->SetShadow(this->Shadow);
+    this->TextLines[lineNum]->SetFontSize(this->FontSize);
+    this->TextLines[lineNum]->SetFontFamily(this->FontFamily);
+    this->TextLines[lineNum]->SetJustification(this->Justification);
+    this->TextLines[lineNum]->SetLineOffset((float)lineNum+offset);
+    this->TextLines[lineNum]->SetLineSpacing(this->LineSpacing);
+    this->TextLines[lineNum]->RenderOpaqueGeometry(viewport,actor);
+    }
+}
 
