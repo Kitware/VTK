@@ -27,8 +27,16 @@
 // the right eye.  The user has to make the render window aligned with the 
 // VRex projector, or the eye will be swapped.
 
+// .SECTION Caveats 
+// In VTK versions 4 and later, the vtkWindowToImageFilter class is
+// part of the canonical way to output an image of a window to a file
+// (replacing the obsolete SaveImageAsPPM method for vtkRenderWindows
+// that existed in 3.2 and earlier).  Connect one of these filters to
+// the output of the window, and filter's output to a writer such as
+// vtkPNGWriter.
+
 // .SECTION see also
-// vtkRenderer vtkRenderWindowInteractor
+// vtkRenderer vtkRenderWindowInteractor vtkWindowToImageFilter
 
 #ifndef __vtkRenderWindow_h
 #define __vtkRenderWindow_h
