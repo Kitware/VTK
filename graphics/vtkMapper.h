@@ -224,10 +224,18 @@ public:
   void SetRenderTime(float time) {this->RenderTime = time;}
   vtkGetMacro(RenderTime, float);
 
+  //BTX
   // Description:
   // Get the input as a vtkDataSet.  This method is overridden in
   // the specialized mapper classes to return more specific data types.
   vtkDataSet *GetInput();
+  //ETX
+
+  // Description:
+  // Get the input as a vtkDataSet, instead of as a more specialized
+  // data type.  This method is provided for use in the wrapper languages,
+  // C++ programmers should use GetInput() instead.
+  vtkDataSet *GetInputAsDataSet() { return this->GetInput(); };
 
 protected:
   vtkMapper();
