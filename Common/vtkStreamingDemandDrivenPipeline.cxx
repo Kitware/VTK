@@ -24,7 +24,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.6");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.7");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 //----------------------------------------------------------------------------
@@ -65,6 +65,24 @@ vtkInformationIntegerVectorKey*
 vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()
 {
   static vtkInformationIntegerVectorKey instance("WHOLE_EXTENT",
+                                                 "vtkStreamingDemandDrivenPipeline");
+  return &instance;
+}
+
+//----------------------------------------------------------------------------
+vtkInformationIntegerVectorKey*
+vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()
+{
+  static vtkInformationIntegerVectorKey instance("UPDATE_EXTENT",
+                                                 "vtkStreamingDemandDrivenPipeline");
+  return &instance;
+}
+
+//----------------------------------------------------------------------------
+vtkInformationIntegerKey*
+vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED()
+{
+  static vtkInformationIntegerKey instance("UPDATE_EXTENT_INITIALIZED",
                                            "vtkStreamingDemandDrivenPipeline");
   return &instance;
 }
@@ -118,15 +136,16 @@ int vtkStreamingDemandDrivenPipeline::ExecuteInformation()
 {
   if(this->Superclass::ExecuteInformation())
     {
+    // For each port, if the update extent has not been set
+    // explicitly, keep it set to the whole extent.
     for(int i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
       {
       vtkInformation* info = this->GetOutputInformation(i);
-      if(info->Has(WHOLE_EXTENT()) &&
-         !info->Has(vtkInformation::UPDATE_EXTENT()))
+      if(info->Has(WHOLE_EXTENT()) && !info->Has(UPDATE_EXTENT_INITIALIZED()))
         {
         int extent[6];
         info->Get(WHOLE_EXTENT(), extent);
-        info->Set(vtkInformation::UPDATE_EXTENT(), extent, 6);
+        info->Set(UPDATE_EXTENT(), extent, 6);
         }
       }
     return 1;
@@ -171,6 +190,12 @@ int vtkStreamingDemandDrivenPipeline::PropagateUpdateExtent(int outputPort)
       return 0;
       }
 
+    // Make sure the update extent is inside the whole extent.
+    if(!this->VerifyUpdateExtent(outputPort))
+      {
+      return 0;
+      }
+
     // Request information from the algorithm.
     this->PrepareUpstreamRequest(REQUEST_UPDATE_EXTENT());
     this->GetRequestInformation()->Set(FROM_OUTPUT_PORT(), outputPort);
@@ -180,25 +205,53 @@ int vtkStreamingDemandDrivenPipeline::PropagateUpdateExtent(int outputPort)
       this->GetOutputInformation());
     this->InProcessUpstreamRequest = 0;
 
-    // Propagate the update extent to all inputs.
-    if(result)
+    if(!result)
       {
-      for(int i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
+      return 0;
+      }
+
+    // Propagate the update extent to all inputs.
+    for(int i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
+      {
+      for(int j=0; j < this->Algorithm->GetNumberOfInputConnections(i); ++j)
         {
-        for(int j=0; j < this->Algorithm->GetNumberOfInputConnections(i); ++j)
+        vtkDemandDrivenPipeline* ddp = this->GetConnectedInputExecutive(i, j);
+        if(vtkStreamingDemandDrivenPipeline* sddp =
+           vtkStreamingDemandDrivenPipeline::SafeDownCast(ddp))
           {
-          vtkDemandDrivenPipeline* ddp = this->GetConnectedInputExecutive(i, j);
-          if(vtkStreamingDemandDrivenPipeline* sddp =
-             vtkStreamingDemandDrivenPipeline::SafeDownCast(ddp))
+          if(!sddp->PropagateUpdateExtent(this->Algorithm->GetInputConnection(i, j)->GetIndex()))
             {
-            if(!sddp->PropagateUpdateExtent(this->Algorithm->GetInputConnection(i, j)->GetIndex()))
-              {
-              return 0;
-              }
+            return 0;
             }
           }
         }
       }
     }
   return result;
+}
+
+//----------------------------------------------------------------------------
+int vtkStreamingDemandDrivenPipeline::VerifyUpdateExtent(int outputPort)
+{
+  // Check all ports if index is below 0.
+  if(outputPort < 0)
+    {
+    for(int i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
+      {
+      if(!this->VerifyUpdateExtent(i))
+        {
+        return 0;
+        }
+      }
+    }
+
+#if 0
+  // TODO: Use EXTENT_TYPE to check structured or unstructured extents.
+  vtkInformation* info = this->GetOutputInformation(outputPort);
+  if(info->Has(WHOLE_EXTENT()) && info->Has(UPDATE_EXTENT()) &&
+     info->Has(vtkInformation::EXTENT_TYPE()))
+    {
+    }
+#endif
+  return 1;
 }

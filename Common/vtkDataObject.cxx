@@ -24,7 +24,7 @@
 #include "vtkTrivialProducer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.103");
+vtkCxxRevisionMacro(vtkDataObject, "1.104");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,FieldData,vtkFieldData);
@@ -265,7 +265,8 @@ void vtkDataObject::Update()
     if(this->UpdateExtentInitialized)
       {
       sddp->GetOutputInformation(index)
-        ->Set(vtkInformation::UPDATE_EXTENT(), this->UpdateExtent, 6);
+        ->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+              this->UpdateExtent, 6);
       }
 
     // Update this output.
@@ -340,7 +341,8 @@ void vtkDataObject::PropagateUpdateExtent()
     if(this->UpdateExtentInitialized)
       {
       sddp->GetOutputInformation(index)
-        ->Set(vtkInformation::UPDATE_EXTENT(), this->UpdateExtent, 6);
+        ->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+              this->UpdateExtent, 6);
       }
 
     // Propagate the extent.

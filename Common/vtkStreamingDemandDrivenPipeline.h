@@ -42,6 +42,8 @@ public:
 
   static vtkInformationIntegerKey* REQUEST_UPDATE_EXTENT();
   static vtkInformationIntegerVectorKey* WHOLE_EXTENT();
+  static vtkInformationIntegerVectorKey* UPDATE_EXTENT();
+  static vtkInformationIntegerKey* UPDATE_EXTENT_INITIALIZED();
   static vtkInformationIntegerKey* MAXIMUM_NUMBER_OF_PIECES();
 
   int PropagateUpdateExtent(int outputPort);
@@ -51,6 +53,7 @@ protected:
   ~vtkStreamingDemandDrivenPipeline();
 
   virtual int ExecuteInformation();
+  int VerifyUpdateExtent(int outputPort);
 private:
   vtkStreamingDemandDrivenPipelineInternals* StreamingDemandDrivenInternal;
 private:

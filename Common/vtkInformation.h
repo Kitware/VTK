@@ -162,7 +162,6 @@ public:
   static vtkInformationIntegerKey* FIELD_OPERATION();
   static vtkInformationStringKey* FIELD_NAME();
   static vtkInformationIntegerVectorKey* DATA_EXTENT();
-  static vtkInformationIntegerVectorKey* UPDATE_EXTENT();
 
   // Description:
   // Upcast the given key instance.

@@ -24,7 +24,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.115");
+vtkCxxRevisionMacro(vtkSource, "1.116");
 
 #ifndef NULL
 #define NULL 0
@@ -1034,7 +1034,7 @@ int vtkSource::ProcessUpstreamRequest(vtkInformation* request,
       fromOutput = this->Outputs[outputPort];
       int upExt[6] = {0, -1, 0, -1, 0, -1};
       outputVector->GetInformationObject(outputPort)
-        ->Get(vtkInformation::UPDATE_EXTENT(), upExt);
+        ->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), upExt);
       fromOutput->SetUpdateExtent(upExt);
       }
 
@@ -1077,7 +1077,7 @@ int vtkSource::ProcessUpstreamRequest(vtkInformation* request,
         inputVector->GetInformationObject(0)
           ->Get(vtkInformation::INPUT_CONNECTION_INFORMATION())
           ->GetInformationObject(i)
-          ->Set(vtkInformation::UPDATE_EXTENT(), extent, 6);
+          ->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), extent, 6);
         }
       }
     return 1;
