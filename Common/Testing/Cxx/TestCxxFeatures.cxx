@@ -23,6 +23,8 @@
 
 #include "vtkSystemIncludes.h"
 
+#include <sstream>
+
 //----------------------------------------------------------------------------
 
 /* Check for known compilers.  */
