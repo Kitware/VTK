@@ -18,7 +18,7 @@
 #include "vtkHeap.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkHeap, "1.12");
+vtkCxxRevisionMacro(vtkHeap, "1.13");
 vtkStandardNewMacro(vtkHeap);
 
 struct vtkTestAlignLong
@@ -181,6 +181,7 @@ void vtkHeap::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number of Blocks: " << this->NumberOfBlocks << "\n";
   os << indent << "Number of Allocations: " << this->NumberOfAllocations << "\n";
   os << indent << "Current bytes allocated: " 
-     << ((this->NumberOfBlocks-1)*(int)this->BlockSize + this->Position) << "\n";
+     << ((this->NumberOfBlocks-1)*(int)this->BlockSize + 
+         (int)this->Position) << "\n";
 }
 

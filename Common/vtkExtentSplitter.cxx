@@ -23,7 +23,7 @@
 #include <vtkstd/queue>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkExtentSplitter, "1.2");
+vtkCxxRevisionMacro(vtkExtentSplitter, "1.3");
 vtkStandardNewMacro(vtkExtentSplitter);
 
 //----------------------------------------------------------------------------
@@ -93,7 +93,8 @@ void vtkExtentSplitter::PrintSelf(ostream& os, vtkIndent indent)
          << extent[4] << " " << extent[5] << "\n";
       }
     }
-  os << indent << "Number of Extents in Queue: " << this->Internal->Queue.size() << "\n";
+  os << indent << "Number of Extents in Queue: " << 
+    (int)this->Internal->Queue.size() << "\n";
   if(this->Internal->SubExtents.empty())
     {
     os << indent << "SubExtents: (none)\n";
