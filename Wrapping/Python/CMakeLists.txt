@@ -101,23 +101,45 @@ ENDIF (VTK_USE_PARALLEL)
 
 INSTALL_TARGETS(/bin vtkpython)    
 
-# Precompile python scripts
+# Handle out-of-source builds correctly.
+#
+#  1. Create a list of Python files to be installed/copied.
+#  2. Copy them to VTK_BINARY_DIR if it is different from VTK_SOURCE_DIR.
+#  3. Use Python's compileall to compile the copied files.
+#
+# *** Step 1 has to be done carefully to avoid missing out files ***
+
 IF(PYTHON_EXECUTABLE)
   ADD_CUSTOM_TARGET(vtkpython_pyc ALL echo "...")
+
+# Make the necessary directories.
   FOREACH(dir
     ${VTK_BINARY_DIR}/Wrapping/Python/vtk/gtk
     ${VTK_BINARY_DIR}/Wrapping/Python/vtk/qt
     ${VTK_BINARY_DIR}/Wrapping/Python/vtk/tk
     ${VTK_BINARY_DIR}/Wrapping/Python/vtk/util
     ${VTK_BINARY_DIR}/Wrapping/Python/vtk/wx
-    ${VTK_BINARY_DIR}/Wrapping/Python/vtk/testing
     ${VTK_BINARY_DIR}/Wrapping/Python/vtk/test
     )
     MAKE_DIRECTORY(${dir})
   ENDFOREACH(dir)
-  SET(VTK_PYTHON_LIBRARY_FILES "")
 
+# Now create a list of Python files.
+
+# Files in Wrapping/Python (these are actually for backwards compatibility)
   SET(VTK_PYTHON_FILES
+    QVTKRenderWidget
+    vtkRenderWidget
+    vtkTkImageViewerWidget
+    vtkTkRenderWidget
+    vtkpython
+    vtkpythontk
+    wxVTKRenderWindow
+    )
+
+# Wrapping/Python/vtk/*.py
+  SET(VTK_PYTHON_FILES 
+    ${VTK_PYTHON_FILES}
     vtk/__helper
     vtk/__init__
     vtk/common
@@ -130,12 +152,11 @@ IF(PYTHON_EXECUTABLE)
     vtk/patented
     vtk/rendering
     vtk/required
-    vtk/tk/__init__
-    vtk/tk/vtkLoadPythonTkWidgets
-    vtk/tk/vtkTkImageViewerWidget
-    vtk/tk/vtkTkRenderWidget
-    vtk/tk/vtkTkRenderWindowInteractor
-    vtk/tk/vtkTkPhotoImage
+    )
+
+# vtk.util package
+  SET(VTK_PYTHON_FILES 
+    ${VTK_PYTHON_FILES}
     vtk/util/__init__
     vtk/util/vtkMethodParser
     vtk/util/misc
@@ -143,68 +164,79 @@ IF(PYTHON_EXECUTABLE)
     vtk/util/vtkImageExportToArray
     vtk/util/vtkImageImportFromArray
     vtk/util/colors
+    )
+
+# vtk.test package
+  SET(VTK_PYTHON_FILES 
+    ${VTK_PYTHON_FILES}
     vtk/test/BlackBox
     vtk/test/Testing
     vtk/test/__init__
-    vtkRenderWidget
-    vtkTkImageViewerWidget
-    vtkTkRenderWidget
-    vtkpython
-    vtkpythontk
     )
 
-  IF(VTK_PYTHON_QT)
-    SET(VTK_PYTHON_FILES 
-        ${VTK_PYTHON_FILES}
-        vtk/qt/QVTKRenderWidget
-        vtk/qt/__init__
-        vtk/qt/QVTKRenderWindowInteractor
-        QVTKRenderWidget
-        )
-  ENDIF(VTK_PYTHON_QT)
-
-  IF(VTK_PYTHON_WX)
-    SET(VTK_PYTHON_FILES 
-        ${VTK_PYTHON_FILES}
-        vtk/wx/__init__
-        vtk/wx/wxVTKRenderWindow
-        vtk/wx/wxVTKRenderWindowInteractor
-        wxVTKRenderWindow
-        )
-  ENDIF(VTK_PYTHON_WX)
-
-  IF(VTK_PYTHON_GTK)
-    SET(VTK_PYTHON_FILES 
-        ${VTK_PYTHON_FILES}
-        vtk/gtk/GtkVTKRenderWindow
-        vtk/gtk/__init__
-        vtk/gtk/GtkVTKRenderWindowInteractor
-        )
-  ENDIF(VTK_PYTHON_GTK)
-
-  FOREACH(file
+# Tk related files
+  SET(VTK_PYTHON_FILES 
     ${VTK_PYTHON_FILES}
+    vtk/tk/__init__
+    vtk/tk/vtkLoadPythonTkWidgets
+    vtk/tk/vtkTkImageViewerWidget
+    vtk/tk/vtkTkRenderWidget
+    vtk/tk/vtkTkRenderWindowInteractor
+    vtk/tk/vtkTkPhotoImage
     )
-    SET(src "${VTK_SOURCE_DIR}/Wrapping/Python/${file}.py")
-    SET(tgt "${VTK_BINARY_DIR}/Wrapping/Python/${file}.pyc")
-    ADD_CUSTOM_COMMAND(SOURCE ${src}
-      COMMAND ${PYTHON_EXECUTABLE}
-      ARGS -c "\"import" "py_compile;py_compile.compile('${src}','${tgt}','${tgt}')\""
-      TARGET vtkpython_pyc
-      OUTPUTS ${tgt}
-      )
-    SET(VTK_PYTHON_LIBRARY_FILES ${VTK_PYTHON_LIBRARY_FILES} ${tgt})
-  ENDFOREACH(file)
+
+# QT related files
+  SET(VTK_PYTHON_FILES 
+    ${VTK_PYTHON_FILES}
+    vtk/qt/QVTKRenderWidget
+    vtk/qt/__init__
+    vtk/qt/QVTKRenderWindowInteractor
+    )
+
+# wxPython related files
+  SET(VTK_PYTHON_FILES 
+    ${VTK_PYTHON_FILES}
+    vtk/wx/__init__
+    vtk/wx/wxVTKRenderWindow
+    vtk/wx/wxVTKRenderWindowInteractor
+    )
+
+# pyGTK related files
+  SET(VTK_PYTHON_FILES 
+    ${VTK_PYTHON_FILES}
+    vtk/gtk/GtkVTKRenderWindow
+    vtk/gtk/__init__
+    vtk/gtk/GtkVTKRenderWindowInteractor
+    )
+
+# Done listing of files.
+
+# Now copy these files if necessary.
+  IF ("${VTK_BINARY_DIR}" MATCHES "${VTK_SOURCE_DIR}")
+    #MESSAGE("In source build -- no need to copy Python files.")
+  ELSE ("${VTK_BINARY_DIR}" MATCHES "${VTK_SOURCE_DIR}")
+    FOREACH(file ${VTK_PYTHON_FILES})
+      SET(src "${VTK_SOURCE_DIR}/Wrapping/Python/${file}.py")
+      SET(tgt "${VTK_BINARY_DIR}/Wrapping/Python/${file}.py")
+      CONFIGURE_FILE(${src} ${tgt} COPYONLY)
+    ENDFOREACH(file)
+    CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Python/vtk.pth
+                   ${VTK_BINARY_DIR}/Wrapping/Python/vtk.pth COPYONLY)
+  ENDIF ("${VTK_BINARY_DIR}" MATCHES "${VTK_SOURCE_DIR}")
+
+# Byte compile the Python files.
+  SET(py_compile_quiet 1)
+  IF (VERBOSE_BUILD)
+    SET(py_compile_quiet 0)
+  ENDIF (VERBOSE_BUILD)
 
   ADD_CUSTOM_COMMAND(
     SOURCE vtkpython_pyc
-    COMMAND echo 
-    ARGS ".."
-    DEPENDS ${VTK_PYTHON_LIBRARY_FILES}
+    COMMAND ${PYTHON_EXECUTABLE}
+    ARGS -c "\"import" "compileall;compileall.compile_dir('${VTK_BINARY_DIR}/Wrapping/Python',quiet=${py_compile_quiet})\""
     TARGET vtkpython_pyc
     )
-  CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Python/vtk.pth
-                 ${VTK_BINARY_DIR}/Wrapping/Python/vtk.pth COPYONLY)
+
 ENDIF(PYTHON_EXECUTABLE)
 
 # Allow the user to customize their build with some local options
