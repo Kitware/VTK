@@ -695,12 +695,23 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
     }
   else
     {
+    // is RW an address ? big ole python hack here
+    if (self->RW[0] == 'A' && self->RW[1] == 'd' && 
+	self->RW[2] == 'd' && self->RW[3] == 'r')
+      {
+      void *tmp;
+      sscanf(self->RW+5,"%p",&tmp);
+      renderWindow = (vtkXRenderWindow *)tmp;
+      }
+    else
+      {
 #ifndef VTK_PYTHON_BUILD
-    renderWindow = (vtkXRenderWindow *)
-      vtkTclGetPointerFromObject(self->RW,"vtkRenderWindow",self->Interp, 
-				 new_flag);
+      renderWindow = (vtkXRenderWindow *)
+	vtkTclGetPointerFromObject(self->RW,"vtkRenderWindow",self->Interp, 
+				   new_flag);
 #endif
-  if (renderWindow != self->RenderWindow)
+      }
+    if (renderWindow != self->RenderWindow)
       {
       if (self->RenderWindow != NULL) {self->RenderWindow->UnRegister(NULL);}
       self->RenderWindow = (vtkRenderWindow *)(renderWindow);
