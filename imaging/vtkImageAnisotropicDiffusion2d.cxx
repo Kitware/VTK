@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -104,25 +105,25 @@ void vtkImageAnisotropicDiffusion2d::Execute2d(vtkImageRegion *inRegion,
   vtkImageRegion *in;
   vtkImageRegion *out;
   vtkImageRegion *temp;
-  int bounds[6]; 
+  int extent[6]; 
 
   inRegion->GetAspectRatio2d(ar0, ar1);
-  inRegion->GetBounds3d (bounds);
+  inRegion->GetExtent3d (extent);
 
   // make the temporary regions to iterate over.
   in = new vtkImageRegion;
   out = new vtkImageRegion;
   
   // might as well make these floats
-  in->SetBounds3d(bounds);
+  in->SetExtent3d(extent);
   in->SetDataType(VTK_IMAGE_FLOAT);
   in->CopyRegionData(inRegion);
-  out->SetBounds3d(bounds);
+  out->SetExtent3d(extent);
   out->SetDataType(VTK_IMAGE_FLOAT);
   out->Allocate();
 
   // Loop performing the diffusion
-  // Note: region bounds could get smaller as the diffusion progresses
+  // Note: region extent could get smaller as the diffusion progresses
   // (but never get smaller than output region).
   for (idx = 0; idx < this->NumberOfIterations; ++idx)
     {
@@ -146,7 +147,7 @@ void vtkImageAnisotropicDiffusion2d::Execute2d(vtkImageRegion *inRegion,
 // Description:
 // This method performs one pass of the diffusion filter.
 // The inRegion and outRegion are assumed to have data type float,
-// and have the same bounds.
+// and have the same extent.
 void vtkImageAnisotropicDiffusion2d::Iterate(vtkImageRegion *inRegion, 
 						   vtkImageRegion *outRegion,
 						   float ar0, float ar1)
@@ -159,12 +160,12 @@ void vtkImageAnisotropicDiffusion2d::Iterate(vtkImageRegion *inRegion,
   float *outPtr0, *outPtr1;
   float ar01, diff;
 
-  inRegion->GetBounds2d(min0, max0, min1, max1);
+  inRegion->GetExtent2d(min0, max0, min1, max1);
   inRegion->GetIncrements2d(inInc0, inInc1);
   outRegion->GetIncrements2d(outInc0, outInc1);
   ar01 = sqrt(ar0 * ar0 + ar1 * ar1);
-  inPtr1 = (float *)(inRegion->GetVoidPointer2d());
-  outPtr1 = (float *)(outRegion->GetVoidPointer2d());
+  inPtr1 = (float *)(inRegion->GetScalarPointer2d());
+  outPtr1 = (float *)(outRegion->GetScalarPointer2d());
   for (idx1 = min1; idx1 <= max1; ++idx1, inPtr1+=inInc1, outPtr1+=outInc1)
     {
     inPtr0 = inPtr1;

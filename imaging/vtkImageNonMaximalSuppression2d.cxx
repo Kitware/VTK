@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -77,12 +78,12 @@ void vtkImageNonMaximalSuppression2d::SetAxes2d(int axis0, int axis1)
 void vtkImageNonMaximalSuppression2d::InterceptCacheUpdate(
 						 vtkImageRegion *region)
 {
-  int bounds[6];
+  int extent[6];
   
-  region->GetBounds3d(bounds);
-  bounds[4] = 0;
-  bounds[5] = 2;
-  region->SetBounds3d(bounds);
+  region->GetExtent3d(extent);
+  extent[4] = 0;
+  extent[5] = 2;
+  region->SetExtent3d(extent);
 }
 
 
@@ -119,11 +120,11 @@ void vtkImageNonMaximalSuppression2d::ExecuteCenter3d(
   // Get information to march through data
   inRegion->GetIncrements3d(inInc0, inInc1, inInc2); 
   outRegion->GetIncrements3d(outInc0, outInc1, outInc2); 
-  outRegion->GetBounds2d(outMin0, outMax0, outMin1, outMax1);
+  outRegion->GetExtent2d(outMin0, outMax0, outMin1, outMax1);
   
   // We want the input pixel to correspond to output
-  inPtr1 = (float *)(inRegion->GetVoidPointer3d(outMin0, outMin1, 0));
-  outPtr1 = (float *)(outRegion->GetVoidPointer3d());
+  inPtr1 = (float *)(inRegion->GetScalarPointer3d(outMin0, outMin1, 0));
+  outPtr1 = (float *)(outRegion->GetScalarPointer3d());
 
   // loop through pixels of output
   for (outIdx1 = outMin1; outIdx1 <= outMax1; ++outIdx1)
@@ -223,14 +224,14 @@ void vtkImageNonMaximalSuppression2d::Execute3d(vtkImageRegion *inRegion,
   // Get information to march through data
   inRegion->GetIncrements3d(inInc0, inInc1, inInc2); 
   outRegion->GetIncrements3d(outInc0, outInc1, outInc2); 
-  outRegion->GetBounds2d(outMin0, outMax0, outMin1, outMax1);
+  outRegion->GetExtent2d(outMin0, outMax0, outMin1, outMax1);
   
   // For checking boundary conditions.
-  inRegion->GetImageBounds2d(inImageMin0,inImageMax0, inImageMin1,inImageMax1);
+  inRegion->GetImageExtent2d(inImageMin0,inImageMax0, inImageMin1,inImageMax1);
   
   // We want the input pixel to correspond to output
-  inPtr1 = (float *)(inRegion->GetVoidPointer3d(outMin0, outMin1, 0));
-  outPtr1 = (float *)(outRegion->GetVoidPointer3d());
+  inPtr1 = (float *)(inRegion->GetScalarPointer3d(outMin0, outMin1, 0));
+  outPtr1 = (float *)(outRegion->GetScalarPointer3d());
   
   // loop through pixels of output
   for (outIdx1 = outMin1; outIdx1 <= outMax1; ++outIdx1)

@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
@@ -100,9 +101,9 @@ void vtkImageToStructuredPoints::Update()
 void vtkImageToStructuredPoints::Execute()
 {
   vtkImageRegion *region = new vtkImageRegion;
-  int regionBounds[8];
-  int *dataBounds;
-  int *bounds, dim[3];
+  int regionExtent[8];
+  int *dataExtent;
+  int *extent, dim[3];
   float aspectRatio[3] = {1.0, 1.0, 1.0};
   float origin[3];
   vtkStructuredPoints *output = this->GetOutput();
@@ -120,25 +121,25 @@ void vtkImageToStructuredPoints::Execute()
   // Fill in image information.
   this->Input->UpdateImageInformation(region);
 
-  // Determine the bounds of the region we are converting
+  // Determine the extent of the region we are converting
   if (this->WholeImage)
     {
-    region->GetImageBounds4d(regionBounds);
-    if (this->Coordinate3<regionBounds[6] || this->Coordinate3>regionBounds[7])
+    region->GetImageExtent4d(regionExtent);
+    if (this->Coordinate3<regionExtent[6] || this->Coordinate3>regionExtent[7])
       {
       vtkWarningMacro(<< "Coordinate3 = " << this->Coordinate3 
-              << ", is not in bounds [" << regionBounds[6] << ", "
-              << regionBounds[7] << "]. Using value "<< regionBounds[6]);
-      this->Coordinate3 = regionBounds[6];
+              << ", is not in extent [" << regionExtent[6] << ", "
+              << regionExtent[7] << "]. Using value "<< regionExtent[6]);
+      this->Coordinate3 = regionExtent[6];
       }
     }
   else
     {
-    this->Region.GetBounds4d(regionBounds);
+    this->Region.GetExtent4d(regionExtent);
     }
   // make sure last axis has only one sample.
-  regionBounds[6] = regionBounds[7] = this->Coordinate3;
-  region->SetBounds4d(regionBounds);
+  regionExtent[6] = regionExtent[7] = this->Coordinate3;
+  region->SetExtent4d(regionExtent);
 
   // Update the data for the region.
   if ( region->GetVolume() < this->InputMemoryLimit)
@@ -164,29 +165,29 @@ void vtkImageToStructuredPoints::Execute()
 
   // If data is not the same size as the region, we need to reformat.
   // Assume that relativeCoordinates == absoluteCoordinates.
-  dataBounds = region->GetData()->GetBounds();
-  if (dataBounds[0] != regionBounds[0] || dataBounds[1] != regionBounds[1] ||
-      dataBounds[2] != regionBounds[2] || dataBounds[3] != regionBounds[3] ||
-      dataBounds[4] != regionBounds[4] || dataBounds[5] != regionBounds[5] ||
-      dataBounds[6] != regionBounds[6] || dataBounds[7] != regionBounds[7])
+  dataExtent = region->GetData()->GetExtent();
+  if (dataExtent[0] != regionExtent[0] || dataExtent[1] != regionExtent[1] ||
+      dataExtent[2] != regionExtent[2] || dataExtent[3] != regionExtent[3] ||
+      dataExtent[4] != regionExtent[4] || dataExtent[5] != regionExtent[5] ||
+      dataExtent[6] != regionExtent[6] || dataExtent[7] != regionExtent[7])
     {
     vtkImageRegion *temp = region;
     region = new vtkImageRegion;
-    region->SetBounds4d(regionBounds);
+    region->SetExtent4d(regionExtent);
     region->CopyRegionData(temp);
     temp->Delete();
     }
   
   // setup the structured points with the scalars
-  bounds = region->GetBounds3d();
+  extent = region->GetExtent3d();
   region->GetAspectRatio3d(aspectRatio);
   region->GetOrigin3d(origin);
-  origin[0] += (float)(bounds[0]) * aspectRatio[0]; 
-  origin[1] += (float)(bounds[2]) * aspectRatio[1]; 
-  origin[2] += (float)(bounds[4]) * aspectRatio[2];
-  dim[0] = bounds[1] - bounds[0] + 1;
-  dim[1] = bounds[3] - bounds[2] + 1;
-  dim[2] = bounds[5] - bounds[4] + 1;
+  origin[0] += (float)(extent[0]) * aspectRatio[0]; 
+  origin[1] += (float)(extent[2]) * aspectRatio[1]; 
+  origin[2] += (float)(extent[4]) * aspectRatio[2];
+  dim[0] = extent[1] - extent[0] + 1;
+  dim[1] = extent[3] - extent[2] + 1;
+  dim[2] = extent[5] - extent[4] + 1;
   output->SetDimensions(dim);
   output->SetAspectRatio(aspectRatio);
   output->SetOrigin(origin);
@@ -208,14 +209,14 @@ void vtkImageToStructuredPoints::Execute()
 int vtkImageToStructuredPoints::SplitExecute(vtkImageRegion *outRegion)
 {
   int saveAxes[VTK_IMAGE_DIMENSIONS];
-  int saveBounds[VTK_IMAGE_BOUNDS_DIMENSIONS];
-  int splitBounds[VTK_IMAGE_BOUNDS_DIMENSIONS];
+  int saveExtent[VTK_IMAGE_BOUNDS_DIMENSIONS];
+  int splitExtent[VTK_IMAGE_BOUNDS_DIMENSIONS];
   int splitAxisIdx;
   int min, max;
   vtkImageRegion *inRegion;
   
   // Save the  region state to restore later
-  outRegion->GetBounds(saveBounds);
+  outRegion->GetExtent(saveExtent);
   outRegion->GetAxes(saveAxes);
   
   // change to split order coordinat system to make spliting easier.
@@ -224,10 +225,10 @@ int vtkImageToStructuredPoints::SplitExecute(vtkImageRegion *outRegion)
   // Split output into two pieces and update separately.
   inRegion = new vtkImageRegion;
   inRegion->SetAxes(this->SplitOrder.GetAxes());
-  outRegion->GetBounds(splitBounds);
+  outRegion->GetExtent(splitExtent);
 
   splitAxisIdx = 0;
-  while (splitBounds[splitAxisIdx * 2] == splitBounds[splitAxisIdx * 2 + 1])
+  while (splitExtent[splitAxisIdx * 2] == splitExtent[splitAxisIdx * 2 + 1])
     {
     ++splitAxisIdx;
     if (splitAxisIdx >= VTK_IMAGE_DIMENSIONS)
@@ -235,25 +236,25 @@ int vtkImageToStructuredPoints::SplitExecute(vtkImageRegion *outRegion)
       vtkErrorMacro(<< "SplitExecute: Cannot split one pixel.");
       inRegion->Delete();
       outRegion->SetAxes(saveAxes);
-      outRegion->SetBounds(saveBounds);
+      outRegion->SetExtent(saveExtent);
       return 0;
       }
     }
-  min = splitBounds[splitAxisIdx * 2];
-  max = splitBounds[splitAxisIdx * 2 + 1];
+  min = splitExtent[splitAxisIdx * 2];
+  max = splitExtent[splitAxisIdx * 2 + 1];
   // lower part
-  splitBounds[splitAxisIdx * 2 + 1] = (min + max) / 2;
-  inRegion->SetBounds(splitBounds);
-  outRegion->SetBounds(splitBounds);
+  splitExtent[splitAxisIdx * 2 + 1] = (min + max) / 2;
+  inRegion->SetExtent(splitExtent);
+  outRegion->SetExtent(splitExtent);
   if ( inRegion->GetVolume() < this->InputMemoryLimit)
     {
-    vtkDebugMacro (<<"Updating Split Region: bounds: " <<
-         splitBounds[0] << ", " <<
-         splitBounds[1] << ", " <<
-         splitBounds[2] << ", " <<
-         splitBounds[3] << ", " <<
-         splitBounds[4] << ", " <<
-         splitBounds[5]);
+    vtkDebugMacro (<<"Updating Split Region: extent: " <<
+         splitExtent[0] << ", " <<
+         splitExtent[1] << ", " <<
+         splitExtent[2] << ", " <<
+         splitExtent[3] << ", " <<
+         splitExtent[4] << ", " <<
+         splitExtent[5]);
     this->Input->UpdateRegion(inRegion);
     }
   if (inRegion->IsAllocated())
@@ -268,24 +269,24 @@ int vtkImageToStructuredPoints::SplitExecute(vtkImageRegion *outRegion)
       vtkErrorMacro(<< "SplitExecute: Split failed.");
       inRegion->Delete();
       outRegion->SetAxes(saveAxes);
-      outRegion->SetBounds(saveBounds);
+      outRegion->SetExtent(saveExtent);
       return 0;
       }
     }
   // upper part
-  splitBounds[splitAxisIdx * 2] = splitBounds[splitAxisIdx * 2 + 1] + 1;
-  splitBounds[splitAxisIdx * 2 + 1] = max;
-  inRegion->SetBounds(splitBounds);
-  outRegion->SetBounds(splitBounds);
+  splitExtent[splitAxisIdx * 2] = splitExtent[splitAxisIdx * 2 + 1] + 1;
+  splitExtent[splitAxisIdx * 2 + 1] = max;
+  inRegion->SetExtent(splitExtent);
+  outRegion->SetExtent(splitExtent);
   if ( inRegion->GetVolume() < this->InputMemoryLimit)
     {
-    vtkDebugMacro (<<"Updating Split Region: bounds are: " <<
-         splitBounds[0] << ", " <<
-         splitBounds[1] << ", " <<
-         splitBounds[2] << ", " <<
-         splitBounds[3] << ", " <<
-         splitBounds[4] << ", " <<
-         splitBounds[5]);
+    vtkDebugMacro (<<"Updating Split Region: extent are: " <<
+         splitExtent[0] << ", " <<
+         splitExtent[1] << ", " <<
+         splitExtent[2] << ", " <<
+         splitExtent[3] << ", " <<
+         splitExtent[4] << ", " <<
+         splitExtent[5]);
     this->Input->UpdateRegion(inRegion);
     }
   if (inRegion->IsAllocated())
@@ -300,7 +301,7 @@ int vtkImageToStructuredPoints::SplitExecute(vtkImageRegion *outRegion)
       vtkErrorMacro(<< "SplitExecute: Split failed.");
       inRegion->Delete();
       outRegion->SetAxes(saveAxes);
-      outRegion->SetBounds(saveBounds);
+      outRegion->SetExtent(saveExtent);
       return 0;
       }
     }
@@ -308,7 +309,7 @@ int vtkImageToStructuredPoints::SplitExecute(vtkImageRegion *outRegion)
   // Clean up
   inRegion->Delete();
   outRegion->SetAxes(saveAxes);
-  outRegion->SetBounds(saveBounds);
+  outRegion->SetExtent(saveExtent);
   return 1;
 }
 

@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -43,9 +44,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // if a region is too large.  This functionality is hidden
 // in this superclass so filter writers never need to worry about this
 // feature.  The filter designer can supply the functions:
-//   1: UpdateImageInformation: Given the ImageBounds of the input, this function
-// returns the ImageBounds of the output.
-//   2: GetRequiredRegionBounds:  Returns the offset and size of the input
+//   1: UpdateImageInformation: Given the ImageExtent of the input, this function
+// returns the ImageExtent of the output.
+//   2: GetRequiredRegionExtent:  Returns the offset and size of the input
 // region required to generate the given output region.
 //   3: Execute3d: Given an input region and an output region, this method
 // fills in the output using the input.
@@ -96,26 +97,26 @@ protected:
   // Description:
   // These are conveniance functions for writing filters that have their
   // own UpdateRegion methods.  They create the region object as well as 
-  // getting the input source to fill it with data.  The bounds
+  // getting the input source to fill it with data.  The extent
   // of the unspecified dimensions default to [0, 0];
   // Used in vtkImageScatterPlot.
-  vtkImageRegion *GetInputRegion(int *bounds, int dim);    
-  vtkImageRegion *GetInputRegion5d(int bounds[10])
-    {return this->GetInputRegion(bounds, 5);};
-  vtkImageRegion *GetInputRegion4d(int bounds[8])
-    {return this->GetInputRegion(bounds, 4);};
-  vtkImageRegion *GetInputRegion3d(int bounds[6])
-    {return this->GetInputRegion(bounds, 3);};
-  vtkImageRegion *GetInputRegion2d(int bounds[4])
-    {return this->GetInputRegion(bounds, 2);};
-  vtkImageRegion *GetInputRegion1d(int bounds[2])
-    {return this->GetInputRegion(bounds, 1);};
+  vtkImageRegion *GetInputRegion(int *extent, int dim);    
+  vtkImageRegion *GetInputRegion5d(int extent[10])
+    {return this->GetInputRegion(extent, 5);};
+  vtkImageRegion *GetInputRegion4d(int extent[8])
+    {return this->GetInputRegion(extent, 4);};
+  vtkImageRegion *GetInputRegion3d(int extent[6])
+    {return this->GetInputRegion(extent, 3);};
+  vtkImageRegion *GetInputRegion2d(int extent[4])
+    {return this->GetInputRegion(extent, 2);};
+  vtkImageRegion *GetInputRegion1d(int extent[2])
+    {return this->GetInputRegion(extent, 1);};
   
   void UpdateRegionTiled(vtkImageRegion *outRegion);
   virtual void SplitRegion(vtkImageRegion *region, int *pieceSize);
   virtual void ComputeOutputImageInformation(vtkImageRegion *inRegion,
 					     vtkImageRegion *outRegion);
-  virtual void ComputeRequiredInputRegionBounds(vtkImageRegion *outRegion,
+  virtual void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,
 						vtkImageRegion *inRegion);
   virtual void Execute5d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
   virtual void Execute4d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);

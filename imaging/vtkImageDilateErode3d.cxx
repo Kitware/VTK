@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -95,7 +96,7 @@ vtkImageDilateErode3d::SetKernelSize(int size0, int size1, int size2)
   this->Mask = new vtkImageRegion;
   this->Mask->SetDataType(VTK_IMAGE_UNSIGNED_CHAR);
   this->Mask->SetAxes(this->GetAxes());
-  this->Mask->SetBounds3d(0, size0-1, 0, size1-1, 0, size2-1);
+  this->Mask->SetExtent3d(0, size0-1, 0, size1-1, 0, size2-1);
   this->Mask->Allocate();
   if ( ! this->Mask->IsAllocated())
     {
@@ -110,7 +111,7 @@ vtkImageDilateErode3d::SetKernelSize(int size0, int size1, int size2)
   radius2 = (double)(size2) / 2.0;
 
   this->Mask->GetIncrements3d(inc0, inc1, inc2);
-  ptr2 = (unsigned char *)(this->Mask->GetVoidPointer());
+  ptr2 = (unsigned char *)(this->Mask->GetScalarPointer());
   for (idx2 = 0; idx2 < size2; ++idx2)
     {
     ptr1 = ptr2;
@@ -172,17 +173,17 @@ void vtkImageDilateErode3dExecute(vtkImageDilateErode3d *self,
   unsigned char *maskPtr, *maskPtr0, *maskPtr1, *maskPtr2;
   int maskInc0, maskInc1, maskInc2;
   vtkImageRegion *mask;
-  // The bounds of the whole input image
+  // The extent of the whole input image
   int inImageMin0, inImageMin1, inImageMin2;
   int inImageMax0, inImageMax1, inImageMax2;
   
   
   // Get information to march through data
   inRegion->GetIncrements3d(inInc0, inInc1, inInc2); 
-  inRegion->GetImageBounds3d(inImageMin0, inImageMax0, inImageMin1,
+  inRegion->GetImageExtent3d(inImageMin0, inImageMax0, inImageMin1,
 			     inImageMax1, inImageMin2, inImageMax2);
   outRegion->GetIncrements3d(outInc0, outInc1, outInc2); 
-  outRegion->GetBounds3d(outMin0, outMax0, outMin1, outMax1, outMin2, outMax2);
+  outRegion->GetExtent3d(outMin0, outMax0, outMin1, outMax1, outMin2, outMax2);
   
   // Get ivars of this object (easier than making friends)
   erodeValue = (T)(self->GetErodeValue());
@@ -198,11 +199,11 @@ void vtkImageDilateErode3dExecute(vtkImageDilateErode3d *self,
 
   // Setup mask info
   mask = self->GetMask();
-  maskPtr = (unsigned char *)(mask->GetVoidPointer3d());
+  maskPtr = (unsigned char *)(mask->GetScalarPointer3d());
   mask->GetIncrements3d(maskInc0, maskInc1, maskInc2);
   
   // in and out should be marching through corresponding pixels.
-  inPtr = (T *)(inRegion->GetVoidPointer3d(outMin0, outMin1, outMin2));
+  inPtr = (T *)(inRegion->GetScalarPointer3d(outMin0, outMin1, outMin2));
   
   // loop through pixels of output
   outPtr2 = outPtr;
@@ -284,8 +285,8 @@ void vtkImageDilateErode3dExecute(vtkImageDilateErode3d *self,
 void vtkImageDilateErode3d::ExecuteCenter3d(vtkImageRegion *inRegion, 
 						  vtkImageRegion *outRegion)
 {
-  void *inPtr = inRegion->GetVoidPointer3d();
-  void *outPtr = outRegion->GetVoidPointer3d();
+  void *inPtr = inRegion->GetScalarPointer3d();
+  void *outPtr = outRegion->GetScalarPointer3d();
   
   vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
 		<< ", outRegion = " << outRegion);
@@ -347,8 +348,8 @@ void vtkImageDilateErode3d::ExecuteCenter3d(vtkImageRegion *inRegion,
 void vtkImageDilateErode3d::Execute3d(vtkImageRegion *inRegion, 
 					    vtkImageRegion *outRegion)
 {
-  void *inPtr = inRegion->GetVoidPointer3d();
-  void *outPtr = outRegion->GetVoidPointer3d();
+  void *inPtr = inRegion->GetScalarPointer3d();
+  void *outPtr = outRegion->GetScalarPointer3d();
   
   vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
 		<< ", outRegion = " << outRegion);

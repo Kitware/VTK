@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder,ill Lorensen.
 
@@ -155,7 +156,7 @@ void vtkImageShortReader4d::SetDimensions(int *size)
 // This method returns the largest region that can be generated.
 void vtkImageShortReader4d::UpdateImageInformation(vtkImageRegion *region)
 {
-  region->SetImageBounds4d(0, this->Dimensions[0]-1, 
+  region->SetImageExtent4d(0, this->Dimensions[0]-1, 
 			   0, this->Dimensions[1]-1, 
 			   0, this->Dimensions[2]-1,
 			   0, this->Dimensions[3]-1);
@@ -286,7 +287,7 @@ void vtkImageShortReader4dGenerateImage2d(vtkImageShortReader4d *self,
     pixelMax = -pixelMin;
   
   // get the information needed to find a location in the file
-  region->GetBounds2d(min0, max0,  min1, max1);
+  region->GetExtent2d(min0, max0,  min1, max1);
   region->GetIncrements2d(inc0, inc1);
   imageSize = (max0-min0+1)*(max1-min1+1)*2;  // the number of bytes in image
   headerSize = self->GetHeaderSize();
@@ -388,7 +389,7 @@ void vtkImageShortReader4dGenerateRegion2d(vtkImageShortReader4d *self,
     pixelMax = -pixelMin;
   
   // get the information needed to find a location in the file
-  region->GetBounds2d(min0, max0,  min1, max1);
+  region->GetExtent2d(min0, max0,  min1, max1);
   region->GetIncrements2d(inc0, inc1);
   streamStartPos = min0 * self->Increments[0] 
                  + min1 * self->Increments[1];
@@ -498,9 +499,9 @@ void vtkImageShortReader4dGenerateRegion2d(vtkImageShortReader4d *self,
 void vtkImageShortReader4d::UpdateRegion2d(vtkImageRegion *region)
 {
   void *ptr;
-  int *bounds = region->GetBounds();
-  int image = bounds[4];
-  int component = bounds[6];
+  int *extent = region->GetExtent();
+  int image = extent[4];
+  int component = extent[6];
   // Note: reverse the order of component axis and Z axis
   int fileNumber = image * this->Dimensions[3] + component + this->First;
 
@@ -530,7 +531,7 @@ void vtkImageShortReader4d::UpdateRegion2d(vtkImageRegion *region)
     }
 
   // read in the slice
-  ptr = region->GetVoidPointer2d();
+  ptr = region->GetScalarPointer2d();
   switch (region->GetDataType())
     {
     case VTK_IMAGE_FLOAT:

@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -205,7 +206,7 @@ void vtkImagePgmWriter::WriteImage(char *fileName, int slice)
   this->Input->GetBoundary(offset, size);
   if ( slice < offset[2] || slice >= offset[2] + size[2])
     {
-    vtkErrorMacro(<< "WriteImage: Slice " << slice << " not in bounds ["
+    vtkErrorMacro(<< "WriteImage: Slice " << slice << " not in extent ["
                   << offset[2] << ", " << offset[2] + size[2] << "[");
     return;
     }

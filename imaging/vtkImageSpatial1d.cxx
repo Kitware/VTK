@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -79,15 +80,15 @@ void vtkImageSpatial1d::ComputeOutputImageInformation(
 
   if (this->HandleBoundaries)
     {
-    // Output image bounds same as input region bounds
+    // Output image extent same as input region extent
     return;
     }
   
-  // shrink output image bounds.
-  inRegion->GetImageBounds1d(min, max);
+  // shrink output image extent.
+  inRegion->GetImageExtent1d(min, max);
   min += this->KernelMiddle;
   max -= (this->KernelSize - 1) - this->KernelMiddle;
-  outRegion->SetImageBounds1d(min, max);
+  outRegion->SetImageExtent1d(min, max);
 }
 
 
@@ -96,39 +97,39 @@ void vtkImageSpatial1d::ComputeOutputImageInformation(
 
 //----------------------------------------------------------------------------
 // Description:
-// This method computes the bounds of the input region necessary to generate
+// This method computes the extent of the input region necessary to generate
 // an output region.  Before this method is called "region" should have the 
-// bounds of the output region.  After this method finishes, "region" should 
-// have the bounds of the required input region.
-void vtkImageSpatial1d::ComputeRequiredInputRegionBounds(
+// extent of the output region.  After this method finishes, "region" should 
+// have the extent of the required input region.
+void vtkImageSpatial1d::ComputeRequiredInputRegionExtent(
                                                     vtkImageRegion *outRegion, 
 			                            vtkImageRegion *inRegion)
 {
-  int boundsMin, boundsMax;
-  int ImageBoundsMin, ImageBoundsMax;
+  int extentMin, extentMax;
+  int ImageExtentMin, ImageExtentMax;
   
-  outRegion->GetBounds1d(boundsMin, boundsMax);
-  // Expand to get inRegion Bounds
-  boundsMin -= this->KernelMiddle;
-  boundsMax += (this->KernelSize - 1) - this->KernelMiddle;
+  outRegion->GetExtent1d(extentMin, extentMax);
+  // Expand to get inRegion Extent
+  extentMin -= this->KernelMiddle;
+  extentMax += (this->KernelSize - 1) - this->KernelMiddle;
 
-  // If the expanded region is out of the IMAGE Bounds
-  inRegion->GetImageBounds1d(ImageBoundsMin, ImageBoundsMax);
-  if (boundsMin < ImageBoundsMin || boundsMax > ImageBoundsMax)
+  // If the expanded region is out of the IMAGE Extent
+  inRegion->GetImageExtent1d(ImageExtentMin, ImageExtentMax);
+  if (extentMin < ImageExtentMin || extentMax > ImageExtentMax)
     {
     if (this->HandleBoundaries)
       {
-      // shrink the required region bounds
-      boundsMin = (boundsMin > ImageBoundsMin) ? boundsMin : ImageBoundsMin;
-      boundsMax = (boundsMax < ImageBoundsMax) ? boundsMax : ImageBoundsMax;
+      // shrink the required region extent
+      extentMin = (extentMin > ImageExtentMin) ? extentMin : ImageExtentMin;
+      extentMax = (extentMax < ImageExtentMax) ? extentMax : ImageExtentMax;
       }
     else
       {
-      vtkWarningMacro(<< "Required region is out of the image bounds.");
+      vtkWarningMacro(<< "Required region is out of the image extent.");
       }
     }
   
-  inRegion->SetBounds1d(boundsMin, boundsMax);
+  inRegion->SetExtent1d(extentMin, extentMax);
 }
 
 

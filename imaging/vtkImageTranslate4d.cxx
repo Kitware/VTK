@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -56,16 +57,16 @@ void vtkImageTranslate4d::ComputeOutputImageInformation(
 		      vtkImageRegion *inRegion, vtkImageRegion *outRegion)
 {
   int idx;
-  int bounds[8];
+  int extent[8];
   
-  inRegion->GetImageBounds4d(bounds);
+  inRegion->GetImageExtent4d(extent);
   for(idx = 0; idx < 4; ++idx)
     {
-    bounds[idx*2] += this->Translation[idx];
-    bounds[idx*2+1] += this->Translation[idx];    
+    extent[idx*2] += this->Translation[idx];
+    extent[idx*2+1] += this->Translation[idx];    
     }
   
-  outRegion->SetImageBounds4d(bounds);
+  outRegion->SetImageExtent4d(extent);
 }
 
   
@@ -73,20 +74,20 @@ void vtkImageTranslate4d::ComputeOutputImageInformation(
 
 
 //----------------------------------------------------------------------------
-void vtkImageTranslate4d::ComputeRequiredInputRegionBounds(
+void vtkImageTranslate4d::ComputeRequiredInputRegionExtent(
 			 vtkImageRegion *outRegion, vtkImageRegion *inRegion)
 {
   int idx;
-  int bounds[8];
+  int extent[8];
   
-  outRegion->GetBounds4d(bounds);
+  outRegion->GetExtent4d(extent);
   for(idx = 0; idx < 4; ++idx)
     {
-    bounds[idx*2] -= this->Translation[idx];
-    bounds[idx*2+1] -= this->Translation[idx];    
+    extent[idx*2] -= this->Translation[idx];
+    extent[idx*2+1] -= this->Translation[idx];    
     }
   
-  inRegion->SetBounds4d(bounds);
+  inRegion->SetExtent4d(extent);
 }
 
   
@@ -118,7 +119,7 @@ void vtkImageTranslate4dExecute4d(vtkImageTranslate4d *self,
   // Get information to march through data 
   inRegion->GetIncrements4d(inInc0, inInc1, inInc2, inInc3);
   outRegion->GetIncrements4d(outInc0, outInc1, outInc2, outInc3);
-  outRegion->GetBounds4d(min0, max0, min1, max1,
+  outRegion->GetExtent4d(min0, max0, min1, max1,
 			 min2, max2, min3, max3);
 
   // Loop through ouput pixels
@@ -167,8 +168,8 @@ void vtkImageTranslate4dExecute4d(vtkImageTranslate4d *self,
 void vtkImageTranslate4d::Execute4d(vtkImageRegion *inRegion, 
 					  vtkImageRegion *outRegion)
 {
-  void *inPtr = inRegion->GetVoidPointer4d();
-  void *outPtr = outRegion->GetVoidPointer4d();
+  void *inPtr = inRegion->GetScalarPointer4d();
+  void *outPtr = outRegion->GetScalarPointer4d();
   
   vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
 		<< ", outRegion = " << outRegion);

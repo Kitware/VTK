@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -69,13 +70,13 @@ void vtkImageRfft1d::InterceptCacheUpdate(vtkImageRegion *region)
 {
   int min, max;
   
-  region->GetBounds1d(min, max);
+  region->GetExtent1d(min, max);
   if (min < 0 || max > 1)
     {
     vtkErrorMacro(<< "Only two channels to request 0 and 1");
     }
   
-  region->SetBounds1d(0, 1);
+  region->SetExtent1d(0, 1);
 }
 
 
@@ -83,22 +84,22 @@ void vtkImageRfft1d::InterceptCacheUpdate(vtkImageRegion *region)
 // Description:
 // This method tells the superclass that the whole input array is needed
 // to compute any output region.
-void vtkImageRfft1d::ComputeRequiredInputRegionBounds(
+void vtkImageRfft1d::ComputeRequiredInputRegionExtent(
 		   vtkImageRegion *outRegion, vtkImageRegion *inRegion)
 {
-  int bounds[4];
+  int extent[4];
   
   outRegion = outRegion;
-  inRegion->GetImageBounds2d(bounds);
+  inRegion->GetImageExtent2d(extent);
   // make sure input has two component
-  if (bounds[0] != 0 || bounds[1] != 1)
+  if (extent[0] != 0 || extent[1] != 1)
     {
-    vtkErrorMacro(<< "ComputeRequiredInputRegionBounds: "
+    vtkErrorMacro(<< "ComputeRequiredInputRegionExtent: "
                   << "Input has wrong number of component");
     return;
     }
   
-  inRegion->SetBounds2d(bounds);
+  inRegion->SetExtent2d(extent);
 }
 
 //----------------------------------------------------------------------------
@@ -123,7 +124,7 @@ void vtkImageRfft1dExecute2d(vtkImageRfft1d *self,
   
   // Get information to march through data 
   inRegion->GetIncrements2d(inInc0, inInc1);
-  inRegion->GetBounds2d(inMin0, inMax0, inMin1, inMax1);
+  inRegion->GetExtent2d(inMin0, inMax0, inMin1, inMax1);
   inSize1 = inMax1 - inMin1 + 1;
   
   // Input should have two component
@@ -155,7 +156,7 @@ void vtkImageRfft1dExecute2d(vtkImageRfft1d *self,
   
   // Get information to loop through output region.
   outRegion->GetIncrements2d(outInc0, outInc1);
-  outRegion->GetBounds2d(outMin0, outMax0, outMin1, outMax1);
+  outRegion->GetExtent2d(outMin0, outMax0, outMin1, outMax1);
   
   // Copy the complex numbers into the output
   pComplex = outComplex + (outMin1 - inMin1);
@@ -184,8 +185,8 @@ void vtkImageRfft1d::Execute2d(vtkImageRegion *inRegion,
 {
   void *inPtr, *outPtr;
 
-  inPtr = inRegion->GetVoidPointer1d();
-  outPtr = outRegion->GetVoidPointer1d();
+  inPtr = inRegion->GetScalarPointer1d();
+  outPtr = outRegion->GetScalarPointer1d();
 
   vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
 		<< ", outRegion = " << outRegion);

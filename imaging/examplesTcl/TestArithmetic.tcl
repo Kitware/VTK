@@ -1,4 +1,4 @@
-# A script to test the difference filter.
+# A script to test the Arithmetic filter.
 # An image is smoothed then sbutracted from the original image.
 # The result is a high-pass filter.
 
@@ -34,7 +34,7 @@ vtkImageGaussianSmooth2d smooth
 smooth SetInput [reader GetOutput];
 smooth SetGaussianStdRadius 6.0 8;
 
-vtkImageDifference subtract;
+vtkImageArithmetic subtract;
 subtract SetInput1 [reader GetOutput];
 subtract SetInput2 [smooth GetOutput];
 subtract ReleaseDataFlagOff;
@@ -43,7 +43,7 @@ vtkImageXViewer viewer;
 #viewer DebugOn;
 viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS;
 viewer SetInput [subtract GetOutput];
-viewer SetBounds 0 255 0 255;
+viewer SetExtent 0 255 0 255;
 viewer SetCoordinate2 $sliceNumber;
 viewer SetColorWindow 3000
 viewer SetColorLevel 700

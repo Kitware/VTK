@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -73,7 +74,7 @@ void vtkImageShiftScaleExecute2d(vtkImageShiftScale *self,
   // Get information to march through data 
   inRegion->GetIncrements2d(inInc0, inInc1);
   outRegion->GetIncrements2d(outInc0, outInc1);
-  outRegion->GetBounds2d(min0, max0, min1, max1);
+  outRegion->GetExtent2d(min0, max0, min1, max1);
 
   // Loop through ouput pixels
   inPtr1 = inPtr;
@@ -107,8 +108,8 @@ void vtkImageShiftScaleExecute2d(vtkImageShiftScale *self,
 void vtkImageShiftScale::Execute2d(vtkImageRegion *inRegion, 
 					     vtkImageRegion *outRegion)
 {
-  void *inPtr = inRegion->GetVoidPointer2d();
-  void *outPtr = outRegion->GetVoidPointer2d();
+  void *inPtr = inRegion->GetScalarPointer2d();
+  void *outPtr = outRegion->GetScalarPointer2d();
   
   vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
 		<< ", outRegion = " << outRegion);

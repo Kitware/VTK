@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
@@ -71,18 +72,18 @@ public:
   vtkBooleanMacro(WholeImage,int);
 
   // Forward these messages to the "Region".
-  void SetBounds(int *bounds)
-  {this->Region.SetBounds3d(bounds); this->WholeImageOff();};
-  void SetBounds(int min0, int max0, int min1, int max1, int min2, int max2)
-  {this->Region.SetBounds3d(min0,max0,min1,max1,min2,max2);
+  void SetExtent(int *extent)
+  {this->Region.SetExtent3d(extent); this->WholeImageOff();};
+  void SetExtent(int min0, int max0, int min1, int max1, int min2, int max2)
+  {this->Region.SetExtent3d(min0,max0,min1,max1,min2,max2);
   this->WholeImageOff();};
-  int *GetBounds(){return this->Region.GetBounds3d();};
-  void GetBounds(int *bounds){this->Region.GetBounds3d(bounds);};
-  void GetBounds(int &min0,int &max0,int &min1,int &max1,int &min2,int &max2)
-  {this->Region.GetBounds3d(min0,max0,min1,max1,min2,max2);};
+  int *GetExtent(){return this->Region.GetExtent3d();};
+  void GetExtent(int *extent){this->Region.GetExtent3d(extent);};
+  void GetExtent(int &min0,int &max0,int &min1,int &max1,int &min2,int &max2)
+  {this->Region.GetExtent3d(min0,max0,min1,max1,min2,max2);};
 
   // Description:
-  // Set the coordinate system which determines how bounds are interpreted.
+  // Set the coordinate system which determines how extent are interpreted.
   // Note: This does not yet change the order of the structured points!
   void SetAxes(int axis0, int axis1, int axis2)
   {this->Region.SetAxes3d(axis0,axis1,axis2); this->Modified();};

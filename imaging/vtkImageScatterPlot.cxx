@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -48,19 +49,19 @@ vtkImageScatterPlot::vtkImageScatterPlot()
 		  VTK_IMAGE_Z_AXIS, VTK_IMAGE_COMPONENT_AXIS);
   this->SetOutputDataType(VTK_IMAGE_UNSIGNED_SHORT);
   // set up for a 2d (256x256) image representing 0->256 in the components.
-  this->ImageRegion.SetBounds2d(0, 255, 0, 255);
+  this->ImageRegion.SetExtent2d(0, 255, 0, 255);
   this->AspectRatio = 1.0;
   // We want to request our input all by ourself.
   this->UseExecuteMethodOff();
-  this->InRegion.SetBounds4d(0, 255, 0, 255, 47, 47, 0, 1);
+  this->InRegion.SetExtent4d(0, 255, 0, 255, 47, 47, 0, 1);
   
 }
 
 
 //----------------------------------------------------------------------------
 // Description:
-// Set the input of the filter, sets the default bounds of the InRegion as
-// the ImageBounds of the input.
+// Set the input of the filter, sets the default extent of the InRegion as
+// the ImageExtent of the input.
 void vtkImageScatterPlot::SetInput(vtkImageSource *input)
 {
   this->vtkImageFilter::SetInput(input);
@@ -81,27 +82,27 @@ void vtkImageScatterPlot::SetAxes(int *axes)
 
 //----------------------------------------------------------------------------
 // Description:
-// Just sets the ImageBounds to be the bounds of the OutRegion.
+// Just sets the ImageExtent to be the extent of the OutRegion.
 void vtkImageScatterPlot::ComputeOutputImageInformation(
 		    vtkImageRegion *inRegion, vtkImageRegion *outRegion)
 {
   // Avoid warnings
   inRegion = inRegion;
-  outRegion->SetImageBounds(this->ImageRegion.GetBounds());
+  outRegion->SetImageExtent(this->ImageRegion.GetExtent());
 }
 
 
   
 //----------------------------------------------------------------------------
 // Description:
-// The Required input bounds are the bounds of the InRegion.
+// The Required input extent are the extent of the InRegion.
 // Note used in this implementation
-void vtkImageScatterPlot::ComputeRequiredInputRegionBounds(
+void vtkImageScatterPlot::ComputeRequiredInputRegionExtent(
 				       vtkImageRegion *outRegion, 
 				       vtkImageRegion *inRegion)
 {
   outRegion = outRegion;
-  inRegion->SetBounds(this->InRegion.GetBounds());
+  inRegion->SetExtent(this->InRegion.GetExtent());
 }
 
 
@@ -121,9 +122,9 @@ void vtkImageScatterPlotUpdate(vtkImageScatterPlot *self,
   float aspectRatio = self->GetAspectRatio();
   int coordinates[2];
   
-  inRegion->GetBounds2d(inMin0, inMax0, inMin1, inMax1);
+  inRegion->GetExtent2d(inMin0, inMax0, inMin1, inMax1);
   inRegion->GetIncrements4d(inInc0, inInc1, inInc2, inInc3);
-  outRegion->GetBounds2d(outMin0, outMax0, outMin1, outMax1);
+  outRegion->GetExtent2d(outMin0, outMax0, outMin1, outMax1);
   
   // loop over all the input pixels (2d images).
   inPtr1 = inPtr;
@@ -139,7 +140,7 @@ void vtkImageScatterPlotUpdate(vtkImageScatterPlot *self,
       if (outMin0 <= coordinates[0] && coordinates[0] <= outMax0 &&
 	  outMin1 <= coordinates[1] && coordinates[1] <= outMax1)
 	{
-	outPtr = (unsigned short *)(outRegion->GetVoidPointer2d(coordinates));
+	outPtr = (unsigned short *)(outRegion->GetScalarPointer2d(coordinates));
 	++(*outPtr);
 	}
 
@@ -160,7 +161,7 @@ void vtkImageScatterPlot::UpdateRegion(vtkImageRegion *outRegion)
   // only handle 4d.
   vtkImageRegion *inRegion = NULL;
   void *inPtr, *outPtr;
-  int bounds[8];
+  int extent[8];
   int min0, max0, min1, max1, min2, max2;
   int inc0, inc1;
   int idx0, idx1, idx2;
@@ -184,9 +185,9 @@ void vtkImageScatterPlot::UpdateRegion(vtkImageRegion *outRegion)
   this->Output->AllocateRegion(outRegion);
 
   // Set all the output pixels to 0;
-  outRegion->GetBounds2d(min0, max0, min1, max1);
+  outRegion->GetExtent2d(min0, max0, min1, max1);
   outRegion->GetIncrements2d(inc0, inc1);
-  outPtr1 = (unsigned short *)(outRegion->GetVoidPointer2d());
+  outPtr1 = (unsigned short *)(outRegion->GetScalarPointer2d());
   for (idx1 = min1; idx1 <= max1; ++idx1)
     {
     outPtr0 = outPtr1;
@@ -200,30 +201,30 @@ void vtkImageScatterPlot::UpdateRegion(vtkImageRegion *outRegion)
     }
   
   // Input region can only have two components for now.
-  this->InRegion.GetBounds4d(bounds);
-  if (bounds[7] - bounds[6] != 1)
+  this->InRegion.GetExtent4d(extent);
+  if (extent[7] - extent[6] != 1)
     {
     vtkErrorMacro(<< "Update Region: I only generate 2d plots.");
     return;
     }
   
   // loop over the multi spectral input images. (third axis)
-  min2 = bounds[4];
-  max2 = bounds[5];
+  min2 = extent[4];
+  max2 = extent[5];
   for (idx2 = min2; idx2 <= max2; ++idx2)
     {
-    // Set up the region to have the bounds of one 2d image.
-    bounds[4] = bounds[5] = idx2;
+    // Set up the region to have the extent of one 2d image.
+    extent[4] = extent[5] = idx2;
     // Request Image.
-    inRegion = this->GetInputRegion4d(bounds);
+    inRegion = this->GetInputRegion4d(extent);
     if ( ! inRegion->IsAllocated())
       {
       vtkErrorMacro(<< "UpdateRegion:Input request failed.");
       return;
       }
     // Call the template function to add to this scatter plot.
-    inPtr = inRegion->GetVoidPointer4d();
-    outPtr = inRegion->GetVoidPointer4d();
+    inPtr = inRegion->GetScalarPointer4d();
+    outPtr = inRegion->GetScalarPointer4d();
     switch (inRegion->GetDataType())
       {
       case VTK_IMAGE_FLOAT:

@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -97,7 +98,7 @@ void vtkImageVolumeShortWriter::SetFileRoot(char *fileRoot)
 // This function writes the whole image to file.
 void vtkImageVolumeShortWriter::Write()
 {
-  int bounds[6];
+  int extent[6];
   vtkImageRegion region;
   
   if ( ! this->Input)
@@ -107,8 +108,8 @@ void vtkImageVolumeShortWriter::Write()
     }
     
   this->Input->UpdateImageInformation(&region);
-  region.GetImageBounds3d(bounds);
-  this->Write(bounds);
+  region.GetImageExtent3d(extent);
+  this->Write(extent);
 }
 
 
@@ -120,16 +121,16 @@ void vtkImageVolumeShortWriter::Write(int min0, int max0,
 				      int min1, int max1,
 				      int min2, int max2)
 {
-  int bounds[6];
+  int extent[6];
   
-  bounds[0] = min0;
-  bounds[1] = max0;
-  bounds[2] = min1;
-  bounds[3] = max1;
-  bounds[4] = min2;
-  bounds[5] = max2;
+  extent[0] = min0;
+  extent[1] = max0;
+  extent[2] = min1;
+  extent[3] = max1;
+  extent[4] = min2;
+  extent[5] = max2;
   
-  this->Write(bounds);  
+  this->Write(extent);  
 }
 
 
@@ -138,10 +139,10 @@ void vtkImageVolumeShortWriter::Write(int min0, int max0,
 // Description:
 // This function writes a region of the image to file.
 // It requests and writes the volume one 2d image at a time.
-void vtkImageVolumeShortWriter::Write(int *bounds)
+void vtkImageVolumeShortWriter::Write(int *extent)
 {
   int idx;
-  int sliceBounds[VTK_IMAGE_BOUNDS_DIMENSIONS];
+  int sliceExtent[VTK_IMAGE_BOUNDS_DIMENSIONS];
   vtkImageRegion region;
   
   if ( ! this->Input)
@@ -152,23 +153,23 @@ void vtkImageVolumeShortWriter::Write(int *bounds)
 
   // deal with extra dimensions by taking the first
   this->Input->UpdateImageInformation(&region);
-  region.GetImageBounds(sliceBounds);
+  region.GetImageExtent(sliceExtent);
   for (idx = 3; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
-    sliceBounds[idx*2] = sliceBounds[idx*2+1];
+    sliceExtent[idx*2] = sliceExtent[idx*2+1];
     }
 
   // Set the sub region requested
   for (idx = 0; idx < 6; ++idx)
     {
-    sliceBounds[idx] = bounds[idx];
+    sliceExtent[idx] = extent[idx];
     }
  
   // write the volume slice by slice
-  for (idx = bounds[4]; idx <= bounds[5]; ++idx)
+  for (idx = extent[4]; idx <= extent[5]; ++idx)
     {
-    sliceBounds[4] = sliceBounds[5] = idx;
-    region.SetBounds(sliceBounds);
+    sliceExtent[4] = sliceExtent[5] = idx;
+    region.SetExtent(sliceExtent);
     this->Input->UpdateRegion(&region);
     if ( ! region.IsAllocated())
       vtkErrorMacro(<< "Write: Request for image " << idx << " failed.");
@@ -192,10 +193,10 @@ void vtkImageVolumeShortWriterWrite2d(vtkImageVolumeShortWriter *self,
   int inc0, inc1;
   T *ptr0, *ptr1;
   unsigned char *buf, *pbuf, temp;
-  int *bounds = region->GetBounds();
+  int *extent = region->GetExtent();
   
   sprintf(self->FileName, "%s.%d", self->FileRoot, 
-	  bounds[4] + self->First);
+	  extent[4] + self->First);
   if (self->Debug)
     {
     cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" 
@@ -211,7 +212,7 @@ void vtkImageVolumeShortWriterWrite2d(vtkImageVolumeShortWriter *self,
     return;
     }
   
-  region->GetBounds2d(min0, max0, min1, max1);
+  region->GetExtent2d(min0, max0, min1, max1);
   region->GetIncrements2d(inc0, inc1);
   streamRowRead = (max0-min0+1) * sizeof(short int);
   buf = new unsigned char [streamRowRead];
@@ -268,7 +269,7 @@ void vtkImageVolumeShortWriterWrite2d(vtkImageVolumeShortWriter *self,
 // This function writes a slice into a file.
 void vtkImageVolumeShortWriter::Write2d(vtkImageRegion *region)
 {
-  void *ptr = region->GetVoidPointer2d();
+  void *ptr = region->GetScalarPointer2d();
   
   switch (region->GetDataType())
     {

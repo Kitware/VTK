@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
@@ -73,8 +74,8 @@ void vtkImageXViewer::PrintSelf(ostream& os, vtkIndent indent)
   int *b;
   
   vtkObject::PrintSelf(os, indent);
-  b = this->Region.GetBounds2d();
-  os << indent << "Bounds: (" << b[0] << ", " << b[1] << ", " << b[2] 
+  b = this->Region.GetExtent2d();
+  os << indent << "Extent: (" << b[0] << ", " << b[1] << ", " << b[2] 
      << ", " << b[3] << ")\n";
   os << indent << "Coordinate2: " << this->Coordinate2 << "\n";
   os << indent << "Coordinate3: " << this->Coordinate3 << "\n";
@@ -105,7 +106,7 @@ void vtkImageXViewerRenderGrey(vtkImageXViewer *self, vtkImageRegion *region,
   shift = self->GetColorShift();
   scale = self->GetColorScale();
   visualDepth = self->GetVisualDepth();
-  region->GetBounds2d(inMin0, inMax0, inMin1, inMax1);
+  region->GetExtent2d(inMin0, inMax0, inMin1, inMax1);
   region->GetIncrements2d(inInc0, inInc1);
   
   // Loop through in regions pixels
@@ -165,7 +166,7 @@ void vtkImageXViewerRenderColor(vtkImageXViewer *self, vtkImageRegion *region,
   
   shift = self->GetColorShift();
   scale = self->GetColorScale();
-  region->GetBounds2d(inMin0, inMax0, inMin1, inMax1);
+  region->GetExtent2d(inMin0, inMax0, inMin1, inMax1);
   region->GetIncrements2d(inInc0, inInc1);
   
   // Loop through in regions pixels
@@ -210,7 +211,7 @@ void vtkImageXViewerRenderColor(vtkImageXViewer *self, vtkImageRegion *region,
 // Maybe we should cache the dataOut! (MTime)
 void vtkImageXViewer::Render(void)
 {
-  int bounds[8];
+  int extent[8];
   int width, height;
   int size;
   unsigned char *dataOut;
@@ -223,35 +224,35 @@ void vtkImageXViewer::Render(void)
     return;
     }
 
-  // determine the Bounds of the input region needed
+  // determine the Extent of the input region needed
   if (this->WholeImage)
     {
     this->Input->UpdateImageInformation(&(this->Region));
-    this->Region.GetImageBounds2d(bounds);
+    this->Region.GetImageExtent2d(extent);
     }
   else
     {
-    this->Region.GetBounds2d(bounds);
+    this->Region.GetExtent2d(extent);
     }
   
   if (this->ColorFlag)
     {
-    bounds[4] = bounds[5] = this->Red;
-    if (this->Green < bounds[4]) bounds[4] = this->Green;
-    if (this->Green > bounds[5]) bounds[5] = this->Green;
-    if (this->Blue < bounds[4]) bounds[4] = this->Blue;
-    if (this->Blue > bounds[5]) bounds[5] = this->Blue;
+    extent[4] = extent[5] = this->Red;
+    if (this->Green < extent[4]) extent[4] = this->Green;
+    if (this->Green > extent[5]) extent[5] = this->Green;
+    if (this->Blue < extent[4]) extent[4] = this->Blue;
+    if (this->Blue > extent[5]) extent[5] = this->Blue;
     }
   else
     {
-    bounds[4] = bounds[5] = this->Coordinate2;
+    extent[4] = extent[5] = this->Coordinate2;
     }
-  bounds[6] = bounds[7] = this->Coordinate3;
+  extent[6] = extent[7] = this->Coordinate3;
 
   // Get the region form the input
   region = new vtkImageRegion;
   region->SetAxes(this->Region.GetAxes());
-  region->SetBounds4d(bounds);
+  region->SetExtent4d(extent);
   this->Input->UpdateRegion(region);
   if ( ! region->IsAllocated())
     {
@@ -261,8 +262,8 @@ void vtkImageXViewer::Render(void)
     }
 
   // allocate the display data array.
-  width = (bounds[1] - bounds[0] + 1);
-  height = (bounds[3] - bounds[2] + 1);
+  width = (extent[1] - extent[0] + 1);
+  height = (extent[3] - extent[2] + 1);
 
   // In case a window has not been set.
   if ( ! this->WindowId)
@@ -287,9 +288,9 @@ void vtkImageXViewer::Render(void)
       vtkErrorMacro(<< "Color is only supported with 24 bit True Color");
       return;
       }
-    ptr0 = region->GetVoidPointer3d(bounds[0], bounds[2], this->Red);
-    ptr1 = region->GetVoidPointer3d(bounds[0], bounds[2], this->Green);
-    ptr2 = region->GetVoidPointer3d(bounds[0], bounds[2], this->Blue);
+    ptr0 = region->GetScalarPointer3d(extent[0], extent[2], this->Red);
+    ptr1 = region->GetScalarPointer3d(extent[0], extent[2], this->Green);
+    ptr2 = region->GetScalarPointer3d(extent[0], extent[2], this->Blue);
     // Call the appropriate templated function
     switch (region->GetDataType())
       {
@@ -323,7 +324,7 @@ void vtkImageXViewer::Render(void)
   else
     {
     // GreyScale images.
-    ptr0 = region->GetVoidPointer2d();
+    ptr0 = region->GetScalarPointer2d();
     // Call the appropriate templated function
     switch (region->GetDataType())
       {

@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -73,29 +74,29 @@ void vtkImageSpatial3d::SetKernelSize(int size0, int size1, int size2)
 
 //----------------------------------------------------------------------------
 // Description:
-// This method is passed a region that holds the image bounds of this filters
-// input, and changes the region to hold the image bounds of this filters
+// This method is passed a region that holds the image extent of this filters
+// input, and changes the region to hold the image extent of this filters
 // output.
 void vtkImageSpatial3d::ComputeOutputImageInformation(
 		    vtkImageRegion *inRegion, vtkImageRegion *outRegion)
 {
-  int bounds[6];
+  int extent[6];
   int idx;
 
   if (this->HandleBoundaries)
     {
-    // Output image bounds same as input region bounds
+    // Output image extent same as input region extent
     return;
     }
   
-  // shrink output image bounds.
-  inRegion->GetImageBounds3d(bounds);
+  // shrink output image extent.
+  inRegion->GetImageExtent3d(extent);
   for (idx = 0; idx < 3; ++idx)
     {
-    bounds[idx*2] += this->KernelMiddle[idx];
-    bounds[idx*2 + 1] -= (this->KernelSize[idx] - 1) - this->KernelMiddle[idx];
+    extent[idx*2] += this->KernelMiddle[idx];
+    extent[idx*2 + 1] -= (this->KernelSize[idx] - 1) - this->KernelMiddle[idx];
     }
-  outRegion->SetBounds3d(bounds);
+  outRegion->SetExtent3d(extent);
 }
 
 
@@ -104,55 +105,55 @@ void vtkImageSpatial3d::ComputeOutputImageInformation(
 
 //----------------------------------------------------------------------------
 // Description:
-// This method computes the bounds of the input region necessary to generate
+// This method computes the extent of the input region necessary to generate
 // an output region.  Before this method is called "region" should have the 
-// bounds of the output region.  After this method finishes, "region" should 
-// have the bounds of the required input region.
-void vtkImageSpatial3d::ComputeRequiredInputRegionBounds(
+// extent of the output region.  After this method finishes, "region" should 
+// have the extent of the required input region.
+void vtkImageSpatial3d::ComputeRequiredInputRegionExtent(
                                                     vtkImageRegion *outRegion, 
 			                            vtkImageRegion *inRegion)
 {
-  int bounds[6];
-  int imageBounds[6];
+  int extent[6];
+  int imageExtent[6];
   int idx;
   
-  outRegion->GetBounds3d(bounds);
-  inRegion->GetImageBounds3d(imageBounds);
+  outRegion->GetExtent3d(extent);
+  inRegion->GetImageExtent3d(imageExtent);
 
   for (idx = 0; idx < 3; ++idx)
     {
-    // Expand to get inRegion Bounds
-    bounds[idx*2] -= this->KernelMiddle[idx];
-    bounds[idx*2 + 1] += (this->KernelSize[idx] - 1) - this->KernelMiddle[idx];
+    // Expand to get inRegion Extent
+    extent[idx*2] -= this->KernelMiddle[idx];
+    extent[idx*2 + 1] += (this->KernelSize[idx] - 1) - this->KernelMiddle[idx];
 
-    // If the expanded region is out of the IMAGE Bounds (grow min)
-    if (bounds[idx*2] < imageBounds[idx*2])
+    // If the expanded region is out of the IMAGE Extent (grow min)
+    if (extent[idx*2] < imageExtent[idx*2])
       {
       if (this->HandleBoundaries)
 	{
-	// shrink the required region bounds
-	bounds[idx*2] = imageBounds[idx*2];
+	// shrink the required region extent
+	extent[idx*2] = imageExtent[idx*2];
 	}
       else
 	{
-	vtkWarningMacro(<< "Required region is out of the image bounds.");
+	vtkWarningMacro(<< "Required region is out of the image extent.");
 	}
       }
-    // If the expanded region is out of the IMAGE Bounds (shrink max)      
-    if (bounds[idx*2+1] > imageBounds[idx*2+1])
+    // If the expanded region is out of the IMAGE Extent (shrink max)      
+    if (extent[idx*2+1] > imageExtent[idx*2+1])
       {
       if (this->HandleBoundaries)
 	{
-	// shrink the required region bounds
-	bounds[idx*2+1] = imageBounds[idx*2+1];
+	// shrink the required region extent
+	extent[idx*2+1] = imageExtent[idx*2+1];
 	}
       else
 	{
-	vtkWarningMacro(<< "Required region is out of the image bounds.");
+	vtkWarningMacro(<< "Required region is out of the image extent.");
 	}
       }
     }
-  inRegion->SetBounds3d(bounds);
+  inRegion->SetExtent3d(extent);
 }
 
 

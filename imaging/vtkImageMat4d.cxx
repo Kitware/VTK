@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -87,7 +88,7 @@ void vtkImageMat4d::PrintSelf(ostream& os, vtkIndent indent)
 template <class T>
 void vtkImageMat4dExecute2(vtkImageMat4d *self, 
 				 vtkImageRegion *region, T *ptr,
-				 int *bounds)
+				 int *extent)
 {
   int idx0, idx1, idx2, idx3;
   int min0, max0, min1, max1, min2, max2, min3, max3;
@@ -97,16 +98,16 @@ void vtkImageMat4dExecute2(vtkImageMat4d *self,
   
   value = (T)(self->GetBorderValue());
   
-  min0 = bounds[0];
-  max0 = bounds[1];
-  min1 = bounds[2];
-  max1 = bounds[3];
-  min2 = bounds[4];
-  max2 = bounds[5];
-  min3 = bounds[6];
-  max3 = bounds[7];
+  min0 = extent[0];
+  max0 = extent[1];
+  min1 = extent[2];
+  max1 = extent[3];
+  min2 = extent[4];
+  max2 = extent[5];
+  min3 = extent[6];
+  max3 = extent[7];
   region->GetIncrements4d(inc0, inc1, inc2, inc3);
-  ptr = (T *)(region->GetVoidPointer4d(min0, min1, min2, min3));
+  ptr = (T *)(region->GetScalarPointer4d(min0, min1, min2, min3));
   
   ptr3 = ptr;
   for (idx3 = min3; idx3 <= max3; ++idx3)
@@ -141,61 +142,61 @@ void vtkImageMat4dExecute(vtkImageMat4d *self,
 {
   int mat[8];
   int center[8];
-  int bounds[8];
+  int extent[8];
   int *borderWidths;
-  int *imageBounds;
+  int *imageExtent;
   int idxAxes, idx;
   
-  imageBounds = region->GetImageBounds();
-  region->GetBounds(bounds);
+  imageExtent = region->GetImageExtent();
+  region->GetExtent(extent);
   borderWidths = self->GetBorderWidths();
   
-  // compute the unmatted bounds
+  // compute the unmatted extent
   for (idxAxes = 0; idxAxes < 4; ++idxAxes)
     {
-    imageBounds[idxAxes*2] += borderWidths[idxAxes];
-    imageBounds[idxAxes*2+1] -= borderWidths[idxAxes];
-    if (imageBounds[idxAxes*2] > imageBounds[idxAxes*2+1])
+    imageExtent[idxAxes*2] += borderWidths[idxAxes];
+    imageExtent[idxAxes*2+1] -= borderWidths[idxAxes];
+    if (imageExtent[idxAxes*2] > imageExtent[idxAxes*2+1])
       {
       // Special case border covers whole region.
-      vtkImageMat4dExecute2(self, region, ptr, bounds);
+      vtkImageMat4dExecute2(self, region, ptr, extent);
       return;
       }
-    center[idxAxes*2] = (bounds[idxAxes*2] > imageBounds[idxAxes*2]) ?
-      bounds[idxAxes*2] : imageBounds[idxAxes*2];
-    center[idxAxes*2+1] = (bounds[idxAxes*2+1] < imageBounds[idxAxes*2+1]) ?
-      bounds[idxAxes*2+1] : imageBounds[idxAxes*2+1];
+    center[idxAxes*2] = (extent[idxAxes*2] > imageExtent[idxAxes*2]) ?
+      extent[idxAxes*2] : imageExtent[idxAxes*2];
+    center[idxAxes*2+1] = (extent[idxAxes*2+1] < imageExtent[idxAxes*2+1]) ?
+      extent[idxAxes*2+1] : imageExtent[idxAxes*2+1];
     }
       
   for (idxAxes = 0; idxAxes < 4; ++idxAxes)
     {
     // Check the lower part for a mat region.
-    if (center[idxAxes*2] > bounds[idxAxes*2])
+    if (center[idxAxes*2] > extent[idxAxes*2])
       {
       // Compute mat
       for (idx = 0; idx < 8; ++idx)
 	{
-	mat[idx] = bounds[idx];
+	mat[idx] = extent[idx];
 	}
       mat[idxAxes*2+1] = center[idxAxes*2] - 1;
       // Fill with border value
       vtkImageMat4dExecute2(self, region, ptr, mat);
-      // shrink bounds progressively to center to avoid overlap
-      bounds[idxAxes*2] = center[idxAxes*2];
+      // shrink extent progressively to center to avoid overlap
+      extent[idxAxes*2] = center[idxAxes*2];
       }
     // Check the upper part for a mat region.
-    if (center[idxAxes*2+1] < bounds[idxAxes*2+1])
+    if (center[idxAxes*2+1] < extent[idxAxes*2+1])
       {
       // Compute mat
       for (idx = 0; idx < 8; ++idx)
 	{
-	mat[idx] = bounds[idx];
+	mat[idx] = extent[idx];
 	}
       mat[idxAxes*2] = center[idxAxes*2+1] + 1;
       // Fill with border value
       vtkImageMat4dExecute2(self, region, ptr, mat);
-      // progressively shink bounds to center  to avoid overlap
-      bounds[idxAxes*2+1] = center[idxAxes*2+1];
+      // progressively shink extent to center  to avoid overlap
+      extent[idxAxes*2+1] = center[idxAxes*2+1];
       }
     }
 }
@@ -208,7 +209,7 @@ void vtkImageMat4dExecute(vtkImageMat4d *self,
 void vtkImageMat4d::UpdateRegion(vtkImageRegion *region)
 {
   int axesSave[VTK_IMAGE_DIMENSIONS];
-  int *imageBounds, *bounds;
+  int *imageExtent, *extent;
   int idx, flag;
   void *ptr;
     
@@ -226,13 +227,13 @@ void vtkImageMat4d::UpdateRegion(vtkImageRegion *region)
   this->Input->UpdateRegion(region);
   
   // Check to see if this region needs to be matted.
-  bounds = region->GetBounds();
-  imageBounds = region->GetImageBounds();
+  extent = region->GetExtent();
+  imageExtent = region->GetImageExtent();
   flag = 0;
   for(idx = 0; idx < 4; ++idx)
     {
-    if ((bounds[idx*2] < imageBounds[idx*2] + this->BorderWidths[idx]) ||
-	(bounds[idx*2+1] > imageBounds[idx*2+1] - this->BorderWidths[idx]))
+    if ((extent[idx*2] < imageExtent[idx*2] + this->BorderWidths[idx]) ||
+	(extent[idx*2+1] > imageExtent[idx*2+1] - this->BorderWidths[idx]))
       {
       flag = 1;
       break;
@@ -249,7 +250,7 @@ void vtkImageMat4d::UpdateRegion(vtkImageRegion *region)
   region->MakeWritable();
   
   // Add the border
-  ptr = region->GetVoidPointer();
+  ptr = region->GetScalarPointer();
   switch (region->GetDataType())
     {
     case VTK_IMAGE_FLOAT:

@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -80,7 +81,7 @@ protected:
 
   void ComputeOutputImageInformation(vtkImageRegion *inRegion,
 				     vtkImageRegion *outRegion);
-  void ComputeRequiredInputRegionBounds(vtkImageRegion *outRegion,
+  void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,
 					vtkImageRegion *inRegion);
   void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);  
 };

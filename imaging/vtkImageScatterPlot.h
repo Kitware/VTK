@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -64,7 +65,7 @@ public:
   char *GetClassName() {return "vtkImageScatterPlot";};
   
   // Description:
-  // You can modify the bounds of InRegion and OutRegions, 
+  // You can modify the extent of InRegion and OutRegions, 
   // but you nust get them first.
   vtkImageRegion *GetInRegion(){return &(this->InRegion);};
   vtkImageRegion *GetImageRegion(){return &(this->ImageRegion);};
@@ -80,11 +81,11 @@ public:
 protected:
   float AspectRatio;
   vtkImageRegion InRegion;   // filter is performed over this region.
-  vtkImageRegion ImageRegion;  // Just a way to provide ImageBounds.
+  vtkImageRegion ImageRegion;  // Just a way to provide ImageExtent.
   
   void ComputeOutputImageInformation(vtkImageRegion *inRegion,
 				     vtkImageRegion *outRegion);
-  void ComputeRequiredInputRegionBounds(vtkImageRegion *outRegion, 
+  void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion, 
 					vtkImageRegion *inRegion);
 
   void UpdateRegion(vtkImageRegion *outRegion);

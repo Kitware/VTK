@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -82,12 +83,12 @@ vtkImageNonMaximalSuppression3d::SetAxes3d(int axis0,int axis1,int axis2)
 void vtkImageNonMaximalSuppression3d::InterceptCacheUpdate(
 						 vtkImageRegion *region)
 {
-  int bounds[8];
+  int extent[8];
   
-  region->GetBounds4d(bounds);
-  bounds[6] = 0;
-  bounds[7] = 3;
-  region->SetBounds4d(bounds);
+  region->GetExtent4d(extent);
+  extent[6] = 0;
+  extent[7] = 3;
+  region->SetExtent4d(extent);
 }
 
 
@@ -124,11 +125,11 @@ void vtkImageNonMaximalSuppression3d::ExecuteCenter4d(
   // Get information to march through data
   inRegion->GetIncrements4d(inInc0, inInc1, inInc2, inInc3); 
   outRegion->GetIncrements4d(outInc0, outInc1, outInc2, outInc3); 
-  outRegion->GetBounds3d(outMin0, outMax0, outMin1, outMax1, outMin2, outMax2);
+  outRegion->GetExtent3d(outMin0, outMax0, outMin1, outMax1, outMin2, outMax2);
   
   // We want the input pixel to correspond to output
-  inPtr2 = (float *)(inRegion->GetVoidPointer4d(outMin0, outMin1, outMin2, 0));
-  outPtr2 = (float *)(outRegion->GetVoidPointer4d());
+  inPtr2 = (float *)(inRegion->GetScalarPointer4d(outMin0, outMin1, outMin2, 0));
+  outPtr2 = (float *)(outRegion->GetScalarPointer4d());
 
   // loop through pixels of output
   for (outIdx2 = outMin2; outIdx2 <= outMax2; ++outIdx2)
@@ -248,15 +249,15 @@ void vtkImageNonMaximalSuppression3d::Execute4d(vtkImageRegion *inRegion,
   // Get information to march through data
   inRegion->GetIncrements4d(inInc0, inInc1, inInc2, inInc3); 
   outRegion->GetIncrements4d(outInc0, outInc1, outInc2, outInc3); 
-  outRegion->GetBounds3d(outMin0, outMax0, outMin1, outMax1, outMin2, outMax2);
+  outRegion->GetExtent3d(outMin0, outMax0, outMin1, outMax1, outMin2, outMax2);
   
   // For checking boundary conditions.
-  inRegion->GetImageBounds3d(inImageMin0,inImageMax0, inImageMin1,inImageMax1,
+  inRegion->GetImageExtent3d(inImageMin0,inImageMax0, inImageMin1,inImageMax1,
 			     inImageMin2,inImageMax2);
   
   // We want the input pixel to correspond to output
-  inPtr2 = (float *)(inRegion->GetVoidPointer4d(outMin0, outMin1, outMin2, 0));
-  outPtr2 = (float *)(outRegion->GetVoidPointer4d());
+  inPtr2 = (float *)(inRegion->GetScalarPointer4d(outMin0, outMin1, outMin2, 0));
+  outPtr2 = (float *)(outRegion->GetScalarPointer4d());
   
   // loop through pixels of output
   for (outIdx2 = outMin2; outIdx2 <= outMax2; ++outIdx2)

@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
@@ -71,21 +72,21 @@ public:
   vtkGetObjectMacro(Input,vtkImageSource);
   
   // Description:
-  // Display the wole image or just the region specified by bounds.
+  // Display the wole image or just the region specified by extent.
   vtkSetMacro(WholeImage,int);
   vtkGetMacro(WholeImage,int);
   vtkBooleanMacro(WholeImage,int);
   
   // Description:
   // Messages that get forwarded to this viewers "Region".
-  void SetBounds(int *bounds)
-  {this->Region.SetBounds2d(bounds); this->Modified(); this->WholeImageOff();};
-  void SetBounds(int min0, int max0, int min1, int max1)
-  {this->Region.SetBounds2d(min0,max0, min1,max1); this->Modified();this->WholeImageOff();};
-  int *GetBounds(){return this->Region.GetBounds2d();};
-  void GetBounds(int *bounds){this->Region.GetBounds2d(bounds);};
-  void GetBounds(int &min0,int &max0,int &min1,int &max1)
-  {this->Region.GetBounds2d(min0,max0,min1,max1);};
+  void SetExtent(int *extent)
+  {this->Region.SetExtent2d(extent); this->Modified(); this->WholeImageOff();};
+  void SetExtent(int min0, int max0, int min1, int max1)
+  {this->Region.SetExtent2d(min0,max0, min1,max1); this->Modified();this->WholeImageOff();};
+  int *GetExtent(){return this->Region.GetExtent2d();};
+  void GetExtent(int *extent){this->Region.GetExtent2d(extent);};
+  void GetExtent(int &min0,int &max0,int &min1,int &max1)
+  {this->Region.GetExtent2d(min0,max0,min1,max1);};
 
   // Description:
   // Coordinate2 and Coordiante3 specify which 2d image to show.
@@ -160,7 +161,7 @@ protected:
   
   vtkImageSource *Input;
   int WholeImage;
-  // Contains the bounds of the region to be displayed.
+  // Contains the extent of the region to be displayed.
   vtkImageRegion Region;
   int Coordinate2;
   int Coordinate3;  

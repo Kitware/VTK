@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -65,31 +66,31 @@ void vtkImageShrink3d::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 // Description:
 // This method computes the Region of input necessary to generate outRegion.
-void vtkImageShrink3d::ComputeRequiredInputRegionBounds(
+void vtkImageShrink3d::ComputeRequiredInputRegionExtent(
 					       vtkImageRegion *outRegion,
 					       vtkImageRegion *inRegion)
 {
-  int bounds[6];
+  int extent[6];
   int idx;
   
-  outRegion->GetBounds3d(bounds);
+  outRegion->GetExtent3d(extent);
   
   for (idx = 0; idx < 3; ++idx)
     {
     // For Min.
-    bounds[idx*2] = bounds[idx*2] * this->ShrinkFactors[idx] 
+    extent[idx*2] = extent[idx*2] * this->ShrinkFactors[idx] 
       + this->Shift[idx];
     // For Max.
-    bounds[idx*2+1] = bounds[idx*2+1] * this->ShrinkFactors[idx]
+    extent[idx*2+1] = extent[idx*2+1] * this->ShrinkFactors[idx]
       + this->Shift[idx];
     // If we are averaging, we need a little more
     if (this->Averaging)
       {
-      bounds[idx*2+1] += this->ShrinkFactors[idx] - 1;
+      extent[idx*2+1] += this->ShrinkFactors[idx] - 1;
       }
     }
   
-  inRegion->SetBounds3d(bounds);
+  inRegion->SetExtent3d(extent);
 }
 
 
@@ -101,24 +102,24 @@ void vtkImageShrink3d::ComputeOutputImageInformation(
 		    vtkImageRegion *inRegion, vtkImageRegion *outRegion)
 {
   int idx;
-  int imageBounds[6];
+  int imageExtent[6];
   float aspectRatio[3];
 
-  inRegion->GetImageBounds3d(imageBounds);
+  inRegion->GetImageExtent3d(imageExtent);
   inRegion->GetAspectRatio3d(aspectRatio);
 
   for (idx = 0; idx < 3; ++idx)
     {
-    // Scale the output bounds
-    imageBounds[2*idx] = (imageBounds[2*idx] - this->Shift[idx]) 
+    // Scale the output extent
+    imageExtent[2*idx] = (imageExtent[2*idx] - this->Shift[idx]) 
       / this->ShrinkFactors[idx];
-    imageBounds[2*idx+1] = (imageBounds[2*idx+1] - this->Shift[idx])
+    imageExtent[2*idx+1] = (imageExtent[2*idx+1] - this->Shift[idx])
       / this->ShrinkFactors[idx];
     // Change the aspect ratio.
     aspectRatio[idx] *= (float)(this->ShrinkFactors[idx]);
     }
 
-  outRegion->SetImageBounds3d(imageBounds);
+  outRegion->SetImageExtent3d(imageExtent);
   outRegion->SetAspectRatio3d(aspectRatio);
 }
 
@@ -152,7 +153,7 @@ void vtkImageShrink3dExecute(vtkImageShrink3d *self,
   tmpInc1 = inInc1 * factor1;
   tmpInc2 = inInc2 * factor2;
   outRegion->GetIncrements3d(outInc0, outInc1, outInc2);
-  outRegion->GetBounds3d(min0, max0, min1, max1, min2, max2);
+  outRegion->GetExtent3d(min0, max0, min1, max1, min2, max2);
   norm = 1.0 / (float)(factor0 * factor1 * factor2);
 
   // Loop through ouput pixels
@@ -217,8 +218,8 @@ void vtkImageShrink3dExecute(vtkImageShrink3d *self,
 void vtkImageShrink3d::Execute3d(vtkImageRegion *inRegion, 
 				       vtkImageRegion *outRegion)
 {
-  void *inPtr = inRegion->GetVoidPointer3d();
-  void *outPtr = outRegion->GetVoidPointer3d();
+  void *inPtr = inRegion->GetScalarPointer3d();
+  void *outPtr = outRegion->GetScalarPointer3d();
   
   vtkDebugMacro(<< "Execute3d: inRegion = " << inRegion 
   << ", outRegion = " << outRegion);

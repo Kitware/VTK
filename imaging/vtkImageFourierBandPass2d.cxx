@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -71,13 +72,13 @@ vtkImageFourierBandPass2d::InterceptCacheUpdate(vtkImageRegion *region)
 {
   int min, max;
   
-  region->GetBounds1d(min, max);
+  region->GetExtent1d(min, max);
   if (min < 0 || max > 1)
     {
     vtkErrorMacro(<< "Only two channels to request 0 and 1");
     }
   
-  region->SetBounds1d(0, 1);
+  region->SetExtent1d(0, 1);
 }
 
 
@@ -88,17 +89,17 @@ vtkImageFourierBandPass2d::InterceptCacheUpdate(vtkImageRegion *region)
 void vtkImageFourierBandPass2d::Execute1d(vtkImageRegion *inRegion, 
 						vtkImageRegion *outRegion)
 {
-  float *inPtr = (float *)(inRegion->GetVoidPointer1d());
-  float *outPtr = (float *)(outRegion->GetVoidPointer1d());
-  int *bounds, *imageBounds;
+  float *inPtr = (float *)(inRegion->GetScalarPointer1d());
+  float *outPtr = (float *)(outRegion->GetScalarPointer1d());
+  int *extent, *imageExtent;
   int inInc;
   int outInc;
   float temp, mid;
   float freq;  // pseudo frequency.
   
   // Make sure we have real and imaginary components.
-  bounds = inRegion->GetBounds();
-  if (bounds[0] != 0 || bounds[1] != 1)
+  extent = inRegion->GetExtent();
+  if (extent[0] != 0 || extent[1] != 1)
     {
     vtkErrorMacro(<< "Execute1d: Components mismatch");
     return;
@@ -112,22 +113,22 @@ void vtkImageFourierBandPass2d::Execute1d(vtkImageRegion *inRegion,
     return;
     }
 
-  imageBounds = inRegion->GetImageBounds();
+  imageExtent = inRegion->GetImageExtent();
   freq = 0;
-  mid = (float)(imageBounds[3]) / 2.0;
-  temp = (float)(imageBounds[2]);
+  mid = (float)(imageExtent[3]) / 2.0;
+  temp = (float)(imageExtent[2]);
   if (temp > mid)
     {
-    temp = (float)(bounds[2]) - temp;
+    temp = (float)(extent[2]) - temp;
     }
   temp = temp / mid;
   freq += temp * temp;
 
-  mid = (float)(imageBounds[5]) / 2.0;
-  temp = (float)(bounds[4]);
+  mid = (float)(imageExtent[5]) / 2.0;
+  temp = (float)(extent[4]);
   if (temp > mid)
     {
-    temp = (float)(imageBounds[5]) - temp;
+    temp = (float)(imageExtent[5]) - temp;
     }
   temp = temp / mid;
   freq += temp * temp;

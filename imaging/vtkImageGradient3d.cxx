@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -90,43 +91,43 @@ void vtkImageGradient3d::SetAxes3d(int axis0, int axis1, int axis2)
 // All components will be generated.
 void vtkImageGradient3d::InterceptCacheUpdate(vtkImageRegion *region)
 {
-  int bounds[8];
+  int extent[8];
   
-  region->GetBounds4d(bounds);
-  bounds[6] = 0;
-  bounds[7] = 3;
-  region->SetBounds4d(bounds);
+  region->GetExtent4d(extent);
+  extent[6] = 0;
+  extent[7] = 3;
+  region->SetExtent4d(extent);
 }
 
 
 
 //----------------------------------------------------------------------------
 // Description:
-// This method is passed a region that holds the image bounds of this filters
-// input, and changes the region to hold the image bounds of this filters
+// This method is passed a region that holds the image extent of this filters
+// input, and changes the region to hold the image extent of this filters
 // output.
 void vtkImageGradient3d::ComputeOutputImageInformation(
 		    vtkImageRegion *inRegion, vtkImageRegion *outRegion)
 {
-  int bounds[8];
+  int extent[8];
   int idx;
 
-  inRegion->GetImageBounds4d(bounds);
+  inRegion->GetImageExtent4d(extent);
   if ( ! this->HandleBoundaries)
     {
-    // shrink output image bounds.
+    // shrink output image extent.
     for (idx = 0; idx < 4; ++idx)
       {
-      bounds[idx*2] += this->KernelMiddle[idx];
-      bounds[idx*2+1] -= (this->KernelSize[idx] - 1) - this->KernelMiddle[idx];
+      extent[idx*2] += this->KernelMiddle[idx];
+      extent[idx*2+1] -= (this->KernelSize[idx] - 1) - this->KernelMiddle[idx];
       }
     }
   
   // from 0 to 3 components
-  bounds[6] = 0;
-  bounds[7] = 3;
+  extent[6] = 0;
+  extent[7] = 3;
 
-  outRegion->SetImageBounds4d(bounds);
+  outRegion->SetImageExtent4d(extent);
 }
 
 
@@ -135,7 +136,7 @@ void vtkImageGradient3d::ComputeOutputImageInformation(
 // Description:
 // This execute method handles boundaries.
 // it handles boundaries. Pixels are just replicated to get values 
-// out of bounds.
+// out of extent.
 template <class T>
 void vtkImageGradient4dExecute(vtkImageGradient3d *self,
 				     vtkImageRegion *inRegion, T *inPtr, 
@@ -156,16 +157,16 @@ void vtkImageGradient4dExecute(vtkImageGradient3d *self,
   
   self = self;
   // Get boundary information
-  inRegion->GetImageBounds3d(inImageMin0,inImageMax0, inImageMin1,inImageMax1,
+  inRegion->GetImageExtent3d(inImageMin0,inImageMax0, inImageMin1,inImageMax1,
 			     inImageMin2,inImageMax2);
   
   // Get information to march through data
   inRegion->GetIncrements3d(inInc0, inInc1, inInc2); 
   outRegion->GetIncrements4d(outInc0, outInc1, outInc2, outInc3); 
-  outRegion->GetBounds3d(outMin0, outMax0, outMin1, outMax1, outMin2, outMax2);
+  outRegion->GetExtent3d(outMin0, outMax0, outMin1, outMax1, outMin2, outMax2);
   
   // We want the input pixel to correspond to output
-  inPtr = (T *)(inRegion->GetVoidPointer3d(outMin0, outMin1, outMin2));
+  inPtr = (T *)(inRegion->GetScalarPointer3d(outMin0, outMin1, outMin2));
 
   // The aspect ratio is important for computing the gradient.
   inRegion->GetAspectRatio3d(r0, r1, r2);
@@ -187,7 +188,7 @@ void vtkImageGradient4dExecute(vtkImageGradient3d *self,
       for (outIdx0 = outMin0; outIdx0 <= outMax0; ++outIdx0)
 	{
 	
-	// Compute gradient using central differences (if in bounds).
+	// Compute gradient using central differences (if in extent).
 	d0 = ((outIdx0 + 1) > inImageMax0) ? *inPtr0 : inPtr0[inInc0];
 	d1 = ((outIdx1 + 1) > inImageMax1) ? *inPtr0 : inPtr0[inInc1];
 	d2 = ((outIdx2 + 1) > inImageMax1) ? *inPtr0 : inPtr0[inInc2];
@@ -231,8 +232,8 @@ void vtkImageGradient4dExecute(vtkImageGradient3d *self,
 void vtkImageGradient3d::Execute4d(vtkImageRegion *inRegion, 
 					 vtkImageRegion *outRegion)
 {
-  void *inPtr = inRegion->GetVoidPointer4d();
-  void *outPtr = outRegion->GetVoidPointer4d();
+  void *inPtr = inRegion->GetScalarPointer4d();
+  void *outPtr = outRegion->GetScalarPointer4d();
   
   // this filter expects that output is type float.
   if (outRegion->GetDataType() != VTK_IMAGE_FLOAT)

@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -61,23 +62,23 @@ void vtkImageDistance1d::InterceptCacheUpdate(vtkImageRegion *region)
     }
 
   this->Input->UpdateImageInformation(region);
-  region->GetImageBounds1d(min, max);
-  region->SetBounds1d(min, max);
+  region->GetImageExtent1d(min, max);
+  region->SetExtent1d(min, max);
 }
 
 //----------------------------------------------------------------------------
 // Description:
 // This method tells the superclass that the whole input array is needed
 // to compute any output region.
-void vtkImageDistance1d::ComputeRequiredInputRegionBounds(
+void vtkImageDistance1d::ComputeRequiredInputRegionExtent(
 		   vtkImageRegion *outRegion, vtkImageRegion *inRegion)
 {
-  int bounds[2];
+  int extent[2];
 
   // Avoid a warning message.
   outRegion = outRegion;
-  inRegion->GetImageBounds1d(bounds);
-  inRegion->SetBounds1d(bounds);
+  inRegion->GetImageExtent1d(extent);
+  inRegion->SetExtent1d(extent);
 }
 
 
@@ -109,14 +110,14 @@ void vtkImageDistance1d::Execute1d(vtkImageRegion *inRegion,
     }
 
 
-  outRegion->GetBounds1d(min, max);
+  outRegion->GetExtent1d(min, max);
   outRegion->GetIncrements1d(outInc);
   inRegion->GetIncrements1d(inInc);
   
   // Forward pass
   dist = 255;
-  inPtr = (unsigned char *)(inRegion->GetVoidPointer1d());
-  outPtr = (unsigned char *)(outRegion->GetVoidPointer1d());
+  inPtr = (unsigned char *)(inRegion->GetScalarPointer1d());
+  outPtr = (unsigned char *)(outRegion->GetScalarPointer1d());
   for (idx = min; idx <= max; ++idx)
     {
     if (dist > *inPtr)

@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -78,8 +79,8 @@ void vtkImageFft1d::SetAxes1d(int axis)
 
 //----------------------------------------------------------------------------
 // Description:
-// This method is passed a region that holds the image bounds of this filters
-// input, and changes the region to hold the image bounds of this filters
+// This method is passed a region that holds the image extent of this filters
+// input, and changes the region to hold the image extent of this filters
 // output.  The image changes to multispectral.
 void 
 vtkImageFft1d::ComputeOutputImageInformation(vtkImageRegion *inRegion,
@@ -87,14 +88,14 @@ vtkImageFft1d::ComputeOutputImageInformation(vtkImageRegion *inRegion,
 {
   int min, max;
 
-  // shrink output image bounds.
-  inRegion->GetImageBounds1d(min, max);
+  // shrink output image extent.
+  inRegion->GetImageExtent1d(min, max);
   // We could check to see if the input actually contains specified real and
   // imaginary components.
   // Output components are always 0, and 1.
   min = 0;
   max = 1;
-  outRegion->SetImageBounds1d(min, max);
+  outRegion->SetImageExtent1d(min, max);
 }
 
 //----------------------------------------------------------------------------
@@ -105,28 +106,28 @@ void vtkImageFft1d::InterceptCacheUpdate(vtkImageRegion *region)
 {
   int min, max;
   
-  region->GetBounds1d(min, max);
+  region->GetExtent1d(min, max);
   if (min < 0 || max > 1)
     {
     vtkErrorMacro(<< "Only two channels to request 0 and 1");
     }
   
-  region->SetBounds1d(0, 1);
+  region->SetExtent1d(0, 1);
 }
 
 //----------------------------------------------------------------------------
 // Description:
 // This method tells the superclass that the whole input array is needed
 // to compute any output region.
-void vtkImageFft1d::ComputeRequiredInputRegionBounds(
+void vtkImageFft1d::ComputeRequiredInputRegionExtent(
 		   vtkImageRegion *outRegion, vtkImageRegion *inRegion)
 {
-  int bounds[4];
+  int extent[4];
   int min, max;
 
   // Avoid a warning message.
   outRegion = outRegion;
-  // compute the smallest bounds that contains both real and imaginary 
+  // compute the smallest extent that contains both real and imaginary 
   // components.
   if (this->InputRealComponent < this->InputImaginaryComponent)
     {
@@ -139,25 +140,25 @@ void vtkImageFft1d::ComputeRequiredInputRegionBounds(
     max = this->InputRealComponent;
     }
 
-  // Eliminate a component if it is not contained in the image bounds.
-  inRegion->GetImageBounds2d(bounds);
-  if (min < bounds[0])
+  // Eliminate a component if it is not contained in the image extent.
+  inRegion->GetImageExtent2d(extent);
+  if (min < extent[0])
     {
     min = max;
     }
-  if (max > bounds[1])
+  if (max > extent[1])
     {
     max = min;
     }
-  if (max > bounds[1])
+  if (max > extent[1])
     {
-    vtkErrorMacro(<< "Both real and imaginary components are out of bounds.");
+    vtkErrorMacro(<< "Both real and imaginary components are out of extent.");
     return;
     }
 
-  bounds[0] = min;
-  bounds[1] = max;
-  inRegion->SetBounds2d(bounds);
+  extent[0] = min;
+  extent[1] = max;
+  inRegion->SetExtent2d(extent);
 }
 
 //----------------------------------------------------------------------------
@@ -185,7 +186,7 @@ void vtkImageFft1dExecute2d(vtkImageFft1d *self,
   inPtr = inPtr;
   // Get information to march through data 
   inRegion->GetIncrements2d(inInc0, inInc1);
-  inRegion->GetBounds2d(inMin0, inMax0, inMin1, inMax1);
+  inRegion->GetExtent2d(inMin0, inMax0, inMin1, inMax1);
   inSize1 = inMax1 - inMin1 + 1;
   
   // Allocate the arrays of complex numbers
@@ -203,7 +204,7 @@ void vtkImageFft1dExecute2d(vtkImageFft1d *self,
     }
   else
     {
-    inPtrReal = (T *)(inRegion->GetVoidPointer2d(realComp,inMin1));
+    inPtrReal = (T *)(inRegion->GetScalarPointer2d(realComp,inMin1));
     }
   if (imagComp > inMax0 || imagComp < inMin0)
     {
@@ -211,7 +212,7 @@ void vtkImageFft1dExecute2d(vtkImageFft1d *self,
     }
   else
     {
-    inPtrImag = (T *)(inRegion->GetVoidPointer2d(imagComp,inMin1));
+    inPtrImag = (T *)(inRegion->GetScalarPointer2d(imagComp,inMin1));
     }
   pComplex = inComplex;
   // Loop and copy
@@ -243,7 +244,7 @@ void vtkImageFft1dExecute2d(vtkImageFft1d *self,
   
   // Get information to loop through output region.
   outRegion->GetIncrements2d(outInc0, outInc1);
-  outRegion->GetBounds2d(outMin0, outMax0, outMin1, outMax1);
+  outRegion->GetExtent2d(outMin0, outMax0, outMin1, outMax1);
   
   // Copy the complex numbers into the output
   pComplex = outComplex + (outMin1 - inMin1);
@@ -274,8 +275,8 @@ void vtkImageFft1d::Execute2d(vtkImageRegion *inRegion,
 {
   void *inPtr, *outPtr;
 
-  inPtr = inRegion->GetVoidPointer1d();
-  outPtr = outRegion->GetVoidPointer1d();
+  inPtr = inRegion->GetScalarPointer1d();
+  outPtr = outRegion->GetScalarPointer1d();
 
   vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
 		<< ", outRegion = " << outRegion);

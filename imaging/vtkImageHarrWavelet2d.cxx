@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -59,7 +60,7 @@ vtkImageHarrWavelet2d::vtkImageHarrWavelet2d()
 // The whole image is generated when any region is requested.
 void vtkImageHarrWavelet2d::InterceptCacheUpdate(vtkImageRegion *region)
 {
-  int bounds[4];
+  int extent[4];
 
   if ( ! this->Input)
     {
@@ -68,8 +69,8 @@ void vtkImageHarrWavelet2d::InterceptCacheUpdate(vtkImageRegion *region)
     }
   
   this->Input->UpdateImageInformation(region);
-  region->GetImageBounds2d(bounds);
-  region->SetBounds2d(bounds);
+  region->GetImageExtent2d(extent);
+  region->SetExtent2d(extent);
 }
 
 
@@ -141,7 +142,7 @@ void vtkImageHarrWavelet2dExecute(vtkImageHarrWavelet2d *self,
 // Description:
 // This method uses the input region to fill the output region.
 // It can handle any type data, but the two regions must have the same 
-// data type.  Assumes that in and out have the same lower bounds.
+// data type.  Assumes that in and out have the same lower extent.
 void vtkImageHarrWavelet2d::Execute2d(vtkImageRegion *inRegion, 
 				    vtkImageRegion *outRegion)
 {
@@ -163,8 +164,8 @@ void vtkImageHarrWavelet2d::Execute2d(vtkImageRegion *inRegion,
     return;
     }
 
-  // assumes that in and out have the same bounds
-  inRegion->GetBounds2d(outMin0, outMax0, outMin1, outMax1);
+  // assumes that in and out have the same extent
+  inRegion->GetExtent2d(outMin0, outMax0, outMin1, outMax1);
   qSize0 = (outMax0 - outMin0 + 1);
   qSize1 = (outMax1 - outMin1 + 1);
   
@@ -174,8 +175,8 @@ void vtkImageHarrWavelet2d::Execute2d(vtkImageRegion *inRegion,
     qSize0 /= 2;
     qSize1 /= 2;
     
-    inPtr = inRegion->GetVoidPointer2d();
-    outPtr = outRegion->GetVoidPointer2d();
+    inPtr = inRegion->GetScalarPointer2d();
+    outPtr = outRegion->GetScalarPointer2d();
 
     switch (inRegion->GetDataType())
       {
@@ -220,11 +221,11 @@ void vtkImageHarrWavelet2d::Execute2d(vtkImageRegion *inRegion,
 	tempRegion = new vtkImageRegion;
 	tempRegion->SetDataType(outRegion->GetDataType());
 	// A sore point with me (default coordinates !!!)
-	tempRegion->SetBounds(outRegion->GetBounds());
+	tempRegion->SetExtent(outRegion->GetExtent());
 	}
       else
 	{
-	tempRegion->SetBounds2d(outMin0, outMax0, outMin1, outMax1);
+	tempRegion->SetExtent2d(outMin0, outMax0, outMin1, outMax1);
 	}
       tempRegion->CopyRegionData(outRegion);
       inRegion = tempRegion;

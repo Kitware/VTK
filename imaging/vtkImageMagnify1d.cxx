@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -57,31 +58,31 @@ vtkImageMagnify1d::vtkImageMagnify1d()
 // Description:
 // This method computes the Region of input necessary to generate outRegion.
 // It assumes offset and size are multiples of Magnify Factors.
-void vtkImageMagnify1d::ComputeRequiredInputRegionBounds(
+void vtkImageMagnify1d::ComputeRequiredInputRegionExtent(
 					       vtkImageRegion *outRegion,
 					       vtkImageRegion *inRegion)
 {
-  int bounds[2];
+  int extent[2];
   
-  outRegion->GetBounds1d(bounds);
+  outRegion->GetExtent1d(extent);
   
   // For Min. Round Down
-  bounds[0] = 
-    (int)(floor((float)(bounds[0]) / (float)(this->MagnificationFactor)));
+  extent[0] = 
+    (int)(floor((float)(extent[0]) / (float)(this->MagnificationFactor)));
   
   if (this->Interpolate)
     {
     // Round Up
-    bounds[1] = 
-      (int)(ceil((float)(bounds[1]) / (float)(this->MagnificationFactor)));
+    extent[1] = 
+      (int)(ceil((float)(extent[1]) / (float)(this->MagnificationFactor)));
     }
   else
     {
-    bounds[1] =
-      (int)(floor((float)(bounds[1]) / (float)(this->MagnificationFactor)));
+    extent[1] =
+      (int)(floor((float)(extent[1]) / (float)(this->MagnificationFactor)));
     }
   
-  inRegion->SetBounds1d(bounds);
+  inRegion->SetExtent1d(extent);
 }
 
 
@@ -91,27 +92,27 @@ void vtkImageMagnify1d::ComputeRequiredInputRegionBounds(
 void vtkImageMagnify1d::ComputeOutputImageInformation(
 		    vtkImageRegion *inRegion, vtkImageRegion *outRegion)
 {
-  int imageBounds[2];
+  int imageExtent[2];
   float aspectRatio;
 
-  inRegion->GetImageBounds1d(imageBounds);
+  inRegion->GetImageExtent1d(imageExtent);
   inRegion->GetAspectRatio1d(aspectRatio);
 
-  // Scale the output bounds
-  imageBounds[0] *= this->MagnificationFactor;
+  // Scale the output extent
+  imageExtent[0] *= this->MagnificationFactor;
   if (this->Interpolate)
     {
-    imageBounds[1] *= this->MagnificationFactor;
+    imageExtent[1] *= this->MagnificationFactor;
     }
   else
     {
-    imageBounds[1] = (imageBounds[1]+1) * this->MagnificationFactor - 1;
+    imageExtent[1] = (imageExtent[1]+1) * this->MagnificationFactor - 1;
     }
   
   // Change the aspect ratio.
   aspectRatio /= (float)(this->MagnificationFactor);
 
-  outRegion->SetImageBounds1d(imageBounds);
+  outRegion->SetImageExtent1d(imageExtent);
   outRegion->SetAspectRatio1d(aspectRatio);
 }
 
@@ -136,8 +137,8 @@ void vtkImageMagnify1dExecute(vtkImageMagnify1d *self,
   // Get information to march through data 
   inRegion->GetIncrements2d(inInc0, inInc1);
   outRegion->GetIncrements2d(outInc0, outInc1);
-  inRegion->GetBounds1d(inMin0, inMax0);
-  outRegion->GetBounds2d(outMin0, outMax0, outMin1, outMax1);
+  inRegion->GetExtent1d(inMin0, inMax0);
+  outRegion->GetExtent2d(outMin0, outMax0, outMin1, outMax1);
 
   // Compute interpolation stuff
   interpolate = self->GetInterpolate();
@@ -202,8 +203,8 @@ void vtkImageMagnify1dExecute(vtkImageMagnify1d *self,
 void vtkImageMagnify1d::Execute2d(vtkImageRegion *inRegion, 
 					vtkImageRegion *outRegion)
 {
-  void *inPtr = inRegion->GetVoidPointer2d();
-  void *outPtr = outRegion->GetVoidPointer2d();
+  void *inPtr = inRegion->GetScalarPointer2d();
+  void *outPtr = outRegion->GetScalarPointer2d();
   
   vtkDebugMacro(<< "Execute2d: inRegion = " << inRegion 
 		<< ", outRegion = " << outRegion);

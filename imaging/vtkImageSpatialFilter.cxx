@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -81,29 +82,29 @@ void vtkImageSpatialFilter::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // Description:
-// This method is passed a region that holds the image bounds of this filters
-// input, and changes the region to hold the image bounds of this filters
+// This method is passed a region that holds the image extent of this filters
+// input, and changes the region to hold the image extent of this filters
 // output.
 void vtkImageSpatialFilter::ComputeOutputImageInformation(
 		    vtkImageRegion *inRegion, vtkImageRegion *outRegion)
 {
-  int bounds[8];
+  int extent[8];
   int idx;
 
   if (this->HandleBoundaries)
     {
-    // Output image bounds same as input region bounds
+    // Output image extent same as input region extent
     return;
     }
   
-  // shrink output image bounds.
-  inRegion->GetImageBounds4d(bounds);
+  // shrink output image extent.
+  inRegion->GetImageExtent4d(extent);
   for (idx = 0; idx < 4; ++idx)
     {
-    bounds[idx*2] += this->KernelMiddle[idx];
-    bounds[idx*2 + 1] -= (this->KernelSize[idx] - 1) - this->KernelMiddle[idx];
+    extent[idx*2] += this->KernelMiddle[idx];
+    extent[idx*2 + 1] -= (this->KernelSize[idx] - 1) - this->KernelMiddle[idx];
     }
-  outRegion->SetImageBounds4d(bounds);
+  outRegion->SetImageExtent4d(extent);
 }
 
 
@@ -112,55 +113,55 @@ void vtkImageSpatialFilter::ComputeOutputImageInformation(
 
 //----------------------------------------------------------------------------
 // Description:
-// This method computes the bounds of the input region necessary to generate
+// This method computes the extent of the input region necessary to generate
 // an output region.  Before this method is called "region" should have the 
-// bounds of the output region.  After this method finishes, "region" should 
-// have the bounds of the required input region.
-void vtkImageSpatialFilter::ComputeRequiredInputRegionBounds(
+// extent of the output region.  After this method finishes, "region" should 
+// have the extent of the required input region.
+void vtkImageSpatialFilter::ComputeRequiredInputRegionExtent(
                                                     vtkImageRegion *outRegion, 
 			                            vtkImageRegion *inRegion)
 {
-  int bounds[8];
-  int imageBounds[8];
+  int extent[8];
+  int imageExtent[8];
   int idx;
   
-  outRegion->GetBounds4d(bounds);
-  inRegion->GetImageBounds4d(imageBounds);
+  outRegion->GetExtent4d(extent);
+  inRegion->GetImageExtent4d(imageExtent);
 
   for (idx = 0; idx < 4; ++idx)
     {
-    // Expand to get inRegion Bounds
-    bounds[idx*2] -= this->KernelMiddle[idx];
-    bounds[idx*2 + 1] += (this->KernelSize[idx] - 1) - this->KernelMiddle[idx];
+    // Expand to get inRegion Extent
+    extent[idx*2] -= this->KernelMiddle[idx];
+    extent[idx*2 + 1] += (this->KernelSize[idx] - 1) - this->KernelMiddle[idx];
 
-    // If the expanded region is out of the IMAGE Bounds (grow min)
-    if (bounds[idx*2] < imageBounds[idx*2])
+    // If the expanded region is out of the IMAGE Extent (grow min)
+    if (extent[idx*2] < imageExtent[idx*2])
       {
       if (this->HandleBoundaries)
 	{
-	// shrink the required region bounds
-	bounds[idx*2] = imageBounds[idx*2];
+	// shrink the required region extent
+	extent[idx*2] = imageExtent[idx*2];
 	}
       else
 	{
-	vtkWarningMacro(<< "Required region is out of the image bounds.");
+	vtkWarningMacro(<< "Required region is out of the image extent.");
 	}
       }
-    // If the expanded region is out of the IMAGE Bounds (shrink max)      
-    if (bounds[idx*2+1] > imageBounds[idx*2+1])
+    // If the expanded region is out of the IMAGE Extent (shrink max)      
+    if (extent[idx*2+1] > imageExtent[idx*2+1])
       {
       if (this->HandleBoundaries)
 	{
-	// shrink the required region bounds
-	bounds[idx*2+1] = imageBounds[idx*2+1];
+	// shrink the required region extent
+	extent[idx*2+1] = imageExtent[idx*2+1];
 	}
       else
 	{
-	vtkWarningMacro(<< "Required region is out of the image bounds.");
+	vtkWarningMacro(<< "Required region is out of the image extent.");
 	}
       }
     }
-  inRegion->SetBounds4d(bounds);
+  inRegion->SetExtent4d(extent);
 }
 
 
@@ -174,11 +175,11 @@ void vtkImageSpatialFilter::Execute4d(vtkImageRegion *inRegion,
 				      vtkImageRegion *outRegion)
 {
   int idx, idx2;
-  int bounds[8];
-  int outImageBounds[8];
-  int outCenterBounds[8];
-  int inBoundsSave[8];
-  int outBoundsSave[8];
+  int extent[8];
+  int outImageExtent[8];
+  int outCenterExtent[8];
+  int inExtentSave[8];
+  int outExtentSave[8];
   
   // If a separate center method does not exist, don't bother splitting
   if ( ! this->UseExecuteCenter)
@@ -187,43 +188,43 @@ void vtkImageSpatialFilter::Execute4d(vtkImageRegion *inRegion,
     return;
     }
   
-  // Save the bounds of the two regions
-  inRegion->GetBounds4d(inBoundsSave);
-  outRegion->GetBounds4d(outBoundsSave);
+  // Save the extent of the two regions
+  inRegion->GetExtent4d(inExtentSave);
+  outRegion->GetExtent4d(outExtentSave);
   
-  // Compute the image bounds of the output region (no boundary handling)
-  inRegion->GetImageBounds4d(outImageBounds);
+  // Compute the image extent of the output region (no boundary handling)
+  inRegion->GetImageExtent4d(outImageExtent);
   for (idx = 0; idx < 4; ++idx)
     {
-    outImageBounds[idx*2] += this->KernelMiddle[idx];
-    outImageBounds[idx*2+1] -= (this->KernelSize[idx]-1)
+    outImageExtent[idx*2] += this->KernelMiddle[idx];
+    outImageExtent[idx*2+1] -= (this->KernelSize[idx]-1)
       - this->KernelMiddle[idx];
     
     // In case the image is so small, it is all boundary conditions.
-    if (outImageBounds[idx*2] > outImageBounds[idx*2+1])
+    if (outImageExtent[idx*2] > outImageExtent[idx*2+1])
       {
-      outImageBounds[idx*2] =(outImageBounds[idx*2]+outImageBounds[idx*2+1])/2;
-      outImageBounds[idx*2+1] = outImageBounds[idx*2]-1;
+      outImageExtent[idx*2] =(outImageExtent[idx*2]+outImageExtent[idx*2+1])/2;
+      outImageExtent[idx*2+1] = outImageExtent[idx*2]-1;
       }
     }
 
   // Compute the out region that does not need boundary handling.
-  outRegion->GetBounds4d(outCenterBounds);
+  outRegion->GetExtent4d(outCenterExtent);
   for (idx = 0; idx < 4; ++idx)
     {
     // Intersection
-    if (outCenterBounds[idx*2] < outImageBounds[idx*2])
+    if (outCenterExtent[idx*2] < outImageExtent[idx*2])
       {
-      outCenterBounds[idx*2] = outImageBounds[idx*2];
+      outCenterExtent[idx*2] = outImageExtent[idx*2];
       }
-    if (outCenterBounds[idx*2+1] > outImageBounds[idx*2+1])
+    if (outCenterExtent[idx*2+1] > outImageExtent[idx*2+1])
       {
-      outCenterBounds[idx*2+1] = outImageBounds[idx*2+1];
+      outCenterExtent[idx*2+1] = outImageExtent[idx*2+1];
       }
     }
   // Call center execute
-  outRegion->SetBounds4d(outCenterBounds);
-  this->ComputeRequiredInputRegionBounds(outRegion, inRegion);
+  outRegion->SetExtent4d(outCenterExtent);
+  this->ComputeRequiredInputRegionExtent(outRegion, inRegion);
   // Just in cass the image is so small there is no center.
   if (outRegion->GetVolume() > 0)
     {
@@ -237,39 +238,39 @@ void vtkImageSpatialFilter::Execute4d(vtkImageRegion *inRegion,
     for (idx = 0; idx < 4; ++idx)
       {
       // for piece left of min
-      if (outBoundsSave[idx*2] < outCenterBounds[idx*2])
+      if (outExtentSave[idx*2] < outCenterExtent[idx*2])
 	{
 	for (idx2 = 0; idx2 < 8; ++idx2)
 	  {
-	  bounds[idx2] = outCenterBounds[idx2];
+	  extent[idx2] = outCenterExtent[idx2];
 	  }
-	bounds[idx*2] = outBoundsSave[idx*2];
-	bounds[idx*2+1] = outCenterBounds[idx*2];
-	outRegion->SetBounds4d(bounds);
-	this->ComputeRequiredInputRegionBounds(outRegion, inRegion);
+	extent[idx*2] = outExtentSave[idx*2];
+	extent[idx*2+1] = outCenterExtent[idx*2];
+	outRegion->SetExtent4d(extent);
+	this->ComputeRequiredInputRegionExtent(outRegion, inRegion);
 	this->vtkImageFilter::Execute4d(inRegion, outRegion);
-	outCenterBounds[idx*2] = outBoundsSave[idx*2];
+	outCenterExtent[idx*2] = outExtentSave[idx*2];
 	}
       // for piece right of max
-      if (outBoundsSave[idx*2+1] > outCenterBounds[idx*2+1])
+      if (outExtentSave[idx*2+1] > outCenterExtent[idx*2+1])
 	{
 	for (idx2 = 0; idx2 < 8; ++idx2)
 	  {
-	  bounds[idx2] = outCenterBounds[idx2];
+	  extent[idx2] = outCenterExtent[idx2];
 	  }
-	bounds[idx*2] = outCenterBounds[idx*2+1];
-	bounds[idx*2+1] = outBoundsSave[idx*2+1];
-	outRegion->SetBounds4d(bounds);
-	this->ComputeRequiredInputRegionBounds(outRegion, inRegion);
+	extent[idx*2] = outCenterExtent[idx*2+1];
+	extent[idx*2+1] = outExtentSave[idx*2+1];
+	outRegion->SetExtent4d(extent);
+	this->ComputeRequiredInputRegionExtent(outRegion, inRegion);
 	this->vtkImageFilter::Execute4d(inRegion, outRegion);
-	outCenterBounds[idx*2+1] = outBoundsSave[idx*2+1];
+	outCenterExtent[idx*2+1] = outExtentSave[idx*2+1];
 	}
       }
     }
   
-  // Restore original bounds just in case
-  outRegion->SetBounds4d(outBoundsSave);
-  inRegion->SetBounds4d(inBoundsSave);
+  // Restore original extent just in case
+  outRegion->SetExtent4d(outExtentSave);
+  inRegion->SetExtent4d(inExtentSave);
 }
 
 
@@ -282,16 +283,16 @@ void vtkImageSpatialFilter::ExecuteCenter4d(vtkImageRegion *inRegion,
 					    vtkImageRegion *outRegion)
 {
   int coordinate3, min3, max3;
-  int inBounds[8], outBounds[8];
+  int inExtent[8], outExtent[8];
   
-  // Get the bounds of the third dimension to be eliminated.
-  inRegion->GetBounds4d(inBounds);
-  outRegion->GetBounds4d(outBounds);
+  // Get the extent of the third dimension to be eliminated.
+  inRegion->GetExtent4d(inExtent);
+  outRegion->GetExtent4d(outExtent);
 
-  // This method assumes that the third axis of in and out have same bounds.
-  min3 = inBounds[6];
-  max3 = inBounds[7];
-  if (min3 != outBounds[6] || max3 != outBounds[7]) 
+  // This method assumes that the third axis of in and out have same extent.
+  min3 = inExtent[6];
+  max3 = inExtent[7];
+  if (min3 != outExtent[6] || max3 != outExtent[7]) 
     {
     vtkErrorMacro(<< "ExecuteCenter4d: Cannot break 4d images into volumes.");
     return;
@@ -301,21 +302,21 @@ void vtkImageSpatialFilter::ExecuteCenter4d(vtkImageRegion *inRegion,
   for (coordinate3 = min3; coordinate3 <= max3; ++coordinate3)
     {
     // set up the 3d regions.
-    inBounds[6] = coordinate3;
-    inBounds[7] = coordinate3;
-    inRegion->SetBounds4d(inBounds);
-    outBounds[6] = coordinate3;
-    outBounds[7] = coordinate3;
-    outRegion->SetBounds4d(outBounds);
+    inExtent[6] = coordinate3;
+    inExtent[7] = coordinate3;
+    inRegion->SetExtent4d(inExtent);
+    outExtent[6] = coordinate3;
+    outExtent[7] = coordinate3;
+    outRegion->SetExtent4d(outExtent);
     this->ExecuteCenter3d(inRegion, outRegion);
     }
-  // restore the original bounds
-  inBounds[6] = min3;
-  inBounds[7] = max3;
-  outBounds[6] = min3;
-  outBounds[7] = max3; 
-  inRegion->SetBounds4d(inBounds);
-  outRegion->SetBounds4d(outBounds);
+  // restore the original extent
+  inExtent[6] = min3;
+  inExtent[7] = max3;
+  outExtent[6] = min3;
+  outExtent[7] = max3; 
+  inRegion->SetExtent4d(inExtent);
+  outRegion->SetExtent4d(outExtent);
 }
 
 
@@ -329,16 +330,16 @@ void vtkImageSpatialFilter::ExecuteCenter3d(vtkImageRegion *inRegion,
 					    vtkImageRegion *outRegion)
 {
   int coordinate2, min2, max2;
-  int inBounds[6], outBounds[6];
+  int inExtent[6], outExtent[6];
   
-  // Get the bounds of the third dimension to be eliminated.
-  inRegion->GetBounds3d(inBounds);
-  outRegion->GetBounds3d(outBounds);
+  // Get the extent of the third dimension to be eliminated.
+  inRegion->GetExtent3d(inExtent);
+  outRegion->GetExtent3d(outExtent);
 
-  // This method assumes that the third axis of in and out have same bounds.
-  min2 = inBounds[4];
-  max2 = inBounds[5];
-  if (min2 != outBounds[4] || max2 != outBounds[5]) 
+  // This method assumes that the third axis of in and out have same extent.
+  min2 = inExtent[4];
+  max2 = inExtent[5];
+  if (min2 != outExtent[4] || max2 != outExtent[5]) 
     {
     vtkErrorMacro(<< "ExecuteCenter3d: Cannot break volumes into images.");
     return;
@@ -348,21 +349,21 @@ void vtkImageSpatialFilter::ExecuteCenter3d(vtkImageRegion *inRegion,
   for (coordinate2 = min2; coordinate2 <= max2; ++coordinate2)
     {
     // set up the 2d regions.
-    inBounds[4] = coordinate2;
-    inBounds[5] = coordinate2;
-    inRegion->SetBounds3d(inBounds);
-    outBounds[4] = coordinate2;
-    outBounds[5] = coordinate2;
-    outRegion->SetBounds3d(outBounds);
+    inExtent[4] = coordinate2;
+    inExtent[5] = coordinate2;
+    inRegion->SetExtent3d(inExtent);
+    outExtent[4] = coordinate2;
+    outExtent[5] = coordinate2;
+    outRegion->SetExtent3d(outExtent);
     this->ExecuteCenter2d(inRegion, outRegion);
     }
-  // restore the original bounds
-  inBounds[4] = min2;
-  inBounds[5] = max2;
-  outBounds[4] = min2;
-  outBounds[5] = max2; 
-  inRegion->SetBounds3d(inBounds);
-  outRegion->SetBounds3d(outBounds);
+  // restore the original extent
+  inExtent[4] = min2;
+  inExtent[5] = max2;
+  outExtent[4] = min2;
+  outExtent[5] = max2; 
+  inRegion->SetExtent3d(inExtent);
+  outRegion->SetExtent3d(outExtent);
 }
   
 //----------------------------------------------------------------------------
@@ -374,16 +375,16 @@ void vtkImageSpatialFilter::ExecuteCenter2d(vtkImageRegion *inRegion,
 					    vtkImageRegion *outRegion)
 {
   int coordinate1, min1, max1;
-  int inBounds[4], outBounds[4];
+  int inExtent[4], outExtent[4];
   
-  // Get the bounds of the third dimension to be eliminated.
-  inRegion->GetBounds2d(inBounds);
-  outRegion->GetBounds2d(outBounds);
+  // Get the extent of the third dimension to be eliminated.
+  inRegion->GetExtent2d(inExtent);
+  outRegion->GetExtent2d(outExtent);
 
-  // This method assumes that the second axis of in and out have same bounds.
-  min1 = inBounds[2];
-  max1 = inBounds[3];
-  if (min1 != outBounds[2] || max1 != outBounds[3]) 
+  // This method assumes that the second axis of in and out have same extent.
+  min1 = inExtent[2];
+  max1 = inExtent[3];
+  if (min1 != outExtent[2] || max1 != outExtent[3]) 
     {
     vtkErrorMacro(<< "ExecuteCenter2d: Cannot break images into lines.");
     return;
@@ -393,21 +394,21 @@ void vtkImageSpatialFilter::ExecuteCenter2d(vtkImageRegion *inRegion,
   for (coordinate1 = min1; coordinate1 <= max1; ++coordinate1)
     {
     // set up the 1d regions.
-    inBounds[2] = coordinate1;
-    inBounds[3] = coordinate1;
-    inRegion->SetBounds2d(inBounds);
-    outBounds[2] = coordinate1;
-    outBounds[3] = coordinate1;
-    outRegion->SetBounds2d(outBounds);
+    inExtent[2] = coordinate1;
+    inExtent[3] = coordinate1;
+    inRegion->SetExtent2d(inExtent);
+    outExtent[2] = coordinate1;
+    outExtent[3] = coordinate1;
+    outRegion->SetExtent2d(outExtent);
     this->ExecuteCenter1d(inRegion, outRegion);
     }
-  // restore the original bounds
-  inBounds[2] = min1;
-  inBounds[3] = max1;
-  outBounds[2] = min1;
-  outBounds[3] = max1; 
-  inRegion->SetBounds2d(inBounds);
-  outRegion->SetBounds2d(outBounds);
+  // restore the original extent
+  inExtent[2] = min1;
+  inExtent[3] = max1;
+  outExtent[2] = min1;
+  outExtent[3] = max1; 
+  inRegion->SetExtent2d(inExtent);
+  outRegion->SetExtent2d(outExtent);
 }
  
 //----------------------------------------------------------------------------

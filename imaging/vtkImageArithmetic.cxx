@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -73,7 +74,7 @@ void vtkImageArithmeticExecute2d(vtkImageArithmetic *self,
   in1Region->GetIncrements2d(in1Inc0, in1Inc1);
   in2Region->GetIncrements2d(in2Inc0, in2Inc1);
   outRegion->GetIncrements2d(outInc0, outInc1);
-  outRegion->GetBounds2d(min0, max0, min1, max1);
+  outRegion->GetExtent2d(min0, max0, min1, max1);
 
   // Loop through ouput pixels
   in1Ptr1 = in1Ptr;
@@ -112,9 +113,9 @@ void vtkImageArithmetic::Execute2d(vtkImageRegion *inRegion1,
 					 vtkImageRegion *inRegion2, 
 					 vtkImageRegion *outRegion)
 {
-  void *inPtr1 = inRegion1->GetVoidPointer2d();
-  void *inPtr2 = inRegion2->GetVoidPointer2d();
-  void *outPtr = outRegion->GetVoidPointer2d();
+  void *inPtr1 = inRegion1->GetScalarPointer2d();
+  void *inPtr2 = inRegion2->GetScalarPointer2d();
+  void *outPtr = outRegion->GetScalarPointer2d();
   
   // this filter expects that inputs are the same type as output.
   if (inRegion1->GetDataType() != outRegion->GetDataType() ||

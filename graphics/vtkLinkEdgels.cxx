@@ -6,7 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
@@ -102,7 +101,7 @@ void vtkLinkEdgels::Update()
 void vtkLinkEdgels::Execute()
 {
   vtkImageRegion *region = new vtkImageRegion;
-  int regionBounds[8];
+  int regionExtent[8];
   vtkFloatPoints *newPts=0;
   vtkCellArray *newLines=0;
   vtkFloatScalars *outScalars;
@@ -123,8 +122,8 @@ void vtkLinkEdgels::Execute()
 		    VTK_IMAGE_COMPONENT_AXIS, VTK_IMAGE_Z_AXIS);
   
   // get the input region
-  region->GetImageBounds4d(regionBounds);
-  region->SetBounds4d(regionBounds);
+  region->GetImageExtent4d(regionExtent);
+  region->SetExtent4d(regionExtent);
 
   this->Input->UpdateRegion(region);
 
@@ -143,7 +142,7 @@ void vtkLinkEdgels::Execute()
     
     region = new vtkImageRegion;
     region->SetDataType(VTK_IMAGE_FLOAT);
-    region->SetBounds(temp->GetBounds());
+    region->SetExtent(temp->GetExtent());
     region->CopyRegionData(temp);
     temp->Delete();
     }
@@ -158,19 +157,19 @@ void vtkLinkEdgels::Execute()
   //
   // for each slice link edgels
   //
-  sliceMin = regionBounds[6];
-  sliceMax = regionBounds[7];
+  sliceMin = regionExtent[6];
+  sliceMax = regionExtent[7];
   for (sliceNum = sliceMin; sliceNum <= sliceMax; sliceNum++)
     {
-    // Set bounds to be just one slice.
-    regionBounds[6] = regionBounds[7] = sliceNum;
-    region->SetBounds(regionBounds);
+    // Set extent to be just one slice.
+    regionExtent[6] = regionExtent[7] = sliceNum;
+    region->SetExtent(regionExtent);
     this->LinkEdgels(region, newLines,newPts,outScalars,outVectors, sliceNum);
     }
-  // restore original bounds.
-  regionBounds[6] = sliceMin;
-  regionBounds[7] = sliceMax;
-  region->SetBounds(regionBounds);
+  // restore original extent.
+  regionExtent[6] = sliceMin;
+  regionExtent[7] = sliceMax;
+  region->SetExtent(regionExtent);
   
   
   output->SetPoints(newPts);
@@ -197,9 +196,9 @@ void vtkLinkEdgels::LinkEdgels(vtkImageRegion *region,
 			       vtkFloatVectors *outVectors,
 			       int z)
 {
-  int *bounds = region->GetBounds2d();
-  int xdim = bounds[1] - bounds[0] + 1;
-  int ydim = bounds[3] - bounds[2] + 1;
+  int *extent = region->GetExtent2d();
+  int xdim = extent[1] - extent[0] + 1;
+  int ydim = extent[3] - extent[2] + 1;
   int **forward;
   int **backward;
   int x,y,ypos,zpos;
@@ -237,7 +236,7 @@ void vtkLinkEdgels::LinkEdgels(vtkImageRegion *region,
   linkThresh = cos(this->LinkThreshold*3.1415926/180.0);
   phiThresh = cos(this->PhiThreshold*3.1415926/180.0);
 
-  imgPtrY = (float *)region->GetVoidPointer3d();
+  imgPtrY = (float *)region->GetScalarPointer3d();
   region->GetIncrements3d(imgIncX,imgIncY,imgIncVec);
   
   // first find all forward & backwards links
@@ -361,7 +360,7 @@ void vtkLinkEdgels::LinkEdgels(vtkImageRegion *region,
   
 
   // now construct the chains
-  imgPtrX = (float *)region->GetVoidPointer3d();
+  imgPtrX = (float *)region->GetScalarPointer3d();
   
   vec[2] = z;
   for (y = 0; y < ydim; y++)

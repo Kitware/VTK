@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -159,7 +160,7 @@ void vtkImageConvolution1d::SetKernel(float *kernel, int size)
 // This templated function is passed a input and output region, 
 // and executes the Conv1d algorithm to fill the output from the input.
 // Note that input pixel is offset from output pixel.
-// It also handles ImageBounds by truncating the kernel.  
+// It also handles ImageExtent by truncating the kernel.  
 // It renormalizes the truncated kernel if Normalize is on.
 template <class T>
 void vtkImageConvolution1dExecute1d(vtkImageConvolution1d *self,
@@ -173,7 +174,7 @@ void vtkImageConvolution1dExecute1d(vtkImageConvolution1d *self,
   float *kernelPtr;
   float sum;
   int cut;
-  int outImageBoundsMin, outImageBoundsMax;
+  int outImageExtentMin, outImageExtentMax;
   
   if ( ! self->Kernel)
     {
@@ -184,38 +185,38 @@ void vtkImageConvolution1dExecute1d(vtkImageConvolution1d *self,
   // Get information to march through data 
   inRegion->GetIncrements1d(inInc);
   outRegion->GetIncrements1d(outInc);  
-  outRegion->GetBounds1d(outMin, outMax);  
+  outRegion->GetExtent1d(outMin, outMax);  
 
   // Compute the middle portion of the region 
-  // that does not need ImageBounds handling.
-  outRegion->GetImageBounds1d(outImageBoundsMin, outImageBoundsMax);
+  // that does not need ImageExtent handling.
+  outRegion->GetImageExtent1d(outImageExtentMin, outImageExtentMax);
   if (self->HandleBoundaries)
     {
-    outImageBoundsMin += self->KernelMiddle[0];
-    outImageBoundsMax -= (self->KernelSize[0] - 1) - self->KernelMiddle[0];
+    outImageExtentMin += self->KernelMiddle[0];
+    outImageExtentMax -= (self->KernelSize[0] - 1) - self->KernelMiddle[0];
     }
   else
     {
     // just some error checking
-    if (outMin < outImageBoundsMin || outMax > outImageBoundsMax)
+    if (outMin < outImageExtentMin || outMax > outImageExtentMax)
       {
       cerr << "vtkImageConvolution1dExecute1d: Boundaries not handled.";
       return;
       }
     }
-  // Shrink ImageBounds if generated region is smaller
-  outImageBoundsMin = outImageBoundsMin > outMin ? outImageBoundsMin : outMin;
-  outImageBoundsMax = outImageBoundsMax < outMax ? outImageBoundsMax : outMax;
+  // Shrink ImageExtent if generated region is smaller
+  outImageExtentMin = outImageExtentMin > outMin ? outImageExtentMin : outMin;
+  outImageExtentMax = outImageExtentMax < outMax ? outImageExtentMax : outMax;
 
   
   // loop divided into three pieces, so initialize here.
   outIdx = outMin;
 
-  // loop through the ImageBounds pixels on the left.
-  for ( ; outIdx < outImageBoundsMin; ++outIdx)
+  // loop through the ImageExtent pixels on the left.
+  for ( ; outIdx < outImageExtentMin; ++outIdx)
     {
     // The number of pixels cut from the convolution.
-    cut = (outImageBoundsMin - outIdx);
+    cut = (outImageExtentMin - outIdx);
     // loop for convolution (sum)
     sum = 0.0;
     kernelPtr = self->Kernel + cut;
@@ -235,11 +236,11 @@ void vtkImageConvolution1dExecute1d(vtkImageConvolution1d *self,
     *outPtr = (T)(sum);
     // increment to next pixel.
     outPtr += outInc;
-    // the input pixel is not being incremented because of ImageBounds.
+    // the input pixel is not being incremented because of ImageExtent.
     }
   
-  // loop through non ImageBounds pixels
-  for ( ; outIdx <= outImageBoundsMax; ++outIdx)
+  // loop through non ImageExtent pixels
+  for ( ; outIdx <= outImageExtentMax; ++outIdx)
     {
     // loop for convolution 
     sum = 0.0;
@@ -260,11 +261,11 @@ void vtkImageConvolution1dExecute1d(vtkImageConvolution1d *self,
     }
   
   
-  // loop through the ImageBounds pixels on the right.
+  // loop through the ImageExtent pixels on the right.
   for ( ; outIdx <= outMax; ++outIdx)
     {
     // The number of pixels cut from the convolution.
-    cut = (outIdx - outImageBoundsMax);
+    cut = (outIdx - outImageExtentMax);
     // loop for convolution (sum)
     sum = 0.0;
     kernelPtr = self->Kernel;
@@ -302,8 +303,8 @@ void vtkImageConvolution1d::Execute1d(vtkImageRegion *inRegion,
 
   // perform convolution for each pixel of output.
   // Note that input pixel is offset from output pixel.
-  inPtr = inRegion->GetVoidPointer1d();
-  outPtr = outRegion->GetVoidPointer1d();
+  inPtr = inRegion->GetScalarPointer1d();
+  outPtr = outRegion->GetScalarPointer1d();
 
   vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
 		<< ", outRegion = " << outRegion);

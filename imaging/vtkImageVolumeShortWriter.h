@@ -5,7 +5,9 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
-
+  Thanks:    Thanks to C. Charles Law who developed this class.
+  Thanks:    Thanks to C. Charles Law who developed and contributed this class.
+	     
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
@@ -60,7 +62,7 @@ public:
   
   void SetFileRoot(char *fileRoot);
   void Write();
-  void Write(int *bounds);
+  void Write(int *extent);
   void Write(int min0, int max0, int min1, int max1, int min2, int max2);
   
   // Description:

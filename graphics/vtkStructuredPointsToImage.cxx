@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder,ill Lorensen.
 
@@ -204,22 +205,22 @@ void vtkStructuredPointsToImage::Execute(vtkImageRegion *region)
   vtkScalars *scalars;
   char *type;
   int size[3];
-  int *bounds;
+  int *extent;
   vtkImageData *data;
 
   // Check to see if requested data is contained in the structured points.
   input = this->Input;
   input->GetDimensions(size);
-  bounds = region->GetBounds();
-  if (bounds[0] < 0 || bounds[2] < 0 || bounds[4] < 0 ||
-      bounds[1] >= size[0] || bounds[3] >= size[1] || bounds[5] >= size[2])
+  extent = region->GetExtent();
+  if (extent[0] < 0 || extent[2] < 0 || extent[4] < 0 ||
+      extent[1] >= size[0] || extent[3] >= size[1] || extent[5] >= size[2])
     {
     vtkErrorMacro(<< "Execute: Requested region is not in structured points.");
     return;
     }
 
   // Make sure 4th dimension is empty
-  if (bounds[6] != 0 || bounds[7] != 0) 
+  if (extent[6] != 0 || extent[7] != 0) 
     {
     vtkErrorMacro(<< "Execute: Structured points are only 3d! ");
     return;
@@ -240,7 +241,7 @@ void vtkStructuredPointsToImage::Execute(vtkImageRegion *region)
       }
     // Create a new data object for the scalars
     data = new vtkImageData;
-    data->SetBounds(0, size[0]-1, 0, size[1]-1, 0, size[2]-1, 0, 0, 0, 0);
+    data->SetExtent(0, size[0]-1, 0, size[1]-1, 0, size[2]-1, 0, 0, 0, 0);
     data->SetScalars(newScalars);
     newScalars->UnRegister(this);
     }
@@ -250,7 +251,7 @@ void vtkStructuredPointsToImage::Execute(vtkImageRegion *region)
     {
     // Create a new data object for the scalars
     data = new vtkImageData;
-    data->SetBounds(0, size[0]-1, 0, size[1]-1, 0, size[2]-1, 0, 0, 0, 0);
+    data->SetExtent(0, size[0]-1, 0, size[1]-1, 0, size[2]-1, 0, 0, 0, 0);
     data->SetScalars(scalars);
     }
   else
@@ -277,7 +278,7 @@ vtkStructuredPointsToImage::ComputeImageInformation(vtkImageRegion *region)
   //input->GetOrigin(origin);
   input->GetAspectRatio(aspectRatio);
 
-  region->SetImageBounds3d(0, size[0]-1, 0, size[1]-1, 0, size[2]-1);
+  region->SetImageExtent3d(0, size[0]-1, 0, size[1]-1, 0, size[2]-1);
   region->SetAspectRatio3d(aspectRatio);
   if (region->GetDataType() == VTK_IMAGE_VOID)
     {

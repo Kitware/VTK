@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -63,7 +64,7 @@ public:
 
   // Description:
   // Tell the filter which input component is real and which is imaginary.
-  // If imaginary is out of the image bounds, it is ignored.
+  // If imaginary is out of the image extent, it is ignored.
   vtkSetMacro(InputRealComponent, int);
   vtkGetMacro(InputRealComponent, int);
   vtkSetMacro(InputImaginaryComponent, int);
@@ -76,7 +77,7 @@ protected:
     
   void ComputeOutputImageInformation(vtkImageRegion *inRegion,
 				     vtkImageRegion *outRegion);
-  void ComputeRequiredInputRegionBounds(vtkImageRegion *outRegion, 
+  void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion, 
 					vtkImageRegion *inRegion);
   void Execute2d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };

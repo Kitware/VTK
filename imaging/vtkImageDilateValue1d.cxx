@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -56,7 +57,7 @@ vtkImageDilateValue1d::vtkImageDilateValue1d()
 // This templated function is passed a input and output region, 
 // and executes the dilate algorithm to fill the output from the input.
 // Note that input pixel is offset from output pixel.
-// It also handles ImageBounds by truncating the kernel.  
+// It also handles ImageExtent by truncating the kernel.  
 template <class T>
 void vtkImageDilateValue1dExecute1d(vtkImageDilateValue1d *self,
 					  vtkImageRegion *inRegion, T *inPtr,
@@ -68,43 +69,43 @@ void vtkImageDilateValue1dExecute1d(vtkImageDilateValue1d *self,
   T *tmpPtr;
   T value = (T)(self->Value);
   int cut;
-  int outImageBoundsMin, outImageBoundsMax;
+  int outImageExtentMin, outImageExtentMax;
   
   // Get information to march through data 
   inRegion->GetIncrements1d(inInc);
   outRegion->GetIncrements1d(outInc);  
-  outRegion->GetBounds1d(outMin, outMax);  
+  outRegion->GetExtent1d(outMin, outMax);  
 
   // Determine the middle portion of the region 
-  // that does not need ImageBounds handling.
-  outRegion->GetImageBounds1d(outImageBoundsMin, outImageBoundsMax);
+  // that does not need ImageExtent handling.
+  outRegion->GetImageExtent1d(outImageExtentMin, outImageExtentMax);
   if (self->HandleBoundaries)
     {
-    outImageBoundsMin += self->KernelMiddle;
-    outImageBoundsMax -= (self->KernelSize - 1) - self->KernelMiddle;
+    outImageExtentMin += self->KernelMiddle;
+    outImageExtentMax -= (self->KernelSize - 1) - self->KernelMiddle;
     }
   else
     {
     // just some error checking
-    if (outMin < outImageBoundsMin || outMax > outImageBoundsMax)
+    if (outMin < outImageExtentMin || outMax > outImageExtentMax)
       {
       cerr << "vtkImageDilateValue1dExecute1d: Boundaries not handled.";
       return;
       }
     }
-  // Shrink ImageBounds if generated region is smaller
-  outImageBoundsMin = outImageBoundsMin > outMin ? outImageBoundsMin : outMin;
-  outImageBoundsMax = outImageBoundsMax < outMax ? outImageBoundsMax : outMax;
+  // Shrink ImageExtent if generated region is smaller
+  outImageExtentMin = outImageExtentMin > outMin ? outImageExtentMin : outMin;
+  outImageExtentMax = outImageExtentMax < outMax ? outImageExtentMax : outMax;
 
   
   // loop divided into three pieces, so initialize here.
   outIdx = outMin;
 
-  // loop through the ImageBounds pixels on the left.
-  for ( ; outIdx < outImageBoundsMin; ++outIdx)
+  // loop through the ImageExtent pixels on the left.
+  for ( ; outIdx < outImageExtentMin; ++outIdx)
     {
     // The number of pixels cut from the kernel
-    cut = (outImageBoundsMin - outIdx);
+    cut = (outImageExtentMin - outIdx);
     // First do identity (complex indexing saves time?)
     *outPtr = inPtr[self->KernelMiddle - cut];
     // loop over neighborhood pixels
@@ -119,11 +120,11 @@ void vtkImageDilateValue1dExecute1d(vtkImageDilateValue1d *self,
       }
     // increment to next pixel.
     outPtr += outInc;
-    // the input pixel is not being incremented because of ImageBounds.
+    // the input pixel is not being incremented because of ImageExtent.
     }
   
-  // loop through non ImageBounds pixels
-  for ( ; outIdx <= outImageBoundsMax; ++outIdx)
+  // loop through non ImageExtent pixels
+  for ( ; outIdx <= outImageExtentMax; ++outIdx)
     {
     // First do identity (complex indexing saves time?)
     *outPtr = inPtr[self->KernelMiddle];
@@ -143,11 +144,11 @@ void vtkImageDilateValue1dExecute1d(vtkImageDilateValue1d *self,
     }
   
   
-  // loop through the ImageBounds pixels on the right.
+  // loop through the ImageExtent pixels on the right.
   for ( ; outIdx <= outMax; ++outIdx)
     {
     // The number of pixels cut from the DilateValue.
-    cut = (outIdx - outImageBoundsMax);
+    cut = (outIdx - outImageExtentMax);
     // First do identity (complex indexing saves time?)
     *outPtr = inPtr[self->KernelMiddle];
     // loop for DilateValue (sum)
@@ -180,8 +181,8 @@ void vtkImageDilateValue1d::Execute1d(vtkImageRegion *inRegion,
 
   // perform DilateValue for each pixel of output.
   // Note that input pixel is offset from output pixel.
-  inPtr = inRegion->GetVoidPointer1d();
-  outPtr = outRegion->GetVoidPointer1d();
+  inPtr = inRegion->GetScalarPointer1d();
+  outPtr = outRegion->GetScalarPointer1d();
 
   vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
 		<< ", outRegion = " << outRegion);

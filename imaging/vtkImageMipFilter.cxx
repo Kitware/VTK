@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -73,7 +74,7 @@ void vtkImageMipFilterExecute3d(vtkImageMipFilter *self,
   // Get information to march through data 
   inRegion->GetIncrements3d(inInc0, inInc1, inInc2);
   outRegion->GetIncrements2d(outInc0, outInc1);
-  outRegion->GetBounds2d(min0, max0, min1, max1);
+  outRegion->GetExtent2d(min0, max0, min1, max1);
   self->GetProjectionRange(prorange[0],prorange[1]);
   minmaxip = self->GetMinMaxIP();
 
@@ -138,8 +139,8 @@ void vtkImageMipFilterExecute3d(vtkImageMipFilter *self,
 void vtkImageMipFilter::Execute3d(vtkImageRegion *inRegion, 
 				  vtkImageRegion *outRegion)
 {
-  void *inPtr = inRegion->GetVoidPointer3d();
-  void *outPtr = outRegion->GetVoidPointer3d();
+  void *inPtr = inRegion->GetScalarPointer3d();
+  void *outPtr = outRegion->GetScalarPointer3d();
   
   vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
 		<< ", outRegion = " << outRegion);
@@ -195,13 +196,13 @@ void
 vtkImageMipFilter::ComputeOutputImageInformation(vtkImageRegion *inRegion,
 						 vtkImageRegion *outRegion)
 {
-  int bounds[6];
+  int extent[6];
 
 
-  // reduce bounds from 3 to 2 D.
-  inRegion->GetImageBounds3d(bounds);
-  bounds[4] = 0; bounds[5] =0;
-  outRegion->SetImageBounds3d(bounds);
+  // reduce extent from 3 to 2 D.
+  inRegion->GetImageExtent3d(extent);
+  extent[4] = 0; extent[5] =0;
+  outRegion->SetImageExtent3d(extent);
 }
 
 
@@ -210,25 +211,25 @@ vtkImageMipFilter::ComputeOutputImageInformation(vtkImageRegion *inRegion,
 
 //----------------------------------------------------------------------------
 // Description:
-// This method computes the bounds of the input region necessary to generate
+// This method computes the extent of the input region necessary to generate
 // an output region.  Before this method is called "region" should have the 
-// bounds of the output region.  After this method finishes, "region" should 
-// have the bounds of the required input region.
-void vtkImageMipFilter::ComputeRequiredInputRegionBounds(
+// extent of the output region.  After this method finishes, "region" should 
+// have the extent of the required input region.
+void vtkImageMipFilter::ComputeRequiredInputRegionExtent(
                                                     vtkImageRegion *outRegion, 
 			                            vtkImageRegion *inRegion)
 {
-  int bounds[6];
-  int imageBounds[6];
+  int extent[6];
+  int imageExtent[6];
   
-  outRegion->GetBounds3d(bounds);
+  outRegion->GetExtent3d(extent);
   
-  inRegion->GetImageBounds3d(imageBounds);
+  inRegion->GetImageExtent3d(imageExtent);
 
-  bounds[4] = this->ProjectionRange[0];
-  bounds[5] = this->ProjectionRange[1];
+  extent[4] = this->ProjectionRange[0];
+  extent[5] = this->ProjectionRange[1];
 
-  inRegion->SetBounds3d(bounds);
+  inRegion->SetExtent3d(extent);
 }
 
 

@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -178,7 +179,7 @@ void vtkImageDyadicFilter::UpdateRegion(vtkImageRegion *outRegion)
   
   if (this->Debug)
     {
-    int *b = outRegion->GetBounds4d();
+    int *b = outRegion->GetExtent4d();
     cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" 
 	 << this->GetClassName() << " (" << this << "): "
 	 << "GenerateRegion: " << b[0] << "," << b[1] << ", "
@@ -188,7 +189,7 @@ void vtkImageDyadicFilter::UpdateRegion(vtkImageRegion *outRegion)
     }
   
   // To avoid doing this for each execute1d ...
-  this->UpdateImageInformation(outRegion);  // probably already has ImageBounds
+  this->UpdateImageInformation(outRegion);  // probably already has ImageExtent
   
   // If outBBox is empty return imediately.
   if (outRegion->IsEmpty())
@@ -222,11 +223,11 @@ void vtkImageDyadicFilter::UpdateRegion(vtkImageRegion *outRegion)
   inRegion1->SetAxes(this->Axes);
   inRegion2->SetAxes(this->Axes);
   
-  // Compute the required input region bounds.
-  // Copy to fill in bounds of extra dimensions.
-  inRegion1->SetBounds(outRegion->GetBounds());
-  inRegion2->SetBounds(outRegion->GetBounds());
-  this->ComputeRequiredInputRegionBounds(outRegion, inRegion1, inRegion2);
+  // Compute the required input region extent.
+  // Copy to fill in extent of extra dimensions.
+  inRegion1->SetExtent(outRegion->GetExtent());
+  inRegion2->SetExtent(outRegion->GetExtent());
+  this->ComputeRequiredInputRegionExtent(outRegion, inRegion1, inRegion2);
 
   // Use the input to fill the data of the region.
   this->Input1->UpdateRegion(inRegion1);
@@ -285,7 +286,7 @@ void vtkImageDyadicFilter::UpdateImageInformation(vtkImageRegion *outRegion)
 //----------------------------------------------------------------------------
 // Description:
 // This method is passed an inRegion that holds the image information
-// (image bounds ...) of this filters input, and fills outRegion with
+// (image extent ...) of this filters input, and fills outRegion with
 // the image information after this filter is finished.
 // outImage is identical to inImage when this method is envoked, and
 // outImage may be the same object as in image.
@@ -306,19 +307,19 @@ vtkImageDyadicFilter::ComputeOutputImageInformation(vtkImageRegion *inRegion1,
 
 //----------------------------------------------------------------------------
 // Description:
-// This method computes the bounds of the input region necessary to generate
+// This method computes the extent of the input region necessary to generate
 // an output region.  Before this method is called "region" should have the 
-// bounds of the output region.  After this method finishes, "region" should 
-// have the bounds of the required input region.  The default method assumes
-// the required input bounds are the same as the output bounds.
+// extent of the output region.  After this method finishes, "region" should 
+// have the extent of the required input region.  The default method assumes
+// the required input extent are the same as the output extent.
 // Note: The splitting methods call this method with outRegion = inRegion.
-void vtkImageDyadicFilter::ComputeRequiredInputRegionBounds(
+void vtkImageDyadicFilter::ComputeRequiredInputRegionExtent(
 					       vtkImageRegion *outRegion,
 					       vtkImageRegion *inRegion1,
 					       vtkImageRegion *inRegion2)
 {
-  inRegion1->SetBounds(outRegion->GetBounds());
-  inRegion2->SetBounds(outRegion->GetBounds());
+  inRegion1->SetExtent(outRegion->GetExtent());
+  inRegion2->SetExtent(outRegion->GetExtent());
 }
 
 
@@ -334,16 +335,16 @@ void vtkImageDyadicFilter::Execute5d(vtkImageRegion *inRegion1,
 				     vtkImageRegion *outRegion)
 {
   int coordinate4, min4, max4;
-  int inBounds[10], outBounds[10];
+  int inExtent[10], outExtent[10];
   
-  // Get the bounds of the forth dimension to be eliminated.
-  inRegion1->GetBounds5d(inBounds);
-  outRegion->GetBounds5d(outBounds);
+  // Get the extent of the forth dimension to be eliminated.
+  inRegion1->GetExtent5d(inExtent);
+  outRegion->GetExtent5d(outExtent);
 
-  // This method assumes that the fifth axis of in and out have same bounds.
-  min4 = outBounds[8];
-  max4 = outBounds[9];
-  if (min4 != inBounds[8] || max4 != inBounds[9])
+  // This method assumes that the fifth axis of in and out have same extent.
+  min4 = outExtent[8];
+  max4 = outExtent[9];
+  if (min4 != inExtent[8] || max4 != inExtent[9])
     {
     vtkErrorMacro(<< "Execute5d: Cannot break 5d images into 4d images.");
     return;
@@ -353,24 +354,24 @@ void vtkImageDyadicFilter::Execute5d(vtkImageRegion *inRegion1,
   for (coordinate4 = min4; coordinate4 <= max4; ++coordinate4)
     {
     // set up the 4d regions.
-    inBounds[8] = coordinate4;
-    inBounds[9] = coordinate4;
-    inRegion1->SetBounds5d(inBounds);
-    inRegion2->SetBounds5d(inBounds);
-    outBounds[8] = coordinate4;
-    outBounds[9] = coordinate4;
-    outRegion->SetBounds5d(outBounds);
+    inExtent[8] = coordinate4;
+    inExtent[9] = coordinate4;
+    inRegion1->SetExtent5d(inExtent);
+    inRegion2->SetExtent5d(inExtent);
+    outExtent[8] = coordinate4;
+    outExtent[9] = coordinate4;
+    outRegion->SetExtent5d(outExtent);
     // set up the 4d regions.
     this->Execute4d(inRegion1, inRegion2, outRegion);
     }
-  // restore the original bounds
-  inBounds[8] = min4;
-  inBounds[9] = max4;
-  outBounds[8] = min4;
-  outBounds[9] = max4; 
-  inRegion1->SetBounds5d(inBounds);
-  inRegion2->SetBounds5d(inBounds);
-  outRegion->SetBounds5d(outBounds);
+  // restore the original extent
+  inExtent[8] = min4;
+  inExtent[9] = max4;
+  outExtent[8] = min4;
+  outExtent[9] = max4; 
+  inRegion1->SetExtent5d(inExtent);
+  inRegion2->SetExtent5d(inExtent);
+  outRegion->SetExtent5d(outExtent);
 }
   
   
@@ -386,16 +387,16 @@ void vtkImageDyadicFilter::Execute4d(vtkImageRegion *inRegion1,
 				     vtkImageRegion *outRegion)
 {
   int coordinate3, min3, max3;
-  int inBounds[8], outBounds[8];
+  int inExtent[8], outExtent[8];
   
-  // Get the bounds of the third dimension to be eliminated.
-  inRegion1->GetBounds4d(inBounds);
-  outRegion->GetBounds4d(outBounds);
+  // Get the extent of the third dimension to be eliminated.
+  inRegion1->GetExtent4d(inExtent);
+  outRegion->GetExtent4d(outExtent);
 
-  // This method assumes that the third axis of in and out have same bounds.
-  min3 = outBounds[6];
-  max3 = outBounds[7];
-  if (min3 != inBounds[6] || max3 != inBounds[7])
+  // This method assumes that the third axis of in and out have same extent.
+  min3 = outExtent[6];
+  max3 = outExtent[7];
+  if (min3 != inExtent[6] || max3 != inExtent[7])
     {
     vtkErrorMacro(<< "Execute4d: Cannot break 4d images into volumes.");
     return;
@@ -406,23 +407,23 @@ void vtkImageDyadicFilter::Execute4d(vtkImageRegion *inRegion1,
     {
     // set up the 3d regions.
     // set up the 3d regions.
-    inBounds[6] = coordinate3;
-    inBounds[7] = coordinate3;
-    inRegion1->SetBounds4d(inBounds);
-    inRegion2->SetBounds4d(inBounds);
-    outBounds[6] = coordinate3;
-    outBounds[7] = coordinate3;
-    outRegion->SetBounds4d(outBounds);
+    inExtent[6] = coordinate3;
+    inExtent[7] = coordinate3;
+    inRegion1->SetExtent4d(inExtent);
+    inRegion2->SetExtent4d(inExtent);
+    outExtent[6] = coordinate3;
+    outExtent[7] = coordinate3;
+    outRegion->SetExtent4d(outExtent);
     this->Execute3d(inRegion1, inRegion2, outRegion);
     }
-  // restore the original bounds
-  inBounds[6] = min3;
-  inBounds[7] = max3;
-  outBounds[6] = min3;
-  outBounds[7] = max3; 
-  inRegion1->SetBounds4d(inBounds);
-  inRegion1->SetBounds4d(inBounds);
-  outRegion->SetBounds4d(outBounds);  
+  // restore the original extent
+  inExtent[6] = min3;
+  inExtent[7] = max3;
+  outExtent[6] = min3;
+  outExtent[7] = max3; 
+  inRegion1->SetExtent4d(inExtent);
+  inRegion1->SetExtent4d(inExtent);
+  outRegion->SetExtent4d(outExtent);  
 }
   
   
@@ -438,16 +439,16 @@ void vtkImageDyadicFilter::Execute3d(vtkImageRegion *inRegion1,
 				     vtkImageRegion *outRegion)
 {
   int coordinate2, min2, max2;
-  int inBounds[6], outBounds[6];
+  int inExtent[6], outExtent[6];
   
-  // Get the bounds of the third dimension to be eliminated.
-  inRegion1->GetBounds3d(inBounds);
-  outRegion->GetBounds3d(outBounds);
+  // Get the extent of the third dimension to be eliminated.
+  inRegion1->GetExtent3d(inExtent);
+  outRegion->GetExtent3d(outExtent);
 
-  // This method assumes that the third axis of in and out have same bounds.
-  min2 = outBounds[4];
-  max2 = outBounds[5];
-  if (min2 != inBounds[4] || max2 != inBounds[5])
+  // This method assumes that the third axis of in and out have same extent.
+  min2 = outExtent[4];
+  max2 = outExtent[5];
+  if (min2 != inExtent[4] || max2 != inExtent[5])
     {
     vtkErrorMacro(<< "Execute3d: Cannot break volumes into images.");
     return;
@@ -457,23 +458,23 @@ void vtkImageDyadicFilter::Execute3d(vtkImageRegion *inRegion1,
   for (coordinate2 = min2; coordinate2 <= max2; ++coordinate2)
     {
     // set up the 2d regions.
-    inBounds[4] = coordinate2;
-    inBounds[5] = coordinate2;
-    inRegion1->SetBounds3d(inBounds);
-    inRegion2->SetBounds3d(inBounds);
-    outBounds[4] = coordinate2;
-    outBounds[5] = coordinate2;
-    outRegion->SetBounds3d(outBounds);
+    inExtent[4] = coordinate2;
+    inExtent[5] = coordinate2;
+    inRegion1->SetExtent3d(inExtent);
+    inRegion2->SetExtent3d(inExtent);
+    outExtent[4] = coordinate2;
+    outExtent[5] = coordinate2;
+    outRegion->SetExtent3d(outExtent);
     this->Execute2d(inRegion1, inRegion2, outRegion);
     }
-  // restore the original bounds
-  inBounds[4] = min2;
-  inBounds[5] = max2;
-  outBounds[4] = min2;
-  outBounds[5] = max2; 
-  inRegion1->SetBounds3d(inBounds);
-  inRegion2->SetBounds3d(inBounds);
-  outRegion->SetBounds3d(outBounds);
+  // restore the original extent
+  inExtent[4] = min2;
+  inExtent[5] = max2;
+  outExtent[4] = min2;
+  outExtent[5] = max2; 
+  inRegion1->SetExtent3d(inExtent);
+  inRegion2->SetExtent3d(inExtent);
+  outRegion->SetExtent3d(outExtent);
 }
   
   
@@ -489,16 +490,16 @@ void vtkImageDyadicFilter::Execute2d(vtkImageRegion *inRegion1,
 				     vtkImageRegion *outRegion)
 {
   int coordinate1, min1, max1;
-  int inBounds[4], outBounds[4];
+  int inExtent[4], outExtent[4];
   
-  // Get the bounds of the third dimension to be eliminated.
-  inRegion1->GetBounds2d(inBounds);
-  outRegion->GetBounds2d(outBounds);
+  // Get the extent of the third dimension to be eliminated.
+  inRegion1->GetExtent2d(inExtent);
+  outRegion->GetExtent2d(outExtent);
 
-  // This method assumes that the second axis of in and out have same bounds.
-  min1 = outBounds[2];
-  max1 = outBounds[3];
-  if (min1 != inBounds[2] || max1 != inBounds[3])
+  // This method assumes that the second axis of in and out have same extent.
+  min1 = outExtent[2];
+  max1 = outExtent[3];
+  if (min1 != inExtent[2] || max1 != inExtent[3])
     {
     vtkErrorMacro(<< "Execute2d: Cannot break images into lines.");
     return;
@@ -508,23 +509,23 @@ void vtkImageDyadicFilter::Execute2d(vtkImageRegion *inRegion1,
   for (coordinate1 = min1; coordinate1 <= max1; ++coordinate1)
     {
     // set up the 1d regions.
-    inBounds[2] = coordinate1;
-    inBounds[3] = coordinate1;
-    inRegion1->SetBounds2d(inBounds);
-    inRegion2->SetBounds2d(inBounds);
-    outBounds[2] = coordinate1;
-    outBounds[3] = coordinate1;
-    outRegion->SetBounds2d(outBounds);
+    inExtent[2] = coordinate1;
+    inExtent[3] = coordinate1;
+    inRegion1->SetExtent2d(inExtent);
+    inRegion2->SetExtent2d(inExtent);
+    outExtent[2] = coordinate1;
+    outExtent[3] = coordinate1;
+    outRegion->SetExtent2d(outExtent);
     this->Execute1d(inRegion1, inRegion2, outRegion);
     }
-  // restore the original bounds
-  inBounds[2] = min1;
-  inBounds[3] = max1;
-  outBounds[2] = min1;
-  outBounds[3] = max1; 
-  inRegion1->SetBounds2d(inBounds);
-  inRegion2->SetBounds2d(inBounds);
-  outRegion->SetBounds2d(outBounds);
+  // restore the original extent
+  inExtent[2] = min1;
+  inExtent[3] = max1;
+  outExtent[2] = min1;
+  outExtent[3] = max1; 
+  inRegion1->SetExtent2d(inExtent);
+  inRegion2->SetExtent2d(inExtent);
+  outRegion->SetExtent2d(outExtent);
 }
   
   
@@ -552,10 +553,10 @@ void vtkImageDyadicFilter::Execute1d(vtkImageRegion *inRegion1,
 //============================================================================
 
 //----------------------------------------------------------------------------
-vtkImageRegion *vtkImageDyadicFilter::GetInput1Region(int *bounds, int dim)
+vtkImageRegion *vtkImageDyadicFilter::GetInput1Region(int *extent, int dim)
 {
   int idx;
-  int *imageBounds;
+  int *imageExtent;
   vtkImageRegion *region;
   
   if ( ! this->Input1)
@@ -570,10 +571,10 @@ vtkImageRegion *vtkImageDyadicFilter::GetInput1Region(int *bounds, int dim)
   // Information is automatically computed when UpdateRegion is called.
   this->Input1->UpdateImageInformation(region);
   region->SetAxes(this->GetAxes());
-  imageBounds = region->GetImageBounds();
+  imageExtent = region->GetImageExtent();
   for (idx = dim; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
-    if (imageBounds[idx*2] > 0 || imageBounds[idx*2 + 1] < 0)
+    if (imageExtent[idx*2] > 0 || imageExtent[idx*2 + 1] < 0)
       {
       vtkErrorMacro(<< "GetInputRegion1: dim = " << dim 
                     << ", unspecified dimensions do not include 0.");
@@ -582,8 +583,8 @@ vtkImageRegion *vtkImageDyadicFilter::GetInput1Region(int *bounds, int dim)
       }
     }
   
-  // Note: This automatical sets the unspecified dimension bounds to [0,0]
-  region->SetBounds(bounds, dim);
+  // Note: This automatical sets the unspecified dimension extent to [0,0]
+  region->SetExtent(extent, dim);
   this->Input1->UpdateRegion(region);
   
   return region;
@@ -592,10 +593,10 @@ vtkImageRegion *vtkImageDyadicFilter::GetInput1Region(int *bounds, int dim)
 
 
 //----------------------------------------------------------------------------
-vtkImageRegion *vtkImageDyadicFilter::GetInput2Region(int *bounds, int dim)
+vtkImageRegion *vtkImageDyadicFilter::GetInput2Region(int *extent, int dim)
 {
   int idx;
-  int *imageBounds;
+  int *imageExtent;
   vtkImageRegion *region;
   
   if ( ! this->Input2)
@@ -610,10 +611,10 @@ vtkImageRegion *vtkImageDyadicFilter::GetInput2Region(int *bounds, int dim)
   // Information is automatically computed when UpdateRegion is called.
   this->Input2->UpdateImageInformation(region);
   region->SetAxes(this->GetAxes());
-  imageBounds = region->GetImageBounds();
+  imageExtent = region->GetImageExtent();
   for (idx = dim; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
-    if (imageBounds[idx*2] > 0 || imageBounds[idx*2 + 1] < 0)
+    if (imageExtent[idx*2] > 0 || imageExtent[idx*2 + 1] < 0)
       {
       vtkErrorMacro(<< "GetInputRegion2: dim = " << dim 
                     << ", unspecified dimensions do not include 0.");
@@ -622,8 +623,8 @@ vtkImageRegion *vtkImageDyadicFilter::GetInput2Region(int *bounds, int dim)
       }
     }
   
-  // Note: This automatical sets the unspecified dimension bounds to [0,0]
-  region->SetBounds(bounds, dim);
+  // Note: This automatical sets the unspecified dimension extent to [0,0]
+  region->SetExtent(extent, dim);
   this->Input2->UpdateRegion(region);
   
   return region;

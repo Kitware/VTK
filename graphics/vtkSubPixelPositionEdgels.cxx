@@ -49,7 +49,7 @@ vtkSubPixelPositionEdgels::vtkSubPixelPositionEdgels()
 void vtkSubPixelPositionEdgels::Execute()
 {
   vtkImageRegion *region = new vtkImageRegion;
-  int regionBounds[8];
+  int regionExtent[8];
   vtkPolyData *input=(vtkPolyData *)this->Input;
   int numPts=input->GetNumberOfPoints();
   vtkFloatPoints *newPts;
@@ -77,8 +77,8 @@ void vtkSubPixelPositionEdgels::Execute()
 		    VTK_IMAGE_COMPONENT_AXIS, VTK_IMAGE_Z_AXIS);
   
   // get the input region
-  region->GetImageBounds4d(regionBounds);
-  region->SetBounds4d(regionBounds);
+  region->GetImageExtent4d(regionExtent);
+  region->SetExtent4d(regionExtent);
 
   this->Gradient->UpdateRegion(region);
   if ( ! region->IsAllocated())
@@ -96,7 +96,7 @@ void vtkSubPixelPositionEdgels::Execute()
     
     region = new vtkImageRegion;
     region->SetDataType(VTK_IMAGE_FLOAT);
-    region->SetBounds(temp->GetBounds());
+    region->SetExtent(temp->GetExtent());
     region->CopyRegionData(temp);
     temp->Delete();
     }
@@ -125,7 +125,7 @@ void vtkSubPixelPositionEdgels::Move(vtkImageRegion *region,
 				     int x, int y,
 				     float *result, int z)
 {
-  int *bounds = region->GetBounds2d();
+  int *extent = region->GetExtent2d();
   float vec[2];
   float val1, val2, val3, val4;
   float mix,mag;
@@ -134,7 +134,7 @@ void vtkSubPixelPositionEdgels::Move(vtkImageRegion *region,
   float *imgData, *imgPtr;
   int    imgIncX, imgIncY, imgIncVec;
 
-  if (x <= bounds[0] || y <= bounds[2] || x >= bounds[1] || y >= bounds[3])
+  if (x <= extent[0] || y <= extent[2] || x >= extent[1] || y >= extent[3])
     {
     result[0] = x;
     result[1] = y;
@@ -144,7 +144,7 @@ void vtkSubPixelPositionEdgels::Move(vtkImageRegion *region,
     {
     // do the non maximal suppression at this pixel
     // first get the orientation
-    imgData = (float *)region->GetVoidPointer4d(0,0,0,z);
+    imgData = (float *)region->GetScalarPointer4d(0,0,0,z);
     region->GetIncrements3d(imgIncX, imgIncY, imgIncVec);
 
     imgPtr = imgData + x*imgIncX + y*imgIncY;

@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -82,7 +83,7 @@ void vtkImageIslandRemoval2d::PrintSelf(ostream& os, vtkIndent indent)
 // The whole image is generated when any region is requested.
 void vtkImageIslandRemoval2d::InterceptCacheUpdate(vtkImageRegion *region)
 {
-  int bounds[4];
+  int extent[4];
 
   if ( ! this->Input)
     {
@@ -91,8 +92,8 @@ void vtkImageIslandRemoval2d::InterceptCacheUpdate(vtkImageRegion *region)
     }
   
   this->Input->UpdateImageInformation(region);
-  region->GetImageBounds2d(bounds);
-  region->SetBounds2d(bounds);
+  region->GetImageExtent2d(extent);
+  region->SetExtent2d(extent);
 }
 
 
@@ -136,7 +137,7 @@ void vtkImageIslandRemoval2dExecute(vtkImageIslandRemoval2d *self,
   // In case all 8 neighbors get added before we test the number.
   pixels = new vtkImage2dIslandPixel [area + 8]; 
   
-  outRegion->GetBounds2d(outMin0, outMax0, outMin1, outMax1);
+  outRegion->GetExtent2d(outMin0, outMax0, outMin1, outMax1);
   outRegion->GetIncrements2d(outInc0, outInc1);
   inRegion->GetIncrements2d(inInc0, inInc1);
 
@@ -465,7 +466,7 @@ void vtkImageIslandRemoval2dExecute(vtkImageIslandRemoval2d *self,
 // Description:
 // This method uses the input region to fill the output region.
 // It can handle any type data, but the two regions must have the same 
-// data type.  Assumes that in and out have the same lower bounds.
+// data type.  Assumes that in and out have the same lower extent.
 void vtkImageIslandRemoval2d::Execute2d(vtkImageRegion *inRegion, 
 					      vtkImageRegion *outRegion)
 {
@@ -482,8 +483,8 @@ void vtkImageIslandRemoval2d::Execute2d(vtkImageRegion *inRegion,
     return;
     }
 
-  inPtr = inRegion->GetVoidPointer2d();
-  outPtr = outRegion->GetVoidPointer2d();
+  inPtr = inRegion->GetScalarPointer2d();
+  outPtr = outRegion->GetScalarPointer2d();
 
   switch (inRegion->GetDataType())
     {

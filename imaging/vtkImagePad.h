@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -40,7 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkImagePad - Pads an image to change its boundaries.
 // .SECTION Description
 // vtkImagePad is a filter class that will change the boundaries of 
-// an image.  Pixels out of the input bounds are set to PadValue.
+// an image.  Pixels out of the input extent are set to PadValue.
 
 
 #ifndef __vtkImagePad_h

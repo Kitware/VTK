@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -113,7 +114,7 @@ void vtkImageMedianExecute(vtkImageMedian *self,
   // Get information to march through data
   inRegion->GetIncrements3d(inInc0, inInc1, inInc2); 
   outRegion->GetIncrements3d(outInc0, outInc1, outInc2); 
-  outRegion->GetBounds3d(outMin0, outMax0, outMin1, outMax1, outMin2, outMax2);
+  outRegion->GetExtent3d(outMin0, outMax0, outMin1, outMax1, outMin2, outMax2);
   kernelMiddle = self->GetKernelMiddle();
   kernelSize = self->GetKernelSize();
   
@@ -124,8 +125,8 @@ void vtkImageMedianExecute(vtkImageMedian *self,
   hoodMax1 = kernelSize[1] + hoodMin1 - 1;
   hoodMax2 = kernelSize[2] + hoodMin2 - 1;
   
-  // Clip by the input image bounds
-  inRegion->GetImageBounds3d(middleMin0, middleMax0, 
+  // Clip by the input image extent
+  inRegion->GetImageExtent3d(middleMin0, middleMax0, 
 			     middleMin1, middleMax1, 
 			     middleMin2, middleMax2);
   hoodMin0 = (hoodMin0 > middleMin0) ? hoodMin0 : middleMin0;
@@ -237,8 +238,8 @@ void vtkImageMedianExecute(vtkImageMedian *self,
 void vtkImageMedian::Execute3d(vtkImageRegion *inRegion, 
 				     vtkImageRegion *outRegion)
 {
-  void *inPtr = inRegion->GetVoidPointer3d();
-  void *outPtr = outRegion->GetVoidPointer3d();
+  void *inPtr = inRegion->GetScalarPointer3d();
+  void *outPtr = outRegion->GetScalarPointer3d();
   
   vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
 		<< ", outRegion = " << outRegion);

@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -207,7 +208,7 @@ void vtkImagePgmReader::GenerateRegion(int *outOffset, int *outSize)
 // Description:
 // This method returns in "offset" and "size" the boundary of data
 // in the image. Request for regions of the image out side of these
-// bounds will have unpridictable effects and will give a file read error.
+// extent will have unpridictable effects and will give a file read error.
 // i.e. no error checking is performed.
 void vtkImagePgmReader::GetBoundary(int *offset, int *size)
 {
