@@ -16,11 +16,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Cone.hh"
 
 // Description
-// Construct cone with height of 1.0 and base radius=0.5.
+// Construct cone with angle of 45 degrees.
 vlCone::vlCone()
 {
-  this->Height = 1.0;
-  this->BaseRadius = 0.5;
+  this->Angle = 45.0;
 }
 
 // Description
@@ -40,6 +39,5 @@ void vlCone::PrintSelf(ostream& os, vlIndent indent)
 {
   vlImplicitFunction::PrintSelf(os,indent);
 
-  os << indent << "Height: " << this->Height << "\n";
-  os << indent << "Base Radius: " << this->BaseRadius << "\n";
+  os << indent << "Angle: " << this->Angle << "\n";
 }
