@@ -53,9 +53,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // of flow around the streamline.
 //
 // vtkStreamLine defines the instance variable StepLength. This parameter 
-// controls the length of the line segments used to define the streamline.
-// The streamline(s) will consist of one (or more) polylines with line
-// segment lengths of size StepLength. Smaller values reduce in more line 
+// controls the time increment used to generate individual points along
+// the streamline(s). Smaller values result in more line 
 // primitives but smoother streamlines. The StepLength instance variable is 
 // defined in terms of time (i.e., the distance that the particle travels in
 // the specified time period). Thus, the line segments will be smaller in areas
