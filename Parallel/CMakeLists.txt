@@ -4,7 +4,6 @@ vtkCommunicator
 vtkCutMaterial 
 vtkExtractPolyDataPiece 
 vtkExtractUnstructuredGridPiece 
-vtkGetRemoteGhostCells 
 vtkInputPort 
 vtkMemoryLimitImageDataStreamer 
 vtkMultiProcessController 
