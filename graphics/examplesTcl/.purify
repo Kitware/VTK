@@ -44,6 +44,7 @@ suppress umr ios::fill(char)
 suppress umr ios::tie(ostream*)
 suppress umc XauReadAuth
 suppress umr _write; _X11TransSocketWrite
+suppress abr __glSoftResetContext; MakeCurrentRead
 suppress abr _open; __glLockedMemoryInit
 suppress abr _open; map_rtc
 suppress abr strncmp; GetBoardInfo
