@@ -32,6 +32,12 @@ vtkImageIterator<DType>::vtkImageIterator(vtkImageData *id, int *ext)
   this->EndPointer = 
     (DType *)id->GetScalarPointer(ext[1],ext[3],ext[5]) +this->Increments[0];
 
+  // if the extent is empty then the end pointer should equal the beg pointer
+  if (ext[1] < ext[0] || ext[3] < ext[2] || ext[5] < ext[4])
+    {
+    this->EndPointer = this->Pointer;
+    }
+
   this->SpanEndPointer = 
     this->Pointer + this->Increments[0]*(ext[1] - ext[0] + 1);
   this->SliceEndPointer = 
