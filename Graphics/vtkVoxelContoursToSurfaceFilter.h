@@ -35,18 +35,18 @@
 // done in a streaming fashion so as not to use to much memory.
 
 // .SECTION See Also
-// vtkPolyDataToPolyDataFilter
+// vtkPolyDataAlgorithm
 
 #ifndef __vtkVoxelContoursToSurfaceFilter_h
 #define __vtkVoxelContoursToSurfaceFilter_h
 
-#include "vtkPolyDataToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkVoxelContoursToSurfaceFilter : public vtkPolyDataToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkVoxelContoursToSurfaceFilter : public vtkPolyDataAlgorithm
 {
 public:
   static vtkVoxelContoursToSurfaceFilter *New();
-  vtkTypeRevisionMacro(vtkVoxelContoursToSurfaceFilter,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkVoxelContoursToSurfaceFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -64,7 +64,7 @@ protected:
   vtkVoxelContoursToSurfaceFilter();
   ~vtkVoxelContoursToSurfaceFilter();
 
-  void    Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   int     MemoryLimitInBytes;
 
@@ -97,5 +97,3 @@ private:
 };
 
 #endif
-
-
