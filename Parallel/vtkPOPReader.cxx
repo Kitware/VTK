@@ -22,12 +22,13 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkSmartPointer.h"
 #include "vtkStructuredGrid.h"
 
 #include <ctype.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkPOPReader, "1.18");
+vtkCxxRevisionMacro(vtkPOPReader, "1.18.10.1");
 vtkStandardNewMacro(vtkPOPReader);
 
 //----------------------------------------------------------------------------
@@ -663,7 +664,7 @@ void vtkPOPReader::ReadFlow()
 {
   vtkStructuredGrid *output;
   vtkDataArray *array;
-  vtkImageData *uImage, *vImage, *fImage;
+  vtkImageData *fImage;
   int updateExt[6], wholeExt[6], ext[6];
   int idx, u, v, w;
   float *pf, *pu, *pv;
@@ -730,51 +731,52 @@ void vtkPOPReader::ReadFlow()
       }
     }
 
-  uImage = vtkImageData::New();
   // Set up the reader with the appropriate filename.
-      if (this->ArrayFileDimensionality == 3)
-        {
-        reader->SetFileName(this->UFlowFileName);
-        }
-      else if (this->ArrayFileDimensionality == 2)
-        {
-        reader->SetFilePattern("%s.%02d");
-        reader->SetFilePrefix(this->UFlowFileName);
-        }
-      else
-        {
-        vtkErrorMacro("FileDimensionality can only be 2 or 3.");
-        reader->Delete();
-        wrap->Delete();
-        return;
-        }
+  if (this->ArrayFileDimensionality == 3)
+    {
+    reader->SetFileName(this->UFlowFileName);
+    }
+  else if (this->ArrayFileDimensionality == 2)
+    {
+    reader->SetFilePattern("%s.%02d");
+    reader->SetFilePrefix(this->UFlowFileName);
+    }
+  else
+    {
+    vtkErrorMacro("FileDimensionality can only be 2 or 3.");
+    reader->Delete();
+    wrap->Delete();
+    return;
+    }
   reader->SetHeaderSize(this->UFlowFileOffset * 4 
-                  * this->Dimensions[0] * this->Dimensions[1]);
-  wrap->SetOutput(uImage);
+                        * this->Dimensions[0] * this->Dimensions[1]);
+
+  wrap->GetOutput()->SetSource(0);
+  vtkSmartPointer<vtkImageData> uImage = wrap->GetOutput();
   uImage->SetUpdateExtent(ext);
   uImage->Update();
-
-  vImage = vtkImageData::New();
+  
   // Set up the reader with the appropriate filename.
-      if (this->ArrayFileDimensionality == 3)
-        {
-        reader->SetFileName(this->VFlowFileName);
-        }
-      else if (this->ArrayFileDimensionality == 2)
-        {
-        reader->SetFilePattern("%s.%02d");
-        reader->SetFilePrefix(this->VFlowFileName);
-        }
-      else
-        {
-        vtkErrorMacro("FileDimensionality can only be 2 or 3.");
-        reader->Delete();
-        wrap->Delete();
-        return;
-        }
+  if (this->ArrayFileDimensionality == 3)
+    {
+    reader->SetFileName(this->VFlowFileName);
+    }
+  else if (this->ArrayFileDimensionality == 2)
+    {
+    reader->SetFilePattern("%s.%02d");
+    reader->SetFilePrefix(this->VFlowFileName);
+    }
+  else
+    {
+    vtkErrorMacro("FileDimensionality can only be 2 or 3.");
+    reader->Delete();
+    wrap->Delete();
+    return;
+    }
   reader->SetHeaderSize(this->VFlowFileOffset * 4 
                   * this->Dimensions[0] * this->Dimensions[1]);
-  wrap->SetOutput(vImage);
+  wrap->GetOutput()->SetSource(0);
+  vtkSmartPointer<vtkImageData> vImage = wrap->GetOutput();
   vImage->SetUpdateExtent(ext);
   vImage->Update();
 
@@ -918,10 +920,6 @@ void vtkPOPReader::ReadFlow()
       }
     }
     
-  // Delete 
-  uImage->Delete();
-  vImage->Delete();
-
   array = fImage->GetPointData()->GetScalars();
   array->SetName("Flow");
       

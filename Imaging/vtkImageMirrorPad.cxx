@@ -15,17 +15,20 @@
 #include "vtkImageMirrorPad.h"
 
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageMirrorPad, "1.31.10.2");
+vtkCxxRevisionMacro(vtkImageMirrorPad, "1.31.10.3");
 vtkStandardNewMacro(vtkImageMirrorPad);
 
 //----------------------------------------------------------------------------
 // Just clip the request.
 void vtkImageMirrorPad::ComputeInputUpdateExtent(int inExt[6], 
-                                                 int outExt[6])
+                                                 int outExt[6], 
+                                                 int wExtent[6])
 {
-  int *wExtent = this->GetInput()->GetWholeExtent();
   int idx;
   
   // initialize inExt
@@ -50,6 +53,7 @@ void vtkImageMirrorPad::ComputeInputUpdateExtent(int inExt[6],
 template <class T>
 void vtkImageMirrorPadExecute(vtkImageMirrorPad *self,
                               vtkImageData *inData,
+                              int *wExtent,
                               vtkImageData *outData, T *outPtr,
                               int outExt[6], int id)
 {
@@ -61,7 +65,6 @@ void vtkImageMirrorPadExecute(vtkImageMirrorPad *self,
   int outIncX, outIncY, outIncZ;
   unsigned long count = 0;
   unsigned long target;
-  int *wExtent = self->GetInput()->GetWholeExtent();
   int idx;
   int inIdxStart[3];
   int inIdx[3];
@@ -202,40 +205,41 @@ void vtkImageMirrorPadExecute(vtkImageMirrorPad *self,
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for
 // the regions data types.
-void vtkImageMirrorPad::ThreadedExecute(vtkImageData *inData, 
-                                        vtkImageData *outData,
-                                        int outExt[6], int id)
+void vtkImageMirrorPad::ThreadedExecute(
+  vtkInformation * vtkNotUsed( request ), 
+  vtkInformationVector *inputVector, 
+  vtkInformationVector * vtkNotUsed( outputVector ),
+  vtkImageData ***inData, 
+  vtkImageData **outData,
+  int outExt[6], int id)
 {
-  void *outPtr = outData->GetScalarPointerForExtent(outExt);
+  void *outPtr = outData[0]->GetScalarPointerForExtent(outExt);
   
-  vtkDebugMacro(<< "Execute: inData = " << inData 
-                << ", outData = " << outData);
-  
+   // get the whole extent
+  int wExt[6];
+  vtkInformation *inInfo =
+    this->GetInputConnectionInformation(inputVector,0,0);
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),wExt);
+
   // this filter expects that input is the same type as output.
-  if (inData->GetScalarType() != outData->GetScalarType())
+  if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
-                  << ", must match out ScalarType " << outData->GetScalarType());
+    vtkErrorMacro(<< "Execute: input ScalarType, " 
+                  << inData[0][0]->GetScalarType()
+                  << ", must match out ScalarType " 
+                  << outData[0]->GetScalarType());
     return;
     }
   
-  switch (inData->GetScalarType())
+  switch (inData[0][0]->GetScalarType())
     {
-    vtkTemplateMacro6(vtkImageMirrorPadExecute, this, inData, outData, 
-                      (VTK_TT *)(outPtr), outExt, id);
+    vtkTemplateMacro7(vtkImageMirrorPadExecute, this, inData[0][0], wExt,
+                      outData[0], (VTK_TT *)(outPtr), outExt, id);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
     }
 }
-
-
-
-
-
-
-
-
 
 
 

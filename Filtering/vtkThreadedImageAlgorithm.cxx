@@ -26,7 +26,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkThreadedImageAlgorithm, "1.1.2.1");
+vtkCxxRevisionMacro(vtkThreadedImageAlgorithm, "1.1.2.2");
 
 //----------------------------------------------------------------------------
 vtkThreadedImageAlgorithm::vtkThreadedImageAlgorithm()
@@ -186,7 +186,9 @@ VTK_THREAD_RETURN_TYPE vtkThreadedImageAlgorithmThreadedExecute( void *arg )
     
   if (threadId < total)
     {
-    str->Filter->ThreadedExecute(str->Inputs, str->Outputs, 
+    str->Filter->ThreadedExecute(str->Request,
+                                 str->InputsInfo, str->OutputsInfo,
+                                 str->Inputs, str->Outputs, 
                                  splitExt, threadId);
     }
   // else
@@ -273,6 +275,20 @@ void vtkThreadedImageAlgorithm::ExecuteData(
     }
   delete [] str.Inputs;
   delete [] str.Outputs;  
+}
+
+//----------------------------------------------------------------------------
+// The execute method created by the subclass.
+void vtkThreadedImageAlgorithm::ThreadedExecute(
+  vtkInformation * vtkNotUsed( request ), 
+  vtkInformationVector * vtkNotUsed( inputVector ), 
+  vtkInformationVector * vtkNotUsed( outputVector ),
+  vtkImageData ***inData, 
+  vtkImageData **outData,
+  int extent[6], 
+  int threadId)
+{
+  this->ThreadedExecute(inData, outData, extent, threadId);
 }
 
 //----------------------------------------------------------------------------

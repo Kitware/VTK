@@ -23,13 +23,13 @@
 #ifndef __vtkImagePadFilter_h
 #define __vtkImagePadFilter_h
 
-#include "vtkImageToImageFilter.h"
+#include "vtkThreadedImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImagePadFilter : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImagePadFilter : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImagePadFilter *New();
-  vtkTypeRevisionMacro(vtkImagePadFilter,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImagePadFilter,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -52,9 +52,13 @@ protected:
   int OutputWholeExtent[6];
   int OutputNumberOfScalarComponents;
 
-  void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
-  void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
-  void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
+  void ExecuteInformation (vtkInformation *, vtkInformationVector *, 
+                           vtkInformationVector *);
+  void ComputeInputUpdateExtent (vtkInformation *, vtkInformationVector *, 
+                                 vtkInformationVector *);
+  virtual void ComputeInputUpdateExtent (int inExt[6], int outExt[6], 
+                                         int wExt[6]);
+  
 private:
   vtkImagePadFilter(const vtkImagePadFilter&);  // Not implemented.
   void operator=(const vtkImagePadFilter&);  // Not implemented.

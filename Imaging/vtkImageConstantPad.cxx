@@ -16,8 +16,11 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageConstantPad, "1.34");
+vtkCxxRevisionMacro(vtkImageConstantPad, "1.34.10.1");
 vtkStandardNewMacro(vtkImageConstantPad);
 
 //----------------------------------------------------------------------------
@@ -138,32 +141,41 @@ void vtkImageConstantPadExecute(vtkImageConstantPad *self,
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for
 // the datas data types.
-void vtkImageConstantPad::ThreadedExecute(vtkImageData *inData, 
-                                        vtkImageData *outData,
-                                        int outExt[6], int id)
+void vtkImageConstantPad::ThreadedExecute(
+  vtkInformation * vtkNotUsed( request ), 
+  vtkInformationVector *inputVector, 
+  vtkInformationVector * vtkNotUsed( outputVector ),
+  vtkImageData ***inData, 
+  vtkImageData **outData,
+  int outExt[6], int id)
 {
-  void *outPtr = outData->GetScalarPointerForExtent(outExt);
-  
-  vtkDebugMacro(<< "Execute: inData = " << inData 
-  << ", outData = " << outData);
+  void *outPtr = outData[0]->GetScalarPointerForExtent(outExt);
   
   // this filter expects that input is the same type as output.
-  if (inData->GetScalarType() != outData->GetScalarType())
+  if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
-                  << ", must match out ScalarType " << outData->GetScalarType());
+    vtkErrorMacro(<< "Execute: input ScalarType, " 
+                  << inData[0][0]->GetScalarType()
+                  << ", must match out ScalarType " 
+                  << outData[0]->GetScalarType());
     return;
     }
   
+  // get the whole extent
+  int wExt[6];
+  vtkInformation *inInfo =
+    this->GetInputConnectionInformation(inputVector,0,0);
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),wExt);
+
   // need to get the correct pointer for the input data
   int inExt[6];
-  this->ComputeInputUpdateExtent(inExt,outExt);
-  void *inPtr = inData->GetScalarPointerForExtent(inExt);
+  this->ComputeInputUpdateExtent(inExt,outExt,wExt);
+  void *inPtr = inData[0][0]->GetScalarPointerForExtent(inExt);
 
-  switch (inData->GetScalarType())
+  switch (inData[0][0]->GetScalarType())
     {
     vtkTemplateMacro8(vtkImageConstantPadExecute, this, 
-                      inData, (VTK_TT *)(inPtr), outData, 
+                      inData[0][0], (VTK_TT *)(inPtr), outData[0], 
                       (VTK_TT *)(outPtr), outExt, inExt, id);
     default:
       vtkErrorMacro(<< "Execute: Unknown input ScalarType");

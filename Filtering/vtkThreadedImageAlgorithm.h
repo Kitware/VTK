@@ -41,6 +41,12 @@ public:
   // will be broken up, multiple threads will be spawned, and each thread
   // will call this method. It is public so that the thread functions
   // can call this method.
+  virtual void ThreadedExecute(vtkInformation *request, 
+                               vtkInformationVector *inputVector, 
+                               vtkInformationVector *outputVector,
+                               vtkImageData ***inData, 
+                               vtkImageData **outData,
+                               int extent[6], int threadId);
   virtual void ThreadedExecute(vtkImageData ***inData, 
                                vtkImageData **outData,
                                int extent[6], int threadId);

@@ -55,7 +55,7 @@ FOREACH (FILE_NAME ${H_FILES})
     H_CONTENTS "${H_CONTENTS}")
 
   STRING (REGEX REPLACE  
-    "ComputeInputUpdateExtent[ \t]*\\([^,]*,[^\)]*\\)"
+    "ComputeInputUpdateExtent[ \t]*\\([^,]*,[^,\)]*\\)"
     "ComputeInputUpdateExtent (vtkInformation *, vtkInformationVector *, vtkInformationVector *)"
     H_CONTENTS "${H_CONTENTS}")
   
@@ -90,7 +90,7 @@ FOREACH (FILE_NAME ${CXX_FILES})
 
 
   STRING (REGEX REPLACE  
-    "::ComputeInputUpdateExtent[ \t]*\\([^,\)]*,[^\)]*\\)"
+    "::ComputeInputUpdateExtent[ \t]*\\([^,\)]*,[^,\)]*\\)"
     "::ComputeInputUpdateExtent (\n  vtkInformation * vtkNotUsed(request),\n  vtkInformationVector *inputVector,\n  vtkInformationVector *outputVector)"
     CXX_CONTENTS "${CXX_CONTENTS}")
 
@@ -126,11 +126,19 @@ FOREACH (FILE_NAME ${CXX_FILES})
     "inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),"
     CXX_CONTENTS "${CXX_CONTENTS}")
   STRING (REGEX REPLACE  
+    "inData->GetWholeExtent\\("
+    "inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),"
+    CXX_CONTENTS "${CXX_CONTENTS}")
+  STRING (REGEX REPLACE  
     "this->GetOutput\\(\\)->SetWholeExtent[ \t\n]*\\(([^)]*)"
     "outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),\\1,6"
     CXX_CONTENTS "${CXX_CONTENTS}")
   STRING (REGEX REPLACE  
     "output->SetWholeExtent[ \t\n]*\\(([^)]*)"
+    "outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),\\1,6"
+    CXX_CONTENTS "${CXX_CONTENTS}")
+  STRING (REGEX REPLACE  
+    "outData->SetWholeExtent[ \t\n]*\\(([^)]*)"
     "outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),\\1,6"
     CXX_CONTENTS "${CXX_CONTENTS}")
 
@@ -139,7 +147,15 @@ FOREACH (FILE_NAME ${CXX_FILES})
     "outInfo->Set(vtkDataObject::SCALAR_TYPE(),\\1"
     CXX_CONTENTS "${CXX_CONTENTS}")
   STRING (REGEX REPLACE  
+    "outData->SetScalarType[ \t\n]*\\(([^)]*)"
+    "outInfo->Set(vtkDataObject::SCALAR_TYPE(),\\1"
+    CXX_CONTENTS "${CXX_CONTENTS}")
+  STRING (REGEX REPLACE  
     "output->SetNumberOfScalarComponents[ \t\n]*\\(([^)]*)"
+    "outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),\\1"
+    CXX_CONTENTS "${CXX_CONTENTS}")
+  STRING (REGEX REPLACE  
+    "outData->SetNumberOfScalarComponents[ \t\n]*\\(([^)]*)"
     "outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),\\1"
     CXX_CONTENTS "${CXX_CONTENTS}")
 
