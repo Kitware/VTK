@@ -81,6 +81,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageToImageFilter.h"
 #include "vtkAbstractTransform.h"
 #include "vtkMatrix4x4.h"
+#include "vtkImageStencilData.h"
 
 // interpolation mode constants
 #define VTK_RESLICE_NEAREST 0
@@ -118,18 +119,18 @@ public:
   // the ResliceAxes matrix).  This will modify the current
   // ResliceAxes matrix, or create a new matrix if none exists.
   void SetResliceAxesDirectionCosines(double x0, double x1, double x2,
-				      double y0, double y1, double y2,
-				      double z0, double z1, double z2);
+                                      double y0, double y1, double y2,
+                                      double z0, double z1, double z2);
   void SetResliceAxesDirectionCosines(const double x[3],
-				      const double y[3],
-				      const double z[3]) {
+                                      const double y[3],
+                                      const double z[3]) {
     this->SetResliceAxesDirectionCosines(x[0], x[1], x[2],
-					 y[0], y[1], y[2],
-					 z[0], z[1], z[2]); };
+                                         y[0], y[1], y[2],
+                                         z[0], z[1], z[2]); };
   void SetResliceAxesDirectionCosines(const double xyz[9]) {
     this->SetResliceAxesDirectionCosines(xyz[0], xyz[1], xyz[2],
-					 xyz[3], xyz[4], xyz[5],
-					 xyz[6], xyz[7], xyz[8]); };
+                                         xyz[3], xyz[4], xyz[5],
+                                         xyz[6], xyz[7], xyz[8]); };
   void GetResliceAxesDirectionCosines(double x[3], double y[3], double z[3]);
   void GetResliceAxesDirectionCosines(double xyz[9]) {
     this->GetResliceAxesDirectionCosines(&xyz[0], &xyz[3], &xyz[6]); };
@@ -255,8 +256,8 @@ public:
   vtkGetVector6Macro(OutputExtent, int);
   void SetOutputExtentToDefault() {
     this->SetOutputExtent(VTK_INT_MIN, VTK_INT_MAX,
-			  VTK_INT_MIN, VTK_INT_MAX,
-			  VTK_INT_MIN, VTK_INT_MAX); };
+                          VTK_INT_MIN, VTK_INT_MAX,
+                          VTK_INT_MIN, VTK_INT_MAX); };
 
   // Description:
   // Force the dimensionality of the output to either 1, 2,
@@ -294,13 +295,12 @@ public:
   int GetInterpolate() {
     return (this->GetInterpolationMode() != VTK_RESLICE_NEAREST); };
 
-//BTX
   // Description:
-  // Helper functions not meant to be used outside this class. 
-  vtkMatrix4x4 *GetIndexMatrix();
-  int FindExtent(int& r1, int& r2, float *point, float *xAxis,
-		 int *inMin, int *inMax, int *outExt);
-//ETX
+  // Use a stencil to limit the calculations to a specific region of
+  // the output.  Portions of the output that are 'outside' the stencil
+  // will be cleared to the background color.  
+  void SetStencil(vtkImageStencilData *stencil);
+  vtkImageStencilData *GetStencil();
 
 protected:
   vtkImageReslice();
@@ -313,7 +313,6 @@ protected:
   double ResliceAxesOrigin[3];
   vtkAbstractTransform *ResliceTransform;
   vtkImageData *InformationInput;
-  vtkMatrix4x4 *IndexMatrix;
   int Wrap;
   int Mirror;
   int InterpolationMode;
@@ -326,16 +325,24 @@ protected:
   int TransformInputSampling;
   int AutoCropOutput;
 
+  vtkMatrix4x4 *IndexMatrix;
+  vtkAbstractTransform *OptimizedTransform;
+
   void GetAutoCroppedOutputBounds(vtkImageData *input, float bounds[6]);
   void ExecuteInformation(vtkImageData *input, vtkImageData *output);
   void ExecuteInformation() {
     this->vtkImageToImageFilter::ExecuteInformation(); };
+  void ComputeInputUpdateExtents(vtkDataObject *output);
   void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
-		       int ext[6], int id);
+                       int ext[6], int id);
+
+  vtkMatrix4x4 *GetIndexMatrix();
+  vtkAbstractTransform *GetOptimizedTransform() { 
+    return this->OptimizedTransform; };
   void OptimizedComputeInputUpdateExtent(int inExt[6], int outExt[6]);
   void OptimizedThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
-				int ext[6], int id);  
+                                int ext[6], int id);
 };
 
 //----------------------------------------------------------------------------
