@@ -2746,5 +2746,29 @@ void vtkEnSightGoldReader::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "CaseFileName: " << this->CaseFileName << "\n";
   os << indent << "FilePath: " << this->FilePath << "\n";
+  os << indent << "NumberOfComplexScalarsPerNode: "
+     << this->NumberOfComplexScalarsPerNode;
+  os << indent << "NumberOfVectorsPerElement :"
+     << this->NumberOfVectorsPerElement;
+  os << indent << "NumberOfTensorsSymmPerElement: "
+     << this->NumberOfTensorsSymmPerElement;
+  os << indent << "NumberOfComplexVectorsPerNode: "
+     << this->NumberOfComplexVectorsPerNode;
+  os << indent << "NumberOfScalarsPerElement: "
+     << this->NumberOfScalarsPerElement;
+  os << indent << "NumberOfComplexVectorsPerElement: "
+     << this->NumberOfComplexVectorsPerElement;
+  os << indent << "NumberOfComplexScalarsPerElement: "
+     << this->NumberOfComplexScalarsPerElement;
+  os << indent << "NumberOfTensorsSymmPerNode: "
+     << this->NumberOfTensorsSymmPerNode;
+  os << indent << "NumberOfScalarsPerMeasuredNode: "
+     << this->NumberOfScalarsPerMeasuredNode;
+  os << indent << "NumberOfVectorsPerMeasuredNode: "
+     << this->NumberOfVectorsPerMeasuredNode;
+  os << indent << "NumberOfScalarsPerNode: "
+     << this->NumberOfScalarsPerNode;
+  os << indent << "NumberOfVectorsPerNode: "
+     << this->NumberOfVectorsPerNode;
 }
 
