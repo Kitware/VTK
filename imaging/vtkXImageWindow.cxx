@@ -326,10 +326,18 @@ void vtkXImageWindow::EraseWindow()
     this->MakeDefaultWindow();
     }
   
+  // If double buffering is on and we don't have a drawable
+  // yet, then we better make one
+  if (this->DoubleBuffer && !this->Drawable)
+    {
+    this->GetGenericDrawable();
+    }
+
   // Erase the drawable if double buffering is on
   // and the drawable exists
   if (this->DoubleBuffer && this->Drawable)
     {
+vtkWarningMacro ("EraseWindow");
     // Get the old foreground and background
     XGCValues vals;
     XGetGCValues(this->DisplayId, this->Gc, GCForeground, &vals);
@@ -338,7 +346,7 @@ void vtkXImageWindow::EraseWindow()
     // Set the foreground color to the background so the rectangle
     // matches the background color
     XColor aColor;
-    aColor.red = 0;
+    aColor.red = 65535;
     aColor.green = 0;
     aColor.blue = 0;
     XAllocColor(this->DisplayId,this->ColorMap,&aColor);
@@ -523,6 +531,8 @@ void vtkXImageWindow::MakeDefaultWindow()
   XVisualInfo info;
   XSetWindowAttributes values;
   Window window;
+  XSizeHints xsh;
+  int x, y, width, height;
 
   vtkDebugMacro (<< "vtkXImageWindow::MakeDefaultWindow" ); 
   
@@ -573,13 +583,31 @@ void vtkXImageWindow::MakeDefaultWindow()
     this->Size[1] = 256;
     }
     
+  xsh.flags = USSize;
+  if ((this->Position[0] >= 0)&&(this->Position[1] >= 0))
+    {
+    xsh.flags |= USPosition;
+    xsh.x =  (int)(this->Position[0]);
+    xsh.y =  (int)(this->Position[1]);
+    }
+  
+  x = ((this->Position[0] >= 0) ? this->Position[0] : 5);
+  y = ((this->Position[1] >= 0) ? this->Position[1] : 5);
+  width = ((this->Size[0] > 0) ? this->Size[0] : 300);
+  height = ((this->Size[1] > 0) ? this->Size[1] : 300);
+
+  xsh.width  = width;
+  xsh.height = height;
+
   window = XCreateWindow(this->DisplayId, this->ParentId,
-			 0, 0, this->Size[0], this->Size[1], 0, info.depth, 
+			 x, y, width, height, 0, info.depth, 
 			 InputOutput, info.visual,
 			 CWEventMask | CWBackPixel | CWBorderPixel | 
 			 CWColormap | CWOverrideRedirect, 
 			 &values);
   XSetStandardProperties(this->DisplayId, window, name, name, None, 0, 0, 0);
+  XSetNormalHints(this->DisplayId,window,&xsh);
+
   XSync(this->DisplayId, False);
   
   // Select event types wanted 
