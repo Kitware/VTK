@@ -169,13 +169,9 @@ public:
   // VTK_QUALITY_ASPECT_RATIO.
   vtkSetMacro(HexQualityMeasure,int);
   vtkGetMacro(HexQualityMeasure,int);
-  void SetHexQualityMeasureToRadiusRatio()
+  void SetHexQualityMeasureToEdgeRatio()
     {
-    this->SetHexQualityMeasure( VTK_QUALITY_RADIUS_RATIO );
-    }
-  void SetHexQualityMeasureToAspectRatio()
-    {
-    this->SetHexQualityMeasure( VTK_QUALITY_ASPECT_RATIO );
+    this->SetHexQualityMeasure( VTK_QUALITY_EDGE_RATIO );
     }
 
   // Description:
@@ -353,9 +349,15 @@ public:
   static double TetEdgeRatio( vtkCell* cell );
 
   // Description:
-  // This is a static function used to calculate the quality of a hexahedron. 
-  // Not implemented yet.
-  static double HexahedronQuality( vtkCell* cell );
+  // This is a static function used to calculate the edge ratio of a hexahedron.
+  // It assumes that you pass the correct type of cell -- no type checking is
+  // performed because this method is called from the inner loop of the Execute()
+  // member function.
+  // The edge ratio of a tetrahedron \f$H\f$ is: 
+  // \f$\frac{|H|_\infty}{|H|_0}\f$,
+  // where \f$|H|_\infty\f$ and \f$|H|_0\f$ respectively denote the greatest and
+  // the smallest edge lengths of \f$H\f$.
+  static double HexEdgeRatio( vtkCell* cell );
 
   // Description:
   // These methods are deprecated. Use Get/SetSaveCellQuality() instead.

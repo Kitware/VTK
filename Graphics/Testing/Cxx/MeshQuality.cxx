@@ -154,6 +154,18 @@ int MeshQuality( int argc, char* argv[] )
     cout << " Edge Ratio:"
          << endl;
     DumpQualityStats( iq, "Mesh Tetrahedron Quality" );
+    cout << endl; 
+
+    cout << "Hexahedral quality of mesh" << endl;
+    cout << mr->GetFileName()
+         << endl;
+    
+    iq->SetHexQualityMeasureToEdgeRatio();
+    iq->Update();
+    cout << " Edge Ratio:"
+         << endl;
+    DumpQualityStats( iq, "Mesh Hexahedron Quality" );
+    cout << endl; 
     }
 
   iq->Delete();

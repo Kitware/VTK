@@ -35,7 +35,7 @@
 #include "vtkMath.h"
 #include "vtkTetra.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality,"1.27");
+vtkCxxRevisionMacro(vtkMeshQuality,"1.28");
 vtkStandardNewMacro(vtkMeshQuality);
 
 typedef double (*CellQualityType)( vtkCell* );
@@ -82,7 +82,7 @@ vtkMeshQuality::vtkMeshQuality()
   this->TriangleQualityMeasure = VTK_QUALITY_RADIUS_RATIO;
   this->QuadQualityMeasure = VTK_QUALITY_EDGE_RATIO;
   this->TetQualityMeasure = VTK_QUALITY_RADIUS_RATIO;
-  this->HexQualityMeasure = VTK_QUALITY_RADIUS_RATIO;
+  this->HexQualityMeasure = VTK_QUALITY_EDGE_RATIO;
   this->Volume = 0;
   this->CompatibilityMode = 0;
 }
@@ -107,7 +107,7 @@ int vtkMeshQuality::RequestData(
   vtkDataSet *out = vtkDataSet::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  CellQualityType TriangleQuality,QuadQuality,TetQuality;
+  CellQualityType TriangleQuality,QuadQuality,TetQuality,HexQuality;
   vtkDoubleArray* quality = 0;
   vtkDoubleArray* volume = 0;
   vtkIdType N = in->GetNumberOfCells();
@@ -197,6 +197,18 @@ int vtkMeshQuality::RequestData(
       vtkWarningMacro( "Bad TetQualityMeasure ("
         << this->GetTetQualityMeasure() << "), using RadiusRatio instead");
       TetQuality = TetRadiusRatio;
+      break;
+    }
+
+  switch ( this->GetHexQualityMeasure() )
+    {
+    case VTK_QUALITY_EDGE_RATIO:
+      HexQuality = HexEdgeRatio;
+      break;
+    default:
+      vtkWarningMacro( "Bad HexQualityMeasure ("
+        << this->GetTetQualityMeasure() << "), using EdgeRatio instead");
+      HexQuality = HexEdgeRatio;
       break;
     }
 
@@ -316,7 +328,7 @@ int vtkMeshQuality::RequestData(
           }
         break;
       case VTK_HEXAHEDRON:
-        q = HexahedronQuality( cell );
+        q = HexQuality( cell );
         if ( q > qhexM )
           {
           if ( qhexm > qhexM )
@@ -1150,7 +1162,7 @@ double vtkMeshQuality::TetFrobeniusNorm( vtkCell* cell )
 double vtkMeshQuality::TetEdgeRatio( vtkCell* cell )
 {
   double p0[3],p1[3],p2[3],p3[3];
-  double u[3],v[3],w[3],x[3],y[3],z[3];
+  double a[3],b[3],c[3],d[3],e[3],f[3];
   double a2,b2,c2,d2,e2,f2;
   double m2,M2,mab,mcd,mef,Mab,Mcd,Mef;
  
@@ -1160,36 +1172,36 @@ double vtkMeshQuality::TetEdgeRatio( vtkCell* cell )
   p->GetPoint(2, p2);
   p->GetPoint(3, p3);
 
-  u[0] = p1[0]-p0[0];
-  u[1] = p1[1]-p0[1];
-  u[2] = p1[2]-p0[2];
+  a[0] = p1[0]-p0[0];
+  a[1] = p1[1]-p0[1];
+  a[2] = p1[2]-p0[2];
  
-  v[0] = p2[0]-p1[0];
-  v[1] = p2[1]-p1[1];
-  v[2] = p2[2]-p1[2];
+  b[0] = p2[0]-p1[0];
+  b[1] = p2[1]-p1[1];
+  b[2] = p2[2]-p1[2];
  
-  w[0] = p2[0]-p0[0];
-  w[1] = p2[1]-p0[1];
-  w[2] = p2[2]-p0[2];
+  c[0] = p2[0]-p0[0];
+  c[1] = p2[1]-p0[1];
+  c[2] = p2[2]-p0[2];
  
-  x[0] = p3[0]-p0[0];
-  x[1] = p3[1]-p0[1];
-  x[2] = p3[2]-p0[2];
+  d[0] = p3[0]-p0[0];
+  d[1] = p3[1]-p0[1];
+  d[2] = p3[2]-p0[2];
  
-  y[0] = p3[0]-p1[0];
-  y[1] = p3[1]-p1[1];
-  y[2] = p3[2]-p1[2];
+  e[0] = p3[0]-p1[0];
+  e[1] = p3[1]-p1[1];
+  e[2] = p3[2]-p1[2];
  
-  z[0] = p3[0]-p2[0];
-  z[1] = p3[1]-p2[1];
-  z[2] = p3[2]-p2[2];
+  f[0] = p3[0]-p2[0];
+  f[1] = p3[1]-p2[1];
+  f[2] = p3[2]-p2[2];
 
-  a2 = vtkMath::Dot(u,u);
-  b2 = vtkMath::Dot(v,v);
-  c2 = vtkMath::Dot(w,w);
-  d2 = vtkMath::Dot(x,x);
-  e2 = vtkMath::Dot(y,y);
-  f2 = vtkMath::Dot(z,z);
+  a2 = vtkMath::Dot(a,a);
+  b2 = vtkMath::Dot(b,b);
+  c2 = vtkMath::Dot(c,c);
+  d2 = vtkMath::Dot(d,d);
+  e2 = vtkMath::Dot(e,e);
+  f2 = vtkMath::Dot(f,f);
 
   if ( a2 < b2 )
     {
@@ -1230,8 +1242,161 @@ double vtkMeshQuality::TetEdgeRatio( vtkCell* cell )
   return sqrt(M2 / m2);
 }
 
-double vtkMeshQuality::HexahedronQuality( vtkCell* vtkNotUsed(cell) )
+double vtkMeshQuality::HexEdgeRatio( vtkCell* cell)
 {
-  return 1.;
+  double p0[3],p1[3],p2[3],p3[3];
+  double p4[3],p5[3],p6[3],p7[3];
+  double a[3],b[3],c[3],d[3],e[3],f[3];
+  double g[3],h[3],i[3],j[3],k[3],l[3];
+  double a2,b2,c2,d2,e2,f2;
+  double g2,h2,i2,j2,k2,l2;
+  double mab,mcd,mef,Mab,Mcd,Mef;
+  double mgh,mij,mkl,Mgh,Mij,Mkl;
+  double m2,M2;
+ 
+  vtkPoints *p = cell->GetPoints();
+  p->GetPoint(0, p0);
+  p->GetPoint(1, p1);
+  p->GetPoint(2, p2);
+  p->GetPoint(3, p3);
+  p->GetPoint(4, p4);
+  p->GetPoint(5, p5);
+  p->GetPoint(6, p6);
+  p->GetPoint(7, p7);
+
+  a[0] = p1[0]-p0[0];
+  a[1] = p1[1]-p0[1];
+  a[2] = p1[2]-p0[2];
+ 
+  b[0] = p2[0]-p1[0];
+  b[1] = p2[1]-p1[1];
+  b[2] = p2[2]-p1[2];
+ 
+  c[0] = p3[0]-p2[0];
+  c[1] = p3[1]-p2[1];
+  c[2] = p3[2]-p2[2];
+ 
+  d[0] = p0[0]-p3[0];
+  d[1] = p0[1]-p3[1];
+  d[2] = p0[2]-p3[2];
+ 
+  e[0] = p4[0]-p0[0];
+  e[1] = p4[1]-p0[1];
+  e[2] = p4[2]-p0[2];
+ 
+  f[0] = p5[0]-p1[0];
+  f[1] = p5[1]-p1[1];
+  f[2] = p5[2]-p1[2];
+
+  g[0] = p6[0]-p2[0];
+  g[1] = p6[1]-p2[1];
+  g[2] = p6[2]-p2[2];
+
+  h[0] = p7[0]-p3[0];
+  h[1] = p7[1]-p3[1];
+  h[2] = p7[2]-p3[2];
+
+  i[0] = p5[0]-p4[0];
+  i[1] = p5[1]-p4[1];
+  i[2] = p5[2]-p4[2];
+ 
+  j[0] = p6[0]-p5[0];
+  j[1] = p6[1]-p5[1];
+  j[2] = p6[2]-p5[2];
+
+  k[0] = p7[0]-p6[0];
+  k[1] = p7[1]-p6[1];
+  k[2] = p7[2]-p6[2];
+
+  l[0] = p4[0]-p7[0];
+  l[1] = p4[1]-p7[1];
+  l[2] = p4[2]-p7[2];
+
+  a2 = vtkMath::Dot(a,a);
+  b2 = vtkMath::Dot(b,b);
+  c2 = vtkMath::Dot(c,c);
+  d2 = vtkMath::Dot(d,d);
+  e2 = vtkMath::Dot(e,e);
+  f2 = vtkMath::Dot(f,f);
+  g2 = vtkMath::Dot(g,g);
+  h2 = vtkMath::Dot(h,h);
+  i2 = vtkMath::Dot(i,i);
+  j2 = vtkMath::Dot(j,j);
+  k2 = vtkMath::Dot(k,k);
+  l2 = vtkMath::Dot(l,l);
+
+  if ( a2 < b2 )
+    {
+      mab = a2;
+      Mab = b2;
+    }
+  else // b2 <= a2
+    {
+      mab = b2;
+      Mab = a2;
+    }
+  if ( c2 < d2 )
+    {
+      mcd = c2;
+      Mcd = d2;
+    }
+  else // d2 <= c2
+    {
+      mcd = d2;
+      Mcd = c2;
+    }
+  if ( e2 < f2 )
+    {
+      mef = e2;
+      Mef = f2;
+    }
+  else // f2 <= e2
+    {
+      mef = f2;
+      Mef = e2;
+    }
+  if ( g2 < h2 )
+    {
+      mgh = g2;
+      Mgh = h2;
+    }
+  else // h2 <= g2
+    {
+      mgh = h2;
+      Mgh = g2;
+    }
+  if ( i2 < j2 )
+    {
+      mij = i2;
+      Mij = j2;
+    }
+  else // j2 <= i2
+    {
+      mij = j2;
+      Mij = i2;
+    }
+  if ( k2 < l2 )
+    {
+      mkl = k2;
+      Mkl = l2;
+    }
+  else // l2 <= k2
+    {
+      mkl = l2;
+      Mkl = k2;
+    }
+
+  m2 = mab < mcd ? mab : mcd;
+  m2 = m2  < mef ? m2  : mef;
+  m2 = m2  < mgh ? m2  : mgh;
+  m2 = m2  < mij ? m2  : mij;
+  m2 = m2  < mkl ? m2  : mkl;
+  M2 = Mab > Mcd ? Mab : Mcd;
+  M2 = M2  > Mef ? M2  : Mef;
+  M2 = M2  > Mgh ? M2  : Mgh;
+  M2 = M2  > Mij ? M2  : Mij;
+  M2 = M2  > Mkl ? M2  : Mkl;
+
+  return sqrt(M2 / m2);
 }
 
