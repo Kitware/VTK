@@ -72,6 +72,7 @@ IF (VTK_USE_RENDERING)
         TestSobel3D
         TestStencilWithFunction
         TestStencilWithImage
+        TestThreshold
         TestVariance3D
         TestWrapPad
 	voxelModel
