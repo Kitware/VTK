@@ -72,6 +72,7 @@ void vtkStreamLine::Execute()
 //
   for (ptId=0; ptId < this->NumberOfStreamers; ptId++)
     {
+    npts = 0;
     if ( this->Streamers[ptId].GetNumberOfPoints() < 2 ) continue;
 
     sPrev = this->Streamers[ptId].GetStreamPoint(0);
@@ -88,15 +89,6 @@ void vtkStreamLine::Execute()
     i < this->Streamers[ptId].GetNumberOfPoints() && sPtr->cellId >= 0;
     i++, sPrev=sPtr, sPtr=this->Streamers[ptId].GetStreamPoint(i) )
       {
-
-      if ( i == 0 ) //create first point
-        {
-        npts = 1;
-        pts[0] = newPts->InsertNextPoint(sPrev->x);
-        newVectors->InsertVector(pts[0],sPrev->v);
-        if ( newScalars ) newScalars->InsertScalar(pts[0],sPrev->s);
-        continue;
-        }
 //
 // Search for end of segment and create line segments
 //
