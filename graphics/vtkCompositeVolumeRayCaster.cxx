@@ -57,10 +57,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // and does not perform shading.
 template <class T>
 static void CastRay_NN_Unshaded( vtkCompositeVolumeRayCaster *mapper, 
-			  T *data_ptr,
-			  float ray_start[3], 
-			  float ray_increment[3],
-			  int num_steps, float pixel_value[6] )
+				 T *data_ptr,
+				 float ray_start[3], 
+				 float ray_increment[3],
+				 int num_steps, float pixel_value[6] )
 {
   int             value;
   float           accum_red_intensity;
@@ -228,10 +228,10 @@ static void CastRay_NN_Unshaded( vtkCompositeVolumeRayCaster *mapper,
 // perform shading.
 template <class T>
 static void CastRay_NN_Shaded( vtkCompositeVolumeRayCaster *mapper, 
-			T *data_ptr,
-			float ray_start[3], 
-			float ray_increment[3],
-			int num_steps, float pixel_value[6] )
+			       T *data_ptr,
+			       float ray_start[3], 
+			       float ray_increment[3],
+			       int num_steps, float pixel_value[6] )
 {
   int             value;
   float           accum_red_intensity;
@@ -499,11 +499,12 @@ static void CastRay_NN_Shaded( vtkCompositeVolumeRayCaster *mapper,
 // the composite value.  This version uses trilinear interpolation and
 // does not compute shading
 template <class T>
-static void CastRay_Trilin_Unshaded( vtkCompositeVolumeRayCaster *mapper, 
-			      T *data_ptr,
-			      float ray_start[3], 
-			      float ray_increment[3],
-			      int num_steps, float pixel_value[6] )
+static void CastRay_TrilinVertices_Unshaded( 
+					  vtkCompositeVolumeRayCaster *mapper, 
+					  T *data_ptr,
+					  float ray_start[3], 
+					  float ray_increment[3],
+					  int num_steps, float pixel_value[6] )
 {
   float           accum_intensity;
   float           accum_red_intensity;
@@ -862,11 +863,12 @@ static void CastRay_Trilin_Unshaded( vtkCompositeVolumeRayCaster *mapper,
 // the composite value.  This version uses trilinear interpolation, and
 // does perform shading.
 template <class T>
-static void CastRay_Trilin_Shaded( vtkCompositeVolumeRayCaster *mapper, 
-			    T *data_ptr,
-			    float ray_start[3], 
-			    float ray_increment[3],
-			    int num_steps, float pixel_value[6] )
+static void CastRay_TrilinVertices_Shaded( 
+					  vtkCompositeVolumeRayCaster *mapper, 
+					  T *data_ptr,
+					  float ray_start[3], 
+					  float ray_increment[3],
+					  int num_steps, float pixel_value[6] )
 {
   float           accum_red_intensity;
   float           accum_green_intensity;
@@ -972,7 +974,8 @@ static void CastRay_Trilin_Shaded( vtkCompositeVolumeRayCaster *mapper,
 
     // For each step along the ray
     for ( loop = 0; 
-          loop < num_steps && remaining_opacity > VTK_REMAINING_OPACITY; loop++ )
+          loop < num_steps && remaining_opacity > VTK_REMAINING_OPACITY; 
+	  loop++ )
       {	    
       // We've taken another step
       steps_this_ray++;
@@ -1159,7 +1162,8 @@ static void CastRay_Trilin_Shaded( vtkCompositeVolumeRayCaster *mapper,
     {
     // For each step along the ray
     for ( loop = 0; 
-          loop < num_steps && remaining_opacity > VTK_REMAINING_OPACITY; loop++ )
+          loop < num_steps && remaining_opacity > VTK_REMAINING_OPACITY; 
+	  loop++ )
       {	    
       // We've taken another step
       steps_this_ray++;
@@ -1367,6 +1371,563 @@ static void CastRay_Trilin_Shaded( vtkCompositeVolumeRayCaster *mapper,
 }
 
 // Description:
+// This is the templated function that actually casts a ray and computes
+// the composite value.  This version uses trilinear interpolation and
+// does not compute shading
+template <class T>
+static void CastRay_TrilinSample_Unshaded( 
+					  vtkCompositeVolumeRayCaster *mapper, 
+					  T *data_ptr,
+					  float ray_start[3], 
+					  float ray_increment[3],
+					  int num_steps, float pixel_value[6] )
+{
+  float           accum_intensity;
+  float           accum_red_intensity;
+  float           accum_green_intensity;
+  float           accum_blue_intensity;
+  float           remaining_opacity;
+  float           red_value, green_value, blue_value;
+  float           opacity;
+  int             loop;
+  int             xinc, yinc, zinc;
+  int             voxel[3];
+  float           ray_position[3];
+  int             prev_voxel[3];
+  float           A, B, C, D, E, F, G, H;
+  int             Binc, Cinc, Dinc, Einc, Finc, Ginc, Hinc;
+  T               *dptr;
+  float           *COTF;
+  float           *CTF;
+  float           x, y, z, t1, t2, t3;
+  int             offset;
+  int             steps_this_ray = 0;
+  float           scalar_value;
+
+  // Get the opacity transfer function which maps scalar input values
+  // to opacities
+  COTF =  mapper->CorrectedOpacityTFArray;
+
+  // Get the color transfer function which maps scalar input values
+  // to RGB colors
+  CTF =  mapper->ColorTFArray;
+
+  // Move the increments into local variables
+  xinc = mapper->DataIncrement[0];
+  yinc = mapper->DataIncrement[1];
+  zinc = mapper->DataIncrement[2];
+
+  // Initialize the ray position and voxel location
+  ray_position[0] = ray_start[0];
+  ray_position[1] = ray_start[1];
+  ray_position[2] = ray_start[2];
+  voxel[0] = (int)( ray_position[0] );
+  voxel[1] = (int)( ray_position[1] );
+  voxel[2] = (int)( ray_position[2] );
+
+  // So far we have not accumulated anything
+  accum_intensity         = 0.0;
+  accum_red_intensity     = 0.0;
+  accum_green_intensity   = 0.0;
+  accum_blue_intensity    = 0.0;
+  remaining_opacity       = 1.0;
+
+  // Compute the increments to get to the other 7 voxel vertices from A
+  Binc = xinc;
+  Cinc = yinc;
+  Dinc = xinc + yinc;
+  Einc = zinc;
+  Finc = zinc + xinc;
+  Ginc = zinc + yinc;
+  Hinc = zinc + xinc + yinc;
+  
+  // Compute the values for the first pass through the loop
+  offset = voxel[2] * zinc + voxel[1] * yinc + voxel[0];
+  dptr = data_ptr + offset;
+
+  A = *(dptr);
+  B = *(dptr + Binc);
+  C = *(dptr + Cinc);
+  D = *(dptr + Dinc);
+  E = *(dptr + Einc);
+  F = *(dptr + Finc);
+  G = *(dptr + Ginc);
+  H = *(dptr + Hinc);  
+
+  // Keep track of previous voxel to know when we step into a new one  
+  prev_voxel[0] = voxel[0];
+  prev_voxel[1] = voxel[1];
+  prev_voxel[2] = voxel[2];
+
+  // Two cases - we are working with a single color or a color transfer
+  // function - break them up to make it more efficient
+  if ( mapper->ColorType == VTK_SINGLE_COLOR ) 
+    {
+    // For each step along the ray
+    for ( loop = 0; 
+          loop < num_steps && remaining_opacity > VTK_REMAINING_OPACITY; 
+	  loop++ )
+      {	    
+      // We've taken another step
+      steps_this_ray++;
+      
+      // Have we moved into a new voxel? If so we need to recompute A-H
+      if ( prev_voxel[0] != voxel[0] ||
+	   prev_voxel[1] != voxel[1] ||
+	   prev_voxel[2] != voxel[2] )
+	{
+	offset = voxel[2] * zinc + voxel[1] * yinc + voxel[0];
+	dptr = data_ptr + offset;
+	
+	A = *(dptr);
+	B = *(dptr + Binc);
+	C = *(dptr + Cinc);
+	D = *(dptr + Dinc);
+	E = *(dptr + Einc);
+	F = *(dptr + Finc);
+	G = *(dptr + Ginc);
+	H = *(dptr + Hinc);
+	
+	prev_voxel[0] = voxel[0];
+	prev_voxel[1] = voxel[1];
+	prev_voxel[2] = voxel[2];
+	}
+      
+      // Compute our offset in the voxel, and use that to trilinearly
+      // interpolate the value
+      x = ray_position[0] - (float) voxel[0];
+      y = ray_position[1] - (float) voxel[1];
+      z = ray_position[2] - (float) voxel[2];
+      
+      t1 = 1.0 - x;
+      t2 = 1.0 - y;
+      t3 = 1.0 - z;
+
+      scalar_value = 
+	A * t1 * t2 * t3 +
+	B *  x * t2 * t3 +
+	C * t1 *  y * t3 + 
+	D *  x *  y * t3 +
+	E * t1 * t2 *  z + 
+	F *  x * t2 *  z + 
+	G * t1 *  y *  z + 
+	H *  x *  y *  z;
+
+      if ( scalar_value < 0.0 ) 
+	scalar_value = 0.0;
+      else if ( scalar_value > mapper->OpacityTFArraySize - 1 )
+	scalar_value = mapper->OpacityTFArraySize - 1;
+
+      opacity = COTF[(int)scalar_value];
+      
+      // Accumulate intensity and opacity for this sample location
+      accum_intensity += opacity * remaining_opacity;
+      remaining_opacity *= (1.0 - opacity);
+      
+      // Increment our position and compute our voxel location
+      ray_position[0] += ray_increment[0];
+      ray_position[1] += ray_increment[1];
+      ray_position[2] += ray_increment[2];      
+      voxel[0] = (int)( ray_position[0] );
+      voxel[1] = (int)( ray_position[1] );
+      voxel[2] = (int)( ray_position[2] );
+      }
+    accum_red_intensity   = accum_intensity * mapper->SingleColor[0];
+    accum_green_intensity = accum_intensity * mapper->SingleColor[1];
+    accum_blue_intensity  = accum_intensity * mapper->SingleColor[2];
+    }
+  else if ( mapper->ColorType == VTK_TRANSFER_FUNCTION )
+    {
+    // For each step along the ray
+    for ( loop = 0; 
+          loop < num_steps && remaining_opacity > VTK_REMAINING_OPACITY; 
+	  loop++ )
+      {	    
+      // We've taken another step
+      steps_this_ray++;
+      
+      // Have we moved into a new voxel? If so we need to recompute A-H
+      if ( prev_voxel[0] != voxel[0] ||
+	   prev_voxel[1] != voxel[1] ||
+	   prev_voxel[2] != voxel[2] )
+	{
+	offset = voxel[2] * zinc + voxel[1] * yinc + voxel[0];
+	dptr = data_ptr + offset;
+	
+	A = *(dptr);
+	B = *(dptr + Binc);
+	C = *(dptr + Cinc);
+	D = *(dptr + Dinc);
+	E = *(dptr + Einc);
+	F = *(dptr + Finc);
+	G = *(dptr + Ginc);
+	H = *(dptr + Hinc);
+	
+	prev_voxel[0] = voxel[0];
+	prev_voxel[1] = voxel[1];
+	prev_voxel[2] = voxel[2];
+	}
+      
+      // Compute our offset in the voxel, and use that to trilinearly
+      // interpolate the value
+      x = ray_position[0] - (float) voxel[0];
+      y = ray_position[1] - (float) voxel[1];
+      z = ray_position[2] - (float) voxel[2];
+      
+      t1 = 1.0 - x;
+      t2 = 1.0 - y;
+      t3 = 1.0 - z;
+      
+      scalar_value = 
+	A * t1 * t2 * t3 +
+	B *  x * t2 * t3 +
+	C * t1 *  y * t3 + 
+	D *  x *  y * t3 +
+	E * t1 * t2 *  z + 
+	F *  x * t2 *  z + 
+	G * t1 *  y *  z + 
+	H *  x *  y *  z;
+
+      if ( scalar_value < 0.0 ) 
+	scalar_value = 0.0;
+      else if ( scalar_value > mapper->OpacityTFArraySize - 1 )
+	scalar_value = mapper->OpacityTFArraySize - 1;
+
+      opacity = COTF[(int)scalar_value];
+
+      red_value   = opacity * CTF[((int)scalar_value) * 3    ];
+      green_value = opacity * CTF[((int)scalar_value) * 3 + 1];
+      blue_value  = opacity * CTF[((int)scalar_value) * 3 + 2];
+
+      // Accumulate intensity and opacity for this sample location
+      accum_red_intensity   += remaining_opacity * red_value;
+      accum_green_intensity += remaining_opacity * green_value;
+      accum_blue_intensity  += remaining_opacity * blue_value;
+      remaining_opacity *= (1.0 - opacity);
+      
+      // Increment our position and compute our voxel location
+      ray_position[0] += ray_increment[0];
+      ray_position[1] += ray_increment[1];
+      ray_position[2] += ray_increment[2];      
+      voxel[0] = (int)( ray_position[0] );
+      voxel[1] = (int)( ray_position[1] );
+      voxel[2] = (int)( ray_position[2] );
+      }
+    }
+
+  // Cap the intensity value at 1.0
+  if ( accum_red_intensity > 1.0 )
+    accum_red_intensity = 1.0;
+  if ( accum_green_intensity > 1.0 )
+    accum_green_intensity = 1.0;
+  if ( accum_blue_intensity > 1.0 )
+    accum_blue_intensity = 1.0;
+  
+  if( remaining_opacity < VTK_REMAINING_OPACITY )
+    remaining_opacity = 0.0;
+
+  // Set the return pixel value.  The depth value is currently useless and
+  // should be fixed.  What should depth be in this case?  First 
+  // non-opaque or total opacity or what??
+  pixel_value[0] = accum_red_intensity;
+  pixel_value[1] = accum_green_intensity;
+  pixel_value[2] = accum_blue_intensity;
+  pixel_value[3] = 1.0 - remaining_opacity;
+  pixel_value[4] = 0.3;
+  pixel_value[5] = steps_this_ray;
+
+}
+
+// Description:
+// This is the templated function that actually casts a ray and computes
+// the composite value.  This version uses trilinear interpolation, and
+// does perform shading.
+template <class T>
+static void CastRay_TrilinSample_Shaded( 
+					vtkCompositeVolumeRayCaster *mapper, 
+					T *data_ptr,
+					float ray_start[3], 
+					float ray_increment[3],
+					int num_steps, float pixel_value[6] )
+{
+  float           accum_red_intensity;
+  float           accum_green_intensity;
+  float           accum_blue_intensity;
+  float           remaining_opacity;
+  float           opacity;
+  int             loop;
+  int             xinc, yinc, zinc;
+  int             voxel[3];
+  float           ray_position[3];
+  int             prev_voxel[3];
+  float           A, B, C, D, E, F, G, H;
+  float           A_rd, B_rd, C_rd, D_rd, E_rd, F_rd, G_rd, H_rd;
+  float           A_gd, B_gd, C_gd, D_gd, E_gd, F_gd, G_gd, H_gd;
+  float           A_bd, B_bd, C_bd, D_bd, E_bd, F_bd, G_bd, H_bd;
+  float           A_rs, B_rs, C_rs, D_rs, E_rs, F_rs, G_rs, H_rs;
+  float           A_gs, B_gs, C_gs, D_gs, E_gs, F_gs, G_gs, H_gs;
+  float           A_bs, B_bs, C_bs, D_bs, E_bs, F_bs, G_bs, H_bs;
+  float           final_rd, final_gd, final_bd;
+  float           final_rs, final_gs, final_bs;
+  int             Binc, Cinc, Dinc, Einc, Finc, Ginc, Hinc;
+  T               *dptr;
+  float           *COTF;
+  float           *CTF;
+  float           x, y, z, t1, t2, t3;
+  float           tA, tB, tC, tD, tE, tF, tG, tH;
+  float           *red_d_shade, *green_d_shade, *blue_d_shade;
+  float           *red_s_shade, *green_s_shade, *blue_s_shade;
+  unsigned short  *encoded_normals, *nptr;
+  float           red_shaded_value, green_shaded_value, blue_shaded_value;
+  int             offset;
+  int             steps_this_ray = 0;
+  float           scalar_value;
+  float           r, g, b;
+
+  // Get diffuse shading table pointers
+  red_d_shade = mapper->NormalEncoder.GetRedDiffuseShadingTable();
+  green_d_shade = mapper->NormalEncoder.GetGreenDiffuseShadingTable();
+  blue_d_shade = mapper->NormalEncoder.GetBlueDiffuseShadingTable();
+
+
+  // Get diffuse shading table pointers
+  red_s_shade = mapper->NormalEncoder.GetRedSpecularShadingTable();
+  green_s_shade = mapper->NormalEncoder.GetGreenSpecularShadingTable();
+  blue_s_shade = mapper->NormalEncoder.GetBlueSpecularShadingTable();
+
+  // Get a pointer to the encoded normals for this volume
+  encoded_normals = mapper->NormalEncoder.GetEncodedNormals();
+
+  // Get the opacity transfer function which maps scalar input values
+  // to opacities
+  COTF =  mapper->CorrectedOpacityTFArray;
+
+  // Get the color transfer function which maps scalar input values
+  // to RGB values
+  CTF =  mapper->ColorTFArray;
+
+  // Move the increments into local variables
+  xinc = mapper->DataIncrement[0];
+  yinc = mapper->DataIncrement[1];
+  zinc = mapper->DataIncrement[2];
+
+  // Initialize the ray position and voxel location
+  ray_position[0] = ray_start[0];
+  ray_position[1] = ray_start[1];
+  ray_position[2] = ray_start[2];
+  voxel[0] = (int)( ray_position[0] );
+  voxel[1] = (int)( ray_position[1] );
+  voxel[2] = (int)( ray_position[2] );
+
+  // So far we haven't accumulated anything
+  accum_red_intensity   = 0.0;
+  accum_green_intensity = 0.0;
+  accum_blue_intensity  = 0.0;
+  remaining_opacity     = 1.0;
+
+  // Compute the increments to get to the other 7 voxel vertices from A
+  Binc = xinc;
+  Cinc = yinc;
+  Dinc = xinc + yinc;
+  Einc = zinc;
+  Finc = zinc + xinc;
+  Ginc = zinc + yinc;
+  Hinc = zinc + xinc + yinc;
+  
+   // Compute the values for the first pass through the loop
+  offset = voxel[2] * zinc + voxel[1] * yinc + voxel[0];
+  dptr = data_ptr + offset;
+  nptr = encoded_normals + offset;
+
+  // Two cases - we are working with a single color or a color transfer
+  // function - break them up to make it more efficient
+  if ( mapper->ColorType == VTK_SINGLE_COLOR ) 
+    {
+    r = mapper->SingleColor[0];
+    g = mapper->SingleColor[1];
+    b = mapper->SingleColor[2];
+    }
+  // For each step along the ray
+  for ( loop = 0; 
+	loop < num_steps && remaining_opacity > VTK_REMAINING_OPACITY; 
+	loop++ )
+    {	    
+    // We've taken another step
+    steps_this_ray++;
+      
+    offset = voxel[2] * zinc + voxel[1] * yinc + voxel[0];
+    dptr = data_ptr + offset;
+    nptr = encoded_normals + offset;
+    
+    A = *(dptr);
+    B = *(dptr + Binc);
+    C = *(dptr + Cinc);
+    D = *(dptr + Dinc);
+    E = *(dptr + Einc);
+    F = *(dptr + Finc);
+    G = *(dptr + Ginc);
+    H = *(dptr + Hinc);
+    
+    A_rd = red_d_shade[ *(nptr) ];
+    B_rd = red_d_shade[ *(nptr + Binc) ];
+    C_rd = red_d_shade[ *(nptr + Cinc) ];
+    D_rd = red_d_shade[ *(nptr + Dinc) ];
+    E_rd = red_d_shade[ *(nptr + Einc) ];
+    F_rd = red_d_shade[ *(nptr + Finc) ];
+    G_rd = red_d_shade[ *(nptr + Ginc) ];
+    H_rd = red_d_shade[ *(nptr + Hinc) ];
+    
+    A_gd = green_d_shade[ *(nptr) ];
+    B_gd = green_d_shade[ *(nptr + Binc) ];
+    C_gd = green_d_shade[ *(nptr + Cinc) ];
+    D_gd = green_d_shade[ *(nptr + Dinc) ];
+    E_gd = green_d_shade[ *(nptr + Einc) ];
+    F_gd = green_d_shade[ *(nptr + Finc) ];
+    G_gd = green_d_shade[ *(nptr + Ginc) ];
+    H_gd = green_d_shade[ *(nptr + Hinc) ];
+    
+    A_bd = blue_d_shade[ *(nptr) ];
+    B_bd = blue_d_shade[ *(nptr + Binc) ];
+    C_bd = blue_d_shade[ *(nptr + Cinc) ];
+    D_bd = blue_d_shade[ *(nptr + Dinc) ];
+    E_bd = blue_d_shade[ *(nptr + Einc) ];
+    F_bd = blue_d_shade[ *(nptr + Finc) ];
+    G_bd = blue_d_shade[ *(nptr + Ginc) ];
+    H_bd = blue_d_shade[ *(nptr + Hinc) ];
+    
+    A_rs = red_s_shade[ *(nptr) ];
+    B_rs = red_s_shade[ *(nptr + Binc) ];
+    C_rs = red_s_shade[ *(nptr + Cinc) ];
+    D_rs = red_s_shade[ *(nptr + Dinc) ];
+    E_rs = red_s_shade[ *(nptr + Einc) ];
+    F_rs = red_s_shade[ *(nptr + Finc) ];
+    G_rs = red_s_shade[ *(nptr + Ginc) ];
+    H_rs = red_s_shade[ *(nptr + Hinc) ];
+    
+    A_gs = green_s_shade[ *(nptr) ];
+    B_gs = green_s_shade[ *(nptr + Binc) ];
+    C_gs = green_s_shade[ *(nptr + Cinc) ];
+    D_gs = green_s_shade[ *(nptr + Dinc) ];
+    E_gs = green_s_shade[ *(nptr + Einc) ];
+    F_gs = green_s_shade[ *(nptr + Finc) ];
+    G_gs = green_s_shade[ *(nptr + Ginc) ];
+    H_gs = green_s_shade[ *(nptr + Hinc) ];
+
+    A_bs = blue_s_shade[ *(nptr) ];
+    B_bs = blue_s_shade[ *(nptr + Binc) ];
+    C_bs = blue_s_shade[ *(nptr + Cinc) ];
+    D_bs = blue_s_shade[ *(nptr + Dinc) ];
+    E_bs = blue_s_shade[ *(nptr + Einc) ];
+    F_bs = blue_s_shade[ *(nptr + Finc) ];
+    G_bs = blue_s_shade[ *(nptr + Ginc) ];
+    H_bs = blue_s_shade[ *(nptr + Hinc) ];
+    
+    // Compute our offset in the voxel, and use that to trilinearly
+    // interpolate a value
+    x = ray_position[0] - (float) voxel[0];
+    y = ray_position[1] - (float) voxel[1];
+    z = ray_position[2] - (float) voxel[2];
+      
+    t1 = 1.0 - x;
+    t2 = 1.0 - y;
+    t3 = 1.0 - z;
+    
+    tA = t1 * t2 * t3;
+    tB =  x * t2 * t3;
+    tC = t1 *  y * t3;
+    tD =  x *  y * t3;
+    tE = t1 * t2 *  z;
+    tF =  x * t2 *  z;
+    tG = t1 *  y *  z;
+    tH =  x *  y *  z;
+    
+    scalar_value = 
+      A * tA + B * tB + C * tC + D * tD + 
+      E * tE + F * tF + G * tG + H * tH;
+    
+    if ( scalar_value < 0.0 ) 
+      scalar_value = 0.0;
+    else if ( scalar_value > mapper->OpacityTFArraySize - 1 )
+      scalar_value = mapper->OpacityTFArraySize - 1;
+    
+    opacity = COTF[(int)scalar_value];
+    
+    final_rd = 
+      A_rd * tA +	B_rd * tB + 	C_rd * tC + 	D_rd * tD + 
+      E_rd * tE +	F_rd * tF +	G_rd * tG + 	H_rd * tH;
+    
+    final_gd = 
+      A_gd * tA +	B_gd * tB + 	C_gd * tC + 	D_gd * tD + 
+      E_gd * tE +	F_gd * tF +	G_gd * tG + 	H_gd * tH;
+    
+    final_bd = 
+      A_bd * tA +	B_bd * tB + 	C_bd * tC + 	D_bd * tD + 
+      E_bd * tE +	F_bd * tF +	G_bd * tG + 	H_bd * tH;
+    
+    final_rs = 
+      A_rs * tA +	B_rs * tB + 	C_rs * tC + 	D_rs * tD + 
+      E_rs * tE +	F_rs * tF +	G_rs * tG + 	H_rs * tH;
+    
+    final_gs = 
+      A_gs * tA +	B_gs * tB + 	C_gs * tC + 	D_gs * tD + 
+      E_gs * tE +	F_gs * tF +	G_gs * tG + 	H_gs * tH;
+    
+    final_bs = 
+      A_bs * tA +	B_bs * tB + 	C_bs * tC + 	D_bs * tD + 
+      E_bs * tE +	F_bs * tF +	G_bs * tG + 	H_bs * tH;
+
+    if ( mapper->ColorType == VTK_TRANSFER_FUNCTION )
+      {
+      r = CTF[((int) scalar_value) * 3    ];
+      g = CTF[((int) scalar_value) * 3 + 1];
+      b = CTF[((int) scalar_value) * 3 + 2];
+      }
+
+    // For this sample we have do not yet have any opacity or
+    // shaded intensity yet
+    red_shaded_value   = opacity * ( final_rd * r + final_rs );
+    green_shaded_value = opacity * ( final_gd * g + final_gs );
+    blue_shaded_value  = opacity * ( final_bd * b + final_bs );
+      
+    // Accumulate intensity and opacity for this sample location   
+    accum_red_intensity   += red_shaded_value   * remaining_opacity;
+    accum_green_intensity += green_shaded_value * remaining_opacity;
+    accum_blue_intensity  += blue_shaded_value  * remaining_opacity;
+    remaining_opacity *= (1.0 - opacity);
+      
+    // Increment our position and compute our voxel location
+    ray_position[0] += ray_increment[0];
+    ray_position[1] += ray_increment[1];
+    ray_position[2] += ray_increment[2];      
+    voxel[0] = (int)( ray_position[0] );
+    voxel[1] = (int)( ray_position[1] );
+    voxel[2] = (int)( ray_position[2] );
+    }
+
+  // Cap the accumulated intensity at 1.0
+  if ( accum_red_intensity > 1.0 )
+    accum_red_intensity = 1.0;
+  if ( accum_green_intensity > 1.0 )
+    accum_green_intensity = 1.0;
+  if ( accum_blue_intensity > 1.0 )
+    accum_blue_intensity = 1.0;
+  
+  if( remaining_opacity < VTK_REMAINING_OPACITY )
+    remaining_opacity = 0.0;
+
+  // Set the return pixel value.  The depth value is currently useless and
+  // should be fixed.  What should depth be in this case?  First 
+  // non-opaque or total opacity or what??
+  pixel_value[0] = accum_red_intensity;
+  pixel_value[1] = accum_green_intensity;
+  pixel_value[2] = accum_blue_intensity;
+  pixel_value[3] = 1.0 - remaining_opacity;
+  pixel_value[4] = 0.3;
+  pixel_value[5] = steps_this_ray;
+
+}
+
+// Description:
 // Constructor for the vtkCompositeVolumeRayCaster class
 // Initially we have a parc threshold value of 1, shading is
 // off, and the opacity transfer function and threshold builder
@@ -1387,7 +1948,8 @@ vtkCompositeVolumeRayCaster::vtkCompositeVolumeRayCaster()
   this->SingleColor[0]          = 1.0;
   this->SingleColor[1]          = 1.0;
   this->SingleColor[2]          = 1.0;
-  this->ColorType               = 0;
+  this->ColorType               = VTK_SINGLE_COLOR;
+  this->InterpolationLocation   = VTK_INTERPOLATE_AT_VERTICES;
 }
 
 // Description:
@@ -1463,53 +2025,109 @@ void vtkCompositeVolumeRayCaster::CastARay( int ray_type, void *data_ptr,
     {
     if ( this->Shading == 0 )
       {
-      // Trilinear interpolation and no shading
-      switch ( ray_type )
+      if ( this->InterpolationLocation == VTK_INTERPOLATE_AT_VERTICES )
 	{
-	case 0:
-	  CastRay_Trilin_Unshaded( this, (unsigned char *)data_ptr, 
-				   ray_position, 
-				   ray_increment, num_steps, 
-				   pixel_value );
-	  break;
-	case 1:
-	  CastRay_Trilin_Unshaded( this, (unsigned short *)data_ptr, 
-				   ray_position, 
-				   ray_increment, num_steps, 
-				   pixel_value );
-	  break;
-	case 2:
-	  CastRay_Trilin_Unshaded( this, (short *)data_ptr, 
-				   ray_position, 
-				   ray_increment, num_steps, 
-				   pixel_value );
-	  break;
+        // Trilinear interpolation at vertices and no shading
+        switch ( ray_type )
+	  {
+	  case 0:
+	    CastRay_TrilinVertices_Unshaded( this, (unsigned char *)data_ptr, 
+					     ray_position, 
+					     ray_increment, num_steps, 
+					     pixel_value );
+	    break;
+	  case 1:
+	    CastRay_TrilinVertices_Unshaded( this, (unsigned short *)data_ptr, 
+					     ray_position, 
+					     ray_increment, num_steps, 
+					     pixel_value );
+	    break;
+	  case 2:
+	    CastRay_TrilinVertices_Unshaded( this, (short *)data_ptr, 
+					     ray_position, 
+					     ray_increment, num_steps, 
+					     pixel_value );
+	    break;
+	  }
 	}
+      else
+	{
+        // Trilinear interpolation at vertices and no shading
+        switch ( ray_type )
+	  {
+	  case 0:
+	    CastRay_TrilinSample_Unshaded( this, (unsigned char *)data_ptr, 
+					   ray_position, 
+					   ray_increment, num_steps, 
+					   pixel_value );
+	    break;
+	  case 1:
+	    CastRay_TrilinSample_Unshaded( this, (unsigned short *)data_ptr, 
+					   ray_position, 
+					   ray_increment, num_steps, 
+					   pixel_value );
+	    break;
+	  case 2:
+	    CastRay_TrilinSample_Unshaded( this, (short *)data_ptr, 
+					   ray_position, 
+					   ray_increment, num_steps, 
+					   pixel_value );
+	    break;
+	  }
+	}	
       }
     else
       {
-      // Trilinear interpolation and shading
-      switch ( ray_type )
+      if ( this->InterpolationLocation == VTK_INTERPOLATE_AT_VERTICES )
 	{
-	case 0:
-	  CastRay_Trilin_Shaded( this, (unsigned char *)data_ptr, 
-				 ray_position, 
-				 ray_increment, num_steps, 
-				 pixel_value );
-	  break;
-	case 1:
-	  CastRay_Trilin_Shaded( this, (unsigned short *)data_ptr, 
-				 ray_position, 
-				 ray_increment, num_steps, 
-				 pixel_value );
-	  break;
-	case 2:
-	  CastRay_Trilin_Shaded( this, (short *)data_ptr, 
-				 ray_position, 
-				 ray_increment, num_steps, 
-				 pixel_value );
-	  break;
+        // Trilinear interpolation and shading
+        switch ( ray_type )
+	  {
+	  case 0:
+	    CastRay_TrilinVertices_Shaded( this, (unsigned char *)data_ptr, 
+					   ray_position, 
+					   ray_increment, num_steps, 
+					   pixel_value );
+	    break;
+	  case 1:
+	    CastRay_TrilinVertices_Shaded( this, (unsigned short *)data_ptr, 
+					   ray_position, 
+					   ray_increment, num_steps, 
+					   pixel_value );
+	    break;
+	  case 2:
+	    CastRay_TrilinVertices_Shaded( this, (short *)data_ptr, 
+					   ray_position, 
+					   ray_increment, num_steps, 
+					   pixel_value );
+	    break;
+	  }
 	}
+      else
+	{
+        // Trilinear interpolation and shading
+        switch ( ray_type )
+	  {
+	  case 0:
+	    CastRay_TrilinSample_Shaded( this, (unsigned char *)data_ptr, 
+					 ray_position, 
+					 ray_increment, num_steps, 
+					 pixel_value );
+	    break;
+	  case 1:
+	    CastRay_TrilinSample_Shaded( this, (unsigned short *)data_ptr, 
+					 ray_position, 
+					 ray_increment, num_steps, 
+					 pixel_value );
+	    break;
+	  case 2:
+	    CastRay_TrilinSample_Shaded( this, (short *)data_ptr, 
+					 ray_position, 
+					 ray_increment, num_steps, 
+					 pixel_value );
+	    break;
+	  }
+	}	
       }
     }
 }

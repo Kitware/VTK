@@ -40,7 +40,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkCompositeVolumeRayCaster - Creates composite projections using Depth Parc acceleration
 // .SECTION Description
-// vtkCompositeVolumeRayCaster is a concrete implementation of vtkDepthPARCMapper
+// vtkCompositeVolumeRayCaster is a concrete implementation of 
+// vtkVolumeRayCaster
 // It can be used to create a composite projection of scalar data using
 // and alpha / 1 - alpha compositing scheme.  Shading can be on or off.
 // Color transfer functions are used to define the color of the data,
@@ -63,6 +64,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #define VTK_SINGLE_COLOR 0
 #define VTK_TRANSFER_FUNCTION 1
+
+#define VTK_INTERPOLATE_AT_VERTICES 0
+#define VTK_INTERPOLATE_AT_SAMPLE   1
 
 class VTK_EXPORT vtkCompositeVolumeRayCaster : public vtkVolumeRayCaster
 {
@@ -124,12 +128,30 @@ public:
   vtkSetObjectMacro( ColorTransferFunction, vtkColorTransferFunction );
   vtkGetObjectMacro( ColorTransferFunction, vtkColorTransferFunction );
 
+  // Description:
+  // Change the way interpolation is done. We can either compute the
+  // shaded value at each of the eight vertices, then interpolate, or
+  // we can interpolate all the properties and compute the shaded value
+  // at the sample point. The first method is faster, the second 
+  // generally looks better
+  vtkSetClampMacro(InterpolationLocation,int,
+		   VTK_INTERPOLATE_AT_VERTICES,VTK_INTERPOLATE_AT_SAMPLE);
+  vtkGetMacro(InterpolationLocation,int);
+  void SetInterpolationLocationToVertices(void) 
+    {this->SetInterpolationLocation(VTK_INTERPOLATE_AT_VERTICES);};
+  void SetInterpolationLocationToSample(void)
+    {this->SetInterpolationLocation(VTK_INTERPOLATE_AT_SAMPLE);};
+  char *GetInterpolationLocationAsString(void);
+
   float GetZeroOpacityThreshold( void );
 
   // These variables should be protected but are being
   // made public to be accessible to the templated function.
   // We used to have the templated function as a friend, but
   // this does not work with all compilers
+
+  // The interpolation location (vertices or sample)
+  int                         InterpolationLocation;
 
   // The color type 0 = single color, 1 = transfer function color
   int                         ColorType;
@@ -233,6 +255,21 @@ inline char *vtkCompositeVolumeRayCaster::GetColorTypeAsString(void)
   else 
     {
     return "TransferFunction";
+    }
+}
+
+// Description:
+// Return the correct interpolation location string based on the
+// InterpolationLocation instance variable value.
+inline char *vtkCompositeVolumeRayCaster::GetInterpolationLocationAsString(void)
+{
+  if ( this->InterpolationLocation == VTK_INTERPOLATE_AT_VERTICES ) 
+    {
+    return "InterpolateAtVertices";
+    }
+  else 
+    {
+    return "InterpolateAtSample";
     }
 }
 
