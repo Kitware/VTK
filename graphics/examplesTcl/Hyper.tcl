@@ -27,10 +27,20 @@ vtkPointLoad ptLoad
     ptLoad SetSampleDimensions 30 30 30
     ptLoad ComputeEffectiveStressOn
     ptLoad SetModelBounds -10 10 -10 10 -10 10
+vtkDataSetWriter wSP
+    wSP SetInput [ptLoad GetOutput]
+    wSP SetFileName wSP.vtk
+    wSP SetTensorsName pointload
+    wSP SetScalarsName effective_stress
+    wSP Write
+vtkDataSetReader rSP
+    rSP SetFileName wSP.vtk
+    rSP SetTensorsName pointload
+    rSP SetScalarsName effective_stress
 
 # Generate hyperstreamlines
 vtkHyperStreamline s1
-    s1 SetInput [ptLoad GetOutput]
+    s1 SetInput [rSP GetOutput]
     s1 SetStartPosition 9 9 -9
     s1 IntegrateMinorEigenvector
     s1 SetMaximumPropagationDistance 18.0
@@ -52,7 +62,7 @@ vtkActor s1Actor
     s1Actor SetMapper s1Mapper
 
 vtkHyperStreamline s2
-    s2 SetInput [ptLoad GetOutput]
+    s2 SetInput [rSP GetOutput]
     s2 SetStartPosition -9 -9 -9
     s2 IntegrateMinorEigenvector
     s2 SetMaximumPropagationDistance 18.0
@@ -65,13 +75,13 @@ vtkHyperStreamline s2
 vtkPolyDataMapper s2Mapper
     s2Mapper SetInput [s2 GetOutput]
     s2Mapper SetLookupTable lut
-    ptLoad Update;#force update for scalar range
-    eval s2Mapper SetScalarRange [[ptLoad GetOutput] GetScalarRange]
+    rSP Update;#force update for scalar range
+    eval s2Mapper SetScalarRange [[rSP GetOutput] GetScalarRange]
 vtkActor s2Actor
     s2Actor SetMapper s2Mapper
 
 vtkHyperStreamline s3
-    s3 SetInput [ptLoad GetOutput]
+    s3 SetInput [rSP GetOutput]
     s3 SetStartPosition 9 -9 -9
     s3 IntegrateMinorEigenvector
     s3 SetMaximumPropagationDistance 18.0
@@ -84,13 +94,13 @@ vtkHyperStreamline s3
 vtkPolyDataMapper s3Mapper
     s3Mapper SetInput [s3 GetOutput]
     s3Mapper SetLookupTable lut
-    ptLoad Update;#force update for scalar range
-    eval s3Mapper SetScalarRange [[ptLoad GetOutput] GetScalarRange]
+    rSP Update;#force update for scalar range
+    eval s3Mapper SetScalarRange [[rSP GetOutput] GetScalarRange]
 vtkActor s3Actor
     s3Actor SetMapper s3Mapper
 
 vtkHyperStreamline s4
-    s4 SetInput [ptLoad GetOutput]
+    s4 SetInput [rSP GetOutput]
     s4 SetStartPosition -9 9 -9
     s4 IntegrateMinorEigenvector
     s4 SetMaximumPropagationDistance 18.0
@@ -103,8 +113,8 @@ vtkHyperStreamline s4
 vtkPolyDataMapper s4Mapper
     s4Mapper SetInput [s4 GetOutput]
     s4Mapper SetLookupTable lut
-    ptLoad Update;#force update for scalar range
-    eval s4Mapper SetScalarRange [[ptLoad GetOutput] GetScalarRange]
+    rSP Update;#force update for scalar range
+    eval s4Mapper SetScalarRange [[rSP GetOutput] GetScalarRange]
 vtkActor s4Actor
     s4Actor SetMapper s4Mapper
 
@@ -112,7 +122,7 @@ vtkActor s4Actor
 # plane for context
 #
 vtkStructuredPointsGeometryFilter g
-    g SetInput [ptLoad GetOutput]
+    g SetInput [rSP GetOutput]
     g SetExtent 0 100 0 100 0 0
     g Update;#for scalar range
 vtkPolyDataMapper gm
@@ -125,7 +135,7 @@ vtkActor ga
 # Create outline around data
 #
 vtkOutlineFilter outline
-    outline SetInput [ptLoad GetOutput]
+    outline SetInput [rSP GetOutput]
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInput [outline GetOutput]
 vtkActor outlineActor
