@@ -35,7 +35,7 @@
 #ifndef __vtkProgrammableSource_h
 #define __vtkProgrammableSource_h
 
-#include "vtkSource.h"
+#include "vtkDataSetAlgorithm.h"
 
 class vtkPolyData;
 class vtkStructuredPoints;
@@ -43,11 +43,11 @@ class vtkStructuredGrid;
 class vtkUnstructuredGrid;
 class vtkRectilinearGrid;
 
-class VTK_GRAPHICS_EXPORT vtkProgrammableSource : public vtkSource
+class VTK_GRAPHICS_EXPORT vtkProgrammableSource : public vtkDataSetAlgorithm
 {
 public:
   static vtkProgrammableSource *New();
-  vtkTypeRevisionMacro(vtkProgrammableSource,vtkSource);
+  vtkTypeRevisionMacro(vtkProgrammableSource,vtkDataSetAlgorithm);
 
   // Description:
   // Specify the function to use to generate the source data. Note
@@ -81,20 +81,20 @@ public:
   // Get the output as a concrete type.
   vtkRectilinearGrid *GetRectilinearGridOutput();
 
-  void UpdateInformation();
-  void UpdateData(vtkDataObject *output);
-
 protected:
   vtkProgrammableSource();
   ~vtkProgrammableSource();
 
-  void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int CreateOutput(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   void (*ExecuteMethod)(void *); //function to invoke
   void (*ExecuteMethodArgDelete)(void *);
   void *ExecuteMethodArg;  
 
   vtkTimeStamp ExecuteTime;
+  int RequestedDataType;
+
 private:
   vtkProgrammableSource(const vtkProgrammableSource&);  // Not implemented.
   void operator=(const vtkProgrammableSource&);  // Not implemented.
