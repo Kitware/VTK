@@ -43,7 +43,7 @@ vtkWrapTclInit: vtkWrapTclInit.c
 	$(CC) $(C_FLAGS) -o vtkWrapTclInit $(srcdir)/vtkWrapTclInit.c
 
 vtkParse.o: $(srcdir)/vtkParse.tab.c $(srcdir)/lex.yy.c
-	$(CC) $(C_FLAGS) -I. -c -o vtkParse.o $(srcdir)/vtkParse.tab.c -lm
+	$(CC) $(C_FLAGS) -I. -c -o vtkParse.o $(srcdir)/vtkParse.tab.c
 
 vtkPrint: vtkParse.o $(srcdir)/vtkPrint.c
 	$(CC) $(C_FLAGS) -I. -o vtkPrint $(srcdir)/vtkPrint.c vtkParse.o -lm
