@@ -78,7 +78,6 @@ public:
   
   void Start(void);
   void Frame(void);
-  void Connect(void);
   void WindowConfigure(void);
   void WindowInitialize(void);
   void Initialize(void);
@@ -89,17 +88,18 @@ public:
   int *GetSize();
   int *GetScreenSize();
   int *GetPosition();
+  //BTX
   HWND      GetWindowId();
   void      SetWindowId(void *foo) {this->SetWindowId((HWND)foo);};
   void		SetWindowId(HWND);
   void		SetContextId(HGLRC);	// hsr
   void		SetDeviceContext(HDC);	// hsr
   void      SetNextWindowId(HWND);
+  //ETX
 
   // supply base class virtual function
   vtkRenderWindowInteractor *MakeRenderWindowInteractor();
   void SetDisplayId(void *) {};
-
   vtkSetMacro(MultiSamples,int);
   vtkGetMacro(MultiSamples,int);
 
@@ -125,4 +125,6 @@ public:
 
 };
 
+
 #endif
+

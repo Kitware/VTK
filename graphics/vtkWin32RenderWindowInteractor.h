@@ -63,7 +63,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkWin32RenderWindowInteractor_h
 #define __vtkWin32RenderWindowInteractor_h
 
-#include <windows.h>
 #include "vtkRenderWindowInteractor.h"
 
 class vtkWin32RenderWindowInteractor : public vtkRenderWindowInteractor
@@ -83,10 +82,10 @@ public:
   void EndZoom();
   void StartPan();
   void EndPan();
-  
+  //BTX
   friend LRESULT CALLBACK vtkHandleMessage(HWND hwnd,UINT uMsg,
 					   WPARAM w, LPARAM l);
-
+  //ETX
 protected:
   HWND WindowId;
   UINT TimerId;
