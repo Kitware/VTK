@@ -20,6 +20,12 @@ AC_CONFIG_SUBDIRS(tcl java examplesCxx)
 #
 AC_HEADER_STDC
 
+AC_ARG_WITH(patented,
+         [  --with-patented           include the patented classes],
+         PATENTED_FLAGS=-DUSE_PATENTED -I\${srcdir}/../patented,)
+
+AC_SUBST(PATENTED_FLAGS)
+
 ##########################
 ##			##
 ##	Starbase	##

@@ -17,6 +17,8 @@ ABSTRACT =
 CONCRETE = \
 vtkDecimate \
 vtkDividingCubes \
+vtkMarchingCubes \
+vtkMarchingSquares \
 vtkSliceCubes \
 vtkSmoothPolyFilter \
 vtkStripper \
