@@ -20,7 +20,7 @@
 #include "vtkRenderer.h"
 #include "vtkFiniteDifferenceGradientEstimator.h"
 
-vtkCxxRevisionMacro(vtkVolumeTextureMapper, "1.21");
+vtkCxxRevisionMacro(vtkVolumeTextureMapper, "1.22");
 
 vtkVolumeTextureMapper::vtkVolumeTextureMapper()
 {
@@ -78,13 +78,6 @@ void vtkVolumeTextureMapper::Update()
     this->GetInput()->UpdateInformation();
     this->GetInput()->SetUpdateExtentToWholeExtent();
     this->GetInput()->Update();
-    }
-
-  if ( this->GetRGBTextureInput() )
-    {
-    this->GetRGBTextureInput()->UpdateInformation();
-    this->GetRGBTextureInput()->SetUpdateExtentToWholeExtent();
-    this->GetRGBTextureInput()->Update();
     }
 }
 

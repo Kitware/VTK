@@ -26,10 +26,18 @@
 // shading parameters of a volume.
 //
 // When the scalar opacity or the gradient opacity of a volume is not set,
-// then the function is defined to be a constant value of 1.0. When both a
+// then the function is defined to be a constant value of 1.0. When a
 // scalar and gradient opacity are both set simultaneously, then the opacity
 // is defined to be the product of the scalar opacity and gradient opacity 
 // transfer functions.
+// 
+// Most properties can be set per "component" for volume mappers that
+// support multiple independent components. If you are using 2 component
+// data as LV or 4 component data as RGBV (as specified in the mapper) 
+// only the first scalar opacity and gradient opacity transfer functions
+// will be used (and all color functions will be ignored). Omitting the
+// index parameter on the Set/Get methods will access index = 0.
+
 
 // .SECTION see also
 // vtkPiecewiseFunction vtkColorTransferFunction
@@ -73,45 +81,67 @@ public:
   const char *GetInterpolationTypeAsString(void);
 
   // Description:
-  // Set the color of a volume to a gray level transfer function. This 
-  // will also set the ColorChannels to 1.
-  void SetColor( vtkPiecewiseFunction *function );
-
+  // Set the color of a volume to a gray level transfer function
+  // for the component indicated by index. This will set the
+  // color channels for this component to 1.
+  void SetColor( int index, vtkPiecewiseFunction *function );
+  void SetColor( vtkPiecewiseFunction *f ){this->SetColor(0,f);};
+  
+      
   // Description:
-  // Set the color of a volume to an RGB transfer function. This 
-  // will also set the ColorChannels to 3.
-  void SetColor( vtkColorTransferFunction *function );
-
+  // Set the color of a volume to an RGB transfer function
+  // for the component indicated by index. This will set the
+  // color channels for this component to 3.
+  // This will also recompute the color channels
+  void SetColor( int index, vtkColorTransferFunction *function );
+  void SetColor( vtkColorTransferFunction *f ){this->SetColor(0,f);};
+  
   // Description:
   // Get the number of color channels in the transfer function
-  vtkGetMacro(ColorChannels,int);
-
+  // for the given component.
+  int GetColorChannels( int index );
+  int GetColorChannels(){return this->GetColorChannels(0);};
+  
   // Description:
   // Get the gray transfer function.
-  vtkPiecewiseFunction *GetGrayTransferFunction();
-
+  vtkPiecewiseFunction *GetGrayTransferFunction( int index );
+  vtkPiecewiseFunction *GetGrayTransferFunction()
+    {return this->GetGrayTransferFunction(0);};
+  
   // Description:
-  // Get the RGB transfer function.
-  vtkColorTransferFunction *GetRGBTransferFunction();
-
-  // Description:
-  // Set the opacity of a volume to an opacity transfer function based
-  // on scalar value. 
-  void SetScalarOpacity( vtkPiecewiseFunction *function );
-
-  // Description:
-  // Get the scalar opacity transfer function.
-  vtkPiecewiseFunction *GetScalarOpacity();
-
+  // Get the RGB transfer function for the given component.
+  vtkColorTransferFunction *GetRGBTransferFunction( int index );
+  vtkColorTransferFunction *GetRGBTransferFunction()
+    {return this->GetRGBTransferFunction(0);};
+  
   // Description:
   // Set the opacity of a volume to an opacity transfer function based
-  // on gradient magnitude. 
-  void SetGradientOpacity( vtkPiecewiseFunction *function );
-
+  // on scalar value for the component indicated by index. 
+  void SetScalarOpacity( int index, vtkPiecewiseFunction *function );
+  void SetScalarOpacity( vtkPiecewiseFunction *f )
+    {this->SetScalarOpacity(0,f);};
+  
   // Description:
-  // Get the gradient magnitude opacity transfer function.
-  vtkPiecewiseFunction *GetGradientOpacity();
-
+  // Get the scalar opacity transfer function for the given component.
+  vtkPiecewiseFunction *GetScalarOpacity( int index );
+  vtkPiecewiseFunction *GetScalarOpacity()
+    {return this->GetScalarOpacity(0);};
+  
+      
+  // Description:
+  // Set the opacity of a volume to an opacity transfer function based
+  // on gradient magnitude for the given component.
+  void SetGradientOpacity( int index, vtkPiecewiseFunction *function );
+  void SetGradientOpacity( vtkPiecewiseFunction *function )
+    {this->SetGradientOpacity(0,function);}
+  
+  // Description:
+  // Get the gradient magnitude opacity transfer function for
+  // the given component.
+  vtkPiecewiseFunction *GetGradientOpacity( int index );
+  vtkPiecewiseFunction *GetGradientOpacity()
+    {return this->GetGradientOpacity( 0 );}
+  
   // Description:
   // Set/Get the shading of a volume. If shading is turned off, then
   // the mapper for the volume will not perform shading calculations.
@@ -120,38 +150,46 @@ public:
   // in a maximum intensity projection) and therefore shading will
   // not be performed even if this flag is on. For a compositing type
   // of mapper, turning shading off is generally the same as setting
-  // ambient=1, diffuse=0, specular=0.
-  vtkSetMacro(Shade,int);
-  vtkGetMacro(Shade,int);
-  vtkBooleanMacro(Shade,int);
+  // ambient=1, diffuse=0, specular=0. Shading can be independently
+  // turned on/off per component.
+  void SetShade( int index, int value );
+  void SetShade( int value ) {this->SetShade(0,value);}
+  int GetShade( int index );
+  int GetShade() {return this->GetShade(0);}
+  void ShadeOn( int index );
+  void ShadeOn() {this->ShadeOn(0);}
+  void ShadeOff( int index );
+  void ShadeOff() {this->ShadeOff(0);}
+  
 
   // Description:
   // Set/Get the ambient lighting coefficient.
-  vtkSetClampMacro(Ambient,float,0.0,1.0);
-  vtkGetMacro(Ambient,float);
+  void SetAmbient( int index, float value );
+  void SetAmbient( float value ) {this->SetAmbient( 0, value );}
+  float GetAmbient( int index );
+  float GetAmbient() {return this->GetAmbient(0);}
+  
 
   // Description:
   // Set/Get the diffuse lighting coefficient.
-  vtkSetClampMacro(Diffuse,float,0.0,1.0);
-  vtkGetMacro(Diffuse,float);
+  void SetDiffuse( int index, float value );
+  void SetDiffuse( float value ) {this->SetDiffuse( 0, value );}
+  float GetDiffuse( int index );
+  float GetDiffuse() {return this->GetDiffuse(0);}
 
   // Description:
   // Set/Get the specular lighting coefficient.
-  vtkSetClampMacro(Specular,float,0.0,1.0);
-  vtkGetMacro(Specular,float);
+  void SetSpecular( int index, float value );
+  void SetSpecular( float value ) {this->SetSpecular( 0, value );}
+  float GetSpecular( int index );
+  float GetSpecular() {return this->GetSpecular(0);}
 
   // Description:
   // Set/Get the specular power.
-  vtkSetClampMacro(SpecularPower,float,0.0,100.0);
-  vtkGetMacro(SpecularPower,float);
-
-  // Description:
-  // Set/Get the texture coefficient. This controls how much of the
-  // color comes from the color transfer function and how much comes
-  // from the RGB texture, with RGBTextureCoefficient used for the texture
-  // and (1 - RGBTextureCoefficient) used for the transfer function.
-  vtkSetClampMacro(RGBTextureCoefficient,float,0.0,1.0);
-  vtkGetMacro(RGBTextureCoefficient,float);
+  void SetSpecularPower( int index, float value );
+  void SetSpecularPower( float value ) {this->SetSpecularPower( 0, value );}
+  float GetSpecularPower( int index );
+  float GetSpecularPower() {return this->GetSpecularPower(0);}
 
 //BTX
   // Description:
@@ -165,22 +203,30 @@ public:
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // Get the time that the gradient opacity transfer function was set
-  vtkGetMacro(GradientOpacityMTime, vtkTimeStamp);
-
+  vtkTimeStamp GetGradientOpacityMTime( int index );
+  vtkTimeStamp GetGradientOpacityMTime()
+    { return this->GetGradientOpacityMTime(0); }  
+      
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // Get the time that the scalar opacity transfer function was set.
-  vtkGetMacro(ScalarOpacityMTime, vtkTimeStamp);
+  vtkTimeStamp GetScalarOpacityMTime( int index );
+  vtkTimeStamp GetScalarOpacityMTime()
+    { return this->GetScalarOpacityMTime(0); }  
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // Get the time that the RGBTransferFunction was set
-  vtkGetMacro(RGBTransferFunctionMTime, vtkTimeStamp);
+  vtkTimeStamp GetRGBTransferFunctionMTime( int index );
+  vtkTimeStamp GetRGBTransferFunctionMTime()
+    { return this->GetRGBTransferFunctionMTime(0); }  
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // Get the time that the GrayTransferFunction was set
-  vtkGetMacro(GrayTransferFunctionMTime, vtkTimeStamp);
+  vtkTimeStamp GetGrayTransferFunctionMTime( int index );
+  vtkTimeStamp GetGrayTransferFunctionMTime()
+    { return this->GetGrayTransferFunctionMTime(0); }  
 //ETX
 
 
@@ -190,26 +236,26 @@ protected:
 
   int                           InterpolationType;
 
-  int                           ColorChannels;
+  int                           ColorChannels[4];
 
-  vtkPiecewiseFunction          *GrayTransferFunction;
-  vtkTimeStamp                  GrayTransferFunctionMTime;
+  vtkPiecewiseFunction          *GrayTransferFunction[4];
+  vtkTimeStamp                  GrayTransferFunctionMTime[4];
 
-  vtkColorTransferFunction      *RGBTransferFunction;
-  vtkTimeStamp                  RGBTransferFunctionMTime;
+  vtkColorTransferFunction      *RGBTransferFunction[4];
+  vtkTimeStamp                  RGBTransferFunctionMTime[4];
 
-  vtkPiecewiseFunction          *ScalarOpacity;
-  vtkTimeStamp                  ScalarOpacityMTime;
+  vtkPiecewiseFunction          *ScalarOpacity[4];
+  vtkTimeStamp                  ScalarOpacityMTime[4];
 
-  vtkPiecewiseFunction          *GradientOpacity;
-  vtkTimeStamp                  GradientOpacityMTime;
+  vtkPiecewiseFunction          *GradientOpacity[4];
+  vtkTimeStamp                  GradientOpacityMTime[4];
 
-  int                           Shade;
-  float                         Ambient;
-  float                         Diffuse;
-  float                         Specular;
-  float                         SpecularPower;
-  float                         RGBTextureCoefficient;
+  int                           Shade[4];
+  float                         Ambient[4];
+  float                         Diffuse[4];
+  float                         Specular[4];
+  float                         SpecularPower[4];
+
 private:
   vtkVolumeProperty(const vtkVolumeProperty&);  // Not implemented.
   void operator=(const vtkVolumeProperty&);  // Not implemented.

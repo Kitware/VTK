@@ -27,7 +27,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.81");
+vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.82");
 
 #define vtkVRCMultiplyPointMacro( A, B, M ) \
   B[0] = A[0]*M[0]  + A[1]*M[1]  + A[2]*M[2]  + M[3]; \
@@ -283,12 +283,6 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
     this->GetInput()->Update();
     } 
 
-  if ( this->GetRGBTextureInput() )
-    {
-    this->GetRGBTextureInput()->UpdateInformation();
-    this->GetRGBTextureInput()->SetUpdateExtentToWholeExtent();
-    this->GetRGBTextureInput()->Update();
-    }
 
   int scalarType = this->GetInput()->GetPointData()->GetScalars()->GetDataType();
   if (scalarType != VTK_UNSIGNED_SHORT && scalarType != VTK_UNSIGNED_CHAR)
@@ -357,17 +351,12 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
   // The full image fills the viewport. First, compute the actual viewport
   // size, then divide by the ImageSampleDistance to find the full image
   // size in pixels
-  this->ImageViewportSize[0] = static_cast<int>
-    (static_cast<float>(renWinSize[0]) * (viewport[2]-viewport[0]));
-  this->ImageViewportSize[1] = static_cast<int>
-    (static_cast<float>(renWinSize[1]) * (viewport[3]-viewport[1]));
+  int width, height;
+  ren->GetTiledSize(&width, &height);
   this->ImageViewportSize[0] = 
-    static_cast<int>( static_cast<float>(this->ImageViewportSize[0]) / 
-                      this->ImageSampleDistance );
-  this->ImageViewportSize[1] =
-    static_cast<int>( static_cast<float>(this->ImageViewportSize[1]) / 
-                      this->ImageSampleDistance );
-
+    static_cast<int>(width/this->ImageSampleDistance);
+  this->ImageViewportSize[1] = 
+    static_cast<int>(height/this->ImageSampleDistance);
   
   // Compute row bounds. This will also compute the size of the image to
   // render, allocate the space if necessary, and clear the image where
@@ -1334,6 +1323,18 @@ int vtkVolumeRayCastMapper::ComputeRowBounds(vtkVolume   *vol,
   this->ImageOrigin[0] = static_cast<int>(minX);
   this->ImageOrigin[1] = static_cast<int>(minY);
 
+  // If the old image size is much too big (more than twice in
+  // either direction) then set the old width to 0 which will
+  // cause the image to be recreated
+  if ( oldImageMemorySize[0] > 2*this->ImageMemorySize[0] ||
+       oldImageMemorySize[1] > 2*this->ImageMemorySize[1] )
+    {
+    oldImageMemorySize[0] = 0;
+    }
+  
+  // If the old image is big enough (but not too big - we handled
+  // that above) then we'll bump up our required size to the
+  // previous one. This will keep us from thrashing.
   if ( oldImageMemorySize[0] >= this->ImageMemorySize[0] &&
        oldImageMemorySize[1] >= this->ImageMemorySize[1] )
     {

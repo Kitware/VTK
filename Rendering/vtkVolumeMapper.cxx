@@ -18,7 +18,7 @@
 #include "vtkVolumeMapper.h"
 #include "vtkImageClip.h"
 
-vtkCxxRevisionMacro(vtkVolumeMapper, "1.37");
+vtkCxxRevisionMacro(vtkVolumeMapper, "1.38");
 
 // Construct a vtkVolumeMapper with empty scalar input and clipping off.
 vtkVolumeMapper::vtkVolumeMapper()
@@ -55,14 +55,6 @@ void vtkVolumeMapper::Update()
     this->GetInput()->UpdateInformation();
     this->GetInput()->SetUpdateExtentToWholeExtent();
     this->GetInput()->Update();
-    }
-
-  if ( this->GetRGBTextureInput() )
-    {
-    this->GetRGBTextureInput()->UpdateInformation();
-    this->GetRGBTextureInput()->SetUpdateExtentToWholeExtent();
-    this->GetRGBTextureInput()->RequestExactExtentOn();
-    this->GetRGBTextureInput()->Update();
     }
 }
 
@@ -119,55 +111,7 @@ vtkImageData *vtkVolumeMapper::GetInput()
     {
     return NULL;
     }
-  return (vtkImageData*)(this->Inputs[0]);
-}
-
-
-void vtkVolumeMapper::SetRGBTextureInput( vtkImageData *rgbTexture )
-{
-  vtkPointData    *pd;
-  vtkDataArray    *scalars;
-
-  if ( rgbTexture )
-    {
-    rgbTexture->UpdateInformation();
-    rgbTexture->SetUpdateExtentToWholeExtent();
-    rgbTexture->Update();
-    pd = rgbTexture->GetPointData();
-    if ( !pd )
-      {
-      vtkErrorMacro( << "No PointData in texture!" );
-      return;
-      }
-    scalars = pd->GetScalars();
-    if ( !scalars )
-      {
-      vtkErrorMacro( << "No scalars in texture!" );
-      return;
-      }
-    if ( scalars->GetDataType() != VTK_UNSIGNED_CHAR )
-      {
-      vtkErrorMacro( << "Scalars in texture must be unsigned char!" );
-      return;      
-      }
-    if ( scalars->GetNumberOfComponents() != 3 )
-      {
-      vtkErrorMacro( << "Scalars must have 3 components (r, g, and b)" );
-      return;      
-      }
-    }
-  
-  this->vtkProcessObject::SetNthInput(1, rgbTexture);
-
-}
-
-vtkImageData *vtkVolumeMapper::GetRGBTextureInput()
-{
-  if (this->NumberOfInputs < 2)
-    {
-    return NULL;
-    }
-  return (vtkImageData *)(this->Inputs[1]);
+  return (vtkImageData *)this->Inputs[0];
 }
 
 
@@ -175,16 +119,6 @@ vtkImageData *vtkVolumeMapper::GetRGBTextureInput()
 void vtkVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-
-  if ( this->GetRGBTextureInput() )
-    {
-    os << indent << "RGBTextureInput: (" << this->GetRGBTextureInput() 
-       << ")\n";
-    }
-  else
-    {
-    os << indent << "RGBTextureInput: (none)\n";
-    }
 
   os << indent << "Cropping: " << (this->Cropping ? "On\n" : "Off\n");
 

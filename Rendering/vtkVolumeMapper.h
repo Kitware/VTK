@@ -102,11 +102,6 @@ public:
     {this->SetCroppingRegionFlags( VTK_CROP_INVERTED_CROSS );};
 
   // Description:
-  // Set/Get the rgb texture input data
-  void SetRGBTextureInput( vtkImageData *rgbTexture );
-  virtual vtkImageData *GetRGBTextureInput();
-
-  // Description:
   // Return bounding box (array of six floats) of data expressed as
   // (xmin,xmax, ymin,ymax, zmin,zmax).
   virtual float *GetBounds();

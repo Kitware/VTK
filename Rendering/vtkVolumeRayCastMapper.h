@@ -36,13 +36,6 @@ class  vtkRenderer;
 class  vtkVolume;
 class  vtkVolumeTransform;
 class  vtkPlaneCollection;
-class  vtkPoints;
-class  vtkCellArray;
-class  vtkTCoords;
-class  vtkPolyData;
-class  vtkTexture;
-class  vtkActor;
-class  vtkPolyDataMapper;
 class  vtkMultiThreader;
 class  vtkTimerLog;
 

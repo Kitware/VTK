@@ -20,7 +20,7 @@
 #include "vtkVolumeRayCastMapper.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkVolumeRayCastFunction, "1.17");
+vtkCxxRevisionMacro(vtkVolumeRayCastFunction, "1.18");
 
 // Grab everything we need for rendering now. This procedure will be called
 // during the initialization phase of ray casting. It is called once per 
@@ -65,28 +65,6 @@ void vtkVolumeRayCastFunction::FunctionInitialize(
   staticInfo->DataIncrement[2] = staticInfo->DataSize[0] * staticInfo->DataSize[1];
 
 
-  // If there is rgbTexture, then get the info about this
-  if ( mapper->GetRGBTextureInput() )
-    {
-    mapper->GetRGBTextureInput()->GetDimensions( staticInfo->RGBDataSize );
-    mapper->GetRGBTextureInput()->GetSpacing( staticInfo->RGBDataSpacing );
-    mapper->GetRGBTextureInput()->GetOrigin( staticInfo->RGBDataOrigin );
-    staticInfo->RGBDataIncrement[0] = 3;
-    staticInfo->RGBDataIncrement[1] = 3*staticInfo->RGBDataSize[0];
-    staticInfo->RGBDataIncrement[2] = 3*( staticInfo->RGBDataSize[0] * 
-                                          staticInfo->RGBDataSize[1] );
-
-    staticInfo->RGBDataPointer = (unsigned char *)
-      mapper->GetRGBTextureInput()->GetPointData()->
-      GetScalars()->GetVoidPointer(0);
-
-    staticInfo->RGBTextureCoefficient = 
-      vol->GetProperty()->GetRGBTextureCoefficient();
-    }
-  else
-    {
-    staticInfo->RGBDataPointer = NULL;
-    }
   // Get the encoded normals from the normal encoder in the
   // volume ray cast mapper. We need to do this if shading is on
   // or if we are classifying scalar value into opacity based

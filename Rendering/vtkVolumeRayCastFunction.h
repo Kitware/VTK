@@ -98,7 +98,6 @@ typedef struct
   int                          ColorChannels;
   float                        Color[3];
   int                          InterpolationType;
-  float                        RGBTextureCoefficient;
 
   // The shading tables from the vtkEncodedGradientShader
   // that will be used for shading the volume.
@@ -108,15 +107,6 @@ typedef struct
   float                       *RedSpecularShadingTable;
   float                       *GreenSpecularShadingTable;
   float                       *BlueSpecularShadingTable;
-
-  // Info needed to do solid textures - a pointer to the texture
-  // and info about its size, spacing, origin, and precomputed 
-  // increments
-  unsigned char               *RGBDataPointer;
-  int                          RGBDataIncrement[3];
-  int                          RGBDataSize[3];
-  float                        RGBDataSpacing[3];
-  float                        RGBDataOrigin[3];
 
   // Info needed from the gradient estimator
   unsigned short               *EncodedNormals;

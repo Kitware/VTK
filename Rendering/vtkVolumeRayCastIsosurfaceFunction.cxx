@@ -26,7 +26,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeRayCastIsosurfaceFunction, "1.20");
+vtkCxxRevisionMacro(vtkVolumeRayCastIsosurfaceFunction, "1.21");
 vtkStandardNewMacro(vtkVolumeRayCastIsosurfaceFunction);
 
 /*    Is x between y and z?                                     */
@@ -293,7 +293,6 @@ static void CastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
   float     *ray_start, *ray_increment;
   float     r, g, b;
   float     volumeRed, volumeGreen, volumeBlue;
-  float     texcoord[3];
 
 
   num_steps = dynamicInfo->NumberOfStepsToTake;
@@ -404,57 +403,10 @@ static void CastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
       if ( A >= isovalue )
         {
           found_intersection = TRUE;
-
-          // Store the color in volumeRed, volumeGreen, volumeBlue
-          // This may come from the color value for this isosurface,
-          // or from the texture (or a blend of these two)
-          if ( staticInfo->RGBDataPointer )
-            {
-            texcoord[0] = 
-              ( voxel_x * staticInfo->DataSpacing[0] + staticInfo->DataOrigin[0] -
-                staticInfo->RGBDataOrigin[0] ) / staticInfo->RGBDataSpacing[0];
-            texcoord[1] = 
-              ( voxel_y * staticInfo->DataSpacing[1] + staticInfo->DataOrigin[1] -
-                staticInfo->RGBDataOrigin[1] ) / staticInfo->RGBDataSpacing[1];
-            texcoord[2] = 
-              ( voxel_z * staticInfo->DataSpacing[2] + staticInfo->DataOrigin[2] -
-                staticInfo->RGBDataOrigin[2] ) / staticInfo->RGBDataSpacing[2];
-            if ( texcoord[0] >= 0 && texcoord[0] < staticInfo->RGBDataSize[0] &&
-                 texcoord[1] >= 0 && texcoord[1] < staticInfo->RGBDataSize[1] &&
-                 texcoord[2] >= 0 && texcoord[2] < staticInfo->RGBDataSize[2] )
-              {
-              offset =
-                ( (int)texcoord[0] * staticInfo->RGBDataIncrement[0] + 
-                  (int)texcoord[1] * staticInfo->RGBDataIncrement[1] +
-                  (int)texcoord[2] * staticInfo->RGBDataIncrement[2] );
-              volumeRed   = 
-                staticInfo->RGBTextureCoefficient * 
-                (float)*(staticInfo->RGBDataPointer + offset   ) / 255.0 + 
-                ( 1.0 - staticInfo->RGBTextureCoefficient ) * staticInfo->Color[0];
-              volumeGreen   = 
-                staticInfo->RGBTextureCoefficient * 
-                (float)*(staticInfo->RGBDataPointer + offset + 1) / 255.0 + 
-                ( 1.0 - staticInfo->RGBTextureCoefficient ) * staticInfo->Color[1];
-              volumeBlue   = 
-                staticInfo->RGBTextureCoefficient * 
-                (float)*(staticInfo->RGBDataPointer + offset + 2) / 255.0 + 
-                ( 1.0 - staticInfo->RGBTextureCoefficient ) * staticInfo->Color[2];
-              
-              }
-            else
-              {
-              volumeRed   = staticInfo->Color[0];
-              volumeGreen = staticInfo->Color[1];
-              volumeBlue  = staticInfo->Color[2];
-              }
-            }
-          else
-            {
-            volumeRed   = staticInfo->Color[0];
-            volumeGreen = staticInfo->Color[1];
-            volumeBlue  = staticInfo->Color[2];
-            }
-
+          
+          volumeRed   = staticInfo->Color[0];
+          volumeGreen = staticInfo->Color[1];
+          volumeBlue  = staticInfo->Color[2];
 
           if ( staticInfo->Shading )
             {
@@ -616,9 +568,6 @@ static void CastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
   int       num_steps;
   float     *ray_start, *ray_increment;
   float     volumeRed, volumeGreen, volumeBlue;
-  float     texcoord[3];
-  int       rgbBinc, rgbCinc, rgbDinc, rgbEinc, rgbFinc, rgbGinc, rgbHinc;
-  unsigned char *rgbptr;
 
   num_steps = dynamicInfo->NumberOfStepsToTake;
   ray_start = dynamicInfo->TransformedStart;
@@ -781,111 +730,9 @@ static void CastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
           {
           found_intersection = TRUE;
           
-          // Store the color in volumeRed, volumeGreen, volumeBlue
-          // This may come from the color value for this isosurface,
-          // or from the texture (or a blend of these two)
-          if ( staticInfo->RGBDataPointer )
-            {
-            texcoord[0] = 
-              ( point_x * staticInfo->DataSpacing[0] + staticInfo->DataOrigin[0] -
-                staticInfo->RGBDataOrigin[0] ) / staticInfo->RGBDataSpacing[0];
-            texcoord[1] = 
-              ( point_y * staticInfo->DataSpacing[1] + staticInfo->DataOrigin[1] -
-                staticInfo->RGBDataOrigin[1] ) / staticInfo->RGBDataSpacing[1];
-            texcoord[2] = 
-              ( point_z * staticInfo->DataSpacing[2] + staticInfo->DataOrigin[2] -
-                staticInfo->RGBDataOrigin[2] ) / staticInfo->RGBDataSpacing[2];
-            if ( texcoord[0] >= 0 && texcoord[0] < staticInfo->RGBDataSize[0] &&
-                 texcoord[1] >= 0 && texcoord[1] < staticInfo->RGBDataSize[1] &&
-                 texcoord[2] >= 0 && texcoord[2] < staticInfo->RGBDataSize[2] )
-              {
-              offset = 
-                ( (int)texcoord[0] * staticInfo->RGBDataIncrement[0] + 
-                  (int)texcoord[1] * staticInfo->RGBDataIncrement[1] +
-                  (int)texcoord[2] * staticInfo->RGBDataIncrement[2] );
-
-              // Compute our offset in the texel, and use that to trilinearly
-              // interpolate a color value
-              x = texcoord[0] - (float)((int)texcoord[0]);
-              y = texcoord[1] - (float)((int)texcoord[1]);
-              z = texcoord[2] - (float)((int)texcoord[2]);
-              t1 = 1.0 - x;
-              t2 = 1.0 - y;
-              t3 = 1.0 - z;
-              
-              tA = t1*t2*t3;
-              tB = x*t2*t3;
-              tC = t1*y*t3;
-              tD = x*y*t3;
-              tE = t1*t2*z;
-              tF = x*z*t2;
-              tG = t1*y*z;
-              tH = x*z*y;
-              
-              rgbBinc = staticInfo->RGBDataIncrement[0];
-              rgbCinc = staticInfo->RGBDataIncrement[1];
-              rgbDinc = staticInfo->RGBDataIncrement[0] + staticInfo->RGBDataIncrement[1];
-              rgbEinc = staticInfo->RGBDataIncrement[2];
-              rgbFinc = staticInfo->RGBDataIncrement[2] + staticInfo->RGBDataIncrement[0];
-              rgbGinc = staticInfo->RGBDataIncrement[2] + staticInfo->RGBDataIncrement[1];
-              rgbHinc = staticInfo->RGBDataIncrement[2] + staticInfo->RGBDataIncrement[1] +
-                        staticInfo->RGBDataIncrement[0];
-
-              rgbptr = staticInfo->RGBDataPointer + offset;
-              volumeRed   = 
-                tA * (float)*(rgbptr           ) / 255.0 +
-                tB * (float)*(rgbptr + rgbBinc ) / 255.0 +
-                tC * (float)*(rgbptr + rgbCinc ) / 255.0 +
-                tD * (float)*(rgbptr + rgbDinc ) / 255.0 +
-                tE * (float)*(rgbptr + rgbEinc ) / 255.0 +
-                tF * (float)*(rgbptr + rgbFinc ) / 255.0 +
-                tG * (float)*(rgbptr + rgbGinc ) / 255.0 +
-                tH * (float)*(rgbptr + rgbHinc ) / 255.0;
-
-              rgbptr = staticInfo->RGBDataPointer + offset + 1;
-              volumeGreen   = 
-                tA * (float)*(rgbptr           ) / 255.0 +
-                tB * (float)*(rgbptr + rgbBinc ) / 255.0 +
-                tC * (float)*(rgbptr + rgbCinc ) / 255.0 +
-                tD * (float)*(rgbptr + rgbDinc ) / 255.0 +
-                tE * (float)*(rgbptr + rgbEinc ) / 255.0 +
-                tF * (float)*(rgbptr + rgbFinc ) / 255.0 +
-                tG * (float)*(rgbptr + rgbGinc ) / 255.0 +
-                tH * (float)*(rgbptr + rgbHinc ) / 255.0;
-
-              rgbptr = staticInfo->RGBDataPointer + offset + 2;
-              volumeBlue   = 
-                tA * (float)*(rgbptr           ) / 255.0 +
-                tB * (float)*(rgbptr + rgbBinc ) / 255.0 +
-                tC * (float)*(rgbptr + rgbCinc ) / 255.0 +
-                tD * (float)*(rgbptr + rgbDinc ) / 255.0 +
-                tE * (float)*(rgbptr + rgbEinc ) / 255.0 +
-                tF * (float)*(rgbptr + rgbFinc ) / 255.0 +
-                tG * (float)*(rgbptr + rgbGinc ) / 255.0 +
-                tH * (float)*(rgbptr + rgbHinc ) / 255.0;
-
-              volumeRed = volumeRed * staticInfo->RGBTextureCoefficient +
-                staticInfo->Color[0] * (1.0 - staticInfo->RGBTextureCoefficient);
-
-              volumeGreen = volumeGreen * staticInfo->RGBTextureCoefficient +
-                staticInfo->Color[1] * (1.0 - staticInfo->RGBTextureCoefficient);
-
-              volumeBlue = volumeBlue * staticInfo->RGBTextureCoefficient +
-                staticInfo->Color[2] * (1.0 - staticInfo->RGBTextureCoefficient);
-              }
-            else
-              {
-              volumeRed   = staticInfo->Color[0];
-              volumeGreen = staticInfo->Color[1];
-              volumeBlue  = staticInfo->Color[2];
-              }
-            }
-          else
-            {
-            volumeRed   = staticInfo->Color[0];
-            volumeGreen = staticInfo->Color[1];
-            volumeBlue  = staticInfo->Color[2];
-            }
+          volumeRed   = staticInfo->Color[0];
+          volumeGreen = staticInfo->Color[1];
+          volumeBlue  = staticInfo->Color[2];
 
           if ( staticInfo->Shading )
             {
