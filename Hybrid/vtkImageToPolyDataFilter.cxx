@@ -28,7 +28,7 @@
 #include "vtkScalarsToColors.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkImageToPolyDataFilter, "1.30");
+vtkCxxRevisionMacro(vtkImageToPolyDataFilter, "1.31");
 vtkStandardNewMacro(vtkImageToPolyDataFilter);
 
 vtkCxxSetObjectMacro(vtkImageToPolyDataFilter,LookupTable,vtkScalarsToColors);
@@ -554,6 +554,12 @@ void vtkImageToPolyDataFilter::BuildTable(unsigned char *vtkNotUsed(inPixels))
         }
       }
     }
+}
+
+int vtkImageToPolyDataFilter::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+  return 1;
 }
 
 void vtkImageToPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)

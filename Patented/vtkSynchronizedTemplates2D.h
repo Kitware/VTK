@@ -39,18 +39,18 @@
 #ifndef __vtkSynchronizedTemplates2D_h
 #define __vtkSynchronizedTemplates2D_h
 
-#include "vtkImageDataToPolyDataAlgorithm.h"
+#include "vtkPolyDataAlgorithm.h"
 
 #include "vtkContourValues.h" // Needed for direct access to ContourValues
 
 class vtkImageData;
 class vtkKitwareContourFilter;
 
-class VTK_PATENTED_EXPORT vtkSynchronizedTemplates2D : public vtkImageDataToPolyDataAlgorithm
+class VTK_PATENTED_EXPORT vtkSynchronizedTemplates2D : public vtkPolyDataAlgorithm
 {
 public:
   static vtkSynchronizedTemplates2D *New();
-  vtkTypeRevisionMacro(vtkSynchronizedTemplates2D,vtkImageDataToPolyDataAlgorithm);
+  vtkTypeRevisionMacro(vtkSynchronizedTemplates2D,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -125,7 +125,8 @@ protected:
   vtkSynchronizedTemplates2D();
   ~vtkSynchronizedTemplates2D();
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
   vtkContourValues *ContourValues;
 
   int ComputeScalars;

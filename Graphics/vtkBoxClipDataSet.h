@@ -45,7 +45,7 @@
 #ifndef __vtkBoxClipDataSet_h
 #define __vtkBoxClipDataSet_h
 
-#include "vtkDataSetToUnstructuredGridAlgorithm.h"
+#include "vtkUnstructuredGridAlgorithm.h"
 
 class vtkGenericCell;            
 class vtkCell3D;                     
@@ -57,10 +57,10 @@ class vtkPoints;
 class vtkIdList;                    
 class vtkPointLocator;
 
-class VTK_GRAPHICS_EXPORT vtkBoxClipDataSet : public vtkDataSetToUnstructuredGridAlgorithm
+class VTK_GRAPHICS_EXPORT vtkBoxClipDataSet : public vtkUnstructuredGridAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkBoxClipDataSet,vtkDataSetToUnstructuredGridAlgorithm);
+  vtkTypeRevisionMacro(vtkBoxClipDataSet,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -170,7 +170,8 @@ protected:
   vtkBoxClipDataSet();
   ~vtkBoxClipDataSet();
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
   
   vtkPointLocator *Locator;
   int GenerateClipScalars;

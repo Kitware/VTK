@@ -42,14 +42,14 @@
 #ifndef __vtkSelectVisiblePoints_h
 #define __vtkSelectVisiblePoints_h
 
-#include "vtkDataSetToPolyDataAlgorithm.h"
+#include "vtkPolyDataAlgorithm.h"
 
 class vtkRenderer;
 
-class VTK_RENDERING_EXPORT vtkSelectVisiblePoints : public vtkDataSetToPolyDataAlgorithm
+class VTK_RENDERING_EXPORT vtkSelectVisiblePoints : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkSelectVisiblePoints,vtkDataSetToPolyDataAlgorithm);
+  vtkTypeRevisionMacro(vtkSelectVisiblePoints,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -105,7 +105,8 @@ protected:
   vtkSelectVisiblePoints();
   ~vtkSelectVisiblePoints();
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
 
   vtkRenderer *Renderer;
 

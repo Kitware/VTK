@@ -24,14 +24,14 @@
 #ifndef __vtkPOutlineCornerFilter_h
 #define __vtkPOutlineCornerFilter_h
 
-#include "vtkDataSetToPolyDataAlgorithm.h"
+#include "vtkPolyDataAlgorithm.h"
 class vtkOutlineCornerSource;
 class vtkMultiProcessController;
 
-class VTK_PARALLEL_EXPORT vtkPOutlineCornerFilter : public vtkDataSetToPolyDataAlgorithm
+class VTK_PARALLEL_EXPORT vtkPOutlineCornerFilter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkPOutlineCornerFilter,vtkDataSetToPolyDataAlgorithm);
+  vtkTypeRevisionMacro(vtkPOutlineCornerFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -55,8 +55,9 @@ protected:
 
   vtkMultiProcessController* Controller;
   vtkOutlineCornerSource *OutlineCornerSource;
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
 
   double CornerFactor;
 private:

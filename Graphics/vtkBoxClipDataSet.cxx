@@ -36,7 +36,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.2");
+vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.3");
 vtkStandardNewMacro(vtkBoxClipDataSet);
 
 //----------------------------------------------------------------------------
@@ -486,6 +486,13 @@ void vtkBoxClipDataSet::SetBoxClip(double xmin,double xmax,
   this->BoundBoxClip[1][1] = ymax;
   this->BoundBoxClip[2][0] = zmin;
   this->BoundBoxClip[2][1] = zmax;
+}
+
+//----------------------------------------------------------------------------
+int vtkBoxClipDataSet::FillInputPortInformation(int port, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  return 1;
 }
 
 //----------------------------------------------------------------------------

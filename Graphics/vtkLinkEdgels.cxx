@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkLinkEdgels, "1.38");
+vtkCxxRevisionMacro(vtkLinkEdgels, "1.39");
 vtkStandardNewMacro(vtkLinkEdgels);
 
 // Construct instance of vtkLinkEdgels with GradientThreshold set to 
@@ -345,6 +345,12 @@ void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, double *image,
     }
   delete [] forward;
   delete [] backward;
+}
+
+int vtkLinkEdgels::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+  return 1;
 }
 
 void vtkLinkEdgels::PrintSelf(ostream& os, vtkIndent indent)

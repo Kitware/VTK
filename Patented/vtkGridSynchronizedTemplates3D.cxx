@@ -53,7 +53,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGridSynchronizedTemplates3D, "1.78");
+vtkCxxRevisionMacro(vtkGridSynchronizedTemplates3D, "1.79");
 vtkStandardNewMacro(vtkGridSynchronizedTemplates3D);
 
 struct vtkGridSynchronizedTemplates3DThreadStruct
@@ -858,6 +858,14 @@ int vtkGridSynchronizedTemplates3D::RequestUpdateExtent(
 
   // Set the update extent of the input.
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext, 6);
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkGridSynchronizedTemplates3D::FillInputPortInformation(
+  int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkStructuredGrid");
   return 1;
 }
 

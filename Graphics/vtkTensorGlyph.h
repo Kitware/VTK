@@ -76,12 +76,12 @@
 #ifndef __vtkTensorGlyph_h
 #define __vtkTensorGlyph_h
 
-#include "vtkDataSetToPolyDataAlgorithm.h"
+#include "vtkPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkTensorGlyph : public vtkDataSetToPolyDataAlgorithm
+class VTK_GRAPHICS_EXPORT vtkTensorGlyph : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkTensorGlyph,vtkDataSetToPolyDataAlgorithm);
+  vtkTypeRevisionMacro(vtkTensorGlyph,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description

@@ -27,14 +27,14 @@
 #ifndef __vtkEdgePoints_h
 #define __vtkEdgePoints_h
 
-#include "vtkDataSetToPolyDataAlgorithm.h"
+#include "vtkPolyDataAlgorithm.h"
 
 class vtkMergePoints;
 
-class VTK_GRAPHICS_EXPORT vtkEdgePoints : public vtkDataSetToPolyDataAlgorithm
+class VTK_GRAPHICS_EXPORT vtkEdgePoints : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkEdgePoints,vtkDataSetToPolyDataAlgorithm);
+  vtkTypeRevisionMacro(vtkEdgePoints,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -50,7 +50,8 @@ protected:
   vtkEdgePoints();
   ~vtkEdgePoints();
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
 
   double Value;
   vtkMergePoints *Locator;

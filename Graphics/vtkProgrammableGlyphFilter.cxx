@@ -28,7 +28,7 @@
 #include "vtkPolyData.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkProgrammableGlyphFilter, "1.31");
+vtkCxxRevisionMacro(vtkProgrammableGlyphFilter, "1.32");
 vtkStandardNewMacro(vtkProgrammableGlyphFilter);
 
 // Construct object with scaling on, scaling mode is by scalar value, 
@@ -317,7 +317,8 @@ int vtkProgrammableGlyphFilter::FillInputPortInformation(int port,
 {
   if (port == 0)
     {
-    return this->Superclass::FillInputPortInformation(port, info);
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+    return 1;
     }
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
   return 1;

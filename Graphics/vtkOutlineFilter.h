@@ -21,22 +21,23 @@
 #ifndef __vtkOutlineFilter_h
 #define __vtkOutlineFilter_h
 
-#include "vtkDataSetToPolyDataAlgorithm.h"
+#include "vtkPolyDataAlgorithm.h"
 
 class vtkOutlineSource;
 
-class VTK_GRAPHICS_EXPORT vtkOutlineFilter : public vtkDataSetToPolyDataAlgorithm
+class VTK_GRAPHICS_EXPORT vtkOutlineFilter : public vtkPolyDataAlgorithm
 {
 public:
   static vtkOutlineFilter *New();
-  vtkTypeRevisionMacro(vtkOutlineFilter,vtkDataSetToPolyDataAlgorithm);
+  vtkTypeRevisionMacro(vtkOutlineFilter,vtkPolyDataAlgorithm);
 
 protected:
   vtkOutlineFilter();
   ~vtkOutlineFilter();
 
   vtkOutlineSource *OutlineSource;
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
   vtkOutlineFilter(const vtkOutlineFilter&);  // Not implemented.

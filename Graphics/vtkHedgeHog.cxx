@@ -22,7 +22,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkHedgeHog, "1.44");
+vtkCxxRevisionMacro(vtkHedgeHog, "1.45");
 vtkStandardNewMacro(vtkHedgeHog);
 
 vtkHedgeHog::vtkHedgeHog()
@@ -134,6 +134,12 @@ int vtkHedgeHog::RequestData(
   output->SetLines(newLines);
   newLines->Delete();
 
+  return 1;
+}
+
+int vtkHedgeHog::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 

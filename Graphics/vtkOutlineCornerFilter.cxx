@@ -21,7 +21,7 @@
 #include "vtkOutlineCornerSource.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkOutlineCornerFilter, "1.10");
+vtkCxxRevisionMacro(vtkOutlineCornerFilter, "1.11");
 vtkStandardNewMacro(vtkOutlineCornerFilter);
 
 vtkOutlineCornerFilter::vtkOutlineCornerFilter ()
@@ -65,6 +65,12 @@ int vtkOutlineCornerFilter::RequestData(
 
   output->CopyStructure(this->OutlineCornerSource->GetOutput());
 
+  return 1;
+}
+
+int vtkOutlineCornerFilter::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 

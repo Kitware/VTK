@@ -39,18 +39,18 @@
 #ifndef __vtkGridSynchronizedTemplates3D_h
 #define __vtkGridSynchronizedTemplates3D_h
 
-#include "vtkStructuredGridToPolyDataAlgorithm.h"
+#include "vtkPolyDataAlgorithm.h"
 #include "vtkContourValues.h" // Because it passes all the calls to it
 
 class vtkKitwareContourFilter;
 class vtkMultiThreader;
 class vtkStructuredGrid;
 
-class VTK_PATENTED_EXPORT vtkGridSynchronizedTemplates3D : public vtkStructuredGridToPolyDataAlgorithm
+class VTK_PATENTED_EXPORT vtkGridSynchronizedTemplates3D : public vtkPolyDataAlgorithm
 {
 public:
   static vtkGridSynchronizedTemplates3D *New();
-  vtkTypeRevisionMacro(vtkGridSynchronizedTemplates3D,vtkStructuredGridToPolyDataAlgorithm);
+  vtkTypeRevisionMacro(vtkGridSynchronizedTemplates3D,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -155,8 +155,9 @@ protected:
   vtkGridSynchronizedTemplates3D();
   ~vtkGridSynchronizedTemplates3D();
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
 
   int ComputeNormals;
   int ComputeGradients;

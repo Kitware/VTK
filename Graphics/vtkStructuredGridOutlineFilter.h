@@ -21,19 +21,20 @@
 #ifndef __vtkStructuredGridOutlineFilter_h
 #define __vtkStructuredGridOutlineFilter_h
 
-#include "vtkStructuredGridToPolyDataAlgorithm.h"
+#include "vtkPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkStructuredGridOutlineFilter : public vtkStructuredGridToPolyDataAlgorithm
+class VTK_GRAPHICS_EXPORT vtkStructuredGridOutlineFilter : public vtkPolyDataAlgorithm
 {
 public:
   static vtkStructuredGridOutlineFilter *New();
-  vtkTypeRevisionMacro(vtkStructuredGridOutlineFilter,vtkStructuredGridToPolyDataAlgorithm);
+  vtkTypeRevisionMacro(vtkStructuredGridOutlineFilter,vtkPolyDataAlgorithm);
 
 protected:
   vtkStructuredGridOutlineFilter() {};
   ~vtkStructuredGridOutlineFilter() {};
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
   vtkStructuredGridOutlineFilter(const vtkStructuredGridOutlineFilter&);  // Not implemented.

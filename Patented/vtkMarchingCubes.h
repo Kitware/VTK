@@ -46,17 +46,17 @@
 #ifndef __vtkMarchingCubes_h
 #define __vtkMarchingCubes_h
 
-#include "vtkImageDataToPolyDataAlgorithm.h"
+#include "vtkPolyDataAlgorithm.h"
 
 #include "vtkContourValues.h" // Needed for direct access to ContourValues
 
 class vtkPointLocator;
 
-class VTK_PATENTED_EXPORT vtkMarchingCubes : public vtkImageDataToPolyDataAlgorithm
+class VTK_PATENTED_EXPORT vtkMarchingCubes : public vtkPolyDataAlgorithm
 {
 public:
   static vtkMarchingCubes *New();
-  vtkTypeRevisionMacro(vtkMarchingCubes,vtkImageDataToPolyDataAlgorithm);
+  vtkTypeRevisionMacro(vtkMarchingCubes,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Methods to set contour values
@@ -114,6 +114,7 @@ protected:
   ~vtkMarchingCubes();
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
 
   vtkContourValues *ContourValues;
   int ComputeNormals;

@@ -27,7 +27,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkSelectVisiblePoints, "1.33");
+vtkCxxRevisionMacro(vtkSelectVisiblePoints, "1.34");
 vtkStandardNewMacro(vtkSelectVisiblePoints);
 
 // Instantiate object with no renderer; window selection turned off; 
@@ -216,6 +216,12 @@ unsigned long int vtkSelectVisiblePoints::GetMTime()
     }
 
   return mTime;
+}
+
+int vtkSelectVisiblePoints::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  return 1;
 }
 
 void vtkSelectVisiblePoints::PrintSelf(ostream& os, vtkIndent indent)

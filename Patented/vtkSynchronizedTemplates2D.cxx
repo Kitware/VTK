@@ -48,7 +48,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplates2D, "1.41");
+vtkCxxRevisionMacro(vtkSynchronizedTemplates2D, "1.42");
 vtkStandardNewMacro(vtkSynchronizedTemplates2D);
 
 //----------------------------------------------------------------------------
@@ -474,6 +474,13 @@ int vtkSynchronizedTemplates2D::RequestData(
     }
 
   output->Squeeze();
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkSynchronizedTemplates2D::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
   return 1;
 }
 

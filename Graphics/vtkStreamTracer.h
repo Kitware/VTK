@@ -63,7 +63,7 @@
 #ifndef __vtkStreamTracer_h
 #define __vtkStreamTracer_h
 
-#include "vtkDataSetToPolyDataAlgorithm.h"
+#include "vtkPolyDataAlgorithm.h"
 
 #include "vtkInitialValueProblemSolver.h" // Needed for constants
 
@@ -74,10 +74,10 @@ class vtkIdList;
 class vtkIntArray;
 class vtkInterpolatedVelocityField;
 
-class VTK_GRAPHICS_EXPORT vtkStreamTracer : public vtkDataSetToPolyDataAlgorithm
+class VTK_GRAPHICS_EXPORT vtkStreamTracer : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkStreamTracer,vtkDataSetToPolyDataAlgorithm);
+  vtkTypeRevisionMacro(vtkStreamTracer,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -301,8 +301,8 @@ protected:
   void AddInput(vtkDataObject *) 
     { vtkErrorMacro( << "AddInput() must be called with a vtkDataSet not a vtkDataObject."); };
   
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  int FillInputPortInformation(int, vtkInformation *);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int FillInputPortInformation(int, vtkInformation *);
 
   void CalculateVorticity( vtkGenericCell* cell, double pcoords[3],
                            vtkDoubleArray* cellVectors, double vorticity[3] );

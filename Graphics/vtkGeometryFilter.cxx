@@ -35,7 +35,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkGeometryFilter, "1.100");
+vtkCxxRevisionMacro(vtkGeometryFilter, "1.101");
 vtkStandardNewMacro(vtkGeometryFilter);
 
 // Construct with all types of clipping turned off.
@@ -397,6 +397,12 @@ void vtkGeometryFilter::CreateDefaultLocator()
     {
     this->Locator = vtkMergePoints::New();
     }
+}
+
+int vtkGeometryFilter::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  return 1;
 }
 
 void vtkGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)

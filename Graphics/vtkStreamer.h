@@ -50,7 +50,7 @@
 #ifndef __vtkStreamer_h
 #define __vtkStreamer_h
 
-#include "vtkDataSetToPolyDataAlgorithm.h"
+#include "vtkPolyDataAlgorithm.h"
 
 class vtkInitialValueProblemSolver;
 class vtkMultiThreader;
@@ -59,10 +59,10 @@ class vtkMultiThreader;
 #define VTK_INTEGRATE_BACKWARD 1
 #define VTK_INTEGRATE_BOTH_DIRECTIONS 2
 
-class VTK_GRAPHICS_EXPORT vtkStreamer : public vtkDataSetToPolyDataAlgorithm
+class VTK_GRAPHICS_EXPORT vtkStreamer : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkStreamer,vtkDataSetToPolyDataAlgorithm);
+  vtkTypeRevisionMacro(vtkStreamer,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

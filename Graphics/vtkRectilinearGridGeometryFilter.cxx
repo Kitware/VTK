@@ -24,7 +24,7 @@
 #include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGridGeometryFilter, "1.31");
+vtkCxxRevisionMacro(vtkRectilinearGridGeometryFilter, "1.32");
 vtkStandardNewMacro(vtkRectilinearGridGeometryFilter);
 
 // Construct with initial extent (0,100, 0,100, 0,0) (i.e., a k-plane).
@@ -417,6 +417,13 @@ void vtkRectilinearGridGeometryFilter::SetExtent(int extent[6])
       this->Extent[2*i+1] = extent[2*i+1];
       }
     }
+}
+
+int vtkRectilinearGridGeometryFilter::FillInputPortInformation(
+  int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkRectilinearGrid");
+  return 1;
 }
 
 void vtkRectilinearGridGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)

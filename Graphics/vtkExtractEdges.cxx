@@ -26,7 +26,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkExtractEdges, "1.52");
+vtkCxxRevisionMacro(vtkExtractEdges, "1.53");
 vtkStandardNewMacro(vtkExtractEdges);
 
 // Construct object.
@@ -234,6 +234,12 @@ void vtkExtractEdges::CreateDefaultLocator()
     this->SetLocator(locator);
     locator->Delete();
     }
+}
+
+int vtkExtractEdges::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  return 1;
 }
 
 void vtkExtractEdges::PrintSelf(ostream& os, vtkIndent indent)

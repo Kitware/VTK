@@ -41,7 +41,7 @@
 #include "vtkPolyData.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkDividingCubes, "1.54");
+vtkCxxRevisionMacro(vtkDividingCubes, "1.55");
 vtkStandardNewMacro(vtkDividingCubes);
 
 // Description:
@@ -344,6 +344,12 @@ void vtkDividingCubes::SubDivide(double origin[3], int dim[3], double h[3],
         }
       }
     }
+}
+
+int vtkDividingCubes::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+  return 1;
 }
 
 void vtkDividingCubes::PrintSelf(ostream& os, vtkIndent indent)

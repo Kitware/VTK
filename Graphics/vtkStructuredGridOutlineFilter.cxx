@@ -22,7 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkStructuredGridOutlineFilter, "1.47");
+vtkCxxRevisionMacro(vtkStructuredGridOutlineFilter, "1.48");
 vtkStandardNewMacro(vtkStructuredGridOutlineFilter);
 
 //----------------------------------------------------------------------------
@@ -250,3 +250,11 @@ int vtkStructuredGridOutlineFilter::RequestData(
 
   return 1;
 }
+
+int vtkStructuredGridOutlineFilter::FillInputPortInformation(
+  int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkStructuredGrid");
+  return 1;
+}
+

@@ -48,7 +48,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkMarchingContourFilter, "1.29");
+vtkCxxRevisionMacro(vtkMarchingContourFilter, "1.30");
 vtkStandardNewMacro(vtkMarchingContourFilter);
 
 // Construct object with initial range (0,1) and single contour value
@@ -328,6 +328,12 @@ void vtkMarchingContourFilter::CreateDefaultLocator()
     {
     this->Locator = vtkMergePoints::New();
     }
+}
+
+int vtkMarchingContourFilter::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  return 1;
 }
 
 void vtkMarchingContourFilter::PrintSelf(ostream& os, vtkIndent indent)

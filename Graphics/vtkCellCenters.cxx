@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkCellCenters, "1.26");
+vtkCxxRevisionMacro(vtkCellCenters, "1.27");
 vtkStandardNewMacro(vtkCellCenters);
 
 // Construct object with vertex cell generation turned off.
@@ -124,6 +124,12 @@ int vtkCellCenters::RequestData(
     delete [] weights;
     }
 
+  return 1;
+}
+
+int vtkCellCenters::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 

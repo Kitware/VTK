@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkHyperStreamline, "1.59");
+vtkCxxRevisionMacro(vtkHyperStreamline, "1.60");
 vtkStandardNewMacro(vtkHyperStreamline);
 
 //
@@ -797,6 +797,12 @@ int vtkHyperStreamline::BuildTube(vtkDataSet *input, vtkPolyData *output)
 
   output->Squeeze();
 
+  return 1;
+}
+
+int vtkHyperStreamline::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 

@@ -23,7 +23,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkPOutlineCornerFilter, "1.6");
+vtkCxxRevisionMacro(vtkPOutlineCornerFilter, "1.7");
 vtkStandardNewMacro(vtkPOutlineCornerFilter);
 vtkCxxSetObjectMacro(vtkPOutlineCornerFilter, Controller, vtkMultiProcessController);
 
@@ -134,6 +134,12 @@ int vtkPOutlineCornerFilter::RequestInformation(
   outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
                -1);
 
+  return 1;
+}
+
+int vtkPOutlineCornerFilter::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 

@@ -27,16 +27,16 @@
 #ifndef __vtkAppendFilter_h
 #define __vtkAppendFilter_h
 
-#include "vtkDataSetToUnstructuredGridAlgorithm.h"
+#include "vtkUnstructuredGridAlgorithm.h"
 
 class vtkDataSetCollection;
 
-class VTK_GRAPHICS_EXPORT vtkAppendFilter : public vtkDataSetToUnstructuredGridAlgorithm
+class VTK_GRAPHICS_EXPORT vtkAppendFilter : public vtkUnstructuredGridAlgorithm
 {
 public:
   static vtkAppendFilter *New();
 
-  vtkTypeRevisionMacro(vtkAppendFilter,vtkDataSetToUnstructuredGridAlgorithm);
+  vtkTypeRevisionMacro(vtkAppendFilter,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

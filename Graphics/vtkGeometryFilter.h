@@ -44,15 +44,15 @@
 #ifndef __vtkGeometryFilter_h
 #define __vtkGeometryFilter_h
 
-#include "vtkDataSetToPolyDataAlgorithm.h"
+#include "vtkPolyDataAlgorithm.h"
 
 class vtkPointLocator;
 
-class VTK_GRAPHICS_EXPORT vtkGeometryFilter : public vtkDataSetToPolyDataAlgorithm
+class VTK_GRAPHICS_EXPORT vtkGeometryFilter : public vtkPolyDataAlgorithm
 {
 public:
   static vtkGeometryFilter *New();
-  vtkTypeRevisionMacro(vtkGeometryFilter,vtkDataSetToPolyDataAlgorithm);
+  vtkTypeRevisionMacro(vtkGeometryFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -129,7 +129,9 @@ protected:
   vtkGeometryFilter();
   ~vtkGeometryFilter();
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
+
   //special cases for performance
   void PolyDataExecute(vtkDataSet *, vtkPolyData *, vtkInformation *);
   void UnstructuredGridExecute(vtkDataSet *, vtkPolyData *, vtkInformation *);

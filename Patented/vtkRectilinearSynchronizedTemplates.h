@@ -41,19 +41,19 @@
 #ifndef __vtkRectilinearSynchronizedTemplates_h
 #define __vtkRectilinearSynchronizedTemplates_h
 
-#include "vtkRectilinearGridToPolyDataAlgorithm.h"
+#include "vtkPolyDataAlgorithm.h"
 #include "vtkContourValues.h" // Passes calls through
 
 class vtkRectilinearGrid;
 class vtkKitwareContourFilter;
 class vtkDataArray;
 
-class VTK_PATENTED_EXPORT vtkRectilinearSynchronizedTemplates : public vtkRectilinearGridToPolyDataAlgorithm
+class VTK_PATENTED_EXPORT vtkRectilinearSynchronizedTemplates : public vtkPolyDataAlgorithm
 {
 public:
   static vtkRectilinearSynchronizedTemplates *New();
 
-  vtkTypeRevisionMacro(vtkRectilinearSynchronizedTemplates,vtkRectilinearGridToPolyDataAlgorithm);
+  vtkTypeRevisionMacro(vtkRectilinearSynchronizedTemplates,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
@@ -164,7 +164,8 @@ protected:
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
+
   int ExecuteExtent[6];
 
   char *InputScalarsSelection;

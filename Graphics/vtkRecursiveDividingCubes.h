@@ -34,15 +34,15 @@
 #ifndef __vtkRecursiveDividingCubes_h
 #define __vtkRecursiveDividingCubes_h
 
-#include "vtkImageDataToPolyDataAlgorithm.h"
+#include "vtkPolyDataAlgorithm.h"
 
 class vtkVoxel;
 
-class VTK_GRAPHICS_EXPORT vtkRecursiveDividingCubes : public vtkImageDataToPolyDataAlgorithm
+class VTK_GRAPHICS_EXPORT vtkRecursiveDividingCubes : public vtkPolyDataAlgorithm
 {
 public:
   static vtkRecursiveDividingCubes *New();
-  vtkTypeRevisionMacro(vtkRecursiveDividingCubes,vtkImageDataToPolyDataAlgorithm);
+  vtkTypeRevisionMacro(vtkRecursiveDividingCubes,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -66,7 +66,8 @@ protected:
   vtkRecursiveDividingCubes();
   ~vtkRecursiveDividingCubes();
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
   void SubDivide(double origin[3], double h[3], double values[8]);
 
   double Value;

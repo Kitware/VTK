@@ -52,7 +52,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkMarchingSquares, "1.63");
+vtkCxxRevisionMacro(vtkMarchingSquares, "1.64");
 vtkStandardNewMacro(vtkMarchingSquares);
 
 // Description:
@@ -565,6 +565,12 @@ void vtkMarchingSquares::CreateDefaultLocator()
     {
     this->Locator = vtkMergePoints::New();
     }
+}
+
+int vtkMarchingSquares::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+  return 1;
 }
 
 void vtkMarchingSquares::PrintSelf(ostream& os, vtkIndent indent)

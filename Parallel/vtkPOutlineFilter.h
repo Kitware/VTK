@@ -21,15 +21,15 @@
 #ifndef __vtkPOutlineFilter_h
 #define __vtkPOutlineFilter_h
 
-#include "vtkDataSetToPolyDataAlgorithm.h"
+#include "vtkPolyDataAlgorithm.h"
 class vtkOutlineSource;
 class vtkMultiProcessController;
 
-class VTK_PARALLEL_EXPORT vtkPOutlineFilter : public vtkDataSetToPolyDataAlgorithm
+class VTK_PARALLEL_EXPORT vtkPOutlineFilter : public vtkPolyDataAlgorithm
 {
 public:
   static vtkPOutlineFilter *New();
-  vtkTypeRevisionMacro(vtkPOutlineFilter,vtkDataSetToPolyDataAlgorithm);
+  vtkTypeRevisionMacro(vtkPOutlineFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -43,8 +43,10 @@ protected:
 
   vtkMultiProcessController* Controller;
   vtkOutlineSource *OutlineSource;
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
+
 private:
   vtkPOutlineFilter(const vtkPOutlineFilter&);  // Not implemented.
   void operator=(const vtkPOutlineFilter&);  // Not implemented.

@@ -21,13 +21,13 @@
 #ifndef __vtkOutlineCornerFilter_h
 #define __vtkOutlineCornerFilter_h
 
-#include "vtkDataSetToPolyDataAlgorithm.h"
+#include "vtkPolyDataAlgorithm.h"
 class vtkOutlineCornerSource;
 
-class VTK_GRAPHICS_EXPORT vtkOutlineCornerFilter : public vtkDataSetToPolyDataAlgorithm
+class VTK_GRAPHICS_EXPORT vtkOutlineCornerFilter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkOutlineCornerFilter,vtkDataSetToPolyDataAlgorithm);
+  vtkTypeRevisionMacro(vtkOutlineCornerFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -45,7 +45,8 @@ protected:
   ~vtkOutlineCornerFilter();
 
   vtkOutlineCornerSource *OutlineCornerSource;
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
 
   double CornerFactor;
 private:

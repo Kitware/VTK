@@ -60,14 +60,14 @@
 #define VTK_COLOR_BY_INPUT  0
 #define VTK_COLOR_BY_SOURCE 1
 
-#include "vtkDataSetToPolyDataAlgorithm.h"
+#include "vtkPolyDataAlgorithm.h"
 
 class vtkPointData;
 
-class VTK_GRAPHICS_EXPORT vtkProgrammableGlyphFilter : public vtkDataSetToPolyDataAlgorithm
+class VTK_GRAPHICS_EXPORT vtkProgrammableGlyphFilter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkProgrammableGlyphFilter,vtkDataSetToPolyDataAlgorithm);
+  vtkTypeRevisionMacro(vtkProgrammableGlyphFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description
@@ -120,8 +120,8 @@ protected:
   vtkProgrammableGlyphFilter();
   ~vtkProgrammableGlyphFilter();
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  int FillInputPortInformation(int, vtkInformation *);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int FillInputPortInformation(int, vtkInformation *);
 
   double Point[3]; // Coordinates of point
   vtkIdType PointId; // Current point id during processing

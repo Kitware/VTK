@@ -44,17 +44,17 @@
 #ifndef __vtkDividingCubes_h
 #define __vtkDividingCubes_h
 
-#include "vtkImageDataToPolyDataAlgorithm.h"
+#include "vtkPolyDataAlgorithm.h"
 
 class vtkDoubleArray;
 class vtkIdList;
 class vtkVoxel;
 
-class VTK_PATENTED_EXPORT vtkDividingCubes : public vtkImageDataToPolyDataAlgorithm
+class VTK_PATENTED_EXPORT vtkDividingCubes : public vtkPolyDataAlgorithm
 {
 public:
   static vtkDividingCubes *New();
-  vtkTypeRevisionMacro(vtkDividingCubes,vtkImageDataToPolyDataAlgorithm);
+  vtkTypeRevisionMacro(vtkDividingCubes,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -79,6 +79,8 @@ protected:
   ~vtkDividingCubes();
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
+
   void SubDivide(double origin[3], int dim[3], double h[3], double values[8]);
 
   double Value;

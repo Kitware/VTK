@@ -63,7 +63,7 @@
 #ifndef __vtkGreedyTerrainDecimation_h
 #define __vtkGreedyTerrainDecimation_h
 
-#include "vtkImageDataToPolyDataAlgorithm.h"
+#include "vtkPolyDataAlgorithm.h"
 
 class vtkPriorityQueue;
 class vtkDataArray;
@@ -80,10 +80,10 @@ class vtkGreedyTerrainDecimationPointInfoType;
 #define VTK_ERROR_ABSOLUTE            2
 #define VTK_ERROR_RELATIVE            3
 
-class VTK_HYBRID_EXPORT vtkGreedyTerrainDecimation : public vtkImageDataToPolyDataAlgorithm
+class VTK_HYBRID_EXPORT vtkGreedyTerrainDecimation : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkGreedyTerrainDecimation,vtkImageDataToPolyDataAlgorithm);
+  vtkTypeRevisionMacro(vtkGreedyTerrainDecimation,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -148,6 +148,7 @@ protected:
   ~vtkGreedyTerrainDecimation();
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
 
   //ivars that the API addresses
   int       ErrorMeasure;

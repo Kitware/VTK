@@ -43,7 +43,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageMarchingCubes, "1.61");
+vtkCxxRevisionMacro(vtkImageMarchingCubes, "1.62");
 vtkStandardNewMacro(vtkImageMarchingCubes);
 
 //----------------------------------------------------------------------------
@@ -870,6 +870,13 @@ int *vtkImageMarchingCubes::GetLocatorPointer(int cellX,int cellY,int edge)
   // return correct pointer
   return this->LocatorPointIds + edge 
     + (cellX + cellY * (this->LocatorDimX)) * 5;
+}
+
+//----------------------------------------------------------------------------
+int vtkImageMarchingCubes::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+  return 1;
 }
 
 //----------------------------------------------------------------------------

@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkRecursiveDividingCubes, "1.41");
+vtkCxxRevisionMacro(vtkRecursiveDividingCubes, "1.42");
 vtkStandardNewMacro(vtkRecursiveDividingCubes);
 
 vtkRecursiveDividingCubes::vtkRecursiveDividingCubes()
@@ -332,6 +332,12 @@ void vtkRecursiveDividingCubes::SubDivide(double origin[3], double h[3],
         }
       }
     }
+}
+
+int vtkRecursiveDividingCubes::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+  return 1;
 }
 
 void vtkRecursiveDividingCubes::PrintSelf(ostream& os, vtkIndent indent)

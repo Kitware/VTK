@@ -67,7 +67,7 @@
 #ifndef __vtkGlyph3D_h
 #define __vtkGlyph3D_h
 
-#include "vtkDataSetToPolyDataAlgorithm.h"
+#include "vtkPolyDataAlgorithm.h"
 
 #define VTK_SCALE_BY_SCALAR 0
 #define VTK_SCALE_BY_VECTOR 1
@@ -86,10 +86,10 @@
 #define VTK_INDEXING_BY_SCALAR 1
 #define VTK_INDEXING_BY_VECTOR 2
 
-class VTK_GRAPHICS_EXPORT vtkGlyph3D : public vtkDataSetToPolyDataAlgorithm
+class VTK_GRAPHICS_EXPORT vtkGlyph3D : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkGlyph3D,vtkDataSetToPolyDataAlgorithm);
+  vtkTypeRevisionMacro(vtkGlyph3D,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description

@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkImageDataGeometryFilter, "1.14");
+vtkCxxRevisionMacro(vtkImageDataGeometryFilter, "1.15");
 vtkStandardNewMacro(vtkImageDataGeometryFilter);
 
 // Construct with initial extent of all the data
@@ -417,6 +417,12 @@ void vtkImageDataGeometryFilter::SetExtent(int extent[6])
       this->Extent[2*i+1] = extent[2*i+1];
       }
     }
+}
+
+int vtkImageDataGeometryFilter::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+  return 1;
 }
 
 void vtkImageDataGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)

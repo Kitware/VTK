@@ -29,7 +29,7 @@
 #include "vtkTriangle.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkDelaunay2D, "1.66");
+vtkCxxRevisionMacro(vtkDelaunay2D, "1.67");
 vtkStandardNewMacro(vtkDelaunay2D);
 vtkCxxSetObjectMacro(vtkDelaunay2D,Transform,vtkAbstractTransform);
 
@@ -1151,11 +1151,11 @@ int vtkDelaunay2D::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
     {
-    return this->Superclass::FillInputPortInformation(port, info);
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
     }
   else if (port == 1)
     {
-    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
     info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
     }
   return 1;

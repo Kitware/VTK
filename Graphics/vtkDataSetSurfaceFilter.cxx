@@ -37,7 +37,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.43");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.44");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
@@ -679,6 +679,13 @@ int vtkDataSetSurfaceFilter::RequestUpdateExtent(
               ghostLevels);
   inInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
 
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkDataSetSurfaceFilter::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 

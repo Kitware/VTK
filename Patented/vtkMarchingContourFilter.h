@@ -67,17 +67,17 @@
 #ifndef __vtkMarchingContourFilter_h
 #define __vtkMarchingContourFilter_h
 
-#include "vtkDataSetToPolyDataAlgorithm.h"
+#include "vtkPolyDataAlgorithm.h"
 
 #include "vtkContourValues.h" // Needed for direct access to ContourValues
 
 class vtkPointLocator;
 class vtkScalarTree;
 
-class VTK_PATENTED_EXPORT vtkMarchingContourFilter : public vtkDataSetToPolyDataAlgorithm
+class VTK_PATENTED_EXPORT vtkMarchingContourFilter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkMarchingContourFilter,vtkDataSetToPolyDataAlgorithm);
+  vtkTypeRevisionMacro(vtkMarchingContourFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -148,6 +148,7 @@ protected:
   ~vtkMarchingContourFilter();
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
 
   vtkContourValues *ContourValues;
   int ComputeNormals;

@@ -51,7 +51,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.89");
+vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.90");
 vtkStandardNewMacro(vtkSynchronizedTemplates3D);
 
 //----------------------------------------------------------------------------
@@ -999,6 +999,13 @@ int vtkSynchronizedTemplates3D::RequestUpdateExtent(
   // Set the update extent of the input.
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext, 6);
 
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkSynchronizedTemplates3D::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
   return 1;
 }
 

@@ -24,7 +24,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkThresholdPoints, "1.40");
+vtkCxxRevisionMacro(vtkThresholdPoints, "1.41");
 vtkStandardNewMacro(vtkThresholdPoints);
 
 // Construct with lower threshold=0, upper threshold=1, and threshold 
@@ -184,6 +184,12 @@ int vtkThresholdPoints::RequestData(
 
   output->Squeeze();
 
+  return 1;
+}
+
+int vtkThresholdPoints::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 

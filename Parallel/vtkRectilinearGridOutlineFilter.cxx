@@ -22,7 +22,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGridOutlineFilter, "1.9");
+vtkCxxRevisionMacro(vtkRectilinearGridOutlineFilter, "1.10");
 vtkStandardNewMacro(vtkRectilinearGridOutlineFilter);
 
 
@@ -211,6 +211,13 @@ int vtkRectilinearGridOutlineFilter::RequestData(
 
   output->Squeeze();
 
+  return 1;
+}
+
+int vtkRectilinearGridOutlineFilter::FillInputPortInformation(
+  int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkRectilinearGrid");
   return 1;
 }
 

@@ -34,7 +34,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkContourFilter, "1.113");
+vtkCxxRevisionMacro(vtkContourFilter, "1.114");
 vtkStandardNewMacro(vtkContourFilter);
 vtkCxxSetObjectMacro(vtkContourFilter,ScalarTree,vtkScalarTree);
 
@@ -322,6 +322,12 @@ void vtkContourFilter::CreateDefaultLocator()
     this->Locator->Register(this);
     this->Locator->Delete();
     }
+}
+
+int vtkContourFilter::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  return 1;
 }
 
 void vtkContourFilter::PrintSelf(ostream& os, vtkIndent indent)

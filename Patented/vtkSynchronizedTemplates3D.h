@@ -40,19 +40,19 @@
 #ifndef __vtkSynchronizedTemplates3D_h
 #define __vtkSynchronizedTemplates3D_h
 
-#include "vtkImageDataToPolyDataAlgorithm.h"
+#include "vtkPolyDataAlgorithm.h"
 #include "vtkContourValues.h" // Passes calls through
 
 class vtkImageData;
 class vtkKitwareContourFilter;
 class vtkMultiThreader;
 
-class VTK_PATENTED_EXPORT vtkSynchronizedTemplates3D : public vtkImageDataToPolyDataAlgorithm
+class VTK_PATENTED_EXPORT vtkSynchronizedTemplates3D : public vtkPolyDataAlgorithm
 {
 public:
   static vtkSynchronizedTemplates3D *New();
 
-  vtkTypeRevisionMacro(vtkSynchronizedTemplates3D,vtkImageDataToPolyDataAlgorithm);
+  vtkTypeRevisionMacro(vtkSynchronizedTemplates3D,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
@@ -170,8 +170,9 @@ protected:
   int ComputeScalars;
   vtkContourValues *ContourValues;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
   
   int ExecuteExtent[6];
 

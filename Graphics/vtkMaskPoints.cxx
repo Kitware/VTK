@@ -24,7 +24,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkMaskPoints, "1.47");
+vtkCxxRevisionMacro(vtkMaskPoints, "1.48");
 vtkStandardNewMacro(vtkMaskPoints);
 
 //----------------------------------------------------------------------------
@@ -162,6 +162,13 @@ int vtkMaskPoints::RequestData(
   vtkDebugMacro(<<"Masked " << numPts << " original points to " 
                 << id+1 << " points");
 
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkMaskPoints::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 

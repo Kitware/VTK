@@ -22,16 +22,16 @@
 #ifndef __vtkHedgeHog_h
 #define __vtkHedgeHog_h
 
-#include "vtkDataSetToPolyDataAlgorithm.h"
+#include "vtkPolyDataAlgorithm.h"
 
 #define VTK_USE_VECTOR 0
 #define VTK_USE_NORMAL 1
 
-class VTK_GRAPHICS_EXPORT vtkHedgeHog : public vtkDataSetToPolyDataAlgorithm
+class VTK_GRAPHICS_EXPORT vtkHedgeHog : public vtkPolyDataAlgorithm
 {
 public:
   static vtkHedgeHog *New();
-  vtkTypeRevisionMacro(vtkHedgeHog,vtkDataSetToPolyDataAlgorithm);
+  vtkTypeRevisionMacro(vtkHedgeHog,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -51,7 +51,8 @@ protected:
   vtkHedgeHog();
   ~vtkHedgeHog() {};
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
   double ScaleFactor;
   int VectorMode; // Orient/scale via normal or via vector data
 
