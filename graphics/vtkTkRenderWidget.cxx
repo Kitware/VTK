@@ -288,8 +288,8 @@ static void Vtkrenderwidget_EventProc(ClientData clientData, XEvent *eventPtr)
 	 {
 	 self->Width = Tk_Width(self->TkWin);
 	 self->Height = Tk_Height(self->TkWin);
-	 XResizeWindow(Tk_Display(self->TkWin), Tk_WindowId(self->TkWin), 
-		       self->Width, self->Height);
+	 //XResizeWindow(Tk_Display(self->TkWin), Tk_WindowId(self->TkWin), 
+	 //	       self->Width, self->Height);
 	 if (self->RenderWindow)
 	   {
 	   self->RenderWindow->SetSize(self->Width, self->Height);
@@ -349,7 +349,7 @@ static int Vtkrenderwidget_MakeRenderWindow(struct Vtkrenderwidget *self)
   
   if (winPtr->window != None) 
     {
-    XDestroyWindow(dpy, winPtr->window);
+    // XDestroyWindow(dpy, winPtr->window);
     }
 
   if (self->RW[0] == '\0')
