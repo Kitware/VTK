@@ -99,7 +99,8 @@ public:
   // automatically and should not be set by the user.
   vtkSetVector2Macro(Aspect,float);
   vtkGetVectorMacro(Aspect,float,2);
-
+  void ComputeAspect();
+  
   // Description:
   // Specify the viewport for the Viewport to draw in the rendering window. 
   // Coordinates are expressed as (xmin,ymin,xmax,ymax), where each

@@ -539,8 +539,27 @@ void vtkViewport::ViewToNormalizedViewport(float &x, float &y, float &vtkNotUsed
   y =  (y / this->Aspect[1] + 1.0) / 2.0;
 }
 
+void vtkViewport::ComputeAspect()
+{
+  float aspect[2];
+  float *vport;
+  int  *size, lowerLeft[2], upperRight[2];
+  
+  // get the bounds of the window 
+  size = this->VTKWindow->GetSize();
+  
+  vport = this->GetViewport();
 
+  lowerLeft[0] = (int)(vport[0]*size[0] + 0.5);
+  lowerLeft[1] = (int)(vport[1]*size[1] + 0.5);
+  upperRight[0] = (int)(vport[2]*size[0] + 0.5);
+  upperRight[1] = (int)(vport[3]*size[1] + 0.5);
+  upperRight[0]--;
+  upperRight[1]--;
 
-
-
-
+  aspect[0] = (float)(upperRight[0]-lowerLeft[0]+1)/
+    (float)(upperRight[1]-lowerLeft[1]+1);
+  aspect[1] = 1.0;
+  
+  this->SetAspect(aspect);
+}
