@@ -124,7 +124,7 @@ void vtkImageSimpleCache::Update()
   // update if mtime indicates to do so
   if (pipelineMTime > this->ExecuteTime)
     {
-    // Make sure image information is upto date
+    // Make sure image information is up to date
     this->UpdateImageInformation();
     }
   

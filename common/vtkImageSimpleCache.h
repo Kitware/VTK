@@ -38,9 +38,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageSimpleCache - Caches the last region generated.
+// .NAME vtkImageSimpleCache - Caches the last region generated
 // .SECTION Description
-// vtkImageSimpleCache saves previously the last generated region.
+// vtkImageSimpleCache saves the last generated region.
 // If a subsequent region is contained in the cached data, the
 // cached data is returned with no call to the filters Update method.
 // If the new region is not completely contained in the cached data,
@@ -72,7 +72,7 @@ public:
   vtkImageData *UpdateAndReturnData();
 
   // Description:
-  // This Method deletes any data in cache.
+  // This method deletes any data in the cache.
   void ReleaseData();
 
   // Description:

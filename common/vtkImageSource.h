@@ -38,10 +38,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageSource - Source of data for pipeline.
+// .NAME vtkImageSource - Source of data for the imaging pipeline
 // .SECTION Description
-// vtkImageSource is the supperclass for all imaging sources and filters.
-// The method Update, called by the cache, is the major interface
+// vtkImageSource is the superclass for all imaging sources and filters.
+// The method Update(), called by the cache, is the major interface
 // to the source.
 
 // .SECTION See Also
@@ -65,7 +65,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // This method sets the value of the caches ReleaseDataFlag.  When this flag
+  // This method sets the value of the cache's ReleaseDataFlag.  When this flag
   // is set, the cache releases its data after every generate.  When a default
   // cache is created, this flag is automatically set.
   virtual void SetReleaseDataFlag(int value);
@@ -102,8 +102,8 @@ public:
   virtual void UpdateImageInformation() = 0;
 
   // Description:
-  // Returns the maximum mtime of this source and every object which effects
-  // this sources output. 
+  // Returns the maximum MTime of this source and every object affecting
+  // this source's output. 
   virtual unsigned long GetPipelineMTime();
 
   // Description:
@@ -123,7 +123,7 @@ public:
   vtkImageCache *GetCache();
   
   // Description:
-  // subclass can over ride this method to do custom streaming and
+  // Subclasses can override this method to do custom streaming and
   // splitting for multiprocessing.
   virtual int SplitExtent(int splitExt[6], int startExt[6], 
 			  int num, int total);
