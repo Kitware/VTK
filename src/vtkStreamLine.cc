@@ -76,51 +76,45 @@ void vtkStreamLine::Execute()
   for (ptId=0; ptId < this->NumberOfStreamers; ptId++)
     {
     if ( this->Streamers[ptId].GetNumberOfPoints() < 2 ) continue;
-
     sPrev = this->Streamers[ptId].GetStreamPoint(0);
+    sPtr = this->Streamers[ptId].GetStreamPoint(1);
 
-    if ( this->Streamers[ptId].GetNumberOfPoints() == 2 )
-      {
-      sPtr = this->Streamers[ptId].GetStreamPoint(1);
-      if ( sPtr->cellId < 0 ) continue;
-      }
+    if ( this->Streamers[ptId].GetNumberOfPoints() == 2 && sPtr->cellId >= 0 )
+      continue;
 
     tOffset = sPrev->t;
 
-    for ( i=0, sPtr=sPrev; 
+    for ( i=1; 
     i < this->Streamers[ptId].GetNumberOfPoints() && sPtr->cellId >= 0;
     i++, sPrev=sPtr, sPtr=this->Streamers[ptId].GetStreamPoint(i) )
       {
 //
-// Search for end of segment and create line segments
+// Create points for line
 //
-      if ( (sPtr->t - tOffset) > this->StepLength )
+      while ( tOffset >= sPrev->t && tOffset < sPtr->t )
         {
-        while ( tOffset < sPtr->t )
+        r = (tOffset - sPrev->t) / (sPtr->t - sPrev->t);
+
+        for (j=0; j<3; j++)
           {
-          r = (tOffset - sPrev->t) / (sPtr->t - sPrev->t);
+          x[j] = sPrev->x[j] + r * (sPtr->x[j] - sPrev->x[j]);
+          v[j] = sPrev->v[j] + r * (sPtr->v[j] - sPrev->v[j]);
+          }
 
-          for (j=0; j<3; j++)
-            {
-            x[j] = sPrev->x[j] + r * (sPtr->x[j] - sPrev->x[j]);
-            v[j] = sPrev->v[j] + r * (sPtr->v[j] - sPrev->v[j]);
-            }
+        // add point to line
+        id = newPts->InsertNextPoint(x);
+        pts.InsertNextId(id);
+        newVectors->InsertVector(id,v);
 
-          // add point to line
-          id = newPts->InsertNextPoint(x);
-          pts.InsertNextId(id);
-          newVectors->InsertVector(id,v);
+        if ( newScalars ) 
+          {
+          s = sPrev->s + r * (sPtr->s - sPrev->s);
+          newScalars->InsertScalar(id,s);
+          }
 
-          if ( newScalars ) 
-            {
-            s = sPrev->s + r * (sPtr->s - sPrev->s);
-            newScalars->InsertScalar(id,s);
-            }
-  
-          tOffset += this->StepLength;
-          } // while
+        tOffset += this->StepLength;
 
-        } //if points should be created
+        } // while
       } //for this streamer
 
     if ( pts.GetNumberOfIds() > 1 )
