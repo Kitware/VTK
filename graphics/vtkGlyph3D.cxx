@@ -186,7 +186,7 @@ void vtkGlyph3D::Execute()
     }
 
   // Setting up for calls to PolyData::InsertNextCell()
-  output->Allocate(numPts*numSourceCells,numPts);
+  output->Allocate(3*numPts*numSourceCells,numPts*numSourceCells);
     
   //
   // Traverse all Input points, transforming Source points and copying 
