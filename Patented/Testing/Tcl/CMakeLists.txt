@@ -7,10 +7,19 @@ IF (VTK_USE_RENDERING)
     FOREACH ( tfile 
       dcubes
       deciFran
+      deciFranErrors
+      financialField
+      headBone
+      iceCream
+      imageMCAll
       mcubes
+      sweepAuto
+      sweptVtk
+      TestGridSynchronizedTemplates3D
+      TestImageMarchingCubes
+      TestMarchingSquares
       TestSynchronizedTemplates2D
       TestSynchronizedTemplates3D
-      TestGridSynchronizedTemplates3D
       )
       ADD_TEST(${tfile}-image ${VTK_EXECUTABLE}
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
