@@ -51,11 +51,8 @@ vtkMergeFilter displayMerge
   displayMerge SetGeometry [displayLine GetOutput]
   displayMerge SetScalars [probe GetPolyDataOutput]
 
-vtkCastToConcrete displayCast
-  displayCast SetInput [displayMerge GetOutput]
-
 vtkWarpScalar displayWarp
-  displayWarp SetInput [displayCast GetPolyDataOutput]
+  displayWarp SetInput [displayMerge GetPolyDataOutput]
   displayWarp SetNormal 0 1 0
   displayWarp SetScaleFactor .000001
 
