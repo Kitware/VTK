@@ -236,6 +236,7 @@ void vtkDataSetToDataObjectFilter::Execute()
           }
         fd->SetArray(arrayNum, types);
         fd->SetArrayName(arrayNum++, "CellTypes");
+	types->Delete();
         }
       }
 
@@ -354,6 +355,7 @@ void vtkDataSetToDataObjectFilter::Execute()
                 <<"arrays");
   
   this->Output->SetFieldData(fd);
+  fd->Delete();
 }
 
 void vtkDataSetToDataObjectFilter::PrintSelf(ostream& os, vtkIndent indent)

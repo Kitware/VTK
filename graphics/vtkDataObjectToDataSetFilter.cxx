@@ -72,7 +72,7 @@ vtkDataObjectToDataSetFilter::vtkDataObjectToDataSetFilter()
     {
     this->PointArrays[i] = NULL;
     this->PointArrayComponents[i] = -1; //uninitialized
-    this->PointComponentRange[i][0] = this->PointComponentRange[0][1] = -1;
+    this->PointComponentRange[i][0] = this->PointComponentRange[i][1] = -1;
     this->PointNormalize[i] = 1; //yes, normalize
     }
 
