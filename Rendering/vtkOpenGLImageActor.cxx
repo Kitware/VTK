@@ -19,15 +19,20 @@
 #include <string.h>
 
 #include "vtkRenderWindow.h"
-#ifdef VTK_USE_QUARTZ
-#include "vtkQuartzRenderWindow.h"
+#ifdef VTK_USE_CARBON
+ #include "vtkCarbonRenderWindow.h"
 #else
-#ifdef _WIN32
-#include "vtkWin32OpenGLRenderWindow.h"
-#else
-#include "vtkOpenGLRenderWindow.h"
+ #ifdef VTK_USE_COCOA
+  #include "vtkCocoaRenderWindow.h"
+ #else
+  #ifdef _WIN32
+   #include "vtkWin32OpenGLRenderWindow.h"
+  #else
+   #include "vtkOpenGLRenderWindow.h"
+  #endif
+ #endif
 #endif
-#endif
+
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLImageActor.h"
 #ifdef __APPLE__
@@ -39,7 +44,7 @@
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.12");
+vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.13");
 vtkStandardNewMacro(vtkOpenGLImageActor);
 #endif
 
@@ -300,15 +305,7 @@ void vtkOpenGLImageActor::Load(vtkRenderer *ren)
     glNewList ((GLuint) this->Index, GL_COMPILE);
 #endif
 
-#ifdef VTK_USE_QUARTZ
-    ((vtkQuartzRenderWindow *)(ren->GetRenderWindow()))->RegisterTextureResource( this->Index );
-#else
-  #ifdef _WIN32
-    ((vtkWin32OpenGLRenderWindow *)(ren->GetRenderWindow()))->RegisterTextureResource( this->Index );
-  #else
-    ((vtkOpenGLRenderWindow *)(ren->GetRenderWindow()))->RegisterTextureResource( this->Index );
-  #endif
-#endif
+   ((vtkOpenGLRenderWindow *)(ren->GetRenderWindow()))->RegisterTextureResource( this->Index );
     
     if (this->Interpolate)
       {

@@ -25,8 +25,8 @@
 #ifdef _WIN32
 #include "vtkWin32OpenGLRenderWindow.h"
 #else
-#ifdef __APPLE__
-#include "vtkQuartzRenderWindow.h"
+#ifdef VTK_USE_CARBON
+#include "vtkCarbonRenderWindow.h"
 #else
 #include "vtkXOpenGLRenderWindow.h"
 #endif
@@ -664,15 +664,15 @@ static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
 }
 #else
 
-// the quartz version
-#ifdef __APPLE__
+// the carbon version - tk not available using the cocoa api
+#ifdef VTK_USE_CARBON
 //----------------------------------------------------------------------------
 // Creates a render window and forces Tk to use the window.
 static int
 vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self) 
 {
   Display *dpy;
-  vtkQuartzRenderWindow *renderWindow;
+  vtkCarbonRenderWindow *renderWindow;
   
   if (self->RenderWindow)
     {
@@ -692,7 +692,7 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
     self->RenderWindow = vtkRenderWindow::New();
     self->RenderWindow->Register(NULL);
     self->RenderWindow->Delete();
-    renderWindow = (vtkQuartzRenderWindow *)(self->RenderWindow);
+    renderWindow = (vtkCarbonRenderWindow *)(self->RenderWindow);
 #ifndef VTK_PYTHON_BUILD
     vtkTclGetObjectFromPointer(self->Interp, self->RenderWindow,
                                vtkRenderWindowCommand);
@@ -708,13 +708,13 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
       {
       void *tmp;
       sscanf(self->RW+5,"%p",&tmp);
-      renderWindow = (vtkQuartzRenderWindow *)tmp;
+      renderWindow = (vtkCarbonRenderWindow *)tmp;
       }
     else
       {
 #ifndef VTK_PYTHON_BUILD
       int new_flag;
-      renderWindow = (vtkQuartzRenderWindow *)
+      renderWindow = (vtkCarbonRenderWindow *)
         vtkTclGetPointerFromObject(self->RW,"vtkRenderWindow",self->Interp, 
                                    new_flag);
 #endif

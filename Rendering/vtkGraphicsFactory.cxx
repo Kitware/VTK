@@ -23,7 +23,7 @@
 #include "vtkDebugLeaks.h"
 
 // if using some sort of opengl, then include these files
-#if defined(VTK_USE_OGLR) || defined(_WIN32) || defined(VTK_USE_QUARTZ)
+#if defined(VTK_USE_OGLR) || defined(_WIN32) || defined(VTK_USE_COCOA) || defined(VTK_USE_CARBON)
 #include "vtkOpenGLActor.h"
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLImageActor.h"
@@ -43,9 +43,13 @@
 #endif
 
 // Apple OSX stuff
-#ifdef VTK_USE_QUARTZ
-#include "vtkQuartzRenderWindow.h"
-#include "vtkQuartzRenderWindowInteractor.h"
+#ifdef VTK_USE_CARBON
+#include "vtkCarbonRenderWindow.h"
+#include "vtkCarbonRenderWindowInteractor.h"
+#endif
+#ifdef VTK_USE_COCOA
+#include "vtkCocoaRenderWindow.h"
+#include "vtkCocoaRenderWindowInteractor.h"
 #endif
 
 // X OpenGL stuff
@@ -54,7 +58,7 @@
 #include "vtkXOpenGLRenderWindow.h"
 #endif
 
-vtkCxxRevisionMacro(vtkGraphicsFactory, "1.26");
+vtkCxxRevisionMacro(vtkGraphicsFactory, "1.27");
 
 const char *vtkGraphicsFactory::GetRenderLibrary()
 {
@@ -91,8 +95,11 @@ const char *vtkGraphicsFactory::GetRenderLibrary()
 #ifdef _WIN32
     temp = "Win32OpenGL";
 #endif
-#ifdef VTK_USE_QUARTZ
-    temp = "QuartzOpenGL";
+#ifdef VTK_USE_CARBON
+    temp = "CarbonOpenGL";
+#endif
+#ifdef VTK_USE_COCOA
+    temp = "CocoaOpenGL";
 #endif
     }
   
@@ -143,19 +150,29 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
     }
 #endif
 
-#ifdef VTK_USE_QUARTZ
+#ifdef VTK_USE_CARBON
   if(strcmp(vtkclassname, "vtkRenderWindowInteractor") == 0)
     {
-    return vtkQuartzRenderWindowInteractor::New();
+    return vtkCarbonRenderWindowInteractor::New();
     }
   if(strcmp(vtkclassname, "vtkRenderWindow") == 0)
     {
-    return vtkQuartzRenderWindow::New();
+    return vtkCarbonRenderWindow::New();
+    }
+#endif
+#ifdef VTK_USE_COCOA
+  if(strcmp(vtkclassname, "vtkRenderWindowInteractor") == 0)
+    {
+    return vtkCocoaRenderWindowInteractor::New();
+    }
+  if(strcmp(vtkclassname, "vtkRenderWindow") == 0)
+    {
+    return vtkCocoaRenderWindow::New();
     }
 #endif
 
-#if defined(VTK_USE_OGLR) || defined(_WIN32) || defined(VTK_USE_QUARTZ)
-  if (!strcmp("OpenGL",rl) || !strcmp("Win32OpenGL",rl) || !strcmp("QuartzOpenGL",rl))
+#if defined(VTK_USE_OGLR) || defined(_WIN32) || defined(VTK_USE_COCOA) || defined(VTK_USE_CARBON)
+  if (!strcmp("OpenGL",rl) || !strcmp("Win32OpenGL",rl) || !strcmp("CarbonOpenGL",rl) || !strcmp("CocoaOpenGL",rl))
     {
     if(strcmp(vtkclassname, "vtkActor") == 0)
       {

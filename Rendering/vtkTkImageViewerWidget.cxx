@@ -21,13 +21,17 @@
 #include "vtkRenderWindowInteractor.h"
 
 #ifdef _WIN32
-#pragma warning ( disable : 4273 )
+ #pragma warning ( disable : 4273 )
 #else
-#ifdef __APPLE__
-#include "vtkQuartzRenderWindow.h"
-#else
-#include "vtkXOpenGLRenderWindow.h"
-#endif
+ #ifdef VTK_USE_CARBON
+  #include "vtkCarbonRenderWindow.h"
+ #else
+  #ifdef VTK_USE_COCOA
+   #include "vtkCocoaRenderWindow.h"
+  #else
+   #include "vtkXOpenGLRenderWindow.h"
+  #endif
+ #endif
 #endif
 
 #define VTK_ALL_EVENTS_MASK \
@@ -659,9 +663,9 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget 
 
 
 
-// now the APPLE version
+// now the APPLE version - only available using the Carbon APIs
 #else
-#ifdef __APPLE__
+#ifdef VTK_USE_CARBON
 //----------------------------------------------------------------------------
 // Creates a ImageViewer window and forces Tk to use the window.
 static int
@@ -669,7 +673,7 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
 {
   Display *dpy;
   vtkImageViewer *ImageViewer;
-  vtkQuartzRenderWindow *ImageWindow;
+  vtkCarbonRenderWindow *ImageWindow;
   
   if (self->ImageViewer)
     {
@@ -730,7 +734,7 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
   
         
   // get the window
-  ImageWindow = static_cast<vtkQuartzRenderWindow *>(ImageViewer->GetRenderWindow());
+  ImageWindow = static_cast<vtkCarbonRenderWindow *>(ImageViewer->GetRenderWindow());
   // If the imageviewer has already created it's window, throw up our hands and quit...
   if ( ImageWindow->GetWindowId() != (Window)NULL )
     {

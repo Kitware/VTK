@@ -21,14 +21,18 @@
 
 #include "vtkOpenGLPolyDataMapper.h"
 
-#ifdef VTK_USE_QUARTZ
-#include "vtkQuartzRenderWindow.h"
+#ifdef VTK_USE_CARBON
+ #include "vtkCarbonRenderWindow.h"
 #else
-#ifdef _WIN32
-#include "vtkWin32OpenGLRenderWindow.h"
-#else
-#include "vtkOpenGLRenderWindow.h"
-#endif
+ #ifdef VTK_USE_COCOA
+  #include "vtkCocoaRenderWindow.h"
+ #else
+  #ifdef _WIN32
+   #include "vtkWin32OpenGLRenderWindow.h"
+  #else
+   #include "vtkOpenGLRenderWindow.h"
+  #endif
+ #endif
 #endif
 #include "vtkOpenGLRenderer.h"
 #include "vtkPolyData.h"
@@ -41,7 +45,7 @@
 #include "vtkCommand.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.69");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.70");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper);
 #endif
 

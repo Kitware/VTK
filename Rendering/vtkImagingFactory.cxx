@@ -37,16 +37,22 @@
 #include "vtkOpenGLImageMapper.h"
 #include "vtkWin32OpenGLTextMapper.h"
 #include "vtkOpenGLPolyDataMapper2D.h"
-#else
- #ifdef VTK_USE_QUARTZ
-  #include "vtkOpenGLImageMapper.h"
-  #include "vtkOpenGLPolyDataMapper2D.h"
-  #include "vtkQuartzTextMapper.h"
-  #include "vtkQuartzImageMapper.h"
- #endif
 #endif
 
-vtkCxxRevisionMacro(vtkImagingFactory, "1.21");
+#ifdef VTK_USE_CARBON
+#include "vtkOpenGLImageMapper.h"
+#include "vtkCarbonTextMapper.h"
+#include "vtkOpenGLPolyDataMapper2D.h"
+#endif
+#ifdef VTK_USE_COCOA
+#include "vtkOpenGLImageMapper.h"
+#include "vtkCocoaTextMapper.h"
+#include "vtkOpenGLPolyDataMapper2D.h"
+#endif
+
+
+vtkCxxRevisionMacro(vtkImagingFactory, "1.22");
+
 
 const char *vtkImagingFactoryGetRenderLibrary()
 {
@@ -100,8 +106,11 @@ const char *vtkImagingFactoryGetRenderLibrary()
 #ifdef _WIN32
     temp = "Win32OpenGL";
 #endif
-#ifdef VTK_USE_QUARTZ
-    temp = "QuartzOpenGL";
+#ifdef VTK_USE_CARBON
+    temp = "CarbonOpenGL";
+#endif
+#ifdef VTK_USE_COCOA
+    temp = "CocoaOpenGL";
 #endif
     }
   
@@ -161,12 +170,29 @@ vtkObject* vtkImagingFactory::CreateInstance(const char* vtkclassname )
     }
 #endif
 
-#ifdef VTK_USE_QUARTZ
-  if (!strcmp("QuartzOpenGL",rl))
+#ifdef VTK_USE_CARBON
+  if (!strcmp("CarbonOpenGL",rl))
     {
     if(strcmp(vtkclassname, "vtkTextMapper") == 0)
       {
-      return vtkQuartzTextMapper::New();
+      return vtkCarbonTextMapper::New();
+      }
+    if(strcmp(vtkclassname, "vtkImageMapper") == 0)
+      {
+      return vtkOpenGLImageMapper::New();
+      }
+    if(strcmp(vtkclassname, "vtkPolyDataMapper2D") == 0)
+      {
+      return vtkOpenGLPolyDataMapper2D::New();
+      }
+    }
+#endif
+#ifdef VTK_USE_COCOA
+  if (!strcmp("CocoaOpenGL",rl))
+    {
+    if(strcmp(vtkclassname, "vtkTextMapper") == 0)
+      {
+      return vtkCocoaTextMapper::New();
       }
     if(strcmp(vtkclassname, "vtkImageMapper") == 0)
       {
@@ -200,5 +226,6 @@ vtkObject* vtkImagingFactory::CreateInstance(const char* vtkclassname )
 
   return 0;
 }
+
 
 
