@@ -20,10 +20,11 @@
 #include "vtkExtractEdges.h"
 #include "vtkOutlineSource.h"
 #include "vtkStructuredGridOutlineFilter.h"
+#include "vtkStripper.h"
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkPVGeometryFilter, "1.6");
+vtkCxxRevisionMacro(vtkPVGeometryFilter, "1.7");
 vtkStandardNewMacro(vtkPVGeometryFilter);
 
 //----------------------------------------------------------------------------
@@ -73,7 +74,32 @@ void vtkPVGeometryFilter::Execute()
     this->GetOutput()->CheckAttributes();
     return;
     }
+  if (input->IsA("vtkPolyData"))
+    {
+    vtkPolyData *inPd = vtkPolyData::SafeDownCast(input);
+    vtkPolyData *out = this->GetOutput(); 
+    if (this->UseStrips)
+      {
+      vtkPolyData *inCopy = vtkPolyData::New();
+      vtkStripper *stripper = vtkStripper::New();
+      inCopy->ShallowCopy(inPd);
+      stripper->SetInput(inCopy);
+      stripper->Update();
+      out->CopyStructure(stripper->GetOutput());
+      out->GetPointData()->ShallowCopy(stripper->GetOutput()->GetPointData());
+      out->GetCellData()->ShallowCopy(stripper->GetOutput()->GetCellData());
+      inCopy->Delete();
+      stripper->Delete();
+      return;
+      }
+    else
+      {
+      out->ShallowCopy(inPd);
+      return;
+      }
+    }
 
+  // We are not stripping unstructured grids ...
   this->GetInput()->CheckAttributes();
   this->vtkDataSetSurfaceFilter::Execute();
   // I think this filter is misbehaving.
