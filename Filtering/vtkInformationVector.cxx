@@ -20,7 +20,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationVector, "1.6");
+vtkCxxRevisionMacro(vtkInformationVector, "1.7");
 vtkStandardNewMacro(vtkInformationVector);
 
 class vtkInformationVectorInternals
@@ -61,6 +61,16 @@ vtkInformationVector::~vtkInformationVector()
 void vtkInformationVector::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "Number of Information Objects: " << this->GetNumberOfInformationObjects()
+     << "\n";
+  os << indent << "Information Objects:\n";
+  for(int i=0; i < this->GetNumberOfInformationObjects(); ++i)
+    {
+    vtkInformation* info = this->GetInformationObject(i);
+    vtkIndent nextIndent = indent.GetNextIndent();
+    os << nextIndent << info->GetClassName() << "(" << info << "):\n";
+    info->PrintSelf(os, nextIndent.GetNextIndent());
+    }
 }
 
 //----------------------------------------------------------------------------
