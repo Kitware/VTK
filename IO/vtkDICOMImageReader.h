@@ -127,6 +127,10 @@ class VTK_IO_EXPORT vtkDICOMImageReader : public vtkImageReader2
   const char* GetStudyUID();
 
   // Description:
+  // Get the Study ID for the last image processed.
+  const char* GetStudyID();
+  
+  // Description:
   // Get the gantry angle for the last image processed.
   float GetGantryAngle();
 
@@ -185,6 +189,11 @@ protected:
   vtkDICOMImageReaderVector* DICOMFileNames;
   char* DirectoryName;
 
+  char* PatientName;
+  char* StudyUID;
+  char* StudyID;
+  char* TransferSyntaxUID;
+  
 private:
   vtkDICOMImageReader(const vtkDICOMImageReader&);  // Not implemented.
   void operator=(const vtkDICOMImageReader&);  // Not implemented.
