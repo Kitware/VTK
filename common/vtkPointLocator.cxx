@@ -263,13 +263,13 @@ int vtkPointLocator::FindClosestPointWithinRadius(float radius, float x[3],
 {
   int i, j, closest = -1;
   float *pt;
-  int ptId, cno;
+  int ptId;
   vtkIdList *ptIds;
   int ijk[3], *nei;
   float minDist2;
   
-  float refinedRadius, radius2, refinedRadius2, distance2ToBucket;
-  float distance2ToCellBounds, cellBounds[6], currentRadius;
+  float refinedRadius, radius2, refinedRadius2;
+  float currentRadius;
   float distance2ToDataBounds, maxDistance;
   int ii, radiusLevels[3], radiusLevel, prevMinLevel[3], prevMaxLevel[3];
 
@@ -1114,7 +1114,7 @@ void vtkPointLocator::GetOverlappingBuckets(float x[3], float dist,
                                            int prevMaxLevel[3])
 {
   int i, j, k, nei[3], minLevel[3], maxLevel[3];
-  int leafStart, kFactor, jFactor;
+  int kFactor, jFactor;
   int jkSkipFlag, kSkipFlag;
 
   // Initialize
