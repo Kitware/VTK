@@ -164,6 +164,12 @@ vtkColorScalars *vtkMapper::GetColors()
   else //color scalar
     {
     colors = (vtkColorScalars *)scalars;
+    if (this->Colors)
+      {
+      this->Colors->Delete();
+      }
+    this->Colors = colors;
+    this->Colors->Register(this);
     }
   
   return colors;
