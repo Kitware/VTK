@@ -38,13 +38,30 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkPlaneSource - create an array of quadrilaterals located in the plane
+// .NAME vtkPlaneSource - create an array of quadrilaterals located in a plane
 // .SECTION Description
 // vtkPlaneSource creates an m x n array of quadrilaterals arranged as a
-// regular tiling in the plane. The plane is centered at the origin, and 
-// orthogonal to the global z-axis.  The resolution of the plane can be
-// specified in both the x and y directions (i.e., specify m and n, 
-// respectively).
+// regular tiling in a plane. The plane is defined by specifying an origin
+// point, and then two other points that, together with the origin, define two
+// axes for the plane. These axes do not have to be orthogonal - so you can 
+// create a parallelogram. (The axes must not be parallel.) By default, the 
+// plane is centered at the origin and perpendicular to the z-axis, with 
+// width and height of length 1. The resolution of the plane (i.e., number 
+// of subdivisions) is controlled by the ivars XResolution and YResolution.
+//
+// There are two conveience methods that allow you to easily move the plane. 
+// The first, SetNormal(), allows you to specify the plane normal. The effect
+// of this method is to rotate the plane around the center of the plane, 
+// aligning the plane normal with the specified normal. The second, Push(),
+// allows you to translate the plane along the plane normal by the distance 
+// specified. (Negative Push values translate the plane in the negative 
+// normal direction.)  Note that both the SetNormal() and Push() methods may 
+// modify the Origin, Point1, and/or Point2 ivars.
+
+// .SECTION Caveats
+// The normal to the plane will point in the direction of the cross product
+// of the first axis (Origin->Point1) with the second (Origin->Point2). This
+// also affects the normals to the generated polygons.
 
 #ifndef __vtkPlaneSource_h
 #define __vtkPlaneSource_h
@@ -54,18 +71,58 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkPlaneSource : public vtkPolySource 
 {
 public:
-  vtkPlaneSource() : XRes(1), YRes(1) {};
-  vtkPlaneSource(const int xR, const int yR) {XRes=xR; YRes=yR;};
+  vtkPlaneSource();
   void PrintSelf(ostream& os, vtkIndent indent);
   char *GetClassName() {return "vtkPlaneSource";};
 
+  // Description:
+  // Specify the resolution of the plane along the first axes.
+  vtkSetMacro(XResolution,int);
+  vtkGetMacro(XResolution,int);
+
+  // Description:
+  // Specify the resolution of the plane along the second axes.
+  vtkSetMacro(YResolution,int);
+  vtkGetMacro(YResolution,int);
+
+  // Convenience functions.
   void SetResolution(const int xR, const int yR);
-  void GetResolution(int& xR,int& yR) {xR=this->XRes; yR=this->YRes;};
+  void GetResolution(int& xR,int& yR) {xR=this->XResolution; yR=this->YResolution;};
+
+  // Description:
+  // Specify a point defining the origin of the plane.
+  vtkSetVector3Macro(Origin,float);
+  vtkGetVector3Macro(Origin,float);
+
+  // Description:
+  // Specify a point defining the first axis of the plane.
+  vtkSetVector3Macro(Point1,float);
+  vtkGetVector3Macro(Point1,float);
+
+  // Description:
+  // Specify a point defining the second axis of the plane.
+  vtkSetVector3Macro(Point2,float);
+  vtkGetVector3Macro(Point2,float);
+
+  // Description:
+  // Set/Get the plane normal.
+  void SetNormal(float nx, float ny, float nz);
+  void SetNormal(float n[3]);
+  vtkGetVector3Macro(Normal,float);
+
+  void Push(float distance);
 
 protected:
   void Execute();
-  int XRes;
-  int YRes;
+
+  int XResolution;
+  int YResolution;
+  float Origin[3];
+  float Point1[3];
+  float Point2[3];
+  float Normal[3];
+
+  int UpdateNormal(float v1[3], float v2[3]);
 };
 
 #endif
