@@ -474,13 +474,16 @@ void vtkImageReader::SetHeaderSize(int size)
 void vtkImageReader::ComputeDataIncrements()
 {
   int idx;
-  int fileDataLength;
+  unsigned long fileDataLength;
   
   // Determine the expected length of the data ...
   switch (this->DataScalarType)
     {
     case VTK_FLOAT:
       fileDataLength = sizeof(float);
+      break;
+    case VTK_DOUBLE:
+      fileDataLength = sizeof(double);
       break;
     case VTK_INT:
       fileDataLength = sizeof(int);
@@ -565,7 +568,7 @@ int vtkImageReader::GetHeaderSize(int idx)
 
 void vtkImageReader::OpenAndSeekFile(int dataExtent[6], int idx)
 {
-  long streamStart;
+  unsigned long streamStart;
 
   this->ComputeInternalFileName(idx);
   this->OpenFile();
@@ -596,11 +599,6 @@ void vtkImageReader::OpenAndSeekFile(int dataExtent[6], int idx)
   streamStart += this->GetHeaderSize(idx);
   
   // error checking
-  if (streamStart < 0)
-    {
-    vtkWarningMacro("streamStart: " << streamStart << " bad offset");
-    return;
-    }
   this->File->seekg(streamStart, ios::beg);
   if (this->File->fail())
     {
@@ -713,7 +711,7 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
 			       << ", FilePos = " << self->GetFile()->tellg());
 	return;
 	}
-      
+
       // handle swapping
       if (self->GetSwapBytes())
 	{

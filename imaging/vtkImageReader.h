@@ -186,7 +186,7 @@ public:
 
 //BTX
   ifstream *GetFile() {return this->File;}
-  vtkGetVectorMacro(DataIncrements,int,4);
+  vtkGetVectorMacro(DataIncrements,unsigned long,4);
 //ETX
 
   // Warning !!!
@@ -226,7 +226,7 @@ protected:
   int FileLowerLeft;
 
   ifstream *File;
-  int DataIncrements[4];
+  unsigned long DataIncrements[4];
   int DataExtent[6];
   unsigned short DataMask;  // Mask each pixel with ...
   int SwapBytes;
