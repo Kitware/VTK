@@ -186,17 +186,24 @@ void vtkTextSource::Execute()
   int acol;
   int drawingWhite = 0;
   int drawingBlack = 0;
-  unsigned char white = 255;
-  unsigned char black = 0;
+  unsigned char white[4];
+  unsigned char black[4];
   vtkPolyData *output=(vtkPolyData *)this->Output;
   vtkUnsignedCharArray *data;
   
+  // convert colors to unsigned char
+  for (int i = 0; i < 4; i++)
+    {
+    white[i] = (unsigned char) (this->ForegroundColor[i] * 255.0);
+    black[i] = (unsigned char) (this->BackgroundColor[i] * 255.0);
+    }
+
   // Set things up; allocate memory
   x[2] = 0;
 
   newPoints = vtkPoints::New();
   newPolys = vtkCellArray::New();
-  newScalars = vtkScalars::New(VTK_UNSIGNED_CHAR,1);
+  newScalars = vtkScalars::New(VTK_UNSIGNED_CHAR,4);
   data = (vtkUnsignedCharArray *)newScalars->GetData();
 
   // Create Text
@@ -217,12 +224,18 @@ void vtkTextSource::Execute()
 	      x[0] = pos*vtkfont_width + col + 1; 
 	      x[1] = vtkfont_height - row;
 	      newPoints->InsertNextPoint(x);
-	      data->InsertNextValue(black);
+	      data->InsertNextValue(black[0]);
+	      data->InsertNextValue(black[1]);
+	      data->InsertNextValue(black[2]);
+	      data->InsertNextValue(black[3]);
 
 	      x[0] = pos*vtkfont_width + col; 
 	      x[1] = vtkfont_height - row;
 	      newPoints->InsertNextPoint(x);
-	      data->InsertNextValue(black);
+	      data->InsertNextValue(black[0]);
+	      data->InsertNextValue(black[1]);
+	      data->InsertNextValue(black[2]);
+	      data->InsertNextValue(black[3]);
 
 	      pts[0] = numPolys*4;
 	      pts[1] = numPolys*4 + 1;
@@ -237,12 +250,18 @@ void vtkTextSource::Execute()
 	      x[0] = pos*vtkfont_width + col; 
 	      x[1] = vtkfont_height - row;
 	      newPoints->InsertNextPoint(x);
-	      data->InsertNextValue(white);
+	      data->InsertNextValue(white[0]);
+	      data->InsertNextValue(white[1]);
+	      data->InsertNextValue(white[2]);
+	      data->InsertNextValue(white[3]);
 
 	      x[0] = pos*vtkfont_width + col + 1; 
 	      x[1] = vtkfont_height - row;
 	      newPoints->InsertNextPoint(x);
-	      data->InsertNextValue(white);
+	      data->InsertNextValue(white[0]);
+	      data->InsertNextValue(white[1]);
+	      data->InsertNextValue(white[2]);
+	      data->InsertNextValue(white[3]);
 	      drawingWhite = 1;
 	      }
 	    }
@@ -254,12 +273,18 @@ void vtkTextSource::Execute()
 	      x[0] = pos*vtkfont_width + col + 1; 
 	      x[1] = vtkfont_height - row;
 	      newPoints->InsertNextPoint(x);
-	      data->InsertNextValue(white);
+	      data->InsertNextValue(white[0]);
+	      data->InsertNextValue(white[1]);
+	      data->InsertNextValue(white[2]);
+	      data->InsertNextValue(white[3]);
 
 	      x[0] = pos*vtkfont_width + col; 
 	      x[1] = vtkfont_height - row;
 	      newPoints->InsertNextPoint(x);
-	      data->InsertNextValue(white);
+	      data->InsertNextValue(white[0]);
+	      data->InsertNextValue(white[1]);
+	      data->InsertNextValue(white[2]);
+	      data->InsertNextValue(white[3]);
 
 	      pts[0] = numPolys*4;
 	      pts[1] = numPolys*4 + 1;
@@ -274,12 +299,18 @@ void vtkTextSource::Execute()
 	      x[0] = pos*vtkfont_width + col; 
 	      x[1] = vtkfont_height - row;
 	      newPoints->InsertNextPoint(x);
-	      data->InsertNextValue(black);
+	      data->InsertNextValue(black[0]);
+	      data->InsertNextValue(black[1]);
+	      data->InsertNextValue(black[2]);
+	      data->InsertNextValue(black[3]);
 
 	      x[0] = pos*vtkfont_width + col + 1; 
 	      x[1] = vtkfont_height - row;
 	      newPoints->InsertNextPoint(x);
-	      data->InsertNextValue(black);
+	      data->InsertNextValue(black[0]);
+	      data->InsertNextValue(black[1]);
+	      data->InsertNextValue(black[2]);
+	      data->InsertNextValue(black[3]);
 	      drawingBlack = 1;
 	      }
 	    }
@@ -290,12 +321,18 @@ void vtkTextSource::Execute()
 	  x[0] = pos*vtkfont_width + col + 1; 
 	  x[1] = 0;
 	  newPoints->InsertNextPoint(x);
-	  data->InsertNextValue(white);
+	  data->InsertNextValue(white[0]);
+	  data->InsertNextValue(white[1]);
+	  data->InsertNextValue(white[2]);
+	  data->InsertNextValue(white[3]);
 
 	  x[0] = pos*vtkfont_width + col; 
 	  x[1] = 0;
 	  newPoints->InsertNextPoint(x);
-	  data->InsertNextValue(white);
+	  data->InsertNextValue(white[0]);
+	  data->InsertNextValue(white[1]);
+	  data->InsertNextValue(white[2]);
+	  data->InsertNextValue(white[3]);
 	  
 	  pts[0] = numPolys*4;
 	  pts[1] = numPolys*4 + 1;
@@ -310,12 +347,18 @@ void vtkTextSource::Execute()
 	  x[0] = pos*vtkfont_width + col + 1; 
 	  x[1] = 0;
 	  newPoints->InsertNextPoint(x);
-	  data->InsertNextValue(black);
+	  data->InsertNextValue(black[0]);
+	  data->InsertNextValue(black[1]);
+	  data->InsertNextValue(black[2]);
+	  data->InsertNextValue(black[3]);
 
 	  x[0] = pos*vtkfont_width + col; 
 	  x[1] = 0;
 	  newPoints->InsertNextPoint(x);
-	  data->InsertNextValue(black);
+	  data->InsertNextValue(black[0]);
+	  data->InsertNextValue(black[1]);
+	  data->InsertNextValue(black[2]);
+	  data->InsertNextValue(black[3]);
 	  
 	  pts[0] = numPolys*4;
 	  pts[1] = numPolys*4 + 1;
@@ -335,22 +378,34 @@ void vtkTextSource::Execute()
 	x[0] = pos*vtkfont_width; 
 	x[1] = vtkfont_height;
 	newPoints->InsertNextPoint(x);
-	data->InsertNextValue(black);
+	data->InsertNextValue(black[0]);
+	data->InsertNextValue(black[1]);
+	data->InsertNextValue(black[2]);
+	data->InsertNextValue(black[3]);
       
 	x[0] = pos*vtkfont_width + vtkfont_width; 
 	x[1] = vtkfont_height;
 	newPoints->InsertNextPoint(x);
-	data->InsertNextValue(black);
+	data->InsertNextValue(black[0]);
+	data->InsertNextValue(black[1]);
+	data->InsertNextValue(black[2]);
+	data->InsertNextValue(black[3]);
 
 	x[0] = pos*vtkfont_width + vtkfont_width; 
 	x[1] = 0;
 	newPoints->InsertNextPoint(x);
-	data->InsertNextValue(black);
+	data->InsertNextValue(black[0]);
+	data->InsertNextValue(black[1]);
+	data->InsertNextValue(black[2]);
+	data->InsertNextValue(black[3]);
       
 	x[0] = pos*vtkfont_width; 
 	x[1] = 0;
 	newPoints->InsertNextPoint(x);
-	data->InsertNextValue(black);
+	data->InsertNextValue(black[0]);
+	data->InsertNextValue(black[1]);
+	data->InsertNextValue(black[2]);
+	data->InsertNextValue(black[3]);
       
 	pts[0] = numPolys*4;
 	pts[1] = numPolys*4 + 1;
