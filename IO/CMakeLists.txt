@@ -84,7 +84,6 @@ ABSTRACT_FILES(
 vtkEnSightReader
 vtkVolumeReader
 vtkWriter
-vtkXMLParser
 )
 
 LINK_LIBRARIES( vtkpng vtkzlib vtkjpeg vtktiff vtkexpat )
