@@ -160,9 +160,13 @@ void vtkSuperquadric::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Thickness: " << this->Thickness << "\n";
   os << indent << "ThetaRoundness: " << this->ThetaRoundness << "\n";
   os << indent << "PhiRoundness: " << this->PhiRoundness << "\n";
-  os << indent << "Center: (" << this->Center[0] << this->Center[1] 
+  os << indent << "Center: ("
+     << this->Center[0] << ", " 
+     << this->Center[1] << ", " 
      << this->Center[2] << ")\n";
-  os << indent << "Scale: (" << this->Scale[0] << this->Scale[1] 
+  os << indent << "Scale: ("
+     << this->Scale[0] << ", " 
+     << this->Scale[1] << ", " 
      << this->Scale[2] << ")\n";
 
 }
