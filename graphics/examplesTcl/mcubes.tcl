@@ -23,7 +23,7 @@ v16 SetImageRange 1 93
 v16 SetDataSpacing 1.6 1.6 1.5
 v16 Update
 
-vtkMarchingCubes iso
+vtkContourFilter iso
 iso SetInput [v16 GetOutput]
 iso SetValue 0 1150
 
