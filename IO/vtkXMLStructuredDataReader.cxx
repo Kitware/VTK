@@ -19,7 +19,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
 
-vtkCxxRevisionMacro(vtkXMLStructuredDataReader, "1.11");
+vtkCxxRevisionMacro(vtkXMLStructuredDataReader, "1.12");
 
 //----------------------------------------------------------------------------
 vtkXMLStructuredDataReader::vtkXMLStructuredDataReader()
@@ -111,6 +111,7 @@ void vtkXMLStructuredDataReader::DestroyPieces()
   this->PiecePointIncrements = 0;
   this->PieceCellDimensions = 0;
   this->PieceCellIncrements = 0;
+  this->Superclass::DestroyPieces();
 }
 
 //----------------------------------------------------------------------------
