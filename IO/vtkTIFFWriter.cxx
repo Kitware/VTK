@@ -20,7 +20,7 @@
 #include "vtkPointData.h"
 #include "vtk_tiff.h"
 
-vtkCxxRevisionMacro(vtkTIFFWriter, "1.37");
+vtkCxxRevisionMacro(vtkTIFFWriter, "1.38");
 vtkStandardNewMacro(vtkTIFFWriter);
 
 //----------------------------------------------------------------------------
@@ -92,22 +92,24 @@ void vtkTIFFWriter::WriteFileHeader(ofstream *file, vtkImageData *data)
 
   int min0, min1, max0, max1, min2, max2;
 
-
   int bps;
   switch (stype)
     {
-  case VTK_CHAR:
-  case VTK_UNSIGNED_CHAR:
-    bps = 8;
-    break;
-  case VTK_SHORT:
-  case VTK_UNSIGNED_SHORT:
-    bps = 16;
-    break;
-  default:
-    vtkErrorMacro(<< "Unsupported data type: " << data->GetScalarTypeAsString());
-    this->SetErrorCode(vtkErrorCode::FileFormatError);
-    return;
+    case VTK_CHAR:
+    case VTK_UNSIGNED_CHAR:
+      bps = 8;
+      break;
+    case VTK_SHORT:
+    case VTK_UNSIGNED_SHORT:
+      bps = 16;
+      break;
+    case VTK_FLOAT:
+      bps = 32;
+      break;
+    default:
+      vtkErrorMacro(<< "Unsupported data type: " << data->GetScalarTypeAsString());
+      this->SetErrorCode(vtkErrorCode::FileFormatError);
+      return;
     }
 
   int predictor;
@@ -143,6 +145,10 @@ void vtkTIFFWriter::WriteFileHeader(ofstream *file, vtkImageData *data)
   TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, scomponents);
   TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, bps); // Fix for stype
   TIFFSetField(tif, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
+  if(stype == VTK_FLOAT)
+    {
+    TIFFSetField(tif, TIFFTAG_SAMPLEFORMAT, SAMPLEFORMAT_IEEEFP);
+    }
 
   if ( scomponents > 3 )
     {
@@ -164,15 +170,15 @@ void vtkTIFFWriter::WriteFileHeader(ofstream *file, vtkImageData *data)
   int compression;
   switch ( this->Compression )
     {
-  case vtkTIFFWriter::PackBits: compression = COMPRESSION_PACKBITS; break;
-  case vtkTIFFWriter::JPEG:     compression = COMPRESSION_JPEG; break;
-  case vtkTIFFWriter::Deflate:  compression = COMPRESSION_DEFLATE; break;
-  case vtkTIFFWriter::LZW:      compression = COMPRESSION_LZW; break;
-  default: compression = COMPRESSION_NONE;
+    case vtkTIFFWriter::PackBits: compression = COMPRESSION_PACKBITS; break;
+    case vtkTIFFWriter::JPEG:     compression = COMPRESSION_JPEG; break;
+    case vtkTIFFWriter::Deflate:  compression = COMPRESSION_DEFLATE; break;
+    case vtkTIFFWriter::LZW:      compression = COMPRESSION_LZW; break;
+    default: compression = COMPRESSION_NONE;
     }
   //compression = COMPRESSION_JPEG;
   TIFFSetField(tif, TIFFTAG_COMPRESSION, compression); // Fix for compression
-  uint16 photometric = PHOTOMETRIC_RGB;
+  uint16 photometric = (stype == VTK_FLOAT ? PHOTOMETRIC_MINISBLACK : PHOTOMETRIC_RGB);
   if ( compression == COMPRESSION_JPEG )
     {
     TIFFSetField(tif, TIFFTAG_JPEGQUALITY, 75); // Parameter
@@ -194,13 +200,13 @@ void vtkTIFFWriter::WriteFileHeader(ofstream *file, vtkImageData *data)
   TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, photometric); // Fix for scomponents
   TIFFSetField(tif, TIFFTAG_ROWSPERSTRIP,
     TIFFDefaultStripSize(tif, rowsperstrip));
-  if (resolution > 0) {
+  if (resolution > 0)
+    {
     TIFFSetField(tif, TIFFTAG_XRESOLUTION, resolution);
     TIFFSetField(tif, TIFFTAG_YRESOLUTION, resolution);
     TIFFSetField(tif, TIFFTAG_RESOLUTIONUNIT, RESUNIT_INCH);
-  }
+    }
 }
-
 
 //----------------------------------------------------------------------------
 void vtkTIFFWriter::WriteFile(ofstream *, vtkImageData *data,
@@ -208,6 +214,7 @@ void vtkTIFFWriter::WriteFile(ofstream *, vtkImageData *data,
 {
   int idx1, idx2;
   void *ptr;
+
 
   // Make sure we actually have data.
   if ( !data->GetPointData()->GetScalars())
@@ -226,9 +233,11 @@ void vtkTIFFWriter::WriteFile(ofstream *, vtkImageData *data,
 
   // take into consideration the scalar type
   if( data->GetScalarType() != VTK_UNSIGNED_CHAR 
-   && data->GetScalarType() != VTK_UNSIGNED_SHORT)
+   && data->GetScalarType() != VTK_UNSIGNED_SHORT
+   && data->GetScalarType() != VTK_FLOAT
+   )
     {
-    vtkErrorMacro("TIFFWriter only accepts unsigned char/short scalars!");
+    vtkErrorMacro("TIFFWriter only accepts unsigned char/short or float scalars!");
     return; 
     }
 
@@ -260,6 +269,7 @@ void vtkTIFFWriter::WriteFileTrailer(ofstream *, vtkImageData *)
   TIFFClose(tif);
   this->TIFFPtr = 0;
 }
+
 //----------------------------------------------------------------------------
 void vtkTIFFWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
