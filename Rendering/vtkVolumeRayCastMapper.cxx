@@ -156,6 +156,12 @@ vtkVolumeRayCastMapper::~vtkVolumeRayCastMapper()
     delete [] this->RenderVolumeTable;
     delete [] this->RenderRendererTable;
     }
+  
+  if ( this->RowBounds )
+    {
+    delete [] this->RowBounds;
+    delete [] this->OldRowBounds;
+    }
 }
 
 float vtkVolumeRayCastMapper::RetrieveRenderTime( vtkRenderer *ren, 
@@ -553,7 +559,6 @@ VTK_THREAD_RETURN_TYPE VolumeRayCastMapper_CastRays( void *arg )
   
   int i, j, k;
   unsigned char *ucptr;
-  VTKVRCDynamicInfo *dynamicInfo = new VTKVRCDynamicInfo;
 
   vtkVolumeRayCastMapper *me = 
     vtkVolumeRayCastMapper::SafeDownCast( staticInfo->Volume->GetMapper() );
@@ -563,6 +568,8 @@ VTK_THREAD_RETURN_TYPE VolumeRayCastMapper_CastRays( void *arg )
     vtkGenericWarningMacro("The volume does not have a ray cast mapper!");
     return VTK_THREAD_RETURN_VALUE;
     }
+  
+  VTKVRCDynamicInfo *dynamicInfo = new VTKVRCDynamicInfo;
 
   float *rayStart     = dynamicInfo->TransformedStart;
   float *rayEnd       = dynamicInfo->TransformedEnd;
@@ -1145,6 +1152,8 @@ VTK_THREAD_RETURN_TYPE VolumeRayCastMapper_CastRays( void *arg )
       ucptr+=4;
       }
     }
+
+  delete dynamicInfo;
   
   return VTK_THREAD_RETURN_VALUE;
 }

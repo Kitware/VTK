@@ -158,11 +158,6 @@ void vtkOpenGLVolumeRayCastMapper::RenderTexture( vtkVolume *vol,
   
   viewToWorldMatrix->Delete();
 
-  // build transformation 
-  vtkMatrix4x4       *matrix = vtkMatrix4x4::New();
-  vol->GetMatrix(matrix);
-  matrix->Transpose();
-
   // Turn lighting off - the hexagon texture already has illumination in it
   glDisable( GL_LIGHTING );
 
