@@ -39,7 +39,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.13");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.14");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_DATA_OBJECT, Integer);
@@ -123,12 +123,6 @@ int vtkDemandDrivenPipeline::ProcessRequest(vtkInformation* request)
     int result = 1;
     if(this->PipelineMTime > this->DataObjectTime.GetMTime())
       {
-      // Make sure input types are valid before algorithm does anything.
-      if(!this->InputCountIsValid() || !this->InputTypeIsValid())
-        {
-        return 0;
-        }
-
       // Request data type from the algorithm.
       result = this->ExecuteDataObject();
 
@@ -165,6 +159,12 @@ int vtkDemandDrivenPipeline::ProcessRequest(vtkInformation* request)
     int result = 1;
     if(this->PipelineMTime > this->InformationTime.GetMTime())
       {
+      // Make sure input types are valid before algorithm does anything.
+      if(!this->InputCountIsValid() || !this->InputTypeIsValid())
+        {
+        return 0;
+        }
+
       // Request information from the algorithm.
       result = this->ExecuteInformation();
 
