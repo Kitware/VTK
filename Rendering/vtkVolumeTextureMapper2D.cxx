@@ -809,7 +809,7 @@ void vtkVolumeTextureMapper2D::GenerateTexturesAndRenderQuads( vtkRenderer *ren,
     this->Texture = new unsigned char [neededSize];
     this->TextureSize = neededSize;
     
-        int savedDirection = this->MajorDirection;
+    int savedDirection = this->MajorDirection;
 
     switch ( inputType )
       {
@@ -841,7 +841,7 @@ void vtkVolumeTextureMapper2D::GenerateTexturesAndRenderQuads( vtkRenderer *ren,
         break;
       }
     
-        this->MajorDirection = savedDirection;
+    this->MajorDirection = savedDirection;
     this->RenderSavedTexture();
     this->TextureMTime.Modified();
     }
@@ -936,7 +936,7 @@ void vtkVolumeTextureMapper2D::InitializeRender( vtkRenderer *ren,
     }
   else
     {
-    float vpn[3], pos[3];
+    float vpn[3];
 
     // Take the vpn, convert it to volume coordinates, and find the 
     // major direction
@@ -944,7 +944,7 @@ void vtkVolumeTextureMapper2D::InitializeRender( vtkRenderer *ren,
     volMatrix->DeepCopy( vol->GetMatrix() );
     vtkTransform *worldToVolumeTransform = vtkTransform::New();
     worldToVolumeTransform->SetMatrix( volMatrix );
-    
+     
     // Create a transform that will account for the translation of
     // the scalar data.
     vtkTransform *volumeTransform = vtkTransform::New();
@@ -958,9 +958,7 @@ void vtkVolumeTextureMapper2D::InitializeRender( vtkRenderer *ren,
     worldToVolumeTransform->Inverse();
     
     ren->GetActiveCamera()->GetViewPlaneNormal(vpn);
-    ren->GetActiveCamera()->GetPosition(pos);
-    
-    worldToVolumeTransform->TransformVectorAtPoint( vpn, pos, vpn );
+    worldToVolumeTransform->TransformVector( vpn, vpn );
   
     volMatrix->Delete();
     volumeTransform->Delete();
