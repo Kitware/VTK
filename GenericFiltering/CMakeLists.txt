@@ -17,13 +17,8 @@ vtkGenericProbeFilter.cxx
 vtkGenericDataSetTessellator.cxx
 vtkGenericCutter.cxx
 vtkGenericGlyph3DFilter.cxx
-vtkGenericStreamer.cxx
-vtkGenericStreamLine.cxx
-)
-
-SET_SOURCE_FILES_PROPERTIES(
-vtkGenericStreamer
-  ABSTRACT
+vtkGenericStreamTracer.cxx
+vtkGenericOutlineFilter.cxx
 )
 
 SET(Kit_EXTRA_SRCS)
