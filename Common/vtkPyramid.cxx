@@ -25,7 +25,7 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkPyramid, "1.38");
+vtkCxxRevisionMacro(vtkPyramid, "1.39");
 vtkStandardNewMacro(vtkPyramid);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -550,7 +550,7 @@ int vtkPyramid::IntersectWithLine(double p1[3], double p2[3], double tol, double
 //----------------------------------------------------------------------------
 int vtkPyramid::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, vtkPoints *pts)
 {
-  int i;
+  int p[4], i;
   ptIds->Reset();
   pts->Reset();
 
@@ -569,26 +569,30 @@ int vtkPyramid::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, vtkPoints *
     {
     for (i=0; i < 4; i++)
       {
-      ptIds->InsertId(i,this->PointIds->GetId(i));
-      pts->InsertPoint(i,this->Points->GetPoint(i));
+      p[0] = 0; p[1] = 1; p[2] = 2; p[3] = 4;
+      ptIds->InsertNextId(this->PointIds->GetId(p[i]));
+      pts->InsertNextPoint(this->Points->GetPoint(p[i]));
       }
     for (i=0; i < 4; i++)
       {
-      ptIds->InsertId(i,this->PointIds->GetId(i));
-      pts->InsertPoint(i,this->Points->GetPoint(i));
+      p[0] = 0; p[1] = 2; p[2] = 3; p[3] = 4;
+      ptIds->InsertNextId(this->PointIds->GetId(p[i]));
+      pts->InsertNextPoint(this->Points->GetPoint(p[i]));
       }
     }
   else
     {
     for (i=0; i < 4; i++)
       {
-      ptIds->InsertId(i,this->PointIds->GetId(i));
-      pts->InsertPoint(i,this->Points->GetPoint(i));
+      p[0] = 0; p[1] = 1; p[2] = 3; p[3] = 4;
+      ptIds->InsertNextId(this->PointIds->GetId(p[i]));
+      pts->InsertNextPoint(this->Points->GetPoint(p[i]));
       }
     for (i=0; i < 4; i++)
       {
-      ptIds->InsertId(i,this->PointIds->GetId(i));
-      pts->InsertPoint(i,this->Points->GetPoint(i));
+      p[0] = 1; p[1] = 2; p[2] = 3; p[3] = 4;
+      ptIds->InsertNextId(this->PointIds->GetId(p[i]));
+      pts->InsertNextPoint(this->Points->GetPoint(p[i]));
       }
     }
 
