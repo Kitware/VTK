@@ -71,8 +71,9 @@ inline size_t vtkHashString(const char* s)
 {
   unsigned long h = 0; 
   for ( ; *s; ++s)
+    {
     h = 5*h + *s;
-  
+    }
   return size_t(h);
 }
 
@@ -81,26 +82,26 @@ class vtkDebugLeaksHashNode
 public:
   vtkDebugLeaksHashNode() 
     {
-      count =1; // if it goes in, then there is one of them
-      key = 0;
-      next =0;
+      this->Count =1; // if it goes in, then there is one of them
+      this->Key = 0;
+      this->Next =0;
     }
   void Print()
     {
-      if(this->count)
+      if(this->Count)
 	{
-	vtkGenericWarningMacro("Class " << this->key << " has " 
-			       << this->count << " instances still around" );
+	vtkGenericWarningMacro("Class " << this->Key << " has " 
+			       << this->Count << " instances still around" );
 	}
     }
   ~vtkDebugLeaksHashNode()
     {
-      delete [] key;
+      delete [] this->Key;
     }
 public:
-  vtkDebugLeaksHashNode *next;
-  char *key;
-  int count;
+  vtkDebugLeaksHashNode *Next;
+  char *Key;
+  int Count;
 };
 
 class vtkDebugLeaksHashTable
@@ -114,7 +115,7 @@ public:
   void PrintTable();
   int IsEmpty();
 private:
-  vtkDebugLeaksHashNode* nodes[64];
+  vtkDebugLeaksHashNode* Nodes[64];
 };
 
 vtkDebugLeaksHashTable::vtkDebugLeaksHashTable()
@@ -122,7 +123,7 @@ vtkDebugLeaksHashTable::vtkDebugLeaksHashTable()
   int i;
   for (i = 0; i < 64; i++)
     {
-    this->nodes[i] = NULL;
+    this->Nodes[i] = NULL;
     }
 }
 
@@ -149,26 +150,26 @@ void vtkDebugLeaksHashTable::IncrementCount(const char * name)
   pos = this->GetNode(name);
   if(pos)
     {
-    pos->count++;
+    pos->Count++;
     return;
     }
   
   newpos = new vtkDebugLeaksHashNode;
-  newpos->key = strcpy(new char[strlen(name)+1], name);
+  newpos->Key = strcpy(new char[strlen(name)+1], name);
 
   loc = (((unsigned long)vtkHashString(name)) & 0x03f0) / 16;
   
-  pos = this->nodes[loc];
+  pos = this->Nodes[loc];
   if (!pos)
     {
-    this->nodes[loc] = newpos;
+    this->Nodes[loc] = newpos;
     return;
     }
-  while (pos->next)
+  while (pos->Next)
     {
-    pos = pos->next;
+    pos = pos->Next;
     }
-  pos->next = newpos;
+  pos->Next = newpos;
 }
 
 vtkDebugLeaksHashNode* vtkDebugLeaksHashTable::GetNode(const char* key)
@@ -176,15 +177,15 @@ vtkDebugLeaksHashNode* vtkDebugLeaksHashTable::GetNode(const char* key)
   vtkDebugLeaksHashNode *pos;
   int loc = (((unsigned long)vtkHashString(key)) & 0x03f0) / 16;
   
-  pos = this->nodes[loc];
+  pos = this->Nodes[loc];
 
   if (!pos)
     {
     return NULL;
     }
-  while ((pos) && (strcmp(pos->key, key) != 0) )
+  while ((pos) && (strcmp(pos->Key, key) != 0) )
     {
-    pos = pos->next;
+    pos = pos->Next;
     }
   return pos;
 }
@@ -194,19 +195,19 @@ unsigned int vtkDebugLeaksHashTable::GetCount(const char* key)
   vtkDebugLeaksHashNode *pos;
   int loc = (((unsigned long)vtkHashString(key)) & 0x03f0) / 16;
   
-  pos = this->nodes[loc];
+  pos = this->Nodes[loc];
 
   if (!pos)
     {
     return 0;
     }
-  while ((pos)&&(pos->key != key))
+  while ((pos)&&(pos->Key != key))
     {
-    pos = pos->next;
+    pos = pos->Next;
     }
   if (pos)
     {
-    return pos->count;
+    return pos->Count;
     }
   return 0;
 }
@@ -216,14 +217,14 @@ int vtkDebugLeaksHashTable::IsEmpty()
   int count = 0;
   for(int i =0; i < 64; i++)
     {
-    vtkDebugLeaksHashNode *pos = this->nodes[i];
+    vtkDebugLeaksHashNode *pos = this->Nodes[i];
     if(pos)
       { 
-      count += pos->count;
-      while(pos->next)
+      count += pos->Count;
+      while(pos->Next)
 	{
-	pos = pos->next;
-	count += pos->count;
+	pos = pos->Next;
+	count += pos->Count;
 	}
       }
     }
@@ -236,7 +237,7 @@ int vtkDebugLeaksHashTable::DecrementCount(const char *key)
   vtkDebugLeaksHashNode *pos = this->GetNode(key);
   if(pos)
     {
-    pos->count--;
+    pos->Count--;
     return 1;
     }
   else
@@ -249,13 +250,13 @@ void vtkDebugLeaksHashTable::PrintTable()
 {
   for(int i =0; i < 64; i++)
     {
-    vtkDebugLeaksHashNode *pos = this->nodes[i];
+    vtkDebugLeaksHashNode *pos = this->Nodes[i];
     if(pos)
       { 
       pos->Print();
-      while(pos->next)
+      while(pos->Next)
 	{
-	pos = pos->next;
+	pos = pos->Next;
 	pos->Print();
 	}
       }
@@ -275,8 +276,9 @@ void vtkDebugLeaks::ConstructClass(const char* name)
   DebugLeaksCritSec.Lock();
 
   if(!vtkDebugLeaks::MemoryTable)
+    {
     vtkDebugLeaks::MemoryTable = new vtkDebugLeaksHashTable;
-  
+    }
   vtkDebugLeaks::MemoryTable->IncrementCount(name);
   DebugLeaksCritSec.Unlock();
 }

@@ -205,7 +205,7 @@ void vtkWin32RenderWindowInteractor::Disable()
     return;
     }
   
-  if (InstallMessageProc && this->Enabled && this->WindowId) 
+  if (this->InstallMessageProc && this->Enabled && this->WindowId) 
     {
     // we need to release any hold we have on a windows event loop
     vtkWin32OpenGLRenderWindow *ren;

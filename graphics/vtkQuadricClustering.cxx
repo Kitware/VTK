@@ -95,7 +95,7 @@ void vtkQuadricClustering::Execute()
     return;
     }
   
-  if (Debug)
+  if (this->Debug)
     {
     tlog = vtkTimerLog::New();
     tlog->StartTimer();
@@ -112,7 +112,7 @@ void vtkQuadricClustering::Execute()
     this->EndAppend();
     }
   
-  if ( Debug )
+  if ( this->Debug )
     {
     tlog->StopTimer();
     vtkDebugMacro(<<"Execution took: "<<tlog->GetElapsedTime()<<" seconds.");
@@ -240,7 +240,7 @@ void vtkQuadricClustering::Append(vtkPolyData *pd)
 //----------------------------------------------------------------------------
 void vtkQuadricClustering::EndAppend()
 {
-  int i, abort=0, tenth, numBuckets;
+  int i, abortExecute=0, tenth, numBuckets;
   vtkPoints *outputPoints = vtkPoints::New();
   float newPt[3];
   vtkPolyData *output = this->GetOutput();
@@ -254,13 +254,13 @@ void vtkQuadricClustering::EndAppend()
 
   numBuckets = this->NumberOfXDivisions * this->NumberOfYDivisions * this->NumberOfZDivisions;
   tenth = numBuckets/10 + 1;
-  for (i = 0; !abort && i < numBuckets; i++ )
+  for (i = 0; !abortExecute && i < numBuckets; i++ )
     {
     if ( ! (i % tenth) ) 
       {
       vtkDebugMacro(<<"Finding point in bin #" << i);
       this->UpdateProgress (0.8+0.2*i/numBuckets);
-      abort = this->GetAbortExecute();
+      abortExecute = this->GetAbortExecute();
       }
 
     if (this->QuadricArray[i].VertexId != -1)
@@ -446,27 +446,27 @@ void vtkQuadricClustering::ComputeRepresentativePoint(float quadric[9],
 }
 
 //----------------------------------------------------------------------------
-void vtkQuadricClustering::SetNumberOfDivisions(int div[3])
+void vtkQuadricClustering::SetNumberOfDivisions(int divs[3])
 {
-  this->SetNumberOfXDivisions(div[0]);
-  this->SetNumberOfYDivisions(div[1]);
-  this->SetNumberOfZDivisions(div[2]);
+  this->SetNumberOfXDivisions(divs[0]);
+  this->SetNumberOfYDivisions(divs[1]);
+  this->SetNumberOfZDivisions(divs[2]);
 }
 
 //----------------------------------------------------------------------------
 int *vtkQuadricClustering::GetNumberOfDivisions()
 {
-  static int div[3];
-  this->GetNumberOfDivisions(div);
-  return div;
+  static int divs[3];
+  this->GetNumberOfDivisions(divs);
+  return divs;
 }
 
 //----------------------------------------------------------------------------
-void vtkQuadricClustering::GetNumberOfDivisions(int div[3])
+void vtkQuadricClustering::GetNumberOfDivisions(int divs[3])
 {
-  div[0] = this->NumberOfXDivisions;
-  div[1] = this->NumberOfYDivisions;
-  div[2] = this->NumberOfZDivisions;
+  divs[0] = this->NumberOfXDivisions;
+  divs[1] = this->NumberOfYDivisions;
+  divs[2] = this->NumberOfZDivisions;
 }
 
 

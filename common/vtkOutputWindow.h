@@ -58,10 +58,10 @@ class VTK_EXPORT vtkOutputWindow;
 class VTK_EXPORT vtkOutputWindowSmartPointer
 {
 public:
-  vtkOutputWindowSmartPointer(vtkOutputWindow* p) { Pointer=p; };
+  vtkOutputWindowSmartPointer(vtkOutputWindow* p) { this->Pointer=p; };
   void SetPointer(vtkOutputWindow* obj)
     {
-      Pointer = obj;
+      this->Pointer = obj;
     }
   ~vtkOutputWindowSmartPointer();
 private:

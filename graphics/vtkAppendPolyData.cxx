@@ -105,7 +105,7 @@ void vtkAppendPolyData::RemoveInput(vtkPolyData *ds)
 void vtkAppendPolyData::SetNumberOfInputs(int num)
 {
   int overlap;
-  if (!UserManagedInputs)
+  if (!this->UserManagedInputs)
     {
     vtkErrorMacro(<<
       "SetNumberOfInputs is not supported if UserManagedInputs is false");

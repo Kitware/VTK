@@ -99,8 +99,9 @@ void vtkInitialValueProblemSolver::PrintSelf(ostream& os, vtkIndent indent)
 void vtkInitialValueProblemSolver::Initialize()
 {
   if (!FunctionSet || this->Initialized)
+    {
     return;
-
+    }
   this->Vals = new float[this->FunctionSet->GetNumberOfIndependentVariables()];
   this->Derivs = new float[this->FunctionSet->GetNumberOfFunctions()];
   this->Initialized = 1;

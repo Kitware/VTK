@@ -84,7 +84,7 @@ public:
 
   int *GetPoint(int i) 
     {
-      return (this->Count > i ?  &(P[3*i]) : 0);
+      return (this->Count > i ?  &(this->P[3*i]) : 0);
     }
 
   int InsertNextPoint(int *x) 
@@ -110,9 +110,9 @@ public:
 	  }
  	}
 
-      this->P[3*Count] = x[0];
-      this->P[3*Count+1] = x[1];
-      this->P[3*Count+2] = x[2];
+      this->P[3*this->Count] = x[0];
+      this->P[3*this->Count+1] = x[1];
+      this->P[3*this->Count+2] = x[2];
       this->Count++;
       return this->Count-1;
     }

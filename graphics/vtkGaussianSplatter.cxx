@@ -189,7 +189,7 @@ void vtkGaussianSplatter::Execute()
 
     for (i=0; i<3; i++)  
       {
-      loc[i] = (int) ((float)(P[i] - this->Origin[i]) / this->Spacing[i]);
+      loc[i] = (int) ((float)(this->P[i] - this->Origin[i]) / this->Spacing[i]);
       }
 
     //  For each of the eight corners of the cell, need to evaluate sample
@@ -688,13 +688,15 @@ float vtkGaussianSplatter::EccentricGaussian (float cx[3])
 {
   float   v[3], r2, z2, rxy2, mag;
 
-  v[0] = cx[0] - P[0];
-  v[1] = cx[1] - P[1];
-  v[2] = cx[2] - P[2];
+  v[0] = cx[0] - this->P[0];
+  v[1] = cx[1] - this->P[1];
+  v[2] = cx[2] - this->P[2];
 
   r2 = v[0]*v[0] + v[1]*v[1] + v[2]*v[2];
 
-  if ( (mag=N[0]*N[0]+N[1]*N[1]+N[2]*N[2]) != 1.0  ) 
+  if ( (mag=this->N[0]*this->N[0]+
+	    this->N[1]*this->N[1]+
+	    this->N[2]*this->N[2]) != 1.0  ) 
     {
     if ( mag == 0.0 )
       {
@@ -706,7 +708,7 @@ float vtkGaussianSplatter::EccentricGaussian (float cx[3])
       }
     }
 
-  z2 = (v[0]*N[0] + v[1]*N[1] + v[2]*N[2])/mag;
+  z2 = (v[0]*this->N[0] + v[1]*this->N[1] + v[2]*this->N[2])/mag;
   z2 = z2*z2;
 
   rxy2 = r2 - z2;

@@ -254,7 +254,7 @@ class vtkObserver
 {
  public:
   vtkObserver()
-    {Event = 0; Next = NULL; Command = NULL; Tag = 0;};
+    {this->Event = 0; this->Next = NULL; this->Command = NULL; this->Tag = 0;};
   ~vtkObserver();
 
   vtkCommand *Command;
