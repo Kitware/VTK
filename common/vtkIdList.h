@@ -123,7 +123,7 @@ inline int vtkIdList::getChunk(const int sz)
 // Description:
 // If id is not already in list, insert it and return location in
 // list. Otherwise return just location in list.
-inline int vtkIdList::InsertUniqueId(int id)
+inline int vtkIdList::InsertUniqueId(const int id)
 {
   for (int i=0; i<this->GetNumberOfIds(); i++) 
     if (id == this->GetId(i)) return i;

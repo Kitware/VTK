@@ -66,7 +66,7 @@ ItemLocation(sz,ext)
   this->MaxId = -1;
 }
 
-vtkPriorityQueue::~vtkPriorityQueue(const int sz, const int ext)
+vtkPriorityQueue::~vtkPriorityQueue()
 {
   if ( this->Array != NULL ) delete [] this->Array;
 }

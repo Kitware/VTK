@@ -107,7 +107,7 @@ inline void vtkIntArray::SetNumberOfValues(const int number)
 // Description:
 // Set the data at a particular index. Does not do range checking. Make sure
 // you use the method SetNumberOfValues() before inserting data.
-inline void vtkIntArray::SetValue(const int id, int value) 
+inline void vtkIntArray::SetValue(const int id, const int value) 
 {
   this->Array[id] = value;
 }
