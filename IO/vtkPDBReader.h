@@ -43,6 +43,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .SECTION Description
 // vtkPDBReader is a source object that reads Molecule files
 // The FileName must be specified
+//
+// .SECTION Thanks
+// Dr. Jean M. Favre who developed and contributed this class
 
 #ifndef __vtkPDBReader_h
 #define __vtkPDBReader_h

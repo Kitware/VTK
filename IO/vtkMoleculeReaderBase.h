@@ -43,6 +43,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .SECTION Description
 // vtkMoleculeReaderBase is a source object that reads Molecule files
 // The FileName must be specified
+//
+// .SECTION Thanks
+// Dr. Jean M. Favre who developed and contributed this class
 
 #ifndef __vtkMoleculeReaderBase_h
 #define __vtkMoleculeReaderBase_h

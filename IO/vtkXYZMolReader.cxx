@@ -47,38 +47,27 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkIdTypeArray.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkXYZMolReader, "1.1");
+vtkCxxRevisionMacro(vtkXYZMolReader, "1.2");
 vtkStandardNewMacro(vtkXYZMolReader);
 
 vtkXYZMolReader::vtkXYZMolReader()
 {
   this->TimeStep  = 0;
+  this->MaxTimeStep  = 0;
 }
 
 vtkXYZMolReader::~vtkXYZMolReader()
 {
 }
 
-void vtkXYZMolReader::Execute()
+void vtkXYZMolReader::ReadSpecificMolecule(FILE *fp)
 {
-  FILE *fp;
+  char linebuf[82], dum1[8];
+  float x[3];
+  int k, t=0;
 
-  if (!this->FileName) 
+  if(this->MaxTimeStep  == 0)
     {
-    return;
-    }
-  vtkDebugMacro(<<  this->NumberOfAtoms);
-
-  if(this->NumberOfAtoms == 0) 
-    {
-    int k;
-    char linebuf[82];
-    if ((fp = fopen(this->FileName, "r")) == NULL) 
-      {
-      vtkErrorMacro(<< "File " << this->FileName << " not found");
-      return;
-      }
-
     fgets(linebuf, 80, fp);
     sscanf(linebuf, "%d", &this->NumberOfAtoms);
     k = 1;
@@ -88,26 +77,10 @@ void vtkXYZMolReader::Execute()
       }
 
     this->SetMaxTimeStep((k/(this->NumberOfAtoms + 2)) - 1);
+    vtkDebugMacro(<< "Setting MaxTimeStep to " << this->MaxTimeStep);
     rewind(fp);
-
-    this->ReadMolecule(fp);
-
-    } 
-  else
-    {
-    this->ReadMolecule(fp);
     }
 
-  this->GetOutput()->Squeeze();
-}
-
-void vtkXYZMolReader::ReadSpecificMolecule(FILE *fp)
-{
-  char linebuf[82], dum1[8];
-  float x[3];
-  int k, t=0;
-
-  rewind(fp);
   while(t < this->TimeStep)
     {
     fgets(linebuf, 80, fp);
@@ -144,4 +117,6 @@ void vtkXYZMolReader::ReadSpecificMolecule(FILE *fp)
 void vtkXYZMolReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << indent << "TimeStep: " << this->TimeStep << endl;
+  os << indent << "MaxTimeStep: " << this->MaxTimeStep;
 }
