@@ -5563,11 +5563,14 @@ void vtkVRMLImporter::PrintSelf(ostream& os, vtkIndent indent)
      << (this->FileName ? this->FileName : "(none)") << "\n";
 
   os << "Defined names in File:" << endl;
-  for (int i = 0;i < VrmlNodeType::useList->Count();i++) 
+  if (VrmlNodeType::useList)
     {
-    os << "\tName: " << (*VrmlNodeType::useList)[i]->defName 
-       << " is a " << (*VrmlNodeType::useList)[i]->defObject->GetClassName() 
-       << endl;
+      for (int i = 0;i < VrmlNodeType::useList->Count();i++) 
+        {
+        os << "\tName: " << (*VrmlNodeType::useList)[i]->defName 
+           << " is a " << (*VrmlNodeType::useList)[i]->defObject->GetClassName() 
+           << endl;
+        }
     }
 }
 
