@@ -18,7 +18,7 @@
 #include "vtkImageMask.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageMask, "1.28");
+vtkCxxRevisionMacro(vtkImageMask, "1.29");
 vtkStandardNewMacro(vtkImageMask);
 
 //----------------------------------------------------------------------------
@@ -29,6 +29,7 @@ vtkImageMask::vtkImageMask()
   this->MaskedOutputValueLength = 3;
   this->MaskedOutputValue[0] = this->MaskedOutputValue[1] 
     = this->MaskedOutputValue[2] = 0.0;
+  this->MaskAlpha = 1.0;
 }
 
 vtkImageMask::~vtkImageMask()
@@ -80,7 +81,7 @@ static void vtkImageMaskExecute(vtkImageMask *self, int ext[6],
                                 vtkImageData *outData, T *outPtr, int id)
 {
   int num0, num1, num2, numC, pixSize;
-  int idx0, idx1, idx2;
+  int idx0, idx1, idx2, idxC;
   int in1Inc0, in1Inc1, in1Inc2;
   int in2Inc0, in2Inc1, in2Inc2;
   int outInc0, outInc1, outInc2;
@@ -88,6 +89,7 @@ static void vtkImageMaskExecute(vtkImageMask *self, int ext[6],
   float *v;
   int nv;
   int maskState;
+  float maskAlpha, oneMinusMaskAlpha;
   unsigned long count = 0;
   unsigned long target;
   
@@ -106,6 +108,8 @@ static void vtkImageMaskExecute(vtkImageMask *self, int ext[6],
     }
   pixSize = numC * sizeof(T);
   maskState = self->GetNotMask();
+  maskAlpha = self->GetMaskAlpha();
+  oneMinusMaskAlpha = 1.0 - maskAlpha;
   
   // Get information to march through data 
   in1Data->GetContinuousIncrements(ext, in1Inc0, in1Inc1, in1Inc2);
@@ -133,22 +137,57 @@ static void vtkImageMaskExecute(vtkImageMask *self, int ext[6],
         }
       for (idx0 = 0; idx0 < num0; ++idx0)
         {
-        // Pixel operation
-        if (*in2Ptr && maskState == 1)
+        if ( maskAlpha == 1.0 )
           {
-          memcpy(outPtr, maskedValue, pixSize);
-          }
-        else if ( ! *in2Ptr && maskState == 0)
-          {
-          memcpy(outPtr, maskedValue, pixSize);
+          // Pixel operation
+          if (*in2Ptr && maskState == 1)
+            {
+            memcpy(outPtr, maskedValue, pixSize);
+            }
+          else if ( ! *in2Ptr && maskState == 0)
+            {
+            memcpy(outPtr, maskedValue, pixSize);
+            }
+          else
+            {
+            memcpy(outPtr, in1Ptr, pixSize);
+            }
+          in1Ptr += numC;
+          outPtr += numC;
           }
         else
           {
-          memcpy(outPtr, in1Ptr, pixSize);
+          // We need to do an over operation
+          int doMask = 0;
+          if ( *in2Ptr && maskState == 1 )
+            {
+            doMask = 1;
+            }
+          else if ( !*in2Ptr && maskState == 0 )
+            {
+            doMask = 1;
+            }
+          if ( doMask )
+            {
+            // Do an over operation
+            for ( idxC = 0; idxC < numC; ++idxC )
+              {
+              *outPtr = (T) ( oneMinusMaskAlpha * *in1Ptr + maskedValue[idxC] * maskAlpha );
+              ++outPtr;
+              ++in1Ptr;
+              }
+            }
+          else
+            {
+            // Copy verbatum
+            for ( idxC = 0; idxC < numC; ++idxC )
+              {
+              *outPtr = *in1Ptr;
+              ++outPtr;
+              ++in1Ptr;
+              }
+            }
           }
-        
-        in1Ptr += numC;
-        outPtr += numC;
         in2Ptr += 1;
         }
       in1Ptr += in1Inc1;
@@ -280,5 +319,6 @@ void vtkImageMask::PrintSelf(ostream& os, vtkIndent indent)
   os << endl;
 
   os << indent << "NotMask: " << (this->NotMask ? "On\n" : "Off\n");
+  os << indent << "MaskAlpha: " << this->MaskAlpha << "\n";
 }
 

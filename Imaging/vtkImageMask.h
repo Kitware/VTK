@@ -53,6 +53,14 @@ public:
   int GetMaskedOutputValueLength() {return this->MaskedOutputValueLength;}
 
   // Description:
+  // Set/Get the alpha blending value for the mask
+  // The input image is assumed to be at alpha = 1.0
+  // and the mask image uses this alpha to blend using
+  // an over operator.
+  vtkSetClampMacro ( MaskAlpha, float, 0.0, 1.0 );
+  vtkGetMacro ( MaskAlpha, float );
+
+  // Description:
   // Set the input to be masked.
   void SetImageInput(vtkImageData *in) {this->SetInput1(in);}
 
@@ -76,6 +84,7 @@ protected:
   float *MaskedOutputValue;
   int MaskedOutputValueLength;
   int NotMask;
+  float MaskAlpha;
   
   void ExecuteInformation(vtkImageData **inDatas, vtkImageData *outData);
   void ExecuteInformation(){this->vtkImageTwoInputFilter::ExecuteInformation();};
