@@ -108,6 +108,7 @@ vtkInteractorStyle::~vtkInteractorStyle()
     if (this->CurrentRenderer) 
       {
       this->CurrentRenderer->RemoveActor(this->OutlineActor);
+      this->CurrentRenderer->UnRegister(this);
       }
     this->OutlineActor->Delete();
     }
@@ -333,6 +334,10 @@ void vtkInteractorStyle::FindPokedRenderer(int x,int y)
   vtkRenderer *aren;
   vtkRenderer *interactiveren = NULL, *viewportren = NULL;
   int numRens, i;
+  if (this->CurrentRenderer)
+    {
+    this->CurrentRenderer->UnRegister(this);
+    }
   this->CurrentRenderer = NULL;
 
   rc = this->Interactor->GetRenderWindow()->GetRenderers();
@@ -344,6 +349,7 @@ void vtkInteractorStyle::FindPokedRenderer(int x,int y)
     if (aren->IsInViewport(x,y) && aren->GetInteractive()) 
       {
       this->CurrentRenderer = aren;
+      this->CurrentRenderer->Register(this);
       }
 
     if (interactiveren == NULL && aren->GetInteractive())
@@ -365,6 +371,7 @@ void vtkInteractorStyle::FindPokedRenderer(int x,int y)
   if (this->CurrentRenderer == NULL)
     {
     this->CurrentRenderer = interactiveren;
+    this->CurrentRenderer->Register(this);
     }
   
   // We must have a value.  If we found a renderer that is in the viewport,
@@ -373,6 +380,7 @@ void vtkInteractorStyle::FindPokedRenderer(int x,int y)
   if (this->CurrentRenderer == NULL)
     {
     this->CurrentRenderer = viewportren;
+    this->CurrentRenderer->Register(this);
     }
 
   // We must have a value - take anything.
@@ -381,6 +389,7 @@ void vtkInteractorStyle::FindPokedRenderer(int x,int y)
     rc->InitTraversal();
     aren = rc->GetNextItem();
     this->CurrentRenderer = aren;
+    this->CurrentRenderer->Register(this);
     }
 }
 
