@@ -18,7 +18,7 @@
 #include "vtkTextProperty.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTextProperty, "1.2");
+vtkCxxRevisionMacro(vtkTextProperty, "1.3");
 vtkStandardNewMacro(vtkTextProperty);
 
 //----------------------------------------------------------------------------
@@ -124,7 +124,7 @@ void vtkTextProperty::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Vertical justification: " 
      << this->GetVerticalJustificationAsString() << "\n";
 
-  os << indent << "Line Offset: " << this->LineOffset;
-  os << indent << "Line Spacing: " << this->LineSpacing;
-
+  os << indent << "Line Offset: " << this->LineOffset << "\n";
+  os << indent << "Line Spacing: " << this->LineSpacing << "\n";
+  os << indent << "AntiAliasing: " << this->AntiAliasing << "\n";
 }
