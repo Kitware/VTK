@@ -59,8 +59,6 @@ vtkImageMedianFilter.o \
 vtkImageScatterPlotFilter.o \
 vtkImageShiftScaleFilter.o \
 vtkImageSpatialFilter.o \
-vtkImageT2MedianFilter.o \
-vtkImageT2TestFilter.o \
 vtkImageThresholdFilter.o \
 vtkImageUpperThresholdFilter.o \
 vtkImageVolumeShortWriter.o \
@@ -116,8 +114,6 @@ tcl/vtkImageMedianFilterTcl.o \
 tcl/vtkImageScatterPlotFilterTcl.o \
 tcl/vtkImageShiftScaleFilterTcl.o \
 tcl/vtkImageSpatialFilterTcl.o \
-tcl/vtkImageT2MedianFilterTcl.o \
-tcl/vtkImageT2TestFilterTcl.o \
 tcl/vtkImageThresholdFilterTcl.o \
 tcl/vtkImageUpperThresholdFilterTcl.o \
 tcl/vtkImageVolumeShortWriterTcl.o \
@@ -173,8 +169,6 @@ vtkImageMedianFilter.h \
 vtkImageScatterPlotFilter.h \
 vtkImageShiftScaleFilter.h \
 vtkImageSpatialFilter.h \
-vtkImageT2MedianFilter.h \
-vtkImageT2TestFilter.h \
 vtkImageThresholdFilter.h \
 vtkImageUpperThresholdFilter.h \
 vtkImageVolumeShortWriter.h \
@@ -378,12 +372,6 @@ tcl/vtkImageShiftScaleFilterTcl.cxx: vtkImageShiftScaleFilter.h ../tcl/cpp_parse
 
 tcl/vtkImageSpatialFilterTcl.cxx: vtkImageSpatialFilter.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageSpatialFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageSpatialFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageSpatialFilterTcl.cxx
-
-tcl/vtkImageT2MedianFilterTcl.cxx: vtkImageT2MedianFilter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImageT2MedianFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageT2MedianFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageT2MedianFilterTcl.cxx
-
-tcl/vtkImageT2TestFilterTcl.cxx: vtkImageT2TestFilter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImageT2TestFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageT2TestFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageT2TestFilterTcl.cxx
 
 tcl/vtkImageThresholdFilterTcl.cxx: vtkImageThresholdFilter.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageThresholdFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageThresholdFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageThresholdFilterTcl.cxx
