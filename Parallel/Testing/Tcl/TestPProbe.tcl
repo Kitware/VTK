@@ -90,3 +90,5 @@ renWin SetWindowName "Process $myProcId"
 
 wm withdraw .
 
+renWin Render
+
