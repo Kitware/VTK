@@ -140,16 +140,16 @@ public:
                             float priority=0.0);
   vtkCommand *GetCommand(unsigned long tag);
   void RemoveObserver(vtkCommand*);
+  void RemoveObservers(unsigned long event, vtkCommand *);
+  void RemoveObservers(const char *event, vtkCommand *);
+  int HasObserver(unsigned long event, vtkCommand *);
+  int HasObserver(const char *event, vtkCommand *);
   //ETX
   void RemoveObserver(unsigned long tag);
   void RemoveObservers(unsigned long event);
   void RemoveObservers(const char *event);
-  void RemoveObservers(unsigned long event, vtkCommand *);
-  void RemoveObservers(const char *event, vtkCommand *);
   int HasObserver(unsigned long event);
   int HasObserver(const char *event);
-  int HasObserver(unsigned long event, vtkCommand *);
-  int HasObserver(const char *event, vtkCommand *);
 
   // Description:
   // Allow people to add/remove/invoke observers (callbacks) to any
