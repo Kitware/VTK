@@ -18,7 +18,8 @@
 enum LibraryTypes {LT_GRAPHICS, LT_IMAGING, LT_PATENTED, LT_GEMSIP, LT_GEMSVOLUME, 
 	LT_GEAE, LT_WORKING, LT_CONTRIB, LT_COMMON};
 
-extern void OutputDepends(char *file, FILE *fp, const char *vtkHome);
+extern void OutputPCDepends(char *file, FILE *fp, const char *vtkHome, 
+                          char *extraPtr[], int extra_num);
 extern void AddToGLibDepends(char *file);
 extern void BuildGLibDepends(CPcmakerDlg *vals);
 extern int GetGraphicsSplit(int classSet[]);
@@ -1261,7 +1262,7 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
 
 
   sprintf(file,"%s\\vtkPCForceCommon.cxx",temp);
-  OutputDepends(file,fp,vals->m_WhereVTK);
+  OutputPCDepends(file,fp,vals->m_WhereVTK, NULL, 0);
   vals->m_Progress.OffsetPos(1);
   fprintf(fp,"\"$(OBJDIR)\\vtkPCForceCommon.obj\" : src\\vtkPCForceCommon.cxx $(DEPENDS) \n");
   fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\vtkPCForceCommon.cxx\n\n");
@@ -1269,7 +1270,7 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
   if ( vals->m_Graphics )
     {
     sprintf(file,"%s\\vtkPCForceGraphics.cxx",temp);
-    OutputDepends(file,fp,vals->m_WhereVTK);
+    OutputPCDepends(file,fp,vals->m_WhereVTK, NULL, 0);
     vals->m_Progress.OffsetPos(1);
     fprintf(fp,"\"$(OBJDIR)\\vtkPCForceGraphics.obj\" : src\\vtkPCForceGraphics.cxx $(DEPENDS) \n");
     fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\vtkPCForceGraphics.cxx\n\n");
@@ -1277,7 +1278,7 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
   if ( vals->m_Imaging )
     {
     sprintf(file,"%s\\vtkPCForceImaging.cxx",temp);
-    OutputDepends(file,fp,vals->m_WhereVTK);
+    OutputPCDepends(file,fp,vals->m_WhereVTK, NULL, 0);
     vals->m_Progress.OffsetPos(1);
     fprintf(fp,"\"$(OBJDIR)\\vtkPCForceImaging.obj\" : src\\vtkPCForceImaging.cxx $(DEPENDS) \n");
     fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\vtkPCForceImaging.cxx\n\n");
@@ -1285,7 +1286,7 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
   if ( vals->m_Working )
     {
     sprintf(file,"%s\\vtkPCForceWorking.cxx",temp);
-    OutputDepends(file,fp,vals->m_WhereVTK);
+    OutputPCDepends(file,fp,vals->m_WhereVTK, NULL, 0);
     vals->m_Progress.OffsetPos(1);
     fprintf(fp,"\"$(OBJDIR)\\vtkPCForceWorking.obj\" : src\\vtkPCForceWorking.cxx $(DEPENDS) \n");
     fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\vtkPCForceWorking.cxx\n\n");
@@ -1293,7 +1294,7 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
   if ( vals->m_Contrib )
     {
     sprintf(file,"%s\\vtkPCForceContrib.cxx",temp);
-    OutputDepends(file,fp,vals->m_WhereVTK);
+    OutputPCDepends(file,fp,vals->m_WhereVTK, NULL, 0);
     vals->m_Progress.OffsetPos(1);
     fprintf(fp,"\"$(OBJDIR)\\vtkPCForceContrib.obj\" : src\\vtkPCForceContrib.cxx $(DEPENDS) \n");
     fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\vtkPCForceContrib.cxx\n\n");
@@ -1301,7 +1302,7 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
   if ( vals->m_GEMSIP )
     {
     sprintf(file,"%s\\vtkPCForceGemsip.cxx",temp);
-    OutputDepends(file,fp,vals->m_WhereVTK);
+    OutputPCDepends(file,fp,vals->m_WhereVTK, NULL, 0);
     vals->m_Progress.OffsetPos(1);
     fprintf(fp,"\"$(OBJDIR)\\vtkPCForceGemsip.obj\" : src\\vtkPCForceGemsip.cxx $(DEPENDS) \n");
     fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\vtkPCForceGemsip.cxx\n\n");
@@ -1309,7 +1310,7 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
   if ( vals->m_GEMSVOLUME )
     {
     sprintf(file,"%s\\vtkPCForceGemsVolume.cxx",temp);
-    OutputDepends(file,fp,vals->m_WhereVTK);
+    OutputPCDepends(file,fp,vals->m_WhereVTK, NULL, 0);
     vals->m_Progress.OffsetPos(1);
     fprintf(fp,"\"$(OBJDIR)\\vtkPCForceGemsVolume.obj\" : src\\vtkPCForceGemsVolume.cxx $(DEPENDS) \n");
     fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\vtkPCForceGemsVolume.cxx\n\n");
@@ -1317,7 +1318,7 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
   if ( vals->m_GEAE )
     {
     sprintf(file,"%s\\vtkPCForceGeae.cxx",temp);
-    OutputDepends(file,fp,vals->m_WhereVTK);
+    OutputPCDepends(file,fp,vals->m_WhereVTK, NULL, 0);
     vals->m_Progress.OffsetPos(1);
     fprintf(fp,"\"$(OBJDIR)\\vtkPCForceGeae.obj\" : src\\vtkPCForceGeae.cxx $(DEPENDS) \n");
     fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\vtkPCForceGeae.cxx\n\n");
@@ -1326,7 +1327,7 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
   for (i = 0; i < num_abstract; i++)
   {
     sprintf(file,"%s\\%s\\%s.cxx",vals->m_WhereVTK,abstract_lib[i],abstract[i]);
-    OutputDepends(file,fp,vals->m_WhereVTK);
+    OutputPCDepends(file,fp,vals->m_WhereVTK, NULL, 0);
     vals->m_Progress.OffsetPos(1);
     fprintf(fp,"\"$(OBJDIR)\\%s.obj\" : \"%s\\%s\\%s.cxx\" $(DEPENDS) \n",
 	        abstract[i],vals->m_WhereVTK,abstract_lib[i],abstract[i]);
@@ -1336,7 +1337,7 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
   for (i = 0; i < num_concrete; i++)
   {
     sprintf(file,"%s\\%s\\%s.cxx",vals->m_WhereVTK,concrete_lib[i],concrete[i]);
-    OutputDepends(file,fp,vals->m_WhereVTK);
+    OutputPCDepends(file,fp,vals->m_WhereVTK, NULL, 0);
     vals->m_Progress.OffsetPos(1);
     fprintf(fp,"\"$(OBJDIR)\\%s.obj\" : \"%s\\%s\\%s.cxx\" $(DEPENDS) \n",
   	      concrete[i],vals->m_WhereVTK,concrete_lib[i],concrete[i]);
@@ -1752,7 +1753,7 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag)
   if (vals->m_Graphics)
     {
     sprintf(file,"%s\\graphics\\vtkTkRenderWidget.cxx",vals->m_WhereVTK);
-    OutputDepends(file,fp,vals->m_WhereVTK);
+    OutputPCDepends(file,fp,vals->m_WhereVTK, NULL, 0);
     fprintf(fp,"\"$(OUTDIR)\\vtkTkRenderWidget.obj\" : \"%s\\graphics\\vtkTkRenderWidget.cxx\" $(DEPENDS) \"$(OUTDIR)\"\n",
 	    vals->m_WhereVTK);
     fprintf(fp,"  $(CPP) $(CPP_PROJ) \"%s\\graphics\\vtkTkRenderWidget.cxx\"\n\n",vals->m_WhereVTK);
@@ -1760,7 +1761,7 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag)
   if (vals->m_Imaging)
     {
     sprintf(file,"%s\\imaging\\vtkTkImageViewerWidget.cxx",vals->m_WhereVTK);
-    OutputDepends(file,fp,vals->m_WhereVTK);
+    OutputPCDepends(file,fp,vals->m_WhereVTK, NULL, 0);
     fprintf(fp,"\"$(OUTDIR)\\vtkTkImageViewerWidget.obj\" : \"%s\\imaging\\vtkTkImageViewerWidget.cxx\" $(DEPENDS) \"$(OUTDIR)\"\n",
 	    vals->m_WhereVTK);
     fprintf(fp,"  $(CPP) $(CPP_PROJ) \"%s\\imaging\\vtkTkImageViewerWidget.cxx\"\n\n",vals->m_WhereVTK);
@@ -1770,7 +1771,7 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag)
   if (vals->m_Working)
     {
     sprintf(file,"%s\\working\\vtkTkImageWindowWidget.cxx",vals->m_WhereVTK);
-    OutputDepends(file,fp,vals->m_WhereVTK);
+    OutputPCDepends(file,fp,vals->m_WhereVTK, NULL, 0);
     fprintf(fp,"\"$(OUTDIR)\\vtkTkImageWindowWidget.obj\" : \"%s\\working\\vtkTkImageWindowWidget.cxx\" $(DEPENDS) \"$(OUTDIR)\"\n",
 	    vals->m_WhereVTK);
     fprintf(fp,"  $(CPP) $(CPP_PROJ) \"%s\\working\\vtkTkImageWindowWidget.cxx\"\n\n",vals->m_WhereVTK);
@@ -1780,7 +1781,7 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag)
   for (i = 0; i < num_abstractTcl; i++)
   {
     sprintf(file,"%s\\%s\\%s.cxx",vals->m_WhereVTK,abstractTcl_lib[i],abstractTcl[i]);
-    OutputDepends(file,fp,vals->m_WhereVTK);
+    OutputPCDepends(file,fp,vals->m_WhereVTK, NULL, 0);
     vals->m_Progress.OffsetPos(1);
     fprintf(fp,"\"$(OUTDIR)\\%s.obj\" : \"%s\\%s\\%s.cxx\" $(DEPENDS) \n",
   	      abstractTcl[i],vals->m_WhereVTK,abstractTcl_lib[i],abstractTcl[i]);
@@ -1788,7 +1789,7 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag)
 	        vals->m_WhereVTK,abstractTcl_lib[i],abstractTcl[i]);
 
     sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,abstractTcl_lib[i],abstractTcl[i]);
-    OutputDepends(file,fp,vals->m_WhereVTK);
+    OutputPCDepends(file,fp,vals->m_WhereVTK, NULL, 0);
     vals->m_Progress.OffsetPos(1);
     fprintf(fp,"\"src\\%sTcl.cxx\" : \"%s\\%s\\%s.h\" \"%s\\common\\vtkTclUtil.h\" \"%s\\tcl\\cpp_parse.y\" \"%s\\tcl\\hints\" \"$(OUTDIR)\"\n",
 		abstractTcl[i],vals->m_WhereVTK,abstractTcl_lib[i],abstractTcl[i],vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
@@ -1804,7 +1805,7 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag)
   for (i = 0; i < num_concreteTcl; i++)
   {
     sprintf(file,"%s\\%s\\%s.cxx",vals->m_WhereVTK,concreteTcl_lib[i],concreteTcl[i]);
-    OutputDepends(file,fp,vals->m_WhereVTK);
+    OutputPCDepends(file,fp,vals->m_WhereVTK, NULL, 0);
     vals->m_Progress.OffsetPos(1);
     fprintf(fp,"\"$(OUTDIR)\\%s.obj\" : \"%s\\%s\\%s.cxx\" $(DEPENDS) \n",
   	      concreteTcl[i],vals->m_WhereVTK,concreteTcl_lib[i],concreteTcl[i]);
@@ -1812,7 +1813,7 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag)
 	        vals->m_WhereVTK,concreteTcl_lib[i],concreteTcl[i]);
 
     sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,concreteTcl_lib[i],concreteTcl[i]);
-    OutputDepends(file,fp,vals->m_WhereVTK);
+    OutputPCDepends(file,fp,vals->m_WhereVTK, NULL, 0);
     vals->m_Progress.OffsetPos(1);
     fprintf(fp,"\"src\\%sTcl.cxx\" : \"%s\\%s\\%s.h\" \"%s\\common\\vtkTclUtil.h\" \"%s\\tcl\\cpp_parse.y\" \"%s\\tcl\\hints\" \"$(OUTDIR)\"\n",
 		concreteTcl[i],vals->m_WhereVTK,concreteTcl_lib[i],concreteTcl[i],vals->m_WhereVTK,vals->m_WhereVTK,vals->m_WhereVTK);
@@ -1831,7 +1832,7 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag)
   for (i = 0; i < num_abstract; i++)
   {
     sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,abstract_lib[i],abstract[i]);
-    OutputDepends(file,fp,vals->m_WhereVTK);
+    OutputPCDepends(file,fp,vals->m_WhereVTK, NULL, 0);
     vals->m_Progress.OffsetPos(1);
     fprintf(fp,"\"src\\%sTcl.cxx\" : \"%s\\%s\\%s.h\" \"%s\\common\\vtkTclUtil.h\" \"%s\\tcl\\cpp_parse.y\" \"%s\\tcl\\hints\" \"$(OUTDIR)\"\n",
 		abstract[i],vals->m_WhereVTK,abstract_lib[i],abstract[i],vals->m_WhereVTK,vals->m_WhereVTK,vals->m_WhereVTK);
@@ -1847,7 +1848,7 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag)
   for (i = 0; i < num_concrete; i++)
   {
     sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,concrete_lib[i],concrete[i]);
-    OutputDepends(file,fp,vals->m_WhereVTK);
+    OutputPCDepends(file,fp,vals->m_WhereVTK, NULL, 0);
     vals->m_Progress.OffsetPos(1);
     fprintf(fp,"\"src\\%sTcl.cxx\" : \"%s\\%s\\%s.h\" \"%s\\common\\vtkTclUtil.h\" \"%s\\tcl\\cpp_parse.y\" \"%s\\tcl\\hints\" \"$(OUTDIR)\"\n",
 		concrete[i],vals->m_WhereVTK,concrete_lib[i],concrete[i],vals->m_WhereVTK,vals->m_WhereVTK,vals->m_WhereVTK);
@@ -1863,7 +1864,7 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag)
   for (i = 0; i < num_abstract_h; i++)
   {
     sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,abstract_h_lib[i],abstract_h[i]);
-    OutputDepends(file,fp,vals->m_WhereVTK);
+    OutputPCDepends(file,fp,vals->m_WhereVTK, NULL, 0);
     vals->m_Progress.OffsetPos(1);
     fprintf(fp,"\"src\\%sTcl.cxx\" : \"%s\\%s\\%s.h\" \"%s\\common\\vtkTclUtil.h\" \"%s\\tcl\\cpp_parse.y\" \"%s\\tcl\\hints\" \"$(OUTDIR)\"\n",
 		abstract_h[i],vals->m_WhereVTK,abstract_h_lib[i],abstract_h[i],vals->m_WhereVTK,vals->m_WhereVTK,vals->m_WhereVTK);
@@ -1879,7 +1880,7 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag)
   for (i = 0; i < num_concrete_h; i++)
   {
     sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,concrete_h_lib[i],concrete_h[i]);
-    OutputDepends(file,fp,vals->m_WhereVTK);
+    OutputPCDepends(file,fp,vals->m_WhereVTK, NULL, 0);
     vals->m_Progress.OffsetPos(1);
     fprintf(fp,"\"src\\%sTcl.cxx\" : \"%s\\%s\\%s.h\" \"%s\\common\\vtkTclUtil.h\" \"%s\\tcl\\cpp_parse.y\" \"%s\\tcl\\hints\" \"$(OUTDIR)\"\n",
 		concrete_h[i],vals->m_WhereVTK,concrete_h_lib[i],concrete_h[i],vals->m_WhereVTK,vals->m_WhereVTK,vals->m_WhereVTK);
@@ -2239,7 +2240,7 @@ void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag
   for (i = 0; i < num_abstract; i++)
   {
     sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,abstract_lib[i],abstract[i]);
-    OutputDepends(file,fp,vals->m_WhereVTK);
+    OutputPCDepends(file,fp,vals->m_WhereVTK, NULL, 0);
     vals->m_Progress.OffsetPos(1);
     fprintf(fp,"\"src\\%sJava.cxx\" : %s\\%s\\%s.h \"$(OUTDIR)\"\n",
 		abstract[i],vals->m_WhereVTK,abstract_lib[i],abstract[i]);
@@ -2259,7 +2260,7 @@ void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag
   for (i = 0; i < num_concrete; i++)
   {
     sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,concrete_lib[i],concrete[i]);
-    OutputDepends(file,fp,vals->m_WhereVTK);
+    OutputPCDepends(file,fp,vals->m_WhereVTK, NULL, 0);
     vals->m_Progress.OffsetPos(1);
     fprintf(fp,"\"src\\%sJava.cxx\" : %s\\%s\\%s.h \"$(OUTDIR)\"\n",
 		concrete[i],vals->m_WhereVTK,concrete_lib[i],concrete[i]);
@@ -2279,7 +2280,7 @@ void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag
   for (i = 0; i < num_abstract_h; i++)
   {
     sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,abstract_h_lib[i],abstract_h[i]);
-    OutputDepends(file,fp,vals->m_WhereVTK);
+    OutputPCDepends(file,fp,vals->m_WhereVTK, NULL, 0);
     vals->m_Progress.OffsetPos(1);
     fprintf(fp,"\"src\\%sJava.cxx\" : %s\\%s\\%s.h \"$(OUTDIR)\"\n",
 		abstract_h[i],vals->m_WhereVTK,abstract_h_lib[i],abstract_h[i]);
@@ -2299,7 +2300,7 @@ void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag
   for (i = 0; i < num_concrete_h; i++)
   {
     sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,concrete_h_lib[i],concrete_h[i]);
-    OutputDepends(file,fp,vals->m_WhereVTK);
+    OutputPCDepends(file,fp,vals->m_WhereVTK, NULL, 0);
     vals->m_Progress.OffsetPos(1);
     fprintf(fp,"\"src\\%sJava.cxx\" : %s\\%s\\%s.h \"$(OUTDIR)\"\n",
 		concrete_h[i],vals->m_WhereVTK,concrete_h_lib[i],concrete_h[i]);
