@@ -56,7 +56,7 @@
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkUnstructuredGridLinearRayIntegrator, "1.4");
+vtkCxxRevisionMacro(vtkUnstructuredGridLinearRayIntegrator, "1.5");
 vtkStandardNewMacro(vtkUnstructuredGridLinearRayIntegrator);
 
 vtkUnstructuredGridLinearRayIntegrator::vtkUnstructuredGridLinearRayIntegrator()
@@ -410,7 +410,7 @@ static inline float dawson(float x)
   if (x > 0.2)
     {
 /*  x = abs(x);       In this application, x should always be >= 0. */
-    int n0 = (int)(2*floor((0.5/H)*x + 0.5));
+    int n0 = 2*(int)((0.5/H)*x + 0.5);
     float xp = x - (float)n0*H;
     float e1 = exp((2*H)*xp);
     float e2 = e1*e1;
@@ -449,7 +449,7 @@ float vtkUnstructuredGridLinearRayIntegrator::Psi(float length,
                                                   float attenuation_front,
                                                   float attenuation_back)
 {
-  float difftauD = length*abs((int)(attenuation_back - attenuation_front));
+  float difftauD = length*fabs(attenuation_back - attenuation_front);
 
   if (difftauD < 1.0e-8f)
     {
@@ -469,17 +469,20 @@ float vtkUnstructuredGridLinearRayIntegrator::Psi(float length,
     float invsqrt2difftauD = 1/(float)sqrt(2*difftauD);
     float frontterm = length*invsqrt2difftauD*attenuation_front;
     float backterm  = length*invsqrt2difftauD*attenuation_back;
-    float expterm = (float)exp(frontterm*frontterm-backterm*backterm);
     if (attenuation_back > attenuation_front)
       {
       float u, Y;
       u = 1/(1+0.5f*frontterm);
       Y = u*(float)exp(erf_fitting_function(u));
+      u = 1/(1+0.5f*backterm);
+      Y += -u*exp(  frontterm*frontterm-backterm*backterm
+                          + erf_fitting_function(u));
       Y *= M_SQRTPI*invsqrt2difftauD;
       return Y;
       }
     else
       {
+      float expterm = (float)exp(backterm*backterm-frontterm*frontterm);
       return 2*invsqrt2difftauD*(dawson(frontterm) - expterm*dawson(backterm));
       }
     }
