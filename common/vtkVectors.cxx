@@ -51,12 +51,14 @@ vtkVectors::vtkVectors(int dataType) : vtkAttributeData(dataType)
 // Given a list of pt ids, return an array of vectors.
 void vtkVectors::GetVectors(vtkIdList *ptIds, vtkVectors *v)
 {
+  float vector[3];
   int num=ptIds->GetNumberOfIds();
   
   v->SetNumberOfVectors(num);
   for (int i=0; i<num; i++)
     {
-    v->SetVector(i,this->GetVector(ptIds->GetId(i)));
+    this->GetVector(ptIds->GetId(i),vector);
+    v->SetVector(i,vector);
     }
 }
 
