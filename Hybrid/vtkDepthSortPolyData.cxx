@@ -63,6 +63,7 @@ vtkDepthSortPolyData::vtkDepthSortPolyData()
   this->Camera = NULL;
   this->Prop3D = NULL;
   this->Direction = VTK_DIRECTION_BACK_TO_FRONT;
+  this->Direction = VTK_SORT_FIRST_POINT;
   this->Vector[0] = this->Vector[1] = 0.0;
   this->Vector[2] = 0,0;
   this->Origin[0] = this->Origin[1] = this->Origin[2] = 0.0;
@@ -147,9 +148,10 @@ void vtkDepthSortPolyData::Execute()
   vtkScalars *sortScalars = NULL;
   unsigned int *scalars = NULL;
   double x[3];
+  float p[3], *bounds, *w, xf[3];
   double vector[3];
   double origin[3];
-  int type, npts, *pts, newId;
+  int type, npts, *pts, newId, subId;
 
   // Initialize
   //
@@ -175,6 +177,11 @@ void vtkDepthSortPolyData::Execute()
     this->ComputeProjectionVector(vector, origin);
     }
 
+  if ( this->DepthSortMode == VTK_SORT_PARAMETRIC_CENTER )
+    {
+    w = new float [input->GetMaxCellSize()];
+    }
+
   // Create temporary input
   input = vtkPolyData::New();
   input->CopyStructure(this->GetInput());
@@ -184,12 +191,34 @@ void vtkDepthSortPolyData::Execute()
   for ( cellId=0; cellId < numCells; cellId++ )
     {
     input->GetCell(cellId, cell);
-    cell->Points->GetPoint(0,x);
+    if ( this->DepthSortMode == VTK_SORT_FIRST_POINT )
+      {
+      cell->Points->GetPoint(0,x);
+      }
+    else if ( this->DepthSortMode == VTK_SORT_BOUNDS_CENTER )
+      {
+      bounds = cell->GetBounds();
+      x[0] = (bounds[0]+bounds[1])/2.0;
+      x[1] = (bounds[2]+bounds[3])/2.0;
+      x[2] = (bounds[4]+bounds[5])/2.0;
+      }
+    else // VTK_SORT_PARAMETRIC_CENTER )
+      {
+      subId = cell->GetParametricCenter(p);
+      cell->EvaluateLocation(subId, p, xf, w);
+      x[0] = xf[0];
+      x[1] = xf[1];
+      x[2] = xf[2];
+      }
     x[0] -= origin[0];
     x[1] -= origin[1];
     x[2] -= origin[2];
     depth[cellId].z = vtkMath::Dot(x,vector);
     depth[cellId].cellId = cellId;
+    }
+  if ( this->DepthSortMode == VTK_SORT_PARAMETRIC_CENTER )
+    {
+    delete [] w;
     }
   this->UpdateProgress(0.20);
 
@@ -354,6 +383,19 @@ void vtkDepthSortPolyData::PrintSelf(ostream& os, vtkIndent indent)
     os << "Specified Origin: ";
     os << "(" << this->Origin[0] << ", " << this->Origin[1] << ", " 
        << this->Origin[2] << ")\n";
+    }
+  
+  if ( this->DepthSortMode == VTK_SORT_FIRST_POINT )
+    {
+    os << "First Point" << endl;
+    }
+  else if ( this->DepthSortMode == VTK_SORT_BOUNDS_CENTER )
+    {
+    os << "Bounding Box Center" << endl;
+    }
+  else 
+    {
+    os << "Paramteric Center" << endl;
     }
   
   os << indent << "Sort Scalars: " << (this->SortScalars ? "On\n" : "Off\n");
