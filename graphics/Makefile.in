@@ -30,6 +30,7 @@ vtkCastToConcrete.o \
 vtkCellLocator.o \
 vtkCellPicker.o \
 vtkCleanPolyData.o \
+vtkClipTriangles.o \
 vtkCone.o \
 vtkConeSource.o \
 vtkConnectivityFilter.o \
@@ -225,6 +226,7 @@ tcl/vtkCastToConcreteTcl.o \
 tcl/vtkCellLocatorTcl.o \
 tcl/vtkCellPickerTcl.o \
 tcl/vtkCleanPolyDataTcl.o \
+tcl/vtkClipTrianglesTcl.o \
 tcl/vtkConeTcl.o \
 tcl/vtkConeSourceTcl.o \
 tcl/vtkConnectivityFilterTcl.o \
@@ -428,6 +430,7 @@ vtkCastToConcrete.h \
 vtkCellLocator.h \
 vtkCellPicker.h \
 vtkCleanPolyData.h \
+vtkClipTriangles.h \
 vtkCone.h \
 vtkConeSource.h \
 vtkConnectivityFilter.h \
@@ -734,6 +737,9 @@ tcl/vtkCellPickerTcl.cxx: vtkCellPicker.h ../tcl/cpp_parse
 
 tcl/vtkCleanPolyDataTcl.cxx: vtkCleanPolyData.h ../tcl/cpp_parse 
 	rm -f tcl/vtkCleanPolyDataTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkCleanPolyData.h $(srcdir)/../tcl/hints 1 > tcl/vtkCleanPolyDataTcl.cxx
+
+tcl/vtkClipTrianglesTcl.cxx: vtkClipTriangles.h ../tcl/cpp_parse 
+	rm -f tcl/vtkClipTrianglesTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkClipTriangles.h $(srcdir)/../tcl/hints 1 > tcl/vtkClipTrianglesTcl.cxx
 
 tcl/vtkConeTcl.cxx: vtkCone.h ../tcl/cpp_parse 
 	rm -f tcl/vtkConeTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkCone.h $(srcdir)/../tcl/hints 1 > tcl/vtkConeTcl.cxx
