@@ -344,7 +344,7 @@ static void vtkMarchingCubesComputeGradient(vtkMarchingCubes *self,T *scalars, i
 	    {
 	    continue;
 	    }
-          triCase = triCases + index;
+          triCase = VTK_MARCHING_CUBES_TRICASES + index;
           edge = triCase->edges;
 
           for ( ; edge[0] > -1; edge += 3 )

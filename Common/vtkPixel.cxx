@@ -279,7 +279,7 @@ void vtkPixel::Contour(float value, vtkScalars *cellScalars,
       }
     }
 
-  lineCase = lineCases + index;
+  lineCase = VTK_MARCHING_SQUARES_LINECASES + index;
   edge = lineCase->edges;
 
   for ( ; edge[0] > -1; edge += 2 )

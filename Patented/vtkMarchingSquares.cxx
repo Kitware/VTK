@@ -260,7 +260,7 @@ static void ContourImage(T *scalars, vtkScalars *newScalars, int roi[6], int dir
 	  continue; //no lines
 	  }
 
-        lineCase = lineCases + index;
+        lineCase = VTK_MARCHING_SQUARES_LINECASES + index;
         edge = lineCase->edges;
 
         for ( ; edge[0] > -1; edge += 2 )
