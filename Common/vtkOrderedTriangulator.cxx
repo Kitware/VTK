@@ -32,7 +32,7 @@
 #include <vtkstd/stack>
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.65");
+vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.66");
 vtkStandardNewMacro(vtkOrderedTriangulator);
 
 #ifdef _WIN32_WCE
@@ -981,7 +981,7 @@ void vtkOTMesh::DumpInsertionCavity(double x[3])
   cout << "DATASET POLYDATA\n";
 
   //write out points
-  int numFaces = this->CavityFaces.size();
+  int numFaces = (int)this->CavityFaces.size();
   cout << "POINTS " << 3*numFaces+1 << " float\n";
   
   for (fptr=this->CavityFaces.begin(); 
