@@ -87,7 +87,7 @@ vtkInputPort::vtkInputPort()
 // We need to have a "GetNetReferenceCount" to avoid memory leaks.
 vtkInputPort::~vtkInputPort()
 {
-  this->Controller = NULL;
+  this->SetController(0);
 }
 
 //----------------------------------------------------------------------------
@@ -128,6 +128,7 @@ vtkPolyData *vtkInputPort::GetPolyDataOutput()
   output = vtkPolyData::New();
   output->ReleaseData();
   this->vtkSource::SetNthOutput(0, output);
+  output->Delete();
   return (vtkPolyData*)(output);
 }
 
@@ -159,6 +160,7 @@ vtkUnstructuredGrid *vtkInputPort::GetUnstructuredGridOutput()
   output = vtkUnstructuredGrid::New();
   output->ReleaseData();
   this->vtkSource::SetNthOutput(0, output);
+  output->Delete();
   return (vtkUnstructuredGrid*)(output);
 }
 
@@ -189,6 +191,7 @@ vtkStructuredGrid *vtkInputPort::GetStructuredGridOutput()
   output = vtkStructuredGrid::New();
   output->ReleaseData();
   this->vtkSource::SetNthOutput(0, output);
+  output->Delete();
   return (vtkStructuredGrid*)(output);
 }
 
@@ -220,6 +223,7 @@ vtkRectilinearGrid *vtkInputPort::GetRectilinearGridOutput()
   output = vtkRectilinearGrid::New();
   output->ReleaseData();
   this->vtkSource::SetNthOutput(0, output);
+  output->Delete();
   return (vtkRectilinearGrid*)(output);
 }
 
@@ -251,6 +255,7 @@ vtkStructuredPoints *vtkInputPort::GetStructuredPointsOutput()
   output = vtkStructuredPoints::New();
   output->ReleaseData();
   this->vtkSource::SetNthOutput(0, output);
+  output->Delete();
   return (vtkStructuredPoints*)(output);
 }
 
@@ -282,6 +287,7 @@ vtkImageData *vtkInputPort::GetImageDataOutput()
   output = vtkImageData::New();
   output->ReleaseData();
   this->vtkSource::SetNthOutput(0, output);
+  output->Delete();
   return (vtkImageData*)(output);
 }
 

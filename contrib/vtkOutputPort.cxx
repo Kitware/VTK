@@ -79,7 +79,7 @@ vtkOutputPort::vtkOutputPort()
 // We need to have a "GetNetReferenceCount" to avoid memory leaks.
 vtkOutputPort::~vtkOutputPort()
 {
-  this->Controller = NULL;
+  this->SetController(0);
 
   if ((this->ParameterMethodArg)&&(this->ParameterMethodArgDelete))
     {
