@@ -122,9 +122,9 @@ vtkRenderer ren1
   ren1 AddVolume volume
   ren1 SetBackground 0.1 0.2 0.4
 
-vtkRenderWindow renWin
-  renWin AddRenderer ren1
-  renWin SetSize 256 256
+vtkRenderWindow renWin2
+  renWin2 AddRenderer ren1
+  renWin2 SetSize 256 256
 
 # Create the GUI: two renderer widgets and a quit button
 
@@ -208,7 +208,7 @@ pack $renderer_frame \
 set render_widget [vtkTkRenderWidget $renderer_frame.r \
         -width 264 \
         -height 264 \
-        -rw renWin]
+        -rw renWin2]
 
 pack $render_widget \
         -side top -anchor n \
@@ -253,5 +253,5 @@ proc SetCursor {x y z} {
     image_cursor SetCursorPosition [expr $CURSOR_X * $IMAGE_MAG_X] \
 	[expr $CURSOR_Y * $IMAGE_MAG_Y] [expr $CURSOR_Z * $IMAGE_MAG_Z]
     viewer Render
-    renWin Render
+    renWin2 Render
 }
