@@ -24,7 +24,7 @@
 #include "vtkInteractorStyleTrackballActor.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleSwitch, "1.10");
+vtkCxxRevisionMacro(vtkInteractorStyleSwitch, "1.11");
 vtkStandardNewMacro(vtkInteractorStyleSwitch);
 
 //----------------------------------------------------------------------------
@@ -192,6 +192,7 @@ void vtkInteractorStyleSwitch::SetInteractor(vtkRenderWindowInteractor *iren)
   if(iren)
     {
     iren->AddObserver(vtkCommand::CharEvent, this->EventCallbackCommand);
+        iren->AddObserver(vtkCommand::DeleteEvent, this->EventCallbackCommand);
     }
   this->SetCurrentStyle();
 }
