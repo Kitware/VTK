@@ -190,7 +190,14 @@ public:
   // arrays, etc. are not included in the return value). THIS METHOD
   // IS THREAD SAFE.
   unsigned long GetActualMemorySize();
-  
+
+  //BTX
+  // Description:
+  // This method is used internally.  We are overiding the superclass,
+  // because we will clip the data if the source provided too much.
+  void InternalUpdate();
+  //ETX
+
 protected:
   vtkStructuredGrid();
   ~vtkStructuredGrid();

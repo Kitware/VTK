@@ -62,6 +62,11 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Makes an empty similar type object.
+  virtual vtkUnstructuredInformation *MakeObject() 
+    {return vtkUnstructuredInformation::New();}
+  
+  // Description:
   // Subclasses override this method, and try to be smart
   // if the types are different.
   void Copy(vtkDataInformation *in);

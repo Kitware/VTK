@@ -68,6 +68,11 @@ public:
   void GetWholeExtent(int extent[6]);
   
   // Description:
+  // Makes an empty similar type object.
+  virtual vtkDataInformation *MakeObject() 
+    {return vtkStructuredInformation::New();}
+  
+  // Description:
   // Subclasses override this method, and try to be smart
   // if the types are different.
   void Copy(vtkDataInformation *in);

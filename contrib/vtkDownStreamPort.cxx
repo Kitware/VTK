@@ -326,7 +326,7 @@ void vtkDownStreamPort::PreUpdate(vtkDataObject *output)
   
   // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   // This would normally be done in the Update method, but since
-  // we want task parallelism whith multiple input filters, 
+  // we want task parallelism with multiple input filters, 
   // it needs to be here.
 
   // Do we need to update?
@@ -368,9 +368,18 @@ void vtkDownStreamPort::InternalUpdate(vtkDataObject *output)
     {
     (*this->StartMethod)(this->StartMethodArg);
     }    
+
+  // Well here is a bit of a hack.
+  // Since the reader will overwrite whole extents, we need to save the whole
+  // extent and reset it.
+  vtkDataInformation *info = output->GetDataInformation()->MakeObject();
+  info->Copy(output->GetDataInformation());  
   // receive the data
   this->Controller->Receive(output, this->UpStreamProcessId,
 			    VTK_PORT_DATA_TRANSFER_TAG);
+  output->GetDataInformation()->Copy(info);
+  info->Delete();
+  
   if ( this->EndMethod )
     {
     (*this->EndMethod)(this->EndMethodArg);
