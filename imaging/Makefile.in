@@ -20,11 +20,11 @@ vtkImageInPlaceFilter \
 vtkImageMultipleInputFilter \
 vtkImagePadFilter \
 vtkImageSpatialFilter \
-vtkImageTwoInputFilter 
+vtkImageTwoInputFilter \
+vtkImageFourierFilter 
 
 #vtkImageCopy \
 #vtkImageDecomposedFilter \
-#vtkImageFourierFilter \
 #vtkImageTwoOutputFilter
 
 CONCRETE = \
@@ -39,6 +39,7 @@ vtkImageConnector \
 vtkImageConstantPad \
 vtkImageCursor3D \
 vtkImageExtractComponents \
+vtkImageFFT1D \
 vtkImageFlip \
 vtkImageGaussianSmooth \
 vtkImageGradient \
@@ -84,7 +85,6 @@ vtkTIFFWriter
 #vtkImageElipsoidSource \
 #vtkImageEuclideanToPolar \
 #vtkImageFFT \
-#vtkImageFFT1D \
 #vtkImageFeatureAnd \
 #vtkImageFourierCenter \
 #vtkImageFourierCenter1D \

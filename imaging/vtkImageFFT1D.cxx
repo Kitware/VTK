@@ -39,7 +39,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkImageRegion.h"
 #include "vtkImageCache.h"
 #include "vtkImageFFT1D.h"
 
@@ -50,11 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageFFT1D::vtkImageFFT1D()
 {
   // mimic a call to SetFilteredAxis.
-  this->FilteredAxis = VTK_IMAGE_X_AXIS;
-  this->SetExecutionAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_COMPONENT_AXIS);
-  
-  // Output is always floats.
-  this->SetOutputScalarType(VTK_FLOAT);
+  this->FilteredAxis = 0;
 }
 
 
@@ -63,8 +58,7 @@ void vtkImageFFT1D::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageFourierFilter::PrintSelf(os,indent);
 
-  os << indent << "FilteredAxis: " << vtkImageAxisNameMacro(this->FilteredAxis)
-     << "\n";
+  os << indent << "FilteredAxis: " << this->FilteredAxis << "\n";
 }
 
 //----------------------------------------------------------------------------
@@ -77,14 +71,11 @@ void vtkImageFFT1D::SetFilteredAxis(int axis)
     return;
     }
   
-  if (axis < 0 || axis > 3)
+  if (axis < 0 || axis > 2)
     {
     vtkErrorMacro("SetFilteredAxis: Bad axis: " << axis);
     return;
     }
-  
-  // Tell the supper class which axes to loop over
-  this->SetExecutionAxes(axis, VTK_IMAGE_COMPONENT_AXIS);
   
   this->FilteredAxis = axis;
   this->Modified();
@@ -96,18 +87,23 @@ void vtkImageFFT1D::SetFilteredAxis(int axis)
 void vtkImageFFT1D::ExecuteImageInformation()
 {
   this->Output->SetNumberOfScalarComponents(2);
+  this->Output->SetScalarType(VTK_FLOAT);
 }
 
 //----------------------------------------------------------------------------
 // Description:
 // This method tells the superclass that the whole input array is needed
 // to compute any output region.
-void vtkImageFFT1D::ComputeRequiredInputUpdateExtent()
+void vtkImageFFT1D::ComputeRequiredInputUpdateExtent(int inExt[6], 
+						     int outExt[6])
 {
-  int min, max;
+  int *extent;
   
-  this->Input->GetAxisWholeExtent(this->FilteredAxis, min, max);
-  this->Input->SetAxisUpdateExtent(this->FilteredAxis, min, max);
+  // Assumes that the input update extent has been initialized to output ...
+  extent = this->Input->GetWholeExtent();
+  memcpy(inExt, outExt, 6 * sizeof(int));
+  inExt[this->FilteredAxis*2] = extent[this->FilteredAxis*2];
+  inExt[this->FilteredAxis*2 + 1] = extent[this->FilteredAxis*2 + 1];
 }
 
 //----------------------------------------------------------------------------
@@ -116,30 +112,61 @@ void vtkImageFFT1D::ComputeRequiredInputUpdateExtent()
 // is always floats.
 template <class T>
 static void vtkImageFFT1DExecute(vtkImageFFT1D *self,
-				 vtkImageRegion *inRegion, T *inPtr,
-				 vtkImageRegion *outRegion, float *outPtr)
+			 vtkImageData *inData, int inExt[6], T *inPtr,
+			 vtkImageData *outData, int outExt[6], float *outPtr)
 {
   vtkImageComplex *inComplex;
   vtkImageComplex *outComplex;
   vtkImageComplex *pComplex;
-  T *inPtrReal, *inPtrImag = NULL;
-  int inMin0, inMax0, inMinC, inMaxC, inSize0;
-  int inInc0, inIncC;
-  float *outPtrReal, *outPtrImag;
-  int outMin0, outMax0, outMinC, outMaxC;
-  int outInc0, outIncC;
-  int idx, axis;
+  //
+  int inMin0, inMax0;
+  int inInc0, inInc1, inInc2;
+  T *inPtr0, *inPtr1, *inPtr2;
+  //
+  int outMin0, outMax0, outMin1, outMax1, outMin2, outMax2;
+  int outInc0, outInc1, outInc2;
+  float *outPtr0, *outPtr1, *outPtr2;
+  //
+  int idx0, idx1, idx2, inSize0, numberOfComponents;
   
-  // Get information to march through data 
-  axis = self->GetFilteredAxis();
-  inRegion->GetAxisIncrements(VTK_IMAGE_COMPONENT_AXIS, inIncC);
-  inRegion->GetAxisIncrements(axis, inInc0);
-  inRegion->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, inMinC, inMaxC);
-  inRegion->GetAxisExtent(axis, inMin0, inMax0);
+  // Reorder axes (brute force)
+  outMin2 = 0;
+  switch (self->GetFilteredAxis())
+    {
+    case 0:
+      inMin0 = inExt[0];      inMax0 = inExt[1];
+      inData->GetIncrements(inInc0, inInc1, inInc2);
+      outData->GetIncrements(outInc0, outInc1, outInc2);
+      outMin0 = outExt[0];    outMax0 = outExt[1];
+      outMin1 = outExt[2];    outMax1 = outExt[3];
+      outMin2 = outExt[4];    outMax2 = outExt[5];
+      break;
+    case 1:
+      inMin0 = inExt[2];      inMax0 = inExt[3];
+      inData->GetIncrements(inInc1, inInc0, inInc2);
+      outData->GetIncrements(outInc1, outInc0, outInc2);
+      outMin0 = outExt[2];    outMax0 = outExt[3];
+      outMin1 = outExt[0];    outMax1 = outExt[1];
+      outMin2 = outExt[4];    outMax2 = outExt[5];
+      break;
+    case 2:
+      inMin0 = inExt[4];      inMax0 = inExt[5];
+      inData->GetIncrements(inInc2, inInc0, inInc1);
+      outData->GetIncrements(outInc2, outInc0, outInc1);
+      outMin0 = outExt[4];    outMax0 = outExt[5];
+      outMin1 = outExt[0];    outMax1 = outExt[1];
+      outMin2 = outExt[2];    outMax2 = outExt[3];
+      break;
+    default:
+      vtkGenericWarningMacro("bad axis ");
+      return;
+    }
+  
   inSize0 = inMax0 - inMin0 + 1;
   
-  // We have to have real components at least.
-  if (inMinC > 0 || inMaxC < 0)
+  // Input has to have real components at least.
+  numberOfComponents = inData->GetNumberOfScalarComponents();
+  if (numberOfComponents < 1)
     {
     vtkGenericWarningMacro("No real components");
     return;
@@ -149,53 +176,50 @@ static void vtkImageFFT1DExecute(vtkImageFFT1D *self,
   inComplex = new vtkImageComplex[inSize0];
   outComplex = new vtkImageComplex[inSize0];
   
-  // Convert the input to complex numbers.
-  // The complexity is because the imput may be real or complex.
-  inPtrReal = inPtr;
-  if (inMaxC >= 1)
+  // loop over other axes
+  inPtr2 = inPtr;
+  outPtr2 = outPtr;
+  for (idx2 = outMin2; idx2 <= outMax2; ++idx2)
     {
-    inPtrImag = inPtrReal + inIncC;
-    }
-  pComplex = inComplex;
-  // Loop and copy
-  for (idx = inMin0; idx <= inMax0; ++idx)
-    {
-    pComplex->Real = (double)(*inPtrReal);
-    inPtrReal += inInc0;
-    if (inPtrImag)
+    inPtr1 = inPtr2;
+    outPtr1 = outPtr2;
+    for (idx1 = outMin1; idx1 <= outMax1; ++idx1)
       {
-      pComplex->Imag = (double)(*inPtrImag);
-      inPtrImag += inInc0;
-      }
-    else
-      {
-      pComplex->Imag = 0.0;
-      }
-    ++pComplex;
-    }
+      // copy into complex numbers
+      inPtr0 = inPtr1;
+      pComplex = inComplex;
+      for (idx0 = inMin0; idx0 <= inMax0; ++idx0)
+	{
+	pComplex->Real = (double)(*inPtr0);
+	pComplex->Imag = 0.0;
+	if (numberOfComponents > 1)
+	  { // yes we have an imaginary input
+	  pComplex->Imag = (double)(inPtr0[1]);;
+	  }
+	inPtr0 += inInc0;
+	++pComplex;
+	}
+      
+      // Call the method that performs the fft
+      self->ExecuteFft(inComplex, outComplex, inSize0);
 
-  // Call the method that performs the fft
-  self->ExecuteFft(inComplex, outComplex, inSize0);
-  
-  // Get information to loop through output region.
-  outRegion->GetAxisIncrements(axis, outInc0);
-  outRegion->GetAxisIncrements(VTK_IMAGE_COMPONENT_AXIS, outIncC);
-  outRegion->GetAxisExtent(axis, outMin0, outMax0);
-  outRegion->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, outMinC, outMaxC);
-  
-  // Copy the complex numbers into the output
-  pComplex = outComplex + (outMin0 - inMin0); // may request only a piece
-  outPtrReal = outPtr;
-  outPtrImag = outPtr + outIncC;
-  for (idx = outMin0; idx <= outMax0; ++idx)
-    {
-    (*outPtrReal) = (float)(pComplex->Real);
-    (*outPtrImag) = (float)(pComplex->Imag);
-    outPtrReal += outInc0;
-    outPtrImag += outInc0;
-    ++pComplex;
+      // copy into output
+      outPtr0 = outPtr1;
+      pComplex = outComplex + (inMin0 - outMin0);
+      for (idx0 = outMin0; idx0 <= outMax0; ++idx0)
+	{
+	*outPtr0 = (float)pComplex->Real;
+	outPtr0[1] = (float)pComplex->Imag;
+	outPtr0 += outInc0;
+	++pComplex;
+	}
+      inPtr1 += inInc1;
+      outPtr1 += outInc1;
+      }
+    inPtr2 += inInc2;
+    outPtr2 += outInc2;
     }
-
+    
   delete inComplex;
   delete outComplex;
 }
@@ -205,45 +229,57 @@ static void vtkImageFFT1DExecute(vtkImageFFT1D *self,
 
 //----------------------------------------------------------------------------
 // Description:
-// This method is passed input and output regions, and executes the fft
+// This method is passed input and output Datas, and executes the fft
 // algorithm to fill the output from the input.
-void vtkImageFFT1D::Execute(vtkImageRegion *inRegion, 
-			    vtkImageRegion *outRegion)
+// Not threaded yet.
+void vtkImageFFT1D::Execute(vtkImageData *inData, 
+			    vtkImageData *outData)
 {
   void *inPtr, *outPtr;
+  int inExt[6], *outExt;
 
-  inPtr = inRegion->GetScalarPointer();
-  outPtr = outRegion->GetScalarPointer();
-
+  inPtr = inData->GetScalarPointer();
+  outPtr = outData->GetScalarPointer();
+  outExt = this->GetOutput()->GetUpdateExtent();
+  this->ComputeRequiredInputUpdateExtent(inExt, outExt);  
+  
   // this filter expects that the output be floats.
-  if (outRegion->GetScalarType() != VTK_FLOAT)
+  if (outData->GetScalarType() != VTK_FLOAT)
     {
     vtkErrorMacro(<< "Execute: Output must be be type float.");
     return;
     }
 
+  // this filter expects input to have 1 or two components
+  if (outData->GetNumberOfScalarComponents() != 1 && 
+      outData->GetNumberOfScalarComponents() != 2)
+    {
+    vtkErrorMacro(<< "Execute: Cannot handle more than 2 components");
+    return;
+    }
+
   // choose which templated function to call.
-  switch (inRegion->GetScalarType())
+  switch (inData->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImageFFT1DExecute(this, inRegion, (float *)(inPtr), 
-			   outRegion, (float *)(outPtr));
+      vtkImageFFT1DExecute(this, inData, inExt, (float *)(inPtr), 
+			   outData, outExt, (float *)(outPtr));
       break;
     case VTK_INT:
-      vtkImageFFT1DExecute(this, inRegion, (int *)(inPtr),
-			   outRegion, (float *)(outPtr));
+      vtkImageFFT1DExecute(this, inData, inExt, (int *)(inPtr),
+			   outData, outExt, (float *)(outPtr));
       break;
     case VTK_SHORT:
-      vtkImageFFT1DExecute(this, inRegion, (short *)(inPtr),
-			   outRegion, (float *)(outPtr));
+      vtkImageFFT1DExecute(this, inData, inExt, (short *)(inPtr),
+			   outData, outExt, (float *)(outPtr));
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImageFFT1DExecute(this, inRegion, (unsigned short *)(inPtr), 
-			   outRegion, (float *)(outPtr));
+      vtkImageFFT1DExecute(this, inData, inExt, (unsigned short *)(inPtr), 
+			   outData, outExt, (float *)(outPtr));
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImageFFT1DExecute(this, inRegion, (unsigned char *)(inPtr),
-			   outRegion, (float *)(outPtr));
+      vtkImageFFT1DExecute(this, inData, inExt, (unsigned char *)(inPtr),
+			   outData, outExt, (float *)(outPtr));
       break;
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
