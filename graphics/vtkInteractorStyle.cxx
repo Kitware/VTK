@@ -83,6 +83,8 @@ vtkInteractorStyle::vtkInteractorStyle()
   this->MiddleButtonReleaseTag = 0;
   this->RightButtonPressTag = 0;
   this->RightButtonReleaseTag = 0;
+  
+  this->LastPos[0] = this->LastPos[1] = 0;
 }
 
 //----------------------------------------------------------------------------
