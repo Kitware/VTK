@@ -69,6 +69,7 @@ IF (VTK_USE_RENDERING)
       EnSightRectGridASCII
       EnSightRectGridBin
       EnSightMandelbrot
+      EnSightSelectArrays
       EnSightCompound
       extractPolyData
       extractUGrid
