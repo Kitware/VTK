@@ -40,8 +40,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkQuadric - evaluate implicit quadric function
 // .SECTION Description
-// vtkQuadric evaluates the quadric function a0*x^2 + a1*y^2 + a2*z^2 + 
-// a3*x*y + a4*y*z + a5*x*z + a6*x + a7*y + a8*z + a9 = 0. vtkQuadric is
+// vtkQuadric evaluates the quadric function F(x,y,z) = a0*x^2 + a1*y^2 + 
+// a2*z^2 + a3*x*y + a4*y*z + a5*x*z + a6*x + a7*y + a8*z + a9. vtkQuadric is
 // a concrete implementation of vtkImplicitFunction.
 
 #ifndef __vtkQuadric_h
