@@ -118,6 +118,10 @@ protected:
   void ReadBlock(int xIdx, int yIdx, int zIdx, 
                  vtkImageData *data, int *ext);
 
+  // Description:
+  // Generate more than requested.  Called by the superclass before
+  // an execute, and before output memory is allocated.
+  void ModifyOutputUpdateExtent();
 
   // extents (min, max) of the divisions.
   int *XExtents;

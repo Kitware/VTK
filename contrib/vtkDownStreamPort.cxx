@@ -41,7 +41,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkUpStreamPort.h"
 #include "vtkMultiProcessController.h"
 #include "vtkPolyData.h"
-#include "vtkUnstructuredInformation.h"
+#include "vtkImageData.h"
+#include "vtkDataInformation.h"
 #include "vtkExtent.h"
 
 
@@ -110,6 +111,36 @@ vtkPolyData *vtkDownStreamPort::GetPolyDataOutput()
   output = vtkPolyData::New();
   this->vtkSource::SetOutput(0, output);
   return (vtkPolyData*)(output);
+}
+
+
+//----------------------------------------------------------------------------
+// Maybe we can come up with a way to check the type of the upstream port's
+// input here.  While we are at it, we could automatically generate a tag.
+vtkImageData *vtkDownStreamPort::GetImageDataOutput()
+{
+  vtkDataObject *output = NULL;
+  
+  // If there is already an output, I hope it is a vtkImageData.
+  if (this->Outputs)
+    {
+    output = this->Outputs[0];
+    }
+  if (output)
+    {
+    if (output->GetDataObjectType() == VTK_IMAGE_DATA)
+      {
+      return (vtkImageData*)(output);
+      }
+    else
+      {
+      vtkWarningMacro("vtkDownStreamPort: Changing data type of output.");
+      }
+    }
+  
+  output = vtkImageData::New();
+  this->vtkSource::SetOutput(0, output);
+  return (vtkImageData*)(output);
 }
 
 

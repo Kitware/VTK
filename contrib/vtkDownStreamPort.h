@@ -51,6 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkSource.h"
 #include "vtkMultiProcessController.h"
 class vtkPolyData;
+class vtkImageData;
 
 // Arbitrary tags used by the ports for communication.
 #define VTK_PORT_DOWN_DATA_TIME_TAG         98970
@@ -74,6 +75,7 @@ public:
   // We have to live with the fact that the error will not occur until
   // an update is called.
   vtkPolyData *GetPolyDataOutput();
+  vtkImageData *GetImageDataOutput();
   
   // Description:
   // Output is specified by the process the output port is in,
