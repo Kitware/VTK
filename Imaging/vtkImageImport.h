@@ -46,9 +46,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Note that the VTK convention is for the image voxel index (0,0,0) to be
 // the lower-left corner of the image, while most 2D image formats use
 // the upper-left corner.  You can use vtkImageFlip to correct the 
-// orientation.
+// orientation after the image has been loaded into VTK.
+// Note that is also possible to import the raw data from a Python string
+// instead of from a C array.
 // .SECTION See Also
-// vtkImageSource
+// vtkImageExport
 
 #ifndef __vtkImageImport_h
 #define __vtkImageImport_h
@@ -213,8 +215,8 @@ public:
   // six integers describing the extent.  This should cause the
   // third-party pipeline to provide data which contains at least this
   // extent after the next UpdateData callback.
-  vtkSetMacro(PropagateUpdateExtentCallback, PropagateUpdateExtentCallbackType);
-  vtkGetMacro(PropagateUpdateExtentCallback, PropagateUpdateExtentCallbackType);
+  vtkSetMacro(PropagateUpdateExtentCallback,PropagateUpdateExtentCallbackType);
+  vtkGetMacro(PropagateUpdateExtentCallback,PropagateUpdateExtentCallbackType);
   
   // Description:  
   // Set/Get the callback for propagating UpdateData calls to a
@@ -247,6 +249,7 @@ public:
   vtkGetMacro(CallbackUserData, void*);  
   
   //ETX
+
 protected:
   vtkImageImport();
   ~vtkImageImport();
@@ -287,6 +290,7 @@ protected:
   //ETX
   
   virtual void ExecuteData(vtkDataObject *d);
+
 private:
   vtkImageImport(const vtkImageImport&);  // Not implemented.
   void operator=(const vtkImageImport&);  // Not implemented.

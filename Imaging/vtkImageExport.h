@@ -43,10 +43,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .NAME vtkImageExport - Export VTK images to third-party systems.
 // .SECTION Description
 // vtkImageExport provides a way of exporting image data at the end
-// of a pipeline to a third-party system.  Applications can use this
-// to get direct access to the image data in memory.  A callback interface
-// is provided to allow connection to a third-party pipeline.  This
-// interface conforms to that specified by vtkImageImport.
+// of a pipeline to a third-party system or to a simple C array.
+// Applications can use this to get direct access to the image data
+// in memory.  A callback interface is provided to allow connection
+// of the VTK pipeline to a third-party pipeline.  This interface
+// conforms to the interface of vtkImageImport.
+// In Python it is possible to use this class to write the image data
+// into a python string that has been pre-allocated to be the correct
+// size.
+// .SECTION See Also
+// vtkImageImport
 
 #ifndef __vtkImageExport_h
 #define __vtkImageExport_h
@@ -62,26 +68,38 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
-  // Get the number of bytes required (for safety checks, etc)
+  // Get the number of bytes required for the output C array.
   int GetDataMemorySize();
 
   // Description:
-  // Get the (x,y,z) index dimensions of the data 
-  // (warning: C arrays are indexed like this: array[z][y][x]) 
+  // Get the (x,y,z) index dimensions of the data.  Please note
+  // that C arrays are indexed in decreasing order, i.e. array[z][y][x]. 
   void GetDataDimensions(int *ptr);
   int *GetDataDimensions() { 
     this->GetDataDimensions(this->DataDimensions);
     return this->DataDimensions; }
 
   // Description:
-  // Get the number of scalar components of the data
+  // Get the number of scalar components of the data.  Please note that
+  // when you index into a C array, the scalar component index comes
+  // last, i.e. array[z][y][x][c].
   int GetDataNumberOfScalarComponents() {
     if (this->GetInput() == NULL) { return 1; }
     this->GetInput()->UpdateInformation();
     return this->GetInput()->GetNumberOfScalarComponents(); };
-  
+
+  // Description:
+  // Get the scalar type of the data.  The scalar type of the C array
+  // must match the scalar type of the data.
+  int GetDataScalarType() {
+    if (this->GetInput() == NULL) { return VTK_UNSIGNED_CHAR; }
+    this->GetInput()->UpdateInformation();
+    return this->GetInput()->GetScalarType(); };
+  const char *GetDataScalarTypeAsString() { 
+    return vtkImageScalarTypeNameMacro(this->GetDataScalarType()); }
+
   // Description: 
-  // Get misc. information about the data
+  // Get miscellaneous additional information about the data.
   int *GetDataExtent() {
     static int defaultextent[6] = {0, 0, 0, 0, 0, 0};
     if (this->GetInput() == NULL) { return defaultextent; }
@@ -110,10 +128,6 @@ public:
     if (this->GetInput() == NULL) { ptr[0] = ptr[1] = ptr[2] = 0.0; return; }
     this->GetInput()->UpdateInformation();
     this->GetInput()->GetOrigin(ptr); };
-  int GetDataScalarType() {
-    if (this->GetInput() == NULL) { return VTK_UNSIGNED_CHAR; }
-    this->GetInput()->UpdateInformation();
-    return this->GetInput()->GetScalarType(); };
 
   // Description:
   // Set/Get the input object from the image pipeline.
@@ -123,6 +137,8 @@ public:
   // Description:
   // Set/Get whether the data goes to the exported memory starting 
   // in the lower left corner or upper left corner.  Default: On.
+  // When this flag is Off, the image will be flipped vertically
+  // before it is exported.
   // WARNING: this flag is used only with the Export() method,
   // it is ignored by GetPointerToData().
   vtkBooleanMacro(ImageLowerLeft, int);
@@ -130,20 +146,24 @@ public:
   vtkSetMacro(ImageLowerLeft, int);
 
   // Description:
-  // Set the void pointer to export to.
+  // Set the void pointer of the C array to export the data to.
+  // From python, you can specify a pointer to a string that is
+  // large enough to hold the data.
   void SetExportVoidPointer(void *);
   void *GetExportVoidPointer() { return this->ExportVoidPointer; };
 
   // Description:
-  // The main interface: export to the memory pointed to by
-  // SetExportVoidPointer(), or specify a pointer directly.
+  // The main interface: update the pipeline and export the image
+  // to the memory pointed to by SetExportVoidPointer().  You can
+  // also specify a void pointer when you call Export().
   void Export() { this->Export(this->ExportVoidPointer); };
   virtual void Export(void *);
 
   // Description:
-  // An alternative to Export(): Use with caution.   
-  // Get a pointer to the image memory
-  // (the pointer might be different each time this is called).
+  // An alternative to Export(): Use with caution.   Update the
+  // pipeline and return a pointer to the image memory.  The
+  // pointer is only valid until the next time that the pipeline
+  // is updated.
   // WARNING: This method ignores the ImageLowerLeft flag.
   void *GetPointerToData();
 
@@ -181,6 +201,7 @@ public:
   DataExtentCallbackType            GetDataExtentCallback() const;
   BufferPointerCallbackType         GetBufferPointerCallback() const;
   //ETX
+
 protected:
   vtkImageExport();
   ~vtkImageExport();
@@ -200,9 +221,13 @@ protected:
   int ImageLowerLeft;
   int DataDimensions[3];
   void *ExportVoidPointer;
-  
+
   unsigned long LastPipelineMTime;
+
 private:  
+  vtkImageExport(const vtkImageExport&);  // Not implemented.
+  void operator=(const vtkImageExport&);  // Not implemented.
+
   static void UpdateInformationCallbackFunction(void*);
   static int PipelineModifiedCallbackFunction(void*);
   static int* WholeExtentCallbackFunction(void*);
@@ -214,9 +239,6 @@ private:
   static void UpdateDataCallbackFunction(void*);
   static int* DataExtentCallbackFunction(void*);
   static void* BufferPointerCallbackFunction(void*);
-private:
-  vtkImageExport(const vtkImageExport&);  // Not implemented.
-  void operator=(const vtkImageExport&);  // Not implemented.
 };
 
 #endif
