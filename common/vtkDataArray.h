@@ -116,23 +116,27 @@ public:
   // Make sure that your array is large enough to hold the NumberOfComponents
   // amount of data being returned.
   virtual void GetTuple(const int i, float * tuple) = 0;
+  virtual void GetTuple(const int i, double * tuple);
 
   // Description:
   // Set the data tuple at ith location. Note that range checking or
   // memory allocation is not performed; use this method in conjunction
   // with SetNumberOfTuples() to allocate space.
   virtual void SetTuple(const int i, const float * tuple) = 0;
+  virtual void SetTuple(const int i, const double * tuple);
 
   // Description:
   // Insert the data tuple at ith location. Note that memory allocation
   // is performed as necessary to hold the data.
   virtual void InsertTuple(const int i, const float * tuple) = 0;
+  virtual void InsertTuple(const int i, const double * tuple);
 
   // Description:
   // Insert the data tuple at the end of the array and return the location at
   // which the data was inserted. Memory is allocated as necessary to hold
   // the data.
   virtual int InsertNextTuple(const float * tuple) = 0;
+  virtual int InsertNextTuple(const double * tuple);
 
   // Description:
   // Return the data component at the ith tuple and jth component location.

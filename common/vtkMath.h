@@ -92,12 +92,26 @@ public:
   {return sqrt(x[0]*x[0] + x[1]*x[1] + x[2]*x[2]);};
   
   // Description:
+  // Compute the norm of 3-vector (double-precision version).
+  static double Norm(double x[3])
+  {return sqrt(x[0]*x[0] + x[1]*x[1] + x[2]*x[2]);};
+  
+  // Description:
   // Normalize (in place) a 3-vector. Returns norm of vector.
   static float Normalize(float x[3]);
 
   // Description:
+  // Normalize (in place) a 3-vector. Returns norm of vector
+  // (double-precision version).
+  static double Normalize(double x[3]);
+
+  // Description:
   // Compute distance squared between two points.
   static float Distance2BetweenPoints(float x[3], float y[3]);
+
+  // Description:
+  // Compute distance squared between two points (double precision version).
+  static double Distance2BetweenPoints(double x[3], double y[3]);
 
   // Description:
   // Dot product of two 2-vectors. The third (z) component is ignored.
@@ -105,7 +119,7 @@ public:
   
   // Description:
   // Dot product of two 2-vectors. The third (z) component is
-  // ignored. (Double-precision version.)
+  // ignored (double-precision version).
   static double Dot2D(double x[3], double y[3]) 
   {return (x[0]*y[0] + x[1]*y[1]);};
 
@@ -114,9 +128,19 @@ public:
   static float Norm2D(float x[3]) {return sqrt(x[0]*x[0] + x[1]*x[1]);};
 
   // Description:
+  // Compute the norm of a 2-vector. Ignores z-component
+  // (double-precision version).
+  static double Norm2D(double x[3]) {return sqrt(x[0]*x[0] + x[1]*x[1]);};
+
+  // Description:
   // Normalize (in place) a 2-vector. Returns norm of vector. Ignores
   // z-component.
   static float Normalize2D(float x[3]);
+
+  // Description:
+  // Normalize (in place) a 2-vector. Returns norm of vector. Ignores
+  // z-component (double-precision version).
+  static double Normalize2D(double x[3]);
 
   // Description:
   // Compute determinant of 2x2 matrix. Two columns of matrix are input.
@@ -284,10 +308,35 @@ inline float vtkMath::Normalize(float x[3])
     }
   return den;
 }
+inline double vtkMath::Normalize(double x[3])
+{
+  double den; 
+  if ( (den = vtkMath::Norm(x)) != 0.0 )
+    {
+    for (int i=0; i < 3; i++)
+      {
+      x[i] /= den;
+      }
+    }
+  return den;
+}
 
 inline float vtkMath::Normalize2D(float x[3])
 {
   float den; 
+  if ( (den = vtkMath::Norm2D(x)) != 0.0 )
+    {
+    for (int i=0; i < 2; i++)
+      {
+      x[i] /= den;
+      }
+    }
+  return den;
+}
+
+inline double vtkMath::Normalize2D(double x[3])
+{
+  double den; 
   if ( (den = vtkMath::Norm2D(x)) != 0.0 )
     {
     for (int i=0; i < 2; i++)
@@ -315,6 +364,11 @@ inline double vtkMath::Determinant3x3(double a1, double a2, double a3,
 }
 
 inline float vtkMath::Distance2BetweenPoints(float x[3], float y[3])
+{
+  return ((x[0]-y[0])*(x[0]-y[0]) + (x[1]-y[1])*(x[1]-y[1]) +
+          (x[2]-y[2])*(x[2]-y[2]));
+}
+inline double vtkMath::Distance2BetweenPoints(double x[3], double y[3])
 {
   return ((x[0]-y[0])*(x[0]-y[0]) + (x[1]-y[1])*(x[1]-y[1]) +
           (x[2]-y[2])*(x[2]-y[2]));

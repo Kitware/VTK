@@ -113,8 +113,8 @@ public:
   // Description:
   // Compute the circumcenter (center[3]) and radius (method return value) of
   // a tetrahedron defined by the four points x1, x2, x3, and x4.
-  static float Circumsphere(float  p1[3], float p2[3], float p3[3], 
-                            float p4[3], float center[3]);
+  static double Circumsphere(double  p1[3], double p2[3], double p3[3], 
+                             double p4[3], double center[3]);
 
   // Description:
   // Given a 3D point x[3], determine the barycentric coordinates of the point.
@@ -127,8 +127,8 @@ public:
   // point x is on a vertex. If two coordinates are zero, the point x is on an 
   // edge (and so on). In this method, you must specify the vertex coordinates
   // x1->x4. Returns 0 if tetrahedron is degenerate.
-  static int BarycentricCoords(float x[3], float  x1[3], float x2[3], 
-                               float x3[3], float x4[3], float bcoords[4]);
+  static int BarycentricCoords(double x[3], double  x1[3], double x2[3], 
+                               double x3[3], double x4[3], double bcoords[4]);
   
   // Description:
   // Given parametric coordinates compute inverse Jacobian transformation

@@ -51,8 +51,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //
 typedef struct _vtkDelaunaySphere 
 {
-  float r2;
-  float center[3];
+  double r2;
+  double center[3];
 }
 vtkDelaunaySphere;
 
@@ -64,12 +64,12 @@ public:
   ~vtkSphereArray()
     {
       if (this->Array)
-	{
-	delete [] this->Array;
-	}
+        {
+        delete [] this->Array;
+        }
     };
   vtkDelaunaySphere *GetSphere(int tetraId) {return this->Array + tetraId;};
-  void InsertSphere(int tetraId, float r2, float center[3]);
+  void InsertSphere(int tetraId, double r2, double center[3]);
   vtkDelaunaySphere *Resize(int sz); //reallocates data
 
 protected:
@@ -87,7 +87,7 @@ vtkSphereArray::vtkSphereArray(int sz, int extend)
   this->Extend = extend;
 }
 
-void vtkSphereArray::InsertSphere(int id, float r2, float center[3])
+void vtkSphereArray::InsertSphere(int id, double r2, double center[3])
 {
   if ( id >= this->Size )
     {
@@ -277,7 +277,7 @@ int vtkDelaunay3D::FindTetra(float x[3], int ptIds[4], float p[4][3],
     facePts->Delete();
     neighbors->Delete();
     return this->FindTetra(x, ptIds, p, neighbors->GetId(0),
-			   Mesh, points, tol, depth);
+                           Mesh, points, tol, depth);
     }
   else 
     {
@@ -577,9 +577,9 @@ void vtkDelaunay3D::Execute()
           {
           Mesh->GetCellPoints(i, npts, tetraPts);
           for (j=0; j<4; j++)
-	    {
-	    pointUse[tetraPts[j]] = 1; 
-	    }
+            {
+            pointUse[tetraPts[j]] = 1; 
+            }
           for (j=0; j<6; j++)
             {
             p1 = tetraPts[edge[j][0]];
@@ -615,32 +615,34 @@ void vtkDelaunay3D::Execute()
             if ( neiTetras->GetNumberOfIds() < 1  ||
             ( (nei = neiTetras->GetId(0)) > i && !tetraUse[nei] ) )
               {
-              points->GetPoint(p1,x1); 
-              points->GetPoint(p2,x2);
-              points->GetPoint(p3,x3);
-              vtkTriangle::ProjectTo2D(x1,x2,x3,v1,v2,v3);
-              if ( vtkTriangle::Circumcircle(v1,v2,v3,center) <= alpha2 )
+              double dx1[3], dx2[3], dx3[3], dv1[3], dv2[3], dv3[3], dcenter[3];
+              points->GetPoint(p1,x1); dx1[0]=x1[0]; dx1[1]=x1[1]; dx1[2]=x1[2];
+              points->GetPoint(p2,x2); dx2[0]=x2[0]; dx2[1]=x2[1]; dx2[2]=x2[2];
+              points->GetPoint(p3,x3); dx3[0]=x3[0]; dx3[1]=x3[1]; dx3[2]=x3[2];
+              vtkTriangle::ProjectTo2D(dx1,dx2,dx3,dv1,dv2,dv3);
+              dcenter[0] = center[0]; dcenter[1] = center[1]; dcenter[2] = center[2];
+              if ( vtkTriangle::Circumcircle(dv1,dv2,dv3,dcenter) <= alpha2 )
                 {
                 pts[0] = p1;
                 pts[1] = p2;
                 pts[2] = p3;
                 output->InsertNextCell(VTK_TRIANGLE,3,pts);
                 if ( ! edges->IsEdge(p1,p2) )
-		  {
-		  edges->InsertEdge(p1,p2);
-		  }
+                  {
+                  edges->InsertEdge(p1,p2);
+                  }
                 if ( ! edges->IsEdge(p2,p3) )
-		  {
-		  edges->InsertEdge(p2,p3);
-		  }
+                  {
+                  edges->InsertEdge(p2,p3);
+                  }
                 if ( ! edges->IsEdge(p3,p1) )
-		  {
-		  edges->InsertEdge(p3,p1);
-		  }
+                  {
+                  edges->InsertEdge(p3,p1);
+                  }
                 for (k=0; k<3; k++)
-		  {
-		  pointUse[pts[k]] = 1; 
-		  }
+                  {
+                  pointUse[pts[k]] = 1; 
+                  }
                 }
               }//if candidate face
             }//if not boundary face or boundary faces requested
@@ -661,7 +663,7 @@ void vtkDelaunay3D::Execute()
           p2 = tetraPts[edge[j][1]];
 
           if ((this->BoundingTriangulation || 
-	       (p1 < numPoints && p2 < numPoints))
+               (p1 < numPoints && p2 < numPoints))
           && (!edges->IsEdge(p1,p2)) )
             {
             points->GetPoint(p1,x1);
@@ -910,8 +912,8 @@ void vtkDelaunay3D::InsertPoint(vtkUnstructuredGrid *Mesh, vtkPoints *points,
   tetraId = Mesh->GetNumberOfCells() - 1;
 
   if ( (numFaces=this->FindEnclosingFaces(x, tetraId, Mesh, points,
-					  this->Tolerance, tetras, faces,
-					  this->Locator)) > 0 )
+                                          this->Tolerance, tetras, faces,
+                                          this->Locator)) > 0 )
     {
     this->Locator->InsertPoint(ptId,x); //point is part of mesh now
     numTetras = tetras->GetNumberOfIds();
@@ -1015,16 +1017,17 @@ int vtkDelaunay3D::InSphere(float x[3], int tetraId)
 void vtkDelaunay3D::InsertSphere(vtkUnstructuredGrid *Mesh, vtkPoints *points,
                                  int tetraId)
 {
-  float *x1, *x2, *x3, *x4, radius2, center[3];
+  float *x1, *x2, *x3, *x4;
+  double dx1[3], dx2[3], dx3[3], dx4[3], radius2, center[3];
   int npts, *pts;
 
   Mesh->GetCellPoints(tetraId, npts, pts);
-  x1 = points->GetPoint(pts[0]);
-  x2 = points->GetPoint(pts[1]);
-  x3 = points->GetPoint(pts[2]);
-  x4 = points->GetPoint(pts[3]);
+  x1 = points->GetPoint(pts[0]); dx1[0]=x1[0]; dx1[1]=x1[1]; dx1[2]=x1[2];
+  x2 = points->GetPoint(pts[1]); dx2[0]=x2[0]; dx2[1]=x2[1]; dx2[2]=x2[2];
+  x3 = points->GetPoint(pts[2]); dx3[0]=x3[0]; dx3[1]=x3[1]; dx3[2]=x3[2];
+  x4 = points->GetPoint(pts[3]); dx4[0]=x4[0]; dx4[1]=x4[1]; dx4[2]=x4[2];
 
-  radius2 = vtkTetra::Circumsphere(x1,x2,x3,x4,center);
+  radius2 = vtkTetra::Circumsphere(dx1,dx2,dx3,dx4,center);
   this->Spheres->InsertSphere(tetraId, radius2, center);
 }
 

@@ -464,8 +464,8 @@ void vtkTetra::TetraCenter(float p1[3], float p2[3], float p3[3],
 
 // Compute the circumcenter (center[3]) and radius (method return value) of
 // a tetrahedron defined by the four points x1, x2, x3, and x4.
-float vtkTetra::Circumsphere(float  x1[3], float x2[3], float x3[3], 
-                             float x4[3], float center[3])
+double vtkTetra::Circumsphere(double  x1[3], double x2[3], double x3[3], 
+                             double x4[3], double center[3])
 {
   double n12[3], n13[3], n14[3], x12[3], x13[3], x14[3];
   double *A[3], rhs[3], sum, diff;
@@ -544,8 +544,8 @@ float vtkTetra::Circumsphere(float  x1[3], float x2[3], float x3[3],
 // point x is on a vertex. If two coordinates are zero, the point x is on an 
 // edge (and so on). In this method, you must specify the vertex coordinates
 // x1->x4. Returns 0 if tetrahedron is degenerate.
-int vtkTetra::BarycentricCoords(float x[3], float  x1[3], float x2[3], 
-                                float x3[3], float x4[3], float bcoords[4])
+int vtkTetra::BarycentricCoords(double x[3], double  x1[3], double x2[3], 
+                                double x3[3], double x4[3], double bcoords[4])
 {
   double *A[4], p[4], a1[4], a2[4], a3[4], a4[4];
   int i;
@@ -571,7 +571,7 @@ int vtkTetra::BarycentricCoords(float x[3], float  x1[3], float x2[3],
     {
     for (i=0; i<4; i++)
       {
-      bcoords[i] = (float) p[i];
+      bcoords[i] = p[i];
       }
     return 1;
     }

@@ -138,6 +138,61 @@ void vtkDataArray::GetData(int tupleMin, int tupleMax, int compMin, int compMax,
       *ptr++ = tuple[i];
       }
     }
+  delete [] tuple;
+}
+
+// default double behaviour
+void vtkDataArray::GetTuple(const int i, double * tuple)
+{
+  int c;
+  int numComp=this->GetNumberOfComponents();
+  float *ftuple=new float[numComp];
+  this->GetTuple(i,ftuple);
+  for (c = 0; c < numComp;  c++)
+    {
+    tuple[c] = ftuple[c];
+    }
+  delete [] ftuple;
+}
+
+void vtkDataArray::SetTuple(const int i, const double * tuple)
+{
+  int c;
+  int numComp=this->GetNumberOfComponents();
+  float *ftuple=new float[numComp];
+  for (c = 0; c < numComp;  c++)
+    {
+    ftuple[c] = (float)(tuple[c]);
+    }
+  this->SetTuple(i,ftuple);
+  delete [] ftuple;
+}
+
+void vtkDataArray::InsertTuple(const int i, const double * tuple)
+{
+  int c;
+  int numComp=this->GetNumberOfComponents();
+  float *ftuple=new float[numComp];
+  for (c = 0; c < numComp;  c++)
+    {
+    ftuple[c] = (float)(tuple[c]);
+    }
+  this->InsertTuple(i,ftuple);
+  delete [] ftuple;
+}
+
+int vtkDataArray::InsertNextTuple(const double * tuple)
+{
+  int c;
+  int numComp=this->GetNumberOfComponents();
+  float *ftuple=new float[numComp];
+  for (c = 0; c < numComp;  c++)
+    {
+    ftuple[c] = (float)(tuple[c]);
+    }
+  int ret = this->InsertNextTuple(ftuple);
+  delete [] ftuple;
+  return ret;
 }
 
 void vtkDataArray::PrintSelf(ostream& os, vtkIndent indent)

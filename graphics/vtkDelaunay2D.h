@@ -156,21 +156,21 @@ public:
   // For a non-zero alpha value, only edges or triangles contained within
   // a sphere centered at mesh vertices will be output. Otherwise, only
   // triangles will be output.
-  vtkSetClampMacro(Alpha,float,0.0,VTK_LARGE_FLOAT);
-  vtkGetMacro(Alpha,float);
+  vtkSetClampMacro(Alpha,double,0.0,VTK_LARGE_FLOAT);
+  vtkGetMacro(Alpha,double);
 
   // Description:
   // Specify a tolerance to control discarding of closely spaced points.
   // This tolerance is specified as a fraction of the diagonal length of
   // the bounding box of the points.
-  vtkSetClampMacro(Tolerance,float,0.0,1.0);
-  vtkGetMacro(Tolerance,float);
+  vtkSetClampMacro(Tolerance,double,0.0,1.0);
+  vtkGetMacro(Tolerance,double);
 
   // Description:
   // Specify a multiplier to control the size of the initial, bounding
   // Delaunay triangulation.
-  vtkSetClampMacro(Offset,float,0.75,VTK_LARGE_FLOAT);
-  vtkGetMacro(Offset,float);
+  vtkSetClampMacro(Offset,double,0.75,VTK_LARGE_FLOAT);
+  vtkGetMacro(Offset,double);
 
   // Description:
   // Boolean controls whether bounding triangulation points (and associated
@@ -189,24 +189,38 @@ protected:
   void Execute();
 
   vtkPolyData *Source;
-  float Alpha;
-  float Tolerance;
+  double Alpha;
+  double Tolerance;
   int BoundingTriangulation;
-  float Offset;
+  double Offset;
 
 private:
+  vtkPolyData *Mesh; //the created mesh
+  double *Points;    //the raw points in double precision
+  void SetPoint(int id, double *x)
+    {int idx=3*id; 
+    this->Points[idx] = x[0];
+    this->Points[idx+1] = x[1];
+    this->Points[idx+2] = x[2];
+    }
+      
+  void GetPoint(int id, double x[3])
+    {double *ptr = this->Points + 3*id;
+    x[0] = *ptr++;
+    x[1] = *ptr++;
+    x[2] = *ptr;
+    }
+
   int NumberOfDuplicatePoints;
   int NumberOfDegeneracies;
 
-  int *RecoverBoundary(vtkPolyData *Mesh);
-  int RecoverEdge(vtkPolyData *Mesh, int p1, int p2);
-  void FillPolygons(vtkPolyData *Mesh, vtkCellArray *polys, int *triUse);
+  int *RecoverBoundary();
+  int RecoverEdge(int p1, int p2);
+  void FillPolygons(vtkCellArray *polys, int *triUse);
 
-  int InCircle (float x[3], float x1[3], float x2[3], float x3[3]);
-  int FindTriangle(float x[3], int ptIds[3], int tri, vtkPolyData *Mesh, 
-                   vtkPoints *points, float tol, int nei[3]);
-  void CheckEdge(int ptId, float x[3], int p1, int p2, int tri, 
-                 vtkPolyData *Mesh, vtkPoints *points);
+  int InCircle (double x[3], double x1[3], double x2[3], double x3[3]);
+  int FindTriangle(double x[3], int ptIds[3], int tri, double tol, int nei[3]);
+  void CheckEdge(int ptId, double x[3], int p1, int p2, int tri);
 
 };
 

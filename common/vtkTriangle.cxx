@@ -636,15 +636,15 @@ void vtkTriangle::ComputeNormal(vtkPoints *p, int vtkNotUsed(numPts), int *pts,
 // a triangle defined by the three points x1, x2, and x3. (Note that the
 // coordinates are 2D. 3D points can be used but the z-component will be
 // ignored.)
-float vtkTriangle::Circumcircle(float  x1[2], float x2[2], float x3[2], 
-                                float center[2])
+double vtkTriangle::Circumcircle(double  x1[2], double x2[2], double x3[2], 
+                                 double center[2])
 {
   double n12[2], n13[2], x12[2], x13[2];
   double *A[2], rhs[2], sum, diff;
   int i;
-//
-//  calculate normals and intersection points of bisecting planes.  
-//
+
+  //  calculate normals and intersection points of bisecting planes.  
+  //
   for (i=0; i<2; i++) 
     {
     n12[i] = x2[i] - x1[i];
@@ -652,20 +652,20 @@ float vtkTriangle::Circumcircle(float  x1[2], float x2[2], float x3[2],
     x12[i] = (x2[i] + x1[i])/2.0;
     x13[i] = (x3[i] + x1[i])/2.0;
     }
-//
-//  Compute solutions to the intersection of two bisecting lines
-//  (2-eqns. in 2-unknowns).
-//
-//  form system matrices
-//
+
+  //  Compute solutions to the intersection of two bisecting lines
+  //  (2-eqns. in 2-unknowns).
+  //
+  //  form system matrices
+  //
   A[0] = n12;
   A[1] = n13;
 
   rhs[0] = vtkMath::Dot2D(n12,x12);
   rhs[1] = vtkMath::Dot2D(n13,x13);
-//
-// Solve system of equations
-//
+
+  // Solve system of equations
+  //
   if ( vtkMath::SolveLinearSystem(A,rhs,2) == 0 )
     {
     center[0] = center[1] = 0.0;
@@ -707,13 +707,12 @@ float vtkTriangle::Circumcircle(float  x1[2], float x2[2], float x3[2],
 // point x is on a vertex. If one coordinates are zero, the point x is on an 
 // edge. In this method, you must specify the vertex coordinates x1->x3. 
 // Returns 0 if triangle is degenerate.
-int vtkTriangle::BarycentricCoords(float x[2], float  x1[2], float x2[2], 
-                                   float x3[2], float bcoords[3])
+int vtkTriangle::BarycentricCoords(double x[2], double  x1[2], double x2[2], 
+                                   double x3[2], double bcoords[3])
 {
   double *A[3], p[3], a1[3], a2[3], a3[3];
   int i;
 
-  //
   // Homogenize the variables; load into arrays.
   //
   a1[0] = x1[0]; a1[1] = x2[0]; a1[2] = x3[0]; 
@@ -721,7 +720,6 @@ int vtkTriangle::BarycentricCoords(float x[2], float  x1[2], float x2[2],
   a3[0] = 1.0;   a3[1] = 1.0;   a3[2] = 1.0;   
   p[0] = x[0]; p[1] = x[1]; p[2] = 1.0;
 
-  //
   //   Now solve system of equations for barycentric coordinates
   //
   A[0] = a1;
@@ -732,7 +730,7 @@ int vtkTriangle::BarycentricCoords(float x[2], float  x1[2], float x2[2],
     {
     for (i=0; i<3; i++)
       {
-      bcoords[i] = (float) p[i];
+      bcoords[i] = p[i];
       }
     return 1;
     }
@@ -744,10 +742,11 @@ int vtkTriangle::BarycentricCoords(float x[2], float  x1[2], float x2[2],
 
 // Project triangle defined in 3D to 2D coordinates. Returns 0 if degenerate triangle;
 // non-zero value otherwise. Input points are x1->x3; output 2D points are v1->v3.
-int vtkTriangle::ProjectTo2D(float x1[3], float x2[3], float x3[3],
-                             float v1[2], float v2[2], float v3[2])
+int vtkTriangle::ProjectTo2D(double x1[3], double x2[3], double x3[3],
+                             double v1[2], double v2[2], double v3[2])
 {
-  float n[3], v21[3], v31[3], v[3], xLen;
+  double n[3], v21[3], v31[3], v[3], xLen;
+  float x1f[3], x2f[3], x3f[3];
 
   // Get normal for triangle
   vtkTriangle::ComputeNormal (x1, x2, x3, n);

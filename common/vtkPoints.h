@@ -75,6 +75,7 @@ public:
   // Copy point components into user provided array v[3] for specified
   // id.
   void GetPoint(int id, float x[3]) { this->Data->GetTuple(id,x);};
+  void GetPoint(int id, double x[3]) { this->Data->GetTuple(id,x);};
 
   // Description:
   // Insert point into object. No range checking performed (fast!).
@@ -82,15 +83,18 @@ public:
   // to using SetPoint().
   void SetPoint(int id, float x[3]) { this->Data->SetTuple(id,x);};
   void SetPoint(int id, float x, float y, float z);
+  void SetPoint(int id, double x[3]) { this->Data->SetTuple(id,x);};
 
   // Description:
   // Insert point into object. Range checking performed and memory
   // allocated as necessary.
   void InsertPoint(int id, float x[3]) { this->Data->InsertTuple(id,x);};
+  void InsertPoint(int id, double x[3]) { this->Data->InsertTuple(id,x);};
   
   // Description:
   // Insert point into next available slot. Returns id of slot.
   int InsertNextPoint(float x[3]) { return this->Data->InsertNextTuple(x);};
+  int InsertNextPoint(double x[3]) { return this->Data->InsertNextTuple(x);};
 
   // Description:
   // Specify the number of points for this object to hold. Does an
