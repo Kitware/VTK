@@ -128,6 +128,7 @@ void vtkSimpleElevationFilter::Execute()
 
   output->GetCellData()->PassData(input->GetCellData());
 
+  newScalars->SetName("Elevation");
   output->GetPointData()->SetScalars(newScalars);
   newScalars->Delete();
 }
