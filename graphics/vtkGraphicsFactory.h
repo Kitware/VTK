@@ -58,6 +58,10 @@ public:
   // dynamic loading. 
   static vtkObject* CreateInstance(const char* vtkclassname);
 
+  // Description:
+  // What rendering library has the user requested
+  static const char *GetRenderLibrary();
+  
 protected:
 };
 
