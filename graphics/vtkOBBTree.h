@@ -135,6 +135,7 @@ public:
                         float& t, float x[3], float pcoords[3],
                         int &subId, int &cellId);
 
+  //BTX
   // Description:
   // Returns true if nodeB and nodeA are disjoint after optional
   // transformation of nodeB with matrix XformBtoA
@@ -151,7 +152,6 @@ public:
                                      float p0[3], float p1[3],
                                      float p2[3], vtkMatrix4x4 *XformBtoA );
 
-  //BTX
   // Description:
   // For each intersecting leaf node pair, call function.
   // OBBTreeB is optionally transformed by XformBtoA before testing.
