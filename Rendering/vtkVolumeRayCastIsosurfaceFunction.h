@@ -48,13 +48,13 @@ public:
 
   // Description:
   // Set/Get the value of IsoValue.
-  vtkSetMacro( IsoValue, float );
-  vtkGetMacro( IsoValue, float );
+  vtkSetMacro( IsoValue, double );
+  vtkGetMacro( IsoValue, double );
 
   
   // Description:
   // This is the isovalue at which to view a surface
-  float IsoValue;
+  double IsoValue;
 
   // Description:
   // These variables are filled in by SpecificFunctionInitialize
