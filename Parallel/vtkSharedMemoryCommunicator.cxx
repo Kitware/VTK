@@ -403,6 +403,14 @@ int vtkSharedMemoryCommunicator::Send(float* data, int length,
 }
 
 //----------------------------------------------------------------------------
+int vtkSharedMemoryCommunicator::Send(double* data, int length, 
+				      int remoteThreadId, int tag)
+{
+  length = length * sizeof(double);
+  return this->Send(NULL, (void*)data, length, remoteThreadId, tag);
+}
+
+//----------------------------------------------------------------------------
 int vtkSharedMemoryCommunicator::Receive(int* data, int length, 
 					 int remoteThreadId, int tag)
 {
@@ -432,6 +440,14 @@ int vtkSharedMemoryCommunicator::Receive(float* data, int length,
 					 int remoteThreadId, int tag)
 {
   length = length * sizeof(float);
+  return this->Receive(NULL, (void*)data, length, remoteThreadId, tag);
+}
+
+//----------------------------------------------------------------------------
+int vtkSharedMemoryCommunicator::Receive(double* data, int length, 
+					 int remoteThreadId, int tag)
+{
+  length = length * sizeof(double);
   return this->Receive(NULL, (void*)data, length, remoteThreadId, tag);
 }
 

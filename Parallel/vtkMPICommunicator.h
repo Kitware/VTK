@@ -101,6 +101,8 @@ public:
   virtual int Send(char* data, int length, int remoteProcessId, int tag);
   virtual int Send(float* data, int length, int remoteProcessId, 
 		   int tag);
+  virtual int Send(double* data, int length, int remoteProcessId, 
+		   int tag);
   virtual int Send(vtkDataObject* data, int remoteProcessId, int tag)
     { return this->vtkCommunicator::Send(data, remoteProcessId, tag); }
 
@@ -142,6 +144,8 @@ public:
   virtual int Receive(char* data, int length, int remoteProcessId, 
 		      int tag);
   virtual int Receive(float* data, int length, int remoteProcessId, 
+		      int tag);
+  virtual int Receive(double* data, int length, int remoteProcessId, 
 		      int tag);
   virtual int Receive(vtkDataObject* data, int remoteProcessId, int tag)
     { return this->vtkCommunicator::Receive(data, remoteProcessId, tag); }
