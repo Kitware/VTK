@@ -46,13 +46,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMath.hh"
 
 // Description:
-// Construct an Earth with radius = 1.0 and OnRatio set at 10;
+// Construct an Earth with radius = 1.0 and OnRatio set at 10. The outlines are drawn
+// in wireframe as default.
 vtkEarthSource::vtkEarthSource()
 {
   this->Radius = 1.0;
   this->OnRatio = 10;
+  this->Outline = 1;
 }
-
 
 void vtkEarthSource::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -60,6 +61,7 @@ void vtkEarthSource::PrintSelf(ostream& os, vtkIndent indent)
   
   os << indent << "Radius: " << this->Radius << "\n";
   os << indent << "OnRatio: " << this->OnRatio << "\n";
+  os << indent << "Outline: " << (this->Outline ? "On\n" : "Off\n");
 }
 
 // vtkEarthData[] is a big array of short (16-bit) ints, as follows:
@@ -80,7 +82,7 @@ void vtkEarthSource::PrintSelf(ostream& os, vtkIndent indent)
 // the curves are [must be!] non-self-intersecting and traced in a
 // counter-clockwise direction
 //
-// the curves are sampled at a (roughly) a 20 mile resolution.
+// the curves are sampled at a (roughly) 20 mile resolution.
 
 // Source: on the Internet somewhere, originator unknown.
 // Someone obviously put work into this. Wish the author was known
@@ -6839,7 +6841,7 @@ void vtkEarthSource::Execute()
   float x[3], base[3];
   int Pts[4000];
   vtkPolyData *output=(vtkPolyData *)this->Output;
-  int     npts,land, offset;
+  int npts, land, offset;
   int actualpts, actualpolys;
   vtkMath math;
   float scale = 1.0/30000.0;
@@ -6856,7 +6858,6 @@ void vtkEarthSource::Execute()
   newPolys = new vtkCellArray;
   newPolys->Allocate(newPolys->EstimateSize(maxPolys,4000/this->OnRatio));
 
-  
   //
   // Create points
   //
@@ -6907,9 +6908,16 @@ void vtkEarthSource::Execute()
 	Pts[i] = (actualpts - npts/this->OnRatio) + i;
 	}
       
-      // close the loop in the line
-      Pts[i] = (actualpts - npts/this->OnRatio);
-      newPolys->InsertNextCell(i+1,Pts);
+      if ( this->Outline ) // close the loop in the line
+        {
+        Pts[i] = (actualpts - npts/this->OnRatio);
+        newPolys->InsertNextCell(i+1,Pts);
+        }
+      else
+        {
+        newPolys->InsertNextCell(i,Pts);
+        }
+
       actualpolys++;
       }
     }
@@ -6923,6 +6931,15 @@ void vtkEarthSource::Execute()
   output->GetPointData()->SetNormals(newNormals);
   newNormals->Delete();
   
-  output->SetLines(newPolys);
+  if ( this->Outline ) //lines or polygons
+    {
+    output->SetLines(newPolys);
+    }
+  else
+    {
+    output->SetPolys(newPolys);
+    }
   newPolys->Delete();
+
+  output->Squeeze();
 }
