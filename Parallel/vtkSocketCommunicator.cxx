@@ -49,7 +49,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define vtkCloseSocketMacro(sock) (close(sock))
 #endif
 
-const int vtkSocketCommunicator::MAX_MSG_SIZE=16000;
+int vtkSocketCommunicator::MAX_MSG_SIZE=16000;
 
 //------------------------------------------------------------------------------
 vtkSocketCommunicator* vtkSocketCommunicator::New()
@@ -193,7 +193,7 @@ int vtkSocketCommunicator::ReceiveMessage( char *data, int size, int length,
     {
     return 0;
     }
-
+  
   recv( this->Socket, (char *)&recvTag, sizeof(int), 0 );
   int totalLength = length * size;
   if ( totalLength < vtkSocketCommunicator::MAX_MSG_SIZE )

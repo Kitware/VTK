@@ -112,7 +112,7 @@ public:
   int Receive(vtkDataObject *data, int remoteId, int tag)
     {return this->vtkCommunicator::Receive(data, remoteId, tag);}
 
-  static const int MAX_MSG_SIZE;
+  static int MAX_MSG_SIZE;
 
 protected:
 
