@@ -59,10 +59,8 @@ void vtkSTLWriter::WriteData()
     return;
     }
 
-  this->StartWrite(this->StartWriteArg);
   if ( this->WriteMode == STL_BINARY ) this->WriteBinarySTL(pts,polys);
   else this->WriteAsciiSTL(pts,polys);
-  this->EndWrite(this->EndWriteArg);
 }
 
 static char header[]="Visualization Toolkit generated SLA File                                        ";
