@@ -22,7 +22,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkAppendFilter, "1.65");
+vtkCxxRevisionMacro(vtkAppendFilter, "1.66");
 vtkStandardNewMacro(vtkAppendFilter);
 
 //-----  This hack needed to compile using gcc3 on OSX until new stdc++.dylib
@@ -196,7 +196,7 @@ void vtkAppendFilter::Execute()
   for (idx = 0; idx < this->NumberOfInputs && !abort; ++idx)
     {
     ds = (vtkDataSet *)(this->Inputs[idx]);
-    if ( ds->GetNumberOfPoints() > 0 && ds->GetNumberOfCells() > 0 )
+    if ( ds->GetNumberOfPoints() > 0 || ds->GetNumberOfCells() > 0 )
       {
       if (ds != NULL)
         {
