@@ -42,6 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // For each pixel with hue, saturation and value compnents this
 // filter output the color coded as red, green, blue.
+// Output type must be the same as input type.
 
 
 
@@ -63,12 +64,12 @@ public:
   // Hue is an angle. Maximum specifies when it maps back to 0.
   // HueMaximum defaults to 255 instead of 2PI, because unsigned char
   // is expected as input.
-  // Output type must be the same as input type.
-  vtkSetMacro(HueMaximum,float);
-  vtkGetMacro(HueMaximum,float);
+  // Maximum also specifies the maximum of the Saturation, and R, G, B.
+  vtkSetMacro(Maximum,float);
+  vtkGetMacro(Maximum,float);
   
 protected:
-  float HueMaximum;
+  float Maximum;
   
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };

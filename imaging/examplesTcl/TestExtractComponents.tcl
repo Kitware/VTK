@@ -19,9 +19,9 @@ vtkImageGradient gradient
 gradient SetInput [reader GetOutput]
 gradient SetFilteredAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
 
-vtkImageExtractComponent extract
+vtkImageExtractComponents extract
 extract SetInput [gradient GetOutput]
-extract SetComponent 2
+extract SetComponents 2
 extract ReleaseDataFlagOff
 
 vtkImageViewer viewer

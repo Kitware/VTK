@@ -43,7 +43,8 @@ vtkImageConvolution1D \
 vtkImageDilateErode3D \
 vtkImageDivergence3D \
 vtkImageElipsoidSource \
-vtkImageExtractComponent \
+vtkImageEuclideanToPolar \
+vtkImageExtractComponents \
 vtkImageFFT \
 vtkImageFFT1D \
 vtkImageFeatureAnd \
@@ -86,6 +87,7 @@ vtkImageResample1D \
 vtkImageSeedConnectivity \
 vtkImageSeriesReader \
 vtkImageShiftScale \
+vtkImageShortWriter \
 vtkImageShrink3D \
 vtkImageSinusoidSource \
 vtkImageSkeleton2D \

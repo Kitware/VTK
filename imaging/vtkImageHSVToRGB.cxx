@@ -47,7 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //----------------------------------------------------------------------------
 vtkImageHSVToRGB::vtkImageHSVToRGB()
 {
-  this->HueMaximum = 255.0;
+  this->Maximum = 255.0;
   // One pixel at a time. (sssssslowwww)
   this->SetExecutionAxes(VTK_IMAGE_COMPONENT_AXIS);
 }
@@ -59,11 +59,10 @@ static void vtkImageHSVToRGBExecute(vtkImageHSVToRGB *self,
 				    vtkImageRegion *outRegion, T *outPtr)
 {
   float R, G, B, H, S, V, r, g, b;
-  float temp;
-  float hueMax = self->GetHueMaximum();
+  float max = self->GetMaximum();
   int inInc;
   int outInc;
-  float third = hueMax / 3.0;;
+  float third = max / 3.0;;
   
   inRegion->GetAxisIncrements(VTK_IMAGE_COMPONENT_AXIS, inInc);
   outRegion->GetAxisIncrements(VTK_IMAGE_COMPONENT_AXIS, outInc);
@@ -96,19 +95,20 @@ static void vtkImageHSVToRGBExecute(vtkImageHSVToRGB *self,
     }
   
   // add Saturation to the equation.
+  S = S / max;
   r = (1.0 + S*(3.0*r - 1.0))/3.0;
   g = (1.0 + S*(3.0*g - 1.0))/3.0;
   b = (1.0 + S*(3.0*b - 1.0))/3.0;
   
   // Use value to get actual RGB
-  R = r * V * 3.0 * 255.0;
-  G = g * V * 3.0 * 255.0;
-  B = b * V * 3.0 * 255.0;
+  R = r * V * 3.0 * max;
+  G = g * V * 3.0 * max;
+  B = b * V * 3.0 * max;
   
   // clip below 255
-  if (R > 255.0) R = 255.0;
-  if (G > 255.0) G = 255.0;
-  if (B > 255.0) B = 255.0;
+  if (R > 255.0) R = max;
+  if (G > 255.0) G = max;
+  if (B > 255.0) B = max;
 
   // assign output.
   *outPtr = (T)(R);
@@ -159,16 +159,16 @@ void vtkImageHSVToRGB::Execute(vtkImageRegion *inRegion,
 			      outRegion, (short *)outPtr);
       break;
     case VTK_INT:
-      vtkImageHSVToRGBExecute(this, inRegion, (float *)inPtr, 
-			      outRegion, (float *)outPtr);
+      vtkImageHSVToRGBExecute(this, inRegion, (int *)inPtr, 
+			      outRegion, (int *)outPtr);
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImageHSVToRGBExecute(this, inRegion, (float *)inPtr, 
-			      outRegion, (float *)outPtr);
+      vtkImageHSVToRGBExecute(this, inRegion, (unsigned short *)inPtr, 
+			      outRegion, (unsigned short *)outPtr);
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImageHSVToRGBExecute(this, inRegion, (float *)inPtr, 
-			      outRegion, (float *)outPtr);
+      vtkImageHSVToRGBExecute(this, inRegion, (unsigned char*)inPtr, 
+			      outRegion, (unsigned char *)outPtr);
       break;
     default:
       vtkErrorMacro("Unknown data type" << inRegion->GetScalarType());

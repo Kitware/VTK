@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageRGBToHSV.cxx
+  Module:    vtkImageEuclideanToPolar.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -40,77 +40,48 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkImageRegion.h"
-#include "vtkImageRGBToHSV.h"
+#include "vtkImageEuclideanToPolar.h"
 
 
 
 //----------------------------------------------------------------------------
-vtkImageRGBToHSV::vtkImageRGBToHSV()
+vtkImageEuclideanToPolar::vtkImageEuclideanToPolar()
 {
-  this->Maximum = 255.0;
+  this->ThetaMaximum = 255.0;
   // One pixel at a time. (sssssslowwww)
   this->SetExecutionAxes(VTK_IMAGE_COMPONENT_AXIS);
 }
 
 //----------------------------------------------------------------------------
 template <class T>
-static void vtkImageRGBToHSVExecute(vtkImageRGBToHSV *self,
+static void vtkImageEuclideanToPolarExecute(vtkImageEuclideanToPolar *self,
 				    vtkImageRegion *inRegion, T *inPtr,
 				    vtkImageRegion *outRegion, T *outPtr)
 {
-  float R, G, B, H, S, V;
-  float temp;
-  float max = self->GetMaximum();
+  float X, Y, Theta, R;
+  float thetaMax = self->GetThetaMaximum();
   int inInc;
   int outInc;
   
   inRegion->GetAxisIncrements(VTK_IMAGE_COMPONENT_AXIS, inInc);
   outRegion->GetAxisIncrements(VTK_IMAGE_COMPONENT_AXIS, outInc);
   
-  R = (float)(*inPtr);
+  X = (float)(*inPtr);
   inPtr += inInc;
-  G = (float)(*inPtr);
-  inPtr += inInc;
-  B = (float)(*inPtr);
+  Y = (float)(*inPtr);
 
-  temp = (float)(R + G + B);
-  // Value is easy
-  V = temp / 3.0;
+  Theta = atan2(X, Y);
+  R = sqrt(X*X + Y*Y);
 
-  // Hue
-  temp = acos((0.5 * ((R-G) + (R-B))) / sqrt((R-G)*(R-G) + (R-B)*(G-B)));
-  if (G >= B)
-    {
-    H = max * (temp / 6.2831853);
-    }
-  else
-    {
-    H = max * (1.0 - (temp / 6.2831853));
-    }
-  
-  // Saturation
-  temp = R;
-  if (G < temp)
-    {
-    temp = G;
-    }
-  if (B < temp)
-    {
-    temp = B;
-    }
-  S = max * (1.0 - (3.0 * temp / (R+G+B)));
-  
   // assign output.
-  *outPtr = (T)(H);
+  *outPtr = (T)(Theta);
   outPtr += outInc;
-  *outPtr = (T)(S);
-  outPtr += outInc;
-  *outPtr = (T)(V);
+  *outPtr = (T)(R);
 }
 
 
 //----------------------------------------------------------------------------
-void vtkImageRGBToHSV::Execute(vtkImageRegion *inRegion, 
+void vtkImageEuclideanToPolar::Execute(vtkImageRegion *inRegion, 
 			       vtkImageRegion *outRegion)
 {
   int min, max;
@@ -126,13 +97,13 @@ void vtkImageRGBToHSV::Execute(vtkImageRegion *inRegion,
     return;
     }
   inRegion->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, min, max);
-  if (max - min + 1 < 3)
+  if (max - min + 1 < 2)
     {
     vtkErrorMacro("Input has too few components");
     return;
     }
   outRegion->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, min, max);
-  if (max - min + 1 < 3)
+  if (max - min + 1 < 2)
     {
     vtkErrorMacro("Output has too few components");
     return;
@@ -141,23 +112,23 @@ void vtkImageRGBToHSV::Execute(vtkImageRegion *inRegion,
   switch (inRegion->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImageRGBToHSVExecute(this, inRegion, (float *)inPtr, 
+      vtkImageEuclideanToPolarExecute(this, inRegion, (float *)inPtr, 
 			      outRegion, (float *)outPtr);
       break;
     case VTK_SHORT:
-      vtkImageRGBToHSVExecute(this, inRegion, (short *)inPtr, 
+      vtkImageEuclideanToPolarExecute(this, inRegion, (short *)inPtr, 
 			      outRegion, (short *)outPtr);
       break;
     case VTK_INT:
-      vtkImageRGBToHSVExecute(this, inRegion, (int *)inPtr, 
+      vtkImageEuclideanToPolarExecute(this, inRegion, (int *)inPtr, 
 			      outRegion, (int *)outPtr);
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImageRGBToHSVExecute(this, inRegion, (unsigned short *)inPtr, 
+      vtkImageEuclideanToPolarExecute(this, inRegion, (unsigned short *)inPtr, 
 			      outRegion, (unsigned short *)outPtr);
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImageRGBToHSVExecute(this, inRegion, (unsigned char*)inPtr, 
+      vtkImageEuclideanToPolarExecute(this, inRegion, (unsigned char*)inPtr, 
 			      outRegion, (unsigned char *)outPtr);
       break;
     default:

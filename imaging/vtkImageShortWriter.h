@@ -54,6 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <fstream.h>
 #include "vtkObject.h"
 #include "vtkImageCache.h"
+#include "vtkStructuredPoints.h"
 #include "vtkStructuredPointsToImage.h"
 #include "vtkImageRegion.h"
 

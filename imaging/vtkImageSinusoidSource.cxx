@@ -151,11 +151,12 @@ void vtkImageSinusoidSource::Execute(vtkImageRegion *region)
   
   for (idx = min; idx <= max; ++idx)
     {
+    extent[0] = idx;
     // find dot product
     sum = 0.0;
     for (idx2 = 0; idx2 < 4; ++idx2)
       {
-      sum += (float)(extent[idx*2]) * this->Direction[idx];
+      sum += (float)(extent[idx2*2]) * this->Direction[idx2];
       }
     
     *ptr = this->Amplitude * 

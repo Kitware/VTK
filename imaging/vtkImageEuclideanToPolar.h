@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageExtractComponent.h
+  Module:    vtkImageEuclideanToPolar.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,45 +38,39 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageExtractComponent - Outputs a sinlge component
+// .NAME vtkImageEuclideanToPolar - Converts 2D Euclidean coordinates to polar.
 // .SECTION Description
-// vtkImageExtractComponent takes an input with any number of components
-// and outputs one of them.  It does involve a copy of the data.
+// For each pixel with vector components x,y, this filter outputs theta radius.
 
-
-#ifndef __vtkImageExtractComponent_h
-#define __vtkImageExtractComponent_h
+#ifndef __vtkImageEuclideanToPolar_h
+#define __vtkImageEuclideanToPolar_h
 
 
 #include "vtkImageFilter.h"
 
-class VTK_EXPORT vtkImageExtractComponent : public vtkImageFilter
+class VTK_EXPORT vtkImageEuclideanToPolar : public vtkImageFilter
 {
 public:
-  vtkImageExtractComponent();
-  static vtkImageExtractComponent *New(){return new vtkImageExtractComponent;};
-  const char *GetClassName() {return "vtkImageExtractComponent";};
+  vtkImageEuclideanToPolar();
+  static vtkImageEuclideanToPolar *New() 
+    {return new vtkImageEuclideanToPolar;};
+  const char *GetClassName() {return "vtkImageEuclideanToPolar";};
 
   // Description:
-  // Set/Get the component to extract.
-  vtkSetMacro(Component, int);
-  vtkGetMacro(Component, int);
+  // Theta is an angle. Maximum specifies when it maps back to 0.
+  // ThetaMaximum defaults to 255 instead of 2PI, because unsigned char
+  // is expected as input.
+  // Output type must be the same as input type.
+  vtkSetMacro(ThetaMaximum,float);
+  vtkGetMacro(ThetaMaximum,float);
   
 protected:
-  int Component;
+  float ThetaMaximum;
   
-  void ExecuteImageInformation(vtkImageCache *in1, vtkImageCache *out);
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 
 #endif
-
-
-
-
-
-
-
 
 
 

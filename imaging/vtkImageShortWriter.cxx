@@ -42,6 +42,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
+#include "vtkImageRegion.h"
+#include "vtkImageCache.h"
+#include "vtkStructuredPoints.h"
 #include "vtkImageShortWriter.h"
 
 
@@ -271,8 +274,8 @@ void vtkImageShortWriter::GetExtent(int num, int *extent)
 // WholeImage flag and Extent.
 void vtkImageShortWriter::Write()
 {
-  vtkImageRegion *region = vtkImageRegion::New();
   int *extent;
+  vtkImageRegion *region;
   
   // Error checking
   if ( this->Input == NULL )
@@ -297,19 +300,22 @@ void vtkImageShortWriter::Write()
   region->SetAxes(VTK_IMAGE_DIMENSIONS, this->Axes);
   
   // Fill in image information.
-  this->Input->UpdateImageInformation(region);
+  this->Input->UpdateImageInformation();
 
   // Determine the extent of the region we are writing
   if (this->WholeImage)
     {
-    extent = region->GetImageExtent();
-    region->SetExtent(VTK_IMAGE_DIMENSIONS, extent);    
+    extent = this->Input->GetWholeExtent();
+    this->Input->SetUpdateExtent(extent);    
     }
   else
     {
-    region->SetExtent(VTK_IMAGE_DIMENSIONS, this->Extent);
+    // Note: DOes not consider axes !!!!!!!!!!!!!!!!!!!
+    this->Input->SetUpdateExtent(this->Extent);
     }
 
+  this->Input->Update();
+  region = this->Input->GetScalarRegion();
   this->WriteRegion(region);
   region->Delete();
 }
@@ -321,56 +327,7 @@ void vtkImageShortWriter::Write()
 // comunicates the extent.
 void vtkImageShortWriter::WriteRegion(vtkImageRegion *region)
 {
-  long memory;
-  
-  // Compute the amount of memory used by the region.
-  memory = region->GetExtentMemorySize();
-  
-  // Handle streaming by splitting the request.
-  if ( memory > this->InputMemoryLimit)
-    {
-    int splitAxisIdx, splitAxis;
-    int min, max, mid;
-    // We need to split the region.
-    // Pick an axis to split
-    splitAxisIdx = 0;
-    splitAxis = this->SplitOrder[splitAxisIdx];
-    region->GetAxisExtent(splitAxis, min, max);
-    while ( (min == max) && splitAxisIdx < 3)
-      {
-      ++splitAxisIdx;
-      splitAxis = this->SplitOrder[splitAxisIdx];
-      region->GetAxisExtent(splitAxis, min, max);
-      }
-    // Special case if we need to split an image
-    if (min == max)
-      {
-      vtkWarningMacro(<< "WriteRegion: Cannot split an image (yet). memory = "
-        << memory << ", limit = " << this->InputMemoryLimit << ", "
-        << vtkImageAxisNameMacro(splitAxis) << ": " << min << "->" << max);
-
-      // Request the data anyway
-      this->Input->Update(region);
-      this->WriteRegionData(region);
-      return;
-      }
-    // Set the first half to save
-    mid = (min + max) / 2;
-    vtkDebugMacro(<< "WriteRegion: Splitting " 
-        << vtkImageAxisNameMacro(splitAxis) << ": " << min << "->" << mid
-        << ", " << mid+1 << "->" << max);
-    region->SetAxisExtent(splitAxis, min, mid);
-    this->WriteRegion(region);
-    // Set the second half to save
-    region->SetAxisExtent(splitAxis, mid+1, max);
-    this->WriteRegion(region);
-    // Restore the original extent
-    region->SetAxisExtent(splitAxis, min, max);
-    return;
-    }
-  
-  // Get the actual data
-  this->Input->Update(region);
+  // no streaming
   this->WriteRegionData(region);
 }
 
@@ -497,10 +454,10 @@ void vtkImageShortWriter::WriteRegion2D(vtkImageRegion *region)
 {
   void *ptr = region->GetScalarPointer();
   int *extent = region->GetExtent();
-  int *imageExtent = region->GetImageExtent();
+  int *WholeExtent = region->GetWholeExtent();
   int fileNumber;
   
-  fileNumber = extent[4] * (imageExtent[7] - imageExtent[6] + 1) + extent[6]+1;
+  fileNumber = extent[4] * (WholeExtent[7] - WholeExtent[6] + 1) + extent[6]+1;
   sprintf(this->FileName, this->FilePattern, this->FilePrefix, fileNumber);
   vtkDebugMacro(<<"WriteRegion2D: " << this->FileName);
   
