@@ -11,6 +11,11 @@ vtkUnstructuredGridReader r
     r SetFileName "../../../vtkdata/fieldfile.vtk"
     r Update
 
+vtkUnstructuredGridWriter w
+    w SetFileName "fieldfile.vtk"
+    w SetInput [r GetOutput]
+    w Update
+
 set a [[[[r GetOutput] GetCellData] GetFieldData] GetArray 0]
 
 vtkScalars s
