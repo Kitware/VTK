@@ -4,6 +4,7 @@
   Module:    vtkImageReslice.cxx
   Language:  C++
   Date:      $Date$
+
   Version:   $Revision$
   Thanks:    Thanks to David G Gobbi who developed this class.
 
@@ -44,9 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkImageReslice* vtkImageReslice::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -58,9 +57,6 @@ vtkImageReslice* vtkImageReslice::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkImageReslice;
 }
-
-
-
 
 //----------------------------------------------------------------------------
 vtkImageReslice::vtkImageReslice()
@@ -227,23 +223,6 @@ vtkMatrix4x4 *vtkImageReslice::GetIndexMatrix()
 }
 
 //----------------------------------------------------------------------------
-
-// there were bugs either in ComputeRequiredInputUpdateExtent
-// or in vtkImageResliceExecute, so for now just set the required
-// input extent to the whole extent
-void vtkImageReslice::ComputeRequiredInputUpdateExtent(int inExt[6], 
-					               int outExt[6])
-{
-  int i;
-  int *wholeExtent = this->GetInput()->GetWholeExtent();
-
-  for (i = 0; i < 6; i++)
-    {
-    inExt[i] = wholeExtent[i];
-    }
-}
-
-/*
 static void ComputeInputUpdateExtentOptimized(vtkImageReslice *self,
 					      int inExt[6], 
 					      int outExt[6]);
@@ -337,7 +316,6 @@ void vtkImageReslice::ComputeRequiredInputUpdateExtent(int inExt[6],
       }
     }
 }
-*/
 
 //----------------------------------------------------------------------------
 void vtkImageReslice::ExecuteInformation(vtkImageData *input, 
@@ -348,10 +326,10 @@ void vtkImageReslice::ExecuteInformation(vtkImageData *input,
   float inOrigin[3],maxOut[3],minOut[3],tmp;
   float *inSpacing;
 
-  int *inExt;
+  int *inWholeExt;
 
   input->UpdateInformation();
-  inExt = input->GetWholeExtent();
+  inWholeExt = input->GetWholeExtent();
   inSpacing = input->GetSpacing();
   input->GetOrigin(inOrigin);
   
@@ -414,9 +392,9 @@ invertible");
     
     for (i = 0; i < 8; i++)
       {
-      inPoint[0] = inOrigin[0] + inExt[i%2]*inSpacing[0];
-      inPoint[1] = inOrigin[1] + inExt[2+(i/2)%2]*inSpacing[1];
-      inPoint[2] = inOrigin[2] + inExt[4+(i/4)%2]*inSpacing[2];
+      inPoint[0] = inOrigin[0] + inWholeExt[i%2]*inSpacing[0];
+      inPoint[1] = inOrigin[1] + inWholeExt[2+(i/2)%2]*inSpacing[1];
+      inPoint[2] = inOrigin[2] + inWholeExt[4+(i/4)%2]*inSpacing[2];
       inPoint[3] = 1;
       
       matrix->MultiplyPoint(inPoint,outPoint);
@@ -437,8 +415,8 @@ invertible");
     
     for (i = 0; i < 3; i++)
       {
-      this->OutputExtent[2*i] = inExt[2*i];
-      this->OutputExtent[2*i+1] = inExt[2*i]+
+      this->OutputExtent[2*i] = inWholeExt[2*i];
+      this->OutputExtent[2*i+1] = inWholeExt[2*i]+
 	int(ceil((maxOut[i]-minOut[i]+1)/this->OutputSpacing[i])) - 1;
       }    
     }
@@ -448,7 +426,8 @@ invertible");
     {
     for (i = 0; i < 3; i++)
       {
-      inPoint[i] = inOrigin[i] + inSpacing[i]*(inExt[2*i]+inExt[2*i+1])*0.5;
+      inPoint[i] = inOrigin[i] + 
+	inSpacing[i]*(inWholeExt[2*i]+inWholeExt[2*i+1])*0.5;
       }
     inPoint[3] = 1;
 
@@ -614,7 +593,8 @@ static inline int vtkInterpolateMirror(int num, int range)
 template <class T>
 static int vtkTrilinearInterpolation(float *point, T *inPtr, T *outPtr,
 				     T *background, int numscalars, 
-				     int inExt[6], int inInc[3])
+				     int inExt[6], int inDim[3],
+				     int inInc[3])
 {
   int i;
 
@@ -698,7 +678,8 @@ static int vtkTrilinearInterpolation(float *point, T *inPtr, T *outPtr,
 template <class T>
 static int vtkTrilinearInterpolationRepeat(float *point, T *inPtr, T *outPtr,
 					   T *mirror, int numscalars, 
-					   int inExt[6], int inInc[3])
+					   int inExt[6], int inDim[3],
+					   int inInc[3])
 {
   int i;
 
@@ -728,32 +709,28 @@ static int vtkTrilinearInterpolationRepeat(float *point, T *inPtr, T *outPtr,
   int inIdY = floorY-inExt[2];
   int inIdZ = floorZ-inExt[4];
 
-  int inExtX = inExt[1]-inExt[0]+1;
-  int inExtY = inExt[3]-inExt[2]+1;
-  int inExtZ = inExt[5]-inExt[4]+1;
-
   int factX, factY, factZ;
   int factX1, factY1, factZ1;
 
   if (*mirror)
     {
-    factX = vtkInterpolateMirror(inIdX,inExtX)*inInc[0];
-    factY = vtkInterpolateMirror(inIdY,inExtY)*inInc[1];
-    factZ = vtkInterpolateMirror(inIdZ,inExtZ)*inInc[2];
+    factX = vtkInterpolateMirror(inIdX,inDim[0])*inInc[0];
+    factY = vtkInterpolateMirror(inIdY,inDim[1])*inInc[1];
+    factZ = vtkInterpolateMirror(inIdZ,inDim[2])*inInc[2];
 
-    factX1 = vtkInterpolateMirror(inIdX+1,inExtX)*inInc[0];
-    factY1 = vtkInterpolateMirror(inIdY+1,inExtY)*inInc[1];
-    factZ1 = vtkInterpolateMirror(inIdZ+1,inExtZ)*inInc[2];
+    factX1 = vtkInterpolateMirror(inIdX+1,inDim[0])*inInc[0];
+    factY1 = vtkInterpolateMirror(inIdY+1,inDim[1])*inInc[1];
+    factZ1 = vtkInterpolateMirror(inIdZ+1,inDim[2])*inInc[2];
     }
   else
     {
-    factX = vtkInterpolateWrap(inIdX,inExtX)*inInc[0];
-    factY = vtkInterpolateWrap(inIdY,inExtY)*inInc[1];
-    factZ = vtkInterpolateWrap(inIdZ,inExtZ)*inInc[2];
+    factX = vtkInterpolateWrap(inIdX,inDim[0])*inInc[0];
+    factY = vtkInterpolateWrap(inIdY,inDim[1])*inInc[1];
+    factZ = vtkInterpolateWrap(inIdZ,inDim[2])*inInc[2];
 
-    factX1 = vtkInterpolateWrap(inIdX+1,inExtX)*inInc[0];
-    factY1 = vtkInterpolateWrap(inIdY+1,inExtY)*inInc[1];
-    factZ1 = vtkInterpolateWrap(inIdZ+1,inExtZ)*inInc[2];
+    factX1 = vtkInterpolateWrap(inIdX+1,inDim[0])*inInc[0];
+    factY1 = vtkInterpolateWrap(inIdY+1,inDim[1])*inInc[1];
+    factZ1 = vtkInterpolateWrap(inIdZ+1,inDim[2])*inInc[2];
     }
 
   int i000 = factX+factY+factZ;
@@ -795,7 +772,8 @@ static int vtkTrilinearInterpolationRepeat(float *point, T *inPtr, T *outPtr,
 template <class T>
 static int vtkNearestNeighborInterpolation(float *point, T *inPtr, T *outPtr,
                                            T *background, int numscalars, 
-                                           int inExt[6], int inInc[3])
+                                           int inExt[6], int inDim[3],
+					   int inInc[3])
 {
   int i;
   int inIdX = int(point[0]+1.5)-inExt[0]-1;
@@ -831,7 +809,9 @@ template <class T>
 static int vtkNearestNeighborInterpolationRepeat(float *point, T *inPtr, 
 						 T *outPtr,
 						 T *mirror, int numscalars, 
-						 int inExt[6], int inInc[3])
+						 int inExt[6], 
+						 int inDim[3],
+						 int inInc[3])
 {
   int i;
 
@@ -861,21 +841,15 @@ static int vtkNearestNeighborInterpolationRepeat(float *point, T *inPtr,
 
   if (*mirror)
     {
-      inIdX = vtkInterpolateMirror(floorX-inExt[0],
-				   inExt[1]-inExt[0]+1);
-      inIdY = vtkInterpolateMirror(floorY-inExt[2],
-				   inExt[3]-inExt[2]+1);
-      inIdZ = vtkInterpolateMirror(floorZ-inExt[4],
-				   inExt[5]-inExt[4]+1);
+      inIdX = vtkInterpolateMirror(floorX-inExt[0],inDim[0]);
+      inIdY = vtkInterpolateMirror(floorY-inExt[2],inDim[1]);
+      inIdZ = vtkInterpolateMirror(floorZ-inExt[4],inDim[2]);
     }
   else
     {
-      inIdX = vtkInterpolateWrap(floorX-inExt[0],
-				 inExt[1]-inExt[0]+1);
-      inIdY = vtkInterpolateWrap(floorY-inExt[2],
-				 inExt[3]-inExt[2]+1);
-      inIdZ = vtkInterpolateWrap(floorZ-inExt[4],
-				 inExt[5]-inExt[4]+1);
+      inIdX = vtkInterpolateWrap(floorX-inExt[0],inDim[0]);
+      inIdY = vtkInterpolateWrap(floorY-inExt[2],inDim[1]);
+      inIdZ = vtkInterpolateWrap(floorZ-inExt[4],inDim[2]);
     }
   
   inPtr += inIdX*inInc[0]+inIdY*inInc[1]+inIdZ*inInc[2];
@@ -947,7 +921,8 @@ void vtkImageResliceSetInterpCoeffs(float F[4],int *l, int *m, float f,
 template <class T>
 static int vtkTricubicInterpolation(float *point, T *inPtr, T *outPtr,
 				    T *background, int numscalars, 
-				    int inExt[6], int inInc[3])
+				    int inExt[6], int inDim[3],
+				    int inInc[3])
 {
   int i;
   int factX[4],factY[4],factZ[4];
@@ -1053,7 +1028,8 @@ static int vtkTricubicInterpolation(float *point, T *inPtr, T *outPtr,
 template <class T>
 static int vtkTricubicInterpolationRepeat(float *point, T *inPtr, T *outPtr,
 					  T *mirror, int numscalars, 
-					  int inExt[6], int inInc[3])
+					  int inExt[6], int inDim[3],
+					  int inInc[3])
 {
   int i;
   int factX[4],factY[4],factZ[4];
@@ -1084,10 +1060,6 @@ static int vtkTricubicInterpolationRepeat(float *point, T *inPtr, T *outPtr,
   int inIdY = floorY-inExt[2];
   int inIdZ = floorZ-inExt[4];
 
-  int inExtX = inExt[1]-inExt[0]+1;
-  int inExtY = inExt[3]-inExt[2]+1;
-  int inExtZ = inExt[5]-inExt[4]+1;
-
   float fX[4],fY[4],fZ[4];
   double vY,vZ,val;
   T *inPtr1, *inPtr2;
@@ -1097,18 +1069,18 @@ static int vtkTricubicInterpolationRepeat(float *point, T *inPtr, T *outPtr,
     {
     for (i = 0; i < 4; i++)
       {
-      factX[i] = vtkInterpolateMirror(inIdX-1+i,inExtX)*inInc[0];
-      factY[i] = vtkInterpolateMirror(inIdY-1+i,inExtY)*inInc[1];
-      factZ[i] = vtkInterpolateMirror(inIdZ-1+i,inExtZ)*inInc[2];
+      factX[i] = vtkInterpolateMirror(inIdX-1+i,inDim[0])*inInc[0];
+      factY[i] = vtkInterpolateMirror(inIdY-1+i,inDim[1])*inInc[1];
+      factZ[i] = vtkInterpolateMirror(inIdZ-1+i,inDim[2])*inInc[2];
       }
     }
   else
     {
     for (i = 0; i < 4; i++)
       {
-      factX[i] = vtkInterpolateWrap(inIdX-1+i,inExtX)*inInc[0];
-      factY[i] = vtkInterpolateWrap(inIdY-1+i,inExtY)*inInc[1];
-      factZ[i] = vtkInterpolateWrap(inIdZ-1+i,inExtZ)*inInc[2];
+      factX[i] = vtkInterpolateWrap(inIdX-1+i,inDim[0])*inInc[0];
+      factY[i] = vtkInterpolateWrap(inIdY-1+i,inDim[1])*inInc[1];
+      factZ[i] = vtkInterpolateWrap(inIdZ-1+i,inDim[2])*inInc[2];
       }
     }
 
@@ -1159,17 +1131,19 @@ static void vtkImageResliceExecute(vtkImageReslice *self,
   int i, numscalars;
   int idX, idY, idZ;
   int outIncX, outIncY, outIncZ;
-  int inExt[6], inInc[3];
+  int inExt[6], inWholeExt[6], inInc[3];
   unsigned long count = 0;
   unsigned long target;
   float inPoint[4],outPoint[4];
   T *background;
   int (*interpolate)(float *point, T *inPtr, T *outPtr,
 		     T *background, int numscalars, 
-		     int inExt[6], int inInc[3]);
+		     int inExt[6], int inWholeExt[6], 
+		     int inInc[3]);
   
   // find maximum input range
   inData->GetExtent(inExt);
+  inData->GetWholeExtent(inWholeExt);
   
   target = (unsigned long)
     ((outExt[5]-outExt[4]+1)*(outExt[3]-outExt[2]+1)/50.0);
@@ -1261,7 +1235,7 @@ static void vtkImageResliceExecute(vtkImageReslice *self,
 	inPoint[3] = 1;
 	
 	interpolate(inPoint, inPtr, outPtr, background, 
-		    numscalars, inExt, inInc);
+		    numscalars, inExt, inWholeExt, inInc);
 
 	outPtr += numscalars; 
 	}
@@ -1718,8 +1692,8 @@ static void vtkOptimizedExecute(vtkImageReslice *self,
   int idX, idY, idZ;
   int outIncX, outIncY, outIncZ;
   int inIdX, inIdY, inIdZ;
-  int inExt[6];
-  int inMax[3], inMin[3];
+  int inExt[6],inWholeExt[6];
+  int inMax[3], inMin[3], inDim[3];
   int inInc[3];
   unsigned long count = 0;
   unsigned long target;
@@ -1728,20 +1702,22 @@ static void vtkOptimizedExecute(vtkImageReslice *self,
   double inPoint1[4];
   float inPoint[4];
   double xAxis[4], yAxis[4], zAxis[4], origin[4];
-  T *inPtr1;
   double w;
   T *background;
   int (*interpolate)(float *point, T *inPtr, T *outPtr,
 		     T *background, int numscalars, 
-		     int inExt[6], int inInc[3]);
+		     int inExt[6], int inDim[3], 
+		     int inInc[3]);
 
   // find maximum input range
-  self->GetInput()->GetWholeExtent(inExt);
+  self->GetInput()->GetWholeExtent(inWholeExt);
+  self->GetInput()->GetExtent(inExt);
 
   for (i = 0; i < 3; i++)
     {
-    inMin[i] = inExt[2*i];
-    inMax[i] = inExt[2*i+1];
+    inMin[i] = inWholeExt[2*i];
+    inMax[i] = inWholeExt[2*i+1];
+    inDim[i] = inMax[i]-inMin[i]+1;
     }
   
   target = (unsigned long)
@@ -1850,7 +1826,7 @@ static void vtkOptimizedExecute(vtkImageReslice *self,
 	  inPoint[3] = 1;
 
 	  interpolate(inPoint, inPtr, outPtr, background, 
-		      numscalars, inExt, inInc);
+		      numscalars, inExt, inDim, inInc);
 	  outPtr += numscalars;
 	  }
 	}
@@ -1909,12 +1885,14 @@ static void vtkOptimizedExecute(vtkImageReslice *self,
 	    inPoint[3] = 1;
 	    
 	    interpolate(inPoint, inPtr, outPtr, background, 
-			numscalars, inExt, inInc);
+			numscalars, inExt, inDim, inInc);
 	    outPtr += numscalars;
 	    }
 	  }
 	else
 	  {  // Nearest-Neighbor, no extent checks
+	  T *inPtr1;
+
 	  for (idX = r1; idX <= r2; idX++)
 	    {
 	    w = inPoint1[3]+idX*xAxis[3]; // don't forget w!  
