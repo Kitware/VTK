@@ -67,6 +67,7 @@ IF (VTK_USE_RENDERING)
       hull
       Hyper
       KlineBottle
+      LineIntersectQuadraticCells
       motor
       MatrixToTransform
       mergeFilter
