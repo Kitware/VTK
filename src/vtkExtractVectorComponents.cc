@@ -172,11 +172,9 @@ void vtkExtractVectorComponents::Update()
 void vtkExtractVectorComponents::Execute()
 {
   int i, numVectors;
-  float s, *v;
+  float *v;
   vtkVectors *vectors;
   vtkFloatScalars *vx, *vy, *vz;
-  vtkDataSet *input=this->Input;
-  vtkDataSet *output=this->Output;
   vtkPointData *pd, *outVx, *outVy, *outVz;
 
   vtkDebugMacro(<<"Extracting vector components...");
