@@ -569,3 +569,41 @@ void vtkTclCreateNew(Tcl_Interp *interp, const char *cname,
                    (ClientData *)cs,
                    (Tcl_CmdDeleteProc *)vtkTclDeleteCommandStruct);
 }
+
+
+vtkTclCommand::vtkTclCommand()
+{ 
+  this->Interp = NULL; 
+  this->StringCommand = NULL;
+}
+
+vtkTclCommand::~vtkTclCommand() 
+{ 
+  delete [] this->StringCommand;
+}
+  
+void vtkTclCommand::Execute(vtkObject *, unsigned long, void *)
+{
+  int res;
+  res = Tcl_GlobalEval(this->Interp, this->StringCommand);
+  
+  if (res == TCL_ERROR)
+    {
+    if (Tcl_GetVar(this->Interp,(char *) "errorInfo",0))
+      {
+      vtkGenericWarningMacro("Error returned from vtk/tcl callback:\n" <<
+			     this->StringCommand << endl <<
+			     Tcl_GetVar(this->Interp,(char *) "errorInfo",0) <<
+			     " at line number " << this->Interp->errorLine);
+      }
+    else
+      {
+      vtkGenericWarningMacro("Error returned from vtk/tcl callback:\n" <<
+			     this->StringCommand << endl <<
+			     " at line number " << 
+			     this->Interp->errorLine);
+      }
+    }
+}
+
+

@@ -88,43 +88,20 @@ void vtkTclCreateNew(Tcl_Interp *interp, const char *cname,
 class vtkTclCommand : public vtkCommand
 {
 public:
-  vtkTclCommand() { this->Interp = NULL; this->StringCommand = NULL;};
-  ~vtkTclCommand() 
-    { 
-      delete [] this->StringCommand;
-    };
+  vtkTclCommand();
+  ~vtkTclCommand(); 
+  static vtkTclCommand *New() { return new vtkTclCommand; };
+
   void SetStringCommand(char *arg) { this->StringCommand = arg; };
   void SetInterp(Tcl_Interp *interp) { this->Interp = interp; };
   
-  void Execute(vtkObject *, unsigned long, void *)
-    {
-      int res;
-      res = Tcl_GlobalEval(this->Interp, this->StringCommand);
-      
-      if (res == TCL_ERROR)
-        {
-        if (Tcl_GetVar(this->Interp,(char *) "errorInfo",0))
-          {
-          vtkGenericWarningMacro("Error returned from vtk/tcl callback:\n" <<
-                                 this->StringCommand << endl <<
-                                 Tcl_GetVar(this->Interp,(char *) "errorInfo",0) <<
-                                 " at line number " << this->Interp->errorLine);
-          }
-        else
-          {
-          vtkGenericWarningMacro("Error returned from vtk/tcl callback:\n" <<
-                                 this->StringCommand << endl <<
-                                 " at line number " << 
-                                 this->Interp->errorLine);
-          }
-        }
-    };
-  
+  void Execute(vtkObject *, unsigned long, void *);
+
   char *StringCommand;
   Tcl_Interp *Interp;
 };
 
-typedef  struct _vtkTclVoidFuncArg 
+typedef struct _vtkTclVoidFuncArg 
 {
   Tcl_Interp *interp;
   char *command;

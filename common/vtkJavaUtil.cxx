@@ -596,7 +596,44 @@ jobject vtkJavaExportedGetObjectFromPointer(void *ptr)
 	return vtkJavaGetObjectFromPointer(ptr);
 }
 
-void* vtkJavaExportedGetPointerFromObject(JNIEnv *env,jobject obj, char *result_type)
+void* vtkJavaExportedGetPointerFromObject(JNIEnv *env,jobject obj, 
+					  char *result_type)
 {
 	return vtkJavaGetPointerFromObject(env, obj, result_type);
 }
+
+vtkJavaCommand::vtkJavaCommand() 
+{ 
+  this->vm = NULL;
+}
+
+vtkJavaCommand::~vtkJavaCommand() 
+{ 
+  JNIEnv *e;
+  // it should already be atached
+#ifdef JNI_VERSION_1_2
+  this->vm->AttachCurrentThread((void **)(&e),NULL);
+#else
+  this->vm->AttachCurrentThread((JNIEnv_**)(&e),NULL);
+#endif
+  // free the structure
+  e->DeleteGlobalRef(this->uobj);
+}
+
+void vtkJavaCommand::Execute(vtkObject *, unsigned long, void *)
+{
+  // make sure we have a valid method ID
+  if (this->mid)
+    {
+    JNIEnv *e;
+    // it should already be atached
+#ifdef JNI_VERSION_1_2
+    this->vm->AttachCurrentThread((void **)(&e),NULL);
+#else
+    this->vm->AttachCurrentThread((JNIEnv_**)(&e),NULL);
+#endif
+    e->CallVoidMethod(this->uobj,this->mid,NULL); 
+    }
+}
+
+

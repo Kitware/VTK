@@ -87,38 +87,15 @@ extern JNIEXPORT void vtkJavaVoidFuncArgDelete(void *);
 class vtkJavaCommand : public vtkCommand
 {
 public:
-  vtkJavaCommand() { this->vm = NULL;};
-  ~vtkJavaCommand() 
-    { 
-    JNIEnv *e;
-    // it should already be atached
-#ifdef JNI_VERSION_1_2
-    this->vm->AttachCurrentThread((void **)(&e),NULL);
-#else
-    this->vm->AttachCurrentThread((JNIEnv_**)(&e),NULL);
-#endif
-    // free the structure
-    e->DeleteGlobalRef(this->uobj);
-    };
+  vtkJavaCommand();
+  ~vtkJavaCommand();
+  static vtkJavaCommand *New() { return new vtkJavaCommand; };
+
   void SetGlobalRef(jobject obj) { this->uobj = obj; };
   void SetMethodID(jmethodID id) { this->mid = id; };
   void AssignJavaVM(JNIEnv *env) { env->GetJavaVM(&(this->vm)); };
   
-  void Execute(vtkObject *, unsigned long, void *)
-    {
-    // make sure we have a valid method ID
-    if (this->mid)
-      {
-      JNIEnv *e;
-      // it should already be atached
-#ifdef JNI_VERSION_1_2
-      this->vm->AttachCurrentThread((void **)(&e),NULL);
-#else
-      this->vm->AttachCurrentThread((JNIEnv_**)(&e),NULL);
-#endif
-      e->CallVoidMethod(this->uobj,this->mid,NULL); 
-      }
-    };
+  void Execute(vtkObject *, unsigned long, void *);
   
   JavaVM *vm;
   jobject  uobj;
