@@ -21,6 +21,7 @@ vtkAbstractMapper \
 vtkAbstractTransform \
 vtkAttributeData \
 vtkCell \
+vtkCommand \
 vtkDataArray \
 vtkDataSet \
 vtkHomogeneousTransform \
@@ -50,7 +51,6 @@ vtkCellLinks \
 vtkCellTypes \
 vtkCharArray \
 vtkCollection \
-vtkCommand \
 vtkContourValues \
 vtkCoordinate \
 vtkCriticalSection \
