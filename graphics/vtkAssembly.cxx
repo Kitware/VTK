@@ -235,6 +235,21 @@ void vtkAssembly::DeletePaths()
     }
 }
 
+// Recursive application of properties to all parts composing assembly.
+void vtkAssembly::ApplyProperties()
+{
+  vtkActor *part;
+  vtkProperty *prop=this->GetProperty();
+  vtkProperty *actorProp;
+
+  for (this->Parts.InitTraversal(); (part = this->Parts.GetNextItem()); )
+    {
+    actorProp = part->GetProperty();
+    *actorProp = *prop;
+    part->ApplyProperties();
+    }
+}
+
 // Description:
 // Get the bounds for the assembly as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
 float *vtkAssembly::GetBounds()

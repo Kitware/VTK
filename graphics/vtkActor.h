@@ -146,6 +146,15 @@ class VTK_EXPORT vtkActor : public vtkProp
   virtual void BuildPaths(vtkAssemblyPaths *paths, vtkActorCollection *path);
 
   // Description:
+  // Apply the current properties to all parts that compose this actor.
+  // This method is overloaded in vtkAssembly to apply the assemblies'
+  // properties to all its parts in a recursive manner. Typically the
+  // use of this method is to set the desired properties in the assembly,
+  // and then push the properties down to the assemblies parts with
+  // ApplyProperties().
+  virtual void ApplyProperties() {return;};
+
+  // Description:
   // Update visualization pipeline and any other parts of actor that are
   // necessary.
   virtual void Update();

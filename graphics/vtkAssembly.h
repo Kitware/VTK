@@ -115,6 +115,8 @@ public:
 
   void BuildPaths(vtkAssemblyPaths *paths, vtkActorCollection *path);
 
+  void ApplyProperties(); //recursive application of properties
+
   float *GetBounds();
   unsigned long int GetMTime();
 
