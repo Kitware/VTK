@@ -1377,4 +1377,8 @@ void vtkFunctionParser::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Function: "
      << (this->Function ? this->Function : "(none)") << endl;
+  os << indent << "NumberOfScalarVariables: "
+     << this->NumberOfScalarVariables << endl;
+  os << indent << "NumberOfVectorVariables: "
+     << this->NumberOfVectorVariables << endl;
 }
