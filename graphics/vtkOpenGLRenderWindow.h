@@ -127,6 +127,13 @@ public:
   virtual void StereoUpdate();
 
   // Description:
+  // Prescribe that the window be created in a stereo-capable mode. This
+  // method must be called before the window is realized. This method
+  // overrrides the superclass method since this class can actually check
+  // whether the window has been realized yet.
+  virtual void SetStereoCapableWindow(int capable);
+
+  // Description:
   // Set/Get the pixel data of an image, transmitted as RGBRGB... 
   virtual unsigned char *GetPixelData(int x,int y,int x2,int y2,int front);
   virtual void SetPixelData(int x,int y,int x2,int y2,unsigned char *,

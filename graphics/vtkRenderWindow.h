@@ -145,9 +145,16 @@ public:
   vtkBooleanMacro(Borders,int);
 
   // Description:
+  // Prescribe that the window be created in a stereo-capable mode. This
+  // method must be called before the window is realized. Default if off.
+  vtkGetMacro(StereoCapableWindow,int);
+  vtkBooleanMacro(StereoCapableWindow,int);
+  virtual void SetStereoCapableWindow(int capable);
+
+  // Description:
   // Turn on/off stereo rendering.
   vtkGetMacro(StereoRender,int);
-  vtkSetMacro(StereoRender,int);
+  void SetStereoRender(int stereo);
   vtkBooleanMacro(StereoRender,int);
 
   // Description:
@@ -325,6 +332,7 @@ protected:
   int StereoRender;
   int StereoType;
   int StereoStatus; // used for keeping track of what's going on
+  int StereoCapableWindow;
   vtkRenderWindowInteractor *Interactor;
   char *FileName;
   unsigned char* StereoBuffer; // used for red blue stereo

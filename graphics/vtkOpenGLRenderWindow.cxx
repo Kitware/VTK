@@ -114,7 +114,7 @@ XVisualInfo *vtkOpenGLRenderWindow::GetDesiredVisualInfo()
     }
 
   // try every possibility stoping when we find one that works
-  for (stereo = 1; !v && stereo >= 0; stereo--)
+  for (stereo = this->StereoCapableWindow; !v && stereo >= 0; stereo--)
     {
     for (multi = this->MultiSamples; !v && multi >= 0; multi--)
       {
@@ -125,9 +125,14 @@ XVisualInfo *vtkOpenGLRenderWindow::GetDesiredVisualInfo()
       v = vtkOpenGLRenderWindowTryForVisual(this->DisplayId,
 					    this->DoubleBuffer, 
 					    stereo, multi);
+      if (v && this->StereoCapableWindow && !stereo)
+	{
+	// requested a stereo capable window but we could not get one
+	this->StereoCapableWindow = 0;
+	}
       }
     }
-  for (stereo = 1; !v && stereo >= 0; stereo--)
+  for (stereo = this->StereoCapableWindow; !v && stereo >= 0; stereo--)
     {
     for (multi = this->MultiSamples; !v && multi >= 0; multi--)
       {
@@ -138,7 +143,15 @@ XVisualInfo *vtkOpenGLRenderWindow::GetDesiredVisualInfo()
       v = vtkOpenGLRenderWindowTryForVisual(this->DisplayId,
 					    !this->DoubleBuffer, 
 					    stereo, multi);
-      if (v) this->DoubleBuffer = !this->DoubleBuffer;
+      if (v)
+	{
+	this->DoubleBuffer = !this->DoubleBuffer;
+	}
+      if (v && this->StereoCapableWindow && !stereo)
+	{
+	// requested a stereo capable window but we could not get one
+	this->StereoCapableWindow = 0;
+	}
       }
     }
   if (!v) 
@@ -276,6 +289,23 @@ void vtkOpenGLRenderWindow::StereoUpdate(void)
         this->StereoStatus = 0;
 	}
       }
+    }
+}
+
+//
+// Set the variable that indicates that we want a stereo capable window
+// be created. This method can only be called before a window is realized.
+//
+void vtkOpenGLRenderWindow::SetStereoCapableWindow(int capable)
+{
+  if (this->WindowId == NULL)
+    {
+    vtkRenderWindow::SetStereoCapableWindow(capable);
+    }
+  else
+    {
+    vtkWarningMacro(<< "Requesting a StereoCapableWindow must be performed "
+                    << "before the window is realized, i.e. before a render.");
     }
 }
 
