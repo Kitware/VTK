@@ -81,6 +81,9 @@ public:
   // output information vector passed to ProcessRequest.  The results
   // of an upstream request are stored in the input information vector
   // passed to ProcessRequest.
+  //
+  // It returns the boolean status of the pipeline (false
+  // means failure).
   virtual int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inInfo,
                              vtkInformationVector* outInfo);
