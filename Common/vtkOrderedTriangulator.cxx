@@ -250,6 +250,7 @@ struct vtkOTFace //used during tetra construction
   vtkOTTetra *Neighbor;
 };
 
+//---Class represents a tetrahedron-----------------------------------------
 struct vtkOTTetra
 {
   vtkOTTetra() : Radius2(0.0)
@@ -270,36 +271,10 @@ struct vtkOTTetra
   enum TetraClassification 
     {Inside=0,Outside=1,All=2,InCavity=3,OutsideCavity=4};
   TetraClassification Type;
-  void GetFacePoints(int i, vtkOTFace& face);
-  
-};
 
-void vtkOTTetra::GetFacePoints(int i, vtkOTFace& face)
-  {
-    switch (i)
-      {
-      case 0:
-        face.Points[0] = this->Points[0];
-        face.Points[1] = this->Points[1];
-        face.Points[2] = this->Points[3];
-        break;
-      case 1:
-        face.Points[0] = this->Points[1];
-        face.Points[1] = this->Points[2];
-        face.Points[2] = this->Points[3];
-        break;
-      case 2:
-        face.Points[0] = this->Points[2];
-        face.Points[1] = this->Points[0];
-        face.Points[2] = this->Points[3];
-        break;
-      case 3:
-        face.Points[0] = this->Points[0];
-        face.Points[1] = this->Points[1];
-        face.Points[2] = this->Points[2];
-        break;
-      }
-  }
+  void GetFacePoints(int i, vtkOTFace& face);
+  bool InSphere(double x[3]);
+};
 
 // Class is used to hold lists of points, faces, and tetras-------------------
 class vtkOTMesh
@@ -481,6 +456,34 @@ void vtkOrderedTriangulator::InsertPoint(unsigned long id, float x[3],
 }
 
 //------------------------------------------------------------------------
+void vtkOTTetra::GetFacePoints(int i, vtkOTFace& face)
+  {
+    switch (i)
+      {
+      case 0:
+        face.Points[0] = this->Points[0];
+        face.Points[1] = this->Points[1];
+        face.Points[2] = this->Points[3];
+        break;
+      case 1:
+        face.Points[0] = this->Points[1];
+        face.Points[1] = this->Points[2];
+        face.Points[2] = this->Points[3];
+        break;
+      case 2:
+        face.Points[0] = this->Points[2];
+        face.Points[1] = this->Points[0];
+        face.Points[2] = this->Points[3];
+        break;
+      case 3:
+        face.Points[0] = this->Points[0];
+        face.Points[1] = this->Points[1];
+        face.Points[2] = this->Points[2];
+        break;
+      }
+  }
+
+//------------------------------------------------------------------------
 static int SortOnPointIds(const void *val1, const void *val2)
 {
   if (((vtkOTPoint *)val1)->Id < ((vtkOTPoint *)val2)->Id)
@@ -499,16 +502,16 @@ static int SortOnPointIds(const void *val1, const void *val2)
 
 //------------------------------------------------------------------------
 // See whether point is in sphere of tetrahedron
-static int InSphere(double x[3], vtkOTTetra* &tptr)
+bool vtkOTTetra::InSphere(double x[3])
 {
   double dist2;
   
   // check if inside/outside circumcircle
-  dist2 = (x[0] - tptr->Center[0]) * (x[0] - tptr->Center[0]) + 
-          (x[1] - tptr->Center[1]) * (x[1] - tptr->Center[1]) +
-          (x[2] - tptr->Center[2]) * (x[2] - tptr->Center[2]);
+  dist2 = (x[0] - this->Center[0]) * (x[0] - this->Center[0]) + 
+          (x[1] - this->Center[1]) * (x[1] - this->Center[1]) +
+          (x[2] - this->Center[2]) * (x[2] - this->Center[2]);
 
-  return (dist2 < (0.9999999999L * tptr->Radius2) ? 1 : 0);
+  return (dist2 < (0.9999999999L * this->Radius2) ? 1 : 0);
 }
 
 inline static int IsAPoint(vtkOTTetra *t, unsigned long id)
@@ -633,17 +636,16 @@ void CreateInsertionCavity(vtkOTPoint* p,
     for (i=0; i<4; ++i)
       {
       // If a boundary, the face is added to the list of faces
-      if ( tetra->Neighbors[i] == 0 )
+      if ( (nei=tetra->Neighbors[i]) == 0 )
         {
         tetra->GetFacePoints(i,face);
         face.Neighbor = 0;
         Mesh->CavityFaces.InsertNextValue(face);
         }
       // Not yet visited, check the face as possible boundary
-      else if ( tetra->Neighbors[i]->CurrentPointId != p->Id )
+      else if ( nei->CurrentPointId != p->Id )
         {
-        nei = tetra->Neighbors[i];
-        if ( InSphere(p->X, nei) )
+        if ( nei->InSphere(p->X) )
           {
           nei->Type = vtkOTTetra::InCavity;
           Mesh->TetraQueue.InsertNextValue(nei);
@@ -657,6 +659,13 @@ void CreateInsertionCavity(vtkOTPoint* p,
           }
         nei->CurrentPointId = p->Id; //mark visited
         }//if a not-visited face neighbor
+      // Visited before, check face for cavity boundary
+      else if ( nei->Type == vtkOTTetra::OutsideCavity )
+        {
+        tetra->GetFacePoints(i,face);
+        face.Neighbor = nei;
+        Mesh->CavityFaces.InsertNextValue(face);
+        }
       }//for each of the four faces
     }//while queue not empty
   
@@ -700,7 +709,7 @@ void vtkOrderedTriangulator::Triangulate()
     for (tptr = this->Mesh->Tetras.Begin(); 
          tptr != this->Mesh->Tetras.End(); ++tptr)
       {
-      if ( InSphere(p->X, *tptr) )
+      if ( (*tptr)->InSphere(p->X) )
         {
         break;
         }
