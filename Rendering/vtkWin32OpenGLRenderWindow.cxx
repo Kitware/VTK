@@ -35,7 +35,7 @@
 #include <GL/gl.h>
 #endif
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.125");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.126");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -222,19 +222,22 @@ void vtkWin32OpenGLRenderWindow::MakeCurrent()
           0,
           NULL 
           );
+          if(lpMsgBuf)
+            {
 #ifdef UNICODE
-                wchar_t *wmsg = new wchar_t [mbstowcs(NULL, (const char*)lpMsgBuf, 32000)+1];
-                wchar_t *wtemp = new wchar_t [mbstowcs(NULL, "wglMakeCurrent failed in MakeCurrent(), error: ", 32000)+1];
-                mbstowcs(wmsg, (const char*)lpMsgBuf, 32000);
-                mbstowcs(wtemp, "wglMakeCurrent failed in MakeCurrent(), error: ", 32000);
-                vtkErrorMacro(<< wcscat(wtemp, wmsg));
-                delete [] wmsg;
-                delete [] wtemp;
+            wchar_t *wmsg = new wchar_t [mbstowcs(NULL, (const char*)lpMsgBuf, 32000)+1];
+            wchar_t *wtemp = new wchar_t [mbstowcs(NULL, "wglMakeCurrent failed in MakeCurrent(), error: ", 32000)+1];
+            mbstowcs(wmsg, (const char*)lpMsgBuf, 32000);
+            mbstowcs(wtemp, "wglMakeCurrent failed in MakeCurrent(), error: ", 32000);
+            vtkErrorMacro(<< wcscat(wtemp, wmsg));
+            delete [] wmsg;
+            delete [] wtemp;
 #else
-                vtkErrorMacro("wglMakeCurrent failed in MakeCurrent(), error: " 
-                      << (LPCTSTR)lpMsgBuf);
+            vtkErrorMacro("wglMakeCurrent failed in MakeCurrent(), error: " 
+                          << (LPCTSTR)lpMsgBuf);
 #endif
-                ::LocalFree( lpMsgBuf );
+            ::LocalFree( lpMsgBuf );
+            }
         }
       }
     }
