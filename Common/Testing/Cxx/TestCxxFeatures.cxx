@@ -343,12 +343,13 @@ int TestNonTypeTemplate()
 
 /* Test mixed type and non-type template arguments in a non-trival way.  */
 
+#if !(defined(VTK_CXX_MSVC) && (_MSC_VER < 1300)) && !defined(__BORLANDC__)
+// Visual Studio 6 and Borland do not support this fancy array template.
 template <class T, int N>
 int TestMixedTypeTemplateFunction(T (*)[N])
 {
   return N;
 }
-
 int TestMixedTypeTemplate()
 {
   int x2[2];
@@ -366,6 +367,7 @@ int TestMixedTypeTemplate()
     }
   return result;
 }
+#endif
 
 //----------------------------------------------------------------------------
 
@@ -458,7 +460,9 @@ int main()
   DO_TEST(TestFullySpecializedClass);
   DO_TEST(TestIfScope);
   DO_TEST(TestNonTypeTemplate);
+#if !(defined(VTK_CXX_MSVC) && (_MSC_VER < 1300)) && !defined(__BORLANDC__)
   DO_TEST(TestMixedTypeTemplate);
+#endif
   DO_TEST(TestBinaryWriting);
   DO_TEST(TestSafeBoolIdiom);
   return result;
