@@ -45,7 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct with s,t range=(0,1) and automatic plane generation turned on.
 vtkTextureMapToPlane::vtkTextureMapToPlane()
 {
-  // all zero - indicates that using normal is preferred is automatic is off
+  // all zero - indicates that using normal is preferred and automatic is off
   this->Origin[0] = this->Origin[1] = this->Origin[2] = 0.0;
   this->Point1[0] = this->Point1[1] = this->Point1[2] = 0.0;
   this->Point2[0] = this->Point2[1] = this->Point2[2] = 0.0;
@@ -83,19 +83,19 @@ void vtkTextureMapToPlane::Execute()
     vtkErrorMacro(<< "Not enough points for automatic plane mapping\n");
     return;
     }
-//
-//  Allocate texture data
-//
+
+  //  Allocate texture data
+  //
   newTCoords = vtkTCoords::New();
   newTCoords->SetNumberOfTCoords(numPts);
-//
-//  Compute least squares plane if on automatic mode; otherwise use
-//  normal specified or plane specified
-//
-  if ( this->AutomaticPlaneGeneration || 
+
+  //  Compute least squares plane if on automatic mode; otherwise use
+  //  normal specified or plane specified
+  //
+  if ( this->AutomaticPlaneGeneration && 
        (this->Origin[0] == 0.0 && this->Origin[1] == 0.0 && 
-	this->Origin[2] == 0.0 && this->Point1[0] == 0.0 && 
-	this->Point1[1] == 0.0 && this->Point1[2] == 0.0) )
+        this->Origin[2] == 0.0 && this->Point1[0] == 0.0 && 
+        this->Point1[1] == 0.0 && this->Point1[2] == 0.0) )
     {
     if ( this->AutomaticPlaneGeneration )
       {
@@ -103,7 +103,7 @@ void vtkTextureMapToPlane::Execute()
       }
 
     vtkMath::Normalize (this->Normal);
-    //
+
     //  Now project each point onto plane generating s,t texture coordinates
     //
     //  Create local s-t coordinate system.  Need to find the two axes on
@@ -127,7 +127,7 @@ void vtkTextureMapToPlane::Execute()
     vtkMath::Normalize (tAxis);
 
     vtkMath::Cross (tAxis, this->Normal, sAxis);
-    //
+
     //  Construct projection matrices
     //
     //  Arrange s-t axes so that parametric location of points will fall
@@ -146,16 +146,15 @@ void vtkTextureMapToPlane::Execute()
     sSf = (this->SRange[1] - this->SRange[0]) / s;
     tSf = (this->TRange[1] - this->TRange[0]) / t;
 
-    //
     //  Now can loop over all points, computing parametric coordinates.
     //
     for (i=0; i<numPts; i++) 
       {
       p = output->GetPoint(i);
       for (j=0; j<3; j++)
-	{
-	axis[j] = p[j] - bounds[2*j];
-	}
+        {
+        axis[j] = p[j] - bounds[2*j];
+        }
 
       tcoords[0] = this->SRange[0] + vtkMath::Dot(sAxis,axis) * sSf;
       tcoords[1] = this->TRange[0] + vtkMath::Dot(tAxis,axis) * tSf;
@@ -188,9 +187,9 @@ void vtkTextureMapToPlane::Execute()
       {
       p = output->GetPoint(i);
       for (j=0; j<3; j++)
-	{
-	axis[j] = p[j] - this->Origin[j];
-	}
+        {
+        axis[j] = p[j] - this->Origin[j];
+        }
 
       //s-coordinate
       num = sAxis[0]*axis[0] + sAxis[1]*axis[1] + sAxis[2]*axis[2];
@@ -203,9 +202,9 @@ void vtkTextureMapToPlane::Execute()
       newTCoords->SetTCoord(i,tcoords);
       }
     }
-//
-// Update ourselves
-//
+
+  // Update ourselves
+  //
   output->GetPointData()->CopyTCoordsOff();
   output->GetPointData()->PassData(input->GetPointData());
   output->GetCellData()->PassData(input->GetCellData());
@@ -225,12 +224,12 @@ void vtkTextureMapToPlane::ComputeNormal()
   int dir = 0;
   float length, w, *c1, *c2, *c3, det;
   float *bounds;
-//
-//  First thing to do is to get an initial normal and point to define
-//  the plane.  Then, use this information to construct better
-//  matrices.  If problem occurs, then the point and plane becomes the
-//  fallback value.
-//
+
+  //  First thing to do is to get an initial normal and point to define
+  //  the plane.  Then, use this information to construct better
+  //  matrices.  If problem occurs, then the point and plane becomes the
+  //  fallback value.
+  //
   //  Get minimum width of bounding box.
   bounds = output->GetBounds();
   length = output->GetLength();
@@ -244,20 +243,20 @@ void vtkTextureMapToPlane::ComputeNormal()
       w = bounds[2*i+1] - bounds[2*i];
       }
     }
-//
-//  If the bounds is perpendicular to one of the axes, then can
-//  quickly compute normal.
-//
+
+  //  If the bounds is perpendicular to one of the axes, then can
+  //  quickly compute normal.
+  //
   this->Normal[dir] = 1.0;
   if ( w <= (length*VTK_TOLERANCE) )
     {
     return;
     }
-//
-//  Need to compute least squares approximation.  Depending on major
-//  normal direction (dir), construct matrices appropriately.
-//
-    //  Compute 3x3 least squares matrix
+
+  //  Need to compute least squares approximation.  Depending on major
+  //  normal direction (dir), construct matrices appropriately.
+  //
+  //  Compute 3x3 least squares matrix
   v[0] = v[1] = v[2] = 0.0;
   for (i=0; i<9; i++)
     {
@@ -284,9 +283,9 @@ void vtkTextureMapToPlane::ComputeNormal()
     m[7] += x[1];
     }
   m[8] = numPts;
-//
-//  Solve linear system using Kramers rule
-//
+
+  //  Solve linear system using Kramers rule
+  //
   c1 = m; c2 = m+3; c3 = m+6;
   if ( (det = vtkMath::Determinant3x3 (c1,c2,c3)) <= VTK_TOLERANCE )
     {
