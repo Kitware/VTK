@@ -37,8 +37,8 @@ public:
 
   // Description:
   // This method is for setting up the processes.
-  virtual void Initialize(int* argc, char*** argv, int) {}
-  virtual void Initialize(int* argc, char*** argv) {}
+  virtual void Initialize(int*, char***, int) {}
+  virtual void Initialize(int*, char***) {}
   virtual void Finalize() {}
   virtual void Finalize(int) {}
 
