@@ -107,27 +107,6 @@ static inline float forceRepulse(float x, float k)
     }
 }
 
-// Returns the minimum of the absolute value of the three numbers x, y, and z.
-static float forceMin(float x, float y, float z)
-{
-  x = fabs(x);
-  y = fabs(y);
-  z = fabs(z);
-  if(x>y)
-    {
-    if(y>z) {return z;}
-    else {return y;}
-    }
-  else if(x>z)
-    {
-    return z;
-    }
-  else
-    {
-    return x;
-    }
-}
-
 void vtkGraphLayoutFilter::Execute()
 {
   vtkPolyData *input = (vtkPolyData *)this->GetInput();
