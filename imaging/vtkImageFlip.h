@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageFlip - 
+// .NAME vtkImageFlip - This flips axes of an image. Right becomes left ...
 // .SECTION Description
 // vtkImageFlip will reflect the data over all of the filtered axes.
 // The Origin and Spacing are not changed, min0 and max0 of extent are
