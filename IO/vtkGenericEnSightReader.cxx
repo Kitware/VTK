@@ -30,7 +30,7 @@
 
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.49");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.50");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -1228,7 +1228,7 @@ void vtkGenericEnSightReader::DestroyStringArray(int numStrings,
       delete [] strings[i];
       }
     }
-  delete strings;
+  delete[] strings;
 }
 
 //----------------------------------------------------------------------------
