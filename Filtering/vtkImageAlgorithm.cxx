@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAlgorithm, "1.1.2.9");
+vtkCxxRevisionMacro(vtkImageAlgorithm, "1.1.2.10");
 
 //----------------------------------------------------------------------------
 vtkImageAlgorithm::vtkImageAlgorithm()
@@ -116,13 +116,8 @@ int vtkImageAlgorithm::ProcessRequest(vtkInformation* request,
         vtkImageData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
       if (output)
         {
-        // after executing set the origin and spacing from the
-        // WHOLE_BOUNDING_BOX
-        if (info->Has(vtkDataObject::ORIGIN()))
-          {
-          output->SetOrigin(info->Get(vtkDataObject::ORIGIN()));
-          output->SetSpacing(info->Get(vtkDataObject::SPACING()));
-          }
+        info->Set(vtkDataObject::ORIGIN(), output->GetOrigin(), 3);
+        info->Set(vtkDataObject::SPACING(), output->GetSpacing(), 3);
         output->DataHasBeenGenerated();
         }
       }
@@ -133,6 +128,20 @@ int vtkImageAlgorithm::ProcessRequest(vtkInformation* request,
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
     {
     this->ExecuteInformation(request, inputVector, outputVector);
+    // after executing set the origin and spacing from the
+    // info
+    int i;
+    for (i = 0; i < this->GetNumberOfOutputPorts(); ++i)
+      {
+      vtkInformation* info = outputVector->GetInformationObject(i);
+      vtkImageData *output = 
+        vtkImageData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
+      if (output && info->Has(vtkDataObject::ORIGIN()))
+        {
+        output->SetOrigin(info->Get(vtkDataObject::ORIGIN()));
+        output->SetSpacing(info->Get(vtkDataObject::SPACING()));
+        }
+      }
     return 1;
     }
 

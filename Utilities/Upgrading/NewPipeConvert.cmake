@@ -15,15 +15,23 @@ FILE (GLOB CXX_FILE ${CLASS}.cxx)
 FILE (READ ${H_FILE} H_CONTENTS)
 
 # convert vtkImageToImageFilter subclasses to subclass off of 
-# vtkImageAlgorithm
-STRING (REGEX REPLACE 
-  "vtkImageToImageFilter" 
-  "vtkThreadedImageAlgorithm" 
-  H_CONTENTS "${H_CONTENTS}")
-STRING (REGEX REPLACE 
-  "vtkImageSource" 
-  "vtkImageAlgorithm" 
-  H_CONTENTS "${H_CONTENTS}")
+# vtkImageAlgorithm, if it is threaded use threaded one
+IF ("${CXX_CONTENTS}" MATCHES ".*ThreadedExecute.*")
+  STRING (REGEX REPLACE 
+    "vtkImageToImageFilter" 
+    "vtkThreadedImageAlgorithm" 
+    H_CONTENTS "${H_CONTENTS}")
+ELSE ("${CXX_CONTENTS}" MATCHES ".*ThreadedExecute.*")
+  STRING (REGEX REPLACE 
+    "vtkImageToImageFilter" 
+    "vtkImageAlgorithm" 
+    H_CONTENTS "${H_CONTENTS}")
+  STRING (REGEX REPLACE 
+    "vtkImageSource" 
+    "vtkImageAlgorithm" 
+    H_CONTENTS "${H_CONTENTS}")
+ENDIF ("${CXX_CONTENTS}" MATCHES ".*ThreadedExecute.*")
+  
 
 # polyDataAlgorithm
 STRING (REGEX REPLACE 

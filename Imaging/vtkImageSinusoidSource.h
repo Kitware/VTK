@@ -21,13 +21,13 @@
 #ifndef __vtkImageSinusoidSource_h
 #define __vtkImageSinusoidSource_h
 
-#include "vtkImageSource.h"
+#include "vtkImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageSinusoidSource : public vtkImageSource
+class VTK_IMAGING_EXPORT vtkImageSinusoidSource : public vtkImageAlgorithm
 {
 public:
   static vtkImageSinusoidSource *New();
-  vtkTypeRevisionMacro(vtkImageSinusoidSource,vtkImageSource);
+  vtkTypeRevisionMacro(vtkImageSinusoidSource,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -67,7 +67,7 @@ protected:
   double Phase;
   double Amplitude;
 
-  virtual void ExecuteInformation();
+  virtual void ExecuteInformation (vtkInformation *, vtkInformationVector *, vtkInformationVector *);
   virtual void ExecuteData(vtkDataObject *data);
 private:
   vtkImageSinusoidSource(const vtkImageSinusoidSource&);  // Not implemented.

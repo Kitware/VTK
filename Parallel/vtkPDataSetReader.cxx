@@ -31,7 +31,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkExtentTranslator.h"
 
-vtkCxxRevisionMacro(vtkPDataSetReader, "1.30");
+vtkCxxRevisionMacro(vtkPDataSetReader, "1.30.6.1");
 vtkStandardNewMacro(vtkPDataSetReader);
 
 //----------------------------------------------------------------------------
@@ -1318,13 +1318,14 @@ void vtkPDataSetReader::StructuredGridExecute()
     {
     if (pieceMask[i])
       {
-      tmp = vtkStructuredGrid::New();
-      reader->SetOutput(tmp);
+      reader->SetOutput(0);
       reader->SetFileName(this->PieceFileNames[i]);
       reader->Update();
+      tmp = reader->GetOutput();
       if (tmp->GetNumberOfCells() > 0)
         {
         pieces[count] = tmp;
+        tmp->Register(this);
         // Sanity check: extent is correct.  Ignore electric slide.
         tmp->GetExtent(ext);
         if (ext[1] - ext[0] != 
@@ -1343,10 +1344,6 @@ void vtkPDataSetReader::StructuredGridExecute()
           tmp->SetExtent(this->PieceExtents[i]);
           }
         ++count;
-        }
-      else
-        {
-        tmp->Delete();
         }
       }
     }

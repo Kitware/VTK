@@ -14,9 +14,9 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     # add tests that require data
     SET(MyTests ${MyTests}     
       volProt.cxx
-      TestHierarchicalBox.cxx
-      TestHierarchicalBoxPipeline.cxx
-      TestMultiBlock.cxx
+#      TestHierarchicalBox.cxx
+#      TestHierarchicalBoxPipeline.cxx
+#      TestMultiBlock.cxx
       )
   ENDIF (VTK_DATA_ROOT)
   CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}

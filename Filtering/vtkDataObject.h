@@ -349,6 +349,11 @@ public:
   // with only one piece (no streaming possible).
   virtual int GetExtentType() { return VTK_PIECES_EXTENT; };
 
+  // Description:
+  // This method crops the data object (if necesary) so that the extent
+  // matches the update extent.
+  virtual void Crop();
+
   //BTX
   // Description:
   // Possible values for the FIELD_ASSOCIATION information entry.
@@ -419,10 +424,6 @@ protected:
   // this image will crop itself.  This functionality used to be in 
   // ImageToStructuredPoints.
   int RequestExactExtent;
-
-  // This method crops the data object (if necesary) so that the extent
-  // matches the update extent.
-  virtual void Crop();
 
   // When was this data last generated?
   vtkTimeStamp UpdateTime;  
