@@ -21,7 +21,7 @@
 #include "vtkEdgeTable.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.35");
+vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.36");
 vtkStandardNewMacro(vtkOrderedTriangulator);
 
 #ifdef _WIN32_WCE
@@ -1102,6 +1102,7 @@ vtkIdType vtkOrderedTriangulator::AddTetras(int classification,
 
 vtkIdType vtkOrderedTriangulator::AddTetras(int classification, 
                                             vtkUnstructuredGrid *ugrid)
+
 {
   vtkIdType numTetras=0;
   vtkOTLinkedList<vtkOTTetra*>::Iterator tptr;
@@ -1126,6 +1127,46 @@ vtkIdType vtkOrderedTriangulator::AddTetras(int classification,
     }//for all tetras
   
   return numTetras;
+}
+
+vtkIdType vtkOrderedTriangulator::AddTriangles(vtkCellArray *tris)
+{
+  vtkIdType numTris=0;
+  int i;
+
+  // Loop over all tetras examining each unvisited face. Faces whose
+  // points are all classified "boundary" are added to the list of
+  // faces.
+  vtkOTLinkedList<vtkOTTetra*>::Iterator tptr;
+  vtkOTTetra *tetra;
+  vtkOTFace face;
+
+  // loop over all tetras getting the faces classified on the boundary
+  for (tptr=this->Mesh->Tetras.Begin(); 
+       tptr != this->Mesh->Tetras.End(); ++tptr)
+    {
+    tetra = *tptr;
+    tetra->CurrentPointId = VTK_LARGE_INTEGER; //mark visited
+    for (i=0; i<4; i++)
+      {
+      if ( tetra->Neighbors[i]->CurrentPointId != VTK_LARGE_INTEGER )
+        {//face not yet visited
+        tetra->GetFacePoints(i,&face);
+        if ( face.Points[0]->Type == vtkOTPoint::Boundary &&
+             face.Points[1]->Type == vtkOTPoint::Boundary &&
+             face.Points[2]->Type == vtkOTPoint::Boundary )
+          {
+          numTris++;
+          tris->InsertNextCell(3);
+          tris->InsertCellPoint(face.Points[0]->Id);
+          tris->InsertCellPoint(face.Points[1]->Id);
+          tris->InsertCellPoint(face.Points[2]->Id);
+          }
+        }
+      }
+    }//for all tetras
+
+  return numTris;
 }
 
 

@@ -164,6 +164,11 @@ public:
   // of the type requested.    
   vtkIdType AddTetras(int classification, vtkCellArray *connectivity);
   
+  // Description:
+  // Add the triangle faces classified (2=boundary) to the connectivity
+  // list provided. The method returns the number of triangles.
+  vtkIdType AddTriangles(vtkCellArray *connectivity);
+  
 protected:
   vtkOrderedTriangulator();
   ~vtkOrderedTriangulator();
