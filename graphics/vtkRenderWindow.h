@@ -54,6 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkObject.h"
 #include "vtkRendererCollection.h"
+#include <stdio.h>
 
 class vtkRenderWindowInteractor;
 class vtkLightDevice;
@@ -227,6 +228,9 @@ public:
   // Description:
   // Save the current image as a PPM file.
   virtual void SaveImageAsPPM();
+  virtual  int OpenPPMImageFile();
+  virtual void WritePPMImageFile();
+  virtual void ClosePPMImageFile();
 
 
   // Description:
@@ -317,6 +321,7 @@ protected:
   int   Erase;
   int   SwapBuffers;
   float DesiredUpdateRate;
+  FILE* PpmImageFilePtr;
 };
 
 #endif
