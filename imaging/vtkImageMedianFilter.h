@@ -53,6 +53,7 @@ class vtkImageMedianFilter : public vtkImage3dSpatialFilter
 {
 public:
   vtkImageMedianFilter();
+  ~vtkImageMedianFilter();
   char *GetClassName() {return "vtkImageMedianFilter";};
 
   void SetKernelSize(int size0, int size1, int size2);
