@@ -1,0 +1,20 @@
+/* 
+ * Here is where system computed values get stored.
+ * These values should only change when the target compile platform changes.
+ */
+
+#if defined(WIN32) && !defined(VTKMY_STATIC)
+#pragma warning ( disable : 4275 )
+#endif
+
+#cmakedefine CMAKE_WORDS_BIGENDIAN
+#ifdef CMAKE_WORDS_BIGENDIAN
+  #define WORDS_BIGENDIAN
+#else
+  #define WORDS_LITTLEENDIAN
+#endif
+
+#cmakedefine BUILD_SHARED_LIBS
+#ifndef BUILD_SHARED_LIBS
+#define VTK_MY_STATIC
+#endif
