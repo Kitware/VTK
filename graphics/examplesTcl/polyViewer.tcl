@@ -51,7 +51,7 @@ proc UpdateView {x y z vx vy vz} {
     $camera SetViewPlaneNormal $x $y $z
     $camera SetViewUp $vx $vy $vz
     ren ResetCamera
-    Render
+    Render .window
 }
 
 # Procedure opens file and resets view
