@@ -82,6 +82,28 @@ int vtkColorScalars::InsertNextScalar(float s)
   return this->InsertNextColor(this->LookupTable->MapValue(s));
 }
 
+void vtkColorScalars::InsertColor(int i, float R, float G, float B, float A)
+{
+  unsigned char a[4];
+  a[0] = R*255.0;
+  a[1] = G*255.0;
+  a[2] = B*255.0;
+  a[3] = A*255.0;
+
+  this->InsertColor(i,a);
+}
+
+void vtkColorScalars::InsertNextColor(float R, float G, float B, float A)
+{
+  unsigned char a[4];
+  a[0] = R*255.0;
+  a[1] = G*255.0;
+  a[2] = B*255.0;
+  a[3] = A*255.0;
+
+  this->InsertNextColor(a);
+}
+
 // Description:
 // Given list of point id's, return colors for each point.
 void vtkColorScalars::GetColors(vtkIdList& ptId, vtkAPixmap& p)

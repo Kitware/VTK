@@ -380,7 +380,7 @@ void vtkUnstructuredGrid::AddReferenceToCell(int ptId, int cellId)
 // Description:
 // Resize the list of cells using a particular point. (This operator assumes
 // that BuildLinks() has been called.)
-inline void vtkUnstructuredGrid::ResizeCellList(int ptId, int size)
+void vtkUnstructuredGrid::ResizeCellList(int ptId, int size)
 {
   this->Links->ResizeCellList(ptId,size);
 }
