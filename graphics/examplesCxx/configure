@@ -16,6 +16,8 @@ ac_help="$ac_help
 ac_help="$ac_help
   --with-patented           include the patented classes"
 ac_help="$ac_help
+  --with-shared               create shared libraries"
+ac_help="$ac_help
   --with-bsdmake            uses bsd style makefile includes"
 
 # Initialize some variables set by options.
@@ -525,7 +527,7 @@ fi
 
 
 
-VTK_LIB_FILE="../libVTKGraphics\${VTK_LIB_EXT} ../../common/libVTKCommon\${VTK_LIB_EXT}"
+VTK_LIB_FILE="../../graphics/libVTKGraphics\${VTK_LIB_EXT} ../../common/libVTKCommon\${VTK_LIB_EXT}"
 
 
 # if using imaging we also need imaging library
@@ -550,6 +552,22 @@ if test "${with_patented+set}" = set; then
          fi
 fi
 
+
+
+# Check whether --with-shared or --without-shared was given.
+if test "${with_shared+set}" = set; then
+  withval="$with_shared"
+  vtk_shared_ok=$withval
+else
+  vtk_shared_ok=no
+fi
+
+
+# if not using shared libraries, then repeat libraries twice to handle
+# circular dependencies
+if test "$vtk_shared_ok" = "no"; then
+     VTK_LIB_FILE="${VTK_LIB_FILE} ${VTK_LIB_FILE}"
+fi
 
 
 
