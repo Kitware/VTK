@@ -192,7 +192,6 @@ protected:
   vtkUnstructuredGrid *ClippedOutput;
   
 private:
-  vtkUnstructuredGrid    *Mesh;
   vtkOrderedTriangulator *Triangulator;
   
   // Used temporarily to pass data around

@@ -31,7 +31,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkClipVolume, "1.68");
+vtkCxxRevisionMacro(vtkClipVolume, "1.69");
 vtkStandardNewMacro(vtkClipVolume);
 vtkCxxSetObjectMacro(vtkClipVolume,ClipFunction,vtkImplicitFunction);
 
@@ -50,8 +50,6 @@ vtkClipVolume::vtkClipVolume(vtkImplicitFunction *cf)
   this->GenerateClippedOutput = 0;
   this->MergeTolerance = 0.01;
   
-  this->Mesh = NULL;
-
   this->Triangulator = vtkOrderedTriangulator::New();
   this->Triangulator->PreSortedOn();
   
@@ -68,11 +66,6 @@ vtkClipVolume::~vtkClipVolume()
     this->Locator = NULL;
     }
   
-  if ( this->Mesh )
-    {
-    this->Mesh->Delete();
-    }
-
   this->Triangulator->Delete();
   this->SetClipFunction(NULL);
 }
