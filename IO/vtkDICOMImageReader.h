@@ -75,6 +75,43 @@ class VTK_IO_EXPORT vtkDICOMImageReader : public vtkImageReader2
   // Returns the directory name.
   vtkGetStringMacro(DirectoryName);
 
+  // Description:
+  // Returns the pixel spacing.
+  float* GetPixelSpacing();
+  
+  // Description:
+  // Returns the image width.
+  int GetWidth();
+
+  // Description:
+  // Returns the image height.
+  int GetHeight();
+
+  // Description:
+  // Get the (DICOM) x,y,z coordinates of the first pixel in the
+  // image (upper left hand corner) of the last image processed by the
+  // DICOMParser
+  float* GetImagePositionPatient();
+
+  // Description:
+  // Get the number of bits allocated for each pixel in the file.
+  int GetBitsAllocated();
+
+  // Description:
+  // Get the pixel representation of the last image processed by the
+  // DICOMParser. A zero is a unsigned quantity.  A one indicates a
+  // signed quantity
+  int GetPixelRepresentation();
+
+  // Description:
+  // Get the number of components of the image data for the last
+  // image processed.
+  int GetNumberOfComponents();
+
+  // Description:
+  // Get the transfer syntax UID for the last image processed.
+  const char* GetTransferSyntaxUID();
+
 protected:
   //
   // Setup the volume size
