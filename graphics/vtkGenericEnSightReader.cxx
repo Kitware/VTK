@@ -43,6 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkEnSight6Reader.h"
 #include "vtkEnSight6BinaryReader.h"
 #include "vtkEnSightGoldReader.h"
+#include "vtkEnSightGoldBinaryReader.h"
 #include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
@@ -167,6 +168,11 @@ void vtkGenericEnSightReader::Execute()
     vtkDebugMacro("EnSightGold");
     this->Reader = vtkEnSightGoldReader::New();
     }
+  else if (version == VTK_ENSIGHT_GOLD_BINARY)
+    {
+    vtkDebugMacro("EnSightGold binary");
+    this->Reader = vtkEnSightGoldBinaryReader::New();
+    }
   else
     {
     vtkErrorMacro("Error determining EnSightVersion");
@@ -257,9 +263,71 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
       {
       if (strcmp(subLine, "gold") == 0)
         {
-	delete this->IS;
-	this->IS = NULL;
-	return VTK_ENSIGHT_GOLD;
+        this->ReadNextDataLine(line);
+        if (strncmp(line, "GEOMETRY", 8) == 0)
+          {
+          // found the GEOMETRY section
+          vtkDebugMacro("*** GEOMETRY section");
+          
+          this->ReadNextDataLine(line);
+          if (strncmp(line, "model:", 6) == 0)
+            {
+            if (sscanf(line, " %*s %*d %*d %s", subLine) == 1)
+              {
+              this->SetGeometryFileName(subLine);
+              }
+            else if (sscanf(line, " %*s %*d %s", subLine) == 1)
+              {
+              this->SetGeometryFileName(subLine);
+              }
+            else if (sscanf(line, " %*s %s", subLine) == 1)
+              {
+              this->SetGeometryFileName(subLine);
+              }
+            } // geometry file name set
+          delete this->IS;
+          this->IS = NULL;
+          if (!this->GeometryFileName)
+            {
+            vtkErrorMacro("A GeometryFileName must be specified in the case file.");
+            return 0;
+            }
+          if (strrchr(this->GeometryFileName, '*') != NULL)
+            {
+            vtkErrorMacro("VTK does not currently handle time.");
+            return 0;
+            }
+          if (this->FilePath)
+            {
+            strcpy(line, this->FilePath);
+            strcat(line, this->GeometryFileName);
+            vtkDebugMacro("full path to geometry file: " << line);
+            }
+          else
+            {
+            strcpy(line, this->GeometryFileName);
+            } // got full path to geometry file
+          
+          this->IFile = fopen(line, "rb");
+          if (this->IFile == NULL)
+            {
+            vtkErrorMacro("Unable to open file: " << line);
+            fclose(this->IFile);
+            this->IFile = NULL;
+            return 0;
+            } // end if IFile == NULL
+          
+          this->ReadBinaryLine(binaryLine);
+          sscanf(line, " %*s %s", subLine);
+          if (strcmp(subLine, "Binary") != 0)
+            {
+            fclose(this->IFile);
+            this->IFile = NULL;
+            return VTK_ENSIGHT_GOLD_BINARY;
+            } //end if binary
+          
+          return VTK_ENSIGHT_GOLD;
+          } // if we found the geometry section in the case file
         }
       }
     else

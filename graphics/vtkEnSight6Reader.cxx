@@ -129,9 +129,10 @@ int vtkEnSight6Reader::ReadGeometryFile()
   //this->ReadNextDataLine(line);
   this->ReadLine(line);
   sscanf(line, " %*s %s", subLine);
-  if (strcmp(subLine, "binary") == 0)
+  if (strcmp(subLine, "Binary") == 0)
     {
-    vtkErrorMacro("Reading binary files is not implemented yet.");
+    vtkErrorMacro("This is a binary data set. Try "
+                  << "vtkEnSight6BinaryReader.");
     return 0;
     }
   //this->ReadNextDataLine(line);

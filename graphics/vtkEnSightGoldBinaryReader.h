@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkEnSightGoldReader.h
+  Module:    vtkEnSightGoldBinaryReader.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -39,9 +39,9 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkEnSightGoldReader - class to read EnSight Gold files
+// .NAME vtkEnSightGoldBinaryReader - class to read binary EnSight Gold files
 // .SECTION Description
-// vtkEnSightGoldReader is a class to read EnSight Gold files into vtk.
+// vtkEnSightGoldBinaryReader is a class to read EnSight Gold files into vtk.
 // Because the different parts of the EnSight data can be of various data
 // types, this reader produces multiple outputs, one per part in the input
 // file.
@@ -59,22 +59,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // This reader can only handle static EnSight datasets (both static geometry
 // and variables).
 
-#ifndef __vtkEnSightGoldReader_h
-#define __vtkEnSightGoldReader_h
+#ifndef __vtkEnSightGoldBinaryReader_h
+#define __vtkEnSightGoldBinaryReader_h
 
 #include "vtkEnSightReader.h"
 
-class VTK_EXPORT vtkEnSightGoldReader : public vtkEnSightReader
+class VTK_EXPORT vtkEnSightGoldBinaryReader : public vtkEnSightReader
 {
 public:
-  static vtkEnSightGoldReader *New();
-  vtkTypeMacro(vtkEnSightGoldReader, vtkEnSightReader);
+  static vtkEnSightGoldBinaryReader *New();
+  vtkTypeMacro(vtkEnSightGoldBinaryReader, vtkEnSightReader);
   
 protected:
-  vtkEnSightGoldReader() {};
-  ~vtkEnSightGoldReader() {};
-  vtkEnSightGoldReader(const vtkEnSightGoldReader&) {};
-  void operator=(const vtkEnSightGoldReader&) {};
+  vtkEnSightGoldBinaryReader();
+  ~vtkEnSightGoldBinaryReader();
+  vtkEnSightGoldBinaryReader(const vtkEnSightGoldBinaryReader&) {};
+  void operator=(const vtkEnSightGoldBinaryReader&) {};
   
   // Description:
   // Read the geometry file.  If an error occurred, 0 is returned; otherwise 1.
@@ -85,7 +85,8 @@ protected:
   // returned; otherwise 1.  If there will be more than one component in
   // the data array, it is assumed that 0 is the first component added.
   virtual int ReadScalarsPerNode(char* fileName, char* description,
-				 int numberOfComponents = 1, int component = 0);
+				 int numberOfComponents = 1,
+                                 int component = 0);
   
   // Description:
   // Read vectors per node for this dataset.  If an error occurred, 0 is
@@ -102,7 +103,8 @@ protected:
   // returned; otherwise 1.  If there will be more than one componenet in the
   // data array, it is assumed that 0 is the first component added.
   virtual int ReadScalarsPerElement(char* fileName, char* description,
-				    int numberOfComponents = 1, int component = 0);
+				    int numberOfComponents = 1,
+                                    int component = 0);
 
   // Description:
   // Read vectors per element for this dataset.  If an error occurred, 0 is
@@ -118,7 +120,7 @@ protected:
   // Read an unstructured part (partId) from the geometry file and create a
   // vtkUnstructuredGrid output.  Return 0 if EOF reached. Return -1 if
   // an error occurred.
-  virtual int CreateUnstructuredGridOutput(int partId, char line[256]);
+  virtual int CreateUnstructuredGridOutput(int partId, char line[80]);
   
   // Description:
   // Read a structured part from the geometry file and create a
@@ -133,22 +135,32 @@ protected:
   // Description:
   // Read a structured part from the geometry file and create a
   // vtkImageData output.  Return 0 if EOF reached.
-  int CreateImageDataOutput(int partId, char line[256]);
+  int CreateImageDataOutput(int partId, char line[80]);
   
   // Description:
-  // Set/Get the Model file name.
-  vtkSetStringMacro(GeometryFileName);
-  vtkGetStringMacro(GeometryFileName);
+  // Internal function to read in a line up to 80 characters.
+  // Returns zero if there was an error.
+  int ReadLine(char result[80]);
 
   // Description:
-  // Set/Get the Measured file name.
-  vtkSetStringMacro(MeasuredFileName);
-  vtkGetStringMacro(MeasuredFileName);
+  // Internal function to read in a single integer.
+  // Returns zero if there was an error.
+  int ReadInt(int *result);
 
   // Description:
-  // Set/Get the Match file name.
-  vtkSetStringMacro(MatchFileName);
-  vtkGetStringMacro(MatchFileName);
+  // Internal function to read in an integer array.
+  // Returns zero if there was an error.
+  int ReadIntArray(int *result, int numInts);
+
+  // Description:
+  // Internal function to read in a float array.
+  // Returns zero if there was an error.
+  int ReadFloatArray(float *result, int numFloats);
+
+  int NodeIdsListed;
+  int ElementIdsListed;
+  
+  FILE *IFile;
 };
 
 #endif
