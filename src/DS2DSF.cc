@@ -53,6 +53,12 @@ void vlDataSetToDataSetFilter::Initialize()
     }
 }
 
+void vlDataSetToDataSetFilter::ComputeBounds()
+{
+  float *bounds = this->DataSet->GetBounds();
+  for (int i=0; i<6; i++) this->Bounds[i] = bounds[i];
+}
+
 void vlDataSetToDataSetFilter::PrintSelf(ostream& os, vlIndent indent)
 {
   if (this->ShouldIPrint(vlDataSetToDataSetFilter::GetClassName()))

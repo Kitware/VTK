@@ -16,18 +16,17 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 //
-// Class to transform points
+// Warp geometry in direction of vectors
 //
 #ifndef __vlWarpVector_h
 #define __vlWarpVector_h
 
 #include "PtS2PtSF.hh"
-#include "Trans.hh"
 
 class vlWarpVector : public vlPointSetToPointSetFilter
 {
 public:
-  vlWarpVector() : ScaleFactor(0.0) {};
+  vlWarpVector() : ScaleFactor(1.0) {};
   ~vlWarpVector() {};
   char *GetClassName() {return "vlWarpVector";};
   void PrintSelf(ostream& os, vlIndent indent);

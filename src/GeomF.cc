@@ -141,7 +141,7 @@ void vlGeometryFilter::Execute()
           for ( i=0; i < numPts; i++)
             {
             ptId = cell->GetPointId(i);
-            x = this->GetPoint(ptId);
+            x = this->Input->GetPoint(ptId);
             pts[i] = newPts->InsertNextPoint(x);
             this->PointData.CopyData(pd,ptId,pts[i]);
             }
@@ -175,9 +175,8 @@ void vlGeometryFilter::Execute()
 //
 // Update ourselves
 //
-  newPts->Squeeze();
   this->SetPoints(newPts);
-  this->PointData.Squeeze();
+  this->Squeeze();
 
   delete [] cellVis;
 
