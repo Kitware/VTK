@@ -24,7 +24,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleRubberBandZoom, "1.1");
+vtkCxxRevisionMacro(vtkInteractorStyleRubberBandZoom, "1.2");
 vtkStandardNewMacro(vtkInteractorStyleRubberBandZoom);
 
 vtkInteractorStyleRubberBandZoom::vtkInteractorStyleRubberBandZoom()
@@ -96,12 +96,14 @@ void vtkInteractorStyleRubberBandZoom::OnLeftButtonDown()
     {
     return;
     }
+  this->Moving = 1;
   
   vtkRenderWindow *renWin = this->Interactor->GetRenderWindow();
   
   this->StartPosition[0] = this->Interactor->GetEventPosition()[0];
   this->StartPosition[1] = this->Interactor->GetEventPosition()[1];
-  this->Moving = 1;
+  this->EndPosition[0] = this->StartPosition[0];
+  this->EndPosition[1] = this->StartPosition[1];
   
   this->PixelArray->Initialize();
   this->PixelArray->SetNumberOfComponents(3);
@@ -119,8 +121,12 @@ void vtkInteractorStyleRubberBandZoom::OnLeftButtonUp()
     {
     return;
     }
-  
-  this->Zoom();
+
+  if (   (this->StartPosition[0] != this->EndPosition[0])
+      || (this->StartPosition[1] != this->EndPosition[1]) )
+    {
+    this->Zoom();
+    }
   this->Moving = 0;
 }
 
@@ -129,38 +135,64 @@ void vtkInteractorStyleRubberBandZoom::Zoom()
   int width, height;
   width = abs(this->EndPosition[0] - this->StartPosition[0]);
   height = abs(this->EndPosition[1] - this->StartPosition[1]);
-  int *size = this->Interactor->GetRenderWindow()->GetSize();
+  int *size = this->CurrentRenderer->GetSize();
+  int *origin = this->CurrentRenderer->GetOrigin();
   vtkCamera *cam = this->CurrentRenderer->GetActiveCamera();
   
   int min[2];
-  float center[3];
+  float rbcenter[3];
   min[0] = this->StartPosition[0] < this->EndPosition[0] ?
     this->StartPosition[0] : this->EndPosition[0];
   min[1] = this->StartPosition[1] < this->EndPosition[1] ?
     this->StartPosition[1] : this->EndPosition[1];
 
-  center[0] = min[0] + 0.5*width;
-  center[1] = min[1] + 0.5*height;
-  center[2] = 0;
+  rbcenter[0] = min[0] + 0.5*width;
+  rbcenter[1] = min[1] + 0.5*height;
+  rbcenter[2] = 0;
   
-  this->CurrentRenderer->SetDisplayPoint(center);
+  this->CurrentRenderer->SetDisplayPoint(rbcenter);
   this->CurrentRenderer->DisplayToView();
   this->CurrentRenderer->ViewToWorld();
-  
-  float *worldPt = this->CurrentRenderer->GetWorldPoint();
-  
+
+  float invw;
+  float worldRBCenter[4];
+  this->CurrentRenderer->GetWorldPoint(worldRBCenter);
+  invw = 1.0f/worldRBCenter[3];
+  worldRBCenter[0] *= invw;
+  worldRBCenter[1] *= invw;
+  worldRBCenter[2] *= invw;
+
+  float winCenter[3];
+  winCenter[0] = origin[0] + 0.5f*size[0];
+  winCenter[1] = origin[1] + 0.5f*size[1];
+  winCenter[2] = 0;
+
+  this->CurrentRenderer->SetDisplayPoint(winCenter);
+  this->CurrentRenderer->DisplayToView();
+  this->CurrentRenderer->ViewToWorld();
+
+  float worldWinCenter[4];
+  this->CurrentRenderer->GetWorldPoint(worldWinCenter);
+  invw = 1.0f/worldWinCenter[3];
+  worldWinCenter[0] *= invw;
+  worldWinCenter[1] *= invw;
+  worldWinCenter[2] *= invw;
+
+  float translation[3];
+  translation[0] = worldRBCenter[0] - worldWinCenter[0];
+  translation[1] = worldRBCenter[1] - worldWinCenter[1];
+  translation[2] = worldRBCenter[2] - worldWinCenter[2];
+
   float pos[3], fp[3];
   cam->GetPosition(pos);
   cam->GetFocalPoint(fp);
-  
-  pos[0] = worldPt[0];
-  pos[1] = worldPt[1];
-  fp[0] = worldPt[0];
-  fp[1] = worldPt[1];
-  
+
+  pos[0] += translation[0]; pos[1] += translation[1]; pos[2] += translation[2];
+  fp[0] += translation[0];  fp[1] += translation[1];  fp[2] += translation[2];
+
   cam->SetPosition(pos);
   cam->SetFocalPoint(fp);
-  
+
   if (width > height)
     {
     cam->Zoom(size[0] / (float)width);
