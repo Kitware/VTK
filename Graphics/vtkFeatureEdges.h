@@ -30,7 +30,7 @@
 // is only a problem if there are point data scalars.)
 
 // .SECTION See Also
-// vtkFeatureVertices
+// vtkExtractEdges
 
 #ifndef __vtkFeatureEdges_h
 #define __vtkFeatureEdges_h
