@@ -114,8 +114,9 @@ class VTK_EXPORT vtkMatrix4x4 : public vtkObject
   // Description:
   // Sets the element i,j in the matrix.
   void SetElement(int i, int j, float value);
+//BTX
   void SetElement(int i, int j, double value);
-
+//ETX
   // Description:
   // Returns the element i,j from the matrix.
   double GetElement(int i, int j) const {return this->Element[i][j];};

@@ -131,19 +131,22 @@ class VTK_EXPORT vtkTransform : public vtkObject
   // origin and x, y, z. It then concatenates this matrix with the current
   // transformation matrix.
   void RotateWXYZ ( float angle, float x, float y, float z);
+//BTX
   void RotateWXYZ (double angle, double x, double y, double z);
-
+//ETX
   // Description:
   // Scales the current transformation matrix in the x, y and z directions.
   // A scale factor of zero will automatically be replaced with one.
   void Scale ( float x, float y, float z);
+//BTX
   void Scale ( double x, double y, double z);
-
+//ETX
   // Description:
   // Translate the current transformation matrix by the vector {x, y, z}.
   void Translate ( float x, float y, float z);
+//BTX
   void Translate ( double x, double y, double z);
-
+//ETX
   // Description:
   // Transposes the current transformation matrix.
   void Transpose();
