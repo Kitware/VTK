@@ -44,7 +44,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.67");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.68");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -52,6 +52,7 @@ vtkCxxSetObjectMacro(vtkImagePlaneWidget, SelectedPlaneProperty, vtkProperty);
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, CursorProperty, vtkProperty);
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, MarginProperty, vtkProperty);
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, TexturePlaneProperty, vtkProperty);
+vtkCxxSetObjectMacro(vtkImagePlaneWidget, ColorMap, vtkImageMapToColors);
 
 vtkImagePlaneWidget::vtkImagePlaneWidget() : vtkPolyDataSourceWidget()
 {
@@ -1328,6 +1329,10 @@ void vtkImagePlaneWidget::UpdateNormal()
   this->Reslice->SetResliceAxes(this->ResliceAxes);
 
   this->ImageData = this->Reslice->GetInput();
+  if (!this->ImageData)
+    {
+    return;
+    }
 
   // Calculate appropriate pixel spacing for the reslicing
   //
@@ -1963,11 +1968,6 @@ vtkTextProperty* vtkImagePlaneWidget::GetTextProperty()
 vtkTexture* vtkImagePlaneWidget::GetTexture()
 {
   return this->Texture;
-}
-
-vtkImageMapToColors* vtkImagePlaneWidget::GetImageMapToColors()
-{
-  return this->ColorMap;
 }
 
 void vtkImagePlaneWidget::GetVector1(float v1[3])
