@@ -86,7 +86,7 @@ void vtkTriangleFilter::Execute()
 
     if ( ! (cellNum % 5000) ) //manage progress reports / early abort
       {
-      this->UpdateProgress (cellNum / numCells);
+      this->UpdateProgress ((float)cellNum / numCells);
       if ( this->GetAbortExecute() ) break;
       }
     }//for each polygon
