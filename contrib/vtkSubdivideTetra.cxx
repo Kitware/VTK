@@ -62,7 +62,7 @@ void vtkSubdivideTetra::Execute()
   vtkPointData *outputPD = output->GetPointData();
   vtkPoints *newPts;
   int ptId;
-  vtkCellTypes *types=vtkCellTypes::New(); types->ReferenceCountingOff();
+  vtkCellTypes *types=vtkCellTypes::New();
   vtkCellArray *connections;
   float weights[4], x0[3], x1[3], x2[3], x3[3], x[3];
   int p0, p1, p2, p3, center;
@@ -238,6 +238,8 @@ void vtkSubdivideTetra::Execute()
 
   vtkDebugMacro(<<"Subdivided " << numCells << " cells");
 
+  types->Delete();
+  locator->Delete();
   newPts->Delete();
   output->Squeeze();
 }
