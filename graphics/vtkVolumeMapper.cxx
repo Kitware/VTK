@@ -69,7 +69,9 @@ float *vtkVolumeMapper::GetBounds()
   static float bounds[] = {-1.0,1.0, -1.0,1.0, -1.0,1.0};
 
   if ( ! this->ScalarInput ) 
+    {
     return bounds;
+    }
   else
     {
     this->ScalarInput->Update();
@@ -82,7 +84,10 @@ float *vtkVolumeMapper::GetBounds()
 void vtkVolumeMapper::GetBounds(float bounds[6])
 {
   this->GetBounds();
-  for (int i=0; i<6; i++) bounds[i] = this->Bounds[i];
+  for (int i=0; i<6; i++)
+    {
+    bounds[i] = this->Bounds[i];
+    }
 }
 
 float *vtkVolumeMapper::GetCenter()

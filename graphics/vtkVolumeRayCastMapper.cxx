@@ -136,9 +136,13 @@ void vtkVolumeRayCastMapper::InitializeRender( vtkRenderer *ren, vtkVolume *vol,
   vol->UpdateScalarOpacityforSampleSize( ren, sampleDistance );
 
   if ( this->RayBounder )
+    {
     this->DepthRangeBufferPointer = this->RayBounder->GetRayBounds( ren );
+    }
   else
+    {
     this->DepthRangeBufferPointer = NULL;
+    }
 
   this->GeneralImageInitialization( ren, vol );
 
@@ -184,8 +188,14 @@ void vtkVolumeRayCastMapper::CastViewRay( struct VolumeRayCastRayInfoStruct *ray
 			  rayInfo->RayPixel[0]) + 1 );
     if ( bounderNear > 0.0 )
       {
-      if ( bounderNear > nearplane ) nearplane = bounderNear;
-      if ( bounderFar  < farplane )  farplane  = bounderFar; 	
+      if ( bounderNear > nearplane )
+	{
+	nearplane = bounderNear;
+	}
+      if ( bounderFar  < farplane )
+	{
+	farplane  = bounderFar; 	
+	}
       }
 
     if ( bounderNear <= 0.0 || nearplane >= farplane )
@@ -244,12 +254,18 @@ void vtkVolumeRayCastMapper::CastViewRay( struct VolumeRayCastRayInfoStruct *ray
 	 fabs((double) volumeRayIncrement[1]) &&
 	 fabs((double) volumeRayIncrement[0]) >= 
 	 fabs((double) volumeRayIncrement[2]) )
+      {
       largest_increment_index = 0;
+      }
     else if (fabs((double) volumeRayIncrement[1]) >= 
 	     fabs((double) volumeRayIncrement[2]))
+      {
       largest_increment_index = 1;
+      }
     else
+      {
       largest_increment_index = 2;
+      }
 
 
     rayInfo->VolumeRayNumberOfSamples = 
@@ -306,15 +322,24 @@ int vtkVolumeRayCastMapper::ClipRayAgainstVolume( struct VolumeRayCastRayInfoStr
       diff = 0;
 
       if ( rayStart[loop] < (this->VolumeBounds[2*loop]+0.001) )
+	{
 	diff = (this->VolumeBounds[2*loop]+0.001) - rayStart[loop];
+	}
       else if ( rayStart[loop] > (this->VolumeBounds[2*loop+1]-0.001) )
+	{
 	diff = (this->VolumeBounds[2*loop+1]-0.001) - rayStart[loop];
+	}
       
       if ( diff )
 	{
 	if ( rayDirection[loop] != 0.0 ) 
+	  {
 	  t = diff / rayDirection[loop];
-	else t = -1.0;
+	  }
+	else
+	  {
+	  t = -1.0;
+	  }
 	
 	if ( t > 0.0 )
 	  {
@@ -354,15 +379,24 @@ int vtkVolumeRayCastMapper::ClipRayAgainstVolume( struct VolumeRayCastRayInfoStr
       diff = 0;
       
       if ( rayEnd[loop] < (this->VolumeBounds[2*loop]+0.001) )
+	{
 	diff = (this->VolumeBounds[2*loop]+0.001) - rayEnd[loop];
+	}
       else if ( rayEnd[loop] > (this->VolumeBounds[2*loop+1]-0.001) )
+	{
 	diff = (this->VolumeBounds[2*loop+1]-0.001) - rayEnd[loop];
+	}
       
       if ( diff )
 	{
 	if ( rayDirection[loop] != 0.0 ) 
+	  {
 	  t = diff / rayDirection[loop];
-	else t = 1.0;
+	  }
+	else
+	  {
+	  t = 1.0;
+	  }
 	
 	if ( t < 0.0 )
 	  {
@@ -447,20 +481,22 @@ void vtkVolumeRayCastMapper::GeneralImageInitialization( vtkRenderer *ren,
   viewToVolumeTransform->Concatenate( worldToVolumeTransform->GetMatrixPointer() );
 
   for ( j = 0; j < 4; j++ )
+    {
     for ( i = 0; i < 4; i++ )
       {
       this->WorldToVolumeMatrix[j*4 + i] = 
         worldToVolumeTransform->GetMatrixPointer()->Element[j][i];
       }
-
+    }
 
   for ( j = 0; j < 4; j++ )
+    {
     for ( i = 0; i < 4; i++ )
       {
       this->ViewToVolumeMatrix[j*4 + i] = 
         viewToVolumeTransform->GetMatrixPointer()->Element[j][i];
       }
-
+    }
   // Get the size of the data for limit checks and compute increments
   this->ScalarInput->GetDimensions( scalarDataSize );
   this->DataIncrement[2] = scalarDataSize[0] * scalarDataSize[1];
@@ -495,9 +531,13 @@ void vtkVolumeRayCastMapper::GeneralImageInitialization( vtkRenderer *ren,
     for ( i = 0; i < 3; i++ )
       {
       if ( this->ClippingPlanes[2*i] > this->VolumeBounds[2*i] )
+	{
 	this->VolumeBounds[2*i] = this->ClippingPlanes[2*i];
+	}
       if ( this->ClippingPlanes[2*i+1] < this->VolumeBounds[2*i+1] )
+	{
 	this->VolumeBounds[2*i+1] = this->ClippingPlanes[2*i+1];
+	}
       }
     }
 

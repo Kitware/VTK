@@ -239,7 +239,9 @@ inline char *vtkVolumeProperty::GetInterpolationTypeAsString(void)
     return "Linear";
     }
   else
+    {
     return "Unknown";
+    }
 }
 
 #endif

@@ -124,7 +124,10 @@ static void CastMaxScalarValueRay( vtkVolumeRayCastMIPFunction *cast_function,
 		voxel[1] * yinc + voxel[0] );
 
       // If this is greater than the max, this is the new max.
-      if ( (int) value > max ) max = (int) value;
+      if ( (int) value > max )
+	{
+	max = (int) value;
+	}
       
       // Increment our position and compute our voxel location
       ray_position[0] += ray_increment[0];
@@ -203,7 +206,10 @@ static void CastMaxScalarValueRay( vtkVolumeRayCastMIPFunction *cast_function,
       vtkTrilinFuncMacro( value, xoff, yoff, zoff, A, B, C, D, E, F, G, H );
 
       // If this value is greater than max, it is the new max
-      if ( (int) value > max ) max = (int) value;
+      if ( (int) value > max )
+	{
+	max = (int) value;
+	}
 
       // Increment our position and compute our voxel location
       ray_position[0] += ray_increment[0];
@@ -216,9 +222,13 @@ static void CastMaxScalarValueRay( vtkVolumeRayCastMIPFunction *cast_function,
     }
 
   if ( max < 0 ) 
+    {
     max = 0;
+    }
   else if ( max > volumeInfo->Volume->GetArraySize() - 1 )
+    {
     max = volumeInfo->Volume->GetArraySize() - 1;
+    }
 
   max_opacity = scalarArray[max];
   
@@ -310,9 +320,13 @@ static void CastMaxOpacityRay( vtkVolumeRayCastMIPFunction *cast_function, T *da
 		voxel[1] * yinc + voxel[0] );
 
       if ( value < 0 ) 
+	{
 	value = 0;
+	}
       else if ( value > volumeInfo->Volume->GetArraySize() - 1 )
+	{
 	value = volumeInfo->Volume->GetArraySize() - 1;
+	}
 
       opacity = SOTF[(int)value];
  
@@ -400,9 +414,13 @@ static void CastMaxOpacityRay( vtkVolumeRayCastMIPFunction *cast_function, T *da
       vtkTrilinFuncMacro( value, xoff, yoff, zoff, A, B, C, D, E, F, G, H );
 
       if ( value < 0 ) 
+	{
 	value = 0;
+	}
       else if ( value > volumeInfo->Volume->GetArraySize() - 1 )
+	{
 	value = volumeInfo->Volume->GetArraySize() - 1;
+	}
 
       opacity = SOTF[(int)value];
  

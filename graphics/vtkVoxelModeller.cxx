@@ -110,7 +110,10 @@ void vtkVoxelModeller::Execute()
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] * this->SampleDimensions[2];
   newScalars = vtkScalars::New(VTK_BIT);
   newScalars->SetNumberOfScalars(numPts);
-  for (i=0; i<numPts; i++) newScalars->SetScalar(i,0);
+  for (i=0; i<numPts; i++)
+    {
+    newScalars->SetScalar(i,0);
+    }
 
   output->SetDimensions(this->GetSampleDimensions());
   maxDistance = this->ComputeModelBounds(origin,spacing);

@@ -91,7 +91,10 @@ void vtkVectorNorm::Execute()
       {
       v = ptVectors->GetVector(i);
       s = sqrt((double)v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
-      if ( s > maxScalar ) maxScalar = s;
+      if ( s > maxScalar )
+	{
+	maxScalar = s;
+	}
       newScalars->SetScalar(i,s);
 
       if ( ! (i % 20000) ) 
@@ -127,7 +130,10 @@ void vtkVectorNorm::Execute()
       {
       v = cellVectors->GetVector(i);
       s = sqrt((double)v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
-      if ( s > maxScalar ) maxScalar = s;
+      if ( s > maxScalar )
+	{
+	maxScalar = s;
+	}
       newScalars->SetScalar(i,s);
       if ( ! (i % 20000) ) 
         {

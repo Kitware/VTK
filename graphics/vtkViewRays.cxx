@@ -116,10 +116,10 @@ float *vtkViewRays::GetPerspectiveViewRays(void)
 
   // We need to update the rays if this object has been modified more
   // recently than the last time the view rays were calculated
-  update_info = (this->GetMTime() > ViewRaysMTime);
+  update_info = (this->GetMTime() > this->ViewRaysMTime);
  
   // Check to see if camera mtime has changed
-  cam_mtime = Renderer->GetActiveCamera()->GetViewingRaysMTime();
+  cam_mtime = this->Renderer->GetActiveCamera()->GetViewingRaysMTime();
  
   // We also need to update if the view rays mtime in the camera is
   // not the same as our copy of it. This means that some ivar in the
@@ -136,7 +136,9 @@ float *vtkViewRays::GetPerspectiveViewRays(void)
   if(update_info)
     {
     if ( this->ViewRays )
+      {
       delete[] this->ViewRays;
+      }
 
     this->ViewRays = new float[this->Size[0]*this->Size[1]*3];
     this->ComputePerspectiveInfo(this->ViewRays,this->Size);
@@ -177,11 +179,11 @@ void vtkViewRays::ComputePerspectiveInfo(float *vr_ptr,int size[2])
     }  
 
   // Get the aspect ratio of the render area from the renderer
-  aspect = Renderer->GetAspect();
+  aspect = this->Renderer->GetAspect();
   
   // get the perspective transformation from the active camera
   // given the aspect ratio
-  mat->DeepCopy(Renderer->GetActiveCamera()->GetPerspectiveTransformMatrix(
+  mat->DeepCopy(this->Renderer->GetActiveCamera()->GetPerspectiveTransformMatrix(
     aspect[0]/aspect[1],-1,1));
 
   // Invert this matrix because we want to go from screen space to
@@ -227,7 +229,9 @@ void vtkViewRays::ComputePerspectiveInfo(float *vr_ptr,int size[2])
         nz = result[2]/mag;
 	}
       else
+	{
         nx = ny = nz = 0.0;
+	}
       
       // Set the value of this view ray
       *(vr_ptr++) = nx;
@@ -273,10 +277,10 @@ float *vtkViewRays::GetParallelIncrements( void )
 
   // We need to update the vectors if this object has been modified more
   // recently than the last time the vectors were calculated
-  update_info = (this->GetMTime() > ViewRaysMTime);
+  update_info = (this->GetMTime() > this->ViewRaysMTime);
  
   // Check to see if camera mtime has changed
-  cam_mtime = Renderer->GetActiveCamera()->GetViewingRaysMTime();
+  cam_mtime = this->Renderer->GetActiveCamera()->GetViewingRaysMTime();
  
   // We also need to update if the view rays mtime in the camera is
   // not the same as our copy of it. This means that some ivar in the
@@ -325,10 +329,10 @@ float *vtkViewRays::GetParallelStartPosition( void )
 
   // We need to update the start position if this object has been modified more
   // recently than the last time the start position was calculated
-  update_info = (this->GetMTime() > ViewRaysMTime);
+  update_info = (this->GetMTime() > this->ViewRaysMTime);
  
   // Check to see if camera mtime has changed
-  cam_mtime = Renderer->GetActiveCamera()->GetViewingRaysMTime();
+  cam_mtime = this->Renderer->GetActiveCamera()->GetViewingRaysMTime();
  
   // We also need to update if the view rays mtime in the camera is
   // not the same as our copy of it. This means that some ivar in the

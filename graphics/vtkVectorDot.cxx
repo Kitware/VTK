@@ -94,15 +94,27 @@ void vtkVectorDot::Execute()
     n = inNormals->GetNormal(ptId);
     v = inVectors->GetVector(ptId);
     s = vtkMath::Dot(n,v);
-    if ( s < min ) min = s;
-    if ( s > max ) max = s;
+    if ( s < min )
+      {
+      min = s;
+      }
+    if ( s > max )
+      {
+      max = s;
+      }
     newScalars->InsertScalar(ptId,s);
     }
 //
 // Map scalars into scalar range
 //
-  if ( (dR=this->ScalarRange[1]-this->ScalarRange[0]) == 0.0 ) dR = 1.0;
-  if ( (dS=max-min) == 0.0 ) dS = 1.0;
+  if ( (dR=this->ScalarRange[1]-this->ScalarRange[0]) == 0.0 )
+    {
+    dR = 1.0;
+    }
+  if ( (dS=max-min) == 0.0 )
+    {
+    dS = 1.0;
+    }
 
   for ( ptId=0; ptId < numPts; ptId++ )
     {

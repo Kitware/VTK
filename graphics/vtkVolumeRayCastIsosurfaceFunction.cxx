@@ -49,11 +49,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkVolume.h"
 
 /*    Is x between y and z?                                     */
-#define In_Range(x,y,z)      ((x) >= (y) && (x) <= (z))
-#define Floor(x)             (((x) < 0.0)?((int)((x)-1.0)):((int)(x)))
-#define Sign(x)              (((x) < 0.0)?(-1):(1))
-#define FSign(x)             (((x) < 0.0)?(-1.0):(1.0))
-#define FCeil( x )           ((x == (int)(x))?(x):(float)((int)(x+1.0)))
+#define VTK_In_Range(x,y,z)      ((x) >= (y) && (x) <= (z))
+#define VTK_Floor(x)             (((x) < 0.0)?((int)((x)-1.0)):((int)(x)))
+#define VTK_Sign(x)              (((x) < 0.0)?(-1):(1))
 
 #ifndef TRUE
 #define TRUE        1
@@ -203,7 +201,9 @@ void trilin_line_intersection( float start[3], float vec[3],
     ****/
   if ( (c0 >= 0.0 && c1 >= 0.0 && c2 >= 0.0 && c3 >= 0.0) 
        || (c0 <= 0.0 && c1 <= 0.0 && c2 <= 0.0 && c3 <= 0.0))
+    {
     return;
+    }
   
   vtkMath::SolveCubic( c0, c1, c2, c3, &r1, &r2, &r3, &num_roots );
   
@@ -332,9 +332,9 @@ static void CastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
   ray_position_y = ray_start[1];
   ray_position_z = ray_start[2];
 
-  voxel_x = Floor( ray_position_x );
-  voxel_y = Floor( ray_position_y );
-  voxel_z = Floor( ray_position_z );
+  voxel_x = VTK_Floor( ray_position_x );
+  voxel_y = VTK_Floor( ray_position_y );
+  voxel_z = VTK_Floor( ray_position_z );
   
   ray_end[0] = ray_start[0] + num_steps*ray_increment[0];
   ray_end[1] = ray_start[1] + num_steps*ray_increment[1];
@@ -359,9 +359,9 @@ static void CastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
   // Set the local variable to be isovalue for the surface
   isovalue = cast_function->IsoValue;
 
-  tstep_x = Sign( ray_direction_x );
-  tstep_y = Sign( ray_direction_y );
-  tstep_z = Sign( ray_direction_z );
+  tstep_x = VTK_Sign( ray_direction_x );
+  tstep_y = VTK_Sign( ray_direction_y );
+  tstep_z = VTK_Sign( ray_direction_z );
   
   end_voxel_x = (int)ray_end[0] + tstep_x;
   end_voxel_y = (int)ray_end[1] + tstep_y;
@@ -599,9 +599,9 @@ static void CastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
   ray_position_y = ray_start[1];
   ray_position_z = ray_start[2];
 
-  voxel_x = Floor( ray_position_x );
-  voxel_y = Floor( ray_position_y );
-  voxel_z = Floor( ray_position_z );
+  voxel_x = VTK_Floor( ray_position_x );
+  voxel_y = VTK_Floor( ray_position_y );
+  voxel_z = VTK_Floor( ray_position_z );
 
   ray_end[0] = ray_start[0] + num_steps*ray_increment[0];
   ray_end[1] = ray_start[1] + num_steps*ray_increment[1];
@@ -626,9 +626,9 @@ static void CastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
   // Set the local variable to be isovalue for the surface
   isovalue = cast_function->IsoValue;
 
-  tstep_x = Sign( ray_direction_x );
-  tstep_y = Sign( ray_direction_y );
-  tstep_z = Sign( ray_direction_z );
+  tstep_x = VTK_Sign( ray_direction_x );
+  tstep_y = VTK_Sign( ray_direction_y );
+  tstep_z = VTK_Sign( ray_direction_z );
   
   end_voxel_x = (int)ray_end[0] + tstep_x;
   end_voxel_y = (int)ray_end[1] + tstep_y;
@@ -728,10 +728,12 @@ static void CastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
 	  point_y = line_info.local_position[loop][1] + voxel_y;
 	  point_z = line_info.local_position[loop][2] + voxel_z;
 	  
-	  if ((In_Range(point_x, ((float)(voxel_x) - 0.001 ), ((float)(voxel_x) + 1.001))) &&
-	      (In_Range(point_y, ((float)(voxel_y) - 0.001 ), ((float)(voxel_y) + 1.001))) &&
-	      (In_Range(point_z, ((float)(voxel_z) - 0.001 ), ((float)(voxel_z) + 1.001))))
+	  if ((VTK_In_Range(point_x, ((float)(voxel_x) - 0.001 ), ((float)(voxel_x) + 1.001))) &&
+	      (VTK_In_Range(point_y, ((float)(voxel_y) - 0.001 ), ((float)(voxel_y) + 1.001))) &&
+	      (VTK_In_Range(point_z, ((float)(voxel_z) - 0.001 ), ((float)(voxel_z) + 1.001))))
+	    {
 	    break;
+	    }
 	  } 
 	      
 	if ( loop < line_info.num_intersections )

@@ -488,11 +488,14 @@ void vtkWindowedSincPolyDataFilter::Execute()
     cprime[this->NumberOfIterations] = 0.0;
     cprime[this->NumberOfIterations-1] = 0.0;
     if (this->NumberOfIterations > 1)
+      {
       cprime[this->NumberOfIterations-2] = 2.0*(this->NumberOfIterations-1)
 	* c[this->NumberOfIterations-1];
+      }
     for (i=this->NumberOfIterations-3; i>=0; i--)
+      {
       cprime[i] = cprime[i+2] + 2.0*(i+1)*c[i+1];
-
+      }
     // Evaluate the filter and its derivative at k_pb (note the discrepancy
     // of calculating the c's based on theta_pb + sigma and evaluating the
     // filter at k_pb (which is equivalent to theta_pb)

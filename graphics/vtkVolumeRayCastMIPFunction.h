@@ -121,7 +121,9 @@ inline char *vtkVolumeRayCastMIPFunction::GetMaximizeMethodAsString(void)
     return "Maximize Opacity";
     }
   else
+    {
     return "Unknown";
+    }
 }
 
 #endif

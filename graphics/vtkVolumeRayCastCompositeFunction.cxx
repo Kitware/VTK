@@ -118,16 +118,22 @@ static void CastRay_NN_Unshaded( vtkVolumeRayCastCompositeFunction *cast_functio
 
   // Get a pointer to the gradient magnitudes for this volume
   if ( !grad_op_is_constant )
+    {
     grad_mag_ptr = cast_function->GradientMagnitudes;
+    }
 
   // Set up the data values for the first pass through the loop
   offset = voxel[2] * zinc + voxel[1] * yinc + voxel[0];
   value = *(data_ptr + offset);
   opacity = SOTF[value];
   if ( grad_op_is_constant )
+    {
     gradient_opacity = gradient_opacity_constant;
+    }
   else 
+    {
     gradient_opacity = GOTF[*(grad_mag_ptr + offset)];
+    }
   
   // Keep track of previous voxel to know when we step into a new one
   prev_voxel[0] = voxel[0];
@@ -158,9 +164,13 @@ static void CastRay_NN_Unshaded( vtkVolumeRayCastCompositeFunction *cast_functio
 	if ( opacity )
 	  {
 	  if ( grad_op_is_constant )
+	    {
 	    gradient_opacity = gradient_opacity_constant;
+	    }
 	  else 
+	    {
 	    gradient_opacity = GOTF[*(grad_mag_ptr + offset)];
+	    }
 	  opacity *= gradient_opacity;
 	  }
 
@@ -207,9 +217,13 @@ static void CastRay_NN_Unshaded( vtkVolumeRayCastCompositeFunction *cast_functio
 	if ( opacity )
 	  {
 	  if ( grad_op_is_constant )
+	    {
 	    gradient_opacity = gradient_opacity_constant;
+	    }
 	  else 
+	    {
 	    gradient_opacity = GOTF[*(grad_mag_ptr + offset)];	
+	    }
 	  opacity *= gradient_opacity;
 	  }
 
@@ -240,14 +254,22 @@ static void CastRay_NN_Unshaded( vtkVolumeRayCastCompositeFunction *cast_functio
 
   // Cap the intensity value at 1.0
   if ( accum_red_intensity > 1.0 )
+    {
     accum_red_intensity = 1.0;
+    }
   if ( accum_green_intensity > 1.0 )
+    {
     accum_green_intensity = 1.0;
+    }
   if ( accum_blue_intensity > 1.0 )
+    {
     accum_blue_intensity = 1.0;
+    }
   
   if( remaining_opacity < VTK_REMAINING_OPACITY )
+    {
     remaining_opacity = 0.0;
+    }
 
   // Set the return pixel value.  The depth value is currently useless and
   // should be fixed.  What should depth be in this case?  First 
@@ -259,9 +281,13 @@ static void CastRay_NN_Unshaded( vtkVolumeRayCastCompositeFunction *cast_functio
   rayInfo->VolumeRayStepsTaken = steps_this_ray;
 
   if ( remaining_opacity < 1.0 )
+    {
     rayInfo->RayDepth = 0.0;
+    }
   else 
+    {
     rayInfo->RayDepth = VTK_LARGE_FLOAT;
+    }
   
 }
 
@@ -343,7 +369,9 @@ static void CastRay_NN_Shaded( vtkVolumeRayCastCompositeFunction *cast_function,
 
   // Get a pointer to the gradient magnitudes for this volume
   if ( !grad_op_is_constant )
+    {
     grad_mag_ptr = cast_function->GradientMagnitudes;
+    }
 
   // Move the increments into local variables
   xinc = cast_function->DataIncrement[0];
@@ -398,9 +426,13 @@ static void CastRay_NN_Shaded( vtkVolumeRayCastCompositeFunction *cast_function,
 	if ( opacity )
 	  {
 	  if ( grad_op_is_constant )
+	    {
 	    gradient_opacity = gradient_opacity_constant;
+	    }
 	  else 
+	    {
 	    gradient_opacity = GOTF[*(grad_mag_ptr + offset)];
+	    }
 	  
 	  opacity *= gradient_opacity;
 	  
@@ -409,11 +441,15 @@ static void CastRay_NN_Shaded( vtkVolumeRayCastCompositeFunction *cast_function,
 	// Compute the red shaded value (only if there is some opacity)
 	// This is grey-scale so green and blue are the same as red
 	if ( opacity )
+	  {
 	  red_shaded_value = opacity * remaining_opacity *
 	    ( red_d_shade[*(encoded_normals + offset)] * GTF[value] +
 	      red_s_shade[*(encoded_normals + offset)] );
+	  }
 	else
+	  {
 	  red_shaded_value = 0.0;
+	  }
 
 	prev_voxel[0] = voxel[0];
 	prev_voxel[1] = voxel[1];
@@ -462,7 +498,9 @@ static void CastRay_NN_Shaded( vtkVolumeRayCastCompositeFunction *cast_function,
 	if ( opacity )
 	  {
 	  if ( grad_op_is_constant )
+	    {
 	    gradient_opacity = gradient_opacity_constant;
+	    }
 	  else 
 	    {
 	    gradient_opacity = GOTF[*(grad_mag_ptr + offset)];
@@ -516,14 +554,22 @@ static void CastRay_NN_Shaded( vtkVolumeRayCastCompositeFunction *cast_function,
   
   // Cap the intensities at 1.0
   if ( accum_red_intensity > 1.0 )
+    {
     accum_red_intensity = 1.0;
+    }
   if ( accum_green_intensity > 1.0 )
+    {
     accum_green_intensity = 1.0;
+    }
   if ( accum_blue_intensity > 1.0 )
+    {
     accum_blue_intensity = 1.0;
+    }
   
   if( remaining_opacity < VTK_REMAINING_OPACITY )
+    {
     remaining_opacity = 0.0;
+    }
   
   // Set the return pixel value.  The depth value is currently useless and
   // should be fixed.  What should depth be in this case?  First 
@@ -535,9 +581,13 @@ static void CastRay_NN_Shaded( vtkVolumeRayCastCompositeFunction *cast_function,
   rayInfo->VolumeRayStepsTaken = steps_this_ray;
   
   if ( remaining_opacity < 1.0 )
+    {
     rayInfo->RayDepth = 0.0;
+    }
   else 
+    {
     rayInfo->RayDepth = VTK_LARGE_FLOAT;
+    }
 }
 
 // This is the templated function that actually casts a ray and computes
@@ -605,7 +655,9 @@ static void CastRay_TrilinSample_Unshaded(
 
   // Get a pointer to the gradient magnitudes for this volume
   if ( !grad_op_is_constant )
+    {
     grad_mag_ptr = cast_function->GradientMagnitudes;
+    }
 
   // Move the increments into local variables
   xinc = cast_function->DataIncrement[0];
@@ -681,9 +733,13 @@ static void CastRay_TrilinSample_Unshaded(
 	H *  x *  y *  z;
       
       if ( scalar_value < 0.0 ) 
+	{
 	scalar_value = 0.0;
+	}
       else if ( scalar_value > volumeInfo->Volume->GetArraySize() - 1 )
+	{
 	scalar_value = volumeInfo->Volume->GetArraySize() - 1;
+	}
       
       opacity = SOTF[(int)scalar_value];
       
@@ -713,9 +769,13 @@ static void CastRay_TrilinSample_Unshaded(
 	    H *  x *  y *  z;
       
 	  if ( gradient_value < 0.0 )
+	    {
 	    gradient_value = 0.0;
+	    }
 	  else if ( gradient_value > 255.0 )
+	    {
 	    gradient_value = 255.0;
+	    }
 
 	  opacity *= GOTF[(int)gradient_value];
 	  }
@@ -784,9 +844,13 @@ static void CastRay_TrilinSample_Unshaded(
 	H *  x *  y *  z;
       
       if ( scalar_value < 0.0 ) 
+	{
 	scalar_value = 0.0;
+	}
       else if ( scalar_value > volumeInfo->Volume->GetArraySize() - 1 )
+	{
 	scalar_value = volumeInfo->Volume->GetArraySize() - 1;
+	}
       
       opacity = SOTF[(int)scalar_value];
       
@@ -816,9 +880,13 @@ static void CastRay_TrilinSample_Unshaded(
 	    H *  x *  y *  z;
 	  
 	  if ( gradient_value < 0.0 )
+	    {
 	    gradient_value = 0.0;
+	    }
 	  else if ( gradient_value > 255.0 )
+	    {
 	    gradient_value = 255.0;
+	    }
 
 	  opacity *= GOTF[(int)gradient_value];
 	  }
@@ -850,14 +918,22 @@ static void CastRay_TrilinSample_Unshaded(
 
   // Cap the intensity value at 1.0
   if ( accum_red_intensity > 1.0 )
+    {
     accum_red_intensity = 1.0;
+    }
   if ( accum_green_intensity > 1.0 )
+    {
     accum_green_intensity = 1.0;
+    }
   if ( accum_blue_intensity > 1.0 )
+    {
     accum_blue_intensity = 1.0;
+    }
   
   if( remaining_opacity < VTK_REMAINING_OPACITY )
+    {
     remaining_opacity = 0.0;
+    }
 
   // Set the return pixel value.  The depth value is currently useless and
   // should be fixed.  What should depth be in this case?  First 
@@ -869,9 +945,13 @@ static void CastRay_TrilinSample_Unshaded(
   rayInfo->VolumeRayStepsTaken = steps_this_ray;
 
   if ( remaining_opacity < 1.0 )
+    {
     rayInfo->RayDepth = 0.0;
+    }
   else 
+    {
     rayInfo->RayDepth = VTK_LARGE_FLOAT;
+    }
 }
 
 // This is the templated function that actually casts a ray and computes
@@ -960,7 +1040,9 @@ static void CastRay_TrilinSample_Shaded(
 
   // Get a pointer to the gradient magnitudes for this volume
   if ( !grad_op_is_constant )
+    {
     grad_mag_ptr = cast_function->GradientMagnitudes;
+    }
 
   // Move the increments into local variables
   xinc = cast_function->DataIncrement[0];
@@ -1039,9 +1121,13 @@ static void CastRay_TrilinSample_Shaded(
 			    E * tE + F * tF + G * tG + H * tH );
       
       if ( scalar_value < 0 ) 
+	{
 	scalar_value = 0;
+	}
       else if ( scalar_value > volumeInfo->Volume->GetArraySize() - 1 )
+	{
 	scalar_value = volumeInfo->Volume->GetArraySize() - 1;
+	}
       
       opacity = SOTF[scalar_value];
 
@@ -1067,9 +1153,13 @@ static void CastRay_TrilinSample_Shaded(
 				  A * tA + B * tB + C * tC + D * tD + 
 				  E * tE + F * tF + G * tG + H * tH );
 	  if ( gradient_value < 0 )
+	    {
 	    gradient_value = 0;
+	    }
 	  else if ( gradient_value > 255 )
+	    {
 	    gradient_value = 255;
+	    }
 	  
 	  opacity *= GOTF[gradient_value];
 	  }
@@ -1172,9 +1262,13 @@ static void CastRay_TrilinSample_Shaded(
 			    E * tE + F * tF + G * tG + H * tH );
       
       if ( scalar_value < 0 ) 
+	{
 	scalar_value = 0;
+	}
       else if ( scalar_value > volumeInfo->Volume->GetArraySize() - 1 )
+	{
 	scalar_value = volumeInfo->Volume->GetArraySize() - 1;
+	}
       
       opacity = SOTF[scalar_value];
       
@@ -1197,9 +1291,13 @@ static void CastRay_TrilinSample_Shaded(
 				    A * tA + B * tB + C * tC + D * tD + 
 				    E * tE + F * tF + G * tG + H * tH );
 	    if ( gradient_value < 0 )
+	      {
 	      gradient_value = 0;
+	      }
 	    else if ( gradient_value > 255 )
+	      {
 	      gradient_value = 255;
+	      }
 
 	    opacity *= GOTF[gradient_value];
 	    }
@@ -1286,14 +1384,20 @@ static void CastRay_TrilinSample_Shaded(
 
   // Cap the accumulated intensity at 1.0
   if ( accum_red_intensity > 1.0 )
+    {
     accum_red_intensity = 1.0;
+    }
   if ( accum_green_intensity > 1.0 )
     accum_green_intensity = 1.0;
   if ( accum_blue_intensity > 1.0 )
+    {
     accum_blue_intensity = 1.0;
+    }
   
   if( remaining_opacity < VTK_REMAINING_OPACITY )
+    {
     remaining_opacity = 0.0;
+    }
 
   // Set the return pixel value.  The depth value is currently useless and
   // should be fixed.  What should depth be in this case?  First 
@@ -1305,9 +1409,13 @@ static void CastRay_TrilinSample_Shaded(
   rayInfo->VolumeRayStepsTaken = steps_this_ray;
 
   if ( remaining_opacity < 1.0 )
+    {
     rayInfo->RayDepth = 0.0;
+    }
   else 
+    {
     rayInfo->RayDepth = VTK_LARGE_FLOAT;
+    }
 }
 
 // Constructor for the vtkVolumeRayCastCompositeFunction class

@@ -71,16 +71,24 @@ vtkVolume::~vtkVolume()
   this->SetVolumeMapper(NULL);
 
   if ( this->ScalarOpacityArray )
+    {
     delete [] this->ScalarOpacityArray;
+    }
 
   if ( this->RGBArray )
+    {
     delete [] this->RGBArray;
+    }
 
   if ( this->GrayArray )
+    {
     delete [] this->GrayArray;
+    }
 
   if ( this->CorrectedScalarOpacityArray )
+    {
     delete [] this->CorrectedScalarOpacityArray;
+    }
 
 }
 
@@ -219,8 +227,14 @@ float *vtkVolume::GetBounds()
     {
     for (n = 0; n < 3; n++)
       {
-      if (bbox[i*3+n] < this->Bounds[n*2]) this->Bounds[n*2] = bbox[i*3+n];
-      if (bbox[i*3+n] > this->Bounds[n*2+1]) this->Bounds[n*2+1] = bbox[i*3+n];
+      if (bbox[i*3+n] < this->Bounds[n*2])
+	{
+	this->Bounds[n*2] = bbox[i*3+n];
+	}
+      if (bbox[i*3+n] > this->Bounds[n*2+1])
+	{
+	this->Bounds[n*2+1] = bbox[i*3+n];
+	}
       }
     }
 
@@ -272,7 +286,10 @@ float vtkVolume::GetMaxZBound( )
 
 void vtkVolume::Render( vtkRenderer *ren )
 {
-  if ( !this->VolumeMapper ) return;
+  if ( !this->VolumeMapper )
+    {
+    return;
+    }
 
   if( !this->VolumeProperty )
     {
@@ -284,7 +301,9 @@ void vtkVolume::Render( vtkRenderer *ren )
 void vtkVolume::Update()
 {
   if ( this->VolumeMapper )
+    {
     this->VolumeMapper->Update();
+    }
 }
 
 void vtkVolume::SetVolumeProperty(vtkVolumeProperty *property)
@@ -402,7 +421,9 @@ void vtkVolume::UpdateTransferFunctions( vtkRenderer *ren )
 		this->GrayArrayMTime ||
 		this->VolumeProperty->GetGrayTransferFunctionMTime() >
 		this->GrayArrayMTime )
+	{
 	gray_tf_needs_updating = 1;
+	}
       break;
     case 3:
       if ( rgb_transfer_function == NULL )
@@ -414,7 +435,9 @@ void vtkVolume::UpdateTransferFunctions( vtkRenderer *ren )
 		this->RGBArrayMTime ||
 		this->VolumeProperty->GetRGBTransferFunctionMTime() >
 		this->RGBArrayMTime )
+	{
 	rgb_tf_needs_updating = 1;
+	}
       break;
     }
 
@@ -447,7 +470,9 @@ void vtkVolume::UpdateTransferFunctions( vtkRenderer *ren )
       {
       // Get values 0-255 (256 values)
       if ( this->ScalarOpacityArray )
+	{
 	delete [] this->ScalarOpacityArray;
+	}
 
       this->ScalarOpacityArray = new float[(int)(0x100)];
       scalar_opacity_transfer_function->GetTable( (float)(0x00),
@@ -460,7 +485,9 @@ void vtkVolume::UpdateTransferFunctions( vtkRenderer *ren )
     if ( gray_tf_needs_updating )
       {
       if ( this->GrayArray )
+	{
 	delete [] this->GrayArray;
+	}
 
       this->GrayArray = new float[(int)(0x100)];
       gray_transfer_function->GetTable( (float)(0x00),
@@ -473,7 +500,9 @@ void vtkVolume::UpdateTransferFunctions( vtkRenderer *ren )
     if ( rgb_tf_needs_updating )
       {
       if ( this->RGBArray )
+	{
 	delete [] this->RGBArray;
+	}
       
       this->RGBArray = new float[3 * (int)(0x100)];
       rgb_transfer_function->GetTable( (float)(0x00),
@@ -491,7 +520,9 @@ void vtkVolume::UpdateTransferFunctions( vtkRenderer *ren )
       {
       // Get values 0-65535 (65536 values)
       if ( this->ScalarOpacityArray )
+	{
 	delete [] this->ScalarOpacityArray;
+	}
 
       this->ScalarOpacityArray = new float[(int)(0x10000)];
       scalar_opacity_transfer_function->GetTable( (float)(0x0000),
@@ -504,7 +535,9 @@ void vtkVolume::UpdateTransferFunctions( vtkRenderer *ren )
     if ( gray_tf_needs_updating )
       {
       if ( this->GrayArray )
+	{
 	delete [] this->GrayArray;
+	}
 
       this->GrayArray = new float[(int)(0x10000)];
       gray_transfer_function->GetTable( (float)(0x0000),
@@ -517,7 +550,9 @@ void vtkVolume::UpdateTransferFunctions( vtkRenderer *ren )
     if ( rgb_tf_needs_updating )
       {
       if ( this->RGBArray )
+	{
 	delete [] this->RGBArray;
+	}
       
       this->RGBArray = new float[3 * (int)(0x10000)];
       rgb_transfer_function->GetTable( (float)(0x0000),
@@ -535,7 +570,9 @@ void vtkVolume::UpdateTransferFunctions( vtkRenderer *ren )
   if ( scalar_opacity_tf_needs_updating )
     {
     if ( this->CorrectedScalarOpacityArray )
+      {
       delete [] this->CorrectedScalarOpacityArray;
+      }
 
     this->CorrectedScalarOpacityArray = new float[this->ArraySize];
     }
