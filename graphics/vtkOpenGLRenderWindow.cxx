@@ -188,7 +188,7 @@ vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
   if (this->ContextId)
     {
     this->MakeCurrent();
-    
+
     /* first delete all the old lights */
     for (cur_light = GL_LIGHT0; cur_light < GL_LIGHT0+MAX_LIGHTS; cur_light++)
       {
@@ -206,12 +206,15 @@ vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
       ren->SetRenderWindow(NULL);
       }
 
+    glFinish();
     glXDestroyContext( this->DisplayId, this->ContextId);
-  
+    this->ContextId = NULL;
+
     // then close the old window 
     if (this->OwnWindow && this->DisplayId && this->WindowId)
       {
       XDestroyWindow(this->DisplayId,this->WindowId);
+      this->WindowId = NULL;
       }
     }
 }
@@ -226,7 +229,7 @@ void vtkOpenGLRenderWindow::Start(void)
     }
 
   // set the current window 
-  glXMakeCurrent(this->DisplayId,this->WindowId,this->ContextId);
+  this->MakeCurrent();
 }
 
 // End the rendering process and display the image.
@@ -377,7 +380,7 @@ void vtkOpenGLRenderWindow::WindowInitialize (void)
   XSync(this->DisplayId,False);
 
   this->ContextId = glXCreateContext(this->DisplayId, v, 0, GL_TRUE);
-  glXMakeCurrent(this->DisplayId,this->WindowId,this->ContextId);
+  this->MakeCurrent();
 
   vtkDebugMacro(" Mapping the xwindow\n");
   XMapWindow(this->DisplayId, this->WindowId);
@@ -649,7 +652,7 @@ unsigned char *vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
   unsigned char   *data = NULL;
 
   // set the current window 
-  glXMakeCurrent(this->DisplayId,this->WindowId,this->ContextId);
+  this->MakeCurrent();
 
   if (y1 < y2)
     {
@@ -727,7 +730,7 @@ void vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
   int     x_low, x_hi;
 
   // set the current window 
-  glXMakeCurrent(this->DisplayId,this->WindowId,this->ContextId);
+  this->MakeCurrent();
 
   if (front)
     {
@@ -835,7 +838,7 @@ float *vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2, i
   float   *data = NULL;
 
   // set the current window 
-  glXMakeCurrent(this->DisplayId,this->WindowId,this->ContextId);
+  this->MakeCurrent();
 
   if (y1 < y2)
     {
@@ -886,7 +889,7 @@ void vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
   int     width, height;
 
   // set the current window 
-  glXMakeCurrent(this->DisplayId,this->WindowId,this->ContextId);
+  this->MakeCurrent();
 
   if (front)
     {
@@ -1049,5 +1052,8 @@ void vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
 void vtkOpenGLRenderWindow::MakeCurrent()
 {
   // set the current window 
-  glXMakeCurrent(this->DisplayId,this->WindowId,this->ContextId);
+  if (this->ContextId && (this->ContextId != glXGetCurrentContext()))
+    {
+    glXMakeCurrent(this->DisplayId,this->WindowId,this->ContextId);
+    }
 }
