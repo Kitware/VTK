@@ -143,36 +143,51 @@ void vtkImageMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
   
   // Get the viewport coordinates
   float* vpt = viewport->GetViewport(); 
-
-  // Get the window size
-  vtkWindow* window = viewport->GetVTKWindow();
-  int* winSize = window->GetSize();
-
-
+  float vCoords[4];
+  vCoords[0] = 0.0;
+  vCoords[1] = 0.0;
+  vCoords[2] = 1.0;
+  vCoords[3] = 1.0;
+  viewport->NormalizedViewportToViewport(vCoords[0],vCoords[1]);
+  viewport->NormalizedViewportToViewport(vCoords[2],vCoords[3]);
+  int vSize[2];
+  // size excludes last pixel except for last pixelof window
+  // this is to prevent overlapping viewports
+  vSize[0] = rint(vCoords[2]) - rint(vCoords[0]);
+  vSize[1] = rint(vCoords[3]) - rint(vCoords[1]);
+  viewport->ViewportToNormalizedDisplay(vCoords[2],vCoords[3]);
+  if (vCoords[2] == 1.0) 
+    {
+    vSize[0]++;
+    }
+  if (vCoords[3] == 1.0)
+    {
+    vSize[1]++;
+    }
+  
   // the basic formula is that the draw pos equals
   // the pos + extentPos + clippedAmount
   // The concrete subclass will get the pos in display
   // coordinates so we need to provide the extentPos plus
   // clippedAmount in the PositionAdjustment variable
 
+  
   // Now clip to imager extents
   if (pos[0] + wholeExtent[0] < 0) 
     {
     displayExtent[0] = -pos[0];
     }
-  if ((pos[0]+wholeExtent[1]) > 
-      (winSize[0] - 1)*(vpt[XMAX]-vpt[XMIN])) 
+  if ((pos[0]+wholeExtent[1]) > vSize[0]) 
     {
-    displayExtent[1] = (winSize[0] - 1)*(vpt[XMAX]-vpt[XMIN]) - pos[0];
+    displayExtent[1] = vSize[0] - pos[0];
     }
   if (pos[1] + wholeExtent[2] < 0) 
     {
     displayExtent[2] = -pos[1];
     }
-  if ((pos[1]+wholeExtent[3]) > 
-      (winSize[1] - 1)*(vpt[YMAX]-vpt[YMIN])) 
+  if ((pos[1]+wholeExtent[3]) > vSize[1])
     {
-    displayExtent[3] = (winSize[1] - 1)*(vpt[YMAX]-vpt[YMIN]) - pos[1];
+    displayExtent[3] = vSize[1] - pos[1];
     }
 
   this->Input->SetUpdateExtent(displayExtent);
