@@ -60,6 +60,7 @@ vtkImageDivergence \
 vtkImageDotProduct \
 vtkImageEllipsoidSource \
 vtkImageEuclideanToPolar \
+vtkImageExport \
 vtkImageExtractComponents \
 vtkImageFFT \
 vtkImageFlip \
@@ -72,6 +73,7 @@ vtkImageHSVToRGB \
 vtkImageHybridMedian2D \
 vtkImageIdealHighPass \
 vtkImageIdealLowPass \
+vtkImageImport \
 vtkImageIslandRemoval2D \
 vtkImageLaplacian \
 vtkImageLogarithmicScale \
