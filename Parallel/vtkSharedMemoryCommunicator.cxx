@@ -345,6 +345,7 @@ vtkSharedMemoryCommunicatorMessage
   message->Object = NULL;
   message->Data = NULL;
   message->DataLength = 0;
+  message->Array = 0;
 
   if (object)
     {
@@ -456,6 +457,12 @@ void vtkSharedMemoryCommunicator::DeleteMessage(
     {
     message->Object->Delete();
     message->Object = NULL;
+    }
+
+  if (message->Array)
+    {
+    message->Array->Delete();
+    message->Array = NULL;
     }
 
   if (message->Data)
