@@ -40,7 +40,7 @@ public:
   {
     USE_X = 0,
     USE_Y = 1,
-    USE_Z = 2,
+    USE_Z = 2
   };
 //ETX
 
