@@ -54,6 +54,7 @@ void vlCleanPolyData::Execute()
     return;
     }
 
+  pd = this->Input->GetPointData();
   this->PointData.CopyAllocate(pd);
 
   if ( this->Locator == NULL )
