@@ -29,7 +29,7 @@
 #include "vtkPoints.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkExtractUserDefinedPiece, "1.1");
+vtkCxxRevisionMacro(vtkExtractUserDefinedPiece, "1.2");
 vtkStandardNewMacro(vtkExtractUserDefinedPiece);
 
 vtkExtractUserDefinedPiece::vtkExtractUserDefinedPiece()
@@ -82,7 +82,7 @@ void vtkExtractUserDefinedPiece::Execute()
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
   vtkIntArray *cellTags;
-  int ghostLevel, piece, numPieces;
+  int ghostLevel;
   vtkIdType cellId, newCellId;
   vtkIdList *cellPts, *pointMap;
   vtkIdList *newCellPts = vtkIdList::New();
@@ -97,8 +97,8 @@ void vtkExtractUserDefinedPiece::Execute()
 
   // Pipeline update piece will tell us what to generate.
   ghostLevel = output->GetUpdateGhostLevel();
-  piece = output->GetUpdatePiece();
-  numPieces = output->GetUpdateNumberOfPieces();
+  output->GetUpdatePiece();
+  output->GetUpdateNumberOfPieces();
 
   outPD->CopyAllocate(pd);
   outCD->CopyAllocate(cd);

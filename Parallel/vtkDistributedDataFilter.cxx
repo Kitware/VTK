@@ -99,7 +99,7 @@ static char *makeEntry(const char *s)
 
 // Timing data ---------------------------------------------
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.1")
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.2")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
@@ -3511,7 +3511,8 @@ vtkDistributedDataFilter::AddGhostCellsUniqueCellAssignment(
             {
             // map global point id to process ids
             insidePointMap.insert(
-              vtkstd::pair<int, int>(insideIds[i]->GetValue(j), i));
+              vtkstd::multimap<int, int>::value_type(
+                insideIds[i]->GetValue(j), i));
             }
           }
         }
@@ -3556,7 +3557,7 @@ vtkDistributedDataFilter::AddGhostCellsUniqueCellAssignment(
         }
       if (processList[i])         // other processes you say that also have
         {                         // cells using those points
-        int size = processList[i]->GetNumberOfTuples();
+        size = processList[i]->GetNumberOfTuples();
         int *array = processList[i]->GetPointer(0);
         int nextLoc = 0;
   
@@ -4108,8 +4109,8 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::SetMergeGhostGrid(
 
   if (ghostLevel == 1)
     {
-    vtkDataArray *da = mergedGrid->GetPointData()->GetArray("vtkGhostLevels");
-    vtkUnsignedCharArray *ptGL = vtkUnsignedCharArray::SafeDownCast(da);
+    da = mergedGrid->GetPointData()->GetArray("vtkGhostLevels");
+    ptGL = vtkUnsignedCharArray::SafeDownCast(da);
 
     this->GlobalNodeIdAccessStart(mergedGrid);
     int npoints = mergedGrid->GetNumberOfPoints();

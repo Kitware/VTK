@@ -34,7 +34,7 @@
 #include <math.h>
 #include <stdio.h>
 
-vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.1");
+vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.2");
 vtkStandardNewMacro(vtkBoxClipDataSet);
 
 //----------------------------------------------------------------------------
@@ -128,7 +128,6 @@ void vtkBoxClipDataSet::Execute()
   vtkCellData   *outCD[2];
   vtkPoints     *newPoints;
   vtkPoints     *cellPts;
-  vtkIdList     *cellIds;
   vtkIdTypeArray   *locs[2];
   vtkDebugMacro(<< "Clip by Box");
   vtkUnsignedCharArray *types[2];
@@ -243,7 +242,6 @@ void vtkBoxClipDataSet::Execute()
     
     input->GetCell(cellId,cell);
     cellPts = cell->GetPoints();
-    cellIds = cell->GetPointIds();
     npts = cellPts->GetNumberOfPoints();
                 
     if (this->GenerateClippedOutput) 
@@ -643,7 +641,6 @@ void vtkBoxClipDataSet::WedgeToTetra(vtkIdType *wedgeId, vtkIdType *cellIds,vtkC
   int i;
   int id;
   vtkIdType xmin;
-  vtkIdType newCellId;
   vtkIdType tab[4];
   vtkIdType tabpyram[5];
 
@@ -678,10 +675,9 @@ void vtkBoxClipDataSet::WedgeToTetra(vtkIdType *wedgeId, vtkIdType *cellIds,vtkC
     {
     tab[i] = wedgeId[vwedge[id][i]];
     }
-  newCellId = newCellArray->InsertNextCell(4,tab);
+  newCellArray->InsertNextCell(4,tab);
   
   // Pyramid :create 2 tetrahedra
-  
   static vtkIdType vert[6][5]={{1,2,5,4,0},{2,0,3,5,1},{3,0,1,4,2},
                {1,2,5,4,3},{2,0,3,5,4},{3,0,1,4,5}};  
   for(i=0;i<5;i++)
@@ -700,7 +696,6 @@ void vtkBoxClipDataSet::WedgeToTetra(vtkIdType *wedgeId, vtkIdType *cellIds,vtkC
 void  vtkBoxClipDataSet::PyramidToTetra(vtkIdType *pyramId, vtkIdType *cellIds,vtkCellArray *newCellArray)
 {
   vtkIdType xmin;
-  vtkIdType newCellId;
   unsigned i,j,idpy;
   vtkIdType tab[4];
 
@@ -721,8 +716,8 @@ void  vtkBoxClipDataSet::PyramidToTetra(vtkIdType *pyramId, vtkIdType *cellIds,v
   //                        vpy[1]: {v0,v2,v3,v4}
   //    
   static vtkIdType vpy[8][4] ={{0,1,2,4},{0,2,3,4},{1,2,3,4},{1,3,0,4},
-                                       {2,3,0,4},{2,0,1,4},{3,0,1,4},{3,1,2,4}}; 
-                   
+                               {2,3,0,4},{2,0,1,4},{3,0,1,4},{3,1,2,4}}; 
+  
   xmin    = cellIds[pyramId[0]];
   idpy = 0;
   for(i=1;i<4;i++) 
@@ -737,13 +732,13 @@ void  vtkBoxClipDataSet::PyramidToTetra(vtkIdType *pyramId, vtkIdType *cellIds,v
     {
     tab[j] = pyramId[vpy[2*idpy][j]];
     }
-  newCellId = newCellArray->InsertNextCell(4,tab);
+  newCellArray->InsertNextCell(4,tab);
   
   for(j = 0; j < 4 ; j++) 
     {
     tab[j] = pyramId[vpy[2*idpy+1][j]];
     }
-  newCellId = newCellArray->InsertNextCell(4,tab);  
+  newCellArray->InsertNextCell(4,tab);  
 }
 
 
@@ -835,7 +830,6 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *c
   vtkIdType tabp[5];
   vtkIdType ptstriangle = 3;
   vtkIdType ptstetra = 4;
-  vtkIdType newCellId;
   vtkIdType xmin;  
   int i,j;
   unsigned id   =0;
@@ -853,7 +847,7 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *c
     {
     case VTK_TRIANGLE: // 5
     case VTK_QUADRATIC_TRIANGLE:
-      newCellId = newCellArray->InsertNextCell(ptstriangle,tri);
+      newCellArray->InsertNextCell(ptstriangle,tri);
       break;
 
     case VTK_TRIANGLE_STRIP: // 6
@@ -862,7 +856,7 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *c
         tri[0] = i;
         tri[1] = i+1;
         tri[2] = i+2;
-        newCellId = newCellArray->InsertNextCell(3,tri);
+        newCellArray->InsertNextCell(3,tri);
         }
       break;
 
@@ -871,15 +865,15 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *c
         {
         tri[1] = i-1;
         tri[2] = i;
-        newCellId = newCellArray->InsertNextCell(3,tri);
+        newCellArray->InsertNextCell(3,tri);
         }
       break;
 
     case VTK_PIXEL: // 8
       {
       static vtkIdType vtrip[2][3] = {{0,1,3},{0,3,2}};
-      newCellId = newCellArray->InsertNextCell(3,vtrip[0]);
-      newCellId = newCellArray->InsertNextCell(3,vtrip[1]);
+      newCellArray->InsertNextCell(3,vtrip[0]);
+      newCellArray->InsertNextCell(3,vtrip[1]);
       }
       break;
 
@@ -888,8 +882,8 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *c
 
       {
       static vtkIdType vtriq[2][3] = {{0,1,2},{0,2,3}};
-      newCellId = newCellArray->InsertNextCell(3,vtriq[0]);
-      newCellId = newCellArray->InsertNextCell(3,vtriq[1]);
+      newCellArray->InsertNextCell(3,vtriq[0]);
+      newCellArray->InsertNextCell(3,vtriq[1]);
       }
       break;
 
@@ -897,7 +891,7 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *c
     case VTK_QUADRATIC_TETRA:
       {
       static  vtkIdType tetra[4]={0,1,2,3};
-      newCellId = newCellArray->InsertNextCell(ptstetra,tetra);
+      newCellArray->InsertNextCell(ptstetra,tetra);
       }
       break;  
 
@@ -980,7 +974,7 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *c
                                       {0,1,3,5},{5,3,6,7},{0,3,2,6}}; 
           for(i=0; i<5; i++)
             {
-            newCellId = newCellArray->InsertNextCell(4,vtetra[i]);
+            newCellArray->InsertNextCell(4,vtetra[i]);
             }
           }
         else
@@ -990,7 +984,7 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *c
           
           for(i=0; i<5; i++)
             {
-            newCellId = newCellArray->InsertNextCell(4,vtetra[i]);
+            newCellArray->InsertNextCell(4,vtetra[i]);
             }
           }
         }
@@ -1123,7 +1117,7 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *c
                                       {0,1,2,5},{5,2,7,6},{0,2,3,7}}; 
           for(i=0; i<5; i++)
             {
-            newCellId = newCellArray->InsertNextCell(4,vtetra[i]);
+            newCellArray->InsertNextCell(4,vtetra[i]);
             }
           }
         else
@@ -1133,7 +1127,7 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *c
           
           for(i=0; i<5; i++)
             {
-            newCellId = newCellArray->InsertNextCell(4,vtetra[i]);
+            newCellArray->InsertNextCell(4,vtetra[i]);
             }
           }
         } 
@@ -1202,7 +1196,7 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *c
             id = i;           // local index 
             }  
           }
-        newCellId = newCellArray->InsertNextCell(4,vwedge[id]);
+        newCellArray->InsertNextCell(4,vwedge[id]);
         
         //Pyramid :create 2 tetrahedra
            
@@ -1227,13 +1221,13 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *c
           {
           tab[j] = tabp[vpy[2*idpy][j]];
           }
-        newCellId = newCellArray->InsertNextCell(4,tab);
+        newCellArray->InsertNextCell(4,tab);
         
         for(j = 0; j < 4 ; j++) 
           {
           tab[j] = tabp[vpy[2*idpy+1][j]];
           }
-        newCellId = newCellArray->InsertNextCell(4,tab);
+        newCellArray->InsertNextCell(4,tab);
         
         }
       else
@@ -1259,8 +1253,8 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *c
             id = i;            // local index
             }          
           }
-        newCellId = newCellArray->InsertNextCell(4,vpyram[2*id]);
-        newCellId = newCellArray->InsertNextCell(4,vpyram[2*id+1]);
+        newCellArray->InsertNextCell(4,vpyram[2*id]);
+        newCellArray->InsertNextCell(4,vpyram[2*id+1]);
         }
       else
         {
@@ -1288,7 +1282,6 @@ void vtkBoxClipDataSet::CreateTetra(vtkIdType npts,vtkIdType *cellIds,vtkCellArr
   unsigned idpy;
 
   vtkIdType xmin;
-  vtkIdType newCellId;
         
   if (npts == 6) 
     { 
@@ -1310,7 +1303,7 @@ void vtkBoxClipDataSet::CreateTetra(vtkIdType npts,vtkIdType *cellIds,vtkCellArr
       {
       tab[0][j] = cellIds[vwedge[id][j]];
       }  
-    newCellId = newCellArray->InsertNextCell(4,tab[0]);
+    newCellArray->InsertNextCell(4,tab[0]);
       
     //Pyramid: create 2 tetrahedra
   
@@ -1335,13 +1328,13 @@ void vtkBoxClipDataSet::CreateTetra(vtkIdType npts,vtkIdType *cellIds,vtkCellArr
       {
       tab[1][j] = cellIds[tabp[vpy[2*idpy][j]]];
       }
-    newCellId = newCellArray->InsertNextCell(4,tab[1]);
+    newCellArray->InsertNextCell(4,tab[1]);
       
     for(j = 0; j < 4 ; j++) 
       {
       tab[2][j] = cellIds[tabp[vpy[2*idpy+1][j]]];    
       }
-    newCellId = newCellArray->InsertNextCell(4,tab[2]);
+    newCellArray->InsertNextCell(4,tab[2]);
     }
   else 
     {  
@@ -1363,13 +1356,13 @@ void vtkBoxClipDataSet::CreateTetra(vtkIdType npts,vtkIdType *cellIds,vtkCellArr
       {
       tab[0][j] = cellIds[vpyram[2*id][j]];
       }
-    newCellId = newCellArray->InsertNextCell(4,tab[0]);
+    newCellArray->InsertNextCell(4,tab[0]);
     
     for(j = 0; j < 4 ; j++) 
       {
       tab[1][j] = cellIds[vpyram[2*id+1][j]];
       }
-    newCellId = newCellArray->InsertNextCell(4,tab[1]);
+    newCellArray->InsertNextCell(4,tab[1]);
     } 
 }
 
