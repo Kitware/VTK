@@ -18,7 +18,7 @@
 #include "vtkBYUWriter.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkBYUWriter, "1.42");
+vtkCxxRevisionMacro(vtkBYUWriter, "1.43");
 vtkStandardNewMacro(vtkBYUWriter);
 
 // Create object so that it writes displacement, scalar, and texture files
@@ -65,6 +65,12 @@ void vtkBYUWriter::WriteData()
   if ( numPts < 1 )
     {
     vtkErrorMacro(<<"No data to write!");
+    return;
+    }
+
+  if ( !this->GeometryFileName )
+    {
+    vtkErrorMacro(<< "Geometry file name was not specified");
     return;
     }
 
