@@ -19,8 +19,8 @@ reader SetDataMask 0x7fff
 
 vtkImageGradient gradient
 gradient SetInput [reader GetOutput]
-gradient SetFilteredAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
-gradient ReleaseDataFlagOff
+gradient SetDimensionality 3
+gradient Update
 
 vtkImageViewer viewer
 #viewer DebugOn

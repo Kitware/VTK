@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageGradientMagnitude_h
 
 
-#include "vtkImageSpatialFilter.h"
+#include "vtkImageFilter.h"
 
 class VTK_EXPORT vtkImageGradientMagnitude : public vtkImageFilter
 {
@@ -72,16 +72,17 @@ public:
 
   // Description:
   // Determines how the input is interpreted (set of 2d slices ...)
-  void SetFilteredAxes(int num, int *axes);
-  vtkImageSetMacro(FilteredAxes, int);
+  vtkSetClampMacro(Dimensionality,int,2,3);
+  vtkGetMacro(Dimensionality,int);
   
 protected:
   int HandleBoundaries;
+  int Dimensionality;
   
   void ExecuteImageInformation();
-  void ComputeRequiredInputUpdateExtent();
-  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-
+  void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
+  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
+		       int extent[6], int id);
 };
 
 #endif

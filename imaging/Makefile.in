@@ -29,6 +29,7 @@ vtkImageTwoInputFilter
 
 CONCRETE = \
 vtkBMPWriter \
+vtkImageAnisotropicDiffusion2D \
 vtkImageAnisotropicDiffusion3D \
 vtkImageCanvasSource2D \
 vtkImageCast \
@@ -39,6 +40,8 @@ vtkImageCursor3D \
 vtkImageExtractComponents \
 vtkImageFlip \
 vtkImageGaussianSmooth \
+vtkImageGradient \
+vtkImageGradientMagnitude \
 vtkImageHSVToRGB \
 vtkImageLogic \
 vtkImageMagnify \
@@ -63,7 +66,6 @@ vtkTIFFWriter
 
 
 #vtkImageAccumulate \
-#vtkImageAnisotropicDiffusion2D \
 #vtkImageAppendComponents \
 #vtkImageButterworthHighPass \
 #vtkImageButterworthLowPass \
@@ -84,8 +86,6 @@ vtkTIFFWriter
 #vtkImageFourierCenter \
 #vtkImageFourierCenter1D \
 #vtkImageGaussianSource \
-#vtkImageGradient \
-#vtkImageGradientMagnitude \
 #vtkImageHistogram \
 #vtkImageHistogramEqualization \
 #vtkImageHybridMedian2D \

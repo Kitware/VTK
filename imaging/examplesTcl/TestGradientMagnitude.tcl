@@ -12,9 +12,8 @@ reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
 reader SetDataMask 0x7fff
 
 vtkImageGradientMagnitude gradient
-gradient SetFilteredAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
+gradient SetDimensionality 3
 gradient SetInput [reader GetOutput]
-gradient ReleaseDataFlagOff
 
 vtkImageViewer viewer
 #viewer DebugOn

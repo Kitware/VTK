@@ -39,7 +39,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkImageRegion.h"
 #include "vtkImageCache.h"
 #include "vtkImageGradientMagnitude.h"
 
@@ -49,9 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct an instance of vtkImageGradientMagnitude fitler.
 vtkImageGradientMagnitude::vtkImageGradientMagnitude()
 {
-  this->NumberOfExecutionAxes = 4;
-
-  this->SetOutputScalarType(VTK_FLOAT);
+  this->Dimensionality = 2;
   this->HandleBoundariesOn();
 }
 
@@ -61,21 +58,8 @@ void vtkImageGradientMagnitude::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkImageFilter::PrintSelf(os, indent);
   os << indent << "HandleBoundaries: " << this->HandleBoundaries << "\n";
+  os << indent << "Dimensionality: " << this->Dimensionality << "\n";
 }
-
-
-
-//----------------------------------------------------------------------------
-// Description:
-// Tells the filters whether gradient will be 1d, 2d, 3d, or 4d, and
-// which axes to operate on.
-void vtkImageGradientMagnitude::SetFilteredAxes(int num, int *axes)
-{
-  this->vtkImageFilter::SetFilteredAxes(num, axes);
-  this->NumberOfExecutionAxes = 4;
-}
-
-    
 
 //----------------------------------------------------------------------------
 // Description:
@@ -84,18 +68,17 @@ void vtkImageGradientMagnitude::SetFilteredAxes(int num, int *axes)
 // output.
 void vtkImageGradientMagnitude::ExecuteImageInformation()
 {  
-  int extent[8];
-  int idx, axis;
+  int extent[6];
+  int idx;
 
   this->Input->GetWholeExtent(extent);
   if ( ! this->HandleBoundaries)
     {
     // shrink output image extent.
-    for (idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
+    for (idx = 0; idx < this->Dimensionality; ++idx)
       {
-      axis = this->FilteredAxes[idx];
-      extent[axis*2] += 1;
-      extent[axis*2 + 1] -= 1;
+      extent[idx*2] += 1;
+      extent[idx*2 + 1] -= 1;
       }
     }
   
@@ -106,36 +89,34 @@ void vtkImageGradientMagnitude::ExecuteImageInformation()
 //----------------------------------------------------------------------------
 // Description:
 // This method computes the input extent necessary to generate the output.
-void vtkImageGradientMagnitude::ComputeRequiredInputUpdateExtent()
+void vtkImageGradientMagnitude::ComputeRequiredInputUpdateExtent(int inExt[6],
+								 int outExt[6])
 {
-  int extent[8];
   int *wholeExtent;
-  int idx, axis;
+  int idx;
 
   wholeExtent = this->Input->GetWholeExtent();
-  this->Output->GetUpdateExtent(extent);
+  
+  memcpy(inExt,outExt,6*sizeof(int));
   
   // grow input whole extent.
-  for (idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
+  for (idx = 0; idx < this->Dimensionality; ++idx)
     {
-    axis = this->FilteredAxes[idx];
-    extent[axis*2] -= 1;
-    extent[axis*2+1] += 1;
+    inExt[idx*2] -= 1;
+    inExt[idx*2+1] += 1;
     if (this->HandleBoundaries)
       {
       // we must clip extent with whole extent is we hanlde boundaries.
-      if (extent[axis*2] < wholeExtent[axis*2])
+      if (inExt[idx*2] < wholeExtent[idx*2])
 	{
-	extent[axis*2] = wholeExtent[axis*2];
+	inExt[idx*2] = wholeExtent[idx*2];
 	}
-      if (extent[axis*2 + 1] > wholeExtent[axis*2 + 1])
+      if (inExt[idx*2 + 1] > wholeExtent[idx*2 + 1])
 	{
-	extent[axis*2 + 1] = wholeExtent[axis*2 + 1];
+	inExt[idx*2 + 1] = wholeExtent[idx*2 + 1];
 	}
       }
     }
-  
-  this->Input->SetUpdateExtent(extent);
 }
 
 
@@ -149,93 +130,94 @@ void vtkImageGradientMagnitude::ComputeRequiredInputUpdateExtent()
 // out of extent.
 template <class T>
 static void vtkImageGradientMagnitudeExecute(vtkImageGradientMagnitude *self,
-				      vtkImageRegion *inRegion, T *inPtr, 
-				      vtkImageRegion *outRegion, float *outPtr)
+					     vtkImageData *inData, T *inPtr,
+					     vtkImageData *outData, T *outPtr,
+					     int outExt[6], int id)
 {
-  int axisIdx, axesNum;
-  float d, sum;
-  float r[4];
-  // For looping though output (and input) pixels.
-  int min0, max0, min1, max1, min2, max2, min3, max3;
-  int outIdx0, outIdx1, outIdx2, outIdx3;
-  int outInc0, outInc1, outInc2, outInc3;
-  float *outPtr0, *outPtr1, *outPtr2, *outPtr3;
-  int inInc0, inInc1, inInc2, inInc3;
-  T *inPtr0, *inPtr1, *inPtr2, *inPtr3;
-  // For computation of gradient (everything has to be arrays for loop).
-  int *incs, *wholeExtent, *idxs, outIdxs[VTK_IMAGE_DIMENSIONS];
+  int idxC, idxX, idxY, idxZ;
+  int maxC, maxX, maxY, maxZ;
+  int inIncX, inIncY, inIncZ;
+  int outIncX, outIncY, outIncZ;
+  unsigned long count = 0;
+  unsigned long target;
+  int axesNum;
+  int *wholeExtent, *inIncs;
+  float r[3], d, sum;
+  int useZMin, useZMax, useYMin, useYMax, useXMin, useXMax;
+  
+  // find the region to loop over
+  maxC = outData->GetNumberOfScalarComponents();
+  maxX = outExt[1] - outExt[0];
+  maxY = outExt[3] - outExt[2]; 
+  maxZ = outExt[5] - outExt[4];
+  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
+  target++;
 
-  
   // Get the dimensionality of the gradient.
-  axesNum = self->GetNumberOfFilteredAxes();
+  axesNum = self->GetDimensionality();
   
-  // Get information to march through data (skip component)
-  inRegion->GetIncrements(inInc0, inInc1, inInc2, inInc3); 
-  outRegion->GetIncrements(outInc0, outInc1, outInc2, outInc3); 
-  outRegion->GetExtent(min0,max0, min1,max1, min2,max2, min3,max3);
-    
-  // We want the input pixel to correspond to output
-  inPtr = (T *)(inRegion->GetScalarPointer(min0,min1,min2,min3));
+  // Get increments to march through data 
+  inData->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
+  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
   // The data spacing is important for computing the gradient.
-  inRegion->GetSpacing(4, r);
+  inData->GetSpacing(r);
   r[0] = 1.0 / r[0];
   r[1] = 1.0 / r[1];
   r[2] = 1.0 / r[2];
-  r[3] = 1.0 / r[3];
-  
-  // loop through pixels of output
-  outPtr3 = outPtr;
-  inPtr3 = inPtr;
-  for (outIdx3 = min3; outIdx3 <= max3; ++outIdx3)
-    {
-    outIdxs[3] = outIdx3;
-    outPtr2 = outPtr3;
-    inPtr2 = inPtr3;
-    for (outIdx2 = min2; outIdx2 <= max2; ++outIdx2)
-      {
-      outIdxs[2] = outIdx2;
-      outPtr1 = outPtr2;
-      inPtr1 = inPtr2;
-      for (outIdx1 = min1; outIdx1 <= max1; ++outIdx1)
-	{
-	outIdxs[1] = outIdx1;
-	outPtr0 = outPtr1;
-	inPtr0 = inPtr1;
-	for (outIdx0 = min0; outIdx0 <= max0; ++outIdx0)
-	  {
-	  *outIdxs = outIdx0;
 
-	  // compute magnitude or vector.
-	  sum = 0.0;
-	  idxs = outIdxs;
-	  incs = inRegion->GetIncrements(); 
-	  wholeExtent = inRegion->GetWholeExtent(); 
-	  for(axisIdx = 0; axisIdx < axesNum; ++axisIdx)
-	    {
-	    // Compute difference using central differences (if in extent).
-	    d = ((*idxs - 1) < *wholeExtent) ? *inPtr0 : inPtr0[-*incs];
-	    ++wholeExtent;  // now points to max.
-	    d -= ((*idxs + 1) > *wholeExtent) ? *inPtr0 : inPtr0[*incs];
-	    d *= r[axisIdx]; // multiply by the data spacing
-	    ++wholeExtent;
-	    ++idxs;
-	    ++incs;
-	    sum += d * d;
-	    }
-	  *outPtr0 = sqrt(sum);
-	  
-	  outPtr0 += outInc0;
-	  inPtr0 += inInc0;
-	  }
-	outPtr1 += outInc1;
-	inPtr1 += inInc1;
+  // get some other info we need
+  inIncs = inData->GetIncrements(); 
+  wholeExtent = inData->GetExtent(); 
+
+  // Loop through ouput pixels
+  for (idxZ = 0; idxZ <= maxZ; idxZ++)
+    {
+    useZMin = ((idxZ + outExt[4]) <= wholeExtent[4]) ? 0 : -inIncs[2];
+    useZMax = ((idxZ + outExt[4]) >= wholeExtent[5]) ? 0 : inIncs[2];
+    for (idxY = 0; idxY <= maxY; idxY++)
+      {
+      if (!id) 
+	{
+	if (!(count%target)) self->UpdateProgress(count/(50.0*target));
+	count++;
 	}
-      outPtr2 += outInc2;
-      inPtr2 += inInc2;
+      useYMin = ((idxY + outExt[2]) <= wholeExtent[2]) ? 0 : -inIncs[1];
+      useYMax = ((idxY + outExt[2]) >= wholeExtent[3]) ? 0 : inIncs[1];
+      for (idxX = 0; idxX < maxX; idxX++)
+	{
+	useXMin = ((idxX + outExt[0]) <= wholeExtent[0]) ? 0 : -inIncs[0];
+	useXMax = ((idxX + outExt[0]) >= wholeExtent[1]) ? 0 : inIncs[0];
+	for (idxC = 0; idxC < maxC; idxC++)
+	  {
+	  // do X axis
+	  d = (float)(inPtr[useXMin]);
+	  d -= (float)(inPtr[useXMax]);
+	  d *= r[0]; // multiply by the data spacing
+	  sum = d * d;
+	  // do y axis
+	  d = (float)(inPtr[useYMin]);
+	  d -= (float)(inPtr[useYMax]);
+	  d *= r[1]; // multiply by the data spacing
+	  sum += (d * d);
+	  if (axesNum == 3)
+	    {
+	    // do z axis
+	    d = (float)(inPtr[useZMin]);
+	    d -= (float)(inPtr[useZMax]);
+	    d *= r[2]; // multiply by the data spacing
+	    sum += (d * d);
+	    }
+	  *outPtr = (T)(sqrt(sum));
+	  outPtr++;
+	  inPtr++;
+	  }
+	}
+      outPtr += outIncY;
+      inPtr += inIncY;
       }
-    outPtr3 += outInc3;
-    inPtr3 += inInc3;
+    outPtr += outIncZ;
+    inPtr += inIncZ;
     }
 }
 
@@ -243,50 +225,52 @@ static void vtkImageGradientMagnitudeExecute(vtkImageGradientMagnitude *self,
 //----------------------------------------------------------------------------
 // Description:
 // This method contains a switch statement that calls the correct
-// templated function for the input region type.  The output region
-// must be of type float.  This method does handle boundary conditions.
-// The third axis is the component axis for the output.
-void vtkImageGradientMagnitude::Execute(vtkImageRegion *inRegion, 
-			       vtkImageRegion *outRegion)
+// templated function for the input data type.  The output data
+// must match input type.  This method does handle boundary conditions.
+void vtkImageGradientMagnitude::ThreadedExecute(vtkImageData *inData, 
+					 vtkImageData *outData,
+					 int outExt[6], int id)
 {
-  void *inPtr = inRegion->GetScalarPointer();
-  void *outPtr = outRegion->GetScalarPointer();
+  void *inPtr = inData->GetScalarPointerForExtent(outExt);
+  void *outPtr = outData->GetScalarPointerForExtent(outExt);
   
-  // this filter expects that output is type float.
-  if (outRegion->GetScalarType() != VTK_FLOAT)
+  vtkDebugMacro(<< "Execute: inData = " << inData 
+		<< ", outData = " << outData);
+  
+  // this filter expects that input is the same type as output.
+  if (inData->GetScalarType() != outData->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: output ScalarType, "
-                  << vtkImageScalarTypeNameMacro(outRegion->GetScalarType())
-                  << ", must be float");
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
+                  << ", must match out ScalarType " << outData->GetScalarType());
     return;
     }
   
-  switch (inRegion->GetScalarType())
+  switch (inData->GetScalarType())
     {
     case VTK_FLOAT:
       vtkImageGradientMagnitudeExecute(this, 
-			  inRegion, (float *)(inPtr), 
-			  outRegion, (float *)(outPtr));
+			  inData, (float *)(inPtr), 
+			  outData, (float *)(outPtr), outExt, id);
       break;
     case VTK_INT:
       vtkImageGradientMagnitudeExecute(this, 
-			  inRegion, (int *)(inPtr), 
-			  outRegion, (float *)(outPtr));
+			  inData, (int *)(inPtr), 
+			  outData, (int *)(outPtr), outExt, id);
       break;
     case VTK_SHORT:
       vtkImageGradientMagnitudeExecute(this, 
-			  inRegion, (short *)(inPtr), 
-			  outRegion, (float *)(outPtr));
+			  inData, (short *)(inPtr), 
+			  outData, (short *)(outPtr), outExt, id);
       break;
     case VTK_UNSIGNED_SHORT:
       vtkImageGradientMagnitudeExecute(this, 
-			  inRegion, (unsigned short *)(inPtr), 
-			  outRegion, (float *)(outPtr));
+			  inData, (unsigned short *)(inPtr), 
+			  outData, (unsigned short *)(outPtr), outExt, id);
       break;
     case VTK_UNSIGNED_CHAR:
       vtkImageGradientMagnitudeExecute(this, 
-			  inRegion, (unsigned char *)(inPtr), 
-			  outRegion, (float *)(outPtr));
+			  inData, (unsigned char *)(inPtr), 
+			  outData, (unsigned char *)(outPtr), outExt, id);
       break;
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
