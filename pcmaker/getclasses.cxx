@@ -937,7 +937,10 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     }
   else
     {
-    fprintf(fp,"CPP_PROJ=/nologo /D \"STRICT\" /MD /Ox /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /D \"NDEBUG\" /D \"WIN32\" \\\n",
+    /* would like to use compiler option /Ox but this option includes /Og which
+       causes several problems in subexpressions and loop optimizations.  Therefore
+       we include all the compiler options that /Ox uses except for /Og */
+    fprintf(fp,"CPP_PROJ=/nologo /D \"STRICT\" /MD /Ob1 /Oi /Ot /Oy /Gs /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /D \"NDEBUG\" /D \"WIN32\" \\\n",
 	    vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
   if (vals->m_Patented) fprintf(fp," /D \"VTK_USE_PATENTED\" /I \"%s\\patented\" \\\n",
