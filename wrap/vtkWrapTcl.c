@@ -333,7 +333,7 @@ void get_args(FILE *fp, int i)
       break;
     case 109:
     case 309:
-      fprintf(fp,"    temp%i = (%s *)(vtkTclGetPointerFromObject(argv[%i],\"%s\",interp,error));\n",i,currentFunction->ArgClasses[i],start_arg,
+      fprintf(fp,"    temp%i = (%s *)(vtkTclGetPointerFromObject(argv[%i],(char *) \"%s\",interp,error));\n",i,currentFunction->ArgClasses[i],start_arg,
 	      currentFunction->ArgClasses[i]);
       break;
     case 2:    
@@ -586,7 +586,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   fprintf(fp,"  tempd = 0; tempd = tempd;\n");
   fprintf(fp,"  temps[0] = 0; temps[0] = temps[0];\n\n");
 
-  fprintf(fp,"  if (argc < 2)\n    {\n    Tcl_SetResult(interp, \"Could not find requested method.\", TCL_VOLATILE);\n    return TCL_ERROR;\n    }\n");
+  fprintf(fp,"  if (argc < 2)\n    {\n    Tcl_SetResult(interp, (char *) \"Could not find requested method.\", TCL_VOLATILE);\n    return TCL_ERROR;\n    }\n");
 
   /* stick in the typecasting and delete functionality here */
   fprintf(fp,"  if (!interp)\n    {\n");
@@ -610,7 +610,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     {
     fprintf(fp,"  if (!strcmp(\"GetSuperClassName\",argv[1]))\n");
     fprintf(fp,"    {\n");
-    fprintf(fp,"    Tcl_SetResult(interp,\"%s\", TCL_VOLATILE);\n",data->SuperClasses[0]);
+    fprintf(fp,"    Tcl_SetResult(interp,(char *) \"%s\", TCL_VOLATILE);\n",data->SuperClasses[0]);
     fprintf(fp,"    return TCL_OK;\n");
     fprintf(fp,"    }\n\n");      
     }
