@@ -182,8 +182,7 @@ int Vtktcl_Init(Tcl_Interp *interp)
     return TCL_OK;
 }
 
-
-
-
-
-
+int Vtktcl_SafeInit(Tcl_Interp *interp)
+{
+  return Vtktcl_Init(interp);
+}
