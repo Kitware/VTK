@@ -26,17 +26,15 @@ vlDividingCubes::vlDividingCubes()
 void vlDividingCubes::Execute()
 {
   int i, j, k, idx;
-  vlFloatPoints *newPts;
-  vlCellArray *newVerts;
   vlScalars *inScalars;
   vlIdList voxelPts(8);
   vlFloatScalars voxelScalars(8);
   float ar[3], origin[3], x[3];
-  int dim[3], jOffset, kOffset, product;
+  int dim[3], jOffset, kOffset, sliceSize;
   int above, below, vertNum;
   vlStructuredPoints *input=(vlStructuredPoints *)this->Input;
 
-  vlDebugMacro(<< "Executing Dividing Cubes");
+  vlDebugMacro(<< "Executing dividing cubes...");
 //
 // Initialize self; check input; create output objects
 //
@@ -70,7 +68,7 @@ void vlDividingCubes::Execute()
 //
   for ( k=0; k < (dim[2]-1); k++)
     {
-    kOffset = k*product;
+    kOffset = k*sliceSize;
     x[2] = origin[2] + k*ar[2];
 
     for ( j=0; j < (dim[1]-1); j++)
@@ -88,10 +86,10 @@ void vlDividingCubes::Execute()
         voxelPts.SetId(1, idx + 1);
         voxelPts.SetId(2, idx + dim[0]);
         voxelPts.SetId(3, idx + dim[0] + 1);
-        voxelPts.SetId(4, idx + product);
-        voxelPts.SetId(5, idx + product + 1);
-        voxelPts.SetId(6, idx + product + dim[0]);
-        voxelPts.SetId(7, idx + product + dim[0] + 1);
+        voxelPts.SetId(4, idx + sliceSize);
+        voxelPts.SetId(5, idx + sliceSize + 1);
+        voxelPts.SetId(6, idx + sliceSize + dim[0]);
+        voxelPts.SetId(7, idx + sliceSize + dim[0] + 1);
 
         // get scalars of this voxel
         inScalars->GetScalars(voxelPts,voxelScalars);
@@ -115,11 +113,9 @@ void vlDividingCubes::Execute()
 //
 // Update ourselves
 //
-  newPts->Squeeze();
-  this->SetPoints(newPts);
-
-  newVerts->Squeeze();
-  this->SetVerts(newVerts);
+  this->SetPoints(this->NewPts);
+  this->SetVerts(this->NewVerts);
+  this->Squeeze();
 }
 
 static int ScalarInterp[8][8] = {{0,8,12,24,16,22,20,26},
@@ -141,11 +137,16 @@ void vlDividingCubes::SubDivide(float origin[3], float h[3], vlFloatScalars &val
   // if subdivided far enough, create point and end termination
   if ( h[0] < this->Distance && h[1] < this->Distance && h[2] < this->Distance )
     {
-    int i;
+    int i, pts[1];
     float x[3];
 
     for (i=0; i <3; i++) x[i] = origin[i] + hNew[i];
-    this->AddPoint(x);
+
+    if ( ! (this->Count++ % this->Increment) ) //add a point
+      {
+      pts[0] = this->NewPts->InsertNextPoint(x);
+      this->NewVerts->InsertNextCell(1,pts);
+      }
 
     return;
     }
