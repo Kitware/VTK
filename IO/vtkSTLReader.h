@@ -32,17 +32,17 @@
 #ifndef __vtkSTLReader_h
 #define __vtkSTLReader_h
 
-#include "vtkPolyDataSource.h"
+#include "vtkPolyDataAlgorithm.h"
 
 class vtkCellArray;
 class vtkFloatArray;
 class vtkPointLocator;
 class vtkPoints;
 
-class VTK_IO_EXPORT vtkSTLReader : public vtkPolyDataSource 
+class VTK_IO_EXPORT vtkSTLReader : public vtkPolyDataAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkSTLReader,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkSTLReader,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -90,7 +90,7 @@ protected:
   int ScalarTags;
   vtkPointLocator *Locator;
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   int ReadBinarySTL(FILE *fp, vtkPoints*, vtkCellArray*);
   int ReadASCIISTL(FILE *fp, vtkPoints*, vtkCellArray*, 
                    vtkFloatArray* scalars=0);
@@ -101,5 +101,3 @@ private:
 };
 
 #endif
-
-

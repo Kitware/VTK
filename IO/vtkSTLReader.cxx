@@ -19,12 +19,15 @@
 #include "vtkCellData.h"
 #include "vtkFloatArray.h"
 #include "vtkMergePoints.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkSTLReader, "1.70");
+vtkCxxRevisionMacro(vtkSTLReader, "1.71");
 vtkStandardNewMacro(vtkSTLReader);
 
 #define VTK_ASCII 0
@@ -37,6 +40,8 @@ vtkSTLReader::vtkSTLReader()
   this->Merging = 1;
   this->ScalarTags = 0;
   this->Locator = NULL;
+
+  this->SetNumberOfInputPorts(0);
 }
 
 vtkSTLReader::~vtkSTLReader()
@@ -56,7 +61,7 @@ vtkSTLReader::~vtkSTLReader()
 // then this object is modified as well.
 unsigned long vtkSTLReader::GetMTime()
 {
-  unsigned long mTime1=this->vtkPolyDataSource::GetMTime();
+  unsigned long mTime1=this->Superclass::GetMTime();
   unsigned long mTime2;
   
   if (this->Locator)
@@ -68,25 +73,33 @@ unsigned long vtkSTLReader::GetMTime()
   return mTime1;
 }
 
-
-void vtkSTLReader::Execute()
+int vtkSTLReader::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the ouptut
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   FILE *fp;
   vtkPoints *newPts, *mergedPts;
   vtkCellArray *newPolys, *mergedPolys;
   vtkFloatArray *newScalars=0, *mergedScalars=0;
-  vtkPolyData *output = this->GetOutput();
   
   // All of the data in the first piece.
-  if (output->GetUpdatePiece() > 0)
+  if (outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) > 0)
     {
-    return;
+    return 0;
     }
   
   if (!this->FileName)
     {
     vtkErrorMacro(<<"A FileName must be specified.");
-    return;
+    return 0;
     }
 
   // Initialize
@@ -94,7 +107,7 @@ void vtkSTLReader::Execute()
   if ((fp = fopen(this->FileName, "r")) == NULL)
     {
     vtkErrorMacro(<< "File " << this->FileName << " not found");
-    return;
+    return 0;
     }
 
   newPts = vtkPoints::New();
@@ -113,7 +126,7 @@ void vtkSTLReader::Execute()
       }
     if ( this->ReadASCIISTL(fp,newPts,newPolys,newScalars) )
       {
-      return;
+      return 1;
       }
     }
   else
@@ -122,13 +135,13 @@ void vtkSTLReader::Execute()
     fp = fopen(this->FileName, "rb");
     if ( this->ReadBinarySTL(fp,newPts,newPolys) )
       {
-      return;
+      return 1;
       }
     }
 
   vtkDebugMacro(<< "Read: " 
-  << newPts->GetNumberOfPoints() << " points, "
-  << newPolys->GetNumberOfCells() << " triangles");
+                << newPts->GetNumberOfPoints() << " points, "
+                << newPolys->GetNumberOfCells() << " triangles");
 
   fclose(fp);
   //
@@ -218,6 +231,8 @@ void vtkSTLReader::Execute()
     }
 
   output->Squeeze();
+
+  return 1;
 }
 
 int vtkSTLReader::ReadBinarySTL(FILE *fp, vtkPoints *newPts, 
