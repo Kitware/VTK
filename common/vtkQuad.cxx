@@ -726,8 +726,8 @@ void vtkQuad::Clip(float value, vtkFloatScalars *cellScalars,
         if ( (pts[i] = locator->IsInsertedPoint(x)) < 0 )
           {
           pts[i] = locator->InsertNextPoint(x);
-          int p1 = this->PointIds.GetId(vert[0]);
-          int p2 = this->PointIds.GetId(vert[1]);
+          int p1 = this->PointIds.GetId(e1);
+          int p2 = this->PointIds.GetId(e2);
           outPd->InterpolateEdge(inPd,pts[i],p1,p2,t);
           }
         }
