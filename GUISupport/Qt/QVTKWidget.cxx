@@ -1133,13 +1133,14 @@ void QVTKWidget::x11_setup_window()
   // create the X window based on information VTK gave us
   XSetWindowAttributes attrib;
   attrib.colormap = cmap;
+  attrib.border_pixel = black.pixel();
 
   Window parent = RootWindow(display, DefaultScreen(display));
   if(parentWidget())
     parent = parentWidget()->winId();
   Window win = XCreateWindow(display, parent, x(), y(), width(), height(),
                              0, vi->depth, InputOutput, vi->visual,
-                             CWColormap, &attrib);
+                             CWBorderPixel|CWColormap, &attrib);
   
   // backup colormap stuff
   Window *cmw;
