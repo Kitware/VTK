@@ -32,7 +32,7 @@
 #include "vtkRenderer.h"
 #include "vtkTextProperty.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyle, "1.96");
+vtkCxxRevisionMacro(vtkInteractorStyle, "1.97");
 vtkStandardNewMacro(vtkInteractorStyle);
 
 //----------------------------------------------------------------------------
@@ -759,24 +759,6 @@ void vtkInteractorStyle::OnChar()
           aPart->GetProperty()->SetRepresentationToSurface();
           }
         }
-      rwi->Render();
-      }
-      break;
-
-    case 'l' :
-    case 'L' :
-      {
-      int val = vtkTextProperty::GetGlobalAntiAliasing();
-      // Cycle through global anti-aliasing control
-      if (val == VTK_TEXT_GLOBAL_ANTIALIASING_ALL)
-        {
-        val = VTK_TEXT_GLOBAL_ANTIALIASING_SOME;
-        }
-      else
-        {
-        val++;
-        }
-      vtkTextProperty::SetGlobalAntiAliasing(val);
       rwi->Render();
       }
       break;
