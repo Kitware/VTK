@@ -62,19 +62,19 @@ int main (int argc, char *argv[])
       fprintf(fp,"\\\n%s.o ",argv[i]);
       }
     fprintf(fp,"\n\n");
-
-    fprintf(fp,"TCL_OBJ = ");
-    for (i = concrete_start; i <= concrete_end; i++)
-      {
-      fprintf(fp,"\\\ntcl/%sTcl.o ",argv[i]);
-      }
-    for (i = abstract_start; i <= abstract_end; i++)
-      {
-      fprintf(fp,"\\\ntcl/%sTcl.o ",argv[i]);
-      }
-    fprintf(fp,"\n\n");
     }
   
+  fprintf(fp,"TCL_OBJ = ");
+  for (i = 1; i < argc; i++)
+    {
+    if (strcmp(argv[i],"concrete")&&strcmp(argv[i],"abstract")&&
+	strcmp(argv[i],"concrete_h")&&strcmp(argv[i],"abstract_h"))
+      {
+      fprintf(fp,"\\\ntcl/%sTcl.o ",argv[i]);
+      }
+    }
+  fprintf(fp,"\n\n");
+
   /* create TCL_NEWS */
   if ((concrete_num + concrete_h_num) > 0)
     {
@@ -83,7 +83,7 @@ int main (int argc, char *argv[])
       {
       fprintf(fp,"\\\n%s.h ",argv[i]);
       }
-    for (i = abstract_start; i <= abstract_end; i++)
+    for (i = concrete_h_start; i <= concrete_h_end; i++)
       {
       fprintf(fp,"\\\n%s.h ",argv[i]);
       }
