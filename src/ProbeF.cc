@@ -60,8 +60,6 @@ void vlProbeFilter::Execute()
       this->PointData.NullPoint(ptId);
       }
     }
-
-  this->Modified(); //since we aren't setting anything to modify data
 }
 
 void vlProbeFilter::Initialize()
