@@ -53,7 +53,7 @@ vtkMCubesReader::vtkMCubesReader()
   this->Locator = NULL;
   this->SelfCreatedLocator = 0;
 
-  this->FlipNormals = 0;
+  this->FlipNormals = 1;
   this->Normals = 1;
 }
 

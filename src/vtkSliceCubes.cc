@@ -42,7 +42,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdio.h>
 #include "vtkMarchingCubesCases.hh"
 #include "vtkMath.hh"
+#include "vtkUnsignedCharScalars.hh"
 #include "vtkShortScalars.hh"
+#include "vtkIntScalars.hh"
+#include "vtkFloatScalars.hh"
 #include "vtkByteSwap.hh"
 
 // Description:
@@ -62,9 +65,10 @@ void vtkSliceCubes::Update()
   this->Execute();
 }
 
+template <class T>
 void ComputePointGradient(int i, int j, int dims[3], 
                           float aspectRatio[3], float n[3],
-                          short *s0, short *s1, short *s2)
+                          T *s0, T *s1, T *s2)
 {
   float sp, sm;
 
@@ -115,25 +119,24 @@ void ComputePointGradient(int i, int j, int dims[3],
 
 }
 
-// This is the meat...
-void vtkSliceCubes::Execute() 
+template <class T, class S>
+int Contour(T *slice, S *scalars, int imageRange[2], int dims[3], float origin[3],
+            float aspectRatio[3], float value, float xmin[3], float xmax[3],
+            FILE *outFP, vtkVolumeReader *reader, int debug)
 {
-  FILE *outFP;
-  vtkStructuredPoints *tempStructPts;
-  vtkShortScalars *slice0scalars=NULL, *slice1scalars;
-  vtkShortScalars *slice2scalars, *slice3scalars;
-  short *slice0, *slice1, *slice2, *slice3;
-  int dims[3], imageRange[2];
-  float origin[3], aspectRatio[3];
-  int sliceSize, numTriangles=0;
-  short value, s[8];
+  S *slice0scalars=NULL, *slice1scalars;
+  S *slice2scalars, *slice3scalars;
+  T *slice0, *slice1, *slice2, *slice3;
+  vtkFloatScalars *floatScalars=NULL;
+  int numTriangles=0;
+  float s[8];
   vtkMath math;
-  int i, j, k, idx, jOffset, ii, index, *vert, jj;
+  int i, j, k, idx, jOffset, ii, index, *vert, jj, sliceSize=0;
   static int CASE_MASK[8] = {1,2,4,8,16,32,64,128};
   TRIANGLE_CASES *triCase;
   EDGE_LIST  *edge;
   float pts[8][3], grad[8][3];
-  float t, *x1, *x2, *n1, *n2, xmin[3], xmax[3];
+  float t, *x1, *x2, *n1, *n2;
   typedef struct {float x[3], n[3];} pointType;
   pointType point;
   vtkByteSwap swap;
@@ -141,60 +144,43 @@ void vtkSliceCubes::Execute()
                               {4,5}, {5,6}, {6,7}, {7,4},
                               {0,4}, {1,5}, {3,7}, {2,6}};
 
-  // check input/initialize
-  vtkDebugMacro(<< "Executing slice cubes");
-  if ( this->Reader == NULL )
-   {
-   vtkErrorMacro(<<"No reader specified...can't generate isosurface");
-   return;
-   }
-
-  if ( this->Filename == NULL )
-   {
-   vtkErrorMacro(<<"No filename specified...can't output isosurface");
-   return;
-   }
-
-  if ( (outFP = fopen(this->Filename, "w")) == NULL )
-   {
-   vtkErrorMacro(<<"Cannot open specified output file...");
-   return;
-   }
-
-  // get image dimensions from the readers first slice
-  this->Reader->GetImageRange(imageRange);
-  tempStructPts = this->Reader->GetImage(imageRange[0]);
-  tempStructPts->GetDimensions(dims);
-  tempStructPts->GetOrigin(origin);
-  tempStructPts->GetAspectRatio(aspectRatio);
-  
-  dims[2] = (imageRange[1] - imageRange[0] + 1);
-
-  if ( (dims[0]*dims[1]*dims[2]) <= 1 || dims[2] < 2 )
+  if ( slice == NULL ) //have to do conversion to float slice-by-slice
     {
-    vtkErrorMacro(<<"Bad dimensions...must be 3D volume");
-    return;
+    sliceSize = dims[0] * dims[1];
+    floatScalars = new vtkFloatScalars(sliceSize);
     }
 
-  value = (short) this->Value;
-  sliceSize = dims[0]*dims[1];
-  xmin[0]=xmin[1]=xmin[2] = VTK_LARGE_FLOAT;
-  xmax[0]=xmax[1]=xmax[2] = -VTK_LARGE_FLOAT;
-
   slice1scalars = NULL;
-  slice2scalars = tempStructPts->GetPointData()->GetScalars()->GetAllShortScalars();
-  vtkDebugMacro(<<"slice# " << imageRange[0]);
-  if ( slice2scalars == NULL ) return;
-  slice1 = slice2 = slice2scalars->GetPtr(0);
-  slice3scalars = 
-    this->Reader->GetImage(imageRange[0]+1)->GetPointData()->GetScalars()->GetAllShortScalars();
-  vtkDebugMacro(<<"slice# " << imageRange[0]+1);
-  slice3 = slice3scalars->GetPtr(0);
+  slice2scalars = scalars;
+  if (debug)  cerr << "  Slice# " << imageRange[0] << "\n";
+
+  if ( slice2scalars == NULL ) return 0;
+  if ( slice != NULL )
+    {
+    slice1 = slice2 = slice2scalars->GetPtr(0);
+    }
+  else
+    {//get as float
+    slice2scalars->GetScalars(0,sliceSize-1,*floatScalars);
+    slice1 = slice2 = (T *) floatScalars->GetPtr(0);
+    }
+  slice3scalars = (S *) reader->GetImage(imageRange[0]+1)->GetPointData()->GetScalars();
+  if (debug)  cerr << "  Slice# " << imageRange[0]+1 << "\n";
+
+  if ( slice != NULL )
+    {
+    slice3 = slice3scalars->GetPtr(0);
+    }
+  else
+    {//get as float: cast is ok because this code is only executed for float type
+    slice3scalars->GetScalars(0,sliceSize-1,*floatScalars);
+    slice3 = (T *) floatScalars->GetPtr(0);
+    }
 
   if ( !slice2 || !slice3 )
     {
-    vtkErrorMacro(<<"Cannot allocate data!");
-    return;
+    cerr << "Cannot allocate data!";
+    return 0;
     }
 
   // Generate triangles and normals from slices
@@ -211,15 +197,23 @@ void vtkSliceCubes::Execute()
     slice2 = slice3;
     if ( k < (dims[2]-2) )
       {
-      vtkDebugMacro(<<"slice# " << imageRange[0]+k+2);
-      slice3scalars = 
-	this->Reader->GetImage(imageRange[0]+k+2)->GetPointData()->GetScalars()->GetAllShortScalars();
+      if (debug)  cerr << "  Slice# " << imageRange[0]+k+2 << "\n";
+      slice3scalars = (S *)
+        reader->GetImage(imageRange[0]+k+2)->GetPointData()->GetScalars();
       if ( slice3scalars == NULL )
         {
-        vtkErrorMacro(<<"Can't read all the requested slices");
+        cerr << "Can't read all the requested slices\n";
         goto PREMATURE_TERMINATION;
         }
-      slice3 = slice3scalars->GetPtr(0);
+      if ( slice != NULL )
+        {
+        slice3 = slice3scalars->GetPtr(0);
+        }
+      else
+        {//get as float
+        slice3scalars->GetScalars(0,sliceSize-1,*floatScalars);
+        slice3 = (T *) floatScalars->GetPtr(0);
+        }
       }
 
     pts[0][2] = origin[2] + k*aspectRatio[2];
@@ -329,17 +323,119 @@ void vtkSliceCubes::Execute()
 
   // Close things down
   PREMATURE_TERMINATION:
-  vtkDebugMacro(<<"Created: " << 3*numTriangles << " points, " 
-                << numTriangles << " triangles");
 
   fclose(outFP);
+  if ( slice == NULL ) floatScalars->Delete();
   if (slice0scalars && slice0scalars != slice1scalars) slice0scalars->Delete();
   if (slice3scalars && slice3scalars != slice2scalars) slice3scalars->Delete();
   slice1scalars->Delete();
   slice2scalars->Delete();
 
+  return numTriangles;
+}
+
+void vtkSliceCubes::Execute() 
+{
+  FILE *outFP;
+  vtkStructuredPoints *tempStructPts;
+  vtkScalars *inScalars;
+  int dims[3], imageRange[2];
+  float xmin[3], xmax[3];
+  char *type;
+  float origin[3], aspectRatio[3];
+  int numTriangles;
+
+  // check input/initialize
+  vtkDebugMacro(<< "Executing slice cubes");
+  if ( this->Reader == NULL )
+   {
+   vtkErrorMacro(<<"No reader specified...can't generate isosurface");
+   return;
+   }
+
+  if ( this->Filename == NULL )
+   {
+   vtkErrorMacro(<<"No filename specified...can't output isosurface");
+   return;
+   }
+
+  if ( (outFP = fopen(this->Filename, "w")) == NULL )
+   {
+   vtkErrorMacro(<<"Cannot open specified output file...");
+   return;
+   }
+
+  // get image dimensions from the readers first slice
+  this->Reader->GetImageRange(imageRange);
+  tempStructPts = this->Reader->GetImage(imageRange[0]);
+  tempStructPts->GetDimensions(dims);
+  tempStructPts->GetOrigin(origin);
+  tempStructPts->GetAspectRatio(aspectRatio);
+  
+  dims[2] = (imageRange[1] - imageRange[0] + 1);
+
+  if ( (dims[0]*dims[1]*dims[2]) <= 1 || dims[2] < 2 )
+    {
+    vtkErrorMacro(<<"Bad dimensions...slice must be 3D volume");
+    return;
+    }
+
+  xmin[0]=xmin[1]=xmin[2] = VTK_LARGE_FLOAT;
+  xmax[0]=xmax[1]=xmax[2] = -VTK_LARGE_FLOAT;
+
+  inScalars = tempStructPts->GetPointData()->GetScalars();
+  if ( inScalars == NULL )
+    {
+    vtkErrorMacro(<<"Must have scalars to generate isosurface");
+    return;
+    }
+
+  type = inScalars->GetDataType();
+  if ( !strcmp(type,"unsigned char") && inScalars->GetNumberOfValuesPerScalar() == 1 )
+    {
+    vtkUnsignedCharScalars *scalars = (vtkUnsignedCharScalars *)inScalars;
+    unsigned char *s = scalars->GetPtr(0);
+    numTriangles = Contour(s,scalars,imageRange,dims,origin,aspectRatio,this->Value,
+                  xmin,xmax,outFP,this->Reader,this->Debug);
+    }
+  else if ( !strcmp(type,"short") )
+    {
+    vtkShortScalars *scalars = (vtkShortScalars *)inScalars;
+    short *s = scalars->GetPtr(0);
+    numTriangles = Contour(s,scalars,imageRange,dims,origin,aspectRatio,this->Value,
+                  xmin,xmax,outFP,this->Reader,this->Debug);
+    }
+  else if ( !strcmp(type,"float") )
+    {
+    vtkFloatScalars *scalars = (vtkFloatScalars *)inScalars;
+    float *s = scalars->GetPtr(0);
+    numTriangles = Contour(s,scalars,imageRange,dims,origin,aspectRatio,this->Value,
+                  xmin,xmax,outFP,this->Reader,this->Debug);
+    }
+  else if ( !strcmp(type,"int") )
+    {
+    vtkIntScalars *scalars = (vtkIntScalars *)inScalars;
+    int *s = scalars->GetPtr(0);
+    numTriangles = Contour(s,scalars,imageRange,dims,origin,aspectRatio,this->Value,
+                  xmin,xmax,outFP,this->Reader,this->Debug);
+    }
+  else //use general method
+    {
+    vtkFloatScalars *scalars = (vtkFloatScalars *)inScalars;
+    float *s = NULL; //clue to use general method
+    numTriangles = Contour(s,scalars,imageRange,dims,origin,aspectRatio,this->Value,
+                  xmin,xmax,outFP,this->Reader,this->Debug);
+    }
+
+  vtkDebugMacro(<<"Created: " << 3*numTriangles << " points, " 
+                << numTriangles << " triangles");
+
   if ( this->LimitsFilename )
     {
+    vtkByteSwap swap;
+    int i;
+    float t;
+
     if ( (outFP = fopen(this->LimitsFilename, "w")) == NULL )
       {
       vtkWarningMacro(<<"Sorry, couldn't write limits file...");

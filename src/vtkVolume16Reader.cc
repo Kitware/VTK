@@ -109,7 +109,7 @@ void vtkVolume16Reader::Execute()
     }
 }
 
-vtkStructuredPoints *vtkVolume16Reader::GetImage(int vtkNotUsed(ImageNumber))
+vtkStructuredPoints *vtkVolume16Reader::GetImage(int ImageNumber)
 {
   vtkScalars *newScalars;
   int *dim;
@@ -139,7 +139,7 @@ vtkStructuredPoints *vtkVolume16Reader::GetImage(int vtkNotUsed(ImageNumber))
     } 
   
   result = new vtkStructuredPoints();
-  newScalars = this->ReadImage(this->ImageRange[0]);
+  newScalars = this->ReadImage(ImageNumber);
   dimensions[0] = dim[0]; dimensions[1] = dim[1];
   dimensions[2] = 1;
   result->SetDimensions(dimensions);
