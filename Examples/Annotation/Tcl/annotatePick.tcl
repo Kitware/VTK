@@ -34,7 +34,7 @@ vtkLODActor spikeActor
 
 # Create a cell picker.
 vtkCellPicker picker
-    picker SetEndPickMethod annotatePick
+    picker AddObserver EndPickEvent annotatePick
 
 # Create a text mapper and actor to display the results of picking.
 vtkTextMapper textMapper
@@ -61,7 +61,7 @@ vtkRenderWindowInteractor iren
 ren1 AddActor2D textActor
 ren1 AddActor sphereActor
 ren1 AddActor spikeActor
-ren1 SetBackground 0.1 0.2 0.4
+ren1 SetBackground 1 1 1
 renWin SetSize 300 300
 
 # Get the camera and zoom in closer to the image.
