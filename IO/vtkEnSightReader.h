@@ -24,6 +24,7 @@
 
 class vtkDataSetCollection;
 class vtkIdList;
+class vtkEnSightReaderCellIdsType;
 
 class VTK_IO_EXPORT vtkEnSightReader : public vtkGenericEnSightReader
 {
@@ -198,11 +199,14 @@ protected:
   // Replace the *'s in the filename with the given filename number.
   void ReplaceWildcards(char* filename, int num);
   
+  // Get the vtkIdList for the given output index and cell type.
+  vtkIdList* GetCellIds(int index, int cellType);
+  
   char* MeasuredFileName;
   char* MatchFileName; // may not actually be necessary to read this file
 
   // pointer to lists of vtkIdLists (cell ids per element type per part)
-  vtkIdList*** CellIds;
+  vtkEnSightReaderCellIdsType* CellIds;
   
   // part ids of unstructured outputs
   vtkIdList* UnstructuredPartIds;

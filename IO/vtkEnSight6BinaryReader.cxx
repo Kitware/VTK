@@ -42,7 +42,7 @@
 #pragma warning(pop)
 #endif
 
-vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.28");
+vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.29");
 vtkStandardNewMacro(vtkEnSight6BinaryReader);
 
 //----------------------------------------------------------------------------
@@ -1418,7 +1418,7 @@ int vtkEnSight6BinaryReader::ReadScalarsPerElement(char* fileName,
               return 0;
               }
             idx = this->UnstructuredPartIds->IsId(partId);
-            numCellsPerElement = this->CellIds[idx][elementType]->
+            numCellsPerElement = this->GetCellIds(idx, elementType)->
               GetNumberOfIds();
             scalarsRead = new float[numCellsPerElement];
             this->ReadFloatArray(scalarsRead, numCellsPerElement);
@@ -1482,12 +1482,12 @@ int vtkEnSight6BinaryReader::ReadScalarsPerElement(char* fileName,
           return 0;
           }
         idx = this->UnstructuredPartIds->IsId(partId);
-        numCellsPerElement = this->CellIds[idx][elementType]->GetNumberOfIds();
+        numCellsPerElement = this->GetCellIds(idx, elementType)->GetNumberOfIds();
         scalarsRead = new float[numCellsPerElement];
         this->ReadFloatArray(scalarsRead, numCellsPerElement);
         for (i = 0; i < numCellsPerElement; i++)
           {
-          scalars->InsertComponent(this->CellIds[idx][elementType]->GetId(i),
+          scalars->InsertComponent(this->GetCellIds(idx, elementType)->GetId(i),
                                    component, scalarsRead[i]);
           }
         delete [] scalarsRead;
@@ -1604,7 +1604,7 @@ int vtkEnSight6BinaryReader::ReadVectorsPerElement(char* fileName,
               }
             idx = this->UnstructuredPartIds->IsId(partId);
             numCellsPerElement =
-              this->CellIds[idx][elementType]->GetNumberOfIds();
+              this->GetCellIds(idx, elementType)->GetNumberOfIds();
             vectorsRead = new float[numCellsPerElement*3];
             this->ReadFloatArray(vectorsRead, numCellsPerElement*3);
 
@@ -1660,7 +1660,7 @@ int vtkEnSight6BinaryReader::ReadVectorsPerElement(char* fileName,
           return 0;
           }
         idx = this->UnstructuredPartIds->IsId(partId);
-        numCellsPerElement = this->CellIds[idx][elementType]->GetNumberOfIds();
+        numCellsPerElement = this->GetCellIds(idx, elementType)->GetNumberOfIds();
         vectorsRead = new float[numCellsPerElement*3];
         this->ReadFloatArray(vectorsRead, numCellsPerElement*3);
         
@@ -1669,7 +1669,7 @@ int vtkEnSight6BinaryReader::ReadVectorsPerElement(char* fileName,
           vector[0] = vectorsRead[3*i];
           vector[1] = vectorsRead[3*i+1];
           vector[2] = vectorsRead[3*i+2];
-          vectors->InsertTuple(this->CellIds[idx][elementType]->GetId(i),
+          vectors->InsertTuple(this->GetCellIds(idx, elementType)->GetId(i),
                                vector);
           }
         delete [] vectorsRead;
@@ -1780,7 +1780,7 @@ int vtkEnSight6BinaryReader::ReadTensorsPerElement(char* fileName,
               return 0;
               }
             idx = this->UnstructuredPartIds->IsId(partId);
-            numCellsPerElement = this->CellIds[idx][elementType]->
+            numCellsPerElement = this->GetCellIds(idx, elementType)->
               GetNumberOfIds();
             tensorsRead = new float[numCellsPerElement*6];
             this->ReadFloatArray(tensorsRead, numCellsPerElement*6);
@@ -1837,7 +1837,7 @@ int vtkEnSight6BinaryReader::ReadTensorsPerElement(char* fileName,
           return 0;
           }
         idx = this->UnstructuredPartIds->IsId(partId);
-        numCellsPerElement = this->CellIds[idx][elementType]->GetNumberOfIds();
+        numCellsPerElement = this->GetCellIds(idx, elementType)->GetNumberOfIds();
         tensorsRead = new float[numCellsPerElement*6];
         this->ReadFloatArray(tensorsRead, numCellsPerElement*6);
         
@@ -1850,7 +1850,7 @@ int vtkEnSight6BinaryReader::ReadTensorsPerElement(char* fileName,
           tensor[4] = tensorsRead[6*i+4];
           tensor[5] = tensorsRead[6*i+5];
           
-          tensors->InsertTuple(this->CellIds[idx][elementType]->GetId(i),
+          tensors->InsertTuple(this->GetCellIds(idx, elementType)->GetId(i),
                                tensor);
           }
         delete [] tensorsRead;
@@ -1907,18 +1907,6 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
     ugrid->Delete();
     
     this->UnstructuredPartIds->InsertNextId(partId);
-
-    idx = this->UnstructuredPartIds->IsId(partId);
-    if (this->CellIds == NULL)
-      {
-      this->CellIds = new vtkIdList **[16];
-      }
-    
-    this->CellIds[idx] = new vtkIdList *[16];
-    for (i = 0; i < 16; i++)
-      {
-      this->CellIds[idx][i] = vtkIdList::New();
-      }
     }
   else if ( ! this->GetOutput(partId)->IsA("vtkUnstructuredGrid"))
     {
@@ -1926,13 +1914,12 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
     this->OutputsAreValid = 0;
     return 0;
     }
-  else
+  
+  // Clear all cell ids from the last execution, if any.
+  idx = this->UnstructuredPartIds->IsId(partId);
+  for (i = 0; i < 16; i++)
     {
-    idx = this->UnstructuredPartIds->IsId(partId);
-    for (i = 0; i < 16; i++)
-      {
-      this->CellIds[idx][i]->Reset();
-      }
+    this->GetCellIds(idx, i)->Reset();
     }
   
   ((vtkUnstructuredGrid *)this->GetOutput(partId))->Allocate(1000);
@@ -1965,7 +1952,7 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
           }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_VERTEX, 1, nodeIds);
-        this->CellIds[idx][vtkEnSightReader::POINT]->InsertNextId(cellId);
+        this->GetCellIds(idx, vtkEnSightReader::POINT)->InsertNextId(cellId);
         }
       delete [] nodeIds;
       delete [] nodeIdList;
@@ -2003,7 +1990,7 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
           }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_LINE, 2, nodeIds);
-        this->CellIds[idx][vtkEnSightReader::BAR2]->InsertNextId(cellId);
+        this->GetCellIds(idx, vtkEnSightReader::BAR2)->InsertNextId(cellId);
         }
       delete [] nodeIds;
       delete [] nodeIdList;
@@ -2042,7 +2029,7 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
           }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_LINE, 2, nodeIds);
-        this->CellIds[idx][vtkEnSightReader::BAR3]->InsertNextId(cellId);
+        this->GetCellIds(idx, vtkEnSightReader::BAR3)->InsertNextId(cellId);
         }
       delete [] nodeIds;
       delete [] nodeIdList;
@@ -2108,7 +2095,7 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
           }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_TRIANGLE, 3, nodeIds);
-        this->CellIds[idx][cellType]->InsertNextId(cellId);
+        this->GetCellIds(idx, cellType)->InsertNextId(cellId);
         }
       delete [] nodeIds;
       delete [] nodeIdList;
@@ -2174,7 +2161,7 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
           }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_QUAD, 4, nodeIds);
-        this->CellIds[idx][cellType]->InsertNextId(cellId);
+        this->GetCellIds(idx, cellType)->InsertNextId(cellId);
         }
       delete [] nodeIds;
       delete [] nodeIdList;
@@ -2240,7 +2227,7 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
           }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_TETRA, 4, nodeIds);
-        this->CellIds[idx][cellType]->InsertNextId(cellId);
+        this->GetCellIds(idx, cellType)->InsertNextId(cellId);
         }
       delete [] nodeIds;
       delete [] nodeIdList;
@@ -2306,7 +2293,7 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
           }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_PYRAMID, 5, nodeIds);
-        this->CellIds[idx][cellType]->InsertNextId(cellId);
+        this->GetCellIds(idx, cellType)->InsertNextId(cellId);
         }
       delete [] nodeIds;
       delete [] nodeIdList;
@@ -2372,7 +2359,7 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
           }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_HEXAHEDRON, 8, nodeIds);
-        this->CellIds[idx][cellType]->InsertNextId(cellId);
+        this->GetCellIds(idx, cellType)->InsertNextId(cellId);
         }
       delete [] nodeIds;
       delete [] nodeIdList;
@@ -2438,7 +2425,7 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
           }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_WEDGE, 6, nodeIds);
-        this->CellIds[idx][cellType]->InsertNextId(cellId);
+        this->GetCellIds(idx, cellType)->InsertNextId(cellId);
         }
       delete [] nodeIds;
       delete [] nodeIdList;

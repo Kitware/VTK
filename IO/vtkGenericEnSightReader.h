@@ -25,9 +25,10 @@
 
 #include "vtkDataSetSource.h"
 
+class vtkCallbackCommand;
 class vtkDataArrayCollection;
+class vtkDataArraySelection;
 class vtkIdListCollection;
-
 
 class VTK_IO_EXPORT vtkGenericEnSightReader : public vtkDataSetSource
 {
@@ -121,32 +122,29 @@ public:
   vtkGetMacro(ReadAllVariables, int);
   
   // Description:
-  // Specify which variables to read.
-  // attributeType specifies whether this variable is point (=0)
-  // or cell (=1) data.
-  void AddVariableName(char* variableName, int attributeType);
-  void AddPointVariableName(char* variableName);
-  void AddCellVariableName(char* variableName);
+  // Get the data array selection tables used to configure which data
+  // arrays are loaded by the reader.
+  vtkGetObjectMacro(PointDataArraySelection, vtkDataArraySelection);
+  vtkGetObjectMacro(CellDataArraySelection, vtkDataArraySelection);
   
-  // Description:
-  // Remove all the requested variable names.
-  void RemoveAllVariableNames();
-  
-  // Description:
-  // Remove all requested point/cell variable names.
-  void RemoveAllPointVariableNames();
-  void RemoveAllCellVariableNames();
-
-  // Description:
-  // Will this variable be loaded?
-  // attributeType specifies whether this variable is point (=0)
-  // or cell (=1) data.
-  int IsRequestedVariable(char *variableName, int attributeType);
-  
-  // Description:
-  // Get the number of point/cell arrays in this data set.
+  // Description:  
+  // Get the number of point or cell arrays available in the input.
   int GetNumberOfPointArrays();
   int GetNumberOfCellArrays();
+  
+  // Description:
+  // Get the name of the point or cell array with the given index in
+  // the input.
+  const char* GetPointArrayName(int index);
+  const char* GetCellArrayName(int index);
+  
+  // Description:
+  // Get/Set whether the point or cell array with the given name is to
+  // be read.
+  int GetPointArrayStatus(const char* name);
+  int GetCellArrayStatus(const char* name);
+  void SetPointArrayStatus(const char* name, int status);  
+  void SetCellArrayStatus(const char* name, int status);  
   
   //BTX
   enum FileTypes
@@ -178,6 +176,19 @@ public:
   };
 //ETX
 
+#ifndef VTK_REMOVE_LEGACY_CODE
+  // Description:
+  // For legacy compatibility.  Do not use.
+  // Instead, use the GetPointArrayStatus and similar methods.
+  void AddVariableName(char* variableName, int attributeType);
+  void AddPointVariableName(char* variableName);
+  void AddCellVariableName(char* variableName);
+  void RemoveAllVariableNames();
+  void RemoveAllPointVariableNames();
+  void RemoveAllCellVariableNames();
+  int IsRequestedVariable(const char* variableName, int attributeType);
+#endif
+  
 protected:
   vtkGenericEnSightReader();
   ~vtkGenericEnSightReader();
@@ -220,6 +231,27 @@ protected:
   void ReplaceWildcards(char* fileName, int timeSet, int fileSet);
   void ReplaceWildcardsHelper(char* fileName, int num);
   
+  // Callback registered with the SelectionObserver.
+  static void SelectionModifiedCallback(vtkObject* caller, unsigned long eid,
+                                        void* clientdata, void* calldata);
+  void SelectionModified();
+  
+  // Utility to create argument for vtkDataArraySelection::SetArrays.
+  char** CreateStringArray(int numStrings);
+  void DestroyStringArray(int numStrings, char** strings);
+
+  // Fill the vtkDataArraySelection objects with the current set of
+  // EnSight variables.
+  void SetDataArraySelectionSetsFromVariables();
+  
+  // Fill the vtkDataArraySelection objects with the current set of
+  // arrays in the internal EnSight reader.
+  void SetDataArraySelectionSetsFromReader();
+  
+  // Fill the internal EnSight reader's vtkDataArraySelection objects
+  // from those in this object.
+  void SetReaderDataArraySelectionSetsFromSelf();
+  
   istream* IS;
   FILE *IFile;
   vtkGenericEnSightReader *Reader;
@@ -261,12 +293,21 @@ protected:
   virtual void SetTimeSets(vtkDataArrayCollection*);
 
   int ReadAllVariables;
-  int NumberOfRequestedPointVariables;
-  int NumberOfRequestedCellVariables;
-  char** RequestedPointVariables;
-  char** RequestedCellVariables;
 
   int ByteOrder;
+  
+  // The array selections.  These map over the variables and complex
+  // variables to hide the details of EnSight behind VTK terminology.
+  vtkDataArraySelection* PointDataArraySelection;
+  vtkDataArraySelection* CellDataArraySelection;
+  
+  // The observer to modify this object when the array selections are
+  // modified.
+  vtkCallbackCommand* SelectionObserver;
+  
+  // Whether the SelectionModified callback should invoke Modified.
+  // This is used when we are copying to/from the internal reader.
+  int SelectionModifiedDoNotCallModified;
   
 private:
   vtkGenericEnSightReader(const vtkGenericEnSightReader&);  // Not implemented.

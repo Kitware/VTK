@@ -18,10 +18,12 @@
 #include "vtkEnSightReader.h"
 
 #include "vtkDataArrayCollection.h"
-#include "vtkIdListCollection.h"
 #include "vtkFloatArray.h"
+#include "vtkIdList.h"
+#include "vtkIdListCollection.h"
 #include "vtkObjectFactory.h"
 #include "vtkRectilinearGrid.h"
+#include "vtkSmartPointer.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
@@ -31,12 +33,17 @@
 #endif
 
 #include <string>
+#include <vector>
 
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
 
-vtkCxxRevisionMacro(vtkEnSightReader, "1.43");
+vtkCxxRevisionMacro(vtkEnSightReader, "1.44");
+
+//----------------------------------------------------------------------------
+typedef vtkstd::vector< vtkSmartPointer<vtkIdList> > vtkEnSightReaderCellIdsTypeBase;
+class vtkEnSightReaderCellIdsType: public vtkEnSightReaderCellIdsTypeBase {};
 
 //----------------------------------------------------------------------------
 vtkEnSightReader::vtkEnSightReader()
@@ -100,17 +107,7 @@ vtkEnSightReader::~vtkEnSightReader()
 
   if (this->CellIds)
     {
-    for (i = 0; i < this->UnstructuredPartIds->GetNumberOfIds(); i++)
-      {
-      for (j = 0; j < 16; j++)
-        {
-        this->CellIds[i][j]->Delete();
-        this->CellIds[i][j] = NULL;
-        }
-      delete [] this->CellIds[i];
-      this->CellIds[i] = NULL;
-      }
-    delete [] this->CellIds;
+    delete this->CellIds;
     this->CellIds = NULL;
     }
   
@@ -1120,6 +1117,10 @@ int vtkEnSightReader::ReadCaseFile()
 
   delete this->IS;
   this->IS = NULL;
+  
+  // Fill data array selection objects with these arrays.
+  this->SetDataArraySelectionSetsFromVariables();
+  
   return 1;
 }
 
@@ -1134,7 +1135,6 @@ int vtkEnSightReader::ReadVariableFiles()
   vtkIdList *numStepsList, *filenameNumbers;
   int validTime, fileNum, filenameNum;
   char* fileName, *fileName2;
-  int attributeType = 0;
   
   for (i = 0; i < this->NumberOfVariables; i++)
     {
@@ -1145,20 +1145,21 @@ int vtkEnSightReader::ReadVariableFiles()
       case TENSOR_SYMM_PER_NODE:
       case SCALAR_PER_MEASURED_NODE:
       case VECTOR_PER_MEASURED_NODE:
-        attributeType = 0;
+        if(!this->GetPointArrayStatus(this->VariableDescriptions[i]))
+          {
+          continue;
+          }
         break;
       case SCALAR_PER_ELEMENT:
       case VECTOR_PER_ELEMENT:
       case TENSOR_SYMM_PER_ELEMENT:
-        attributeType = 1;
+        if(!this->GetCellArrayStatus(this->VariableDescriptions[i]))
+          {
+          continue;
+          }
         break;
       }
     
-    if ( ! this->IsRequestedVariable(this->VariableDescriptions[i],
-                                     attributeType))
-      {
-      continue;
-      }
     timeStep = 0;
     timeStepInFile = 1;
     fileNum = 1;
@@ -1288,17 +1289,18 @@ int vtkEnSightReader::ReadVariableFiles()
       {
       case COMPLEX_SCALAR_PER_NODE:
       case COMPLEX_VECTOR_PER_NODE:
-        attributeType = 0;
+        if(!this->GetPointArrayStatus(this->ComplexVariableDescriptions[i]))
+          {
+          continue;
+          }
         break;
       case COMPLEX_SCALAR_PER_ELEMENT:
       case COMPLEX_VECTOR_PER_ELEMENT:
-        attributeType = 1;
+        if(!this->GetCellArrayStatus(this->ComplexVariableDescriptions[i]))
+          {
+          continue;
+          }
         break;
-      }
-    if ( ! this->IsRequestedVariable(this->ComplexVariableDescriptions[i],
-                                     attributeType))
-      {
-      continue;
       }
     timeStep = 0;
     timeStepInFile = 1;
@@ -1911,6 +1913,51 @@ int vtkEnSightReader::CheckOutputConsistency()
     }
   
   return this->OutputsAreValid;
+}
+
+//----------------------------------------------------------------------------
+vtkIdList* vtkEnSightReader::GetCellIds(int index, int cellType)
+{
+  // Check argument range.
+  if(cellType < 0 || cellType > 15)
+    {
+    vtkErrorMacro("Cell type " << cellType
+                  << " out of range.  Only 16 types exist.");
+    return 0;
+    }
+  if(index < 0 || index > this->UnstructuredPartIds->GetNumberOfIds())
+    {
+    vtkErrorMacro("Index " << index << " out of range.  Only "
+                  << this->UnstructuredPartIds->GetNumberOfIds()
+                  << " IDs exist.");
+    return 0;
+    }
+  
+  // Create the container if necessary.
+  if(!this->CellIds)
+    {
+    this->CellIds = new vtkEnSightReaderCellIdsType;
+    }
+  
+  // Get the index of the actual vtkIdList requested.
+  int cellIdsIndex = index*16 + cellType;
+  
+  // Make sure the container is large enough for this index.
+  if(cellIdsIndex+1 > this->CellIds->size())
+    {
+    this->CellIds->resize(cellIdsIndex+1);
+    }
+  
+  // Make sure this vtkIdList exists.
+  if(!(*this->CellIds)[cellIdsIndex].GetPointer())
+    {
+    vtkIdList* nl = vtkIdList::New();
+    (*this->CellIds)[cellIdsIndex] = nl;
+    nl->Delete();
+    }
+  
+  // Return the requested vtkIdList.
+  return (*this->CellIds)[cellIdsIndex].GetPointer();
 }
 
 //----------------------------------------------------------------------------

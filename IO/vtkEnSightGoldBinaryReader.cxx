@@ -41,7 +41,7 @@
 #pragma warning(pop)
 #endif
 
-vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.31");
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.32");
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 //----------------------------------------------------------------------------
@@ -1466,13 +1466,13 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(char* fileName,
             elementType = this->GetElementType(line);
             if (elementType == -1)
               {
-              vtkErrorMacro("Unknown element type");
+              vtkErrorMacro("Unknown element type \"" << line << "\"");
               fclose(this->IFile);
               this->IFile = NULL;
               return 0;
               }
             idx = this->UnstructuredPartIds->IsId(partId);
-            numCellsPerElement = this->CellIds[idx][elementType]->
+            numCellsPerElement = this->GetCellIds(idx, elementType)->
               GetNumberOfIds();
             scalarsRead = new float[numCellsPerElement];
             this->ReadFloatArray(scalarsRead, numCellsPerElement);
@@ -1533,7 +1533,7 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(char* fileName,
         elementType = this->GetElementType(line);
         if (elementType == -1)
           {
-          vtkErrorMacro("Unknown element type");
+          vtkErrorMacro("Unknown element type \"" << line << "\"");
           fclose(this->IFile);
           this->IFile = NULL;
           if (component == 0)
@@ -1543,12 +1543,12 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(char* fileName,
           return 0;
           }
         idx = this->UnstructuredPartIds->IsId(partId);
-        numCellsPerElement = this->CellIds[idx][elementType]->GetNumberOfIds();
+        numCellsPerElement = this->GetCellIds(idx, elementType)->GetNumberOfIds();
         scalarsRead = new float[numCellsPerElement];
         this->ReadFloatArray(scalarsRead, numCellsPerElement);
         for (i = 0; i < numCellsPerElement; i++)
           {
-          scalars->InsertComponent(this->CellIds[idx][elementType]->GetId(i),
+          scalars->InsertComponent(this->GetCellIds(idx, elementType)->GetId(i),
                                    component, scalarsRead[i]);
           }
         lineRead = this->ReadLine(line);
@@ -1660,13 +1660,13 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerElement(char* fileName,
             elementType = this->GetElementType(line);
             if (elementType == -1)
               {
-              vtkErrorMacro("Unknown element type");
+              vtkErrorMacro("Unknown element type \"" << line << "\"");
               delete this->IS;
               this->IS = NULL;
               return 0;
               }
             idx = this->UnstructuredPartIds->IsId(partId);
-            numCellsPerElement = this->CellIds[idx][elementType]->
+            numCellsPerElement = this->GetCellIds(idx, elementType)->
               GetNumberOfIds();
             comp1 = new float[numCellsPerElement];
             comp2 = new float[numCellsPerElement];
@@ -1734,14 +1734,14 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerElement(char* fileName,
         elementType = this->GetElementType(line);
         if (elementType == -1)
           {
-          vtkErrorMacro("Unknown element type");
+          vtkErrorMacro("Unknown element type \"" << line << "\"");
           delete this->IS;
           this->IS = NULL;
           vectors->Delete();
           return 0;
           }
         idx = this->UnstructuredPartIds->IsId(partId);
-        numCellsPerElement = this->CellIds[idx][elementType]->GetNumberOfIds();
+        numCellsPerElement = this->GetCellIds(idx, elementType)->GetNumberOfIds();
         comp1 = new float[numCellsPerElement];
         comp2 = new float[numCellsPerElement];
         comp3 = new float[numCellsPerElement];        
@@ -1753,7 +1753,7 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerElement(char* fileName,
           tuple[0] = comp1[i];
           tuple[1] = comp2[i];
           tuple[2] = comp3[i];
-          vectors->InsertTuple(this->CellIds[idx][elementType]->GetId(i),
+          vectors->InsertTuple(this->GetCellIds(idx, elementType)->GetId(i),
                                tuple);
           }
         lineRead = this->ReadLine(line);
@@ -1869,13 +1869,13 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(char* fileName,
             elementType = this->GetElementType(line);
             if (elementType == -1)
               {
-              vtkErrorMacro("Unknown element type");
+              vtkErrorMacro("Unknown element type \"" << line << "\"");
               delete [] this->IS;
               this->IS = NULL;
               return 0;
               }
             idx = this->UnstructuredPartIds->IsId(partId);
-            numCellsPerElement = this->CellIds[idx][elementType]->
+            numCellsPerElement = this->GetCellIds(idx, elementType)->
               GetNumberOfIds();
             comp1 = new float[numCellsPerElement];
             comp2 = new float[numCellsPerElement];
@@ -1965,14 +1965,14 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(char* fileName,
         elementType = this->GetElementType(line);
         if (elementType == -1)
           {
-          vtkErrorMacro("Unknown element type");
+          vtkErrorMacro("Unknown element type \"" << line << "\"");
           delete [] this->IS;
           this->IS = NULL;
           tensors->Delete();
           return 0;
           }
         idx = this->UnstructuredPartIds->IsId(partId);
-        numCellsPerElement = this->CellIds[idx][elementType]->GetNumberOfIds();
+        numCellsPerElement = this->GetCellIds(idx, elementType)->GetNumberOfIds();
         comp1 = new float[numCellsPerElement];
         comp2 = new float[numCellsPerElement];
         comp3 = new float[numCellsPerElement];
@@ -1993,7 +1993,7 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(char* fileName,
           tuple[3] = comp4[i];
           tuple[4] = comp5[i];
           tuple[5] = comp6[i];
-          tensors->InsertTuple(this->CellIds[idx][elementType]->GetId(i),
+          tensors->InsertTuple(this->GetCellIds(idx, elementType)->GetId(i),
                                tuple);
           }
         lineRead = this->ReadLine(line);
@@ -2036,19 +2036,7 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(int partId,
     this->SetNthOutput(partId, ugrid);
     ugrid->Delete();
     
-    this->UnstructuredPartIds->InsertNextId(partId);
-    
-    idx = this->UnstructuredPartIds->IsId(partId);
-    if (this->CellIds == NULL)
-      {
-      this->CellIds = new vtkIdList **[16];
-      }
-    
-    this->CellIds[idx] = new vtkIdList *[16];
-    for (i = 0; i < 16; i++)
-      {
-      this->CellIds[idx][i] = vtkIdList::New();
-      }
+    this->UnstructuredPartIds->InsertNextId(partId);    
     }
   else if ( ! this->GetOutput(partId)->IsA("vtkUnstructuredGrid"))
     {
@@ -2056,13 +2044,12 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(int partId,
     this->OutputsAreValid = 0;
     return 0;
     }
-  else
+  
+  // Clear all cell ids from the last execution, if any.
+  idx = this->UnstructuredPartIds->IsId(partId);
+  for (i = 0; i < 16; i++)
     {
-    idx = this->UnstructuredPartIds->IsId(partId);
-    for (i = 0; i < 16; i++)
-      {
-      this->CellIds[idx][i]->Reset();
-      }
+    this->GetCellIds(idx, i)->Reset();
     }
   
   ((vtkUnstructuredGrid *)this->GetOutput(partId))->Allocate(1000);
@@ -2128,7 +2115,7 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(int partId,
         nodeIds[0] = nodeIdList[i] - 1;
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_VERTEX, 1, nodeIds);
-        this->CellIds[idx][vtkEnSightReader::POINT]->InsertNextId(cellId);
+        this->GetCellIds(idx, vtkEnSightReader::POINT)->InsertNextId(cellId);
         }
       
       delete [] nodeIds;
@@ -2158,7 +2145,7 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(int partId,
           }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_LINE, 2, nodeIds);
-        this->CellIds[idx][vtkEnSightReader::BAR2]->InsertNextId(cellId);
+        this->GetCellIds(idx, vtkEnSightReader::BAR2)->InsertNextId(cellId);
         }
       
       delete [] nodeIds;
@@ -2190,7 +2177,7 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(int partId,
           }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_LINE, 2, nodeIds);
-        this->CellIds[idx][vtkEnSightReader::BAR3]->InsertNextId(cellId);
+        this->GetCellIds(idx, vtkEnSightReader::BAR3)->InsertNextId(cellId);
         }
       
       delete [] nodeIds;
@@ -2232,7 +2219,7 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(int partId,
           }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_POLYGON, numNodesPerElement[i], nodeIds);
-        this->CellIds[idx][cellType]->InsertNextId(cellId);
+        this->GetCellIds(idx, cellType)->InsertNextId(cellId);
         
         delete [] nodeIds;
         }
@@ -2293,7 +2280,7 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(int partId,
           }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_TRIANGLE, 3, nodeIds);
-        this->CellIds[idx][cellType]->InsertNextId(cellId);
+        this->GetCellIds(idx, cellType)->InsertNextId(cellId);
         }
       
       delete [] nodeIds;
@@ -2352,7 +2339,7 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(int partId,
           }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_QUAD, 4, nodeIds);
-        this->CellIds[idx][cellType]->InsertNextId(cellId);
+        this->GetCellIds(idx, cellType)->InsertNextId(cellId);
         }
       
       delete [] nodeIds;
@@ -2411,7 +2398,7 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(int partId,
           }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_TETRA, 4, nodeIds);
-        this->CellIds[idx][cellType]->InsertNextId(cellId);
+        this->GetCellIds(idx, cellType)->InsertNextId(cellId);
         }
       
       delete [] nodeIds;
@@ -2470,7 +2457,7 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(int partId,
           }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_PYRAMID, 5, nodeIds);
-        this->CellIds[idx][cellType]->InsertNextId(cellId);
+        this->GetCellIds(idx, cellType)->InsertNextId(cellId);
         }
       
       delete [] nodeIds;
@@ -2529,7 +2516,7 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(int partId,
           }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_HEXAHEDRON, 8, nodeIds);
-        this->CellIds[idx][cellType]->InsertNextId(cellId);
+        this->GetCellIds(idx, cellType)->InsertNextId(cellId);
         }
       
       delete [] nodeIds;
@@ -2588,7 +2575,7 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(int partId,
           }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_WEDGE, 6, nodeIds);
-        this->CellIds[idx][cellType]->InsertNextId(cellId);
+        this->GetCellIds(idx, cellType)->InsertNextId(cellId);
         }
       
       delete [] nodeIds;
