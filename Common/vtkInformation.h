@@ -143,6 +143,7 @@ public:
   static vtkInformationIntegerKey* FIELD_ASSOCIATION();
   static vtkInformationIntegerKey* FIELD_ATTRIBUTE_TYPE();
   static vtkInformationIntegerKey* FIELD_OPERATION();
+  static vtkInformationIntegerVectorKey* DATA_EXTENT();
   static vtkInformationIntegerVectorKey* UPDATE_EXTENT();
   static vtkInformationKeyVectorKey* SUPPORTED_UPSTREAM_REQUESTS();
   static vtkInformationKeyVectorKey* SUPPORTED_DOWNSTREAM_REQUESTS();
