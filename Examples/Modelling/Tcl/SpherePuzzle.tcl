@@ -113,11 +113,9 @@ $iren AddObserver CharEvent CharCallback
 #
 # Highlight pieces
 #
-set LastVal -1
 proc MotionCallback {} {
 
     global in_piece_rotation
-    
     if {[info exists in_piece_rotation]} {
         return
     }
@@ -146,7 +144,7 @@ proc MotionCallback {} {
     set pt [ren1 GetWorldPoint]
 
     set val [puzzle SetPoint [lindex $pt 0] [lindex $pt 1] [lindex $pt 2]]
-    if {$val != $LastVal} {
+    if {![info exists LastVal] || $val != $LastVal} {
 	renWin Render
 	set LastVal $val
     }
@@ -171,7 +169,6 @@ proc CharCallback {} {
 proc ButtonCallback {x y} {
 
     global in_piece_rotation
-    
     if {[info exists in_piece_rotation]} {
         return
     }
@@ -191,6 +188,7 @@ proc ButtonCallback {x y} {
 	puzzle SetPoint $x $y $z
 	puzzle MovePoint $i
 	renWin Render
+        update
     }
 
     unset in_piece_rotation
