@@ -202,9 +202,9 @@ protected:
   virtual ~vtkBridgeAttribute();
   
   // Description:
-  // Allocate an array for `Tuple', only if it does not exist yet or if
-  // the capacity is too small.
-  void AllocateTuple();
+  // If size>InternalTupleCapacity, allocate enough memory.
+  // \pre positive_size: size>0
+  void AllocateInternalTuple(int size);
   
   friend class vtkBridgeCell;
   
@@ -214,8 +214,8 @@ protected:
   vtkDataSetAttributes *Data; // always not-null, equal to either on Pd or Cd
   int AttributeNumber;
   
-  double *Tuple; // used by vtkBridgeCell
-  int TupleCapacity;
+  double *InternalTuple; // used by vtkBridgeCell
+  int InternalTupleCapacity;
   
 private:
   vtkBridgeAttribute(const vtkBridgeAttribute&); // Not implemented

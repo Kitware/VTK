@@ -32,7 +32,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkBridgeAttribute, "1.4");
+vtkCxxRevisionMacro(vtkBridgeAttribute, "1.5");
 vtkStandardNewMacro(vtkBridgeAttribute);
 
 void vtkBridgeAttribute::PrintSelf(ostream& os, vtkIndent indent)
@@ -194,42 +194,11 @@ double *vtkBridgeAttribute::GetTuple(vtkGenericAdaptorCell *c)
 {
   assert("pre: c_exists" && c!=0);
   
-  double *result=new double[this->GetNumberOfComponents()*c->GetNumberOfPoints()];
-  double *p=result;
-  int i;
-  int j;
-  int size;
-  vtkBridgeCell *c2=static_cast<vtkBridgeCell *>(c);
+  this->AllocateInternalTuple(c->GetNumberOfPoints()*this->GetNumberOfComponents());
+  this->GetTuple(c,this->InternalTuple);
   
-  if(this->Pd!=0)
-    {
-    i=0;
-    size=c2->GetNumberOfPoints();
-    while(i<size)
-      {
-      j=c2->Cell->GetPointId(i);
-      this->Data->GetArray(this->AttributeNumber)->GetTuple(j,p);
-      ++i;
-      p=p+this->GetNumberOfComponents();
-      }
-    }
-  else
-    {
-    this->Data->GetArray(this->AttributeNumber)->GetTuple(c2->GetId(),result);
-    // duplicate:
-    size=c2->GetNumberOfPoints();
-    i=1;
-    p=p+this->GetNumberOfComponents();
-    while(i<size)
-      {
-      memcpy(p,result,sizeof(double)*this->GetNumberOfComponents());
-      p=p+this->GetNumberOfComponents();
-      ++i;
-      }
-    }
-  
-  assert("post: result_exists" && result!=0);
-  return result;
+  assert("post: result_exists" && this->InternalTuple!=0);
+  return this->InternalTuple;
 }
   
 //-----------------------------------------------------------------------------
@@ -291,48 +260,7 @@ double *vtkBridgeAttribute::GetTuple(vtkGenericCellIterator *c)
   assert("pre: c_exists" && c!=0);
   assert("pre: c_valid" && !c->IsAtEnd());
   
-#if 0
-  
-  double *result=new double[this->GetNumberOfComponents()*c->GetCell()->GetNumberOfPoints()];
-  double *p=result;
-  int i;
-  int j;
-  int size;
-  vtkBridgeCellIterator *c2=static_cast<vtkBridgeCellIterator *>(c);
-  
-  
-  if(this->Pd!=0)
-    {
-    i=0;
-    size=c2->GetCell()->GetNumberOfPoints();
-    while(i<size)
-      {
-      j=static_cast<vtkBridgeCell *>(c2->GetCell())->Cell->GetPointId(i);
-      this->Data->GetArray(this->AttributeNumber)->GetTuple(j,p);
-      ++i;
-      p=p+this->GetNumberOfComponents();
-      }
-    }
-  else
-    {
-    this->Data->GetArray(this->AttributeNumber)->GetTuple(c2->GetCell()->GetId(),result);
-    // duplicate:
-    size=c2->GetCell()->GetNumberOfPoints();
-    i=1;
-    p=p+this->GetNumberOfComponents();
-    while(i<size)
-      {
-      memcpy(p,result,sizeof(double)*this->GetNumberOfComponents());
-      p=p+this->GetNumberOfComponents();
-      ++i;
-      }
-    }
-  
-  assert("post: result_exists" && result!=0);
-  return result;
-#else
   return this->GetTuple(c->GetCell());
-#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -347,43 +275,8 @@ void vtkBridgeAttribute::GetTuple(vtkGenericCellIterator *c, double *tuple)
   assert("pre: c_exists" && c!=0);
   assert("pre: c_valid" && !c->IsAtEnd());
   assert("pre: tuple_exists" && tuple!=0);
-#if 0
-  double *p=tuple;
-  int i;
-  int j;
-  int size;
-  vtkBridgeCellIterator *c2=static_cast<vtkBridgeCellIterator *>(c);
-  
-  
-  if(this->Pd!=0)
-    {
-    i=0;
-    size=c2->GetCell()->GetNumberOfPoints();
-    while(i<size)
-      {
-      j=static_cast<vtkBridgeCell *>(c2->GetCell())->Cell->GetPointId(i);
-      this->Data->GetArray(this->AttributeNumber)->GetTuple(j,p);
-      ++i;
-      p=p+this->GetNumberOfComponents();
-      }
-    }
-  else
-    {
-    this->Data->GetArray(this->AttributeNumber)->GetTuple(c2->GetCell()->GetId(),tuple);
-    // duplicate:
-    size=c2->GetCell()->GetNumberOfPoints();
-    i=1;
-    p=p+this->GetNumberOfComponents();
-    while(i<size)
-      {
-      memcpy(p,tuple,sizeof(double)*this->GetNumberOfComponents());
-      p=p+this->GetNumberOfComponents();
-      ++i;
-      }
-    }
-#else
+
   this->GetTuple(c->GetCell(),tuple);
-#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -397,12 +290,13 @@ double *vtkBridgeAttribute::GetTuple(vtkGenericPointIterator *p)
 {
   assert("pre: p_exists" && p!=0);
   assert("pre: p_valid" && !p->IsAtEnd());
-  double *result=new double[this->GetNumberOfComponents()];
   
-  this->Data->GetArray(this->AttributeNumber)->GetTuple(p->GetId(),result);
+  this->AllocateInternalTuple(this->GetNumberOfComponents());
   
-  assert("post: result_exists" && result!=0);
-  return result;
+  this->Data->GetArray(this->AttributeNumber)->GetTuple(p->GetId(),this->InternalTuple);
+  
+  assert("post: result_exists" && this->InternalTuple!=0);
+  return this->InternalTuple;
 }
 
 //-----------------------------------------------------------------------------
@@ -492,7 +386,7 @@ void vtkBridgeAttribute::DeepCopy(vtkGenericAttribute *other)
   vtkSetObjectBodyMacro(Cd,vtkCellData,o->Cd);
   this->Data=o->Data;
   this->AttributeNumber=o->AttributeNumber;
-  AllocateTuple();
+  this->AllocateInternalTuple(this->GetNumberOfComponents());
 }
 
 //-----------------------------------------------------------------------------
@@ -510,7 +404,7 @@ void vtkBridgeAttribute::ShallowCopy(vtkGenericAttribute *other)
   vtkSetObjectBodyMacro(Cd,vtkCellData,o->Cd);
   this->Data=o->Data;
   this->AttributeNumber=o->AttributeNumber;
-  AllocateTuple();
+  this->AllocateInternalTuple(this->GetNumberOfComponents());
 }
 
 //-----------------------------------------------------------------------------
@@ -528,7 +422,7 @@ void vtkBridgeAttribute::InitWithPointData(vtkPointData *d,
   vtkSetObjectBodyMacro(Pd,vtkPointData,d);
   this->Data=d;
   this->AttributeNumber=i;
-  AllocateTuple();
+  this->AllocateInternalTuple(this->GetNumberOfComponents());
 }
 
 //-----------------------------------------------------------------------------
@@ -545,7 +439,7 @@ void vtkBridgeAttribute::InitWithCellData(vtkCellData *d,
   vtkSetObjectBodyMacro(Cd,vtkCellData,d);
   this->Data=d;
   this->AttributeNumber=i;
-  AllocateTuple();
+  this->AllocateInternalTuple(this->GetNumberOfComponents());
 }
 
 //-----------------------------------------------------------------------------
@@ -557,8 +451,8 @@ vtkBridgeAttribute::vtkBridgeAttribute()
   this->Cd=0;
   this->Data=0;
   this->AttributeNumber=0;
-  this->Tuple=0;
-  this->TupleCapacity=0;
+  this->InternalTuple=0;
+  this->InternalTupleCapacity=0;
 }
 
 //-----------------------------------------------------------------------------
@@ -577,26 +471,33 @@ vtkBridgeAttribute::~vtkBridgeAttribute()
       this->Cd->Delete();
       }
     }
-  if(this->Tuple!=0)
+  if(this->InternalTuple!=0)
     {
-    delete[] this->Tuple;
+    delete[] this->InternalTuple;
     }
 }
 
 //-----------------------------------------------------------------------------
 // Description:
-// Allocate an array for `Tuple', only if it does not exist yet or if
-// the capacity is too small.
-void vtkBridgeAttribute::AllocateTuple()
+// If size>InternalTupleCapacity, allocate enough memory.
+// \pre positive_size: size>0
+void vtkBridgeAttribute::AllocateInternalTuple(int size)
 {
-  if((this->Tuple!=0)&&(this->TupleCapacity<this->GetNumberOfComponents()))
+  // size=this->GetNumberOfComponents()
+  assert("pre: positive_size" && size>0);
+  
+  if(this->InternalTuple==0)
     {
-    delete[] this->Tuple;
-    this->Tuple=0;
+    this->InternalTupleCapacity = size;
+    this->InternalTuple = new double[this->InternalTupleCapacity];
     }
-  if(this->Tuple==0)
+  else
     {
-    this->Tuple=new double[this->GetNumberOfComponents()];
-    this->TupleCapacity=this->GetNumberOfComponents();
+    if(InternalTupleCapacity<size)
+      {
+      this->InternalTupleCapacity = size;
+      delete [] this->InternalTuple;
+      this->InternalTuple = new double[this->InternalTupleCapacity];
+      }
     }
 }

@@ -70,7 +70,7 @@
 #endif
 
 
-vtkCxxRevisionMacro(vtkBridgeCell, "1.8");
+vtkCxxRevisionMacro(vtkBridgeCell, "1.9");
 
 vtkStandardNewMacro(vtkBridgeCell);
 
@@ -450,7 +450,7 @@ void vtkBridgeCell::InterpolateTuple(vtkGenericAttribute *a, double pcoords[3],
                                      double *val)
 {
   assert("pre: a_exists" && a!=0);
-  assert("a_is_point_centered" && a->GetCentering()==vtkPointCentered);
+  assert("pre: a_is_point_centered" && a->GetCentering()==vtkPointCentered);
   assert("pre: clamped_point" && (pcoords[0]>=0 && pcoords[0]<=1
              && pcoords[1]>=0 && pcoords[1]<=1 && pcoords[2]>=0
                                   && pcoords[2]<=1));
@@ -480,11 +480,11 @@ void vtkBridgeCell::InterpolateTuple(vtkGenericAttribute *a, double pcoords[3],
       }
     while(pt<ptCount)
       {
-      ba->Data->GetArray(ba->AttributeNumber)->GetTuple(this->Cell->GetPointId(pt),ba->Tuple);
+      ba->Data->GetArray(ba->AttributeNumber)->GetTuple(this->Cell->GetPointId(pt),ba->InternalTuple);
       component=0;
       while(component<componentCount)
         {
-        val[component]=val[component]+ba->Tuple[component]*this->Weights[pt];
+        val[component]=val[component]+ba->InternalTuple[component]*this->Weights[pt];
         ++component;
         }
       ++pt;
