@@ -305,7 +305,8 @@ void vtkXRenderWindowInteractor::Enable()
   // PERFECTLY
   XtAddEventHandler(this->top,
 		    KeyPressMask | ButtonPressMask | ExposureMask |
-		    StructureNotifyMask | ButtonReleaseMask | EnterWindowMask,
+		    StructureNotifyMask | ButtonReleaseMask | EnterWindowMask |
+                    PointerMotionMask,
 		    False,vtkXRenderWindowInteractorCallback,(XtPointer)this);
   this->Enabled = 1;
 

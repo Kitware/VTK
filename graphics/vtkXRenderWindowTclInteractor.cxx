@@ -239,7 +239,8 @@ void vtkXRenderWindowTclInteractor::Enable()
   // (Multiple calls to XSelectInput overrides the previous settings)
   XSelectInput(this->DisplayId,this->WindowId,
 	       KeyPressMask | ButtonPressMask | ExposureMask |
-	       StructureNotifyMask | ButtonReleaseMask | EnterWindowMask);
+	       StructureNotifyMask | ButtonReleaseMask | EnterWindowMask |
+               PointerMotionMask);
 
   this->Enabled = 1;
 
