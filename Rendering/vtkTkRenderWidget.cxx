@@ -1009,6 +1009,7 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
 {
   Display *dpy;
   TkWindow *winPtr = (TkWindow *)self->TkWin;
+  int new_flag;
   vtkCarbonRenderWindow *renderWindow;
   WindowPtr parentWin;
 
@@ -1046,10 +1047,9 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
     else
       {
 #ifndef VTK_PYTHON_BUILD
-      int new_flag;
       renderWindow = (vtkCarbonRenderWindow *)
- vtkTclGetPointerFromObject(self->RW,"vtkRenderWindow",self->Interp, 
-       new_flag);
+        vtkTclGetPointerFromObject(self->RW,"vtkRenderWindow",self->Interp, 
+                                   new_flag);
 #endif
       }
     if (renderWindow != self->RenderWindow)
@@ -1110,6 +1110,8 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
 
   // Use the same display
   renderWindow->SetDisplayId(dpy);
+
+  self->RenderWindow->Render();
 
   XSelectInput(dpy, Tk_WindowId(self->TkWin), VTK_ALL_EVENTS_MASK);
   
