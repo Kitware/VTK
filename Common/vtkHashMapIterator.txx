@@ -105,7 +105,7 @@ int vtkHashMapIterator<KeyType,DataType>::IsDoneWithTraversal()
 template<class KeyType,class DataType>
 void vtkHashMapIterator<KeyType,DataType>::GoToNextItem()
 {
-  if(this->IsDoneWithTraversal()) { this->InitTraversal(); }
+  if(this->IsDoneWithTraversal()) { this->GoToFirstItem(); }
   this->Iterator->GoToNextItem();
   this->ScanForward();
 }
@@ -133,7 +133,7 @@ void vtkHashMapIterator<KeyType,DataType>::GoToFirstItem()
     = static_cast<vtkHashMap<KeyType,DataType>*>(this->Container);
   this->Bucket = 0;
   this->Iterator->SetContainer(hmap->Buckets[this->Bucket]);
-  this->Iterator->InitTraversal();
+  this->Iterator->GoToFirstItem();
   this->ScanForward();
 }
 
@@ -175,7 +175,7 @@ void vtkHashMapIterator<KeyType,DataType>::ScanForward()
         (++this->Bucket < hmap->NumberOfBuckets))
     {
     this->Iterator->SetContainer(hmap->Buckets[this->Bucket]);
-    this->Iterator->InitTraversal();
+    this->Iterator->GoToFirstItem();
     }
 }
 
@@ -192,7 +192,13 @@ void vtkHashMapIterator<KeyType,DataType>::ScanBackward()
     {
     this->Iterator->SetContainer(hmap->Buckets[--this->Bucket]);
     this->Iterator->GoToLastItem();
-    }  
+    }
+  
+  // If no valid item was reached, indicate that the traversal is done.
+  if(this->Iterator->IsDoneWithTraversal())
+    {
+    this->Bucket = hmap->NumberOfBuckets;
+    }
 }
 
 //----------------------------------------------------------------------------
