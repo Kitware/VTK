@@ -117,6 +117,19 @@ void vtkByteSwap::SwapWrite4BERange(char *mem_ptr1,int num, FILE *fp)
   fwrite(mem_ptr1,4,num,fp);
 #endif
 }
+// Description:
+// Swap 2 byte word.
+void vtkByteSwap::Swap2LE(short *mem_ptr)
+{
+#if WORDS_BIGENDIAN
+  unsigned h1,h2;
+
+  h1 = *mem_ptr << 8;
+  h2 = *mem_ptr >> 8;
+  *mem_ptr = (short) h1 | h2;
+
+#endif
+}
 
 // Description:
 // Swap four byte word.
@@ -161,6 +174,19 @@ void vtkByteSwap::Swap4LERange(char *mem_ptr1,int num)
 #endif
 }
 
+// Description:
+// Swap 2 byte word.
+void vtkByteSwap::Swap2BE(short *mem_ptr)
+{
+#ifndef WORDS_BIGENDIAN
+  unsigned h1,h2;
+
+  h1 = *mem_ptr << 8;
+  h2 = *mem_ptr >> 8;
+  *mem_ptr = (short) h1 | h2;
+
+#endif
+}
 // Description:
 // Swap bunch of bytes. Num is the number of two byte words to swap.
 void vtkByteSwap::Swap2BERange(char *mem_ptr1,int num)

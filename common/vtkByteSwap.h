@@ -56,6 +56,7 @@ class VTK_EXPORT vtkByteSwap
 public:
   void Delete() {delete this;};
 
+  static void Swap2LE(short *s);
   static void Swap4LE(char *c);
   static void Swap4LE(float *p) { vtkByteSwap::Swap4LE((char *)p);};
   static void Swap4LE(int *i)   { vtkByteSwap::Swap4LE((char *)i);};
@@ -90,6 +91,7 @@ public:
   static void SwapWrite4BERange(unsigned long *i,int num, FILE *fp) 
   { vtkByteSwap::SwapWrite4BERange((char *)i,num,fp);};
 
+  static void Swap2BE(short *s);
   static void Swap2BERange(char *c,int num);
   static void Swap2LERange(char *c,int num);
   static void Swap2BERange(short *i,int num) 
