@@ -106,7 +106,7 @@ public:
 
 //BTX
 
-  class Request
+  class VTK_EXPORT Request
   {
   public:
     int Test();
