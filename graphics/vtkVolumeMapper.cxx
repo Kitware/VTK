@@ -48,8 +48,8 @@ vtkVolumeMapper::vtkVolumeMapper()
   this->Cropping = 0;
   for ( i = 0; i < 3; i++ )
     {
-    this->CroppingBounds[2*i    ] = 0;
-    this->CroppingBounds[2*i + 1] = 1;
+    this->CroppingRegionPlanes[2*i    ] = 0;
+    this->CroppingRegionPlanes[2*i + 1] = 1;
     }
   this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = -1.0;
   this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = 1.0;
@@ -152,13 +152,13 @@ void vtkVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Cropping: " << (this->Cropping ? "On\n" : "Off\n");
 
-  os << indent << "Cropping Bounds: " << endl 
-     << indent << "In X: " << this->CroppingBounds[0] 
-     << " to " << this->CroppingBounds[1] << endl 
-     << indent << "In Y: " << this->CroppingBounds[2] 
-     << " to " << this->CroppingBounds[3] << endl 
-     << indent << "In Z: " << this->CroppingBounds[4] 
-     << " to " << this->CroppingBounds[5] << endl;
+  os << indent << "Cropping Region Planes: " << endl 
+     << indent << "  In X: " << this->CroppingRegionPlanes[0] 
+     << " to " << this->CroppingRegionPlanes[1] << endl 
+     << indent << "  In Y: " << this->CroppingRegionPlanes[2] 
+     << " to " << this->CroppingRegionPlanes[3] << endl 
+     << indent << "  In Z: " << this->CroppingRegionPlanes[4] 
+     << " to " << this->CroppingRegionPlanes[5] << endl;
  
   os << indent << "Cropping Region Flags: " << this->CroppingRegionFlags << endl;
 

@@ -135,7 +135,7 @@ VolumeTextureMapper2D_XMajorDirection( T *data_ptr,
 
   cropping       = me->GetCropping();
   croppingFlags  = me->GetCroppingRegionFlags();
-  croppingBounds = me->GetCroppingBounds();
+  croppingBounds = me->GetCroppingRegionPlanes();
 
   if ( !cropping )
     {
@@ -404,7 +404,7 @@ VolumeTextureMapper2D_YMajorDirection( T *data_ptr,
 
   cropping       = me->GetCropping();
   croppingFlags  = me->GetCroppingRegionFlags();
-  croppingBounds = me->GetCroppingBounds();
+  croppingBounds = me->GetCroppingRegionPlanes();
 
   if ( !cropping )
     {
@@ -671,7 +671,7 @@ VolumeTextureMapper2D_ZMajorDirection( T *data_ptr,
 
   cropping       = me->GetCropping();
   croppingFlags  = me->GetCroppingRegionFlags();
-  croppingBounds = me->GetCroppingBounds();
+  croppingBounds = me->GetCroppingRegionPlanes();
 
   if ( !cropping )
     {

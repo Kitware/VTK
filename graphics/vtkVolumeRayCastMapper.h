@@ -190,6 +190,7 @@ protected:
   float                        RayColor[4];
   float                        VolumeBounds[6];
   float                        WorldToVolumeMatrix[16];
+  float                        VolumeToWorldMatrix[16];
   float                        ViewToVolumeMatrix[16];
 };
 

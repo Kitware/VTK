@@ -157,6 +157,8 @@ void vtkVolumeRayCastMapper::InitializeRender( vtkRenderer *ren, vtkVolume *vol,
 
   memcpy( volumeInfo->WorldToVolumeMatrix, 
 	  this->WorldToVolumeMatrix, 16*sizeof(float) );
+  memcpy( volumeInfo->VolumeToWorldMatrix, 
+	  this->VolumeToWorldMatrix, 16*sizeof(float) );
   memcpy( volumeInfo->ViewToVolumeMatrix, 
 	  this->ViewToVolumeMatrix, 16*sizeof(float) );
 
@@ -368,14 +370,14 @@ void vtkVolumeRayCastMapper::CastViewRay( VTKRayCastRayInfo *rayInfo,
 	  {
 	  case 0:
 	    bounds[0] = 0;
-	    bounds[1] = this->CroppingBounds[0];
+	    bounds[1] = this->CroppingRegionPlanes[0];
 	    break;
 	  case 1:
-	    bounds[0] = this->CroppingBounds[0];
-	    bounds[1] = this->CroppingBounds[1];
+	    bounds[0] = this->CroppingRegionPlanes[0];
+	    bounds[1] = this->CroppingRegionPlanes[1];
 	    break;
 	  case 2:
-	    bounds[0] = this->CroppingBounds[1];
+	    bounds[0] = this->CroppingRegionPlanes[1];
 	    bounds[1] = volumeInfo->DataSize[0] - 1;
 	    break;
 	  }
@@ -384,14 +386,14 @@ void vtkVolumeRayCastMapper::CastViewRay( VTKRayCastRayInfo *rayInfo,
 	  {
 	  case 0:
 	    bounds[2] = 0;
-	    bounds[3] = this->CroppingBounds[2];
+	    bounds[3] = this->CroppingRegionPlanes[2];
 	    break;
 	  case 1:
-	    bounds[2] = this->CroppingBounds[2];
-	    bounds[3] = this->CroppingBounds[3];
+	    bounds[2] = this->CroppingRegionPlanes[2];
+	    bounds[3] = this->CroppingRegionPlanes[3];
 	    break;
 	  case 2:
-	    bounds[2] = this->CroppingBounds[3];
+	    bounds[2] = this->CroppingRegionPlanes[3];
 	    bounds[3] = volumeInfo->DataSize[1] - 1;
 	    break;
 	  }
@@ -400,14 +402,14 @@ void vtkVolumeRayCastMapper::CastViewRay( VTKRayCastRayInfo *rayInfo,
 	  {
 	  case 0:
 	    bounds[4] = 0;
-	    bounds[5] = this->CroppingBounds[4];
+	    bounds[5] = this->CroppingRegionPlanes[4];
 	    break;
 	  case 1:
-	    bounds[4] = this->CroppingBounds[4];
-	    bounds[5] = this->CroppingBounds[5];
+	    bounds[4] = this->CroppingRegionPlanes[4];
+	    bounds[5] = this->CroppingRegionPlanes[5];
 	    break;
 	  case 2:
-	    bounds[4] = this->CroppingBounds[5];
+	    bounds[4] = this->CroppingRegionPlanes[5];
 	    bounds[5] = volumeInfo->DataSize[2] - 1;
 	    break;
 	  }
@@ -822,6 +824,16 @@ void vtkVolumeRayCastMapper::GeneralImageInitialization( vtkRenderer *ren,
   worldToVolumeTransform->PostMultiply();
   worldToVolumeTransform->Concatenate( scalarTransform->GetMatrixPointer() );
 
+  // Save this matrix now as the volume to world matrix before we invert it
+  for ( j = 0; j < 4; j++ )
+    {
+    for ( i = 0; i < 4; i++ )
+      {
+      this->VolumeToWorldMatrix[j*4 + i] = 
+        worldToVolumeTransform->GetMatrixPointer()->Element[j][i];
+      }
+    }
+
   // Invert this matrix so that we have world to volume instead of
   // volume to world coordinates
   worldToVolumeTransform->Inverse();
@@ -878,13 +890,13 @@ void vtkVolumeRayCastMapper::GeneralImageInitialization( vtkRenderer *ren,
     {
     for ( i = 0; i < 3; i++ )
       {
-      if ( this->CroppingBounds[2*i] > this->VolumeBounds[2*i] )
+      if ( this->CroppingRegionPlanes[2*i] > this->VolumeBounds[2*i] )
 	{
-	this->VolumeBounds[2*i] = this->CroppingBounds[2*i];
+	this->VolumeBounds[2*i] = this->CroppingRegionPlanes[2*i];
 	}
-      if ( this->CroppingBounds[2*i+1] < this->VolumeBounds[2*i+1] )
+      if ( this->CroppingRegionPlanes[2*i+1] < this->VolumeBounds[2*i+1] )
 	{
-	this->VolumeBounds[2*i+1] = this->CroppingBounds[2*i+1];
+	this->VolumeBounds[2*i+1] = this->CroppingRegionPlanes[2*i+1];
 	}
       }
     }

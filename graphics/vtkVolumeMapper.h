@@ -89,9 +89,9 @@ public:
   vtkBooleanMacro(Cropping,int);
 
   // Description:
-  // Set/Get the Cropping Bounds ( xmin, xmax, ymin, ymax, zmin, zmax )
-  vtkSetVector6Macro( CroppingBounds, float );
-  vtkGetVectorMacro(  CroppingBounds, float, 6 );
+  // Set/Get the Cropping Region Planes ( xmin, xmax, ymin, ymax, zmin, zmax )
+  vtkSetVector6Macro( CroppingRegionPlanes, float );
+  vtkGetVectorMacro(  CroppingRegionPlanes, float, 6 );
 
   // Description:
   // Set the flags for the cropping regions. The clipping planes divide the
@@ -163,7 +163,7 @@ protected:
   void operator=(const vtkVolumeMapper&) {};
 
   int                  Cropping;
-  float                CroppingBounds[6];
+  float                CroppingRegionPlanes[6];
   int                  CroppingRegionFlags;
   vtkTimeStamp         BuildTime;
 };
