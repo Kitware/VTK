@@ -267,6 +267,7 @@ void vtkOBBTree::SubDivide()
   this->Tree = new vtkOBBNode;
   this->DeepestLevel = 0;
   this->BuildTree(cellList,this->Tree,0);
+  this->Level = this->DeepestLevel;
 
   vtkDebugMacro(<<"Deepest tree level: " << this->DeepestLevel
                 <<", Created: " << OBBCount << " OBB nodes");
@@ -321,28 +322,25 @@ void vtkOBBTree::BuildTree(vtkIdList *cells, vtkOBBNode *OBBptr, int level)
     {
     vtkIdList *LHlist = new vtkIdList(cells->GetNumberOfIds()/2);
     vtkIdList *RHlist = new vtkIdList(cells->GetNumberOfIds()/2);
-    vtkOBBNode *LHnode = new vtkOBBNode;
-    vtkOBBNode *RHnode = new vtkOBBNode;
-    float n[3], p[3], *x, val, ratio;
+    float n[3], p[3], *x, val, ratio, bestRatio;
     int negative, positive, splitAcceptable, splitPlane;
-
-    OBBptr->Kids = new vtkOBBNode *[2];
-    OBBptr->Kids[0] = LHnode;
-    OBBptr->Kids[1] = RHnode;
-    LHnode->Parent = OBBptr;
-    RHnode->Parent = OBBptr;
+    int foundBestSplit, bestPlane, numStraddles;
+    int numInLHnode, numInRHnode;
 
     //loop over three split planes to find acceptable one
-    for (splitPlane=0, splitAcceptable=0; splitPlane < 3 && !splitAcceptable;
-    splitPlane++)
+    for (i=0; i < 3; i++) //compute split point
       {
-      // compute split plane
-      for (i=0 ; i < 3; i++)
-        {
-        n[i] = OBBptr->Axes[splitPlane][i];
-        p[i] = OBBptr->Corner[i] + OBBptr->Axes[0][i]/2.0 + 
-               OBBptr->Axes[1][i]/2.0 + OBBptr->Axes[2][i]/2.0;
-        }
+      p[i] = OBBptr->Corner[i] + OBBptr->Axes[0][i]/2.0 + 
+             OBBptr->Axes[1][i]/2.0 + OBBptr->Axes[2][i]/2.0;
+      }
+
+    bestRatio = VTK_LARGE_FLOAT;
+    foundBestSplit = 0;
+    numStraddles = 0;
+    for (splitPlane=0,splitAcceptable=0; !splitAcceptable && splitPlane < 3; )
+      {
+      // compute split normal
+      for (i=0 ; i < 3; i++) n[i] = OBBptr->Axes[splitPlane][i];
       math.Normalize(n);
 
       //traverse cells, assigning to appropriate child list as necessary
@@ -361,23 +359,62 @@ void vtkOBBTree::BuildTree(vtkIdList *cells, vtkOBBNode *OBBptr, int level)
 
         if ( negative ) LHlist->InsertNextId(cellId);
         else RHlist->InsertNextId(cellId);
+
+        if ( negative && positive ) numStraddles++;
+
         }//for all cells
 
-      //see whether we've found acceptable plane
-      ratio = (float) LHlist->GetNumberOfIds() / cells->GetNumberOfIds();
-      if ( fabs(ratio-0.5) <= 0.4 ) //accept this split
+      //evaluate this split
+      numInLHnode = LHlist->GetNumberOfIds() - numStraddles;
+      numInRHnode = RHlist->GetNumberOfIds() - numStraddles;
+      if (  numInLHnode < 1 || numInRHnode < 1 )
+        {
+        ratio = VTK_LARGE_FLOAT / 2.0;
+        }
+      else 
+        {
+        ratio = fabs((double) numInRHnode / numInLHnode ) - 1.0;
+        }
+
+      //see whether we've found acceptable split plane       
+      if ( ratio < 10.0 ) //accept right off the bat
         { 
         splitAcceptable = 1;
+        }
+      else if ( foundBestSplit ) //force termination of this loop
+        {
+        if ( ratio < 100.0 ) splitAcceptable = 1;
+        splitPlane = 10;
         }
       else //not a great split try another
         {
         LHlist->Reset();
         RHlist->Reset();
-        }
-      }
+        if ( ratio < bestRatio ) 
+          {
+          bestRatio = ratio;;
+          bestPlane = splitPlane;
+          }
+        }//don't accept split
 
-    if ( splitAcceptable )
+      if ( ++splitPlane == 3 && bestRatio < VTK_LARGE_FLOAT )
+        {
+        splitPlane = bestPlane;
+        foundBestSplit = 1;
+        }
+
+      }//for each split
+
+    if ( splitAcceptable ) //otherwise recursion terminates
       {
+      vtkOBBNode *LHnode=new vtkOBBNode;
+      vtkOBBNode *RHnode=new vtkOBBNode;
+      OBBptr->Kids = new vtkOBBNode *[2];
+      OBBptr->Kids[0] = LHnode;
+      OBBptr->Kids[1] = RHnode;
+      LHnode->Parent = OBBptr;
+      RHnode->Parent = OBBptr;
+
       delete cells; cells = NULL; //don't need to keep anymore
       this->BuildTree(LHlist, LHnode, level+1);
       this->BuildTree(RHlist, RHnode, level+1);
@@ -386,6 +423,7 @@ void vtkOBBTree::BuildTree(vtkIdList *cells, vtkOBBNode *OBBptr, int level)
 
   if ( cells && this->RetainCellLists ) 
     {
+    cells->Squeeze();
     OBBptr->Cells = cells;
     }
   else if ( cells )
@@ -504,7 +542,7 @@ void vtkOBBTree::GeneratePolygons(vtkOBBNode *OBBptr, int level, int repLevel,
     polys->InsertNextCell(4,ptIds);
     }
 
-  else if (level < repLevel && OBBptr->Kids != NULL )
+  else if ( (level < repLevel || repLevel < 0) && OBBptr->Kids != NULL )
     {
     this->GeneratePolygons(OBBptr->Kids[0],level+1,repLevel,ar,d,pts,polys);
     this->GeneratePolygons(OBBptr->Kids[1],level+1,repLevel,ar,d,pts,polys);
