@@ -164,8 +164,8 @@ class VTK_EXPORT vtkActor : public vtkProp
   // Description:
   // The renderer may use the allocated rendering time to determine
   // how to render this actor. (LOD Experiment)
-  vtkSetMacro(AllocatedRenderingTime, float);
-  vtkGetMacro(AllocatedRenderingTime, float);
+  vtkSetMacro(AllocatedRenderTime, float);
+  vtkGetMacro(AllocatedRenderTime, float);
   
 protected:
   vtkProperty *Property; 
@@ -178,7 +178,7 @@ protected:
   int TraversalLocation;
   
   // This is for LOD experiment
-  float AllocatedRenderingTime;
+  float AllocatedRenderTime;
 };
 
 #endif
