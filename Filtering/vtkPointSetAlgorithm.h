@@ -76,6 +76,11 @@ public:
   void AddInput(int, vtkPointSet*);
   void AddInput(int, vtkDataObject*);
 
+  // this method is not recommended for use, but lots of old style filters
+  // use it
+  vtkDataObject *GetInput() { return this->GetInput(0); }
+  vtkDataObject *GetInput(int port);
+
   // Description:
   // see vtkAlgorithm for details
   virtual int ProcessRequest(vtkInformation* request, 
@@ -116,8 +121,6 @@ protected:
   // see algorithm for more info
   virtual int FillOutputPortInformation(int port, vtkInformation* info);
   virtual int FillInputPortInformation(int port, vtkInformation* info);
-
-  vtkDataObject *GetInput(int port);
 
 private:
   vtkPointSetAlgorithm(const vtkPointSetAlgorithm&);  // Not implemented.
