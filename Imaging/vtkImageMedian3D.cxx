@@ -155,7 +155,7 @@ double *vtkImageMedian3DAccumulateMedian(int &UpNum, int &DownNum,
       ++idx;
       }
     // place val and move all others up
-    while (idx <= max)
+    while (idx < max)
       {
       temp = *ptr;
       *ptr = val;
@@ -163,6 +163,7 @@ double *vtkImageMedian3DAccumulateMedian(int &UpNum, int &DownNum,
       ++ptr;
       ++idx;
       }
+    *ptr = val;
     // Update counts
     ++UpNum;
     --DownMax;
@@ -193,7 +194,7 @@ double *vtkImageMedian3DAccumulateMedian(int &UpNum, int &DownNum,
       ++idx;
       }
     // place val and move all others up
-    while (idx <= max)
+    while (idx < max)
       {
       temp = *ptr;
       *ptr = val;
@@ -201,6 +202,7 @@ double *vtkImageMedian3DAccumulateMedian(int &UpNum, int &DownNum,
       --ptr;
       ++idx;
       }
+    *ptr = val;
     // Update counts
     ++DownNum;
     --UpMax;
