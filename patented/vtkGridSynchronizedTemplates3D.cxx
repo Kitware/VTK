@@ -1093,12 +1093,12 @@ void vtkGridSynchronizedTemplates3D::Execute()
 {
   int idx, offset, num, ptIdx, newIdx, numCellPts, *cellPts, newCellPts[3];
   vtkPolyData *output = this->GetOutput();
-  vtkPoints *outPts = output->GetPoints();
-  vtkPointData *outPD = output->GetPointData();
-  vtkCellArray *outTris = output->GetPolys();
-  vtkScalars *outScalars = outPD->GetScalars();
-  vtkVectors *outGrads = outPD->GetVectors();
-  vtkNormals *outNormals = outPD->GetNormals();
+  vtkPoints *outPts;
+  vtkPointData *outPD;
+  vtkCellArray *outTris;
+  vtkScalars *outScalars;
+  vtkVectors *outGrads;
+  vtkNormals *outNormals;
   vtkPolyData *threadOut;
   vtkPointData *threadPD;
   vtkCellArray *threadTris;
@@ -1116,6 +1116,13 @@ void vtkGridSynchronizedTemplates3D::Execute()
   ext[1] = ((ext[1]-ext[0]+1) / numPieces)-1+ext[0];
 
   this->InitializeOutput(ext, output);
+
+  outPts = output->GetPoints();
+  outPD = output->GetPointData();
+  outTris = output->GetPolys();
+  outScalars = outPD->GetScalars();
+  outGrads = outPD->GetVectors();
+  outNormals = outPD->GetNormals();
 
   if (this->NumberOfThreads == 1)
     {
