@@ -58,7 +58,7 @@ proc TestKit {kit} {
 proc TestObject {kit objectClass} {
    global DEBUG
 
-   puts "    ----------------Object: $objectClass"
+   if {$DEBUG == 1} {puts "    ----------------Object: $objectClass"}
 
    # This checks all the objects (not just sources)
    # (unlike CheckModifyTime3.tcl)
