@@ -12,14 +12,5 @@ Version:   $Revision$
 
 //----------------------------------------------------------------------------
 
-vtkBar* vtkBar::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkBar");
-  if(ret)
-    {
-    return (vtkBar*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkBar;
-}
+vtkCxxRevisionMacro(vtkBar, "1.2");
+vtkStandardNewMacro(vtkBar);

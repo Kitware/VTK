@@ -14,17 +14,8 @@
 
 //----------------------------------------------------------------------------
 
-vtkImageFoo* vtkImageFoo::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageFoo");
-  if(ret)
-    {
-    return (vtkImageFoo*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageFoo;
-}
+vtkCxxRevisionMacro(vtkImageFoo, "1.3");
+vtkStandardNewMacro(vtkImageFoo);
 
 //----------------------------------------------------------------------------
 
