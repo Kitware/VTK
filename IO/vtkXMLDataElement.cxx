@@ -21,7 +21,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkXMLDataElement, "1.13");
+vtkCxxRevisionMacro(vtkXMLDataElement, "1.14");
 vtkStandardNewMacro(vtkXMLDataElement);
 
 //----------------------------------------------------------------------------
@@ -223,6 +223,17 @@ const char* vtkXMLDataElement::GetAttributeName(int idx)
     }
 
   return this->AttributeNames[idx];
+}
+
+//----------------------------------------------------------------------------
+const char* vtkXMLDataElement::GetAttributeValue(int idx)
+{
+  if (idx < 0 || idx >= this->NumberOfAttributes)
+    {
+    return 0;
+    }
+
+  return this->AttributeValues[idx];
 }
 
 //----------------------------------------------------------------------------

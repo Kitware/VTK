@@ -116,6 +116,11 @@ public:
   const char* GetAttributeName(int idx);
 
   // Description:
+  // Get the n-th attribute value.
+  // Returns 0 if there is no such attribute.
+  const char* GetAttributeValue(int idx);
+
+  // Description:
   // Remove all attributes.
   virtual void RemoveAllAttributes();
 
