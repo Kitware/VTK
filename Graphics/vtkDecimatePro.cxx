@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkDecimatePro, "1.69.4.1");
+vtkCxxRevisionMacro(vtkDecimatePro, "1.69.4.2");
 vtkStandardNewMacro(vtkDecimatePro);
 
 #define VTK_TOLERANCE 1.0e-05
@@ -186,7 +186,7 @@ void vtkDecimatePro::Execute()
       output->GetCellData()->PassData(input->GetCellData());
       return;
       }
-    pPolys += 3;
+    pPolys += 4;
     }
 
   // Build cell data structure. Need to copy triangle connectivity data
