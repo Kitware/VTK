@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkRibbonFilter, "1.60");
+vtkCxxRevisionMacro(vtkRibbonFilter, "1.61");
 vtkStandardNewMacro(vtkRibbonFilter);
 
 // Construct ribbon so that width is 0.1, the width does 
@@ -193,8 +193,6 @@ void vtkRibbonFilter::Execute()
     if ( this->GenerateTCoords != VTK_TCOORDS_OFF )
       {
       this->GenerateTextureCoords(offset,npts,pts,inPts,inScalars,newTCoords);
-      outPD->SetTCoords(newTCoords);
-      newTCoords->Delete();
       }
 
     // Compute the new offset for the next polyline
@@ -209,6 +207,12 @@ void vtkRibbonFilter::Execute()
   if ( deleteNormals )
     {
     inNormals->Delete();
+    }
+
+  if ( this->GenerateTCoords != VTK_TCOORDS_OFF )
+    {
+    outPD->SetTCoords(newTCoords);
+    newTCoords->Delete();
     }
 
   output->SetPoints(newPts);

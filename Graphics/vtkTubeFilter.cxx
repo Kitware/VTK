@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkTubeFilter, "1.62");
+vtkCxxRevisionMacro(vtkTubeFilter, "1.63");
 vtkStandardNewMacro(vtkTubeFilter);
 
 // Construct object with radius 0.5, radius variation turned off, the number 
@@ -204,8 +204,6 @@ void vtkTubeFilter::Execute()
     if ( this->GenerateTCoords != VTK_TCOORDS_OFF )
       {
       this->GenerateTextureCoords(offset,npts,pts,inPts,inScalars,newTCoords);
-      outPD->SetTCoords(newTCoords);
-      newTCoords->Delete();
       }
 
     // Compute the new offset for the next polyline
@@ -220,6 +218,12 @@ void vtkTubeFilter::Execute()
   if ( deleteNormals )
     {
     inNormals->Delete();
+    }
+
+  if ( this->GenerateTCoords != VTK_TCOORDS_OFF )
+    {
+    outPD->SetTCoords(newTCoords);
+    newTCoords->Delete();
     }
 
   output->SetPoints(newPts);
