@@ -40,7 +40,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 
 #include "vtkOpenGLProjectedPolyDataRayBounder.h"
-#include "vtkNew2VolumeRenderer.h"
+#include "vtkRenderer.h"
+#include "vtkRayCaster.h"
 
 // Description:
 // Construct a new vtkOpenGLProjectedPolyDataRayBounder.  The depth range
@@ -142,26 +143,25 @@ float *vtkOpenGLProjectedPolyDataRayBounder::Draw( vtkRenderer *ren,
   float                  *ray_ptr;
   float                  *near_ptr, *far_ptr;
   float                  *range_ptr;
-  vtkNew2VolumeRenderer  *volren;
+  vtkRayCaster           *ray_caster;
   float                  z_numerator, z_denom_mult, z_denom_add;
   float                  zfactor;
   int                    i, j;
   GLint                  current_viewport[4];
 
 
-  volren = (vtkNew2VolumeRenderer *) ren->GetNewVolumeRenderer();
+  ray_caster = ren->GetRayCaster();
 
   // Create some objects that we will need later
   transform       = vtkTransform::New();
   matrix          = vtkMatrix4x4::New();
 
   // The size of the view rays is the size of the image we are creating
-  ((vtkNew2VolumeRenderer *)
-   (ren->GetNewVolumeRenderer()))->GetViewRaysSize( size );
+  ren->GetRayCaster()->GetViewRaysSize( size );
 
   // This should be fixed - I should not be off in someone else's viewport
   // if there are more than one of them...
-  glGetIntegerv( GL_VIEWPORT, (GLint *) current_viewport );
+  glGetIntegerv( GL_VIEWPORT, current_viewport );
   glPushAttrib(GL_VIEWPORT_BIT);
   glViewport( current_viewport[0], current_viewport[1], 
 	      (GLsizei) size[0], (GLsizei) size[1] );
@@ -317,7 +317,7 @@ float *vtkOpenGLProjectedPolyDataRayBounder::Draw( vtkRenderer *ren,
     z_denom_mult   = matrix->Element[3][2];
     z_denom_add    = matrix->Element[3][3];
 
-    ray_ptr = volren->GetPerspectiveViewRays();
+    ray_ptr = ray_caster->GetPerspectiveViewRays();
     ray_ptr += 2;
 
     for ( j = 0; j < size[1]; j++ )
