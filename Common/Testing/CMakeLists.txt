@@ -74,3 +74,7 @@ IF(UNIX)
     ADD_TEST(Install /bin/sh ${VTK_BINARY_DIR}/Common/Testing/Install/test.sh)
   ENDIF("x${CMAKE_INSTALL_PREFIX}" MATCHES "^x${VTK_BINARY_DIR}/InstallTest$")
 ENDIF(UNIX)
+
+# Suppress memory checking of some tests
+CONFIGURE_FILE(${VTK_SOURCE_DIR}/Common/Testing/CTestCustom.ctest.in
+  ${VTK_BINARY_DIR}/Common/Testing/CTestCustom.ctest @ONLY)
