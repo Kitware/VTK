@@ -1,4 +1,5 @@
 .git*            export-ignore
 
+*.bat           -crlf
 *.dsp           -crlf
 *.dsw           -crlf

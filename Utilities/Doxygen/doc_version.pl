@@ -1,13 +1,19 @@
 #!/usr/bin/env perl
-# Time-stamp: <2001-08-17 14:09:42 barre>
+# Time-stamp: <2001-09-27 09:16:04 barre>
 #
 # Extract VTK version and add it to documentation
 #
 # barre : Sebastien Barre <sebastien@barre.nom.fr>
 #
+# 0.2 (barre) :
+#   - update to match the new VTK 4.0 tree
+#   - change default --header so that it can be launched from Utilities/Doxygen
+#   - change default --to so that it can be launched from Utilities/Doxygen
+#   - add --logo file : use 'file' as logo
+#
 # 0.16 (barre) :
-#   - change default --to to '../vtk-doxygen' to comply with Kitware's doxyfile.
-#   - updated VTK home page URL.
+#   - change default --to to '../vtk-doxygen' to comply with Kitware
+#   - update VTK home page URL.
 #
 # 0.15 (barre) :
 #   - fix RCS/CVS tags problem (regexp replacement when this file is in a CVS)
@@ -33,18 +39,19 @@ use Fcntl;
 use Getopt::Long;
 use strict;
 
-my ($VERSION, $PROGNAME, $AUTHOR) = (0.16, $0, "Sebastien Barre");
+my ($VERSION, $PROGNAME, $AUTHOR) = (0.2, $0, "Sebastien Barre");
 $PROGNAME =~ s/^.*[\\\/]//;
 print "$PROGNAME $VERSION, by $AUTHOR\n";
 
 # -------------------------------------------------------------------------
-# Defaults (add options as you want : "v" => 1 for default verbose mode)
+# Defaults (add options as you want: "verbose" => 1 for default verbose mode)
 
 my %default = 
   (
-   to => "../vtk-doxygen",
+   header => "../../Common/vtkVersion.h",
    store => "doc_version.dox",
-   header => "common/vtkVersion.h"
+   to => "../../../VTK-doxygen",
+   logo => "vtk-logo.gif"
   );
 
 # -------------------------------------------------------------------------
@@ -52,15 +59,15 @@ my %default =
 
 my %args;
 Getopt::Long::Configure("bundling");
-GetOptions (\%args, "header=s", "store=s", "to=s", "help|?");
+GetOptions (\%args, "help", "header=s", "logo=s", "store=s", "to=s");
 
 if (exists $args{"help"}) {
     print <<"EOT";
-$PROGNAME $VERSION
 by $AUTHOR
-Usage : $PROGNAME [--help|?] [--header file] [--store file] [--to path]
-  --help|?      : this message
+Usage : $PROGNAME [--help] [--header file] [--store file] [--to path]
+  --help        : this message
   --header file : use 'file' to find version (default: $default{header})
+  --logo file   : use 'file' as logo (default: $default{logo})
   --store file  : use 'file' to store version (default: $default{store})
   --to path     : use 'path' as destination directory (default: $default{to})
 
@@ -71,6 +78,7 @@ EOT
 }
 
 $args{"header"} = $default{"header"} if ! exists $args{"header"};
+$args{"logo"} = $default{"logo"} if ! exists $args{"logo"};
 $args{"store"} = $default{"store"} if ! exists $args{"store"};
 $args{"to"} = $default{"to"} if ! exists $args{"to"};
 $args{"to"} =~ s/[\\\/]*$// if exists $args{"to"};
@@ -80,7 +88,7 @@ my $open_file_as_text = $os_is_win ? O_TEXT : 0;
 my $start_time = time();
     
 # -------------------------------------------------------------------------
-# Try to get VTK version from vtkVersion.h
+# Try to get VTK version from a header
 
 my ($version, $revision, $date) = (undef, undef, undef);
 
@@ -90,10 +98,11 @@ sysopen(FILE, $args{"header"}, O_RDONLY|$open_file_as_text)
 while (<FILE>) {
     if ($_ =~ /define\s+VTK_VERSION\s+\"(.*)\"/) {
         $version = $1;
+        print " => $version\n";
     } elsif ($_ =~ /define\s+VTK_SOURCE_VERSION.*(.Revision:.*.?\$).*(.Date:.*?\$).*\"/) {
         $revision = $1;
         $date = $2;
-        print "$revision $date\n";
+        print " => $revision $date\n";
         last;
     }
 }
@@ -107,13 +116,21 @@ croak "$PROGNAME: unable to find version/date in " . $args{"header"} . "\n"
 # Build documentation
 
 my $destination_file = $args{"to"} . "/" . $args{"store"};
-print "Building version documentation to ", $destination_file, "...\n";
+print "Building version documentation to ", $destination_file, "\n";
 
-sysopen(DEST_FILE, $destination_file, O_WRONLY|O_TRUNC|O_CREAT|$open_file_as_text)
+sysopen(DEST_FILE, 
+        $destination_file, 
+        O_WRONLY|O_TRUNC|O_CREAT|$open_file_as_text)
   or croak "$PROGNAME: unable to open destination file " . $destination_file . "\n";
 
 print DEST_FILE 
-  "/*! \@mainpage VTK $version Documentation\n\n",
+  "/*! \@mainpage VTK $version Documentation\n\n";
+
+print DEST_FILE 
+  "  \@image html " . $args{"logo"} . "\n"
+  if exists $args{"logo"};
+
+print DEST_FILE 
   "  $revision\n",
   "  $date\n",
   "  \@sa VTK home page (Kitware): http://public.kitware.com\n",

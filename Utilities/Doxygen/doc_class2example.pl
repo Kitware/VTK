@@ -1,9 +1,19 @@
 #!/usr/bin/env perl
-# Time-stamp: <2001-06-30 02:14:23 barre>
+# Time-stamp: <2001-09-27 09:53:44 barre>
 #
 # Build cross-references between classes and examples
 #
 # barre : Sebastien Barre <sebastien@barre.nom.fr>
+#
+# 0.7 (barre) :
+#   - update to match the new VTK 4.0 tree
+#   - change default --dirs so that it can be launched from Utilities/Doxygen
+#   - change default --to so that it can be launched from Utilities/Doxygen
+#   - add Java support
+#   - add --label str : use string as label in class page
+#   - add --title str : use string as title in "Related Pages"
+#   - add --dirmatch str : use string to match the directory name holding files
+#   - add --unique str : use string as a unique page identifier (otherwise MD5)
 #
 # 0.6 (barre) :
 #   - the "class to example" page is now split in different pages
@@ -51,33 +61,36 @@
 
 use Carp;
 use Data::Dumper;
+use Digest::MD5  qw(md5 md5_hex md5_base64);
 use Getopt::Long;
 use Fcntl;
 use File::Basename;
 use File::Find;
 use strict;
 
-my ($VERSION, $PROGNAME, $AUTHOR) = (0.6, $0, "Sebastien Barre");
+my ($VERSION, $PROGNAME, $AUTHOR) = (0.7, $0, "Sebastien Barre");
 $PROGNAME =~ s/^.*[\\\/]//;
 print "$PROGNAME $VERSION, by $AUTHOR\n";
 
 # -------------------------------------------------------------------------
-# Defaults (add options as you want : "v" => 1 for default verbose mode)
+# Defaults (add options as you want : "verbose" => 1 for default verbose mode)
 
 my %default = 
   (
-   dirs => ["."],
+   dirmatch => "^Examples\$",
+   dirs => ["../.."],
+   label => "Examples",
    limit => 20,
-   store => "doc_class2example.dox",
-   to => "../vtk-doxygen",
+   store => "doc_class2examples.dox",
+   title => "Class To Examples",
+   unique => "e",
+   to => "../../../VTK-doxygen",
    weight => 90000
   );
 
 # -------------------------------------------------------------------------
 # Matchers and parsers :
 #
-# $dir_matcher       : regexp matching the names of the directories holding 
-#                      examples,
 # $eliminate_matcher : regexp matching the names of the 'fake' classes 
 #                      that shall be eliminated/ignored,
 # %parsers           : hash defining each parser by associating
@@ -90,34 +103,21 @@ my %default =
 #                     - returns an array of the class names that have been 
 #                       recognized in the example.
 
-my $dir_matcher = '(^|[\\\/])examples';
-
 my $eliminate_matcher = '^vtkCommand$';
 
 my %parsers = (
-               "Tcl" => ['\.tcl$', \&parse_tcl],
-               "C++" => ['\.cxx$', \&parse_tcl],
-               "Python" => ['\.py$', \&parse_python]
+               "Tcl" => ['\.tcl$', \&parse],
+               "C++" => ['\.cxx$', \&parse],
+               "Java" => ['\.java$', \&parse],
+               "Python" => ['\.py$', \&parse]
               );
 
-# Tcl parser (seems to work with C++ too for the moment)
+# Parser (seems to work with all languages for the moment)
 
-sub parse_tcl {
+sub parse {
     my ($ref, %classes) = (shift, ());
     foreach my $line (@$ref) {
-        if ($line =~ /^\s*(vtk[A-Z0-9][A-Za-z0-9]+)\s/) {
-            $classes{$1}++;
-        }
-    }
-    return keys %classes;
-}
-
-# Python parser
-
-sub parse_python {
-    my ($ref, %classes) = (shift, ());
-    foreach my $line (@$ref) {
-        if ($line =~ /=\s*(vtk[A-Z0-9][A-Za-z0-9]+)\(\)\s*$/) {
+        if ($line =~ /\b(vtk[A-Z0-9][A-Za-z0-9]+)/) {
             $classes{$1}++;
         }
     }
@@ -129,38 +129,45 @@ sub parse_python {
 
 my %args;
 Getopt::Long::Configure("bundling");
-GetOptions (\%args, "v", "limit=i", "link=s", "parser=s@", "store=s", "to=s", "weight=i", "help|?");
+GetOptions (\%args, "help", "verbose|v", "dirmatch=s", "label=s", "limit=i", "link=s", "parser=s@", "store=s", "title=s", "to=s", "unique=s", "weight=i");
 
 my $available_parser = join(", ", keys %parsers);
 
 if (exists $args{"help"}) {
     print <<"EOT";
-$PROGNAME $VERSION
 by $AUTHOR
-Usage : $PROGNAME [--help|?] [-v] [--limit n] [--link path] [--parser name] [--store file] [--to path] [--weight n] [directories...]
-  --help|?      : this message
-  -v            : verbose (display filenames/classes while processing)
-  --limit n     : limit the number of examples per parser type (default: $default{limit})
-  --link path   : link to example files (and prepend path)
-  --parser name : use specific parser only (available : $available_parser)
-  --store file  : use 'file' to store xrefs (default: $default{store})
-  --to path     : use 'path' as destination directory (default : $default{to})
-  --weight n    : use 'n' as an approximation of the maximum page weight (default : $default{weight})
+Usage : $PROGNAME [--help] [--verbose|-v] [--dirmatch string] [--label string] [--limit n] [--link path] [--parser name] [--store file] [--title string] [--to path] [--weight n] [directories...]
+  --help         : this message
+  --verbose|-v   : verbose (display filenames/classes while processing)
+  --dirmatch str : use string to match the directory name holding files (default: $default{dirmatch})
+  --label str    : use string as label in class page (default: $default{label})
+  --limit n      : limit the number of examples per parser type (default: $default{limit})
+  --link path    : link to example files (and prepend path)
+  --title str    : use string as title in "Related Pages" (default: $default{title})
+  --parser name  : use specific parser only (available : $available_parser)
+  --store file   : use 'file' to store xrefs (default: $default{store})
+  --to path      : use 'path' as destination directory (default : $default{to})
+  --unique str   : use string as a unique page identifier (otherwise MD5) (default : $default{unique})
+  --weight n     : use 'n' as an approximation of the maximum page weight (default : $default{weight})
 
 Example:
-  $PROGNAME -v --link ../../vtk
-  $PROGNAME --parser tcl --parser python
+  $PROGNAME --verbose
+  $PROGNAME --dirmatch "^Testing$" --label "Tests" --title "Class To Tests" --store "doc_class2tests.dox" --unique "t"
 EOT
     exit;
 }
 
-$args{"v"} = 1 if exists $default{"v"};
+$args{"verbose"} = 1 if exists $default{"verbose"};
+$args{"dirmatch"} = $default{"dirmatch"} if ! exists $args{"dirmatch"};
+$args{"label"} = $default{"label"} if ! exists $args{"label"};
 $args{"limit"} = $default{"limit"} if ! exists $args{"limit"};
 $args{"link"} = $default{"link"} if ! exists $args{"link"} && exists $default{"link"};
 $args{"link"} =~ s/[\\\/]*$// if exists $args{"link"};
 $args{"store"} = $default{"store"} if ! exists $args{"store"};
+$args{"title"} = $default{"title"} if ! exists $args{"title"};
 $args{"to"} = $default{"to"} if ! exists $args{"to"};
 $args{"to"} =~ s/[\\\/]*$// if exists $args{"to"};
+$args{"unique"} = $default{"unique"} if ! exists $args{"unique"};
 $args{"weight"} = $default{"weight"} if ! exists $args{"weight"};
 
 # Select parsers
@@ -195,7 +202,9 @@ my $cwd = Cwd::cwd();
 
 foreach my $file (@ARGV) {
     find sub { 
-        if (-d $_ && $_ ne "CVS" && $File::Find::name =~ m/$dir_matcher/) {
+        if (-d $_ && 
+            $_ ne "CVS" && 
+            basename($File::Find::name) =~ m/$args{"dirmatch"}/i) {
             # my ($dev, $ino) = stat $_;
             push @dirs, $File::Find::name;
             # if ! $seen{$dev, $ino}++;
@@ -243,6 +252,12 @@ print " => ", scalar @parsable, " file(s) collected in ", time() - $start_time, 
 #     xref{"vtkPoints"}{"Tcl"}{"graphics/examplesTcl/bar.tcl"}
 #     xref{"vtkNormals"}{"C++"}{"test.cxx"}
 
+# %shorter_filename is a hash associating a filename and its shorter 
+# counterpart where any leading component matching the name of a directory
+# being browsed have been removed.
+
+my %shorter_filename;
+
 print "Parsing files...\n";
 
 my $intermediate_time = time();
@@ -250,19 +265,22 @@ my %xref;
 
 foreach my $file (@parsable) {
 
-    # read entire file into an array of lines
+    # Read entire file into an array of lines
+
     sysopen(FILE, $file, O_RDONLY|$open_file_as_text)
       or croak "$PROGNAME: unable to open $file\n";
     my @file = <FILE>;
     close(FILE);
 
-    # submit the contents of the file to the corresponding parser
+    # Submit the contents of the file to the corresponding parser
+
     foreach my $parser (@parsers) {
         if ($file =~ m/$parsers{$parser}->[0]/) {
             my @classes = $parsers{$parser}->[1]->(\@file);
             printf("%7s: %2d | ", $parser, scalar @classes)
-              if exists $args{"v"};
+              if exists $args{"verbose"};
             if (@classes) {
+                $shorter_filename{$file} = $file;
                 # print "(", join(", ", sort @classes), ") " if @classes;
                 foreach my $class (@classes) {
                     $xref{$class}{$parser}{$file}++;
@@ -270,7 +288,13 @@ foreach my $file (@parsable) {
             }
         }
     }
-    print "=> ", $file, "\n" if exists $args{"v"};
+    print "=> ", $file, "\n" if exists $args{"verbose"};
+}
+
+foreach my $file (keys %shorter_filename) {
+    foreach my $dir (@ARGV) {
+        last if $shorter_filename{$file} =~ s/$dir//;
+    }
 }
 
 print " => ", scalar @parsable, " file(s) parsed in ", time() - $intermediate_time, " s.\n";
@@ -285,7 +309,7 @@ my @eliminated = ();
 
 foreach my $class (keys %xref) {
     if ($class =~ m/$eliminate_matcher/) {
-        print "   $class\n" if exists $args{"v"};
+        print "   $class\n" if exists $args{"verbose"};
         delete($xref{$class});
         push @eliminated, $class;
     }
@@ -323,11 +347,11 @@ find sub {
         $File::Find::prune = 1;
 
     } elsif (-f $_ && $_ =~ /^(vtk[A-Z0-9][A-Za-z0-9]+)\.h$/) {
-        # A class header has been found, let's check if it matches one
+        # A class header has been found, let's check if it matches one pf
         # the class in xref
         my $class = $1;
         if (exists $headers_not_found{$class}) {
-            print "   $class : $File::Find::name\n" if exists $args{"v"};
+            print "   $class : $File::Find::name\n" if exists $args{"verbose"};
             $headers{$class} = $File::Find::name;
             $headers_not_found_nb--;
             delete($headers_not_found{$class});
@@ -337,12 +361,12 @@ find sub {
 
 chdir($cwd);
 
-# Collect these classes that have not been associated to a header, and
+# Collect these classes that have not been associated to a header and
 # remove them from xref.
 
 my @still_not_found = keys %headers_not_found;
 foreach my $not_found (@still_not_found) {
-    print "   $not_found : not found (removed)\n" if exists $args{"v"};
+    print "   $not_found : not found (removed)\n" if exists $args{"verbose"};
     delete($xref{$not_found});
 }
 
@@ -379,7 +403,17 @@ my $indent = "    ";
 my (%sections_classes, %sections_weight, @sections);
 
 # $navbar is the Doxygen string describing the sections' navigation bar
+
 my $navbar;
+
+# $prefix is a unique prefix that should be append to each link
+
+my $prefix = "c2_";
+if (exists $args{"unique"}) {
+    $prefix .= $args{"unique"};
+} else {
+    $prefix .= md5_hex($args{"label"} . $args{"title"});
+}
 
 # Browse each class
 
@@ -388,7 +422,7 @@ foreach my $class (@classes) {
     # Build doc (anchor, class name, example files sorted by parser and name)
 
     my @temp;
-    push @temp, "\@anchor ex_$class", "$class";
+    push @temp, "\@anchor ${prefix}_$class", "$class";
     
     foreach my $parser (sort keys %{$xref{$class}}) {
         $nb_of_parsers++;
@@ -403,10 +437,10 @@ foreach my $class (@classes) {
             if (exists $args{"link"}) {
                 push @temp, 
                 '    - @htmlonly <TT><A href="' . $args{"link"} . '/' . 
-                  $file . '">@endhtmlonly ' . $file . 
+                  $file . '">@endhtmlonly ' . $shorter_filename{$file} . 
                     '@htmlonly</A></TT> @endhtmlonly';
             } else {
-                push @temp, "    - $file";
+                push @temp, "    - \@c $shorter_filename{$file}";
             }
         }
     }
@@ -420,7 +454,7 @@ foreach my $class (@classes) {
     push @{$sections_classes{$section}}, $class;
     $sections_weight{$section} += length($classes_doc{$class});
 
-    print " => ", $class, "\n" if exists $args{"v"};
+    print " => ", $class, "\n" if exists $args{"verbose"};
 }
 
 print " => ", scalar @classes, " classes(s) documented in ", time() - $intermediate_time, " s.\n";
@@ -431,7 +465,7 @@ print " => ", scalar @classes, " classes(s) documented in ", time() - $intermedi
 
 my @temp;
 foreach my $section (@sections) {
-    push @temp, "\@ref ex_section_$section \"$section\"";
+    push @temp, "\@ref ${prefix}_section_$section \"$section\"";
 }
 $navbar = "$indent\@par Navigation: \n$indent\[" . join(" | ", @temp) . "]\n";
 
@@ -445,7 +479,7 @@ foreach my $section (@sections) {
     $total_weight += $sections_weight{$section};
 }
 
-if (exists $args{"v"}) {
+if (exists $args{"verbose"}) {
     foreach my $section (@sections) {
         printf("\t- %s : %6d\n", $section, $sections_weight{$section});
     }
@@ -484,7 +518,7 @@ while (@sections_temp) {
     $groupid++;
 }
 
-if (exists $args{"v"}) {
+if (exists $args{"verbose"}) {
     foreach my $groupid (sort {$a <=> $b} keys %groups) {
         printf("\t- %02d (weight: %7d) : %s\n", $groupid, 
                $groups_weight{$groupid}, join(", ", @{$groups{$groupid}}));
@@ -506,14 +540,14 @@ my $header;
 my (@summary, @credits);
 
 push @summary, 
-  "  - " . scalar @classes . " class(es) examplified by " . 
-  scalar @parsable . " file(s) on " . localtime();
+  "  - " . scalar @classes . " class(es) in " . 
+  scalar @parsable . " file(s) from directories matching \@c " . $args{"dirmatch"} . " on " . localtime();
 
 push @summary,
   "  - " . scalar @parsers . " parser(s) : [" . join(", ", @parsers) . "]";
 
 push @summary, 
-  "  - at most " . $args{"limit"} . " example(s) per parser (" . 
+  "  - at most " . $args{"limit"} . " file(s) per parser (" . 
   int(($nb_of_parsers_over_file_limit / ($nb_of_parsers + 0.01)) * 100) . 
   "% over)";
 
@@ -546,16 +580,16 @@ foreach my $groupid (sort {$a <=> $b} keys %groups) {
       if scalar @{$groups{$groupid}} > 1;
 
     print DEST_FILE 
-      "/*! \@page page_ex$groupid Class To Examples ($fromto)\n\n$header"; 
+     "/*! \@page page_${prefix}_$groupid " . $args{"title"} . " ($fromto)\n\n$header"; 
 
     foreach my $section (@{$groups{$groupid}}) {
         print DEST_FILE 
-          "\n$indent\@section ex_section_$section $section\n\n$navbar\n";
+          "\n$indent\@section ${prefix}_section_$section $section\n\n$navbar\n";
 
         foreach my $class (@{$sections_classes{$section}}) {
             print DEST_FILE $classes_doc{$class}, "\n";
         }
-        print "\t- $section\n" if exists $args{"v"};
+        print "\t- $section\n" if exists $args{"verbose"};
     }
 
     print DEST_FILE "*/\n\n";
@@ -567,7 +601,7 @@ print join("\n", @summary), "\n => in ", time() - $intermediate_time, " s.\n";
 
 # -------------------------------------------------------------------------
 # Update class headers (add a link from the class header to the example page).
-# Do not update if the 'Examples' section is already there.
+# Do not update if the section is already there.
 
 print "Updating headers...\n";
 
@@ -576,7 +610,7 @@ my $updated_nb = 0;
 
 foreach my $class (@classes) {
 
-    print "   $class => " . $headers{$class} . "\n" if exists $args{"v"};
+    print "   $class => " . $headers{$class} . "\n" if exists $args{"verbose"};
 
     sysopen(HEADER, $headers{$class}, O_RDONLY|$open_file_as_text)
       or croak "$PROGNAME: unable to open " . $headers{$class} . "\n";
@@ -591,11 +625,11 @@ foreach my $class (@classes) {
     }
 
     # Search for the end of the block (*/), and check if the xref is not
-    # already there (@par      Examples)
+    # already there (@par      $args{"label"})
 
     if (defined $line) {
         while ($line = <HEADER>) {
-            last if $line =~ /^\*\// || $line =~ /^\s*\@par\s+Examples:\s*$/;
+            last if $line =~ /^\*\// || $line =~ /^\s*\@par\s+$args{"label"}:\s*$/;
             push @dest, $line;
         }
 
@@ -604,8 +638,8 @@ foreach my $class (@classes) {
         # header
 
         if (defined $line && $line =~ /^\*\//) {
-            push @dest, "\n    \@par      Examples:\n",
-                    "              \@ref ex_$class \"$class (examples)\"\n",
+            push @dest, "\n    \@par      " . $args{"label"} . ":\n",
+                    "              \@ref ${prefix}_$class \"$class (" . $args{"label"} . ")\"\n",
                         $line;
             while ($line = <HEADER>) {
                 push @dest, $line;

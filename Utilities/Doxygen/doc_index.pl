@@ -1,9 +1,17 @@
 #!/usr/bin/env perl
-# Time-stamp: <2001-06-30 02:22:54 barre>
+# Time-stamp: <2001-09-26 14:31:32 barre>
 #
 # Build full-text index 
 #
 # barre : Sebastien Barre <sebastien@barre.nom.fr>
+#
+# 0.2 (barre) :
+#   - update to match the new VTK 4.0 tree
+#   - change default --dirs so that it can be launched from Utilities/Doxygen
+#   - change default --stop so that it can be launched from Utilities/Doxygen
+#   - change default --to so that it can be launched from Utilities/Doxygen
+#   - the "class to example" page is now split in different pages
+#   - use --weight to increase or decrease the maximum weight of a page
 #
 # 0.16 (barre) :
 #   - added 'parallel' to the default set of directories
@@ -37,21 +45,29 @@ use Fcntl;
 use File::Find;
 use strict;
 
-my ($VERSION, $PROGNAME, $AUTHOR) = (0.16, $0, "Sebastien Barre");
+my ($VERSION, $PROGNAME, $AUTHOR) = (0.2, $0, "Sebastien Barre");
 $PROGNAME =~ s/^.*[\\\/]//;
 print "$PROGNAME $VERSION, by $AUTHOR\n";
 
 # -------------------------------------------------------------------------
-# Defaults (add options as you want : "v" => 1 for default verbose mode)
+# Defaults (add options as you want : "verbose" => 1 for default verbose mode)
 
 my %default = 
   (
-#   debug => 1,
    limit => 10,
-   dirs => ["common", "contrib", "graphics", "imaging", "parallel", "patented"],
-   stop => "wrap/doc_index.stop",
+   dirs => ["../../Common", 
+            "../../Filtering", 
+            "../../Graphics", 
+            "../../Hybrid", 
+            "../../Imaging", 
+            "../../IO", 
+            "../../Parallel", 
+            "../../Patented", 
+            "../../Rendering"],
+   stop => "doc_index.stop",
    store => "doc_index.dox",
-   to => "../vtk-doxygen"
+   to => "../../../VTK-doxygen",
+   weight => 90000
   );
 
 # -------------------------------------------------------------------------
@@ -59,32 +75,33 @@ my %default =
 
 my %args;
 Getopt::Long::Configure("bundling");
-GetOptions (\%args, "v", "limit=i", "stop=s", "store=s", "to=s", "help|?");
+GetOptions (\%args, "help", "verbose|v", "debug", "limit=i", "stop=s", "store=s", "to=s", "weight=i");
 
 if (exists $args{"help"}) {
     print <<"EOT";
-$PROGNAME $VERSION, by $AUTHOR
-Usage : $PROGNAME [--help|?] [-v] [--limit n] [--stop file] [--store file] [--to path] [files|directories...]
-  --help|?     : this message
-  -v           : verbose (display filenames while processing)
+Usage : $PROGNAME [--help] [--verbose|-v] [--limit n] [--stop file] [--store file] [--to path] [--weight n] [files|directories...]
+  --help       : this message
+  --verbose|-v : verbose (display filenames while processing)
   --limit n    : limit the number of xrefs per word (default: $default{limit})
   --stop file  : use 'file' to read stop-words (default: $default{stop})
   --store file : use 'file' to store index (default: $default{store})
   --to path    : use 'path' as destination directory (default : $default{to})
+  --weight n   : use 'n' as an approximation of the maximum page weight (default : $default{weight})
 
 Example:
-  $PROGNAME --to ../vtk-doxygen
+  $PROGNAME
 EOT
     exit;
 }
 
-$args{"debug"} = 1 if exists $default{"debug"};
-$args{"v"} = 1 if exists $default{"v"};
+$args{"debug"} = $default{"debug"} if exists $default{"debug"};
+$args{"verbose"} = 1 if exists $default{"verbose"};
 $args{"limit"} = $default{"limit"} if ! exists $args{"limit"};
 $args{"stop"} = $default{"stop"} if ! exists $args{"stop"};
 $args{"store"} = $default{"store"} if ! exists $args{"store"};
 $args{"to"} = $default{"to"} if ! exists $args{"to"};
 $args{"to"} =~ s/[\\\/]*$// if exists $args{"to"};
+$args{"weight"} = $default{"weight"} if ! exists $args{"weight"};
 
 my $os_is_win = ($^O =~ m/(MSWin32|Cygwin)/i);
 my $open_file_as_text = $os_is_win ? O_TEXT : 0;
@@ -108,7 +125,7 @@ foreach my $stop_word (@stop_file) {
     }
 }
 
-print scalar keys %stop_words, " word(s) read.\n";
+print " => ", scalar keys %stop_words, " stop-word(s) read.\n";
 
 # -------------------------------------------------------------------------
 # Collect all files and directories
@@ -130,6 +147,11 @@ foreach my $file (@ARGV) {
 # Index files corresponding to headers
 
 print "Indexing...\n";
+my $intermediate_time = time();
+
+# %index associates a word with a class name and reports how many times that
+# word was found in that comment.
+# Example: $index{"contour"}{"vtkMarchingCubes"} = 2
 
 my %index;
 keys(%index) = 7000;
@@ -139,36 +161,41 @@ my $nb_files = 0;
 undef $/;  # slurp mode
 
 foreach my $source (@files) {
-    if ($source =~ /(vtk[^\\\/]*)\.h\Z/) {
-        my $class = $1;
 
-        ++$nb_files;
-	print "  $source\n" if exists $args{"v"};
+    # Skip what is not a vtk header
 
-	sysopen(HEADERFILE, $source, O_RDONLY|$open_file_as_text)
-	  or croak "$PROGNAME: unable to open $source\n";
-        my $headerfile = <HEADERFILE>;
-	close(HEADERFILE);
+    next if $source !~ /(vtk[^\\\/]*)\.h\Z/;
+    my $class = $1;
+    
+    ++$nb_files;
+    print "  $source\n" if exists $args{"verbose"};
 
-        # Parse comments, skip first one (= preamble and copyright stuff)
+    # Open the file, read it entirely
 
-        my @comments = $headerfile =~ m/(?:\/\*(.+?)\*\/|\/\/(.+?)$)/gms;
-        shift @comments;
-        foreach my $comment (@comments) {
-            if ($comment) {
-                my @words = $comment =~ m/\b([A-Za-z][A-Za-z-]+)\b/gms;
-                foreach my $word (@words) {
-                    if ($word) {
-                        $index{$word}{$class}++;
-                    }
-                }
-            }
+    sysopen(HEADERFILE, $source, O_RDONLY|$open_file_as_text)
+      or croak "$PROGNAME: unable to open $source\n";
+    my $headerfile = <HEADERFILE>;
+    close(HEADERFILE);
+    
+    # Grab all comments then skip the first one (preamble and copyright stuff)
+   
+    my @comments = $headerfile =~ m/(?:\/\*(.+?)\*\/|\/\/(.+?)$)/gms;
+    shift @comments;
+
+    # Grab (and count) each word in each comment and associate it with
+    # the class name
+
+    foreach my $comment (@comments) {
+        next if ! $comment;
+        my @words = $comment =~ m/\b([A-Za-z][A-Za-z-]*[A-Za-z]+)\b/gms;
+        foreach my $word (@words) {
+            $index{$word}{$class}++ if $word;
         }
     }
 }
 
 my @words = keys %index;
-print scalar @words, " word(s) grabbed in $nb_files file(s).\n";
+print " => ", scalar @words, " word(s) grabbed in $nb_files file(s) in ", time() - $intermediate_time, " s.\n";
 
 # -------------------------------------------------------------------------
 # Remove some words
@@ -188,7 +215,7 @@ foreach my $word (@words) {
     }
 }
 
-print "$nb_removed word(s) removed.\n";
+print " => $nb_removed word(s) removed.\n";
 
 # -------------------------------------------------------------------------
 # Group some words
@@ -210,78 +237,99 @@ foreach my $word (@words) {
     my ($len, $lcw, $similar) = (length($word), lc($word));
     my (@similars, %verbs, %exts) = ((), (), ());
 
-    # lowercase form ?
+    # Now first try to get a list of words similar to the current one
+
+    # Lowercase form ?
+
     if ($word ne $lcw) {
         push @similars, $lcw;
     }
     
-    # singular form ?
+    # Singular form ?
+
     if ($word =~ m/s$/i) {
         $similar = substr($word, 0, $len - 1);
         push @similars, lc($similar), $similar;
     }
 
-    # singular form ? (dashes -> dash)
+    # Singular form ? (dashes -> dash)
+
     if ($word =~ m/[hsx]es$/i) {
         $similar = substr($word, 0, $len - 2);
         push @similars, lc($similar), $similar;
-    # singular form ? (leaves -> leaf)
+
+    # Singular form ? (leaves -> leaf)
+
     } elsif ($word =~ m/ves$/i) {
         $similar = substr($word, 0, $len - 3) . 'f';
         push @similars, lc($similar), $similar;
     }
 
-    # colour -> color
+    # Colour -> color
+
     if ($word =~ m/our$/i) {
         $similar = substr($word, 0, $len - 2) . 'r';
         push @similars, lc($similar), $similar;
     }
 
-    # thick -> thickness
+    # Thick -> thickness
+
     if ($word =~ m/ness$/i) {
         $similar = substr($word, 0, $len - 4);
         push @similars, lc($similar), $similar;
     }
 
-    # explicitly -> explicit
+    # Explicitly -> explicit
+
     if ($word =~ m/ly$/i) {
         $similar = substr($word, 0, $len - 2);
         push @similars, lc($similar), $similar;
     }
 
-    # accuracy -> accurate
+    # Accuracy -> accurate
+
     if ($word =~ m/acy$/i) {
         ($similar = $word) =~ s/cy$/te/i;
         push @similars, lc($similar), $similar;
     }
 
-    # rounded, rounding -> round
+    # Rounded, rounding -> round
+
     if ($word =~ m/.{4,}(ed|ing|ten)$/i) {
         $exts{$1} = 1;
         ($similar = $word) =~ s/(ed|ing|ten)$//i;
         $verbs{$similar} = 1;
     }
 
-    # mapped, mapping -> map
+    # Not try to see if it's not a verb (and keep its "extension")
+
+    # Mapped, mapping -> map
+
     if ($word =~ m/.{3,}[bglmnpt](ed|ing)$/i) {
         $exts{$1} = 1;
         ($similar = $word) =~ s/[bglmnpt](ed|ing)$//i;
         $verbs{$similar} = 1;
     }
 
-    # applied -> apply
+    # Applied -> apply
+
     if ($word =~ m/.{3,}(ied)$/i) {
         $exts{$1} = 1;
         ($similar = $word) =~ s/ied$/y/i;
         $verbs{$similar} = 1;
     }
 
-    # description -> descript
+    # Description -> descript
+
     if ($word =~ m/.{4,}[ts](ion)s?$/i) {
         $exts{$1} = 1;
         ($similar = $word) =~ s/ions?$//i;
         $verbs{$similar} = 1;
     }
+
+    # Now we have a list of verb and extension, try to associate each verb
+    # with these extensions that were not found and build a list of similar
+    # "words" by concatenating both.
 
     my @verbs = keys %verbs;
     if (@verbs) {
@@ -306,6 +354,9 @@ foreach my $word (@words) {
         }
     }
 
+    # Browse each similar word. It it already exists in the index then group
+    # the current word with it and remove the word from the index.
+
     foreach $similar (@similars) {
         if (exists $index{$similar}) {
             print "- grouping $word with $similar\n" if exists $args{"debug"};
@@ -320,7 +371,7 @@ foreach my $word (@words) {
     }
 }
 
-print "$nb_grouped word(s) grouped.\n";
+print " => $nb_grouped word(s) grouped.\n";
 
 # -------------------------------------------------------------------------
 # Normalize to lowercase except if all uppercase
@@ -331,7 +382,8 @@ print "Normalizing...\n";
 foreach my $word (@words) {
     my $lcw = lc $word;
 
-    # Normalize word
+    # Normalize word to lowercase
+
     if ($word ne uc($word) && $word ne $lcw) {
         transfer_keys(\%{$index{$word}}, \%{$index{$lcw}});
         delete $index{$word};
@@ -339,7 +391,8 @@ foreach my $word (@words) {
         delete $group{$word};
     }
 
-    # Normalize group
+    # Normalize group to lowercase
+
     if (exists $group{$word}) {
         foreach my $gword (keys %{$group{$word}}) {
             my $lcgw = lc $gword;
@@ -352,37 +405,50 @@ foreach my $word (@words) {
     }
 }
 
-print "normalized to lowercase.\n";
+print " => normalized to lowercase.\n";
 
 # -------------------------------------------------------------------------
-# Build documentation
+# Build index documentation and alphabetical section(s) weight(s)
 
-my $destination_file = $args{"to"} . "/" . $args{"store"};
-print "Building documentation to ", $destination_file, "...\n";
+print "Building indexes doc and alphabetical section(s) weight(s)...\n";
+$intermediate_time = time();
 
-my (@nav_bar, @body) = ((), ());
-my ($prev_section, $ident) = ("_", "    ");
+# @words is the array holding the words to document
+# %words_doc is a hash associating a word to its Doxygen doc (string)
 
 @words = sort keys %index;
+my %words_doc;
+
+# $indent is the indentation string
+# %sections_words is a hash associating a section (alphabetical letter) to
+# an array of words belonging to that section.
+#   Ex: $sections_words{"C"} => ("contour", "cut")
+# %sections_weight is a hash associating a section to its weight (the sum of 
+# the weights of each word belonging to that section).
+# @sections is the array holding the name of all sections
+
+my $indent = "    ";
+my (%sections_words, %sections_weight, @sections);
+
+# $navbar is the Doxygen string describing the sections' navigation bar
+
+my $navbar;
+
+# Browse each word
+
 foreach my $word (@words) {
 
-    # Check alphabetical section, update nav bar
-
-    $word =~ /^(\w)/;
-    my $section = $1;
-    my $section_link = (uc($section) eq $section ? 'u_' : 'l_') . $section;
-    if ($section ne $prev_section) {
-        push @nav_bar, "\@ref idx_section_$section_link \"$section\"";
-        push @body, "\n", $ident, "\@section idx_section_$section_link $section\n";
-        $prev_section = $section;
-    }
+    my @temp;
 
     # Add word and group
 
-    push @body, $ident, $word;
+    # my $string = "\@anchor ex_$word $word"; 
+    # not needed and an anchor can not have '-' in it
+
+    my $string = $word;
     my @group = sort keys %{$group{$word}};
-    push @body, " (", join(", ", @group), ")" if (@group);
-    push @body, "\n";
+    $string .= " (" . join(", ", @group) . ")" if @group;
+    push @temp, $string;
 
     # Add xrefs to classes, sorted by relevancy
     
@@ -393,31 +459,155 @@ foreach my $word (@words) {
         last if ++$count > $args{"limit"};
         push @xrefs_lim, $xref . " (" . $index{$word}{$xref} . ")";
     }
-    push @body, $ident, "  - ", join(", ", @xrefs_lim);
-    push @body, ", [...]"
-      if (scalar keys %{$index{$word}} > $args{"limit"});
-    push @body, "\n\n";
+    $string = "  - " . join(", ", @xrefs_lim);
+    $string .= ", [...]" if scalar keys %{$index{$word}} > $args{"limit"};
+    push @temp, $string;
+
+    $words_doc{$word} = $indent . join("\n$indent", @temp) . "\n";
+
+    # Update section(s) and section(s) weight(s)
+
+    $word =~ /^(\w)/;
+    my $section = $1;
+    push @{$sections_words{$section}}, $word;
+    $sections_weight{$section} += length($words_doc{$word});
+
+    print " => ", $word, "\n" if exists $args{"verbose"};
 }
 
-my @summary;
-push @summary, "$nb_files file(s) indexed by " . scalar @words . " word(s) on " . localtime();
-push @summary, "max limit is " . $args{"limit"} . " xref(s) per word";
+print " => ", scalar @words, " words(s) documented in ", time() - $intermediate_time, " s.\n";
+
+@sections = sort keys %sections_words;
+
+# Build the navbar
+
+my @temp;
+foreach my $section (@sections) {
+    push @temp, "\@ref idx_section_$section \"$section\"";
+}
+$navbar = "$indent\@par Navigation: \n$indent\[" . join(" | ", @temp) . "]\n";
+
+# Add the (approximate) weight of the (header + navbar) to each section
+
+my $total_weight = 0;
+my $header_weight = length($indent) + 24 + length($navbar);
+
+foreach my $section (@sections) {
+    $sections_weight{$section} += $header_weight;
+    $total_weight += $sections_weight{$section};
+}
+
+if (exists $args{"verbose"}) {
+    foreach my $section (@sections) {
+        printf("\t- %s : %6d\n", $section, $sections_weight{$section});
+    }
+}
+
+print " => total weight is $total_weight in ", scalar @sections, " section(s) (mean is ", int($total_weight / scalar @sections), ")\n";
+
+# -------------------------------------------------------------------------
+# Compute the alphabetical groups by joining sections depending on weights
+
+print "Computing alphabetical group(s)/page(s)...\n";
+
+# %groups is a hash associating a group id (int) to an array of sections names
+# belonging to that group.
+#   Ex: $groups{"0"} => ("A", "B", "C")
+# %groups_weight is a hash associating a group id to its weight (the sum of 
+# the weights of each section belonging to that group).
+
+my (%groups, %groups_weight);
+
+my $groupid = 0;
+
+# Remove a section one by one, and put it in a group until the group if full,
+# then create a next group, etc., until the sections are exhausted.
+
+my @sections_temp = @sections;
+while (@sections_temp) {
+    $groups_weight{$groupid} = $sections_weight{$sections_temp[0]};
+    push @{$groups{$groupid}}, shift @sections_temp;
+    while (@sections_temp && 
+           ($groups_weight{$groupid} + $sections_weight{$sections_temp[0]}) 
+           <= $args{"weight"}) {
+        $groups_weight{$groupid} += $sections_weight{$sections_temp[0]};
+        push @{$groups{$groupid}}, shift @sections_temp;
+    }
+    $groupid++;
+}
+
+if (exists $args{"verbose"}) {
+    foreach my $groupid (sort {$a <=> $b} keys %groups) {
+        printf("\t- %02d (weight: %7d) : %s\n", $groupid, 
+               $groups_weight{$groupid}, join(", ", @{$groups{$groupid}}));
+    }
+}
+
+print " => max weight is ", $args{"weight"}, " per group/page, but a section can not be divided\n";
+print " => ", scalar  keys %groups, " group(s) for ", scalar @sections, " section(s)\n";
+
+# -------------------------------------------------------------------------
+# Build pages header (summary, version)
+
+print "Building pages header...\n";
+
+# $header is the Doxygen string summarizing what has been documented as well
+# as the credits.
+
+my $header;
+my (@summary, @credits);
+
+push @summary, 
+  "  - $nb_files file(s) indexed by " . scalar @words . " word(s) on " . localtime(),
+  "  - max limit is " . $args{"limit"} . " xref(s) per word";
+
+push @credits, 
+  "\@version $VERSION",
+  "\@author \@c $PROGNAME, by $AUTHOR";
+
+$header = $indent . join("\n$indent", @summary) . 
+  "\n\n$indent" . join("\n$indent", @credits) . "\n\n";
 
 # -------------------------------------------------------------------------
 # Write documentation
 
-sysopen(DEST_FILE, $destination_file, O_WRONLY|O_TRUNC|O_CREAT|$open_file_as_text)
-  or croak "$PROGNAME: unable to open destination file " . $destination_file . "\n";
+my $destination_file = $args{"to"} . "/" . $args{"store"};
+print "Writing documentation to ", $destination_file, "...\n";
 
-print DEST_FILE 
-  "/*! \@page page_idx Full-text Index\n\n",
-  $ident, "  - ", join("\n" . $ident . "  - ", @summary), "\n\n",
-  $ident, "\@version $VERSION\n",
-  $ident, "\@author \@c $PROGNAME, by $AUTHOR\n",
-  $ident, "\@par Navigation:\n",
-  $ident, "[", join(" | ", @nav_bar), "]\n", 
-  @body, 
-  "*/";
+$intermediate_time = time();
+
+sysopen(DEST_FILE, 
+        $destination_file, 
+        O_WRONLY|O_TRUNC|O_CREAT|$open_file_as_text)
+  or croak "$PROGNAME: unable to open destination file $destination_file\n";
+
+# Browse each group, each section in this group, each word in this section
+
+foreach my $groupid (sort {$a <=> $b} keys %groups) {
+
+    my $fromto = $groups{$groupid}[0];
+    $fromto .= ".." . $groups{$groupid}[scalar @{$groups{$groupid}} - 1]
+      if scalar @{$groups{$groupid}} > 1;
+
+    print DEST_FILE 
+      "/*! \@page page_idx_$groupid Full-text Index ($fromto)\n\n$header"; 
+
+    foreach my $section (@{$groups{$groupid}}) {
+        print DEST_FILE 
+          "\n$indent\@section idx_section_$section $section\n\n$navbar\n";
+
+        foreach my $word (@{$sections_words{$section}}) {
+            print DEST_FILE $words_doc{$word}, "\n";
+        }
+        print "\t- $section\n" if exists $args{"verbose"};
+    }
+
+    print DEST_FILE "*/\n\n";
+}
 
 close(DEST_FILE);
-print " => ", join("\n => ", @summary), "\n => in ", time() - $start_time, " s. \n";
+
+print join("\n", @summary), "\n";
+
+print "Finished in ", time() - $start_time, " s.\n";
+
