@@ -38,7 +38,7 @@
 #define VTK_FTFC_DEBUG_CD 0
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.4");
+vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.5");
 vtkInstantiatorNewMacro(vtkFreeTypeUtilities);
 
 //----------------------------------------------------------------------------
@@ -228,7 +228,7 @@ FTC_CMapCache* vtkFreeTypeUtilities::GetCMapCache()
 
 //----------------------------------------------------------------------------
 void vtkFreeTypeUtilities::MapTextPropertyToId(vtkTextProperty *tprop, 
-                                               int *id) 
+                                               unsigned long *id) 
 {
   if (!tprop || !id)
     {
@@ -265,13 +265,15 @@ void vtkFreeTypeUtilities::MapTextPropertyToId(vtkTextProperty *tprop,
   int angle = (vtkMath::Round(tprop->GetOrientation() * 10.0) % 3600) << bits;
   bits += 12;
   
+  // We really should not use more than 32 bits
+
   // Now final id
 
   *id |= fam | bold | italic | angle;
 }
 
 //----------------------------------------------------------------------------
-void vtkFreeTypeUtilities::MapIdToTextProperty(int id,
+void vtkFreeTypeUtilities::MapIdToTextProperty(unsigned long id,
                                                vtkTextProperty *tprop) 
 {
   if (!tprop)
@@ -310,6 +312,8 @@ void vtkFreeTypeUtilities::MapIdToTextProperty(int id,
   int angle = id >> bits;
   bits += 12;
   tprop->SetOrientation((float)(angle & ((1 << 12) - 1)) / 10.0);
+
+  // We really should not use more than 32 bits
 }
 
 //----------------------------------------------------------------------------
@@ -331,7 +335,7 @@ vtkFreeTypeUtilitiesFaceRequester(FTC_FaceID face_id,
   // Map the ID to a text property
 
   vtkTextProperty *tprop = vtkTextProperty::New();
-  self->MapIdToTextProperty(reinterpret_cast<int>(face_id), tprop);
+  self->MapIdToTextProperty(reinterpret_cast<unsigned long>(face_id), tprop);
 
   // Fonts, organized by [Family][Bold][Italic]
     
@@ -521,7 +525,7 @@ void vtkFreeTypeUtilities::ReleaseCacheManager()
 }
 
 //----------------------------------------------------------------------------
-int vtkFreeTypeUtilities::GetSize(int tprop_cache_id,
+int vtkFreeTypeUtilities::GetSize(unsigned long tprop_cache_id,
                                   int font_size,
                                   FT_Size *size)
 {
@@ -573,14 +577,14 @@ int vtkFreeTypeUtilities::GetSize(vtkTextProperty *tprop,
 
   // Map the text property to a unique id that will be used as face id
 
-  int tprop_cache_id;
+  unsigned long tprop_cache_id;
   this->MapTextPropertyToId(tprop, &tprop_cache_id);
 
   return this->GetSize(tprop_cache_id, tprop->GetFontSize(), size);
 }
 
 //----------------------------------------------------------------------------
-int vtkFreeTypeUtilities::GetFace(int tprop_cache_id,
+int vtkFreeTypeUtilities::GetFace(unsigned long tprop_cache_id,
                                   FT_Face *face)
 {
 #if VTK_FTFC_DEBUG_CD
@@ -625,14 +629,14 @@ int vtkFreeTypeUtilities::GetFace(vtkTextProperty *tprop,
 
   // Map the text property to a unique id that will be used as face id
 
-  int tprop_cache_id;
+  unsigned long tprop_cache_id;
   this->MapTextPropertyToId(tprop, &tprop_cache_id);
 
   return this->GetFace(tprop_cache_id, face);
 }
 
 //----------------------------------------------------------------------------
-int vtkFreeTypeUtilities::GetGlyphIndex(int tprop_cache_id,
+int vtkFreeTypeUtilities::GetGlyphIndex(unsigned long tprop_cache_id,
                                         char c, 
                                         FT_UInt *gindex)
 {
@@ -677,14 +681,14 @@ int vtkFreeTypeUtilities::GetGlyphIndex(vtkTextProperty *tprop,
 
   // Map the text property to a unique id that will be used as face id
 
-  int tprop_cache_id;
+  unsigned long tprop_cache_id;
   this->MapTextPropertyToId(tprop, &tprop_cache_id);
 
   return this->GetGlyphIndex(tprop_cache_id, c, gindex);
 }
 
 //----------------------------------------------------------------------------
-int vtkFreeTypeUtilities::GetGlyph(int tprop_cache_id, 
+int vtkFreeTypeUtilities::GetGlyph(unsigned long tprop_cache_id, 
                                    int font_size,
                                    FT_UInt gindex,
                                    FT_Glyph *glyph,
@@ -749,7 +753,7 @@ int vtkFreeTypeUtilities::GetGlyph(vtkTextProperty *tprop,
 
   // Map the text property to a unique id that will be used as face id
 
-  int tprop_cache_id;
+  unsigned long tprop_cache_id;
   this->MapTextPropertyToId(tprop, &tprop_cache_id);
 
   // Get the character/glyph index
@@ -802,7 +806,7 @@ int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
 
   // Map the text property to a unique id that will be used as face id
 
-  int tprop_cache_id;
+  unsigned long tprop_cache_id;
   this->MapTextPropertyToId(tprop, &tprop_cache_id);
 
   // Get the face
@@ -920,12 +924,12 @@ int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
     y += (bitmap_glyph->root.advance.y + 0x8000) >> 16;
     }
 
-  // Margin for shadow
+  // Margin for shadow (x + 1, y - 1)
 
   if (tprop->GetShadow() && this->IsBoundingBoxValid(bbox))
     {
-    bbox[1] += tprop->GetShadowOffset()[0];
-    bbox[2] += tprop->GetShadowOffset()[1];
+    bbox[1]++;
+    bbox[2]--;
     }
 
   return 1;
@@ -944,7 +948,7 @@ int vtkFreeTypeUtilitiesRenderString(
 {
   // Map the text property to a unique id that will be used as face id
 
-  int tprop_cache_id;
+  unsigned long tprop_cache_id;
   self->MapTextPropertyToId(tprop, &tprop_cache_id);
 
   // Get the face
@@ -962,7 +966,7 @@ int vtkFreeTypeUtilitiesRenderString(
 
   int tprop_font_size = tprop->GetFontSize();
 
-  double tprop_opacity = tprop->GetOpacity();
+  float tprop_opacity = tprop->GetOpacity();
 
   // Text color (get the shadow color if we are actually drawing the shadow)
   // Also compute the luminance, if we are drawing to a grayscale image
@@ -976,11 +980,11 @@ int vtkFreeTypeUtilitiesRenderString(
     {
     tprop->GetColor(color);
     }
-  double tprop_r = color[0];
-  double tprop_g = color[1];
-  double tprop_b = color[2];
+  float tprop_r = color[0];
+  float tprop_g = color[1];
+  float tprop_b = color[2];
 
-  double tprop_l = 0.3 * tprop_r + 0.59 * tprop_g + 0.11 * tprop_b;
+  float tprop_l = 0.3 * tprop_r + 0.59 * tprop_g + 0.11 * tprop_b;
 
   // Image params (comps, increments, range)
 
@@ -1072,68 +1076,55 @@ int vtkFreeTypeUtilitiesRenderString(
 
       T *data_ptr = (T*)data->GetScalarPointer(pen_x, pen_y, 0);
 
-      int data_pitch = 
-        (-data->GetDimensions()[0] - bitmap->width) * data_inc_x;
+      int data_pitch = (-data->GetDimensions()[0] - bitmap->width) * data_inc_x;
 
       unsigned char *glyph_ptr_row = bitmap->buffer;
       unsigned char *glyph_ptr;
 
-      double t_alpha, t_1_m_alpha, data_alpha;
+      float t_alpha, t_1_m_alpha, data_alpha;
 
       int i, j;
       for (j = 0; j < bitmap->rows; j++)
         {
         glyph_ptr = glyph_ptr_row;
 
-        switch (data_nb_comp)
+        // That loop should probably be located inside the switch for efficency
+
+        for (i = 0; i < bitmap->width; i++)
           {
-          // L
+          t_alpha = tprop_opacity * (*glyph_ptr / 255.0);
+          t_1_m_alpha = 1.0 - t_alpha;
 
-          case 1:
-            for (i = 0; i < bitmap->width; i++)
-              {
-              t_alpha = tprop_opacity * (*glyph_ptr / 255.0);
-              t_1_m_alpha = 1.0 - t_alpha;
+          switch (data_nb_comp)
+            {
+            // L
 
+            case 1:
               *data_ptr = (T)(
                 (data_min + data_range * tprop_l * t_alpha) + 
                 *data_ptr * t_1_m_alpha);
               glyph_ptr++;
               data_ptr++;
-              }
-            break;
-
-          // L,A
-
-          case 2:
-            for (i = 0; i < bitmap->width; i++)
-              {
-              t_alpha = tprop_opacity * (*glyph_ptr / 255.0);
-              t_1_m_alpha = 1.0 - t_alpha;
-
-              *data_ptr = (T)(
-                (data_min + data_range * tprop_l * t_alpha) + 
-                *data_ptr * t_1_m_alpha);
-              glyph_ptr++;
-              data_ptr++;
-
-              data_alpha = (*data_ptr - data_min) / data_range;
-              if (t_alpha > data_alpha)
-                {
-                *data_ptr = (T)(data_min + t_alpha * data_range);
-                }
-              data_ptr++;
-              }
-            break;
+              break;
             
-            // RGB
+              // L,A
+              // TOFIX: that code is so wrong (alpha)  
 
-          case 3:
-            for (i = 0; i < bitmap->width; i++)
-              {
-              t_alpha = tprop_opacity * (*glyph_ptr / 255.0);
-              t_1_m_alpha = 1.0 - t_alpha;
+            case 2:
+              data_alpha = (data_ptr[1] - data_min) / data_range;
+              *data_ptr = (T)(
+                (data_min + data_range * tprop_l * t_alpha) + 
+                (*data_ptr * data_alpha) * t_1_m_alpha);
+              data_ptr++;
+              *data_ptr = (T)(
+                data_min + data_range * (t_alpha + data_alpha * t_1_m_alpha));
+              data_ptr++;
+              glyph_ptr++;
+              break;
 
+              // RGB
+
+            case 3:
               *data_ptr = (T)(
                 (data_min + data_range * tprop_r * t_alpha) + 
                 *data_ptr * t_1_m_alpha);
@@ -1145,49 +1136,41 @@ int vtkFreeTypeUtilitiesRenderString(
               *data_ptr = (T)(
                 (data_min + data_range * tprop_b * t_alpha) + 
                 *data_ptr * t_1_m_alpha);
-              glyph_ptr++;
               data_ptr++;
-              }
-            break;
+              glyph_ptr++;
+              break;
 
-            // RGB,A
+              // RGB,A
+              // TOFIX: that code is so wrong (alpha)  
 
-          case 4:
-            for (i = 0; i < bitmap->width; i++)
-              {
-              t_alpha = tprop_opacity * (*glyph_ptr / 255.0);
-              t_1_m_alpha = 1.0 - t_alpha;
-
+            case 4:
+              data_alpha = (data_ptr[1] - data_min) / data_range;
               *data_ptr = (T)(
                 (data_min + data_range * tprop_r * t_alpha) + 
-                *data_ptr * t_1_m_alpha);
+                (*data_ptr * data_alpha) * t_1_m_alpha);
               data_ptr++;
               *data_ptr = (T)(
                 (data_min + data_range * tprop_g * t_alpha) + 
-                *data_ptr * t_1_m_alpha);
+                (*data_ptr * data_alpha) * t_1_m_alpha);
               data_ptr++;
               *data_ptr = (T)(
                 (data_min + data_range * tprop_b * t_alpha) + 
-                *data_ptr * t_1_m_alpha);
+                (*data_ptr * data_alpha) * t_1_m_alpha);
+              data_ptr++;
+              *data_ptr = (T)(
+                data_min + data_range * (t_alpha + data_alpha * t_1_m_alpha));
+              data_ptr++;
               glyph_ptr++;
-              data_ptr++;
-
-              data_alpha = (*data_ptr - data_min) / data_range;
-              if (t_alpha > data_alpha)
-                {
-                *data_ptr = (T)(data_min + t_alpha * data_range);
-                }
-              data_ptr++;
-              }
-            break;
+              break;
+            }
           }
         glyph_ptr_row += bitmap->pitch;
         data_ptr += data_pitch;
         }
       }
-    
+
     // Advance to next char
-    
+
     x += (bitmap_glyph->root.advance.x + 0x8000) >> 16;
     y += (bitmap_glyph->root.advance.y + 0x8000) >> 16;
     }
@@ -1227,8 +1210,7 @@ int vtkFreeTypeUtilities::RenderString(vtkTextProperty *tprop,
                         this, 
                         tprop,
                         str,
-                        x + tprop->GetShadowOffset()[0], 
-                        y + tprop->GetShadowOffset()[1],
+                        x + 1, y - 1,
                         data, 
                         (VTK_TT *)(NULL),
                         1);
@@ -1413,7 +1395,7 @@ vtkFreeTypeUtilities::GetFont(vtkTextProperty *tprop,
       }
     }
 
-  double tprop_opacity = 
+  float tprop_opacity = 
     (tprop->GetOpacity() < 0.0) ? 1.0 : tprop->GetOpacity();
   
   // Has the font been cached ?

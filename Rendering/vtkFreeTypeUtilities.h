@@ -179,15 +179,15 @@ public:
   // binary mask concatenating the attributes of the text property that are
   // relevant to our cache (Color, Opacity, Justification setting are not
   // stored). 
-  void MapTextPropertyToId(vtkTextProperty *tprop, int *id);
-  void MapIdToTextProperty(int id, vtkTextProperty *tprop);
+  void MapTextPropertyToId(vtkTextProperty *tprop, unsigned long *tprop_cache_id);
+  void MapIdToTextProperty(unsigned long tprop_cache_id, vtkTextProperty *tprop);
 
   // Description:
   // For internal use only.
-  int GetSize(int tprop_cache_id, int font_size, FT_Size *size);
-  int GetFace(int tprop_cache_id, FT_Face *face);
-  int GetGlyphIndex(int tprop_cache_id, char c, FT_UInt *gindex);
-  int GetGlyph(int tprop_cache_id, 
+  int GetSize(unsigned long tprop_cache_id, int font_size, FT_Size *size);
+  int GetFace(unsigned long tprop_cache_id, FT_Face *face);
+  int GetGlyphIndex(unsigned long tprop_cache_id, char c, FT_UInt *gindex);
+  int GetGlyph(unsigned long tprop_cache_id, 
                int font_size, 
                FT_UInt gindex, 
                FT_Glyph *glyph, 
