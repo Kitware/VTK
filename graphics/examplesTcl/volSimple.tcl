@@ -62,6 +62,7 @@ vtkRenderWindowInteractor iren
 
 #ren1 AddActor outlineActor
 ren1 AddVolume volume
+ren1 SetBackground 0.1 0.2 0.4
 renWin Render
 
 proc TkCheckAbort {} {
