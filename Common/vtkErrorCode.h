@@ -27,7 +27,7 @@ class VTK_COMMON_EXPORT vtkErrorCode
 public:
   static const char *GetStringFromErrorCode(unsigned long event);
   static unsigned long GetErrorCodeFromString(const char *event);
-
+  static unsigned long GetLastSystemError();
 //BTX
   // all the currently defined error codes
   // developers can use -- vtkErrorCode::UserError + int to
@@ -36,6 +36,7 @@ public:
   // in vtkErrorCode.cxx to match.
   enum ErrorIds {
     NoError = 0,
+    FirstVTKErrorCode = 20000,
     FileNotFoundError,
     CannotOpenFileError,
     UnrecognizedFileTypeError,
@@ -44,7 +45,7 @@ public:
     NoFileNameError,
     OutOfDiskSpaceError,
     UnknownError,
-    UserError = 1000
+    UserError = 40000
   };
 //ETX
 };

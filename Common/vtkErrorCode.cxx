@@ -16,6 +16,7 @@
 
 #include <string.h>
 #include <ctype.h>
+#include <errno.h>
 
 // this list should only contain the initial, contiguous
 // set of error codes and should not include UserError
@@ -36,6 +37,14 @@ static const char *vtkErrorCodeErrorStrings[] = {
 const char *vtkErrorCode::GetStringFromErrorCode(unsigned long error)
 {
   static unsigned long numerrors = 0;
+  if(error < FirstVTKErrorCode)
+    {
+    return strerror(static_cast<int>(error));
+    }
+  else
+    {
+    error -= FirstVTKErrorCode;
+    }
   
   // find length of table
   if (!numerrors)
@@ -45,7 +54,6 @@ const char *vtkErrorCode::GetStringFromErrorCode(unsigned long error)
       numerrors++;
       }
     }
-
   if (error < numerrors)
     {
     return vtkErrorCodeErrorStrings[error];
@@ -79,6 +87,10 @@ unsigned long vtkErrorCode::GetErrorCodeFromString(const char *error)
 }
 
   
+unsigned long vtkErrorCode::GetLastSystemError()
+{
+  return static_cast<unsigned long>(errno);
+}
 
 
 
