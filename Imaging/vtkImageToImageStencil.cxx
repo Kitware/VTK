@@ -43,7 +43,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <math.h>
 #include "vtkImageToImageStencil.h"
 #include "vtkPolyData.h"
-#include "vtkOBBTree.h"
 #include "vtkObjectFactory.h"
 
 
