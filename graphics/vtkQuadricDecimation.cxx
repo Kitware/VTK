@@ -175,7 +175,7 @@ void vtkQuadricDecimation::Execute()
   this->NumberOfCollapsedEdges = 0;
   // Get id of edge with minimum cost to collapse.
   edgeId = this->EdgeCosts->Pop(cost);
-  while (cost < this->MaximumCost &&
+  while (edgeId >= 0 && cost < this->MaximumCost &&
          this->NumberOfCollapsedEdges < this->MaximumCollapsedEdges)
     {
     this->NumberOfCollapsedEdges++;
@@ -189,12 +189,17 @@ void vtkQuadricDecimation::Execute()
     changedCells->Reset();
     collapsedCells->Reset();
     newEdges->Reset();
+
     // Set the new coordinates of point0.
     this->Mesh->GetPoints()->SetPoint(endPtIds[0],
                                       targetPoints->GetPoint(edgeId));
     // Set the new point data for point0.
     this->Mesh->GetPointData()->CopyData(targetPointData, edgeId,
                                          endPtIds[0]);
+
+    // Merge the quadrics of the two points.
+    this->AddQuadric(endPtIds[1], endPtIds[0]);
+
     // Find all edges with either of these 2 endpoints.
     this->FindAffectedEdges(endPtIds[0], endPtIds[1], changedEdges);
     // Reset the endpoints for these edges to reflect the new point from the
@@ -215,20 +220,28 @@ void vtkQuadricDecimation::Execute()
       testEdges->InsertCellPoint(testId0);
       testEdges->InsertCellPoint(testId1);
 
+      // Remove all affected edges from the priority que. 
+      // This does not include collapsed edge.
+      this->EdgeCosts->DeleteId(changedEdges->GetId(i));
+
+      // Determine the new set of edges
       if (edge[0] == endPtIds[1])
         {
         if (this->Edges->IsEdge(edge[1], endPtIds[0]) == -1)
-          {
+          { // The edge will be completely new, add it.
           edgeId = this->Edges->GetNumberOfEdges();
           this->Edges->InsertEdge(edge[1], endPtIds[0], edgeId);
           this->EndPoint1List->InsertId(edgeId, edge[1]);
           this->EndPoint2List->InsertId(edgeId, endPtIds[0]);
           newEdges->InsertNextId(edgeId);
+          // Compute cost (target point/data) and add to priority cue.
+          cost = this->ComputeCost(edgeId, x, targetPointData);
+          this->EdgeCosts->Insert(cost, edgeId);
+          targetPoints->InsertPoint(edgeId, x);
           }
-        this->EdgeCosts->DeleteId(changedEdges->GetId(i));
         }
       else if (edge[1] == endPtIds[1])
-        {
+        { // The edge will be completely new, add it.
         if (this->Edges->IsEdge(edge[0], endPtIds[0]) == -1)
           {
           edgeId = this->Edges->GetNumberOfEdges();
@@ -236,22 +249,21 @@ void vtkQuadricDecimation::Execute()
           this->EndPoint1List->InsertId(edgeId, edge[0]);
           this->EndPoint2List->InsertId(edgeId, endPtIds[0]);
           newEdges->InsertNextId(edgeId);
+          // Compute cost (target point/data) and add to priority cue.
+          cost = this->ComputeCost(edgeId, x, targetPointData);
+          this->EdgeCosts->Insert(cost, edgeId);
+          targetPoints->InsertPoint(edgeId, x);
           }
-        this->EdgeCosts->DeleteId(changedEdges->GetId(i));
+        }
+      else
+        { // This edge already has one point as the merged point.
+        // Compute cost (target point/data) and add to priority cue.
+        cost = this->ComputeCost(edgeId, x, targetPointData);
+        this->EdgeCosts->Insert(cost, edgeId);
+        targetPoints->InsertPoint(edgeId, x);
         }
       }
     
-    // Update vertex quadric for vertex 0.
-    this->AddQuadric(endPtIds[1], endPtIds[0]);
-    // Update cost for new edges.
-    // Add new edges to priority queue with correct cost.
-    // Recompute the contraction targets for the new edges we have.
-    for (i = 0; i < newEdges->GetNumberOfIds(); i++)
-      {
-      cost = this->ComputeCost(newEdges->GetId(i), x, targetPointData);
-      this->EdgeCosts->Insert(cost, newEdges->GetId(i));
-      targetPoints->InsertPoint(newEdges->GetId(i), x);
-      }
     // Update the output triangles.
     collapsedCell = this->GetEdgeCellId(endPtIds[0], endPtIds[1]);
     this->Mesh->GetCellEdgeNeighbors(collapsedCell, endPtIds[0], endPtIds[1],
@@ -364,6 +376,7 @@ void vtkQuadricDecimation::ComputeQuadric(int pointId)
   int cellPtIds[3];
   float point0[3], point1[3], point2[3];
   float tempP1[3], tempP2[3];
+  float triArea2;
   int scalars, vectors, normals, tcoords, tensors, fieldData;
   vtkPointData *pd = input->GetPointData();
   vtkNormals *faceNormals = vtkNormals::New();
@@ -391,20 +404,21 @@ void vtkQuadricDecimation::ComputeQuadric(int pointId)
       tempP2[j] = point2[j] - point0[j];
       }
     vtkMath::Cross(tempP1, tempP2, n);
-    vtkMath::Normalize(n);
+    triArea2 = vtkMath::Normalize(n);
+    triArea2 = triArea2 * triArea2 * 0.25;
     faceNormals->InsertNormal(cellIds->GetId(i), n);
     d = -vtkMath::Dot(n, point0);
 
-    this->ErrorQuadrics[pointId].Quadric[0] += n[0] * n[0];
-    this->ErrorQuadrics[pointId].Quadric[1] += n[1] * n[1];
-    this->ErrorQuadrics[pointId].Quadric[2] += n[2] * n[2];
-    this->ErrorQuadrics[pointId].Quadric[3] += n[0] * n[1];
-    this->ErrorQuadrics[pointId].Quadric[4] += n[1] * n[2];
-    this->ErrorQuadrics[pointId].Quadric[5] += n[0] * n[2];
-    this->ErrorQuadrics[pointId].Quadric[6] += d * n[0];
-    this->ErrorQuadrics[pointId].Quadric[7] += d * n[1];
-    this->ErrorQuadrics[pointId].Quadric[8] += d * n[2];
-    this->ErrorQuadrics[pointId].Quadric[9] += d * d;
+    this->ErrorQuadrics[pointId].Quadric[0] += n[0] * n[0] * triArea2;
+    this->ErrorQuadrics[pointId].Quadric[1] += n[1] * n[1] * triArea2;
+    this->ErrorQuadrics[pointId].Quadric[2] += n[2] * n[2] * triArea2;
+    this->ErrorQuadrics[pointId].Quadric[3] += n[0] * n[1] * triArea2;
+    this->ErrorQuadrics[pointId].Quadric[4] += n[1] * n[2] * triArea2;
+    this->ErrorQuadrics[pointId].Quadric[5] += n[0] * n[2] * triArea2;
+    this->ErrorQuadrics[pointId].Quadric[6] += d * n[0] * triArea2;
+    this->ErrorQuadrics[pointId].Quadric[7] += d * n[1] * triArea2;
+    this->ErrorQuadrics[pointId].Quadric[8] += d * n[2] * triArea2;
+    this->ErrorQuadrics[pointId].Quadric[9] += d * d * triArea2;
     }
   this->ErrorQuadrics[pointId].Quadric[10] = cellIds->GetNumberOfIds();
   
@@ -751,6 +765,26 @@ void vtkQuadricDecimation::FindAffectedEdges(int p1Id, int p2Id,
       if (pointId != p1Id && pointId != p2Id)
         {
         if ((edgeId = this->Edges->IsEdge(pointId, p2Id)) >= 0)
+          {
+          if (edges->IsId(edgeId) == -1)
+            {
+            edges->InsertNextId(edgeId);
+            }
+          }
+        }
+      }
+    }
+ 
+  this->Mesh->GetPointCells(p1Id, cellIds);
+  for (i = 0; i < cellIds->GetNumberOfIds(); i++)
+    {
+    this->Mesh->GetCell(cellIds->GetId(i), cell);
+    for (j = 0; j < 3; j++) // assuming we have triangles
+      {
+      pointId = cell->GetPointId(j);
+      if (pointId != p1Id && pointId != p2Id)
+        {
+        if ((edgeId = this->Edges->IsEdge(pointId, p1Id)) >= 0)
           {
           if (edges->IsId(edgeId) == -1)
             {
