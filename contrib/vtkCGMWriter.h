@@ -5,6 +5,9 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Credit:    The origin of much of this code was from the cd package
+             written by G. Edward Johnson at the National Institute 
+             of Standards and Technology (US).
 
 
 Copyright (c) 1993-2000 Ken Martin, Will Schroeder, Bill Lorensen 

@@ -5,6 +5,9 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Credit:    The origin of much of this code was from the cd package
+             written by G. Edward Johnson at the National Institute 
+             of Standards and Technology (US).
 
 
 Copyright (c) 1993-1998 Ken Martin, Will Schroeder, Bill Lorensen.
@@ -314,7 +317,7 @@ static int cgmImageEndCgm (cgmImagePtr im);
  
 // GeJ: these are helper functions I use in cgm.  That means DON'T call
 // them from your program.  Yes, that means you.  
-int cgmImageColorClear(cgmImagePtr im);
+static int cgmImageColorClear(cgmImagePtr im);
 
 //-------------------methods vtk uses to write data---------------------------
 //
@@ -484,7 +487,7 @@ static int GetColor(int red, int green, int blue, int CGMColors[256])
 
 static int GetLUTColor(int red, int green, int blue)
 {
-	return 0;
+        return 0;
 }
 
 typedef struct _vtkSortValues {
