@@ -1,6 +1,14 @@
 SET ( Patented_SRCS
+vtkDecimate.cxx
+vtkDividingCubes.cxx
 vtkGridSynchronizedTemplates3D.cxx
+vtkImageMarchingCubes.cxx
 vtkKitwareContourFilter.cxx
+vtkMarchingContourFilter.cxx
+vtkMarchingCubes.cxx
+vtkMarchingSquares.cxx
+vtkSliceCubes.cxx
+vtkSweptSurface.cxx
 vtkSynchronizedTemplates2D.cxx
 vtkSynchronizedTemplates3D.cxx
 )
