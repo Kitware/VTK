@@ -823,6 +823,18 @@ void vtkWin32OpenGLRenderWindow::SetWindowId(HWND arg)
 }
 
 // Description:
+// Set this RenderWindow's X window id to a pre-existing window.
+void vtkWin32OpenGLRenderWindow::SetWindowInfo(char *info)
+{
+  int tmp;
+  
+  sscanf(info,"%i",&tmp);
+ 
+  this->WindowId = (HWND)tmp;
+  vtkDebugMacro(<< "Setting WindowId to " << this->WindowId << "\n"); 
+}
+
+// Description:
 // Set the window id to a pre-existing window.
 void vtkWin32OpenGLRenderWindow::SetParentId(HWND arg)
 {

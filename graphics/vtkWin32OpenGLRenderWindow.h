@@ -84,6 +84,8 @@ public:
   void SetPosition(int,int);
   int *GetScreenSize();
   int *GetPosition();
+
+  void SetWindowInfo(char *);
   //BTX
   HWND      GetWindowId();
   void      SetWindowId(void *foo) {this->SetWindowId((HWND)foo);};

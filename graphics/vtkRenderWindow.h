@@ -96,6 +96,9 @@ public:
   virtual void SetWindowId(void *) {};
   virtual void SetParentId(void *) {};
 
+  // useful for scripting languages
+  virtual void SetWindowInfo(char *info) {};
+
   // Description:
   // Performed at the end of the rendering process to generate image.
   // This is typically done right before swapping buffers.
