@@ -54,7 +54,7 @@ ENDIF (VTK_WRAP_TCL)
 #
 IF (VTK_WRAP_PYTHON)
   VTK_WRAP_PYTHON(vtkHybridPython HybridPython_SRCS Hybrid_SRCS)
-  ADD_LIBRARY(vtkHybridPython HybridPython_SRCS)
+  ADD_LIBRARY(vtkHybridPython SHARED HybridPython_SRCS)
   TARGET_LINK_LIBRARIES (vtkHybridPython 
                          vtkRenderingPython
                          vtkIOPython

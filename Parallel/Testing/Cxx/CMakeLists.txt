@@ -37,40 +37,42 @@ IF (VTK_USE_MPI)
   ENDIF(MPI_INCLUDE_PATH)
 ENDIF (VTK_USE_MPI)
 
-  #
-  # Add tests, with the data
-  #
-  IF (VTK_DATA_ROOT)
-    IF (VTK_USE_HYBRID)
-      IF (VTK_USE_MPI)
-        IF (MPIRUN)
-          ADD_TEST(ParallelIsoMPI-image ${MPIRUN} ${MPI_PREFLAGS}
-                   ${CXX_TEST_PATH}/ParallelIsoTest
-                   -D ${VTK_DATA_ROOT}
-                   -V Baseline/Parallel/ParallelIsoTest.png
-                   ${MPI_POSTFLAGS})
-        ENDIF(MPIRUN)
-      ELSE (VTK_USE_MPI)
+#
+# Add tests, with the data
+#
+IF (VTK_DATA_ROOT)
+  IF (VTK_USE_HYBRID)
+    IF (VTK_USE_MPI)
+      IF (MPIRUN)
+        ADD_TEST(ParallelIsoMPI-image ${MPIRUN} ${MPI_PREFLAGS}
+                 ${CXX_TEST_PATH}/ParallelIsoTest
+                 -D ${VTK_DATA_ROOT}
+                 -V Baseline/Parallel/ParallelIsoTest.png
+                 ${MPI_POSTFLAGS})
+      ENDIF(MPIRUN)
+    ELSE (VTK_USE_MPI)
+      IF (CMAKE_USE_PTHREADS OR CMAKE_USE_SPROC)
         ADD_TEST(ParallelIso-image ${CXX_TEST_PATH}/ParallelIsoTest
                  -D ${VTK_DATA_ROOT}
                  -V Baseline/Parallel/ParallelIsoTest.png)
-      ENDIF (VTK_USE_MPI)
-    ENDIF (VTK_USE_HYBRID)
-  #
-  # If we do not have the data, still run the tests that we can
-  #
-  ELSE (VTK_DATA_ROOT)
-    IF (VTK_USE_HYBRID)
-      IF (VTK_USE_MPI)
-        IF (MPIRUN)
-          ADD_TEST(ParallelIsoMPI ${MPIRUN} ${MPI_PREFLAGS}
-                   ${CXX_TEST_PATH}/ParallelIsoTest ${MPI_POSTFLAGS})
-        ENDIF(MPIRUN)
-      ELSE (VTK_USE_MPI)
-        ADD_TEST(ParallelIso ${CXX_TEST_PATH}/ParallelIsoTest)
-      ENDIF (VTK_USE_MPI)
-    ENDIF (VTK_USE_HYBRID)
-  ENDIF (VTK_DATA_ROOT)
+      ENDIF (CMAKE_USE_PTHREADS OR CMAKE_USE_SPROC)
+    ENDIF (VTK_USE_MPI)
+  ENDIF (VTK_USE_HYBRID)
+#
+# If we do not have the data, still run the tests that we can
+#
+ELSE (VTK_DATA_ROOT)
+  IF (VTK_USE_HYBRID)
+    IF (VTK_USE_MPI)
+      IF (MPIRUN)
+        ADD_TEST(ParallelIsoMPI ${MPIRUN} ${MPI_PREFLAGS}
+                 ${CXX_TEST_PATH}/ParallelIsoTest ${MPI_POSTFLAGS})
+      ENDIF(MPIRUN)
+    ELSE (VTK_USE_MPI)
+      ADD_TEST(ParallelIso ${CXX_TEST_PATH}/ParallelIsoTest)
+    ENDIF (VTK_USE_MPI)
+  ENDIF (VTK_USE_HYBRID)
+ENDIF (VTK_DATA_ROOT)
 
 
 

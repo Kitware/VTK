@@ -99,7 +99,7 @@ ENDIF (VTK_WRAP_TCL)
 #
 IF (VTK_WRAP_PYTHON)
   VTK_WRAP_PYTHON(vtkFilteringPython FilteringPython_SRCS Filtering_SRCS)
-  ADD_LIBRARY(vtkFilteringPython FilteringPython_SRCS)
+  ADD_LIBRARY(vtkFilteringPython SHARED FilteringPython_SRCS)
   TARGET_LINK_LIBRARIES (vtkFilteringPython vtkCommonPython )
   TARGET_LINK_LIBRARIES (vtkFilteringPython 
                          debug ${PYTHON_DEBUG_LIBRARY} 

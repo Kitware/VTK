@@ -113,7 +113,7 @@ ENDIF (VTK_WRAP_TCL)
 # source files
 #
 IF (VTK_WRAP_PYTHON)
-  ADD_LIBRARY(vtkParallelPython ParallelPython_SRCS)
+  ADD_LIBRARY(vtkParallelPython SHARED ParallelPython_SRCS)
   VTK_WRAP_PYTHON(vtkParallelPython ParallelPython_SRCS Parallel_SRCS)
   TARGET_LINK_LIBRARIES (vtkParallelPython 
                          vtkIOPython

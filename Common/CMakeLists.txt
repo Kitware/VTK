@@ -189,7 +189,7 @@ ENDIF (VTK_WRAP_TCL)
 #
 IF (VTK_WRAP_PYTHON)
   VTK_WRAP_PYTHON(vtkCommonPython CommonPython_SRCS Common_SRCS)
-  ADD_LIBRARY(vtkCommonPython CommonPython_SRCS vtkPythonUtil)
+  ADD_LIBRARY(vtkCommonPython SHARED CommonPython_SRCS vtkPythonUtil)
   TARGET_LINK_LIBRARIES (vtkCommonPython 
                          debug ${PYTHON_DEBUG_LIBRARY} 
                          optimized ${PYTHON_LIBRARY})

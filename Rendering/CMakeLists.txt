@@ -269,7 +269,7 @@ IF (VTK_WRAP_PYTHON)
                  Rendering_SRCS)
   ENDIF (HAVE_OPENGL_SRCS)
   
-  ADD_LIBRARY(vtkRenderingPython RenderingPython_SRCS)
+  ADD_LIBRARY(vtkRenderingPython SHARED RenderingPython_SRCS)
   TARGET_LINK_LIBRARIES (vtkRenderingPython 
                          vtkGraphicsPython
                          vtkImagingPython

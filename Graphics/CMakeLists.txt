@@ -163,7 +163,7 @@ ENDIF (VTK_WRAP_TCL)
 #
 IF (VTK_WRAP_PYTHON)
   VTK_WRAP_PYTHON(vtkGraphicsPython GraphicsPython_SRCS Graphics_SRCS)
-  ADD_LIBRARY(vtkGraphicsPython GraphicsPython_SRCS)
+  ADD_LIBRARY(vtkGraphicsPython SHARED GraphicsPython_SRCS)
   TARGET_LINK_LIBRARIES (vtkGraphicsPython vtkFilteringPython vtkCommonPython )
   TARGET_LINK_LIBRARIES (vtkGraphicsPython 
                          debug ${PYTHON_DEBUG_LIBRARY} 

@@ -140,7 +140,7 @@ ENDIF (VTK_WRAP_TCL)
 #
 IF (VTK_WRAP_PYTHON)
   VTK_WRAP_PYTHON(vtkImagingPython ImagingPython_SRCS Imaging_SRCS)
-  ADD_LIBRARY(vtkImagingPython ImagingPython_SRCS)
+  ADD_LIBRARY(vtkImagingPython SHARED ImagingPython_SRCS)
   TARGET_LINK_LIBRARIES (vtkImagingPython 
                          vtkFilteringPython 
                          vtkCommonPython )

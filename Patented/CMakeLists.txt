@@ -29,7 +29,7 @@ ENDIF (VTK_WRAP_TCL)
 # source files
 #
 IF (VTK_WRAP_PYTHON)
-  ADD_LIBRARY(vtkPatentedPython PatentedPython_SRCS)
+  ADD_LIBRARY(vtkPatentedPython SHARED PatentedPython_SRCS)
   VTK_WRAP_PYTHON(vtkPatentedPython PatentedPython_SRCS Patented_SRCS)
   TARGET_LINK_LIBRARIES (vtkPatentedPython 
                          vtkGraphicsPython
