@@ -84,6 +84,9 @@ vtkImageWriter::vtkImageWriter()
   this->SetFilePattern("%s.%d");
   
   this->FileLowerLeft = 0;
+
+  // Set a default memory limit of a gigabyte
+  this->MemoryLimit = 1000000; 
 }
 
 
@@ -260,15 +263,16 @@ void vtkImageWriter::Write()
 }
 
 //----------------------------------------------------------------------------
-// Breaks region itto pieces with correct dimensionality.
+// Breaks region into pieces with correct dimensionality.
 void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
 				    ofstream *file)
 {
-  int min, max, mid;
-  vtkImageData *data;
-  int fileOpenedHere = 0;
-  int *ext;
-  
+  int             min, max, mid;
+  vtkImageData    *data;
+  int             fileOpenedHere = 0;
+  int             *ext;
+  unsigned long   inputMemorySize;
+
   // if we need to open another slice, do it
   if (!file && (axis + 1) == this->FileDimensionality)
     {
@@ -302,10 +306,15 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
     ++this->FileNumber;
     }
   
+  // Propagate the update extent so we can determine pipeline size
+  this->GetInput()->PropagateUpdateExtent();
+
+  // Now we can ask how big the pipeline will be
+  inputMemorySize = this->GetInput()->GetEstimatedPipelineMemorySize();
+
   // will the current request fit into memory
   // if so the just get the data and write it out
-  //  if (cache->GetEstimatedUpdateMemorySize() < cache->GetMemoryLimit())
-  if ( 1 )
+  if ( inputMemorySize < this->MemoryLimit )
     {
     ext = cache->GetUpdateExtent();
     vtkDebugMacro("Getting input extent: " << ext[0] << ", " << 
@@ -328,9 +337,9 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
   // the we will split the current axis
   this->GetInput()->GetAxisUpdateExtent(axis, min, max);
   
-  //vtkDebugMacro("Axes: " << axis << "(" << min << ", " << max 
-  //	<< "), UpdateMemory: " << cache->GetEstimatedUpdateMemorySize() 
-  //	<< ", Limit: " << cache->GetMemoryLimit() << endl);
+  vtkDebugMacro("Axes: " << axis << "(" << min << ", " << max 
+  	<< "), UpdateMemory: " << inputMemorySize 
+  	<< ", Limit: " << this->MemoryLimit << endl);
   
   if (min == max)
     {
@@ -340,7 +349,7 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
       }
     else
       {
-      vtkWarningMacro("Cache to small to hold one row of pixels!!");
+      vtkWarningMacro("MemoryLimit too small for one pixel of information!!");
       }
     if (file && fileOpenedHere)
       {
