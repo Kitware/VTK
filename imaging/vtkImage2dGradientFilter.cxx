@@ -54,6 +54,8 @@ vtkImage2dGradientFilter::vtkImage2dGradientFilter()
   
   this->SetAxes3d(VTK_IMAGE_X_AXIS,VTK_IMAGE_Y_AXIS, VTK_IMAGE_COMPONENT_AXIS);
   this->SetOutputDataType(VTK_IMAGE_FLOAT);
+  
+  this->UseExecuteCenterOff();
 }
 
 
@@ -205,66 +207,10 @@ void vtkImage2dGradientFilterExecute(vtkImage2dGradientFilter *self,
 // Description:
 // This method contains a switch statement that calls the correct
 // templated function for the input region type.  The output region
-// must be of type float.  This methode only execute the filter
-// without handling image boundary conditions.
-// The third axis is the component axis for the output.
-void vtkImage2dGradientFilter::ExecuteCenter3d(vtkImageRegion *inRegion, 
-					       vtkImageRegion *outRegion)
-{
-  void *inPtr = inRegion->GetVoidPointer3d();
-  void *outPtr = outRegion->GetVoidPointer3d();
-
-  // this filter expects that output is type float.
-  if (outRegion->GetDataType() != VTK_IMAGE_FLOAT)
-    {
-    vtkErrorMacro(<< "Execute: output DataType, "
-                  << vtkImageDataTypeNameMacro(outRegion->GetDataType())
-                  << ", must be float");
-    return;
-    }
-  
-  switch (inRegion->GetDataType())
-    {
-    case VTK_IMAGE_FLOAT:
-      vtkImage2dGradientFilterExecute(this, 
-			  inRegion, (float *)(inPtr), 
-			  outRegion, (float *)(outPtr));
-      break;
-    case VTK_IMAGE_INT:
-      vtkImage2dGradientFilterExecute(this, 
-			  inRegion, (int *)(inPtr), 
-			  outRegion, (float *)(outPtr));
-      break;
-    case VTK_IMAGE_SHORT:
-      vtkImage2dGradientFilterExecute(this, 
-			  inRegion, (short *)(inPtr), 
-			  outRegion, (float *)(outPtr));
-      break;
-    case VTK_IMAGE_UNSIGNED_SHORT:
-      vtkImage2dGradientFilterExecute(this, 
-			  inRegion, (unsigned short *)(inPtr), 
-			  outRegion, (float *)(outPtr));
-      break;
-    case VTK_IMAGE_UNSIGNED_CHAR:
-      vtkImage2dGradientFilterExecute(this, 
-			  inRegion, (unsigned char *)(inPtr), 
-			  outRegion, (float *)(outPtr));
-      break;
-    default:
-      vtkErrorMacro(<< "ExecuteCenter: Unknown DataType");
-      return;
-    }
-}
-
-
-//----------------------------------------------------------------------------
-// Description:
-// This method contains a switch statement that calls the correct
-// templated function for the input region type.  The output region
 // must be of type float.  This method does handle boundary conditions.
 // The third axis is the component axis for the output.
-void vtkImage2dGradientFilter::ExecuteBoundary3d(vtkImageRegion *inRegion, 
-						 vtkImageRegion *outRegion)
+void vtkImage2dGradientFilter::Execute3d(vtkImageRegion *inRegion, 
+					 vtkImageRegion *outRegion)
 {
   void *inPtr = inRegion->GetVoidPointer3d();
   void *outPtr = outRegion->GetVoidPointer3d();
@@ -272,7 +218,7 @@ void vtkImage2dGradientFilter::ExecuteBoundary3d(vtkImageRegion *inRegion,
   // this filter expects that output is type float.
   if (outRegion->GetDataType() != VTK_IMAGE_FLOAT)
     {
-    vtkErrorMacro(<< "Execute: output DataType, "
+    vtkErrorMacro(<< "Execute3d: output DataType, "
                   << vtkImageDataTypeNameMacro(outRegion->GetDataType())
                   << ", must be float");
     return;
@@ -306,7 +252,7 @@ void vtkImage2dGradientFilter::ExecuteBoundary3d(vtkImageRegion *inRegion,
 			  outRegion, (float *)(outPtr));
       break;
     default:
-      vtkErrorMacro(<< "ExecuteBoundary: Unknown DataType");
+      vtkErrorMacro(<< "Execute3d: Unknown DataType");
       return;
     }
 }

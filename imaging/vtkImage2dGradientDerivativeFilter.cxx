@@ -191,9 +191,8 @@ void vtkImage2dGradientDerivativeFilter::ExecuteCenter3d(
 //----------------------------------------------------------------------------
 // Description:
 // This method executes the filter for boundary pixels.
-void vtkImage2dGradientDerivativeFilter::ExecuteBoundary3d(
-						    vtkImageRegion *inRegion,
-						    vtkImageRegion *outRegion)
+void vtkImage2dGradientDerivativeFilter::Execute3d(vtkImageRegion *inRegion,
+						   vtkImageRegion *outRegion)
 {
   float phase;
   int inImageMin0, inImageMax0, inImageMin1, inImageMax1;

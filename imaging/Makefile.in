@@ -43,6 +43,7 @@ vtkImage3dGaussianSmoothFilter.o \
 vtkImage3dOpenCloseFilter.o \
 vtkImage3dShrinkFilter.o \
 vtkImage3dSpatialFilter.o \
+vtkImage4dMatFilter.o \
 vtkImage4dShortReader.o \
 vtkImage4dTranslateFilter.o \
 vtkImageDifferenceFilter.o \
@@ -96,6 +97,7 @@ tcl/vtkImage3dGaussianSmoothFilterTcl.o \
 tcl/vtkImage3dOpenCloseFilterTcl.o \
 tcl/vtkImage3dShrinkFilterTcl.o \
 tcl/vtkImage3dSpatialFilterTcl.o \
+tcl/vtkImage4dMatFilterTcl.o \
 tcl/vtkImage4dShortReaderTcl.o \
 tcl/vtkImage4dTranslateFilterTcl.o \
 tcl/vtkImageDifferenceFilterTcl.o \
@@ -149,6 +151,7 @@ vtkImage3dGaussianSmoothFilter.h \
 vtkImage3dOpenCloseFilter.h \
 vtkImage3dShrinkFilter.h \
 vtkImage3dSpatialFilter.h \
+vtkImage4dMatFilter.h \
 vtkImage4dShortReader.h \
 vtkImage4dTranslateFilter.h \
 vtkImageDifferenceFilter.h \
@@ -318,6 +321,9 @@ tcl/vtkImage3dShrinkFilterTcl.cxx: vtkImage3dShrinkFilter.h ../tcl/cpp_parse
 
 tcl/vtkImage3dSpatialFilterTcl.cxx: vtkImage3dSpatialFilter.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImage3dSpatialFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage3dSpatialFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage3dSpatialFilterTcl.cxx
+
+tcl/vtkImage4dMatFilterTcl.cxx: vtkImage4dMatFilter.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImage4dMatFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage4dMatFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage4dMatFilterTcl.cxx
 
 tcl/vtkImage4dShortReaderTcl.cxx: vtkImage4dShortReader.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImage4dShortReaderTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage4dShortReader.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage4dShortReaderTcl.cxx
