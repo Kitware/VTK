@@ -23,13 +23,13 @@
 #include "vtkPointData.h"
 #include "vtkDirectory.h"
 
-#include <vector>
-#include <string>
+#include <vtkstd/vector>
+#include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDICOMImageReader, "1.1");
+vtkCxxRevisionMacro(vtkDICOMImageReader, "1.2");
 vtkStandardNewMacro(vtkDICOMImageReader);
 
-class myvector : public std::vector<std::string>
+class myvector : public vtkstd::vector<vtkstd::string>
 {
 
 };
