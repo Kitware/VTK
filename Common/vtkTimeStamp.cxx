@@ -53,15 +53,19 @@ vtkTimeStamp* vtkTimeStamp::New()
   return new vtkTimeStamp;
 }
 
-static vtkSimpleCriticalSection TimeStampCritSec;
 
 void vtkTimeStamp::Modified()
 {
+#ifdef _WIN32
+  static long vtkTimeStampTime = 0; 
+  this->ModifiedTime = InterlockedIncrement(&vtkTimeStampTime);
+#else
   static unsigned long vtkTimeStampTime = 0; 
-
+  static vtkSimpleCriticalSection TimeStampCritSec;
   TimeStampCritSec.Lock();
   this->ModifiedTime = ++vtkTimeStampTime;
   TimeStampCritSec.Unlock();
+#endif
 }
 
 
