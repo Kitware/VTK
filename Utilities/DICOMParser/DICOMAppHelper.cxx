@@ -38,7 +38,7 @@ struct lt_pair_int_string
   }
 };
 
-DICOMAppHelper::DICOMAppHelper()
+DICOMAppHelper::DICOMAppHelper() : SeriesUIDMap(), SliceNumberMap(), TagMap()
 {
   this->FileName = NULL;
   this->DICOMDataFile = NULL;
@@ -859,41 +859,51 @@ void DICOMAppHelper::GetSliceNumberFilenamePairs(std::vector<std::pair<int, std:
 
 void DICOMAppHelper::ClearSliceNumberMap()
 { 
-  /*
-  std::map<std::string, int, ltstdstr>::iterator sn_iter;
-
-  for (sn_iter = this->SliceNumberMap.begin();
-       sn_iter != this->SliceNumberMap.end();
-       sn_iter++)
-       {
-       delete [] (*sn_iter).first;
-       }
-  */
   this->SliceNumberMap.clear();
 }
 
 void DICOMAppHelper::ClearSeriesUIDMap()
 {
-#if 0
-  std::map<std::string, std::vector<std::string>, ltstdstr >::iterator iter;
-  for (iter = this->SeriesUIDMap.begin();
-       iter != this->SeriesUIDMap.end();
-       iter++)
-       {
-       //delete [] (*iter).first;
-       /*
-       for (std::vector<char*>::iterator viter = (*iter).second.begin();
-            viter != (*iter).second.end();
-            viter++)
-       */
-       for (std::vector<std::string>::iterator viter = (*iter).second.begin();
-            viter != (*iter).second.end();
-            viter++)
-            {
-            // delete [] (*viter);
-            }
-       // delete [] &(*iter).second;
-       }
-#endif
  this->SeriesUIDMap.clear();
+}
+
+void DICOMAppHelper::SortFilenamesBySlice()
+{
+  this->SortedFilenames.clear();
+
+  std::map<std::string, std::vector<std::string>, ltstdstr >::iterator miter  = this->SeriesUIDMap.begin();
+
+  std::vector<std::string> files = (*miter).second;
+
+  for (std::vector<std::string>::iterator fileIter = files.begin();
+       fileIter != files.end();
+       fileIter++)
+       {
+       std::pair<int, std::string> p;
+       p.second = std::string(*fileIter);
+       int slice_number = -1;
+       std::map<std::string, int, ltstdstr>::iterator sn_iter = SliceNumberMap.find(*fileIter);
+       if (sn_iter != SliceNumberMap.end())
+        {
+        slice_number = (*sn_iter).second;
+        }
+       p.first = slice_number;
+       this->SortedFilenames.push_back(p);
+       }
+  std::sort(this->SortedFilenames.begin(), this->SortedFilenames.end(), lt_pair_int_string());
+
+}
+
+unsigned int DICOMAppHelper::GetNumberOfSortedFilenames()
+{
+  return this->SortedFilenames.size();
+}
+
+std::string DICOMAppHelper::GetFilenameForSlice(unsigned int slice_number)
+{
+  if (slice_number < this->SortedFilenames.size())
+    {
+    return (this->SortedFilenames[slice_number]).second;
+    }
+  return std::string(" ");
 }

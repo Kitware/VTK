@@ -236,6 +236,10 @@ class DICOMAppHelper
 
   void GetSliceNumberFilenamePairs(std::vector<std::pair<int, std::string> > & v);
 
+  std::string GetFilenameForSlice(unsigned int slice_number);
+  void SortFilenamesBySlice();
+  unsigned int GetNumberOfSortedFilenames();
+
  protected:
   int BitsAllocated;
   bool ByteSwapData;
@@ -295,6 +299,7 @@ class DICOMAppHelper
   DICOMMemberCallback<DICOMAppHelper>* RescaleSlopeCB;
   DICOMMemberCallback<DICOMAppHelper>* PixelDataCB;
 
+  std::vector<std::pair<int, std::string> > SortedFilenames;
 };
 
 #endif
