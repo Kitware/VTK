@@ -11,11 +11,11 @@
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  */
 
-#include "tk.h"
 
 #include "vtkSystemIncludes.h"
 #include "vtkToolkits.h"
 #include "vtkMPIController.h"
+#include "tk.h"
 
 /*
  *----------------------------------------------------------------------
