@@ -36,7 +36,7 @@
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkAVSucdReader, "1.15");
+vtkCxxRevisionMacro(vtkAVSucdReader, "1.16");
 vtkStandardNewMacro(vtkAVSucdReader);
 
 vtkAVSucdReader::vtkAVSucdReader()
@@ -51,7 +51,9 @@ vtkAVSucdReader::vtkAVSucdReader()
   this->NumberOfCellComponents = 0;
   this->fs = NULL;
   this->DecrementNodeIds = 0;
-
+  this->NumberOfNodes = 0;
+  this->NumberOfCells = 0;
+  
   this->NodeDataInfo = NULL;
   this->CellDataInfo = NULL;
   this->PointDataArraySelection = vtkDataArraySelection::New();
