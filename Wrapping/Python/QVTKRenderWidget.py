@@ -27,7 +27,7 @@ class QVTKRenderWidget(QWidget):
         self.__connected = 0  # is QT->VTK connection done?
 
         # create qt-level widget
-        QWidget.__init__(self,parent,None)
+        QWidget.__init__(self,parent,name)
 
         try: # check to see if a render window was specified
             self._RenderWindow = kw['rw']
@@ -105,15 +105,15 @@ class QVTKRenderWidget(QWidget):
         if self._Mode != None:
             return
         
-        if ev.button() == 2 or \ # right button
-             ev.button() == 1 and ev.state() & 16: # left button and ctrl 
+        if ev.button() == 2 or \
+             ev.button() == 1 and ev.state() & 16:
             self._Mode = "Zoom"
             self._ActiveButton = ev.button()
-        elif ev.button() == 4 or \ # middle button
-           ev.button() == 1 and ev.state() & 8: # left button and shift
+        elif ev.button() == 4 or \
+           ev.button() == 1 and ev.state() & 8:
             self._Mode = "Pan"
             self._ActiveButton = ev.button()
-        elif ev.button() == 1: # left button
+        elif ev.button() == 1:
             self._Mode = "Rotate"
             self._ActiveButton = ev.button()
         self.UpdateRenderer(ev.x(),ev.y())
@@ -360,10 +360,10 @@ class QVTKRenderWidget(QWidget):
 def QVTKRenderWidgetConeExample():
     """Like it says, just a simple example
     """
-    # create root window
+    # every QT app needs an app
     app = QApplication(['QVTKRenderWidget'])
 
-    # create vtkTkRenderWidget
+    # create the widget
     widget = QVTKRenderWidget()
 
     ren = vtkRenderer()
@@ -380,9 +380,11 @@ def QVTKRenderWidgetConeExample():
 
     ren.AddActor(coneActor)
 
-    # start the tk mainloop
+    # show the widget
     widget.show()
+    # close the application when window is closed
     qApp.setMainWidget(widget)
+    # start event processing
     app.exec_loop()
     
 if __name__ == "__main__":
