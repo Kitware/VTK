@@ -52,6 +52,13 @@
 // This is a very useful fact for parallel processing, or performing
 // operations like clipping that require compatible triangulations across
 // 3D cell faces. (See vtkClipVolume for an example.)
+//
+// A special feature of this class is that it can generate triangulation 
+// templates on the fly. If template triangulation is enabled, then the
+// ordered triangulator will first triangulate the cell using the slower
+// ordered Delaunay approach, and then store the result as a template.
+// Later, if the same cell type and cell configuration is encountered,
+// then the template is reused which greatly speeds the triangulation.
 
 // .SECTION Caveats
 // Duplicate vertices will be ignored, i.e., if two points have the same
@@ -123,8 +130,10 @@ public:
 
   // Description:
   // Perform the triangulation. (Complete all calls to InsertPoint() prior
-  // to invoking this method.)
+  // to invoking this method.) A special version is available when templates
+  // should be used.
   void Triangulate();
+  void TemplateTriangulate(int cellType, int numPts, int numEdges);
 
   // Description:
   // Update the point type. This is useful when the merging of nearly 
@@ -137,14 +146,12 @@ public:
   // Description:
   // If this flag is set, then the ordered triangulator will create
   // and use templates for the triangulation. To use templates, the
-  // template parameters must be set prior to each Triangulate()
-  // invocation.
+  // TemplateTriangulate() method should be called when appropriate.
+  // (Note: the TemplateTriangulate() method works for complete 
+  // (interior) cells without extra points due to intersection, etc.)
   vtkSetMacro(UseTemplates,int);
   vtkGetMacro(UseTemplates,int);
   vtkBooleanMacro(UseTemplates,int);
-  void SetTemplateParameters(int cellType, int numPts, int numEdges)
-    {this->CellType=cellType; 
-    this->NumberOfCellPoints=numPts; this->NumberOfCellEdges=numEdges;}
 
   // Description:
   // Boolean indicates whether the points have been pre-sorted. If 

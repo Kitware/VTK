@@ -30,7 +30,7 @@
 #include <vtkstd/stack>
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.58");
+vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.59");
 vtkStandardNewMacro(vtkOrderedTriangulator);
 
 #ifdef _WIN32_WCE
@@ -273,6 +273,7 @@ struct OTTemplate
   void operator delete(void*,vtkHeap*) {}
 #endif
 };
+
 
 // Typedefs for a list of templates for a particular cell. Key is the
 // template index.
@@ -1072,7 +1073,7 @@ vtkOTMesh::WalkToTetra(OTTetra *tetra, double x[3], int depth, double bc[4])
 void vtkOrderedTriangulator::Triangulate()
 {
   OTPoint *p;
-  int i, templateUsePossible=0;
+  int i;
   vtkIdType ptId;
   
   // Sort the points according to id. The last six points are left
@@ -1091,20 +1092,7 @@ void vtkOrderedTriangulator::Triangulate()
       }
     }
 
-  // Depending on whether templates are being used and whether the template
-  // has been defined; the points are triangulated using templates or
-  // using an ordered Delaunay approach.
-  if ( this->UseTemplates && this->NumberOfCellPoints == this->NumberOfPoints )
-    {
-    templateUsePossible = 1;
-    if ( this->TemplateTriangulation() )
-      {
-      return;
-      }
-    }
-  
-  // If here, we have to do it the slow way. The triangulation may be saved
-  // later as a new template.
+  // Prepare the data structures (e.g., mesh) for an ordererd triangulation.
   this->Initialize();
 
   // Insert each point into the triangulation. Assign internal ids 
@@ -1171,15 +1159,47 @@ void vtkOrderedTriangulator::Triangulate()
 
   // Final classification
   this->Mesh->NumberOfTetrasClassifiedInside = this->Mesh->ClassifyTetras();
-  
-  // If template usage was possible but no template was found, add the
-  // template to list of templates.
-  if ( templateUsePossible )
-    {
-    this->AddTemplate();
-    }
 }
 
+
+//------------------------------------------------------------------------
+// Perform triangulation using templates (when possible).
+void vtkOrderedTriangulator::TemplateTriangulate(int cellType, 
+                                                 int numPts, int numEdges)
+{
+  if ( ! this->UseTemplates )
+    {
+    this->Triangulate();
+    return;
+    }
+
+  this->NumberOfCellPoints = numPts;
+  this->NumberOfCellEdges = numEdges;
+
+  // Sort the points according to id.
+  if ( ! this->PreSorted )
+    {
+    if (this->UseTwoSortIds)
+      {
+      qsort((void *)this->Mesh->Points.GetPointer(0), this->NumberOfPoints, 
+            sizeof(OTPoint), vtkSortOnTwoIds);
+      }
+    else
+      {
+      qsort((void *)this->Mesh->Points.GetPointer(0), this->NumberOfPoints, 
+            sizeof(OTPoint), vtkSortOnIds);
+      }
+    }
+
+  if ( ! this->TemplateTriangulation() )
+    {//template triangulation didn't work, triangulate it and add to template cache
+    int preSorted = this->PreSorted; //prevents resorting
+    this->PreSorted = 1;
+    this->Triangulate();
+    this->AddTemplate();
+    this->PreSorted = preSorted;
+    }
+}
 
 //------------------------------------------------------------------------
 // Add the tetras classified as specified to an unstructured grid.
@@ -1482,7 +1502,7 @@ void vtkOrderedTriangulator::AddTemplate()
         tetra = *t;
         for (i=0; i<4; i++)
           {
-          *clist++ = tetra->Points[i]->OriginalId;
+          *clist++ = tetra->Points[i]->InsertionId;
           }
         }
       }//for all tetras
