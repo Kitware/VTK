@@ -96,7 +96,6 @@ vtkDataSetAttributes::~vtkDataSetAttributes()
   this->TargetIndices = 0;
 }
 
-
 // Turn on copying of all data.
 void vtkDataSetAttributes::CopyAllOn()
 {
@@ -1991,3 +1990,16 @@ void vtkDataSetAttributes::FieldList::RemoveField(const char *name)
       }
     }
 }
+
+
+const char* vtkDataSetAttributes::GetAttributeTypeAsString(int attributeType)
+{
+  if (attributeType < 0 || attributeType >= NUM_ATTRIBUTES)
+    {
+    vtkGenericWarningMacro("Bad attribute type.");
+    return NULL;
+    }
+  return vtkDataSetAttributes::AttributeNames[attributeType];
+}
+
+

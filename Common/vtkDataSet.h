@@ -326,6 +326,15 @@ public:
   };
 //ETX
   
+  // Description:
+  // This method checks to see if the cell and point attributes
+  // match the geometry.  Many filters will crash if the number of 
+  // tupples in an array is less than the number of points/cells.
+  // This method returns 1 if there is a mismatch, 
+  // and 0 if everything is ok.  It prints an error if an
+  // array is too short, and a warning if an array is too long.
+  int CheckAttributes();
+  
 protected:
   // Constructor with default bounds (0,1, 0,1, 0,1).
   vtkDataSet();

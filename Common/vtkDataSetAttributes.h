@@ -331,6 +331,11 @@ public:
   // Remove an array (with the given name) from the list of arrays.
   virtual void RemoveArray(const char *name);
 
+  // Description:
+  // Given an integer attribute type, this static method returns a string type
+  // for the attribute (i.e. type = 0: returns "Scalars").
+  static const char* GetAttributeTypeAsString(int attributeType);
+
 //BTX
   // Always keep NUM_ATTRIBUTES as the last entry
   enum AttributeTypes 

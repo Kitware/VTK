@@ -363,6 +363,76 @@ void vtkDataSet::InternalDataSetCopy(vtkDataSet *src)
     }
 }
 
+
+//----------------------------------------------------------------------------
+int vtkDataSet::CheckAttributes()
+{
+  int numPts, numCells;
+  int numArrays, idx;
+  vtkDataArray *array;
+  int numTuples;
+  const char* name;
+
+  numPts = this->GetNumberOfPoints();
+  numCells = this->GetNumberOfCells();
+
+  numArrays = this->GetPointData()->GetNumberOfArrays();
+  for (idx = 0; idx < numArrays; ++idx)
+    {
+    array = this->GetPointData()->GetArray(idx);
+    numTuples = array->GetNumberOfTuples();
+    name = array->GetName();
+    if (name == NULL)
+      {
+      name = "";
+      }
+    if (numTuples < numPts)
+      {
+      vtkErrorMacro("Point array " << name << " with " 
+                    << array->GetNumberOfComponents()
+                    << " components, only has " << numTuples << " but there are " 
+                    << numPts << " points");
+      return 1;
+      }
+    if (numTuples > numPts)
+      {
+      vtkWarningMacro("Point array " << name << " with " 
+                    << array->GetNumberOfComponents()
+                    << " components, has " << numTuples << " but there are only " 
+                    << numPts << " points");
+      }
+    }
+
+  numArrays = this->GetCellData()->GetNumberOfArrays();
+  for (idx = 0; idx < numArrays; ++idx)
+    {
+    array = this->GetCellData()->GetArray(idx);
+    numTuples = array->GetNumberOfTuples();
+    name = array->GetName();
+    if (name == NULL)
+      {
+      name = "";
+      }
+    if (numTuples < numCells)
+      {
+      vtkErrorMacro("Cell array " << name << " with " 
+                    << array->GetNumberOfComponents()
+                    << " components, has only " << numTuples << " but there are "
+                    << numCells << " cells");
+      return 1;
+      }
+    if (numTuples > numCells)
+      {
+      vtkWarningMacro("Cell array " << name << " with " 
+                    << array->GetNumberOfComponents() 
+                    << " components, has " << numTuples << " but there are only " 
+                    << numCells << " cells");
+      }
+    }
+
+  return 0;
+}
+
 //----------------------------------------------------------------------------
 void vtkDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
