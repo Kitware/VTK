@@ -642,7 +642,9 @@ void vtkWin32ImageMapper::RenderData(vtkViewport* viewport,
   int xSize= (int) (actorScale[0] * (float) width);
   int ySize = (int) (actorScale[1] * (float) height);
 
-  int* actorPos = actor->GetComputedDisplayPosition(viewport);
+  // Get the position of the text actor
+  int* actorPos = 
+    actor->GetPositionCoordinate()->GetComputedLocalDisplayValue(viewport);
   // negative positions will already be clipped to viewport
   actorPos[0] += this->PositionAdjustment[0]; 
   actorPos[1] -= this->PositionAdjustment[1];

@@ -49,6 +49,7 @@ vtkCellTypes \
 vtkCharArray \
 vtkCollection \
 vtkContourValues \
+vtkCoordinate \
 vtkDataObject \
 vtkDataSetAttributes \
 vtkDoubleArray \

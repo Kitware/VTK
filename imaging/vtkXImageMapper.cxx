@@ -476,20 +476,17 @@ void vtkXImageMapper::RenderData(vtkViewport* viewport, vtkImageData* data, vtkA
 {
   int width, height;
   int size;
-  void *ptr0, *ptr1, *ptr2;
+  void *ptr0;
 
   vtkWindow*  window = viewport->GetVTKWindow();
 
   int visualDepth = this->GetXWindowDepth(window);
-  int visualClass = this->GetXWindowVisualClass(window);
   Display* displayId = (Display*) window->GetGenericDisplayId();
   Visual visualId;  
   this->GetXWindowVisualId(window, &visualId);
 
   GC gc = (GC) window->GetGenericContext();
   if (gc == NULL) vtkErrorMacro(<<"Window returned NULL gc!");
-
-  Window windowId = (Window) window->GetGenericWindowId();
 
   int* extent = this->GetInput()->GetUpdateExtent();
   width = (extent[1] - extent[0] + 1);
@@ -595,7 +592,9 @@ void vtkXImageMapper::RenderData(vtkViewport* viewport, vtkImageData* data, vtkA
                              ZPixmap, 0, (char *)this->DataOut, width, height, 8,0);
 
 
-  int* actPos = actor->GetComputedDisplayPosition(viewport);
+  int* actPos = 
+    actor->GetPositionCoordinate()->GetComputedLocalDisplayValue(viewport);
+  
   // take into account adjustments
   actPos[0] += this->PositionAdjustment[0];
   actPos[1] -= this->PositionAdjustment[1];

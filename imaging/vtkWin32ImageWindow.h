@@ -118,6 +118,11 @@ protected:
   void MakeDefaultWindow();  
   // ###
   unsigned char *DIBPtr;	// the data in the DIBSection
+  int SwapFlag;
+  HDC compatHdc;
+  HDC oldHdc;
+  HBITMAP BackBuffer;
+  BITMAPINFO dataHeader;
 };
 
 #endif

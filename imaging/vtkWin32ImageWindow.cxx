@@ -149,20 +149,14 @@ unsigned char *vtkWin32ImageWindow::GetDIBPtr()
 //---------------------------------------------------------------------------
 void vtkWin32ImageWindow::SwapBuffers()
 {
-  static int swapFlag = 0;
-  static HDC compatHdc;
-  static HDC oldHdc;
-  static HBITMAP backBuffer= (HBITMAP) 0;
-  static BITMAPINFO dataHeader;
   int dataWidth = ((this->Size[0]*3+3)/4)*4;
 
-  if (swapFlag == 0)
+  if (this->SwapFlag == 0)
     {
-	// Create buffer/check buffer size
-	vtkDebugMacro (<< "Creating buffer");
-	if (!backBuffer)
-	  {
-
+    // Create buffer/check buffer size
+    vtkDebugMacro (<< "Creating buffer");
+    if (!this->BackBuffer)
+      {
       dataHeader.bmiHeader.biSize = 40;
       dataHeader.bmiHeader.biWidth = this->Size[0];
       dataHeader.bmiHeader.biHeight = this->Size[1];
@@ -174,57 +168,60 @@ void vtkWin32ImageWindow::SwapBuffers()
       dataHeader.bmiHeader.biClrImportant = 0;
 
       // try using a DIBsection
-      backBuffer = CreateDIBSection(this->DeviceContext, &dataHeader,
-                             DIB_RGB_COLORS, (void **)(&(this->DIBPtr)), 
-                             NULL, 0);
-
-	  // Put the current background into the device context
-	  BitBlt(compatHdc, 0, 0, this->Size[0], this->Size[1], this->DeviceContext, 0, 0, SRCCOPY);
-	  compatHdc = (HDC) CreateCompatibleDC(this->DeviceContext);
-	  }
-	else
-	  {
+      this->BackBuffer = CreateDIBSection(this->DeviceContext, &dataHeader,
+					  DIB_RGB_COLORS, 
+					  (void **)(&(this->DIBPtr)), 
+					  NULL, 0);
+      
+      // Put the current background into the device context
+      BitBlt(compatHdc, 0, 0, this->Size[0], this->Size[1], this->DeviceContext, 0, 0, SRCCOPY);
+      compatHdc = (HDC) CreateCompatibleDC(this->DeviceContext);
+      }
+    else
+      {
       BITMAP bm;
-      GetObject(backBuffer, sizeof (BITMAP), (LPSTR) &bm);
+      GetObject(this->BackBuffer, sizeof (BITMAP), (LPSTR) &bm);
       // If region size differs from bitmap size, reallocate the bitmap
-	  if ((this->Size[0] != bm.bmWidth) || (this->Size[1] != bm.bmHeight))
+      if ((this->Size[0] != bm.bmWidth) || (this->Size[1] != bm.bmHeight))
         {
-        DeleteObject(backBuffer);
-	    
+        DeleteObject(this->BackBuffer);
+	
         dataHeader.bmiHeader.biWidth = this->Size[0];
         dataHeader.bmiHeader.biHeight = this->Size[1];
         dataHeader.bmiHeader.biSizeImage = dataWidth*this->Size[1];
-
+	
         // try using a DIBsection
-        backBuffer = CreateDIBSection(this->DeviceContext, &dataHeader,
-                             DIB_RGB_COLORS, (void **)(&(this->DIBPtr)), 
-                             NULL, 0);
-
-	    // Put the current background into the device context
-	    BitBlt(compatHdc, 0, 0, this->Size[0], this->Size[1], this->DeviceContext, 0, 0, SRCCOPY);
+        this->BackBuffer = CreateDIBSection(this->DeviceContext, &dataHeader,
+					    DIB_RGB_COLORS, 
+					    (void **)(&(this->DIBPtr)), 
+					    NULL, 0);
+	
+	// Put the current background into the device context
+	BitBlt(compatHdc, 0, 0, this->Size[0], this->Size[1], 
+	       this->DeviceContext, 0, 0, SRCCOPY);
         }
-	  }
-
+      }
+    
     // Put buffer into a compatible device context
-    SelectObject(compatHdc, backBuffer);
-
-	// Save the old device context so we can restore it later
+    SelectObject(compatHdc, this->BackBuffer);
+    
+    // Save the old device context so we can restore it later
     oldHdc = this->DeviceContext;
-
-	// Swap device contexts
+    
+    // Swap device contexts
     this->DeviceContext = compatHdc;
-	swapFlag = 1;
+    this->SwapFlag = 1;
     }
   else
     {
     // Put the buffer on the screen
-	vtkDebugMacro (<<"Swapping buffer");
-	BitBlt(oldHdc, 0, 0, this->Size[0], this->Size[1], this->DeviceContext, 0, 0, SRCCOPY);
-	// Swap the device contexts back
-	this->DeviceContext = oldHdc;
-    swapFlag = 0;
+    vtkDebugMacro (<<"Swapping buffer");
+    BitBlt(oldHdc, 0, 0, this->Size[0], this->Size[1], this->DeviceContext, 0, 0, SRCCOPY);
+    // Swap the device contexts back
+    this->DeviceContext = oldHdc;
+    this->SwapFlag = 0;
     }
-
+  
 }
 
 
@@ -242,6 +239,9 @@ vtkWin32ImageWindow::vtkWin32ImageWindow()
 
   this->SetWindowName("Visualization Toolkit - InageWin32");
   this->DIBPtr = (unsigned char*) NULL;
+
+  this->SwapFlag = 0;
+  this->BackBuffer= (HBITMAP) 0;
 }
 
 

@@ -1,13 +1,12 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkActor2D.h
+  Module:    vtkXPolyDataMapper2D.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
-  Thanks:    Thanks to Matt Turek who developed this class.
 
-Copyright (c) 1993-1998 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -38,79 +37,35 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkActor2D
+// .NAME vtkXPolyDataMapper2D - 2D PolyData support for windows
 // .SECTION Description
-// vtkActor2D is similar to vtkActor, but it is made to be used with
-// two dimensional images and annotation.  vtkActor2D has a position, 
-// orientation, and scale, but does not use a transformation matrix 
-// like vtkActor.  vtkActor2D also has a layer property which allows two
-// dimensional actors to be rendered on top of each other in a certain
-// order.  vtkActor2D has a reference to a vtkMapper2D object which does
-// the rendering.
+// vtkXPolyDataMapper2D provides 2D PolyData annotation support for 
+// vtk under windows.  Normally the user should use vtkPolyDataMapper2D 
+// which in turn will use this class.
 
 // .SECTION See Also
-// vtkProperty2D  vtkMapper2D
+// vtkPolyDataMapper2D
 
-#ifndef __vtkActor2D_h
-#define __vtkActor2D_h
+#ifndef __vtkXPolyDataMapper2D_h
+#define __vtkXPolyDataMapper2D_h
 
-#include "vtkReferenceCount.h"
-#include "vtkCoordinate.h"
+#include "vtkPolyDataMapper2D.h"
 
-class vtkMapper2D;
-class vtkProperty2D;
-
-
-class VTK_EXPORT vtkActor2D : public vtkReferenceCount
+class VTK_EXPORT vtkXPolyDataMapper2D : public vtkPolyDataMapper2D
 {
 public:
+  const char *GetClassName() {return "vtkXPolyDataMapper2D";};
 
-  vtkActor2D();
-  ~vtkActor2D();
+  static vtkXPolyDataMapper2D *New() 
+    {return new vtkXPolyDataMapper2D;};
+  int GetCompositingMode(vtkActor2D* actor);
 
-  static vtkActor2D* New() {return new vtkActor2D;};
-  void PrintSelf(ostream& os, vtkIndent indent);
-  const char *GetClassName() {return "vtkActor2D";};
-
-  void Render(vtkViewport *viewport);
-
-  vtkSetObjectMacro(Mapper, vtkMapper2D);
-
-  vtkSetVector2Macro(Scale, float);
-  vtkGetVectorMacro(Scale, float, 2);
-
-  vtkSetMacro(Orientation, float);
-  vtkGetMacro(Orientation, float);
-
-  vtkSetMacro(LayerNumber, int);
-  vtkGetMacro(LayerNumber, int);
-
-  vtkSetMacro(Visibility, int);
-  vtkGetMacro(Visibility, int);
-  vtkBooleanMacro(Visibility, int);
-
-  vtkProperty2D* GetProperty();
-  vtkSetObjectMacro(Property, vtkProperty2D);
-
-  vtkSetReferenceCountedObjectMacro(PositionCoordinate,vtkCoordinate);
-  vtkGetObjectMacro(PositionCoordinate,vtkCoordinate);
-
-  void SetDisplayPosition(int,int);
-  
+  void Render(vtkViewport* viewport, vtkActor2D* actor);
 
 protected:
-  float Orientation;
-  float Scale[2];
-
-  int LayerNumber;
-  int Visibility;
-  int SelfCreatedProperty;
-
-  vtkProperty2D *Property;
-  vtkMapper2D *Mapper;
-  vtkCoordinate *PositionCoordinate;
+  
 };
 
-#endif
 
+#endif
 

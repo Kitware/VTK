@@ -106,8 +106,10 @@ void vtkWin32TextMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
   POINT ptDestOff;
   int xOffset = 0;
   int yOffset = 0;
-//  this->GetActorOffset(viewport, actor, &xOffset, &yOffset);  
-  int* actorPos = actor->GetComputedDisplayPosition(viewport);
+
+  // Get the position of the text actor
+  int* actorPos = 
+    actor->GetPositionCoordinate()->GetComputedLocalDisplayValue(viewport);
   xOffset = actorPos[0];
   yOffset = actorPos[1];
 

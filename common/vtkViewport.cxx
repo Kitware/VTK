@@ -346,3 +346,164 @@ void vtkViewport::PrintSelf(ostream& os, vtkIndent indent)
 
 }
 
+void vtkViewport::LocalDisplayToDisplay(float &u, float &v)
+{
+  int *size;
+  
+  /* get physical window dimensions */
+  size = this->VTKWindow->GetSize();
+  
+  v = size[1] - v - 1;
+}
+
+void vtkViewport::DisplayToLocalDisplay(float &u, float &v)
+{
+  int *size;
+  
+  /* get physical window dimensions */
+  size = this->VTKWindow->GetSize();
+  
+  v = size[1] - v - 1;
+}
+
+void vtkViewport::DisplayToNormalizedDisplay(float &u, float &v)
+{
+  int *size;
+  
+  /* get physical window dimensions */
+  size = this->VTKWindow->GetSize();
+  
+  if (size[0] > 1)
+    {
+    u = u / (size[0] - 1);
+    }
+  else 
+    {
+    u = 0.0;
+    }
+  
+  if (size[1] > 1)
+    {
+    v = v / (size[1] - 1);
+    }
+  else
+    {
+    v = 0.0;
+    }
+}
+
+void vtkViewport::NormalizedDisplayToViewport(float &u, float &v)
+{
+  int *size;
+  
+  /* get physical window dimensions */
+  size = this->VTKWindow->GetSize();
+  
+  u = u - this->Viewport[0];
+  v = v - this->Viewport[1];
+
+  u = u * (size[0] - 1);
+  v = v * (size[1] - 1);
+}
+
+void vtkViewport::ViewportToNormalizedViewport(float &u, float &v)
+{
+  int *size;
+  
+  /* get physical window dimensions */
+  size = this->VTKWindow->GetSize();
+
+  if (size[0] > 1)
+    {
+    u = u / (size[0] - 1);
+    }
+  else 
+    {
+    u = 0.0;
+    }
+  
+  if (size[1] > 1)
+    {
+    v = v / (size[1] - 1);
+    }
+  else
+    {
+    v = 0.0;
+    }
+
+  u = u / (this->Viewport[2] - this->Viewport[0]);
+  v = v / (this->Viewport[3] - this->Viewport[1]);
+}
+
+void vtkViewport::NormalizedViewportToView(float &x, float &y, float &z)
+{
+  x = (2.0*x - 1.0)*this->Aspect[0];
+  y = (2.0*y - 1.0)*this->Aspect[1];
+}
+
+void vtkViewport::NormalizedDisplayToDisplay(float &u, float &v)
+{
+  int *size;
+  
+  /* get physical window dimensions */
+  size = this->VTKWindow->GetSize();
+  
+  u = u * (size[0] - 1);
+  v = v * (size[1] - 1);
+}
+
+  
+void vtkViewport::ViewportToNormalizedDisplay(float &u, float &v)
+{
+  int *size;
+  
+  /* get physical window dimensions */
+  size = this->VTKWindow->GetSize();
+  
+  if (size[0] > 1)
+    {
+    u = u / (size[0] - 1);
+    }
+  else 
+    {
+    u = 0.0;
+    }
+  
+  if (size[1] > 1)
+    {
+    v = v / (size[1] - 1);
+    }
+  else
+    {
+    v = 0.0;
+    }
+  
+  u = u + this->Viewport[0];
+  v = v + this->Viewport[1];
+}
+
+void vtkViewport::NormalizedViewportToViewport(float &u, float &v)
+{
+  int *size;
+  
+  /* get physical window dimensions */
+  size = this->VTKWindow->GetSize();
+  
+  u = u * (this->Viewport[2] - this->Viewport[0]);
+  v = v * (this->Viewport[3] - this->Viewport[1]);
+  
+  u = u * (size[0] - 1);
+  v = v * (size[1] - 1);
+}
+
+void vtkViewport::ViewToNormalizedViewport(float &x, float &y, float &z)
+{
+  x =  (x / this->Aspect[0] + 1.0) / 2.0;
+  y =  (y / this->Aspect[1] + 1.0) / 2.0;
+}
+
+
+
+
+
+

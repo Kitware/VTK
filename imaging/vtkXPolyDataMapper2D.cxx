@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkWin32PolyDataMapper2D.cxx
+  Module:    vtkXPolyDataMapper2D.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -40,71 +40,60 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <stdlib.h>
 #include <math.h>
-#include "vtkWin32PolyDataMapper2D.h"
-#include "vtkWin32ImageWindow.h"
+#include "vtkXPolyDataMapper2D.h"
+#include "vtkXImageWindow.h"
 
-int vtkWin32PolyDataMapper2D::GetCompositingMode(vtkActor2D* actor)
+int vtkXPolyDataMapper2D::GetCompositingMode(vtkActor2D* actor)
 {
+
   vtkProperty2D* tempProp = actor->GetProperty();
   int compositeMode = tempProp->GetCompositingOperator();
 
   switch (compositeMode)
   {
   case VTK_BLACK:
-	  return R2_BLACK;
-	  break;
+	  return GXclear;
   case VTK_NOT_DEST:
-	  return R2_NOT;
-	  break;
+	  return GXinvert;
   case VTK_SRC_AND_DEST:
-	  return R2_MASKPEN;
-	  break;
+	  return GXand;
   case VTK_SRC_OR_DEST:
-	  return  R2_MERGEPEN;
-	  break;
+	  return  GXor;
   case VTK_NOT_SRC:
-	  return R2_NOTCOPYPEN;
-	  break;
+	  return GXcopyInverted;
   case VTK_SRC_XOR_DEST:
-	  return R2_XORPEN;
-      break;
+	  return GXxor;
   case VTK_SRC_AND_notDEST:
-	  return R2_MASKPENNOT;
-	  break;
+	  return GXandReverse;
   case VTK_SRC:
-	  return R2_COPYPEN;
-	  break;
+	  return GXcopy;
   case VTK_WHITE:
-	  return R2_WHITE;
-	  break;
+	  return GXset;
   default:
-	  return R2_COPYPEN;
-	  break;
+	  return GXcopy;
   }
+
 }
 
 
-void vtkWin32PolyDataMapper2D::Render(vtkViewport* viewport, vtkActor2D* actor)
+void vtkXPolyDataMapper2D::Render(vtkViewport* viewport, vtkActor2D* actor)
 {
   int numPts;
   vtkPolyData *input= (vtkPolyData *)this->Input;
-  int npts, idx[3], rep, j;
-  float fclr[4];
-  short clr[4];
+  int npts, j;
   vtkPoints *p;
   vtkCellArray *aPrim;
   vtkScalars *c=NULL;
   unsigned char *rgba;
   int *pts;
   float *ftmp;
-  POINT *points = new POINT [1024];
   int currSize = 1024;
-  HBRUSH brush, nbrush, oldBrush;
   int cellScalars = 0;
   int cellNum = 0;
   float tran;
-
-  vtkDebugMacro (<< "vtkWin32PolyDataMapper2D::Render");
+  XPoint *points = new XPoint [1024];
+  
+  vtkDebugMacro (<< "vtkXPolyDataMapper2D::Render");
 
   if ( input == NULL ) 
     {
@@ -139,36 +128,37 @@ void vtkWin32PolyDataMapper2D::Render(vtkViewport* viewport, vtkActor2D* actor)
     this->BuildTime.Modified();
     }
 
-  // Get the window information for display
+  // Get the window info
   vtkWindow*  window = viewport->GetVTKWindow();
-  HWND windowId = (HWND) window->GetGenericWindowId();
+  Display* displayId = (Display*) window->GetGenericDisplayId();
+  GC gc = (GC) window->GetGenericContext();
+  Window windowId = (Window) window->GetGenericWindowId();
 
-  // Get the device context from the window
-  HDC hdc = (HDC) window->GetGenericContext();
- 
+  // Get the drawable to draw into
+  Drawable drawable = (Drawable) window->GetGenericDrawable();
+  if (!drawable) vtkErrorMacro(<<"Window returned NULL drawable!");
+  
   // Get the position of the text actor
   int* actorPos = 
     actor->GetPositionCoordinate()->GetComputedLocalDisplayValue(viewport);
 
-  // Set up the font color from the text actor
-  unsigned char red;
-  unsigned char green;
-  unsigned char blue;
-  float*  actorColor = actor->GetProperty()->GetColor();
-  red = (unsigned char) (actorColor[0] * 255.0);
-  green = (unsigned char) (actorColor[1] * 255.0);
-  blue = (unsigned char) (actorColor[2] * 255.0);
+  // Set up the forground color
+  XWindowAttributes attr;
+  XGetWindowAttributes(displayId,windowId,&attr);
+  XColor aColor;
+  float* actorColor = actor->GetProperty()->GetColor();
+  aColor.red = (unsigned short) (actorColor[0] * 65535.0);
+  aColor.green = (unsigned short) (actorColor[1] * 65535.0);
+  aColor.blue = (unsigned short) (actorColor[2] * 65535.0);
+  XAllocColor(displayId, attr.colormap, &aColor);
+  XSetForeground(displayId, gc, aColor.pixel);
+  XSetFillStyle(displayId, gc, FillSolid);
+  
   tran = actor->GetProperty()->GetOpacity();
 
-  // Set the compositing operator
+  // Set the compositing mode for the actor
   int compositeMode = this->GetCompositingMode(actor);
-  SetROP2(hdc, compositeMode);
-  // For Debug
-  int op = GetROP2(hdc);
-  if (op != compositeMode) 
-    {
-    vtkErrorMacro(<<"vtkWin32TextMapper::Render - ROP not set!");
-    }
+  XSetFunction(displayId, gc, compositeMode);
 
   // Calculate the size of the bounding rectangle
   // and draw the display list
@@ -183,10 +173,6 @@ void vtkWin32PolyDataMapper2D::Render(vtkViewport* viewport, vtkActor2D* actor)
       }
     }
 
-  // set the colors for the foreground
-  brush = CreateSolidBrush(RGB(red,green,blue));
-  oldBrush = (HBRUSH)SelectObject(hdc,brush);   
-  
   aPrim = input->GetPolys();
   
   for (aPrim->InitTraversal(); aPrim->GetNextCell(npts,pts); cellNum++)
@@ -201,30 +187,32 @@ void vtkWin32PolyDataMapper2D::Render(vtkViewport* viewport, vtkActor2D* actor)
 	{
 	rgba = c->GetColor(pts[j]);
 	}
-      nbrush = (HBRUSH)CreateSolidBrush(RGB(rgba[0],rgba[1],rgba[2]));
-      brush = (HBRUSH)SelectObject(hdc,nbrush);   
-      DeleteObject(brush);
-      brush = nbrush;
+      aColor.red = (unsigned short) (rgba[0] * 256);
+      aColor.green = (unsigned short) (actorColor[1] * 256);
+      aColor.blue = (unsigned short) (actorColor[2] * 256);
+      XAllocColor(displayId, attr.colormap, &aColor);
+      XSetForeground(displayId, gc, aColor.pixel);
       }
     if (npts > currSize)
       {
       delete [] points;
-      points = new POINT [npts];
+      points = new XPoint [npts];
       currSize = npts;
       }
     for (j = 0; j < npts; j++) 
       {
       ftmp = p->GetPoint(pts[j]);
-      points[j].x = actorPos[0] + ftmp[0];
-      points[j].y = actorPos[1] - ftmp[1];
+      points[j].x = (short)(actorPos[0] + ftmp[0]);
+      points[j].y = (short)(actorPos[1] - ftmp[1]);
       }
-    Polygon(hdc,points,npts);
+    XFillPolygon(displayId, drawable, gc, points, npts, Complex, CoordModeOrigin);
     }
 
+  // Flush the X queue
+  XFlush(displayId);
+  XSync(displayId, False);
+
   delete [] points;
-  
-  SelectObject(hdc, oldBrush);
-  DeleteObject(brush);
 }
 
 

@@ -125,6 +125,22 @@ public:
   virtual void DisplayToWorld();
   virtual void WorldToDisplay();
 
+  // new coordinate systems
+  virtual void LocalDisplayToDisplay(float &x, float &y);
+  virtual void DisplayToNormalizedDisplay(float &u, float &v);
+  virtual void NormalizedDisplayToViewport(float &x, float &y);
+  virtual void ViewportToNormalizedViewport(float &u, float &v);
+  virtual void NormalizedViewportToView(float &x, float &y, float &z);
+  virtual void ViewToWorld(float &, float &, float &) {};
+  
+  virtual void DisplayToLocalDisplay(float &x, float &y);
+  virtual void NormalizedDisplayToDisplay(float &u, float &v);
+  virtual void ViewportToNormalizedDisplay(float &x, float &y);
+  virtual void NormalizedViewportToViewport(float &u, float &v);
+  virtual void ViewToNormalizedViewport(float &x, float &y, float &z);
+  virtual void WorldToView(float &, float &, float &) {};
+  
+  
   void AddActor2D(vtkActor2D* actor);
   void RemoveActor2D(vtkActor2D* actor);
 

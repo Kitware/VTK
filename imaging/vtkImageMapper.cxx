@@ -139,7 +139,7 @@ void vtkImageMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
   //float *scale = actor->GetScale();
 
   // get the position
-  int *pos = actor->GetComputedViewportPixelPosition(viewport);
+  int *pos = actor->GetPositionCoordinate()->GetComputedViewportValue(viewport);
   
   // Get the viewport coordinates
   float* vpt = viewport->GetViewport(); 
