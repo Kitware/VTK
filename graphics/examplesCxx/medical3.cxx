@@ -9,7 +9,7 @@
 #include "vtkStripper.h"
 #include "vtkLookupTable.h"
 #include "vtkStructuredPointsGeometryFilter.h"
-#include "../patented/vtkMarchingCubes.h"
+#include "vtkContourFilter.h"
 
 #include "SaveImage.h"
 
@@ -31,7 +31,7 @@ void main( int argc, char *argv[] )
     v16->SetDataSpacing (3.2, 3.2, 1.5);
 
   // extract the skin
-  vtkMarchingCubes *skinExtractor = vtkMarchingCubes::New();
+  vtkContourFilter *skinExtractor = vtkContourFilter::New();
     skinExtractor->SetInput(v16->GetOutput());
     skinExtractor->SetValue(0, 500);
   vtkStripper *skinStripper = vtkStripper::New();
@@ -46,7 +46,7 @@ void main( int argc, char *argv[] )
     skin->GetProperty()->SetSpecularPower(20);
 
   // extract the bone
-  vtkMarchingCubes *boneExtractor = vtkMarchingCubes::New();
+  vtkContourFilter *boneExtractor = vtkContourFilter::New();
     boneExtractor->SetInput(v16->GetOutput());
     boneExtractor->SetValue(0, 1150);
   vtkStripper *boneStripper = vtkStripper::New();
