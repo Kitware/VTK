@@ -776,6 +776,7 @@ void vtkInteractorStyle::OnRightButtonDown(int ctrl, int shift, int X, int Y)
   //
  this->UpdateInternalState(ctrl, shift, X, Y);
   //
+ this->FindPokedCamera(X, Y);
   if (this->RightButtonPressMethod) 
     {
     (*this->RightButtonPressMethod)(this->RightButtonPressMethodArg);

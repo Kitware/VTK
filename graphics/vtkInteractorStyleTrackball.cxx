@@ -1387,6 +1387,7 @@ void vtkInteractorStyleTrackball::OnRightButtonDown(int ctrl, int shift,
   this->OldY = Y;
   //
   this->UpdateInternalState(ctrl, shift, X, Y);
+  this->FindPokedCamera(X, Y);
   this->Preprocess = 1;
   if (this->RightButtonPressMethod) 
     {
