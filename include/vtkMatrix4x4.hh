@@ -76,5 +76,25 @@ class vtkMatrix4x4 : public vtkObject
   void PointMultiply(float in[4], float out[4]);
   void Adjoint (vtkMatrix4x4 & in,vtkMatrix4x4 & out);
   float Determinant (vtkMatrix4x4 & in);
+  void SetElement(int i, int j, float value);
+  float GetElement(int i, int j);
 };
+
+// Description:
+// Sets the element i,j in the matrix.
+inline void vtkMatrix4x4::SetElement (int i, int j, float value)
+{
+  if (this->Element[i][j] != value)
+    {
+    this->Element[i][j] = value;
+    this->Modified ();
+    }
+}
+
+// Description:
+// Returns the element i,j from the matrix.
+inline float vtkMatrix4x4::GetElement (int i, int j)
+{
+  return this->Element[i][j];
+}
 #endif
