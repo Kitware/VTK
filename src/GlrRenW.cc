@@ -737,7 +737,7 @@ unsigned char *vtkGlrRenderWindow::GetPixelData(int x1, int y1, int x2, int y2)
       }
     }
   
-  delete buffer;
+  delete [] buffer;
 
   return data;
 }
@@ -801,7 +801,7 @@ void vtkGlrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
     lrectwrite(x_low,yloop,x_hi,yloop,buffer);
     }
   
-  delete buffer;
+  delete [] buffer;
 
   if (this->DoubleBuffer)
     {
