@@ -23,7 +23,7 @@
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMetaImageWriter, "1.4");
+vtkCxxRevisionMacro(vtkMetaImageWriter, "1.4.2.1");
 vtkStandardNewMacro(vtkMetaImageWriter);
 
 //----------------------------------------------------------------------------
@@ -65,11 +65,13 @@ void vtkMetaImageWriter::Write()
     vtkErrorMacro("Input not specified");
     return;
     }
+
   if ( !this->MHDFileName )
     {
     vtkErrorMacro("Output file name not specified");
     return;
     }
+  id->Update();
   if ( !this->GetRAWFileName() )
     {
     vtkDebugMacro("Raw file name not specified. Specifying one...");
@@ -139,9 +141,9 @@ void vtkMetaImageWriter::Write()
     return;
     }
 
-  origin[0] += ext[0];
-  origin[1] += ext[2];
-  origin[2] += ext[4];
+  origin[0] += ext[0] * spacing[0];
+  origin[1] += ext[2] * spacing[1];
+  origin[2] += ext[4] * spacing[2];
 
   const char* data_file = this->GetRAWFileName();
   int pos = 0;
