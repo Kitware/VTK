@@ -74,10 +74,10 @@ public:
   static vtkCollection *New() {return new vtkCollection;};
   const char *GetClassName() {return "vtkCollection";};
 
-  void AddItem(vtkObject *);
-  void ReplaceItem(int i, vtkObject *);
-  void RemoveItem(int i);  
-  void RemoveItem(vtkObject *);
+  virtual void AddItem(vtkObject *);
+  virtual void ReplaceItem(int i, vtkObject *);
+  virtual void RemoveItem(int i);  
+  virtual void RemoveItem(vtkObject *);
   void RemoveAllItems();
   int  IsItemPresent(vtkObject *);
   int  GetNumberOfItems();
@@ -85,14 +85,15 @@ public:
   vtkObject *GetNextItemAsObject();  
   vtkObject *GetItemAsObject(int i);
 
-
 protected:
+  virtual void DeleteElement(vtkCollectionElement *); 
   int NumberOfItems;
   vtkCollectionElement *Top;
   vtkCollectionElement *Bottom;
   vtkCollectionElement *Current;
 
 };
+
 
 // Description:
 // Initialize the traversal of the collection. This means the data pointer

@@ -59,6 +59,13 @@ vtkCollection::~vtkCollection()
 }
 
 // Description:
+// protected function to delete an element. Internal use only.
+void vtkCollection::DeleteElement(vtkCollectionElement *e)
+{
+  delete e;
+}
+
+// Description:
 // Add an object to the list. Does not prevent duplicate entries.
 void vtkCollection::AddItem(vtkObject *a)
 {
@@ -99,23 +106,7 @@ void vtkCollection::RemoveItem(vtkObject *a)
     {
     if (elem->Item == a)
       {
-      if (prev)
-	{
-	prev->Next = elem->Next;
-	}
-      else
-	{
-	this->Top = elem->Next;
-	}
-      if (!elem->Next)
-	{
-	this->Bottom = prev;
-	}
-      if ( this->Current == elem ) // protect the user
-	this->Current = elem->Next;
-      
-      delete elem;
-      this->NumberOfItems--;
+      this->RemoveItem(i);
       return;
       }
     else
@@ -130,16 +121,13 @@ void vtkCollection::RemoveItem(vtkObject *a)
 // Remove all objects from the list.
 void vtkCollection::RemoveAllItems()
 {
+  int i;
   vtkCollectionElement *p, *next;
 
-  for ( next=p=this->Top; next != NULL; p=next)
+  for (i = this->NumberOfItems; i > 0; i--)
     {
-    next = p->Next;
-    delete p;
+    this->RemoveItem(i);
     }
-
-  this->NumberOfItems = 0;
-  this->Top = this->Bottom = this->Current = NULL;
 }
 
 // Description:
@@ -265,6 +253,12 @@ void vtkCollection::RemoveItem(int i)
   if ( this->Current == elem )
     this->Current = elem->Next;
 
-  delete elem;
+  this->DeleteElement(elem);
   this->NumberOfItems--;
 }
+
+
+
+
+
+

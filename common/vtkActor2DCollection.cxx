@@ -44,23 +44,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkActor2DCollection.h"
 
 // Description:
-// Createes a vtkActor2DCollection
-vtkActor2DCollection::vtkActor2DCollection()
+// protected function to delete an element. Internal use only.
+void vtkActor2DCollection::DeleteElement(vtkCollectionElement *e)
 {
-
-}
-
-// Description:
-// Destroys a vtkActor2DCollection.  List elements
-// are destroyed in the superclass's destructor.
-vtkActor2DCollection::~vtkActor2DCollection()
-{
-  // List elements are deleted in vtkCollection's destructor
-}
-
-void vtkActor2DCollection::PrintSelf(ostream& os, vtkIndent indent)
-{
-  this->vtkCollection::PrintSelf(os, indent);
+  ((vtkActor2D *)(e->Item))->UnRegister(this); 
+  vtkCollection::DeleteElement(e);
 }
 
 // Description:

@@ -72,7 +72,7 @@ vtkActor2D::vtkActor2D()
 // property, that property is deleted.
 vtkActor2D::~vtkActor2D()
 {
-  if (this->SelfCreatedProperty) delete this->Property;
+  if (this->SelfCreatedProperty) this->Property->Delete();
 }
 
 void vtkActor2D::PrintSelf(ostream& os, vtkIndent indent)
