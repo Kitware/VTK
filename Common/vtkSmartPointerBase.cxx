@@ -61,12 +61,6 @@ vtkSmartPointerBase::operator=(const vtkSmartPointerBase& r)
 }
 
 //----------------------------------------------------------------------------
-vtkObjectBase* vtkSmartPointerBase::GetPointer() const
-{
-  return this->Object;
-}
-
-//----------------------------------------------------------------------------
 void vtkSmartPointerBase::Swap(vtkSmartPointerBase& r)
 {
   vtkObjectBase* temp = r.Object;
@@ -91,35 +85,6 @@ void vtkSmartPointerBase::UnRegister()
     this->Object->UnRegister(0);
     }
 }
-
-//----------------------------------------------------------------------------
-#ifdef VTK_COMPILER_HAS_BOOL
-# define VTK_BOOL bool
-#else
-# define VTK_BOOL int
-#endif
-#define VTK_SMART_POINTER_BASE_DEFINE_OPERATOR(op) \
-   VTK_BOOL operator op (const vtkSmartPointerBase& l, \
-                         const vtkSmartPointerBase& r) \
-    { \
-    return (static_cast<void*>(l.GetPointer()) op \
-            static_cast<void*>(r.GetPointer())); \
-    } \
-  VTK_BOOL operator op (vtkObjectBase* l, const vtkSmartPointerBase& r) \
-    { \
-    return (static_cast<void*>(l) op static_cast<void*>(r.GetPointer())); \
-    } \
-  VTK_BOOL operator op (const vtkSmartPointerBase& l, vtkObjectBase* r) \
-    { \
-    return (static_cast<void*>(l.GetPointer()) op static_cast<void*>(r)); \
-    }
-VTK_SMART_POINTER_BASE_DEFINE_OPERATOR(==)  
-VTK_SMART_POINTER_BASE_DEFINE_OPERATOR(!=)
-VTK_SMART_POINTER_BASE_DEFINE_OPERATOR(<)
-VTK_SMART_POINTER_BASE_DEFINE_OPERATOR(<=)
-VTK_SMART_POINTER_BASE_DEFINE_OPERATOR(>)
-VTK_SMART_POINTER_BASE_DEFINE_OPERATOR(>=)
-#undef VTK_SMART_POINTER_BASE_DEFINE_OPERATOR
 
 //----------------------------------------------------------------------------
 ostream& operator << (ostream& os, const vtkSmartPointerBase& p)
