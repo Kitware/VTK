@@ -128,7 +128,7 @@ vtkXYPlotActor xyplot3
     xyplot3 AddDataObjectInput [ds2do GetOutput]
     [xyplot3 GetPositionCoordinate] SetValue 0.0 0.0 0
     [xyplot3 GetPosition2Coordinate] SetValue 1.0 0.33 0;#relative to Position
-    xyplot3 SetXValuesToIndex
+    xyplot3 SetXValuesToValue
     xyplot3 SetNumberOfXLabels 6
     xyplot3 SetTitle "Pressure vs. Point Id"
     xyplot3 SetXTitle "Probe Length"
@@ -136,8 +136,8 @@ vtkXYPlotActor xyplot3
     xyplot3 PlotPointsOn
     [xyplot3 GetProperty] SetColor 0 0 1
     [xyplot3 GetProperty] SetPointSize 3
-    xyplot3 SetXRange 0.2 1.0
-    xyplot3 SetYRange 0.2 1.0
+    xyplot3 SetDataObjectXComponent 2
+    xyplot3 SetDataObjectYComponent 4
 
 # draw an outline
 vtkStructuredGridOutlineFilter outline
@@ -165,8 +165,8 @@ ren1 AddActor lineActor
 
 ren2 SetBackground 1 1 1
 ren2 SetViewport 0.5 0.0 1.0 1.0
-ren2 AddActor2D xyplot
-ren2 AddActor2D xyplot2
+#ren2 AddActor2D xyplot
+#ren2 AddActor2D xyplot2
 ren2 AddActor2D xyplot3
 renWin SetSize 500 250
 

@@ -169,8 +169,7 @@ public:
   // methods also control how field data is plotted. Field data is usually
   // plotted by value or index, if plotting length 1-dimensional length
   // measures are used.)
-  vtkSetClampMacro(XValues,int,
-                   VTK_XYPLOT_INDEX,VTK_XYPLOT_NORMALIZED_ARC_LENGTH);
+  vtkSetClampMacro(XValues,int,VTK_XYPLOT_INDEX,VTK_XYPLOT_VALUE);
   vtkGetMacro(XValues,int);
   void SetXValuesToIndex(){this->SetXValues(VTK_XYPLOT_INDEX);};
   void SetXValuesToArcLength() {this->SetXValues(VTK_XYPLOT_ARC_LENGTH);};
