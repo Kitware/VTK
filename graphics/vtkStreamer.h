@@ -241,7 +241,8 @@ public:
   // Set/get the integrator type to be used in the stream line
   // calculation. The object passed is not actually used but
   // is cloned with MakeObject by each thread/process in the
-  // process of integration. The default is 2nd order Runge Kutta.
+  // process of integration (prototype pattern). The default is 
+  // 2nd order Runge Kutta.
   vtkSetObjectMacro ( Integrator, vtkInitialValueProblemSolver );
   vtkGetObjectMacro ( Integrator, vtkInitialValueProblemSolver );
 
