@@ -31,12 +31,11 @@
 #define __vtkOpenGLProjectedPolyDataRayBounder_h
 
 #include "vtkProjectedPolyDataRayBounder.h"
-#include "vtkPolyData.h"
 #ifndef VTK_IMPLEMENT_MESA_CXX
   #ifdef __APPLE__
-    #include <OpenGL/gl.h>
+    #include <OpenGL/gl.h> //Needed for GLUint
   #else
-    #include <GL/gl.h>
+    #include <GL/gl.h> //Needed for GLUint
   #endif
 #endif
 
@@ -45,7 +44,7 @@ class vtkWindow;
 class VTK_RENDERING_EXPORT vtkOpenGLProjectedPolyDataRayBounder : public vtkProjectedPolyDataRayBounder
 {
 public:
-  vtkTypeMacro(vtkOpenGLProjectedPolyDataRayBounder,vtkProjectedPolyDataRayBounder);    
+  vtkTypeRevisionMacro(vtkOpenGLProjectedPolyDataRayBounder,vtkProjectedPolyDataRayBounder);    
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -63,8 +62,6 @@ public:
 protected:
   vtkOpenGLProjectedPolyDataRayBounder();
   ~vtkOpenGLProjectedPolyDataRayBounder();
-  vtkOpenGLProjectedPolyDataRayBounder(const vtkOpenGLProjectedPolyDataRayBounder&);
-  void operator=(const vtkOpenGLProjectedPolyDataRayBounder&);
 
   GLuint    DisplayList;
   float     *DepthRangeBuffer;
@@ -77,6 +74,9 @@ protected:
   // Render the display list and create the near and far buffers
   float *Draw( vtkRenderer *ren, vtkMatrix4x4 *matrix );
 
+private:
+  vtkOpenGLProjectedPolyDataRayBounder(const vtkOpenGLProjectedPolyDataRayBounder&);  // Not implemented.
+  void operator=(const vtkOpenGLProjectedPolyDataRayBounder&);  // Not implemented.
 };
 
 #endif
