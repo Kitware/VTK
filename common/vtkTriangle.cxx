@@ -716,8 +716,6 @@ void vtkTriangle::Clip(float value, vtkFloatScalars *cellScalars,
 
         // calculate a preferred interpolation direction
         deltaScalar = (cellScalars->GetScalar(vert[1]) - cellScalars->GetScalar(vert[0]));
-        t = (value - cellScalars->GetScalar(vert[0])) / deltaScalar;
-
         if (deltaScalar > 0)
           {
 	  e1 = vert[0]; e2 = vert[1];
