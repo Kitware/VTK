@@ -352,10 +352,10 @@ void vtkColorTransferFunction::DeepCopy( vtkColorTransferFunction *f )
 // of 8-bit chunks
 template<class T>
 static void 
-vtkColorTransferFunctionMapDataToRGBAClamp(vtkColorTransferFunction *self, 
-                                           T *input, 
-                                           unsigned char *output, 
-                                           int length, int incr)
+vtkColorTransferFunctionMapDataClamp(vtkColorTransferFunction *self, 
+				     T *input, 
+				     unsigned char *output, 
+				     int length, int inIncr, int outIncr)
 {
   float findx;
   int i = length;
@@ -433,86 +433,92 @@ vtkColorTransferFunctionMapDataToRGBAClamp(vtkColorTransferFunction *self,
         }
       }
     
-    // do green
-    if( findx < GRange[0] ) 
+    if (outIncr > 2)
       {
-      *output = (unsigned char)(255*GFunc[0]);
-      }
-    else if( findx > GRange[1] )
-      {
-      *output = (unsigned char)(255*GFunc[(GSize-1)*2]);
-      }
-    else
-      {
-      i2 = 0;
-      x2 = GFunc[0];
-      y2 = GFunc[1];
-      
-      while( (x2 < findx) && (i2 < GSize) )
+      // do green
+      if( findx < GRange[0] ) 
         {
-        i2 += 1;
-        x2 = GFunc[(i2*2)];
-        y2 = GFunc[(i2*2+1)];
+        *output = (unsigned char)(255*GFunc[0]);
         }
-      
-      // Check if we have found the exact point
-      if( x2 == findx )
+      else if( findx > GRange[1] )
         {
-        *output++ = (unsigned char)(255*GFunc[(i2*2 + 1)]);
+        *output = (unsigned char)(255*GFunc[(GSize-1)*2]);
         }
       else
         {
-        i1 = i2 - 1;
-        x1 = GFunc[(i1*2)];
-        y1 = GFunc[(i1*2 +1)];
-        slope = (y2-y1)/(x2-x1);
-        value = y1 + slope*(findx-x1);
-        
-        *output++ = (unsigned char)(255*value);
-        }
-      }
-    
-    // do blue
-    if( findx < BRange[0] ) 
-      {
-      *output = (unsigned char)(255*BFunc[0]);
-      }
-    else if( findx > BRange[1] )
-      {
-      *output = (unsigned char)(255*BFunc[(BSize-1)*2]);
-      }
-    else
-      {
-      i2 = 0;
-      x2 = BFunc[0];
-      y2 = BFunc[1];
+        i2 = 0;
+        x2 = GFunc[0];
+        y2 = GFunc[1];
       
-      while( (x2 < findx) && (i2 < BSize) )
-        {
-        i2 += 1;
-        x2 = BFunc[(i2*2)];
-        y2 = BFunc[(i2*2+1)];
+        while( (x2 < findx) && (i2 < GSize) )
+          {
+          i2 += 1;
+          x2 = GFunc[(i2*2)];
+          y2 = GFunc[(i2*2+1)];
+          }
+      
+        // Check if we have found the exact point
+        if( x2 == findx )
+          {
+          *output++ = (unsigned char)(255*GFunc[(i2*2 + 1)]);
+          }
+        else
+          {
+          i1 = i2 - 1;
+          x1 = GFunc[(i1*2)];
+          y1 = GFunc[(i1*2 +1)];
+          slope = (y2-y1)/(x2-x1);
+          value = y1 + slope*(findx-x1);
+          
+          *output++ = (unsigned char)(255*value);
+          }
         }
       
-      // Check if we have found the exact point
-      if( x2 == findx )
+      // do blue
+      if( findx < BRange[0] ) 
         {
-        *output++ = (unsigned char)(255*BFunc[(i2*2 + 1)]);
+        *output = (unsigned char)(255*BFunc[0]);
+        }
+      else if( findx > BRange[1] )
+        {
+        *output = (unsigned char)(255*BFunc[(BSize-1)*2]);
         }
       else
         {
-        i1 = i2 - 1;
-        x1 = BFunc[(i1*2)];
-        y1 = BFunc[(i1*2 +1)];
-        slope = (y2-y1)/(x2-x1);
-        value = y1 + slope*(findx-x1);
+        i2 = 0;
+        x2 = BFunc[0];
+        y2 = BFunc[1];
+      
+        while( (x2 < findx) && (i2 < BSize) )
+          {
+          i2 += 1;
+          x2 = BFunc[(i2*2)];
+          y2 = BFunc[(i2*2+1)];
+          }
         
-        *output++ = (unsigned char)(255*value);
+        // Check if we have found the exact point
+        if( x2 == findx )
+          {
+          *output++ = (unsigned char)(255*BFunc[(i2*2 + 1)]);
+          }
+        else
+          {
+          i1 = i2 - 1;
+          x1 = BFunc[(i1*2)];
+          y1 = BFunc[(i1*2 +1)];
+          slope = (y2-y1)/(x2-x1);
+          value = y1 + slope*(findx-x1);
+          
+          *output++ = (unsigned char)(255*value);
+          }
         }
       }
     
-    *output++ = 255;
-    input += incr;
+    if (outIncr == 4 || outIncr == 2)
+      {
+      *output++ = 255;
+      }
+    input += inIncr;
     }
 }
 
@@ -520,10 +526,10 @@ vtkColorTransferFunctionMapDataToRGBAClamp(vtkColorTransferFunction *self,
 // of 8-bit chunks
 template<class T>
 static void 
-vtkColorTransferFunctionMapDataToRGBANoClamp(vtkColorTransferFunction *self, 
-                                             T *input, 
-                                             unsigned char *output, 
-                                             int length, int incr)
+vtkColorTransferFunctionMapDataNoClamp(vtkColorTransferFunction *self, 
+				       T *input, 
+				       unsigned char *output, 
+				       int length, int inIncr, int outIncr)
 {
   float findx;
   int i = length;
@@ -601,86 +607,92 @@ vtkColorTransferFunctionMapDataToRGBANoClamp(vtkColorTransferFunction *self,
         }
       }
     
-    // do green
-    if( findx < GRange[0] ) 
+    if (outIncr > 2)
       {
-      *output = 0;
-      }
-    else if( findx > GRange[1] )
-      {
-      *output = 0;
-      }
-    else
-      {
-      i2 = 0;
-      x2 = GFunc[0];
-      y2 = GFunc[1];
-      
-      while( (x2 < findx) && (i2 < GSize) )
-        {
-        i2 += 1;
-        x2 = GFunc[(i2*2)];
-        y2 = GFunc[(i2*2+1)];
-        }
-      
-      // Check if we have found the exact point
-      if( x2 == findx )
-        {
-        *output++ = (unsigned char)(255*GFunc[(i2*2 + 1)]);
-        }
+      // do green
+      if( findx < GRange[0] ) 
+	{
+	*output = 0;
+	}
+      else if( findx > GRange[1] )
+	{
+	*output = 0;
+	}
       else
-        {
-        i1 = i2 - 1;
-        x1 = GFunc[(i1*2)];
-        y1 = GFunc[(i1*2 +1)];
-        slope = (y2-y1)/(x2-x1);
-        value = y1 + slope*(findx-x1);
-        
-        *output++ = (unsigned char)(255*value);
-        }
-      }
+	{
+	i2 = 0;
+	x2 = GFunc[0];
+	y2 = GFunc[1];
+      
+	while( (x2 < findx) && (i2 < GSize) )
+	  {
+	  i2 += 1;
+	  x2 = GFunc[(i2*2)];
+	  y2 = GFunc[(i2*2+1)];
+	  }
+      
+	// Check if we have found the exact point
+	if( x2 == findx )
+	  {
+	  *output++ = (unsigned char)(255*GFunc[(i2*2 + 1)]);
+	  }
+	else
+	  {
+	  i1 = i2 - 1;
+	  x1 = GFunc[(i1*2)];
+	  y1 = GFunc[(i1*2 +1)];
+	  slope = (y2-y1)/(x2-x1);
+	  value = y1 + slope*(findx-x1);
+	  
+	  *output++ = (unsigned char)(255*value);
+	  }
+	}
     
-    // do blue
-    if( findx < BRange[0] ) 
-      {
-      *output = 0;
-      }
-    else if( findx > BRange[1] )
-      {
-      *output = 0;
-      }
-    else
-      {
-      i2 = 0;
-      x2 = BFunc[0];
-      y2 = BFunc[1];
-      
-      while( (x2 < findx) && (i2 < BSize) )
-        {
-        i2 += 1;
-        x2 = BFunc[(i2*2)];
-        y2 = BFunc[(i2*2+1)];
-        }
-      
-      // Check if we have found the exact point
-      if( x2 == findx )
-        {
-        *output++ = (unsigned char)(255*BFunc[(i2*2 + 1)]);
-        }
+      // do blue
+      if( findx < BRange[0] ) 
+	{
+	*output = 0;
+	}
+      else if( findx > BRange[1] )
+	{
+	*output = 0;
+	}
       else
-        {
-        i1 = i2 - 1;
-        x1 = BFunc[(i1*2)];
-        y1 = BFunc[(i1*2 +1)];
-        slope = (y2-y1)/(x2-x1);
-        value = y1 + slope*(findx-x1);
+	{
+	i2 = 0;
+	x2 = BFunc[0];
+	y2 = BFunc[1];
+      
+	while( (x2 < findx) && (i2 < BSize) )
+	  {
+	  i2 += 1;
+	  x2 = BFunc[(i2*2)];
+	  y2 = BFunc[(i2*2+1)];
+	  }
+      
+	// Check if we have found the exact point
+	if( x2 == findx )
+	  {
+	  *output++ = (unsigned char)(255*BFunc[(i2*2 + 1)]);
+	  }
+	else
+	  {
+	  i1 = i2 - 1;
+	  x1 = BFunc[(i1*2)];
+	  y1 = BFunc[(i1*2 +1)];
+	  slope = (y2-y1)/(x2-x1);
+	  value = y1 + slope*(findx-x1);
         
-        *output++ = (unsigned char)(255*value);
-        }
+	  *output++ = (unsigned char)(255*value);
+	  }
+	}
       }
 
-    *output++ = 255;
-    input += incr;
+    if (outIncr == 4 || outIncr == 2)
+      {
+      *output++ = 255;
+      }
+    input += inIncr;
     }
 }
 
@@ -688,20 +700,20 @@ vtkColorTransferFunctionMapDataToRGBANoClamp(vtkColorTransferFunction *self,
 // of 8-bit chunks
 template<class T>
 static void 
-vtkColorTransferFunctionMapDataToRGBA(vtkColorTransferFunction *self, 
-                                      T *input, 
-                                      unsigned char *output, 
-                                      int length, int incr)
+vtkColorTransferFunctionMapData(vtkColorTransferFunction *self, 
+				T *input, 
+				unsigned char *output, 
+				int length, int inIncr, int outIncr)
 {
   if (self->GetClamping())
     {
-    vtkColorTransferFunctionMapDataToRGBAClamp(self,input,output,
-                                               length,incr);
+    vtkColorTransferFunctionMapDataClamp(self,input,output,
+					 length,inIncr,outIncr);
     }
   else
     {
-    vtkColorTransferFunctionMapDataToRGBANoClamp(self,input,output,
-                                                 length,incr);
+    vtkColorTransferFunctionMapDataNoClamp(self,input,output,
+					   length,inIncr,outIncr);
     }
 }
 
@@ -709,60 +721,74 @@ void vtkColorTransferFunction::MapScalarsThroughTable2(void *input,
                                                        unsigned char *output,
                                                        int inputDataType, 
                                                        int numberOfValues,
-                                                       int inputIncrement)
+                                                       int inputIncrement,
+						       int outputIncrement)
 {
+  if (outputIncrement > 4)
+    {
+    vtkErrorMacro(<<"MapScalarsThroughTable: can't map to more that 4 components");
+    }
+
   switch (inputDataType)
     {
     case VTK_CHAR:
-      vtkColorTransferFunctionMapDataToRGBA(this,(char *)input,output,
-                                            numberOfValues,inputIncrement);
+      vtkColorTransferFunctionMapData(this,(char *)input,output,
+				      numberOfValues,inputIncrement,
+				      outputIncrement);
       break;
       
     case VTK_UNSIGNED_CHAR:
-      vtkColorTransferFunctionMapDataToRGBA(this,(unsigned char *)input,
-                                            output,numberOfValues,
-                                            inputIncrement);
+      vtkColorTransferFunctionMapData(this,(unsigned char *)input,
+				      output,numberOfValues,
+				      inputIncrement,outputIncrement);
       break;
       
     case VTK_SHORT:
-      vtkColorTransferFunctionMapDataToRGBA(this,(short *)input,output,
-                                            numberOfValues,inputIncrement);
+      vtkColorTransferFunctionMapData(this,(short *)input,output,
+				      numberOfValues,inputIncrement,
+				      outputIncrement);
       break;
       
     case VTK_UNSIGNED_SHORT:
-      vtkColorTransferFunctionMapDataToRGBA(this,(unsigned short *)input,
-                                            output,numberOfValues,
-                                            inputIncrement);
+      vtkColorTransferFunctionMapData(this,(unsigned short *)input,
+				      output,numberOfValues,
+				      inputIncrement,outputIncrement);
       break;
       
     case VTK_INT:
-      vtkColorTransferFunctionMapDataToRGBA(this,(int *)input,output,
-                                            numberOfValues,inputIncrement);
+      vtkColorTransferFunctionMapData(this,(int *)input,output,
+				      numberOfValues,inputIncrement,
+				      outputIncrement);
       break;
       
     case VTK_UNSIGNED_INT:
-      vtkColorTransferFunctionMapDataToRGBA(this,(unsigned int *)input,output,
-                                            numberOfValues,inputIncrement);
+      vtkColorTransferFunctionMapData(this,(unsigned int *)input,output,
+				      numberOfValues,inputIncrement,
+				      outputIncrement);
       break;
       
     case VTK_LONG:
-      vtkColorTransferFunctionMapDataToRGBA(this,(long *)input,output,
-                                            numberOfValues,inputIncrement);
+      vtkColorTransferFunctionMapData(this,(long *)input,output,
+				      numberOfValues,inputIncrement,
+				      outputIncrement);
       break;
       
     case VTK_UNSIGNED_LONG:
-      vtkColorTransferFunctionMapDataToRGBA(this,(unsigned long *)input,output,
-                                            numberOfValues,inputIncrement);
+      vtkColorTransferFunctionMapData(this,(unsigned long *)input,output,
+				      numberOfValues,inputIncrement,
+				      outputIncrement);
       break;
       
     case VTK_FLOAT:
-      vtkColorTransferFunctionMapDataToRGBA(this,(float *)input,output,
-                                            numberOfValues,inputIncrement);
+      vtkColorTransferFunctionMapData(this,(float *)input,output,
+				      numberOfValues,inputIncrement,
+				      outputIncrement);
       break;
       
     case VTK_DOUBLE:
-      vtkColorTransferFunctionMapDataToRGBA(this,(double *)input,output,
-                                            numberOfValues,inputIncrement);
+      vtkColorTransferFunctionMapData(this,(double *)input,output,
+				      numberOfValues,inputIncrement,
+				      outputIncrement);
       break;
       
     default:

@@ -133,7 +133,7 @@ public:
   // map a set of scalars through the lookup table
   virtual void MapScalarsThroughTable2(void *input, unsigned char *output,
 				      int inputDataType, int numberOfValues,
-				      int inputIncrement);
+				      int inputIncrement, int outputIncrement);
     
   // Description:
   // Specify the number of values (i.e., colors) in the lookup

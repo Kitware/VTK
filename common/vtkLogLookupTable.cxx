@@ -145,69 +145,87 @@ unsigned char *vtkLogLookupTable::MapValue(float v)
 }
 
 template <class T>
-static void vtkLogLookupTableMapDataToRGBA(vtkLogLookupTable *self,
+static void vtkLogLookupTableMapData(vtkLogLookupTable *self,
 				    T *input, unsigned char *output,
-				    int i, int incr) 
+				    int i, int inIncr, int outIncr) 
 {
   unsigned char *cptr;
-  
-  while (--i >= 0) 
+  int j;
+
+  if (outIncr != 2)
     {
-    cptr = self->MapValue(*input);
-    *output++ = *cptr++;
-    *output++ = *cptr++;
-    *output++ = *cptr++;
-    *output++ = *cptr++;
-    input += incr;
+    while (--i >= 0) 
+      {
+      cptr = self->MapValue(*input);
+      for (j = 0; j < outIncr; j++)
+	{
+        *output++ = *cptr++;
+	}
+      input += inIncr;
+      }
+    }
+  else
+    {
+    while (--i >= 0) 
+      {
+      cptr = self->MapValue(*input);
+      *output++ = cptr[0];
+      *output++ = cptr[3];
+      }
     }
 }
 
 void vtkLogLookupTable::MapScalarsThroughTable2(void *input, 
-					       unsigned char *output,
-					       int inputDataType, 
-					       int numberOfValues,
-					       int inputIncrement)
+						unsigned char *output,
+						int inputDataType, 
+						int numberOfValues,
+						int inputIncrement,
+						int outputIncrement)
 {
+  if (outputIncrement > 4)
+    {
+    vtkErrorMacro(<<"MapScalarsThroughTable: can't map to more that 4 components");
+    }
+
   switch (inputDataType)
     {
     case VTK_CHAR:
-      vtkLogLookupTableMapDataToRGBA(this,(char *)input,output,numberOfValues,inputIncrement);
+      vtkLogLookupTableMapData(this,(char *)input,output,numberOfValues,inputIncrement,outputIncrement);
       break;
       
     case VTK_UNSIGNED_CHAR:
-      vtkLogLookupTableMapDataToRGBA(this,(unsigned char *)input,output,numberOfValues,inputIncrement);
+      vtkLogLookupTableMapData(this,(unsigned char *)input,output,numberOfValues,inputIncrement,outputIncrement);
       break;
       
     case VTK_SHORT:
-      vtkLogLookupTableMapDataToRGBA(this,(short *)input,output,numberOfValues,inputIncrement);
+      vtkLogLookupTableMapData(this,(short *)input,output,numberOfValues,inputIncrement,outputIncrement);
       break;
       
     case VTK_UNSIGNED_SHORT:
-      vtkLogLookupTableMapDataToRGBA(this,(unsigned short *)input,output,numberOfValues,inputIncrement);
+      vtkLogLookupTableMapData(this,(unsigned short *)input,output,numberOfValues,inputIncrement,outputIncrement);
       break;
       
     case VTK_INT:
-      vtkLogLookupTableMapDataToRGBA(this,(int *)input,output,numberOfValues,inputIncrement);
+      vtkLogLookupTableMapData(this,(int *)input,output,numberOfValues,inputIncrement,outputIncrement);
       break;
       
     case VTK_UNSIGNED_INT:
-      vtkLogLookupTableMapDataToRGBA(this,(unsigned int *)input,output,numberOfValues,inputIncrement);
+      vtkLogLookupTableMapData(this,(unsigned int *)input,output,numberOfValues,inputIncrement,outputIncrement);
       break;
       
     case VTK_LONG:
-      vtkLogLookupTableMapDataToRGBA(this,(long *)input,output,numberOfValues,inputIncrement);
+      vtkLogLookupTableMapData(this,(long *)input,output,numberOfValues,inputIncrement,outputIncrement);
       break;
       
     case VTK_UNSIGNED_LONG:
-      vtkLogLookupTableMapDataToRGBA(this,(unsigned long *)input,output,numberOfValues,inputIncrement);
+      vtkLogLookupTableMapData(this,(unsigned long *)input,output,numberOfValues,inputIncrement,outputIncrement);
       break;
       
     case VTK_FLOAT:
-      vtkLogLookupTableMapDataToRGBA(this,(float *)input,output,numberOfValues,inputIncrement);
+      vtkLogLookupTableMapData(this,(float *)input,output,numberOfValues,inputIncrement,outputIncrement);
       break;
       
-    case VTK_DOUBLE:
-      vtkLogLookupTableMapDataToRGBA(this,(double *)input,output,numberOfValues,inputIncrement);
+    case VTK_DOUBLE:      vtkLogLookupTableMapData(this,(double *)input,output,numberOfValues,inputIncrement,outputIncrement);
       break;
       
     default:

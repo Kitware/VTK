@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMapToRGBA.cxx
+  Module:    vtkImageMapToColors.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -11,7 +11,7 @@ Copyright (c) 1993-1999 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
-explicitly disclaimed in indvidual files. This copyright specifically does
+explicitly disclaimed in individual files. This copyright specifically does
 not apply to the related textbook "The Visualization Toolkit" ISBN
 013199837-4 published by Prentice Hall which is covered by its own copyright.
 
@@ -38,26 +38,67 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageMapToRGBA.h"
-#include "vtkObjectFactory.h"
+// .NAME vtkImageMapToColors - map the input image through a lookup table
+// .SECTION Description
+// The vtkImageMapToColors filter will take an input image of any valid
+// scalar type, and map the first component of the image through a
+// lookup table.  The result is an Colors image of type VTK_UNSIGNED_CHAR.
 
-//----------------------------------------------------------------------------
-vtkImageMapToRGBA* vtkImageMapToRGBA::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageMapToRGBA");
-  if(ret)
-    {
-    return (vtkImageMapToRGBA*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageMapToRGBA;
-}
+// .SECTION See Also
+// vtkLookupTable
 
-//----------------------------------------------------------------------------
-// Constructor sets default values
-vtkImageMapToRGBA::vtkImageMapToRGBA()
+#ifndef __vtkImageMapToColors_h
+#define __vtkImageMapToColors_h
+
+
+#include "vtkImageToImageFilter.h"
+#include "vtkScalarsToColors.h"
+
+class VTK_EXPORT vtkImageMapToColors : public vtkImageToImageFilter
 {
-  vtkWarningMacro(<<"vtkImageMapToRGBA is deprecated, use vtkImageMapToColors");
-}
+public:
+  static vtkImageMapToColors *New();
+  const char *GetClassName() {return "vtkImageMapToColors";};
+  void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Set the lookup table.
+  vtkSetObjectMacro(LookupTable,vtkScalarsToColors);
+  vtkGetObjectMacro(LookupTable,vtkScalarsToColors);
+
+  // Description:
+  // Set the output format, the default is RGBA.  
+  vtkSetMacro(OutputFormat,int);
+  vtkGetMacro(OutputFormat,int);
+  void SetOutputFormatToRGBA() { this->OutputFormat = 4; };
+  void SetOutputFormatToRGB() { this->OutputFormat = 3; };
+  void SetOutputFormatToLA() { this->OutputFormat = 2; };
+  void SetOutputFormatToL() { this->OutputFormat = 1; };
+
+  // Description:
+  // We need to check the modified time of the lookup table too.
+  unsigned long GetMTime();
+
+protected:
+  vtkImageMapToColors();
+  ~vtkImageMapToColors();
+  vtkImageMapToColors(const vtkImageMapToColors&) {};
+  void operator=(const vtkImageMapToColors&) {};
+
+  vtkScalarsToColors *LookupTable;
+  int OutputFormat;
+  
+  void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
+  void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
+  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
+		       int extent[6], int id);
+};
+
+#endif
+
+
+
+
+
+
 

@@ -43,14 +43,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkScalars.h"
 
 
-
 // Map a set of scalar values through the table
 void vtkScalarsToColors::MapScalarsThroughTable(vtkScalars *scalars, 
                                                 unsigned char *output)
 {
   this->MapScalarsThroughTable2(scalars->GetVoidPointer(0),
-			       output,
-			       scalars->GetDataType(),
-			       scalars->GetNumberOfScalars(),
-			       scalars->GetNumberOfComponents());
+				output,
+				scalars->GetDataType(),
+				scalars->GetNumberOfScalars(),
+				scalars->GetNumberOfComponents(),
+				4);
 }

@@ -235,8 +235,9 @@ unsigned char *vtkLookupTable::MapValue(float v)
 // accelerate the mapping by copying the data in 32-bit chunks instead
 // of 8-bit chunks
 template<class T>
-static void vtkLookupTableMapDataToRGBA(vtkLookupTable *self, T *input, 
-				 unsigned char *output, int length, int incr)
+static void vtkLookupTableMapData(vtkLookupTable *self, T *input, 
+				  unsigned char *output, int length, 
+				  int inIncr, int outIncr)
 {
   float findx;
   int i = length;
@@ -247,72 +248,149 @@ static void vtkLookupTableMapDataToRGBA(vtkLookupTable *self, T *input,
   unsigned char *table = self->GetPointer(0);
   unsigned char *cptr;
 
-  while (--i >= 0) 
+  if (outIncr == 4)
     {
-    findx = (*input + shift)*scale;
-    if (findx < 0)
+    while (--i >= 0) 
       {
-      findx = 0;
+      findx = (*input + shift)*scale;
+      if (findx < 0)
+	{
+	findx = 0;
+	}
+      if (findx > maxIndex)
+	{
+	findx = maxIndex;
+	}
+      cptr = &table[4*(int)findx];
+      *output++ = *cptr++;
+      *output++ = *cptr++;
+      *output++ = *cptr++;
+      *output++ = *cptr++;     
+      input += inIncr;
       }
-    if (findx > maxIndex)
+    }
+  else if (outIncr == 3)
+    {
+    while (--i >= 0) 
       {
-      findx = maxIndex;
+      findx = (*input + shift)*scale;
+      if (findx < 0)
+	{
+	findx = 0;
+	}
+      if (findx > maxIndex)
+	{
+	findx = maxIndex;
+	}
+      cptr = &table[4*(int)findx];
+      *output++ = *cptr++;
+      *output++ = *cptr++;
+      *output++ = *cptr++;
+      input += inIncr;
       }
-    cptr = &table[4*(int)findx];
-    *output++ = *cptr++;
-    *output++ = *cptr++;
-    *output++ = *cptr++;
-    *output++ = *cptr++;     
-    input += incr;
+    }
+  else if (outIncr == 2)
+    {
+    while (--i >= 0) 
+      {
+      findx = (*input + shift)*scale;
+      if (findx < 0)
+	{
+	findx = 0;
+	}
+      if (findx > maxIndex)
+	{
+	findx = maxIndex;
+	}
+      cptr = &table[4*(int)findx];
+      *output++ = cptr[0];
+      *output++ = cptr[3];
+      input += inIncr;
+      }
+    }
+  else // outIncr == 1
+    {
+    while (--i >= 0) 
+      {
+      findx = (*input + shift)*scale;
+      if (findx < 0)
+	{
+	findx = 0;
+	}
+      if (findx > maxIndex)
+	{
+	findx = maxIndex;
+	}
+      cptr = &table[4*(int)findx];
+      *output++ = *cptr;
+      input += inIncr;
+      }
     }
 }
 
 void vtkLookupTable::MapScalarsThroughTable2(void *input, 
-					    unsigned char *output,
-					    int inputDataType, 
-					    int numberOfValues,
-					    int inputIncrement)
+					     unsigned char *output,
+					     int inputDataType, 
+					     int numberOfValues,
+					     int inputIncrement,
+					     int outputIncrement)
 {
+  if (outputIncrement > 4)
+    {
+    vtkErrorMacro(<<"MapScalarsThroughTable: can't map to more that 4 components");
+    }
+
   switch (inputDataType)
     {
     case VTK_CHAR:
-      vtkLookupTableMapDataToRGBA(this,(char *)input,output,numberOfValues,inputIncrement);
+      vtkLookupTableMapData(this,(char *)input,output,numberOfValues,
+			    inputIncrement,outputIncrement);
       break;
       
     case VTK_UNSIGNED_CHAR:
-      vtkLookupTableMapDataToRGBA(this,(unsigned char *)input,output,numberOfValues,inputIncrement);
+      vtkLookupTableMapData(this,(unsigned char *)input,output,numberOfValues,
+			    inputIncrement,outputIncrement);
       break;
       
     case VTK_SHORT:
-      vtkLookupTableMapDataToRGBA(this,(short *)input,output,numberOfValues,inputIncrement);
-      break;
+      vtkLookupTableMapData(this,(short *)input,output,numberOfValues,
+			    inputIncrement,outputIncrement);
+    break;
       
     case VTK_UNSIGNED_SHORT:
-      vtkLookupTableMapDataToRGBA(this,(unsigned short *)input,output,numberOfValues,inputIncrement);
+      vtkLookupTableMapData(this,(unsigned short *)input,output,numberOfValues,
+			    inputIncrement,outputIncrement);
       break;
       
     case VTK_INT:
-      vtkLookupTableMapDataToRGBA(this,(int *)input,output,numberOfValues,inputIncrement);
+      vtkLookupTableMapData(this,(int *)input,output,numberOfValues,
+			    inputIncrement,outputIncrement);
       break;
       
     case VTK_UNSIGNED_INT:
-      vtkLookupTableMapDataToRGBA(this,(unsigned int *)input,output,numberOfValues,inputIncrement);
+      vtkLookupTableMapData(this,(unsigned int *)input,output,numberOfValues,
+			    inputIncrement,outputIncrement);
       break;
       
     case VTK_LONG:
-      vtkLookupTableMapDataToRGBA(this,(long *)input,output,numberOfValues,inputIncrement);
+      vtkLookupTableMapData(this,(long *)input,output,numberOfValues,
+			    inputIncrement,outputIncrement);
       break;
       
     case VTK_UNSIGNED_LONG:
-      vtkLookupTableMapDataToRGBA(this,(unsigned long *)input,output,numberOfValues,inputIncrement);
+      vtkLookupTableMapData(this,(unsigned long *)input,output,
+			    numberOfValues,
+			    inputIncrement,outputIncrement);
       break;
       
     case VTK_FLOAT:
-      vtkLookupTableMapDataToRGBA(this,(float *)input,output,numberOfValues,inputIncrement);
+      vtkLookupTableMapData(this,(float *)input,output,numberOfValues,
+			    inputIncrement,outputIncrement);
       break;
       
     case VTK_DOUBLE:
-      vtkLookupTableMapDataToRGBA(this,(double *)input,output,numberOfValues,inputIncrement);
+      vtkLookupTableMapData(this,(double *)input,output,numberOfValues,
+			    inputIncrement,outputIncrement);
       break;
       
     default:

@@ -18,7 +18,7 @@ table SetHueRange 0.0 0.0
 table SetAlphaRange 0.9 0.0 
 table Build
 
-vtkImageMapToRGBA rgba
+vtkImageMapToColors rgba
 rgba SetInput [reader2 GetOutput]
 rgba SetLookupTable table 
 

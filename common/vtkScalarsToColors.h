@@ -83,16 +83,22 @@ public:
 
   // Description:
   // An internal method typically not used in applications.
+  // The outputIncrement can be set to a value between 1 and 4.  
+  // If the number of components is 4: map to RGBA.
+  // If the number of components is 3: map to RGB.
+  // If the number of components is 2: map R to first component, A to second.
+  // If the number of components is 1: map R to first component.
   virtual void MapScalarsThroughTable2(void *input, unsigned char *output,
                                        int inputDataType, int numberOfValues,
-                                       int inputIncrement) = 0;
-    
+                                       int inputIncrement, 
+				       int outputIncrement) = 0;
+
 protected:
   vtkScalarsToColors() {};
   ~vtkScalarsToColors() {};
   vtkScalarsToColors(const vtkScalarsToColors &) {};
   void operator=(const vtkScalarsToColors &) {};
-  
+
 };
 
 #endif

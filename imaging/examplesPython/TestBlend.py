@@ -17,7 +17,7 @@ table.SetHueRange(0.0,0.0)
 table.SetAlphaRange(0.9,0.0)
 table.Build()
 
-rgba = vtkImageMapToRGBA()
+rgba = vtkImageMapToColors()
 rgba.SetInput(reader2.GetOutput())
 rgba.SetLookupTable(table)
              

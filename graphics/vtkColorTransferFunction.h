@@ -142,8 +142,8 @@ public:
   // Description:
   // map a set of scalars through the lookup table
   virtual void MapScalarsThroughTable2(void *input, unsigned char *output,
-                                       int inputDataType, int numberOfValues,
-                                       int inputIncrement);
+                                     int inputDataType, int numberOfValues,
+                                     int inputIncrement, int outputIncrement);
   
 protected:
   vtkColorTransferFunction();

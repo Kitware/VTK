@@ -84,7 +84,7 @@ public:
   // map a set of scalars through the lookup table
   void MapScalarsThroughTable2(void *input, unsigned char *output,
 			      int inputDataType, int numberOfValues,
-			      int inputIncrement);
+			      int inputIncrement, int outputIncrement);
 protected:
   vtkLogLookupTable(int sze=256, int ext=256);
   ~vtkLogLookupTable() {};

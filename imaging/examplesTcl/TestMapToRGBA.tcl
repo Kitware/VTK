@@ -17,8 +17,9 @@ LUT SetValueRange 1 1
 LUT SetAlphaRange 0 0
 LUT Build
 
-vtkImageMapToRGBA mapToRGBA
+vtkImageMapToColors mapToRGBA
 mapToRGBA SetInput [reader GetOutput]
+mapToRGBA SetOutputFormatToRGBA
 mapToRGBA SetLookupTable LUT
 
 # set the window/level to 255.0/127.5 to view full range

@@ -51,35 +51,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageMapToRGBA_h
 
 
-#include "vtkImageToImageFilter.h"
-#include "vtkScalarsToColors.h"
+#include "vtkImageMapToColors.h"
 
-class VTK_EXPORT vtkImageMapToRGBA : public vtkImageToImageFilter
+class VTK_EXPORT vtkImageMapToRGBA : public vtkImageMapToColors
 {
 public:
   static vtkImageMapToRGBA *New();
   const char *GetClassName() {return "vtkImageMapToRGBA";};
-  void PrintSelf(ostream& os, vtkIndent indent);
-
-  vtkSetObjectMacro(LookupTable,vtkScalarsToColors);
-  vtkGetObjectMacro(LookupTable,vtkScalarsToColors);
-
-  // Description:
-  // We need to check the modified time of the lookup table too.
-  unsigned long GetMTime();
 
 protected:
   vtkImageMapToRGBA();
-  ~vtkImageMapToRGBA();
+  ~vtkImageMapToRGBA() {};
   vtkImageMapToRGBA(const vtkImageMapToRGBA&) {};
   void operator=(const vtkImageMapToRGBA&) {};
-
-  vtkScalarsToColors *LookupTable;
-  
-  void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
-  void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
-		       int extent[6], int id);
 };
 
 #endif
