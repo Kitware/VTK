@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkCriticalSection* vtkCriticalSection::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -57,6 +57,11 @@ vtkCriticalSection* vtkCriticalSection::New()
   return new vtkCriticalSection;
 }
 
+// New for the SimpleCriticalSection
+vtkSimpleCriticalSection *vtkSimpleCriticalSection::New()
+{
+  return new vtkSimpleCriticalSection;
+}
 
 void vtkSimpleCriticalSection::Init()
 {
