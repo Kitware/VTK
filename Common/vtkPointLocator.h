@@ -189,6 +189,14 @@ public:
   virtual vtkIdList *GetPointsInBucket(const double x[3], int ijk[3]);
 
   // Description:
+  // Provide an accessor to the points.
+  vtkGetObjectMacro(Points, vtkPoints);
+
+  // Description:
+  // Provide an accessor to the bounds.
+  double *GetBounds() { return this->Bounds; };
+
+  // Description:
   // See vtkLocator interface documentation.
   // These methods are not thread safe.
   void Initialize();
