@@ -33,6 +33,8 @@ public:
   virtual float *GetNormal(int i) = 0;
   virtual void SetNormal(int i,float x[3]) = 0;     // fast insert
   virtual void InsertNormal(int i, float x[3]) = 0; // allocates memory as necessary
+  virtual void Squeeze() = 0;
+
   void GetNormals(vlIdList& ptId, vlFloatNormals& fp);
   char *GetClassName() {return "vlNormals";};
   void PrintSelf(ostream& os, vlIndent indent);

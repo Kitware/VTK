@@ -34,6 +34,8 @@ public:
   virtual float *GetTCoord(int i) = 0;
   virtual void SetTCoord(int i,float *x) = 0;          // fast insert
   virtual void InsertTCoord(int i, float *x) = 0;      // allocates memory as necessary
+  virtual void Squeeze() = 0;
+
   void GetTCoords(vlIdList& ptId, vlFloatTCoords& fp);
   char *GetClassName() {return "vlTCoords";};
   void PrintSelf(ostream& os, vlIndent indent);

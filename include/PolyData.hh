@@ -63,7 +63,7 @@ public:
   int GetNumberOfStrips();
 
   // create verts, lines, polys, tmeshes from cell object
-  void InsertNextCell(vlCell *cell);
+  void InsertNextCell(int type, int npts, int pts[MAX_CELL_SIZE]);
 
   // following stuff supports cell structure
   vlBooleanMacro(LoadVerts,int);

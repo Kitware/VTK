@@ -34,6 +34,8 @@ public:
   virtual float *GetVector(int i) = 0;
   virtual void SetVector(int i,float x[3]) = 0;       // fast insert
   virtual void InsertVector(int i, float x[3]) = 0;   // allocates memory as necessary
+  virtual void Squeeze() = 0;
+
   void GetVectors(vlIdList& ptId, vlFloatVectors& fp);
   char *GetClassName() {return "vlVectors";};
   void PrintSelf(ostream& os, vlIndent indent);

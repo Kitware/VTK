@@ -34,6 +34,8 @@ public:
   virtual float GetScalar(int i) = 0;
   virtual void SetScalar(int i, float s) = 0;     // fast insert
   virtual void InsertScalar(int i, float s) = 0;  // allocates memory as necessary
+  virtual void Squeeze() = 0;
+
   void GetScalars(vlIdList& ptId, vlFloatScalars& fs);
   char *GetClassName() {return "vlScalars";};
   void PrintSelf(ostream& os, vlIndent indent);

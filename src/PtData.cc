@@ -343,3 +343,11 @@ void vlPointData::NullPoint (int ptId)
     }
 
 }
+
+void vlPointData::Squeeze()
+{
+  if ( this->Scalars ) this->Scalars->Squeeze();
+  if ( this->Vectors ) this->Vectors->Squeeze();
+  if ( this->Normals ) this->Normals->Squeeze();
+  if ( this->TCoords ) this->TCoords->Squeeze();
+}

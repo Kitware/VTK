@@ -48,6 +48,9 @@ public:
   // Set point data to null values
   void NullPoint(int ptId);
 
+  // Reclaim memory
+  void Squeeze();
+
   vlSetObjectMacro (Scalars, vlScalars);
   vlGetObjectMacro (Scalars, vlScalars);
 
