@@ -59,10 +59,11 @@ public:
                                      vtkInformationVector *, 
                                      vtkInformationVector *);
 
-  // Remove me Remove me - See Ken
-  void ReleaseDataFlagOn() {};
-  void ReleaseDataFlagOff() {};
-  
+  // Description:
+  // Turn release data flag on or off for all output ports.
+  void ReleaseDataFlagOn();
+  void ReleaseDataFlagOff();
+
 protected:
   vtkImageAlgorithm();
   ~vtkImageAlgorithm();

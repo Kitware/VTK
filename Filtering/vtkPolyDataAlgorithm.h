@@ -70,10 +70,11 @@ public:
   // use it
   vtkDataObject *GetInput(int port);
   vtkPolyData *GetPolyDataInput(int port);
-  
-  // Remove me Remove me - See Ken
-  void ReleaseDataFlagOn() {};
-  void ReleaseDataFlagOff() {};
+
+  // Description:
+  // Turn release data flag on or off for all output ports.
+  void ReleaseDataFlagOn();
+  void ReleaseDataFlagOff();
 
 protected:
   vtkPolyDataAlgorithm();

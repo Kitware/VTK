@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAlgorithm, "1.1.2.4");
+vtkCxxRevisionMacro(vtkImageAlgorithm, "1.1.2.5");
 
 //----------------------------------------------------------------------------
 vtkImageAlgorithm::vtkImageAlgorithm()
@@ -373,4 +373,30 @@ int vtkImageAlgorithm::FillInputPortInformation(
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
   return 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkImageAlgorithm::ReleaseDataFlagOn()
+{
+  if(vtkDemandDrivenPipeline* ddp =
+     vtkDemandDrivenPipeline::SafeDownCast(this->GetExecutive()))
+    {
+    for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
+      {
+      ddp->SetReleaseDataFlag(i, 1);
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageAlgorithm::ReleaseDataFlagOff()
+{
+  if(vtkDemandDrivenPipeline* ddp =
+     vtkDemandDrivenPipeline::SafeDownCast(this->GetExecutive()))
+    {
+    for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
+      {
+      ddp->SetReleaseDataFlag(i, 0);
+      }
+    }
 }

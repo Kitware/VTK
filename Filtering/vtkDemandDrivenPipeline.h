@@ -68,6 +68,15 @@ public:
                                       int port, int connection);
   virtual vtkDataObject* GetInputData(int port, int connection);
 
+  // Description:
+  // Set whether the given output port releases data when it is
+  // consumed.  Returns 1 if the the value changes and 0 otherwise.
+  virtual int SetReleaseDataFlag(int port, int n);
+
+  // Description:
+  // Get whether the given output port releases data when it is consumed.
+  virtual int GetReleaseDataFlag(int port);
+
   static vtkInformationKeyVectorKey* DOWNSTREAM_KEYS_TO_COPY();
   static vtkInformationIntegerKey* REQUEST_DATA_OBJECT();
   static vtkInformationIntegerKey* REQUEST_INFORMATION();

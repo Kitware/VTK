@@ -38,7 +38,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.1.2.9");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.1.2.10");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, DOWNSTREAM_KEYS_TO_COPY, KeyVector);
@@ -1125,4 +1125,35 @@ int vtkDemandDrivenPipeline::NeedToExecuteData(int outputPort)
 
   // We do not need to execute.
   return 0;
+}
+
+//----------------------------------------------------------------------------
+int vtkDemandDrivenPipeline::SetReleaseDataFlag(int port, int n)
+{
+  if(!this->OutputPortIndexInRange(port, "set release data flag on"))
+    {
+    return 0;
+    }
+  vtkInformation* info = this->GetOutputInformation(port);
+  if(this->GetReleaseDataFlag(port) != n)
+    {
+    info->Set(RELEASE_DATA(), n);
+    return 1;
+    }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+int vtkDemandDrivenPipeline::GetReleaseDataFlag(int port)
+{
+  if(!this->OutputPortIndexInRange(port, "get release data flag from"))
+    {
+    return 0;
+    }
+  vtkInformation* info = this->GetOutputInformation(port);
+  if(!info->Has(RELEASE_DATA()))
+    {
+    info->Set(RELEASE_DATA(), 0);
+    }
+  return info->Get(RELEASE_DATA());
 }

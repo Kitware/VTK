@@ -28,7 +28,7 @@
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationStringKey.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.2.2.7");
+vtkCxxRevisionMacro(vtkDataObject, "1.2.2.8");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -969,21 +969,21 @@ vtkExtentTranslator* vtkDataObject::GetExtentTranslator()
 //----------------------------------------------------------------------------
 void vtkDataObject::SetReleaseDataFlag(int value)
 {
-  if(vtkInformation* info = this->GetPipelineInformation())
+  if(SDDP* sddp = this->TrySDDP("SetReleaseDataFlag"))
     {
-    info->Set(vtkDemandDrivenPipeline::RELEASE_DATA(), value);
+    if(sddp->SetReleaseDataFlag(this->GetPortNumber(), value))
+      {
+      this->Modified();
+      }
     }
 }
 
 //----------------------------------------------------------------------------
 int vtkDataObject::GetReleaseDataFlag()
 {
-  if(vtkInformation* info = this->GetPipelineInformation())
+  if(SDDP* sddp = this->TrySDDP("GetReleaseDataFlag"))
     {
-    if(info->Has(vtkDemandDrivenPipeline::RELEASE_DATA()))
-      {
-      return info->Get(vtkDemandDrivenPipeline::RELEASE_DATA());
-      }
+    return sddp->GetReleaseDataFlag(this->GetPortNumber());
     }
   return 0;
 }
