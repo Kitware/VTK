@@ -484,7 +484,26 @@ void vtkCellLocator::FindClosestPoint(float x[3], float closestPoint[3],
   //
   if ( (minDist2 > 0.0) && (level < this->NumberOfDivisions))
     {
-    this->GetOverlappingBuckets(x, ijk, sqrt(minDist2), level-1);
+    int prevMinLevel[3], prevMaxLevel[3];
+    // setup prevMinLevel and prevMaxLevel to indicate previously visited buckets
+    if (--level < 0)
+      {
+      level = 0;
+      }
+    for (i = 0; i < 3; i++)
+      {
+      prevMinLevel[i] = ijk[i] - level;
+      if (prevMinLevel[i] < 0)
+        {
+        prevMinLevel[i] = 0;
+        }
+      prevMaxLevel[i] = ijk[i] + level;
+      if (prevMaxLevel[i] >= this->NumberOfDivisions)
+        {
+        prevMaxLevel[i] = this->NumberOfDivisions - 1;
+        }
+      }
+    this->GetOverlappingBuckets(x, ijk, sqrt(minDist2), prevMinLevel, prevMaxLevel);
     
     for (i=0; i<this->Buckets->GetNumberOfNeighbors(); i++) 
       {
@@ -604,7 +623,7 @@ vtkCellLocator::FindClosestPointWithinRadius(float x[3], float radius,
   float refinedRadius, radius2, refinedRadius2, distance2ToBucket;
   float distance2ToCellBounds, cellBounds[6], currentRadius;
   float distance2ToDataBounds, maxDistance;
-  int ii, radiusLevels[3], radiusLevel;
+  int ii, radiusLevels[3], radiusLevel, prevMinLevel[3], prevMaxLevel[3];
   
   
   leafStart = this->NumberOfOctants
@@ -625,6 +644,8 @@ vtkCellLocator::FindClosestPointWithinRadius(float x[3], float radius,
   closestCell = -1;
   radius2 = radius*radius;
   minDist2 = 1.1*radius2;   // something slightly bigger....
+  refinedRadius = radius;
+  refinedRadius2 = radius2;
   
   //
   // Find bucket point is in.  
@@ -697,6 +718,8 @@ vtkCellLocator::FindClosestPointWithinRadius(float x[3], float radius,
             cachedPoint[0] = point[0];
             cachedPoint[1] = point[1];
             cachedPoint[2] = point[2];
+            refinedRadius = sqrt(dist2);
+            refinedRadius2 = dist2;
             }
           }
         } // if (this->CellHasBeenVisited[cellId])
@@ -723,6 +746,7 @@ vtkCellLocator::FindClosestPointWithinRadius(float x[3], float radius,
     refinedRadius2 = radius2;
     }
 
+  
   distance2ToDataBounds = this->Distance2ToBounds(x, this->Bounds);
   maxDistance = sqrt(distance2ToDataBounds) + this->DataSet->GetLength();
   if (refinedRadius > maxDistance)
@@ -739,28 +763,30 @@ vtkCellLocator::FindClosestPointWithinRadius(float x[3], float radius,
   radiusLevel = radiusLevels[1] > radiusLevel ? radiusLevels[1] : radiusLevel;
   radiusLevel = radiusLevels[2] > radiusLevel ? radiusLevels[2] : radiusLevel;
   
+  if (radiusLevel > this->NumberOfDivisions / 2 )
+    {
+    radiusLevel = this->NumberOfDivisions / 2;
+    }
   if (radiusLevel == 0)
     {
     radiusLevel = 1;
     }
-  if (radiusLevel > this->NumberOfDivisions)
-    {
-    radiusLevel = this->NumberOfDivisions;
-    }
-  
-  
+
   // radius schedule increases the radius each iteration, this is currently
   // implemented by decreasing ii by 1 each iteration.  another alternative
   // is to double the radius each iteration, i.e. ii = ii >> 1
   // In practice, reducing ii by one has been found to be more efficient.
   int numberOfBucketsPerPlane;
   numberOfBucketsPerPlane = this->NumberOfDivisions*this->NumberOfDivisions;
+  prevMinLevel[0] = prevMaxLevel[0] = ijk[0];
+  prevMinLevel[1] = prevMaxLevel[1] = ijk[1];
+  prevMinLevel[2] = prevMaxLevel[2] = ijk[2];
   for (ii=radiusLevel; ii >= 1; ii--)   
     {
     currentRadius = refinedRadius; // used in if at bottom of this for loop
     
     // Build up a list of buckets that are arranged in rings
-    this->GetOverlappingBuckets(x, ijk, refinedRadius/ii, 0);
+    this->GetOverlappingBuckets(x, ijk, refinedRadius/ii, prevMinLevel, prevMaxLevel);
     
     for (i=0; i<this->Buckets->GetNumberOfNeighbors(); i++) 
       {
@@ -949,11 +975,13 @@ void vtkCellLocator::GetBucketNeighbors(int ijk[3], int ndivs, int level)
 // in the bucket list.
 //
 void vtkCellLocator::GetOverlappingBuckets(float x[3], int ijk[3], 
-                                           float dist, int level)
+                                           float dist, 
+                                           int prevMinLevel[3],
+                                           int prevMaxLevel[3])
   {
   int i, j, k, nei[3], minLevel[3], maxLevel[3];
   int leafStart, idx, kFactor, jFactor;
-  int numberOfBucketsPerPlane;
+  int numberOfBucketsPerPlane, jkSkipFlag, kSkipFlag;
   
   numberOfBucketsPerPlane = this->NumberOfDivisions*this->NumberOfDivisions;
   leafStart = this->NumberOfOctants
@@ -974,34 +1002,72 @@ void vtkCellLocator::GetOverlappingBuckets(float x[3], int ijk[3],
       {
       minLevel[i] = 0;
       }
+    else if (minLevel[i] >= this->NumberOfDivisions )
+      {
+      minLevel[i] = this->NumberOfDivisions - 1;
+      }
     if ( maxLevel[i] >= this->NumberOfDivisions )
       {
       maxLevel[i] = this->NumberOfDivisions - 1;
       }
+    else if ( maxLevel[i] < 0 )
+      {
+      maxLevel[i] = 0;
+      }
     }
-  
+
+  if (minLevel[0] == prevMinLevel[0] && maxLevel[0] == prevMaxLevel[0] &&
+      minLevel[1] == prevMinLevel[1] && maxLevel[1] == prevMaxLevel[1] &&
+      minLevel[2] == prevMinLevel[2] && maxLevel[2] == prevMaxLevel[2] )
+    {
+    return;
+    }
+
   for ( k= minLevel[2]; k <= maxLevel[2]; k++ ) 
     {
     kFactor = k*numberOfBucketsPerPlane;
+    if (k >= prevMinLevel[2] && k <= prevMaxLevel[2])
+      {
+      kSkipFlag = 1;
+      }
+    else
+      {
+      kSkipFlag = 0;
+      }
     for ( j= minLevel[1]; j <= maxLevel[1]; j++ ) 
       {
+      if (kSkipFlag && j >= prevMinLevel[1] && j <= prevMaxLevel[1])
+        {
+        jkSkipFlag = 1;
+        }
+      else
+        {
+        jkSkipFlag = 0;
+        }
       jFactor = j*this->NumberOfDivisions;
       for ( i= minLevel[0]; i <= maxLevel[0]; i++ ) 
         {
-        if ( i < (ijk[0]-level) || i > (ijk[0]+level) ||
-          j < (ijk[1]-level) || j > (ijk[1]+level) ||
-          k < (ijk[2]-level) || k > (ijk[2]+level))
+        if ( jkSkipFlag && i == prevMinLevel[0] )
           {
-          // if this bucket has any cells, add it to the list
-          if (this->Tree[leafStart + i + jFactor + kFactor])
-            {
-            nei[0]=i; nei[1]=j; nei[2]=k;
-            this->Buckets->InsertNextPoint(nei);
-            }
+          i = prevMaxLevel[0];
+          continue;
+          }
+        // if this bucket has any cells, add it to the list
+        if (this->Tree[leafStart + i + jFactor + kFactor])
+          {
+          nei[0]=i; nei[1]=j; nei[2]=k;
+          this->Buckets->InsertNextPoint(nei);
           }
         }
       }
     }
+
+  prevMinLevel[0] = minLevel[0];
+  prevMinLevel[1] = minLevel[1];
+  prevMinLevel[2] = minLevel[2];
+  prevMaxLevel[0] = maxLevel[0];
+  prevMaxLevel[1] = maxLevel[1];
+  prevMaxLevel[2] = maxLevel[2];
   }
 
 
