@@ -20,7 +20,7 @@
 #include "vtkPointsProjectedHull.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPointsProjectedHull, "1.1");
+vtkCxxRevisionMacro(vtkPointsProjectedHull, "1.2");
 vtkStandardNewMacro(vtkPointsProjectedHull);
 
 static const int xdim=0, ydim=1, zdim=2;
@@ -299,7 +299,13 @@ int i,j;
     }
   int nHullPts = this->Npts - dups;
   
-
+  // I'm not sure what I'm doing here but the current code is clearly screwed
+  // up and doesn't handle some degenerate cases
+  if (nHullPts == 0)
+    {
+    return 0;
+    }
+  
   // Sort in counter clockwise order the other points by the angle
   //   they make with the line through firstPt parallel to the 
   //   horizontal axis.
