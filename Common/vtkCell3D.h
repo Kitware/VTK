@@ -53,6 +53,12 @@ public:
   // 0<=faceId<this->GetNumberOfFaces().
   virtual void GetFacePoints(int faceId, int* &pts) = 0;
 
+  void Contour(double value, vtkDataArray *cellScalars, 
+               vtkPointLocator *locator, vtkCellArray *verts, 
+               vtkCellArray *lines, vtkCellArray *polys,
+               vtkPointData *inPd, vtkPointData *outPd,
+               vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd);
+
   // Description:
   // Cut (or clip) the cell based on the input cellScalars and the specified
   // value. The output of the clip operation will be one or more cells of the
