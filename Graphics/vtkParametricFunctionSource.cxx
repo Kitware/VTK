@@ -29,7 +29,7 @@
 #include <math.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkParametricFunctionSource, "1.11");
+vtkCxxRevisionMacro(vtkParametricFunctionSource, "1.12");
 vtkStandardNewMacro(vtkParametricFunctionSource);
 
 
@@ -335,6 +335,9 @@ void vtkParametricFunctionSource::Produce2DOutput(vtkInformationVector *output)
   double uv[3];
   uv[0] = this->ParametricFunction->GetMinimumU() - uStep;
 
+  float MaxI = PtsU - 1;
+  float MaxJ = PtsV - 1;
+
   for ( int i = 0; i < PtsU; ++i )
     {
     uv[0] += uStep;
@@ -342,7 +345,7 @@ void vtkParametricFunctionSource::Produce2DOutput(vtkInformationVector *output)
 
     if ( GenerateTextureCoordinates != 0 )
       {
-      tc[0] = i*uStep/MaxU;
+      tc[0] = i/MaxI;
       }
       
     for ( int j = 0; j < PtsV; ++j )
@@ -351,7 +354,7 @@ void vtkParametricFunctionSource::Produce2DOutput(vtkInformationVector *output)
 
       if ( GenerateTextureCoordinates != 0 )
         {
-        tc[1] = 1.0 - j*vStep/MaxV;
+        tc[1] = 1.0 - j/MaxJ;
         newTCoords->InsertNextTuple(tc);
         }
   

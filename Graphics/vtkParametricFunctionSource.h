@@ -33,8 +33,8 @@
 // vtkParametricKlein vtkParametricMobius vtkParametricRoman
 //
 // Subclasses of vtkParametricFunction implementing orientable surfaces:
-// vtkParametricConicSpiral vtkParametricDini vtkParametricEnneper
-// vtkParametricRandomHills vtkParametricSuperEllipsoid 
+// vtkParametricConicSpiral vtkParametricDini vtkParametricEllipsoid 
+// vtkParametricEnneper vtkParametricRandomHills vtkParametricSuperEllipsoid 
 // vtkParametricSuperToroid vtkParametricTorus 
 // 
 #ifndef __vtkParametricFunctionSource_h
@@ -86,11 +86,7 @@ public:
   // default.
   // Note that this is only applicable to parametric surfaces 
   // whose parametric dimension is 2.
-  // Warning: if the parametric mapping is discontinuous, as in the
-  // case of vtkParametricEllipsoid() or vtkParametricToroid(),
-  // then the generation of texture coordinates will fail. However it
-  // will work in these cases if JoinU and JoinV are switched off and a
-  // (u,v) patch is selected where the mapping is continuous.
+  // Note that texturing may fail in some cases.
   vtkBooleanMacro(GenerateTextureCoordinates,int);
   vtkSetMacro(GenerateTextureCoordinates,int);
   vtkGetMacro(GenerateTextureCoordinates,int);
