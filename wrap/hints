@@ -27,7 +27,11 @@ vtkImageCache		GetDimensions	304 3
 vtkImageCache           GetUpdateExtent 304 6
 vtkImageCache           GetWholeExtent  304 6
 vtkImageCache		GetScalarRange	301 2
-vtkImageSpatialFilter   GetKernelSize   304 4
+vtkImageExport		GetDataDimensions 304 3
+vtkImageExport		GetDataExtent   304 6
+vtkImageExport		GetDataSpacing  301 3
+vtkImageExport		GetDataOrigin   301 3
+vtkImageSpatialFilter	GetKernelSize   304 4
 vtkIntPoints		GetPoint	301 3
 vtkLookupTable		GetTableValue	301 4
 vtkAbstractMapper 	GetBounds	301 6
