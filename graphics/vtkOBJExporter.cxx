@@ -69,15 +69,15 @@ void vtkOBJExporter::WriteData()
     }
 
   // first make sure there is only one renderer in this rendering window
-  if (this->Input->GetRenderers()->GetNumberOfItems() > 1)
+  if (this->RenderWindow->GetRenderers()->GetNumberOfItems() > 1)
     {
     vtkErrorMacro(<< "obj files only support on renderer per window.");
     return;
     }
 
   // get the renderer
-  this->Input->GetRenderers()->InitTraversal();
-  ren = this->Input->GetRenderers()->GetNextItem();
+  this->RenderWindow->GetRenderers()->InitTraversal();
+  ren = this->RenderWindow->GetRenderers()->GetNextItem();
   
   // make sure it has at least one actor
   if (ren->GetActors()->GetNumberOfItems() < 1)

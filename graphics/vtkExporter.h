@@ -77,16 +77,20 @@ public:
 
   // Description:
   // Set/Get the rendering window that contains the scene to be written.
-  vtkSetObjectMacro(Input,vtkRenderWindow);
-  vtkGetObjectMacro(Input,vtkRenderWindow);
+  vtkSetObjectMacro(RenderWindow,vtkRenderWindow);
+  vtkGetObjectMacro(RenderWindow,vtkRenderWindow);
   
+  // These methods are provided for backward compatibility. Will disappear soon.
+  void SetInput(vtkRenderWindow *renWin) {this->SetRenderWindow(renWin);};
+  vtkRenderWindow *GetInput() {return this->GetRenderWindow();};
+
   void SetStartWrite(void (*f)(void *), void *arg);
   void SetEndWrite(void (*f)(void *), void *arg);
   void SetStartWriteArgDelete(void (*f)(void *));
   void SetEndWriteArgDelete(void (*f)(void *));
 
 protected:
-  vtkRenderWindow *Input;
+  vtkRenderWindow *RenderWindow;
   virtual void WriteData() = 0;
 
   void (*StartWrite)(void *);
