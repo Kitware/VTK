@@ -914,13 +914,15 @@ void outputFunction(FILE *fp, FileInfo *data)
       !strcmp("New",currentFunction->Name))
     {
     args_ok = 0;
-    if (!strcmp("New",currentFunction->Name) &&
-        currentFunction->NumberOfArguments == 0)
-      {
-      class_has_new = 1;
-      }
     }
   
+  /* check for New() function */
+  if (!strcmp("New",currentFunction->Name) &&
+      currentFunction->NumberOfArguments == 0)
+    {
+    class_has_new = 1;
+    }
+
   if (currentFunction->IsPublic && args_ok && 
       strcmp(data->ClassName,currentFunction->Name) &&
       strcmp(data->ClassName, currentFunction->Name + 1))
@@ -1089,8 +1091,33 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     }
   
   /* output the class initilization function */
-  if (data->NumberOfSuperClasses)
-    { 
+  if (strcmp(data->ClassName,"vtkObjectBase") == 0)
+    { /* no support for vtkObjectBase yet */
+    fprintf(fp,"PyObject *PyVTKClass_%sNew(char *vtkNotUsed(modulename))\n{\n",data->ClassName);
+    fprintf(fp,"  return NULL;\n}\n\n");
+    }  
+  else if (strcmp(data->ClassName,"vtkObject") == 0)
+    { /* special wrapping for vtkObject */
+    if (class_has_new)
+      {
+      fprintf(fp,"static vtkObject *%sStaticNew()\n",data->ClassName);
+      fprintf(fp,"{\n  return %s::New();\n}\n\n",data->ClassName);
+      }
+    fprintf(fp,"PyObject *PyVTKClass_%sNew(char *modulename)\n{\n",data->ClassName);
+    if (class_has_new)
+      {
+      fprintf(fp,"  return PyVTKClass_New(&%sStaticNew,\n",data->ClassName);
+      }
+    else
+      {
+      fprintf(fp,"  return PyVTKClass_New(NULL,\n");
+      }      
+    fprintf(fp,"                        Py%sMethods,\n",data->ClassName);
+    fprintf(fp,"                        \"%s\",modulename,\n",data->ClassName);
+    fprintf(fp,"                        %sDoc,0);\n}\n\n",data->ClassName);
+    }
+  else if (data->NumberOfSuperClasses)
+    { /* wrapping of descendants of vtkObject */
     if (class_has_new)
       {
       fprintf(fp,"static vtkObject *%sStaticNew()\n",data->ClassName);
@@ -1111,29 +1138,8 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"                        PyVTKClass_%sNew(modulename));\n}\n\n",
             data->SuperClasses[0]);
     }
-  else if (strcmp(data->ClassName,"vtkObject") == 0)
-    {
-    if (class_has_new)
-      {
-      fprintf(fp,"static vtkObject *%sStaticNew()\n",data->ClassName);
-      fprintf(fp,"{\n  return %s::New();\n}\n\n",data->ClassName);
-      }
-    fprintf(fp,"PyObject *PyVTKClass_%sNew(char *modulename)\n{\n",data->ClassName);
-    if (class_has_new)
-      {
-      fprintf(fp,"  return PyVTKClass_New(&%sStaticNew,\n",data->ClassName);
-      }
-    else
-      {
-      fprintf(fp,"  return PyVTKClass_New(NULL,\n");
-      }      
-    fprintf(fp,"                        Py%sMethods,\n",
-            data->ClassName);
-    fprintf(fp,"                        \"%s\",modulename,%sDoc,0);\n}\n\n",
-            data->ClassName, data->ClassName);
-    }
-  else if (!data->IsAbstract && strcmp(data->ClassName,"vtkObjectBase"))
-    {
+  else if (!data->IsAbstract)
+    { /* wrapping of 'special' non-vtkObject classes */
     fprintf(fp,"PyObject *PyVTKObject_%sNew(PyObject *vtkNotUsed(self), PyObject *args)\n{\n",data->ClassName);
     fprintf(fp,"  if (!(PyArg_ParseTuple(args, \"\")))\n    {\n");
     fprintf(fp,"    return NULL;\n    }\n\n");
@@ -1151,7 +1157,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
             data->ClassName);
     }
   else
-    {
+    { /* un-wrappable classes */
     fprintf(fp,"PyObject *PyVTKClass_%sNew(char *vtkNotUsed(modulename))\n{\n",data->ClassName);
     fprintf(fp,"  return NULL;\n}\n\n");
     }
