@@ -309,19 +309,21 @@ int vtkPolygon::ParameterizePolygon(float *p0, float *p10, float& l10,
   return 1;
 }
 
-// Description:
-// Determine whether point is inside polygon.
-// Function uses ray-casting to determine if point is inside polygon.
-// Works for arbitrary polygon shape (e.g., non-convex).
 #define CERTAIN 1
 #define UNCERTAIN 0
 #define RAY_TOL 1.e-03 //Tolerance for ray firing
 #define MAX_ITER 10    //Maximum iterations for ray-firing
 #define VOTE_THRESHOLD 2
 
+#ifndef TRUE
 #define FALSE 0
 #define TRUE 1
+#endif
 
+// Description:
+// Determine whether point is inside polygon.
+// Function uses ray-casting to determine if point is inside polygon.
+// Works for arbitrary polygon shape (e.g., non-convex).
 int vtkPolygon::PointInPolygon (float bounds[6], float *x, float *n)
 {
   float *x1, *x2, xray[3], u, v;
