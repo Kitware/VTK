@@ -23,7 +23,7 @@
 
 #include "vtkMPI.h"
 
-vtkCxxRevisionMacro(vtkMPICommunicator, "1.35");
+vtkCxxRevisionMacro(vtkMPICommunicator, "1.36");
 vtkStandardNewMacro(vtkMPICommunicator);
 
 vtkCxxSetObjectMacro(vtkMPICommunicator,Group,vtkMPIGroup);
@@ -56,6 +56,9 @@ MPI_Datatype vtkMPICommunicatorGetMPIType()
   return MPI_LONG;
 #elif defined(MPI_LONG_LONG)
   return MPI_LONG_LONG;
+#elif defined(MPI_LONG_LONG_INT)
+  // lampi only has MPI_LONG_LONG_INT, not MPI_LONG_LONG
+  return MPI_LONG_LONG_INT;
 #else
   vtkGenericWarningMacro("This systems MPI doesnt seem to support 64 bit ids and you have 64 bit IDs turned on. Please contact VTK mailing list.");
   return MPI_INT;
