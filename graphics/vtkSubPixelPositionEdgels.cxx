@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkMath.h"
 #include "vtkSubPixelPositionEdgels.h"
+#include "vtkFloatArray.h"
 
 vtkSubPixelPositionEdgels::vtkSubPixelPositionEdgels()
 {

@@ -47,6 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkUnsignedIntArray.h"
 #include "vtkLongArray.h"
 #include "vtkUnsignedLongArray.h"
+#include "vtkFloatArray.h"
 #include "vtkDoubleArray.h"
 
 // This is the templated function that actually computes the EncodedNormal

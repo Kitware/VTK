@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkScalarTree.h"
+#include "vtkFloatArray.h"
 
 // Instantiate scalar tree with maximum level of 20 and branching
 // factor of 5.
