@@ -34,11 +34,13 @@ streamer SetInitialIntegrationStep 2 0.2
 streamer SetIntegrationDirection 0
 streamer SetIntegrator rk
 streamer SetRotationScale 0.5
+streamer SetMaximumError 1.0E-8
 
 vtkRibbonFilter rf1
 rf1 SetInput [streamer GetOutput]
 rf1 SetWidth 0.1
 rf1 VaryWidthOff
+rf1 SelectInputVectors Normals
 
 vtkPolyDataMapper mapStream
 mapStream SetInput [rf1 GetOutput]
