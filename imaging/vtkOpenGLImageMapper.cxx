@@ -347,8 +347,8 @@ static void vtkOpenGLImageMapperRenderShortGray(vtkOpenGLImageMapper *self,
 			      self->GetColorLevel(), 
 			      lower, upper, lower_val, upper_val );
   
-  sscale = scale*4096.0;
-  sshift = sscale*shift;
+  sscale = (long) (scale*4096.0);
+  sshift = (long) (sscale*shift);
   
   // data->GetExtent(inMin0, inMax0, inMin1, inMax1);
   int* tempExt = self->GetInput()->GetUpdateExtent();
