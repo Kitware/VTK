@@ -1,5 +1,6 @@
 # all tests need: code to parse the args
 # call to Test, and clean up code at the end
+#
 
 catch {load vtktcl}
 wm withdraw .
