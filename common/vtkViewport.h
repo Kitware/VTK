@@ -64,6 +64,7 @@ class VTK_EXPORT vtkViewport : public vtkObject
 {
 public:
   vtkViewport();
+  ~vtkViewport();
   const char *GetClassName() {return "vtkViewport";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -150,7 +151,7 @@ protected:
   float DisplayPoint[3];
   float ViewPoint[3];
   float WorldPoint[4];
-  vtkActor2DCollection Actors2D;
+  vtkActor2DCollection *Actors2D;
 
 };
 

@@ -88,20 +88,35 @@ vtkViewport::vtkViewport()
   this->Origin[0] = 0;
   this->Origin[1] = 0;
 
+  this->Actors2D = vtkActor2DCollection::New();
 }
 
+vtkViewport::~vtkViewport()
+{
+  this->Actors2D->Delete();
+
+  // delete the current arg if there is one and a delete meth
+  if ((this->StartRenderMethodArg)&&(this->StartRenderMethodArgDelete))
+    {
+    (*this->StartRenderMethodArgDelete)(this->StartRenderMethodArg);
+    }
+  if ((this->EndRenderMethodArg)&&(this->EndRenderMethodArgDelete))
+    {
+    (*this->EndRenderMethodArgDelete)(this->EndRenderMethodArg);
+    }
+}
 
 void vtkViewport::AddActor2D(vtkActor2D* actor)
 {
   vtkDebugMacro (<< "vtkViewport::AddActor2D");
-  this->Actors2D.AddItem(actor);
+  this->Actors2D->AddItem(actor);
 }
 
 void vtkViewport::RemoveActor2D(vtkActor2D* actor)
 {
   vtkDebugMacro (<< "vtkViewport::RemoveActor2D");
 
-  this->Actors2D.RemoveItem(actor);
+  this->Actors2D->RemoveItem(actor);
 }
 
 
