@@ -516,8 +516,8 @@ void WriteTiffRGB (FILE *fd, int width, int height, int orientation, unsigned ch
     fwrite (&myDir, sizeof (myDir), 1, fd);
 
 // end of image file directory
-  numDirEntries = 0;
-    fwrite (&numDirEntries, sizeof (numDirEntries), 1, fd);
+  long nextIFDOffset = 0;
+    fwrite (&nextIFDOffset, sizeof (nextIFDOffset), 1, fd);
 
 }
 
@@ -688,8 +688,8 @@ void WriteTiffRGBA (FILE *fd, int width, int height, int orientation, unsigned c
     fwrite (&myDir, sizeof (myDir), 1, fd);
 
 // end of image file directory
-  numDirEntries = 0;
-    fwrite (&numDirEntries, sizeof (numDirEntries), 1, fd);
+  long nextIFDOffset = 0;
+    fwrite (&nextIFDOffset, sizeof (nextIFDOffset), 1, fd);
 
 }
 
@@ -845,8 +845,8 @@ void WriteTiffI (FILE *fd, int width, int height, int orientation, unsigned char
     fwrite (&myDir, sizeof (myDir), 1, fd);
 
 // end of image file directory
-  numDirEntries = 0;
-    fwrite (&numDirEntries, sizeof (numDirEntries), 1, fd);
+  long nextIFDOffset = 0;
+    fwrite (&nextIFDOffset, sizeof (nextIFDOffset), 1, fd);
 
 }
 
@@ -1021,7 +1021,7 @@ void WriteTiffIA (FILE *fd, int width, int height, int orientation, unsigned cha
     fwrite (&myDir, sizeof (myDir), 1, fd);
 
 // end of image file directory
-  numDirEntries = 0;
-    fwrite (&numDirEntries, sizeof (numDirEntries), 1, fd);
+  long nextIFDOffset = 0;
+    fwrite (&nextIFDOffset, sizeof (nextIFDOffset), 1, fd);
 
 }
