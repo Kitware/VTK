@@ -48,7 +48,7 @@ vtkLODActor::vtkLODActor()
 {
   // get a hardware dependent actor and mappers
   this->Device = vtkActor::New();
-  this->Mappers = vtkMapperCollection::New();
+  this->LODMappers = vtkMapperCollection::New();
   this->BuildLODs = 1;
   // stuff for creating own LODs
   this->PointSource = NULL;
@@ -65,9 +65,9 @@ vtkLODActor::~vtkLODActor()
   this->Device->Delete();
   if (this->BuildLODs)
     {
-    this->DeleteMappers();
+    this->DeleteLODMappers();
     }
-  this->Mappers->Delete();
+  this->LODMappers->Delete();
 
   // delete the filters used to create the LODs
   if (this->PointSource)
@@ -101,8 +101,8 @@ void vtkLODActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Cloud Points: " << this->NumberOfCloudPoints << "\n";
 
   os << indent << "BuildLODs: " << this->BuildLODs << endl;
-  // how should we print out the mappers?
-  os << indent << "NumberOfMappers: " << this->Mappers->GetNumberOfItems() 
+  // how should we print out the LODMappers?
+  os << indent << "NumberOfLODMappers: " << this->LODMappers->GetNumberOfItems() 
      << endl;
 }
 
@@ -148,8 +148,8 @@ void vtkLODActor::Render(vtkRenderer *ren)
   bestTime = bestMapper->GetRenderTime();
   if (bestTime > myTime)
     {
-    this->Mappers->InitTraversal();
-    while ((mapper = this->Mappers->GetNextItem()) != NULL && bestTime != 0.0)
+    this->LODMappers->InitTraversal();
+    while ((mapper = this->LODMappers->GetNextItem()) != NULL && bestTime != 0.0)
       {
       tempTime = mapper->GetRenderTime();
       
@@ -228,14 +228,14 @@ void vtkLODActor::Render(vtkRenderer *ren)
       
 //----------------------------------------------------------------------------
 // does not matter if mapper is in mapper collection.
-void vtkLODActor::AddMapper(vtkMapper *mapper)
+void vtkLODActor::AddLODMapper(vtkMapper *mapper)
 {
   if (this->Mapper == NULL)
     {
     this->SetMapper(mapper);
     }
   
-  this->Mappers->AddItem(mapper);
+  this->LODMappers->AddItem(mapper);
 }
 
 
@@ -252,12 +252,12 @@ void vtkLODActor::SetBuildLODs(int val)
   
   if (val)
     { // user now wants this object to manage LOD mappers
-    this->Mappers->RemoveAllItems();
+    this->LODMappers->RemoveAllItems();
     this->GenerateLODs();
     }
   else
-    { // delete mappers created by this object.
-    this->DeleteMappers();
+    { // delete LODMappers created by this object.
+    this->DeleteLODMappers();
     // delete the filters too?
     }
 }
@@ -277,7 +277,7 @@ void vtkLODActor::GenerateLODs()
     }
 
   // delete the old mappers
-  this->DeleteMappers();
+  this->DeleteLODMappers();
   
   // create filters if necessary
   if (this->PointSource == NULL)
@@ -315,8 +315,8 @@ void vtkLODActor::GenerateLODs()
   mediumMapper->SetScalarVisibility(this->Mapper->GetScalarVisibility());
   lowMapper->SetInput(this->OutlineFilter->GetOutput());
 
-  this->AddMapper(mediumMapper);
-  this->AddMapper(lowMapper);
+  this->AddLODMapper(mediumMapper);
+  this->AddLODMapper(lowMapper);
   
   this->BuildTime.Modified();
 }
@@ -324,16 +324,16 @@ void vtkLODActor::GenerateLODs()
 
 //----------------------------------------------------------------------------
 // Deletes Mappers and filters used when creating own LODs.
-void vtkLODActor::DeleteMappers()
+void vtkLODActor::DeleteLODMappers()
 {
   vtkMapper *mapper;
   
-  this->Mappers->InitTraversal();
-  while ((mapper = this->Mappers->GetNextItem()))
+  this->LODMappers->InitTraversal();
+  while ((mapper = this->LODMappers->GetNextItem()))
     {
     // deleting and then removing scares me so InitTraversal each time.
-    this->Mappers->RemoveItem(mapper);
-    this->Mappers->InitTraversal();
+    this->LODMappers->RemoveItem(mapper);
+    this->LODMappers->InitTraversal();
     mapper->Delete();
     }  
 }
