@@ -26,7 +26,7 @@
 #include "vtkRenderer.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkRendererSource, "1.49");
+vtkCxxRevisionMacro(vtkRendererSource, "1.50");
 vtkStandardNewMacro(vtkRendererSource);
 
 vtkCxxSetObjectMacro(vtkRendererSource,Input,vtkRenderer);
@@ -59,6 +59,12 @@ void vtkRendererSource::ExecuteData(vtkDataObject *outp)
   vtkImageData *output = this->AllocateOutputData(outp);
   vtkUnsignedCharArray *outScalars = 
     vtkUnsignedCharArray::SafeDownCast(output->GetPointData()->GetScalars());
+
+  if (this->Input == NULL)
+    {
+    return;
+    }
+
   if (this->DepthValuesInScalars)
     {
     outScalars->SetName("RGBValues");
