@@ -90,6 +90,7 @@ IF (VTK_USE_RENDERING)
       subDivideTetra
       teapotHulls
       TenEllip
+      TestCellDerivs
       testDataSetTriangleFilter
       testDataSetTriangleFilter2
       TestGraphLayoutFilter
