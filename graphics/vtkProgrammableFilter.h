@@ -76,16 +76,11 @@ class vtkImageCache;
 class VTK_EXPORT vtkProgrammableFilter : public vtkFilter
 {
 public:
-  // Description:
-  // Construct programmable filter with empty execute method.
   vtkProgrammableFilter();
-
   ~vtkProgrammableFilter();
   static vtkProgrammableFilter *New() {return new vtkProgrammableFilter;};
   const char *GetClassName() {return "vtkProgrammableFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
-
-  // methods used to define user function
 
   // Description:
   // Specify the function to use to operate on the point attribute data. Note
@@ -96,15 +91,9 @@ public:
   // Set the arg delete method. This is used to free user memory.
   void SetExecuteMethodArgDelete(void (*f)(void *));
 
-  // methods to set input data
-
   // Description:
   // Specify the input data or filter.
   void SetInput(vtkDataSet *input);
-
-  // methods used to get the input data - user of this filter can get
-  // filter input types - the execute method must manipulate the correct
-  // type.
 
   // Description:
   // Get the input as a concrete type. This method is typically used by the
@@ -129,15 +118,11 @@ public:
   // Get the input as a concrete type.
   vtkRectilinearGrid *GetRectilinearGridInput();
 
-  // methods used to get the output data - user of this filter can get
-  // different output types - the execute method must manipulate the correct
-  // type.
-
   // Description:
   // Get the output as a concrete type. This method is typically used by the
-  // writer of the filter function to get the output as a particular type (i.e.,
-  // it essentially does type casting). It is the users responsibility to know
-  // the correct type of the output data.
+  // writer of the filter function to get the output as a particular type
+  // (i.e., it essentially does type casting). It is the users responsibility
+  // to know the correct type of the output data.
   vtkPolyData *GetPolyDataOutput();
 
   // Description:

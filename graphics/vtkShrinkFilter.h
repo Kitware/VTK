@@ -45,9 +45,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // the average position of the cell points. Shrinking results in 
 // disconnecting the cells from one another. The output of this filter is
 // of general dataset type vtkUnstructuredGrid.
+
 // .SECTION Caveats
 // It is possible to turn cells inside out or cause self intersection
 // in special cases.
+
 // .SECTION See Also
 // vtkShrinkPolyData
 

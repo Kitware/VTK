@@ -40,8 +40,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkIVExporter - export a scene into OpenInventor 2.0 format.
 // .SECTION Description
-// vtkIVExporter is a concrete subclass of vtkExporter that writes OpenInventor 2.0
-// files.
+// vtkIVExporter is a concrete subclass of vtkExporter that writes
+// OpenInventor 2.0 files.
 //
 // .SECTION See Also
 // vtkExporter

@@ -56,15 +56,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTexturedSphereSource : public vtkPolyDataSource 
 {
 public:
-
-// Description:
-// Construct sphere with radius=0.5 and default resolution 8 in both Phi
-// and Theta directions.
   vtkTexturedSphereSource(int res=8);
-
-  static vtkTexturedSphereSource *New() {return new vtkTexturedSphereSource;};
   const char *GetClassName() {return "vtkTexturedSphereSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Construct sphere with radius=0.5 and default resolution 8 in both Phi
+  // and Theta directions.
+  static vtkTexturedSphereSource *New() {return new vtkTexturedSphereSource;};
 
   // Description:
   // Set radius of sphere.

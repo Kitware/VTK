@@ -65,6 +65,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // tensor are taken as the eigenvectors (norm of column is eigenvalue). 
 // This allows additional capability over the vtkGlyph3D object. That is, the
 // glyph can be oriented in three directions instead of one.
+
 // .SECTION See Also
 // vtkGlyph3D vtkPointLoad vtkHyperStreamline
 
@@ -76,23 +77,20 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTensorGlyph : public vtkDataSetToPolyDataFilter
 {
 public:
-
-// Description
-// Construct object with scaling on and scale factor 1.0. Eigenvalues are 
-// extracted, glyphs are colored with input scalar data, and logarithmic
-// scaling is turned off.
   vtkTensorGlyph();
-
-  static vtkTensorGlyph *New() {return new vtkTensorGlyph;};
   const char *GetClassName() {return "vtkTensorGlyph";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description
+  // Construct object with scaling on and scale factor 1.0. Eigenvalues are 
+  // extracted, glyphs are colored with input scalar data, and logarithmic
+  // scaling is turned off.
+  static vtkTensorGlyph *New() {return new vtkTensorGlyph;};
 
-// Description:
-// Override update method because execution can branch two ways (via Input 
-// and Source objects).
+  // Description:
+  // Override update method because execution can branch two ways (via Input 
+  // and Source objects).
   void Update();
-
 
   // Description:
   // Specify the geometry to copy to each point.

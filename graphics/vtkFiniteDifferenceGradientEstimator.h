@@ -39,11 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 
-// .NAME vtkFiniteDifferenceGradientEstimator 
+// .NAME vtkFiniteDifferenceGradientEstimator - Use finite differences to estimate gradient.
+//
 // .SECTION Description
-
+//  vtkFiniteDifferenceGradientEstimator is a concrete subclass of 
+//  vtkEncodedGradientEstimator that uses a central differences technique to
+//  estimate the gradient. The gradient at some sample location (x,y,z)
+//  would be estimated by:
+//      
+//       nx = (f(x-dx,y,z) - f(x+dx,y,z)) / 2*dx;
+//       ny = (f(x,y-dy,z) - f(x,y+dy,z)) / 2*dy;
+//       nz = (f(x,y,z-dz) - f(x,y,z+dz)) / 2*dz;
+//
+//  This value is normalized to determine a unit direction vector and a
+//  magnitude. The normal is computed in voxel space, and 
+//  dx = dy = dz = SampleSpacingInVoxels. A scaling factor is applied to
+//  convert this normal from voxel space to world coordinates.
+//
 // .SECTION see also
-// 
+// vtkEncodedGradientEstimator
 
 #ifndef __vtkFiniteDifferenceGradientEstimator_h
 #define __vtkFiniteDifferenceGradientEstimator_h
@@ -53,23 +67,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkFiniteDifferenceGradientEstimator : public vtkEncodedGradientEstimator
 {
 public:
-
-// Description:
-// Construct a vtkFiniteDifferenceGradientEstimator 
   vtkFiniteDifferenceGradientEstimator();
-
-
-// Description:
-// Destruct a vtkFiniteDifferenceGradientEstimator - free up any memory used
   ~vtkFiniteDifferenceGradientEstimator();
-
-  static vtkFiniteDifferenceGradientEstimator *New() {return new vtkFiniteDifferenceGradientEstimator;};
   const char *GetClassName() {return "vtkFiniteDifferenceGradientEstimator";};
-
-// Description:
-// Print the vtkFiniteDifferenceGradientEstimator
   void PrintSelf( ostream& os, vtkIndent index );
 
+  // Description:
+  // Construct a vtkFiniteDifferenceGradientEstimator with
+  // a SampleSpacingInVoxels of 1.
+  static vtkFiniteDifferenceGradientEstimator *New() {
+    return new vtkFiniteDifferenceGradientEstimator;};
 
   // Description:
   // Set/Get the spacing between samples for the finite differences
@@ -78,13 +85,13 @@ public:
   vtkGetMacro( SampleSpacingInVoxels, int );
 
   // The sample spacing between samples taken for the normal estimation
-  int                   SampleSpacingInVoxels;
+  int SampleSpacingInVoxels;
 
 protected:
 
   // Description:
   // Recompute the encoded normals and gradient magnitudes.
-  void  UpdateNormals( void );
+  void UpdateNormals( void );
 }; 
 
 

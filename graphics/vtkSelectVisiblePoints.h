@@ -56,6 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // used as a sort of local "brushing" operation to select just data within
 // a window.
 // 
+
 // .SECTION Caveats
 // You must carefully synchronize the execution of this filter. The
 // filter refers to a renderer, which is modified everytime a render
@@ -73,15 +74,14 @@ class vtkRenderer;
 class VTK_EXPORT vtkSelectVisiblePoints : public vtkDataSetToPolyDataFilter
 {
 public:
-
-// Description:
-// Instantiate object with no renderer; window selection turned off; 
-// tolerance set to 0.01; and select invisible off.
   vtkSelectVisiblePoints();
-
-  static vtkSelectVisiblePoints *New() {return new vtkSelectVisiblePoints;};
   const char *GetClassName() {return "vtkSelectVisiblePoints";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Instantiate object with no renderer; window selection turned off; 
+  // tolerance set to 0.01; and select invisible off.
+  static vtkSelectVisiblePoints *New() {return new vtkSelectVisiblePoints;};
 
   // Description:
   // Specify the renderer in which the visibility computation is to be
@@ -116,8 +116,9 @@ public:
   vtkSetClampMacro(Tolerance,float,0.0,VTK_LARGE_FLOAT);
   vtkGetMacro(Tolerance,float);
 
-  // Overload because we depend on renderer
-  unsigned long int GetMTime();
+  // Description:
+  // Return MTime also considering the renderer.
+  unsigned long GetMTime();
 
 protected:
   void Execute();

@@ -40,8 +40,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkStarbaseProperty - HP starbase property
 // .SECTION Description
-// vtkStarbaseProperty is a concrete implementation of the abstract class vtkProperty.
-// vtkStarbaseProperty interfaces to the Hewlett-Packard starbase rendering library.
+// vtkStarbaseProperty is a concrete implementation of the abstract class
+// vtkProperty.  vtkStarbaseProperty interfaces to the Hewlett-Packard
+// starbase rendering library.
 
 #ifndef __vtkStarbaseProperty_h
 #define __vtkStarbaseProperty_h
@@ -56,11 +57,10 @@ class VTK_EXPORT vtkStarbaseProperty : public vtkProperty
   static vtkStarbaseProperty *New() {return new vtkStarbaseProperty;};
   const char *GetClassName() {return "vtkStarbaseProperty";};
 
-
-// Description:
-// Implement base class method.
+  // Description:
+  // Implement base class method.
   void Render(vtkActor *a, vtkRenderer *ren);
-
 };
 
 #endif
+

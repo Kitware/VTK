@@ -78,41 +78,38 @@ class vtkPolyDataMapperDevice;
 class VTK_EXPORT vtkRenderWindow : public vtkWindow
 {
 public:
-
-// Description:
-// Construct an instance of  vtkRenderWindow with its screen size 
-// set to 300x300, borders turned on, positioned at (0,0), double 
-// buffering turned on.
   vtkRenderWindow();
-
   ~vtkRenderWindow();
-  static vtkRenderWindow *New();
   const char *GetClassName() {return "vtkRenderWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // Construct an instance of  vtkRenderWindow with its screen size 
+  // set to 300x300, borders turned on, positioned at (0,0), double 
+  // buffering turned on.
+  static vtkRenderWindow *New();
 
-// Description:
-// Add a renderer to the list of renderers.
+  // Description:
+  // Add a renderer to the list of renderers.
   void AddRenderer(vtkRenderer *);
 
-
-// Description:
-// Remove a renderer from the list of renderers.
+  // Description:
+  // Remove a renderer from the list of renderers.
   void RemoveRenderer(vtkRenderer *);
 
+  // Description:
+  // Return the colleciton of renderers inthe render window.
   vtkRendererCollection *GetRenderers() {return this->Renderers;};
 
-
-// Description:
-// Ask each renderer owned by this RenderWindow to render its image and 
-// synchronize this process.
+  // Description:
+  // Ask each renderer owned by this RenderWindow to render its image and 
+  // synchronize this process.
   virtual void Render();
-
 
   // Description:
   // Initialize the rendering process.
   virtual void Start() {};
-
+  
   // Description:
   // A termination method performed at the end of the rendering process
   // to do things like swapping buffers (if necessary) or similar actions.
@@ -123,6 +120,8 @@ public:
   // This is typically done right before swapping buffers.
   virtual void CopyResultFrame();
 
+  // Description:
+  // Return a string for the device dependent rendering library being used.
   static char *GetRenderLibrary();
   
   // Description:
@@ -167,32 +166,31 @@ public:
     {this->SetStereoType(VTK_STEREO_RIGHT);};
   char *GetStereoTypeAsString();
 
-
-// Description:
-// Update the system, if needed, due to stereo rendering. For some stereo 
-// methods, subclasses might need to switch some hardware settings here.
+  // Description:
+  // Update the system, if needed, due to stereo rendering. For some stereo 
+  // methods, subclasses might need to switch some hardware settings here.
   virtual void StereoUpdate();
 
-
-// Description:
-// Intermediate method performs operations required between the rendering
-// of the left and right eye.
+  // Description:
+  // Intermediate method performs operations required between the rendering
+  // of the left and right eye.
   virtual void StereoMidpoint();
 
-
-// Description:
-// Handles work required once both views have been rendered when using
-// stereo rendering.
+  // Description:
+  // Handles work required once both views have been rendered when using
+  // stereo rendering.
   virtual void StereoRenderComplete();
 
-
-
-// Description:
-// This method indicates if a StereoOn/Off will require the window to 
-// be remapped. Some types of stereo rendering require a new window
-// to be created.
+  // Description:
+  // This method indicates if a StereoOn/Off will require the window to 
+  // be remapped. Some types of stereo rendering require a new window
+  // to be created.
   virtual int  GetRemapWindow();
 
+  // Description:
+  // Remap the rendering window. This probably only works on UNIX right now.
+  // It is useful for changing properties that can't normally be changed
+  // once the window is up.
   virtual void WindowRemap() {};
   
   // Description:
@@ -232,7 +230,8 @@ public:
   // float value. The "blend" parameter controls whether the SetRGBAPixelData
   // method blends the data with the previous contents of the frame buffer
   // or completely replaces the frame buffer data.
-  virtual float *GetRGBAPixelData(int ,int ,int ,int ,int ) {return (float *)NULL;};
+  virtual float *GetRGBAPixelData(int ,int ,int ,int ,int ) {
+    return (float *)NULL;};
   virtual void SetRGBAPixelData(int ,int ,int ,int ,float *,int,
                                 int blend=0) { blend = blend;}
   
@@ -277,18 +276,14 @@ public:
   virtual int CheckAbortStatus();
   virtual int GetEventPending() { return 0;};
   
-  
-
-// Description:
-// Specify a function to be called to check and see if an abort
-// of the rendering in progress is desired.
+  // Description:
+  // Specify a function to be called to check and see if an abort
+  // of the rendering in progress is desired.
   void SetAbortCheckMethod(void (*f)(void *), void *arg);
 
-
-// Description:
-// Set the arg delete method. This is used to free user memory.
+  // Description:
+  // Set the arg delete method. This is used to free user memory.
   void SetAbortCheckMethodArgDelete(void (*f)(void *));
-
 
   // Description:
   // Set/Get the desired update rate. This is used with
@@ -305,6 +300,8 @@ public:
   vtkGetObjectMacro(Interactor,vtkRenderWindowInteractor);
   void SetInteractor(vtkRenderWindowInteractor *);
 
+  // Description:
+  // Dummy stubs for vtkWindow API.
   virtual void SetDisplayId(void *) {};
   virtual void SetWindowId(void *)  {};
   virtual void SetParentId(void *)  {};

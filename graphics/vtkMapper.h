@@ -86,8 +86,6 @@ class vtkActor;
 class VTK_EXPORT vtkMapper : public vtkProcessObject
 {
 public:
-  // Description:
-  // Construct with initial range (0,1).
   vtkMapper();
   ~vtkMapper();
   const char *GetClassName() {return "vtkMapper";};
@@ -97,7 +95,7 @@ public:
   // Description:
   // Overload standard modified time function. If lookup table is modified,
   // then this object is modified as well.
-  unsigned long int GetMTime();
+  unsigned long GetMTime();
 
   // Description:
   // Method initiates the mapping process. Generally sent by the actor 
@@ -133,12 +131,12 @@ public:
   // information.)
   vtkSetMacro(ColorMode,int);
   vtkGetMacro(ColorMode,int);
-  void SetColorModeToDefault() 
-    {this->SetColorMode(VTK_COLOR_MODE_DEFAULT);};
-  void SetColorModeToMapScalars() 
-    {this->SetColorMode(VTK_COLOR_MODE_MAP_SCALARS);};
-  void SetColorModeToLuminance() 
-    {this->SetColorMode(VTK_COLOR_MODE_LUMINANCE);};
+  void SetColorModeToDefault() {
+    this->SetColorMode(VTK_COLOR_MODE_DEFAULT);};
+  void SetColorModeToMapScalars() {
+    this->SetColorMode(VTK_COLOR_MODE_MAP_SCALARS);};
+  void SetColorModeToLuminance() {
+    this->SetColorMode(VTK_COLOR_MODE_LUMINANCE);};
 
   // Description:
   // Return the method of coloring scalar data.
@@ -163,10 +161,10 @@ public:
   // having problems rendering a large dataset you might
   // want to consider using imediate more rendering.
   static void SetGlobalImmediateModeRendering(int val);
-  static void GlobalImmediateModeRenderingOn() 
-  {vtkMapper::SetGlobalImmediateModeRendering(1);};
-  static void GlobalImmediateModeRenderingOff() 
-  {vtkMapper::SetGlobalImmediateModeRendering(0);};
+  static void GlobalImmediateModeRenderingOn() {
+    vtkMapper::SetGlobalImmediateModeRendering(1);};
+  static void GlobalImmediateModeRenderingOff() {
+    vtkMapper::SetGlobalImmediateModeRendering(0);};
   static int  GetGlobalImmediateModeRendering();
 
   // Description:
@@ -183,14 +181,21 @@ public:
   // Description:
   // Get the bounds for this mapper as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
   void GetBounds(float bounds[6]);
-
+  
+  // Description:
+  // Return the Center of this mapper's data.
   float *GetCenter();
+  
+  // Description:
+  // Return the diagonal length of this mappers bounding box.
   float GetLength();
 
   // Description:
   // Update the network connected to this mapper.
   virtual void Update();
 
+  // Description:
+  // Return the Input of this mapper.
   virtual vtkDataSet *GetInput() {return this->Input;};
 
   // Description:
@@ -200,19 +205,19 @@ public:
   vtkScalars *GetColors();
   
   // Description:
-  // Control how the filter works with scalar point data and cell attribute data.
-  // By default (ScalarModeToDefault), the filter will use point data, and 
-  // if no point data is available, then cell data is used. Alternatively you
-  // can explicitly set the filter to use point data (ScalarModeToUsePointData)
-  // or cell data (ScalarModeToUseCellData).
+  // Control how the filter works with scalar point data and cell attribute
+  // data.  By default (ScalarModeToDefault), the filter will use point data,
+  // and if no point data is available, then cell data is used. Alternatively
+  // you can explicitly set the filter to use point data
+  // (ScalarModeToUsePointData) or cell data (ScalarModeToUseCellData).
   vtkSetMacro(ScalarMode,int);
   vtkGetMacro(ScalarMode,int);
-  void SetScalarModeToDefault() 
-    {this->SetScalarMode(VTK_SCALAR_MODE_DEFAULT);};
-  void SetScalarModeToUsePointData() 
-    {this->SetScalarMode(VTK_SCALAR_MODE_USE_POINT_DATA);};
-  void SetScalarModeToUseCellData() 
-    {this->SetScalarMode(VTK_SCALAR_MODE_USE_CELL_DATA);};
+  void SetScalarModeToDefault() {
+    this->SetScalarMode(VTK_SCALAR_MODE_DEFAULT);};
+  void SetScalarModeToUsePointData() {
+    this->SetScalarMode(VTK_SCALAR_MODE_USE_POINT_DATA);};
+  void SetScalarModeToUseCellData() {
+    this->SetScalarMode(VTK_SCALAR_MODE_USE_CELL_DATA);};
 
   // Description:
   // Return the method for obtaining scalar data.

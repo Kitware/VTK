@@ -53,19 +53,13 @@ class vtkOpenGLRenderer;
 class VTK_EXPORT vtkOpenGLTexture : public vtkTexture
 {
 public:
-
-// Description:
-// Initializes an instance, generates a unique index.
   vtkOpenGLTexture();
-
   static vtkOpenGLTexture *New() {return new vtkOpenGLTexture;};
   const char *GetClassName() {return "vtkOpenGLTexture";};
-  
 
-// Description:
-// Implement base class method.
+  // Description:
+  // Implement base class method.
   void Load(vtkRenderer *ren);
-
   
 protected:
   vtkTimeStamp   LoadTime;

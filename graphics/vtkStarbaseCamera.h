@@ -40,8 +40,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkStarbaseCamera - HP starbase camera
 // .SECTION Description
-// vtkStarbaseCamera is a concrete implementation of the abstract class vtkCamera.
-// vtkStarbaseCamera interfaces to the Hewlett-Packard starbase rendering library.
+// vtkStarbaseCamera is a concrete implementation of the abstract class
+// vtkCamera.  vtkStarbaseCamera interfaces to the Hewlett-Packard starbase
+// rendering library.
 
 #ifndef __vtkStarbaseCamera_h
 #define __vtkStarbaseCamera_h
@@ -57,9 +58,8 @@ class VTK_EXPORT vtkStarbaseCamera : public vtkCamera
   static vtkStarbaseCamera *New() {return new vtkStarbaseCamera;};
   const char *GetClassName() {return "vtkStarbaseCamera";};
 
-
-// Description:
-// Implement base class method.
+  // Description:
+  // Implement base class method.
   void Render(vtkRenderer *ren);
 
 };

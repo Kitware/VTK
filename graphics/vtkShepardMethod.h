@@ -65,37 +65,31 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkShepardMethod : public vtkDataSetToStructuredPointsFilter 
 {
 public:
-
-// Description:
-// Construct with sample dimensions=(50,50,50) and so that model bounds are
-// automatically computed from input. Null value for each unvisited output 
-// point is 0.0. Maximum distance is 0.25.
   vtkShepardMethod();
-
-  static vtkShepardMethod *New() {return new vtkShepardMethod;};
   const char *GetClassName() {return "vtkShepardMethod";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-
-// Description:
-// Compute ModelBounds from input geometry.
+  // Description:
+  // Construct with sample dimensions=(50,50,50) and so that model bounds are
+  // automatically computed from input. Null value for each unvisited output 
+  // point is 0.0. Maximum distance is 0.25.
+  static vtkShepardMethod *New() {return new vtkShepardMethod;};
+  
+  // Description:
+  // Compute ModelBounds from input geometry.
   float ComputeModelBounds(float origin[3], float ar[3]);
-
 
   // Description:
   // Specify i-j-k dimensions on which to sample input points.
   vtkGetVectorMacro(SampleDimensions,int,3);
-
-
-// Description:
-// Set the i-j-k dimensions on which to sample the distance function.
+  
+  // Description:
+  // Set the i-j-k dimensions on which to sample the distance function.
   void SetSampleDimensions(int i, int j, int k);
 
-
-// Description:
-// Set the i-j-k dimensions on which to sample the distance function.
+  // Description:
+  // Set the i-j-k dimensions on which to sample the distance function.
   void SetSampleDimensions(int dim[3]);
-
 
   // Description:
   // Specify influence distance of each input point. This distance is a 

@@ -40,8 +40,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkRectilinearGridToPolyDataFilter - abstract filter class
 // .SECTION Description
-// vtkRectilinearGridToPolyDataFilter is a filter whose subclasses take as input
-// rectilinear grid datasets and generate polygonal data on output. 
+// vtkRectilinearGridToPolyDataFilter is a filter whose subclasses take as
+// input rectilinear grid datasets and generate polygonal data on output.
 
 // .SECTION See Also
 // vtkRectilinearGridGeometryFilter vtkRectilinearGridOutlineFilter
@@ -56,7 +56,8 @@ class VTK_EXPORT vtkRectilinearGridToPolyDataFilter : public vtkRectilinearGridF
 {
 public:
   vtkRectilinearGridToPolyDataFilter();
-  static vtkRectilinearGridToPolyDataFilter *New() {return new vtkRectilinearGridToPolyDataFilter;};
+  static vtkRectilinearGridToPolyDataFilter *New() {
+    return new vtkRectilinearGridToPolyDataFilter;};
   const char *GetClassName() {return "vtkRectilinearGridToPolyDataFilter";};
 
   // Description:

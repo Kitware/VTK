@@ -40,8 +40,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkWin32OpenGLRenderWindow - OpenGL rendering window
 // .SECTION Description
-// vtkWin32OpenGLRenderWindow is a concrete implementation of the abstract class
-// vtkRenderWindow. vtkWin32OpenGLRenderer interfaces to the standard
+// vtkWin32OpenGLRenderWindow is a concrete implementation of the abstract
+// class vtkRenderWindow. vtkWin32OpenGLRenderer interfaces to the standard
 // OpenGL graphics library in the Windows/NT environment..
 
 #ifndef __vtkWin32OpenGLRenderWindow_h
@@ -53,88 +53,72 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkWin32OpenGLRenderWindow : public vtkRenderWindow
 {
 public:
-  HINSTANCE ApplicationInstance;
-  HPALETTE  Palette;
-  HGLRC     ContextId;
-  HDC	      DeviceContext;			//	hsr	
-  BOOL      MFChandledWindow;		//  hsr
-  HWND      WindowId;
-  HWND      ParentId;
-  HWND      NextWindowId;
-  int       OwnWindow;
-  int       ScreenSize[2];
-  int       MultiSamples;
-  // Pen for 2D graphics line drawing
-  HPEN Pen;
-
-  // Pen color for the graphics;
-  COLORREF PenColor;
-public:
   vtkWin32OpenGLRenderWindow();
   ~vtkWin32OpenGLRenderWindow();
-  static vtkWin32OpenGLRenderWindow *New() {return new vtkWin32OpenGLRenderWindow;};
+  static vtkWin32OpenGLRenderWindow *New() {
+    return new vtkWin32OpenGLRenderWindow;};
   const char *GetClassName() {return "vtkWin32OpenGLRenderWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);
-  
 
-// Description:
-// Begin the rendering process.
+  // Description:
+  // Begin the rendering process.
   void Start(void);
 
-
-// Description:
-// End the rendering process and display the image.
+  // Description:
+  // End the rendering process and display the image.
   void Frame(void);
 
-
-// Description:
-// Specify various window parameters.
+  // Description:
+  // Specify various window parameters.
   void WindowConfigure(void);
 
-
-// Description:
-// Initialize the window for rendering.
+  // Description:
+  // Initialize the window for rendering.
   void WindowInitialize(void);
 
-
-// Description:
-// Initialize the rendering window.
+  // Description:
+  // Initialize the rendering window.
   void Initialize(void);
 
-
-// Description:
-// Change the window to fill the entire screen.
+  // Description:
+  // Change the window to fill the entire screen.
   virtual void SetFullScreen(int);
 
-
-// Description:
-// Remap the window.
+  // Description:
+  // Remap the window.
   void WindowRemap(void);
 
-
-// Description:
-// Set the preferred window size to full screen.
+  // Description:
+  // Set the preferred window size to full screen.
   void PrefFullScreen(void);
 
+  // Description:
+  // Set the size of the window.
   void SetSize(int,int);
 
-// Description:
-// Get the current size of the window.
+  // Description:
+  // Get the current size of the window.
   int *GetSize();
 
+  // Description:
+  // Set the position of the window.
   void SetPosition(int,int);
+  
+  // Description:
+  // Return the scrren size.
   int *GetScreenSize();
 
-// Description:
-// Get the position in screen coordinates of the window.
+  // Description:
+  // Get the position in screen coordinates of the window.
   int *GetPosition();
 
-
+  // Description:
+  // Set the name of the window. This appears at the top of the window
+  // normally.
   virtual void SetWindowName(char *);
   
-
-// Description:
-// Set this RenderWindow's X window id to a pre-existing window.
+  // Description:
+  // Set this RenderWindow's window id to a pre-existing window.
   void SetWindowInfo(char *);
 
   //BTX
@@ -143,48 +127,42 @@ public:
   virtual void *GetGenericParentId()  {return (void *)this->ParentId;};
   virtual void *GetGenericContext()   {return (void *)this->DeviceContext;};
   virtual void SetDisplayId(void *) {};
-  
 
-// Description:
-// Get the window id.
+  // Description:
+  // Get the window id.
   HWND  GetWindowId();
-
   void  SetWindowId(void *foo) {this->SetWindowId((HWND)foo);};
 
-// Description:
-// Set the window id to a pre-existing window.
+  // Description:
+  // Set the window id to a pre-existing window.
   void  SetWindowId(HWND);
-
-  void  SetParentId(void *foo) {this->SetParentId((HWND)foo);};
-
-// Description:
-// Set the window id to a pre-existing window.
+  
+  // Description:
+  // Set the window's parent id to a pre-existing window.
   void  SetParentId(HWND);
+  void  SetParentId(void *foo) {this->SetParentId((HWND)foo);};
 
   void  SetContextId(HGLRC);	// hsr
   void  SetDeviceContext(HDC);	// hsr
 
-// Description:
-// Set the window id of the new window once a WindowRemap is done.
+  // Description:
+  // Set the window id of the new window once a WindowRemap is done.
   void  SetNextWindowId(HWND);
-
   //ETX
 
   // supply base class virtual function
   vtkSetMacro(MultiSamples,int);
   vtkGetMacro(MultiSamples,int);
 
-  // stereo rendering stuff
-
-// Description:
-// Update system if needed due to stereo rendering.
+  // Description:
+  // Update system if needed due to stereo rendering.
   virtual void StereoUpdate();
-
   
   // Description:
   // Set/Get the pixel data of an image, transmitted as RGBRGB... 
   virtual unsigned char *GetPixelData(int x,int y,int x2,int y2,int front);
-  virtual void SetPixelData(int x,int y,int x2,int y2,unsigned char *,int front);
+  virtual void SetPixelData(int x,int y,int x2,int y2,unsigned char *,
+			    int front);
 
   // Description:
   // Set/Get the pixel data of an image, transmitted as RGBARGBA... 
@@ -198,11 +176,26 @@ public:
   virtual float *GetZbufferData( int x1, int y1, int x2, int y2 );
   virtual void SetZbufferData( int x1, int y1, int x2, int y2, float *buffer );
 
+  // Description:
+  // Make this windows OpenGL context the current context.
   void MakeCurrent();
+
+  // Description:
+  // Check to see if an event is pending for this window.
+  // This is a useful check to abort a long render.
   virtual  int GetEventPending();
-  void PenLineTo(int x,int y);
-  void PenMoveTo(int x,int y);
-  void SetPenColor(float r,float g,float b);
+
+  HINSTANCE ApplicationInstance;
+  HPALETTE  Palette;
+  HGLRC     ContextId;
+  HDC	      DeviceContext;			//	hsr	
+  BOOL      MFChandledWindow;		//  hsr
+  HWND      WindowId;
+  HWND      ParentId;
+  HWND      NextWindowId;
+  int       OwnWindow;
+  int       ScreenSize[2];
+  int       MultiSamples;
 
 };
 

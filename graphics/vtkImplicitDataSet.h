@@ -69,19 +69,20 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImplicitDataSet : public vtkImplicitFunction
 {
 public:
-  // Description
-  // Construct an vtkImplicitDataSet with no initial dataset; the OutValue
-  // set to a large negative number; and the OutGradient set to (0,0,1).
   vtkImplicitDataSet();
-
   ~vtkImplicitDataSet();
-  static vtkImplicitDataSet *New() {return new vtkImplicitDataSet;};
   const char *GetClassName() {return "vtkImplicitDataSet";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  unsigned long int GetMTime();
+  // Description
+  // Construct an vtkImplicitDataSet with no initial dataset; the OutValue
+  // set to a large negative number; and the OutGradient set to (0,0,1).
+  static vtkImplicitDataSet *New() {return new vtkImplicitDataSet;};
 
-  // ImplicitFunction interface
+  // Description:
+  // Return the MTime also considering the DataSet dependency.
+  unsigned long GetMTime();
+
   // Description
   // Evaluate the implicit function. This returns the interpolated scalar value
   // at x[3].
@@ -92,17 +93,17 @@ public:
   void EvaluateGradient(float x[3], float n[3]);
 
   // Description:
-  // Specify the dataset used for the implicit function evaluation.
+  // Set / get the dataset used for the implicit function evaluation.
   vtkSetObjectMacro(DataSet,vtkDataSet);
   vtkGetObjectMacro(DataSet,vtkDataSet);
 
   // Description:
-  // Set the function value to use for points outside of the dataset.
+  // Set / get the function value to use for points outside of the dataset.
   vtkSetMacro(OutValue,float);
   vtkGetMacro(OutValue,float);
 
   // Description:
-  // Set the function gradient to use for points outside of the dataset.
+  // Set / get the function gradient to use for points outside of the dataset.
   vtkSetVector3Macro(OutGradient,float);
   vtkGetVector3Macro(OutGradient,float);
 

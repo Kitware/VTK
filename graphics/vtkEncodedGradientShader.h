@@ -39,10 +39,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 
-// .NAME vtkEncodedGradientShader - 
+// .NAME vtkEncodedGradientShader - Compute shading tables for encoded normals.
+//
+// .SECTION Description
+// vtkEncodedGradientShader computes shading tables for encoded normals 
+// that indicates the amount of diffuse and specular illumination that is 
+// recieved from all light sources at a surface location with that normal.
+// For diffuse illumination this is accurate, but for specular illumination
+// it is approximate for perspective projections since the center view
+// direction is always used as the view direction.
 
-// .SECTION see also
-// 
+
 
 #ifndef __vtkEncodedGradientShader_h
 #define __vtkEncodedGradientShader_h
@@ -56,21 +63,15 @@ class vtkEncodedGradientEstimator;
 class VTK_EXPORT vtkEncodedGradientShader : public vtkObject
 {
 public:
-
-// Description:
   vtkEncodedGradientShader();
-
-
-// Description:
   ~vtkEncodedGradientShader();
-
-  static vtkEncodedGradientShader *New() {return new vtkEncodedGradientShader;};
+  static vtkEncodedGradientShader *New() {
+    return new vtkEncodedGradientShader;};
   const char *GetClassName() {return "vtkEncodedGradientShader";};
 
-// Description:
-// Print the vtkEncodedGradientShader
+  // Description:
+  // Print the vtkEncodedGradientShader
   void PrintSelf( ostream& os, vtkIndent index );
-
 
   // Description:
   // Cause the shading table to be updated

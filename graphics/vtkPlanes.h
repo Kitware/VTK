@@ -69,22 +69,19 @@ public:
   const char *GetClassName() {return "vtkPlanes";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-
-// Description
-// Evaluate plane equations. Return smallest absolute value.
+  // Description
+  // Evaluate plane equations. Return smallest absolute value.
   float EvaluateFunction(float x[3]);
 
-
-// Description
-// Evaluate planes gradient.
+  // Description
+  // Evaluate planes gradient.
   void EvaluateGradient(float x[3], float n[3]);
-
 
   // Description:
   // Specify a list of points defining points through which the planes pass.
   vtkSetReferenceCountedObjectMacro(Points,vtkPoints);
   vtkGetObjectMacro(Points,vtkPoints);
-
+  
   // Description:
   // Specify a list of normal vectors for the planes. There is a one-to-one
   // correspondence between plane points and plane normals.

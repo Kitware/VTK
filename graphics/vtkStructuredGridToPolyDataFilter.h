@@ -56,7 +56,8 @@ class VTK_EXPORT vtkStructuredGridToPolyDataFilter : public vtkStructuredGridFil
 {
 public:
   vtkStructuredGridToPolyDataFilter();
-  static vtkStructuredGridToPolyDataFilter *New() {return new vtkStructuredGridToPolyDataFilter;};
+  static vtkStructuredGridToPolyDataFilter *New() {
+    return new vtkStructuredGridToPolyDataFilter;};
   const char *GetClassName() {return "vtkStructuredGridToPolyDataFilter";};
 
   // Description:

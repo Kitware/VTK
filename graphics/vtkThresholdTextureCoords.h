@@ -47,11 +47,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // values (ThresholdBetween(). If the threshold criterion is satisfied, 
 // the "in" texture coordinate will be set (this can be specified by the
 // user). If the threshold criterion is not satisfied the "out" is set.
+
 // .SECTION Caveats
 // There is a texture map - texThres.vtk - that can be used in conjunction
 // with this filter. This map defines a "transparent" region for texture 
 // coordinates 0<=r<0.5, and an opaque full intensity map for texture 
 // coordinates 0.5<r<=1.0. There is a small transition region for r=0.5.
+
 // .SECTION See Also
 // vtkThreshold vtkThresholdPoints vtkTextureMapToPlane vtkTextureMapToSphere
 // vtkTextureMapToCylinder vtkTextureMapToBox
@@ -65,26 +67,25 @@ class VTK_EXPORT vtkThresholdTextureCoords : public vtkDataSetToDataSetFilter
 {
 public:
   vtkThresholdTextureCoords();
-  static vtkThresholdTextureCoords *New() {return new vtkThresholdTextureCoords;};
+  static vtkThresholdTextureCoords *New() {
+    return new vtkThresholdTextureCoords;};
   const char *GetClassName() {return "vtkThresholdTextureCoords";};
   void PrintSelf(ostream& os, vtkIndent indent);
-
-
-// Description:
-// Criterion is cells whose scalars are less than lower threshold.
+  
+  // Description:
+  // Criterion is cells whose scalars are less than lower threshold.
   void ThresholdByLower(float lower);
 
-
-// Description:
-// Criterion is cells whose scalars are less than upper threshold.
+  // Description:
+  // Criterion is cells whose scalars are less than upper threshold.
   void ThresholdByUpper(float upper);
 
-
-// Description:
-// Criterion is cells whose scalars are between lower and upper thresholds.
+  // Description:
+  // Criterion is cells whose scalars are between lower and upper thresholds.
   void ThresholdBetween(float lower, float upper);
 
-  
+  // Description:
+  // Return the upper and lower thresholds.
   vtkGetMacro(UpperThreshold,float);
   vtkGetMacro(LowerThreshold,float);
 

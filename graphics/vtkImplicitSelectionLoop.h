@@ -77,18 +77,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImplicitSelectionLoop : public vtkImplicitFunction
 {
 public:
-  // Description:
-  // Instantiate object with no initial loop.
   vtkImplicitSelectionLoop();
   ~vtkImplicitSelectionLoop();
-  static vtkImplicitSelectionLoop *New(){ return new vtkImplicitSelectionLoop;}
   const char *GetClassName() {return "vtkImplicitSelectionLoop";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Satisfy vtkImplicitFunction's API
+  // Description:
+  // Instantiate object with no initial loop.
+  static vtkImplicitSelectionLoop *New() {return new vtkImplicitSelectionLoop;}
+
   // Description:
   // Evaluate selection loop returning a signed distance.
   float EvaluateFunction(float x[3]);
+
   // Description:
   // Evaluate selection loop returning the gradient.
   void EvaluateGradient(float x[3], float n[3]);
@@ -108,12 +109,13 @@ public:
   vtkBooleanMacro(AutomaticNormalGeneration,int);
 
   // Description:
-  // Normal used to determine what is inside and what is outside.
+  // Set / get the normal used to determine what is inside and what is outside.
   vtkSetVector3Macro(Normal,float);
   vtkGetVectorMacro(Normal,float,3);
 
-  // Overload GetMTime() because we depend on Loop
-  unsigned long int GetMTime();
+  // Description:
+  // Overload GetMTime() because we depend on the Loop
+  unsigned long GetMTime();
 
 protected:
   vtkPoints *Loop;

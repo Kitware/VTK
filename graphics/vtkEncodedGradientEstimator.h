@@ -39,11 +39,20 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 
-// .NAME vtkEncodedGradientEstimator - 
+// .NAME vtkEncodedGradientEstimator - Superclass for gradient estimation
 // .SECTION Description
-
+// vtkEncodedGradientEstimator is an abstract superclass for gradient 
+// estimation. It takes a scalar input of vtkStructuredPoints, computes
+// a gradient value for every point, and encodes this value into a 
+// three byte value (2 for direction, 1 for magnitude) using the 
+// vtkDirectionEncoder. The direction encoder is defaulted to a
+// vtkRecursiveSphereDirectionEncoder, but can be overridden with the
+// SetDirectionEncoder method. The scale and the bias values for the gradient
+// magnitude are used to convert it into a one byte value according to
+// v = m*scale + bias where m is the magnitude and v is the resulting
+// one byte value.
 // .SECTION see also
-// 
+// vtkFiniteDifferenceGradientEstimator vtkDirectionEncoder
 
 #ifndef __vtkEncodedGradientEstimator_h
 #define __vtkEncodedGradientEstimator_h
@@ -56,27 +65,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkEncodedGradientEstimator : public vtkObject
 {
 public:
-
-// Description:
-// Construct a vtkEncodedGradientEstimator with initial values of NULL for
-// the ScalarInput, EncodedNormal, and GradientMagnitude. Also,
-// indicate that the IndexTable has not yet been initialized. The
-// GradientMagnitudeRange and the GradientMangitudeTable are 
-// initialized to default values - these will change in the future
-// when magnitude of gradient opacities are included
   vtkEncodedGradientEstimator();
-
-
-// Description:
-// Destruct a vtkEncodedGradientEstimator - free up any memory used
   ~vtkEncodedGradientEstimator();
-
   const char *GetClassName() {return "vtkEncodedGradientEstimator";};
-
-// Description:
-// Print the vtkEncodedGradientEstimator
   void PrintSelf( ostream& os, vtkIndent index );
-
 
   // Description:
   // Set/Get the scalar input for which the normals will be 
@@ -110,6 +102,7 @@ public:
 
   // Description:
   // Get/Set the number of threads to create when encoding normals
+  // This defaults to the number of available processors on the machine
   vtkSetClampMacro( NumberOfThreads, int, 1, VTK_MAX_THREADS );
   vtkGetMacro( NumberOfThreads, int );
 

@@ -40,7 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkOpenGLPolyDataMapper - a PolyDataMapper for the OpenGL library
 // .SECTION Description
-// vtkOpenGLPolyDataMapper is a subclass of vtkPolyDataMapperDevice. 
+// vtkOpenGLPolyDataMapper is a subclass of vtkPolyDataMapper.
 // vtkOpenGLPolyDataMapper is a geometric PolyDataMapper for the OpenGL 
 // rendering library.
 
@@ -58,36 +58,27 @@ class vtkProperty;
 class VTK_EXPORT vtkOpenGLPolyDataMapper : public vtkPolyDataMapper
 {
  public:
-
-// Description:
-// Construct empty object.
   vtkOpenGLPolyDataMapper();
-
-
-// Description:
-// Construct empty object.
   ~vtkOpenGLPolyDataMapper();
-
   static vtkOpenGLPolyDataMapper *New() {return new vtkOpenGLPolyDataMapper;};
   const char *GetClassName() {return "vtkOpenGLPolyDataMapper";};
 
+  // Description:
+  // Implement superclass render method.
   void Render(vtkRenderer *ren, vtkActor *a);
 
-
-// Description:
-// Draw method for OpenGL.
+  // Description:
+  // Draw method for OpenGL.
   void Draw(vtkRenderer *ren, vtkActor *a);
-
   
   //BTX  begine tcl exclude
-
-// Description:
-// Get the lmcolor property, this is a pretty important little 
-// function.  It determines how vertex colors will be handled  
-// in gl.  When a PolyDataMapper has vertex colors it will use this 
-// method to determine what lmcolor mode to set.               
+  
+  // Description:
+  // Get the lmcolor property, this is a pretty important little 
+  // function.  It determines how vertex colors will be handled  
+  // in gl.  When a PolyDataMapper has vertex colors it will use this 
+  // method to determine what lmcolor mode to set.               
   GLenum GetLmcolorMode(vtkProperty *prop);
-
   //ETX
 
  private:

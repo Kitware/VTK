@@ -41,7 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkXGLCamera - Camera for Suns XGL
 // .SECTION Description
 // vtkXGLCamera is a concrete implementation of the abstract class vtkCamera.
-// vtkXGLCamera interfaces to the Hewlett-Packard starbase rendering library.
+// vtkXGLCamera interfaces to SUN's XGL rendering library.
 
 #ifndef __vtkXGLCamera_h
 #define __vtkXGLCamera_h
@@ -56,11 +56,9 @@ class VTK_EXPORT vtkXGLCamera : public vtkCamera
   static vtkXGLCamera *New() {return new vtkXGLCamera;};
   const char *GetClassName() {return "vtkXGLCamera";};
 
-
-// Description:
-// Implement base class method.
+  // Description:
+  // Implement base class method.
   void Render(vtkRenderer *ren);
-
 
 };
 

@@ -55,13 +55,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkRectilinearGridFilter : public vtkFilter 
 {
 public:
-  static vtkRectilinearGridFilter *New() {return new vtkRectilinearGridFilter;};
+  static vtkRectilinearGridFilter *New() {
+    return new vtkRectilinearGridFilter;};
   const char *GetClassName() {return "vtkRectilinearGridFilter";};
 
   // Description:
-  // Specify the input Grid or filter.
+  // Set / get the input Grid or filter.
   void SetInput(vtkRectilinearGrid *input);
-
   void SetInput(vtkRectilinearGrid &input) {this->SetInput(&input);};
   vtkRectilinearGrid *GetInput() {return (vtkRectilinearGrid *)this->Input;};
 };

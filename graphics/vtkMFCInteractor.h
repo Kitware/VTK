@@ -72,21 +72,18 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkMFCInteractor : public vtkRenderWindowInteractor
 {
 public:
-
-// Description:
-// Construct object so that light follows camera motion.
   vtkMFCInteractor();
-
   ~vtkMFCInteractor();
   static vtkMFCInteractor *New() {return new vtkMFCInteractor;};
   const char *GetClassName() {return "vtkMFCInteractor";};
   void PrintSelf(ostream& os, vtkIndent indent);
-  
 
-// Description:
-// Begin processing keyboard strokes.
+  // Description:
+  // Begin processing keyboard events.
   virtual void Initialize();
 
+  // Description:
+  // Start the event loop and possibly never return.
   virtual void Start();
 
   //BTX

@@ -62,10 +62,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // This filter can be used to create 3D fonts, 3D irregular bar charts,
 // or to model 2 1/2D objects like punched plates. It also can be used to 
 // create solid objects from 2D polygonal meshes.
+
 // .SECTION Caveats
 // Some polygonal objects have no free edges (e.g., sphere). When swept,
 // this will result in two separate surfaces if capping is on, or no surface
 // if capping is off.
+
 // .SECTION See Also
 // vtkRotationalExtrusionFilter
 
@@ -81,15 +83,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkLinearExtrusionFilter : public vtkPolyDataToPolyDataFilter 
 {
 public:
-
-// Description:
-// Create object with normal extrusion type, capping on, scale factor=1.0,
-// vector (0,0,1), and extrusion point (0,0,0).
   vtkLinearExtrusionFilter();
-
-  static vtkLinearExtrusionFilter *New() {return new vtkLinearExtrusionFilter;};
   const char *GetClassName() {return "vtkLinearExtrusionFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Create object with normal extrusion type, capping on, scale factor=1.0,
+  // vector (0,0,1), and extrusion point (0,0,0).
+  static vtkLinearExtrusionFilter *New() {
+    return new vtkLinearExtrusionFilter;};
 
   // Description:
   // Set/Get the type of extrusion.

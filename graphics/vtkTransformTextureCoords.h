@@ -40,11 +40,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkTransformTextureCoords - transform (scale, rotate, translate) texture coordinates
 // .SECTION Description
-// vtkTransformTextureCoords is a filter that operates on texture coordinates. It ingests
-// any type of dataset, and outputs a dataset of the same type. The filter lets
-// you scale, translate, and rotate texture coordinates. For example, by using the
-// the Scale ivar, you can shift texture coordinates that range from (0->1) to
-// range from (0->10) (useful for repeated patterns).
+// vtkTransformTextureCoords is a filter that operates on texture
+// coordinates. It ingests any type of dataset, and outputs a dataset of the
+// same type. The filter lets you scale, translate, and rotate texture
+// coordinates. For example, by using the the Scale ivar, you can shift
+// texture coordinates that range from (0->1) to range from (0->10) (useful
+// for repeated patterns).
 // 
 // The filter operates on texture coordinates of dimension 1->3. The texture 
 // coordinates are referred to as r-s-t. If the texture map is two dimensional,
@@ -62,15 +63,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTransformTextureCoords : public vtkDataSetToDataSetFilter 
 {
 public:
-
-// Description:
-// Create instance with Origin (0.5,0.5,0.5); Position (0,0,0); and Scale
-// set to (1,1,1). Rotation of the texture coordinates is turned off.
   vtkTransformTextureCoords();
-
-  static vtkTransformTextureCoords *New() {return new vtkTransformTextureCoords;};
   const char *GetClassName() {return "vtkTransformTextureCoords";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Create instance with Origin (0.5,0.5,0.5); Position (0,0,0); and Scale
+  // set to (1,1,1). Rotation of the texture coordinates is turned off.
+  static vtkTransformTextureCoords *New() {
+    return new vtkTransformTextureCoords;};
 
   // Description:
   // Set/Get the position of the texture map. Setting the position translates
@@ -78,14 +79,12 @@ public:
   vtkSetVector3Macro(Position,float);
   vtkGetVectorMacro(Position,float,3);
 
-  void AddPosition(float deltaPosition[3]);
-
-// Description:
-// Incrementally change the position of the texture map (i.e., does a
-// translate or shift of the texture coordinates).
+  // Description:
+  // Incrementally change the position of the texture map (i.e., does a
+  // translate or shift of the texture coordinates).
   void AddPosition(float deltaR, float deltaS, float deltaT);
-
-
+  void AddPosition(float deltaPosition[3]);
+  
   // Description:
   // Set/Get the scale of the texture map. Scaling in performed independently 
   // on the r, s and t axes.

@@ -50,6 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Instances of vtkTexture are associated with actors via the actor's
 // SetTexture() method. Actors can share texture maps (this is encouraged
 // to save memory resources.) 
+
 // .SECTION Caveats
 // Currently only 2D texture maps are supported, even though the data pipeline
 // supports 1,2, and 3D texture coordinates. 
@@ -57,6 +58,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Some renderers such as OpenGL require that the texture map dimensions are
 // a power of two in each direction. Other renderers may have similar
 // (ridiculous) restrictions, so be careful out there...
+
 // .SECTION See Also
 // vtkActor vtkRenderer vtkTextureDevice
 
@@ -75,11 +77,7 @@ class vtkRenderer;
 class VTK_EXPORT vtkTexture : public vtkObject
 {
 public:
-
-// Description:
-// Construct object and initialize.
   vtkTexture();
-
   ~vtkTexture();
   static vtkTexture *New();
   const char *GetClassName() {return "vtkTexture";};
@@ -127,7 +125,6 @@ public:
   vtkGetObjectMacro(Input,vtkStructuredPoints);
   void SetInput(vtkImageCache *cache)
     {this->SetInput(cache->GetImageToStructuredPoints()->GetOutput());}  
-  
   
   // Description:
   // Specify the lookup table to convert scalars if necessary

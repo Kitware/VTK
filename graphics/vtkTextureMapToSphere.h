@@ -72,15 +72,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTextureMapToSphere : public vtkDataSetToDataSetFilter 
 {
 public:
-
-// Description:
-// Create object with Center (0,0,0) and the PreventSeam ivar is set to true. The 
-// sphere center is automatically computed.
   vtkTextureMapToSphere();
-
-  static vtkTextureMapToSphere *New() {return new vtkTextureMapToSphere;};
   const char *GetClassName() {return "vtkTextureMapToSphere";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Create object with Center (0,0,0) and the PreventSeam ivar is set to
+  // true. The sphere center is automatically computed.
+  static vtkTextureMapToSphere *New() {return new vtkTextureMapToSphere;};
 
   // Description:
   // Specify a point defining the center of the sphere.
@@ -88,17 +87,17 @@ public:
   vtkGetVectorMacro(Center,float,3);
 
   // Description:
-  // Turn on/off automatic sphere generation. This means it automatically finds 
-  // the sphere center.
+  // Turn on/off automatic sphere generation. This means it automatically
+  // finds the sphere center.
   vtkSetMacro(AutomaticSphereGeneration,int);
   vtkGetMacro(AutomaticSphereGeneration,int);
   vtkBooleanMacro(AutomaticSphereGeneration,int);
 
   // Description:
-  // Control how the texture coordinates are generated. If PreventSeam is set, the
-  // s-coordinate ranges from 0->1 and 1->0 corresponding to the theta angle variation
-  // between 0->180 and 180->0 degrees. Otherwise, the s-ccordinate ranges from 0->1 
-  // between 0->360 degrees.
+  // Control how the texture coordinates are generated. If PreventSeam is
+  // set, the s-coordinate ranges from 0->1 and 1->0 corresponding to the
+  // theta angle variation between 0->180 and 180->0 degrees. Otherwise, the
+  // s-ccordinate ranges from 0->1 between 0->360 degrees.
   vtkSetMacro(PreventSeam,int);
   vtkGetMacro(PreventSeam,int);
   vtkBooleanMacro(PreventSeam,int);

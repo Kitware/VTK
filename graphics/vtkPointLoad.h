@@ -46,6 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // text.) It also is possible to compute effective stress scalars if desired.
 // This object serves as a specialized data generator for some of the examples
 // in the text.
+
 // .SECTION See Also
 // vtkTensorGlyph, vtkHyperStreamline
 
@@ -57,33 +58,29 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPointLoad :  public vtkStructuredPointsSource
 {
 public:
-
-// Description:
-// Construct with ModelBounds=(-1,1,-1,1,-1,1), SampleDimensions=(50,50,50),
-// and LoadValue = 1.
   vtkPointLoad();
-
-  static vtkPointLoad *New() {return new vtkPointLoad;};
   const char *GetClassName() {return "vtkPointLoad";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Construct with ModelBounds=(-1,1,-1,1,-1,1), SampleDimensions=(50,50,50),
+  // and LoadValue = 1.
+  static vtkPointLoad *New() {return new vtkPointLoad;};
 
   // Description:
   // Set/Get value of applied load.
   vtkSetMacro(LoadValue,float);
   vtkGetMacro(LoadValue,float);
 
-
-// Description:
-// Specify the dimensions of the volume. A stress tensor will be computed for
-// each point in the volume.
+  // Description:
+  // Specify the dimensions of the volume. A stress tensor will be computed for
+  // each point in the volume.
   void SetSampleDimensions(int i, int j, int k);
 
-
-// Description:
-// Specify the dimensions of the volume. A stress tensor will be computed for
-// each point in the volume.
+  // Description:
+  // Specify the dimensions of the volume. A stress tensor will be computed for
+  // each point in the volume.
   void SetSampleDimensions(int dim[3]);
-
   vtkGetVectorMacro(SampleDimensions,int,3);
 
   // Description:

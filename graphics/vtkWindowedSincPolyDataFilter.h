@@ -158,18 +158,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class VTK_EXPORT vtkWindowedSincPolyDataFilter : public vtkPolyDataToPolyDataFilter 
 {
- public:
+public:
+  vtkWindowedSincPolyDataFilter();
+  const char *GetClassName() {return "vtkWindowedSincPolyDataFilter";};
+  void PrintSelf(ostream& os, vtkIndent indent);
+
   // Description:
   // Construct object with number of iterations 20; passband .1;
   // feature edge smoothing turned off; feature 
   // angle 45 degrees; edge angle 15 degrees; and boundary smoothing turned 
   // on. Error scalars and vectors are not generated (by default). The 
   // convergence criterion is 0.0 of the bounding box diagonal.
-  vtkWindowedSincPolyDataFilter();
-
-  static vtkWindowedSincPolyDataFilter *New() {return new vtkWindowedSincPolyDataFilter;};
-  const char *GetClassName() {return "vtkWindowedSincPolyDataFilter";};
-  void PrintSelf(ostream& os, vtkIndent indent);
+  static vtkWindowedSincPolyDataFilter *New() {
+    return new vtkWindowedSincPolyDataFilter;};
 
   // Description:
   // Specify the number of iterations (or degree of the polynomial

@@ -72,75 +72,71 @@ class vtkCuller;
 class VTK_EXPORT vtkRenderer : public vtkViewport
 {
 public:
-
-// Description:
-// Create a vtkRenderer with a black background, a white ambient light, 
-// two-sided lighting turned on, a viewport of (0,0,1,1), and backface culling
-// turned off.
   vtkRenderer();
-
   ~vtkRenderer();
-  static vtkRenderer *New();
   const char *GetClassName() {return "vtkRenderer";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // Create a vtkRenderer with a black background, a white ambient light,
+  // two-sided lighting turned on, a viewport of (0,0,1,1), and backface
+  // culling turned off.
+  static vtkRenderer *New();
 
-// Description:
-// Add a light to the list of lights.
+  // Description:
+  // Add a light to the list of lights.
   void AddLight(vtkLight *);
 
-
-// Description:
-// Add an actor to the list of actors.
+  // Description:
+  // Add an actor to the list of actors.
   void AddActor(vtkActor *);
 
-
-// Description:
-// Add a volume to the list of volumes.
+  // Description:
+  // Add a volume to the list of volumes.
   void AddVolume(vtkVolume *);
 
-
-
-// Description:
-// Remove a light from the list of lights.
+  // Description:
+  // Remove a light from the list of lights.
   void RemoveLight(vtkLight *);
 
-
-// Description:
-// Remove an actor from the list of actors.
+  // Description:
+  // Remove an actor from the list of actors.
   void RemoveActor(vtkActor *);
 
-
-// Description:
-// Remove a volume from the list of volumes.
+  // Description:
+  // Remove a volume from the list of volumes.
   void RemoveVolume(vtkVolume *);
 
-
+  // Description:
+  // Return the collection of lights.
   vtkLightCollection *GetLights();
+  
+  // Description:
+  // Return the collection of actors.
   vtkActorCollection *GetActors();
+  
+  // Description:
+  // Return the collection of volumes.
   vtkVolumeCollection *GetVolumes();
 
-
-// Description:
-// Specify the camera to use for this renderer.
+  // Description:
+  // Specify the camera to use for this renderer.
   void SetActiveCamera(vtkCamera *);
 
-
-// Description:
-// Get the current camera.
+  // Description:
+  // Get the current camera.
   vtkCamera *GetActiveCamera();
 
-
-
-// Description:
-// Add an culler to the list of cullers.
+  // Description:
+  // Add an culler to the list of cullers.
   void AddCuller(vtkCuller *);
 
-
-// Description:
-// Remove an actor from the list of cullers.
+  // Description:
+  // Remove an actor from the list of cullers.
   void RemoveCuller(vtkCuller *);
 
+  // Description:
+  // Return the collection of cullers.
   vtkCullerCollection *GetCullers();
 
   // Description:
@@ -195,39 +191,33 @@ public:
   // Create and add a light to renderer.
   void CreateLight(void);
 
-
-// Description:
-// Automatically set up the camera based on the visible actors.
-// The camera will reposition itself to view the center point of the actors,
-// and move along its initial view plane normal (i.e., vector defined from 
-// camera position to focal point) so that all of the actors can be seen.
+  // Description:
+  // Automatically set up the camera based on the visible actors.
+  // The camera will reposition itself to view the center point of the actors,
+  // and move along its initial view plane normal (i.e., vector defined from 
+  // camera position to focal point) so that all of the actors can be seen.
   void ResetCamera();
 
-
-// Description:
-// Automatically set up the camera based on a specified bounding box
-// (xmin,xmax, ymin,ymax, zmin,zmax). Camera will reposition itself so
-// that its focal point is the center of the bounding box, and adjust its
-// distance and position to preserve its initial view plane normal 
-// (i.e., vector defined from camera position to focal point). Note: is 
-// the view plane is parallel to the view up axis, the view up axis will
-// be reset to one of the three coordinate axes.
+  // Description:
+  // Automatically set up the camera based on a specified bounding box
+  // (xmin,xmax, ymin,ymax, zmin,zmax). Camera will reposition itself so
+  // that its focal point is the center of the bounding box, and adjust its
+  // distance and position to preserve its initial view plane normal 
+  // (i.e., vector defined from camera position to focal point). Note: is 
+  // the view plane is parallel to the view up axis, the view up axis will
+  // be reset to one of the three coordinate axes.
   void ResetCamera(float bounds[6]);
 
-
-// Description:
-// Alternative version of ResetCamera(bounds[6]);
+  // Description:
+  // Alternative version of ResetCamera(bounds[6]);
   void ResetCamera(float xmin, float xmax, float ymin, float ymax, 
                    float zmin, float zmax);
 
-
-
-// Description:
-// Specify the rendering window in which to draw. This is automatically set
-// when the renderer is created by MakeRenderer.  The user probably
-// shouldn't ever need to call this method.
+  // Description:
+  // Specify the rendering window in which to draw. This is automatically set
+  // when the renderer is created by MakeRenderer.  The user probably
+  // shouldn't ever need to call this method.
   void SetRenderWindow(vtkRenderWindow *);
-
   vtkRenderWindow *GetRenderWindow() {return RenderWindow;};
   virtual vtkWindow *GetVTKWindow();
   
@@ -249,33 +239,34 @@ public:
   vtkGetMacro(BackingStore,int);
   vtkBooleanMacro(BackingStore,int);
 
-
-// Description:
-// Convert world point coordinates to view coordinates.
+  // Description:
+  // Convert world point coordinates to view coordinates.
   void WorldToView();
 
-
-// Description:
-// Convert view point coordinates to world coordinates.
+  // Description:
+  // Convert view point coordinates to world coordinates.
   void ViewToWorld();
-
   virtual void ViewToWorld(float &wx, float &wy, float &wz);
 
-// Description:
-// Convert world point coordinates to view coordinates.
+  // Description:
+  // Convert world point coordinates to view coordinates.
   virtual void WorldToView(float &wx, float &wy, float &wz);
 
-
+  // Description:
+  // Return the RayCaster being used by this renderer.
   vtkGetObjectMacro(RayCaster,vtkRayCaster);
 
-// Description:
-// Given a pixel location, return the Z value
+  // Description:
+  // Given a pixel location, return the Z value
   float GetZ (int x, int y);
 
-
+  // Description:
+  // Render the 2D actors.
   void Render2D();
 
-  unsigned long int GetMTime();
+  // Description:
+  // Return the MTime of the renderer also considering its ivars.
+  unsigned long GetMTime();
 
   // Description:
   // Get the time required, in seconds, for the last Render call.

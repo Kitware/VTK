@@ -68,6 +68,8 @@ public:
   // Get the id of the picked point. If PointId = -1, nothing was picked.
   vtkGetMacro(PointId,int);
 
+  // Description:
+  // Perform the pick.
   int Pick(float selectionX, float selectionY, float selectionZ, 
            vtkRenderer *renderer);  
 

@@ -48,6 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // EndMethod(), and ProgressMethod() are all available to writers.
 // These methods are executed before and after execution of the Write() 
 // method. You can also specify arguments to these methods.
+
 // .SECTION Caveats
 // Every subclass of vtkWriter must implement a WriteData() method. Most likely
 // will have to create SetInput() method as well.
@@ -67,13 +68,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkWriter : public vtkProcessObject
 {
 public:
-
-  // Description:
-  // Construct with no start and end write methods or arguments.
   vtkWriter();
-
   ~vtkWriter();
-
   const char *GetClassName() {return "vtkWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -86,10 +82,8 @@ public:
   // Convenient alias for Write() method.
   void Update();
 
-
 protected:
-  virtual void WriteData() = 0; //internal method every subclass must respond to
-
+  virtual void WriteData() = 0; //internal method subclasses must respond to
   vtkDataObject *Input;
 
 };

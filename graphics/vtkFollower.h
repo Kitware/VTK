@@ -61,16 +61,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkFollower : public vtkActor
 {
  public:
-
   vtkFollower();
   ~vtkFollower();
+  const char *GetClassName() {return "vtkFollower";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Creates a follower with no camera set
   static vtkFollower *New() {return new vtkFollower;};
-
-  const char *GetClassName() {return "vtkFollower";};
-  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // This causes the actor to be rendered. It, in turn, will render the actor's
@@ -90,7 +88,6 @@ class VTK_EXPORT vtkFollower : public vtkActor
   // Description:
   // For legacy compatability. Do not use.
   void GetMatrix(vtkMatrix4x4 &m) {this->GetMatrix(&m);}
-
 
 protected:
   vtkCamera *Camera; 

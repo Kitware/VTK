@@ -40,11 +40,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkStructuredPointsFilter - filter that takes vtkStructuredPoints as input
 // .SECTION Description
-// vtkStructuredPointsFilter is a filter that takes a single vtkStructuredPoints 
-// data object as input.
+// vtkStructuredPointsFilter is a filter that takes a single
+// vtkStructuredPoints data object as input.
 
 // .SECTION See Also
-// vtkStructuredPointsToPolyDataFilter vtkStructuredPointsToStructuredPointsFilter
+// vtkStructuredPointsToPolyDataFilter
+// vtkStructuredPointsToStructuredPointsFilter
 
 #ifndef __vtkStructuredPointsFilter_h
 #define __vtkStructuredPointsFilter_h
@@ -57,13 +58,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkStructuredPointsFilter : public vtkFilter 
 {
 public:
-  static vtkStructuredPointsFilter *New() {return new vtkStructuredPointsFilter;};
+  static vtkStructuredPointsFilter *New() {
+    return new vtkStructuredPointsFilter;};
   const char *GetClassName() {return "vtkStructuredPointsFilter";};
 
   // Description:
-  // Specify the input data or filter.
+  // Set / get the input data or filter.
   void SetInput(vtkStructuredPoints *input);
-
   void SetInput(vtkStructuredPoints &input) {this->SetInput(&input);};
   void SetInput(vtkImageCache *cache)
     {this->SetInput(cache->GetImageToStructuredPoints()->GetOutput());}

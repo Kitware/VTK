@@ -40,13 +40,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkProp - represents an object for placement in a rendered scene 
 // .SECTION Description
-// vtkProp is an abstract class used to represent an entity in a
-// rendering scene.  It handles functions related to the position,
-// orientation and scaling. It combines these instance variables into
-// one 4x4 transformation matrix as follows: [x y z 1] = [x y z 1]
-// Translate(-origin) Scale(scale) Rot(y) Rot(x) Rot (z) Trans(origin)
-// Trans(position). Both vtkActor and vtkVolume are specializations of
-// class vtkProp.
+// vtkProp is an abstract class used to represent an entity in a rendering
+// scene.  It handles functions related to the position, orientation and
+// scaling. It combines these instance variables into one 4x4 transformation
+// matrix as follows: [x y z 1] = [x y z 1] Translate(-origin) Scale(scale)
+// Rot(y) Rot(x) Rot (z) Trans(origin) Trans(position). Both vtkActor and
+// vtkVolume are specializations of class vtkProp.  The constructor defaults
+// to: origin(0,0,0) position=(0,0,0) visibility=1 pickable=1 dragable=1
+// orientation=(0,0,0). No user defined matrix and no texture map.
 
 // .SECTION See Also
 // vtkActor vtkAssembly vtkVolume
@@ -62,15 +63,13 @@ class vtkRenderer;
 class VTK_EXPORT vtkProp : public vtkObject
 {
  public:
-  // Description:
-  // Construct with the following defaults: origin(0,0,0) 
-  // position=(0,0,0) visibility=1 pickable=1 dragable=1
-  // orientation=(0,0,0). No user defined matrix and no texture map.
   vtkProp();
   ~vtkProp();
   const char *GetClassName() {return "vtkProp";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // All concrete subclasses must implement a Render method.
   virtual void Render(vtkRenderer *ren) = 0;
 
   // Description:
@@ -133,14 +132,11 @@ class VTK_EXPORT vtkProp : public vtkObject
   vtkMatrix4x4 *GetMatrixPointer();
   virtual void GetMatrix(vtkMatrix4x4 *m) = 0;
 
-  // Get the (xmin,xmax, ymin,ymax, zmin,zmax) bounding box, center, and range
-  // along coordinate axes. Bounds are transfomed into world space.
-  virtual float *GetBounds() = 0;
-
   // Description:
   // Get the bounds for this Prop as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
   void GetBounds(float bounds[6]);
-
+  virtual float *GetBounds() = 0;
+  
   // Description:
   // Get the center of the bounding box in world coordinates.
   float *GetCenter();
@@ -160,8 +156,6 @@ class VTK_EXPORT vtkProp : public vtkObject
   // Description:
   // Get the length of the diagonal of the bounding box.
   float GetLength();
-
-  // rotation around axis and arbitrary vector
 
   // Description:
   // Rotate the prop in degrees about the X axis using the right hand
@@ -193,8 +187,6 @@ class VTK_EXPORT vtkProp : public vtkObject
   // coordinates. To rotate an about its model axes, use RotateX,
   // RotateY, RotateZ.
   void RotateWXYZ(float,float,float,float);
-
-  // set Euler angles - order dependent
 
   // Description:
   // Sets the orientation of the prop.  Orientation is specified as
@@ -233,9 +225,10 @@ class VTK_EXPORT vtkProp : public vtkObject
   // SetOrientation.
   void AddOrientation(float a[3]);
 
+  // Description:
   // Method invokes PickMethod() if one defined
-  virtual void Pick() 
-    {if (this->PickMethod) (*this->PickMethod)(this->PickMethodArg);}
+  virtual void Pick() {
+    if (this->PickMethod) (*this->PickMethod)(this->PickMethodArg);};
 
   // Description:
   // For legacy compatability. Do not use.

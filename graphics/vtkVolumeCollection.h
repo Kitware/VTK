@@ -60,41 +60,29 @@ class VTK_EXPORT vtkVolumeCollection : public vtkCollection
   static vtkVolumeCollection *New() {return new vtkVolumeCollection;};
   const char *GetClassName() {return "vtkVolumeCollection";};
 
-  void AddItem(vtkVolume *a);
-  void RemoveItem(vtkVolume *a);
-  int IsItemPresent(vtkVolume *a);
-  vtkVolume *GetNextItem();
+  // Description:
+  // Add a Volume to the list.
+  void AddItem(vtkVolume *a) {
+    this->vtkCollection::AddItem((vtkObject *)a);};
+  
+  // Description:
+  // Remove a Volume from the list.
+  void RemoveItem(vtkVolume *a) {
+    this->vtkCollection::RemoveItem((vtkObject *)a);};
+  
+  // Description:
+  // Determine whether a particular Volume is present. Returns its
+  // position in the list.
+  int IsItemPresent(vtkVolume *a) {
+    return this->vtkCollection::IsItemPresent((vtkObject *)a);};
+  
+  // Description:
+  // Get the next Volume in the list. Return NULL when at the end of the 
+  // list.
+  vtkVolume *GetNextItem() {
+    return (vtkVolume *)(this->GetNextItemAsObject());};
 };
 
-// Description:
-// Add a volume to the list.
-inline void vtkVolumeCollection::AddItem(vtkVolume *a) 
-{
-  this->vtkCollection::AddItem((vtkObject *)a);
-}
-
-// Description:
-// Remove a volume from the list.
-inline void vtkVolumeCollection::RemoveItem(vtkVolume *a) 
-{
-  this->vtkCollection::RemoveItem((vtkObject *)a);
-}
-
-// Description:
-// Determine whether a particular volume is present. Returns its position
-// in the list.
-inline int vtkVolumeCollection::IsItemPresent(vtkVolume *a) 
-{
-  return this->vtkCollection::IsItemPresent((vtkObject *)a);
-}
-
-// Description:
-// Get the next volume in the list. Return NULL when the end of the list
-// is reached.
-inline vtkVolume *vtkVolumeCollection::GetNextItem() 
-{ 
-  return (vtkVolume *)(this->GetNextItemAsObject());
-}
 
 #endif
 

@@ -48,12 +48,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // is polygonal data. You must also specify the spatial search object to
 // use.
 //
-// Generally spatial search objects are used for collision detection and other 
-// geometric operations, but in this filter one or more levels of spatial 
-// searchers can be generated to form a geometric approximation to the 
-// input data. This is a form of data simplification, generally used to 
-// accelerate the rendering process. Or, this filter can be used as a debugging/
-// visualization aid for spatial search objects.
+// Generally spatial search objects are used for collision detection and
+// other geometric operations, but in this filter one or more levels of
+// spatial searchers can be generated to form a geometric approximation to
+// the input data. This is a form of data simplification, generally used to
+// accelerate the rendering process. Or, this filter can be used as a
+// debugging/ visualization aid for spatial search objects.
 // 
 // This filter can generate one or more output vtkPolyData corresponding to
 // different levels in the spatial search tree. The output data is retrieved 
@@ -90,7 +90,8 @@ class VTK_EXPORT vtkSpatialRepresentationFilter : public vtkDataSetFilter
 public:
   vtkSpatialRepresentationFilter();
   ~vtkSpatialRepresentationFilter();
-  static vtkSpatialRepresentationFilter *New() {return new vtkSpatialRepresentationFilter;};
+  static vtkSpatialRepresentationFilter *New() {
+    return new vtkSpatialRepresentationFilter;};
   const char *GetClassName() {return "vtkSpatialRepresentationFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -102,19 +103,21 @@ public:
   // Description:
   // Get the maximum number of outputs actually available.
   vtkGetMacro(Level,int);
-
-  // returns leaf nodes of the spatial representation.
+  
+  // Description:
+  // Returns leaf nodes of the spatial representation.
   vtkPolyData *GetOutput();
 
-  // special form of GetOutput() method returns multiple outputs
+  // Description:
+  // A special form of the GetOutput() method that returns multiple outputs.
   vtkPolyData *GetOutput(int level);
 
-  // reset requested output levels
+  // Description:
+  // Reset requested output levels
   void ResetOutput();
-
-
-// Description:
-// Update input to this filter and the filter itself.
+  
+  // Description:
+  // Update input to this filter and the filter itself.
   void Update();
 
 

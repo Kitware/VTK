@@ -71,21 +71,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkWin32MappedInteractor : public vtkRenderWindowInteractor
 {
 public:
-
-// Description:
-// Construct object so that light follows camera motion.
   vtkWin32MappedInteractor();
-
   ~vtkWin32MappedInteractor();
-  static vtkWin32MappedInteractor *New() {return new vtkWin32MappedInteractor;};
+  static vtkWin32MappedInteractor *New() {
+    return new vtkWin32MappedInteractor;};
   const char *GetClassName() {return "vtkWin32MappedInteractor";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
-
-// Description:
-// Begin processing keyboard strokes.
+  // Description:
+  // Setup to be ready to process events.
   virtual void Initialize();
 
+  // Description:
+  // Start an event loop. 
   virtual void Start();
   
   //BTX

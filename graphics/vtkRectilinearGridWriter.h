@@ -42,6 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkRectilinearGridWriter is a source object that writes ASCII or binary 
 // rectilinear grid data files in vtk format. See text for format details.
+
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.
 
@@ -55,15 +56,14 @@ class VTK_EXPORT vtkRectilinearGridWriter : public vtkDataWriter
 {
 public:
   vtkRectilinearGridWriter() {};
-  static vtkRectilinearGridWriter *New() {return new vtkRectilinearGridWriter;};
+  static vtkRectilinearGridWriter *New() {
+    return new vtkRectilinearGridWriter;};
   const char *GetClassName() {return "vtkRectilinearGridWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-
-// Description:
-// Specify the input data or filter.
+  // Description:
+  // Set / get the input data or filter.
   void SetInput(vtkRectilinearGrid *input);
-
   void SetInput(vtkRectilinearGrid &input) {this->SetInput(&input);};
   vtkRectilinearGrid *GetInput() {return (vtkRectilinearGrid *)this->Input;};
                                

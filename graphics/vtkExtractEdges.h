@@ -42,6 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkExtractEdges is a filter to extract edges from a dataset. Edges
 // are extracted as lines or polylines.
+
 // .SECTION See Also
 // vtkFeatureEdges
 
@@ -53,23 +54,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkExtractEdges : public vtkDataSetToPolyDataFilter
 {
 public:
-
-// Description:
-// Construct object.
   vtkExtractEdges();
-
   ~vtkExtractEdges();
   static vtkExtractEdges *New() {return new vtkExtractEdges;};
   const char *GetClassName() {return "vtkExtractEdges";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Specify locator (default locator created otherwise).
-
-// Description:
-// Specify a spatial locator for merging points. By
-// default an instance of vtkMergePoints is used.
+  // Description:
+  // Set / get a spatial locator for merging points. By
+  // default an instance of vtkMergePoints is used.
   void SetLocator(vtkPointLocator *locator);
-
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
   vtkGetObjectMacro(Locator,vtkPointLocator);
 
@@ -77,7 +71,9 @@ public:
   // Create default locator. Used to create one when none is specified.
   void CreateDefaultLocator();
 
-  unsigned long int GetMTime();
+  // Description:
+  // Return MTime also considering the locator.
+  unsigned long GetMTime();
 
 protected:
   // Usual data generation method

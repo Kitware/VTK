@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkOBJExporter - export a scene into Wavefront format.
 // .SECTION Description
-
 // vtkOBJExporter is a concrete subclass of vtkExporter that writes wavefront
 // .OBJ files in ASCII form. It also writes out a mtl file that contains the
 // material properties. The filenames are derived by appending the .obj and

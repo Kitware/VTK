@@ -55,14 +55,14 @@ class VTK_EXPORT vtkUnstructuredGridWriter : public vtkDataWriter
 {
 public:
   vtkUnstructuredGridWriter() {};
-  static vtkUnstructuredGridWriter *New() {return new vtkUnstructuredGridWriter;};
+  static vtkUnstructuredGridWriter *New() {
+    return new vtkUnstructuredGridWriter;};
   const char *GetClassName() {return "vtkUnstructuredGridWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Specify the input data or filter.
   void SetInput(vtkUnstructuredGrid *input);
-
   void SetInput(vtkUnstructuredGrid &input) {this->SetInput(&input);};
   vtkUnstructuredGrid *GetInput() {return (vtkUnstructuredGrid *)this->Input;};
                                

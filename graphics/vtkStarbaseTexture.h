@@ -40,8 +40,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkStarbaseTexture - starbase texture map object
 // .SECTION Description
-// vtkStarbaseTexture is a concrete implementation of the abstract class vtkTexture.
-// currently we don't support texture mapping on starbase.
+// vtkStarbaseTexture is a concrete implementation of the abstract class
+// vtkTexture.  currently we don't support texture mapping on starbase.
 
 #ifndef __vtkStarbaseTexture_h
 #define __vtkStarbaseTexture_h
@@ -53,19 +53,13 @@ class vtkStarbaseRenderer;
 class VTK_EXPORT vtkStarbaseTexture : public vtkTexture
 {
 public:
-
-// Description:
-// Initializes an instance, generates a unique index.
   vtkStarbaseTexture();
-
   static vtkStarbaseTexture *New() {return new vtkStarbaseTexture;};
   const char *GetClassName() {return "vtkStarbaseTexture";};
-  
 
-// Description:
-// Actual Texture load method.
+  // Description:
+  // Actual Texture load method.
   void Load(vtkRenderer *ren);
-
   
 protected:
   vtkTimeStamp   LoadTime;

@@ -61,11 +61,9 @@ public:
   const char *GetClassName() {return "vtkPointSetFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-
-// Description:
-// Specify the input data or filter.
+  // Description:
+  // Set / get the input data or filter.
   virtual void SetInput(vtkPointSet *input);
-
   void SetInput(vtkPointSet &input) {this->SetInput(&input);};
   vtkPointSet *GetInput() {return (vtkPointSet *)this->Input;};
 };

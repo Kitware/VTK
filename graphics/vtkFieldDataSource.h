@@ -39,36 +39,37 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 // .NAME vtkFieldDataSource - abstract class specifies interface for field source (or objects that generate field output)
+
 // .SECTION Description
-// vtkFieldDataSource is an abstract object that specifies behavior and interface
-// of field source objects. Field source objects are source objects that create
-// vtkFieldData (field data) on output.
+// vtkFieldDataSource is an abstract object that specifies behavior and
+// interface of field source objects. Field source objects are source objects
+// that create vtkFieldData (field data) on output.
 //
-// Concrete subclasses of vtkFieldDataSource must define Update() and Execute() 
-// methods. The public method Update() invokes network execution and will
-// bring the network up-to-date. The protected Execute() method actually
-// does the work of data creation/generation. The difference between the two
-// methods is that Update() implements input consistency checks and modified
-// time comparisons and then invokes the Execute() which is an implementation 
-// of a particular algorithm.
+// Concrete subclasses of vtkFieldDataSource must define Update() and
+// Execute() methods. The public method Update() invokes network execution
+// and will bring the network up-to-date. The protected Execute() method
+// actually does the work of data creation/generation. The difference between
+// the two methods is that Update() implements input consistency checks and
+// modified time comparisons and then invokes the Execute() which is an
+// implementation of a particular algorithm.
 //
-// vtkFieldDataSource provides a mechanism for invoking the methods StartMethod() and
-// EndMethod() before and after object execution (via Execute()). These are
-// convenience methods you can use for any purpose (e.g., debugging info,
-// highlighting/notifying user interface, etc.) These methods accept a single
-// void* pointer that can be used to send data to the methods. It is also
-// possible to specify a function to delete the argument via 
-// StartMethodArgDelete and EndMethodArgDelete.
+// vtkFieldDataSource provides a mechanism for invoking the methods
+// StartMethod() and EndMethod() before and after object execution (via
+// Execute()). These are convenience methods you can use for any purpose
+// (e.g., debugging info, highlighting/notifying user interface, etc.) These
+// methods accept a single void* pointer that can be used to send data to the
+// methods. It is also possible to specify a function to delete the argument
+// via StartMethodArgDelete and EndMethodArgDelete.
 //
 // Another method, ProgressMethod() can be specified. Some filters invoke this 
 // method periodically during their execution. The use is similar to that of 
 // StartMethod() and EndMethod().
 //
-// An important feature of subclasses of vtkFieldDataSource is that it is possible 
-// to control the memory-management model (i.e., retain output versus delete
-// output data). If enabled the ReleaseDataFlag enables the deletion of the
-// output data once the downstream process object finishes processing the
-// data (please see text).
+// An important feature of subclasses of vtkFieldDataSource is that it is
+// possible to control the memory-management model (i.e., retain output
+// versus delete output data). If enabled the ReleaseDataFlag enables the
+// deletion of the output data once the downstream process object finishes
+// processing the data (please see text).
 
 // .SECTION See Also
 // vtkSource vtkFilter vtkFieldDataFilter

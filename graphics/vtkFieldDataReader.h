@@ -43,8 +43,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkFieldDataReader is a source object that reads ASCII or binary 
 // field data files in vtk format. Fields are general matrix structures used
 // represent complex data.
+
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.
+
 // .SECTION See Also
 // vtkFieldData vtkFieldDataWriter
 
@@ -63,17 +65,17 @@ public:
   const char *GetClassName() {return "vtkFieldDataReader";}
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // overload because of vtkDataReader ivar
-  unsigned long int GetMTime();
+  // Description:
+  // Return the MTime also considering the vtkDataReader ivar
+  unsigned long GetMTime();
 
   // Description:
-  // Specify file name of vtk field data file to read.
+  // Set / get file name of vtk field data file to read.
   void SetFileName(char *name);
-
   char *GetFileName();
 
   // Description:
-  // Specify the InputString for use when reading from a character array.
+  // Set / get the InputString for use when reading from a character array.
   void SetInputString(char *in) {this->Reader->SetInputString(in);}
   void SetInputString(char *in,int len) {this->Reader->SetInputString(in,len);}
   char *GetInputString() { return this->Reader->GetInputString();}
@@ -89,10 +91,9 @@ public:
   int GetFileType();
 
   // Description:
-  // Set the name of the field data to extract. If not specified, uses 
+  // Set / get the name of the field data to extract. If not specified, uses 
   // first field data encountered in file.
   void SetFieldDataName(char *name);
-
   char *GetFieldDataName();
 
 protected:

@@ -38,12 +38,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkFieldDataFilter - abstract class for specifying data object filter behavior
+// .NAME vtkFieldDataFilter - abstract class for specifying filter behavior
 // .SECTION Description
-// vtkFieldDataFilter is an abstract class that specifies the interface for data object
-// filters. Each filter must have an Update() and Execute() method 
-// that will cause the filter to execute if its input or the filter itself 
-// has been modified since the last execution time.
+// vtkFieldDataFilter is an abstract class that specifies the interface for
+// data object filters. Each filter must have an Update() and Execute()
+// method that will cause the filter to execute if its input or the filter
+// itself has been modified since the last execution time.
 
 // .SECTION See Also
 // vtkDataObject vtkFieldData vtkFieldDataSource
@@ -56,13 +56,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkFieldDataFilter : public vtkFilter
 {
 public:
-  vtkFieldDataFilter() {};
   static vtkFieldDataFilter *New() {return new vtkFieldDataFilter;};
   const char *GetClassName() {return "vtkFieldDataFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set the input to the filter.
+  // Set / get the input to the filter.
   virtual void SetInput(vtkDataObject *input);
   void SetInput(vtkDataObject &input) {this->SetInput(&input);};
   vtkDataObject *GetInput() {return this->Input;};

@@ -68,30 +68,27 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImplicitVolume : public vtkImplicitFunction
 {
 public:
-
-// Description
-// Construct an vtkImplicitVolume with no initial volume; the OutValue
-// set to a large negative number; and the OutGradient set to (0,0,1).
   vtkImplicitVolume();
-
-  static vtkImplicitVolume *New() {return new vtkImplicitVolume;};
   const char *GetClassName() {return "vtkImplicitVolume";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  unsigned long int GetMTime();
+  // Description
+  // Construct an vtkImplicitVolume with no initial volume; the OutValue
+  // set to a large negative number; and the OutGradient set to (0,0,1).
+  static vtkImplicitVolume *New() {return new vtkImplicitVolume;};
 
-  // ImplicitFunction interface
+  // Description:
+  // Returns the mtime also considering the volume.
+  unsigned long GetMTime();
 
-// Description
-// Evaluate the ImplicitVolume. This returns the interpolated scalar value
-// at x[3].
+  // Description
+  // Evaluate the ImplicitVolume. This returns the interpolated scalar value
+  // at x[3].
   float EvaluateFunction(float x[3]);
 
-
-// Description
-// Evaluate ImplicitVolume gradient.
+  // Description
+  // Evaluate ImplicitVolume gradient.
   void EvaluateGradient(float x[3], float n[3]);
-
 
   // Description:
   // Specify the volume for the implicit function.

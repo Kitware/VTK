@@ -47,6 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // repeats point coordinates, so this object will merge the points 
 // with a vtkLocator object. You can choose to supply the vtkLocator 
 // or use the default.
+
 // .SECTION Caveats
 // Binary files assumed written in sun/hp/sgi (i.e., Big Endian) form.
 //
@@ -55,15 +56,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // actually created.
 //
 // The point merging does not take into account that the same point may have
-// different normals. For example, running vtkPolyDataNormals after vtkContourFilter
-// may split triangles because of the FeatureAngle ivar. Subsequent reading with
-// vtkMCubesReader will merge the points and use the first point's normal. For the
-// most part, this is undesirable.
+// different normals. For example, running vtkPolyDataNormals after
+// vtkContourFilter may split triangles because of the FeatureAngle
+// ivar. Subsequent reading with vtkMCubesReader will merge the points and
+// use the first point's normal. For the most part, this is undesirable.
 //
-// Normals are generated from the gradient of the data scalar values. Hence the 
-// normals may on occasion point in a direction inconsistent with the ordering of 
-// the triangle vertices. If this happens, the resulting surface may be "black".
-// Reverse the sense of the FlipNormals boolean flag to correct this.
+// Normals are generated from the gradient of the data scalar values. Hence
+// the normals may on occasion point in a direction inconsistent with the
+// ordering of the triangle vertices. If this happens, the resulting surface
+// may be "black".  Reverse the sense of the FlipNormals boolean flag to
+// correct this.
 
 // .SECTION See Also
 // vtkContourFilter vtkMarchingCubes vtkSliceCubes vtkLocator
@@ -79,15 +81,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkMCubesReader : public vtkPolyDataSource 
 {
 public:
-
-// Description:
-// Construct object with FlipNormals turned off and Normals set to true.
   vtkMCubesReader();
-
   ~vtkMCubesReader();
-  static vtkMCubesReader *New() {return new vtkMCubesReader;};
   const char *GetClassName() {return "vtkMCubesReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Construct object with FlipNormals turned off and Normals set to true.
+  static vtkMCubesReader *New() {return new vtkMCubesReader;};
 
   // Description:
   // Specify file name of marching cubes file.
@@ -95,14 +96,15 @@ public:
   vtkGetStringMacro(FileName);
 
   // Description:
-  // Specify file name of marching cubes limits file.
+  // Set / get the file name of the marching cubes limits file.
   vtkSetStringMacro(LimitsFileName);
   vtkGetStringMacro(LimitsFileName);
 
   // Description:
-  // Specify whether to flip normals in opposite direction. Flipping ONLY changes
-  // the direction of the normal vector. Contrast this with flipping in
-  // vtkPolyDataNormals which flips both the normal and the cell point order.
+  // Specify whether to flip normals in opposite direction. Flipping ONLY
+  // changes the direction of the normal vector. Contrast this with flipping
+  // in vtkPolyDataNormals which flips both the normal and the cell point
+  // order.
   vtkSetMacro(FlipNormals,int);
   vtkGetMacro(FlipNormals,int);
   vtkBooleanMacro(FlipNormals,int);
@@ -113,12 +115,10 @@ public:
   vtkGetMacro(Normals,int);
   vtkBooleanMacro(Normals,int);
 
-
-// Description:
-// Specify a spatial locator for merging points. By default, 
-// an instance of vtkMergePoints is used.
+  // Description:
+  // Set / get a spatial locator for merging points. By default, 
+  // an instance of vtkMergePoints is used.
   void SetLocator(vtkPointLocator *locator);
-
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
   vtkGetObjectMacro(Locator,vtkPointLocator);
 
@@ -126,7 +126,9 @@ public:
   // Create default locator. Used to create one when none is specified.
   void CreateDefaultLocator();
   
-  unsigned long int GetMTime();
+  // Description:
+  // Return the mtime also considering the locator.
+  unsigned long GetMTime();
 
 protected:
   void Execute();

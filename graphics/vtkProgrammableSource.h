@@ -71,60 +71,43 @@ class vtkRectilinearGrid;
 class VTK_EXPORT vtkProgrammableSource : public vtkSource
 {
 public:
-
-// Description:
-// Construct programmable filter with empty execute method.
   vtkProgrammableSource();
-
   ~vtkProgrammableSource();
   static vtkProgrammableSource *New() {return new vtkProgrammableSource;};
   const char *GetClassName() {return "vtkProgrammableSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // methods used to define user function
-
-// Description:
-// Specify the function to use to generate the source data. Note
-// that the function takes a single (void *) argument.
+  // Description:
+  // Specify the function to use to generate the source data. Note
+  // that the function takes a single (void *) argument.
   void SetExecuteMethod(void (*f)(void *), void *arg);
 
-
-// Description:
-// Set the arg delete method. This is used to free user memory.
+  // Description:
+  // Set the arg delete method. This is used to free user memory.
   void SetExecuteMethodArgDelete(void (*f)(void *));
 
-
-  // methods used to get the output data - user of this source can get
-  // different output types - the execute method must manipulate the correct
-  // type.
-
-// Description:
-// Get the output as a concrete type. This method is typically used by the
-// writer of the source function to get the output as a particular type (i.e.,
-// it essentially does type casting). It is the users responsibility to know
-// the correct type of the output data.
+  // Description:
+  // Get the output as a concrete type. This method is typically used by the
+  // writer of the source function to get the output as a particular type
+  // (i.e., it essentially does type casting). It is the users responsibility
+  // to know the correct type of the output data.
   vtkPolyData *GetPolyDataOutput();
 
-
-// Description:
-// Get the output as a concrete type.
+  // Description:
+  // Get the output as a concrete type.
   vtkStructuredPoints *GetStructuredPointsOutput();
 
-
-// Description:
-// Get the output as a concrete type.
+  // Description:
+  // Get the output as a concrete type.
   vtkStructuredGrid *GetStructuredGridOutput();
 
-
-// Description:
-// Get the output as a concrete type.
+  // Description:
+  // Get the output as a concrete type.
   vtkUnstructuredGrid *GetUnstructuredGridOutput();
 
-
-// Description:
-// Get the output as a concrete type.
+  // Description:
+  // Get the output as a concrete type.
   vtkRectilinearGrid *GetRectilinearGridOutput();
-
 
 protected:
   void Execute();

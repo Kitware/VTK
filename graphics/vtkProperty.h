@@ -47,6 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // object (points, wireframe, or surface); and the shading method to be 
 // used (flat, Gouraud, and Phong). Also, some special graphics features
 // like backface properties can be set and manipulated with this object.
+
 // .SECTION See Also
 // vtkActor vtkPropertyDevice
 
@@ -63,23 +64,20 @@ class vtkActor;
 class VTK_EXPORT vtkProperty : public vtkObject
 {
 public:
-
-// Description:
-// Construct object with object color, ambient color, diffuse color,
-// specular color, and edge color white; ambient coefficient=0; diffuse 
-// coefficient=0; specular coefficient=0; specular power=1; Gouraud shading;
-// and surface representation. Backface and frontface culling are off.
   vtkProperty();
-
-  static vtkProperty *New();
   const char *GetClassName() {return "vtkProperty";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // Construct object with object color, ambient color, diffuse color,
+  // specular color, and edge color white; ambient coefficient=0; diffuse 
+  // coefficient=0; specular coefficient=0; specular power=1; Gouraud shading;
+  // and surface representation. Backface and frontface culling are off.
+  static vtkProperty *New();
 
-// Description:
-// Assign one property to another. 
+  // Description:
+  // Assign one property to another. 
   vtkProperty &operator=(const vtkProperty& p);
-
 
   // Description:
   // This method causes the property to set up whatever is required for
@@ -110,7 +108,8 @@ public:
   vtkSetClampMacro(Representation,int,VTK_POINTS,VTK_SURFACE);
   vtkGetMacro(Representation,int);
   void SetRepresentationToPoints() {this->SetRepresentation(VTK_POINTS);};
-  void SetRepresentationToWireframe() {this->SetRepresentation(VTK_WIREFRAME);};
+  void SetRepresentationToWireframe() {
+    this->SetRepresentation(VTK_WIREFRAME);};
   void SetRepresentationToSurface() {this->SetRepresentation(VTK_SURFACE);};
   char *GetRepresentationAsString();
 

@@ -39,11 +39,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 
-// .NAME vtkRecursiveSphereDirectionEncoder - 
+// .NAME vtkRecursiveSphereDirectionEncoder - A direction encoder based on the recursive subdivision of an octahedron
 // .SECTION Description
-
+// vtkRecursiveSphereDirectionEncoder is a direction encoder which uses the 
+// vertices of a recursive subdivision of an octahedron (with the vertices
+// pushed out onto the surface of an enclosing sphere) to encode directions
+// into a two byte value. 
+//
 // .SECTION see also
-// 
+// vtkDirectionEncoder
 
 #ifndef __vtkRecursiveSphereDirectionEncoder_h
 #define __vtkRecursiveSphereDirectionEncoder_h
@@ -54,23 +58,16 @@ class VTK_EXPORT vtkRecursiveSphereDirectionEncoder : public vtkDirectionEncoder
 {
 public:
 
+  vtkRecursiveSphereDirectionEncoder();
+  ~vtkRecursiveSphereDirectionEncoder();
+  const char *GetClassName() {return "vtkRecursiveSphereDirectionEncoder";};
+  void PrintSelf( ostream& os, vtkIndent index );
+
 // Description:
 // Construct the object. Initialize the index table which will be
 // used to map the normal into a patch on the recursively subdivided
 // sphere.
-  vtkRecursiveSphereDirectionEncoder();
-
-
-// Description:
-// Destruct a vtkRecursiveSphereDirectionEncoder - free up any memory used
-  ~vtkRecursiveSphereDirectionEncoder();
-
   static vtkRecursiveSphereDirectionEncoder *New() {return new vtkRecursiveSphereDirectionEncoder;};
-  const char *GetClassName() {return "vtkRecursiveSphereDirectionEncoder";};
-
-// Description:
-// Print the vtkRecursiveSphereDirectionEncoder
-  void PrintSelf( ostream& os, vtkIndent index );
 
 
   // Description:

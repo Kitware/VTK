@@ -51,49 +51,42 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class VTK_EXPORT vtkOpenGLRenderer : public vtkRenderer
 {
- protected:
+protected:
   int NumberOfLightsBound;
 
- public:
+public:
   vtkOpenGLRenderer();
-
-
-// Description:
-// Concrete open gl render method.
-  void DeviceRender(void); // overides base 
-
   static vtkOpenGLRenderer *New() {return new vtkOpenGLRenderer;};
   const char *GetClassName() {return "vtkOpenGLRenderer";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // Concrete open gl render method.
+  void DeviceRender(void); 
 
-// Description:
-// Internal method temporarily removes lights before reloading them
-// into graphics pipeline.
+  // Description:
+  // Internal method temporarily removes lights before reloading them
+  // into graphics pipeline.
   void ClearLights(void);
 
-
-
-// Description:
-// Ask lights to load themselves into graphics pipeline.
+  // Description:
+  // Ask lights to load themselves into graphics pipeline.
   int UpdateLights(void);
 
-
-  // stereo related stuff
+  // Description:
+  // Return the center of the renderer. Supports stereo modes as well.
   virtual float *GetCenter();
 
-// Description:
-// Convert display coordinates to view coordinates.
+  // Description:
+  // Convert display coordinates to view coordinates.
   virtual void DisplayToView(); 
 
-
-// Description:
-// Convert view coordinates to display coordinates.
+  // Description:
+  // Convert view coordinates to display coordinates.
   virtual void ViewToDisplay(); 
 
-
-// Description:
-// Is a given display point in this renderer's viewport.
+  // Description:
+  // Is a given display point in this renderer's viewport.
   virtual int  IsInViewport(int x,int y); 
 
 };

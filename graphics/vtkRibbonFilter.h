@@ -50,6 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // The input line must not have duplicate points, or normals at points that
 // are parallel to the incoming/outgoing line segments. (Duplicate points
 // can be removed with vtkCleanPolyData.)
+
 // .SECTION See Also
 // vtkTubeFilter
 
@@ -61,15 +62,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkRibbonFilter : public vtkPolyDataToPolyDataFilter 
 {
 public:
-
-// Description:
-// Construct ribbon so that width is 0.1, the width does 
-// not vary with scalar values, and the width factor is 2.0.
   vtkRibbonFilter();
-
-  static vtkRibbonFilter *New() {return new vtkRibbonFilter;};
   const char *GetClassName() {return "vtkRibbonFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Construct ribbon so that width is 0.1, the width does 
+  // not vary with scalar values, and the width factor is 2.0.
+  static vtkRibbonFilter *New() {return new vtkRibbonFilter;};
 
   // Description:
   // Set the "half" width of the ribbon. If the width is allowed to vary, 

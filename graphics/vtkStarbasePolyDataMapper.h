@@ -40,8 +40,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkStarbasePolyDataMapper - a PolyDataMapper for the HP starbase library
 // .SECTION Description
-// vtkStarbasePolyDataMapper is a subclass of vtkPolyDataMapperDevice. 
-// vtkStarbasePolyDataMapper is a PolyDataMapper for the HP starbase rendering library.
+// vtkStarbasePolyDataMapper is a subclass of vtkPolyDataMapperDevice.
+// vtkStarbasePolyDataMapper is a PolyDataMapper for the HP starbase
+// rendering library.
 
 #ifndef __vtkStarbasePolyDataMapper_h
 #define __vtkStarbasePolyDataMapper_h
@@ -55,26 +56,23 @@ class vtkStarbaseRenderer;
 class VTK_EXPORT vtkStarbasePolyDataMapper : public vtkPolyDataMapper
 {
 public:
-
-// Description:
-// Construct empty object.
   vtkStarbasePolyDataMapper();
-
   virtual ~vtkStarbasePolyDataMapper();
-  static vtkStarbasePolyDataMapper *New() {return new vtkStarbasePolyDataMapper;};
+  static vtkStarbasePolyDataMapper *New() {
+    return new vtkStarbasePolyDataMapper;};
   const char *GetClassName() {return "vtkStarbasePolyDataMapper";};
 
+  // Description:
+  // Implement required base class method.
   virtual void Render(vtkRenderer *ren, vtkActor *a);
 
-// Description:
-// Build the data structure for the starbase polygon PolyDataMapper.
+  // Description:
+  // Build the data structure for the starbase polygon PolyDataMapper.
   void Build(vtkPolyData *, vtkScalars *);
-
-
-// Description:
-// Load polydata into starbase graphics library.
+  
+  // Description:
+  // Load polydata into starbase graphics library.
   void Draw(vtkRenderer *ren, vtkActor *act);
-
 
 protected:
   float *Prim;

@@ -49,9 +49,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // During execution the filter passes its input cell data to its
 // output. Point data attributes are copied to the points created during the
 // shrinking process.
+
 // .SECTION Caveats
 // It is possible to turn cells inside out or cause self intersection
 // in special cases.
+
 // .SECTION See Also
 // vtkShrinkFilter
 

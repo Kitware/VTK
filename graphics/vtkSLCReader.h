@@ -54,11 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkSLCReader : public vtkStructuredPointsSource 
 {
 public:
-
-// Description:
-// Constructor for a vtkSLCReader.
   vtkSLCReader();
-
   ~vtkSLCReader() {if (this->FileName) delete [] this->FileName;};
   static vtkSLCReader *New() {return new vtkSLCReader;};
   const char *GetClassName() {return "vtkSLCReader";};

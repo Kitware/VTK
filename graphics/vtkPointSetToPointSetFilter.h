@@ -56,6 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // around this problem, use one of the convenience methods to return a
 // concrete type (e.g., vtkGetPolyDataOutput(), GetStructuredGridOutput(),
 // etc.).
+
 // .SECTION See Also
 // vtkTransformFilter vtkWarpScalar vtkWarpTo vtkWarpVector
 
@@ -72,54 +73,38 @@ class vtkUnstructuredGrid;
 class VTK_EXPORT vtkPointSetToPointSetFilter : public vtkPointSetFilter
 {
 public:
-
-// Description:
-// Construct object.
   vtkPointSetToPointSetFilter();
-
   ~vtkPointSetToPointSetFilter();
-  static vtkPointSetToPointSetFilter *New() {return new vtkPointSetToPointSetFilter;};
+  static vtkPointSetToPointSetFilter *New() {
+    return new vtkPointSetToPointSetFilter;};
   const char *GetClassName() {return "vtkPointSetToPointSetFilter";};
   
-
-// Description:
-// Specify the input data or filter.
+  // Description:
+  // Specify the input data or filter.
   void SetInput(vtkPointSet *input);
 
-
-  // filter interface (need to overload because of abstract interface)
-
-// Description:
-// Update input to this filter and the filter itself. Note that we are 
-// overloading this method because the output is an abstract dataset type.
-// This requires special treatment.
+  // Description:
+  // Update input to this filter and the filter itself. Note that we are 
+  // overloading this method because the output is an abstract dataset type.
+  // This requires special treatment.
   void Update();
 
-
-  // get the output as a dataset - requires setting input first
-
-// Description:
-// Get the output of this filter. If output is NULL, then input hasn't been
-// set, which is necessary for abstract filter objects.
+  // Description:
+  // Get the output of this filter. If output is NULL, then input hasn't been
+  // set, which is necessary for abstract filter objects.
   vtkPointSet *GetOutput();
 
-
-  // get the output in different forms suitable to vtkPointSet - run-time checking
-
-// Description:
-// Get the output as vtkPolyData. Performs run-time checking.
+  // Description:
+  // Get the output as vtkPolyData. Performs run-time checking.
   vtkPolyData *GetPolyDataOutput();
 
-
-// Description:
-// Get the output as vtkStructuredGrid. Performs run-time checking.
+  // Description:
+  // Get the output as vtkStructuredGrid. Performs run-time checking.
   vtkStructuredGrid *GetStructuredGridOutput();
 
-
-// Description:
-// Get the output as vtkUnstructuredGrid. Performs run-time checking.
+  // Description:
+  // Get the output as vtkUnstructuredGrid. Performs run-time checking.
   vtkUnstructuredGrid *GetUnstructuredGridOutput();
-
 
 protected:
   // objects used to support the retrieval of output

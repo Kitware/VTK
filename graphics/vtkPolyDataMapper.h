@@ -40,10 +40,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkPolyDataMapper - map vtkPolyData to graphics primitives
 // .SECTION Description
-// vtkPolyDataMapper is a class that maps polygonal data (i.e., vtkPolyData) to 
-// graphics primitives. vtkPolyDataMapper serves as a superclass for
-// device-specific poly data mappers, that actually do the mapping to
-// the rendering/graphics hardware/software.
+// vtkPolyDataMapper is a class that maps polygonal data (i.e., vtkPolyData)
+// to graphics primitives. vtkPolyDataMapper serves as a superclass for
+// device-specific poly data mappers, that actually do the mapping to the
+// rendering/graphics hardware/software.
 
 #ifndef __vtkPolyDataMapper_h
 #define __vtkPolyDataMapper_h
@@ -58,7 +58,12 @@ public:
   static vtkPolyDataMapper *New();
   const char *GetClassName() {return "vtkPolyDataMapper";};
 
+  // Description:
+  // Implement required Render method. Just a dummy routine here.
   virtual void Render(vtkRenderer *, vtkActor *) {};
+
+  // Description:
+  // Return the bounds of the poly data.
   float *GetBounds();
 
   // Description:

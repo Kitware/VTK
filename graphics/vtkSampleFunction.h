@@ -41,11 +41,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkSampleFunction - sample an implicit function over a structured point set
 // .SECTION Description
 // vtkSampleFunction is a source object that evaluates an implicit function
-// and normals at each point in a vtkStructuredPoints. The user can 
-// specify the sample dimensions and location in space to perform the
-// sampling. To create closed surfaces (in conjunction with the 
-// vtkContourFilter), capping can be turned on to set a particular 
-// value on the boundaries of the sample space.
+// and normals at each point in a vtkStructuredPoints. The user can specify
+// the sample dimensions and location in space to perform the sampling. To
+// create closed surfaces (in conjunction with the vtkContourFilter), capping
+// can be turned on to set a particular value on the boundaries of the sample
+// space.
+
 // .SECTION See Also
 // vtkImplicitModeller
 
@@ -58,16 +59,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkSampleFunction : public vtkStructuredPointsSource
 {
 public:
-
-// Description:
-// Construct with ModelBounds=(-1,1,-1,1,-1,1), SampleDimensions=(50,50,50),
-// Capping turned off, and normal generation on.
   vtkSampleFunction();
-
   ~vtkSampleFunction();
-  static vtkSampleFunction *New() {return new vtkSampleFunction;};
   const char *GetClassName() {return "vtkSampleFunction";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Construct with ModelBounds=(-1,1,-1,1,-1,1), SampleDimensions=(50,50,50),
+  // Capping turned off, and normal generation on.
+  static vtkSampleFunction *New() {return new vtkSampleFunction;};
 
   // Description:
   // Specify the implicit function to use to generate data.
@@ -80,16 +80,13 @@ public:
   // in the scalar object.
   vtkSetObjectMacro(Scalars,vtkScalars);
 
-
-// Description:
-// Specify the dimensions of the data on which to sample.
+  // Description:
+  // Specify the dimensions of the data on which to sample.
   void SetSampleDimensions(int i, int j, int k);
 
-
-// Description:
-// Specify the dimensions of the data on which to sample.
+  // Description:
+  // Specify the dimensions of the data on which to sample.
   void SetSampleDimensions(int dim[3]);
-
   vtkGetVectorMacro(SampleDimensions,int,3);
 
   // Description:
@@ -116,7 +113,9 @@ public:
   vtkGetMacro(ComputeNormals,int);
   vtkBooleanMacro(ComputeNormals,int);
 
-  unsigned long int GetMTime();
+  // Description:
+  // Return the MTime also considering the implicit function.
+  unsigned long GetMTime();
 
 protected:
   void Execute();

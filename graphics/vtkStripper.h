@@ -66,14 +66,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkStripper : public vtkPolyDataToPolyDataFilter
 {
 public:
-
-// Description:
-// Construct object with MaximumLength set to 1000.
   vtkStripper();
-
-  static vtkStripper *New() {return new vtkStripper;};
   const char *GetClassName() {return "vtkStripper";};
   void PrintSelf(ostream& os, vtkIndent indent);
+  
+  // Description:
+  // Construct object with MaximumLength set to 1000.
+  static vtkStripper *New() {return new vtkStripper;};
 
   // Description:
   // Specify the maximum number of triangles in a triangle strip,

@@ -41,20 +41,20 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkExtractVOI - select piece (e.g., volume of interest) and/or subsample structured points dataset
 
 // .SECTION Description
-// vtkExtractVOI is a filter that selects a portion of an input structured points 
-// dataset, or subsamples an input dataset. (The selected portion of interested is
-// referred toas the Volume Of Interest, or VOI.) The output of this filter is a 
-// structured points dataset. The filter treats input data of any topological
-// dimension (i.e., point, line, image, or volume) and can generate output data 
-// of any topological dimension.
+// vtkExtractVOI is a filter that selects a portion of an input structured
+// points dataset, or subsamples an input dataset. (The selected portion of
+// interested is referred toas the Volume Of Interest, or VOI.) The output of
+// this filter is a structured points dataset. The filter treats input data
+// of any topological dimension (i.e., point, line, image, or volume) and can
+// generate output data of any topological dimension.
 //
-// To use this filter set the VOI ivar which are i-j-k min/max indices that specify
-// a rectangular region in the data. (Note that these are 0-offset.) You can also
-// specify a sampling rate to subsample the data.
+// To use this filter set the VOI ivar which are i-j-k min/max indices that
+// specify a rectangular region in the data. (Note that these are 0-offset.)
+// You can also specify a sampling rate to subsample the data.
 //
-// Typical applications of this filter are to extract a slice from a volume for 
-// image processing, subsampling large volumes to reduce data size, or extracting
-// regions of a volume with interesting data.
+// Typical applications of this filter are to extract a slice from a volume
+// for image processing, subsampling large volumes to reduce data size, or
+// extracting regions of a volume with interesting data.
 
 // .SECTION See Also
 // vtkGeometryFilter vtkExtractGeometry vtkExtractGrid
@@ -67,14 +67,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkExtractVOI : public vtkStructuredPointsToStructuredPointsFilter
 {
 public:
-
-// Description:
-// Construct object to extract all of the input data.
   vtkExtractVOI();
-
-  static vtkExtractVOI *New() {return new vtkExtractVOI;};
   const char *GetClassName() {return "vtkExtractVOI";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Construct object to extract all of the input data.
+  static vtkExtractVOI *New() {return new vtkExtractVOI;};
 
   // Description:
   // Specify i-j-k (min,max) pairs to extract. The resulting structured points
@@ -84,10 +83,10 @@ public:
   vtkGetVectorMacro(VOI,int,6);
 
   // Description:
-  // Set the sampling rate in the i, j, and k directisons. If the rate is > 1, 
-  // then the resulting VOI will be subsampled representation of the input. 
-  // For example, if the SampleRate=(2,2,2), every other point will be selected,
-  // resulting in a volume 1/8th the original size.
+  // Set the sampling rate in the i, j, and k directisons. If the rate is >
+  // 1, then the resulting VOI will be subsampled representation of the
+  // input.  For example, if the SampleRate=(2,2,2), every other point will
+  // be selected, resulting in a volume 1/8th the original size.
   vtkSetVector3Macro(SampleRate, int);
   vtkGetVectorMacro(SampleRate, int, 3);
 

@@ -46,11 +46,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // has been modified since the last execution time.
 
 // .SECTION See Also
-// vtkSource
-// vtkAppendPolyData vtkBooleanStructuredPoints vtkExtractVectorComponents
-// vtkMergeFilter vtkDataSetFilter vtkPointSetFilter
-// vtkPolyDataFilter vtkStructuredGridFilter vtkStructuredPointsFilter
-// vtkUnstructuredGridFilter
+// vtkSource vtkAppendPolyData vtkBooleanStructuredPoints
+// vtkExtractVectorComponents vtkMergeFilter vtkDataSetFilter
+// vtkPointSetFilter vtkPolyDataFilter vtkStructuredGridFilter
+// vtkStructuredPointsFilter vtkUnstructuredGridFilter
 
 #ifndef __vtkFilter_h
 #define __vtkFilter_h
@@ -61,16 +60,14 @@ class vtkDataSet;
 class VTK_EXPORT vtkFilter : public vtkSource
 {
 public:
+  vtkFilter();
+  ~vtkFilter();
+  void PrintSelf(ostream& os, vtkIndent indent);
+  const char *GetClassName() {return "vtkFilter";};
 
   // Description:
   // Construct new filter without start or end methods.
-  vtkFilter();
-
-  ~vtkFilter();
-
-  void PrintSelf(ostream& os, vtkIndent indent);
   static vtkFilter *New() {return new vtkFilter;};
-  const char *GetClassName() {return "vtkFilter";};
 
   // Description:
   // All filters must provide a method to update the visualization 

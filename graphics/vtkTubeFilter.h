@@ -48,6 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // is linearly adjusted. If the radius varies with vector value, a mass
 // flux preserving variation is used. The number of sides for the tube also 
 // can be specified.
+
 // .SECTION Caveats
 // The number of tube sides must be greater than 3. If you wish to use fewer
 // sides (i.e., a ribbon), use vtkRibbonFilter.
@@ -55,6 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // The input line must not have duplicate points, or normals at points that
 // are parallel to the incoming/outgoing line segments. (Duplicate points
 // can be removed with vtkCleanPolyData.)
+
 // .SECTION See Also
 // vtkRibbonFilter
 
@@ -70,15 +72,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTubeFilter : public vtkPolyDataToPolyDataFilter
 {
 public:
-
-// Description:
-// Construct object with radius 0.5, radius variation turned off, the number 
-// of sides set to 3, and radius factor of 10.
   vtkTubeFilter();
-
-  static vtkTubeFilter *New() {return new vtkTubeFilter;};
   const char *GetClassName() {return "vtkTubeFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Construct object with radius 0.5, radius variation turned off, the number 
+  // of sides set to 3, and radius factor of 10.
+  static vtkTubeFilter *New() {return new vtkTubeFilter;};
 
   // Description:
   // Set the minimum tube radius (minimum because the tube radius may vary).

@@ -65,27 +65,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkVolumeRayCastMIPFunction : public vtkVolumeRayCastFunction
 {
 public:
-
-// Description:
-// Construct a new vtkVolumeRayCastMIPFunction 
   vtkVolumeRayCastMIPFunction();
-
-
-// Description:
-// Destruct the vtkVolumeRayCastMIPFunction
   ~vtkVolumeRayCastMIPFunction();
-
-  static vtkVolumeRayCastMIPFunction *New() {return new vtkVolumeRayCastMIPFunction;};
+  static vtkVolumeRayCastMIPFunction *New() {
+    return new vtkVolumeRayCastMIPFunction;};
   const char *GetClassName() {return "vtkVolumeRayCastMIPFunction";};
-
-// Description:
-// Print method for vtkVolumeRayCastMIPFunction
   void PrintSelf( ostream& os, vtkIndent index );
 
-
   // Description:
-  // Give a ray type (0 = unsigned char, 1 = unsigned short,
-  // 2 = short) cast a ray through the scalar data starting
+  // Given a ray type, cast a ray through the scalar data starting
   // at ray_position and taking num_steps of ray_increment size.
   // Return the final compositing value in pixel_value where
   // pixel_value[0] = red, pixel_value[1] = green, 
@@ -96,13 +84,14 @@ public:
 		 int num_steps, float pixel_value[6] );
 
 
-// Description:
+
+  // Description:
+  // Get the scalar value below which all scalar values have zero opacity.
   float GetZeroOpacityThreshold( vtkVolume *vol );
 
 
   // Description:
-  // Set the MaximizeMethod to either ScalarValue or 
-  // Opacity.
+  // Set the MaximizeMethod to either ScalarValue or Opacity.
   vtkSetClampMacro( MaximizeMethod, int,
         VTK_MAXIMIZE_SCALAR_VALUE, VTK_MAXIMIZE_OPACITY );
   vtkGetMacro(MaximizeMethod,int);
@@ -111,7 +100,6 @@ public:
   void SetMaximizeMethodToOpacity() 
     {this->SetMaximizeMethod(VTK_MAXIMIZE_OPACITY);}
   char *GetMaximizeMethodAsString(void);
-
 
 
 protected:

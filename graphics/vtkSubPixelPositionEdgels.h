@@ -66,20 +66,15 @@ class VTK_EXPORT vtkSubPixelPositionEdgels : public vtkPolyDataToPolyDataFilter
 {
 public:
   vtkSubPixelPositionEdgels();
-  static vtkSubPixelPositionEdgels *New() {return new vtkSubPixelPositionEdgels;};
+  static vtkSubPixelPositionEdgels *New() {
+    return new vtkSubPixelPositionEdgels;};
   const char *GetClassName() {return "vtkSubPixelPositionEdgels";};
-
-// Description:
-// Print the state of the class.
   void PrintSelf(ostream& os, vtkIndent indent);
 
-
-
-// Description:
-// Override update method because execution can branch two ways 
-// (Input and GradMaps)
+  // Description:
+  // Override update method because execution can branch two ways 
+  // (Input and GradMaps)
   void Update();
-
 
   // Description:
   // Set/Get the gradient data for doing the position adjustments.
@@ -87,7 +82,7 @@ public:
   vtkGetObjectMacro(GradMaps,vtkStructuredPoints);
 
   // Description:
-  // these methods can make the positioning look for a target scalar value
+  // These methods can make the positioning look for a target scalar value
   // instead of looking for a maximum.
   vtkSetMacro(TargetFlag, int);
   vtkGetMacro(TargetFlag, int);

@@ -59,11 +59,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // the high order bit set to indicate connected surface. The DataMask allows
 // you to select this data. Other important ivars include HeaderSize, which
 // allows you to skip over initial info, and SwapBytes, which turns on/off
-// byte swapping.
+// byte swapping. Consider using vtkImageReader as a replacement.
 
 // .SECTION See Also
-// vtkSliceCubes vtkMarchingCubes
-// vtkPNMReader vtkVolume16Reader
+// vtkSliceCubes vtkMarchingCubes vtkPNMReader vtkVolume16Reader
+// vtkImageReader
 
 #ifndef __vtkVolumeReader_h
 #define __vtkVolumeReader_h
@@ -74,12 +74,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkVolumeReader : public vtkStructuredPointsSource
 {
 public:
-
-// Description:
-// Construct object with NULL file prefix; file pattern "%s.%d"; image range 
-// set to (1,1); 
   vtkVolumeReader();
-
   ~vtkVolumeReader();
   const char *GetClassName() {return "vtkVolumeReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -109,7 +104,8 @@ public:
   vtkSetVector3Macro(DataOrigin,float);
   vtkGetVectorMacro(DataOrigin,float,3);
 
-  // Other objects make use of these methods
+  // Description:
+  // Other objects make use of this method.
   virtual vtkStructuredPoints *GetImage(int ImageNumber) = 0;
 
 protected:

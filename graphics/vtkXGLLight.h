@@ -41,7 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkXGLLight - Light for Suns XGL
 // .SECTION Description
 // vtkXGLLight is a concrete implementation of the abstract class vtkLight.
-// vtkXGLLight interfaces to the Hewlett-Packard starbase rendering library.
+// vtkXGLLight interfaces to SUN's XGL rendering library.
 
 #ifndef __vtkXGLLight_h
 #define __vtkXGLLight_h
@@ -52,17 +52,13 @@ class vtkXGLRenderer;
 
 class VTK_EXPORT vtkXGLLight : public vtkLight
 {
-protected:
-  
 public:
   static vtkXGLLight *New() {return new vtkXGLLight;};
   const char *GetClassName() {return "vtkXGLLight";};
 
-
-// Description:
-// Implement base class method.
+  // Description:
+  // Implement base class method.
   void Render(vtkRenderer *ren,int light_index);
-
   
 };
 

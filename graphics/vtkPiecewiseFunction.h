@@ -42,10 +42,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkPiecewiseFunction - Defines a 1D piecewise function.
 // 
 // .SECTION Description
-// 
-
-// .SECTION see also
-//
+// Defines a piecewise linear function mapping. Used for transfer functions
+// in volume rendering.
 
 #ifndef __vtkPiecewiseFunction_h
 #define __vtkPiecewiseFunction_h
@@ -55,23 +53,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPiecewiseFunction : public vtkObject
 {
 public:
-
-// Description:
-// Construct a new vtkPiecewiseFunction with default values
   vtkPiecewiseFunction();
-
-
-// Description:
-// Destruct a vtkPiecewiseFunction
   ~vtkPiecewiseFunction();
-
   static vtkPiecewiseFunction *New() {return new vtkPiecewiseFunction;};
   const char *GetClassName() {return "vtkPiecewiseFunction";};
-
-// Description:
-// Print method for tkPiecewiseFunction
   void PrintSelf(ostream& os, vtkIndent indent);
-
 
   // Description:
   // Get the number of points used to specify the function
@@ -88,7 +74,7 @@ public:
   void RemoveAllPoints();
 
   // Description:
-  /// Add a line segment to the function. All points defined between the
+  // Add a line segment to the function. All points defined between the
   // two points specified are removed from the function.
   void AddSegment( float x1, float val1, float x2, float val2 );
 

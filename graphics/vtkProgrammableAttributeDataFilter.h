@@ -77,16 +77,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // structure for the traversal and operation on the point and cell attribute
 // data.
 //
-// By default the output point and cell data will be copied through from the input
-// point data (using reference counting).  You can control this using the
-// output's CopyAllOff() flag, or by using individual flags for each point
-// data field (i.e., scalars, vectors, etc.)
+// By default the output point and cell data will be copied through from the
+// input point data (using reference counting).  You can control this using
+// the output's CopyAllOff() flag, or by using individual flags for each
+// point data field (i.e., scalars, vectors, etc.)
 //
-// The output of this filter is the abstract type vtkDataSet, even if your input 
-// is a concrete type like vtkPolyData. Thus you may need to use vtkCastToConcrete
-// to obtain the output as a particular concrete type, or one of the special
-// methods of the superclass (e.g., vtkDataSetToDataSetFilter::GetPolyDataOutput)
-// to retrieve output of the correct type.
+// The output of this filter is the abstract type vtkDataSet, even if your
+// input is a concrete type like vtkPolyData. Thus you may need to use
+// vtkCastToConcrete to obtain the output as a particular concrete type, or
+// one of the special methods of the superclass (e.g.,
+// vtkDataSetToDataSetFilter::GetPolyDataOutput) to retrieve output of the
+// correct type.
 //
 // The filter correctly manages modified time and network execution in most
 // cases. However, if you change the definition of the filter function,
@@ -104,21 +105,23 @@ class VTK_EXPORT vtkProgrammableAttributeDataFilter : public vtkDataSetToDataSet
 public:
   vtkProgrammableAttributeDataFilter();
   ~vtkProgrammableAttributeDataFilter();
-  static vtkProgrammableAttributeDataFilter *New() {return new vtkProgrammableAttributeDataFilter;};
+  static vtkProgrammableAttributeDataFilter *New() {
+    return new vtkProgrammableAttributeDataFilter;};
   const char *GetClassName() {return "vtkProgrammableAttributeDataFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Add a dataset to the list of data to process.
   void AddInput(vtkDataSet *in);
-
   void AddInput(vtkDataSet& in) {this->AddInput(&in);};
 
   // Description:
   // Remove a dataset from the list of data to process.
   void RemoveInput(vtkDataSet *in);
-
   void RemoveInput(vtkDataSet& in) {this->RemoveInput(&in);};
+
+  // Description:
+  // Return the list of inputs.
   vtkDataSetCollection *GetInputList() {return this->InputList;};
 
   // Description:
@@ -130,7 +133,8 @@ public:
   // Set the arg delete method. This is used to free user memory.
   void SetExecuteMethodArgDelete(void (*f)(void *));
 
-  // filter interface - is different because of multiple input
+  // Description:
+  // vtkFilter interface - overridden because of multiple input.
   void Update();
 
 protected:

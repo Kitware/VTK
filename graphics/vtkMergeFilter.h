@@ -61,17 +61,14 @@ class vtkRectilinearGrid;
 class VTK_EXPORT vtkMergeFilter : public vtkFilter
 {
 public:
-
-// Description:
-// Create object with no input or output.
   vtkMergeFilter();
-
   ~vtkMergeFilter();
   static vtkMergeFilter *New() {return new vtkMergeFilter;};
   const char *GetClassName() {return "vtkMergeFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Filter interface
+  // Description:
+  // Update the data, re-executing if required.
   void Update();
 
   // Description:
@@ -101,27 +98,28 @@ public:
     {this->SetScalars(cache->GetImageToStructuredPoints()->GetOutput());}
 
   // Description:
-  // Specify object from which to extract vector information.
+  // Set / get the object from which to extract vector information.
   vtkSetObjectMacro(Vectors,vtkDataSet);
   vtkGetObjectMacro(Vectors,vtkDataSet);
   
   // Description:
-  // Specify object from which to extract normal information.
+  // Set / get the object from which to extract normal information.
   vtkSetObjectMacro(Normals,vtkDataSet);
   vtkGetObjectMacro(Normals,vtkDataSet);
   
   // Description:
-  // Specify object from which to extract texture coordinates information.
+  // Set / get the object from which to extract texture coordinates
+  // information.
   vtkSetObjectMacro(TCoords,vtkDataSet);
   vtkGetObjectMacro(TCoords,vtkDataSet);
 
   // Description:
-  // Specify object from which to extract tensor data.
+  // Set / get the object from which to extract tensor data.
   vtkSetObjectMacro(Tensors,vtkDataSet);
   vtkGetObjectMacro(Tensors,vtkDataSet);
 
   // Description:
-  // Specify object from which to extract field data.
+  // Set / get the object from which to extract field data.
   vtkSetObjectMacro(FieldData,vtkDataSet);
   vtkGetObjectMacro(FieldData,vtkDataSet);
 

@@ -48,9 +48,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // table can be created for a given directional light source and given
 // material properties.
 
-// .SECTION see also
-// 
-
 #ifndef __vtkNormalEncoder_h
 #define __vtkNormalEncoder_h
 
@@ -69,28 +66,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkNormalEncoder : public vtkObject
 {
 public:
-
-// Description:
-// Construct a vtkNormalEncoder with initial values of NULL for
-// the ScalarInput, EncodedNormal, and GradientMagnitude. Also,
-// indicate that the IndexTable has not yet been initialized. The
-// GradientMagnitudeRange and the GradientMangitudeTable are 
-// initialized to default values - these will change in the future
-// when magnitude of gradient opacities are included
   vtkNormalEncoder();
-
-
-// Description:
-// Destruct a vtkNormalEncoder - free up any memory used
   ~vtkNormalEncoder();
-
-  static vtkNormalEncoder *New() {return new vtkNormalEncoder;};
   const char *GetClassName() {return "vtkNormalEncoder";};
-
-// Description:
-// Print the vtkNormalEncoder
   void PrintSelf( ostream& os, vtkIndent index );
 
+  // Description:
+  // Construct a vtkNormalEncoder with initial values of NULL for
+  // the ScalarInput, EncodedNormal, and GradientMagnitude. Also,
+  // indicate that the IndexTable has not yet been initialized. The
+  // GradientMagnitudeRange and the GradientMangitudeTable are 
+  // initialized to default values - these will change in the future
+  // when magnitude of gradient opacities are included
+  static vtkNormalEncoder *New() {return new vtkNormalEncoder;};
 
   // Description:
   // Set/Get the scalar input for which the normals will be 
@@ -145,8 +133,8 @@ public:
 
   // Description:
   // Get the encoded normal at an x,y,z location in the volume
-  int   GetEncodedNormalIndex( int xyz_index ) 
-                                { return *(this->EncodedNormal+xyz_index); };
+  int   GetEncodedNormalIndex( int xyz_index ) { 
+    return *(this->EncodedNormal+xyz_index); };
   int   GetEncodedNormalIndex( int x_index, int y_index, int z_index );
 
   // Description:

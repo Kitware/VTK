@@ -60,17 +60,17 @@ public:
   const char *GetClassName() {return "vtkStructuredGridReader";}
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // overload because of vtkDataReader ivar
-  unsigned long int GetMTime();
+  // Description:
+  // Return MTime also considering the vtkDataReader ivar
+  unsigned long GetMTime();
 
   // Description:
-  // Specify file name of vtk polygonal data file to read.
+  // Set / get file name of vtk polygonal data file to read.
   void SetFileName(char *name);
-
   char *GetFileName();
 
   // Description:
-  // Specify the InputString for use when reading from a character array.
+  // Set / get the InputString for use when reading from a character array.
   void SetInputString(char *in) {this->Reader->SetInputString(in);}
   void SetInputString(char *in,int len) {this->Reader->SetInputString(in,len);}
   char *GetInputString() { return this->Reader->GetInputString();}
@@ -86,52 +86,46 @@ public:
   int GetFileType();
 
   // Description:
-  // Set the name of the scalar data to extract. If not specified, first 
+  // Set / get the name of the scalar data to extract. If not specified, first 
   // scalar data encountered is extracted.
   void SetScalarsName(char *name);
-
   char *GetScalarsName();
 
   // Description:
-  // Set the name of the vector data to extract. If not specified, first 
+  // Set / get the name of the vector data to extract. If not specified, first 
   // vector data encountered is extracted.
   void SetVectorsName(char *name);
-
   char *GetVectorsName();
 
   // Description:
-  // Set the name of the tensor data to extract. If not specified, first 
+  // Set / get the name of the tensor data to extract. If not specified, first 
   // tensor data encountered is extracted.
   void SetTensorsName(char *name);
-
   char *GetTensorsName();
 
   // Description:
-  // Set the name of the normal data to extract. If not specified, first 
+  // Set / get the name of the normal data to extract. If not specified, first 
   // normal data encountered is extracted.
   void SetNormalsName(char *name);
-
   char *GetNormalsName();
 
   // Description:
-  // Set the name of the texture coordinate data to extract. If not specified,
-  // first texture coordinate data encountered is extracted.
+  // Set / get the name of the texture coordinate data to extract. If not
+  // specified, first texture coordinate data encountered is extracted.
   void SetTCoordsName(char *name);
-
   char *GetTCoordsName();
 
   // Description:
-  // Set the name of the lookup table data to extract. If not specified, uses 
-  // lookup table named by scalar. Otherwise, this specification supersedes.
+  // Set / get the name of the lookup table data to extract. If not
+  // specified, uses lookup table named by scalar. Otherwise, this
+  // specification supersedes.
   void SetLookupTableName(char *name);
-
   char *GetLookupTableName();
 
   // Description:
-  // Set the name of the field data to extract. If not specified, uses 
+  // Set / get the name of the field data to extract. If not specified, uses 
   // first field data encountered in file.
   void SetFieldDataName(char *name);
-
   char *GetFieldDataName();
 
 protected:

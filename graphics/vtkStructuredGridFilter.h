@@ -59,9 +59,8 @@ public:
   const char *GetClassName() {return "vtkStructuredGridFilter";};
 
   // Description:
-  // Specify the input Grid or filter.
+  // Set / get the input Grid or filter.
   void SetInput(vtkStructuredGrid *input);
-
   void SetInput(vtkStructuredGrid &input) {this->SetInput(&input);};
   vtkStructuredGrid *GetInput() {return (vtkStructuredGrid *)this->Input;};
 

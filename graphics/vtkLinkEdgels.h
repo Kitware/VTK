@@ -75,15 +75,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkLinkEdgels : public vtkStructuredPointsToPolyDataFilter
 {
 public:
-
-// Description:
-// Construct instance of vtkLinkEdgels with GradientThreshold set to 
-// 0.1, PhiThreshold set to 90 degrees and LinkThreshold set to 90 degrees.
   vtkLinkEdgels();
-
-  static vtkLinkEdgels *New() {return new vtkLinkEdgels;};
   const char *GetClassName() {return "vtkLinkEdgels";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Construct instance of vtkLinkEdgels with GradientThreshold set to 
+  // 0.1, PhiThreshold set to 90 degrees and LinkThreshold set to 90 degrees.
+  static vtkLinkEdgels *New() {return new vtkLinkEdgels;};
 
   // Description:
   // Set/Get the threshold for Phi vs. Alpha link thresholding.

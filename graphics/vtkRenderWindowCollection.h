@@ -56,43 +56,34 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkRenderWindowCollection : public vtkCollection
 {
  public:
-  static vtkRenderWindowCollection *New() {return new vtkRenderWindowCollection;};
+  static vtkRenderWindowCollection *New() {
+    return new vtkRenderWindowCollection;};
   const char *GetClassName() {return "vtkRenderWindowCollection";};
 
-  void AddItem(vtkRenderWindow *a);
-  void RemoveItem(vtkRenderWindow *a);
-  int IsItemPresent(vtkRenderWindow *a);
-  vtkRenderWindow *GetNextItem();
+  // Description:
+  // Add a RenderWindow to the list.
+  void AddItem(vtkRenderWindow *a) {
+    this->vtkCollection::AddItem((vtkObject *)a);};
+  
+  // Description:
+  // Remove a RenderWindow from the list.
+  void RemoveItem(vtkRenderWindow *a) {
+    this->vtkCollection::RemoveItem((vtkObject *)a);};
+  
+  // Description:
+  // Determine whether a particular RenderWindow is present. Returns its
+  // position in the list.
+  int IsItemPresent(vtkRenderWindow *a) {
+    return this->vtkCollection::IsItemPresent((vtkObject *)a);};
+  
+  // Description:
+  // Get the next RenderWindow in the list. Return NULL when at the end of the 
+  // list.
+  vtkRenderWindow *GetNextItem() {
+    return (vtkRenderWindow *)(this->GetNextItemAsObject());};
+  
+
 };
 
-// Description:
-// Add a RenderWindow to the list.
-inline void vtkRenderWindowCollection::AddItem(vtkRenderWindow *a) 
-{
-  this->vtkCollection::AddItem((vtkObject *)a);
-}
-
-// Description:
-// Remove a RenderWindow from the list.
-inline void vtkRenderWindowCollection::RemoveItem(vtkRenderWindow *a) 
-{
-  this->vtkCollection::RemoveItem((vtkObject *)a);
-}
-
-// Description:
-// Determine whether a particular RenderWindow is present. Returns its position
-// in the list.
-inline int vtkRenderWindowCollection::IsItemPresent(vtkRenderWindow *a) 
-{
-  return this->vtkCollection::IsItemPresent((vtkObject *)a);
-}
-
-// Description:
-// Get the next RenderWindow in the list. Return NULL when at the end of the 
-// list.
-inline vtkRenderWindow *vtkRenderWindowCollection::GetNextItem() 
-{
-  return (vtkRenderWindow *)(this->GetNextItemAsObject());
-}
 
 #endif

@@ -1,10 +1,10 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    %M%
+  Module:    vtkMCubesWriter.h
   Language:  C++
-  Date:      %D%
-  Version:   %V%
+  Date:      $Date$
+  Version:   $Revision$
 
 Copyright (c) 1993-1998 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -40,14 +40,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkMCubesWriter - write binary marching cubes file
 // .SECTION Description
 // vtkMCubesWriter is a writer object that writes binary marching cubes
-// files. (Marching cubes is an isosurfacing technique that generates 
-// many triangles.) The binary format is supported by W. Lorensen's
-// marching cubes program (and the vtkSliceCubes object). Each triangle
-// is represented by three records, with each record consisting of
-// six single precision floating point numbers representing the a triangle vertex
-// coordiante and vertex normal.
+// files. (Marching cubes is an isosurfacing technique that generates many
+// triangles.) The binary format is supported by W. Lorensen's marching cubes
+// program (and the vtkSliceCubes object). Each triangle is represented by
+// three records, with each record consisting of six single precision
+// floating point numbers representing the a triangle vertex coordiante and
+// vertex normal.
+
 // .SECTION Caveats
 // Binary files are written in sun/hp/sgi (i.e., Big Endian) form.
+
 // .SECTION See Also
 // vtkMarchingCubes vtkSliceCubes vtkMCubesWriter
 
@@ -59,26 +61,20 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkNormals.h"
 class VTK_EXPORT vtkMCubesWriter : public vtkPolyDataWriter
 {
-
 public:
-
-// Description:
-// Create object.
   vtkMCubesWriter();
-
   ~vtkMCubesWriter();
   static vtkMCubesWriter *New() {return new vtkMCubesWriter;};
   const char *GetClassName() {return "vtkMCubesWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Specify file name of marching cubes limits file.
+  // Set/get file name of marching cubes limits file.
   vtkSetStringMacro(LimitsFileName);
   vtkGetStringMacro(LimitsFileName);
 
 protected:
   void WriteData();
-
   char *LimitsFileName;
 };
 

@@ -45,7 +45,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // structured points on output.
 
 // .SECTION See Also
-// vtkExtractVOI vtkImageDifference vtkSweptSurface vtkTransformStructuredPoints
+// vtkExtractVOI vtkImageDifference vtkSweptSurface
+// vtkTransformStructuredPoints
 
 #ifndef __vtkStructuredPointsToStructuredPointsFilter_h
 #define __vtkStructuredPointsToStructuredPointsFilter_h
@@ -57,7 +58,8 @@ class VTK_EXPORT vtkStructuredPointsToStructuredPointsFilter : public vtkStructu
 {
 public:
   vtkStructuredPointsToStructuredPointsFilter();
-  static vtkStructuredPointsToStructuredPointsFilter *New() {return new vtkStructuredPointsToStructuredPointsFilter;};
+  static vtkStructuredPointsToStructuredPointsFilter *New() {
+    return new vtkStructuredPointsToStructuredPointsFilter;};
   const char *GetClassName() {return "vtkStructuredPointsToStructuredPointsFilter";};
 
   // Description:

@@ -66,14 +66,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPolyDataNormals : public vtkPolyDataToPolyDataFilter
 {
 public:
+  vtkPolyDataNormals();
+  const char *GetClassName() {return "vtkPolyDataNormals";};
+  void PrintSelf(ostream& os, vtkIndent indent);
+
   // Description:
   // Construct with feature angle=30, splitting and consistency turned on, 
   // flipNormals turned off, and non-manifold traversal turned on.
-  vtkPolyDataNormals();
-
   static vtkPolyDataNormals *New() {return new vtkPolyDataNormals;};
-  const char *GetClassName() {return "vtkPolyDataNormals";};
-  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Specify the angle that defines a sharp edge. If the difference in

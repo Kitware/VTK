@@ -63,14 +63,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkExtractUnstructuredGrid : public vtkUnstructuredGridFilter
 {
 public:
-
-// Description:
-// Construct with all types of clipping turned off.
   vtkExtractUnstructuredGrid();
-
-  static vtkExtractUnstructuredGrid *New() {return new vtkExtractUnstructuredGrid;};
   const char *GetClassName() {return "vtkExtractUnstructuredGrid";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Construct with all types of clipping turned off.
+  static vtkExtractUnstructuredGrid *New() {
+    return new vtkExtractUnstructuredGrid;};
 
   // Description:
   // Turn on/off selection of geometry by point id.
@@ -110,17 +110,14 @@ public:
   vtkSetClampMacro(CellMaximum,int,0,VTK_LARGE_INTEGER);
   vtkGetMacro(CellMaximum,int);
 
-  // Specify x-y-z box for geometric region clipping
+  // Description:
+  // Specify a (xmin,xmax, ymin,ymax, zmin,zmax) bounding box to clip data.
+  void SetExtent(float xMin, float xMax, float yMin, float yMax, 
+		 float zMin, float zMax);
 
-// Description:
-// Specify a (xmin,xmax, ymin,ymax, zmin,zmax) bounding box to clip data.
-  void SetExtent(float xMin, float xMax, float yMin, float yMax, float zMin, float zMax);
-
-
-// Description:
-// Specify a (xmin,xmax, ymin,ymax, zmin,zmax) bounding box to clip data.
+  // Description:
+  // Set / get a (xmin,xmax, ymin,ymax, zmin,zmax) bounding box to clip data.
   void SetExtent(float *extent);
-
   float *GetExtent() { return this->Extent;};
 
   // Description:

@@ -74,14 +74,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPlaneSource : public vtkPolyDataSource 
 {
 public:
+  vtkPlaneSource();
+  void PrintSelf(ostream& os, vtkIndent indent);
+  const char *GetClassName() {return "vtkPlaneSource";};
+
   // Description:
   // Construct plane perpendicular to z-axis, resolution 1x1, width
   // and height 1.0, and centered at the origin.
-  vtkPlaneSource();
-
-  void PrintSelf(ostream& os, vtkIndent indent);
   static vtkPlaneSource *New() {return new vtkPlaneSource;};
-  const char *GetClassName() {return "vtkPlaneSource";};
 
   // Description:
   // Specify the resolution of the plane along the first axes.
@@ -93,13 +93,11 @@ public:
   vtkSetMacro(YResolution,int);
   vtkGetMacro(YResolution,int);
 
-  // Convenience functions.
-
   // Description:
   // Set the number of x-y subdivisions in the plane.
   void SetResolution(const int xR, const int yR);
-
-  void GetResolution(int& xR,int& yR) {xR=this->XResolution; yR=this->YResolution;};
+  void GetResolution(int& xR,int& yR) {
+    xR=this->XResolution; yR=this->YResolution;};
 
   // Description:
   // Specify a point defining the origin of the plane.

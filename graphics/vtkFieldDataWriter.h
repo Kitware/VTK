@@ -43,8 +43,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkFieldDataWriter is a source object that writes ASCII or binary 
 // field data files in vtk format. Field data is a general form of data in
 // matrix form.
+
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.
+
 // .SECTION See Also
 // vtkFieldData vtkFieldDataReader
 
@@ -57,33 +59,27 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkFieldDataWriter : public vtkWriter
 {
 public:
-  // Description:
-  // Instantiate object with no input.
   vtkFieldDataWriter();
-
   static vtkFieldDataWriter *New() {return new vtkFieldDataWriter;};
   const char *GetClassName() {return "vtkFieldDataWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Specify the input data or filter.
+  // Set / get the input data or filter.
   void SetInput(vtkDataObject *input);
-
   void SetInput(vtkDataObject &input) {this->SetInput(&input);};
   vtkDataObject *GetInput() {return this->Input;};
-                               
-  // Methods delegated to vtkDataWriter
+              
+  // Description:
+  // Methods delegated to vtkDataWriter, see vtkDataWriter.
   void SetFileName(char *filename) {this->Writer.SetFileName(filename);};
   char *GetFileName() {return this->Writer.GetFileName();};
-
   void SetHeader(char *header) {this->Writer.SetHeader(header);};
   char *GetHeader() {return this->Writer.GetHeader();};
-  
   void SetFileType(int type) {this->Writer.SetFileType(type);};
   int GetFileType() {return this->Writer.GetFileType();};
   void SetFileTypeToASCII() {this->Writer.SetFileType(VTK_ASCII);};
   void SetFileTypeToBinary() {this->Writer.SetFileType(VTK_BINARY);};
-
   void SetFieldDataName(char *fieldname) {this->Writer.SetFieldDataName(fieldname);};
   char *GetFieldDataName() {return this->Writer.GetFieldDataName();};
 

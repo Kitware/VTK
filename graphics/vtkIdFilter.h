@@ -58,15 +58,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkIdFilter : public vtkDataSetToDataSetFilter 
 {
 public:
-
-// Description:
-// Construct object with PointIds and CellIds on; and ids being generated
-// as scalars.
   vtkIdFilter();
-
-  static vtkIdFilter *New() {return new vtkIdFilter;};
   const char *GetClassName() {return "vtkIdFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Construct object with PointIds and CellIds on; and ids being generated
+  // as scalars.
+  static vtkIdFilter *New() {return new vtkIdFilter;};
 
   // Description:
   // Enable/disable the generation of point ids.

@@ -44,8 +44,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // window and intersecting with actor's defining geometry - specifically 
 // its points. Beside returning coordinates, actor, and mapper, vtkPointPicker
 // returns the id of the closest point within the tolerance along the pick ray.
+
 // .SECTION See Also
-// For quick picking, see vtkPicker. To uniquely pick actors, see vtkCellPicker.
+// vtkPicker vtkCellPicker.
 
 #ifndef __vtkPointPicker_h
 #define __vtkPointPicker_h

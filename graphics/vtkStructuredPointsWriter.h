@@ -56,15 +56,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkStructuredPointsWriter : public vtkDataWriter
 {
 public:
-  vtkStructuredPointsWriter() {};
-  static vtkStructuredPointsWriter *New() {return new vtkStructuredPointsWriter;};
+  static vtkStructuredPointsWriter *New() {
+    return new vtkStructuredPointsWriter;};
   const char *GetClassName() {return "vtkStructuredPointsWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Specify the input data or filter.
+  // Set / get  the input data or filter.
   void SetInput(vtkStructuredPoints *input);
-
   void SetInput(vtkStructuredPoints &input) {this->SetInput(&input);};
   void SetInput(vtkImageCache *cache)
     {this->SetInput(cache->GetImageToStructuredPoints()->GetOutput());}

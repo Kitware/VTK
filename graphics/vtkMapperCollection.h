@@ -59,44 +59,33 @@ class VTK_EXPORT vtkMapperCollection : public vtkCollection
   static vtkMapperCollection *New() {return new vtkMapperCollection;};
   const char *GetClassName() {return "vtkMapperCollection";};
 
-  void AddItem(vtkMapper *a);
-  void RemoveItem(vtkMapper *a);
-  int IsItemPresent(vtkMapper *a);
-  vtkMapper *GetNextItem();
+  // Description:
+  // Add an mapper to the list.
+  void AddItem(vtkMapper *a) {
+    this->vtkCollection::AddItem((vtkObject *)a);};
+  
+  // Description:
+  // Remove an mapper from the list.
+  void RemoveItem(vtkMapper *a) {
+    this->vtkCollection::RemoveItem((vtkObject *)a);};
+
+  // Description:
+  // Determine whether a particular mapper is present. Returns its position
+  // in the list.
+  int IsItemPresent(vtkMapper *a) {
+    return this->vtkCollection::IsItemPresent((vtkObject *)a);};
+  
+  // Description:
+  // Get the next mapper in the list.
+  vtkMapper *GetNextItem() { 
+    return (vtkMapper *)(this->GetNextItemAsObject());};
+  
+  // Description:
+  // Get the last mapper in the list.
   vtkMapper *GetLastItem();
 };
 
-// Description:
-// Add an mapper to the list.
-inline void vtkMapperCollection::AddItem(vtkMapper *a) 
-{
-  this->vtkCollection::AddItem((vtkObject *)a);
-}
 
-// Description:
-// Remove an mapper from the list.
-inline void vtkMapperCollection::RemoveItem(vtkMapper *a) 
-{
-  this->vtkCollection::RemoveItem((vtkObject *)a);
-}
-
-// Description:
-// Determine whether a particular mapper is present. Returns its position
-// in the list.
-inline int vtkMapperCollection::IsItemPresent(vtkMapper *a) 
-{
-  return this->vtkCollection::IsItemPresent((vtkObject *)a);
-}
-
-// Description:
-// Get the next mapper in the list.
-inline vtkMapper *vtkMapperCollection::GetNextItem() 
-{ 
-  return (vtkMapper *)(this->GetNextItemAsObject());
-}
-
-// Description:
-// Get the last mapper in the list.
 inline vtkMapper *vtkMapperCollection::GetLastItem() 
 { 
   if ( this->Bottom == NULL ) return NULL;

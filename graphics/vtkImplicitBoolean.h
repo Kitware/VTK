@@ -69,15 +69,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImplicitBoolean : public vtkImplicitFunction
 {
 public:
-  // Description:
-  // Default boolean method is union.
   vtkImplicitBoolean();
   ~vtkImplicitBoolean();
-  static vtkImplicitBoolean *New() {return new vtkImplicitBoolean;};
   const char *GetClassName() {return "vtkImplicitBoolean";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // ImplicitFunction interface
+  // Description:
+  // Default boolean method is union.
+  static vtkImplicitBoolean *New() {return new vtkImplicitBoolean;};
 
   // Description:
   // Evaluate boolean combinations of implicit function using current operator.
@@ -87,8 +86,9 @@ public:
   // Evaluate gradient of boolean combination.
   void EvaluateGradient(float x[3], float g[3]);
 
+  // Description:
   // Override modified time retrieval because of object dependencies.
-  unsigned long int GetMTime();
+  unsigned long GetMTime();
 
   // Description:
   // Add another implicit function to the list of functions.
@@ -98,8 +98,10 @@ public:
   // Description:
   // Remove a function from the list of implicit functions to boolean.
   void RemoveFunction(vtkImplicitFunction *in);
-
   void RemoveFunction(vtkImplicitFunction &in) {this->RemoveFunction(&in);};
+
+  // Description:
+  // Return the collection of implicit functions.
   vtkImplicitFunctionCollection *GetFunction() {return this->FunctionList;};
 
   // Description:

@@ -61,48 +61,49 @@ public:
   const char *GetClassName() {return "vtkStarbaseRenderer";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-
-// Description:
-// Concrete starbase render method.
+  // Description:
+  // Concrete starbase render method.
   void DeviceRender(void);
 
-
-// Description:
-// Internal method temporarily removes lights before reloading them
-// into graphics pipeline.
+  // Description:
+  // Internal method temporarily removes lights before reloading them
+  // into graphics pipeline.
   void ClearLights(void);
 
-
-
-// Description:
-// Ask lights to load themselves into graphics pipeline.
+  // Description:
+  // Ask lights to load themselves into graphics pipeline.
   int UpdateLights(void);
 
-
-// Description:
-// Ask volumes to render themselves.
+  // Description:
+  // Ask volumes to render themselves.
   int UpdateVolumes(void);
 
 
+  // Description:
+  // Return the starbase descriptor being used.
   vtkGetMacro(Fd,int);
+  
+  // Description:
+  // Set / get the starbase switch vector being used. This is 
+  // primarily for internal use only.
   vtkGetMacro(LightSwitch,int);
   vtkSetMacro(LightSwitch,int);
+
+  // Description:
+  // Return the center of the renderer taking into account stereo.
   virtual float *GetCenter();
 
-// Description:
-// Convert display coordinates to view coordinates.
+  // Description:
+  // Convert display coordinates to view coordinates.
   virtual void DisplayToView(); 
 
-
-// Description:
-// Convert view coordinates to display coordinates.
+  // Description:
+  // Convert view coordinates to display coordinates.
   virtual void ViewToDisplay(); 
 
-
-// Description:
-// Is a given display point in this renderer's viewport.
+  // Description:
+  // Is a given display point in this renderer's viewport.
   virtual int  IsInViewport(int x,int y); 
-
 
 protected:
   int NumberOfLightsBound;

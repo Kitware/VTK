@@ -57,10 +57,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class VTK_EXPORT vtkXGLRenderer : public vtkRenderer
 {
-protected:
-  Xgl_light XglrLights[VTK_MAX_LIGHTS];
-  int NumberOfLightsBound;
-  Xgl_3d_ctx Context;
 
 public:
   vtkXGLRenderer();
@@ -68,22 +64,26 @@ public:
   const char *GetClassName() {return "vtkXGLRenderer";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-
-// Description:
-// Concrete XGL render method.
+  // Description:
+  // Concrete XGL render method.
   void DeviceRender(void);
 
-
-
-// Description:
-// Ask lights to load themselves into graphics pipeline.
+  // Description:
+  // Ask lights to load themselves into graphics pipeline.
   int UpdateLights(void);
 
-
+  // Description:
+  // Methods used by other XGL classes but which shouldn't be used
+  // by application developers.
   Xgl_3d_ctx *GetContext() {return &(this->Context);};
   Xgl_win_ras  *GetRaster() 
   {return ((vtkXGLRenderWindow *)(this->GetRenderWindow()))->GetRaster();};
   Xgl_light *GetLightArray() {return this->XglrLights;};
+  
+protected:
+  Xgl_light XglrLights[VTK_MAX_LIGHTS];
+  int NumberOfLightsBound;
+  Xgl_3d_ctx Context;
 };
 
 #endif

@@ -42,15 +42,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkImporter is an abstract class that specifies the protocol for
 // importing actors, cameras, lights and proeperties into a
-// vtkRenderWindow.
-// The following takes place:
-// Create a RenderWindow and Renderer if none is provided.
-// Open the import file
-// Import the Actors
-// Import the cameras
-// Import the lights
-// Import the Properties
-// Close the import file
+// vtkRenderWindow. The following takes place:
+// 1) Create a RenderWindow and Renderer if none is provided.
+// 2) Open the import file
+// 3) Import the Actors
+// 4) Import the cameras
+// 5) Import the lights
+// 6) Import the Properties
+// 7) Close the import file
+//
 // Subclasses optionally implement the ImportActors, ImportCameras,
 // ImportLights and ImportProperties methods. An ImportBegin and
 // ImportEnd can optionally be provided to perform Importer-specific

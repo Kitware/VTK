@@ -40,8 +40,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkStarbaseActor - starbase actor
 // .SECTION Description
-// vtkStarbaseActor is a concrete implementation of the abstract class vtkActor.
-// vtkStarbaseActor interfaces to the HP starbase rendering library.
+// vtkStarbaseActor is a concrete implementation of the abstract class
+// vtkActor.  vtkStarbaseActor interfaces to the HP starbase rendering
+// library.
 
 #ifndef __vtkStarbaseActor_h
 #define __vtkStarbaseActor_h
@@ -58,9 +59,8 @@ public:
   static vtkStarbaseActor *New() {return new vtkStarbaseActor;};
   const char *GetClassName() {return "vtkStarbaseActor";};
 
-
-// Description:
-// Implement base class method.
+  // Description:
+  // Implement base class method.
   void Render(vtkRenderer *ren, vtkMapper *mapper);
 
 };

@@ -41,8 +41,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkStarbaseRenderWindow - HP starbase rendering window
 // .SECTION Description
 // vtkStarbaseRenderWindow is a concrete implementation of the abstract class
-// vtkRenderWindow. vtkStarbaseRenderer interfaces to the Hewlett-Packard starbase
-// graphics library.
+// vtkRenderWindow. vtkStarbaseRenderer interfaces to the Hewlett-Packard
+// starbase graphics library.
 
 #ifndef __vtkStarbaseRenderWindow_h
 #define __vtkStarbaseRenderWindow_h
@@ -62,60 +62,51 @@ public:
   const char *GetClassName() {return "vtkStarbaseRenderWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
-
-// Description:
-// Begin the rendering process.
+  // Description:
+  // Begin the rendering process.
   void Start(void);
 
-
-// Description:
-// End the rendering process and display the image.
+  // Description:
+  // End the rendering process and display the image.
   void Frame(void);
 
-
-// Description:
-// Initialize the rendering window.
+  // Description:
+  // Initialize the rendering window.
   void WindowInitialize(void);
 
-
-// Description:
-// Initialize the rendering window.
+  // Description:
+  // Initialize the rendering window.
   void Initialize(void);
 
-
-// Description:
-// Change the window to fill the entire screen.
+  // Description:
+  // Change the window to fill the entire screen.
   virtual void SetFullScreen(int);
 
-
-// Description:
-// Resize the window.
+  // Description:
+  // Resize the window.
   void WindowRemap(void);
 
-
-// Description:
-// Set the preferred window size to full screen.
+  // Description:
+  // Set the preferred window size to full screen.
   void PrefFullScreen(void);
 
-
-// Description:
-// Specify the size of the rendering window.
+  // Description:
+  // Specify the size of the rendering window.
   void SetSize(int,int);
 
-
+  // Description:
+  // Return the starbase descriptor being used.
   vtkGetMacro(Fd,int);
 
-  // stereo rendering stuff
-
-// Description:
-// Update system if needed due to stereo rendering.
+  // Description:
+  // Update system if needed due to stereo rendering.
   virtual void StereoUpdate();
-
 
   // Description:
   // Set/Get the pixel data of an image, transmitted as RGBRGB... 
   virtual unsigned char *GetPixelData(int x,int y,int x2,int y2, int front);
-  virtual void SetPixelData(int x,int y,int x2,int y2,unsigned char *, int front);
+  virtual void SetPixelData(int x,int y,int x2,int y2,unsigned char *, 
+			    int front);
 
   // Description:
   // Set/Get the pixel data of an image, transmitted as RGBARGBA... 
@@ -128,24 +119,22 @@ public:
   virtual float *GetZbufferData( int x1, int y1, int x2, int y2 );
   virtual void SetZbufferData( int x1, int y1, int x2, int y2, float *buffer);
 
-  // Xwindow stuff
+  // Description:
+  // Get the desired depth for a render suitable Xwindow.
   int      GetDesiredDepth();
-
-// Description:
-// Obtain a colormap from windowing system.
+  
+  // Description:
+  // Obtain a colormap from windowing system.
   Colormap GetDesiredColormap();
 
-
-// Description:
-// Get a visual from the windowing system.
+  // Description:
+  // Get a visual from the windowing system.
   Visual  *GetDesiredVisual();
-
-
-// Description:
-// Create a window for starbase output.
+  
+  // Description:
+  // Create a window for starbase output.
   int      CreateXWindow(Display *,int x,int y,int w,int h,int depth,
 			 char name[80]);
-
 
 protected:
   int      Fd;

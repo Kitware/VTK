@@ -128,7 +128,15 @@ public:
   // NULL is returned.
   vtkGetObjectMacro(DataSet,vtkDataSet);
 
+  // Description:
+  // Return a collection of all the actors that were intersected.
+  // This collection is not sorted.
   vtkActorCollection *GetActors();
+
+  // Description:
+  // Return a list of the points the the actors returned by GetActors
+  // were intersected at. The order of this list will match the order of
+  // GetActors.
   vtkPoints *GetPickedPositions() {return this->PickedPositions;};
   
   // Description:
@@ -137,15 +145,13 @@ public:
   // the third value is =0. Return non-zero if something was successfully 
   // picked.
   virtual int Pick(float selectionX, float selectionY, float selectionZ, 
-           vtkRenderer *renderer);  
+		   vtkRenderer *renderer);  
 
   // Description: Perform pick operation with selection point
   // provided. Normally the first two values for the selection point
   // are x-y pixel coordinate, and the third value is =0. Return
   // non-zero if something was successfully picked.
   int Pick(float selectionPt[3], vtkRenderer *renderer);  
-
-  // Methods to invoke during picking process
 
   // Description: Specify function to be called as picking operation
   // begins.
@@ -172,7 +178,6 @@ public:
   // Set a method to delete user arguments for EndPickMethod.
   void SetEndPickMethodArgDelete(void (*f)(void *));
 
-
   // Description:
   // Use these methods to control whether to limit the picking to this list
   // (rather than renderer's actors). Make sure that the pick list contains 
@@ -189,11 +194,12 @@ public:
   // Add an actor to the pick list.
   void AddPickList(vtkActor *a);
 
-
   // Description:
   // Delete an actor from the pick list.
   void DeletePickList(vtkActor *a);
-
+  
+  // Description:
+  // Return the list of actors in the PickList.
   vtkActorCollection *GetPickList() {return this->PickList;}
 
 protected:

@@ -79,22 +79,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImplicitModeller : public vtkDataSetToStructuredPointsFilter 
 {
 public:
-
-// Description:
-// Construct with sample dimensions=(50,50,50), and so that model bounds are
-// automatically computed from the input. Capping is turned on with CapValue
-// equal to a large positive number.
   vtkImplicitModeller();
-
-  static vtkImplicitModeller *New() {return new vtkImplicitModeller;};
   const char *GetClassName() {return "vtkImplicitModeller";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // Construct with sample dimensions=(50,50,50), and so that model bounds are
+  // automatically computed from the input. Capping is turned on with CapValue
+  // equal to a large positive number.
+  static vtkImplicitModeller *New() {return new vtkImplicitModeller;};
 
-// Description:
-// Compute ModelBounds from input geometry.
+  // Description:
+  // Compute ModelBounds from input geometry.
   float ComputeModelBounds();
-
 
   // Description:
   // Set/Get the i-j-k dimensions on which to sample distance function.
@@ -103,13 +100,13 @@ public:
   void SetSampleDimensions(int dim[3]);
 
   // Description:
-  // Specify distance away from surface of input geometry to sample. Smaller
-  // values make large increases in performance.
+  // Set / get the distance away from surface of input geometry to
+  // sample. Smaller values make large increases in performance.
   vtkSetClampMacro(MaximumDistance,float,0.0,1.0);
   vtkGetMacro(MaximumDistance,float);
 
   // Description:
-  // Specify the region in space in which to perform the sampling. If
+  // Set / get the region in space in which to perform the sampling. If
   // not specified, it will be computed automatically.
   vtkSetVector6Macro(ModelBounds,float);
   vtkGetVectorMacro(ModelBounds,float,6);
@@ -143,34 +140,28 @@ public:
   vtkSetMacro(CapValue,float);
   vtkGetMacro(CapValue,float);
 
-  // Special methods allow sequential appending of data to the output.
-
-// Description:
-// Special update methods handles possibility of appending data.
+  // Description:
+  // Special update methods handles possibility of appending data.
   void Update();
 
-
-// Description:
-// Initialize the filter for appending data. You must invoke the
-// StartAppend() method before doing successive Appends(). It's also a
-// good idea to manually specify the model bounds; otherwise the input
-// bounds for the data will be used.
+  // Description:
+  // Initialize the filter for appending data. You must invoke the
+  // StartAppend() method before doing successive Appends(). It's also a
+  // good idea to manually specify the model bounds; otherwise the input
+  // bounds for the data will be used.
   void StartAppend();
 
-
-// Description:
-// Append a data set to the existing output. To use this function,
-// you'll have to invoke the StartAppend() method before doing
-// successive appends. It's also a good idea to specify the model
-// bounds; otherwise the input model bounds is used. When you've
-// finished appending, use the EndAppend() method.
+  // Description:
+  // Append a data set to the existing output. To use this function,
+  // you'll have to invoke the StartAppend() method before doing
+  // successive appends. It's also a good idea to specify the model
+  // bounds; otherwise the input model bounds is used. When you've
+  // finished appending, use the EndAppend() method.
   void Append(vtkDataSet *input);
 
-
-// Description:
-// Method completes the append process.
+  // Description:
+  // Method completes the append process.
   void EndAppend();
-
 
 protected:
   void Execute();

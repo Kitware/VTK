@@ -45,13 +45,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Currently a very simple method of TotalTime/NumberOfActors is used.
 // In the future this should be modified to dynamically allocate the
 // rendering time between different actors based on their needs.
-// There are currently three levels of detail. The top level is just
+// There are three levels of detail by default. The top level is just
 // the normal data.  The lowest level of detail is a simple bounding
 // box outline of the actor. The middle level of detail is a point
 // cloud of a fixed number of points that have been randomly sampled
 // from the Mappers input data.  Point attributes are copied over to
 // the point cloud.  These two lower levels of detail are accomplished by
 // creating instances of a vtkOutlineFilter, vtkGlyph3D, and vtkPointSource.
+// Additional levels of detail can be add using the AddLODMapper method.
 
 // .SECTION see also
 // vtkActor vtkRenderer
@@ -70,15 +71,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkLODActor : public vtkActor
 {
  public:
+  vtkLODActor();
+  ~vtkLODActor();
+  const char *GetClassName() {return "vtkLODActor";};
+  void PrintSelf(ostream& os, vtkIndent indent);
+
   // Description:
   // Creates a vtkLODActor with the following defaults: origin(0,0,0) 
   // position=(0,0,0) scale=(1,1,1) visibility=1 pickable=1 dragable=1
   // orientation=(0,0,0). NumberOfCloudPoints is set to 150.
-  vtkLODActor();
-  ~vtkLODActor();
   static vtkLODActor *New() {return new vtkLODActor;};
-  const char *GetClassName() {return "vtkLODActor";};
-  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // This causes the actor to be rendered. It, in turn, will render the actor's
@@ -91,7 +93,6 @@ class VTK_EXPORT vtkLODActor : public vtkActor
   // of complexity.
   void AddLODMapper(vtkMapper *mapper);
 
-  
   // Description:
   // Set/Get the number of random points for the point cloud.
   vtkGetMacro(NumberOfCloudPoints,int);

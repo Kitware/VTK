@@ -74,16 +74,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTextureMapToCylinder : public vtkDataSetToDataSetFilter 
 {
 public:
-
-// Description:
-// Create object with cylinder axis parallel to z-axis (points (0,0,-0.5) 
-// and (0,0,0.5)). The PreventSeam ivar is set to true. The cylinder is 
-// automatically generated.
   vtkTextureMapToCylinder();
-
-  static vtkTextureMapToCylinder *New() {return new vtkTextureMapToCylinder;};
   const char *GetClassName() {return "vtkTextureMapToCylinder";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Create object with cylinder axis parallel to z-axis (points (0,0,-0.5) 
+  // and (0,0,0.5)). The PreventSeam ivar is set to true. The cylinder is 
+  // automatically generated.
+  static vtkTextureMapToCylinder *New() {return new vtkTextureMapToCylinder;};
 
   // Description:
   // Specify the first point defining the cylinder axis,
@@ -96,17 +95,17 @@ public:
   vtkGetVectorMacro(Point2,float,3);
 
   // Description:
-  // Turn on/off automatic cylinder generation. This means it automatically finds 
-  // the cylinder center and axis.
+  // Turn on/off automatic cylinder generation. This means it automatically
+  // finds the cylinder center and axis.
   vtkSetMacro(AutomaticCylinderGeneration,int);
   vtkGetMacro(AutomaticCylinderGeneration,int);
   vtkBooleanMacro(AutomaticCylinderGeneration,int);
 
   // Description:
-  // Control how the texture coordinates are generated. If PreventSeam is set, the
-  // s-coordinate ranges from 0->1 and 1->0 corresponding to the angle variation
-  // from 0->180 and 180->0. Otherwise, the s-ccordinate ranges from 0->1 from
-  // 0->360 degrees.
+  // Control how the texture coordinates are generated. If PreventSeam is
+  // set, the s-coordinate ranges from 0->1 and 1->0 corresponding to the
+  // angle variation from 0->180 and 180->0. Otherwise, the s-ccordinate
+  // ranges from 0->1 from 0->360 degrees.
   vtkSetMacro(PreventSeam,int);
   vtkGetMacro(PreventSeam,int);
   vtkBooleanMacro(PreventSeam,int);

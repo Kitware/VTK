@@ -41,10 +41,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkRayCaster - A helper object for the renderer that controls ray casting
 
 // .SECTION Description
-// vtkRayCaster is an automatically created object within vtkRenderer. It is used
-// for ray casting operations. It stores variables such as the view rays, and
-// information on multiresolution image rendering which are queried by the 
-// specific ray casters.
+// vtkRayCaster is an automatically created object within vtkRenderer. It is
+// used for ray casting operations. It stores variables such as the view
+// rays, and information on multiresolution image rendering which are queried
+// by the specific ray casters.
 
 // .SECTION see also
 // vtkRenderer vtkViewRays
@@ -62,91 +62,108 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkRayCaster : public vtkObject
 {
 public:
-
-// Description:
-// Constructor for vtkRayCaster
   vtkRayCaster();
-
-
-// Description:
-// Destructor for vtkRayCaster
   ~vtkRayCaster();
-
   static vtkRayCaster *New() {return new vtkRayCaster;};
   const char *GetClassName() {return "vtkRayCaster";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Renders its volumes to create a composite image.
-
-// Description:
-// Main routine to do the volume rendering.
+  // Description:
+  // Main routine to do the volume rendering.
   int Render(vtkRenderer *);
 
- 
+  // Description:
   // Methods for a vtkVolumeMapper to retrieve latest color and zbuffer
   float *GetCurrentColorBuffer() { return (this->cbuffer); };
   float *GetCurrentZBuffer() { return (this->zbuffer); };
 
+  // Description:
+  // Method for a vtkVolumeMapper to retrieve the view rays 
+  // for a perspective projection
   float *GetPerspectiveViewRays();
 
-// Description:
-// Get the size in pixels of the view rays for the selected scale indexl
+  // Description:
+  // Get the size in pixels of the view rays for the selected scale index
   void GetViewRaysSize( int size[2] );
 
 
+  // Description:
+  // For a parallel projection, get the starting position of a ray in
+  // the lower left hand corder of the viewport.
   float *GetParallelStartPosition( void );
+
+  // Description:
+  // For a parallel projection, get the (x,y,z) world increments to move one
+  // pixel along the image plane x and the image plane y axes.
   float *GetParallelIncrements( void );
 
-
-// Description:
-// Set the scale factor for a given level. This is used during multi-
-// resolution interactive rendering
+  
+  // Description:
+  // Set the scale factor for a given level. This is used during multi-
+  // resolution interactive rendering
   void SetImageScale(int level, float scale); 
 
 
-// Description:
-// Get the scale factor for a given level. This is used during multi-
-// resolution interactive rendering
+  // Description:
+  // Get the scale factor for a given level. This is used during multi-
+  // resolution interactive rendering
   float GetImageScale(int level); 
 
   
+  // Description:
+  // During multi-resolution rendering, this indicated the selected level
+  // of resolution
   vtkSetClampMacro(SelectedImageScaleIndex, int, 0, VTK_MAX_VIEW_RAYS_LEVEL-1);
   vtkGetMacro( SelectedImageScaleIndex, int );
 
+  // Description:
+  // For each level of resolution, set the step size associated with that
+  // level. This may be used by the vtkVolumeMapper.
   void SetViewRaysStepSize(int level, float scale); 
   float GetViewRaysStepSize(int level); 
 
+  // Description:
+  // This method allows the ray caster to know about the renderer with which 
+  // it is associated
   vtkSetObjectMacro(Renderer,vtkRenderer);
   vtkGetObjectMacro(Renderer,vtkRenderer);
 
 
-// Description:
-// This method returns the scale that should be applied to the viewport
-// for geometric rendering, and for the image in volume rendering. It 
-// is either explicitly set (if AutomaticScaleAdjustment is off) or
-// is adjusted automatically to get the desired frame rate.
-//
-// Note: IMPORTANT!!!! This should only be called once per render!!!
-//
+  // Description:
+  // This method returns the scale that should be applied to the viewport
+  // for geometric rendering, and for the image in volume rendering. It 
+  // is either explicitly set (if AutomaticScaleAdjustment is off) or
+  // is adjusted automatically to get the desired frame rate.
+  //
+  // Note: IMPORTANT!!!! This should only be called once per render!!!
+  //
   float GetViewportScaleFactor( vtkRenderer *ren );
 
+  // Description:
+  // Get the step size that should be used 
   float GetViewportStepSize( );
   
+  // Description:
+  // Get the value of AutomaticScaleAdjustment. 0 = off, 1 = on
   vtkGetMacro( AutomaticScaleAdjustment, int );
-
-// Description:
-// Turn the automatic scale adjustment on
+  
+  // Description:
+  // Turn the automatic scale adjustment on
   void AutomaticScaleAdjustmentOn( void );
 
-
-// Description:
-// Turn the automatic scale adjustment off
+  // Description:
+  // Turn the automatic scale adjustment off
   void AutomaticScaleAdjustmentOff( void );
 
-
+  // Description:
+  // Set / Get the lower limit for scaling an image. This will define the
+  // worst resolution allowed during multiresolution rendering. The default
+  // value is 0.15.
   vtkSetClampMacro( AutomaticScaleLowerLimit, float, 0.0, 1.0 );
   vtkGetMacro( AutomaticScaleLowerLimit, float );
 
+  // Description:
+  // Get the number of levels of resolution.
   int GetImageScaleCount( void ) { return VTK_MAX_VIEW_RAYS_LEVEL; };
 
   // Description:
@@ -155,16 +172,29 @@ public:
   vtkGetMacro( BilinearImageZoom, int );
   vtkBooleanMacro( BilinearImageZoom, int );
 
+  // Description:
+  // Get the total time required for ray casting.
   vtkGetMacro( TotalRenderTime, float );
 
 protected:
 
+  // Description:
+  // Zoom the small image up the full size using nearest neighbor 
+  // interpolation
   void NearestNeighborZoom(float *smallImage, float *largeImage,
 			   int smallDims[2], int largeDims[2] );
 
+  // Description:
+  // Zoom the small image up the full size using bilinear interpolation
   void BilinearZoom(float *smallImage, float *largeImage,
 			   int smallDims[2], int largeDims[2] );
 
+
+  // Description:
+  // Rescale the image from the small size to the full size using one of
+  // the two interpolation methods above - NearestNeighborZoom or
+  // BilinearZoom.
+  virtual void RescaleImage( float *RGBAImage, int smallSize[2]);
 
   float		*zbuffer;
   float		*cbuffer;
@@ -183,7 +213,6 @@ protected:
   float         ViewRaysStepSize[VTK_MAX_VIEW_RAYS_LEVEL];
   float         TotalRenderTime;
 
-  virtual void RescaleImage( float *RGBAImage, int smallSize[2]);
 };
 
 #endif

@@ -47,9 +47,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // less than a particular value; or 3) between two values. The output of this
 // filter is an unstructured grid.
 //
-// Note that scalar values are available from the point and cell attribute data.
-// By default, point data is used to obtain scalars, but you can control this
-// behavior. See the AttributeMode ivar below.
+// Note that scalar values are available from the point and cell attribute
+// data.  By default, point data is used to obtain scalars, but you can
+// control this behavior. See the AttributeMode ivar below.
+
 // .SECTION See Also
 // vtkThresholdPoints vtkThresholdTextureCoords
 
@@ -70,31 +71,29 @@ public:
   const char *GetClassName() {return "vtkThreshold";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-
-// Description:
-// Criterion is cells whose scalars are less or equal to lower threshold.
+  // Description:
+  // Criterion is cells whose scalars are less or equal to lower threshold.
   void ThresholdByLower(float lower);
 
-
-// Description:
-// Criterion is cells whose scalars are greater or equal to upper threshold.
+  // Description:
+  // Criterion is cells whose scalars are greater or equal to upper threshold.
   void ThresholdByUpper(float upper);
 
-
-// Description:
-// Criterion is cells whose scalars are between lower and upper thresholds.
+  // Description:
+  // Criterion is cells whose scalars are between lower and upper thresholds.
   void ThresholdBetween(float lower, float upper);
 
-  
+  // Description:
+  // Get the Upper and Lower thresholds.
   vtkGetMacro(UpperThreshold,float);
   vtkGetMacro(LowerThreshold,float);
 
   // Description:
-  // Control how the filter works with scalar point data and cell attribute data.
-  // By default (AttributeModeToDefault), the filter will use point data, and 
-  // if no point data is available, then cell data is used. Alternatively you
-  // can explicitly set the filter to use point data (AttributeModeToUsePointData)
-  // or cell data (AttributeModeToUseCellData).
+  // Control how the filter works with scalar point data and cell attribute
+  // data.  By default (AttributeModeToDefault), the filter will use point
+  // data, and if no point data is available, then cell data is
+  // used. Alternatively you can explicitly set the filter to use point data
+  // (AttributeModeToUsePointData) or cell data (AttributeModeToUseCellData).
   vtkSetMacro(AttributeMode,int);
   vtkGetMacro(AttributeMode,int);
   void SetAttributeModeToDefault() 

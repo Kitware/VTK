@@ -42,6 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkPolyDataCollection is an object that creates and manipulates lists of
 // datasets of type vtkPolyData. 
+
 // .SECTION See Also
 // vtkDataSetCollection vtkCollection
 
@@ -57,39 +58,27 @@ public:
   static vtkPolyDataCollection *New() {return new vtkPolyDataCollection;};
   const char *GetClassName() {return "vtkPolyDataCollection";};
 
-  void AddItem(vtkPolyData *);
-  void RemoveItem(vtkPolyData *);
-  int IsItemPresent(vtkPolyData *);
-  vtkPolyData *GetNextItem();
+  // Description:
+  // Add a poly data to the list.
+  void AddItem(vtkPolyData *pd) {
+    this->vtkCollection::AddItem((vtkObject *)pd);};
+
+  // Description:
+  // Remove an poly data from the list.
+  void RemoveItem(vtkPolyData *pd) {
+    this->vtkCollection::RemoveItem((vtkObject *)pd);};
+
+  // Description:
+  // Determine whether a particular poly data is present. Returns its position
+  // in the list.
+  int IsItemPresent(vtkPolyData *pd) {
+    return this->vtkCollection::IsItemPresent((vtkObject *)pd);};
+
+  // Description:
+  // Get the next poly data in the list.
+  vtkPolyData *GetNextItem() { 
+    return (vtkPolyData *)(this->GetNextItemAsObject());};
 };
 
-// Description:
-// Add a poly data to the list.
-inline void vtkPolyDataCollection::AddItem(vtkPolyData *pd) 
-{
-  this->vtkCollection::AddItem((vtkObject *)pd);
-}
-
-// Description:
-// Remove an poly data from the list.
-inline void vtkPolyDataCollection::RemoveItem(vtkPolyData *pd) 
-{
-  this->vtkCollection::RemoveItem((vtkObject *)pd);
-}
-
-// Description:
-// Determine whether a particular poly data is present. Returns its position
-// in the list.
-inline int vtkPolyDataCollection::IsItemPresent(vtkPolyData *pd) 
-{
-  return this->vtkCollection::IsItemPresent((vtkObject *)pd);
-}
-
-// Description:
-// Get the next poly data in the list.
-inline vtkPolyData *vtkPolyDataCollection::GetNextItem() 
-{ 
-  return (vtkPolyData *)(this->GetNextItemAsObject());
-}
 
 #endif

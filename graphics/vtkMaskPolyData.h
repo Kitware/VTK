@@ -57,12 +57,12 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Turn on every nth entity.
+  // Turn on every nth entity (cell).
   vtkSetClampMacro(OnRatio,int,1,VTK_LARGE_INTEGER);
   vtkGetMacro(OnRatio,int);
 
   // Description:
-  // Start with this entity.
+  // Start with this entity (cell).
   vtkSetClampMacro(Offset,int,0,VTK_LARGE_INTEGER);
   vtkGetMacro(Offset,int);
 

@@ -59,45 +59,33 @@ class VTK_EXPORT vtkRendererCollection : public vtkCollection
   static vtkRendererCollection *New() {return new vtkRendererCollection;};
   const char *GetClassName() {return "vtkRendererCollection";};
 
-  void AddItem(vtkRenderer *a);
-  void RemoveItem(vtkRenderer *a);
-  int IsItemPresent(vtkRenderer *a);
-  vtkRenderer *GetNextItem();
+  // Description:
+  // Add a Renderer to the list.
+  void AddItem(vtkRenderer *a) {
+    this->vtkCollection::AddItem((vtkObject *)a);};
+  
+  // Description:
+  // Remove a Renderer from the list.
+  void RemoveItem(vtkRenderer *a) {
+    this->vtkCollection::RemoveItem((vtkObject *)a);};
+  
+  // Description:
+  // Determine whether a particular Renderer is present. Returns its
+  // position in the list.
+  int IsItemPresent(vtkRenderer *a) {
+    return this->vtkCollection::IsItemPresent((vtkObject *)a);};
+  
+  // Description:
+  // Get the next Renderer in the list. Return NULL when at the end of the 
+  // list.
+  vtkRenderer *GetNextItem() {
+    return (vtkRenderer *)(this->GetNextItemAsObject());};
 
-// Description:
-// Forward the Render() method to each renderer in the list.
+  // Description:
+  // Forward the Render() method to each renderer in the list.
   void Render();
-
   void Render2D();
 };
 
-// Description:
-// Add a renderer to the list.
-inline void vtkRendererCollection::AddItem(vtkRenderer *a) 
-{
-  this->vtkCollection::AddItem((vtkObject *)a);
-}
-
-// Description:
-// Remove a renderer from the list.
-inline void vtkRendererCollection::RemoveItem(vtkRenderer *a) 
-{
-  this->vtkCollection::RemoveItem((vtkObject *)a);
-}
-
-// Description:
-// Determine whether a particular renderer is present. Returns its position
-// in the list.
-inline int vtkRendererCollection::IsItemPresent(vtkRenderer *a) 
-{
-  return this->vtkCollection::IsItemPresent((vtkObject *)a);
-}
-
-// Description:
-// Get the next renderer in the list. Return NULL when at the end of the list.
-inline vtkRenderer *vtkRendererCollection::GetNextItem() 
-{
-  return (vtkRenderer *)(this->GetNextItemAsObject());
-}
 
 #endif

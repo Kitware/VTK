@@ -60,20 +60,18 @@ public:
   const char *GetClassName() {return "vtkProbeFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-
-// Description:
-// Overload update method because execution can branch two ways (Input 
-// and Source). Also input and output are abstract.
+  // Description:
+  // Overload update method because execution can branch two ways (Input 
+  // and Source). Also input and output are abstract.
   void Update();
-
 
   // Description:
   // Specify the point locations used to probe input. Any geometry
   // can be used.
   vtkSetObjectMacro(Source,vtkDataSet);
   vtkGetObjectMacro(Source,vtkDataSet);
-  void SetSource(vtkImageCache *cache)
-    {this->SetSource(cache->GetImageToStructuredPoints()->GetOutput());}
+  void SetSource(vtkImageCache *cache) {
+    this->SetSource(cache->GetImageToStructuredPoints()->GetOutput());}
 
 protected:
   void Execute();

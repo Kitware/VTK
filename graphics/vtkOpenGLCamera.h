@@ -40,8 +40,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkOpenGLCamera - OpenGL camera
 // .SECTION Description
-// vtkOpenGLCamera is a concrete implementation of the abstract class vtkCamera.
-// vtkOpenGLCamera interfaces to the OpenGL rendering library.
+// vtkOpenGLCamera is a concrete implementation of the abstract class
+// vtkCamera.  vtkOpenGLCamera interfaces to the OpenGL rendering library.
 
 #ifndef __vtkOpenGLCamera_h
 #define __vtkOpenGLCamera_h
@@ -56,9 +56,8 @@ class VTK_EXPORT vtkOpenGLCamera : public vtkCamera
   static vtkOpenGLCamera *New() {return new vtkOpenGLCamera;};
   const char *GetClassName() {return "vtkOpenGLCamera";};
 
-
-// Description:
-// Implement base class method.
+  // Description:
+  // Implement base class method.
   void Render(vtkRenderer *ren);
 
 };

@@ -40,7 +40,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkStructuredGridSource - Abstract class whose subclasses generates structured grid data
 // .SECTION Description
-// vtkStructuredGridSource is an abstract class whose subclasses generate structured grid data.
+// vtkStructuredGridSource is an abstract class whose subclasses generate
+// structured grid data.
 
 // .SECTION See Also
 // vtkStructuredGridReader vtkPLOT3DReader

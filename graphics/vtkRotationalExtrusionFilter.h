@@ -64,7 +64,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // This filter can be used to model axisymmetric objects like cylinders,
 // bottles, and wine glasses; or translational/rotational symmetric objects
 // like springs or corkscrews.
-//
+
 // .SECTION Caveats
 // If the object sweeps 360 degrees, radius does not vary, and the object 
 // does not translate, capping is not performed. This is because the cap 
@@ -73,6 +73,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Some polygonal objects have no free edges (e.g., sphere). When swept,
 // this will result in two separate surfaces if capping is on, or no surface
 // if capping is off.
+
 // .SECTION See Also
 // vtkLinearExtrusionFilter
 
@@ -84,16 +85,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkRotationalExtrusionFilter : public vtkPolyDataToPolyDataFilter 
 {
 public:
-
-// Description:
-// Create object with capping on, angle of 360 degrees, resolution = 12, and
-// no translation along z-axis.
-// vector (0,0,1), and point (0,0,0).
   vtkRotationalExtrusionFilter();
-
-  static vtkRotationalExtrusionFilter *New() {return new vtkRotationalExtrusionFilter;};
   const char *GetClassName() {return "vtkRotationalExtrusionFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Create object with capping on, angle of 360 degrees, resolution = 12, and
+  // no translation along z-axis.
+  // vector (0,0,1), and point (0,0,0).
+  static vtkRotationalExtrusionFilter *New() {
+    return new vtkRotationalExtrusionFilter;};
 
   // Description:
   // Set/Get resolution of sweep operation. Resolution controls the number

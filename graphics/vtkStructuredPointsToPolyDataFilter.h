@@ -58,7 +58,8 @@ class VTK_EXPORT vtkStructuredPointsToPolyDataFilter : public vtkStructuredPoint
 {
 public:
   vtkStructuredPointsToPolyDataFilter();
-  static vtkStructuredPointsToPolyDataFilter *New() {return new vtkStructuredPointsToPolyDataFilter;};
+  static vtkStructuredPointsToPolyDataFilter *New() {
+    return new vtkStructuredPointsToPolyDataFilter;};
   const char *GetClassName() {return "vtkStructuredPointsToPolyDataFilter";};
 
   // Description:

@@ -94,6 +94,9 @@ public:
 		 float ray_position[3], float ray_increment[3],
 		 int num_steps, float pixel_value[6] )=0;
 
+  // Description:
+  // Get the value below which all scalar values are considered to
+  // have 0 opacity.
   virtual float GetZeroOpacityThreshold( vtkVolume *vol )=0;
 
   // Description:

@@ -40,14 +40,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkPolyDataToPolyDataFilter - abstract filter class
 // .SECTION Description
-// vtkPolyDataToPolyDataFilter is an abstract filter class whose subclasses take
-// as input polygonal data and generate polygonal data on output.
+// vtkPolyDataToPolyDataFilter is an abstract filter class whose subclasses
+// take as input polygonal data and generate polygonal data on output.
 
 // .SECTION See Also
-// vtkCleanPolyData vtkDecimate vtkFeatureEdges vtkFeatureVertices vtkMaskPolyData
-// vtkPolyDataNormals vtkSmoothPolyDataFilter vtkStripper
-// vtkTransformPolyDataFilter vtkTriangleFilter 
-// vtkTubeFilter vtkLinearExtrusionFilter vtkRibbonFilter vtkRotationalExtrusionFilter
+// vtkCleanPolyData vtkDecimate vtkFeatureEdges vtkFeatureVertices
+// vtkMaskPolyData vtkPolyDataNormals vtkSmoothPolyDataFilter vtkStripper
+// vtkTransformPolyDataFilter vtkTriangleFilter vtkTubeFilter
+// vtkLinearExtrusionFilter vtkRibbonFilter vtkRotationalExtrusionFilter
 // vtkShrinkPolyData
 
 #ifndef __vtkPolyDataToPolyDataFilter_h
@@ -60,7 +60,8 @@ class VTK_EXPORT vtkPolyDataToPolyDataFilter : public vtkPolyDataFilter
 {
 public:
   vtkPolyDataToPolyDataFilter();
-  static vtkPolyDataToPolyDataFilter *New() {return new vtkPolyDataToPolyDataFilter;};
+  static vtkPolyDataToPolyDataFilter *New() {
+    return new vtkPolyDataToPolyDataFilter;};
   const char *GetClassName() {return "vtkPolyDataToPolyDataFilter";};
 
   // Description:

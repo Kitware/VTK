@@ -62,27 +62,23 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImplicitWindowFunction : public vtkImplicitFunction
 {
 public:
-
-// Description:
-// Construct object with window range (0,1) and window values (0,1).
   vtkImplicitWindowFunction();
-
   ~vtkImplicitWindowFunction();
-  static vtkImplicitWindowFunction *New() {return new vtkImplicitWindowFunction;};
   const char *GetClassName() {return "vtkImplicitWindowFunction";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // implicit function interface
+  // Description:
+  // Construct object with window range (0,1) and window values (0,1).
+  static vtkImplicitWindowFunction *New() {
+    return new vtkImplicitWindowFunction;};
 
-// Description
-// Evaluate window function.
+  // Description
+  // Evaluate window function.
   float EvaluateFunction(float x[3]);
 
-
-// Description
-// Evaluate window function gradient. Just return implicit function gradient.
+  // Description
+  // Evaluate window function gradient. Just return implicit function gradient.
   void EvaluateGradient(float x[3], float n[3]);
-
 
   // Description:
   // Specify an implicit function to operate on.
@@ -96,13 +92,15 @@ public:
   vtkGetVectorMacro(WindowRange,float,2);
 
   // Description:
-  // Specify the range of output values that the window range is mapped into. This
-  // is effectively a scaling and shifting of the original function values.
+  // Specify the range of output values that the window range is mapped
+  // into. This is effectively a scaling and shifting of the original
+  // function values.
   vtkSetVector2Macro(WindowValues,float);
   vtkGetVectorMacro(WindowValues,float,2);
 
+  // Description:
   // Override modified time retrieval because of object dependencies.
-  unsigned long int GetMTime();
+  unsigned long GetMTime();
 
 protected:
   vtkImplicitFunction *ImplicitFunction;

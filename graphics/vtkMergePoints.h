@@ -55,15 +55,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkMergePoints : public vtkPointLocator
 {
 public:
-  vtkMergePoints() {};
   static vtkMergePoints *New() {return new vtkMergePoints;};
   const char *GetClassName() {return "vtkMergePoints";};
 
-
-// Description:
-// Determine whether point given by x[3] has been inserted into points list.
-// Return id of previously inserted point if this is true, otherwise return
-// -1.
+  // Description:
+  // Determine whether point given by x[3] has been inserted into points list.
+  // Return id of previously inserted point if this is true, otherwise return
+  // -1.
   int IsInsertedPoint(float x[3]);
 
 };

@@ -62,25 +62,24 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDataSet.h"
 
 typedef struct _vtkScalarRange
-  {
+{
   float min;
   float max;
-  } vtkScalarRange;
+} vtkScalarRange;
 
 
 class VTK_EXPORT vtkScalarTree : public vtkObject
 {
 public:
-
-// Description:
-// Instantiate scalar tree with maximum level of 20 and branching
-// factor of 5.
   vtkScalarTree();
-
   ~vtkScalarTree();
-  static vtkScalarTree *New() {return new vtkScalarTree;};
   const char *GetClassName() {return "vtkScalarTree";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Instantiate scalar tree with maximum level of 20 and branching
+  // factor of 5.
+  static vtkScalarTree *New() {return new vtkScalarTree;};
 
   // Description:
   // Build the tree from the points/cells defining this dataset.
@@ -105,35 +104,27 @@ public:
   vtkSetClampMacro(MaxLevel,int,1,VTK_LARGE_INTEGER);
   vtkGetMacro(MaxLevel,int);
 
-  // Methods control building of tree
-
-// Description:
-// Construct the scalar tree from the dataset provided. Checks build times
-// and modified time from input and reconstructs the tree if necessaery.
+  // Description:
+  // Construct the scalar tree from the dataset provided. Checks build times
+  // and modified time from input and reconstructs the tree if necessaery.
   void BuildTree();
-
-
-// Description:
-// Initialize locator. Frees memory and resets object as appropriate.
+  
+  // Description:
+  // Initialize locator. Frees memory and resets object as appropriate.
   void Initialize();
 
-
-  // Methods provided for traversing cells based on scalar value
-
-// Description:
-// Begin to traverse the cells based on a scalar value. Returned cells
-// will have scalar values that span the scalar value specified.
+  // Description:
+  // Begin to traverse the cells based on a scalar value. Returned cells
+  // will have scalar values that span the scalar value specified.
   void InitTraversal(float scalarValue);
 
-
-// Description:
-// Return the next cell that may contain scalar value specified to
-// initialize traversal. The value NULL is returned if the list is
-// exhausted. Make sure that InitTraversal() has been invoked first or
-// you'll get erratic behavior.
+  // Description:
+  // Return the next cell that may contain scalar value specified to
+  // initialize traversal. The value NULL is returned if the list is
+  // exhausted. Make sure that InitTraversal() has been invoked first or
+  // you'll get erratic behavior.
   vtkCell *GetNextCell(int& cellId, vtkIdList* &ptIds,
                        vtkScalars& cellScalars);
-
 
 protected:
   vtkDataSet *DataSet;

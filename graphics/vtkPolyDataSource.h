@@ -40,7 +40,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkPolyDataSource - abstract class whose subclasses generate polygonal data
 // .SECTION Description
-// vtkPolyDataSource is an abstract class whose subclasses generate polygonal data.
+// vtkPolyDataSource is an abstract class whose subclasses generate polygonal
+// data.
 
 // .SECTION See Also
 // vtkPolyDataReader vtkAxes vtkBYUReader vtkConeSource vtkCubeSource

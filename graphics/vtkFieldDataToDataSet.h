@@ -40,10 +40,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkFieldDataToDataSet - map field data to concrete dataset
 // .SECTION Description
-// vtkFieldDataToDataSet is an class that maps a data object (i.e., a field) into 
-// a concrete dataset, i.e., gives structure to the field by defining a geometry
-//  and topology, as well as defining dataset attribute data such as scalars, 
-// vectors, tensors, etc.
+// vtkFieldDataToDataSet is an class that maps a data object (i.e., a field)
+// into a concrete dataset, i.e., gives structure to the field by defining a
+// geometry and topology, as well as defining dataset attribute data such as
+// scalars, vectors, tensors, etc.
 
 // .SECTION See Also
 // vtkDataObject vtkFieldData vtkDataSet vtkStructuredPoints vtkStructuredGrid
@@ -64,11 +64,7 @@ class vtkUnstructuredGrid;
 class VTK_EXPORT vtkFieldDataToDataSet : public vtkSource
 {
 public:
-
-// Description:
-// Instantiate object with no input and no defined output.
   vtkFieldDataToDataSet();
-
   ~vtkFieldDataToDataSet();
   static vtkFieldDataToDataSet *New() {return new vtkFieldDataToDataSet;};
   const char *GetClassName() {return "vtkFieldDataToDataSet";};
@@ -85,7 +81,8 @@ public:
   void SetInput(vtkDataObject &input) {this->SetInput(&input);};
   vtkDataObject *GetInput() {return this->Input;};
 
-  // get the output in different forms - does run-time checking
+  // Description:
+  // Get the output in different forms - does run-time type checking
   vtkPolyData *GetPolyDataOutput();
   vtkStructuredPoints *GetStructuredPointsOutput();
   vtkStructuredGrid *GetStructuredGridOutput();

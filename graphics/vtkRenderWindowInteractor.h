@@ -69,17 +69,21 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkRenderWindowInteractor : public vtkObject
 {
 public:
-
-  // Description:
-  // Construct object so that light follows camera motion.
   vtkRenderWindowInteractor();
-
   ~vtkRenderWindowInteractor();
   static vtkRenderWindowInteractor *New();
   const char *GetClassName() {return "vtkRenderWindowInteractor";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // Prepare for handling events. This must be called before the
+  // interactor will work.
   virtual void Initialize() {this->Initialized=1;this->RenderWindow->Render();}
+
+  // Description:
+  // Start the event loop. This is provided so that you do not have to
+  // implement your own event loop. You still can use your own 
+  // event loop if you want. Initialize should be called before Start.
   virtual void Start() {};
 
   // Description:
@@ -119,41 +123,32 @@ public:
   void FindPokedCamera(int,int);
   void FindPokedRenderer(int,int);
 
-
-// Description:
-// When pick action successfully selects actor, this method highlights the 
-// actor appropriately. Currently this is done by placing a bounding box
-// around the actor.
+  // Description:
+  // When pick action successfully selects actor, this method highlights the 
+  // actor appropriately. Currently this is done by placing a bounding box
+  // around the actor.
   virtual void HighlightActor(vtkActor *actor);
 
-
-
-// Description:
-// Specify a method to be executed prior to the pick operation.
+  // Description:
+  // Specify a method to be executed prior to the pick operation.
   void SetStartPickMethod(void (*f)(void *), void *arg);
 
-
-// Description:
-// Called when a void* argument is being discarded.  Lets the user free it.
+  // Description:
+  // Called when a void* argument is being discarded.  Lets the user free it.
   void SetStartPickMethodArgDelete(void (*f)(void *));
 
-
-// Description:
-// Specify a method to be executed after the pick operation.
+  // Description:
+  // Specify a method to be executed after the pick operation.
   void SetEndPickMethod(void (*f)(void *), void *arg);
 
-
-// Description:
-// Called when a void* argument is being discarded.  Lets the user free it.
+  // Description:
+  // Called when a void* argument is being discarded.  Lets the user free it.
   void SetEndPickMethodArgDelete(void (*f)(void *));
 
-
-
-// Description:
-// Set the object used to perform pick operations. You can use this to 
-// control what type of data is picked.
+  // Description:
+  // Set the object used to perform pick operations. You can use this to 
+  // control what type of data is picked.
   void SetPicker(vtkPicker *picker);
-
   void SetPicker(vtkPicker& picker) {this->SetPicker(&picker);};
 
   // Description:
@@ -164,101 +159,77 @@ public:
   // Create default picker. Used to create one when none is specified.
   virtual vtkPicker *CreateDefaultPicker();
 
-
-// Description:
-// Set the user method. This method is invoked on a <u> keypress.
+  // Description:
+  // Set the user method. This method is invoked on a <u> keypress.
   void SetUserMethod(void (*f)(void *), void *arg);
-
-
-// Description:
-// Called when a void* argument is being discarded.  Lets the user free it.
+  
+  // Description:
+  // Called when a void* argument is being discarded.  Lets the user free it.
   void SetUserMethodArgDelete(void (*f)(void *));
 
-
-
-// Description:
-// Set the exit method. This method is invoked on a <e> keypress.
+  // Description:
+  // Set the exit method. This method is invoked on a <e> keypress.
   void SetExitMethod(void (*f)(void *), void *arg);
 
-
-// Description:
-// Called when a void* argument is being discarded.  Lets the user free it.
+  // Description:
+  // Called when a void* argument is being discarded.  Lets the user free it.
   void SetExitMethodArgDelete(void (*f)(void *));
 
-
-
-// Description:
-// Set the exit method. This method is invoked during rotate/zoom/pan
+  // Description:
+  // Set the exit method. This method is invoked during rotate/zoom/pan
   void SetTimerMethod(void (*f)(void *), void *arg);
 
-
-// Description:
-// Called when a void* argument is being discarded.  Lets the user free it.
+  // Description:
+  // Called when a void* argument is being discarded.  Lets the user free it.
   void SetTimerMethodArgDelete(void (*f)(void *));
 
-
-
-// Description:
-// Set the exit method. This method is invoked on a <e> keypress.
+  // Description:
+  // Set the exit method. This method is invoked on a <e> keypress.
   void SetLeftButtonPressMethod(void (*f)(void *), void *arg);
 
-
-// Description:
-// Called when a void* argument is being discarded.  Lets the user free it.
+  // Description:
+  // Called when a void* argument is being discarded.  Lets the user free it.
   void SetLeftButtonPressMethodArgDelete(void (*f)(void *));
 
-
-// Description:
-// Set the exit method. This method is invoked on a <e> keyrelease.
+  // Description:
+  // Set the exit method. This method is invoked on a <e> keyrelease.
   void SetLeftButtonReleaseMethod(void (*f)(void *), void *arg);
 
-
-// Description:
-// Called when a void* argument is being discarded.  Lets the user free it.
+  // Description:
+  // Called when a void* argument is being discarded.  Lets the user free it.
   void SetLeftButtonReleaseMethodArgDelete(void (*f)(void *));
 
-
-
-// Description:
-// Set the exit method. This method is invoked on a <e> keypress.
+  // Description:
+  // Set the exit method. This method is invoked on a <e> keypress.
   void SetMiddleButtonPressMethod(void (*f)(void *), void *arg);
 
-
-// Description:
-// Called when a void* argument is being discarded.  Lets the user free it.
+  // Description:
+  // Called when a void* argument is being discarded.  Lets the user free it.
   void SetMiddleButtonPressMethodArgDelete(void (*f)(void *));
 
-
-// Description:
-// Set the exit method. This method is invoked on a <e> keyrelease.
+  // Description:
+  // Set the exit method. This method is invoked on a <e> keyrelease.
   void SetMiddleButtonReleaseMethod(void (*f)(void *), void *arg);
 
-
-// Description:
-// Called when a void* argument is being discarded.  Lets the user free it.
+  // Description:
+  // Called when a void* argument is being discarded.  Lets the user free it.
   void SetMiddleButtonReleaseMethodArgDelete(void (*f)(void *));
 
-
-
-// Description:
-// Set the exit method. This method is invoked on a <e> keypress.
+  // Description:
+  // Set the exit method. This method is invoked on a <e> keypress.
   void SetRightButtonPressMethod(void (*f)(void *), void *arg);
 
-
-// Description:
-// Called when a void* argument is being discarded.  Lets the user free it.
+  // Description:
+  // Called when a void* argument is being discarded.  Lets the user free it.
   void SetRightButtonPressMethodArgDelete(void (*f)(void *));
 
-
-// Description:
-// Set the exit method. This method is invoked on a <e> keyrelease.
+  // Description:
+  // Set the exit method. This method is invoked on a <e> keyrelease.
   void SetRightButtonReleaseMethod(void (*f)(void *), void *arg);
 
-
-// Description:
-// Called when a void* argument is being discarded.  Lets the user free it.
+  // Description:
+  // Called when a void* argument is being discarded.  Lets the user free it.
   void SetRightButtonReleaseMethodArgDelete(void (*f)(void *));
-
 
   // Description:
   // This method can be used by user callbacks to get the 
@@ -266,7 +237,6 @@ public:
   vtkSetVector2Macro(EventPosition,int);
   vtkGetVectorMacro(EventPosition,int,2);
 
-  
   // Description:
   // Primarily internal methods used to start and stop 
   // animation of the camera.

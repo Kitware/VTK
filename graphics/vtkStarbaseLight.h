@@ -40,8 +40,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkStarbaseLight - HP starbase light
 // .SECTION Description
-// vtkStarbaseLight is a concrete implementation of the abstract class vtkLight.
-// vtkStarbaseLight interfaces to the Hewlett-Packard starbase rendering library.
+// vtkStarbaseLight is a concrete implementation of the abstract class
+// vtkLight.  vtkStarbaseLight interfaces to the Hewlett-Packard starbase
+// rendering library.
 
 #ifndef __vtkStarbaseLight_h
 #define __vtkStarbaseLight_h
@@ -52,15 +53,12 @@ class vtkStarbaseRenderer;
 
 class VTK_EXPORT vtkStarbaseLight : public vtkLight
 {
-protected:
-  
 public:
   static vtkStarbaseLight *New() {return new vtkStarbaseLight;};
   const char *GetClassName() {return "vtkStarbaseLight";};
 
-
-// Description:
-// Implement base class method.
+  // Description:
+  // Implement base class method.
   void Render(vtkRenderer *ren,int light_index);
 
 };

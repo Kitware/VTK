@@ -56,6 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // derivative values. (You don't need to duplicate the first point to close
 // the spline, just set ClosedOn.) If the spline is closed, the parameter
 // space of the spline becomes (0,N).
+
 // .SECTION See Also
 // vtkCardinalSpline vtkKochenekSpline
 
@@ -70,12 +71,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkSpline : public vtkObject
 {
 public:
-
-// Description
-// Construct a spline wth the folloing defaults:
-// ClampValueOff
   vtkSpline();
-
   ~vtkSpline ();
   const char *GetClassName() {return "vtkSpline";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -132,7 +128,9 @@ public:
   vtkSetMacro(RightValue,float);
   vtkGetMacro(RightValue,float);
 
-  unsigned long int GetMTime();
+  // Description:
+  // Return the MTime also considering the Piecewise function.
+  unsigned long GetMTime();
 
 protected:
   unsigned long ComputeTime;

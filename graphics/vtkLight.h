@@ -61,16 +61,15 @@ class vtkRenderer;
 class VTK_EXPORT vtkLight : public vtkObject
 {
 public:
-
-// Description:
-// Create a light with the focal point at the origin and its position
-// set to (0,0,1). The lights color is white, intensity=1, and the light 
-// is turned on. 
   vtkLight();
-
-  static vtkLight *New();
   const char *GetClassName() {return "vtkLight";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Create a light with the focal point at the origin and its position
+  // set to (0,0,1). The lights color is white, intensity=1, and the light 
+  // is turned on. 
+  static vtkLight *New();
 
   // Description:
   // Abstract interface to renderer. Each concrete subclass of vtkLight

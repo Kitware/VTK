@@ -40,13 +40,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkKochanekSpline - computes an interpolating spline using a Kochanek basis.
 // .SECTION Description
-// Implements the Kochenek interpolating spline described in: Kochanek,
-// D., Bartels, R., "Interpolating Splines with Local Tension,
-// Continuity, and Bias Control," Computer Graphics, vol. 18, no. 3,
-// pp. 33-41, July 1984.
-// These splines give the user more control over the shape of the curve
-// than the cardinal splines implemented in vtkCardinalSpline. Three
-// parameters can be specified. All have a range from -1 to 1.
+// Implements the Kochenek interpolating spline described in: Kochanek, D.,
+// Bartels, R., "Interpolating Splines with Local Tension, Continuity, and
+// Bias Control," Computer Graphics, vol. 18, no. 3, pp. 33-41, July 1984.
+// These splines give the user more control over the shape of the curve than
+// the cardinal splines implemented in vtkCardinalSpline. Three parameters
+// can be specified. All have a range from -1 to 1.
 // 
 // Tension controls how sharply the curve bends at an input point. A
 // value of -1 produices more slack in the curve. A value of 1 tightens
@@ -62,6 +61,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // These three parameters give the user broad control over the shape of
 // the interpolating spline. The original Kochanek paper describes the
 // effects nicely and is recommended reading.
+
 // .SECTION See Also
 // vtkSpline vtkCardinalSpline
 
@@ -75,24 +75,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkKochanekSpline : public vtkSpline
 {
 public:
-
-// Description:
-// Construct a KochanekSpline wth the following defaults:
-// DefaultBias = 0,
-// DefaultTension = 0,
-// DefaultContinuity = 0.
   vtkKochanekSpline();
-
-  static vtkKochanekSpline *New() {return new vtkKochanekSpline;};
   const char *GetClassName() {return "vtkKochanekSpline";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // Construct a KochanekSpline wth the following defaults: DefaultBias = 0,
+  // DefaultTension = 0, DefaultContinuity = 0.
+  static vtkKochanekSpline *New() {return new vtkKochanekSpline;};
 
-// Description:
-// Compute Kochanek Spline coefficients.
+  // Description:
+  // Compute Kochanek Spline coefficients.
   void Compute ();
-
-
+  
   // Description:
   // Evaluate a 1D Kochanek spline.
   float Evaluate (float t);

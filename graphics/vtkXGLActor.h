@@ -52,15 +52,12 @@ class vtkXGLRenderer;
 
 class VTK_EXPORT vtkXGLActor : public vtkActor
 {
-protected:
-  
 public:
   static vtkXGLActor *New() {return new vtkXGLActor;};
   const char *GetClassName() {return "vtkXGLActor";};
-
-
-// Description:
-// Implement base class method.
+  
+  // Description:
+  // Implement base class method.
   void Render(vtkRenderer *ren, vtkMapper *mapper);
 
 };

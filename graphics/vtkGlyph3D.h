@@ -111,17 +111,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkGlyph3D : public vtkDataSetToPolyDataFilter
 {
 public:
+  vtkGlyph3D();
+  ~vtkGlyph3D();
+  const char *GetClassName() {return "vtkGlyph3D";};
+  void PrintSelf(ostream& os, vtkIndent indent);
+
   // Description
   // Construct object with scaling on, scaling mode is by scalar value, 
   // scale factor = 1.0, the range is (0,1), orient geometry is on, and
   // orientation is by vector. Clamping and indexing are turned off. No
   // initial sources are defined.
-  vtkGlyph3D();
-
-  ~vtkGlyph3D();
   static vtkGlyph3D *New() {return new vtkGlyph3D;};
-  const char *GetClassName() {return "vtkGlyph3D";};
-  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Override update method because execution can branch two ways (via Input 
@@ -134,7 +134,8 @@ public:
   vtkGetMacro(NumberOfSources,int);
   void SetNumberOfSources(int num);
 
-  // These are used to load the table of sources
+  // Description:
+  // Set the source to use for he glyph.
   void SetSource(vtkPolyData *pd) {this->SetSource(0,pd);};
 
   // Description:

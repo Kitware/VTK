@@ -64,6 +64,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // is possible to control the scaling of the tube cross section by using a 
 // logarithmic scale. Use LogScalingOn to turn this capability on. The Radius 
 // value controls the initial radius of the tube.
+
 // .SECTION See Also
 // vtkTensorGlyph vtkStreamer
 
@@ -125,93 +126,81 @@ public:
 class VTK_EXPORT vtkHyperStreamline : public vtkDataSetToPolyDataFilter
 {
 public:
-
-// Description:
-// Construct object with initial starting position (0,0,0); integration step 
-// length 0.2; step length 0.01; forward integration; terminal eigenvalue 0.0;
-// number of sides 6; radius 0.5; and logarithmic scaling off.
   vtkHyperStreamline();
-
   ~vtkHyperStreamline();
-  static vtkHyperStreamline *New() {return new vtkHyperStreamline;};
   const char *GetClassName() {return "vtkHyperStreamline";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-
-// Description:
-// Specify the start of the hyperstreamline in the cell coordinate system. 
-// That is, cellId and subId (if composite cell), and parametric coordinates.
-  void SetStartLocation(int cellId, int subId, float pcoords[3]);
-
-
-// Description:
-// Specify the start of the hyperstreamline in the cell coordinate system. 
-// That is, cellId and subId (if composite cell), and parametric coordinates.
-  void SetStartLocation(int cellId, int subId, float r, float s, float t);
-
-
-// Description:
-// Get the starting location of the hyperstreamline in the cell coordinate
-// system. Returns the cell that the starting point is in.
-  int GetStartLocation(int& subId, float pcoords[3]);
-
-
-
-// Description:
-// Specify the start of the hyperstreamline in the global coordinate system. 
-// Starting from position implies that a search must be performed to find 
-// initial cell to start integration from.
-  void SetStartPosition(float x[3]);
-
-
-// Description:
-// Specify the start of the hyperstreamline in the global coordinate system. 
-// Starting from position implies that a search must be performed to find 
-// initial cell to start integration from.
-  void SetStartPosition(float x, float y, float z);
-
-
-// Description:
-// Get the start position of the hyperstreamline in global x-y-z coordinates.
-  float *GetStartPosition();
-
+  // Description:
+  // Construct object with initial starting position (0,0,0); integration
+  // step length 0.2; step length 0.01; forward integration; terminal
+  // eigenvalue 0.0; number of sides 6; radius 0.5; and logarithmic scaling
+  // off.
+  static vtkHyperStreamline *New() {return new vtkHyperStreamline;};
 
   // Description:
-  // Specify the maximum length of the hyperstreamline expressed as absolute
+  // Specify the start of the hyperstreamline in the cell coordinate system. 
+  // That is, cellId and subId (if composite cell), and parametric coordinates.
+  void SetStartLocation(int cellId, int subId, float pcoords[3]);
+
+  // Description:
+  // Specify the start of the hyperstreamline in the cell coordinate system. 
+  // That is, cellId and subId (if composite cell), and parametric coordinates.
+  void SetStartLocation(int cellId, int subId, float r, float s, float t);
+
+  // Description:
+  // Get the starting location of the hyperstreamline in the cell coordinate
+  // system. Returns the cell that the starting point is in.
+  int GetStartLocation(int& subId, float pcoords[3]);
+
+  // Description:
+  // Specify the start of the hyperstreamline in the global coordinate system. 
+  // Starting from position implies that a search must be performed to find 
+  // initial cell to start integration from.
+  void SetStartPosition(float x[3]);
+
+  // Description:
+  // Specify the start of the hyperstreamline in the global coordinate system. 
+  // Starting from position implies that a search must be performed to find 
+  // initial cell to start integration from.
+  void SetStartPosition(float x, float y, float z);
+
+  // Description:
+  // Get the start position of the hyperstreamline in global x-y-z coordinates.
+  float *GetStartPosition();
+
+  // Description:
+  // Set / get the maximum length of the hyperstreamline expressed as absolute
   // distance (i.e., arc length) value.
   vtkSetClampMacro(MaximumPropagationDistance,float,0.0,VTK_LARGE_FLOAT);
   vtkGetMacro(MaximumPropagationDistance,float);
 
-
-// Description:
-// Use the major eigenvector field as the vector field through which to 
-// integrate. The major eigenvector is the eigenvector whose corresponding
-// eigenvalue is closest to positive infinity.
+  // Description:
+  // Use the major eigenvector field as the vector field through which to 
+  // integrate. The major eigenvector is the eigenvector whose corresponding
+  // eigenvalue is closest to positive infinity.
   void IntegrateMajorEigenvector();
 
-
-// Description:
-// Use the major eigenvector field as the vector field through which to 
-// integrate. The major eigenvector is the eigenvector whose corresponding
-// eigenvalue is between the major and minor eigenvalues.
+  // Description:
+  // Use the major eigenvector field as the vector field through which to 
+  // integrate. The major eigenvector is the eigenvector whose corresponding
+  // eigenvalue is between the major and minor eigenvalues.
   void IntegrateMediumEigenvector();
 
-
-// Description:
-// Use the major eigenvector field as the vector field through which to 
-// integrate. The major eigenvector is the eigenvector whose corresponding
-// eigenvalue is closest to negative infinity.
+  // Description:
+  // Use the major eigenvector field as the vector field through which to 
+  // integrate. The major eigenvector is the eigenvector whose corresponding
+  // eigenvalue is closest to negative infinity.
   void IntegrateMinorEigenvector();
 
-
   // Description:
-  // Specify a nominal integration step size (expressed as a fraction of
+  // Set / get a nominal integration step size (expressed as a fraction of
   // the size of each cell).
   vtkSetClampMacro(IntegrationStepLength,float,0.001,0.5);
   vtkGetMacro(IntegrationStepLength,float);
 
   // Description:
-  // Specify the length of a tube segment composing the hyperstreamline. The
+  // Set / get the length of a tube segment composing the hyperstreamline. The
   // length is specified as a fraction of the diagonal length of the input
   // bounding box.
   vtkSetClampMacro(StepLength,float,0.000001,1.0);
@@ -236,16 +225,16 @@ public:
   vtkGetMacro(TerminalEigenvalue,float);
 
   // Description:
-  // Set the number of sides for the hyperstreamlines. At a minimum, number 
-  // of sides is 3.
+  // Set / get the number of sides for the hyperstreamlines. At a minimum,
+  // number of sides is 3.
   vtkSetClampMacro(NumberOfSides,int,3,VTK_LARGE_INTEGER);
   vtkGetMacro(NumberOfSides,int);
 
   // Description:
-  // Set the initial tube radius. This is the maximum "elliptical" radius
-  // at the beginning of the tube. Radius varies based on ratio of eigenvalues.
-  // Note that tube section is actually elliptical and may become a point or
-  // line in cross section in some cases.
+  // Set / get the initial tube radius. This is the maximum "elliptical"
+  // radius at the beginning of the tube. Radius varies based on ratio of
+  // eigenvalues.  Note that tube section is actually elliptical and may
+  // become a point or line in cross section in some cases.
   vtkSetClampMacro(Radius,float,0.0001,VTK_LARGE_FLOAT);
   vtkGetMacro(Radius,float);
 

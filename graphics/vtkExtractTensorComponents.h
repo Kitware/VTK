@@ -75,15 +75,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkExtractTensorComponents : public vtkDataSetToDataSetFilter 
 {
 public:
-
-// Description:
-// Construct object to extract nothing and to not pass tensor data
-// through the pipeline.
   vtkExtractTensorComponents();
-
-  static vtkExtractTensorComponents *New() {return new vtkExtractTensorComponents;};
   const char *GetClassName() {return "vtkExtractTensorComponents";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Construct object to extract nothing and to not pass tensor data
+  // through the pipeline.
+  static vtkExtractTensorComponents *New() {
+    return new vtkExtractTensorComponents;};
 
   // Description:
   // Boolean controls whether tensor data is passed through to output.
@@ -110,7 +110,8 @@ public:
   vtkSetMacro(ScalarMode,int);
   vtkGetMacro(ScalarMode,int);
   void ScalarIsComponent() {this->SetScalarMode(VTK_EXTRACT_COMPONENT);};
-  void ScalarIsEffectiveStress() {this->SetScalarMode(VTK_EXTRACT_EFFECTIVE_STRESS);};
+  void ScalarIsEffectiveStress() {
+    this->SetScalarMode(VTK_EXTRACT_EFFECTIVE_STRESS);};
   void ScalarIsDeterminant() {this->SetScalarMode(VTK_EXTRACT_DETERMINANT);};
 
   // Description:
@@ -144,7 +145,6 @@ public:
   // components to extract as a vector.
   vtkSetVector6Macro(NormalComponents,int);
   vtkGetVectorMacro(NormalComponents,int,6);
-
 
   // Description:
   // Boolean controls whether texture coordinates are extracted from tensor.

@@ -51,11 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkVectorText : public vtkPolyDataSource 
 {
 public:
-
-// Description:
-// Construct object with no string set and backing enabled.
   vtkVectorText();
-
   ~vtkVectorText();
   static vtkVectorText *New() {return new vtkVectorText;};
   const char *GetClassName() {return "vtkVectorText";};

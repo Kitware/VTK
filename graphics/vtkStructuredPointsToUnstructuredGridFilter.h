@@ -57,15 +57,15 @@ class VTK_EXPORT vtkStructuredPointsToUnstructuredGridFilter : public vtkStructu
 {
 public:
   vtkStructuredPointsToUnstructuredGridFilter();
-  static vtkStructuredPointsToUnstructuredGridFilter *New() 
-    {return new vtkStructuredPointsToUnstructuredGridFilter;};
-  const char *GetClassName() 
-    {return "vtkStructuredPointsToUnstructuredGridFilter";};
+  static vtkStructuredPointsToUnstructuredGridFilter *New() {
+    return new vtkStructuredPointsToUnstructuredGridFilter;};
+  const char *GetClassName() {
+    return "vtkStructuredPointsToUnstructuredGridFilter";};
 
   // Description:
   // Get the output of this filter.
-  vtkUnstructuredGrid *GetOutput() 
-    {return (vtkUnstructuredGrid *)this->Output;};
+  vtkUnstructuredGrid *GetOutput() {
+    return (vtkUnstructuredGrid *)this->Output;};
 
 };
 

@@ -62,9 +62,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // byte swapping.
 //
 // The Transform instance variable specifies a permutation transformation
-// to map slice space into world space.
+// to map slice space into world space. vtkImageReader has replaced the
+// functionality of this class and should be used instead.
+
 // .SECTION See Also
-// vtkSliceCubes vtkMarchingCubes
+// vtkSliceCubes vtkMarchingCubes vtkImageReader
 
 #ifndef __vtkVolume16Reader_h
 #define __vtkVolume16Reader_h
@@ -79,16 +81,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkVolume16Reader : public vtkVolumeReader
 {
 public:
-
-// Description:
-// Construct object with NULL file prefix; file pattern "%s.%d"; image range 
-// set to (1,1); data origin (0,0,0); data spacing (1,1,1); no data mask;
-// header size 0; and byte swapping turned off.
   vtkVolume16Reader();
-
-  static vtkVolume16Reader *New() {return new vtkVolume16Reader;};
   const char *GetClassName() {return "vtkVolume16Reader";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Construct object with NULL file prefix; file pattern "%s.%d"; image range 
+  // set to (1,1); data origin (0,0,0); data spacing (1,1,1); no data mask;
+  // header size 0; and byte swapping turned off.
+  static vtkVolume16Reader *New() {return new vtkVolume16Reader;};
 
   // Description:
   // Specify the dimensions for the data.
@@ -137,6 +138,7 @@ public:
   vtkSetObjectMacro(Transform,vtkTransform);
   vtkGetObjectMacro(Transform,vtkTransform);
 
+  // Description:
   // Other objects make use of these methods
   vtkStructuredPoints *GetImage(int ImageNumber);
 

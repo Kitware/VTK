@@ -48,12 +48,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //
 // The extent specification is zero-offset. That is, the first k-plane in
 // a 50x50x50 structured grid is given by (0,49, 0,49, 0,0).
+
 // .SECTION Caveats
 // If you don't know the dimensions of the input dataset, you can use a large
 // number to specify extent (the number will be clamped appropriately). For 
 // example, if the dataset dimensions are 50x50x50, and you want a the fifth 
 // k-plane, you can use the extents (0,100, 0,100, 4,4). The 100 will 
 // automatically be clamped to 49.
+
 // .SECTION See Also
 // vtkGeometryFilter vtkExtractGrid
 
@@ -65,12 +67,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkStructuredGridGeometryFilter : public vtkStructuredGridToPolyDataFilter
 {
 public:
-
-// Description:
-// Construct with initial extent of all the data
   vtkStructuredGridGeometryFilter();
-
-  static vtkStructuredGridGeometryFilter *New() {return new vtkStructuredGridGeometryFilter;};
+  static vtkStructuredGridGeometryFilter *New() {
+    return new vtkStructuredGridGeometryFilter;};
   const char *GetClassName() {return "vtkStructuredGridGeometryFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -79,16 +78,13 @@ public:
   // kmin,kmax).
   vtkGetVectorMacro(Extent,int,6);
 
-
-// Description:
-// Specify (imin,imax, jmin,jmax, kmin,kmax) indices.
+  // Description:
+  // Specify (imin,imax, jmin,jmax, kmin,kmax) indices.
   void SetExtent(int iMin, int iMax, int jMin, int jMax, int kMin, int kMax);
 
-
-// Description:
-// Specify (imin,imax, jmin,jmax, kmin,kmax) indices in array form.
+  // Description:
+  // Specify (imin,imax, jmin,jmax, kmin,kmax) indices in array form.
   void SetExtent(int *extent);
-
 
 protected:
   void Execute();

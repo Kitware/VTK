@@ -68,12 +68,9 @@ class vtkRenderer;
 class VTK_EXPORT vtkFrustumCoverageCuller : public vtkCuller
 {
 public:
-
-// Description:
-// Create a frustum coverage culler with default values
   vtkFrustumCoverageCuller();
-
-  static vtkFrustumCoverageCuller *New() {return new vtkFrustumCoverageCuller;};
+  static vtkFrustumCoverageCuller *New() {
+    return new vtkFrustumCoverageCuller;};
   const char *GetClassName() {return "vtkFrustumCoverageCuller";};
   void PrintSelf(ostream& os,vtkIndent indent);
 
@@ -85,7 +82,6 @@ public:
   // Description:
   // Every actor passes the inner cull method (the actor is not culled)
   int   InnerCullMethod( vtkRenderer *, vtkActor *) { return 1; };
-
   
   // Description:
   // Set/Get the minimum coverage - actors with less coverage than this

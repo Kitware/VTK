@@ -41,7 +41,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkOpenGLRenderWindow - OpenGL rendering window
 // .SECTION Description
 // vtkOpenGLRenderWindow is a concrete implementation of the abstract class
-// vtkRenderWindow. vtkOpenGLRenderer interfaces to the OpenGL graphics library.
+// vtkRenderWindow. vtkOpenGLRenderer interfaces to the OpenGL graphics
+// library. Application programmers should normally use vtkRenderWindow
+// instead of the OpenGL specific version.
 
 #ifndef __vtkOpenGLRenderWindow_h
 #define __vtkOpenGLRenderWindow_h
@@ -61,89 +63,73 @@ protected:
 
 public:
   vtkOpenGLRenderWindow();
-
-// Description:
-// free up memory & close the window
   ~vtkOpenGLRenderWindow();
-
   static vtkOpenGLRenderWindow *New() {return new vtkOpenGLRenderWindow;};
   const char *GetClassName() {return "vtkOpenGLRenderWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);
-  
 
-// Description:
-// Begin the rendering process.
+  // Description:
+  // Begin the rendering process.
   void Start(void);
 
-
-// Description:
-// End the rendering process and display the image.
+  // Description:
+  // End the rendering process and display the image.
   void Frame(void);
 
-
-// Description:
-// Specify various window parameters.
+  // Description:
+  // Specify various window parameters.
   void WindowConfigure(void);
 
-
-// Description:
-// Initialize the window for rendering.
+  // Description:
+  // Initialize the window for rendering.
   void WindowInitialize(void);
 
-
-// Description:
-// Initialize the rendering window.
+  // Description:
+  // Initialize the rendering window.
   void Initialize(void);
 
-
-// Description:
-// Change the window to fill the entire screen.
+  // Description:
+  // Change the window to fill the entire screen.
   virtual void SetFullScreen(int);
 
-
-// Description:
-// Resize the window.
+  // Description:
+  // Resize the window.
   void WindowRemap(void);
 
-
-// Description:
-// Set the preferred window size to full screen.
+  // Description:
+  // Set the preferred window size to full screen.
   void PrefFullScreen(void);
 
-
-// Description:
-// Specify the size of the rendering window.
+  // Description:
+  // Specify the size of the rendering window.
   void SetSize(int,int);
 
-
-  virtual int      GetDesiredDepth();
-
-// Description:
-// Get a colormap from the windowing system.
+  // Description:
+  // Get the X properties of an ideal rendering window.
   virtual Colormap GetDesiredColormap();
-
   virtual Visual  *GetDesiredVisual();
   XVisualInfo     *GetDesiredVisualInfo();
+  virtual int      GetDesiredDepth();
 
   // Description:
   // Set/Get the maximum number of multisamples
   static void SetGlobalMaximumNumberOfMultiSamples(int val);
   static int  GetGlobalMaximumNumberOfMultiSamples();
 
+  // Description:
+  // Set / Get the number of multisamples to use for hardware antialiasing.
   vtkSetMacro(MultiSamples,int);
   vtkGetMacro(MultiSamples,int);
 
-  // stereo rendering stuff
-
-// Description:
-// Update system if needed due to stereo rendering.
+  // Description:
+  // Update system if needed due to stereo rendering.
   virtual void StereoUpdate();
-
 
   // Description:
   // Set/Get the pixel data of an image, transmitted as RGBRGB... 
   virtual unsigned char *GetPixelData(int x,int y,int x2,int y2,int front);
-  virtual void SetPixelData(int x,int y,int x2,int y2,unsigned char *,int front);
+  virtual void SetPixelData(int x,int y,int x2,int y2,unsigned char *,
+			    int front);
 
   // Description:
   // Set/Get the pixel data of an image, transmitted as RGBARGBA... 
@@ -156,6 +142,8 @@ public:
   virtual float *GetZbufferData( int x1, int y1, int x2, int y2 );
   virtual void SetZbufferData( int x1, int y1, int x2, int y2, float *buffer );
 
+  // Description:
+  // Make this window the current OpenGL context.
   void MakeCurrent();
 };
 
