@@ -134,6 +134,7 @@ vtkString.cxx
 vtkStructuredData.cxx
 vtkStructuredGrid.cxx
 vtkStructuredPoints.cxx
+vtkTableExtentTranslator.cxx
 vtkTensor.cxx
 vtkTetra.cxx
 vtkTimeStamp.cxx
