@@ -93,7 +93,7 @@ static void vrmlCleanUp()
   if ( vrmlHeap )
     {
     vrmlHeap->Delete();
-	vrmlHeap = NULL;
+    vrmlHeap = NULL;
     }
 }
 static void *vrmlAllocateMemory(size_t n)
@@ -192,7 +192,7 @@ class VrmlNodeType {
     
     void* operator new(size_t n)
       {
-   	return vrmlAllocateMemory(n);
+        return vrmlAllocateMemory(n);
       }
     
     void operator delete(void *vtkNotUsed(ptr)) {}
@@ -552,164 +552,164 @@ yyltype;
 #define YYTRANSLATE(x) ((unsigned)(x) <= 289 ? yytranslate[x] : 68)
 
 static const char yytranslate[] = {     0,
-					2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-					2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-					2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-					2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-					2,     2,     2,     2,     2,    39,     2,     2,     2,     2,
-					2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-					2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-					2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-					2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-					35,     2,    36,     2,     2,     2,     2,     2,     2,     2,
-					2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-					2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-					2,     2,    37,     2,    38,     2,     2,     2,     2,     2,
-					2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-					2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-					2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-					2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-					2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-					2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-					2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-					2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-					2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-					2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-					2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-					2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-					2,     2,     2,     2,     2,     1,     2,     3,     4,     5,
-					6,     7,     8,     9,    10,    11,    12,    13,    14,    15,
-					16,    17,    18,    19,    20,    21,    22,    23,    24,    25,
-					26,    27,    28,    29,    30,    31,    32,    33,    34
+                                        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+                                        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+                                        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+                                        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+                                        2,     2,     2,     2,     2,    39,     2,     2,     2,     2,
+                                        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+                                        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+                                        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+                                        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+                                        35,     2,    36,     2,     2,     2,     2,     2,     2,     2,
+                                        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+                                        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+                                        2,     2,    37,     2,    38,     2,     2,     2,     2,     2,
+                                        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+                                        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+                                        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+                                        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+                                        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+                                        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+                                        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+                                        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+                                        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+                                        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+                                        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+                                        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+                                        2,     2,     2,     2,     2,     1,     2,     3,     4,     5,
+                                        6,     7,     8,     9,    10,    11,    12,    13,    14,    15,
+                                        16,    17,    18,    19,    20,    21,    22,    23,    24,    25,
+                                        26,    27,    28,    29,    30,    31,    32,    33,    34
 };
 
 #if YYDEBUG != 0
 static const short yyprhs[] = {     0,
-				    0,     2,     3,     6,     8,    10,    12,    14,    15,    16,
-				    22,    25,    27,    29,    30,    40,    41,    42,    51,    52,
-				    55,    59,    63,    64,    70,    71,    77,    78,    81,    85,
-				    89,    93,    97,   106,   107,   113,   114,   117,   118,   122,
-				    124,   126,   130,   134,   135,   141,   147,   153,   155,   157,
-				    159,   161,   163,   165,   167,   169,   171,   173,   175,   177,
-				    179,   181,   183,   185,   187,   190,   193,   196,   199,   203,
-				    205,   206
+                                    0,     2,     3,     6,     8,    10,    12,    14,    15,    16,
+                                    22,    25,    27,    29,    30,    40,    41,    42,    51,    52,
+                                    55,    59,    63,    64,    70,    71,    77,    78,    81,    85,
+                                    89,    93,    97,   106,   107,   113,   114,   117,   118,   122,
+                                    124,   126,   130,   134,   135,   141,   147,   153,   155,   157,
+                                    159,   161,   163,   165,   167,   169,   171,   173,   175,   177,
+                                    179,   181,   183,   185,   187,   190,   193,   196,   199,   203,
+                                    205,   206
 };
 
 static const short yyrhs[] = {    41,
-				  0,     0,    41,    42,     0,    43,     0,    46,     0,    58,
-				  0,    59,     0,     0,     0,     4,    44,     3,    45,    59,
-				  0,     5,     3,     0,    47,     0,    49,     0,     0,     6,
-				  3,    48,    35,    52,    36,    37,    41,    38,     0,     0,
-				  0,     7,     3,    50,    35,    56,    36,    51,    65,     0,
-				  0,    52,    53,     0,    12,     3,     3,     0,    13,     3,
-				  3,     0,     0,    14,     3,     3,    54,    65,     0,     0,
-				  15,     3,     3,    55,    65,     0,     0,    56,    57,     0,
-				  12,     3,     3,     0,    13,     3,     3,     0,    14,     3,
-				  3,     0,    15,     3,     3,     0,    10,     3,    39,     3,
-				  8,     3,    39,     3,     0,     0,     3,    60,    37,    61,
-				  38,     0,     0,    61,    62,     0,     0,     3,    63,    65,
-				  0,    58,     0,    46,     0,    12,     3,     3,     0,    13,
-				  3,     3,     0,     0,    14,     3,     3,    64,    65,     0,
-				  12,     3,     3,     9,     3,     0,    13,     3,     3,     9,
-				  3,     0,    16,     0,    17,     0,    27,     0,    18,     0,
-				  28,     0,    19,     0,    20,     0,    29,     0,    22,     0,
-				  30,     0,    23,     0,    31,     0,    24,     0,    25,     0,
-				  32,     0,    26,     0,    33,     0,    21,    43,     0,    21,
-				  11,     0,    34,    66,     0,     9,     3,     0,    35,    67,
-				  36,     0,    43,     0,     0,    67,    43,     0
+                                  0,     0,    41,    42,     0,    43,     0,    46,     0,    58,
+                                  0,    59,     0,     0,     0,     4,    44,     3,    45,    59,
+                                  0,     5,     3,     0,    47,     0,    49,     0,     0,     6,
+                                  3,    48,    35,    52,    36,    37,    41,    38,     0,     0,
+                                  0,     7,     3,    50,    35,    56,    36,    51,    65,     0,
+                                  0,    52,    53,     0,    12,     3,     3,     0,    13,     3,
+                                  3,     0,     0,    14,     3,     3,    54,    65,     0,     0,
+                                  15,     3,     3,    55,    65,     0,     0,    56,    57,     0,
+                                  12,     3,     3,     0,    13,     3,     3,     0,    14,     3,
+                                  3,     0,    15,     3,     3,     0,    10,     3,    39,     3,
+                                  8,     3,    39,     3,     0,     0,     3,    60,    37,    61,
+                                  38,     0,     0,    61,    62,     0,     0,     3,    63,    65,
+                                  0,    58,     0,    46,     0,    12,     3,     3,     0,    13,
+                                  3,     3,     0,     0,    14,     3,     3,    64,    65,     0,
+                                  12,     3,     3,     9,     3,     0,    13,     3,     3,     9,
+                                  3,     0,    16,     0,    17,     0,    27,     0,    18,     0,
+                                  28,     0,    19,     0,    20,     0,    29,     0,    22,     0,
+                                  30,     0,    23,     0,    31,     0,    24,     0,    25,     0,
+                                  32,     0,    26,     0,    33,     0,    21,    43,     0,    21,
+                                  11,     0,    34,    66,     0,     9,     3,     0,    35,    67,
+                                  36,     0,    43,     0,     0,    67,    43,     0
 };
 
 #endif
 
 #if YYDEBUG != 0
 static const short yyrline[] = { 0,
-				 106,   109,   111,   114,   116,   117,   120,   122,   123,   124,
-				 125,   128,   130,   133,   135,   139,   141,   143,   145,   147,
-				 150,   153,   155,   157,   158,   160,   163,   165,   168,   171,
-				 173,   175,   179,   184,   186,   189,   191,   194,   196,   197,
-				 198,   201,   202,   203,   206,   207,   209,   213,   215,   216,
-				 217,   218,   219,   220,   221,   222,   223,   224,   225,   226,
-				 227,   228,   229,   230,   232,   233,   234,   235,   238,   240,
-				 243,   245
+                                 106,   109,   111,   114,   116,   117,   120,   122,   123,   124,
+                                 125,   128,   130,   133,   135,   139,   141,   143,   145,   147,
+                                 150,   153,   155,   157,   158,   160,   163,   165,   168,   171,
+                                 173,   175,   179,   184,   186,   189,   191,   194,   196,   197,
+                                 198,   201,   202,   203,   206,   207,   209,   213,   215,   216,
+                                 217,   218,   219,   220,   221,   222,   223,   224,   225,   226,
+                                 227,   228,   229,   230,   232,   233,   234,   235,   238,   240,
+                                 243,   245
 };
 
 static const char * const yytname[] = {   "$","error","$undefined.","IDENTIFIER",
-					  "DEF","USE","PROTO","EXTERNPROTO","TO","IS","ROUTE","SFN_NULL","EVENTIN","EVENTOUT",
-					  "FIELD","EXPOSEDFIELD","SFBOOL","SFCOLOR","SFFLOAT","SFIMAGE","SFINT32","SFNODE",
-					  "SFROTATION","SFSTRING","SFTIME","SFVEC2F","SFVEC3F","MFCOLOR","MFFLOAT","MFINT32",
-					  "MFROTATION","MFSTRING","MFVEC2F","MFVEC3F","MFNODE","'['","']'","'{'","'}'",
-					  "'.'","vrmlscene","declarations","declaration","nodeDeclaration","@1","@2","protoDeclaration",
-					  "proto","@3","externproto","@4","@5","interfaceDeclarations","interfaceDeclaration",
-					  "@6","@7","externInterfaceDeclarations","externInterfaceDeclaration","routeDeclaration",
-					  "node","@8","nodeGuts","nodeGut","@9","@10","fieldValue","mfnodeValue","nodes",
-					  ""
+                                          "DEF","USE","PROTO","EXTERNPROTO","TO","IS","ROUTE","SFN_NULL","EVENTIN","EVENTOUT",
+                                          "FIELD","EXPOSEDFIELD","SFBOOL","SFCOLOR","SFFLOAT","SFIMAGE","SFINT32","SFNODE",
+                                          "SFROTATION","SFSTRING","SFTIME","SFVEC2F","SFVEC3F","MFCOLOR","MFFLOAT","MFINT32",
+                                          "MFROTATION","MFSTRING","MFVEC2F","MFVEC3F","MFNODE","'['","']'","'{'","'}'",
+                                          "'.'","vrmlscene","declarations","declaration","nodeDeclaration","@1","@2","protoDeclaration",
+                                          "proto","@3","externproto","@4","@5","interfaceDeclarations","interfaceDeclaration",
+                                          "@6","@7","externInterfaceDeclarations","externInterfaceDeclaration","routeDeclaration",
+                                          "node","@8","nodeGuts","nodeGut","@9","@10","fieldValue","mfnodeValue","nodes",
+                                          ""
 };
 #endif
 
 static const short yyr1[] = {     0,
-				  40,    41,    41,    42,    42,    42,    43,    44,    45,    43,
-				  43,    46,    46,    48,    47,    50,    51,    49,    52,    52,
-				  53,    53,    54,    53,    55,    53,    56,    56,    57,    57,
-				  57,    57,    58,    60,    59,    61,    61,    63,    62,    62,
-				  62,    62,    62,    64,    62,    62,    62,    65,    65,    65,
-				  65,    65,    65,    65,    65,    65,    65,    65,    65,    65,
-				  65,    65,    65,    65,    65,    65,    65,    65,    66,    66,
-				  67,    67
+                                  40,    41,    41,    42,    42,    42,    43,    44,    45,    43,
+                                  43,    46,    46,    48,    47,    50,    51,    49,    52,    52,
+                                  53,    53,    54,    53,    55,    53,    56,    56,    57,    57,
+                                  57,    57,    58,    60,    59,    61,    61,    63,    62,    62,
+                                  62,    62,    62,    64,    62,    62,    62,    65,    65,    65,
+                                  65,    65,    65,    65,    65,    65,    65,    65,    65,    65,
+                                  65,    65,    65,    65,    65,    65,    65,    65,    66,    66,
+                                  67,    67
 };
 
 static const short yyr2[] = {     0,
-				  1,     0,     2,     1,     1,     1,     1,     0,     0,     5,
-				  2,     1,     1,     0,     9,     0,     0,     8,     0,     2,
-				  3,     3,     0,     5,     0,     5,     0,     2,     3,     3,
-				  3,     3,     8,     0,     5,     0,     2,     0,     3,     1,
-				  1,     3,     3,     0,     5,     5,     5,     1,     1,     1,
-				  1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
-				  1,     1,     1,     1,     2,     2,     2,     2,     3,     1,
-				  0,     2
+                                  1,     0,     2,     1,     1,     1,     1,     0,     0,     5,
+                                  2,     1,     1,     0,     9,     0,     0,     8,     0,     2,
+                                  3,     3,     0,     5,     0,     5,     0,     2,     3,     3,
+                                  3,     3,     8,     0,     5,     0,     2,     0,     3,     1,
+                                  1,     3,     3,     0,     5,     5,     5,     1,     1,     1,
+                                  1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+                                  1,     1,     1,     1,     2,     2,     2,     2,     3,     1,
+                                  0,     2
 };
 
 static const short yydefact[] = {     2,
-				      1,    34,     8,     0,     0,     0,     0,     3,     4,     5,
-				      12,    13,     6,     7,     0,     0,    11,    14,    16,     0,
-				      36,     9,     0,     0,     0,     0,     0,    19,    27,     0,
-				      38,     0,     0,     0,    35,    41,    40,    37,    10,     0,
-				      0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-				      0,    20,     0,     0,     0,     0,    17,    28,     0,     0,
-				      48,    49,    51,    53,    54,     0,    56,    58,    60,    61,
-				      63,    50,    52,    55,    57,    59,    62,    64,     0,    39,
-				      42,    43,    44,     0,     0,     0,     0,     2,     0,     0,
-				      0,     0,     0,     0,    68,    66,    65,    71,    70,    67,
-				      0,     0,     0,    21,    22,    23,    25,     0,    29,    30,
-				      31,    32,    18,    33,     0,    46,    47,    45,     0,     0,
-				      15,    69,    72,    24,    26,     0,     0,     0
+                                      1,    34,     8,     0,     0,     0,     0,     3,     4,     5,
+                                      12,    13,     6,     7,     0,     0,    11,    14,    16,     0,
+                                      36,     9,     0,     0,     0,     0,     0,    19,    27,     0,
+                                      38,     0,     0,     0,    35,    41,    40,    37,    10,     0,
+                                      0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+                                      0,    20,     0,     0,     0,     0,    17,    28,     0,     0,
+                                      48,    49,    51,    53,    54,     0,    56,    58,    60,    61,
+                                      63,    50,    52,    55,    57,    59,    62,    64,     0,    39,
+                                      42,    43,    44,     0,     0,     0,     0,     2,     0,     0,
+                                      0,     0,     0,     0,    68,    66,    65,    71,    70,    67,
+                                      0,     0,     0,    21,    22,    23,    25,     0,    29,    30,
+                                      31,    32,    18,    33,     0,    46,    47,    45,     0,     0,
+                                      15,    69,    72,    24,    26,     0,     0,     0
 };
 
 static const short yydefgoto[] = {   126,
-				     1,     8,     9,    16,    27,    10,    11,    23,    12,    24,
-				     93,    40,    52,   119,   120,    41,    58,    13,    14,    15,
-				     26,    38,    43,   103,    80,   100,   115
+                                     1,     8,     9,    16,    27,    10,    11,    23,    12,    24,
+                                     93,    40,    52,   119,   120,    41,    58,    13,    14,    15,
+                                     26,    38,    43,   103,    80,   100,   115
 };
 
 static const short yypact[] = {-32768,
-			       79,-32768,-32768,    -1,     0,     3,     4,-32768,-32768,-32768,
-			       -32768,-32768,-32768,-32768,   -28,    11,-32768,-32768,-32768,   -18,
-			       -32768,-32768,    -6,     5,    32,    -2,    38,-32768,-32768,    35,
-			       -32768,    39,    41,    45,-32768,-32768,-32768,-32768,-32768,    19,
-			       66,    48,    43,    50,    51,    54,    84,    85,    87,    88,
-			       55,-32768,    90,    91,    92,    93,-32768,-32768,    58,    95,
-			       -32768,-32768,-32768,-32768,-32768,    34,-32768,-32768,-32768,-32768,
-			       -32768,-32768,-32768,-32768,-32768,-32768,-32768,-32768,    23,-32768,
-			       94,    96,-32768,    97,    98,   101,   103,-32768,   104,   105,
-			       106,   107,    43,   108,-32768,-32768,-32768,-32768,-32768,-32768,
-			       109,   110,    43,-32768,-32768,-32768,-32768,    12,-32768,-32768,
-			       -32768,-32768,-32768,-32768,    20,-32768,-32768,-32768,    43,    43,
-			       -32768,-32768,-32768,-32768,-32768,    99,   114,-32768
+                               79,-32768,-32768,    -1,     0,     3,     4,-32768,-32768,-32768,
+                               -32768,-32768,-32768,-32768,   -28,    11,-32768,-32768,-32768,   -18,
+                               -32768,-32768,    -6,     5,    32,    -2,    38,-32768,-32768,    35,
+                               -32768,    39,    41,    45,-32768,-32768,-32768,-32768,-32768,    19,
+                               66,    48,    43,    50,    51,    54,    84,    85,    87,    88,
+                               55,-32768,    90,    91,    92,    93,-32768,-32768,    58,    95,
+                               -32768,-32768,-32768,-32768,-32768,    34,-32768,-32768,-32768,-32768,
+                               -32768,-32768,-32768,-32768,-32768,-32768,-32768,-32768,    23,-32768,
+                               94,    96,-32768,    97,    98,   101,   103,-32768,   104,   105,
+                               106,   107,    43,   108,-32768,-32768,-32768,-32768,-32768,-32768,
+                               109,   110,    43,-32768,-32768,-32768,-32768,    12,-32768,-32768,
+                               -32768,-32768,-32768,-32768,    20,-32768,-32768,-32768,    43,    43,
+                               -32768,-32768,-32768,-32768,-32768,    99,   114,-32768
 };
 
 static const short yypgoto[] = {-32768,
-				27,-32768,   -66,-32768,-32768,   100,-32768,-32768,-32768,-32768,
-				-32768,-32768,-32768,-32768,-32768,-32768,-32768,   102,    89,-32768,
-				-32768,-32768,-32768,-32768,   -73,-32768,-32768
+                                27,-32768,   -66,-32768,-32768,   100,-32768,-32768,-32768,-32768,
+                                -32768,-32768,-32768,-32768,-32768,-32768,-32768,   102,    89,-32768,
+                                -32768,-32768,-32768,-32768,   -73,-32768,-32768
 };
 
 
@@ -717,35 +717,35 @@ static const short yypgoto[] = {-32768,
 
 
 static const short yytable[] = {    97,
-				    31,    17,    18,     5,     6,    19,    20,     7,    21,    32,
-				    33,    34,    99,    22,     2,     3,     4,     5,     6,   113,
-				    25,     7,     2,     3,     4,     2,     3,     4,    28,   118,
-				    47,    48,    49,    50,    30,    35,     2,     3,     4,    29,
-				    2,    44,    42,    45,    96,   124,   125,    46,   123,   121,
-				    59,    60,    81,    82,    51,   122,    83,    98,    61,    62,
-				    63,    64,    65,    66,    67,    68,    69,    70,    71,    72,
-				    73,    74,    75,    76,    77,    78,    79,    53,    54,    55,
-				    56,     2,     3,     4,     5,     6,    84,    85,     7,    86,
-				    87,    88,    89,    90,    91,    92,    94,    95,   127,   104,
-				    105,    57,   101,   106,   102,   107,   109,   110,   111,   112,
-				    114,   116,   117,   128,   108,    39,     0,     0,     0,     0,
-				    0,     0,     0,     0,     0,    36,     0,    37
+                                    31,    17,    18,     5,     6,    19,    20,     7,    21,    32,
+                                    33,    34,    99,    22,     2,     3,     4,     5,     6,   113,
+                                    25,     7,     2,     3,     4,     2,     3,     4,    28,   118,
+                                    47,    48,    49,    50,    30,    35,     2,     3,     4,    29,
+                                    2,    44,    42,    45,    96,   124,   125,    46,   123,   121,
+                                    59,    60,    81,    82,    51,   122,    83,    98,    61,    62,
+                                    63,    64,    65,    66,    67,    68,    69,    70,    71,    72,
+                                    73,    74,    75,    76,    77,    78,    79,    53,    54,    55,
+                                    56,     2,     3,     4,     5,     6,    84,    85,     7,    86,
+                                    87,    88,    89,    90,    91,    92,    94,    95,   127,   104,
+                                    105,    57,   101,   106,   102,   107,   109,   110,   111,   112,
+                                    114,   116,   117,   128,   108,    39,     0,     0,     0,     0,
+                                    0,     0,     0,     0,     0,    36,     0,    37
 };
 
 static const short yycheck[] = {    66,
-				    3,     3,     3,     6,     7,     3,     3,    10,    37,    12,
-				    13,    14,    79,     3,     3,     4,     5,     6,     7,    93,
-				    39,    10,     3,     4,     5,     3,     4,     5,    35,   103,
-				    12,    13,    14,    15,     3,    38,     3,     4,     5,    35,
-				    3,     3,     8,     3,    11,   119,   120,     3,   115,    38,
-				    3,     9,     3,     3,    36,    36,     3,    35,    16,    17,
-				    18,    19,    20,    21,    22,    23,    24,    25,    26,    27,
-				    28,    29,    30,    31,    32,    33,    34,    12,    13,    14,
-				    15,     3,     4,     5,     6,     7,     3,     3,    10,     3,
-				    3,    37,     3,     3,     3,     3,    39,     3,     0,     3,
-				    3,    36,     9,     3,     9,     3,     3,     3,     3,     3,
-				    3,     3,     3,     0,    88,    27,    -1,    -1,    -1,    -1,
-				    -1,    -1,    -1,    -1,    -1,    26,    -1,    26
+                                    3,     3,     3,     6,     7,     3,     3,    10,    37,    12,
+                                    13,    14,    79,     3,     3,     4,     5,     6,     7,    93,
+                                    39,    10,     3,     4,     5,     3,     4,     5,    35,   103,
+                                    12,    13,    14,    15,     3,    38,     3,     4,     5,    35,
+                                    3,     3,     8,     3,    11,   119,   120,     3,   115,    38,
+                                    3,     9,     3,     3,    36,    36,     3,    35,    16,    17,
+                                    18,    19,    20,    21,    22,    23,    24,    25,    26,    27,
+                                    28,    29,    30,    31,    32,    33,    34,    12,    13,    14,
+                                    15,     3,     4,     5,     6,     7,     3,     3,    10,     3,
+                                    3,    37,     3,     3,     3,     3,    39,     3,     0,     3,
+                                    3,    36,     9,     3,     9,     3,     3,     3,     3,     3,
+                                    3,     3,     3,     0,    88,    27,    -1,    -1,    -1,    -1,
+                                    -1,    -1,    -1,    -1,    -1,    26,    -1,    26
 };
 /* -*-C-*-  Note some compilers choke on comments on `#line' lines.  */
 
@@ -1050,15 +1050,15 @@ yyparse(vtkVRMLImporter* self)
     /* This used to be a conditional around just the two extra args,
        but that might be undefined if yyoverflow is a macro.  */
     yyoverflow("parser stack overflow",
-	       &yyss1, size * sizeof (*yyssp),
-	       &yyvs1, size * sizeof (*yyvsp),
-	       &yyls1, size * sizeof (*yylsp),
-	       &yystacksize);
+               &yyss1, size * sizeof (*yyssp),
+               &yyvs1, size * sizeof (*yyvsp),
+               &yyls1, size * sizeof (*yylsp),
+               &yystacksize);
 #else
     yyoverflow("parser stack overflow",
-	       &yyss1, size * sizeof (*yyssp),
-	       &yyvs1, size * sizeof (*yyvsp),
-	       &yystacksize);
+               &yyss1, size * sizeof (*yyssp),
+               &yyvs1, size * sizeof (*yyvsp),
+               &yystacksize);
 #endif
 
     yyss = yyss1; yyvs = yyvs1;
@@ -1153,7 +1153,7 @@ yyparse(vtkVRMLImporter* self)
       {
       fprintf (stderr, "Next token is %d (%s", yychar, yytname[yychar1]);
       /* Give the individual parser a way to print the precise meaning
-	 of a token, for further debugging info.  */
+         of a token, for further debugging info.  */
 #ifdef YYPRINT
       YYPRINT (stderr, yychar, yylval);
 #endif
@@ -1231,7 +1231,7 @@ yyparse(vtkVRMLImporter* self)
     int i;
 
     fprintf (stderr, "Reducing via rule %d (line %d), ",
-	     yyn, yyrline[yyn]);
+             yyn, yyrline[yyn]);
 
     /* Print the symbols being reduced, and their result.  */
     for (i = yyprhs[yyn]; yyrhs[i] > 0; i++)
@@ -1432,32 +1432,32 @@ yyparse(vtkVRMLImporter* self)
       count = 0;
       /* Start X at -yyn if nec to avoid negative indexes in yycheck.  */
       for (x = (yyn < 0 ? -yyn : 0);
-	   x < (sizeof(yytname) / sizeof(char *)); x++)
-	if (yycheck[x + yyn] == x)
-	  size += strlen(yytname[x]) + 15, count++;
+           x < (sizeof(yytname) / sizeof(char *)); x++)
+        if (yycheck[x + yyn] == x)
+          size += strlen(yytname[x]) + 15, count++;
       msg = (char *) malloc(size + 15);
       if (msg != 0)
-	{
-	strcpy(msg, "parse error");
+        {
+        strcpy(msg, "parse error");
 
-	if (count < 5)
-	  {
-	  count = 0;
-	  for (x = (yyn < 0 ? -yyn : 0);
-	       x < (sizeof(yytname) / sizeof(char *)); x++)
-	    if (yycheck[x + yyn] == x)
-	      {
-	      strcat(msg, count == 0 ? ", expecting `" : " or `");
-	      strcat(msg, yytname[x]);
-	      strcat(msg, "'");
-	      count++;
-	      }
-	  }
-	yyerror(msg);
-	free(msg);
-	}
+        if (count < 5)
+          {
+          count = 0;
+          for (x = (yyn < 0 ? -yyn : 0);
+               x < (sizeof(yytname) / sizeof(char *)); x++)
+            if (yycheck[x + yyn] == x)
+              {
+              strcat(msg, count == 0 ? ", expecting `" : " or `");
+              strcat(msg, yytname[x]);
+              strcat(msg, "'");
+              count++;
+              }
+          }
+        yyerror(msg);
+        free(msg);
+        }
       else
-	yyerror ("parse error; also virtual memory exceeded");
+        yyerror ("parse error; also virtual memory exceeded");
       }
     else
 #endif /* YYERROR_VERBOSE */
@@ -4339,7 +4339,7 @@ int yylex ( vtkVRMLImporter* self )
       yy_init_buffer( yy_current_buffer, yyin );
     else
       yy_current_buffer =
-	yy_create_buffer( yyin, YY_BUF_SIZE );
+        yy_create_buffer( yyin, YY_BUF_SIZE );
 
     yy_load_buffer_state();
 
@@ -4364,16 +4364,16 @@ int yylex ( vtkVRMLImporter* self )
       {
       register YY_CHAR yy_c = yy_ec[YY_SC_TO_UI(*yy_cp)];
       if ( yy_accept[yy_current_state] )
-	{
-	yy_last_accepting_state = yy_current_state;
-	yy_last_accepting_cpos = yy_cp;
-	}
+        {
+        yy_last_accepting_state = yy_current_state;
+        yy_last_accepting_cpos = yy_cp;
+        }
       while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
-	{
-	yy_current_state = (int) yy_def[yy_current_state];
-	if ( yy_current_state >= 949 )
-	  yy_c = yy_meta[(unsigned int) yy_c];
-	}
+        {
+        yy_current_state = (int) yy_def[yy_current_state];
+        if ( yy_current_state >= 949 )
+          yy_c = yy_meta[(unsigned int) yy_c];
+        }
       yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
       ++yy_cp;
       }
@@ -4390,327 +4390,327 @@ int yylex ( vtkVRMLImporter* self )
     if ( yy_flex_debug )
       {
       if ( yy_act == 0 )
-	fprintf( stderr, "--scanner backing up\n" );
+        fprintf( stderr, "--scanner backing up\n" );
       else if ( yy_act < 49 )
-	fprintf( stderr, "--accepting rule at line %d (\"%s\")\n",
-		 yy_rule_linenum[yy_act], yytext );
+        fprintf( stderr, "--accepting rule at line %d (\"%s\")\n",
+                 yy_rule_linenum[yy_act], yytext );
       else if ( yy_act == 49 )
-	fprintf( stderr, "--accepting default rule (\"%s\")\n",
-		 yytext );
+        fprintf( stderr, "--accepting default rule (\"%s\")\n",
+                 yytext );
       else if ( yy_act == 50 )
-	fprintf( stderr, "--(end of buffer or a NUL)\n" );
+        fprintf( stderr, "--(end of buffer or a NUL)\n" );
       else
-	fprintf( stderr, "--EOF (start condition %d)\n", YY_START );
+        fprintf( stderr, "--EOF (start condition %d)\n", YY_START );
       }
 
     switch ( yy_act )
       { /* beginning of action switch */
       case 0: /* must back up */
-	/* undo the effects of YY_DO_BEFORE_ACTION */
-	*yy_cp = yy_hold_char;
-	yy_cp = yy_last_accepting_cpos;
-	yy_current_state = yy_last_accepting_state;
-	goto yy_find_action;
+        /* undo the effects of YY_DO_BEFORE_ACTION */
+        *yy_cp = yy_hold_char;
+        yy_cp = yy_last_accepting_cpos;
+        yy_current_state = yy_last_accepting_state;
+        goto yy_find_action;
 
       case 1:
-	YY_USER_ACTION
-	  { BEGIN NODE; }
+        YY_USER_ACTION
+          { BEGIN NODE; }
         YY_BREAK
-	  /* The lexer is in the NODE state when parsing nodes, either */
-	  /* top-level nodes in the .wrl file, in a prototype implementation, */
-	  /* or when parsing the contents of SFNode or MFNode fields. */
-	  case 2:
-	    YY_USER_ACTION
-	  { return PROTO; }
+          /* The lexer is in the NODE state when parsing nodes, either */
+          /* top-level nodes in the .wrl file, in a prototype implementation, */
+          /* or when parsing the contents of SFNode or MFNode fields. */
+          case 2:
+            YY_USER_ACTION
+          { return PROTO; }
       case 3:
-	YY_USER_ACTION
-	  { return EXTERNPROTO; }
+        YY_USER_ACTION
+          { return EXTERNPROTO; }
       case 4:
-	YY_USER_ACTION
-	  { return DEF; }
+        YY_USER_ACTION
+          { return DEF; }
       case 5:
-	YY_USER_ACTION
-	  { return USE; }
+        YY_USER_ACTION
+          { return USE; }
       case 6:
-	YY_USER_ACTION
-	  { return TO; }
+        YY_USER_ACTION
+          { return TO; }
       case 7:
-	YY_USER_ACTION
-	  { return IS; }
+        YY_USER_ACTION
+          { return IS; }
       case 8:
-	YY_USER_ACTION
-	  { return ROUTE; }
+        YY_USER_ACTION
+          { return ROUTE; }
       case 9:
-	YY_USER_ACTION
-	  { return SFN_NULL; }
+        YY_USER_ACTION
+          { return SFN_NULL; }
       case 10:
-	YY_USER_ACTION
-	  { return EVENTIN; }
+        YY_USER_ACTION
+          { return EVENTIN; }
       case 11:
-	YY_USER_ACTION
-	  { return EVENTOUT; }
+        YY_USER_ACTION
+          { return EVENTOUT; }
       case 12:
-	YY_USER_ACTION
-	  { return FIELD; }
+        YY_USER_ACTION
+          { return FIELD; }
       case 13:
-	YY_USER_ACTION
-	  { return EXPOSEDFIELD; }
+        YY_USER_ACTION
+          { return EXPOSEDFIELD; }
         /* Legal identifiers: */
       case 14:
-	YY_USER_ACTION
-	  { 
-	  yylval.string = strdup(yytext);
-	  return IDENTIFIER; }
+        YY_USER_ACTION
+          { 
+          yylval.string = strdup(yytext);
+          return IDENTIFIER; }
         /* All fields may have an IS declaration: */
       case 15:
-	YY_USER_ACTION
-	  { BEGIN NODE;
-	  expectToken = 0;
-	  yyless(0);
-	  }
+        YY_USER_ACTION
+          { BEGIN NODE;
+          expectToken = 0;
+          yyless(0);
+          }
         YY_BREAK
-	  case 16:
-	    YY_USER_ACTION
-	  { BEGIN NODE;
-	  expectToken = 0;
-	  yyless(0); /* put back the IS */
-	  }
+          case 16:
+            YY_USER_ACTION
+          { BEGIN NODE;
+          expectToken = 0;
+          yyless(0); /* put back the IS */
+          }
         YY_BREAK
-	  /* All MF field types other than MFNode are completely parsed here */
-	  /* in the lexer, and one token is returned to the parser.  They all */
-	  /* share the same rules for open and closing brackets: */
-	  case 17:
-	    YY_USER_ACTION
-	  { if (parsing_mf) yyerror("Double [");
-	  parsing_mf = 1;
-	  }
+          /* All MF field types other than MFNode are completely parsed here */
+          /* in the lexer, and one token is returned to the parser.  They all */
+          /* share the same rules for open and closing brackets: */
+          case 17:
+            YY_USER_ACTION
+          { if (parsing_mf) yyerror("Double [");
+          parsing_mf = 1;
+          }
         YY_BREAK
-	  case 18:
-	    YY_USER_ACTION
-	  { if (parsing_mf) yyerror("Double [");
-	  parsing_mf = 1;
-	  yylval.mfint32 = self->IdTypeArrayNew();
-	  }
+          case 18:
+            YY_USER_ACTION
+          { if (parsing_mf) yyerror("Double [");
+          parsing_mf = 1;
+          yylval.mfint32 = self->IdTypeArrayNew();
+          }
         YY_BREAK
-	  case 19:
-	    YY_USER_ACTION
-	  { if (parsing_mf) yyerror("Double [");
-	  parsing_mf = 1;
-	  yylval.vec3f = self->PointsNew();
-	  }
+          case 19:
+            YY_USER_ACTION
+          { if (parsing_mf) yyerror("Double [");
+          parsing_mf = 1;
+          yylval.vec3f = self->PointsNew();
+          }
         YY_BREAK
-	  case 20:
-	    YY_USER_ACTION
-	  { if (!parsing_mf) yyerror("Unmatched ]");
-	  int fieldType = expectToken;
-	  BEGIN NODE;
-	  parsing_mf = 0;
-	  expectToken = 0;
-	  return fieldType;
-	  }
+          case 20:
+            YY_USER_ACTION
+          { if (!parsing_mf) yyerror("Unmatched ]");
+          int fieldType = expectToken;
+          BEGIN NODE;
+          parsing_mf = 0;
+          expectToken = 0;
+          return fieldType;
+          }
       case 21:
-	YY_USER_ACTION
-	  { BEGIN NODE; expectToken = 0; yylval.sfint = 1; return SFBOOL; }
+        YY_USER_ACTION
+          { BEGIN NODE; expectToken = 0; yylval.sfint = 1; return SFBOOL; }
       case 22:
-	YY_USER_ACTION
-	  { BEGIN NODE; expectToken = 0; yylval.sfint = 0; return SFBOOL; }
+        YY_USER_ACTION
+          { BEGIN NODE; expectToken = 0; yylval.sfint = 0; return SFBOOL; }
       case 23:
-	YY_USER_ACTION
-	  { BEGIN NODE; expectToken = 0;
-	  yylval.sfint = atoi(yytext);
-	  return SFINT32; 
-	  }
+        YY_USER_ACTION
+          { BEGIN NODE; expectToken = 0;
+          yylval.sfint = atoi(yytext);
+          return SFINT32; 
+          }
       case 24:
-	YY_USER_ACTION
-	  { if (parsing_mf) {
-	  int num;
-	  num = atoi(yytext);
-	  yylval.mfint32->InsertNextValue(num);
-	  }
-	  else {
-	  BEGIN NODE; expectToken = 0; return MFINT32;
-	  }
-	  }
+        YY_USER_ACTION
+          { if (parsing_mf) {
+          int num;
+          num = atoi(yytext);
+          yylval.mfint32->InsertNextValue(num);
+          }
+          else {
+          BEGIN NODE; expectToken = 0; return MFINT32;
+          }
+          }
         YY_BREAK
-	  /* All the floating-point types are pretty similar: */
-	  case 25:
-	    YY_USER_ACTION
-	  { BEGIN NODE; expectToken = 0; float num;
-	  sscanf(yytext, "%f", &num);
-	  yylval.sffloat = num;
-	  return SFFLOAT; }
+          /* All the floating-point types are pretty similar: */
+          case 25:
+            YY_USER_ACTION
+          { BEGIN NODE; expectToken = 0; float num;
+          sscanf(yytext, "%f", &num);
+          yylval.sffloat = num;
+          return SFFLOAT; }
       case 26:
-	YY_USER_ACTION
-	  { if (parsing_mf) ; /* Add to array... */
-	  else {
-	  /* No open bracket means a single value: */
-	  BEGIN NODE; expectToken = 0; return MFFLOAT;
-	  }
-	  }
+        YY_USER_ACTION
+          { if (parsing_mf) ; /* Add to array... */
+          else {
+          /* No open bracket means a single value: */
+          BEGIN NODE; expectToken = 0; return MFFLOAT;
+          }
+          }
         YY_BREAK
-	  case 27:
-	    YY_USER_ACTION
-	  { BEGIN NODE; expectToken = 0; return SFVEC2F; }
+          case 27:
+            YY_USER_ACTION
+          { BEGIN NODE; expectToken = 0; return SFVEC2F; }
       case 28:
-	YY_USER_ACTION
-	  { if (parsing_mf) ; /* .. add to array... */
-	  else {
-	  BEGIN NODE; expectToken = 0; return MFVEC2F;
-	  }
-	  }
-	YY_BREAK
+        YY_USER_ACTION
+          { if (parsing_mf) ; /* .. add to array... */
+          else {
+          BEGIN NODE; expectToken = 0; return MFVEC2F;
+          }
+          }
+        YY_BREAK
       case 29:
-	YY_USER_ACTION
-	  {   BEGIN NODE; expectToken = 0;
-	  float num[3];
-	  yylval.vec3f = self->PointsNew();
-	  num[0] = atof(strtok(yytext, " "));
-	  num[1] = atof(strtok(NULL, " "));
-	  num[2] = atof(strtok(NULL, " "));
-	  //sscanf(yytext, "%f %f %f", &num[0], &num[1], &num[2]);
-	  yylval.vec3f->InsertPoint(0, num);
-	  return SFVEC3F; }
+        YY_USER_ACTION
+          {   BEGIN NODE; expectToken = 0;
+          float num[3];
+          yylval.vec3f = self->PointsNew();
+          num[0] = atof(strtok(yytext, " "));
+          num[1] = atof(strtok(NULL, " "));
+          num[2] = atof(strtok(NULL, " "));
+          //sscanf(yytext, "%f %f %f", &num[0], &num[1], &num[2]);
+          yylval.vec3f->InsertPoint(0, num);
+          return SFVEC3F; }
       case 30:
-	YY_USER_ACTION
-	  { if (parsing_mf) { /*  .. add to array... */
-	  float num[3];
-	  num[0] = atof(strtok(yytext, " "));
-	  num[1] = atof(strtok(NULL, " "));
-	  num[2] = atof(strtok(NULL, " "));
-	  //sscanf(yytext, "%f %f %f", &num[0], &num[1], &num[2]);
-	  yylval.vec3f->InsertNextPoint(num);
-	  //return MFVEC3F;
-	  }
-	  else {
-	  BEGIN NODE; expectToken = 0;
-	  return MFVEC3F;
-	  }
-	  }
+        YY_USER_ACTION
+          { if (parsing_mf) { /*  .. add to array... */
+          float num[3];
+          num[0] = atof(strtok(yytext, " "));
+          num[1] = atof(strtok(NULL, " "));
+          num[2] = atof(strtok(NULL, " "));
+          //sscanf(yytext, "%f %f %f", &num[0], &num[1], &num[2]);
+          yylval.vec3f->InsertNextPoint(num);
+          //return MFVEC3F;
+          }
+          else {
+          BEGIN NODE; expectToken = 0;
+          return MFVEC3F;
+          }
+          }
         YY_BREAK
-	  case 31:
-	    YY_USER_ACTION
-	  { BEGIN NODE; expectToken = 0; return SFROTATION; }
+          case 31:
+            YY_USER_ACTION
+          { BEGIN NODE; expectToken = 0; return SFROTATION; }
       case 32:
-	YY_USER_ACTION
-	  { if (parsing_mf) ; /* .. add to array... */
-	  else {
-	  BEGIN NODE; expectToken = 0; return MFROTATION;
-	  }
-	  }
+        YY_USER_ACTION
+          { if (parsing_mf) ; /* .. add to array... */
+          else {
+          BEGIN NODE; expectToken = 0; return MFROTATION;
+          }
+          }
         YY_BREAK
-	  case 33:
-	    YY_USER_ACTION
-	  { BEGIN NODE; expectToken = 0;
-	  float num[3];
-	  yylval.vec3f = self->PointsNew();
-	  num[0] = atof(strtok(yytext, " "));
-	  num[1] = atof(strtok(NULL, " "));
-	  num[2] = atof(strtok(NULL, " "));
-	  //sscanf(yytext, "%f %f %f", &num[0], &num[1], &num[2]);
-	  yylval.vec3f->InsertPoint(0, num);
-	  return SFCOLOR; }
+          case 33:
+            YY_USER_ACTION
+          { BEGIN NODE; expectToken = 0;
+          float num[3];
+          yylval.vec3f = self->PointsNew();
+          num[0] = atof(strtok(yytext, " "));
+          num[1] = atof(strtok(NULL, " "));
+          num[2] = atof(strtok(NULL, " "));
+          //sscanf(yytext, "%f %f %f", &num[0], &num[1], &num[2]);
+          yylval.vec3f->InsertPoint(0, num);
+          return SFCOLOR; }
       case 34:
-	YY_USER_ACTION
-	  { if (parsing_mf) { /*  .. add to array... */
-	  float num[3];
-	  num[0] = atof(strtok(yytext, " "));
-	  num[1] = atof(strtok(NULL, " "));
-	  num[2] = atof(strtok(NULL, " "));
-	  yylval.vec3f->InsertNextPoint(num);
-	  }
-	  else {
-	  BEGIN NODE; expectToken = 0; return MFCOLOR;
-	  }
-	  }
+        YY_USER_ACTION
+          { if (parsing_mf) { /*  .. add to array... */
+          float num[3];
+          num[0] = atof(strtok(yytext, " "));
+          num[1] = atof(strtok(NULL, " "));
+          num[2] = atof(strtok(NULL, " "));
+          yylval.vec3f->InsertNextPoint(num);
+          }
+          else {
+          BEGIN NODE; expectToken = 0; return MFCOLOR;
+          }
+          }
         YY_BREAK
-	  case 35:
-	    YY_USER_ACTION
-	  { BEGIN NODE; expectToken = 0; return SFTIME; }
-	/* SFString/MFString */
+          case 35:
+            YY_USER_ACTION
+          { BEGIN NODE; expectToken = 0; return SFTIME; }
+        /* SFString/MFString */
       case 36:
-	YY_USER_ACTION
-	  { BEGIN IN_SFS; }
+        YY_USER_ACTION
+          { BEGIN IN_SFS; }
         YY_BREAK
-	  case 37:
-	    YY_USER_ACTION
-	  { BEGIN IN_MFS; }
+          case 37:
+            YY_USER_ACTION
+          { BEGIN IN_MFS; }
         YY_BREAK
-	  /* Anything besides open-quote (or whitespace) is an error: */
-	  case 38:
-	    YY_USER_ACTION
-	  { yyerror("String missing open-quote");
-	  BEGIN NODE; expectToken = 0; return SFSTRING;
-	  }
-	/* Expect open-quote, open-bracket, or whitespace: */
+          /* Anything besides open-quote (or whitespace) is an error: */
+          case 38:
+            YY_USER_ACTION
+          { yyerror("String missing open-quote");
+          BEGIN NODE; expectToken = 0; return SFSTRING;
+          }
+        /* Expect open-quote, open-bracket, or whitespace: */
       case 39:
-	YY_USER_ACTION
-	  { yyerror("String missing open-quote");
-	  BEGIN NODE; expectToken = 0; return MFSTRING;
-	  }
-	/* Backslashed-quotes are OK: */
+        YY_USER_ACTION
+          { yyerror("String missing open-quote");
+          BEGIN NODE; expectToken = 0; return MFSTRING;
+          }
+        /* Backslashed-quotes are OK: */
       case 40:
-	YY_USER_ACTION
-	  ;
+        YY_USER_ACTION
+          ;
         YY_BREAK
-	  /* Gobble up anything besides quotes and newlines. */
-	  /* Newlines are legal in strings, but we exclude them here so */
-	  /* that line number are counted correctly by the catch-all newline */
-	  /* rule that applies to everything. */
-	  case 41:
-	    YY_USER_ACTION
-	  ;
+          /* Gobble up anything besides quotes and newlines. */
+          /* Newlines are legal in strings, but we exclude them here so */
+          /* that line number are counted correctly by the catch-all newline */
+          /* rule that applies to everything. */
+          case 41:
+            YY_USER_ACTION
+          ;
         YY_BREAK
-	  /* Quote ends the string: */
-	  case 42:
-	    YY_USER_ACTION
-	  { BEGIN NODE; expectToken = 0; return SFSTRING; }
+          /* Quote ends the string: */
+          case 42:
+            YY_USER_ACTION
+          { BEGIN NODE; expectToken = 0; return SFSTRING; }
       case 43:
-	YY_USER_ACTION
-	  { if (parsing_mf) BEGIN MFS; /* ... add to array ... */
-	  else {
-	  BEGIN NODE; expectToken = 0; return MFSTRING;
-	  }
-	  }
+        YY_USER_ACTION
+          { if (parsing_mf) BEGIN MFS; /* ... add to array ... */
+          else {
+          BEGIN NODE; expectToken = 0; return MFSTRING;
+          }
+          }
         YY_BREAK
-	  /* SFImage: width height numComponents then width*height integers: */
-	  case 44:
-	    YY_USER_ACTION
-	  { int w, h;
-	  sscanf(yytext, "%d %d", &w, &h);
-	  sfImageIntsExpected = 1+w*h;
-	  sfImageIntsParsed = 0;                          
-	  BEGIN IN_SFIMG;
-	  }
+          /* SFImage: width height numComponents then width*height integers: */
+          case 44:
+            YY_USER_ACTION
+          { int w, h;
+          sscanf(yytext, "%d %d", &w, &h);
+          sfImageIntsExpected = 1+w*h;
+          sfImageIntsParsed = 0;                          
+          BEGIN IN_SFIMG;
+          }
         YY_BREAK
-	  case 45:
-	    YY_USER_ACTION
-	  { ++sfImageIntsParsed;
-	  if (sfImageIntsParsed == sfImageIntsExpected) {
-	  BEGIN NODE; expectToken = 0; return SFIMAGE;
-	  }
-	  }
+          case 45:
+            YY_USER_ACTION
+          { ++sfImageIntsParsed;
+          if (sfImageIntsParsed == sfImageIntsExpected) {
+          BEGIN NODE; expectToken = 0; return SFIMAGE;
+          }
+          }
         YY_BREAK
-	  /* Whitespace and catch-all rules apply to all start states: */
-	  case 46:
-	    YY_USER_ACTION
-	  ;
+          /* Whitespace and catch-all rules apply to all start states: */
+          case 46:
+            YY_USER_ACTION
+          ;
         YY_BREAK
-	  /* This is also whitespace, but we'll keep track of line number */
-	  /* to report in errors: */
-	  case 47:
-	    YY_USER_ACTION
-	  { ++currentLineNumber; }
+          /* This is also whitespace, but we'll keep track of line number */
+          /* to report in errors: */
+          case 47:
+            YY_USER_ACTION
+          { ++currentLineNumber; }
         YY_BREAK
-	  /* This catch-all rule catches anything not covered by any of */
-	  /* the above: */
-	  case 48:
-	    YY_USER_ACTION
-	  { return yytext[0]; }
+          /* This catch-all rule catches anything not covered by any of */
+          /* the above: */
+          case 48:
+            YY_USER_ACTION
+          { return yytext[0]; }
       case 49:
-	YY_USER_ACTION
-	  YY_FATAL_ERROR( "flex scanner jammed" );
+        YY_USER_ACTION
+          YY_FATAL_ERROR( "flex scanner jammed" );
         YY_BREAK
-	  case YY_STATE_EOF(INITIAL):
+          case YY_STATE_EOF(INITIAL):
       case YY_STATE_EOF(NODE):
       case YY_STATE_EOF(SFB):
       case YY_STATE_EOF(SFC):
@@ -4735,129 +4735,129 @@ int yylex ( vtkVRMLImporter* self )
         yyterminate();
 
       case YY_END_OF_BUFFER:
-	{
-	/* Amount of text matched not including the EOB char. */
-	int yy_amount_of_matched_text = yy_cp - yytext_ptr - 1;
+        {
+        /* Amount of text matched not including the EOB char. */
+        int yy_amount_of_matched_text = yy_cp - yytext_ptr - 1;
 
-	/* Undo the effects of YY_DO_BEFORE_ACTION. */
-	*yy_cp = yy_hold_char;
+        /* Undo the effects of YY_DO_BEFORE_ACTION. */
+        *yy_cp = yy_hold_char;
 
-	if ( yy_current_buffer->yy_buffer_status == YY_BUFFER_NEW )
-	  {
-	  /* We're scanning a new file or input source.  It's
-	   * possible that this happened because the user
-	   * just pointed yyin at a new source and called
-	   * yylex().  If so, then we have to assure
-	   * consistency between yy_current_buffer and our
-	   * globals.  Here is the right place to do so, because
-	   * this is the first action (other than possibly a
-	   * back-up) that will match for the new input source.
-	   */
-	  yy_n_chars = yy_current_buffer->yy_n_chars;
-	  yy_current_buffer->yy_input_file = yyin;
-	  yy_current_buffer->yy_buffer_status = YY_BUFFER_NORMAL;
-	  }
+        if ( yy_current_buffer->yy_buffer_status == YY_BUFFER_NEW )
+          {
+          /* We're scanning a new file or input source.  It's
+           * possible that this happened because the user
+           * just pointed yyin at a new source and called
+           * yylex().  If so, then we have to assure
+           * consistency between yy_current_buffer and our
+           * globals.  Here is the right place to do so, because
+           * this is the first action (other than possibly a
+           * back-up) that will match for the new input source.
+           */
+          yy_n_chars = yy_current_buffer->yy_n_chars;
+          yy_current_buffer->yy_input_file = yyin;
+          yy_current_buffer->yy_buffer_status = YY_BUFFER_NORMAL;
+          }
 
-	/* Note that here we test for yy_c_buf_p "<=" to the position
-	 * of the first EOB in the buffer, since yy_c_buf_p will
-	 * already have been incremented past the NUL character
-	 * (since all states make transitions on EOB to the
-	 * end-of-buffer state).  Contrast this with the test
-	 * in input().
-	 */
-	if ( yy_c_buf_p <= &yy_current_buffer->yy_ch_buf[yy_n_chars] )
-	  { /* This was really a NUL. */
-	  yy_state_type yy_next_state;
+        /* Note that here we test for yy_c_buf_p "<=" to the position
+         * of the first EOB in the buffer, since yy_c_buf_p will
+         * already have been incremented past the NUL character
+         * (since all states make transitions on EOB to the
+         * end-of-buffer state).  Contrast this with the test
+         * in input().
+         */
+        if ( yy_c_buf_p <= &yy_current_buffer->yy_ch_buf[yy_n_chars] )
+          { /* This was really a NUL. */
+          yy_state_type yy_next_state;
 
-	  yy_c_buf_p = yytext_ptr + yy_amount_of_matched_text;
+          yy_c_buf_p = yytext_ptr + yy_amount_of_matched_text;
 
-	  yy_current_state = yy_get_previous_state();
+          yy_current_state = yy_get_previous_state();
 
-	  /* Okay, we're now positioned to make the NUL
-	   * transition.  We couldn't have
-	   * yy_get_previous_state() go ahead and do it
-	   * for us because it doesn't know how to deal
-	   * with the possibility of jamming (and we don't
-	   * want to build jamming into it because then it
-	   * will run more slowly).
-	   */
+          /* Okay, we're now positioned to make the NUL
+           * transition.  We couldn't have
+           * yy_get_previous_state() go ahead and do it
+           * for us because it doesn't know how to deal
+           * with the possibility of jamming (and we don't
+           * want to build jamming into it because then it
+           * will run more slowly).
+           */
 
-	  yy_next_state = yy_try_NUL_trans( yy_current_state );
+          yy_next_state = yy_try_NUL_trans( yy_current_state );
 
-	  yy_bp = yytext_ptr + YY_MORE_ADJ;
+          yy_bp = yytext_ptr + YY_MORE_ADJ;
 
-	  if ( yy_next_state )
-	    {
+          if ( yy_next_state )
+            {
                                 /* Consume the NUL. */
-	    yy_cp = ++yy_c_buf_p;
-	    yy_current_state = yy_next_state;
-	    goto yy_match;
-	    }
+            yy_cp = ++yy_c_buf_p;
+            yy_current_state = yy_next_state;
+            goto yy_match;
+            }
 
-	  else
-	    {
-	    yy_cp = yy_c_buf_p;
-	    goto yy_find_action;
-	    }
-	  }
+          else
+            {
+            yy_cp = yy_c_buf_p;
+            goto yy_find_action;
+            }
+          }
 
-	else switch ( yy_get_next_buffer() )
-	  {
-	  case EOB_ACT_END_OF_FILE:
-	    {
-	    yy_did_buffer_switch_on_eof = 0;
+        else switch ( yy_get_next_buffer() )
+          {
+          case EOB_ACT_END_OF_FILE:
+            {
+            yy_did_buffer_switch_on_eof = 0;
 
-	    if ( yywrap() )
-	      {
-	      /* Note: because we've taken care in
-	       * yy_get_next_buffer() to have set up
-	       * yytext, we can now set up
-	       * yy_c_buf_p so that if some total
-	       * hoser (like flex itself) wants to
-	       * call the scanner after we return the
-	       * YY_NULL, it'll still work - another
-	       * YY_NULL will get returned.
-	       */
-	      yy_c_buf_p = yytext_ptr + YY_MORE_ADJ;
+            if ( yywrap() )
+              {
+              /* Note: because we've taken care in
+               * yy_get_next_buffer() to have set up
+               * yytext, we can now set up
+               * yy_c_buf_p so that if some total
+               * hoser (like flex itself) wants to
+               * call the scanner after we return the
+               * YY_NULL, it'll still work - another
+               * YY_NULL will get returned.
+               */
+              yy_c_buf_p = yytext_ptr + YY_MORE_ADJ;
 
-	      yy_act = YY_STATE_EOF(YY_START);
-	      goto do_action;
-	      }
+              yy_act = YY_STATE_EOF(YY_START);
+              goto do_action;
+              }
 
-	    else
-	      {
-	      if ( ! yy_did_buffer_switch_on_eof )
-		YY_NEW_FILE;
-	      }
-	    break;
-	    }
+            else
+              {
+              if ( ! yy_did_buffer_switch_on_eof )
+                YY_NEW_FILE;
+              }
+            break;
+            }
 
-	  case EOB_ACT_CONTINUE_SCAN:
-	    yy_c_buf_p =
-	      yytext_ptr + yy_amount_of_matched_text;
+          case EOB_ACT_CONTINUE_SCAN:
+            yy_c_buf_p =
+              yytext_ptr + yy_amount_of_matched_text;
 
-	    yy_current_state = yy_get_previous_state();
+            yy_current_state = yy_get_previous_state();
 
-	    yy_cp = yy_c_buf_p;
-	    yy_bp = yytext_ptr + YY_MORE_ADJ;
-	    goto yy_match;
+            yy_cp = yy_c_buf_p;
+            yy_bp = yytext_ptr + YY_MORE_ADJ;
+            goto yy_match;
 
-	  case EOB_ACT_LAST_MATCH:
-	    yy_c_buf_p =
-	      &yy_current_buffer->yy_ch_buf[yy_n_chars];
+          case EOB_ACT_LAST_MATCH:
+            yy_c_buf_p =
+              &yy_current_buffer->yy_ch_buf[yy_n_chars];
 
-	    yy_current_state = yy_get_previous_state();
+            yy_current_state = yy_get_previous_state();
 
-	    yy_cp = yy_c_buf_p;
-	    yy_bp = yytext_ptr + YY_MORE_ADJ;
-	    goto yy_find_action;
-	  }
-	break;
-	}
+            yy_cp = yy_c_buf_p;
+            yy_bp = yytext_ptr + YY_MORE_ADJ;
+            goto yy_find_action;
+          }
+        break;
+        }
 
       default:
-	YY_FATAL_ERROR(
-		       "fatal flex scanner internal error--no action found" );
+        YY_FATAL_ERROR(
+                       "fatal flex scanner internal error--no action found" );
       } /* end of action switch */
     } /* end of scanning one token */
 } /* end of yylex */
@@ -4880,7 +4880,7 @@ static int yy_get_next_buffer()
 
   if ( yy_c_buf_p > &yy_current_buffer->yy_ch_buf[yy_n_chars + 1] )
     YY_FATAL_ERROR(
-		   "fatal flex scanner internal error--end of buffer missed" );
+                   "fatal flex scanner internal error--end of buffer missed" );
 
   if ( yy_current_buffer->yy_fill_buffer == 0 )
     { /* Don't try to fill the buffer, so this is an EOF. */
@@ -4924,7 +4924,7 @@ static int yy_get_next_buffer()
       { /* Not enough room in the buffer - grow it. */
 #ifdef YY_USES_REJECT
       YY_FATAL_ERROR(
-		     "input buffer overflow, can't enlarge buffer because scanner uses REJECT" );
+                     "input buffer overflow, can't enlarge buffer because scanner uses REJECT" );
 #else
 
       /* just a shorter name for the current buffer */
@@ -4934,17 +4934,17 @@ static int yy_get_next_buffer()
 
       b->yy_buf_size *= 2;
       b->yy_ch_buf = (char *)
-	yy_flex_realloc( (void *) b->yy_ch_buf,
-			 b->yy_buf_size );
+        yy_flex_realloc( (void *) b->yy_ch_buf,
+                         b->yy_buf_size );
 
       if ( ! b->yy_ch_buf )
-	YY_FATAL_ERROR(
-		       "fatal error - scanner input buffer overflow" );
+        YY_FATAL_ERROR(
+                       "fatal error - scanner input buffer overflow" );
 
       yy_c_buf_p = &b->yy_ch_buf[yy_c_buf_p_offset];
 
       num_to_read = yy_current_buffer->yy_buf_size -
-	number_to_move - 1;
+        number_to_move - 1;
 #endif
       }
 
@@ -4953,7 +4953,7 @@ static int yy_get_next_buffer()
 
     /* Read in more data. */
     YY_INPUT( (&yy_current_buffer->yy_ch_buf[number_to_move]),
-	      yy_n_chars, num_to_read );
+              yy_n_chars, num_to_read );
     }
 
   if ( yy_n_chars == 0 )
@@ -4968,7 +4968,7 @@ static int yy_get_next_buffer()
       {
       ret_val = EOB_ACT_LAST_MATCH;
       yy_current_buffer->yy_buffer_status =
-	YY_BUFFER_EOF_PENDING;
+        YY_BUFFER_EOF_PENDING;
       }
     }
 
@@ -5012,7 +5012,7 @@ static yy_state_type yy_get_previous_state()
       {
       yy_current_state = (int) yy_def[yy_current_state];
       if ( yy_current_state >= 949 )
-	yy_c = yy_meta[(unsigned int) yy_c];
+        yy_c = yy_meta[(unsigned int) yy_c];
       }
     yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
     }
@@ -5083,37 +5083,37 @@ static int yyinput()
       ++yy_c_buf_p;
 
       switch ( yy_get_next_buffer() )
-	{
-	case EOB_ACT_END_OF_FILE:
-	  {
-	  if ( yywrap() )
-	    {
-	    yy_c_buf_p =
-	      yytext_ptr + YY_MORE_ADJ;
-	    return EOF;
-	    }
+        {
+        case EOB_ACT_END_OF_FILE:
+          {
+          if ( yywrap() )
+            {
+            yy_c_buf_p =
+              yytext_ptr + YY_MORE_ADJ;
+            return EOF;
+            }
 
-	  YY_NEW_FILE;
+          YY_NEW_FILE;
 #ifdef __cplusplus
-	  return yyinput();
+          return yyinput();
 #else
-	  return input();
+          return input();
 #endif
-	  }
+          }
 
-	case EOB_ACT_CONTINUE_SCAN:
-	  yy_c_buf_p = yytext_ptr + YY_MORE_ADJ;
-	  break;
+        case EOB_ACT_CONTINUE_SCAN:
+          yy_c_buf_p = yytext_ptr + YY_MORE_ADJ;
+          break;
 
-	case EOB_ACT_LAST_MATCH:
+        case EOB_ACT_LAST_MATCH:
 #ifdef __cplusplus
-	  YY_FATAL_ERROR(
-			 "unexpected last match in yyinput()" );
+          YY_FATAL_ERROR(
+                         "unexpected last match in yyinput()" );
 #else
-	  YY_FATAL_ERROR(
-			 "unexpected last match in input()" );
+          YY_FATAL_ERROR(
+                         "unexpected last match in input()" );
 #endif
-	}
+        }
       }
     }
 
@@ -5660,8 +5660,8 @@ vtkVRMLImporter::enterNode(const char *nodeType)
       }
     }
   else if (strcmp(fr->nodeType->getName(), "IndexedFaceSet") == 0 ||
-	   strcmp(fr->nodeType->getName(), "IndexedLineSet") == 0 ||
-	   strcmp(fr->nodeType->getName(), "PointSet") == 0) 
+           strcmp(fr->nodeType->getName(), "IndexedLineSet") == 0 ||
+           strcmp(fr->nodeType->getName(), "PointSet") == 0) 
     {
     pmap = vtkPolyDataMapper::New();
     pmap->SetScalarVisibility(0);
@@ -5766,7 +5766,7 @@ vtkVRMLImporter::exitNode()
       this->CurrentMapper->SetScalarVisibility(1);
       // Set for PerVertex Coloring.
       this->CurrentLut->SetTableRange(0.0,
-				      float(this->CurrentLut->GetNumberOfColors() - 1));
+                                      float(this->CurrentLut->GetNumberOfColors() - 1));
       this->CurrentLut->Delete();
       this->CurrentLut = NULL;
       }
@@ -5991,9 +5991,9 @@ vtkVRMLImporter::exitField()
     if (strcmp(fr->nodeType->getName(), "Coordinate") == 0) 
       {
       if (this->CurrentPoints)
-	{
-	this->CurrentPoints->Delete();
-	}
+        {
+        this->CurrentPoints->Delete();
+        }
       this->CurrentPoints = yylval.vec3f;
       // Seed the scalars with default values.
       this->CurrentScalars->Reset();
@@ -6022,22 +6022,22 @@ vtkVRMLImporter::exitField()
     // There is no coordIndex for PointSet data, generate the PolyData here.
     if (strcmp(fr->nodeType->getName(), "PointSet") == 0)
       {
-	vtkCellArray *cells;
-	vtkIdType i;
-	vtkPolyData *pd;
+        vtkCellArray *cells;
+        vtkIdType i;
+        vtkPolyData *pd;
 
-	pd = vtkPolyData::New();
-	cells = vtkCellArray::New();
-	for (i=0;i < yylval.vec3f->GetNumberOfPoints();i++) 
-	  {
-	    cells->InsertNextCell(1, &i);
-	  }
+        pd = vtkPolyData::New();
+        cells = vtkCellArray::New();
+        for (i=0;i < yylval.vec3f->GetNumberOfPoints();i++) 
+          {
+            cells->InsertNextCell(1, &i);
+          }
 
-	pd->SetVerts(cells);
+        pd->SetVerts(cells);
     
-	this->CurrentMapper->SetInput(pd);
-	pd->Delete();
-	cells->Delete();
+        this->CurrentMapper->SetInput(pd);
+        pd->Delete();
+        cells->Delete();
       }
     }
   // Handle color field
@@ -6065,9 +6065,9 @@ vtkVRMLImporter::exitField()
         lut->SetTableValue(i, vals4);
         }
       if (this->CurrentLut)
-	{
-	this->CurrentLut->Delete();
-	}
+        {
+        this->CurrentLut->Delete();
+        }
       this->CurrentLut = lut;
       if (creatingDEF) 
         {
@@ -6103,7 +6103,7 @@ vtkVRMLImporter::exitField()
         {
         // Redirect color into scalar position
         this->CurrentScalars->SetComponent(pts[j++], 0,
-					   yylval.mfint32->GetValue(index++));
+                                           yylval.mfint32->GetValue(index++));
         }
       }
     }
@@ -6196,9 +6196,9 @@ vtkVRMLImporter::useNode(const char *name) {
       _act->SetPosition(this->CurrentTransform->GetPosition());
       _act->SetScale(this->CurrentTransform->GetScale());
       if (this->CurrentActor)
-	{
-	this->CurrentActor->Delete();
-	}
+        {
+        this->CurrentActor->Delete();
+        }
       this->CurrentActor = _act;
       this->Renderer->AddActor(_act);
       }
@@ -6207,16 +6207,16 @@ vtkVRMLImporter::useNode(const char *name) {
       vtkActor *_act = vtkActor::New();
       _act->SetMapper((vtkPolyDataMapper *)useO);
       if (this->CurrentProperty)
-	{
+        {
         _act->SetProperty(this->CurrentProperty);
-	}
+        }
       _act->SetOrientation(this->CurrentTransform->GetOrientation());
       _act->SetPosition(this->CurrentTransform->GetPosition());
       _act->SetScale(this->CurrentTransform->GetScale());
       if (this->CurrentActor)
-	{
-	this->CurrentActor->UnRegister(this);
-	}
+        {
+        this->CurrentActor->UnRegister(this);
+        }
       this->CurrentActor = _act;
       this->Renderer->AddActor(_act);
       }
@@ -6224,17 +6224,17 @@ vtkVRMLImporter::useNode(const char *name) {
       {
       yylval.vec3f = (vtkPoints *) useO;
       if (this->CurrentPoints)
-	{
-	this->CurrentPoints->Delete();
-	}
+        {
+        this->CurrentPoints->Delete();
+        }
       this->CurrentPoints = (vtkPoints *) useO;
       }
     else if (strcmp(useO->GetClassName(), "vtkLookupTable") == 0) 
       {
       if (this->CurrentLut)
-	{
-	this->CurrentLut->Delete();
-	}
+        {
+        this->CurrentLut->Delete();
+        }
       this->CurrentLut = (vtkLookupTable *) useO;
       // Seed the scalars with default values.
       this->CurrentScalars->Reset();
