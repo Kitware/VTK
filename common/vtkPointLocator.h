@@ -103,6 +103,7 @@ public:
 protected:
   // place points in appropriate buckets
   void GetBucketNeighbors(int ijk[3], int ndivs[3], int level);
+  void GetOverlappingBuckets(float x[3], int ijk[3], float dist);
   void GenerateFace(int face, int i, int j, int k, 
                     vtkFloatPoints *pts, vtkCellArray *polys);
 
