@@ -26,13 +26,12 @@ ABSTRACT_FILES( vtkCommunicator )
 
 IF (VTK_USE_MPI)
   INCLUDE (${CMAKE_SOURCE_DIR}/CMake/Modules/FindMPI.cmake)
-  IF (MPI_LIB_PATH)
+  IF (MPI_LIBRARY)
     SOURCE_FILES ( Parallel_SRCS
       vtkMPICommunicator 
       vtkMPIController 
       vtkMPIGroup)
   LINK_LIBRARIES (${MPI_LIBRARY})
-  LINK_DIRECTORIES (${MPI_LIB_PATH})
   INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
   ENDIF (MPI_LIB_PATH)
 ENDIF (VTK_USE_MPI)
