@@ -25,15 +25,15 @@ In creating tests there are a few goals to strive for.
 
 The current status is that the new tree has about 100 tests and is achieving
 about 43 percent coverage. These tests require about three minutes to run on
-a 1 GHz pentium and currently require about ten megabytes of disk space for
+a 1 GHz Pentium and currently require about ten megabytes of disk space for
 the data files and valid images. 
 
 How to create a new test
 ---------------------------
 
 The easiest approach is to look at an existing test and use that as a
-starting point. The tests are kept in Testing subdirectories under each main
-package. (e.g. VTK/Graphics/Testing) In Testing there will be subdirectories
+starting point. The tests are kept in Testing sub-directories under each main
+package. (e.g. VTK/Graphics/Testing) In Testing there will be sub-directories
 for each type of test (Cxx Tcl Python Java). For C++ tests you need to write
 the test and then add it to the CMakeLists.txt file in Testing/Cxx. For
 Tclexamples you would write a Tcl script, and then add it to the
@@ -57,7 +57,7 @@ Running a Tcl example
 
 The most common way to run a Tcl example is to first set TCLLIBPATH to
 /path/to/VTK/Wrapping/Tcl so that the examples can find the vtktcl
-package. OnUNIX you can do:
+package. On UNIX you can do:
 
 setenv TCLLIBPATH /home/you/VTK/Wrapping/Tcl
 
@@ -83,14 +83,14 @@ Producing a dashboard
 -------------------------
 
 If you want to test your build of VTK you can produce a dashboard. To do this
-you will need to have Dart installed on your system. Dart can be optained
+you will need to have Dart installed on your system. Dart can be obtained
 currently using cvs as :pserver:anonymous@public.kitware.com:/cvsroot/Dart
 login with a password of dart. The when you run CMake, make sure DART_ROOT is
 set in your cache and BUILD_TESTING is on. Then you can do
 
 make Experimental
 
-on UNXI to perform a build, run the tests, and submit the result to the dashboard. If you just want to run the tests you can do 
+on UNIX to perform a build, run the tests, and submit the result to the dashboard. If you just want to run the tests you can do 
 
 make ExperimentalTests
 
