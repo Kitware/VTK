@@ -34,7 +34,10 @@ C_FLAGS = ${USER_CFLAGS} ${CPPFLAGS} ${CFLAGS} -I${srcdir} \
 	${TK_INCLUDE} ${TCL_INCLUDE} \
 	${GRAPHICS_API_FLAGS} ${USE_TOOLKIT_FLAGS}
 
-all:  vtkWrapTcl vtkWrapTclInit vtkPrint
+all:  vtkParseJava vtkWrapJava vtkWrapPython vtkWrapPythonInit vtkWrapTcl vtkWrapTclInit vtkPrint
+
+vtkWrapPythonInit: vtkWrapPythonInit.c	
+	$(CC) $(C_FLAGS) -o vtkWrapPythonInit $(srcdir)/vtkWrapPythonInit.c
 
 vtkWrapTclInit: vtkWrapTclInit.c
 	$(CC) $(C_FLAGS) -o vtkWrapTclInit $(srcdir)/vtkWrapTclInit.c
@@ -45,11 +48,20 @@ vtkParse.o: $(srcdir)/vtkParse.tab.c $(srcdir)/lex.yy.c
 vtkPrint: vtkParse.o $(srcdir)/vtkPrint.c
 	$(CC) $(C_FLAGS) -I. -o vtkPrint $(srcdir)/vtkPrint.c vtkParse.o -lm
 
+vtkWrapPython: vtkParse.o $(srcdir)/vtkWrapPython.c
+	$(CC) $(C_FLAGS) -I. -o vtkWrapPython $(srcdir)/vtkWrapPython.c vtkParse.o -lm
+
 vtkWrapTcl: vtkParse.o $(srcdir)/vtkWrapTcl.c
 	$(CC) $(C_FLAGS) -I. -o vtkWrapTcl $(srcdir)/vtkWrapTcl.c vtkParse.o -lm
 
+vtkParseJava: vtkParse.o $(srcdir)/vtkParseJava.c
+	$(CC) $(C_FLAGS) -I. -o vtkParseJava $(srcdir)/vtkParseJava.c vtkParse.o -lm
+
+vtkWrapJava: vtkParse.o $(srcdir)/vtkWrapJava.c
+	$(CC) $(C_FLAGS) -I. -o vtkWrapJava $(srcdir)/vtkWrapJava.c vtkParse.o -lm
+
 #------------------------------------------------------------------------------
 clean: 
-	-rm -f *.o *.a vtkPrint vtkWrapTcl vtkWrapTclInit Makefile
+	-rm -f *.o *.a vtkPrint vtkParseJava vtkWrapJava vtkWrapPython vtkWrapPythonInit vtkWrapTcl vtkWrapTclInit Makefile
 
 
