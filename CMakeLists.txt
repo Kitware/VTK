@@ -291,6 +291,10 @@ IF (VTK_WRAP_PYTHON)
     MESSAGE(SEND_ERROR "Python support requires BUILD_SHARED_LIBS to be on.")
     SET(VTK_WRAP_PYTHON 0)
   ENDIF (NOT VTK_BUILD_SHARED_LIBS)  
+  IF (NOT PYTHON_DEBUG_LIBRARY)
+    SET(PYTHON_DEBUG_LIBRARY ${PYTHON_LIBRARY})
+    MESSAGE("Cannot find Python debug library. The regular Python library will be used. This means that when using debug build of VTK, python examples might not run. If you use release build or you do not care about python working, set PYTHON_DEBUG_LIBRARY to the same file as PYTHON_LIBRARY.")
+  ENDIF (NOT PYTHON_DEBUG_LIBRARY)
 ENDIF (VTK_WRAP_PYTHON)
 
 # python executable is used by some tests whether VTK_WRAP_PYTHON is
