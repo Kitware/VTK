@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkHomogeneousTransform.h"
 
-class VTK_EXPORT vtkLinearTransform : public vtkHomogeneousTransform
+class VTK_COMMON_EXPORT vtkLinearTransform : public vtkHomogeneousTransform
 {
 public:
 

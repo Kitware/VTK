@@ -67,7 +67,7 @@ class vtkCollectionElement //;prevents pick-up by man page generator
 };
 //ETX end tcl exclude
 
-class VTK_EXPORT vtkCollection : public vtkObject
+class VTK_COMMON_EXPORT vtkCollection : public vtkObject
 {
 public:
   vtkTypeMacro(vtkCollection,vtkObject);

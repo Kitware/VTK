@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkIdList;
 class vtkTCoords;
 
-class VTK_EXPORT vtkTCoords : public vtkAttributeData
+class VTK_COMMON_EXPORT vtkTCoords : public vtkAttributeData
 {
 public:
   static vtkTCoords *New(int dataType, int dim=2);

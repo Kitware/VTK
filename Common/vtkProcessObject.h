@@ -75,7 +75,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkDataObject.h"
 
-class VTK_EXPORT vtkProcessObject : public vtkObject
+class VTK_COMMON_EXPORT vtkProcessObject : public vtkObject
 {
 public:
   // Description:

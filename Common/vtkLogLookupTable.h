@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkLookupTable.h"
 
-class VTK_EXPORT vtkLogLookupTable : public vtkLookupTable
+class VTK_COMMON_EXPORT vtkLogLookupTable : public vtkLookupTable
 {
 public:
   static vtkLogLookupTable *New();

@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkCell.h"
 #include "vtkLine.h"
 
-class VTK_EXPORT vtkPixel : public vtkCell
+class VTK_COMMON_EXPORT vtkPixel : public vtkCell
 {
 public:
   static vtkPixel *New();

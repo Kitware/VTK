@@ -70,7 +70,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkGenericCell.h"
 #include "vtkCellTypes.h"
 
-class VTK_EXPORT vtkDataSet : public vtkDataObject
+class VTK_COMMON_EXPORT vtkDataSet : public vtkDataObject
 {
 public:
   vtkTypeMacro(vtkDataSet,vtkDataObject);

@@ -56,7 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObject.h"
 #include "vtkDebugLeaks.h"
 
-class VTK_EXPORT vtkDirectory : public vtkObject
+class VTK_COMMON_EXPORT vtkDirectory : public vtkObject
 {
 public:
   // Description:

@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkIdList;
 class vtkVectors;
 
-class VTK_EXPORT vtkVectors : public vtkAttributeData
+class VTK_COMMON_EXPORT vtkVectors : public vtkAttributeData
 {
 public:
   static vtkVectors *New(int dataType);

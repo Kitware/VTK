@@ -58,7 +58,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkProperty2D.h"
 class vtkMapper2D;
 
-class VTK_EXPORT vtkActor2D : public vtkProp
+class VTK_COMMON_EXPORT vtkActor2D : public vtkProp
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent);

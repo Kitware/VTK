@@ -51,7 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkOutputWindow.h"
 
 
-class VTK_EXPORT vtkFileOutputWindow : public vtkOutputWindow
+class VTK_COMMON_EXPORT vtkFileOutputWindow : public vtkOutputWindow
 {
 public:
   vtkTypeMacro(vtkFileOutputWindow, vtkOutputWindow);

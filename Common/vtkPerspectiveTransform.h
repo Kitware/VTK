@@ -71,7 +71,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkHomogeneousTransform.h"
 
-class VTK_EXPORT vtkPerspectiveTransform : public vtkHomogeneousTransform
+class VTK_COMMON_EXPORT vtkPerspectiveTransform : public vtkHomogeneousTransform
 {
  public:
   static vtkPerspectiveTransform *New();

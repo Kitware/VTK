@@ -48,7 +48,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkCell.h"
 
-class VTK_EXPORT vtkVertex : public vtkCell
+class VTK_COMMON_EXPORT vtkVertex : public vtkCell
 {
 public:
   static vtkVertex *New();

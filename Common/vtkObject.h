@@ -72,7 +72,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkSubjectHelper;
 class vtkCommand;
 
-class VTK_EXPORT vtkObject 
+class VTK_COMMON_EXPORT vtkObject 
 {
 public:
   // Description:
@@ -223,7 +223,7 @@ protected:
 
 private:
   //BTX
-  friend VTK_EXPORT ostream& operator<<(ostream& os, vtkObject& o);
+  friend VTK_COMMON_EXPORT ostream& operator<<(ostream& os, vtkObject& o);
   //ETX
 };
 

@@ -73,7 +73,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkProp.h"
 #include "vtkMatrix4x4.h"
 
-class VTK_EXPORT vtkAssemblyNode : public vtkObject
+class VTK_COMMON_EXPORT vtkAssemblyNode : public vtkObject
 {
 public:
   // Description:

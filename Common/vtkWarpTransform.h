@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkAbstractTransform.h"
 
-class VTK_EXPORT vtkWarpTransform : public vtkAbstractTransform
+class VTK_COMMON_EXPORT vtkWarpTransform : public vtkAbstractTransform
 {
 public:
 

@@ -58,7 +58,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkFunctionSet.h"
 
-class VTK_EXPORT vtkInitialValueProblemSolver : public vtkObject
+class VTK_COMMON_EXPORT vtkInitialValueProblemSolver : public vtkObject
 {
 public:
   vtkTypeMacro(vtkInitialValueProblemSolver,vtkObject);

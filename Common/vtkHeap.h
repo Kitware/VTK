@@ -64,7 +64,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObject.h"
 
 //BTX
-class VTK_EXPORT vtkHeapNode
+class VTK_COMMON_EXPORT vtkHeapNode
 {
 public:
   void* Ptr;
@@ -73,7 +73,7 @@ public:
 };
 //ETX
 
-class VTK_EXPORT vtkHeap : public vtkObject
+class VTK_COMMON_EXPORT vtkHeap : public vtkObject
 {
 public:
   static vtkHeap *New();

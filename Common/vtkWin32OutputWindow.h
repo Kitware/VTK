@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkOutputWindow.h"
 
 
-class VTK_EXPORT vtkWin32OutputWindow : public vtkOutputWindow
+class VTK_COMMON_EXPORT vtkWin32OutputWindow : public vtkOutputWindow
 {
 public:
 // Methods from vtkObject

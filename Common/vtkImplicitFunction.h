@@ -73,7 +73,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObject.h"
 #include "vtkAbstractTransform.h"
 
-class VTK_EXPORT vtkImplicitFunction : public vtkObject
+class VTK_COMMON_EXPORT vtkImplicitFunction : public vtkObject
 {
 public:
   vtkTypeMacro(vtkImplicitFunction,vtkObject);

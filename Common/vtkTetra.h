@@ -53,7 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkUnstructuredGrid;
 
-class VTK_EXPORT vtkTetra : public vtkCell3D
+class VTK_COMMON_EXPORT vtkTetra : public vtkCell3D
 {
 public:
   static vtkTetra *New();

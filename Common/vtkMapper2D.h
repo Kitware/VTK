@@ -56,7 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkViewport;
 class vtkActor2D;
 
-class VTK_EXPORT vtkMapper2D : public vtkAbstractMapper
+class VTK_COMMON_EXPORT vtkMapper2D : public vtkAbstractMapper
 {
 public:
   static vtkMapper2D* New();

@@ -62,7 +62,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObject.h"
 #include "vtkLookupTable.h"
 
-class VTK_EXPORT vtkWindowLevelLookupTable : public vtkLookupTable
+class VTK_COMMON_EXPORT vtkWindowLevelLookupTable : public vtkLookupTable
 {
 public:
   static vtkWindowLevelLookupTable *New();

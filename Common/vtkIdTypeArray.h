@@ -50,7 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkDataArray.h"
 
-class VTK_EXPORT vtkIdTypeArray : public vtkDataArray
+class VTK_COMMON_EXPORT vtkIdTypeArray : public vtkDataArray
 {
 public:
   static vtkIdTypeArray *New();

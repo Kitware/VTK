@@ -73,7 +73,7 @@ typedef struct _vtkPriorityItem
   } vtkPriorityItem;
 //ETX
 
-class VTK_EXPORT vtkPriorityQueue : public vtkObject
+class VTK_COMMON_EXPORT vtkPriorityQueue : public vtkObject
 {
 public:
   // Description:

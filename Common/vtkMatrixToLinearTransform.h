@@ -56,7 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkLinearTransform.h"
 #include "vtkMatrix4x4.h"
 
-class VTK_EXPORT vtkMatrixToLinearTransform : public vtkLinearTransform
+class VTK_COMMON_EXPORT vtkMatrixToLinearTransform : public vtkLinearTransform
 {
  public:
   static vtkMatrixToLinearTransform *New();

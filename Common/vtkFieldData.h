@@ -70,7 +70,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkDataArray.h"
 #include "vtkIdList.h"
 
-class VTK_EXPORT vtkFieldData : public vtkObject
+class VTK_COMMON_EXPORT vtkFieldData : public vtkObject
 {
 public:
   static vtkFieldData *New();
@@ -386,7 +386,7 @@ protected:
 
 public:
 
-  class VTK_EXPORT BasicIterator
+  class VTK_COMMON_EXPORT BasicIterator
   {
   public:
     BasicIterator();
@@ -426,7 +426,7 @@ public:
     int Position;
   };
 
-  class VTK_EXPORT Iterator : public BasicIterator
+  class VTK_COMMON_EXPORT Iterator : public BasicIterator
   {
   public:
 

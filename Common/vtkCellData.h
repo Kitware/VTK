@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkDataSetAttributes.h"
 
-class VTK_EXPORT vtkCellData : public vtkDataSetAttributes
+class VTK_COMMON_EXPORT vtkCellData : public vtkDataSetAttributes
 {
 public:
   static vtkCellData *New();

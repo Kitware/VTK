@@ -62,7 +62,7 @@ class vtkScalars;
 #define VTK_SCALE_LINEAR 0
 #define VTK_SCALE_LOG10 1
 
-class VTK_EXPORT vtkLookupTable : public vtkScalarsToColors
+class VTK_COMMON_EXPORT vtkLookupTable : public vtkScalarsToColors
 {
 public:
   // Description:

@@ -57,7 +57,7 @@ class vtkViewport;
 #define VTK_BACKGROUND_LOCATION 0
 #define VTK_FOREGROUND_LOCATION 1
 
-class VTK_EXPORT vtkProperty2D : public vtkObject
+class VTK_COMMON_EXPORT vtkProperty2D : public vtkObject
 {
 public:
   vtkTypeMacro(vtkProperty2D,vtkObject);

@@ -54,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkCollection.h"
 #include "vtkTransform.h"
 
-class VTK_EXPORT vtkTransformCollection : public vtkCollection
+class VTK_COMMON_EXPORT vtkTransformCollection : public vtkCollection
 {
 public:
   vtkTypeMacro(vtkTransformCollection,vtkCollection);

@@ -67,7 +67,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkObjectFactoryCollection;
 class vtkOverrideInformationCollection;
 
-class VTK_EXPORT vtkObjectFactory : public vtkObject
+class VTK_COMMON_EXPORT vtkObjectFactory : public vtkObject
 {
 public:  
   // Class Methods used to interface with the registered factories

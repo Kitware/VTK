@@ -62,7 +62,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkIdTypeArray.h"
 #include "vtkCell.h"
 
-class VTK_EXPORT vtkCellArray : public vtkObject
+class VTK_COMMON_EXPORT vtkCellArray : public vtkObject
 {
 public:
   vtkTypeMacro(vtkCellArray,vtkObject);

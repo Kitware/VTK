@@ -69,7 +69,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkDataSet.h"
 #include "vtkGenericCell.h"
 
-class VTK_EXPORT vtkInterpolatedVelocityField : public vtkFunctionSet
+class VTK_COMMON_EXPORT vtkInterpolatedVelocityField : public vtkFunctionSet
 {
 public:
   vtkTypeMacro(vtkInterpolatedVelocityField,vtkFunctionSet);

@@ -56,7 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkFloatArray;
 
-class VTK_EXPORT vtkContourValues : public vtkObject
+class VTK_COMMON_EXPORT vtkContourValues : public vtkObject
 {
 public:
   // Description:

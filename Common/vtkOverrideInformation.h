@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 
 
-class VTK_EXPORT vtkOverrideInformation : public vtkObject
+class VTK_COMMON_EXPORT vtkOverrideInformation : public vtkObject
 {
 public: 
   static vtkOverrideInformation* New();

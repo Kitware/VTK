@@ -61,7 +61,7 @@ class vtkMatrix4x4;
 class vtkTransform;
 class vtkProp;
 
-class VTK_EXPORT vtkAssemblyPath : public vtkCollection
+class VTK_COMMON_EXPORT vtkAssemblyPath : public vtkCollection
 {
 public:
   vtkTypeMacro(vtkAssemblyPath,vtkCollection);

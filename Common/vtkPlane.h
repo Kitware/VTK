@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <math.h>
 #include "vtkImplicitFunction.h"
 
-class VTK_EXPORT vtkPlane : public vtkImplicitFunction
+class VTK_COMMON_EXPORT vtkPlane : public vtkImplicitFunction
 {
 public:
   // Description

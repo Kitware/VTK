@@ -68,7 +68,7 @@ class vtkPixel;
 class vtkVoxel;
 class vtkDataArray;
 
-class VTK_EXPORT vtkRectilinearGrid : public vtkDataSet
+class VTK_COMMON_EXPORT vtkRectilinearGrid : public vtkDataSet
 {
 public:
   static vtkRectilinearGrid *New();

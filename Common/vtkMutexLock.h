@@ -77,7 +77,7 @@ typedef int vtkMutexType;
 #endif
 
 // Mutex lock that is not a vtkObject.
-class VTK_EXPORT vtkSimpleMutexLock
+class VTK_COMMON_EXPORT vtkSimpleMutexLock
 {
 public:
   // left public purposely
@@ -106,7 +106,7 @@ protected:
 
 //ETX
 
-class VTK_EXPORT vtkMutexLock : public vtkObject
+class VTK_COMMON_EXPORT vtkMutexLock : public vtkObject
 {
 public:
   static vtkMutexLock *New();

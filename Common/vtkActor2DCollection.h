@@ -56,7 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkActor2D.h"
 class vtkViewport;
 
-class VTK_EXPORT vtkActor2DCollection : public vtkPropCollection
+class VTK_COMMON_EXPORT vtkActor2DCollection : public vtkPropCollection
 {
  public:
   // Description:

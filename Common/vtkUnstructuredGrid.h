@@ -70,7 +70,7 @@ class vtkHexahedron;
 class vtkWedge;
 class vtkPyramid;
 
-class VTK_EXPORT vtkUnstructuredGrid : public vtkPointSet {
+class VTK_COMMON_EXPORT vtkUnstructuredGrid : public vtkPointSet {
 public:
   static vtkUnstructuredGrid *New();
 

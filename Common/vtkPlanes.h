@@ -66,7 +66,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkPlane;
 
-class VTK_EXPORT vtkPlanes : public vtkImplicitFunction
+class VTK_COMMON_EXPORT vtkPlanes : public vtkImplicitFunction
 {
 public:
   static vtkPlanes *New();

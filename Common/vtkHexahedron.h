@@ -51,7 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkLine.h"
 #include "vtkQuad.h"
 
-class VTK_EXPORT vtkHexahedron : public vtkCell3D
+class VTK_COMMON_EXPORT vtkHexahedron : public vtkCell3D
 {
 public:
   static vtkHexahedron *New();

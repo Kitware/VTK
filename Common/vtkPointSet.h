@@ -56,7 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkDataSet.h"
 #include "vtkPointLocator.h"
 
-class VTK_EXPORT vtkPointSet : public vtkDataSet
+class VTK_COMMON_EXPORT vtkPointSet : public vtkDataSet
 {
 public:
   vtkTypeMacro(vtkPointSet,vtkDataSet);

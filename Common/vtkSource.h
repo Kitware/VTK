@@ -72,7 +72,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkProcessObject.h"
 #include "vtkDataObject.h"
 
-class VTK_EXPORT vtkSource : public vtkProcessObject
+class VTK_COMMON_EXPORT vtkSource : public vtkProcessObject
 {
 public:
   static vtkSource *New();

@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkGeneralTransform_h
 #define __vtkGeneralTransform_h
 
-class VTK_EXPORT vtkGeneralTransform : public vtkAbstractTransform
+class VTK_COMMON_EXPORT vtkGeneralTransform : public vtkAbstractTransform
 {
 public:
   static vtkGeneralTransform *New();

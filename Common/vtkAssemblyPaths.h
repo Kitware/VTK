@@ -56,7 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkProp;
 
-class VTK_EXPORT vtkAssemblyPaths : public vtkCollection
+class VTK_COMMON_EXPORT vtkAssemblyPaths : public vtkCollection
 {
 public:
   static vtkAssemblyPaths *New();

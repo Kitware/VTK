@@ -54,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkCollection.h"
 #include "vtkProp.h"
 
-class VTK_EXPORT vtkPropCollection : public vtkCollection
+class VTK_COMMON_EXPORT vtkPropCollection : public vtkCollection
 {
  public:
   static vtkPropCollection *New();

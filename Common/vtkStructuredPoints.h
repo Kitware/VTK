@@ -56,7 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageData.h"
 
   
-class VTK_EXPORT vtkStructuredPoints : public vtkImageData
+class VTK_COMMON_EXPORT vtkStructuredPoints : public vtkImageData
 {
 public:
   static vtkStructuredPoints *New();

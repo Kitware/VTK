@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkLine.h"
 #include "vtkQuadric.h"
 
-class VTK_EXPORT vtkTriangle : public vtkCell
+class VTK_COMMON_EXPORT vtkTriangle : public vtkCell
 {
 public:
   static vtkTriangle *New();

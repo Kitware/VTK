@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkCollection.h"
 #include "vtkPlane.h"
 
-class VTK_EXPORT vtkPlaneCollection : public vtkCollection
+class VTK_COMMON_EXPORT vtkPlaneCollection : public vtkCollection
 {
 public:
   vtkTypeMacro(vtkPlaneCollection,vtkCollection);

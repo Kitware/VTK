@@ -54,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkIdList;
 class vtkPoints;
 
-class VTK_EXPORT vtkEdgeTable : public vtkObject
+class VTK_COMMON_EXPORT vtkEdgeTable : public vtkObject
 {
 public:
   // Description:

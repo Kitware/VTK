@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkWin32Header.h"
 
-class VTK_EXPORT vtkTimeStamp 
+class VTK_COMMON_EXPORT vtkTimeStamp 
 {
 public:
   vtkTimeStamp() {this->ModifiedTime = 0;};

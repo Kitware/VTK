@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkObject.h"
 
-class VTK_EXPORT vtkFunctionSet : public vtkObject
+class VTK_COMMON_EXPORT vtkFunctionSet : public vtkObject
 {
 public:
   vtkTypeMacro(vtkFunctionSet,vtkObject);

@@ -53,7 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkObject.h"
 
-class VTK_EXPORT vtkMatrix4x4 : public vtkObject
+class VTK_COMMON_EXPORT vtkMatrix4x4 : public vtkObject
 {
   // Some of the methods in here have a corresponding static (class)
   // method taking a pointer to 16 doubles that constitutes a user

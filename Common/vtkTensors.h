@@ -53,7 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkIdList;
 class vtkTensors;
 
-class VTK_EXPORT vtkTensors : public vtkAttributeData
+class VTK_COMMON_EXPORT vtkTensors : public vtkAttributeData
 {
 public:
   static vtkTensors *New(int dataType);

@@ -54,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTriangle.h"
 #include "vtkQuad.h"
 
-class VTK_EXPORT vtkPolygon : public vtkCell
+class VTK_COMMON_EXPORT vtkPolygon : public vtkCell
 {
 public:
   static vtkPolygon *New();

@@ -90,7 +90,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // the value that is retuned as a result if there is an error
 #define VTK_PARSER_ERROR_RESULT VTK_LARGE_FLOAT
 
-class VTK_EXPORT vtkFunctionParser : public vtkObject
+class VTK_COMMON_EXPORT vtkFunctionParser : public vtkObject
 {
 public:
   static vtkFunctionParser *New();

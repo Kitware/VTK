@@ -50,7 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkCollection.h"
 #include "vtkDataSet.h"
 
-class VTK_EXPORT vtkDataSetCollection : public vtkCollection
+class VTK_COMMON_EXPORT vtkDataSetCollection : public vtkCollection
 {
 public:
   static vtkDataSetCollection *New();

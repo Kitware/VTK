@@ -62,7 +62,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_XZ_PLANE 7
 #define VTK_XYZ_GRID 8
 
-class VTK_EXPORT vtkStructuredData : public vtkObject 
+class VTK_COMMON_EXPORT vtkStructuredData : public vtkObject 
 {
 public:
   static vtkStructuredData *New();

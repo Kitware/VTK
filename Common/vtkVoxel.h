@@ -53,7 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkLine.h"
 #include "vtkPixel.h"
 
-class VTK_EXPORT vtkVoxel : public vtkCell3D
+class VTK_COMMON_EXPORT vtkVoxel : public vtkCell3D
 {
 public:
   static vtkVoxel *New();

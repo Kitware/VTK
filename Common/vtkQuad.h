@@ -50,7 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkCell.h"
 #include "vtkLine.h"
 
-class VTK_EXPORT vtkQuad : public vtkCell
+class VTK_COMMON_EXPORT vtkQuad : public vtkCell
 {
 public:
   static vtkQuad *New();

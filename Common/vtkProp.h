@@ -59,7 +59,7 @@ class vtkPropCollection;
 class vtkWindow;
 class vtkMatrix4x4;
 
-class VTK_EXPORT vtkProp : public vtkObject
+class VTK_COMMON_EXPORT vtkProp : public vtkObject
 {
 public:
   // Description:

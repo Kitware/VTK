@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkInitialValueProblemSolver.h"
 
-class VTK_EXPORT vtkRungeKutta2 : public vtkInitialValueProblemSolver
+class VTK_COMMON_EXPORT vtkRungeKutta2 : public vtkInitialValueProblemSolver
 {
 public:
   vtkTypeMacro(vtkRungeKutta2,vtkInitialValueProblemSolver);

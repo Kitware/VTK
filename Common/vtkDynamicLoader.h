@@ -67,7 +67,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObject.h"
 
 
-class VTK_EXPORT vtkDynamicLoader : public vtkObject
+class VTK_COMMON_EXPORT vtkDynamicLoader : public vtkObject
 {
 public:
   static vtkDynamicLoader *New() {return new vtkDynamicLoader;};

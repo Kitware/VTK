@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkDebugLeaks.h"
 
-class VTK_EXPORT vtkObjectFactoryCollection : public vtkCollection
+class VTK_COMMON_EXPORT vtkObjectFactoryCollection : public vtkCollection
 {
 public:
   vtkTypeMacro(vtkObjectFactoryCollection,vtkCollection);

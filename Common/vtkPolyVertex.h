@@ -50,7 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkCell.h"
 #include "vtkVertex.h"
 
-class VTK_EXPORT vtkPolyVertex : public vtkCell
+class VTK_COMMON_EXPORT vtkPolyVertex : public vtkCell
 {
 public:
   static vtkPolyVertex *New();

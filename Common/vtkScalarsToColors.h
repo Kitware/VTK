@@ -68,7 +68,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkScalars;
 
-class VTK_EXPORT vtkScalarsToColors : public vtkObject
+class VTK_COMMON_EXPORT vtkScalarsToColors : public vtkObject
 {
 public:
   vtkTypeMacro(vtkScalarsToColors,vtkObject);

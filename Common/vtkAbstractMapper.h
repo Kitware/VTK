@@ -70,7 +70,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkWindow;
 class vtkDataSet;
 
-class VTK_EXPORT vtkAbstractMapper : public vtkProcessObject
+class VTK_COMMON_EXPORT vtkAbstractMapper : public vtkProcessObject
 {
 public:
   vtkTypeMacro(vtkAbstractMapper,vtkProcessObject);

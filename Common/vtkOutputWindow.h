@@ -53,9 +53,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //BTX
 
-class VTK_EXPORT vtkOutputWindow;
+class VTK_COMMON_EXPORT vtkOutputWindow;
 
-class VTK_EXPORT vtkOutputWindowSmartPointer
+class VTK_COMMON_EXPORT vtkOutputWindowSmartPointer
 {
 public:
   vtkOutputWindowSmartPointer(vtkOutputWindow* p) { this->Pointer=p; };
@@ -69,7 +69,7 @@ private:
 };
 //ETX
 
-class VTK_EXPORT vtkOutputWindow : public vtkObject
+class VTK_COMMON_EXPORT vtkOutputWindow : public vtkObject
 {
 public:
 // Methods from vtkObject

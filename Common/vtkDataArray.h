@@ -76,7 +76,7 @@ class vtkFloatArray;
 class vtkLookupTable;
 class vtkIdList;
 
-class VTK_EXPORT vtkDataArray : public vtkObject 
+class VTK_COMMON_EXPORT vtkDataArray : public vtkObject 
 {
 public:
   vtkTypeMacro(vtkDataArray,vtkObject);

@@ -51,7 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkDataSetAttributes.h"
 
-class VTK_EXPORT vtkPointData : public vtkDataSetAttributes
+class VTK_COMMON_EXPORT vtkPointData : public vtkDataSetAttributes
 {
 public:
   static vtkPointData *New();

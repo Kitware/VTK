@@ -69,7 +69,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkIdList;
 class vtkNeighborPoints;
 
-class VTK_EXPORT vtkPointLocator : public vtkLocator
+class VTK_COMMON_EXPORT vtkPointLocator : public vtkLocator
 {
 public:
   // Description:

@@ -66,7 +66,7 @@ class vtkQuad;
 class vtkHexahedron;
 class vtkEmptyCell;
 
-class VTK_EXPORT vtkStructuredGrid : public vtkPointSet 
+class VTK_COMMON_EXPORT vtkStructuredGrid : public vtkPointSet 
 {
 public:
   static vtkStructuredGrid *New();

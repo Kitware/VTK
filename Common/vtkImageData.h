@@ -57,7 +57,7 @@ class vtkPixel;
 class vtkVoxel;
 
 
-class VTK_EXPORT vtkImageData : public vtkDataSet
+class VTK_COMMON_EXPORT vtkImageData : public vtkDataSet
 {
 public:
   static vtkImageData *New();

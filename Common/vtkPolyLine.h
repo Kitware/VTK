@@ -53,7 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkNormals.h"
 #include "vtkLine.h"
 
-class VTK_EXPORT vtkPolyLine : public vtkCell
+class VTK_COMMON_EXPORT vtkPolyLine : public vtkCell
 {
 public:
   static vtkPolyLine *New();

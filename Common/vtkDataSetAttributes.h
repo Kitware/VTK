@@ -59,7 +59,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTensors.h"
 #include "vtkFieldData.h"
 
-class VTK_EXPORT vtkDataSetAttributes : public vtkFieldData
+class VTK_COMMON_EXPORT vtkDataSetAttributes : public vtkFieldData
 {
 public:
   // Description:
@@ -362,7 +362,7 @@ public:
   // This public class is used to perform set operations, other misc. 
   // operations on fields. For example, vtkAppendFilter uses it to 
   // determine which attributes the input datasets share in common.
-  class VTK_EXPORT FieldList
+  class VTK_COMMON_EXPORT FieldList
   {
   public:
     FieldList(int numInputs);

@@ -97,7 +97,7 @@ class vtkOTMesh;
 class vtkCellArray;
 class vtkMemoryPool;
 
-class VTK_EXPORT vtkOrderedTriangulator : public vtkObject
+class VTK_COMMON_EXPORT vtkOrderedTriangulator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkOrderedTriangulator,vtkObject);

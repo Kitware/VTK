@@ -50,7 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkObject.h"
 
-class VTK_EXPORT vtkReferenceCount : public vtkObject
+class VTK_COMMON_EXPORT vtkReferenceCount : public vtkObject
 {
 public:
   static vtkReferenceCount *New();

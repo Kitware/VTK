@@ -72,7 +72,7 @@ class vtkLookupTable;
 class vtkUnsignedCharArray;
 class vtkScalarsToColors;
 
-class VTK_EXPORT vtkScalars : public vtkAttributeData
+class VTK_COMMON_EXPORT vtkScalars : public vtkAttributeData
 {
 public:
   static vtkScalars *New();

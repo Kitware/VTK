@@ -61,7 +61,7 @@ struct _vtkLink_s {
     vtkIdType *cells;
 };
 
-class VTK_EXPORT vtkCellLinks : public vtkObject 
+class VTK_COMMON_EXPORT vtkCellLinks : public vtkObject 
 {
 public:
   static vtkCellLinks *New();

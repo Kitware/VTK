@@ -101,7 +101,7 @@ typedef struct
 // undefine it here
 #undef GetCurrentTime
 
-class VTK_EXPORT vtkTimerLog : public vtkObject 
+class VTK_COMMON_EXPORT vtkTimerLog : public vtkObject 
 {
 public:
   static vtkTimerLog *New();

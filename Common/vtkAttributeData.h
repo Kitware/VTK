@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkDataArray.h"
 
-class VTK_EXPORT vtkAttributeData : public vtkObject 
+class VTK_COMMON_EXPORT vtkAttributeData : public vtkObject 
 {
 public:
   vtkTypeMacro(vtkAttributeData,vtkObject);

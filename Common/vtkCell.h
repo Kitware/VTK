@@ -77,7 +77,7 @@ class vtkPointLocator;
 class vtkPointData;
 class vtkCellData;
 
-class VTK_EXPORT vtkCell : public vtkObject
+class VTK_COMMON_EXPORT vtkCell : public vtkObject
 {
 public:
   vtkTypeMacro(vtkCell,vtkObject);

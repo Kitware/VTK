@@ -53,7 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObject.h"
 #include <stdio.h>
 
-class VTK_EXPORT vtkWindow : public vtkObject
+class VTK_COMMON_EXPORT vtkWindow : public vtkObject
 {
 public:
   vtkTypeMacro(vtkWindow,vtkObject);

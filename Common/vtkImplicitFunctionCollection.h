@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkCollection.h"
 #include "vtkImplicitFunction.h"
 
-class VTK_EXPORT vtkImplicitFunctionCollection : public vtkCollection
+class VTK_COMMON_EXPORT vtkImplicitFunctionCollection : public vtkCollection
 {
 public:
   vtkTypeMacro(vtkImplicitFunctionCollection,vtkCollection);

@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkUnstructuredGrid;
 
-class VTK_EXPORT vtkWedge : public vtkCell3D
+class VTK_COMMON_EXPORT vtkWedge : public vtkCell3D
 {
 public:
   static vtkWedge *New();

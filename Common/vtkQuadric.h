@@ -50,7 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkImplicitFunction.h"
 
-class VTK_EXPORT vtkQuadric : public vtkImplicitFunction
+class VTK_COMMON_EXPORT vtkQuadric : public vtkImplicitFunction
 {
 public:
   vtkTypeMacro(vtkQuadric,vtkImplicitFunction);

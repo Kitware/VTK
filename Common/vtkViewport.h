@@ -63,7 +63,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkWindow;
 class vtkAssemblyPath;
 
-class VTK_EXPORT vtkViewport : public vtkObject
+class VTK_COMMON_EXPORT vtkViewport : public vtkObject
 {
 public:
   vtkTypeMacro(vtkViewport,vtkObject);

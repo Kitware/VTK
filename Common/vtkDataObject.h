@@ -69,7 +69,7 @@ class vtkExtentTranslator;
 #define VTK_PIECES_EXTENT   0
 #define VTK_3D_EXTENT       1
 
-class VTK_EXPORT vtkDataObject : public vtkObject
+class VTK_COMMON_EXPORT vtkDataObject : public vtkObject
 {
 public:
   static vtkDataObject *New();

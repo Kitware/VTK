@@ -143,7 +143,7 @@ struct ThreadInfoStruct
 };
 //ETX
 
-class VTK_EXPORT vtkMultiThreader : public vtkObject 
+class VTK_COMMON_EXPORT vtkMultiThreader : public vtkObject 
 {
 public:
   static vtkMultiThreader *New();

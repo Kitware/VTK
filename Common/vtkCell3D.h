@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkOrderedTriangulator;
 
-class VTK_EXPORT vtkCell3D : public vtkCell
+class VTK_COMMON_EXPORT vtkCell3D : public vtkCell
 {
 public:
   vtkTypeMacro(vtkCell3D,vtkCell);

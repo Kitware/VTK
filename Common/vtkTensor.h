@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkObject.h"
 
-class VTK_EXPORT vtkTensor : public vtkObject
+class VTK_COMMON_EXPORT vtkTensor : public vtkObject
 {
 public:
   static vtkTensor *New();

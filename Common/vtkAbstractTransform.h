@@ -73,7 +73,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkSimpleMutexLock;
 
 
-class VTK_EXPORT vtkAbstractTransform : public vtkObject
+class VTK_COMMON_EXPORT vtkAbstractTransform : public vtkObject
 {
 public:
 
@@ -348,7 +348,7 @@ public:
 
 // A helper class (not derived from vtkObject) to store a series of
 // transformations in a pipelined concatenation.
-class VTK_EXPORT vtkTransformConcatenation
+class VTK_COMMON_EXPORT vtkTransformConcatenation
 {
 public:
   static vtkTransformConcatenation *New() {
@@ -422,7 +422,7 @@ protected:
 
 // A helper class (not derived from vtkObject) to store a stack of
 // concatenations.
-class VTK_EXPORT vtkTransformConcatenationStack
+class VTK_COMMON_EXPORT vtkTransformConcatenationStack
 {
 public:
   static vtkTransformConcatenationStack *New() {

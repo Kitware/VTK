@@ -70,7 +70,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkProp.h"
 
-class VTK_EXPORT vtkPropAssembly : public vtkProp
+class VTK_COMMON_EXPORT vtkPropAssembly : public vtkProp
 {
 public:
   vtkTypeMacro(vtkPropAssembly,vtkProp);

@@ -84,7 +84,7 @@ class vtkViewport;
 #define VTK_WORLD               5
 #define VTK_USERDEFINED         6
 
-class VTK_EXPORT vtkCoordinate : public vtkObject
+class VTK_COMMON_EXPORT vtkCoordinate : public vtkObject
 {
 public:
   vtkTypeMacro(vtkCoordinate,vtkObject);

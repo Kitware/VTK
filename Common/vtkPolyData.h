@@ -79,7 +79,7 @@ class vtkEmptyCell;
 
 
 
-class VTK_EXPORT vtkPolyData : public vtkPointSet 
+class VTK_COMMON_EXPORT vtkPolyData : public vtkPointSet 
 {
 public:
   static vtkPolyData *New();

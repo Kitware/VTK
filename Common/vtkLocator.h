@@ -81,7 +81,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkDataSet.h"
 class vtkPolyData;
 
-class VTK_EXPORT vtkLocator : public vtkObject
+class VTK_COMMON_EXPORT vtkLocator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkLocator,vtkObject);

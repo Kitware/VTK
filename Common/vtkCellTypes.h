@@ -65,7 +65,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkUnsignedCharArray.h"
 
 
-class VTK_EXPORT vtkCellTypes : public vtkObject 
+class VTK_COMMON_EXPORT vtkCellTypes : public vtkObject 
 {
 public:
   static vtkCellTypes *New();

@@ -53,7 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkLinearTransform.h"
 
-class VTK_EXPORT vtkIdentityTransform : public vtkLinearTransform
+class VTK_COMMON_EXPORT vtkIdentityTransform : public vtkLinearTransform
 {
 public:
   static vtkIdentityTransform *New();

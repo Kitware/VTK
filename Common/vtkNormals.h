@@ -53,7 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkIdList;
 class vtkNormals;
 
-class VTK_EXPORT vtkNormals : public vtkAttributeData
+class VTK_COMMON_EXPORT vtkNormals : public vtkAttributeData
 {
 public:
   static vtkNormals *New(int dataType);

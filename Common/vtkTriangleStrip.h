@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkLine.h"
 #include "vtkTriangle.h"
 
-class VTK_EXPORT vtkTriangleStrip : public vtkCell
+class VTK_COMMON_EXPORT vtkTriangleStrip : public vtkCell
 {
 public:
   static vtkTriangleStrip *New();

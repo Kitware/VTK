@@ -50,7 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkDataArray.h"
 
-class VTK_EXPORT vtkUnsignedIntArray : public vtkDataArray 
+class VTK_COMMON_EXPORT vtkUnsignedIntArray : public vtkDataArray 
 {
 public:
   static vtkUnsignedIntArray *New();

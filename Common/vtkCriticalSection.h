@@ -88,7 +88,7 @@ typedef int vtkCritSecType;
 #endif
 
 // Critical Section object that is not a vtkObject.
-class VTK_EXPORT vtkSimpleCriticalSection
+class VTK_COMMON_EXPORT vtkSimpleCriticalSection
 {
 public:
   vtkSimpleCriticalSection()
@@ -133,7 +133,7 @@ protected:
 
 //ETX
 
-class VTK_EXPORT vtkCriticalSection : public vtkObject
+class VTK_COMMON_EXPORT vtkCriticalSection : public vtkObject
 {
 public:
   static vtkCriticalSection *New();
