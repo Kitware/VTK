@@ -103,7 +103,7 @@ void vtkImageCityBlockDistance::ThreadedExecute(vtkImageData *inData,
 {
   short *inPtr0, *inPtr1, *inPtr2, *inPtrC;
   short *outPtr0, *outPtr1, *outPtr2, *outPtrC;
-  int inInc0, inInc1, inInc2;2
+  int inInc0, inInc1, inInc2;
   int outInc0, outInc1, outInc2;
   int min0, max0, min1, max1, min2, max2, numberOfComponents;
   int idx0, idx1, idx2, idxC;
