@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 typedef float Vector[3];
 
 /* A generic list type */
-#define VTK_LIST_INSERT(root, node) list_insert ((List **)&root, (List *)node)
+#define VTK_LIST_INSERT(root, node) list_insert ((List **)&root, reinterpret_cast<List *>(node))
 #define VTK_LIST_FIND(root, name)   list_find   ((List **)&root, name)
 #define VTK_LIST_DELETE(root, node) list_delete ((List **)&root, (List *)node)
 #define VTK_LIST_KILL(root)         list_kill   ((List **)&root)

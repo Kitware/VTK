@@ -861,7 +861,7 @@ Bool vtkXOpenGLRenderWindowPredProc(Display *vtkNotUsed(disp), XEvent *event,
 {
   Window win = (Window)arg;
   
-  if ((((XAnyEvent *)event)->window == win) &&
+  if (((reinterpret_cast<XAnyEvent *>(event))->window == win) &&
       ((event->type == ButtonPress)))
     vtkXOpenGLRenderWindowFoundMatch = 1;
 
