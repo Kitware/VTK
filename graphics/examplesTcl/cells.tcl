@@ -558,20 +558,20 @@ proc DeleteCopies {} {
   global bVoxel bHexahedron bTetra bPixel bQuad bTriangle bPolygon
   global bTriangleStrip bLine bPolyLine bVertex bPolyVertex
   global bWedge bPyramid
-  $bVoxel Delete
-  $bHexahedron Delete
-  $bTetra Delete
-  $bWedge Delete
-  $bPyramid Delete
-  $bPixel Delete
-  $bQuad Delete
-  $bTriangle Delete
-  $bPolygon Delete
-  $bTriangleStrip Delete
-  $bLine Delete
-  $bPolyLine Delete
-  $bVertex Delete
-  $bPolyVertex Delete
+   $bVoxel UnRegister {}
+   $bHexahedron UnRegister {}
+   $bTetra UnRegister {}
+   $bWedge UnRegister {}
+   $bPyramid UnRegister {}
+   $bPixel UnRegister {}
+   $bQuad UnRegister {}
+   $bTriangle UnRegister {}
+   $bPolygon UnRegister {}
+   $bTriangleStrip UnRegister {}
+   $bLine UnRegister {}
+   $bPolyLine UnRegister {}
+   $bVertex UnRegister {}
+   $bPolyVertex UnRegister {}
 }
 
 DeleteCopies
