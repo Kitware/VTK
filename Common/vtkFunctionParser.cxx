@@ -2,16 +2,13 @@
 
   Program:   Visualization Toolkit
   Module:    vtkFunctionParser.cxx
-  Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
 
-  Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen 
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
@@ -20,7 +17,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkFunctionParser, "1.20");
+vtkCxxRevisionMacro(vtkFunctionParser, "1.20.2.1");
 vtkStandardNewMacro(vtkFunctionParser);
 
 static double vtkParserVectorErrorResult[3] = { VTK_PARSER_ERROR_RESULT, 
@@ -264,12 +261,18 @@ int vtkFunctionParser::DisambiguateOperators()
       case VTK_PARSER_MULTIPLY:
         if (tempStack[tempStackPtr-1] == 0 && tempStack[tempStackPtr] == 1)
           {
-          this->ByteCode[i] = VTK_PARSER_SCALAR_MULTIPLE;
+          this->ByteCode[i] = VTK_PARSER_SCALAR_TIMES_VECTOR;
+          tempStack[tempStackPtr-1] = 1;
+          }
+        else if (tempStack[tempStackPtr-1] == 1 && 
+                 tempStack[tempStackPtr] == 0)
+          {
+          this->ByteCode[i] = VTK_PARSER_VECTOR_TIMES_SCALAR;
           tempStack[tempStackPtr-1] = 1;
           }
         else if (tempStack[tempStackPtr] == 1)
           {
-          vtkErrorMacro("expecting either 2 scalars or a scalar followed by"
+          vtkErrorMacro("expecting either 2 scalars or a scalar and"
                         << " a vector");
           return 0;
           }
@@ -355,7 +358,8 @@ int vtkFunctionParser::DisambiguateOperators()
           }
         tempStackPtr--;
         break;
-      case VTK_PARSER_SCALAR_MULTIPLE:
+      case VTK_PARSER_SCALAR_TIMES_VECTOR:
+      case VTK_PARSER_VECTOR_TIMES_SCALAR:
         if (tempStack[tempStackPtr] == 0 && tempStack[tempStackPtr-1] == 0)
           {
           this->ByteCode[i] = VTK_PARSER_MULTIPLY;
@@ -554,13 +558,19 @@ void vtkFunctionParser::Evaluate()
         this->Stack[stackPosition-5] -= this->Stack[stackPosition-2];
         stackPosition -= 3;
         break;
-      case VTK_PARSER_SCALAR_MULTIPLE:
+      case VTK_PARSER_SCALAR_TIMES_VECTOR:
         this->Stack[stackPosition] *= this->Stack[stackPosition-3];
         this->Stack[stackPosition-1] *= this->Stack[stackPosition-3];
         this->Stack[stackPosition-2] *= this->Stack[stackPosition-3];
         this->Stack[stackPosition-3] = this->Stack[stackPosition-2];
         this->Stack[stackPosition-2] = this->Stack[stackPosition-1];
         this->Stack[stackPosition-1] = this->Stack[stackPosition];
+        stackPosition--;
+        break;
+      case VTK_PARSER_VECTOR_TIMES_SCALAR:
+        this->Stack[stackPosition-3] *= this->Stack[stackPosition];
+        this->Stack[stackPosition-2] *= this->Stack[stackPosition];
+        this->Stack[stackPosition-1] *= this->Stack[stackPosition];
         stackPosition--;
         break;
       case VTK_PARSER_MAGNITUDE:
@@ -1243,7 +1253,8 @@ void vtkFunctionParser::BuildInternalSubstringStructure(int beginIndex,
       if (parenthesisCount == 0 &&
           this->Function[i] == elementaryMathOps[opNum] &&
           !(this->Function[i] == '-' &&
-            (this->IsElementaryOperator(i-1) || this->Function[i-1] == '(' ||
+            (this->IsElementaryOperator(this->Function[i-1]) ||
+             this->Function[i-1] == '(' ||
              (this->Function[i-1] == 'e' && i > 1 &&
               isdigit(this->Function[i-2])))) &&
           !(this->Function[i] == '.' &&
