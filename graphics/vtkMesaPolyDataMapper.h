@@ -101,7 +101,6 @@ protected:
 
   int ListId;
   vtkRenderWindow *RenderWindow;   // RenderWindow used for the previous render
-  vtkTimerLog *Timer;
 };
 
 #endif
