@@ -47,6 +47,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkExtentTranslator.h"
 #include "vtkLargeInteger.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkCharArray.h"
+#include "vtkUnsignedShortArray.h"
+#include "vtkShortArray.h"
+#include "vtkUnsignedIntArray.h"
+#include "vtkIntArray.h"
+#include "vtkUnsignedLongArray.h"
+#include "vtkLongArray.h"
+#include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
 
 
 //----------------------------------------------------------------------------
@@ -128,10 +137,13 @@ void vtkImageData::CopyStructure(vtkDataSet *ds)
   this->CopyInformation(sPts);
 }
 
+//----------------------------------------------------------------------------
+// Graphics filters reallocate every execute.  Image filters try to reuse
+// the scalars.
 void vtkImageData::PrepareForNewData()
 {
   // free everything but the scalars
-  vtkScalars *scalars = this->GetPointData()->GetScalars();
+  vtkDataArray *scalars = this->GetPointData()->GetActiveScalars();
   if (scalars)
     {
     scalars->Register(this);
@@ -1450,16 +1462,16 @@ void *vtkImageData::GetScalarPointerForExtent(int extent[6])
 // image origin.
 void *vtkImageData::GetScalarPointer(int coordinates[3])
 {
-  vtkScalars *scalars;
+  vtkDataArray *scalars;
   int idx;
     
   // Make sure the scalars have been allocated.
-  scalars = this->PointData->GetScalars();
+  scalars = this->PointData->GetActiveScalars();
   if (scalars == NULL)
     {
     vtkDebugMacro("Allocating scalars in ImageData");
     this->AllocateScalars();
-    scalars = this->PointData->GetScalars();
+    scalars = this->PointData->GetActiveScalars();
     }
   
   // error checking: since most acceses will be from pointer arithmetic.
@@ -1492,22 +1504,22 @@ void *vtkImageData::GetScalarPointer(int coordinates[3])
 // This Method returns a pointer to the origin of the vtkImageData.
 void *vtkImageData::GetScalarPointer()
 {
-  if (this->PointData->GetScalars() == NULL)
+  if (this->PointData->GetActiveScalars() == NULL)
     {
     vtkDebugMacro("Allocating scalars in ImageData");
     this->AllocateScalars();
     }
-  return this->PointData->GetScalars()->GetVoidPointer(0);
+  return this->PointData->GetActiveScalars()->GetVoidPointer(0);
 }
 
 //----------------------------------------------------------------------------
 int vtkImageData::GetScalarType()
 {
-  vtkScalars *tmp;
+  vtkDataArray *tmp;
   int type = this->ScalarType;
   
   // if we have scalars make sure the type matches our ivar
-  tmp = this->GetPointData()->GetScalars();
+  tmp = this->GetPointData()->GetActiveScalars();
   if (tmp && tmp->GetDataType() != type)
     {
     // this happens when filters are being bypassed.  Don't error...
@@ -1521,7 +1533,7 @@ int vtkImageData::GetScalarType()
 //----------------------------------------------------------------------------
 void vtkImageData::AllocateScalars()
 {
-  vtkScalars *scalars;
+  vtkDataArray *scalars;
   
   // if the scalar type has not been set then we have a problem
   if (this->ScalarType == VTK_VOID)
@@ -1531,13 +1543,13 @@ void vtkImageData::AllocateScalars()
     }
 
   // if we currently have scalars then just adjust the size
-  scalars = this->PointData->GetScalars();
+  scalars = this->PointData->GetActiveScalars();
   if (scalars && scalars->GetDataType() == this->ScalarType) 
     {
     scalars->SetNumberOfComponents(this->GetNumberOfScalarComponents());
-    scalars->SetNumberOfScalars((this->Extent[1] - this->Extent[0] + 1)*
-				(this->Extent[3] - this->Extent[2] + 1)*
-				(this->Extent[5] - this->Extent[4] + 1));
+    scalars->SetNumberOfTuples((this->Extent[1] - this->Extent[0] + 1)*
+			       (this->Extent[3] - this->Extent[2] + 1)*
+			       (this->Extent[5] - this->Extent[4] + 1));
     // Since the execute method will be modifying the scalars
     // directly.
     scalars->Modified();
@@ -1545,17 +1557,54 @@ void vtkImageData::AllocateScalars()
     }
   
   // allocate the new scalars
-  scalars = vtkScalars::New();
-  scalars->SetDataType(this->ScalarType);
+  switch (this->ScalarType)
+    {
+    case VTK_UNSIGNED_CHAR:
+      scalars = vtkUnsignedCharArray::New();
+      break;
+    case VTK_CHAR:           
+      scalars = vtkCharArray::New();
+      break;
+    case VTK_UNSIGNED_SHORT: 
+      scalars = vtkUnsignedShortArray::New();
+      break;
+    case VTK_SHORT:          
+      scalars = vtkShortArray::New();
+      break;
+    case VTK_UNSIGNED_INT:   
+      scalars = vtkUnsignedIntArray::New();
+      break;
+    case VTK_INT:            
+      scalars = vtkIntArray::New();
+      break;
+    case VTK_UNSIGNED_LONG:  
+      scalars = vtkUnsignedLongArray::New();
+      break;
+    case VTK_LONG:           
+      scalars = vtkLongArray::New();
+      break;
+    case VTK_FLOAT:          
+      scalars = vtkFloatArray::New();
+      break;
+    case VTK_DOUBLE:         
+      scalars = vtkDoubleArray::New();
+      break;
+    default:
+      vtkErrorMacro("Could not allocate data type.");
+      return;
+    }
+  
+  scalars->SetName("ImageValues");
   scalars->SetNumberOfComponents(this->GetNumberOfScalarComponents());
+
+  // allocate enough memory
+  scalars->
+    SetNumberOfTuples((this->Extent[1] - this->Extent[0] + 1)*
+		      (this->Extent[3] - this->Extent[2] + 1)*
+		      (this->Extent[5] - this->Extent[4] + 1));
+
   this->PointData->SetScalars(scalars);
   scalars->Delete();
-  
-  // allocate enough memory
-  this->PointData->GetScalars()->
-    SetNumberOfScalars((this->Extent[1] - this->Extent[0] + 1)*
-		       (this->Extent[3] - this->Extent[2] + 1)*
-		       (this->Extent[5] - this->Extent[4] + 1));
 }
 
 
@@ -1676,7 +1725,8 @@ void vtkImageData::Crop()
   int           nExt[6];
   int           idxY, idxZ, maxY, maxZ;
   int           inIncX, inIncY, inIncZ, rowLength;
-  vtkScalars    *newScalars;
+  vtkImageData  *newImage;
+  vtkDataArray  *newArray;
   unsigned char *inPtr, *inPtr1, *outPtr;
   
   // If extents already match, then we need to do nothing.
@@ -1717,21 +1767,19 @@ void vtkImageData::Crop()
     }
 
   // Allocate new scalars.
-  newScalars = vtkScalars::New();
-  newScalars->SetDataType(this->ScalarType);
-  newScalars->SetNumberOfComponents(this->GetNumberOfScalarComponents());
-  newScalars->SetNumberOfScalars((nExt[1] - nExt[0] + 1)*
-		                 (nExt[3] - nExt[2] + 1)*
-		                 (nExt[5] - nExt[4] + 1));
+  newImage = vtkImageData::New();
+  newImage->SetScalarType(this->ScalarType);
+  newImage->SetNumberOfScalarComponents(this->GetNumberOfScalarComponents());
+  newImage->SetExtent(nExt);
+  newImage->AllocateScalars();
+  newArray = newImage->GetPointData()->GetActiveScalars();
+
   // Keep the array name the same.
-  newScalars->GetData()->SetName(
-    this->GetPointData()->GetScalars()->GetData()->GetName());
+  newArray->SetName(
+    this->GetPointData()->GetActiveScalars()->GetName());
   
   inPtr = (unsigned char *) this->GetScalarPointerForExtent(nExt);
-  outPtr = (unsigned char *) newScalars->GetVoidPointer(0);
-  
-  
-  
+  outPtr = (unsigned char *) newArray->GetVoidPointer(0);
   
   // Get increments to march through inData 
   this->GetIncrements(inIncX, inIncY, inIncZ);
@@ -1758,8 +1806,8 @@ void vtkImageData::Crop()
     }
 
   this->SetExtent(nExt);
-  this->PointData->SetScalars(newScalars);
-  newScalars->Delete();
+  this->PointData->SetScalars(newArray);
+  newImage->Delete();
 }
 
 

@@ -175,7 +175,6 @@ void vtkSource::Update()
 }
 
 //----------------------------------------------------------------------------
-
 void vtkSource::UpdateInformation()
 {
   unsigned long t1, t2;
@@ -188,10 +187,9 @@ void vtkSource::UpdateInformation()
   // Watch out for loops in the pipeline
   if ( this->Updating )
     {
-    // Since we are in a loop, we will want to update. But if
-    // we don't modify this filter, then we will not execute
-    // because our InformationTime will be more recent than
-    // the MTime of our output.
+    // Since we are in a loop, we will want to execute on every call to update.
+    // We set the pipline mtimes of our outputs 
+    // to ensure the pipeline executes again. 
     this->Modified();
     for (idx = 0; idx < this->NumberOfOutputs; ++idx)
       {
@@ -201,7 +199,6 @@ void vtkSource::UpdateInformation()
         output->SetPipelineMTime(this->GetMTime());
         }  
       }
-    
     return;
     }
 
@@ -244,8 +241,6 @@ void vtkSource::UpdateInformation()
   // Call ExecuteInformation for subclass specific information.
   // Since UpdateInformation propagates all the way up the pipeline,
   // we need to be careful here to call ExecuteInformation only if necessary.
-  // Otherwise, we may cause this source to be modified which will cause it
-  // to execute again on the next update.
   if (t1 > this->InformationTime.GetMTime())
     {
     for (idx = 0; idx < this->NumberOfOutputs; ++idx)
@@ -263,12 +258,11 @@ void vtkSource::UpdateInformation()
 }
 
 //----------------------------------------------------------------------------
-
 void vtkSource::PropagateUpdateExtent(vtkDataObject *output)
 {
   int idx;
 
-  // check flag to avoid executing forever if there is a loop
+  // Check flag to avoid executing forever if there is a loop.
   if (this->Updating)
     {
     return;
@@ -391,10 +385,10 @@ void vtkSource::UpdateData(vtkDataObject *output)
     for (idx = 0; idx < this->NumberOfInputs; ++idx)
       {
       if (this->SortedInputs[idx] != NULL)
-	{
-	this->SortedInputs[idx]->PropagateUpdateExtent();
-	this->SortedInputs[idx]->UpdateData();
-	}
+        {
+        this->SortedInputs[idx]->PropagateUpdateExtent();
+        this->SortedInputs[idx]->UpdateData();
+        }
       }
     }
   this->Updating = 0;	  
