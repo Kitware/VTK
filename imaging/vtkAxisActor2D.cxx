@@ -255,13 +255,13 @@ void vtkAxisActor2D::PrintSelf(ostream& os, vtkIndent indent)
      << (this->AxisVisibility ? "On\n" : "Off\n");
   
   os << indent << "Tick Visibility: " 
-     << (this->AxisVisibility ? "On\n" : "Off\n");
+     << (this->TickVisibility ? "On\n" : "Off\n");
   
   os << indent << "Label Visibility: " 
-     << (this->AxisVisibility ? "On\n" : "Off\n");
+     << (this->LabelVisibility ? "On\n" : "Off\n");
   
   os << indent << "Title Visibility: " 
-     << (this->AxisVisibility ? "On\n" : "Off\n");
+     << (this->TitleVisibility ? "On\n" : "Off\n");
   
   os << indent << "Point1 Coordinate: " << this->Point1Coordinate << "\n";
   this->Point1Coordinate->PrintSelf(os, indent.GetNextIndent());
