@@ -49,8 +49,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #else
 #include "GL/gl.h"
 #include "GL/glx.h"
+#include "GL/osmesa.h"
 #endif
-#include "/opt/include/GL/osmesa.h"
 
 static void
 vtkFillBitmap (Display *dpy, Window win, GC gc,

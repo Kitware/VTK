@@ -75,7 +75,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // if we really have the mesa headers then include off screen rendering
 #ifdef MESA
-#include "/opt/include/GL/osmesa.h"
+#ifndef VTK_MANGLE_MESA
+#include "GL/osmesa.h"
+#endif
 #endif
 
 class vtkIdList;
