@@ -61,6 +61,8 @@ protected:
   // that all code inside this method is thread-safe.
   virtual void ThreadedExecute(vtkImageStencilData *output,
                                int extent[6], int threadId);
+
+  virtual int FillOutputPortInformation(int, vtkInformation*);
 private:
   vtkImageStencilSource(const vtkImageStencilSource&);  // Not implemented.
   void operator=(const vtkImageStencilSource&);  // Not implemented.
