@@ -19,7 +19,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkMaskPolyData, "1.42");
+vtkCxxRevisionMacro(vtkMaskPolyData, "1.43");
 vtkStandardNewMacro(vtkMaskPolyData);
 
 vtkMaskPolyData::vtkMaskPolyData()
@@ -33,11 +33,6 @@ vtkMaskPolyData::vtkMaskPolyData()
 //
 void vtkMaskPolyData::Execute()
 {
-  vtkIdType numVerts, numLines, numPolys, numStrips;
-  vtkCellArray *inVerts,*inLines,*inPolys,*inStrips;
-  vtkIdType numNewVerts, numNewLines, numNewPolys, numNewStrips;
-  vtkCellArray *newVerts=NULL, *newLines=NULL;
-  vtkCellArray *newPolys=NULL, *newStrips=NULL;
   vtkIdType id;
   vtkPointData *pd;
   vtkIdType numCells;
@@ -45,26 +40,11 @@ void vtkMaskPolyData::Execute()
   vtkIdType npts = 0;
   vtkPolyData *input= this->GetInput();
   vtkPolyData *output = this->GetOutput();
+  int abortExecute=0;
   
   // Check input / pass data through
   //
-  inVerts = input->GetVerts();
-  numVerts = inVerts->GetNumberOfCells();
-  numNewVerts = numVerts / this->OnRatio;
-
-  inLines = input->GetLines();
-  numLines = inLines->GetNumberOfCells();
-  numNewLines = numLines / this->OnRatio;
-
-  inPolys = input->GetPolys();
-  numPolys = inPolys->GetNumberOfCells();
-  numNewPolys = numPolys / this->OnRatio;
-
-  inStrips = input->GetStrips();
-  numStrips = inStrips->GetNumberOfCells();
-  numNewStrips = numStrips / this->OnRatio;
-
-  numCells = numVerts + numLines + numPolys + numStrips;
+  numCells = input->GetNumberOfCells();
 
   if ( numCells < 1 )
     {
@@ -72,83 +52,21 @@ void vtkMaskPolyData::Execute()
     return;
     }
 
-  // Allocate space
-  //
-  if ( numNewVerts )
-    {
-    newVerts = vtkCellArray::New();
-    newVerts->Allocate(numNewVerts);
-    }
-
-  if ( numNewLines )
-    {
-    newLines = vtkCellArray::New();
-    newLines->Allocate(newLines->EstimateSize(numNewLines,2));
-    }
-
-  if ( numNewPolys )
-    {
-    newPolys = vtkCellArray::New();
-    newPolys->Allocate(newPolys->EstimateSize(numNewPolys,4));
-    }
-
-  if ( numNewStrips )
-    {
-    newStrips = vtkCellArray::New();
-    newStrips->Allocate(newStrips->EstimateSize(numNewStrips,6));
-    }
-
+  output->Allocate(input,numCells);
+  input->BuildCells();
+  
   // Traverse topological lists and traverse
   //
-  if ( newVerts )
+  vtkIdType tenth = numCells/10 + 1;
+  for (id=this->Offset; id < numCells && !abortExecute; id+=this->OnRatio)
     {
-    for (id=this->Offset, inVerts->InitTraversal(); 
-         inVerts->GetNextCell(npts,pts); id++)
+    if ( ! (id % tenth) ) 
       {
-      if ( ! (id % this->OnRatio) )
-        {
-        newVerts->InsertNextCell(npts,pts);
-        }
+      this->UpdateProgress ((float)id/numCells);
+      abortExecute = this->GetAbortExecute();
       }
-    this->UpdateProgress((float)numVerts/numCells);
-    }
-
-  if ( newLines )
-    {
-    for (id=this->Offset, inLines->InitTraversal(); 
-         inLines->GetNextCell(npts,pts); id++)
-      {
-      if ( ! (id % this->OnRatio) )
-        {
-        newLines->InsertNextCell(npts,pts);
-        }
-      }
-    this->UpdateProgress((float)(numVerts+numLines)/numCells);
-    }
-
-  if ( newPolys )
-    {
-    for (id=this->Offset, inPolys->InitTraversal(); 
-         inPolys->GetNextCell(npts,pts); id++)
-      {
-      if ( ! (id % this->OnRatio) )
-        {
-        newPolys->InsertNextCell(npts,pts);
-        }
-      }
-    this->UpdateProgress((float)(numVerts+numLines+numPolys)/numCells);
-    }
-
-  if ( newStrips )
-    {
-    for (id=this->Offset, inStrips->InitTraversal(); 
-         inStrips->GetNextCell(npts,pts); id++)
-      {
-      if ( ! (id % this->OnRatio) )
-        {
-        newStrips->InsertNextCell(npts,pts);
-        }
-      }
+    input->GetCellPoints(id, npts, pts);
+    output->InsertNextCell(input->GetCellType(id), npts, pts);
     }
 
   // Update ourselves and release memory
@@ -156,30 +74,6 @@ void vtkMaskPolyData::Execute()
   output->SetPoints(input->GetPoints());
   pd = input->GetPointData();
   output->GetPointData()->PassData(pd);
-
-  if (newVerts)
-    {
-    output->SetVerts(newVerts);
-    newVerts->Delete();
-    }
-
-  if (newLines)
-    {
-    output->SetLines(newLines);
-    newLines->Delete();
-    } 
-
-  if (newPolys)
-    {
-    output->SetPolys(newPolys);
-    newPolys->Delete();
-    }
-
-  if (newStrips)
-    {
-    output->SetStrips(newStrips);
-    newStrips->Delete();
-    }
 
   output->Squeeze();
 }
