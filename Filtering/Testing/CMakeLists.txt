@@ -15,6 +15,8 @@ IF(PYTHON_EXECUTABLE)
            vtkDataSetCollection.h
            vtkImageIterator.h
            vtkImageProgressIterator.h
+           vtkMarchingCubesCases.h
+           vtkMarchingSquaresCases.h
            vtkMultiBlockDataSetInternal.h
            vtkDataObjectCollection.h
            vtkHierarchicalDataSetInternal.h

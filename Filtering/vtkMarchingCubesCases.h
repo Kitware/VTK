@@ -18,7 +18,7 @@
 // marching cubes case table for generating isosurfaces
 //
 typedef int EDGE_LIST;
-struct VTK_COMMON_EXPORT vtkMarchingCubesTriangleCases 
+struct VTK_FILTERING_EXPORT vtkMarchingCubesTriangleCases 
 {
   EDGE_LIST edges[16];
   static vtkMarchingCubesTriangleCases* GetCases();

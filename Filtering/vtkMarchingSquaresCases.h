@@ -19,7 +19,7 @@
 //
 
 typedef int EDGE_LIST;
-struct VTK_COMMON_EXPORT vtkMarchingSquaresLineCases 
+struct VTK_FILTERING_EXPORT vtkMarchingSquaresLineCases 
 {
   EDGE_LIST edges[5];
   static vtkMarchingSquaresLineCases* GetCases();

@@ -41,8 +41,6 @@ IF(PYTHON_EXECUTABLE)
            vtkLargeInteger.h
            vtkLinkedList.h
            vtkLinkedListIterator.h
-           vtkMarchingCubesCases.h
-           vtkMarchingSquaresCases.h
            vtkMultiPartExtentTranslator.h
            vtkOStrStreamWrapper.h
            vtkOStreamWrapper.h
