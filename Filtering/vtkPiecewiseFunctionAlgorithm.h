@@ -77,7 +77,8 @@ public:
 protected:
   vtkPiecewiseFunctionAlgorithm();
   ~vtkPiecewiseFunctionAlgorithm();
-
+  
+  // Description:
   // This is called by the superclass.
   // This is the method you should override.
   virtual int RequestData(vtkInformation* request,

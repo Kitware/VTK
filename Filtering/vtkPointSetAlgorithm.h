@@ -89,25 +89,29 @@ public:
 protected:
   vtkPointSetAlgorithm();
   ~vtkPointSetAlgorithm() {};
-
+  
+  // Description:
   // This is called by the superclass.
   // This is the method you should override.
   virtual int CreateOutput(vtkInformation* request, 
                            vtkInformationVector** inputVector, 
                            vtkInformationVector* outputVector);
-
+  
+  // Description:
   // This is called by the superclass.
   // This is the method you should override.
   virtual int ExecuteInformation(vtkInformation*, 
                                  vtkInformationVector**, 
                                  vtkInformationVector*) {return 1;};
-
+  
+  // Description:
   // This is called by the superclass.
   // This is the method you should override.
   virtual int RequestData(vtkInformation*, 
                           vtkInformationVector**, 
                           vtkInformationVector*) {return 1;};
-
+  
+  // Description:
   // This is called by the superclass.
   // This is the method you should override.
   virtual int ComputeInputUpdateExtent(vtkInformation*,
