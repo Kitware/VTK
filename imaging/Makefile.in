@@ -21,8 +21,7 @@ vtkImageInPlaceFilter \
 vtkImageReader \
 vtkImageSpatialFilter \
 vtkImageTwoInputFilter \
-vtkImageTwoOutputFilter \
-vtkImageViewer 
+vtkImageTwoOutputFilter
 
 CONCRETE = \
 vtkImageAnisotropicDiffusion2D \
@@ -79,6 +78,7 @@ vtkImageShortWriter \
 vtkImageShrink3D \
 vtkImageSobel3D \
 vtkImageThreshold \
+vtkImageViewer \
 vtkImageXViewer \
 vtkImageWrapPad 
 
