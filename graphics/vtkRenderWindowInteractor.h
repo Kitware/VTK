@@ -42,15 +42,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // .SECTION Description
 // vtkRenderWindowInteractor is a convenience object that provides event
-// bindings to common graphics functions. For example, camera
-// zoom-in/zoom-out, pan, rotate, resetting; picking of actors, points,
+// bindings to common graphics functions. For example, camera or actor
+// zoom-in/zoom-out, pan, rotate, spin, dolly, scale, resetting in either
+// trackball or joystick mode; picking of actors, points,
 // or cells; switching in/out of stereo mode; property changes such as
 // wireframe and surface; and a toggle to force the light to be placed at
 // camera viewpoint (pointing in view direction).
 // 
-// Specific devices have different camera bindings. The bindings are on both
-// mouse events as well as keyboard presses. See vtkXRenderWindowInteractor  
-// and vtkWin32RenderWindowInteractor for specific information.
+// Specific devices have different camera and actor bindings. The bindings
+// are on both mouse events as well as keyboard presses. See
+// vtkXRenderWindowInteractor and vtkWin32RenderWindowInteractor for
+// specific information.
 
 // .SECTION See Also
 // vtkXRenderWindowInteractor vtkWin32RenderWindowInteractor vtkPicker
@@ -62,9 +64,31 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRenderWindow.h"
 #include "vtkCamera.h"
 #include "vtkLight.h"
-#include "vtkPicker.h"
+//#include "vtkPicker.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkOutlineSource.h"
+#include "vtkMath.h"
+
+// for interaction picker
+#include "vtkCellPicker.h"
+
+// interaction modes
+#define VTKXI_JOY   0
+#define VTKXI_TRACK  1
+#define VTKXI_CAMERA 0
+#define VTKXI_ACTOR  1
+#define VTKXI_CONTROL_OFF 0
+#define VTKXI_CONTROL_ON 1
+
+// interactions
+#define VTKXI_START  0
+#define VTKXI_ROTATE 1
+#define VTKXI_ZOOM   2
+#define VTKXI_PAN    3
+#define VTKXI_SPIN   4
+#define VTKXI_DOLLY  5
+#define VTKXI_USCALE 6
+
 
 class VTK_EXPORT vtkRenderWindowInteractor : public vtkObject
 {
@@ -237,20 +261,27 @@ public:
   vtkGetVectorMacro(EventPosition,int,2);
 
   // Description:
-  // Primarily internal methods used to start and stop 
-  // animation of the camera.
+  // Primarily internal methods used to start and stop interactions
+  // overridden in subclass to provide platform and hardware support
   virtual void StartRotate() {};
   virtual void EndRotate() {};
   virtual void StartZoom() {};
   virtual void EndZoom() {};
   virtual void StartPan() {};
   virtual void EndPan() {};
+  virtual void StartSpin() {};
+  virtual void EndSpin() {};
+  virtual void StartDolly() {};
+  virtual void EndDolly() {};
+  virtual void StartUniformScale() {};
+  virtual void EndUniformScale() {};
 
   // Description:
   // For legacy compatibiltiy. Do not use.
   void SetPicker(vtkPicker& picker) {this->SetPicker(&picker);};
 
 protected:
+  
   vtkRenderWindow *RenderWindow;
   vtkCamera   *CurrentCamera;
   vtkLight    *CurrentLight;
@@ -276,6 +307,45 @@ protected:
   vtkRenderer *PickedRenderer;
   vtkActor *CurrentActor;
 
+
+  
+  // used to track picked objects in actor mode
+  vtkCellPicker *InteractionPicker;
+  int ActorPicked;                      // boolean: actor picked?
+  vtkActor *InteractionActor;
+  
+  // new interactor modes
+  int ActorMode;
+  int TrackballMode;
+  int ControlMode;
+
+  // some constants
+  int Preprocess;                       // boolean: was preprocessing done?
+  float RadianToDegree;                 // constant: for conv from deg to rad
+  float TrackballFactor;                // constant: for motion
+
+  // data arrays for motion
+  float NewPickPoint[4];
+  float OldPickPoint[4];
+  float MotionVector[3];                // vector used for interaction
+  float OldX, OldY;
+  
+  // this really belong in camera
+  float ViewLook[3];
+  float ViewPoint[3];
+  float ViewFocus[3];
+  float ViewUp[3];
+  float ViewRight[3];
+
+  // actor stuff
+  float Origin[3];
+  float Position[3];
+  float ObjCenter[3];                   // center of bounding box
+  float DispObjCenter[3];               // center of box in display coord
+  float Radius;                         // radius of virtual sphere
+
+
+  
   // user methods that can be used to override default behaviour
   void (*StartPickMethod)(void *);
   void (*StartPickMethodArgDelete)(void *);
@@ -314,6 +384,44 @@ protected:
   void (*RightButtonReleaseMethod)(void *);
   void (*RightButtonReleaseMethodArgDelete)(void *);
   void *RightButtonReleaseMethodArg;
+
+  
+
+  // convenience methods for converting between coordinate systems
+  virtual void ComputeDisplayToWorld(float x, float y, float z,
+                                     float *worldPt);
+  virtual void ComputeWorldToDisplay(float x, float y, float z,
+                                     float *displayPt);
+
+  // perform actor mode scale and rotate transformations
+  virtual void ActorTransform(vtkActor *actor,
+                              float *boxCenter,
+                              int NumRotation,
+                              float **rotate,
+                              float *scale);
+  
+  // methods for the different interactions in different modes
+  virtual void JoystickRotateCamera(int x, int y);
+  virtual void JoystickSpinCamera(int x, int y);
+  virtual void JoystickPanCamera(int x, int y);
+  virtual void JoystickDollyCamera(int x, int y);
+  
+  virtual void TrackballRotateCamera(int x, int y);
+  virtual void TrackballSpinCamera(int x, int y);
+  virtual void TrackballPanCamera(int x, int y);
+  virtual void TrackballDollyCamera(int x, int y);
+  
+  virtual void JoystickRotateActor(int x, int y);
+  virtual void JoystickSpinActor(int x, int y);
+  virtual void JoystickPanActor(int x, int y);
+  virtual void JoystickDollyActor(int x, int y);
+  virtual void JoystickScaleActor(int x, int y);
+  
+  virtual void TrackballRotateActor(int x, int y);
+  virtual void TrackballSpinActor(int x, int y);
+  virtual void TrackballPanActor(int x, int y);
+  virtual void TrackballDollyActor(int x, int y);
+  virtual void TrackballScaleActor(int x, int y);
 };
 
 #endif

@@ -41,18 +41,55 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // to the renderer
 // .SECTION Description
 // vtkWin32RenderWindowInteractor is a convenience object that provides event 
-// event bindings to common graphics functions. For example, camera
-// zoom-in/zoom-out, azimuth, and roll. It is one of the window system
-// specific subclasses of vtkRenderWindowInteractor.
+// event bindings to common graphics functions. For example, camera and actor
+// functions such as zoom-in/zoom-out, azimuth, roll, and pan. It is one of
+// the window system specific subclasses of vtkRenderWindowInteractor.
+
+// Mouse bindings:
+//    camera: Button 1 - rotate; Button 2 - pan; and Button 3 - zoom;
+//            ctrl-Button 1 - spin.
+//    actor:  Button 1 - rotate; Button 2 - pan; Button 3 - uniform scale;
+//            ctrl-Button 1 - spin; ctrl-Button 2 - dolly.
 //
-// Mouse bindings: Button 1 - rotate, Button 2 - pan, Button 3 - zoom
-// The distance from the center of the renderer viewport determines
-// how quickly to rotate, pan and zoom.
+// Camera mode is the default mode for compatibility reasons
+//
+// When "j" is pressed, the interaction models after a joystick. The distance
+// from the center of the renderer viewport determines how quickly to rotate,
+// pan, zoom, spin, and dolly.  This is the default mode for compatiblity
+// reasons.  This is also known as position sensitive motion.
+//
+// When "t" is pressed, the interaction models after a trackball. Each mouse
+// movement is used to move the actor or camera. When the mouse stops, the
+// camera or actor motion is also stopped. This is also known as motion
+// sensitive motion.
+//
+// Rotate, pan, and zoom work the same way as before.  Spin has two different
+// interfaces depending on whether the interactor is in trackball or joystick
+// mode.  In trackball mode, by moving the mouse around the camera or actor
+// center in a circular motion, the camera or actor is spun.  In joystick mode
+// by moving the mouse in the y direction, the actor or camera is spun. Scale
+// dolly, and zoom all work in the same manner, that motion of mouse in y
+// direction generates the transformation.
+//
+// There are no difference between camera and actor mode interactions, which
+// means that the same events elicit the same responses
+//
+// Actor picking can be accomplished with the "p" key or with a mouse click
+// in actor mode. 
+//
 // Keystrokes:
+//    j - joystick-like mouse interactions
+//    t - trackball-like mouse interactions
+//    o - object / actor interaction
+//    c - camera interaction
 //    r - reset camera view
 //    w - turn all actors wireframe
 //    s - turn all actors surface
+//    u - execute user defined function
+//    p - pick actor under mouse pointer (if pickable)
+//    3 - toggle in/out of 3D mode (if supported by renderer)
 //    e - exits
+//    q - exits
 
 // .SECTION see also
 // vtkRenderWindowInteractor vtkWin32OpenGLRenderWindow
@@ -69,30 +106,46 @@ class VTK_EXPORT vtkWin32RenderWindowInteractor : public vtkRenderWindowInteract
 {
 public:
 
-// Description:
-// Construct object so that light follows camera motion.
+  // Description:
+  // Construct object so that light follows camera motion.
   vtkWin32RenderWindowInteractor();
-
   ~vtkWin32RenderWindowInteractor();
-  static vtkWin32RenderWindowInteractor *New() {return new vtkWin32RenderWindowInteractor;};
+  static vtkWin32RenderWindowInteractor *New() {
+    return new vtkWin32RenderWindowInteractor;};
   const char *GetClassName() {return "vtkWin32RenderWindowInteractor";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-
-// Description:
-// Begin processing keyboard strokes.
+  // Description:
+  // Initialize the even handler
   virtual void Initialize();
 
+  // Description:
+  // This will start up the event loop and never return. If you
+  // call this method it will loop processing events until the
+  // application is exited.
   virtual void Start();
   void UpdateSize(int,int);
-  void StartRotate();
-  void EndRotate();
-  void StartZoom();
-  void EndZoom();
-  void StartPan();
-  void EndPan();
-  void StartAnimation();
-  void EndAnimation();
+
+  // Description:
+  // Provide implementaitons of the methods defined in
+  // vtkRenderWindowInteractor. Generally the application developer should
+  // not invoke these methods directly.
+  virtual void StartRotate();
+  virtual void EndRotate();
+  virtual void StartZoom();
+  virtual void EndZoom();
+  virtual void StartPan();
+  virtual void EndPan();
+  virtual void StartSpin();
+  virtual void EndSpin();
+  virtual void StartDolly();
+  virtual void EndDolly();
+  virtual void StartUniformScale();
+  virtual void EndUniformScale();
+
+  virtual void StartAnimation();
+  virtual void EndAnimation();
+
   //BTX
   friend LRESULT CALLBACK vtkHandleMessage(HWND hwnd,UINT uMsg,
 					   WPARAM w, LPARAM l);

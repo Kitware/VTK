@@ -40,15 +40,48 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkXRenderWindowInteractor - an X event driven interface for a RenderWindow
 // .SECTION Description
-// vtkXRenderWindowInteractor is a convenience object that provides
-// event bindings to common graphics functions. For example, camera
-// zoom-in/zoom-out, azimuth, and roll. It is one of the window system
-// specific subclasses of vtkRenderWindowInteractor.
+// vtkXRenderWindowInteractor is a convenience object that provides event
+// bindings to common graphics functions. For example, camera and actor
+// functions such as zoom-in/zoom-out, azimuth, roll, and pan. IT is one of
+// the window system specific subclasses of vtkRenderWindowInteractor.
+
+// Mouse bindings:
+//    camera: Button 1 - rotate; Button 2 - pan; and Button 3 - zoom;
+//            ctrl-Button 1 - spin.
+//    actor:  Button 1 - rotate; Button 2 - pan; Button 3 - uniform scale;
+//            ctrl-Button 1 - spin; ctrl-Button 2 - dolly.
+//
+// Camera mode is the default mode for compatibility reasons.
 // 
-// Mouse bindings: Button 1 - rotate; Button 2 - pan; and Button 3 - zoom.
-// The distance from the center of the renderer viewport determines
-// how quickly to rotate, pan and zoom.
+// When "j" is pressed, the interaction models after a joystick. The distance
+// from the center of the renderer viewport determines how quickly to rotate,
+// pan, zoom, spin, and dolly.  This is the default mode for compatiblity
+// reasons.  This is also known as position sensitive motion.
+//
+// When "t" is pressed, the interaction models after a trackball. Each mouse
+// movement is used to move the actor or camera. When the mouse stops, the
+// camera or actor motion is also stopped. This is also known as motion
+// sensitive motion.
+//
+// Rotate, pan, and zoom work the same way as before.  Spin has two different
+// interfaces depending on whether the interactor is in trackball or joystick
+// mode.  In trackball mode, by moving the mouse around the camera or actor
+// center in a circular motion, the camera or actor is spun.  In joystick mode
+// by moving the mouse in the y direction, the actor or camera is spun. Scale
+// dolly, and zoom all work in the same manner, that motion of mouse in y
+// direction generates the transformation.
+//
+// There are no difference between camera and actor mode interactions, which
+// means that the same events elicit the same responses
+//
+// Actor picking can be accomplished with the "p" key or with a mouse click
+// in actor mode. 
+//
 // Keystrokes:
+//    j - joystick like mouse interactions
+//    t - trackball like mouse interactions
+//    o - object/ actor interaction
+//    c - camera interaction
 //    r - reset camera view
 //    w - turn all actors wireframe
 //    s - turn all actors surface
@@ -56,6 +89,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //    p - pick actor under mouse pointer (if pickable)
 //    3 - toggle in/out of 3D mode (if supported by renderer)
 //    e - exit
+//    q - exit
 
 // .SECTION see also
 // vtkRenderWindowInteractor vtkXRenderWindow
@@ -97,18 +131,24 @@ public:
   // call this method it will loop processing X events until the
   // application is exited.
   virtual void Start();
+  virtual void UpdateSize(int,int);
 
   // Description:
   // Provide implementaitons of the methods defined in
   // vtkRenderWindowInteractor. Generally the application developer should
   // not invoke these methods directly.
-  virtual void UpdateSize(int,int);
   virtual void StartRotate();
   virtual void EndRotate();
   virtual void StartZoom();
   virtual void EndZoom();
   virtual void StartPan();
   virtual void EndPan();
+  virtual void StartSpin();
+  virtual void EndSpin();
+  virtual void StartDolly();
+  virtual void EndDolly();
+  virtual void StartUniformScale();
+  virtual void EndUniformScale();
 
   // Description:
   // Specify the Xt widget to use for interaction. This method is
@@ -126,7 +166,7 @@ public:
   // window. You must use the SetWidget method to tell this Interactor
   // about that widget. It's X and it's not terribly easy, but it looks cool.
   virtual void SetWidget(Widget);
-  
+
   // Description:
   // Finish setting up a new window after the WindowRemap.
   virtual void FinishSettingUpNewWindow();
@@ -134,7 +174,7 @@ public:
   // Description:
   // Functions that are used internally.
   friend void vtkXRenderWindowInteractorCallback(Widget,XtPointer,
-					     XEvent *,Boolean *);
+                                                 XEvent *,Boolean *);
   friend void vtkXRenderWindowInteractorTimer(XtPointer,XtIntervalId *);
   virtual void SetupNewWindow(int Stereo = 0);
 
@@ -148,5 +188,3 @@ protected:
 };
 
 #endif
-
-

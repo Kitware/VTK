@@ -71,13 +71,6 @@ XrmOptionDescRec Desc[] =
 };
 
 
-// states
-#define VTKXI_START  0
-#define VTKXI_ROTATE 1
-#define VTKXI_ZOOM   2
-#define VTKXI_PAN    3
-
-
 // Construct an instance so that the light follows the camera motion.
 vtkXRenderWindowInteractor::vtkXRenderWindowInteractor()
 {
@@ -257,6 +250,7 @@ void  vtkXRenderWindowInteractor::UpdateSize(int x,int y)
 void  vtkXRenderWindowInteractor::StartRotate()
 {
   if (this->State != VTKXI_START) return;
+  this->Preprocess = 1;
   this->State = VTKXI_ROTATE;
   this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
   XtAppAddTimeOut(this->App,10,vtkXRenderWindowInteractorTimer,(XtPointer)this);
@@ -272,6 +266,7 @@ void  vtkXRenderWindowInteractor::EndRotate()
 void  vtkXRenderWindowInteractor::StartZoom()
 {
   if (this->State != VTKXI_START) return;
+  this->Preprocess = 1;
   this->State = VTKXI_ZOOM;
   this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
   XtAppAddTimeOut(this->App,10,vtkXRenderWindowInteractorTimer,(XtPointer)this);
@@ -286,28 +281,70 @@ void  vtkXRenderWindowInteractor::EndZoom()
 
 void  vtkXRenderWindowInteractor::StartPan()
 {
-  float *FocalPoint;
-  float *Result;
-
   if (this->State != VTKXI_START) return;
 
+  // calculation of focal depth has been moved to panning function.
+
+  this->Preprocess = 1;
   this->State = VTKXI_PAN;
   this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
-
-  // calculate the focal depth since we'll be using it a lot
-  FocalPoint = this->CurrentCamera->GetFocalPoint();
-      
-  this->CurrentRenderer->SetWorldPoint(FocalPoint[0],FocalPoint[1],
-				       FocalPoint[2],1.0);
-  this->CurrentRenderer->WorldToDisplay();
-  Result = this->CurrentRenderer->GetDisplayPoint();
-  this->FocalDepth = Result[2];
-
   XtAppAddTimeOut(this->App,10,vtkXRenderWindowInteractorTimer,(XtPointer)this);
 }
+
 void  vtkXRenderWindowInteractor::EndPan()
 {
   if (this->State != VTKXI_PAN) return;
+  this->State = VTKXI_START;
+  this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
+  this->RenderWindow->Render();
+}
+
+void  vtkXRenderWindowInteractor::StartSpin()
+{
+  if (this->State != VTKXI_START) return;
+  this->Preprocess = 1;
+  this->State = VTKXI_SPIN;
+  this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
+  XtAppAddTimeOut(this->App,10,vtkXRenderWindowInteractorTimer,(XtPointer)this);
+}
+
+void  vtkXRenderWindowInteractor::EndSpin()
+{
+  if (this->State != VTKXI_SPIN) return;
+  this->State = VTKXI_START;
+  this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
+  this->RenderWindow->Render();
+}
+
+void  vtkXRenderWindowInteractor::StartDolly()
+{
+  if (this->State != VTKXI_START) return;
+  this->Preprocess = 1;
+  this->State = VTKXI_DOLLY;
+  this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
+  XtAppAddTimeOut(this->App,10,vtkXRenderWindowInteractorTimer,(XtPointer)this);
+}
+
+void  vtkXRenderWindowInteractor::EndDolly()
+{
+  if (this->State != VTKXI_DOLLY) return;
+  this->State = VTKXI_START;
+  this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
+  this->RenderWindow->Render();
+}
+
+void  vtkXRenderWindowInteractor::StartUniformScale()
+{
+  if (this->State != VTKXI_START) return;
+  this->Preprocess = 1;
+  this->State = VTKXI_USCALE;
+  this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
+  XtAppAddTimeOut(this->App,10,vtkXRenderWindowInteractorTimer,(XtPointer)this);
+}
+
+void  vtkXRenderWindowInteractor::EndUniformScale()
+{
+  if (this->State != VTKXI_USCALE) return;
   this->State = VTKXI_START;
   this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
   this->RenderWindow->Render();
@@ -324,7 +361,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
 
   switch (event->type) 
     {
-    case Expose :
+    case Expose:
       XEvent result;
       while (XCheckTypedWindowEvent(me->DisplayId, me->WindowId,
 				    Expose, &result))
@@ -335,7 +372,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
       me->GetRenderWindow()->Render();
       break;
       
-    case ConfigureNotify : 
+    case ConfigureNotify: 
       {
       XEvent result;
       while (XCheckTypedWindowEvent(me->DisplayId, me->WindowId,
@@ -355,109 +392,183 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
       }
       break;
 
-    case ButtonPress : 
+    case ButtonPress: 
       {
       me->SetEventPosition(((XButtonEvent*)event)->x,
 			   me->Size[1] - ((XButtonEvent*)event)->y - 1);
       
+      me->OldX = ((XButtonEvent*)event)->x;
+      me->OldY = ((XButtonEvent*)event)->y;
+
+      if (((XButtonEvent *)event)->state & ControlMask) {
+	me->ControlMode = VTKXI_CONTROL_ON;
+      }
+      else {
+	me->ControlMode = VTKXI_CONTROL_OFF;
+      };
+ 
+      me->FindPokedCamera(((XButtonEvent*)event)->x,
+                          me->Size[1] - ((XButtonEvent*)event)->y - 1);
+
+      if (me->ActorMode) {
+        // Execute start method, if any
+        if ( me->StartPickMethod ) 
+          (*me->StartPickMethod)(me->StartPickMethodArg);
+        
+        me->Picker->Pick(((XButtonEvent*)event)->x,
+                         me->Size[1] - ((XButtonEvent*)event)->y - 1, 0.0,
+                         me->CurrentRenderer);
+
+        // if in actor mode, select the actor below the mouse pointer
+        me->InteractionPicker->Pick(((XButtonEvent*)event)->x,
+                                    me->Size[1] -
+                                    ((XButtonEvent*)event)->y - 1, 0.0,
+                                    me->CurrentRenderer);
+        me->InteractionActor = me->InteractionPicker->GetAssembly();
+        // refine the answer to whether an actor was picked.  CellPicker()
+        // returns true from Pick() if the bounding box was picked,
+        // but we only want something to be picked if a cell was actually
+        // selected
+        me->ActorPicked = (me->InteractionActor != NULL);
+        me->HighlightActor(me->InteractionActor);	  
+        
+        if ( me->EndPickMethod ) 
+          (*me->EndPickMethod)(me->EndPickMethodArg);
+      };
+
       switch (((XButtonEvent *)event)->button)
 	{
-	case Button1 : 
+	case Button1: 
 	  if (me->LeftButtonPressMethod) 
 	    {
 	    (*me->LeftButtonPressMethod)(me->LeftButtonPressMethodArg);
 	    }
 	  else
 	    {
-	    me->FindPokedCamera(((XButtonEvent*)event)->x,
-				me->Size[1] - ((XButtonEvent*)event)->y - 1);
-	    me->StartRotate(); 
+	    if (me->ControlMode) me->StartSpin();
+	    else                 me->StartRotate(); 
 	    }
 	  break;
-	case Button2 : 
+          
+	case Button2: 
 	  if (me->MiddleButtonPressMethod) 
 	    {
 	    (*me->MiddleButtonPressMethod)(me->MiddleButtonPressMethodArg);
 	    }
 	  else
 	    {
-	    me->FindPokedCamera(((XButtonEvent*)event)->x,
-				me->Size[1] - ((XButtonEvent*)event)->y - 1);
-	    me->StartPan(); 
+	    if (me->ControlMode) me->StartDolly();
+	    else                 me->StartPan(); 
 	    }
 	  break;
-	case Button3 : 
+          
+	case Button3: 
 	  if (me->RightButtonPressMethod) 
 	    {
 	    (*me->RightButtonPressMethod)(me->RightButtonPressMethodArg);
 	    }
 	  else
 	    {
-	    me->FindPokedCamera(((XButtonEvent*)event)->x,
-				me->Size[1] - ((XButtonEvent*)event)->y - 1);
-	    me->StartZoom(); 
+	    if (me->ActorMode) me->StartUniformScale();
+	    else               me->StartZoom(); 
 	    }
 	  break;
 	}
       }
       break;
 
-    case ButtonRelease : 
+    case ButtonRelease: 
       {
       me->SetEventPosition(((XButtonEvent*)event)->x,
 			   me->Size[1] - ((XButtonEvent*)event)->y - 1);
+
+      // don't change actor mode in the middle of mouse movement
+      // don't change control mode in the middle of mouse movement
+
       switch (((XButtonEvent *)event)->button)
 	{
-	case Button1 :
+	case Button1:
 	  if (me->LeftButtonReleaseMethod) 
 	    {
 	    (*me->LeftButtonReleaseMethod)(me->LeftButtonReleaseMethodArg);
 	    }
-	  else me->EndRotate(); 
+	  else {
+	    if (me->ControlMode) me->EndSpin();
+	    else                 me->EndRotate(); 
+	  }
 	  break;
-	case Button2 :
+
+	case Button2:
 	  if (me->MiddleButtonReleaseMethod) 
 	    {
 	    (*me->MiddleButtonReleaseMethod)(me->MiddleButtonReleaseMethodArg);
 	    }
-	  else me->EndPan(); 
+	  else {
+	    if (me->ControlMode) me->EndDolly();
+	    else                 me->EndPan();
+	  }
 	  break;
-	case Button3 : 
+          
+	case Button3: 
 	  if (me->RightButtonReleaseMethod) 
 	    {
 	    (*me->RightButtonReleaseMethod)(me->RightButtonReleaseMethodArg);
 	    }
-	  else me->EndZoom(); 
+	  else {
+	    if (me->ActorMode) me->EndUniformScale();
+	    else               me->EndZoom();
+	  };
 	  break;
-	}
-      }
+          
+	};
+      me->OldX = 0.0;
+      me->OldY = 0.0;
+      };
       break;
 
-    case KeyPress :
+    case KeyPress:
       {
       KeySym ks;
       static char buffer[20];
 
       XLookupString((XKeyEvent *)event,buffer,20,&ks,NULL);
+
       switch (ks)
 	{
-	case XK_e : 
+	case XK_q:
+	case XK_Q:
+	case XK_e:
+	case XK_E:
+          {
 	  if (me->ExitMethod) (*me->ExitMethod)(me->ExitMethodArg);
 	  else exit(1);
-	  break;
-	case XK_u :
-	  if (me->UserMethod) (*me->UserMethod)(me->UserMethodArg);
-	  break;
-	case XK_r : //reset
+	  }
+          break;
+          
+	case XK_u:
+	case XK_U:
 	  {
-          me->FindPokedRenderer(((XKeyEvent*)event)->x,
-			        me->Size[1] - ((XKeyEvent*)event)->y - 1);
-	  me->CurrentRenderer->ResetCamera();
-	  me->RenderWindow->Render();
+          if (me->UserMethod) (*me->UserMethod)(me->UserMethodArg);
           }
+          break;
+          
+	case XK_r:
+	case XK_R: //reset
+	  {
+	    if (me->ActorMode) {
+	      cout << "Please switch to camera mode then reset" << endl;
+	    }
+	    else {
+	      me->FindPokedRenderer(((XKeyEvent*)event)->x,
+				    me->Size[1] - ((XKeyEvent*)event)->y - 1);
+	      me->CurrentRenderer->ResetCamera();
+	      me->RenderWindow->Render();
+	    };
+	  }
 	  break;
 
-	case XK_w : //change all actors to wireframe
+	case XK_w:
+	case XK_W: //change all actors to wireframe
 	  {
 	  vtkActorCollection *ac;
 	  vtkActor *anActor, *aPart;
@@ -477,7 +588,8 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
 	  }
 	  break;
 
-	case XK_s : //change all actors to "surface" or solid
+	case XK_s:
+	case XK_S: //change all actors to "surface" or solid
 	  {
 	  vtkActorCollection *ac;
 	  vtkActor *anActor, *aPart;
@@ -487,8 +599,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
 	  ac = me->CurrentRenderer->GetActors();
 	  for (ac->InitTraversal(); (anActor = ac->GetNextItem()); )
 	    {
-            for (anActor->InitPartTraversal(); 
-		 (aPart=anActor->GetNextPart()); )
+            for (anActor->InitPartTraversal();(aPart=anActor->GetNextPart()); )
               {
               aPart->GetProperty()->SetRepresentationToSurface();
               }
@@ -498,7 +609,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
           }
 	  break;
 
-	case XK_3 : //3d stereo
+	case XK_3: //3d stereo
 	  {
 	  // prepare the new window
 	  if (me->RenderWindow->GetStereoRender())
@@ -527,22 +638,65 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
           }
 	  break;
 
-	case XK_p : //pick actors
+	case XK_p:
+	case XK_P: //pick actors
 	  {
-          me->FindPokedRenderer(((XKeyEvent*)event)->x,
-			        me->Size[1] - ((XKeyEvent*)event)->y - 1);
-          // Execute start method, if any
+            me->FindPokedRenderer(((XKeyEvent*)event)->x,
+                                  me->Size[1] - ((XKeyEvent*)event)->y - 1);
+            // Execute start method, if any
 
-          if ( me->StartPickMethod ) 
-            (*me->StartPickMethod)(me->StartPickMethodArg);
-          me->Picker->Pick(((XButtonEvent*)event)->x,
+            if ( me->StartPickMethod ) 
+              (*me->StartPickMethod)(me->StartPickMethodArg);
+            me->Picker->Pick(((XButtonEvent*)event)->x,
                              me->Size[1] - ((XButtonEvent*)event)->y - 1, 0.0,
                              me->CurrentRenderer);
-          me->HighlightActor(me->Picker->GetAssembly());
-          if ( me->EndPickMethod ) 
-            (*me->EndPickMethod)(me->EndPickMethodArg);
+	    // set actor in all modes, so when switching, actor still selected
+            me->InteractionPicker->Pick(((XButtonEvent*)event)->x,
+                                        me->Size[1] -
+                                        ((XButtonEvent*)event)->y - 1, 0.0,
+                                        me->CurrentRenderer);
+            me->InteractionActor = (me->InteractionPicker)->GetAssembly();
+            me->ActorPicked = (me->InteractionActor != NULL);
+            me->HighlightActor(me->InteractionActor);	  
+
+            if ( me->EndPickMethod ) 
+              (*me->EndPickMethod)(me->EndPickMethodArg);
           }
 	  break;
+
+	case XK_j:
+	case XK_J: //joystick style interaction
+	  {
+	    me->TrackballMode = VTKXI_JOY;
+	    cout << "Swtich to Joystick style interaction." << endl;
+	  }
+	  break;
+
+	case XK_t:
+	case XK_T: //trackball style interaction
+	  {
+	    me->TrackballMode = VTKXI_TRACK;
+	    cout << "Swtich to Trackball style interaction." << endl;
+	  }
+	  break;
+
+
+	case XK_o:
+	case XK_O: //joystick style interaction
+	  {
+	    me->ActorMode = VTKXI_ACTOR;
+	    cout << "Swtich to Object/Actor interaction." << endl;
+	  }
+	  break;
+
+	case XK_c:
+	case XK_C: //trackball style interaction
+	  {
+	    me->ActorMode = VTKXI_CAMERA;
+	    cout << "Swtich to Camera mode interaction." << endl;
+	  }
+	  break;
+          
         }
       }
       break;
@@ -556,113 +710,120 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,
   Window root,child;
   int root_x,root_y;
   int x,y;
-  float xf,yf;
+  float xf,yf;   // kept for compatibility
   unsigned int keys;
 
   me = (vtkXRenderWindowInteractor *)client_data;
 
+  // get the pointer position
+  XQueryPointer(me->DisplayId,me->WindowId,
+		&root,&child,&root_x,&root_y,&x,&y,&keys);
 
   if (me->TimerMethod) 
     {
-    XQueryPointer(me->DisplayId,me->WindowId,
-		  &root,&child,&root_x,&root_y,&x,&y,&keys);
     me->SetEventPosition(x,me->Size[1] - y - 1);
     (*me->TimerMethod)(me->TimerMethodArg);
-    }
+    };
   
-  
-  switch (me->State)
-    {
-    case VTKXI_ROTATE :
-      // get the pointer position
-      XQueryPointer(me->DisplayId,me->WindowId,
-		    &root,&child,&root_x,&root_y,&x,&y,&keys);
-      xf = (x - me->Center[0]) * me->DeltaAzimuth;
-      yf = ((me->Size[1] - y) - me->Center[1]) * me->DeltaElevation;
-      me->CurrentCamera->Azimuth(xf);
-      me->CurrentCamera->Elevation(yf);
-      me->CurrentCamera->OrthogonalizeViewUp();
-      if (me->LightFollowCamera)
-	{
-	/* get the first light */
-	me->CurrentLight->SetPosition(me->CurrentCamera->GetPosition());
-	me->CurrentLight->SetFocalPoint(me->CurrentCamera->GetFocalPoint());
-	}
-      me->RenderWindow->Render();
-      XtAppAddTimeOut(me->App,10,vtkXRenderWindowInteractorTimer,client_data);
-      break;
-    case VTKXI_PAN :
-      {
-      float  FPoint[3];
-      float *PPoint;
-      float  APoint[3];
-      float  RPoint[4];
-
-      // get the current focal point and position
-      memcpy(FPoint,me->CurrentCamera->GetFocalPoint(),sizeof(float)*3);
-      PPoint = me->CurrentCamera->GetPosition();
-
-      // get the pointer position
-      XQueryPointer(me->DisplayId,me->WindowId,
-		    &root,&child,&root_x,&root_y,&x,&y,&keys);
-
-      APoint[0] = x;
-      APoint[1] = me->Size[1] - y;
-      APoint[2] = me->FocalDepth;
-      me->CurrentRenderer->SetDisplayPoint(APoint);
-      me->CurrentRenderer->DisplayToWorld();
-      memcpy(RPoint,me->CurrentRenderer->GetWorldPoint(),sizeof(float)*4);
-      if (RPoint[3])
-	{
-	RPoint[0] = RPoint[0]/RPoint[3];
-	RPoint[1] = RPoint[1]/RPoint[3];
-	RPoint[2] = RPoint[2]/RPoint[3];
-	}
-
-      /*
-       * Compute a translation vector, moving everything 1/10 
-       * the distance to the cursor. (Arbitrary scale factor)
-       */
-      me->CurrentCamera->SetFocalPoint(
-	(FPoint[0]-RPoint[0])/10.0 + FPoint[0],
-	(FPoint[1]-RPoint[1])/10.0 + FPoint[1],
-	(FPoint[2]-RPoint[2])/10.0 + FPoint[2]);
-      me->CurrentCamera->SetPosition(
-	(FPoint[0]-RPoint[0])/10.0 + PPoint[0],
-	(FPoint[1]-RPoint[1])/10.0 + PPoint[1],
-	(FPoint[2]-RPoint[2])/10.0 + PPoint[2]);
-      
-      me->RenderWindow->Render();
-      XtAppAddTimeOut(me->App,10,vtkXRenderWindowInteractorTimer,client_data);
+  switch (me->State) {
+    case VTKXI_ROTATE: {
+      if (me->ActorMode && me->ActorPicked) {
+        if (me->TrackballMode) {
+          me->TrackballRotateActor(x, y);
+        }
+        else {
+          me->JoystickRotateActor(x, y);
+        };
       }
-      break;
-    case VTKXI_ZOOM :
-      {
-      float zoomFactor;
-      float *clippingRange;
-
-      // get the pointer position
-      XQueryPointer(me->DisplayId,me->WindowId,
-		    &root,&child,&root_x,&root_y,&x,&y,&keys);
-      yf = ((me->Size[1] - y) - me->Center[1])/(float)me->Center[1];
-      zoomFactor = pow((float)1.1,yf);
-      if (me->CurrentCamera->GetParallelProjection())
-	{
-	me->CurrentCamera->
-	  SetParallelScale(me->CurrentCamera->GetParallelScale()/zoomFactor);
-	}
-      else
-	{
-	clippingRange = me->CurrentCamera->GetClippingRange();
-	me->CurrentCamera->SetClippingRange(clippingRange[0]/zoomFactor,
-					    clippingRange[1]/zoomFactor);
-	me->CurrentCamera->Dolly(zoomFactor);
-	}
-      me->RenderWindow->Render();
-      XtAppAddTimeOut(me->App,10,vtkXRenderWindowInteractorTimer,client_data);
+      else if (!(me->ActorMode)) {
+        if (me->TrackballMode) {
+          me->TrackballRotateCamera(x, y);
+        }
+        else {
+          me->JoystickRotateCamera(x, y);
+        };
+      };
+    };
+    break;
+    
+    case VTKXI_PAN: {
+      if (me->ActorMode && me->ActorPicked) {
+        if (me->TrackballMode) {
+          me->TrackballPanActor(x, y);
+        }
+        else {
+          me->JoystickPanActor(x, y);
+        };
       }
-      break;
+      else if (!(me->ActorMode)) {
+        if (me->TrackballMode) {
+          me->TrackballPanCamera(x, y);
+        }
+        else {
+          me->JoystickPanCamera(x, y);
+        };
+      };
+    };
+    break;
+
+    case VTKXI_ZOOM: {
+      if (!(me->ActorMode)) {
+        if (me->TrackballMode) {
+          me->TrackballDollyCamera(x, y);
+        }
+        else {
+          me->JoystickDollyCamera(x, y);
+        };
+      };
+    };
+    break;
+    
+    case VTKXI_SPIN: {
+      if (me->ActorMode && me->ActorPicked) {
+	if (me->TrackballMode) { 
+          me->TrackballSpinActor(x, y);
+        }
+        else {
+          me->JoystickSpinActor(x, y);
+        };
+      }
+      else if (!(me->ActorMode)) {
+        if (me->TrackballMode) {
+          me->TrackballSpinCamera(x, y);
+        }
+        else {
+          me->JoystickSpinCamera(x, y);
+        };
+      };
+    };
+    break;
+    
+    case VTKXI_DOLLY: {
+      if (me->ActorMode && me->ActorPicked) {
+        if (me->TrackballMode) {
+          me->TrackballDollyActor(x, y);
+        }
+        else {
+          me->JoystickDollyActor(x, y);
+        };
+      };
+    };
+    break;
+    
+    case VTKXI_USCALE: {
+      if (me->ActorMode && me->ActorPicked) {
+        if (me->TrackballMode) {
+          me->TrackballScaleActor(x, y);
+        }
+        else {
+          me->JoystickScaleActor(x, y);
+        };
+      };
+    };
+    break;
+    
     }
+  XtAppAddTimeOut(me->App,10,vtkXRenderWindowInteractorTimer,client_data);
 }  
 
 
@@ -742,4 +903,3 @@ void vtkXRenderWindowInteractor::FinishSettingUpNewWindow()
   this->Size[0] = size[0];
   this->Size[1] = size[1];
 }
-
