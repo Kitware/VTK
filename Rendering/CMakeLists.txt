@@ -419,6 +419,10 @@ IF (VTK_WRAP_PYTHON)
      IF (TK_INCLUDE_PATH)
        INCLUDE_DIRECTORIES(${TK_INCLUDE_PATH})
      ENDIF (TK_INCLUDE_PATH)
+     # add in the Tcl values if found
+     IF (TCL_INCLUDE_PATH)
+       INCLUDE_DIRECTORIES(${TCL_INCLUDE_PATH})
+     ENDIF (TCL_INCLUDE_PATH)
 
      # find the tk internals for win32
      IF (WIN32)
@@ -444,7 +448,12 @@ IF (VTK_WRAP_PYTHON)
        IF (TK_XLIB_PATH)
          INCLUDE_DIRECTORIES(${TK_XLIB_PATH})
        ENDIF (TK_XLIB_PATH)
-     ENDIF (WIN32) 
+     ENDIF (WIN32)
+     
+     # find the tk internals for Mac OSX
+     IF (APPLE)
+       INCLUDE_DIRECTORIES(${VTK_SOURCE_DIR}/Rendering/tkOSXInternals)
+     ENDIF (APPLE)
 
   ENDIF (TK_LIBRARY)
 ENDIF (VTK_WRAP_PYTHON)
