@@ -24,6 +24,10 @@ int main(int argc, char *argv[])
 
   // Create a grid image to be used later.
   vtkImageGridSource *image      = vtkImageGridSource::New();
+  image->SetDataScalarTypeToUnsignedChar();
+  image->SetFillValue(255);
+  image->SetLineValue(0);
+  
   vtkImageActor      *imageActor = vtkImageActor::New();
   imageActor->SetInput(image->GetOutput());
 
