@@ -173,7 +173,7 @@ void vtkVolumeRayCastMapper::CastViewRay( VTKRayCastRayInfo *rayInfo,
   float   nearplane, farplane, bounderNear, bounderFar;
   float   oneStep[4], volumeOneStep[4];
   int     bitFlag, bitLoop;
-  float   savedClippingPlanes[6];
+  float   bounds[6];
   float   savedRayStart[3];
   float   savedRayEnd[3];
   float   savedRayDirection[3];
@@ -280,7 +280,7 @@ void vtkVolumeRayCastMapper::CastViewRay( VTKRayCastRayInfo *rayInfo,
   if ( incrementLength && rayLength && 
        (!this->Clipping || this->ClippingRegionFlags == 0x2000) )
     {
-    if ( this->ClipRayAgainstVolume( rayInfo, volumeInfo ) )
+    if ( this->ClipRayAgainstVolume( rayInfo, volumeInfo, this->VolumeBounds ) )
       {
       // Recompute the ray length since the start and end may have been
       // modified by ClipRayAgainstVolume() 
@@ -330,7 +330,6 @@ void vtkVolumeRayCastMapper::CastViewRay( VTKRayCastRayInfo *rayInfo,
   // merge the results.
   else
     {
-    memcpy( savedClippingPlanes, this->ClippingPlanes, 6*sizeof(float) );
     memcpy( savedRayStart, volumeRayStart, 3*sizeof(float) );
     memcpy( savedRayEnd, volumeRayEnd, 3*sizeof(float) );
     memcpy( savedRayDirection, volumeRayDirection, 3*sizeof(float) );
@@ -349,52 +348,64 @@ void vtkVolumeRayCastMapper::CastViewRay( VTKRayCastRayInfo *rayInfo,
 	switch ( bitLoop % 3 )
 	  {
 	  case 0:
-	    this->ClippingPlanes[0] = 0;
-	    this->ClippingPlanes[1] = savedClippingPlanes[0];
+	    bounds[0] = 0;
+	    bounds[1] = this->ClippingPlanes[0];
 	    break;
 	  case 1:
-	    this->ClippingPlanes[0] = savedClippingPlanes[0];
-	    this->ClippingPlanes[1] = savedClippingPlanes[1];
+	    bounds[0] = this->ClippingPlanes[0];
+	    bounds[1] = this->ClippingPlanes[1];
 	    break;
 	  case 2:
-	    this->ClippingPlanes[0] = savedClippingPlanes[1];
-	    this->ClippingPlanes[1] = volumeInfo->DataSize[0] - 1;
+	    bounds[0] = this->ClippingPlanes[1];
+	    bounds[1] = volumeInfo->DataSize[0] - 1;
 	    break;
 	  }
 
 	switch ( (bitLoop % 9) / 3 )
 	  {
 	  case 0:
-	    this->ClippingPlanes[2] = 0;
-	    this->ClippingPlanes[3] = savedClippingPlanes[2];
+	    bounds[2] = 0;
+	    bounds[3] = this->ClippingPlanes[2];
 	    break;
 	  case 1:
-	    this->ClippingPlanes[2] = savedClippingPlanes[2];
-	    this->ClippingPlanes[3] = savedClippingPlanes[3];
+	    bounds[2] = this->ClippingPlanes[2];
+	    bounds[3] = this->ClippingPlanes[3];
 	    break;
 	  case 2:
-	    this->ClippingPlanes[2] = savedClippingPlanes[3];
-	    this->ClippingPlanes[3] = volumeInfo->DataSize[1] - 1;
+	    bounds[2] = this->ClippingPlanes[3];
+	    bounds[3] = volumeInfo->DataSize[1] - 1;
 	    break;
 	  }
 
 	switch ( bitLoop / 9 )
 	  {
 	  case 0:
-	    this->ClippingPlanes[4] = 0;
-	    this->ClippingPlanes[5] = savedClippingPlanes[4];
+	    bounds[4] = 0;
+	    bounds[5] = this->ClippingPlanes[4];
 	    break;
 	  case 1:
-	    this->ClippingPlanes[4] = savedClippingPlanes[4];
-	    this->ClippingPlanes[5] = savedClippingPlanes[5];
+	    bounds[4] = this->ClippingPlanes[4];
+	    bounds[5] = this->ClippingPlanes[5];
 	    break;
 	  case 2:
-	    this->ClippingPlanes[4] = savedClippingPlanes[5];
-	    this->ClippingPlanes[5] = volumeInfo->DataSize[2] - 1;
+	    bounds[4] = this->ClippingPlanes[5];
+	    bounds[5] = volumeInfo->DataSize[2] - 1;
 	    break;
 	  }
 
-	if ( this->ClipRayAgainstVolume( rayInfo, volumeInfo ) )
+	for ( i = 0; i < 3; i++ )
+	  {
+	  if ( bounds[2*i] < 0 )
+	    {
+	    bounds[2*i] = 0;
+	    }
+	  if ( bounds[2*i + 1] > (volumeInfo->DataSize[i]-1) )
+	    {
+	    bounds[2*i + 1] = (volumeInfo->DataSize[i] - 1);
+	    }
+	  }
+
+	if ( this->ClipRayAgainstVolume( rayInfo, volumeInfo, bounds ) )
 	  {
 	  // Recompute the ray length since the start and end may have been
 	  // modified by ClipRayAgainstVolume() 
@@ -480,12 +491,12 @@ void vtkVolumeRayCastMapper::CastViewRay( VTKRayCastRayInfo *rayInfo,
       }
     rayInfo->Color[3] = 1.0 - rayInfo->Color[3];
 
-    memcpy( this->ClippingPlanes, savedClippingPlanes, 6*sizeof(float) );
-
     }
 }
 
-int vtkVolumeRayCastMapper::ClipRayAgainstVolume( VTKRayCastRayInfo *rayInfo, VTKRayCastVolumeInfo *volumeInfo )
+int vtkVolumeRayCastMapper::ClipRayAgainstVolume( VTKRayCastRayInfo *rayInfo, 
+						  VTKRayCastVolumeInfo *volumeInfo,
+						  float bounds[6] )
 {
   int    loop, i;
   float  diff;
@@ -496,42 +507,24 @@ int vtkVolumeRayCastMapper::ClipRayAgainstVolume( VTKRayCastRayInfo *rayInfo, VT
   rayEnd = rayInfo->TransformedEnd;
   rayDirection = rayInfo->TransformedDirection;
 
-  if ( this->Clipping && this->ClippingRegionFlags != 0x2000 )
-    {
-    for ( i = 0; i < 3; i++ )
-      {
-      this->VolumeBounds[2*i] = 0.0;
-      this->VolumeBounds[2*i+1] = volumeInfo->DataSize[i] - 1;
-
-      if ( this->ClippingPlanes[2*i] > this->VolumeBounds[2*i] )
-	{
-	this->VolumeBounds[2*i] = this->ClippingPlanes[2*i];
-	}
-      if ( this->ClippingPlanes[2*i+1] < this->VolumeBounds[2*i+1] )
-	{
-	this->VolumeBounds[2*i+1] = this->ClippingPlanes[2*i+1];
-	}
-      }
-    }
-
-  if ( rayStart[0] >= this->VolumeBounds[1] ||
-       rayStart[1] >= this->VolumeBounds[3] ||
-       rayStart[2] >= this->VolumeBounds[5] ||
-       rayStart[0] < this->VolumeBounds[0] || 
-       rayStart[1] < this->VolumeBounds[2] || 
-       rayStart[2] < this->VolumeBounds[4] )
+  if ( rayStart[0] >= bounds[1] ||
+       rayStart[1] >= bounds[3] ||
+       rayStart[2] >= bounds[5] ||
+       rayStart[0] < bounds[0] || 
+       rayStart[1] < bounds[2] || 
+       rayStart[2] < bounds[4] )
     {
     for ( loop = 0; loop < 3; loop++ )
       {
       diff = 0;
 
-      if ( rayStart[loop] < (this->VolumeBounds[2*loop]+0.01) )
+      if ( rayStart[loop] < (bounds[2*loop]+0.01) )
 	{
-	diff = (this->VolumeBounds[2*loop]+0.01) - rayStart[loop];
+	diff = (bounds[2*loop]+0.01) - rayStart[loop];
 	}
-      else if ( rayStart[loop] > (this->VolumeBounds[2*loop+1]-0.01) )
+      else if ( rayStart[loop] > (bounds[2*loop+1]-0.01) )
 	{
-	diff = (this->VolumeBounds[2*loop+1]-0.01) - rayStart[loop];
+	diff = (bounds[2*loop+1]-0.01) - rayStart[loop];
 	}
       
       if ( diff )
@@ -558,36 +551,36 @@ int vtkVolumeRayCastMapper::ClipRayAgainstVolume( VTKRayCastRayInfo *rayInfo, VT
   // If the voxel still isn't inside the volume, then this ray
   // doesn't really intersect the volume
 	  
-  if ( rayStart[0] >= this->VolumeBounds[1] ||
-       rayStart[1] >= this->VolumeBounds[3] ||
-       rayStart[2] >= this->VolumeBounds[5] ||
-       rayStart[0] < this->VolumeBounds[0] || 
-       rayStart[1] < this->VolumeBounds[2] || 
-       rayStart[2] < this->VolumeBounds[4] )
+  if ( rayStart[0] >= bounds[1] ||
+       rayStart[1] >= bounds[3] ||
+       rayStart[2] >= bounds[5] ||
+       rayStart[0] < bounds[0] || 
+       rayStart[1] < bounds[2] || 
+       rayStart[2] < bounds[4] )
     {
     return 0;
     }
 
   // The ray does intersect the volume, and we have a starting
   // position that is inside the volume
-  if ( rayEnd[0] >= this->VolumeBounds[1] ||
-       rayEnd[1] >= this->VolumeBounds[3] ||
-       rayEnd[2] >= this->VolumeBounds[5] ||
-       rayEnd[0] < this->VolumeBounds[0] || 
-       rayEnd[1] < this->VolumeBounds[2] || 
-       rayEnd[2] < this->VolumeBounds[4] )
+  if ( rayEnd[0] >= bounds[1] ||
+       rayEnd[1] >= bounds[3] ||
+       rayEnd[2] >= bounds[5] ||
+       rayEnd[0] < bounds[0] || 
+       rayEnd[1] < bounds[2] || 
+       rayEnd[2] < bounds[4] )
     {
     for ( loop = 0; loop < 3; loop++ )
       {
       diff = 0;
       
-      if ( rayEnd[loop] < (this->VolumeBounds[2*loop]+0.01) )
+      if ( rayEnd[loop] < (bounds[2*loop]+0.01) )
 	{
-	diff = (this->VolumeBounds[2*loop]+0.01) - rayEnd[loop];
+	diff = (bounds[2*loop]+0.01) - rayEnd[loop];
 	}
-      else if ( rayEnd[loop] > (this->VolumeBounds[2*loop+1]-0.01) )
+      else if ( rayEnd[loop] > (bounds[2*loop+1]-0.01) )
 	{
-	diff = (this->VolumeBounds[2*loop+1]-0.01) - rayEnd[loop];
+	diff = (bounds[2*loop+1]-0.01) - rayEnd[loop];
 	}
       
       if ( diff )
@@ -620,12 +613,12 @@ int vtkVolumeRayCastMapper::ClipRayAgainstVolume( VTKRayCastRayInfo *rayInfo, VT
       }
     }
   
-  if ( rayEnd[0] >= this->VolumeBounds[1] ||
-       rayEnd[1] >= this->VolumeBounds[3] ||
-       rayEnd[2] >= this->VolumeBounds[5] ||
-       rayEnd[0] < this->VolumeBounds[0] || 
-       rayEnd[1] < this->VolumeBounds[2] || 
-       rayEnd[2] < this->VolumeBounds[4] )
+  if ( rayEnd[0] >= bounds[1] ||
+       rayEnd[1] >= bounds[3] ||
+       rayEnd[2] >= bounds[5] ||
+       rayEnd[0] < bounds[0] || 
+       rayEnd[1] < bounds[2] || 
+       rayEnd[2] < bounds[4] )
     {
       return 0;
     }

@@ -168,7 +168,8 @@ protected:
 
 //BTX
   int                          ClipRayAgainstVolume( VTKRayCastRayInfo *rayInfo,
-						     VTKRayCastVolumeInfo *volumeInfo );
+						     VTKRayCastVolumeInfo *volumeInfo,
+						     float bounds[6] );
 //ETX
   void                         GeneralImageInitialization( vtkRenderer *ren, 
 							   vtkVolume *vol );
