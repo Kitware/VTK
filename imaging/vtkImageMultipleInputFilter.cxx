@@ -104,6 +104,12 @@ void vtkImageMultipleInputFilter::AddInput(vtkImageData *input)
 }
 
 //----------------------------------------------------------------------------
+void vtkImageMultipleInputFilter::RemoveInput(vtkImageData *input)
+{
+  this->vtkProcessObject::RemoveInput(input);
+}
+
+//----------------------------------------------------------------------------
 // Set an Input of this filter. 
 void vtkImageMultipleInputFilter::SetInput(int idx, vtkImageData *input)
 {
