@@ -22,11 +22,10 @@
 #include "vtkGenericCell.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkSmartPointer.h"
 
 #include <vector>
 
-vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.23");
+vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.24");
 vtkStandardNewMacro(vtkInterpolatedVelocityField);
 
 typedef vtkstd::vector< vtkDataSet* > DataSetsTypeBase;
