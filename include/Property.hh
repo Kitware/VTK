@@ -100,6 +100,12 @@ public:
   vtkBooleanMacro(EdgeVisibility,int);
 
   // Description:
+  // Turn backface properties on and off. (not implemented yet)
+  vtkGetMacro(Backface,int);
+  vtkSetMacro(Backface,int);
+  vtkBooleanMacro(Backface,int);
+
+  // Description:
   // Set the ambient light color.
   vtkSetVector3Macro(AmbientColor,float);
   vtkGetVectorMacro(AmbientColor,float,3);
