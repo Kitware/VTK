@@ -20,14 +20,17 @@
 #include "vtkObjectFactory.h"
 #include "vtkToolkits.h"
 
-vtkCxxRevisionMacro(vtkCompositer, "1.1");
+vtkCxxRevisionMacro(vtkCompositer, "1.2");
 vtkStandardNewMacro(vtkCompositer);
 
 //-------------------------------------------------------------------------
 vtkCompositer::vtkCompositer()
 {
   this->Controller = vtkMultiProcessController::GetGlobalController();
-  this->Controller->Register(this);
+  if (this->Controller)
+    {
+    this->Controller->Register(this);
+    }
 }
   
 //-------------------------------------------------------------------------
@@ -38,7 +41,7 @@ vtkCompositer::~vtkCompositer()
 
 //-------------------------------------------------------------------------
 void vtkCompositer::CompositeBuffer(vtkDataArray *pBuf, vtkFloatArray *zBuf,
-				                            vtkDataArray *pTmp, vtkFloatArray *zTmp)
+                                    vtkDataArray *pTmp, vtkFloatArray *zTmp)
 {
   pBuf = pBuf;
   zBuf = zBuf;
