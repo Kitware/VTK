@@ -121,11 +121,12 @@ public:
                   float mid[3], float min[3], float size[3]);
 
   // Description:
-  // Compute an OBB from the list of cells given. Return the corner point
-  // and the three axes defining the orientation of the OBB. Also return
-  // a sorted list of relative "sizes" of axes for comparison purposes.
-  void ComputeOBB(vtkIdList *cells, float corner[3], float max[3], 
-                       float mid[3], float min[3], float size[3]);
+  // Compute an OBB for the input dataset using the cells in the data.
+  // Return the corner point and the three axes defining the orientation
+  // of the OBB. Also return a sorted list of relative "sizes" of axes for
+  // comparison purposes.
+  void ComputeOBB(vtkDataSet *input, float corner[3], float max[3],
+                            float mid[3], float min[3], float size[3]);
 
   int IntersectWithLine(float a0[3], float a1[3], float tol,
                         float& t, float x[3], float pcoords[3],
@@ -179,6 +180,12 @@ public:
   void GenerateRepresentation(int level, vtkPolyData *pd);
 
 protected:
+  // Compute an OBB from the list of cells given.  This used to be
+  // public but should not have been.  A public call has been added
+  // so that the funtionality can be accessed.
+  void ComputeOBB(vtkIdList *cells, float corner[3], float max[3], 
+                       float mid[3], float min[3], float size[3]);
+
   vtkOBBNode *Tree;
   void BuildTree(vtkIdList *cells, vtkOBBNode *parent, int level);
   vtkPoints *PointsList;

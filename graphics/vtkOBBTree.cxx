@@ -209,6 +209,55 @@ void vtkOBBTree::ComputeOBB(vtkPoints *pts, float corner[3], float max[3],
     }
 }
 
+// a method to compute the OBB of a dataset without having to go through the 
+// Execute method; It does set 
+void vtkOBBTree::ComputeOBB(vtkDataSet *input, float corner[3], float max[3],
+                            float mid[3], float min[3], float size[3])
+{
+  int numPts, numCells, i;
+  vtkIdList *cellList;
+  vtkDataSet *origDataSet;
+
+  vtkDebugMacro(<<"Computing OBB");
+
+  if ( input == NULL || (numPts = input->GetNumberOfPoints()) < 1 ||
+      (input->GetNumberOfCells()) < 1 )
+    {
+    vtkErrorMacro(<<"Can't compute OBB - no data available!");
+    return;
+    }
+
+  // save previous value of DataSet and reset after calling ComputeOBB because
+  // computeOBB used this->DataSet internally
+  origDataSet = this->DataSet;
+  this->DataSet = input;
+
+  // these are other member variables that ComputeOBB requires
+  this->OBBCount = 0;
+  this->InsertedPoints = new int[numPts];
+  for (i=0; i < numPts; i++)
+    {
+    this->InsertedPoints[i] = 0;
+    }
+  this->PointsList = vtkPoints::New();
+  this->PointsList->Allocate(numPts);
+
+  cellList = vtkIdList::New();
+  cellList->Allocate(numCells);
+  for (i=0; i < numCells; i++)
+    {
+    cellList->InsertId(i,i);
+    }
+
+  this->ComputeOBB(cellList, corner, max, mid, min, size);
+
+  this->DataSet = origDataSet;
+  delete [] this->InsertedPoints;
+  this->PointsList->Delete();
+  cellList->Delete();
+  }
+
+
 // Compute an OBB from the list of cells given. Return the corner point
 // and the three axes defining the orientation of the OBB. Also return
 // a sorted list of relative "sizes" of axes for comparison purposes.
