@@ -62,7 +62,7 @@ vtkEncodedGradientEstimator \
 vtkExporter \
 vtkImporter \
 vtkMapper \
-vtkProp \
+vtkProp3D \
 vtkSpline \
 vtkVolumeMapper \
 vtkVolumeRayCastFunction \

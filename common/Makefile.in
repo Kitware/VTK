@@ -20,6 +20,7 @@ vtkFloatTCoords \
 vtkFloatTensors \
 vtkFloatVectors \
 vtkImplicitFunctionCollection \
+vtkPropCollection \
 vtkTransformCollection \
 vtkVersion
 
@@ -32,9 +33,7 @@ vtkImplicitFunction \
 vtkImageCache \
 vtkImageSource \
 vtkLocator \
-vtkMapper2D \
 vtkPointSet \
-vtkProp2D \
 vtkViewport \
 vtkWindow
 
@@ -71,6 +70,7 @@ vtkLine \
 vtkLogLookupTable \
 vtkLongArray \
 vtkLookupTable \
+vtkMapper2D \
 vtkMath \
 vtkMatrix4x4 \
 vtkMultiThreader \
@@ -88,6 +88,7 @@ vtkPolyVertex \
 vtkPolygon \
 vtkPriorityQueue \
 vtkProcessObject \
+vtkProp \
 vtkProperty2D \
 vtkPyramid \
 vtkQuad \

@@ -84,7 +84,7 @@ class VTK_EXPORT vtkActor2DCollection : public vtkCollection
 
   // Description:
   // Sort and then render the collection of 2D actors.  
-  void Render(vtkViewport* viewport);
+  void RenderOverlay(vtkViewport* viewport);
 
 
 protected:

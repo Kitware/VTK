@@ -46,17 +46,29 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // a vtkMapper2D object which does the rendering.
 
 // .SECTION See Also
-// vtkProp2D  vtkMapper2D vtkProperty2D
+// vtkProp  vtkMapper2D vtkProperty2D
 
 #ifndef __vtkActor2D_h
 #define __vtkActor2D_h
 
-#include "vtkProp2D.h"
+#include "vtkProp.h"
+#include "vtkCoordinate.h"
+#include "vtkProperty2D.h"
 class vtkMapper2D;
 
-class VTK_EXPORT vtkActor2D : public vtkProp2D
+class VTK_EXPORT vtkActor2D : public vtkProp
 {
 public:
+  static vtkActor2D* New() {return new vtkActor2D;};
+  void PrintSelf(ostream& os, vtkIndent indent);
+  const char *GetClassName() {return "vtkActor2D";};
+
+  // Description:
+  // Support the standard render methods.
+  virtual void RenderOverlay(vtkViewport *viewport);
+  virtual void RenderOpaqueGeometry(vtkViewport *viewport);
+  virtual void RenderTranslucentGeometry(vtkViewport *viewport);
+
   // Description:
   // Creates an actor2D with the following defaults: 
   // position -1, -1 (view coordinates)
@@ -66,26 +78,47 @@ public:
   // Description:
   // Destroy an actor2D.
   ~vtkActor2D();
-
-  static vtkActor2D* New() {return new vtkActor2D;};
-  void PrintSelf(ostream& os, vtkIndent indent);
-  const char *GetClassName() {return "vtkActor2D";};
-
   
-  // Description:
-  // Renders an actor2D's property and then it's mapper.
-  virtual void Render(vtkViewport *viewport);
-
   // Description:
   // Set/Get the vtkMapper2D which defines the data to be drawn.
   void SetMapper(vtkMapper2D *mapper);
   vtkGetObjectMacro(Mapper, vtkMapper2D);
 
+  // Description:
+  // Set/Get the layer number in the overlay planes into which to render.
+  vtkSetMacro(LayerNumber, int);
+  vtkGetMacro(LayerNumber, int);
+  
+  // Description:
+  // Returns an Prop2D's property2D.  Creates a property if one
+  // doesn't already exist.
+  vtkProperty2D* GetProperty();
+
+  // Description:
+  // Set this vtkProp's vtkProperty2D.
+  vtkSetObjectMacro(Property, vtkProperty2D);
+
+  // Description:
+  // Get the PositionCoordinate instance of vtkCoordinate.
+  // This is used for for complicated or relative positioning.
+  vtkViewportCoordinateMacro(Position);
+  
+  // Description:
+  // Set the Prop2D's position in display coordinates.  
+  void SetDisplayPosition(int,int);
+  
+  // Description:
+  // Return this objects MTime.
+  unsigned long GetMTime();
+
 protected:
   vtkMapper2D *Mapper;
-
+  int LayerNumber;
+  vtkProperty2D *Property;
+  vtkCoordinate *PositionCoordinate;
 };
 
 #endif
+
 
 

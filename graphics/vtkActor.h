@@ -57,7 +57,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkActor_h
 #define __vtkActor_h
 
-#include "vtkProp.h"
+#include "vtkProp3D.h"
 #include "vtkProperty.h"
 #include "vtkTexture.h"
 #include "vtkMapper.h"
@@ -65,8 +65,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkAssemblyPaths.h"
 
 class vtkRenderer;
+class vtkActorCollection;
 
-class VTK_EXPORT vtkActor : public vtkProp
+class VTK_EXPORT vtkActor : public vtkProp3D
 {
  public:
   vtkActor();
@@ -80,12 +81,22 @@ class VTK_EXPORT vtkActor : public vtkProp
   // orientation=(0,0,0). No user defined matrix and no texture map.
   static vtkActor *New();
 
+  // Description: 
+  // For some exporters and other other operations we must be
+  // able to collect all the actors or volumes. These methods
+  // are used in that process.
+  virtual void GetActors(vtkActorCollection *);
+
+  // Description:
+  // Support the standard render methods.
+  virtual void RenderOpaqueGeometry(vtkViewport *viewport);
+  virtual void RenderTranslucentGeometry(vtkViewport *viewport);
+
   // Description:
   // This causes the actor to be rendered. It in turn will render the actor's
   // property, texture map and then mapper. If a property hasn't been
   // assigned, then the actor will create one automatically. Note that a side
   // effect of this method is that the
-  virtual void Render(vtkRenderer *ren);
   virtual void Render(vtkRenderer *, vtkMapper *) {};
 
   // Description:
@@ -184,16 +195,6 @@ class VTK_EXPORT vtkActor : public vtkProp
   // Get the actors mtime plus consider its properties, texture and
   // usermatrix if set.
   unsigned long int GetMTime();
-
-  // Description:
-  // The renderer may use the allocated rendering time to determine
-  // how to render this actor. (LOD Experiment)
-  // The set method is not a macro in order to avoid resetting the mtime of
-  // the actor - otherwise the actor would have been modified during every 
-  // render.
-  void SetAllocatedRenderTime(float t) {this->AllocatedRenderTime = t;};
-  vtkGetMacro(AllocatedRenderTime, float);
-
   
   // Description:
   // For legacy compatibility. Do not use.
@@ -202,6 +203,12 @@ class VTK_EXPORT vtkActor : public vtkProp
     {this->SetBackfaceProperty(&lut);};
   void GetMatrix(vtkMatrix4x4 &m) {this->GetMatrix(&m);}
 
+  // Description:
+  // Return the mtime of anything that would cause the rendered image to 
+  // appear differently. Usually this involves checking the mtime of the 
+  // prop plus anything else it depends on such as properties, textures
+  // etc.
+  virtual unsigned long GetRedrawMTime();
   
 protected:
   vtkProperty *Property; 
@@ -213,9 +220,9 @@ protected:
   // this stuff supports multiple-part actors (e.g. assemblies)
   int TraversalLocation;
   
-  // This is for LOD experiment
-  float AllocatedRenderTime;
-
+  // is this actor opaque
+  int GetIsOpaque();
+  
   // Bounds are cached in an actor - the MapperBounds are also cache to
   // help know when the Bounds need to be recomputed.
   float        MapperBounds[6];

@@ -379,8 +379,7 @@ void vtkRenderWindow::Render()
       this->CurrentSubFrame = 0;
       this->CopyResultFrame();
 
-      //###
-      this->Renderers->Render2D();
+      this->Renderers->RenderOverlay();
 
       // free any memory
       delete [] this->AccumulationBuffer;
@@ -429,8 +428,7 @@ void vtkRenderWindow::Render()
       }
     
     this->CopyResultFrame();
-    //###
-    this->Renderers->Render2D();
+    this->Renderers->RenderOverlay();
     }  
 
   if (this->ResultFrame) 

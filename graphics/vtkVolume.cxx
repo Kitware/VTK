@@ -43,6 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkVolume.h"
 #include "vtkVolumeMapper.h"
+#include "vtkVolumeCollection.h"
 
 // Creates a Volume with the following defaults: origin(0,0,0) 
 // position=(0,0,0) scale=1 visibility=1 pickable=1 dragable=1
@@ -90,6 +91,11 @@ vtkVolume::~vtkVolume()
     delete [] this->CorrectedScalarOpacityArray;
     }
 
+}
+
+void vtkVolume::GetVolumes(vtkVolumeCollection *vc)
+{
+  vc->AddItem(this);
 }
 
 // Shallow copy of an volume.
@@ -644,7 +650,7 @@ void vtkVolume::UpdateScalarOpacityforSampleSize( vtkRenderer *ren, float sample
 
 void vtkVolume::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkProp::PrintSelf(os,indent);
+  vtkProp3D::PrintSelf(os,indent);
 
   if( this->VolumeProperty )
     {

@@ -76,12 +76,12 @@ public:
 
   // Description:
   // This class implements an outer cull method
-  float OuterCullMethod( vtkRenderer *ren, vtkActor **actorList,
+  float OuterCullMethod( vtkRenderer *ren, vtkProp **actorList,
 			 int& listLength, int& initialized );
 
   // Description:
   // Every actor passes the inner cull method (the actor is not culled)
-  int   InnerCullMethod( vtkRenderer *, vtkActor *) { return 1; };
+  int   InnerCullMethod( vtkRenderer *, vtkProp *) { return 1; };
   
   // Description:
   // Set/Get the minimum coverage - actors with less coverage than this

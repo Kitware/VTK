@@ -57,11 +57,11 @@ vtkFrustumCoverageCuller::vtkFrustumCoverageCuller()
 // removed from the list (and the list length is shortened) to make sure
 // that they are not considered again by another culler or for rendering.
 float vtkFrustumCoverageCuller::OuterCullMethod( vtkRenderer *ren, 
-						 vtkActor **actorList,
+						 vtkProp **actorList,
 						 int& listLength,
 						 int& initialized )
 {
-  vtkActor            *actor;
+  vtkProp            *actor;
   float               total_time;
   float               *bounds, center[3], radius;
   float               planes[24], d;
@@ -106,112 +106,117 @@ float vtkFrustumCoverageCuller::OuterCullMethod( vtkRenderer *ren,
       
       // Get the bounds of the actor and compute an enclosing sphere
       bounds = actor->GetBounds();
-      center[0] = (bounds[0] + bounds[1]) / 2.0;
-      center[1] = (bounds[2] + bounds[3]) / 2.0;
-      center[2] = (bounds[4] + bounds[5]) / 2.0;
-      radius = 0.5 * sqrt( (double) 
-			   ( bounds[1] - bounds[0] ) *
-			   ( bounds[1] - bounds[0] ) +
-			   ( bounds[3] - bounds[2] ) *
-			   ( bounds[3] - bounds[2] ) +
-			   ( bounds[5] - bounds[4] ) *
-			   ( bounds[5] - bounds[4] ) );
-      
       // We start with a coverage of 1.0 and set it to zero if the actor
       // is culled during the plane tests
       coverage = 1.0;
-
-      for ( i = 0; i < 6; i++ )
+      // make sure the bounds are defined
+      if (bounds)
 	{
-	// Compute how far the center of the sphere is from this plane
-	d = 
-	  planes[i*4 + 0] * center[0] +
-	  planes[i*4 + 1] * center[1] +
-	  planes[i*4 + 2] * center[2] +
-	  planes[i*4 + 3];
-
-	// If d < -radius the actor is not within the view frustum
-	if ( d < -radius )
+	center[0] = (bounds[0] + bounds[1]) / 2.0;
+	center[1] = (bounds[2] + bounds[3]) / 2.0;
+	center[2] = (bounds[4] + bounds[5]) / 2.0;
+	radius = 0.5 * sqrt( (double) 
+			     ( bounds[1] - bounds[0] ) *
+			     ( bounds[1] - bounds[0] ) +
+			     ( bounds[3] - bounds[2] ) *
+			     ( bounds[3] - bounds[2] ) +
+			     ( bounds[5] - bounds[4] ) *
+			     ( bounds[5] - bounds[4] ) );
+	
+	
+	for ( i = 0; i < 6; i++ )
 	  {
-	  coverage = 0.0;
-	  i = 7;
+	  // Compute how far the center of the sphere is from this plane
+	  d = 
+	    planes[i*4 + 0] * center[0] +
+	    planes[i*4 + 1] * center[1] +
+	    planes[i*4 + 2] * center[2] +
+	    planes[i*4 + 3];
+	  
+	  // If d < -radius the actor is not within the view frustum
+	  if ( d < -radius )
+	    {
+	    coverage = 0.0;
+	    i = 7;
+	    }
+	  
+	  // The first four planes are the ones bounding the edges of the
+	  // view plane (the last two are the near and far planes) The
+	  // distance from the edge of the sphere to these planes is stored
+	  // to compute coverage.
+	  if ( i < 4 )
+	    {
+	    screen_bounds[i] = d - radius;
+	    }
 	  }
-
-	// The first four planes are the ones bounding the edges of the
-	// view plane (the last two are the near and far planes) The
-	// distance from the edge of the sphere to these planes is stored
-	// to compute coverage.
-	if ( i < 4 )
+	
+	// If the actor wasn't culled during the plane tests...
+	if ( coverage > 0.0 )
 	  {
-	  screen_bounds[i] = d - radius;
+	  // Compute the width and height of this slice through the
+	  // view frustum that contains the center of the sphere
+	  full_w = screen_bounds[0] + screen_bounds[1] + 2.0 * radius;
+	  full_h = screen_bounds[2] + screen_bounds[3] + 2.0 * radius;
+	  
+	  // Subtract from the full width to get the width of the square
+	  // enclosing the circle slice from the sphere in the plane
+	  // through the center of the sphere. If the screen bounds for
+	  // the left and right planes (0,1) are greater than zero, then
+	  // the edge of the sphere was a positive distance away from the
+	  // plane, so there is a gap between the edge of the plane and
+	  // the edge of the box.
+	  part_w = full_w;
+	  if ( screen_bounds[0] > 0.0 )
+	    {
+	    part_w -= screen_bounds[0];
+	    }
+	  if ( screen_bounds[1] > 0.0 )
+	    {
+	    part_w -= screen_bounds[1];
+	    }
+	  
+	  // Do the same thing for the height with the top and bottom 
+	  // planes (2,3).
+	  part_h = full_h;
+	  if ( screen_bounds[2] > 0.0 )
+	    {
+	    part_h -= screen_bounds[2];
+	    }
+	  if ( screen_bounds[3] > 0.0 )
+	    {
+	    part_h -= screen_bounds[3];
+	    }
+	  
+	  // Compute the fraction of coverage
+	  coverage = (part_w * part_h) / (full_w * full_h);
+	  
+	  // Convert this to an allocated render time - coverage less than
+	  // the minumum result in 0.0 time, greater than the maximum result in
+	  // 1.0 time, and in between a linear ramp is used
+	  if ( coverage < this->MinimumCoverage ) 
+	    {
+	    coverage = 0;
+	    }
+	  else if ( coverage > this->MaximumCoverage )
+	    {
+	    coverage = 1.0;
+	    }
+	  else
+	    {
+	    coverage = (coverage-this->MinimumCoverage) / 
+	      this->MaximumCoverage;
+	    }
 	  }
 	}
-
-      // If the actor wasn't culled during the plane tests...
-      if ( coverage > 0.0 )
-	{
-	// Compute the width and height of this slice through the
-	// view frustum that contains the center of the sphere
-	full_w = screen_bounds[0] + screen_bounds[1] + 2.0 * radius;
-	full_h = screen_bounds[2] + screen_bounds[3] + 2.0 * radius;
-	
-	// Subtract from the full width to get the width of the square
-	// enclosing the circle slice from the sphere in the plane
-	// through the center of the sphere. If the screen bounds for
-	// the left and right planes (0,1) are greater than zero, then
-	// the edge of the sphere was a positive distance away from the
-	// plane, so there is a gap between the edge of the plane and
-	// the edge of the box.
-	part_w = full_w;
-	if ( screen_bounds[0] > 0.0 )
-	  {
-	  part_w -= screen_bounds[0];
-	  }
-	if ( screen_bounds[1] > 0.0 )
-	  {
-	  part_w -= screen_bounds[1];
-	  }
-
-	// Do the same thing for the height with the top and bottom 
-	// planes (2,3).
-	part_h = full_h;
-	if ( screen_bounds[2] > 0.0 )
-	  {
-	  part_h -= screen_bounds[2];
-	  }
-	if ( screen_bounds[3] > 0.0 )
-	  {
-	  part_h -= screen_bounds[3];
-	  }
-	
-	// Compute the fraction of coverage
-	coverage = (part_w * part_h) / (full_w * full_h);
-	
-	// Convert this to an allocated render time - coverage less than
-	// the minumum result in 0.0 time, greater than the maximum result in
-	// 1.0 time, and in between a linear ramp is used
-	if ( coverage < this->MinimumCoverage ) 
-	  {
-	  coverage = 0;
-	  }
-	else if ( coverage > this->MaximumCoverage )
-	  {
-	  coverage = 1.0;
-	  }
-	else
-	  {
-	  coverage = (coverage-this->MinimumCoverage) / this->MaximumCoverage;
-	  }
-	}
-
+      
       // Multiply the new allocated time by the previous allocated time
       coverage *= previous_time;
       actor->SetAllocatedRenderTime( coverage );
-
+      
       // Save this in our array of allocated times which matches the
       // actor array
       allocatedTimeList[actor_loop] = coverage;
-
+      
       // Add the time for this actor to the total time
       total_time += coverage;
       }

@@ -43,8 +43,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkViewport.h"
 #include "vtkWindow.h"
-#include "vtkActor2D.h"
-
+#include "vtkActor2DCollection.h"
+#include "vtkPropCollection.h"
+#include "vtkProp.h"
 
 // Create a vtkViewport with a black background, a white ambient light, 
 // two-sided lighting turned on, a viewport of (0,0,1,1), and backface culling
@@ -91,12 +92,16 @@ vtkViewport::vtkViewport()
   this->Origin[0] = 0;
   this->Origin[1] = 0;
 
+  this->Props = vtkPropCollection::New();
   this->Actors2D = vtkActor2DCollection::New();
 }
 
 vtkViewport::~vtkViewport()
 {
   this->Actors2D->Delete();
+  this->Actors2D = NULL;
+  this->Props->Delete();
+  this->Props = NULL;
 
   // delete the current arg if there is one and a delete meth
   if ((this->StartRenderMethodArg)&&(this->StartRenderMethodArgDelete))
@@ -117,21 +122,30 @@ vtkViewport::~vtkViewport()
     }
 }
 
-void vtkViewport::AddActor2D(vtkActor2D* actor)
+void vtkViewport::AddProp(vtkProp *p)
 {
-  vtkDebugMacro (<< "vtkViewport::AddActor2D");
-  this->Actors2D->AddItem(actor);
+  this->Props->AddItem(p);
+}
+void vtkViewport::RemoveProp(vtkProp *p)
+{
+  this->Props->RemoveItem(p);
 }
 
-void vtkViewport::RemoveActor2D(vtkActor2D* actor)
+// look through the props and get all the actors
+vtkActor2DCollection *vtkViewport::GetActors2D()
 {
-  vtkDebugMacro (<< "vtkViewport::RemoveActor2D");
-
-  this->Actors2D->RemoveItem(actor);
+  vtkProp *aProp;
+  
+  // clear the collection first
+  this->Actors2D->RemoveAllItems();
+  
+  for (this->Props->InitTraversal(); 
+       (aProp = this->Props->GetNextItem()); )
+    {
+    aProp->GetActors2D(this->Actors2D);
+    }
+  return this->Actors2D;
 }
-
-
-
 
 // Convert display coordinates to view coordinates.
 void vtkViewport::DisplayToView()
@@ -352,6 +366,9 @@ void vtkViewport::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "No End Render method.\n";
     }
+
+  os << indent << "Props:\n";
+  this->Props->PrintSelf(os,indent.GetNextIndent());
 
 }
 

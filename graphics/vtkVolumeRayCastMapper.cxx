@@ -468,7 +468,7 @@ void vtkVolumeRayCastMapper::GeneralImageInitialization( vtkRenderer *ren,
   viewToVolumeTransform->Inverse();
 
   // Store the matrix of the volume in a temporary transformation matrix
-  worldToVolumeTransform->SetMatrix(*( vol->vtkProp::GetMatrixPointer()) );
+  worldToVolumeTransform->SetMatrix(*( vol->vtkProp3D::GetMatrixPointer()) );
 
   // Get the origin of the data.  This translation is not accounted for in
   // the volume's matrix, so we must add it in.

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkProp.cxx
+  Module:    vtkProp3D.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -41,13 +41,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdlib.h>
 #include <math.h>
 
-#include "vtkProp.h"
-//#include "vtkRenderWindow.h"
+#include "vtkProp3D.h"
 
 // Construct with the following defaults: origin(0,0,0) 
 // position=(0,0,0) visibility=1 pickable=1 dragable=1
 // orientation=(0,0,0). No user defined matrix and no texture map.
-vtkProp::vtkProp()
+vtkProp3D::vtkProp3D()
 {
   this->Origin[0] = 0.0;
   this->Origin[1] = 0.0;
@@ -61,7 +60,6 @@ vtkProp::vtkProp()
   this->Orientation[1] = 0.0;
   this->Orientation[2] = 0.0;
 
-  this->Visibility = 1;
   this->Pickable   = 1;
   this->PickMethod = NULL;
   this->PickMethodArgDelete = NULL;
@@ -78,7 +76,7 @@ vtkProp::vtkProp()
   this->Transform = vtkTransform::New();
 }
 
-vtkProp::~vtkProp()
+vtkProp3D::~vtkProp3D()
 {
   if ((this->PickMethodArg)&&(this->PickMethodArgDelete))
     {
@@ -93,35 +91,35 @@ vtkProp::~vtkProp()
     }
 }
 
-// Shallow copy of an prop.
-vtkProp& vtkProp::operator=(const vtkProp& prop)
+// Shallow copy of an Prop3D.
+vtkProp3D& vtkProp3D::operator=(const vtkProp3D& Prop3D)
 {
   int i;
 
   for (i=0; i < 3; i++) 
     {
-    this->Origin[i] = prop.Origin[i];
-    this->Position[i] = prop.Position[i];
-    this->Orientation[i] = prop.Orientation[i];
-    this->Center[i] = prop.Center[i];
+    this->Origin[i] = Prop3D.Origin[i];
+    this->Position[i] = Prop3D.Position[i];
+    this->Orientation[i] = Prop3D.Orientation[i];
+    this->Center[i] = Prop3D.Center[i];
     }
 
-  *(this->Transform) = *(prop.Transform);
+  *(this->Transform) = *(Prop3D.Transform);
 
-  this->Visibility = prop.Visibility;
-  this->Pickable   = prop.Pickable;
-  this->Dragable   = prop.Dragable;
+  this->Visibility = Prop3D.Visibility;
+  this->Pickable   = Prop3D.Pickable;
+  this->Dragable   = Prop3D.Dragable;
   
   for (i=0; i < 6; i++)
     {
-    this->Bounds[i] = prop.Bounds[i];
+    this->Bounds[i] = Prop3D.Bounds[i];
     }
 
   return *this;
 }
 
-// Incrementally change the position of the prop.
-void vtkProp::AddPosition (float deltaX,float deltaY,float deltaZ)
+// Incrementally change the position of the Prop3D.
+void vtkProp3D::AddPosition (float deltaX,float deltaY,float deltaZ)
 {
   float position[3];
 
@@ -132,15 +130,15 @@ void vtkProp::AddPosition (float deltaX,float deltaY,float deltaZ)
   this->SetPosition(position);
 }
 
-void vtkProp::AddPosition (float deltaPosition[3])
+void vtkProp3D::AddPosition (float deltaPosition[3])
 {
   this->AddPosition (deltaPosition[0], deltaPosition[1], deltaPosition[2]);
 }
 
-// Sets the orientation of the prop.  Orientation is specified as
+// Sets the orientation of the Prop3D.  Orientation is specified as
 // X,Y and Z rotations in that order, but they are performed as
 // RotateZ, RotateX, and finally RotateY.
-void vtkProp::SetOrientation (float x,float y,float z)
+void vtkProp3D::SetOrientation (float x,float y,float z)
 {
   if (x == this->Orientation[0] && y == this->Orientation[1] 
       && z == this->Orientation[2])
@@ -166,16 +164,16 @@ void vtkProp::SetOrientation (float x,float y,float z)
 
   this->Modified();
 }
-void vtkProp::SetOrientation(float a[3])
+void vtkProp3D::SetOrientation(float a[3])
 {
   this->SetOrientation(a[0],a[1],a[2]);
 }
 
-// Returns the orientation of the prop as s vector of X,Y and Z rotation.
+// Returns the orientation of the Prop3D as s vector of X,Y and Z rotation.
 // The ordering in which these rotations must be done to generate the 
 // same matrix is RotateZ, RotateX, and finally RotateY. See also 
 // SetOrientation.
-float *vtkProp::GetOrientation ()
+float *vtkProp3D::GetOrientation ()
 {
   float   *orientation;
 
@@ -189,10 +187,10 @@ float *vtkProp::GetOrientation ()
   << ", " << this->Orientation[1] << ", " << this->Orientation[2] << ")\n");
 
   return this->Orientation;
-} // vtkProp::Getorientation 
+} // vtkProp3D::Getorientation 
 
-// Returns the WXYZ orientation of the prop. 
-float *vtkProp::GetOrientationWXYZ()
+// Returns the WXYZ orientation of the Prop3D. 
+float *vtkProp3D::GetOrientationWXYZ()
 {
   return this->Transform->GetOrientationWXYZ();
 }
@@ -200,7 +198,7 @@ float *vtkProp::GetOrientationWXYZ()
 // Add to the current orientation. See SetOrientation and GetOrientation for 
 // more details. This basically does a GetOrientation, adds the passed in
 // arguments, and then calls SetOrientation.
-void vtkProp::AddOrientation (float a1,float a2,float a3)
+void vtkProp3D::AddOrientation (float a1,float a2,float a3)
 {
   float *orient;
 
@@ -209,49 +207,49 @@ void vtkProp::AddOrientation (float a1,float a2,float a3)
 		       orient[1] + a2,
 		       orient[2] + a3);
 } 
-void vtkProp::AddOrientation(float a[3])
+void vtkProp3D::AddOrientation(float a[3])
 {
   this->AddOrientation(a[0],a[1],a[2]);
 }
 
-// Rotate the prop in degrees about the X axis using the right hand rule. The
-// axis is the prop's X axis, which can change as other rotations are performed.
+// Rotate the Prop3D in degrees about the X axis using the right hand rule. The
+// axis is the Prop3D's X axis, which can change as other rotations are performed.
 // To rotate about the world X axis use RotateWXYZ (angle, 1, 0, 0). This rotation
 // is applied before all others in the current transformation matrix.
-void vtkProp::RotateX (float angle)
+void vtkProp3D::RotateX (float angle)
 {
   this->Transform->PreMultiply ();
   this->Transform->RotateX(angle);
   this->Modified();
 } 
 
-// Rotate the prop in degrees about the Y axis using the right hand rule. The
-// axis is the prop's Y axis, which can change as other rotations are performed.
+// Rotate the Prop3D in degrees about the Y axis using the right hand rule. The
+// axis is the Prop3D's Y axis, which can change as other rotations are performed.
 // To rotate about the world Y axis use RotateWXYZ (angle, 0, 1, 0). This rotation
 // is applied before all others in the current transformation matrix.
-void vtkProp::RotateY (float angle)
+void vtkProp3D::RotateY (float angle)
 {
   this->Transform->PreMultiply ();
   this->Transform->RotateY(angle);
   this->Modified();
 } 
 
-// Rotate the prop in degrees about the Z axis using the right hand rule. The
-// axis is the prop's Z axis, which can change as other rotations are performed.
+// Rotate the Prop3D in degrees about the Z axis using the right hand rule. The
+// axis is the Prop3D's Z axis, which can change as other rotations are performed.
 // To rotate about the world Z axis use RotateWXYZ (angle, 0, 0, 1). This rotation
 // is applied before all others in the current transformation matrix.
 
-void vtkProp::RotateZ (float angle)
+void vtkProp3D::RotateZ (float angle)
 {
   this->Transform->PreMultiply ();
   this->Transform->RotateZ(angle);
   this->Modified();
 } 
 
-// Rotate the prop in degrees about an arbitrary axis specified by the 
+// Rotate the Prop3D in degrees about an arbitrary axis specified by the 
 // last three arguments. The axis is specified in world coordinates. To
 // rotate an about its model axes, use RotateX, RotateY, RotateZ.
-void vtkProp::RotateWXYZ (float degree, float x, float y, float z)
+void vtkProp3D::RotateWXYZ (float degree, float x, float y, float z)
 {
   this->Transform->PostMultiply();  
   this->Transform->RotateWXYZ(degree,x,y,z);
@@ -259,16 +257,16 @@ void vtkProp::RotateWXYZ (float degree, float x, float y, float z)
   this->Modified();
 }
 
-// Return a reference to the prop's 4x4 composite matrix.
-vtkMatrix4x4 *vtkProp::GetMatrixPointer()
+// Return a reference to the Prop3D's 4x4 composite matrix.
+vtkMatrix4x4 *vtkProp3D::GetMatrixPointer()
 {
   this->GetMatrix(this->Matrix);
   return this->Matrix;
 } 
 
 
-// Get the bounds for this Prop as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
-void vtkProp::GetBounds(float bounds[6])
+// Get the bounds for this Prop3D as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
+void vtkProp3D::GetBounds(float bounds[6])
 {
   this->GetBounds();
   for (int i=0; i<6; i++)
@@ -278,7 +276,7 @@ void vtkProp::GetBounds(float bounds[6])
 }
 
 // Get the center of the bounding box in world coordinates.
-float *vtkProp::GetCenter()
+float *vtkProp3D::GetCenter()
 {
   this->GetBounds();
   this->Center[0] = (this->Bounds[1] + this->Bounds[0])/2.0;
@@ -289,7 +287,7 @@ float *vtkProp::GetCenter()
 }
 
 // Get the length of the diagonal of the bounding box.
-float vtkProp::GetLength()
+float vtkProp3D::GetLength()
 {
   double diff, l=0.0;
   int i;
@@ -304,30 +302,30 @@ float vtkProp::GetLength()
   return (float)sqrt(l);
 }
 
-// Get the prop's x range in world coordinates.
-float *vtkProp::GetXRange()
+// Get the Prop3D's x range in world coordinates.
+float *vtkProp3D::GetXRange()
 {
   this->GetBounds();
   return this->Bounds;
 }
 
-// Get the prop's y range in world coordinates.
-float *vtkProp::GetYRange()
+// Get the Prop3D's y range in world coordinates.
+float *vtkProp3D::GetYRange()
 {
   this->GetBounds();
   return &(this->Bounds[2]);
 }
 
-// Get the prop's z range in world coordinates.
-float *vtkProp::GetZRange()
+// Get the Prop3D's z range in world coordinates.
+float *vtkProp3D::GetZRange()
 {
   this->GetBounds();
   return &(this->Bounds[4]);
 }
 
-// This method is invoked when an instance of vtkProp (or subclass, 
+// This method is invoked when an instance of vtkProp3D (or subclass, 
 // e.g., vtkActor) is picked by vtkPicker.
-void vtkProp::SetPickMethod(void (*f)(void *), void *arg)
+void vtkProp3D::SetPickMethod(void (*f)(void *), void *arg)
 {
   if ( f != this->PickMethod || arg != this->PickMethodArg )
     {
@@ -343,7 +341,7 @@ void vtkProp::SetPickMethod(void (*f)(void *), void *arg)
 }
 
 // Set a method to delete user arguments for PickMethod.
-void vtkProp::SetPickMethodArgDelete(void (*f)(void *))
+void vtkProp3D::SetPickMethodArgDelete(void (*f)(void *))
 {
   if ( f != this->PickMethodArgDelete)
     {
@@ -352,9 +350,9 @@ void vtkProp::SetPickMethodArgDelete(void (*f)(void *))
     }
 }
 
-void vtkProp::PrintSelf(ostream& os, vtkIndent indent)
+void vtkProp3D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os,indent);
+  vtkProp::PrintSelf(os,indent);
 
   os << indent << "Dragable: " << (this->Dragable ? "On\n" : "Off\n");
   os << indent << "Pickable: " << (this->Pickable ? "On\n" : "Off\n");
@@ -385,7 +383,5 @@ void vtkProp::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Origin: (" << this->Origin[0] << ", " 
      << this->Origin[1] << ", " << this->Origin[2] << ")\n";
-
-  os << indent << "Visibility: " << (this->Visibility ? "On\n" : "Off\n");
 }
 

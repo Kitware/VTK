@@ -57,7 +57,7 @@ vtkActor2DCollection::~vtkActor2DCollection()
 }
 
 // Sort and then render the collection of 2D actors.  
-void vtkActor2DCollection::Render(vtkViewport* viewport)
+void vtkActor2DCollection::RenderOverlay(vtkViewport* viewport)
 {
   if (this->NumberOfItems != 0)
     {
@@ -68,8 +68,8 @@ void vtkActor2DCollection::Render(vtkViewport* viewport)
       {
       // Make sure that the actor is visible before rendering
       if (tempActor->GetVisibility() == 1)
-	{
-	tempActor->Render(viewport);
+			{
+	    tempActor->RenderOverlay(viewport);
 	}
       }
     }

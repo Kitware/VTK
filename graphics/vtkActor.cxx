@@ -59,10 +59,7 @@ vtkActor::vtkActor()
   this->Scale[2] = 1.0;
 
   this->TraversalLocation = 0;
-
-  // an experiment with culling and LOD
-  this->AllocatedRenderTime = 10.0;
-
+  
   // The mapper bounds are cache to know when the bounds must be recomputed
   // from the mapper bounds.
   this->MapperBounds[0] = this->MapperBounds[2] = this->MapperBounds[4] = 
@@ -159,12 +156,44 @@ vtkActor *vtkActor::New()
   return new vtkActor;
 }
 
+void vtkActor::GetActors(vtkActorCollection *ac)
+{
+  ac->AddItem(this);
+}
+
+// should be called from the render methods only
+int vtkActor::GetIsOpaque()
+{
+  if (this->Property->GetOpacity() >= 1.0)
+    {
+    float *ar = this->Mapper->GetLookupTable()->GetAlphaRange();
+    if ((ar[0] >= 1.0)&&(ar[1] >= 1.0))
+      {
+      if (this->Texture && this->Texture->GetInput()) 
+	{
+	if (this->Texture->GetInput()->GetPointData()->GetScalars()->GetNumberOfComponents()%2)
+	  {
+	  return 1;
+	  }
+	}
+      else
+	{
+	return 1;
+	}
+      }
+    }
+  return 0;
+}
+
+
 // This causes the actor to be rendered. It in turn will render the actor's
 // property, texture map and then mapper. If a property hasn't been 
 // assigned, then the actor will create one automatically. Note that a 
 // side effect of this method is that the visualization network is updated.
-void vtkActor::Render(vtkRenderer *ren)
+void vtkActor::RenderOpaqueGeometry(vtkViewport *vp)
 {
+  vtkRenderer *ren = (vtkRenderer *)vp;
+  
   if ( ! this->Mapper )
     {
     return;
@@ -176,21 +205,53 @@ void vtkActor::Render(vtkRenderer *ren)
     // force creation of a property
     this->GetProperty();
     }
-  this->Property->Render(this, ren);
-
-  // render the backface property
-  if (this->BackfaceProperty)
+  // is this actor opaque ?
+  if (this->GetIsOpaque())
     {
-    this->BackfaceProperty->BackfaceRender(this, ren);
+    this->Property->Render(this, ren);
+
+    // render the backface property
+    if (this->BackfaceProperty)
+      {
+      this->BackfaceProperty->BackfaceRender(this, ren);
+      }
+    
+    // render the texture 
+    if (this->Texture)
+      {
+      this->Texture->Render(ren);
+      }
+    this->Render(ren,this->Mapper);
+    }
+}
+
+void vtkActor::RenderTranslucentGeometry(vtkViewport *vp)
+{
+  vtkRenderer *ren = (vtkRenderer *)vp;
+
+  if ( ! this->Mapper )
+    {
+    return;
     }
 
-  // render the texture */
-  if (this->Texture)
+  // is this actor opaque ?
+  if (!this->GetIsOpaque())
     {
-    this->Texture->Render(ren);
-    }
+    this->Property->Render(this, ren);
 
-  this->Render(ren,this->Mapper);
+    // render the backface property
+    if (this->BackfaceProperty)
+      {
+      this->BackfaceProperty->BackfaceRender(this, ren);
+      }
+    
+    // render the texture 
+    if (this->Texture)
+      {
+      this->Texture->Render(ren);
+      }
+    this->Render(ren,this->Mapper);
+    }
 }
 
 void vtkActor::ReleaseGraphicsResources(vtkRenderWindow *renWin)
@@ -439,6 +500,26 @@ unsigned long int vtkActor::GetMTime()
   return mTime;
 }
 
+unsigned long int vtkActor::GetRedrawMTime()
+{
+  unsigned long mTime=this->GetMTime();
+  unsigned long time;
+
+  if ( this->Mapper != NULL )
+    {
+    time = this->Mapper->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    if (this->GetMapper()->GetInput() != NULL)
+      {
+      this->GetMapper()->GetInput()->Update();
+      time = this->Mapper->GetInput()->GetMTime();
+      mTime = ( time > mTime ? time : mTime );
+      }
+    }
+
+  return mTime;
+}
+
 // Update visualization pipeline and any other parts of actor that are
 // necessary.
 void vtkActor::Update()
@@ -463,7 +544,7 @@ void vtkActor::BuildPaths(vtkAssemblyPaths *vtkNotUsed(paths),
   previous = path->GetLastItem();
 
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
-  matrix->DeepCopy(previous->vtkProp::GetMatrixPointer());
+  matrix->DeepCopy(previous->vtkProp3D::GetMatrixPointer());
   copy->SetUserMatrix(matrix);
   matrix->Delete();
 
@@ -472,7 +553,7 @@ void vtkActor::BuildPaths(vtkAssemblyPaths *vtkNotUsed(paths),
 
 void vtkActor::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkProp::PrintSelf(os,indent);
+  vtkProp3D::PrintSelf(os,indent);
 
   // make sure our bounds are up to date
   if ( this->Mapper )
@@ -519,8 +600,6 @@ void vtkActor::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Scale: (" << this->Scale[0] << ", " 
      << this->Scale[1] << ", " << this->Scale[2] << ")\n";
-  os << indent << "AllocatedRenderTime: " 
-     << this->AllocatedRenderTime << endl;
 }
 
 

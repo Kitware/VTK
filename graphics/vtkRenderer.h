@@ -61,7 +61,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCullerCollection.h"
 #include "vtkCamera.h"
 #include "vtkActor.h"
+#include "vtkActor2D.h"
 #include "vtkViewport.h"
+#include "vtkActorCollection.h"
 
 class vtkRenderWindow;
 class vtkRayCaster;
@@ -88,37 +90,29 @@ public:
   void AddLight(vtkLight *);
 
   // Description:
-  // Add an actor to the list of actors.
-  void AddActor(vtkActor *);
-
-  // Description:
-  // Add a volume to the list of volumes.
-  void AddVolume(vtkVolume *);
+  // Add/Remove different types of props to the renderer.
+  // These methods are all synonyms to AddProp and RemoveProp.
+  // They are here for convinience and backwards compatability.
+  void AddActor(vtkProp *p) {this->AddProp(p);};
+  void AddVolume(vtkProp *p) {this->AddProp(p);};
+  void RemoveActor(vtkProp *p) {this->RemoveProp(p);};
+  void RemoveVolume(vtkProp *p) {this->RemoveProp(p);};
 
   // Description:
   // Remove a light from the list of lights.
   void RemoveLight(vtkLight *);
 
   // Description:
-  // Remove an actor from the list of actors.
-  void RemoveActor(vtkActor *);
-
-  // Description:
-  // Remove a volume from the list of volumes.
-  void RemoveVolume(vtkVolume *);
-
-  // Description:
   // Return the collection of lights.
   vtkLightCollection *GetLights();
   
   // Description:
-  // Set / get the collection of actors.
-  vtkSetObjectMacro(Actors, vtkActorCollection);
-  vtkActorCollection *GetActors();
-  
-  // Description:
   // Return the collection of volumes.
   vtkVolumeCollection *GetVolumes();
+
+  // Description:
+  // Return any actors in this renderer.
+  vtkActorCollection *GetActors();
 
   // Description:
   // Specify the camera to use for this renderer.
@@ -266,8 +260,10 @@ public:
   float GetZ (int x, int y);
 
   // Description:
-  // Render the 2D actors.
-  void Render2D();
+  // Render the overlay actors. This gets called from the RenderWindow
+  // because it may need to be synchronized to happen after the
+  // buffers have been swapped.
+  void RenderOverlay();
 
   // Description:
   // Return the MTime of the renderer also considering its ivars.
@@ -283,17 +279,17 @@ public:
   
   
 protected:
-
   vtkRayCaster *RayCaster;
 
   vtkCamera *ActiveCamera;
   vtkLight  *CreatedLight;
 
   vtkLightCollection *Lights;
-  vtkActorCollection *Actors;
-  vtkVolumeCollection *Volumes;
   vtkCullerCollection *Cullers;
 
+  vtkActorCollection *Actors;
+  vtkVolumeCollection *Volumes;
+  
   float              Ambient[3];  
   vtkRenderWindow    *RenderWindow;
   float              AllocatedRenderTime;
@@ -308,14 +304,6 @@ protected:
 // Description:
 // Get the list of lights for this renderer.
 inline vtkLightCollection *vtkRenderer::GetLights() {return this->Lights;}
-
-// Description:
-// Get the list of actors for this renderer.
-inline vtkActorCollection *vtkRenderer::GetActors() {return this->Actors;}
-
-// Description:
-// Get the list of volumes for this renderer.
-inline vtkVolumeCollection *vtkRenderer::GetVolumes(){return this->Volumes;}
 
 // Description:
 // Get the list of cullers for this renderer.

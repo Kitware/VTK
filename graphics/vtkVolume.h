@@ -43,25 +43,27 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkVolume is used to represent a volumetric entity in a rendering scene.
 // It inherits functions related to the volume's position, orientation and
-// origin from vtkProp. The volume maintains a reference to the
+// origin from vtkProp3D. The volume maintains a reference to the
 // volumetric data (i.e., the volume mapper). The volume also contains a
 // reference to a volume property which contains all common volume rendering 
 // parameters.
 
 // .SECTION see also
-// vtkVolumeMapper vtkVolumeProperty vtkProp
+// vtkVolumeMapper vtkVolumeProperty vtkProp3D
 
 #ifndef __vtkVolume_h
 #define __vtkVolume_h
 
-#include "vtkProp.h"
+#include "vtkProp3D.h"
 #include "vtkTransform.h"
 #include "vtkVolumeProperty.h"
 
 class vtkRenderer;
 class vtkVolumeMapper;
+class vtkVolumeCollection;
+class vtkRenderWindow;
 
-class VTK_EXPORT vtkVolume : public vtkProp
+class VTK_EXPORT vtkVolume : public vtkProp3D
 {
 public:
   vtkVolume();
@@ -70,10 +72,22 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Support the standard render methods.
+  virtual void RenderPostSwap(vtkViewport *viewport) {};
+  virtual void RenderGeometry(vtkViewport *viewport) {};
+  virtual void RenderVolume(vtkViewport *viewport) {};
+
+  // Description:
   // Creates a Volume with the following defaults: origin(0,0,0) 
   // position=(0,0,0) scale=1 visibility=1 pickable=1 dragable=1
   // orientation=(0,0,0).
   static vtkVolume *New() {return new vtkVolume;};
+
+  // Description: 
+  // For some exporters and other other operations we must be
+  // able to collect all the actors or volumes. These methods
+  // are used in that process.
+  virtual void GetVolumes(vtkVolumeCollection *vc);
 
   // Description:
   // Render the volume by calling the Render() method of its mapper

@@ -308,7 +308,7 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
       //  coordinates. 
       if (pickable && (mapper = part->GetMapper()) != NULL )
         {
-        this->Transform->SetMatrix(*(part->vtkProp::GetMatrixPointer()));
+        this->Transform->SetMatrix(*(part->vtkProp3D::GetMatrixPointer()));
         this->Transform->Push();
         this->Transform->Inverse();
 

@@ -1,11 +1,10 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkProp2D.cxx
+  Module:    vtkProp.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
-  Thanks:    Thanks to Matt Turek who developed this class.
 
 Copyright (c) 1993-1998 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -38,85 +37,22 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkProp2D.h"
-#include "vtkProperty2D.h"
+#include "vtkProp.h"
 
-// Creates an Prop2D with the following defaults: 
-// position -1, -1 (view coordinates), layer 0, and visibility on.
-vtkProp2D::vtkProp2D()
+// Creates an Prop with the following defaults: visibility on.
+vtkProp::vtkProp()
 {
-  this->LayerNumber = 0;
   this->Visibility = 1;  // ON
-  this->Property = (vtkProperty2D*) NULL;
-  this->PositionCoordinate = vtkCoordinate::New();
-  this->PositionCoordinate->SetCoordinateSystem(VTK_VIEWPORT);
+  this->AllocatedRenderTime = 10.0;
 }
 
-// Destroy an Prop2D.  If the Prop2D created it's own
-// property, that property is deleted.
-vtkProp2D::~vtkProp2D()
-{
-  if (this->Property)
-    {
-    this->Property->UnRegister(this);
-    }
-  this->PositionCoordinate->Delete();
-  this->PositionCoordinate = NULL;
-}
-
-// Set the Prop2D's position in display coordinates.  
-void vtkProp2D::SetDisplayPosition(int XPos, int YPos)
-{
-  this->PositionCoordinate->SetCoordinateSystem(VTK_DISPLAY);
-  this->PositionCoordinate->SetValue((float)XPos,(float)YPos,0.0);
-}
-
-// Returns an Prop2D's property2D.  Creates a property if one
-// doesn't already exist.
-vtkProperty2D *vtkProp2D::GetProperty()
-{
-  if (this->Property == NULL)
-    {
-    this->Property = vtkProperty2D::New();
-    this->Property->Register(this);
-    this->Property->Delete();
-    this->Modified();
-    }
-  return this->Property;
-}
-
-unsigned long int vtkProp2D::GetMTime()
-{
-  unsigned long mTime=this->vtkObject::GetMTime();
-  unsigned long time;
-  
-  time = this->PositionCoordinate->GetMTime();
-  mTime = ( time > mTime ? time : mTime );
-  
-  if ( this->Property != NULL )
-    {
-    time = this->Property->GetMTime();
-    mTime = ( time > mTime ? time : mTime );
-    }
-
-  return mTime;
-}
-
-void vtkProp2D::PrintSelf(ostream& os, vtkIndent indent)
+void vtkProp::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkObject::PrintSelf(os,indent);
 
-  os << indent << "Layer Number: " << this->LayerNumber << "\n";
+  os << indent << "AllocatedRenderTime: " 
+     << this->AllocatedRenderTime << endl;
   os << indent << "Visibility: " << (this->Visibility ? "On\n" : "Off\n");
-
-  os << indent << "PositionCoordinate: " << this->PositionCoordinate << "\n";
-  this->PositionCoordinate->PrintSelf(os, indent.GetNextIndent());
-  
-  os << indent << "Property: " << this->Property << "\n";
-  if (this->Property)
-    {
-    this->Property->PrintSelf(os, indent.GetNextIndent());
-    }
 }
 
 

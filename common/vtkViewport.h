@@ -56,9 +56,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkViewport_h
 
 #include "vtkObject.h"
-#include "vtkActor2DCollection.h"
+#include "vtkPropCollection.h"
 
 class vtkWindow;
+class vtkActor2DCollection;
 
 class VTK_EXPORT vtkViewport : public vtkObject
 {
@@ -66,13 +67,34 @@ public:
 
   // Description:
   // Create a vtkViewport with a black background, a white ambient light, 
-  // two-sided lighting turned on, a viewport of (0,0,1,1), and backface culling
-  // turned off.
+  // two-sided lighting turned on, a viewport of (0,0,1,1), and backface 
+  // culling turned off.
   vtkViewport();
 
   ~vtkViewport();
   const char *GetClassName() {return "vtkViewport";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Add a prop to the list of props. Prop is the superclass of all 
+  // actors, volumes, 2D actors, composite props etc.
+  void AddProp(vtkProp *);
+
+  // Description:
+  // Return any props in this viewport.
+  vtkPropCollection *GetProps() {return this->Props;};
+
+  // Description:
+  // Remove an actor from the list of actors.
+  void RemoveProp(vtkProp *);
+
+  // Description:
+  // Add/Remove different types of props to the renderer.
+  // These methods are all synonyms to AddProp and RemoveProp.
+  // They are here for convinience and backwards compatability.
+  void AddActor2D(vtkProp* p) {this->AddProp(p);};
+  void RemoveActor2D(vtkProp* p) {this->RemoveProp(p);};
+  vtkActor2DCollection *GetActors2D();
 
   // Description:
   // Set/Get the background color of the rendering screen using an rgb color
@@ -183,19 +205,15 @@ public:
   virtual void NormalizedViewportToViewport(float &u, float &v);
   virtual void ViewToNormalizedViewport(float &x, float &y, float &z);
   virtual void WorldToView(float &, float &, float &) {};
-  
-  // Description:
-  // Add/Remove an Actor2D to this viewport.
-  void AddActor2D(vtkActor2D* actor);
-  void RemoveActor2D(vtkActor2D* actor);
-  vtkActor2DCollection *GetActors2D() { return this->Actors2D; };
-  
+
   // Description:
   // Get the size and origin of the viewport in display coordinates
   int *GetSize();
   int *GetOrigin();
 
 protected:
+  vtkPropCollection *Props;
+  vtkActor2DCollection *Actors2D;
   vtkWindow *VTKWindow;
   float Background[3];  
   float Viewport[4];
@@ -213,7 +231,6 @@ protected:
   float DisplayPoint[3];
   float ViewPoint[3];
   float WorldPoint[4];
-  vtkActor2DCollection *Actors2D;
 
 };
 

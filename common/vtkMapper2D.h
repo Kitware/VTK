@@ -49,7 +49,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkMapper2D_h
 #define __vtkMapper2D_h
 
-#include "vtkObject.h"
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 #include "vtkActor2D.h"
@@ -57,8 +56,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkMapper2D : public vtkObject
 {
 public:
+  static vtkMapper2D* New() {return new vtkMapper2D;};
   void PrintSelf(ostream& os, vtkIndent indent);
-  virtual void Render(vtkViewport* viewport, vtkActor2D* actor) = 0;
+  virtual void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor) {};
+  virtual void RenderOpaqueGeometry(vtkViewport* viewport, 
+		vtkActor2D* actor) {};
+  virtual void RenderTranslucentGeometry(vtkViewport* viewport, 
+		vtkActor2D* actor) {};
 
 protected:
 

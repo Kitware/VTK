@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkRendererCollection.cxx
+  Module:    vtkPropCollection.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,27 +38,84 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include <stdlib.h>
-#include "vtkRendererCollection.h"
+// .NAME vtkPropCollection - a list of Props
+// .SECTION Description
+// vtkPropCollection represents and provides methods to manipulate a list of
+// Props (i.e., vtkProp and subclasses). The list is unsorted and duplicate
+// entries are not prevented.
 
-// Forward the Render() method to each renderer in the list.
-void vtkRendererCollection::Render()
+// .SECTION see also
+// vtkProp vtkCollection 
+
+#ifndef __vtkPropC_h
+#define __vtkPropC_h
+
+#include "vtkCollection.h"
+class vtkProp;
+
+class VTK_EXPORT vtkPropCollection : public vtkCollection
 {
-  vtkRenderer *ren;
+ public:
+  static vtkPropCollection *New() {return new vtkPropCollection;};
+  const char *GetClassName() {return "vtkPropCollection";};
 
-  for (this->InitTraversal(); (ren = this->GetNextItem()); )
+  // Description:
+  // Add an Prop to the list.
+  void AddItem(vtkProp *a);
+
+  // Description:
+  // Remove an Prop from the list.
+  void RemoveItem(vtkProp *a);
+
+  // Description:
+  // Determine whether a particular Prop is present. Returns its position
+  // in the list.
+  int IsItemPresent(vtkProp *a);
+
+  // Description:
+  // Get the next Prop in the list.
+  vtkProp *GetNextItem();
+
+  // Description:
+  // Get the last Prop in the list.
+  vtkProp *GetLastItem();
+};
+
+inline void vtkPropCollection::AddItem(vtkProp *a) 
+{
+  this->vtkCollection::AddItem((vtkObject *)a);
+}
+
+inline void vtkPropCollection::RemoveItem(vtkProp *a) 
+{
+  this->vtkCollection::RemoveItem((vtkObject *)a);
+}
+
+inline int vtkPropCollection::IsItemPresent(vtkProp *a) 
+{
+  return this->vtkCollection::IsItemPresent((vtkObject *)a);
+}
+
+inline vtkProp *vtkPropCollection::GetNextItem() 
+{ 
+  return (vtkProp *)(this->GetNextItemAsObject());
+}
+
+inline vtkProp *vtkPropCollection::GetLastItem() 
+{ 
+  if ( this->Bottom == NULL )
     {
-    ren->Render();
+    return NULL;
+    }
+  else
+    {
+    return (vtkProp *)(this->Bottom->Item);
     }
 }
 
-void vtkRendererCollection::RenderOverlay()
-{
-  vtkRenderer *ren;
+#endif
 
-  for (this->InitTraversal(); (ren = this->GetNextItem()); )
-    {
-    ren->RenderOverlay();
-    }
-}
+
+
+
 

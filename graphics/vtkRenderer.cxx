@@ -75,9 +75,8 @@ vtkRenderer::vtkRenderer()
   this->RenderWindow = NULL;
   this->Lights = vtkLightCollection::New();
   this->Actors = vtkActorCollection::New();
-  this->Actors->Register(this);
-  this->Actors->Delete();
   this->Volumes = vtkVolumeCollection::New();
+
   this->Cullers = vtkCullerCollection::New();  
 }
 
@@ -107,13 +106,14 @@ vtkRenderer::~vtkRenderer()
     delete [] this->BackingImage;
     }
   
-  this->Lights->Delete();
-  this->Lights = NULL;
+  this->Actors->Delete();
+  this->Actors = NULL;
   this->Volumes->Delete();
   this->Volumes = NULL;
+  this->Lights->Delete();
+  this->Lights = NULL;
   this->Cullers->Delete();
   this->Cullers = NULL;
-  this->SetActors(NULL);
 }
 
 #ifdef VTK_USE_OGLR
@@ -181,7 +181,7 @@ void vtkRenderer::Render(void)
     {
     int mods = 0;
     vtkLight *light;
-    vtkActor *anActor;
+    vtkProp *aProp;
     
     // now we just need to check the lights and actors
     for(this->Lights->InitTraversal(); 
@@ -193,31 +193,13 @@ void vtkRenderer::Render(void)
 	mods = 1;
 	}
       }
-    for (this->Actors->InitTraversal(); 
-	 (anActor = this->Actors->GetNextItem()); )
+    for (this->Props->InitTraversal(); 
+	 (aProp = this->Props->GetNextItem()); )
       {
       // if it's invisible, we can skip the rest 
-      if (anActor->GetVisibility())
+      if (aProp->GetVisibility())
 	{
-	if (anActor->GetMTime() > this->RenderTime)
-	  {
-	  mods = 1;
-	  }
-	if (anActor->GetProperty()->GetMTime() > this->RenderTime)
-	  {
-	  mods = 1;
-	  }
-	if (anActor->GetTexture() && 
-	    anActor->GetTexture()->GetMTime() > this->RenderTime)
-	  {
-	  mods = 1;
-	  }
-	if (anActor->GetMapper()->GetMTime() > this->RenderTime)
-	  {
-	  mods = 1;
-	  }
-	anActor->GetMapper()->GetInput()->Update();
-	if (anActor->GetMapper()->GetInput()->GetMTime() > this->RenderTime) 
+	if (aProp->GetRedrawMTime() > this->RenderTime)
 	  {
 	  mods = 1;
 	  }
@@ -264,20 +246,27 @@ void vtkRenderer::Render(void)
     this->BackingImage = this->RenderWindow->GetPixelData(rx1,ry1,rx2,ry2,0);
     }
     
-  if (this->EndRenderMethod) 
-    {
-    (*this->EndRenderMethod)(this->EndRenderMethodArg);
-    }
-  this->RenderTime.Modified();
 
   t2 = vtkTimerLog::GetCurrentTime();
 
   this->LastRenderTimeInSeconds = (float) (t2 - t1);
 }
 
-void vtkRenderer::Render2D()
+void vtkRenderer::RenderOverlay()
 {
-  this->Actors2D->Render(this);
+  vtkProp *aProp;
+  
+  for (this->Props->InitTraversal(); 
+       (aProp = this->Props->GetNextItem()); )
+    {
+    aProp->RenderOverlay(this);
+    }
+
+			 if (this->EndRenderMethod) 
+    {
+    (*this->EndRenderMethod)(this->EndRenderMethodArg);
+    }
+  this->RenderTime.Modified();
 }
 
 // Ask volumes to render themselves.
@@ -287,16 +276,16 @@ int vtkRenderer::UpdateVolumes()
   int visibleFrameBufferVolumeCount = 0;
   int visibleSoftwareBufferVolumeCount = 0;
 
-  vtkVolume    *aVolume;
+  vtkProp    *aProp;
 
   // loop through volumes to count the visible volumes of each type
   // Also, render the frame buffer volumes at this time
-  for (this->Volumes->InitTraversal(); 
-       (aVolume = this->Volumes->GetNextItem()); )
+  for (this->Props->InitTraversal(); 
+       (aProp = this->Props->GetNextItem()); )
     {
-    if (aVolume->GetVisibility())
+    if (aProp->GetVisibility())
       {
-      switch ( aVolume->GetVolumeMapper()->GetMapperType() )
+/*      switch ( aProp->GetVolumeMapper()->GetMapperType() )
 	{
 	case VTK_RAYCAST_VOLUME_MAPPER:
 	  visibleRayCastVolumeCount++;
@@ -309,7 +298,7 @@ int vtkRenderer::UpdateVolumes()
 	  aVolume->GetVolumeMapper()->Render( (vtkRenderer *)this, aVolume );
 	  break;
 	}
-      }
+*/      }
     }
 
   // If there are any ray cast volumes, or softwarebuffer
@@ -349,14 +338,14 @@ int vtkRenderer::UpdateCameras ()
 // visualization network to update.
 int vtkRenderer::UpdateActors()
 {
-  vtkActor   *anActor, **actorList;
+  vtkProp   *aProp, **actorList;
   vtkCuller  *aCuller;
   int        count = 0, num_actors;
   float      total_time, actor_time, gained_time, additional_time;
   int        allocated_time_initialized = 0, i;
   float      render_time, new_render_time;
 
-  num_actors = this->Actors->GetNumberOfItems();
+  num_actors = this->Props->GetNumberOfItems();
 
   // We don't have any cullers so don't try to do any culling
   if ( this->Cullers->GetNumberOfItems() == 0 )
@@ -364,19 +353,31 @@ int vtkRenderer::UpdateActors()
     // Give each actor an equal slice of the time
     actor_time = this->AllocatedRenderTime / (float) num_actors;
 
-    // loop through actors 
-    for ( this->Actors->InitTraversal(); (anActor=this->Actors->GetNextItem()); )
+    // loop through props doing opaque and then translucent
+    for ( this->Props->InitTraversal(); 
+	  (aProp=this->Props->GetNextItem()); )
       {
       // we need to draw it only if it is visible 
-      if ( anActor->GetVisibility() )
+      if ( aProp->GetVisibility() )
 	{
-	anActor->SetAllocatedRenderTime( actor_time );
+	aProp->SetAllocatedRenderTime( actor_time );
 
 	// Count the number of actors we actually draw
 	count++;
 	
 	// Finally - render the thing!
-	anActor->Render((vtkRenderer *)this);
+	aProp->RenderOpaqueGeometry(this);
+	}
+      }
+    for ( this->Props->InitTraversal(); 
+	  (aProp=this->Props->GetNextItem()); )
+      {
+      // we need to draw it only if it is visible 
+      if ( aProp->GetVisibility() )
+	{
+	aProp->SetAllocatedRenderTime( actor_time );
+	// Finally - render the thing!
+	aProp->RenderTranslucentGeometry(this);
 	}
       }
     }
@@ -395,12 +396,11 @@ int vtkRenderer::UpdateActors()
   else
     {
     // Create the initial list of actors
-    actorList = new vtkActor *[num_actors];
-    for ( i = 0,	this->Actors->InitTraversal(); 
-	  (anActor = this->Actors->GetNextItem());
-	  i++ )
+    actorList = new vtkProp *[num_actors];
+    for ( i = 0, this->Props->InitTraversal(); 
+	  (aProp = this->Props->GetNextItem());i++ )
       {
-      actorList[i] = anActor;
+      actorList[i] = aProp;
       }
 
     // Give each of the cullers a chance to modify allocated rendering time
@@ -411,11 +411,12 @@ int vtkRenderer::UpdateActors()
     // returned is the number of non-zero, visible actors.
     // Some cullers may do additional sorting of the list (by distance,
     // importance, etc).
-    for (this->Cullers->InitTraversal(); (aCuller=this->Cullers->GetNextItem());)
+    for (this->Cullers->InitTraversal(); 
+	 (aCuller=this->Cullers->GetNextItem());)
       {
-      total_time = aCuller->OuterCullMethod( (vtkRenderer *)this, 
-					     actorList, num_actors,
-					     allocated_time_initialized );
+      total_time = aCuller->OuterCullMethod((vtkRenderer *)this, 
+					    actorList, num_actors,
+					    allocated_time_initialized );
       }
 
     // We need to keep track of how much time we gain from the inner culling
@@ -425,20 +426,20 @@ int vtkRenderer::UpdateActors()
     // loop through actors 
     for ( i = 0; i < num_actors; i++ )
       {
-      anActor = actorList[i];
+      aProp = actorList[i];
 
-      if ( allocated_time_initialized || anActor->GetVisibility() )
+      if ( allocated_time_initialized || aProp->GetVisibility() )
 	{
 	// If we don't have an outer cull method in any of the cullers,
 	// then the allocated render time has not yet been initialized
 	if ( !allocated_time_initialized )
 	  {
-	  anActor->SetAllocatedRenderTime( 1.0 );
+	  aProp->SetAllocatedRenderTime( 1.0 );
 	  }
 
 	// What is the initial render time allocated to this actor
 	// before we do the inner culling
-	render_time = anActor->GetAllocatedRenderTime();
+	render_time = aProp->GetAllocatedRenderTime();
 	  
 	// Give the inner culling method a chance to do its thing.
 	// The inner cull method returns 0 if the object is culled, 1 if
@@ -449,14 +450,14 @@ int vtkRenderer::UpdateActors()
 	for (this->Cullers->InitTraversal(); 
 	     (aCuller=this->Cullers->GetNextItem());)
 	  {
-	  if ( !(aCuller->InnerCullMethod((vtkRenderer *)this, anActor ) ) ) 
+	  if ( !(aCuller->InnerCullMethod((vtkRenderer *)this, aProp) ) ) 
 	    {
 	    break;
 	    }
 	  }
 	// What is the new render time allocated to this actor
 	// after we do the inner culling.
-	new_render_time = anActor->GetAllocatedRenderTime();
+	new_render_time = aProp->GetAllocatedRenderTime();
 
 	// If there is a difference between this time and the original
 	// render time, then this is time that is gained for use across
@@ -477,11 +478,64 @@ int vtkRenderer::UpdateActors()
 	  // We need to divide by total time so that the total rendering time
 	  // (all actor's AllocatedRenderTime added together) would be 1.
 	  // We add the additional time to get the total allocated time.
-	  anActor->SetAllocatedRenderTime(
+	  aProp->SetAllocatedRenderTime(
 	     ( new_render_time / total_time ) * this->AllocatedRenderTime );
 	  
 	  // Finally - render the thing!
-	  anActor->Render((vtkRenderer *)this);
+	  aProp->RenderOpaqueGeometry(this);
+	  }
+	}
+      }
+    // loop through translucent actors 
+    for ( i = 0; i < num_actors; i++ )
+      {
+      aProp = actorList[i];
+
+      if ( allocated_time_initialized || aProp->GetVisibility() )
+	{
+	// What is the initial render time allocated to this actor
+	// before we do the inner culling
+	render_time = aProp->GetAllocatedRenderTime();
+	  
+	// Give the inner culling method a chance to do its thing.
+	// The inner cull method returns 0 if the object is culled, 1 if
+	// it is not culled. It may also just reduce the allocated render
+        // time of the actor, so we'll have to check that again later.
+	// Cullers are not allowed to increase the allocated time for
+	// an actor.
+	for (this->Cullers->InitTraversal(); 
+	     (aCuller=this->Cullers->GetNextItem());)
+	  {
+	  if ( !(aCuller->InnerCullMethod((vtkRenderer *)this, aProp) ) ) 
+	    {
+	    break;
+	    }
+	  }
+	// What is the new render time allocated to this actor
+	// after we do the inner culling.
+	new_render_time = aProp->GetAllocatedRenderTime();
+
+	// If there is a difference between this time and the original
+	// render time, then this is time that is gained for use across
+	// all remaining actors;
+	gained_time += render_time - new_render_time;
+
+	// If it didn't get culled, we really need to render it
+	if ( new_render_time > 0.0 )
+	  {
+	  // If we culled a previous actor using the inner culling method, 
+	  // we will have some additional time that we can add to this actor
+	  additional_time = gained_time / (float)(num_actors - i);
+	  gained_time -= additional_time;
+	  
+	  // We need to divide by total time so that the total rendering time
+	  // (all actor's AllocatedRenderTime added together) would be 1.
+	  // We add the additional time to get the total allocated time.
+	  aProp->SetAllocatedRenderTime(
+	     ( new_render_time / total_time ) * this->AllocatedRenderTime );
+	  
+	  // Finally - render the thing!
+	  aProp->RenderTranslucentGeometry(this);
 	  }
 	}
       }
@@ -538,34 +592,42 @@ void vtkRenderer::AddLight(vtkLight *light)
   this->Lights->AddItem(light);
 }
 
-// Add an actor to the list of actors.
-void vtkRenderer::AddActor(vtkActor *actor)
+// look through the props and get all the actors
+vtkActorCollection *vtkRenderer::GetActors()
 {
-  this->Actors->AddItem(actor);
+  vtkProp *aProp;
+  
+  // clear the collection first
+  this->Actors->RemoveAllItems();
+  
+  for (this->Props->InitTraversal(); 
+       (aProp = this->Props->GetNextItem()); )
+    {
+    aProp->GetActors(this->Actors);
+    }
+  return this->Actors;
 }
 
-// Add a volume to the list of volumes.
-void vtkRenderer::AddVolume(vtkVolume *volume)
+// look through the props and get all the actors
+vtkVolumeCollection *vtkRenderer::GetVolumes()
 {
-  this->Volumes->AddItem(volume);
+  vtkProp *aProp;
+  
+  // clear the collection first
+  this->Volumes->RemoveAllItems();
+  
+  for (this->Props->InitTraversal(); 
+       (aProp = this->Props->GetNextItem()); )
+    {
+    aProp->GetVolumes(this->Volumes);
+    }
+  return this->Volumes;
 }
 
 // Remove a light from the list of lights.
 void vtkRenderer::RemoveLight(vtkLight *light)
 {
   this->Lights->RemoveItem(light);
-}
-
-// Remove an actor from the list of actors.
-void vtkRenderer::RemoveActor(vtkActor *actor)
-{
-  this->Actors->RemoveItem(actor);
-}
-
-// Remove a volume from the list of volumes.
-void vtkRenderer::RemoveVolume(vtkVolume *volume)
-{
-  this->Volumes->RemoveItem(volume);
 }
 
 // Add an culler to the list of cullers.
@@ -609,8 +671,11 @@ void vtkRenderer::ResetCamera()
   allBounds[0] = allBounds[2] = allBounds[4] = VTK_LARGE_FLOAT;
   allBounds[1] = allBounds[3] = allBounds[5] = -VTK_LARGE_FLOAT;
   
+  // get the actors
+  vtkActorCollection *ac = this->GetActors();
+  
   // loop through actors (and their parts)
-  for (this->Actors->InitTraversal();(anActor = this->Actors->GetNextItem()); )
+  for (ac->InitTraversal(); (anActor = ac->GetNextItem()); )
     {
     // if it's invisible, or has no geometry, we can skip the rest 
     if ( anActor->GetVisibility() )
@@ -618,11 +683,11 @@ void vtkRenderer::ResetCamera()
       bounds = anActor->GetBounds();
       // make sure we haven't got bogus bounds
       if ( bounds[0] > -VTK_LARGE_FLOAT && bounds[1] < VTK_LARGE_FLOAT &&
-           bounds[2] > -VTK_LARGE_FLOAT && bounds[3] < VTK_LARGE_FLOAT &&
-           bounds[4] > -VTK_LARGE_FLOAT && bounds[5] < VTK_LARGE_FLOAT )
+	   bounds[2] > -VTK_LARGE_FLOAT && bounds[3] < VTK_LARGE_FLOAT &&
+	   bounds[4] > -VTK_LARGE_FLOAT && bounds[5] < VTK_LARGE_FLOAT )
 	{
-        nothingVisible = 0;
-
+	nothingVisible = 0;
+	
 	if (bounds[0] < allBounds[0])
 	  {
 	  allBounds[0] = bounds[0]; 
@@ -650,10 +715,11 @@ void vtkRenderer::ResetCamera()
 	}
       }
     }
-
+  
   // loop through volumes
-  for ( this->Volumes->InitTraversal(); 
-	(aVolume = this->Volumes->GetNextItem()); )
+  vtkVolumeCollection *vc = this->GetVolumes();
+
+  for (vc->InitTraversal(); (aVolume = vc->GetNextItem()); )
     {
     // if it's invisible we can skip the rest 
     if ( aVolume->GetVisibility() )
@@ -957,10 +1023,8 @@ void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkViewport::PrintSelf(os,indent);
 
-  os << indent << "Actors:\n";
-  this->Actors->PrintSelf(os,indent.GetNextIndent());
   os << indent << "Ambient: (" << this->Ambient[0] << ", " 
-    << this->Ambient[1] << ", " << this->Ambient[2] << ")\n";
+     << this->Ambient[1] << ", " << this->Ambient[2] << ")\n";
 
   os << indent << "BackingStore: " << (this->BackingStore ? "On\n":"Off\n");
   os << indent << "DisplayPoint: ("  << this->DisplayPoint[0] << ", " 
@@ -993,13 +1057,14 @@ void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
 
 int vtkRenderer::VisibleActorCount()
 {
-  vtkActor *anActor;
+  vtkProp *aProp;
   int count = 0;
 
-  // loop through actors
-  for (this->Actors->InitTraversal();(anActor = this->Actors->GetNextItem()); )
+  // loop through Props
+  for (this->Props->InitTraversal();
+       (aProp = this->Props->GetNextItem()); )
     {
-    if (anActor->GetVisibility())
+    if (aProp->GetVisibility())
       {
       count++;
       }
@@ -1009,19 +1074,19 @@ int vtkRenderer::VisibleActorCount()
 
 int vtkRenderer::VisibleVolumeCount()
 {
-  int        count = 0;
-  vtkVolume  *aVolume;
+  int count = 0;
+  vtkProp *aProp;
 
   // loop through volumes
-  for (this->Volumes->InitTraversal(); (aVolume = this->Volumes->GetNextItem()); )
+  for (this->Props->InitTraversal(); 
+	(aProp = this->Props->GetNextItem()); )
     {
-    if (aVolume->GetVisibility())
+    if (aProp->GetVisibility())
       {
       count++;
       }
     }
   return count;
-
 }
 
 

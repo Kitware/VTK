@@ -59,7 +59,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkObject.h"
 
-class vtkActor;
+class vtkProp;
 class vtkRenderer;
 
 class VTK_EXPORT vtkCuller : public vtkObject
@@ -69,12 +69,12 @@ public:
 
   // Description:
   // This is called outside the render loop
-  virtual float OuterCullMethod( vtkRenderer *ren, vtkActor **actorList,
+  virtual float OuterCullMethod( vtkRenderer *ren, vtkProp **actorList,
 				 int& listLength, int& initialized )=0;
 
   // Description:
   // This is called inside the render loop
-  virtual int   InnerCullMethod( vtkRenderer *ren, vtkActor *act )=0;
+  virtual int   InnerCullMethod( vtkRenderer *ren, vtkProp *act )=0;
 
 protected:
 };

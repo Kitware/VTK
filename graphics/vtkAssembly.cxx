@@ -88,7 +88,7 @@ vtkAssembly& vtkAssembly::operator=(const vtkAssembly& assembly)
 // will be drawn for this assembly. This allows you to create "logical"
 // assemblies; that is, assemblies that only serve to group and transform
 // its Parts.
-void vtkAssembly::Render(vtkRenderer *ren)
+void vtkAssembly::RenderTranslucentGeometry(vtkViewport *ren)
 {
   vtkActor *actor;
   vtkActorCollection *path;
@@ -108,11 +108,41 @@ void vtkAssembly::Render(vtkRenderer *ren)
     if ( actor->GetVisibility() )
       {
       actor->SetAllocatedRenderTime(fraction);
-      actor->Render(ren);
+      actor->RenderTranslucentGeometry(ren);
       }
     }
 }
 
+
+// Render this assembly and all its Parts. The rendering process is recursive.
+// Note that a mapper need not be defined. If not defined, then no geometry 
+// will be drawn for this assembly. This allows you to create "logical"
+// assemblies; that is, assemblies that only serve to group and transform
+// its Parts.
+void vtkAssembly::RenderOpaqueGeometry(vtkViewport *ren)
+{
+  vtkActor *actor;
+  vtkActorCollection *path;
+  float fraction;
+
+  this->UpdatePaths();
+
+  // for allocating render time between components
+  // simple equal allocation
+  fraction = this->AllocatedRenderTime 
+    / (float)(this->Paths->GetNumberOfItems());
+  
+  // render the Paths
+  for ( this->Paths->InitTraversal(); (path = this->Paths->GetNextItem()); )
+    {
+    actor = path->GetLastItem();
+    if ( actor->GetVisibility() )
+      {
+      actor->SetAllocatedRenderTime(fraction);
+      actor->RenderOpaqueGeometry(ren);
+      }
+    }
+}
 
 void vtkAssembly::ReleaseGraphicsResources(vtkRenderWindow *renWin)
 {
