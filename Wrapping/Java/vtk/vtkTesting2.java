@@ -10,20 +10,33 @@ public class vtkTesting2
   public static final int NOT_RUN       = 2;
   public static final int DO_INTERACTOR = 3;
 
-  private static void LoadLibrary(String path, String library)
+  private static int LoadLib(String lib)
     {
-    String lname = System.mapLibraryName(library);
-    String libname = path + System.getProperty("file.separator") +
-      lname;
     try
       {
-      System.out.println("Try to load: " + libname);
-      Runtime.getRuntime().load(libname);
+      System.out.println("Try to load: " + lib);
+      Runtime.getRuntime().load(lib);
       }
     catch (UnsatisfiedLinkError e)
       {
-      System.out.println("Failed to load: " + libname + " attempting: " + library);
-      System.loadLibrary(library);
+      return 0;
+      }
+    return 1;
+    }
+
+  private static void LoadLibrary(String path, String library)
+    {
+    String lname = System.mapLibraryName(library);
+    String sep = System.getProperty("file.separator");
+    String libname = path + sep + lname;
+    String releaselibname = path + sep + "Release" + sep + lname;
+    String debuglibname = path + sep + "Debug" + sep + lname;
+    if ( vtkTesting2.LoadLib(library) != 1 &&
+      vtkTesting2.LoadLib(libname) != 1 &&
+      vtkTesting2.LoadLib(releaselibname) != 1 &&
+      vtkTesting2.LoadLib(debuglibname) != 1 )
+      {
+      System.out.println("Problem");
       }
     }
 
