@@ -61,14 +61,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define _VTKVRML_H_
 
 #define	DEFAULTINCREMENT	100
+#include <stdlib.h>
+
+#include "vtkConfigure.h"
 
 #ifdef VTK_USE_ANSI_STDLIB
 #include <new>
-#include <cstdlib>
 #include <iostream>
 #else
 #include <new.h>
-#include <stdlib.h>
 #include <iostream.h>
 #endif
 
