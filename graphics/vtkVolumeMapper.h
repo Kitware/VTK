@@ -60,6 +60,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkRenderer;
 class vtkVolume;
 
+#define VTK_RAYCAST_VOLUME_MAPPER 0
+#define VTK_FRAMEBUFFER_VOLUME_MAPPER 1
+#define VTK_SOFTWAREBUFFER_VOLUME_MAPPER 2
+
+
 class VTK_EXPORT vtkVolumeMapper : public vtkObject
 {
 public:
@@ -70,7 +75,8 @@ public:
 
   // Description:
   // Render the volume
-  virtual void Render(vtkRenderer *ren, vtkVolume *vol) = 0;
+  virtual void Render(vtkRenderer *ren, vtkVolume *vol)=0;
+
 
   // Description:
   // Update the volume rendering pipeline by updating the scalar input
@@ -91,22 +97,6 @@ public:
   // Description:
   // Return the diagonal length of this mappers bounding box.
   float GetLength();
-
-  // Description:
-  // Will the hardware color and z buffers be destroyed during a render?
-  virtual int DestroyHardwareBuffer() = 0;
-
-  // Description:
-  // Will the image be in hardware when the render is complete?
-  virtual int ImageLocatedInHardware() = 0;
-
-  // Description:
-  // Get the z buffer data for the image.
-  virtual float *GetZbufferData() = 0;
-
-  // Description:
-  // Get the RGBA color buffer data for the image.
-  virtual float *GetRGBAPixelData() = 0;
 
   // Description:
   // Turn On/Off orthogonal clipping. (Clipping planes are
@@ -137,6 +127,10 @@ public:
   void SetScalarInput(vtkImageCache *cache)
     {this->SetScalarInput(cache->GetImageToStructuredPoints()->GetOutput());}
   virtual vtkStructuredPoints *GetScalarInput() {return this->ScalarInput;};
+
+  virtual int GetMapperType()=0;
+
+  virtual float *GetRGBAPixelData() {return NULL;};
 
 protected:
   vtkStructuredPoints  *ScalarInput;

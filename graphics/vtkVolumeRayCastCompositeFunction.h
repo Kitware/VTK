@@ -65,25 +65,19 @@ public:
   void PrintSelf( ostream& os, vtkIndent index );
 
   // Description:
-  // Give a ray type (0 = unsigned char, 1 = unsigned short,
-  // 2 = short) cast a ray through the scalar data starting
-  // at ray_position and taking num_steps of ray_increment size.
-  // Return the final compositing value in pixel_value where
-  // pixel_value[0] = red, pixel_value[1] = green, 
-  // pixel_value[2] = blue, pixel_value[3] = alpha
-  // pixel_value[4] = depth, and pixel_value[5] = number of steps
-  void CastARay( int ray_type, void *data_ptr,
-		 float ray_position[3], float ray_increment[3],
-		 int num_steps, float pixel_value[6] );
-  
-  // Description:
   // Bogus routine right now until I figure out how to get to the
   // volume's properties from here....
   float GetZeroOpacityThreshold( vtkVolume *vol );
 
+// BTX
+  void CastRay( struct VolumeRayCastRayInfoStruct *rayInfo,
+		struct VolumeRayCastVolumeInfoStruct *volumeInfo);
+// ETX  
+
 protected:
   void SpecificFunctionInitialize( vtkRenderer *ren,
 				   vtkVolume   *vol,
+				   struct VolumeRayCastVolumeInfoStruct *volumeInfo,
 				   vtkVolumeRayCastMapper *mapper );
 
 };

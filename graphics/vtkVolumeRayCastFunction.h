@@ -60,6 +60,60 @@ class vtkRenderer;
 class vtkVolume;
 class vtkVolumeRayCastMapper;
 
+struct VolumeRayCastRayInfoStruct 
+{
+  // These are the input values
+  float RayOrigin[3];
+  float RayDirection[3];
+  int   RayPixel[2];
+  int   ImageWidth;
+
+  // These are input values but may be changed
+  // along the way
+  float RayNearClip;
+  float RayFarClip;
+
+  // These are computed along the way
+  float VolumeRayStart[4];
+  float VolumeRayEnd[4];
+  float VolumeRayDirection[4];
+  float VolumeRayIncrement[3];
+  int   VolumeRayNumberOfSamples;
+
+  // These are the return values
+  float RayColor[4];
+  float RayDepth;
+  int   VolumeRayStepsTaken;
+
+};
+
+struct VolumeRayCastVolumeInfoStruct 
+{
+  float WorldToVolumeMatrix[16];
+  float ViewToVolumeMatrix[16];
+  vtkVolume *Volume;
+  int   ScalarDataType;
+  void  *ScalarDataPointer;
+
+  // Description:
+  // These are some variables set during FunctionInitialize. They
+  // are either passed into that function, or acquired using Get 
+  // methods and saved locally for performance reasons. They are
+  // public because they need to be accessed by a templated method
+  // which is not a member method.
+  int                          Shading;
+  int                          ColorChannels;
+  float                        Color[3];
+  int                          InterpolationType;
+  float                        *RedDiffuseShadingTable;
+  float                        *GreenDiffuseShadingTable;
+  float                        *BlueDiffuseShadingTable;
+  float                        *RedSpecularShadingTable;
+  float                        *GreenSpecularShadingTable;
+  float                        *BlueSpecularShadingTable;
+};
+
+
 class VTK_EXPORT vtkVolumeRayCastFunction : public vtkObject
 {
 public:
@@ -73,56 +127,19 @@ public:
   // SpecificFunctionInitialize of the subclass function.
   void FunctionInitialize( vtkRenderer *ren,
 			   vtkVolume   *vol,
-			   vtkVolumeRayCastMapper *mapper,
-			   float *opacity_tf_array,
-			   float *corrected_opacity_tf_array,
-			   float *gradient_opacity_tf_array,
-			   float gradient_opacity_constant,
-			   float *rgb_tf_array,
-			   float *gray_tf_array,
-			   int   tf_array_size);
+			   struct VolumeRayCastVolumeInfoStruct *volumeInfo,
+			   vtkVolumeRayCastMapper *mapper );
 
-  // Description:
-  // Give a ray type (0 = unsigned char, 1 = unsigned short,
-  // 2 = short) cast a ray through the scalar data starting
-  // at ray_position and taking num_steps of ray_increment size.
-  // Return the final compositing value in pixel_value where
-  // pixel_value[0] = red, pixel_value[1] = green, 
-  // pixel_value[2] = blue, pixel_value[3] = alpha
-  // pixel_value[4] = depth, and pixel_value[5] = number of steps
-  virtual void CastARay( int ray_type, void *data_ptr,
-		 float ray_position[3], float ray_increment[3],
-		 int num_steps, float pixel_value[6] )=0;
+  virtual void CastRay( struct VolumeRayCastRayInfoStruct *rayInfo,
+			struct VolumeRayCastVolumeInfoStruct *volumeInfo )=0;
 
   // Description:
   // Get the value below which all scalar values are considered to
   // have 0 opacity.
   virtual float GetZeroOpacityThreshold( vtkVolume *vol )=0;
 
-  // Description:
-  // These are some variables set during FunctionInitialize. They
-  // are either passed into that function, or acquired using Get 
-  // methods and saved locally for performance reasons. They are
-  // public because they need to be accessed by a templated method
-  // which is not a member method.
-  float                        *RGBTFArray;
-  float                        *GrayTFArray;
-  float                        *ScalarOpacityTFArray;
-  float                        *CorrectedScalarOpacityTFArray;
-  float                        *GradientOpacityTFArray;
-  float                        GradientOpacityConstant;
-  int                          TFArraySize;
-  int                          Shading;
-  int                          ColorChannels;
-  int                          InterpolationType;
   int                          DataIncrement[3];
   int                          DataSize[3];
-  float                        *RedDiffuseShadingTable;
-  float                        *GreenDiffuseShadingTable;
-  float                        *BlueDiffuseShadingTable;
-  float                        *RedSpecularShadingTable;
-  float                        *GreenSpecularShadingTable;
-  float                        *BlueSpecularShadingTable;
   unsigned short               *EncodedNormals;
   unsigned char                *GradientMagnitudes;
 
@@ -133,6 +150,7 @@ protected:
   // initialization that it may need to do
   virtual void SpecificFunctionInitialize( vtkRenderer *ren,
 					   vtkVolume   *vol,
+					   struct VolumeRayCastVolumeInfoStruct *volumeInfo,
 					   vtkVolumeRayCastMapper *mapper )=0;
 };
 

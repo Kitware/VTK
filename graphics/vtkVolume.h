@@ -129,6 +129,17 @@ public:
   void SetVolumeProperty(vtkVolumeProperty& property) 
     {this->SetVolumeProperty(&property);}
 
+  void UpdateTransferFunctions( vtkRenderer *ren );
+  void UpdateScalarOpacityforSampleSize( vtkRenderer *ren, float sample_distance );
+
+  float *GetCorrectedScalarOpacityArray () { return this->CorrectedScalarOpacityArray; };
+  float *GetScalarOpacityArray () { return this->ScalarOpacityArray; };
+  float *GetGradientOpacityArray () { return this->GradientOpacityArray; };
+  float *GetGrayArray () { return this->GrayArray; };
+  float *GetRGBArray () { return this->RGBArray; };
+  float  GetGradientOpacityConstant () { return this->GradientOpacityConstant; };
+  float  GetArraySize () { return this->ArraySize; };
+
 protected:
 
   float             Scale;
@@ -136,6 +147,50 @@ protected:
   vtkVolumeMapper   *VolumeMapper;
 
   vtkVolumeProperty *VolumeProperty;
+
+  // The rgb transfer function array - for unsigned char data this
+  // is 256 elements, for short or unsigned short it is 65536 elements
+  // This is a sample at each scalar value of the rgb transfer
+  // function.  A time stamp is kept to know when it needs rebuilding
+  float                        *RGBArray;
+  vtkTimeStamp                 RGBArrayMTime;
+
+  // The gray transfer function array - for unsigned char data this
+  // is 256 elements, for short or unsigned short it is 65536 elements
+  // This is a sample at each scalar value of the gray transfer
+  // function.  A time stamp is kept to know when it needs rebuilding
+  float                        *GrayArray;
+  vtkTimeStamp                 GrayArrayMTime;
+
+  // The scalar opacity transfer function array - for unsigned char data this
+  // is 256 elements, for short or unsigned short it is 65536 elements
+  // This is a sample at each scalar value of the opacity transfer
+  // function.  A time stamp is kept to know when it needs rebuilding
+  float                        *ScalarOpacityArray;
+  vtkTimeStamp                 ScalarOpacityArrayMTime;
+
+  // The corrected scalar opacity transfer function array - this is identical
+  // to the opacity transfer function array when the step size is 1.
+  // In other cases, it is corrected to reflect the new material thickness
+  // modelled by a step size different than 1.
+  float                        *CorrectedScalarOpacityArray;
+
+  // CorrectedStepSize is the step size corrently modelled by
+  // CorrectedArray.  It is used to determine when the 
+  // CorrectedArray needs to be updated to match SampleDistance
+  // in the volume mapper.
+  float                        CorrectedStepSize;
+
+  // CorrectedSOArrayMTime - compared with OpacityArrayMTime for update
+  vtkTimeStamp                 CorrectedScalarOpacityArrayMTime;
+
+  // Number of elements in the rgb, gray, and opacity transfer function arrays
+  int                          ArraySize;
+
+  // The magnitude of gradient opacity transfer function array
+  float                        GradientOpacityArray[256];
+  float                        GradientOpacityConstant;
+  vtkTimeStamp                 GradientOpacityArrayMTime;
 };
 
 #endif

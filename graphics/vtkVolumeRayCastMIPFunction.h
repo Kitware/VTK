@@ -72,18 +72,6 @@ public:
   const char *GetClassName() {return "vtkVolumeRayCastMIPFunction";};
   void PrintSelf( ostream& os, vtkIndent index );
 
-  // Description:
-  // Given a ray type, cast a ray through the scalar data starting
-  // at ray_position and taking num_steps of ray_increment size.
-  // Return the final compositing value in pixel_value where
-  // pixel_value[0] = red, pixel_value[1] = green, 
-  // pixel_value[2] = blue, pixel_value[3] = alpha
-  // pixel_value[4] = depth, and pixel_value[5] = number of steps
-  void CastARay( int ray_type, void *data_ptr,
-		 float ray_position[3], float ray_increment[3],
-		 int num_steps, float pixel_value[6] );
-
-
 
   // Description:
   // Get the scalar value below which all scalar values have zero opacity.
@@ -101,12 +89,18 @@ public:
     {this->SetMaximizeMethod(VTK_MAXIMIZE_OPACITY);}
   char *GetMaximizeMethodAsString(void);
 
+// BTX
+  void CastRay( struct VolumeRayCastRayInfoStruct *rayInfo,
+		struct VolumeRayCastVolumeInfoStruct *volumeInfo );
+// ETX
+
 
 protected:
   int MaximizeMethod;
 
   void SpecificFunctionInitialize( vtkRenderer *ren,
 				   vtkVolume   *vol,
+				   struct VolumeRayCastVolumeInfoStruct *volumeInfo,
 				   vtkVolumeRayCastMapper *mapper );
 
 };

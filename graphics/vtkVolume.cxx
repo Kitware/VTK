@@ -51,19 +51,37 @@ vtkVolume::vtkVolume()
 {
   this->Scale		= 1.0;
   this->VolumeMapper	= NULL;
-
   this->VolumeProperty	= NULL;
+  this->ScalarOpacityArray          = NULL;
+  this->RGBArray                    = NULL;
+  this->GrayArray                   = NULL;
+  this->CorrectedScalarOpacityArray = NULL;
+  this->CorrectedStepSize             = -1;
+
 }
 
 // Destruct a volume
 vtkVolume::~vtkVolume()
 {
-  this->SetVolumeMapper(NULL);
-  
   if (this->VolumeProperty )
     {
     this->VolumeProperty->UnRegister(this);
     }
+
+  this->SetVolumeMapper(NULL);
+
+  if ( this->ScalarOpacityArray )
+    delete [] this->ScalarOpacityArray;
+
+  if ( this->RGBArray )
+    delete [] this->RGBArray;
+
+  if ( this->GrayArray )
+    delete [] this->GrayArray;
+
+  if ( this->CorrectedScalarOpacityArray )
+    delete [] this->CorrectedScalarOpacityArray;
+
 }
 
 // Shallow copy of an volume.
@@ -81,6 +99,17 @@ vtkVolume& vtkVolume::operator=(const vtkVolume& volume)
   this->VolumeProperty = volume.VolumeProperty;
   
   return *this;
+}
+
+void vtkVolume::SetVolumeMapper(vtkVolumeMapper *mapper)
+{
+  if (this->VolumeMapper != mapper)
+    {
+    if (this->VolumeMapper != NULL) {this->VolumeMapper->UnRegister(this);}
+    this->VolumeMapper = mapper;
+    if (this->VolumeMapper != NULL) {this->VolumeMapper->Register(this);}
+    this->Modified();
+    }
 }
 
 // Copy the volume's composite 4x4 matrix into the matrix provided.
@@ -250,8 +279,6 @@ void vtkVolume::Render( vtkRenderer *ren )
     // Force the creation of a property
     this->GetVolumeProperty();
     }
-
-  this->VolumeMapper->Render( ren, this );
 }
 
 void vtkVolume::Update()
@@ -302,18 +329,267 @@ unsigned long int vtkVolume::GetMTime()
   return mTime;
 }
 
-void vtkVolume::SetVolumeMapper(vtkVolumeMapper *mapper)
+void vtkVolume::UpdateTransferFunctions( vtkRenderer *ren )
 {
-  if (this->VolumeMapper != mapper)
+  int                       data_type;
+  vtkPiecewiseFunction      *scalar_opacity_transfer_function;
+  vtkPiecewiseFunction      *gradient_opacity_transfer_function;
+  vtkPiecewiseFunction      *gray_transfer_function;
+  vtkColorTransferFunction  *rgb_transfer_function;
+  int                       color_channels;
+  int                       scalar_opacity_tf_needs_updating = 0;
+  int                       gradient_opacity_tf_needs_updating = 0;
+  int                       rgb_tf_needs_updating = 0;
+  int                       gray_tf_needs_updating = 0;
+
+  // Update the ScalarOpacityArray if necessary.  This is necessary if
+  // the ScalarOpacityArray does not exist, or the transfer function has
+  // been modified more recently than the ScalarOpacityArray has.
+  scalar_opacity_transfer_function   = this->VolumeProperty->GetScalarOpacity();
+  gradient_opacity_transfer_function = this->VolumeProperty->GetGradientOpacity();
+  rgb_transfer_function              = this->VolumeProperty->GetRGBTransferFunction();
+  gray_transfer_function             = this->VolumeProperty->GetGrayTransferFunction();
+  color_channels                     = this->VolumeProperty->GetColorChannels();
+
+  if ( this->VolumeMapper->GetScalarInput()->GetPointData()->GetScalars() == NULL )
     {
-    if (this->VolumeMapper != NULL) {this->VolumeMapper->UnRegister(this);}
-    this->VolumeMapper = mapper;
-    if (this->VolumeMapper != NULL) {this->VolumeMapper->Register(this);}
-    this->Modified();
+    vtkErrorMacro(<<"Need scalar data to volume render");
+    return;
     }
+    
+  data_type = this->VolumeMapper->GetScalarInput()->GetPointData()->GetScalars()->GetDataType();
+
+  if ( scalar_opacity_transfer_function == NULL )
+    {
+    vtkErrorMacro( << "Error: no transfer function!" );
+    return;
+    }
+  else if ( this->ScalarOpacityArray == NULL ||
+	    scalar_opacity_transfer_function->GetMTime() >
+	    this->ScalarOpacityArrayMTime ||
+	    this->VolumeProperty->GetScalarOpacityMTime() >
+	    this->ScalarOpacityArrayMTime )
+    {
+    scalar_opacity_tf_needs_updating = 1;
+    }
+
+  if ( gradient_opacity_transfer_function == NULL )
+    {
+    vtkErrorMacro( << "Error: no gradient magnitude opacity function!" );
+    return;
+    }
+  else if ( gradient_opacity_transfer_function->GetMTime() >
+	    this->GradientOpacityArrayMTime ||
+	    this->VolumeProperty->GetGradientOpacityMTime() >
+	    this->GradientOpacityArrayMTime )
+    {
+    gradient_opacity_tf_needs_updating = 1;
+    }
+  
+  switch ( color_channels )
+    {
+    case 1:
+      if ( gray_transfer_function == NULL )
+	{
+	vtkErrorMacro( << "Error: no gray transfer function!" );
+	}
+      else if ( this->GrayArray == NULL ||
+		gray_transfer_function->GetMTime() >
+		this->GrayArrayMTime ||
+		this->VolumeProperty->GetGrayTransferFunctionMTime() >
+		this->GrayArrayMTime )
+	gray_tf_needs_updating = 1;
+      break;
+    case 3:
+      if ( rgb_transfer_function == NULL )
+	{
+	vtkErrorMacro( << "Error: no color transfer function!" );
+	}
+      else if ( this->RGBArray == NULL ||
+		rgb_transfer_function->GetMTime() >
+		this->RGBArrayMTime ||
+		this->VolumeProperty->GetRGBTransferFunctionMTime() >
+		this->RGBArrayMTime )
+	rgb_tf_needs_updating = 1;
+      break;
+    }
+
+  if ( gradient_opacity_tf_needs_updating )
+    {
+    // Get values 0-255 (256 values)
+    gradient_opacity_transfer_function->GetTable(
+					  (float)(0x00),
+					  (float)(0xff),  
+					  (int)(0x100), 
+					  this->GradientOpacityArray );
+    if ( !strcmp(gradient_opacity_transfer_function->GetType(), "Constant") )
+      {
+      this->GradientOpacityConstant = this->GradientOpacityArray[128];
+      }
+    else
+      {
+      this->GradientOpacityConstant = -1.0;
+      }
+
+    this->GradientOpacityArrayMTime.Modified();
+    }
+
+
+  if (data_type == VTK_UNSIGNED_CHAR)
+    {
+    this->ArraySize = (int)(0x100);
+
+    if ( scalar_opacity_tf_needs_updating )
+      {
+      // Get values 0-255 (256 values)
+      if ( this->ScalarOpacityArray )
+	delete [] this->ScalarOpacityArray;
+
+      this->ScalarOpacityArray = new float[(int)(0x100)];
+      scalar_opacity_transfer_function->GetTable( (float)(0x00),
+					   (float)(0xff),  
+					   (int)(0x100), 
+					   this->ScalarOpacityArray );
+      this->ScalarOpacityArrayMTime.Modified();
+      }
+
+    if ( gray_tf_needs_updating )
+      {
+      if ( this->GrayArray )
+	delete [] this->GrayArray;
+
+      this->GrayArray = new float[(int)(0x100)];
+      gray_transfer_function->GetTable( (float)(0x00),
+					(float)(0xff),  
+					(int)(0x100), 
+					this->GrayArray );
+      this->GrayArrayMTime.Modified();
+      }
+
+    if ( rgb_tf_needs_updating )
+      {
+      if ( this->RGBArray )
+	delete [] this->RGBArray;
+      
+      this->RGBArray = new float[3 * (int)(0x100)];
+      rgb_transfer_function->GetTable( (float)(0x00),
+				       (float)(0xff),  
+				       (int)(0x100), 
+				       this->RGBArray );
+      this->RGBArrayMTime.Modified();
+      }
+    }
+  else if ( data_type == VTK_UNSIGNED_SHORT )
+    {
+    this->ArraySize = (int)(0x10000);
+
+    if ( scalar_opacity_tf_needs_updating )
+      {
+      // Get values 0-65535 (65536 values)
+      if ( this->ScalarOpacityArray )
+	delete [] this->ScalarOpacityArray;
+
+      this->ScalarOpacityArray = new float[(int)(0x10000)];
+      scalar_opacity_transfer_function->GetTable( (float)(0x0000),
+					   (float)(0xffff),  
+					   (int)(0x10000), 
+					   this->ScalarOpacityArray );
+      this->ScalarOpacityArrayMTime.Modified();
+      }
+
+    if ( gray_tf_needs_updating )
+      {
+      if ( this->GrayArray )
+	delete [] this->GrayArray;
+
+      this->GrayArray = new float[(int)(0x10000)];
+      gray_transfer_function->GetTable( (float)(0x0000),
+					(float)(0xffff),  
+					(int)(0x10000), 
+					this->GrayArray );
+      this->GrayArrayMTime.Modified();
+      }
+
+    if ( rgb_tf_needs_updating )
+      {
+      if ( this->RGBArray )
+	delete [] this->RGBArray;
+      
+      this->RGBArray = new float[3 * (int)(0x10000)];
+      rgb_transfer_function->GetTable( (float)(0x0000),
+				       (float)(0xffff),  
+				       (int)(0x10000), 
+				       this->RGBArray );
+      this->RGBArrayMTime.Modified();
+      }
+    }
+
+  // check that the corrected scalar opacity transfer function
+  // is update to date with the current step size.
+  // Update CorrectedScalarOpacityArray if it is required.
+
+  if ( scalar_opacity_tf_needs_updating )
+    {
+    if ( this->CorrectedScalarOpacityArray )
+      delete [] this->CorrectedScalarOpacityArray;
+
+    this->CorrectedScalarOpacityArray = new float[this->ArraySize];
+    }
+
 }
 
+// This method computes the corrected alpha blending for a given
+// step size.  The ScalarOpacityArray reflects step size 1.
+// The CorrectedScalarOpacityArray reflects step size CorrectedStepSize.
+void vtkVolume::UpdateScalarOpacityforSampleSize( vtkRenderer *ren, float sample_distance )
+{
+  int i;
+  int needsRecomputing;
+  float originalAlpha,correctedAlpha;
+  float ray_scale;
+  float volumeScale;
+  float interactionScale;
 
+  volumeScale = this->Scale;
+  ray_scale = sample_distance * volumeScale;
+
+
+  // step size changed
+  needsRecomputing =  
+      this->CorrectedStepSize-ray_scale >  0.0001;
+  
+  needsRecomputing = needsRecomputing || 
+      this->CorrectedStepSize-ray_scale < -0.0001;
+
+  if (!needsRecomputing)
+    {
+    // updated scalar opacity xfer function
+    needsRecomputing = needsRecomputing || 
+	this->ScalarOpacityArrayMTime > this->CorrectedScalarOpacityArrayMTime;
+    }
+  if (needsRecomputing)
+    {
+    this->CorrectedScalarOpacityArrayMTime.Modified();
+    this->CorrectedStepSize = ray_scale;
+    for (i = 0;i < this->ArraySize;i++)
+      {
+      originalAlpha = *(this->ScalarOpacityArray+i);
+
+      // this test is to accelerate the Transfer function correction
+
+      if (originalAlpha > 0.0001)
+	{
+	correctedAlpha = 
+	  1.0-pow((double)(1.0-originalAlpha),double(this->CorrectedStepSize));
+	}
+      else
+	{
+	correctedAlpha = originalAlpha;
+	}
+      *(this->CorrectedScalarOpacityArray+i) = correctedAlpha;
+      }
+    }
+}
 
 
 void vtkVolume::PrintSelf(ostream& os, vtkIndent indent)

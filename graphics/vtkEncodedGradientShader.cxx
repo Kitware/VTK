@@ -46,22 +46,122 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkEncodedGradientShader::vtkEncodedGradientShader()
 {
-  int i;
+  int i, j;
 
-  for ( i = 0; i < 6; i++ )
-    this->ShadingTable[i] = NULL;
-
-  this->ShadingTableSize = 0;
+  for ( j = 0; j < VTK_MAX_SHADING_TABLES; j++ )
+    {
+      this->ShadingTableVolume[j] = NULL;
+      this->ShadingTableSize[j] = 0;
+      for ( i = 0; i < 6; i++ )
+	this->ShadingTable[j][i] = NULL;
+    }
 }
 
 vtkEncodedGradientShader::~vtkEncodedGradientShader()
 {
-  int i;
+  int i, j;
 
-  for ( i=0; i<6; i++ )
+  for ( j = 0; j < VTK_MAX_SHADING_TABLES; j++ )
+    for ( i=0; i<6; i++ )
+      {
+      if ( this->ShadingTable[j][i] ) delete [] this->ShadingTable[j][i];
+      }
+}
+
+float *vtkEncodedGradientShader::GetRedDiffuseShadingTable( vtkVolume *vol )
+{
+  int                   index;
+
+  for ( index = 0; index < VTK_MAX_SHADING_TABLES; index++ )
+    if ( this->ShadingTableVolume[index] == vol ) break;
+
+  if ( index == VTK_MAX_SHADING_TABLES )
     {
-    if ( this->ShadingTable[i] ) delete [] this->ShadingTable[i];
+    vtkErrorMacro( << "No shading table found for that volume!" );
+    return NULL;
     }
+  
+  return this->ShadingTable[index][0];
+}
+
+float *vtkEncodedGradientShader::GetGreenDiffuseShadingTable( vtkVolume *vol )
+{
+  int                   index;
+
+  for ( index = 0; index < VTK_MAX_SHADING_TABLES; index++ )
+    if ( this->ShadingTableVolume[index] == vol ) break;
+
+  if ( index == VTK_MAX_SHADING_TABLES )
+    {
+    vtkErrorMacro( << "No shading table found for that volume!" );
+    return NULL;
+    }
+  
+  return this->ShadingTable[index][1];
+}
+
+float *vtkEncodedGradientShader::GetBlueDiffuseShadingTable( vtkVolume *vol )
+{
+  int                   index;
+
+  for ( index = 0; index < VTK_MAX_SHADING_TABLES; index++ )
+    if ( this->ShadingTableVolume[index] == vol ) break;
+
+  if ( index == VTK_MAX_SHADING_TABLES )
+    {
+    vtkErrorMacro( << "No shading table found for that volume!" );
+    return NULL;
+    }
+  
+  return this->ShadingTable[index][2];
+}
+
+float *vtkEncodedGradientShader::GetRedSpecularShadingTable( vtkVolume *vol )
+{
+  int                   index;
+
+  for ( index = 0; index < VTK_MAX_SHADING_TABLES; index++ )
+    if ( this->ShadingTableVolume[index] == vol ) break;
+
+  if ( index == VTK_MAX_SHADING_TABLES )
+    {
+    vtkErrorMacro( << "No shading table found for that volume!" );
+    return NULL;
+    }
+  
+  return this->ShadingTable[index][3];
+}
+
+float *vtkEncodedGradientShader::GetGreenSpecularShadingTable( vtkVolume *vol )
+{
+  int                   index;
+
+  for ( index = 0; index < VTK_MAX_SHADING_TABLES; index++ )
+    if ( this->ShadingTableVolume[index] == vol ) break;
+
+  if ( index == VTK_MAX_SHADING_TABLES )
+    {
+    vtkErrorMacro( << "No shading table found for that volume!" );
+    return NULL;
+    }
+  
+  return this->ShadingTable[index][4];
+}
+
+float *vtkEncodedGradientShader::GetBlueSpecularShadingTable( vtkVolume *vol )
+{
+  int                   index;
+
+  for ( index = 0; index < VTK_MAX_SHADING_TABLES; index++ )
+    if ( this->ShadingTableVolume[index] == vol ) break;
+
+  if ( index == VTK_MAX_SHADING_TABLES )
+    {
+    vtkErrorMacro( << "No shading table found for that volume!" );
+    return NULL;
+    }
+  
+  return this->ShadingTable[index][5];
 }
 
 void vtkEncodedGradientShader::UpdateShadingTable( vtkRenderer *ren, 
@@ -79,7 +179,29 @@ void vtkEncodedGradientShader::UpdateShadingTable( vtkRenderer *ren,
   vtkVolumeProperty     *volume_property;
   vtkTransform          *transform;
   vtkMatrix4x4          *m;
-  float                 in[4], out[4];
+  float                 in[4], out[4], zero[4];
+  int                   index;
+
+  // Figure out which shading table we are working with
+  // First search through all existing ones, then if one
+  // is not found, use the first available index
+  for ( index = 0; index < VTK_MAX_SHADING_TABLES; index++ )
+    if ( this->ShadingTableVolume[index] == vol ) break;
+
+  if ( index == VTK_MAX_SHADING_TABLES )
+    for ( index = 0; index < VTK_MAX_SHADING_TABLES; index++ )
+      if ( this->ShadingTableVolume[index] == NULL )
+	{
+	this->ShadingTableVolume[index] = vol;
+	break;
+	}
+
+  if ( index == VTK_MAX_SHADING_TABLES )
+    {
+    vtkErrorMacro( << "Too many shading tables!\n" <<
+      "Increase limit VTK_MAX_SHADING_TABLES and recompile!" );
+    return;
+    }
 
   transform = vtkTransform::New();
   m = vtkMatrix4x4::New();
@@ -87,7 +209,7 @@ void vtkEncodedGradientShader::UpdateShadingTable( vtkRenderer *ren,
   vol->GetMatrix(m);
   transform->SetMatrix(*m);
   transform->Inverse();
-
+  
   volume_property = vol->GetVolumeProperty();
 
   material[0] = volume_property->GetAmbient();
@@ -123,7 +245,20 @@ void vtkEncodedGradientShader::UpdateShadingTable( vtkRenderer *ren,
   memcpy( in, view_direction, 3*sizeof(float) );
   in[3] = 1.0;
   transform->MultiplyPoint( in, out );
-  memcpy( view_direction, out, 3*sizeof(float) );
+  view_direction[0] = out[0] / out[3];
+  view_direction[1] = out[1] / out[3];
+  view_direction[2] = out[2] / out[3];
+
+  in[0] = 0.0;
+  in[1] = 0.0;
+  in[2] = 0.0;
+  transform->MultiplyPoint( in, zero );
+  zero[0] /= zero[3];
+  zero[2] /= zero[3];
+  zero[3] /= zero[3];
+  view_direction[0] -= zero[0];
+  view_direction[1] -= zero[1];
+  view_direction[2] -= zero[2];
 
   // Loop through all lights and compute a shading table. For
   // the first light, pass in an update_flag of 0, which means
@@ -155,12 +290,14 @@ void vtkEncodedGradientShader::UpdateShadingTable( vtkRenderer *ren,
       
     memcpy( in, light_direction, 3*sizeof(float) );
     transform->MultiplyPoint( in, out );
-    memcpy( light_direction, out, 3*sizeof(float) );
+    light_direction[0] = out[0] / out[3] - zero[0];
+    light_direction[1] = out[1] / out[3] - zero[1];
+    light_direction[2] = out[2] / out[3] - zero[2];
 
     // Build / Add to the shading table
-    this->BuildShadingTable( light_direction, light_color, 
-					     light_intensity, view_direction,
-					     material, gradest, update_flag );
+    this->BuildShadingTable( index, light_direction, light_color, 
+			     light_intensity, view_direction,
+			     material, gradest, update_flag );
       
     update_flag = 1;
     }
@@ -176,15 +313,16 @@ void vtkEncodedGradientShader::UpdateShadingTable( vtkRenderer *ren,
 // specular exponent.  If update_flag is 0, the table is overwritten
 // with the new values.  If update_flag is 1, the new intensity values
 // are added into the table.  This way multiple light sources can
-// be handled.
-//
-void vtkEncodedGradientShader::BuildShadingTable( float light_direction[3],
-					  float light_color[3],
-					  float light_intensity,
-					  float view_direction[3],
-					  float material[4],
-					  vtkEncodedGradientEstimator *gradest,
-					  int   update_flag )
+// be handled. There is one shading table per volume, and the index
+// value indicates which index table is to be updated
+void vtkEncodedGradientShader::BuildShadingTable( int index,
+						  float light_direction[3],
+						  float light_color[3],
+						  float light_intensity,
+						  float view_direction[3],
+						  float material[4],
+						  vtkEncodedGradientEstimator *gradest,
+						  int   update_flag )
 {
   float    lx, ly, lz; 
   float    n_dot_l;   
@@ -228,23 +366,23 @@ void vtkEncodedGradientShader::BuildShadingTable( float light_direction[3],
 
   norm_size = gradest->GetDirectionEncoder()->GetNumberOfEncodedDirections();
 
-  if ( this->ShadingTableSize != norm_size )
+  if ( this->ShadingTableSize[index] != norm_size )
     {
     for ( i=0; i<6; i++ )
       {
-      if ( this->ShadingTable[i] ) delete [] this->ShadingTable[i];
-      this->ShadingTable[i] = new float[norm_size];
+      if ( this->ShadingTable[index][i] ) delete [] this->ShadingTable[index][i];
+      this->ShadingTable[index][i] = new float[norm_size];
       }
-      this->ShadingTableSize = norm_size;
+      this->ShadingTableSize[index] = norm_size;
     }
   
-  sdr_ptr = this->ShadingTable[0];
-  sdg_ptr = this->ShadingTable[1];
-  sdb_ptr = this->ShadingTable[2];
+  sdr_ptr = this->ShadingTable[index][0];
+  sdg_ptr = this->ShadingTable[index][1];
+  sdb_ptr = this->ShadingTable[index][2];
 
-  ssr_ptr = this->ShadingTable[3];
-  ssg_ptr = this->ShadingTable[4];
-  ssb_ptr = this->ShadingTable[5];
+  ssr_ptr = this->ShadingTable[index][3];
+  ssg_ptr = this->ShadingTable[index][4];
+  ssb_ptr = this->ShadingTable[index][5];
 
   // For each possible normal, compute the intensity of light at
   // a location with that normal, and the given lighting and
@@ -302,7 +440,7 @@ void vtkEncodedGradientShader::BuildShadingTable( float light_direction[3],
 	  *(ssb_ptr) += specular_value * light_color[2];
 	  }      
 	}
-      // Increment all the pointers
+      // Increment all the pointers      
       nptr += 3;
       sdr_ptr++;
       sdg_ptr++;

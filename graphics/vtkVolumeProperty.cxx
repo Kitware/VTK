@@ -58,9 +58,6 @@ vtkVolumeProperty::vtkVolumeProperty()
   this->Diffuse				= 0.7;
   this->Specular			= 0.2;
   this->SpecularPower			= 10.0;
-
-  this->GradientOpacityScale		= 1.0;
-  this->GradientOpacityBias		= 0.0;
 }
 
 // Destruct a vtkVolumeProperty
@@ -88,6 +85,31 @@ vtkVolumeProperty::~vtkVolumeProperty()
 }
 
 
+void vtkVolumeProperty::SetGradientOpacityScale( float v )
+{
+  vtkErrorMacro( << "This is an obsolete method.\n" <<
+    "Set the opacity scale in the vtkEncodedGradientEstimator" );
+}
+
+float vtkVolumeProperty::GetGradientOpacityScale( )
+{
+  vtkErrorMacro( << "This is an obsolete method.\n" <<
+    "Get the opacity scale from the vtkEncodedGradientEstimator" );
+
+  return 0;
+}
+
+void vtkVolumeProperty::SetGradientOpacityBias( float v )
+{
+  vtkErrorMacro( << "This is an obsolete method.\n" <<
+    "Set the opacity bias in the vtkEncodedGradientEstimator" );
+}
+
+float vtkVolumeProperty::GetGradientOpacityBias( )
+{
+  vtkErrorMacro( << "This is an obsolete method.\n" <<
+    "Get the opacity bias from the vtkEncodedGradientEstimator" );
+}
 
 unsigned long int vtkVolumeProperty::GetMTime()
 {
@@ -330,12 +352,6 @@ void vtkVolumeProperty::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Gradient Opacity Transfer Function: " \
      << this->GradientOpacity << "\n";
-
-  os << indent << "Gradient Opacity Scale: " << 
-     this->GradientOpacityScale << "\n";
-
-  os << indent << "Gradient Opacity Bias: " << 
-     this->GradientOpacityBias << "\n";
 
   os << indent << "Shade: " << this->Shade << "\n";
 

@@ -51,34 +51,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 void vtkVolumeRayCastFunction::FunctionInitialize( 
 				vtkRenderer *ren, 
 				vtkVolume *vol,
-				vtkVolumeRayCastMapper *mapper,
-				float *scalar_opacity_tf_array,
-				float *corrected_scalar_opacity_tf_array,
-				float *gradient_opacity_tf_array,
-				float gradient_opacity_constant,
-				float *rgb_tf_array,
-				float *gray_tf_array,
-				int tf_array_size )
+				struct VolumeRayCastVolumeInfoStruct *volumeInfo,
+				vtkVolumeRayCastMapper *mapper )
 {
-  // First, just save the stuff that was passed in
-  this->ScalarOpacityTFArray             = scalar_opacity_tf_array;
-  this->CorrectedScalarOpacityTFArray    = corrected_scalar_opacity_tf_array;
-  this->GradientOpacityTFArray           = gradient_opacity_tf_array;
-  this->GradientOpacityConstant          = gradient_opacity_constant;
-  this->RGBTFArray                       = rgb_tf_array;
-  this->GrayTFArray                      = gray_tf_array;
-  this->TFArraySize                      = tf_array_size;
-
   // Is shading on?
-  this->Shading = vol->GetVolumeProperty()->GetShade();
+  volumeInfo->Shading = vol->GetVolumeProperty()->GetShade();
 
   // How many color channels? Either 1 or 3. 1 means we have
   // to use the GrayTransferFunction, 3 means we use the
   // RGBTransferFunction
-  this->ColorChannels = vol->GetVolumeProperty()->GetColorChannels();
+  volumeInfo->ColorChannels = vol->GetVolumeProperty()->GetColorChannels();
 
   // What is the interpolation type? Nearest or linear.
-  this->InterpolationType = vol->GetVolumeProperty()->GetInterpolationType();
+  volumeInfo->InterpolationType = vol->GetVolumeProperty()->GetInterpolationType();
 
   // What are the data increments? 
   // (One voxel, one row, and one slice offsets)
@@ -93,44 +78,44 @@ void vtkVolumeRayCastFunction::FunctionInitialize(
   // on the magnitude of the gradient (since if we need to
   // calculate the magnitude we might as well just keep the
   // direction as well.
-  if ( this->Shading )
+  if ( volumeInfo->Shading )
     {
     this->EncodedNormals = 
       mapper->GetGradientEstimator()->GetEncodedNormals();
 
     // Get the diffuse shading tables from the normal encoder
     // in the volume ray cast mapper
-    this->RedDiffuseShadingTable = 
-      mapper->GetGradientShader()->GetRedDiffuseShadingTable();
-    this->GreenDiffuseShadingTable = 
-      mapper->GetGradientShader()->GetGreenDiffuseShadingTable();
-    this->BlueDiffuseShadingTable = 
-      mapper->GetGradientShader()->GetBlueDiffuseShadingTable();
+    volumeInfo->RedDiffuseShadingTable = 
+      mapper->GetGradientShader()->GetRedDiffuseShadingTable(vol);
+    volumeInfo->GreenDiffuseShadingTable = 
+      mapper->GetGradientShader()->GetGreenDiffuseShadingTable(vol);
+    volumeInfo->BlueDiffuseShadingTable = 
+      mapper->GetGradientShader()->GetBlueDiffuseShadingTable(vol);
     
     // Get the specular shading tables from the normal encoder
     // in the volume ray cast mapper
-    this->RedSpecularShadingTable = 
-      mapper->GetGradientShader()->GetRedSpecularShadingTable();
-    this->GreenSpecularShadingTable = 
-      mapper->GetGradientShader()->GetGreenSpecularShadingTable();
-    this->BlueSpecularShadingTable = 
-      mapper->GetGradientShader()->GetBlueSpecularShadingTable();
+    volumeInfo->RedSpecularShadingTable = 
+      mapper->GetGradientShader()->GetRedSpecularShadingTable(vol);
+    volumeInfo->GreenSpecularShadingTable = 
+      mapper->GetGradientShader()->GetGreenSpecularShadingTable(vol);
+    volumeInfo->BlueSpecularShadingTable = 
+      mapper->GetGradientShader()->GetBlueSpecularShadingTable(vol);
     }
   else
     {
     this->EncodedNormals            = NULL;
-    this->RedDiffuseShadingTable    = NULL;
-    this->GreenDiffuseShadingTable  = NULL;
-    this->BlueDiffuseShadingTable   = NULL;
-    this->RedSpecularShadingTable   = NULL;
-    this->GreenSpecularShadingTable = NULL;
-    this->BlueSpecularShadingTable  = NULL;
+    volumeInfo->RedDiffuseShadingTable    = NULL;
+    volumeInfo->GreenDiffuseShadingTable  = NULL;
+    volumeInfo->BlueDiffuseShadingTable   = NULL;
+    volumeInfo->RedSpecularShadingTable   = NULL;
+    volumeInfo->GreenSpecularShadingTable = NULL;
+    volumeInfo->BlueSpecularShadingTable  = NULL;
     }
 
   // We need the gradient magnitudes only if we are classifying opacity
   // based on them. Otherwise we can just leave them NULL
-  if ( this->GradientOpacityTFArray && 
-       this->GradientOpacityConstant == -1.0 )
+  if ( vol->GetGradientOpacityArray() && 
+       vol->GetGradientOpacityConstant() == -1.0 )
     {
     this->GradientMagnitudes = 
       mapper->GetGradientEstimator()->GetGradientMagnitudes();
@@ -142,7 +127,7 @@ void vtkVolumeRayCastFunction::FunctionInitialize(
 
   // Give the subclass a chance to do any initialization it needs
   // to do
-  this->SpecificFunctionInitialize( ren, vol, mapper );
+  this->SpecificFunctionInitialize( ren, vol, volumeInfo, mapper );
 }
 
 

@@ -47,7 +47,70 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMath.h"
 #include "vtkVoxel.h"
 #include "vtkTimerLog.h"
+#include "vtkVolumeRayCastMapper.h"
 
+// Swap two values
+#define SWAP_VALUES( A, B, T ) T=A; A=B; B=T
+
+// Constructor for vtkRayCaster
+vtkRayCaster::vtkRayCaster()
+{
+  int   i;
+  float scale;
+
+  this->Threader                     = vtkMultiThreader::New();
+  this->NumberOfThreads              = this->Threader->GetNumberOfThreads();
+  this->SelectedImageScaleIndex      = 0;
+  this->AutomaticScaleAdjustment     = 1;
+  this->AutomaticScaleLowerLimit     = 0.15;
+  this->BilinearImageZoom            = 0;
+  this->Renderer	             = NULL;
+  this->ImageRenderTime[0]           = 0.0;
+  this->ImageRenderTime[1]           = 0.0;
+  this->StableImageScaleCounter      = 10;
+  this->PreviousAllocatedTime        = 0.0;
+  this->TotalRenderTime              = 0.0;
+  scale = 1.0;
+  for ( i = 0; i < VTK_MAX_VIEW_RAYS_LEVEL; i++ )
+    {
+    this->ViewRays[i] = vtkViewRays::New();
+    this->ImageScale[i]         = scale;
+    this->ViewRaysStepSize[i]   = 1.0;
+    scale /= 2.0;
+    }
+  this->ViewRays[VTK_MAX_VIEW_RAYS_LEVEL] = vtkViewRays::New();
+
+  this->ImageScale[VTK_MAX_VIEW_RAYS_LEVEL] = 0.5;
+
+  this->ViewToWorldTransform = vtkTransform::New();
+
+}
+
+// Destructor for vtkRayCaster
+vtkRayCaster::~vtkRayCaster()
+{
+  int i;
+
+  if ( this->Threader )
+    {
+    this->Threader->Delete();
+    }
+
+  for ( i = 0; i <= VTK_MAX_VIEW_RAYS_LEVEL; i++ )
+    {
+    this->ViewRays[i]->Delete();
+    this->ViewRays[i] = NULL;
+    }
+
+  if ( this->ViewToWorldTransform )
+    {
+    this->ViewToWorldTransform->Delete();
+    }
+
+  this->SetRenderer(NULL);	
+}
+
+// Zoom the image using nearest neighbor interpolation
 void vtkRayCaster::NearestNeighborZoom(float *smallImage, 
 				       float *largeImage,
 				       int smallDims[2],
@@ -86,6 +149,7 @@ void vtkRayCaster::NearestNeighborZoom(float *smallImage,
     }
 }
 
+// Zoom the image using bilinear interpolation
 void vtkRayCaster::BilinearZoom(float *smallImage, 
 				float *largeImage,
 				int smallDims[2],
@@ -181,52 +245,6 @@ void vtkRayCaster::BilinearZoom(float *smallImage,
     }
 }
 
-// Constructor for vtkRayCaster
-vtkRayCaster::vtkRayCaster()
-{
-  int   i;
-  float scale;
-
-  this->zbuffer                      = NULL;
-  this->cbuffer                      = NULL;
-  this->SelectedImageScaleIndex      = 0;
-  this->AutomaticScaleAdjustment     = 1;
-  this->AutomaticScaleLowerLimit     = 0.15;
-  this->BilinearImageZoom            = 0;
-  this->Renderer	             = NULL;
-  this->ImageRenderTime[0]           = 0.0;
-  this->ImageRenderTime[1]           = 0.0;
-  this->StableImageScaleCounter      = 10;
-  this->PreviousAllocatedTime        = 0.0;
-  this->TotalRenderTime              = 0.0;
-  scale = 1.0;
-  for ( i = 0; i < VTK_MAX_VIEW_RAYS_LEVEL; i++ )
-    {
-    this->ViewRays[i] = vtkViewRays::New();
-    this->ImageScale[i]         = scale;
-    this->ViewRaysStepSize[i]   = 1.0;
-    scale /= 2.0;
-    }
-  this->ViewRays[VTK_MAX_VIEW_RAYS_LEVEL] = vtkViewRays::New();
-
-  this->ImageScale[VTK_MAX_VIEW_RAYS_LEVEL] = 0.5;
-
-}
-
-// Destructor for vtkRayCaster
-vtkRayCaster::~vtkRayCaster()
-{
-  int i;
-  
-  for ( i = 0; i <= VTK_MAX_VIEW_RAYS_LEVEL; i++ )
-    {
-    this->ViewRays[i]->Delete();
-    this->ViewRays[i] = NULL;
-    }
-  
-  this->SetRenderer(NULL);
-}
-
 // Set the scale factor for a given level. This is used during multi-
 // resolution interactive rendering
 void vtkRayCaster::SetImageScale( int level, float scale )
@@ -291,7 +309,7 @@ void vtkRayCaster::AutomaticScaleAdjustmentOff( void )
 }
 
 void vtkRayCaster::SetViewRaysStepSize( int level, float scale )
-{
+ {
   // Check for out of range level
   if ( level >= VTK_MAX_VIEW_RAYS_LEVEL || level < 0 )
     {
@@ -432,13 +450,17 @@ float vtkRayCaster::GetViewportScaleFactor( vtkRenderer *ren )
   float                estimated_scale;
   float                scale_diff;
 
-  // loop through volumes looking for a visible one
+  // loop through volumes looking for a visible one of the right type
   visible_volume = 0;
   volumes = this->Renderer->GetVolumes();
 
   for (volumes->InitTraversal(); (volume = volumes->GetNextItem()); )
     {
-    if (volume->GetVisibility())
+    if (volume->GetVisibility() &&
+	( volume->GetVolumeMapper()->GetMapperType() == 
+	  VTK_RAYCAST_VOLUME_MAPPER ||
+	  volume->GetVolumeMapper()->GetMapperType() == 
+	  VTK_SOFTWAREBUFFER_VOLUME_MAPPER) )
       {
       visible_volume = 1;
       break;
@@ -543,361 +565,692 @@ float vtkRayCaster::GetViewportStepSize()
     return 1.0;
 }
 
-
-#ifndef TRUE
-#define TRUE        1
-#define FALSE       0
-#endif
-
-#define VR_NONE         0
-#define VR_HARDWARE     1
-#define VR_SOFTWARE     2
-
-// Main routine to do the volume rendering.
-int vtkRayCaster::Render(vtkRenderer *ren)
+// Initialize the buffers that we will need for rendering. If we have
+// something in the frame buffer (either geometry or volumes drawn by 
+// the graphics hardware) capture it for later use.
+void vtkRayCaster::InitializeRenderBuffers(vtkRenderer *ren)
 {
-  vtkVolume           *aVolume;
-  vtkVolumeCollection *volumes;
+  float     *viewport;
+  int       *renWinSize;
+  int       something_in_framebuffer = 0;
+  vtkActor  *anActor;
+  vtkVolume *aVolume;
+  int       lowerLeftCorner[2];
 
-  int volume_count = 0;    // Number of visible volumes
-  int actor_count = 0;     // Number of visible actors
+  // How big is this image?
+  this->GetViewRaysSize( this->ImageSize );
 
-  int destroy_hw_buffer;   // Specifies if rendering will destroy FB contents
-  int something_in_hardware_buffer; // do we need to mix with FB contents
-  int image_location;      // Specifies where rendering will place image
-  int prev_image_location; // Specifies where previous rendering placed image
+  // How big is the viewport?
+  viewport   =  ren->GetViewport();
+  renWinSize = ren->GetRenderWindow()->GetSize();
 
-  int   *rw_size = NULL;      // Size of render window
-  float *vp_size = NULL;      // Size of viewport
-  float vp_ll_corner[2];
+  // The full image fills the viewport
+  this->FullImageSize[0] = (int)((float)
+				 renWinSize[0]*(viewport[2] - viewport[0]));
+  this->FullImageSize[1] = (int)((float)
+				 renWinSize[1]*(viewport[3] - viewport[1]));
 
-  int   img_size[2];          // Size of rendering in pixels
-  int   full_img_size[2];
 
-  float *curr_zdata = NULL;   // Current Z Image
-  float *curr_cdata = NULL;   // Current RGBA Image
-
-  float *prev_zdata = NULL;   // Previous Z Image
-  float *prev_cdata = NULL;   // Previous RGBA Image
-
-  float *full_cdata = NULL;
-
-  float *ccd_ptr;	// Extra Pointers
-  float *czd_ptr;
-
-  float *pcd_ptr;
-  float *pzd_ptr;
-
-  float alpha, one_m_alpha;
-
-  float *background;
-
-  int	free_prev_data;
-  int	free_curr_data;
-
-  int	 i;
-  int    vrsize[2];
-
-  vtkTimerLog  *timer;
-
-  timer = vtkTimerLog::New();
-
-  timer->StartTimer();
-
-  actor_count = ren->VisibleActorCount();
-
-  image_location = VR_NONE;
-  something_in_hardware_buffer = FALSE;
-  
-  // Get the background color
-  background = ren->GetBackground();
-
-  // has something been rendered by the hardware
-  if ( actor_count || (background[0] != 0.0) || (background[1] != 0.0)
-       || (background[2] != 0.0))
-  {
-    prev_image_location = VR_HARDWARE;
-    something_in_hardware_buffer = TRUE;
-  }
-  else {
-    prev_image_location = VR_NONE;
-    something_in_hardware_buffer = FALSE;
-  }
-
-  // Get the physical window dimensions
-  rw_size = ren->GetRenderWindow()->GetSize();
-  vp_size = ren->GetViewport();
-
-  vp_ll_corner[0] = (int)(rw_size[0]*(float)(vp_size[0]));
-  vp_ll_corner[1] = (int)(rw_size[1]*(float)(vp_size[1]));
-
-  // Determine the full size of the image - this is the size in pixels
-  // of the viewport
-  full_img_size[0] = (int)(rw_size[0]*(float)(vp_size[2] - vp_size[0]));
-  full_img_size[1] = (int)(rw_size[1]*(float)(vp_size[3] - vp_size[1]));
-
-  // Determine the size of the image that we are going to generate
-  // This is also the size of the image that the renderer has rendered
-  // for geometric data.  This image will then be rescaled to be the
-  // full image size before writing it to the window
-  this->GetViewRaysSize( vrsize );
-  img_size[0] = vrsize[0];
-  img_size[1] = vrsize[1];
-
-  free_prev_data = FALSE;
-  free_curr_data = FALSE;
-
-  // Render the volumes
-  volumes = this->Renderer->GetVolumes();
-
-  for( volumes->InitTraversal(); (aVolume = volumes->GetNextItem()); )
-    {
-
-    // Check visibility of volume and that no other volume has been rendered
-    if( aVolume->GetVisibility() && (volume_count == 0) )
+  // Check how many visible actors we have - if there are any, assume that
+  // they have been rendered and are in the frame buffer.
+  for (ren->GetActors()->InitTraversal();
+       (anActor = ren->GetActors()->GetNextItem()); )
+    if (anActor->GetVisibility())
       {
-      destroy_hw_buffer = 
-	(aVolume->GetVolumeMapper())->DestroyHardwareBuffer();
+      something_in_framebuffer = 1;
+      break;
+      }
+
+  // If we haven't found any actors in the frame buffer, check for
+  // volumes that might be there
+  if ( !something_in_framebuffer )
+    {
+    for (ren->GetVolumes()->InitTraversal();
+	 (aVolume = ren->GetVolumes()->GetNextItem()); )
+      if (aVolume->GetVisibility() && 
+	  aVolume->GetVolumeMapper()->GetMapperType() == 
+	  VTK_FRAMEBUFFER_VOLUME_MAPPER )
+	{
+	something_in_framebuffer = 1;
+	break;
+	}
+    }
+
+  // If we have something in the frame buffer, capture the color and z values
+  if ( something_in_framebuffer )
+    {
+    lowerLeftCorner[0] = (int)((float)renWinSize[0]*viewport[0]);
+    lowerLeftCorner[1] = (int)((float)renWinSize[1]*viewport[1]);
+
+    this->RGBAImage =  ren->GetRenderWindow()->GetRGBAPixelData( 
+			      lowerLeftCorner[0],
+			      lowerLeftCorner[1],
+			      lowerLeftCorner[0] + this->ImageSize[0] - 1,
+			      lowerLeftCorner[1] + this->ImageSize[1] - 1,
+			      0 );
+
+    this->ZImage    =  ren->GetRenderWindow()->GetZbufferData( 
+			      lowerLeftCorner[0],
+			      lowerLeftCorner[1],
+			      lowerLeftCorner[0] + this->ImageSize[0] - 1,
+			      lowerLeftCorner[1] + this->ImageSize[1] - 1 );
+    this->FirstBlend = 0;
+    }
+  // There is nothing in the frame buffer, so just create the color and z
+  // buffers which are uninitialized. The FirstBlend variable keeps track of
+  // the fact that we have not blended anything into these buffers yet.
+  else
+    {
+    this->RGBAImage = new float [( 4 * 
+				   this->ImageSize[0] * 
+				   this->ImageSize[1] )];
+    this->ZImage    = new float [( this->ImageSize[0] * 
+				   this->ImageSize[1] )];  
+    this->FirstBlend = 1;
+    }
+}
+
+// Perform the initialization for ray casting. Create the temporary structures
+// necessary for storing information and quick access.
+void vtkRayCaster::InitializeRayCasting(vtkRenderer *ren)
+{
+  vtkVolumeCollection   *volumes;
+  vtkVolume             *aVolume;
+  int                   i, j;
+  vtkTransform          *transform;
+  vtkMatrix4x4          *matrix;
+  float                 aspect;
+  float                 ren_aspect[2];
+
+
+  // Create a pointer to each volume for speedy access
+  this->RayCastVolumes = new vtkVolume *[this->RayCastVolumeCount];
+
+  // Create the volume info structure for each volume which stores
+  // ray casting information that is independent of pixel but dependent on
+  // the volume such as the world to volume coordinate conversion matrix.
+  this->VolumeInfo = 
+    new struct VolumeRayCastVolumeInfoStruct [this->RayCastVolumeCount];
+
+  // Get the pointer to each of the ray cast volume, and initialize the
+  // mapper, passing in the info structure so that information can be
+  // stored there
+  i = 0;
+  volumes = this->Renderer->GetVolumes();
+  for ( volumes->InitTraversal(); (aVolume = volumes->GetNextItem()); )
+    {
+    // Check visibility of volume 
+    if( aVolume->GetVisibility() &&
+	aVolume->GetVolumeMapper()->GetMapperType() == 
+	VTK_RAYCAST_VOLUME_MAPPER )
+	{
+	this->RayCastVolumes[i] = aVolume;
+	this->VolumeInfo[i].Volume = aVolume;
+	((vtkVolumeRayCastMapper *)
+	 (aVolume->GetVolumeMapper()))->InitializeRender(ren, aVolume,
+							 &this->VolumeInfo[i]);
+	i++;
+	}
+    }
+
+  // Store the view to world transformation matrix for later use. This is the
+  // inverse of the camera's view transform. Copy it into an array for 
+  // faster processing
+  this->ViewToWorldTransform->SetMatrix( 
+	    ren->GetActiveCamera()->GetViewTransform() );
+  this->ViewToWorldTransform->Inverse();
+  for ( j = 0; j < 4; j++ )
+    for ( i = 0; i < 4; i++ )
+      {
+      this->ViewToWorldMatrix[j][i] = 
+	this->ViewToWorldTransform->GetMatrixPointer()->Element[j][i];
+      }
+
+  // Get the clipping range of the active camera. This will be used
+  // for clipping the rays
+  ren->GetActiveCamera()->GetClippingRange( this->CameraClippingRange );
+
+  // Get the aspect ratio of the renderer
+  ren->GetAspect( ren_aspect );
+  aspect = ren_aspect[0]/ren_aspect[1];
   
-      if ( (aVolume->GetVolumeMapper())->ImageLocatedInHardware() )
-        image_location = VR_HARDWARE;
-      else
-        image_location = VR_SOFTWARE;
+  // Create the perspective matrix for the camera.  This will be used
+  // to decode z values, so we will need to invert it
+  transform       = vtkTransform::New();
+  transform->SetMatrix(
+     *ren->GetActiveCamera()->GetPerspectiveTransformMatrix( aspect, -1, 1 ) );
+  transform->Inverse();
 
-      // Save color and z images from hardware if necessary
-      switch( prev_image_location )
-        {
-        case VR_NONE:
+  // To speed things up, we pull the matrix out of the transform. 
+  // This way, we can decode z values faster since we know which elements
+  // of the matrix are important, and which are zero.
+  matrix = transform->GetMatrixPointer();
 
-          prev_cdata = NULL;
-          prev_zdata = NULL;
 
-          free_prev_data = FALSE;
-          break;
+  // Do initialization for orthographic view - we need to 
+  // know the starting position of the first ray, and the increments
+  // in x and y to move to each of the next rays. Also, check our assumptions
+  // about the inverse camera matrix.
+  if( ren->GetActiveCamera()->GetParallelProjection() )
+    {
+    this->ParallelProjection = 1;
 
-        case VR_HARDWARE:
+    // Just checking that our assumptions are correct. 
+    if( this->Debug )
+      {
+      if (  matrix->Element[3][0] || matrix->Element[3][1]  ||
+	    matrix->Element[3][2] || (matrix->Element[3][3] != 1.0) )
+	{
+	vtkErrorMacro( << 
+           "Assumption incorrect: cannot correctly decode z values");
+	}
+      }
 
-          if( destroy_hw_buffer && something_in_hardware_buffer )
-            {
-            // Store the color and zbuffer data
-            prev_cdata = ren->GetRenderWindow()->GetRGBAPixelData( 
-		vp_ll_corner[0], vp_ll_corner[1],
-                vp_ll_corner[0] + img_size[0]-1, 
-	        vp_ll_corner[1] + img_size[1]-1, 0 );
-            prev_zdata = ren->GetRenderWindow()->GetZbufferData( 
-		vp_ll_corner[0], vp_ll_corner[1],
-                vp_ll_corner[0] + img_size[0]-1, 
-	        vp_ll_corner[1] + img_size[1]-1 );
-  
-            free_prev_data = TRUE;
-            }
-          else
-            {
-            prev_cdata = NULL;
-            prev_zdata = NULL;
+    this->ParallelStartPosition = this->GetParallelStartPosition();
+    this->ParallelIncrements = this->GetParallelIncrements();
+    }
+  // Check our assumptions about the inverse camera matrix for a 
+  // perspective projection. No need to compute anything about the rays
+  // since that info is all stored with the view rays.
+  else
+    {
+    this->ParallelProjection = 0;
 
-            free_prev_data = FALSE;
-            }
-          break;
-  
-        case VR_SOFTWARE:
-  
-          prev_cdata = curr_cdata;
-          prev_zdata = curr_zdata;
-  
-          free_prev_data = free_curr_data;
-          break;
-        }
+    this->SelectedViewRays = this->GetPerspectiveViewRays();
 
-      if( prev_zdata )
-        this->zbuffer = prev_zdata;
-      else
-        this->zbuffer = NULL;
-
-      if( prev_cdata )
-        this->cbuffer = prev_cdata;
-      else
-        this->cbuffer = NULL;
-
-      //
-      // Render the volume
-      //
-      aVolume->Render( ren );
-      volume_count++;
-
-      // If software rendering, get the current image
-      if ( image_location == VR_SOFTWARE )
-        {
-        curr_zdata = aVolume->GetVolumeMapper()->GetZbufferData();
-        curr_cdata = aVolume->GetVolumeMapper()->GetRGBAPixelData();
-        free_curr_data = FALSE;
-        }
-
-      // Merge the rendered images if necessary
-      switch ( prev_image_location )
-        {
-        case VR_NONE:
-
-	  if( background[0] || background[1] || background[2] )
-	    {
-            // Merge background color into image
-            ccd_ptr = curr_cdata;
-
-            for( i=0; i<img_size[0]*img_size[1]; i++ )
-              {
-              alpha = *(ccd_ptr + 3);
-              if( alpha > 0.0 )
-                {
-                one_m_alpha = 1.0 - alpha;
-  	        *(ccd_ptr  ) += background[0]*one_m_alpha;
-  	        *(ccd_ptr+1) += background[1]*one_m_alpha;
-  	        *(ccd_ptr+2) += background[2]*one_m_alpha;
-                *(ccd_ptr+3) = 1.0;
-                }
-              else
-                {
-                *(ccd_ptr  ) = background[0];
-                *(ccd_ptr+1) = background[1];
-                *(ccd_ptr+2) = background[2];
-                *(ccd_ptr+3) = 1.0;
-                }
-              ccd_ptr += 4;
-              }
-	    }
-
-          break;
-
-        case VR_HARDWARE:
-          if( image_location == VR_SOFTWARE )
-            {
-            // Merge Hardware & Software -> Software
-
-            ccd_ptr = curr_cdata;
-            czd_ptr = curr_zdata;
-
-            pcd_ptr = prev_cdata;
-            pzd_ptr = prev_zdata;
-  
-            if( ccd_ptr && pcd_ptr && czd_ptr && pzd_ptr )
-              {
-              if( 0 && czd_ptr )
-                {
-                // Perform Software Zbuffering
-                for( i=0; i<img_size[0]*img_size[1]; i++ )
-                  {
-                  if( *czd_ptr < *pzd_ptr )
-	            {
-		    *(ccd_ptr) = *(pcd_ptr++); ccd_ptr++; 	// R
-		    *(ccd_ptr) = *(pcd_ptr++); ccd_ptr++; 	// G
-		    *(ccd_ptr) = *(pcd_ptr++); ccd_ptr++; 	// B
-                    *(ccd_ptr) = 1.0; ccd_ptr++; pcd_ptr++;	// A
-		    }
-                  }
-                }
-              else
-               {
-                for( i=0; i<img_size[0]*img_size[1]; i++ )
-                  {
-                  alpha = *(ccd_ptr + 3);
-                  if( alpha > 0.0 )
-                    {
-                    one_m_alpha = 1.0 - alpha;
-  	            *(ccd_ptr  ) += *(pcd_ptr  )*one_m_alpha;
-  	            *(ccd_ptr+1) += *(pcd_ptr+1)*one_m_alpha;
-  	            *(ccd_ptr+2) += *(pcd_ptr+2)*one_m_alpha;
-                    *(ccd_ptr+3) = 1.0;
-                    }
-                  else
-                    {
-                    *(ccd_ptr  ) = *(pcd_ptr  );
-                    *(ccd_ptr+1) = *(pcd_ptr+1);
-                    *(ccd_ptr+2) = *(pcd_ptr+2);
-                    *(ccd_ptr+3) = 1.0;
-                    }
-                  ccd_ptr += 4;
-                  pcd_ptr += 4;
-                  }
-                }
-              }
-  
-            }
-          break;
-
-        case VR_SOFTWARE:
-          if ( image_location == VR_SOFTWARE )
-            {
-            // Merge Software & Software -> Software
-            }
-          else if ( image_location == VR_HARDWARE )
-            {
-            // Merge Software & Hardware -> Software
-            }
-          break;
-        }
-
-      // Clean up from previous image
-      if( free_prev_data )
-        {
-        if( prev_zdata )
-          {
-          delete( prev_zdata );
-          prev_zdata = NULL;
-          }
-        if( prev_cdata )
-          {
-          delete( prev_cdata );
-          prev_cdata = NULL;
-          }
-        free_prev_data = FALSE;
-        }
-
-      prev_image_location = image_location;
-
+    // Just checking that our assumptions are correct. 
+    if( this->Debug )
+      {
+      if ( matrix->Element[2][0] || matrix->Element[2][1]  ||
+	   matrix->Element[3][0] || matrix->Element[3][1]  ||
+	   matrix->Element[2][2] )
+	{
+	vtkErrorMacro( << 
+           "Assumption incorrect: cannot correctly decode z values");
+	}
       }
     }
 
-  if ( image_location == VR_SOFTWARE )
+    // These are the important elements of the matrix. 
+    this->CameraInverse22   = matrix->Element[2][2];
+    this->CameraInverse23   = matrix->Element[2][3];
+    this->CameraInverse32   = matrix->Element[3][2];
+    this->CameraInverse33   = matrix->Element[3][3];
+
+
+    // Delete the object we created
+    transform->Delete();
+
+}
+
+// This is the multithreaded piece of the rendering - it is called once 
+// for each thread, and the scan lines are divided among processors with a
+// simple interleaving method
+VTK_THREAD_RETURN_TYPE RayCast_RenderImage( void *arg )
+{
+  int                          i, j, k, q;
+  float                        *ray_ptr;
+  float                        *iptr;
+  float                        *zptr;
+  int                          thread_id;
+  int                          thread_count;
+  float                        nearclip, farclip, far;
+  int                          noAbort = 1;
+  vtkRenderWindow              *renWin;
+  vtkRayCaster                 *raycaster;
+  vtkVolumeRayCastMapper       **mapper;
+  float                        zm22, zm23, zm32, zm33;
+  float                        *red, *green, *blue, *alpha, *depth;
+  float                        tmp;
+  float                        r, g, b, a, remaining_a;
+  struct VolumeRayCastRayInfoStruct  rayInfo;
+
+  // Get the info out of the input structure
+  thread_id    = ((ThreadInfoStruct *)(arg))->ThreadID;
+  thread_count = ((ThreadInfoStruct *)(arg))->NumberOfThreads;
+  raycaster    = (vtkRayCaster *)((ThreadInfoStruct *)arg)->UserData;
+
+  ray_ptr = raycaster->SelectedViewRays;
+  iptr    = raycaster->RGBAImage;
+  zptr    = raycaster->ZImage;
+
+  renWin = raycaster->Renderer->GetRenderWindow();
+
+  // The clipping range of the camera is used to clip the rays
+  nearclip = raycaster->CameraClippingRange[0];
+  farclip = raycaster->CameraClippingRange[1];
+
+  zm23 = raycaster->CameraInverse23;
+  zm22 = raycaster->CameraInverse22;
+  zm32 = raycaster->CameraInverse32;
+  zm33 = raycaster->CameraInverse33;
+
+  // We need an rgba and z value for each possible volume intersection
+  // along the ray, plus one for the information that is (possibly) already
+  // store in the rgba and z buffers (from hardware rendering)
+  red   = new float [raycaster->RayCastVolumeCount+1];
+  green = new float [raycaster->RayCastVolumeCount+1];
+  blue  = new float [raycaster->RayCastVolumeCount+1];
+  alpha = new float [raycaster->RayCastVolumeCount+1];
+  depth = new float [raycaster->RayCastVolumeCount+1];
+
+  // In an orthographic projection, the direction is constant
+  if ( raycaster->ParallelProjection )
     {
+    rayInfo.RayDirection[0] =  0.0;
+    rayInfo.RayDirection[1] =  0.0;
+    rayInfo.RayDirection[2] = -1.0;
+    }
+  // In a perspective projection, the origin in constant
+  else
+    {
+    rayInfo.RayOrigin[0] = 0.0;
+    rayInfo.RayOrigin[1] = 0.0;
+    rayInfo.RayOrigin[2] = 0.0;
+    }
+  
+  // We need to know the width of the image down in the mapper to 
+  // decode z values from the ray bounder
+  rayInfo.ImageWidth = raycaster->ImageSize[0];
 
-    // If the full image size and the volume rendered image size are not 
-    // the same, then we are going to need to rescale the image before
-    // writing it into the render window
-    if ( img_size[0] != full_img_size[0] || img_size[1] != full_img_size[1] )
+  // Keep a pointer to each mapper for faster access
+  mapper = new vtkVolumeRayCastMapper *[raycaster->RayCastVolumeCount];
+  for ( k = 0; k < raycaster->RayCastVolumeCount; k++ )
+    {
+    mapper[k] = (vtkVolumeRayCastMapper *)
+      raycaster->RayCastVolumes[k]->GetVolumeMapper();
+    }
+
+  // Loop through all rows of the image
+  for ( j = 0; j < raycaster->ImageSize[1]; j++ )
+    {
+    // If we want this row to be computed by this thread_id
+    // also need to check on abort status
+    if (!thread_id)
       {
-      // Create the image to write it in to
-
-      // Rescale it.  This also writes it to the render window's 
-      // output.
-      this->RescaleImage( curr_cdata, img_size);
+      if (noAbort && renWin->CheckAbortStatus())
+	{
+	noAbort = 0;
+	}
       }
     else
       {
-      // Place final image into frame buffer if necessary - it is the
-      // full resolution size so it doesn't need to be rescaled
-      ren->GetRenderWindow()->SetRGBAPixelData( 
-		0, 0, img_size[0]-1, img_size[1]-1, curr_cdata, 0 );
+      noAbort = !(renWin->GetAbortRender());
+      }
+    if (noAbort && (( j % thread_count ) == thread_id ))
+      {
+      // Loop through each pixel in this row
+      for ( i = 0; i < raycaster->ImageSize[0]; i++ )
+	{
+	k = raycaster->RayCastVolumeCount;
+
+	// If we have nothing in the rgba and z buffers, we want to
+	// cast the ray all the way until the far clipping plane
+	if ( raycaster->FirstBlend )
+	  {
+	  far = farclip;
+	  red[k]   = 0.0;
+	  green[k] = 0.0;
+	  blue[k]  = 0.0;
+	  alpha[k] = 0.0;
+	  }
+	// If we have something in the rgba and z buffers, then we only
+	// want to cast the ray until it reaches the z value stored in
+	// the z buffer, and the rgba values stored in the color buffer are
+	// considered the farthest sample.
+	else
+	  {
+	  if ( raycaster->ParallelProjection )
+	    far = -(((*zptr)*2.0 -1.0)*zm22 + zm23);
+	  else
+	    far = -zm23 / (((*zptr)*2.0 -1.0)*zm32 + zm33 );
+
+	  red[k]   = *iptr;
+	  green[k] = *(iptr+1);
+	  blue[k]  = *(iptr+2);
+	  alpha[k] = 1.0;
+	  }
+
+	// This far sample is at the far plane
+	depth[k] = far;
+
+	// If we have an orthographic projection, the origin must be computed.
+	if ( raycaster->ParallelProjection )
+	  {
+	  rayInfo.RayOrigin[0] = raycaster->ParallelStartPosition[0] + 
+	    i * raycaster->ParallelIncrements[0];
+	  rayInfo.RayOrigin[1] = raycaster->ParallelStartPosition[1] + 
+	    j * raycaster->ParallelIncrements[1];
+	  rayInfo.RayOrigin[2] = 0.0;
+	  }
+	// If we have a perspective projection, then copy the ray direction of
+	// of the view rays
+	else
+	  {
+	  memcpy( rayInfo.RayDirection, ray_ptr, 3*sizeof(float) );	
+	  }
+
+	// We need to tell the mapper which pixel this is in case there is
+	// some ray bounding going on in the mapper
+	rayInfo.RayPixel[1] = j;
+	rayInfo.RayPixel[0] = i;
+
+	// For each volume we need to cast this ray
+	for ( k = 0; k < raycaster->RayCastVolumeCount; k++ )
+	  {
+	  // In an orthographic projection, near and far remain unchanged
+	  if ( raycaster->ParallelProjection )
+	    {
+	    rayInfo.RayNearClip = nearclip;
+	    rayInfo.RayFarClip  = far;
+	    }
+	  // In a perspective projection we must divide near and far by the
+	  // z component of the view ray to account for the fact that this
+	  // distance is a distance to a plane and we want the distance to
+	  // the view origin
+	  else
+	    {
+	    rayInfo.RayNearClip = nearclip / -ray_ptr[2];
+	    rayInfo.RayFarClip  = far / -ray_ptr[2];
+	    }
+
+	  // Cast the ray and gather the resulting values.
+	  mapper[k]->CastViewRay( &rayInfo, &raycaster->VolumeInfo[k] );
+	  red[k]   = rayInfo.RayColor[0];
+	  green[k] = rayInfo.RayColor[1];
+	  blue[k]  = rayInfo.RayColor[2];
+	  alpha[k] = rayInfo.RayColor[3];
+	  if ( raycaster->ParallelProjection )
+	    depth[k] = rayInfo.RayDepth + nearclip;
+	  else
+	    depth[k] = rayInfo.RayDepth + nearclip / -ray_ptr[2];
+	  
+	  // Bubble it up - we want to have the samples ordered from
+	  // closest to farthest
+	  q = k;
+	  while ( q > 0 && depth[q] < depth[q-1] )
+	    {
+	    SWAP_VALUES(   red[q],   red[q-1], tmp );
+	    SWAP_VALUES( green[q], green[q-1], tmp );
+	    SWAP_VALUES(  blue[q],  blue[q-1], tmp );
+	    SWAP_VALUES( alpha[q], alpha[q-1], tmp );
+	    SWAP_VALUES( depth[q], depth[q-1], tmp );
+	    q--;
+	    }
+	  }
+
+	// Merge the colors together in back to front order. We may need to
+	// blend the background if there was no hardware rendering before this
+	if ( raycaster->NeedBackgroundBlend )
+	  {
+	  r = raycaster->Background[0];
+	  g = raycaster->Background[1];
+	  b = raycaster->Background[2];
+	  }
+	else
+	  {
+	  r = 0.0;
+	  g = 0.0;
+	  b = 0.0;
+	  }
+	
+	// Do the alpha compositing
+	remaining_a = 1.0;
+	for ( k = raycaster->RayCastVolumeCount; k >= 0; k-- )
+	  {
+	  r = red[k]   + (1.0 - alpha[k]) * r;
+	  g = green[k] + (1.0 - alpha[k]) * g;
+	  b = blue[k]  + (1.0 - alpha[k]) * b; 
+	  remaining_a *= 1.0 - alpha[k];
+	  }
+
+	a = 1.0 - remaining_a;
+
+	// Check the upper bounds
+	if ( r > 1.0 ) r = 1.0;
+	if ( g > 1.0 ) g = 1.0;
+	if ( b > 1.0 ) b = 1.0;
+	if ( a > 1.0 ) a = 1.0;
+
+	// Set the pixel value
+	*(iptr++) = r;
+	*(iptr++) = g;
+	*(iptr++) = b;
+	*(iptr++) = a;
+
+	// Increment the pointers
+	ray_ptr += 3;
+	zptr++;
+	}
+      } // End of for each pixel loop
+    else  // This is the wrong thread to compute this row of the image
+      {
+      ray_ptr     += 3 * raycaster->ImageSize[0];
+      iptr        += 4 * raycaster->ImageSize[0];
+      zptr        +=     raycaster->ImageSize[0];
+      }
+    } // End of for each row loop
+
+  // Delete the temporary stuff we created
+  delete mapper;
+  delete red;
+  delete green;
+  delete blue;
+  delete alpha;
+  delete depth;
+
+  return VTK_THREAD_RETURN_VALUE;
+
+}
+
+
+// Render any ray cast or software buffer volumes and put the resulting
+// image in the frame buffer
+void vtkRayCaster::Render(vtkRenderer *ren, int raycastCount, 
+			  int softwareCount )
+{
+  int          deleteDisabled = 0;
+  vtkVolume    *aVolume;
+  vtkTimerLog  *timer;
+  float        *nextImage, *ptr1, *ptr2;
+  float        alpha;
+  int          i, j;
+
+  // We need a timer to know how long the ray casting and software
+  // buffer rendering takes. This will be used to determine what
+  // size to make the image next time - the size of the image shrinks
+  // to achieve a desired update render rate.
+  timer = vtkTimerLog::New();
+  timer->StartTimer();
+
+  // Grab the counts that were passed in - these were computed up
+  // in vtkRenderer::UpdateVolumes()
+  this->RayCastVolumeCount = raycastCount;
+  this->SoftwareBufferVolumeCount = softwareCount;
+
+  // Create the RGBA and Z buffers necessary to store the
+  // render image data.
+  this->InitializeRenderBuffers( ren );
+ 
+  // If we don't have any geometry then we won't capture the color buffer
+  // after geometry rendering, and therefore we will not correctly account 
+  // for the background color. Check to see if this is the case so we
+  // can handle it.
+  this->NeedBackgroundBlend;
+  if ( this->FirstBlend )
+    {
+    ren->GetBackground( this->Background );
+    if ( this->Background[0] != 0.0 ||
+	 this->Background[1] != 0.0 ||
+	 this->Background[2] != 0.0 )
+      {
+      this->NeedBackgroundBlend = 1;
       }
     }
 
-  // Final clean up
-  // If we created a full size image, free the memory
-  if ( full_cdata ) delete full_cdata;
-
-  if( free_prev_data )
+  // If we have some volumes with ray cast volume mappers, then
+  // render them
+  if ( this->RayCastVolumeCount )
     {
-    if ( prev_zdata ) delete prev_zdata;
-    if ( prev_cdata ) delete prev_cdata;
+    // Do any necessary initialization
+    this->InitializeRayCasting( ren );
+
+    // Set the number of threads to use for ray casting,
+    // then set the execution method and do it.
+    this->Threader->SetNumberOfThreads( this->NumberOfThreads );
+    this->Threader->SetSingleMethod( RayCast_RenderImage, 
+				     (void *)this);
+    this->Threader->SingleMethodExecute();
+
+    // Once we've ray casted we now have something in the image
+    // so the next thing rendered will not be the first blend.
+    this->FirstBlend = 0;
+    this->NeedBackgroundBlend = 0;
+
+    // Delete the structures that we created during
+    // ray casting.
+    delete this->RayCastVolumes;
     }
 
-  if( free_curr_data )
+  // If we have any volumes with software buffer mappers, render them
+  if ( this->SoftwareBufferVolumeCount )
     {
-    if ( curr_zdata ) delete curr_zdata;
-    if ( curr_cdata ) delete curr_cdata;
+    // For speed - treat the cast where we have no geometry, no ray cast
+    // volumes, and only one software buffer volume as a special cast
+    if ( this->SoftwareBufferVolumeCount == 1 && this->FirstBlend )
+      {
+      // We will use the image returned by the mapper, so we don't need
+      // the ones we created, and we don't want to delete this other one
+      // later
+      deleteDisabled = 1;
+      delete this->RGBAImage;
+      delete this->ZImage;
+
+      // Find that first software buffer volume
+      for ( ren->GetVolumes()->InitTraversal(); 
+	    (aVolume = ren->GetVolumes()->GetNextItem()); )
+	{
+	if( aVolume->GetVisibility() &&
+	    aVolume->GetVolumeMapper()->GetMapperType() == 
+	    VTK_SOFTWAREBUFFER_VOLUME_MAPPER )
+	  break;
+	}
+      
+      // Render it and get the resulting image
+      aVolume->Render( ren );
+      aVolume->GetVolumeMapper()->Render( ren, aVolume );
+      this->RGBAImage = 
+          aVolume->GetVolumeMapper()->GetRGBAPixelData();
+      }
+    // Otherwise we have geometry, ray cast volumes, or more than one software
+    // buffer volumes
+    else
+      {     
+      // Render each volume of the right type
+      for ( ren->GetVolumes()->InitTraversal(); 
+	    (aVolume = ren->GetVolumes()->GetNextItem()); )
+	{
+	if( aVolume->GetVisibility() &&
+	    aVolume->GetVolumeMapper()->GetMapperType() == 
+	    VTK_SOFTWAREBUFFER_VOLUME_MAPPER )
+	  {
+	  // Render the volume and get the resulting image
+	  aVolume->Render( ren );
+	  aVolume->GetVolumeMapper()->Render( ren, aVolume );
+	  nextImage = 
+	    aVolume->GetVolumeMapper()->GetRGBAPixelData();
+
+	  // Blend this image with what we have already
+	  ptr1 = this->RGBAImage;
+	  ptr2 = nextImage;
+	  for ( j = 0; j < this->ImageSize[1]; j++ )
+	    {
+	    for ( i = 0; i < this->ImageSize[0]; i++ )
+	      {
+	      if ( this->FirstBlend )
+		{
+		*(ptr1++) = *(ptr2++);
+		*(ptr1++) = *(ptr2++);
+		*(ptr1++) = *(ptr2++);
+		ptr1++;
+		ptr2++;
+		}
+	      else
+		{
+		alpha = *(ptr2+3);
+		*ptr1 = *ptr2 + *ptr1 * alpha;
+		ptr1++;
+		ptr2++;
+		*ptr1 = *ptr2 + *ptr1 * alpha;
+		ptr1++;
+		ptr2++;
+		*ptr1 = *ptr2 + *ptr1 * alpha;
+		ptr1+=2;
+		ptr2+=2;
+		}
+	      }
+	    }
+	  }
+	}
+      
+      }
     }
 
+  // If we still haven't blended the background color into the
+  // image yet, then we need to do it here. This could happen
+  // if we have one software buffer volume.
+  if ( this->NeedBackgroundBlend )
+    {
+    ptr1 = this->RGBAImage;
+    for ( j = 0; j < this->ImageSize[1]; j++ )
+      {
+      for ( i = 0; i < this->ImageSize[0]; i++ )
+	{
+	alpha = 1.0 - *(ptr1+3);
+	*(ptr1++) += alpha * this->Background[0];
+	*(ptr1++) += alpha * this->Background[1];
+	*(ptr1++) += alpha * this->Background[2];
+	ptr1++;
+	}
+      }
+    }
+  
+  // If the full image size and the volume rendered image size are not 
+  // the same, then we are going to need to rescale the image before
+  // writing it into the render window
+  if ( this->ImageSize[0] != this->FullImageSize[0] ||
+       this->ImageSize[1] != this->FullImageSize[1] )
+    {
+    // Rescale it.  This also writes it to the render window's 
+    // output.
+    this->RescaleImage();
+    }
+  else
+    {
+    // Place final image into frame buffer if necessary - it is the
+    // full resolution size so it doesn't need to be rescaled
+    ren->GetRenderWindow()->SetRGBAPixelData( 
+	     0, 0, this->ImageSize[0]-1, this->ImageSize[1]-1, 
+	     this->RGBAImage, 0 );
+    }
+
+  // If we need to delete the image, do so. If we have only one
+  // software buffer volume and no geometry then we never created
+  // these buffers in the first place
+  if ( !deleteDisabled )
+    {
+    delete this->RGBAImage;
+    delete this->ZImage;
+    }
+
+  // Stop the timer and record the results
+  // If we are rendering a full size image store the results in
+  // this->ImageRenderTime[0] otherwise store it in
+  // this->ImageRenderTime[1]. This way we can keep track of both
+  // how long it takes to do the full size image and how long it
+  // took to do the last reduced size image that we rendered.
   timer->StopTimer();
   this->TotalRenderTime = timer->GetElapsedTime();
-
   if ( this->AutomaticScaleAdjustment )
     {
     if ( this->SelectedImageScaleIndex == 0 )
@@ -905,17 +1258,15 @@ int vtkRayCaster::Render(vtkRenderer *ren)
     else
       this->ImageRenderTime[1] = this->TotalRenderTime;
     }
-
   timer->Delete();
 
-  return volume_count;
 }
 
-void vtkRayCaster::RescaleImage(float *RGBAImage, int smallSize[2])
+void vtkRayCaster::RescaleImage( )
 {
 
-  int *rw_size;
-  float *vp_size;
+  int *renWinSize;
+  float *viewport;
   int window_size[2];
   float *outputFloat;
   vtkRenderer *ren;
@@ -926,20 +1277,21 @@ void vtkRayCaster::RescaleImage(float *RGBAImage, int smallSize[2])
 
   ren = this->Renderer;
 
-  rw_size = ren->GetRenderWindow()->GetSize();
-  vp_size = ren->GetViewport();
-  window_size[0] =  (int)(rw_size[0]*(float)(vp_size[2] - vp_size[0]));
-  window_size[1] =  (int)(rw_size[1]*(float)(vp_size[3] - vp_size[1]));
+  renWinSize = ren->GetRenderWindow()->GetSize();
+  viewport = ren->GetViewport();
+  window_size[0] =  (int)(renWinSize[0]*(float)(viewport[2] - viewport[0]));
+  window_size[1] =  (int)(renWinSize[1]*(float)(viewport[3] - viewport[1]));
 
   outputFloat = new float[window_size[0]*window_size[1]*4];
 
   if( this->BilinearImageZoom )
-    BilinearZoom( RGBAImage, outputFloat, smallSize, window_size );
+    BilinearZoom( this->RGBAImage, outputFloat, this->ImageSize, window_size );
   else
-    NearestNeighborZoom( RGBAImage, outputFloat, smallSize, window_size );
+    NearestNeighborZoom( this->RGBAImage, outputFloat, this->ImageSize, window_size );
 
   ren->GetRenderWindow()->SetRGBAPixelData(0,0,
     window_size[0]-1,window_size[1]-1,outputFloat,0);
+
   delete[] outputFloat;
 }
 

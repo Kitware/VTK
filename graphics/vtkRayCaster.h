@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkRayCaster - A helper object for the renderer that controls ray casting
+// .NAME vtkRayCaster - A helper object for renderer that controls ray casting
 
 // .SECTION Description
 // vtkRayCaster is an automatically created object within vtkRenderer. It is
@@ -56,6 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkVolume.h"
 #include "vtkViewRays.h"
 #include "vtkVolumeMapper.h"
+#include "vtkMultiThreader.h"
 
 #define VTK_MAX_VIEW_RAYS_LEVEL 4
 
@@ -70,12 +71,7 @@ public:
 
   // Description:
   // Main routine to do the volume rendering.
-  int Render(vtkRenderer *);
-
-  // Description:
-  // Methods for a vtkVolumeMapper to retrieve latest color and zbuffer
-  float *GetCurrentColorBuffer() { return (this->cbuffer); };
-  float *GetCurrentZBuffer() { return (this->zbuffer); };
+  void Render(vtkRenderer *, int raycastCount, int softwareCount);
 
   // Description:
   // Method for a vtkVolumeMapper to retrieve the view rays 
@@ -99,17 +95,11 @@ public:
 
   
   // Description:
-  // Set the scale factor for a given level. This is used during multi-
+  // Set/Get the scale factor for a given level. This is used during multi-
   // resolution interactive rendering
   void SetImageScale(int level, float scale); 
-
-
-  // Description:
-  // Get the scale factor for a given level. This is used during multi-
-  // resolution interactive rendering
   float GetImageScale(int level); 
 
-  
   // Description:
   // During multi-resolution rendering, this indicated the selected level
   // of resolution
@@ -175,6 +165,13 @@ public:
   // Description:
   // Get the total time required for ray casting.
   vtkGetMacro( TotalRenderTime, float );
+ 
+  // Description:
+  // Set / Get the number of threads used during ray casting
+  vtkSetMacro( NumberOfThreads, int );
+  vtkGetMacro( NumberOfThreads, int );
+
+  float *GetCurrentZBuffer() {if ( this->FirstBlend ) return NULL; else return this->ZImage;};
 
 protected:
 
@@ -194,14 +191,27 @@ protected:
   // Rescale the image from the small size to the full size using one of
   // the two interpolation methods above - NearestNeighborZoom or
   // BilinearZoom.
-  virtual void RescaleImage( float *RGBAImage, int smallSize[2]);
+  void RescaleImage( );
 
-  float		*zbuffer;
-  float		*cbuffer;
+  void RenderFrameBufferVolumes( vtkRenderer *ren );
+  void InitializeRenderBuffers( vtkRenderer *ren );
+  void InitializeRayCasting( vtkRenderer *ren );
+
+  friend VTK_THREAD_RETURN_TYPE RayCast_RenderImage( void *arg );
+
+  vtkMultiThreader *Threader;
+
+  int              NumberOfThreads;
+
   vtkRenderer   *Renderer;
 
+  // These are the variables necessary for adjusting the image
+  // size during ray casting to achieve a desired update rate
   vtkViewRays   *ViewRays[VTK_MAX_VIEW_RAYS_LEVEL+1];
+  float         *SelectedViewRays;
   float         ImageScale[VTK_MAX_VIEW_RAYS_LEVEL+1];
+  int           ImageSize[2];
+  int           FullImageSize[2];
   int		BilinearImageZoom;
   int           SelectedImageScaleIndex;
   int           StableImageScaleCounter;
@@ -209,10 +219,34 @@ protected:
   int           AutomaticScaleAdjustment;
   float         AutomaticScaleLowerLimit;
   float         ImageRenderTime[2];
-  float         OldViewport[4];
   float         ViewRaysStepSize[VTK_MAX_VIEW_RAYS_LEVEL];
   float         TotalRenderTime;
 
+  // The working color and depth image
+  float         *RGBAImage;
+  float         *ZImage;
+
+
+  // Hang on to a pointer to each volume with a ray cast mapper.
+  // We'll also need some information for each of these volumes
+  vtkVolume     **RayCastVolumes;
+  struct VolumeRayCastVolumeInfoStruct *VolumeInfo;
+
+  int           RayCastVolumeCount;
+  int           SoftwareBufferVolumeCount;
+  vtkTransform  *ViewToWorldTransform;
+  float         CameraClippingRange[2];
+  float         ViewToWorldMatrix[4][4];
+  int           FirstBlend;
+  float         CameraInverse22;
+  float         CameraInverse23;
+  float         CameraInverse32;
+  float         CameraInverse33;
+  float         *ParallelStartPosition;
+  float         *ParallelIncrements;
+  int           ParallelProjection;
+  int           NeedBackgroundBlend;
+  float         Background[3];
 };
 
 #endif

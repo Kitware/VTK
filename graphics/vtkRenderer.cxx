@@ -184,7 +184,10 @@ void vtkRenderer::Render(void)
 	    anActor->GetTexture()->GetMTime() > this->RenderTime) mods = 1;
 	if (anActor->GetMapper()->GetMTime() > this->RenderTime) mods = 1;
 	anActor->GetMapper()->GetInput()->Update();
-	if (anActor->GetMapper()->GetInput()->GetMTime() > this->RenderTime) mods = 1;
+	if (anActor->GetMapper()->GetInput()->GetMTime() > this->RenderTime) 
+	  {
+	  mods = 1;
+	  }
 	}
       }
     
@@ -240,19 +243,47 @@ void vtkRenderer::Render2D()
 // Ask volumes to render themselves.
 int vtkRenderer::UpdateVolumes()
 {
-  int volume_count=0;    // Number of visible volumes
+  int visibleRayCastVolumeCount = 0;
+  int visibleFrameBufferVolumeCount = 0;
+  int visibleSoftwareBufferVolumeCount = 0;
 
-  volume_count = this->VisibleVolumeCount();
+  vtkVolume    *aVolume;
 
-  // Render the volumes
-  if ( volume_count > 0 )
+  // loop through volumes to count the visible volumes of each type
+  // Also, render the frame buffer volumes at this time
+  for (this->Volumes->InitTraversal(); 
+       (aVolume = this->Volumes->GetNextItem()); )
+    if (aVolume->GetVisibility())
+      {
+      switch ( aVolume->GetVolumeMapper()->GetMapperType() )
+	{
+	case VTK_RAYCAST_VOLUME_MAPPER:
+	  visibleRayCastVolumeCount++;
+	  break;
+	case VTK_SOFTWAREBUFFER_VOLUME_MAPPER:
+	  visibleSoftwareBufferVolumeCount++;
+	  break;
+	case VTK_FRAMEBUFFER_VOLUME_MAPPER:
+	  visibleFrameBufferVolumeCount++;
+	  aVolume->GetVolumeMapper()->Render( (vtkRenderer *)this, aVolume );
+	  break;
+	}
+      }
+
+  // If there are any ray cast volumes, or softwarebuffer
+  // volumes, let the ray caster handle it.
+  if ( visibleRayCastVolumeCount + 
+       visibleSoftwareBufferVolumeCount > 0 )
     {
-
     // Render the volume
-    this->RayCaster->Render((vtkRenderer *)this);
+    this->RayCaster->Render((vtkRenderer *)this,
+			    visibleRayCastVolumeCount,
+			    visibleSoftwareBufferVolumeCount);
     }
 
-  return volume_count;
+  return ( visibleRayCastVolumeCount +
+	   visibleFrameBufferVolumeCount +
+	   visibleSoftwareBufferVolumeCount );
 }
 
 // Ask active camera to load its view matrix.

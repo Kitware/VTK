@@ -185,14 +185,13 @@ public:
   vtkGetMacro(SpecularPower,float);
 
   // Description:
-  // Set/Get the gradient magnitude opacity scale.
-  vtkSetMacro(GradientOpacityScale,float);
-  vtkGetMacro(GradientOpacityScale,float);
-
-  // Description:
-  // Set/Get the gradient magnitude opacity bias.
-  vtkSetMacro(GradientOpacityBias,float);
-  vtkGetMacro(GradientOpacityBias,float);
+  // The gradient magnitude opacity scale and bias values
+  // should be set in the vtkEncodedGradientEstimator.
+  // Do not use these methods.
+  void SetGradientOpacityScale( float v );
+  float GetGradientOpacityScale( );
+  void SetGradientOpacityBias( float v );
+  float GetGradientOpacityBias( );
 
 protected:
 
@@ -218,9 +217,6 @@ protected:
   float				Specular;
   float				SpecularPower;
 
-  // Constants for remapping the gradient magnitude values
-  float				GradientOpacityScale;
-  float				GradientOpacityBias;
 };
 
 // Description:

@@ -47,9 +47,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // recieved from all light sources at a surface location with that normal.
 // For diffuse illumination this is accurate, but for specular illumination
 // it is approximate for perspective projections since the center view
-// direction is always used as the view direction.
-
-
+// direction is always used as the view direction. Since the shading table is
+// dependent on the volume (for the transformation that must be applied to
+// the normals to put them into world coordinates) there is a shading table
+// per volume. This is necessary because multiple volumes can share a 
+// volume mapper.
 
 #ifndef __vtkEncodedGradientShader_h
 #define __vtkEncodedGradientShader_h
@@ -59,6 +61,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkVolume;
 class vtkRenderer;
 class vtkEncodedGradientEstimator;
+
+#define VTK_MAX_SHADING_TABLES   100
 
 class VTK_EXPORT vtkEncodedGradientShader : public vtkObject
 {
@@ -80,12 +84,12 @@ public:
 
   // Description:
   // Get the red/green/blue shading table.
-  float *GetRedDiffuseShadingTable( void )    {return this->ShadingTable[0];};
-  float *GetGreenDiffuseShadingTable( void )  {return this->ShadingTable[1];};
-  float *GetBlueDiffuseShadingTable( void )   {return this->ShadingTable[2];};
-  float *GetRedSpecularShadingTable( void )   {return this->ShadingTable[3];};
-  float *GetGreenSpecularShadingTable( void ) {return this->ShadingTable[4];};
-  float *GetBlueSpecularShadingTable( void )  {return this->ShadingTable[5];};
+  float *GetRedDiffuseShadingTable(    vtkVolume *vol );
+  float *GetGreenDiffuseShadingTable(  vtkVolume *vol );
+  float *GetBlueDiffuseShadingTable(   vtkVolume *vol );
+  float *GetRedSpecularShadingTable(   vtkVolume *vol );
+  float *GetGreenSpecularShadingTable( vtkVolume *vol );
+  float *GetBlueSpecularShadingTable(  vtkVolume *vol );
 
 protected:
 
@@ -96,8 +100,11 @@ protected:
   // and material[3] = specular exponent.  If the update flag is 0,
   // the shading table is overwritten with these new shading values.
   // If the update_flag is 1, then the computed light contribution is
-  // added to the current shading table values.
-  void  BuildShadingTable( float light_direction[3],
+  // added to the current shading table values. There is one shading
+  // table per volume, and the index value indicated which index table
+  // should be used. It is computed in the UpdateShadingTable method.
+  void  BuildShadingTable( int index,
+			   float light_direction[3],
 			   float light_color[3],
 			   float light_intensity,
 			   float view_direction[3],
@@ -108,9 +115,11 @@ protected:
   // The six shading tables (r diffuse ,g diffuse ,b diffuse, 
   // r specular, g specular, b specular ) - with an entry for each
   // encoded normal plus one entry at the end for the zero normal
-  float                        *ShadingTable[6];
-
-  int                          ShadingTableSize;
+  // There is one shading table per volume listed in the ShadingTableVolume
+  // array. A null entry indicates an available slot.
+  float                        *ShadingTable[VTK_MAX_SHADING_TABLES][6];
+  vtkVolume                    *ShadingTableVolume[VTK_MAX_SHADING_TABLES];
+  int                          ShadingTableSize[VTK_MAX_SHADING_TABLES];
 
 }; 
 
