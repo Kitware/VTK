@@ -18,7 +18,7 @@
 #include "vtkAlgorithm.h"
 #include "vtkGarbageCollector.h"
 
-vtkCxxRevisionMacro(vtkDistributedExecutive, "1.3");
+vtkCxxRevisionMacro(vtkDistributedExecutive, "1.4");
 vtkStandardNewMacro(vtkDistributedExecutive);
 vtkCxxSetObjectMacro(vtkDistributedExecutive, Algorithm, vtkAlgorithm);
 
@@ -109,7 +109,7 @@ int vtkDistributedExecutive::Update(vtkAlgorithm* algorithm)
 }
 
 //----------------------------------------------------------------------------
-vtkDataObject* vtkDistributedExecutive::GetOutputData(int port)
+vtkDataObject* vtkDistributedExecutive::GetOutputData(int)
 {
   vtkErrorMacro("GetOutputData(int) must be implemented for this executive.");
   return 0;
