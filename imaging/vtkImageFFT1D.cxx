@@ -178,7 +178,7 @@ void vtkImageFFT1D::ComputeRequiredInputRegionExtent(
 // This templated execute method handles any type input, but the output
 // is always floats. Axis 0 should be components. FFT is performed on axis 1.
 template <class T>
-void vtkImageFFT1DExecute(vtkImageFFT1D *self,
+static void vtkImageFFT1DExecute(vtkImageFFT1D *self,
 				  vtkImageRegion *inRegion, T *inPtr,
 				  vtkImageRegion *outRegion, float *outPtr)
 {

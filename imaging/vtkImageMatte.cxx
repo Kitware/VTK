@@ -155,7 +155,7 @@ void vtkImageMatte::Execute(vtkImageRegion *inRegion,
 //----------------------------------------------------------------------------
 // Template function that adds one bounding box region of mat.
 template <class T>
-void vtkImageMatteFill(vtkImageMatte *self, vtkImageRegion *region, T *ptr)
+static void vtkImageMatteFill(vtkImageMatte *self, vtkImageRegion *region, T *ptr)
 {
   int idx0, idx1, idx2, idx3;
   int min0, max0, min1, max1, min2, max2, min3, max3;

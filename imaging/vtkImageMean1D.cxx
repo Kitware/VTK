@@ -153,7 +153,7 @@ void vtkImageMean1D::ComputeOutputImageInformation(
 // 2d even though operation is 1d.
 // Note: Slight misalignment (pixel replication is not nearest neighbor).
 template <class T>
-void vtkImageMean1DExecute(vtkImageMean1D *self,
+static void vtkImageMean1DExecute(vtkImageMean1D *self,
 			      vtkImageRegion *inRegion, T *inPtr,
 			      vtkImageRegion *outRegion, T *outPtr)
 {

@@ -327,7 +327,7 @@ void vtkImageShortReader::SetFilePattern(char *pattern)
 // This is a special class that should speed reads.
 // It is not finished yet, but is a good idea.
 template <class T>
-void vtkImageShortReaderGenerateImage(vtkImageShortReader *self,
+static void vtkImageShortReaderGenerateImage(vtkImageShortReader *self,
 				      vtkImageRegion *region, T *ptr)
 {
   int min0, max0,  min1, max1;
@@ -428,7 +428,7 @@ void vtkImageShortReaderGenerateImage(vtkImageShortReader *self,
 // This function reads in one region of one slice.
 // templated to handle different data types.
 template <class T>
-void vtkImageShortReaderGenerateRegion(vtkImageShortReader *self,
+static void vtkImageShortReaderGenerateRegion(vtkImageShortReader *self,
 				       vtkImageRegion *region, T *ptr)
 {
   int min0, max0,  min1, max1;

@@ -84,7 +84,7 @@ void vtkImageHarrWavelet2D::InterceptCacheUpdate(vtkImageRegion *region)
 // Create an addition resolution level.
 // Regions bound only the lores. quadrent of the last resolution level.
 template <class T>
-void vtkImageHarrWavelet2DExecute(vtkImageHarrWavelet2D *self,
+static void vtkImageHarrWavelet2DExecute(vtkImageHarrWavelet2D *self,
 				int qSize0, int qSize1,
 				vtkImageRegion *inRegion, T *inPtr,
 				vtkImageRegion *outRegion, T *outPtr)

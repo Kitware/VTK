@@ -137,7 +137,7 @@ void vtkImageGradientMagnitude::ComputeRequiredInputRegionExtent(
 // it handles boundaries. Pixels are just replicated to get values 
 // out of extent.
 template <class T>
-void vtkImageGradientMagnitudeExecute(vtkImageGradientMagnitude *self,
+static void vtkImageGradientMagnitudeExecute(vtkImageGradientMagnitude *self,
 				      vtkImageRegion *inRegion, T *inPtr, 
 				      vtkImageRegion *outRegion, float *outPtr)
 {

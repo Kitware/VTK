@@ -115,7 +115,7 @@ void vtkImageScatterPlot::ComputeRequiredInputRegionExtent(
 // Description:
 // This templated function executes the filter for any type of data.
 template <class T>
-void vtkImageScatterPlotUpdate(vtkImageScatterPlot *self,
+static void vtkImageScatterPlotUpdate(vtkImageScatterPlot *self,
 			     vtkImageRegion *inRegion, T *inPtr,
 			     vtkImageRegion *outRegion, unsigned short *outPtr)
 {

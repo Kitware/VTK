@@ -68,7 +68,7 @@ void vtkImageXViewer::PrintSelf(ostream& os, vtkIndent indent)
 // Description:
 // A templated function that handles gray scale images.
 template <class T>
-void vtkImageXViewerRenderGrey(vtkImageXViewer *self, vtkImageRegion *region,
+static void vtkImageXViewerRenderGrey(vtkImageXViewer *self, vtkImageRegion *region,
 			       T *inPtr, unsigned char *outPtr)
 {
   int colorIdx;
@@ -140,7 +140,7 @@ void vtkImageXViewerRenderGrey(vtkImageXViewer *self, vtkImageRegion *region,
 // Description:
 // A templated function that handles color images. (only True Color 24 bit)
 template <class T>
-void vtkImageXViewerRenderColor(vtkImageXViewer *self, vtkImageRegion *region,
+static void vtkImageXViewerRenderColor(vtkImageXViewer *self, vtkImageRegion *region,
 				T *redPtr, T *greenPtr, T *bluePtr,
 				unsigned char *outPtr)
 {

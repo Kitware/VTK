@@ -109,7 +109,7 @@ vtkImageWrapPad::ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,
 // Description:
 // This templated function executes the filter for any type of data.
 template <class T>
-void vtkImageWrapPadExecute(vtkImageWrapPad *self,
+static void vtkImageWrapPadExecute(vtkImageWrapPad *self,
 			    vtkImageRegion *inRegion, T *inPtr,
 			    vtkImageRegion *outRegion, T *outPtr)
 {

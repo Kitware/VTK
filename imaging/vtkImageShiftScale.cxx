@@ -63,7 +63,7 @@ vtkImageShiftScale::vtkImageShiftScale()
 // Description:
 // This templated function executes the filter for any type of data.
 template <class T>
-void vtkImageShiftScaleExecute(vtkImageShiftScale *self,
+static void vtkImageShiftScaleExecute(vtkImageShiftScale *self,
 			       vtkImageRegion *inRegion, T *inPtr,
 			       vtkImageRegion *outRegion, T *outPtr)
 {

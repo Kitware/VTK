@@ -93,7 +93,7 @@ void vtkImageFlip::ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,
 // Description:
 // This templated function executes the filter for any type of data.
 template <class IT, class OT>
-void vtkImageFlipExecute(vtkImageFlip *self,
+static void vtkImageFlipExecute(vtkImageFlip *self,
 			 vtkImageRegion *inRegion, IT *inPtr,
 			 vtkImageRegion *outRegion, OT *outPtr){
   int min0, max0, min1, max1;
@@ -131,7 +131,7 @@ void vtkImageFlipExecute(vtkImageFlip *self,
 
 //----------------------------------------------------------------------------
 template <class T>
-void vtkImageFlipExecute(vtkImageFlip *self,
+static void vtkImageFlipExecute(vtkImageFlip *self,
 			 vtkImageRegion *inRegion, T *inPtr,
 			 vtkImageRegion *outRegion)
 {

@@ -162,7 +162,7 @@ void vtkImageClip::Execute(vtkImageRegion *inRegion,
 //----------------------------------------------------------------------------
 // Clips the first axis
 template <class T>
-void vtkImageClipAxis(vtkImageRegion *region, T backGround)
+static void vtkImageClipAxis(vtkImageRegion *region, T backGround)
 {
   int idx0, idx1, idx2, idx3, idx4;
   int inc0, inc1, inc2, inc3, inc4;
@@ -255,7 +255,7 @@ void vtkImageClipAxis(vtkImageRegion *region, T backGround)
 //----------------------------------------------------------------------------
 // The automatically computes a new ImageExtent.
 template <class T>
-void vtkImageClipCompute(vtkImageRegion *region, T *ptr)
+static void vtkImageClipCompute(vtkImageRegion *region, T *ptr)
 {
   int idx0, idx1, idx2, idx3, idx4, idx;
   int t0, t1, t2, t3, t4;

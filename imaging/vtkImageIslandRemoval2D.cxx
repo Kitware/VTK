@@ -108,7 +108,7 @@ void vtkImageIslandRemoval2D::InterceptCacheUpdate(vtkImageRegion *region)
 // neighborhoods is to check neighbors one by one directly.  Also, I did
 // not want to break the templated function into pieces.
 template <class T>
-void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
+static void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
 					  vtkImageRegion *inRegion, T *inPtr,
 					  vtkImageRegion *outRegion, T *outPtr)
 {

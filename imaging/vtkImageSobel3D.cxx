@@ -162,7 +162,7 @@ void vtkImageSobel3D::ComputeRequiredInputRegionExtent(
 // it handles boundaries. Pixels are just replicated to get values 
 // out of extent.
 template <class T>
-void vtkImageSobel3DExecute(vtkImageSobel3D *self,
+static void vtkImageSobel3DExecute(vtkImageSobel3D *self,
 			    vtkImageRegion *inRegion, T *inPtr, 
 			    vtkImageRegion *outRegion, float *outPtr)
 {

@@ -59,7 +59,7 @@ vtkImageMask::vtkImageMask()
 // Description:
 // This templated function executes the filter for any type of data.
 template <class T>
-void vtkImageMaskExecute(vtkImageMask *self,
+static void vtkImageMaskExecute(vtkImageMask *self,
 			 vtkImageRegion *in1Region, T *in1Ptr,
 			 vtkImageRegion *in2Region, unsigned char *in2Ptr,
 			 vtkImageRegion *outRegion, T *outPtr)

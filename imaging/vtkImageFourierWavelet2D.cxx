@@ -351,7 +351,7 @@ int vtkImageFourierWavelet2D::TestWaveletOrthogonality(int waveletIdx)
 // Create an addition resolution level.
 // Regions bound only the lores. quadrent of the last resolution level.
 template <class T>
-void 
+static void 
 vtkImageFourierWavelet2DExecute(vtkImageFourierWavelet2D *self,
 				      vtkImageRegion *inRegion, T *inPtr,
 				      vtkImageRegion *outRegion, float *outPtr)

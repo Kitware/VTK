@@ -128,7 +128,7 @@ void vtkImageConvolution1D::SetKernel(float *kernel, int size)
 // and executes the Conv1d algorithm to fill the output from the input.
 // Note that input pixel is offset from output pixel.
 template <class T>
-void vtkImageConvolution1DExecuteCenter(vtkImageConvolution1D *self,
+static void vtkImageConvolution1DExecuteCenter(vtkImageConvolution1D *self,
 					vtkImageRegion *inRegion, T *inPtr,
 					vtkImageRegion *outRegion, T *outPtr)
 {
@@ -243,7 +243,7 @@ void vtkImageConvolution1D::ExecuteCenter(vtkImageRegion *inRegion,
 // Note that input pixel is offset from output pixel.
 // It is only call with boundary regions.
 template <class T>
-void vtkImageConvolution1DExecute(vtkImageConvolution1D *self,
+static void vtkImageConvolution1DExecute(vtkImageConvolution1D *self,
 				  vtkImageRegion *inRegion, T *inPtr,
 				  vtkImageRegion *outRegion, T *outPtr)
 {

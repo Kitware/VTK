@@ -59,7 +59,7 @@ vtkImageConstantPad::vtkImageConstantPad()
 // Description:
 // This templated function executes the filter for any type of data.
 template <class T>
-void vtkImageConstantPadExecute(vtkImageConstantPad *self,
+static void vtkImageConstantPadExecute(vtkImageConstantPad *self,
 				vtkImageRegion *inRegion, T *inPtr,
 				vtkImageRegion *outRegion, T *outPtr)
 {

@@ -440,7 +440,7 @@ void vtkImageShortWriter::WriteRegionData(vtkImageRegion *region)
 //----------------------------------------------------------------------------
 // This function writes a slice into a file.
 template <class T>
-void vtkImageShortWriterWrite2D(vtkImageShortWriter *self,
+static void vtkImageShortWriterWrite2D(vtkImageShortWriter *self,
 				vtkImageRegion *region, T *ptr)
 {
   ofstream *file;

@@ -119,7 +119,7 @@ void vtkImageThreshold::ThresholdBetween(float lower, float upper)
 // Description:
 // This templated function executes the filter for any type of data.
 template <class IT, class OT>
-void vtkImageThresholdExecute(vtkImageThreshold *self,
+static void vtkImageThresholdExecute(vtkImageThreshold *self,
 			      vtkImageRegion *inRegion, IT *inPtr,
 			      vtkImageRegion *outRegion, OT *outPtr)
 {
@@ -191,7 +191,7 @@ void vtkImageThresholdExecute(vtkImageThreshold *self,
 
 //----------------------------------------------------------------------------
 template <class T>
-void vtkImageThresholdExecute(vtkImageThreshold *self,
+static void vtkImageThresholdExecute(vtkImageThreshold *self,
 			      vtkImageRegion *inRegion, T *inPtr,
 			      vtkImageRegion *outRegion)
 {

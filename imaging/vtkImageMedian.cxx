@@ -111,7 +111,7 @@ void vtkImageMedian::SetKernelSize(int num, int *size)
 // This method contains the second switch statement that calls the correct
 // templated function for the mask types.
 template <class T>
-void vtkImageMedianExecute(vtkImageMedian *self,
+static void vtkImageMedianExecute(vtkImageMedian *self,
 			   vtkImageRegion *inRegion, T *inPtr, 
 			   vtkImageRegion *outRegion, T *outPtr)
 {

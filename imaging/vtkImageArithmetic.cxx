@@ -59,7 +59,7 @@ vtkImageArithmetic::vtkImageArithmetic()
 // Description:
 // This templated function executes the filter for any type of data.
 template <class T>
-void vtkImageArithmeticExecute(vtkImageArithmetic *self,
+static void vtkImageArithmeticExecute(vtkImageArithmetic *self,
 				       vtkImageRegion *in1Region, T *in1Ptr,
 				       vtkImageRegion *in2Region, T *in2Ptr,
 				       vtkImageRegion *outRegion, T *outPtr)

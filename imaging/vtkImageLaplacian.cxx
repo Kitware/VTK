@@ -107,7 +107,7 @@ void vtkImageLaplacian::ComputeRequiredInputRegionExtent(
 // it handles boundaries. Pixels are just replicated to get values 
 // out of extent.
 template <class T>
-void vtkImageLaplacianExecute(vtkImageLaplacian *self,
+static void vtkImageLaplacianExecute(vtkImageLaplacian *self,
 			      vtkImageRegion *inRegion, T *inPtr, 
 			      vtkImageRegion *outRegion, float *outPtr)
 {

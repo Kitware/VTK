@@ -77,7 +77,7 @@ int  mipflag(int m1, int m2, int m3);
 // Description:
 // This templated function executes the filter for any type of data.
 template <class T>
-void vtkImageMIPFilterExecute(vtkImageMIPFilter *self,
+static void vtkImageMIPFilterExecute(vtkImageMIPFilter *self,
 				   vtkImageRegion *inRegion, T *inPtr,
 				   vtkImageRegion *outRegion, T *outPtr)
 {

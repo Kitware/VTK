@@ -66,7 +66,7 @@ void vtkImageHistogramEqualization::PrintSelf(ostream& os, vtkIndent indent)
 // Description:
 // This templated function executes the filter for any type of data.
 template <class T>
-void vtkImageHistogramEqualizationExecute(vtkImageHistogramEqualization *self,
+static void vtkImageHistogramEqualizationExecute(vtkImageHistogramEqualization *self,
 				   vtkImageRegion *inRegion, T *inPtr,
 				   vtkImageRegion *outRegion, T *outPtr)
 {

@@ -93,7 +93,7 @@ void vtkImageDotProduct::ComputeRequiredInputRegionExtent(
 // Description:
 // This templated function executes the filter for any type of data.
 template <class T>
-void vtkImageDotProductExecute(vtkImageDotProduct *self,
+static void vtkImageDotProductExecute(vtkImageDotProduct *self,
 			       vtkImageRegion *in1Region, T *in1Ptr,
 			       vtkImageRegion *in2Region, T *in2Ptr,
 			       vtkImageRegion *outRegion, T *outPtr)

@@ -88,7 +88,7 @@ void vtkImageDilate1D::SetStride(int stride)
 // Note that input pixel is offset from output pixel.
 // It also handles ImageExtent by truncating the kernel.  
 template <class T>
-void vtkImageDilate1DExecute(vtkImageDilate1D *self,
+static void vtkImageDilate1DExecute(vtkImageDilate1D *self,
 			     vtkImageRegion *inRegion, T *inPtr,
 			     vtkImageRegion *outRegion, T *outPtr)
 {

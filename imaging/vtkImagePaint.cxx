@@ -140,7 +140,7 @@ void vtkImagePaint::GetDrawColor(int num, float *color)
 //----------------------------------------------------------------------------
 // Draw a region.  Only implentented for 2D extents.
 template <class T>
-void vtkImagePaintFillBox(vtkImageRegion *image, float *drawColor, T *ptr, 
+static void vtkImagePaintFillBox(vtkImageRegion *image, float *drawColor, T *ptr, 
 			 int min0, int max0, int min1, int max1)
 {
   T *ptr0, *ptr1, *ptrV;
@@ -226,7 +226,7 @@ void vtkImagePaint::FillBox(int min0, int max0, int min1, int max1)
 //----------------------------------------------------------------------------
 // Fill a tube (thick line for initial 2D implementation.
 template <class T>
-void vtkImagePaintFillTube(vtkImageRegion *image, float *drawColor, T *ptr, 
+static void vtkImagePaintFillTube(vtkImageRegion *image, float *drawColor, T *ptr, 
 			  int a0, int a1, int b0, int b1, float radius)
 {
   T *ptr0, *ptr1, *ptrV;
@@ -340,7 +340,7 @@ void vtkImagePaint::FillTube(int a0, int a1, int b0, int b1, float radius)
 //----------------------------------------------------------------------------
 // Fill a triangle (rasterize)
 template <class T>
-void vtkImagePaintFillTriangle(vtkImageRegion *image, float *drawColor, T *ptr,
+static void vtkImagePaintFillTriangle(vtkImageRegion *image, float *drawColor, T *ptr,
 			      int a0, int a1, int b0, int b1, int c0, int c1)
 {
   int temp;
@@ -489,7 +489,7 @@ void vtkImagePaint::FillTriangle(int a0,int a1, int b0,int b1, int c0,int c1)
 //----------------------------------------------------------------------------
 // Draw a point.  Only implentented for 2D images.
 template <class T>
-void vtkImagePaintDrawPoint(vtkImageRegion *image, float *drawColor, T *ptr, 
+static void vtkImagePaintDrawPoint(vtkImageRegion *image, float *drawColor, T *ptr, 
 			    int p0, int p1)
 {
   int min0, max0, min1, max1, minV, maxV;
@@ -558,7 +558,7 @@ void vtkImagePaint::DrawPoint(int p0, int p1)
 //----------------------------------------------------------------------------
 // Draw a circle.  Only implentented for 2D images.
 template <class T>
-void vtkImagePaintDrawCircle(vtkImageRegion *image, float *drawColor, T *ptr, 
+static void vtkImagePaintDrawCircle(vtkImageRegion *image, float *drawColor, T *ptr, 
 			     int c0, int c1, float radius)
 {
   int min0, max0, min1, max1, minV, maxV;
@@ -650,7 +650,7 @@ void vtkImagePaint::DrawCircle(int c0, int c1, float radius)
 // Draw a line.  Only implentented for 2D images.
 // First point is already shifted to origin.
 template <class T>
-void vtkImagePaintDrawSegment(vtkImageRegion *image, float *drawColor, T *ptr, 
+static void vtkImagePaintDrawSegment(vtkImageRegion *image, float *drawColor, T *ptr, 
 			     int p0, int p1)
 {
   float f0, f1;
@@ -909,7 +909,7 @@ int vtkImagePaint::ClipSegment(int &a0, int &a1, int &b0, int &b1)
 // Draw a line.  Only implentented for 3D images.
 // First point is already shifted to origin.
 template <class T>
-void vtkImagePaintDrawSegment3D(vtkImageRegion *image, float *drawColor, 
+static void vtkImagePaintDrawSegment3D(vtkImageRegion *image, float *drawColor, 
 				T *ptr, int p0, int p1, int p2)
 {
   float f0, f1, f2;
@@ -1042,7 +1042,7 @@ void vtkImagePaint::DrawSegment3D(float *a, float *b)
 
 //----------------------------------------------------------------------------
 template <class T>
-void vtkImagePaintFill(vtkImageRegion *image, float *color, 
+static void vtkImagePaintFill(vtkImageRegion *image, float *color, 
 		       T *ptr, int x, int y)
 {
   vtkImagePaintPixel *pixel;

@@ -156,7 +156,7 @@ void vtkImageDilateErode::SetKernelSize(int num, int *size)
 // If the filter needs to be faster, the function could be duplicated
 // for strictly center (no boundary ) processing.
 template <class T>
-void vtkImageDilateErodeExecute(vtkImageDilateErode *self,
+static void vtkImageDilateErodeExecute(vtkImageDilateErode *self,
 					vtkImageRegion *inRegion, T *inPtr, 
 					vtkImageRegion *outRegion, T *outPtr,
 					int boundaryFlag)

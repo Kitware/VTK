@@ -79,7 +79,7 @@ void vtkImageDilateValue1D::SetKernelSize(int size)
 // Note that input pixel is offset from output pixel.
 // It also handles ImageExtent by truncating the kernel.  
 template <class T>
-void vtkImageDilateValue1DExecute(vtkImageDilateValue1D *self,
+static void vtkImageDilateValue1DExecute(vtkImageDilateValue1D *self,
 					  vtkImageRegion *inRegion, T *inPtr,
 					  vtkImageRegion *outRegion, T *outPtr)
 {

@@ -106,7 +106,7 @@ vtkImageDuotone::ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,
 // Description:
 // This templated function executes the filter for any type of data.
 template <class T>
-void vtkImageDuotoneExecute(vtkImageDuotone *self,
+static void vtkImageDuotoneExecute(vtkImageDuotone *self,
 			    vtkImageRegion *inRegion, T *inPtr,
 			    vtkImageRegion *out0Region, T *out0Ptr,
 			    vtkImageRegion *out1Region, T *out1Ptr,
