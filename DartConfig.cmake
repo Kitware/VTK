@@ -34,6 +34,6 @@ CONFIGURE_FILE(${VTK_SOURCE_DIR}/TestingLogo.gif ${VTK_BINARY_DIR}/Testing/HTML/
 # Continuous email delivery variables
 SET (CONTINUOUS_FROM "lorensen@crd.ge.com")
 SET (SMTP_MAILHOST "public.kitware.com")
-SET (CONTINUOUS_MONITOR_LIST "lorensen@crd.ge.com millerjv@crd.ge.com")
+SET (CONTINUOUS_MONITOR_LIST "lorensen@crd.ge.com millerjv@crd.ge.com ken.martin@kitware.com")
 SET (CONTINUOUS_BASE_URL "http://www.vtk.org/Testing")
 
