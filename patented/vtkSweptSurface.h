@@ -192,8 +192,6 @@ protected:
 
 private:
   //used to perform computations
-  vtkIdList *IdList;
-  vtkScalars *VoxelScalars;
   vtkTransform *T;
 };
 

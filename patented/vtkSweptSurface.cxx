@@ -81,16 +81,12 @@ vtkSweptSurface::vtkSweptSurface()
   this->AdjustBounds = 1;
   this->AdjustDistance = 0.040;
 
-  this->IdList = vtkIdList::New(); this->IdList->SetNumberOfIds(8);
-  this->VoxelScalars = vtkScalars::New(); this->VoxelScalars->SetNumberOfScalars(8);
   this->T = vtkTransform::New();
 
 }
 
 vtkSweptSurface::~vtkSweptSurface()
 {
-  this->IdList->Delete();
-  this->VoxelScalars->Delete();
   this->T->Delete();
   this->SetTransforms(NULL);
 }
@@ -372,28 +368,23 @@ void vtkSweptSurface::SampleInput(vtkMatrix4x4 *m, int inDim[3],
           {
 
           //get scalar values
-          idx = ijk[0] + ijk[1]*inDim[0] + ijk[2]*inSliceSize;
-          this->IdList->SetId(0,idx);
-          this->IdList->SetId(1,idx+1);
-          this->IdList->SetId(2,idx + inDim[0]);
-          this->IdList->SetId(3,idx+1 + inDim[0]);
-          this->IdList->SetId(4,idx + inSliceSize);
-          this->IdList->SetId(5,idx+1 + inSliceSize);
-          this->IdList->SetId(6,idx + inDim[0] + inSliceSize);
-          this->IdList->SetId(7,idx+1 + inDim[0] + inSliceSize);
-
-          inScalars->GetScalars(this->IdList,this->VoxelScalars);
-
-          for (ii=0; ii<3; ii++)
-	    {
-	    t[ii] = loc[ii] - ijk[ii];
-	    }
+	  t[0] = loc[0] - ijk[0];
+	  t[1] = loc[1] - ijk[1];
+	  t[2] = loc[2] - ijk[2];
           vtkVoxel::InterpolationFunctions(t,weights);
 
-          for (newScalar=0.0, ii=0; ii<8; ii++) 
-	    {
-            newScalar += this->VoxelScalars->GetScalar(ii) * weights[ii];
-	    }
+          //get scalar values
+          idx = ijk[0] + ijk[1]*inDim[0] + ijk[2]*inSliceSize;
+	  newScalar = inScalars->GetScalar(idx) * weights[0];
+	  newScalar += inScalars->GetScalar(idx+1) * weights[1];
+	  newScalar += inScalars->GetScalar(idx + inDim[0]) * weights[2];
+	  newScalar += inScalars->GetScalar(idx+1 + inDim[0]) * weights[3];
+	  newScalar += inScalars->GetScalar(idx + inSliceSize) * weights[4] ;
+	  newScalar += inScalars->GetScalar(idx+1 + inSliceSize) * weights[5];
+	  newScalar += inScalars->GetScalar(idx + inDim[0] + inSliceSize) * weights[6];
+	  newScalar += inScalars->GetScalar(idx+1 + inDim[0] + inSliceSize) * weights[7];
+
+
           scalar = outScalars->GetScalar((idx=i+jOffset+kOffset));
           if ( newScalar < scalar )  //union operation
 	    {
