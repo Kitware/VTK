@@ -186,9 +186,6 @@ int vtkScaledTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
     if (this->LastSize[0] < size[0]-1 || this->LastSize[1] < size[1]-1 ||
 	this->LastSize[0] > size[0]+1 || this->LastSize[1] > size[1]+1)
       {
-      cerr << "LastSize " << this->LastSize[0] << ", " << this->LastSize[1]
-	   << ",  size " << size[0] << ", " << size[1] << endl;
-      
       this->LastSize[0] = size[0];
       this->LastSize[1] = size[1];
       

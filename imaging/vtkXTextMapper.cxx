@@ -214,8 +214,6 @@ void vtkXTextMapper::DetermineSize(vtkViewport *viewport, int *size)
 
   vtkDebugMacro(<<"Render - Font specifier: " << fontname);
 
-  cerr << "Font specifier: " << fontname << ", " << displayId << endl;
-  
   // Set the font
   int cnt;
   char **fn = XListFonts(displayId, fontname, 1, &cnt);
@@ -227,7 +225,6 @@ void vtkXTextMapper::DetermineSize(vtkViewport *viewport, int *size)
     {
     sprintf(fontname,"9x15");
     }
-  cerr << "fontname: " << fontname << endl;
   Font font = XLoadFont(displayId,  fontname );
   int dir, as, des;
   XCharStruct overall;
