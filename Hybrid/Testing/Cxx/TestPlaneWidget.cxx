@@ -431,7 +431,9 @@ int TestPlaneWidget( int argc, char *argv[] )
 
   vtkPolyDataMapper *probeMapper = vtkPolyDataMapper::New();
   probeMapper->SetInput(probe->GetPolyDataOutput());
-  probeMapper->SetScalarRange(pl3d->GetOutput()->GetScalarRange());
+  double tmp[2];
+  pl3d->GetOutput()->GetScalarRange(tmp);
+  probeMapper->SetScalarRange(tmp[0], tmp[1]);
   
   vtkActor *probeActor = vtkActor::New();
   probeActor->SetMapper(probeMapper);

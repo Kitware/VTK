@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkDataSet, "1.91");
+vtkCxxRevisionMacro(vtkDataSet, "1.92");
 
 //----------------------------------------------------------------------------
 // Constructor with default bounds (0,1, 0,1, 0,1).
@@ -94,7 +94,7 @@ void vtkDataSet::ComputeBounds()
 }
 
 //----------------------------------------------------------------------------
-void vtkDataSet::GetScalarRange(float range[2])
+void vtkDataSet::GetScalarRange(double range[2])
 {
   vtkDataArray *ptScalars, *cellScalars;
   ptScalars = this->PointData->GetScalars();
@@ -102,7 +102,7 @@ void vtkDataSet::GetScalarRange(float range[2])
   
   if ( ptScalars && cellScalars)
     {
-    float r1[2], r2[2];
+    double r1[2], r2[2];
     ptScalars->GetRange(r1,0);
     cellScalars->GetRange(r2,0);
     range[0] = (r1[0] < r2[0] ? r1[0] : r2[0]);
@@ -124,7 +124,7 @@ void vtkDataSet::GetScalarRange(float range[2])
 }
 
 //----------------------------------------------------------------------------
-float *vtkDataSet::GetScalarRange()
+double *vtkDataSet::GetScalarRange()
 {
   this->GetScalarRange(this->ScalarRange);
   return this->ScalarRange;

@@ -25,7 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkEdgePoints, "1.51");
+vtkCxxRevisionMacro(vtkEdgePoints, "1.52");
 vtkStandardNewMacro(vtkEdgePoints);
 
 // Construct object with contour value of 0.0.
@@ -52,7 +52,7 @@ void vtkEdgePoints::Execute()
   vtkIdType cellId, ptId, edgeId, newCellId;
   int above, below, i, numEdges;
   vtkCell *edge;
-  float range[2];
+  double range[2];
   float s0, s1, x0[3], x1[3], x[3], t;
   float e0Scalar, deltaScalar;
   int e0, e1;

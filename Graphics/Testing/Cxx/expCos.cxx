@@ -98,7 +98,9 @@ int expCos( int argc, char *argv[] )
   // mapper and actor
   vtkDataSetMapper *mapper = vtkDataSetMapper::New();
   mapper->SetInput(warp->GetOutput());
-  mapper->SetScalarRange(bessel->GetScalarRange());
+  double tmp[2];
+  bessel->GetScalarRange(tmp);
+  mapper->SetScalarRange(tmp[0],tmp[1]);
   
   vtkActor *carpet = vtkActor::New();
   carpet->SetMapper(mapper);

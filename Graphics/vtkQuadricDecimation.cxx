@@ -53,7 +53,7 @@
 #include "vtkPriorityQueue.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadricDecimation, "1.32");
+vtkCxxRevisionMacro(vtkQuadricDecimation, "1.33");
 vtkStandardNewMacro(vtkQuadricDecimation);
 
 
@@ -1225,7 +1225,7 @@ void vtkQuadricDecimation::ComputeNumberOfComponents(void)
 {
   vtkPointData *pd = this->Mesh->GetPointData();
   int i, j;
-  float range[2], maxRange=0.0f;
+  double range[2], maxRange=0.0;
 
   this->NumberOfComponents = 0;
   pd->CopyAllOff();
@@ -1245,12 +1245,12 @@ void vtkQuadricDecimation::ComputeNumberOfComponents(void)
       maxRange = (maxRange < (range[1] - range[0]) ? 
                   (range[1] - range[0]) : maxRange);
       }
-    if (maxRange != 0.0f) 
+    if (maxRange != 0.0) 
       {
       this->NumberOfComponents +=  pd->GetScalars()->GetNumberOfComponents();
       pd->CopyScalarsOn();
       this->AttributeScale[0] = this->ScalarsWeight/maxRange;
-      maxRange = 0.0f;
+      maxRange = 0.0;
       }
     vtkDebugMacro("scalars "<< this->NumberOfComponents << " " 
                   << this->AttributeScale[0]);
@@ -1266,7 +1266,7 @@ void vtkQuadricDecimation::ComputeNumberOfComponents(void)
       maxRange = (maxRange < (range[1] - range[0]) ? 
                   (range[1] - range[0]) : maxRange);
       }
-    if (maxRange != 0.0f) 
+    if (maxRange != 0.0) 
       {
       this->NumberOfComponents += pd->GetVectors()->GetNumberOfComponents();
       pd->CopyVectorsOn();

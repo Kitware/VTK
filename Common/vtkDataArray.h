@@ -295,12 +295,12 @@ public:
   // Description:
   // Return the range of the array values for the given component. 
   // Range is copied into the array provided.
-  void GetRange(float range[2], int comp)
+  void GetRange(double range[2], int comp)
     {
       this->ComputeRange(comp);
-      memcpy(range, this->Range, 2*sizeof(float));
+      memcpy(range, this->Range, 2*sizeof(double));
     }
-  float* GetRange(int comp)
+  double* GetRange(int comp)
     {
       this->ComputeRange(comp);
       return this->Range;
@@ -310,12 +310,12 @@ public:
   // Description:
   // Return the range of the array values for the 0th component. 
   // Range is copied into the array provided.
-  float* GetRange()
+  double* GetRange()
     {
       this->ComputeRange(0);
       return this->Range;
     }
-  void GetRange(float range[2])
+  void GetRange(double range[2])
     {
       this->GetRange(range,0);
     }
@@ -356,13 +356,13 @@ protected:
   char* Name;
 
 private:
-  float Range[2];
+  double Range[2];
 
   // 5 components since you can compute the range of components
   // less than 0 to get a magnitude range. ComponentRange[4] is 
   // this magnitude range
   vtkTimeStamp ComponentRangeComputeTime[5];
-  float ComponentRange[5][2];
+  double ComponentRange[5][2];
   
   float* GetTupleN(vtkIdType i, int n);
   

@@ -144,7 +144,7 @@ protected:
                      vtkPoints *inPts, vtkPoints *newPts, 
                      vtkPointData *pd, vtkPointData *outPD,
                      vtkFloatArray *newNormals, vtkDataArray *inScalars,
-                     float range[2], vtkDataArray *inNormals);
+                     double range[2], vtkDataArray *inNormals);
   void GenerateStrip(vtkIdType offset, vtkIdType npts, vtkIdType *pts, 
                      vtkIdType inCellId, vtkCellData *cd, vtkCellData *outCD,
                      vtkCellArray *newStrips);

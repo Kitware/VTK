@@ -23,7 +23,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkImageViewer2, "1.20");
+vtkCxxRevisionMacro(vtkImageViewer2, "1.21");
 vtkStandardNewMacro(vtkImageViewer2);
 
 //----------------------------------------------------------------------------
@@ -109,7 +109,7 @@ public:
         this->IV->GetInput()->SetUpdateExtent
           (this->IV->GetInput()->GetWholeExtent());
         this->IV->GetInput()->Update();
-        float *range = this->IV->GetInput()->GetScalarRange();
+        double *range = this->IV->GetInput()->GetScalarRange();
         this->IV->SetColorWindow(range[1] - range[0]);
         this->IV->SetColorLevel(0.5 * (range[1] + range[0]));
         this->IV->Render();

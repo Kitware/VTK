@@ -202,7 +202,7 @@ protected:
                      vtkPoints *inPts, vtkPoints *newPts, 
                      vtkPointData *pd, vtkPointData *outPD,
                      vtkFloatArray *newNormals, vtkDataArray *inScalars,
-                     float range[2], vtkDataArray *inVectors, float maxNorm, 
+                     double range[2], vtkDataArray *inVectors, double maxNorm, 
                      vtkDataArray *inNormals);
   void GenerateStrips(vtkIdType offset, vtkIdType npts, vtkIdType *pts, 
                       vtkIdType inCellId, vtkCellData *cd, vtkCellData *outCD,

@@ -92,9 +92,9 @@ public:
   // values less than minimum range value are clamped to minimum range value.
   // Scalar values greater than maximum range value are clamped to maximum
   // range value.
-  void SetTableRange(float r[2]); 
-  virtual void SetTableRange(float min, float max);
-  vtkGetVectorMacro(TableRange,float,2);
+  void SetTableRange(double r[2]); 
+  virtual void SetTableRange(double min, double max);
+  vtkGetVectorMacro(TableRange,double,2);
 
   // Description:
   // Set the range in hue (using automatic generation). Hue ranges 
@@ -182,9 +182,9 @@ public:
   // Description:
   // Sets/Gets the range of scalars which will be mapped.  This is a duplicate
   // of Get/SetTableRange.
-  float *GetRange() { return this->GetTableRange(); };
-  void SetRange(float min, float max) { this->SetTableRange(min, max); };
-  void SetRange(float rng[2]) { this->SetRange(rng[0], rng[1]); };
+  double *GetRange() { return this->GetTableRange(); };
+  void SetRange(double min, double max) { this->SetTableRange(min, max); };
+  void SetRange(double rng[2]) { this->SetRange(rng[0], rng[1]); };
 
   // Description:
   // Set the number of colors in the lookup table.  Use
@@ -210,7 +210,7 @@ protected:
 
   vtkIdType NumberOfColors;
   vtkUnsignedCharArray *Table;
-  float TableRange[2];
+  double TableRange[2];
   float HueRange[2];
   float SaturationRange[2];
   float ValueRange[2];

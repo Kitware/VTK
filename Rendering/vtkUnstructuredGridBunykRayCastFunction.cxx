@@ -34,7 +34,7 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkVolumeProperty.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.6");
+vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.7");
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastFunction);
 
 #define VTK_BUNYKRCF_NUMLISTS 100000
@@ -884,7 +884,7 @@ void vtkUnstructuredGridBunykRayCastFunction::UpdateColorTable()
   float tmpArray[3*65536];
   
   // Find the scalar range
-  float *scalarRange = new float [2*components];
+  double *scalarRange = new double [2*components];
   for ( c = 0; c < components; c++ )
     {
     input->GetPointData()->GetScalars()->GetRange((scalarRange+2*c), c);

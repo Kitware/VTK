@@ -284,7 +284,9 @@ int TestLineWidget( int argc, char *argv[] )
 
   vtkPolyDataMapper *streamMapper = vtkPolyDataMapper::New();
   streamMapper->SetInput(rf->GetOutput());
-  streamMapper->SetScalarRange(pl3d->GetOutput()->GetScalarRange());
+  double tmp[2];
+  pl3d->GetOutput()->GetScalarRange(tmp);
+  streamMapper->SetScalarRange(tmp[0], tmp[1]);
 
   vtkActor *streamline =vtkActor::New();
   streamline->SetMapper(streamMapper);

@@ -106,8 +106,8 @@
 #define VTK_UNSIGNED_LONG_MAX  4294967295UL
 #define VTK_FLOAT_MIN         -VTK_LARGE_FLOAT
 #define VTK_FLOAT_MAX          VTK_LARGE_FLOAT
-#define VTK_DOUBLE_MIN        -1.0e+99L
-#define VTK_DOUBLE_MAX         1.0e+99L
+#define VTK_DOUBLE_MIN        -1.0e+299L
+#define VTK_DOUBLE_MAX         1.0e+299L
 
 // These types are returned to distinguish data object types
 #define VTK_POLY_DATA                       0

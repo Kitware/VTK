@@ -264,7 +264,7 @@ int TestSplineWidget( int argc, char *argv[] )
   spline->AddObserver(vtkCommand::InteractionEvent,swcb);
 
   vtkImageData* data = v16->GetOutput();
-  float* range = data->GetPointData()->GetScalars()->GetRange();
+  double* range = data->GetPointData()->GetScalars()->GetRange();
 
   vtkXYPlotActor* profile = vtkXYPlotActor::New();
     profile->AddInput(probe->GetOutput());

@@ -260,13 +260,13 @@ public:
   // Note: Update needs to be called to create the scalars.
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
-  virtual void GetScalarRange(float range[2]);
+  virtual void GetScalarRange(double range[2]);
 
   // Description:
   // Convenience method to get the range of the scalar data (if there is any 
   // scalar data). 
   // THIS METHOD IS NOT THREAD SAFE.
-  float *GetScalarRange();
+  double *GetScalarRange();
   
   // Description:
   // Convenience method returns largest cell size in dataset. This is generally
@@ -320,7 +320,7 @@ protected:
   vtkPointData *PointData;   // Scalars, vectors, etc. associated w/ each point
   vtkTimeStamp ComputeTime; // Time at which bounds, center, etc. computed
   float Bounds[6];  // (xmin,xmax, ymin,ymax, zmin,zmax) geometric bounds
-  float ScalarRange[2];
+  double ScalarRange[2];
   float Center[3];
 
 private:

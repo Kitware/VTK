@@ -39,7 +39,7 @@
 
 #define VTK_MAX_PLOTS 50
 
-vtkCxxRevisionMacro(vtkXYPlotActor, "1.48");
+vtkCxxRevisionMacro(vtkXYPlotActor, "1.49");
 vtkStandardNewMacro(vtkXYPlotActor);
 
 vtkCxxSetObjectMacro(vtkXYPlotActor,TitleTextProperty,vtkTextProperty);
@@ -1067,7 +1067,7 @@ void vtkXYPlotActor::ComputeYRange(float range[2])
 {
   vtkDataSet *ds;
   vtkDataArray *scalars;
-  float sRange[2];
+  double sRange[2];
   int count;
   int component;
 

@@ -24,7 +24,7 @@ vtkCoordinate           GetComputedLocalDisplayValue 304 2
 vtkCoordinate           GetComputedViewportValue 304 2
 vtkCoordinate           GetComputedWorldValue   301 3
 vtkCubeAxesActor2D      GetBounds               301 6
-vtkDataArray		GetRange		301 2
+vtkDataArray		GetRange		307 2
 vtkDataArray		GetTuple2		301 2
 vtkDataArray		GetTuple3		301 3
 vtkDataArray		GetTuple4		301 4
@@ -32,7 +32,7 @@ vtkDataArray		GetTuple9		301 9
 vtkDataSet              GetBounds               301 6
 vtkDataSet              GetCenter               301 3
 vtkDataSet              GetPoint                301 3
-vtkDataSet              GetScalarRange          301 2
+vtkDataSet              GetScalarRange          307 2
 vtkDICOMImageReader     GetPixelSpacing         301 3
 vtkExtractUnstructuredGrid GetExtent            301 6
 vtkExtentSplitter       GetSubExtent            304 6
@@ -143,13 +143,12 @@ vtkRayCaster            GetParallelStartPosition 301 3
 vtkRectilinearGrid      GetPoint                301 3
 vtkRecursiveSphereDirectionEncoder GetDecodedGradient 301 3
 vtkRenderer		ComputeVisiblePropBounds    301 6
-vtkScalars              GetRange                301 2
 vtkScalarsToColors      GetColor                301 3
 vtkSplineWidget         GetHandlePosition       301 3
 vtkStreamer             GetStartPosition        301 3
 vtkStructuredGrid       GetDimensions           304 3
 vtkStructuredGrid       GetPoint                301 3
-vtkStructuredGrid       GetScalarRange          301 2
+vtkStructuredGrid       GetScalarRange          307 2
 vtkStructuredPointsGeometryFilter GetExtent     304 6
 vtkSynchronizedTemplates3D GetExecuteExtent     304 6
 vtkTCoords              GetTCoord               301 3

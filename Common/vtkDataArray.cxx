@@ -30,7 +30,7 @@
 #include "vtkIdList.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkDataArray, "1.59");
+vtkCxxRevisionMacro(vtkDataArray, "1.60");
 
 // Construct object with default tuple dimension (number of components) of 1.
 vtkDataArray::vtkDataArray(vtkIdType numComp)
@@ -877,7 +877,7 @@ float vtkDataArray::GetMaxNorm()
 
 void vtkDataArray::ComputeRange(int comp)
 {
-  float s,t;
+  double s,t;
   vtkIdType numTuples;
 
   if (comp < 0 && this->NumberOfComponents == 1)
@@ -891,8 +891,8 @@ void vtkDataArray::ComputeRange(int comp)
   if ( (this->GetMTime() > this->ComponentRangeComputeTime[idx]) )
     {
     numTuples=this->GetNumberOfTuples();
-    this->Range[0] =  VTK_LARGE_FLOAT;
-    this->Range[1] =  -VTK_LARGE_FLOAT;
+    this->Range[0] =  VTK_DOUBLE_MAX;
+    this->Range[1] =  VTK_DOUBLE_MIN;
 
     for (vtkIdType i=0; i<numTuples; i++)
       {
