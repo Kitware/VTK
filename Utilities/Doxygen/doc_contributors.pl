@@ -1,12 +1,12 @@
 #!/usr/bin/env perl
-# Time-stamp: <2002-02-04 18:53:02 barre>
+# Time-stamp: <2002-02-04 19:10:01 barre>
 #
 # Get author and contributors.
 #
 # barre : Sebastien Barre <sebastien@barre.nom.fr>
 #
 # 0.3 (barre) :
-#   - add history features + gnuplot fig
+#   - add history feature + gnuplot fig
 
 # 0.2 (barre) :
 #   - now handles most files
@@ -42,7 +42,7 @@ my %default =
 #   files_out => 'bazounga',
 #   files_in => '\.(?:cxx|h|mm)$',
    gnuplot_file => '../../../VTK-doxygen/contrib/history.plt',
-   history_img => '../../../VTK-doxygen/contrib/history.gif',
+   history_img => '../../../VTK-doxygen/contrib/history.png',
    history_dir => '../../../VTK-doxygen/contrib',
    history_max_nb => 10,
    lines_add => 1.0,
@@ -908,7 +908,7 @@ set size 1.2,1.4
 
 set mytics 5
 
-set terminal gif interlace small
+set terminal png color small
 
 EOT
 
