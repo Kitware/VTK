@@ -63,13 +63,13 @@ void main( int argc, char *argv[] )
   ren2->SetBackground(0.1,0.2,0.4);
   ren2->SetViewport(0.5,0,1.0,1.0);
   renWin->SetSize(300,150);
-  renWin->SetPosition(0, 500);
+  renWin->SetPosition(0, 400);
 
   ren3->AddActor(sphereActor3);
   ren3->AddActor(spikeActor3);
   ren3->SetBackground(0.1,0.4,0.2);
   renWin2->SetSize(300,300);
-  renWin2->SetPosition(0, 100);
+  renWin2->SetPosition(0, 50);
 
   // allow keyboard manipulation of object
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
