@@ -15,7 +15,7 @@
 #include "vtkVoidArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkVoidArray, "1.43");
+vtkCxxRevisionMacro(vtkVoidArray, "1.44");
 vtkStandardNewMacro(vtkVoidArray);
 
 typedef void *voidPtr;
@@ -35,7 +35,7 @@ vtkVoidArray::~vtkVoidArray()
 }
 
 // Allocate memory for this array. Delete old storage only if necessary.
-int vtkVoidArray::Allocate(const vtkIdType sz, const vtkIdType vtkNotUsed(ext))
+int vtkVoidArray::Allocate(vtkIdType sz, vtkIdType vtkNotUsed(ext))
 {
   if ( sz > this->Size || this->Array != NULL )
     {
@@ -86,8 +86,8 @@ void vtkVoidArray::DeepCopy(vtkVoidArray *va)
     }
 }
 
-void** vtkVoidArray::WritePointer(const vtkIdType id,
-                                  const vtkIdType number) 
+void** vtkVoidArray::WritePointer(vtkIdType id,
+                                  vtkIdType number) 
 {
   vtkIdType newSize=id+number;
   if ( newSize > this->Size )
@@ -101,7 +101,7 @@ void** vtkVoidArray::WritePointer(const vtkIdType id,
   return this->Array + id;
 }
 
-void vtkVoidArray::InsertVoidPointer(const vtkIdType id, void* p)
+void vtkVoidArray::InsertVoidPointer(vtkIdType id, void* p)
 {
   if ( id >= this->Size )
     {
@@ -122,7 +122,7 @@ vtkIdType vtkVoidArray::InsertNextVoidPointer(void* p)
 
 // Protected function does "reallocate"
 //
-void** vtkVoidArray::ResizeAndExtend(const vtkIdType sz)
+void** vtkVoidArray::ResizeAndExtend(vtkIdType sz)
 {
   void** newArray;
   vtkIdType newSize;

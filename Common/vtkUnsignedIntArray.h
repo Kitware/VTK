@@ -46,43 +46,43 @@ public:
 
   // Description:
   // Get the data at a particular index.
-  unsigned int GetValue(const vtkIdType id)
+  unsigned int GetValue(vtkIdType id)
     { return this->RealSuperclass::GetValue(id); }
 
   // Description:
   // Set the data at a particular index. Does not do range checking. Make sure
   // you use the method SetNumberOfValues() before inserting data.
-  void SetValue(const vtkIdType id, const unsigned int value)
+  void SetValue(vtkIdType id, unsigned int value)
     { this->RealSuperclass::SetValue(id, value); }
 
   // Description:
   // Specify the number of values for this object to hold. Does an
   // allocation as well as setting the MaxId ivar. Used in conjunction with
   // SetValue() method for fast insertion.
-  void SetNumberOfValues(const vtkIdType number)
+  void SetNumberOfValues(vtkIdType number)
     { this->RealSuperclass::SetNumberOfValues(number); }
 
   // Description:
   // Insert data at a specified position in the array.
-  void InsertValue(const vtkIdType id, const unsigned int f)
+  void InsertValue(vtkIdType id, unsigned int f)
     { this->RealSuperclass::InsertValue(id, f); }
 
   // Description:
   // Insert data at the end of the array. Return its location in the array.
-  vtkIdType InsertNextValue(const unsigned int f)
+  vtkIdType InsertNextValue(unsigned int f)
     { return this->RealSuperclass::InsertNextValue(f); }
 
   // Description:
   // Get the address of a particular data index. Make sure data is allocated
   // for the number of items requested. Set MaxId according to the number of
   // data values requested.
-  unsigned int* WritePointer(const vtkIdType id, const vtkIdType number)
+  unsigned int* WritePointer(vtkIdType id, vtkIdType number)
     { return this->RealSuperclass::WritePointer(id, number); }
 
   // Description:
   // Get the address of a particular data index. Performs no checks
   // to verify that the memory has been allocated etc.
-  unsigned int* GetPointer(const vtkIdType id)
+  unsigned int* GetPointer(vtkIdType id)
     { return this->RealSuperclass::GetPointer(id); }
 
   // Description:

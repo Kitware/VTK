@@ -57,7 +57,7 @@ public:
   // Description:
   // Allocate memory for this array. Delete old storage only if necessary.
   // Note that ext is no longer used.
-  virtual int Allocate(const vtkIdType sz, const vtkIdType ext=1000) = 0;
+  virtual int Allocate(vtkIdType sz, vtkIdType ext=1000) = 0;
   virtual void Initialize() = 0;
 
 #ifndef VTK_REMOVE_LEGACY_CODE
@@ -84,7 +84,7 @@ public:
   // Description:
   // Set the number of tuples (a component group) in the array. Note that 
   // this may allocate space depending on the number of components.
-  virtual void SetNumberOfTuples(const vtkIdType number) = 0;
+  virtual void SetNumberOfTuples(vtkIdType number) = 0;
 
   // Description:
   // Get the number of tuples (a component group) in the array.
@@ -95,24 +95,24 @@ public:
   // Get the data tuple at ith location. Return it as a pointer to an array.
   // Note: this method is not thread-safe, and the pointer is only valid
   // as long as another method invocation to a vtk object is not performed.
-  virtual float *GetTuple(const vtkIdType i) = 0;
+  virtual float *GetTuple(vtkIdType i) = 0;
 
   // Description:
   // Get the data tuple at ith location by filling in a user-provided array,
   // Make sure that your array is large enough to hold the NumberOfComponents
   // amount of data being returned.
-  virtual void GetTuple(const vtkIdType i, float * tuple) = 0;
-  virtual void GetTuple(const vtkIdType i, double * tuple);
+  virtual void GetTuple(vtkIdType i, float * tuple) = 0;
+  virtual void GetTuple(vtkIdType i, double * tuple);
 
   // Description:
   // These methods are included as convenience for the wrappers.
   // GetTuple() and SetTuple() which return/take arrays can not be 
   // used from wrapped languages. These methods can be used instead.
-  float GetTuple1(const vtkIdType i);
-  float* GetTuple2(const vtkIdType i);
-  float* GetTuple3(const vtkIdType i);
-  float* GetTuple4(const vtkIdType i);
-  float* GetTuple9(const vtkIdType i);
+  float GetTuple1(vtkIdType i);
+  float* GetTuple2(vtkIdType i);
+  float* GetTuple3(vtkIdType i);
+  float* GetTuple4(vtkIdType i);
+  float* GetTuple9(vtkIdType i);
 
   // Description:
   // Given a list of point ids, return an array of tuples.
@@ -130,38 +130,38 @@ public:
   // Set the data tuple at ith location. Note that range checking or
   // memory allocation is not performed; use this method in conjunction
   // with SetNumberOfTuples() to allocate space.
-  virtual void SetTuple(const vtkIdType i, const float * tuple) = 0;
-  virtual void SetTuple(const vtkIdType i, const double * tuple);
+  virtual void SetTuple(vtkIdType i, const float * tuple) = 0;
+  virtual void SetTuple(vtkIdType i, const double * tuple);
 
   // Description:
   // These methods are included as convenience for the wrappers.
   // GetTuple() and SetTuple() which return/take arrays can not be 
   // used from wrapped languages. These methods can be used instead.
-  void SetTuple1(const vtkIdType i, float value);
-  void SetTuple2(const vtkIdType i, float val0, float val1);
-  void SetTuple3(const vtkIdType i, float val0, float val1, float val2);
-  void SetTuple4(const vtkIdType i, float val0, float val1, float val2,
+  void SetTuple1(vtkIdType i, float value);
+  void SetTuple2(vtkIdType i, float val0, float val1);
+  void SetTuple3(vtkIdType i, float val0, float val1, float val2);
+  void SetTuple4(vtkIdType i, float val0, float val1, float val2,
                  float val3);
-  void SetTuple9(const vtkIdType i, float val0, float val1, float val2,
+  void SetTuple9(vtkIdType i, float val0, float val1, float val2,
                  float val3, float val4, float val5, float val6,
                  float val7, float val8);
 
   // Description:
   // Insert the data tuple at ith location. Note that memory allocation
   // is performed as necessary to hold the data.
-  virtual void InsertTuple(const vtkIdType i, const float * tuple) = 0;
-  virtual void InsertTuple(const vtkIdType i, const double * tuple);
+  virtual void InsertTuple(vtkIdType i, const float * tuple) = 0;
+  virtual void InsertTuple(vtkIdType i, const double * tuple);
 
   // Description:
   // These methods are included as convenience for the wrappers.
   // InsertTuple() which takes arrays can not be 
   // used from wrapped languages. These methods can be used instead.
-  void InsertTuple1(const vtkIdType i, float value);
-  void InsertTuple2(const vtkIdType i, float val0, float val1);
-  void InsertTuple3(const vtkIdType i, float val0, float val1, float val2);
-  void InsertTuple4(const vtkIdType i, float val0, float val1, float val2,
+  void InsertTuple1(vtkIdType i, float value);
+  void InsertTuple2(vtkIdType i, float val0, float val1);
+  void InsertTuple3(vtkIdType i, float val0, float val1, float val2);
+  void InsertTuple4(vtkIdType i, float val0, float val1, float val2,
                     float val3);
-  void InsertTuple9(const vtkIdType i, float val0, float val1, float val2,
+  void InsertTuple9(vtkIdType i, float val0, float val1, float val2,
                     float val3, float val4, float val5, float val6,
                     float val7, float val8);
 
@@ -189,19 +189,19 @@ public:
   // Return the data component at the ith tuple and jth component location.
   // Note that i is less than NumberOfTuples and j is less than 
   // NumberOfComponents.
-  virtual float GetComponent(const vtkIdType i, const int j);
+  virtual float GetComponent(vtkIdType i, int j);
 
   // Description:
   // Set the data component at the ith tuple and jth component location.
   // Note that i is less than NumberOfTuples and j is less than
   //  NumberOfComponents. Make sure enough memory has been allocated 
   // (use SetNumberOfTuples() and SetNumberOfComponents()).
-  virtual void SetComponent(const vtkIdType i, const int j, float c);
+  virtual void SetComponent(vtkIdType i, int j, float c);
 
   // Description:
   // Insert the data component at ith tuple and jth component location. 
   // Note that memory allocation is performed as necessary to hold the data.
-  virtual void InsertComponent(const vtkIdType i, const int j, float c);
+  virtual void InsertComponent(vtkIdType i, int j, float c);
 
   // Description:
   // Get the data as a float array in the range (tupleMin,tupleMax) and
@@ -223,7 +223,7 @@ public:
   // sets the specified component to specified value for all tuples in the
   // data array.  This methods can be used to initialize or reinitialize a
   // single component of a multi-component array.
-  virtual void FillComponent(const int j, const float c);
+  virtual void FillComponent(int j, float c);
 
   // Description:
   // Copy a component from one data array into a component on this data array.
@@ -232,13 +232,13 @@ public:
   // the tuples in this data array.  This method can be used to extract
   // a component (column) from one data array and paste that data into
   // a component on this data array.
-  virtual void CopyComponent(const int j, vtkDataArray *from,
-                             const int fromComponent);
+  virtual void CopyComponent(int j, vtkDataArray *from,
+                             int fromComponent);
 
   // Description:
   // Return a void pointer. For image pipeline interface and other 
   // special pointer manipulation.
-  virtual void *GetVoidPointer(const vtkIdType id) = 0;
+  virtual void *GetVoidPointer(vtkIdType id) = 0;
 
   // Description:
   // Free any unnecessary memory.
@@ -370,7 +370,7 @@ private:
   vtkTimeStamp ComponentRangeComputeTime[5];
   float ComponentRange[5][2];
   
-  float* GetTupleN(const vtkIdType i, int n);
+  float* GetTupleN(vtkIdType i, int n);
   
 private:
   vtkDataArray(const vtkDataArray&);  // Not implemented.

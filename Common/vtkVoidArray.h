@@ -36,7 +36,7 @@ public:
   // Description:
   // Allocate memory for this array. Delete old storage only if necessary.
   // Note that the parameter ext is no longer used.
-  int Allocate(const vtkIdType sz, const vtkIdType ext=1000);
+  int Allocate(vtkIdType sz, vtkIdType ext=1000);
 
   // Description:
   // Release storage and reset array to initial state.
@@ -52,7 +52,7 @@ public:
   
   // Description:
   // Set the number of void* pointers held in the array.
-  void SetNumberOfPointers(const vtkIdType number)
+  void SetNumberOfPointers(vtkIdType number)
     {this->Allocate(number); this->NumberOfPointers = number;}
 
   // Description:
@@ -62,18 +62,18 @@ public:
 
   // Description:
   // Get the void* pointer at the ith location.
-  void* GetVoidPointer(const vtkIdType id)
+  void* GetVoidPointer(vtkIdType id)
     {return this->Array[id];}
 
   // Description:
   // Set the void* pointer value at the ith location in the array.
-  void SetVoidPointer(const vtkIdType id, void* ptr)
+  void SetVoidPointer(vtkIdType id, void* ptr)
     {this->Array[id] = ptr;}
 
   // Description:
   // Insert (memory allocation performed) the void* into the ith location
   // in the array.
-  void InsertVoidPointer(const vtkIdType i, void* ptr);
+  void InsertVoidPointer(vtkIdType i, void* ptr);
 
   // Description:
   // Insert (memory allocation performed) the void* pointer at the 
@@ -94,13 +94,13 @@ public:
   // Description:
   // Get the address of a particular data index. Performs no checks
   // to verify that the memory has been allocated etc.
-  void** GetPointer(const vtkIdType id) {return this->Array + id;}
+  void** GetPointer(vtkIdType id) {return this->Array + id;}
 
   // Description:
   // Get the address of a particular data index. Make sure data is allocated
   // for the number of items requested. Set NumberOfPointers according to 
   // the number of data values requested.
-  void** WritePointer(const vtkIdType id, const vtkIdType number);
+  void** WritePointer(vtkIdType id, vtkIdType number);
   
   // Description:
   // Deep copy of another void array.
@@ -114,7 +114,7 @@ protected:
   vtkIdType Size; 
   void**    Array;  // pointer to data
 
-  void** ResizeAndExtend(const vtkIdType sz);  // function to resize data
+  void** ResizeAndExtend(vtkIdType sz);  // function to resize data
 
 private:
   vtkVoidArray(const vtkVoidArray&);  // Not implemented.

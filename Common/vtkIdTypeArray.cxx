@@ -15,7 +15,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkIdTypeArray, "1.7");
+vtkCxxRevisionMacro(vtkIdTypeArray, "1.8");
 vtkStandardNewMacro(vtkIdTypeArray);
 
 // Instantiate object.
@@ -64,8 +64,8 @@ void vtkIdTypeArray::SetArray(vtkIdType* array, vtkIdType size, int save)
 }
 
 // Allocate memory for this array. Delete old storage only if necessary.
-int vtkIdTypeArray::Allocate(const vtkIdType sz,
-                             const vtkIdType vtkNotUsed(ext))
+int vtkIdTypeArray::Allocate(vtkIdType sz,
+                             vtkIdType vtkNotUsed(ext))
 {
   if ( sz > this->Size )
     {
@@ -149,7 +149,7 @@ void vtkIdTypeArray::PrintSelf(ostream& os, vtkIndent indent)
 //
 // Protected function does "reallocate"
 //
-vtkIdType *vtkIdTypeArray::ResizeAndExtend(const vtkIdType sz)
+vtkIdType *vtkIdTypeArray::ResizeAndExtend(vtkIdType sz)
 {
   vtkIdType *newArray;
   vtkIdType newSize;
@@ -244,14 +244,14 @@ void vtkIdTypeArray::Resize(vtkIdType sz)
 }
 
 // Set the number of n-tuples in the array.
-void vtkIdTypeArray::SetNumberOfTuples(const vtkIdType number)
+void vtkIdTypeArray::SetNumberOfTuples(vtkIdType number)
 {
   this->SetNumberOfValues(number*this->NumberOfComponents);
 }
 
 // Get a pointer to a tuple at the ith location. This is a dangerous method
 // (it is not thread safe since a pointer is returned).
-float *vtkIdTypeArray::GetTuple(const vtkIdType i) 
+float *vtkIdTypeArray::GetTuple(vtkIdType i) 
 {
   if ( this->TupleSize < this->NumberOfComponents )
     {
@@ -269,7 +269,7 @@ float *vtkIdTypeArray::GetTuple(const vtkIdType i)
 }
 
 // Copy the tuple value into a user-provided array.
-void vtkIdTypeArray::GetTuple(const vtkIdType i, float * tuple) 
+void vtkIdTypeArray::GetTuple(vtkIdType i, float * tuple) 
 {
   vtkIdType *t = this->Array + this->NumberOfComponents*i;
   for (int j=0; j<this->NumberOfComponents; j++)
@@ -278,7 +278,7 @@ void vtkIdTypeArray::GetTuple(const vtkIdType i, float * tuple)
     }
 }
 
-void vtkIdTypeArray::GetTuple(const vtkIdType i, double * tuple) 
+void vtkIdTypeArray::GetTuple(vtkIdType i, double * tuple) 
 {
   vtkIdType *t = this->Array + this->NumberOfComponents*i;
   for (int j=0; j<this->NumberOfComponents; j++)
@@ -288,7 +288,7 @@ void vtkIdTypeArray::GetTuple(const vtkIdType i, double * tuple)
 }
 
 // Set the tuple value at the ith location in the array.
-void vtkIdTypeArray::SetTuple(const vtkIdType i, const float * tuple)
+void vtkIdTypeArray::SetTuple(vtkIdType i, const float * tuple)
 {
   vtkIdType loc = i * this->NumberOfComponents; 
   for (int j=0; j<this->NumberOfComponents; j++)
@@ -297,7 +297,7 @@ void vtkIdTypeArray::SetTuple(const vtkIdType i, const float * tuple)
     }
 }
 
-void vtkIdTypeArray::SetTuple(const vtkIdType i, const double * tuple)
+void vtkIdTypeArray::SetTuple(vtkIdType i, const double * tuple)
 {
   vtkIdType loc = i * this->NumberOfComponents; 
   for (int j=0; j<this->NumberOfComponents; j++)
@@ -308,7 +308,7 @@ void vtkIdTypeArray::SetTuple(const vtkIdType i, const double * tuple)
 
 // Insert (memory allocation performed) the tuple into the ith location
 // in the array.
-void vtkIdTypeArray::InsertTuple(const vtkIdType i, const float * tuple)
+void vtkIdTypeArray::InsertTuple(vtkIdType i, const float * tuple)
 {
   vtkIdType *t = this->WritePointer(i*this->NumberOfComponents,
                                     this->NumberOfComponents);
@@ -319,7 +319,7 @@ void vtkIdTypeArray::InsertTuple(const vtkIdType i, const float * tuple)
     }
 }
 
-void vtkIdTypeArray::InsertTuple(const vtkIdType i, const double * tuple)
+void vtkIdTypeArray::InsertTuple(vtkIdType i, const double * tuple)
 {
   vtkIdType *t = this->WritePointer(i*this->NumberOfComponents,
                                     this->NumberOfComponents);

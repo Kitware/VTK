@@ -79,7 +79,7 @@ void vtkDataArrayTemplate<T>::SetArray(T* array, vtkIdType size, int save)
 //----------------------------------------------------------------------------
 // Allocate memory for this array. Delete old storage only if necessary.
 template <class T>
-int vtkDataArrayTemplate<T>::Allocate(const vtkIdType sz, const vtkIdType)
+int vtkDataArrayTemplate<T>::Allocate(vtkIdType sz, vtkIdType)
 {
   if(sz > this->Size)
     {
@@ -175,7 +175,7 @@ void vtkDataArrayTemplate<T>::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 // Protected function does "reallocate"
 template <class T>
-T* vtkDataArrayTemplate<T>::ResizeAndExtend(const vtkIdType sz)
+T* vtkDataArrayTemplate<T>::ResizeAndExtend(vtkIdType sz)
 {
   T* newArray;
   vtkIdType newSize;
@@ -235,7 +235,7 @@ T* vtkDataArrayTemplate<T>::ResizeAndExtend(const vtkIdType sz)
 
 //----------------------------------------------------------------------------
 template <class T>
-void vtkDataArrayTemplate<T>::Resize(const vtkIdType sz)
+void vtkDataArrayTemplate<T>::Resize(vtkIdType sz)
 {
   T* newArray;
   vtkIdType newSize = sz*NumberOfComponents;
@@ -280,7 +280,7 @@ void vtkDataArrayTemplate<T>::Resize(const vtkIdType sz)
 //----------------------------------------------------------------------------
 // Set the number of n-tuples in the array.
 template <class T>
-void vtkDataArrayTemplate<T>::SetNumberOfTuples(const vtkIdType number)
+void vtkDataArrayTemplate<T>::SetNumberOfTuples(vtkIdType number)
 {
   this->SetNumberOfValues(number*this->NumberOfComponents);
 }
@@ -289,7 +289,7 @@ void vtkDataArrayTemplate<T>::SetNumberOfTuples(const vtkIdType number)
 // Get a pointer to a tuple at the ith location. This is a dangerous method
 // (it is not thread safe since a pointer is returned).
 template <class T>
-float* vtkDataArrayTemplate<T>::GetTuple(const vtkIdType i)
+float* vtkDataArrayTemplate<T>::GetTuple(vtkIdType i)
 {
 #if 1
   if(this->TupleSize < this->NumberOfComponents)
@@ -323,7 +323,7 @@ float* vtkDataArrayTemplate<T>::GetTuple(const vtkIdType i)
 //----------------------------------------------------------------------------
 // Copy the tuple value into a user-provided array.
 template <class T>
-void vtkDataArrayTemplate<T>::GetTuple(const vtkIdType i, float* tuple)
+void vtkDataArrayTemplate<T>::GetTuple(vtkIdType i, float* tuple)
 {
   T* t = this->Array + this->NumberOfComponents*i;
   for(int j=0; j < this->NumberOfComponents; ++j)
@@ -333,7 +333,7 @@ void vtkDataArrayTemplate<T>::GetTuple(const vtkIdType i, float* tuple)
 }
 
 template <class T>
-void vtkDataArrayTemplate<T>::GetTuple(const vtkIdType i, double* tuple)
+void vtkDataArrayTemplate<T>::GetTuple(vtkIdType i, double* tuple)
 {
   T* t = this->Array + this->NumberOfComponents*i;
   for(int j=0; j < this->NumberOfComponents; ++j)
@@ -345,7 +345,7 @@ void vtkDataArrayTemplate<T>::GetTuple(const vtkIdType i, double* tuple)
 //----------------------------------------------------------------------------
 // Set the tuple value at the ith location in the array.
 template <class T>
-void vtkDataArrayTemplate<T>::SetTuple(const vtkIdType i, const float* tuple)
+void vtkDataArrayTemplate<T>::SetTuple(vtkIdType i, const float* tuple)
 {
   vtkIdType loc = i * this->NumberOfComponents;
   for(int j=0; j < this->NumberOfComponents; ++j)
@@ -355,7 +355,7 @@ void vtkDataArrayTemplate<T>::SetTuple(const vtkIdType i, const float* tuple)
 }
 
 template <class T>
-void vtkDataArrayTemplate<T>::SetTuple(const vtkIdType i, const double* tuple)
+void vtkDataArrayTemplate<T>::SetTuple(vtkIdType i, const double* tuple)
 {
   vtkIdType loc = i * this->NumberOfComponents;
   for(int j=0; j < this->NumberOfComponents; ++j)
@@ -368,8 +368,7 @@ void vtkDataArrayTemplate<T>::SetTuple(const vtkIdType i, const double* tuple)
 // Insert (memory allocation performed) the tuple into the ith location
 // in the array.
 template <class T>
-void vtkDataArrayTemplate<T>::InsertTuple(const vtkIdType i,
-                                          const float* tuple)
+void vtkDataArrayTemplate<T>::InsertTuple(vtkIdType i, const float* tuple)
 {
   T* t = this->WritePointer(i*this->NumberOfComponents,
                             this->NumberOfComponents);
@@ -381,8 +380,7 @@ void vtkDataArrayTemplate<T>::InsertTuple(const vtkIdType i,
 }
 
 template <class T>
-void vtkDataArrayTemplate<T>::InsertTuple(const vtkIdType i,
-                                          const double* tuple)
+void vtkDataArrayTemplate<T>::InsertTuple(vtkIdType i, const double* tuple)
 {
   T* t = this->WritePointer(i*this->NumberOfComponents,
                             this->NumberOfComponents);

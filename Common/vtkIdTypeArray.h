@@ -34,7 +34,7 @@ public:
   // Description:
   // Allocate memory for this array. Delete old storage only if necessary.
   // Note that ext is no longer used.
-  int Allocate(const vtkIdType sz, const vtkIdType ext=1000);
+  int Allocate(vtkIdType sz, vtkIdType ext=1000);
   
   // Description:
   // Release storage and reset array to initial state.
@@ -60,28 +60,28 @@ public:
 
   // Description:
   // Set the number of n-tuples in the array.
-  void SetNumberOfTuples(const vtkIdType number);
+  void SetNumberOfTuples(vtkIdType number);
 
   // Description:
   // Get a pointer to a tuple at the ith location. This is a dangerous method
   // (it is not thread safe since a pointer is returned).
-  float *GetTuple(const vtkIdType i);
+  float *GetTuple(vtkIdType i);
   
   // Description:
   // Copy the tuple value into a user-provided array.
-  void GetTuple(const vtkIdType i, float * tuple);
-  void GetTuple(const vtkIdType i, double * tuple);
+  void GetTuple(vtkIdType i, float * tuple);
+  void GetTuple(vtkIdType i, double * tuple);
 
   // Description:
   // Set the tuple value at the ith location in the array.
-  void SetTuple(const vtkIdType i, const float * tuple);
-  void SetTuple(const vtkIdType i, const double * tuple);
+  void SetTuple(vtkIdType i, const float * tuple);
+  void SetTuple(vtkIdType i, const double * tuple);
 
   // Description:
   // Insert (memory allocation performed) the tuple into the ith location
   // in the array.
-  void InsertTuple(const vtkIdType i, const float * tuple);
-  void InsertTuple(const vtkIdType i, const double * tuple);
+  void InsertTuple(vtkIdType i, const float * tuple);
+  void InsertTuple(vtkIdType i, const double * tuple);
 
   // Description:
   // Insert (memory allocation performed) the tuple onto the end of the array.
@@ -90,42 +90,42 @@ public:
 
   // Description:
   // Get the data at a particular index.
-  vtkIdType GetValue(const vtkIdType id) 
+  vtkIdType GetValue(vtkIdType id) 
     {return this->Array[id];}
 
   // Description:
   // Set the data at a particular index. Does not do range checking. Make sure
   // you use the method SetNumberOfValues() before inserting data.
-  void SetValue(const vtkIdType id, const vtkIdType value) 
+  void SetValue(vtkIdType id, vtkIdType value) 
     {this->Array[id] = value;}
 
   // Description:
   // Specify the number of values for this object to hold. Does an
   // allocation as well as setting the MaxId ivar. Used in conjunction with
   // SetValue() method for fast insertion.
-  void SetNumberOfValues(const vtkIdType number);
+  void SetNumberOfValues(vtkIdType number);
 
   // Description:
   // Insert data at a specified position in the array.
-  void InsertValue(const vtkIdType id, const vtkIdType i);
+  void InsertValue(vtkIdType id, vtkIdType i);
 
   // Description:
   // Insert data at the end of the array. Return its location in the array.
-  vtkIdType InsertNextValue(const vtkIdType i);
+  vtkIdType InsertNextValue(vtkIdType i);
 
   // Description:
   // Get the address of a particular data index. Performs no checks
   // to verify that the memory has been allocated etc.
-  vtkIdType *GetPointer(const vtkIdType id) 
+  vtkIdType *GetPointer(vtkIdType id) 
     {return this->Array + id;}
-  void *GetVoidPointer(const vtkIdType id) 
+  void *GetVoidPointer(vtkIdType id) 
     {return (void *)this->GetPointer(id);}
 
   // Description:
   // Get the address of a particular data index. Make sure data is allocated
   // for the number of items requested. Set MaxId according to the number of
   // data values requested.
-  vtkIdType *WritePointer(const vtkIdType id, const vtkIdType number);
+  vtkIdType *WritePointer(vtkIdType id, vtkIdType number);
 
   // Description:
   // Deep copy of another integer array.
@@ -147,7 +147,7 @@ protected:
   ~vtkIdTypeArray();
 
   vtkIdType *Array;   // pointer to data
-  vtkIdType *ResizeAndExtend(const vtkIdType sz);  // function to resize data
+  vtkIdType *ResizeAndExtend(vtkIdType sz);  // function to resize data
 
   int TupleSize; //used for data conversion
   float *Tuple;
@@ -159,14 +159,14 @@ private:
 };
 
 
-inline void vtkIdTypeArray::SetNumberOfValues(const vtkIdType number) 
+inline void vtkIdTypeArray::SetNumberOfValues(vtkIdType number) 
 {
   this->Allocate(number);
   this->MaxId = number - 1;
 }
 
-inline vtkIdType *vtkIdTypeArray::WritePointer(const vtkIdType id,
-                                               const vtkIdType number)
+inline vtkIdType *vtkIdTypeArray::WritePointer(vtkIdType id,
+                                               vtkIdType number)
 {
   vtkIdType newSize=id+number;
   if ( newSize > this->Size )
@@ -180,7 +180,7 @@ inline vtkIdType *vtkIdTypeArray::WritePointer(const vtkIdType id,
   return this->Array + id;
 }
 
-inline void vtkIdTypeArray::InsertValue(const vtkIdType id, const vtkIdType i)
+inline void vtkIdTypeArray::InsertValue(vtkIdType id, vtkIdType i)
 {
   if ( id >= this->Size )
     {
@@ -193,7 +193,7 @@ inline void vtkIdTypeArray::InsertValue(const vtkIdType id, const vtkIdType i)
     }
 }
 
-inline vtkIdType vtkIdTypeArray::InsertNextValue(const vtkIdType i)
+inline vtkIdType vtkIdTypeArray::InsertNextValue(vtkIdType i)
 {
   this->InsertValue (++this->MaxId,i); 
   return this->MaxId;

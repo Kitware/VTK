@@ -36,7 +36,7 @@ public:
   // Description:
   // Allocate memory for this array. Delete old storage only if necessary.
   // Note that ext is no longer used.
-  int Allocate(const vtkIdType sz, const vtkIdType ext=1000);
+  int Allocate(vtkIdType sz, vtkIdType ext=1000);
 
   // Description:
   // Release storage and reset array to initial state.
@@ -48,28 +48,28 @@ public:
 
   // Description:
   // Set the number of n-tuples in the array.
-  void SetNumberOfTuples(const vtkIdType number);
+  void SetNumberOfTuples(vtkIdType number);
 
   // Description:
   // Get a pointer to a tuple at the ith location. This is a dangerous method
   // (it is not thread safe since a pointer is returned).
-  float* GetTuple(const vtkIdType i);
+  float* GetTuple(vtkIdType i);
 
   // Description:
   // Copy the tuple value into a user-provided array.
-  void GetTuple(const vtkIdType i, float* tuple);
-  void GetTuple(const vtkIdType i, double* tuple);
+  void GetTuple(vtkIdType i, float* tuple);
+  void GetTuple(vtkIdType i, double* tuple);
 
   // Description:
   // Set the tuple value at the ith location in the array.
-  void SetTuple(const vtkIdType i, const float* tuple);
-  void SetTuple(const vtkIdType i, const double* tuple);
+  void SetTuple(vtkIdType i, const float* tuple);
+  void SetTuple(vtkIdType i, const double* tuple);
 
   // Description:
   // Insert (memory allocation performed) the tuple into the ith location
   // in the array.
-  void InsertTuple(const vtkIdType i, const float* tuple);
-  void InsertTuple(const vtkIdType i, const double* tuple);
+  void InsertTuple(vtkIdType i, const float* tuple);
+  void InsertTuple(vtkIdType i, const double* tuple);
 
   // Description:
   // Insert (memory allocation performed) the tuple onto the end of the array.
@@ -136,7 +136,7 @@ public:
   // Get the address of a particular data index. Performs no checks
   // to verify that the memory has been allocated etc.
   T* GetPointer(vtkIdType id) { return this->Array + id; }
-  void* GetVoidPointer(const vtkIdType id) { return this->GetPointer(id); }
+  void* GetVoidPointer(vtkIdType id) { return this->GetPointer(id); }
 
   // Description:
   // Deep copy of another double array.
