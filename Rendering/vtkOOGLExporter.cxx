@@ -25,7 +25,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkVersion.h"
 
-vtkCxxRevisionMacro(vtkOOGLExporter, "1.9");
+vtkCxxRevisionMacro(vtkOOGLExporter, "1.10");
 vtkStandardNewMacro(vtkOOGLExporter);
 
 vtkOOGLExporter::vtkOOGLExporter()
@@ -547,7 +547,11 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
           fprintf(fp, "%s%i ", indent, (int) npts);
           for (i = 0; i < npts; i++)
             {
+#ifdef VTK_USE_64BIT_IDS
+            fprintf(fp, "%lld ", indx[i]);
+#else  // VTK_USE_64BIT_IDS
             fprintf(fp, "%d ", indx[i]);
+#endif // VTK_USE_64BIT_IDS
             }
           fprintf(fp, "\n");
           }
