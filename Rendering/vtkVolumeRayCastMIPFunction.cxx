@@ -16,27 +16,14 @@
 
 =========================================================================*/
 #include "vtkVolumeRayCastMIPFunction.h"
+#include "vtkVolumeRayCastMapper.h"
 #include "vtkVolume.h"
 #include "vtkObjectFactory.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeRayCastMIPFunction, "1.27");
+vtkCxxRevisionMacro(vtkVolumeRayCastMIPFunction, "1.28");
 vtkStandardNewMacro(vtkVolumeRayCastMIPFunction);
-
-#define vtkRoundFuncMacro(x)   (int)((x)+0.5)
-
-// Macro for trilinear interpolation - do four linear interpolations on
-// edges, two linear interpolations between pairs of edges, then a final
-// interpolation between faces
-#define vtkTrilinFuncMacro(v,x,y,z,a,b,c,d,e,f,g,h)         \
-        t00 =   a + (x)*(b-a);      \
-        t01 =   c + (x)*(d-c);      \
-        t10 =   e + (x)*(f-e);      \
-        t11 =   g + (x)*(h-g);      \
-        t0  = t00 + (y)*(t01-t00);  \
-        t1  = t10 + (y)*(t11-t10);  \
-        v   =  t0 + (z)*(t1-t0);
 
 // This is the templated function that actually casts a ray and computes
 // the maximum value.  It is valid for unsigned char and unsigned short,
@@ -121,9 +108,9 @@ void vtkCastMaxScalarValueRay( T *data_ptr, VTKVRCDynamicInfo *dynamicInfo,
   // We are using trilinear interpolation
   else if ( staticInfo->InterpolationType == VTK_LINEAR_INTERPOLATION )
     {
-    voxel[0] = (int)( ray_position[0] );
-    voxel[1] = (int)( ray_position[1] );
-    voxel[2] = (int)( ray_position[2] );
+    voxel[0] = vtkFloorFuncMacro( ray_position[0] );
+    voxel[1] = vtkFloorFuncMacro( ray_position[1] );
+    voxel[2] = vtkFloorFuncMacro( ray_position[2] );
 
     // Compute the increments to get to the other 7 voxel vertices from A
     Binc = xinc;
@@ -160,9 +147,9 @@ void vtkCastMaxScalarValueRay( T *data_ptr, VTKVRCDynamicInfo *dynamicInfo,
     ray_position[0] += ray_increment[0];
     ray_position[1] += ray_increment[1];
     ray_position[2] += ray_increment[2];      
-    voxel[0] = (int)( ray_position[0] );
-    voxel[1] = (int)( ray_position[1] );
-    voxel[2] = (int)( ray_position[2] );
+    voxel[0] = vtkFloorFuncMacro( ray_position[0] );
+    voxel[1] = vtkFloorFuncMacro( ray_position[1] );
+    voxel[2] = vtkFloorFuncMacro( ray_position[2] );
 
     // For each step along the ray
     for ( loop = 1; loop < num_steps; loop++ )
@@ -203,9 +190,9 @@ void vtkCastMaxScalarValueRay( T *data_ptr, VTKVRCDynamicInfo *dynamicInfo,
       ray_position[0] += ray_increment[0];
       ray_position[1] += ray_increment[1];
       ray_position[2] += ray_increment[2];      
-      voxel[0] = (int)( ray_position[0] );
-      voxel[1] = (int)( ray_position[1] );
-      voxel[2] = (int)( ray_position[2] );
+      voxel[0] = vtkFloorFuncMacro( ray_position[0] );
+      voxel[1] = vtkFloorFuncMacro( ray_position[1] );
+      voxel[2] = vtkFloorFuncMacro( ray_position[2] );
       }
     max = (int)triMax;
     }
@@ -337,9 +324,9 @@ void vtkCastMaxOpacityRay( T *data_ptr, VTKVRCDynamicInfo *dynamicInfo,
   // We are using trilinear interpolation
   else if ( staticInfo->InterpolationType == VTK_LINEAR_INTERPOLATION )
     {
-    voxel[0] = (int)( ray_position[0] );
-    voxel[1] = (int)( ray_position[1] );
-    voxel[2] = (int)( ray_position[2] );
+    voxel[0] = vtkFloorFuncMacro( ray_position[0] );
+    voxel[1] = vtkFloorFuncMacro( ray_position[1] );
+    voxel[2] = vtkFloorFuncMacro( ray_position[2] );
 
     // Compute the increments to get to the other 7 voxel vertices from A
     Binc = xinc;
@@ -423,9 +410,9 @@ void vtkCastMaxOpacityRay( T *data_ptr, VTKVRCDynamicInfo *dynamicInfo,
       ray_position[0] += ray_increment[0];
       ray_position[1] += ray_increment[1];
       ray_position[2] += ray_increment[2];      
-      voxel[0] = (int)( ray_position[0] );
-      voxel[1] = (int)( ray_position[1] );
-      voxel[2] = (int)( ray_position[2] );
+      voxel[0] = vtkFloorFuncMacro( ray_position[0] );
+      voxel[1] = vtkFloorFuncMacro( ray_position[1] );
+      voxel[2] = vtkFloorFuncMacro( ray_position[2] );
       }
     }
 
