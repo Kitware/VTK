@@ -18,7 +18,7 @@
 #include "vtkGarbageCollector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkScalarTree, "1.30");
+vtkCxxRevisionMacro(vtkScalarTree, "1.30.2.1");
 vtkCxxSetObjectMacro(vtkScalarTree,DataSet,vtkDataSet);
 
 // Instantiate scalar tree with maximum level of 20 and branching
@@ -54,20 +54,16 @@ void vtkScalarTree::PrintSelf(ostream& os, vtkIndent indent)
 void vtkScalarTree::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
-#ifdef VTK_USE_EXECUTIVES
   collector->ReportReference(this->DataSet, "DataSet");
-#endif
 }
 
 //----------------------------------------------------------------------------
 void vtkScalarTree::RemoveReferences()
 {
-#ifdef VTK_USE_EXECUTIVES
   if(this->DataSet)
     {
     this->DataSet->Delete();
     this->DataSet = 0;
     }
-#endif
   this->Superclass::RemoveReferences();
 }

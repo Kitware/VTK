@@ -28,7 +28,7 @@
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationStringKey.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.2.2.3");
+vtkCxxRevisionMacro(vtkDataObject, "1.2.2.4");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -631,8 +631,12 @@ void vtkDataObject::InternalDataObjectCopy(vtkDataObject *src)
   vtkInformation* thisPInfo = this->GetPipelineInformation();
   if(thisPInfo && thatPInfo)
     {
-    thisPInfo->CopyEntry(thatPInfo, SDDP::WHOLE_EXTENT());
-    thisPInfo->CopyEntry(thatPInfo, SDDP::MAXIMUM_NUMBER_OF_PIECES());
+    // copy the pipeline info if it is available
+    if(thisPInfo)
+      {
+      thisPInfo->CopyEntry(thatPInfo, SDDP::WHOLE_EXTENT());
+      thisPInfo->CopyEntry(thatPInfo, SDDP::MAXIMUM_NUMBER_OF_PIECES());
+      }
     }
   this->ReleaseDataFlag = src->ReleaseDataFlag;
   // This also caused a pipeline problem.

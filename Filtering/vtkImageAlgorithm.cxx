@@ -20,25 +20,23 @@
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkMultiThreader.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAlgorithm, "1.1.2.3");
+vtkCxxRevisionMacro(vtkImageAlgorithm, "1.1.2.4");
 
 //----------------------------------------------------------------------------
 vtkImageAlgorithm::vtkImageAlgorithm()
 {
-  this->Threader = vtkMultiThreader::New();
-  this->NumberOfThreads = this->Threader->GetNumberOfThreads();
+  this->SetNumberOfInputPorts(1);
+  this->SetNumberOfOutputPorts(1);
   this->InputScalarsSelection = NULL;
 }
 
 //----------------------------------------------------------------------------
 vtkImageAlgorithm::~vtkImageAlgorithm()
 {
-  this->Threader->Delete();
   this->SetInputScalarsSelection(NULL);
 }
 
@@ -46,236 +44,35 @@ vtkImageAlgorithm::~vtkImageAlgorithm()
 void vtkImageAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 {  
   this->Superclass::PrintSelf(os,indent);
-  
-  os << indent << "NumberOfThreads: " << this->NumberOfThreads << "\n";
 }
-
-struct vtkImageThreadStruct
-{
-  vtkImageAlgorithm *Filter;
-  vtkInformation *Request;
-  vtkInformationVector *InputsInfo;
-  vtkInformationVector *OutputsInfo;
-  vtkImageData   ***Inputs;
-  vtkImageData   **Outputs;
-};
-
-//----------------------------------------------------------------------------
-// For streaming and threads.  Splits output update extent into num pieces.
-// This method needs to be called num times.  Results must not overlap for
-// consistent starting extent.  Subclass can override this method.
-// This method returns the number of peices resulting from a successful split.
-// This can be from 1 to "total".  
-// If 1 is returned, the extent cannot be split.
-int vtkImageAlgorithm::SplitExtent(int splitExt[6], int startExt[6], 
-                                   int num, int total)
-{
-  int splitAxis;
-  int min, max;
-
-  vtkDebugMacro("SplitExtent: ( " << startExt[0] << ", " << startExt[1] << ", "
-                << startExt[2] << ", " << startExt[3] << ", "
-                << startExt[4] << ", " << startExt[5] << "), " 
-                << num << " of " << total);
-
-  // start with same extent
-  memcpy(splitExt, startExt, 6 * sizeof(int));
-
-  splitAxis = 2;
-  min = startExt[4];
-  max = startExt[5];
-  while (min == max)
-    {
-    --splitAxis;
-    if (splitAxis < 0)
-      { // cannot split
-      vtkDebugMacro("  Cannot Split");
-      return 1;
-      }
-    min = startExt[splitAxis*2];
-    max = startExt[splitAxis*2+1];
-    }
-
-  // determine the actual number of pieces that will be generated
-  int range = max - min + 1;
-  int valuesPerThread = (int)ceil(range/(double)total);
-  int maxThreadIdUsed = (int)ceil(range/(double)valuesPerThread) - 1;
-  if (num < maxThreadIdUsed)
-    {
-    splitExt[splitAxis*2] = splitExt[splitAxis*2] + num*valuesPerThread;
-    splitExt[splitAxis*2+1] = splitExt[splitAxis*2] + valuesPerThread - 1;
-    }
-  if (num == maxThreadIdUsed)
-    {
-    splitExt[splitAxis*2] = splitExt[splitAxis*2] + num*valuesPerThread;
-    }
-  
-  vtkDebugMacro("  Split Piece: ( " <<splitExt[0]<< ", " <<splitExt[1]<< ", "
-                << splitExt[2] << ", " << splitExt[3] << ", "
-                << splitExt[4] << ", " << splitExt[5] << ")");
-
-  return maxThreadIdUsed + 1;
-}
-
-
-// this mess is really a simple function. All it does is call
-// the ThreadedExecute method after setting the correct
-// extent for this thread. Its just a pain to calculate
-// the correct extent.
-VTK_THREAD_RETURN_TYPE vtkImageAlgorithmThreadedExecute( void *arg )
-{
-  vtkImageThreadStruct *str;
-  int ext[6], splitExt[6], total;
-  int threadId, threadCount;
-  
-  threadId = ((vtkMultiThreader::ThreadInfo *)(arg))->ThreadID;
-  threadCount = ((vtkMultiThreader::ThreadInfo *)(arg))->NumberOfThreads;
-  
-  str = (vtkImageThreadStruct *)
-    (((vtkMultiThreader::ThreadInfo *)(arg))->UserData);
-
-  // if we have an output
-  if (str->Filter->GetNumberOfOutputPorts())
-    {
-    // which output port did the request come from
-    int outputPort = 
-      str->Request->Get(vtkDemandDrivenPipeline::FROM_OUTPUT_PORT());
-
-    // if output port is negative then that means this filter is calling the
-    // update directly, for now an error
-    if (outputPort == -1)
-      {
-      return VTK_THREAD_RETURN_VALUE;
-      }
-  
-    // get the update extent from the output port
-    vtkInformation *outInfo = 
-      str->OutputsInfo->GetInformationObject(outputPort);
-    int updateExtent[6];
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), 
-                 updateExtent);
-    memcpy(ext,updateExtent, sizeof(int)*6);
-    }
-  else
-    {
-    // if there is no output, then use UE from input, use the first input
-    int inPort;
-    for (inPort = 0; inPort < str->Filter->GetNumberOfInputPorts(); ++inPort)
-      {
-      if (str->Filter->GetNumberOfInputConnections(inPort))
-        {
-        int updateExtent[6];
-        str->InputsInfo->GetInformationObject(inPort)
-          ->Get(vtkAlgorithm::INPUT_CONNECTION_INFORMATION())
-          ->GetInformationObject(0)
-          ->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), 
-                updateExtent);
-        memcpy(ext,updateExtent, sizeof(int)*6);
-        break;
-        }
-      }
-    if (inPort >= str->Filter->GetNumberOfInputPorts())
-      {
-      return VTK_THREAD_RETURN_VALUE;
-      }
-    }
-  
-  // execute the actual method with appropriate extent
-  // first find out how many pieces extent can be split into.
-  total = str->Filter->SplitExtent(splitExt, ext, threadId, threadCount);
-    
-  if (threadId < total)
-    {
-    str->Filter->ThreadedExecute(str->Inputs, str->Outputs, 
-                                 splitExt, threadId);
-    }
-  // else
-  //   {
-  //   otherwise don't use this thread. Sometimes the threads dont
-  //   break up very well and it is just as efficient to leave a 
-  //   few threads idle.
-  //   }
-
-  return VTK_THREAD_RETURN_VALUE;
-}
-
 
 //----------------------------------------------------------------------------
 // This is the superclasses style of Execute method.  Convert it into
 // an imaging style Execute method.
 void vtkImageAlgorithm::ExecuteData(
   vtkInformation *request, 
-  vtkInformationVector *inputVector, 
-  vtkInformationVector *outputVector)
+  vtkInformationVector * vtkNotUsed( inputVector ), 
+  vtkInformationVector * outputVector)
 {
-  int i;
-  
-  // setup the threasd structure
-  vtkImageThreadStruct str;
-  str.Filter = this;
-  str.Request = request;
-  str.InputsInfo = inputVector;
-  str.OutputsInfo = outputVector;
+  // the default implimentation is to do what the old pipeline did find what
+  // output is requesting the data, and pass that into ExecuteData
 
-  // now we must create the output array
-  str.Outputs = new vtkImageData * [this->GetNumberOfOutputPorts()];
-  for (i = 0; i < this->GetNumberOfOutputPorts(); ++i)
-    {
-    vtkInformation* info = outputVector->GetInformationObject(i);
-    vtkImageData *outData = static_cast<vtkImageData *>(
-      info->Get(vtkDataObject::DATA_OBJECT()));
-    str.Outputs[i] = outData;
+  // which output port did the request come from
+  int outputPort = 
+    request->Get(vtkDemandDrivenPipeline::FROM_OUTPUT_PORT());
 
-    int updateExtent[6];
-    info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), updateExtent);
-
-    outData->SetScalarType( info->Get(vtkDataObject::SCALAR_TYPE()) );
-    outData->SetNumberOfScalarComponents( info->Get(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS()) );
-
-    // for image filters as a convinience we usually allocate the output data
-    // in the superclass
-    this->AllocateOutputData(outData, updateExtent);
-    }
-  
-  // now create the inputs array
-  str.Inputs = new vtkImageData ** [this->GetNumberOfInputPorts()];
-  for (i = 0; i < this->GetNumberOfInputPorts(); ++i)
-    {
-    int j;
-    vtkInformation* info = inputVector->GetInformationObject(i);
-    str.Inputs[i] = new vtkImageData *[this->GetNumberOfInputConnections(i)];
-    for (j = 0; j < this->GetNumberOfInputConnections(i); ++j)
+  // if output port is negative then that means this filter is calling the
+  // update directly, in that case just assume port 0
+  if (outputPort == -1)
       {
-      vtkInformation *connInfo = 
-        info->Get(vtkAlgorithm::INPUT_CONNECTION_INFORMATION())
-        ->GetInformationObject(j);
-      str.Inputs[i][j] = static_cast<vtkImageData *>(
-        connInfo->Get(vtkDataObject::DATA_OBJECT()));
+      outputPort = 0;
       }
-    }
-
-  // copy other arrays
-  if (str.Inputs && str.Inputs[0] && str.Outputs)
-    {
-    this->CopyAttributeData(str.Inputs[0][0],str.Outputs[0]);
-    }
-    
-  this->Threader->SetNumberOfThreads(this->NumberOfThreads);
-  this->Threader->SetSingleMethod(vtkImageAlgorithmThreadedExecute, &str);  
-
-  // always shut off debugging to avoid threading problems with GetMacros
-  int debug = this->Debug;
-  this->Debug = 0;
-  this->Threader->SingleMethodExecute();
-  this->Debug = debug;
-
-  // free up the arrays
-  for (i = 0; i < this->GetNumberOfInputPorts(); ++i)
-    {
-    delete [] str.Inputs[i];
-    }
-  delete [] str.Inputs;
-  delete [] str.Outputs;  
+  
+  // get the data object
+  vtkInformation *outInfo = 
+    outputVector->GetInformationObject(outputPort);
+  // call ExecuteData
+  this->ExecuteData( outInfo->Get(vtkDataObject::DATA_OBJECT()) );
 }
 
 
@@ -321,6 +118,20 @@ int vtkImageAlgorithm::ProcessDownstreamRequest(
                                                     outputVector);
 }
 
+//----------------------------------------------------------------------------
+// Assume that any source that implements ExecuteData 
+// can handle an empty extent.
+void vtkImageAlgorithm::ExecuteData(vtkDataObject *)
+{
+  this->Execute();
+}
+
+//----------------------------------------------------------------------------
+void vtkImageAlgorithm::Execute()
+{
+  vtkErrorMacro(<< "Definition of Execute() method should be in subclass and you should really use the ExecuteData(vtkInformation *request,...) signature instead");
+}
+
 void vtkImageAlgorithm::ExecuteInformation(
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector * vtkNotUsed(inputVector), 
@@ -353,18 +164,6 @@ int vtkImageAlgorithm::ProcessUpstreamRequest(
                                                   outputVector);
 }
 
-//----------------------------------------------------------------------------
-// The execute method created by the subclass.
-void vtkImageAlgorithm::ThreadedExecute(
-  vtkImageData ***vtkNotUsed(inData), 
-  vtkImageData **vtkNotUsed(outData),
-  int extent[6], 
-  int vtkNotUsed(threadId))
-{
-  extent = extent;
-  vtkErrorMacro("subclase should override this method!!!");
-}
-
 
 //----------------------------------------------------------------------------
 void vtkImageAlgorithm::AllocateOutputData(vtkImageData *output, 
@@ -375,6 +174,26 @@ void vtkImageAlgorithm::AllocateOutputData(vtkImageData *output,
   output->AllocateScalars();
 }
 
+//----------------------------------------------------------------------------
+vtkImageData *vtkImageAlgorithm::AllocateOutputData(vtkDataObject *output)
+{ 
+  // set the extent to be the update extent
+  vtkImageData *out = vtkImageData::SafeDownCast(output);
+  if (out)
+    {
+    // this needs to be fixed -Ken
+    vtkStreamingDemandDrivenPipeline *sddp = 
+      vtkStreamingDemandDrivenPipeline::SafeDownCast(this->GetExecutive());
+    if (sddp)
+      {
+      int extent[6];
+      sddp->GetOutputInformation(0)->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),extent);
+      out->SetExtent(extent);
+      }
+    out->AllocateScalars();
+    }
+  return out;
+}
 
 // by default copy the attr from the first input to the first output
 void vtkImageAlgorithm::CopyAttributeData(vtkImageData *input,

@@ -62,6 +62,12 @@ public:
   virtual void SetOutputData(int port, vtkDataObject*);
   virtual void SetOutputData(vtkAlgorithm* algorithm, int port, vtkDataObject*);
 
+  // Description:
+  // Get the data object for an output port of an algorithm.
+  virtual vtkDataObject* GetInputData(vtkAlgorithm* algorithm, 
+                                      int port, int connection);
+  virtual vtkDataObject* GetInputData(int port, int connection);
+
   static vtkInformationKeyVectorKey* DOWNSTREAM_KEYS_TO_COPY();
   static vtkInformationIntegerKey* REQUEST_DATA_OBJECT();
   static vtkInformationIntegerKey* REQUEST_INFORMATION();
@@ -90,7 +96,6 @@ protected:
   vtkInformation* GetInputInformation(int port);
   vtkInformationVector* GetOutputInformation();
 
-  vtkDataObject* GetInputData(int port, int index);
   void PrepareDownstreamRequest(vtkInformationIntegerKey* rkey);
   void PrepareUpstreamRequest(vtkInformationIntegerKey* rkey);
   virtual void CopyDefaultDownstreamInformation();

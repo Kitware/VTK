@@ -171,6 +171,7 @@ vtkStructuredPointsToStructuredPointsFilter.cxx
 vtkStructuredPointsToUnstructuredGridFilter.cxx
 vtkSuperquadric.cxx
 vtkTetra.cxx
+vtkThreadedImageAlgorithm.cxx
 vtkTriangle.cxx
 vtkTriangleStrip.cxx
 vtkTrivialProducer.cxx
@@ -260,6 +261,7 @@ vtkStructuredPointsSource
 vtkStructuredPointsToPolyDataFilter
 vtkStructuredPointsToStructuredPointsFilter
 vtkStructuredPointsToUnstructuredGridFilter
+vtkThreadedImageAlgorithm
 vtkUnstructuredGridSource
 vtkUnstructuredGridToPolyDataFilter
 vtkUnstructuredGridToUnstructuredGridFilter

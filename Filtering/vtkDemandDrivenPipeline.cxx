@@ -38,7 +38,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.1.2.6");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.1.2.7");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, DOWNSTREAM_KEYS_TO_COPY, KeyVector);
@@ -253,6 +253,7 @@ int vtkDemandDrivenPipeline::Update(vtkAlgorithm* algorithm, int port)
 int vtkDemandDrivenPipeline::UpdateDataObject()
 {
   // Avoid infinite recursion.
+#if 0
   if(this->InProcessDownstreamRequest)
     {
     vtkErrorMacro("UpdateDataObject invoked during a downstream request.  "
@@ -268,7 +269,7 @@ int vtkDemandDrivenPipeline::UpdateDataObject()
       }
     return 0;
     }
-
+#endif
   // The pipeline's MTime starts with this algorithm's MTime.
   this->PipelineMTime = this->Algorithm->GetMTime();
 
@@ -298,12 +299,6 @@ int vtkDemandDrivenPipeline::UpdateDataObject()
   int result = 1;
   if(this->PipelineMTime > this->DataObjectTime.GetMTime())
     {
-    // Make sure input types are valid before algorithm does anything.
-    if(!this->InputCountIsValid() || !this->InputTypeIsValid())
-      {
-      return 0;
-      }
-
     // Request data type from the algorithm.
     result = this->ExecuteDataObject();
 
@@ -616,6 +611,14 @@ vtkDataObject* vtkDemandDrivenPipeline::GetOutputData(vtkAlgorithm* algorithm,
 {
   return this->Superclass::GetOutputData(algorithm, port);
 }
+
+//----------------------------------------------------------------------------
+vtkDataObject* vtkDemandDrivenPipeline::GetInputData(vtkAlgorithm* algorithm,
+                                                     int port, int connection)
+{
+  return this->Superclass::GetInputData(algorithm, port, connection);
+}
+
 
 //----------------------------------------------------------------------------
 void vtkDemandDrivenPipeline::SetOutputData(int newPort,

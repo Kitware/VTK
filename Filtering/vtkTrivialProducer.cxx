@@ -21,7 +21,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTrivialProducer, "1.1.2.3");
+vtkCxxRevisionMacro(vtkTrivialProducer, "1.1.2.4");
 vtkStandardNewMacro(vtkTrivialProducer);
 
 //----------------------------------------------------------------------------
@@ -45,13 +45,8 @@ void vtkTrivialProducer::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkTrivialProducer::SetOutput(vtkDataObject*
-#ifdef VTK_USE_EXECUTIVES
-                                   newOutput
-#endif
-  )
+void vtkTrivialProducer::SetOutput(vtkDataObject*newOutput)
 {
-#ifdef VTK_USE_EXECUTIVES
   vtkDataObject* oldOutput = this->Output;
   if(newOutput != oldOutput)
     {
@@ -67,7 +62,6 @@ void vtkTrivialProducer::SetOutput(vtkDataObject*
       }
     this->Modified();
     }
-#endif
 }
 
 //----------------------------------------------------------------------------

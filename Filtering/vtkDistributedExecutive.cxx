@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSource.h"
 
-vtkCxxRevisionMacro(vtkDistributedExecutive, "1.1.2.1");
+vtkCxxRevisionMacro(vtkDistributedExecutive, "1.1.2.2");
 vtkStandardNewMacro(vtkDistributedExecutive);
 vtkCxxSetObjectMacro(vtkDistributedExecutive, Algorithm, vtkAlgorithm);
 
@@ -176,6 +176,26 @@ vtkDataObject* vtkDistributedExecutive::GetOutputData(vtkAlgorithm* algorithm,
     return 0;
     }
   return this->GetOutputData(port);
+}
+
+//----------------------------------------------------------------------------
+vtkDataObject* vtkDistributedExecutive::GetInputData(int,int)
+{
+  vtkErrorMacro("GetInputData(int,int) must be implemented for this executive.");
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+vtkDataObject* vtkDistributedExecutive::GetInputData(vtkAlgorithm* algorithm,
+                                                     int port, int connection)
+{
+  if(algorithm != this->GetAlgorithm())
+    {
+    vtkErrorMacro("Request for input data from an algorithm not managed "
+                  "by this executive: " << algorithm);
+    return 0;
+    }
+  return this->GetInputData(port,connection);
 }
 
 //----------------------------------------------------------------------------

@@ -40,7 +40,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.1.2.3");
+vtkCxxRevisionMacro(vtkImageData, "1.1.2.4");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -149,8 +149,9 @@ void vtkImageData::CopyTypeSpecificInformation( vtkDataObject *data )
   // Now do the specific stuff
   this->SetOrigin( image->GetOrigin() );
   this->SetSpacing( image->GetSpacing() );
-  this->SetScalarType( image->GetScalarType() );
-  this->SetNumberOfScalarComponents( image->GetNumberOfScalarComponents() );
+  this->SetScalarType( image->GetPipelineScalarType() );
+  this->SetNumberOfScalarComponents( 
+    image->GetPipelineNumberOfScalarComponents() );
 }
 
 //----------------------------------------------------------------------------
@@ -1124,13 +1125,24 @@ void vtkImageData::SetNumberOfScalarComponents(int num)
 //----------------------------------------------------------------------------
 int vtkImageData::GetNumberOfScalarComponents()
 {
+  vtkDataArray *scalars = this->GetPointData()->GetScalars();
+  if (scalars)
+    {
+    return scalars->GetNumberOfComponents();
+    }
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkImageData::GetPipelineNumberOfScalarComponents()
+{
+  this->GetProducerPort();
   if(vtkInformation* info = this->GetPipelineInformation())
     {
-    if(!info->Has(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS()))
+    if (info->Has(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS()))
       {
-      info->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(), 1);
+      return info->Get(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS());
       }
-    return info->Get(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS());
     }
   return 1;
 }
@@ -1212,7 +1224,12 @@ void vtkImageData::GetContinuousIncrements(int extent[6], int &incX,
 void vtkImageData::ComputeIncrements()
 {
   int idx;
-  int inc = this->GetNumberOfScalarComponents();
+  // make sure we have data before computing incrments to traverse it
+  if (!this->GetPointData()->GetScalars())
+    {
+    return;
+    }
+  int inc = this->GetPointData()->GetScalars()->GetNumberOfComponents();
   int extent[6];
   this->GetExtent(extent);
 
@@ -1463,13 +1480,24 @@ void vtkImageData::SetScalarType(int type)
 //----------------------------------------------------------------------------
 int vtkImageData::GetScalarType()
 {
+  vtkDataArray *scalars = this->GetPointData()->GetScalars();
+  if (scalars)
+    {
+    return scalars->GetDataType();
+    }
+  return VTK_DOUBLE;
+}
+
+//----------------------------------------------------------------------------
+int vtkImageData::GetPipelineScalarType()
+{
+  this->GetProducerPort();
   if(vtkInformation* info = this->GetPipelineInformation())
     {
-    if(!info->Has(vtkDataObject::SCALAR_TYPE()))
+    if (info->Has(vtkDataObject::SCALAR_TYPE()))
       {
-      info->Set(vtkDataObject::SCALAR_TYPE(), VTK_DOUBLE);
+      return info->Get(vtkDataObject::SCALAR_TYPE());
       }
-    return info->Get(vtkDataObject::SCALAR_TYPE());
     }
   return VTK_DOUBLE;
 }
@@ -1477,10 +1505,27 @@ int vtkImageData::GetScalarType()
 //----------------------------------------------------------------------------
 void vtkImageData::AllocateScalars()
 {
+  int newType = VTK_DOUBLE;
+  int newNumComp = 1;
+  
+  // basically allocate the scalars based om the 
+  this->GetProducerPort();
+  if(vtkInformation* info = this->GetPipelineInformation())
+    {
+    if (info->Has(vtkDataObject::SCALAR_TYPE()))
+      {
+      newType = info->Get(vtkDataObject::SCALAR_TYPE());
+      }
+    if (info->Has(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS()))
+      {
+      newNumComp = info->Get(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS());
+      }
+    }
+
   vtkDataArray *scalars;
   
   // if the scalar type has not been set then we have a problem
-  if (this->GetScalarType() == VTK_VOID)
+  if (newType == VTK_VOID)
     {
     vtkErrorMacro("Attempt to allocate scalars before scalar type was set!.");
     return;
@@ -1491,10 +1536,10 @@ void vtkImageData::AllocateScalars()
 
   // if we currently have scalars then just adjust the size
   scalars = this->PointData->GetScalars();
-  if (scalars && scalars->GetDataType() == this->GetScalarType()
+  if (scalars && scalars->GetDataType() == newType
       && scalars->GetReferenceCount() == 1) 
     {
-    scalars->SetNumberOfComponents(this->GetNumberOfScalarComponents());
+    scalars->SetNumberOfComponents(newNumComp);
     scalars->SetNumberOfTuples((extent[1] - extent[0] + 1)*
                                (extent[3] - extent[2] + 1)*
                                (extent[5] - extent[4] + 1));
@@ -1505,7 +1550,7 @@ void vtkImageData::AllocateScalars()
     }
   
   // allocate the new scalars
-  switch (this->GetScalarType())
+  switch (newType)
     {
     case VTK_BIT:
       scalars = vtkBitArray::New();
@@ -1545,7 +1590,7 @@ void vtkImageData::AllocateScalars()
       return;
     }
   
-  scalars->SetNumberOfComponents(this->GetNumberOfScalarComponents());
+  scalars->SetNumberOfComponents(newNumComp);
 
   // allocate enough memory
   scalars->

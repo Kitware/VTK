@@ -68,6 +68,11 @@ public:
   virtual vtkAlgorithmOutput* GetProducerPort(vtkDataObject*)=0;
 
   // Description:
+  // Get the data object for an output port of an algorithm.
+  virtual vtkDataObject* GetInputData(vtkAlgorithm* algorithm, 
+                                      int port, int connection)=0;
+
+  // Description:
   // Decrement the count of references to this object and participate
   // in garbage collection.
   virtual void UnRegister(vtkObjectBase* o);

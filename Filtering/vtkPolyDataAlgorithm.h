@@ -12,9 +12,24 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPolyDataAlgorithm - Superclass for polygonal data algorithms.
+// .NAME vtkPolyDataAlgorithm - Superclass for algorithms that produce only polydata as output
 // .SECTION Description
-// vtkPolyDataAlgorithm
+
+// vtkPolyDataAlgorithm is a convenience class to make writing algorithms
+// easier. It is also designed to help transition old algorithms to the new
+// pipeline architecture. Ther are some assumptions and defaults made by this
+// class you should be aware of. This class defaults such that your filter
+// will have one input port and one output port. If that is not the case
+// simply change it with SetNumberOfINputPorts etc. See this classes
+// contstructor for the default. This class also provides a FillInputPortInfo
+// method that by default says that all inputs will be PolyData. If that
+// isn't the case then please override this method in your subclass. This
+// class breaks out the downstream requests into seperate functions such as
+// ExecuteData and ExecuteInformation.  For new algorithms you should
+// implement ExecuteData( request, inputVec, outputVec) but for older filters
+// there is a default implementation that calls the old ExecuteData(output)
+// signature, for even older filters that don;t implement ExecuteData the
+// default implementation calls the even older Execute() signature.
 
 #ifndef __vtkPolyDataAlgorithm_h
 #define __vtkPolyDataAlgorithm_h
@@ -37,17 +52,59 @@ public:
 
   // Description:
   // Set an input of this algorithm.
-  void SetInput(vtkPolyData*);
-  void SetInput(int, vtkPolyData*);
+  void SetInput(vtkDataObject*);
+  void SetInput(int, vtkDataObject*);
 
   // Description:
   // Add an input of this algorithm.
-  void AddInput(vtkPolyData*);
-  void AddInput(int, vtkPolyData*);
+  void AddInput(vtkDataObject*);
+  void AddInput(int, vtkDataObject*);
+
+  // Description:
+  // see vtkAlgorithm for details
+  virtual int ProcessDownstreamRequest(vtkInformation *, 
+                                       vtkInformationVector *, 
+                                       vtkInformationVector *);
+
+  // this method is not recommended for use, but lots of old style filters
+  // use it
+  vtkDataObject *GetInput(int port);
+  vtkPolyData *GetPolyDataInput(int port);
+  
+  // Remove me Remove me - See Ken
+  void ReleaseDataFlagOn() {};
+  void ReleaseDataFlagOff() {};
 
 protected:
   vtkPolyDataAlgorithm();
   ~vtkPolyDataAlgorithm();
+
+  // convinience method
+  virtual void ExecuteInformation(vtkInformation *request, 
+                                  vtkInformationVector *inputVector, 
+                                  vtkInformationVector *outputVector);
+
+  // This is called by the superclass.
+  // This is the method you should override.
+  virtual void ExecuteData(vtkInformation *request, 
+                           vtkInformationVector *inputVector, 
+                           vtkInformationVector *outputVector);
+  
+  // Description:
+  // This detects when the UpdateExtent will generate no data.
+  // This condition is satisfied when the UpdateExtent has 
+  // zero volume (0,-1,...) or the UpdateNumberOfPieces is 0.
+  // The source uses this call to determine whether to call Execute.
+  int UpdateExtentIsEmpty(vtkDataObject *output);
+
+  // Description:
+  // This method is the old style execute method
+  virtual void ExecuteData(vtkDataObject *output);
+  virtual void Execute();
+
+  // see algorithm for more info
+  virtual int FillOutputPortInformation(int port, vtkInformation* info);
+  virtual int FillInputPortInformation(int port, vtkInformation* info);
 
 private:
   vtkPolyDataAlgorithm(const vtkPolyDataAlgorithm&);  // Not implemented.

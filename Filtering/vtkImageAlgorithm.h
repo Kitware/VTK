@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkImageToImageAlgorithm - Generic filter that has one input..
+// .NAME vtkImageAlgorithm - Generic algorithm superclass for image algs
 // .SECTION Description
 // vtkImageToImageAlgorithm is a filter superclass that hides much of the 
 // pipeline  complexity. It handles breaking the pipeline execution 
@@ -22,13 +22,12 @@
 // .SECTION See also
 // vtkSimpleImageToImageAlgorithm
 
-#ifndef __vtkImageToImageAlgorithm_h
-#define __vtkImageToImageAlgorithm_h
+#ifndef __vtkImageAlgorithm_h
+#define __vtkImageAlgorithm_h
 
 #include "vtkAlgorithm.h"
 
 class vtkImageData;
-class vtkMultiThreader;
 
 class VTK_FILTERING_EXPORT vtkImageAlgorithm : public vtkAlgorithm
 {
@@ -36,24 +35,6 @@ public:
   vtkTypeRevisionMacro(vtkImageAlgorithm,vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // If the subclass does not define an Execute method, then the task
-  // will be broken up, multiple threads will be spawned, and each thread
-  // will call this method. It is public so that the thread functions
-  // can call this method.
-  virtual void ThreadedExecute(vtkImageData ***inData, 
-                               vtkImageData **outData,
-                               int extent[6], int threadId);
-  
-  // Description:
-  // Get/Set the number of threads to create when rendering
-  vtkSetClampMacro( NumberOfThreads, int, 1, VTK_MAX_THREADS );
-  vtkGetMacro( NumberOfThreads, int );
-
-  // Description:
-  // Putting this here until I merge graphics and imaging streaming.
-  virtual int SplitExtent(int splitExt[6], int startExt[6], 
-                          int num, int total); 
   // Description:
   // Get the output data object for a port on this algorithm.
   vtkImageData* GetOutput();
@@ -86,9 +67,6 @@ protected:
   vtkImageAlgorithm();
   ~vtkImageAlgorithm();
 
-  vtkMultiThreader *Threader;
-  int NumberOfThreads;
-  
   // convinience method
   virtual void ExecuteInformation(vtkInformation *request, 
                                   vtkInformationVector *inputVector, 
@@ -103,16 +81,19 @@ protected:
                            vtkInformationVector *inputVector, 
                            vtkInformationVector *outputVector);
 
+  // Description:
+  // This method is the old style execute method
+  virtual void ExecuteData(vtkDataObject *output);
+  virtual void Execute();
+
   // just allocate the output data
   virtual void AllocateOutputData(vtkImageData *out, 
                                   int *uExtent);
+  virtual vtkImageData *AllocateOutputData(vtkDataObject *out);
 
   // copy the other point and cell data
   virtual void CopyAttributeData(vtkImageData *in, vtkImageData *out);
   
-  // The method that starts the multithreading
-  void MultiThread(vtkImageData *input, vtkImageData *output);
-
   // see algorithm for more info
   virtual int FillOutputPortInformation(int port, vtkInformation* info);
   virtual int FillInputPortInformation(int port, vtkInformation* info);
