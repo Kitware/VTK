@@ -221,6 +221,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   float *p;
   unsigned char *c;
   vtkTransform *trans;
+  int totalValues;
   
   // first stuff out the transform
   trans = new vtkTransform;
@@ -283,6 +284,97 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   fprintf(fp,"              shininess %g\n",prop->GetSpecularPower()/128.0);
   fprintf(fp,"              transparency %g\n",1.0 - prop->GetOpacity());
   fprintf(fp,"              }\n"); // close matrial
+
+  // is there a texture map
+  if (anActor->GetTexture())
+    {
+    vtkTexture *aTexture = anActor->GetTexture();
+    int *size, xsize, ysize, bpp;
+    vtkScalars *scalars;
+    vtkColorScalars *mappedScalars;
+    unsigned char *txtrData;
+    
+    // get some info
+    size = aTexture->GetInput()->GetDimensions();
+    scalars = (aTexture->GetInput()->GetPointData())->GetScalars();
+
+    // make sure scalars are non null
+    if (!scalars) 
+      {
+      vtkErrorMacro(<< "No scalar values found for texture input!\n");
+      return;
+      }
+
+    // make sure using unsigned char data of color scalars type
+    if (strcmp(scalars->GetDataType(),"unsigned char") ||
+        strcmp(scalars->GetScalarType(),"ColorScalar") )
+      {
+      mappedScalars = aTexture->GetMappedScalars ();
+      }
+    else
+      {
+      mappedScalars = (vtkColorScalars *) scalars;
+      }
+
+    // we only support 2d texture maps right now
+    // so one of the three sizes must be 1, but it 
+    // could be any of them, so lets find it
+    if (size[0] == 1)
+      {
+      xsize = size[1]; ysize = size[2];
+      }
+    else
+      {
+      xsize = size[0];
+      if (size[1] == 1)
+	{
+	ysize = size[2];
+	}
+      else
+	{
+	ysize = size[1];
+	if (size[2] != 1)
+	  {
+	  vtkErrorMacro(<< "3D texture maps currently are not supported!\n");
+	  return;
+	  }
+	}
+      }
+
+    fprintf(fp,"            texture PixelTexture {\n");
+    bpp = mappedScalars->GetNumberOfValuesPerScalar();
+    fprintf(fp,"              image %i %i %i\n", xsize, ysize, bpp);
+    txtrData = mappedScalars->GetPtr(0);
+    totalValues = xsize*ysize;
+    for (i = 0; i < totalValues; i++)
+      {
+      fprintf(fp,"0x%.2x",*txtrData);
+      txtrData++;
+      if (bpp > 1) 
+	{
+	fprintf(fp,"%.2x",*txtrData);
+	txtrData++;
+	}
+      if (bpp > 2) 
+	{
+	fprintf(fp,"%.2x",*txtrData);
+	txtrData++;
+	}
+      if (bpp > 3) 
+	{
+	fprintf(fp,"%.2x",*txtrData);
+	txtrData++;
+	}
+      if (i%8 == 0) fprintf(fp,"\n");
+      else fprintf(fp," ");
+      }
+    if (!(aTexture->GetRepeat()))
+      {
+      fprintf(fp,"              repeatS FALSE\n");
+      fprintf(fp,"              repeatT FALSE\n");
+      }
+    fprintf(fp,"              }\n"); // close texture
+    }
   fprintf(fp,"            }\n"); // close appearance
 
   // write out polys if any
