@@ -181,6 +181,9 @@ void vtkStructuredPointsReader::Execute()
   int done=0;
   vtkStructuredPoints *output = this->GetOutput();
   
+  // ImageSource superclass does not do this.
+  output->ReleaseData();
+
   vtkDebugMacro(<<"Reading vtk structured points file...");
   if ( this->Debug )
     {
