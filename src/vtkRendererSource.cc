@@ -85,6 +85,14 @@ void vtkRendererSource::Execute()
     y2 = (this->Input->GetRenderWindow())->GetSize()[1] - 1;
     }
 
+  if (this->WholeWindow)
+    {
+    x1 = 0;
+    y1 = 0;
+    x2 = (this->Input->GetRenderWindow())->GetSize()[0] - 1;
+    y2 = (this->Input->GetRenderWindow())->GetSize()[1] - 1;
+    }
+  
   // Get origin, aspect ratio and dimensions from this->Input
   dims[0] = (int)(x2 - x1 + 1); dims[1] = (int)(y2 -y1 + 1); dims[2] = 1;
   output->SetDimensions(dims);
