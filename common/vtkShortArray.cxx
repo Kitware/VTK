@@ -143,7 +143,7 @@ void vtkShortArray::DeepCopy(vtkDataArray& sa)
     this->SaveUserArray = 0;
 
     this->Array = new short[this->Size];
-    memcpy(this->Array, (long *)sa.GetVoidPointer(0), this->Size*sizeof(long)); 
+    memcpy(this->Array, (short *)sa.GetVoidPointer(0), this->Size*sizeof(short)); 
     }
 }
 
