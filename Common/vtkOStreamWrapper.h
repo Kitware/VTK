@@ -66,7 +66,7 @@ public:
   vtkOStreamWrapper& operator << (unsigned long);
   vtkOStreamWrapper& operator << (float);
   vtkOStreamWrapper& operator << (double);
-#ifdef VTK_SIZEOF_LONG_LONG
+#if defined(VTK_SIZEOF_LONG_LONG) && !defined(__HP_aCC)
   vtkOStreamWrapper& operator << (long long);
   vtkOStreamWrapper& operator << (unsigned long long);
 #endif
@@ -81,7 +81,7 @@ public:
 #ifdef VTK_COMPILER_HAS_BOOL
   vtkOStreamWrapper& operator << (bool);
 #endif
-  
+
   // Work-around for IBM Visual Age bug in overload resolution.
 #if defined(__IBMCPP__)
   vtkOStreamWrapper& WriteInternal(const char*);

@@ -66,7 +66,7 @@ VTKOSTREAM_OPERATOR(double);
 #ifdef VTK_COMPILER_HAS_BOOL
 VTKOSTREAM_OPERATOR(bool);
 #endif
-#ifdef VTK_SIZEOF_LONG_LONG
+#if defined(VTK_SIZEOF_LONG_LONG) && !defined(__HP_aCC)
 VTKOSTREAM_OPERATOR(long long);
 VTKOSTREAM_OPERATOR(unsigned long long);
 #endif
