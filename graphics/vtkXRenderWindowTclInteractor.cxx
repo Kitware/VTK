@@ -495,5 +495,9 @@ int vtkXRenderWindowTclInteractor::DestroyTimer(void)
 
 void vtkXRenderWindowTclInteractor::TerminateApp(void) 
 {
+#if TCL_MAJOR_VERSION >= 8 && TCL_MINOR_VERSION > 1
   Tcl_Finalize();
+#else
+  Tcl_Exit(1);
+#endif
 }
