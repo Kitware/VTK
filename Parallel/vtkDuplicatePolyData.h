@@ -23,15 +23,15 @@
 #ifndef __vtkDuplicatePolyData_h
 #define __vtkDuplicatePolyData_h
 
-#include "vtkPolyDataToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 class vtkSocketController;
 class vtkMultiProcessController;
 
-class VTK_PARALLEL_EXPORT vtkDuplicatePolyData : public vtkPolyDataToPolyDataFilter
+class VTK_PARALLEL_EXPORT vtkDuplicatePolyData : public vtkPolyDataAlgorithm
 {
 public:
   static vtkDuplicatePolyData *New();
-  vtkTypeRevisionMacro(vtkDuplicatePolyData, vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkDuplicatePolyData, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
@@ -72,10 +72,10 @@ protected:
   ~vtkDuplicatePolyData();
 
   // Data generation method
-  void ComputeInputUpdateExtents(vtkDataObject *output);
-  void Execute();
-  void ClientExecute();
-  void ExecuteInformation();
+  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  void ClientExecute(vtkPolyData *output);
+  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   vtkMultiProcessController *Controller;
   int Synchronous;

@@ -21,16 +21,16 @@
 #ifndef __vtkCollectPolyData_h
 #define __vtkCollectPolyData_h
 
-#include "vtkPolyDataToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
 class vtkMultiProcessController;
 class vtkSocketController;
 
-class VTK_PARALLEL_EXPORT vtkCollectPolyData : public vtkPolyDataToPolyDataFilter
+class VTK_PARALLEL_EXPORT vtkCollectPolyData : public vtkPolyDataAlgorithm
 {
 public:
   static vtkCollectPolyData *New();
-  vtkTypeRevisionMacro(vtkCollectPolyData, vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkCollectPolyData, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
@@ -59,9 +59,9 @@ protected:
   int PassThrough;
 
   // Data generation method
-  void ComputeInputUpdateExtents(vtkDataObject *output);
-  void ExecuteData(vtkDataObject*);
-  void ExecuteInformation();
+  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   vtkMultiProcessController *Controller;
   vtkSocketController *SocketController;

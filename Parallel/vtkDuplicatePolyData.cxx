@@ -16,13 +16,16 @@
 
 #include "vtkAppendPolyData.h"
 #include "vtkCellData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkSocketController.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkDuplicatePolyData, "1.3");
+vtkCxxRevisionMacro(vtkDuplicatePolyData, "1.4");
 vtkStandardNewMacro(vtkDuplicatePolyData);
 
 vtkCxxSetObjectMacro(vtkDuplicatePolyData,Controller, vtkMultiProcessController);
@@ -169,52 +172,62 @@ void vtkDuplicatePolyData::InitializeSchedule(int numProcs)
 }
 
 //----------------------------------------------------------------------------
-void vtkDuplicatePolyData::ExecuteInformation()
+int vtkDuplicatePolyData::RequestInformation(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
-  if (this->GetOutput() == NULL)
-    {
-    vtkErrorMacro("Missing output");
-    return;
-    }
-  this->GetOutput()->SetMaximumNumberOfPieces(-1);
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
+               -1);
+
+  return 1;
 }
 
 //--------------------------------------------------------------------------
-void vtkDuplicatePolyData::ComputeInputUpdateExtents(vtkDataObject *output)
+int vtkDuplicatePolyData::RequestUpdateExtent(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkPolyData *input = this->GetInput();
-  int piece = output->GetUpdatePiece();
-  int numPieces = output->GetUpdateNumberOfPieces();
-  int ghostLevel = output->GetUpdateGhostLevel();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  if (input == NULL)
-    {
-    return;
-    }
-  input->SetUpdatePiece(piece);
-  input->SetUpdateNumberOfPieces(numPieces);
-  input->SetUpdateGhostLevel(ghostLevel);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
+              outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+              outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+              outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
+
+  return 1;
 }
-
   
 //----------------------------------------------------------------------------
-void vtkDuplicatePolyData::Execute()
+int vtkDuplicatePolyData::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkPolyData *input = this->GetInput();
-  vtkPolyData *output = this->GetOutput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPolyData *input = vtkPolyData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   int myId, partner;
   int idx;
 
   if (this->SocketController && this->ClientFlag)
     {
-    this->ClientExecute();
-    return;
-    }
-
-  if (input == NULL)
-    {
-    vtkErrorMacro("Input has not been set.");
-    return;
+    this->ClientExecute(output);
+    return 1;
     }
 
   if (this->Controller == NULL)
@@ -226,7 +239,7 @@ void vtkDuplicatePolyData::Execute()
       {
       this->SocketController->Send(output, 1, 18732);
       }
-    return;
+    return 1;
     }
   
   myId = this->Controller->GetLocalProcessId();
@@ -288,13 +301,13 @@ void vtkDuplicatePolyData::Execute()
     }
 
   this->MemorySize = output->GetActualMemorySize();
+
+  return 1;
 }
 
-
 //----------------------------------------------------------------------------
-void vtkDuplicatePolyData::ClientExecute()
+void vtkDuplicatePolyData::ClientExecute(vtkPolyData *output)
 {
-  vtkPolyData *output = this->GetOutput();
   vtkPolyData *tmp = vtkPolyData::New();
 
   // No data is on the client, so we just have to get the data
@@ -304,7 +317,6 @@ void vtkDuplicatePolyData::ClientExecute()
   output->GetPointData()->PassData(tmp->GetPointData());
   output->GetCellData()->PassData(tmp->GetCellData());
 }
-
 
 //----------------------------------------------------------------------------
 void vtkDuplicatePolyData::PrintSelf(ostream& os, vtkIndent indent)
@@ -350,4 +362,3 @@ void vtkDuplicatePolyData::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "MemorySize: " << this->MemorySize << endl;
 }
-
