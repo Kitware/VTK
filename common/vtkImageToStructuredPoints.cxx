@@ -280,15 +280,15 @@ void vtkImageToStructuredPoints::Execute()
     }
   else
     {
-    void *inPtr = data->GetScalarPointerForExtent(uExtent);
+    unsigned char *inPtr = (unsigned char *) data->GetScalarPointerForExtent(uExtent);
     
-    void *outPtr = output->GetScalarPointer();
+    unsigned char *outPtr = (unsigned char *) output->GetScalarPointer();
     
     int idxX, idxY, idxZ;
     int maxX, maxY, maxZ;
     int inIncX, inIncY, inIncZ;
     int rowLength;
-    void *inPtr1;
+    unsigned char *inPtr1;
     
     // Get increments to march through data 
     data->GetIncrements(inIncX, inIncY, inIncZ);
