@@ -31,7 +31,7 @@
 #define id Id // since id is a reserved token in ObjC and is used a _lot_ in vtk
 
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.18");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.19");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 
@@ -335,6 +335,15 @@ void vtkCocoaRenderWindow::StereoUpdate(void)
       case VTK_STEREO_RED_BLUE:
         this->StereoStatus = 1;
         break;
+      case VTK_STEREO_ANAGLYPH:
+        this->StereoStatus = 1;
+        break;
+      case VTK_STEREO_DRESDEN:
+        this->StereoStatus = 1;
+        break;      
+      case VTK_STEREO_INTERLACED:
+        this->StereoStatus = 1;
+        break;
       }
     }
   else if ((!this->StereoRender) && this->StereoStatus)
@@ -345,6 +354,15 @@ void vtkCocoaRenderWindow::StereoUpdate(void)
         this->StereoStatus = 0;
         break;
       case VTK_STEREO_RED_BLUE:
+        this->StereoStatus = 0;
+        break;
+      case VTK_STEREO_ANAGLYPH:
+        this->StereoStatus = 0;
+        break;
+      case VTK_STEREO_DRESDEN:
+        this->StereoStatus = 0;
+        break;
+      case VTK_STEREO_INTERLACED:
         this->StereoStatus = 0;
         break;
       }

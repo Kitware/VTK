@@ -26,7 +26,7 @@
 #include "vtkUnsignedCharArray.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.65");
+vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.66");
 #endif
 
 #define MAX_LIGHTS 8
@@ -70,13 +70,20 @@ void vtkOpenGLRenderWindow::StereoUpdate(void)
     switch (this->StereoType) 
       {
       case VTK_STEREO_CRYSTAL_EYES:
-        {
-        }
+        // not clear this is supposed to be empty,
+        // but it has been that way forever.
         break;
       case VTK_STEREO_RED_BLUE:
-        {
         this->StereoStatus = 1;
-        }
+        break;
+      case VTK_STEREO_ANAGLYPH:
+        this->StereoStatus = 1;
+        break;
+      case VTK_STEREO_DRESDEN:
+        this->StereoStatus = 1;
+        break;      
+      case VTK_STEREO_INTERLACED:
+        this->StereoStatus = 1;
       }
     }
   else if ((!this->StereoRender) && this->StereoStatus)
@@ -84,14 +91,20 @@ void vtkOpenGLRenderWindow::StereoUpdate(void)
     switch (this->StereoType) 
       {
       case VTK_STEREO_CRYSTAL_EYES:
-        {
         this->StereoStatus = 0;
-        }
         break;
       case VTK_STEREO_RED_BLUE:
-        {
         this->StereoStatus = 0;
-        }
+        break;
+      case VTK_STEREO_ANAGLYPH:
+        this->StereoStatus = 0;
+        break;
+      case VTK_STEREO_DRESDEN:
+        this->StereoStatus = 0;
+        break;
+      case VTK_STEREO_INTERLACED:
+        this->StereoStatus = 0;
+        break;
       }
     }
 }

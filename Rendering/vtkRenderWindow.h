@@ -53,6 +53,7 @@ class vtkUnsignedCharArray;
 #define VTK_STEREO_LEFT         4
 #define VTK_STEREO_RIGHT        5
 #define VTK_STEREO_DRESDEN      6
+#define VTK_STEREO_ANAGLYPH     7
 
 #define VTK_CURSOR_DEFAULT  0
 #define VTK_CURSOR_ARROW    1
@@ -187,7 +188,19 @@ public:
   vtkBooleanMacro(PolygonSmoothing,int);
 
   // Description:
-  // Set/Get what type of stereo rendering to use.
+  // Set/Get what type of stereo rendering to use.  CrystalEyes
+  // mode uses frame-sequential capabilities available in OpenGL
+  // to drive LCD shutter glasses and stereo projectors.  RedBlue
+  // mode is a simple type of stereo for use with red-blue glasses.
+  // Anaglyph mode is a superset of RedBlue mode, but the color
+  // output channels can be configured using the AnaglyphColorMask
+  // and the color of the original image can be (somewhat) maintained
+  // using AnaglyphColorSaturation;  the default colors for Anaglyph
+  // mode is red-cyan.  Interlaced stereo mode produces a composite
+  // image where horizontal lines alternate between left and right
+  // views.  StereoLeft and StereoRight modes choose one or the other
+  // stereo view.  Dresden mode is yet another stereoscopic 
+  // interleaving.
   vtkGetMacro(StereoType,int);
   vtkSetMacro(StereoType,int);
   void SetStereoTypeToCrystalEyes() 
@@ -202,6 +215,8 @@ public:
     {this->SetStereoType(VTK_STEREO_RIGHT);};
   void SetStereoTypeToDresden() 
     {this->SetStereoType(VTK_STEREO_DRESDEN);};  
+  void SetStereoTypeToAnaglyph() 
+    {this->SetStereoType(VTK_STEREO_ANAGLYPH);};
   char *GetStereoTypeAsString();
 
   // Description:
@@ -218,6 +233,31 @@ public:
   // Handles work required once both views have been rendered when using
   // stereo rendering.
   virtual void StereoRenderComplete();
+
+  //Description:
+  // Set/get the anaglyph color saturation factor.  This number ranges from
+  // 0.0 to 1.0:  0.0 means that no color from the original object is 
+  // maintained, 1.0 means all of the color is maintained.  The default
+  // value is 0.65.  Too much saturation can produce uncomfortable 3D
+  // viewing because anaglyphs also use color to encode 3D.
+  vtkSetClampMacro(AnaglyphColorSaturation,float, 0.0, 1.0);
+  vtkGetMacro(AnaglyphColorSaturation,float);
+
+  //Description:
+  // Set/get the anaglyph color mask values.  These two numbers are bits
+  // mask that control which color channels of the original stereo
+  // images are used to produce the final anaglyph image.  The first
+  // value is the color mask for the left view, the second the mask
+  // for the right view.  If a bit in the mask is on for a particular
+  // color for a view, that color is passed on to the final view; if
+  // it is not set, that channel for that view is ignored.
+  // The bits are arranged as r, g, and b, so r = 4, g = 2, and b = 1.
+  // By default, the first value (the left view) is set to 4, and the
+  // second value is set to 3.  That means that the red output channel
+  // comes from the left view, and the green and blue values come from
+  // the right view.
+  vtkSetVector2Macro(AnaglyphColorMask,int);
+  vtkGetVectorMacro(AnaglyphColorMask,int,2);
 
   // Description:
   // Remap the rendering window. This probably only works on UNIX right now.
@@ -442,6 +482,8 @@ protected:
   int   NumberOfLayers;
   int CurrentCursor;
   int IsPicking;
+  float AnaglyphColorSaturation;
+  int AnaglyphColorMask[2];
 
 private:
   vtkRenderWindow(const vtkRenderWindow&);  // Not implemented.
@@ -464,11 +506,11 @@ inline char *vtkRenderWindow::GetStereoTypeAsString(void)
       return (char *)"Right";
     case VTK_STEREO_DRESDEN:
       return (char *)"DresdenDisplay";
+    case VTK_STEREO_ANAGLYPH:
+      return (char *)"Anaglyph";
     default:
       return (char *)"";
     }
 }
 
 #endif
-
-

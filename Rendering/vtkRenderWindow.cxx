@@ -22,7 +22,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkRenderWindow, "1.140");
+vtkCxxRevisionMacro(vtkRenderWindow, "1.141");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -66,6 +66,9 @@ vtkRenderWindow::vtkRenderWindow()
   this->Renderers = vtkRendererCollection::New();
   this->NumberOfLayers = 1;
   this->CurrentCursor = VTK_CURSOR_DEFAULT;
+  this->AnaglyphColorSaturation = 0.65;
+  this->AnaglyphColorMask[0] = 4;  // red
+  this->AnaglyphColorMask[1] = 3;  // cyan
 }
 
 vtkRenderWindow::~vtkRenderWindow()
@@ -722,6 +725,9 @@ void vtkRenderWindow::StereoUpdate(void)
       case VTK_STEREO_RED_BLUE:
         this->StereoStatus = 1;
         break;
+      case VTK_STEREO_ANAGLYPH:
+        this->StereoStatus = 1;
+        break;
       case VTK_STEREO_DRESDEN:
         this->StereoStatus = 1;
         break;      
@@ -734,6 +740,9 @@ void vtkRenderWindow::StereoUpdate(void)
     switch (this->StereoType) 
       {
       case VTK_STEREO_RED_BLUE:
+        this->StereoStatus = 0;
+        break;
+      case VTK_STEREO_ANAGLYPH:
         this->StereoStatus = 0;
         break;
       case VTK_STEREO_DRESDEN:
@@ -758,7 +767,8 @@ void vtkRenderWindow::StereoMidpoint(void)
     }
   if ((this->StereoType == VTK_STEREO_RED_BLUE) ||
       (this->StereoType == VTK_STEREO_INTERLACED) ||
-          (this->StereoType == VTK_STEREO_DRESDEN) )
+      (this->StereoType == VTK_STEREO_DRESDEN) ||
+      (this->StereoType == VTK_STEREO_ANAGLYPH))
     {
     int *size;
     // get the size
@@ -813,6 +823,90 @@ void vtkRenderWindow::StereoRenderComplete(void)
           p1 += 3;
           p2 += 3;
           p3 += 3;
+          }
+        }
+      this->ResultFrame = result;
+      delete [] this->StereoBuffer;
+      this->StereoBuffer = NULL;
+      delete [] buff;
+      }
+      break;
+    case VTK_STEREO_ANAGLYPH:
+      {
+      unsigned char *buff;
+      unsigned char *p0, *p1, *p2;
+      unsigned char* result;
+      int *size;
+      int x,y;
+      int res;
+      int m0, m1, ave0, ave1;
+      int avecolor[256][3], satcolor[256];
+      float a;
+
+      // get the size
+      size = this->GetSize();
+      // get the data
+      buff = this->GetPixelData(0,0,size[0]-1,size[1]-1,!this->DoubleBuffer);
+      p0 = this->StereoBuffer;
+      p1 = buff;
+
+      // allocate the result
+      result = new unsigned char [size[0]*size[1]*3];
+      if (!result)
+        {
+        vtkErrorMacro(<<"Couldn't allocate memory for ANAGLYPH stereo.");
+        return;
+        }
+      p2 = result;
+
+      // build some tables
+      a = this->AnaglyphColorSaturation;
+      m0 = this->AnaglyphColorMask[0];
+      m1 = this->AnaglyphColorMask[1];
+
+      for(x = 0; x < 256; x++) 
+        {
+        avecolor[x][0] = int((1.0-a)*x*0.3086);
+        avecolor[x][1] = int((1.0-a)*x*0.6094);
+        avecolor[x][2] = int((1.0-a)*x*0.0820);
+
+        satcolor[x] = int(a*x);
+        }
+
+      // now merge the two images 
+      for (x = 0; x < size[0]; x++)
+        {
+        for (y = 0; y < size[1]; y++)
+          {
+            ave0 = avecolor[p0[0]][0] + avecolor[p0[1]][1] + avecolor[p0[2]][2];
+            ave1 = avecolor[p1[0]][0] + avecolor[p1[1]][1] + avecolor[p1[2]][2];
+            if (m0 & 0x4) 
+              {
+              p2[0] = satcolor[p0[0]] + ave0;
+              }
+            if (m0 & 0x2) 
+              {
+              p2[1] = satcolor[p0[1]] + ave0;
+              }
+            if (m0 & 0x1) 
+              {
+              p2[2] = satcolor[p0[2]] + ave0;
+              }
+            if (m1 & 0x4) 
+              {
+              p2[0] = satcolor[p1[0]] + ave1;
+              }
+            if (m1 & 0x2) 
+              {
+              p2[1] = satcolor[p1[1]] + ave1;
+              }
+            if (m1 & 0x1) 
+              {
+              p2[2] = satcolor[p1[2]] + ave1;
+              }
+            p0 += 3;
+            p1 += 3;
+            p2 += 3;
           }
         }
       this->ResultFrame = result;
