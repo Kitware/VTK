@@ -74,6 +74,24 @@ void vtkVolumeMapper::Update()
     }
 }
 
+// Get the bounds for the input of this mapper as 
+// (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
+float *vtkVolumeMapper::GetBounds()
+{
+  static float bounds[] = {-1.0,1.0, -1.0,1.0, -1.0,1.0};
+
+  if ( ! this->GetInput() ) 
+    {
+    return bounds;
+    }
+  else
+    {
+    this->GetInput()->Update();
+    this->GetInput()->GetBounds(this->Bounds);
+    return this->Bounds;
+    }
+}
+
 void vtkVolumeMapper::SetInput( vtkStructuredPoints *input )
 {
   this->vtkProcessObject::SetInput(0, input);

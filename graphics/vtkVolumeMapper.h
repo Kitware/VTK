@@ -124,6 +124,10 @@ public:
     this->SetRGBTextureInput(tmp->GetOutput()); tmp->Delete();}
   virtual vtkStructuredPoints *GetRGBTextureInput();
 
+  // Description:
+  // Return bounding box (array of six floats) of data expressed as
+  // (xmin,xmax, ymin,ymax, zmin,zmax).
+  virtual float *GetBounds();
 
   virtual int GetMapperType()=0;
 

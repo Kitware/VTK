@@ -119,7 +119,7 @@ void vtkPicker::MarkPicked(vtkActor *assem, vtkActor *actor, vtkMapper *mapper,
   this->Assembly = assem;
   this->Actor = actor;
   this->Mapper = mapper;
-  this->DataSet = mapper->GetInput();
+  this->DataSet = mapper->GetDataSetInput();
   this->GlobalTMin = tMin;
   for (i=0; i < 3; i++) 
     {

@@ -78,6 +78,15 @@ public:
   // Get the mtime also considering the lookup table.
   unsigned long GetMTime();
 
+  // Description:
+  // Set the Input of this mapper.
+  void SetInput(vtkDataSet *input);
+  void SetInput(vtkImageData *cache)
+    {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
+    this->SetInput(((vtkDataSet *)tmp->GetOutput())); tmp->Delete();}  
+
+  vtkDataSet *GetInput();
+
 protected:
   vtkDataSetMapper();
   ~vtkDataSetMapper();

@@ -78,6 +78,34 @@ vtkMapper::~vtkMapper()
     }
 }
 
+// Get the bounds for the input of this mapper as 
+// (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
+float *vtkMapper::GetBounds()
+{
+  static float bounds[] = {-1.0,1.0, -1.0,1.0, -1.0,1.0};
+
+  if ( ! this->GetDataSetInput() ) 
+    {
+    return bounds;
+    }
+  else
+    {
+    this->GetDataSetInput()->Update();
+    this->GetDataSetInput()->GetBounds(this->Bounds);
+    return this->Bounds;
+    }
+}
+
+vtkDataSet *vtkMapper::GetDataSetInput()
+{
+  if (this->NumberOfInputs < 1)
+    {
+    return NULL;
+    }
+  
+  return (vtkDataSet *)(this->Inputs[0]);
+}
+
 void vtkMapper::SetGlobalImmediateModeRendering(int val)
 {
   if (val == vtkMapperGlobalImmediateModeRendering)
@@ -123,7 +151,7 @@ vtkScalars *vtkMapper::GetColors()
   vtkScalars *scalars;
   
   // make sure we have an input
-  if (!this->GetInput())
+  if (!this->GetDataSetInput())
     {
     return NULL;
     }
@@ -131,19 +159,19 @@ vtkScalars *vtkMapper::GetColors()
   // get and scalar data according to scalar mode
   if ( this->ScalarMode == VTK_SCALAR_MODE_DEFAULT )
     {
-    scalars = this->GetInput()->GetPointData()->GetScalars();
+    scalars = this->GetDataSetInput()->GetPointData()->GetScalars();
     if (!scalars)
       {
-      scalars = this->GetInput()->GetCellData()->GetScalars();
+      scalars = this->GetDataSetInput()->GetCellData()->GetScalars();
       }
     }
   else if ( this->ScalarMode == VTK_SCALAR_MODE_USE_POINT_DATA )
     {
-    scalars = this->GetInput()->GetPointData()->GetScalars();
+    scalars = this->GetDataSetInput()->GetPointData()->GetScalars();
     }
   else
     {
-    scalars = this->GetInput()->GetCellData()->GetScalars();
+    scalars = this->GetDataSetInput()->GetCellData()->GetScalars();
     }
   
   // do we have any scalars ?
@@ -227,9 +255,9 @@ void vtkMapper::CreateDefaultLookupTable()
 // Update the network connected to this mapper.
 void vtkMapper::Update()
 {
-  if ( this->GetInput() )
+  if ( this->GetDataSetInput() )
     {
-    this->GetInput()->Update();
+    this->GetDataSetInput()->Update();
     }
 }
 

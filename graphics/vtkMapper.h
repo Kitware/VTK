@@ -208,12 +208,25 @@ public:
   char *GetScalarModeAsString();
 
   // Description:
+  // Return bounding box (array of six floats) of data expressed as
+  // (xmin,xmax, ymin,ymax, zmin,zmax).
+  virtual float *GetBounds();
+  virtual void GetBounds(float bounds[6]) 
+    {this->vtkAbstractMapper3D::GetBounds(bounds);};
+
+  // Description:
   // This instance variable is used by vtkLODActor to determine which
   // mapper to use.  It is an estimate of the time necessary to render.
   // Setting the render time does not modify the mapper.
   void SetRenderTime(float time) {this->RenderTime = time;}
   vtkGetMacro(RenderTime, float);
 
+//BTX
+  // Description:
+  // Allow access the the input as a vtkDataSet - a few objects need
+  // this such as vtkActor, and some exporters
+  vtkDataSet *GetDataSetInput();
+//ETX
 
 protected:
   vtkMapper();

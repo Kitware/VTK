@@ -295,10 +295,10 @@ void vtkLODActor::UpdateOwnLODs()
   // connect the filters to the mapper, and set parameters
   this->PointSource->SetRadius(0);
   this->PointSource->SetNumberOfPoints(1);
-  this->MaskPoints->SetInput(this->Mapper->GetInput());
+  this->MaskPoints->SetInput(this->Mapper->GetDataSetInput());
   this->MaskPoints->SetMaximumNumberOfPoints(this->NumberOfCloudPoints);
   this->MaskPoints->SetRandomMode(1);
-  this->OutlineFilter->SetInput(this->Mapper->GetInput());
+  this->OutlineFilter->SetInput(this->Mapper->GetDataSetInput());
   this->MediumMapper->SetScalarRange(this->Mapper->GetScalarRange());
   this->MediumMapper->SetScalarVisibility(this->Mapper->GetScalarVisibility());
   

@@ -79,39 +79,6 @@ void vtkAbstractMapper3D::RemoveClippingPlane(vtkPlane *plane)
   this->ClippingPlanes->RemoveItem(plane);
 }
 
-
-void vtkAbstractMapper3D::SetInput(vtkDataSet *input)
-{
-  this->vtkProcessObject::SetInput(0, input);
-}
-
-vtkDataSet *vtkAbstractMapper3D::GetInput()
-{
-  if (this->NumberOfInputs < 1)
-    {
-    return NULL;
-    }
-  
-  return (vtkDataSet *)(this->Inputs[0]);
-}
-
-// Get the bounds for this Prop as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
-float *vtkAbstractMapper3D::GetBounds()
-{
-  static float bounds[] = {-1.0,1.0, -1.0,1.0, -1.0,1.0};
-
-  if ( ! this->GetInput() ) 
-    {
-    return bounds;
-    }
-  else
-    {
-    this->GetInput()->Update();
-    this->GetInput()->GetBounds(this->Bounds);
-    return this->Bounds;
-    }
-}
-
 // Get the bounds for this Prop as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
 void vtkAbstractMapper3D::GetBounds(float bounds[6])
 {

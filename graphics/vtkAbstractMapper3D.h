@@ -72,11 +72,11 @@ public:
   // Description:
   // Return bounding box (array of six floats) of data expressed as
   // (xmin,xmax, ymin,ymax, zmin,zmax).
-  float *GetBounds();
+  virtual float *GetBounds()=0;
 
   // Description:
   // Get the bounds for this mapper as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
-  void GetBounds(float bounds[6]);
+  virtual void GetBounds(float bounds[6]);
   
   // Description:
   // Return the Center of this mapper's data.
@@ -99,17 +99,6 @@ public:
   // Description:
   // Update the network connected to this mapper.
   virtual void Update()=0;
-
-  // Description:
-  // Return the Input of this mapper.
-  void SetInput(vtkDataSet *input);
-  void SetInput(vtkImageData *cache)
-    {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
-    this->SetInput(((vtkDataSet *)tmp->GetOutput())); tmp->Delete();}  
-
-//BTX
-  vtkDataSet *GetInput();
-//ETX
 
   // Description:
   // Specify clipping planes to be applied when the data is mapped

@@ -588,7 +588,7 @@ void vtkRIBExporter::WriteActor(vtkActor *anActor)
   this->WriteProperty (anActor->GetProperty (), anActor->GetTexture ());
   
   // get the mappers input and matrix
-  aDataSet = anActor->GetMapper()->GetInput();
+  aDataSet = anActor->GetMapper()->GetDataSetInput();
   anActor->GetMatrix (matrix);
   matrix->Transpose();
 

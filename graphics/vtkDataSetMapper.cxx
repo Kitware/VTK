@@ -60,6 +60,20 @@ vtkDataSetMapper::~vtkDataSetMapper()
     }
 }
 
+void vtkDataSetMapper::SetInput(vtkDataSet *input)
+{
+  this->vtkProcessObject::SetInput(0, input);
+}
+
+vtkDataSet *vtkDataSetMapper::GetInput()
+{
+  if (this->NumberOfInputs < 1)
+    {
+    return NULL;
+    }
+  
+  return (vtkDataSet *)(this->Inputs[0]);
+}
 
 void vtkDataSetMapper::ReleaseGraphicsResources( vtkWindow *renWin )
 {
