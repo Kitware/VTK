@@ -34,7 +34,6 @@ public:
   vtkTypeRevisionMacro(vtkPiecewiseFunction,vtkDataObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  vtkDataObject *MakeObject();
   void Initialize();
   void DeepCopy( vtkDataObject *f );
   void ShallowCopy( vtkDataObject *f );

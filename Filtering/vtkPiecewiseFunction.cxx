@@ -19,7 +19,7 @@
 #include "vtkSource.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPiecewiseFunction, "1.31");
+vtkCxxRevisionMacro(vtkPiecewiseFunction, "1.32");
 vtkStandardNewMacro(vtkPiecewiseFunction);
 
 // Construct a new vtkPiecewiseFunction with default values
@@ -87,15 +87,6 @@ void vtkPiecewiseFunction::ShallowCopy( vtkDataObject *o )
 
   // Do the superclass
   this->vtkDataObject::ShallowCopy(o);
-}
-
-vtkDataObject *vtkPiecewiseFunction::MakeObject()
-{
-  vtkPiecewiseFunction *f;
-
-  f = vtkPiecewiseFunction::New();
-  f->DeepCopy( this );
-  return (vtkDataObject *)f;
 }
 
 void vtkPiecewiseFunction::Initialize()
