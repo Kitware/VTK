@@ -151,21 +151,21 @@ public:
   // Description:
   // Set/Get the origin of the plane.
   void SetOrigin(float x, float y, float z);
-  void SetOrigin(float x[3]);
+  void SetOrigin(float xyz[3]);
   float* GetOrigin();
   void GetOrigin(float xyz[3]);
 
   // Description:
   // Set/Get the position of the point defining the first axis of the plane.
   void SetPoint1(float x, float y, float z);
-  void SetPoint1(float x[3]);
+  void SetPoint1(float xyz[3]);
   float* GetPoint1();
   void GetPoint1(float xyz[3]);
 
   // Description:
   // Set/Get the position of the point defining the second axis of the plane.
   void SetPoint2(float x, float y, float z);
-  void SetPoint2(float x[3]);
+  void SetPoint2(float xyz[3]);
   float* GetPoint2();
   void GetPoint2(float xyz[3]);
 
@@ -185,7 +185,7 @@ public:
 
   // Description:
   // Get the vector from the plane origin to point2.
-  void GetVector2(float v2[3]);  
+  void GetVector2(float v2[3]);
 
   // Description:
   // Get the slice position in terms of the data extent.
@@ -204,7 +204,7 @@ public:
   void SetSlicePosition(float position);
 
   // Description:
-  // Set the interpolation to use when texturing the plane.  
+  // Set the interpolation to use when texturing the plane.
   void SetResliceInterpolate(int);
   vtkGetMacro(ResliceInterpolate,int);
   void SetResliceInterpolateToNearestNeighbour()
