@@ -101,7 +101,7 @@ void vtkStripper::Execute()
   if ( inLines->GetNumberOfCells() > 0 )
     {
     newLines = vtkCellArray::New();
-    newLines->Allocate(newStrips->EstimateSize(numCells,6));
+    newLines->Allocate(newLines->EstimateSize(numCells,6));
     for (inLines->InitTraversal(); inLines->GetNextCell(numLinePts,linePts); )
       {
       if ( numLinePts > 2 )
