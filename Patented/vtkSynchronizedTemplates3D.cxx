@@ -44,7 +44,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkExtentTranslator.h"
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.64");
+vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.65");
 vtkStandardNewMacro(vtkSynchronizedTemplates3D);
 
 //----------------------------------------------------------------------------
@@ -137,7 +137,7 @@ void vtkSynchronizedTemplates3DInitializeOutput(int *ext,vtkImageData *input,
     }
   if (scalars)
     {
-    scalars->Allocate(estimatedSize,estimatedSize/2);
+    // A temporary name.
     scalars->SetName("Scalars");
     }
   
@@ -320,7 +320,6 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
                                          newScalars, newNormals, newGradients);
   newPts = output->GetPoints();
   newPolys = output->GetPolys();
-
   
   // this is an exploded execute extent.
   xMin = exExt[0];
@@ -534,6 +533,12 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
 
   if (newScalars)
     {
+    // Lets set the name of the scalars here.
+    vtkDataArray *inScalars = inPD->GetArray(self->GetInputScalarsSelection());
+    if (inScalars)
+      {
+      newScalars->SetName(inScalars->GetName());
+      }
     output->GetPointData()->SetScalars(newScalars);
     newScalars->Delete();
     newScalars = NULL;
@@ -611,6 +616,10 @@ void vtkSynchronizedTemplates3D::ThreadedExecute(vtkImageData *data,
   // Check data type and execute appropriate function
   //
   inScalars = data->GetPointData()->GetScalars(this->InputScalarsSelection);
+  if (inScalars == NULL)
+    {
+    vtkErrorMacro("No scalars for contouring.");
+    }
   if (inScalars->GetNumberOfComponents() == 1 )
     {
     ptr = data->GetArrayPointerForExtent(inScalars, exExt);
@@ -625,6 +634,7 @@ void vtkSynchronizedTemplates3D::ThreadedExecute(vtkImageData *data,
     vtkErrorMacro("Cannot handle multiple components yet.");
     return;
     }
+
 }
 
 //----------------------------------------------------------------------------

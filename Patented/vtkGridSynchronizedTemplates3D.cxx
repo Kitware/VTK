@@ -44,7 +44,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkGridSynchronizedTemplates3D, "1.60");
+vtkCxxRevisionMacro(vtkGridSynchronizedTemplates3D, "1.61");
 vtkStandardNewMacro(vtkGridSynchronizedTemplates3D);
 
 //----------------------------------------------------------------------------
@@ -712,6 +712,13 @@ void vtkGridSynchronizedTemplates3D::ThreadedExecute(int *exExt, int threadId)
     float *scalars = image->GetPointer(0);
     ContourGrid(this, threadId, exExt, scalars, output);
     image->Delete();
+    }
+
+  // Lets set the name of the scalars here.
+  if (this->ComputeScalars)
+    {
+    vtkDataArray *outScalars = output->GetPointData()->GetScalars();
+    outScalars->SetName(inScalars->GetName());
     }
 }
 

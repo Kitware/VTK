@@ -41,7 +41,7 @@
 #include "vtkSynchronizedTemplates2D.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplates2D, "1.24");
+vtkCxxRevisionMacro(vtkSynchronizedTemplates2D, "1.25");
 vtkStandardNewMacro(vtkSynchronizedTemplates2D);
 
 //----------------------------------------------------------------------------
@@ -460,6 +460,12 @@ void vtkSynchronizedTemplates2D::Execute()
     float *scalars =image->GetPointer(0);
     vtkContourImage(this, scalars, newPts, newScalars, newLines);
     image->Delete();
+    }
+
+  // Lets set the name of the scalars here.
+  if (newScalars)
+    {
+    newScalars->SetName(inScalars->GetName());
     }
 
   vtkDebugMacro(<<"Created: " 
