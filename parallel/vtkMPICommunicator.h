@@ -60,9 +60,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkMPICommunicator_h
 #define __vtkMPICommunicator_h
 
+#include "mpi.h"
 #include "vtkCommunicator.h"
 #include "vtkMPIGroup.h"
-#include "mpi.h"
 
 class vtkMPIController;
 
