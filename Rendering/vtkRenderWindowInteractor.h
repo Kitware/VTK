@@ -230,21 +230,26 @@ public:
   // Set/Get information about the current event. 
   // The current x,y position is in the EventPosition, and the previous
   // event position is in LastEventPosition, updated automatically each
-  // time EventPosition is set through SetEventAndLastEventPositions() or
-  // any SetEventInformation*(). 
+  // time EventPosition is set using its Set() method. 
   // The other information is about key board input.
-  vtkSetVector2Macro(EventPosition,int);
   vtkGetVector2Macro(EventPosition,int);
-  vtkSetVector2Macro(LastEventPosition,int);
   vtkGetVector2Macro(LastEventPosition,int);
-  virtual void SetEventAndLastEventPositions (int x, int y)
+  virtual void SetEventPosition(int x, int y)
   {
-    this->SetLastEventPosition(this->EventPosition[0], this->EventPosition[1]);
-    this->SetEventPosition(x, y);
-  } 
-  virtual void SetEventAndLastEventPositions (int pos[2])
+    vtkDebugMacro(<< this->GetClassName() << " (" << this 
+                  << "): setting EventPosition to (" << x << "," << y << ")");
+    if (this->EventPosition[0] != x || this->EventPosition[1] != y)
+      {
+      this->LastEventPosition[0] = this->EventPosition[0];
+      this->LastEventPosition[1] = this->EventPosition[1];
+      this->EventPosition[0] = x;
+      this->EventPosition[1] = y;
+      this->Modified();
+      }
+  };
+  void SetEventPosition(int pos[2])
   {
-    this->SetEventAndLastEventPositions(pos[0], pos[1]);
+    this->SetEventPosition(pos[0], pos[1]);
   } 
   vtkSetMacro(ControlKey, int);
   vtkGetMacro(ControlKey, int);
