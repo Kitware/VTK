@@ -84,8 +84,8 @@ int LoadOpenGLExtension(int argc, char *argv[])
 
   if (!extensions->ExtensionSupported("GL_VERSION_1_2"))
     {
-    cerr << "Is it possible that your driver does not support OpenGL 1.2?"
-         << endl;
+    cout << "Is it possible that your driver does not support OpenGL 1.2?"
+         << endl << endl;;
     int forceLoad = 0;
     for (int i = 0; i < argc; i++)
       {
@@ -113,6 +113,9 @@ int LoadOpenGLExtension(int argc, char *argv[])
            << "If you think this might be the case, try rerunning this test\n"
            << "with the -ForceLoad flag.  However, if Opengl 1.2 is really\n"
            << "not supported, a seg fault will occur." << endl;
+      renwin->Delete();
+      iren->Delete();
+      extensions->Delete();
       return 0;
       }
     }
