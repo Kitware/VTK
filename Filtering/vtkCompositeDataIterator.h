@@ -25,7 +25,7 @@
 
 class vtkDataObject;
 
-class VTK_COMMON_EXPORT vtkCompositeDataIterator : public vtkObject
+class VTK_FILTERING_EXPORT vtkCompositeDataIterator : public vtkObject
 {
 public:
   vtkTypeRevisionMacro(vtkCompositeDataIterator,vtkObject);

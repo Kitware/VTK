@@ -29,7 +29,7 @@
 
 class vtkAlgorithm;
 
-class VTK_COMMON_EXPORT vtkAlgorithmOutput : public vtkObject
+class VTK_FILTERING_EXPORT vtkAlgorithmOutput : public vtkObject
 {
 public:
   static vtkAlgorithmOutput *New();
