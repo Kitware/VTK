@@ -22,12 +22,13 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTransform.h"
+#include "vtkDataSetAttributes.h"
 
 #include <limits.h>
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.57");
+vtkCxxRevisionMacro(vtkImageReslice, "1.58");
 vtkStandardNewMacro(vtkImageReslice);
 vtkCxxSetObjectMacro(vtkImageReslice, InformationInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkImageReslice,ResliceAxes,vtkMatrix4x4);
@@ -753,10 +754,6 @@ int vtkImageReslice::RequestInformation(
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),outWholeExt,6);
   outInfo->Set(vtkDataObject::SPACING(), outSpacing, 3);
   outInfo->Set(vtkDataObject::ORIGIN(), outOrigin, 3);
-  outInfo->Set(vtkDataObject::SCALAR_TYPE(),
-               inInfo->Get(vtkDataObject::SCALAR_TYPE()));
-  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),
-               inInfo->Get(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS()));
 
   this->GetIndexMatrix(inInfo, outInfo);
 
@@ -769,6 +766,17 @@ int vtkImageReslice::RequestInformation(
                      inInfo->Get(vtkDataObject::ORIGIN()), 3);
     }
 
+  // This information already copied from input to output in CopyInformationToPipeline?
+  vtkInformation *inScalarInfo = vtkDataObject::GetActiveFieldInformation(inInfo, 
+    vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
+  if (!inScalarInfo)
+    {
+    vtkErrorMacro("Missing scalar field on input information!");
+    return 0;
+    }
+  vtkDataObject::SetPointDataActiveScalarInfo(outInfo, 
+    inScalarInfo->Get( vtkDataObject::FIELD_ARRAY_TYPE() ),
+    inScalarInfo->Get( vtkDataObject::FIELD_NUMBER_OF_COMPONENTS() ) );
   return 1;
 }
 

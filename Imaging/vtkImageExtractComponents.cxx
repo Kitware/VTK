@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageExtractComponents, "1.33");
+vtkCxxRevisionMacro(vtkImageExtractComponents, "1.34");
 vtkStandardNewMacro(vtkImageExtractComponents);
 
 //----------------------------------------------------------------------------
@@ -112,11 +112,8 @@ int vtkImageExtractComponents::RequestInformation (
   vtkInformationVector ** vtkNotUsed( inputVector ), 
   vtkInformationVector * outputVector)
 {
-  // get the info objects
-  vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),
-               this->NumberOfComponents);
-
+  vtkDataObject::SetPointDataActiveScalarInfo(
+    outputVector->GetInformationObject(0), -1, this->NumberOfComponents);
   return 1;
 }
 

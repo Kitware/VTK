@@ -22,7 +22,7 @@
 #include "vtkScalarsToColors.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageMapToColors, "1.26");
+vtkCxxRevisionMacro(vtkImageMapToColors, "1.27");
 vtkStandardNewMacro(vtkImageMapToColors);
 vtkCxxSetObjectMacro(vtkImageMapToColors,LookupTable,vtkScalarsToColors);
 
@@ -135,21 +135,21 @@ int vtkImageMapToColors::RequestInformation (
 
   if (this->LookupTable == NULL)
     {
-    if (inInfo->Get(vtkDataObject::SCALAR_TYPE()) != VTK_UNSIGNED_CHAR)
+    vtkInformation *scalarInfo = vtkDataObject::GetActiveFieldInformation(inInfo, 
+      vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
+    if ( scalarInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE()) != VTK_UNSIGNED_CHAR )
       {
       vtkErrorMacro("ExecuteInformation: No LookupTable was set but input data is not VTK_UNSIGNED_CHAR, therefore input can't be passed through!");
       return 1;
       }
-    else if (numComponents != inInfo->Get(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS()))
+    else if ( numComponents != scalarInfo->Get(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS()) )
       {
       vtkErrorMacro("ExecuteInformation: No LookupTable was set but number of components in input doesn't match OutputFormat, therefore input can't be passed through!");
       return 1;
       }
     }
 
-  outInfo->Set(vtkDataObject::SCALAR_TYPE(),VTK_UNSIGNED_CHAR);
-  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),numComponents);
-
+  vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_UNSIGNED_CHAR, numComponents);
   return 1;
 }
 

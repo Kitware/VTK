@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageSobel2D, "1.34");
+vtkCxxRevisionMacro(vtkImageSobel2D, "1.35");
 vtkStandardNewMacro(vtkImageSobel2D);
 
 //----------------------------------------------------------------------------
@@ -52,9 +52,7 @@ int vtkImageSobel2D::RequestInformation (vtkInformation *request,
   int retval =
     this->Superclass::RequestInformation(request, inputVector, outputVector);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(), 2);
-  outInfo->Set(vtkDataObject::SCALAR_TYPE(), VTK_DOUBLE);
-
+  vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_DOUBLE, 2);
   return retval;
 }
 

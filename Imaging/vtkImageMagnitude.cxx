@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageMagnitude, "1.40");
+vtkCxxRevisionMacro(vtkImageMagnitude, "1.41");
 vtkStandardNewMacro(vtkImageMagnitude);
 
 //----------------------------------------------------------------------------
@@ -39,10 +39,8 @@ int vtkImageMagnitude::RequestInformation (
   vtkInformationVector ** vtkNotUsed( inputVector ),
   vtkInformationVector * outputVector)
 {
-  // get the info objects
-  vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),1);
-
+  vtkDataObject::SetPointDataActiveScalarInfo(
+    outputVector->GetInformationObject(0), -1, 1);
   return 1;
 }
 

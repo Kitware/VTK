@@ -40,8 +40,9 @@
 #include "vtkUnsignedShortArray.h"
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
+#include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.7");
+vtkCxxRevisionMacro(vtkImageData, "1.8");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -100,8 +101,16 @@ void vtkImageData::CopyStructure(vtkDataSet *ds)
   vtkInformation* thatPInfo = ds->GetPipelineInformation();
   if(thisPInfo && thatPInfo)
     {
-    thisPInfo->CopyEntry(thatPInfo, vtkDataObject::SCALAR_TYPE());
-    thisPInfo->CopyEntry(thatPInfo, vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS());
+    // copy point data.
+    if (thatPInfo->Has(POINT_DATA_VECTOR()))
+      {
+      thisPInfo->CopyEntry(thatPInfo, POINT_DATA_VECTOR());
+      }
+    // copy cell data.
+    if (thatPInfo->Has(CELL_DATA_VECTOR()))
+      {
+      thisPInfo->CopyEntry(thatPInfo, CELL_DATA_VECTOR());
+      }
     }
   this->DataDescription = sPts->DataDescription;
   this->CopyInformation(sPts);
@@ -132,57 +141,47 @@ void vtkImageData::CopyInformationToPipeline(vtkInformation* request,
     // current settings.
     vtkInformation* output = this->PipelineInformation;
 
-    // Set origin (only if it is not set).
-    if (!output->Has(ORIGIN()))
+    if(input && input->Has(ORIGIN()))
       {
-      if(input && input->Has(ORIGIN()))
-        {
-        output->CopyEntry(input, ORIGIN());
-        }
-      else
-        {
-        output->Set(ORIGIN(), this->GetOrigin(), 3);
-        }
+      output->CopyEntry(input, ORIGIN());
+      }
+    else if (!output->Has(ORIGIN()))
+      {
+      // Set origin (only if it is not set).
+      output->Set(ORIGIN(), this->GetOrigin(), 3);
       }
 
-    // Set spacing (only if it is not set).
-    if (!output->Has(SPACING()))
+    if(input && input->Has(SPACING()))
       {
-      if(input && input->Has(SPACING()))
-        {
-        output->CopyEntry(input, SPACING());
-        }
-      else
-        {
-        output->Set(SPACING(), this->GetSpacing(), 3);
-        }
+      output->CopyEntry(input, SPACING());
+      }
+    else if (!output->Has(SPACING()))
+      {
+      // Set spacing (only if it is not set).
+      output->Set(SPACING(), this->GetSpacing(), 3);
       }
 
-    // Set scalar type (only if it is not set).
-    if (!output->Has(SCALAR_TYPE()))
+    // copy of input to output (if input exists) occurs in vtkDataObject, so
+    // only to to check if the scalar info exists in the field data info of the output.
+    // If it exists, then we assume the type and number of components are set
+    vtkInformation *scalarInfo = vtkDataObject::GetActiveFieldInformation(output, 
+      FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
+    if (!scalarInfo)
       {
-      if(input && input->Has(SCALAR_TYPE()))
+      // see if we have the scalars to grab the name from
+      const char *scalarName = NULL;
+      vtkDataArray *scalars = this->GetPointData()->GetScalars();
+      if (scalars)
         {
-        output->CopyEntry(input, SCALAR_TYPE());
+        scalarName = scalars->GetName();
         }
-      else
-        {
-        output->Set(SCALAR_TYPE(), this->GetScalarType());
-        }
-      }
 
-    // Set scalar number of components (only if it is not set).
-    if (!output->Has(SCALAR_NUMBER_OF_COMPONENTS()))
-      {
-      if(input && input->Has(SCALAR_NUMBER_OF_COMPONENTS()))
-        {
-        output->CopyEntry(input, SCALAR_NUMBER_OF_COMPONENTS());
-        }
-      else
-        {
-        output->Set(SCALAR_NUMBER_OF_COMPONENTS(),
-                    this->GetNumberOfScalarComponents());
-        }
+      scalarInfo = vtkDataObject::SetActiveAttribute(output, 
+        vtkDataObject::FIELD_ASSOCIATION_POINTS, scalarName, 
+        vtkDataSetAttributes::SCALARS);
+
+      scalarInfo->Set(FIELD_ARRAY_TYPE(), this->GetScalarType());
+      scalarInfo->Set(FIELD_NUMBER_OF_COMPONENTS(), this->GetNumberOfScalarComponents());
       }
     }
 }
@@ -1188,7 +1187,7 @@ void vtkImageData::SetNumberOfScalarComponents(int num)
   this->GetProducerPort();
   if(vtkInformation* info = this->GetPipelineInformation())
     {
-    info->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(), num);
+    vtkDataObject::SetPointDataActiveScalarInfo(info, -1, num);
     }
   else
     {
@@ -1215,9 +1214,11 @@ int vtkImageData::GetPipelineNumberOfScalarComponents()
   this->GetProducerPort();
   if(vtkInformation* info = this->GetPipelineInformation())
     {
-    if (info->Has(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS()))
+    vtkInformation *scalarInfo = vtkDataObject::GetActiveFieldInformation(info, 
+      FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
+    if (scalarInfo && scalarInfo->Has(FIELD_NUMBER_OF_COMPONENTS()))
       {
-      return info->Get(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS());
+      return scalarInfo->Get( FIELD_NUMBER_OF_COMPONENTS() );
       }
     }
   return 1;
@@ -1501,7 +1502,7 @@ void vtkImageData::SetScalarType(int type)
   this->GetProducerPort();
   if(vtkInformation* info = this->GetPipelineInformation())
     {
-    info->Set(vtkDataObject::SCALAR_TYPE(), type);
+    vtkDataObject::SetPointDataActiveScalarInfo(info, type, -1);
     }
   else
     {
@@ -1527,9 +1528,11 @@ int vtkImageData::GetPipelineScalarType()
   this->GetProducerPort();
   if(vtkInformation* info = this->GetPipelineInformation())
     {
-    if (info->Has(vtkDataObject::SCALAR_TYPE()))
+    vtkInformation *scalarInfo = vtkDataObject::GetActiveFieldInformation(info, 
+      FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
+    if (scalarInfo)
       {
-      return info->Get(vtkDataObject::SCALAR_TYPE());
+      return scalarInfo->Get( FIELD_ARRAY_TYPE() );
       }
     }
   return VTK_DOUBLE;
@@ -1545,13 +1548,15 @@ void vtkImageData::AllocateScalars()
   this->GetProducerPort();
   if(vtkInformation* info = this->GetPipelineInformation())
     {
-    if (info->Has(vtkDataObject::SCALAR_TYPE()))
+    vtkInformation *scalarInfo = vtkDataObject::GetActiveFieldInformation(info, 
+      FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
+    if (scalarInfo)
       {
-      newType = info->Get(vtkDataObject::SCALAR_TYPE());
-      }
-    if (info->Has(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS()))
-      {
-      newNumComp = info->Get(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS());
+      newType = scalarInfo->Get( FIELD_ARRAY_TYPE() );
+      if ( scalarInfo->Has(FIELD_NUMBER_OF_COMPONENTS()) )
+        {
+        newNumComp = scalarInfo->Get( FIELD_NUMBER_OF_COMPONENTS() );
+        }
       }
     }
 

@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageShiftScale, "1.50");
+vtkCxxRevisionMacro(vtkImageShiftScale, "1.51");
 vtkStandardNewMacro(vtkImageShiftScale);
 
 //----------------------------------------------------------------------------
@@ -46,7 +46,7 @@ int vtkImageShiftScale::RequestInformation (
     {
     // get the info objects
     vtkInformation* outInfo = outputVector->GetInformationObject(0);
-    outInfo->Set(vtkDataObject::SCALAR_TYPE(),this->OutputScalarType);
+    vtkDataObject::SetPointDataActiveScalarInfo(outInfo, this->OutputScalarType, -1);
     }
 
   return 1;

@@ -26,7 +26,7 @@
 #include "vtkPointLocator.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkSurfaceReconstructionFilter, "1.33");
+vtkCxxRevisionMacro(vtkSurfaceReconstructionFilter, "1.34");
 vtkStandardNewMacro(vtkSurfaceReconstructionFilter);
 
 vtkSurfaceReconstructionFilter::vtkSurfaceReconstructionFilter()
@@ -124,13 +124,11 @@ int vtkSurfaceReconstructionFilter::RequestInformation (
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-  outInfo->Set(vtkDataObject::SCALAR_TYPE(),VTK_FLOAT);
-  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),1);
-  
   // would be nice to compute the whole extent but we need more info to
   // compute it.
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),0,0,0,0,0,0);
 
+  vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_FLOAT, 1);
   return 1;
 }
 

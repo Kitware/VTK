@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageFFT, "1.37");
+vtkCxxRevisionMacro(vtkImageFFT, "1.38");
 vtkStandardNewMacro(vtkImageFFT);
 
 //----------------------------------------------------------------------------
@@ -29,9 +29,7 @@ vtkStandardNewMacro(vtkImageFFT);
 int vtkImageFFT::IterativeRequestInformation(
   vtkInformation* vtkNotUsed(input), vtkInformation* output)
 {
-  output->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),2);
-  output->Set(vtkDataObject::SCALAR_TYPE(),VTK_DOUBLE);
-
+  vtkDataObject::SetPointDataActiveScalarInfo(output, VTK_DOUBLE, 2);
   return 1;
 }
 

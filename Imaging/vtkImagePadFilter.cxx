@@ -18,9 +18,10 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImagePadFilter, "1.33");
+vtkCxxRevisionMacro(vtkImagePadFilter, "1.34");
 vtkStandardNewMacro(vtkImagePadFilter);
 
 //----------------------------------------------------------------------------
@@ -106,13 +107,19 @@ int vtkImagePadFilter::RequestInformation (
   
   if (this->OutputNumberOfScalarComponents < 0)
     {
+    vtkInformation *inScalarInfo = vtkDataObject::GetActiveFieldInformation(inInfo, 
+      vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
+    if (!inScalarInfo)
+      {
+      vtkErrorMacro("Missing scalar field on input information!");
+      return 0;
+      }
     // invalid setting, it has not been set, so default to input.
     this->OutputNumberOfScalarComponents 
-      = inInfo->Get(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS());
+      = inScalarInfo->Get(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS());
     }
-  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),
-               this->OutputNumberOfScalarComponents);
-
+  vtkDataObject::SetPointDataActiveScalarInfo(outInfo, -1, 
+    this->OutputNumberOfScalarComponents);
   return 1;
 }
 

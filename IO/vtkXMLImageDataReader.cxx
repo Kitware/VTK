@@ -22,7 +22,7 @@
 #include "vtkInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLImageDataReader, "1.5");
+vtkCxxRevisionMacro(vtkXMLImageDataReader, "1.6");
 vtkStandardNewMacro(vtkXMLImageDataReader);
 
 //----------------------------------------------------------------------------
@@ -109,32 +109,6 @@ void vtkXMLImageDataReader::SetupOutputInformation(vtkInformation *outInfo)
 
   outInfo->Set(vtkDataObject::ORIGIN(), this->Origin, 3);
   outInfo->Set(vtkDataObject::SPACING(), this->Spacing, 3);
-    
-  // Backward-compatability support for scalar information in output.
-  if (this->PointDataElements[0])
-    {
-    int components, dataType, i;
-    for(i = 0; i < this->PointDataElements[0]->GetNumberOfNestedElements(); i++)
-      {
-      vtkXMLDataElement* eNested = this->PointDataElements[0]->GetNestedElement(i);
-      if ( eNested->GetAttribute( "Scalars" ) )
-        {
-        if(!eNested->GetWordTypeAttribute("type", dataType))
-          {
-          this->InformationError = 1;
-          return;
-          }
-        if(!eNested->GetScalarAttribute("NumberOfComponents", components))
-          {
-          this->InformationError = 1;
-          return;
-          }
-        outInfo->Set(vtkDataObject::SCALAR_TYPE(), dataType);
-        outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(), components);
-        break;
-        }
-      }
-    }
 }
 
 

@@ -20,8 +20,9 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkDataSetAttributes.h"
 
-vtkCxxRevisionMacro(vtkImageThreshold, "1.48");
+vtkCxxRevisionMacro(vtkImageThreshold, "1.49");
 vtkStandardNewMacro(vtkImageThreshold);
 
 //----------------------------------------------------------------------------
@@ -106,16 +107,23 @@ int vtkImageThreshold::RequestInformation (
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
 
-  if (this->OutputScalarType != -1)
+  if (this->OutputScalarType == -1)
     {
-    outInfo->Set(vtkDataObject::SCALAR_TYPE(), this->OutputScalarType);
+    // This information already copied from input to output in CopyInformationToPipeline?
+    vtkInformation *inScalarInfo = vtkDataObject::GetActiveFieldInformation(inInfo, 
+      vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
+    if (!inScalarInfo)
+      {
+      vtkErrorMacro("Missing scalar field on input information!");
+      return 0;
+      }
+    vtkDataObject::SetPointDataActiveScalarInfo(outInfo, 
+      inScalarInfo->Get( vtkDataObject::FIELD_ARRAY_TYPE() ), -1 );
     }
   else
     {
-    outInfo->Set(vtkDataObject::SCALAR_TYPE(),
-                 inInfo->Get(vtkDataObject::SCALAR_TYPE()));
+    vtkDataObject::SetPointDataActiveScalarInfo(outInfo, this->OutputScalarType, -1);
     }
-
   return 1;
 }
 

@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageNoiseSource, "1.31");
+vtkCxxRevisionMacro(vtkImageNoiseSource, "1.32");
 vtkStandardNewMacro(vtkImageNoiseSource);
 
 //----------------------------------------------------------------------------
@@ -90,9 +90,7 @@ int vtkImageNoiseSource::RequestInformation (
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                this->WholeExtent,6);
-  outInfo->Set(vtkDataObject::SCALAR_TYPE(),VTK_DOUBLE);
-  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),1);
-
+  vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_DOUBLE, 1);
   return 1;
 }
 

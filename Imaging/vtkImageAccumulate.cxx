@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageAccumulate, "1.58");
+vtkCxxRevisionMacro(vtkImageAccumulate, "1.59");
 vtkStandardNewMacro(vtkImageAccumulate);
 
 //----------------------------------------------------------------------------
@@ -344,8 +344,6 @@ int vtkImageAccumulate::RequestInformation (
                this->ComponentExtent,6);
   outInfo->Set(vtkDataObject::ORIGIN(),this->ComponentOrigin,3);
   outInfo->Set(vtkDataObject::SPACING(),this->ComponentSpacing,3);
-  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),1);
-  outInfo->Set(vtkDataObject::SCALAR_TYPE(),VTK_INT);
 
   // need to set the spacing and origin of the stencil to match the output
   if (inInfo2)
@@ -356,6 +354,7 @@ int vtkImageAccumulate::RequestInformation (
                  inInfo->Get(vtkDataObject::ORIGIN()),3);
     }
 
+  vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_INT, 1);
   return 1;
 }
 

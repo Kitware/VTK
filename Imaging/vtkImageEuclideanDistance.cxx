@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageEuclideanDistance, "1.19");
+vtkCxxRevisionMacro(vtkImageEuclideanDistance, "1.20");
 vtkStandardNewMacro(vtkImageEuclideanDistance);
 
 //----------------------------------------------------------------------------
@@ -40,9 +40,7 @@ vtkImageEuclideanDistance::vtkImageEuclideanDistance()
 int vtkImageEuclideanDistance::IterativeRequestInformation(
   vtkInformation* vtkNotUsed(input), vtkInformation* output)
 {
-  output->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),1);
-  output->Set(vtkDataObject::SCALAR_TYPE(),VTK_DOUBLE);
-
+  vtkDataObject::SetPointDataActiveScalarInfo(output, VTK_DOUBLE, 1);
   return 1;
 }
 

@@ -20,7 +20,7 @@
 
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkImageEllipsoidSource, "1.32");
+vtkCxxRevisionMacro(vtkImageEllipsoidSource, "1.33");
 vtkStandardNewMacro(vtkImageEllipsoidSource);
 
 //----------------------------------------------------------------------------
@@ -115,8 +115,7 @@ int vtkImageEllipsoidSource::RequestInformation (
   
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                this->WholeExtent, 6);
-  outInfo->Set(vtkDataObject::SCALAR_TYPE(),this->OutputScalarType);
-
+  vtkDataObject::SetPointDataActiveScalarInfo(outInfo, this->OutputScalarType, -1);
   return 1;
 }
 

@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkTransformToGrid, "1.19");
+vtkCxxRevisionMacro(vtkTransformToGrid, "1.20");
 vtkStandardNewMacro(vtkTransformToGrid);
 
 vtkCxxSetObjectMacro(vtkTransformToGrid,Input,vtkAbstractTransform);
@@ -117,8 +117,7 @@ void vtkTransformToGrid::RequestInformation (
                this->GridExtent,6);
   outInfo->Set(vtkDataObject::SPACING(),this->GridSpacing,3);
   outInfo->Set(vtkDataObject::ORIGIN(),this->GridOrigin,3);
-  outInfo->Set(vtkDataObject::SCALAR_TYPE(),this->GridScalarType);
-  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),3);
+  vtkDataObject::SetPointDataActiveScalarInfo(outInfo, this->GridScalarType, 3);
 }
 
 //----------------------------------------------------------------------------

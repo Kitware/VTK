@@ -23,7 +23,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkPointLoad, "1.48");
+vtkCxxRevisionMacro(vtkPointLoad, "1.49");
 vtkStandardNewMacro(vtkPointLoad);
 
 // Construct with ModelBounds=(-1,1,-1,1,-1,1), SampleDimensions=(50,50,50),
@@ -115,9 +115,7 @@ int vtkPointLoad::RequestInformation (
   wExt[5] = this->SampleDimensions[2] - 1;
   
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wExt, 6);
-  outInfo->Set(vtkDataObject::SCALAR_TYPE(),VTK_FLOAT);
-  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),1);
-
+  vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_FLOAT, 1);
   return 1;
 }
 

@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageCast, "1.49");
+vtkCxxRevisionMacro(vtkImageCast, "1.50");
 vtkStandardNewMacro(vtkImageCast);
 
 //----------------------------------------------------------------------------
@@ -43,8 +43,7 @@ int vtkImageCast::RequestInformation (
 {
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  outInfo->Set(vtkDataObject::SCALAR_TYPE(),this->OutputScalarType);
-
+  vtkDataObject::SetPointDataActiveScalarInfo(outInfo, this->OutputScalarType, -1);
   return 1;
 }
 

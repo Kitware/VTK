@@ -24,7 +24,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredPoints.h"
 
-vtkCxxRevisionMacro(vtkStructuredPointsReader, "1.63");
+vtkCxxRevisionMacro(vtkStructuredPointsReader, "1.64");
 vtkStandardNewMacro(vtkStructuredPointsReader);
 
 vtkStructuredPointsReader::vtkStructuredPointsReader()
@@ -190,73 +190,75 @@ int vtkStructuredPointsReader::ReadMetaData(vtkInformation *outInfo)
           //
           if ( ! strncmp(this->LowerCase(line), "scalars", 7) )
             {
+            int scalarType = VTK_DOUBLE;
             this->ReadString(line);
             this->ReadString(line);
             
             if ( ! strncmp(line, "bit", 3) )
               {
-              outInfo->Set(vtkDataObject::SCALAR_TYPE(), VTK_BIT);
+              scalarType = VTK_BIT;
               }
             else if ( ! strncmp(line, "char", 4) )
               {
-              outInfo->Set(vtkDataObject::SCALAR_TYPE(), VTK_CHAR);
+              scalarType = VTK_CHAR;
               }
             else if ( ! strncmp(line, "unsigned_char", 13) )
               {
-              outInfo->Set(vtkDataObject::SCALAR_TYPE(), VTK_UNSIGNED_CHAR);
+              scalarType = VTK_UNSIGNED_CHAR;
               }   
             else if ( ! strncmp(line, "short", 5) )
               {
-              outInfo->Set(vtkDataObject::SCALAR_TYPE(), VTK_SHORT);
+              scalarType = VTK_SHORT;
               }
             else if ( ! strncmp(line, "unsigned_short", 14) )
               {
-              outInfo->Set(vtkDataObject::SCALAR_TYPE(), VTK_UNSIGNED_SHORT);
+              scalarType = VTK_UNSIGNED_SHORT;
               }
             else if ( ! strncmp(line, "int", 3) )
               {
-              outInfo->Set(vtkDataObject::SCALAR_TYPE(), VTK_INT);
+              scalarType = VTK_INT;
               }
             else if ( ! strncmp(line, "unsigned_int", 12) )
               {
-              outInfo->Set(vtkDataObject::SCALAR_TYPE(), VTK_UNSIGNED_INT);
+              scalarType = VTK_UNSIGNED_INT;
               }
             else if ( ! strncmp(line, "long", 4) )
               {
-              outInfo->Set(vtkDataObject::SCALAR_TYPE(), VTK_LONG);
+              scalarType = VTK_LONG;
               }
             else if ( ! strncmp(line, "unsigned_long", 13) )
               {
-              outInfo->Set(vtkDataObject::SCALAR_TYPE(), VTK_UNSIGNED_LONG);
+              scalarType = VTK_UNSIGNED_LONG;
               }
             else if ( ! strncmp(line, "float", 5) )
               {
-              outInfo->Set(vtkDataObject::SCALAR_TYPE(), VTK_FLOAT);
+              scalarType = VTK_FLOAT;
               }
             else if ( ! strncmp(line, "double", 6) )
               {
-              outInfo->Set(vtkDataObject::SCALAR_TYPE(), VTK_DOUBLE);
+              scalarType = VTK_DOUBLE;
               }
             
             // the next string could be an integer number of components or a
             // lookup table
             this->ReadString(line);
+            int numComp;
             if (strcmp(this->LowerCase(line), "lookup_table"))
               {
-              int numComp = atoi(line);
+              numComp = atoi(line);
               if (numComp < 1 || !this->ReadString(line))
                 {
                 vtkErrorMacro(<<"Cannot read scalar header!" << " for file: " 
                               << (this->FileName?this->FileName:"(Null FileName)"));
                 return 1;
                 }
-              outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),
-                           numComp);
               }
             else
               {
-              outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(), 1);
+              numComp = 1;
               }
+
+            vtkDataObject::SetPointDataActiveScalarInfo( outInfo, scalarType, numComp);
             break;
             }
           else if ( ! strncmp(this->LowerCase(line), "color_scalars", 13) )
@@ -270,18 +272,19 @@ int vtkStructuredPointsReader::ReadMetaData(vtkInformation *outInfo)
                             << (this->FileName?this->FileName:"(Null FileName)"));
               return 1;
               }
-            outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),
-                         numComp);
 
             // Color scalar type is predefined by FileType.
+            int scalarType;
             if(this->FileType == VTK_BINARY)
               {
-              outInfo->Set(vtkDataObject::SCALAR_TYPE(), VTK_UNSIGNED_CHAR);
+              scalarType = VTK_UNSIGNED_CHAR;
               }
             else
               {
-              outInfo->Set(vtkDataObject::SCALAR_TYPE(), VTK_FLOAT);
+              scalarType = VTK_FLOAT;
               }
+
+            vtkDataObject::SetPointDataActiveScalarInfo( outInfo, scalarType, numComp);
             break;
             }
           }

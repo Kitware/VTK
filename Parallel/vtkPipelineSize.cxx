@@ -26,9 +26,10 @@
 #include "vtkPlaneSource.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkPipelineSize, "1.14");
+vtkCxxRevisionMacro(vtkPipelineSize, "1.15");
 vtkStandardNewMacro(vtkPipelineSize);
 
 unsigned long 
@@ -288,15 +289,18 @@ GenericComputeOutputMemorySize( vtkAlgorithm *src, int outputPort,
         int uExt[6];
         outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),uExt);
         tmp = 4;
-        if (outInfo->Has(vtkDataObject::SCALAR_TYPE()))
+  
+        vtkInformation *scalarInfo = vtkDataObject::GetActiveFieldInformation(outInfo, 
+          vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
+        int numComp = 1;
+        if (scalarInfo)
           {
           tmp = vtkDataArray::GetDataTypeSize(
-            outInfo->Get(vtkDataObject::SCALAR_TYPE()));
-          }
-        int numComp = 1;
-        if (outInfo->Has(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS()))
-          {
-          numComp = outInfo->Get(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS());
+            scalarInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE()));
+          if (scalarInfo->Has(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS()))
+            {
+            numComp = scalarInfo->Get(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS());
+            }
           }
         tmp *= numComp;
         for (idx = 0; idx < 3; ++idx)

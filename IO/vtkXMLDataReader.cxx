@@ -24,7 +24,7 @@
 #include "vtkInformationVector.h"
 #include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkXMLDataReader, "1.12");
+vtkCxxRevisionMacro(vtkXMLDataReader, "1.13");
 
 //----------------------------------------------------------------------------
 vtkXMLDataReader::vtkXMLDataReader()
@@ -81,33 +81,40 @@ void vtkXMLDataReader::DestroyXMLParser()
 //----------------------------------------------------------------------------
 void vtkXMLDataReader::SetupOutputInformation(vtkInformation *outInfo)
 {
-  vtkInformationVector *infoVector = NULL;
-
   if (this->InformationError)
     {
     vtkErrorMacro("Should not still be processing output information if have set InformationError");
+    return;
     }
 
   // Initialize DataArraySelections to anable all that are present
   this->SetDataArraySelections(this->PointDataElements[0], this->PointDataArraySelection);
   this->SetDataArraySelections(this->CellDataElements[0], this->CellDataArraySelection);
 
-  // Setup the Field Information for PointData and CellData. We only need the
+  // Setup the Field Information for PointData.  We only need the
   // information from one piece because all pieces have the same set of arrays.
+  vtkInformationVector *infoVector = NULL;
   if (!this->SetFieldDataInfo(this->PointDataElements[0],
     vtkDataObject::FIELD_ASSOCIATION_POINTS, this->GetNumberOfPoints(), infoVector))
     {
     return;
     }
+  if (infoVector)
+    {
+    outInfo->Set(vtkDataObject::POINT_DATA_VECTOR(), infoVector);
+    infoVector->Delete();
+    }
+
+  // now the Cell data
+  infoVector = NULL;
   if (!this->SetFieldDataInfo(this->CellDataElements[0],
     vtkDataObject::FIELD_ASSOCIATION_CELLS, this->GetNumberOfCells(), infoVector))
     {
     return;
     }
-
   if (infoVector)
     {
-    outInfo->Set(vtkDataObject::FIELD_DATA_VECTOR(), infoVector);
+    outInfo->Set(vtkDataObject::CELL_DATA_VECTOR(), infoVector);
     infoVector->Delete();
     }
 }

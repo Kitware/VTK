@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageSeparableConvolution, "1.16");
+vtkCxxRevisionMacro(vtkImageSeparableConvolution, "1.17");
 vtkStandardNewMacro(vtkImageSeparableConvolution);
 vtkCxxSetObjectMacro(vtkImageSeparableConvolution,XKernel,vtkFloatArray);
 vtkCxxSetObjectMacro(vtkImageSeparableConvolution,YKernel,vtkFloatArray);
@@ -132,9 +132,7 @@ vtkImageSeparableConvolution::vtkImageSeparableConvolution()
 int vtkImageSeparableConvolution::IterativeRequestInformation(
   vtkInformation* vtkNotUsed(input), vtkInformation* output)
 {
-  output->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),1);
-  output->Set(vtkDataObject::SCALAR_TYPE(),VTK_FLOAT);
-
+  vtkDataObject::SetPointDataActiveScalarInfo(output, VTK_FLOAT, 1);
   return 1;
 }
 

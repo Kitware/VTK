@@ -25,7 +25,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageToStructuredPoints, "1.60");
+vtkCxxRevisionMacro(vtkImageToStructuredPoints, "1.61");
 vtkStandardNewMacro(vtkImageToStructuredPoints);
 
 //----------------------------------------------------------------------------
@@ -231,10 +231,17 @@ int vtkImageToStructuredPoints::RequestInformation (
   int whole[6], *tmp;
   double *spacing, origin[3];
   
-  outInfo->Set(vtkDataObject::SCALAR_TYPE(),
-               inInfo->Get(vtkDataObject::SCALAR_TYPE()));
-  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),
-               inInfo->Get(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS()));
+  vtkInformation *inScalarInfo = vtkDataObject::GetActiveFieldInformation(inInfo, 
+    vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
+  if (!inScalarInfo)
+    {
+    vtkErrorMacro("Missing scalar field on input information!");
+    return 0;
+    }
+  vtkDataObject::SetPointDataActiveScalarInfo(outInfo, 
+    inScalarInfo->Get( vtkDataObject::FIELD_ARRAY_TYPE() ),
+    inScalarInfo->Get( vtkDataObject::FIELD_NUMBER_OF_COMPONENTS() ) );
+
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),whole);    
   spacing = inInfo->Get(vtkDataObject::SPACING());
   inInfo->Get(vtkDataObject::ORIGIN(), origin);

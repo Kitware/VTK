@@ -29,8 +29,10 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationInformationVectorKey.h"
 #include "vtkInformationStringKey.h"
+#include "vtkInformationVector.h"
+#include "vtkDataSetAttributes.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.16");
+vtkCxxRevisionMacro(vtkDataObject, "1.17");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -42,12 +44,12 @@ vtkInformationKeyMacro(vtkDataObject, DATA_EXTENT_TYPE, Integer);
 vtkInformationKeyMacro(vtkDataObject, DATA_PIECE_NUMBER, Integer);
 vtkInformationKeyMacro(vtkDataObject, DATA_NUMBER_OF_PIECES, Integer);
 vtkInformationKeyMacro(vtkDataObject, DATA_NUMBER_OF_GHOST_LEVELS, Integer);
-vtkInformationKeyMacro(vtkDataObject, SCALAR_TYPE, Integer);
-vtkInformationKeyMacro(vtkDataObject, SCALAR_NUMBER_OF_COMPONENTS, Integer);
-vtkInformationKeyMacro(vtkDataObject, FIELD_DATA_VECTOR, InformationVector);
+vtkInformationKeyMacro(vtkDataObject, POINT_DATA_VECTOR, InformationVector);
+vtkInformationKeyMacro(vtkDataObject, CELL_DATA_VECTOR, InformationVector);
 vtkInformationKeyMacro(vtkDataObject, FIELD_ARRAY_TYPE, Integer);
 vtkInformationKeyMacro(vtkDataObject, FIELD_ASSOCIATION, Integer);
 vtkInformationKeyMacro(vtkDataObject, FIELD_ATTRIBUTE_TYPE, Integer);
+vtkInformationKeyMacro(vtkDataObject, FIELD_ACTIVE_ATTRIBUTE, Integer);
 vtkInformationKeyMacro(vtkDataObject, FIELD_NAME, String);
 vtkInformationKeyMacro(vtkDataObject, FIELD_NUMBER_OF_COMPONENTS, Integer);
 vtkInformationKeyMacro(vtkDataObject, FIELD_NUMBER_OF_TUPLES, Integer);
@@ -350,9 +352,27 @@ void vtkDataObject::SetGlobalReleaseDataFlag(int val)
 }
 
 //----------------------------------------------------------------------------
-void vtkDataObject::CopyInformationToPipeline(vtkInformation*, vtkInformation*)
+void vtkDataObject::CopyInformationToPipeline(vtkInformation *request, 
+                                              vtkInformation *input)
 {
-  // Copy nothing by default.
+  // Set default pipeline information during a request for information.
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
+    {
+    // Copy point and cell data from the input if available.  Otherwise use our
+    // current settings.
+    vtkInformation* output = this->PipelineInformation;
+
+    // copy point data.
+    if (input && input->Has(POINT_DATA_VECTOR()))
+      {
+      output->CopyEntry(input, POINT_DATA_VECTOR(), 1);
+      }
+    // copy cell data.
+    if (input && input->Has(CELL_DATA_VECTOR()))
+      {
+      output->CopyEntry(input, CELL_DATA_VECTOR(), 1);
+      }
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -360,6 +380,167 @@ void vtkDataObject::CopyInformationFromPipeline(vtkInformation*)
 {
   // Copy nothing by default.
 }
+
+//----------------------------------------------------------------------------
+vtkInformation *vtkDataObject::GetActiveFieldInformation(vtkInformation *info, 
+    int fieldAssociation, int attributeType)
+{
+  int i;
+  vtkInformation *fieldDataInfo;
+  vtkInformationVector *fieldDataInfoVector;
+  
+  if (fieldAssociation == FIELD_ASSOCIATION_POINTS)
+    {
+    fieldDataInfoVector = info->Get(POINT_DATA_VECTOR());
+    }
+  else if (fieldAssociation == FIELD_ASSOCIATION_CELLS)
+    {
+    fieldDataInfoVector = info->Get(CELL_DATA_VECTOR());
+    }
+  else
+    {
+    vtkGenericWarningMacro("Unrecognized field association!");
+    return NULL;
+    }
+
+  if (!fieldDataInfoVector)
+    {
+    return NULL;
+    }
+
+  for (i = 0; i < fieldDataInfoVector->GetNumberOfInformationObjects(); i++)
+    {
+    fieldDataInfo = fieldDataInfoVector->GetInformationObject(i);
+    if ( fieldDataInfo->Has(FIELD_ACTIVE_ATTRIBUTE()) &&
+      (fieldDataInfo->Get(FIELD_ACTIVE_ATTRIBUTE()) & (1 << attributeType )) )
+      {
+      return fieldDataInfo;
+      }
+    }
+  return NULL;
+}
+
+//----------------------------------------------------------------------------
+vtkInformation *vtkDataObject::SetActiveAttribute(vtkInformation *info, 
+                                                  int fieldAssociation,
+                                                  const char *attributeName,
+                                                  int attributeType)
+{
+  int i;
+  vtkInformation *fieldDataInfo;
+  vtkInformationVector *fieldDataInfoVector;
+  
+  if (fieldAssociation == FIELD_ASSOCIATION_POINTS)
+    {
+    fieldDataInfoVector = info->Get(POINT_DATA_VECTOR());
+    }
+  else if (fieldAssociation == FIELD_ASSOCIATION_CELLS)
+    {
+    fieldDataInfoVector = info->Get(CELL_DATA_VECTOR());
+    }
+  else
+    {
+    vtkGenericWarningMacro("Unrecognized field association!");
+    return NULL;
+    }
+  if (!fieldDataInfoVector)
+    {
+    fieldDataInfoVector = vtkInformationVector::New();
+    if (fieldAssociation == FIELD_ASSOCIATION_POINTS)
+      {
+      info->Set(POINT_DATA_VECTOR(), fieldDataInfoVector);
+      }
+    else // (fieldAssociation == FIELD_ASSOCIATION_CELLS)
+      {
+      info->Set(CELL_DATA_VECTOR(), fieldDataInfoVector);
+      }
+    fieldDataInfoVector->Delete();
+    }
+
+  // if we find a matching field, turn it on (active);  if another field of same
+  // attribute type was active, turn it off (not active)
+  vtkInformation *activeField = NULL;
+  int activeAttribute;
+  const char *fieldName;
+  for (i = 0; i < fieldDataInfoVector->GetNumberOfInformationObjects(); i++)
+    {
+    fieldDataInfo = fieldDataInfoVector->GetInformationObject(i);
+    activeAttribute = fieldDataInfo->Get( FIELD_ACTIVE_ATTRIBUTE() );
+    fieldName = fieldDataInfo->Get(FIELD_NAME());
+    // if names match (or both empty... no field name), then set active
+    if ( (attributeName && fieldName && !strcmp(attributeName, fieldName)) ||
+      (!attributeName && !fieldName) )
+      {
+      activeAttribute |= 1 << attributeType;
+      fieldDataInfo->Set( FIELD_ACTIVE_ATTRIBUTE(), activeAttribute );
+      activeField = fieldDataInfo;
+      }
+    else if ( activeAttribute & (1 << attributeType) )
+      {
+      activeAttribute &= ~(1 << attributeType);
+      fieldDataInfo->Set( FIELD_ACTIVE_ATTRIBUTE(), activeAttribute );
+      }
+    }
+  
+  // if we didn't find a matching field, create one
+  if (!activeField) 
+    {
+    activeField = vtkInformation::New();
+    activeField->Set( FIELD_ACTIVE_ATTRIBUTE(), 1 << attributeType);
+    activeField->Set(FIELD_ASSOCIATION(), fieldAssociation);
+    if (attributeName)
+      {
+      activeField->Set( FIELD_NAME(), attributeName );
+      }
+    fieldDataInfoVector->Append(activeField);
+    activeField->Delete();
+    }
+
+  return activeField;
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObject::SetActiveAttributeInfo(vtkInformation *info, 
+                                          int fieldAssociation,
+                                          int attributeType,
+                                          const char *name,
+                                          int arrayType,
+                                          int numComponents,
+                                          int numTuples)
+{
+  vtkInformation *attrInfo = vtkDataObject::GetActiveFieldInformation(info, 
+    fieldAssociation, attributeType);
+  if (!attrInfo)
+    {
+    // create an entry and set it as active
+    attrInfo = SetActiveAttribute(info, fieldAssociation, name, attributeType);
+    }
+
+  if (name)
+    {
+    attrInfo->Set(FIELD_NAME(), name);
+    }
+  if (arrayType != -1)
+    {
+    attrInfo->Set(FIELD_ARRAY_TYPE(), arrayType);
+    }
+  if (numComponents != -1)
+    {
+    attrInfo->Set(FIELD_NUMBER_OF_COMPONENTS(), numComponents);
+    }
+  if (numTuples != -1)
+    {
+    attrInfo->Set(FIELD_NUMBER_OF_TUPLES(), numTuples);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObject::SetPointDataActiveScalarInfo(vtkInformation *info,
+                                        int arrayType, int numComponents)
+  {
+  vtkDataObject::SetActiveAttributeInfo(info, FIELD_ASSOCIATION_POINTS, 
+    vtkDataSetAttributes::SCALARS, NULL, arrayType, numComponents, -1);
+  }
 
 //----------------------------------------------------------------------------
 void vtkDataObject::DataHasBeenGenerated()

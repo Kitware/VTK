@@ -316,6 +316,40 @@ public:
   virtual void CopyInformationFromPipeline(vtkInformation* request);
 
   // Description:
+  // Return the information object within the input information object's
+  // field data corresponding to the specified association 
+  // (FIELD_ASSOCIATION_POINTS or FIELD_ASSOCIATION_CELLS) and attribute
+  // (SCALARS, VECTORS, NORMALS, TCOORDS, or TENSORS)
+  static vtkInformation *GetActiveFieldInformation(vtkInformation *info, 
+    int fieldAssociation, int attributeType);
+
+  // Description:
+  // Set the named array to be the active field for the specified type
+  // (SCALARS, VECTORS, NORMALS, TCOORDS, or TENSORS) and association
+  // (FIELD_ASSOCIATION_POINTS or FIELD_ASSOCIATION_CELLS).  Returns the 
+  // active field information object and creates on entry if one not found.
+  static vtkInformation *SetActiveAttribute(vtkInformation *info,
+    int fieldAssociation, const char *attributeName, int attributeType);
+
+  // Description:
+  // Set the name, array type, number of components, and number of tuples
+  // within the passed information object for the active attribute of type
+  // attributeType (in specified association, FIELD_ASSOCIATION_POINTS or
+  // FIELD_ASSOCIATION_CELLS).  If there is not an active attribute of the
+  // specified type, an entry in the information object is created.  If
+  // arrayType, numComponents, or numTuples equal to -1, or name=NULL the 
+  // value is not changed.
+  static void SetActiveAttributeInfo(vtkInformation *info, 
+    int fieldAssociation, int attributeType, const char *name, int arrayType,
+    int numComponents, int numTuples);
+
+  // Description:
+  // Convenience version of previous method for use (primarily) by the Imaging
+  // filters. If arrayType or numComponents == -1, the value is not changed.
+  static void SetPointDataActiveScalarInfo(vtkInformation *info,
+    int arrayType, int numComponents);
+
+  // Description:
   // This method is called by the source when it executes to generate data.
   // It is sort of the opposite of ReleaseData.
   // It sets the DataReleased flag to 0, and sets a new UpdateTime.
@@ -382,12 +416,12 @@ public:
   static vtkInformationIntegerKey* DATA_PIECE_NUMBER();
   static vtkInformationIntegerKey* DATA_NUMBER_OF_PIECES();
   static vtkInformationIntegerKey* DATA_NUMBER_OF_GHOST_LEVELS();
-  static vtkInformationIntegerKey* SCALAR_TYPE();
-  static vtkInformationIntegerKey* SCALAR_NUMBER_OF_COMPONENTS();
-  static vtkInformationInformationVectorKey* FIELD_DATA_VECTOR();
+  static vtkInformationInformationVectorKey* POINT_DATA_VECTOR();
+  static vtkInformationInformationVectorKey* CELL_DATA_VECTOR();
   static vtkInformationIntegerKey* FIELD_ARRAY_TYPE();
   static vtkInformationIntegerKey* FIELD_ASSOCIATION();
   static vtkInformationIntegerKey* FIELD_ATTRIBUTE_TYPE();
+  static vtkInformationIntegerKey* FIELD_ACTIVE_ATTRIBUTE();
   static vtkInformationIntegerKey* FIELD_NUMBER_OF_COMPONENTS();
   static vtkInformationIntegerKey* FIELD_NUMBER_OF_TUPLES();
   static vtkInformationIntegerKey* FIELD_OPERATION();

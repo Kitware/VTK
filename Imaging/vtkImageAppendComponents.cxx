@@ -19,9 +19,10 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAppendComponents, "1.28");
+vtkCxxRevisionMacro(vtkImageAppendComponents, "1.29");
 vtkStandardNewMacro(vtkImageAppendComponents);
 
 //----------------------------------------------------------------------------
@@ -33,18 +34,23 @@ int vtkImageAppendComponents::RequestInformation (
 {
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkInformation *inInfo = 0;
+  vtkInformation *inScalarInfo;
   
   int idx1, num;
   num = 0;
   for (idx1 = 0; idx1 < this->GetNumberOfInputConnections(0); ++idx1)
     {
-    inInfo = inputVector[0]->GetInformationObject(idx1);
-    num += inInfo->Get(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS());
+    inScalarInfo = vtkDataObject::GetActiveFieldInformation(
+      inputVector[0]->GetInformationObject(idx1), 
+      vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
+    if (inScalarInfo && 
+      inScalarInfo->Has( vtkDataObject::FIELD_NUMBER_OF_COMPONENTS() ) )
+      {
+      num += inScalarInfo->Get( vtkDataObject::FIELD_NUMBER_OF_COMPONENTS() );
+      }
     }
 
-  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),num);
-
+  vtkDataObject::SetPointDataActiveScalarInfo(outInfo, -1, num);
   return 1;
 }
 

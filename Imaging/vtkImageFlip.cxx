@@ -20,8 +20,9 @@
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkDataSetAttributes.h"
 
-vtkCxxRevisionMacro(vtkImageFlip, "1.39");
+vtkCxxRevisionMacro(vtkImageFlip, "1.40");
 vtkStandardNewMacro(vtkImageFlip);
 
 //----------------------------------------------------------------------------
@@ -99,11 +100,18 @@ int vtkImageFlip::RequestInformation(
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExt, 6);
   outInfo->Set(vtkDataObject::SPACING(), spacing, 3);
   outInfo->Set(vtkDataObject::ORIGIN(), origin, 3);
-  outInfo->Set(vtkDataObject::SCALAR_TYPE(),
-               inInfo->Get(vtkDataObject::SCALAR_TYPE()));
-  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),
-               inInfo->Get(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS()));
 
+  // This information already copied from input to output in CopyInformationToPipeline?
+  vtkInformation *inScalarInfo = vtkDataObject::GetActiveFieldInformation(inInfo, 
+    vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
+  if (!inScalarInfo)
+    {
+    vtkErrorMacro("Missing scalar field on input information!");
+    return 0;
+    }
+  vtkDataObject::SetPointDataActiveScalarInfo(outInfo, 
+    inScalarInfo->Get( vtkDataObject::FIELD_ARRAY_TYPE() ),
+    inScalarInfo->Get( vtkDataObject::FIELD_NUMBER_OF_COMPONENTS() ) );
   return 1;
 }
 

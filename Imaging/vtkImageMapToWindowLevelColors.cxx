@@ -21,7 +21,7 @@
 #include "vtkScalarsToColors.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageMapToWindowLevelColors, "1.20");
+vtkCxxRevisionMacro(vtkImageMapToWindowLevelColors, "1.21");
 vtkStandardNewMacro(vtkImageMapToWindowLevelColors);
 
 // Constructor sets default values
@@ -92,30 +92,34 @@ int vtkImageMapToWindowLevelColors::RequestInformation (
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
+  vtkInformation *inScalarInfo = vtkDataObject::GetActiveFieldInformation(inInfo, 
+    vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
+  if (!inScalarInfo)
+    {
+    vtkErrorMacro("Missing scalar field on input information!");
+    return 0;
+    }
+
   // If LookupTable is null and window / level produces no change,
   // then the data will be passed
   if ( this->LookupTable == NULL &&
-       ( (inInfo->Get(vtkDataObject::SCALAR_TYPE()) == VTK_UNSIGNED_CHAR &&
-          this->Window == 255 && this->Level == 127.5) ||
-         (inInfo->Get(vtkDataObject::SCALAR_TYPE()) == VTK_UNSIGNED_CHAR &&
-          this->Window == 255 && this->Level == 127.5) ) )
+    (inScalarInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE()) == VTK_UNSIGNED_CHAR &&
+          this->Window == 255 && this->Level == 127.5) )
     {
-    if (inInfo->Get(vtkDataObject::SCALAR_TYPE()) != VTK_UNSIGNED_CHAR)
+    if (inScalarInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE()) != VTK_UNSIGNED_CHAR)
       {
       vtkErrorMacro("ExecuteInformation: No LookupTable was set and input data is not VTK_UNSIGNED_CHAR!");
       }
     else
       {
       // no lookup table, pass the input if it was UNSIGNED_CHAR 
-      outInfo->Set(vtkDataObject::SCALAR_TYPE(), VTK_UNSIGNED_CHAR);
-      outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),
-                   inInfo->Get(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS()));
+      vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_UNSIGNED_CHAR, 
+        inScalarInfo->Get(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS()));
       }
     }
   else  // the lookup table was set or window / level produces a change
     {
     int numComponents = 4;
-    outInfo->Set(vtkDataObject::SCALAR_TYPE(), VTK_UNSIGNED_CHAR);
     switch (this->OutputFormat)
       {
       case VTK_RGBA:
@@ -134,7 +138,7 @@ int vtkImageMapToWindowLevelColors::RequestInformation (
         vtkErrorMacro("ExecuteInformation: Unrecognized color format.");
         break;
       }
-    outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(), numComponents);
+    vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_UNSIGNED_CHAR, numComponents);
     }
 
   return 1;

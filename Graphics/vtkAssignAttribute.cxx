@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkAssignAttribute, "1.11");
+vtkCxxRevisionMacro(vtkAssignAttribute, "1.12");
 vtkStandardNewMacro(vtkAssignAttribute);
 
 char vtkAssignAttribute::AttributeLocationNames[2][12] 
@@ -172,6 +172,42 @@ void vtkAssignAttribute::Assign(const char* name,
     this->Assign(inputAttributeType, attrType, loc);
     }
 }
+
+int vtkAssignAttribute::RequestInformation(vtkInformation *vtkNotUsed(request),
+                                           vtkInformationVector **inputVector,
+                                           vtkInformationVector *outputVector)
+{
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  if ((this->AttributeType != -1) &&
+      (this->AttributeLocation != -1) && (this->FieldType != -1))
+    {
+    int fieldAssociation = this->AttributeLocation == POINT_DATA ?
+      vtkDataObject::FIELD_ASSOCIATION_POINTS : vtkDataObject::FIELD_ASSOCIATION_CELLS;
+    if (this->FieldType == vtkAssignAttribute::NAME && this->FieldName)
+      {
+      vtkDataObject::SetActiveAttribute(outInfo, fieldAssociation,
+        this->FieldName, this->AttributeType);
+      }
+    else if (this->FieldType == vtkAssignAttribute::ATTRIBUTE  && 
+      this->InputAttributeType != -1)
+      {
+      vtkInformation *inputAttributeInfo = vtkDataObject::GetActiveFieldInformation(
+        inInfo, fieldAssociation, this->InputAttributeType);
+      if (inputAttributeInfo) // do we have an active field of requested type
+        {
+        vtkDataObject::SetActiveAttribute(outInfo, fieldAssociation,
+          inputAttributeInfo->Get( vtkDataObject::FIELD_NAME() ), 
+          this->AttributeType);
+        }
+      }
+    }
+
+  return 1;
+}
+
 
 int vtkAssignAttribute::RequestData(
   vtkInformation *vtkNotUsed(request),

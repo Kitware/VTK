@@ -23,7 +23,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkVolume16Reader, "1.55");
+vtkCxxRevisionMacro(vtkVolume16Reader, "1.56");
 vtkStandardNewMacro(vtkVolume16Reader);
 
 vtkCxxSetObjectMacro(vtkVolume16Reader,Transform,vtkTransform);
@@ -134,8 +134,8 @@ int vtkVolume16Reader::RequestInformation(
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                0, dim[0]-1, 0, dim[1]-1, 0, dim[2]-1);
-  outInfo->Set(vtkDataObject::SCALAR_TYPE(), VTK_UNSIGNED_SHORT);
-  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(), 1);
+
+  vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_UNSIGNED_SHORT, 1);
   outInfo->Set(vtkDataObject::SPACING(), this->DataSpacing, 3);
   outInfo->Set(vtkDataObject::ORIGIN(), this->DataOrigin, 3);
   // spacing and origin ?

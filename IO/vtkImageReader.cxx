@@ -23,7 +23,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImageReader, "1.117");
+vtkCxxRevisionMacro(vtkImageReader, "1.118");
 vtkStandardNewMacro(vtkImageReader);
 
 vtkCxxSetObjectMacro(vtkImageReader,Transform,vtkTransform);
@@ -130,10 +130,8 @@ int vtkImageReader::RequestInformation (
   this->ComputeTransformedOrigin(origin);
   outInfo->Set(vtkDataObject::ORIGIN(),  this->DataOrigin, 3);
 
-  outInfo->Set(vtkDataObject::SCALAR_TYPE(), this->DataScalarType);
-  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),
-               this->NumberOfScalarComponents);
-
+  vtkDataObject::SetPointDataActiveScalarInfo(outInfo, this->DataScalarType,
+    this->NumberOfScalarComponents);
   return 1;
 }
 

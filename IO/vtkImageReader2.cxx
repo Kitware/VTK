@@ -24,7 +24,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkImageReader2, "1.33");
+vtkCxxRevisionMacro(vtkImageReader2, "1.34");
 vtkStandardNewMacro(vtkImageReader2);
 
 #ifdef read
@@ -440,10 +440,9 @@ int vtkImageReader2::RequestInformation (
                this->DataExtent, 6);
   outInfo->Set(vtkDataObject::SPACING(), this->DataSpacing, 3);
   outInfo->Set(vtkDataObject::ORIGIN(),  this->DataOrigin, 3);
-  outInfo->Set(vtkDataObject::SCALAR_TYPE(), this->DataScalarType);
-  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),
-               this->NumberOfScalarComponents);
 
+  vtkDataObject::SetPointDataActiveScalarInfo(outInfo, this->DataScalarType,
+    this->NumberOfScalarComponents);
   return 1;
 }
 

@@ -32,7 +32,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.22");
+vtkCxxRevisionMacro(vtkXMLReader, "1.23");
 
 //----------------------------------------------------------------------------
 vtkXMLReader::vtkXMLReader()
@@ -694,7 +694,7 @@ int vtkXMLReader::SetFieldDataInfo(vtkXMLDataElement *eDSA,
     return 1;
     }
 
-  int i, j, components, dataType;
+  int i, j, components, dataType, activeFlag;
   const char *name;
   char *(attributeName[vtkDataSetAttributes::NUM_ATTRIBUTES]);
   vtkInformation *info = NULL;
@@ -725,6 +725,7 @@ int vtkXMLReader::SetFieldDataInfo(vtkXMLDataElement *eDSA,
     vtkXMLDataElement* eNested = eDSA->GetNestedElement(i);
 
     info = vtkInformation::New();
+    activeFlag = 0;
     info->Set(vtkDataObject::FIELD_ASSOCIATION(), association);
     info->Set(vtkDataObject::FIELD_NUMBER_OF_TUPLES(), numTuples);
 
@@ -741,7 +742,8 @@ int vtkXMLReader::SetFieldDataInfo(vtkXMLDataElement *eDSA,
       {
       if (attributeName[j] && !strcmp(name, attributeName[j]))
         {
-        info->Set(vtkDataObject::FIELD_ATTRIBUTE_TYPE(), j);
+        // set appropriate bit to indicate an active attribute type
+        activeFlag |= 1 << j;
         break;
         }
       }
@@ -762,6 +764,7 @@ int vtkXMLReader::SetFieldDataInfo(vtkXMLDataElement *eDSA,
       info->Set(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS(), 1);
       }
 
+    info->Set(vtkDataObject::FIELD_ACTIVE_ATTRIBUTE(), activeFlag);
     infoVector->Append( info );
     info->Delete();
     }
@@ -778,6 +781,7 @@ int vtkXMLReader::SetFieldDataInfo(vtkXMLDataElement *eDSA,
     {
     info->Delete();
     infoVector->Delete();
+    infoVector = NULL;
     return 0;
     }
 

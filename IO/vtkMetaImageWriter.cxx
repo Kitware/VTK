@@ -20,13 +20,14 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkXMLImageDataWriter.h"
+#include "vtkDataSetAttributes.h"
 
 #include <vtkstd/string>
 
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMetaImageWriter, "1.10");
+vtkCxxRevisionMacro(vtkMetaImageWriter, "1.11");
 vtkStandardNewMacro(vtkMetaImageWriter);
 
 //----------------------------------------------------------------------------
@@ -133,7 +134,14 @@ int vtkMetaImageWriter::RequestData(
   inInfo->Get(vtkDataObject::SPACING(),spacing);
   
   const char* scalar_type;
-  switch ( inInfo->Get(vtkDataObject::SCALAR_TYPE()) )
+  vtkInformation *scalarInfo = vtkDataObject::GetActiveFieldInformation(inInfo, 
+    vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
+  if (!scalarInfo)
+    {
+    vtkErrorMacro( "No active scalar information!" );
+    return 0;
+    }
+  switch ( scalarInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE()) )
     {
     case VTK_CHAR:           scalar_type = "MET_CHAR"; break;
     case VTK_UNSIGNED_CHAR:  scalar_type = "MET_UCHAR"; break;
@@ -147,7 +155,7 @@ int vtkMetaImageWriter::RequestData(
     case VTK_DOUBLE:         scalar_type = "MET_DOUBLE"; break;
     default:
       vtkErrorMacro("Unknown scalar type: " 
-                    << inInfo->Get(vtkDataObject::SCALAR_TYPE()));
+                    << scalarInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE()));
       return 1;
     }
   
@@ -189,9 +197,9 @@ int vtkMetaImageWriter::RequestData(
     << "Position = " 
     << origin[0] << " " << origin[1] << " " << origin[2] << endl
     << "ElementNumberOfChannels = " 
-    << inInfo->Get(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS()) << endl
+    << scalarInfo->Get(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS()) << endl
     << "ElementType = " << scalar_type 
-    << (inInfo->Get(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS()) > 1?"_ARRAY":"") << endl
+    << (scalarInfo->Get(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS()) > 1?"_ARRAY":"") << endl
     << "ElementDataFile = " << data_file << endl;
   this->SetFileDimensionality(ndims);
   return this->Superclass::RequestData(request,inputVector,outputVector);

@@ -69,7 +69,7 @@
 // Finally, when Execute() is reading from the FrameBuffer it must do
 // so from within a mutex lock.  Otherwise tearing artifacts might result.
 
-vtkCxxRevisionMacro(vtkVideoSource, "1.42");
+vtkCxxRevisionMacro(vtkVideoSource, "1.43");
 vtkStandardNewMacro(vtkVideoSource);
 
 #if ( _MSC_VER >= 1300 ) // Visual studio .NET
@@ -985,9 +985,8 @@ int vtkVideoSource::RequestInformation(
   outInfo->Set(vtkDataObject::ORIGIN(),this->DataOrigin,3);
 
   // set default data type (8 bit greyscale)
-  outInfo->Set(vtkDataObject::SCALAR_TYPE(), VTK_UNSIGNED_CHAR);
-  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),
-               this->NumberOfScalarComponents);
+  vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_UNSIGNED_CHAR, 
+    this->NumberOfScalarComponents);
 
   return 1;
 }
