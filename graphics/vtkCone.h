@@ -42,7 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkCone computes the implicit function and function gradient for a cone.
 // vtkCone is a concrete implementation of vtkImplicitFunction. The cone vertex
-// is located at the origin with axis of rotation coincident with z-axis. (Use
+// is located at the origin with axis of rotation coincident with x-axis. (Use
 // the superclass' vtkImplicitFunction transformation matrix if necessary to 
 // reposition.) The angle specifies the angle between the axis of rotation 
 // and the side of the cone.
