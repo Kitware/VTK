@@ -15,14 +15,14 @@
 #include "vtkXMLPUnstructuredGridReader.h"
 
 #include "vtkCellArray.h"
-#include "vtkIntArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
-vtkCxxRevisionMacro(vtkXMLPUnstructuredGridReader, "1.5");
+vtkCxxRevisionMacro(vtkXMLPUnstructuredGridReader, "1.5.2.1");
 vtkStandardNewMacro(vtkXMLPUnstructuredGridReader);
 
 //----------------------------------------------------------------------------
@@ -114,7 +114,7 @@ void vtkXMLPUnstructuredGridReader::SetupOutputData()
   cellTypes->SetNumberOfTuples(this->GetNumberOfCells());
   vtkCellArray* outCells = vtkCellArray::New();
   
-  vtkIntArray* locations = vtkIntArray::New();
+  vtkIdTypeArray* locations = vtkIdTypeArray::New();
   locations->SetNumberOfTuples(this->GetNumberOfCells());
   
   output->SetCells(cellTypes, locations, outCells);
@@ -156,10 +156,10 @@ int vtkXMLPUnstructuredGridReader::ReadPieceData()
                       output->GetCells());
   
   // Copy the cell locations with offset adjustment.
-  vtkIntArray* inLocations = input->GetCellLocationsArray();
-  vtkIntArray* outLocations = output->GetCellLocationsArray();
-  int* inLocs = inLocations->GetPointer(0);
-  int* outLocs = outLocations->GetPointer(this->StartCell);
+  vtkIdTypeArray* inLocations = input->GetCellLocationsArray();
+  vtkIdTypeArray* outLocations = output->GetCellLocationsArray();
+  vtkIdType* inLocs = inLocations->GetPointer(0);
+  vtkIdType* outLocs = outLocations->GetPointer(this->StartCell);
   vtkIdType numCells = inLocations->GetNumberOfTuples();
   vtkIdType i;
   for(i=0;i < numCells; ++i)

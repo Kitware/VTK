@@ -21,7 +21,7 @@
 #include "vtkEmptyCell.h"
 #include "vtkGenericCell.h"
 #include "vtkHexahedron.h"
-#include "vtkIntArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkLine.h"
 #include "vtkObjectFactory.h"
 #include "vtkPixel.h"
@@ -44,7 +44,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.116");
+vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.116.2.1");
 vtkStandardNewMacro(vtkUnstructuredGrid);
 
 vtkUnstructuredGrid::vtkUnstructuredGrid ()
@@ -113,7 +113,7 @@ void vtkUnstructuredGrid::Allocate (vtkIdType numCells, int extSize)
     {
     this->Locations->UnRegister(this);
     }
-  this->Locations = vtkIntArray::New();
+  this->Locations = vtkIdTypeArray::New();
   this->Locations->Allocate(numCells,extSize);
   this->Locations->Register(this);
   this->Locations->Delete();
@@ -480,7 +480,7 @@ void vtkUnstructuredGrid::SetCells(int type, vtkCellArray *cells)
     {
     this->Locations->UnRegister(this);
     }
-  this->Locations = vtkIntArray::New();
+  this->Locations = vtkIdTypeArray::New();
   this->Locations->Allocate(cells->GetNumberOfCells(),1000);
   this->Locations->Register(this);
   this->Locations->Delete();
@@ -525,7 +525,7 @@ void vtkUnstructuredGrid::SetCells(int *types, vtkCellArray *cells)
     {
     this->Locations->UnRegister(this);
     }
-  this->Locations = vtkIntArray::New();
+  this->Locations = vtkIdTypeArray::New();
   this->Locations->Allocate(cells->GetNumberOfCells(),1000);
   this->Locations->Register(this);
   this->Locations->Delete();
@@ -540,7 +540,7 @@ void vtkUnstructuredGrid::SetCells(int *types, vtkCellArray *cells)
 
 
 void vtkUnstructuredGrid::SetCells(vtkUnsignedCharArray *cellTypes, 
-                                   vtkIntArray *cellLocations, 
+                                   vtkIdTypeArray *cellLocations, 
                                    vtkCellArray *cells)
 {
   // set cell array
@@ -891,7 +891,7 @@ void vtkUnstructuredGrid::DeepCopy(vtkDataObject *dataObject)
       }
     if (grid->Locations)
       {
-      this->Locations = vtkIntArray::New();
+      this->Locations = vtkIdTypeArray::New();
       this->Locations->DeepCopy(grid->Locations);
       this->Locations->Register(this);
       this->Locations->Delete();
@@ -1008,7 +1008,7 @@ int vtkUnstructuredGrid::IsHomogeneous()
 }
 
 // Fill container with indices of cells which match given type.
-void vtkUnstructuredGrid::GetIdsOfCellsOfType(int type, vtkIntArray *array)
+void vtkUnstructuredGrid::GetIdsOfCellsOfType(int type, vtkIdTypeArray *array)
 {
   for (int cellId = 0; cellId < this->GetNumberOfCells(); cellId++)
     {
