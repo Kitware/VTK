@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageContinuousErode3D, "1.27");
+vtkCxxRevisionMacro(vtkImageContinuousErode3D, "1.28");
 vtkStandardNewMacro(vtkImageContinuousErode3D);
 
 //----------------------------------------------------------------------------
@@ -305,7 +305,6 @@ void vtkImageContinuousErode3D::ThreadedRequestData(
   inPtr = inArray->GetVoidPointer(0);
 
   // Error checking on mask
-  this->Ellipse->GetOutput()->Update();
   mask = this->Ellipse->GetOutput();
   if (mask->GetScalarType() != VTK_UNSIGNED_CHAR)
     {
@@ -331,4 +330,13 @@ void vtkImageContinuousErode3D::ThreadedRequestData(
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageContinuousErode3D::RequestData(vtkInformation *request,
+                                            vtkInformationVector **inputVector,
+                                            vtkInformationVector *outputVector)
+{
+  this->Ellipse->GetOutput()->Update();
+  this->Superclass::RequestData(request, inputVector, outputVector);
 }

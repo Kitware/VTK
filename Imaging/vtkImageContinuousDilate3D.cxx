@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageContinuousDilate3D, "1.27");
+vtkCxxRevisionMacro(vtkImageContinuousDilate3D, "1.28");
 vtkStandardNewMacro(vtkImageContinuousDilate3D);
 
 //----------------------------------------------------------------------------
@@ -307,7 +307,6 @@ void vtkImageContinuousDilate3D::ThreadedRequestData(
   inPtr = inArray->GetVoidPointer(0);
 
   // Error checking on mask
-  this->Ellipse->GetOutput()->Update();
   mask = this->Ellipse->GetOutput();
   if (mask->GetScalarType() != VTK_UNSIGNED_CHAR)
     {
@@ -334,4 +333,14 @@ void vtkImageContinuousDilate3D::ThreadedRequestData(
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageContinuousDilate3D::RequestData(
+  vtkInformation *request,
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
+{
+  this->Ellipse->GetOutput()->Update();
+  this->Superclass::RequestData(request, inputVector, outputVector);
 }

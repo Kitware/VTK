@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageDilateErode3D, "1.41");
+vtkCxxRevisionMacro(vtkImageDilateErode3D, "1.42");
 vtkStandardNewMacro(vtkImageDilateErode3D);
 
 //----------------------------------------------------------------------------
@@ -292,7 +292,6 @@ void vtkImageDilateErode3D::ThreadedRequestData(
   vtkImageData *mask;
 
   // Error checking on mask
-  this->Ellipse->GetOutput()->Update();
   mask = this->Ellipse->GetOutput();
   if (mask->GetScalarType() != VTK_UNSIGNED_CHAR)
     {
@@ -318,4 +317,13 @@ void vtkImageDilateErode3D::ThreadedRequestData(
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageDilateErode3D::RequestData(vtkInformation *request,
+                                        vtkInformationVector **inputVector,
+                                        vtkInformationVector *outputVector)
+{
+  this->Ellipse->GetOutput()->Update();
+  this->Superclass::RequestData(request, inputVector, outputVector);
 }

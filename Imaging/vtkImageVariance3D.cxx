@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageVariance3D, "1.25");
+vtkCxxRevisionMacro(vtkImageVariance3D, "1.26");
 vtkStandardNewMacro(vtkImageVariance3D);
 
 //----------------------------------------------------------------------------
@@ -296,7 +296,6 @@ void vtkImageVariance3D::ThreadedRequestData(
   vtkImageData *mask;
 
   // Error checking on mask
-  this->Ellipse->GetOutput()->Update();
   mask = this->Ellipse->GetOutput();
   if (mask->GetScalarType() != VTK_UNSIGNED_CHAR)
     {
@@ -322,4 +321,13 @@ void vtkImageVariance3D::ThreadedRequestData(
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageVariance3D::RequestData(vtkInformation *request,
+                                     vtkInformationVector **inputVector,
+                                     vtkInformationVector *outputVector)
+{
+  this->Ellipse->GetOutput()->Update();
+  this->Superclass::RequestData(request, inputVector, outputVector);
 }

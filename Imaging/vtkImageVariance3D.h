@@ -57,6 +57,10 @@ protected:
                            vtkInformationVector *outputVector,
                            vtkImageData ***inData, vtkImageData **outData,
                            int extent[6], int id);
+  void RequestData(vtkInformation *request,
+                   vtkInformationVector **inputVector,
+                   vtkInformationVector *outputVector);
+
 private:
   vtkImageVariance3D(const vtkImageVariance3D&);  // Not implemented.
   void operator=(const vtkImageVariance3D&);  // Not implemented.
