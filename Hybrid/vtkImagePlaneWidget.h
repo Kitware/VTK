@@ -378,6 +378,11 @@ protected:
                             void* clientdata,
                             void* calldata);
 
+  // internal utility method that adds observers to the RenderWindowInteractor
+  // so that our ProcessEvents is eventually called.  this method is called
+  // by SetEnabled as well as SetInteraction
+  void AddObservers();
+
   // ProcessEvents() dispatches to these methods.
   void OnMouseMove();
   void OnLeftButtonDown();
