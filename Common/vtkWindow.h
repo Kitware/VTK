@@ -29,6 +29,8 @@
 #include "vtkObject.h"
 #include <stdio.h>
 
+class vtkUnsignedCharArray;
+
 class VTK_COMMON_EXPORT vtkWindow : public vtkObject
 {
 public:
@@ -101,8 +103,9 @@ public:
   // of the screen is in the lower left corner. The y axis increases as
   // you go up the screen. So the storage of pixels is from left to right
   // and from bottom to top.
-  virtual unsigned char *GetPixelData(int, int, int, int, int) {
-    return (unsigned char *)NULL;};
+  virtual unsigned char *GetPixelData(int, int, int, int, int) = 0;
+  virtual int GetPixelData(int ,int ,int ,int , int,
+			   vtkUnsignedCharArray*) = 0;
 
   // Description:
   // Return a best estimate to the dots per inch of the display

@@ -25,9 +25,11 @@
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
+#include "vtkFloatArray.h"
+#include "vtkUnsignedCharArray.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.58");
+vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.59");
 #endif
 
 #define MAX_LIGHTS 8
@@ -166,13 +168,90 @@ int vtkOpenGLRenderWindow::GetDepthBufferSize()
     }
 }
 
-unsigned char *vtkOpenGLRenderWindow::GetPixelData(int x1, int y1, 
-                                                   int x2, int y2, 
-                                                   int front)
+unsigned char* vtkOpenGLRenderWindow::GetPixelData(int x1, int y1, 
+						   int x2, int y2, 
+						   int front)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
+
+  if (y1 < y2)
+    {
+    y_low = y1; 
+    y_hi  = y2;
+    }
+  else
+    {
+    y_low = y2; 
+    y_hi  = y1;
+    }
+
+  if (x1 < x2)
+    {
+    x_low = x1; 
+    x_hi  = x2;
+    }
+  else
+    {
+    x_low = x2; 
+    x_hi  = x1;
+    }
+
   unsigned char   *data = NULL;
+  data = new unsigned char[(x_hi - x_low + 1)*(y_hi - y_low + 1)*3];
+  this->GetPixelData(x1, y1, x2, y2, front, data);
+  return data;
+}
+
+int vtkOpenGLRenderWindow::GetPixelData(int x1, int y1, 
+					int x2, int y2, 
+					int front, 
+					vtkUnsignedCharArray* data)
+{
+  int     y_low, y_hi;
+  int     x_low, x_hi;
+
+  if (y1 < y2)
+    {
+    y_low = y1; 
+    y_hi  = y2;
+    }
+  else
+    {
+    y_low = y2; 
+    y_hi  = y1;
+    }
+
+  if (x1 < x2)
+    {
+    x_low = x1; 
+    x_hi  = x2;
+    }
+  else
+    {
+    x_low = x2; 
+    x_hi  = x1;
+    }
+
+  int width  = abs(x_hi - x_low) + 1;
+  int height = abs(y_hi - y_low) + 1;
+  int size = 3*width*height;
+
+  if ( data->GetSize() != size)
+    {
+    data->SetNumberOfComponents(3);
+    data->SetNumberOfValues(size);
+    }
+  return this->GetPixelData(x1, y1, x2, y2, front, data->GetPointer(0));
+  
+}
+
+int vtkOpenGLRenderWindow::GetPixelData(int x1, int y1, 
+					int x2, int y2, 
+					int front, unsigned char* data)
+{
+  int     y_low, y_hi;
+  int     x_low, x_hi;
 
   // set the current window 
   this->MakeCurrent();
@@ -199,6 +278,9 @@ unsigned char *vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
     x_hi  = x1;
     }
 
+  // Must clear previous errors first.
+  while(glGetError() != GL_NO_ERROR);
+
   if (front)
     {
     glReadBuffer(GL_FRONT);
@@ -208,7 +290,6 @@ unsigned char *vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
     glReadBuffer(GL_BACK);
     }
 
-  data = new unsigned char[(x_hi - x_low + 1)*(y_hi - y_low + 1)*3];
   glDisable( GL_SCISSOR_TEST );
 
 #ifdef sparc
@@ -247,18 +328,72 @@ unsigned char *vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
   glReadPixels(x_low, y_low, x_hi-x_low+1, y_hi-y_low+1, GL_RGB,
                GL_UNSIGNED_BYTE, data);
 #endif
+
+  if (glGetError() != GL_NO_ERROR)
+    {
+    return VTK_ERROR;
+    }
+  else
+    {
+    return VTK_OK;
+    }
   
-  return data;
 }
 
-void vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
-                                       unsigned char *data, int front)
+int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
+					vtkUnsignedCharArray *data, int front)
+{
+  int     y_low, y_hi;
+  int     x_low, x_hi;
+
+  if (y1 < y2)
+    {
+
+    y_low = y1; 
+    y_hi  = y2;
+    }
+  else
+    {
+    y_low = y2; 
+    y_hi  = y1;
+    }
+  
+  if (x1 < x2)
+    {
+    x_low = x1; 
+    x_hi  = x2;
+    }
+  else
+    {
+    x_low = x2; 
+    x_hi  = x1;
+    }
+
+  int width  = abs(x_hi - x_low) + 1;
+  int height = abs(y_hi - y_low) + 1;
+  int size = 3*width*height;
+
+  if ( data->GetSize() != size)
+    {
+    vtkErrorMacro("Buffer is of wrong size.");
+    return VTK_ERROR;
+    }
+  return this->SetPixelData(x1, y1, x2, y2, data->GetPointer(0), front);
+
+}
+
+int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
+					unsigned char *data, int front)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
 
   // set the current window 
   this->MakeCurrent();
+
+  // Error checking
+  // Must clear previous errors first.
+  while(glGetError() != GL_NO_ERROR);
 
   if (front)
     {
@@ -362,14 +497,106 @@ void vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
                GL_RGB, GL_UNSIGNED_BYTE, data);
   glEnable(GL_BLEND);
 #endif
+  
+  if (glGetError() != GL_NO_ERROR)
+    {
+    return VTK_ERROR;
+    }
+  else
+    {
+    return VTK_OK;
+    }
 }
 
-float *vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2, int front)
+float* vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
+					       int front)
+{
+
+  int     y_low, y_hi;
+  int     x_low, x_hi;
+  int     width, height;
+
+  if (y1 < y2)
+    {
+    y_low = y1; 
+    y_hi  = y2;
+    }
+  else
+    {
+    y_low = y2; 
+    y_hi  = y1;
+    }
+
+  if (x1 < x2)
+    {
+    x_low = x1; 
+    x_hi  = x2;
+    }
+  else
+    {
+    x_low = x2; 
+    x_hi  = x1;
+    }
+
+  width  = abs(x_hi - x_low) + 1;
+  height = abs(y_hi - y_low) + 1;
+
+  float *data = new float[ (width*height*4) ];
+  this->GetRGBAPixelData(x1, y1, x2, y2, front, data);
+
+  return data;
+
+}
+
+int vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
+					    int front, vtkFloatArray* data)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
   int     width, height;
-  float   *data = NULL;
+
+  if (y1 < y2)
+    {
+    y_low = y1; 
+    y_hi  = y2;
+    }
+  else
+    {
+    y_low = y2; 
+    y_hi  = y1;
+    }
+
+  if (x1 < x2)
+    {
+    x_low = x1; 
+    x_hi  = x2;
+    }
+  else
+    {
+    x_low = x2; 
+    x_hi  = x1;
+    }
+
+  width  = abs(x_hi - x_low) + 1;
+  height = abs(y_hi - y_low) + 1;
+
+  int size = 4*width*height;
+  
+  if ( data->GetSize() != size)
+    {
+    data->SetNumberOfComponents(4);
+    data->SetNumberOfValues(size);
+    }
+  return this->GetRGBAPixelData(x1, y1, x2, y2, front, data->GetPointer(0));
+
+}
+
+int vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
+					    int front, float* data)
+{
+  int     y_low, y_hi;
+  int     x_low, x_hi;
+  int     width, height;
 
   // set the current window 
   this->MakeCurrent();
@@ -396,6 +623,10 @@ float *vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2, i
     x_hi  = x1;
     }
 
+  // Error checking
+  // Must clear previous errors first.
+  while(glGetError() != GL_NO_ERROR);
+
   if (front)
     {
     glReadBuffer(GL_FRONT);
@@ -408,7 +639,6 @@ float *vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2, i
   width  = abs(x_hi - x_low) + 1;
   height = abs(y_hi - y_low) + 1;
 
-  data = new float[ (width*height*4) ];
 
   // Turn of texturing in case it is on - some drivers have a problem
   // getting / setting pixels with texturing enabled.
@@ -417,7 +647,14 @@ float *vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2, i
   glPixelStorei( GL_PACK_ALIGNMENT, 1 );
   glReadPixels( x_low, y_low, width, height, GL_RGBA, GL_FLOAT, data);
 
-  return data;
+  if (glGetError() != GL_NO_ERROR)
+    {
+    return VTK_ERROR;
+    }
+  else
+    {
+    return VTK_OK;
+    }
 }
 
 void vtkOpenGLRenderWindow::ReleaseRGBAPixelData(float *data) 
@@ -425,8 +662,52 @@ void vtkOpenGLRenderWindow::ReleaseRGBAPixelData(float *data)
   delete[] data;
 }
 
-void vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
-                                       float *data, int front, int blend)
+int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
+					    vtkFloatArray *data, int front, 
+					    int blend)
+{
+  int     y_low, y_hi;
+  int     x_low, x_hi;
+  int     width, height;
+
+  if (y1 < y2)
+    {
+    y_low = y1; 
+    y_hi  = y2;
+    }
+  else
+    {
+    y_low = y2; 
+    y_hi  = y1;
+    }
+  
+  if (x1 < x2)
+    {
+    x_low = x1; 
+    x_hi  = x2;
+    }
+  else
+    {
+    x_low = x2; 
+    x_hi  = x1;
+    }
+  
+  width  = abs(x_hi-x_low) + 1;
+  height = abs(y_hi-y_low) + 1;
+
+  int size = 4*width*height;
+  if ( data->GetSize() != size )
+    {
+    vtkErrorMacro("Buffer is of wrong size.");
+    return VTK_ERROR;
+    }
+
+  this->SetRGBAPixelData(x1, y1, x2, y2, data->GetPointer(0), front,
+			 blend);
+}
+
+int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
+					    float *data, int front, int blend)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -434,6 +715,10 @@ void vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
 
   // set the current window 
   this->MakeCurrent();
+
+  // Error checking
+  // Must clear previous errors first.
+  while(glGetError() != GL_NO_ERROR);
 
   if (front)
     {
@@ -497,6 +782,15 @@ void vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
     {
     glDrawPixels( width, height, GL_RGBA, GL_FLOAT, data);
     }
+
+  if (glGetError() != GL_NO_ERROR)
+    {
+    return VTK_ERROR;
+    }
+  else
+    {
+    return VTK_OK;
+    }
 }
 
 unsigned char *vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1, 
@@ -506,7 +800,90 @@ unsigned char *vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1,
   int     y_low, y_hi;
   int     x_low, x_hi;
   int     width, height;
-  unsigned char *data = NULL;
+
+  if (y1 < y2)
+    {
+    y_low = y1;
+    y_hi  = y2;
+    }
+  else
+    {
+    y_low = y2;
+    y_hi  = y1;
+    }
+
+
+  if (x1 < x2)
+    {
+    x_low = x1;
+    x_hi  = x2;
+    }
+  else
+    {
+    x_low = x2;
+    x_hi  = x1;
+    }
+
+  width  = abs(x_hi - x_low) + 1;
+  height = abs(y_hi - y_low) + 1;
+
+  unsigned char *data = new unsigned char[ (width*height)*4 ];
+  this->GetRGBACharPixelData(x1, y1, x2, y2, front, data);
+
+  return data;
+}
+
+int vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1, 
+						int x2, int y2, 
+						int front,
+						vtkUnsignedCharArray* data)
+{
+  int     y_low, y_hi;
+  int     x_low, x_hi;
+
+  if (y1 < y2)
+    {
+    y_low = y1; 
+    y_hi  = y2;
+    }
+  else
+    {
+    y_low = y2; 
+    y_hi  = y1;
+    }
+
+  if (x1 < x2)
+    {
+    x_low = x1; 
+    x_hi  = x2;
+    }
+  else
+    {
+    x_low = x2; 
+    x_hi  = x1;
+    }
+
+  int width  = abs(x_hi - x_low) + 1;
+  int height = abs(y_hi - y_low) + 1;
+  int size = 4*width*height;
+
+  if ( data->GetSize() != size)
+    {
+    data->SetNumberOfComponents(4);
+    data->SetNumberOfValues(size);
+    }
+  return this->GetRGBACharPixelData(x1, y1, x2, y2, front, 
+				    data->GetPointer(0));
+}
+
+int vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1, 
+						int x2, int y2, 
+						int front,
+						unsigned char* data)
+{
+  int     y_low, y_hi;
+  int     x_low, x_hi;
+  int     width, height;
 
 
   // set the current window
@@ -537,6 +914,9 @@ unsigned char *vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1,
     }
 
 
+  // Must clear previous errors first.
+  while(glGetError() != GL_NO_ERROR);
+
   if (front)
     {
     glReadBuffer(GL_FRONT);
@@ -546,26 +926,73 @@ unsigned char *vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1,
     glReadBuffer(GL_BACK);
     }
 
-
   width  = abs(x_hi - x_low) + 1;
   height = abs(y_hi - y_low) + 1;
-
-
-  data = new unsigned char[ (width*height)*4 ];
-
 
   glDisable( GL_SCISSOR_TEST );
   glReadPixels( x_low, y_low, width, height, GL_RGBA, GL_UNSIGNED_BYTE,
                 data);
 
+  if (glGetError() != GL_NO_ERROR)
+    {
+    return VTK_ERROR;
+    }
+  else
+    {
+    return VTK_OK;
+    }
 
-  return data;
 }
 
 
-void vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2, 
-                                                 int y2, unsigned char *data, 
-                                                 int front, int blend)
+int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1,int y1,int x2,int y2, 
+						vtkUnsignedCharArray *data, 
+						int front, int blend)
+{
+  int     y_low, y_hi;
+  int     x_low, x_hi;
+  int     width, height;
+
+  if (y1 < y2)
+    {
+    y_low = y1; 
+    y_hi  = y2;
+    }
+  else
+    {
+    y_low = y2; 
+    y_hi  = y1;
+    }
+  
+  if (x1 < x2)
+    {
+    x_low = x1; 
+    x_hi  = x2;
+    }
+  else
+    {
+    x_low = x2; 
+    x_hi  = x1;
+    }
+  
+  width  = abs(x_hi-x_low) + 1;
+  height = abs(y_hi-y_low) + 1;
+
+  int size = 4*width*height;
+  if ( data->GetSize() != size )
+    {
+    vtkErrorMacro("Buffer is of wrong size.");
+    return VTK_ERROR;
+    }
+
+  return this->SetRGBACharPixelData(x1, y1, x2, y2, data->GetPointer(0), 
+				    front, blend);
+  
+}
+
+int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2, 
+						int y2, unsigned char *data, 
+						int front, int blend)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -575,6 +1002,10 @@ void vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
   // set the current window
   this->MakeCurrent();
 
+
+  // Error checking
+  // Must clear previous errors first.
+  while(glGetError() != GL_NO_ERROR);
 
   if (front)
     {
@@ -643,16 +1074,24 @@ void vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
     glDrawPixels( width, height, GL_RGBA, GL_UNSIGNED_BYTE, 
                   data);
     }
+
+  if (glGetError() != GL_NO_ERROR)
+    {
+    return VTK_ERROR;
+    }
+  else
+    {
+    return VTK_OK;
+    }
 }
 
 
-
-float *vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2  )
+int vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2,
+					   float* z_data )
 {
   int             y_low;
   int             x_low;
   int             width, height;
-  float           *z_data = NULL;
 
   // set the current window 
   this->MakeCurrent();
@@ -678,7 +1117,9 @@ float *vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2  )
   width =  abs(x2 - x1)+1;
   height = abs(y2 - y1)+1;
 
-  z_data = new float[width*height];
+  // Error checking
+  // Must clear previous errors first.
+  while(glGetError() != GL_NO_ERROR);
 
   // Turn of texturing in case it is on - some drivers have a problem
   // getting / setting pixels with texturing enabled.
@@ -691,11 +1132,62 @@ float *vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2  )
                 GL_DEPTH_COMPONENT, GL_FLOAT,
                 z_data );
 
+  if (glGetError() != GL_NO_ERROR)
+    {
+    return VTK_ERROR;
+    }
+  else
+    {
+    return VTK_OK;
+    }
+}
+
+float *vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2  )
+{
+  float           *z_data = NULL;
+
+  int             width, height;
+  width =  abs(x2 - x1)+1;
+  height = abs(y2 - y1)+1;
+
+  z_data = new float[width*height];
+  this->GetZbufferData(x1, y1, x2, y2, z_data);
+
   return z_data;
 }
 
-void vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
-                                          float *buffer )
+int vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2,
+					   vtkFloatArray *buffer )
+{
+  int  width, height;
+  width =  abs(x2 - x1)+1;
+  height = abs(y2 - y1)+1;
+  int size = width*height;
+  if ( buffer->GetSize() != size)
+    {
+    buffer->SetNumberOfComponents(1);
+    buffer->SetNumberOfValues(size);
+    }
+  return this->GetZbufferData(x1, y1, x2, y2, buffer->GetPointer(0));
+}
+
+int vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
+					   vtkFloatArray *buffer )
+{
+  int width, height;
+  width =  abs(x2 - x1)+1;
+  height = abs(y2 - y1)+1;
+  int size = width*height;
+  if ( buffer->GetSize() != size )
+    {
+    vtkErrorMacro("Buffer is of wrong size.");
+    return VTK_ERROR;
+    }
+  return this->SetZbufferData(x1, y1, x2, y2, buffer->GetPointer(0));
+}
+
+int vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
+					   float *buffer )
 {
   int             y_low;
   int             x_low;
@@ -724,6 +1216,10 @@ void vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
 
   width =  abs(x2 - x1)+1;
   height = abs(y2 - y1)+1;
+
+  // Error checking
+  // Must clear previous errors first.
+  while(glGetError() != GL_NO_ERROR);
 
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
@@ -746,6 +1242,14 @@ void vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
 
   glDrawPixels( width, height, GL_DEPTH_COMPONENT, GL_FLOAT, buffer);
 
+  if (glGetError() != GL_NO_ERROR)
+    {
+    return VTK_ERROR;
+    }
+  else
+    {
+    return VTK_OK;
+    }
 }
 
 

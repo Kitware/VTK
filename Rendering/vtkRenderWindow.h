@@ -47,8 +47,8 @@
 #include "vtkGraphicsFactory.h"
 
 class vtkRenderWindowInteractor;
-
-
+class vtkFloatArray;
+class vtkUnsignedCharArray;
 
 // lets define the different types of stereo
 #define VTK_STEREO_CRYSTAL_EYES 1
@@ -94,12 +94,12 @@ public:
 
   // Description:
   // Initialize the rendering process.
-  virtual void Start() {};
+  virtual void Start() = 0;
   
   // Description:
   // A termination method performed at the end of the rendering process
   // to do things like swapping buffers (if necessary) or similar actions.
-  virtual void Frame() {};
+  virtual void Frame() = 0;
 
   // Description:
   // Performed at the end of the rendering process to generate image.
@@ -115,12 +115,12 @@ public:
   // Description:
   // Hide or Show the mouse cursor, it is nice to be able to hide the
   // default cursor if you want VTK to display a 3D cursor instead.
-  virtual void HideCursor() {};
-  virtual void ShowCursor() {};
+  virtual void HideCursor() = 0;
+  virtual void ShowCursor() = 0;
 
   // Description:
   // Turn on/off rendering full screen window size.
-  virtual void SetFullScreen(int) {};
+  virtual void SetFullScreen(int) = 0;
   vtkGetMacro(FullScreen,int);
   vtkBooleanMacro(FullScreen,int);
 
@@ -203,7 +203,7 @@ public:
   // Remap the rendering window. This probably only works on UNIX right now.
   // It is useful for changing properties that can't normally be changed
   // once the window is up.
-  virtual void WindowRemap() {};
+  virtual void WindowRemap() = 0;
   
   // Description:
   // Turn on/off buffer swapping between images. 
@@ -220,7 +220,9 @@ public:
   // of the screen is in the lower left corner. The y axis increases as
   // you go up the screen. So the storage of pixels is from left to right
   // and from bottom to top.
-  virtual void SetPixelData(int, int, int, int, unsigned char *,int) {};
+  virtual int SetPixelData(int, int, int, int, unsigned char *,int) = 0;
+  virtual int SetPixelData(int, int, int, int, vtkUnsignedCharArray*,
+			   int ) = 0;
 
   // Description:
   // Same as Get/SetPixelData except that the image also contains an alpha
@@ -228,20 +230,27 @@ public:
   // float value. The "blend" parameter controls whether the SetRGBAPixelData
   // method blends the data with the previous contents of the frame buffer
   // or completely replaces the frame buffer data.
-  virtual float *GetRGBAPixelData(int ,int ,int ,int ,int ) {
-    return (float *)NULL;};
-  virtual void SetRGBAPixelData(int ,int ,int ,int ,float *,int,
-                                int blend=0) { blend = blend;}
-  virtual unsigned char *GetRGBACharPixelData(int ,int ,int ,int ,int ) {
-    return (unsigned char*)NULL;}
-  virtual void SetRGBACharPixelData(int ,int ,int ,int ,unsigned char *, int,
-                                    int blend=0) { blend = blend;}
-  
+  virtual float *GetRGBAPixelData(int ,int ,int ,int ,int ) = 0;
+  virtual int GetRGBAPixelData(int, int, int, int, int, vtkFloatArray* ) = 0;
+  virtual int SetRGBAPixelData(int ,int ,int ,int ,float *,int,
+			       int blend=0) = 0;
+  virtual int SetRGBAPixelData(int, int, int, int, vtkFloatArray*,
+			       int, int blend=0) = 0;
+  virtual unsigned char *GetRGBACharPixelData(int ,int ,int ,int ,int ) = 0;
+  virtual int GetRGBACharPixelData(int ,int, int, int, int,
+				   vtkUnsignedCharArray*) = 0;
+  virtual int SetRGBACharPixelData(int ,int ,int ,int ,unsigned char *, int,
+				   int blend=0) = 0;
+  virtual int SetRGBACharPixelData(int, int, int, int,
+				   vtkUnsignedCharArray *,
+				   int, int blend=0) = 0;
 
   // Description:
   // Set/Get the zbuffer data from the frame buffer.
-  virtual float *GetZbufferData(int, int, int, int ) {return (float *)NULL;};
-  virtual void SetZbufferData(int, int, int, int, float *) {};
+  virtual float *GetZbufferData(int, int, int, int ) = 0;
+  virtual int GetZbufferData( int, int, int, int, vtkFloatArray*) = 0;
+  virtual int SetZbufferData(int, int, int, int, float *) = 0;
+  virtual int SetZbufferData( int, int, int, int, vtkFloatArray * ) = 0;
 
   // Description:
   // Set the number of frames for doing antialiasing. The default is
@@ -280,7 +289,7 @@ public:
   vtkGetMacro(InAbortCheck,int);
   vtkSetMacro(InAbortCheck,int);
   virtual int CheckAbortStatus();
-  virtual int GetEventPending() { return 0;};
+  virtual int GetEventPending() = 0;
 
   // Description:
   // Are we rendering at the moment
@@ -329,25 +338,25 @@ public:
   
   // Description:
   // Dummy stubs for vtkWindow API.
-  virtual void SetDisplayId(void *) {}
-  virtual void SetWindowId(void *)  {}
-  virtual void SetParentId(void *)  {}
-  virtual void *GetGenericDisplayId() {return NULL;}
-  virtual void *GetGenericWindowId() {return NULL;}
-  virtual void *GetGenericParentId() {return NULL;}
-  virtual void *GetGenericContext() {return NULL;}
-  virtual void *GetGenericDrawable() {return NULL;}
-  virtual void SetWindowInfo(char *) {}
-  virtual void SetParentInfo(char *) {};
+  virtual void SetDisplayId(void *) = 0;
+  virtual void SetWindowId(void *)  = 0;
+  virtual void SetParentId(void *)  = 0;
+  virtual void *GetGenericDisplayId() = 0;
+  virtual void *GetGenericWindowId() = 0;
+  virtual void *GetGenericParentId() = 0;
+  virtual void *GetGenericContext() = 0;
+  virtual void *GetGenericDrawable() = 0;
+  virtual void SetWindowInfo(char *) = 0;
+  virtual void SetParentInfo(char *) = 0;
 
   // Description:
   // Make this the current window. 
-  virtual void MakeCurrent() {};
+  virtual void MakeCurrent() = 0;
 
   // Description:
   // This method should be defined by the subclass. How many bits of
   // precision are there in the zbuffer?
-  virtual int GetDepthBufferSize() {return -1;}
+  virtual int GetDepthBufferSize() = 0;
 
 protected:
   vtkRenderWindow();

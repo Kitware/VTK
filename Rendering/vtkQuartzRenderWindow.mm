@@ -60,7 +60,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define id Id // since id is a reserved token in ObjC and is used a _lot_ in vtk
 
 
-vtkCxxRevisionMacro(vtkQuartzRenderWindow, "1.9");
+vtkCxxRevisionMacro(vtkQuartzRenderWindow, "1.10");
 vtkStandardNewMacro(vtkQuartzRenderWindow);
 
 
@@ -581,12 +581,90 @@ int vtkQuartzRenderWindow::GetDepthBufferSize()
 }
 
 
-unsigned char *vtkQuartzRenderWindow::GetPixelData(int x1, int y1, int x2,
-							int y2, int front)
+unsigned char* vtkOpenGLRenderWindow::GetPixelData(int x1, int y1, 
+						   int x2, int y2, 
+						   int front)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
+
+  if (y1 < y2)
+    {
+    y_low = y1; 
+    y_hi  = y2;
+    }
+  else
+    {
+    y_low = y2; 
+    y_hi  = y1;
+    }
+
+  if (x1 < x2)
+    {
+    x_low = x1; 
+    x_hi  = x2;
+    }
+  else
+    {
+    x_low = x2; 
+    x_hi  = x1;
+    }
+
   unsigned char   *data = NULL;
+  data = new unsigned char[(x_hi - x_low + 1)*(y_hi - y_low + 1)*3];
+  this->GetPixelData(x1, y1, x2, y2, front, data);
+  return data;
+}
+
+int vtkOpenGLRenderWindow::GetPixelData(int x1, int y1, 
+					int x2, int y2, 
+					int front, 
+					vtkUnsignedCharArray* data)
+{
+  int     y_low, y_hi;
+  int     x_low, x_hi;
+
+  if (y1 < y2)
+    {
+    y_low = y1; 
+    y_hi  = y2;
+    }
+  else
+    {
+    y_low = y2; 
+    y_hi  = y1;
+    }
+
+  if (x1 < x2)
+    {
+    x_low = x1; 
+    x_hi  = x2;
+    }
+  else
+    {
+    x_low = x2; 
+    x_hi  = x1;
+    }
+
+  int width  = abs(x_hi - x_low) + 1;
+  int height = abs(y_hi - y_low) + 1;
+  int size = 3*width*height;
+
+  if ( data->GetSize() != size)
+    {
+    data->SetNumberOfComponents(3);
+    data->SetNumberOfValues(size);
+    }
+  return this->GetPixelData(x1, y1, x2, y2, front, data->GetPointer(0));
+  
+}
+
+int vtkOpenGLRenderWindow::GetPixelData(int x1, int y1, 
+					int x2, int y2, 
+					int front, unsigned char* data)
+{
+  int     y_low, y_hi;
+  int     x_low, x_hi;
 
   // set the current window 
   this->MakeCurrent();
@@ -613,6 +691,9 @@ unsigned char *vtkQuartzRenderWindow::GetPixelData(int x1, int y1, int x2,
     x_hi  = x1;
     }
 
+  // Must clear previous errors first.
+  while(glGetError() != GL_NO_ERROR);
+
   if (front)
     {
     glReadBuffer(GL_FRONT);
@@ -622,35 +703,37 @@ unsigned char *vtkQuartzRenderWindow::GetPixelData(int x1, int y1, int x2,
     glReadBuffer(GL_BACK);
     }
 
-  data = new unsigned char[(x_hi - x_low + 1)*(y_hi - y_low + 1)*3];
+  glDisable( GL_SCISSOR_TEST );
+
+  // Turn of texturing in case it is on - some drivers have a problem
+  // getting / setting pixels with texturing enabled.
+  glDisable( GL_TEXTURE_2D );
 
   // Calling pack alignment ensures that we can grab the any size window
   glPixelStorei( GL_PACK_ALIGNMENT, 1 );
   glReadPixels(x_low, y_low, x_hi-x_low+1, y_hi-y_low+1, GL_RGB,
                GL_UNSIGNED_BYTE, data);
-  return data;
+
+  if (glGetError() != GL_NO_ERROR)
+    {
+    return VTK_ERROR;
+    }
+  else
+    {
+    return VTK_OK;
+    }
+  
 }
 
-void vtkQuartzRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
-					    unsigned char *data, int front)
+int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
+					vtkUnsignedCharArray *data, int front)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
 
-  // set the current window
-  this->MakeCurrent();
-
-  if (front)
-    {
-    glDrawBuffer(GL_FRONT);
-    }
-  else
-    {
-    glDrawBuffer(GL_BACK);
-    }
-
   if (y1 < y2)
     {
+
     y_low = y1; 
     y_hi  = y2;
     }
@@ -670,7 +753,70 @@ void vtkQuartzRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
     x_low = x2; 
     x_hi  = x1;
     }
+
+  int width  = abs(x_hi - x_low) + 1;
+  int height = abs(y_hi - y_low) + 1;
+  int size = 3*width*height;
+
+  if ( data->GetSize() != size)
+    {
+    vtkErrorMacro("Buffer is of wrong size.");
+    return VTK_ERROR;
+    }
+  return this->SetPixelData(x1, y1, x2, y2, data->GetPointer(0), front);
+
+}
+
+int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
+					unsigned char *data, int front)
+{
+  int     y_low, y_hi;
+  int     x_low, x_hi;
+
+  // set the current window 
+  this->MakeCurrent();
+
+  // Error checking
+  // Must clear previous errors first.
+  while(glGetError() != GL_NO_ERROR);
+
+  if (front)
+    {
+    glDrawBuffer(GL_FRONT);
+    }
+  else
+    {
+    glDrawBuffer(GL_BACK);
+    }
+
+  if (y1 < y2)
+    {
+
+    y_low = y1; 
+    y_hi  = y2;
+    }
+  else
+    {
+    y_low = y2; 
+    y_hi  = y1;
+    }
   
+  if (x1 < x2)
+    {
+    x_low = x1; 
+    x_hi  = x2;
+    }
+  else
+    {
+    x_low = x2; 
+    x_hi  = x1;
+    }
+
+  glDisable( GL_SCISSOR_TEST );
+  // Turn of texturing in case it is on - some drivers have a problem
+  // getting / setting pixels with texturing enabled.
+  glDisable( GL_TEXTURE_2D );
+
   // now write the binary info
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
@@ -686,12 +832,21 @@ void vtkQuartzRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
   glMatrixMode( GL_MODELVIEW );
   glPopMatrix();
 
-
-  glDisable(GL_BLEND);
+  glViewport(0,0, this->Size[0], this->Size[1]);
   glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
+  glDisable(GL_BLEND);
   glDrawPixels((x_hi-x_low+1), (y_hi - y_low + 1),
                GL_RGB, GL_UNSIGNED_BYTE, data);
   glEnable(GL_BLEND);
+  
+  if (glGetError() != GL_NO_ERROR)
+    {
+    return VTK_ERROR;
+    }
+  else
+    {
+    return VTK_OK;
+    }
 }
 
 // Get the window id.
@@ -728,17 +883,95 @@ void vtkQuartzRenderWindow::SetDeviceContext(void *arg)
   this->DeviceContext = arg;
 }
 
-float *vtkQuartzRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2, int front)
+float* vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
+					       int front)
 {
-  long    xloop,yloop;
+
   int     y_low, y_hi;
   int     x_low, x_hi;
   int     width, height;
 
-  float   *data = NULL;
+  if (y1 < y2)
+    {
+    y_low = y1; 
+    y_hi  = y2;
+    }
+  else
+    {
+    y_low = y2; 
+    y_hi  = y1;
+    }
 
-  float   *p_data = NULL;
-  unsigned long   *buffer;
+  if (x1 < x2)
+    {
+    x_low = x1; 
+    x_hi  = x2;
+    }
+  else
+    {
+    x_low = x2; 
+    x_hi  = x1;
+    }
+
+  width  = abs(x_hi - x_low) + 1;
+  height = abs(y_hi - y_low) + 1;
+
+  float *data = new float[ (width*height*4) ];
+  this->GetRGBAPixelData(x1, y1, x2, y2, front, data);
+
+  return data;
+
+}
+
+int vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
+					    int front, vtkFloatArray* data)
+{
+  int     y_low, y_hi;
+  int     x_low, x_hi;
+  int     width, height;
+
+  if (y1 < y2)
+    {
+    y_low = y1; 
+    y_hi  = y2;
+    }
+  else
+    {
+    y_low = y2; 
+    y_hi  = y1;
+    }
+
+  if (x1 < x2)
+    {
+    x_low = x1; 
+    x_hi  = x2;
+    }
+  else
+    {
+    x_low = x2; 
+    x_hi  = x1;
+    }
+
+  width  = abs(x_hi - x_low) + 1;
+  height = abs(y_hi - y_low) + 1;
+
+  int size = 4*width*height;
+  
+  if ( data->GetSize() != size)
+    {
+    data->SetNumberOfComponents(4);
+    data->SetNumberOfValues(size);
+    }
+  return this->GetRGBAPixelData(x1, y1, x2, y2, front, data->GetPointer(0));
+
+}
+
+int vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
+					    int front, float* data)
+{
+  int     y_low, y_hi;
+  int     x_low, x_hi;
+  int     width, height;
 
   // set the current window 
   this->MakeCurrent();
@@ -765,6 +998,10 @@ float *vtkQuartzRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2, i
     x_hi  = x1;
     }
 
+  // Error checking
+  // Must clear previous errors first.
+  while(glGetError() != GL_NO_ERROR);
+
   if (front)
     {
     glReadBuffer(GL_FRONT);
@@ -777,31 +1014,86 @@ float *vtkQuartzRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2, i
   width  = abs(x_hi - x_low) + 1;
   height = abs(y_hi - y_low) + 1;
 
-  data = new float[ (width*height*4) ];
-  
+
+  // Turn of texturing in case it is on - some drivers have a problem
+  // getting / setting pixels with texturing enabled.
+  glDisable( GL_TEXTURE_2D );
+
+  glPixelStorei( GL_PACK_ALIGNMENT, 1 );
   glReadPixels( x_low, y_low, width, height, GL_RGBA, GL_FLOAT, data);
 
-  return data;
+  if (glGetError() != GL_NO_ERROR)
+    {
+    return VTK_ERROR;
+    }
+  else
+    {
+    return VTK_OK;
+    }
 }
-void vtkQuartzRenderWindow::ReleaseRGBAPixelData(float *data) 
-  {
-  delete[] data;
-  }
 
-void vtkQuartzRenderWindow::SetRGBAPixelData(int x1, int y1, 
-                                                  int x2, int y2,
-                                                  float *data, int front,
-                                                  int blend)
+void vtkOpenGLRenderWindow::ReleaseRGBAPixelData(float *data) 
+{
+  delete[] data;
+}
+
+int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
+					    vtkFloatArray *data, int front, 
+					    int blend)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
   int     width, height;
-  int     xloop,yloop;
-  float   *buffer;
-  float   *p_data = NULL;
+
+  if (y1 < y2)
+    {
+    y_low = y1; 
+    y_hi  = y2;
+    }
+  else
+    {
+    y_low = y2; 
+    y_hi  = y1;
+    }
+  
+  if (x1 < x2)
+    {
+    x_low = x1; 
+    x_hi  = x2;
+    }
+  else
+    {
+    x_low = x2; 
+    x_hi  = x1;
+    }
+  
+  width  = abs(x_hi-x_low) + 1;
+  height = abs(y_hi-y_low) + 1;
+
+  int size = 4*width*height;
+  if ( data->GetSize() != size )
+    {
+    vtkErrorMacro("Buffer is of wrong size.");
+    return VTK_ERROR;
+    }
+
+  this->SetRGBAPixelData(x1, y1, x2, y2, data->GetPointer(0), front,
+			 blend);
+}
+
+int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
+					    float *data, int front, int blend)
+{
+  int     y_low, y_hi;
+  int     x_low, x_hi;
+  int     width, height;
 
   // set the current window 
   this->MakeCurrent();
+
+  // Error checking
+  // Must clear previous errors first.
+  while(glGetError() != GL_NO_ERROR);
 
   if (front)
     {
@@ -838,6 +1130,7 @@ void vtkQuartzRenderWindow::SetRGBAPixelData(int x1, int y1,
   height = abs(y_hi-y_low) + 1;
 
   /* write out a row of pixels */
+  glDisable( GL_SCISSOR_TEST );
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
   glLoadIdentity();
@@ -845,12 +1138,14 @@ void vtkQuartzRenderWindow::SetRGBAPixelData(int x1, int y1,
   glPushMatrix();
   glLoadIdentity();
   glRasterPos3f( (2.0 * (GLfloat)(x_low) / this->Size[0] - 1), 
-                 (2.0 * (GLfloat)(y_low) / this->Size[1] - 1), 
-		 -1.0 );
+                 (2.0 * (GLfloat)(y_low) / this->Size[1] - 1),
+                 -1.0 );
   glMatrixMode( GL_PROJECTION );
   glPopMatrix();
   glMatrixMode( GL_MODELVIEW );
   glPopMatrix();
+
+  glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
 
   if (!blend)
     {
@@ -861,20 +1156,65 @@ void vtkQuartzRenderWindow::SetRGBAPixelData(int x1, int y1,
   else
     {
     glDrawPixels( width, height, GL_RGBA, GL_FLOAT, data);
-    }    
+    }
 
+  if (glGetError() != GL_NO_ERROR)
+    {
+    return VTK_ERROR;
+    }
+  else
+    {
+    return VTK_OK;
+    }
 }
 
-float *vtkQuartzRenderWindow::GetZbufferData( int x1, int y1, 
-						 int x2, int y2  )
+unsigned char *vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1, 
+                                                           int x2, int y2, 
+                                                           int front)
 {
-  int             y_low, y_hi;
-  int             x_low, x_hi;
-  int             width, height;
-  float           *z_data = NULL;
+  int     y_low, y_hi;
+  int     x_low, x_hi;
+  int     width, height;
 
-  // set the current window 
-  this->MakeCurrent();
+  if (y1 < y2)
+    {
+    y_low = y1;
+    y_hi  = y2;
+    }
+  else
+    {
+    y_low = y2;
+    y_hi  = y1;
+    }
+
+
+  if (x1 < x2)
+    {
+    x_low = x1;
+    x_hi  = x2;
+    }
+  else
+    {
+    x_low = x2;
+    x_hi  = x1;
+    }
+
+  width  = abs(x_hi - x_low) + 1;
+  height = abs(y_hi - y_low) + 1;
+
+  unsigned char *data = new unsigned char[ (width*height)*4 ];
+  this->GetRGBACharPixelData(x1, y1, x2, y2, front, data);
+
+  return data;
+}
+
+int vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1, 
+						int x2, int y2, 
+						int front,
+						vtkUnsignedCharArray* data)
+{
+  int     y_low, y_hi;
+  int     x_low, x_hi;
 
   if (y1 < y2)
     {
@@ -898,24 +1238,334 @@ float *vtkQuartzRenderWindow::GetZbufferData( int x1, int y1,
     x_hi  = x1;
     }
 
+  int width  = abs(x_hi - x_low) + 1;
+  int height = abs(y_hi - y_low) + 1;
+  int size = 4*width*height;
+
+  if ( data->GetSize() != size)
+    {
+    data->SetNumberOfComponents(4);
+    data->SetNumberOfValues(size);
+    }
+  return this->GetRGBACharPixelData(x1, y1, x2, y2, front, 
+				    data->GetPointer(0));
+}
+
+int vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1, 
+						int x2, int y2, 
+						int front,
+						unsigned char* data)
+{
+  int     y_low, y_hi;
+  int     x_low, x_hi;
+  int     width, height;
+
+
+  // set the current window
+  this->MakeCurrent();
+
+
+  if (y1 < y2)
+    {
+    y_low = y1;
+    y_hi  = y2;
+    }
+  else
+    {
+    y_low = y2;
+    y_hi  = y1;
+    }
+
+
+  if (x1 < x2)
+    {
+    x_low = x1;
+    x_hi  = x2;
+    }
+  else
+    {
+    x_low = x2;
+    x_hi  = x1;
+    }
+
+
+  // Must clear previous errors first.
+  while(glGetError() != GL_NO_ERROR);
+
+  if (front)
+    {
+    glReadBuffer(GL_FRONT);
+    }
+  else
+    {
+    glReadBuffer(GL_BACK);
+    }
+
+  width  = abs(x_hi - x_low) + 1;
+  height = abs(y_hi - y_low) + 1;
+
+  glDisable( GL_SCISSOR_TEST );
+  glReadPixels( x_low, y_low, width, height, GL_RGBA, GL_UNSIGNED_BYTE,
+                data);
+
+  if (glGetError() != GL_NO_ERROR)
+    {
+    return VTK_ERROR;
+    }
+  else
+    {
+    return VTK_OK;
+    }
+
+}
+
+
+int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1,int y1,int x2,int y2, 
+						vtkUnsignedCharArray *data, 
+						int front, int blend)
+{
+  int     y_low, y_hi;
+  int     x_low, x_hi;
+  int     width, height;
+
+  if (y1 < y2)
+    {
+    y_low = y1; 
+    y_hi  = y2;
+    }
+  else
+    {
+    y_low = y2; 
+    y_hi  = y1;
+    }
+  
+  if (x1 < x2)
+    {
+    x_low = x1; 
+    x_hi  = x2;
+    }
+  else
+    {
+    x_low = x2; 
+    x_hi  = x1;
+    }
+  
+  width  = abs(x_hi-x_low) + 1;
+  height = abs(y_hi-y_low) + 1;
+
+  int size = 4*width*height;
+  if ( data->GetSize() != size )
+    {
+    vtkErrorMacro("Buffer is of wrong size.");
+    return VTK_ERROR;
+    }
+
+  return this->SetRGBACharPixelData(x1, y1, x2, y2, data->GetPointer(0), 
+				    front, blend);
+  
+}
+
+int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2, 
+						int y2, unsigned char *data, 
+						int front, int blend)
+{
+  int     y_low, y_hi;
+  int     x_low, x_hi;
+  int     width, height;
+
+
+  // set the current window
+  this->MakeCurrent();
+
+
+  // Error checking
+  // Must clear previous errors first.
+  while(glGetError() != GL_NO_ERROR);
+
+  if (front)
+    {
+    glDrawBuffer(GL_FRONT);
+    }
+  else
+    {
+    glDrawBuffer(GL_BACK);
+    }
+
+
+  if (y1 < y2)
+    {
+    y_low = y1;
+    y_hi  = y2;
+    }
+  else
+    {
+    y_low = y2;
+    y_hi  = y1;
+    }
+
+
+  if (x1 < x2)
+    {
+    x_low = x1;
+    x_hi  = x2;
+    }
+  else
+    {
+    x_low = x2;
+    x_hi  = x1;
+    }
+
+
+  width  = abs(x_hi-x_low) + 1;
+  height = abs(y_hi-y_low) + 1;
+
+
+  /* write out a row of pixels */
+  glMatrixMode( GL_MODELVIEW );
+  glPushMatrix();
+  glLoadIdentity();
+  glMatrixMode( GL_PROJECTION );
+  glPushMatrix();
+  glLoadIdentity();
+  glRasterPos3f( (2.0 * (GLfloat)(x_low) / this->Size[0] - 1),
+                 (2.0 * (GLfloat)(y_low) / this->Size[1] - 1),
+                 -1.0 );
+  glMatrixMode( GL_PROJECTION );
+  glPopMatrix();
+  glMatrixMode( GL_MODELVIEW );
+  glPopMatrix();
+
+
+  glDisable( GL_SCISSOR_TEST );
+  if (!blend)
+    {
+    glDisable(GL_BLEND);
+    glDrawPixels( width, height, GL_RGBA, GL_UNSIGNED_BYTE, 
+                  data);
+    glEnable(GL_BLEND);
+    }
+  else
+    {
+    glDrawPixels( width, height, GL_RGBA, GL_UNSIGNED_BYTE, 
+                  data);
+    }
+
+  if (glGetError() != GL_NO_ERROR)
+    {
+    return VTK_ERROR;
+    }
+  else
+    {
+    return VTK_OK;
+    }
+}
+
+
+int vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2,
+					   float* z_data )
+{
+  int             y_low;
+  int             x_low;
+  int             width, height;
+
+  // set the current window 
+  this->MakeCurrent();
+
+  if (y1 < y2)
+    {
+    y_low = y1; 
+    }
+  else
+    {
+    y_low = y2; 
+    }
+
+  if (x1 < x2)
+    {
+    x_low = x1; 
+    }
+  else
+    {
+    x_low = x2; 
+    }
+
+  width =  abs(x2 - x1)+1;
+  height = abs(y2 - y1)+1;
+
+  // Error checking
+  // Must clear previous errors first.
+  while(glGetError() != GL_NO_ERROR);
+
+  // Turn of texturing in case it is on - some drivers have a problem
+  // getting / setting pixels with texturing enabled.
+  glDisable( GL_TEXTURE_2D );
+  glDisable( GL_SCISSOR_TEST );
+  glPixelStorei( GL_PACK_ALIGNMENT, 1 );
+
+  glReadPixels( x_low, y_low, 
+                width, height,
+                GL_DEPTH_COMPONENT, GL_FLOAT,
+                z_data );
+
+  if (glGetError() != GL_NO_ERROR)
+    {
+    return VTK_ERROR;
+    }
+  else
+    {
+    return VTK_OK;
+    }
+}
+
+float *vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2  )
+{
+  float           *z_data = NULL;
+
+  int             width, height;
   width =  abs(x2 - x1)+1;
   height = abs(y2 - y1)+1;
 
   z_data = new float[width*height];
-  
-  glReadPixels( x_low, y_low, 
-		width, height,
-		GL_DEPTH_COMPONENT, GL_FLOAT,
-		z_data );
+  this->GetZbufferData(x1, y1, x2, y2, z_data);
 
   return z_data;
 }
 
-void vtkQuartzRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
-					       float *buffer )
+int vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2,
+					   vtkFloatArray *buffer )
 {
-  int             y_low, y_hi;
-  int             x_low, x_hi;
+  int  width, height;
+  width =  abs(x2 - x1)+1;
+  height = abs(y2 - y1)+1;
+  int size = width*height;
+  if ( buffer->GetSize() != size)
+    {
+    buffer->SetNumberOfComponents(1);
+    buffer->SetNumberOfValues(size);
+    }
+  return this->GetZbufferData(x1, y1, x2, y2, buffer->GetPointer(0));
+}
+
+int vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
+					   vtkFloatArray *buffer )
+{
+  int width, height;
+  width =  abs(x2 - x1)+1;
+  height = abs(y2 - y1)+1;
+  int size = width*height;
+  if ( buffer->GetSize() != size )
+    {
+    vtkErrorMacro("Buffer is of wrong size.");
+    return VTK_ERROR;
+    }
+  return this->SetZbufferData(x1, y1, x2, y2, buffer->GetPointer(0));
+}
+
+int vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
+					   float *buffer )
+{
+  int             y_low;
+  int             x_low;
   int             width, height;
 
   // set the current window 
@@ -924,27 +1574,27 @@ void vtkQuartzRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
   if (y1 < y2)
     {
     y_low = y1; 
-    y_hi  = y2;
     }
   else
     {
     y_low = y2; 
-    y_hi  = y1;
     }
 
   if (x1 < x2)
     {
     x_low = x1; 
-    x_hi  = x2;
     }
   else
     {
     x_low = x2; 
-    x_hi  = x1;
     }
 
   width =  abs(x2 - x1)+1;
   height = abs(y2 - y1)+1;
+
+  // Error checking
+  // Must clear previous errors first.
+  while(glGetError() != GL_NO_ERROR);
 
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
@@ -959,8 +1609,22 @@ void vtkQuartzRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
   glMatrixMode( GL_MODELVIEW );
   glPopMatrix();
 
+  // Turn of texturing in case it is on - some drivers have a problem
+  // getting / setting pixels with texturing enabled.
+  glDisable( GL_SCISSOR_TEST );
+  glDisable( GL_TEXTURE_2D );
+  glPixelStorei( GL_PACK_ALIGNMENT, 1 );
+
   glDrawPixels( width, height, GL_DEPTH_COMPONENT, GL_FLOAT, buffer);
 
+  if (glGetError() != GL_NO_ERROR)
+    {
+    return VTK_ERROR;
+    }
+  else
+    {
+    return VTK_OK;
+    }
 }
 
 void vtkQuartzRenderWindow::RegisterTextureResource (GLuint id)
