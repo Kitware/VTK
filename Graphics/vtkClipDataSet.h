@@ -57,16 +57,16 @@
 #ifndef __vtkClipDataSet_h
 #define __vtkClipDataSet_h
 
-#include "vtkUnstructuredGridAlgorithm.h"
+#include "vtkDataSetToUnstructuredGridFilter.h"
 
 class vtkImplicitFunction;
 
 class vtkPointLocator;
 
-class VTK_GRAPHICS_EXPORT vtkClipDataSet : public vtkUnstructuredGridAlgorithm
+class VTK_GRAPHICS_EXPORT vtkClipDataSet : public vtkDataSetToUnstructuredGridFilter
 {
 public:
-  vtkTypeRevisionMacro(vtkClipDataSet,vtkUnstructuredGridAlgorithm);
+  vtkTypeRevisionMacro(vtkClipDataSet,vtkDataSetToUnstructuredGridFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -127,7 +127,6 @@ public:
   // Return the Clipped output.
   vtkUnstructuredGrid *GetClippedOutput();
   virtual int GetNumberOfOutputs();
-  int GetNumberOfOutputPorts() { return this->GetNumberOfOutputs(); }
 
   // Description:
   // Specify a spatial locator for merging points. By default, an
@@ -155,8 +154,7 @@ protected:
   vtkClipDataSet(vtkImplicitFunction *cf=NULL);
   ~vtkClipDataSet();
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  void Execute();
   vtkImplicitFunction *ClipFunction;
   
   vtkPointLocator *Locator;
@@ -171,7 +169,7 @@ protected:
   vtkSetStringMacro(InputScalarsSelection);
 
   //helper functions
-  void ClipVolume(vtkDataSet *input, vtkUnstructuredGrid *output);
+  void ClipVolume();
 
 private:
   vtkClipDataSet(const vtkClipDataSet&);  // Not implemented.
