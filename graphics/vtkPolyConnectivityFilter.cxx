@@ -262,6 +262,7 @@ void vtkPolyConnectivityFilter::Execute()
       if ( Visited[cellId] >= 0 )
         {
         Mesh->GetCellPoints(cellId, npts, pts);
+        ptIds.Reset ();
         for (i=0; i < npts; i++)
           {
           id = PointMap[pts[i]];
@@ -289,6 +290,7 @@ void vtkPolyConnectivityFilter::Execute()
         if ( inReg )
           {
           Mesh->GetCellPoints(cellId, npts, pts);
+          ptIds.Reset ();
           for (i=0; i < npts; i++)
             {
             id = PointMap[pts[i]];
@@ -306,6 +308,7 @@ void vtkPolyConnectivityFilter::Execute()
       if ( Visited[cellId] == largestRegionId )
         {
         Mesh->GetCellPoints(cellId, npts, pts);
+        ptIds.Reset ();
         for (i=0; i < npts; i++)
           {
           id = PointMap[pts[i]];
