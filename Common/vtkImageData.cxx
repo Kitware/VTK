@@ -1397,9 +1397,6 @@ void vtkImageData::ComputeIncrements()
     }
 }
 
-
-
-
 //----------------------------------------------------------------------------
 float vtkImageData::GetScalarComponentAsFloat(int x, int y, int z, int comp)
 {
@@ -1475,23 +1472,18 @@ void *vtkImageData::GetScalarPointerForExtent(int extent[6])
 }
 
 //----------------------------------------------------------------------------
-// This Method returns a pointer to a location in the vtkImageData.
-// Coordinates are in pixel units and are relative to the whole
-// image origin.
-void *vtkImageData::GetScalarPointer(int coordinates[3])
+void *vtkImageData::GetScalarPointer(int coordinate[3])
 {
-  vtkDataArray *scalars;
-  int *incs;
-  int idx;
-    
-  // Make sure the scalars have been allocated.
-  scalars = this->PointData->GetScalars();
+  vtkDataArray *scalars = this->GetPointData()->GetScalars();
+
+  // Make sure the array has been allocated.
   if (scalars == NULL)
     {
     vtkDebugMacro("Allocating scalars in ImageData");
     this->AllocateScalars();
     scalars = this->PointData->GetScalars();
     }
+
   if (scalars == NULL)
     {
     vtkErrorMacro("Could not allocate scalars.");
@@ -1500,14 +1492,14 @@ void *vtkImageData::GetScalarPointer(int coordinates[3])
       
   // error checking: since most acceses will be from pointer arithmetic.
   // this should not waste much time.
-  for (idx = 0; idx < 3; ++idx)
+  for (int idx = 0; idx < 3; ++idx)
     {
-    if (coordinates[idx] < this->Extent[idx*2] ||
-        coordinates[idx] > this->Extent[idx*2+1])
+    if (coordinate[idx] < this->Extent[idx*2] ||
+        coordinate[idx] > this->Extent[idx*2+1])
       {
-      vtkErrorMacro(<< "GetScalarPointer: Pixel (" << coordinates[0] << ", " 
-      << coordinates[1] << ", "
-      << coordinates[2] << ") not in memory.\n Current extent= ("
+      vtkErrorMacro(<< "GetScalarPointer: Pixel (" << coordinate[0] << ", " 
+      << coordinate[1] << ", "
+      << coordinate[2] << ") not in memory.\n Current extent= ("
       << this->Extent[0] << ", " << this->Extent[1] << ", "
       << this->Extent[2] << ", " << this->Extent[3] << ", "
       << this->Extent[4] << ", " << this->Extent[5] << ")");
@@ -1515,15 +1507,8 @@ void *vtkImageData::GetScalarPointer(int coordinates[3])
       }
     }
   
-  // compute the index of the vector.
-  incs = this->GetIncrements();
-  idx = ((coordinates[0] - this->Extent[0]) * incs[0]
-         + (coordinates[1] - this->Extent[2]) * incs[1]
-         + (coordinates[2] - this->Extent[4]) * incs[2]);
-  
-  return scalars->GetVoidPointer(idx);
+  return this->GetArrayPointer(scalars, coordinate);
 }
-
 
 //----------------------------------------------------------------------------
 // This Method returns a pointer to the origin of the vtkImageData.
@@ -2093,4 +2078,88 @@ vtkIdType vtkImageData::GetNumberOfCells()
 
   return nCells;
 }
+
+//============================================================================
+// Starting to make some more general methods that deal with any array
+// (not just scalars).
+//============================================================================
+
+
+//----------------------------------------------------------------------------
+// This Method returns a pointer to a location in the vtkImageData.
+// Coordinates are in pixel units and are relative to the whole
+// image origin.
+void vtkImageData::GetArrayIncrements(vtkDataArray* array, int increments[3])
+{
+  // We could store tupple increments and just 
+  // multiply by the number of componenets...
+  increments[0] = array->GetNumberOfComponents();
+  increments[1] = increments[0] * (this->Extent[1]-this->Extent[0]+1);
+  increments[2] = increments[1] * (this->Extent[3]-this->Extent[2]+1);
+}
+
+//----------------------------------------------------------------------------
+void *vtkImageData::GetArrayPointerForExtent(vtkDataArray* array, 
+                                             int extent[6])
+{
+  int tmp[3];
+  tmp[0] = extent[0];
+  tmp[1] = extent[2];
+  tmp[2] = extent[4];
+  return this->GetArrayPointer(array, tmp);
+}
+
+//----------------------------------------------------------------------------
+// This Method returns a pointer to a location in the vtkImageData.
+// Coordinates are in pixel units and are relative to the whole
+// image origin.
+void *vtkImageData::GetArrayPointer(vtkDataArray* array, int coordinate[3])
+{
+  int incs[3];
+  int idx;
+    
+  if (array == NULL)
+    {
+    return NULL;
+    }
+
+  // error checking: since most acceses will be from pointer arithmetic.
+  // this should not waste much time.
+  for (idx = 0; idx < 3; ++idx)
+    {
+    if (coordinate[idx] < this->Extent[idx*2] ||
+        coordinate[idx] > this->Extent[idx*2+1])
+      {
+      vtkErrorMacro(<< "GetPointer: Pixel (" << coordinate[0] << ", " 
+        << coordinate[1] << ", "
+        << coordinate[2] << ") not in current extent: ("
+        << this->Extent[0] << ", " << this->Extent[1] << ", "
+        << this->Extent[2] << ", " << this->Extent[3] << ", "
+        << this->Extent[4] << ", " << this->Extent[5] << ")");
+      return NULL;
+      }
+    }
+  
+  // compute the index of the vector.
+  this->GetArrayIncrements(array, incs);
+  idx = ((coordinate[0] - this->Extent[0]) * incs[0]
+         + (coordinate[1] - this->Extent[2]) * incs[1]
+         + (coordinate[2] - this->Extent[4]) * incs[2]);
+  // I could check to see if the array has the correct number
+  // of tupples for the extent, but that would be an extra multiply.
+  if (idx < 0 || idx > array->GetMaxId())
+    {
+    vtkErrorMacro("Coordinate (" << coordinate[0] << ", " << coordinate[1]
+                  << ", " << coordinate[2] << ") out side of array (max = "
+                  << array->GetMaxId());
+    return NULL;
+    }
+
+  return array->GetVoidPointer(idx);
+}
+
+
+
+
+
 
