@@ -33,7 +33,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkSplineWidget, "1.25");
+vtkCxxRevisionMacro(vtkSplineWidget, "1.26");
 vtkStandardNewMacro(vtkSplineWidget);
 
 vtkCxxSetObjectMacro(vtkSplineWidget, HandleProperty, vtkProperty);
@@ -763,15 +763,25 @@ void vtkSplineWidget::OnRightButtonDown()
     return;
     }
 
-  this->State = vtkSplineWidget::Scaling;
+  if ( this->Interactor->GetShiftKey() )
+    {
+    this->State = vtkSplineWidget::Inserting;
+    }
+  else if ( this->Interactor->GetControlKey() && this->NumberOfHandles > 2)
+    {
+    this->State = vtkSplineWidget::Erasing;
+    }
+  else
+    {
+    this->State = vtkSplineWidget::Scaling;
+    }
 
-  // Okay, we can process this. Try to pick handles first;
-  // if no handles picked, then pick the bounding box.
+  // Okay, we can process this. Try to pick handles first
   vtkAssemblyPath *path;
   this->HandlePicker->Pick(X,Y,0.0,this->CurrentRenderer);
   path = this->HandlePicker->GetPath();
   if ( path == NULL )
-    {
+    {   // if no handles picked, then force a pick of the line
     this->LinePicker->Pick(X,Y,0.0,this->CurrentRenderer);
     path = this->LinePicker->GetPath();
     if ( path == NULL )
@@ -785,9 +795,17 @@ void vtkSplineWidget::OnRightButtonDown()
       this->HighlightLine(1);
       }
     }
-  else  //we picked a handle but lets make it look like the line is picked
+  else
     {
-    this->HighlightLine(1);
+    if ( this->State == vtkSplineWidget::Erasing )
+      {
+      this->CurrentHandleIndex = this->HighlightHandle(path->GetFirstNode()->GetViewProp());
+      }
+    else // picked a handle but make it look like the line is picked
+      {
+      this->State = vtkSplineWidget::Scaling;
+      this->HighlightLine(1);
+      }
     }
 
   this->EventCallbackCommand->SetAbortFlag(1);
@@ -802,6 +820,17 @@ void vtkSplineWidget::OnRightButtonUp()
        this->State == vtkSplineWidget::Start )
     {
     return;
+    }
+
+  if ( this->State == vtkSplineWidget::Inserting )
+    {
+    this->InsertHandleOnLine(this->LastPickPosition);
+    }
+  else if ( this->State == vtkSplineWidget::Erasing )
+    {
+    int index = this->CurrentHandleIndex;
+    this->CurrentHandleIndex = this->HighlightHandle(NULL);
+    this->EraseHandle(index);
     }
 
   this->State = vtkSplineWidget::Start;
@@ -1354,3 +1383,89 @@ void vtkSplineWidget::CalculateCentroid()
   this->Centroid[2] /= this->NumberOfHandles;
 }
 
+void vtkSplineWidget::InsertHandleOnLine(double* pos)
+{
+  if (this->NumberOfHandles < 2) { return; }
+
+  vtkIdType id = this->LinePicker->GetCellId();
+  if (id == -1){ return; }
+
+  vtkIdType subid = this->LinePicker->GetSubId();
+
+  vtkPoints* newpoints = vtkPoints::New(VTK_DOUBLE);
+  newpoints->SetNumberOfPoints(this->NumberOfHandles+1);
+
+  int istart = vtkMath::Floor(subid*(this->NumberOfHandles + this->Closed - 1.0)/((double)this->Resolution));
+  int istop = istart + 1;
+  int count = 0;
+  int i;
+  for ( i = 0; i <= istart; ++i )
+    {
+    newpoints->SetPoint(count++,this->HandleGeometry[i]->GetCenter());
+    }
+
+  newpoints->SetPoint(count++,pos);
+
+  for ( i = istop; i < this->NumberOfHandles; ++i )
+    {
+    newpoints->SetPoint(count++,this->HandleGeometry[i]->GetCenter());
+    }
+
+  this->InitializeHandles(newpoints);
+  newpoints->Delete();
+}
+
+void vtkSplineWidget::EraseHandle(const int& index)
+{
+  if ( this->NumberOfHandles < 3 || index < 0 || index >= this->NumberOfHandles )
+    {
+    return;
+    }
+
+  vtkPoints* newpoints = vtkPoints::New(VTK_DOUBLE);
+  newpoints->SetNumberOfPoints(this->NumberOfHandles-1);
+  int count = 0;
+  for (int i = 0; i < this->NumberOfHandles; ++i )
+    {
+    if ( i != index )
+      {
+      newpoints->SetPoint(count++,this->HandleGeometry[i]->GetCenter());
+      }
+    }
+
+  this->InitializeHandles(newpoints);
+  newpoints->Delete();
+}
+
+void vtkSplineWidget::InitializeHandles(vtkPoints* points)
+{
+  if ( !points ){ return; }
+
+  int npts = points->GetNumberOfPoints();
+  if ( npts < 2 ){ return; }
+
+  double p0[3];
+  double p1[3];
+
+  points->GetPoint(0,p0);
+  points->GetPoint(npts-1,p1);
+
+  if ( vtkMath::Distance2BetweenPoints(p0,p1) == 0.0 )
+    {
+    --npts;
+    this->Closed = 1;
+    this->ParametricSpline->ClosedOn();
+    }
+
+  this->SetNumberOfHandles(npts);
+  int i;
+  for ( i = 0; i < npts; ++i )
+    {
+    this->SetHandlePosition(i,points->GetPoint(i));
+    }
+
+  if ( this->Interactor && this->Enabled )
+    {
+    this->Interactor->Render();
+    }
+}

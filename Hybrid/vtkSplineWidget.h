@@ -29,20 +29,26 @@
 // "PlaceWidget()" to initially position the widget. The interactor will act
 // normally until the "i" key (for "interactor") is pressed, at which point the
 // vtkSplineWidget will appear. (See superclass documentation for information
-// about changing this behavior.) By grabbing one of the spherical
-// handles (use the left mouse button), the spline can be oriented and
-// stretched (the other handles remain fixed). By grabbing the spline
-// itself (left or middle mouse button), the entire spline can be translated.
-// (Translation can also be employed by using the "shift-left-mouse-button"
-// combination inside of the widget.) Scaling (about the center of the spline)
-// is achieved by using the right mouse button. By moving the mouse "up" the
-// render window the spline will be made bigger; by moving "down" the render
-// window the widget will be made smaller.  Finally, holding the ctrl key down
-// and then grabbing either a handle or the spline itself with the middle mouse
-// button enalbles spinning of the widget about its center. Events that occur
-// outside of the widget (i.e., no part of the widget is picked) are propagated
-// to any other registered obsevers (such as the interaction style).  Turn off
-// the widget by pressing the "i" key again (or invoke the Off() method).
+// about changing this behavior.) Events that occur outside of the widget
+// (i.e., no part of the widget is picked) are propagated to any other
+// registered obsevers (such as the interaction style).  Turn off the widget
+// by pressing the "i" key again (or invoke the Off() method).
+//
+// The button actions and key modifiers are as follows for controlling the
+// widget:
+// 1) left button down on and drag one of the spherical handles to change the
+// shape of the spline: the handles act as "control points".
+// 2) left button or middle button down on a line segment forming the spline
+// allows uniform translation of the widget.
+// 3) ctrl + middle button down on the widget enables spinning of the widget
+// about its center.
+// 4) right button down on the widget enables scaling of the widget. By moving
+// the mouse "up" the render window the spline will be made bigger; by moving
+// "down" the render window the widget will be made smaller.
+// 5) ctrl key + right button down on any handle will erase it providing there
+// will be two or more points remaining to form a spline.
+// 6) shift key + right button down on any line segment will insert a handle
+// onto the spline at the cursor position.
 //
 // The vtkSplineWidget has several methods that can be used in conjunction with
 // other VTK objects. The Set/GetResolution() methods control the number of
@@ -220,6 +226,13 @@ public:
   // SetResolution to control the accuracy.
   double GetSummedLength();
 
+  // Description:
+  // Convenience method to allocate and set the handles from a vtkPoints
+  // instance.  If the first and last points are the same, the spline sets
+  // Closed to the on state and disregards the last point, otherwise Closed
+  // remains unchanged.
+  void InitializeHandles(vtkPoints* points);
+
 protected:
   vtkSplineWidget();
   ~vtkSplineWidget();
@@ -232,6 +245,8 @@ protected:
     Moving,
     Scaling,
     Spinning,
+    Inserting,
+    Erasing,
     Outside
   };
 //ETX
@@ -281,6 +296,8 @@ protected:
   void Initialize();
   int  HighlightHandle(vtkProp *prop); //returns handle index or -1 on fail
   virtual void SizeHandles();
+  void InsertHandleOnLine(double* pos);
+  void EraseHandle(const int&);
 
   // Do the picking
   vtkCellPicker *HandlePicker;
