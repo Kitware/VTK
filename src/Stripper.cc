@@ -28,11 +28,9 @@ vlStripper::vlStripper()
 void vlStripper::Execute()
 {
   int longest, cellId, i, numCells, numPts, numStrips;
-  vlCell *cell;
   vlCellArray *newStrips, *inStrips;
   vlPointData *pd=this->Input->GetPointData();
-  vlIdList triPts(MAX_CELL_SIZE);
-  vlIdList edge(2);
+  int numTriPts, *triPts;
   vlIdList cellIds(MAX_CELL_SIZE);
   int neighbor;
   vlPolyData Mesh;
@@ -48,7 +46,7 @@ void vlStripper::Execute()
   Mesh.SetPoints(this->Input->GetPoints());
   Mesh.SetPolys(this->Input->GetPolys());
   Mesh.SetStrips(this->Input->GetStrips());
-
+  Mesh.BuildLinks();
   // check input
   if ( (numCells=Mesh.GetNumberOfCells()) < 1 )
     {
@@ -81,8 +79,7 @@ void vlStripper::Execute()
     if ( ! visited[cellId] )
       {
       visited[cellId] = 1;
-      cell = Mesh.GetCell(cellId);
-      if ( cell->GetCellType() == vlTRIANGLE )
+      if ( Mesh.GetCellType(cellId) == vlTRIANGLE )
         {
 //
 //  Got a starting point for the strip.  Initialize.  Find a neighbor
@@ -91,22 +88,19 @@ void vlStripper::Execute()
         numStrips++;
         numPts = 3;
 
-        triPts = *(cell->GetPointIds());
+        Mesh.GetCellPoints(cellId,numTriPts,triPts);
 
         for (i=0; i<3; i++) 
           {
-          pts[1] = triPts.GetId(i);
-          pts[2] = triPts.GetId((i+1)%3);
+          pts[1] = triPts[i];
+          pts[2] = triPts[(i+1)%3];
 
-          edge.SetId(0,pts[1]);
-          edge.SetId(1,pts[2]);
-
-          Mesh.GetCellNeighbors(cellId, edge, cellIds);
+          Mesh.GetCellEdgeNeighbors(cellId, pts[1], pts[2], cellIds);
           if ( cellIds.GetNumberOfIds() > 0 && 
           !visited[neighbor=cellIds.GetId(0)] &&
           Mesh.GetCellType(neighbor) == vlTRIANGLE )
             {
-            pts[0] = triPts.GetId((i+2)%3);
+            pts[0] = triPts[(i+2)%3];
             break;
             }
           }
@@ -115,9 +109,9 @@ void vlStripper::Execute()
 //
         if ( i >= 3 ) 
           {
-          pts[0] = triPts.GetId(0);
-          pts[1] = triPts.GetId(1);
-          pts[2] = triPts.GetId(2);
+          pts[0] = triPts[0];;
+          pts[1] = triPts[1];
+          pts[2] = triPts[2];
           newStrips->InsertNextCell(3,pts);
           } 
         else // continue strip 
@@ -128,20 +122,17 @@ void vlStripper::Execute()
           while ( neighbor >= 0 )
             {
             visited[neighbor] = 1;
-            cell = Mesh.GetCell(neighbor);
-            triPts = *(cell->GetPointIds());
+            Mesh.GetCellPoints(neighbor,numTriPts, triPts);
 
             for (i=0; i<3; i++)
-              if ( triPts.GetId(i) != pts[numPts-2] && 
-              triPts.GetId(i) != pts[numPts-1] )
+              if ( triPts[i] != pts[numPts-2] && 
+              triPts[i] != pts[numPts-1] )
                 break;
 
-            pts[numPts] = triPts.GetId(i);
-            edge.SetId(0,pts[numPts]);
-            edge.SetId(1,pts[numPts-1]);
+            pts[numPts] = triPts[i];
+            Mesh.GetCellEdgeNeighbors(neighbor, pts[numPts], pts[numPts-1], cellIds);
             if ( ++numPts > longest ) longest = numPts;
 
-            Mesh.GetCellNeighbors(neighbor, edge, cellIds);
             // note: if updates value of neighbor
             if ( cellIds.GetNumberOfIds() <= 0 || 
             visited[neighbor=cellIds.GetId(0)] ||
