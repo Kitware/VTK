@@ -277,49 +277,65 @@ void vtkSweptSurface::SampleInput(vtkMatrix4x4 *m, int inDim[3],
   int inSliceSize=inDim[0]*inDim[1];
   int sliceSize=this->SampleDimensions[0]*this->SampleDimensions[1];
   float x[4], loc[3], newScalar, scalar;
+  int skip;
   int kOffset, jOffset, ijk[3], idx;
+  float delta;
   float xTrans[4], weights[8];
   float *origin, *spacing;
+  int indicies[6];
+  // Compute the index bounds of the workspace volume that will cover the
+  // input volume
+
+  this->ComputeFootprint (m, inDim, inOrigin, inSpacing, indicies);
 
   m->Invert(*m,*m);
-
+  this->T->SetMatrix(*m);
+  x[3] = 1.0; //homogeneous coordinates
 
   origin = ((vtkStructuredPoints *)this->Output)->GetOrigin();
   spacing = ((vtkStructuredPoints *)this->Output)->GetSpacing();
 
-  this->T->SetMatrix(*m);
-  x[3] = 1.0; //homogeneous coordinates
-
-  for (k=0; k<this->SampleDimensions[2]; k++)
+  for (k=indicies[4]; k<indicies[5]; k++)
     {
     kOffset = k*sliceSize;
     x[2] = origin[2] + k * spacing[2];
-    for (j=0; j<this->SampleDimensions[1]; j++)
+    for (j=indicies[2]; j<indicies[3]; j++)
       {
       jOffset = j*this->SampleDimensions[0];
       x[1] = origin[1] + j * spacing[1];
-      for (i=0; i<this->SampleDimensions[0]; i++)
+      for (i=indicies[0]; i<indicies[1]; i++)
         {
         x[0] = origin[0] + i * spacing[0];
 
         // transform into local space
         this->T->MultiplyPoint(x,xTrans);
-        if ( xTrans[3] != 0.0 )
-	  {
-	  for (ii=0; ii<3; ii++)
-	    {
-	    xTrans[ii] /= xTrans[3];
-	    }
-	  }
+
         // determine which voxel point falls in.
-        for (ii=0; ii<3; ii++)
+
+       skip = 0;
+       for (ii=0; ii<3; ii++)
           {
-          loc[ii] = (xTrans[ii]-inOrigin[ii]) / inSpacing[ii];
-          ijk[ii] = (int)loc[ii];
+	  if ((delta = xTrans[ii]-inOrigin[ii]) < 0.0)
+	    {
+	    skip = 1;
+	    break;
+	    }
+          loc[ii] = delta / inSpacing[ii];
           }
 
+        if (skip)
+	  {
+	  continue;
+	  }
+
+	ijk[0] = (int)loc[0];
+	ijk[1] = (int)loc[1];
+	ijk[2] = (int)loc[2];
+
         //check and make sure point is inside
-        if ( loc[0] >= 0.0 && loc[1] >= 0.0 && loc[2] >= 0.0 &&
+        if ( (ijk[0] >= 0) && 
+	     (ijk[1] >= 0) && 
+	     (ijk[2] >= 0) &&
 	     (ijk[0] < inDim[0] - 1) && 
 	     (ijk[1] < inDim[1] - 1) && 
 	     (ijk[2] < inDim[2] - 1))
@@ -358,6 +374,76 @@ void vtkSweptSurface::SampleInput(vtkMatrix4x4 *m, int inDim[3],
     }
 }
 
+void vtkSweptSurface::ComputeFootprint (vtkMatrix4x4 *m, int inDim[3], 
+                                   float inOrigin[3], float inSpacing[3],
+			           int indicies[6])
+{
+  int i, ii, n;
+  float bounds[6], bbox[24], *fptr, workBounds[6];
+  float *result;
+  float x[4], xTrans[4];
+  float *origin, *spacing;
+
+  this->T->SetMatrix(*m);
+  for (ii = 0 ; ii < 3; ii++)
+    {
+    bounds[2 * ii]     = inOrigin[ii];
+    bounds[2 * ii + 1] = inOrigin[ii] + (inDim[ii] - 1) * inSpacing[ii];
+    }
+
+  bbox[ 0] = bounds[1]; bbox[ 1] = bounds[3]; bbox[ 2] = bounds[5];
+  bbox[ 3] = bounds[1]; bbox[ 4] = bounds[2]; bbox[ 5] = bounds[5];
+  bbox[ 6] = bounds[0]; bbox[ 7] = bounds[2]; bbox[ 8] = bounds[5];
+  bbox[ 9] = bounds[0]; bbox[10] = bounds[3]; bbox[11] = bounds[5];
+  bbox[12] = bounds[1]; bbox[13] = bounds[3]; bbox[14] = bounds[4];
+  bbox[15] = bounds[1]; bbox[16] = bounds[2]; bbox[17] = bounds[4];
+  bbox[18] = bounds[0]; bbox[19] = bounds[2]; bbox[20] = bounds[4];
+  bbox[21] = bounds[0]; bbox[22] = bounds[3]; bbox[23] = bounds[4];
+
+  // and transform into work space coordinates
+  fptr = bbox;
+  x[3] = 1.0;
+  for (n = 0; n < 8; n++) 
+    {
+    x[0] = fptr[0]; x[1] = fptr[1]; x[2] = fptr[2];
+    this->T->MultiplyPoint(x,xTrans);
+
+    fptr[0] = xTrans[0];
+    fptr[1] = xTrans[1];
+    fptr[2] = xTrans[2];
+    fptr += 3;
+    }
+
+  // now calc the new bounds
+  workBounds[0] = workBounds[2] = workBounds[4] = VTK_LARGE_FLOAT;
+  workBounds[1] = workBounds[3] = workBounds[5] = -VTK_LARGE_FLOAT;
+  for (i = 0; i < 8; i++)
+    {
+    for (n = 0; n < 3; n++)
+      {
+      if (bbox[i*3+n] < workBounds[n*2]) 
+	{
+	workBounds[n*2] = bbox[i*3+n];
+	}
+      if (bbox[i*3+n] > workBounds[n*2+1]) 
+	{
+	workBounds[n*2+1] = bbox[i*3+n];
+	}
+      }
+    }
+  origin = ((vtkStructuredPoints *)this->Output)->GetOrigin();
+  spacing = ((vtkStructuredPoints *)this->Output)->GetSpacing();
+
+  // Compute the footprint of the input in the workspace volume
+  for (ii = 0; ii < 3; ii++) 
+    {
+    indicies[2 * ii] = (int) ((workBounds[2 * ii] - origin[ii]) / spacing[ii]);
+    indicies[2 * ii + 1] = (int) ((workBounds[2 * ii + 1] - origin[ii]) / spacing[ii]) + 1;
+    }
+  vtkDebugMacro (<< "indicies: " << indicies[0] << ", " << indicies[1] << ", "
+                                 << indicies[2] << ", " << indicies[3] << ", "
+                                 << indicies[4] << ", " << indicies[5]);
+}
 
 unsigned long int vtkSweptSurface::GetMTime()
 {

@@ -172,6 +172,8 @@ protected:
   int ComputeNumberOfSteps(vtkTransform *t1, vtkTransform *t2, float bbox[24]);
   void SampleInput(vtkMatrix4x4 *m, int inDim[3], float inOrigin[3],
                    float inAr[3], vtkScalars *in, vtkScalars *out);
+  void ComputeFootprint (vtkMatrix4x4 *m, int inDim[3], float inOrigin[3],
+			 float inSpacing[3], int Indicies[6]);
   void Cap(vtkScalars *s);
   void GetRelativePosition(vtkTransform &t, float *origin, float *position);
   virtual void InterpolateStates(float *pos1, float *pos2, float *euler1, 
