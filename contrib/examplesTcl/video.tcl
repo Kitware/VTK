@@ -13,20 +13,20 @@ grabber Grab
 
 [grabber GetOutput] UpdateInformation  
 
-vtkImageViewer win  
-win SetInput [grabber GetOutput]   
-[win GetImageWindow] DoubleBufferOn  
-win SetColorWindow 255 
-win SetColorLevel 127.5 
-win SetZSlice 0 
+vtkImageViewer viewer  
+viewer SetInput [grabber GetOutput]   
+[viewer GetImageWindow] DoubleBufferOn  
+viewer SetColorWindow 255 
+viewer SetColorLevel 127.5 
+viewer SetZSlice 0 
 
-win Render  
+viewer Render  
 
 proc animate {} {
-    global grabber win
+    global grabber viewer
 
     if { [grabber GetPlaying] == 1 } {
-        win Render  
+        viewer Render  
         after 1 animate
     }
 } 
@@ -47,10 +47,10 @@ proc Stop {} {
 }  
 
 proc Grab {} {
-    global grabber win
+    global grabber viewer
 
     grabber Grab  
-    win Render
+    viewer Render
 }  
 
 frame .controls 
@@ -78,10 +78,10 @@ pack .rate.scale -side left
 pack .rate -side top 
 
 proc SetFrame { f } {
-    global win
+    global viewer
 
-    win SetZSlice $f  
-    win Render
+    viewer SetZSlice $f  
+    viewer Render
 }
 
 frame .viewframe
