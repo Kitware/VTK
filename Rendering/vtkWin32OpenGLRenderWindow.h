@@ -144,7 +144,8 @@ public:
   void MakeCurrent();
 
   // Description:
-  // Check to see if an event is pending for this window.
+  // Check to see if a mouse button has been pressed.
+  // All other events are ignored by this method.
   // This is a useful check to abort a long render.
   virtual  int GetEventPending();
 

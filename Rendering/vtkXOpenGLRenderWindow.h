@@ -151,8 +151,9 @@ public:
   void ShowCursor();
 
   // Description:
-  // Get the properties available at runtime that would result in 
-  // the best Xwindow for 3D rendering.
+  // Check to see if a mouse button has been pressed.
+  // All other events are ignored by this method.
+  // This is a useful check to abort a long render.
   virtual  int GetEventPending();
   
   // Description:

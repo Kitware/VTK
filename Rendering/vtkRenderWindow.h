@@ -290,6 +290,12 @@ public:
   vtkGetMacro(InAbortCheck,int);
   vtkSetMacro(InAbortCheck,int);
   virtual int CheckAbortStatus();
+
+  // Description:
+  // Check to see if a mouse button has been pressed.  All other events
+  // are ignored by this method.  Ideally, you want to abort the render
+  // on any event which causes the DesiredUpdateRate to switch from
+  // a high-quality rate to a more interactive rate.  
   virtual int GetEventPending() = 0;
 
   // Description:

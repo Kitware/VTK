@@ -86,7 +86,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.23");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.24");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -884,8 +884,10 @@ extern "C"
     
     if (((reinterpret_cast<XAnyEvent *>(event))->window == win) &&
         ((event->type == ButtonPress)))
+      {
       vtkXOpenGLRenderWindowFoundMatch = 1;
-    
+      }
+
     return 0; 
   }
 }
