@@ -34,7 +34,7 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkVolumeProperty.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.8");
+vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.9");
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastFunction);
 
 #define VTK_BUNYKRCF_NUMLISTS 100000
@@ -50,6 +50,9 @@ vtkUnstructuredGridBunykRayCastFunction::vtkUnstructuredGridBunykRayCastFunction
   this->Image             = NULL;
   this->TriangleList      = NULL;
   this->TetraTriangles    = NULL;
+  this->NumberOfPoints    = 0;
+  this->ImageSize[0]      = 0;
+  this->ImageSize[1]      = 0;
   this->ViewToWorldMatrix = vtkMatrix4x4::New();
   
   for (int i = 0; i < VTK_BUNYKRCF_MAX_ARRAYS; i++ )
