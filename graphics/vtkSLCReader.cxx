@@ -81,7 +81,7 @@ void vtkSLCReader::Execute()
   vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;
 
   // Initialize
-  if ((fp = fopen(this->FileName, "r")) == NULL)
+  if ((fp = fopen(this->FileName, "rb")) == NULL)
   {
     vtkErrorMacro(<< "File " << this->FileName << " not found");
     return;
