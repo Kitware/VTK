@@ -38,7 +38,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.1");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.2");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 //----------------------------------------------------------------------------
@@ -62,6 +62,7 @@ vtkDemandDrivenPipeline::vtkDemandDrivenPipeline()
   this->DemandDrivenInternal = new vtkDemandDrivenPipelineInternals;
   this->InProcessDownstreamRequest = 0;
   this->InProcessUpstreamRequest = 0;
+  this->PipelineMTime = 0;
 }
 
 //----------------------------------------------------------------------------
