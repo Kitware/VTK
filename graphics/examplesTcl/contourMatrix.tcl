@@ -1,8 +1,8 @@
 catch {load vtktcl}
 #
-# Contour data stroed as a matrix of values in a vtk structured points file
+# Contour data stored as a matrix of values in a vtk structured points file
 #
-source vtkInt.tcl
+source ../../examplesTcl/vtkInt.tcl
 
 # create pipeline
 #
