@@ -174,7 +174,7 @@ void vtkUnsignedCharArray::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataArray::PrintSelf(os,indent);
 
-  os << indent << "Array: " << this->Array << "\n";
+  os << indent << "Array: " << (void *)this->Array << "\n";
 }
 
 //
