@@ -70,6 +70,8 @@ vtkImageAnisotropicDiffusion2D::vtkImageAnisotropicDiffusion2D()
   this->SetNumberOfIterations(4);
   this->DiffusionThreshold = 5.0;
   this->DiffusionFactor = 1;
+  this->Faces = 0;
+  this->FacesOn();
   this->Edges = 0;
   this->EdgesOn();
   this->Corners = 0;

@@ -68,6 +68,8 @@ vtkInteractorStyleUser::vtkInteractorStyleUser()
   this->UserInteractionMethod = NULL;
   this->UserInteractionMethodArgDelete = NULL;
   this->UserInteractionMethodArg = NULL;
+  this->LastPos[0] = this->LastPos[1] = 0;
+  this->OldPos[0] = this->OldPos[1] = 0;
 }
 
 vtkInteractorStyleUser::~vtkInteractorStyleUser() 

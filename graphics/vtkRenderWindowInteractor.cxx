@@ -80,6 +80,9 @@ vtkRenderWindowInteractor::vtkRenderWindowInteractor()
 
   this->EventPosition[0] = 0;
   this->EventPosition[1] = 0;
+
+  this->Size[0] = 0;
+  this->Size[1] = 0;
 }
 
 vtkRenderWindowInteractor::~vtkRenderWindowInteractor()

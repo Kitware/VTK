@@ -108,6 +108,9 @@ void vtkProjectedTexture::SetFocalPoint(float x, float y, float z)
     this->Orientation[2] = orientation[2];
     this->Modified();
     }
+  this->FocalPoint[0] = x;
+  this->FocalPoint[1] = y;
+  this->FocalPoint[2] = z;
 }
 
 void vtkProjectedTexture::Execute()
@@ -211,8 +214,8 @@ void vtkProjectedTexture::PrintSelf(ostream& os, vtkIndent indent)
                                 << this->Orientation[2] << ")\n";
 
   os << indent << "Focal Point: (" << this->FocalPoint[0] << ", "
-                                << this->FocalPoint[1] << ", "
-                                << this->FocalPoint[2] << ")\n";
+                                   << this->FocalPoint[1] << ", "
+                                   << this->FocalPoint[2] << ")\n";
 
   os << indent << "Up: (" << this->Up[0] << ", "
                                 << this->Up[1] << ", "

@@ -70,6 +70,7 @@ vtkBMPReader::vtkBMPReader()
 {
   this->Colors = NULL;
   this->SetDataByteOrderToLittleEndian();
+  this->Depth = 0;
 }
 
 //----------------------------------------------------------------------------

@@ -65,6 +65,8 @@ vtkInteractorStyle::vtkInteractorStyle()
   this->OutlineMapper->SetInput(this->Outline->GetOutput());
   this->PickedRenderer   = NULL;
   this->CurrentActor     = NULL;
+  this->ActorPicked      = 0;
+  this->Center[0] = this->Center[1] = this->Center[2] = 0.0;
 
   this->State    = VTKIS_START;
   this->AnimState = VTKIS_ANIM_OFF; 

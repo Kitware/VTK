@@ -61,12 +61,13 @@ vtkImageReslice* vtkImageReslice::New()
 //----------------------------------------------------------------------------
 vtkImageReslice::vtkImageReslice()
 {
-  this->OutputSpacing[0] = 1;
-  this->OutputSpacing[1] = 1;
-  this->OutputSpacing[2] = 1;
+  this->OutputSpacing[0] = this->OutputSpacing[1] = this->OutputSpacing[2] = 1;
 
-  this->OutputOrigin[0] = FLT_MAX; // flag to set defaults later
-  this->OutputExtent[0] = INT_MAX; // ditto
+  this->OutputOrigin[0] = this->OutputOrigin[1] = this->OutputOrigin[2] = FLT_MAX; // flag to set defaults later
+  this->OutputExtent[0] = this->OutputExtent[1] = INT_MAX; // ditto
+  this->OutputExtent[2] = this->OutputExtent[3] = INT_MAX; // ditto
+  this->OutputExtent[4] = this->OutputExtent[5] = INT_MAX; // ditto
+  
 
   this->Wrap = 0; // don't wrap
   this->Mirror = 0; // don't mirror

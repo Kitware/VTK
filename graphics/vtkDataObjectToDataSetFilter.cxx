@@ -126,6 +126,9 @@ vtkDataObjectToDataSetFilter::vtkDataObjectToDataSetFilter()
   this->OriginArrayComponent = -1;
   this->OriginComponentRange[0] = this->OriginComponentRange[1] = -1;
   
+  this->Dimensions[0] = this->Dimensions[1] = this->Dimensions[2] = 0;
+  this->Spacing[0] = this->Spacing[1] = this->Spacing[2] = 0.0;
+  this->Origin[0] = this->Origin[1] = this->Origin[2] = 0.0;
 }
 
 //----------------------------------------------------------------------------

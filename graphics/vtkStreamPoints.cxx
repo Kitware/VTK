@@ -63,6 +63,7 @@ vtkStreamPoints* vtkStreamPoints::New()
 vtkStreamPoints::vtkStreamPoints()
 {
   this->TimeIncrement = 1.0;
+  this->NumberOfStreamers = 0;
 }
 
 void vtkStreamPoints::Execute()

@@ -63,6 +63,7 @@ vtkStreamLine* vtkStreamLine::New()
 vtkStreamLine::vtkStreamLine()
 {
   this->StepLength = 1.0;
+  this->NumberOfStreamers = 0;
 }
 
 void vtkStreamLine::Execute()

@@ -88,6 +88,8 @@ vtkOpenGLRenderer::vtkOpenGLRenderer()
   this->PickInfo = new vtkGLPickInfo;
   this->NumberOfLightsBound = 0;
   this->PickInfo->PickBuffer = 0;
+  this->PickInfo->PickedID = 0;
+  this->PickedZ = 0;
 }
 
 // Internal method temporarily removes lights before reloading them
