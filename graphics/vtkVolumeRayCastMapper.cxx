@@ -70,6 +70,10 @@ vtkVolumeRayCastMapper::vtkVolumeRayCastMapper()
   this->GrayTFArray                   = NULL;
   this->CorrectedScalarOpacityTFArray = NULL;
   this->CorrectedStepSize             = -1;
+  this->CastTime                      = 0.0;
+  this->DrawTime                      = 0.0;
+  this->TotalStepsTaken               = 0;
+  this->TotalRaysCast                 = 0;
 }
 
 // Description:
@@ -1103,7 +1107,6 @@ void vtkVolumeRayCastMapper::UpdateShadingTables( vtkRenderer *ren,
 	 this->NormalEncoder.GetGradientMagnitudeScale() !=
 		    gradient_opacity_scale ) )
     {
-cout << "Updating normals!\n";
     this->NormalEncoder.SetGradientMagnitudeBias( gradient_opacity_bias );
     this->NormalEncoder.SetGradientMagnitudeScale( gradient_opacity_scale );
     this->NormalEncoder.SetScalarInput( this->ScalarInput );
