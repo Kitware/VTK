@@ -91,7 +91,14 @@ void vtkTextMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FontFamily: " << this->FontFamily << "\n";
   os << indent << "FontSize: " << this->FontSize << "\n";
   os << indent << "Input: " << (this->Input ? this->Input : "(none)") << "\n";
- 
+  os << indent << "Justification: ";
+  switch (this->Justification)
+    {
+    case 0: os << "Left  (0)" << endl; break;
+    case 1: os << "Centered  (1)" << endl; break;
+    case 2: os << "Right  (2)" << endl; break;
+    }
+  
   vtkMapper2D::PrintSelf(os,indent);
 }
 
