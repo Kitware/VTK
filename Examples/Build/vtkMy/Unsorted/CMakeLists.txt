@@ -4,7 +4,7 @@
 # Here is where you can add the name of your local unsorted classes.
 #
 
-SOURCE_FILES (Unsorted_SRCS
+SET (Unsorted_SRCS
   vtkBar2.cxx
 )
 
