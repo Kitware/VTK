@@ -276,7 +276,6 @@ void  vtkWin32RenderWindowInteractor::EndAnimation()
 
 LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-  static LPARAM lastPos;
   float xf,yf;
   vtkWin32OpenGLRenderWindow *ren;
   vtkWin32RenderWindowInteractor *me;
@@ -382,7 +381,7 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 	}
       break;
 	    
-    case WM_MOUSEMOVE: lastPos = lParam; break;
+    case WM_MOUSEMOVE: me->LastPosition = lParam; break;
 
     case WM_CLOSE:
       if (me->ExitMethod)
@@ -416,7 +415,8 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 	  if (me->UserMethod) (*me->UserMethod)(me->UserMethodArg);
 	  break;
 	case 'r':
-	  me->FindPokedRenderer(LOWORD(lastPos),me->Size[1]-HIWORD(lastPos)-1);
+	  me->FindPokedRenderer(LOWORD(me->LastPosition),
+		  me->Size[1]-HIWORD(me->LastPosition)-1);
 	  me->CurrentRenderer->ResetCamera();
 	  me->RenderWindow->Render();
 	  break;
@@ -425,7 +425,8 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 	  vtkActorCollection *ac;
 	  vtkActor *anActor, *aPart;
 	  
-	  me->FindPokedRenderer(LOWORD(lastPos),me->Size[1]-HIWORD(lastPos)-1);
+	  me->FindPokedRenderer(LOWORD(me->LastPosition),
+		  me->Size[1]-HIWORD(me->LastPosition)-1);
 	  ac = me->CurrentRenderer->GetActors();
 	  for (ac->InitTraversal(); anActor = ac->GetNextItem(); )
 	    {
@@ -443,7 +444,8 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 	  vtkActorCollection *ac;
 	  vtkActor *anActor, *aPart;
 	  
-	  me->FindPokedRenderer(LOWORD(lastPos),me->Size[1]-HIWORD(lastPos)-1);
+	  me->FindPokedRenderer(LOWORD(me->LastPosition),
+		  me->Size[1]-HIWORD(me->LastPosition)-1);
 	  ac = me->CurrentRenderer->GetActors();
 	  for (ac->InitTraversal(); anActor = ac->GetNextItem(); )
 	    {
@@ -471,12 +473,14 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 	  break;
 	case 'p':
 	  {
-	  me->FindPokedRenderer(LOWORD(lastPos),me->Size[1]-HIWORD(lastPos)-1);
+	  me->FindPokedRenderer(LOWORD(me->LastPosition),
+		  me->Size[1]-HIWORD(me->LastPosition)-1);
 	  if (me->StartPickMethod)
 	    {
 	    (*me->StartPickMethod)(me->StartPickMethodArg);
 	    }
-	  me->Picker->Pick(LOWORD(lastPos), me->Size[1]-HIWORD(lastPos)-1,
+	  me->Picker->Pick(LOWORD(me->LastPosition), 
+		  me->Size[1]-HIWORD(me->LastPosition)-1,
 			   0.0, me->CurrentRenderer);
 	  me->HighlightActor(me->Picker->GetAssembly());
 	  if (me->EndPickMethod)
@@ -491,7 +495,8 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
     case WM_TIMER:
       if (me->TimerMethod) 
 	{
-	me->SetEventPosition(LOWORD(lastPos),me->Size[1] - HIWORD(lastPos)-1);
+	me->SetEventPosition(LOWORD(me->LastPosition),
+		me->Size[1] - HIWORD(me->LastPosition)-1);
 	(*me->TimerMethod)(me->TimerMethodArg);
 	}
       
@@ -501,8 +506,9 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 	  me->RenderWindow->Render();
 	  break;
 	case VTKXI_ROTATE :
-	  xf = (LOWORD(lastPos) - me->Center[0]) * me->DeltaAzimuth;
-	  yf = ((me->Size[1] - HIWORD(lastPos)) - me->Center[1]) * me->DeltaElevation;
+	  xf = (LOWORD(me->LastPosition) - me->Center[0]) * me->DeltaAzimuth;
+	  yf = ((me->Size[1] - HIWORD(me->LastPosition)) - 
+			 me->Center[1]) * me->DeltaElevation;
 	  me->CurrentCamera->Azimuth(xf);
 	  me->CurrentCamera->Elevation(yf);
 	  me->CurrentCamera->OrthogonalizeViewUp();
@@ -525,8 +531,8 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 	  memcpy(FPoint,me->CurrentCamera->GetFocalPoint(),sizeof(float)*3);
 	  PPoint = me->CurrentCamera->GetPosition();
 
-	  xf = LOWORD(lastPos);
-	  yf = me->Size[1] - HIWORD(lastPos);
+	  xf = LOWORD(me->LastPosition);
+	  yf = me->Size[1] - HIWORD(me->LastPosition);
 	  APoint[0] = xf;
 	  APoint[1] = yf;
 	  APoint[2] = me->FocalDepth;
@@ -565,7 +571,7 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 	  {
 	  float zoomFactor;
 	  float *clippingRange;
-	  yf = ((me->Size[1] - HIWORD(lastPos)) - me->Center[1])/
+	  yf = ((me->Size[1] - HIWORD(me->LastPosition)) - me->Center[1])/
 	    (float)me->Center[1];
 	  zoomFactor = pow((double)1.1,(double)yf);
 	  if (me->CurrentCamera->GetParallelProjection())

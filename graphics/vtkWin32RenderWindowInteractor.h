@@ -102,6 +102,7 @@ protected:
   HWND WindowId;
   UINT TimerId;
   WNDPROC OldProc;
+  LPARAM LastPosition;
 
   // Description:
   // Class variables so an exit method can be defined for this class
