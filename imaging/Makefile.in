@@ -15,6 +15,7 @@ SRC_OBJ = \
 vtkImageAnisotropicDiffusion2D.o \
 vtkImageAnisotropicDiffusion3D.o \
 vtkImageArithmetic.o \
+vtkImageConnectivity.o \
 vtkImageConvolution1D.o \
 vtkImageDecomposed2D.o \
 vtkImageDecomposed3D.o \
@@ -65,6 +66,7 @@ TCL_OBJ = \
 tcl/vtkImageAnisotropicDiffusion2DTcl.o \
 tcl/vtkImageAnisotropicDiffusion3DTcl.o \
 tcl/vtkImageArithmeticTcl.o \
+tcl/vtkImageConnectivityTcl.o \
 tcl/vtkImageConvolution1DTcl.o \
 tcl/vtkImageDecomposed2DTcl.o \
 tcl/vtkImageDecomposed3DTcl.o \
@@ -109,12 +111,12 @@ tcl/vtkImageThresholdTcl.o \
 tcl/vtkImageVolumeShortWriterTcl.o \
 tcl/vtkImageXViewerTcl.o 
 
-
 # put all vtk classes that are concrete here as vtkFooTcl.h files
 TCL_NEWS = \
 vtkImageAnisotropicDiffusion2D.h \
 vtkImageAnisotropicDiffusion3D.h \
 vtkImageArithmetic.h \
+vtkImageConnectivity.h \
 vtkImageConvolution1D.h \
 vtkImageDecomposed2D.h \
 vtkImageDecomposed3D.h \
@@ -157,8 +159,7 @@ vtkImageSpatial3D.h \
 vtkImageSpatialFilter.h \
 vtkImageThreshold.h \
 vtkImageVolumeShortWriter.h \
-vtkImageXViewer.h 
-
+vtkImageXViewer.h
 
 # add in any extra libraies here
 KIT_LIBS =
@@ -225,6 +226,9 @@ tcl/vtkImageAnisotropicDiffusion3DTcl.cxx: vtkImageAnisotropicDiffusion3D.h ../t
 
 tcl/vtkImageArithmeticTcl.cxx: vtkImageArithmetic.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageArithmeticTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageArithmetic.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageArithmeticTcl.cxx
+
+tcl/vtkImageConnectivityTcl.cxx: vtkImageConnectivity.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageConnectivityTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageConnectivity.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageConnectivityTcl.cxx
 
 tcl/vtkImageConvolution1DTcl.cxx: vtkImageConvolution1D.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageConvolution1DTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageConvolution1D.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageConvolution1DTcl.cxx
@@ -354,4 +358,5 @@ tcl/vtkImageVolumeShortWriterTcl.cxx: vtkImageVolumeShortWriter.h ../tcl/cpp_par
 
 tcl/vtkImageXViewerTcl.cxx: vtkImageXViewer.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageXViewerTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageXViewer.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageXViewerTcl.cxx
+
 
