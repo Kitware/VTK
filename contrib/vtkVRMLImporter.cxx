@@ -78,7 +78,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkSystemIncludes.h"
 
 // Used later to get the current VRMLImporter
-vtkVRMLImporter *curImporter;
+static vtkVRMLImporter *CurrentImporter;
 
 // Used during the parsing
 static int creatingDEF = 0;
@@ -422,7 +422,7 @@ using namespace std;
 // Currently-being-define proto.  Prototypes may be nested, so a stack
 // is needed:
 
-VectorType<VrmlNodeType*> currentProtoStack;
+static VectorType<VrmlNodeType*> *CurrentProtoStack = NULL;
 
 // This is used to keep track of which field in which type of node is being
 // parsed.  Field are nested (nodes are contained inside MFNode/SFNode fields)
@@ -445,14 +445,15 @@ extern int currentLineNumber;
 static void beginProto(const char *);
 static void endProto();
 
-int addField(const char *type, const char *name);
-int addEventIn(const char *type, const char *name);
-int addEventOut(const char *type, const char *name);
-int addExposedField(const char *type, const char *name);
-int add(void (VrmlNodeType::*)(const char *, int), const char *, const char *);
-int fieldType(const char *type);
-void inScript();
-void expect(int type);
+static int addField(const char *type, const char *name);
+static int addEventIn(const char *type, const char *name);
+static int addEventOut(const char *type, const char *name);
+static int addExposedField(const char *type, const char *name);
+static int add(void (VrmlNodeType::*)(const char *, int), const char *, 
+               const char *);
+static int fieldType(const char *type);
+static void inScript();
+static void expect(int type);
 
 void yyerror(const char *);
 int  yylex(void);
@@ -1219,7 +1220,7 @@ case 10:
 { creatingDEF = 0; ;
     break;}
 case 11:
-{ curImporter->useNode(yyvsp[0].string);free(yyvsp[0].string); ;
+{ CurrentImporter->useNode(yyvsp[0].string);free(yyvsp[0].string); ;
     break;}
 case 14:
 { beginProto(yyvsp[0].string); ;
@@ -1278,16 +1279,16 @@ case 33:
 { free(yyvsp[-6].string); free(yyvsp[-4].string); free(yyvsp[-2].string); free(yyvsp[0].string); ;
     break;}
 case 34:
-{ curImporter->enterNode(yyvsp[0].string); ;
+{ CurrentImporter->enterNode(yyvsp[0].string); ;
     break;}
 case 35:
-{ curImporter->exitNode(); free(yyvsp[-4].string);;
+{ CurrentImporter->exitNode(); free(yyvsp[-4].string);;
     break;}
 case 38:
-{ curImporter->enterField(yyvsp[0].string); ;
+{ CurrentImporter->enterField(yyvsp[0].string); ;
     break;}
 case 39:
-{ curImporter->exitField(); free(yyvsp[-2].string); ;
+{ CurrentImporter->exitField(); free(yyvsp[-2].string); ;
     break;}
 case 42:
 { inScript(); free(yyvsp[-1].string); free(yyvsp[0].string); ;
@@ -1527,129 +1528,133 @@ yyerrhandle:
 void
 yyerror(const char *msg)
 {
-        cerr << "Error near line " << currentLineNumber << ": " << msg << "\n";
-    expect(0);
+  cerr << "Error near line " << currentLineNumber << ": " << msg << "\n";
+  expect(0);
 }
 
 static void
 beginProto(const char *protoName)
 {
-        // Any protos in the implementation are in a local namespace:
-    VrmlNodeType::pushNameSpace();
+  // Any protos in the implementation are in a local namespace:
+  VrmlNodeType::pushNameSpace();
 
-        VrmlNodeType *t = new VrmlNodeType(protoName);
-    currentProtoStack += t;
+  VrmlNodeType *t = new VrmlNodeType(protoName);
+  *CurrentProtoStack += t;
 }
 
 static void
 endProto()
 {
-        // Make any protos defined in implementation unavailable:
-        VrmlNodeType::popNameSpace();
+  // Make any protos defined in implementation unavailable:
+  VrmlNodeType::popNameSpace();
 
-    // Add this proto definition:
-        if (currentProtoStack.Count() == 0) {
-        cerr << "Error: Empty PROTO stack!\n";
+  // Add this proto definition:
+  if (CurrentProtoStack->Count() == 0) 
+    {
+    cerr << "Error: Empty PROTO stack!\n";
     }
-    else {
-        VrmlNodeType *t = currentProtoStack.Top();
-        currentProtoStack.Pop();
-        VrmlNodeType::addToNameSpace(t);
+  else 
+    {
+    VrmlNodeType *t = CurrentProtoStack->Top();
+    CurrentProtoStack->Pop();
+    VrmlNodeType::addToNameSpace(t);
     }
 }
 
-int
+static int
 addField(const char *type, const char *name)
 {
-        return add(&VrmlNodeType::addField, type, name);
+  return add(&VrmlNodeType::addField, type, name);
 }
 
-int
+static int
 addEventIn(const char *type, const char *name)
 {
-        return add(&VrmlNodeType::addEventIn, type, name);
+  return add(&VrmlNodeType::addEventIn, type, name);
 }
-int
+static int
 addEventOut(const char *type, const char *name)
 {
-        return add(&VrmlNodeType::addEventOut, type, name);
+  return add(&VrmlNodeType::addEventOut, type, name);
 }
-int
+static int
 addExposedField(const char *type, const char *name)
 {
-        return add(&VrmlNodeType::addExposedField, type, name);
+  return add(&VrmlNodeType::addExposedField, type, name);
 }
 
-int
+static int
 add(void (VrmlNodeType::*func)(const char *, int), 
         const char *typeString, const char *name)
 {
-        int type = fieldType(typeString);
+  int type = fieldType(typeString);
 
-    if (type == 0) {
-        cerr << "Error: invalid field type: " << type << "\n";
+  if (type == 0) 
+    {
+    cerr << "Error: invalid field type: " << type << "\n";
     }
 
-    // Need to add support for Script nodes:
-        // if (inScript) ... ???
+  // Need to add support for Script nodes:
+  // if (inScript) ... ???
 
-        if (currentProtoStack.Count() == 0) {
-        cerr << "Error: declaration outside of prototype\n";
-        return 0;
+  if (CurrentProtoStack->Count() == 0) 
+    {
+    cerr << "Error: declaration outside of prototype\n";
+    return 0;
     }
-    VrmlNodeType *t = currentProtoStack.Top();
-    (t->*func)(name, type);
+  VrmlNodeType *t = CurrentProtoStack->Top();
+  (t->*func)(name, type);
 
-    return type;
+  return type;
 }
 
-int
+static int
 fieldType(const char *type)
 {
-    if (strcmp(type, "SFBool") == 0) return SFBOOL;
-    if (strcmp(type, "SFColor") == 0) return SFCOLOR;
-    if (strcmp(type, "SFFloat") == 0) return SFFLOAT;
-    if (strcmp(type, "SFImage") == 0) return SFIMAGE;
-    if (strcmp(type, "SFInt32") == 0) return SFINT32;
-    if (strcmp(type, "SFNode") == 0) return SFNODE;
-    if (strcmp(type, "SFRotation") == 0) return SFROTATION;
-    if (strcmp(type, "SFString") == 0) return SFSTRING;
-    if (strcmp(type, "SFTime") == 0) return SFTIME;
-    if (strcmp(type, "SFVec2f") == 0) return SFVEC2F;
-    if (strcmp(type, "SFVec3f") == 0) return SFVEC3F;
-    if (strcmp(type, "MFColor") == 0) return MFCOLOR;
-    if (strcmp(type, "MFFloat") == 0) return MFFLOAT;
-    if (strcmp(type, "MFInt32") == 0) return MFINT32;
-    if (strcmp(type, "MFNode") == 0) return MFNODE;
-    if (strcmp(type, "MFRotation") == 0) return MFROTATION;
-    if (strcmp(type, "MFString") == 0) return MFSTRING;
-    if (strcmp(type, "MFVec2f") == 0) return MFVEC2F;
-    if (strcmp(type, "MFVec3f") == 0) return MFVEC3F;
+  if (strcmp(type, "SFBool") == 0) return SFBOOL;
+  if (strcmp(type, "SFColor") == 0) return SFCOLOR;
+  if (strcmp(type, "SFFloat") == 0) return SFFLOAT;
+  if (strcmp(type, "SFImage") == 0) return SFIMAGE;
+  if (strcmp(type, "SFInt32") == 0) return SFINT32;
+  if (strcmp(type, "SFNode") == 0) return SFNODE;
+  if (strcmp(type, "SFRotation") == 0) return SFROTATION;
+  if (strcmp(type, "SFString") == 0) return SFSTRING;
+  if (strcmp(type, "SFTime") == 0) return SFTIME;
+  if (strcmp(type, "SFVec2f") == 0) return SFVEC2F;
+  if (strcmp(type, "SFVec3f") == 0) return SFVEC3F;
+  if (strcmp(type, "MFColor") == 0) return MFCOLOR;
+  if (strcmp(type, "MFFloat") == 0) return MFFLOAT;
+  if (strcmp(type, "MFInt32") == 0) return MFINT32;
+  if (strcmp(type, "MFNode") == 0) return MFNODE;
+  if (strcmp(type, "MFRotation") == 0) return MFROTATION;
+  if (strcmp(type, "MFString") == 0) return MFSTRING;
+  if (strcmp(type, "MFVec2f") == 0) return MFVEC2F;
+  if (strcmp(type, "MFVec3f") == 0) return MFVEC3F;
 
-    cerr << "Illegal field type: " << type << "\n";
+  cerr << "Illegal field type: " << type << "\n";
 
-    return 0;
+  return 0;
 }
 
-void
+static void
 inScript()
 {
-        FieldRec *fr = currentField.Top();
-    if (fr->nodeType == NULL ||
-        strcmp(fr->nodeType->getName(), "Script") != 0) {
-        yyerror("interface declaration outside of Script or prototype");
+  FieldRec *fr = currentField.Top();
+  if (fr->nodeType == NULL ||
+      strcmp(fr->nodeType->getName(), "Script") != 0) 
+    {
+    yyerror("interface declaration outside of Script or prototype");
     }
 }
 
 
-void
+static void
 expect(int type)
 {
-        expectToken = type;
+  expectToken = type;
 }
 
 // End of Auto-generated Parser Code
-
 // Begin of Auto-generated Lexer Code
 
 /* A lexical scanner generated by flex */
@@ -5298,11 +5303,12 @@ int vtkVRMLImporter::ImportBegin ()
   // This is acrually where it all takes place, Since VRML is a SG
   // And is state based, I need to create actors, cameras, and lights
   // as I go. The ImportXXXXXX rotuines are not used.
+  CurrentProtoStack = new VectorType<VrmlNodeType*>;
 
   // Lets redefine the YY_INPUT macro on Flex and get chars from memory
   theyyInput = memyyInput;
   // Crank up the yacc parser...
-  curImporter = this;
+  CurrentImporter = this;
   yydebug = 0;
   yy_flex_debug = 0;
   /*FILE *standardNodes = fopen("standardNodes.wrl", "r");
@@ -5335,6 +5341,8 @@ int vtkVRMLImporter::ImportBegin ()
 
   fclose(yyin);
   yyin = NULL;
+
+  delete CurrentProtoStack;
 
   // In casre there was a ViewPoint introduced it usually happens prior
   // to any actors being placed in the scene, need to reset the camera
