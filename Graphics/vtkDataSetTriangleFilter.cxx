@@ -30,7 +30,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkRectilinearGrid.h"
 
-vtkCxxRevisionMacro(vtkDataSetTriangleFilter, "1.17");
+vtkCxxRevisionMacro(vtkDataSetTriangleFilter, "1.18");
 vtkStandardNewMacro(vtkDataSetTriangleFilter);
 
 vtkDataSetTriangleFilter::vtkDataSetTriangleFilter()
@@ -64,6 +64,8 @@ void vtkDataSetTriangleFilter::Execute()
     {
     this->UnstructuredExecute();
     }
+
+  vtkDebugMacro(<<"Produced " << this->GetOutput()->GetNumberOfCells() << " cells");
 }
 
 void vtkDataSetTriangleFilter::StructuredExecute()
@@ -194,8 +196,8 @@ void vtkDataSetTriangleFilter::UnstructuredExecute()
   vtkPoints *cellPts;
   vtkIdList *cellPtIds;
   vtkIdType ptId, numTets, ncells;
-  int type;
-  int npts, numSimplices, dim;
+  int numPts, type;
+  int numSimplices, dim;
   vtkIdType pts[4];
   float *xPtr;
 
@@ -230,17 +232,17 @@ void vtkDataSetTriangleFilter::UnstructuredExecute()
 
     if ( dim == 3 ) //use ordered triangulation
       {
-      npts = cell->GetNumberOfPoints();
-      this->Triangulator->InitTriangulation(cell->GetBounds(),npts);
-      for (j=0; j<npts; j++)
+      numPts = cell->GetNumberOfPoints();
+      float *p, *pPtr=cell->GetParametricCoords();
+      this->Triangulator->InitTriangulation(0.0,1.0, 0.0,1.0, 0.0,1.0, numPts);
+      for (p=pPtr, j=0; j<numPts; j++, p+=3)
         {
         ptId = cell->PointIds->GetId(j);
         xPtr = cell->Points->GetPoint(j);
-        this->Triangulator->InsertPoint(ptId, xPtr, xPtr, 0);
+        this->Triangulator->InsertPoint(ptId, xPtr, p, 0);
         }//for all cell points
       if ( cell->IsPrimaryCell() ) //use templates topology is fixed
         {
-        int numPts=cell->GetNumberOfPoints();
         int numEdges=cell->GetNumberOfEdges();
         this->Triangulator->TemplateTriangulate(cell->GetCellType(),
                                                 numPts,numEdges);
@@ -263,9 +265,9 @@ void vtkDataSetTriangleFilter::UnstructuredExecute()
       {
       dim++;
       cell->Triangulate(0, cellPtIds, cellPts);
-      npts = cellPtIds->GetNumberOfIds();
+      numPts = cellPtIds->GetNumberOfIds();
     
-      numSimplices = npts / dim;
+      numSimplices = numPts / dim;
       type = 0;
       switch (dim)
         {
