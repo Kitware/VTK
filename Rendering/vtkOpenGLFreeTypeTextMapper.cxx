@@ -120,7 +120,7 @@ static vtkEmbeddedFontStruct embedded_fonts[3][2][2] =
   }
 };
 
-vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.3");
+vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.4");
 vtkStandardNewMacro(vtkOpenGLFreeTypeTextMapper);
 
 //----------------------------------------------------------------------------
@@ -162,20 +162,6 @@ struct vtkFontStruct
 #endif
   FTFont *Font;
 
-  static int IsAntiAliasingRequested(vtkTextProperty *tprop)
-    {
-      return
-        (tprop->GetGlobalAntiAliasing() == VTK_TEXT_GLOBAL_ANTIALIASING_ALL || 
-         (tprop->GetGlobalAntiAliasing() == VTK_TEXT_GLOBAL_ANTIALIASING_SOME 
-          && tprop->GetAntiAliasing())) ? 1 : 0;
-    }
-
-  static FTFont* vtkFontStruct::GetFTFont(vtkTextProperty *tprop, 
-                                          vtkViewport *vp,
-                                          int override_color = 0,
-                                          unsigned char red = 0,
-                                          unsigned char green = 0,
-                                          unsigned char blue = 0);
 };
 
 // The cache itself
@@ -195,6 +181,15 @@ static vtkFontStruct *cache[FONT_CACHE_SIZE] =
 static int numCached = 0;
 
 //----------------------------------------------------------------------------
+int vtkFontStructIsAntiAliasingRequested(vtkTextProperty *tprop)
+{
+  return
+    (tprop->GetGlobalAntiAliasing() == VTK_TEXT_GLOBAL_ANTIALIASING_ALL || 
+     (tprop->GetGlobalAntiAliasing() == VTK_TEXT_GLOBAL_ANTIALIASING_SOME 
+      && tprop->GetAntiAliasing())) ? 1 : 0;
+}
+
+//----------------------------------------------------------------------------
 // Get a font from the cache given the text property and the viewport.
 // In both cases, if no font is found in the cache, one is created and
 // stored with the given color parameters.
@@ -203,17 +198,17 @@ static int numCached = 0;
 // If override_color is true, then red, green, blue are used as text
 // color instead of the colors found in the vtkTextProperty.
 
-FTFont* vtkFontStruct::GetFTFont(vtkTextProperty *tprop, 
-                                 vtkViewport *vp,
-                                 int override_color,
-                                 unsigned char red,
-                                 unsigned char green,
-                                 unsigned char blue)
+FTFont* vtkFontStructGetFTFont(vtkTextProperty *tprop, 
+                               vtkViewport *vp,
+                               int override_color = 0,
+                               unsigned char red = 0,
+                               unsigned char green = 0,
+                               unsigned char blue = 0)
 {
   int i, j;
   vtkWindow *win = vp->GetVTKWindow();
 
-  int antialiasing_requested = vtkFontStruct::IsAntiAliasingRequested(tprop);
+  int antialiasing_requested = vtkFontStructIsAntiAliasingRequested(tprop);
 
 #if VTK_FTTM_CACHE_BY_RGBA
   float opacity = tprop->GetOpacity();
@@ -468,7 +463,7 @@ void vtkOpenGLFreeTypeTextMapper::GetSize(vtkViewport* viewport, int *size)
   // Check for font and try to set the size
 
   FTFont *font;
-  font = vtkFontStruct::GetFTFont(tprop, viewport);
+  font = vtkFontStructGetFTFont(tprop, viewport);
 
   if (font == NULL) 
     {
@@ -492,7 +487,7 @@ void vtkOpenGLFreeTypeTextMapper::GetSize(vtkViewport* viewport, int *size)
   float llx, lly, llz, urx, ury, urz;
 
 #if VTK_FTTM_CACHE_BY_RGBA
-  int antialiasing_requested = vtkFontStruct::IsAntiAliasingRequested(tprop);
+  int antialiasing_requested = vtkFontStructIsAntiAliasingRequested(tprop);
   // Set the color here since computing the BBox might load/render glyphs
   // on demand and this color has to be consistent for a given pixmap font.
   // TOFIX: this will be fixed as soon as BBox do not *render* glyphs to
@@ -589,7 +584,7 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
   // (incoming ::GetSize() might not do it since it caches the result)
   
   FTFont *font;
-  font = vtkFontStruct::GetFTFont(tprop, viewport, 1, red, green, blue);
+  font = vtkFontStructGetFTFont(tprop, viewport, 1, red, green, blue);
   if (font == NULL) 
     {
     vtkErrorMacro(<< "Render - No font");
@@ -725,9 +720,9 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
 #if VTK_FTTM_CACHE_BY_RGBA
     FTFont *shadow_font;
     int shadow_font_is_ok = 1;
-    if (vtkFontStruct::IsAntiAliasingRequested(tprop))
+    if (vtkFontStructIsAntiAliasingRequested(tprop))
       {
-      shadow_font = vtkFontStruct::GetFTFont(
+      shadow_font = vtkFontStructGetFTFont(
         tprop, viewport, 
         1, shadow_red, shadow_green, shadow_blue);
 
