@@ -86,9 +86,9 @@ protected:
   // Picking functions to be implemented by sub-classes
   virtual void DevicePickRender();
   virtual void StartPick(unsigned int pickFromSize);
-  virtual void SetPickId(unsigned int pickID);
+  virtual void UpdatePickId();
   virtual void DonePick();
-  virtual unsigned int GetPickedID();
+  virtual unsigned int GetPickedId();
   virtual float GetPickedZ();
   // Ivars used in picking
   class vtkGLPickInfo* PickInfo;
