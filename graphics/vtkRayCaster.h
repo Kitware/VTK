@@ -207,6 +207,9 @@ protected:
   void InitializeRenderBuffers( vtkRenderer *ren );
   void InitializeRayCasting( vtkRenderer *ren );
 
+  void ComputeRowBounds( vtkRenderer *ren,
+			 struct VolumeRayCastVolumeInfoStruct *volumeInfo );
+
   friend VTK_THREAD_RETURN_TYPE RayCast_RenderImage( void *arg );
 
   vtkMultiThreader *Threader;

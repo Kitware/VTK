@@ -92,6 +92,8 @@ struct VolumeRayCastVolumeInfoStruct
   float                        WorldToVolumeMatrix[16];
   float                        ViewToVolumeMatrix[16];
   vtkVolume                    *Volume;
+  int                          *RowBounds;
+  int                          RowBoundsSize;
   float                        CenterDistance;
   int                          ScalarDataType;
   void                         *ScalarDataPointer;

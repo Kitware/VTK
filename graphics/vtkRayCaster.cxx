@@ -692,6 +692,133 @@ void vtkRayCaster::InitializeRenderBuffers(vtkRenderer *ren)
     }
 }
 
+void vtkRayCaster::ComputeRowBounds( vtkRenderer *ren,
+				     struct VolumeRayCastVolumeInfoStruct *volumeInfo )
+{
+  float     *bounds;
+  int       i, j, k, indx, low, high;
+  float     screenBounds[8][3];
+  float     pointIn[4];
+  int       edges[12][2] = {{0,1},{0,2},{0,4},{1,3},{1,5},{2,3},
+                            {2,6},{3,7},{4,5},{4,6},{5,7},{6,7}};
+  float     slope, x, x1, x2, y1, y2, dx, dy;
+  float     *viewport;
+  int       *renWinSize;
+
+  bounds          = volumeInfo->Volume->GetBounds();
+  renWinSize      = ren->GetRenderWindow()->GetSize();
+  viewport        = ren->GetViewport();
+
+  indx = 0;
+  pointIn[3] = 1.0;
+  for ( k = 0; k < 2; k++ )
+    {
+    pointIn[2] = bounds[4+k];
+    for ( j = 0; j < 2; j++ )
+      {
+      pointIn[1] = bounds[2+j];
+      for ( i = 0; i < 2; i++ )
+	{
+	pointIn[0] = bounds[i];
+	ren->SetWorldPoint( pointIn );
+	ren->WorldToDisplay();
+	ren->GetDisplayPoint( screenBounds[indx] );
+	screenBounds[indx][0] = 
+	  ( (screenBounds[indx][0] - viewport[0]*(float)(renWinSize[0])) / 
+	    this->FullImageSize[0] ) * this->ImageSize[0];
+	screenBounds[indx][1] = 
+	  ( (screenBounds[indx][1] - viewport[1]*(float)(renWinSize[1])) / 
+	    this->FullImageSize[1] ) * this->ImageSize[1];
+	indx++;
+	}
+      }
+    }
+
+  if ( volumeInfo->RowBoundsSize != this->ImageSize[1] )
+    {
+    if ( volumeInfo->RowBounds )
+      {
+      delete volumeInfo->RowBounds;
+      }
+    volumeInfo->RowBounds = new int [this->ImageSize[1]*2];
+    volumeInfo->RowBoundsSize = this->ImageSize[1];
+    }
+
+  for ( i = 0; i < this->ImageSize[1]; i++ )
+    {
+    volumeInfo->RowBounds[i*2+0] = this->ImageSize[0] + 1;
+    volumeInfo->RowBounds[i*2+1] = -1;
+    }
+
+  for ( i = 0; i < 12; i++ )
+    {
+    x1 = screenBounds[edges[i][0]][0];  
+    y1 = screenBounds[edges[i][0]][1];  
+    x2 = screenBounds[edges[i][1]][0];  
+    y2 = screenBounds[edges[i][1]][1];  
+    
+    if ( y2 < y1 ) 
+      {
+      low = y2;
+      high = y1;
+      }
+    else
+      {
+      low = y1;
+      high = y2;
+      }
+
+    if ( low < 0 )
+      {
+      low = 0;
+      }
+
+    if ( high > (this->ImageSize[1] - 1) )
+      {
+      high = this->ImageSize[1] - 1;
+      }
+
+    dx = x1-x2;
+    dy = y1-y2;
+    if ( dy )
+      {
+      if ( dx )
+	{
+	slope = dy/dx;
+	for ( j = low; j <= high; j++ )
+	  {
+	  x = x1 - (y1-j)/slope;
+	  if ( ((int)x - 1) < volumeInfo->RowBounds[2*j+0] )
+	    {
+	    volumeInfo->RowBounds[2*j+0] = (int)x - 1;
+	    }
+	  if ( ((int)x + 1) > volumeInfo->RowBounds[2*j+1] )
+	    {
+	    volumeInfo->RowBounds[2*j+1] = (int)x + 1;
+	    }
+	  }
+	}
+      else
+	{
+	for ( j = low; j <= high; j++ )
+	  {
+	  if ( ((int)x1 - 1) < volumeInfo->RowBounds[2*j+0] )
+	    {
+	    volumeInfo->RowBounds[2*j+0] = (int)x1 - 1;
+	    }
+	  if ( ((int)x1 + 1) > volumeInfo->RowBounds[2*j+1] )
+	    {
+	    volumeInfo->RowBounds[2*j+1] = (int)x1 + 1;
+	    }
+	  }
+	}
+      }
+    }
+  
+}
+
+
+
 // Perform the initialization for ray casting. Create the temporary structures
 // necessary for storing information and quick access.
 void vtkRayCaster::InitializeRayCasting(vtkRenderer *ren)
@@ -743,6 +870,10 @@ void vtkRayCaster::InitializeRayCasting(vtkRenderer *ren)
 	((vtkVolumeRayCastMapper *)
 	 (aVolume->GetVolumeMapper()))->InitializeRender(ren, aVolume,
 							 &this->VolumeInfo[i]);
+	this->VolumeInfo[i].RowBounds = NULL;
+	this->VolumeInfo[i].RowBoundsSize = 0;
+	this->ComputeRowBounds( ren, &(this->VolumeInfo[i]) );
+
 	i++;
 	}
     }
@@ -859,6 +990,7 @@ VTK_THREAD_RETURN_TYPE RayCast_RenderImage( void *arg )
   float                        *red, *green, *blue, *alpha, *depth;
   float                        tmp;
   float                        r, g, b, a, remaining_a;
+  int                          icount;
   struct VolumeRayCastRayInfoStruct  rayInfo;
 
   // Get the info out of the input structure
@@ -938,17 +1070,15 @@ VTK_THREAD_RETURN_TYPE RayCast_RenderImage( void *arg )
       // Loop through each pixel in this row
       for ( i = 0; i < raycaster->ImageSize[0]; i++ )
 	{
-	k = raycaster->RayCastVolumeCount;
-
 	// If we have nothing in the rgba and z buffers, we want to
 	// cast the ray all the way until the far clipping plane
 	if ( raycaster->FirstBlend )
 	  {
 	  farplane = farclip;
-	  red[k]   = 0.0;
-	  green[k] = 0.0;
-	  blue[k]  = 0.0;
-	  alpha[k] = 0.0;
+	  red[0]   = raycaster->Background[0];
+	  green[0] = raycaster->Background[1];
+	  blue[0]  = raycaster->Background[2];
+	  alpha[0] = 1.0;
 	  }
 	// If we have something in the rgba and z buffers, then we only
 	// want to cast the ray until it reaches the z value stored in
@@ -965,14 +1095,14 @@ VTK_THREAD_RETURN_TYPE RayCast_RenderImage( void *arg )
 	    farplane = -zm23 / (((*zptr)*2.0 -1.0)*zm32 + zm33 );
 	    }
 
-	  red[k]   = *iptr;
-	  green[k] = *(iptr+1);
-	  blue[k]  = *(iptr+2);
-	  alpha[k] = 1.0;
+	  red[0]   = *iptr;
+	  green[0] = *(iptr+1);
+	  blue[0]  = *(iptr+2);
+	  alpha[0] = 1.0;
 	  }
 
 	// This far sample is at the far plane
-	depth[k] = farplane;
+	depth[0] = farplane;
 
 	// If we have an orthographic projection, the origin must be computed.
 	if ( raycaster->ParallelProjection )
@@ -995,72 +1125,68 @@ VTK_THREAD_RETURN_TYPE RayCast_RenderImage( void *arg )
 	rayInfo.RayPixel[1] = j;
 	rayInfo.RayPixel[0] = i;
 
+	icount = 1;
+
 	// For each volume we need to cast this ray
 	for ( k = 0; k < raycaster->RayCastVolumeCount; k++ )
 	  {
-	  // In an orthographic projection, near and far remain unchanged
-	  if ( raycaster->ParallelProjection )
+	  if ( i >= raycaster->VolumeInfo[k].RowBounds[2*j+0] &&
+	       i <= raycaster->VolumeInfo[k].RowBounds[2*j+1] )
 	    {
-	    rayInfo.RayNearClip = nearclip;
-	    rayInfo.RayFarClip  = farplane;
-	    }
-	  // In a perspective projection we must divide near and far by the
-	  // z component of the view ray to account for the fact that this
-	  // distance is a distance to a plane and we want the distance to
-	  // the view origin
-	  else
-	    {
-	    rayInfo.RayNearClip = nearclip / -ray_ptr[2];
-	    rayInfo.RayFarClip  = farplane / -ray_ptr[2];
-	    }
+	    // In an orthographic projection, near and far remain unchanged
+	    if ( raycaster->ParallelProjection )
+	      {
+	      rayInfo.RayNearClip = nearclip;
+	      rayInfo.RayFarClip  = farplane;
+	      }
+	    // In a perspective projection we must divide near and far by the
+	    // z component of the view ray to account for the fact that this
+	    // distance is a distance to a plane and we want the distance to
+	    // the view origin
+	    else
+	      {
+	      rayInfo.RayNearClip = nearclip / -ray_ptr[2];
+	      rayInfo.RayFarClip  = farplane / -ray_ptr[2];
+	      }
 
-	  // Cast the ray and gather the resulting values.
-	  mapper[k]->CastViewRay( &rayInfo, &raycaster->VolumeInfo[k] );
-	  red[k]   = rayInfo.RayColor[0];
-	  green[k] = rayInfo.RayColor[1];
-	  blue[k]  = rayInfo.RayColor[2];
-	  alpha[k] = rayInfo.RayColor[3];
-	  if ( raycaster->ParallelProjection )
-	    {
-	    depth[k] = rayInfo.RayDepth + nearclip;
-	    }
-	  else
-	    {
-	    depth[k] = rayInfo.RayDepth + nearclip / -ray_ptr[2];
-	    }
+	    // Cast the ray and gather the resulting values.
+	    mapper[k]->CastViewRay( &rayInfo, &raycaster->VolumeInfo[k] );
+	    red[icount]   = rayInfo.RayColor[0];
+	    green[icount] = rayInfo.RayColor[1];
+	    blue[icount]  = rayInfo.RayColor[2];
+	    alpha[icount] = rayInfo.RayColor[3];
+	    if ( raycaster->ParallelProjection )
+	      {
+	      depth[icount] = rayInfo.RayDepth + nearclip;
+	      }
+	    else
+	      {
+	      depth[icount] = rayInfo.RayDepth + nearclip / -ray_ptr[2];
+	      }
 	  
-	  // Bubble it up - we want to have the samples ordered from
-	  // closest to farthest
-	  q = k;
-	  while ( q > 0 && depth[q] < depth[q-1] )
-	    {
-	    VTK_SWAP_VALUES(   red[q],   red[q-1], tmp );
-	    VTK_SWAP_VALUES( green[q], green[q-1], tmp );
-	    VTK_SWAP_VALUES(  blue[q],  blue[q-1], tmp );
-	    VTK_SWAP_VALUES( alpha[q], alpha[q-1], tmp );
-	    VTK_SWAP_VALUES( depth[q], depth[q-1], tmp );
-	    q--;
+	    // Bubble it down - we want to have the samples ordered from
+	    // farthest to closest
+	    q = icount;
+	    while ( q > 1 && depth[q] > depth[q-1] )
+	      {
+	      VTK_SWAP_VALUES(   red[q],   red[q-1], tmp );
+	      VTK_SWAP_VALUES( green[q], green[q-1], tmp );
+	      VTK_SWAP_VALUES(  blue[q],  blue[q-1], tmp );
+	      VTK_SWAP_VALUES( alpha[q], alpha[q-1], tmp );
+	      VTK_SWAP_VALUES( depth[q], depth[q-1], tmp );
+	      q--;
+	      }
+	    icount++;
 	    }
 	  }
 
-	// Merge the colors together in back to front order. We may need to
-	// blend the background if there was no hardware rendering before this
-	if ( raycaster->NeedBackgroundBlend )
-	  {
-	  r = raycaster->Background[0];
-	  g = raycaster->Background[1];
-	  b = raycaster->Background[2];
-	  }
-	else
-	  {
-	  r = 0.0;
-	  g = 0.0;
-	  b = 0.0;
-	  }
-	
-	// Do the alpha compositing
-	remaining_a = 1.0;
-	for ( k = raycaster->RayCastVolumeCount; k >= 0; k-- )
+	// Merge the colors together in back to front order. 
+	r = red[0];
+	g = green[0];
+	b = blue[0];	
+	remaining_a = alpha[0];
+
+	for ( k = 1; k < icount; k++ )
 	  {
 	  r = red[k]   + (1.0 - alpha[k]) * r;
 	  g = green[k] + (1.0 - alpha[k]) * g;
