@@ -50,10 +50,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkSTLWriter_h
 
 #include <stdio.h>
-#include "vtkWriter.hh"
+#include "vtkPolyWriter.hh"
 #include "vtkPolyData.hh"
 
-class vtkSTLWriter : public vtkWriter
+class vtkSTLWriter : public vtkPolyWriter
 {
 public:
   vtkSTLWriter();
@@ -61,10 +61,6 @@ public:
   char *GetClassName() {return "vtkSTLWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  void SetInput(vtkPolyData *input);
-  void SetInput(vtkPolyData &input) {this->SetInput(&input);};
-  vtkPolyData *GetInput() {return (vtkPolyData *)this->Input;};
-                               
   // Description:
   // Specify the name of the file to write.
   vtkSetStringMacro(Filename);

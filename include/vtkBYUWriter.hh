@@ -51,10 +51,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkBYUWriter_h
 
 #include <stdio.h>
-#include "vtkWriter.hh"
+#include "vtkPolyWriter.hh"
 #include "vtkPolyData.hh"
 
-class vtkBYUWriter : public vtkWriter
+class vtkBYUWriter : public vtkPolyWriter
 {
 public:
   vtkBYUWriter();
@@ -62,10 +62,6 @@ public:
   char *GetClassName() {return "vtkBYUWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  void SetInput(vtkPolyData *input);
-  void SetInput(vtkPolyData &input) {this->SetInput(&input);};
-  vtkPolyData *GetInput() {return (vtkPolyData *)this->Input;};
-                               
   // Description:
   // Specify the name of the geometry file to write.
   vtkSetStringMacro(GeometryFilename);
