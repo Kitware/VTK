@@ -364,6 +364,7 @@ void vtkDelaunay2D::Execute()
         Mesh->ReplaceCell(tri[0], 3, nodes[0]);
         nodes[1][0] = ptId; nodes[1][1] = p2; nodes[1][2] = nei[1];
         Mesh->ReplaceCell(nei[0], 3, nodes[1]);
+	Mesh->ResizeCellList(ptId, 2);
         Mesh->AddReferenceToCell(ptId,tri[0]);
         Mesh->AddReferenceToCell(ptId,nei[0]);
 
