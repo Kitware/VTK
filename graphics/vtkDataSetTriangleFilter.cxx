@@ -88,16 +88,16 @@ void vtkDataSetTriangleFilter::StructuredExecute()
 {
   vtkDataSet *input = this->GetInput();
   vtkUnstructuredGrid *output = this->GetOutput();
-  int dimensions[3], i, j, k, l, m, inId;
-  int newCellId;
+  int dimensions[3], i, j, k, l, m;
+  vtkIdType newCellId, inId;
   vtkGenericCell *cell = vtkGenericCell::New();
   vtkCellData *inCD = input->GetCellData();
   vtkCellData *outCD = output->GetCellData();
   vtkPoints *cellPts = vtkPoints::New();
   vtkPoints *newPoints = vtkPoints::New();
   vtkIdList *cellPtIds = vtkIdList::New();
-  int num, numSimplices, numPts, dim, type;
-  vtkIdType pts[4];
+  int numSimplices, numPts, dim, type;
+  vtkIdType pts[4], num;
   
   // Create an array of points. This does an explicit creation
   // of each point.
@@ -189,14 +189,16 @@ void vtkDataSetTriangleFilter::UnstructuredExecute()
 {
   vtkPointSet *input = (vtkPointSet*) this->GetInput(); //has to be
   vtkUnstructuredGrid *output = this->GetOutput();
-  int numCells = input->GetNumberOfCells();
+  vtkIdType numCells = input->GetNumberOfCells();
   vtkGenericCell *cell = vtkGenericCell::New();
-  int i, j, k, newCellId;
+  vtkIdType newCellId, i, j;
+  int k;
   vtkCellData *inCD=input->GetCellData();
   vtkCellData *outCD=output->GetCellData();
   vtkPoints *cellPts = vtkPoints::New();
   vtkIdList *cellPtIds = vtkIdList::New();
-  int type, ptId, ncells, numTets;
+  vtkIdType ptId, numTets, ncells;
+  int type;
   int npts, numSimplices, dim;
   vtkIdType pts[4];
   float *xPtr;

@@ -81,15 +81,16 @@ void vtkEdgePoints::Execute()
   vtkScalars *inScalars;
   vtkPoints *newPts;
   vtkCellArray *newVerts;
-  int cellId, above, below, ptId, i, numEdges, edgeId, newCellId;
+  vtkIdType cellId, ptId, edgeId, newCellId;
+  int above, below, i, numEdges;
   vtkCell *edge;
   float range[2];
   float s0, s1, x0[3], x1[3], x[3], t;
   float e0Scalar, deltaScalar;
   int e0, e1;
-  int p1, p2;
+  vtkIdType p1, p2;
   vtkIdType pts[1];
-  int numCells, estimatedSize;
+  vtkIdType numCells, estimatedSize;
   vtkDataSet *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
   vtkScalars *cellScalars;
@@ -114,7 +115,7 @@ void vtkEdgePoints::Execute()
     }
 
   numCells = input->GetNumberOfCells();
-  estimatedSize = (int) (numCells * .75);
+  estimatedSize = (vtkIdType) (numCells * .75);
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
   if (estimatedSize < 1024)
     {
@@ -140,7 +141,7 @@ void vtkEdgePoints::Execute()
   // yet been visited and is processed.
   //
   int abort=0;
-  int progressInterval = numCells/20 + 1;
+  vtkIdType progressInterval = numCells/20 + 1;
   vtkGenericCell *cell = vtkGenericCell::New();
   for (cellId=0; cellId < numCells && !abort; cellId++)
     {

@@ -59,14 +59,16 @@ vtkButterflySubdivisionFilter* vtkButterflySubdivisionFilter::New()
   return new vtkButterflySubdivisionFilter;
 }
 
-void vtkButterflySubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inputDS, vtkIntArray *edgeData, vtkPoints *outputPts, vtkPointData *outputPD)
+void vtkButterflySubdivisionFilter::GenerateSubdivisionPoints(
+  vtkPolyData *inputDS, vtkIntArray *edgeData, vtkPoints *outputPts,
+  vtkPointData *outputPD)
 {
   float *weights, *weights1, *weights2;
   vtkIdType *pts;
-  int cellId, edgeId, newId;
-  int i, j;
+  vtkIdType cellId, newId, i, j;
+  int edgeId;
   vtkIdType npts;
-  int p1, p2;
+  vtkIdType p1, p2;
   int valence1, valence2;
   vtkCellArray *inputPolys=inputDS->GetPolys();
   vtkEdgeTable *edgeTable;
@@ -147,7 +149,8 @@ void vtkButterflySubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inpu
 	    this->GenerateLoopStencil (p1, p2,
 				       inputDS, stencil2, weights2);
 	    // combine the two stencils and halve the weights
-	    int total = stencil1->GetNumberOfIds() + stencil2->GetNumberOfIds();
+	    vtkIdType total = stencil1->GetNumberOfIds() +
+              stencil2->GetNumberOfIds();
 	    stencil->SetNumberOfIds (total);
 
 	    j = 0;
@@ -188,13 +191,14 @@ void vtkButterflySubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inpu
   p2CellIds->Delete();
 }
 
-void vtkButterflySubdivisionFilter::GenerateLoopStencil (int p1, int p2, vtkPolyData *polys, vtkIdList *stencilIds, float *weights)
+void vtkButterflySubdivisionFilter::GenerateLoopStencil(
+  vtkIdType p1, vtkIdType p2, vtkPolyData *polys, vtkIdList *stencilIds,
+  float *weights)
 {
   vtkIdList *cellIds = vtkIdList::New();
   vtkCell *cell;
   int j;
-  int startCell, nextCell;
-  int p, tp2;
+  vtkIdType startCell, nextCell, tp2, p;
   int shift[255];
   int processed = 0;
   int boundary = 0;
@@ -294,9 +298,9 @@ void vtkButterflySubdivisionFilter::GenerateLoopStencil (int p1, int p2, vtkPoly
   cellIds->Delete();
 }
 
-void vtkButterflySubdivisionFilter::GenerateBoundaryStencil
-    (int p1, int p2, vtkPolyData *polys,
-     vtkIdList *stencilIds, float *weights)
+void vtkButterflySubdivisionFilter::GenerateBoundaryStencil(
+  vtkIdType p1, vtkIdType p2, vtkPolyData *polys, vtkIdList *stencilIds,
+  float *weights)
 {
   vtkIdList *cellIds = vtkIdList::New();
   vtkIdType *cells;
@@ -304,7 +308,7 @@ void vtkButterflySubdivisionFilter::GenerateBoundaryStencil
   vtkIdType *pts;
   vtkIdType npts;
   int i, j;
-  int p0, p3;
+  vtkIdType p0, p3;
 
   // find a boundary edge that uses p1 other than the one containing p2
   polys->GetPointCells (p1, ncells, cells);
@@ -359,13 +363,15 @@ void vtkButterflySubdivisionFilter::GenerateBoundaryStencil
   cellIds->Delete();
 }
 
-void vtkButterflySubdivisionFilter::GenerateButterflyStencil (int p1, int p2, vtkPolyData *polys, vtkIdList *stencilIds, float *weights)
+void vtkButterflySubdivisionFilter::GenerateButterflyStencil (
+  vtkIdType p1, vtkIdType p2, vtkPolyData *polys, vtkIdList *stencilIds,
+  float *weights)
 {
   vtkIdList *cellIds = vtkIdList::New();
   vtkCell *cell;
   int i;
-  int cell0, cell1;
-  int p, p3, p4, p5, p6, p7, p8;
+  vtkIdType cell0, cell1;
+  vtkIdType p, p3, p4, p5, p6, p7, p8;
 
   polys->GetCellEdgeNeighbors (-1, p1, p2, cellIds);
   cell0 = cellIds->GetId(0);

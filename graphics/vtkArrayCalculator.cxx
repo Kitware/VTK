@@ -159,7 +159,8 @@ void vtkArrayCalculator::Execute()
 {
   int resultType; // 0 for scalar, 1 for vector
   int attributeDataType; // 0 for point data, 1 for cell data
-  int i, j;
+  vtkIdType i;
+  int j;
   
   vtkDataSet* input = this->GetInput();
   vtkDataSet* output = this->GetOutput();
@@ -168,7 +169,7 @@ void vtkArrayCalculator::Execute()
   vtkFieldData* inFD;
   vtkDataArray* currentArray;
   vtkDoubleArray* resultArray;
-  int numPts = input->GetNumberOfPoints();
+  vtkIdType numPts = input->GetNumberOfPoints();
   double scalarResult[1];
   
   if (this->AttributeMode == VTK_ATTRIBUTE_MODE_DEFAULT)

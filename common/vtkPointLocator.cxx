@@ -1272,7 +1272,7 @@ int vtkPointLocator::InitPointInsertion(vtkPoints *newPts,
 // data. Bounds are the box that the points lie in.
 int vtkPointLocator::InitPointInsertion(vtkPoints *newPts,
 					const float bounds[6],
-                                        int estNumPts)
+                                        vtkIdType estNumPts)
 {
   int i;
   int maxDivs;

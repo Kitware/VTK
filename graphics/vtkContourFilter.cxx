@@ -122,7 +122,8 @@ unsigned long vtkContourFilter::GetMTime()
 //
 void vtkContourFilter::Execute()
 {
-  int cellId, i, abortExecute=0;
+  vtkIdType cellId;
+  int i, abortExecute=0;
   vtkIdList *cellPts;
   vtkScalars *inScalars;
   float range[2];
@@ -130,7 +131,7 @@ void vtkContourFilter::Execute()
   vtkPoints *newPts;
   vtkDataSet *input=this->GetInput();
   vtkPolyData *output=this->GetOutput();
-  int numCells, estimatedSize;
+  vtkIdType numCells, estimatedSize;
   vtkPointData *inPd=input->GetPointData(), *outPd=output->GetPointData();
   vtkCellData *inCd=input->GetCellData(), *outCd=output->GetCellData();
   int numContours=this->ContourValues->GetNumberOfContours();
@@ -172,7 +173,7 @@ void vtkContourFilter::Execute()
     // Create objects to hold output of contour operation. First estimate
     // allocation size.
     //
-    estimatedSize = (int) pow ((double) numCells, .75);
+    estimatedSize = (vtkIdType) pow ((double) numCells, .75);
     estimatedSize *= numContours;
     estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
     if (estimatedSize < 1024)

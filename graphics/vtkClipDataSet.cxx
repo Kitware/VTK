@@ -126,8 +126,8 @@ void vtkClipDataSet::Execute()
   vtkDataSet *input = this->GetInput();
   vtkUnstructuredGrid *output = this->GetOutput();
   vtkUnstructuredGrid *clippedOutput = this->GetClippedOutput();
-  int numPts = input->GetNumberOfPoints();
-  int numCells = input->GetNumberOfCells();
+  vtkIdType numPts = input->GetNumberOfPoints();
+  vtkIdType numCells = input->GetNumberOfCells();
   vtkPointData *inPD=input->GetPointData(), *outPD = output->GetPointData();
   vtkCellData *inCD=input->GetCellData();
   vtkCellData *outCD[2];
@@ -140,8 +140,9 @@ void vtkClipDataSet::Execute()
   vtkIdType npts;
   vtkIdType *pts;
   int cellType = 0;
-  int i, j;
-  int estimatedSize;
+  vtkIdType i;
+  int j;
+  vtkIdType estimatedSize;
   vtkUnsignedCharArray *types[2];
   vtkIntArray *locs[2];
   int numOutputs = 1;
@@ -249,11 +250,11 @@ void vtkClipDataSet::Execute()
   //Process all cells and clip each in turn
   //
   int abort=0;
-  int updateTime = numCells/20 + 1;  // update roughly every 5%
+  vtkIdType updateTime = numCells/20 + 1;  // update roughly every 5%
   vtkGenericCell *cell = vtkGenericCell::New();
   int num[2]; num[0]=num[1]=0;
   int numNew[2]; numNew[0]=numNew[1]=0;
-  for (int cellId=0; cellId < numCells && !abort; cellId++)
+  for (vtkIdType cellId=0; cellId < numCells && !abort; cellId++)
     {
     if ( !(cellId % updateTime) )
       {

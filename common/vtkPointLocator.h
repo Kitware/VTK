@@ -121,7 +121,7 @@ public:
   // place their data. Bounds are the box that the points lie in.
   // Not thread safe.
   virtual int InitPointInsertion(vtkPoints *newPts, const float bounds[6], 
-				 int estSize);
+				 vtkIdType estSize);
 
   // Description:
   // Incrementally insert a point into search structure with a particular

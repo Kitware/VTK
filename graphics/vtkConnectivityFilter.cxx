@@ -90,8 +90,7 @@ vtkConnectivityFilter::~vtkConnectivityFilter()
 
 void vtkConnectivityFilter::Execute()
 {
-  int cellId, i, j, pt, newCellId;
-  int numPts, numCells;
+  vtkIdType numPts, numCells, cellId, newCellId, i, j, pt;
   vtkPoints *newPts;
   int id;
   int maxCellsInRegion;
@@ -131,12 +130,12 @@ void vtkConnectivityFilter::Execute()
   // Initialize.  Keep track of points and cells visited.
   //
   this->RegionSizes->Reset();
-  this->Visited = new int[numCells];
+  this->Visited = new vtkIdType[numCells];
   for ( i=0; i < numCells; i++ )
     {
     this->Visited[i] = -1;
     }
-  this->PointMap = new int[numPts];  
+  this->PointMap = new vtkIdType[numPts];  
   for ( i=0; i < numPts; i++ )
     {
     this->PointMap[i] = -1;
@@ -228,7 +227,7 @@ void vtkConnectivityFilter::Execute()
     else if ( this->ExtractionMode == VTK_EXTRACT_CLOSEST_POINT_REGION )
       {//loop over points, find closest one
       float minDist2, dist2, x[3];
-      int minId = 0;
+      vtkIdType minId = 0;
       for (minDist2=VTK_LARGE_FLOAT, i=0; i<numPts; i++)
         {
         input->GetPoint(i,x);
@@ -476,14 +475,14 @@ void vtkConnectivityFilter::InitializeSeedList()
 }
 
 // Add a seed id (point or cell id). Note: ids are 0-offset.
-void vtkConnectivityFilter::AddSeed(int id)
+void vtkConnectivityFilter::AddSeed(vtkIdType id)
 {
   this->Modified();
   this->Seeds->InsertNextId(id);
 }
 
 // Delete a seed id (point or cell id). Note: ids are 0-offset.
-void vtkConnectivityFilter::DeleteSeed(int id)
+void vtkConnectivityFilter::DeleteSeed(vtkIdType id)
 {
   this->Modified();
   this->Seeds->DeleteId(id);

@@ -241,7 +241,7 @@ public:
   // Get the neighbors at an edge. More efficient than the general 
   // GetCellNeighbors(). Assumes links have been built (with BuildLinks()), 
   // and looks specifically for edge neighbors.
-  void GetCellEdgeNeighbors(vtkIdType cellId, int p1, int p2,
+  void GetCellEdgeNeighbors(vtkIdType cellId, vtkIdType p1, vtkIdType p2,
                             vtkIdList *cellIds);
 
   // Description:

@@ -109,17 +109,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Special structures for building loops
 typedef struct _vtkProLocalVertex 
   {
-  int     id;
+  vtkIdType     id;
   float   x[3];
   float   FAngle;
   } vtkProLocalVertex, *vtkProLocalVertexPtr;
     
 typedef struct _vtkProLocalTri
   {
-  int     id;
+  vtkIdType     id;
   float   area;
   float   n[3];
-  int     verts[3];
+  vtkIdType     verts[3];
   } vtkProLocalTri, *vtkProLocalTriPtr;
 
 //
@@ -129,7 +129,7 @@ typedef struct _vtkProLocalTri
 //
 class vtkProVertexArray { //;prevent man page generation
 public:
-  vtkProVertexArray(const int sz) 
+  vtkProVertexArray(const vtkIdType sz) 
     {this->MaxId = -1; this->Array = new vtkProLocalVertex[sz];};
   ~vtkProVertexArray()
     {
@@ -138,19 +138,19 @@ public:
       delete [] this->Array;
       }
     };
-  int GetNumberOfVertices() {return this->MaxId + 1;};
+  vtkIdType GetNumberOfVertices() {return this->MaxId + 1;};
   void InsertNextVertex(vtkProLocalVertex& v) 
     {this->MaxId++; this->Array[this->MaxId] = v;};
-  vtkProLocalVertex& GetVertex(int i) {return this->Array[i];};
+  vtkProLocalVertex& GetVertex(vtkIdType i) {return this->Array[i];};
   void Reset() {this->MaxId = -1;};
 
   vtkProLocalVertex *Array; // pointer to data
-  int MaxId;             // maximum index inserted thus far
+  vtkIdType MaxId;             // maximum index inserted thus far
 };
 
 class vtkProTriArray { //;prevent man page generation
 public:
-  vtkProTriArray(const int sz) 
+  vtkProTriArray(const vtkIdType sz) 
     {this->MaxId = -1; this->Array = new vtkProLocalTri[sz];};
   ~vtkProTriArray()
     {
@@ -159,14 +159,14 @@ public:
 	delete [] this->Array;
 	}
     };
-  int GetNumberOfTriangles() {return this->MaxId + 1;};
+  vtkIdType GetNumberOfTriangles() {return this->MaxId + 1;};
   void InsertNextTriangle(vtkProLocalTri& t) 
     {this->MaxId++; this->Array[this->MaxId] = t;};
-  vtkProLocalTri& GetTriangle(int i) {return this->Array[i];};
+  vtkProLocalTri& GetTriangle(vtkIdType i) {return this->Array[i];};
   void Reset() {this->MaxId = -1;};
 
   vtkProLocalTri *Array;  // pointer to data
-  int MaxId;           // maximum index inserted thus far
+  vtkIdType MaxId;           // maximum index inserted thus far
 };
 //ETX - end tcl exclude
 //
@@ -299,7 +299,7 @@ public:
   // values at each inflection point. Note: the first inflection point always
   // occurs right before non-planar triangles are decimated (i.e., as the
   // error becomes non-zero).
-  int GetNumberOfInflectionPoints();
+  vtkIdType GetNumberOfInflectionPoints();
 
   // Description:
   // Get a list of inflection points. These are float values 0 < r <= 1.0 
@@ -344,20 +344,21 @@ protected:
   vtkPriorityQueue *EdgeLengths;
 
   void SplitMesh();
-  int EvaluateVertex(int ptId, unsigned short int numTris, vtkIdType *tris,
-                     int fedges[2]);
-  int FindSplit(int type, int fedges[2], int& pt1, int& pt2,
-                vtkIdList *CollapseTris);
+  int EvaluateVertex(vtkIdType ptId, unsigned short int numTris,
+                     vtkIdType *tris, vtkIdType fedges[2]);
+  vtkIdType FindSplit(int type, vtkIdType fedges[2], vtkIdType& pt1,
+                      vtkIdType& pt2, vtkIdList *CollapseTris);
   int IsValidSplit(int index);
-  void SplitLoop(int fedges[2], int& n1, int *l1, int& n2, int *l2);
-  void SplitVertex(int ptId,int type, unsigned short int numTris,
+  void SplitLoop(vtkIdType fedges[2], vtkIdType& n1, vtkIdType *l1,
+                 vtkIdType& n2, vtkIdType *l2);
+  void SplitVertex(vtkIdType ptId,int type, unsigned short int numTris,
                    vtkIdType *tris, int insert);
-  int CollapseEdge(int type, int ptId, int collapseId, int pt1, int pt2,
-                   vtkIdList *CollapseTris);
+  int CollapseEdge(int type, vtkIdType ptId, vtkIdType collapseId,
+                   vtkIdType pt1, vtkIdType pt2, vtkIdList *CollapseTris);
   void DistributeError(float error);
 
 private:
-  void InitializeQueue(int numPts);
+  void InitializeQueue(vtkIdType numPts);
   void DeleteQueue()
     {
       if (this->Queue)
@@ -365,9 +366,9 @@ private:
        this->Queue->Delete();
       }
       this->Queue=NULL;};
-  void Insert(int id, float error= -1.0);
+  void Insert(vtkIdType id, float error= -1.0);
   int Pop(float &error);
-  float DeleteId(int id) {return this->Queue->DeleteId(id);};
+  float DeleteId(vtkIdType id) {return this->Queue->DeleteId(id);};
   void Reset() {this->Queue->Reset();};
 
   vtkPriorityQueue *Queue;
@@ -388,7 +389,7 @@ private:
   int NumMerges;    //Number of times vertex merges occur
   int Split;        //Controls whether and when vertex splitting occurs
   int VertexDegree; //Maximum number of triangles that can use a vertex
-  int NumberOfRemainingTris; //Number of triangles left in the mesh
+  vtkIdType NumberOfRemainingTris; //Number of triangles left in the mesh
   float TheSplitAngle; //Split angle
   int SplitState;   //State of the splitting process
   float Error;      //Maximum allowable surface error

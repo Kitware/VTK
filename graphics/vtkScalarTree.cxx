@@ -314,7 +314,7 @@ int vtkScalarTree::FindNextLeaf(int childIndex, int childLevel)
 // initialize traversal. The value NULL is returned if the list is
 // exhausted. Make sure that InitTraversal() has been invoked first or
 // you'll get erratic behavior.
-vtkCell *vtkScalarTree::GetNextCell(int& cellId, vtkIdList* &cellPts,
+vtkCell *vtkScalarTree::GetNextCell(vtkIdType& cellId, vtkIdList* &cellPts,
                                     vtkScalars *cellScalars)
 {
   float *s, min=VTK_LARGE_FLOAT, max=(-VTK_LARGE_FLOAT);

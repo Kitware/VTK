@@ -84,10 +84,11 @@ void vtkExtractEdges::Execute()
   vtkPolyData *output= this->GetOutput();
   vtkPoints *newPts;
   vtkCellArray *newLines;
-  int numCells, cellNum, edgeNum, numEdgePts, numCellEdges;
-  int numPts, i, pt2, newId;
+  vtkIdType numCells, cellNum, numPts, newId;
+  int edgeNum, numEdgePts, numCellEdges;
+  int i;
   vtkIdType pts[2];
-  int pt1 = 0;
+  vtkIdType pt1 = 0, pt2;
   float *x;
   vtkEdgeTable *edgeTable;
   vtkCell *cell, *edge;

@@ -117,20 +117,22 @@ static void vtkContourGridExecute(vtkContourGrid *self,
                                   vtkPointLocator *locator, int computeScalars,
                                   int useScalarTree,vtkScalarTree *&scalarTree)
 {
-  int cellId, i, abortExecute=0;
+  vtkIdType cellId, i;
+  int abortExecute=0;
   vtkPolyData *output=self->GetOutput();
   vtkIdList *cellPts;
   vtkCell *cell;
   float range[2];
   vtkCellArray *newVerts, *newLines, *newPolys;
   vtkPoints *newPts;
-  int numCells, estimatedSize;
+  vtkIdType numCells, estimatedSize;
   vtkPointData *inPd=input->GetPointData(), *outPd=output->GetPointData();
   vtkCellData *inCd=input->GetCellData(), *outCd=output->GetCellData();
   vtkScalars *cellScalars;
   vtkUnstructuredGrid *grid = (vtkUnstructuredGrid *)input;
   //In this case, we know that the input is an unstructured grid.
-  int numPoints, needCell = 0, cellArrayIt = 0;
+  vtkIdType numPoints, cellArrayIt = 0;
+  int needCell = 0;
   vtkIdType *cellArrayPtr;
   T tempScalar;
 
@@ -140,7 +142,7 @@ static void vtkContourGridExecute(vtkContourGrid *self,
   // Create objects to hold output of contour operation. First estimate
   // allocation size.
   //
-  estimatedSize = (int) pow ((double) numCells, .75);
+  estimatedSize = (vtkIdType) pow ((double) numCells, .75);
   estimatedSize *= numContours;
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
   if (estimatedSize < 1024)
@@ -299,7 +301,7 @@ void vtkContourGrid::Execute()
   vtkScalars *inScalars;
   vtkDataSet *input=this->GetInput();
   void *scalarArrayPtr;
-  int numCells;
+  vtkIdType numCells;
   int numContours = this->ContourValues->GetNumberOfContours();
   float *values = this->ContourValues->GetValues();
   int computeScalars = this->ComputeScalars;
@@ -388,4 +390,3 @@ void vtkContourGrid::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Locator: (none)\n";
     }
 }
-

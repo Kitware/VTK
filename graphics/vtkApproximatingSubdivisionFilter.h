@@ -72,11 +72,17 @@ protected:
   void operator=(const vtkApproximatingSubdivisionFilter&) {};
 
   void Execute();
-  virtual void GenerateSubdivisionPoints (vtkPolyData *inputDS, vtkIntArray *edgeData, vtkPoints *outputPts, vtkPointData *outputPD) = 0;
-  void GenerateSubdivisionCells (vtkPolyData *inputDS, vtkIntArray *edgeData, vtkCellArray *outputPolys, vtkCellData *outputCD);
-  int FindEdge (vtkPolyData *mesh, int cellId, int p1, int p2,
-		vtkIntArray *edgeData, vtkIdList *cellIds);
-  int InterpolatePosition (vtkPoints *inputPts, vtkPoints *outputPts, vtkIdList *stencil, float *weights);
+  virtual void GenerateSubdivisionPoints (vtkPolyData *inputDS,
+                                          vtkIntArray *edgeData,
+                                          vtkPoints *outputPts,
+                                          vtkPointData *outputPD) = 0;
+  void GenerateSubdivisionCells (vtkPolyData *inputDS, vtkIntArray *edgeData,
+                                 vtkCellArray *outputPolys,
+                                 vtkCellData *outputCD);
+  int FindEdge (vtkPolyData *mesh, vtkIdType cellId, vtkIdType p1,
+                vtkIdType p2, vtkIntArray *edgeData, vtkIdList *cellIds);
+  vtkIdType InterpolatePosition (vtkPoints *inputPts, vtkPoints *outputPts,
+                                 vtkIdList *stencil, float *weights);
   int NumberOfSubdivisions;
 };
 

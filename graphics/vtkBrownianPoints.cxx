@@ -65,7 +65,8 @@ vtkBrownianPoints::vtkBrownianPoints()
 
 void vtkBrownianPoints::Execute()
 {
-  int i, j, numPts;
+  vtkIdType i, numPts;
+  int j;
   vtkFloatArray *newVectors;
   float v[3], norm, speed;
   vtkDataSet *input= this->GetInput();

@@ -175,7 +175,7 @@ int vtkInterpolatingSubdivisionFilter::FindEdge (vtkPolyData *mesh, int cellId, 
     return (int) edgeData->GetComponent(currentCellId,edgeId);
 }
 
-int vtkInterpolatingSubdivisionFilter::InterpolatePosition (
+vtkIdType vtkInterpolatingSubdivisionFilter::InterpolatePosition (
         vtkPoints *inputPts, vtkPoints *outputPts,
 	vtkIdList *stencil, float *weights)
 {

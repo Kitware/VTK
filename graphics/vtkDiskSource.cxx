@@ -71,7 +71,7 @@ vtkDiskSource::vtkDiskSource()
 
 void vtkDiskSource::Execute()
 {
-  int numPolys, numPts;
+  vtkIdType numPolys, numPts;
   float x[3];
   int i, j;
   vtkIdType pts[4];

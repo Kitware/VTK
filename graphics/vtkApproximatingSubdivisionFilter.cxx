@@ -53,7 +53,7 @@ vtkApproximatingSubdivisionFilter::vtkApproximatingSubdivisionFilter()
 
 void vtkApproximatingSubdivisionFilter::Execute()
 {
-  int numCells, numPts;
+  vtkIdType numCells, numPts;
   int level;
   vtkPoints *outputPts;
 
@@ -156,7 +156,7 @@ void vtkApproximatingSubdivisionFilter::Execute()
     { // filter the ghost cells.
     vtkIdList *idList = vtkIdList::New();
     vtkCellArray *tmpPolys = vtkCellArray::New();
-    int idx, num;
+    vtkIdType idx, num;
 
     // Build up an id list.
     num = inputDS->GetNumberOfCells();
@@ -187,14 +187,18 @@ void vtkApproximatingSubdivisionFilter::Execute()
   inputDS->Delete();
 }
 
-int vtkApproximatingSubdivisionFilter::FindEdge (vtkPolyData *mesh, int cellId, int p1, int p2, vtkIntArray *edgeData, vtkIdList *cellIds)
+int vtkApproximatingSubdivisionFilter::FindEdge (vtkPolyData *mesh,
+                                                 vtkIdType cellId,
+                                                 vtkIdType p1, vtkIdType p2,
+                                                 vtkIntArray *edgeData,
+                                                 vtkIdList *cellIds)
 {
  
   int edgeId = 0;
-  int currentCellId = 0;
-  int i;
+  vtkIdType currentCellId = 0;
+  vtkIdType i;
   int numEdges;
-  int tp1, tp2;
+  vtkIdType tp1, tp2;
   vtkCell *cell;
 
   // get all the cells that use the edge (except for cellId)
@@ -223,12 +227,13 @@ int vtkApproximatingSubdivisionFilter::FindEdge (vtkPolyData *mesh, int cellId, 
     return (int) edgeData->GetComponent(currentCellId,edgeId);
 }
 
-int vtkApproximatingSubdivisionFilter::InterpolatePosition (
+vtkIdType vtkApproximatingSubdivisionFilter::InterpolatePosition (
         vtkPoints *inputPts, vtkPoints *outputPts,
 	vtkIdList *stencil, float *weights)
 {
   float *xx, x[3];
-  int i, j;
+  vtkIdType i;
+  int j;
 
   for (j = 0; j < 3; j++)
     {
@@ -247,10 +252,12 @@ int vtkApproximatingSubdivisionFilter::InterpolatePosition (
 }
 
 
-void vtkApproximatingSubdivisionFilter::GenerateSubdivisionCells (vtkPolyData *inputDS, vtkIntArray *edgeData, vtkCellArray *outputPolys, vtkCellData *outputCD)
+void vtkApproximatingSubdivisionFilter::GenerateSubdivisionCells (
+  vtkPolyData *inputDS, vtkIntArray *edgeData, vtkCellArray *outputPolys,
+  vtkCellData *outputCD)
 {
-  int numCells = inputDS->GetNumberOfCells();
-  int cellId, newId, id;
+  vtkIdType numCells = inputDS->GetNumberOfCells();
+  vtkIdType cellId, newId, id;
   vtkIdType npts;
   vtkIdType *pts;
   float edgePts[3];

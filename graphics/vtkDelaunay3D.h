@@ -178,7 +178,7 @@ public:
   // at the end of the Mesh's point list. That is, InsertPoint() assumes that
   // you will be inserting points between (0,numPtsToInsert-1).
   vtkUnstructuredGrid *InitPointInsertion(float center[3], float length, 
-                                          int numPts, vtkPoints* &pts);
+                                          vtkIdType numPts, vtkPoints* &pts);
 
   // Description:
   // This is a helper method used with InsertPoint() to create 
@@ -193,9 +193,9 @@ public:
   // Note: The points you insert using InsertPoint() will range from
   // (0,numPtsToInsert-1). Make sure that numPtsToInsert is large enough to
   // accommodate this.
-  vtkUnstructuredGrid *InitPointInsertion(int numPtsToInsert,  int numTetra,
-                          vtkPoints *boundingTetraPts, float bounds[6],
-                          vtkPoints* &pts);
+  vtkUnstructuredGrid *InitPointInsertion(vtkIdType numPtsToInsert,
+                          int numTetra, vtkPoints *boundingTetraPts,
+                          float bounds[6], vtkPoints* &pts);
   
   // Description:
   // This is a helper method used with InitPointInsertion() to create
@@ -207,7 +207,7 @@ public:
   // tetrahedra (or tetra faces and edges).The holeTetras id list lists all the
   // tetrahedra that are deleted (invalid) in the mesh structure.
   void InsertPoint(vtkUnstructuredGrid *Mesh, vtkPoints *points,
-                   int id, float x[3], vtkIdList *holeTetras);
+                   vtkIdType id, float x[3], vtkIdList *holeTetras);
 
   // Description:
   // Invoke this method after all points have been inserted. The purpose of
@@ -241,9 +241,11 @@ protected:
   vtkPointLocator *Locator;  //help locate points faster
   
   vtkTetraArray *TetraArray; //used to keep track of circumspheres/neighbors
-  int FindTetra(vtkUnstructuredGrid *Mesh, double x[3], int tetId, int depth);
-  int InSphere(double x[3], int tetraId);
-  void InsertTetra(vtkUnstructuredGrid *Mesh, vtkPoints *pts, int tetraId);
+  int FindTetra(vtkUnstructuredGrid *Mesh, double x[3], vtkIdType tetId,
+                int depth);
+  int InSphere(double x[3], vtkIdType tetraId);
+  void InsertTetra(vtkUnstructuredGrid *Mesh, vtkPoints *pts,
+                   vtkIdType tetraId);
 
   int NumberOfDuplicatePoints; //keep track of bad data
   int NumberOfDegeneracies;
@@ -251,9 +253,9 @@ protected:
   // Keep track of number of references to points to avoid new/delete calls
   int *References;
 
-  int FindEnclosingFaces(float x[3], vtkUnstructuredGrid *Mesh,
-                         vtkIdList *tetras, vtkIdList *faces, 
-                         vtkPointLocator *Locator);
+  vtkIdType FindEnclosingFaces(float x[3], vtkUnstructuredGrid *Mesh,
+                               vtkIdList *tetras, vtkIdList *faces, 
+                               vtkPointLocator *Locator);
   
 private: //members added for performance
   vtkIdList *Tetras; //used in InsertPoint
