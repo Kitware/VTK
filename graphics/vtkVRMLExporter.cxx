@@ -103,7 +103,6 @@ void vtkVRMLExporter::WriteData()
   vtkDebugMacro("Writing VRML file");
   fprintf(fp,"#VRML V2.0 utf8\n");
   fprintf(fp,"# VRML file written by the visualization toolkit\n\n");
-  fprintf(fp,"Transform {\n  children [\n");
 
   // do the camera
   cam = ren->GetActiveCamera();
@@ -117,11 +116,18 @@ void vtkVRMLExporter::WriteData()
 	  tempf[3], tempf[0]*3.1415926/180.0);
 
   // do the lights first the ambient then the others
-  fprintf(fp,"    NavigationInfo {headlight FALSE}\n");
+  fprintf(fp,"    NavigationInfo {headlight FALSE type [\"EXAMINE\",\"FLY\"] speed 4.0}\n");
   fprintf(fp,"    DirectionalLight { ambientIntensity 1 intensity 0 # ambient light\n");
   fprintf(fp,"      color %f %f %f }\n\n", ren->GetAmbient()[0],
 	  ren->GetAmbient()[1], ren->GetAmbient()[2]);
+  
+  // make sure we have a default light
   lc = ren->GetLights();
+  if (!lc->GetNextItem)
+    {
+    ren->CreateLight();
+    lc = ren->GetLights();
+    }
   for (lc->InitTraversal(); (aLight = lc->GetNextItem()); )
     {
     this->WriteALight(aLight, fp);
@@ -137,7 +143,6 @@ void vtkVRMLExporter::WriteData()
       }
     }
 
-  fprintf(fp,"  ]\n}\n");
   fclose(fp);
 }
 
