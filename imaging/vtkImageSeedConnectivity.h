@@ -110,6 +110,8 @@ protected:
   vtkImageConnector *Connector;
   int Dimensionality;
   
+  void ComputeInputUpdateExtents(vtkDataObject *out);
+
   void Execute(); 
   // Get rid of warnings.
   void Execute(vtkImageData *in, vtkImageData *out)

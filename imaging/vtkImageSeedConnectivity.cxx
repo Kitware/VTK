@@ -135,6 +135,17 @@ void vtkImageSeedConnectivity::AddSeed(int i0, int i1)
   this->AddSeed(2, index);
 }
 
+//----------------------------------------------------------------------------
+void vtkImageSeedConnectivity::ComputeInputUpdateExtents(vtkDataObject *out)
+{
+  vtkImageData *input = this->GetInput();
+
+  out = out;
+  if (input)
+    {
+    input->SetUpdateExtent(input->GetWholeExtent());
+    }
+}
 
 //----------------------------------------------------------------------------
 void vtkImageSeedConnectivity::Execute()
@@ -180,7 +191,7 @@ void vtkImageSeedConnectivity::Execute()
   //-------
   // threshold to eliminate unknown values ( only intermediate and 0)
   inData->GetIncrements(inInc0, inInc1, inInc2);
-  this->GetOutput()->GetUpdateExtent(min0, max0, min1, max1, min2, max2);
+  this->GetOutput()->GetExtent(min0, max0, min1, max1, min2, max2);
   outData->GetIncrements(outInc0, outInc1, outInc2);
   inPtr2 = (unsigned char *)(inData->GetScalarPointer(min0,min1,min2));
   outPtr2 = (unsigned char *)(outData->GetScalarPointer(min0,min1,min2));
@@ -260,7 +271,7 @@ void vtkImageSeedConnectivity::Execute()
   this->Connector->SetUnconnectedValue(temp1);
   this->Connector->SetConnectedValue(temp2);
   this->Connector->MarkData(outData, this->Dimensionality, 
-			    this->GetOutput()->GetUpdateExtent());
+			    this->GetOutput()->GetExtent());
 
   this->UpdateProgress(0.9);
   if (this->AbortExecute)
