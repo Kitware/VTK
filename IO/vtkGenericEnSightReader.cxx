@@ -935,6 +935,9 @@ void vtkGenericEnSightReader::ReplaceWildcardsHelper(char* fileName, int num)
       case 9:
 	newChar = '9';
 	break;
+      default:
+        // This case should never be reached.
+        return;
       }
     
     fileName[i + wildcardPos] = newChar;
