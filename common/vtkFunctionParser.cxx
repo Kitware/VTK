@@ -199,7 +199,7 @@ int vtkFunctionParser::Parse()
   result = this->BuildInternalFunctionStructure();
   if (!result)
     {
-    vtkErrorMacro("Error creating internal structure for parse string");
+    vtkErrorMacro("Parse: Error creating internal structure for parse string");
     return 0;
     }
   
@@ -211,7 +211,7 @@ int vtkFunctionParser::Parse()
   result = this->DisambiguateOperators();
   if (!result)
     {
-    vtkErrorMacro("Error deciding between ambiguous operators");
+    vtkErrorMacro("Parse: Error deciding between ambiguous operators");
     return 0;
     }
   
@@ -231,7 +231,7 @@ int vtkFunctionParser::Parse()
     this->Stack = new double[this->StackSize];
     if (!this->Stack)
       {
-      vtkErrorMacro("Out of memory");
+      vtkErrorMacro("Parse: Out of memory");
       return 0;
       }
     }  
@@ -634,29 +634,41 @@ void vtkFunctionParser::Evaluate()
   this->EvaluateMTime.Modified();
 }
 
-double vtkFunctionParser::GetScalarResult()
+int vtkFunctionParser::IsScalarResult()
 {
   if (this->VariableMTime.GetMTime() > this->EvaluateMTime.GetMTime() || 
       this->FunctionMTime.GetMTime() > this->EvaluateMTime.GetMTime())
     {
     this->Evaluate();
     }
-  if (this->StackPointer != 0)
+  return (this->StackPointer == 0);
+}
+
+double vtkFunctionParser::GetScalarResult()
+{
+  if (!(this->IsScalarResult()))
     {
+    vtkErrorMacro("GetScalarResult: no valid scalar result");
     return VTK_PARSER_ERROR_RESULT;
     }
   return this->Stack[0];
 }
 
-double *vtkFunctionParser::GetVectorResult()
+int vtkFunctionParser::IsVectorResult()
 {
-  if (this->VariableMTime.GetMTime() > this->EvaluateMTime.GetMTime() ||
+  if (this->VariableMTime.GetMTime() > this->EvaluateMTime.GetMTime() || 
       this->FunctionMTime.GetMTime() > this->EvaluateMTime.GetMTime())
     {
     this->Evaluate();
     }
-  if (this->StackPointer != 2)
+  return (this->StackPointer == 2);
+}
+
+double *vtkFunctionParser::GetVectorResult()
+{
+  if (!(this->IsVectorResult()))
     {
+    vtkErrorMacro("GetVectorResult: no valid vector result");
     return vtkParserVectorErrorResult;
     }
   return this->Stack;
@@ -664,7 +676,7 @@ double *vtkFunctionParser::GetVectorResult()
 
 char* vtkFunctionParser::GetScalarVariableName(int i)
 {
-  if (i < this->NumberOfScalarVariables)
+  if (i >= 0 && i < this->NumberOfScalarVariables)
     {
     return this->ScalarVariableNames[i];
     }
@@ -673,7 +685,7 @@ char* vtkFunctionParser::GetScalarVariableName(int i)
 
 char* vtkFunctionParser::GetVectorVariableName(int i)
 {
-  if (i < this->NumberOfVectorVariables)
+  if (i >= 0 && i < this->NumberOfVectorVariables)
     {
     return this->VectorVariableNames[i];
     }
@@ -796,13 +808,17 @@ double vtkFunctionParser::GetScalarVariableValue(const char* variableName)
       return this->ScalarVariableValues[i];
       }
     }
+  vtkErrorMacro("GetScalarVariableValue: scalar variable " << variableName 
+		<< " does not exist");
   return VTK_PARSER_ERROR_RESULT;
 }
 
 double vtkFunctionParser::GetScalarVariableValue(int i)
 {
-  if (i >= this->NumberOfScalarVariables)
+  if (i < 0 || i >= this->NumberOfScalarVariables)
     {
+    vtkErrorMacro("GetScalarVariableValue: scalar variable " << i 
+		  << " does not exist");
     return VTK_PARSER_ERROR_RESULT;
     }
 
@@ -914,13 +930,17 @@ double* vtkFunctionParser::GetVectorVariableValue(const char* variableName)
       return this->VectorVariableValues[i];
       }
     }
+  vtkErrorMacro("GetVectorVariableValue: vector variable " << variableName 
+		<< " does not exist");
   return vtkParserVectorErrorResult;
 }
 
 double* vtkFunctionParser::GetVectorVariableValue(int i)
 {
-  if (i >= this->NumberOfVectorVariables)
+  if (i < 0 || i >= this->NumberOfVectorVariables)
     {
+    vtkErrorMacro("GetVectorVariableValue: vector variable " << i 
+		  << " does not exist");
     return vtkParserVectorErrorResult;
     }
   return this->VectorVariableValues[i];
@@ -947,6 +967,7 @@ void vtkFunctionParser::RemoveSpaces()
   delete [] this->Function;
   this->Function = new char[this->FunctionLength];
   strncpy(this->Function, tempString, this->FunctionLength);
+  this->Function[this->FunctionLength] = '\0';
   delete [] tempString;
 }
 
@@ -1022,12 +1043,14 @@ int vtkFunctionParser::CheckSyntax()
       parenthesisCount--;
       if(parenthesisCount < 0)
         {
-        vtkErrorMacro("Mismatched parenthesis; see position " << index);
+        vtkErrorMacro("Syntax Error: mismatched parenthesis; see position " 
+		      << index);
         return 0;
         }
       if( this->Function[index - 1] == '(' )
         {
-        vtkErrorMacro("Empty parentheses; see position " << index);
+        vtkErrorMacro("Syntax Error: empty parentheses; see position " 
+		      << index);
         return 0;
         }
       currentChar = this->Function[++index];
@@ -1058,7 +1081,8 @@ int vtkFunctionParser::CheckSyntax()
   // Check that all opened parentheses are also closed
   if(parenthesisCount > 0)
     {
-    vtkErrorMacro("Missing closing parenthesis; see position " << index);
+    vtkErrorMacro("Syntax Error: missing closing parenthesis; see position " 
+		  << index);
     return 0;
     }
   
@@ -1457,8 +1481,55 @@ int vtkFunctionParser::GetOperandNumber(int currentIndex)
 
 void vtkFunctionParser::PrintSelf(ostream& os, vtkIndent indent)
 {
+  int i;
+
   vtkObject::PrintSelf(os,indent);
 
   os << indent << "Function: "
      << (this->Function ? this->Function : "(none)") << endl;
+
+  os << indent << "NumberOfScalarVariables: " 
+     << this->NumberOfScalarVariables << endl;
+
+  for (i = 0; i < this->NumberOfScalarVariables; i++)
+    {
+    os << indent << "  " << this->GetScalarVariableName(i) << ": " 
+       << this->GetScalarVariableValue(i) << endl;
+    }
+
+  os << indent << "NumberOfVectorVariables: " 
+     << this->NumberOfVectorVariables << endl;
+
+  for (i = 0; i < this->NumberOfVectorVariables; i++)
+    {
+    os << indent << "  " << this->GetVectorVariableName(i) << ": (" 
+       << this->GetVectorVariableValue(i)[0] << ", "
+       << this->GetVectorVariableValue(i)[1] << ", "
+       << this->GetVectorVariableValue(i)[2] << ")" << endl;
+    }
+
+  if (this->EvaluateMTime.GetMTime() > this->FunctionMTime.GetMTime() &&
+      this->EvaluateMTime.GetMTime() > this->VariableMTime.GetMTime() &&
+      this->StackPointer == 0 || this->StackPointer == 2)
+    {
+    if (this->StackPointer == 0)
+      {
+      os << indent << "ScalarResult: " << this->GetScalarResult() << endl;
+      os << indent << "VectorResult: " << "(none)" << endl;
+      }
+    else if (this->StackPointer == 2)
+      {
+      os << indent << "ScalarResult: " << "(none)" << endl;
+      os << indent << "VectorResult: " << "(" 
+       << this->GetVectorResult()[0] << ", "
+       << this->GetVectorResult()[1] << ", "
+       << this->GetVectorResult()[2] << ")" << endl;
+      }
+    }
+  else
+    {
+    os << indent << "ScalarResult: " << "(none)" << endl;
+    os << indent << "VectorResult: " << "(none)" << endl;
+    }
 }
+

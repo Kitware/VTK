@@ -103,6 +103,16 @@ public:
   vtkGetStringMacro(Function);
 
   // Description:
+  // Check whether the result is a scalar result.  If it isn't, then
+  // either the result is a vector or an error has occurred.
+  int IsScalarResult();
+
+  // Description:
+  // Check whether the result is a vector result.  If it isn't, then
+  // either the result is scalar or an error has occurred.
+  int IsVectorResult();
+
+  // Description:
   // Get a scalar result from evaluating the input function.
   double GetScalarResult();
 
@@ -144,7 +154,13 @@ public:
   // Description:
   // Get the value of a vector variable.
   double* GetVectorVariableValue(const char* variableName);
+  void GetVectorVariableValue(const char* variableName, double value[3]) {
+    double *r = this->GetVectorResult();
+    value[0] = r[0]; value[1] = r[1]; value[2] = r[2]; };
   double* GetVectorVariableValue(int i);
+  void GetVectorVariableValue(int i, double value[3]) {
+    double *r = this->GetVectorResult();
+    value[0] = r[0]; value[1] = r[1]; value[2] = r[2]; };
   
   // Description:
   // Get the number of scalar variables.
