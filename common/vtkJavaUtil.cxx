@@ -397,6 +397,7 @@ JNIEXPORT jobject vtkJavaCreateNewJavaStubForObject(JNIEnv *env, vtkObject* obj)
   fullname[2]= 'k';
   fullname[3]= '/';      
   strcpy(&fullname[4], classname);
+  obj->Register(obj);
   return vtkJavaCreateNewJavaStub(env, fullname, (void*)obj);
 }
 
