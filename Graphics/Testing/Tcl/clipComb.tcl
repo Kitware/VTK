@@ -15,11 +15,11 @@ vtkPLOT3DReader pl3d
 set center [[pl3d GetOutput] GetCenter]
 vtkSphere sphere
     eval sphere SetCenter $center
-    sphere SetRadius 1.0
+    sphere SetRadius 2.0
 vtkSphere sphere2
-    sphere2 SetCenter [expr [lindex $center 0] + 2.0] [lindex $center 1] \
+    sphere2 SetCenter [expr [lindex $center 0] + 4.0] [lindex $center 1] \
             [lindex $center 2]
-    sphere2 SetRadius 2.0
+    sphere2 SetRadius 4.0
 vtkImplicitBoolean bool
     bool SetOperationTypeToUnion
     bool AddFunction sphere
