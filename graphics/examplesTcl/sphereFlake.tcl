@@ -30,6 +30,7 @@ pack .top.f1.rw -expand 1 -fill both
 vtkRenderer ren1
 set renWin [.top.f1.rw GetRenderWindow]
 $renWin AddRenderer ren1
+$renWin SetDesiredUpdateRate 1.0
 
 # Create the initial flake list - it has one sphere at
 # (0.0, 0.0, 0.0) with a radius of 1.0 and a color of
@@ -138,8 +139,8 @@ foreach s $flake_list {
     vtkLODActor actor_$i
     actor_$i SetMapper mapper
     actor_$i BuildLODsOff
-    actor_$i AddMapper low_res_mapper
-    actor_$i AddMapper med_res_mapper
+    actor_$i AddLODMapper low_res_mapper
+    actor_$i AddLODMapper med_res_mapper
     actor_$i SetPosition [lindex $s 0] [lindex $s 1] [lindex $s 2]
     actor_$i SetScale [lindex $s 3] [lindex $s 3] [lindex $s 3]
 
