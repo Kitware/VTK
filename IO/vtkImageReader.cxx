@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImageReader, "1.99");
+vtkCxxRevisionMacro(vtkImageReader, "1.100");
 vtkStandardNewMacro(vtkImageReader);
 
 vtkCxxSetObjectMacro(vtkImageReader,Transform,vtkTransform);
@@ -229,7 +229,8 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
 
   // length of a row, num pixels read at a time
   pixelRead = dataExtent[1] - dataExtent[0] + 1; 
-  streamRead = (long)(pixelRead * self->GetDataIncrements()[0]);  
+  streamRead = static_cast<unsigned long>(pixelRead * 
+                                          self->GetDataIncrements()[0]);  
   streamSkip0 = (long)(self->GetDataIncrements()[1] - streamRead);
   streamSkip1 = (long)(self->GetDataIncrements()[2] - 
     (dataExtent[3] - dataExtent[2] + 1)* self->GetDataIncrements()[1]);
@@ -238,7 +239,8 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
   // read from the bottom up
   if (!self->GetFileLowerLeft()) 
     {
-    streamSkip0 = (long)(-streamRead - self->GetDataIncrements()[1]);
+    streamSkip0 = (long)(-static_cast<long>(streamRead) 
+                         - self->GetDataIncrements()[1]);
     streamSkip1 = (long)(self->GetDataIncrements()[2] + 
       (dataExtent[3] - dataExtent[2] + 1)* self->GetDataIncrements()[1]);
     }
@@ -280,7 +282,7 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
         }
       count++;
       outPtr0 = outPtr1;
-      
+
       // read the row.
       self->GetFile()->read((char *)buf, streamRead);
       if ( self->GetFile()->gcount() != streamRead || self->GetFile()->fail())
