@@ -82,6 +82,27 @@ void vtkXglrCamera::Render(vtkCamera *cam, vtkXglrRenderer *ren)
   xgl_object_get(*win_ras, XGL_DEV_MAXIMUM_COORDINATES, 
 		 &max_device_values);
 		 
+  // set the viewport here so that the new_frame call
+  // below is done only in the area this viewport occupies
+  dc_bounds.xmin = vport[0]*(size[0] - 1);
+  dc_bounds.xmax = vport[2]*(size[0] - 1);
+  dc_bounds.ymin = (1.0 - vport[3])*(size[1] - 1);
+  dc_bounds.ymax = (1.0 - vport[1])*(size[1] - 1);
+  dc_bounds.zmin = 0;
+  dc_bounds.zmax = max_device_values.z;
+  
+  xgl_object_set(*context, XGL_CTX_DC_VIEWPORT, &dc_bounds, NULL);
+  
+  // this will clear all the all buffers of a viewport
+  if ((ren->GetRenderWindow())->GetErase() && cam->GetLeftEye())
+  {
+    // we set to stereo none so that all the buffers are cleared
+    // we do this only on the first pass (left eye)
+    xgl_object_set(*win_ras,
+                   XGL_WIN_RAS_STEREO_MODE, XGL_STEREO_NONE,NULL);
+    xgl_context_new_frame(*context);
+  }
+
   // find out if we should stereo render
   stereo = cam->GetStereo();
   if (stereo)
@@ -117,23 +138,15 @@ void vtkXglrCamera::Render(vtkCamera *cam, vtkXglrRenderer *ren)
   bg_color.g = background[1];
   bg_color.b = background[2];
 
-  dc_bounds.xmin = vport[0]*(size[0] - 1);
-  dc_bounds.xmax = vport[2]*(size[0] - 1);
-  dc_bounds.ymin = (1.0 - vport[3])*(size[1] - 1);
-  dc_bounds.ymax = (1.0 - vport[1])*(size[1] - 1);
-  dc_bounds.zmin = 0;
-  dc_bounds.zmax = max_device_values.z;
+  xgl_object_set(*context,XGL_CTX_BACKGROUND_COLOR,
+		 &bg_color,0);
+
   xgl_object_set(*context, XGL_CTX_DC_VIEWPORT, &dc_bounds, NULL);
 
-  if (cam->GetLeftEye() || (!stereo) || 
-      ((ren->GetRenderWindow())->GetStereoType() != VTK_STEREO_CRYSTAL_EYES))
+  // the clear should be done for all buffers (left and right eye if stereo)
+  if ((ren->GetRenderWindow())->GetErase())
     {
-    xgl_object_set(*context,XGL_CTX_BACKGROUND_COLOR,
-		   &bg_color,0);
-    if ((ren->GetRenderWindow())->GetErase())
-      {
-      xgl_context_new_frame(*context);
-      }
+    xgl_context_new_frame(*context);
     }
 
   aspect[0] = ((vport[2] - vport[0])*size[0])/((vport[3] - vport[1])*size[1]);
