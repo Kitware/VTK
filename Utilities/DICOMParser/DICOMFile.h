@@ -213,10 +213,10 @@ class DICOMFile
   //
   static ulong swapLong(ulong v)
     {
-    return (v << 24) 
+    return ulong((v << 24) 
       | (v << 8) & 0x00ff0000
       | (v >> 8) & 0x0000ff00
-      | (v >> 24);
+      | (v >> 24));
     }
 
   char* GetPlatformEndian() {return this->PlatformEndian;}
