@@ -27,7 +27,7 @@ reader SetDimensions 256 256 94 1;
 reader SetFilePrefix "../../data/fullHead/headsq";
 reader SetPixelMask 0x7fff;
 
-vtkImage2dMagnifyFilter magnify;
+vtkImageMagnify2d magnify;
 magnify SetInput [reader GetOutput];
 magnify SetMagnificationFactors 2 2;
 magnify InterpolateOn;

@@ -30,7 +30,7 @@ reader SetFilePrefix "../../data/fullHead/headsq"
 reader SetPixelMask 0x7fff;
 reader SetOutputDataType $VTK_IMAGE_SHORT;
 
-vtkImage2dGaussianSmoothFilter smooth
+vtkImageGaussianSmooth2d smooth
 smooth SetInput [reader GetOutput];
 smooth SetGaussianStdRadius 6.0 8;
 

@@ -27,7 +27,7 @@ reader SetDimensions 256 256 94 1;
 reader SetFilePrefix "../../data/fullHead/headsq";
 reader SetPixelMask 0x7fff;
 
-vtkImage3dShrinkFilter shrink;
+vtkImageShrink3d shrink;
 shrink SetInput [reader GetOutput];
 shrink SetShrinkFactors 2 2 2;
 shrink AveragingOn;

@@ -26,10 +26,10 @@ reader SetDimensions 256 256 94 1;
 reader SetFilePrefix "../../data/fullHead/headsq"
 reader SetPixelMask 0x7fff;
 
-vtkImage3dGradientFilter gradient;
+vtkImageGradient3d gradient;
 gradient SetInput [reader GetOutput];
 
-vtkImage3dNonMaximalSuppressionFilter suppress;
+vtkImageNonMaximalSuppression3d suppress;
 suppress SetInput [gradient GetOutput];
 suppress ReleaseDataFlagOff;
 

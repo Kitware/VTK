@@ -1,7 +1,7 @@
-# Simple viewer for images.
+# Doubles the The number of images (z dimension).
 
 
-set sliceNumber 22
+set sliceNumber 45
 
 set VTK_IMAGE_FLOAT              1
 set VTK_IMAGE_INT                2
@@ -24,23 +24,20 @@ vtkImage4dShortReader reader;
 #reader DebugOn
 reader SwapBytesOn;
 reader SetDimensions 256 256 94 1;
-reader SetFilePrefix "../../data/fullHead/headsq"
+reader SetFilePrefix "../../data/fullHead/headsq";
 reader SetPixelMask 0x7fff;
-reader SetOutputDataType $VTK_IMAGE_FLOAT
 
-
-vtkImageAnisotropicDiffusion2d diffusion;
-diffusion SetInput [reader GetOutput];
-diffusion SetDiffusionFactor 0.2;
-diffusion SetDiffusionThreshold 200.0;
-diffusion SetNumberOfIterations 5;
-diffusion ReleaseDataFlagOff;
-
+vtkImageMagnify1d magnify;
+magnify SetInput [reader GetOutput];
+magnify SetAxes1d $VTK_IMAGE_Z_AXIS;
+magnify SetMagnificationFactor 2;
+magnify InterpolateOn;
+magnify ReleaseDataFlagOff;
 
 vtkImageXViewer viewer;
 #viewer DebugOn;
 viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS;
-viewer SetInput [diffusion GetOutput];
+viewer SetInput [magnify GetOutput];
 viewer SetCoordinate2 $sliceNumber;
 viewer SetColorWindow 3000
 viewer SetColorLevel 1500
@@ -77,7 +74,7 @@ pack .wl.f2.levelLabel .wl.f2.level -side left
 
 proc SliceUp {} {
    global sliceNumber viewer
-   if {$sliceNumber < 93} {set sliceNumber [expr $sliceNumber + 1]}
+   if {$sliceNumber < 186} {set sliceNumber [expr $sliceNumber + 1]}
    puts $sliceNumber
    viewer SetCoordinate2 $sliceNumber;
    viewer Render;
