@@ -18,7 +18,7 @@
 #include "vtkInterpolatedVelocityField.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.16");
+vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.17");
 vtkStandardNewMacro(vtkInterpolatedVelocityField);
 
 vtkInterpolatedVelocityField::vtkInterpolatedVelocityField()
@@ -60,6 +60,14 @@ void vtkInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     os << indent << "Data Set: (none)" << endl;
+    }
+  if ( this->VectorsSelection )
+    {
+    os << indent << "VectorsSelection: " << this->VectorsSelection << endl;
+    }
+  else
+    {
+    os << indent << "VectorsSelection: (none)" << endl;
     }
   if ( this->GenCell )
     {

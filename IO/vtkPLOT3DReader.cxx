@@ -25,7 +25,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkPLOT3DReader, "1.69");
+vtkCxxRevisionMacro(vtkPLOT3DReader, "1.70");
 vtkStandardNewMacro(vtkPLOT3DReader);
 
 #define VTK_RHOINF 1.0
@@ -1814,6 +1814,8 @@ void vtkPLOT3DReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ScalarFunctionNumber: " << this->ScalarFunctionNumber << endl;
   os << indent << "VectorFunctionNumber: " << this->VectorFunctionNumber << endl;
   os << indent << "MultiGrid: " << this->MultiGrid << endl;
+  os << indent << "TwoDimensionalGeometry: " 
+     << this->TwoDimensionalGeometry << endl;
   os << indent << "DoNotReduceNumberOfOutputs: " 
      << this->DoNotReduceNumberOfOutputs << endl;
   os << indent << "ForceRead: " << this->ForceRead << endl;
