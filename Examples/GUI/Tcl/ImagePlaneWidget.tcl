@@ -44,6 +44,7 @@ vtkCellPicker picker
 # The 3 image plane widgets are used to probe the dataset.
 #
 vtkImagePlaneWidget planeWidgetX
+  planeWidgetX DisplayTextOn
   planeWidgetX SetInput [v16 GetOutput]
   planeWidgetX SetInteractor iren
   planeWidgetX SetPlaneOrientationToXAxes
@@ -55,6 +56,7 @@ vtkImagePlaneWidget planeWidgetX
   planeWidgetX On
 
 vtkImagePlaneWidget planeWidgetY
+  planeWidgetY DisplayTextOn
   planeWidgetY SetInput [v16 GetOutput]
   planeWidgetY SetInteractor iren
   planeWidgetY SetPlaneOrientationToYAxes
@@ -66,7 +68,13 @@ vtkImagePlaneWidget planeWidgetY
   planeWidgetY SetLookupTable [planeWidgetX GetLookupTable]
   planeWidgetY On
 
+# for the z-slice, turn off texture interpolation:
+# interpolation is now nearest neighbour, to demonstrate
+# cross-hair cursor snapping to pixel centers
+#
 vtkImagePlaneWidget planeWidgetZ
+  planeWidgetZ DisplayTextOn
+  planeWidgetZ TextureInterpolateOff
   planeWidgetZ SetInput [v16 GetOutput]
   planeWidgetZ SetInteractor iren
   planeWidgetZ SetPlaneOrientationToZAxes
@@ -76,20 +84,22 @@ vtkImagePlaneWidget planeWidgetZ
   set prop3 [planeWidgetZ GetPlaneProperty]
   $prop3 SetColor 0 0 1
   planeWidgetZ SetLookupTable [planeWidgetX GetLookupTable]
-  planeWidgetZ On  
+  planeWidgetZ On
 
 # Add the outline actor to the renderer, set the background and size
 #
 ren1 AddActor outlineActor
 
-ren1 SetBackground  0.1 0.1 0.2  
-renWin SetSize 300 300
+[ren1 GetCullers] RemoveAllItems
+
+ren1 SetBackground  0.1 0.1 0.2
+renWin SetSize 400 400
 
 set cam1 [ren1 GetActiveCamera]
-$cam1 Elevation 110  
-$cam1 SetViewUp 0 0 -1  
-$cam1 Azimuth 45  
-ren1 ResetCameraClippingRange  
+$cam1 Elevation 110
+$cam1 SetViewUp 0 0 -1
+$cam1 Azimuth 45
+ren1 ResetCameraClippingRange
 
 # render the image
 #
