@@ -69,6 +69,7 @@ static const char *vtkCommandEventStrings[] = {
   "CreateTimerEvent",
   "DestroyTimerEvent",
   "PlaceWidgetEvent",
+  "CursorChangedEvent",
   NULL
 };
 

@@ -166,17 +166,35 @@ public:
   unsigned long AddObserver(const char *event, vtkCommand *, 
                             float priority=0.0);
   vtkCommand *GetCommand(unsigned long tag);
-  void InvokeEvent(unsigned long event, void *callData);
-  void InvokeEvent(const char *event, void *callData);
   void RemoveObserver(vtkCommand*);
   //ETX
-  void InvokeEvent(unsigned long event) { this->InvokeEvent(event, NULL); };
-  void InvokeEvent(const char *event) { this->InvokeEvent(event, NULL); };
   void RemoveObserver(unsigned long tag);
   void RemoveObservers(unsigned long event);
   void RemoveObservers(const char *event);
   int HasObserver(unsigned long event);
   int HasObserver(const char *event);
+
+  // Description:
+  // Allow people to add/remove/invoke observers (callbacks) to any
+  // VTK object.  This is an implementation of the subject/observer
+  // design pattern. An observer is added by specifying an event to
+  // respond to and a vtkCommand to execute. It returns an unsigned
+  // long tag which can be used later to remove the event or retrieve
+  // the command.  When events are invoked, the observers are called
+  // in the order they were added. If a priority value is specified,
+  // then the higher priority commands are called first. A command may
+  // set an abort flag to stop processing of the event. (See
+  // vtkCommand.h for more information.)
+
+  // This method invokes an event and return whether the event was
+  // aborted or not. If the event was aborted, the return value is 1,
+  // otherwise it is 0.  
+  //BTX
+  int InvokeEvent(unsigned long event, void *callData);
+  int InvokeEvent(const char *event, void *callData);
+  int InvokeEvent(unsigned long event) { return this->InvokeEvent(event, NULL); };
+  int InvokeEvent(const char *event) { return this->InvokeEvent(event, NULL); };
+  //ETX
   
 protected:
   vtkObject(); 

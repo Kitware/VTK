@@ -149,6 +149,7 @@ public:
     CreateTimerEvent,
     DestroyTimerEvent,
     PlaceWidgetEvent,
+    CursorChangedEvent,
     UserEvent = 1000
   };
 //ETX
