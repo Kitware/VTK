@@ -41,7 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkAGraymap - scalar data in intensity + alpha (grayscale + opacity) form
 // .SECTION Description
 // vtkAGraymap is a concrete implementation of vtkScalars. vtkAGraymap 
-// represents scalars using using one value for intensity (grayscale) and
+// represents scalars using one value for intensity (grayscale) and
 // one value for alpha (opacity). The intensity and alpha values range 
 // between (0,255) (i.e., an unsigned char value).
 

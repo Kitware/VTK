@@ -92,7 +92,7 @@ inline unsigned char *vtkBitmap::GetPtr(const int id)
 
 // Description:
 // Get pointer to data. Useful for direct writes into object. MaxId is bumped
-// by number (and memory allocated if necessary). Id is the locaation you 
+// by number (and memory allocated if necessary). Id is the location you 
 // wish to write into; number is the number of rgba colors to write.
 inline unsigned char *vtkBitmap::WritePtr(const int id, const int number)
 {
