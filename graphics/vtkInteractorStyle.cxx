@@ -339,7 +339,7 @@ void vtkInteractorStyle::FindPokedRenderer(int x,int y)
   for (i = numRens -1; (i >= 0) && !this->CurrentRenderer; i--) 
     {
     aren = (vtkRenderer *)rc->GetItemAsObject(i);
-    if (aren->IsInViewport(x,y)) 
+    if (aren->IsInViewport(x,y) && aren->GetInteractive()) 
       {
       this->CurrentRenderer = aren;
       }
