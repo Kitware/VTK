@@ -52,7 +52,7 @@ vtkMutexFunctionLock::vtkMutexFunctionLock(void )
 // Destruct the vtkMutexFunctionLock
 vtkMutexFunctionLock::~vtkMutexFunctionLock(void )
 {
-  delete this->MutexVar;
+  this->MutexVar->Delete();
 }
 
 // Description:
@@ -68,7 +68,9 @@ void vtkMutexFunctionLock::PrintSelf(ostream& os, vtkIndent indent)
 void vtkMutexFunctionLock::StartLock(void )
 {
   if (this->MutexVar != NULL)
+    {
     this->MutexVar->Lock();
+    }
 }
 
 // Description:
@@ -76,6 +78,8 @@ void vtkMutexFunctionLock::StartLock(void )
 void vtkMutexFunctionLock::EndLock(void )
 {
   if (this->MutexVar != NULL)
+    {
     this->MutexVar->Unlock();
+    }
 }
 
