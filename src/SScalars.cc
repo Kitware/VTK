@@ -13,9 +13,6 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-//  Scalar values, floating representation
-// 
 #include "SScalars.hh"
 
 vlScalars *vlShortScalars::MakeObject(int sze, int ext)

@@ -49,6 +49,7 @@ public:
   void GetScalars(vlIdList& ptIds, vlFloatScalars& fs);
 
   // miscellaneous
+  short *WritePtr(const int id, const int number);
   vlShortScalars &operator=(const vlShortScalars& ss);
   void operator+=(const vlShortScalars& ss) {this->S += ss.S;};
   void Reset() {this->S.Reset();};
@@ -56,5 +57,14 @@ public:
 private:
   vlShortArray S;
 };
+
+// Description:
+// Get pointer to data. Useful for direct writes into object. MaxId is bumped
+// by number (and memory allocated if necessary). Id is the locaation you 
+// wish to write into; number is the number of scalars to write.
+inline short *vlShortScalars::WritePtr(const int id, const int number)
+{
+  return this->S.WritePtr(id,number);
+}
 
 #endif
