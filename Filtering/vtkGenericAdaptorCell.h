@@ -62,6 +62,7 @@
 class vtkLine;
 class vtkTetra;
 class vtkPoints;
+class vtkPointLocator;
 class vtkVertex;
 class vtkTriangle;
 class vtkCellData;
@@ -76,6 +77,7 @@ class vtkGenericCellTessellator;
 class vtkGenericAttributeCollection;
 class vtkGenericAttribute;
 class vtkGenericPointIterator;
+class vtkIdList;
 
 class VTK_FILTERING_EXPORT vtkGenericAdaptorCell : public vtkObject
 {
@@ -462,8 +464,11 @@ public:
   
   virtual void Tessellate(vtkGenericAttributeCollection *attributes, 
                           vtkGenericCellTessellator *tess,
-                          vtkPoints *points, vtkCellArray* cellArray,
+                          vtkPoints *points,
+                          vtkPointLocator *locator,
+                          vtkCellArray* cellArray,
                           vtkPointData *internalPd,
+                          vtkIdList *internalIds,
                           vtkPointData *pd, vtkCellData* cd);
 
   // The following methods are for the internals of the tesselation algorithm
@@ -500,8 +505,11 @@ public:
   // \pre cd_exists: cd!=0
   virtual void TriangulateFace(vtkGenericAttributeCollection *attributes,
                                vtkGenericCellTessellator *tess, int index, 
-                               vtkPoints *points, vtkCellArray *cellArray,
+                               vtkPoints *points,
+                               vtkPointLocator *locator,
+                               vtkCellArray *cellArray,
                                vtkPointData *internalPd,
+                               vtkIdList *internalIds,
                                vtkPointData *pd, vtkCellData *cd );
   
   // Description:

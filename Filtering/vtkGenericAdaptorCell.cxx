@@ -17,6 +17,7 @@
 #include <assert.h>
 
 #include "vtkPoints.h"
+#include "vtkPointLocator.h"
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
 #include "vtkLine.h"
@@ -31,7 +32,7 @@
 #include "vtkGenericAttribute.h"
 #include "vtkGenericCellTessellator.h"
 
-vtkCxxRevisionMacro(vtkGenericAdaptorCell, "1.13");
+vtkCxxRevisionMacro(vtkGenericAdaptorCell, "1.14");
 
 vtkGenericAdaptorCell::vtkGenericAdaptorCell()
 {
@@ -467,8 +468,10 @@ void vtkGenericAdaptorCell::Clip(double value,
 void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes, 
                                        vtkGenericCellTessellator *tess,
                                        vtkPoints *points,
+                                       vtkPointLocator *locator,
                                        vtkCellArray *cellArray,
                                        vtkPointData *internalPd,
+                                       vtkIdList *internalIds,
                                        vtkPointData *pd,
                                        vtkCellData *cd)
 {
@@ -477,135 +480,157 @@ void vtkGenericAdaptorCell::Tessellate(vtkGenericAttributeCollection *attributes
   assert("pre: points_exist" && points!=0);
   assert("pre: cellArray_exists" && cellArray!=0);
   assert("pre: internalPd_exists" && internalPd!=0);
+  assert("pre: internalIds_exists" && internalIds!=0);
   assert("pre: pd_exist" && pd!=0);
   assert("pre: cd_exist" && cd!=0);
   
   int i;
   int j;
   
+  vtkIdType valid_npts;
+  
   this->Reset();
 
+  assert("check: TODO: Tessellate only works with 2D and 3D cells" && this->GetDimension() == 3 ||  this->GetDimension() == 2);
+  
   if( this->GetDimension() == 3)
     {
     internalPd->Reset();
     tess->Tessellate(this, attributes, this->InternalPoints,
                      this->InternalCellArray, internalPd);
 
-    vtkIdType npts = 0;
-    vtkIdType *pts = 0;
-    double *point  = this->InternalPoints->GetPointer(0);
-    
-   
-   // for each cell-centered attribute: copy the value
-    int c=this->InternalCellArray->GetNumberOfCells();
-    int attrib=0;
-    while(attrib<attributes->GetNumberOfAttributes())
-      {
-      if(attributes->GetAttribute(attrib)->GetCentering()==vtkCellCentered)
-        {
-        assert("with the test there is no reason to be here" && 0);
-        vtkDataArray *array=cd->GetArray(attributes->GetAttribute(attrib)->GetName());
-        double *values=attributes->GetAttribute(attrib)->GetTuple(this);
-        i=0;
-        while(i<c)
-          {
-          array->InsertNextTuple(values);
-          ++i;
-          }
-        }
-      attrib++;
-      }
-    
-    c=internalPd->GetNumberOfArrays(); // same as pd->GetNumberOfArrays();
-    
-    int dataIndex=0;
-    
-    for(this->InternalCellArray->InitTraversal(); 
-      this->InternalCellArray->GetNextCell(npts, pts);)
-      {
-      assert("check: is_a_tetra" && npts == 4);
-      cellArray->InsertNextCell(npts, pts );
-      
-      for(i=0;i<npts;i++, point+=3) //, scalar+=numComp)
-        {
-        points->InsertPoint(pts[i], point );
-        // for each point-centered attribute
-        j=0;
-        while(j<c)
-          {
-          pd->GetArray(j)->InsertTuple(pts[i],
-                                       internalPd->GetArray(j)->GetTuple(dataIndex));
-          ++j;
-          }
-        ++dataIndex;
-        }
-      }
-    }
-  else if( this->GetDimension() == 2)
-    {
-    internalPd->Reset();
-    tess->Triangulate(this, attributes, this->InternalPoints, 
-      this->InternalCellArray, internalPd);
-
-    //temporary:
-    vtkIdType npts = 0;
-    vtkIdType *pts = 0;
-    double *point = this->InternalPoints->GetPointer(0);
-    
-    // for each cell-centered attribute: copy the value
-    int c=this->InternalCellArray->GetNumberOfCells();
-    int attrib=0;
-    while(attrib<attributes->GetNumberOfAttributes())
-      {
-      if(attributes->GetAttribute(attrib)->GetCentering()==vtkCellCentered)
-        {
-        vtkDataArray *array=cd->GetArray(attributes->GetAttribute(attrib)->GetName());
-        double *values=attributes->GetAttribute(attrib)->GetTuple(this);
-        i=0;
-        while(i<c)
-          {
-          array->InsertNextTuple(values);
-          ++i;
-          }
-        }
-      attrib++;
-      }
-    
-    c=internalPd->GetNumberOfArrays();
-    int dataIndex=0;
-    for(this->InternalCellArray->InitTraversal(); 
-      this->InternalCellArray->GetNextCell(npts, pts);)
-      {
-      assert("check: is_a_triangle" && npts == 3);
-      cellArray->InsertNextCell(npts, pts );
-      
-      for(i=0;i<npts;i++, point+=3) //, scalar+=numComp)
-        {
-        points->InsertPoint(pts[i], point );
-        // for each point-centered attribute
-        j=0;
-        while(j<c)
-          {
-          pd->GetArray(j)->InsertTuple(pts[i],
-                                       internalPd->GetArray(j)->GetTuple(dataIndex));
-          ++j;
-          }
-        ++dataIndex;
-        }
-      }
+    valid_npts=4;
     }
   else
     {
-    assert("check: TODO: Tessellate only works with 2D and 3D cells" && 0);
+    if( this->GetDimension() == 2)
+      {
+       internalPd->Reset();
+       tess->Triangulate(this, attributes, this->InternalPoints, 
+                         this->InternalCellArray, internalPd);
+       valid_npts=3;
+      }
+    }
+    
+  vtkIdType npts = 0;
+  vtkIdType *pts = 0;
+  double *point  = this->InternalPoints->GetPointer(0);
+    
+   
+  // for each cell-centered attribute: copy the value
+  int c=this->InternalCellArray->GetNumberOfCells();
+  int attrib=0;
+  while(attrib<attributes->GetNumberOfAttributes())
+    {
+    if(attributes->GetAttribute(attrib)->GetCentering()==vtkCellCentered)
+      {
+      assert("with the test there is no reason to be here" && 0);
+      vtkDataArray *array=cd->GetArray(attributes->GetAttribute(attrib)->GetName());
+      double *values=attributes->GetAttribute(attrib)->GetTuple(this);
+      i=0;
+      while(i<c)
+        {
+        array->InsertNextTuple(values);
+        ++i;
+        }
+      }
+    attrib++;
+    }
+    
+  c=internalPd->GetNumberOfArrays(); // same as pd->GetNumberOfArrays();
+    
+  int dataIndex=0;
+#if 0
+  for(this->InternalCellArray->InitTraversal(); 
+      this->InternalCellArray->GetNextCell(npts, pts);)
+    {
+    assert("check: is_a_simplex" && npts == valid_npts);
+    cellArray->InsertNextCell(npts, pts );
+    
+    for(i=0;i<npts;i++, point+=3) //, scalar+=numComp)
+      {
+      points->InsertPoint(pts[i], point );
+      // for each point-centered attribute
+      j=0;
+      while(j<c)
+        {
+        pd->GetArray(j)->InsertTuple(pts[i],
+                                     internalPd->GetArray(j)->GetTuple(dataIndex));
+        ++j;
+        }
+      ++dataIndex;
+      }
+    }
+#endif  
+  if(locator==0) // no merging
+    {
+    for(this->InternalCellArray->InitTraversal(); 
+        this->InternalCellArray->GetNextCell(npts, pts);)
+      {
+      assert("check: is_a_simplex" && npts == valid_npts);
+      internalIds->Reset();
+//      cellArray->InsertNextCell(npts, pts );
+      
+      for(i=0;i<npts;i++, point+=3) //, scalar+=numComp)
+        {
+        vtkIdType ptId;
+        ptId=points->InsertNextPoint(point );
+        internalIds->InsertId(i,ptId);
+        // for each point-centered attribute
+        j=0;
+        while(j<c)
+          {
+          pd->GetArray(j)->InsertTuple(ptId,
+                                       internalPd->GetArray(j)->GetTuple(dataIndex));
+          ++j;
+          }
+        ++dataIndex;
+        }
+      cellArray->InsertNextCell(internalIds );
+      
+      }
+    }
+  else // merging
+    {
+    for(this->InternalCellArray->InitTraversal(); 
+        this->InternalCellArray->GetNextCell(npts, pts);)
+      {
+      assert("check: is_a_simplex" && npts == valid_npts);
+      internalIds->Reset();
+//      cellArray->InsertNextCell(npts, pts );
+      
+      for(i=0;i<npts;i++, point+=3) //, scalar+=numComp)
+        {
+        vtkIdType ptId;
+        int newpoint=locator->InsertUniquePoint(point,ptId);
+        internalIds->InsertId(i,ptId);
+        if(newpoint)
+          {
+          // for each point-centered attribute
+          j=0;
+          while(j<c)
+            {
+            pd->GetArray(j)->InsertTuple(ptId,
+                                         internalPd->GetArray(j)->GetTuple(dataIndex));
+            ++j;
+            }
+          }
+        ++dataIndex;
+        }
+      cellArray->InsertNextCell(internalIds );
+      }
     }
 }
 
 //----------------------------------------------------------------------------
 void vtkGenericAdaptorCell::TriangulateFace(vtkGenericAttributeCollection *attributes,
                                             vtkGenericCellTessellator *tess,
-                                            int index, vtkPoints *points,
+                                            int index,
+                                            vtkPoints *points,
+                                            vtkPointLocator *locator,
                                             vtkCellArray *cellArray,
                                             vtkPointData *internalPd,
+                                            vtkIdList *internalIds,
                                             vtkPointData *pd,
                                             vtkCellData *cd )
 {
@@ -616,6 +641,7 @@ void vtkGenericAdaptorCell::TriangulateFace(vtkGenericAttributeCollection *attri
   assert("pre: points_exist" && points!=0);
   assert("pre: cellArray_exists" && cellArray!=0);
   assert("pre: internalPd_exists" && internalPd!=0);
+  assert("pre: internalIds_exists" && internalIds!=0);
   assert("pre: pd_exist" && pd!=0);
   assert("pre: cd_exists" && cd!=0);
   
@@ -625,6 +651,24 @@ void vtkGenericAdaptorCell::TriangulateFace(vtkGenericAttributeCollection *attri
   this->Reset();
 
   internalPd->Reset();
+
+  // if simplex (tetra) just one sub-tetra [0,1,2,3]
+  // otherwise build sub-tetra: HOW?
+  
+  // build the linear std vtk cell and call Triangulate on it
+  // switch(this->GetType())
+  // {
+  // case hexa:
+  //  build the linearhexahedron with genericell point ids
+  //  linearCell (local) = this->linearhexahedron
+  // case pyramid:
+  // }
+  // linearCell->Triangulate()
+  
+  //
+  // for each sub-tetra:
+  //  tess->TessellateTriangleFace(face index, sub_tetra_vertex_ids)
+  
   
   tess->TessellateTriangleFace(this, attributes, index, 
                                this->InternalPoints, this->InternalCellArray,
@@ -632,8 +676,6 @@ void vtkGenericAdaptorCell::TriangulateFace(vtkGenericAttributeCollection *attri
 //  tess->Tessellate(this, attributes, this->InternalPoints,
 //                   this->InternalCellArray, internalPd);
   
-
-  //temporary:
   vtkIdType npts=0;
   vtkIdType *pts = 0;
   double *point = this->InternalPoints->GetPointer(0);
@@ -659,24 +701,63 @@ void vtkGenericAdaptorCell::TriangulateFace(vtkGenericAttributeCollection *attri
   
   c=internalPd->GetNumberOfArrays();
   int dataIndex=0;
-  for(this->InternalCellArray->InitTraversal(); 
-      this->InternalCellArray->GetNextCell(npts, pts);)
+  
+  if(locator==0) // no merging
     {
-    assert("check: is_a_triangle" && npts == 3);
-    cellArray->InsertNextCell(npts, pts );
-    
-    for(i=0;i<npts;i++, point+=3) //, scalar+=numComp)
+    for(this->InternalCellArray->InitTraversal(); 
+        this->InternalCellArray->GetNextCell(npts, pts);)
       {
-      points->InsertPoint(pts[i], point );
-      // for each point-centered attribute
-      j=0;
-      while(j<c)
+      assert("check: is_a_triangle" && npts == 3);
+      internalIds->Reset();
+//      cellArray->InsertNextCell(npts, pts );
+      
+      for(i=0;i<npts;i++, point+=3) //, scalar+=numComp)
         {
-        pd->GetArray(j)->InsertTuple(pts[i],
-                                     internalPd->GetArray(j)->GetTuple(dataIndex));
-        ++j;
+        vtkIdType ptId;
+        ptId=points->InsertNextPoint(point );
+        internalIds->InsertId(i,ptId);
+        // for each point-centered attribute
+        j=0;
+        while(j<c)
+          {
+          pd->GetArray(j)->InsertTuple(ptId,
+                                       internalPd->GetArray(j)->GetTuple(dataIndex));
+          ++j;
+          }
+        ++dataIndex;
         }
-      ++dataIndex;
+      cellArray->InsertNextCell(internalIds );
+      
+      }
+    }
+  else // merging
+    {
+    for(this->InternalCellArray->InitTraversal(); 
+        this->InternalCellArray->GetNextCell(npts, pts);)
+      {
+      assert("check: is_a_triangle" && npts == 3);
+      internalIds->Reset();
+//      cellArray->InsertNextCell(npts, pts );
+      
+      for(i=0;i<npts;i++, point+=3) //, scalar+=numComp)
+        {
+        vtkIdType ptId;
+        int newpoint=locator->InsertUniquePoint(point,ptId);
+        internalIds->InsertId(i,ptId);
+        if(newpoint)
+          {
+          // for each point-centered attribute
+          j=0;
+          while(j<c)
+            {
+            pd->GetArray(j)->InsertTuple(ptId,
+                                         internalPd->GetArray(j)->GetTuple(dataIndex));
+            ++j;
+            }
+          }
+        ++dataIndex;
+        }
+      cellArray->InsertNextCell(internalIds );
       }
     }
 }

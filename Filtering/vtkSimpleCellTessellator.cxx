@@ -364,7 +364,7 @@ static signed char vtkTessellatorTetraCasesLeft[65][8][4] = {
 };
 
 
-vtkCxxRevisionMacro(vtkSimpleCellTessellator, "1.7");
+vtkCxxRevisionMacro(vtkSimpleCellTessellator, "1.8");
 vtkStandardNewMacro(vtkSimpleCellTessellator);
 //-----------------------------------------------------------------------------
 //
@@ -1079,9 +1079,6 @@ vtkSimpleCellTessellator::vtkSimpleCellTessellator()
   this->ScalarsCapacity=0;
   this->PointOffset=0;
   
-  this->TranslationTableCapacity=0;
-  this->TranslationTable=0;
-  
   this->DataSet=0;
   
   this->FixedSubdivisions=0; // 0 means no fixed subdivision
@@ -1100,10 +1097,6 @@ vtkSimpleCellTessellator::~vtkSimpleCellTessellator()
   if(this->Scalars!=0)
     {
     delete[] this->Scalars;
-    }
-  if(this->TranslationTable!=0)
-    {
-    delete [] this->TranslationTable;
     }
 }
 
@@ -1640,30 +1633,11 @@ void vtkSimpleCellTessellator::Reset()
 void vtkSimpleCellTessellator::Initialize(vtkGenericDataSet *ds)
 {
   this->DataSet=ds;
-  this->EdgeTable->Initialize(0);
+
   if(this->DataSet!=0)
     {
     this->NumberOfPoints=this->DataSet->GetNumberOfPoints();
-    }
-  if(this->TranslationTableCapacity<this->NumberOfPoints)
-    {
-    if(this->TranslationTable!=0)
-      {
-      delete [] this->TranslationTable;
-      }
-    this->TranslationTableCapacity=this->NumberOfPoints;
-    this->TranslationTable=new vtkIdType[this->TranslationTableCapacity];
-    }
-  if(this->TranslationTableCapacity>0)
-    {
-    // Fill in the table with -1.
-    int i=0;
-    int c=this->TranslationTableCapacity;
-    while(i<c)
-      {
-      this->TranslationTable[i]=-1;
-      ++i;
-      }
+    this->EdgeTable->Initialize(this->NumberOfPoints);
     }
 }
 
@@ -1673,56 +1647,6 @@ void vtkSimpleCellTessellator::Initialize(vtkGenericDataSet *ds)
 vtkGenericEdgeTable *vtkSimpleCellTessellator::GetEdgeTable()
 {
   return this->EdgeTable;
-}
-
-
-//----------------------------------------------------------------------------
-// Description:
-// Return the id in the tessellated data of the point of the dataset for the
-// given point
-// \pre valid_range: inputPointId>=0 && inputPointId<GetNumberOfPoints()
-vtkIdType vtkSimpleCellTessellator::GetOutputPointId(int inputPointId)
-{
-  assert("valid_range" && inputPointId>=0 && inputPointId<this->NumberOfPoints);
-  
-  vtkIdType result=this->TranslationTable[inputPointId];
-  
-  if(result==-1)
-    {
-    result=this->GetEdgeTable()->GetLastPointId();
-    this->GetEdgeTable()->IncrementLastPointId();
-    this->TranslationTable[inputPointId]=result;
-    }
-//define DEBUG_TABLE
-#ifdef DEBUG_TABLE
-  int i=0;
-  int c=this->TranslationTableCapacity;
-  cout<<inputPointId<<" ";
-  while(i<c)
-    {
-    cout<<this->TranslationTable[i]<<',';
-    ++i;
-    }
-  cout<<endl;
-#endif
-  
-  return result;
-}
-
-
-//----------------------------------------------------------------------------
-void vtkSimpleCellTessellator::TranslateIds(vtkIdType *ids,
-                                            int count)
-{
-  assert("pre: ids_exists" && ids!=0);
-  assert("pre: positive_count" && count>0);
-  
-  int i=0;
-  while(i<count)
-    {
-    ids[i]=this->GetOutputPointId(ids[i]);
-    ++i;
-    }
 }
 
 //-----------------------------------------------------------------------------
@@ -1764,8 +1688,7 @@ void vtkSimpleCellTessellator::Tessellate(vtkGenericAdaptorCell *cell,
   // Using third package ptId: It has to be consitent (assuming)
   // Therefore if no tessellation occurs the pointId should match
   this->GenericCell->GetPointIds(tetra);
-  this->TranslateIds(tetra,4);
-  
+
   Reorder(tetra, order);
 
   for(i=0; i<4; i++)
@@ -1881,19 +1804,15 @@ vtkSimpleCellTessellator::TessellateTriangleFace(vtkGenericAdaptorCell *cell,
 
   vtkIdType tetra[4];
   this->GenericCell->GetPointIds(tetra);
-  // we cannot call TranslateIds() on tetra here, because we could also
-  // translate the point that does not lie on the face `index'. Hence, the
-  // translation table could have a point that will not be used at the end and
-  // create a hole in the attribute array (an uninitialized element), that
-  // could impact on the computation of the range. Instead we call
-  // GetOuputPointId() on each used point in the following loop.
   int *indexTab=cell->GetFaceArray(index);
   
   for(i=0; i<3; i++)
     {
     point = this->GenericCell->GetParametricCoords() + 3*indexTab[i];
     root.SetVertex(i, point);
-    root.SetPointId(i, this->GetOutputPointId(tetra[indexTab[i]]));
+
+    root.SetPointId(i, tetra[indexTab[i]]);
+
     }
   
    // Init the edge table
@@ -1937,7 +1856,7 @@ void vtkSimpleCellTessellator::Triangulate(vtkGenericAdaptorCell *cell,
   double *point;
   vtkIdType tri[3];
   this->GenericCell->GetPointIds(tri);
-  this->TranslateIds(tri,3);
+
   for(int i=0; i<3; i++)
     {
     point = this->GenericCell->GetParametricCoords() + 3*i;
@@ -2261,7 +2180,7 @@ int vtkSimpleCellTessellator::FindEdgeReferenceCount(double p1[3], double p2[3],
 
   vtkIdType ids[4];
   this->GenericCell->GetPointIds( ids );
-  this->TranslateIds(ids,4);
+
   e1 = ids[edge_table[edge][0]];
   e2 = ids[edge_table[edge][1]];
 

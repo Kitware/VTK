@@ -282,18 +282,6 @@ protected:
   // Number of points in the dataset to be tessellated.
   vtkIdType NumberOfPoints;
   
-   vtkIdType *TranslationTable; // translate dataset point id into
-  // point id in the tessellated dataset
-  vtkIdType TranslationTableCapacity;
-  
-  // Description:
-  // Return the id in the tessellated data of the point of the dataset for the
-  // given point
-  // \pre valid_range: inputPointId>=0 && inputPointId<GetNumberOfPoints()
-  vtkIdType GetOutputPointId(int inputPointId);
-  void TranslateIds(vtkIdType *ids,
-                    int count);
-  
   int FixedSubdivisions;
   int MaxSubdivisionLevel;
   int CurrentSubdivisionLevel;

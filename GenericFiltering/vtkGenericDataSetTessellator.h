@@ -37,6 +37,7 @@
 #include "vtkGenericDataSetToUnstructuredGridFilter.h"
 
 class vtkPointData;
+class vtkPointLocator;
 
 class VTK_GENERIC_FILTERING_EXPORT vtkGenericDataSetTessellator : public vtkGenericDataSetToUnstructuredGridFilter
 {
@@ -57,6 +58,29 @@ public:
   vtkGetMacro(KeepCellIds, int);
   vtkBooleanMacro(KeepCellIds, int);
   
+  
+  // Description:
+  // Turn on/off merging of coincident points. Note that is merging is
+  // on, points with different point attributes (e.g., normals) are merged,
+  // which may cause rendering artifacts.
+  vtkSetMacro(Merging,int);
+  vtkGetMacro(Merging,int);
+  vtkBooleanMacro(Merging,int);
+
+  // Description:
+  // Set / get a spatial locator for merging points. By
+  // default an instance of vtkMergePoints is used.
+  void SetLocator(vtkPointLocator *locator);
+  vtkGetObjectMacro(Locator,vtkPointLocator);
+
+  // Description:
+  // Create default locator. Used to create one when none is specified.
+  void CreateDefaultLocator();
+  
+  // Description:
+  // Return the MTime also considering the locator.
+  unsigned long GetMTime();
+  
 protected:
   vtkGenericDataSetTessellator();
   ~vtkGenericDataSetTessellator();
@@ -68,6 +92,9 @@ protected:
   
   // Used internal by vtkGenericAdaptorCell::Tessellate()
   vtkPointData *internalPD;
+  
+  int Merging;
+  vtkPointLocator *Locator;
   
 private:
   vtkGenericDataSetTessellator(const vtkGenericDataSetTessellator&);  // Not implemented.
