@@ -475,6 +475,17 @@ void vtkWin32OpenGLRenderWindow::WindowInitialize (void)
      
 		  this->OwnWindow = 1;
 		  }
+    else
+      {
+      this->DeviceContext = GetDC(this->WindowId);
+      //DescribePixelFormat(this->DeviceContext, 
+      //  PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER, 0, NULL);
+      vtkWin32OpenGLSetupPixelFormat(this->DeviceContext);
+      vtkWin32OpenGLSetupPalette(this->DeviceContext,this);
+		  this->ContextId = wglCreateContext(this->DeviceContext);
+      wglMakeCurrent(this->DeviceContext, this->ContextId);
+      vtkWin32OpenGLInit();
+      }
     this->Mapped = 1;
 
 	  // wglMakeCurrent(GetDC(this->WindowId), this->ContextId);
