@@ -48,6 +48,8 @@ static int vtkMapperGlobalImmediateModeRendering = 0;
 // Initialize static member that controls global coincidence resolution
 static int vtkMapperGlobalResolveCoincidentTopology = VTK_RESOLVE_OFF;
 static double vtkMapperGlobalResolveCoincidentTopologyZShift = 0.01;
+static float vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetFactor = 1.0;
+static float vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetUnits = 1.0;
 
 // Construct with initial range (0,1).
 vtkMapper::vtkMapper()
@@ -161,6 +163,25 @@ void vtkMapper::SetResolveCoincidentTopologyZShift(double val)
 double vtkMapper::GetResolveCoincidentTopologyZShift()
 {
   return vtkMapperGlobalResolveCoincidentTopologyZShift;
+}
+
+void vtkMapper::SetResolveCoincidentTopologyPolygonOffsetParameters(
+                                            float factor, float units)
+{
+  if (factor == vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetFactor &&
+      units == vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetUnits )
+    {
+    return;
+    }
+  vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetFactor = factor;
+  vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetFactor = units;
+}
+
+void vtkMapper::GetResolveCoincidentTopologyPolygonOffsetParameters(
+                           float& factor, float& units)
+{
+  factor = vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetFactor;
+  units = vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetUnits;
 }
 
 // Overload standard modified time function. If lookup table is modified,

@@ -254,11 +254,20 @@ public:
   static int  GetResolveCoincidentTopology();
   static void SetResolveCoincidentTopologyToDefault();
   static void SetResolveCoincidentTopologyToOff() 
-    {SetResolveCoincidentTopology(VTK_RESOLVE_OFF);};
+    {SetResolveCoincidentTopology(VTK_RESOLVE_OFF);}
   static void SetResolveCoincidentTopologyToPolygonOffset() 
-    {SetResolveCoincidentTopology(VTK_RESOLVE_POLYGON_OFFSET);};
+    {SetResolveCoincidentTopology(VTK_RESOLVE_POLYGON_OFFSET);}
   static void SetResolveCoincidentTopologyToShiftZBuffer() 
-    {SetResolveCoincidentTopology(VTK_RESOLVE_SHIFT_ZBUFFER);};
+    {SetResolveCoincidentTopology(VTK_RESOLVE_SHIFT_ZBUFFER);}
+
+  // Description:
+  // Used to set the polygon offset scale factor and units.
+  // Used when ResolveCoincidentTopology is set to PolygonOffset. 
+  // These are global variables.
+  static void SetResolveCoincidentTopologyPolygonOffsetParameters(float factor,
+                                                                  float units);
+  static void GetResolveCoincidentTopologyPolygonOffsetParameters(float& factor,
+                                                                  float& units);
 
   // Description:
   // Used to set the z-shift if ResolveCoincidentTopology is set to

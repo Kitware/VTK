@@ -2631,8 +2631,10 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     else
       {
 #ifdef GL_VERSION_1_1
+      float f, u;
       glEnable(GL_POLYGON_OFFSET_FILL);
-      glPolygonOffset(1,1);
+      this->GetResolveCoincidentTopologyPolygonOffsetParameters(f,u);
+      glPolygonOffset(f,u);
 #endif      
       }
     }
