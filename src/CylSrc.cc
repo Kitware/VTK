@@ -4,60 +4,12 @@
 #include <math.h>
 #include "CylSrc.hh"
 
-void vlCylinderSource::SetResolution(int res)
+vlCylinderSource::vlCylinderSource (int res)
 {
-  if ( res != this->Resolution )
-    {
-    this->Resolution = res;
-    this->Resolution = (this->Resolution < 3 ? 3 :
-        (this->Resolution > MAX_RESOLUTION ? MAX_RESOLUTION : this->Resolution));
-    this->Modified();
-    }
-}
-int vlCylinderSource::GetResolution()
-{
-  return this->Resolution;
-}
-
-void vlCylinderSource::SetHeight(float h)
-{
-  if ( h != this->Height )
-    {
-    this->Height = h;
-    this->Height = (this->Height > 0.0 ? this->Height : 1.0);
-    this->Modified();
-    }
-}
-float vlCylinderSource::GetHeight()
-{
-  return this->Height;
-}
-
-void vlCylinderSource::SetRadius(float h)
-{
-  if ( h != this->Radius )
-    {
-    this->Radius = h;
-    this->Radius = (this->Radius > 0.0 ? this->Radius : 0.5);
-    this->Modified();
-    }
-}
-float vlCylinderSource::GetRadius()
-{
-  return this->Radius;
-}
-
-void vlCylinderSource::SetCapping(int flag)
-{
-  if ( flag != this->Capping )
-    {
-    this->Capping = flag;
-    this->Modified();
-    }
-}
-int vlCylinderSource::GetCapping()
-{
-  return this->Capping;
+  this->Resolution = res;
+  this->Height = 1.0;
+  this->Radius = 0.5;
+  this->Capping = 1;
 }
 
 void vlCylinderSource::Execute()
