@@ -92,6 +92,7 @@ vtkImageNoiseSource \
 vtkImageNonMaximumSuppression \
 vtkImageOpenClose3D \
 vtkImagePermute \
+vtkImageQuantizeRGBToIndex \
 vtkImager \
 vtkImageReader \
 vtkImageResample \
