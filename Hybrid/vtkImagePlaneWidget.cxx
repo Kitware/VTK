@@ -40,7 +40,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.38");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.39");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -53,7 +53,7 @@ vtkImagePlaneWidget::vtkImagePlaneWidget()
   this->State = vtkImagePlaneWidget::Start;
   this->EventCallbackCommand->SetCallback(vtkImagePlaneWidget::ProcessEvents);
 
-  this->PlaneOrientation = 0; //default align normal to x-axis
+  this->PlaneOrientation = 0; // default align normal to x-axis
   this->RestrictPlaneToVolume = 1;
   this->OriginalWindow = 1.0;
   this->OriginalLevel = 0.5;
@@ -68,8 +68,10 @@ vtkImagePlaneWidget::vtkImagePlaneWidget()
   this->CurrentCursorPosition[1] = 0;
   this->CurrentCursorPosition[2] = 0;
   this->CurrentImageValue = VTK_FLOAT_MAX;
+  this->MarginSelectMode = 8;
 
   // Represent the plane
+  //
   this->PlaneSource = vtkPlaneSource::New();
   this->PlaneSource->SetXResolution(4);
   this->PlaneSource->SetYResolution(4);
@@ -93,6 +95,7 @@ vtkImagePlaneWidget::vtkImagePlaneWidget()
   this->PlaneActor->SetMapper(this->PlaneMapper);
 
   // Define the point coordinates
+  //
   float bounds[6];
   bounds[0] = -0.5;
   bounds[1] = 0.5;
@@ -102,19 +105,22 @@ vtkImagePlaneWidget::vtkImagePlaneWidget()
   bounds[5] = 0.5;
 
   // Initial creation of the widget, serves to initialize it
+  //
   this->PlaceWidget(bounds);
 
-  //Manage the picking stuff
+  // Manage the picking stuff
+  //
   this->PlanePicker = vtkCellPicker::New();
   this->PlanePicker->SetTolerance(0.005); //need some fluff
   this->PlanePicker->AddPickList(this->PlaneActor);
   this->PlanePicker->PickFromListOn();
 
   // Set up the initial properties
+  //
   this->PlaneProperty = 0;
   this->SelectedPlaneProperty = 0;
   this->CursorProperty = 0;
-  this->MarginProperty = 0;  
+  this->MarginProperty = 0;
   this->CreateDefaultProperties();
 
   this->SetRepresentation();
@@ -480,8 +486,6 @@ void vtkImagePlaneWidget::HighlightPlane(int highlight)
 
 void vtkImagePlaneWidget::OnLeftButtonDown()
 {
-  this->State = vtkImagePlaneWidget::Outside;
-
   int X = this->Interactor->GetEventPosition()[0];
   int Y = this->Interactor->GetEventPosition()[1];
 
@@ -511,18 +515,21 @@ void vtkImagePlaneWidget::OnLeftButtonDown()
 
   if( ! found || path == 0 )
     {
+    this->State = vtkImagePlaneWidget::Outside;
     this->HighlightPlane(0);
     this->ActivateCursor(0);
     this->ActivateText(0);
     return;
     }
-
-  this->State = vtkImagePlaneWidget::Cursoring;
-  this->HighlightPlane(1);
-  this->ActivateCursor(1);
-  this->ActivateText(1);
-  this->UpdateCursor(X,Y);
-  this->ManageTextDisplay();
+  else
+    {
+    this->State = vtkImagePlaneWidget::Cursoring;
+    this->HighlightPlane(1);
+    this->ActivateCursor(1);
+    this->ActivateText(1);
+    this->UpdateCursor(X,Y);
+    this->ManageTextDisplay();
+    }
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
@@ -551,8 +558,6 @@ void vtkImagePlaneWidget::OnLeftButtonUp()
 
 void vtkImagePlaneWidget::OnMiddleButtonDown()
 {
-  this->State = vtkImagePlaneWidget::Outside;
-
   int X = this->Interactor->GetEventPosition()[0];
   int Y = this->Interactor->GetEventPosition()[1];
 
@@ -582,16 +587,19 @@ void vtkImagePlaneWidget::OnMiddleButtonDown()
 
   if ( !found || path == 0 )
     {
+    this->State = vtkImagePlaneWidget::Outside;
     this->HighlightPlane(0);
     this->ActivateMargins(0);
     return;
     }
-
-  this->State = vtkImagePlaneWidget::Pushing;
-  this->HighlightPlane(1);
-  this->ActivateMargins(1);
-  this->AdjustState();
-  this->UpdateMargins();
+  else
+    {
+    this->State = vtkImagePlaneWidget::Pushing;
+    this->HighlightPlane(1);
+    this->ActivateMargins(1);
+    this->AdjustState();
+    this->UpdateMargins();
+    }
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
@@ -619,8 +627,6 @@ void vtkImagePlaneWidget::OnMiddleButtonUp()
 
 void vtkImagePlaneWidget::OnRightButtonDown()
 {
-  this->State = vtkImagePlaneWidget::Outside;
-
   int X = this->Interactor->GetEventPosition()[0];
   int Y = this->Interactor->GetEventPosition()[1];
 
@@ -650,16 +656,19 @@ void vtkImagePlaneWidget::OnRightButtonDown()
 
   if( ! found || path == 0 )
     {
+    this->State = vtkImagePlaneWidget::Outside;
     this->HighlightPlane(0);
     this->ActivateText(0);
     return;
     }
-
-  this->State = vtkImagePlaneWidget::WindowLevelling;
-  this->HighlightPlane(1);
-  this->ActivateText(1);
-  this->WindowLevel(X,Y);
-  this->ManageTextDisplay();
+  else
+    {
+    this->State = vtkImagePlaneWidget::WindowLevelling;
+    this->HighlightPlane(1);
+    this->ActivateText(1);
+    this->WindowLevel(X,Y);
+    this->ManageTextDisplay();
+    }
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
@@ -684,7 +693,6 @@ void vtkImagePlaneWidget::OnRightButtonUp()
   this->InvokeEvent(vtkCommand::EndInteractionEvent,0);
   this->Interactor->Render();
 }
-
 
 void vtkImagePlaneWidget::OnMouseMove()
 {
@@ -749,6 +757,20 @@ void vtkImagePlaneWidget::OnMouseMove()
     {
     camera->GetViewPlaneNormal(vpn);
     this->Rotate(prevPickPoint, pickPoint, vpn);
+    this->UpdateNormal();
+    this->UpdateOrigin();
+    this->UpdateMargins();
+    }
+  else if ( this->State == vtkImagePlaneWidget::Scaling )
+    {
+    this->Scale(prevPickPoint, pickPoint, X, Y);
+    this->UpdateNormal();
+    this->UpdateOrigin();
+    this->UpdateMargins();
+    }
+  else if ( this->State == vtkImagePlaneWidget::Moving )
+    {
+    this->Translate(prevPickPoint, pickPoint);
     this->UpdateNormal();
     this->UpdateOrigin();
     this->UpdateMargins();
@@ -1981,6 +2003,12 @@ void vtkImagePlaneWidget::GetVector2(float v2[3])
 
 void vtkImagePlaneWidget::AdjustState()
 {
+  if ( this->Interactor->GetShiftKey() )
+    {
+    this->State = vtkImagePlaneWidget::Scaling;
+    return;
+    }
+
   float v1[3];
   this->GetVector1(v1);
   float v2[3];
@@ -2009,65 +2037,100 @@ void vtkImagePlaneWidget::AdjustState()
   float x1 = planeSize1 - marginX;
   float y1 = planeSize2 - marginY;
 
+  if ( x2D < x0  )       // left margin
+    {
+    if (y2D < y0)        // bottom left corner
+      {
+      this->MarginSelectMode =  0;
+      }
+    else if (y2D > y1)   // top left corner
+      {
+      this->MarginSelectMode =  3;
+      }
+    else                 // left edge
+      {
+      this->MarginSelectMode =  4;
+      }
+    }
+  else if ( x2D > x1 )   // right margin
+    {
+    if (y2D < y0)        // bottom right corner
+      {
+      this->MarginSelectMode =  1;
+      }
+    else if (y2D > y1)   // top right corner
+      {
+      this->MarginSelectMode =  2;
+      }
+    else                 // right edge
+      {
+      this->MarginSelectMode =  5;
+      }
+    }
+  else                   // middle
+    {
+    if (y2D < y0)        // bottom edge
+      {
+      this->MarginSelectMode =  6;
+      }
+    else if (y2D > y1)   // top edge
+      {
+      this->MarginSelectMode =  7;
+      }
+    else                 // central area
+      {
+      this->MarginSelectMode =  8;
+      }
+    }
+
+  if ( this->Interactor->GetControlKey() )
+    {
+    this->State = vtkImagePlaneWidget::Moving;
+    }
+  else
+    {
+    if (this->MarginSelectMode >= 0 && this->MarginSelectMode < 4)
+      {
+      this->State = vtkImagePlaneWidget::Spinning;
+      return;
+      }
+    else if (this->MarginSelectMode == 8)
+      {
+      this->State = vtkImagePlaneWidget::Pushing;
+      return;
+      }
+    else
+      {
+      this->State = vtkImagePlaneWidget::Rotating;
+      }
+    }
+
   float *raPtr = 0;
   float *rvPtr = 0;
   float rvfac = 1.0;
+  float rafac = 1.0;
 
-  if ( x2D < x0  )    //left margin
+  switch ( this->MarginSelectMode )
     {
-    if ((y2D < y0) || (y2D > y1))  // corners
-      {
-      this->State = vtkImagePlaneWidget::Spinning;
-      }
-    else
-      {                                             // left edge
-      this->State = vtkImagePlaneWidget::Rotating;
-      raPtr = v2;
-      rvPtr = v1;
-      rvfac = -1.0;
-      }
-    }
-  else if ( x2D > x1 )                         // right margin
-    {
-    if ((y2D < y0) || (y2D > y1))  // corners
-      {
-      this->State = vtkImagePlaneWidget::Spinning;
-      }
-    else                                             // right edge
-      {
-      this->State = vtkImagePlaneWidget::Rotating;
-      raPtr = v2;
-      rvPtr = v1;
-      }
-    }
-  else                                              //  middle
-    {
-    if (y2D < y0)                          // bottom edge
-      {
-      this->State = vtkImagePlaneWidget::Rotating;
-      raPtr = v1;
-      rvPtr = v2;
-      rvfac = -1.0;
-      }
-    else if (y2D > y1)                         // top edge
-      {
-      this->State = vtkImagePlaneWidget::Rotating;
-      raPtr = v1;
-      rvPtr = v2;
-      }
-    else                                             // central area
-      {
-      this->State = vtkImagePlaneWidget::Pushing;
-      }
+     // left bottom corner
+    case 0: raPtr = v2; rvPtr = v1; rvfac = -1.0; rafac = -1.0; break;
+     // right bottom corner
+    case 1: raPtr = v2; rvPtr = v1;               rafac = -1.0; break;
+     // right top corner
+    case 2: raPtr = v2; rvPtr = v1;               break;
+     // left top corner
+    case 3: raPtr = v2; rvPtr = v1; rvfac = -1.0; break;
+    case 4: raPtr = v2; rvPtr = v1; rvfac = -1.0; break; // left
+    case 5: raPtr = v2; rvPtr = v1;               break; // right
+    case 6: raPtr = v1; rvPtr = v2; rvfac = -1.0; break; // bottom
+    case 7: raPtr = v1; rvPtr = v2;               break; // top
+    default: raPtr = v1; rvPtr = v2; break;
     }
 
-  if ( this->State == vtkImagePlaneWidget::Rotating )
+  for (int i = 0; i < 3; i++)
     {
-    for (int i = 0; i < 3; i++)
-      {
-      this->RotateAxis[i] = *raPtr++;
-      this->RadiusVector[i] = *rvPtr++ * rvfac;
-      }
+    this->RotateAxis[i] = *raPtr++ * rafac;
+    this->RadiusVector[i] = *rvPtr++ * rvfac;
     }
 }
 
@@ -2262,4 +2325,171 @@ void vtkImagePlaneWidget::UpdateMargins()
   this->MarginPoints->SetPoint(7,d);
 
   this->MarginMapper->Modified();
+}
+
+void vtkImagePlaneWidget::Translate(double *p1, double *p2)
+{
+  // Get the motion vector
+  //
+  double v[3];
+  v[0] = p2[0] - p1[0];
+  v[1] = p2[1] - p1[1];
+  v[2] = p2[2] - p1[2];
+
+  float *o = this->PlaneSource->GetOrigin();
+  float *pt1 = this->PlaneSource->GetPoint1();
+  float *pt2 = this->PlaneSource->GetPoint2();
+  float origin[3], point1[3], point2[3];
+
+  float vdrv = this->RadiusVector[0]*v[0] + \
+               this->RadiusVector[1]*v[1] + \
+               this->RadiusVector[2]*v[2];
+  float vdra = this->RotateAxis[0]*v[0] + \
+               this->RotateAxis[1]*v[1] + \
+               this->RotateAxis[2]*v[2];
+
+  int i;
+  if ( this->MarginSelectMode == 8 )       // everybody comes along
+    {
+    for (i=0; i<3; i++)
+      {
+      origin[i] = o[i] + v[i];
+      point1[i] = pt1[i] + v[i];
+      point2[i] = pt2[i] + v[i];
+      }
+    this->PlaneSource->SetOrigin(origin);
+    this->PlaneSource->SetPoint1(point1);
+    this->PlaneSource->SetPoint2(point2);
+    }
+  else if ( this->MarginSelectMode == 4 ) // left edge
+    {
+    for (i=0; i<3; i++)
+      {
+      origin[i] = o[i]   + vdrv*this->RadiusVector[i];
+      point2[i] = pt2[i] + vdrv*this->RadiusVector[i];
+      }
+    this->PlaneSource->SetOrigin(origin);
+    this->PlaneSource->SetPoint2(point2);
+    }
+  else if ( this->MarginSelectMode == 5 ) // right edge
+    {
+    for (i=0; i<3; i++)
+      {
+      point1[i] = pt1[i] + vdrv*this->RadiusVector[i];
+      }
+    this->PlaneSource->SetPoint1(point1);
+    }
+  else if ( this->MarginSelectMode == 6 ) // bottom edge
+    {
+    for (i=0; i<3; i++)
+      {
+      origin[i] = o[i]   + vdrv*this->RadiusVector[i];
+      point1[i] = pt1[i] + vdrv*this->RadiusVector[i];
+      }
+    this->PlaneSource->SetOrigin(origin);
+    this->PlaneSource->SetPoint1(point1);
+    }
+  else if ( this->MarginSelectMode == 7 ) // top edge
+    {
+    for (i=0; i<3; i++)
+      {
+      point2[i] = pt2[i] + vdrv*this->RadiusVector[i];
+      }
+    this->PlaneSource->SetPoint2(point2);
+    }
+  else if ( this->MarginSelectMode == 3 ) // top left corner
+    {
+    for (i=0; i<3; i++)
+      {
+      origin[i] = o[i]   + vdrv*this->RadiusVector[i];
+      point2[i] = pt2[i] + vdrv*this->RadiusVector[i] + vdra*this->RotateAxis[i];
+      }
+    this->PlaneSource->SetOrigin(origin);
+    this->PlaneSource->SetPoint2(point2);
+    }
+  else if ( this->MarginSelectMode == 0 ) // bottom left corner
+    {
+    for (int i=0; i<3; i++)
+      {
+      origin[i] = o[i]   + vdrv*this->RadiusVector[i] + vdra*this->RotateAxis[i];
+      point1[i] = pt1[i] + vdra*this->RotateAxis[i];
+      point2[i] = pt2[i] + vdrv*this->RadiusVector[i];
+      }
+    this->PlaneSource->SetOrigin(origin);
+    this->PlaneSource->SetPoint1(point1);
+    this->PlaneSource->SetPoint2(point2);
+    }
+  else if ( this->MarginSelectMode == 2 ) // top right corner
+    {
+    for (i=0; i<3; i++)
+      {
+      point1[i] = pt1[i] + vdrv*this->RadiusVector[i];
+      point2[i] = pt2[i] + vdra*this->RotateAxis[i];
+      }
+    this->PlaneSource->SetPoint1(point1);
+    this->PlaneSource->SetPoint2(point2);
+    }
+  else                                   // bottom right corner
+    {
+    for (i=0; i<3; i++)
+      {
+      origin[i] = o[i]   + vdra*this->RotateAxis[i];
+      point1[i] = pt1[i] + vdrv*this->RadiusVector[i] + vdra*this->RotateAxis[i];
+      }
+    this->PlaneSource->SetPoint1(point1);
+    this->PlaneSource->SetOrigin(origin);
+    }
+
+  this->PlaneSource->Update();
+
+  this->PositionHandles();
+}
+
+void vtkImagePlaneWidget::Scale(double *p1, double *p2, int vtkNotUsed(X), int Y)
+{
+  // Get the motion vector
+  //
+  double v[3];
+  v[0] = p2[0] - p1[0];
+  v[1] = p2[1] - p1[1];
+  v[2] = p2[2] - p1[2];
+
+  float *o = this->PlaneSource->GetOrigin();
+  float *pt1 = this->PlaneSource->GetPoint1();
+  float *pt2 = this->PlaneSource->GetPoint2();
+
+  float center[3];
+  center[0] = o[0] + (pt1[0]-o[0])/2.0 + (pt2[0]-o[0])/2.0;
+  center[1] = o[1] + (pt1[1]-o[1])/2.0 + (pt2[1]-o[1])/2.0;
+  center[2] = o[2] + (pt1[2]-o[2])/2.0 + (pt2[2]-o[2])/2.0;
+
+  // Compute the scale factor
+  //
+  float sf = vtkMath::Norm(v) / sqrt(vtkMath::Distance2BetweenPoints(pt1,pt2));
+  if ( Y > this->Interactor->GetLastEventPosition()[1] )
+    {
+    sf = 1.0 + sf;
+    }
+  else
+    {
+    sf = 1.0 - sf;
+    }
+
+  // Move the corner points
+  //
+  float origin[3], point1[3], point2[3];
+
+  for (int i=0; i<3; i++)
+    {
+    origin[i] = sf * (o[i] - center[i]) + center[i];
+    point1[i] = sf * (pt1[i] - center[i]) + center[i];
+    point2[i] = sf * (pt2[i] - center[i]) + center[i];
+    }
+
+  this->PlaneSource->SetOrigin(origin);
+  this->PlaneSource->SetPoint1(point1);
+  this->PlaneSource->SetPoint2(point2);
+  this->PlaneSource->Update();
+
+  this->PositionHandles();
 }
