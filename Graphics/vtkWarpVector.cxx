@@ -58,10 +58,12 @@ vtkWarpVector* vtkWarpVector::New()
 vtkWarpVector::vtkWarpVector()
 {
   this->ScaleFactor = 1.0;
+  this->InputVectorsSelection = NULL;
 }
 
 vtkWarpVector::~vtkWarpVector()
 {
+  this->SetInputVectorsSelection(NULL);
 }
 
 template <class T1, class T2>
@@ -96,11 +98,18 @@ template <class T>
 static void vtkWarpVectorExecute(vtkWarpVector *self,
                                  T *inPts, T *outPts, vtkIdType max)
 {
-  void *inVec = self->GetInput()->GetPointData()->
-    GetVectors()->GetVoidPointer(0);
+  void *inVec;
+  vtkDataArray *vectors = self->GetInput()->GetPointData()->
+                            GetVectors(self->GetInputVectorsSelection());
+
+  if (vectors == NULL)
+    {
+    return;
+    }
+  inVec = vectors->GetVoidPointer(0);
 
   // call templated function
-  switch (self->GetInput()->GetPointData()->GetVectors()->GetDataType())
+  switch (vectors->GetDataType())
     {
     vtkTemplateMacro5(vtkWarpVectorExecute2,self, inPts, outPts, 
                       (VTK_TT *)(inVec), max);
@@ -125,9 +134,10 @@ void vtkWarpVector::Execute()
     return;
     }
   numPts = input->GetPoints()->GetNumberOfPoints();
-  if ( !input->GetPointData()->GetVectors() || !numPts)
+  if ( !input->GetPointData()->GetVectors(this->InputVectorsSelection) 
+          || !numPts)
     {
-    vtkErrorMacro(<<"No input data");
+    vtkDebugMacro(<<"No input data");
     return;
     }
 
@@ -161,5 +171,9 @@ void vtkWarpVector::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPointSetToPointSetFilter::PrintSelf(os,indent);
 
+  if (this->InputVectorsSelection)
+    {
+    os << indent << "InputVectorsSelection: " << this->InputVectorsSelection;
+    } 
   os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
 }

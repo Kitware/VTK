@@ -63,6 +63,14 @@ vtkWarpScalar::vtkWarpScalar()
   this->Normal[1] = 0.0;
   this->Normal[2] = 1.0;
   this->XYPlane = 0;
+
+  this->InputScalarsSelection = NULL;
+  // Accept the memory leak for now.
+}
+
+vtkWarpScalar::~vtkWarpScalar()
+{
+  this->SetInputScalarsSelection(NULL);
 }
 
 float *vtkWarpScalar::DataNormal(vtkIdType id, vtkDataArray *normals)
@@ -104,8 +112,8 @@ void vtkWarpScalar::Execute()
   inPts = input->GetPoints();
   pd = input->GetPointData();
   inNormals = pd->GetNormals();
-  inScalars = pd->GetScalars();
 
+  inScalars = pd->GetScalars(this->InputScalarsSelection);
   if ( !inPts || !inScalars )
     {
     vtkErrorMacro(<<"No data to warp");
@@ -178,6 +186,10 @@ void vtkWarpScalar::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPointSetToPointSetFilter::PrintSelf(os,indent);
 
+  if (this->InputScalarsSelection)
+    {
+    os << indent << "InputScalarsSelection: " << this->InputScalarsSelection;
+    } 
   os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
   os << indent << "Use Normal: " << (this->UseNormal ? "On\n" : "Off\n");
   os << indent << "Normal: (" << this->Normal[0] << ", " 

@@ -330,6 +330,12 @@ void vtkContourFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
 
+  if (this->InputScalarsSelection)
+    {
+    os << indent << "InputScalarsSelection: " 
+       << this->InputScalarsSelection << endl;
+    }
+
   os << indent << "Compute Gradients: " 
      << (this->ComputeGradients ? "On\n" : "Off\n");
   os << indent << "Compute Normals: " 
@@ -349,16 +355,5 @@ void vtkContourFilter::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Locator: (none)\n";
     }
-
-  if (this->InputScalarsSelection)
-    {
-    os << indent << "InputScalarsSelection: "  
-       << this->InputScalarsSelection << endl;
-    }
-  else
-    {
-    os << indent << "InputScalarsSelection: Default Scalars\n";
-    }
-    
 }
 

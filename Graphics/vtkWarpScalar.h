@@ -98,9 +98,16 @@ public:
   vtkGetMacro(XYPlane,int);
   vtkBooleanMacro(XYPlane,int);
 
+  // Description:
+  // If you want to warp by an arbitrary scalar array, then set its name here.
+  // By default this in NULL and the filter will use the active scalar array.
+  vtkGetStringMacro(InputScalarsSelection);
+  void SelectInputScalars(const char *fieldName) 
+    {this->SetInputScalarsSelection(fieldName);}
+  
 protected:
   vtkWarpScalar();
-  ~vtkWarpScalar() {};
+  ~vtkWarpScalar();
 
   void Execute();
 
@@ -115,6 +122,10 @@ protected:
   float *InstanceNormal(vtkIdType id, vtkDataArray *normals=NULL);
   float *ZNormal(vtkIdType id, vtkDataArray *normals=NULL);
   //ETX
+
+  char *InputScalarsSelection;
+  vtkSetStringMacro(InputScalarsSelection);
+
 private:
   vtkWarpScalar(const vtkWarpScalar&);  // Not implemented.
   void operator=(const vtkWarpScalar&);  // Not implemented.
