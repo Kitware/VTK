@@ -58,8 +58,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkAbstractList_h
 #define __vtkAbstractList_h
 
-#define vtkAbstractListCompareFunction(DType, CompareFunction) \
-    int (*CompareFunction)(DType item1, DType item2)
+// Since some compilers have problems with keyword typename, we have 
+// to do this with macros.
+// These macros define types for pointers to auxilary functions.
+#define vtkAbstractListCompareFunction(KeyType, CompareFunction) \
+    int (*CompareFunction)(const KeyType&  k1, const KeyType& k2)
+#define vtkAbstractListCreateFunction(KeyType, CreateFunction) \
+    void (*CreateFunction)(KeyType& k1, const KeyType& k2)
+#define vtkAbstractListDeleteFunction(KeyType, DeleteFunction) \
+    void (*DeleteFunction)(KeyType& k1)
 
 template<class DType>
 class vtkAbstractList : public vtkContainer
@@ -67,11 +74,12 @@ class vtkAbstractList : public vtkContainer
 public:
   vtkContainerTypeMacro(vtkAbstractList<DType>, vtkContainer);
 
-  // Description:
-  // This is a prototype for a compare function. It has to
-  // return 0 if objects are the same, <0 if item1 is smaller than
-  // item2 and >0 if item1 is greater than item2.
+  // Just to avoid typing over and over, let us define some typedefs.
+  // They will not work in subclasses, but this header file will 
+  // be more readable.
   typedef vtkAbstractListCompareFunction(DType, CompareFunctionType);
+  typedef vtkAbstractListCreateFunction(DType,  CreateFunctionType);
+  typedef vtkAbstractListDeleteFunction(DType,  DeleteFunctionType);
 
   // Description:
   // Append an Item to the end of the list.
@@ -138,6 +146,26 @@ public:
   // Returns the number of items the container can currently hold.
   // This is the capacity of the container.
   virtual vtkIdType GetSize() = 0;
+
+  // Description:
+  // Set compare, create, and delete functions for keys and data.
+  // These function pointers are static, so that you do not have
+  // to set them for every map but only once for the same types.
+  static void SetCreateFunction(CreateFunctionType cf)
+  { vtkAbstractList<DType>::CreateFunction = cf; }
+  static void SetCompareFunction(CompareFunctionType cf)
+  { vtkAbstractList<DType>::CompareFunction = cf;}
+  static void SetDeleteFunction(DeleteFunctionType cf)
+  { vtkAbstractList<DType>::DeleteFunction = cf; }
+  
+protected:
+  static CompareFunctionType CompareFunction;
+  static CreateFunctionType CreateFunction;
+  static DeleteFunctionType DeleteFunction;
 };
+
+#ifdef VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION
+#include "vtkAbstractList.txx"
+#endif 
 
 #endif

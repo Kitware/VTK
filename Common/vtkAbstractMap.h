@@ -187,4 +187,8 @@ template<class KeyType, class DataType>
 void vtkAbstractMapDataIsReferenceCounted(
   const vtkAbstractMap<KeyType,DataType>*);
 
+#ifdef VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION
+#include "vtkAbstractMap.txx"
+#endif 
+
 #endif
