@@ -125,6 +125,11 @@ public:
   static double GetCurrentTime();
 
   // Description:
+  // Returns the CPU time for this process
+  // On Win32 platforms this actually returns wall time.
+  static double GetCPUTime();
+
+  // Description:
   // Set the StartTime to the current time. Used with GetElapsedTime().
   void StartTimer();
 

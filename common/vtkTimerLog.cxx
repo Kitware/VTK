@@ -53,16 +53,24 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <limits.h>     // for CLK_TCK
 #endif
 
+#include <time.h>
+
 // initialze the class variables
 int vtkTimerLog::MaxEntries = 100;
 int vtkTimerLog::NextEntry = 0;
 int vtkTimerLog::WrapFlag = 0;
 vtkTimerLogEntry *vtkTimerLog::TimerLog = NULL;
+
 #ifdef CLK_TCK
 int vtkTimerLog::TicksPerSecond = CLK_TCK;
 #else
 int vtkTimerLog::TicksPerSecond = 60;
 #endif
+
+#ifndef CLOCKS_PER_SEC
+#define CLOCKS_PER_SEC (vtkTimerLog::TicksPerSecond)
+#endif
+
 
 #ifdef _WIN32
 timeb vtkTimerLog::FirstWallTime;
@@ -308,6 +316,15 @@ double vtkTimerLog::GetCurrentTime()
 #endif
 
   return (currentTimeInSeconds);
+}
+
+double vtkTimerLog::GetCPUTime()
+{
+  double   currentCPUTime;
+
+  currentCPUTime = (double)clock() / (double)CLOCKS_PER_SEC;
+
+  return currentCPUTime;
 }
 
 // Set the StartTime to the current time. Used with GetElapsedTime().
