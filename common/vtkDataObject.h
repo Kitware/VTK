@@ -269,9 +269,9 @@ public:
   // Description:
   // Set / Get the update piece and the update number of pieces. Similar
   // to update extent in 3D.
-  vtkSetMacro( UpdatePiece, int );
+  void SetUpdatePiece(int piece);
+  void SetUpdateNumberOfPieces(int num);
   vtkGetMacro( UpdatePiece, int );
-  vtkSetMacro( UpdateNumberOfPieces, int );
   vtkGetMacro( UpdateNumberOfPieces, int );
 
   // Description:

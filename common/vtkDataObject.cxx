@@ -345,7 +345,6 @@ unsigned long vtkDataObject::GetEstimatedMemorySize()
 }
 
 //----------------------------------------------------------------------------
-
 void vtkDataObject::SetUpdateExtent( int x1, int x2, 
 				     int y1, int y2, 
 				     int z1, int z2 )
@@ -356,17 +355,32 @@ void vtkDataObject::SetUpdateExtent( int x1, int x2,
   this->UpdateExtent[3] = y2;
   this->UpdateExtent[4] = z1;
   this->UpdateExtent[5] = z2;
+  
+  this->UpdateExtentInitialized = 1;
 }
 
 //----------------------------------------------------------------------------
-
 void vtkDataObject::SetUpdateExtent( int ext[6] )
 {
   memcpy( this->UpdateExtent, ext, 6*sizeof(int) );
+  this->UpdateExtentInitialized = 1;
 }
 
 //----------------------------------------------------------------------------
+void vtkDataObject::SetUpdatePiece( int piece )
+{
+  this->UpdatePiece = piece;
+  this->UpdateExtentInitialized = 1;
+}
 
+//----------------------------------------------------------------------------
+void vtkDataObject::SetUpdateNumberOfPieces( int num )
+{
+  this->UpdateNumberOfPieces = num;
+  this->UpdateExtentInitialized = 1;
+}
+
+//----------------------------------------------------------------------------
 void vtkDataObject::SetSource(vtkSource *arg)
 {
   vtkDebugMacro( << this->GetClassName() << " (" 
