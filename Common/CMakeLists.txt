@@ -133,7 +133,6 @@ vtkScalarsToColors.cxx
 vtkShortArray.cxx
 vtkSource.cxx
 vtkSphericalTransform.cxx
-vtkString.cxx
 vtkStructuredData.cxx
 vtkStructuredGrid.cxx
 vtkStructuredPoints.cxx
@@ -218,7 +217,6 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkOStrStreamWrapper.cxx
   vtkOStreamWrapper.cxx
   vtkOldStyleCallbackCommand
-  vtkString
   WRAP_EXCLUDE
 )
 
