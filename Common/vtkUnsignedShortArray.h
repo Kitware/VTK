@@ -45,6 +45,27 @@ public:
     { return VTK_UNSIGNED_SHORT; }
 
   // Description:
+  // Copy the tuple value into a user-provided array.
+  void GetTupleValue(vtkIdType i, unsigned short* tuple)
+    { this->RealSuperclass::GetTupleValue(i, tuple); }
+
+  // Description:
+  // Set the tuple value at the ith location in the array.
+  void SetTupleValue(vtkIdType i, const unsigned short* tuple)
+    { this->RealSuperclass::SetTupleValue(i, tuple); }
+
+  // Description:
+  // Insert (memory allocation performed) the tuple into the ith location
+  // in the array.
+  void InsertTupleValue(vtkIdType i, const unsigned short* tuple)
+    { this->RealSuperclass::InsertTupleValue(i, tuple); }
+
+  // Description:
+  // Insert (memory allocation performed) the tuple onto the end of the array.
+  vtkIdType InsertNextTupleValue(const unsigned short* tuple)
+    { return this->RealSuperclass::InsertNextTupleValue(tuple); }
+
+  // Description:
   // Get the data at a particular index.
   unsigned short GetValue(vtkIdType id)
     { return this->RealSuperclass::GetValue(id); }

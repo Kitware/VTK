@@ -22,7 +22,7 @@
 #define __vtkIntArray_h
 
 // Tell the template header how to give our superclass a DLL interface.
-#if !defined(__vtkIntArray_cxx)
+#if !defined(__vtkIntArray_cxx) && (defined(VTK_USE_64BIT_IDS) || !defined(__vtkIdTypeArray_h))
 # define VTK_DATA_ARRAY_TEMPLATE_TYPE int
 #endif
 
@@ -43,6 +43,27 @@ public:
   // Get the data type.
   int GetDataType()
     { return VTK_INT; }
+
+  // Description:
+  // Copy the tuple value into a user-provided array.
+  void GetTupleValue(vtkIdType i, int* tuple)
+    { this->RealSuperclass::GetTupleValue(i, tuple); }
+
+  // Description:
+  // Set the tuple value at the ith location in the array.
+  void SetTupleValue(vtkIdType i, const int* tuple)
+    { this->RealSuperclass::SetTupleValue(i, tuple); }
+
+  // Description:
+  // Insert (memory allocation performed) the tuple into the ith location
+  // in the array.
+  void InsertTupleValue(vtkIdType i, const int* tuple)
+    { this->RealSuperclass::InsertTupleValue(i, tuple); }
+
+  // Description:
+  // Insert (memory allocation performed) the tuple onto the end of the array.
+  vtkIdType InsertNextTupleValue(const int* tuple)
+    { return this->RealSuperclass::InsertNextTupleValue(tuple); }
 
   // Description:
   // Get the data at a particular index.

@@ -333,6 +333,16 @@ void vtkDataArrayTemplate<T>::GetTuple(vtkIdType i, double* tuple)
     }
 }
 
+template <class T>
+void vtkDataArrayTemplate<T>::GetTupleValue(vtkIdType i, T* tuple)
+{
+  T* t = this->Array + this->NumberOfComponents*i;
+  for(int j=0; j < this->NumberOfComponents; ++j)
+    {
+    tuple[j] = t[j];
+    }
+}
+
 //----------------------------------------------------------------------------
 // Set the tuple value at the ith location in the array.
 template <class T>
@@ -352,6 +362,16 @@ void vtkDataArrayTemplate<T>::SetTuple(vtkIdType i, const double* tuple)
   for(int j=0; j < this->NumberOfComponents; ++j)
     {
     this->Array[loc+j] = static_cast<T>(tuple[j]);
+    }
+}
+
+template <class T>
+void vtkDataArrayTemplate<T>::SetTupleValue(vtkIdType i, const T* tuple)
+{
+  vtkIdType loc = i * this->NumberOfComponents;
+  for(int j=0; j < this->NumberOfComponents; ++j)
+    {
+    this->Array[loc+j] = tuple[j];
     }
 }
 
@@ -382,6 +402,18 @@ void vtkDataArrayTemplate<T>::InsertTuple(vtkIdType i, const double* tuple)
     }
 }
 
+template <class T>
+void vtkDataArrayTemplate<T>::InsertTupleValue(vtkIdType i, const T* tuple)
+{
+  T* t = this->WritePointer(i*this->NumberOfComponents,
+                            this->NumberOfComponents);
+
+  for(int j=0; j < this->NumberOfComponents; ++j)
+    {
+    *t++ = *tuple++;
+    }
+}
+
 //----------------------------------------------------------------------------
 // Insert (memory allocation performed) the tuple onto the end of the array.
 template <class T>
@@ -405,6 +437,19 @@ vtkIdType vtkDataArrayTemplate<T>::InsertNextTuple(const double* tuple)
   for(int j=0; j < this->NumberOfComponents; ++j)
     {
     *t++ = static_cast<T>(*tuple++);
+    }
+
+  return this->MaxId / this->NumberOfComponents;
+}
+
+template <class T>
+vtkIdType vtkDataArrayTemplate<T>::InsertNextTupleValue(const T* tuple)
+{
+  T* t = this->WritePointer(this->MaxId + 1,this->NumberOfComponents);
+
+  for(int j=0; j < this->NumberOfComponents; ++j)
+    {
+    *t++ = *tuple++;
     }
 
   return this->MaxId / this->NumberOfComponents;

@@ -55,22 +55,26 @@ public:
   // Description:
   // Copy the tuple value into a user-provided array.
   void GetTuple(vtkIdType i, double* tuple);
+  void GetTupleValue(vtkIdType i, T* tuple);
 
   // Description:
   // Set the tuple value at the ith location in the array.
   void SetTuple(vtkIdType i, const float* tuple);
   void SetTuple(vtkIdType i, const double* tuple);
+  void SetTupleValue(vtkIdType i, const T* tuple);
 
   // Description:
   // Insert (memory allocation performed) the tuple into the ith location
   // in the array.
   void InsertTuple(vtkIdType i, const float* tuple);
   void InsertTuple(vtkIdType i, const double* tuple);
+  void InsertTupleValue(vtkIdType i, const T* tuple);
 
   // Description:
   // Insert (memory allocation performed) the tuple onto the end of the array.
   vtkIdType InsertNextTuple(const float* tuple);
   vtkIdType InsertNextTuple(const double* tuple);
+  vtkIdType InsertNextTupleValue(const T* tuple);
 
   // Description:
   // Resize object to just fit data requirement. Reclaims extra memory.
