@@ -19,7 +19,8 @@
 
 #include "vtkSystemIncludes.h"
 #include "vtkToolkits.h"
-
+#include "vtkTkRenderWindowInteractorFactory.h"
+#include "vtkObjectFactory.h"
 /*
  *----------------------------------------------------------------------
  *
@@ -57,7 +58,7 @@ main(int argc, char **argv)
 }
 
 #endif
-
+
 /*
  *----------------------------------------------------------------------
  *
@@ -140,6 +141,8 @@ int Tcl_AppInit(Tcl_Interp *interp)
     {
     return TCL_ERROR;
     }
+  vtkTkRenderWindowInteractorFactory* tkFactory = vtkTkRenderWindowInteractorFactory::New();
+  vtkObjectFactory::RegisterFactory(tkFactory);
 #endif
 #endif
 
