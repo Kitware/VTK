@@ -76,7 +76,9 @@ void vtkImageSimpleCache::GenerateCachedRegionData(vtkImageRegion *region)
 	regionBounds[4] >= cacheBounds[4] &&
 	regionBounds[5] <= cacheBounds[5] &&
 	regionBounds[6] >= cacheBounds[6] &&
-	regionBounds[7] <= cacheBounds[7])
+	regionBounds[7] <= cacheBounds[7] &&
+	regionBounds[6] >= cacheBounds[8] &&
+	regionBounds[7] <= cacheBounds[9])
       {
       // check the gtime of cache to see if it is more recent than mtime */
       if (this->GenerateTime.GetMTime() >= this->GetPipelineMTime())

@@ -111,7 +111,7 @@ void vtkImageCache::UpdateImageInformation(vtkImageRegion *region)
   int saveAxes[VTK_IMAGE_DIMENSIONS];
 
   // Save the old coordinate system
-  region->GetAxes4d(saveAxes);
+  region->GetAxes(saveAxes);
 
   if (this->ImageBoundsTime.GetMTime() < this->GetPipelineMTime())
     {
@@ -125,17 +125,17 @@ void vtkImageCache::UpdateImageInformation(vtkImageRegion *region)
       }
 
     // Translate region into the sources coordinate system. (save old)
-    region->SetAxes4d(this->Source->GetAxes());
+    region->SetAxes(this->Source->GetAxes());
     // Get the ImageBounds
     this->Source->UpdateImageInformation(region);
     // Save the ImageBounds to satisfy later calls.
     // We do not have the method GetAbsoluteBounds(int *), so ...
-    region->SetAxes4d(0, 1, 2, 3);
-    region->GetImageBounds4d(this->ImageBounds);
+    region->SetAxes5d(0, 1, 2, 3, 4);
+    region->GetImageBounds(this->ImageBounds);
     this->ImageBoundsTime.Modified();
 
     // Leave the region in the original (before this method) coordinate system.
-    region->SetAxes4d(saveAxes);
+    region->SetAxes(saveAxes);
     
     return;
     }
@@ -143,11 +143,11 @@ void vtkImageCache::UpdateImageInformation(vtkImageRegion *region)
   // No modifications have been made, so return our own copy.
   vtkDebugMacro(<< "UpdateImageInformation: Using own copy of ImageBounds");
   // We do not have a method SetAbsoluteBounds(int *), so ...
-  region->SetAxes4d(0, 1, 2, 3);
-  region->SetImageBounds4d(this->ImageBounds);
+  region->SetAxes5d(0, 1, 2, 3, 4);
+  region->SetImageBounds(this->ImageBounds);
 
   // Leave the region in the original (before this method) coordinate system.
-  region->SetAxes4d(saveAxes);
+  region->SetAxes(saveAxes);
 }
 
 
@@ -182,13 +182,15 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
 
   vtkDebugMacro(<< "UpdateRegion: ");
 
-  // Allow the source to modify the bounds of the region
-  region->GetBounds4d(saveBounds);
-  this->Source->InterceptCacheUpdate(region);
+  // Save the bounds to restore later.
+  region->GetBounds(saveBounds);
   
   // Translate region into the sources coordinate system. (save old)
-  region->GetAxes4d(saveAxes);
-  region->SetAxes4d(this->Source->GetAxes());
+  region->GetAxes(saveAxes);
+  region->SetAxes(this->Source->GetAxes());
+
+  // Allow the source to modify the bounds of the region  
+  this->Source->InterceptCacheUpdate(region);
   
   // Check if bounds exceeds memory limit
   memory = region->GetVolume();
@@ -197,7 +199,7 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
     this->SplitFactor = (memory / this->MemoryLimit) + 1;
     vtkDebugMacro(<< "UpdateRegion: Reuest too large, SplitFactor= "
                   << this->SplitFactor);
-    region->SetAxes4d(saveAxes);
+    region->SetAxes(saveAxes);
     return;
     }
   
@@ -208,7 +210,7 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
   if (memory <= 0)
     {
     this->AllocateRegion(region);
-    region->SetAxes4d(saveAxes);
+    region->SetAxes(saveAxes);
     return;
     }
   
@@ -218,7 +220,7 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
     vtkErrorMacro(<< "UpdateRegion: Can not generate data with no Source");
     // Tell the consumer that spliting the region will not help.
     this->SplitFactor = 0;
-    region->SetAxes4d(saveAxes);
+    region->SetAxes(saveAxes);
     return;
     }
 
@@ -234,8 +236,8 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
     }
 
   // Leave the region in the original (before this method) coordinate system.
-  region->SetAxes4d(saveAxes);
-  region->SetBounds4d(saveBounds);
+  region->SetAxes(saveAxes);
+  region->SetBounds(saveBounds);
 }
 
 

@@ -44,10 +44,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageCachedSource::vtkImageCachedSource()
 {
   this->Output = NULL;
-  this->SetAxes4d(VTK_IMAGE_X_AXIS,
+  this->SetAxes5d(VTK_IMAGE_X_AXIS,
 		  VTK_IMAGE_Y_AXIS,
 		  VTK_IMAGE_Z_AXIS,
-		  VTK_IMAGE_TIME_AXIS);
+		  VTK_IMAGE_TIME_AXIS,
+		  VTK_IMAGE_COMPONENT_AXIS);
 }
 
 
@@ -82,10 +83,51 @@ void vtkImageCachedSource::InterceptCacheUpdate(vtkImageRegion *region)
 // This method fills an empty region with data.
 void vtkImageCachedSource::UpdateRegion(vtkImageRegion *region)
 {
-  this->UpdateRegion4d(region);
+  // switch statment is determine the overhead of this series of Update calls.
+  // Does nothing and not tested.
+  switch (VTK_IMAGE_DIMENSIONS)
+    {
+    case 5:
+      this->UpdateRegion5d(region);
+      break;
+    case 4:
+      this->UpdateRegion4d(region);
+      break;
+    case 3:
+      this->UpdateRegion3d(region);
+      break;
+    case 2:
+      this->UpdateRegion2d(region);
+      break;
+    case 1:
+      this->UpdateRegion1d(region);
+      break;
+    }
 }
 
   
+//----------------------------------------------------------------------------
+// Description:
+// This default GenerateRegion5d method treats the 5d image as a 
+// set of 4d images.  It loops over these 4d images and calls GenerateRegion4d.
+void vtkImageCachedSource::UpdateRegion5d(vtkImageRegion *region)
+{
+  int coordinate4;
+  int *bounds;
+  int min4, max4;
+  
+  bounds = region->GetBounds5d();
+  min4 = bounds[8];
+  max4 = bounds[9];
+  
+  for (coordinate4 = min4; coordinate4 <= max4; ++coordinate4)
+    {
+    region->SetDefaultCoordinate4(coordinate4);
+    this->UpdateRegion4d(region);
+    }
+}
+
+
 //----------------------------------------------------------------------------
 // Description:
 // This default GenerateRegion4d method treats the 4d image as a 
@@ -316,15 +358,54 @@ void vtkImageCachedSource::SetAxes3d(int axis0, int axis1, int axis2)
 
 //----------------------------------------------------------------------------
 // Description:
-// This method is used when the source is treating the data as 4d "image".
-// It chooses the axes that form the basis of the space.
+// This method is used when the source is treating the data as 4d images.
+// It chooses the basis of the 4d space.
 void vtkImageCachedSource::SetAxes4d(int axis0,int axis1,int axis2,int axis3)
 {
-  this->Axes[0] = axis0;
-  this->Axes[1] = axis1;
-  this->Axes[2] = axis2;
-  this->Axes[3] = axis3;
+  int axis4;
+  
+  // Choose the next axis (4d) as the smallest axis (only remaining axis).
+  axis4 = 0;
+  while (axis4 == axis0 || axis4 == axis1 || axis4 == axis2 || axis4 == axis3)
+    {
+    ++axis4;
+    }
+  
+  this->SetAxes5d(axis0, axis1, axis2, axis3, axis4);
 }
+
+//----------------------------------------------------------------------------
+// Description:
+// This method is used when the source is treating the data as 5d "image".
+// It chooses the axes that form the basis of the space.
+void vtkImageCachedSource::SetAxes5d(int axis0, int axis1, int axis2, 
+				     int axis3, int axis4)
+{
+  int axes[VTK_IMAGE_DIMENSIONS];
+  
+  axes[0] = axis0;
+  axes[1] = axis1;
+  axes[2] = axis2;
+  axes[3] = axis3;
+  axes[4] = axis4;
+  
+  this->SetAxes(axes);
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// This method always gets called when any of the SetAxes methods are invoked.
+// It is the general SetAxes method
+void vtkImageCachedSource::SetAxes(int *axes)
+{
+  int idx;
+  
+  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    this->Axes[idx] = axes[idx];
+    }
+}
+
 
     
 

@@ -107,8 +107,8 @@ void vtkImageToStructuredPoints::Update()
 void vtkImageToStructuredPoints::Execute()
 {
   vtkImageRegion *region = new vtkImageRegion;
-  int regionBounds[6];
-  int dataBounds[8];
+  int regionBounds[VTK_IMAGE_BOUNDS_DIMENSIONS];
+  int dataBounds[VTK_IMAGE_BOUNDS_DIMENSIONS];
   int *bounds, dim[3];
   float aspectRatio[3] = {1.0, 1.0, 1.0};
   float origin[3];
@@ -120,6 +120,9 @@ void vtkImageToStructuredPoints::Execute()
     vtkErrorMacro(<<"Execute:Please specify an input!");
     return;
     }
+
+  // Set the coordinate system of the region
+  region->SetAxes(this->Region.GetAxes());
   
   // Fill in image information.
   this->Input->UpdateImageInformation(region);
@@ -131,7 +134,7 @@ void vtkImageToStructuredPoints::Execute()
     }
   else
     {
-    region->SetBounds3d(this->Region.GetBounds3d());
+    region->SetBounds(this->Region.GetBounds());
     }
   this->Input->UpdateRegion(region);
   if ( ! region->IsAllocated())
@@ -142,11 +145,13 @@ void vtkImageToStructuredPoints::Execute()
 
   // If data is not the same size as the region, we need to reformat.
   // Assume that relativeCoordinates == absoluteCoordinates.
-  region->GetBounds3d(regionBounds);
+  region->GetBounds5d(regionBounds);
   region->GetData()->GetBounds(dataBounds);
   if (dataBounds[0] != regionBounds[0] || dataBounds[1] != regionBounds[1] ||
       dataBounds[2] != regionBounds[2] || dataBounds[3] != regionBounds[3] ||
-      dataBounds[4] != regionBounds[4] || dataBounds[5] != regionBounds[5])
+      dataBounds[4] != regionBounds[4] || dataBounds[5] != regionBounds[5] ||
+      dataBounds[6] != regionBounds[6] || dataBounds[7] != regionBounds[7] ||
+      dataBounds[8] != regionBounds[8] || dataBounds[9] != regionBounds[9])
     {
     region = this->ReformatRegion(region);
     }
@@ -182,6 +187,7 @@ void vtkImageToStructuredPointsReformatRegion(vtkImageToStructuredPoints *self,
   int outInc0, outInc1, outInc2;
   T *inPtr0, *inPtr1, *inPtr2;
   T *outPtr0, *outPtr1, *outPtr2;
+  
   
   self = self;
   
@@ -268,11 +274,8 @@ vtkImageToStructuredPoints::ReformatRegion(vtkImageRegion *inRegion)
   return outRegion;
 }
 
-  
-  
-  
-  
-    
+
+
 
 
 

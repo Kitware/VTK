@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageCachedSource.hh
+  Module:    vtkImageScatterPlotFilter.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,74 +37,59 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageCachedSourceB - Source of data for pipeline.
+// .NAME vtkImageScatterPlotFilter - Produces a scatter plot from 1 axis.
 // .SECTION Description
-// vtkImageCachedSourceB is a source that has two output caches.  It is
-// an experiment to see if this is a viable alternative to a 5th dimension.
+// vtkImageScatterPlotFilter Was written to test the T2Median filter.
+// It converts one axis into a space, all other axis are ignored.
+// For example, it will convert an image with 2 spectral channels (components)
+// into a 2d scatter plot. All pixels become dots in the plot.  The
+// output of this filter is an image of unsigned bytes whose values
+// are 0 or 255. InRegion specifies the region to use from the input
+// that will create the plot.  OutRegion Specifies the dimensions of the
+// scatter plot.  AspectRatio specifies how the components are converted
+// into the OutRegion.  This filter will only work on 4d data 
+// (3d + components).
 
 
-#ifndef __vtkImageCachedSource_h
-#define __vtkImageCachedSource_h
-
-#include "vtkObject.hh"
-#include "vtkImageSource.hh"
-#include "vtkImageRegion.hh"
-class vtkImageCache;
+#ifndef __vtkImageScatterPlotFilter_h
+#define __vtkImageScatterPlotFilter_h
 
 
-class vtkImageCachedSource : public vtkImageSource
+#include "vtkImageFilter.hh"
+
+class vtkImageScatterPlotFilter : public vtkImageFilter
 {
 public:
-  vtkImageCachedSource();
-  ~vtkImageCachedSource();
-  char *GetClassName() {return "vtkImageCachedSource";};
-
-  virtual void InterceptCacheUpdate(vtkImageRegion *region);
-  virtual void UpdateRegion(vtkImageRegion *region); 
-  vtkImageSource *GetOutput();
-  virtual void UpdateImageInformation(vtkImageRegion *region) = 0;
-  virtual unsigned long GetPipelineMTime();
-
-  virtual void SetCache(vtkImageCache *cache);
-  vtkImageCache *GetCache();
-
-  void SetReleaseDataFlag(int value);
-  int  GetReleaseDataFlag();
-
-  void SetDataType(int type);
-  int  GetDataType();
+  vtkImageScatterPlotFilter();
+  char *GetClassName() {return "vtkImageScatterPlotFilter";};
   
-  virtual void SetAxis1d(int axis0);
-  virtual void SetAxes2d(int axis0,int axis1);
-  virtual void SetAxes3d(int axis0,int axis1,int axis2);
-  virtual void SetAxes4d(int axis0,int axis1,int axis2,int axis3);
-  virtual void SetAxes5d(int axis0,int axis1,int axis2,int axis3,int axis4);
-  virtual void SetAxes(int *axes);
-
   // Description:
-  // Get the axes reordering of this filter.
-  vtkGetVectorMacro(Axes,int,5);
+  // You can modify the bounds of InRegion and OutRegions, 
+  // but you nust get them first.
+  vtkImageRegion *GetInRegion(){return &(this->InRegion);};
+  vtkImageRegion *GetImageRegion(){return &(this->ImageRegion);};
   
-  void DebugOn();
-  void DebugOff();
-  void SetMemoryLimit(long limit);
-
+  void SetInput(vtkImageSource *input);
+  void SetAxes(int *axes);
+  
+  // Description:
+  // Set/Get The aspect ratio (same for all axes)
+  vtkSetMacro(AspectRatio,float);
+  vtkGetMacro(AspectRatio,float);
+  
 protected:
-  vtkImageCache *Output;
-  int Axes[VTK_IMAGE_DIMENSIONS];            // reorder the axes
+  float AspectRatio;
+  vtkImageRegion InRegion;   // filter is performed over this region.
+  vtkImageRegion ImageRegion;  // Just a way to provide ImageBounds.
   
-  virtual void UpdateRegion5d(vtkImageRegion *region); 
-  virtual void UpdateRegion4d(vtkImageRegion *region); 
-  virtual void UpdateRegion3d(vtkImageRegion *region); 
-  virtual void UpdateRegion2d(vtkImageRegion *region); 
-  virtual void UpdateRegion1d(vtkImageRegion *region); 
-  virtual void CheckCache();
+  void ComputeOutputImageInformation(vtkImageRegion *region);
+  void ComputeRequiredInputRegionBounds(vtkImageRegion *outRegion, 
+					vtkImageRegion *inRegion);
+
+  void UpdateRegion(vtkImageRegion *outRegion);
 };
 
-
-// all necessary header files will be included automatically.
-#include "vtkImageCache.hh"
-
 #endif
+
 
 

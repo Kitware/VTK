@@ -58,8 +58,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // The current maximum dimensionality of "images" is 4 (volume and time).
 // These definitions will help (a little) if this needs to be changed.
-#define VTK_IMAGE_DIMENSIONS 4
-#define VTK_IMAGE_BOUNDS_DIMENSIONS 8
+#define VTK_IMAGE_DIMENSIONS 5
+#define VTK_IMAGE_BOUNDS_DIMENSIONS 10
 
 
 // These types are returned by GetType to indicate pixel type.
@@ -89,7 +89,8 @@ public:
   vtkGetVectorMacro(Bounds,int,VTK_IMAGE_BOUNDS_DIMENSIONS);
 
   void SetBounds(int min0, int max0, int min1, int max1, 
-		 int min2, int max2, int min3, int max3);
+		 int min2, int max2, int min3, int max3,
+		 int min4, int max4);
 
   // Description:
   // Set/Get the size in chars, of each pixel.
@@ -101,7 +102,7 @@ public:
   // Gets the increments between columns, rows, and images.  These
   // Values are computed from the size of the data array, and allow the
   // user to step through memory using pointer arithmatic.
-  vtkGetVector4Macro(Increments,int);
+  vtkGetVectorMacro(Increments,int,5);
 
   int IsAllocated();
   int Allocate();

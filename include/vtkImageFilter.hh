@@ -90,13 +90,32 @@ public:
 
 protected:
   vtkImageSource *Input;     // the input to the filter
-  int UseExecuteMethod;  // Use UpdateRegion or Execute method?
+  int UseExecuteMethod;      // Use UpdateRegion or Execute method?
+
+  // Description:
+  // These are conveniance functions for writing filters that have their
+  // own UpdateRegion methods.  They create the region object as well as 
+  // getting the input source to fill it with data.  The bounds
+  // of the unspecified dimensions default to [0, 0];
+  // Used in vtkImageScatterPlotFilter.
+  vtkImageRegion *GetInputRegion(int *bounds, int dim);    
+  vtkImageRegion *GetInputRegion5d(int bounds[10])
+    {return this->GetInputRegion(bounds, 5);};
+  vtkImageRegion *GetInputRegion4d(int bounds[8])
+    {return this->GetInputRegion(bounds, 4);};
+  vtkImageRegion *GetInputRegion3d(int bounds[6])
+    {return this->GetInputRegion(bounds, 3);};
+  vtkImageRegion *GetInputRegion2d(int bounds[4])
+    {return this->GetInputRegion(bounds, 2);};
+  vtkImageRegion *GetInputRegion1d(int bounds[2])
+    {return this->GetInputRegion(bounds, 1);};
   
   void UpdateRegionTiled(vtkImageRegion *outRegion);
   virtual void SplitRegion(vtkImageRegion *region, int *pieceSize);
   virtual void ComputeOutputImageInformation(vtkImageRegion *region);
   virtual void ComputeRequiredInputRegionBounds(vtkImageRegion *outRegion,
 					   vtkImageRegion *inRegion);
+  virtual void Execute5d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
   virtual void Execute4d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
   virtual void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
   virtual void Execute2d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);

@@ -62,10 +62,204 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_IMAGE_Y_AXIS 1
 #define VTK_IMAGE_Z_AXIS 2
 #define VTK_IMAGE_TIME_AXIS 3
+#define VTK_IMAGE_COMPONENT_AXIS 4
 
 
 
-
+// These macro are for creating the many convenience functions used 
+// for accessing instance variables.  They could simplify this class.
+#define vtkImageRegionSetMacro(name) \
+void Set##name (int *_tmp) { this->Set##name (_tmp, 5);} \
+void Set##name##5d(int *_tmp) { this->Set##name (_tmp, 5);} \
+void Set##name##4d(int *_tmp) { this->Set##name (_tmp, 4);} \
+void Set##name##3d(int *_tmp) { this->Set##name (_tmp, 3);} \
+void Set##name##2d(int *_tmp) { this->Set##name (_tmp, 2);} \
+void Set##name##1d(int *_tmp) { this->Set##name (_tmp, 1);} \
+void Set##name##5d(int _name0,int _name1,int _name2, int _name3,int _name4) \
+{ \
+  int _tmp[5]; \
+  _tmp[0] = _name0; _tmp[1] = _name1; _tmp[2] = _name2; \
+  _tmp[3] = _name3; _tmp[4] = _name4; \
+  this->Set##name (_tmp,5); \
+} \
+void Set##name##4d(int _name0,int _name1,int _name2, int _name3) \
+{ \
+  int _tmp[4]; \
+  _tmp[0] = _name0; _tmp[1] = _name1; \
+  _tmp[2] = _name2; _tmp[3] = _name3; \
+  this->Set##name (_tmp,4); \
+} \
+void Set##name##3d(int _name0,int _name1,int _name2) \
+{ \
+  int _tmp[3]; \
+  _tmp[0] = _name0; _tmp[1] = _name1; _tmp[2] = _name2; \
+  this->Set##name (_tmp,3); \
+} \
+void Set##name##2d(int _name0,int _name1) \
+{ \
+  int _tmp[2]; \
+  _tmp[0] = _name0; _tmp[1] = _name1; \
+  this->Set##name (_tmp,2); \
+} \
+void Set##name##1d(int _name0) \
+{ \
+  int _tmp[1]; \
+  _tmp[0] = _name0; \
+  this->Set##name (_tmp,1); \
+} 
+#define vtkImageRegionGetMacro(name) \
+int *Get##name () { return this->##name ;}  \
+int *Get##name##5d() { return this->##name ;} \
+int *Get##name##4d() { return this->##name ;} \
+int *Get##name##3d() { return this->##name ;} \
+int *Get##name##2d() { return this->##name ;} \
+int *Get##name##1d() { return this->##name ;} \
+void Get##name (int *_tmp) { this->Get##name (_tmp, 5);} \
+void Get##name##5d(int *_tmp) { this->Get##name (_tmp, 5);} \
+void Get##name##4d(int *_tmp) { this->Get##name (_tmp, 4);} \
+void Get##name##3d(int *_tmp) { this->Get##name (_tmp, 3);} \
+void Get##name##2d(int *_tmp) { this->Get##name (_tmp, 2);} \
+void Get##name##1d(int *_tmp) { this->Get##name (_tmp, 1);} \
+void Get##name##5d(int &_name0,int &_name1,int &_name2, \
+		   int &_name3,int &_name4) \
+{ \
+  int _tmp[5]; \
+  this->Get##name (_tmp,5); \
+  _name0 = _tmp[0]; _name1 = _tmp[1]; _name2 = _tmp[2]; \
+  _name3 = _tmp[3]; _name4 = _tmp[4]; \
+} \
+void Get##name##4d(int &_name0,int &_name1,int &_name2,int &_name3) \
+{ \
+  int _tmp[4]; \
+  this->Get##name (_tmp,4); \
+  _name0 = _tmp[0]; _name1 = _tmp[1]; _name2 = _tmp[2]; _name3 = _tmp[3]; \
+} \
+void Get##name##3d(int &_name0,int &_name1,int &_name2) \
+{ \
+  int _tmp[3]; \
+  this->Get##name (_tmp,3); \
+  _name0 = _tmp[0]; _name1 = _tmp[1]; _name2 = _tmp[2]; \
+} \
+void Get##name##2d(int &_name0,int &_name1) \
+{ \
+  int _tmp[2]; \
+  this->Get##name (_tmp,2); \
+  _name0 = _tmp[0]; _name1 = _tmp[1]; \
+} \
+void Get##name##1d(int &_name0) \
+{ \
+  int _tmp[1]; \
+  this->Get##name (_tmp,1); \
+  _name0 = _tmp[0]; \
+} 
+#define vtkImageRegionSetBoundsMacro(name) \
+void Set##name (int *_tmp) { this->Set##name (_tmp, 5);} \
+void Set##name##5d(int *_tmp) { this->Set##name (_tmp, 5);} \
+void Set##name##4d(int *_tmp) { this->Set##name (_tmp, 4);} \
+void Set##name##3d(int *_tmp) { this->Set##name (_tmp, 3);} \
+void Set##name##2d(int *_tmp) { this->Set##name (_tmp, 2);} \
+void Set##name##1d(int *_tmp) { this->Set##name (_tmp, 1);} \
+void Set##name##5d(int _min0,int _max0,int _min1,int _max1, \
+ 		   int _min2,int _max2,int _min3,int _max3, \
+		   int _min4,int _max4) \
+{ \
+  int _tmp[10]; \
+  _tmp[0] = _min0; _tmp[1] = _max0; \
+  _tmp[2] = _min1; _tmp[3] = _max1; \
+  _tmp[4] = _min2; _tmp[5] = _max2; \
+  _tmp[6] = _min3; _tmp[7] = _max3; \
+  _tmp[8] = _min4; _tmp[9] = _max4; \
+  this->Set##name (_tmp,5); \
+} \
+void Set##name##4d(int _min0,int _max0,int _min1,int _max1, \
+		   int _min2,int _max2,int _min3,int _max3) \
+{ \
+  int _tmp[8]; \
+  _tmp[0] = _min0; _tmp[1] = _max0; \
+  _tmp[2] = _min1; _tmp[3] = _max1; \
+  _tmp[4] = _min2; _tmp[5] = _max2; \
+  _tmp[6] = _min3; _tmp[7] = _max3; \
+  this->Set##name (_tmp,4); \
+} \
+void Set##name##3d(int _min0,int _max0,int _min1,int _max1, \
+		   int _min2,int _max2) \
+{ \
+  int _tmp[6]; \
+  _tmp[0] = _min0; _tmp[1] = _max0; \
+  _tmp[2] = _min1; _tmp[3] = _max1; \
+  _tmp[4] = _min2; _tmp[5] = _max2; \
+  this->Set##name (_tmp,3); \
+} \
+void Set##name##2d(int _min0,int _max0,int _min1,int _max1) \
+{ \
+  int _tmp[4]; \
+  _tmp[0] = _min0; _tmp[1] = _max0; \
+  _tmp[2] = _min1; _tmp[3] = _max1; \
+  this->Set##name (_tmp,2); \
+} \
+void Set##name##1d(int _min0,int _max0) \
+{ \
+  int _tmp[2]; \
+  _tmp[0] = _min0; _tmp[1] = _max0; \
+  this->Set##name (_tmp,1); \
+} 
+#define vtkImageRegionGetBoundsMacro(name) \
+int *Get##name () { return this->##name ;}  \
+int *Get##name##5d() { return this->##name ;} \
+int *Get##name##4d() { return this->##name ;} \
+int *Get##name##3d() { return this->##name ;} \
+int *Get##name##2d() { return this->##name ;} \
+int *Get##name##1d() { return this->##name ;} \
+void Get##name (int *_tmp) { this->Get##name (_tmp, 5);} \
+void Get##name##5d(int *_tmp) { this->Get##name (_tmp, 5);} \
+void Get##name##4d(int *_tmp) { this->Get##name (_tmp, 4);} \
+void Get##name##3d(int *_tmp) { this->Get##name (_tmp, 3);} \
+void Get##name##2d(int *_tmp) { this->Get##name (_tmp, 2);} \
+void Get##name##1d(int *_tmp) { this->Get##name (_tmp, 1);} \
+void Get##name##5d(int &_min0,int &_max0,int &_min1,int &_max1, \
+		   int &_min2,int &_max2,int &_min3,int &_max3, \
+		   int &_min4,int &_max4) \
+{ \
+  int _tmp[10]; \
+  this->Get##name (_tmp,5); \
+  _min0 = _tmp[0]; _max0 = _tmp[1]; \
+  _min1 = _tmp[2]; _max1 = _tmp[3]; \
+  _min2 = _tmp[4]; _max2 = _tmp[5]; \
+  _min3 = _tmp[6]; _max3 = _tmp[7]; \
+  _min4 = _tmp[8]; _max4 = _tmp[9]; \
+} \
+void Get##name##4d(int &_min0,int &_max0,int &_min1,int &_max1, \
+		   int &_min2,int &_max2,int &_min3,int &_max3) \
+{ \
+  int _tmp[8]; \
+  this->Get##name##(_tmp,4); \
+  _min0 = _tmp[0]; _max0 = _tmp[1]; \
+  _min1 = _tmp[2]; _max1 = _tmp[3]; \
+  _min2 = _tmp[4]; _max2 = _tmp[5]; \
+  _min3 = _tmp[6]; _max3 = _tmp[7]; \
+} \
+void Get##name##3d(int &_min0,int &_max0,int &_min1,int &_max1, \
+		   int &_min2,int &_max2) \
+{ \
+  int _tmp[6]; \
+  this->Get##name (_tmp,3); \
+  _min0 = _tmp[0]; _max0 = _tmp[1]; \
+  _min1 = _tmp[2]; _max1 = _tmp[3]; \
+  _min2 = _tmp[4]; _max2 = _tmp[5]; \
+} \
+void Get##name##2d(int &_min0,int &_max0,int &_min1,int &_max1) \
+{ \
+  int _tmp[4]; \
+  this->Get##name (_tmp,2); \
+  _min0 = _tmp[0]; _max0 = _tmp[1]; \
+  _min1 = _tmp[2]; _max1 = _tmp[3]; \
+} \
+void Get##name##1d(int &_min0,int &_max0) \
+{ \
+  int _tmp[2]; \
+  this->Get##name (_tmp,1); \
+  _min0 = _tmp[0]; _max0 = _tmp[1]; \
+} 
 
 
 class vtkImageRegion : public vtkImageSource 
@@ -74,6 +268,9 @@ public:
   vtkImageRegion();
   ~vtkImageRegion();
   char *GetClassName() {return "vtkImageRegion";};
+
+  
+  
 
   // Stuff to use region as a source.
   void UpdateRegion(vtkImageRegion *region); 
@@ -93,18 +290,14 @@ public:
   // Returns pointer increments that can be used to step around the data.
   // Increments do not include size of data type, so should be used after
   // pointers have been converted to their actual type.
-  void GetIncrements4d(int &inc0, int &inc1, int &inc2, int &inc3);
-  void GetIncrements3d(int &inc0, int &inc1, int &inc2);
-  void GetIncrements2d(int &inc0, int &inc1);
-  void GetIncrements1d(int &inc0);
-  int *GetIncrements4d() {return this->GetIncrements();};
-  int *GetIncrements3d() {return this->GetIncrements();};
-  int *GetIncrements2d() {return this->GetIncrements();};
-  int *GetIncrements1d() {return this->GetIncrements();};
-
+  void GetIncrements(int *increments, int dim);
+  vtkImageRegionGetMacro(Increments);
+  
   // Description:
   // Set the current volume, image or line.  Used to disambiguate the
   // 3d, 2d and 1d coordinates.
+  vtkSetMacro(DefaultCoordinate4,int);
+  vtkGetMacro(DefaultCoordinate4,int);
   vtkSetMacro(DefaultCoordinate3,int);
   vtkGetMacro(DefaultCoordinate3,int);
   vtkSetMacro(DefaultCoordinate2,int);
@@ -116,12 +309,14 @@ public:
   
   // Description:
   // Returns a pointer relative to the current volume, image or line.
+  void *GetVoidPointer5d(int coordinates[5]);
   void *GetVoidPointer4d(int coordinates[4]);
   void *GetVoidPointer3d(int coordinates[3]);
   void *GetVoidPointer2d(int coordinates[2]);
   void *GetVoidPointer1d(int coordinates[1]);
   // Description:
   // Returns pointer at origin of current volume, image or line.
+  void *GetVoidPointer5d();
   void *GetVoidPointer4d();
   void *GetVoidPointer3d();
   void *GetVoidPointer2d();
@@ -130,111 +325,54 @@ public:
   // Description:
   // Different methods for setting the bounds.
   // The 2d and 1d functions do not modify bounds of the higher dimensions.
-  void SetBounds4d(int min0, int max0, int min1, int max1, 
-		   int min2, int max2, int min3, int max3);
-  void SetBounds3d(int min0, int max0, int min1, int max1, int min2, int max2);
-  void SetBounds2d(int min0, int max0, int min1, int max1);
-  void SetBounds1d(int min0, int max0);
-
-  void SetBounds4d(int *bounds) {this->SetBounds(bounds,4);};
-  void SetBounds3d(int *bounds) {this->SetBounds(bounds,3);};
-  void SetBounds2d(int *bounds) {this->SetBounds(bounds,2);};
-  void SetBounds1d(int *bounds) {this->SetBounds(bounds,1);};
+  void SetBounds(int *bounds, int dim);
+  vtkImageRegionSetBoundsMacro(Bounds);
 
   // Description:
   // Different methods for getting the bounds.
-  void GetBounds4d(int &min0, int &max0, int &min1, int &max1,
-		   int &min2, int &max2, int &min3, int &max3);
-  void GetBounds3d(int &min0, int &max0, int &min1, int &max1,
-		   int &min2, int &max2);
-  void GetBounds2d(int &min0, int &max0, int &min1, int &max1);
-  void GetBounds1d(int &min0, int &max0);
-
-  void GetBounds4d(int *bounds) {this->GetBounds(bounds, 4);};
-  void GetBounds3d(int *bounds) {this->GetBounds(bounds, 3);};
-  void GetBounds2d(int *bounds) {this->GetBounds(bounds, 2);};
-  void GetBounds1d(int *bounds) {this->GetBounds(bounds, 1);};
-  
-  int *GetBounds4d() { return this->Bounds;};
-  int *GetBounds3d() { return this->Bounds;};
-  int *GetBounds2d() { return this->Bounds;};
-  int *GetBounds1d() { return this->Bounds;};
-  
+  void GetBounds(int *bounds, int dim);
+  vtkImageRegionGetBoundsMacro(Bounds);
+  // Description:
+  // Get Bounds in Data coordinate system (used by cache).
   int *GetAbsoluteBounds() {return this->AbsoluteBounds;};
   
   
   // Description:
   // Different methods for setting the ImageBounds.
-  // The 2d and 1d functions do not modify ImageBounds of the higher dimensions.
-  void SetImageBounds4d(int min0, int max0, int min1, int max1, 
-			int min2, int max2, int min3, int max3);
-  void SetImageBounds3d(int min0,int max0, int min1,int max1, 
-			int min2,int max2);
-  void SetImageBounds2d(int min0, int max0, int min1, int max1);
-  void SetImageBounds1d(int min0, int max0);
-
-  void SetImageBounds4d(int *bounds) {this->SetImageBounds(bounds,4);};
-  void SetImageBounds3d(int *bounds) {this->SetImageBounds(bounds,3);};
-  void SetImageBounds2d(int *bounds) {this->SetImageBounds(bounds,2);};
-  void SetImageBounds1d(int *bounds) {this->SetImageBounds(bounds,1);};
-
+  // The 2d and 1d functions do not modify ImageBounds of the higher
+  // dimensions.
+  void SetImageBounds(int *bounds, int dim);
+  vtkImageRegionSetBoundsMacro(ImageBounds);
   // Description:
   // Different methods for getting the ImageBounds.
-  void GetImageBounds4d(int &min0, int &max0, int &min1, int &max1,
-			int &min2, int &max2, int &min3, int &max3);
-  void GetImageBounds3d(int &min0, int &max0, int &min1, int &max1,
-			int &min2, int &max2);
-  void GetImageBounds2d(int &min0, int &max0, int &min1, int &max1);
-  void GetImageBounds1d(int &min0, int &max0);
-
-  void GetImageBounds4d(int *bounds) {this->GetImageBounds(bounds, 4);};
-  void GetImageBounds3d(int *bounds) {this->GetImageBounds(bounds, 3);};
-  void GetImageBounds2d(int *bounds) {this->GetImageBounds(bounds, 2);};
-  void GetImageBounds1d(int *bounds) {this->GetImageBounds(bounds, 1);};
-  
-  int *GetImageBounds4d() { return this->ImageBounds;};
-  int *GetImageBounds3d() { return this->ImageBounds;};
-  int *GetImageBounds2d() { return this->ImageBounds;};
-  int *GetImageBounds1d() { return this->ImageBounds;};
-  
-  
-
+  void GetImageBounds(int *bounds, int dim);
+  vtkImageRegionGetBoundsMacro(ImageBounds);
   
   // Description:
   // Different methods for setting the axes.
-  void SetAxes4d(int *axes);
-  void SetAxes4d(int axis0, int axis1, int axis2, int axis3);
+  void SetAxes(int *axes, int dim);
+  vtkImageRegionSetMacro(Axes);
 
   // Description:
   // Different methods for getting the axes.
-  void GetAxes4d(int &axis0, int &axis1, int &axis2, int &axis3);
-  void GetAxes3d(int &axis0, int &axis1, int &axis2);
-  void GetAxes2d(int &axis0, int &axis1);
-  void GetAxes1d(int &axis0);
-
-  void GetAxes4d(int *axes) {this->GetAxes(axes, 4);};
-  void GetAxes3d(int *axes) {this->GetAxes(axes, 3);};
-  void GetAxes2d(int *axes) {this->GetAxes(axes, 2);};
-  void GetAxes1d(int *axes) {this->GetAxes(axes, 1);};
-  
-  int *GetAxes4d() { return this->Axes;};
-  int *GetAxes3d() { return this->Axes;};
-  int *GetAxes2d() { return this->Axes;};
-  int *GetAxes1d() { return this->Axes;};
+  void GetAxes(int *axes, int dim);  
+  vtkImageRegionGetMacro(Axes);
 
   // Description:
   // This method returns the number of pixels enclosed in this bounding box.
   int GetVolume(){return ((Bounds[1]-Bounds[0]+1) 
 			  * (Bounds[3]-Bounds[2]+1)
 			  * (Bounds[5]-Bounds[4]+1)
-			  * (Bounds[7]-Bounds[6]+1));};
+			  * (Bounds[7]-Bounds[6]+1)
+			  * (Bounds[9]-Bounds[8]+1));};
   
   // Description:
   // This method returns 1 if this bounding box has zero volume.
   int IsEmpty() {return (Bounds[1] < Bounds[0] 
 			 || Bounds[3] < Bounds[2] 
 			 || Bounds[5] < Bounds[4] 
-			 || Bounds[7] < Bounds[6]);};
+			 || Bounds[7] < Bounds[6]
+			 || Bounds[9] < Bounds[8]);};
 
   // Description:
   // This method returns 1 if the region has associated data.
@@ -251,10 +389,15 @@ public:
   void *ExportMemory();
   
   void Allocate();
+  void ReleaseData();
+  void ResetDefaultCoordinates(int dim);
+  
   
 protected:
   vtkImageData *Data;   // Data is stored in this object.
   int DataType;         // Remember the pixel type of this region.
+  
+  int DefaultCoordinate4;          // The current spectral component
   int DefaultCoordinate3;          // The current volume
   int DefaultCoordinate2;          // The current image
   int DefaultCoordinate1;          // The current line
@@ -277,37 +420,11 @@ protected:
   
 
   // Helper methods.
-  void ResetDefaultCoordinates(int dim);
-  void SetBounds(int *bounds, int dim);
-  void GetBounds(int *bounds, int dim);
-  void SetImageBounds(int *bounds, int dim);
-  void GetImageBounds(int *bounds, int dim);
-  void GetAxes(int *axes, int dim);  
-  int *GetIncrements();
-  void ShuffleRelativeToAbsolute4d(int *relative, int *absolute);
-  void ShuffleAbsoluteToRelative4d(int *absolute, int *relative);
-  void ShuffleBoundsRelativeToAbsolute4d(int *relative, int *absolute);
-  void ShuffleBoundsAbsoluteToRelative4d(int *absolute, int *relative);
+  void ShuffleRelativeToAbsolute(int *relative, int *absolute);
+  void ShuffleAbsoluteToRelative(int *absolute, int *relative);
+  void ShuffleBoundsRelativeToAbsolute(int *relative, int *absolute);
+  void ShuffleBoundsAbsoluteToRelative(int *absolute, int *relative);
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

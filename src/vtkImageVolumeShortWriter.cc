@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <ctype.h>
 #include <string.h>
 #include "vtkImageVolumeShortWriter.hh"
-#include "vtkImageCache.hh"
 
 //----------------------------------------------------------------------------
 // Description:
@@ -98,7 +97,8 @@ void vtkImageVolumeShortWriter::SetFileRoot(char *fileRoot)
 // This function writes the whole image to file.
 void vtkImageVolumeShortWriter::Write()
 {
-  int offset[3], size[3];
+  int bounds[6];
+  vtkImageRegion region;
   
   if ( ! this->Input)
     {
@@ -106,8 +106,9 @@ void vtkImageVolumeShortWriter::Write()
     return;
     }
     
-  this->Input->GetBoundary(offset, size);
-  this->Write(offset, size);
+  this->Input->UpdateImageInformation(&region);
+  region.GetImageBounds3d(bounds);
+  this->Write(bounds);
 }
 
 
@@ -115,114 +116,120 @@ void vtkImageVolumeShortWriter::Write()
 //----------------------------------------------------------------------------
 // Description:
 // For tcl.
-void vtkImageVolumeShortWriter::Write(int offset0, int offset1, int offset2, 
-				      int size0, int size1, int size2)
+void vtkImageVolumeShortWriter::Write(int min0, int max0, 
+				      int min1, int max1,
+				      int min2, int max2)
 {
-  int offset[3], size[3];
+  int bounds[6];
   
-  offset[0] = offset0;
-  offset[1] = offset1;
-  offset[2] = offset2;
-  size[0] = size0;
-  size[1] = size1;
-  size[2] = size2;
+  bounds[0] = min0;
+  bounds[1] = max0;
+  bounds[2] = min1;
+  bounds[3] = max1;
+  bounds[4] = min2;
+  bounds[5] = max2;
   
-  this->Write(offset, size);  
+  this->Write(bounds);  
 }
 
-  
-  
-  
-  
-  
 
 
 //----------------------------------------------------------------------------
 // Description:
 // This function writes a region of the image to file.
-void vtkImageVolumeShortWriter::Write(int *offset, int *size)
+// It requests and writes the volume one 2d image at a time.
+void vtkImageVolumeShortWriter::Write(int *bounds)
 {
   int idx;
-  int sliceOffset[3], sliceSize[3];
-  vtkImageRegion *region;
+  int sliceBounds[VTK_IMAGE_BOUNDS_DIMENSIONS];
+  vtkImageRegion region;
   
   if ( ! this->Input)
     {
     vtkErrorMacro(<< "Write: Input not set.");
     return;
     }
-    
-  vtkDebugMacro(<< "Write: offset = ("
-                << offset[0] << ", " << offset[1] << ", " << offset[2]
-                << "), size = ("
-                << size[0] << ", " << size[1] << ", " << size[2]
-                << ")");
 
-  for (idx = 0; idx < 3; ++idx)
+  // deal with extra dimensions by taking the first
+  this->Input->UpdateImageInformation(&region);
+  region.GetImageBounds(sliceBounds);
+  for (idx = 3; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
-    sliceOffset[idx] = offset[idx];
-    sliceSize[idx] = size[idx];
+    sliceBounds[idx*2] = sliceBounds[idx*2+1];
+    }
+
+  // Set the sub region requested
+  for (idx = 0; idx < 6; ++idx)
+    {
+    sliceBounds[idx] = bounds[idx];
     }
  
   // write the volume slice by slice
-  sliceSize[2] = 1;
-  for (idx = 0; idx < size[2]; ++idx)
+  for (idx = bounds[4]; idx <= bounds[5]; ++idx)
     {
-    sliceOffset[2] = offset[2] + idx;
-    region = this->Input->RequestRegion(sliceOffset, sliceSize);
-    if ( ! region)
+    sliceBounds[4] = sliceBounds[5] = idx;
+    region.SetBounds(sliceBounds);
+    this->Input->UpdateRegion(&region);
+    if ( ! region.IsAllocated())
       vtkErrorMacro(<< "Write: Request for image " << idx << " failed.");
     else
-      this->WriteSlice(region);
+      this->Write2d(&region);
+    region.ReleaseData();
     }
 }
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This function writes a slice into a file.
-void vtkImageVolumeShortWriter::WriteSlice(vtkImageRegion *region)
+template <class T>
+void vtkImageVolumeShortWriterWrite2d(vtkImageVolumeShortWriter *self,
+				      vtkImageRegion *region, T *ptr)
 {
   ofstream *file;
   int streamRowRead;
   int idx0, idx1;
-  int size0, size1, size2;
-  int inc0, inc1, inc2;
-  int *offset;
-  float *ptr0, *ptr1;
+  int min0, max0, min1, max1;
+  int inc0, inc1;
+  T *ptr0, *ptr1;
   unsigned char *buf, *pbuf, temp;
   
-  offset = region->GetOffset();
-  sprintf(this->FileName, "%s.%d", this->FileRoot, offset[2] + this->First);
-  vtkDebugMacro(<< "WriteSlice: " << this->FileName);
-  
-  file = new ofstream(this->FileName, ios::out);
+  sprintf(self->FileName, "%s.%d", self->FileRoot, 
+	  region->GetDefaultCoordinate2() + self->First);
+  if (self->Debug)
+    {
+    cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" 
+	 << self->GetClassName() << " (" << self << "): ";
+    cerr << "WriteSlice: " << self->FileName << "\n\n";
+    }
+
+  file = new ofstream(self->FileName, ios::out);
   if (! file)
     {
-    vtkErrorMacro(<< "Could not open file " << this->FileName);
+    cerr << "vtkImageVolumeShortWriterWrite2d: ERROR: "
+	 << "Could not open file " << self->FileName;
     return;
     }
   
-  region->GetSize(size0, size1, size2);
-  region->GetInc(inc0, inc1, inc2);
-  streamRowRead = size0 * sizeof(short int);
+  region->GetBounds2d(min0, max0, min1, max1);
+  region->GetIncrements2d(inc0, inc1);
+  streamRowRead = (max0-min0+1) * sizeof(short int);
   buf = new unsigned char [streamRowRead];
   
   // loop through rows in single slice
-  ptr1 = region->GetPointer(region->GetOffset());
-  for (idx1 = 0; idx1 < size1; ++idx1)
+  ptr1 = ptr;
+  for (idx1 = min1; idx1 <= max1; ++idx1)
     {
     ptr0 = ptr1;
     pbuf = buf;
     // copy the row to short buffer
-    for (idx0 = 0; idx0 < size0; ++idx0)
+    for (idx0 = min0; idx0 <= max0; ++idx0)
       {
-      if (this->Signed)
+      if (self->Signed)
 	*((short *)(pbuf)) = (short)(*ptr0);
       else
 	*((unsigned short *)(pbuf)) = (unsigned short)(*ptr0);
       // handle byte swapping
-      if (this->SwapBytes)
+      if (self->SwapBytes)
 	{
 	temp = *pbuf;
 	*pbuf = pbuf[1];
@@ -236,7 +243,8 @@ void vtkImageVolumeShortWriter::WriteSlice(vtkImageRegion *region)
     // write a row
     if ( ! file->write(buf, streamRowRead))
       {
-      vtkErrorMacro(<< "WriteSlice: write failed");
+      cerr << "vtkImageVolumeShortWriterWrite2: ERROR: "
+	   << "WriteSlice: write failed";
       file->close();
       delete file;
       delete [] buf;
@@ -253,6 +261,36 @@ void vtkImageVolumeShortWriter::WriteSlice(vtkImageRegion *region)
 
   
   
+
+//----------------------------------------------------------------------------
+// Description:
+// This function writes a slice into a file.
+void vtkImageVolumeShortWriter::Write2d(vtkImageRegion *region)
+{
+  void *ptr = region->GetVoidPointer2d();
+  
+  switch (region->GetDataType())
+    {
+    case VTK_IMAGE_FLOAT:
+      vtkImageVolumeShortWriterWrite2d(this, region, (float *)(ptr));
+      break;
+    case VTK_IMAGE_INT:
+      vtkImageVolumeShortWriterWrite2d(this, region, (int *)(ptr));
+      break;
+    case VTK_IMAGE_SHORT:
+      vtkImageVolumeShortWriterWrite2d(this, region, (short *)(ptr));
+      break;
+    case VTK_IMAGE_UNSIGNED_SHORT:
+      vtkImageVolumeShortWriterWrite2d(this, region, (unsigned short *)(ptr));
+      break;
+    case VTK_IMAGE_UNSIGNED_CHAR:
+      vtkImageVolumeShortWriterWrite2d(this, region, (unsigned char *)(ptr));
+      break;
+    default:
+      vtkErrorMacro(<< "Write2d: Cannot handle data type.");
+    }   
+}
+
 
 
 

@@ -76,7 +76,8 @@ vtkImageData::~vtkImageData()
 // This method sets the bounds of the data, and 
 // should be called before the data object is allocated.
 void vtkImageData::SetBounds(int min0, int max0, int min1, int max1, 
-			     int min2, int max2, int min3, int max3)
+			     int min2, int max2, int min3, int max3,
+			     int min4, int max4)
 {
   vtkDebugMacro(<< "SetBounds: ...");
 
@@ -95,6 +96,8 @@ void vtkImageData::SetBounds(int min0, int max0, int min1, int max1,
   this->Bounds[5] = max2;
   this->Bounds[6] = min3;
   this->Bounds[7] = max3;
+  this->Bounds[8] = min4;
+  this->Bounds[9] = max4;
 }
 
 
@@ -230,7 +233,8 @@ void *vtkImageData::GetVoidPointer(int coordinates[VTK_IMAGE_DIMENSIONS])
   idx = ((coordinates[0] - this->Bounds[0]) * this->Increments[0]
 	 + (coordinates[1] - this->Bounds[2]) * this->Increments[1]
 	 + (coordinates[2] - this->Bounds[4]) * this->Increments[2]
-	 + (coordinates[3] - this->Bounds[6]) * this->Increments[3]);
+	 + (coordinates[3] - this->Bounds[6]) * this->Increments[3]
+	 + (coordinates[4] - this->Bounds[8]) * this->Increments[4]);
   
   return this->Scalars->GetVoidPtr(idx);
 }

@@ -160,7 +160,7 @@ void vtkImageFilter::UpdateRegion(vtkImageRegion *outRegion)
   // Determine whether to use the execute methods or the generate methods.
   if ( ! this->UseExecuteMethod)
     {
-    this->UpdateRegion4d(outRegion);
+    this->UpdateRegion5d(outRegion);
     return;
     }
   
@@ -171,11 +171,11 @@ void vtkImageFilter::UpdateRegion(vtkImageRegion *outRegion)
   this->Input->UpdateImageInformation(inRegion);
   
   // Translate to local coordinate system
-  inRegion->SetAxes4d(this->Axes);
+  inRegion->SetAxes(this->Axes);
   
   // Compute the required input region bounds.
   // Copy to fill in bounds of extra dimensions.
-  inRegion->SetBounds4d(outRegion->GetBounds4d());
+  inRegion->SetBounds(outRegion->GetBounds());
   this->ComputeRequiredInputRegionBounds(outRegion, inRegion);
 
   // Use the input to fill the data of the region.
@@ -194,7 +194,7 @@ void vtkImageFilter::UpdateRegion(vtkImageRegion *outRegion)
   this->Output->AllocateRegion(outRegion);
 
   // fill the output region 
-  this->Execute4d(inRegion, outRegion);
+  this->Execute5d(inRegion, outRegion);
 
   // free the input region
   inRegion->Delete();
@@ -244,10 +244,47 @@ void
 vtkImageFilter::ComputeRequiredInputRegionBounds(vtkImageRegion *outRegion,
 						 vtkImageRegion *inRegion)
 {
-  inRegion->SetBounds4d(outRegion->GetBounds4d());
+  inRegion->SetBounds(outRegion->GetBounds());
 }
 
 
+
+//----------------------------------------------------------------------------
+// Description:
+// This method is passed a 5d input and output region, and executes the filter
+// algorithm to fill the output from the input.  The default Execute5d
+// method breaks the 5d regions into 4d "images".  The regions have been
+// converted to this filters coordinates before this method is called.
+void vtkImageFilter::Execute5d(vtkImageRegion *inRegion, 
+			       vtkImageRegion *outRegion)
+{
+  int coordinate4, min4, max4;
+  int inBounds[10], outBounds[10];
+  
+  // Get the bounds of the forth dimension to be eliminated.
+  inRegion->GetBounds5d(inBounds);
+  outRegion->GetBounds5d(outBounds);
+
+  // This method assumes that the third axis of in and out have same bounds.
+  min4 = inBounds[8];
+  max4 = inBounds[9];
+  if (min4 != outBounds[8] || max4 != outBounds[9]) 
+    {
+    vtkErrorMacro(<< "Execute5d: Cannot break 5d images into 4d images.");
+    return;
+    }
+  
+  // loop over 4d volumes
+  for (coordinate4 = min4; coordinate4 <= max4; ++coordinate4)
+    {
+    // set up the 4d regions.
+    inRegion->SetDefaultCoordinate4(coordinate4);
+    outRegion->SetDefaultCoordinate4(coordinate4);
+    this->Execute4d(inRegion, outRegion);
+    }
+}
+  
+  
 
 //----------------------------------------------------------------------------
 // Description:
@@ -268,9 +305,9 @@ void vtkImageFilter::Execute4d(vtkImageRegion *inRegion,
   // This method assumes that the third axis of in and out have same bounds.
   min3 = inBounds[6];
   max3 = inBounds[7];
-  if (min3 != outBounds[6] || max3 != outBounds[6]) 
+  if (min3 != outBounds[6] || max3 != outBounds[7]) 
     {
-    vtkErrorMacro(<< "Execute6d: Cannot break volumes into images.");
+    vtkErrorMacro(<< "Execute4d: Cannot break 4d images into volumes.");
     return;
     }
   
@@ -404,62 +441,74 @@ void vtkImageFilter::UpdateRegionTiled(vtkImageRegion *outRegion)
 
   // loop over the output Region generating the pieces 
   outRegion->GetBounds4d(outBounds);
-  // loop over the TIME dimensions
-  pieceBounds[6] = outBounds[6];
-  while (pieceBounds[6] <= outBounds[7])
+  // loop over the Components dimensions
+  pieceBounds[8] = outBounds[8];
+  while (pieceBounds[8] <= outBounds[9])
     {
-    pieceBounds[7] = pieceBounds[6] + genericPieceSize[3] - 1;
+    pieceBounds[9] = pieceBounds[8] + genericPieceSize[4] - 1;
     // make the piece smaller if it extends over edge
-    if (pieceBounds[7] > outBounds[7])
+    if (pieceBounds[9] > outBounds[9])
       {
-      pieceBounds[7] = outBounds[7];
+      pieceBounds[9] = outBounds[9];
       }
-    // loop over the Z dimensions
-    pieceBounds[4] = outBounds[4];
-    while (pieceBounds[4] <= outBounds[5])
+    // loop over the TIME dimensions
+    pieceBounds[6] = outBounds[6];
+    while (pieceBounds[6] <= outBounds[7])
       {
-      pieceBounds[5] = pieceBounds[4] + genericPieceSize[2] - 1;
+      pieceBounds[7] = pieceBounds[6] + genericPieceSize[3] - 1;
       // make the piece smaller if it extends over edge
-      if (pieceBounds[5] > outBounds[5])
+      if (pieceBounds[7] > outBounds[7])
 	{
-	pieceBounds[5] = outBounds[5];
+	pieceBounds[7] = outBounds[7];
 	}
-      // loop over the Y dimensions
-      pieceBounds[2] = outBounds[2];
-      while (pieceBounds[2] <= outBounds[3])
+      // loop over the Z dimensions
+      pieceBounds[4] = outBounds[4];
+      while (pieceBounds[4] <= outBounds[5])
 	{
-	pieceBounds[3] = pieceBounds[2] + genericPieceSize[1] - 1;
+	pieceBounds[5] = pieceBounds[4] + genericPieceSize[2] - 1;
 	// make the piece smaller if it extends over edge
-	if (pieceBounds[3] > outBounds[3])
+	if (pieceBounds[5] > outBounds[5])
 	  {
-	  pieceBounds[3] = outBounds[3];
+	  pieceBounds[5] = outBounds[5];
 	  }
-	// loop over the time dimensions
-	pieceBounds[0] = outBounds[0];
-	while (pieceBounds[0] <= outBounds[1])
+	// loop over the Y dimensions
+	pieceBounds[2] = outBounds[2];
+	while (pieceBounds[2] <= outBounds[3])
 	  {
-	  pieceBounds[1] = pieceBounds[0] + genericPieceSize[0] - 1;
+	  pieceBounds[3] = pieceBounds[2] + genericPieceSize[1] - 1;
 	  // make the piece smaller if it extends over edge
-	  if (pieceBounds[1] > outBounds[1])
+	  if (pieceBounds[3] > outBounds[3])
 	    {
-	    pieceBounds[1] = outBounds[1];
+	    pieceBounds[3] = outBounds[3];
 	    }
-	  
-	  // Generate the data for this piece
-	  outRegion->SetBounds4d(pieceBounds);
-	  this->UpdateRegion(outRegion);
-	
-	  pieceBounds[0] += genericPieceSize[0];
+	  // loop over the time dimensions
+	  pieceBounds[0] = outBounds[0];
+	  while (pieceBounds[0] <= outBounds[1])
+	    {
+	    pieceBounds[1] = pieceBounds[0] + genericPieceSize[0] - 1;
+	    // make the piece smaller if it extends over edge
+	    if (pieceBounds[1] > outBounds[1])
+	      {
+	      pieceBounds[1] = outBounds[1];
+	      }
+	    
+	    // Generate the data for this piece
+	    outRegion->SetBounds4d(pieceBounds);
+	    this->UpdateRegion(outRegion);
+	    
+	    pieceBounds[0] += genericPieceSize[0];
+	    }
+	  pieceBounds[2] += genericPieceSize[1];
 	  }
-	pieceBounds[2] += genericPieceSize[1];
+	pieceBounds[4] += genericPieceSize[2];
 	}
-      pieceBounds[4] += genericPieceSize[2];
+      pieceBounds[6] += genericPieceSize[3];
       }
-    pieceBounds[6] += genericPieceSize[3];
+    pieceBounds[8] += genericPieceSize[4];
     }
   
   // reset the original bounds of the region
-  outRegion->SetBounds4d(outBounds);
+  outRegion->SetBounds(outBounds);
 }
 
 
@@ -478,8 +527,8 @@ void vtkImageFilter::SplitRegion(vtkImageRegion *outRegion, int *pieceSize)
   int memory;
   int bestMemory;
 
-  outRegion->GetBounds4d(outBounds);
-  outRegion->GetBounds4d(newBounds);
+  outRegion->GetBounds(outBounds);
+  outRegion->GetBounds(newBounds);
   
   // split down the first axis (two pieces, round down) (keep middle)
   size = (outBounds[1] - outBounds[0] + 1) / 2;
@@ -491,7 +540,7 @@ void vtkImageFilter::SplitRegion(vtkImageRegion *outRegion, int *pieceSize)
   newBounds[1] = newBounds[0] + size;
   
   // determine the input Region for this newSize 
-  outRegion->SetBounds4d(newBounds);
+  outRegion->SetBounds(newBounds);
   this->ComputeRequiredInputRegionBounds(outRegion, outRegion);
   // memory needed 
   memory = outRegion->GetVolume();
@@ -501,6 +550,7 @@ void vtkImageFilter::SplitRegion(vtkImageRegion *outRegion, int *pieceSize)
   pieceSize[1]=newBounds[2];  
   pieceSize[2]=newBounds[4];
   pieceSize[3]=newBounds[6];
+  pieceSize[4]=newBounds[8];
 
   // Reset the size of the first axis
   newBounds[0] = outBounds[0];  newBounds[1] = outBounds[1];
@@ -511,10 +561,10 @@ void vtkImageFilter::SplitRegion(vtkImageRegion *outRegion, int *pieceSize)
     ++size;  
     }
   newBounds[2] = outBounds[2] + size / 2;
-  newBounds[3] = newBounds[3] + size;
+  newBounds[3] = newBounds[2] + size;
   
   // determine the input Region for this newSize 
-  outRegion->SetBounds4d(newBounds);
+  outRegion->SetBounds(newBounds);
   this->ComputeRequiredInputRegionBounds(outRegion, outRegion);
   // memory needed 
   memory = outRegion->GetVolume();
@@ -526,6 +576,7 @@ void vtkImageFilter::SplitRegion(vtkImageRegion *outRegion, int *pieceSize)
     pieceSize[1]=newBounds[2];  
     pieceSize[2]=newBounds[4];
     pieceSize[3]=newBounds[6];
+    pieceSize[4]=newBounds[8];
     }
   
   // Reset the size of the second axis
@@ -537,10 +588,10 @@ void vtkImageFilter::SplitRegion(vtkImageRegion *outRegion, int *pieceSize)
     ++size;  
     }
   newBounds[4] = outBounds[4] + size / 2;
-  newBounds[5] = newBounds[5] + size;
+  newBounds[5] = newBounds[4] + size;
   
   // determine the input Region for this newSize 
-  outRegion->SetBounds4d(newBounds);
+  outRegion->SetBounds(newBounds);
   this->ComputeRequiredInputRegionBounds(outRegion, outRegion);
   // memory needed 
   memory = outRegion->GetVolume();
@@ -552,6 +603,7 @@ void vtkImageFilter::SplitRegion(vtkImageRegion *outRegion, int *pieceSize)
     pieceSize[1]=newBounds[2];  
     pieceSize[2]=newBounds[4];
     pieceSize[3]=newBounds[6];
+    pieceSize[4]=newBounds[8];
     }
   
   // Reset the size of the third axis
@@ -563,10 +615,10 @@ void vtkImageFilter::SplitRegion(vtkImageRegion *outRegion, int *pieceSize)
     ++size;  
     }
   newBounds[6] = outBounds[6] + size / 2;
-  newBounds[7] = newBounds[7] + size;
+  newBounds[7] = newBounds[6] + size;
   
   // determine the input Region for this newSize 
-  outRegion->SetBounds4d(newBounds);
+  outRegion->SetBounds(newBounds);
   this->ComputeRequiredInputRegionBounds(outRegion, outRegion);
   // memory needed 
   memory = outRegion->GetVolume();
@@ -578,14 +630,82 @@ void vtkImageFilter::SplitRegion(vtkImageRegion *outRegion, int *pieceSize)
     pieceSize[1]=newBounds[2];  
     pieceSize[2]=newBounds[4];
     pieceSize[3]=newBounds[6];
+    pieceSize[4]=newBounds[8];
+    }
+  
+  // Reset the size of the forth axis
+  newBounds[6] = outBounds[6];   newBounds[7] = outBounds[7];
+  // split down the fifth axis (two pieces, round down) (keep middle)
+  size = (outBounds[9] - outBounds[8] + 1) / 2;
+  if ( size > 3 )    // avoid remainder slivers
+    {
+    ++size;  
+    }
+  newBounds[8] = outBounds[8] + size / 2;
+  newBounds[9] = newBounds[8] + size;
+  
+  // determine the input Region for this newSize 
+  outRegion->SetBounds(newBounds);
+  this->ComputeRequiredInputRegionBounds(outRegion, outRegion);
+  // memory needed 
+  memory = outRegion->GetVolume();
+  // save the best (smallest memory) so far 
+  if (memory < bestMemory)
+    {
+    bestMemory = memory;
+    pieceSize[0]=newBounds[0];  
+    pieceSize[1]=newBounds[2];  
+    pieceSize[2]=newBounds[4];
+    pieceSize[3]=newBounds[6];
+    pieceSize[4]=newBounds[8];
     }
   
   // Reset the bounds of the region
-  outRegion->SetBounds4d(outBounds);
+  outRegion->SetBounds(outBounds);
 }
 
 
+//============================================================================
+// Stuff for filters that do not use the execute methods..
+//============================================================================
 
+//----------------------------------------------------------------------------
+vtkImageRegion *vtkImageFilter::GetInputRegion(int *bounds, int dim)
+{
+  int idx;
+  int *imageBounds;
+  vtkImageRegion *region = new vtkImageRegion;
+  
+  if ( ! this->Input)
+    {
+    vtkErrorMacro(<< "Input is not set.");
+    return NULL;
+    }
+
+  region = new vtkImageRegion;
+
+  // This step is just error checking, and may be wastefull.  The Image
+  // Information is automatically computed when UpdateRegion is called.
+  this->Input->UpdateImageInformation(region);
+  region->SetAxes(this->GetAxes());
+  imageBounds = region->GetImageBounds();
+  for (idx = dim; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    if (imageBounds[idx*2] > 0 || imageBounds[idx*2 + 1] < 0)
+      {
+      vtkErrorMacro(<< "GetInputRegion: dim = " << dim 
+                    << ", unspecified dimensions do not include 0.");
+      region->Delete();
+      return NULL;
+      }
+    }
+  
+  // Note: This automatical sets the unspecified dimension bounds to [0,0]
+  region->SetBounds(bounds, dim);
+  this->Input->UpdateRegion(region);
+  
+  return region;
+}
 
 
 

@@ -47,12 +47,11 @@ vtkImageRegion::vtkImageRegion()
 {
   this->Data = NULL;
   this->DataType = VTK_IMAGE_VOID;
-  this->SetAxes4d(VTK_IMAGE_X_AXIS,
-		  VTK_IMAGE_Y_AXIS,
-		  VTK_IMAGE_Z_AXIS,
-		  VTK_IMAGE_TIME_AXIS);
-  this->SetBounds4d(0,0, 0,0, 0,0, 0,0);
-  this->SetImageBounds4d(0,0, 0,0, 0,0, 0,0);
+  this->SetAxes5d(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS,
+		VTK_IMAGE_Z_AXIS, VTK_IMAGE_TIME_AXIS,
+		VTK_IMAGE_COMPONENT_AXIS);
+  this->SetBounds5d(0,0, 0,0, 0,0, 0,0, 0,0);
+  this->SetImageBounds5d(0,0, 0,0, 0,0, 0,0, 0,0);
 }
 
 
@@ -82,6 +81,7 @@ vtkImageRegion::~vtkImageRegion()
 // problem, an execute method that copies the data cound be created.
 void vtkImageRegion::UpdateRegion(vtkImageRegion *region)
 {
+  this->UpdateImageInformation(region);
   region->SetDataType(this->GetDataType());
   region->SetData(this->GetData());
 }
@@ -92,7 +92,7 @@ void vtkImageRegion::UpdateRegion(vtkImageRegion *region)
 // Returns the bounds of the region as the image bounds.
 void vtkImageRegion::UpdateImageInformation(vtkImageRegion *region)
 {
-  region->SetImageBounds4d(this->GetBounds4d());
+  region->SetImageBounds(this->GetBounds());
 }
 
 
@@ -141,8 +141,25 @@ void vtkImageRegion::Allocate()
   this->Data->Allocate();
   
   // Compute the relative increments.
-  this->ShuffleAbsoluteToRelative4d(this->Data->GetIncrements(), 
-				    this->Increments);
+  this->ShuffleAbsoluteToRelative(this->Data->GetIncrements(), 
+				  this->Increments);
+}
+
+
+//----------------------------------------------------------------------------
+// Description:
+// Release any data in the region
+void vtkImageRegion::ReleaseData()
+{
+  this->Modified();
+
+  if (this->Data)
+    {
+    this->Data->Delete();
+    this->Data = NULL;
+    }
+
+  this->DataType = VTK_IMAGE_VOID;
 }
 
 
@@ -174,8 +191,8 @@ void vtkImageRegion::SetData(vtkImageData *data)
   this->Data = data;
   
   // Compute the relative increments.
-  this->ShuffleAbsoluteToRelative4d(data->GetIncrements(), 
-				    this->Increments);
+  this->ShuffleAbsoluteToRelative(data->GetIncrements(), 
+				  this->Increments);
 }
 
 
@@ -188,58 +205,19 @@ void vtkImageRegion::SetData(vtkImageData *data)
 // in the vtkImageData object.  "Increments" allows the user to efficiently 
 // march through the memory using pointer arithmatic, while keeping the
 // actual dimensions of the memory array transparent.  
-void vtkImageRegion::GetIncrements4d(int &inc0,int &inc1,int &inc2,int &inc3)
+void vtkImageRegion::GetIncrements(int *increments, int dim)
 {
+  int idx;
+  
   if ( ! this->Data){
     vtkErrorMacro(<<"Data must be set or allocated.");
     return;
   }
 
-  inc0 = this->Increments[0];
-  inc1 = this->Increments[1];
-  inc2 = this->Increments[2];
-  inc3 = this->Increments[3];
-}
-//----------------------------------------------------------------------------
-void vtkImageRegion::GetIncrements3d(int &inc0, int &inc1, int &inc2)
-{
-  if ( ! this->Data){
-    vtkErrorMacro(<<"Data must be set or allocated.");
-    return;
-  }
-
-  inc0 = this->Increments[0];
-  inc1 = this->Increments[1];
-  inc2 = this->Increments[2];
-}
-//----------------------------------------------------------------------------
-void vtkImageRegion::GetIncrements2d(int &inc0, int &inc1)
-{
-  if ( ! this->Data){
-    vtkErrorMacro(<<"Data must be set or allocated.");
-  }
-
-  inc0 = this->Increments[0];
-  inc1 = this->Increments[1];
-}
-//----------------------------------------------------------------------------
-void vtkImageRegion::GetIncrements1d(int &inc0)
-{
-  if ( ! this->Data){
-    vtkErrorMacro(<<"Data must be set or allocated.");
-  }
-
-  inc0 = this->Increments[0];
-}
-//----------------------------------------------------------------------------
-int *vtkImageRegion::GetIncrements()
-{
-  if ( ! this->Data){
-    vtkErrorMacro(<<"Data must be set or allocated.");
-    return NULL;
-  }
-
-  return this->Increments;
+  for (idx = 0; idx < dim; ++idx)
+    {
+    increments[idx] = this->Increments[idx];
+    }
 }
 
 
@@ -249,9 +227,9 @@ int *vtkImageRegion::GetIncrements()
 // of the location are in pixel units and are relative to the absolute
 // origin of the whole image. The region just forwards the message
 // to its vtkImageData object.
-void *vtkImageRegion::GetVoidPointer4d(int coordinates[4])
+void *vtkImageRegion::GetVoidPointer5d(int coordinates[5])
 {
-  int absoluteCoordinates[4];
+  int absoluteCoordinates[VTK_IMAGE_DIMENSIONS];
   
   if ( ! this->Data){
     vtkErrorMacro(<<"Data must be set or allocated.");
@@ -259,9 +237,22 @@ void *vtkImageRegion::GetVoidPointer4d(int coordinates[4])
   }
 
   // Convert into data coordinates
-  this->ShuffleRelativeToAbsolute4d(coordinates, absoluteCoordinates);
+  this->ShuffleRelativeToAbsolute(coordinates, absoluteCoordinates);
   
   return this->Data->GetVoidPointer(absoluteCoordinates);
+}
+//----------------------------------------------------------------------------
+void *vtkImageRegion::GetVoidPointer4d(int coordinates[4])
+{
+  int coords[VTK_IMAGE_DIMENSIONS];
+  
+  coords[0] = coordinates[0];
+  coords[1] = coordinates[1];
+  coords[2] = coordinates[2];
+  coords[3] = this->DefaultCoordinate3;
+  coords[4] = this->DefaultCoordinate4;
+  
+  return this->GetVoidPointer5d(coords);
 }
 //----------------------------------------------------------------------------
 void *vtkImageRegion::GetVoidPointer3d(int coordinates[3])
@@ -272,8 +263,9 @@ void *vtkImageRegion::GetVoidPointer3d(int coordinates[3])
   coords[1] = coordinates[1];
   coords[2] = coordinates[2];
   coords[3] = this->DefaultCoordinate3;
+  coords[4] = this->DefaultCoordinate4;
   
-  return this->GetVoidPointer4d(coords);
+  return this->GetVoidPointer5d(coords);
 }
 //----------------------------------------------------------------------------
 void *vtkImageRegion::GetVoidPointer2d(int coordinates[2])
@@ -284,8 +276,9 @@ void *vtkImageRegion::GetVoidPointer2d(int coordinates[2])
   coords[1] = coordinates[1];
   coords[2] = this->DefaultCoordinate2;
   coords[3] = this->DefaultCoordinate3;
+  coords[4] = this->DefaultCoordinate4;
   
-  return this->GetVoidPointer4d(coords);
+  return this->GetVoidPointer5d(coords);
 }
 //----------------------------------------------------------------------------
 void *vtkImageRegion::GetVoidPointer1d(int coordinates[1])
@@ -296,11 +289,24 @@ void *vtkImageRegion::GetVoidPointer1d(int coordinates[1])
   coords[1] = this->DefaultCoordinate1;
   coords[2] = this->DefaultCoordinate2;
   coords[3] = this->DefaultCoordinate3;
+  coords[4] = this->DefaultCoordinate4;
   
-  return this->GetVoidPointer4d(coords);
+  return this->GetVoidPointer5d(coords);
 }
 
+//----------------------------------------------------------------------------
+void *vtkImageRegion::GetVoidPointer5d()
+{
+  int coords[VTK_IMAGE_DIMENSIONS];
 
+  coords[0] = this->Bounds[0];
+  coords[1] = this->Bounds[2];
+  coords[2] = this->Bounds[4];
+  coords[3] = this->Bounds[6];
+  coords[4] = this->Bounds[8];
+  
+  return this->GetVoidPointer5d(coords);
+}
 //----------------------------------------------------------------------------
 void *vtkImageRegion::GetVoidPointer4d()
 {
@@ -310,8 +316,9 @@ void *vtkImageRegion::GetVoidPointer4d()
   coords[1] = this->Bounds[2];
   coords[2] = this->Bounds[4];
   coords[3] = this->Bounds[6];
+  coords[4] = this->DefaultCoordinate4;
   
-  return this->GetVoidPointer4d(coords);
+  return this->GetVoidPointer5d(coords);
 }
 //----------------------------------------------------------------------------
 void *vtkImageRegion::GetVoidPointer3d()
@@ -322,8 +329,9 @@ void *vtkImageRegion::GetVoidPointer3d()
   coords[1] = this->Bounds[2];
   coords[2] = this->Bounds[4];
   coords[3] = this->DefaultCoordinate3;
+  coords[4] = this->DefaultCoordinate4;
   
-  return this->GetVoidPointer4d(coords);
+  return this->GetVoidPointer5d(coords);
 }
 //----------------------------------------------------------------------------
 void *vtkImageRegion::GetVoidPointer2d()
@@ -334,8 +342,9 @@ void *vtkImageRegion::GetVoidPointer2d()
   coords[1] = this->Bounds[2];
   coords[2] = this->DefaultCoordinate2;
   coords[3] = this->DefaultCoordinate3;
+  coords[4] = this->DefaultCoordinate4;
   
-  return this->GetVoidPointer4d(coords);
+  return this->GetVoidPointer5d(coords);
 }
 //----------------------------------------------------------------------------
 void *vtkImageRegion::GetVoidPointer1d()
@@ -346,121 +355,97 @@ void *vtkImageRegion::GetVoidPointer1d()
   coords[1] = this->DefaultCoordinate1;
   coords[2] = this->DefaultCoordinate2;
   coords[3] = this->DefaultCoordinate3;
+  coords[4] = this->DefaultCoordinate4;
   
-  return this->GetVoidPointer4d(coords);
+  return this->GetVoidPointer5d(coords);
 }
 
 
 
 
 
-
-
-
 //----------------------------------------------------------------------------
-// Description:
-// Reorder the axes
-void vtkImageRegion::SetAxes4d(int *axes)
+void vtkImageRegion::SetAxes(int *axes, int dim)
 {
-  int relativeAxis, absoluteAxis, idx;
-  int modified = 0;
+  int allAxes[VTK_IMAGE_DIMENSIONS];
+  int axesTable[VTK_IMAGE_DIMENSIONS];
+  int idx, axis;
+  int modifiedFlag = 0;
+
   
-  // Error checking
-  for (relativeAxis = 0; relativeAxis < 4; ++relativeAxis)
+  // Clear the table
+  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
-    absoluteAxis = axes[relativeAxis];
-    // make sure we have a defined axis.
-    if (absoluteAxis < 0 || absoluteAxis >= 4)
+    axesTable[idx] = 0;
+    }
+  
+  // Copy the axes passed as parameters (and add to table)
+  for (idx = 0; idx < dim; ++idx)
+    {
+    axis = axes[idx];
+    allAxes[idx] = axis;
+    // Error checking
+    if (axis < 0 || axis >= VTK_IMAGE_DIMENSIONS)
       {
-      vtkErrorMacro(<< "SetAxes: " << absoluteAxis << " out of range.");
+      vtkErrorMacro(<< "SetAxes: Bad axis: " << axis);
       return;
       }
-    // Check to see if anything has realy changed
-    if (absoluteAxis != this->Axes[relativeAxis])
+    // More Error checking
+    if (axesTable[axis])
       {
-      modified = 1;
+      vtkErrorMacro(<< "SetAxes: Axis " << axis << " occurs more than once");
+      return;
       }
-    // make sure no axis occurs twice
-    for (idx = 0; idx < relativeAxis; ++idx)
+    // save axis in table
+    axesTable[axis] = 1;
+    }
+  
+  // Set the unspecified axes.
+  for (idx = dim; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    // choose the first untaken axis
+    axis = 0;
+    while (axesTable[axis])
       {
-      if (absoluteAxis == axes[idx])
-	{
-	vtkErrorMacro(<< "SetAxes: Axis " << absoluteAxis << " occurs twice.");
-	return;
-	}
+      ++axis;
+      }
+    allAxes[idx] = axis;
+    axesTable[axis] = 1;
+    }
+  
+  // Check the case where the axes are the same
+  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    if (this->Axes[idx] != allAxes[idx])
+      {
+      modifiedFlag = 1;
+      break;
       }
     }
-
-  // Do nothing if nothing has been modified.
-  if (! modified)
+  if (! modifiedFlag)
     {
     return;
     }
-  this->Modified();
   
-  // Change the bounds
-  for (relativeAxis = 0; relativeAxis < 4; ++relativeAxis)
+  // Axes have been modified
+  this->Modified();
+  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
-    this->Axes[relativeAxis] = axes[relativeAxis];
+    this->Axes[idx] = allAxes[idx];
     }
   
   // Any DefaultCoordinates set must be invalid now.
-  this->ResetDefaultCoordinates(4);
+  this->ResetDefaultCoordinates(VTK_IMAGE_DIMENSIONS);
   
   // Recompute relative IVARs
-  this->ShuffleBoundsAbsoluteToRelative4d(this->AbsoluteBounds, this->Bounds);
-  this->ShuffleBoundsAbsoluteToRelative4d(this->AbsoluteImageBounds, 
-					  this->ImageBounds);
+  this->ShuffleBoundsAbsoluteToRelative(this->AbsoluteBounds, this->Bounds);
+  this->ShuffleBoundsAbsoluteToRelative(this->AbsoluteImageBounds, 
+					this->ImageBounds);
   if (this->Data)
     {
-    this->ShuffleAbsoluteToRelative4d(this->Data->GetIncrements(), 
-				      this->Increments);
+    this->ShuffleAbsoluteToRelative(this->Data->GetIncrements(), 
+				    this->Increments);
     }
-}
-//----------------------------------------------------------------------------
-void vtkImageRegion::SetAxes4d(int axis0, int axis1, int axis2, int axis3)
-{
-  int axes[4];
-  
-  axes[0] = axis0;
-  axes[1] = axis1;
-  axes[2] = axis2;
-  axes[3] = axis3;
-  this->SetAxes4d(axes);
-}
-
-
-
-
-
-
-
-
-//----------------------------------------------------------------------------
-void vtkImageRegion::GetAxes4d(int &axis0, int &axis1, int &axis2, int &axis3)
-{
-  axis0 = this->Axes[0];
-  axis1 = this->Axes[1];
-  axis2 = this->Axes[2];
-  axis3 = this->Axes[3];
-}
-//----------------------------------------------------------------------------
-void vtkImageRegion::GetAxes3d(int &axis0, int &axis1, int &axis2)
-{
-  axis0 = this->Axes[0];
-  axis1 = this->Axes[1];
-  axis2 = this->Axes[2];
-}
-//----------------------------------------------------------------------------
-void vtkImageRegion::GetAxes2d(int &axis0, int &axis1)
-{
-  axis0 = this->Axes[0];
-  axis1 = this->Axes[1];
-}
-//----------------------------------------------------------------------------
-void vtkImageRegion::GetAxes1d(int &axis0)
-{
-  axis0 = this->Axes[0];
 }
 //----------------------------------------------------------------------------
 void vtkImageRegion::GetAxes(int *axes, int dim)
@@ -485,6 +470,8 @@ void vtkImageRegion::ResetDefaultCoordinates(int dim)
     this->DefaultCoordinate2 = this->Bounds[4];
   if (dim > 3)
     this->DefaultCoordinate3 = this->Bounds[6];
+  if (dim > 4)
+    this->DefaultCoordinate4 = this->Bounds[8];
 }
 
 
@@ -504,44 +491,8 @@ void vtkImageRegion::SetBounds(int *bounds, int dim)
     {
     this->Bounds[idx] = bounds[idx];
     }
-  this->ShuffleBoundsRelativeToAbsolute4d(this->Bounds, this->AbsoluteBounds);
+  this->ShuffleBoundsRelativeToAbsolute(this->Bounds, this->AbsoluteBounds);
   this->ResetDefaultCoordinates(dim);
-}
-//----------------------------------------------------------------------------
-void vtkImageRegion::SetBounds4d(int min0, int max0, int min1, int max1, 
-				 int min2, int max2, int min3, int max3)
-{
-  this->Bounds[0] = min0;   this->Bounds[1] = max0;   
-  this->Bounds[2] = min1;   this->Bounds[3] = max1;   
-  this->Bounds[4] = min2;   this->Bounds[5] = max2;   
-  this->Bounds[6] = min3;   this->Bounds[7] = max3;   
-  this->ShuffleBoundsRelativeToAbsolute4d(this->Bounds, this->AbsoluteBounds);
-  this->ResetDefaultCoordinates(4);
-}
-//----------------------------------------------------------------------------
-void vtkImageRegion::SetBounds3d(int min0, int max0, int min1, int max1, 
-				 int min2, int max2)
-{
-  this->Bounds[0] = min0;   this->Bounds[1] = max0;   
-  this->Bounds[2] = min1;   this->Bounds[3] = max1;   
-  this->Bounds[4] = min2;   this->Bounds[5] = max2;   
-  this->ShuffleBoundsRelativeToAbsolute4d(this->Bounds, this->AbsoluteBounds);
-  this->ResetDefaultCoordinates(3);
-}
-//----------------------------------------------------------------------------
-void vtkImageRegion::SetBounds2d(int min0, int max0, int min1, int max1)
-{
-  this->Bounds[0] = min0;   this->Bounds[1] = max0;   
-  this->Bounds[2] = min1;   this->Bounds[3] = max1;   
-  this->ShuffleBoundsRelativeToAbsolute4d(this->Bounds, this->AbsoluteBounds);
-  this->ResetDefaultCoordinates(2);
-}
-//----------------------------------------------------------------------------
-void vtkImageRegion::SetBounds1d(int min0, int max0)
-{
-  this->Bounds[0] = min0;   this->Bounds[1] = max0;   
-  this->ShuffleBoundsRelativeToAbsolute4d(this->Bounds, this->AbsoluteBounds);
-  this->ResetDefaultCoordinates(1);
 }
 
 //----------------------------------------------------------------------------
@@ -557,42 +508,6 @@ void vtkImageRegion::GetBounds(int *bounds, int dim)
     bounds[idx] = this->Bounds[idx];
     }
 }
-//----------------------------------------------------------------------------
-void vtkImageRegion::GetBounds4d(int &min0, int &max0, int &min1, int &max1, 
-				 int &min2, int &max2, int &min3, int &max3)
-{
-  min0 = this->Bounds[0];   max0 = this->Bounds[1];   
-  min1 = this->Bounds[2];   max1 = this->Bounds[3];   
-  min2 = this->Bounds[4];   max2 = this->Bounds[5];   
-  min3 = this->Bounds[6];   max3 = this->Bounds[7];   
-}
-//----------------------------------------------------------------------------
-void vtkImageRegion::GetBounds3d(int &min0, int &max0, int &min1, int &max1, 
-				 int &min2, int &max2)
-{
-  min0 = this->Bounds[0];   max0 = this->Bounds[1];   
-  min1 = this->Bounds[2];   max1 = this->Bounds[3];   
-  min2 = this->Bounds[4];   max2 = this->Bounds[5];   
-}
-//----------------------------------------------------------------------------
-void vtkImageRegion::GetBounds2d(int &min0, int &max0, int &min1, int &max1)
-{
-  min0 = this->Bounds[0];   max0 = this->Bounds[1];   
-  min1 = this->Bounds[2];   max1 = this->Bounds[3];   
-}
-//----------------------------------------------------------------------------
-void vtkImageRegion::GetBounds1d(int &min0, int &max0)
-{
-  min0 = this->Bounds[0];   max0 = this->Bounds[1];   
-}
-
-
-
-
-
-
-
-
 
 
 
@@ -608,49 +523,9 @@ void vtkImageRegion::SetImageBounds(int *bounds, int dim)
     {
     this->ImageBounds[idx] = bounds[idx];
     }
-  this->ShuffleBoundsRelativeToAbsolute4d(this->ImageBounds, 
-					  this->AbsoluteImageBounds);
+  this->ShuffleBoundsRelativeToAbsolute(this->ImageBounds, 
+					this->AbsoluteImageBounds);
   this->ResetDefaultCoordinates(dim);
-}
-//----------------------------------------------------------------------------
-void vtkImageRegion::SetImageBounds4d(int min0, int max0, int min1, int max1, 
-				      int min2, int max2, int min3, int max3)
-{
-  this->ImageBounds[0] = min0;   this->ImageBounds[1] = max0;   
-  this->ImageBounds[2] = min1;   this->ImageBounds[3] = max1;   
-  this->ImageBounds[4] = min2;   this->ImageBounds[5] = max2;   
-  this->ImageBounds[6] = min3;   this->ImageBounds[7] = max3;   
-  this->ShuffleBoundsRelativeToAbsolute4d(this->ImageBounds, 
-					  this->AbsoluteImageBounds);
-  this->ResetDefaultCoordinates(4);
-}
-//----------------------------------------------------------------------------
-void vtkImageRegion::SetImageBounds3d(int min0, int max0, int min1, int max1, 
-				      int min2, int max2)
-{
-  this->ImageBounds[0] = min0;   this->ImageBounds[1] = max0;   
-  this->ImageBounds[2] = min1;   this->ImageBounds[3] = max1;   
-  this->ImageBounds[4] = min2;   this->ImageBounds[5] = max2;   
-  this->ShuffleBoundsRelativeToAbsolute4d(this->ImageBounds, 
-					  this->AbsoluteImageBounds);
-  this->ResetDefaultCoordinates(3);
-}
-//----------------------------------------------------------------------------
-void vtkImageRegion::SetImageBounds2d(int min0, int max0, int min1, int max1)
-{
-  this->ImageBounds[0] = min0;   this->ImageBounds[1] = max0;   
-  this->ImageBounds[2] = min1;   this->ImageBounds[3] = max1;   
-  this->ShuffleBoundsRelativeToAbsolute4d(this->ImageBounds, 
-					  this->AbsoluteImageBounds);
-  this->ResetDefaultCoordinates(2);
-}
-//----------------------------------------------------------------------------
-void vtkImageRegion::SetImageBounds1d(int min0, int max0)
-{
-  this->ImageBounds[0] = min0;   this->ImageBounds[1] = max0;   
-  this->ShuffleBoundsRelativeToAbsolute4d(this->ImageBounds, 
-					  this->AbsoluteImageBounds);
-  this->ResetDefaultCoordinates(1);
 }
 
 //----------------------------------------------------------------------------
@@ -666,38 +541,6 @@ void vtkImageRegion::GetImageBounds(int *boundary, int dim)
     boundary[idx] = this->ImageBounds[idx];
     }
 }
-//---------------------------------------------------------------------------
-void vtkImageRegion::GetImageBounds4d(int &min0,int &max0, int &min1,int &max1,
-				      int &min2,int &max2, int &min3,int &max3)
-{
-  min0 = this->ImageBounds[0];   max0 = this->ImageBounds[1];   
-  min1 = this->ImageBounds[2];   max1 = this->ImageBounds[3];   
-  min2 = this->ImageBounds[4];   max2 = this->ImageBounds[5];   
-  min3 = this->ImageBounds[6];   max3 = this->ImageBounds[7];   
-}
-//----------------------------------------------------------------------------
-void vtkImageRegion::GetImageBounds3d(int &min0,int &max0, int &min1,int &max1,
-				      int &min2,int &max2)
-{
-  min0 = this->ImageBounds[0];   max0 = this->ImageBounds[1];   
-  min1 = this->ImageBounds[2];   max1 = this->ImageBounds[3];   
-  min2 = this->ImageBounds[4];   max2 = this->ImageBounds[5];   
-}
-//----------------------------------------------------------------------------
-void vtkImageRegion::GetImageBounds2d(int &min0,int &max0, int &min1,int &max1)
-{
-  min0 = this->ImageBounds[0];   max0 = this->ImageBounds[1];   
-  min1 = this->ImageBounds[2];   max1 = this->ImageBounds[3];   
-}
-//----------------------------------------------------------------------------
-void vtkImageRegion::GetImageBounds1d(int &min0,int &max0)
-{
-  min0 = this->ImageBounds[0];   max0 = this->ImageBounds[1];   
-}
-
-
-
-
 
 
 
@@ -709,7 +552,7 @@ void vtkImageRegion::GetImageBounds1d(int &min0,int &max0)
 // Description:
 // Convert 4d vector (not bounds!) from absolute coordinates into
 // relative coordinate system of region.
-void vtkImageRegion::ShuffleRelativeToAbsolute4d(int *relative, int *absolute)
+void vtkImageRegion::ShuffleRelativeToAbsolute(int *relative, int *absolute)
 {
   int idx;
   
@@ -723,7 +566,7 @@ void vtkImageRegion::ShuffleRelativeToAbsolute4d(int *relative, int *absolute)
 // Description:
 // Convert 4d vector (not bounds!) from relative coordinates into
 // absolute coordinate system.
-void vtkImageRegion::ShuffleAbsoluteToRelative4d(int *absolute, int *relative)
+void vtkImageRegion::ShuffleAbsoluteToRelative(int *absolute, int *relative)
 {
   int idx;
   
@@ -739,8 +582,8 @@ void vtkImageRegion::ShuffleAbsoluteToRelative4d(int *absolute, int *relative)
 // Description:
 // Convert 4d bounds from absolute coordinates into
 // relative coordinate system of region.
-void vtkImageRegion::ShuffleBoundsRelativeToAbsolute4d(int *relative, 
-						       int *absolute)
+void vtkImageRegion::ShuffleBoundsRelativeToAbsolute(int *relative, 
+						     int *absolute)
 {
   int idx;
   
@@ -755,8 +598,8 @@ void vtkImageRegion::ShuffleBoundsRelativeToAbsolute4d(int *relative,
 // Description:
 // Convert 4d bounds from relative coordinates into
 // absolute coordinate system.
-void vtkImageRegion::ShuffleBoundsAbsoluteToRelative4d(int *absolute, 
-						       int *relative)
+void vtkImageRegion::ShuffleBoundsAbsoluteToRelative(int *absolute, 
+						     int *relative)
 {
   int idx;
   
@@ -770,15 +613,82 @@ void vtkImageRegion::ShuffleBoundsAbsoluteToRelative4d(int *absolute,
 
 
 //----------------------------------------------------------------------------
+// since data in region has same bounds as region, 5 nested loops are not
+// actually necessary.  But to keep this method tolerent to future changes ...
+template <class T>
+void vtkImageRegionImportMemory(vtkImageRegion *self, T *memPtr)
+{
+  int min0, max0, min1, max1, min2, max2, min3, max3, min4, max4;
+  int inc0, inc1, inc2, inc3, inc4;
+  int idx0, idx1, idx2, idx3, idx4;
+  T *ptr0, *ptr1, *ptr2, *ptr3, *ptr4;
+  
+  self->GetIncrements5d(inc0, inc1, inc2, inc3, inc4);
+  self->GetBounds5d(min0,max0, min1,max1, min2,max2, min3,max3, min4,max4);
+  
+  // loop over 5d space.
+  ptr4 = (T *)(self->GetVoidPointer5d());
+  for (idx4 = min4; idx4 <= max4; ++idx4)
+    {
+    ptr3 = ptr4;
+    for (idx3 = min3; idx3 <= max3; ++idx3)
+      {
+      ptr2 = ptr3;
+      for (idx2 = min2; idx2 <= max2; ++idx2)
+	{
+	ptr1 = ptr2;
+	for (idx1 = min1; idx1 <= max1; ++idx1)
+	  {
+	  ptr0 = ptr1;
+	  for (idx0 = min0; idx0 <= max0; ++idx0)
+	    {
+	    *ptr0 = *memPtr++;
+	    ptr0 += inc0;
+	    }
+	  ptr1 += inc1;
+	  }
+	ptr2 += inc2;
+	}
+      ptr3 += inc3;
+      }
+    ptr4 += inc4;
+    }
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// This method will copy your memory into the region.  It is important that
+// you SetBounds and SetDataType of this region before this method is called.
 void vtkImageRegion::ImportMemory(void *ptr)
 {
-  ptr = ptr;
+  // Get rid of old data, and allocate new
+  this->Allocate();
   
-  vtkErrorMacro(<< "Importindg memory is not implemented yet.");
+  switch (this->GetDataType())
+    {
+    case VTK_IMAGE_FLOAT:
+      vtkImageRegionImportMemory(this, (float *)(ptr));
+      break;
+    case VTK_IMAGE_INT:
+      vtkImageRegionImportMemory(this, (int *)(ptr));
+      break;
+    case VTK_IMAGE_SHORT:
+      vtkImageRegionImportMemory(this, (short *)(ptr));
+      break;
+    case VTK_IMAGE_UNSIGNED_SHORT:
+      vtkImageRegionImportMemory(this, (unsigned short *)(ptr));
+      break;
+    case VTK_IMAGE_UNSIGNED_CHAR:
+      vtkImageRegionImportMemory(this, (unsigned char *)(ptr));
+      break;
+    default:
+      vtkErrorMacro(<< "ImportMemory: Cannot handle DataType.");
+    }   
 }
 
 
 //----------------------------------------------------------------------------
+// This should probably copy the data.
 void *vtkImageRegion::ExportMemory()
 {
   return (void *)(this->Data->GetVoidPointer());

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageVolumeShortWriter.hh
+  Module:    vtkImage4dShortReader.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,79 +37,96 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageVolumeShortWriter - Generic Writer.
+// .NAME vtkImage4dShortReader - Generic Reader Class.
 // .SECTION Description
-// vtkImageVolumeShortWriter will request a region slice by slice, and
-// write it in a format which can be read by vtkImageVolumeShortReader.
-// It does not put any header in the image files.
+// vtkImage4dShortReader will read an image saved as unsigned shorts.
+// The dimensions of the image has to be prespecified.
+// The header of the file is completely ignored.  
+// Images are stored in individual files: i.e. root.1, root.2 ...
+// This class generate 4d regions.  It will just 
+// duplicate the 3d volume for each slice of the extra dimension.
 
 
-#ifndef __vtkImageVolumeShortWriter_h
-#define __vtkImageVolumeShortWriter_h
+#ifndef __vtkImage4dShortReader_h
+#define __vtkImage4dShortReader_h
 
 #include <iostream.h>
 #include <fstream.h>
 #include "vtkImageCachedSource.hh"
 
-class vtkImageVolumeShortWriter : public vtkObject
+class vtkImage4dShortReader : public vtkImageCachedSource
 {
 public:
-  vtkImageVolumeShortWriter();
-  ~vtkImageVolumeShortWriter();
-  char *GetClassName() {return "vtkImageVolumeShortWriter";};
+  vtkImage4dShortReader();
+  char *GetClassName() {return "vtkImage4dShortReader";};
+
+  void SetSize(int size0, int size1, int size2, int size3);
+  void SetSize(int *size);
   
   void SetFileRoot(char *fileRoot);
-  void Write();
-  void Write(int *bounds);
-  void Write(int min0, int max0, int min1, int max1, int min2, int max2);
+  void UpdateImageInformation(vtkImageRegion *region);
+  vtkImageSource *GetOutput();
   
   // Description:
-  // Set/Get the number of the first image
-  vtkSetMacro(First,int);
+  // Get the number of the first image
   vtkGetMacro(First,int);
 
   // Description:
+  // Set/Get the pixel mask
+  vtkGetMacro(PixelMask,unsigned short);
+  void SetPixelMask(int val) {this->PixelMask = ((unsigned short)(val)); this->Modified();};
+  
+  // Description:
   // Set/Get the Signed flag
+  vtkBooleanMacro(Signed,int);
   vtkSetMacro(Signed,int);
   vtkGetMacro(Signed,int);
-  vtkBooleanMacro(Signed,int);
 
   // Description:
   // Set/Get the byte swapping
   vtkSetMacro(SwapBytes,int);
   vtkGetMacro(SwapBytes,int);
   vtkBooleanMacro(SwapBytes,int);
-  
-  // Description:
-  // Set/Get the input object from the image pipline.
-  vtkSetObjectMacro(Input,vtkImageSource);
-  vtkGetObjectMacro(Input,vtkImageSource);
-  
-protected:
-  // Get you input from this source
-  vtkImageSource *Input;
-  // Enumeration of image files start with this value (i.e. 0 or 1)
-  int First;
-  
-  friend void vtkImageVolumeShortWriterWrite2d(vtkImageVolumeShortWriter *self,
-			       vtkImageRegion *region, float *ptr);
-  friend void vtkImageVolumeShortWriterWrite2d(vtkImageVolumeShortWriter *self,
-			       vtkImageRegion *region, int *ptr);
-  friend void vtkImageVolumeShortWriterWrite2d(vtkImageVolumeShortWriter *self,
-			       vtkImageRegion *region, short *ptr);
-  friend void vtkImageVolumeShortWriterWrite2d(vtkImageVolumeShortWriter *self,
-			       vtkImageRegion *region, unsigned short *ptr);
-  friend void vtkImageVolumeShortWriterWrite2d(vtkImageVolumeShortWriter *self,
-			       vtkImageRegion *region, unsigned char *ptr);
+
+  // Templated function that reads into different data types.
+  friend void vtkImage4dShortReaderGenerateData2d(
+			     vtkImage4dShortReader *self,
+			     vtkImageRegion *region, float *ptr);
+  friend void vtkImage4dShortReaderGenerateData2d(
+			     vtkImage4dShortReader *self,
+			     vtkImageRegion *region, int *ptr);
+  friend void vtkImage4dShortReaderGenerateData2d(
+			     vtkImage4dShortReader *self,
+			     vtkImageRegion *region, short *ptr);
+  friend void vtkImage4dShortReaderGenerateData2d(
+			     vtkImage4dShortReader *self,
+			     vtkImageRegion *region, unsigned short *ptr);
+  friend void vtkImage4dShortReaderGenerateData2d(
+			     vtkImage4dShortReader *self,
+			     vtkImageRegion *region, unsigned char *ptr);
   
   
 protected:
-  char *FileRoot;
-  char *FileName;
+  char FileRoot[100];
+  char FileName[110];
+  ifstream *File;
+  int FileSize;
+  int HeaderSize;
   int Signed;
   int SwapBytes;
-  
-  void Write2d(vtkImageRegion *region);  
+  int Size[4];
+  // For seeking to the correct location in the files.
+  int Increments[4];
+  // The first image has this number
+  int First;
+  // Mask each pixel with
+  unsigned short PixelMask;
+
+  // Reader keeps track of the min and max for convenience.
+  double PixelMin;
+  double PixelMax;
+
+  void UpdateRegion2d(vtkImageRegion *outRegion);    
 };
 
 #endif
