@@ -30,7 +30,7 @@ modification, are permitted provided that the following conditions are met:
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR
+ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
 DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
 SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
@@ -47,9 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPolyData.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 vtkDelaunay3D* vtkDelaunay3D::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -61,9 +59,6 @@ vtkDelaunay3D* vtkDelaunay3D::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkDelaunay3D;
 }
-
-
-
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.
@@ -86,45 +81,45 @@ vtkPointSet *vtkDelaunay3D::GetInput()
 
 // Structure used to represent sphere around tetrahedron
 //
-typedef struct _vtkDelaunaySphere 
+typedef struct _vtkDelaunayTetra 
 {
   double r2;
   double center[3];
 }
-vtkDelaunaySphere;
+vtkDelaunayTetra;
 
-// Special classes for manipulating sphere array
+// Special classes for manipulating tetra array
 //
-class vtkSphereArray { //;prevent man page generation
+class vtkTetraArray { //;prevent man page generation
 public:
-  vtkSphereArray(int sz, int extend);
-  ~vtkSphereArray()
+  vtkTetraArray(int sz, int extend);
+  ~vtkTetraArray()
     {
       if (this->Array)
         {
         delete [] this->Array;
         }
     };
-  vtkDelaunaySphere *GetSphere(int tetraId) {return this->Array + tetraId;};
-  void InsertSphere(int tetraId, double r2, double center[3]);
-  vtkDelaunaySphere *Resize(int sz); //reallocates data
+  vtkDelaunayTetra *GetTetra(int tetraId) {return this->Array + tetraId;};
+  void InsertTetra(int tetraId, double r2, double center[3]);
+  vtkDelaunayTetra *Resize(int sz); //reallocates data
 
 protected:
-  vtkDelaunaySphere *Array;  // pointer to data
+  vtkDelaunayTetra *Array;  // pointer to data
   int MaxId;              // maximum index inserted thus far
   int Size;               // allocated size of data
   int Extend;             // grow array by this amount
 };
 
-vtkSphereArray::vtkSphereArray(int sz, int extend)
+vtkTetraArray::vtkTetraArray(int sz, int extend)
 {
   this->MaxId = -1; 
-  this->Array = new vtkDelaunaySphere[sz];
+  this->Array = new vtkDelaunayTetra[sz];
   this->Size = sz;
   this->Extend = extend;
 }
 
-void vtkSphereArray::InsertSphere(int id, double r2, double center[3])
+void vtkTetraArray::InsertTetra(int id, double r2, double center[3])
 {
   if ( id >= this->Size )
     {
@@ -140,9 +135,9 @@ void vtkSphereArray::InsertSphere(int id, double r2, double center[3])
     }
 }
 
-vtkDelaunaySphere *vtkSphereArray::Resize(int sz)
+vtkDelaunayTetra *vtkTetraArray::Resize(int sz)
 {
-  vtkDelaunaySphere *newArray;
+  vtkDelaunayTetra *newArray;
   int newSize;
 
   if ( sz > this->Size )
@@ -158,7 +153,7 @@ vtkDelaunaySphere *vtkSphereArray::Resize(int sz)
     newSize = sz;
     }
 
-  if ( (newArray = new vtkDelaunaySphere[newSize]) == NULL )
+  if ( (newArray = new vtkDelaunayTetra[newSize]) == NULL )
     { 
     vtkGenericWarningMacro(<< "Cannot allocate memory\n");
     return 0;
@@ -167,7 +162,7 @@ vtkDelaunaySphere *vtkSphereArray::Resize(int sz)
   if (this->Array)
     {
     memcpy(newArray, this->Array,
-           (sz < this->Size ? sz : this->Size) * sizeof(vtkDelaunaySphere));
+           (sz < this->Size ? sz : this->Size) * sizeof(vtkDelaunayTetra));
     delete [] this->Array;
     }
 
@@ -191,7 +186,15 @@ vtkDelaunay3D::vtkDelaunay3D()
   this->BoundingTriangulation = 0;
   this->Offset = 2.5;
   this->Locator = NULL;
-  this->Spheres = NULL;
+  this->TetraArray = NULL;
+
+  // added for performance
+  this->Tetras = vtkIdList::New();
+  this->Tetras->Allocate(5);
+  this->Faces = vtkIdList::New();
+  this->Faces->Allocate(15);
+  this->CheckedTetras = vtkIdList::New();
+  this->CheckedTetras->Allocate(25);
 }
 
 vtkDelaunay3D::~vtkDelaunay3D()
@@ -201,212 +204,78 @@ vtkDelaunay3D::~vtkDelaunay3D()
     this->Locator->UnRegister(this);
     this->Locator = NULL;
     }
-  if ( this->Spheres )
+  if ( this->TetraArray )
     {
-    delete this->Spheres;
+    delete this->TetraArray;
     }
+  this->Tetras->Delete();
+  this->Faces->Delete();
+  this->CheckedTetras->Delete();
 }
-
-
-#define VTK_DEL3D_TOLERANCE 1.0e-06
-
-// Recursive method to locate tetrahedron containing point. Starts with
-// arbitrary tetrahedron (tetra) and "walks" towards it. Influenced by 
-// some of Guibas and Stolfi's work. Returns id of enclosing tetra, or -1 
-// if no tetrahedron found.
-int vtkDelaunay3D::FindTetra(float x[3], int ptIds[4], float p[4][3], 
-                             int tetra, vtkUnstructuredGrid *Mesh, 
-                             vtkPoints *points, float tol, int depth)
-{
-  int i, j, inside, i2, i3, i4;
-  vtkIdList *pts, *facePts, *neighbors;
-  float v12[3], vp[3], vx[3], v32[3], n[3], valx, valp, maxValx;
-  
-  // prevent aimless wandering and death by recursion
-  if ( depth++ > 100 )
-    {
-    this->NumberOfDegeneracies++;
-    return -1;
-    }
-
-  pts = vtkIdList::New();
-  pts->SetNumberOfIds(4);
-
-  facePts = vtkIdList::New();
-  facePts->SetNumberOfIds(3);
-
-  neighbors = vtkIdList::New();
-  neighbors->SetNumberOfIds(2);
-
-  // get local tetrahedron info
-  Mesh->GetCellPoints(tetra,pts);
-  for (i=0; i<4; i++) 
-    {
-    ptIds[i] = pts->GetId(i);
-    points->GetPoint(ptIds[i],p[i]);
-    }
-
-  // evaluate in/out of each face
-  for (inside=1, maxValx=0.0, i=0; i<4; i++)
-    {
-    i2 = (i+1) % 4;
-    i3 = (i+2) % 4;
-    i4 = (i+3) % 4;
-
-    // compute normal and local vectors
-    for (j=0; j<3; j++)
-      {
-      v32[j] = p[i3][j] - p[i2][j];
-      v12[j] = p[i][j] - p[i2][j];
-      vp[j] = p[i4][j] - p[i2][j];
-      vx[j] = x[j] - p[i2][j];
-      }
-
-    if ( vtkMath::Normalize(vx) <= tol ) //check for duplicate point
-      {
-      this->NumberOfDuplicatePoints++;
-      pts->Delete();
-      facePts->Delete();
-      neighbors->Delete();
-      return -1;
-      }
-
-    if ( vtkMath::Normalize(vp) <=  VTK_DEL3D_TOLERANCE ) //degenerate tetra
-      {
-      this->NumberOfDegeneracies++;
-      pts->Delete();
-      facePts->Delete();
-      neighbors->Delete();
-      return -1;
-      }
-
-    vtkMath::Cross(v32,v12,n); vtkMath::Normalize(n);//face normal
-
-    //see whether point and tetra vertex are on same side of tetra face
-    valp = vtkMath::Dot(n,vp);
-    if ( fabs(valx = vtkMath::Dot(n,vx)) <= VTK_DEL3D_TOLERANCE ) 
-      {
-      pts->Delete();
-      facePts->Delete();
-      neighbors->Delete();
-      return tetra;
-      }
-
-    if ( (valx < 0.0 && valp > 0.0) || (valx > 0.0 && valp < 0.0)  )
-      {
-      if ( fabs(valx) > maxValx )
-        {
-        inside = 0;
-        maxValx = fabs(valx);
-        facePts->SetId(0,ptIds[i]);
-        facePts->SetId(1,ptIds[i2]);
-        facePts->SetId(2,ptIds[i3]);
-        }
-      }//outside this face
-    }//for each face
-
-  //must be in this tetra if all faces test inside
-  if ( !inside ) 
-    {
-    Mesh->GetCellNeighbors(tetra, facePts, neighbors);
-    pts->Delete();
-    facePts->Delete();
-    tetra = neighbors->GetId(0),
-    neighbors->Delete();
-    return this->FindTetra(x, ptIds, p, tetra,
-                           Mesh, points, tol, depth);
-    }
-  else 
-    {
-    pts->Delete();
-    facePts->Delete();
-    neighbors->Delete();
-    return tetra;
-    }
-}
-#undef VTK_DEL3D_TOLERANCE
+// special method for performance
+static int GetTetraFaceNeighbor(vtkUnstructuredGrid *Mesh, int tetraId, 
+                                int p1, int p2, int p3, int& nei);
 
 // Find all faces that enclose a point. (Enclosure means not satifying 
 // Delaunay criterion.) This method works in two distinct parts. First, the
-// tetrhedra containing the point are found (there may be more than one if 
+// tetrahedra containing the point are found (there may be more than one if 
 // the point falls on an edge or face). Next, face neighbors of these points
 // are visited to see whether they satisfy the Delaunay criterion. Face 
 // neighbors are visited repeatedly until no more tetrahedron are found.
 // Enclosing tetras are returned in the tetras list; the enclosing faces 
 // are returned in the faces list.
-int vtkDelaunay3D::FindEnclosingFaces(float x[3], int tetra, 
-                                      vtkUnstructuredGrid *Mesh,
-                                      vtkPoints *points, float tol,
-                                      vtkIdList *tetras, vtkIdList *faces,
+int vtkDelaunay3D::FindEnclosingFaces(float x[3], vtkUnstructuredGrid *Mesh,
+                                      vtkPoints *points, vtkIdList *tetras, 
+                                      vtkIdList *faces,
                                       vtkPointLocator *locator)
 {
-  vtkTetra *tetraCell=NULL;
-  int ptIds[4];
-  float p[4][3];
-  int tetraId=(-1), i, j, numTetras;
-  vtkIdList *boundaryPts, *checkedTetras, *neiTetras;
+  int tetraId, i, j, ijk[3], numTetras;
   int p1, p2, p3, insertFace;
-  int npts, *tetraPts, nei;
+  int npts, *tetraPts, nei, hasNei;
   int closestPoint;
+  double xd[3]; xd[0]=x[0]; xd[1]=x[1]; xd[2]=x[2];
 
-  // start off by finding closest point and tetras that use the point
+  // Start off by finding closest point and tetras that use the point.
+  // This will serve as the starting point to determine an enclosing
+  // tetrahedron. (We just need a starting point
   if ( locator->IsInsertedPoint(x) >= 0 ) 
     {
+    this->NumberOfDuplicatePoints++;
     return 0;
     }
 
-  // quick fix
-  boundaryPts = vtkIdList::New();
-  boundaryPts->Allocate(3);
-  checkedTetras = vtkIdList::New();
-  checkedTetras->Allocate(25);
-  neiTetras = vtkIdList::New();
-  neiTetras->Allocate(2);
-
-  tetras->Reset();
-  faces->Reset();
-  boundaryPts->Reset();
-
   closestPoint = locator->FindClosestInsertedPoint(x);
-  Mesh->GetPointCells(closestPoint, checkedTetras);
-
-  //check these cells to see if any contain the point
-  for ( i=0; i < checkedTetras->GetNumberOfIds(); i++ )
+  vtkCellLinks *links = Mesh->GetCellLinks();
+  int numCells = links->GetNcells(closestPoint);
+  int *cells = links->GetCells(closestPoint);
+  if ( numCells < 0 ) //shouldn't happen
     {
-    tetraId = checkedTetras->GetId(i);
-    if ( this->InSphere(x,tetraId) )
-      {
-      tetraCell = (vtkTetra *) Mesh->GetCell(tetraId);
-      for ( j=0; j < 4; j++ ) 
-        {
-        tetraCell->Points->GetPoint(j,p[j]);
-        ptIds[j] = tetraCell->PointIds->GetId(j);
-        }
-      break;
-      }
+    this->NumberOfDegeneracies++;
+    return 0;
     }
-  if ( i >= checkedTetras->GetNumberOfIds()) //keep looking for enclosing tetra
+  else
     {
-    tetraId = this->FindTetra(x,ptIds,p,tetra,Mesh,points,tol,0);
-    if ( tetraId < 0 ) 
-      {
-      boundaryPts->Delete();
-      checkedTetras->Delete();
-      neiTetras->Delete();
-      return 0; 
-      }
+    tetraId = cells[0];
+    }
     
-    tetraCell = (vtkTetra *) Mesh->GetCell(tetraId);
+  // Okay, walk towards the containing tetrahedron
+  tetraId = this->FindTetra(Mesh,xd,tetraId,0);
+  if ( tetraId < 0 ) 
+    {
+    this->NumberOfDegeneracies++;
+    return 0;
     }
 
+  // Initialize the list of tetras who contain the point according
+  // to the Delaunay criterion.
   tetras->InsertNextId(tetraId); //means that point is in this tetra
 
   // Okay, check neighbors for Delaunay criterion. Purpose is to find 
   // list of enclosing faces and deleted tetras.
   numTetras = tetras->GetNumberOfIds();
-  for (checkedTetras->Reset(), i=0; i < numTetras; i++) 
+  for (this->CheckedTetras->Reset(), i=0; i < numTetras; i++) 
     {
-    checkedTetras->InsertId(i,tetras->GetId(i));
+    this->CheckedTetras->InsertId(i,tetras->GetId(i));
     }
 
   for (i=0; i < numTetras; i++)
@@ -415,38 +284,37 @@ int vtkDelaunay3D::FindEnclosingFaces(float x[3], int tetra,
     Mesh->GetCellPoints(tetraId,npts,tetraPts);
     for (j=0; j < 4; j++)
       {
-      boundaryPts->Reset(); neiTetras->Reset(); insertFace = 0;
-      boundaryPts->InsertNextId((p1=tetraPts[j]));
-      boundaryPts->InsertNextId((p2=tetraPts[(j+1)%4]));
-      boundaryPts->InsertNextId((p3=tetraPts[(j+2)%4]));
-      Mesh->GetCellNeighbors(tetraId, boundaryPts, neiTetras);
+      insertFace = 0;
+      p1 = tetraPts[j];
+      p2 = tetraPts[(j+1)%4];
+      p3 = tetraPts[(j+2)%4];
+      hasNei = GetTetraFaceNeighbor(Mesh, tetraId, p1, p2, p3, nei);
 
       //if a boundary face or an enclosing face
-      if ( neiTetras->GetNumberOfIds() == 0 )
+      if ( !hasNei ) //a boundary face
         {
         insertFace = 1;
         }
       else
         {
-        nei = neiTetras->GetId(0);
-        if ( checkedTetras->IsId(nei) == -1 )
+        if ( this->CheckedTetras->IsId(nei) == -1 ) //if not checked
           {
-          if ( ! this->InSphere(x,nei) ) //if point outside circumsphere
-            {
-            insertFace = 1;
-            }
-          else
+          if ( this->InSphere(xd,nei) ) //if point inside circumsphere
             {
             numTetras++;
             tetras->InsertNextId(nei); //delete this tetra
             }
-          checkedTetras->InsertNextId(nei);
+          else
+            {
+            insertFace = 1; //this is a boundary face
+            }
+          this->CheckedTetras->InsertNextId(nei); //okay, we've checked it
           }
         else
           {
           if ( tetras->IsId(nei) == -1 ) //if checked but not deleted
             {
-            insertFace = 1;
+            insertFace = 1; //a boundary face
             }
           }
         }
@@ -473,12 +341,88 @@ int vtkDelaunay3D::FindEnclosingFaces(float x[3], int tetra,
       }
     }
 
-  boundaryPts->Delete();
-  checkedTetras->Delete();
-  neiTetras->Delete();
-  
   return (faces->GetNumberOfIds() / 3);
 }
+
+int vtkDelaunay3D::FindTetra(vtkUnstructuredGrid *Mesh, double x[3], 
+                             int tetraId, int depth)
+{
+  double p[4][3];
+  double b[4];
+  vtkTetra *tetra;
+  int neg, j, numNeg;
+  double negValue;
+  
+  // prevent aimless wandering and death by recursion
+  if ( depth > 200 )
+    {
+    return -1;
+    }
+
+  tetra = (vtkTetra *)Mesh->GetCell(tetraId);
+  for ( j=0; j < 4; j++ ) //load the points
+    {
+    tetra->Points->GetPoint(j,p[j]);
+    }
+
+  vtkTetra::BarycentricCoords(x, p[0], p[1], p[2], p[3], b);
+
+  // find the most negative face
+  for ( negValue=VTK_LARGE_FLOAT, numNeg=j=0; j<4; j++ )
+    {
+    if ( b[j] < 0.0 )
+      {
+      numNeg++;
+      if ( b[j] < negValue )
+        {
+        negValue = b[j];
+        neg = j;
+        }
+      }
+    }
+
+  // if no negatives, then inside this tetra
+  if ( numNeg <= 0 )
+    {
+    return tetraId;
+    }
+  
+  // okay, march towards the most negative direction
+  int p1, p2, p3;
+  switch (neg) 
+    {
+    case 0:
+      p1 = tetra->PointIds->GetId(1);
+      p2 = tetra->PointIds->GetId(2);
+      p3 = tetra->PointIds->GetId(3);
+      break;
+    case 1:
+      p1 = tetra->PointIds->GetId(0);
+      p2 = tetra->PointIds->GetId(2);
+      p3 = tetra->PointIds->GetId(3);
+      break;
+    case 2:
+      p1 = tetra->PointIds->GetId(0);
+      p2 = tetra->PointIds->GetId(1);
+      p3 = tetra->PointIds->GetId(3);
+      break;
+    case 3:
+      p1 = tetra->PointIds->GetId(0);
+      p2 = tetra->PointIds->GetId(1);
+      p3 = tetra->PointIds->GetId(2);
+      break;
+    }
+  int nei;
+  if ( GetTetraFaceNeighbor(Mesh, tetraId, p1, p2, p3, nei) )
+    {
+    return FindTetra(Mesh, x, nei, ++depth);
+    }
+  else
+    {
+    return -1;
+    }
+}
+
 
 // 3D Delaunay triangulation. Steps are as follows:
 //   1. For each point
@@ -600,18 +544,13 @@ void vtkDelaunay3D::Execute()
     float alpha2 = this->Alpha * this->Alpha;
     vtkEdgeTable *edges;
     char *pointUse = new char[numPoints+6];
-    int p1, p2, p3, nei, j, k, numNei;
+    int p1, p2, p3, nei, hasNei, j, k;
     float x1[3], x2[3], x3[3];
-    vtkDelaunaySphere *sphere;
+    vtkDelaunayTetra *tetra;
     static int edge[6][2] = {{0,1},{1,2},{2,0},{0,3},{1,3},{2,3}};
-    vtkIdList *boundaryPts, *neiTetras;
 
     edges = vtkEdgeTable::New();
     edges->InitEdgeInsertion(numPoints+6);
-    boundaryPts = vtkIdList::New();
-    boundaryPts->Allocate(3);
-    neiTetras = vtkIdList::New();
-    neiTetras->Allocate(2);
 
     for (ptId=0; ptId < (numPoints+6); ptId++)
       {
@@ -624,8 +563,8 @@ void vtkDelaunay3D::Execute()
       //check tetras
       if ( tetraUse[i] == 1 )
         {
-        sphere = this->Spheres->GetSphere(i);
-        if ( sphere->r2 > alpha2 )
+        tetra = this->TetraArray->GetTetra(i);
+        if ( tetra->r2 > alpha2 )
           {
           tetraUse[i] = 0;
           }
@@ -665,14 +604,9 @@ void vtkDelaunay3D::Execute()
           if ( this->BoundingTriangulation || 
           (p1 < numPoints && p2 < numPoints && p3 < numPoints) )
             {
-            boundaryPts->InsertId(0,p1);
-            boundaryPts->InsertId(1,p2);
-            boundaryPts->InsertId(2,p3);
-            Mesh->GetCellNeighbors(tetraId, boundaryPts, neiTetras);
-            numNei = neiTetras->GetNumberOfIds();
+            hasNei = GetTetraFaceNeighbor(Mesh, tetraId, p1,p2,p3, nei);
 
-            if ( numNei < 1  ||
-            ( (nei = neiTetras->GetId(0)) > i && !tetraUse[nei] ) )
+            if ( !hasNei || ( nei > i && !tetraUse[nei] ) )
               {
               double dx1[3], dx2[3], dx3[3], dv1[3], dv2[3], dv3[3], dcenter[3];
               points->GetPoint(p1,x1); dx1[0]=x1[0]; dx1[1]=x1[1]; dx1[2]=x1[2];
@@ -753,8 +687,6 @@ void vtkDelaunay3D::Execute()
     // update output
     delete [] pointUse;
     edges->Delete();
-    boundaryPts->Delete();
-    neiTetras->Delete();
     }
 
   // Update output; free up supporting data structures.
@@ -856,33 +788,33 @@ vtkUnstructuredGrid *vtkDelaunay3D::InitPointInsertion(float center[3],
 
   Mesh->Allocate(5*numPtsToInsert);
 
-  if (this->Spheres)
+  if (this->TetraArray)
     {
-    delete this->Spheres;
+    delete this->TetraArray;
     }
   
-  this->Spheres = new vtkSphereArray(5*numPtsToInsert,numPtsToInsert);
+  this->TetraArray = new vtkTetraArray(5*numPtsToInsert,numPtsToInsert);
 
   //create bounding tetras (there are four)
   pts[0] = numPtsToInsert + 4; pts[1] = numPtsToInsert + 5; 
   pts[2] = numPtsToInsert ; pts[3] = numPtsToInsert + 2;
   tetraId = Mesh->InsertNextCell(VTK_TETRA,4,pts);
-  this->InsertSphere(Mesh,points,tetraId);
+  this->InsertTetra(Mesh,points,tetraId);
 
   pts[0] = numPtsToInsert + 4; pts[1] = numPtsToInsert + 5; 
   pts[2] = numPtsToInsert + 2; pts[3] = numPtsToInsert + 1;
   tetraId = Mesh->InsertNextCell(VTK_TETRA,4,pts);
-  this->InsertSphere(Mesh,points,tetraId);
+  this->InsertTetra(Mesh,points,tetraId);
 
   pts[0] = numPtsToInsert + 4; pts[1] = numPtsToInsert + 5; 
   pts[2] = numPtsToInsert + 1; pts[3] = numPtsToInsert + 3;
   tetraId = Mesh->InsertNextCell(VTK_TETRA,4,pts);
-  this->InsertSphere(Mesh,points,tetraId);
+  this->InsertTetra(Mesh,points,tetraId);
 
   pts[0] = numPtsToInsert + 4; pts[1] = numPtsToInsert + 5; 
   pts[2] = numPtsToInsert + 3; pts[3] = numPtsToInsert;
   tetraId = Mesh->InsertNextCell(VTK_TETRA,4,pts);
-  this->InsertSphere(Mesh,points,tetraId);
+  this->InsertTetra(Mesh,points,tetraId);
 
   Mesh->SetPoints(points);
   points->Delete();
@@ -925,7 +857,7 @@ vtkUnstructuredGrid *vtkDelaunay3D::InitPointInsertion(int numPtsToInsert,
   this->Locator->InitPointInsertion(points,bounds);
 
   Mesh->Allocate(5*numPtsToInsert);
-  this->Spheres = new vtkSphereArray(5*numPtsToInsert,numPtsToInsert);
+  this->TetraArray = new vtkTetraArray(5*numPtsToInsert,numPtsToInsert);
 
   for ( ptNum=0, j=0; j<numTetra; j++)
     {
@@ -939,7 +871,7 @@ vtkUnstructuredGrid *vtkDelaunay3D::InitPointInsertion(int numPtsToInsert,
         }
       }
     tetraId = Mesh->InsertNextCell(VTK_TETRA,4,pts);
-    this->InsertSphere(Mesh, points, tetraId);
+    this->InsertTetra(Mesh, points, tetraId);
     }
 
   Mesh->SetPoints(points);
@@ -966,12 +898,9 @@ void vtkDelaunay3D::InsertPoint(vtkUnstructuredGrid *Mesh, vtkPoints *points,
 {
   int numFaces, tetraId, nodes[4], i;
   int tetraNum, numTetras;
-  vtkIdList *tetras, *faces;
 
-  tetras = vtkIdList::New();
-  tetras->Allocate(5);
-  faces = vtkIdList::New();
-  faces->Allocate(15);
+  this->Tetras->Reset();
+  this->Faces->Reset();
 
   // Find faces containing point. (Faces are found by deleting
   // one or more tetrahedra "containing" point.) Tetrahedron contain point
@@ -979,28 +908,25 @@ void vtkDelaunay3D::InsertPoint(vtkUnstructuredGrid *Mesh, vtkPoints *points,
   // a point if the point is on or near an edge or face.) For each face, 
   // create a tetrahedron. (The locator helps speed search of points 
   // in tetras.)
-  tetraId = Mesh->GetNumberOfCells() - 1;
-
-  if ( (numFaces=this->FindEnclosingFaces(x, tetraId, Mesh, points,
-                                          this->Tolerance, tetras, faces,
-                                          this->Locator)) > 0 )
+  if ( (numFaces=this->FindEnclosingFaces(x, Mesh, points, this->Tetras, 
+                                          this->Faces, this->Locator)) > 0 )
     {
     this->Locator->InsertPoint(ptId,x); //point is part of mesh now
-    numTetras = tetras->GetNumberOfIds();
+    numTetras = this->Tetras->GetNumberOfIds();
 
     // create new tetra for each face
     for (tetraNum=0; tetraNum < numFaces; tetraNum++)
       {
       //define tetrahedron
       nodes[0] = ptId;
-      nodes[1] = faces->GetId(3*tetraNum);
-      nodes[2] = faces->GetId(3*tetraNum+1);
-      nodes[3] = faces->GetId(3*tetraNum+2);
+      nodes[1] = this->Faces->GetId(3*tetraNum);
+      nodes[2] = this->Faces->GetId(3*tetraNum+1);
+      nodes[3] = this->Faces->GetId(3*tetraNum+2);
 
       //either replace previously deleted tetra or create new one
       if ( tetraNum < numTetras )
         {
-        tetraId = tetras->GetId(tetraNum);
+        tetraId = this->Tetras->GetId(tetraNum);
         Mesh->ReplaceCell(tetraId, 4, nodes);
         }
       else
@@ -1020,7 +946,7 @@ void vtkDelaunay3D::InsertPoint(vtkUnstructuredGrid *Mesh, vtkPoints *points,
         Mesh->AddReferenceToCell(nodes[i],tetraId);
         }
 
-      this->InsertSphere(Mesh, points, tetraId);
+      this->InsertTetra(Mesh, points, tetraId);
 
       }//for each face
 
@@ -1029,13 +955,11 @@ void vtkDelaunay3D::InsertPoint(vtkUnstructuredGrid *Mesh, vtkPoints *points,
     // data structure. Keep track of them here...mark them deleted later.
     for (tetraNum = numFaces; tetraNum < numTetras; tetraNum++ )
       {
-      holeTetras->InsertNextId(tetras->GetId(tetraNum));
+      holeTetras->InsertNextId(this->Tetras->GetId(tetraNum));
       }
 
     }//if enclosing faces found
 
-  tetras->Delete();
-  faces->Delete();
 }
 
 
@@ -1066,21 +990,22 @@ void vtkDelaunay3D::CreateDefaultLocator()
   if ( this->Locator == NULL )
     {
     this->Locator = vtkPointLocator::New();
+    this->Locator->SetDivisions(25,25,25);
     }
 }
 
 // See whether point is in sphere of tetrahedron
-int vtkDelaunay3D::InSphere(float x[3], int tetraId)
+int vtkDelaunay3D::InSphere(double x[3], int tetraId)
 {
-  float dist2;
-  vtkDelaunaySphere *sphere = this->Spheres->GetSphere(tetraId);
+  double dist2;
+  vtkDelaunayTetra *tetra = this->TetraArray->GetTetra(tetraId);
   
   // check if inside/outside circumcircle
-  dist2 = (x[0] - sphere->center[0]) * (x[0] - sphere->center[0]) + 
-          (x[1] - sphere->center[1]) * (x[1] - sphere->center[1]) +
-          (x[2] - sphere->center[2]) * (x[2] - sphere->center[2]);
+  dist2 = (x[0] - tetra->center[0]) * (x[0] - tetra->center[0]) + 
+          (x[1] - tetra->center[1]) * (x[1] - tetra->center[1]) +
+          (x[2] - tetra->center[2]) * (x[2] - tetra->center[2]);
 
-  if ( dist2 < (0.99999 * sphere->r2) )
+  if ( dist2 < (0.9999999999L * tetra->r2) )
     {
     return 1;
     }
@@ -1090,8 +1015,8 @@ int vtkDelaunay3D::InSphere(float x[3], int tetraId)
     }
 }
 
-// Compute circumsphere and place into array of spheres
-void vtkDelaunay3D::InsertSphere(vtkUnstructuredGrid *Mesh, vtkPoints *points,
+// Compute circumsphere and place into array of tetras
+void vtkDelaunay3D::InsertTetra(vtkUnstructuredGrid *Mesh, vtkPoints *points,
                                  int tetraId)
 {
   float *x1, *x2, *x3, *x4;
@@ -1105,7 +1030,7 @@ void vtkDelaunay3D::InsertSphere(vtkUnstructuredGrid *Mesh, vtkPoints *points,
   x4 = points->GetPoint(pts[3]); dx4[0]=x4[0]; dx4[1]=x4[1]; dx4[2]=x4[2];
 
   radius2 = vtkTetra::Circumsphere(dx1,dx2,dx3,dx4,center);
-  this->Spheres->InsertSphere(tetraId, radius2, center);
+  this->TetraArray->InsertTetra(tetraId, radius2, center);
 }
 
 void vtkDelaunay3D::PrintSelf(ostream& os, vtkIndent indent)
@@ -1148,5 +1073,39 @@ unsigned long int vtkDelaunay3D::GetMTime()
     mTime = ( time > mTime ? time : mTime );
     }
   return mTime;
+}
+
+static int GetTetraFaceNeighbor(vtkUnstructuredGrid *Mesh, int tetraId, 
+                                int p1, int p2, int p3, int& nei)
+{
+  // gather necessary information
+  vtkCellLinks *links = Mesh->GetCellLinks();
+  int numCells = links->GetNcells(p1);
+  int *cells = links->GetCells(p1);
+  int i, npts, *pts;
+  
+  //perform set operation
+  for (i=0; i < numCells; i++)
+    {
+    if ( cells[i] != tetraId )
+      {
+      Mesh->GetCellPoints(cells[i],npts,pts);
+      if ( (p2 == pts[0] || p2 == pts[1] || p2 == pts[2] || p2 == pts[3]) &&
+           (p3 == pts[0] || p3 == pts[1] || p3 == pts[2] || p3 == pts[3]) )
+        {
+        nei = cells[i];
+        break;
+        }
+      }//if not referring tetra
+    }//for all candidate cells
+
+  if ( i < numCells )
+    {
+    return 1;
+    }
+  else
+    {
+    return 0; //there is no neighbor
+    }
 }
 

@@ -30,7 +30,7 @@ modification, are permitted provided that the following conditions are met:
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR
+ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
 DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
 SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
@@ -112,7 +112,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkUnstructuredGridSource.h"
 
-class vtkSphereArray;
+class vtkTetraArray;
 
 class VTK_EXPORT vtkDelaunay3D : public vtkUnstructuredGridSource
 {
@@ -178,7 +178,7 @@ public:
   // at the end of the Mesh's point list. That is, InsertPoint() assumes that
   // you will be inserting points between (0,numPtsToInsert-1).
   vtkUnstructuredGrid *InitPointInsertion(float center[3], float length, 
-					  int numPts, vtkPoints* &pts);
+                                          int numPts, vtkPoints* &pts);
 
   // Description:
   // This is a helper method used with InsertPoint() to create 
@@ -207,7 +207,7 @@ public:
   // tetrahedra (or tetra faces and edges).The holeTetras id list lists all the
   // tetrahedra that are deleted (invalid) in the mesh structure.
   void InsertPoint(vtkUnstructuredGrid *Mesh, vtkPoints *points,
-		   int id, float x[3], vtkIdList *holeTetras);
+                   int id, float x[3], vtkIdList *holeTetras);
 
   // Description:
   // Invoke this method after all points have been inserted. The purpose of
@@ -229,12 +229,12 @@ public:
   // For legacy compatibility. Do not use.
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};  
   vtkUnstructuredGrid *InitPointInsertion(int numPtsToInsert,  int numTetra,
-  					  vtkPoints &boundingTetraPts, 
-  					  float bounds[6], vtkPoints* &pts) 
+                                          vtkPoints &boundingTetraPts, 
+                                          float bounds[6], vtkPoints* &pts) 
     {return this->InitPointInsertion(numPtsToInsert, numTetra, 
-  				   &boundingTetraPts, bounds, pts);};
+                                   &boundingTetraPts, bounds, pts);};
   void InsertPoint(vtkUnstructuredGrid *Mesh, vtkPoints *points,
-  		   int id, float x[3], vtkIdList &holeTetras) 
+                   int id, float x[3], vtkIdList &holeTetras) 
     {this->InsertPoint(Mesh, points, id, x, &holeTetras);}; 
     
 protected:
@@ -252,9 +252,10 @@ protected:
 
   vtkPointLocator *Locator;  //help locate points faster
   
-  vtkSphereArray *Spheres;   //used to keep track of circumspheres
-  int InSphere(float x[3], int tetraId);
-  void InsertSphere(vtkUnstructuredGrid *Mesh, vtkPoints *pts, int tetraId);
+  vtkTetraArray *TetraArray; //used to keep track of circumspheres/neighbors
+  int FindTetra(vtkUnstructuredGrid *Mesh, double x[3], int tetId, int depth);
+  int InSphere(double x[3], int tetraId);
+  void InsertTetra(vtkUnstructuredGrid *Mesh, vtkPoints *pts, int tetraId);
 
   int NumberOfDuplicatePoints; //keep track of bad data
   int NumberOfDegeneracies;
@@ -262,14 +263,16 @@ protected:
   // Keep track of number of references to points to avoid new/delete calls
   int *References;
 
-  int FindEnclosingFaces(float x[3], int tetra, vtkUnstructuredGrid *Mesh,
-			 vtkPoints *points, float tol,
-			 vtkIdList *tetras, vtkIdList *faces,
-			 vtkPointLocator *Locator);
+  int FindEnclosingFaces(float x[3], vtkUnstructuredGrid *Mesh,
+                         vtkPoints *points, vtkIdList *tetras, 
+                         vtkIdList *faces, vtkPointLocator *Locator);
   
-  int FindTetra(float x[3], int ptIds[4], float p[4][3], 
-		int tetra, vtkUnstructuredGrid *Mesh, 
-		vtkPoints *points, float tol, int depth);
+private: //members added for performance
+  vtkIdList *Tetras; //used in InsertPoint
+  vtkIdList *Faces;  //used in InsertPoint
+  vtkIdList *BoundaryPts; //used by InsertPoint
+  vtkIdList *CheckedTetras; //used by InsertPoint
+  vtkIdList *NeiTetras; //used by InsertPoint
 
 };
 
