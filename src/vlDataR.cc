@@ -1030,6 +1030,14 @@ char *vlDataReader::LowerCase(char *str)
   return str;
 }
 
+// Description:
+// Close a vl file.
+void vlDataReader::CloseVLFile(FILE *fp)
+{
+  vlDebugMacro(<<"Closing vl file\n");
+  if ( fp != NULL ) fclose(fp);
+}
+
 void vlDataReader::PrintSelf(ostream& os, vlIndent indent)
 {
   vlObject::PrintSelf(os,indent);

@@ -644,6 +644,14 @@ int vlDataWriter::WriteCells(FILE *fp, vlCellArray *cells, char *label)
   return 1;
 }
 
+// Description:
+// Close a vl file.
+void vlDataWriter::CloseVLFile(FILE *fp)
+{
+  vlDebugMacro(<<"Closing vl file\n");
+  if ( fp != NULL ) fclose(fp);
+}
+
 void vlDataWriter::PrintSelf(ostream& os, vlIndent indent)
 {
   vlWriter::PrintSelf(os,indent);

@@ -92,6 +92,7 @@ public:
   int WritePoints(FILE *fp, vlPoints *p);
   int WriteCells(FILE *fp, vlCellArray *cells, char *label);
   int WritePointData(FILE *fp, vlDataSet *ds);
+  void CloseVLFile(FILE *fp);
 
 protected:
   char *Filename;

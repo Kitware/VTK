@@ -89,6 +89,7 @@ public:
   int ReadPointData(FILE *fp, vlDataSet *ds, int numPts, int debug);
   int ReadPoints(FILE *fp, vlPointSet *ps, int numPts);
   int ReadCells(FILE *fp, int size, int *data);
+  void CloseVLFile(FILE *fp);
 
 protected:
   char *Filename;
