@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkSampleFunction, "1.68");
+vtkCxxRevisionMacro(vtkSampleFunction, "1.69");
 vtkStandardNewMacro(vtkSampleFunction);
 vtkCxxSetObjectMacro(vtkSampleFunction,ImplicitFunction,vtkImplicitFunction);
 
@@ -232,7 +232,7 @@ void vtkSampleFunction::Cap(vtkDataArray *s)
   output->GetUpdateExtent(extent);
 
   // i-j planes
-  k = extent[4];
+  //k = extent[4];
   for (j=extent[2]; j<=extent[3]; j++)
     {
     for (i=extent[0]; i<=extent[1]; i++)
@@ -252,7 +252,7 @@ void vtkSampleFunction::Cap(vtkDataArray *s)
     }
 
   // j-k planes
-  i = extent[0];
+  //i = extent[0];
   for (k=extent[4]; k<=extent[5]; k++)
     {
     for (j=extent[2]; j<=extent[3]; j++)
@@ -271,7 +271,7 @@ void vtkSampleFunction::Cap(vtkDataArray *s)
     }
 
   // i-k planes
-  j = extent[2];
+  //j = extent[2];
   for (k=extent[4]; k<=extent[5]; k++)
     {
     for (i=extent[0]; i<=extent[1]; i++)

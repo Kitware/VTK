@@ -19,7 +19,7 @@
 #include "vtkPointData.h"
 #include "vtkCachedStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageCacheFilter, "1.23");
+vtkCxxRevisionMacro(vtkImageCacheFilter, "1.24");
 vtkStandardNewMacro(vtkImageCacheFilter);
 
 //----------------------------------------------------------------------------
@@ -217,7 +217,6 @@ void vtkImageCacheFilter::UpdateData(vtkDataObject *outObject)
       if (this->Data[i] == NULL)
         {
         bestIdx = i;
-        bestTime = 0;
         break;
         }
       if (this->Times[i] < bestTime)

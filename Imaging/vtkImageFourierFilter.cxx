@@ -16,7 +16,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageFourierFilter, "1.17");
+vtkCxxRevisionMacro(vtkImageFourierFilter, "1.18");
 
 
 /*=========================================================================
@@ -114,7 +114,6 @@ void vtkImageFourierFilter::ExecuteFftStepN(vtkImageComplex *p_in,
     }
   
   p1 = p_in;
-  p3 = p_out;
   for(i0 = 0; i0 < n; ++i0)
     {
     q.Real = 0.0;

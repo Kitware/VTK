@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageCanvasSource2D, "1.39");
+vtkCxxRevisionMacro(vtkImageCanvasSource2D, "1.40");
 vtkStandardNewMacro(vtkImageCanvasSource2D);
 
 //----------------------------------------------------------------------------
@@ -148,7 +148,7 @@ void vtkImageCanvasSource2DDrawImage(vtkImageData *image, vtkImageData *simage,
           sinc++;
           }
         }
-      sptrV += smaxV;
+      //sptrV += smaxV;
       
       ptr0 += inc0;
       sptr0 += sinc0;
@@ -173,7 +173,7 @@ void vtkImageCanvasSource2D::DrawImage(int x0, int y0,
 
   int *extent;
   int ext[6];
-  int z = this->DefaultZ;
+//  int z = this->DefaultZ;
   image->GetWholeExtent(ext);
   int text[6];
   this->GetOutput()->GetWholeExtent(text);
@@ -229,10 +229,10 @@ void vtkImageCanvasSource2D::DrawImage(int x0, int y0,
     min1 = int(double(min1) * this->Ratio[1]);
     max1 = int(double(max1) * this->Ratio[1]);
     }
-  if (this->Ratio[2] != 1.0) 
-    {
-    z = int(double(z) * this->Ratio[2]);
-    }
+//  if (this->Ratio[2] != 1.0) 
+//    {
+//    z = int(double(z) * this->Ratio[2]);
+//    }
   // Clip the data to keep in in bounds
   extent = this->ImageData->GetExtent();
   min0 = (min0 < extent[0]) ? extent[0] : min0;
@@ -243,8 +243,8 @@ void vtkImageCanvasSource2D::DrawImage(int x0, int y0,
   max1 = (max1 < extent[2]) ? extent[2] : max1;
   min1 = (min1 > extent[3]) ? extent[3] : min1;
   max1 = (max1 > extent[3]) ? extent[3] : max1;   
-  z = (z < extent[4]) ? extent[4] : z;
-  z = (z > extent[5]) ? extent[5] : z;
+  //z = (z < extent[4]) ? extent[4] : z;
+  //z = (z > extent[5]) ? extent[5] : z;
   void *ptr;
   void *sptr;
   ptr = this->ImageData->GetScalarPointer(min0, min1, 0);
@@ -485,7 +485,6 @@ void vtkImageCanvasSource2DFillTriangle(vtkImageData *image,
   int  maxV;
   double *pf;
   
-  ptr = ptr;
   maxV = image->GetNumberOfScalarComponents() - 1;
   
   // index1 of b must be between a, and c
