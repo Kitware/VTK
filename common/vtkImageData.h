@@ -52,8 +52,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageData_h
 
 
-#include "vtkRefCount.hh"
-#include "vtkScalars.hh"
+#include "vtkRefCount.h"
+#include "vtkScalars.h"
 
 
 // The current maximum dimensionality of "images" is 4 (volume and time).
@@ -169,11 +169,11 @@ protected:
 
 
 // Avoid including these in vtkImageData.cc .
-#include "vtkFloatScalars.hh"
-#include "vtkIntScalars.hh"
-#include "vtkShortScalars.hh"
-#include "vtkUnsignedShortScalars.hh"
-#include "vtkUnsignedCharScalars.hh"
+#include "vtkFloatScalars.h"
+#include "vtkIntScalars.h"
+#include "vtkShortScalars.h"
+#include "vtkUnsignedShortScalars.h"
+#include "vtkUnsignedCharScalars.h"
 
 
 #endif

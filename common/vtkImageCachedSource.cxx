@@ -37,8 +37,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageCachedSource.hh"
-#include "vtkImageSimpleCache.hh"
+#include "vtkImageCachedSource.h"
+#include "vtkImageSimpleCache.h"
 
 //----------------------------------------------------------------------------
 vtkImageCachedSource::vtkImageCachedSource()

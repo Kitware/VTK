@@ -36,7 +36,7 @@ PARTICULAR PURPOSE, AND NON-INFRINGEMENT.  THIS SOFTWARE IS PROVIDED ON AN
 MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
-#include "vtkImagePanCache.hh"
+#include "vtkImagePanCache.h"
 
 
 

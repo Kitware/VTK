@@ -46,9 +46,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkImageCachedSource_h
 #define __vtkImageCachedSource_h
 
-#include "vtkObject.hh"
-#include "vtkImageSource.hh"
-#include "vtkImageRegion.hh"
+#include "vtkObject.h"
+#include "vtkImageSource.h"
+#include "vtkImageRegion.h"
 class vtkImageCache;
 
 
@@ -106,7 +106,7 @@ protected:
 
 
 // all necessary header files will be included automatically.
-#include "vtkImageCache.hh"
+#include "vtkImageCache.h"
 
 #endif
 

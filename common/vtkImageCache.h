@@ -52,10 +52,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #ifndef __vtkImageCache_h
 #define __vtkImageCache_h
-#include "vtkImageSource.hh"
-#include "vtkImageCachedSource.hh"
-#include "vtkImageData.hh"
-#include "vtkImageRegion.hh"
+#include "vtkImageSource.h"
+#include "vtkImageCachedSource.h"
+#include "vtkImageData.h"
+#include "vtkImageRegion.h"
 
 
 class vtkImageCache : public vtkImageSource

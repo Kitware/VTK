@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkImageData.hh"
+#include "vtkImageData.h"
 
 //----------------------------------------------------------------------------
 // Description:

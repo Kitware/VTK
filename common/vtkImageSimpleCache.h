@@ -49,8 +49,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkImageSimpleCache_h
 #define __vtkImageSimpleCache_h
 
-#include "vtkImageCache.hh"
-#include "vtkImageRegion.hh"
+#include "vtkImageCache.h"
+#include "vtkImageRegion.h"
 
 class vtkImageSimpleCache : public vtkImageCache
 {

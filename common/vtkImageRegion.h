@@ -53,8 +53,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageRegion_h
 
 
-#include "vtkImageSource.hh"
-#include "vtkImageData.hh"
+#include "vtkImageSource.h"
+#include "vtkImageData.h"
 
 
 // These macro are for creating the many convenience functions used 

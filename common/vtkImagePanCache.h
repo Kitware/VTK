@@ -47,10 +47,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkImagePanCache_h
 #define __vtkImagePanCache_h
 
-#include "vtkObject.hh"
-#include "vtkImageCache.hh"
-#include "vtkImageData.hh"
-#include "vtkImageRegion.hh"
+#include "vtkObject.h"
+#include "vtkImageCache.h"
+#include "vtkImageData.h"
+#include "vtkImageRegion.h"
 
 
 class vtkImagePanCache : public vtkImageCache

@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkImageSource_h
 #define __vtkImageSource_h
 
-#include "vtkObject.hh"
+#include "vtkObject.h"
 class vtkImageRegion;
 
 
@@ -98,7 +98,7 @@ protected:
 
 
 
-#include "vtkImageRegion.hh"
+#include "vtkImageRegion.h"
 
 #endif
 

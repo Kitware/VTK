@@ -37,7 +37,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageSource.hh"
+#include "vtkImageSource.h"
 
 
 //----------------------------------------------------------------------------

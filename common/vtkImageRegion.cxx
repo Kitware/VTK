@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkImageRegion.hh"
+#include "vtkImageRegion.h"
 
 //----------------------------------------------------------------------------
 // Description:
