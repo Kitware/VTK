@@ -193,7 +193,7 @@ inline void vtkLinearRayIntegratorTransferFunction::GetColor(double x,
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkUnstructuredGridLinearRayIntegrator, "1.8");
+vtkCxxRevisionMacro(vtkUnstructuredGridLinearRayIntegrator, "1.9");
 vtkStandardNewMacro(vtkUnstructuredGridLinearRayIntegrator);
 
 vtkUnstructuredGridLinearRayIntegrator::vtkUnstructuredGridLinearRayIntegrator()
@@ -301,7 +301,7 @@ void vtkUnstructuredGridLinearRayIntegrator::Integrate(
       segments.insert(1.0);
       for (int j = 0; j < numscalars; j++)
         {
-        vtkstd::vector<double> cp = this->TransferFunctions[j].ControlPoints;
+        vtkstd::vector<double> &cp = this->TransferFunctions[j].ControlPoints;
         vtkIdType numcp = cp.size();
         double minscalar, maxscalar;
         if (nearScalars[j] < farScalars[j])

@@ -181,7 +181,7 @@ inline void vtkPartialPreIntegrationTransferFunction::GetColor(double x,
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkUnstructuredGridPartialPreIntegration, "1.3");
+vtkCxxRevisionMacro(vtkUnstructuredGridPartialPreIntegration, "1.4");
 vtkStandardNewMacro(vtkUnstructuredGridPartialPreIntegration);
 
 float vtkUnstructuredGridPartialPreIntegration::PsiTable[PSI_TABLE_SIZE*PSI_TABLE_SIZE];
@@ -293,7 +293,7 @@ void vtkUnstructuredGridPartialPreIntegration::Integrate(
       segments.insert(1.0);
       for (int j = 0; j < numscalars; j++)
         {
-        vtkstd::vector<double> cp = this->TransferFunctions[j].ControlPoints;
+        vtkstd::vector<double> &cp = this->TransferFunctions[j].ControlPoints;
         vtkIdType numcp = cp.size();
         double minscalar, maxscalar;
         if (nearScalars[j] < farScalars[j])
