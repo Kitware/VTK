@@ -27,7 +27,7 @@
 #include "vtkPoints.h"
 #include "vtkQuad.h"
 
-vtkCxxRevisionMacro(vtkHexahedron, "1.86");
+vtkCxxRevisionMacro(vtkHexahedron, "1.87");
 vtkStandardNewMacro(vtkHexahedron);
 
 static const float VTK_DIVERGED = 1.e6;
@@ -708,12 +708,12 @@ void vtkHexahedron::GetFacePoints(int faceId, int* &pts)
   pts = this->GetFaceArray(faceId);
 }
 
-static float CellPCoords[24] = {0.0,0.0,0.0, 1.0,0.0,0.0,
-                                1.0,1.0,0.0, 0.0,1.0,0.0,
-                                0.0,0.0,1.0, 1.0,0.0,1.0,
-                                1.0,1.0,1.0, 0.0,1.0,1.0};
+static float vtkHexahedronCellPCoords[24] = {0.0,0.0,0.0, 1.0,0.0,0.0,
+                                             1.0,1.0,0.0, 0.0,1.0,0.0,
+                                             0.0,0.0,1.0, 1.0,0.0,1.0,
+                                             1.0,1.0,1.0, 0.0,1.0,1.0};
 
 float *vtkHexahedron::GetParametricCoords()
 {
-  return CellPCoords;
+  return vtkHexahedronCellPCoords;
 }
