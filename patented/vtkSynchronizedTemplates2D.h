@@ -67,7 +67,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkSynchronizedTemplates2D_h
 #define __vtkSynchronizedTemplates2D_h
 
-#include "vtkImageToPolyDataFilter.h"
+#include "vtkPolyDataSource.h"
 #include "vtkContourValues.h"
 #include "vtkKitwareContourFilter.h"
 
@@ -75,7 +75,7 @@ class VTK_EXPORT vtkSynchronizedTemplates2D : public vtkPolyDataSource
 {
 public:
   static vtkSynchronizedTemplates2D *New();
-  vtkTypeMacro(vtkSynchronizedTemplates2D,vtkStructuredPointsToPolyDataFilter);
+  vtkTypeMacro(vtkSynchronizedTemplates2D,vtkPolyDataSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
