@@ -43,11 +43,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkUGFacetReader::vtkUGFacetReader()
 {
   this->Filename = NULL;
+  this->PartColors = NULL;
+  this->PartNumber = (-1); //extract all parts
 }
 
 vtkUGFacetReader::~vtkUGFacetReader()
 {
   if ( this->Filename ) delete [] this->Filename;
+  if ( this->PartColors ) delete this->PartColors;
 }
 
 void vtkUGFacetReader::Execute()
@@ -87,6 +90,15 @@ void vtkUGFacetReader::Execute()
     }
 
   // allocate memory
+  if ( ! this->PartColors ) 
+    {
+    this->PartColors = new vtkShortArray(100);
+    }
+  else 
+    {
+    this->PartColors->Reset();
+    }
+
   newPoints = new vtkFloatPoints(25000,25000);
   newNormals = new vtkFloatNormals(25000,25000);
   newPolys = new vtkCellArray;
@@ -104,6 +116,8 @@ void vtkUGFacetReader::Execute()
       break;
       }
 
+    this->PartColors->InsertNextValue(ugiiColor);
+
     for (facetNumber=0; facetNumber < numberTris; facetNumber++)
       {
       if ( fread(&facet,72,1,fp) <= 0 )
@@ -112,22 +126,27 @@ void vtkUGFacetReader::Execute()
         break;
         }
 
-      ptId[0] = newPoints->InsertNextPoint(facet.v1);
-      ptId[1] = newPoints->InsertNextPoint(facet.v2);
-      ptId[2] = newPoints->InsertNextPoint(facet.v3);
+      if ( this->PartNumber == -1 || this->PartNumber == setNumber )
+        {
+        ptId[0] = newPoints->InsertNextPoint(facet.v1);
+        ptId[1] = newPoints->InsertNextPoint(facet.v2);
+        ptId[2] = newPoints->InsertNextPoint(facet.v3);
 
-      newNormals->InsertNormal(ptId[0],facet.n1);
-      newNormals->InsertNormal(ptId[1],facet.n2);
-      newNormals->InsertNormal(ptId[2],facet.n3);
+        newNormals->InsertNormal(ptId[0],facet.n1);
+        newNormals->InsertNormal(ptId[1],facet.n2);
+        newNormals->InsertNormal(ptId[2],facet.n3);
 
-      newPolys->InsertNextCell(3,ptId);
-      }
-    }
+        newPolys->InsertNextCell(3,ptId);
+        }//if appropriate part
+      }//for all facets in this set
+    }//for this facet set
 
   // update output
   vtkDebugMacro(<<"Read " 
                 << newPolys->GetNumberOfCells() << " triangles, "
                 << newPoints->GetNumberOfPoints() << " points.");
+
+  fclose(fp);
 
   output->SetPoints(newPoints);
   newPoints->Delete();
@@ -139,6 +158,59 @@ void vtkUGFacetReader::Execute()
   newPolys->Delete();
 
   output->Squeeze();
+}
+
+int vtkUGFacetReader::GetNumberOfParts()
+{
+  char header[36];
+  FILE *fp;
+  int numberOfParts;
+
+  if ( this->Filename == NULL )
+    {
+    vtkErrorMacro(<<"No filename specified...please specify one.");
+    return 0;
+    }
+
+  // open the file
+  if ( (fp = fopen(this->Filename, "r")) == NULL) 
+    {
+    vtkErrorMacro(<<"Cannot open file specified.");
+    return 0;
+    }
+
+  // read the header stuff
+  if ( fread (header, 1, 2, fp) <= 0 ||
+  fread (&numberOfParts, 4, 1, fp) <= 0 ||
+  fread (header, 1, 36, fp) <= 0 )
+    {
+    vtkErrorMacro(<<"File ended prematurely");
+    fclose(fp);
+    return 0;
+    }
+
+  fclose(fp);
+  return numberOfParts;
+}
+
+// Description:
+// Retrieve color index for the parts in the file.
+short vtkUGFacetReader::GetPartColorIndex(int partId)
+{
+  if ( this->PartColors == NULL )
+    {
+    this->Update();
+    }
+
+  if ( !this->PartColors || 
+  partId < 0 || partId > this->PartColors->GetMaxId() )
+    {
+    return 0;
+    }
+  else
+    {
+    return this->PartColors->GetValue(partId);
+    }
 }
 
 void vtkUGFacetReader::PrintSelf(ostream& os, vtkIndent indent)

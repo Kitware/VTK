@@ -49,6 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <stdio.h>
 #include "vtkPolySource.hh"
+#include "vtkShortArray.hh"
 
 class vtkUGFacetReader : public vtkPolySource 
 {
@@ -59,13 +60,28 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Specify Cyberware file name.
+  // Specify Unigraphics file name.
   vtkSetStringMacro(Filename);
   vtkGetStringMacro(Filename);
 
+  // Special methods for interrogating data file.
+  int GetNumberOfParts();
+  short GetPartColorIndex(int partId);
+
+  // Description:
+  // Specify the desired part to extract. The part number must range between
+  // [0,NumberOfParts-1]. If the value is =(-1), then all parts will be 
+  // extracted. If the value is <(-1), then no parts will be  extracted but 
+  // the part colors will be updated.
+  vtkSetMacro(PartNumber,int);
+  vtkGetMacro(PartNumber,int);
+
 protected:
   void Execute();
+
   char *Filename;
+  vtkShortArray *PartColors;
+  int PartNumber;
 };
 
 #endif
