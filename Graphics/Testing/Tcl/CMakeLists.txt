@@ -50,6 +50,7 @@ IF (VTK_USE_RENDERING)
       extractVectors
       geomFilter
       glyph2D
+      Hyper
       KlineBottle
       motor
       MatrixToTransform
