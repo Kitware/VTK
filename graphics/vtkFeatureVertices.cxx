@@ -78,7 +78,7 @@ void vtkFeatureVertices::Execute()
 //  Check input
 //
   inPts=input->GetPoints();
-  inLines=input->GetPolys();
+  inLines=input->GetLines();
   if ( (numPts=input->GetNumberOfPoints()) < 1 || inPts == NULL || 
        inLines == NULL)
     {
