@@ -1,6 +1,7 @@
 SET(KIT Rendering)
 CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   otherCoordinate.cxx
+  TestOrderedTriangulator.cxx
   EXTRA_INCLUDE vtkSuppressCrtDbgWarning.h
   FUNCTION vtkSuppressCrtDbgWarning
 )
