@@ -10,6 +10,8 @@
 #include "vtkElevationFilter.h"
 #include "vtkRenderWindowInteractor.h"
 
+#include "vtkWindowToImageFilter.h"
+#include "vtkTIFFWriter.h"
 
 void process_a( vtkMultiProcessController *controller, void *vtkNotUsed(arg) )
 {
@@ -36,7 +38,7 @@ void  process_b( vtkMultiProcessController *controller, void *arg )
 {
   int myid, otherid;
   char *save_filename = (char*)arg;
-  
+
   myid = controller->GetLocalProcessId();
   if (myid == 0)
     {
@@ -78,10 +80,15 @@ void  process_b( vtkMultiProcessController *controller, void *arg )
   // save for the regression test
   if (save_filename != NULL && save_filename[0] != '\0')
     {
-    renWin->SetFileName( save_filename );
-    renWin->SaveImageAsPPM();
+    vtkWindowToImageFilter *w2if = vtkWindowToImageFilter::New();
+    vtkTIFFWriter *rttiffw = vtkTIFFWriter::New();
+    w2if->SetInput(renWin);
+    rttiffw->SetInput(w2if->GetOutput());
+    rttiffw->SetFileName(save_filename); 
+    rttiffw->Write(); 
     // Tell the other process to stop waiting.
     controller->TriggerRMI(otherid, VTK_BREAK_RMI_TAG);
+    exit(1);
     }
   else
     {
@@ -111,15 +118,15 @@ void main( int argc, char *argv[] )
   save_filename[0] = '\0';
   if( (argc >= 2) && (strcmp("-S", argv[argc-1]) == 0) )
     {
-    sprintf( save_filename, "%s.cxx.ppm", argv[0] );
+    sprintf( save_filename, "%s.cxx.tif", argv[0] );
     }
   
   controller = vtkMultiProcessController::New();
 
   controller->Initialize(argc, argv);
   controller->SetNumberOfProcesses(2);
-  controller->SetMultipleMethod(0, process_b, NULL);
-  controller->SetMultipleMethod(1, process_a, save_filename);
+  controller->SetMultipleMethod(0, process_b, save_filename);
+  controller->SetMultipleMethod(1, process_a, NULL);
   controller->MultipleMethodExecute();
 
   controller->Delete();

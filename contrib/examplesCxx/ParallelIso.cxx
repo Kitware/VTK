@@ -15,12 +15,13 @@
 #include "vtkTimerLog.h"
 #include "vtkMath.h"
 
+#include "vtkWindowToImageFilter.h"
+#include "vtkTIFFWriter.h"
 
 
-
-#define ISO_START 3500.0
-#define ISO_STEP  -500.0
-#define ISO_NUM   6
+#define ISO_START 4250.0
+#define ISO_STEP  -1250.0
+#define ISO_NUM   3
 
 
 
@@ -52,8 +53,7 @@ void set_iso_val_rmi(void *localArg, void *remoteArg,
 }
 
 
-void process( vtkMultiProcessController *controller,
-	      void *vtkNotUsed(arg) )
+void process( vtkMultiProcessController *controller, void *arg )
 {
   vtkImageReader *reader;
   vtkSynchronizedTemplates3D *iso;
@@ -61,6 +61,8 @@ void process( vtkMultiProcessController *controller,
   int myid, numProcs;
   float val;
   int numTris;
+  char *save_filename = (char*)arg;
+  
   
   myid = controller->GetLocalProcessId();
   numProcs = controller->GetNumberOfProcesses();
@@ -187,14 +189,24 @@ void process( vtkMultiProcessController *controller,
       //renWindow->SetFileName(filename);
       //renWindow->SaveImageAsPPM();
       }
-    
-    // just exit
-    //for (i = 1; i < numProcs; ++i)
-    //  {
-    //  // trigger the RMI to exit
-    //  controller->TriggerRMI(i, VTK_BREAK_RMI_TAG);      
-    //  }
-    //exit(0);
+
+    // Save an image if we need to for regression test.
+    if (save_filename[0] != '\0')
+      {
+      vtkWindowToImageFilter *w2if = vtkWindowToImageFilter::New();
+      vtkTIFFWriter *rttiffw = vtkTIFFWriter::New();
+      w2if->SetInput(renWindow);
+      rttiffw->SetInput(w2if->GetOutput());
+      rttiffw->SetFileName(save_filename); 
+      rttiffw->Write(); 
+      // just exit
+      for (i = 1; i < numProcs; ++i)
+        {
+        // trigger the RMI to exit
+        controller->TriggerRMI(i, VTK_BREAK_RMI_TAG);      
+        }
+      exit( 1 ); 
+      }
     
     //  Begin mouse interaction
     iren->Start();
@@ -218,13 +230,33 @@ void process( vtkMultiProcessController *controller,
 void main( int argc, char *argv[] )
 {
   vtkMultiProcessController *controller;
+  char save_filename[100];
+
+  save_filename[0] = '\0';
   
+  cerr << "argc = " << argc << endl;
+  cerr << "argv[0] = " << argv[0] << endl;
+  cerr << "argv[1] = " << argv[1] << endl;
+
+  
+  
+  if( (argc >= 2) && (strcmp("-S", argv[argc-1]) == 0) )
+    {
+    sprintf( save_filename, "%s.cxx.tif", argv[0] );
+    cerr << "FileName : " << save_filename << endl;
+    
+    }
+    
   controller = vtkMultiProcessController::New();
 
   controller->Initialize(argc, argv);
   // Needed for threaded controller.
   // controller->SetNumberOfProcesses(2);
-  controller->SetSingleMethod(process, NULL);
+  controller->SetSingleMethod(process, save_filename);
+  if (controller->IsA("vtkThreadedController"))
+    {
+    controller->SetNumberOfProcesses(8);
+    } 
   controller->SingleMethodExecute();
 
   controller->Delete();
