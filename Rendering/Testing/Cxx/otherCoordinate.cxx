@@ -161,7 +161,7 @@ void Test(ostream& strm)
   
 }
 
-int main(int argc, char* argv[])
+int main()
 {
   vtkDebugLeaks::PromptUserOff();
 

@@ -354,7 +354,7 @@ void Test(ostream& strm)
   strm << "Test vtkCell::CellBoundary Complete" << endl;
 }
 
-int main(int argc, char* argv[])
+int main()
 {
   vtkDebugLeaks::PromptUserOff();
 

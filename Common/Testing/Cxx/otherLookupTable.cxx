@@ -16,7 +16,7 @@
 #include "vtkLogLookupTable.h"
 #include "vtkDebugLeaks.h"
 
-void Test(ostream& strm, vtkLookupTable *lut1)
+void Test(vtkLookupTable *lut1)
 {
   // actual test
  
@@ -26,15 +26,14 @@ void Test(ostream& strm, vtkLookupTable *lut1)
   lut1->SetRampToLinear();
   lut1->Build();
 
-  float rgb[4], *rgb2;
+  float rgb[4];
   lut1->GetColor(0, rgb);
-  rgb2 = lut1->GetColor(0);
+  lut1->GetColor(0);
 
-  float opacity;
-  opacity = lut1->GetOpacity(0);
+  lut1->GetOpacity(0);
 
   lut1->GetTableValue(10,rgb);
-  rgb2 = lut1->GetTableValue(10);
+  lut1->GetTableValue(10);
 
   unsigned char output[4*1024];
 
@@ -109,7 +108,7 @@ void Test(ostream& strm, vtkLookupTable *lut1)
 }
 
 
-int main(int argc, char* argv[])
+int main()
 {
   vtkDebugLeaks::PromptUserOff();
 
@@ -117,9 +116,9 @@ int main(int argc, char* argv[])
   cout << "Test vtkLookupTable Start" << endl;
   lut1->SetAlpha(1.0);
   lut1->SetScaleToLinear();
-  Test(cout, lut1);
+  Test(lut1);
   lut1->SetAlpha(.5);
-  Test(cout, lut1);
+  Test(lut1);
   lut1->Delete();
   cout << "Test vtkLookupTable End" << endl;
 
@@ -127,9 +126,9 @@ int main(int argc, char* argv[])
   cout << "Test vtkLogLookupTable Start" << endl;
   lut2->SetAlpha(1.0);
   lut2->SetScaleToLog10();
-  Test(cout, lut2);
+  Test(lut2);
   lut2->SetAlpha(.5);
-  Test(cout, lut2);
+  Test(lut2);
   lut2->Delete();
   cout << "Test vtkLogLookupTable End" << endl;
 

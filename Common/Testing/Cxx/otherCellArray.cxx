@@ -72,7 +72,7 @@ void Test(ostream& strm)
   strm << "Test CellArray Complete" << endl;
 }
 
-int main(int argc, char* argv[])
+int main()
 {
   vtkDebugLeaks::PromptUserOff();
 
