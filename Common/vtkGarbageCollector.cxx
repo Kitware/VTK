@@ -17,7 +17,7 @@
 #include <vtkstd/set>
 #include <vtkstd/queue>
 
-vtkCxxRevisionMacro(vtkGarbageCollector, "1.5");
+vtkCxxRevisionMacro(vtkGarbageCollector, "1.6");
 
 //----------------------------------------------------------------------------
 class vtkGarbageCollectorQueue: public vtkstd::queue<vtkObjectBase*> {};
@@ -68,7 +68,8 @@ void vtkGarbageCollector::Check(vtkObjectBase* root)
   vtkGarbageCollector collector(&objectQueue, &objectQueued);
   if(vtkObject* obj = vtkObject::SafeDownCast(root))
     {
-    collector.SetDebug(obj->GetDebug());
+    // Uncomment this line to get reference loop debugging:
+    // collector.SetDebug(obj->GetDebug());
     }
   collector.CheckReferenceLoops(root);
   collector.SetDebug(0);
