@@ -46,9 +46,9 @@ public:
   int  GetRefCount() {return this->RefCount;};
   void DebugOn();
   void DebugOff();
-  virtual unsigned long int GetMtime() {return this->Mtime.GetMtime();};
+  virtual unsigned long int GetMTime() {return this->MTime.GetMTime();};
   int GetDebug();
-  void Modified() {Mtime.Modified();};
+  void Modified() {MTime.Modified();};
   virtual char *GetClassName() {return "vlObject";};
 
   void Print(ostream& os);
@@ -61,7 +61,7 @@ public:
 
 protected:
   int Debug;       // Enable debug messages
-  vlTimeStamp Mtime; // Keep track of modification time
+  vlTimeStamp MTime; // Keep track of modification time
 
 private:
   int RefCount;    // Number of uses of this object by other objects

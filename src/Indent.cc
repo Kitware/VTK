@@ -15,19 +15,19 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "Indent.hh"
 #define vlStdIndent 2
-#define NumBlanks 40
+#define NumberOfBlanks 40
 
-static char blanks[NumBlanks+1]="                                        ";
+static char blanks[NumberOfBlanks+1]="                                        ";
 
 vlIndent vlIndent::GetNextIndent()
 {
   int indent = this->Indent + vlStdIndent;
-  if ( indent > NumBlanks ) indent = NumBlanks;
+  if ( indent > NumberOfBlanks ) indent = NumberOfBlanks;
   return indent;
 }
 
 ostream& operator<<(ostream& os, vlIndent& ind)
 {
-  os << blanks + (NumBlanks-ind.Indent) ;
+  os << blanks + (NumberOfBlanks-ind.Indent) ;
   return os;
 }

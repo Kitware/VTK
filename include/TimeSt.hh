@@ -25,7 +25,7 @@ class vlTimeStamp
 public:
   vlTimeStamp() {this->ModifiedTime = 0;};
   void Modified() {this->ModifiedTime = ++vlTime;};
-  unsigned long int GetMtime() {return ModifiedTime;};
+  unsigned long int GetMTime() {return ModifiedTime;};
   // Using >= and <= in the operators below handles special cases when
   // modified times are equal. Only occurs for recently instantiated objects.
   int operator>(vlTimeStamp& ts) 
