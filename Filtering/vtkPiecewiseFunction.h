@@ -49,8 +49,9 @@ public:
   // Description:
   // Add/Remove points to/from the function. If a duplicate point is added
   // then the function value is changed at that location.
-  void AddPoint( float x, float val );
-  void RemovePoint( float x );
+  // Return the index of the point (0 based), or -1 on error.
+  int AddPoint( float x, float val );
+  int RemovePoint( float x );
 
   // Description:
   // Removes all points from the function. 

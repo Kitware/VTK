@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 
-vtkCxxRevisionMacro(vtkColorTransferFunction, "1.44");
+vtkCxxRevisionMacro(vtkColorTransferFunction, "1.45");
 vtkStandardNewMacro(vtkColorTransferFunction);
 
 // Construct a new vtkColorTransferFunction with default values
@@ -175,8 +175,8 @@ void vtkColorTransferFunction::HSVToRGB(float hue, float sat, float V,
 }
 
 // Add a point defined in RGB
-void vtkColorTransferFunction::AddRGBPoint( float x, float r,
-                                            float g, float b )
+int vtkColorTransferFunction::AddRGBPoint( float x, float r,
+                                           float g, float b )
 {
   float *fptr = this->Function;
   int i;
@@ -251,20 +251,22 @@ void vtkColorTransferFunction::AddRGBPoint( float x, float r,
   this->Range[1] = *(this->Function + (this->NumberOfPoints-1)*4); 
   
   this->Modified();
+
+  return i;
 }
 
 // Add a point defined in HSV
-void vtkColorTransferFunction::AddHSVPoint( float x, float h,
+int vtkColorTransferFunction::AddHSVPoint( float x, float h,
                                             float s, float v )
 { 
   float r, b, g;
   
   this->HSVToRGB( h, s, v, r, g, b );
-  this->AddRGBPoint( x, r, g, b );
+  return this->AddRGBPoint( x, r, g, b );
 }
 
 // Remove a point
-void vtkColorTransferFunction::RemovePoint( float x )
+int vtkColorTransferFunction::RemovePoint( float x )
 {
   float *fptr = this->Function;
   int i;
@@ -290,20 +292,24 @@ void vtkColorTransferFunction::RemovePoint( float x )
       this->Function[4*j+2] = this->Function[4*(j+1)+2];
       this->Function[4*j+3] = this->Function[4*(j+1)+3];
       }
-    }
   
-  if ( this->NumberOfPoints )
-    {
-    this->Range[0] = *this->Function;
-    this->Range[1] = *(this->Function + (this->NumberOfPoints-1)*4); 
-    }
-  else
-    {
-    this->Range[0] = 0.0;
-    this->Range[1] = 0.0;    
-    }
+    if ( this->NumberOfPoints )
+      {
+      this->Range[0] = *this->Function;
+      this->Range[1] = *(this->Function + (this->NumberOfPoints-1)*4); 
+      }
+    else
+      {
+      this->Range[0] = 0.0;
+      this->Range[1] = 0.0;    
+      }
   
-  this->Modified();
+    this->Modified();
+
+    return i;
+    }
+
+  return -1;
 }
 
 
