@@ -16,7 +16,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkParametricMobius, "1.1");
+vtkCxxRevisionMacro(vtkParametricMobius, "1.2");
 vtkStandardNewMacro(vtkParametricMobius);
 
 vtkParametricMobius::vtkParametricMobius()
@@ -40,12 +40,12 @@ vtkParametricMobius::~vtkParametricMobius()
 {
 }
 
-void vtkParametricMobius::Evaluate(double U[3], double Pt[3], double Duv[9])
+void vtkParametricMobius::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
 {
-  double u = U[0];
-  double v = U[1];
-  double *Du = Duv;
-  double *Dv = Duv+3;
+  double u = uvw[0];
+  double v = uvw[1];
+  double *Du = Duvw;
+  double *Dv = Duvw+3;
 
   double cu = cos(u);
   double cu2 = cos( u / 2 );

@@ -16,7 +16,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkParametricConicSpiral, "1.1");
+vtkCxxRevisionMacro(vtkParametricConicSpiral, "1.2");
 vtkStandardNewMacro(vtkParametricConicSpiral);
 
 vtkParametricConicSpiral::vtkParametricConicSpiral()
@@ -50,31 +50,13 @@ vtkParametricConicSpiral::~vtkParametricConicSpiral()
 {
 }
 
-void vtkParametricConicSpiral::Evaluate(double U[3], double Pt[3], double DU[9])
+void vtkParametricConicSpiral::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
 {
-  double u = U[0];
-  double v = U[1];
-  double *Du = DU;
-  double *Dv = DU + 3;
+  double u = uvw[0];
+  double v = uvw[1];
+  double *Du = Duvw;
+  double *Dv = Duvw + 3;
 
-  // A parametric representation of a conic spiral surface
-  // Define:
-  // -  X(u,v) = a*(1-v/(2*pi))*cos(n*v)*(1+cos(u))+c*cos(n*v)
-  // -  Y(u,v) = a*(1-v/(2*pi))*sin(n*v)*(1+cos(u))+c*sin(n*v)
-  // -  Z(u,v) = b*v/(2*pi)+a*(1-v/(2*pi))*sin(u)
-  //
-  // Where:  a=0.2,b=1,c=0.1,n=2,u=0..2*pi},v=0..2*pi
-  //
-  // Then
-  // - S(u,v) = (X(u,v),Y(u,v),Z(u,v)) defines the surface. 
-  //
-  // The derivatives are given by:
-  // - d(X(u,v)/du = -a*(1-1/2*v/pi)*cos(n*v)*sin(u)
-  // - d(X(u,v)/dv = -1/2*a/pi*cos(n*v)*(1+cos(u))-a*(1-1/2*v/pi)*sin(n*v)*n*(1+cos(u))-c*sin(n*v)*n
-  // - d(Y(u,v)/du = -a*(1-1/2*v/pi)*sin(n*v)*sin(u)
-  // - d(Y(u,v)/dv = -1/2*a/Pi*sin(n*v)*(1+cos(u))+a*(1-1/2*v/pi)*cos(n*v)*n*(1+cos(u))+c*cos(n*v)*n
-  // - d(Z(u,v)/du = a*(1-1/2*v/pi)*cos(u)
-  // - d(Z(u,v)/dv = 1/2*b/pi-1/2*a/pi*sin(u)
   double inv2pi = 1.0/(2.0*vtkMath::Pi());
 
   double cnv = cos(this->N*v);

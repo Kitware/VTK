@@ -93,10 +93,10 @@ public:
   // This function performs the mapping fn(u,v)->(x,y,x), returning it
   // as Pt. It also returns the partial derivatives Du and Dv.
   // Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv)
-  void Evaluate(double u[3], double Pt[3], double Du[9]);
+  void Evaluate(double uvw[3], double Pt[3], double Duvw[9]);
 
   // Description:
-  // Calculate a user defined scalar using one or all of u,v,Pt,Du,Dv.
+  // Calculate a user defined scalar using one or all of uvw,Pt,Duvw.
   //
   // u,v are the parameters with Pt being the the cartesian point, 
   // Du, Dv are the derivatives of this point with respect to u and v.
@@ -107,7 +107,7 @@ public:
   //
   // If the user does not need to calculate a scalar, then the 
   // instantiated function should return zero. 
-  double EvaluateScalar(double u[3], double Pt[3], double Du[9]);
+  double EvaluateScalar(double uvw[3], double Pt[3], double Duvw[9]);
 
 protected:
   vtkParametricConicSpiral();
