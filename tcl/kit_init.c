@@ -5,6 +5,7 @@ char *names[1000];
 char *kitName;
 int anindex = 0;
 
+// warning this code is also in getclasses.cxx under pcmaker
 void stuffit()
 {
   int i;
