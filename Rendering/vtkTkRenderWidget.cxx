@@ -246,6 +246,8 @@ extern "C" {
     Tk_PhotoImageBlock block;
     block.width = 0;
     block.height = 0;
+    block.pixelSize = 0;
+    block.pitch = 0;
     void *TempPointer = 0;
     switch ( orientation )
       {
@@ -291,14 +293,6 @@ extern "C" {
             * ( extent[3] - extent[2] + 1 );
           }
         break;
-        }
-      default:
-        {
-        TempPointer = 0;
-        block.width = 0;
-        block.height = 0;
-        block.pixelSize = 0;
-        block.pitch = 0;
         }
       }
 
