@@ -115,16 +115,20 @@ wm withdraw .
 # node one of the leafs of the assembly.  In the first pick the path is just
 # one vtkAssemblyNode long, since we aren't pickign an assembly.
 [iren GetPicker] Pick 100 100 0 ren1
-[iren GetInteractorStyle] HighlightProp \
-      [[[[iren GetPicker] GetPath] GetFirstNode] GetProp]
+set path [[iren GetPicker] GetPath]
+if { $path != "" } {
+    [iren GetInteractorStyle] HighlightProp [[$path GetFirstNode] GetProp]
+}
 
 # Here we pick an assembly. Since we are invoking the "HighlightProp"
 # method by hand, we have to make sure that some internal varables
 # are set (e.g., CurrentRenderer). We use the FindPokedRenderer method.
 [iren GetPicker] Pick 350 100 0 ren1
 [iren GetInteractorStyle] FindPokedRenderer 350 100
-[iren GetInteractorStyle] HighlightProp \
-      [[[[iren GetPicker] GetPath] GetFirstNode] GetProp]
+set path [[iren GetPicker] GetPath]
+if { $path != "" } {
+    [iren GetInteractorStyle] HighlightProp [[$path GetFirstNode] GetProp]
+}
 
 # Final note: in the previous pick if we were to GetLastNode(),
 # we would get a leaf of the assembly. To highlight it with a
@@ -136,16 +140,19 @@ wm withdraw .
 # vtkOutlineSource. Later on the SetUserMatrix call uses the
 # matrix obtained from GetLastNode()->GetMatrix() to actually
 # transform the outline of the picked prop.
-set prop3d [[[[iren GetPicker] GetPath] GetLastNode] GetProp]
-set matrix [[[[iren GetPicker] GetPath] GetLastNode] GetMatrix]
-vtkOutlineSource os
-    eval os SetBounds -0.5 0.5 -0.5 0.5 -0.5 0.5
-vtkPolyDataMapper osMapper
-   osMapper SetInput [os GetOutput]
-vtkActor a
-   a SetMapper osMapper
-   [a GetProperty] SetColor 1 0 0
-   a SetUserMatrix $matrix
-ren1 AddActor a
-renWin Render      
+set path [[iren GetPicker] GetPath]
+if { $path != "" } {
+    set prop3d [[[[iren GetPicker] GetPath] GetLastNode] GetProp]
+    set matrix [[[[iren GetPicker] GetPath] GetLastNode] GetMatrix]
+    vtkOutlineSource os
+        os SetBounds -0.5 0.5 -0.5 0.5 -0.5 0.5
+    vtkPolyDataMapper osMapper
+        osMapper SetInput [os GetOutput]
+    vtkActor a
+        a SetMapper osMapper
+        [a GetProperty] SetColor 1 0 0
+        a SetUserMatrix $matrix
+    ren1 AddActor a
+    renWin Render      
+}
 
