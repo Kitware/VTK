@@ -2698,6 +2698,116 @@ fi
 
 
 
+##########################
+##			##
+## Check thread support ##
+##			##
+##########################
+THREAD_LIBS=""
+THREAD_FLAGS=""
+use_sproc=no
+for ac_hdr in sys/prctl.h
+do
+ac_safe=`echo "$ac_hdr" | tr './\055' '___'`
+echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
+if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  cat > conftest.$ac_ext <<EOF
+#line 2718 "configure"
+#include "confdefs.h"
+#include <$ac_hdr>
+EOF
+ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
+{ (eval echo configure:2723: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+ac_err=`grep -v '^ *+' conftest.out`
+if test -z "$ac_err"; then
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=yes"
+else
+  echo "$ac_err" >&5
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=no"
+fi
+rm -f conftest*
+fi
+if eval "test \"`echo '$ac_cv_header_'$ac_safe`\" = yes"; then
+  echo "$ac_t""yes" 1>&6
+    ac_tr_hdr=HAVE_`echo $ac_hdr | tr 'abcdefghijklmnopqrstuvwxyz./\055' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ___'`
+  cat >> confdefs.h <<EOF
+#define $ac_tr_hdr 1
+EOF
+ use_sproc=yes
+else
+  echo "$ac_t""no" 1>&6
+fi
+done
+
+if test "$use_sproc" = "yes"; then
+case $system in
+    IRIX*)
+	THREAD_FLAGS="-DVTK_USE_SPROC"
+	;;
+esac
+fi
+
+use_pthreads=no
+for ac_hdr in pthread.h
+do
+ac_safe=`echo "$ac_hdr" | tr './\055' '___'`
+echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
+if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  cat > conftest.$ac_ext <<EOF
+#line 2764 "configure"
+#include "confdefs.h"
+#include <$ac_hdr>
+EOF
+ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
+{ (eval echo configure:2769: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+ac_err=`grep -v '^ *+' conftest.out`
+if test -z "$ac_err"; then
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=yes"
+else
+  echo "$ac_err" >&5
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=no"
+fi
+rm -f conftest*
+fi
+if eval "test \"`echo '$ac_cv_header_'$ac_safe`\" = yes"; then
+  echo "$ac_t""yes" 1>&6
+    ac_tr_hdr=HAVE_`echo $ac_hdr | tr 'abcdefghijklmnopqrstuvwxyz./\055' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ___'`
+  cat >> confdefs.h <<EOF
+#define $ac_tr_hdr 1
+EOF
+ use_pthreads=yes
+else
+  echo "$ac_t""no" 1>&6
+fi
+done
+
+if test "$use_pthreads" = "yes"; then
+  if test "$use_sproc" = "no"; then
+	THREAD_LIBS="-lpthread"
+	THREAD_FLAGS="-DVTK_USE_PTHREADS"
+  fi
+fi
+
+# on an HP with pthread we need to use -lcma
+if test "$use_pthreads" = "yes"; then
+case $system in
+    HP-UX-*.10.*)
+	THREAD_LIBS="-lcma"
+	;;
+esac
+fi
+
+
+
+
 trap '' 1 2 15
 cat > confcache <<\EOF
 # This file is a shell script that caches the results of configure
@@ -2878,6 +2988,8 @@ s%@DL_LIBS@%$DL_LIBS%g
 s%@SHLIB_LD_LIBS@%$SHLIB_LD_LIBS%g
 s%@SHLIB_SUFFIX@%$SHLIB_SUFFIX%g
 s%@SHLIB_VERSION@%$SHLIB_VERSION%g
+s%@THREAD_FLAGS@%$THREAD_FLAGS%g
+s%@THREAD_LIBS@%$THREAD_LIBS%g
 
 CEOF
 EOF

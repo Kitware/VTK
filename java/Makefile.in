@@ -82,7 +82,7 @@ LDLIBS = -L../common \
 	${USE_GRAPHICS_LIBS}	\
         -lVTKCommonJava \
         ${XLIBS} ${OGLR_LIBS} ${GLR_LIBS} \
-        ${SBR_LIBS} ${XGLR_LIBS} ${DL_LIBS}
+        ${SBR_LIBS} ${XGLR_LIBS} ${DL_LIBS} @THREAD_LIBS@
 
 C_FLAGS = ${CPPFLAGS} ${XCFLAGS} ${CFLAGS} -I${srcdir} 
 
