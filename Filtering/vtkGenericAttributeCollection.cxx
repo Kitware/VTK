@@ -12,9 +12,6 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkGenericAttributeCollection - objects that own attributes of a data set
-// .DESCRIPTION They can also select an active attribute component to process
-// (contouring, clipping) and others attributes to interpolate.
 
 #include "vtkGenericAttributeCollection.h"
 
@@ -25,7 +22,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGenericAttributeCollection,"1.1");
+vtkCxxRevisionMacro(vtkGenericAttributeCollection,"1.2");
 vtkStandardNewMacro(vtkGenericAttributeCollection);
 
 class vtkGenericAttributeInternalVector
