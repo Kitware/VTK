@@ -88,7 +88,9 @@ typedef union
 #include <memory.h>
 #endif
 
+#ifndef _WIN32
 #include <values.h>
+#endif
 
 #ifdef __cplusplus
 
