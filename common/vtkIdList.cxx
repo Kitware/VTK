@@ -122,17 +122,17 @@ void vtkIdList::IntersectWith(vtkIdList& otherIds)
     } 
   else 
     {//use slower method for extreme cases
-    int id, i, j;
-    int numOriginalIds=this->GetNumberOfIds();
-
-    for ( i=0; i < numOriginalIds; i++ ) 
+    int  OtherNumIds = otherIds.GetNumberOfIds();
+    int  *thisIds = new int [thisNumIds];
+    int  i, id;
+    
+    for (i=0; i < thisNumIds; i++) *(thisIds + i) = this->GetId(i);
+    for (this->Reset(), i=0; i < thisNumIds; i++) 
       {
-      for ( j=0; j < this->GetNumberOfIds(); j++) 
-	{
-        id =  this->GetId(j);
-        if ( ! otherIds.IsId(id) ) this->DeleteId(id);
-	}
+      id = *(thisIds + i);
+      if (otherIds.IsId(id)) this->InsertNextId(id);
       }
+    delete [] thisIds;
     }
 }
 #undef VTK_TMP_ARRAY_SIZE
