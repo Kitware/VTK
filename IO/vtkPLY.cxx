@@ -233,7 +233,7 @@ Entry:
 
 void vtkPLY::ply_describe_element(
   PlyFile *plyfile,
-  char *elem_name,
+  const char *elem_name,
   int nelems,
   int nprops,
   PlyProperty *prop_list
@@ -278,7 +278,7 @@ Entry:
 
 void vtkPLY::ply_describe_property(
   PlyFile *plyfile,
-  char *elem_name,
+  const char *elem_name,
   PlyProperty *prop
 )
 {
@@ -384,7 +384,7 @@ Entry:
 
 void vtkPLY::ply_element_count(
   PlyFile *plyfile,
-  char *elem_name,
+  const char *elem_name,
   int nelems
 )
 {
@@ -619,15 +619,19 @@ Entry:
   comment - the comment to be written
 ******************************************************************************/
 
-void vtkPLY::ply_put_comment(PlyFile *plyfile, char *comment)
+void vtkPLY::ply_put_comment(PlyFile *plyfile, const char *comment)
 {
   /* (re)allocate space for new comment */
   if (plyfile->num_comments == 0)
+    {
     plyfile->comments = (char **) myalloc (sizeof (char *));
+    }
   else
+    {
     plyfile->comments = (char **) realloc (plyfile->comments,
-                         sizeof (char *) * (plyfile->num_comments + 1));
-
+                                           sizeof (char *) * (plyfile->num_comments + 1));
+    }
+  
   /* add comment to list */
   plyfile->comments[plyfile->num_comments] = strdup (comment);
   plyfile->num_comments++;
@@ -1444,7 +1448,7 @@ Exit:
   returns the element, or NULL if not found
 ******************************************************************************/
 
-PlyElement *vtkPLY::find_element(PlyFile *plyfile, char *element)
+PlyElement *vtkPLY::find_element(PlyFile *plyfile, const char *element)
 {
   int i;
 
