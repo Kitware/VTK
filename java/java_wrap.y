@@ -1179,10 +1179,14 @@ output_function()
       }
     }
 
-  /* make sure it isn't a Delete function */
+  /* make sure it isn't a Delete or New function */
   if (!strcmp("Delete",func_name))
     {
     have_delete = 1;
+    args_ok = 0;
+    }
+  if (!strcmp("New",func_name))
+    {
     args_ok = 0;
     }
 
