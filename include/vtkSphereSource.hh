@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkPolySource.hh"
 
-#define MAX_SPHERE_RESOLUTION 1024
+#define VTK_MAX_SPHERE_RESOLUTION 1024
 
 class vtkSphereSource : public vtkPolySource 
 {
@@ -67,12 +67,12 @@ public:
 
   // Description:
   // Set the number of points in the longitude direction.
-  vtkSetClampMacro(ThetaResolution,int,4,MAX_SPHERE_RESOLUTION);
+  vtkSetClampMacro(ThetaResolution,int,4,VTK_MAX_SPHERE_RESOLUTION);
   vtkGetMacro(ThetaResolution,int);
 
   // Description:
   // Set the number of points in the latitude direction.
-  vtkSetClampMacro(PhiResolution,int,4,MAX_SPHERE_RESOLUTION);
+  vtkSetClampMacro(PhiResolution,int,4,VTK_MAX_SPHERE_RESOLUTION);
   vtkGetMacro(PhiResolution,int);
 
   // Description:
