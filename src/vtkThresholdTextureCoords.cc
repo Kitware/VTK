@@ -125,6 +125,9 @@ void vtkThresholdTextureCoords::Execute()
 
     } //for all points
 
+  output->GetPointData()->CopyTCoordsOff();
+  output->GetPointData()->PassData(input->GetPointData());
+
   output->GetPointData()->SetTCoords(newTCoords);
   newTCoords->Delete();
 }
