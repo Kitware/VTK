@@ -21,7 +21,7 @@
 #include "vtkDataSet.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkExtractVectorComponents, "1.43");
+vtkCxxRevisionMacro(vtkExtractVectorComponents, "1.44");
 vtkStandardNewMacro(vtkExtractVectorComponents);
 
 vtkExtractVectorComponents::vtkExtractVectorComponents()
@@ -119,11 +119,11 @@ void vtkExtractVectorComponents::SetInput(vtkDataSet *input)
 
   if (this->NumberOfOutputs < 3)
     {
-    this->SetNthOutput(0,input->MakeObject());
+    this->SetNthOutput(0,input->NewInstance());
     this->Outputs[0]->Delete();
-    this->SetNthOutput(1,input->MakeObject());
+    this->SetNthOutput(1,input->NewInstance());
     this->Outputs[1]->Delete();
-    this->SetNthOutput(2,input->MakeObject());
+    this->SetNthOutput(2,input->NewInstance());
     this->Outputs[2]->Delete();
     return;
     }
@@ -131,11 +131,11 @@ void vtkExtractVectorComponents::SetInput(vtkDataSet *input)
   // since the input has changed we might need to create a new output
   if (strcmp(this->Outputs[0]->GetClassName(),input->GetClassName()))
     {
-    this->SetNthOutput(0,input->MakeObject());
+    this->SetNthOutput(0,input->NewInstance());
     this->Outputs[0]->Delete();
-    this->SetNthOutput(1,input->MakeObject());
+    this->SetNthOutput(1,input->NewInstance());
     this->Outputs[1]->Delete();
-    this->SetNthOutput(2,input->MakeObject());
+    this->SetNthOutput(2,input->NewInstance());
     this->Outputs[2]->Delete();
     vtkWarningMacro(<<" a new output had to be created since the input type changed.");
     }

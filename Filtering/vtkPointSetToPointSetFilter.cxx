@@ -20,7 +20,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkPointSetToPointSetFilter, "1.58");
+vtkCxxRevisionMacro(vtkPointSetToPointSetFilter, "1.59");
 
 //----------------------------------------------------------------------------
 // Construct object.
@@ -52,7 +52,7 @@ void vtkPointSetToPointSetFilter::SetInput(vtkPointSet *input)
   
   if (input != NULL && this->vtkSource::GetOutput(0) == NULL)
     {
-    this->vtkSource::SetNthOutput(0, input->MakeObject());
+    this->vtkSource::SetNthOutput(0, input->NewInstance());
     this->Outputs[0]->ReleaseData();
     this->Outputs[0]->Delete();
     }

@@ -55,10 +55,6 @@ public:
   int GetDataObjectType() {return VTK_STRUCTURED_GRID;}
 
   // Description:
-  // Create a similar type object
-  vtkDataObject *MakeObject() {return vtkStructuredGrid::New();}
-
-  // Description:
   // Copy the geometric and topological structure of an input poly data object.
   void CopyStructure(vtkDataSet *ds);
 

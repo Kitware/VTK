@@ -74,7 +74,6 @@ public:
   void SetCells(vtkUnsignedCharArray *cellTypes, vtkIntArray *cellLocations, 
                 vtkCellArray *cells);
   vtkCellArray *GetCells() {return this->Connectivity;};
-  vtkDataObject *MakeObject() {return vtkUnstructuredGrid::New();};
   virtual void CopyStructure(vtkDataSet *ds);
   vtkIdType GetNumberOfCells();
   virtual vtkCell *GetCell(vtkIdType cellId);

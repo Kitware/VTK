@@ -37,7 +37,13 @@ public:
   vtkTypeRevisionMacro(vtkImageStencilData, vtkDataObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  vtkDataObject *MakeObject();
+
+#ifndef VTK_REMOVE_LEGACY_CODE
+  // Description:
+  // For legacy compatibility.  Do not use.
+  virtual vtkDataObject* MakeObject();
+#endif
+  
   void Initialize();
   void DeepCopy(vtkDataObject *o);
   void ShallowCopy(vtkDataObject *f);

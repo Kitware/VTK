@@ -24,7 +24,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkRectilinearGrid.h"
 
-vtkCxxRevisionMacro(vtkPDataSetWriter, "1.7");
+vtkCxxRevisionMacro(vtkPDataSetWriter, "1.8");
 vtkStandardNewMacro(vtkPDataSetWriter);
 
 //----------------------------------------------------------------------------
@@ -210,7 +210,7 @@ void vtkPDataSetWriter::Write()
     writer->SetFileName(fileName);
     input->SetUpdateExtent(i, this->NumberOfPieces, this->GhostLevel);
     input->Update();
-    copy = input->MakeObject();
+    copy = input->NewInstance();
     copy->ShallowCopy(input);
     // I am putting this in here because shallow copy does not copy the
     // UpdateExtentInitializedFlag, and I do not want to touch ShallowCopy

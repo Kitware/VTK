@@ -38,10 +38,6 @@ class VTK_COMMON_EXPORT vtkStructuredPoints : public vtkImageData
 public:
   static vtkStructuredPoints *New();
   vtkTypeRevisionMacro(vtkStructuredPoints,vtkImageData);
-  
-  // Description:
-  // Create a similar type object
-  vtkDataObject *MakeObject() {return vtkStructuredPoints::New();}
 
   // Description:
   // To simplify filter superclasses,
