@@ -23,7 +23,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 
-vtkCxxRevisionMacro(vtkInteractorObserver, "1.19");
+vtkCxxRevisionMacro(vtkInteractorObserver, "1.20");
 
 vtkInteractorObserver::vtkInteractorObserver()
 {
@@ -101,8 +101,8 @@ void vtkInteractorObserver::ProcessEvents(vtkObject* vtkNotUsed(object),
       self->OnChar();
       break;
     case vtkCommand::DeleteEvent:
-      self->Interactor = NULL; //its going bye bye
-      self->Enabled = 0;
+      //self->Interactor = NULL; //commented out, can't write to a 
+      //self->Enabled = 0;       //deleted object
       break;
     }
 }
