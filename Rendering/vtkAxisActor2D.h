@@ -103,9 +103,31 @@ public:
   // Set/Get the flag that controls whether the labels and ticks are
   // adjusted for "nice" numerical values to make it easier to read 
   // the labels. The adjustment is based in the Range instance variable.
+  // Call GetAdjustedRange and GetAdjustedNumberOfLabels to get the adjusted
+  // range and number of labels.
   vtkSetMacro(AdjustLabels, int);
   vtkGetMacro(AdjustLabels, int);
   vtkBooleanMacro(AdjustLabels, int);
+  virtual float *GetAdjustedRange()
+    { 
+      this->UpdateAdjustedRange();
+      return this->AdjustedRange; 
+    }
+  virtual void GetAdjustedRange(float &_arg1, float &_arg2)
+    { 
+      this->UpdateAdjustedRange();
+      _arg1 = this->AdjustedRange[0];
+      _arg2 = this->AdjustedRange[1];
+    }; 
+  virtual void GetAdjustedRange(float _arg[2]) 
+    { 
+      this->GetAdjustedRange(_arg[0], _arg[1]);
+    } 
+  virtual int GetAdjustedNumberOfLabels()
+    {
+      this->UpdateAdjustedRange();
+      return this->AdjustedNumberOfLabels; 
+    }
 
   // Description:
   // Set/Get the title of the scalar bar actor,
@@ -269,7 +291,9 @@ protected:
 
   char  *Title;
   float Range[2];
+  float AdjustedRange[2];
   int   NumberOfLabels;
+  int   AdjustedNumberOfLabels;
   char  *LabelFormat;
   int   NumberOfLabelsBuilt;
   int   AdjustLabels;
@@ -294,6 +318,7 @@ protected:
   static float ComputeStringOffset(float width, float height, float theta);
   static void SetOffsetPosition(float xTick[3], float theta, int stringHeight,
                                 int stringWidth, int offset, vtkActor2D *actor);
+  virtual void UpdateAdjustedRange();
 
   vtkTextMapper *TitleMapper;
   vtkActor2D    *TitleActor;
@@ -305,6 +330,7 @@ protected:
   vtkPolyDataMapper2D *AxisMapper;
   vtkActor2D          *AxisActor;
 
+  vtkTimeStamp  AdjustedRangeBuildTime;
   vtkTimeStamp  BuildTime;
 
 private:

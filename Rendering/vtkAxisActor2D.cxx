@@ -24,7 +24,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkAxisActor2D, "1.27");
+vtkCxxRevisionMacro(vtkAxisActor2D, "1.28");
 vtkStandardNewMacro(vtkAxisActor2D);
 
 vtkCxxSetObjectMacro(vtkAxisActor2D,LabelTextProperty,vtkTextProperty);
@@ -362,22 +362,11 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
 
   // Compute the location of tick marks and labels
 
-  if ( this->AdjustLabels )
-    {
-    this->ComputeRange(this->Range, outRange, this->NumberOfLabels, 
-                       numLabels, interval);
-    }
+  this->UpdateAdjustedRange();
 
-  // Compute our own ugly spacing
+  interval = (this->AdjustedRange[1] - this->AdjustedRange[0]) / (this->AdjustedNumberOfLabels - 1);
 
-  else 
-    {
-    numLabels = this->NumberOfLabels;
-    interval = (this->Range[1] - this->Range[0]) / (numLabels-1);
-    outRange[0] = this->Range[0]; outRange[1] = this->Range[1];
-    }
-
-  this->NumberOfLabelsBuilt = numLabels;
+  this->NumberOfLabelsBuilt = this->AdjustedNumberOfLabels;
 
   // Generate the axis and tick marks.
   // We'll do our computation in viewport coordinates. First determine the
@@ -428,10 +417,10 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
   xTick[2] = 0.0;
 
   pts->InsertNextPoint(xTick);
-  for (i = 1; i < numLabels - 1; i++)
+  for (i = 1; i < this->AdjustedNumberOfLabels - 1; i++)
     {
-    xTick[0] = p1[0] + i * (p2[0] - p1[0]) / (numLabels - 1);
-    xTick[1] = p1[1] + i * (p2[1] - p1[1]) / (numLabels - 1);
+    xTick[0] = p1[0] + i * (p2[0] - p1[0]) / (this->AdjustedNumberOfLabels - 1);
+    xTick[1] = p1[1] + i * (p2[1] - p1[1]) / (this->AdjustedNumberOfLabels - 1);
     pts->InsertNextPoint(xTick);
     xTick[0] = xTick[0] + this->TickLength * sin(theta);
     xTick[1] = xTick[1] - this->TickLength * cos(theta);
@@ -454,7 +443,7 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
 
   if (this->TickVisibility) 
     {
-    for (i = 0; i < numLabels; i++)
+    for (i = 0; i < this->AdjustedNumberOfLabels; i++)
       {
       ptIds[0] = 2*i;
       ptIds[1] = 2*i + 1;
@@ -486,9 +475,9 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
 
     // Update the mappers/actors
 
-    for (i = 0; i < numLabels; i++)
+    for (i = 0; i < this->AdjustedNumberOfLabels; i++)
       {
-      val = outRange[0] + (float)i * interval;
+      val = this->AdjustedRange[0] + (float)i * interval;
       sprintf(string, this->LabelFormat, val);
       this->LabelMappers[i]->SetInput(string);
 
@@ -515,7 +504,7 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
       {
       this->SetMultipleFontSize(viewport, 
                                 this->LabelMappers, 
-                                numLabels,
+                                this->AdjustedNumberOfLabels,
                                 size,
                                 this->FontFactor * this->LabelFactor,
                                 stringSize);
@@ -526,7 +515,7 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
     
     // Position the mappers
 
-    for (i = 0; i < numLabels; i++)
+    for (i = 0; i < this->AdjustedNumberOfLabels; i++)
       {
       pts->GetPoint(2 * i + 1, xTick);
       this->SetOffsetPosition(xTick, 
@@ -653,6 +642,32 @@ int vtkAxisActor2D::SetMultipleFontSize(vtkViewport *viewport,
   return fontSize;
 }
 #undef VTK_AA2D_FACTOR
+
+//----------------------------------------------------------------------------
+void vtkAxisActor2D::UpdateAdjustedRange()
+{
+  if (this->GetMTime() <= this->AdjustedRangeBuildTime)
+    {
+    return;
+    }
+  
+  if ( this->AdjustLabels )
+    {
+    float interval;
+    this->ComputeRange(this->Range, 
+                       this->AdjustedRange, 
+                       this->NumberOfLabels, 
+                       this->AdjustedNumberOfLabels, 
+                       interval);
+    }
+  else
+    {
+    this->AdjustedNumberOfLabels = this->NumberOfLabels;
+    this->AdjustedRange[0] = this->Range[0]; 
+    this->AdjustedRange[1] = this->Range[1];
+    }
+  this->AdjustedRangeBuildTime.Modified();
+}
 
 //----------------------------------------------------------------------------
 #define VTK_NUM_DIVS 11
