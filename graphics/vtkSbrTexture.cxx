@@ -54,16 +54,8 @@ vtkSbrTexture::vtkSbrTexture()
 }
 
 // Description:
-// Implement base class method.
-void vtkSbrTexture::Load(vtkTexture *txt, vtkRenderer *ren)
-{
-  this->Load(txt, (vtkSbrRenderer *)ren);
-}
-
-// Description:
 // Actual Texture load method.
-void vtkSbrTexture::Load(vtkTexture *vtkNotUsed(txt), 
-			 vtkSbrRenderer *vtkNotUsed(ren))
+void vtkSbrTexture::Load(vtkRenderer *vtkNotUsed(ren))
 {
   // currently a nop
   vtkWarningMacro("texturemaps not supported on Starbase right now.");

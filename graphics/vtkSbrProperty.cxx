@@ -45,8 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Description:
 // Implement base class method.
-void vtkSbrProperty::Render(vtkProperty *prop, vtkActor *vtkNotUsed(anAct),
-			    vtkRenderer *aren)
+void vtkSbrProperty::Render(vtkActor *vtkNotUsed(anAct), vtkRenderer *aren)
 {
   vtkSbrRenderer *ren = (vtkSbrRenderer *)aren;
   int fd;
@@ -56,38 +55,40 @@ void vtkSbrProperty::Render(vtkProperty *prop, vtkActor *vtkNotUsed(anAct),
   static int pattern[16] = {0,10,8,2,5,15,13,7,4,14,12,6,1,11,9,3};
   gescape_arg esc_arg1,esc_arg2;
   int l;
-  float *DiffuseColor, *EdgeColor, *SpecularColor;
   fd = ren->GetFd();
   
-  EdgeColor = prop->GetEdgeColor();
-  DiffuseColor = prop->GetDiffuseColor();
-  SpecularColor = prop->GetSpecularColor();
-
-  if (!prop->GetEdgeVisibility()) 
+  if (!this->EdgeVisibility) 
     {
     EdgeColor = DiffuseColor;
     }
 
   // turn on z buffering and disable/enable backface culling 
-  if ( ! prop->GetBackfaceCulling() && ! prop->GetFrontfaceCulling() )
+  if ( ! this->BackfaceCulling && !this->FrontfaceCulling)
     {
     hidden_surface(fd, TRUE, FALSE);
     }
-  else if ( prop->GetBackfaceCulling() )
+  else if (this->BackfaceCulling)
     {
     hidden_surface(fd, TRUE, TRUE);
     }
   
-  line_color(fd, DiffuseColor[0], DiffuseColor[1], DiffuseColor[2]);
-  fill_color(fd, DiffuseColor[0], DiffuseColor[1], DiffuseColor[2]);
-  perimeter_color(fd, EdgeColor[0], EdgeColor[1], EdgeColor[2]);
-  text_color(fd, DiffuseColor[0], DiffuseColor[1], DiffuseColor[2]);
-  marker_color(fd,DiffuseColor[0], DiffuseColor[1], DiffuseColor[2]);
+  line_color(fd, this->DiffuseColor[0], this->DiffuseColor[1], 
+	     this->DiffuseColor[2]);
+  fill_color(fd, this->DiffuseColor[0], this->DiffuseColor[1], 
+	     this->DiffuseColor[2]);
+  perimeter_color(fd, this->EdgeColor[0], this->EdgeColor[1], 
+		  this->EdgeColor[2]);
+  text_color(fd, this->DiffuseColor[0], this->DiffuseColor[1], 
+	     this->DiffuseColor[2]);
+  marker_color(fd,this->DiffuseColor[0], this->DiffuseColor[1], 
+	       this->DiffuseColor[2]);
 
-  bf_fill_color(fd, DiffuseColor[0], DiffuseColor[1], DiffuseColor[2]);
-  bf_perimeter_color(fd, EdgeColor[0], EdgeColor[1], EdgeColor[2]);
+  bf_fill_color(fd, this->DiffuseColor[0], this->DiffuseColor[1], 
+		this->DiffuseColor[2]);
+  bf_perimeter_color(fd, this->EdgeColor[0], this->EdgeColor[1], 
+		     this->EdgeColor[2]);
 
-  switch (prop->GetRepresentation()) 
+  switch (this->Representation) 
     {
   case VTK_POINTS:
     style = INT_POINT;
@@ -103,24 +104,23 @@ void vtkSbrProperty::Render(vtkProperty *prop, vtkActor *vtkNotUsed(anAct),
     break;
     }
 
-  interior_style(fd, style, prop->GetEdgeVisibility());
-  bf_interior_style(fd, style, prop->GetEdgeVisibility());
-  surface_coefficients(fd, prop->GetAmbient(), prop->GetDiffuse(), 
-		       prop->GetSpecular());
-  bf_surface_coefficients(fd, prop->GetAmbient(), 
-			  prop->GetDiffuse(), prop->GetSpecular());
+  interior_style(fd, style, this->EdgeVisibility);
+  bf_interior_style(fd, style, this->EdgeVisibility);
+  surface_coefficients(fd, this->Ambient, this->Diffuse, this->Specular);
+  bf_surface_coefficients(fd, this->Ambient, this->Diffuse, this->Specular);
 
-  shininess = (int)prop->GetSpecularPower();
+  shininess = (int)this->SpecularPower;
   if (shininess < 1) shininess = 1;
   if (shininess > 16383) shininess = 16383;
   
   surface_model(fd, TRUE, shininess, 
-		SpecularColor[0], SpecularColor[1], SpecularColor[2]);
+		this->SpecularColor[0], this->SpecularColor[1], 
+		this->SpecularColor[2]);
   bf_surface_model(fd, TRUE, shininess, 
-		   SpecularColor[0], SpecularColor[1],
-		   SpecularColor[2]);
+		   this->SpecularColor[0], this->SpecularColor[1],
+		   this->SpecularColor[2]);
 
-  trans_level = (int)(16.0*(1.0 - prop->GetOpacity()));
+  trans_level = (int)(16.0*(1.0 - this->Opacity));
   esc_arg1.i[0] = 0x0000;
   for (l = 0; l < trans_level; l++)
     esc_arg1.i[0] |= (0x0001 << pattern[l]);

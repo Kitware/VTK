@@ -46,41 +46,27 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Description:
 // Implement base class method.
-void vtkOglrLight::Render(vtkLight *lgt, vtkRenderer *ren,int light_index)
-{
-  this->Render(lgt, (vtkOglrRenderer *)ren,light_index);
-}
-
-// Description:
-// Actual light render method.
-void vtkOglrLight::Render(vtkLight *lgt, vtkOglrRenderer *vtkNotUsed(ren),
-			  int light_index)
+void vtkOglrLight::Render(vtkRenderer *vtkNotUsed(ren),int light_index)
 {
   float	dx, dy, dz;
   float	color[4];
-  float *Color, *Position, *FocalPoint;
-  float Intensity;
   float Info[4];
 
   // get required info from light
-  Intensity = lgt->GetIntensity();
-  Color = lgt->GetColor();
-  color[0] = Intensity * Color[0];
-  color[1] = Intensity * Color[1];
-  color[2] = Intensity * Color[2];
+  color[0] = this->Intensity * this->Color[0];
+  color[1] = this->Intensity * this->Color[1];
+  color[2] = this->Intensity * this->Color[2];
   color[3] = 1.0;
 
-  FocalPoint = lgt->GetFocalPoint();
-  Position   = lgt->GetPosition();
-  dx = FocalPoint[0] - Position[0];
-  dy = FocalPoint[1] - Position[1];
-  dz = FocalPoint[2] - Position[2];
+  dx = this->FocalPoint[0] - this->Position[0];
+  dy = this->FocalPoint[1] - this->Position[1];
+  dz = this->FocalPoint[2] - this->Position[2];
 
   glLightfv((GLenum)light_index, GL_DIFFUSE, color);
   glLightfv((GLenum)light_index, GL_SPECULAR, color);
 
   // define the light source
-  if (!lgt->GetPositional())
+  if (!this->Positional)
     {
     Info[0]  = -dx;
     Info[1]  = -dy;
@@ -91,29 +77,28 @@ void vtkOglrLight::Render(vtkLight *lgt, vtkOglrRenderer *vtkNotUsed(ren),
   else
     {
     // specify position and attenuation
-    Info[0]  = Position[0];
-    Info[1]  = Position[1];
-    Info[2]  = Position[2];
+    Info[0]  = this->Position[0];
+    Info[1]  = this->Position[1];
+    Info[2]  = this->Position[2];
     Info[3]  = 1.0;
     glLightfv((GLenum)light_index, GL_POSITION, Info );
 
-    float *AttenuationValues = lgt->GetAttenuationValues();
     glLightf((GLenum)light_index, 
-	     GL_CONSTANT_ATTENUATION, AttenuationValues[0]);
+	     GL_CONSTANT_ATTENUATION, this->AttenuationValues[0]);
     glLightf((GLenum)light_index, 
-	     GL_LINEAR_ATTENUATION, AttenuationValues[1]);
+	     GL_LINEAR_ATTENUATION, this->AttenuationValues[1]);
     glLightf((GLenum)light_index, 
-	     GL_QUADRATIC_ATTENUATION, AttenuationValues[2]);
+	     GL_QUADRATIC_ATTENUATION, this->AttenuationValues[2]);
 
     // set up spot parameters if neccesary
-    if (lgt->GetConeAngle() < 180.0)
+    if (this->ConeAngle < 180.0)
       {
       Info[0] = dx;
       Info[1] = dy;
       Info[2] = dz;
       glLightfv((GLenum)light_index, GL_SPOT_DIRECTION, Info );
-      glLightf((GLenum)light_index, GL_SPOT_EXPONENT, lgt->GetExponent());
-      glLightf((GLenum)light_index, GL_SPOT_CUTOFF, lgt->GetConeAngle());
+      glLightf((GLenum)light_index, GL_SPOT_EXPONENT, this->Exponent);
+      glLightf((GLenum)light_index, GL_SPOT_CUTOFF, this->ConeAngle);
       }
     else
       {

@@ -46,18 +46,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkGlrCamera_h
 #define __vtkGlrCamera_h
 
-#include "vtkCameraDevice.h"
+#include "vtkCamera.h"
 
 class vtkGlrRenderer;
 
-class VTK_EXPORT vtkGlrCamera : public vtkCameraDevice
+class VTK_EXPORT vtkGlrCamera : public vtkCamera
 {
  public:
   static vtkGlrCamera *New() {return new vtkGlrCamera;};
   char *GetClassName() {return "vtkGlrCamera";};
 
-  void Render(vtkCamera *cam, vtkRenderer *ren);
-  void Render(vtkCamera *cam, vtkGlrRenderer *ren);
+  void Render(vtkRenderer *ren);
 
 };
 

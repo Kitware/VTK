@@ -46,19 +46,18 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkSbrCamera_h
 #define __vtkSbrCamera_h
 
-#include "vtkCameraDevice.h"
+#include "vtkCamera.h"
 #include "starbase.c.h"
 
 class vtkSbrRenderer;
 
-class VTK_EXPORT vtkSbrCamera : public vtkCameraDevice
+class VTK_EXPORT vtkSbrCamera : public vtkCamera
 {
  public:
   static vtkSbrCamera *New() {return new vtkSbrCamera;};
   char *GetClassName() {return "vtkSbrCamera";};
 
-  void Render(vtkCamera *, vtkRenderer *ren);
-  void Render(vtkCamera *, vtkSbrRenderer *ren);
+  void Render(vtkRenderer *ren);
 };
 
 #endif

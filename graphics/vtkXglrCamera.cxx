@@ -48,18 +48,11 @@ extern Xgl_sys_state xglr_sys_state;
 
 // Description:
 // Implement base class method.
-void vtkXglrCamera::Render(vtkCamera *cam, vtkRenderer *ren)
+void vtkXglrCamera::Render(vtkRenderer *aren)
 {
-  this->Render(cam, (vtkXglrRenderer *)ren);
-}
-
-// Description:
-// Actual camera render method.
-void vtkXglrCamera::Render(vtkCamera *cam, vtkXglrRenderer *ren)
-{
+  vtkXglrRenderer *ren = (vtkXglrRenderer *)aren;
   Xgl_ctx *context;
   Xgl_win_ras *win_ras = NULL; // XGLR Window Raster object 
-  int stereo;
   int *size;
   Xgl_color_rgb bg_color;
   float *background;
@@ -94,7 +87,7 @@ void vtkXglrCamera::Render(vtkCamera *cam, vtkXglrRenderer *ren)
   xgl_object_set(*context, XGL_CTX_DC_VIEWPORT, &dc_bounds, NULL);
   
   // this will clear all the all buffers of a viewport
-  if ((ren->GetRenderWindow())->GetErase() && cam->GetLeftEye())
+  if ((ren->GetRenderWindow())->GetErase() && this->LeftEye)
   {
     // we set to stereo none so that all the buffers are cleared
     // we do this only on the first pass (left eye)
@@ -104,13 +97,13 @@ void vtkXglrCamera::Render(vtkCamera *cam, vtkXglrRenderer *ren)
   }
 
   // find out if we should stereo render
-  stereo = cam->GetStereo();
-  if (stereo)
+  this->Stereo = (ren->GetRenderWindow())->GetStereoRender();
+  if (this->Stereo)
     {
     switch ((ren->GetRenderWindow())->GetStereoType())
       {
       case VTK_STEREO_CRYSTAL_EYES:
-	if (cam->GetLeftEye())
+	if (this->LeftEye)
 	  {
 	  xgl_object_set(*win_ras,
 			 XGL_WIN_RAS_STEREO_MODE,XGL_STEREO_LEFT,NULL);
@@ -165,10 +158,18 @@ void vtkXglrCamera::Render(vtkCamera *cam, vtkXglrRenderer *ren)
   xgl_object_set(*context,XGL_CTX_VDC_WINDOW, &vdc_bounds, NULL);
   xgl_object_set(*context,XGL_CTX_VIEW_CLIP_BOUNDS, &vdc_bounds, NULL);
 
-  matrix = cam->GetCompositePerspectiveTransform(aspect[0]/aspect[1],0,-1);
+  matrix = this->GetCompositePerspectiveTransform(aspect[0]/aspect[1],0,-1);
   matrix.Transpose();
  
   // insert model transformation 
   xgl_object_get(*context,XGL_CTX_VIEW_TRANS, &view_trans);
   xgl_transform_write(view_trans,matrix[0]);
+  
+    // if we have a stereo renderer, draw other eye next time 
+  if (this->Stereo)
+    {
+    if (this->LeftEye) this->LeftEye = 0;
+    else this->LeftEye = 1;
+    }
+
 }

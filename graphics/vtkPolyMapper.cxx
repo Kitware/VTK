@@ -39,21 +39,45 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkPolyMapper.h"
-#include "vtkPolyMapperDevice.h"
 #include "vtkRenderWindow.h"
 
-// Description:
-// Construct mapper with vertices, lines, polygons, and triangle strips
-// turned on.
-vtkPolyMapper::vtkPolyMapper()
+#ifdef USE_GLR
+#include "vtkGlrPolyMapper.h"
+#endif
+#ifdef USE_OGLR
+#include "vtkOglrPolyMapper.h"
+#endif
+#ifdef USE_SBR
+#include "vtkSbrPolyMapper.h"
+#endif
+#ifdef USE_XGLR
+#include "vtkXglrPolyMapper.h"
+#endif
+#ifdef _WIN32
+#include "vtkOglrPolyMapper.h"
+#endif
+// return the correct type of PolyMapper 
+vtkPolyMapper *vtkPolyMapper::New()
 {
-  this->Device = NULL;
-}
-
-vtkPolyMapper::~vtkPolyMapper()
-{
-  //delete internally created objects
-  if ( this->Device != NULL ) this->Device->Delete();
+  char *temp = vtkRenderWindow::GetRenderLibrary();
+  
+#ifdef USE_SBR
+  if (!strncmp("sbr",temp,4)) return vtkSbrPolyMapper::New();
+#endif
+#ifdef USE_GLR
+  if (!strncmp("glr",temp,3)) return vtkGlrPolyMapper::New();
+#endif
+#ifdef USE_OGLR
+  if (!strncmp("oglr",temp,4)) return vtkOglrPolyMapper::New();
+#endif
+#ifdef _WIN32
+  if (!strncmp("woglr",temp,5)) return vtkOglrPolyMapper::New();
+#endif
+#ifdef USE_XGLR
+  if (!strncmp("xglr",temp,4)) return vtkXglrPolyMapper::New();
+#endif
+  
+  return new vtkPolyMapper;
 }
 
 void vtkPolyMapper::SetInput(vtkPolyData *in)
@@ -121,16 +145,12 @@ void vtkPolyMapper::Render(vtkRenderer *ren, vtkActor *act)
     {
     colors = this->GetColors();
 
-    if (!this->Device) 
-      {
-      this->Device = ren->GetRenderWindow()->MakePolyMapper();
-      }
-    this->Device->Build(input,colors);
+    this->Build(input,colors);
 
     this->BuildTime.Modified();
     }
 
   // draw the primitives
-  this->Device->Draw(ren,act);
+  this->Draw(ren,act);
 }
 

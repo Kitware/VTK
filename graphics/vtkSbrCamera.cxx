@@ -48,17 +48,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Implement base class method.
 void vtkSbrCamera::Render(vtkCamera *cam, vtkRenderer *ren)
 {
-  this->Render(cam, (vtkSbrRenderer *)ren);
-}
-
-// Description:
-// Actual camera render method.
-void vtkSbrCamera::Render(vtkCamera *cam, vtkSbrRenderer *ren)
-{
   float aspect[3];
   float viewport[4];
   float *background;
-  int stereo;
   int fd;
   int *size;
   int *screen_size;
@@ -77,7 +69,7 @@ void vtkSbrCamera::Render(vtkCamera *cam, vtkSbrRenderer *ren)
   screen_size = rw->GetScreenSize();
 
   // find out if we should stereo render
-  stereo = cam->GetStereo();
+  this->Stereo = (ren->GetRenderWindow())->GetStereoRender();
   
   // set this renderer's viewport, must turn off z-buffering when changing
   // viewport
@@ -92,7 +84,7 @@ void vtkSbrCamera::Render(vtkCamera *cam, vtkSbrRenderer *ren)
     switch ((ren->GetRenderWindow())->GetStereoType())
       {
       case VTK_STEREO_CRYSTAL_EYES:
-	if (cam->GetLeftEye()) 
+	if (this->LeftEye) 
 	  {
 	  viewport[1] = 0.5 + viewport[1]*0.5;
 	  viewport[3] = 0.5 + viewport[3]*0.5;
@@ -178,14 +170,21 @@ void vtkSbrCamera::Render(vtkCamera *cam, vtkSbrRenderer *ren)
   hidden_surface(fd, TRUE, FALSE);
   vtkDebugMacro(<< " SB_hidden_surface: True False\n");
 
-  matrix = cam->GetCompositePerspectiveTransform(aspect[0]/aspect[1],0,1);
+  matrix = this->GetCompositePerspectiveTransform(aspect[0]/aspect[1],0,1);
   matrix.Transpose();
  
   // insert model transformation 
   view_matrix3d(fd, (float (*)[4])(matrix[0]),REPLACE_VW);
   
-  pos = cam->GetPosition();
-  viewpoint(fd,POSITIONAL,pos[0],pos[1],pos[2]);
+  viewpoint(fd,POSITIONAL,this->Position[0],this->Position[1],
+	    this->Position[2]);
   
   clip_depth(fd,0.0,1.0);
+
+  // if we have a stereo renderer, draw other eye next time 
+  if (this->Stereo)
+    {
+    if (this->LeftEye) this->LeftEye = 0;
+    else this->LeftEye = 1;
+    }
 }

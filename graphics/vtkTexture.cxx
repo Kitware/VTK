@@ -42,7 +42,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTexture.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
-#include "vtkTextureDevice.h"
 
 // Description:
 // Construct object and initialize.
@@ -52,32 +51,48 @@ vtkTexture::vtkTexture()
   this->Interpolate = 0;
 
   this->Input = NULL;
-  this->Device = NULL;
   this->LookupTable = NULL;
   this->MappedScalars = NULL;
   this->SelfCreatedLookupTable = 0;
 }
 
-vtkTexture::~vtkTexture()
+#ifdef USE_GLR
+#include "vtkGlrTexture.h"
+#endif
+#ifdef USE_OGLR
+#include "vtkOglrTexture.h"
+#endif
+#ifdef USE_SBR
+#include "vtkSbrTexture.h"
+#endif
+#ifdef USE_XGLR
+#include "vtkXglrTexture.h"
+#endif
+#ifdef _WIN32
+#include "vtkOglrTexture.h"
+#endif
+// return the correct type of Texture 
+vtkTexture *vtkTexture::New()
 {
-  if (this->Device)
-    {
-    this->Device->Delete();
-    }
-}
-
-void vtkTexture::MakeTextureDevice (vtkRenderer *ren)
-{
-  if (!this->Device)
-    {
-    this->Device = ren->GetRenderWindow()->MakeTexture();
-    }
-}
-
-void vtkTexture::Load(vtkRenderer *ren)
-{
-  this->MakeTextureDevice (ren);
-  this->Device->Load(this,ren);
+  char *temp = vtkRenderWindow::GetRenderLibrary();
+  
+#ifdef USE_SBR
+  if (!strncmp("sbr",temp,4)) return vtkSbrTexture::New();
+#endif
+#ifdef USE_GLR
+  if (!strncmp("glr",temp,3)) return vtkGlrTexture::New();
+#endif
+#ifdef USE_OGLR
+  if (!strncmp("oglr",temp,4)) return vtkOglrTexture::New();
+#endif
+#ifdef _WIN32
+  if (!strncmp("woglr",temp,5)) return vtkOglrTexture::New();
+#endif
+#ifdef USE_XGLR
+  if (!strncmp("xglr",temp,4)) return vtkXglrTexture::New();
+#endif
+  
+  return new vtkTexture;
 }
 
 void vtkTexture::PrintSelf(ostream& os, vtkIndent indent)
@@ -114,20 +129,23 @@ unsigned char *vtkTexture::MapScalarsToColors (vtkScalars *scalars)
   // if there is no lookup table, create one
   if (this->LookupTable == NULL)
     {
-      this->LookupTable = new vtkLookupTable;
-      this->LookupTable->Build ();
-      this->SelfCreatedLookupTable = 1;
+    this->LookupTable = new vtkLookupTable;
+    this->LookupTable->Build ();
+    this->SelfCreatedLookupTable = 1;
     }
   // if there is no pixmap, create one
   if (!this->MappedScalars)
     {
-      this->MappedScalars = new vtkAPixmap(numPts);
+    this->MappedScalars = new vtkAPixmap(numPts);
     }      
-
+  
   // if the texture created its own lookup table, set the Table Range
   // to the range of the scalar data.
-  if (this->SelfCreatedLookupTable) this->LookupTable->SetTableRange (scalars->GetRange ());
-
+  if (this->SelfCreatedLookupTable) 
+    {
+    this->LookupTable->SetTableRange (scalars->GetRange ());
+    }
+  
   // map the scalars to colors
   mappedScalars = (vtkAPixmap *) this->MappedScalars;
   
@@ -136,7 +154,7 @@ unsigned char *vtkTexture::MapScalarsToColors (vtkScalars *scalars)
     {
     mappedScalars->SetColor(i, this->LookupTable->MapValue(scalars->GetScalar(i)));
     }
-
+  
   return this->MappedScalars->GetPtr(0);
 }
 

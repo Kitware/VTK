@@ -43,7 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMath.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
-#include "vtkCameraDevice.h"
 #include "vtkTimeStamp.h"
 
 // Description:
@@ -89,37 +88,47 @@ vtkCamera::vtkCamera()
   this->WindowCenter[1] = 0.0;
   
   this->FocalDisk = 1.0;
-  this->Device = NULL;
   this->Stereo = 0;
   this->VPN_dot_DOP = 0.0;
 }
 
-vtkCamera::~vtkCamera()
+#ifdef USE_GLR
+#include "vtkGlrCamera.h"
+#endif
+#ifdef USE_OGLR
+#include "vtkOglrCamera.h"
+#endif
+#ifdef USE_SBR
+#include "vtkSbrCamera.h"
+#endif
+#ifdef USE_XGLR
+#include "vtkXglrCamera.h"
+#endif
+#ifdef _WIN32
+#include "vtkOglrCamera.h"
+#endif
+// return the correct type of Camera 
+vtkCamera *vtkCamera::New()
 {
-  if (this->Device)
-    {
-    this->Device->Delete();
-    }
-}
-
-void vtkCamera::Render(vtkRenderer *ren)
-{
-  if (!this->Device)
-    {
-    this->Device = ren->GetRenderWindow()->MakeCamera();
-    }
+  char *temp = vtkRenderWindow::GetRenderLibrary();
   
-  // find out if we should stereo render
-  this->Stereo = (ren->GetRenderWindow())->GetStereoRender();
+#ifdef USE_SBR
+  if (!strncmp("sbr",temp,4)) return vtkSbrCamera::New();
+#endif
+#ifdef USE_GLR
+  if (!strncmp("glr",temp,3)) return vtkGlrCamera::New();
+#endif
+#ifdef USE_OGLR
+  if (!strncmp("oglr",temp,4)) return vtkOglrCamera::New();
+#endif
+#ifdef _WIN32
+  if (!strncmp("woglr",temp,5)) return vtkOglrCamera::New();
+#endif
+#ifdef USE_XGLR
+  if (!strncmp("xglr",temp,4)) return vtkXglrCamera::New();
+#endif
   
-  this->Device->Render(this,ren);
-  
-  // if we have a stereo renderer, draw other eye next time 
-  if (this->Stereo)
-    {
-    if (this->LeftEye) this->LeftEye = 0;
-    else this->LeftEye = 1;
-    }
+  return new vtkCamera;
 }
 
 void vtkCamera::SetPosition(float X, float Y, float Z)

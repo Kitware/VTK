@@ -58,21 +58,15 @@ vtkOglrTexture::vtkOglrTexture()
 
 // Description:
 // Implement base class method.
-void vtkOglrTexture::Load(vtkTexture *txt, vtkRenderer *ren)
-{
-  this->Load(txt, (vtkOglrRenderer *)ren);
-}
-
-// Description:
-// Actual Texture load method.
-void vtkOglrTexture::Load(vtkTexture *txt, vtkOglrRenderer *vtkNotUsed(ren))
+void vtkOglrTexture::Load(vtkRenderer *vtkNotUsed(ren))
 {
   GLenum format = GL_LUMINANCE;
 
   // need to reload the texture
-  if (txt->GetMTime() > this->LoadTime.GetMTime() ||
-      txt->GetInput()->GetMTime() > this->LoadTime.GetMTime() ||
-      (txt->GetLookupTable () && txt->GetLookupTable()->GetMTime () >  this->LoadTime.GetMTime()))
+  if (this->GetMTime() > this->LoadTime.GetMTime() ||
+      this->Input->GetMTime() > this->LoadTime.GetMTime() ||
+      (this->GetLookupTable() && this->GetLookupTable()->GetMTime () >  
+       this->LoadTime.GetMTime()))
     {
     int bytesPerPixel;
     int *size;
@@ -84,8 +78,8 @@ void vtkOglrTexture::Load(vtkTexture *txt, vtkOglrRenderer *vtkNotUsed(ren))
     unsigned short xs,ys;
 
     // get some info
-    size = txt->GetInput()->GetDimensions();
-    scalars = (txt->GetInput()->GetPointData())->GetScalars();
+    size = this->Input->GetDimensions();
+    scalars = (this->Input->GetPointData())->GetScalars();
 
     // make sure scalars are non null
     if (!scalars) 
@@ -100,7 +94,7 @@ void vtkOglrTexture::Load(vtkTexture *txt, vtkOglrRenderer *vtkNotUsed(ren))
     if (strcmp(scalars->GetDataType(),"unsigned char") ||
         strcmp(scalars->GetScalarType(),"ColorScalar") )
       {
-      dataPtr = txt->MapScalarsToColors (scalars);
+      dataPtr = this->MapScalarsToColors (scalars);
       bytesPerPixel = 4;
       }
     else
@@ -180,7 +174,7 @@ void vtkOglrTexture::Load(vtkTexture *txt, vtkOglrRenderer *vtkNotUsed(ren))
     // define a display list for this texture
     glDeleteLists ((GLuint) this->Index, (GLsizei) 0);
     glNewList ((GLuint) this->Index, GL_COMPILE);
-    if (txt->GetInterpolate())
+    if (this->Interpolate)
       {
       glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
 		       GL_LINEAR);
@@ -192,7 +186,7 @@ void vtkOglrTexture::Load(vtkTexture *txt, vtkOglrRenderer *vtkNotUsed(ren))
       glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
       glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
       }
-    if (txt->GetRepeat())
+    if (this->Repeat)
       {
       glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_REPEAT );
       glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_REPEAT );

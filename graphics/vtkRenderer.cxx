@@ -111,6 +111,45 @@ vtkRenderer::~vtkRenderer()
     this->CreatedLight->Delete();
 }
 
+#ifdef USE_GLR
+#include "vtkGlrRenderer.h"
+#endif
+#ifdef USE_OGLR
+#include "vtkOglrRenderer.h"
+#endif
+#ifdef USE_SBR
+#include "vtkSbrRenderer.h"
+#endif
+#ifdef USE_XGLR
+#include "vtkXglrRenderer.h"
+#endif
+#ifdef _WIN32
+#include "vtkOglrRenderer.h"
+#endif
+// return the correct type of Renderer 
+vtkRenderer *vtkRenderer::New()
+{
+  char *temp = vtkRenderWindow::GetRenderLibrary();
+  
+#ifdef USE_SBR
+  if (!strncmp("sbr",temp,4)) return vtkSbrRenderer::New();
+#endif
+#ifdef USE_GLR
+  if (!strncmp("glr",temp,3)) return vtkGlrRenderer::New();
+#endif
+#ifdef USE_OGLR
+  if (!strncmp("oglr",temp,4)) return vtkOglrRenderer::New();
+#endif
+#ifdef _WIN32
+  if (!strncmp("woglr",temp,5)) return vtkOglrRenderer::New();
+#endif
+#ifdef USE_XGLR
+  if (!strncmp("xglr",temp,4)) return vtkXglrRenderer::New();
+#endif
+  
+  return new vtkRenderer;
+}
+
 // Description:
 // Specify the camera to use for this renderer.
 void vtkRenderer::SetActiveCamera(vtkCamera *cam)
@@ -130,7 +169,7 @@ vtkCamera *vtkRenderer::GetActiveCamera()
 {
   if ( this->ActiveCamera == NULL )
     {
-    this->ActiveCamera = new vtkCamera;
+    this->ActiveCamera = vtkCamera::New();
     this->SelfCreatedCamera = 1;
     this->ResetCamera();
     }
@@ -182,7 +221,7 @@ void vtkRenderer::RemoveActors(vtkActor *actor)
 
 void vtkRenderer::CreateLight(void)
 {
-    this->CreatedLight = new vtkLight;
+    this->CreatedLight = vtkLight::New();
     this->SelfCreatedLight = 1;
     this->AddLights(this->CreatedLight);
     this->CreatedLight->SetPosition(this->ActiveCamera->GetPosition());

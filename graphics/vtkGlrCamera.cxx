@@ -45,14 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Description:
 // Implement base class method.
-void vtkGlrCamera::Render(vtkCamera *cam, vtkRenderer *ren)
-{
-  this->Render(cam, (vtkGlrRenderer *)ren);
-}
-
-// Description:
-// Actual camera render method.
-void vtkGlrCamera::Render(vtkCamera *cam, vtkGlrRenderer *ren)
+void vtkGlrCamera::Render(vtkRenderer *ren)
 {
   float aspect[3];
   float *vport;
@@ -60,14 +53,13 @@ void vtkGlrCamera::Render(vtkCamera *cam, vtkGlrRenderer *ren)
   long	width,height;
   long clr;
   int left,right,bottom,top;
-  int stereo;
   vtkMatrix4x4 matrix;
 
   // get the bounds of the window 
   getsize(&width,&height);
   
   // find out if we should stereo render
-  stereo = ((vtkGlrRenderWindow*)(ren->GetRenderWindow()))->GetStereoRender();
+  this->Stereo = ((vtkGlrRenderWindow*)(ren->GetRenderWindow()))->GetStereoRender();
 
   // must use width -1 and height -1 because width*1.0 = width,  
   // but the maximum pixel value allowed is width -1            
@@ -79,12 +71,12 @@ void vtkGlrCamera::Render(vtkCamera *cam, vtkGlrRenderer *ren)
   right = (int)(vport[2]*width);
 
   // if were on a stereo renderer draw to special parts of screen
-  if (stereo)
+  if (this->Stereo)
     {
     switch ((ren->GetRenderWindow())->GetStereoType())
       {
       case VTK_STEREO_CRYSTAL_EYES:
-	if (cam->GetLeftEye()) 
+	if (this->LeftEye) 
 	  {
 	  bottom = (int)(532 + (1023-532)*vport[1]);
 	  top = (int)(532 + (1023-532)*vport[3]);
@@ -109,7 +101,7 @@ void vtkGlrCamera::Render(vtkCamera *cam, vtkGlrRenderer *ren)
   viewport(left,right,bottom,top);
     
   /* for stereo we have to fiddle with aspect */
-  if (stereo)
+  if (this->Stereo)
     {
     switch ((ren->GetRenderWindow())->GetStereoType())
       {
@@ -131,7 +123,7 @@ void vtkGlrCamera::Render(vtkCamera *cam, vtkGlrRenderer *ren)
   ren->SetAspect(aspect);
 
   mmode(MPROJECTION);
-  matrix = cam->GetPerspectiveTransform(aspect[0]/aspect[1],-1,1);
+  matrix = this->GetPerspectiveTransform(aspect[0]/aspect[1],-1,1);
   matrix.Transpose();
   // insert camera view transformation 
   loadmatrix((const float (*)[4])(matrix[0]));
@@ -141,7 +133,7 @@ void vtkGlrCamera::Render(vtkCamera *cam, vtkGlrRenderer *ren)
   // render action after the actors! message sis sent      
   mmode(MVIEWING);
   pushmatrix();
-  matrix = cam->GetViewTransform();
+  matrix = this->GetViewTransform();
   matrix.Transpose();
   
   // insert camera view transformation 
@@ -160,5 +152,12 @@ void vtkGlrCamera::Render(vtkCamera *cam, vtkGlrRenderer *ren)
     {
     czclear(clr, getgdesc(GD_ZMAX));
     vtkDebugMacro(<< "czclear: " << clr << "\n");
+    }
+
+  // if we have a stereo renderer, draw other eye next time 
+  if (this->Stereo)
+    {
+    if (this->LeftEye) this->LeftEye = 0;
+    else this->LeftEye = 1;
     }
 }

@@ -42,7 +42,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
-#include "vtkPropertyDevice.h"
 #include "vtkActor.h"
 
 // Description:
@@ -83,16 +82,6 @@ vtkProperty::vtkProperty()
   this->Backface = 0;
   this->BackfaceCulling = 0;
   this->FrontfaceCulling = 0;
-
-  this->Device = NULL;
-}
-
-vtkProperty::~vtkProperty()
-{
-  if (this->Device)
-    {
-    this->Device->Delete();
-    }
 }
 
 // Description:
@@ -132,13 +121,44 @@ vtkProperty& vtkProperty::operator=(const vtkProperty& p)
   return *this;
 }
 
-void vtkProperty::Render(vtkRenderer *ren, vtkActor *anActor)
+
+#ifdef USE_GLR
+#include "vtkGlrProperty.h"
+#endif
+#ifdef USE_OGLR
+#include "vtkOglrProperty.h"
+#endif
+#ifdef USE_SBR
+#include "vtkSbrProperty.h"
+#endif
+#ifdef USE_XGLR
+#include "vtkXglrProperty.h"
+#endif
+#ifdef _WIN32
+#include "vtkOglrProperty.h"
+#endif
+// return the correct type of Property 
+vtkProperty *vtkProperty::New()
 {
-  if (!this->Device)
-    {
-    this->Device = ren->GetRenderWindow()->MakeProperty();
-    }
-  this->Device->Render(this, anActor, ren);
+  char *temp = vtkRenderWindow::GetRenderLibrary();
+  
+#ifdef USE_SBR
+  if (!strncmp("sbr",temp,4)) return vtkSbrProperty::New();
+#endif
+#ifdef USE_GLR
+  if (!strncmp("glr",temp,3)) return vtkGlrProperty::New();
+#endif
+#ifdef USE_OGLR
+  if (!strncmp("oglr",temp,4)) return vtkOglrProperty::New();
+#endif
+#ifdef _WIN32
+  if (!strncmp("woglr",temp,5)) return vtkOglrProperty::New();
+#endif
+#ifdef USE_XGLR
+  if (!strncmp("xglr",temp,4)) return vtkXglrProperty::New();
+#endif
+  
+  return new vtkProperty;
 }
 
 void vtkProperty::SetFlat (void)

@@ -46,17 +46,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkOglrProperty_h
 #define __vtkOglrProperty_h
 
-#include "vtkPropertyDevice.h"
+#include "vtkProperty.h"
 
 class vtkOglrRenderer;
 
-class VTK_EXPORT vtkOglrProperty : public vtkPropertyDevice
+class VTK_EXPORT vtkOglrProperty : public vtkProperty
 {
  public:
   static vtkOglrProperty *New() {return new vtkOglrProperty;};
   char *GetClassName() {return "vtkOglrProperty";};
 
-  void Render(vtkProperty *prop, vtkActor *a, vtkRenderer *ren);
+  void Render(vtkActor *a, vtkRenderer *ren);
 };
 
 #endif

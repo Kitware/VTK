@@ -100,7 +100,7 @@ class_def : CLASS VTK_ID
       if (is_concrete)
 	{
 	fprintf(yyout,"\nClientData %sNewCommand()\n{\n",class_name);
-	fprintf(yyout,"  %s *temp = new %s;\n",class_name,class_name);
+	fprintf(yyout,"  %s *temp = %s::New();\n",class_name,class_name);
 	fprintf(yyout,"  return ((ClientData)temp);\n}\n\n");
 	}
       }

@@ -43,7 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkLight.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
-#include "vtkLightDevice.h"
 
 // Description:
 // Create a light with the focal point at the origin and its position
@@ -72,24 +71,45 @@ vtkLight::vtkLight()
   this->AttenuationValues[1] = 0;
   this->AttenuationValues[2] = 0;
   this->Exponent = 1;
-  this->Device = NULL;
 }
 
-vtkLight::~vtkLight()
+#ifdef USE_GLR
+#include "vtkGlrLight.h"
+#endif
+#ifdef USE_OGLR
+#include "vtkOglrLight.h"
+#endif
+#ifdef USE_SBR
+#include "vtkSbrLight.h"
+#endif
+#ifdef USE_XGLR
+#include "vtkXglrLight.h"
+#endif
+#ifdef _WIN32
+#include "vtkOglrLight.h"
+#endif
+// return the correct type of light 
+vtkLight *vtkLight::New()
 {
-  if (this->Device)
-    {
-    this->Device->Delete();
-    }
-}
-
-void vtkLight::Render(vtkRenderer *ren,int light_index)
-{
-  if (!this->Device)
-    {
-    this->Device = ren->GetRenderWindow()->MakeLight();
-    }
-  this->Device->Render(this,ren,light_index);
+  char *temp = vtkRenderWindow::GetRenderLibrary();
+  
+#ifdef USE_SBR
+  if (!strncmp("sbr",temp,4)) return vtkSbrLight::New();
+#endif
+#ifdef USE_GLR
+  if (!strncmp("glr",temp,3)) return vtkGlrLight::New();
+#endif
+#ifdef USE_OGLR
+  if (!strncmp("oglr",temp,4)) return vtkOglrLight::New();
+#endif
+#ifdef _WIN32
+  if (!strncmp("woglr",temp,5)) return vtkOglrLight::New();
+#endif
+#ifdef USE_XGLR
+  if (!strncmp("xglr",temp,4)) return vtkXglrLight::New();
+#endif
+  
+  return new vtkLight;
 }
 
 void vtkLight::PrintSelf(ostream& os, vtkIndent indent)
@@ -101,15 +121,6 @@ void vtkLight::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Color: (" << this->Color[0] << ", " 
     << this->Color[1] << ", " << this->Color[2] << ")\n";
   os << indent << "Cone Angle: " << this->ConeAngle << "\n";
-  if ( this->Device )
-    {
-    os << indent << "Device:\n";
-    this->Device->PrintSelf(os,indent.GetNextIndent());
-    }
-  else
-    {
-    os << indent << "Device: (none)\n";
-    }
   os << indent << "Exponent: " << this->Exponent << "\n";
   os << indent << "Focal Point: (" << this->FocalPoint[0] << ", " 
     << this->FocalPoint[1] << ", " << this->FocalPoint[2] << ")\n";

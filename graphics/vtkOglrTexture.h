@@ -46,19 +46,18 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkOglrTexture_h
 #define __vtkOglrTexture_h
 
-#include "vtkTextureDevice.h"
+#include "vtkTexture.h"
 
 class vtkOglrRenderer;
 
-class VTK_EXPORT vtkOglrTexture : public vtkTextureDevice
+class VTK_EXPORT vtkOglrTexture : public vtkTexture
 {
 public:
   vtkOglrTexture();
   static vtkOglrTexture *New() {return new vtkOglrTexture;};
   char *GetClassName() {return "vtkOglrTexture";};
   
-  void Load(vtkTexture *txt, vtkRenderer *ren);
-  void Load(vtkTexture *txt, vtkOglrRenderer *ren);
+  void Load(vtkRenderer *ren);
   
 protected:
   vtkTimeStamp   LoadTime;

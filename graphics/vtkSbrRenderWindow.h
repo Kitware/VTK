@@ -62,14 +62,6 @@ public:
   char *GetClassName() {return "vtkSbrRenderWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
-  vtkRenderer       *MakeRenderer();
-  vtkLightDevice    *MakeLight();
-  vtkCameraDevice   *MakeCamera();
-  vtkActorDevice    *MakeActor();
-  vtkPropertyDevice *MakeProperty();
-  vtkTextureDevice  *MakeTexture();
-  vtkPolyMapperDevice *MakePolyMapper();
-
   void Start(void);
   void Frame(void);
   void WindowInitialize(void);

@@ -40,17 +40,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkXglrRenderer.h"
 #include "vtkXglrActor.h"
-#include "vtkActor.h"
 
 // Description:
 // Implement base class method.
-void vtkXglrActor::Render(vtkActor *actor, vtkRenderer *ren, vtkMapper *mapper)
+void vtkXglrActor::Render(vtkRenderer *ren, vtkMapper *mapper)
 {
   static vtkMatrix4x4 matrix;
   Xgl_trans model_trans;
 
   // build transformation 
-  actor->GetMatrix(matrix);
+  this->GetMatrix(matrix);
   matrix.Transpose();
 
   // insert model transformation 
@@ -59,6 +58,6 @@ void vtkXglrActor::Render(vtkActor *actor, vtkRenderer *ren, vtkMapper *mapper)
   xgl_transform_write(model_trans,(float (*)[4])(matrix[0]));
 
   // send a render to the mapper; update pipeline
-  mapper->Render(ren,actor);
+  mapper->Render(ren,this);
 }
 

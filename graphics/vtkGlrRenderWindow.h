@@ -66,14 +66,6 @@ public:
   char *GetClassName() {return "vtkGlrRenderWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
-  vtkRenderer  *MakeRenderer();
-  vtkLightDevice     *MakeLight();
-  vtkCameraDevice    *MakeCamera();
-  vtkActorDevice     *MakeActor();
-  vtkTextureDevice   *MakeTexture();
-  vtkPropertyDevice  *MakeProperty();
-  vtkPolyMapperDevice *MakePolyMapper();
-
   void Start(void);
   void Frame(void);
   void Connect(void);

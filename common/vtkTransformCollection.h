@@ -55,6 +55,7 @@ class VTK_EXPORT vtkTransformCollection : public vtkCollection
 {
 public:
   char *GetClassName() {return "vtkTransformCollection";};
+  static vtkTransformCollection *New() {return new vtkTransformCollection;};
 
   void AddItem(vtkTransform *);
   void RemoveItem(vtkTransform *);

@@ -98,12 +98,14 @@ public:
 
   // Description:
   // Specify a point defining the first axis of the plane.
-  vtkSetVector3Macro(Point1,float);
+  void SetPoint1(float x, float y, float z);
+  void SetPoint1(float pnt[3]);
   vtkGetVectorMacro(Point1,float,3);
 
   // Description:
   // Specify a point defining the second axis of the plane.
-  vtkSetVector3Macro(Point2,float);
+  void SetPoint2(float x, float y, float z);
+  void SetPoint2(float pnt[3]);
   vtkGetVectorMacro(Point2,float,3);
 
   // Description:

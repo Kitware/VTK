@@ -74,20 +74,15 @@ vtkXglrTexture::~vtkXglrTexture()
 
 // Description:
 // Implement base class method.
-void vtkXglrTexture::Load(vtkTexture *txt, vtkRenderer *ren)
+void vtkXglrTexture::Load(vtkRenderer *aren)
 {
-  this->Load(txt, (vtkXglrRenderer *)ren);
-}
-
-// Description:
-// Actual Texture load method.
-void vtkXglrTexture::Load(vtkTexture *txt, vtkXglrRenderer *ren)
-{
+  vtkXglrRenderer *ren = (vtkXglrRenderer *)aren;
   
   // need to reload the texture
-  if (txt->GetMTime() > this->LoadTime.GetMTime() ||
-      txt->GetInput()->GetMTime() > this->LoadTime.GetMTime() ||
-      (txt->GetLookupTable () && txt->GetLookupTable()->GetMTime () >  this->LoadTime.GetMTime()))
+  if (this->GetMTime() > this->LoadTime.GetMTime() ||
+      this->Input->GetMTime() > this->LoadTime.GetMTime() ||
+      (this->GetLookupTable() && this->LookupTable->GetMTime () >  
+       this->LoadTime.GetMTime()))
     {
     int bytesPerPixel;
     int size[3];
@@ -101,8 +96,8 @@ void vtkXglrTexture::Load(vtkTexture *txt, vtkXglrRenderer *ren)
     unsigned int yloop, xloop;
     
     // get some info
-    txt->GetInput()->GetDimensions(size);
-    scalars = (txt->GetInput()->GetPointData())->GetScalars();
+    this->Input->GetDimensions(size);
+    scalars = (this->Input->GetPointData())->GetScalars();
 
     // make sure scalars are non null
     if (!scalars) 
@@ -117,7 +112,7 @@ void vtkXglrTexture::Load(vtkTexture *txt, vtkXglrRenderer *ren)
     if (strcmp(scalars->GetDataType(),"unsigned char") ||
 	strcmp(scalars->GetScalarType(),"ColorScalar") )
       {
-	dataPtr = txt->MapScalarsToColors (scalars);
+	dataPtr = this->MapScalarsToColors (scalars);
 	bytesPerPixel = 4;
       }
     else
@@ -150,7 +145,7 @@ void vtkXglrTexture::Load(vtkTexture *txt, vtkXglrRenderer *ren)
 	}
       }
 
-    if (txt->GetRepeat())
+    if (this->Repeat)
       {
       uBound = XGL_TEXTURE_BOUNDARY_WRAP;
       vBound = XGL_TEXTURE_BOUNDARY_WRAP;
@@ -223,7 +218,7 @@ void vtkXglrTexture::Load(vtkTexture *txt, vtkXglrRenderer *ren)
     this->TDesc.texture_info.mipmap.u_boundary = uBound;
     this->TDesc.texture_info.mipmap.v_boundary = vBound;
     
-    if (txt->GetInterpolate())
+    if (this->Interpolate)
       {
       this->TDesc.texture_info.mipmap.interp_info.filter1 = 
 	XGL_TEXTURE_INTERP_BILINEAR;

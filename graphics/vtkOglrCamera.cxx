@@ -48,20 +48,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Description:
 // Implement base class method.
-void vtkOglrCamera::Render(vtkCamera *cam, vtkRenderer *ren)
-{
-  this->Render(cam, (vtkOglrRenderer *)ren);
-}
-
-// Description:
-// Actual camera render method.
-void vtkOglrCamera::Render(vtkCamera *cam, vtkOglrRenderer *ren)
+void vtkOglrCamera::Render(vtkRenderer *ren)
 {
   float aspect[2];
   float *vport;
   float *bg_color;
   int left,right,bottom,top;
-  int stereo;
   int  *size;
   vtkMatrix4x4 matrix;
 
@@ -69,20 +61,19 @@ void vtkOglrCamera::Render(vtkCamera *cam, vtkOglrRenderer *ren)
   size = (ren->GetRenderWindow())->GetSize();
   
   // find out if we should stereo render
-  stereo = cam->GetStereo();
-
+  this->Stereo = (ren->GetRenderWindow())->GetStereoRender();
   vport = ren->GetViewport();
 
   left = (int)(vport[0]*(size[0] -1));
   right = (int)(vport[2]*(size[0] - 1));
 
   // if were on a stereo renderer draw to special parts of screen
-  if (stereo)
+  if (this->Stereo)
     {
     switch ((ren->GetRenderWindow())->GetStereoType())
       {
       case VTK_STEREO_CRYSTAL_EYES:
-	if (cam->GetLeftEye()) 
+	if (this->GetLeftEye()) 
 	  {
 	  bottom = (int)(532 + (1023-532)*vport[1]);
 	  top = (int)(532 + (1023-532)*vport[3]);
@@ -109,7 +100,7 @@ void vtkOglrCamera::Render(vtkCamera *cam, vtkOglrRenderer *ren)
   glScissor( left, bottom,(right-left+1),(top-bottom+1));   
     
   /* for stereo we have to fiddle with aspect */
-  if (stereo)
+  if (this->Stereo)
     {
     switch ((ren->GetRenderWindow())->GetStereoType())
       {
@@ -131,7 +122,7 @@ void vtkOglrCamera::Render(vtkCamera *cam, vtkOglrRenderer *ren)
   ren->SetAspect(aspect);
 
   glMatrixMode( GL_PROJECTION);
-  matrix = cam->GetPerspectiveTransform(aspect[0]/aspect[1],0,1);
+  matrix = this->GetPerspectiveTransform(aspect[0]/aspect[1],0,1);
   matrix.Transpose();
   // insert camera view transformation 
   glLoadMatrixf(matrix[0]);
@@ -142,7 +133,7 @@ void vtkOglrCamera::Render(vtkCamera *cam, vtkOglrRenderer *ren)
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
 
-  matrix = cam->GetViewTransform();
+  matrix = this->GetViewTransform();
   matrix.Transpose();
   
   // insert camera view transformation 
@@ -161,5 +152,12 @@ void vtkOglrCamera::Render(vtkCamera *cam, vtkOglrRenderer *ren)
     glClearDepth( (GLclampd)( 1.0 ) );
     vtkDebugMacro(<< "glClear\n");
     glClear((GLbitfield)(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+    }
+
+  // if we have a stereo renderer, draw other eye next time 
+  if (this->Stereo)
+    {
+    if (this->LeftEye) this->LeftEye = 0;
+    else this->LeftEye = 1;
     }
 }

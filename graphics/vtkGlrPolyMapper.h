@@ -47,12 +47,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkGlrPolyMapper_h
 
 #include <stdlib.h>
-#include "vtkPolyMapperDevice.h"
+#include "vtkPolyMapper.h"
 
 class vtkGlrRenderer;
 class vtkProperty;
 
-class VTK_EXPORT vtkGlrPolyMapper : public vtkPolyMapperDevice
+class VTK_EXPORT vtkGlrPolyMapper : public vtkPolyMapper
 {
  public:
   vtkGlrPolyMapper();

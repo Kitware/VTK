@@ -47,14 +47,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkXglrPolyMapper_h
 
 #include <stdlib.h>
-#include "vtkPolyMapperDevice.h"
+#include "vtkPolyMapper.h"
 #include "vtkPolyData.h"
 #include "vtkColorScalars.h"
 #include <xgl/xgl.h>
 
 class vtkXglrRenderer;
 
-class VTK_EXPORT vtkXglrPolyMapper : public vtkPolyMapperDevice
+class VTK_EXPORT vtkXglrPolyMapper : public vtkPolyMapper
 {
 public:
   vtkXglrPolyMapper();

@@ -55,6 +55,7 @@ class VTK_EXPORT vtkIndent
 {
 public:
   vtkIndent(int ind=0) {this->Indent=ind;};
+  static vtkIndent *New() {return new vtkIndent;};
   vtkIndent GetNextIndent();
   int Indent;
 

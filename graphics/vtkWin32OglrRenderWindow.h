@@ -72,14 +72,6 @@ public:
   char *GetClassName() {return "vtkWin32OglrRenderWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
-  vtkRenderer  *MakeRenderer();
-  vtkActorDevice     *MakeActor();
-  vtkLightDevice     *MakeLight();
-  vtkCameraDevice    *MakeCamera();
-  vtkTextureDevice   *MakeTexture();
-  vtkPropertyDevice  *MakeProperty();
-  vtkPolyMapperDevice *MakePolyMapper();
-  
   void Start(void);
   void Frame(void);
   void WindowConfigure(void);

@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdlib.h>
 #include <math.h>
 #include "vtkLODActor.h"
-#include "vtkActorDevice.h"
 #include "vtkRenderWindow.h"
 #include "vtkTimerLog.h"
 
@@ -54,7 +53,19 @@ vtkLODActor::vtkLODActor()
   this->Timings[0] = -2; // highest LOD
   this->Timings[1] = -2;
   this->Timings[2] = -2; // lowest LOD
+  // get a hardware dependent actor and mappers
+  this->Device = vtkActor::New();
+  this->MediumMapper = vtkPolyMapper::New();
+  this->LowMapper = vtkPolyMapper::New();
 }
+
+vtkLODActor::~vtkLODActor()
+{
+  this->Device->Delete();
+  this->MediumMapper->Delete();
+  this->LowMapper->Delete();
+}
+
 
 // Description:
 // This causes the actor to be rendered. It, in turn, will render the actor's
@@ -65,8 +76,9 @@ void vtkLODActor::Render(vtkRenderer *ren)
   float myTime;
   double aTime;
   static int refreshCount = 0; // every 97 calls decay some timings
+  vtkMatrix4x4 *matrix = new vtkMatrix4x4;
   
-  // figure out how much time we have to rtender
+  // figure out how much time we have to render
   myTime = ren->GetAllocatedRenderTime();
   myTime /= (ren->GetActors())->GetNumberOfItems();
   
@@ -76,15 +88,15 @@ void vtkLODActor::Render(vtkRenderer *ren)
     // make sure the filters are connected
     this->PointSource.SetRadius(0);
     this->PointSource.SetNumberOfPoints(1);
-    this->MediumMapper.SetInput(this->Glyph3D.GetOutput());
-    this->MediumMapper.SetScalarRange(this->Mapper->GetScalarRange());
-    this->MediumMapper.SetScalarsVisible(this->Mapper->GetScalarsVisible());
+    this->MediumMapper->SetInput(this->Glyph3D.GetOutput());
+    this->MediumMapper->SetScalarRange(this->Mapper->GetScalarRange());
+    this->MediumMapper->SetScalarsVisible(this->Mapper->GetScalarsVisible());
     this->MaskPoints.SetInput(this->Mapper->GetInput());
     this->MaskPoints.SetMaximumNumberOfPoints(this->NumberOfCloudPoints);
     this->MaskPoints.SetRandomMode(1);
     this->Glyph3D.SetInput(this->MaskPoints.GetOutput());
     this->Glyph3D.SetSource(this->PointSource.GetOutput());
-    this->LowMapper.SetInput(this->OutlineFilter.GetOutput());
+    this->LowMapper->SetInput(this->OutlineFilter.GetOutput());
     this->OutlineFilter.SetInput(this->Mapper->GetInput());
     
     this->Timings[0] = -2;
@@ -114,27 +126,26 @@ void vtkLODActor::Render(vtkRenderer *ren)
     // force creation of a property
     this->GetProperty();
     }
-  this->Property->Render(ren, this);
+  this->Property->Render(this, ren);
 
   /* render the texture */
   if (this->Texture) this->Texture->Render(ren);
     
-  if (!this->Device)
-    {
-    this->Device = ren->GetRenderWindow()->MakeActor();
-    }
+  // make sure the device has the same matrix
+  this->GetMatrix(*matrix);
+  this->Device->SetUserMatrix(matrix);
   
   if (!choice)
     {
-    this->Device->Render(this,ren,this->Mapper);
+    this->Device->Render(ren,this->Mapper);
     }
   if (choice == 1)
     {
-    this->Device->Render(this,ren,&this->MediumMapper);
+    this->Device->Render(ren,this->MediumMapper);
     }
   if (choice == 2)
     {
-    this->Device->Render(this,ren,&this->LowMapper);
+    this->Device->Render(ren,this->LowMapper);
     }
   
   if (this->Timings[choice] == -2)
@@ -157,6 +168,7 @@ void vtkLODActor::Render(vtkRenderer *ren)
     }
 
   refreshCount++;
+  delete matrix;
 }
 
 void vtkLODActor::PrintSelf(ostream& os, vtkIndent indent)

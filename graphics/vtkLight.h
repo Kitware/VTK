@@ -57,14 +57,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 /* need for virtual function */
 class vtkRenderer;
-class vtkLightDevice;
 
 class VTK_EXPORT vtkLight : public vtkObject
 {
 public:
   vtkLight();
-  ~vtkLight();
-  static vtkLight *New() {return new vtkLight;};
+  static vtkLight *New();
   char *GetClassName() {return "vtkLight";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -73,7 +71,7 @@ public:
   // will load its data into the graphics system in response to this method
   // invocation. The actual loading is performed by a vtkLightDevice
   // subclass, which will get created automatically.
-  virtual void Render(vtkRenderer *ren,int light_index);
+  virtual void Render(vtkRenderer *, int) {};
 
   // Description:
   // Set/Get the color of the light.
@@ -135,7 +133,6 @@ protected:
   float Exponent;
   float ConeAngle;
   float AttenuationValues[3];
-  vtkLightDevice *Device;
 };
 
 #endif

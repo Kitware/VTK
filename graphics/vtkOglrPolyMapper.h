@@ -54,12 +54,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #endif
 #include <GL/gl.h>
 
-#include "vtkPolyMapperDevice.h"
+#include "vtkPolyMapper.h"
 
 class vtkOglrRenderer;
 class vtkProperty;
 
-class VTK_EXPORT vtkOglrPolyMapper : public vtkPolyMapperDevice
+class VTK_EXPORT vtkOglrPolyMapper : public vtkPolyMapper
 {
  public:
   vtkOglrPolyMapper();

@@ -74,81 +74,6 @@ vtkWin32OglrRenderWindow::vtkWin32OglrRenderWindow()
 }
 
 // Description:
-// Create a OpenGL specific actor.
-vtkActorDevice *vtkWin32OglrRenderWindow::MakeActor()
-{
-  vtkOglrActor *actor;
-
-  actor = new vtkOglrActor;
-  return (vtkActorDevice *)actor;
-}
-
-// Description:
-// Create a OpenGL specific light.
-vtkLightDevice *vtkWin32OglrRenderWindow::MakeLight()
-{
-  vtkOglrLight *light;
-
-  light = new vtkOglrLight;
-  return (vtkLightDevice *)light;
-}
-
-// Description:
-// Create a OpenGL specific renderer.
-vtkRenderer *vtkWin32OglrRenderWindow::MakeRenderer()
-{
-  vtkOglrRenderer *ren;
-
-  ren = new vtkOglrRenderer;
-  this->AddRenderers(ren);
-
-  // by default we are its parent
-  ren->SetRenderWindow((vtkRenderWindow*)this);
-  
-  return (vtkRenderer *)ren;
-}
-
-// Description:
-// Create a OpenGL specific camera.
-vtkCameraDevice *vtkWin32OglrRenderWindow::MakeCamera()
-{
-  vtkOglrCamera *camera;
-
-  camera = new vtkOglrCamera;
-  return (vtkCameraDevice *)camera;
-}
-
-// Description:
-// Create a OpenGL specific property.
-vtkPropertyDevice *vtkWin32OglrRenderWindow::MakeProperty()
-{
-  vtkOglrProperty *property;
-
-  property = new vtkOglrProperty;
-  return (vtkPropertyDevice *)property;
-}
-
-// Description:
-// Create a OpenGL specific PolyMapper.
-vtkPolyMapperDevice *vtkWin32OglrRenderWindow::MakePolyMapper()
-{
-  vtkOglrPolyMapper *PolyMapper;
-
-  PolyMapper = new vtkOglrPolyMapper;
-  return (vtkPolyMapperDevice *)PolyMapper;
-}
-
-// Description:
-// Create a OpenGL specific texture.
-vtkTextureDevice *vtkWin32OglrRenderWindow::MakeTexture()
-{
-  vtkOglrTexture *texture;
-
-  texture = new vtkOglrTexture;
-  return (vtkTextureDevice *)texture;
-}
-
-// Description:
 // Begin the rendering process.
 void vtkWin32OglrRenderWindow::Start(void)
 {
@@ -886,18 +811,6 @@ void vtkWin32OglrRenderWindow::SetDeviceContext(HDC arg) // hsr
   this->DeviceContext = arg;							 // hsr
   this->MFChandledWindow = TRUE;						 // hsr
 }														 // hsr
-
-// Description:
-// Create named interactor type
-vtkRenderWindowInteractor *
-vtkWin32OglrRenderWindow::MakeRenderWindowInteractor()
-{
-  this->Interactor = 
-    (vtkRenderWindowInteractor *)new vtkWin32RenderWindowInteractor;
-  this->Interactor->SetRenderWindow((vtkRenderWindow *)this);
-  return this->Interactor;
-}
-
 
 float *vtkWin32OglrRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2, int front)
 {

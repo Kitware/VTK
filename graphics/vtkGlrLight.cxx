@@ -52,33 +52,19 @@ static float light_info[] = {
 
 // Description:
 // Implement base class method.
-void vtkGlrLight::Render(vtkLight *lgt, vtkRenderer *ren,int light_index)
-{
-  this->Render(lgt, (vtkGlrRenderer *)ren,light_index);
-}
-
-// Description:
-// Actual light render method.
-void vtkGlrLight::Render(vtkLight *lgt, vtkGlrRenderer *vtkNotUsed(ren),
-			 int light_index)
+void vtkGlrLight::Render(vtkRenderer *vtkNotUsed(ren), int light_index)
 {
   float	dx, dy, dz;
   float	color[3];
-  float *Color, *Position, *FocalPoint;
-  float Intensity;
 
   // get required info from light
-  Intensity = lgt->GetIntensity();
-  Color = lgt->GetColor();
-  color[0] = Intensity * Color[0];
-  color[1] = Intensity * Color[1];
-  color[2] = Intensity * Color[2];
+  color[0] = this->Intensity * this->Color[0];
+  color[1] = this->Intensity * this->Color[1];
+  color[2] = this->Intensity * this->Color[2];
   
-  FocalPoint = lgt->GetFocalPoint();
-  Position   = lgt->GetPosition();
-  dx = FocalPoint[0] - Position[0];
-  dy = FocalPoint[1] - Position[1];
-  dz = FocalPoint[2] - Position[2];
+  dx = this->FocalPoint[0] - this->Position[0];
+  dy = this->FocalPoint[1] - this->Position[1];
+  dz = this->FocalPoint[2] - this->Position[2];
 
   // define the light source
   light_info[1] = color[0];

@@ -41,24 +41,23 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 #include "vtkSbrRenderer.h"
 #include "vtkSbrActor.h"
-#include "vtkActor.h"
 
 // Description:
 // Implement base class method.
-void vtkSbrActor::Render(vtkActor *actor, vtkRenderer *ren, vtkMapper *mapper)
+void vtkSbrActor::Render(vtkRenderer *ren, vtkMapper *mapper)
 {
   static vtkMatrix4x4 matrix;
   int Fd=((vtkSbrRenderer *)ren)->GetFd();
 
   // build transformation 
-  actor->GetMatrix(matrix);
+  this->GetMatrix(matrix);
   matrix.Transpose();
 
   // insert model transformation 
   concat_transformation3d(Fd,(float (*)[4])(matrix[0]), PRE, PUSH);
 
   // send a render to the mapper; update pipeline
-  mapper->Render(ren,actor);
+  mapper->Render(ren,this);
 
   pop_matrix(Fd);
   pop_matrix(Fd);

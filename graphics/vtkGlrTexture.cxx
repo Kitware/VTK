@@ -63,14 +63,7 @@ vtkGlrTexture::vtkGlrTexture()
 
 // Description:
 // Implement base class method.
-void vtkGlrTexture::Load(vtkTexture *txt, vtkRenderer *ren)
-{
-  this->Load(txt, (vtkGlrRenderer *)ren);
-}
-
-// Description:
-// Actual Texture load method.
-void vtkGlrTexture::Load(vtkTexture *txt, vtkGlrRenderer *vtkNotUsed(ren))
+void vtkGlrTexture::Load(vtkRenderer *vtkNotUsed(ren))
 {
   // make sure it can handle textures
   if (!getgdesc(GD_TEXTURE)) 
@@ -80,9 +73,9 @@ void vtkGlrTexture::Load(vtkTexture *txt, vtkGlrRenderer *vtkNotUsed(ren))
     }
   
   // need to reload the texture
-  if (txt->GetMTime() > this->LoadTime.GetMTime() ||
-      txt->GetInput()->GetMTime() > this->LoadTime.GetMTime() ||
-      (txt->GetLookupTable () && txt->GetLookupTable()->GetMTime () >  this->LoadTime.GetMTime()))
+  if (this->GetMTime() > this->LoadTime.GetMTime() ||
+      this->Input->GetMTime() > this->LoadTime.GetMTime() ||
+      (this->GetLookupTable () && this->LookupTable->GetMTime () >  this->LoadTime.GetMTime()))
     {
     int bytesPerPixel;
     int *size;
@@ -93,8 +86,8 @@ void vtkGlrTexture::Load(vtkTexture *txt, vtkGlrRenderer *vtkNotUsed(ren))
     int xsize, ysize, col, row;
 
     // get some info
-    size = txt->GetInput()->GetDimensions();
-    scalars = (txt->GetInput()->GetPointData())->GetScalars();
+    size = this->Input->GetDimensions();
+    scalars = (this->Input->GetPointData())->GetScalars();
 
     // make sure scalars are non null
     if (!scalars) 
@@ -109,7 +102,7 @@ void vtkGlrTexture::Load(vtkTexture *txt, vtkGlrRenderer *vtkNotUsed(ren))
     if ( strcmp(scalars->GetDataType(),"unsigned char") ||
          strcmp(scalars->GetScalarType(),"ColorScalar") )
       {
-      dataPtr = txt->MapScalarsToColors (scalars);
+      dataPtr = this->MapScalarsToColors (scalars);
       bytesPerPixel = 4;
       }
     else
@@ -192,7 +185,7 @@ void vtkGlrTexture::Load(vtkTexture *txt, vtkGlrRenderer *vtkNotUsed(ren))
         }
       }
 
-    if (txt->GetInterpolate())
+    if (this->Interpolate)
       {
       texprops[1] = TX_MIPMAP_BILINEAR;
       texprops[3] = TX_BILINEAR;
@@ -202,7 +195,7 @@ void vtkGlrTexture::Load(vtkTexture *txt, vtkGlrRenderer *vtkNotUsed(ren))
       texprops[1] = TX_POINT;
       texprops[3] = TX_POINT;
       }
-    if (txt->GetRepeat())
+    if (this->Repeat)
       {
       texprops[5] = TX_REPEAT;
       }

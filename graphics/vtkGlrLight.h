@@ -46,11 +46,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkGlrLight_h
 #define __vtkGlrLight_h
 
-#include "vtkLightDevice.h"
+#include "vtkLight.h"
 
 class vtkGlrRenderer;
 
-class VTK_EXPORT vtkGlrLight : public vtkLightDevice
+class VTK_EXPORT vtkGlrLight : public vtkLight
 {
 protected:
   
@@ -58,8 +58,7 @@ public:
   static vtkGlrLight *New() {return new vtkGlrLight;};
   char *GetClassName() {return "vtkGlrLight";};
 
-  void Render(vtkLight *lgt, vtkRenderer *ren,int light_index);
-  void Render(vtkLight *lgt, vtkGlrRenderer *ren,int light_index);
+  void Render(vtkRenderer *ren,int light_index);
 };
 
 #endif

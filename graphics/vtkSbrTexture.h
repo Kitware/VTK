@@ -57,8 +57,7 @@ public:
   static vtkSbrTexture *New() {return new vtkSbrTexture;};
   char *GetClassName() {return "vtkSbrTexture";};
   
-  void Load(vtkTexture *txt, vtkRenderer *ren);
-  void Load(vtkTexture *txt, vtkSbrRenderer *ren);
+  void Load(vtkRenderer *ren);
   
 protected:
   vtkTimeStamp   LoadTime;

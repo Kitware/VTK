@@ -65,8 +65,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkAssemblyPaths.h"
 
 class vtkRenderer;
-class vtkActorDevice;
-class vtkProperty;
 class vtkMapper;
 
 class VTK_EXPORT vtkActor : public vtkProp
@@ -74,11 +72,12 @@ class VTK_EXPORT vtkActor : public vtkProp
  public:
   vtkActor();
   ~vtkActor();
-  static vtkActor *New() {return new vtkActor;};
+  static vtkActor *New();
   char *GetClassName() {return "vtkActor";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual void Render(vtkRenderer *ren);
+  virtual void Render(vtkRenderer *, vtkMapper *) {};
 
   vtkActor &operator=(const vtkActor& actor);
 
@@ -163,7 +162,6 @@ protected:
   vtkMapper *Mapper;
   float Scale[3];
   int SelfCreatedProperty;
-  vtkActorDevice *Device;
 
   // this stuff supports multiple-part actors (e.g. assemblies)
   int TraversalLocation;

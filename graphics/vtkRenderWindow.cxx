@@ -103,6 +103,93 @@ vtkRenderWindow::~vtkRenderWindow()
     delete [] this->WindowName;
 }
 
+char *vtkRenderWindow::GetRenderLibrary()
+{
+  char *temp;
+  
+  // first check the environment variable
+  temp = getenv("VTK_RENDERER");
+  // if nothing is set then work down the list of possible renderers
+  if (!temp) 
+    {
+#ifdef USE_GLR
+    temp = "glr";
+#endif
+#ifdef USE_OGLR
+    temp = "oglr";
+#endif
+#ifdef USE_SBR
+    temp = "sbr";
+#endif
+#ifdef USE_XGLR
+    temp = "xglr";
+#endif
+#ifdef _WIN32
+    temp = "woglr";
+#endif
+    }
+
+  return temp;
+}
+
+#ifdef USE_GLR
+#include "vtkGlrRenderWindow.h"
+#endif
+#ifdef USE_OGLR
+#include "vtkOglrRenderWindow.h"
+#endif
+#ifdef USE_SBR
+#include "vtkSbrRenderWindow.h"
+#endif
+#ifdef USE_XGLR
+#include "vtkXglrRenderWindow.h"
+#endif
+#ifdef _WIN32
+#include "vtkWin32OglrRenderWindow.h"
+#endif
+// return the correct type of RenderWindow 
+vtkRenderWindow *vtkRenderWindow::New()
+{
+  char *temp = vtkRenderWindow::GetRenderLibrary();
+  
+#ifdef USE_SBR
+  if (!strncmp("sbr",temp,4)) return vtkSbrRenderWindow::New();
+#endif
+#ifdef USE_GLR
+  if (!strncmp("glr",temp,3)) return vtkGlrRenderWindow::New();
+#endif
+#ifdef USE_OGLR
+  if (!strncmp("oglr",temp,4)) return vtkOglrRenderWindow::New();
+#endif
+#ifdef _WIN32
+  if (!strncmp("woglr",temp,5)) return vtkWin32OglrRenderWindow::New();
+#endif
+#ifdef USE_XGLR
+  if (!strncmp("xglr",temp,4)) return vtkXglrRenderWindow::New();
+#endif
+  
+  return new vtkRenderWindow;
+}
+
+vtkRenderer *vtkRenderWindow::MakeRenderer()
+{
+  vtkRenderer *ren = vtkRenderer::New();
+  this->AddRenderers(ren);
+
+  // by default we are its parent
+  ren->SetRenderWindow(this);
+  return ren;
+}
+
+// Description:
+// Create an interactor that will work with this renderer.
+vtkRenderWindowInteractor *vtkRenderWindow::MakeRenderWindowInteractor()
+{
+  this->Interactor = vtkRenderWindowInteractor::New();
+  this->Interactor->SetRenderWindow(this);
+  return this->Interactor;
+}
+
 void vtkRenderWindow::SetWindowName( char * _arg )
 {
   if (Debug)   

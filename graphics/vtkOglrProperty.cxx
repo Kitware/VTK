@@ -48,13 +48,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Description:
 // Implement base class method.
-void vtkOglrProperty::Render(vtkProperty *prop, vtkActor *vtkNotUsed(anActor),
+void vtkOglrProperty::Render(vtkActor *vtkNotUsed(anActor),
 			     vtkRenderer *vtkNotUsed(ren))
 {
   int i;
   GLenum method;
-  float Ambient, Diffuse, Specular;
-  float *AmbientColor, *DiffuseColor, *SpecularColor;
   float Info[4];
   GLenum Face;
 
@@ -69,11 +67,11 @@ void vtkOglrProperty::Render(vtkProperty *prop, vtkActor *vtkNotUsed(anActor),
 
   Face = GL_FRONT_AND_BACK;
   // turn on/off backface culling
-  if ( ! prop->GetBackfaceCulling() && ! prop->GetFrontfaceCulling() )
+  if ( ! this->BackfaceCulling && ! this->FrontfaceCulling)
     {
     glDisable (GL_CULL_FACE);
     }
-  else if ( prop->GetBackfaceCulling() )
+  else if ( this->BackfaceCulling)
     {
     glCullFace (GL_BACK);
     glEnable (GL_CULL_FACE);
@@ -84,7 +82,7 @@ void vtkOglrProperty::Render(vtkProperty *prop, vtkActor *vtkNotUsed(anActor),
     glEnable (GL_CULL_FACE);
     }
 
-  Info[3] = prop->GetOpacity();
+  Info[3] = this->Opacity;
 
   // deal with blending if necc
   if (Info[3] < 1.0)
@@ -96,34 +94,27 @@ void vtkOglrProperty::Render(vtkProperty *prop, vtkActor *vtkNotUsed(anActor),
     glDisable( GL_BLEND);
     }
   
-  Ambient = prop->GetAmbient();
-  Diffuse = prop->GetDiffuse();
-  Specular = prop->GetSpecular();
-  AmbientColor = prop->GetAmbientColor();
-  DiffuseColor = prop->GetDiffuseColor();
-  SpecularColor = prop->GetSpecularColor();
-
   for (i=0; i < 3; i++) 
     {
-    Info[i] = Ambient*AmbientColor[i];
+    Info[i] = this->Ambient*this->AmbientColor[i];
     }
   glMaterialfv( Face, GL_AMBIENT, Info );
   for (i=0; i < 3; i++) 
     {
-    Info[i] = Diffuse*DiffuseColor[i];
+    Info[i] = this->Diffuse*this->DiffuseColor[i];
     }
   glMaterialfv( Face, GL_DIFFUSE, Info );
   for (i=0; i < 3; i++) 
     {
-    Info[i] = Specular*SpecularColor[i];
+    Info[i] = this->Specular*this->SpecularColor[i];
     }
   glMaterialfv( Face, GL_SPECULAR, Info );
 
-  Info[0] = prop->GetSpecularPower();
+  Info[0] = this->SpecularPower;
   glMaterialfv( Face, GL_SHININESS, Info );
 
   // set interpolation 
-  switch (prop->GetInterpolation()) 
+  switch (this->Interpolation) 
     {
     case VTK_FLAT:
       method = GL_FLAT;

@@ -57,7 +57,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTensor
 {
 public:
-  vtkTensor(int dim=3);
+  inline vtkTensor(int dim=3);
+  static vtkTensor *New() {return new vtkTensor;};
   void Initialize();
   float GetComponent(int i, int j);
   void SetComponent(int i, int j, float v);

@@ -46,19 +46,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkOglrCamera_h
 #define __vtkOglrCamera_h
 
-#include "vtkCameraDevice.h"
+#include "vtkCamera.h"
 
 class vtkOglrRenderer;
 
-class VTK_EXPORT vtkOglrCamera : public vtkCameraDevice
+class VTK_EXPORT vtkOglrCamera : public vtkCamera
 {
  public:
   static vtkOglrCamera *New() {return new vtkOglrCamera;};
   char *GetClassName() {return "vtkOglrCamera";};
 
-  void Render(vtkCamera *cam, vtkRenderer *ren);
-  void Render(vtkCamera *cam, vtkOglrRenderer *ren);
-
+  void Render(vtkRenderer *ren);
 };
 
 #endif

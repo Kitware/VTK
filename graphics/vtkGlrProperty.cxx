@@ -54,36 +54,27 @@ static float mat[] = {
 
 // Description:
 // Actual property render method.
-void vtkGlrProperty::Render(vtkProperty *prop, vtkActor *vtkNotUsed(anActor),
+void vtkGlrProperty::Render(vtkActor *vtkNotUsed(anActor),
 			    vtkRenderer *vtkNotUsed(ren))
 {
   int i, method;
-  float Ambient, Diffuse, Specular;
-  float *AmbientColor, *DiffuseColor, *SpecularColor;
 
   // unbind any textures for starters
   texbind(TX_TEXTURE_0,0);
 
   // turn on/off culling of surface primitives
-  backface(prop->GetBackfaceCulling() ? TRUE : FALSE);
-  frontface(prop->GetFrontfaceCulling() ? TRUE : FALSE);
+  backface(this->BackfaceCulling ? TRUE : FALSE);
+  frontface(this->FrontfaceCulling ? TRUE : FALSE);
 
   lmcolor (LMC_NULL);
-  mat[1] = prop->GetOpacity();
-  mat[15] = prop->GetSpecularPower();
-
-  Ambient = prop->GetAmbient();
-  Diffuse = prop->GetDiffuse();
-  Specular = prop->GetSpecular();
-  AmbientColor = prop->GetAmbientColor();
-  DiffuseColor = prop->GetDiffuseColor();
-  SpecularColor = prop->GetSpecularColor();
+  mat[1] = this->Opacity;
+  mat[15] = this->SpecularPower;
 
   for (i=0; i < 3; i++) 
     {
-    mat[i+3] = Ambient*AmbientColor[i];
-    mat[i+7] = Diffuse*DiffuseColor[i];
-    mat[i+11] = Specular*SpecularColor[i];
+    mat[i+3] = this->Ambient*this->AmbientColor[i];
+    mat[i+7] = this->Diffuse*this->DiffuseColor[i];
+    mat[i+11] = this->Specular*this->SpecularColor[i];
     }
 
   lmdef(DEFMATERIAL, 1, 0, mat);
@@ -91,7 +82,7 @@ void vtkGlrProperty::Render(vtkProperty *prop, vtkActor *vtkNotUsed(anActor),
   lmbind (BACKMATERIAL, 1);  
 
   // set interpolation 
-  switch (prop->GetInterpolation()) 
+  switch (this->Interpolation) 
     {
     case VTK_FLAT:
       method = FLAT;

@@ -159,7 +159,7 @@ public class vtkPanel extends Canvas {
             ren.SetDisplayPoint(APoint);
             ren.DisplayToWorld();
             RPoint = ren.GetWorldPoint();
-            if (RPoint[3] == 0.0)
+            if (RPoint[3] != 0.0)
 	      {
 	      RPoint[0] = RPoint[0]/RPoint[3];
 	      RPoint[1] = RPoint[1]/RPoint[3];

@@ -47,9 +47,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // model including view up vector, clipping planes, and 
 // camera perspective.
 
-// .SECTION see also
-// vtkCameraDevice
-
 #ifndef __vtkCamera_h
 #define __vtkCamera_h
 
@@ -57,15 +54,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTransform.h"
 
 class vtkRenderer;
-class vtkCameraDevice;
 
 class VTK_EXPORT vtkCamera : public vtkObject
 {
  public:
   vtkCamera();
-  ~vtkCamera();
   void PrintSelf(ostream& os, vtkIndent indent);
-  static vtkCamera *New() {return new vtkCamera;};
+  static vtkCamera *New();
   char *GetClassName() {return "vtkCamera";};
 
   // Description:
@@ -100,9 +95,9 @@ class VTK_EXPORT vtkCamera : public vtkObject
 
   // Description:
   // This method causes the camera to set up whatever is required for
-  // viewing the scene. This is actually handled by an instance of
-  // vtkCameraDevice, which is created automatically. 
-  virtual void Render(vtkRenderer *ren);
+  // viewing the scene. This is actually handled by an subclass of
+  // vtkCamera, which is created through New()
+  virtual void Render(vtkRenderer *) {};
 
   // Description:
   // Set/Get the camera view angle (i.e., the width of view in degrees). 
@@ -228,7 +223,6 @@ class VTK_EXPORT vtkCamera : public vtkObject
   // rays must be updated.
   float        VPN_dot_DOP;
 
-  vtkCameraDevice *Device;
 };
 
 inline void vtkCamera::SetWindowCenter( float x, float y )

@@ -45,40 +45,28 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Description:
 // Implement base class method.
-void vtkSbrLight::Render(vtkLight *lgt, vtkRenderer *ren,int light_index)
-{
-  this->Render(lgt, (vtkSbrRenderer *)ren,light_index);
-}
-
-// Description:
-// Actual light render method.
-void vtkSbrLight::Render(vtkLight *lgt, vtkSbrRenderer *ren,int light_index)
+void vtkSbrLight::Render(vtkRenderer *aren,int light_index)
 {
   float	dx, dy, dz;
   float	color[3];
   int light_flag;
   int fd;
-  float *Color, *Position, *FocalPoint;
-  float Intensity;
-
+  vtkSbrRenderer *ren = (vtkSbrRenderer *)aren;
+  
   light_flag = ren->GetLightSwitch();
   fd = ren->GetFd();
   
   // get required info from light
-  Intensity = lgt->GetIntensity();
-  Color = lgt->GetColor();
-  color[0] = Intensity * Color[0];
-  color[1] = Intensity * Color[1];
-  color[2] = Intensity * Color[2];
+  color[0] = this->Intensity * this->Color[0];
+  color[1] = this->Intensity * this->Color[1];
+  color[2] = this->Intensity * this->Color[2];
   
-  FocalPoint = lgt->GetFocalPoint();
-  Position   = lgt->GetPosition();
-  dx = FocalPoint[0] - Position[0];
-  dy = FocalPoint[1] - Position[1];
-  dz = FocalPoint[2] - Position[2];
+  dx = this->FocalPoint[0] - this->Position[0];
+  dy = this->FocalPoint[1] - this->Position[1];
+  dz = this->FocalPoint[2] - this->Position[2];
   
   // define the light source
-  if (!lgt->GetPositional())
+  if (!this->Positional)
     {
     light_source(fd, light_index, DIRECTIONAL,
 		 color[0], color[1], color[2],
@@ -86,20 +74,19 @@ void vtkSbrLight::Render(vtkLight *lgt, vtkSbrRenderer *ren,int light_index)
     }
   else
     {
-    float *AttenuationValues = lgt->GetAttenuationValues();
     light_source(fd, light_index, POSITIONAL,
 		 color[0], color[1], color[2],
-		 Position[0], Position[1], Position[2]);
-    if (lgt->GetConeAngle() < 180.0)
+		 this->Position[0], this->Position[1], this->Position[2]);
+    if (this->ConeAngle < 180.0)
       {
       light_model(fd, light_index, SPOT_LIGHT | CONE_LIGHT,
-		  (int)lgt->GetExponent(), 1.0, lgt->GetConeAngle(),
+		  (int)this->Exponent, 1.0, this->ConeAngle,
 		  dx, dy, dz);
       }
     light_attenuation(fd, light_index, 1, 
-		      AttenuationValues[0],
-		      AttenuationValues[1],
-		      AttenuationValues[2]);
+		      this->AttenuationValues[0],
+		      this->AttenuationValues[1],
+		      this->AttenuationValues[2]);
     }
   
   light_flag |= (0x0001 << light_index);

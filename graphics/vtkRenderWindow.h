@@ -73,7 +73,7 @@ class VTK_EXPORT vtkRenderWindow : public vtkObject
 public:
   vtkRenderWindow();
   ~vtkRenderWindow();
-  static vtkRenderWindow *New() {return new vtkRenderWindow;};
+  static vtkRenderWindow *New();
   char *GetClassName() {return "vtkRenderWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -106,44 +106,15 @@ public:
   // a renderer that will work. This method is implemented in the
   // subclasses of vtkRenderWindow so that each subclass will return
   // the correct renderer for its graphics library.
-  virtual vtkRenderer  *MakeRenderer() { return new vtkRenderer;};
+  virtual vtkRenderer  *MakeRenderer();
 
-  // Description:
-  // Create a device specific light. This is used by vtkLight to create
-  // the correct type of vtkLightDevice.
-  virtual vtkLightDevice *MakeLight() {return (vtkLightDevice *)NULL;};
-
-  // Description:
-  // Create a device specific camera. This is used by vtkCamera to create
-  // the correct type of vtkCameraDevice.
-  virtual vtkCameraDevice    *MakeCamera() {return (vtkCameraDevice *)NULL;};
-
-  // Description:
-  // Create a device specific actor. This is used by vtkActor to create
-  // the correct type of vtkActorDevice.
-  virtual vtkActorDevice    *MakeActor() {return (vtkActorDevice *)NULL;};
-
-  // Description:
-  // Create a device specific property. This is used by vtkProperty to create
-  // the correct type of vtkPropertyDevice.
-  virtual vtkPropertyDevice    *MakeProperty() {return (vtkPropertyDevice *)NULL;};
-
-  // Description:
-  // Create a device specific texture. This is used by vtkTexture to create
-  // the correct type of vtkTextureDevice.
-  virtual vtkTextureDevice     *MakeTexture() {return (vtkTextureDevice *)NULL;};
-
-  // Description:
-  // Create a device specific PolyMapper. This is used by vtkPolyMapper
-  // to convert vtkPolyData into the appropriate primitive calls
-  // for the Rendering library in question.
-  virtual vtkPolyMapperDevice *MakePolyMapper() {return (vtkPolyMapperDevice *)NULL;};
+  static char *GetRenderLibrary();
   
   // Description:
   // Create an interactor to control renderers in this window. We need
   // to know what type of interactor to create, because we might be in
   // X Windows or MS Windows. 
-  virtual vtkRenderWindowInteractor *MakeRenderWindowInteractor() {return (vtkRenderWindowInteractor *)NULL;};
+  virtual vtkRenderWindowInteractor *MakeRenderWindowInteractor();
 
   // Description:
   // Set/Get the position in screen coordinates of the rendering window.

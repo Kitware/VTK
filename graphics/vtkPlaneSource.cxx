@@ -278,6 +278,81 @@ void vtkPlaneSource::SetCenter(float x, float y, float z)
   this->SetCenter(center);
 }
 
+
+// modifies the normal and origin
+void vtkPlaneSource::SetPoint1(float pnt[3])
+{
+  if ( this->Point1[0] == pnt[0] && this->Point1[1] == pnt[1] &&
+       this->Point1[2] == pnt[2] )
+    {
+    return; //no change
+    }
+  else
+    {
+    int i;
+    float v1[3], v2[3];
+
+    for ( i=0; i < 3; i++ )
+      {
+      this->Point1[i] = pnt[i];
+      v1[i] = this->Point1[i] - this->Origin[i];
+      v2[i] = this->Point2[i] - this->Origin[i];
+      }
+
+    // set plane normal
+    vtkMath::Cross(v1,v2,this->Normal);
+    if ( vtkMath::Normalize(this->Normal) == 0.0 )
+      {
+      vtkErrorMacro(<<"Bad plane coordinate system");
+      }
+    this->Modified();
+    }
+}
+
+// modifies the normal and origin
+void vtkPlaneSource::SetPoint2(float pnt[3])
+{
+  if ( this->Point2[0] == pnt[0] && this->Point2[1] == pnt[1] &&
+       this->Point2[2] == pnt[2] )
+    {
+    return; //no change
+    }
+  else
+    {
+    int i;
+    float v1[3], v2[3];
+
+    for ( i=0; i < 3; i++ )
+      {
+      this->Point2[i] = pnt[i];
+      v1[i] = this->Point1[i] - this->Origin[i];
+      v2[i] = this->Point2[i] - this->Origin[i];
+      }
+    // set plane normal
+    vtkMath::Cross(v1,v2,this->Normal);
+    if ( vtkMath::Normalize(this->Normal) == 0.0 )
+      {
+      vtkErrorMacro(<<"Bad plane coordinate system");
+      }
+    this->Modified();
+    }
+}
+
+void vtkPlaneSource::SetPoint1(float x, float y, float z)
+{
+  float pnt[3];
+
+  pnt[0] = x; pnt[1] = y; pnt[2] = z;
+  this->SetPoint1(pnt);
+}
+void vtkPlaneSource::SetPoint2(float x, float y, float z)
+{
+  float pnt[3];
+
+  pnt[0] = x; pnt[1] = y; pnt[2] = z;
+  this->SetPoint2(pnt);
+}
+
 // Description:
 // Translate the plane in the direction of the normal by the distance specified.
 // Negative values move the plane in the opposite direction.

@@ -43,18 +43,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkOglrRenderer.h"
 #include "vtkOglrActor.h"
-#include "vtkActor.h"
 #include <GL/gl.h>
 
 // Description:
 // Actual actor render method.
-void vtkOglrActor::Render(vtkActor *actor, vtkRenderer *ren,
-                          vtkMapper *mapper)
+void vtkOglrActor::Render(vtkRenderer *ren, vtkMapper *mapper)
 {
   static vtkMatrix4x4 matrix;
 
   // build transformation 
-  actor->GetMatrix(matrix);
+  this->GetMatrix(matrix);
   matrix.Transpose();
 
   // insert model transformation 
@@ -62,7 +60,7 @@ void vtkOglrActor::Render(vtkActor *actor, vtkRenderer *ren,
   glMultMatrixf(matrix[0]);
 
   // send a render to the mapper; update pipeline
-  mapper->Render(ren,actor);
+  mapper->Render(ren,this);
 
   // pop transformation matrix
   glPopMatrix();

@@ -46,11 +46,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkGlrActor_h
 #define __vtkGlrActor_h
 
-#include "vtkActorDevice.h"
+#include "vtkActor.h"
 
 class vtkGlrRenderer;
 
-class VTK_EXPORT vtkGlrActor : public vtkActorDevice
+class VTK_EXPORT vtkGlrActor : public vtkActor
 {
 protected:
   
@@ -58,7 +58,7 @@ public:
   static vtkGlrActor *New() {return new vtkGlrActor;};
   char *GetClassName() {return "vtkGlrActor";};
 
-  void Render(vtkActor *a, vtkRenderer *ren, vtkMapper *mapper);
+  void Render(vtkRenderer *ren, vtkMapper *mapper);
 };
 
 #endif

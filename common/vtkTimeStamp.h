@@ -55,6 +55,8 @@ class VTK_EXPORT vtkTimeStamp
 {
 public:
   vtkTimeStamp() {this->ModifiedTime = 0;};
+  virtual char *GetClassName() {return "vtkTimeStamp";};
+  static vtkTimeStamp *New() {return new vtkTimeStamp;};
 
   // Description:
   // Set this objects time to the current time. The current time is

@@ -42,7 +42,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 
 #include "vtkActor.h"
-#include "vtkActorDevice.h"
 #include "vtkRenderWindow.h"
 
 // Description:
@@ -61,8 +60,6 @@ vtkActor::vtkActor()
   this->Scale[2] = 1.0;
 
   this->SelfCreatedProperty = 0;
-  this->Device = NULL;
-
   this->TraversalLocation = 0;
 }
 
@@ -71,10 +68,6 @@ vtkActor::~vtkActor()
   if ( this->SelfCreatedProperty && this->Property != NULL) 
     this->Property->Delete();
 
-  if (this->Device)
-    {
-    this->Device->Delete();
-    }
 }
 
 // Description:
@@ -98,6 +91,46 @@ vtkActor& vtkActor::operator=(const vtkActor& actor)
   return *this;
 }
 
+
+#ifdef USE_GLR
+#include "vtkGlrActor.h"
+#endif
+#ifdef USE_OGLR
+#include "vtkOglrActor.h"
+#endif
+#ifdef USE_SBR
+#include "vtkSbrActor.h"
+#endif
+#ifdef USE_XGLR
+#include "vtkXglrActor.h"
+#endif
+#ifdef _WIN32
+#include "vtkOglrActor.h"
+#endif
+// return the correct type of Actor 
+vtkActor *vtkActor::New()
+{
+  char *temp = vtkRenderWindow::GetRenderLibrary();
+  
+#ifdef USE_SBR
+  if (!strncmp("sbr",temp,4)) return vtkSbrActor::New();
+#endif
+#ifdef USE_GLR
+  if (!strncmp("glr",temp,3)) return vtkGlrActor::New();
+#endif
+#ifdef USE_OGLR
+  if (!strncmp("oglr",temp,4)) return vtkOglrActor::New();
+#endif
+#ifdef _WIN32
+  if (!strncmp("woglr",temp,5)) return vtkOglrActor::New();
+#endif
+#ifdef USE_XGLR
+  if (!strncmp("xglr",temp,4)) return vtkXglrActor::New();
+#endif
+  
+  return new vtkActor;
+}
+
 // Description:
 // This causes the actor to be rendered. It in turn will render the actor's
 // property, texture map and then mapper. If a property hasn't been 
@@ -113,17 +146,12 @@ void vtkActor::Render(vtkRenderer *ren)
     // force creation of a property
     this->GetProperty();
     }
-  this->Property->Render(ren, this);
+  this->Property->Render(this, ren);
 
   // render the texture */
   if (this->Texture) this->Texture->Render(ren);
 
-  if (!this->Device)
-    {
-    this->Device = ren->GetRenderWindow()->MakeActor();
-    }
-  
-  this->Device->Render(this,ren,this->Mapper);
+  this->Render(ren,this->Mapper);
 }
 
 void vtkActor::SetProperty(vtkProperty *lut)
@@ -141,7 +169,7 @@ vtkProperty *vtkActor::GetProperty()
 {
   if ( this->Property == NULL )
     {
-    this->Property = new vtkProperty;
+    this->Property = vtkProperty::New();
     this->SelfCreatedProperty = 1;
     }
   return this->Property;
@@ -303,7 +331,7 @@ void vtkActor::Update()
 void vtkActor::BuildPaths(vtkAssemblyPaths *vtkNotUsed(paths), 
                           vtkActorCollection *path)
 {
-  vtkActor *copy=new vtkActor;
+  vtkActor *copy= vtkActor::New();
   vtkActor *previous;
 
   *copy = *this;

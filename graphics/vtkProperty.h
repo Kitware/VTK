@@ -58,15 +58,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStructuredPoints.h"
 
 class vtkRenderer;
-class vtkPropertyDevice;
 class vtkActor;
 
 class VTK_EXPORT vtkProperty : public vtkObject
 {
 public:
   vtkProperty();
-  ~vtkProperty();
-  static vtkProperty *New() {return new vtkProperty;};
+  static vtkProperty *New();
   char *GetClassName() {return "vtkProperty";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -74,11 +72,11 @@ public:
 
   // Description:
   // This method causes the property to set up whatever is required for
-  // its instance variables. This is actually handled by an instance of
-  // vtkPropertyDevice, which is created automatically. This
+  // its instance variables. This is actually handled by a subclass of
+  // vtkProperty, which is created automatically. This
   // method includes the invoking actor as an argument which can
   // be used by property devices that require the actor.
-  virtual void Render(vtkRenderer *ren, vtkActor *anActor);
+  virtual void Render(vtkActor *,vtkRenderer *) {};
 
   // Description:
   // Set the interpolation of this actor. These three are mutually exclusive.
@@ -203,7 +201,6 @@ protected:
   int   Backface;
   int   BackfaceCulling;
   int   FrontfaceCulling;
-  vtkPropertyDevice *Device;
 };
 
 #endif

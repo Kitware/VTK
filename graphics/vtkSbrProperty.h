@@ -46,17 +46,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkSbrProperty_h
 #define __vtkSbrProperty_h
 
-#include "vtkPropertyDevice.h"
+#include "vtkProperty.h"
 
 class vtkSbrRenderer;
 
-class VTK_EXPORT vtkSbrProperty : public vtkPropertyDevice
+class VTK_EXPORT vtkSbrProperty : public vtkProperty
 {
  public:
   static vtkSbrProperty *New() {return new vtkSbrProperty;};
   char *GetClassName() {return "vtkSbrProperty";};
 
-  void Render(vtkProperty *prop, vtkActor *a, vtkRenderer *ren);
+  void Render(vtkActor *a, vtkRenderer *ren);
 };
 
 #endif

@@ -66,9 +66,6 @@ public:
   char *GetClassName() {return "vtkXRenderWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
-  // supply base class virtual function
-  vtkRenderWindowInteractor *MakeRenderWindowInteractor();
-
   // Xwindow get set functions
   int     *GetSize();
   int     *GetScreenSize();

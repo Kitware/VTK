@@ -47,13 +47,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkSbrPolyMapper_h
 
 #include <stdlib.h>
-#include "vtkPolyMapperDevice.h"
+#include "vtkPolyMapper.h"
 #include "vtkPolyData.h"
 #include "vtkColorScalars.h"
 
 class vtkSbrRenderer;
 
-class VTK_EXPORT vtkSbrPolyMapper : public vtkPolyMapperDevice
+class VTK_EXPORT vtkSbrPolyMapper : public vtkPolyMapper
 {
 public:
   vtkSbrPolyMapper();

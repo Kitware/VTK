@@ -71,14 +71,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageToStructuredPoints.h"
 
 class vtkRenderer;
-class vtkTextureDevice;
 
 class VTK_EXPORT vtkTexture : public vtkObject
 {
 public:
   vtkTexture();
-  ~vtkTexture();
-  static vtkTexture *New() {return new vtkTexture;};
+  static vtkTexture *New();
   char *GetClassName() {return "vtkTexture";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -90,14 +88,9 @@ public:
 
   // Description:
   // Abstract interface to renderer. Each concrete subclass of 
-  // vtkTextureDevice will load its data into graphics system in response 
-  // to this method invocation. An instance of vtkTextureDevice will
-  // automatically be created.
-  virtual void Load(vtkRenderer *ren);
-
-  // Description:
-  // An instance of vtkTextureDevice will created if needed.
-  virtual void MakeTextureDevice(vtkRenderer *ren);
+  // vtkTexture will load its data into graphics system in response 
+  // to this method invocation.
+  virtual void Load(vtkRenderer *) {};
 
   // Description:
   // Turn on/off the repetition of the texture map when the texture
@@ -130,10 +123,6 @@ public:
   vtkGetObjectMacro(MappedScalars,vtkColorScalars);
 
   // Description:
-  // Get the texture device.
-  vtkGetObjectMacro(Device,vtkTextureDevice);
-
-  // Description:
   // Map scalar values into color scalars
   unsigned char *MapScalarsToColors (vtkScalars *scalars);
 
@@ -142,7 +131,6 @@ protected:
   int   Interpolate;
   int   SelfCreatedLookupTable;
   vtkStructuredPoints *Input;
-  vtkTextureDevice *Device;
   vtkLookupTable *LookupTable;
   vtkColorScalars *MappedScalars;
 };

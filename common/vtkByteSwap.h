@@ -55,6 +55,7 @@ class VTK_EXPORT vtkByteSwap
 {
 public:
   void Delete() {delete this;};
+  static vtkByteSwap *New() {return new vtkByteSwap;};
 
   static void Swap2LE(short *s);
   static void Swap4LE(char *c);

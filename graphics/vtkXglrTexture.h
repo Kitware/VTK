@@ -47,11 +47,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkXglrTexture_h
 
 #include <xgl/xgl.h>
-#include "vtkTextureDevice.h"
+#include "vtkTexture.h"
 
 class vtkXglrRenderer;
 
-class VTK_EXPORT vtkXglrTexture : public vtkTextureDevice
+class VTK_EXPORT vtkXglrTexture : public vtkTexture
 {
 public:
   vtkXglrTexture();
@@ -59,8 +59,7 @@ public:
   static vtkXglrTexture *New() {return new vtkXglrTexture;};
   char *GetClassName() {return "vtkXglrTexture";};
   
-  void Load(vtkTexture *txt, vtkRenderer *ren);
-  void Load(vtkTexture *txt, vtkXglrRenderer *ren);
+  void Load(vtkRenderer *ren);
   
 protected:
   vtkTimeStamp   LoadTime;

@@ -246,19 +246,6 @@ void vtkXRenderWindow::SetDisplayId(void *arg)
   this->SetDisplayId((Display *)arg);
 }
 
-// Description:
-// Create an interactor that will work with this renderer.
-// Since all subclasses of this class will be running on
-// machines that are running X Windows. The correct vtkRenderWindowInteractor
-// is the vtkXRenderWindowInteractor. So this object creates one, then type 
-// casts it and returns a pointer to it.
-vtkRenderWindowInteractor *vtkXRenderWindow::MakeRenderWindowInteractor()
-{
-  this->Interactor = (vtkRenderWindowInteractor *)new vtkXRenderWindowInteractor;
-  this->Interactor->SetRenderWindow((vtkRenderWindow *)this);
-  return this->Interactor;
-}
-
 void vtkXRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkRenderWindow::PrintSelf(os,indent);

@@ -51,26 +51,32 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPolyData.h"
 #include "vtkRenderer.h"
 
-class vtkPolyMapperDevice;
-
 class VTK_EXPORT vtkPolyMapper : public vtkMapper 
 {
 public:
-  vtkPolyMapper();
-  ~vtkPolyMapper();
-  static vtkPolyMapper *New() {return new vtkPolyMapper;};
+  static vtkPolyMapper *New();
   char *GetClassName() {return "vtkPolyMapper";};
 
   void Render(vtkRenderer *ren, vtkActor *a);
   float *GetBounds();
 
   // Description:
+  // Build appropriate graphical data representation for the
+  // particular library.
+  virtual void Build(vtkPolyData *, vtkColorScalars *) {};
+
+  // Description:
+  // Load data into a specific graphics library.
+  virtual void Draw(vtkRenderer *, vtkActor *) {};
+
+  // Description:
   // Specify the input data to map.
   void SetInput(vtkPolyData *in);
   void SetInput(vtkPolyData& in) {this->SetInput(&in);};
 
-protected:
-  vtkPolyMapperDevice  *Device;
+ protected:
+  vtkPolyData *Data;
+  vtkColorScalars *Colors;
 };
 
 #endif
