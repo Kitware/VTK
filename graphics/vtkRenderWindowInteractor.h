@@ -81,7 +81,7 @@ public:
   // interactor will work.
   virtual void Initialize() {this->Initialized=1; this->Enable();
                              this->RenderWindow->Render();}
-  void ReInitialize() { this->Initialized = 0; this->Enabled = 0;
+  void ReInitialize() {  this->Initialized = 0; this->Enabled = 0;
                         this->Initialize(); } 
 
   // Description:
