@@ -17,6 +17,7 @@ if {[catch {set channel [open test.tmp w]}] == 0 } {
     vtkPImageWriter piw
     piw SetInput [image1 GetOutput]
     piw SetFileName piw.raw
+    piw SetMemoryLimit 1
     
     piw Write
 
