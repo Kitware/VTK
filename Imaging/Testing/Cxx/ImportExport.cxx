@@ -24,7 +24,7 @@
 
 #include "vtkRegressionTestImage.h"
 
-int main( int argc, char *argv[] )
+int ImportExport( int argc, char *argv[] )
 {
  int i,j,k;
  
