@@ -139,7 +139,7 @@ vtkColorScalars *vtkPolyMapper::GetColors()
 {
   vtkPointData *pd;
   vtkScalars *scalars;
-  int numColors, i, numPts;
+  int i, numPts;
   vtkColorScalars *colors;
   vtkPolyData *input = (vtkPolyData *)this->Input;
   
