@@ -152,16 +152,6 @@ public:
   // Remove all operations.
   void RemoveAllOperations() { this->LastId = 0; this->DeleteAllOperations(); }
   
-
-protected:
-
-  vtkRearrangeFields();
-  virtual ~vtkRearrangeFields();
-  vtkRearrangeFields(const vtkRearrangeFields&);
-  void operator=(const vtkRearrangeFields&);
-
-  void Execute();
-
 //BTX
   enum FieldType
   {
@@ -183,6 +173,16 @@ protected:
     ~Operation() { delete[] FieldName; }
   };
 //ETX
+
+protected:
+
+  vtkRearrangeFields();
+  virtual ~vtkRearrangeFields();
+  vtkRearrangeFields(const vtkRearrangeFields&);
+  void operator=(const vtkRearrangeFields&);
+
+  void Execute();
+
 
   // Operations are stored as a linked list.
   Operation* Head;

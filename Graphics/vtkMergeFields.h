@@ -112,6 +112,28 @@ public:
   };
 //ETX
 
+//BTX
+  struct Component
+  {
+    int Index;
+    int SourceIndex;
+    char* FieldName;   
+    Component* Next;   // linked list
+    void SetName(const char* name)
+      {
+	delete[] this->FieldName;
+	this->FieldName = 0;
+	if (name)
+	  {
+	  this->FieldName = new char[strlen(name)+1];
+	  strcpy(this->FieldName, name);
+	  }
+      }
+    Component() { FieldName = 0; }
+    ~Component() { delete[] FieldName; }
+  };
+//ETX
+
 protected:
 
 //BTX
@@ -136,27 +158,6 @@ protected:
 
   static char FieldLocationNames[3][12];
 
-//BTX
-  struct Component
-  {
-    int Index;
-    int SourceIndex;
-    char* FieldName;   
-    Component* Next;   // linked list
-    void SetName(const char* name)
-      {
-	delete[] this->FieldName;
-	this->FieldName = 0;
-	if (name)
-	  {
-	  this->FieldName = new char[strlen(name)+1];
-	  strcpy(this->FieldName, name);
-	  }
-      }
-    Component() { FieldName = 0; }
-    ~Component() { delete[] FieldName; }
-  };
-//ETX
 
   int MergeArray(vtkDataArray* in, vtkDataArray* out, int inComp, int outComp);
 

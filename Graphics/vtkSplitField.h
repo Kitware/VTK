@@ -120,6 +120,27 @@ public:
   };
 //ETX
 
+//BTX
+  struct Component
+  {
+    int Index;
+    char* FieldName;   
+    Component* Next;   // linked list
+    void SetName(const char* name)
+      {
+	delete[] this->FieldName;
+	this->FieldName = 0;
+	if (name)
+	  {
+	  this->FieldName = new char[strlen(name)+1];
+	  strcpy(this->FieldName, name);
+	  }
+      }
+    Component() { FieldName = 0; }
+    ~Component() { delete[] FieldName; }
+  };
+//ETX
+
 protected:
 
 //BTX
@@ -147,26 +168,6 @@ protected:
 
   vtkDataArray* SplitArray(vtkDataArray* da, int component);
 
-//BTX
-  struct Component
-  {
-    int Index;
-    char* FieldName;   
-    Component* Next;   // linked list
-    void SetName(const char* name)
-      {
-	delete[] this->FieldName;
-	this->FieldName = 0;
-	if (name)
-	  {
-	  this->FieldName = new char[strlen(name)+1];
-	  strcpy(this->FieldName, name);
-	  }
-      }
-    Component() { FieldName = 0; }
-    ~Component() { delete[] FieldName; }
-  };
-//ETX
 
   // Components are stored as a linked list.
   Component* Head;
