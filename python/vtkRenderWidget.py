@@ -121,7 +121,8 @@ class vtkTkRenderWidget(Tkinter.Widget):
         # as an attribute but instead have to get it from the tk-side
         if attr == '_RenderWindow':
             return self.GetRenderWindow()
-        return Tkinter.Widget.__getattr__(self,attr)
+        raise AttributeError, self.__class__.__name__ + \
+              " has no attribute named " + attr
 
     def BindTkRenderWidget(self):
         """
