@@ -24,82 +24,9 @@ int vlLookupTable::Initialize(const int sz, const int ext)
   return this->Table.Initialize(sz,ext);
 }
 
-void vlLookupTable::SetTableRange(float min, float max)
-{
-  if ( this->TableRange[0] != min || this->TableRange[1] != max ) 
-    {
-    this->TableRange[0] = min;
-    this->TableRange[1] = min;
-    this->Modified();
-    }
-}
-
-void vlLookupTable::GetTableRange(float &min,float &max)
-{
-  min = this->TableRange[0];
-  max = this->TableRange[1];
-}
-
 int vlLookupTable::GetTableSize()
 {
   return this->Table.NumColors();
-}
-
-void vlLookupTable::SetHueRange(float min, float max)
-{
-  min = (min < 0.0 ? 0.0 : (min > 1.0 ? 1.0 : min));
-  max = (max < 0.0 ? 0.0 : (max > 1.0 ? 1.0 : max));
-
-  if ( this->HueRange[0] != min || this->HueRange[1] != max ) 
-    {
-    this->HueRange[0] = min;
-    this->HueRange[1] = max;
-    this->Modified();
-    }
-}
-
-void vlLookupTable::GetHueRange(float &min,float &max)
-{
-  min = this->HueRange[0];
-  max = this->HueRange[1];
-}
-
-void vlLookupTable::SetSaturationRange(float min, float max)
-{
-  min = (min < 0.0 ? 0.0 : (min > 1.0 ? 1.0 : min));
-  max = (max < 0.0 ? 0.0 : (max > 1.0 ? 1.0 : max));
-
-  if ( this->SaturationRange[0] != min || this->SaturationRange[1] != max ) 
-    {
-    this->SaturationRange[0] = min;
-    this->SaturationRange[1] = max;
-    this->Modified();
-    }
-}
-
-void vlLookupTable::GetSaturationRange(float &min,float &max)
-{
-  min = this->SaturationRange[0];
-  max = this->SaturationRange[1];
-}
-
-void vlLookupTable::SetValueRange(float min, float max)
-{
-  min = (min < 0.0 ? 0.0 : (min > 1.0 ? 1.0 : min));
-  max = (max < 0.0 ? 0.0 : (max > 1.0 ? 1.0 : max));
-
-  if ( this->ValueRange[0] != min || this->ValueRange[1] != max ) 
-    {
-    this->ValueRange[0] = min;
-    this->ValueRange[1] = max;
-    this->Modified();
-    }
-}
-
-void vlLookupTable::GetValueRange(float &min,float &max)
-{
-  min = this->ValueRange[0];
-  max = this->ValueRange[1];
 }
 
 void vlLookupTable::Build()

@@ -12,16 +12,21 @@ class vlLookupTable : public vlObject
 public:
   vlLookupTable();
   int Initialize(const int sz=256, const int ext=256);
-  void SetTableRange(float min, float max);
-  void GetTableRange(float &min,float &max);
   int GetTableSize();
-  void SetHueRange(float min, float max);
-  void GetHueRange(float &min,float &max);
-  void SetSaturationRange(float min, float max);
-  void GetSaturationRange(float &min,float &max);
-  void SetValueRange(float min, float max);
-  void GetValueRange(float &min,float &max);
   void Build();
+
+  vlSetVector2Macro(TableRange,float);
+  vlGetVectorMacro(TableRange,float);
+
+  vlSetVector2Macro(HueRange,float);
+  vlGetVectorMacro(HueRange,float);
+
+  vlSetVector2Macro(SaturationRange,float);
+  vlGetVectorMacro(SaturationRange,float);
+
+  vlSetVector2Macro(ValueRange,float);
+  vlGetVectorMacro(ValueRange,float);
+
   vlRGBColor &MapValue(float v);
   void SetTableValue (int indx, vlRGBColor &rgb_c);
   vlRGBColor &GetTableValue (int);
