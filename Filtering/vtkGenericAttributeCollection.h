@@ -44,7 +44,6 @@ public:
   int GetNumberOfAttributes();
   
   // Description:
-
   // Return the number of components. This is the sum of all components
   // found in all attributes.
   // \post positive_result: result>=0
