@@ -21,7 +21,7 @@
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkSplineFilter, "1.5");
+vtkCxxRevisionMacro(vtkSplineFilter, "1.6");
 vtkStandardNewMacro(vtkSplineFilter);
 
 vtkSplineFilter::vtkSplineFilter()
@@ -54,7 +54,6 @@ void vtkSplineFilter::Execute()
   vtkCellArray *inLines = NULL;
   
   vtkPoints *inPts;
-  vtkIdType numPts;
   vtkIdType numLines;
   vtkCellArray *newLines;
   vtkIdType numNewPts, numNewCells;
@@ -70,8 +69,7 @@ void vtkSplineFilter::Execute()
   //
   vtkDebugMacro(<<"Splining polylines");
 
-  if ( !(inPts=input->GetPoints()) || 
-      (numPts = inPts->GetNumberOfPoints()) < 1 ||
+  if ( !(inPts=input->GetPoints()) || inPts->GetNumberOfPoints() < 1 ||
       !(inLines = input->GetLines()) || 
        (numLines = inLines->GetNumberOfCells()) < 1 )
     {
