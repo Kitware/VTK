@@ -32,6 +32,7 @@ public:
   vlFilter();
   virtual ~vlFilter() {};
   void _PrintSelf(ostream& os, vlIndent indent);
+  char *_GetClassName() {return "vlFilter";};
 
   // Description:
   // All filters must provide a method to update the visualization 
@@ -43,14 +44,20 @@ public:
 
 protected:
   vlDataSet *Input;
-
-  virtual void Execute();
   char Updating;
   void (*StartMethod)(void *);
   void *StartMethodArg;
   void (*EndMethod)(void *);
   void *EndMethodArg;
   vlTimeStamp ExecuteTime;
+
+  // Every filter must have execute method.
+  virtual void Execute();
+
+  // Get flag indicating whether data has been released since last execution.
+  // Used during update method to determin whether to execute or not.
+  virtual int GetDataReleased();
+  virtual void SetDataReleased(int flag);
 
 };
 

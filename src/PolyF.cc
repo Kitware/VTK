@@ -19,13 +19,13 @@ vlPolyFilter::~vlPolyFilter()
 {
 }
 
-
 // Description:
 // Specify the input data or filter.
 void vlPolyFilter::SetInput(vlPolyData *input)
 {
   if ( this->Input != input )
     {
+    vl_DebugMacro(<<" setting Input to " << (void *)input);
     this->Input = (vlDataSet *) input;
     this->_Modified();
     }

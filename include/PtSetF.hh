@@ -29,6 +29,7 @@ class vlPointSetFilter : public vlFilter
 public:
   vlPointSetFilter() {};
   ~vlPointSetFilter();
+  char *_GetClassName() {return "vlPointSetFilter";};
   void _PrintSelf(ostream& os, vlIndent indent);
 
   void SetInput(vlPointSet *input);

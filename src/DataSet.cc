@@ -19,6 +19,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <math.h>
 #include "DataSet.hh"
 
+// Initialize static member that controls global data release after use by filter
+int vlDataSet::GlobalReleaseDataFlag = 0;
+
 // Description:
 // Constructor with default bounds (0,1, 0,1, 0,1).
 vlDataSet::vlDataSet ()
@@ -29,6 +32,8 @@ vlDataSet::vlDataSet ()
   this->Bounds[3] = 1.0;
   this->Bounds[4] = 0.0;
   this->Bounds[5] = 1.0;
+  this->DataReleased = 0;
+  this->ReleaseDataFlag = 0;
 }
 
 // Description:
@@ -41,9 +46,28 @@ PointData(ds.PointData)
 
 void vlDataSet::Initialize()
 {
+//
+// We don't modify ourselves because the "ReleaseData" methods depend upon
+// no modification when initialized.
+//
   this->PointData.Initialize();
-  this->Modified();
 };
+
+void vlDataSet::ReleaseData()
+{
+  this->Initialize();
+  this->DataReleased = 1;
+}
+
+int vlDataSet::ShouldIReleaseData()
+{
+  if ( this->GlobalReleaseDataFlag || this->ReleaseDataFlag ) return 1;
+  else return 0;
+}
+
+void vlDataSet::Update()
+{
+}
 
 // Description:
 // Compute the data bounding box from data points.
@@ -142,6 +166,8 @@ void vlDataSet::PrintSelf(ostream& os, vlIndent indent)
   os << indent << "  Ymin,Ymax: (" <<bounds[2] << ", " << bounds[3] << ")\n";
   os << indent << "  Zmin,Zmax: (" <<bounds[4] << ", " << bounds[5] << ")\n";
   os << indent << "Compute Time: " <<this->ComputeTime.GetMTime() << "\n";
+  os << indent << "Release Data: " << (this->ReleaseDataFlag ? "On\n" : "Off\n");
+  os << indent << "Global Release Data: " << (this->GlobalReleaseDataFlag ? "On\n" : "Off\n");
 }
 
 void vlDataSet::GetCellNeighbors(int cellId, vlIdList &ptIds,

@@ -29,6 +29,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Vectors.hh"
 #include "Normals.hh"
 #include "TCoords.hh"
+#include "Tensors.hh"
+#include "UserDef.hh"
 
 class vlPointData : public vlObject 
 {
@@ -60,24 +62,34 @@ public:
   void Squeeze();
 
   // Description:
-  // Set the scalar data.
+  // Set scalar data.
   vlSetRefCountedObjectMacro (Scalars, vlScalars);
   vlGetObjectMacro (Scalars, vlScalars);
 
   // Description:
-  // Set the vector data.
+  // Set vector data.
   vlSetRefCountedObjectMacro (Vectors, vlVectors);
   vlGetObjectMacro (Vectors, vlVectors);
 
   // Description:
-  // Set the normal data.
+  // Set normal data.
   vlSetRefCountedObjectMacro (Normals, vlNormals);
   vlGetObjectMacro (Normals, vlNormals);
 
   // Description:
-  // Set the texture coordinate data.
+  // Set texture coordinate data.
   vlSetRefCountedObjectMacro (TCoords, vlTCoords);
   vlGetObjectMacro (TCoords, vlTCoords);
+
+  // Description:
+  // Set tensor data.
+  vlSetRefCountedObjectMacro (Tensors, vlTensors);
+  vlGetObjectMacro (Tensors, vlTensors);
+
+  // Description:
+  // Set user defined data.
+  vlSetRefCountedObjectMacro (UserDefined, vlUserDefined);
+  vlGetObjectMacro (UserDefined, vlUserDefined);
 
   // Description:
   // Turn on/off the copying of scalar data.
@@ -103,6 +115,18 @@ public:
   vlGetMacro(CopyTCoords,int);
   vlBooleanMacro(CopyTCoords,int);
 
+  // Description:
+  // Turn on/off the copying of tensor data.
+  vlSetMacro(CopyTensors,int);
+  vlGetMacro(CopyTensors,int);
+  vlBooleanMacro(CopyTensors,int);
+
+  // Description:
+  // Turn on/off the copying of user defined data.
+  vlSetMacro(CopyUserDefined,int);
+  vlGetMacro(CopyUserDefined,int);
+  vlBooleanMacro(CopyUserDefined,int);
+
   void CopyAllOn();
   void CopyAllOff();
 
@@ -111,10 +135,14 @@ protected:
   vlVectors *Vectors;
   vlNormals *Normals;
   vlTCoords *TCoords;
+  vlTensors *Tensors;
+  vlUserDefined *UserDefined;
   int CopyScalars;
   int CopyVectors;
   int CopyNormals;
   int CopyTCoords;
+  int CopyTensors;
+  int CopyUserDefined;
 };
 
 #endif

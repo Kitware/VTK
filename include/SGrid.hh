@@ -41,7 +41,6 @@ public:
 
   // dataset interface
   vlDataSet *MakeObject() {return new vlStructuredGrid(*this);};
-  void Initialize();
   int GetNumberOfPoints() {return vlPointSet::GetNumberOfPoints();};
   vlCell *GetCell(int cellId);
   int GetCellType(int cellId);
@@ -53,6 +52,8 @@ public:
   void GetPointCells(int ptId, vlIdList& cellIds);
 
 protected:
+  void Initialize();
+
   // points inherited
   // point data (i.e., scalars, vectors, normals, tcoords) inherited
   // blanking information inherited

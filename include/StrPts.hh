@@ -45,7 +45,6 @@ public:
   float *GetPoint(int ptId);
   void GetPoint(int id, float x[3]);
   vlCell *GetCell(int cellId);
-  void Initialize();
   int FindCell(float x[3], vlCell *cell, float tol2, int& subId, float pcoords[3]);
   int GetCellType(int cellId);
   void GetCellPoints(int cellId, vlIdList& ptIds);
@@ -65,6 +64,8 @@ public:
   vlGetVectorMacro(Origin,float,3);
 
 protected:
+  void Initialize();
+
   float Origin[3];
   float AspectRatio[3];
 };

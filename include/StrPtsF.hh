@@ -18,7 +18,6 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // vlStructuredPointsFilter is a filter that takes a single vlStructuredPoints 
 // data object as input.
 
-
 #ifndef __vlStructuredPointsFilter_h
 #define __vlStructuredPointsFilter_h
 
@@ -30,6 +29,7 @@ class vlStructuredPointsFilter : public vlFilter
 public:
   vlStructuredPointsFilter() {};
   ~vlStructuredPointsFilter();
+  char *_GetClassName() {return "vlStructuredPointsFilter";};
   void _PrintSelf(ostream& os, vlIndent indent);
 
   void SetInput(vlStructuredPoints *input);

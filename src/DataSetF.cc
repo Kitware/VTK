@@ -25,6 +25,7 @@ void vlDataSetFilter::SetInput(vlDataSet *input)
 {
   if ( this->Input != input )
     {
+    vl_DebugMacro(<<" setting Input to " << (void *)input);
     this->Input = input;
     this->_Modified();
     }

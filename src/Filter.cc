@@ -29,6 +29,17 @@ vlFilter::vlFilter()
   this->Updating = 0;
 }
 
+int vlFilter::GetDataReleased()
+{
+  vl_ErrorMacro(<<"Method should be implemented by subclass!");
+  return 1;
+}
+
+void vlFilter::SetDataReleased(int flag)
+{
+  vl_ErrorMacro(<<"Method should be implemented by subclass!");
+}
+
 // Description:
 // Update input to this filter and the filter itself.
 void vlFilter::UpdateFilter()
@@ -36,7 +47,7 @@ void vlFilter::UpdateFilter()
   // make sure input is available
   if ( !this->Input )
     {
-//    vlErrorMacro(<< "No input!");
+    vl_ErrorMacro(<< "No input!");
     return;
     }
 
@@ -48,13 +59,17 @@ void vlFilter::UpdateFilter()
   this->Updating = 0;
 
   if (this->Input->GetMTime() > this->_GetMTime() || 
-  this->_GetMTime() > this->ExecuteTime )
+  this->_GetMTime() > this->ExecuteTime ||
+  this->GetDataReleased() )
     {
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
     this->Execute();
     this->ExecuteTime.Modified();
+    this->SetDataReleased(0);
     if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
     }
+
+  if ( this->Input->ShouldIReleaseData() ) this->Input->ReleaseData();
 }
 
 // Description:

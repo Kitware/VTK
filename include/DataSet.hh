@@ -39,12 +39,8 @@ public:
   void PrintSelf(ostream& os, vlIndent indent);
 
   // Description:
-  // Restore data object to initial state (i.e., release memory, etc.).
-  virtual void Initialize();
-
-  // Description:
   // Provides opportunity for data to clean itself up before execution.
-  virtual void Update() {};
+  virtual void Update();
 
   // Description:
   // Create concrete instance of this dataset.
@@ -99,8 +95,39 @@ public:
   // The parametric coordinates are provided in pcoords[3].
   virtual int FindCell(float x[3], vlCell *cell, float tol2, int& subId, float pcoords[3]) = 0;
 
-  // some data sets are composite objects and need to check each part for MTime
+  // Datasets are composite objects and need to check each part for MTime
   unsigned long int GetMTime();
+
+  // Description:
+  // Release data back to system to conserve memory resource. Used during
+  // visualization network execution.
+  void ReleaseData();
+
+  // Description:
+  // Return flag indicating whether data should be released after use  
+  // by a filter.
+  int ShouldIReleaseData();
+
+  // Description:
+  // Turn on/off flag to control whether this object's data is released
+  // after being used by a filter.
+  vlSetMacro(ReleaseDataFlag,int);
+  vlGetMacro(ReleaseDataFlag,int);
+  vlBooleanMacro(ReleaseDataFlag,int);
+
+  // Description:
+  // Turn on/off flag to control whether every object releases its data
+  // after being used by a filter.
+  vlSetMacro(GlobalReleaseDataFlag,int);
+  vlGetMacro(GlobalReleaseDataFlag,int);
+  vlBooleanMacro(GlobalReleaseDataFlag,int);
+
+  // return pointer to this dataset's point data
+  vlPointData *GetPointData() {return &this->PointData;};
+
+  // Description:
+  // Reclaim any extra memory used to store data.
+  virtual void Squeeze();
 
   // compute geometric bounds, center, longest side
   virtual void ComputeBounds();
@@ -110,17 +137,17 @@ public:
   void GetCenter(float center[3]);
   float GetLength();
 
-  // return pointer to this dataset's point data
-  vlPointData *GetPointData() {return &this->PointData;};
-
-  // Description:
-  // Reclaim any extra memory used to store data.
-  virtual void Squeeze();
-
 protected:
+  // Restore data object to initial state,
+  virtual void Initialize();
+
   vlPointData PointData;   // Scalars, vectors, etc. associated w/ each point
   vlTimeStamp ComputeTime; // Time at which bounds, center, etc. computed
   float Bounds[6];  // (xmin,xmax, ymin,ymax, zmin,zmax) geometric bounds
+
+  int DataReleased; //keep track of data release during network execution
+  int ReleaseDataFlag; //data will release after use by a filter
+  static int GlobalReleaseDataFlag; //all data will release after use by a filter
 };
 
 inline void vlDataSet::GetPoint(int id, float x[3])
@@ -130,5 +157,3 @@ inline void vlDataSet::GetPoint(int id, float x[3])
 }
 
 #endif
-
-

@@ -78,14 +78,14 @@ void vlStructuredData::SetDimensions(int i, int j, int k)
 
 void vlStructuredData::SetDimensions(int dim[3])
 {
-//  vlDebugMacro(<< " setting Dimensions to (" << dim[0] << "," << dim[1] << "," << dim[2] << ")");
+  vl_DebugMacro(<< " setting Dimensions to (" << dim[0] << "," << dim[1] << "," << dim[2] << ")");
 
   if ( dim[0] != this->Dimensions[0] || dim[1] != Dimensions[1] ||
   dim[2] != Dimensions[2] )
     {
     if ( dim[0]<1 || dim[1]<1 || dim[2]<1 )
       {
-//      vlErrorMacro (<< "Bad Dimensions, retaining previous values");
+      vl_ErrorMacro (<< "Bad Dimensions, retaining previous values");
       return;
       }
 

@@ -29,6 +29,7 @@ class vlStructuredGridFilter : public vlFilter
 public:
   vlStructuredGridFilter();
   ~vlStructuredGridFilter();
+  char *_GetClassName() {return "vlStructuredGridFilter";};
   void _PrintSelf(ostream& os, vlIndent indent);
 
   void SetInput(vlStructuredGrid *input);

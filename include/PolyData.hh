@@ -48,7 +48,6 @@ public:
   int GetNumberOfCells();
   vlCell *GetCell(int cellId);
   int GetCellType(int cellId);
-  void Initialize();
   void GetCellPoints(int cellId, vlIdList& ptIds);
   void GetPointCells(int ptId, vlIdList& cellIds);
 
@@ -98,6 +97,8 @@ public:
   void ResizeCellList(int ptId, int size);
 
 protected:
+  void Initialize();
+
   // points inherited
   // point data (i.e., scalars, vectors, normals, tcoords) inherited
   vlCellArray *Verts;

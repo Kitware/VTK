@@ -29,6 +29,7 @@ class vlDataSetFilter : public vlFilter
 public:
   vlDataSetFilter() {};
   ~vlDataSetFilter();
+  char *_GetClassName() {return "vlDataSetFilter";};
   void _PrintSelf(ostream& os, vlIndent indent);
 
   void SetInput(vlDataSet *input);

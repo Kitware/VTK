@@ -29,6 +29,7 @@ class vlPolyFilter : public vlFilter
 public:
   vlPolyFilter() {};
   ~vlPolyFilter();
+  char *_GetClassName() {return "vlPolyFilter";};
   void _PrintSelf(ostream& os, vlIndent indent);
 
   void SetInput(vlPolyData *input);

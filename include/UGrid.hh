@@ -47,7 +47,6 @@ public:
 
   // dataset interface
   vlDataSet *MakeObject() {return new vlUnstructuredGrid(*this);};
-  void Initialize();
   int GetNumberOfCells();
   vlCell *GetCell(int cellId);
   void GetCellPoints(int cellId, vlIdList& ptIds);
@@ -56,6 +55,8 @@ public:
   void Squeeze();
 
 protected:
+  void Initialize();
+
   // points inherited
   // point data (i.e., scalars, vectors, normals, tcoords) inherited
   vlCellList *Cells;
