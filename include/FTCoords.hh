@@ -47,7 +47,9 @@ public:
   int InsertNextTCoord(float *tc);
 
   // miscellaneous
+  float *GetPtr(const int id);
   float *WritePtr(const int id, const int number);
+  void WrotePtr();
   vlFloatTCoords &operator=(const vlFloatTCoords& ftc);
   void operator+=(const vlFloatTCoords& ftc) {this->TC += ftc.TC;};
   void Reset() {this->TC.Reset();};
@@ -58,15 +60,29 @@ protected:
 
 
 // Description:
-// Get pointer to data. Useful for direct writes into object. MaxId is bumped
-// by number (and memory allocated if necessary). Id is the location you 
-// wish to write into; number is the number of texture coordinates to write. 
+// Get pointer to array of data starting at data position "id".
+inline float *vlFloatTCoords::GetPtr(const int id)
+{
+  return this->TC.GetPtr(id);
+}
+
+// Description:
+// Get pointer to data array. Useful for direct writes of data. MaxId is 
+// bumped by number (and memory allocated if necessary). Id is the 
+// location you wish to write into; number is the number of texture coordinates to 
+// write. Use the method WrotePtr() to mark completion of write.
 // Make sure the dimension of the texture coordinate is set prior to issuing 
 // this call.
 inline float *vlFloatTCoords::WritePtr(const int id, const int number)
 {
   return this->TC.WritePtr(id,this->Dimension*number);
 }
+
+// Description:
+// Terminate direct write of data. Although dummy routine now, reserved for
+// future use.
+inline void vlFloatTCoords::WrotePtr() {}
+
 
 inline void vlFloatTCoords::SetTCoord(int i, float *tc) 
 {

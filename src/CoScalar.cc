@@ -50,7 +50,7 @@ int vlColorScalars::InsertNextScalar(float s)
 {
   if ( this->LookupTable == NULL ) this->CreateDefaultLookupTable();
 
-  this->InsertNextColor(this->LookupTable->MapValue(s));
+  return this->InsertNextColor(this->LookupTable->MapValue(s));
 }
 
 // Description:
@@ -61,5 +61,38 @@ void vlColorScalars::GetColors(vlIdList& ptId, vlAPixmap& p)
     {
     p.InsertColor(i,this->GetColor(ptId.GetId(i)));
     }
+}
+
+// Description:
+// Compute range of color rgba data (rmin,rmax, gmin,gmax, bmin,bmax, 
+// amin,amax). Return pointer to array of length 8.
+unsigned char *vlColorScalars::GetComponentRange ()
+{
+  unsigned char *rgba;
+  int i, j;
+  static unsigned char range[8];
+
+  range[0] = range[2] = range[4] = range[6] = 255;
+  range[1] = range[3] = range[5] = range[7] = 0;
+
+  for (i=0; i<this->GetNumberOfColors(); i++)
+    {
+    rgba = this->GetColor(i);
+    for (j=0; j<4; j++)
+      {
+      if ( rgba[j] < range[2*j] ) range[2*j] = rgba[j];
+      if ( rgba[j] > range[2*j+1] ) range[2*j+1] = rgba[j];
+      }
+    }
+  return range;
+}
+
+// Description:
+// Compute range of color rgba data (rmin,rmax, gmin,gmax, bmin,bmax, 
+// amin,amax). Copy result into user provided array.
+void vlColorScalars::GetComponentRange(unsigned char range[8])
+{
+  unsigned char *r=this->GetComponentRange();
+  for (int i=0; i < 8; i++) range[i] = r[i];
 }
 

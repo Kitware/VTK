@@ -37,7 +37,6 @@ public:
 
   // vlScalar interface
   vlScalars *MakeObject(int sze, int ext=1000);
-  int GetNumberOfValuesPerPoint() {return 1;};
   int GetNumberOfScalars() {return (this->S.GetMaxId()+1);};
   void Squeeze() {this->S.Squeeze();};
 

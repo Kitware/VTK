@@ -44,11 +44,16 @@ public:
   char *GetClassName() {return "vlColorScalars";};
 
   // vlScalars interface
+  char *GetScalarType() {return "ColorScalar";};
   char *GetDataType() {return "char";};
   float GetScalar(int i);
   void SetScalar(int i, float s);
   void InsertScalar(int i, float s);
   int InsertNextScalar(float s);
+
+  // Description:
+  // Get pointer to array of data starting at data position "id".
+  virtual unsigned char *GetPtr(const int id) = 0;
 
   // abstract interface for vlColorScalars
   // Description:
@@ -56,13 +61,15 @@ public:
   int GetNumberOfColors() {return this->GetNumberOfScalars();};  
 
   // Description:
-  // Return a unsigned char rgba for a particular point id.
+  // Return a unsigned char rgba for a particular point id. No matter
+  // what internal representation of color, derived class must convert it
+  // to rgba.
   virtual unsigned char *GetColor(int id) = 0;
 
   // Description:
   // Copy color components into user provided array rgba[4] for specified
-  // point id. The number of components returned is the number of values 
-  // per point.
+  // point id. No matter what internal representation of color, derived 
+  // class must convert it to rgba form.
   virtual void GetColor(int id, unsigned char rgba[4]) = 0;
 
   // Description:
@@ -80,6 +87,8 @@ public:
 
   void GetColors(vlIdList& ptId, vlAPixmap& ap);
 
+  void GetComponentRange(unsigned char range[8]);
+  unsigned char *GetComponentRange();
 };
 
 // These include files are placed here so that if CoScalar.hh is included 

@@ -47,7 +47,9 @@ public:
   int InsertNextTensor(vlTensor &t);
 
   // miscellaneous
+  float *GetPtr(const int id);
   float *WritePtr(const int id, const int number);
+  void WrotePtr();
   vlFloatTensors &operator=(const vlFloatTensors& ft);
   void operator+=(const vlFloatTensors& ft) {this->T += ft.T;};
   void Reset() {this->T.Reset();};
@@ -57,14 +59,28 @@ protected:
 };
 
 // Description:
-// Get pointer to data. Useful for direct writes into object. MaxId is bumped
-// by number (and memory allocated if necessary). Id is the location you 
-// wish to write into; number is the number of tensors to write. 
+// Get pointer to array of data starting at data position "id".
+inline float *vlFloatTensors::GetPtr(const int id)
+{
+  return this->T.GetPtr(id);
+}
+
+// Description:
+// Get pointer to data array. Useful for direct writes of data. MaxId is 
+// bumped by number (and memory allocated if necessary). Id is the 
+// location you wish to write into; number is the number of tensors to 
+// write. Use the method WrotePtr() to mark completion of write.
 // Make sure the dimension of the tensor is set prior to issuing this call.
 inline float *vlFloatTensors::WritePtr(const int id, const int number)
 {
-  return this->T.WritePtr(id,this->Dimension*number);
+  return this->T.WritePtr(id,this->Dimension*this->Dimension*number);
 }
+
+// Description:
+// Terminate direct write of data. Although dummy routine now, reserved for
+// future use.
+inline void vlFloatTensors::WrotePtr() {}
+
 
 inline vlFloatTensors::vlFloatTensors(const vlFloatTensors& ft) 
 {

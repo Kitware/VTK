@@ -47,7 +47,9 @@ public:
   int InsertNextVector(float *v);
 
   // miscellaneous
+  float *GetPtr(const int id);
   float *WritePtr(const int id, const int number);
+  void WrotePtr();
   vlFloatVectors &operator=(const vlFloatVectors& fv);
   void operator+=(const vlFloatVectors& fv){this->V += fv.V;};
   void Reset() {this->V.Reset();};
@@ -57,13 +59,27 @@ protected:
 };
 
 // Description:
-// Get pointer to data. Useful for direct writes into object. MaxId is bumped
-// by number (and memory allocated if necessary). Id is the location you 
-// wish to write into; number is the number of vectors to write.
+// Get pointer to array of data starting at data position "id".
+inline float *vlFloatVectors::GetPtr(const int id)
+{
+  return this->V.GetPtr(id);
+}
+
+// Description:
+// Get pointer to data array. Useful for direct writes of data. MaxId is 
+// bumped by number (and memory allocated if necessary). Id is the 
+// location you wish to write into; number is the number of vectors to 
+// write. Use the method WrotePtr() to mark completion of write.
 inline float *vlFloatVectors::WritePtr(const int id, const int number)
 {
   return this->V.WritePtr(id,3*number);
 }
+
+// Description:
+// Terminate direct write of data. Although dummy routine now, reserved for
+// future use.
+inline void vlFloatVectors::WrotePtr() {}
+
 
 inline void vlFloatVectors::SetVector(int i, float v[3]) 
 {

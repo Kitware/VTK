@@ -47,7 +47,9 @@ public:
   int InsertNextNormal(float *n);
 
   // miscellaneous
+  float *GetPtr(const int id);
   float *WritePtr(const int id, const int number);
+  void WrotePtr();
   vlFloatNormals &operator=(const vlFloatNormals& fn);
   void operator+=(const vlFloatNormals& fn);
   void Reset() {this->N.Reset();};
@@ -57,13 +59,27 @@ protected:
 };
 
 // Description:
-// Get pointer to data. Useful for direct writes into object. MaxId is bumped
-// by number (and memory allocated if necessary). Id is the location you 
-// wish to write into; number is the number of normals to write.
+// Get pointer to array of data starting at data position "id".
+inline float *vlFloatNormals::GetPtr(const int id)
+{
+  return this->N.GetPtr(id);
+}
+
+// Description:
+// Get pointer to data array. Useful for direct writes of data. MaxId is 
+// bumped by number (and memory allocated if necessary). Id is the 
+// location you wish to write into; number is the number of normals to 
+// write. Use the method WrotePtr() to mark completion of write.
 inline float *vlFloatNormals::WritePtr(const int id, const int number)
 {
   return this->N.WritePtr(id,3*number);
 }
+
+// Description:
+// Terminate direct write of data. Although dummy routine now, reserved for
+// future use.
+inline void vlFloatNormals::WrotePtr() {}
+
 
 inline void vlFloatNormals::SetNormal(int i, float n[3]) 
 {
