@@ -249,6 +249,7 @@ void vtkInterpolateDataSetAttributes::Execute()
 
   highDS = lowDS + 1;
   t = this->T - (float)lowDS;
+  if (t > 1.0) t =1.0;
   
   ds = this->InputList->GetItem(lowDS);
   ds2 = this->InputList->GetItem(highDS);
