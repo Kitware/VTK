@@ -12,7 +12,6 @@
 #include "vtkActor.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkMath.h"
-#include "vtkDataInformation.h"
 
 
 
@@ -38,23 +37,11 @@ void iso_end_callback(void *arg)
 }
 
 
-// call back to exit program
-// This should really be embedded in the controller.
-void exit_callback(void *arg, int id)
-{ 
-  // clean up controller ?
-  exit(0);
-}
-
-
-
-VTK_THREAD_RETURN_TYPE process_a( void *vtkNotUsed(arg) )
+void process_a(vtkMultiProcessController *controller, void *vtkNotUsed(arg) )
 {
-  vtkMultiProcessController *controller;
   vtkImageReader *reader;
   vtkSynchronizedTemplates3D *iso;
   
-  controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
     
   reader = vtkImageReader::New();
   reader->SetDataByteOrderToLittleEndian();
@@ -77,22 +64,16 @@ VTK_THREAD_RETURN_TYPE process_a( void *vtkNotUsed(arg) )
   upPort->SetInput(iso->GetOutput());
   upPort->SetTag(999);
     
-  // last, set up a RMI call backs.
-  controller->AddRMI(exit_callback, (void *)iso, 666);
-  
   // wait for the call back to execute.
   upPort->WaitForUpdate();
     
   // last call never returns, but ...
   upPort->Delete();
-
-  return VTK_THREAD_RETURN_VALUE;
 }
 
 
-VTK_THREAD_RETURN_TYPE process_b( void *vtkNotUsed(arg) )
+void process_b(vtkMultiProcessController *controller, void *vtkNotUsed(arg) )
 {
-  vtkMultiProcessController *controller;
   vtkInputPort *downPort;
   vtkPolyDataCollector *collector = vtkPolyDataCollector::New();
   vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
@@ -103,7 +84,6 @@ VTK_THREAD_RETURN_TYPE process_b( void *vtkNotUsed(arg) )
   vtkCamera *cam = vtkCamera::New();
   int myid, otherid;
   
-  controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
   myid = controller->GetLocalProcessId();
   otherid = ( ! myid);
   
@@ -142,14 +122,10 @@ VTK_THREAD_RETURN_TYPE process_b( void *vtkNotUsed(arg) )
   
   collector->Update();
   collector->Update();
-  cerr << "WholeMemorySize: " 
-       << collector->GetOutput()->GetDataInformation()->GetEstimatedWholeMemorySize()
-       << endl;
-  
   renWindow->Render();
   
   // just exit
-  //controller->TriggerRMI(otherid, 666);      
+  //controller->TriggerRMI(otherid, VTK_BREAK_RMI_TAG);      
   //exit(0);
   
   //  Begin mouse interaction
@@ -163,10 +139,6 @@ VTK_THREAD_RETURN_TYPE process_b( void *vtkNotUsed(arg) )
   mapper->Delete();
   actor->Delete();
   
-  // clean up objects in all processes.
-  controller->UnRegister(NULL);
-
-  return VTK_THREAD_RETURN_VALUE;
 }
 
 
@@ -174,7 +146,7 @@ void main( int argc, char *argv[] )
 {
   vtkMultiProcessController *controller;
   
-  controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
+  controller = vtkMultiProcessController::New();
 
   controller->Initialize(argc, argv);
   controller->SetNumberOfProcesses(2);
@@ -182,7 +154,7 @@ void main( int argc, char *argv[] )
   controller->SetMultipleMethod(0, process_b, NULL);
   controller->MultipleMethodExecute();
 
-  controller->UnRegister(NULL);
+  controller->Delete();
 }
 
   
