@@ -126,13 +126,6 @@ vtkRenderer *vtkRenderer::New()
 // Concrete render method.
 void vtkRenderer::Render(void)
 {
-  int    actor_count;
-  int    volume_count;
-  float  scale_factor;
-  float  saved_viewport[4];
-  float  new_viewport[4];
-  int    saved_erase;
-
   if (this->StartRenderMethod) 
     {
     (*this->StartRenderMethod)(this->StartRenderMethodArg);
@@ -213,7 +206,7 @@ void vtkRenderer::Render(void)
 
 void vtkRenderer::Render2D()
 {
-  this->Actors2D.Render(this);
+  this->Actors2D->Render(this);
 }
 
 vtkWindow *vtkRenderer::GetVTKWindow()
