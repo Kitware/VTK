@@ -41,7 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkLinkEdgels.h"
 
 
-
 //----------------------------------------------------------------------------
 // Description:
 // Construct instance of vtkImageLinkEdgels with GradientThreshold set to 
@@ -220,8 +219,8 @@ void vtkLinkEdgels::LinkEdgels(vtkImageRegion *region,
   linkThresh = cos(this->LinkThreshold*3.1415926/180.0);
   phiThresh = cos(this->PhiThreshold*3.1415926/180.0);
 
-  imgPtrY = (float *)region->GetVoidPointer2d();
-  region->GetIncrements2d(imgIncX,imgIncY);
+  imgPtrY = (float *)region->GetVoidPointer3d();
+  region->GetIncrements3d(imgIncX,imgIncY,imgIncVec);
   
   // first find all forward & backwards links
   for (y = 0; y < ydim; y++, imgPtrY += imgIncY)
