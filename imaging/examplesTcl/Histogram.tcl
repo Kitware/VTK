@@ -45,6 +45,7 @@ scan [[reader GetOutput] GetWholeExtent] "%d %d %d %d %d %d" \
 button .top.btn  -text Quit -command exit
 scale .top.slice -from $zMin -to $zMax -orient horizontal \
      -command SetSlice -variable sliceNumber -label "Z Slice"
+set sliceNumber 14
 
 proc SetSlice {slice} {
    global hist xMin xMax yMin yMax
