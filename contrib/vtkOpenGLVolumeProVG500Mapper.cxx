@@ -105,10 +105,13 @@ void vtkOpenGLVolumeProVG500Mapper::RenderHexagon(  vtkRenderer  *ren,
   volCenter[2] = out[2] / out[3];
 
   // Remove the view transform from the OpenGL modelview matrix stack
-  t->GetMatrix(matrix);
-  vtkMatrix4x4::Invert(matrix,matrix);
-  vtkMatrix4x4::Transpose(matrix,matrix);
-  glMultMatrixd( matrix );
+  //t->GetMatrix(matrix);
+  t->Inverse();
+  t->Transpose();
+  
+  //vtkMatrix4x4::Invert(matrix,matrix);
+  //vtkMatrix4x4::Transpose(matrix,matrix);
+  glMultMatrixd(t->GetMatrix()->Element[0]);
   t->Delete();
 
   // Specify the texture
