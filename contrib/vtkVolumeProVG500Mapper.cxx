@@ -216,6 +216,12 @@ void vtkVolumeProVG500Mapper::UpdateCamera( vtkRenderer *ren, vtkVolume * vtkNot
   ren->GetActiveCamera()->GetFocalPoint( focalPointVTK );
   ren->GetActiveCamera()->GetViewUp( viewUpVTK );
 
+  // make sure we are in parallel mode
+  if (!ren->GetActiveCamera()->GetParallelProjection())
+    {
+    vtkWarningMacro("The Volume Pro VG500 does not support perspective projection and the camera is currently not in ParallelProjection mode.");
+    }
+  
   // Create the three vectors we need to do the lookat
   positionVLI = new VLIVector3D( positionVTK );
   focalPointVLI = new VLIVector3D( focalPointVTK );
