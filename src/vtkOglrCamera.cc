@@ -39,6 +39,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
+#include <GL/gl.h>
+
 #include "vtkOglrRenderWindow.hh"
 #include "vtkOglrRenderer.hh"
 #include "vtkOglrCamera.hh"
@@ -84,7 +90,7 @@ void oglrlookat(float vx, float vy, float vz, float px, float py, float pz,
 }
 
 // bonus stereo perspective function - from manual 
-void oglrstereopersp(float fovy, float aspect, float near, float far, 
+void oglrstereopersp(float fovy, float aspect, float nearz, float farz, 
 		     float conv, float eye)
 {
   float left, right, top, bottom;
@@ -92,15 +98,15 @@ void oglrstereopersp(float fovy, float aspect, float near, float far,
   
   eye = tan(eye*3.1415926/180.0)*conv;
   gltan = tan(fovy/2.0*M_PI/180.0);
-  top = gltan*near;
+  top = gltan*nearz;
   bottom = -top;
   
   gltan = tan(fovy*aspect/2.0*M_PI/180.0);
-  left = -gltan*near - eye/conv*near;
-  right = gltan*near - eye/conv*near;
+  left = -gltan*nearz - eye/conv*nearz;
+  right = gltan*nearz - eye/conv*nearz;
 
   glLoadIdentity();
-  glFrustum(left,right,bottom,top,near,far);
+  glFrustum(left,right,bottom,top,nearz,farz);
   glTranslatef(-eye,0.0,0.0);
 }
 
@@ -115,7 +121,7 @@ void vtkOglrCamera::Render(vtkCamera *cam, vtkRenderer *ren)
 // Actual camera render method.
 void vtkOglrCamera::Render(vtkCamera *cam, vtkOglrRenderer *ren)
 {
-  float aspect[3];
+  float aspect[2];
   float *vport;
   float *bg_color;
   int left,right,bottom,top;
