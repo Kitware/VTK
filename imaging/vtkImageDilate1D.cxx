@@ -47,8 +47,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // By default zero values are dilated.
 vtkImageDilate1D::vtkImageDilate1D()
 {
-  int idx;
-  
   this->SetAxes(VTK_IMAGE_X_AXIS);
   this->UseExecuteCenterOff();
   this->HandleBoundariesOn();

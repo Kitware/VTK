@@ -198,7 +198,6 @@ int vtkStructuredPointsToImage::ComputeDataType()
 //----------------------------------------------------------------------------
 void vtkStructuredPointsToImage::Execute(vtkImageRegion *region)
 {
-  vtkStructuredPoints *input;
   char *type;
   int *size;
   int dataExtent[8];
@@ -207,8 +206,13 @@ void vtkStructuredPointsToImage::Execute(vtkImageRegion *region)
 		     VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS, VTK_IMAGE_TIME_AXIS};
   vtkScalars *scalars;
   
+  if ( ! this->Input)
+    {
+    vtkErrorMacro("Input not set.");
+    return;
+    }
   
-  scalars = input->GetPointData()->GetScalars();
+  scalars = this->Input->GetPointData()->GetScalars();
   // We do not handle bit arrays (yet?)
   if (strcmp(scalars->GetClassName(), "vtkBitScalars") == 0)
     {
@@ -217,7 +221,7 @@ void vtkStructuredPointsToImage::Execute(vtkImageRegion *region)
     }
   
   // Determine the extent of the data
-  size = input->GetDimensions();
+  size = this->Input->GetDimensions();
   dataExtent[0] = dataExtent[2] = dataExtent[4] = dataExtent[6] = 0;
   dataExtent[3] = size[0] - 1;
   dataExtent[5] = size[1] - 1;
@@ -249,8 +253,7 @@ void vtkStructuredPointsToImage::Execute(vtkImageRegion *region)
       }
     data->SetScalarType(VTK_UNSIGNED_CHAR);
     data->SetScalars(dataScalars);
-    // data has registered scalars, so get rid of our ref count.
-    dataScalars->Delete();
+    dataScalars->UnRegister(this);
     }
   else if (strcmp(type, "unsigned short") == 0)
     {
@@ -292,6 +295,12 @@ vtkStructuredPointsToImage::ComputeImageInformation(vtkImageRegion *region)
   float aspectRatio[3];
   float origin[3];
   vtkScalars *scalars;
+  
+  if ( ! this->Input)
+    {
+    vtkErrorMacro("Input not set.");
+    return;
+    }
   
   input = this->Input;
   input->GetDimensions(size);

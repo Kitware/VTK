@@ -107,6 +107,7 @@ protected:
   
   virtual void ExecuteCenter(vtkImageRegion *inRegion, 
 			     vtkImageRegion *outRegion);  
+  void ComputeOutputImageExtent(int *extent, int handleBoundaries);
 };
 
 #endif

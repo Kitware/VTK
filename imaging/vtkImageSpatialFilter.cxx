@@ -147,11 +147,30 @@ void vtkImageSpatialFilter::ComputeOutputImageInformation(
   
   inRegion->GetImageExtent(VTK_IMAGE_DIMENSIONS, extent);
   inRegion->GetAspectRatio(VTK_IMAGE_DIMENSIONS, aspectRatio);
+
+  this->ComputeOutputImageExtent(extent, this->HandleBoundaries);
+  outRegion->SetImageExtent(VTK_IMAGE_DIMENSIONS, extent);
   
-  if ( ! this->HandleBoundaries)
+  for(idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    // Change the aspect ratio.
+    aspectRatio[idx] *= (float)(this->Strides[idx]);
+    }
+  outRegion->SetAspectRatio(VTK_IMAGE_DIMENSIONS, aspectRatio);
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// A helper method to compute output image extent
+void vtkImageSpatialFilter::ComputeOutputImageExtent(int *extent, 
+						     int handleBoundaries)
+{
+  int idx;
+
+  if ( ! handleBoundaries)
     {
     // Make extent a little smaller because of the kernel size.
-    for (idx = 0; idx < 4; ++idx)
+    for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
       {
       extent[idx*2] += this->KernelMiddle[idx];
       extent[idx*2+1] -= (this->KernelSize[idx] - 1) - this->KernelMiddle[idx];
@@ -164,16 +183,11 @@ void vtkImageSpatialFilter::ComputeOutputImageInformation(
     extent[idx*2] = 
       (int)(ceil(((float)extent[idx*2]) /((float)this->Strides[idx])));
     extent[idx*2+1] = 
-      (int)(floor(((float)extent[idx*2+1])/((float)this->Strides[idx])));
+      (int)(floor((((float)extent[idx*2+1]+1.0) /
+		   ((float)this->Strides[idx]))-1.0));
     // Change the aspect ratio.
-    aspectRatio[idx] *= (float)(this->Strides[idx]);
     }
-  
-  outRegion->SetImageExtent(VTK_IMAGE_DIMENSIONS, extent);
-  outRegion->SetAspectRatio(VTK_IMAGE_DIMENSIONS, aspectRatio);
 }
-
-
 
 
 
@@ -198,7 +212,7 @@ void vtkImageSpatialFilter::ComputeRequiredInputRegionExtent(
     {
     // Magnify by strides
     extent[idx*2] *= this->Strides[idx];
-    extent[idx*2+1] *= this->Strides[idx];
+    extent[idx*2+1] = (extent[idx*2+1]+1)*this->Strides[idx] - 1;
     // Expand to get inRegion Extent
     extent[idx*2] -= this->KernelMiddle[idx];
     extent[idx*2+1] += (this->KernelSize[idx] - 1) - this->KernelMiddle[idx];
@@ -260,28 +274,16 @@ void vtkImageSpatialFilter::Execute(int dim, vtkImageRegion *inRegion,
     delete [] outExtentSave;    
     return;
     }
-  
+
   // Save the extent of the two regions
   inRegion->GetExtent(dim, inExtentSave);
   outRegion->GetExtent(dim, outExtentSave);
   
   // Compute the image extent of the output region (no boundary handling)
   inRegion->GetImageExtent(dim, outImageExtent);
-  for (idx = 0; idx < dim; ++idx)
-    {
-    outImageExtent[idx*2] += this->KernelMiddle[idx];
-    outImageExtent[idx*2+1] -= (this->KernelSize[idx]-1)
-      - this->KernelMiddle[idx];
-    
-    // In case the image is so small, it is all boundary conditions.
-    if (outImageExtent[idx*2] > outImageExtent[idx*2+1])
-      {
-      outImageExtent[idx*2] =(outImageExtent[idx*2]+outImageExtent[idx*2+1])/2;
-      outImageExtent[idx*2+1] = outImageExtent[idx*2]-1;
-      }
-    }
+  this->ComputeOutputImageExtent(outImageExtent, 0);
 
-  // Compute the out region that does not need boundary handling.
+  // Intersect with the actual output extent.
   outRegion->GetExtent(dim, outCenterExtent);
   for (idx = 0; idx < dim; ++idx)
     {
