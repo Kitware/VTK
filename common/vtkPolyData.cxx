@@ -589,6 +589,23 @@ int vtkPolyData::GetNumberOfStrips()
   return (this->Strips ? this->Strips->GetNumberOfCells() : 0);
 }
 
+
+void vtkPolyData::DeleteCells()
+{
+  // if we have Links, we need to delete them (they are no longer valid)
+  if (this->Links)
+    {
+    this->Links->UnRegister( this );
+    this->Links = NULL;
+    }
+   
+  if (this->Cells)
+    {
+    this->Cells->UnRegister( this );
+    this->Cells = NULL;
+    }
+}
+
 // Create data structure that allows random access of cells.
 void vtkPolyData::BuildCells()
 {
@@ -607,6 +624,11 @@ void vtkPolyData::BuildCells()
     numCells = 1000; //may be allocating empty list to begin with
     }
 
+  if (this->Cells)
+    {
+    this->DeleteCells();
+    }
+  
   this->Cells = cells = vtkCellTypes::New();
   this->Cells->Allocate(numCells,3*numCells);
   this->Cells->Register(this);
@@ -661,10 +683,24 @@ void vtkPolyData::BuildCells()
     }
 }
 
+void vtkPolyData::DeleteLinks()
+{
+  if (this->Links)
+    {
+    this->Links->UnRegister( this );
+    this->Links = NULL;
+    }
+}
+
 // Create upward links from points to cells that use each point. Enables
 // topologically complex queries.
 void vtkPolyData::BuildLinks()
 {
+  if ( this->Links )
+    {
+    this->DeleteLinks();
+    }
+  
   if ( this->Cells == NULL )
     {
     this->BuildCells();

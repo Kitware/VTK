@@ -207,6 +207,16 @@ public:
   // Create upward links from points to cells that use each point. Enables
   // topologically complex queries.
   void BuildLinks();
+
+  // Description:
+  // Release data structure that allows random access of the cells. This must
+  // be done before a 2nd call to BuildLinks(). DeleteCells implicitly deletes
+  // the links as well since they are no longer valid.
+  void DeleteCells();
+
+  // Description:
+  // Release the upward links from point to cells that use each point.
+  void DeleteLinks();
   
   // Description:
   // Special (efficient) operations on poly data. Use carefully.
