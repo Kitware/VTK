@@ -26,7 +26,7 @@
 #include "vtkQuadraticQuad.h"
 #include "vtkQuadraticTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadraticWedge, "1.1");
+vtkCxxRevisionMacro(vtkQuadraticWedge, "1.2");
 vtkStandardNewMacro(vtkQuadraticWedge);
 
 //----------------------------------------------------------------------------
@@ -368,7 +368,7 @@ void vtkQuadraticWedge::Contour(double value,
       this->Scalars->SetValue(j,localScalars->GetTuple1(LinearWedges[i][j]));
       }
     this->Wedge->Contour(value,this->Scalars,locator,verts,lines,polys,
-                       this->PointData,outPd,this->CellData,0,outCd);
+                         this->PointData,outPd,this->CellData,0,outCd);
     }
 
 }
@@ -452,7 +452,7 @@ int vtkQuadraticWedge::IntersectWithLine(double* p1, double* p2,
 
 //----------------------------------------------------------------------------
 int vtkQuadraticWedge::Triangulate(int vtkNotUsed(index), 
-                                        vtkIdList *ptIds, vtkPoints *pts)
+                                   vtkIdList *ptIds, vtkPoints *pts)
 {
   pts->Reset();
   ptIds->Reset();

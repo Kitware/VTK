@@ -27,7 +27,7 @@
 #include "vtkQuadraticQuad.h"
 #include "vtkQuadraticTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.1");
+vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.2");
 vtkStandardNewMacro(vtkQuadraticPyramid);
 
 //----------------------------------------------------------------------------
@@ -409,8 +409,8 @@ int vtkQuadraticPyramid::IntersectWithLine(double* p1, double* p2,
   t = VTK_DOUBLE_MAX;
   for (faceNum=0; faceNum<5; faceNum++)
     {
-// We have 8 nodes on rect face
-// and 6 on triangle faces
+    // We have 8 nodes on rect face
+    // and 6 on triangle faces
     if(faceNum > 0)
       {
       for (int i=0; i<6; i++)

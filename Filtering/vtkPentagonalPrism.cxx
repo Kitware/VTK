@@ -29,7 +29,7 @@
 #include "vtkMath.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkPentagonalPrism, "1.3");
+vtkCxxRevisionMacro(vtkPentagonalPrism, "1.4");
 vtkStandardNewMacro(vtkPentagonalPrism);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -731,6 +731,18 @@ void vtkPentagonalPrism::GetFacePoints (int faceId, int *&pts)
 {
   pts = this->GetFaceArray(faceId);
 }
+
+// How to find the points for the pentagon:
+// The points for the iso parametric pentagon have to be properly chosen so that
+// the inverse Jacobian is defined.
+// To be regular the points have to on the circle, center (1/2,1/2) with radius
+// sqrt(2)/2
+// Then since there is an odd number of points they have to be simmetric
+// to the first bisector
+// Thus I pick the first point to be on this dividing line.
+// We can then express point i (0, 4) to be:
+// Vi_x = CenterOfCircle + 1/2 ( cos( pi + pi/4 + i*2*pi/5) )
+// Vi_y = CenterOfCircle + 1/2 ( sin( pi + pi/4 + i*2*pi/5) )
 
 static double vtkPentagonalPrismCellPCoords[30] = {
 0.14644660940672621 , 0.14644660940672621 , 0.0,
