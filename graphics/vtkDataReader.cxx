@@ -244,6 +244,7 @@ int vtkDataReader::ReadLine(char result[256])
 // Returns zero if there was an error.
 int vtkDataReader::ReadString(char result[256])
 {
+  this->IS->width(256);
   *this->IS >> result;
   if (this->IS->fail())
     {
