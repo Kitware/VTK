@@ -60,10 +60,6 @@ public:
   static vtkRenderer *New();
 
   // Description:
-  // Add a light to the list of lights.
-  void AddLight(vtkLight *);
-
-  // Description:
   // Add/Remove different types of props to the renderer.
   // These methods are all synonyms to AddProp and RemoveProp.
   // They are here for convenience and backwards compatibility.
@@ -73,13 +69,55 @@ public:
   void RemoveVolume(vtkProp *p) {this->Volumes->RemoveItem(p);this->RemoveProp(p);};
 
   // Description:
+  // Add a light to the list of lights.
+  void AddLight(vtkLight *);
+
+  // Description:
   // Remove a light from the list of lights.
   void RemoveLight(vtkLight *);
 
   // Description:
-  // Return the collection of lights.
+  // Return the collection of lights or first light (as convenience method).
   vtkLightCollection *GetLights();
+  vtkLight* GetFirstLight();
   
+  // Description:
+  // Create and add a light to renderer.
+  void CreateLight(void);
+  
+  // Description:
+  // Create a new Light sutible for use with this type of Renderer.
+  // For example, a vtkMesaRenderer should create a vtkMesaLight 
+  // in this function.   The default is to just call vtkLight::New.
+  virtual vtkLight *MakeLight();
+
+  // Description:
+  // Turn on/off two-sided lighting of surfaces. If two-sided lighting is
+  // off, then only the side of the surface facing the light(s) will be lit,
+  // and the other side dark. If two-sided lighting on, both sides of the 
+  // surface will be lit.
+  vtkGetMacro(TwoSidedLighting,int);
+  vtkSetMacro(TwoSidedLighting,int);
+  vtkBooleanMacro(TwoSidedLighting,int);
+
+  // Description:
+  // Turn on/off the automatic repositioning of lights as the camera moves.
+  // If LightFollowCamera is on, lights that are designated as Headlights
+  // or CameraLights will be adjusted to move with this renderer's camera.
+  // If LightFollowCamera is off, the lights will not be adjusted.  
+  //
+  // (Note: In previous versions of vtk, this light-tracking
+  // functionality was part of the interactors, not the renderer.  For
+  // backwards compatibility, the older, more limited interactor
+  // behavior is enabled by default.  This mode has the possibly
+  // unexpected property of turning the first light into a headlight,
+  // no matter what its light type is.  To disable this mode, turn the
+  // interactor's LightFollowCamera flag OFF, and leave the renderer's
+  // LightFollowCamera flag ON.)
+  vtkSetMacro(LightFollowCamera,int);
+  vtkGetMacro(LightFollowCamera,int);
+  vtkBooleanMacro(LightFollowCamera,int);
+
   // Description:
   // Return the collection of volumes.
   vtkVolumeCollection *GetVolumes();
@@ -140,7 +178,6 @@ public:
   // Description:
   // Create an image. Subclasses of vtkRenderer must implement this method.
   virtual void DeviceRender() =0;
-  
 
   // Description:
   // Clear the image to the background color.
@@ -153,16 +190,6 @@ public:
   // Description:
   // Returns the number of visible volumes.
   int VisibleVolumeCount();
-
-  // Description:
-  // Create and add a light to renderer.
-  void CreateLight(void);
-  
-  // Description:
-  // Create a new Light sutible for use with this type of Renderer.
-  // For example, a vtkMesaRenderer should create a vtkMesaLight 
-  // in this function.   The default is to just call vtkLight::New.
-  virtual vtkLight *MakeLight();
 
   // Description:
   // Compute the bounding box of all the visible props
@@ -212,15 +239,6 @@ public:
   vtkRenderWindow *GetRenderWindow() {return this->RenderWindow;};
   virtual vtkWindow *GetVTKWindow();
   
-  // Description:
-  // Turn on/off two-sided lighting of surfaces. If two-sided lighting is
-  // off, then only the side of the surface facing the light(s) will be lit,
-  // and the other side dark. If two-sided lighting on, both sides of the 
-  // surface will be lit.
-  vtkGetMacro(TwoSidedLighting,int);
-  vtkSetMacro(TwoSidedLighting,int);
-  vtkBooleanMacro(TwoSidedLighting,int);
-
   // Description:
   // Turn on/off using backing store. This may cause the re-rendering
   // time to be slightly slower when the view changes. But it is
@@ -288,24 +306,6 @@ public:
   // If nothing was picked then NULL is returned.  This method selects from 
   // the renderers Prop list.
   vtkAssemblyPath* PickProp(float selectionX, float selectionY);
-
-  // Description:
-  // Turn on/off the automatic repositioning of lights as the camera moves.
-  // If LightFollowCamera is on, lights that are designated as Headlights
-  // or CameraLights will be adjusted to move with this renderer's camera.
-  // If LightFollowCamera is off, the lights will not be adjusted.  
-  //
-  // (Note: In previous versions of vtk, this light-tracking
-  // functionality was part of the interactors, not the renderer.  For
-  // backwards compatibility, the older, more limited interactor
-  // behavior is enabled by default.  This mode has the possibly
-  // unexpected property of turning the first light into a headlight,
-  // no matter what its light type is.  To disable this mode, turn the
-  // interactor's LightFollowCamera flag OFF, and leave the renderer's
-  // LightFollowCamera flag ON.)
-  vtkSetMacro(LightFollowCamera,int);
-  vtkGetMacro(LightFollowCamera,int);
-  vtkBooleanMacro(LightFollowCamera,int);
 
   vtkRayCaster *GetRayCaster() 
     {VTK_LEGACY_METHOD(GetRayCaster,"4.0");return this->RayCaster;};
@@ -394,9 +394,15 @@ private:
   void operator=(const vtkRenderer&);  // Not implemented.
 };
 
-// Description:
-// Get the list of lights for this renderer.
-inline vtkLightCollection *vtkRenderer::GetLights() {return this->Lights;}
+inline vtkLightCollection *vtkRenderer::GetLights() {
+  return this->Lights;
+}
+
+inline vtkLight* vtkRenderer::GetFirstLight()
+{
+  this->Lights->InitTraversal();
+  return this->Lights->GetNextItem();
+}
 
 // Description:
 // Get the list of cullers for this renderer.
