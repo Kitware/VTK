@@ -38,7 +38,7 @@
 
 #define ABS(x) ((x)<0 ? -(x) : (x))
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.9");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.10");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkImagePlaneWidget::vtkImagePlaneWidget()
@@ -264,7 +264,7 @@ void vtkImagePlaneWidget::SetEnabled(int enabling)
 }
 
 void vtkImagePlaneWidget::ProcessEvents(vtkObject* object, unsigned long event,
-                                        void* clientdata, void* calldata)
+                                        void* clientdata, void* vtkNotUsed(calldata))
 {
   vtkImagePlaneWidget* self = 
     reinterpret_cast<vtkImagePlaneWidget *>( clientdata );
@@ -790,9 +790,10 @@ void vtkImagePlaneWidget::SetPlaneOrientation(int i)
 
 void vtkImagePlaneWidget::GenerateTexturePlane()
 {
-  if ( ! this->ImageData )
+  this->ImageData = dynamic_cast<vtkImageData *>(this->Input);
+  if( ! this->ImageData )
     {
-    vtkGenericWarningMacro(<<"No vtkImageData to slice through!");
+    vtkGenericWarningMacro(<<"Must call SetInput() with vtkImageData*!");
     return;
     }
   float range[2];
@@ -812,7 +813,11 @@ void vtkImagePlaneWidget::GenerateTexturePlane()
 
   this->Reslice = vtkImageReslice::New();
   this->Reslice->SetInput(this->ImageData);
-  this->SetResliceInterpolateToCubic();
+  if ( this->ResliceInterpolate == -1 )
+    {
+    this->ResliceInterpolate = 2;
+    }
+  this->SetResliceInterpolate(this->ResliceInterpolate);
 
   this->ColorMap = vtkImageMapToColors::New();
   this->ColorMap->SetLookupTable(this->LookupTable);

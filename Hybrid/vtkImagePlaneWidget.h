@@ -112,9 +112,8 @@ public:
 
   // Description:
   // Set the image data and generate a default texture plane.  
-  void SetInput(vtkImageData* input)
+  void SetInput(vtkDataSet* input)
     {this->Superclass::SetInput(input);
-     this->ImageData = input;
      this->GenerateTexturePlane();
     }
 
