@@ -34,6 +34,9 @@ vtkOpenGLRenderer \
 vtkOpenGLTexture  \
 vtkOpenGLVolumeTextureMapper2D
 
+UNIX_ABSTRACT = \
+vtkXRenderWindow 
+
 ABSTRACT_H = \
 vtkCuller \
 vtkDirectionEncoder \
@@ -72,7 +75,8 @@ vtkVolumeRayCastFunction \
 vtkVolumeReader \
 vtkVolumeTextureMapper \
 vtkWriter \
-vtkXRenderWindow 
+${UNIX_ABSTRACT}
+
 
 # put all concrete classes here
 CONCRETE = \
@@ -304,6 +308,19 @@ vtkWindowedSincPolyDataFilter \
 vtkWorldPointPicker \
 vtkWarpVector \
  ${GRAPHICS_API_OBJ}
+
+WIN32_OBJ = \
+vtkOpenGLRenderer \
+vtkOpenGLTexture \
+vtkOpenGLProperty \
+vtkOpenGLActor \
+vtkOpenGLCamera \
+vtkOpenGLPolyDataMapper \
+vtkOpenGLProjectedPolyDataRayBounder \
+vtkOpenGLLight \
+vtkOpenGLVolumeTextureMapper2D \
+vtkWin32OpenGLRenderWindow \
+vtkWin32RenderWindowInteractor 
 
 
 # The following is all boiler plate 

@@ -148,6 +148,10 @@ vtkWedge \
 vtkWindowLevelLookupTable \
 vtkWindowToImageFilter
 
+WIN32_OBJ = \
+vtkWin32OutputWindow
+
+
 #------------------------------------------------------------------------------
 # Autoconfig defines that can be overridden in user.make
 

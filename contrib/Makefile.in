@@ -51,6 +51,8 @@ ${CONTROLLER_API_OBJ}
 #vtkPolyDataCollector \
 #vtkThreadedController \
 
+WIN32_OBJ = \
+vtkWin32OffscreenRenderWindow
 
 #------------------------------------------------------------------------------
 # Autoconfig defines that can be overridden in user.make
