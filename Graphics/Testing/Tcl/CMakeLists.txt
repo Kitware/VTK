@@ -86,6 +86,7 @@ IF (VTK_USE_RENDERING)
       glyph2D
       hull
       Hyper
+      HyperScalarBar
       KlineBottle
       LineIntersectQuadraticCells
       motor
