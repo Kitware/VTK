@@ -1,8 +1,8 @@
 // This program test the ports by setting up a simple pipeline.
 
 #include "mpi.h"
-#include "vtkPortUp.h"
-#include "vtkPortDown.h"
+#include "vtkUpStreamPort.h"
+#include "vtkDownStreamPort.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkConeSource.h"
@@ -29,7 +29,7 @@ void main( int argc, char *argv[] )
   if (myid == id1) {
     vtkConeSource *cone = vtkConeSource::New();
     vtkElevationFilter *elev = vtkElevationFilter::New();
-    vtkPortUp *upStreamPort = vtkPortUp::New();
+    vtkUpStreamPort *upStreamPort = vtkUpStreamPort::New();
     
     // Set up the pipeline source.
     cone->SetResolution(8);
@@ -52,7 +52,7 @@ void main( int argc, char *argv[] )
     vtkRenderer *ren = vtkRenderer::New();
     vtkRenderWindow *renWindow = vtkRenderWindow::New();
     vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
-    vtkPortDown *downStreamPort = vtkPortDown::New();
+    vtkDownStreamPort *downStreamPort = vtkDownStreamPort::New();
     vtkPolyDataMapper *coneMapper = vtkPolyDataMapper::New();
     
     renWindow->AddRenderer(ren);
