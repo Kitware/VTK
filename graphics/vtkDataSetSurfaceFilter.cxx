@@ -661,11 +661,13 @@ void vtkDataSetSurfaceFilter::ComputeInputUpdateExtents(vtkDataObject *output)
   
   if (numPieces > 1)
     {
-    // The special execute for structured data handle oundaries internally.
-    if (input->GetDataObjectType() != VTK_STRUCTURED_GRID &&
-	input->GetDataObjectType() != VTK_IMAGE_DATA)
-      {
-      ++ghostLevels;
+    // The special execute for structured data handle boundaries internally.
+    // PolyData does not need any ghost levels.
+    if (input->GetDataObjectType() == VTK_UNSTRUCTURED_GRID)
+      { // Processing does nothing fo ghost levels yet so ...
+      // Be careful to set output ghost level value one less than default
+      // when they are implemented.  I had trouble with multiple executes.
+      //++ghostLevels;
       }
     }
   
