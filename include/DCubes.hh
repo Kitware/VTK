@@ -66,17 +66,6 @@ protected:
   vlCellArray *NewVerts;
 };
 
-
-inline void vlDividingCubes::AddPoint(float x[3])
-{
-  if ( ! (this->Count++ % this->Increment) )
-    {
-    int pts[1];
-    pts[0] = this->NewPts->InsertNextPoint(x);
-    this->NewVerts->InsertNextCell(1,pts);
-    }
-}
-
 #endif
 
 
