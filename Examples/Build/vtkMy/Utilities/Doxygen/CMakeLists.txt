@@ -15,15 +15,15 @@ IF (BUILD_DOCUMENTATION)
   # Configure the script and the doxyfile, then add target
   #
   CONFIGURE_FILE(
-    ${VTKLOCAL_SOURCE_DIR}/Utilities/Doxygen/doxyfile.in
-    ${VTKLOCAL_BINARY_DIR}/Utilities/Doxygen/doxyfile)
+    ${VTKMY_SOURCE_DIR}/Utilities/Doxygen/doxyfile.in
+    ${VTKMY_BINARY_DIR}/Utilities/Doxygen/doxyfile)
 
   CONFIGURE_FILE(
-    ${VTKLOCAL_SOURCE_DIR}/Utilities/Doxygen/doc_makeall.sh.in
-    ${VTKLOCAL_BINARY_DIR}/Utilities/Doxygen/doc_makeall.sh)
+    ${VTKMY_SOURCE_DIR}/Utilities/Doxygen/doc_makeall.sh.in
+    ${VTKMY_BINARY_DIR}/Utilities/Doxygen/doc_makeall.sh)
 
-  ADD_CUSTOM_TARGET(vtkLocalDoxygenDoc
+  ADD_CUSTOM_TARGET(vtkMyDoxygenDoc
     ${BASH}
-    ${VTKLOCAL_BINARY_DIR}/Utilities/Doxygen/doc_makeall.sh)
+    ${VTKMY_BINARY_DIR}/Utilities/Doxygen/doc_makeall.sh)
 
 ENDIF (BUILD_DOCUMENTATION)
