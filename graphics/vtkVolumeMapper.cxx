@@ -43,8 +43,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct a vtkVolumeMapper with empty scalar input and clipping off.
 vtkVolumeMapper::vtkVolumeMapper()
 {
+  int i;
+
   this->RGBTextureInput = NULL;
   this->Clipping = 0;
+  for ( i = 0; i < 3; i++ )
+    {
+    this->ClippingPlanes[2*i    ] = 0;
+    this->ClippingPlanes[2*i + 1] = 1;
+    }
   this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = -1.0;
   this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = 1.0;
   this->Center[0] = this->Center[1] = this->Center[2] = 0.0;

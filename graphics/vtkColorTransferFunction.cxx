@@ -54,6 +54,8 @@ vtkColorTransferFunction::vtkColorTransferFunction()
 
   this->Range[0] = 0;
   this->Range[1] = 0;
+
+  this->Clamping = 0;
 }
 
 // Destruct a vtkColorTransferFunction
