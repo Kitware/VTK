@@ -68,10 +68,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // the perfomance of the system.
 //
 // Another important feature of the mapper is the ability to shift the
-// z-buffer to resolve coincident primitives. For example, if you'd like to
+// z-buffer to resolve coincident topology. For example, if you'd like to
 // draw a mesh with some edges a different color, and the edges lie on the
-// mesh, this feature can be useful to get nice looking lines. (Set the
-// ResolveCoincidentPrimitives method.)
+// mesh, this feature can be useful to get nice looking lines. (See the
+// ResolveCoincidentTopology-related methods.)
 
 // .SECTION See Also
 // vtkDataSetMapper vtkPolyDataMapper
@@ -86,6 +86,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_SCALAR_MODE_DEFAULT 0
 #define VTK_SCALAR_MODE_USE_POINT_DATA 1
 #define VTK_SCALAR_MODE_USE_CELL_DATA 2
+
+#define VTK_RESOLVE_OFF 0
+#define VTK_RESOLVE_POLYGON_OFFSET 1
+#define VTK_RESOLVE_SHIFT_ZBUFFER 2
 
 class vtkWindow;
 class vtkRenderer;
@@ -145,12 +149,12 @@ public:
   // information.)
   vtkSetMacro(ColorMode,int);
   vtkGetMacro(ColorMode,int);
-  void SetColorModeToDefault() {
-    this->SetColorMode(VTK_COLOR_MODE_DEFAULT);};
-  void SetColorModeToMapScalars() {
-    this->SetColorMode(VTK_COLOR_MODE_MAP_SCALARS);};
-  void SetColorModeToLuminance() {
-    this->SetColorMode(VTK_COLOR_MODE_LUMINANCE);};
+  void SetColorModeToDefault() 
+    {this->SetColorMode(VTK_COLOR_MODE_DEFAULT);};
+  void SetColorModeToMapScalars() 
+    {this->SetColorMode(VTK_COLOR_MODE_MAP_SCALARS);};
+  void SetColorModeToLuminance() 
+    {this->SetColorMode(VTK_COLOR_MODE_LUMINANCE);};
 
   // Description:
   // Return the method of coloring scalar data.
@@ -175,10 +179,10 @@ public:
   // having problems rendering a large dataset you might
   // want to consider using imediate more rendering.
   static void SetGlobalImmediateModeRendering(int val);
-  static void GlobalImmediateModeRenderingOn() {
-    vtkMapper::SetGlobalImmediateModeRendering(1);};
-  static void GlobalImmediateModeRenderingOff() {
-    vtkMapper::SetGlobalImmediateModeRendering(0);};
+  static void GlobalImmediateModeRenderingOn() 
+    {vtkMapper::SetGlobalImmediateModeRendering(1);};
+  static void GlobalImmediateModeRenderingOff() 
+    {vtkMapper::SetGlobalImmediateModeRendering(0);};
   static int  GetGlobalImmediateModeRendering();
 
   // Description:
@@ -217,34 +221,32 @@ public:
   char *GetScalarModeAsString();
 
   // Description:
-  // Set/Get a global flag that controls whether geometrically coincident
-  // primitives (e.g., a line on top of a polygon) are shifted to avoid
-  // z-buffer resolution (and hence rendering problems). If enabled, the flag
-  // offsets vertices, lines, and polygons/triangle strips slightly (using
-  // z-buffer shifts, not geometric shifts) during the rendering process. By
-  // default, the flag is off. Note: the shifting process is not foolproff
-  // and can introduce z-buffer artifacts. Not all mappers make use of this
-  // flag.
-  static void SetGlobalResolveCoincidentPrimitives(int val);
-  static void GlobalResolveCoincidentPrimitivesOn() {
-    vtkMapper::SetGlobalResolveCoincidentPrimitives(1);};
-  static void GlobalResolveCoincidentPrimitivesOff() {
-    vtkMapper::SetGlobalResolveCoincidentPrimitives(0);};
-  static int  GetGlobalResolveCoincidentPrimitives();
+  // Set/Get a global flag that controls whether coincident topology (e.g., a
+  // line on top of a polygon) is shifted to avoid z-buffer resolution (and
+  // hence rendering problems). If not off, there are two methods to choose
+  // from. PolygonOffset uses graphics systems calls to shift polygons, but
+  // does not distinguish vertices and lines from one another. ShiftZBuffer
+  // remaps the z-buffer to distinguish vertices, lines, and polygons, but
+  // does not always produce acceptable results. If you use the ShiftZBuffer
+  // approach, you may also want to set the ResolveCoincidentTopologyZShift
+  // value. (Note: not all mappers/graphics systems implement this 
+  // functionality.)
+  static void SetResolveCoincidentTopology(int val);
+  static int  GetResolveCoincidentTopology();
+  static void SetResolveCoincidentTopologyToDefault();
+  static void SetResolveCoincidentTopologyToOff() 
+    {SetResolveCoincidentTopology(VTK_RESOLVE_OFF);};
+  static void SetResolveCoincidentTopologyToPolygonOffset() 
+    {SetResolveCoincidentTopology(VTK_RESOLVE_POLYGON_OFFSET);};
+  static void SetResolveCoincidentTopologyToShiftZBuffer() 
+    {SetResolveCoincidentTopology(VTK_RESOLVE_SHIFT_ZBUFFER);};
 
   // Description:
-  // Set/Get a flag that controls whether geometrically coincident
-  // primitives (e.g., a line on top of a polygon) are shifted to
-  // avoid z-buffer resolution (and hence rendering problems). If
-  // enabled, the flag offsets vertices, lines, and polygons/triangle
-  // strips slightly (using z-buffer shifts, not geometric shifts)
-  // during the rendering process. By default, the flag is off. Note:
-  // the shifting process is not foolproff and can introduce z-buffer
-  // artifacts. Not all mappers make use of this flag.
-  vtkSetMacro(ResolveCoincidentPrimitives,int);
-  vtkGetMacro(ResolveCoincidentPrimitives,int);
-  vtkBooleanMacro(ResolveCoincidentPrimitives,int);
-  
+  // Used to set the z-shift if ResolveCoincidentTopology is set to
+  // ShiftZBuffer. This is a global variable.
+  static void SetResolveCoincidentTopologyZShift(double val);
+  static double GetResolveCoincidentTopologyZShift();
+
   // Description:
   // Return bounding box (array of six floats) of data expressed as
   // (xmin,xmax, ymin,ymax, zmin,zmax).
@@ -287,7 +289,6 @@ protected:
   int ImmediateModeRendering;
   int ColorMode;
   int ScalarMode;
-  int ResolveCoincidentPrimitives;
 
   float RenderTime;
 

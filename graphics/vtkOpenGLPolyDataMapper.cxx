@@ -59,7 +59,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTimerLog.h"
 #include "vtkObjectFactory.h"
 
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 vtkOpenGLPolyDataMapper* vtkOpenGLPolyDataMapper::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -2390,7 +2390,7 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
   int cellScalars = 0;
   int cellNum = 0;
   int cellNormals = 0;
-  int resolve = 0;
+  int resolve=0, zResolve=0;
   double zRes;
   
   // get the property 
@@ -2645,13 +2645,21 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     case 30: draw3 = vtkOpenGLDrawCNCST013; break;
     }
 
-  if ( this->ResolveCoincidentPrimitives || 
-       this->GetGlobalResolveCoincidentPrimitives() )
+  if ( this->GetResolveCoincidentTopology() )
     {
-    GLint size;
     resolve = 1;
-    glGetIntegerv(GL_DEPTH_BITS, &size);
-    zRes = 1.0 / ((double)(1<<size));
+    if ( this->GetResolveCoincidentTopology() == VTK_RESOLVE_SHIFT_ZBUFFER )
+      {
+      zResolve = 1;
+      zRes = this->GetResolveCoincidentTopologyZShift();
+      }
+    else
+      {
+#ifdef GL_VERSION_1_1
+      glEnable(GL_POLYGON_OFFSET_FILL);
+      glPolygonOffset(1,1);
+#endif      
+      }
     }
 
   // do verts
@@ -2671,7 +2679,7 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
   draw0(aPrim, aGlFunction, cellNum, p, n, c, t, ren, noAbort);
   
   // do lines
-  if (resolve)
+  if ( zResolve )
     {
     glDepthRange(zRes, 1.0);
     }
@@ -2694,7 +2702,7 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     }
   
   // do tstrips
-  if (resolve)
+  if ( zResolve )
     {
     glDepthRange(2*zRes, 1.0);
     }
@@ -2719,7 +2727,16 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
 
   if (resolve)
     {
-    glDepthRange(0.0, 1.0);
+    if ( zResolve )
+      {
+      glDepthRange(0.0, 1.0);
+      }
+    else
+      {
+#ifdef GL_VERSION_1_1
+      glDisable(GL_POLYGON_OFFSET_FILL);
+#endif
+      }
     }
 }
 

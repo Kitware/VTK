@@ -45,8 +45,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Initialize static member that controls global immediate mode rendering
 static int vtkMapperGlobalImmediateModeRendering = 0;
 
-// Initialize static member that controls global z-buffer manipulation
-static int vtkMapperGlobalResolveCoincidentPrimitives = 0;
+// Initialize static member that controls global coincidence resolution
+static int vtkMapperGlobalResolveCoincidentTopology = VTK_RESOLVE_OFF;
+static double vtkMapperGlobalResolveCoincidentTopologyZShift = 0.01;
 
 // Construct with initial range (0,1).
 vtkMapper::vtkMapper()
@@ -68,8 +69,6 @@ vtkMapper::vtkMapper()
   this->Center[0] = this->Center[1] = this->Center[2] = 0.0;
 
   this->RenderTime = 0.0;
-  
-  this->ResolveCoincidentPrimitives = 0;
 }
 
 vtkMapper::~vtkMapper()
@@ -126,18 +125,37 @@ int vtkMapper::GetGlobalImmediateModeRendering()
   return vtkMapperGlobalImmediateModeRendering;
 }
 
-void vtkMapper::SetGlobalResolveCoincidentPrimitives(int val)
+void vtkMapper::SetResolveCoincidentTopology(int val)
 {
-  if (val == vtkMapperGlobalResolveCoincidentPrimitives)
+  if (val == vtkMapperGlobalResolveCoincidentTopology)
     {
     return;
     }
-  vtkMapperGlobalResolveCoincidentPrimitives = val;
+  vtkMapperGlobalResolveCoincidentTopology = val;
 }
 
-int vtkMapper::GetGlobalResolveCoincidentPrimitives()
+int vtkMapper::GetResolveCoincidentTopology()
 {
-  return vtkMapperGlobalResolveCoincidentPrimitives;
+  return vtkMapperGlobalResolveCoincidentTopology;
+}
+
+void vtkMapper::SetResolveCoincidentTopologyToDefault()
+{
+  vtkMapperGlobalResolveCoincidentTopology = VTK_RESOLVE_OFF;
+}
+
+void vtkMapper::SetResolveCoincidentTopologyZShift(double val)
+{
+  if (val == vtkMapperGlobalResolveCoincidentTopologyZShift)
+    {
+    return;
+    }
+  vtkMapperGlobalResolveCoincidentTopologyZShift = val;
+}
+
+double vtkMapper::GetResolveCoincidentTopologyZShift()
+{
+  return vtkMapperGlobalResolveCoincidentTopologyZShift;
 }
 
 // Overload standard modified time function. If lookup table is modified,
@@ -165,7 +183,6 @@ void vtkMapper::ShallowCopy(vtkMapper *m)
   this->SetColorMode(m->GetColorMode());
   this->SetScalarMode(m->GetScalarMode());
   this->SetImmediateModeRendering(m->GetImmediateModeRendering());
-  this->SetResolveCoincidentPrimitives(m->GetResolveCoincidentPrimitives());
 }
 
 // a side effect of this is that this->Colors is also set
@@ -351,10 +368,18 @@ void vtkMapper::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "RenderTime: " << this->RenderTime << endl;
   
-  os << indent << "Resolve Coincident Primitives: " 
-     << (this->ResolveCoincidentPrimitives ? "On\n" : "Off\n");
-
-  os << indent << "Global Resolve Coincident Primitives: " 
-     << (vtkMapperGlobalResolveCoincidentPrimitives ? "On\n" : "Off\n");
+  os << indent << "Resolve Coincident Topology: ";
+  if ( vtkMapperGlobalResolveCoincidentTopology == VTK_RESOLVE_OFF )
+    {
+    os << "Off" << endl;
+    }
+  else if ( vtkMapperGlobalResolveCoincidentTopology == VTK_RESOLVE_POLYGON_OFFSET )
+    {
+    os << "Polygon Offset" << endl;
+    }
+  else 
+    {
+    os << "Shift Z-Buffer" << endl;
+    }
 }
 

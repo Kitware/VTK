@@ -163,8 +163,6 @@ void vtkDataSetMapper::Render(vtkRenderer *ren, vtkActor *act)
   this->PolyDataMapper->SetScalarRange(this->GetScalarRange());
   this->PolyDataMapper->SetImmediateModeRendering
     (this->GetImmediateModeRendering());
-  this->PolyDataMapper->SetResolveCoincidentPrimitives
-    (this->GetResolveCoincidentPrimitives());
   this->PolyDataMapper->SetColorMode(this->GetColorMode());
   this->PolyDataMapper->SetScalarMode(this->GetScalarMode());
 
