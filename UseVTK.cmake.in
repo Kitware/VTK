@@ -9,15 +9,17 @@
 # file is being included from the VTK_USE_FILE setting provided in
 # VTKConfig.cmake, so the settings have already been loaded.
 
-IF(USE_INSTALLED_VTK)
+# If VTK_USE_FILE is set, then VTKConfig.cmake has already been loaded.
+IF(NOT VTK_USE_FILE)
   # We are being included through USE_VTK_FILE.  Load the settings.
-  INCLUDE(${VTK_INSTALL_PATH}/lib/vtk/VTKConfig.cmake)
-ELSE(USE_INSTALLED_VTK)
-  IF(USE_BUILT_VTK)
-    # We are being included through USE_VTK_FILE.  Load the settings.
-    INCLUDE(${VTK_BINARY_PATH}/VTKConfig.cmake)
-  ENDIF(USE_BUILT_VTK)
-ENDIF(USE_INSTALLED_VTK)
+  IF(USE_INSTALLED_VTK)
+    INCLUDE(${VTK_INSTALL_PATH}/lib/vtk/VTKConfig.cmake)
+  ELSE(USE_INSTALLED_VTK)
+    IF(USE_BUILT_VTK)
+      INCLUDE(${VTK_BINARY_PATH}/VTKConfig.cmake)
+    ENDIF(USE_BUILT_VTK)
+  ENDIF(USE_INSTALLED_VTK)
+ENDIF(NOT VTK_USE_FILE)
 
 # Now we have the settings from VTKConfig.cmake.
 INCLUDE_DIRECTORIES(${VTK_INCLUDE_DIRS})
