@@ -34,6 +34,7 @@ foreach vtkType $types {
 
   vtkPolyDataMapper iso${vtkType}Mapper
     iso${vtkType}Mapper SetInput [iso$vtkType GetOutput]
+    iso${vtkType}Mapper SetColorModeToMapScalars
 
   vtkActor iso${vtkType}Actor
     iso${vtkType}Actor SetMapper iso${vtkType}Mapper
