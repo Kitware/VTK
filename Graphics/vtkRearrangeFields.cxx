@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkRearrangeFields, "1.12");
+vtkCxxRevisionMacro(vtkRearrangeFields, "1.13");
 vtkStandardNewMacro(vtkRearrangeFields);
 
 typedef vtkRearrangeFields::Operation Operation;
@@ -81,8 +81,11 @@ void vtkRearrangeFields::Execute()
     while (cur);
     }
 
-  // Pass all. (data object's field data is passed by the
-  // superclass after this method)
+  // Pass all.
+  if ( output->GetFieldData() && input->GetFieldData() )
+    {
+    output->GetFieldData()->PassData( input->GetFieldData() );
+    }
   output->GetPointData()->PassData( input->GetPointData() );
   output->GetCellData()->PassData( input->GetCellData() );
 }
