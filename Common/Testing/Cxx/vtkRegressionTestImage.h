@@ -41,8 +41,9 @@ int vtkRegressionTester::Test(int argc, char *argv[], vtkWindow *rw,
 			      float thresh ) 
 {
   int imageIndex=-1;
+  int i;
 
-  for (int i=0; i<argc; i++)
+  for (i=0; i<argc; i++)
     {
     if ( strcmp("-I", argv[i]) == 0 )
       {
@@ -50,7 +51,7 @@ int vtkRegressionTester::Test(int argc, char *argv[], vtkWindow *rw,
       }
     }
 
-  for (int i=0; i<argc; i++)
+  for (i=0; i<argc; i++)
     {
     if ( strcmp("-V", argv[i]) == 0 )
       {
