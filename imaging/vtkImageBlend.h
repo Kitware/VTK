@@ -91,6 +91,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include "vtkImageMultipleInputFilter.h"
+#include "vtkImageStencilData.h"
 
 #define VTK_IMAGE_BLEND_MODE_NORMAL    0
 #define VTK_IMAGE_BLEND_MODE_COMPOUND 1
@@ -107,6 +108,11 @@ public:
   // multiplied by the opacity.  The opacity of image idx=0 is ignored.
   void SetOpacity(int idx, double opacity);
   double GetOpacity(int idx);
+
+  // Description:
+  // Set a stencil to apply when blending the data.
+  vtkSetObjectMacro(Stencil, vtkImageStencilData);
+  vtkGetObjectMacro(Stencil, vtkImageStencilData);
 
   // Description:
   // Set the blend mode
@@ -135,6 +141,11 @@ protected:
   void ComputeInputUpdateExtent(int inExt[6], int outExt[6],
 				int whichInput);
 
+  void ExecuteInformation() {
+    this->vtkImageMultipleInputFilter::ExecuteInformation(); };
+
+  void ExecuteInformation(vtkImageData **, vtkImageData *);
+
   void ThreadedExecute(vtkImageData **inDatas, 
                        vtkImageData *outData,
 		       int extent[6], 
@@ -142,6 +153,7 @@ protected:
 
   void ExecuteData(vtkDataObject *output);
   
+  vtkImageStencilData *Stencil;
   double *Opacity;
   int OpacityArrayLength;
   int BlendMode;
