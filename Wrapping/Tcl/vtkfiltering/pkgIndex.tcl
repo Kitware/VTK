@@ -8,4 +8,4 @@
 # script is sourced, the variable $dir must contain the
 # full path name of this file's directory.
 
-package ifneeded vtkfiltering 3.3 [list source [file join $dir vtkfiltering.tcl]]
+package ifneeded vtkfiltering 4.0 [list source [file join $dir vtkfiltering.tcl]]

@@ -1,5 +1,5 @@
 
-package provide vtkio 3.3
+package provide vtkio 4.0
 package require vtkcommon
 
 vtk::load_component vtkIOTCL

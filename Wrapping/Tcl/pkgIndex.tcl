@@ -4,7 +4,7 @@ namespace eval ::vtktcl {
     variable package_index_dir [file dirname [info script]] 
 }
 
-package ifneeded vtktcl 3.3 {
+package ifneeded vtktcl 4.0 {
 
     # load_component: load a VTK component 
     #        Example: ::vtktcl::load_component vtkFilteringTCL
@@ -118,7 +118,7 @@ package ifneeded vtktcl 3.3 {
     }
 
     if {$ok} {
-        package provide vtktcl 3.3
+        package provide vtktcl 4.0
     }
 }
 

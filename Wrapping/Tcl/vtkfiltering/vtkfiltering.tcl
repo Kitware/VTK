@@ -1,5 +1,5 @@
 
-package provide vtkfiltering 3.3
+package provide vtkfiltering 4.0
 package require vtkcommon
 
 vtk::load_component vtkFilteringTCL

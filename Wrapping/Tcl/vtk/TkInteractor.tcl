@@ -1,7 +1,7 @@
 ## Procedure should be called to set bindings and initialize variables
 #
 
-package provide vtk 3.3
+package provide vtk 4.0
 
 set TkInteractor_StartRenderMethod ""
 set TkInteractor_EndRenderMethod ""

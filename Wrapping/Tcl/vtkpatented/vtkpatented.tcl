@@ -1,5 +1,5 @@
 
-package provide vtkpatented 3.3
+package provide vtkpatented 4.0
 package require vtkgraphics
 package require vtkimaging
 

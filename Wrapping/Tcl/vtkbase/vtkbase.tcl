@@ -1,7 +1,14 @@
-package provide vtkbase 3.3
+package provide vtkbase 4.0
 
 namespace eval vtk {
 
+
+  proc load_tk {} {
+    if { [lsearch [package names] Tk] == -1 } {
+      ::vtk::load_componont tk
+    }
+  }
+  
 # load_component: load a VTK component 
 #        Example: ::vtk::load_component vtkFilteringTCL
 
@@ -30,10 +37,10 @@ proc load_component {name} {
     }
     # If not loaded but file was found, return immediately
     if {[file exists $libname]} {
-      error $errormsg
+      puts stderr $errormsg
     }
   }
-  error "::vtk::load_component: $name could not be found!"
+  puts stderr "::vtk::load_component: $name could not be found!"
 }
 
 # I won't 'rename ::vtk::load_component ""' because it will be 

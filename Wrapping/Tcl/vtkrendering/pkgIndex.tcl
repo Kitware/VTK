@@ -8,4 +8,4 @@
 # script is sourced, the variable $dir must contain the
 # full path name of this file's directory.
 
-package ifneeded vtkrendering 3.3 [list source [file join $dir vtkrendering.tcl]]
+package ifneeded vtkrendering 4.0 [list source [file join $dir vtkrendering.tcl]]

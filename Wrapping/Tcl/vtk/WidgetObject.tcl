@@ -1,7 +1,7 @@
 # These procs allow widgets to behave like objects with their own
 # state variables of processing objects.
 
-package provide vtk 3.3
+package provide vtk 4.0
 
 # generate a "unique" name for a widget variable
 proc GetWidgetVariable {widget varName} {

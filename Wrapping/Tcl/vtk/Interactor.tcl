@@ -1,7 +1,7 @@
 # a generic interactor for tcl and vtk
 #
 
-package provide vtk 3.3
+package provide vtk 4.0
 
 catch {unset vtkInteract.bold}
 catch {unset vtkInteract.normal}

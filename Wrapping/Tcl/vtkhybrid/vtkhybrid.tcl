@@ -1,5 +1,5 @@
 
-package provide vtkhybrid 3.3
+package provide vtkhybrid 4.0
 package require vtkgraphics
 package require vtkimaging
 

@@ -1,4 +1,4 @@
-package provide vtk 3.3
+package provide vtk 4.0
 
 package require vtkbase
 package require vtkcommon

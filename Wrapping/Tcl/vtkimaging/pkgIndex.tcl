@@ -8,4 +8,4 @@
 # script is sourced, the variable $dir must contain the
 # full path name of this file's directory.
 
-package ifneeded vtkimaging 3.3 [list source [file join $dir vtkimaging.tcl]]
+package ifneeded vtkimaging 4.0 [list source [file join $dir vtkimaging.tcl]]
