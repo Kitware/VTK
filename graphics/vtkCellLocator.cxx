@@ -1509,18 +1509,6 @@ float vtkCellLocator::Distance2ToBounds(float x[3], float bounds[6])
     {
     return deltas[0]*deltas[0];
     }
-  else if (deltas[0] == 0.0)
-    {
-    deltas[0] = 0.0;
-    }
-  else if (deltas[1] == 0.0)
-    {
-    deltas[1] = 0.0;
-    }
-  else if (deltas[2] == 0.0)
-    {
-    deltas[2] = 0.0;
-    }
     
   distance = vtkMath::Dot(deltas, deltas);
   return distance;
