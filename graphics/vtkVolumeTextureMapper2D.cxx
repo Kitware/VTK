@@ -1102,8 +1102,8 @@ VolumeTextureMapper2D_ZMajorDirection( T *data_ptr,
 
 vtkVolumeTextureMapper2D::vtkVolumeTextureMapper2D()
 {
-  this->TargetTextureSize[0] = 512;
-  this->TargetTextureSize[1] = 512;
+  this->TargetTextureSize[0] = 128;
+  this->TargetTextureSize[1] = 128;
 }
 
 vtkVolumeTextureMapper2D::~vtkVolumeTextureMapper2D()
