@@ -146,7 +146,7 @@ foreach afile $files {
     # This line MUST start with a space so that name conflicts won't occur in
     # grep statements in other files
     set Name [padString $afile 29]
-    puts -nonewline $logFile "\n $Name - Crashed"
+    puts -nonewline $logFile "\n $Name - "
     flush stdout
     
     # Create a timer so that we can get CPU time.
@@ -156,7 +156,7 @@ foreach afile $files {
     set wallTime [decipadString [expr [lindex [time {source $afile} 1] 0] / 1000000.0] 4 9]
     set endCPU [timer GetCPUTime]
     set CPUTime [decipadString [expr $endCPU - $startCPU] 3 8]
-    puts -nonewline $logFile "\b\b\b\b\b\b\b$wallTime wall, $CPUTime cpu, "
+    puts -nonewline $logFile "$wallTime wall, $CPUTime cpu, "
     
     vtkWindowToImageFilter w2if
     
