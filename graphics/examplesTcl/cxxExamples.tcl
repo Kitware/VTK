@@ -60,7 +60,7 @@ foreach afile $allFiles {
 # remove files that are not suitable for regression tests or simply don't 
 # work right now
 set noTest {
-    VRMLServer XMace2 config.status }
+    VRMLServer XMace2 config.status configure configure.in CVS Makefile.in}
 
 for {set i 0} {$i < [llength $noTest]} {incr i} {
     if {[set pos [lsearch $files [lindex $noTest $i]]] != -1} {
@@ -148,7 +148,7 @@ foreach afile $files {
     # Use the tcl time command to get wall time
     vtkTimerLog timer
     set startCPU [timer GetCPUTime]
-    set wallTime [decipadString [expr [lindex [time {catch {exec $afile -S}} 1] 0] / 1000000.0] 4 9]
+    set wallTime [decipadString [expr [lindex [time {catch {puts "[exec $afile -S]"}} 1] 0] / 1000000.0] 4 9]
     set endCPU [timer GetCPUTime]
     set CPUTime [decipadString [expr $endCPU - $startCPU] 3 8]
     puts -nonewline $logFile "$wallTime wall, $CPUTime cpu, "
