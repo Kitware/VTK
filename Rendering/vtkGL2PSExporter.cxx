@@ -21,13 +21,14 @@
 #include "vtkRenderWindow.h"
 #include "gl2ps.h"
 
-vtkCxxRevisionMacro(vtkGL2PSExporter, "1.2");
+vtkCxxRevisionMacro(vtkGL2PSExporter, "1.3");
 vtkStandardNewMacro(vtkGL2PSExporter);
 
 vtkGL2PSExporter::vtkGL2PSExporter()
 {
   this->FilePrefix = NULL;
   this->FileFormat = PS_FILE;
+  this->Sort = SIMPLE_SORT;
   this->DrawBackground = 0;
   this->SimpleLineOffset = 1;
   this->Silent = 0;
@@ -51,6 +52,7 @@ void vtkGL2PSExporter::WriteData()
   FILE *fpObj;
   char *fName;
   GLint format;
+  GLint sort;
   GLint options = GL2PS_NONE;
   int buffsize = 0;
   int state = GL2PS_OVERFLOW;
@@ -63,7 +65,27 @@ void vtkGL2PSExporter::WriteData()
   viewport[2] = sz[0];
   viewport[3] = sz[1];
 
-  // Set the options based on user's choices.   
+  // make sure the user specified a file prefix
+  if (this->FilePrefix == NULL)
+    {
+    vtkErrorMacro(<< "Please specify a file prefix to use");
+    return;
+    }
+
+  // Set the options based on user's choices.
+  if (this->Sort == NO_SORT)
+    {
+    sort = GL2PS_NO_SORT;
+    }
+  else if (this->Sort == SIMPLE_SORT)
+    {
+    sort = GL2PS_SIMPLE_SORT;
+    }
+  else
+    {
+    sort = GL2PS_BSP_SORT;
+    }  
+
   if (this->DrawBackground == 1)
     {
     options = options | GL2PS_DRAW_BACKGROUND;
@@ -123,17 +145,23 @@ void vtkGL2PSExporter::WriteData()
     return;
     }
 
+  // Writing the file using GL2PS.
+  vtkDebugMacro(<<"Writing file using GL2PS");
+
   // Call gl2ps to generate the file.
   while(state == GL2PS_OVERFLOW)
     {
     buffsize += 1024*1024;
     gl2psBeginPage(this->RenderWindow->GetWindowName(), "VTK", viewport,
-                   format, GL2PS_BSP_SORT, options,
-                   GL_RGBA, 0, NULL, 0, 0, 0, buffsize, fpObj, fName);
+                   format, sort, options, GL_RGBA, 0, 
+                   NULL, 0, 0, 0, buffsize, fpObj, fName);
     this->RenderWindow->Render();
     state = gl2psEndPage();
     }
   fclose(fpObj);
+  delete[] fName;
+
+  vtkDebugMacro(<<"Finished writing file using GL2PS");
 }
 
 void vtkGL2PSExporter::PrintSelf(ostream& os, vtkIndent indent)
@@ -149,21 +177,10 @@ void vtkGL2PSExporter::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "FilePrefix: (null)\n";      
     }
 
-  os << indent << "FileFormat: ";
-  switch (this->FileFormat)
-    {
-    case PS_FILE:
-      os << "PS";
-      break;
-    case EPS_FILE:
-      os << "EPS";
-      break;
-    case TEX_FILE:
-      os << "TeX";
-      break;
-    }
-  os << endl;
-
+  os << indent << "FileFormat: " 
+     << this->GetFileFormatAsString() << "\n";
+  os << indent << "Sort: "
+     << this->GetSortAsString() << "\n";
   os << indent << "DrawBackground: "
      << (this->DrawBackground ? "On\n" : "Off\n");
   os << indent << "SimpleLineOffset: "

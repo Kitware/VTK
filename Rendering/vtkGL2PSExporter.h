@@ -18,12 +18,13 @@
 // .NAME vtkGL2PSExporter - export a scene as a PostScript file using GL2PS.
 // .SECTION Description
 // vtkGL2PSExporter is a concrete subclass of vtkExporter that writes
-// high quality vector PostScript files (PS/EPS) by using GL2PS.  This
-// can be very useful when one requires publication quality pictures.
-// This class works best with simple 3D scenes and most 2D plots.
-// Please note that GL2PS has its limitations since PostScript is not
-// an ideal language to represent complex 3D scenes.  Please do read
-// the caveats section of this documentation.
+// high quality vector PostScript files (PS/EPS) by using GL2PS.
+// GL2PS can be obtained at: http://www.geuz.org/gl2ps/.  This can be
+// very useful when one requires publication quality pictures.  This
+// class works best with simple 3D scenes and most 2D plots.  Please
+// note that GL2PS has its limitations since PostScript is not an
+// ideal language to represent complex 3D scenes.  Please do read the
+// caveats section of this documentation.
 //
 // By default vtkGL2PSExporter generates PostScript output along with
 // the text in portrait orientation with the background being set to
@@ -51,14 +52,15 @@
 // to find the header file (gl2ps.h) and the gl2ps library.  With gcc
 // you can generate a libgl2ps.so like so:
 //
-// $ gcc -fPIC -g -c gl2ps.c
-// $ gcc gcc -shared -o libgl2ps.so gl2ps.o -lglut
+// $ gcc -fPIC -g -O2 -c gl2ps.c
+// $ gcc -shared -o libgl2ps.so gl2ps.o
 
 // .SECTION Caveats
 // Exporting complex 3D scenes can result in huge output files.
 // Generating correct output for scenes with transparency is almost
-// impossible.  Generating TeX output can sometimes cause funny
-// problems especially if there is no text in the scene.
+// impossible.  When generating TeX output one needs to be certain
+// that there is text in the scene.  If there is no text in the scene
+// your program will crash!
 
 // .SECTION See Also
 // vtkExporter
@@ -108,6 +110,30 @@ public:
     {this->SetFileFormat(EPS_FILE);};
   void SetFileFormatToTeX()
     {this->SetFileFormat(TEX_FILE);};
+  char *GetFileFormatAsString();
+
+//BTX
+  enum SortScheme
+  {
+      NO_SORT=0,
+      SIMPLE_SORT=1,
+      BSP_SORT=2
+  };
+//ETX
+
+  // Description:
+  // Set the the type of sorting algorithm to order primitives from
+  // back to front.  Successive algorithms are more memory
+  // intensive.  Simple is the default but BSP is perhaps the best.
+  vtkSetClampMacro(Sort, int, NO_SORT, BSP_SORT);
+  vtkGetMacro(Sort,int);
+  void SetSortToOff()
+    {this->SetSort(NO_SORT);};
+  void SetSortToSimple() 
+    {this->SetSort(SIMPLE_SORT);};
+  void SetSortToBSP() 
+    {this->SetSort(BSP_SORT);};
+  char *GetSortAsString();
 
   // Description:
   // Turn on/off drawing the background frame.  If off (default) the
@@ -181,6 +207,7 @@ protected:
 
   char *FilePrefix;
   int FileFormat;
+  int Sort;
   int DrawBackground;
   int SimpleLineOffset;
   int Silent;
@@ -194,5 +221,37 @@ private:
   vtkGL2PSExporter(const vtkGL2PSExporter&); // Not implemented
   void operator=(const vtkGL2PSExporter&); // Not implemented
 };
+
+inline char *vtkGL2PSExporter::GetSortAsString(void)
+{
+  if ( this->Sort == NO_SORT )
+    {
+    return (char *)"Off";
+    }
+  else if ( this->Sort == SIMPLE_SORT )
+    {
+    return (char *)"Simple";
+    }
+  else
+    {
+    return (char *)"BSP";
+    }
+}
+
+inline char *vtkGL2PSExporter::GetFileFormatAsString(void)
+{
+  if ( this->FileFormat == PS_FILE )
+    {
+    return (char *)"PS";
+    }
+  else if ( this->FileFormat == EPS_FILE )
+    {
+    return (char *)"EPS";
+    }
+  else
+    {
+    return (char *)"TeX";
+    }
+}
 
 #endif
