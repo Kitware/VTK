@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-# include "vtkHull.h"
+#include "vtkHull.h"
 
 // Construct an the hull object with no planes
 vtkHull::vtkHull()
