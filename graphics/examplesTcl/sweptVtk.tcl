@@ -47,7 +47,7 @@ vtkActor sweptSurface
   sweptSurface SetMapper sweptSurfaceMapper
   [sweptSurface GetProperty] SetColor 0.2510 0.8784 0.8157
 
-$ren1 AddActors sweptSurface
+$ren1 AddActor sweptSurface
 $ren1 SetBackground 1 1 1
 
 $renWin SetSize 500 500

@@ -63,7 +63,7 @@ vtkActor bottle
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActors bottle
+$ren1 AddActor bottle
 $ren1 SetBackground 1 1 1
 
 $renWin SetSize 500 500

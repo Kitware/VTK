@@ -29,8 +29,8 @@ set iren [$renWin MakeRenderWindowInteractor]
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActors model
-$ren1 AddActors boxActor
+$ren1 AddActor model
+$ren1 AddActor boxActor
 $ren1 SetBackground 0.1 0.2 0.4
 $renWin SetSize 500 500
 [$ren1 GetActiveCamera] Zoom 1.5

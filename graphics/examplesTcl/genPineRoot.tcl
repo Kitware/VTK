@@ -44,7 +44,7 @@ vtkActor a
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActors a
+$ren1 AddActor a
 $ren1 SetBackground 1 1 1
 $renWin SetSize 500 500
 eval $ren1 SetBackground $slate_grey

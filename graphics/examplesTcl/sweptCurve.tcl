@@ -70,8 +70,8 @@ set iren   [$renWin MakeRenderWindowInteractor]
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActors sweep
-$ren1 AddActors seam
+$ren1 AddActor sweep
+$ren1 AddActor seam
 $ren1 SetBackground 1 1 1
 $ren1 TwoSidedLightingOn
 

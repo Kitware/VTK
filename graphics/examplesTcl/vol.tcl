@@ -24,7 +24,7 @@ vtkActor outline1Actor
 outline1Actor SetMapper outlineMapper
 
 $ren1 SetBackground 0.1 0.2 0.4
-$ren1 AddActors outline1Actor
+$ren1 AddActor outline1Actor
 $renWin SetSize 150 150
 $renWin Render
 [$ren1 GetActiveCamera] Zoom 1.5

@@ -67,7 +67,7 @@ vtkActor triangleActor
     triangleActor SetTexture aTexture
 
 $ren1 SetBackground .3 .7 .2
-$ren1 AddActors triangleActor
+$ren1 AddActor triangleActor
 [$ren1 GetActiveCamera] Zoom 1.5
 
 # render the image

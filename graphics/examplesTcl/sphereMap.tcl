@@ -47,7 +47,7 @@ set iren   [$renWin MakeRenderWindowInteractor]
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActors triangulation
+$ren1 AddActor triangulation
 $ren1 SetBackground 1 1 1
 $renWin SetSize 500 500
 

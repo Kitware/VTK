@@ -47,7 +47,7 @@ vtkActor hawaiiActor
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActors hawaiiActor
+$ren1 AddActor hawaiiActor
 $ren1 SetBackground 1 1 1
 $renWin SetSize 500 500
 $ren1 SetBackground 0.1 0.2 0.4

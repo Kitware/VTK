@@ -46,8 +46,8 @@ vtkActor outlineActor
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActors outlineActor
-$ren1 AddActors isoActor
+$ren1 AddActor outlineActor
+$ren1 AddActor isoActor
 $ren1 SetBackground 0.2 0.3 0.4
 $renWin SetSize 450 450
 [$ren1 GetActiveCamera] Elevation 90

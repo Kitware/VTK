@@ -63,12 +63,12 @@ vtkLODActor spikeActor
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActors sphereActor
-$ren1 AddActors spikeActor
+$ren1 AddActor sphereActor
+$ren1 AddActor spikeActor
 $ren1 SetBackground 0.1 0.2 0.4
 $renWin1 SetSize 300 300
 
-$ren2 AddActors sphereActor
-$ren2 AddActors spikeActor
+$ren2 AddActor sphereActor
+$ren2 AddActor spikeActor
 $ren2 SetBackground 0.1 0.2 0.4
 $renWin2 SetSize 300 300

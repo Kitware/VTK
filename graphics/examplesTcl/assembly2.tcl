@@ -99,8 +99,8 @@ vtkAssembly topLevel
 # Add the actors to the renderer, set the background and size
 #
 
-$ren1 AddActors threeGroups
-$ren1 AddActors threeGroups2
+$ren1 AddActor threeGroups
+$ren1 AddActor threeGroups2
 $ren1 SetBackground 0.1 0.2 0.4
 $renWin SetSize 450 450
 

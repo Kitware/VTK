@@ -95,11 +95,11 @@ vtkActor outlineActor
     outlineActor SetMapper outlineMapper
     [outlineActor GetProperty] SetColor 0 0 0
 
-$ren1 AddActors outlineActor
-$ren1 AddActors planeActor
-$ren1 AddActors tpd1Actor
-$ren1 AddActors tpd2Actor
-$ren1 AddActors tpd3Actor
+$ren1 AddActor outlineActor
+$ren1 AddActor planeActor
+$ren1 AddActor tpd1Actor
+$ren1 AddActor tpd2Actor
+$ren1 AddActor tpd3Actor
 $ren1 SetBackground 1 1 1
 $renWin SetSize 500 500
 

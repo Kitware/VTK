@@ -38,8 +38,8 @@ vtkActor impActor;
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActors lineActor
-$ren1 AddActors impActor
+$ren1 AddActor lineActor
+$ren1 AddActor impActor
 $ren1 SetBackground 1 1 1
 $renWin SetSize 600 250
 

@@ -236,27 +236,27 @@ vtkPolyMapper mapStreamers
 vtkActor streamersActor
     streamersActor SetMapper mapStreamers
 
-$ren1 AddActors table1Actor
-$ren1 AddActors table2Actor
-$ren1 AddActors FilingCabinet1Actor
-$ren1 AddActors FilingCabinet2Actor
-$ren1 AddActors bookshelf1TopActor
-$ren1 AddActors bookshelf1BottomActor
-$ren1 AddActors bookshelf1FrontActor
-$ren1 AddActors bookshelf1BackActor
-$ren1 AddActors bookshelf1LHSActor
-$ren1 AddActors bookshelf1RHSActor
-$ren1 AddActors bookshelf2TopActor
-$ren1 AddActors bookshelf2BottomActor
-$ren1 AddActors bookshelf2FrontActor
-$ren1 AddActors bookshelf2BackActor
-$ren1 AddActors bookshelf2LHSActor
-$ren1 AddActors bookshelf2RHSActor
-$ren1 AddActors windowActor
-$ren1 AddActors outletActor
-$ren1 AddActors inletActor
-$ren1 AddActors outlineActor
-$ren1 AddActors streamersActor
+$ren1 AddActor table1Actor
+$ren1 AddActor table2Actor
+$ren1 AddActor FilingCabinet1Actor
+$ren1 AddActor FilingCabinet2Actor
+$ren1 AddActor bookshelf1TopActor
+$ren1 AddActor bookshelf1BottomActor
+$ren1 AddActor bookshelf1FrontActor
+$ren1 AddActor bookshelf1BackActor
+$ren1 AddActor bookshelf1LHSActor
+$ren1 AddActor bookshelf1RHSActor
+$ren1 AddActor bookshelf2TopActor
+$ren1 AddActor bookshelf2BottomActor
+$ren1 AddActor bookshelf2FrontActor
+$ren1 AddActor bookshelf2BackActor
+$ren1 AddActor bookshelf2LHSActor
+$ren1 AddActor bookshelf2RHSActor
+$ren1 AddActor windowActor
+$ren1 AddActor outletActor
+$ren1 AddActor inletActor
+$ren1 AddActor outlineActor
+$ren1 AddActor streamersActor
 
 eval $ren1 SetBackground $slate_grey
 

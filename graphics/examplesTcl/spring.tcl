@@ -62,7 +62,7 @@ vtkActor spring
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActors spring
+$ren1 AddActor spring
 $ren1 SetBackground 1 1 1
 $renWin SetSize 500 500
 

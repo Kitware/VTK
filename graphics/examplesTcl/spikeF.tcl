@@ -51,8 +51,8 @@ eval [spikeActor GetProperty] SetColor 0.0 0.79 0.34
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActors cyberActor
-$ren1 AddActors spikeActor
+$ren1 AddActor cyberActor
+$ren1 AddActor spikeActor
 $ren1 SetBackground 1 1 1
 $renWin SetSize 500 500
 #$renWin SetSize 1000 1000

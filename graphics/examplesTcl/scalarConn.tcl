@@ -59,8 +59,8 @@ set ren1 [$renWin MakeRenderer]
 set iren [$renWin MakeRenderWindowInteractor]
 
 $ren1 SetBackground 1 1 1
-$ren1 AddActors contActor
-$ren1 AddActors outlineActor
+$ren1 AddActor contActor
+$ren1 AddActor outlineActor
 [$ren1 GetActiveCamera] Zoom 1.4
 $iren SetUserMethod {wm deiconify .vtkInteract}
 $iren Initialize

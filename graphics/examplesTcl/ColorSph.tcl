@@ -26,7 +26,7 @@ set renWin [rm MakeRenderWindow]
 set iren [$renWin MakeRenderWindowInteractor]
 set ren1 [$renWin MakeRenderer]
 
-$ren1 AddActors actor
+$ren1 AddActor actor
 $ren1 SetBackground 1 1 1
 $renWin SetSize 400 400
 [$ren1 GetActiveCamera] Zoom 1.4

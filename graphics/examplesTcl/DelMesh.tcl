@@ -74,9 +74,9 @@ set ren1   [$renWin MakeRenderer]
 set iren   [$renWin MakeRenderWindowInteractor]
 
 # Add the actors to the renderer, set the background and size
-$ren1 AddActors ballActor
-#$ren1 AddActors meshActor
-$ren1 AddActors edgeActor
+$ren1 AddActor ballActor
+#$ren1 AddActor meshActor
+$ren1 AddActor edgeActor
 $ren1 SetBackground 1 1 1
 $renWin SetSize 150 150
 #$renWin SetSize 500 500

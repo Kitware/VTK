@@ -193,28 +193,28 @@ vtkNewVolumeRenderer *vtkRenderer::GetNewVolumeRenderer()
 
 // Description:
 // Add a light to the list of lights.
-void vtkRenderer::AddLights(vtkLight *light)
+void vtkRenderer::AddLight(vtkLight *light)
 {
   this->Lights.AddItem(light);
 }
 
 // Description:
 // Add an actor to the list of actors.
-void vtkRenderer::AddActors(vtkActor *actor)
+void vtkRenderer::AddActor(vtkActor *actor)
 {
   this->Actors.AddItem(actor);
 }
 
 // Description:
 // Remove a light from the list of lights.
-void vtkRenderer::RemoveLights(vtkLight *light)
+void vtkRenderer::RemoveLight(vtkLight *light)
 {
   this->Lights.RemoveItem(light);
 }
 
 // Description:
 // Remove an actor from the list of actors.
-void vtkRenderer::RemoveActors(vtkActor *actor)
+void vtkRenderer::RemoveActor(vtkActor *actor)
 {
   this->Actors.RemoveItem(actor);
 }
@@ -223,7 +223,7 @@ void vtkRenderer::CreateLight(void)
 {
     this->CreatedLight = vtkLight::New();
     this->SelfCreatedLight = 1;
-    this->AddLights(this->CreatedLight);
+    this->AddLight(this->CreatedLight);
     this->CreatedLight->SetPosition(this->ActiveCamera->GetPosition());
     this->CreatedLight->SetFocalPoint(this->ActiveCamera->GetFocalPoint());
 }

@@ -16,7 +16,7 @@ vtkActor coneActor
   coneActor SetMapper coneMapper
 
 # assign our actor to the renderer
-$ren1 AddActors coneActor
+$ren1 AddActor coneActor
 
 # enable user interface interactor
 $iren SetUserMethod {wm deiconify .vtkInteract}

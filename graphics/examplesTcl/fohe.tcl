@@ -25,7 +25,7 @@ vtkActor byuActor
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActors byuActor
+$ren1 AddActor byuActor
 $ren1 SetBackground 0.2 0.3 0.4
 $renWin SetSize 500 500
 

@@ -24,7 +24,7 @@ vtkActor coneActor
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActors coneActor
+$ren1 AddActor coneActor
 $ren1 SetBackground 0.1 0.2 0.4
 $renWin SetSize 450 450
 

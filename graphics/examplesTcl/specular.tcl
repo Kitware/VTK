@@ -24,7 +24,7 @@ vtkLODActor sphereActor
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActors sphereActor
+$ren1 AddActor sphereActor
 $ren1 SetBackground 0.1 0.2 0.4
 $renWin SetSize 375 375
 

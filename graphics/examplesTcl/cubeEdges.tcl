@@ -37,8 +37,8 @@ vtkActor vertActor
   [vertActor GetProperty] SetColor 0 0 1
 
 # assign our actor to the renderer
-$ren1 AddActors cubeActor
-$ren1 AddActors vertActor
+$ren1 AddActor cubeActor
+$ren1 AddActor vertActor
 
 # enable user interface interactor
 $iren SetUserMethod {wm deiconify .vtkInteract}

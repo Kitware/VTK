@@ -68,7 +68,7 @@ set renWin [rm MakeRenderWindow]
 set ren1   [$renWin MakeRenderer]
 set iren [$renWin MakeRenderWindowInteractor]
 
-$ren1 AddActors carpet
+$ren1 AddActor carpet
 $renWin SetSize 500 500
 
 # render the image

@@ -48,7 +48,7 @@ vtkActor strip
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActors strip
+$ren1 AddActor strip
 $ren1 SetBackground 1 1 1
 $renWin SetSize 500 500
 $renWin Render

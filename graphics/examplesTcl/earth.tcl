@@ -41,8 +41,8 @@ earth2Actor SetMapper earth2Mapper
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActors earthActor
-$ren1 AddActors earth2Actor
+$ren1 AddActor earthActor
+$ren1 AddActor earth2Actor
 $ren1 SetBackground 0 0 0.1
 $renWin SetSize 300 300
 

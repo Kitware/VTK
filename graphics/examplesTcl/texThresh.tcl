@@ -107,12 +107,12 @@ vtkActor outlineActor
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActors outlineActor
-$ren1 AddActors wallActor
-$ren1 AddActors finActor
-$ren1 AddActors plane1Actor
-$ren1 AddActors plane2Actor
-$ren1 AddActors plane3Actor
+$ren1 AddActor outlineActor
+$ren1 AddActor wallActor
+$ren1 AddActor finActor
+$ren1 AddActor plane1Actor
+$ren1 AddActor plane2Actor
+$ren1 AddActor plane3Actor
 $ren1 SetBackground 1 1 1
 $renWin SetSize 500 500
 

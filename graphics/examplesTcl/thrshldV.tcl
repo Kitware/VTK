@@ -63,9 +63,9 @@ eval $outlineProp SetColor 0 0 0
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActors outlineActor
-$ren1 AddActors vecActor
-$ren1 AddActors isoActor
+$ren1 AddActor outlineActor
+$ren1 AddActor vecActor
+$ren1 AddActor isoActor
 $ren1 SetBackground 1 1 1
 $renWin SetSize 500 500
 #$renWin SetSize 1000 1000

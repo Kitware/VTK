@@ -84,9 +84,9 @@ vtkCamera camera
     camera SetViewAngle 24.4617
     camera SetViewUp 0.17138 0.331163 0.927879
 
-$ren1 AddActors ellipActor
-$ren1 AddActors outlineActor
-$ren1 AddActors coneActor
+$ren1 AddActor ellipActor
+$ren1 AddActor outlineActor
+$ren1 AddActor coneActor
 $ren1 SetBackground 1.0 1.0 1.0
 $ren1 SetActiveCamera camera
 

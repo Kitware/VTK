@@ -25,8 +25,8 @@ set renWin [rm MakeRenderWindow]
 set ren1   [$renWin MakeRenderer]
 set iren [$renWin MakeRenderWindowInteractor]
 
-$ren1 AddActors axesActor
-$ren1 AddActors textActor
+$ren1 AddActor axesActor
+$ren1 AddActor textActor
 [$ren1 GetActiveCamera] Zoom 1.6
 $renWin Render
 textActor SetCamera [$ren1 GetActiveCamera]

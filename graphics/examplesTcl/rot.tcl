@@ -24,14 +24,14 @@ originmapper SetInput [originsource GetOutput]
 origin SetMapper originmapper
 [origin GetProperty] SetAmbient 1.0
 [origin GetProperty] SetDiffuse 0.0
-$ren1 AddActors origin
+$ren1 AddActor origin
 
 testsource SetScaleFactor 2000.0
 testmapper SetInput [testsource GetOutput]
 test SetMapper testmapper
 [test GetProperty] SetAmbient 1.0
 [test GetProperty] SetDiffuse 0.0
-$ren1 AddActors test
+$ren1 AddActor test
 
 test SetPosition 0.0 1500.0 0.0
 $renWin Render

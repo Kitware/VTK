@@ -32,7 +32,7 @@ eval [cyberActor GetProperty] SetColor 1.0 0.49 0.25
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActors cyberActor
+$ren1 AddActor cyberActor
 $ren1 SetBackground 1 1 1
 $renWin SetSize 500 500
 #$ren1 SetBackground 0.1 0.2 0.4

@@ -37,7 +37,7 @@ vtkActor spikeActor
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActors spikeActor
+$ren1 AddActor spikeActor
 $ren1 SetBackground 0.1 0.2 0.4
 $renWin SetSize 500 300
 set cam1 [$ren1 GetActiveCamera]

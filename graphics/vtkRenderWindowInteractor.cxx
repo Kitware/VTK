@@ -170,7 +170,7 @@ void vtkRenderWindowInteractor::HighlightActor(vtkActor *actor)
     }
 
   if ( this->PickedRenderer ) 
-    this->PickedRenderer->RemoveActors(OutlineActor);
+    this->PickedRenderer->RemoveActor(OutlineActor);
 
   if ( ! actor )
     {
@@ -179,7 +179,7 @@ void vtkRenderWindowInteractor::HighlightActor(vtkActor *actor)
   else 
     {
     this->PickedRenderer = this->CurrentRenderer;
-    this->CurrentRenderer->AddActors(OutlineActor);
+    this->CurrentRenderer->AddActor(OutlineActor);
     this->Outline.SetBounds(actor->GetBounds());
     this->CurrentActor = actor;
     }

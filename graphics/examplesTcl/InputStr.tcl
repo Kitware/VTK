@@ -1326,7 +1326,7 @@ vtkActor plateActor
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActors plateActor
+$ren1 AddActor plateActor
 $ren1 SetBackground 1 1 1
 $renWin SetSize 500 500
 

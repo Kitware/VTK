@@ -230,15 +230,15 @@ a6Actor SetScale 1.5 1.5 1.5
 [a6Actor GetProperty] SetDiffuse 0.8
 
 # Add the actors to the renderer, set the background and size
-$ren1 AddActors camActor
-$ren1 AddActors a1Actor
-$ren1 AddActors a2Actor
-$ren1 AddActors a3Actor
-$ren1 AddActors a4Actor
-$ren1 AddActors a5Actor
-$ren1 AddActors a6Actor
-$ren1 AddActors a7Actor
-$ren1 AddActors fpActor
+$ren1 AddActor camActor
+$ren1 AddActor a1Actor
+$ren1 AddActor a2Actor
+$ren1 AddActor a3Actor
+$ren1 AddActor a4Actor
+$ren1 AddActor a5Actor
+$ren1 AddActor a6Actor
+$ren1 AddActor a7Actor
+$ren1 AddActor fpActor
 $ren1 SetBackground 0.1 0.2 0.4
 $renWin SetSize 500 500
 

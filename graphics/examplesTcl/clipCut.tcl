@@ -157,10 +157,10 @@ set iren [$renWin MakeRenderWindowInteractor]
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActors ballActor
-$ren1 AddActors edgeActor
-$ren1 AddActors meshActor
-$ren1 AddActors clippedActor
+$ren1 AddActor ballActor
+$ren1 AddActor edgeActor
+$ren1 AddActor meshActor
+$ren1 AddActor clippedActor
 $ren1 SetBackground 1 1 1
 $renWin SetSize 400 400
 [$ren1 GetActiveCamera] Zoom 1.3

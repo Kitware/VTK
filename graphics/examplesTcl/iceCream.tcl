@@ -70,8 +70,8 @@ vtkActor creamActor
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActors coneActor
-$ren1 AddActors creamActor
+$ren1 AddActor coneActor
+$ren1 AddActor creamActor
 $ren1 SetBackground 1 1 1
 $renWin SetSize 500 500
 [$ren1 GetActiveCamera] Roll 90

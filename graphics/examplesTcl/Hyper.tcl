@@ -148,13 +148,13 @@ vtkCamera camera
     camera SetViewAngle 24.4617
     camera SetViewUp 0.17138 0.331163 0.927879
 
-$ren1 AddActors s1Actor
-$ren1 AddActors s2Actor
-$ren1 AddActors s3Actor
-$ren1 AddActors s4Actor
-$ren1 AddActors outlineActor
-$ren1 AddActors coneActor
-$ren1 AddActors ga
+$ren1 AddActor s1Actor
+$ren1 AddActor s2Actor
+$ren1 AddActor s3Actor
+$ren1 AddActor s4Actor
+$ren1 AddActor outlineActor
+$ren1 AddActor coneActor
+$ren1 AddActor ga
 $ren1 SetBackground 1.0 1.0 1.0
 $ren1 SetActiveCamera camera
 

@@ -46,8 +46,8 @@ set iren [$renWin MakeRenderWindowInteractor]
     eval [outlineActor GetProperty] SetColor 0 0 0
 
   $ren1 SetBackground 1 1 1
-  $ren1 AddActors contActor
-  $ren1 AddActors outlineActor
+  $ren1 AddActor contActor
+  $ren1 AddActor outlineActor
 
 $iren SetUserMethod {wm deiconify .vtkInteract}
 $iren Initialize

@@ -66,8 +66,8 @@ proc OpenFile {} {
     }
     set filename [tk_getOpenFile -filetypes $types]
     if { $filename != "" } {
-        $ren RemoveActors bannerActor
-        $ren RemoveActors actor
+        $ren RemoveActor bannerActor
+        $ren RemoveActor actor
         if { [string match *.g $filename] } {
             set reader byu
             byu SetGeometryFilename $filename
@@ -85,9 +85,9 @@ proc OpenFile {} {
         mapper SetInput [$reader GetOutput]
         $reader Update
         if { [[$reader GetOutput] GetNumberOfCells] <= 0 } {
-            $ren AddActors bannerActor
+            $ren AddActor bannerActor
         } else {
-            $ren AddActors actor
+            $ren AddActor actor
         }
         $ren ResetCamera
         $renWin Render
@@ -113,5 +113,5 @@ vtkActor bannerActor
 set renWin [.window GetRenderWindow]
 set ren   [$renWin MakeRenderer]
 
-$ren AddActors bannerActor
+$ren AddActor bannerActor
 [$ren GetActiveCamera] Zoom 1.25

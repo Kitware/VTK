@@ -72,11 +72,11 @@ public:
   char *GetClassName() {return "vtkRenderer";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  void AddLights(vtkLight *);
-  void AddActors(vtkActor *);
+  void AddLight(vtkLight *);
+  void AddActor(vtkActor *);
 
-  void RemoveLights(vtkLight *);
-  void RemoveActors(vtkActor *);
+  void RemoveLight(vtkLight *);
+  void RemoveActor(vtkActor *);
 
   vtkLightCollection *GetLights();
   vtkActorCollection *GetActors();

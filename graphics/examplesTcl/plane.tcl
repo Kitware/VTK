@@ -51,8 +51,8 @@ set renWin [rm MakeRenderWindow]
 set ren1   [$renWin MakeRenderer]
 set iren [$renWin MakeRenderWindowInteractor]
 
-$ren1 AddActors planeActor
-$ren1 AddActors glyphActor
+$ren1 AddActor planeActor
+$ren1 AddActor glyphActor
 $ren1 SetBackground 0.1 0.2 0.4
 $renWin SetSize 450 450
 

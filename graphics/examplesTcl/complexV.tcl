@@ -39,8 +39,8 @@ set outlineProp [outlineActor GetProperty]
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActors outlineActor
-$ren1 AddActors hhogActor
+$ren1 AddActor outlineActor
+$ren1 AddActor hhogActor
 $ren1 SetBackground 1 1 1
 $renWin SetSize 500 500
 #$renWin SetSize 1000 1000
