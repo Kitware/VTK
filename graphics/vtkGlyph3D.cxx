@@ -355,7 +355,7 @@ void vtkGlyph3D::Execute()
          vNew[0] = (v[0]+vMag) / 2.0;
          vNew[1] = v[1] / 2.0;
          vNew[2] = v[2] / 2.0;
-         trans->RotateWXYZ(180.0,vNew[0],vNew[1],vNew[2]);
+         trans->RotateWXYZ((float)180.0,vNew[0],vNew[1],vNew[2]);
          }
         }
       }
