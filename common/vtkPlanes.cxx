@@ -260,14 +260,14 @@ void vtkPlanes::SetBounds(float bounds[6])
   n[0] = -1.0;
   n[1] = 0.0;
   n[2] = 0.0;
-  x[0] = this->Bounds[0];
+  x[0] = this->Bounds[0] = bounds[0];
   x[1] = 0.0;
   x[2] = 0.0;
   pts->SetPoint(0,x);
   normals->SetTuple(0,n);
 
   n[0] = 1.0;
-  x[0] = this->Bounds[1];
+  x[0] = this->Bounds[1] = bounds[1];
   pts->SetPoint(1,x);
   normals->SetTuple(1,n);
   
@@ -276,13 +276,13 @@ void vtkPlanes::SetBounds(float bounds[6])
   n[1] = -1.0;
   n[2] = 0.0;
   x[0] = 0.0;
-  x[1] = this->Bounds[2];
+  x[1] = this->Bounds[2] = bounds[2];
   x[2] = 0.0;
   pts->SetPoint(2,x);
   normals->SetTuple(2,n);
 
   n[1] = 1.0;
-  x[1] = this->Bounds[3];
+  x[1] = this->Bounds[3] = bounds[3];
   pts->SetPoint(3,x);
   normals->SetTuple(3,n);
   
@@ -292,12 +292,12 @@ void vtkPlanes::SetBounds(float bounds[6])
   n[2] = -1.0;
   x[0] = 0.0;
   x[1] = 0.0;
-  x[2] = this->Bounds[4];
+  x[2] = this->Bounds[4] = bounds[4];
   pts->SetPoint(4,x);
   normals->SetTuple(4,n);
 
   n[2] = 1.0;
-  x[2] = this->Bounds[5];
+  x[2] = this->Bounds[5] = bounds[5];
   pts->SetPoint(5,x);
   normals->SetTuple(5,n);
   
