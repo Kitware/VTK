@@ -185,6 +185,8 @@ void vtkDicer::Execute()
   output->GetPointData()->CopyScalarsOff();
   output->GetPointData()->PassData(input->GetPointData());
 
+  output->GetCellData()->PassData(input->GetCellData());
+
   output->GetPointData()->SetScalars(groupIds);
   groupIds->Delete();
 }
