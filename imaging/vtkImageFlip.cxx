@@ -154,16 +154,16 @@ static void vtkImageFlipExecute(vtkImageFlip *self,
     }
   
   // Loop through ouput pixels
-  inPtr3 = inPtr;
   outPtr3 = outPtr;
+  inPtr3 = inPtr;
   for (idx3 = min3; idx3 <= max3; ++idx3)
     {
     outPtr2 = outPtr3;
     inPtr2 = inPtr3;
     for (idx2 = min2; idx2 <= max2; ++idx2)
       {
-      outPtr1 = outPtr0;
-      inPtr1 = inPtr0;
+      outPtr1 = outPtr2;
+      inPtr1 = inPtr2;
       for (idx1 = min1; idx1 <= max1; ++idx1)
 	{
 	outPtr0 = outPtr1;
