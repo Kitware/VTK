@@ -1056,9 +1056,10 @@ void vtkXRenderWindowInteractor::FinishSettingUpNewWindow()
   this->WindowId = ((vtkXRenderWindow *)(this->RenderWindow))->GetWindowId();
   XSync(this->DisplayId,False);
 
-  XSelectInput(this->DisplayId,this->WindowId,
-		    KeyPressMask | ButtonPressMask | ExposureMask |
-		    StructureNotifyMask | ButtonReleaseMask);
+  this->Enable();
+  //  XSelectInput(this->DisplayId,this->WindowId,
+  //		    KeyPressMask | ButtonPressMask | ExposureMask |
+  //		    StructureNotifyMask | ButtonReleaseMask);
 
   size = this->RenderWindow->GetSize();
   this->Size[0] = size[0];

@@ -283,7 +283,7 @@ void vtkXRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
-void  vtkXRenderWindowInteractor::UpdateSize(int x,int y)
+void vtkXRenderWindowInteractor::UpdateSize(int x,int y)
 {
   // if the size changed send this on to the RenderWindow
   if ((x != this->Size[0])||(y != this->Size[1]))
@@ -295,7 +295,7 @@ void  vtkXRenderWindowInteractor::UpdateSize(int x,int y)
 
 }
  
-void  vtkXRenderWindowInteractor::StartRotate()
+void vtkXRenderWindowInteractor::StartRotate()
 {
   if (this->State != VTKXI_START)
     {
@@ -306,7 +306,7 @@ void  vtkXRenderWindowInteractor::StartRotate()
   this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
   XtAppAddTimeOut(this->App,10,vtkXRenderWindowInteractorTimer,(XtPointer)this);
 }
-void  vtkXRenderWindowInteractor::EndRotate()
+void vtkXRenderWindowInteractor::EndRotate()
 {
   if (this->State != VTKXI_ROTATE)
     {
@@ -317,7 +317,7 @@ void  vtkXRenderWindowInteractor::EndRotate()
   this->RenderWindow->Render();
 }
 
-void  vtkXRenderWindowInteractor::StartZoom()
+void vtkXRenderWindowInteractor::StartZoom()
 {
   if (this->State != VTKXI_START)
     {
@@ -328,7 +328,7 @@ void  vtkXRenderWindowInteractor::StartZoom()
   this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
   XtAppAddTimeOut(this->App,10,vtkXRenderWindowInteractorTimer,(XtPointer)this);
 }
-void  vtkXRenderWindowInteractor::EndZoom()
+void vtkXRenderWindowInteractor::EndZoom()
 {
   if (this->State != VTKXI_ZOOM)
     {
@@ -339,7 +339,7 @@ void  vtkXRenderWindowInteractor::EndZoom()
   this->RenderWindow->Render();
 }
 
-void  vtkXRenderWindowInteractor::StartPan()
+void vtkXRenderWindowInteractor::StartPan()
 {
   if (this->State != VTKXI_START)
     {
@@ -354,7 +354,7 @@ void  vtkXRenderWindowInteractor::StartPan()
   XtAppAddTimeOut(this->App,10,vtkXRenderWindowInteractorTimer,(XtPointer)this);
 }
 
-void  vtkXRenderWindowInteractor::EndPan()
+void vtkXRenderWindowInteractor::EndPan()
 {
   if (this->State != VTKXI_PAN)
     {
@@ -365,7 +365,7 @@ void  vtkXRenderWindowInteractor::EndPan()
   this->RenderWindow->Render();
 }
 
-void  vtkXRenderWindowInteractor::StartSpin()
+void vtkXRenderWindowInteractor::StartSpin()
 {
   if (this->State != VTKXI_START)
     {
@@ -377,7 +377,7 @@ void  vtkXRenderWindowInteractor::StartSpin()
   XtAppAddTimeOut(this->App,10,vtkXRenderWindowInteractorTimer,(XtPointer)this);
 }
 
-void  vtkXRenderWindowInteractor::EndSpin()
+void vtkXRenderWindowInteractor::EndSpin()
 {
   if (this->State != VTKXI_SPIN)
     {
@@ -388,7 +388,7 @@ void  vtkXRenderWindowInteractor::EndSpin()
   this->RenderWindow->Render();
 }
 
-void  vtkXRenderWindowInteractor::StartDolly()
+void vtkXRenderWindowInteractor::StartDolly()
 {
   if (this->State != VTKXI_START)
     {
@@ -400,7 +400,7 @@ void  vtkXRenderWindowInteractor::StartDolly()
   XtAppAddTimeOut(this->App,10,vtkXRenderWindowInteractorTimer,(XtPointer)this);
 }
 
-void  vtkXRenderWindowInteractor::EndDolly()
+void vtkXRenderWindowInteractor::EndDolly()
 {
   if (this->State != VTKXI_DOLLY)
     {
@@ -411,7 +411,7 @@ void  vtkXRenderWindowInteractor::EndDolly()
   this->RenderWindow->Render();
 }
 
-void  vtkXRenderWindowInteractor::StartUniformScale()
+void vtkXRenderWindowInteractor::StartUniformScale()
 {
   if (this->State != VTKXI_START)
     {
@@ -423,7 +423,7 @@ void  vtkXRenderWindowInteractor::StartUniformScale()
   XtAppAddTimeOut(this->App,10,vtkXRenderWindowInteractorTimer,(XtPointer)this);
 }
 
-void  vtkXRenderWindowInteractor::EndUniformScale()
+void vtkXRenderWindowInteractor::EndUniformScale()
 {
   if (this->State != VTKXI_USCALE)
     {
@@ -1139,10 +1139,11 @@ void vtkXRenderWindowInteractor::FinishSettingUpNewWindow()
   XtDestroyWidget(this->oldTop);
   XSync(this->DisplayId,False);
 
-  XtAddEventHandler(this->top,
-		    KeyPressMask | ButtonPressMask | ExposureMask |
-		    StructureNotifyMask | ButtonReleaseMask,
-		    False,vtkXRenderWindowInteractorCallback,(XtPointer)this);
+  this->Enable();
+  //XtAddEventHandler(this->top,
+  //		    KeyPressMask | ButtonPressMask | ExposureMask |
+  //		    StructureNotifyMask | ButtonReleaseMask,
+  //		    False,vtkXRenderWindowInteractorCallback,(XtPointer)this);
 
   size = this->RenderWindow->GetSize();
   this->Size[0] = size[0];
