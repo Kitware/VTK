@@ -10,6 +10,7 @@ IF (VTK_USE_RENDERING)
       cells 
       ImageActor
       labeledContours
+      labeledMesh
       multiLineText
       pickCells
       propAssembly
