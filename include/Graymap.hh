@@ -38,7 +38,6 @@ public:
 
   // vlScalar interface
   vlScalars *MakeObject(int sze, int ext=1000);
-  int GetNumberOfValuesPerPoint() {return 1;};
   int GetNumberOfScalars() {return (this->S.GetMaxId()+1);};
   void Squeeze() {this->S.Squeeze();};
 
@@ -48,6 +47,7 @@ public:
   void Reset() {this->S.Reset();};
   unsigned char *GetPtr(const int id);
   unsigned char *WritePtr(const int id, const int number);
+  void WrotePtr();
 
   // vlColorScalar interface.
   unsigned char *GetColor(int id);
@@ -61,20 +61,25 @@ protected:
 };
 
 // Description:
-// Get pointer to rgb data at location "id" in the array. Meant for reading 
-// data. 
+// Get pointer to array of data starting at data position "id".
 inline unsigned char *vlGraymap::GetPtr(const int id)
 {
   return this->S.GetPtr(id);
 }
 
 // Description:
-// Get pointer to data. Useful for direct writes into object. MaxId is bumped
-// by number (and memory allocated if necessary). Id is the locaation you 
-// wish to write into; number is the number of rgb triplets to write.
+// Get pointer to data array. Useful for direct writes of data. MaxId is 
+// bumped by number (and memory allocated if necessary). Id is the 
+// location you wish to write into; number is the number of scalars to 
+// write. Use the method WrotePtr() to mark completion of write.
 inline unsigned char *vlGraymap::WritePtr(const int id, const int number)
 {
   return this->S.WritePtr(id,number);
 }
+
+// Description:
+// Terminate direct write of data. Although dummy routine now, reserved for
+// future use.
+inline void vlGraymap::WrotePtr() {}
 
 #endif

@@ -50,22 +50,37 @@ public:
   void GetScalars(vlIdList& ptIds, vlFloatScalars& fs);
 
   // miscellaneous
+  int *GetPtr(const int id);
   int *WritePtr(const int id, const int number);
+  void WrotePtr();
   vlIntScalars &operator=(const vlIntScalars& is);
   void operator+=(const vlIntScalars& is) {this->S += is.S;};
   void Reset() {this->S.Reset();};
 
-private:
+protected:
   vlIntArray S;
 };
 
 // Description:
-// Get pointer to data. Useful for direct writes into object. MaxId is bumped
-// by number (and memory allocated if necessary). Id is the locaation you 
-// wish to write into; number is the number of scalars to write.
+// Get pointer to array of data starting at data position "id".
+inline int *vlIntScalars::GetPtr(const int id)
+{
+  return this->S.GetPtr(id);
+}
+
+// Description:
+// Get pointer to data array. Useful for direct writes of data. MaxId is 
+// bumped by number (and memory allocated if necessary). Id is the 
+// location you wish to write into; number is the number of scalars to 
+// write. Use the method WrotePtr() to mark completion of write.
 inline int *vlIntScalars::WritePtr(const int id, const int number)
 {
   return this->S.WritePtr(id,number);
 }
+
+// Description:
+// Terminate direct write of data. Although dummy routine now, reserved for
+// future use.
+inline void vlIntScalars::WrotePtr() {}
 
 #endif

@@ -64,13 +64,16 @@ void vlScalars::ComputeRange()
 }
 
 // Description:
-// Return the range of scalar values.
+// Return the range of scalar values. Data returned as pointer to float array
+// of length 2.
 float *vlScalars::GetRange()
 {
   this->ComputeRange();
   return this->Range;
 }
 
+// Description:
+// Return the range of scalar values. Range copied into array provided.
 void vlScalars::GetRange(float range[2])
 {
   this->ComputeRange();

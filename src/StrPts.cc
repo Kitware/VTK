@@ -286,6 +286,119 @@ void vlStructuredPoints::ComputeBounds()
                     (this->Dimensions[2]-1) * this->AspectRatio[2];
 }
 
+// Description:
+// Given structured coordinates (i,j,k) for a voxel cell, compute the eight 
+// gradient values for the voxel corners. The order in which the gradient
+// vectors are arranged corresponds to the ordering of the voxel points. 
+// Gradient vector is computed by central differences (except on edges of 
+// volume where forward difference is used). The scalars s are the scalars
+// from which the gradient is to be computed. This method will treat 
+// only 3D structured point datasets (i.e., volumes).
+void vlStructuredPoints::GetVoxelGradient(int i, int j, int k, vlScalars *s, 
+                                          vlFloatVectors& g)
+{
+  float gv[3];
+  int ii, jj, kk, idx;
+
+  for ( kk=0; kk < 2; kk++)
+    {
+    for ( jj=0; jj < 2; jj++)
+      {
+      for ( ii=0; ii < 2; ii++)
+        {
+        this->GetPointGradient(i+ii, j+jj, k+kk, s, gv);
+        g.SetVector(idx++, gv);
+        }
+      } 
+    }
+}
+
+// Description:
+// Given structured coordinates (i,j,k) for a point in a structured point 
+// dataset, compute the gradient vector from the scalar data at that point. 
+// The scalars s are the scalars from which the gradient is to be computed.
+// This method will treat structured point datasets of any dimension.
+void vlStructuredPoints::GetPointGradient(int i,int j,int k, vlScalars *s, 
+                                          float g[3])
+{
+  int *dims=this->Dimensions;
+  float *ar=this->AspectRatio;
+  int ijsize=dims[0]*dims[1];
+  float sp, sm;
+
+  // x-direction
+  if ( dims[0] == 1 )
+    {
+    g[0] = 0.0;
+    }
+  else if ( i == 0 )
+    {
+    sp = s->GetScalar(i+1 + j*dims[0] + k*ijsize);
+    sm = s->GetScalar(i + j*dims[0] + k*ijsize);
+    g[0] = (sp - sm) / ar[0];
+    }
+  else if ( i == (dims[0]-1) )
+    {
+    sp = s->GetScalar(i + j*dims[0] + k*ijsize);
+    sm = s->GetScalar(i-1 + j*dims[0] + k*ijsize);
+    g[0] = (sp - sm) / ar[0];
+    }
+  else
+    {
+    sp = s->GetScalar(i+1 + j*dims[0] + k*ijsize);
+    sm = s->GetScalar(i-1 + j*dims[0] + k*ijsize);
+    g[0] = 0.5 * (sp - sm) / ar[0];
+    }
+
+  // y-direction
+  if ( dims[1] == 1 )
+    {
+    g[1] = 0.0;
+    }
+  else if ( j == 0 )
+    {
+    sp = s->GetScalar(i + (j+1)*dims[0] + k*ijsize);
+    sm = s->GetScalar(i + j*dims[0] + k*ijsize);
+    g[1] = (sp - sm) / ar[1];
+    }
+  else if ( j == (dims[1]-1) )
+    {
+    sp = s->GetScalar(i + j*dims[0] + k*ijsize);
+    sm = s->GetScalar(i + (j-1)*dims[0] + k*ijsize);
+    g[1] = (sp - sm) / ar[1];
+    }
+  else
+    {
+    sp = s->GetScalar(i + (j+1)*dims[0] + k*ijsize);
+    sm = s->GetScalar(i + (j-1)*dims[0] + k*ijsize);
+    g[1] = 0.5 * (sp - sm) / ar[1];
+    }
+
+  // z-direction
+  if ( dims[1] == 1 )
+    {
+    g[2] = 0.0;
+    }
+  else if ( k == 0 )
+    {
+    sp = s->GetScalar(i + j*dims[0] + (k+1)*ijsize);
+    sm = s->GetScalar(i + j*dims[0] + k*ijsize);
+    g[2] = (sp - sm) / ar[2];
+    }
+  else if ( k == (dims[1]-1) )
+    {
+    sp = s->GetScalar(i + j*dims[0] + k*ijsize);
+    sm = s->GetScalar(i + j*dims[0] + (k-1)*ijsize);
+    g[2] = (sp - sm) / ar[2];
+    }
+  else
+    {
+    sp = s->GetScalar(i + j*dims[0] + (k+1)*ijsize);
+    sm = s->GetScalar(i + j*dims[0] + (k-1)*ijsize);
+    g[2] = 0.5 * (sp - sm) / ar[2];
+    }
+}
+
 void vlStructuredPoints::PrintSelf(ostream& os, vlIndent indent)
 {
   vlDataSet::PrintSelf(os,indent);

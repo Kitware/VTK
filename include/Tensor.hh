@@ -48,6 +48,8 @@ protected:
   float Storage[MAXDIM*MAXDIM];
 };
 
+// Description:
+// Construct tensor initially pointing to internal storage.
 inline vlTensor::vlTensor(int dim)
 {
   this->T = this->Storage;
@@ -57,16 +59,22 @@ inline vlTensor::vlTensor(int dim)
       this->T[i+j*this->Dimension] = 0.0;
 }
 
+// Description:
+// Set the dimensions of the tensor.
 inline void vlTensor::SetDimension(int dim)
 {
   this->Dimension = (dim < 1 ? 1 : (dim > MAXDIM ? MAXDIM : dim));
 }
 
+// Description:
+// Get the dimensions of the tensor.
 inline int vlTensor::GetDimension()
 {
   return this->Dimension;
 }
 
+// Description:
+// Initialize tensor components to 0.0.
 inline void vlTensor::Initialize()
 {
   for (int j=0; j<this->Dimension; j++)
@@ -74,21 +82,30 @@ inline void vlTensor::Initialize()
       this->T[i+j*this->Dimension] = 0.0;
 }
 
+// Description:
+// Get the tensor component (i,j).
 inline float vlTensor::GetComponent(int i, int j)
 {
   return this->T[i+this->Dimension*j];
 }
 
+// Description:
+// Set the value of the tensor component (i,j).
 inline void vlTensor::SetComponent(int i, int j, float v)
 {
   this->T[i+this->Dimension*j] = v;
 }
 
+// Description:
+// Add to the value of the tensor component at location (i,j).
 inline void vlTensor::AddComponent(int i, int j, float v)
 {
   this->T[i+this->Dimension*j] += v;
 }
 
+// Description:
+// Assign tensors to a float array. Float array must be sized
+// Dimension*Dimension.
 inline void vlTensor::operator=(float *t)
 {
   for (int j=0; j < this->Dimension; j++)
@@ -96,6 +113,8 @@ inline void vlTensor::operator=(float *t)
       this->T[i+this->Dimension*j] = t[i+this->Dimension*j];
 }
 
+// Description:
+// Assign tensor to another tensor.
 inline void vlTensor::operator=(vlTensor &t)
 {
   for (int j=0; j < this->Dimension; j++)

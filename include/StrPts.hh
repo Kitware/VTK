@@ -52,6 +52,9 @@ public:
   void GetPointCells(int ptId, vlIdList& cellIds);
   void ComputeBounds();
 
+  void GetVoxelGradient(int i, int j, int k, vlScalars *s, vlFloatVectors& g);
+  void GetPointGradient(int i, int j, int k, vlScalars *s, float g[3]);
+
   // Description:
   // Set the aspect ratio of the cubical cells that compose the structured
   // point set.

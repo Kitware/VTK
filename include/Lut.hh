@@ -82,6 +82,7 @@ public:
 
   unsigned char *GetPtr(const int id);
   unsigned char *WritePtr(const int id, const int number);
+  void WrotePtr();
 
 protected:
   int NumberOfColors;
@@ -106,10 +107,16 @@ inline unsigned char *vlLookupTable::GetPtr(const int id)
 // Get pointer to data. Useful for direct writes into object. MaxId is bumped
 // by number (and memory allocated if necessary). Id is the location you 
 // wish to write into; number is the number of rgba values to write.
+// Use the method WrotePtr() to mark completion of write.
 inline unsigned char *vlLookupTable::WritePtr(const int id, const int number)
 {
   return this->Table.WritePtr(id,number);
 }
+
+// Description:
+// Terminate direct write of data. Although dummy routine now, reserved for
+// future use.
+inline void vlLookupTable::WrotePtr() {}
 
 #endif
 

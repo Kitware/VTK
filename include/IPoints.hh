@@ -51,7 +51,9 @@ public:
   void GetPoints(vlIdList& ptId, vlFloatPoints& fp);
 
   // miscellaneous
+  int *GetPtr(const int id);
   int *WritePtr(const int id, const int number);
+  void WrotePtr();
   vlIntPoints &operator=(const vlIntPoints& fp);
   void operator+=(const vlIntPoints& fp) {this->P += fp.P;};
   void Reset() {this->P.Reset();};
@@ -61,13 +63,26 @@ protected:
 };
 
 // Description:
-// Get pointer to data. Useful for direct writes into object. MaxId is bumped
-// by number (and memory allocated if necessary). Id is the location you 
-// wish to write into; number is the number of points to write.
+// Get pointer to array of data starting at data position "id".
+inline int *vlIntPoints::GetPtr(const int id)
+{
+  return this->P.GetPtr(id);
+}
+
+// Description:
+// Get pointer to data array. Useful for direct writes of data. MaxId is 
+// bumped by number (and memory allocated if necessary). Id is the 
+// location you wish to write into; number is the number of points to 
+// write. Use the method WrotePtr() to mark completion of write.
 inline int *vlIntPoints::WritePtr(const int id, const int number)
 {
   return this->P.WritePtr(id,3*number);
 }
+
+// Description:
+// Terminate direct write of data. Although dummy routine now, reserved for
+// future use.
+inline void vlIntPoints::WrotePtr() {}
 
 inline void vlIntPoints::GetPoint(int id, float x[3])
 {

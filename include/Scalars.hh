@@ -56,13 +56,18 @@ public:
   virtual char *GetDataType() = 0;
 
   // Description:
-  // Return number of points in array.
-  virtual int GetNumberOfScalars() = 0;
+  // Return the type of scalar. Want to differentiate between
+  // single-valued scalars and multiple-valued (e.g., "color" scalars).
+  // Returns either "SingleValued" or "ColorScalar".
+  virtual char *GetScalarType() {return "SingleValued";};
 
   // Description:
-  // Return the number of values per point. Should range between (1,4).
-  // Used to distinguish between color scalars and single-valued ones.
-  virtual int GetNumberOfValuesPerPoint() {return 1;};
+  // Return the number of values per scalar. Should range between (1,4).
+  virtual int GetNumberOfValuesPerScalar() {return 1;};
+
+  // Description:
+  // Return number of scalars in this object.
+  virtual int GetNumberOfScalars() = 0;
 
   // Description:
   // Return a float scalar value for a particular point id.
@@ -86,18 +91,12 @@ public:
   virtual void Squeeze() = 0;
 
   // Description:
-  // Get data as pointer to unsigned char at specified location.  Used for 
-  // high performance texture and color manipulation. Not supported for 
-  // all scalar types: check for NULL return value. 
-  virtual unsigned char *GetPtr(const int id) {return NULL;};
-
-  // Description:
   // Get the scalar values for the point ids specified.
   virtual void GetScalars(vlIdList& ptIds, vlFloatScalars& fs);
 
   virtual void ComputeRange();
   float *GetRange();
-  void GetRange(float range[8]);
+  void GetRange(float range[2]);
 
   // Description:
   // Create default lookup table. Generally used to create one when none
