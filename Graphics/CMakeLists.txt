@@ -105,6 +105,7 @@ vtkOutlineCornerFilter.cxx
 vtkOutlineCornerSource.cxx
 vtkOutlineFilter.cxx
 vtkOutlineSource.cxx
+vtkParametricFunctionSource.cxx
 vtkPlaneSource.cxx
 vtkPlanesIntersection.cxx
 vtkPlatonicSolidSource.cxx
@@ -187,6 +188,7 @@ vtkApproximatingSubdivisionFilter
 vtkButtonSource
 vtkDicer
 vtkInterpolatingSubdivisionFilter
+vtkParametricFunctionSource
 vtkStreamer
 ABSTRACT
 )
