@@ -169,7 +169,6 @@ CLEAN :
 	-@erase "$(INTDIR)\vc40.idb"
 	-@erase "$(INTDIR)\vc40.pdb"
 	-@erase "$(OUTDIR)\pcmaker.exe"
-	-@erase "$(OUTDIR)\pcmaker.ilk"
 	-@erase "$(OUTDIR)\pcmaker.pdb"
 
 "$(OUTDIR)" :
@@ -218,8 +217,8 @@ BSC32_SBRS= \
 	
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /debug /machine:I386
-# ADD LINK32 /nologo /subsystem:windows /debug /machine:I386
-LINK32_FLAGS=/nologo /subsystem:windows /incremental:yes\
+# ADD LINK32 nafxcwd.lib /nologo /subsystem:windows /incremental:no /debug /machine:I386
+LINK32_FLAGS=nafxcwd.lib /nologo /subsystem:windows /incremental:no\
  /pdb:"$(OUTDIR)/pcmaker.pdb" /debug /machine:I386 /out:"$(OUTDIR)/pcmaker.exe" 
 LINK32_OBJS= \
 	"$(INTDIR)\getclasses.obj" \
@@ -911,9 +910,6 @@ DEP_CPP_HELP_=\
 # Begin Source File
 
 SOURCE=..\tcl\y.tab.c
-
-!IF  "$(CFG)" == "cpp_parse - Win32 Release"
-
 DEP_CPP_Y_TAB=\
 	"..\tcl\lex.yy.c"\
 	
@@ -921,18 +917,6 @@ DEP_CPP_Y_TAB=\
 "$(INTDIR)\y.tab.obj" : $(SOURCE) $(DEP_CPP_Y_TAB) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF  "$(CFG)" == "cpp_parse - Win32 Debug"
-
-DEP_CPP_Y_TAB=\
-	"..\tcl\lex.yy.c"\
-	
-
-"$(INTDIR)\y.tab.obj" : $(SOURCE) $(DEP_CPP_Y_TAB) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF 
 
 # End Source File
 # End Target
