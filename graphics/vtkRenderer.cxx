@@ -308,16 +308,6 @@ void vtkRenderer::Render(void)
   // estimates with the TimeFactor.
   if ( ! this->RenderWindow->GetAbortRender() )
     {
-    float totalEstimate = 0.0;
-    // Sum up the total EstimatedRenderTime.
-    for (this->Props->InitTraversal(); 
-         (aProp = this->Props->GetNextProp()); )
-      {
-      if (aProp->GetVisibility())
-        {
-        totalEstimate += aProp->GetEstimatedRenderTime();
-        }
-      }
     // Measure the actual RenderTime
     t2 = vtkTimerLog::GetCurrentTime();
     this->LastRenderTimeInSeconds = (float) (t2 - t1);
@@ -326,12 +316,7 @@ void vtkRenderer::Render(void)
       {
       this->LastRenderTimeInSeconds = 0.0001;
       }
-    if (totalEstimate < 0.0001)
-      {
-      totalEstimate = 0.0001;
-      }
-    this->TimeFactor = totalEstimate / this->LastRenderTimeInSeconds;
-    //this->TimeFactor = 1.0;
+    this->TimeFactor = this->AllocatedRenderTime/this->LastRenderTimeInSeconds;
     }
 }
 
@@ -471,7 +456,7 @@ void vtkRenderer::AllocateTime()
     // to the renderer's AllocatedRenderTime.
     aProp->
       SetAllocatedRenderTime(( renderTime / totalTime ) * 
-                             this->AllocatedRenderTime * this->TimeFactor, 
+                             this->AllocatedRenderTime, 
 			     this );  
     }
 

@@ -146,6 +146,9 @@ public:
 
   // Description:
   // Get the ratio between allocated time and actual render time.
+  // TimeFactor has been taken out of the render process.  
+  // It is still computed in case someone finds it useful.
+  // It may be taken away in the future.
   virtual float GetTimeFactor();
 
   // Description:
