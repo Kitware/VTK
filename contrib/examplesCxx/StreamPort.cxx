@@ -4,8 +4,8 @@
 #include "vtkImageReader.h"
 #include "vtkSynchronizedTemplates3D.h"
 #include "vtkPolyDataCollector.h"
-#include "vtkUpStreamPort.h"
-#include "vtkDownStreamPort.h"
+#include "vtkOutputPort.h"
+#include "vtkInputPort.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkConeSource.h"
@@ -74,7 +74,7 @@ VTK_THREAD_RETURN_TYPE process_a( void *vtkNotUsed(arg) )
   iso->SetNumberOfThreads(1);
 
   // Send data throug port.
-  vtkUpStreamPort *upPort = vtkUpStreamPort::New();
+  vtkOutputPort *upPort = vtkOutputPort::New();
   upPort->SetInput(iso->GetOutput());
   upPort->SetTag(999);
     
@@ -94,7 +94,7 @@ VTK_THREAD_RETURN_TYPE process_a( void *vtkNotUsed(arg) )
 VTK_THREAD_RETURN_TYPE process_b( void *vtkNotUsed(arg) )
 {
   vtkMultiProcessController *controller;
-  vtkDownStreamPort *downPort;
+  vtkInputPort *downPort;
   vtkPolyDataCollector *collector = vtkPolyDataCollector::New();
   vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
   vtkActor *actor = vtkActor::New();
@@ -108,8 +108,8 @@ VTK_THREAD_RETURN_TYPE process_b( void *vtkNotUsed(arg) )
   myid = controller->GetLocalProcessId();
   otherid = ( ! myid);
   
-  downPort = vtkDownStreamPort::New();
-  downPort->SetUpStreamProcessId(otherid);
+  downPort = vtkInputPort::New();
+  downPort->SetRemoteProcessId(otherid);
   downPort->SetTag(999);
   
   collector->SetInput(downPort->GetPolyDataOutput());
