@@ -85,9 +85,12 @@ protected:
   vtkPolyDataSourceWidget();
 
 private:
- 
-  vtkPolyDataSourceWidget(const vtkPolyDataSourceWidget&); // Not implemented
-  void operator=(const vtkPolyDataSourceWidget&); // Not implemented
+  // this copy constructor and assignment operator are deliberately not
+  // implemented so that any "accidental" invocation of a copy (pass by value)
+  // or assignment will trigger linker errors; the class is not meant to
+  // be used in these ways.  I couldn't resist adding this explanation. :)
+  vtkPolyDataSourceWidget(const vtkPolyDataSourceWidget&);  // Not implemented.
+  void operator=(const vtkPolyDataSourceWidget&);  // Not implemented.
 };
 
 #endif
