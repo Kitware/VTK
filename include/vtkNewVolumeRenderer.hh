@@ -21,11 +21,11 @@ public:
 
 //  void AddVolume(vtkNewVolume *);
 //  void RemoveVolume(vtkNewVolume *);
-//  vtkNewVolumeCollection *GetNewVolumes();
+//  vtkNewVolumeCollection *GetVolumes();
 
   // Description:
   // Render its volumes to create a composite image.
-  virtual void Render(vtkRenderer *);
+  virtual int Render(vtkRenderer *);
 
 protected:
 
