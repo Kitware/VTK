@@ -15,9 +15,12 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Creates oriented lines directed along vector
-//
+// .NAME vlHedgeHog - create oriented lines from vector data
+// .SECTION Description
+// vlHedgeHog creates oriented lines from the input data set. Line length
+// is controlled by vector magnitude times scale factor. Vectors are
+// colored by scalar data, if available.
+
 #ifndef __vlHedgeHog_h
 #define __vlHedgeHog_h
 

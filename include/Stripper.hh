@@ -15,9 +15,14 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Creates triangle strips from input polygons / triangle strips
-//
+// .NAME vlStripper - create triangle strips
+// .SECTION Description
+// vlStripper is a filter that generates triangle strips from input
+// polygons and triangle strips. Input polygons are assumed to be 
+// triangles. (Use vlTriangleFilter to triangulate non-triangular
+// polygons.) The filter will also pass through vertices and lines, if
+// requested.
+
 #ifndef __vlStripper_h
 #define __vlStripper_h
 

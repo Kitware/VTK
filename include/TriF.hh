@@ -15,9 +15,12 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Converts PolyData (polygons and strips) strictly to triangles.
-//
+// .NAME vlTriangleFilter - create triangle polygons from input polygons and triangle strips
+// .SECTION Description
+// vlTriangleFilter generates triangles from input polygons and triangle 
+// strips. The filter will also pass through vertices and lines, if
+// requested.
+
 #ifndef __vlTriangleFilter_h
 #define __vlTriangleFilter_h
 

@@ -13,9 +13,14 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Class generates scalar data from position of points along some ray
-//
+// .NAME vlElevationFilter - generate scalars along a specified direction
+// .SECTION Description
+// vlElevationFilter is a filter to generate scalar values from a dataset.
+// The scalar values lie within a user specified range, and are generated
+// by computing a projection of each dataset point onto a line. The line
+// can be oriented arbitrarily. A typical example is to generate scalars
+// based on elevation or height above a plane.
+
 #ifndef __vlElevationFilter_h
 #define __vlElevationFilter_h
 
