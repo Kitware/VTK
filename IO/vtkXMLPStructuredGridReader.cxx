@@ -23,7 +23,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLStructuredGridReader.h"
 
-vtkCxxRevisionMacro(vtkXMLPStructuredGridReader, "1.5");
+vtkCxxRevisionMacro(vtkXMLPStructuredGridReader, "1.5.6.1");
 vtkStandardNewMacro(vtkXMLPStructuredGridReader);
 
 //----------------------------------------------------------------------------
@@ -46,6 +46,12 @@ vtkXMLPStructuredGridReader::~vtkXMLPStructuredGridReader()
 void vtkXMLPStructuredGridReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+}
+
+//----------------------------------------------------------------------------
+vtkStructuredGrid* vtkXMLPStructuredGridReader::GetOutput(int idx)
+{
+  return static_cast<vtkStructuredGrid*>(this->Superclass::GetOutput(idx));
 }
 
 //----------------------------------------------------------------------------
