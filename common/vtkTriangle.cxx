@@ -84,23 +84,28 @@ int vtkTriangle::EvaluatePosition(float x[3], float closestPoint[3],
 
   subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
-//
-// Get normal for triangle
-//
+
+  //
+  // Get normal for triangle, only the normal direction is needed, i.e. the
+  // normal need not be normalized (unit length)
+  //
   pt1 = this->Points->GetPoint(1);
   pt2 = this->Points->GetPoint(2);
   pt3 = this->Points->GetPoint(0);
 
-  vtkTriangle::ComputeNormal (pt1, pt2, pt3, n);
-//
-// Project point to plane
-//
-  vtkPlane::ProjectPoint(x,pt1,n,closestPoint);
-//
-// Construct matrices.  Since we have over determined system, need to find
-// which 2 out of 3 equations to use to develop equations. (Any 2 should 
-// work since we've projected point to plane.)
-//
+  vtkTriangle::ComputeNormalDirection(pt1, pt2, pt3, n);
+
+  //
+  // Project point to plane
+  //
+  vtkPlane::GeneralizedProjectPoint(x,pt1,n,closestPoint);
+  
+  
+  //
+  // Construct matrices.  Since we have over determined system, need to find
+  // which 2 out of 3 equations to use to develop equations. (Any 2 should 
+  // work since we've projected point to plane.)
+  //
   for (maxComponent=0.0, i=0; i<3; i++)
     {
     // trying to avoid an expensive call to fabs()
@@ -138,21 +143,22 @@ int vtkTriangle::EvaluatePosition(float x[3], float closestPoint[3],
     return -1;
     }
 
-  pcoords[0] = vtkMath::Determinant2x2 (rhs,c2) / det;
-  pcoords[1] = vtkMath::Determinant2x2 (c1,rhs) / det;
+  pcoords[0] = vtkMath::Determinant2x2(rhs,c2) / det;
+  pcoords[1] = vtkMath::Determinant2x2(c1,rhs) / det;
   pcoords[2] = 1.0 - (pcoords[0] + pcoords[1]);
-//
-// Okay, now find closest point to element
-//
+  //
+  // Okay, now find closest point to element
+  //
   weights[0] = pcoords[2];
   weights[1] = pcoords[0];
   weights[2] = pcoords[1];
 
   if ( pcoords[0] >= 0.0 && pcoords[0] <= 1.0 &&
-  pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
-  pcoords[2] >= 0.0 && pcoords[2] <= 1.0 )
+       pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
+       pcoords[2] >= 0.0 && pcoords[2] <= 1.0 )
     {
-    dist2 = vtkMath::Distance2BetweenPoints(closestPoint,x); //projection distance
+    //projection distance
+    dist2 = vtkMath::Distance2BetweenPoints(closestPoint,x); 
     return 1;
     }
   else

@@ -155,12 +155,23 @@ public:
   // Description:
   // Compute the triangle normal from three points.
   static void ComputeNormal(float v1[3], float v2[3], float v3[3], float n[3]);
+
+  // Description:
+  // Compute the (unnormalized) triangle normal direction from three points.
+  static void ComputeNormalDirection(float v1[3], float v2[3], float v3[3],
+				     float n[3]);
   
   // Description:
   // Compute the triangle normal from three points (double-precision version).
   static void ComputeNormal(double v1[3], double v2[3], double v3[3], 
                             double n[3]);
   
+  // Description:
+  // Compute the (unnormalized) triangle normal direction from three points
+  // (double precision version).
+  static void ComputeNormalDirection(double v1[3], double v2[3], double v3[3],
+				     double n[3]);
+
   // Description:
   // Given a point x, determine whether it is inside (within the
   // tolerance squared, tol2) the triangle defined by the three 
@@ -192,7 +203,22 @@ inline int vtkTriangle::GetParametricCenter(float pcoords[3])
 inline void vtkTriangle::ComputeNormal(float v1[3], float v2[3], 
                                        float v3[3], float n[3])
 {
-  float length, ax, ay, az, bx, by, bz;
+  float length;
+  
+  vtkTriangle::ComputeNormalDirection(v1, v2, v3, n);
+  
+  if ( (length = sqrt((n[0]*n[0] + n[1]*n[1] + n[2]*n[2]))) != 0.0 )
+    {
+    n[0] /= length;
+    n[1] /= length;
+    n[2] /= length;
+    }
+}
+
+inline void vtkTriangle::ComputeNormalDirection(float v1[3], float v2[3], 
+                                       float v3[3], float n[3])
+{
+  float ax, ay, az, bx, by, bz;
 
   // order is important!!! maintain consistency with triangle vertex order 
   ax = v3[0] - v2[0]; ay = v3[1] - v2[1]; az = v3[2] - v2[2];
@@ -201,6 +227,14 @@ inline void vtkTriangle::ComputeNormal(float v1[3], float v2[3],
   n[0] = (ay * bz - az * by);
   n[1] = (az * bx - ax * bz);
   n[2] = (ax * by - ay * bx);
+}
+
+inline void vtkTriangle::ComputeNormal(double v1[3], double v2[3], 
+                                       double v3[3], double n[3])
+{
+  double length;
+
+  vtkTriangle::ComputeNormalDirection(v1, v2, v3, n);
 
   if ( (length = sqrt((n[0]*n[0] + n[1]*n[1] + n[2]*n[2]))) != 0.0 )
     {
@@ -210,10 +244,10 @@ inline void vtkTriangle::ComputeNormal(float v1[3], float v2[3],
     }
 }
 
-inline void vtkTriangle::ComputeNormal(double v1[3], double v2[3], 
+inline void vtkTriangle::ComputeNormalDirection(double v1[3], double v2[3], 
                                        double v3[3], double n[3])
 {
-  double length, ax, ay, az, bx, by, bz;
+  double ax, ay, az, bx, by, bz;
 
   // order is important!!! maintain consistency with triangle vertex order 
   ax = v3[0] - v2[0]; ay = v3[1] - v2[1]; az = v3[2] - v2[2];
@@ -222,13 +256,6 @@ inline void vtkTriangle::ComputeNormal(double v1[3], double v2[3],
   n[0] = (ay * bz - az * by);
   n[1] = (az * bx - ax * bz);
   n[2] = (ax * by - ay * bx);
-
-  if ( (length = sqrt((n[0]*n[0] + n[1]*n[1] + n[2]*n[2]))) != 0.0 )
-    {
-    n[0] /= length;
-    n[1] /= length;
-    n[2] /= length;
-    }
 }
 
 inline void vtkTriangle::TriangleCenter(float p1[3], float p2[3], float p3[3],
