@@ -22,9 +22,12 @@ vtkClipPolyData clipper
 vtkPolyDataMapper clipMapper
     clipMapper SetInput [clipper GetOutput]
     clipMapper ScalarVisibilityOff
+vtkProperty backProp
+    eval backProp SetDiffuseColor $tomato
 vtkActor clipActor
     clipActor SetMapper clipMapper
     eval [clipActor GetProperty] SetColor $peacock
+    clipActor SetBackfaceProperty backProp
 
 # Create graphics stuff
 #
@@ -38,6 +41,10 @@ vtkRenderWindowInteractor iren
 #
 ren1 AddActor clipActor
 ren1 SetBackground 1 1 1
+[ren1 GetActiveCamera] Azimuth 30
+[ren1 GetActiveCamera] Elevation 30
+[ren1 GetActiveCamera] Dolly 1.2
+
 renWin SetSize 400 400
 iren Initialize
 
