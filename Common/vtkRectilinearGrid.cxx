@@ -24,7 +24,7 @@
 #include "vtkFloatArray.h"
 #include "vtkExtentTranslator.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGrid, "1.54");
+vtkCxxRevisionMacro(vtkRectilinearGrid, "1.55");
 vtkStandardNewMacro(vtkRectilinearGrid);
 
 vtkCxxSetObjectMacro(vtkRectilinearGrid,XCoordinates,vtkDataArray);
@@ -1064,6 +1064,222 @@ void vtkRectilinearGrid::Crop()
     newGrid->Delete();
     }
 }
+
+
+
+//----------------------------------------------------------------------------
+void vtkRectilinearGrid::UpdateData()
+{
+  this->vtkDataObject::UpdateData();
+
+  // This stuff should really be ImageToStructuredPoints ....
+
+  if (this->UpdateNumberOfPieces == 1)
+    {
+    // Either the piece has not been used to set the update extent,
+    // or the whole image was requested.
+    return;
+    }
+
+  //if (this->Extent[0] < this->UpdateExtent[0] ||
+  //  this->Extent[1] > this->UpdateExtent[1] ||
+  //  this->Extent[2] < this->UpdateExtent[2] ||
+  //  this->Extent[3] > this->UpdateExtent[3] ||
+  //  this->Extent[4] < this->UpdateExtent[4] ||
+  //  this->Extent[5] > this->UpdateExtent[5])
+  //  {
+  //  vtkImageData *image = vtkImageData::New();
+  //  image->DeepCopy(this);
+  //  this->SetExtent(this->UpdateExtent);
+  //  this->AllocateScalars();
+  //  this->CopyAndCastFrom(image, this->UpdateExtent);
+  //  image->Delete();
+  //  }
+
+  // Try to avoid generating these if the input has generated them,
+  // or the image data is already up to date.
+  // I guess we relly need an MTime check.
+  if(this->Piece != this->UpdatePiece ||
+     this->NumberOfPieces != this->UpdateNumberOfPieces ||
+     this->GhostLevel != this->UpdateGhostLevel ||
+     !this->PointData->GetArray("vtkGhostLevels") ||
+     !this->CellData->GetArray("vtkGhostLevels"))
+    { // Create ghost levels for cells and points.
+    vtkUnsignedCharArray *levels;
+    int zeroExt[6], extent[6];
+    int i, j, k, di, dj, dk, dist;
+    
+    this->GetExtent(extent);
+    // Get the extent with ghost level 0.
+    this->ExtentTranslator->SetWholeExtent(this->WholeExtent);
+    this->ExtentTranslator->SetPiece(this->UpdatePiece);
+    this->ExtentTranslator->SetNumberOfPieces(this->UpdateNumberOfPieces);
+    this->ExtentTranslator->SetGhostLevel(0);
+    this->ExtentTranslator->PieceToExtent();
+    this->ExtentTranslator->GetExtent(zeroExt);
+
+    // ---- POINTS ----
+    // Allocate the appropriate number levels (number of points).
+    levels = vtkUnsignedCharArray::New();
+    levels->Allocate((this->Extent[1]-this->Extent[0] + 1) *
+                     (this->Extent[3]-this->Extent[2] + 1) *
+                     (this->Extent[5]-this->Extent[4] + 1));
+    
+    //cerr << "max: " << extent[0] << ", " << extent[1] << ", " 
+    //   << extent[2] << ", " << extent[3] << ", " 
+    //   << extent[4] << ", " << extent[5] << endl;
+    //cerr << "zero: " << zeroExt[0] << ", " << zeroExt[1] << ", " 
+    //   << zeroExt[2] << ", " << zeroExt[3] << ", "
+    //   << zeroExt[4] << ", " << zeroExt[5] << endl;
+    
+    // Loop through the points in this image.
+    for (k = extent[4]; k <= extent[5]; ++k)
+      { 
+      dk = 0;
+      if (k < zeroExt[4])
+        {
+        dk = zeroExt[4] - k;
+        }
+      if (k >= zeroExt[5] && k < this->WholeExtent[5])
+        { // Special case for last tile.
+        dk = k - zeroExt[5] + 1;
+        }
+      for (j = extent[2]; j <= extent[3]; ++j)
+        { 
+        dj = 0;
+        if (j < zeroExt[2])
+          {
+          dj = zeroExt[2] - j;
+          }
+        if (j >= zeroExt[3] && j < this->WholeExtent[3])
+          { // Special case for last tile.
+          dj = j - zeroExt[3] + 1;
+          }
+        for (i = extent[0]; i <= extent[1]; ++i)
+          { 
+          di = 0;
+          if (i < zeroExt[0])
+            {
+            di = zeroExt[0] - i;
+            }
+          if (i >= zeroExt[1] && i < this->WholeExtent[1])
+            { // Special case for last tile.
+            di = i - zeroExt[1] + 1;
+            }
+          // Compute Manhatten distance.
+          dist = di;
+          if (dj > dist)
+            {
+            dist = dj;
+            }
+          if (dk > dist)
+            {
+            dist = dk;
+            }
+
+          //cerr << "   " << i << ", " << j << ", " << k << endl;
+          //cerr << "   " << di << ", " << dj << ", " << dk << endl;
+          //cerr << dist << endl;
+          
+          levels->InsertNextValue((unsigned char)dist);
+          }
+        }
+      }
+    levels->SetName("vtkGhostLevels");
+    this->PointData->AddArray(levels);
+    levels->Delete();
+    levels = NULL;
+  
+    // Only generate ghost call levels if zero levels are requested.
+    // (Although we still need ghost points.)
+    if (this->UpdateGhostLevel == 0)
+      {
+      return;
+      }
+    
+    // ---- CELLS ----
+    // Allocate the appropriate number levels (number of cells).
+    levels = vtkUnsignedCharArray::New();
+    levels->Allocate((this->Extent[1]-this->Extent[0]) *
+                     (this->Extent[3]-this->Extent[2]) *
+                     (this->Extent[5]-this->Extent[4]));
+    
+    // Loop through the cells in this image.
+    // Cells may be 2d or 1d ... Treat all as 3D
+    if (extent[0] == extent[1])
+      {
+      ++extent[1];
+      ++zeroExt[1];
+      }
+    if (extent[2] == extent[3])
+      {
+      ++extent[3];
+      ++zeroExt[3];
+      }
+    if (extent[4] == extent[5])
+      {
+      ++extent[5];
+      ++zeroExt[5];
+      }
+    
+    // Loop
+    for (k = extent[4]; k < extent[5]; ++k)
+      { // Determine the Manhatten distances to zero extent.
+      dk = 0;
+      if (k < zeroExt[4])
+        {
+        dk = zeroExt[4] - k;
+        }
+      if (k >= zeroExt[5])
+        {
+        dk = k - zeroExt[5] + 1;
+        }
+      for (j = extent[2]; j < extent[3]; ++j)
+        {
+        dj = 0;
+        if (j < zeroExt[2])
+          {
+          dj = zeroExt[2] - j;
+          }
+        if (j >= zeroExt[3])
+          {
+          dj = j - zeroExt[3] + 1;
+          }
+        for (i = extent[0]; i < extent[1]; ++i)
+          {
+          di = 0;
+          if (i < zeroExt[0])
+            {
+            di = zeroExt[0] - i;
+            }
+          if (i >= zeroExt[1])
+            {
+            di = i - zeroExt[1] + 1;
+            }
+          // Compute Manhatten distance.
+          dist = di;
+          if (dj > dist)
+            {
+            dist = dj;
+            }
+          if (dk > dist)
+            {
+            dist = dk;
+            }
+
+          levels->InsertNextValue((unsigned char)dist);
+          }
+        }
+      }
+    levels->SetName("vtkGhostLevels");
+    this->CellData->AddArray(levels);
+    levels->Delete();
+    levels = NULL;
+    }
+
+}
+
+
 
 
 //----------------------------------------------------------------------------
