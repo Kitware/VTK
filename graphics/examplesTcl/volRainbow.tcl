@@ -68,7 +68,7 @@ vtkVolumeRayCastMapper volumeMapper
 vtkRenderer ren1
 vtkRenderWindow renWin
     renWin AddRenderer ren1
-    renWin SetSize 500 500
+    renWin SetSize 256 256
 vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
