@@ -25,6 +25,7 @@
 #include "vtkPyramid.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkStructuredGrid.h"
+#include "vtkUniformGrid.h"
 #include "vtkStructuredGridGeometryFilter.h"
 #include "vtkStructuredPoints.h"
 #include "vtkTetra.h"
@@ -33,7 +34,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.36");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.37");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
@@ -114,6 +115,13 @@ void vtkDataSetSurfaceFilter::Execute()
       this->StructuredExecute(grid, ext);
       return;
       }
+    case VTK_UNIFORM_GRID:
+      {
+      vtkUniformGrid *grid = vtkUniformGrid::SafeDownCast(input);
+      ext = grid->GetExtent();
+      this->StructuredExecute(grid, ext);
+      return;
+      } 
     case VTK_STRUCTURED_POINTS:      
       {
       vtkStructuredPoints *image = vtkStructuredPoints::SafeDownCast(input);
