@@ -294,16 +294,6 @@ void vtkProcessObject::UpdateProgress(float amount)
   this->InvokeEvent(vtkCommand::ProgressEvent,(void *)&amount);
 }
 
-void vtkProcessObject::SetProgressText(char *text)
-{
-  this->ProgressText = text;
-}
-
-char *vtkProcessObject::GetProgressText(void)
-{
-  return this->ProgressText;
-}
-
 // Specify function to be called before object executes.
 void vtkProcessObject::SetStartMethod(void (*f)(void *), void *arg)
 {
@@ -500,4 +490,14 @@ void vtkProcessObject::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "AbortExecute: " << (this->AbortExecute ? "On\n" : "Off\n");
   os << indent << "Progress: " << this->Progress << "\n";
+  if ( this->ProgressText )
+    {
+    os << indent << "Progress Text: " << this->ProgressText << "\n";
+    }
+  else
+    {
+    os << indent << "Progress Text: (None)\n";
+    }
+
+  
 }

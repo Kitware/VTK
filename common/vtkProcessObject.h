@@ -133,11 +133,8 @@ public:
   // Caution: The memory/text in the provided char * is not copied, so
   // users should not pass temporarily allocated strings which have a lifetime
   // less than that of the function accessing the text.
-  void SetProgressText(char *text);
-
-  // Description:
-  // Fetch the current Progress text.
-  char *GetProgressText(void);
+  vtkSetStringMacro(ProgressText);
+  vtkGetStringMacro(ProgressText);
 
   // left public for performance since it is used in inner loops
   int AbortExecute;
@@ -146,7 +143,7 @@ public:
   // Return an array with all the inputs of this process object.
   // This is useful for tracing back in the pipeline to construct
   // graphs etc.
-  vtkDataObject **GetInputs() {return this->Inputs;};
+  vtkDataObject **GetInputs() {return this->Inputs;}
   vtkGetMacro(NumberOfInputs,int);
 
   // Description:
