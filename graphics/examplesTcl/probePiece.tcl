@@ -22,20 +22,40 @@ reader SetDataExtent 0 127 0 127 1 93
 reader SetFilePrefix "$VTK_DATA/headsq/half"
 reader SetDataMask 0x7fff
 reader SetDataSpacing 1.6 1.6 1.5
+#reader SetStartMethod {puts [[reader GetOutput] GetUpdateExtent]}
 
+vtkImageContinuousErode3D erode
+erode SetInput [reader GetOutput]
+erode SetKernelSize 3 3 3
+
+
+# There is an efficency problem here.  First the countour asks for a piece from reader,
+# then the erode asks for a larger piece.  This causes the reader to execute twice.
+# If vtkSynchronizedTemplates is used, it requests a larger image because it needs to 
+# compute gradients.  This solves the problem.
 vtkContourFilter iso
+#vtkSynchronizedTemplates3D iso
 iso SetInput [reader GetOutput]
 iso SetValue 0 1150
 
+
+
+vtkProbeFilter probe
+probe SetInput [iso GetOutput]
+probe SetSource [erode GetOutput]
+probe SpatialMatchOn
+
+
+
 vtkPolyDataMapper isoMapper
-isoMapper SetInput [iso GetOutput]
-isoMapper ScalarVisibilityOff
+isoMapper SetInput [probe GetOutput]
+isoMapper ScalarVisibilityOn
+isoMapper SetScalarRange 100 1149
 isoMapper SetPiece 2
 isoMapper SetNumberOfPieces 4
 
 vtkActor isoActor
 isoActor SetMapper isoMapper
-eval [isoActor GetProperty] SetColor $antique_white
 
 
 # Add the actors to the renderer, set the background and size
@@ -51,8 +71,7 @@ renWin Render
 # render the image
 #
 iren SetUserMethod {wm deiconify .vtkInteract}
-#renWin SetFileName "valid/mcubes.tcl.ppm"
-#renWin SaveImageAsPPM
+iren Initialize
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
