@@ -71,6 +71,11 @@ vtkArcPlotter::~vtkArcPlotter()
     delete [] this->DataRange;
     delete [] this->Tuple;
     }
+  if ( this->Camera )
+    {
+    this->Camera->UnRegister (this);
+    this->Camera = NULL;
+    }
 }
 
 void vtkArcPlotter::Execute()
