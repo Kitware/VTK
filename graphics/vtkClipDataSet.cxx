@@ -143,7 +143,7 @@ void vtkClipDataSet::Execute()
   int estimatedSize;
   vtkUnsignedCharArray *types[2];
   vtkIntArray *locs[2];
-  
+  int numOutputs = 1;
  
   vtkDebugMacro(<< "Clipping dataset");
   
@@ -180,6 +180,7 @@ void vtkClipDataSet::Execute()
   locs[0]->Allocate(estimatedSize,estimatedSize/2);
   if ( this->GenerateClippedOutput )
     {
+    numOutputs = 2;
     conn[1] = vtkCellArray::New();
     conn[1]->Allocate(estimatedSize,estimatedSize/2);
     conn[1]->InitTraversal();
@@ -285,7 +286,7 @@ void vtkClipDataSet::Execute()
       num[1] = conn[1]->GetNumberOfCells();
       }
 
-    for (i=0; i<2; i++) //for both outputs
+    for (i=0; i<numOutputs; i++) //for both outputs
       {
       for (j=0; j < numNew[i]; j++) 
         {
