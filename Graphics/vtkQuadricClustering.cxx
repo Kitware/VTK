@@ -24,7 +24,7 @@
 #include "vtkTimerLog.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadricClustering, "1.67");
+vtkCxxRevisionMacro(vtkQuadricClustering, "1.68");
 vtkStandardNewMacro(vtkQuadricClustering);
 
 //----------------------------------------------------------------------------
@@ -896,15 +896,15 @@ void vtkQuadricClustering::ComputeRepresentativePoint(double quadric[9],
   // Compute diagonal matrix W
   //
 #define VTK_SVTHRESHOLD 1.0E-3
-  double maxW = 0.0;
+  double maxW = 0.0, temp;
   vtkMath::SingularValueDecomposition3x3(A, U, w, VT);
 
-  // Find maximum eigenvalue from SVD
+  // Find maximum (magnitude) eigenvalue from SVD
   for (i = 0; i < 3; i++)
     {
-    if (w[i] > maxW)
+    if ((temp = fabs(w[i])) > maxW)
       {
-      maxW = w[i];
+      maxW = temp;
       }
     }
   // Initialize matrix
@@ -914,7 +914,7 @@ void vtkQuadricClustering::ComputeRepresentativePoint(double quadric[9],
       {
       if (i == j)
         {
-        if ( (w[i] / maxW) > VTK_SVTHRESHOLD)
+        if ( fabs(w[i] / maxW) > VTK_SVTHRESHOLD)
           {
           // If this is true, then w[i] != 0, so this division is ok.
           W[i][j] = 1.0/w[i];
@@ -947,6 +947,7 @@ void vtkQuadricClustering::ComputeRepresentativePoint(double quadric[9],
   // not, then clamp the point to the center of the bin. Currently "vicinity"
   // is defined as BinSize around the center of the bin. It may be desirable
   // to increase this to a larger multiple of the bin size.
+
   point[0] = cellCenter[0] + tempVector[0];
   point[1] = cellCenter[1] + tempVector[1];
   point[2] = cellCenter[2] + tempVector[2];
