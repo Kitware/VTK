@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.43");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.44");
 
 //----------------------------------------------------------------------------
 vtkParallelRenderManager::vtkParallelRenderManager()
@@ -1219,7 +1219,62 @@ static void MagnifyImageNearest(vtkUnsignedCharArray *fullImage,
 
   timer->StopTimer();
 }
+static void MagnifyImageNearestFourComp(vtkUnsignedCharArray *fullImage,
+                                int fullImageSize[2],
+                                vtkUnsignedCharArray *reducedImage,
+                                int reducedImageSize[2],
+                                vtkTimerLog *timer)
+{
+  int numComp = reducedImage->GetNumberOfComponents();
+  if (numComp != 4)
+    {
+    //vtkErrorMacro("MagnifyImageNearestFourComp only works on 4 component image");
+    return;
+    }
+  fullImage->SetNumberOfComponents(numComp);
+  fullImage->SetNumberOfTuples(fullImageSize[0]*fullImageSize[1]);
 
+  timer->StartTimer();
+
+  // Making a bunch of tmp variables for speed within the loops
+  // Look I know the compiler should optimize this stuff
+  // but I don't trust compilers... besides testing shows
+  // this code is faster than the old code
+  float xstep = (float)reducedImageSize[0]/fullImageSize[0];
+  float ystep = (float)reducedImageSize[1]/fullImageSize[1];
+  float xaccum=0, yaccum=0;
+  int xfullsize = fullImageSize[0];
+  int xmemsize = xfullsize*numComp;
+  int yfullsize = fullImageSize[1];
+  int xreducedsize = reducedImageSize[0];
+  unsigned int *lastsrcline = NULL;
+  unsigned int *destline = (unsigned int*)fullImage->GetPointer(0);
+  unsigned int *srcline = (unsigned int*)reducedImage->GetPointer(0);
+  unsigned int *srczero = srcline;
+
+  // Inflate image.
+  for (int y=0; y < yfullsize; ++y, yaccum+=ystep)
+    {
+    // If this line same as last one.
+    if (srcline == lastsrcline)
+      {
+      memcpy(destline, destline - xfullsize, xmemsize);
+      }
+    else
+      {
+      for (int x = 0; x < xfullsize; ++x, xaccum+=xstep)
+        {
+        destline[x] = srcline[(int)(xaccum)];
+        }
+      xaccum=0;
+      lastsrcline = srcline;
+      }
+     destline += xfullsize;
+     srcline = srczero + xreducedsize * int(yaccum); // Performance fixme
+    }
+
+  timer->StopTimer();
+}
 //----------------------------------------------------------------------------
 // A neat trick to quickly divide all 4 of the bytes in an integer by 2.
 #define VTK_VEC_DIV_2(intvector)    (((intvector) >> 1) & 0x7F7F7F7F)
@@ -1326,9 +1381,18 @@ void vtkParallelRenderManager::MagnifyReducedImage()
     switch (this->MagnifyImageMethod)
       {
       case vtkParallelRenderManager::NEAREST:
-        MagnifyImageNearest(this->FullImage, this->FullImageSize,
+        if (this->ReducedImage->GetNumberOfComponents() == 4)
+          {
+          MagnifyImageNearestFourComp(this->FullImage, this->FullImageSize,
                             this->ReducedImage, this->ReducedImageSize,
                             this->Timer);
+          }
+        else
+          {
+          MagnifyImageNearest(this->FullImage, this->FullImageSize,
+                            this->ReducedImage, this->ReducedImageSize,
+                            this->Timer);
+          }
         break;
       case LINEAR:
         MagnifyImageLinear(this->FullImage, this->FullImageSize,
