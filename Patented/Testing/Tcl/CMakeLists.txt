@@ -9,6 +9,7 @@ IF (VTK_USE_RENDERING)
       deciBrain
       deciBrainErrors
       financialField
+      genHead
       headBone
       iceCream
       imageMCAll
