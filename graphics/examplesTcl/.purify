@@ -295,3 +295,8 @@ suppress miu _malloc; TclCompileString; SetByteCodeFromAny; TclObjInterpProc; Tc
 suppress miu _malloc; _calloc; CreateContext; glXCreateContext; vtkOpenGLRenderWindow::WindowInitialize(void)
 suppress miu _malloc; _calloc; _XInternAtom; XInternAtom; _XSGIFastInternAtom; XkbUseExtension; XOpenDisplay
 suppress umc yylex(void); yyparse(void); vtkVRMLImporter::ImportBegin(void)
+suppress mlk _malloc; _strdup; VrmlNodeType::add(VectorType<VrmlNodeType::NameTypeRec*>&,const char*,int)
+suppress mlk _malloc; operator new(unsigned int); operator new(unsigned int); beginProto(const char*); yyparse(void); vtkVRMLImporter::ImportBegin(void)
+suppress mlk _malloc; operator new(unsigned int); operator new(unsigned int); vtkPoints::New(int); vtkPoints::New(void); yylex(void); yyparse(void); vtkVRMLImporter::ImportBegin(void)
+suppress mlk _malloc; operator new(unsigned int); operator new(unsigned int); vtkFloatArray::New(void); vtkAttributeData::vtkAttributeData(int); vtkPoints::vtkPoints(int); vtkPoints::New(int); vtkPoints::New(void); yylex(void); yyparse(void)
+suppress mlk _malloc; operator new(unsigned int); operator new(unsigned int); vtkIntArray::New(void); yylex(void); yyparse(void); vtkVRMLImporter::ImportBegin(void)
