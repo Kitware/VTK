@@ -53,6 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkIdList : public vtkObject
 {
  public:
+  char *GetClassName() {return "vtkIdList";};
   vtkIdList(const int sz=512, const int ext=1000):Ia(sz,ext) {};
   vtkIdList &operator=(const vtkIdList& ids) {this->Ia = ids.Ia; return *this;};
   void Squeeze() {this->Ia.Squeeze();};
