@@ -228,8 +228,6 @@ int *vlLocator::MergePoints()
 
   this->SubDivide(); // subdivides if necessary
 
-  bounds = this->Points->GetBounds();
-
   index = new int[numPts];
   for (i=0; i < numPts; i++) index[i] = -1;
 
@@ -259,8 +257,8 @@ int *vlLocator::MergePoints()
       index[i] = newPtId;
 
       for (j=0; j<3; j++) 
-        ijk[j] = (int) ((float)((p[j] - bounds[2*j])*0.999 / 
-                       (bounds[2*j+1] - bounds[2*j])) * this->Divisions[j]);
+        ijk[j] = (int) ((float)((p[j] - this->Bounds[2*j])*0.999 / 
+              (this->Bounds[2*j+1] - this->Bounds[2*j])) * this->Divisions[j]);
 
       for (lvl=0; lvl <= level; lvl++) 
         {
@@ -331,7 +329,13 @@ void vlLocator::SubDivide()
 //  level and divisions.
 //
   bounds = this->Points->GetBounds();
-  for (i=0; i<6; i++) this->Bounds[i] = bounds[i];
+  for (i=0; i<3; i++)
+    {
+    this->Bounds[2*i] = bounds[2*i];
+    this->Bounds[2*i+1] = bounds[2*i+1];
+    if ( this->Bounds[2*i+1] <= this->Bounds[2*i] ) //prevent zero width
+      this->Bounds[2*i+1] = this->Bounds[2*i] + 1.0;
+    }
 
   if ( this->Automatic ) 
     {
@@ -356,7 +360,8 @@ void vlLocator::SubDivide()
 //
 //  Compute width of bucket in three directions
 //
-  for (i=0; i<3; i++) this->H[i] = (bounds[2*i+1] - bounds[2*i]) / ndivs[i] ;
+  for (i=0; i<3; i++) 
+    this->H[i] = (this->Bounds[2*i+1] - this->Bounds[2*i]) / ndivs[i] ;
 //
 //  Insert each point into the appropriate bucket.  Make sure point
 //  falls within bucket.
@@ -367,8 +372,8 @@ void vlLocator::SubDivide()
     x = this->Points->GetPoint(i);
     for (j=0; j<3; j++) 
       {
-      ijk[j] = (int) ((float) ((x[j] - bounds[2*j])*0.999 / 
-                         (bounds[2*j+1] - bounds[2*j])) * ndivs[j]);
+      ijk[j] = (int) ((float) ((x[j] - this->Bounds[2*j])*0.999 / 
+                        (this->Bounds[2*j+1] - this->Bounds[2*j])) * ndivs[j]);
       }
     idx = ijk[0] + ijk[1]*ndivs[0] + ijk[2]*product;
     bucket = this->HashTable[idx];
@@ -454,7 +459,13 @@ int vlLocator::InitPointInsertion(vlPoints *newPts, float bounds[6])
   if ( this->Points ) this->Points->UnRegister(this);
   this->SetPoints(newPts);
 
-  for (i=0; i<6; i++) this->Bounds[i] = bounds[i];
+  for (i=0; i<3; i++)
+    {
+    this->Bounds[2*i] = bounds[2*i];
+    this->Bounds[2*i+1] = bounds[2*i+1];
+    if ( this->Bounds[2*i+1] <= this->Bounds[2*i] )
+      this->Bounds[2*i+1] = this->Bounds[2*i] + 1.0;
+    }
 
   for (this->NumberOfBuckets=1, i=0; i<3; i++) 
     this->NumberOfBuckets *= this->Divisions[i];
@@ -465,7 +476,7 @@ int vlLocator::InitPointInsertion(vlPoints *newPts, float bounds[6])
 //  Compute width of bucket in three directions
 //
   for (i=0; i<3; i++) 
-    this->H[i] = (bounds[2*i+1] - bounds[2*i]) / this->Divisions[i] ;
+    this->H[i] = (this->Bounds[2*i+1] - this->Bounds[2*i])/this->Divisions[i];
 
   this->InsertionTol2 = this->Tolerance * this->Tolerance;
 
@@ -496,7 +507,7 @@ int vlLocator::InsertPoint(float x[3])
 //
 //  Locate bucket that point is in.
 //
-  for (i=0; i<3; i++) 
+  for (i=0; i<3; i++)
     {
     ijk[i] = (int) ((float) ((x[i] - this->Bounds[2*i])*0.999 / 
              (this->Bounds[2*i+1] - this->Bounds[2*i])) * this->Divisions[i]);
