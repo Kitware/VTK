@@ -288,7 +288,7 @@ void vlStructuredData::_GetPointCells(int ptId, vlIdList& cellIds)
 {
   int ptDim[3], cellDim[3];
   int ptLoc[3], cellLoc[3];
-  int i, j, cellId, add;
+  int i, j, cellId;
   static int offset[8][3] = {{-1,0,0}, {-1,-1,0}, {-1,-1,-1}, {-1,0,-1},
                              {0,0,0},  {0,-1,0},  {0,-1,-1},  {0,0,-1}};
 
@@ -311,16 +311,13 @@ void vlStructuredData::_GetPointCells(int ptId, vlIdList& cellIds)
 
   for (j=0; j<8; j++) 
     {
-    for (add=1, i=0; i<3; i++) 
+    for (i=0; i<3; i++) 
       {
       cellLoc[i] = ptLoc[i] + offset[j][i];
       if ( cellLoc[i] < 0 || cellLoc[i] >= cellDim[i] ) 
-        {
-        add = 0;
         break;
-        }
       }
-    if ( add ) 
+    if ( i >= 3 ) //add cell
       {
       cellId = cellLoc[0] + cellLoc[1]*cellDim[0] + 
                             cellLoc[2]*cellDim[0]*cellDim[1];
