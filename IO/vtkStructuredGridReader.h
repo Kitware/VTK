@@ -45,12 +45,19 @@ public:
   vtkStructuredGrid *GetOutput(int idx);
   void SetOutput(vtkStructuredGrid *output);  
 
+  // Description:
+  // Read the meta information from the file.  This needs to be public to it
+  // can be accessed by vtkDataSetReader.
+  virtual int ReadMetaData(vtkInformation *outInfo);
+
 protected:
   vtkStructuredGridReader();
   ~vtkStructuredGridReader();
 
-  void ExecuteInformation();
-  void Execute();
+  virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
+                                 vtkInformationVector *);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **,
+                          vtkInformationVector *);
 
   virtual int FillOutputPortInformation(int, vtkInformation*);
 private:

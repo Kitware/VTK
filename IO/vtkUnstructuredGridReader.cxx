@@ -18,10 +18,12 @@
 #include "vtkCellArray.h"
 #include "vtkFieldData.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridReader, "1.69");
+vtkCxxRevisionMacro(vtkUnstructuredGridReader, "1.70");
 vtkStandardNewMacro(vtkUnstructuredGridReader);
 
 #ifdef read
@@ -30,11 +32,12 @@ vtkStandardNewMacro(vtkUnstructuredGridReader);
 
 vtkUnstructuredGridReader::vtkUnstructuredGridReader()
 {
-  this->vtkSource::SetNthOutput(0, vtkUnstructuredGrid::New());
+  vtkUnstructuredGrid *output = vtkUnstructuredGrid::New();
+  this->SetOutput(output);
   // Releasing data for pipeline parallism.
   // Filters will know it is empty. 
-  this->Outputs[0]->ReleaseData();
-  this->Outputs[0]->Delete();
+  output->ReleaseData();
+  output->Delete();
 }
 
 vtkUnstructuredGridReader::~vtkUnstructuredGridReader()
@@ -50,66 +53,66 @@ vtkUnstructuredGrid* vtkUnstructuredGridReader::GetOutput()
 //----------------------------------------------------------------------------
 vtkUnstructuredGrid* vtkUnstructuredGridReader::GetOutput(int idx)
 {
-  return static_cast<vtkUnstructuredGrid*>(this->vtkSource::GetOutput(idx));
+  return vtkUnstructuredGrid::SafeDownCast(this->GetOutputDataObject(idx));
 }
 
 //----------------------------------------------------------------------------
 void vtkUnstructuredGridReader::SetOutput(vtkUnstructuredGrid *output)
 {
-  this->vtkSource::SetNthOutput(0, output);
+  this->GetExecutive()->SetOutputData(0, output);
 }
-
 
 //----------------------------------------------------------------------------
 // I do not think this should be here, but I do not want to remove it now.
-void vtkUnstructuredGridReader::ComputeInputUpdateExtents(vtkDataObject *data)
+int vtkUnstructuredGridReader::RequestUpdateExtent(
+  vtkInformation *,
+  vtkInformationVector **,
+  vtkInformationVector *outputVector)
 {
-  int piece, numPieces, ghostLevel;
-  vtkUnstructuredGrid *output = (vtkUnstructuredGrid *)data;
-  int idx;
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  int piece, numPieces;
 
-  output->GetUpdateExtent(piece, numPieces, ghostLevel);
+  piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
     
   // make sure piece is valid
   if (piece < 0 || piece >= numPieces)
     {
-    return;
+    return 1;
     }
-  
-  // just copy the Update extent as default behavior.
-  for (idx = 0; idx < this->NumberOfInputs; ++idx)
-    {
-    if (this->Inputs[idx])
-      {
-      this->Inputs[idx]->SetUpdateExtent(piece, numPieces, ghostLevel);
-      }
-    }
+
+  return 1;
 }
 
-void vtkUnstructuredGridReader::Execute()
+int vtkUnstructuredGridReader::RequestData(
+  vtkInformation *,
+  vtkInformationVector **,
+  vtkInformationVector *outputVector)
 {
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
   int i, numPts=0, numCells=0;
   char line[256];
   int npts, size, ncells=0;
-  int piece, numPieces, ghostLevel, skip1, read2, skip3, tmp;
+  int piece, numPieces, skip1, read2, skip3, tmp;
   vtkCellArray *cells=NULL;
   int *types=NULL;
   int done=0;
-  vtkUnstructuredGrid *output = this->GetOutput();
+  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
   int *tempArray;
   vtkIdType *idArray;
 
   // All of the data in the first piece.
-  if (output->GetUpdatePiece() > 0)
+  if (outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) > 0)
     {
-    return;
-    }  
+    return 1;
+    }
   
   vtkDebugMacro(<<"Reading vtk unstructured grid...");
 
   if (!this->OpenVTKFile() || !this->ReadHeader())
     {
-    return;
+    return 1;
     }
 
   // Read unstructured grid specific stuff
@@ -118,7 +121,7 @@ void vtkUnstructuredGridReader::Execute()
     {
     vtkErrorMacro(<<"Data file ends prematurely!");
     this->CloseVTKFile ();
-    return;
+    return 1;
     }
 
   if ( !strncmp(this->LowerCase(line),"dataset",(unsigned long)7) )
@@ -129,14 +132,14 @@ void vtkUnstructuredGridReader::Execute()
       {
       vtkErrorMacro(<<"Data file ends prematurely!");
       this->CloseVTKFile ();
-      return;
+      return 1;
       } 
 
     if ( strncmp(this->LowerCase(line),"unstructured_grid",17) )
       {
       vtkErrorMacro(<< "Cannot read dataset type: " << line);
       this->CloseVTKFile ();
-      return;
+      return 1;
       }
 
     // Might find points, cells, and cell types
@@ -160,24 +163,25 @@ void vtkUnstructuredGridReader::Execute()
           {
           vtkErrorMacro(<<"Cannot read number of points!");
           this->CloseVTKFile ();
-          return;
+          return 1;
           }
 
         if (!this->ReadPoints(output, numPts))
           {
           this->CloseVTKFile ();
-          return;
+          return 1;
           }
         }
 
       else if ( !strncmp(line,"cells",5))
         {
-        output->GetUpdateExtent(piece, numPieces, ghostLevel);
+        piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+        numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
         if (!(this->Read(&ncells) && this->Read(&size)))
           {
           vtkErrorMacro(<<"Cannot read cells!");
           this->CloseVTKFile ();
-          return;
+          return 1;
           }
 
         // the number of ints to read befor we get to the piece.
@@ -198,7 +202,7 @@ void vtkUnstructuredGridReader::Execute()
           {
           this->CloseVTKFile ();
           delete [] tempArray;
-          return;
+          return 1;
           }
         
         for (i = 0; i < size; i++)
@@ -215,12 +219,13 @@ void vtkUnstructuredGridReader::Execute()
 
       else if (!strncmp(line,"cell_types",10))
         {
-        output->GetUpdateExtent(piece, numPieces, ghostLevel);
+        piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+        numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
         if (!this->Read(&ncells))
           {
           vtkErrorMacro(<<"Cannot read cell types!");
           this->CloseVTKFile ();
-          return;
+          return 1;
           }
         // the number of ints to read befor we get to the piece.
         skip1 = piece * ncells / numPieces;
@@ -254,7 +259,7 @@ void vtkUnstructuredGridReader::Execute()
             {
             vtkErrorMacro(<<"Error reading binary cell types!");
             this->CloseVTKFile ();
-            return;
+            return 1;
             }
           vtkByteSwap::Swap4BERange(types,read2);
           }
@@ -267,7 +272,7 @@ void vtkUnstructuredGridReader::Execute()
               {
               vtkErrorMacro(<<"Error reading cell types!");
               this->CloseVTKFile ();
-              return;
+              return 1;
               }
             }
           // read types for piece
@@ -277,7 +282,7 @@ void vtkUnstructuredGridReader::Execute()
               {
               vtkErrorMacro(<<"Error reading cell types!");
               this->CloseVTKFile ();
-              return;
+              return 1;
               }
             }
           // skip types after piece
@@ -287,7 +292,7 @@ void vtkUnstructuredGridReader::Execute()
               {
               vtkErrorMacro(<<"Error reading cell types!");
               this->CloseVTKFile ();
-              return;
+              return 1;
               }
             }
           }
@@ -303,14 +308,14 @@ void vtkUnstructuredGridReader::Execute()
           {
           vtkErrorMacro(<<"Cannot read cell data!");
           this->CloseVTKFile ();
-          return;
+          return 1;
           }
         
         if ( ncells != numCells )
           {
           vtkErrorMacro(<<"Number of cells don't match!");
           this->CloseVTKFile ();
-          return;
+          return 1;
           }
 
         this->ReadCellData(output, ncells);
@@ -323,14 +328,14 @@ void vtkUnstructuredGridReader::Execute()
           {
           vtkErrorMacro(<<"Cannot read point data!");
           this->CloseVTKFile ();
-          return;
+          return 1;
           }
         
         if ( npts != numPts )
           {
           vtkErrorMacro(<<"Number of points don't match!");
           this->CloseVTKFile ();
-          return;
+          return 1;
           }
 
         this->ReadPointData(output, npts);
@@ -341,7 +346,7 @@ void vtkUnstructuredGridReader::Execute()
         {
         vtkErrorMacro(<< "Unrecognized keyword: " << line);
         this->CloseVTKFile ();
-        return;
+        return 1;
         }
       }
       if ( ! output->GetPoints() ) vtkWarningMacro(<<"No points read!");
@@ -355,7 +360,7 @@ void vtkUnstructuredGridReader::Execute()
       {
       vtkErrorMacro(<<"Cannot read point data!");
       this->CloseVTKFile ();
-      return;
+      return 1;
       }
 
     this->ReadPointData(output, numPts);
@@ -381,17 +386,13 @@ void vtkUnstructuredGridReader::Execute()
                 <<output->GetNumberOfCells() <<" cells.\n");
 
   this->CloseVTKFile ();
-  return;
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-int vtkUnstructuredGridReader::FillOutputPortInformation(int port,
+int vtkUnstructuredGridReader::FillOutputPortInformation(int,
                                                          vtkInformation* info)
 {
-  if(!this->Superclass::FillOutputPortInformation(port, info))
-    {
-    return 0;
-    }
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkUnstructuredGrid");
   return 1;
 }

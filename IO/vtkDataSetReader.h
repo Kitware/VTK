@@ -79,8 +79,11 @@ protected:
   vtkDataSetReader();
   ~vtkDataSetReader();
 
-  void Execute();
-  vtkDataReader *Reader;
+  virtual int RequestData(vtkInformation *, vtkInformationVector **,
+                          vtkInformationVector *);
+  virtual int FillOutputPortInformation(int, vtkInformation *);
+  virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
+                                 vtkInformationVector *);
 
 private:
   vtkDataSetReader(const vtkDataSetReader&);  // Not implemented.

@@ -42,15 +42,16 @@ public:
   // Description:
   // Get the output field of this reader.
   vtkDataObject *GetOutput();
-  vtkDataObject *GetOutput(int idx)
-    {return this->vtkSource::GetOutput(idx); };
+  vtkDataObject *GetOutput(int idx);
   void SetOutput(vtkDataObject *);
   
 protected:
   vtkDataObjectReader();
   ~vtkDataObjectReader();
 
-  void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **,
+                          vtkInformationVector *);
+  virtual int FillOutputPortInformation(int, vtkInformation*);
 private:
   vtkDataObjectReader(const vtkDataObjectReader&);  // Not implemented.
   void operator=(const vtkDataObjectReader&);  // Not implemented.

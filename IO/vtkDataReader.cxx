@@ -22,6 +22,8 @@
 #include "vtkErrorCode.h"
 #include "vtkFieldData.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkLongArray.h"
 #include "vtkLookupTable.h"
@@ -30,6 +32,7 @@
 #include "vtkPointSet.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkShortArray.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
@@ -38,7 +41,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkDataReader, "1.132");
+vtkCxxRevisionMacro(vtkDataReader, "1.133");
 vtkStandardNewMacro(vtkDataReader);
 
 vtkCxxSetObjectMacro(vtkDataReader, InputArray, vtkCharArray);
@@ -98,6 +101,9 @@ vtkDataReader::vtkDataReader()
   this->ReadAllColorScalars = 0;
   this->ReadAllTCoords = 0;
   this->ReadAllFields = 0;
+
+  this->SetNumberOfInputPorts(0);
+  this->SetNumberOfOutputPorts(1);
 }  
 
 vtkDataReader::~vtkDataReader()
@@ -2065,6 +2071,30 @@ const char *vtkDataReader::GetFieldDataNameInFile(int i)
     {
     return this->FieldDataNameInFile[i];
     }
+}
+
+int vtkDataReader::ProcessRequest(vtkInformation* request,
+                                  vtkInformationVector** inputVector,
+                                  vtkInformationVector* outputVector)
+{
+  // generate the data
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+    {
+    return this->RequestData(request, inputVector, outputVector);
+    }
+
+  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
+    {
+    return this->RequestUpdateExtent(request, inputVector, outputVector);
+    }
+
+  // execute information
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
+    {
+    return this->RequestInformation(request, inputVector, outputVector);
+    }
+
+  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
 void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)

@@ -26,7 +26,7 @@
 #ifndef __vtkDataReader_h
 #define __vtkDataReader_h
 
-#include "vtkSource.h"
+#include "vtkAlgorithm.h"
 
 #define VTK_ASCII 1
 #define VTK_BINARY 2
@@ -39,11 +39,11 @@ class vtkFieldData;
 class vtkPointSet;
 class vtkRectilinearGrid;
 
-class VTK_IO_EXPORT vtkDataReader : public vtkSource
+class VTK_IO_EXPORT vtkDataReader : public vtkAlgorithm
 {
 public:
   static vtkDataReader *New();
-  vtkTypeRevisionMacro(vtkDataReader,vtkSource);
+  vtkTypeRevisionMacro(vtkDataReader,vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -297,6 +297,11 @@ public:
   istream *GetIStream() {return this->IS;};
 //ETX
 
+  // Description:
+  // Read the meta information from the file.  This needs to be public to it
+  // can be accessed by vtkDataSetReader.
+  virtual int ReadMetaData(vtkInformation *) { return 1; }
+
 protected:
   vtkDataReader();
   ~vtkDataReader();
@@ -374,6 +379,18 @@ protected:
   // Decode the name of array. This method is the inverse of 
   // vtkWriter::EncodeName.
   void DecodeArrayName(char *resname, const char* name);
+
+  virtual int ProcessRequest(vtkInformation *, vtkInformationVector **,
+                             vtkInformationVector *);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **,
+                          vtkInformationVector *)
+    { return 1; }
+  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
+                                  vtkInformationVector *)
+    { return 1; }
+  virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
+                                 vtkInformationVector *)
+    { return 1; }
 
 private:
   vtkDataReader(const vtkDataReader&);  // Not implemented.

@@ -45,16 +45,24 @@ public:
   vtkStructuredPoints *GetOutput(int idx);
   vtkStructuredPoints *GetOutput();
   
+  // Description:
+  // Read the meta information from the file.  This needs to be public to it
+  // can be accessed by vtkDataSetReader.
+  virtual int ReadMetaData(vtkInformation *outInfo);
+
 protected:
   vtkStructuredPointsReader();
   ~vtkStructuredPointsReader();
 
-  void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **,
+                          vtkInformationVector *);
 
   // Default method performs Update to get information.  Not all the old
   // structured points sources compute information
-  void ExecuteInformation();
+  virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
+                                 vtkInformationVector *);
 
+  virtual int FillOutputPortInformation(int, vtkInformation *);
 private:
   vtkStructuredPointsReader(const vtkStructuredPointsReader&);  // Not implemented.
   void operator=(const vtkStructuredPointsReader&);  // Not implemented.

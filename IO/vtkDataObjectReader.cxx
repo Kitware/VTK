@@ -15,19 +15,23 @@
 #include "vtkDataObjectReader.h"
 
 #include "vtkObjectFactory.h"
+#include "vtkExecutive.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkFieldData.h"
 #include "vtkDataObject.h"
 
-vtkCxxRevisionMacro(vtkDataObjectReader, "1.18");
+vtkCxxRevisionMacro(vtkDataObjectReader, "1.19");
 vtkStandardNewMacro(vtkDataObjectReader);
 
 vtkDataObjectReader::vtkDataObjectReader()
 {
-  this->SetOutput(vtkDataObject::New());
+  vtkDataObject *output = vtkDataObject::New();
+  this->SetOutput(output);
   // Releasing data for pipeline parallism.
   // Filters will know it is empty. 
-  this->Outputs[0]->ReleaseData();
-  this->Outputs[0]->Delete();
+  output->ReleaseData();
+  output->Delete();
 }
 
 vtkDataObjectReader::~vtkDataObjectReader()
@@ -37,22 +41,29 @@ vtkDataObjectReader::~vtkDataObjectReader()
 //----------------------------------------------------------------------------
 vtkDataObject *vtkDataObjectReader::GetOutput()
 {
-  if (this->NumberOfOutputs < 1)
-    {
-    return NULL;
-    }
-  
-  return (vtkDataObject *)(this->Outputs[0]);
+  return this->GetOutput(0);
+}
+
+//----------------------------------------------------------------------------
+vtkDataObject* vtkDataObjectReader::GetOutput(int port)
+{
+  return vtkDataObject::SafeDownCast(this->GetOutputDataObject(port));
 }
 
 //----------------------------------------------------------------------------
 void vtkDataObjectReader::SetOutput(vtkDataObject *output)
 {
-  this->vtkSource::SetNthOutput(0, output);
+  this->GetExecutive()->SetOutputData(0, output);
 }
 
-void vtkDataObjectReader::Execute()
+int vtkDataObjectReader::RequestData(
+  vtkInformation *,
+  vtkInformationVector **,
+  vtkInformationVector *outputVector)
 {
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkDataObject *output = outInfo->Get(vtkDataObject::DATA_OBJECT());
+  
   char line[256];
   vtkFieldData *field=NULL;
 
@@ -60,7 +71,7 @@ void vtkDataObjectReader::Execute()
 
   if ( !(this->OpenVTKFile()) || !this->ReadHeader())
     {
-    return;
+    return 1;
     }
 
   // Read field data until end-of-file
@@ -72,7 +83,7 @@ void vtkDataObjectReader::Execute()
       field = this->ReadFieldData(); //reads named field (or first found)
       if ( field != NULL )
         {
-        this->GetOutput()->SetFieldData(field);
+        output->SetFieldData(field);
         field->Delete();
         }
       }
@@ -81,19 +92,27 @@ void vtkDataObjectReader::Execute()
       {
       vtkErrorMacro(<<"Field reader cannot read datasets");
       this->CloseVTKFile();
-      return;
+      return 1;
       }
 
     else 
       {
       vtkErrorMacro(<< "Unrecognized keyword: " << line);
       this->CloseVTKFile();
-      return;
+      return 1;
       }
     }
   //while field not read
 
   this->CloseVTKFile();
+
+  return 1;
+}
+
+int vtkDataObjectReader::FillOutputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkDataObject");
+  return 1;
 }
 
 void vtkDataObjectReader::PrintSelf(ostream& os, vtkIndent indent)

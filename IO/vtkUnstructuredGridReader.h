@@ -49,12 +49,14 @@ protected:
   vtkUnstructuredGridReader();
   ~vtkUnstructuredGridReader();
 
-  void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **,
+                          vtkInformationVector *);
 
   // Since the Outputs[0] has the same UpdateExtent format
   // as the generic DataObject we can copy the UpdateExtent
   // as a default behavior.
-  void ComputeInputUpdateExtents(vtkDataObject *output);
+  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
+                                  vtkInformationVector *);
   
   virtual int FillOutputPortInformation(int, vtkInformation*);
 private:

@@ -49,12 +49,14 @@ protected:
   vtkPolyDataReader();
   ~vtkPolyDataReader();
 
-  void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **,
+                          vtkInformationVector *);
 
   // Update extent of PolyData is specified in pieces.  
   // Since all DataObjects should be able to set UpdateExent as pieces,
   // just copy output->UpdateExtent  all Inputs.
-  void ComputeInputUpdateExtents(vtkDataObject *output);
+  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
+                                  vtkInformationVector *);
   
   virtual int FillOutputPortInformation(int, vtkInformation*);
 
