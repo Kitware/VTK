@@ -16,7 +16,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 //
-// Create line centered at origin
+// Computational class for lines.
 //
 #ifndef __vlLine_h
 #define __vlLine_h
