@@ -14,15 +14,14 @@
 =========================================================================*/
 #include "vtkMeshQuality.h"
 
-#include "vtkCellData.h"
-#include "vtkDataSet.h"
-#include "vtkFieldData.h"
-#include "vtkFloatArray.h"
-#include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkCellData.h"
+#include "vtkFloatArray.h"
 #include "vtkTetra.h"
+#include "vtkCellArray.h"
+#include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality, "1.7");
+vtkCxxRevisionMacro(vtkMeshQuality, "1.8");
 vtkStandardNewMacro(vtkMeshQuality);
 
 //----------------------------------------------------------------------------
@@ -48,12 +47,30 @@ vtkMeshQuality::~vtkMeshQuality()
 //----------------------------------------------------------------------------
 void vtkMeshQuality::Execute()
 {
+  vtkDataSet* ds = this->GetInput();
+  if( !ds )
+    {
+    vtkErrorMacro("Input not set");
+    return;
+    }
+
+  if ( ds->GetDataObjectType() != VTK_UNSTRUCTURED_GRID )
+    {
+    vtkErrorMacro("Wrong input type, should be vtkUnstructuredGrid");
+    return;
+    }
+
+  if( !this->Volume && !this->Ratio )
+    {
+    vtkErrorMacro(<<"Nothing to be calculated");
+    }
+
   int j;
-  vtkDataSet *input = this->GetInput();
-  vtkIdType numCells=input->GetNumberOfCells();
-  vtkIdList *id = vtkIdList::New();
+  vtkUnstructuredGrid *input = (vtkUnstructuredGrid*)ds;
+  vtkIdType numCells = input->GetNumberOfCells();
   vtkCellData *celld = vtkCellData::New();
   vtkFloatArray *scalars = vtkFloatArray::New();
+
   if (this->Volume && this->Ratio)
     {
     scalars->SetNumberOfComponents(2);
@@ -64,13 +81,16 @@ void vtkMeshQuality::Execute()
   double volume, ratio;
   double incenter[3], circenter[3];
   
-  for (j=0; j<numCells; j++)
+  vtkCellArray *cellArray = input->GetCells();
+  vtkPoints *inPts = input->GetPoints();
+
+  vtkIdType npts, *pts = 0;
+  for(j=0, cellArray->InitTraversal(); cellArray->GetNextCell(npts, pts); j++)
     {
-    input->GetCellPoints(j,id);
-    input->GetPoint(id->GetId(0),dp1);
-    input->GetPoint(id->GetId(1),dp2);
-    input->GetPoint(id->GetId(2),dp3);
-    input->GetPoint(id->GetId(3),dp4);
+    inPts->GetPoint(pts[0],dp1);
+    inPts->GetPoint(pts[1],dp2);
+    inPts->GetPoint(pts[2],dp3);
+    inPts->GetPoint(pts[3],dp4);
     
     if (this->Volume && this->Ratio)
       {
@@ -78,15 +98,14 @@ void vtkMeshQuality::Execute()
       ratio = sqrt(vtkTetra::Circumsphere(dp1,dp2,dp3,dp4, circenter))/\
         vtkTetra::Insphere(dp1,dp2,dp3,dp4,incenter);
       
-      ratio = ratio/3;
-      
+      ratio /= 3;
       scalars->SetTuple2(j,volume,ratio);
       }
     else if (this->Ratio)
       {
       ratio = sqrt(vtkTetra::Circumsphere(dp1,dp2,dp3,dp4, circenter))/\
         vtkTetra::Insphere(dp1,dp2,dp3,dp4,incenter);
-      ratio = ratio/3;
+      ratio /= 3;
       scalars->SetTuple1(j,ratio);
       }
     else if (this->Volume)
@@ -94,17 +113,12 @@ void vtkMeshQuality::Execute()
       volume = fabs(vtkTetra::ComputeVolume(dp1,dp2,dp3,dp4));
       scalars->SetTuple1(j,volume);
       }
-    else
-      {
-      vtkErrorMacro(<<"Nothing to be calculated!!!!");
-      }
     }
   
   int idx = celld->AddArray(scalars);
   celld->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
   this->GetOutput()->SetFieldData(celld);
   celld->Delete();
-  id->Delete();
   scalars->Delete();
 }
 
