@@ -86,7 +86,7 @@ void vtkFieldData::Initialize()
       {
       if ( this->Data[i] != NULL ) 
 	{
-	this->Data[i]->Delete();
+	this->Data[i]->UnRegister(this);
 	}
       }
     

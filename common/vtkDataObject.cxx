@@ -57,6 +57,17 @@ vtkDataObject::~vtkDataObject()
   this->FieldData->Delete();
 }
 
+// Used only by the source.  No reference counting.
+void vtkDataObject::SetSource(vtkSource *source)
+{
+  if (this->Source != source)
+    {
+    this->Source = source;
+    this->Modified();
+    }
+}
+
+
 void vtkDataObject::Initialize()
 {
 //

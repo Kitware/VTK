@@ -187,6 +187,7 @@ void vtkImageSource::SetCache(vtkImageCache *cache)
   if (this->Output)
     {
     this->Output->UnRegister(this);
+    this->Output->SetSource(NULL);
     this->Output = NULL;
     }
 
@@ -222,6 +223,8 @@ void vtkImageSource::CheckCache()
   if (this->Output == NULL)
     {
     this->Output = vtkImageSimpleCache::New();
+    this->Output->Register(this);
+    this->Output->Delete();
     this->Output->SetSource(this);
     this->Modified();
     }
@@ -286,6 +289,22 @@ int vtkImageSource::SplitExtent(int splitExt[6], int startExt[6],
 
 
 
+//----------------------------------------------------------------------------
+void vtkImageSource::UnRegister(vtkObject *o)
+{
+  // detect the circular loop source <-> cache
+  // If we have two references and one of them is my cache
+  // and I am not being unregistered by my cache, break the loop.
+  if (this->ReferenceCount == 2 && this->Output != NULL &&
+      this->Output->GetSource() == this && o != this->Output)
+    {
+    this->Output->SetSource(NULL);
+    }
+  
+  this->vtkObject::UnRegister(o);
+}
+
+  
 
 
 

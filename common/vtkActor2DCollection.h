@@ -52,8 +52,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkActor2DCollection_h
 
 #include "vtkCollection.h"
-#include "vtkActor2D.h"
-
+class vtkActor2D;
+class vtkViewport;
 
 class VTK_EXPORT vtkActor2DCollection : public vtkCollection
 {
@@ -70,7 +70,6 @@ class VTK_EXPORT vtkActor2DCollection : public vtkCollection
   // Sorts the vtkActor2DCollection by layer number.  Smaller layer
   // numbers are first.  Layer numbers can be any integer value.
   void Sort();
-
   
   // Description:
   // Add an actor to the list.  The new actor is inserted in the list

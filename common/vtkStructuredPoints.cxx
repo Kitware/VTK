@@ -658,7 +658,8 @@ void vtkStructuredPoints::UnRegister(vtkObject* o)
   // but it has registered me.
   if (this->GetReferenceCount() == 2 && 
       this->StructuredPointsToImage != NULL &&
-      this->StructuredPointsToImage->GetInput() == this)
+      this->StructuredPointsToImage->GetInput() == this &&
+      this->StructuredPointsToImage != o)
     {
     vtkStructuredPointsToImage *temp = this->StructuredPointsToImage;
     this->StructuredPointsToImage = NULL;    

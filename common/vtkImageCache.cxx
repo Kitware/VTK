@@ -88,6 +88,8 @@ vtkImageCache::~vtkImageCache()
     this->ImageToStructuredPoints->Delete();
     }
   this->ReleaseData();
+  // get rid of reference count.
+  this->SetSource(NULL);
 }
 
 //----------------------------------------------------------------------------
@@ -555,9 +557,13 @@ vtkImageToStructuredPoints *vtkImageCache::GetImageToStructuredPoints()
 // this cache.
 void vtkImageCache::UnRegister(vtkObject* o)
 {
-  // this is the special test. I own ImageToStructuredPoints, but it has registered me.
-  if (this->GetReferenceCount() == 2 && this->ImageToStructuredPoints != NULL &&
-      this->ImageToStructuredPoints->GetInput() == this)
+  // detect the circular loop cache <-> ImageToStructuredPoints
+  // If we have two references and one of them is my itosp
+  // and I am not being unregistered by my itosp, break the loop.
+  if (this->GetReferenceCount() == 2 && 
+      this->ImageToStructuredPoints != NULL &&
+      this->ImageToStructuredPoints->GetInput() == this &&
+      this->ImageToStructuredPoints != o)
     {
     vtkImageToStructuredPoints *temp = this->ImageToStructuredPoints;
     this->ImageToStructuredPoints = NULL;    

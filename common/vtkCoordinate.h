@@ -49,6 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkObject.h"
 class vtkViewport;
 
+
 #define VTK_DISPLAY             0
 #define VTK_NORMALIZED_DISPLAY  1
 #define VTK_VIEWPORT            2
@@ -106,7 +107,7 @@ public:
   // If you want this coordinate to be relative to a specific
   // vtkViewport (vtkRenderer, vtkImager) then you can specify
   // that here.
-  vtkSetObjectMacro(Viewport,vtkViewport);
+  void SetViewport(vtkViewport *viewport);
   vtkGetObjectMacro(Viewport,vtkViewport);
 
   // Description:

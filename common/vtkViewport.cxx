@@ -43,6 +43,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkViewport.h"
 #include "vtkWindow.h"
+#include "vtkActor2D.h"
+
 
 // Create a vtkViewport with a black background, a white ambient light, 
 // two-sided lighting turned on, a viewport of (0,0,1,1), and backface culling

@@ -53,6 +53,11 @@ vtkActor2D::vtkActor2D()
 // Destroy an actor2D.
 vtkActor2D::~vtkActor2D()
 {
+  if (this->Mapper != NULL)
+    {
+    this->Mapper->UnRegister(this);
+    this->Mapper == NULL;
+    }
 }
 
 // Renders an actor2D's property and then it's mapper.
@@ -79,6 +84,24 @@ void vtkActor2D::Render (vtkViewport* viewport)
   this->Mapper->Render(viewport, this); 
 
 }
+
+void vtkActor2D::SetMapper(vtkMapper2D *mapper)
+{
+  if (this->Mapper != mapper)
+    {
+    if (this->Mapper != NULL) 
+      {
+      this->Mapper->UnRegister(this);
+      }
+    this->Mapper = mapper;
+    if (this->Mapper != NULL) 
+      {
+      this->Mapper->Register(this);
+      }
+    this->Modified();
+    }
+}
+
 
 void vtkActor2D::PrintSelf(ostream& os, vtkIndent indent)
 {

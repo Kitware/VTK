@@ -99,6 +99,10 @@ public:
   vtkSetReferenceCountedObjectMacro(Points,vtkPoints);
   vtkGetObjectMacro(Points,vtkPoints);
 
+  // Description:
+  // Detect refernce loop PointSet <-> locator.
+  void UnRegister(vtkObject *o);
+  
 protected:
   vtkPoints *Points;
   vtkPointLocator *Locator;

@@ -75,6 +75,7 @@ class VTK_EXPORT vtkImplicitFunction : public vtkObject
 {
 public:
   vtkImplicitFunction();
+  ~vtkImplicitFunction();
   const char *GetClassName() {return "vtkImplicitFunction";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -105,7 +106,7 @@ public:
 
   // Description:
   // Set/Get transformation matrix to transform implicit function.
-  vtkSetObjectMacro(Transform,vtkTransform);
+  vtkSetReferenceCountedObjectMacro(Transform,vtkTransform);
   vtkGetObjectMacro(Transform,vtkTransform);
 
 protected:

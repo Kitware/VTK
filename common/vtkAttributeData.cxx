@@ -56,12 +56,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkAttributeData::vtkAttributeData(int dataType)
 {
   this->Data = vtkFloatArray::New();
+  this->Data->Register(this);
+  this->Data->Delete();
   this->SetDataType(dataType);
 }
 
 vtkAttributeData::~vtkAttributeData()
 {
-  this->Data->Delete();
+  this->Data->UnRegister(this);
 }
 
 int vtkAttributeData::Allocate(const int sz, const int ext)

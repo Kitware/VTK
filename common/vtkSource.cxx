@@ -49,6 +49,15 @@ vtkSource::vtkSource()
   this->Output = NULL;
 }
 
+vtkSource::~vtkSource()
+{
+  if (this->Output) 
+    { 
+    this->Output->SetSource(NULL);
+    this->Output->Delete();
+    }
+}
+
 int vtkSource::GetDataReleased()
 {
   if (this->Output)

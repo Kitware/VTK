@@ -74,8 +74,7 @@ public:
   virtual vtkDataObject *MakeObject() {return new vtkDataObject;};
 
   // Description:
-  // Specify the source object creating this data object.
-  vtkSetObjectMacro(Source,vtkSource);
+  // Get the source object creating this data object.
   vtkGetObjectMacro(Source,vtkSource);
   
   // Description:
@@ -126,6 +125,13 @@ public:
   void SetFieldData(vtkFieldData &fd);
   vtkFieldData *GetFieldData() {return this->FieldData;};
 
+  //BTX - begin tcl exclude
+  // Description:
+  // This method is to be used only by the source.
+  // The source is not reference counted by this data object.
+  void SetSource(vtkSource *source);
+  //ETX
+  
   // Description:
   // For legacy compatibility: Do not use.
   void SetFieldData(vtkFieldData *fd) {this->SetFieldData(*fd);}

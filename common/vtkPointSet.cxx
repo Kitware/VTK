@@ -265,6 +265,22 @@ void vtkPointSet::Squeeze()
   vtkDataSet::Squeeze();
 }
 
+void vtkPointSet::UnRegister(vtkObject *o)
+{
+  // detect the circular loop PointSet <-> Locator
+  // If we have two references and one of them is my locator
+  // and I am not being unregistered by my locator, break the loop.
+  if (this->ReferenceCount == 2 && this->Locator &&
+      this->Locator->GetDataSet() == this && 
+      this->Locator != o)
+    {
+    this->Locator->SetDataSet(NULL);
+    }
+  this->vtkObject::UnRegister(o);
+}
+
+
+
 void vtkPointSet::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSet::PrintSelf(os,indent);

@@ -54,8 +54,9 @@ vtkLocator::vtkLocator()
 
 vtkLocator::~vtkLocator()
 {
-// commented out because of compiler problems in g++
-//  this->FreeSearchStructure(); 
+  // commented out because of compiler problems in g++
+  //  this->FreeSearchStructure(); 
+  this->SetDataSet(NULL);
 }
 
 void vtkLocator::Initialize()
