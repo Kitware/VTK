@@ -37,7 +37,7 @@
 #include "vtkXMLStructuredGridReader.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
-vtkCxxRevisionMacro(vtkCommunicator, "1.19");
+vtkCxxRevisionMacro(vtkCommunicator, "1.20");
 
 template <class T>
 int SendDataArray(T* data, int length, int handle, int tag, vtkCommunicator *self)
@@ -462,7 +462,7 @@ int vtkCommunicator::ReadDataSet(vtkDataSet* object)
   
   // We will read data from a string stream.
   istrstream istr(this->MarshalString, this->MarshalDataLength);
-  vtkDataSet* output;
+  vtkDataSet* output = 0;
   vtkXMLDataReader* reader = 0;
   
   if(strcmp(object->GetClassName(), "vtkImageData") == 0)
