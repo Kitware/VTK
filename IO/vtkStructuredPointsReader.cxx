@@ -21,7 +21,7 @@
 #include "vtkPointData.h"
 #include "vtkStructuredPoints.h"
 
-vtkCxxRevisionMacro(vtkStructuredPointsReader, "1.60");
+vtkCxxRevisionMacro(vtkStructuredPointsReader, "1.61");
 vtkStandardNewMacro(vtkStructuredPointsReader);
 
 vtkStructuredPointsReader::vtkStructuredPointsReader()
@@ -65,7 +65,6 @@ void vtkStructuredPointsReader::ExecuteInformation()
   
   char line[256];
   int dimsRead=0, arRead=0, originRead=0;
-  int scalarTypeRead = 0;
   int done=0;
   
   if (!this->OpenVTKFile() || !this->ReadHeader())
@@ -179,8 +178,6 @@ void vtkStructuredPointsReader::ExecuteInformation()
             this->ReadString(line);
             this->ReadString(line);
             
-            scalarTypeRead = 1;
-
             if ( ! strncmp(line, "bit", 3) )
               {
               output->SetScalarType(VTK_BIT);
@@ -225,10 +222,6 @@ void vtkStructuredPointsReader::ExecuteInformation()
               {
               output->SetScalarTypeToDouble();
               }
-            else
-              {
-              scalarTypeRead = 0;
-              }
             
             // the next string could be an integer number of components or a
             // lookup table
@@ -264,7 +257,6 @@ void vtkStructuredPointsReader::ExecuteInformation()
             output->SetNumberOfScalarComponents(numComp);
 
             // Color scalar type is predefined by FileType.
-            scalarTypeRead = 1;
             if(this->FileType == VTK_BINARY)
               {
               output->SetScalarTypeToUnsignedChar();
@@ -280,7 +272,7 @@ void vtkStructuredPointsReader::ExecuteInformation()
         }
       }
     
-    if ( !dimsRead || !arRead || !originRead || !scalarTypeRead) 
+    if ( !dimsRead || !arRead || !originRead) 
       {
       vtkWarningMacro(<<"Not all meta data was read form the file.");
       }
