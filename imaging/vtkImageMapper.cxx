@@ -54,6 +54,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkWindow.h"
 #include "vtkImageData.h"
 
+#define VTK_RINT(x) ((x > 0.0) ? (int)(x + 0.5) : (int)(x - 0.5))
+
 vtkImageMapper::vtkImageMapper()
 {
   vtkDebugMacro(<< "vtkImageMapper::vtkImageMapper" );
@@ -153,8 +155,8 @@ void vtkImageMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
   int vSize[2];
   // size excludes last pixel except for last pixelof window
   // this is to prevent overlapping viewports
-  vSize[0] = rint(vCoords[2]) - rint(vCoords[0]);
-  vSize[1] = rint(vCoords[3]) - rint(vCoords[1]);
+  vSize[0] = VTK_RINT(vCoords[2]) - VTK_RINT(vCoords[0]);
+  vSize[1] = VTK_RINT(vCoords[3]) - VTK_RINT(vCoords[1]);
   viewport->ViewportToNormalizedDisplay(vCoords[2],vCoords[3]);
   if (vCoords[2] == 1.0) 
     {
