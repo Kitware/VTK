@@ -199,6 +199,9 @@ public:
   vtkGetMacro(CopyCellData, int); 
   vtkBooleanMacro(CopyCellData, int); 
 
+  // Description:
+  // Use PolyVerticies will cause all of the points
+
 protected:
   vtkQuadricClustering();
   ~vtkQuadricClustering();
@@ -236,9 +239,8 @@ protected:
   // Description:
   // Add vertices to the quadric array.  If geometry flag is on then
   // vertices are added to the output.
-  void AddVertices(vtkCellArray *verts, vtkPoints *points,
-                   int geometryFlag);
-  void AddVertex(vtkIdType binId, float *pt, int geometeryFlag);
+  void AddVertices(vtkCellArray *verts, vtkPoints *points, int geometryFlag);
+  void AddVertex(vtkIdType binId, float *pt, int geometryFlag);
 
   // Description:
   // Initialize the quadric matrix to 0's.
@@ -260,6 +262,11 @@ protected:
   // input points with the lowest error.
   void EndAppendUsingPoints(vtkPolyData *input);
   int UseInputPoints;
+
+  // Description:
+  // This method sets the verticies of the output.
+  // It duplicates the structure of the input cells (but decimiated).
+  void EndAppendVertexGeometry(vtkPolyData *input);
 
   // Unfinished option to handle boundary edges differently.
   void AppendFeatureQuadrics(vtkPolyData *pd);
@@ -290,7 +297,6 @@ protected:
   // the algorithm to be driven by the Append methods.
   vtkCellArray *OutputTriangleArray;
   vtkCellArray *OutputLines;
-  vtkCellArray *OutputVerts;
 
   vtkFeatureEdges *FeatureEdges;
   vtkPoints *FeaturePoints;

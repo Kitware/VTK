@@ -88,7 +88,6 @@ vtkQuadricClustering::vtkQuadricClustering()
 
   this->OutputTriangleArray = NULL;
   this->OutputLines = NULL;
-  this->OutputVerts = NULL;
 
   // Overide superclass so that append can be called directly.
   this->NumberOfRequiredInputs = 0;
@@ -146,6 +145,7 @@ void vtkQuadricClustering::Execute()
     {
     this->EndAppend();
     }
+
   
   if ( this->Debug )
     {
@@ -211,16 +211,9 @@ void vtkQuadricClustering::StartAppend(float *bounds)
     this->OutputLines = NULL;
     //vtkWarningMacro("Array already created.  Did you call EndAppend?");
     }
-  if (this->OutputVerts)
-    {
-    this->OutputVerts->Delete();
-    this->OutputVerts = NULL;
-    //vtkWarningMacro("Array already created.  Did you call EndAppend?");
-    }
 
   this->OutputTriangleArray = vtkCellArray::New();
   this->OutputLines = vtkCellArray::New();
-  this->OutputVerts = vtkCellArray::New();
 
   this->XBinSize = (this->Bounds[1]-this->Bounds[0])/this->NumberOfXDivisions;
   this->YBinSize = (this->Bounds[3]-this->Bounds[2])/this->NumberOfYDivisions;
@@ -259,8 +252,7 @@ void vtkQuadricClustering::Append(vtkPolyData *pd)
   vtkPoints *inputPoints = pd->GetPoints();
   
   // Check for mis-use of the Append methods.
-  if (this->OutputTriangleArray == NULL || this->OutputLines == NULL ||
-      this->OutputVerts == NULL)
+  if (this->OutputTriangleArray == NULL || this->OutputLines == NULL)
     {
     //vtkErrorMacro("Missing Array:  Did you call StartAppend?");
     return;
@@ -606,10 +598,9 @@ void vtkQuadricClustering::AddVertices(vtkCellArray *verts, vtkPoints *points,
 // We ignore constants across all terms.
 // If geomertyFlag is 1 then the vert is added to the output.  Otherwise,
 // only the quadric is affected.
-void vtkQuadricClustering::AddVertex(vtkIdType binId, float *pt,
+void vtkQuadricClustering::AddVertex(vtkIdType binId, float *pt, 
                                      int geometryFlag)
 {
-  vtkIdType vertPtId;
   float q[9];
 
   // Compute quadric for the vertex.
@@ -657,21 +648,6 @@ void vtkQuadricClustering::AddVertex(vtkIdType binId, float *pt,
       flag = 0;
       this->QuadricArray[binId].VertexId = this->NumberOfBinsUsed;
       this->NumberOfBinsUsed++;
-      }
-    vertPtId = this->QuadricArray[binId].VertexId;
-
-    // Here is a flaw: How do we enforce one vert per bin?
-    // We could search the array (n^2 complexity).
-    // This approach will work if verts are added before all other types.
-    if (flag)
-      {
-      this->OutputVerts->InsertNextCell(1, &vertPtId);
-      if (this->CopyCellData && this->GetInput())
-        {
-        this->GetOutput()->GetCellData()->CopyData(this->GetInput()->GetCellData(),
-                                      this->InCellCount,
-                                      this->OutCellCount++);
-        }
       }
     }
 }
@@ -752,8 +728,7 @@ void vtkQuadricClustering::EndAppend()
   vtkPolyData *output = this->GetOutput();
   
   // Check for mis use of the Append methods.
-  if (this->OutputTriangleArray == NULL || this->OutputLines == NULL ||
-      this->OutputVerts == NULL)
+  if (this->OutputTriangleArray == NULL || this->OutputLines == NULL)
     {
     //vtkErrorMacro("Missing Array:  Did you call StartAppend?");
     return;
@@ -795,16 +770,12 @@ void vtkQuadricClustering::EndAppend()
   this->OutputLines->Delete();
   this->OutputLines = NULL;
 
-  if (this->OutputVerts->GetNumberOfCells() > 0)
-    {
-    output->SetVerts(this->OutputVerts);
-    }
-  this->OutputVerts->Delete();
-  this->OutputVerts = NULL;
+  this->EndAppendVertexGeometry(this->GetInput());
 
   // Tell the data is is up to date 
   // (in case the user calls this method directly).
   output->DataHasBeenGenerated();
+
 
   // Free the quadric array.
   delete [] this->QuadricArray;
@@ -1040,8 +1011,7 @@ void vtkQuadricClustering::EndAppendUsingPoints(vtkPolyData *input)
     }
 
   // Check for mis use of the Append methods.
-  if (this->OutputTriangleArray == NULL || this->OutputLines == NULL ||
-      this->OutputVerts == NULL)
+  if (this->OutputTriangleArray == NULL || this->OutputLines == NULL)
     {
     //vtkErrorMacro("Missing Array:  Did you call StartAppend?");
     return;
@@ -1105,18 +1075,87 @@ void vtkQuadricClustering::EndAppendUsingPoints(vtkPolyData *input)
   this->OutputLines->Delete();
   this->OutputLines = NULL;
 
-  if (this->OutputVerts->GetNumberOfCells() > 0)
-    {
-    output->SetVerts(this->OutputVerts);
-    }
-  this->OutputVerts->Delete();
-  this->OutputVerts = NULL;
+  this->EndAppendVertexGeometry(input);
 
   delete [] this->QuadricArray;
   this->QuadricArray = NULL;
 
   delete minError;
 }
+
+
+
+//----------------------------------------------------------------------------
+// This is not a perfect implementation, because it does not determine.
+// Which vertex cell is the best for a bin.  The first detected is used.
+void vtkQuadricClustering::EndAppendVertexGeometry(vtkPolyData *input)
+{
+  vtkCellArray *inVerts, *outVerts;
+  vtkIdType *tmp = NULL;
+  int        tmpLength = 0;
+  int        tmpIdx;
+  float *pt;
+  int j;
+  vtkIdType numCells, i;
+  vtkIdType *ptIds, numPts;
+  vtkIdType outPtId;
+  vtkIdType binId, outCellId;
+
+  inVerts = input->GetVerts();
+  outVerts = vtkCellArray::New();
+
+  numCells = inVerts->GetNumberOfCells();
+  inVerts->InitTraversal();
+  for (i = 0; i < numCells; ++i)
+    {
+    inVerts->GetNextCell(numPts, ptIds);
+    if (tmpLength < numPts)
+      {
+      if (tmp)
+        {
+        delete tmp;
+        tmp = NULL;
+        }
+      tmp = new vtkIdType[numPts];
+      tmpLength = numPts;
+      }
+    tmpIdx = 0;
+    for (j = 0; j < numPts; ++j)
+      {
+      pt = input->GetPoint(ptIds[j]);
+      binId = this->HashPoint(pt);
+      outPtId = this->QuadricArray[binId].VertexId;
+      if (outPtId >= 0)
+        {
+        // Do not use this point.  Destroy infomration in Quadric array.
+        this->QuadricArray[binId].VertexId = -1;
+        tmp[tmpIdx] = outPtId;
+        ++tmpIdx;
+        }
+      }
+    if (tmpIdx > 0)
+      {
+      // add poly vertex to output.
+      outCellId = outVerts->InsertNextCell(tmpIdx, tmp);
+      this->GetOutput()->GetCellData()->CopyData(input->GetCellData(),
+                                      i, outCellId);
+      }
+    }
+
+  if (tmp)
+    {
+    delete [] tmp;
+    tmp = NULL;
+    }
+
+  if (outVerts->GetNumberOfCells() > 0)
+    {
+    this->GetOutput()->SetVerts(outVerts);
+    }
+  outVerts->Delete();
+  outVerts = NULL;
+}
+
 
 //----------------------------------------------------------------------------
 // This method is called after the execution, but before the vertex array
