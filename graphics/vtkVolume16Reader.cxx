@@ -166,7 +166,7 @@ vtkScalars *vtkVolume16Reader::ReadImage(int sliceNumber)
 
   // build the file name
   sprintf (filename, this->FilePattern, this->FilePrefix, sliceNumber);
-  if ( !(fp = fopen(filename,"r")) )
+  if ( !(fp = fopen(filename,"rb")) )
     {
     vtkErrorMacro(<<"Can't open file: " << filename);
     return NULL;
@@ -221,7 +221,7 @@ vtkScalars *vtkVolume16Reader::ReadVolume(int first, int last)
     {
     // build the file name
     sprintf (filename, this->FilePattern, this->FilePrefix, fileNumber);
-    if ( !(fp = fopen(filename,"r")) )
+    if ( !(fp = fopen(filename,"rb")) )
       {
       vtkErrorMacro(<<"Can't find file: " << filename);
       return NULL;
