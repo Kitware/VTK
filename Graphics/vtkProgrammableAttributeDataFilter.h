@@ -129,15 +129,6 @@ public:
   // Set the arg delete method. This is used to free user memory.
   void SetExecuteMethodArgDelete(void (*f)(void *));
 
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // For legacy compatibility. Do not use.
-  void AddInput(vtkDataSet& in) 
-    {VTK_LEGACY_METHOD(AddInput,"3.2"); this->AddInput(&in);}
-  void RemoveInput(vtkDataSet& in) 
-    {VTK_LEGACY_METHOD(RemoveInput,"3.2"); this->RemoveInput(&in);}
-#endif
-  
 protected:
   vtkProgrammableAttributeDataFilter();
   ~vtkProgrammableAttributeDataFilter();

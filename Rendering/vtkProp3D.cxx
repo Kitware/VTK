@@ -360,16 +360,6 @@ void vtkProp3D::GetMatrix(double result[16])
   vtkMatrix4x4::DeepCopy(result,this->Matrix);
 } 
 
-#ifndef VTK_REMOVE_LEGACY_CODE
-// Return a reference to the Prop3D's 4x4 composite matrix.
-vtkMatrix4x4 *vtkProp3D::GetMatrixPointer()
-{
-  VTK_LEGACY_METHOD(GetMatrixPointer,"3.2");
-  this->GetMatrix(this->Matrix);
-  return this->Matrix;
-} 
-#endif
-
 
 // Get the bounds for this Prop3D as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
 void vtkProp3D::GetBounds(float bounds[6])

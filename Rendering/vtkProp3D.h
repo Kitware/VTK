@@ -244,14 +244,6 @@ public:
       return this->Matrix; 
     }
 
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // For legacy compatibility. Do not use.
-  virtual void GetMatrix(vtkMatrix4x4 &m) 
-    {VTK_LEGACY_METHOD(GetMatrix,"3.2"); this->GetMatrix(&m);}
-  virtual vtkMatrix4x4 *GetMatrixPointer();
-#endif
-  
 protected:
   vtkProp3D();
   ~vtkProp3D();
