@@ -22,7 +22,7 @@
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalDataSet, "1.5");
+vtkCxxRevisionMacro(vtkHierarchicalDataSet, "1.6");
 vtkStandardNewMacro(vtkHierarchicalDataSet);
 
 vtkCxxSetObjectMacro(vtkHierarchicalDataSet,HierarchicalDataInformation,vtkHierarchicalDataInformation);
@@ -62,7 +62,6 @@ vtkHDSNode* vtkHierarchicalDataSet::NewNode()
 void vtkHierarchicalDataSet::InitializeDataSets()
 {
   this->Internal->DataSets.clear();
-  this->HierarchicalDataInformation->Clear();
 }
 
 //----------------------------------------------------------------------------
