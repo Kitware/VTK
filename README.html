@@ -25,6 +25,7 @@ Welcome To The Visualization Toolkit
         <LI> <A HREF="#Cygwin">Cygwin Installation</A>
         <LI> <A HREF="#PC">PC Installation</A>
         </UL>
+    <LI> <A HREF="#Problems">Getting Data</A>
     <LI> <A HREF="#Data">Getting Data</A>
     <LI> <A HREF="#Running">Running VTK</A>
     <LI> <A HREF="#NewClass">Adding A New Class</A>
@@ -258,6 +259,27 @@ TK_XLIB_PATH /usr/src/tcltk-20001125-1/tk/xlib
 </pre>
 We recommend a 300MByte minimum swap size or you'll have trouble
 during the link phase.<p>
+
+<HR>
+<h1><A NAME="Problems">Common Problems</h1>
+  <ul>
+  <li>Strange compile errors on Unix. Make sure that you specify the
+      environment variables CXX and CC prior to running CMake.
+      (If you have already run CMake, do a "make clean" to remove
+      the cached CMake information.)
+  <li>Errors on Tcl or Tk include files. Make sure that you edit
+      CMakeCache.txt to point to the correct location.
+  <li>Errors on Tcl or Tk libraries. Make sure that you edit
+      CMakeCache.txt to point to the correct location.
+  <li>Link errors on Windows platforms. Make sure that the swap space is
+      at least 300 MByte.
+  <li>Link error with borland: TCL82.LIB contains invalid OMF record, 
+      type 0x21 (possibly COFF). You have to convert Tcl libraires 
+      from coff to omf with the Borland utilitiy coff2omf. Once you 
+      have created OMF versions, re-run cmake to tell it where the Borland
+      versions of Tcl and Tk are located. Also, make sure that you are using
+      Tcl/Tk 8.3.2.
+  </ul>
 
 <HR>
 <h1><A NAME="Data">Getting Data and Test Images</h1>
