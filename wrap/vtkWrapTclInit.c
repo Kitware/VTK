@@ -58,9 +58,6 @@ void stuffit()
             "\n");
     fprintf(stdout,
             "\n");
-    // claw: I am adding this to allow c++ to evaluate tcl commands.
-//    fprintf(fp,
-//	    "  vtkGlobalTclInterp = interp;\n");
     fprintf(stdout,
 	    "  Tcl_InitHashTable(&info->InstanceLookup, TCL_STRING_KEYS);\n");
     fprintf(stdout,
