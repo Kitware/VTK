@@ -24,7 +24,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkAxisActor2D, "1.26");
+vtkCxxRevisionMacro(vtkAxisActor2D, "1.27");
 vtkStandardNewMacro(vtkAxisActor2D);
 
 vtkCxxSetObjectMacro(vtkAxisActor2D,LabelTextProperty,vtkTextProperty);
@@ -327,9 +327,23 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
       }
     }
   
+  if (this->TitleVisibility && !this->TitleTextProperty)
+    {
+    vtkErrorMacro(<<"Need title text property to render axis actor");
+    return;
+    }
+
+  if (this->LabelVisibility && !this->LabelTextProperty)
+    {
+    vtkErrorMacro(<<"Need label text property to render axis actor");
+    return;
+    }
+
   if (this->GetMTime() < this->BuildTime &&
-      this->LabelTextProperty->GetMTime() < this->BuildTime &&
-      this->TitleTextProperty->GetMTime() < this->BuildTime)
+      (!this->LabelVisibility || 
+       this->LabelTextProperty->GetMTime() < this->BuildTime) &&
+      (!this->TitleVisibility || 
+       this->TitleTextProperty->GetMTime() < this->BuildTime))
     {
     return;
     }
@@ -795,44 +809,96 @@ void vtkAxisActor2D::ShallowCopy(vtkProp *prop)
 
 void vtkAxisActor2D::SetFontFamily(int val) 
 { 
-  this->LabelTextProperty->SetFontFamily(val); 
-  this->TitleTextProperty->SetFontFamily(val); 
+  if (this->LabelTextProperty)
+    {
+    this->LabelTextProperty->SetFontFamily(val); 
+    }
+  if (this->TitleTextProperty)
+    {
+    this->TitleTextProperty->SetFontFamily(val); 
+    }
 }
 
 int vtkAxisActor2D::GetFontFamily()
 { 
-  return this->LabelTextProperty->GetFontFamily(); 
+  if (this->LabelTextProperty)
+    {
+    return this->LabelTextProperty->GetFontFamily(); 
+    }
+  else
+    {
+    return 0;
+    }
 }
 
 void vtkAxisActor2D::SetBold(int val)
 { 
-  this->LabelTextProperty->SetBold(val); 
-  this->TitleTextProperty->SetBold(val); 
+  if (this->LabelTextProperty)
+    {
+    this->LabelTextProperty->SetBold(val); 
+    }
+  if (this->TitleTextProperty)
+    {
+    this->TitleTextProperty->SetBold(val); 
+    }
 }
 
 int vtkAxisActor2D::GetBold()
 { 
-  return this->LabelTextProperty->GetBold(); 
+  if (this->LabelTextProperty)
+    {
+    return this->LabelTextProperty->GetBold(); 
+    }
+  else
+    {
+    return 0;
+    }
 }
 
 void vtkAxisActor2D::SetItalic(int val)
 { 
-  this->LabelTextProperty->SetItalic(val); 
-  this->TitleTextProperty->SetItalic(val); 
+  if (this->LabelTextProperty)
+    {
+    this->LabelTextProperty->SetItalic(val); 
+    }
+  if (this->TitleTextProperty)
+    {
+    this->TitleTextProperty->SetItalic(val); 
+    }
 }
 
 int vtkAxisActor2D::GetItalic()
 { 
-  return this->LabelTextProperty->GetItalic(); 
+  if (this->LabelTextProperty)
+    {
+    return this->LabelTextProperty->GetItalic(); 
+    }
+  else
+    {
+    return 0;
+    }
 }
 
 void vtkAxisActor2D::SetShadow(int val)
 { 
-  this->LabelTextProperty->SetShadow(val); 
-  this->TitleTextProperty->SetShadow(val); 
+  if (this->LabelTextProperty)
+    {
+    this->LabelTextProperty->SetShadow(val); 
+    }
+  if (this->TitleTextProperty)
+    {
+    this->TitleTextProperty->SetShadow(val); 
+    }
 }
 
 int vtkAxisActor2D::GetShadow()
 { 
-  return this->LabelTextProperty->GetShadow(); 
+  if (this->LabelTextProperty)
+    {
+    return this->LabelTextProperty->GetShadow(); 
+    }
+  else
+    {
+    return 0;
+    }
 }

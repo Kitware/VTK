@@ -25,7 +25,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkParallelCoordinatesActor, "1.22");
+vtkCxxRevisionMacro(vtkParallelCoordinatesActor, "1.23");
 vtkStandardNewMacro(vtkParallelCoordinatesActor);
 
 vtkCxxSetObjectMacro(vtkParallelCoordinatesActor,Input,vtkDataObject);
@@ -188,6 +188,18 @@ int vtkParallelCoordinatesActor::RenderOpaqueGeometry(vtkViewport *viewport)
   if (!this->Input)
     {
     vtkErrorMacro(<< "Nothing to plot!");
+    return renderedSomething;
+    }
+
+  if (!this->TitleTextProperty)
+    {
+    vtkErrorMacro(<<"Need title text property to render plot");
+    return renderedSomething;
+    }
+
+  if (!this->LabelTextProperty)
+    {
+    vtkErrorMacro(<<"Need label text property to render plot");
     return renderedSomething;
     }
 
@@ -547,44 +559,96 @@ void vtkParallelCoordinatesActor::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkParallelCoordinatesActor::SetFontFamily(int val) 
 { 
-  this->LabelTextProperty->SetFontFamily(val); 
-  this->TitleTextProperty->SetFontFamily(val); 
+  if (this->LabelTextProperty)
+    {
+    this->LabelTextProperty->SetFontFamily(val); 
+    }
+  if (this->TitleTextProperty)
+    {
+    this->TitleTextProperty->SetFontFamily(val); 
+    }
 }
 
 int vtkParallelCoordinatesActor::GetFontFamily()
 { 
-  return this->TitleTextProperty->GetFontFamily(); 
+  if (this->LabelTextProperty)
+    {
+    return this->LabelTextProperty->GetFontFamily(); 
+    }
+  else
+    {
+    return 0;
+    }
 }
 
 void vtkParallelCoordinatesActor::SetBold(int val)
 { 
-  this->LabelTextProperty->SetBold(val); 
-  this->TitleTextProperty->SetBold(val); 
+  if (this->LabelTextProperty)
+    {
+    this->LabelTextProperty->SetBold(val); 
+    }
+  if (this->TitleTextProperty)
+    {
+    this->TitleTextProperty->SetBold(val); 
+    }
 }
 
 int vtkParallelCoordinatesActor::GetBold()
 { 
-  return this->TitleTextProperty->GetBold(); 
+  if (this->LabelTextProperty)
+    {
+    return this->LabelTextProperty->GetBold(); 
+    }
+  else
+    {
+    return 0;
+    }
 }
 
 void vtkParallelCoordinatesActor::SetItalic(int val)
 { 
-  this->LabelTextProperty->SetItalic(val); 
-  this->TitleTextProperty->SetItalic(val); 
+  if (this->LabelTextProperty)
+    {
+    this->LabelTextProperty->SetItalic(val); 
+    }
+  if (this->TitleTextProperty)
+    {
+    this->TitleTextProperty->SetItalic(val); 
+    }
 }
 
 int vtkParallelCoordinatesActor::GetItalic()
 { 
-  return this->TitleTextProperty->GetItalic(); 
+  if (this->LabelTextProperty)
+    {
+    return this->LabelTextProperty->GetItalic(); 
+    }
+  else
+    {
+    return 0;
+    }
 }
 
 void vtkParallelCoordinatesActor::SetShadow(int val)
 { 
-  this->LabelTextProperty->SetShadow(val); 
-  this->TitleTextProperty->SetShadow(val); 
+  if (this->LabelTextProperty)
+    {
+    this->LabelTextProperty->SetShadow(val); 
+    }
+  if (this->TitleTextProperty)
+    {
+    this->TitleTextProperty->SetShadow(val); 
+    }
 }
 
 int vtkParallelCoordinatesActor::GetShadow()
 { 
-  return this->TitleTextProperty->GetShadow(); 
+  if (this->LabelTextProperty)
+    {
+    return this->LabelTextProperty->GetShadow(); 
+    }
+  else
+    {
+    return 0;
+    }
 }

@@ -26,7 +26,7 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkScalarBarActor, "1.42");
+vtkCxxRevisionMacro(vtkScalarBarActor, "1.43");
 vtkStandardNewMacro(vtkScalarBarActor);
 
 vtkCxxSetObjectMacro(vtkScalarBarActor,LookupTable,vtkScalarsToColors);
@@ -176,9 +176,21 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
   int i;
   int size[2];
   
-  if ( ! this->LookupTable )
+  if (!this->LookupTable)
     {
     vtkWarningMacro(<<"Need a mapper to render a scalar bar");
+    return 0;
+    }
+
+  if (!this->TitleTextProperty)
+    {
+    vtkErrorMacro(<<"Need title text property to render a scalar bar");
+    return 0;
+    }
+
+  if (!this->LabelTextProperty)
+    {
+    vtkErrorMacro(<<"Need label text property to render a scalar bar");
     return 0;
     }
 
@@ -577,44 +589,96 @@ void vtkScalarBarActor::SizeTitle(int *titleSize,
 
 void vtkScalarBarActor::SetFontFamily(int val) 
 { 
-  this->LabelTextProperty->SetFontFamily(val); 
-  this->TitleTextProperty->SetFontFamily(val); 
+  if (this->LabelTextProperty)
+    {
+    this->LabelTextProperty->SetFontFamily(val); 
+    }
+  if (this->TitleTextProperty)
+    {
+    this->TitleTextProperty->SetFontFamily(val); 
+    }
 }
 
 int vtkScalarBarActor::GetFontFamily()
 { 
-  return this->LabelTextProperty->GetFontFamily(); 
+  if (this->LabelTextProperty)
+    {
+    return this->LabelTextProperty->GetFontFamily(); 
+    }
+  else
+    {
+    return 0;
+    }
 }
 
 void vtkScalarBarActor::SetBold(int val)
 { 
-  this->LabelTextProperty->SetBold(val); 
-  this->TitleTextProperty->SetBold(val); 
+  if (this->LabelTextProperty)
+    {
+    this->LabelTextProperty->SetBold(val); 
+    }
+  if (this->TitleTextProperty)
+    {
+    this->TitleTextProperty->SetBold(val); 
+    }
 }
 
 int vtkScalarBarActor::GetBold()
 { 
-  return this->LabelTextProperty->GetBold(); 
+  if (this->LabelTextProperty)
+    {
+    return this->LabelTextProperty->GetBold(); 
+    }
+  else
+    {
+    return 0;
+    }
 }
 
 void vtkScalarBarActor::SetItalic(int val)
 { 
-  this->LabelTextProperty->SetItalic(val); 
-  this->TitleTextProperty->SetItalic(val); 
+  if (this->LabelTextProperty)
+    {
+    this->LabelTextProperty->SetItalic(val); 
+    }
+  if (this->TitleTextProperty)
+    {
+    this->TitleTextProperty->SetItalic(val); 
+    }
 }
 
 int vtkScalarBarActor::GetItalic()
 { 
-  return this->LabelTextProperty->GetItalic(); 
+  if (this->LabelTextProperty)
+    {
+    return this->LabelTextProperty->GetItalic(); 
+    }
+  else
+    {
+    return 0;
+    }
 }
 
 void vtkScalarBarActor::SetShadow(int val)
 { 
-  this->LabelTextProperty->SetShadow(val); 
-  this->TitleTextProperty->SetShadow(val); 
+  if (this->LabelTextProperty)
+    {
+    this->LabelTextProperty->SetShadow(val); 
+    }
+  if (this->TitleTextProperty)
+    {
+    this->TitleTextProperty->SetShadow(val); 
+    }
 }
 
 int vtkScalarBarActor::GetShadow()
 { 
-  return this->LabelTextProperty->GetShadow(); 
+  if (this->LabelTextProperty)
+    {
+    return this->LabelTextProperty->GetShadow(); 
+    }
+  else
+    {
+    return 0;
+    }
 }

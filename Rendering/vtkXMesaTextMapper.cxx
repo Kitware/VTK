@@ -29,7 +29,7 @@
 #include "vtkToolkits.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkXMesaTextMapper, "1.17");
+vtkCxxRevisionMacro(vtkXMesaTextMapper, "1.18");
 vtkStandardNewMacro(vtkXMesaTextMapper);
 
 static void
@@ -205,6 +205,12 @@ int vtkXMesaTextMapper::GetListBaseForFont(vtkTextMapper *tm,
   vtkWindow *win = vp->GetVTKWindow();
 
   vtkTextProperty *tprop = tm->GetTextProperty();
+  if (!tprop)
+    {
+    vtkErrorWithObjectMacro(tm,<< "Need a text property to get list base for font");
+    return 0;
+    }
+
   int tm_font_size = tm->GetSystemFontSize(tprop->GetFontSize());
 
   // has the font been cached ?
@@ -351,8 +357,6 @@ void vtkXMesaTextMapper::RenderOverlay(vtkViewport* viewport,
 {
   vtkDebugMacro (<< "RenderOverlay");
 
-  vtkTextProperty *tprop = this->GetTextProperty();
-
   // Check for input
   if ( this->NumberOfLines > 1 )
     {
@@ -364,6 +368,13 @@ void vtkXMesaTextMapper::RenderOverlay(vtkViewport* viewport,
   if (this->Input == NULL || this->Input[0] == '\0') 
     {
     vtkDebugMacro (<<"Render - No input");
+    return;
+    }
+
+  vtkTextProperty *tprop = this->GetTextProperty();
+  if (!tprop)
+    {
+    vtkErrorMacro(<< "Need a text property to render mapper");
     return;
     }
 
@@ -385,7 +396,7 @@ void vtkXMesaTextMapper::RenderOverlay(vtkViewport* viewport,
   // use the Actor2D color instead of the text prop color if this value is 
   // found (i.e. if the text prop color has not been set).
 
-  float* actorColor = this->GetTextProperty()->GetColor();
+  float* actorColor = tprop->GetColor();
   if (actorColor[0] < 0.0 && actorColor[1] < 0.0 && actorColor[2] < 0.0)
     {
     actorColor = actor->GetProperty()->GetColor();
@@ -393,7 +404,7 @@ void vtkXMesaTextMapper::RenderOverlay(vtkViewport* viewport,
 
   // TOFIX: same goes for opacity
 
-  float opacity = this->GetTextProperty()->GetOpacity();
+  float opacity = tprop->GetOpacity();
   if (opacity < 0.0)
     {
     opacity = actor->GetProperty()->GetOpacity();

@@ -38,7 +38,7 @@
 
 #define VTK_MAX_PLOTS 50
 
-vtkCxxRevisionMacro(vtkXYPlotActor, "1.37");
+vtkCxxRevisionMacro(vtkXYPlotActor, "1.38");
 vtkStandardNewMacro(vtkXYPlotActor);
 
 vtkCxxSetObjectMacro(vtkXYPlotActor,TitleTextProperty,vtkTextProperty);
@@ -513,6 +513,12 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
     return 0;
     }
 
+  if (this->Title && this->Title[0] && !this->TitleTextProperty)
+    {
+    vtkErrorMacro(<< "Need a title text property to render plot title");
+    return 0;
+    }
+
   // Check modified time to see whether we have to rebuild.
   // Pay attention that GetMTime() has been redefined (see below)
 
@@ -520,9 +526,12 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
   if (mtime > this->BuildTime || 
       size[0] != this->CachedSize[0] || size[1] != this->CachedSize[1] ||
       this->GetMTime() > this->BuildTime ||
-      this->TitleTextProperty->GetMTime() > this->BuildTime ||
-      this->AxisLabelTextProperty->GetMTime() > this->BuildTime ||
-      this->AxisTitleTextProperty->GetMTime() > this->BuildTime)
+      (this->Title && this->Title[0] && 
+       this->TitleTextProperty->GetMTime() > this->BuildTime) ||
+      (this->AxisLabelTextProperty &&
+       this->AxisLabelTextProperty->GetMTime() > this->BuildTime) ||
+      (this->AxisTitleTextProperty &&
+       this->AxisTitleTextProperty->GetMTime() > this->BuildTime))
     {
     float range[2], yrange[2], xRange[2], yRange[2], interval, *lengths=NULL;
     int pos[2], pos2[2], numTicks;
@@ -567,28 +576,45 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
       this->LegendActor->ScalarVisibilityOff();
       }
 
-    // rebuid text props
+    // Rebuid text props
+    // Perform shallow copy here since each individual axis can be
+    // accessed through the class API (i.e. each individual axis text prop
+    // can be changed). Therefore, we can not just assign pointers otherwise
+    // each individual axis text prop would point to the same text prop.
+
     if (this->AxisLabelTextProperty &&
         this->AxisLabelTextProperty->GetMTime() > this->BuildTime)
       {
-      this->XAxis->GetLabelTextProperty()->ShallowCopy(
-        this->AxisLabelTextProperty);
-      this->YAxis->GetLabelTextProperty()->ShallowCopy(
-        this->AxisLabelTextProperty);
+      if (this->XAxis->GetTitleTextProperty())
+        {
+        this->XAxis->GetLabelTextProperty()->ShallowCopy(
+          this->AxisLabelTextProperty);
+        }
+      if (this->YAxis->GetTitleTextProperty())
+        {
+        this->YAxis->GetLabelTextProperty()->ShallowCopy(
+          this->AxisLabelTextProperty);
+        }
       }
-
-  if (this->AxisTitleTextProperty &&
-      this->AxisTitleTextProperty->GetMTime() > this->BuildTime)
-    {
-    this->XAxis->GetTitleTextProperty()->ShallowCopy(
-      this->AxisTitleTextProperty);
-    this->YAxis->GetTitleTextProperty()->ShallowCopy(
-      this->AxisTitleTextProperty);
-    }
-
+    
+    if (this->AxisTitleTextProperty &&
+        this->AxisTitleTextProperty->GetMTime() > this->BuildTime)
+      {
+      if (this->XAxis->GetTitleTextProperty())
+        {
+        this->XAxis->GetTitleTextProperty()->ShallowCopy(
+          this->AxisTitleTextProperty);
+        }
+      if (this->YAxis->GetTitleTextProperty())
+        {
+        this->YAxis->GetTitleTextProperty()->ShallowCopy(
+          this->AxisTitleTextProperty);
+        }
+      }
+    
     // setup x-axis
     vtkDebugMacro(<<"Rebuilding x-axis");
-
+    
     this->XAxis->SetTitle(this->XTitle);
     this->XAxis->SetNumberOfLabels(this->NumberOfXLabels);
     this->XAxis->SetLabelFormat(this->LabelFormat);
@@ -689,7 +715,7 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
     this->PlaceAxes(viewport, size, pos, pos2);
     
     // manage title
-    if ( this->Title != NULL )
+    if (this->Title != NULL && this->Title[0])
       {
       this->TitleMapper->SetInput(this->Title);
       if (this->TitleTextProperty->GetMTime() > this->BuildTime)
@@ -2036,48 +2062,112 @@ float *vtkXYPlotActor::TransformPoint(int pos[2], int pos2[2], float x[3], float
 
 void vtkXYPlotActor::SetFontFamily(int val) 
 { 
-  this->AxisLabelTextProperty->SetFontFamily(val); 
-  this->AxisTitleTextProperty->SetFontFamily(val); 
-  this->TitleTextProperty->SetFontFamily(val); 
+  if (this->AxisLabelTextProperty)
+    {
+    this->AxisLabelTextProperty->SetFontFamily(val); 
+    }
+  if (this->AxisTitleTextProperty)
+    {
+    this->AxisTitleTextProperty->SetFontFamily(val); 
+    }
+  if (this->TitleTextProperty)
+    {
+    this->TitleTextProperty->SetFontFamily(val); 
+    }
 }
 
 int vtkXYPlotActor::GetFontFamily()
 { 
-  return this->TitleTextProperty->GetFontFamily(); 
+  if (this->TitleTextProperty)
+    {
+    return this->TitleTextProperty->GetFontFamily(); 
+    }
+  else
+    {
+    return 0;
+    }
 }
 
 void vtkXYPlotActor::SetBold(int val)
 { 
-  this->AxisLabelTextProperty->SetBold(val); 
-  this->AxisTitleTextProperty->SetBold(val); 
-  this->TitleTextProperty->SetBold(val); 
+  if (this->AxisLabelTextProperty)
+    {
+    this->AxisLabelTextProperty->SetBold(val); 
+    }
+  if (this->AxisTitleTextProperty)
+    {
+    this->AxisTitleTextProperty->SetBold(val); 
+    }
+  if (this->TitleTextProperty)
+    {
+    this->TitleTextProperty->SetBold(val); 
+    }
 }
 
 int vtkXYPlotActor::GetBold()
 { 
-  return this->TitleTextProperty->GetBold(); 
+  if (this->TitleTextProperty)
+    {
+    return this->TitleTextProperty->GetBold(); 
+    }
+  else
+    {
+    return 0;
+    }
 }
 
 void vtkXYPlotActor::SetItalic(int val)
 { 
-  this->AxisLabelTextProperty->SetItalic(val); 
-  this->AxisTitleTextProperty->SetItalic(val); 
-  this->TitleTextProperty->SetItalic(val); 
+  if (this->AxisLabelTextProperty)
+    {
+    this->AxisLabelTextProperty->SetItalic(val); 
+    }
+  if (this->AxisTitleTextProperty)
+    {
+    this->AxisTitleTextProperty->SetItalic(val); 
+    }
+  if (this->TitleTextProperty)
+    {
+    this->TitleTextProperty->SetItalic(val); 
+    }
 }
 
 int vtkXYPlotActor::GetItalic()
 { 
-  return this->TitleTextProperty->GetItalic(); 
+  if (this->TitleTextProperty)
+    {
+    return this->TitleTextProperty->GetItalic(); 
+    }
+  else
+    {
+    return 0;
+    }
 }
 
 void vtkXYPlotActor::SetShadow(int val)
 { 
-  this->AxisLabelTextProperty->SetShadow(val); 
-  this->AxisTitleTextProperty->SetShadow(val); 
-  this->TitleTextProperty->SetShadow(val); 
+  if (this->AxisLabelTextProperty)
+    {
+    this->AxisLabelTextProperty->SetShadow(val); 
+    }
+  if (this->AxisTitleTextProperty)
+    {
+    this->AxisTitleTextProperty->SetShadow(val); 
+    }
+  if (this->TitleTextProperty)
+    {
+    this->TitleTextProperty->SetShadow(val); 
+    }
 }
 
 int vtkXYPlotActor::GetShadow()
 { 
-  return this->TitleTextProperty->GetShadow(); 
+  if (this->TitleTextProperty)
+    {
+    return this->TitleTextProperty->GetShadow(); 
+    }
+  else
+    {
+    return 0;
+    }
 }

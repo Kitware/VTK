@@ -25,7 +25,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkCubeAxesActor2D, "1.34");
+vtkCxxRevisionMacro(vtkCubeAxesActor2D, "1.35");
 vtkStandardNewMacro(vtkCubeAxesActor2D);
 
 vtkCxxSetObjectMacro(vtkCubeAxesActor2D,Input, vtkDataSet);
@@ -394,28 +394,52 @@ int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   this->ZAxis->SetFontFactor(this->FontFactor);
   this->ZAxis->SetProperty(this->GetProperty());
 
+  // Rebuid text props
+  // Perform shallow copy here since each individual axis can be
+  // accessed through the class API (i.e. each individual axis text prop
+  // can be changed). Therefore, we can not just assign pointers otherwise
+  // each individual axis text prop would point to the same text prop.
+
   if (this->AxisLabelTextProperty &&
       this->AxisLabelTextProperty->GetMTime() > this->BuildTime)
     {
-    this->XAxis->GetLabelTextProperty()->ShallowCopy(
-      this->AxisLabelTextProperty);
-    this->YAxis->GetLabelTextProperty()->ShallowCopy(
-      this->AxisLabelTextProperty);
-    this->ZAxis->GetLabelTextProperty()->ShallowCopy(
-      this->AxisLabelTextProperty);
+    if (this->XAxis->GetLabelTextProperty())
+      {
+      this->XAxis->GetLabelTextProperty()->ShallowCopy(
+        this->AxisLabelTextProperty);
+      }
+    if (this->YAxis->GetLabelTextProperty())
+      {
+      this->YAxis->GetLabelTextProperty()->ShallowCopy(
+        this->AxisLabelTextProperty);
+      }
+    if (this->ZAxis->GetLabelTextProperty())
+      {
+      this->ZAxis->GetLabelTextProperty()->ShallowCopy(
+        this->AxisLabelTextProperty);
+      }
     }
 
   if (this->AxisTitleTextProperty &&
       this->AxisTitleTextProperty->GetMTime() > this->BuildTime)
     {
-    this->XAxis->GetTitleTextProperty()->ShallowCopy(
-      this->AxisTitleTextProperty);
-    this->YAxis->GetTitleTextProperty()->ShallowCopy(
-      this->AxisTitleTextProperty);
-    this->ZAxis->GetTitleTextProperty()->ShallowCopy(
-      this->AxisTitleTextProperty);
+    if (this->XAxis->GetLabelTextProperty())
+      {
+      this->XAxis->GetTitleTextProperty()->ShallowCopy(
+        this->AxisTitleTextProperty);
+      }
+    if (this->YAxis->GetLabelTextProperty())
+      {
+      this->YAxis->GetTitleTextProperty()->ShallowCopy(
+        this->AxisTitleTextProperty);
+      }
+    if (this->ZAxis->GetLabelTextProperty())
+      {
+      this->ZAxis->GetTitleTextProperty()->ShallowCopy(
+        this->AxisTitleTextProperty);
+      }
     }
-
+  
   this->BuildTime.Modified();
 
   //Render the axes
@@ -985,44 +1009,96 @@ static int IsInBounds(float x[3], float bounds[6])
 
 void vtkCubeAxesActor2D::SetFontFamily(int val) 
 { 
-  this->AxisLabelTextProperty->SetFontFamily(val); 
-  this->AxisTitleTextProperty->SetFontFamily(val); 
+  if (this->AxisLabelTextProperty)
+    {
+    this->AxisLabelTextProperty->SetFontFamily(val); 
+    }
+  if (this->AxisTitleTextProperty)
+    {
+    this->AxisTitleTextProperty->SetFontFamily(val); 
+    }
 }
 
 int vtkCubeAxesActor2D::GetFontFamily()
 { 
-  return this->AxisLabelTextProperty->GetFontFamily(); 
+  if (this->AxisLabelTextProperty)
+    {
+    return this->AxisLabelTextProperty->GetFontFamily(); 
+    }
+  else
+    {
+    return 0;
+    }
 }
 
 void vtkCubeAxesActor2D::SetBold(int val)
 { 
-  this->AxisLabelTextProperty->SetBold(val); 
-  this->AxisTitleTextProperty->SetBold(val); 
+  if (this->AxisLabelTextProperty)
+    {
+    this->AxisLabelTextProperty->SetBold(val); 
+    }
+  if (this->AxisTitleTextProperty)
+    {
+    this->AxisTitleTextProperty->SetBold(val); 
+    }
 }
 
 int vtkCubeAxesActor2D::GetBold()
 { 
-  return this->AxisLabelTextProperty->GetBold(); 
+  if (this->AxisLabelTextProperty)
+    {
+    return this->AxisLabelTextProperty->GetBold(); 
+    }
+  else
+    {
+    return 0;
+    }
 }
 
 void vtkCubeAxesActor2D::SetItalic(int val)
 { 
-  this->AxisLabelTextProperty->SetItalic(val); 
-  this->AxisTitleTextProperty->SetItalic(val); 
+  if (this->AxisLabelTextProperty)
+    {
+    this->AxisLabelTextProperty->SetItalic(val); 
+    }
+  if (this->AxisTitleTextProperty)
+    {
+    this->AxisTitleTextProperty->SetItalic(val); 
+    }
 }
 
 int vtkCubeAxesActor2D::GetItalic()
 { 
-  return this->AxisLabelTextProperty->GetItalic(); 
+  if (this->AxisLabelTextProperty)
+    {
+    return this->AxisLabelTextProperty->GetItalic(); 
+    }
+  else
+    {
+    return 0;
+    }
 }
 
 void vtkCubeAxesActor2D::SetShadow(int val)
 { 
-  this->AxisLabelTextProperty->SetShadow(val); 
-  this->AxisTitleTextProperty->SetShadow(val); 
+  if (this->AxisLabelTextProperty)
+    {
+    this->AxisLabelTextProperty->SetShadow(val); 
+    }
+  if (this->AxisTitleTextProperty)
+    {
+    this->AxisTitleTextProperty->SetShadow(val); 
+    }
 }
 
 int vtkCubeAxesActor2D::GetShadow()
 { 
-  return this->AxisLabelTextProperty->GetShadow(); 
+  if (this->AxisLabelTextProperty)
+    {
+    return this->AxisLabelTextProperty->GetShadow(); 
+    }
+  else
+    {
+    return 0;
+    }
 }

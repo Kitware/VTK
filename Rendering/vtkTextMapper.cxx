@@ -20,7 +20,7 @@
 #include "vtkImagingFactory.h"
 #include "vtkTextProperty.h"
 
-vtkCxxRevisionMacro(vtkTextMapper, "1.42");
+vtkCxxRevisionMacro(vtkTextMapper, "1.43");
 
 vtkCxxSetObjectMacro(vtkTextMapper,TextProperty,vtkTextProperty);
 
@@ -120,6 +120,11 @@ int vtkTextMapper::SetConstrainedFontSize(vtkViewport *viewport,
                                           int targetHeight)
 {
   vtkTextProperty *tprop = this->GetTextProperty();
+  if (!tprop)
+    {
+    vtkErrorMacro(<<"Need text property to apply constaint");
+    return 0;
+    }
 
   int fontSize = tprop->GetFontSize();
 #if VTK_TM_DEBUG
@@ -216,13 +221,20 @@ int vtkTextMapper::SetMultipleConstrainedFontSize(vtkViewport *viewport,
     return 0;
     }
 
-  int fontSize, aSize, i;
+  int fontSize, aSize;
 
   // First try to find the constrained font size of the first mapper: it
   // will be used minimize the search for the remaining mappers, given the 
   // fact that all mappers are likely to have the same constrained font size.
 
-  fontSize = mappers[0]->SetConstrainedFontSize(
+  for (int first = 0; first < nbOfMappers && !mappers[first]; first++) {}
+
+  if (first >= nbOfMappers)
+    {
+    return 0;
+    }
+  
+  fontSize = mappers[first]->SetConstrainedFontSize(
     viewport, targetWidth, targetHeight);
 
 #if VTK_TM_DEBUG
@@ -233,14 +245,17 @@ int vtkTextMapper::SetMultipleConstrainedFontSize(vtkViewport *viewport,
   // Find the constrained font size for the remaining mappers and 
   // pick the smallest
 
-  for (i = 1; i < nbOfMappers; i++)
+  for (int i = first + 1; i < nbOfMappers; i++)
     {
-    mappers[i]->GetTextProperty()->SetFontSize(fontSize);
-    aSize = mappers[i]->SetConstrainedFontSize(
-      viewport, targetWidth, targetHeight);
-    if (aSize < fontSize)
+    if (mappers[i])
       {
-      fontSize = aSize;
+      mappers[i]->GetTextProperty()->SetFontSize(fontSize);
+      aSize = mappers[i]->SetConstrainedFontSize(
+        viewport, targetWidth, targetHeight);
+      if (aSize < fontSize)
+        {
+        fontSize = aSize;
+        }
       }
     }
 
@@ -252,17 +267,20 @@ int vtkTextMapper::SetMultipleConstrainedFontSize(vtkViewport *viewport,
   // Assign the smallest size to all text mappers and find the largest area
 
   int tempi[2];
-  for (i = 0; i < nbOfMappers; i++)
+  for (i = first; i < nbOfMappers; i++)
     {
-    mappers[i]->GetTextProperty()->SetFontSize(fontSize);
-    mappers[i]->GetSize(viewport, tempi);
-    if (tempi[0] > maxResultingSize[0])
+    if (mappers[i])
       {
-      maxResultingSize[0] = tempi[0];
-      }
-    if (tempi[1] > maxResultingSize[1])
-      {
-      maxResultingSize[1] = tempi[1];
+      mappers[i]->GetTextProperty()->SetFontSize(fontSize);
+      mappers[i]->GetSize(viewport, tempi);
+      if (tempi[0] > maxResultingSize[0])
+        {
+        maxResultingSize[0] = tempi[0];
+        }
+      if (tempi[1] > maxResultingSize[1])
+        {
+        maxResultingSize[1] = tempi[1];
+        }
       }
     }
 
@@ -410,6 +428,12 @@ void vtkTextMapper::GetMultiLineSize(vtkViewport* viewport, int size[2])
   int lineSize[2];
 
   vtkTextProperty *tprop = this->GetTextProperty();
+  if (!tprop) 
+    {
+    vtkErrorMacro(<<"Need text property to get multiline size of mapper");
+    size[0] = size[1] = 0;
+    return;
+    }
 
   lineSize[0] = lineSize[1] = size[0] = size[1] = 0;
   for ( i=0; i < this->NumberOfLines; i++ )
@@ -435,6 +459,11 @@ void vtkTextMapper::RenderOverlayMultipleLines(vtkViewport *viewport,
   this->GetMultiLineSize(viewport,size);
 
   vtkTextProperty *tprop = this->GetTextProperty();
+  if (!tprop)
+    {
+    vtkErrorMacro(<<"Need text property to render multiple lines of mapper");
+    return;
+    }
   
   switch (tprop->GetVerticalJustification())
     {
@@ -464,90 +493,180 @@ void vtkTextMapper::RenderOverlayMultipleLines(vtkViewport *viewport,
 
 void vtkTextMapper::SetFontFamily(int val) 
 { 
-  this->TextProperty->SetFontFamily(val); 
+  if (this->TextProperty)
+    {
+    this->TextProperty->SetFontFamily(val); 
+    }
 }
 
 int vtkTextMapper::GetFontFamily()
 { 
-  return this->TextProperty->GetFontFamily(); 
+  if (this->TextProperty)
+    {
+    return this->TextProperty->GetFontFamily(); 
+    }
+  else
+    {
+    return 0;
+    }
 }
 
 void vtkTextMapper::SetFontSize(int size) 
 { 
-  this->TextProperty->SetFontSize(size); 
+  if (this->TextProperty)
+    {
+    this->TextProperty->SetFontSize(size); 
+    }
 }
 
 int vtkTextMapper::GetFontSize()
 { 
-  return this->TextProperty->GetFontSize(); 
+  if (this->TextProperty)
+    {
+    return this->TextProperty->GetFontSize(); 
+    }
+  else
+    {
+    return 0;
+    }
 }
 
 void vtkTextMapper::SetBold(int val)
 { 
-  this->TextProperty->SetBold(val); 
+  if (this->TextProperty)
+    {
+    this->TextProperty->SetBold(val); 
+    }
 }
 
 int vtkTextMapper::GetBold()
 { 
-  return this->TextProperty->GetBold(); 
+  if (this->TextProperty)
+    {
+    return this->TextProperty->GetBold(); 
+    }
+  else
+    {
+    return 0;
+    }
 }
 
 void vtkTextMapper::SetItalic(int val)
 { 
-  this->TextProperty->SetItalic(val); 
+  if (this->TextProperty)
+    {
+    this->TextProperty->SetItalic(val); 
+    }
 }
 
 int vtkTextMapper::GetItalic()
 { 
-  return this->TextProperty->GetItalic(); 
+  if (this->TextProperty)
+    {
+    return this->TextProperty->GetItalic(); 
+    }
+  else
+    {
+    return 0;
+    }
 }
 
 void vtkTextMapper::SetShadow(int val)
 { 
-  this->TextProperty->SetShadow(val); 
+  if (this->TextProperty)
+    {
+    this->TextProperty->SetShadow(val); 
+    }
 }
 
 int vtkTextMapper::GetShadow()
 { 
-  return this->TextProperty->GetShadow(); 
+  if (this->TextProperty)
+    {
+    return this->TextProperty->GetShadow(); 
+    }
+  else
+    {
+    return 0;
+    }
 }
   
 void vtkTextMapper::SetJustification(int val)
 { 
-  this->TextProperty->SetJustification(val); 
+  if (this->TextProperty)
+    {
+    this->TextProperty->SetJustification(val); 
+    }
 }
 
 int vtkTextMapper::GetJustification()
 { 
-  return this->TextProperty->GetJustification(); 
+  if (this->TextProperty)
+    {
+    return this->TextProperty->GetJustification(); 
+    }
+  else
+    {
+    return 0;
+    }
 }
     
 void vtkTextMapper::SetVerticalJustification(int val)
 { 
-  this->TextProperty->SetVerticalJustification(val); 
+  if (this->TextProperty)
+    {
+    this->TextProperty->SetVerticalJustification(val); 
+    }
 }
 
 int vtkTextMapper::GetVerticalJustification()
 { 
-  return this->TextProperty->GetVerticalJustification(); 
+  if (this->TextProperty)
+    {
+    return this->TextProperty->GetVerticalJustification(); 
+    }
+  else
+    {
+    return 0;
+    }
 }
     
 void vtkTextMapper::SetLineOffset(float val)
 { 
-  this->TextProperty->SetLineOffset(val); 
+  if (this->TextProperty)
+    {
+    this->TextProperty->SetLineOffset(val); 
+    }
 }
 
 float vtkTextMapper::GetLineOffset()
 { 
-  return this->TextProperty->GetLineOffset(); 
+  if (this->TextProperty)
+    {
+    return this->TextProperty->GetLineOffset(); 
+    }
+  else
+    {
+    return 0.0f;
+    }
 }
 
 void vtkTextMapper::SetLineSpacing(float val)
 { 
-  this->TextProperty->SetLineSpacing(val); 
+  if (this->TextProperty)
+    {
+    this->TextProperty->SetLineSpacing(val); 
+    }
 }
 
 float vtkTextMapper::GetLineSpacing()
 { 
-  return this->TextProperty->GetLineSpacing(); 
+  if (this->TextProperty)
+    {
+    return this->TextProperty->GetLineSpacing(); 
+    }
+  else
+    {
+    return 0.0f;
+    }
 }

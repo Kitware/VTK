@@ -22,7 +22,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkCocoaTextMapper, "1.3");
+vtkCxxRevisionMacro(vtkCocoaTextMapper, "1.4");
 vtkStandardNewMacro(vtkCocoaTextMapper);
 
 vtkCocoaTextMapper::vtkCocoaTextMapper()
@@ -50,12 +50,17 @@ void vtkCocoaTextMapper::GetSize(vtkViewport* viewport, int *size)
 
   if (this->Input == NULL)
     {
-    size[0] = 0;
-    size[1] = 0;
+    size[0] = 0; size[1] = 0;
     return;
     }
 
   vtkTextProperty *tprop = this->GetTextProperty();
+  if (!tprop)
+    {
+    vtkErrorMacro(<< "Need a text property to get size");
+    size[0] = 0; size[1] = 0;
+    return;
+    }
  
   // Check to see whether we have to rebuild anything
   if ( this->GetMTime() < this->BuildTime &&
@@ -154,8 +159,6 @@ void vtkCocoaTextMapper::RenderOverlay(vtkViewport* viewport,
 {
   vtkDebugMacro (<< "RenderOverlay");
 
-  vtkTextProperty *tprop = this->GetTextProperty();
-
   // Check for input
   if ( this->NumberOfLines > 1 )
     {
@@ -167,6 +170,13 @@ void vtkCocoaTextMapper::RenderOverlay(vtkViewport* viewport,
   if (this->Input == NULL) 
     {
     vtkErrorMacro (<<"Render - No input");
+    return;
+    }
+
+  vtkTextProperty *tprop = this->GetTextProperty();
+  if (!tprop)
+    {
+    vtkErrorMacro(<< "Need a text property to render mapper");
     return;
     }
 
@@ -199,7 +209,7 @@ void vtkCocoaTextMapper::RenderOverlay(vtkViewport* viewport,
   // use the Actor2D color instead of the text prop color if this value is 
   // found (i.e. if the text prop color has not been set).
 
-  float* actorColor = this->GetTextProperty()->GetColor();
+  float* actorColor = tprop->GetColor();
   if (actorColor[0] < 0.0 && actorColor[1] < 0.0 && actorColor[2] < 0.0)
     {
     actorColor = actor->GetProperty()->GetColor();
@@ -207,7 +217,7 @@ void vtkCocoaTextMapper::RenderOverlay(vtkViewport* viewport,
 
   // TOFIX: same goes for opacity
 
-  float opacity = this->GetTextProperty()->GetOpacity();
+  float opacity = tprop->GetOpacity();
   if (opacity < 0.0)
     {
     opacity = actor->GetProperty()->GetOpacity();

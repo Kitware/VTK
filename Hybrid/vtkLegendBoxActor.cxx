@@ -29,7 +29,7 @@
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
 
-vtkCxxRevisionMacro(vtkLegendBoxActor, "1.21");
+vtkCxxRevisionMacro(vtkLegendBoxActor, "1.22");
 vtkStandardNewMacro(vtkLegendBoxActor);
 
 vtkCxxSetObjectMacro(vtkLegendBoxActor,EntryTextProperty,vtkTextProperty);
@@ -435,6 +435,12 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
     return 0;
     }
 
+  if (!this->EntryTextProperty)
+    {
+    vtkErrorMacro(<<"Need entry text property to render legend box actor");
+    return 0;
+    }
+
   // Check to see whether we have to rebuild everything
   int *vsize = viewport->GetSize();
   if (this->GetMTime() > this->BuildTime ||
@@ -519,7 +525,7 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
     size[0] = (int)((1.0-symbolSize)*(p2[0] - p1[0] - 2.0*this->Padding));
     size[1] = (int)((p2[1] - p1[1] - 2.0*this->Padding)/this->NumberOfEntries);
 
-    fontSize =  this->TextMapper[maxTextMapper]->SetConstrainedFontSize(
+    fontSize = this->TextMapper[maxTextMapper]->SetConstrainedFontSize(
       viewport, size[0], size[1]);
     this->TextMapper[maxTextMapper]->GetSize(viewport,tempi);
 
@@ -709,40 +715,80 @@ void vtkLegendBoxActor::ShallowCopy(vtkProp *prop)
 
 void vtkLegendBoxActor::SetFontFamily(int val) 
 { 
-  this->EntryTextProperty->SetFontFamily(val); 
+  if (this->EntryTextProperty)
+    {
+    this->EntryTextProperty->SetFontFamily(val); 
+    }
 }
 
 int vtkLegendBoxActor::GetFontFamily()
 { 
-  return this->EntryTextProperty->GetFontFamily(); 
+  if (this->EntryTextProperty)
+    {
+    return this->EntryTextProperty->GetFontFamily(); 
+    }
+  else
+    {
+    return 0;
+    }
 }
 
 void vtkLegendBoxActor::SetBold(int val)
 { 
-  this->EntryTextProperty->SetBold(val); 
+  if (this->EntryTextProperty)
+    {
+    this->EntryTextProperty->SetBold(val); 
+    }
 }
 
 int vtkLegendBoxActor::GetBold()
 { 
-  return this->EntryTextProperty->GetBold(); 
+  if (this->EntryTextProperty)
+    {
+    return this->EntryTextProperty->GetBold(); 
+    }
+  else
+    {
+    return 0;
+    }
 }
-
+  
 void vtkLegendBoxActor::SetItalic(int val)
 { 
-  this->EntryTextProperty->SetItalic(val); 
+  if (this->EntryTextProperty)
+    {
+    this->EntryTextProperty->SetItalic(val); 
+    }
 }
 
 int vtkLegendBoxActor::GetItalic()
 { 
-  return this->EntryTextProperty->GetItalic(); 
+  if (this->EntryTextProperty)
+    {
+    return this->EntryTextProperty->GetItalic(); 
+    }
+  else
+    {
+    return 0;
+    }
 }
 
 void vtkLegendBoxActor::SetShadow(int val)
 { 
-  this->EntryTextProperty->SetShadow(val); 
+  if (this->EntryTextProperty)
+    {
+    this->EntryTextProperty->SetShadow(val); 
+    }
 }
 
 int vtkLegendBoxActor::GetShadow()
 { 
-  return this->EntryTextProperty->GetShadow(); 
+  if (this->EntryTextProperty)
+    {
+    return this->EntryTextProperty->GetShadow(); 
+    }
+  else
+    {
+    return 0;
+    }
 }

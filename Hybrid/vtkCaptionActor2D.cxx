@@ -32,7 +32,7 @@
 #include "vtkTextActor.h"
 #include "vtkTextProperty.h"
 
-vtkCxxRevisionMacro(vtkCaptionActor2D, "1.19");
+vtkCxxRevisionMacro(vtkCaptionActor2D, "1.20");
 vtkStandardNewMacro(vtkCaptionActor2D);
 
 vtkCxxSetObjectMacro(vtkCaptionActor2D,LeaderGlyph,vtkPolyData);
@@ -509,60 +509,120 @@ void vtkCaptionActor2D::ShallowCopy(vtkProp *prop)
 
 void vtkCaptionActor2D::SetFontFamily(int val) 
 { 
-  this->CaptionTextProperty->SetFontFamily(val); 
+  if (this->CaptionTextProperty)
+    {
+    this->CaptionTextProperty->SetFontFamily(val); 
+    }
 }
 
 int vtkCaptionActor2D::GetFontFamily()
 { 
-  return this->CaptionTextProperty->GetFontFamily(); 
+  if (this->CaptionTextProperty)
+    {
+    return this->CaptionTextProperty->GetFontFamily(); 
+    }
+  else
+    {
+    return 0;
+    }
 }
 
 void vtkCaptionActor2D::SetBold(int val)
 { 
-  this->CaptionTextProperty->SetBold(val); 
+  if (this->CaptionTextProperty)
+    {
+    this->CaptionTextProperty->SetBold(val); 
+    }
 }
 
 int vtkCaptionActor2D::GetBold()
 { 
-  return this->CaptionTextProperty->GetBold(); 
+  if (this->CaptionTextProperty)
+    {
+    return this->CaptionTextProperty->GetBold(); 
+    }
+  else
+    {
+    return 0;
+    }
 }
-
+  
 void vtkCaptionActor2D::SetItalic(int val)
 { 
-  this->CaptionTextProperty->SetItalic(val); 
+  if (this->CaptionTextProperty)
+    {
+    this->CaptionTextProperty->SetItalic(val); 
+    }
 }
 
 int vtkCaptionActor2D::GetItalic()
 { 
-  return this->CaptionTextProperty->GetItalic(); 
+  if (this->CaptionTextProperty)
+    {
+    return this->CaptionTextProperty->GetItalic(); 
+    }
+  else
+    {
+    return 0;
+    }
 }
 
 void vtkCaptionActor2D::SetShadow(int val)
 { 
-  this->CaptionTextProperty->SetShadow(val); 
+  if (this->CaptionTextProperty)
+    {
+    this->CaptionTextProperty->SetShadow(val); 
+    }
 }
 
 int vtkCaptionActor2D::GetShadow()
 { 
-  return this->CaptionTextProperty->GetShadow(); 
+  if (this->CaptionTextProperty)
+    {
+    return this->CaptionTextProperty->GetShadow(); 
+    }
+  else
+    {
+    return 0;
+    }
 }
   
 void vtkCaptionActor2D::SetJustification(int val)
 { 
-  this->CaptionTextProperty->SetJustification(val); 
+  if (this->CaptionTextProperty)
+    {
+    this->CaptionTextProperty->SetJustification(val); 
+    }
 }
 
 int vtkCaptionActor2D::GetJustification()
 { 
-  return this->CaptionTextProperty->GetJustification(); 
+  if (this->CaptionTextProperty)
+    {
+    return this->CaptionTextProperty->GetJustification(); 
+    }
+  else
+    {
+    return 0;
+    }
 }
     
 void vtkCaptionActor2D::SetVerticalJustification(int val)
 { 
-  this->CaptionTextProperty->SetVerticalJustification(val); 
+  if (this->CaptionTextProperty)
+    {
+    this->CaptionTextProperty->SetVerticalJustification(val); 
+    }
 }
 
 int vtkCaptionActor2D::GetVerticalJustification()
 { 
-  return this->CaptionTextProperty->GetVerticalJustification(); 
+  if (this->CaptionTextProperty)
+    {
+    return this->CaptionTextProperty->GetVerticalJustification(); 
+    }
+  else
+    {
+    return 0;
+    }
 }

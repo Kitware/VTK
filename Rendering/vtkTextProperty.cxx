@@ -18,7 +18,7 @@
 #include "vtkTextProperty.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTextProperty, "1.4");
+vtkCxxRevisionMacro(vtkTextProperty, "1.5");
 vtkStandardNewMacro(vtkTextProperty);
 
 //----------------------------------------------------------------------------
@@ -90,6 +90,11 @@ vtkTextProperty::vtkTextProperty()
 
 void vtkTextProperty::ShallowCopy(vtkTextProperty *tprop)
 {
+  if (!tprop)
+    {
+    return;
+    }
+
   this->SetColor(tprop->GetColor());
   this->SetOpacity(tprop->GetOpacity());
 

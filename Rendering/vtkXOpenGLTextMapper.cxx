@@ -24,7 +24,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkXOpenGLTextMapper, "1.35");
+vtkCxxRevisionMacro(vtkXOpenGLTextMapper, "1.36");
 vtkStandardNewMacro(vtkXOpenGLTextMapper);
 
 struct vtkFontStruct
@@ -55,6 +55,12 @@ int vtkXOpenGLTextMapper::GetListBaseForFont(vtkTextMapper *tm,
   vtkWindow *win = vp->GetVTKWindow();
 
   vtkTextProperty *tprop = tm->GetTextProperty();
+  if (!tprop)
+    {
+    vtkErrorWithObjectMacro(tm,<< "Need a text property to get list base for font");
+    return 0;
+    }
+
   int tm_font_size = tm->GetSystemFontSize(tprop->GetFontSize());
 
   // has the font been cached ?
@@ -182,8 +188,6 @@ void vtkXOpenGLTextMapper::RenderOverlay(vtkViewport* viewport,
 {
   vtkDebugMacro (<< "RenderOverlay");
 
-  vtkTextProperty *tprop = this->GetTextProperty();
-
   // turn off texturing in case it is on
   glDisable( GL_TEXTURE_2D );
   
@@ -209,6 +213,13 @@ void vtkXOpenGLTextMapper::RenderOverlay(vtkViewport* viewport,
     return;
     }
 
+  vtkTextProperty *tprop = this->GetTextProperty();
+  if (!tprop)
+    {
+    vtkErrorMacro(<< "Need a text property to render mapper");
+    return;
+    }
+
   int size[2];
   this->GetSize(viewport, size);
 
@@ -227,7 +238,7 @@ void vtkXOpenGLTextMapper::RenderOverlay(vtkViewport* viewport,
   // use the Actor2D color instead of the text prop color if this value is 
   // found (i.e. if the text prop color has not been set).
 
-  float* actorColor = this->GetTextProperty()->GetColor();
+  float* actorColor = tprop->GetColor();
   if (actorColor[0] < 0.0 && actorColor[1] < 0.0 && actorColor[2] < 0.0)
     {
     actorColor = actor->GetProperty()->GetColor();
@@ -235,7 +246,7 @@ void vtkXOpenGLTextMapper::RenderOverlay(vtkViewport* viewport,
 
   // TOFIX: same goes for opacity
 
-  float opacity = this->GetTextProperty()->GetOpacity();
+  float opacity = tprop->GetOpacity();
   if (opacity < 0.0)
     {
     opacity = actor->GetProperty()->GetOpacity();
