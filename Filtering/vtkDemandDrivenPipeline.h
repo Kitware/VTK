@@ -12,9 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkDemandDrivenPipeline -
+// .NAME vtkDemandDrivenPipeline - Executive supporting on-demand execution.
 // .SECTION Description
-// vtkDemandDrivenPipeline
+// vtkDemandDrivenPipeline is an executive that will execute an
+// algorithm only when its outputs are out-of-date with respect to its
+// inputs.
 
 #ifndef __vtkDemandDrivenPipeline_h
 #define __vtkDemandDrivenPipeline_h
@@ -62,25 +64,56 @@ public:
   // Get whether the given output port releases data when it is consumed.
   virtual int GetReleaseDataFlag(int port);
 
-  static vtkInformationIntegerKey* REQUEST_DATA_OBJECT();
-  static vtkInformationIntegerKey* REQUEST_INFORMATION();
-  static vtkInformationIntegerKey* REQUEST_DATA();
-  static vtkInformationIntegerKey* RELEASE_DATA();
-  static vtkInformationIntegerKey* REQUEST_PIPELINE_MODIFIED_TIME();
-  static vtkInformationUnsignedLongKey* PIPELINE_MODIFIED_TIME();
-
+  // Description:
+  // Bring the PipelineMTime up to date.
   virtual int UpdatePipelineMTime();
+
+  // Description:
+  // Bring the output data object's existence up to date.  This does
+  // not actually produce data, but does create the data object that
+  // will store data produced during the UpdateData step.
   virtual int UpdateDataObject();
+
+  // Description:
+  // Bring the output information up to date.
   virtual int UpdateInformation();
+
+  // Description:
+  // Bring the output data up to date.  This should be called only
+  // when information is up to date.  Use the Update method if it is
+  // not known that the information is up to date.
   virtual int UpdateData(int outputPort);
 
-  vtkDemandDrivenPipeline* GetConnectedInputExecutive(int port, int index);
-  vtkInformation* GetConnectedInputInformation(int port, int index);
+  // Description:
+  // Key defining a request to get the cumulative pipeline modification time.
+  static vtkInformationIntegerKey* REQUEST_PIPELINE_MODIFIED_TIME();
+
+  // Description:
+  // Key defining a request to make sure the output data objects exist.
+  static vtkInformationIntegerKey* REQUEST_DATA_OBJECT();
+
+  // Description:
+  // Key defining a request to make sure the output information is up to date.
+  static vtkInformationIntegerKey* REQUEST_INFORMATION();
+
+  // Description:
+  // Key defining a request to make sure the output data are up to date.
+  static vtkInformationIntegerKey* REQUEST_DATA();
+
+  // Description:
+  // Key to specify in pipeline information the request that data be
+  // released after it is used.
+  static vtkInformationIntegerKey* RELEASE_DATA();
+
+  // Description:
+  // Key to store the pipeline modified time in pipeline information.
+  static vtkInformationUnsignedLongKey* PIPELINE_MODIFIED_TIME();
 
 protected:
   vtkDemandDrivenPipeline();
   ~vtkDemandDrivenPipeline();
 
+  // Helper methods to send requests to the algorithm.
   virtual int ExecuteDataObject();
   virtual int ExecuteInformation();
   virtual int ExecuteData(int outputPort);
@@ -91,6 +124,8 @@ protected:
   // Reset the pipeline update values in the given output information object.
   virtual void ResetPipelineInformation(int port, vtkInformation*);
 
+  // Check whether the data object in the pipeline information for an
+  // output port exists and has a valid type.
   virtual int CheckDataObject(int port);
 
   // Input connection validity checkers.

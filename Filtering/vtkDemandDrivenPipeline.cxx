@@ -39,7 +39,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.12");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.13");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_DATA_OBJECT, Integer);
@@ -227,49 +227,6 @@ int vtkDemandDrivenPipeline::ProcessRequest(vtkInformation* request)
 
   // Let the superclass handle other requests.
   return this->Superclass::ProcessRequest(request);
-}
-
-//----------------------------------------------------------------------------
-vtkDemandDrivenPipeline*
-vtkDemandDrivenPipeline::GetConnectedInputExecutive(int port, int index)
-{
-  if(vtkAlgorithmOutput* input =
-     this->Algorithm->GetInputConnection(port, index))
-    {
-    if(vtkDemandDrivenPipeline* executive =
-       vtkDemandDrivenPipeline::SafeDownCast(
-         input->GetProducer()->GetExecutive()))
-      {
-      return executive;
-      }
-    else
-      {
-      vtkErrorMacro("Algorithm "
-                    << input->GetProducer()->GetClassName()
-                    << "(" << input->GetProducer()
-                    << ") producing input for connection index " << index
-                    << " on port index " << port
-                    << " to algorithm "
-                    << this->Algorithm->GetClassName() << "("
-                    << this->Algorithm << ") is not managed by a"
-                    << " vtkDemandDrivenPipeline.");
-      }
-    }
-  return 0;
-}
-
-//----------------------------------------------------------------------------
-vtkInformation*
-vtkDemandDrivenPipeline::GetConnectedInputInformation(int port, int index)
-{
-  if(vtkDemandDrivenPipeline* executive =
-     this->GetConnectedInputExecutive(port, index))
-    {
-    vtkAlgorithmOutput* input =
-      this->Algorithm->GetInputConnection(port, index);
-    return executive->GetOutputInformation(input->GetIndex());
-    }
-  return 0;
 }
 
 //----------------------------------------------------------------------------
