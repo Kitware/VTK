@@ -24,7 +24,7 @@
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.26");
+vtkCxxRevisionMacro(vtkImageReslice, "1.27");
 vtkStandardNewMacro(vtkImageReslice);
 
 //----------------------------------------------------------------------------
@@ -436,13 +436,10 @@ void vtkImageReslice::ComputeInputUpdateExtent(int inExt[6],
         inExt[2*i] = wholeExtent[2*i];
         }
       }
-    if (inExt[2*i] > wholeExtent[2*i+1])
+    if (inExt[2*i] > inExt[2*i+1])
       {
-      inExt[2*i] = wholeExtent[2*i+1];
-      }
-    if (inExt[2*i+1] < wholeExtent[2*i])
-      {
-      inExt[2*i+1] = wholeExtent[2*i];
+      inExt[2*i] = wholeExtent[2*i];
+      inExt[2*i+1] = wholeExtent[2*i+1];
       }
     }
 }
@@ -1735,7 +1732,13 @@ void vtkImageReslice::ThreadedExecute(vtkImageData *inData,
     return;
     }
 
-  void *inPtr = inData->GetScalarPointerForExtent(inData->GetExtent());
+  int inExt[6];
+  void *inPtr = 0;
+  inData->GetExtent(inExt);
+  if (inExt[0] <= inExt[1] && inExt[2] <= inExt[3] && inExt[4] <= inExt[5])
+    {
+    inPtr = inData->GetScalarPointerForExtent(inData->GetExtent());
+    }
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
   
   vtkDebugMacro(<< "Execute: inData = " << inData 
@@ -1868,13 +1871,10 @@ void vtkResliceOptimizedComputeInputUpdateExtent(vtkImageReslice *self,
         inExt[2*i] = wholeExtent[2*i];
         }
       }
-    if (inExt[2*i] > wholeExtent[2*i+1])
+    if (inExt[2*i] > inExt[2*i+1])
       {
-      inExt[2*i] = wholeExtent[2*i+1];
-      }
-    if (inExt[2*i+1] < wholeExtent[2*i])
-      {
-      inExt[2*i+1] = wholeExtent[2*i];
+      inExt[2*i] = wholeExtent[2*i];
+      inExt[2*i+1] = wholeExtent[2*i+1];
       }
     }
 }
@@ -3478,7 +3478,13 @@ void vtkImageReslice::OptimizedThreadedExecute(vtkImageData *inData,
                                                vtkImageData *outData,
                                                int outExt[6], int id)
 {
-  void *inPtr = inData->GetScalarPointerForExtent(inData->GetExtent());
+  int inExt[6];
+  void *inPtr = 0;
+  inData->GetExtent(inExt);
+  if (inExt[0] <= inExt[1] && inExt[2] <= inExt[3] && inExt[4] <= inExt[5])
+    {
+    inPtr = inData->GetScalarPointerForExtent(inData->GetExtent());
+    }
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
   
   vtkDebugMacro(<< "Execute: inData = " << inData 
