@@ -170,8 +170,13 @@ private:
   void operator=(const vtkDataArrayTemplate&);  // Not implemented.
 };
 
-#define VTK_DATA_ARRAY_TEMPLATE_INSTANTIATE(T) \
-  template class VTK_COMMON_EXPORT vtkDataArrayTemplate< T >
+#if !defined(VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
+# define VTK_DATA_ARRAY_TEMPLATE_INSTANTIATE(T) \
+   template class VTK_COMMON_EXPORT vtkDataArrayTemplate< T >
+#else
+# include "vtkDataArrayTemplate.txx"
+# define VTK_DATA_ARRAY_TEMPLATE_INSTANTIATE(T)
+#endif
 
 #endif // !defined(__vtkDataArrayTemplate_h)
 
