@@ -26,8 +26,10 @@ class vlLine : public vlCell
 {
 public:
   vlLine() {};
+  vlLine(const vlLine& l);
   char *GetClassName() {return "vlLine";};
 
+  vlCell *MakeObject() {return new vlLine(*this);};
   int GetCellType() {return vlLINE;};
   int GetCellDimension() {return 1;};
   int GetNumberOfEdges() {return 0;};

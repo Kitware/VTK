@@ -18,12 +18,16 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "CellArr.hh"
 #include "Line.hh"
 
-//
-// Note: the ordering of the Points and PointIds is important.  See text.
-//
+// Description:
+// Deep copy of cell.
+vlTriangleStrip::vlTriangleStrip(const vlTriangleStrip& ts)
+{
+  this->Points = ts.Points;
+  this->PointIds = ts.PointIds;
+}
 
 //
-// eliminate constructor / destructor calls
+// Static minimizes constructor / destructor calls
 //
 static vlTriangle tri;
 

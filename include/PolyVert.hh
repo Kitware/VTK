@@ -27,8 +27,10 @@ class vlPolyPoints : public vlCell
 {
 public:
   vlPolyPoints() {};
+  vlPolyPoints(const vlPolyPoints& pp);
   char *GetClassName() {return "vlPolyPoints";};
 
+  vlCell *MakeObject() {return new vlPolyPoints(*this);};
   int GetCellType() {return vlPOLY_POINTS;};
   int GetCellDimension() {return 0;};
   int GetNumberOfEdges() {return 0;};

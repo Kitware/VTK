@@ -30,10 +30,12 @@ class vlPolyLine : public vlCell
 {
 public:
   vlPolyLine() {};
+  vlPolyLine(const vlPolyLine& pl);
   char *GetClassName() {return "vlPolyLine";};
 
   int GenerateNormals(vlPoints *, vlCellArray *, vlFloatNormals *);
 
+  vlCell *MakeObject() {return new vlPolyLine(*this);};
   int GetCellType() {return vlPOLY_LINE;};
   int GetCellDimension() {return 1;};
   int GetNumberOfEdges() {return 0;};

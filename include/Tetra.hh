@@ -27,8 +27,10 @@ class vlTetra : public vlCell
 {
 public:
   vlTetra() {};
+  vlTetra(const vlTetra& t);
   char *GetClassName() {return "vlTetra";};
 
+  vlCell *MakeObject() {return new vlTetra(*this);};
   int GetCellType() {return vlTETRA;};
   int GetCellDimension() {return 3;};
   int GetNumberOfEdges() {return 6;};

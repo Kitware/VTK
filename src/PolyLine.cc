@@ -18,6 +18,14 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Line.hh"
 #include "CellArr.hh"
 
+// Description:
+// Deep copy of cell.
+vlPolyLine::vlPolyLine(const vlPolyLine& pl)
+{
+  this->Points = pl.Points;
+  this->PointIds = pl.PointIds;
+}
+
 int vlPolyLine::GenerateNormals(vlPoints *pts, vlCellArray *lines, vlFloatNormals *normals)
 {
   int npts, *linePts;

@@ -27,8 +27,10 @@ class vlTriangle : public vlCell
 {
 public:
   vlTriangle() {};
+  vlTriangle(const vlTriangle& t);
   char *GetClassName() {return "vlTriangle";};
 
+  vlCell *MakeObject() {return new vlTriangle(*this);};
   int GetCellType() {return vlTRIANGLE;};
   int GetCellDimension() {return 2;};
   int GetNumberOfEdges() {return 3;};

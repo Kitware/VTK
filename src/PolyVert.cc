@@ -17,6 +17,14 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "vlMath.hh"
 #include "CellArr.hh"
 
+// Description:
+// Deep copy of cell.
+vlPolyPoints::vlPolyPoints(const vlPolyPoints& pp)
+{
+  this->Points = pp.Points;
+  this->PointIds = pp.PointIds;
+}
+
 int vlPolyPoints::EvaluatePosition(float x[3], float closestPoint[3],
                                    int& subId, float pcoords[3], 
                                    float& minDist2, float weights[MAX_CELL_SIZE])

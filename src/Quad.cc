@@ -13,7 +13,6 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-#include <math.h>
 #include "Quad.hh"
 #include "Polygon.hh"
 #include "Plane.hh"
@@ -21,9 +20,13 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "CellArr.hh"
 #include "Line.hh"
 
-//
-// Note: the ordering of the Points and PointIds is important.  See text.
-//
+// Description:
+// Deep copy of cell.
+vlQuad::vlQuad(const vlQuad& q)
+{
+  this->Points = q.Points;
+  this->PointIds = q.PointIds;
+}
 
 #define MAX_ITERATION 10
 #define CONVERGED 1.e-03

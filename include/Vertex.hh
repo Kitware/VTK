@@ -26,8 +26,10 @@ class vlPoint : public vlCell
 {
 public:
   vlPoint() {};
+  vlPoint(const vlPoint& p);
   char *GetClassName() {return "vlPoint";};
 
+  vlCell *MakeObject() {return new vlPoint(*this);};
   int GetCellType() {return vlPOINT;};
   int GetCellDimension() {return 0;};
   int GetNumberOfEdges() {return 0;};

@@ -43,9 +43,9 @@ public:
   void Initialize(int npts, int *pts, vlPoints *p);
   char *GetClassName() {return "vlCell";};
 
-  // Because these objects (cells and derived classes) are computational 
-  // objects, and because they are used internally, do not use memory 
-  // reference counting.
+  // Description:
+  // Create concrete copy of this cell.
+  virtual vlCell *MakeObject() = 0;
 
   // Description:
   // Return the type of cell.

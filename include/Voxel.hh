@@ -29,8 +29,10 @@ class vlBrick : public vlCell
 {
 public:
   vlBrick() {};
+  vlBrick(const vlBrick& b);
   char *GetClassName() {return "vlBrick";};
 
+  vlCell *MakeObject() {return new vlBrick(*this);};
   int GetCellType() {return vlBRICK;};
   int GetCellDimension() {return 3;};
   int GetNumberOfEdges() {return 12;};

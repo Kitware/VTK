@@ -27,8 +27,10 @@ class vlQuad : public vlCell
 {
 public:
   vlQuad() {};
+  vlQuad(const vlQuad& q);
   char *GetClassName() {return "vlQuad";};
 
+  vlCell *MakeObject() {return new vlQuad(*this);};
   int GetCellType() {return vlQUAD;};
   int GetCellDimension() {return 2;};
   int GetNumberOfEdges() {return 4;};

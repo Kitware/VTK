@@ -28,8 +28,10 @@ class vlRectangle : public vlCell
 {
 public:
   vlRectangle() {};
+  vlRectangle(const vlRectangle& r);
   char *GetClassName() {return "vlRectangle";};
 
+  vlCell *MakeObject() {return new vlRectangle(*this);};
   int GetCellType() {return vlRECTANGLE;};
   int GetCellDimension() {return 2;};
   int GetNumberOfEdges() {return 4;};

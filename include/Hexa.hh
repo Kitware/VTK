@@ -27,8 +27,10 @@ class vlHexahedron : public vlCell
 {
 public:
   vlHexahedron() {};
+  vlHexahedron(const vlHexahedron& h);
   char *GetClassName() {return "vlHexahedron";};
 
+  vlCell *MakeObject() {return new vlHexahedron(*this);};
   int GetCellType() {return vlHEXAHEDRON;};
   int GetCellDimension() {return 3;};
   int GetNumberOfEdges() {return 12;};

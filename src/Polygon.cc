@@ -13,7 +13,6 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-#include <math.h>
 #include "Polygon.hh"
 #include "vlMath.hh"
 #include "Line.hh"
@@ -21,6 +20,14 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "DataSet.hh"
 #include "Triangle.hh"
 #include "CellArr.hh"
+
+// Description:
+// Deep copy of cell.
+vlPolygon::vlPolygon(const vlPolygon& p)
+{
+  this->Points = p.Points;
+  this->PointIds = p.PointIds;
+}
 
 #define FAILURE 0
 #define INTERSECTION 2

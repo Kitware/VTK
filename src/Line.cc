@@ -17,6 +17,14 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "vlMath.hh"
 #include "CellArr.hh"
 
+// Description:
+// Deep copy of cell.
+vlLine::vlLine(const vlLine& l)
+{
+  this->Points = l.Points;
+  this->PointIds = l.PointIds;
+}
+
 #define NO_INTERSECTION 1
 #define INTERSECTION 2
 #define ON_LINE 6

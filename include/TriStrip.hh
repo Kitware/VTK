@@ -31,8 +31,10 @@ class vlTriangleStrip : public vlCell
 {
 public:
   vlTriangleStrip() {};
+  vlTriangleStrip(const vlTriangleStrip& ts);
   char *GetClassName() {return "vlTriangleStrip";};
 
+  vlCell *MakeObject() {return new vlTriangleStrip(*this);};
   int GetCellType() {return vlTRIANGLE_STRIP;};
   int GetCellDimension() {return 2;};
   int GetNumberOfEdges() {return this->GetNumberOfPoints();};

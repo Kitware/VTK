@@ -29,12 +29,14 @@ class vlPolygon : public vlCell
 {
 public:
   vlPolygon() {};
+  vlPolygon(const vlPolygon& p);
   char *GetClassName() {return "vlPolygon";};
 
   void ComputeNormal(vlPoints *p, int numPts, int *pts, float n[3]);
   void ComputeNormal(float v1[3], float v2[3], float v3[3], float n[3]);
   void ComputeNormal(vlFloatPoints *p, float n[3]);
 
+  vlCell *MakeObject() {return new vlPolygon(*this);};
   int GetCellType() {return vlPOLYGON;};
   int GetCellDimension() {return 2;};
   int GetNumberOfEdges() {return this->GetNumberOfPoints();};

@@ -13,7 +13,6 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-#include <math.h>
 #include "Hexa.hh"
 #include "vlMath.hh"
 #include "Brick.hh"
@@ -21,9 +20,13 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Quad.hh"
 #include "CellArr.hh"
 
-//
-// Note: the ordering of the Points and PointIds is important.  See text.
-//
+// Description:
+// Deep copy of cell.
+vlHexahedron::vlHexahedron(const vlHexahedron& h)
+{
+  this->Points = h.Points;
+  this->PointIds = h.PointIds;
+}
 
 //
 //  Method to calculate parametric coordinates in an eight noded
