@@ -84,6 +84,20 @@ public:
   vtkGetMacro( GradientMagnitudeBias, float );
 
   // Description:
+  // Turn on / off the bounding of the normal computation by
+  // the this->Bounds bounding box
+  vtkSetClampMacro( BoundsClip, int, 0, 1 );
+  vtkGetMacro( BoundsClip, int );
+  vtkBooleanMacro( BoundsClip, int );
+  
+  // Description:
+  // Set / Get the bounds of the computation (used if 
+  // this->ComputationBounds is 1.) The bounds are specified
+  // xmin, xmax, ymin, ymax, zmin, zmax.
+  vtkSetVector6Macro( Bounds, int );
+  vtkGetVectorMacro(  Bounds, int, 6 );
+
+  // Description:
   // Recompute the encoded normals and gradient magnitudes.
   void  Update( void );
 
@@ -124,17 +138,17 @@ public:
   // Description:
   // If the data in each slice is only contained within a circle circumscribed
   // within the slice, and the slice is square, then don't compute anything
-  // outside the cirle.
-  vtkSetMacro( ClipOutsideCircle, int );
-  vtkGetMacro( ClipOutsideCircle, int );
-  vtkBooleanMacro( ClipOutsideCircle, int );
+  // outside the cirle. This circle through the slices forms a cylinder.
+  vtkSetMacro( CylinderClip, int );
+  vtkGetMacro( CylinderClip, int );
+  vtkBooleanMacro( CylinderClip, int );
 
   // Description:
   // Get the time required for the last update in seconds or cpu seconds
   vtkGetMacro( LastUpdateTimeInSeconds, float );
   vtkGetMacro( LastUpdateTimeInCPUSeconds, float );
 
-  vtkGetMacro( UseCircleClip, int );
+  vtkGetMacro( UseCylinderClip, int );
   int *GetCircleLimits() { return this->CircleLimits; };
 
     // Description:
@@ -165,16 +179,9 @@ public:
   // The time at which the normals were last built
   vtkTimeStamp          BuildTime;
 
-  // The scale and bias values generally copied from the volume property
-  float                 GradientMagnitudeScale;
-  float                 GradientMagnitudeBias;
+  vtkGetVectorMacro( ScalarInputSize, int, 3 );
+  vtkGetVectorMacro( ScalarInputAspect, float, 3 );
 
-  // These are temporary variables used to avoid conflicts with
-  // multi threading
-  int                   ScalarInputSize[3];
-  float                 ScalarInputAspect[3];
-
-  int                   ComputeGradientMagnitudes;
 
 protected:
 
@@ -187,16 +194,27 @@ protected:
 
   virtual void               UpdateNormals( void ) = 0;
 
+  float                      GradientMagnitudeScale;
+  float                      GradientMagnitudeBias;
+
   float                      LastUpdateTimeInSeconds;
   float                      LastUpdateTimeInCPUSeconds;
 
   float                      ZeroNormalThreshold;
 
-  int                        ClipOutsideCircle;
+  int                        CylinderClip;
   int                        *CircleLimits;
   int                        CircleLimitsSize;
-  int                        UseCircleClip;
+  int                        UseCylinderClip;
   void                       ComputeCircleLimits( int size );
+  
+  int                        BoundsClip;
+  int                        Bounds[6];
+
+  int                        ScalarInputSize[3];
+  float                      ScalarInputAspect[3];
+
+  int                        ComputeGradientMagnitudes;
 }; 
 
 

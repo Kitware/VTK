@@ -60,13 +60,20 @@ vtkEncodedGradientEstimator::vtkEncodedGradientEstimator()
   this->NumberOfThreads            = this->Threader->GetNumberOfThreads();
   this->DirectionEncoder           = vtkRecursiveSphereDirectionEncoder::New();
   this->ComputeGradientMagnitudes  = 1;
-  this->ClipOutsideCircle          = 0;
+  this->CylinderClip               = 0;
   this->CircleLimits               = NULL;
   this->CircleLimitsSize           = -1;
-  this->UseCircleClip              = 0;
+  this->UseCylinderClip            = 0;
   this->LastUpdateTimeInSeconds    = -1.0;
   this->LastUpdateTimeInCPUSeconds = -1.0;
   this->ZeroNormalThreshold        = 0.0;
+  this->BoundsClip                 = 0;
+  this->Bounds[0] = 
+    this->Bounds[1] = 
+    this->Bounds[2] = 
+    this->Bounds[3] =
+    this->Bounds[4] =
+    this->Bounds[5] = 0;
 }
 
 // Destruct a vtkEncodedGradientEstimator - free up any memory used
@@ -234,15 +241,15 @@ void vtkEncodedGradientEstimator::Update( )
     memcpy( this->ScalarInputSize, scalar_input_size, 3 * sizeof(int) );
     memcpy( this->ScalarInputAspect, scalar_input_aspect, 3 * sizeof(float) );
 
-    if ( this->ClipOutsideCircle && 
+    if ( this->CylinderClip && 
 	 (this->ScalarInputSize[0] == this->ScalarInputSize[1]) )
       {
-      this->UseCircleClip = 1;
+      this->UseCylinderClip = 1;
       this->ComputeCircleLimits( this->ScalarInputSize[0] );
       }
     else
       {
-      this->UseCircleClip = 0;
+      this->UseCylinderClip = 0;
       }
     this->UpdateNormals();
 
@@ -321,26 +328,34 @@ void vtkEncodedGradientEstimator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Gradient Magnitude Bias: " 
      << this->GradientMagnitudeBias << endl;
 
+  os << indent << "Bounds Clip: " 
+     << ((this->BoundsClip)?"On":"Off") << endl;
+  
+  os << indent << "Bounds: ("
+     << this->Bounds[0] << ", " << this->Bounds[1] << ", " 
+     << this->Bounds[2] << ", " << this->Bounds[3] << ", " 
+     << this->Bounds[4] << ", " << this->Bounds[5] << ")\n";
+
   os << indent << "Zero Normal Threshold: " 
      << this->ZeroNormalThreshold << endl;
     
   os << indent << "Compute Gradient Magnitudes: " 
      << ((this->ComputeGradientMagnitudes)?"On":"Off") << endl;
 
-  os << indent << "Clip Outside Circle: " 
-     << ((this->ClipOutsideCircle)?"On":"Off") << endl;
+  os << indent << "Cylinder Clip: " 
+     << ((this->CylinderClip)?"On":"Off") << endl;
 
-  // I don't want to print out this->UseCircleClip
-  // os << indent << "Use Circle Clip: " 
-  //    << this->UseCircleClip << endl;
+  // I don't want to print out this->UseCylinderClip
+  // os << indent << "Use Cylinder Clip: " 
+  //    << this->UseCylinderClip << endl;
 
   os << indent << "Number Of Threads: " 
      << this->NumberOfThreads << endl;
 
   os << indent << "Last Update Time In Seconds: " 
-     << this->LastUpdateTimeInSeconds;
+     << this->LastUpdateTimeInSeconds << endl;
 
   os << indent << "Last Update Time In CPU Seconds: " 
-     << this->LastUpdateTimeInCPUSeconds;
+     << this->LastUpdateTimeInCPUSeconds << endl;
 
 }

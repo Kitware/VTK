@@ -61,6 +61,7 @@ static void ComputeGradients(
   int                 x, y, z;
   int                 offset;
   int                 x_start, x_limit;
+  int                 y_start, y_limit;
   int                 z_start, z_limit;
   int                 useClip;
   int                 *clip;
@@ -71,12 +72,25 @@ static void ComputeGradients(
   float               gvalue;
   float               normalize_factor;
   float               zeroNormalThreshold;
+  int                 useBounds;
+  int                 bounds[6];
+  int                 size[3];
+  float               aspect[3];
+  int                 xlow, xhigh;
+  float               scale, bias;
+  int                 computeGradientMagnitudes;
   vtkDirectionEncoder *direction_encoder;
   
+  estimator->GetScalarInputSize( size );
+  estimator->GetScalarInputAspect( aspect );
+  computeGradientMagnitudes = estimator->GetComputeGradientMagnitudes();
+  scale = estimator->GetGradientMagnitudeScale();
+  bias = estimator->GetGradientMagnitudeBias();
+
   // Compute steps through the volume in x, y, and z
   xstep = 1;
-  ystep = estimator->ScalarInputSize[0];
-  zstep = estimator->ScalarInputSize[0] * estimator->ScalarInputSize[1];
+  ystep = size[0];
+  zstep = size[0] * size[1];
 
   // Multiply by the spacing used for normal estimation
   xstep *= estimator->SampleSpacingInVoxels;
@@ -87,67 +101,91 @@ static void ComputeGradients(
   // be "zero"
   zeroNormalThreshold = estimator->GetZeroNormalThreshold();
   
+  useBounds = estimator->GetBoundsClip();
+  
   // Compute an offset based on the thread_id. The volume will
   // be broken into large slabs (thread_count slabs). For this thread
   // we need to access the correct slab. Also compute the z plane that
   // this slab starts on, and the z limit of this slab (one past the
   // end of the slab)
-  z_start = (int)(( (float)thread_id / (float)thread_count ) *
-		  estimator->ScalarInputSize[2] );
-  offset = z_start * estimator->ScalarInputSize[0] * 
-                     estimator->ScalarInputSize[1];
-  z_limit = (int)(( (float)(thread_id + 1) / (float)thread_count ) *
-		  estimator->ScalarInputSize[2] );
-
-  // Make sure out z_limit didn't get too big - it shouldn't so print an
-  // error message if this happens and return
-  if ( z_limit > estimator->ScalarInputSize[2] )
+  if ( useBounds )
     {
-    return;
+    estimator->GetBounds( bounds );
+    x_start = bounds[0];
+    x_limit = bounds[1]+1;
+    y_start = bounds[2];
+    y_limit = bounds[3]+1;
+    z_start = (int)(( (float)thread_id / (float)thread_count ) *
+		    (bounds[5]-bounds[4]+1) );
+    z_limit = (int)(( (float)(thread_id + 1) / (float)thread_count ) *
+		    (bounds[5]-bounds[4]+1) );
+    }
+  else
+    {
+    x_start = 0;
+    x_limit = size[0];
+    y_start = 0;
+    y_limit = size[1];
+    z_start = (int)(( (float)thread_id / (float)thread_count ) *
+		    size[2] );
+    z_limit = (int)(( (float)(thread_id + 1) / (float)thread_count ) *
+		    size[2] );
     }
 
+  // Do final error checking on limits - make sure they are all within bounds
+  // of the scalar input
+  
+  x_start = (x_start<0)?(0):(x_start);
+  y_start = (y_start<0)?(0):(y_start);
+  z_start = (z_start<0)?(0):(z_start);
+  
+  x_limit = (x_limit>size[0])?(size[0]):(x_limit);
+  y_limit = (y_limit>size[1])?(size[1]):(y_limit);
+  z_limit = (z_limit>size[2])?(size[2]):(z_limit);
 
-  // Set some pointers
-  dptr = data_ptr + offset;
-  nptr = estimator->EncodedNormals + offset;
-  gptr = estimator->GradientMagnitudes + offset;
 
   // Normalization factor used for magnitude of gradient so that the
   // magnitude is based on a unit distance normal
-  normalize_factor = 1.0 / ( 2.0 * ( estimator->ScalarInputAspect[0] *
-				     estimator->ScalarInputAspect[1] * 
-				     estimator->ScalarInputAspect[2] ) );
+  normalize_factor = 1.0 / ( 2.0 * ( aspect[0] * aspect[1] * aspect[2] ) );
 
   direction_encoder = estimator->GetDirectionEncoder();
 
-  useClip = estimator->GetUseCircleClip();
+  useClip = estimator->GetUseCylinderClip();
   clip = estimator->GetCircleLimits();
 
   // Loop through all the data and compute the encoded normal and
   // gradient magnitude for each scalar location
   for ( z = z_start; z < z_limit; z++ )
     {
-    for ( y = 0; y < estimator->ScalarInputSize[1]; y++ )
+    for ( y = y_start; y < y_limit; y++ )
       {
       if ( useClip )
 	{
-	x_start = clip[2*y];
-	x_limit   = clip[2*y+1];
+	xlow = ((clip[2*y])>x_start)?(clip[2*y]):(x_start);
+	xhigh = ((clip[2*y+1]+1)<x_limit)?(clip[2*y+1]+1):(x_limit);
 	}
       else
 	{
-	x_start = 0;
-	x_limit = estimator->ScalarInputSize[0]-1;
+	xlow = x_start;
+	xhigh = x_limit;
 	}
-      for ( x = x_start; x <= x_limit; x++ )
+      offset = z * size[0] * size[1] + y * size[0] + xlow;
+      
+      // Set some pointers
+      dptr = data_ptr + offset;
+      nptr = estimator->EncodedNormals + offset;
+      gptr = estimator->GradientMagnitudes + offset;
+
+      for ( x = xlow; x < xhigh; x++ )
 	{
+
 	// Use a central difference method if possible,
 	// otherwise use a forward or backward difference if
 	// we are on the edge
 
 	// Compute the X component
 	if ( x >= estimator->SampleSpacingInVoxels && 
-	     x < estimator->ScalarInputSize[0] - 
+	     x < size[0] - 
 	         estimator->SampleSpacingInVoxels )
 	  {
 	  n[0] = (float)*(dptr-xstep) - (float)*(dptr+xstep); 
@@ -163,7 +201,7 @@ static void ComputeGradients(
 	
 	// Compute the Y component
 	if ( y >= estimator->SampleSpacingInVoxels && 
-	     y < estimator->ScalarInputSize[1] - 
+	     y < size[1] - 
 	         estimator->SampleSpacingInVoxels )
 	  {
 	  n[1] = (float)*(dptr-ystep) - (float)*(dptr+ystep); 
@@ -179,7 +217,7 @@ static void ComputeGradients(
 	
 	// Compute the Z component
 	if ( z >= estimator->SampleSpacingInVoxels && 
-	     z < estimator->ScalarInputSize[2] - 
+	     z < size[2] - 
 	         estimator->SampleSpacingInVoxels )
 	  {
 	  n[2] = (float)*(dptr-zstep) - (float)*(dptr+zstep); 
@@ -196,23 +234,19 @@ static void ComputeGradients(
 	// Take care of the aspect ratio of the data
 	// Scaling in the vtkVolume is isotropic, so this is the
 	// only place we have to worry about non-isotropic scaling.
-	n[0] *= estimator->ScalarInputAspect[1] * 
-	        estimator->ScalarInputAspect[2];
-	n[1] *= estimator->ScalarInputAspect[0] * 
-	        estimator->ScalarInputAspect[2];
-	n[2] *= estimator->ScalarInputAspect[0] * 
-	        estimator->ScalarInputAspect[1];
+	n[0] *= aspect[1] * aspect[2];
+	n[1] *= aspect[0] * aspect[2];
+	n[2] *= aspect[0] * aspect[1];
 	
 	// Compute the gradient magnitude
 	t = sqrt( (double)( n[0]*n[0] + 
 			    n[1]*n[1] + 
 			    n[2]*n[2] ) );
 	
-	if ( estimator->ComputeGradientMagnitudes )
+	if ( computeGradientMagnitudes )
 	  {
 	  // Encode this into an 8 bit value 
-	  gvalue = t * normalize_factor * estimator->GradientMagnitudeScale + 
-	    estimator->GradientMagnitudeBias;
+	  gvalue = t * normalize_factor * scale + bias; 
 	  
 	  if ( gvalue < 0.0 )
 	    {
