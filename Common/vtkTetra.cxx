@@ -27,7 +27,7 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkTetra, "1.81");
+vtkCxxRevisionMacro(vtkTetra, "1.82");
 vtkStandardNewMacro(vtkTetra);
 
 // Construct the tetra with four points.
@@ -762,9 +762,10 @@ void vtkTetra::GetFacePoints(int faceId, int* &pts)
   pts = this->GetFaceArray(faceId);
 }
 
-// The clip table produces either a single tetrahedron or a single wedge as output.
-// The format of the case table is #pts, ptids. Points >= 100 are existing vertices;
-// otherwise the number is an edge number requiring that an intersection is produced.
+// The clip table produces either a single tetrahedron or a single wedge as
+// output.  The format of the case table is #pts, ptids. Points >= 100 are
+// existing vertices; otherwise the number is an edge number requiring that
+// an intersection is produced.
 
 // support tetra clipping
 typedef int TETRA_EDGE_LIST;
@@ -791,13 +792,11 @@ static TETRA_CASES tetraCases[] = {
   {{ 4, 100, 101, 102, 103,   0,   0}}    // 15
 };
 
-// Clip this tetra using scalar value provided. Like contouring, except
-// that it cuts the tetra to produce other 3D cells. Note that this method
-// will produce a single tetrahedra or a single wedge. The table has been
-// carefully designed to insure that face neighbors--after clipping--are compatible
-// with face neighbor tetrahedra. (This method requires that on any given face the 
-// neighbor is a tetrahedron. If not a tetrahedron, then the ordered triangulator
-// should be used to tessellate the neighbor into tetrahedra in the first place.)
+// Clip this tetra using scalar value provided. Like contouring, except that
+// it cuts the tetra to produce other 3D cells (note that this method will
+// produce a single tetrahedra or a single wedge). The table has been
+// carefully designed to insure that face neighbors--after clipping--are
+// remain compatible. 
 void vtkTetra::Clip(float value, vtkDataArray *cellScalars, 
                     vtkPointLocator *locator, vtkCellArray *tets,
                     vtkPointData *inPD, vtkPointData *outPD,

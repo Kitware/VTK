@@ -144,6 +144,9 @@ public:
   
   // Description:
   // Specify the error to use for decimation (if decimation is on).
+  // The error is an absolute number--the image spacing and
+  // dimensions are used to create points so the error should be
+  // consistent with the image size.
   vtkSetClampMacro(DecimationError,float,0.0,VTK_LARGE_FLOAT);
   vtkGetMacro(DecimationError,float);
   
