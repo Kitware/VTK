@@ -25,8 +25,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
+#include "vtkRendererCollection.h"
 
-vtkCxxRevisionMacro(vtkOBJExporter, "1.45");
+vtkCxxRevisionMacro(vtkOBJExporter, "1.46");
 vtkStandardNewMacro(vtkOBJExporter);
 
 vtkOBJExporter::vtkOBJExporter()

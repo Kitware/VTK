@@ -36,9 +36,9 @@
 #include "MangleMesaInclude/osmesa.h"
 #endif
 
-
-#include "vtkObjectFactory.h"
 #include "vtkIdList.h"
+#include "vtkObjectFactory.h"
+#include "vtkRendererCollection.h"
 
 class vtkXOpenGLRenderWindow;
 class vtkRenderWindow;
@@ -76,7 +76,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.15");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.16");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 

@@ -42,12 +42,12 @@
 #define __vtkRenderWindow_h
 
 #include "vtkWindow.h"
-#include "vtkRendererCollection.h"
-#include <stdio.h>
 #include "vtkGraphicsFactory.h"
 
-class vtkRenderWindowInteractor;
 class vtkFloatArray;
+class vtkRenderWindowInteractor;
+class vtkRenderer;
+class vtkRendererCollection;
 class vtkUnsignedCharArray;
 
 // lets define the different types of stereo

@@ -32,8 +32,9 @@
 #include "vtkRIBProperty.h"
 #include "vtkRenderWindow.h"
 #include "vtkTIFFWriter.h"
+#include "vtkRendererCollection.h"
 
-vtkCxxRevisionMacro(vtkRIBExporter, "1.46");
+vtkCxxRevisionMacro(vtkRIBExporter, "1.47");
 vtkStandardNewMacro(vtkRIBExporter);
 
 typedef float RtColor[3];

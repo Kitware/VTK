@@ -22,9 +22,10 @@
 #include "vtkGraphicsFactory.h"
 #include "vtkMath.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkRenderWindow, "1.124");
+vtkCxxRevisionMacro(vtkRenderWindow, "1.125");
 
 // Construct an instance of  vtkRenderWindow with its screen size 
 // set to 300x300, borders turned on, positioned at (0,0), double 

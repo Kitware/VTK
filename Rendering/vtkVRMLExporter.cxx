@@ -26,9 +26,10 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
+#include "vtkRendererCollection.h"
 #include "vtkTexture.h"
 
-vtkCxxRevisionMacro(vtkVRMLExporter, "1.62");
+vtkCxxRevisionMacro(vtkVRMLExporter, "1.63");
 vtkStandardNewMacro(vtkVRMLExporter);
 
 vtkVRMLExporter::vtkVRMLExporter()

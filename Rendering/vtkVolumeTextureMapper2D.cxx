@@ -21,6 +21,7 @@
 #include "vtkGraphicsFactory.h"
 #include "vtkLargeInteger.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 
 #define VTK_PLUS_X_MAJOR_DIRECTION  0
 #define VTK_MINUS_X_MAJOR_DIRECTION 1
@@ -465,7 +466,7 @@ VolumeTextureMapper2D_TraverseVolume( T *data_ptr,
 
 }
 
-vtkCxxRevisionMacro(vtkVolumeTextureMapper2D, "1.44");
+vtkCxxRevisionMacro(vtkVolumeTextureMapper2D, "1.45");
 
 vtkVolumeTextureMapper2D::vtkVolumeTextureMapper2D()
 {

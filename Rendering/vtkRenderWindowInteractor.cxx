@@ -24,8 +24,10 @@
 #include "vtkOldStyleCallbackCommand.h"
 #include "vtkPropPicker.h"
 #include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
+#include "vtkRendererCollection.h"
 
-vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.95");
+vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.96");
 
 vtkCxxSetObjectMacro(vtkRenderWindowInteractor,Picker,vtkAbstractPicker);
 

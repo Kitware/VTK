@@ -18,8 +18,8 @@
 
 #include "vtkCompositeManager.h"
 
-#include "vtkCamera.h"
 #include "vtkCallbackCommand.h"
+#include "vtkCamera.h"
 #include "vtkCompressCompositer.h"
 #include "vtkFloatArray.h"
 #include "vtkLight.h"
@@ -29,6 +29,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkRendererCollection.h"
 #include "vtkToolkits.h"
 #include "vtkUnsignedCharArray.h"
 
@@ -42,7 +43,7 @@
  #include <mpi.h>
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeManager, "1.31");
+vtkCxxRevisionMacro(vtkCompositeManager, "1.32");
 vtkStandardNewMacro(vtkCompositeManager);
 
 vtkCxxSetObjectMacro(vtkCompositeManager,Compositer, vtkCompositer);
