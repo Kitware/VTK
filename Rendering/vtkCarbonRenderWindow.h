@@ -80,16 +80,13 @@ public:
 
   // Description:
   // Set the size of the window.
+  virtual void SetSize(int a[2]);
   virtual void SetSize(int,int);
 
   // Description:
   // Get the current size of the window.
   virtual int *GetSize();
 
-  // Description:
-  // Set the position of the window.
-  virtual void SetPosition(int,int);
-  
   // Description:
   // Return the scrren size.
   virtual int *GetScreenSize();

@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.26");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.27");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 
@@ -455,9 +455,16 @@ void vtkCarbonRenderWindow::MakeCurrent()
     }
 }
 
+// --------------------------------------------------------------------------
 void vtkCarbonRenderWindow::SetForceMakeCurrent()
 {
   this->ForceMakeCurrent = 1;
+}
+
+// --------------------------------------------------------------------------
+void vtkCarbonRenderWindow::SetSize(int a[2])
+{
+  this->SetSize(a[0], a[1]);
 }
 
 // --------------------------------------------------------------------------
