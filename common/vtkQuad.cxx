@@ -533,7 +533,7 @@ int vtkQuad::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
   float dist2, weights[4];
 
   subId = 0;
-  pcoords[0] = pcoords[1] = 0.0;
+  pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
   //
   // Get normal for triangle
   //
