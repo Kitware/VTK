@@ -36,30 +36,23 @@
 
 #include "vtkInteractorStyle.h"
 
-
-#define VTK_INTERACTOR_STYLE_CAMERA_NONE    0
-#define VTK_INTERACTOR_STYLE_CAMERA_ROTATE  1
-#define VTK_INTERACTOR_STYLE_CAMERA_PAN     2
-#define VTK_INTERACTOR_STYLE_CAMERA_ZOOM    3
-#define VTK_INTERACTOR_STYLE_CAMERA_SPIN    4
-
 class VTK_RENDERING_EXPORT vtkInteractorStyleTrackballCamera : public vtkInteractorStyle
 {
 public:
   static vtkInteractorStyleTrackballCamera *New();
-  vtkTypeRevisionMacro(vtkInteractorStyleTrackballCamera, vtkObject);
+  vtkTypeRevisionMacro(vtkInteractorStyleTrackballCamera,vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Event bindings controlling the effects of pressing mouse buttons
   // or moving the mouse.
-  void OnMouseMove  (int ctrl, int shift, int x, int y);
-  void OnLeftButtonDown(int ctrl, int shift, int x, int y);
-  void OnLeftButtonUp  (int ctrl, int shift, int x, int y);
-  void OnMiddleButtonDown(int ctrl, int shift, int x, int y);
-  void OnMiddleButtonUp  (int ctrl, int shift, int x, int y);
-  void OnRightButtonDown(int ctrl, int shift, int x, int y);
-  void OnRightButtonUp  (int ctrl, int shift, int x, int y);
+  virtual void OnMouseMove       (int ctrl, int shift, int x, int y);
+  virtual void OnLeftButtonDown  (int ctrl, int shift, int x, int y);
+  virtual void OnLeftButtonUp    (int ctrl, int shift, int x, int y);
+  virtual void OnMiddleButtonDown(int ctrl, int shift, int x, int y);
+  virtual void OnMiddleButtonUp  (int ctrl, int shift, int x, int y);
+  virtual void OnRightButtonDown (int ctrl, int shift, int x, int y);
+  virtual void OnRightButtonUp   (int ctrl, int shift, int x, int y);
 
 protected:
   vtkInteractorStyleTrackballCamera();
@@ -70,9 +63,9 @@ protected:
   void DollyXY(int dx, int dy);
   void SpinXY(int dx, int dy, int oldX, int oldY);
   
-  int State;
   float MotionFactor;
   float RadianToDegree;                 // constant: for conv from deg to rad
+
 private:
   vtkInteractorStyleTrackballCamera(const vtkInteractorStyleTrackballCamera&);  // Not implemented.
   void operator=(const vtkInteractorStyleTrackballCamera&);  // Not implemented.
