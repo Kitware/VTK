@@ -32,7 +32,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.41");
+vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.42");
 vtkStandardNewMacro(vtkEnSight6BinaryReader);
 
 //----------------------------------------------------------------------------
@@ -257,6 +257,7 @@ int vtkEnSight6BinaryReader::ReadGeometryFile(char* fileName, int timeStep)
   
   while (lineRead && strncmp(line, "part", 4) == 0)
     {
+    this->NumberOfGeometryParts++;
     sscanf(line, " part %d", &partId);
     partId--; // EnSight starts #ing at 1.
     
@@ -719,7 +720,7 @@ int vtkEnSight6BinaryReader::ReadMeasuredGeometryFile(char* fileName,
   char line[80], subLine[80];
   int i;
   int *pointIds;
-  float *xCoords, *yCoords, *zCoords;
+  float *coords;
   vtkPoints *points = vtkPoints::New();
   vtkPolyData *pd = vtkPolyData::New();
   
@@ -807,19 +808,13 @@ int vtkEnSight6BinaryReader::ReadMeasuredGeometryFile(char* fileName,
         }
       
       pointIds = new int[this->NumberOfMeasuredPoints];
-      xCoords = new float [this->NumberOfMeasuredPoints];
-      yCoords = new float [this->NumberOfMeasuredPoints];
-      zCoords = new float [this->NumberOfMeasuredPoints];
+      coords = new float [this->NumberOfMeasuredPoints*3];
       
       this->ReadIntArray(pointIds, this->NumberOfMeasuredPoints);
-      this->ReadFloatArray(xCoords, this->NumberOfMeasuredPoints);
-      this->ReadFloatArray(yCoords, this->NumberOfMeasuredPoints);
-      this->ReadFloatArray(zCoords, this->NumberOfMeasuredPoints);
+      this->ReadFloatArray(coords, this->NumberOfMeasuredPoints*3);
       
       delete [] pointIds;
-      delete [] xCoords;
-      delete [] yCoords;
-      delete [] zCoords;
+      delete [] coords;
       
       this->ReadLine(line); // END TIME STEP
       }
@@ -845,24 +840,17 @@ int vtkEnSight6BinaryReader::ReadMeasuredGeometryFile(char* fileName,
     return 0;
     }
   
-  this->MeasuredNodeIds->Allocate(this->NumberOfMeasuredPoints);
-
   pointIds = new int[this->NumberOfMeasuredPoints];
-  xCoords = new float [this->NumberOfMeasuredPoints];
-  yCoords = new float [this->NumberOfMeasuredPoints];
-  zCoords = new float [this->NumberOfMeasuredPoints];
+  coords = new float [this->NumberOfMeasuredPoints*3];
   points->Allocate(this->NumberOfMeasuredPoints);
   pd->Allocate(this->NumberOfMeasuredPoints);
   
   this->ReadIntArray(pointIds, this->NumberOfMeasuredPoints);
-  this->ReadFloatArray(xCoords, this->NumberOfMeasuredPoints);
-  this->ReadFloatArray(yCoords, this->NumberOfMeasuredPoints);
-  this->ReadFloatArray(zCoords, this->NumberOfMeasuredPoints);
+  this->ReadFloatArray(coords, this->NumberOfMeasuredPoints*3);
   
   for (i = 0; i < this->NumberOfMeasuredPoints; i++)
     {
-    this->MeasuredNodeIds->InsertNextId(pointIds[i]);
-    points->InsertNextPoint(xCoords[i], yCoords[i], zCoords[i]);
+    points->InsertNextPoint(coords[3*i], coords[3*i+1], coords[3*i+2]);
     pd->InsertNextCell(VTK_VERTEX, 1, (vtkIdType*)&pointIds[i]);
     }
 
@@ -872,9 +860,7 @@ int vtkEnSight6BinaryReader::ReadMeasuredGeometryFile(char* fileName,
   points->Delete();
   pd->Delete();
   delete [] pointIds;
-  delete [] xCoords;
-  delete [] yCoords;
-  delete [] zCoords;
+  delete [] coords;
   
   if (this->IFile)
     {

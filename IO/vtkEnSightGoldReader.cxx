@@ -29,7 +29,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.44");
+vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.45");
 vtkStandardNewMacro(vtkEnSightGoldReader);
 
 //----------------------------------------------------------------------------
@@ -257,8 +257,6 @@ int vtkEnSightGoldReader::ReadMeasuredGeometryFile(char* fileName,
     pd->Allocate(this->NumberOfMeasuredPoints);
     this->SetNthOutput(this->NumberOfGeometryParts, pd);
     pd->Delete();
-    
-    this->MeasuredNodeIds->Allocate(this->NumberOfMeasuredPoints);
     }
   else if ( ! this->GetOutput(this->NumberOfGeometryParts)->IsA("vtkPolyData"))
     {
@@ -277,9 +275,7 @@ int vtkEnSightGoldReader::ReadMeasuredGeometryFile(char* fileName,
     this->ReadLine(line);
     sscanf(line, " %8d %12e %12e %12e", &tempId, &coords[0], &coords[1],
            &coords[2]);
-    tempId--;
     id = tempId;
-    this->MeasuredNodeIds->InsertNextId(id);
     newPoints->InsertNextPoint(coords);
     geom->InsertNextCell(VTK_VERTEX, 1, &id);
     }

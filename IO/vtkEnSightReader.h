@@ -265,7 +265,6 @@ protected:
 
   // global list of points for measured geometry
   int NumberOfMeasuredPoints;
-  vtkIdList *MeasuredNodeIds;
   
   int NumberOfNewOutputs;
   int OutputsAreValid;
