@@ -227,8 +227,8 @@ void vlVolumeRenderer::CalcRayValues(vlRenderer *ren, float Vecs[6][3],
     }
 
   // calc the maximum number of steps a ray will take
-  *steps = (maxz - minz)/
-     (cos(3.1415926*cam->GetViewAngle()/180.0)*this->StepSize);
+  *steps = (int) ((double) (maxz - minz)/
+     (cos(3.1415926*cam->GetViewAngle()/180.0)*this->StepSize));
 
   // calc the z val for front clipping plane
   for (i = 0; i < 3; i++)
@@ -326,10 +326,10 @@ void vlVolumeRenderer::Composite(float *rays,int steps, int numRays,
 	}
       }
     }
-  resultColor[0] = fresCol[0]*255.0;
-  resultColor[1] = fresCol[1]*255.0;
-  resultColor[2] = fresCol[2]*255.0;
-  resultColor[3] = alpha*255.0;
+  resultColor[0] = (unsigned char) ((float)fresCol[0]*255.0);
+  resultColor[1] = (unsigned char) ((float)fresCol[1]*255.0);
+  resultColor[2] = (unsigned char) ((float)fresCol[2]*255.0);
+  resultColor[3] = (unsigned char) ((float)alpha*255.0);
 }
 
 // Description:
@@ -348,16 +348,20 @@ void vlVolumeRenderer::TraceOneRay(float p1World[4],float p2World[4],
   float t,t2;
   float closestPoint[3];
   float p1Coords[3], p2Coords[3];
-  float *origin, *aspectRatio;
+  float origin[3], aspectRatio[3];
   float pcoords[3];
   float sf[8];
   vlScalars *scalars;
-  int *dimensions;
+  int dimensions[3];
   int index[3];
   float currentAlpha = 0;
   float mag;
   float calcSteps;
   unsigned char temp_col[4];
+  static vlIdList ptIds(8);
+  static vlFloatScalars voxelValues(8);
+  int kOffset, ptId, newVoxel, idx;
+  float value;
 
   // clear the memory for the ray
   for (i = 0; i < steps*4; i++)
@@ -365,10 +369,9 @@ void vlVolumeRenderer::TraceOneRay(float p1World[4],float p2World[4],
     resultRay[i] = 0;
     }
 
-  //  Transform ray (defined from position of
-  //  camera to selection point) into coordinates of mapper (not
-  //  transformed to actors coordinates!  Reduces overall computation!!!).
-  //  If actor can be picked, get its composite matrix, invert it, and
+  //  Transform ray (defined from position of p1 to p2) into coordinates 
+  //  of mapper (not transformed to actors coordinates!  Reduces overall 
+  //  computation!!!). Get the actors composite matrix, invert it, and
   //  use the inverted matrix to transform the ray points into mapper
   //  coordinates. 
   this->Transform.SetMatrix(vol->GetMatrix());
@@ -381,10 +384,7 @@ void vlVolumeRenderer::TraceOneRay(float p1World[4],float p2World[4],
   this->Transform.SetPoint(p2World);
   this->Transform.GetPoint(p2Mapper);
 
-  for (i=0; i<3; i++) 
-    {
-    ray[i] = p2Mapper[i] - p1Mapper[i];
-    }
+  for (i=0; i<3; i++) ray[i] = p2Mapper[i] - p1Mapper[i];
   
   this->Transform.Pop();
 
@@ -415,8 +415,8 @@ void vlVolumeRenderer::TraceOneRay(float p1World[4],float p2World[4],
       calcSteps = mag/this->StepSize;
 
       // convert the ends into local coordinates
-      origin = strPts->GetOrigin();
-      aspectRatio = strPts->GetAspectRatio();
+      strPts->GetOrigin(origin);
+      strPts->GetAspectRatio(aspectRatio);
       
       for (i = 0; i < 3; i++)
 	{
@@ -431,7 +431,8 @@ void vlVolumeRenderer::TraceOneRay(float p1World[4],float p2World[4],
 	vlErrorMacro(<< "No scalar data for Volume\n");
 	return;
 	}
-      dimensions = vol->GetInput()->GetDimensions();
+      vol->GetInput()->GetDimensions(dimensions);
+      kOffset = dimensions[0] * dimensions[1];
 
       // move t to the nearest exact point
       j = (int)((t*calcSteps) + 1);
@@ -443,70 +444,53 @@ void vlVolumeRenderer::TraceOneRay(float p1World[4],float p2World[4],
         index[i] = (int)hitPosition[i];
 	}
       
-      while ((t < t2)
-/*	     &&(index[0] < (dimensions[0]-1))
-	     &&(index[1] < (dimensions[1]-1))
-	     &&(index[2] < (dimensions[2]-1))
-	     &&(hitPosition[0] >= 0)
-	     &&(hitPosition[1] >= 0)
-	     &&(hitPosition[2] >= 0) */
-	     &&(currentAlpha < (254/255.0)))
+      for ( newVoxel=1; (t < t2) && (currentAlpha < (254/255.0));  )
 	{
-	for (i = 0; i < 3; i++)
-	  {
-	  pcoords[i] = (hitPosition[i] - index[i]);
-	  }
+
+	for (i = 0; i < 3; i++) pcoords[i] = (hitPosition[i] - index[i]);
 	cell.InterpolationFunctions(pcoords,sf);
 
-	sf[0] = 
-	  sf[0]*scalars->GetScalar(index[0] + index[1]*dimensions[0] + 
-				   index[2]*dimensions[0]*dimensions[1]);
-	sf[0] += 
-	  sf[1]*scalars->GetScalar(1 + index[0] + 
-				   index[1]*dimensions[0] + 
-				   index[2]*dimensions[0]*dimensions[1]);
-	sf[0] += 
-	  sf[2]*scalars->GetScalar(index[0] + 
-				   (index[1]+1)*dimensions[0] + 
-				   index[2]*dimensions[0]*dimensions[1]);
-	sf[0] += 
-	  sf[3]*scalars->GetScalar(1 + index[0] + 
-				   (index[1] + 1)*dimensions[0] + 
-				   index[2]*dimensions[0]*dimensions[1]);
-	sf[0] += 
-	  sf[4]*scalars->GetScalar(index[0] + index[1]*dimensions[0] + 
-				   (index[2]+1)*dimensions[0]*dimensions[1]);
-	sf[0] += 
-	  sf[5]*scalars->GetScalar(1 + index[0] + 
-				   index[1]*dimensions[0] + 
-				   (index[2]+1)*dimensions[0]*dimensions[1]);
-	sf[0] += 
-	  sf[6]*scalars->GetScalar(index[0] + 
-				   (index[1]+1)*dimensions[0] + 
-				   (index[2]+1)*dimensions[0]*dimensions[1]);
-	sf[0] += 
-	  sf[7]*scalars->GetScalar(1 + index[0] + 
-				   (index[1] + 1)*dimensions[0] + 
-				   (index[2]+1)*dimensions[0]*dimensions[1]);
+        if ( newVoxel )
+          {
+          ptId = index[0] + index[1]*dimensions[0] + index[2]*kOffset;
+          ptIds.SetId(0,ptId);
+          ptIds.SetId(1,ptId+1);
+          ptIds.SetId(2,ptId+dimensions[0]);
+          ptIds.SetId(3,ptId+1+dimensions[0]);
+          ptIds.SetId(4,ptId+kOffset);
+          ptIds.SetId(5,ptId+1+kOffset);
+          ptIds.SetId(6,ptId+dimensions[0]+kOffset);
+          ptIds.SetId(7,ptId+1+dimensions[0]+kOffset);
+
+          scalars->GetScalars(ptIds,voxelValues);
+          }
+
+        for (value=0.0, i=0; i < 8; i++)
+          value += voxelValues.GetScalar(i) * sf[i];
 
 	// map through the lookup table
-        memcpy(temp_col,vol->GetLookupTable()->MapValue(sf[0]),4);
+        memcpy(temp_col,vol->GetLookupTable()->MapValue(value),4);
 	resultRay[j*4] = temp_col[0]/ 255.0;
 	resultRay[j*4+1] = temp_col[1]/ 255.0;
 	resultRay[j*4+2] = temp_col[2]/ 255.0;
 	mag = temp_col[3]*this->StepSize;
 	if (mag > 255) mag = 255;
 	resultRay[j*4+3] = mag/255.0;
-	currentAlpha = currentAlpha + 
-	  (1 - currentAlpha)*resultRay[j*4+3];
+	currentAlpha = currentAlpha + (1 - currentAlpha)*resultRay[j*4+3];
 
-	for (i = 0; i < 3; i++)
+	for (newVoxel=0, i=0; i < 3; i++)
 	  {
 	  hitPosition[i] += ray[i];
-	  index[i] = (int)hitPosition[i];
+          if ( (idx = (int)hitPosition[i]) != index[i] )
+            {
+            index[i] = idx;
+            newVoxel = 1;
+            }
 	  }
+
 	t += (1.0/calcSteps);
 	j++;
+
 	}
       }
     }
