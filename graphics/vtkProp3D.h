@@ -106,18 +106,15 @@ public:
   // Orientation) then the actors final transformation will be the
   // UserTransform, concatenated with the UserMatrix if the UserMatrix
   // is present.
-  vtkSetObjectMacro(UserTransform,vtkLinearTransform);
+  void SetUserTransform(vtkLinearTransform *transform);
   vtkGetObjectMacro(UserTransform,vtkLinearTransform);
 
   // Description:
-  // The UserMatrix can be used in place of or in combination with
-  // the UserTransform - see the description of SetUserTransform().  
-  // If both are present, then the concatenation of the two is used,
-  // where the UserMatrix is applied after the UserTransform.
-  // <p>You cannot use the UserMatrix for actors which are part of
-  // a vtkAssembly, while you can use the UserTransform.
-  vtkSetObjectMacro(UserMatrix,vtkMatrix4x4);
-  vtkGetObjectMacro(UserMatrix,vtkMatrix4x4);
+  // The UserMatrix can be used in place of UserTransform.
+  void SetUserMatrix(vtkMatrix4x4 *matrix);
+  vtkMatrix4x4 *GetUserMatrix() { 
+    if (this->UserTransform) { this->UserTransform->Update(); };
+    return this->UserMatrix; };
 
   // Description:
   // Return a reference to the Prop3D's 4x4 composite matrix.

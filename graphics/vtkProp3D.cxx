@@ -44,6 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkProp3D.h"
 #include "vtkActor.h"
+#include "vtkMatrixToLinearTransform.h"
 
 typedef double (*SqMatPtr)[4];
 
@@ -256,6 +257,59 @@ void vtkProp3D::RotateWXYZ (float degree, float x, float y, float z)
   this->Modified();
 }
 
+void vtkProp3D::SetUserTransform(vtkLinearTransform *transform)
+{
+  if (transform == this->UserTransform) 
+    { 
+    return; 
+    }
+  if (this->UserTransform) 
+    {
+    this->UserTransform->Delete();
+    this->UserTransform = NULL;
+    }
+  if (this->UserMatrix) 
+    {
+    this->UserMatrix->Delete();
+    this->UserMatrix = NULL;
+    }
+  if (transform)
+    {
+    this->UserTransform = transform;
+    this->UserTransform->Register(this);
+    this->UserMatrix = transform->GetMatrix();
+    this->UserMatrix->Register(this);
+    }
+  this->Modified();
+}
+
+void vtkProp3D::SetUserMatrix(vtkMatrix4x4 *matrix)
+{
+  if (matrix == this->UserMatrix) 
+    { 
+    return; 
+    }
+  if (this->UserTransform) 
+    { 
+    this->UserTransform->Delete();
+    this->UserTransform = NULL;
+    }
+  if (this->UserMatrix) 
+    {
+    this->UserMatrix->Delete();
+    this->UserMatrix = NULL;
+    }
+  if (matrix)
+    {
+    this->UserMatrix = matrix; 
+    this->UserMatrix->Register(this);
+    vtkMatrixToLinearTransform *transform = vtkMatrixToLinearTransform::New();
+    transform->SetInput(matrix);
+    this->UserTransform = transform;
+    }
+  this->Modified();
+}
+
 void vtkProp3D::GetMatrix(vtkMatrix4x4 *result)
 {
   this->GetMatrix(&result->Element[0][0]);
@@ -292,17 +346,10 @@ void vtkProp3D::GetMatrix(double result[16])
                               this->Origin[1] + this->Position[1],
                               this->Origin[2] + this->Position[2]);
 
-    // apply user defined transform if it is present
+    // apply user defined transform last if there is one 
     if (this->UserTransform)
       {
-      this->UserTransform->Update();
-      this->Transform->Concatenate(this->UserTransform->GetMatrixPointer());
-      }
-
-    // apply user defined matrix last if there is one 
-    if (this->UserMatrix)
-      {
-      this->Transform->Concatenate(this->UserMatrix);
+      this->Transform->Concatenate(this->UserTransform->GetMatrix());
       }
 
     this->Transform->PreMultiply();  
@@ -402,7 +449,7 @@ void vtkProp3D::ShallowCopy(vtkProp *prop)
       this->Bounds[i] = p->Bounds[i];
       }
 
-    this->SetUserMatrix(p->UserMatrix);
+    this->SetUserTransform(p->UserTransform);
     }
 
   // Now do superclass
@@ -425,7 +472,15 @@ void vtkProp3D::PokeMatrix(vtkMatrix4x4 *matrix)
     //The cached Prop3D stores our current values
     //Note: the orientation ivar is not used since the
     //orientation is determined from the transform.
-    this->CachedProp3D->SetUserMatrix(this->UserMatrix);
+    if ( this->UserTransform && 
+	 this->UserTransform->GetMatrix() == this->UserMatrix )
+      {
+      this->CachedProp3D->SetUserTransform(this->UserTransform);
+      }
+    else
+      {
+      this->CachedProp3D->SetUserMatrix(this->UserMatrix);
+      }
     this->CachedProp3D->SetOrigin(this->Origin);
     this->CachedProp3D->SetPosition(this->Position);
     this->CachedProp3D->SetOrientation(this->Orientation);
@@ -440,12 +495,7 @@ void vtkProp3D::PokeMatrix(vtkMatrix4x4 *matrix)
 
     //the poked matrix is set as the UserMatrix. Since everything else is
     //"non-transformed", this is the final transformation.
-    if ( this->UserMatrix ) 
-      {
-      this->UserMatrix->Delete();
-      }
-    this->UserMatrix = matrix;
-    this->UserMatrix->Register(this);
+    this->SetUserMatrix(matrix);
     }
     
   else //we restore our original state
@@ -453,14 +503,15 @@ void vtkProp3D::PokeMatrix(vtkMatrix4x4 *matrix)
     this->CachedProp3D->GetOrigin(this->Origin);
     this->CachedProp3D->GetPosition(this->Position);
     this->CachedProp3D->GetScale(this->Scale);
-    if ( this->UserMatrix )
+    if ( this->CachedProp3D->UserTransform &&
+	 this->CachedProp3D->UserTransform->GetMatrix() == 
+	 this->CachedProp3D->UserMatrix )
       {
-      this->UserMatrix->Delete();
+      this->SetUserTransform(this->CachedProp3D->UserTransform);
       }
-    this->UserMatrix = this->CachedProp3D->GetUserMatrix();
-    if ( this->UserMatrix )
+    else
       {
-      this->UserMatrix->Register(this);
+      this->SetUserMatrix(this->CachedProp3D->UserMatrix);
       }
     this->Transform->SetMatrix(this->CachedProp3D->GetMatrix());
     this->Modified();

@@ -200,7 +200,7 @@ float *vtkLODProp3D::GetBounds()
       vtkProp3D *p = this->LODs[i].Prop3D;
       if ( p->GetMTime() < this->GetMTime() )
 	{
-	this->GetMatrix( p->GetUserMatrix() );
+	p->SetUserMatrix( this->GetMatrixPointer() );
 	}
 
       // Get the bounds of this entry
@@ -336,8 +336,8 @@ int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p,
 
   actor = vtkActor::New();
   matrix = vtkMatrix4x4::New();
-  this->GetMatrix(matrix);
-  actor->SetUserMatrix(matrix);
+  this->GetMatrix( matrix );
+  actor->SetUserMatrix( matrix );
   matrix->Delete();
   actor->SetMapper( m );
   if ( p ) 
@@ -863,7 +863,7 @@ void vtkLODProp3D::SetAllocatedRenderTime( float t )
   vtkProp3D *p = this->LODs[this->SelectedLODIndex].Prop3D;
   if ( p->GetMTime() < this->GetMTime() )
     {
-    this->GetMatrix( p->GetUserMatrix() );
+    p->SetUserMatrix( this->GetMatrixPointer()) ;
     }
 }
 
