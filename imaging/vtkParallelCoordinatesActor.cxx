@@ -91,13 +91,6 @@ vtkParallelCoordinatesActor::vtkParallelCoordinatesActor()
   this->PlotActor = vtkActor2D::New();
   this->PlotActor->SetMapper(this->PlotMapper);
 
-  int   NumberOfLabels; //along each axis
-  int	Bold;
-  int   Italic;
-  int   Shadow;
-  int   FontFamily;
-  char  *LabelFormat;
-
   this->NumberOfLabels = 2;
   this->Bold = 1;
   this->Italic = 1;
