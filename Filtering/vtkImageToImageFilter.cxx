@@ -21,7 +21,7 @@
 #include "vtkMultiThreader.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageToImageFilter, "1.51");
+vtkCxxRevisionMacro(vtkImageToImageFilter, "1.52");
 
 //----------------------------------------------------------------------------
 vtkImageToImageFilter::vtkImageToImageFilter()
@@ -317,11 +317,17 @@ vtkImageData *vtkImageToImageFilter::AllocateOutputData(vtkDataObject *out)
       // Copy the point data.
       output->GetPointData()->CopyAllocate(input->GetPointData(), 
                                            output->GetNumberOfPoints());
-      output->GetPointData()->CopyStructuredData(input->GetPointData(),
-                                                 inExt, outExt);
-      // Now Copy The cell data.
+      // Now Copy The cell data, but only if output is a subextent of the input.  
+      if (outExt[0] >= inExt[0] && outExt[1] <= inExt[1] &&
+          outExt[2] >= inExt[2] && outExt[3] <= inExt[3] &&
+          outExt[4] >= inExt[4] && outExt[5] <= inExt[5])
+        {
+        output->GetPointData()->CopyStructuredData(input->GetPointData(),
+                                                   inExt, outExt);
+        }
+
       output->GetCellData()->CopyAllocate(input->GetCellData(), 
-                                          output->GetNumberOfCells());
+                                          output->GetNumberOfCells());  
       // Cell extent is one less than point extent.
       // Conditional to handle a colapsed axis (lower dimensional cells).
       if (inExt[0] < inExt[1]) {--inExt[1];}
@@ -331,8 +337,14 @@ vtkImageData *vtkImageToImageFilter::AllocateOutputData(vtkDataObject *out)
       if (outExt[0] < outExt[1]) {--outExt[1];}
       if (outExt[2] < outExt[3]) {--outExt[3];}
       if (outExt[4] < outExt[5]) {--outExt[5];}
-      output->GetCellData()->CopyStructuredData(input->GetCellData(),
-                                                inExt, outExt);
+      // Now Copy The cell data, but only if output is a subextent of the input.  
+      if (outExt[0] >= inExt[0] && outExt[1] <= inExt[1] &&
+          outExt[2] >= inExt[2] && outExt[3] <= inExt[3] &&
+          outExt[4] >= inExt[4] && outExt[5] <= inExt[5])
+        {
+        output->GetCellData()->CopyStructuredData(input->GetCellData(),
+                                                    inExt, outExt);
+        }
       }
     }
 
