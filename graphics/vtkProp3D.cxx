@@ -173,6 +173,21 @@ float *vtkProp3D::GetOrientation ()
   return this->Orientation;
 } // vtkProp3D::Getorientation 
 
+void vtkProp3D::GetOrientation (float o[3])
+{
+  float   *orientation;
+
+  // return the orientation of the transformation matrix
+  orientation = this->Transform->GetOrientation();
+  o[0] = orientation[0];
+  o[1] = orientation[1];
+  o[2] = orientation[2];
+
+  vtkDebugMacro(<< " Returning Orientation of ( " <<  o[0] 
+                << ", " << o[1] << ", " << o[2] << ")\n");
+
+} // vtkProp3D::Getorientation 
+
 // Returns the WXYZ orientation of the Prop3D. 
 float *vtkProp3D::GetOrientationWXYZ()
 {
@@ -406,30 +421,38 @@ void vtkProp3D::PokeMatrix(vtkMatrix4x4 *matrix)
       {
       this->CachedProp3D = vtkActor::New();
       }
+
+    //The cached Prop3D stores our current values
+    //Note: the orientation ivar is not used since the
+    //orientation is determined from the transform.
     this->CachedProp3D->SetUserMatrix(this->UserMatrix);
-    if ( this->UserMatrix ) //the actual transformation is defined here
+    this->CachedProp3D->SetOrigin(this->Origin);
+    this->CachedProp3D->SetPosition(this->Position);
+    this->CachedProp3D->SetOrientation(this->Orientation);
+    this->CachedProp3D->SetScale(this->Scale);
+    this->CachedProp3D->Transform->SetMatrix(this->Transform->GetMatrix());
+
+    //Set the current transformation variables to "non-transformed"
+    this->Origin[0] = 0.0; this->Origin[1] = 0.0; this->Origin[2] = 0.0;
+    this->Position[0] = 0.0; this->Position[1] = 0.0; this->Position[2] = 0.0;
+    this->Scale[0] = 1.0; this->Scale[1] = 1.0; this->Scale[2] = 1.0;
+    this->Transform->Identity();
+
+    //the poked matrix is set as the UserMatrix. Since everything else is
+    //"non-transformed", this is the final transformation.
+    if ( this->UserMatrix ) 
       {
       this->UserMatrix->Delete();
       }
     this->UserMatrix = matrix;
     this->UserMatrix->Register(this);
-
-    //The cached Prop3D stores our current values
-    this->CachedProp3D->SetOrigin(this->Origin);
-    this->CachedProp3D->SetPosition(this->Position);
-    this->CachedProp3D->SetOrientation(this->Orientation);
-    this->CachedProp3D->SetScale(this->Scale);
-
-    //Set the current transformation variables to "non-transformed"
-    this->Origin[0] = 0.0; this->Origin[1] = 0.0; this->Origin[2] = 0.0;
-    this->Position[0] = 0.0; this->Position[1] = 0.0; this->Position[2] = 0.0;
-    this->Orientation[0] = 0.0; this->Orientation[1] = 0.0;
-    this->Orientation[2] = 0.0;
-    this->Scale[0] = 1.0; this->Scale[1] = 1.0; this->Scale[2] = 1.0;
     }
     
   else //we restore our original state
     {
+    this->CachedProp3D->GetOrigin(this->Origin);
+    this->CachedProp3D->GetPosition(this->Position);
+    this->CachedProp3D->GetScale(this->Scale);
     if ( this->UserMatrix )
       {
       this->UserMatrix->Delete();
@@ -439,13 +462,7 @@ void vtkProp3D::PokeMatrix(vtkMatrix4x4 *matrix)
       {
       this->UserMatrix->Register(this);
       }
-    float *f;
-    this->CachedProp3D->GetOrigin(this->Origin);
-    this->CachedProp3D->GetPosition(this->Position);
-    f = this->CachedProp3D->GetOrientation();
-    this->Orientation[0] = f[0]; this->Orientation[1] = f[1];
-    this->Orientation[2] = f[2];
-    this->CachedProp3D->GetScale(this->Scale);
+    this->Transform->SetMatrix(this->CachedProp3D->GetMatrix());
     this->Modified();
     }
 }
