@@ -98,6 +98,18 @@ AC_CHECK_HEADERS(/opt/graphics/OpenGL/include/GL/glxmd.h,
 		[use_oglr=yes]
 		OGLR_INCLUDE="-I/opt/graphics/OpenGL/include")
 
+AC_MSG_CHECKING(for OpenGL library)
+OPENGLSW=""
+dirs="/opt/graphics/OpenGL/lib /usr/openwin/lib"
+for i in $dirs; do
+  if test -r $i/libGL.so; then
+    AC_MSG_RESULT($i)
+    OPENGLSW="-L$i"
+    break
+  fi
+done
+GRAPHICS_API_LIBS="$GRAPHICS_API_LIBS $OPENGLSW"
+
 if test "$use_oglr" = "yes"; then
 	GRAPHICS_API_OBJ="${GRAPHICS_API_OBJ} \${OGLR_OBJ}"
 
@@ -596,6 +608,10 @@ if test "$use_pthreads" = "yes"; then
   if test "$use_sproc" = "no"; then
     AC_CHECK_LIB(pthreads, pthread_create, THREAD_LIBS="-lpthreads")
     AC_CHECK_LIB(pthread, pthread_create, THREAD_LIBS="-lpthread")
+# Work around Solaris 5.6 bug:
+    if test "`/usr/bin/uname -s -r`" = "SunOS 5.6"; then
+      AC_CHECK_LIB(thread, thr_create, THREAD_LIBS="$THREAD_LIBS -lthread")
+    fi
 	THREAD_FLAGS="-DVTK_USE_PTHREADS"
   fi
 fi
@@ -694,8 +710,4 @@ fi
 AC_CONFIG_SUBDIRS(common wrap $javadir $tcldir $graphicsdir $imagingdir $patenteddir $contribdir)
 
 AC_OUTPUT(Makefile system.make)
-
-
-
-
 
