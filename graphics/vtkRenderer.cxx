@@ -606,7 +606,7 @@ void vtkRenderer::WorldToView(float &x, float &y, float &z)
 
 void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkObject::PrintSelf(os,indent);
+  this->vtkViewport::PrintSelf(os,indent);
 
   os << indent << "Actors:\n";
   this->Actors.PrintSelf(os,indent.GetNextIndent());
@@ -625,6 +625,17 @@ void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Two-sided Lighting: " 
      << (this->TwoSidedLighting ? "On\n" : "Off\n");
 
+  if ( this->RayCaster )
+    {
+    os << indent << "Ray Caster: " << this->RayCaster << "\n";
+    }
+  else
+    {
+    os << indent << "Ray Caster: (none)\n";
+    }
+
+  os << indent << "Allocated Render Time: " << this->AllocatedRenderTime
+     << "\n";
 }
 
 int vtkRenderer::VisibleActorCount()

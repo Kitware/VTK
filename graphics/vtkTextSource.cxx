@@ -443,6 +443,7 @@ void vtkTextSource::PrintSelf(ostream& os, vtkIndent indent)
   vtkPolyDataSource::PrintSelf(os,indent);
 
   os << indent << "Text: " << (this->Text ? this->Text : "(none)") << "\n";
+  os << indent << "Background Drawn: " << (this->Backing ? "On\n" : "Off\n");
   os << indent << "ForegroundColor: (" << this->ForegroundColor[0] << ", " 
      << this->ForegroundColor[1] << ", " << this->ForegroundColor[2]  << ")\n";
   os << indent << "BackgroundColor: (" << this->BackgroundColor[0] << ", " 

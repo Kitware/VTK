@@ -170,7 +170,7 @@ void vtkSTLWriter::WriteBinarySTL(vtkPoints *pts, vtkCellArray *polys)
 
 void vtkSTLWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkWriter::PrintSelf(os,indent);
+  vtkPolyDataWriter::PrintSelf(os,indent);
  
   os << indent << "File Name: " << this->FileName << "\n";
 

@@ -415,5 +415,10 @@ void vtkStarbaseRenderer::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Number Of Lights Bound: " << 
     this->NumberOfLightsBound << "\n";
+
+  os << indent << "File Descriptor: " << this->Fd << "\n";
+
+  os << indent << "Light Switch: " << this->LightSwitch << "\n";
+
 }
 

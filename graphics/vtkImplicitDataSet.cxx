@@ -175,4 +175,13 @@ void vtkImplicitDataSet::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Out Value: " << this->OutValue << "\n";
   os << indent << "Out Gradient: (" << this->OutGradient[0] << ", " 
      << this->OutGradient[1] << ", " << this->OutGradient[2] << ")\n";
+
+  if ( this->DataSet )
+    {
+    os << indent << "Data Set: " << this->DataSet << "\n";
+    }
+  else
+    {
+    os << indent << "Data Set: (none)\n";
+    }
 }

@@ -294,6 +294,7 @@ void vtkBYUReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Read Displacement: " << (this->ReadDisplacement ? "On\n" : "Off\n");
   os << indent << "Displacement File Name: " 
      << (this->DisplacementFileName ? this->DisplacementFileName : "(none)") << "\n";
+  os << indent << "Part Number: " << this->PartNumber << "\n";
   os << indent << "Read Scalar: " << (this->ReadScalar ? "On\n" : "Off\n");
   os << indent << "Scalar File Name: " 
      << (this->ScalarFileName ? this->ScalarFileName : "(none)") << "\n";

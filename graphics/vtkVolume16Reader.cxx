@@ -576,6 +576,8 @@ void vtkVolume16Reader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "SwapBytes: " << this->SwapBytes << "\n";
   os << indent << "Data Dimensions: (" << this->DataDimensions[0] << ", "
                                    << this->DataDimensions[1] << ")\n";
+  os << indent << "Data Mask: " << this->DataMask << "\n";
+
   if ( this->Transform )
     {
     os << indent << "Transform:\n";

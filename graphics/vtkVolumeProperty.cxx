@@ -333,5 +333,12 @@ void vtkVolumeProperty::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << indent << "Specular: " << this->Specular << "\n";
     os << indent << indent << "SpecularPower: " << this->SpecularPower << "\n";
     }
+
+  // These variables should not be printed to the user:
+  // this->GradientOpacityMTime
+  // this->GrayTransferFunctionMTime
+  // this->RGBTransferFunctionMTime
+  // this->ScalarOpacityMTime
+
 }
 

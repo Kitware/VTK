@@ -186,6 +186,9 @@ void vtkLODActor::Render(vtkRenderer *ren)
 void vtkLODActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkActor::PrintSelf(os,indent);
+
+  os << indent << "Cloud Points: " << this->NumberOfCloudPoints << "\n";
+
   os << indent << "Timings: (" << this->Timings[0] << ", " 
      << this->Timings[1] << ", " << this->Timings[2] << ")\n";
 }

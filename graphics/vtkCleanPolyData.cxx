@@ -305,6 +305,15 @@ void vtkCleanPolyData::PrintSelf(ostream& os, vtkIndent indent)
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 
   os << indent << "Tolerance: " << this->Tolerance << "\n";
+
+  if ( this->Locator )
+    {
+    os << indent << "Locator: " << this->Locator << "\n";
+    }
+  else
+    {
+    os << indent << "Locator: (none)\n";
+    }
 }
 
 unsigned long int vtkCleanPolyData::GetMTime()

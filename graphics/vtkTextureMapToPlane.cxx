@@ -284,6 +284,15 @@ void vtkTextureMapToPlane::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 
+  os << indent << "Origin: (" << this->Origin[0] << ", "
+     << this->Origin[1] << ", " << this->Origin[2] << " )\n";
+
+  os << indent << "Axis Point 1: (" << this->Point1[0] << ", "
+     << this->Point1[1] << ", " << this->Point1[2] << " )\n";
+
+  os << indent << "Axis Point 2: (" << this->Point2[0] << ", "
+     << this->Point2[1] << ", " << this->Point2[2] << " )\n";
+
   os << indent << "S Range: (" << this->SRange[0] << ", "
                                << this->SRange[1] << ")\n";
   os << indent << "T Range: (" << this->TRange[0] << ", "

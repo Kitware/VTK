@@ -1437,6 +1437,8 @@ void vtkDecimatePro::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Preserve Topology: "  << (this->PreserveTopology ? "On\n" : "Off\n");
   os << indent << "Maximum Error: " << this->MaximumError << "\n";
 
+  os << indent << "Accumulate Error: " << (this->AccumulateError ? "On\n" : "Off\n");
+
   os << indent << "Boundary Vertex Deletion: "  << (this->BoundaryVertexDeletion ? "On\n" : "Off\n");
 
   os << indent << "Inflection Point Ratio: " << this->InflectionPointRatio << "\n";

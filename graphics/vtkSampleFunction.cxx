@@ -285,6 +285,15 @@ void vtkSampleFunction::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "  Ymin,Ymax: (" << this->ModelBounds[2] << ", " << this->ModelBounds[3] << ")\n";
   os << indent << "  Zmin,Zmax: (" << this->ModelBounds[4] << ", " << this->ModelBounds[5] << ")\n";
 
+  if ( this->Scalars )
+    {
+    os << indent << "Scalars: " << this->Scalars << "\n";
+    }
+  else
+    {
+    os << indent << "Scalars: (none)\n";
+    }
+
   if ( this->ImplicitFunction )
     os << indent << "Implicit Function: " << this->ImplicitFunction << "\n";
   else

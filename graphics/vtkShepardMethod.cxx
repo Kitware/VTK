@@ -301,7 +301,7 @@ void vtkShepardMethod::SetSampleDimensions(int dim[3])
 
 void vtkShepardMethod::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetFilter::PrintSelf(os,indent);
+  vtkDataSetToStructuredPointsFilter::PrintSelf(os,indent);
 
   os << indent << "Maximum Distance: " << this->MaximumDistance << "\n";
 

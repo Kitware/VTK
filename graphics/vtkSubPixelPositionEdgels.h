@@ -68,6 +68,7 @@ public:
   vtkSubPixelPositionEdgels();
   static vtkSubPixelPositionEdgels *New() {return new vtkSubPixelPositionEdgels;};
   const char *GetClassName() {return "vtkSubPixelPositionEdgels";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   void Update();
 

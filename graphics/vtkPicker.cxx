@@ -515,6 +515,15 @@ void vtkPicker::PrintSelf(ostream& os, vtkIndent indent)
   if ( this->EndPickMethod ) os << indent << "End PickMethod defined\n";
   else os << indent << "No End PickMethod\n";
 
+  if ( this->DataSet )
+    {
+    os << indent << "DataSet: " << this->DataSet << "\n";
+    }
+  else
+    {
+    os << indent << "DataSet: (none)";
+    }
+
   os << indent << "Renderer: " << this->Renderer << "\n";
 
   os << indent << "Selection Point: (" <<  this->SelectionPoint[0] << ","

@@ -176,6 +176,8 @@ float *vtkProjectedPolyDataRayBounder::Draw( vtkRenderer *vtkNotUsed(ren),
 // build time.
 void vtkProjectedPolyDataRayBounder::PrintSelf(ostream& os, vtkIndent indent)
 {
+  vtkRayBounder::PrintSelf(os, indent);
+
   if ( this->PolyData )
     {
     os << indent << "PolyData: (" << this->PolyData << ")\n";
@@ -197,8 +199,6 @@ void vtkProjectedPolyDataRayBounder::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "Build Time: " <<this->BuildTime.GetMTime() << "\n";
-
-  vtkObject::PrintSelf(os, indent);
 }
 
 

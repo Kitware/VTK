@@ -105,7 +105,13 @@ unsigned long vtkSpline::GetMTime()
 void vtkSpline::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
+
   os << indent << "ClampValue: " << (this->ClampValue ? "On\n" : "Off\n");
+  os << indent << "Left Constraint: " << this->LeftConstraint << "\n";
+  os << indent << "Right Constraint: " << this->RightConstraint << "\n";
+  os << indent << "Left Value: " << this->LeftValue << "\n";
+  os << indent << "Right Value: " << this->RightValue << "\n";
+
   os << indent << "Piecewise Function:\n";
   this->PiecewiseFunction->PrintSelf(os,indent.GetNextIndent());
 }

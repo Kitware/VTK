@@ -155,4 +155,13 @@ void vtkImplicitVolume::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Out Value: " << this->OutValue << "\n";
   os << indent << "Out Gradient: (" << this->OutGradient[0] << ", " 
      << this->OutGradient[1] << ", " << this->OutGradient[2] << ")\n";
+
+  if ( this->Volume )
+    {
+    os << indent << "Volume: " << this->Volume << "\n";
+    }
+  else
+    {
+    os << indent << "Volume: (none)\n";
+    }
 }

@@ -1472,6 +1472,8 @@ float vtkVolumeRayCastMapper::GetZeroOpacityThreshold( vtkVolume *vol )
 // Print method for vtkVolumeRayCastMapper
 void vtkVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
+  vtkVolumeMapper::PrintSelf(os,indent);
+
   os << indent << "Sample Distance: " << this->SampleDistance << "\n";
 
   os << indent << "Total Steps Taken: " << this->TotalStepsTaken << "\n";
@@ -1482,6 +1484,29 @@ void vtkVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Time To Ray Cast: " << this->CastTime << "\n";
 
-  vtkVolumeMapper::PrintSelf(os,indent);
+  if ( this->RayBounder )
+    {
+    os << indent << "Ray Bounder: " << this->RayBounder << "\n";
+    }
+  else
+    {
+    os << indent << "Ray Bounder: (none)\n";
+    }
+
+  if ( this->VolumeRayCastFunction )
+    {
+    os << indent << "Ray Cast Function: " << this->VolumeRayCastFunction<<"\n";
+    }
+  else
+    {
+    os << indent << "Ray Cast Function: (none)\n";
+    }
+
+  os << indent << "Scalar Data Size: " << "( " << 
+    this->ScalarDataSize[0] << ", " << this->ScalarDataSize[1] << ", " <<
+    this->ScalarDataSize[2] << " )\n";
+
+  // These variables should not be printed to the user:
+  // this->DataIncrement[0] 
 }
 

@@ -678,6 +678,7 @@ void vtkWin32OpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ContextId: " << this->ContextId << "\n";
   os << indent << "Next Window Id: " << this->NextWindowId << "\n";
   os << indent << "Window Id: " << this->WindowId << "\n";
+  os << indent << "MultiSamples: " << this->MultiSamples << "\n";
 }
 
 

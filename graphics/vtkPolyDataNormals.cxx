@@ -474,5 +474,7 @@ void vtkPolyDataNormals::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Consistency: " << (this->Consistency ? "On\n" : "Off\n"); 
   os << indent << "Flip Normals: " << (this->FlipNormals ? "On\n" : "Off\n");
   os << indent << "Maximum Recursion Depth: " << this->MaxRecursionDepth << "\n";
+  os << indent << "Non-manifold Traversal: " << 
+    (this->NonManifoldTraversal ? "On\n" : "Off\n");
 }
 

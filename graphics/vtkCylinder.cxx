@@ -71,5 +71,8 @@ void vtkCylinder::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImplicitFunction::PrintSelf(os,indent);
 
+  os << indent << "Center: " << "( " << this->Center[0] << ", " <<
+     this->Center[1] << ", " << this->Center[2] << " )";
+
   os << indent << "Radius: " << this->Radius << "\n";
 }

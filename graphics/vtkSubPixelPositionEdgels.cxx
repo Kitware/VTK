@@ -375,3 +375,19 @@ void vtkSubPixelPositionEdgels::Update()
   if ( this->GradMaps->ShouldIReleaseData() ) this->GradMaps->ReleaseData();
 }
 
+// Description:
+// Print the state of the class.
+void vtkSubPixelPositionEdgels::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
+
+  if ( this->GradMaps )
+    {
+    os << indent << "Gradient Data: " << this->GradMaps << "\n";
+    }
+  else
+    {
+    os << indent << "Gradient Data: (none)\n";
+    }
+}
+

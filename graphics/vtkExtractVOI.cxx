@@ -152,7 +152,7 @@ void vtkExtractVOI::Execute()
 
 void vtkExtractVOI::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkStructuredPointsFilter::PrintSelf(os,indent);
+  vtkStructuredPointsToStructuredPointsFilter::PrintSelf(os,indent);
 
   os << indent << "VOI: \n";
   os << indent << "  Imin,Imax: (" << this->VOI[0] << ", " << this->VOI[1] << ")\n";

@@ -150,7 +150,7 @@ void vtkExtractGrid::Execute()
 
 void vtkExtractGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkStructuredGridFilter::PrintSelf(os,indent);
+  vtkStructuredGridToStructuredGridFilter::PrintSelf(os,indent);
 
   os << indent << "VOI: \n";
   os << indent << "  Imin,Imax: (" << this->VOI[0] << ", " << this->VOI[1] << ")\n";

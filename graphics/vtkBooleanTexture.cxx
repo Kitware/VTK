@@ -149,6 +149,9 @@ void vtkBooleanTexture::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkStructuredPointsSource::PrintSelf(os,indent);
 
+  os << indent << "X Size: " << this->XSize << "\n";
+  os << indent << "Y Size: " << this->YSize << "\n";
+
   os << indent << "Thickness: " << this->Thickness << "\n";
   os << indent << "In/In: (" << this->InIn[0] << "," << this->InIn[1] << ")\n";
   os << indent << "In/Out: (" << this->InOut[0] << "," << this->InOut[1] << ")\n";

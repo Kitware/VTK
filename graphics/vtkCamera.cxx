@@ -1109,7 +1109,7 @@ void vtkCamera::ViewingRaysModified()
 
 void vtkCamera::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os,indent);
+  vtkReferenceCount::PrintSelf(os,indent);
 
   // update orientation
   this->GetOrientation();
@@ -1128,10 +1128,14 @@ void vtkCamera::PrintSelf(ostream& os, vtkIndent indent)
     << this->Position[1] << ", " << this->Position[2] << ")\n";
   os << indent << "ParallelProjection: " << 
     (this->ParallelProjection ? "On\n" : "Off\n");
+  os << indent << "Parallel Scale: " << this->ParallelScale << "\n";
+  os << indent << "Stereo: " << (this->Stereo ? "On\n" : "Off\n");
   os << indent << "Thickness: " << this->Thickness << "\n";
   os << indent << "View Angle: " << this->ViewAngle << "\n";
   os << indent << "View Plane Normal: (" << this->ViewPlaneNormal[0] << ", " 
     << this->ViewPlaneNormal[1] << ", " << this->ViewPlaneNormal[2] << ")\n";
   os << indent << "View Up: (" << this->ViewUp[0] << ", " 
     << this->ViewUp[1] << ", " << this->ViewUp[2] << ")\n";
+  os << indent << "Window Center: (" << this->WindowCenter[0] << ", " 
+    << this->WindowCenter[1] << ")\n";
 }

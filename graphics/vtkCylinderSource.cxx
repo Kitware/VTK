@@ -206,5 +206,7 @@ void vtkCylinderSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Resolution: " << this->Resolution << "\n";
   os << indent << "Height: " << this->Height << "\n";
   os << indent << "Radius: " << this->Radius << "\n";
+  os << indent << "Center: (" << this->Center[0] << ", "
+     << this->Center[1] << ", " << this->Center[2] << " )\n";
   os << indent << "Capping: " << (this->Capping ? "On\n" : "Off\n");
 }
