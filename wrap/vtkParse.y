@@ -170,7 +170,10 @@ func: any_id '(' args_list ')' func_end
 any_id: VTK_ID | ID;
 
 func_end: ';' 
+    | CONST ';'
+    | CONST '{' maybe_other '}' ';' 
     | '{' maybe_other '}' ';' 
+    | CONST '{' maybe_other '}'  
     | '{' maybe_other '}'  
     | ':' maybe_other_no_semi ';';
 
