@@ -37,6 +37,7 @@ public:
 
   // vlTCoords interface
   vlTCoords *MakeObject(int sze, int d=2, int ext=1000);
+  char *GetDataType() {return "float";};
   int GetNumberOfTCoords() {return (this->TC.GetMaxId()+1)/this->Dimension;};
   void Squeeze() {this->TC.Squeeze();};
   float *GetTCoord(int i) {return this->TC.GetPtr(this->Dimension*i);};
@@ -46,6 +47,7 @@ public:
   int InsertNextTCoord(float *tc);
 
   // miscellaneous
+  float *WritePtr(const int id, const int number);
   vlFloatTCoords &operator=(const vlFloatTCoords& ftc);
   void operator+=(const vlFloatTCoords& ftc) {this->TC += ftc.TC;};
   void Reset() {this->TC.Reset();};
@@ -54,6 +56,17 @@ protected:
   vlFloatArray TC;
 };
 
+
+// Description:
+// Get pointer to data. Useful for direct writes into object. MaxId is bumped
+// by number (and memory allocated if necessary). Id is the location you 
+// wish to write into; number is the number of texture coordinates to write. 
+// Make sure the dimension of the texture coordinate is set prior to issuing 
+// this call.
+inline float *vlFloatTCoords::WritePtr(const int id, const int number)
+{
+  return this->TC.WritePtr(id,this->Dimension*number);
+}
 
 inline void vlFloatTCoords::SetTCoord(int i, float *tc) 
 {

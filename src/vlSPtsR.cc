@@ -97,7 +97,7 @@ void vlStructuredPointsReader::Execute()
         this->SetOrigin(origin);
         }
 
-      else if ( ! strncmp(line, "point_data", 16) )
+      else if ( ! strncmp(line, "point_data", 10) )
         {
         if ( (retStat=fscanf(fp,"%d", &npts)) == EOF || retStat < 1 ) 
           goto PREMATURE;
@@ -117,7 +117,7 @@ void vlStructuredPointsReader::Execute()
       }
     }
 
-  else if ( !strncmp(line,"point_attributes",16) )
+  else if ( !strncmp(line,"point_data",10) )
     {
     if ( (retStat=fscanf(fp,"%d", &npts)) == EOF || retStat < 1 ) 
       goto PREMATURE;

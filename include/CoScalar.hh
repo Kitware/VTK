@@ -44,6 +44,7 @@ public:
   char *GetClassName() {return "vlColorScalars";};
 
   // vlScalars interface
+  char *GetDataType() {return "char";};
   float GetScalar(int i);
   void SetScalar(int i, float s);
   void InsertScalar(int i, float s);

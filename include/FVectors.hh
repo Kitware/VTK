@@ -37,6 +37,7 @@ public:
 
   // vlVector interface
   vlVectors *MakeObject(int sze, int ext=1000);
+  char *GetDataType() {return "float";};
   int GetNumberOfVectors() {return (V.GetMaxId()+1)/3;};
   void Squeeze() {this->V.Squeeze();};
   float *GetVector(int i) {return this->V.GetPtr(3*i);};
@@ -46,6 +47,7 @@ public:
   int InsertNextVector(float *v);
 
   // miscellaneous
+  float *WritePtr(const int id, const int number);
   vlFloatVectors &operator=(const vlFloatVectors& fv);
   void operator+=(const vlFloatVectors& fv){this->V += fv.V;};
   void Reset() {this->V.Reset();};
@@ -53,6 +55,15 @@ public:
 protected:
   vlFloatArray V;
 };
+
+// Description:
+// Get pointer to data. Useful for direct writes into object. MaxId is bumped
+// by number (and memory allocated if necessary). Id is the location you 
+// wish to write into; number is the number of vectors to write.
+inline float *vlFloatVectors::WritePtr(const int id, const int number)
+{
+  return this->V.WritePtr(id,3*number);
+}
 
 inline void vlFloatVectors::SetVector(int i, float v[3]) 
 {

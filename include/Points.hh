@@ -41,6 +41,11 @@ public:
   virtual vlPoints *MakeObject(int sze, int ext=1000) = 0;
 
   // Description:
+  // Return data type. One of "bit", "char", "short", "int", "float", or
+  // "double".
+  virtual char *GetDataType() = 0;
+
+  // Description:
   // Return number of points in list.
   virtual int GetNumberOfPoints() = 0;
 

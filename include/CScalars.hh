@@ -37,14 +37,15 @@ public:
 
   // vlScalar interface
   vlScalars *MakeObject(int sze, int ext=1000);
+  char *GetDataType() {return "char";};
   int GetNumberOfScalars() {return (this->S.GetMaxId()+1);};
   void Squeeze() {this->S.Squeeze();};
   float GetScalar(int i) {return (float)this->S[i];};
-  void SetScalar(int i, char s) {this->S[i] = s;};
+  void SetScalar(int i, unsigned char s) {this->S[i] = s;};
   void SetScalar(int i, float s) {this->S[i] = (char)s;};
   void InsertScalar(int i, float s) {S.InsertValue(i,(char)s);};
-  void InsertScalar(int i, char s) {S.InsertValue(i,s);};
-  int InsertNextScalar(char s) {return S.InsertNextValue(s);};
+  void InsertScalar(int i, unsigned char s) {S.InsertValue(i,s);};
+  int InsertNextScalar(unsigned char s) {return S.InsertNextValue(s);};
   int InsertNextScalar(float s) {return S.InsertNextValue((char)s);};
   void GetScalars(vlIdList& ptIds, vlFloatScalars& fs);
 

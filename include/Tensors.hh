@@ -42,6 +42,11 @@ public:
   virtual vlTensors *MakeObject(int sze, int d=3, int ext=1000) = 0;
 
   // Description:
+  // Return data type. One of "bit", "char", "short", "int", "float", or
+  // "double".
+  virtual char *GetDataType() = 0;
+
+  // Description:
   // Return number of tensors in array.
   virtual int GetNumberOfTensors() = 0;
 

@@ -42,6 +42,11 @@ public:
   virtual vlNormals *MakeObject(int sze, int ext=1000) = 0;
 
   // Description:
+  // Return data type. One of "bit", "char", "short", "int", "float", or
+  // "double".
+  virtual char *GetDataType() = 0;
+
+  // Description:
   // Return number of normals in array.
   virtual int GetNumberOfNormals() = 0;
 

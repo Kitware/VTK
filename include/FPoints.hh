@@ -37,6 +37,7 @@ public:
 
   // vlPoint interface
   vlPoints *MakeObject(int sze, int ext=1000);
+  char *GetDataType() {return "float";};
   int GetNumberOfPoints() {return (P.GetMaxId()+1)/3;};
   void Squeeze() {this->P.Squeeze();};
   float *GetPoint(int id) {return this->P.GetPtr(3*id);};
@@ -47,6 +48,7 @@ public:
   void GetPoints(vlIdList& ptId, vlFloatPoints& fp);
 
   // miscellaneous
+  float *WritePtr(const int id, const int number);
   vlFloatPoints &operator=(const vlFloatPoints& fp);
   void operator+=(const vlFloatPoints& fp) {this->P += fp.P;};
   void Reset() {this->P.Reset();};
@@ -55,6 +57,14 @@ protected:
   vlFloatArray P;
 };
 
+// Description:
+// Get pointer to data. Useful for direct writes into object. MaxId is bumped
+// by number (and memory allocated if necessary). Id is the location you 
+// wish to write into; number is the number of points to write.
+inline float *vlFloatPoints::WritePtr(const int id, const int number)
+{
+  return this->P.WritePtr(id,3*number);
+}
 
 inline void vlFloatPoints::GetPoint(int id, float x[3])
 {

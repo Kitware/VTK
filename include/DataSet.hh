@@ -47,7 +47,8 @@ public:
   virtual vlDataSet *MakeObject() = 0;
 
   // Description:
-  // Return class name of data type.
+  // Return class name of data type. This is one of vlStructuredGrid, 
+  // vlStructuredPoints, vlUnstructuredGrid, vlPolyData.
   virtual char *GetDataType() = 0;
 
   // Description:

@@ -41,6 +41,11 @@ public:
   virtual vlVectors *MakeObject(int sze, int ext=1000) = 0;
 
   // Description:
+  // Return data type. One of "bit", "char", "short", "int", "float", or
+  // "double".
+  virtual char *GetDataType() = 0;
+
+  // Description:
   // Return number of vectors in array.
   virtual int GetNumberOfVectors() = 0;
 

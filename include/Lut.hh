@@ -77,6 +77,7 @@ public:
   void SetTableValue (int indx, unsigned char r, unsigned char g, unsigned char b, unsigned char a=255);
   unsigned char *GetTableValue (int id);
   void GetTableValue (int id, unsigned char rgba[4]);
+  unsigned char *WritePtr(const int id, const int number);
 
 protected:
   int NumberOfColors;
@@ -89,6 +90,15 @@ protected:
   vlTimeStamp InsertTime;
   vlTimeStamp BuildTime;
 };
+
+// Description:
+// Get pointer to data. Useful for direct writes into object. MaxId is bumped
+// by number (and memory allocated if necessary). Id is the location you 
+// wish to write into; number is the number of rgba values to write.
+inline unsigned char *vlLookupTable::WritePtr(const int id, const int number)
+{
+  return this->Table.WritePtr(id,number);
+}
 
 #endif
 

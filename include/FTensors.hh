@@ -37,6 +37,7 @@ public:
 
   // vlTensors interface
   vlTensors *MakeObject(int sze, int d=3, int ext=1000);
+  char *GetDataType() {return "float";};
   int GetNumberOfTensors();
   void Squeeze() {this->T.Squeeze();};
   vlTensor &GetTensor(int i);
@@ -46,6 +47,7 @@ public:
   int InsertNextTensor(vlTensor &t);
 
   // miscellaneous
+  float *WritePtr(const int id, const int number);
   vlFloatTensors &operator=(const vlFloatTensors& ft);
   void operator+=(const vlFloatTensors& ft) {this->T += ft.T;};
   void Reset() {this->T.Reset();};
@@ -54,6 +56,15 @@ protected:
   vlFloatArray T;
 };
 
+// Description:
+// Get pointer to data. Useful for direct writes into object. MaxId is bumped
+// by number (and memory allocated if necessary). Id is the location you 
+// wish to write into; number is the number of tensors to write. 
+// Make sure the dimension of the tensor is set prior to issuing this call.
+inline float *vlFloatTensors::WritePtr(const int id, const int number)
+{
+  return this->T.WritePtr(id,this->Dimension*number);
+}
 
 inline vlFloatTensors::vlFloatTensors(const vlFloatTensors& ft) 
 {
