@@ -55,33 +55,33 @@ CLEAN_GEMSVOLUME  = @CLEAN_GEMSVOLUME@
 
 #------------------------------------------------------------------------------
 
-all: build_target ${BUILD_TCL} ${BUILD_JAVA} build_common \
+all: targets ${BUILD_TCL} ${BUILD_JAVA} build_common \
 	${BUILD_GRAPHICS} ${BUILD_IMAGING} ${BUILD_BORESCOPE} ${BUILD_VOLUME} \
 	${BUILD_CONTRIB} ${BUILD_GEAE} ${BUILD_GEMSIP} ${BUILD_GEMSIO} \
 	${BUILD_GEMSVOLUME} \
-	${BUILD_TCL}${BUILD_TCL}
+	${BUILD_TCL}${BUILD_TCL} ${BUILD_JAVA}${BUILD_JAVA}
 
-build_target: ${srcdir}/targets.c
+targets: ${srcdir}/targets.c
 	${CC} -o targets ${srcdir}/targets.c
 
 build_common:
-	cd common;     ${MAKE} -${MAKEFLAGS} targets
+	cd common;     ${MAKE} -${MAKEFLAGS} targets.make
 	cd common;     ${MAKE} -${MAKEFLAGS} all
 
 build_graphics:
-	cd graphics;   ${MAKE} -${MAKEFLAGS} targets
+	cd graphics;   ${MAKE} -${MAKEFLAGS} targets.make
 	cd graphics;   ${MAKE} -${MAKEFLAGS} all
 
 build_imaging:
-	cd imaging;    ${MAKE} -${MAKEFLAGS} targets
+	cd imaging;    ${MAKE} -${MAKEFLAGS} targets.make
 	cd imaging;    ${MAKE} -${MAKEFLAGS} all
 
 build_volume:
-	cd volume;    ${MAKE} -${MAKEFLAGS} targets
+	cd volume;    ${MAKE} -${MAKEFLAGS} targets.make
 	cd volume;    ${MAKE} -${MAKEFLAGS} all
 
 build_borescope:
-	cd borescope;  ${MAKE} -${MAKEFLAGS} targets
+	cd borescope;  ${MAKE} -${MAKEFLAGS} targets.make
 	cd borescope;  ${MAKE} -${MAKEFLAGS} all
 
 build_tcl:
@@ -91,28 +91,32 @@ build_java:
 	cd java;       ${MAKE} -${MAKEFLAGS} all
 
 build_gemsio:
-	cd gemsio;     ${MAKE} -${MAKEFLAGS} targets
+	cd gemsio;     ${MAKE} -${MAKEFLAGS} targets.make
 	cd gemsio;     ${MAKE} -${MAKEFLAGS} all
 
 build_gemsvolume:
-	cd gemsvolume; ${MAKE} -${MAKEFLAGS} targets
+	cd gemsvolume; ${MAKE} -${MAKEFLAGS} targets.make
 	cd gemsvolume; ${MAKE} -${MAKEFLAGS} all
 
 build_gemsip:
-	cd gemsip;     ${MAKE} -${MAKEFLAGS} targets
+	cd gemsip;     ${MAKE} -${MAKEFLAGS} targets.make
 	cd gemsip;     ${MAKE} -${MAKEFLAGS} all
 
 build_geae:
-	cd geae;     ${MAKE} -${MAKEFLAGS} targets
+	cd geae;     ${MAKE} -${MAKEFLAGS} targets.make
 	cd geae;     ${MAKE} -${MAKEFLAGS} all
 
 build_contrib:
-	cd contrib;     ${MAKE} -${MAKEFLAGS} targets
+	cd contrib;     ${MAKE} -${MAKEFLAGS} targets.make
 	cd contrib;     ${MAKE} -${MAKEFLAGS} all
 
 # tcl part2
 build_tclbuild_tcl:
 	cd tcl;        ${MAKE} -${MAKEFLAGS} vtk
+
+# java part2
+build_javabuild_java:
+	cd java;       ${MAKE} -${MAKEFLAGS} vtk
 
 #------------------------------------------------------------------------------
 # generate dpend.make files

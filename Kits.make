@@ -13,7 +13,7 @@ CC_FLAGS = ${CPPFLAGS} ${CFLAGS} ${VTK_SHLIB_CFLAGS}
 
 CXX_FLAGS = ${CPPFLAGS} ${VTK_SHLIB_CFLAGS} ${XCFLAGS} ${CXXFLAGS} \
 	${VTK_INLINE_FLAGS} ${VTK_TEMPLATE_FLAGS} -I${srcdir} \
-	${KIT_FLAGS} \
+	${KIT_FLAGS} -I. \
 	 -I${srcdir}/../common -I${TK_INCLUDE} -I${TCL_INCLUDE} \
 	-D_HP_NO_FAST_MACROS ${HAVE_SETMON} ${WORDS_BIGENDIAN}
 
@@ -24,7 +24,7 @@ all: ${VTK_LIB_FILE} ${BUILD_TCL} ${BUILD_JAVA}
 .cxx.o:
 	${CXX} ${CXX_FLAGS} -c $< -o $@
 
-targets: ../targets
+targets.make: ../targets Makefile
 	../targets 1 1 $(CONCRETE)
 	../targets 0 1 $(ABSTRACT)
 	../targets 1 0 $(CONCRETE_H)
