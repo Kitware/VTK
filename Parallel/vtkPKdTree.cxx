@@ -76,7 +76,7 @@ static char * makeEntry(const char *s)
 
 // Timing data ---------------------------------------------
 
-vtkCxxRevisionMacro(vtkPKdTree, "1.8");
+vtkCxxRevisionMacro(vtkPKdTree, "1.9");
 vtkStandardNewMacro(vtkPKdTree);
 
 const int vtkPKdTree::NoRegionAssignment = 0;   // default
@@ -416,6 +416,8 @@ done:
   FreeObject(this->SubGroup);
 
   this->UpdateBuildTime();
+  
+  this->SetCalculator(this->Top);
 
   return;
 }
