@@ -67,6 +67,12 @@ vtktcl: Makefile vtktcl.o ${TOOLKIT_DEPENDS}
 	-L. ${CXX_FLAGS} ${VTK_SHLIB_BUILD_FLAGS} ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 
+#------------------------------------------------------------------------------
+# install
+#
+install: vtk
+	${INSTALL} -m 755 vtk $(BIN_INSTALL_DIR)/vtk
+
 
 #------------------------------------------------------------------------------
 clean: 

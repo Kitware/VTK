@@ -142,7 +142,7 @@ AC_ARG_WITH(tcl,
 	 if test "$withval" = yes; then
          tcldir=tcl
          BUILD_TCL=build_tcl
-         INSTALL_TARGET="${INSTALL_TARGET}_tcl"
+         INSTALL_TARGET="${INSTALL_TARGET} install_tcl"
          CLEAN_TCL=clean_tcl
          fi)
 
@@ -155,7 +155,7 @@ AC_ARG_WITH(java,
          [  --with-java             build vtk with java support],
 	 if test "$withval" = yes; then
          javadir=java
-         INSTALL_TARGET="${INSTALL_TARGET}_java"
+         INSTALL_TARGET="${INSTALL_TARGET} install_java"
          BUILD_JAVA=build_java
          CLEAN_JAVA=clean_java
          fi)
@@ -167,7 +167,7 @@ AC_ARG_WITH(python,
          [  --with-python             build vtk with python support],
 	 if test "$withval" = yes; then
 	 pythondir=python
-         INSTALL_TARGET="${INSTALL_TARGET}_python"
+         INSTALL_TARGET="${INSTALL_TARGET} install_python"
          BUILD_PYTHON=build_python
          CLEAN_PYTHON=clean_python
          fi)
