@@ -275,7 +275,7 @@ vtkObject *vtkObject::SafeDownCast(vtkObject *o)
 
 void vtkObject::CollectRevisions(ostream& os)
 {
-  os << "vtkObject 1.70\n";
+  os << "vtkObject 1.71\n";
 }
 
 //----------------------------------Command/Observer stuff-------------------
@@ -508,9 +508,10 @@ void vtkObject::RemoveObserver(vtkCommand* c)
   if (this->SubjectHelper)
     {
     unsigned long tag = this->SubjectHelper->GetTag(c);
-    if(tag)
+    while(tag)
       {
       this->SubjectHelper->RemoveObserver(tag);
+      tag = this->SubjectHelper->GetTag(c);
       }
     }
 }
