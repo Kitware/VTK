@@ -493,12 +493,16 @@ void vtkViewport::ViewportToNormalizedViewport(float &u, float &v)
     float vpsizeu, vpsizev;
     
     /* get physical window dimensions */
-    size = this->VTKWindow->GetSize();
+/*    size = this->VTKWindow->GetSize();
     vpsizeu = size[0]*(this->Viewport[2] - this->Viewport[0]);
     vpsizev = size[1]*(this->Viewport[3] - this->Viewport[1]);
     
     u = u/(vpsizeu - 1.0);
     v = v/(vpsizev - 1.0);
+*/
+    size = this->GetSize();
+    u = u/(size[0] - 1.0);
+    v = v/(size[1] - 1.0);
     }
 }
 
@@ -553,12 +557,16 @@ void vtkViewport::NormalizedViewportToViewport(float &u, float &v)
     float vpsizeu, vpsizev;
     
     /* get physical window dimensions */
-    size = this->VTKWindow->GetSize();
+/*
+  size = this->VTKWindow->GetSize();
     vpsizeu = size[0]*(this->Viewport[2] - this->Viewport[0]);
     vpsizev = size[1]*(this->Viewport[3] - this->Viewport[1]);
-    
     u = u * (vpsizeu - 1.0);
     v = v * (vpsizev - 1.0);
+*/
+    size = this->GetSize();
+    u = u * (size[0] - 1.0);
+    v = v * (size[1] - 1.0);    
     }
 }
 
