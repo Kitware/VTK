@@ -1,10 +1,13 @@
 #!/usr/bin/env perl
-# Time-stamp: <2000-08-03 18:55:37 barre>
+# Time-stamp: <2001-06-28 02:22:00 barre>
 #
 # Convert VTK headers to doxygen format
 #
 # roeim : Vetle Roeim <vetler@ifi.uio.no>
 # barre : Sebastien Barre <barre@sic.sp2mi.univ-poitiers.fr>
+#
+# 0.75 (barre) :
+#   - change default --to to '../vtk-doxygen' to comply with Kitware's doxyfile.
 #
 # 0.74 (barre) :
 #   - as doxygen now handles RCS/CVS tags of the form $word:text$, use them 
@@ -61,7 +64,7 @@
 #   - add default directories to process
 #
 # 0.0 (roeim)
-#   - first release
+#   - first release (thanks to V. Roeim !)
 #
 # Notes:
 #   contrib/vtk32OffscreenRenderWindow.h : needs a documentation block
@@ -77,14 +80,14 @@ use File::Path;
 use Text::Wrap;
 use strict;
 
-my ($VERSION, $PROGNAME, $AUTHOR) = (0.74, $0, "V. Roeim, S. Barre");
+my ($VERSION, $PROGNAME, $AUTHOR) = (0.75, $0, "Sebastien Barre et al.");
 $PROGNAME =~ s/^.*[\\\/]//;
 
 # Defaults (add options as you want : "v" => 1 for default verbose mode)
 
 my %default = 
   (
-   to => "../vtk-dox",
+   to => "../vtk-doxygen",
    tmp_file => "doc_header2doxygen.tmp",
    dirs => ["common", "contrib", "graphics", "imaging", "patented"]
   );
@@ -107,7 +110,7 @@ Usage : $PROGNAME [--help|?] [-v] [-u] [-f] [--temp file] [--to path] [files|dir
   --to path   : use 'path' as destination directory (default: $default{to})
 
 Example:
-  $PROGNAME --to ../vtk-dox
+  $PROGNAME --to ../vtk-doxygen
   $PROGNAME contrib
 EOT
     exit;
