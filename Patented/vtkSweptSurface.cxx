@@ -36,7 +36,7 @@
 #include "vtkTransformCollection.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkSweptSurface, "1.72");
+vtkCxxRevisionMacro(vtkSweptSurface, "1.73");
 vtkStandardNewMacro(vtkSweptSurface);
 
 vtkCxxSetObjectMacro(vtkSweptSurface,Transforms, vtkTransformCollection);
@@ -91,11 +91,22 @@ void vtkSweptSurface::SetModelBounds(float xmin, float xmax, float ymin,
   this->SetModelBounds(bounds);
 }
 
+//----------------------------------------------------------------------------
+// Get ALL of the input.
+void vtkSweptSurface::ComputeInputUpdateExtent(int inExt[6], 
+                                               int *vtkNotUsed(outExt))
+{
+  int *wholeExtent;
+
+  wholeExtent = this->GetInput()->GetWholeExtent();
+  memcpy(inExt, wholeExtent, 6*sizeof(int));
+}
+
 void vtkSweptSurface::ExecuteInformation()
 {
   float origin[3], spacing[3], bbox[24];
   vtkImageData *input = this->GetInput();
-  vtkStructuredPoints *output = this->GetOutput();
+  vtkImageData *output = this->GetOutput();
 
   // make sure there is input
   if (input == NULL)
@@ -120,6 +131,8 @@ void vtkSweptSurface::ExecuteInformation()
   /*
    *
    */
+  output->SetNumberOfScalarComponents(1);
+  output->SetScalarType(input->GetScalarType());
   output->SetWholeExtent(0, this->SampleDimensions[0]-1,
                          0, this->SampleDimensions[1]-1,
                          0, this->SampleDimensions[2]-1);
@@ -127,12 +140,9 @@ void vtkSweptSurface::ExecuteInformation()
   this->ComputeBounds(origin, spacing, bbox);
   output->SetSpacing(spacing);
   output->SetOrigin(origin);
-  output->SetNumberOfScalarComponents(1);
-  output->SetScalarType(VTK_FLOAT);
-
 }
 
-void vtkSweptSurface::Execute()
+void vtkSweptSurface::ExecuteData(vtkDataObject *)
 {
   vtkIdType i, numOutPts;
   vtkPointData *pd, *outPD;
@@ -149,8 +159,11 @@ void vtkSweptSurface::Execute()
   float orient1[3], orient2[3], orientation[3];
   float origin[3], spacing[3], bbox[24];
   vtkImageData *input = this->GetInput();
-  vtkStructuredPoints *output = this->GetOutput();
-
+  vtkImageData *output = this->GetOutput();
+  output->SetExtent(output->GetWholeExtent());
+  output->AllocateScalars();
+  newScalars = output->GetPointData()->GetScalars();
+  
   vtkDebugMacro(<<"Creating swept surface");
 
   // make sure there is input
@@ -189,7 +202,6 @@ void vtkSweptSurface::Execute()
   /*
    *
    */
-  output->SetDimensions(this->SampleDimensions);
   this->ComputeBounds(origin, spacing, bbox);
 
   // Get/Set the origin for the actor... for handling case when the input
@@ -211,7 +223,6 @@ void vtkSweptSurface::Execute()
   //
   numOutPts = this->SampleDimensions[0] * this->SampleDimensions[1] * 
               this->SampleDimensions[2];
-  newScalars = inScalars->MakeObject();
   newScalars->SetNumberOfTuples(numOutPts);
   for (i = 0; i < numOutPts; i++)
     {
@@ -289,8 +300,6 @@ void vtkSweptSurface::Execute()
     }
 
   // Update ourselves and release memory
-  outPD->SetScalars(newScalars);
-  newScalars->Delete();
   t->Delete();
   actorTransform->Delete();
 }
@@ -498,7 +507,7 @@ void vtkSweptSurface::ComputeFootprint (vtkMatrix4x4 *m, int inDim[3],
 
 unsigned long int vtkSweptSurface::GetMTime()
 {
-  unsigned long mtime=vtkStructuredPointsSource::GetMTime();
+  unsigned long mtime=this->Superclass::GetMTime();
   unsigned long int transMtime;
   vtkTransform *t;
 
