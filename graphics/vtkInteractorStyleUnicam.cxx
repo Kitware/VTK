@@ -121,10 +121,10 @@ void vtkInteractorStyleUnicam::SetWorldUpVector(float x, float y, float z)
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleUnicam::OnRightButtonDown(int ctrl, int shift, 
+void vtkInteractorStyleUnicam::OnLeftButtonDown(int ctrl, int shift, 
                                                     int X, int Y) 
 {
-  this->ButtonDown = VTK_UNICAM_BUTTON_RIGHT;
+  this->ButtonDown = VTK_UNICAM_BUTTON_LEFT;
   this->Interactor->CreateTimer(VTKI_TIMER_UPDATE);
 
   this->DTime    = TheTime();
@@ -192,7 +192,7 @@ void vtkInteractorStyleUnicam::OnMouseMove(int ctrl, int shift, int X, int Y)
     return;
     }
 
-  // channel event to right method handler
+  // channel event to right method handler.
   switch (this->ButtonDown) 
     {
     case VTK_UNICAM_BUTTON_LEFT:
@@ -213,7 +213,7 @@ void vtkInteractorStyleUnicam::OnMouseMove(int ctrl, int shift, int X, int Y)
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleUnicam::OnRightButtonUp(int ctrl, int shift, 
+void vtkInteractorStyleUnicam::OnLeftButtonUp(int ctrl, int shift, 
 					       int X, int Y) 
 {
   this->ButtonDown = VTK_UNICAM_NONE;
@@ -272,20 +272,20 @@ void vtkInteractorStyleUnicam::OnRightButtonUp(int ctrl, int shift,
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleUnicam::OnRightButtonMove(int ctrl, int shift,
+void vtkInteractorStyleUnicam::OnLeftButtonMove(int ctrl, int shift,
 						 int X, int Y)
 {
   switch (state) 
     {
-    case VTK_UNICAM_CAM_INT_CHOOSE:   choose(X, Y); break;
-    case VTK_UNICAM_CAM_INT_ROT:      rot   (X, Y); break;
-    case VTK_UNICAM_CAM_INT_PAN:      pan   (X, Y); break;
-    case VTK_UNICAM_CAM_INT_ZOOM:     zoom  (X, Y); break;
+    case VTK_UNICAM_CAM_INT_CHOOSE:   this->Choose(X, Y); break;
+    case VTK_UNICAM_CAM_INT_ROT:      this->Rotate(X, Y); break;
+    case VTK_UNICAM_CAM_INT_PAN:      this->Pan(X, Y); break;
+    case VTK_UNICAM_CAM_INT_ZOOM:     this->Zoom(X, Y); break;
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleUnicam::choose( int X, int Y )
+void vtkInteractorStyleUnicam::Choose( int X, int Y )
 {
   int   te[2];  // pixel location
   te[0] = X;
@@ -346,7 +346,7 @@ inline Type clamp(const Type a,
 inline int  Sign (double a)     { return a > 0 ? 1 : a < 0 ? -1 : 0; }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleUnicam::rot( int X, int Y )
+void vtkInteractorStyleUnicam::Rotate( int X, int Y )
 {
   float cpt[3];
   float center[3];
@@ -415,16 +415,16 @@ void vtkInteractorStyleUnicam::rot( int X, int Y )
     vtkMath::Normalize(dvec);
     double tdist = acos(clamp((float)vtkMath::Dot(UPvec, dvec), (float)-1., (float)1.));
 
-    float right_v[4];
-    right_v[0] = 1.0;
-    right_v[1] = 0.0;
-    right_v[2] = 0.0;
-    right_v[3] = 0.0;
-    this->CameraToWorld(right_v, right_v);
-    vtkMath::Normalize(right_v);
+    float rightV[4];
+    rightV[0] = 1.0;
+    rightV[1] = 0.0;
+    rightV[2] = 0.0;
+    rightV[3] = 0.0;
+    this->CameraToWorld(rightV, rightV);
+    vtkMath::Normalize(rightV);
 
     MyRotateCamera(center [0], center [1], center [2],
-                   right_v[0], right_v[1], right_v[2],
+                   rightV[0], rightV[1], rightV[2],
                    rdist);
 
     this->CurrentCamera->SetViewUp(UPvec[0], UPvec[1], UPvec[2]);
@@ -432,7 +432,7 @@ void vtkInteractorStyleUnicam::rot( int X, int Y )
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleUnicam::zoom( int X, int Y )
+void vtkInteractorStyleUnicam::Zoom( int X, int Y )
 {
   float cn[2], ln[2];
   NormalizeMouseXY(X, Y, &cn[0], &cn[1]);
@@ -496,25 +496,25 @@ void vtkInteractorStyleUnicam::zoom( int X, int Y )
   double view_angle = this->CurrentCamera->GetViewAngle() * vtkMath::Pi() / 180.0;
   ratio = WindowAspect() * (2.0 * (tan(view_angle) * l)) / 2.0;
 
-  float right_v[4];
-  right_v[0] = 1.0;
-  right_v[1] = 0.0;
-  right_v[2] = 0.0;
-  right_v[3] = 0.0;
-  this->CameraToWorld(right_v, right_v);
-  vtkMath::Normalize(right_v);
+  float rightV[4];
+  rightV[0] = 1.0;
+  rightV[1] = 0.0;
+  rightV[2] = 0.0;
+  rightV[3] = 0.0;
+  this->CameraToWorld(rightV, rightV);
+  vtkMath::Normalize(rightV);
 
   float trans2[3];
   for(i=0;i<3;i++)
     {
-    trans2[i] = -delta[0]/2 * right_v[i] * ratio;
+    trans2[i] = -delta[0]/2 * rightV[i] * ratio;
     }
 
   this->MyTranslateCamera(trans2);
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleUnicam::pan( int X, int Y )
+void vtkInteractorStyleUnicam::Pan( int X, int Y )
 {
   float delta[2];
   float cn[2], ln[2];
@@ -560,25 +560,25 @@ void vtkInteractorStyleUnicam::pan( int X, int Y )
   double view_angle = this->CurrentCamera->GetViewAngle() * vtkMath::Pi() / 180.0;
   ratio = WindowAspect() * (2.0 * l * tan(view_angle)) / 2.0;
 
-  float right_v[4], up_v[4];
-  right_v[0] = 1.0;
-  right_v[1] = 0.0;
-  right_v[2] = 0.0;
-  right_v[3] = 0.0;
-  up_v[0] = 0.0;
-  up_v[1] = 1.0;
-  up_v[2] = 0.0;
-  up_v[3] = 0.0;
-  this->CameraToWorld(right_v, right_v);
-  this->CameraToWorld(up_v   , up_v   );
-  vtkMath::Normalize(right_v);
-  vtkMath::Normalize(up_v);
+  float rightV[4], upV[4];
+  rightV[0] = 1.0;
+  rightV[1] = 0.0;
+  rightV[2] = 0.0;
+  rightV[3] = 0.0;
+  upV[0] = 0.0;
+  upV[1] = 1.0;
+  upV[2] = 0.0;
+  upV[3] = 0.0;
+  this->CameraToWorld(rightV, rightV);
+  this->CameraToWorld(upV   , upV   );
+  vtkMath::Normalize(rightV);
+  vtkMath::Normalize(upV);
 
   float trans[3];
   for(i=0;i<3;i++)
     {
-    trans[i] = (-delta[0]/2 * right_v[i] * ratio +
-		-delta[1]/2 * up_v[i]    * ratio);
+    trans[i] = (-delta[0]/2 * rightV[i] * ratio +
+		-delta[1]/2 * upV[i]    * ratio);
     }
 
   this->MyTranslateCamera(trans);

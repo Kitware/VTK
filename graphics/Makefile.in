@@ -184,6 +184,7 @@ vtkInteractorStyleSwitch \
 vtkInteractorStyleTrackball \
 vtkInteractorStyleTrackballActor \
 vtkInteractorStyleTrackballCamera \
+vtkInteractorStyleUnicam \
 vtkInteractorStyleUser \
 vtkInterpolateDataSetAttributes \
 vtkIVExporter \

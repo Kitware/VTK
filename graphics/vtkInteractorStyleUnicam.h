@@ -65,25 +65,25 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 1. ROTATE:
 // 
 // Position the cursor over the point you wish to rotate around and press and
-// release the right mouse button.  A 'focus dot' appears indicating the
+// release the left mouse button.  A 'focus dot' appears indicating the
 // point that will be the center of rotation.  To rotate, press and hold the
-// right mouse button and drag the mouse.. release the button to complete the
+// left mouse button and drag the mouse.. release the button to complete the
 // rotation.
 // 
 // Rotations can be done without placing a focus dot first by moving the
 // mouse cursor to within 10% of the window border & pressing and holding the
-// right button followed by dragging the mouse.  The last focus dot position
+// left button followed by dragging the mouse.  The last focus dot position
 // will be re-used.
 // 
 // 2. PAN:
 // 
-// Click and hold the right mouse button, and initially move the mouse left
+// Click and hold the left mouse button, and initially move the mouse left
 // or right.  The point under the initial pick will pick correlate w/ the
 // mouse tip-- (i.e., direct manipulation).
 // 
 // 3. ZOOM (+ PAN):
 // 
-// Click and hold the right mouse button, and initially move the mouse up or
+// Click and hold the left mouse button, and initially move the mouse up or
 // down.  Moving the mouse down will zoom in on the picked point, and moving
 // the mouse up will zoom out.  Zooming occurs relative to the picked point
 // which simplifies the task of zooming in on a region of interest.  Left and
@@ -149,13 +149,13 @@ public:
   
   // Description:
   // Concrete implementation of event bindings
-  virtual   void OnRightButtonDown(int ctrl, int shift, int X, int Y);
-  virtual   void OnRightButtonUp  (int ctrl, int shift, int X, int Y);
+  virtual   void OnLeftButtonDown(int ctrl, int shift, int X, int Y);
+  virtual   void OnLeftButtonUp  (int ctrl, int shift, int X, int Y);
   virtual   void OnMouseMove(int ctrl, int shift, int X, int Y);
   
-  virtual   void OnLeftButtonMove  (int ctrl, int shift, int X, int Y) {}
+  virtual   void OnLeftButtonMove  (int ctrl, int shift, int X, int Y);
   virtual   void OnMiddleButtonMove(int ctrl, int shift, int X, int Y) {}
-  virtual   void OnRightButtonMove (int ctrl, int shift, int X, int Y);
+  virtual   void OnRightButtonMove (int ctrl, int shift, int X, int Y) {}
 
   // Description:
   // OnTimer calls RotateCamera, RotateActor etc which should be overridden by
@@ -192,10 +192,10 @@ protected:
 
   int state;                 // which navigation mode was selected?
 
-  void choose( int X, int Y );  // method for choosing type of navigation
-  void rot   ( int X, int Y );  // method for rotating
-  void zoom  ( int X, int Y );  // method for zooming
-  void pan   ( int X, int Y );  // method for panning
+  void Choose( int X, int Y );  // method for choosing type of navigation
+  void Rotate   ( int X, int Y );  // method for rotating
+  void Zoom  ( int X, int Y );  // method for zooming
+  void Pan   ( int X, int Y );  // method for panning
 
   // conveinence methods for translating & rotating the camera
   void  MyTranslateCamera(float v[3]);
