@@ -168,11 +168,7 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer *ren, vtkActor *act)
     }
 
 // make sure our window is current
-#ifdef _WIN32
-  ((vtkWin32OpenGLRenderWindow *)(ren->GetRenderWindow()))->MakeCurrent();
-#else
-  ((vtkOpenGLRenderWindow *)(ren->GetRenderWindow()))->MakeCurrent();
-#endif
+  ren->GetRenderWindow()->MakeCurrent();
 
   clipPlanes = this->ClippingPlanes;
 
