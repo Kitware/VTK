@@ -98,7 +98,7 @@ void vtkConeSource::Execute()
   
   piece = output->GetUpdatePiece();
   numPieces = output->GetUpdateNumberOfPieces();
-  maxPieces = this->Resolution;
+  maxPieces = (this->Resolution != 0 ? this->Resolution : 1);
   if (numPieces > maxPieces)
     {
     numPieces = maxPieces;
