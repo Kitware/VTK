@@ -41,6 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDataWriter.h"
 #include "vtkBitScalars.h"
 #include "vtkUnsignedCharScalars.h"
+#include "vtkUnsignedShortScalars.h"
 #include "vtkFloatScalars.h"
 #include "vtkShortScalars.h"
 #include "vtkIntScalars.h"
@@ -340,7 +341,7 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int numPts)
         for (i=0; i<numPts; i++)
           {
           s = (short) scalars->GetScalar(i);
-          fprintf (fp, "%d ", s);
+          fprintf (fp, "%h ", s);
           if ( !((i+1)%6) ) fprintf (fp,"\n");
           }
         }
@@ -350,6 +351,31 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int numPts)
         short *sptr=sscalars->GetPtr(0);
 	// swap the bytes if necc
 	vtkByteSwap::SwapWrite2BERange(sptr,numPts,fp);
+        }
+      fprintf (fp,"\n");
+      }
+
+    else if ( !strcmp(type,"unsigned short") )
+      {
+      fprintf (fp, "%s unsigned_short\nLOOKUP_TABLE %s\n", 
+	       this->ScalarsName, name);
+      if ( this->FileType == VTK_ASCII )
+        {
+        unsigned short s;
+        for (i=0; i<numPts; i++)
+          {
+          s = (unsigned short) scalars->GetScalar(i);
+          fprintf (fp, "%hu ", s);
+          if ( !((i+1)%6) ) fprintf (fp,"\n");
+          }
+        }
+      else
+        {
+        vtkUnsignedShortScalars *usscalars = 
+	  (vtkUnsignedShortScalars *)scalars;
+        unsigned short *sptr=usscalars->GetPtr(0);
+	// swap the bytes if necc
+	vtkByteSwap::SwapWrite2BERange((short *)sptr,numPts,fp);
         }
       fprintf (fp,"\n");
       }

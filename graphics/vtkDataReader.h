@@ -60,6 +60,7 @@ class VTK_EXPORT vtkDataReader : public vtkObject
 public:
   vtkDataReader();
   ~vtkDataReader();
+  char *GetClassName() {return "vtkDataReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -135,6 +136,7 @@ public:
   int ReadInt(int *result);
   int ReadUChar(unsigned char *result);
   int ReadShort(short *result);
+  int ReadUnsignedShort(unsigned short *result);
   int ReadFloat(float *result);
   void EatWhiteSpace();
   istream *GetIStream() {return this->IS;};
