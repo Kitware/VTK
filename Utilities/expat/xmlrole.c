@@ -5,6 +5,10 @@ See the file COPYING for copying permission.
 
 static char RCSId[]
   = "Header";
+const char* GetVTKEXpatXMLRole_RCSId()
+{
+  return RCSId;
+}
 
 #include "expatConfig.h"
 
