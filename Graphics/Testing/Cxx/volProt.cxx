@@ -36,7 +36,8 @@ int main( int argc, char *argv[] )
   vtkStructuredPointsReader *reader = vtkStructuredPointsReader::New();
   reader->SetFileName(fname);
   reader->Update();
-
+  delete [] fname;
+  
   // Create a transfer function mapping scalar value to opacity
   vtkPiecewiseFunction *oTFun = vtkPiecewiseFunction::New();
   oTFun->AddSegment(10, 0.0, 255, 0.3);

@@ -18,7 +18,8 @@ int main( int argc, char *argv[] )
  reader->SetDataExtent(0,63,0,63,1,93);
  reader->SetFilePrefix(fname);
  reader->SetDataMask(0x7fff);
-
+ delete [] fname;
+ 
  // create exporter
  vtkImageExport *exporter = vtkImageExport::New();
  exporter->SetInput(reader->GetOutput());
