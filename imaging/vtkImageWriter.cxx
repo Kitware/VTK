@@ -69,7 +69,7 @@ vtkImageWriter::~vtkImageWriter()
   if (this->Input)
     {
     this->Input->UnRegister(this);
-    this->Input == NULL;
+    this->Input = NULL;
     }
   
   // get rid of memory allocated for file names
@@ -220,6 +220,7 @@ void vtkImageWriter::Write()
   this->Input->UpdateImageInformation();
   this->Input->SetUpdateExtent(this->Input->GetWholeExtent());
   this->FileNumber = 1;
+  this->UpdateProgress(0.0);
   this->RecursiveWrite(2, this->Input, NULL);
   delete [] this->InternalFileName;
   this->InternalFileName = NULL;
@@ -430,6 +431,11 @@ void vtkImageWriter::WriteFile(ofstream *file, vtkImageData *data,
   int idxY, idxZ;
   int rowLength; // in bytes
   void *ptr;
+  unsigned long count = 0;
+  unsigned long target;
+  float progress = this->Progress;
+  float area;
+  int *wExtent;
   
   // Make sure we actually have data.
   if ( !data->GetPointData()->GetScalars())
@@ -463,10 +469,25 @@ void vtkImageWriter::WriteFile(ofstream *file, vtkImageData *data,
   rowLength *= data->GetNumberOfScalarComponents();
   rowLength *= (extent[1] - extent[0] + 1);
 
+  wExtent = this->Input->GetWholeExtent();
+  area = ((extent[5] - extent[4] + 1)*(extent[3] - extent[2] + 1)*
+	  (extent[1] - extent[0] + 1)) / 
+    ((wExtent[5] -wExtent[4] + 1)*(wExtent[3] -wExtent[2] + 1)*
+     (wExtent[1] -wExtent[0] + 1));
+    
+  target = (unsigned long)((extent[5]-extent[4]+1)*
+			   (extent[3]-extent[2]+1)/(50.0*area));
+  target++;
+
   for (idxZ = extent[4]; idxZ <= extent[5]; ++idxZ)
     {
     for (idxY = extent[3]; idxY >= extent[2]; idxY--)
       {
+      if (!(count%target))
+	{
+	this->UpdateProgress(progress + count/(50.0*target));
+	}
+      count++;
       ptr = data->GetScalarPointer(extent[0], idxY, idxZ);
       if ( ! file->write((char *)ptr, rowLength))
 	{

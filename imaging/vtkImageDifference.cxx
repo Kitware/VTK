@@ -155,8 +155,9 @@ void vtkImageDifference::ThreadedExecute(vtkImageData **inData,
   int inMinX, inMaxX, inMinY, inMaxY;
   int *inExt;
   int matched;
+  unsigned long count = 0;
+  unsigned long target;
   
-  id = id;
   this->Error = 0;
   this->ThresholdedError = 0;
   
@@ -207,13 +208,24 @@ void vtkImageDifference::ThreadedExecute(vtkImageData **inData,
   inMinX = inExt[0]; inMaxX = inExt[1];
   inMinY = inExt[2]; inMaxY = inExt[3];
 
+  target = (unsigned long)((max2 - min2 +1)*(max1 - min1 + 1)/50.0);
+  target++;
+
   for (idx2 = min2; idx2 <= max2; ++idx2)
     {
     in1Ptr1 = in1Ptr2;
     in2Ptr1 = in2Ptr2;
     outPtr1 = outPtr2;
-    for (idx1 = min1; idx1 <= max1; ++idx1)
+    for (idx1 = min1; !this->AbortExecute && idx1 <= max1; ++idx1)
       {
+      if (!id) 
+	{
+	if (!(count%target))
+	  {
+	  this->UpdateProgress(count/(50.0*target));
+	  }
+	count++;
+	}
       in1Ptr0 = in1Ptr1;
       in2Ptr0 = in2Ptr1;
       outPtr0 = outPtr1;

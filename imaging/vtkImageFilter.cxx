@@ -155,6 +155,7 @@ void vtkImageFilter::InternalUpdate(vtkImageData *outData)
     return;
     }
   this->Updating = 1;
+  this->AbortExecute = 0;
   
   // Make sure there is an output.
   this->CheckCache();
@@ -206,6 +207,12 @@ void vtkImageFilter::RecursiveStreamUpdate(vtkImageData *outData)
   vtkImageData *inData;
   int outExt[6], splitExt[6];
     
+  // abort if required
+  if (this->AbortExecute) 
+    {
+    return;
+    }
+  
   // Compute the required input region extent.
   // Copy to fill in extent of extra dimensions.
   this->ComputeRequiredInputUpdateExtent(this->Input->GetUpdateExtent(),

@@ -206,8 +206,9 @@ void vtkImageResample::ExecuteImageInformation()
 // Note: Slight misalignment (pixel replication is not nearest neighbor).
 template <class T>
 static void vtkImageResampleExecute(vtkImageResample *self,
-			    vtkImageData *inData, T *inPtr, int inExt[6],
-			    vtkImageData *outData, T *outPtr, int outExt[6])
+				    vtkImageData *inData, T *inPtr, 
+				    int inExt[6], vtkImageData *outData, 
+				    T *outPtr, int outExt[6], int id)
 {
   int outMin0, outMax0, outMin1, outMax1, outMin2, outMax2;
   int inMin0, inMax0, inMin1, inMax1, inMin2, inMax2;
@@ -301,8 +302,6 @@ void vtkImageResample::ThreadedExecute(vtkImageData *inData,
   void *inPtr, *outPtr;
   int inExt[6];
 
-  id = id;
-
   outPtr = outData->GetScalarPointerForExtent(outExt);
   this->ComputeRequiredInputUpdateExtent(inExt,outExt);
   inPtr = inData->GetScalarPointerForExtent(inExt);
@@ -320,27 +319,27 @@ void vtkImageResample::ThreadedExecute(vtkImageData *inData,
     case VTK_FLOAT:
       vtkImageResampleExecute(this, 
 			      inData, (float *)(inPtr), inExt,
-			      outData, (float *)(outPtr), outExt);
+			      outData, (float *)(outPtr), outExt, id);
       break;
     case VTK_INT:
       vtkImageResampleExecute(this, 
 			  inData, (int *)(inPtr), inExt,
-			  outData, (int *)(outPtr), outExt);
+			  outData, (int *)(outPtr), outExt, id);
       break;
     case VTK_SHORT:
       vtkImageResampleExecute(this, 
 			  inData, (short *)(inPtr),inExt,
-			  outData, (short *)(outPtr), outExt);
+			  outData, (short *)(outPtr), outExt, id);
       break;
     case VTK_UNSIGNED_SHORT:
       vtkImageResampleExecute(this, 
 			  inData, (unsigned short *)(inPtr), inExt, 
-			  outData, (unsigned short *)(outPtr), outExt);
+			  outData, (unsigned short *)(outPtr), outExt, id);
       break;
     case VTK_UNSIGNED_CHAR:
       vtkImageResampleExecute(this, 
 			  inData, (unsigned char *)(inPtr), inExt, 
-			  outData, (unsigned char *)(outPtr), outExt);
+			  outData, (unsigned char *)(outPtr), outExt, id);
       break;
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");

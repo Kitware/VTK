@@ -151,6 +151,8 @@ static void vtkImageEllipsoidSourceExecute(vtkImageEllipsoidSource *self,
   float s0, s1, s2, temp;
   T outVal, inVal;
   float *center, *radius;
+  unsigned long count = 0;
+  unsigned long target;
 
   outVal = (T)(self->GetOutValue());
   inVal = (T)(self->GetInValue());
@@ -161,12 +163,20 @@ static void vtkImageEllipsoidSourceExecute(vtkImageEllipsoidSource *self,
   max0 = ext[1];
   data->GetContinuousIncrements(ext, inc0, inc1, inc2);
 
+  target = (unsigned long)((ext[5]-ext[4]+1)*(ext[3]-ext[2]+1)/50.0);
+  target++;
+
   for (idx2 = ext[4]; idx2 <= ext[5]; ++idx2)
     {
     temp = ((float)idx2 - center[2]) / radius[2];
     s2 = temp * temp;
-    for (idx1 = ext[2]; idx1 <= ext[3]; ++idx1)
+    for (idx1 = ext[2]; !self->AbortExecute && idx1 <= ext[3]; ++idx1)
       {
+      if (!(count%target))
+	{
+	self->UpdateProgress(count/(50.0*target));
+	}
+      count++;
       temp = ((float)idx1 - center[1]) / radius[1];
       s1 = temp * temp;
       for (idx0 = min0; idx0 <= max0; ++idx0)

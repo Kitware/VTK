@@ -109,6 +109,8 @@ void vtkImageCityBlockDistance::Execute(vtkImageData *inData,
   short distP, distN;
   short big = 2000;
   int outExt[6];
+  unsigned long count = 0;
+  unsigned long target;
   
   this->Output->GetUpdateExtent(outExt);
 
@@ -130,6 +132,9 @@ void vtkImageCityBlockDistance::Execute(vtkImageData *inData,
   this->PermuteIncrements(outData->GetIncrements(), outInc0, outInc1, outInc2);
   numberOfComponents = inData->GetNumberOfScalarComponents();
   
+  target = (unsigned long)((max2-min2+1)*(max1-min1+1)/50.0);
+  target++;
+  
   // loop over all the extra axes
   inPtr2 = (short *)inData->GetScalarPointerForExtent(outExt);
   outPtr2 = (short *)outData->GetScalarPointerForExtent(outExt);
@@ -137,8 +142,13 @@ void vtkImageCityBlockDistance::Execute(vtkImageData *inData,
     {
     inPtr1 = inPtr2;
     outPtr1 = outPtr2;
-    for (idx1 = min1; idx1 <= max1; ++idx1)
+    for (idx1 = min1; !this->AbortExecute && idx1 <= max1; ++idx1)
       {
+      if (!(count%target))
+	{
+	this->UpdateProgress(count/(50.0*target));
+	}
+      count++;
       inPtrC = inPtr1;
       outPtrC = outPtr1;
       for (idxC = 0; idxC < numberOfComponents; ++idxC)

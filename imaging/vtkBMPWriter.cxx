@@ -106,10 +106,15 @@ void vtkBMPWriter::WriteFileHeader(ofstream *file, vtkImageCache *cache)
 void vtkBMPWriter::WriteFile(ofstream *file, vtkImageData *data,
 			     int extent[6])
 {
-  int idx0, idx1, idx2;
+  int idx1, idx2;
   int rowLength, rowAdder, i; // in bytes
   unsigned char *ptr;
   int bpp;
+  unsigned long count = 0;
+  unsigned long target;
+  float progress = this->Progress;
+  float area;
+  int *wExtent;
   
   bpp = data->GetNumberOfScalarComponents();
   
@@ -131,10 +136,25 @@ void vtkBMPWriter::WriteFile(ofstream *file, vtkImageData *data,
   rowLength = extent[1] - extent[0] + 1;
   rowAdder = (4 - ((extent[1]-extent[0] + 1)*3)%4)%4;
 
+  wExtent = this->Input->GetWholeExtent();
+  area = ((extent[5] - extent[4] + 1)*(extent[3] - extent[2] + 1)*
+	  (extent[1] - extent[0] + 1)) / 
+    ((wExtent[5] -wExtent[4] + 1)*(wExtent[3] -wExtent[2] + 1)*
+     (wExtent[1] -wExtent[0] + 1));
+    
+  target = (unsigned long)((extent[5]-extent[4]+1)*
+			   (extent[3]-extent[2]+1)/(50.0*area));
+  target++;
+
   for (idx2 = extent[4]; idx2 <= extent[5]; ++idx2)
     {
     for (idx1 = extent[2]; idx1 <= extent[3]; idx1++)
       {
+      if (!(count%target))
+	{
+	this->UpdateProgress(progress + count/(50.0*target));
+	}
+      count++;
       ptr = (unsigned char *)data->GetScalarPointer(extent[0], idx1, idx2);
       if (bpp == 1)
 	{

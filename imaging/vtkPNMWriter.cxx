@@ -71,6 +71,11 @@ void vtkPNMWriter::WriteFile(ofstream *file, vtkImageData *data,
   int idx0, idx1, idx2;
   int rowLength; // in bytes
   void *ptr;
+  unsigned long count = 0;
+  unsigned long target;
+  float progress = this->Progress;
+  float area;
+  int *wExtent;
   
   // Make sure we actually have data.
   if ( !data->GetPointData()->GetScalars())
@@ -91,10 +96,25 @@ void vtkPNMWriter::WriteFile(ofstream *file, vtkImageData *data,
     }
   rowLength *= data->GetNumberOfScalarComponents();
 
+  wExtent = this->Input->GetWholeExtent();
+  area = ((extent[5] - extent[4] + 1)*(extent[3] - extent[2] + 1)*
+	  (extent[1] - extent[0] + 1)) / 
+    ((wExtent[5] -wExtent[4] + 1)*(wExtent[3] -wExtent[2] + 1)*
+     (wExtent[1] -wExtent[0] + 1));
+    
+  target = (unsigned long)((extent[5]-extent[4]+1)*
+			   (extent[3]-extent[2]+1)/(50.0*area));
+  target++;
+
   for (idx2 = extent[4]; idx2 <= extent[5]; ++idx2)
     {
     for (idx1 = extent[3]; idx1 >= extent[2]; idx1--)
       {
+      if (!(count%target))
+	{
+	this->UpdateProgress(progress + count/(50.0*target));
+	}
+      count++;
       for (idx0 = extent[0]; idx0 <= extent[1]; idx0++)
 	{
 	ptr = data->GetScalarPointer(idx0, idx1, idx2);

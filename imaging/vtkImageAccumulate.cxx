@@ -122,6 +122,8 @@ static void vtkImageAccumulateExecute(vtkImageAccumulate *self,
   int *outPtrC;
   int numC, outIdx, *outExtent, *outIncs;
   float *origin, *spacing;
+  unsigned long count = 0;
+  unsigned long target;
 
   self = self;
 
@@ -139,12 +141,20 @@ static void vtkImageAccumulateExecute(vtkImageAccumulate *self,
   origin = outData->GetOrigin();
   spacing = outData->GetSpacing();
   
+  target = (unsigned long)((max2 - min2 + 1)*(max1 - min1 +1)/50.0);
+  target++;
+
   inPtr2 = inPtr;
   for (idx2 = min2; idx2 <= max2; ++idx2)
     {
     inPtr1 = inPtr2;
-    for (idx1 = min1; idx1 <= max1; ++idx1)
+    for (idx1 = min1; !self->AbortExecute && idx1 <= max1; ++idx1)
       {
+      if (!(count%target))
+	{
+	self->UpdateProgress(count/(50.0*target));
+	}
+      count++;
       inPtr0  = inPtr1;
       for (idx0 = min0; idx0 <= max0; ++idx0)
 	{

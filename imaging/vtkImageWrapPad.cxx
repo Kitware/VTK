@@ -151,7 +151,8 @@ static void vtkImageWrapPadExecute(vtkImageWrapPad *self,
       }
     inPtr1 = inPtr2;
     inIdx1 = start1;
-    for (outIdx1 = outExt[2]; outIdx1 <= outExt[3]; ++outIdx1, ++inIdx1)
+    for (outIdx1 = outExt[2]; 
+	 !self->AbortExecute && outIdx1 <= outExt[3]; ++outIdx1, ++inIdx1)
       {
       if (!id) 
 	{

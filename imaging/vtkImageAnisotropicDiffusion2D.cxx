@@ -174,7 +174,8 @@ void vtkImageAnisotropicDiffusion2D::ThreadedExecute(vtkImageData *inData,
   // Loop performing the diffusion
   // Note: region extent could get smaller as the diffusion progresses
   // (but never get smaller than output region).
-  for (idx = this->NumberOfIterations - 1; idx >= 0; --idx)
+  for (idx = this->NumberOfIterations - 1; 
+       !this->AbortExecute && idx >= 0; --idx)
     {
     if (!id)
       {

@@ -140,7 +140,7 @@ static void vtkImagePermuteExecute(vtkImagePermute *self,
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
     inPtr1 = inPtr2;
-    for (idxY = 0; idxY <= maxY; idxY++)
+    for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
       {
       if (!id) 
 	{

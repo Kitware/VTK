@@ -160,7 +160,7 @@ static void vtkImageCorrelationExecute(vtkImageCorrelation *self,
       {
       zKernMax = in2Extent[5];
       }
-    for (idxY = 0; idxY <= maxY; idxY++)
+    for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
       {
       if (!id) 
 	{

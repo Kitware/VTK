@@ -105,8 +105,9 @@ void vtkImageSkeleton2D::ComputeRequiredInputUpdateExtent(int *inExt,
 // desired results with a 3x3 kernel.
 template <class T>
 static void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
-			   vtkImageData *inData, T *inPtr, 
-			   vtkImageData *outData, int *outExt, T *outPtr)
+				      vtkImageData *inData, T *inPtr, 
+				      vtkImageData *outData, int *outExt, 
+				      T *outPtr, int id)
 {
   // For looping though output (and input) pixels.
   int outMin0, outMax0, outMin1, outMax1, outMin2, outMax2, numComps;
@@ -119,6 +120,8 @@ static void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
   int prune = self->GetPrune();
   float n[8];
   int countFaces, countCorners;
+  unsigned long count = 0;
+  unsigned long target;
 
   // Get information to march through data
   inData->GetIncrements(inInc0, inInc1, inInc2); 
@@ -130,6 +133,10 @@ static void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
 				   wholeMin2, wholeMax2);
   numComps = inData->GetNumberOfScalarComponents();
   
+  target = (unsigned long)(numComps*(outMax2-outMin2+1)*
+			   (outMax1-outMin1+1)/50.0);
+  target++;
+
   inPtrC = inPtr;
   for (idxC = 0; idxC < numComps; ++idxC)
     {
@@ -138,8 +145,16 @@ static void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
       {
       // erode input
       inPtr1 = inPtr2;
-      for (idx1 = outMin1; idx1 <= outMax1; ++idx1)
+      for (idx1 = outMin1; !self->AbortExecute && idx1 <= outMax1; ++idx1)
 	{
+	if (!id) 
+	  {
+	  if (!(count%target))
+	    {
+	    self->UpdateProgress(0.9*count/(50.0*target));
+	    }
+	  count++;
+	  }
 	inPtr0 = inPtr1;
 	for (idx0 = outMin0; idx0 <= outMax0; ++idx0)
 	  {
@@ -249,7 +264,6 @@ static void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
 	    {
 	    *outPtr0 = *inPtr0;
 	    }
-	  // *outPtr0 = *inPtr0; // for debugging
       
 	  inPtr0 += inInc0;
 	  outPtr0 += outInc0;      
@@ -282,8 +296,6 @@ void vtkImageSkeleton2D::ThreadedExecute(vtkImageData *inData,
   vtkImageData *tempData;
   int inExt[6];
 
-  id = id;
-
   // this filter expects that input is the same type as output.
   if (inData->GetScalarType() != outData->GetScalarType())
     {
@@ -306,23 +318,24 @@ void vtkImageSkeleton2D::ThreadedExecute(vtkImageData *inData,
     {
     case VTK_FLOAT:
       vtkImageSkeleton2DExecute(this, tempData, (float *)(inPtr), 
-				outData, outExt, (float *)(outPtr));
+				outData, outExt, (float *)(outPtr), id);
       break;
     case VTK_INT:
       vtkImageSkeleton2DExecute(this, tempData, (int *)(inPtr), 
-				outData, outExt, (int *)(outPtr));
+				outData, outExt, (int *)(outPtr), id);
       break;
     case VTK_SHORT:
       vtkImageSkeleton2DExecute(this, tempData, (short *)(inPtr), 
-				outData, outExt, (short *)(outPtr));
+				outData, outExt, (short *)(outPtr), id);
       break;
     case VTK_UNSIGNED_SHORT:
       vtkImageSkeleton2DExecute(this, tempData, (unsigned short *)(inPtr), 
-				outData, outExt, (unsigned short *)(outPtr));
+				outData, outExt, (unsigned short *)(outPtr),
+				id);
       break;
     case VTK_UNSIGNED_CHAR:
       vtkImageSkeleton2DExecute(this, tempData, (unsigned char *)(inPtr), 
-				outData, outExt, (unsigned char *)(outPtr));
+				outData, outExt, (unsigned char *)(outPtr), id);
       break;
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");

@@ -155,7 +155,7 @@ static void vtkImageFlipExecute(vtkImageFlip *self, int id,
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
     inPtrY = inPtrZ;
-    for (idxY = 0; idxY <= maxY; idxY++)
+    for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
       {
       // handle updating progress method
       if (!id) 

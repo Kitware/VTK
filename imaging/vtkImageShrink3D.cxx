@@ -158,12 +158,14 @@ static void vtkImageShrink3DExecute(vtkImageShrink3D *self,
   outData->GetContinuousIncrements(outExt,outInc0, outInc1, outInc2);
   norm = 1.0 / (float)(factor0 * factor1 * factor2);
   rowLength = (outExt[1] - outExt[0]+1)*outData->GetNumberOfScalarComponents();
+
   target = (unsigned long)((outExt[5] - outExt[4] + 1)*
     (outExt[3] - outExt[2] + 1)/50.0);
   target++;
+
   maxX = outExt[1] - outExt[0];
   maxC = inData->GetNumberOfScalarComponents();
-
+  
   // Loop through output pixels
   for (idxC = 0; idxC < maxC; idxC++)
     {
@@ -171,57 +173,58 @@ static void vtkImageShrink3DExecute(vtkImageShrink3D *self,
     outPtr2 = outPtr + idxC;
     for (outIdx2 = outExt[4]; outIdx2 <= outExt[5]; ++outIdx2)
       {
-    tmpPtr1 = tmpPtr2;
-    for (outIdx1 = outExt[2]; outIdx1 <= outExt[3]; ++outIdx1)
-      {
-      if (!id) 
+      tmpPtr1 = tmpPtr2;
+      for (outIdx1 = outExt[2]; 
+	   !self->AbortExecute && outIdx1 <= outExt[3]; ++outIdx1)
 	{
-	if (!(count%target))
+	if (!id) 
 	  {
-	  self->UpdateProgress(count/(50.0*target));
-	  }
-	count++;
-	}
-      tmpPtr0 = tmpPtr1;
-      for (outIdx0 = 0; outIdx0 <= maxX; ++outIdx0)
-	{
-	// Copy pixel from this location
-	if ( ! averaging)
-	  {
-	  *outPtr2 = *tmpPtr0;
-	  }
-	else
-	  {
-	  sum = 0.0;
-	  // Loop through neighborhood pixels
-	  inPtr2 = tmpPtr0;
-	  for (inIdx2 = 0; inIdx2 < factor2; ++inIdx2)
+	  if (!(count%target))
 	    {
-	    inPtr1 = inPtr2;
-	    for (inIdx1 = 0; inIdx1 < factor1; ++inIdx1)
-	      {
-	      inPtr0 = inPtr1;
-	      for (inIdx0 = 0; inIdx0 < factor0; ++inIdx0)
-		{
-		sum += (float)(*inPtr0);
-		inPtr0 += inInc0;
-		}
-	      inPtr1 += inInc1;
-	      }
-	    inPtr2 += inInc2;
+	    self->UpdateProgress(count/(50.0*target));
 	    }
-	  *outPtr2 = (T)(sum * norm);
+	  count++;
 	  }
-	tmpPtr0 += tmpInc0;
-	outPtr2 += maxC;
+	tmpPtr0 = tmpPtr1;
+	for (outIdx0 = 0; outIdx0 <= maxX; ++outIdx0)
+	  {
+	  // Copy pixel from this location
+	  if ( ! averaging)
+	    {
+	    *outPtr2 = *tmpPtr0;
+	    }
+	  else
+	    {
+	    sum = 0.0;
+	    // Loop through neighborhood pixels
+	    inPtr2 = tmpPtr0;
+	    for (inIdx2 = 0; inIdx2 < factor2; ++inIdx2)
+	      {
+	      inPtr1 = inPtr2;
+	      for (inIdx1 = 0; inIdx1 < factor1; ++inIdx1)
+		{
+		inPtr0 = inPtr1;
+		for (inIdx0 = 0; inIdx0 < factor0; ++inIdx0)
+		  {
+		  sum += (float)(*inPtr0);
+		  inPtr0 += inInc0;
+		  }
+		inPtr1 += inInc1;
+		}
+	      inPtr2 += inInc2;
+	      }
+	    *outPtr2 = (T)(sum * norm);
+	    }
+	  tmpPtr0 += tmpInc0;
+	  outPtr2 += maxC;
+	  }
+	tmpPtr1 += tmpInc1;
+	outPtr2 += outInc1;
 	}
-      tmpPtr1 += tmpInc1;
-      outPtr2 += outInc1;
+      tmpPtr2 += tmpInc2;
+      outPtr2 += outInc2;
       }
-    tmpPtr2 += tmpInc2;
-    outPtr2 += outInc2;
     }
-  }
 }
 
     

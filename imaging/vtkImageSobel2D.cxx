@@ -81,8 +81,9 @@ void vtkImageSobel2D::ExecuteImageInformation()
 // out of extent.
 template <class T>
 static void vtkImageSobel2DExecute(vtkImageSobel2D *self,
-			   vtkImageData *inData, T *inPtr, 
-			   vtkImageData *outData, int *outExt, float *outPtr)
+				   vtkImageData *inData, T *inPtr, 
+				   vtkImageData *outData, int *outExt, 
+				   float *outPtr, int id)
 {
   float r0, r1, *r;
   // For looping though output (and input) pixels.
@@ -100,6 +101,8 @@ static void vtkImageSobel2DExecute(vtkImageSobel2D *self,
   int inWholeMin0,inWholeMax0;
   int inWholeMin1,inWholeMax1;
   int inWholeMin2,inWholeMax2;
+  unsigned long count = 0;
+  unsigned long target;
 
   // Get boundary information 
   self->GetInput()->GetWholeExtent(inWholeMin0,inWholeMax0,
@@ -121,6 +124,9 @@ static void vtkImageSobel2DExecute(vtkImageSobel2D *self,
   r0 = 0.125 / r[0];
   r1 = 0.125 / r[1];
   // ignore r2
+
+  target = (unsigned long)((max2-min2+1)*(max1-min1+1)/50.0);
+  target++;
   
   // loop through pixels of output
   outPtr2 = outPtr;
@@ -129,8 +135,16 @@ static void vtkImageSobel2DExecute(vtkImageSobel2D *self,
     {
     outPtr1 = outPtr2;
     inPtr1 = inPtr2;
-    for (outIdx1 = min1; outIdx1 <= max1; ++outIdx1)
+    for (outIdx1 = min1; !self->AbortExecute && outIdx1 <= max1; ++outIdx1)
       {
+      if (!id) 
+	{
+	if (!(count%target))
+	  {
+	  self->UpdateProgress(count/(50.0*target));
+	  }
+	count++;
+	}
       inInc1L = (outIdx1 == inWholeMin1) ? 0 : -inInc1;
       inInc1R = (outIdx1 == inWholeMax1) ? 0 : inInc1;
       
@@ -185,7 +199,6 @@ void vtkImageSobel2D::ThreadedExecute(vtkImageData *inData,
   void *inPtr, *outPtr;
   int inExt[6];
   
-  id = id;
   this->ComputeRequiredInputUpdateExtent(inExt, outExt);  
   
   inPtr = inData->GetScalarPointerForExtent(inExt);
@@ -211,27 +224,27 @@ void vtkImageSobel2D::ThreadedExecute(vtkImageData *inData,
     case VTK_FLOAT:
       vtkImageSobel2DExecute(this,
 			  inData, (float *)(inPtr), 
-			  outData, outExt, (float *)(outPtr));
+			  outData, outExt, (float *)(outPtr),id);
       break;
     case VTK_INT:
       vtkImageSobel2DExecute(this, 
 			  inData, (int *)(inPtr), 
-			  outData, outExt, (float *)(outPtr));
+			  outData, outExt, (float *)(outPtr),id);
       break;
     case VTK_SHORT:
       vtkImageSobel2DExecute(this, 
 			  inData, (short *)(inPtr), 
-			  outData, outExt, (float *)(outPtr));
+			  outData, outExt, (float *)(outPtr),id);
       break;
     case VTK_UNSIGNED_SHORT:
       vtkImageSobel2DExecute(this, 
 			  inData, (unsigned short *)(inPtr), 
-			  outData, outExt, (float *)(outPtr));
+			  outData, outExt, (float *)(outPtr),id);
       break;
     case VTK_UNSIGNED_CHAR:
       vtkImageSobel2DExecute(this, 
 			  inData, (unsigned char *)(inPtr), 
-			  outData, outExt, (float *)(outPtr));
+			  outData, outExt, (float *)(outPtr),id);
       break;
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");

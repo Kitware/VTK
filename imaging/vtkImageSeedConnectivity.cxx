@@ -204,6 +204,12 @@ void vtkImageSeedConnectivity::Execute(vtkImageData *inData,
     outPtr2 += outInc2;
     }
   
+  this->UpdateProgress(0.2);
+  if (this->AbortExecute)
+    {
+    return;
+    }
+  
   //-------
   // find actual seeds in this image. (only scan along the first axis for now)
   this->Connector->RemoveAllSeeds();
@@ -235,12 +241,24 @@ void vtkImageSeedConnectivity::Execute(vtkImageData *inData,
     seed = seed->Next;
     }
 
+  this->UpdateProgress(0.5);
+  if (this->AbortExecute)
+    {
+    return;
+    }
+
   //-------
   // connect
   this->Connector->SetUnconnectedValue(temp1);
   this->Connector->SetConnectedValue(temp2);
   this->Connector->MarkData(outData, this->Dimensionality, 
 			    this->Output->GetUpdateExtent());
+
+  this->UpdateProgress(0.9);
+  if (this->AbortExecute)
+    {
+    return;
+    }
 
   //-------
   // Threshold to convert intermediate values into OutputUnconnectedValues

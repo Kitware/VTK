@@ -272,13 +272,15 @@ void vtkScalarBarActor::Render(vtkViewport *viewport)
     if (this->Orientation == VTK_ORIENT_VERTICAL)
       {
       this->TitleActor->SetPosition(position[0] + barOrigin[0], 
-            position[1] + barOrigin[1] + barHeight + this->FontSize*2);
+				    position[1] + barOrigin[1] + 
+				    barHeight + this->FontSize*2);
 
       for (i=0; i < this->NumberOfLabels; i++)
 	{
 	val = (float)i/(this->NumberOfLabels-1) * barHeight;
-	this->TextActors[i]->SetPosition(position[0] + barOrigin[0] + barWidth+3,
-              position[1] + barOrigin[1] + val + this->FontSize/2);
+	this->TextActors[i]->SetPosition(position[0] + barOrigin[0]+barWidth+3,
+					 position[1] + barOrigin[1] + val 
+					 + this->FontSize/2);
 	}
       }
     else

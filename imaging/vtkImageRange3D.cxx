@@ -142,9 +142,10 @@ void vtkImageRange3D::ExecuteImageInformation()
 // for strictly center (no boundary ) processing.
 template <class T>
 static void vtkImageRange3DExecute(vtkImageRange3D *self,
-		      vtkImageData *mask,
-		      vtkImageData *inData, T *inPtr, 
-		      vtkImageData *outData, int *outExt, float *outPtr)
+				   vtkImageData *mask,
+				   vtkImageData *inData, T *inPtr, 
+				   vtkImageData *outData, int *outExt, 
+				   float *outPtr, int id)
 {
   int *kernelMiddle, *kernelSize;
   // For looping though output (and input) pixels.
@@ -167,6 +168,8 @@ static void vtkImageRange3DExecute(vtkImageRange3D *self,
   int inImageMax0, inImageMax1, inImageMax2;
   // to compute the range
   T pixelMin, pixelMax;
+  unsigned long count = 0;
+  unsigned long target;
 
   // Get information to march through data
   inData->GetIncrements(inInc0, inInc1, inInc2); 
@@ -196,7 +199,10 @@ static void vtkImageRange3DExecute(vtkImageRange3D *self,
   // in and out should be marching through corresponding pixels.
   inPtr = (T *)(inData->GetScalarPointer(outMin0, outMin1, outMin2));
 
-  
+  target = (unsigned long)(numComps*(outMax2-outMin2+1)*
+			   (outMax1-outMin1+1)/50.0);
+  target++;
+
   // loop through components
   for (outIdxC = 0; outIdxC < numComps; ++outIdxC)
     {
@@ -207,8 +213,18 @@ static void vtkImageRange3DExecute(vtkImageRange3D *self,
       {
       outPtr1 = outPtr2;
       inPtr1 = inPtr2;
-      for (outIdx1 = outMin1; outIdx1 <= outMax1; ++outIdx1)
+      for (outIdx1 = outMin1; 
+	   !self->AbortExecute && outIdx1 <= outMax1; ++outIdx1)
 	{
+	if (!id) 
+	  {
+	  if (!(count%target))
+	    {
+	    self->UpdateProgress(count/(50.0*target));
+	    }
+	  count++;
+	  }
+
 	outPtr0 = outPtr1;
 	inPtr0 = inPtr1;
 	for (outIdx0 = outMin0; outIdx0 <= outMax0; ++outIdx0)
@@ -296,8 +312,6 @@ void vtkImageRange3D::ThreadedExecute(vtkImageData *inData,
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
   vtkImageData *mask;
 
-  id = id;
-  
   // Error checking on mask
   mask = this->Ellipse->GetOutput()->UpdateAndReturnData();
   if (mask->GetScalarType() != VTK_UNSIGNED_CHAR)
@@ -319,23 +333,23 @@ void vtkImageRange3D::ThreadedExecute(vtkImageData *inData,
     {
     case VTK_FLOAT:
       vtkImageRange3DExecute(this, mask, inData, (float *)(inPtr), 
-				outData, outExt, (float *)(outPtr));
+				outData, outExt, (float *)(outPtr), id);
       break;
     case VTK_INT:
       vtkImageRange3DExecute(this, mask, inData, (int *)(inPtr), 
-				outData, outExt, (float *)(outPtr));
+				outData, outExt, (float *)(outPtr), id);
       break;
     case VTK_SHORT:
       vtkImageRange3DExecute(this, mask, inData, (short *)(inPtr), 
-				outData, outExt, (float *)(outPtr));
+				outData, outExt, (float *)(outPtr), id);
       break;
     case VTK_UNSIGNED_SHORT:
       vtkImageRange3DExecute(this, mask, inData, (unsigned short *)(inPtr), 
-				outData, outExt, (float *)(outPtr));
+				outData, outExt, (float *)(outPtr), id);
       break;
     case VTK_UNSIGNED_CHAR:
       vtkImageRange3DExecute(this, mask, inData, (unsigned char *)(inPtr), 
-				outData, outExt, (float *)(outPtr));
+				outData, outExt, (float *)(outPtr), id);
       break;
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");

@@ -155,6 +155,8 @@ void vtkImageSinusoidSource::Execute(vtkImageData *data)
   int *outExt;
   float sum;
   float yContrib, zContrib;
+  unsigned long count = 0;
+  unsigned long target;
   
   if (data->GetScalarType() != VTK_FLOAT)
     {
@@ -172,12 +174,20 @@ void vtkImageSinusoidSource::Execute(vtkImageData *data)
   data->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
   outPtr = (float *) data->GetScalarPointer(outExt[0],outExt[2],outExt[4]);
 
+  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
+  target++;
+
   // Loop through ouput pixels
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
     zContrib = this->Direction[2] - (idxZ + outExt[4]);
-    for (idxY = 0; idxY <= maxY; idxY++)
+    for (idxY = 0; !this->AbortExecute && idxY <= maxY; idxY++)
       {
+      if (!(count%target))
+	{
+	this->UpdateProgress(count/(50.0*target));
+	}
+      count++;
       yContrib = this->Direction[1] - (idxY + outExt[2]);
       for (idxX = 0; idxX <= maxX; idxX++)
 	{

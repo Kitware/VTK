@@ -91,7 +91,7 @@ static void vtkImageConstantPadExecute(vtkImageConstantPad *self,
   for (idxZ = outExt[4]; idxZ <= outExt[5]; idxZ++)
     {
     state3 = (idxZ < inExt[4] || idxZ > inExt[5]);
-    for (idxY = outExt[2]; idxY <= outExt[3]; idxY++)
+    for (idxY = outExt[2]; !self->AbortExecute && idxY <= outExt[3]; idxY++)
       {
       if (!id) 
 	{

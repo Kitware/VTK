@@ -67,6 +67,7 @@ void vtkImageInPlaceFilter::InternalUpdate(vtkImageData *outData)
     return;
     }
   this->Updating = 1;
+  this->AbortExecute = 0;
   
   // Make sure there is an output.
   this->CheckCache();

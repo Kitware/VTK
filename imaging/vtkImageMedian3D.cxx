@@ -261,7 +261,8 @@ static void vtkImageMedian3DExecute(vtkImageMedian3D *self,
     inPtr1 = inPtr2;
     hoodMin1 = hoodStartMin1;
     hoodMax1 = hoodStartMax1;
-    for (outIdx1 = outExt[2]; outIdx1 <= outExt[3]; ++outIdx1)
+    for (outIdx1 = outExt[2]; 
+	 !self->AbortExecute && outIdx1 <= outExt[3]; ++outIdx1)
       {
       if (!id) 
 	{

@@ -97,9 +97,9 @@ void vtkImageMask::SetMaskedOutputValue(int num, float *v)
 // This templated function executes the filter for any type of data.
 template <class T>
 static void vtkImageMaskExecute(vtkImageMask *self, int ext[6],
-			 vtkImageData *in1Data, T *in1Ptr,
-			 vtkImageData *in2Data, unsigned char *in2Ptr,
-			 vtkImageData *outData, T *outPtr)
+				vtkImageData *in1Data, T *in1Ptr,
+				vtkImageData *in2Data, unsigned char *in2Ptr,
+				vtkImageData *outData, T *outPtr, int id)
 {
   int num0, num1, num2, numC, pixSize;
   int idx0, idx1, idx2;
@@ -110,6 +110,8 @@ static void vtkImageMaskExecute(vtkImageMask *self, int ext[6],
   float *v;
   int nv;
   int maskState;
+  unsigned long count = 0;
+  unsigned long target;
   
   // create a masked output value with the correct length by cycling
   numC = outData->GetNumberOfScalarComponents();
@@ -135,14 +137,24 @@ static void vtkImageMaskExecute(vtkImageMask *self, int ext[6],
   num1 = ext[3] - ext[2] + 1;
   num2 = ext[5] - ext[4] + 1;
   
+  target = (unsigned long)(num2*num1/50.0);
+  target++;
+
   // Loop through ouput pixels
   for (idx2 = 0; idx2 < num2; ++idx2)
     {
-    for (idx1 = 0; idx1 < num1; ++idx1)
+    for (idx1 = 0; !self->AbortExecute && idx1 < num1; ++idx1)
       {
+      if (!id) 
+	{
+	if (!(count%target))
+	  {
+	  self->UpdateProgress(count/(50.0*target));
+	  }
+	count++;
+	}
       for (idx0 = 0; idx0 < num0; ++idx0)
 	{
-      
 	// Pixel operation
 	if (*in2Ptr && maskState == 1)
 	  {
@@ -189,7 +201,6 @@ void vtkImageMask::ThreadedExecute(vtkImageData **inData,
   void *inPtr2 = inData[1]->GetScalarPointerForExtent(outExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
   int *tExt;
-  id = id;
   
   tExt = inData[1]->GetExtent();
   if (tExt[0] > outExt[0] || tExt[1] < outExt[1] || 
@@ -221,31 +232,31 @@ void vtkImageMask::ThreadedExecute(vtkImageData **inData,
       vtkImageMaskExecute(this, outExt,
 			  inData[0], (float *)(inPtr1), 
 			  inData[1], (unsigned char *)(inPtr2), 
-			  outData, (float *)(outPtr));
+			  outData, (float *)(outPtr),id);
       break;
     case VTK_INT:
       vtkImageMaskExecute(this,  outExt,
 			  inData[0], (int *)(inPtr1), 
 			  inData[1], (unsigned char *)(inPtr2), 
-			  outData, (int *)(outPtr));
+			  outData, (int *)(outPtr),id);
       break;
     case VTK_SHORT:
       vtkImageMaskExecute(this,  outExt,
 			  inData[0], (short *)(inPtr1), 
 			  inData[1], (unsigned char *)(inPtr2), 
-			  outData, (short *)(outPtr));
+			  outData, (short *)(outPtr),id);
       break;
     case VTK_UNSIGNED_SHORT:
       vtkImageMaskExecute(this,  outExt,
 			  inData[0], (unsigned short *)(inPtr1), 
 			  inData[1], (unsigned char *)(inPtr2), 
-			  outData, (unsigned short *)(outPtr));
+			  outData, (unsigned short *)(outPtr),id);
       break;
     case VTK_UNSIGNED_CHAR:
       vtkImageMaskExecute(this,  outExt,
 			  inData[0], (unsigned char *)(inPtr1), 
 			  inData[1], (unsigned char *)(inPtr2), 
-			  outData, (unsigned char *)(outPtr));
+			  outData, (unsigned char *)(outPtr),id);
       break;
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");

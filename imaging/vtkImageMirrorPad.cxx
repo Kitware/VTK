@@ -155,7 +155,7 @@ static void vtkImageMirrorPadExecute(vtkImageMirrorPad *self,
     inPtrY = inPtrZ;
     inIdx[1] = inIdxStart[1];
     inInc[1] = inIncStart[1];
-    for (idxY = 0; idxY <= maxY; idxY++)
+    for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
       {
       inPtrX = inPtrY;
       inIdx[0] = inIdxStart[0];

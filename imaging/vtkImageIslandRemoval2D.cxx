@@ -133,6 +133,8 @@ static void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
   T replaceValue;
   T *inNeighborPtr, *outNeighborPtr;
   int idxC, maxC;
+  unsigned long count = 0;
+  unsigned long target;
 
   squareNeighborhood = self->GetSquareNeighborhood();
   area = self->GetAreaThreshold();
@@ -166,14 +168,31 @@ static void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
       outPtr2 += outInc2;
       }
     }
-  
+
+  // update the progress and possibly abort
+  self->UpdateProgress(0.1);
+  if (self->AbortExecute)
+    {
+    return;
+    }
+		       
+  target = (unsigned long)(maxC*(outExt[5]-outExt[4]+1)*
+			   (outExt[3]-outExt[2]+1)/50.0);
+  target++;
+
   // Loop though all pixels looking for islands
   for (idxC = 0; idxC < maxC; idxC++)
     {
     outPtr2 = outPtr + idxC;
     inPtr2 = inPtr + idxC;
-    for (outIdx2 = outExt[4]; outIdx2 <= outExt[5]; ++outIdx2)
+    for (outIdx2 = outExt[4]; 
+	 !self->AbortExecute && outIdx2 <= outExt[5]; ++outIdx2)
       {
+      if (!(count%target))
+	{
+	self->UpdateProgress(0.1 + 0.8*count/(50.0*target));
+	}
+      count++;
       outPtr1 = outPtr2;
       inPtr1 = inPtr2;
       for (outIdx1 = outExt[2]; outIdx1 <= outExt[3]; ++outIdx1)
@@ -454,6 +473,13 @@ static void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
   
   delete [] pixels;
   
+  // update the progress and possibly abort
+  self->UpdateProgress(0.9);
+  if (self->AbortExecute)
+    {
+    return;
+    }
+
   // Loop though all pixels actually copying and replacing.
   for (idxC = 0; idxC < maxC; idxC++)
     {

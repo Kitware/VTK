@@ -118,6 +118,8 @@ void vtkImageGaussianSource::Execute(vtkImageData *data)
   float sum;
   float yContrib, zContrib;
   float temp, temp2;
+  unsigned long count = 0;
+  unsigned long target;
   
   if (data->GetScalarType() != VTK_FLOAT)
     {
@@ -135,6 +137,8 @@ void vtkImageGaussianSource::Execute(vtkImageData *data)
   data->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
   outPtr = (float *) data->GetScalarPointer(outExt[0],outExt[2],outExt[4]);
   
+  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
+  target++;
 
   // Loop through ouput pixels
   temp2 = 1.0 / (2.0 * this->StandardDeviation * this->StandardDeviation);
@@ -143,8 +147,13 @@ void vtkImageGaussianSource::Execute(vtkImageData *data)
     {
     zContrib = this->Center[2] - (idxZ + outExt[4]);
     zContrib = zContrib*zContrib;
-    for (idxY = 0; idxY <= maxY; idxY++)
+    for (idxY = 0; !this->AbortExecute && idxY <= maxY; idxY++)
       {
+      if (!(count%target))
+	{
+	this->UpdateProgress(count/(50.0*target));
+	}
+      count++;
       yContrib = this->Center[1] - (idxY + outExt[2]);
       yContrib = yContrib*yContrib;
       for (idxX = 0; idxX <= maxX; idxX++)

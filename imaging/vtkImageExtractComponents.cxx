@@ -165,7 +165,7 @@ static void vtkImageExtractComponentsExecute(vtkImageExtractComponents *self,
   offset3 = self->Components[2];
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
-    for (idxY = 0; idxY <= maxY; idxY++)
+    for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
       {
       if (!id) 
 	{
