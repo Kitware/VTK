@@ -86,7 +86,6 @@ vtkAssembly \
 vtkAxes \
 vtkBYUReader \
 vtkBYUWriter \
-vtkBooleanStructuredPoints \
 vtkBooleanTexture \
 vtkBrownianPoints \
 vtkCamera \
