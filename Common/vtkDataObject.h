@@ -451,10 +451,10 @@ protected:
   int GarbageCollecting;
 
   // Synchronize ivars with information for compatibility layer.
-  void CopyUpstreamIVarsFromInformation(vtkInformation*);
-  void CopyUpstreamIVarsToInformation(vtkInformation*);
-  void CopyDownstreamIVarsFromInformation(vtkInformation*);
-  void CopyDownstreamIVarsToInformation(vtkInformation*);
+  virtual void CopyUpstreamIVarsFromInformation(vtkInformation*);
+  virtual void CopyUpstreamIVarsToInformation(vtkInformation*);
+  virtual void CopyDownstreamIVarsFromInformation(vtkInformation*);
+  virtual void CopyDownstreamIVarsToInformation(vtkInformation*);
 
   // Arbitrary extra information associated with this data object.
   vtkInformation* Information;
