@@ -111,10 +111,10 @@ public:
   
   void UpdateImageInformation();
   
-  void SetStartMethod(void (*f)(void *), void *arg);
-  void SetEndMethod(void (*f)(void *), void *arg);
-  void SetStartMethodArgDelete(void (*f)(void *));
-  void SetEndMethodArgDelete(void (*f)(void *));
+  virtual void SetStartMethod(void (*f)(void *), void *arg);
+  virtual void SetEndMethod(void (*f)(void *), void *arg);
+  virtual void SetStartMethodArgDelete(void (*f)(void *));
+  virtual void SetEndMethodArgDelete(void (*f)(void *));
   
 protected:
   vtkImageCache *Output;

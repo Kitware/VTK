@@ -364,7 +364,7 @@ int vtkImageCachedSource::GetOutputScalarType()
 void vtkImageCachedSource::Update()
 {
   this->CheckCache();
-  this->Output->Update();
+  this->GetOutput()->Update();
 }
 
 
