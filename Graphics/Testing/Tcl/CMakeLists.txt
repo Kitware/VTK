@@ -96,6 +96,7 @@ IF (VTK_USE_RENDERING)
       testQuadricDecimation
       text
       TransformConcatenation
+      TransformCoverage
       TransformPolyData
       triangularTCoords
       triangularTexture
