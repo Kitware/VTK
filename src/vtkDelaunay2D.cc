@@ -135,10 +135,6 @@ static int FindTriangle(float x[3], int ptIds[3], int tri, vtkPolyData *Mesh,
   if ( !inside )
     {
     Mesh->GetCellEdgeNeighbors(tri,nei[0],nei[1],neighbors);
-    if ( neighbors.GetId(0) < 0 )
-      {
-      cerr << "here";
-      }
     return FindTriangle(x,ptIds,neighbors.GetId(0),Mesh,points,tol);
     }
   else //must be in this triangle if all edges test inside
