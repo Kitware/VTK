@@ -47,6 +47,11 @@
 
 #endif /* NeedFunctionPrototypes */
 
+#ifdef __cplusplus
+#define _XFUNCPROTOBEGIN extern "C" {
+#define _XFUNCPROTOEND }
+#endif
+
 #ifndef _XFUNCPROTOBEGIN
 #define _XFUNCPROTOBEGIN
 #define _XFUNCPROTOEND

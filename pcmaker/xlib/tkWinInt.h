@@ -10,7 +10,7 @@
  * See the file "license.terms" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * SCCS: @(#) tkWinInt.h 1.19 96/08/23 11:28:12
+ * SCCS: @(#) tkWinInt.h 1.33 97/05/20 17:00:35
  */
 
 #ifndef _TKWININT
@@ -21,14 +21,12 @@
 #endif
 
 /*
- * Note that the include of windows.h must not be done in tkWinPort.h,
- * because some of the windows declarations conflict with internal static
- * functions in the generic code (e.g. CreateBitmap).
+ * Include platform specific public interfaces.
  */
 
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#undef WIN32_LEAN_AND_MEAN
+#ifndef _TKWIN
+#include "tkWin.h"
+#endif
 
 /*
  * Define constants missing from older Win32 SDK header files.
@@ -37,6 +35,8 @@
 #ifndef WS_EX_TOOLWINDOW
 #define WS_EX_TOOLWINDOW	0x00000080L 
 #endif
+
+typedef struct TkFontAttributes TkFontAttributes;
 
 /*
  * The TkWinDCState is used to save the state of a device context
@@ -47,7 +47,6 @@ typedef struct TkWinDCState {
     HPALETTE palette;
 } TkWinDCState;
 
-
 /*
  * The TkWinDrawable is the internal implementation of an X Drawable (either
  * a Window or a Pixmap).  The following constants define the valid Drawable
@@ -56,7 +55,7 @@ typedef struct TkWinDCState {
 
 #define TWD_BITMAP	1
 #define TWD_WINDOW	2
-#define TWD_WM_WINDOW	3
+#define TWD_WINDC	3
 
 typedef struct {
     int type;
@@ -70,11 +69,17 @@ typedef struct {
     Colormap colormap;
     int depth;
 } TkWinBitmap;
-    
+
+typedef struct {
+    int type;
+    HDC hdc;
+}TkWinDC;
+
 typedef union {
     int type;
     TkWinWindow window;
     TkWinBitmap bitmap;
+    TkWinDC winDC;
 } TkWinDrawable;
 
 /*
@@ -85,6 +90,7 @@ typedef union {
 #define TkWinGetWinPtr(w) (((TkWinDrawable*)w)->window.winPtr)
 #define TkWinGetHBITMAP(w) (((TkWinDrawable*)w)->bitmap.handle)
 #define TkWinGetColormap(w) (((TkWinDrawable*)w)->bitmap.colormap)
+#define TkWinGetHDC(w) (((TkWinDrawable *) w)->winDC.hdc)
 
 /*
  * The following structure is used to encapsulate palette information.
@@ -115,42 +121,74 @@ typedef struct {
 #define TK_WIN_CHILD_CLASS_NAME "TkChild"
 
 /*
+ * The following variable indicates whether we are restricted to Win32s
+ * GDI calls.
+ */
+
+extern int tkpIsWin32s;
+
+/*
+ * The following variable is a translation table between X gc functions and
+ * Win32 raster op modes.
+ */
+
+extern int tkpWinRopModes[];
+
+/*
+ * The following defines are used with TkWinGetBorderPixels to get the
+ * extra 2 border colors from a Tk_3DBorder.
+ */
+
+#define TK_3D_LIGHT2 TK_3D_DARK_GC+1
+#define TK_3D_DARK2 TK_3D_DARK_GC+2
+
+/*
  * Internal procedures used by more than one source file.
  */
 
 extern LRESULT CALLBACK	TkWinChildProc _ANSI_ARGS_((HWND hwnd, UINT message,
 			    WPARAM wParam, LPARAM lParam));
-extern void		TkWinClipboardRender _ANSI_ARGS_((TkWindow *winPtr,
+extern void		TkWinClipboardRender _ANSI_ARGS_((TkDisplay *dispPtr,
 			    UINT format));
-extern void		TkWinEnterModalLoop _ANSI_ARGS_((
-			    Tcl_Interp * interp));
-extern HINSTANCE 	TkWinGetAppInstance _ANSI_ARGS_((void));
+extern LRESULT		TkWinEmbeddedEventProc _ANSI_ARGS_((HWND hwnd,
+			    UINT message, WPARAM wParam, LPARAM lParam));
+extern void		TkWinFillRect _ANSI_ARGS_((HDC dc, int x, int y,
+			    int width, int height, int pixel));
+extern COLORREF		TkWinGetBorderPixels _ANSI_ARGS_((Tk_Window tkwin,
+			    Tk_3DBorder border, int which));
 extern HDC		TkWinGetDrawableDC _ANSI_ARGS_((Display *display,
 			    Drawable d, TkWinDCState* state));
-extern TkWinDrawable *	TkWinGetDrawableFromHandle _ANSI_ARGS_((HWND hwnd));
-extern unsigned int	TkWinGetModifierState _ANSI_ARGS_((UINT message,
-			    WPARAM wParam, LPARAM lParam));
+extern int		TkWinGetModifierState _ANSI_ARGS_((void));
 extern HPALETTE		TkWinGetSystemPalette _ANSI_ARGS_((void));
 extern HMODULE		TkWinGetTkModule _ANSI_ARGS_((void));
-extern void		TkWinLeaveModalLoop _ANSI_ARGS_((
-			    Tcl_Interp * interp));
+extern HWND		TkWinGetWrapperWindow _ANSI_ARGS_((Tk_Window tkwin));
+extern int		TkWinHandleMenuEvent _ANSI_ARGS_((HWND *phwnd,
+			    UINT *pMessage, WPARAM *pwParam, LPARAM *plParam,
+			    LRESULT *plResult));
+extern int		TkWinIndexOfColor _ANSI_ARGS_((XColor *colorPtr));
 extern void		TkWinPointerDeadWindow _ANSI_ARGS_((TkWindow *winPtr));
-extern void		TkWinPointerEvent _ANSI_ARGS_((XEvent *event,
-			    TkWindow *winPtr));
+extern void		TkWinPointerEvent _ANSI_ARGS_((HWND hwnd, int x,
+			    int y));
 extern void		TkWinPointerInit _ANSI_ARGS_((void));
+extern LRESULT 		TkWinReflectMessage _ANSI_ARGS_((HWND hwnd,
+			    UINT message, WPARAM wParam, LPARAM lParam));
 extern void		TkWinReleaseDrawableDC _ANSI_ARGS_((Drawable d,
 			    HDC hdc, TkWinDCState* state));
+extern LRESULT		TkWinResendEvent _ANSI_ARGS_((WNDPROC wndproc,
+			    HWND hwnd, XEvent *eventPtr));
 extern HPALETTE		TkWinSelectPalette _ANSI_ARGS_((HDC dc,
 			    Colormap colormap));
-extern LRESULT CALLBACK	TkWinTopLevelProc _ANSI_ARGS_((HWND hwnd, UINT message,
-			    WPARAM wParam, LPARAM lParam));
+extern void		TkWinSetMenu _ANSI_ARGS_((Tk_Window tkwin,
+			    HMENU hMenu));
+extern void		TkWinSetWindowPos _ANSI_ARGS_((HWND hwnd,
+			    HWND siblingHwnd, int pos));
 extern void		TkWinUpdateCursor _ANSI_ARGS_((TkWindow *winPtr));
-extern void		TkWinWmConfigure _ANSI_ARGS_((TkWindow *winPtr,
-			    WINDOWPOS *pos));
-extern int		TkWinWmInstallColormaps _ANSI_ARGS_((HWND hwnd,
-			    int message, int isForemost));
-extern void		TkWinWmSetLimits _ANSI_ARGS_((HWND hwnd,
-			    MINMAXINFO *info));
+extern void		TkWinWmCleanup _ANSI_ARGS_((HINSTANCE hInstance));
+extern HWND		TkWinWmFindEmbedAssociation _ANSI_ARGS_((
+			    TkWindow *winPtr));
+extern void		TkWinWmStoreEmbedAssociation _ANSI_ARGS_((
+			    TkWindow *winPtr, HWND hwnd));
+extern void		TkWinXCleanup _ANSI_ARGS_((HINSTANCE hInstance));
 extern void 		TkWinXInit _ANSI_ARGS_((HINSTANCE hInstance));
 
 #endif /* _TKWININT */

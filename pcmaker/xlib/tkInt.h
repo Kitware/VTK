@@ -5,12 +5,12 @@
  *	procedures but not exported outside the module.
  *
  * Copyright (c) 1990-1994 The Regents of the University of California.
- * Copyright (c) 1994-1996 Sun Microsystems, Inc.
+ * Copyright (c) 1994-1997 Sun Microsystems, Inc.
  *
  * See the file "license.terms" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * SCCS: @(#) tkInt.h 1.172 96/10/12 17:29:48
+ * SCCS: @(#) tkInt.h 1.201 97/08/11 15:53:39
  */
 
 #ifndef _TKINT
@@ -33,8 +33,45 @@
 typedef struct TkColormap TkColormap;
 typedef struct TkGrabEvent TkGrabEvent;
 typedef struct Tk_PostscriptInfo Tk_PostscriptInfo;
+typedef struct TkpCursor_ *TkpCursor;
 typedef struct TkRegion_ *TkRegion;
 typedef struct TkStressedCmap TkStressedCmap;
+typedef struct TkBindInfo_ *TkBindInfo;
+
+/*
+ * Procedure types.
+ */
+
+typedef int (TkBindEvalProc) _ANSI_ARGS_((ClientData clientData,
+	Tcl_Interp *interp, XEvent *eventPtr, Tk_Window tkwin,
+	KeySym keySym));
+typedef void (TkBindFreeProc) _ANSI_ARGS_((ClientData clientData));
+typedef Window (TkClassCreateProc) _ANSI_ARGS_((Tk_Window tkwin,
+	Window parent, ClientData instanceData));
+typedef void (TkClassGeometryProc) _ANSI_ARGS_((ClientData instanceData));
+typedef void (TkClassModalProc) _ANSI_ARGS_((Tk_Window tkwin,
+	XEvent *eventPtr));
+
+
+/*
+ * Widget class procedures used to implement platform specific widget
+ * behavior.
+ */
+
+typedef struct TkClassProcs {
+    TkClassCreateProc *createProc;
+				/* Procedure to invoke when the
+                                   platform-dependent window needs to be
+                                   created. */
+    TkClassGeometryProc *geometryProc;
+				/* Procedure to invoke when the geometry of a
+				   window needs to be recalculated as a result
+				   of some change in the system. */
+    TkClassModalProc *modalProc;
+				/* Procedure to invoke after all bindings on a
+				   widget have been triggered in order to
+				   handle a modal loop. */
+} TkClassProcs;
 
 /*
  * One of the following structures is maintained for each cursor in
@@ -243,25 +280,12 @@ typedef struct TkDisplay {
      * Information used by tkFocus.c only:
      */
 
-    struct TkWindow *focusWinPtr;
-				/* Window that currently has the focus for
-				 * this display, or NULL if none. */
     struct TkWindow *implicitWinPtr;
 				/* If the focus arrived at a toplevel window
 				 * implicitly via an Enter event (rather
 				 * than via a FocusIn event), this points
 				 * to the toplevel window.  Otherwise it is
 				 * NULL. */
-    struct TkWindow *focusOnMapPtr;
-				/* This points to a toplevel window that is
-				 * supposed to receive the X input focus as
-				 * soon as it is mapped (needed to handle the
-				 * fact that X won't allow the focus on an
-				 * unmapped window).  NULL means no delayed
-				 * focus op in progress. */
-    int forceFocus;		/* Associated with focusOnMapPtr:  non-zero
-				 * means claim the focus even if some other
-				 * application currently has it. */
 
     /*
      * Used by tkColor.c only:
@@ -292,6 +316,12 @@ typedef struct TkDisplay {
     XIM inputMethod;		/* Input method for this display */
 #endif /* TK_USE_INPUT_METHODS */
     Tcl_HashTable winTable;	/* Maps from X window ids to TkWindow ptrs. */
+
+    int refCount;		/* Reference count of how many Tk applications
+                                 * are using this display. Used to clean up
+                                 * the display when we no longer have any
+                                 * Tk applications using it.
+                                 */
 } TkDisplay;
 
 /*
@@ -370,21 +400,37 @@ typedef struct TkMainInfo {
     Tk_BindingTable bindingTable;
 				/* Used in conjunction with "bind" command
 				 * to bind events to Tcl commands. */
-    struct TkVirtualEventTable *vetPtr;
-				/* Hold definitions of virtual events. */
+    TkBindInfo bindInfo;	/* Information used by tkBind.c on a per
+				 * interpreter basis. */
+    struct TkFontInfo *fontInfoPtr;
+				/* Hold named font tables.  Used only by
+				 * tkFont.c. */
+
+    /*
+     * Information used only by tkFocus.c and tk*Embed.c:
+     */
+
     struct TkFocusInfo *focusPtr;
 				/* First in list of records containing focus
 				 * information for each top-level in the
 				 * application.  Used only by tkFocus.c. */
+    struct TkWindow *focusWinPtr;
+				/* Window that currently has the focus for
+				 * this application, or NULL if none. */
     unsigned long focusSerial;	/* Serial number of last request we made to
 				 * change the focus.  Used to identify
 				 * stale focus notifications coming from the
 				 * X server. */
-    struct TkWindow *lastFocusPtr;
-				/* The most recent window that was given the
-				 * focus via "focus" command.  Used to restore
-				 * the focus when we get stale FocusIn
-				 * events. */
+    struct TkWindow *focusOnMapPtr;
+				/* This points to a toplevel window that is
+				 * supposed to receive the X input focus as
+				 * soon as it is mapped (needed to handle the
+				 * fact that X won't allow the focus on an
+				 * unmapped window).  NULL means no delayed
+				 * focus op in progress. */
+    int forceFocus;		/* Associated with focusOnMapPtr:  non-zero
+				 * means claim the focus even if some other
+				 * application currently has it. */
     struct ElArray *optionRootPtr;
 				/* Top level of option hierarchy for this
 				 * main window.  NULL means uninitialized.
@@ -396,6 +442,19 @@ typedef struct TkMainInfo {
     struct TkMainInfo *nextPtr;	/* Next in list of all main windows managed by
 				 * this process. */
 } TkMainInfo;
+
+/*
+ * Tk keeps the following data structure for each of it's builtin
+ * bitmaps.  This structure is only used by tkBitmap.c and other
+ * platform specific bitmap files.
+ */
+
+typedef struct {
+    char *source;		/* Bits for bitmap. */
+    int width, height;		/* Dimensions of bitmap. */
+    int native;			/* 0 means generic (X style) bitmap,
+    				 * 1 means native style bitmap. */
+} TkPredefBitmap;
 
 /*
  * Tk keeps one of the following structures for each window.
@@ -426,18 +485,20 @@ typedef struct TkWindow {
 				 * hasn't actually been created yet, or it's
 				 * been deleted. */
     struct TkWindow *childList;	/* First in list of child windows,
-				 * or NULL if no children. */
+				 * or NULL if no children.  List is in
+				 * stacking order, lowest window first.*/
     struct TkWindow *lastChildPtr;
-				/* Last in list of child windows, or NULL
-				 * if no children. */
+				/* Last in list of child windows (highest
+				 * in stacking order), or NULL if no
+				 * children. */
     struct TkWindow *parentPtr;	/* Pointer to parent window (logical
 				 * parent, not necessarily X parent).  NULL
 				 * means either this is the main window, or
 				 * the window's parent has already been
 				 * deleted. */
-    struct TkWindow *nextPtr;	/* Next in list of children with
-				 * same parent (NULL if end of
-				 * list). */
+    struct TkWindow *nextPtr;	/* Next higher sibling (in stacking order)
+				 * in list of children with same parent.  NULL
+				 * means end of list. */
     TkMainInfo *mainPtr;	/* Information shared by all windows
 				 * associated with a particular main
 				 * window.  NULL means this window is
@@ -542,10 +603,18 @@ typedef struct TkWindow {
      * Information maintained by tkWm.c for window manager communication.
      */
 
-    struct TkWmInfo *wmInfoPtr;	/* For top-level windows, points to
-				 * structure with wm-related info (see
-				 * tkWm.c).  For other windows, this
-				 * is NULL. */
+    struct TkWmInfo *wmInfoPtr;	/* For top-level windows (and also
+				 * for special Unix menubar and wrapper
+				 * windows), points to structure with
+				 * wm-related info (see tkWm.c).  For
+				 * other windows, this is NULL. */
+
+    /*
+     * Information used by widget classes.
+     */
+
+    TkClassProcs *classProcsPtr;
+    ClientData instanceData;
 
     /*
      * Platform specific information private to each port.
@@ -588,16 +657,6 @@ typedef struct TkpClipMask {
 extern TkDisplay *tkDisplayList;
 
 /*
- * Flags passed to TkMeasureChars:
- */
-
-#define TK_WHOLE_WORDS		 1
-#define TK_AT_LEAST_ONE		 2
-#define TK_PARTIAL_OK		 4
-#define TK_NEWLINES_NOT_SPECIAL	 8
-#define TK_IGNORE_TABS		16
-
-/*
  * Return values from TkGrabState:
  */
 
@@ -615,6 +674,14 @@ extern TkDisplay *tkDisplayList;
 #define UCHAR(c) ((unsigned char) (c))
 
 /*
+ * The following symbol is used in the mode field of FocusIn events
+ * generated by an embedded application to request the input focus from
+ * its container.
+ */
+
+#define EMBEDDED_APP_WANTS_FOCUS (NotifyNormal + 20)
+
+/*
  * Miscellaneous variables shared among Tk modules but not exported
  * to the outside world:
  */
@@ -629,6 +696,7 @@ extern Tk_PhotoImageFormat	tkImgFmtPPM;
 extern TkMainInfo		*tkMainWindowList;
 extern Tk_Uid			tkNormalUid;
 extern Tk_ImageType		tkPhotoImageType;
+extern Tcl_HashTable		tkPredefBitmapTable;
 extern int			tkSendSerial;
 
 /*
@@ -638,6 +706,8 @@ extern int			tkSendSerial;
 
 EXTERN char *		TkAlignImageData _ANSI_ARGS_((XImage *image,
 			    int alignment, int bitOrder));
+EXTERN TkWindow *	TkAllocWindow _ANSI_ARGS_((TkDisplay *dispPtr,
+			    int screenNum, TkWindow *parentPtr));
 EXTERN int		TkAreaToPolygon _ANSI_ARGS_((double *polyPtr,
 			    int numPoints, double *rectPtr));
 EXTERN void		TkBezierPoints _ANSI_ARGS_((double control[],
@@ -645,6 +715,7 @@ EXTERN void		TkBezierPoints _ANSI_ARGS_((double control[],
 EXTERN void		TkBezierScreenPoints _ANSI_ARGS_((Tk_Canvas canvas,
 			    double control[], int numSteps,
 			    XPoint *xPointPtr));
+EXTERN void		TkBindDeadWindow _ANSI_ARGS_((TkWindow *winPtr));
 EXTERN void		TkBindEventProc _ANSI_ARGS_((TkWindow *winPtr,
 			    XEvent *eventPtr));
 EXTERN void		TkBindFree _ANSI_ARGS_((TkMainInfo *mainPtr));
@@ -657,18 +728,17 @@ EXTERN void		TkClipBox _ANSI_ARGS_((TkRegion rgn,
 #endif
 EXTERN int		TkClipInit _ANSI_ARGS_((Tcl_Interp *interp,
 			    TkDisplay *dispPtr));
-EXTERN int		TkCmapStressed _ANSI_ARGS_((Tk_Window tkwin,
-			    Colormap colormap));
-EXTERN void		TkComputeTextGeometry _ANSI_ARGS_((
-			    XFontStruct *fontStructPtr, char *string,
-			    int numChars, int wrapLength, int *widthPtr,
-			    int *heightPtr));
-EXTERN void		TkConsoleCreate _ANSI_ARGS_((void));
-EXTERN int		TkConsoleInit _ANSI_ARGS_((Tcl_Interp *interp));
-EXTERN void		TkConsolePrint _ANSI_ARGS_((Tcl_Interp *interp,
-			    int devId, char *buffer, long size));
+EXTERN void		TkComputeAnchor _ANSI_ARGS_((Tk_Anchor anchor,
+			    Tk_Window tkwin, int padX, int padY,
+			    int innerWidth, int innerHeight, int *xPtr,
+			    int *yPtr));
 EXTERN int		TkCopyAndGlobalEval _ANSI_ARGS_((Tcl_Interp *interp,
 			    char *script));
+EXTERN unsigned long	TkCreateBindingProcedure _ANSI_ARGS_((
+			    Tcl_Interp *interp, Tk_BindingTable bindingTable,
+			    ClientData object, char *eventString,
+			    TkBindEvalProc *evalProc, TkBindFreeProc *freeProc,
+			    ClientData clientData));
 EXTERN TkCursor *	TkCreateCursorFromData _ANSI_ARGS_((Tk_Window tkwin,
 			    char *source, char *mask, int width, int height,
 			    int xHot, int yHot, XColor fg, XColor bg));
@@ -687,16 +757,10 @@ EXTERN void		TkDeleteAllImages _ANSI_ARGS_((TkMainInfo *mainPtr));
 #ifndef TkDestroyRegion
 EXTERN void		TkDestroyRegion _ANSI_ARGS_((TkRegion rgn));
 #endif
-EXTERN void		TkDisplayChars _ANSI_ARGS_((Display *display,
-			    Drawable drawable, GC gc,
-			    XFontStruct *fontStructPtr, char *string,
-			    int numChars, int x, int y, int tabOrigin,
-			    int flags));
-EXTERN void		TkDisplayText _ANSI_ARGS_((Display *display,
-			    Drawable drawable, XFontStruct *fontStructPtr,
-			    char *string, int numChars, int x, int y,
-			    int length, Tk_Justify justify, int underline,
-			    GC gc));
+EXTERN void		TkDoConfigureNotify _ANSI_ARGS_((TkWindow *winPtr));
+EXTERN void		TkDrawInsetFocusHighlight _ANSI_ARGS_((
+			    Tk_Window tkwin, GC gc, int width,
+			    Drawable drawable, int padding));
 EXTERN void		TkEventCleanupProc _ANSI_ARGS_((
 			    ClientData clientData, Tcl_Interp *interp));
 EXTERN void		TkEventDeadWindow _ANSI_ARGS_((TkWindow *winPtr));
@@ -711,10 +775,16 @@ EXTERN char *		TkFindStateString _ANSI_ARGS_((
 EXTERN void		TkFocusDeadWindow _ANSI_ARGS_((TkWindow *winPtr));
 EXTERN int		TkFocusFilterEvent _ANSI_ARGS_((TkWindow *winPtr,
 			    XEvent *eventPtr));
+EXTERN TkWindow *	TkFocusKeyEvent _ANSI_ARGS_((TkWindow *winPtr,
+			    XEvent *eventPtr));
+EXTERN void		TkFontPkgInit _ANSI_ARGS_((TkMainInfo *mainPtr));
+EXTERN void		TkFontPkgFree _ANSI_ARGS_((TkMainInfo *mainPtr));
 EXTERN void		TkFreeBindingTags _ANSI_ARGS_((TkWindow *winPtr));
+EXTERN void		TkFreeCursor _ANSI_ARGS_((TkCursor *cursorPtr));
 EXTERN void		TkFreeWindowId _ANSI_ARGS_((TkDisplay *dispPtr,
 			    Window w));
-EXTERN void		TkFreeCursor _ANSI_ARGS_((TkCursor *cursorPtr));
+EXTERN void		TkGenerateActivateEvents _ANSI_ARGS_((
+			    TkWindow *winPtr, int active));
 EXTERN char *		TkGetBitmapData _ANSI_ARGS_((Tcl_Interp *interp,
 			    char *string, char *fileName, int *widthPtr,
 			    int *heightPtr, int *hotXPtr, int *hotYPtr));
@@ -726,7 +796,9 @@ EXTERN TkCursor *	TkGetCursorByName _ANSI_ARGS_((Tcl_Interp *interp,
 EXTERN char *		TkGetDefaultScreenName _ANSI_ARGS_((Tcl_Interp *interp,
 			    char *screenName));
 EXTERN TkDisplay *	TkGetDisplay _ANSI_ARGS_((Display *display));
-EXTERN TkWindow *	TkGetFocus _ANSI_ARGS_((TkWindow *winPtr));
+EXTERN int		TkGetDisplayOf _ANSI_ARGS_((Tcl_Interp *interp,
+			    int objc, Tcl_Obj *CONST objv[],
+			    Tk_Window *tkwinPtr));
 EXTERN int		TkGetInterpNames _ANSI_ARGS_((Tcl_Interp *interp,
 			    Tk_Window tkwin));
 EXTERN int		TkGetMiterPoints _ANSI_ARGS_((double p1[], double p2[],
@@ -751,6 +823,7 @@ EXTERN void		TkInOutEvents _ANSI_ARGS_((XEvent *eventPtr,
 			    TkWindow *sourcePtr, TkWindow *destPtr,
 			    int leaveType, int enterType,
 			    Tcl_QueuePosition position));
+EXTERN void		TkInstallFrameMenu _ANSI_ARGS_((Tk_Window tkwin));
 #ifndef TkIntersectRegion
 EXTERN void		TkIntersectRegion _ANSI_ARGS_((TkRegion sra,
 			    TkRegion srcb, TkRegion dr_return));
@@ -760,24 +833,63 @@ EXTERN int		TkLineToArea _ANSI_ARGS_((double end1Ptr[2],
 			    double end2Ptr[2], double rectPtr[4]));
 EXTERN double		TkLineToPoint _ANSI_ARGS_((double end1Ptr[2],
 			    double end2Ptr[2], double pointPtr[2]));
+EXTERN int		TkListAppend _ANSI_ARGS_((void **headPtrPtr,
+			    void *itemPtr, size_t size));
+EXTERN int		TkListDelete _ANSI_ARGS_((void **headPtrPtr,
+			    void *itemPtr, size_t size));
+EXTERN void *		TkListFind _ANSI_ARGS_((void *headPtr, void *itemPtr,
+			    size_t size));
 EXTERN int		TkMakeBezierCurve _ANSI_ARGS_((Tk_Canvas canvas,
 			    double *pointPtr, int numPoints, int numSteps,
 			    XPoint xPoints[], double dblPoints[]));
 EXTERN void		TkMakeBezierPostscript _ANSI_ARGS_((Tcl_Interp *interp,
 			    Tk_Canvas canvas, double *pointPtr,
 			    int numPoints));
-EXTERN Window		TkMakeWindow _ANSI_ARGS_((TkWindow *winPtr,
-			    Window parent));
-EXTERN int		TkMeasureChars _ANSI_ARGS_((XFontStruct *fontStructPtr,
-			    char *source, int maxChars, int startX, int maxX,
-			    int tabOrigin, int flags, int *nextXPtr));
+EXTERN void		TkMakeMenuWindow _ANSI_ARGS_((Tk_Window tkwin,
+			    int transient));
 EXTERN void		TkOptionClassChanged _ANSI_ARGS_((TkWindow *winPtr));
 EXTERN void		TkOptionDeadWindow _ANSI_ARGS_((TkWindow *winPtr));
 EXTERN int		TkOvalToArea _ANSI_ARGS_((double *ovalPtr,
 			    double *rectPtr));
 EXTERN double		TkOvalToPoint _ANSI_ARGS_((double ovalPtr[4],
 			    double width, int filled, double pointPtr[2]));
-EXTERN int		TkPlatformInit _ANSI_ARGS_((Tcl_Interp *interp));
+EXTERN void		TkpChangeFocus _ANSI_ARGS_((TkWindow *winPtr,
+			    int force));
+EXTERN void		TkpCloseDisplay _ANSI_ARGS_((TkDisplay *dispPtr));
+EXTERN void		TkpClaimFocus _ANSI_ARGS_((TkWindow *topLevelPtr,
+			    int force));
+#ifndef TkpCmapStressed
+EXTERN int		TkpCmapStressed _ANSI_ARGS_((Tk_Window tkwin,
+			    Colormap colormap));
+#endif
+#ifndef TkpCreateNativeBitmap
+EXTERN Pixmap		TkpCreateNativeBitmap _ANSI_ARGS_((Display *display,
+			    char * source));
+#endif
+#ifndef TkpDefineNativeBitmaps
+EXTERN void		TkpDefineNativeBitmaps _ANSI_ARGS_((void));
+#endif
+EXTERN void		TkpDisplayWarning _ANSI_ARGS_((char *msg,
+			    char *title));
+EXTERN void		TkpGetAppName _ANSI_ARGS_((Tcl_Interp *interp,
+			    Tcl_DString *name));
+EXTERN unsigned long	TkpGetMS _ANSI_ARGS_((void));
+#ifndef TkpGetNativeAppBitmap
+EXTERN Pixmap		TkpGetNativeAppBitmap _ANSI_ARGS_((Display *display,
+			    char *name, int *width, int *height));
+#endif
+EXTERN TkWindow *	TkpGetOtherWindow _ANSI_ARGS_((TkWindow *winPtr));
+EXTERN TkWindow *	TkpGetWrapperWindow _ANSI_ARGS_((TkWindow *winPtr));
+EXTERN int		TkpInit _ANSI_ARGS_((Tcl_Interp *interp));
+EXTERN void		TkpInitializeMenuBindings _ANSI_ARGS_((
+			    Tcl_Interp *interp, Tk_BindingTable bindingTable));
+EXTERN void		TkpMakeContainer _ANSI_ARGS_((Tk_Window tkwin));
+EXTERN Window		TkpMakeWindow _ANSI_ARGS_((TkWindow *winPtr,
+			    Window parent));
+EXTERN void		TkpMenuNotifyToplevelCreate _ANSI_ARGS_((
+			    Tcl_Interp *, char *menuName));
+EXTERN TkDisplay *	TkpOpenDisplay _ANSI_ARGS_((char *display_name));
+EXTERN void		TkPointerDeadWindow _ANSI_ARGS_((TkWindow *winPtr));
 EXTERN int		TkPointerEvent _ANSI_ARGS_((XEvent *eventPtr,
 			    TkWindow *winPtr));
 EXTERN int		TkPolygonToArea _ANSI_ARGS_((double *polyPtr,
@@ -786,6 +898,27 @@ EXTERN double		TkPolygonToPoint _ANSI_ARGS_((double *polyPtr,
 			    int numPoints, double *pointPtr));
 EXTERN int		TkPositionInTree _ANSI_ARGS_((TkWindow *winPtr,
 			    TkWindow *treePtr));
+#ifndef TkpPrintWindowId
+EXTERN void		TkpPrintWindowId _ANSI_ARGS_((char *buf,
+			    Window window));
+#endif
+EXTERN void		TkpRedirectKeyEvent _ANSI_ARGS_((TkWindow *winPtr,
+			    XEvent *eventPtr));
+#ifndef TkpScanWindowId
+EXTERN int		TkpScanWindowId _ANSI_ARGS_((Tcl_Interp *interp,
+			    char *string, int *idPtr));
+#endif
+EXTERN void		TkpSetCapture _ANSI_ARGS_((TkWindow *winPtr));
+EXTERN void		TkpSetCursor _ANSI_ARGS_((TkpCursor cursor));
+EXTERN void		TkpSetMainMenubar _ANSI_ARGS_((Tcl_Interp *interp,
+			    Tk_Window tkwin, char *menuName));
+#ifndef TkpSync
+EXTERN void		TkpSync _ANSI_ARGS_((Display *display));
+#endif
+EXTERN int		TkpTestembedCmd _ANSI_ARGS_((ClientData clientData,
+			    Tcl_Interp *interp, int argc, char **argv));
+EXTERN int		TkpUseWindow _ANSI_ARGS_((Tcl_Interp *interp,
+			    Tk_Window tkwin, char *string));
 #ifndef TkPutImage
 EXTERN void		TkPutImage _ANSI_ARGS_((unsigned long *colors,
 			    int ncolors, Display* display, Drawable d,
@@ -793,13 +926,17 @@ EXTERN void		TkPutImage _ANSI_ARGS_((unsigned long *colors,
 			    int dest_x, int dest_y, unsigned int width,
 			    unsigned int height));
 #endif
+EXTERN int		TkpWindowWasRecentlyDeleted _ANSI_ARGS_((Window win,
+			    TkDisplay *dispPtr));
+EXTERN void		TkpWmSetState _ANSI_ARGS_((TkWindow *winPtr,
+			    int state));
+EXTERN void		TkQueueEventForAllChildren _ANSI_ARGS_((
+			    TkWindow *winPtr, XEvent *eventPtr));
 #ifndef TkRectInRegion
 EXTERN int		TkRectInRegion _ANSI_ARGS_((TkRegion rgn,
 			    int x, int y, unsigned int width,
 			    unsigned int height));
 #endif
-EXTERN void		TkQueueEventForAllChildren _ANSI_ARGS_((
-			    Tk_Window tkwin, XEvent *eventPtr));
 EXTERN int		TkScrollWindow _ANSI_ARGS_((Tk_Window tkwin, GC gc,
 			    int x, int y, int width, int height, int dx,
 			    int dy, TkRegion damageRgn));
@@ -807,6 +944,9 @@ EXTERN void		TkSelDeadWindow _ANSI_ARGS_((TkWindow *winPtr));
 EXTERN void		TkSelEventProc _ANSI_ARGS_((Tk_Window tkwin,
 			    XEvent *eventPtr));
 EXTERN void		TkSelInit _ANSI_ARGS_((Tk_Window tkwin));
+EXTERN void		TkSelPropProc _ANSI_ARGS_((XEvent *eventPtr));
+EXTERN void		TkSetClassProcs _ANSI_ARGS_((Tk_Window tkwin,
+			    TkClassProcs *procs, ClientData instanceData));
 #ifndef TkSetPixmapColormap
 EXTERN void		TkSetPixmapColormap _ANSI_ARGS_((Pixmap pixmap,
 			    Colormap colormap));
@@ -815,16 +955,13 @@ EXTERN void		TkSetPixmapColormap _ANSI_ARGS_((Pixmap pixmap,
 EXTERN void		TkSetRegion _ANSI_ARGS_((Display* display, GC gc,
 			    TkRegion rgn));
 #endif
-EXTERN void		TkSelPropProc _ANSI_ARGS_((XEvent *eventPtr));
+EXTERN void		TkSetWindowMenuBar _ANSI_ARGS_((Tcl_Interp *interp,
+			    Tk_Window tkwin, char *oldMenuName, 
+			    char *menuName));
+EXTERN KeySym		TkStringToKeysym _ANSI_ARGS_((char *name));
 EXTERN int		TkThickPolyLineToArea _ANSI_ARGS_((double *coordPtr,
 			    int numPoints, double width, int capStyle,
 			    int joinStyle, double *rectPtr));
-EXTERN KeySym		TkStringToKeysym _ANSI_ARGS_((char *name));
-EXTERN void		TkUnderlineChars _ANSI_ARGS_((Display *display,
-			    Drawable drawable, GC gc,
-			    XFontStruct *fontStructPtr, char *string,
-			    int x, int y, int tabOrigin, int flags,
-			    int firstChar, int lastChar));
 #ifndef TkUnionRectWithRegion
 EXTERN void		TkUnionRectWithRegion _ANSI_ARGS_((XRectangle* rect,
 			    TkRegion src, TkRegion dr_return));
@@ -832,6 +969,7 @@ EXTERN void		TkUnionRectWithRegion _ANSI_ARGS_((XRectangle* rect,
 EXTERN void		TkWmAddToColormapWindows _ANSI_ARGS_((
 			    TkWindow *winPtr));
 EXTERN void		TkWmDeadWindow _ANSI_ARGS_((TkWindow *winPtr));
+EXTERN TkWindow *	TkWmFocusToplevel _ANSI_ARGS_((TkWindow *winPtr));
 EXTERN void		TkWmMapWindow _ANSI_ARGS_((TkWindow *winPtr));
 EXTERN void		TkWmNewWindow _ANSI_ARGS_((TkWindow *winPtr));
 EXTERN void		TkWmProtocolEventProc _ANSI_ARGS_((TkWindow *winPtr,

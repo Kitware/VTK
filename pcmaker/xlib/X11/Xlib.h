@@ -4305,6 +4305,7 @@ _XFUNCPROTOEND
 
 #ifdef MAC_TCL
 #   undef Cursor
+#   undef Region
 #endif
 
 #endif /* _XLIB_H_ */
