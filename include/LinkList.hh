@@ -27,7 +27,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "RefCount.hh"
 class vlDataSet;
 
-struct vlLink {
+struct _vlLink_s {
     unsigned short ncells;
     int *cells;
 };
@@ -40,7 +40,7 @@ public:
   ~vlLinkList();
   char *GetClassName() {return "vlLinkList";};
 
-  vlLink &GetLink(int ptId);
+  _vlLink_s &GetLink(int ptId);
   unsigned short GetNcells(int ptId);
   int *GetCells(int ptId);
   void IncrementLinkCount(int ptId);
@@ -57,16 +57,16 @@ public:
   void Reset();
 
 private:
-  vlLink *Array;   // pointer to data
+  _vlLink_s *Array;   // pointer to data
   int Size;       // allocated size of data
   int MaxId;     // maximum index inserted thus far
   int Extend;     // grow array by this point
-  vlLink *Resize(int sz);  // function to resize data
+  _vlLink_s *Resize(int sz);  // function to resize data
 };
 
 // Description:
 // Get a link structure given a point id.
-inline vlLink &vlLinkList::GetLink(int ptId) {return this->Array[ptId];};
+inline _vlLink_s &vlLinkList::GetLink(int ptId) {return this->Array[ptId];};
 
 // Description:
 // Get the number of cells using this point.
