@@ -19,13 +19,15 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageHSVToRGB, "1.29.10.3");
+vtkCxxRevisionMacro(vtkImageHSVToRGB, "1.29.10.4");
 vtkStandardNewMacro(vtkImageHSVToRGB);
 
 //----------------------------------------------------------------------------
 vtkImageHSVToRGB::vtkImageHSVToRGB()
 {
   this->Maximum = 255.0;
+  this->SetNumberOfInputPorts(1);
+  this->SetNumberOfOutputPorts(1);
 }
 
 

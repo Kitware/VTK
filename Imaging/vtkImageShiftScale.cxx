@@ -16,9 +16,12 @@
 
 #include "vtkImageData.h"
 #include "vtkImageProgressIterator.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageShiftScale, "1.46.10.2");
+vtkCxxRevisionMacro(vtkImageShiftScale, "1.46.10.3");
 vtkStandardNewMacro(vtkImageShiftScale);
 
 //----------------------------------------------------------------------------
@@ -34,14 +37,16 @@ vtkImageShiftScale::vtkImageShiftScale()
 
 
 //----------------------------------------------------------------------------
-void vtkImageShiftScale::ExecuteInformation(vtkImageData *inData, 
-                                            vtkImageData *outData)
+void vtkImageShiftScale::ExecuteInformation (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector * vtkNotUsed( inputVector ), 
+  vtkInformationVector * outputVector)
 {
-  this->vtkImageToImageFilter::ExecuteInformation( inData, outData );
-
   if (this->OutputScalarType != -1)
     {
-    outData->SetScalarType(this->OutputScalarType);
+    // get the info objects
+    vtkInformation* outInfo = outputVector->GetInformationObject(0);
+    outInfo->Set(vtkDataObject::SCALAR_TYPE(),this->OutputScalarType);
     }
 }
 
@@ -136,14 +141,14 @@ void vtkImageShiftScaleExecute1(vtkImageShiftScale *self,
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for
 // the datas data types.
-void vtkImageShiftScale::ThreadedExecute(vtkImageData *inData, 
-                                         vtkImageData *outData,
+void vtkImageShiftScale::ThreadedExecute (vtkImageData ***inData, 
+                                         vtkImageData **outData,
                                          int outExt[6], int id)
 {
-  switch (inData->GetScalarType())
+  switch (inData[0][0]->GetScalarType())
     {
     vtkTemplateMacro6(vtkImageShiftScaleExecute1, this, 
-                      inData, outData, outExt, id, static_cast<VTK_TT *>(0));
+                      inData[0][0], outData[0], outExt, id, static_cast<VTK_TT *>(0));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

@@ -20,13 +20,15 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageRGBToHSI, "1.3.10.3");
+vtkCxxRevisionMacro(vtkImageRGBToHSI, "1.3.10.4");
 vtkStandardNewMacro(vtkImageRGBToHSI);
 
 //----------------------------------------------------------------------------
 vtkImageRGBToHSI::vtkImageRGBToHSI()
 {
   this->Maximum = 255.0;
+  this->SetNumberOfInputPorts(1);
+  this->SetNumberOfOutputPorts(1);
 }
 
 //----------------------------------------------------------------------------

@@ -19,13 +19,15 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageRGBToHSV, "1.28.10.3");
+vtkCxxRevisionMacro(vtkImageRGBToHSV, "1.28.10.4");
 vtkStandardNewMacro(vtkImageRGBToHSV);
 
 //----------------------------------------------------------------------------
 vtkImageRGBToHSV::vtkImageRGBToHSV()
 {
   this->Maximum = 255.0;
+  this->SetNumberOfInputPorts(1);
+  this->SetNumberOfOutputPorts(1);
 }
 
 //----------------------------------------------------------------------------
