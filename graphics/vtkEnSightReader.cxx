@@ -251,7 +251,7 @@ void vtkEnSightReader::Execute()
   float newTime;
   int numSteps;
   char* fileName;
-  int wildcardPos, numWildcards, numDigits, filenameNum;
+  int filenameNum;
   
   if (!this->ReadCaseFile())
     {

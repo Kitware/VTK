@@ -88,25 +88,20 @@ int vtkEnSightGoldBinaryReader::ReadGeometryFile(char* fileName, int timeStep)
   
   // Initialize
   //
-  if (!this->GeometryFileName)
+  if (!fileName)
     {
     vtkErrorMacro("A GeometryFileName must be specified in the case file.");
-    return 0;
-    }
-  if (strrchr(this->GeometryFileName, '*') != NULL)
-    {
-    vtkErrorMacro("VTK does not currently handle time.");
     return 0;
     }
   if (this->FilePath)
     {
     strcpy(line, this->FilePath);
-    strcat(line, this->GeometryFileName);
+    strcat(line, fileName);
     vtkDebugMacro("full path to geometry file: " << line);
     }
   else
     {
-    strcpy(line, this->GeometryFileName);
+    strcpy(line, fileName);
     }
   
   this->IFile = fopen(line, "rb");
@@ -239,7 +234,6 @@ int vtkEnSightGoldBinaryReader::ReadGeometryFile(char* fileName, int timeStep)
 void vtkEnSightGoldBinaryReader::SkipTimeStep()
 {
   char line[80], subLine[80];
-  int partId;
   int lineRead;
 
   while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
@@ -340,7 +334,6 @@ int vtkEnSightGoldBinaryReader::SkipStructuredGrid(char line[256])
   int lineRead = 1;
   int iblanked = 0;
   int dimensions[3];
-  int i;
   int numPts;
   float *xCoords, *yCoords, *zCoords;
   
@@ -382,11 +375,10 @@ int vtkEnSightGoldBinaryReader::SkipStructuredGrid(char line[256])
 int vtkEnSightGoldBinaryReader::SkipUnstructuredGrid(char line[256])
 {
   int lineRead = 1;
-  int i, j;
-  int *nodeIds;
+  int i;
   int *elementIdList, *nodeIdList;
   int numElements;
-  int idx, cellId, cellType;
+  int cellType;
   float *xCoords, *yCoords, *zCoords;
   
   while(lineRead && strncmp(line, "part", 4) != 0)
@@ -476,7 +468,6 @@ int vtkEnSightGoldBinaryReader::SkipUnstructuredGrid(char line[256])
       vtkDebugMacro("nsided");
       int *numNodesPerElement;
       int numNodes = 0;
-      int nodeCount = 0;
       
       cellType = VTK_ENSIGHT_NSIDED;
       this->ReadInt(&numElements);
@@ -733,7 +724,6 @@ int vtkEnSightGoldBinaryReader::SkipRectilinearGrid(char line[256])
   int lineRead = 1;
   int iblanked = 0;
   int dimensions[3];
-  int i;
   float *tempCoords;
   int numPts;
   
@@ -822,25 +812,20 @@ int vtkEnSightGoldBinaryReader::ReadMeasuredGeometryFile(char* fileName,
   
   // Initialize
   //
-  if (!this->GeometryFileName)
+  if (!fileName)
     {
     vtkErrorMacro("A MeasuredFileName must be specified in the case file.");
-    return 0;
-    }
-  if (strrchr(this->MeasuredFileName, '*') != NULL)
-    {
-    vtkErrorMacro("VTK does not currently handle time.");
     return 0;
     }
   if (this->FilePath)
     {
     strcpy(line, this->FilePath);
-    strcat(line, this->MeasuredFileName);
+    strcat(line, fileName);
     vtkDebugMacro("full path to measured geometry file: " << line);
     }
   else
     {
-    strcpy(line, this->MeasuredFileName);
+    strcpy(line, fileName);
     }
   
   this->IFile = fopen(line, "rb");
@@ -1110,7 +1095,7 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(char* fileName,
   
   // Initialize
   //
-  if (!this->GeometryFileName)
+  if (!fileName)
     {
     vtkErrorMacro("NULL VectorPerNode variable file name");
     return 0;
