@@ -18,15 +18,13 @@ vtkPLOT3DReader pl3d;
     pl3d SetVectorFunctionNumber 202;
     pl3d Update;
 vtkPlane plane;
-eval plane SetOrigin [[pl3d GetOutput] GetCenter];
+    eval plane SetOrigin [[pl3d GetOutput] GetCenter];
     plane SetNormal -0.287 0 0.9579;
 vtkCutter planeCut;
     planeCut SetInput [pl3d GetOutput];
     planeCut SetCutFunction plane;
-vtkCleanPolyData clean;
-    clean SetInput [planeCut GetOutput];
 vtkProbeFilter probe;
-    probe SetInput [clean GetOutput];
+    probe SetInput [planeCut GetOutput];
     probe SetSource [pl3d GetOutput];
 vtkDataSetMapper cutMapper;
     cutMapper SetInput [probe GetOutput];
@@ -54,8 +52,7 @@ vtkPolyMapper outlineMapper;
     outlineMapper SetInput [outline GetOutput];
 vtkActor outlineActor;
     outlineActor SetMapper outlineMapper;
-set outlineProp [outlineActor GetProperty];
-eval $outlineProp SetColor 0 0 0;
+    eval [outlineActor GetProperty] SetColor 0 0 0;
 
 # Add the actors to the renderer, set the background and size
 #

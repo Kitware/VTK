@@ -18,7 +18,8 @@ v16 SetDataDimensions 128 128;
 [v16 GetOutput] SetOrigin 0.0 0.0 0.0;
 v16 SwapBytesOn;
 v16 SetFilePrefix "../../data/headsq/half";
-v16 SetImageRange 1 93;
+v16 SetImageRange 19 24;
+#v16 SetImageRange 1 93;
 v16 SetDataAspectRatio 1.6 1.6 1.5;
 v16 Update;
 

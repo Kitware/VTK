@@ -27,7 +27,7 @@ vtkDelaunay3D del
     del SetInput profile;
     del BoundingTriangulationOn;
     del SetTolerance 0.01;
-    del SetAlpha 0.3;
+    del SetAlpha 0.6;
     del BoundingTriangulationOff;
     del Update;
     

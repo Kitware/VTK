@@ -21,18 +21,15 @@ vtkPLOT3DReader pl3d;
 vtkContourFilter iso;
     iso SetInput [pl3d GetOutput];
     iso SetValue 0 .38;
-vtkCleanPolyData clean;
-    clean SetInput [iso GetOutput];
 vtkPolyNormals normals;
-    normals SetInput [clean GetOutput];
+    normals SetInput [iso GetOutput];
     normals SetFeatureAngle 45;
 vtkPolyMapper isoMapper;
     isoMapper SetInput [normals GetOutput];
     isoMapper ScalarsVisibleOff;
 vtkActor isoActor;
     isoActor SetMapper isoMapper;
-set isoProp [isoActor GetProperty];
-eval $isoProp SetColor $bisque;
+    eval [isoActor GetProperty] SetColor $bisque;
 
 vtkStructuredGridOutlineFilter outline;
     outline SetInput [pl3d GetOutput];
@@ -40,7 +37,6 @@ vtkPolyMapper outlineMapper;
     outlineMapper SetInput [outline GetOutput];
 vtkActor outlineActor;
     outlineActor SetMapper outlineMapper;
-set outlineProp [outlineActor GetProperty];
 
 # Add the actors to the renderer, set the background and size
 #

@@ -4,15 +4,6 @@
 source vtkInt.tcl
 source colors.tcl
 
-# First create the render master
-vtkRenderMaster rm;
-
-# Now create the RenderWindow, Renderer and both Actors
-#
-set renWin [rm MakeRenderWindow];
-set ren1   [$renWin MakeRenderer];
-set iren [$renWin MakeRenderWindowInteractor];
-
 # create pipeline
 # reader reads slices
 vtkVolume16Reader v16;
@@ -20,7 +11,8 @@ vtkVolume16Reader v16;
     v16 SwapBytesOn;
     v16 SetFilePrefix "../../data/fullHead/headsq"
     v16 SetDataAspectRatio 0.8 0.8 1.5;
-    v16 SetImageRange 1 94;
+    v16 SetImageRange 19 24;
+#    v16 SetImageRange 1 94;#uncomment for the whole head
     v16 SetDataMask 0x7fff;
 
 # write isosurface to file
@@ -42,6 +34,15 @@ vtkPolyMapper mapper;
 vtkActor head;
     head SetMapper mapper;
     eval [head GetProperty] SetColor $raw_sienna;
+
+# First create the render master
+vtkRenderMaster rm;
+
+# Now create the RenderWindow, Renderer and Interactor
+#
+set renWin [rm MakeRenderWindow];
+set ren1   [$renWin MakeRenderer];
+set iren [$renWin MakeRenderWindowInteractor];
 
 # Add the actors to the renderer, set the background and size
 #

@@ -38,14 +38,8 @@ vtkContourFilter iso;
   iso SetInput [sweptSurfaceFilter GetOutput];
   iso SetValue 0 0.33;
 
-vtkCleanPolyData clean;
-  clean SetInput [iso GetOutput];
-
-vtkPolyNormals normals;
-  normals SetInput [clean GetOutput];
-
 vtkPolyMapper sweptSurfaceMapper;
-  sweptSurfaceMapper SetInput [normals GetOutput];
+  sweptSurfaceMapper SetInput [iso GetOutput];
   sweptSurfaceMapper ScalarsVisibleOff;
 
 vtkActor sweptSurface;
