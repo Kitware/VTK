@@ -122,7 +122,7 @@ int vtkInterpolatedVelocityField::FunctionValues(float* x, float* f)
 {
   int i, j, subId , numPts, id;
   vtkVectors* vectors;
-  float vec[3], pcoords[3], closestpoint[3];
+  float vec[3], closestpoint[3];
   float dist2;
   int ret;
 
@@ -144,18 +144,32 @@ int vtkInterpolatedVelocityField::FunctionValues(float* x, float* f)
     // See if the point is in the cached cell
     if (this->LastCellId == -1 || 
 	!(ret=this->GenCell->EvaluatePosition(x, closestpoint, subId,
-					      pcoords, dist2, this->Weights))
+					      this->LastPCoords, dist2, 
+					      this->Weights))
 	|| ret == -1)
       {
 	if (this->LastCellId != - 1 )
+	  {
 	  this->DataSet->GetCell(this->LastCellId, this->Cell);
 
-      // if not, find and get it
-      this->LastCellId = 
-	this->DataSet->FindCell(x, this->Cell, this->GenCell, -1, 0, 
-				subId, pcoords, this->Weights);
-      this->DataSet->GetCell(this->LastCellId, this->GenCell);
-      this->CacheMiss++;
+	  // if not, find and get it
+	  this->LastCellId = 
+	    this->DataSet->FindCell(x, this->Cell, this->GenCell, -1, 0, 
+				    subId, this->LastPCoords, this->Weights);
+	  if (this->LastCellId != - 1)
+	    {
+	    this->DataSet->GetCell(this->LastCellId, this->GenCell);
+	    }
+	  else
+	    {
+	    return 0;
+	    }
+	  this->CacheMiss++;
+	  }
+	else
+	  {
+	  return 0;
+	  }
       }
     else
       {
@@ -167,7 +181,7 @@ int vtkInterpolatedVelocityField::FunctionValues(float* x, float* f)
     // if caching is off, find the cell and get it
     this->LastCellId = 
       this->DataSet->FindCell(x, 0, this->GenCell, -1, 0, 
-			      subId, pcoords, this->Weights);
+			      subId, this->LastPCoords, this->Weights);
     this->DataSet->GetCell(this->LastCellId, this->GenCell);
     }
 
@@ -226,6 +240,27 @@ int vtkInterpolatedVelocityField::GetLastWeights(float* w)
     for (j=0; j < numPts; j++)
       {
       w[j] = this->Weights[j];
+      }
+    return 1;
+    }
+  // otherwise, return false
+  else
+    {
+    return 0;
+    }
+}
+
+int vtkInterpolatedVelocityField::GetLastLocalCoordinates(float pcoords[3])
+{
+  int j;
+
+  // If last cell is valid, fill p with the local coordinates
+  // and return true
+  if (this->LastCellId >= 0)
+    {
+    for (j=0; j < 3; j++)
+      {
+      pcoords[j] = this->LastPCoords[j];
       }
     return 1;
     }

@@ -105,6 +105,7 @@ public:
   // if the cached cell is valid (returns 1). Otherwise, it does not
   // change w and returns 0.
   int GetLastWeights(float* w);
+  int GetLastLocalCoordinates(float pcoords[3]);
 
   // Description:
   // Turn caching on/off.
@@ -127,6 +128,7 @@ protected:
   vtkGenericCell* GenCell; // last cell
   vtkGenericCell* Cell;
   float* Weights; // last weights
+  float LastPCoords[3]; // last local coordinates
   int LastCellId;
   int CacheHit;
   int CacheMiss;
@@ -134,6 +136,11 @@ protected:
 };
 
 #endif
+
+
+
+
+
 
 
 
