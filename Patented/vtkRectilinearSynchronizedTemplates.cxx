@@ -51,7 +51,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkRectilinearSynchronizedTemplates, "1.17");
+vtkCxxRevisionMacro(vtkRectilinearSynchronizedTemplates, "1.18");
 vtkStandardNewMacro(vtkRectilinearSynchronizedTemplates);
 
 //----------------------------------------------------------------------------
@@ -643,7 +643,7 @@ int vtkRectilinearSynchronizedTemplates::RequestUpdateExtent(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  int piece, numPieces, ghostLevel;
+  int piece, numPieces;
   int *wholeExt, *ext;
   vtkExtentTranslator *translator;
 
@@ -658,8 +658,6 @@ int vtkRectilinearSynchronizedTemplates::RequestUpdateExtent(
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
   numPieces =
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-  ghostLevel =
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
 
   // get the extent associated with the piece.
   if (translator == NULL)
