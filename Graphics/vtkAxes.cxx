@@ -40,8 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 #include "vtkAxes.h"
-#include "vtkScalars.h"
-#include "vtkNormals.h"
+#include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
 
@@ -80,8 +79,8 @@ void vtkAxes::Execute()
   int numPts=6, numLines=3;
   vtkPoints *newPts;
   vtkCellArray *newLines;
-  vtkScalars *newScalars;
-  vtkNormals *newNormals;
+  vtkFloatArray *newScalars;
+  vtkFloatArray *newNormals;
   float x[3], n[3];
   int ptIds[2];
   vtkPolyData *output = this->GetOutput();
@@ -92,9 +91,10 @@ void vtkAxes::Execute()
   newPts->Allocate(numPts);
   newLines = vtkCellArray::New();
   newLines->Allocate(newLines->EstimateSize(numLines,2));
-  newScalars = vtkScalars::New();
+  newScalars = vtkFloatArray::New();
   newScalars->Allocate(numPts);
-  newNormals = vtkNormals::New();
+  newNormals = vtkFloatArray::New();
+  newNormals->SetNumberOfComponents(3);
   newNormals->Allocate(numPts);
 //
 // Create axes
@@ -108,16 +108,16 @@ void vtkAxes::Execute()
     }
   n[0] = 0.0; n[1] = 1.0; n[2] = 0.0; 
   ptIds[0] = newPts->InsertNextPoint(x);
-  newScalars->InsertNextScalar(0.0);
-  newNormals->InsertNextNormal(n);
+  newScalars->InsertNextValue(0.0);
+  newNormals->InsertNextTuple(n);
 
   x[0] = this->Origin[0] + this->ScaleFactor;
   x[1] = this->Origin[1];
   x[2] = this->Origin[2];
   ptIds[1] = newPts->InsertNextPoint(x);
   newLines->InsertNextCell(2,ptIds);
-  newScalars->InsertNextScalar(0.0);
-  newNormals->InsertNextNormal(n);
+  newScalars->InsertNextValue(0.0);
+  newNormals->InsertNextTuple(n);
 
   x[0] = this->Origin[0];
   x[1] = this->Origin[1];
@@ -128,15 +128,15 @@ void vtkAxes::Execute()
     }
   n[0] = 0.0; n[1] = 0.0; n[2] = 1.0; 
   ptIds[0] = newPts->InsertNextPoint(x);
-  newScalars->InsertNextScalar(0.25);
-  newNormals->InsertNextNormal(n);
+  newScalars->InsertNextValue(0.25);
+  newNormals->InsertNextTuple(n);
 
   x[0] = this->Origin[0];
   x[1] = this->Origin[1] + this->ScaleFactor;
   x[2] = this->Origin[2];
   ptIds[1] = newPts->InsertNextPoint(x);
-  newScalars->InsertNextScalar(0.25);
-  newNormals->InsertNextNormal(n);
+  newScalars->InsertNextValue(0.25);
+  newNormals->InsertNextTuple(n);
   newLines->InsertNextCell(2,ptIds);
 
   x[0] = this->Origin[0];
@@ -148,15 +148,15 @@ void vtkAxes::Execute()
     }
   n[0] = 1.0; n[1] = 0.0; n[2] = 0.0; 
   ptIds[0] = newPts->InsertNextPoint(x);
-  newScalars->InsertNextScalar(0.5);
-  newNormals->InsertNextNormal(n);
+  newScalars->InsertNextValue(0.5);
+  newNormals->InsertNextTuple(n);
 
   x[0] = this->Origin[0];
   x[1] = this->Origin[1];
   x[2] = this->Origin[2] + this->ScaleFactor;
   ptIds[1] = newPts->InsertNextPoint(x);
-  newScalars->InsertNextScalar(0.5);
-  newNormals->InsertNextNormal(n);
+  newScalars->InsertNextValue(0.5);
+  newNormals->InsertNextTuple(n);
   newLines->InsertNextCell(2,ptIds);
 
   //

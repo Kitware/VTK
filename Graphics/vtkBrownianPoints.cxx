@@ -40,8 +40,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 #include "vtkBrownianPoints.h"
-#include "vtkVectors.h"
 #include "vtkMath.h"
+#include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
 //-------------------------------------------------------------------------
@@ -66,7 +66,7 @@ vtkBrownianPoints::vtkBrownianPoints()
 void vtkBrownianPoints::Execute()
 {
   int i, j, numPts;
-  vtkVectors *newVectors;
+  vtkFloatArray *newVectors;
   float v[3], norm, speed;
   vtkDataSet *input= this->GetInput();
   vtkDataSet *output =  this->GetOutput();
@@ -82,8 +82,9 @@ void vtkBrownianPoints::Execute()
     return;
     }
 
-  newVectors = vtkVectors::New();
-  newVectors->SetNumberOfVectors(numPts);
+  newVectors = vtkFloatArray::New();
+  newVectors->SetNumberOfComponents(3);
+  newVectors->SetNumberOfTuples(numPts);
 
   // Check consistency of minumum and maximum speed
   //  
@@ -126,7 +127,7 @@ void vtkBrownianPoints::Execute()
 	}
       }
 
-    newVectors->SetVector(i,v);
+    newVectors->SetTuple(i,v);
     }
 
   // Update ourselves
