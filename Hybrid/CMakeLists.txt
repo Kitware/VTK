@@ -64,10 +64,17 @@ SET_SOURCE_FILES_PROPERTIES(vtkVRML WRAP_EXCLUDE)
 INCLUDE (${CMAKE_ROOT}/Modules/FindOpenGL.cmake)
 
 # Setup vtkInstantiator registration for this library's classes.
-VTK_MAKE_INSTANTIATOR(vtkHybridInstantiator HybridInstantiator_SRCS
+IF (COMMAND VTK_MAKE_INSTANTIATOR2)
+  VTK_MAKE_INSTANTIATOR2(vtkHybridInstantiator HybridInstantiator_SRCS
                       ${Hybrid_SRCS}
                       EXPORT_MACRO VTK_HYBRID_EXPORT
                       HEADER_LOCATION ${VTK_BINARY_DIR})
+ELSE (COMMAND VTK_MAKE_INSTANTIATOR2)
+  VTK_MAKE_INSTANTIATOR(vtkHybridInstantiator HybridInstantiator_SRCS
+                      ${Hybrid_SRCS}
+                      EXPORT_MACRO VTK_HYBRID_EXPORT
+                      HEADER_LOCATION ${VTK_BINARY_DIR})
+ENDIF (COMMAND VTK_MAKE_INSTANTIATOR2)
 ADD_LIBRARY(vtkHybrid ${Hybrid_SRCS} ${HybridInstantiator_SRCS})
 
 # Allow the user to customize their build with some local options

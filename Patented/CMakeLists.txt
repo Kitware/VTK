@@ -18,10 +18,17 @@ IF(CMAKE_BUILD_TOOL MATCHES devenv)
 ENDIF(CMAKE_BUILD_TOOL MATCHES devenv)
 
 # Setup vtkInstantiator registration for this library's classes.
-VTK_MAKE_INSTANTIATOR(vtkPatentedInstantiator PatentedInstantiator_SRCS
+IF (COMMAND VTK_MAKE_INSTANTIATOR2)
+  VTK_MAKE_INSTANTIATOR2(vtkPatentedInstantiator PatentedInstantiator_SRCS
                       ${Patented_SRCS}
                       EXPORT_MACRO VTK_PATENTED_EXPORT
                       HEADER_LOCATION ${VTK_BINARY_DIR})
+ELSE (COMMAND VTK_MAKE_INSTANTIATOR2)
+  VTK_MAKE_INSTANTIATOR(vtkPatentedInstantiator PatentedInstantiator_SRCS
+                      ${Patented_SRCS}
+                      EXPORT_MACRO VTK_PATENTED_EXPORT
+                      HEADER_LOCATION ${VTK_BINARY_DIR})
+ENDIF (COMMAND VTK_MAKE_INSTANTIATOR2)
 ADD_LIBRARY(vtkPatented ${Patented_SRCS} ${PatentedInstantiator_SRCS})
 
 # Allow the user to customize their build with some local options

@@ -75,10 +75,17 @@ ABSTRACT
 SET_SOURCE_FILES_PROPERTIES(vtkPLY WRAP_EXCLUDE)
 
 # Setup vtkInstantiator registration for this library's classes.
-VTK_MAKE_INSTANTIATOR(vtkIOInstantiator IOInstantiator_SRCS
+IF (COMMAND VTK_MAKE_INSTANTIATOR2)
+  VTK_MAKE_INSTANTIATOR2(vtkIOInstantiator IOInstantiator_SRCS
                       ${IO_SRCS}
                       EXPORT_MACRO VTK_IO_EXPORT
                       HEADER_LOCATION ${VTK_BINARY_DIR})
+ELSE (COMMAND VTK_MAKE_INSTANTIATOR2)
+  VTK_MAKE_INSTANTIATOR(vtkIOInstantiator IOInstantiator_SRCS
+                      ${IO_SRCS}
+                      EXPORT_MACRO VTK_IO_EXPORT
+                      HEADER_LOCATION ${VTK_BINARY_DIR})
+ENDIF (COMMAND VTK_MAKE_INSTANTIATOR2)
 ADD_LIBRARY(vtkIO ${IO_SRCS} ${IOInstantiator_SRCS})
 
 # Allow the user to customize their build with some local options

@@ -70,10 +70,17 @@ IF (VTK_USE_MPI)
 ENDIF (VTK_USE_MPI)
 
 # Setup vtkInstantiator registration for this library's classes.
-VTK_MAKE_INSTANTIATOR(vtkParallelInstantiator ParallelInstantiator_SRCS
+IF (COMMAND VTK_MAKE_INSTANTIATOR2)
+  VTK_MAKE_INSTANTIATOR2(vtkParallelInstantiator ParallelInstantiator_SRCS
                       ${Parallel_SRCS}
                       EXPORT_MACRO VTK_PARALLEL_EXPORT
                       HEADER_LOCATION ${VTK_BINARY_DIR})
+ELSE (COMMAND VTK_MAKE_INSTANTIATOR2)
+  VTK_MAKE_INSTANTIATOR(vtkParallelInstantiator ParallelInstantiator_SRCS
+                      ${Parallel_SRCS}
+                      EXPORT_MACRO VTK_PARALLEL_EXPORT
+                      HEADER_LOCATION ${VTK_BINARY_DIR})
+ENDIF (COMMAND VTK_MAKE_INSTANTIATOR2)
 ADD_LIBRARY(vtkParallel ${Parallel_SRCS} ${ParallelInstantiator_SRCS})
 
 IF (VTK_USE_MPI) 

@@ -99,10 +99,17 @@ ABSTRACT
 )
 
 # Setup vtkInstantiator registration for this library's classes.
-VTK_MAKE_INSTANTIATOR(vtkFilteringInstantiator FilteringInstantiator_SRCS
+IF (COMMAND VTK_MAKE_INSTANTIATOR2)
+  VTK_MAKE_INSTANTIATOR2(vtkFilteringInstantiator FilteringInstantiator_SRCS
+                         ${Filtering_SRCS}
+                         EXPORT_MACRO VTK_FILTERING_EXPORT
+                         HEADER_LOCATION ${VTK_BINARY_DIR})
+ELSE (COMMAND VTK_MAKE_INSTANTIATOR2)
+  VTK_MAKE_INSTANTIATOR(vtkFilteringInstantiator FilteringInstantiator_SRCS
                       ${Filtering_SRCS}
                       EXPORT_MACRO VTK_FILTERING_EXPORT
                       HEADER_LOCATION ${VTK_BINARY_DIR})
+ENDIF (COMMAND VTK_MAKE_INSTANTIATOR2)
 ADD_LIBRARY(vtkFiltering ${Filtering_SRCS} ${FilteringInstantiator_SRCS})
 
 TARGET_LINK_LIBRARIES (vtkFiltering vtkCommon)
