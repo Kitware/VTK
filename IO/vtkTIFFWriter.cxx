@@ -23,7 +23,7 @@
 #include "vtkErrorCode.h"
 #include <tiffio.h>
 
-vtkCxxRevisionMacro(vtkTIFFWriter, "1.25");
+vtkCxxRevisionMacro(vtkTIFFWriter, "1.26");
 vtkStandardNewMacro(vtkTIFFWriter);
 
 //----------------------------------------------------------------------------
@@ -43,14 +43,14 @@ public:
   // Write data
   static tsize_t TIFFWrite(thandle_t fd, tdata_t buf, tsize_t size) 
     {
-    ostream *out = static_cast<ostream *>(fd);
+    ostream *out = reinterpret_cast<ostream *>(fd);
     out->write(static_cast<char *>(buf), size);
     return out->fail() ? static_cast<tsize_t>(0) : size;
     }
 
   static toff_t TIFFSeek(thandle_t fd, toff_t off, int whence) 
     {
-    ostream *out = static_cast<ostream *>(fd);
+    ostream *out = reinterpret_cast<ostream *>(fd);
 
     ios::seekdir dir;
     switch (whence) 
@@ -80,7 +80,7 @@ public:
 
   static toff_t TIFFSize(thandle_t fd) 
     {
-    ostream *out = static_cast<ostream *>(fd);
+    ostream *out = reinterpret_cast<ostream *>(fd);
     out->seekp(0, ios::end);
     return out->tellp();
     }
