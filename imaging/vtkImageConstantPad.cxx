@@ -50,6 +50,8 @@ vtkImageConstantPad::vtkImageConstantPad()
 {
   // execute function handles four axes.
   this->NumberOfExecutionAxes = 4;
+
+  this->Constant = 0.0;
 }
 
 
