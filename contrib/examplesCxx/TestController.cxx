@@ -3,7 +3,7 @@
 // Send/Receive vtkDataObjects,
 // Remote method invocation.
 
-#include "mpi.h"
+
 #include "vtkMultiProcessController.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
@@ -15,7 +15,8 @@
 
 
 
-#define MESSAGE 12345
+#define MESSAGE1 12345
+#define MESSAGE2 -9999
 
 
 void callback1(void *arg, int id)
@@ -44,7 +45,7 @@ VTK_THREAD_RETURN_TYPE process_a( void *vtkNotUsed(proc_arg) )
   vtkConeSource *cone = vtkConeSource::New();
   vtkElevationFilter *elev = vtkElevationFilter::New();
   vtkMultiProcessController *controller;
-  int message = MESSAGE;
+  int message = MESSAGE1;
   char *arg;
   
   
@@ -63,8 +64,12 @@ VTK_THREAD_RETURN_TYPE process_a( void *vtkNotUsed(proc_arg) )
   controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
   
   // first just send an integer to the other process.
+  message = MESSAGE1;
   controller->Send(&message, 1, otherid, 100);
-  
+
+  message = MESSAGE2;
+  controller->Send(&message, 1, otherid, 100);
+
   // now try to send some polydata
   cone->SetResolution(8);
   elev->SetInput(cone->GetOutput());
@@ -118,10 +123,13 @@ VTK_THREAD_RETURN_TYPE process_b( void *vtkNotUsed(proc_arg) )
   putenv("DISPLAY=:0.0");
   
   // first receive the integer message.
-  controller->Receive(&message, 1, otherid, 100);
-  
+  controller->Receive(&message, 1, otherid, 100);  
+  cerr << "received message " << message
+       << " should be " << MESSAGE1 << endl;
+
+  controller->Receive(&message, 1, otherid, 100);  
   cerr << "received message " << message 
-       << " should be " << MESSAGE << endl;
+       << " should be " << MESSAGE2 << endl;
   
   // now receive the poly data object
   controller->Receive(data, otherid, 200);
@@ -130,6 +138,8 @@ VTK_THREAD_RETURN_TYPE process_b( void *vtkNotUsed(proc_arg) )
   controller->TriggerRMI(otherid, 303);
   controller->TriggerRMI(otherid, 302);
   controller->TriggerRMI(otherid, 301);
+  
+  cerr << "Test 1\n";
   
   renWindow->AddRenderer(ren);
   iren->SetRenderWindow(renWindow);
@@ -142,8 +152,10 @@ VTK_THREAD_RETURN_TYPE process_b( void *vtkNotUsed(proc_arg) )
   // assign our actor to the renderer
   ren->AddActor(coneActor);
   
+  cerr << "Test 2\n";
   // draw the resulting scene
   renWindow->Render();
+  cerr << "Test 3\n";
   
   //  Begin mouse interaction
   iren->Start();
@@ -170,8 +182,8 @@ void main( int argc, char *argv[] )
 
   
   controller->SetNumberOfProcesses(2);
-  controller->SetMultipleMethod(1, process_a, NULL);
-  controller->SetMultipleMethod(0, process_b, NULL);
+  controller->SetMultipleMethod(0, process_a, NULL);
+  controller->SetMultipleMethod(1, process_b, NULL);
   controller->MultipleMethodExecute();
 
   controller->UnRegister(NULL);

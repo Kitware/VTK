@@ -1,8 +1,8 @@
 // This program test the ports by setting up a simple pipeline.
 
 #include "mpi.h"
-#include "vtkUpStreamPort.h"
-#include "vtkDownStreamPort.h"
+#include "vtkOutputPort.h"
+#include "vtkInputPort.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkConeSource.h"
@@ -17,7 +17,7 @@ VTK_THREAD_RETURN_TYPE process_a( void *vtkNotUsed(arg) )
   vtkMultiProcessController *controller;
   vtkConeSource *cone = vtkConeSource::New();
   vtkElevationFilter *elev = vtkElevationFilter::New();
-  vtkUpStreamPort *upStreamPort = vtkUpStreamPort::New();
+  vtkOutputPort *upStreamPort = vtkOutputPort::New();
   int myid;
   
   controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
@@ -58,8 +58,8 @@ VTK_THREAD_RETURN_TYPE process_b( void *vtkNotUsed(arg) )
     otherid = 0;
     }
 
-  vtkDownStreamPort *downStreamPort = vtkDownStreamPort::New();
-  downStreamPort->SetUpStreamProcessId(otherid);
+  vtkInputPort *downStreamPort = vtkInputPort::New();
+  downStreamPort->SetRemoteProcessId(otherid);
   downStreamPort->SetTag(999);
   downStreamPort->GetPolyDataOutput()->SetUpdateExtent(0, 2);
   downStreamPort->Update();  

@@ -3,8 +3,8 @@
 #include "mpi.h"
 #include "vtkPLOT3DReader.h"
 #include "vtkGridSynchronizedTemplates3D.h"
-#include "vtkUpStreamPort.h"
-#include "vtkDownStreamPort.h"
+#include "vtkOutputPort.h"
+#include "vtkInputPort.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkPolyDataMapper.h"
@@ -28,7 +28,7 @@ VTK_THREAD_RETURN_TYPE process_a( void *vtkNotUsed(arg) )
   pl3d->SetScalarFunctionNumber(100);
   pl3d->SetVectorFunctionNumber(202);
   
-  vtkUpStreamPort *upStreamPort = vtkUpStreamPort::New();
+  vtkOutputPort *upStreamPort = vtkOutputPort::New();
   upStreamPort->SetInput(pl3d->GetOutput());
   upStreamPort->SetTag(GRID_TAG);
   
@@ -60,8 +60,8 @@ VTK_THREAD_RETURN_TYPE process_b( void *vtkNotUsed(arg) )
     otherid = 0;
     }
   
-  vtkDownStreamPort *downStreamPort = vtkDownStreamPort::New();
-  downStreamPort->SetUpStreamProcessId(otherid);
+  vtkInputPort *downStreamPort = vtkInputPort::New();
+  downStreamPort->SetRemoteProcessId(otherid);
   downStreamPort->SetTag(GRID_TAG);
 
   vtkGridSynchronizedTemplates3D *iso = vtkGridSynchronizedTemplates3D::New();

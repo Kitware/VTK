@@ -4,8 +4,8 @@
 #include "vtkImageGaussianSource.h"
 #include "vtkImageEllipsoidSource.h"
 #include "vtkImageToStructuredPoints.h"
-#include "vtkUpStreamPort.h"
-#include "vtkDownStreamPort.h"
+#include "vtkOutputPort.h"
+#include "vtkInputPort.h"
 #include "vtkTexture.h"
 #include "vtkPlaneSource.h"
 #include "vtkPolyDataMapper.h"
@@ -20,7 +20,7 @@ VTK_THREAD_RETURN_TYPE process_a( void *vtkNotUsed(arg) )
   vtkMultiProcessController *controller;
   vtkImageGaussianSource *source = vtkImageGaussianSource::New();
   vtkImageEllipsoidSource *ellipse = vtkImageEllipsoidSource::New();
-  vtkUpStreamPort *upStreamPort = vtkUpStreamPort::New();
+  vtkOutputPort *upStreamPort = vtkOutputPort::New();
   int myid;
   
   controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
@@ -68,12 +68,12 @@ VTK_THREAD_RETURN_TYPE process_b( void *vtkNotUsed(arg) )
     otherid = 0;
     }
 
-  vtkDownStreamPort *downStreamPort = vtkDownStreamPort::New();
-  downStreamPort->SetUpStreamProcessId(otherid);
+  vtkInputPort *downStreamPort = vtkInputPort::New();
+  downStreamPort->SetRemoteProcessId(otherid);
   downStreamPort->SetTag(999);
 
   vtkTexture *atext = vtkTexture::New();
-  atext->SetInput(downStreamPort->GetImageDataOutput());
+  atext->SetInput(downStreamPort->GetStructuredPointsOutput());
   //atext->SetInput(downStreamPort->GetStructuredPointsOutput());
   atext->InterpolateOn();
 
