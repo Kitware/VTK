@@ -33,7 +33,7 @@
 
 #include "vtkToolkits.h"
 #ifdef VTK_OPENGL_HAS_OSMESA
-#include "GL/osmesa.h"
+#include "MangleMesaInclude/osmesa.h"
 #endif
 
 
@@ -76,7 +76,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.14");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.15");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
