@@ -18,7 +18,7 @@
 #include "vtkReflectionFilter.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkReflectionFilter, "1.5");
+vtkCxxRevisionMacro(vtkReflectionFilter, "1.6");
 vtkStandardNewMacro(vtkReflectionFilter);
 
 //---------------------------------------------------------------------------
@@ -56,7 +56,7 @@ void vtkReflectionFilter::Execute()
   vtkIdType i;
 
   vtkIdList *tmpIds = vtkIdList::New();
-  for (i = 0; i < numPts; i++)
+  for (i = 0; i < numCells; i++)
     {
     tmpIds->InsertNextId(i);
     }
