@@ -2,8 +2,6 @@ catch {load vtktcl}
 
 source volTkInteractor.tcl
 
-set demo_font "-*-helvetica-bold-r-normal--17-*-*-*-p-92-iso8859-1"
-
 proc change_active_controls { } {
     global control_menu_value
 
@@ -144,19 +142,19 @@ frame .top.f1.f2.f2.f2 -bd 4 -bg #770099 -relief ridge
 
 label .top.f1.f2.f1.f1.label -text "Slice Viewer" \
 	-bg #999999 -fg #440066 \
-	-font $demo_font
+	-font {Helvetica -12 bold}
 
 label .top.f1.f2.f1.f2.label -text "MIP Rendering" \
 	-bg #999999 -fg #440066 \
-	-font $demo_font
+	-font {Helvetica -12 bold}
 
 label .top.f1.f2.f2.f1.label -text "Composite Rendering" \
 	-bg #999999 -fg #440066 \
-	-font $demo_font
+	-font {Helvetica -12 bold}
 
 label .top.f1.f2.f2.f2.label -text "Isosurface Rendering" \
 	-bg #999999 -fg #440066 \
-	-font $demo_font
+	-font {Helvetica -12 bold}
 
 vtkTkRenderWidget .top.f1.f2.f1.f1.ren -width 256 -height 256 
     BindTkRenderWidget .top.f1.f2.f1.f1.ren
@@ -207,11 +205,11 @@ $renWin4 SetSize 256 256
 
 label .top.f2.help_label -text "VTk Volume Rendering Example" \
 	-bg #999999 -fg #440066 \
-	-font $demo_font
+	-font {Helvetica -12 bold}
 
 label .top.f2.help_message \
 	-bg #999999 -fg #000000 \
-	-font $demo_font \
+	-font {Helvetica -12 bold} \
 	-text \
 "Left Mouse Button: rotate
 Shift-Left or Middle Mouse Button: pan
@@ -221,7 +219,7 @@ r key: reset view"
 button .top.f2.exit -text Exit -fg #999999 -bg #440066 \
 	-activeforeground #440066 -activebackground #999999 \
 	-highlightthickness 0 -bd 4 -command { exit } \
-	-font $demo_font
+	-font {Helvetica -12 bold}
 
 pack .top.f2.help_label .top.f2.help_message .top.f2.exit -padx 5 -pady 5 \
 	-expand 1 -fill both
@@ -233,7 +231,7 @@ frame .top.f1.f1.f1 -bg #999999
 
 label .top.f1.f1.f1.label -text "Control Options" \
 	-bg #999999 -fg #000000 \
-	-font $demo_font
+	-font {Helvetica -12 bold}
 
 set control_menu_value {Slice Viewer Controls}
 
@@ -244,11 +242,11 @@ set control_menu [tk_optionMenu .top.f1.f1.f1.menu control_menu_value \
 .top.f1.f1.f1.menu configure -fg #999999 -bg #440066 \
 	-activeforeground #440066 -activebackground #999999 \
 	-highlightthickness 0 -bd 4 \
-	-font $demo_font
+	-font {Helvetica -12 bold}
 
 $control_menu configure -bg #999999 -fg #440066 \
 	-activeforeground #220033 -activebackground #bbbbbb \
-	-font $demo_font
+	-font {Helvetica -12 bold}
 
 bind $control_menu <Unmap> { after 100 { update ; change_active_controls } }
 
@@ -265,7 +263,7 @@ set ww .top.f1.f1.f1
 frame $ww.mip -bg #999999
 
 label $ww.mip.l1 -text "Interpolation Type:" -bg #999999 -fg #000000 \
-	-font $demo_font
+	-font {Helvetica -12 bold}
 
 set mip_interpolation_type 0
 
@@ -273,7 +271,7 @@ radiobutton $ww.mip.rb1 -text "Nearest Neighbor" \
 	-variable mip_interpolation_type -value 0 \
 	-bg #999999 -fg #000000 -selectcolor #aa00ff \
 	-highlightthickness 0 -activebackground #999999 \
-	-font $demo_font \
+	-font {Helvetica -12 bold} \
 	-activeforeground #7700ff -command \
 	{ mip_prop SetInterpolationTypeToNearest; $renWin2 Render }
 
@@ -281,7 +279,7 @@ radiobutton $ww.mip.rb2 -text "Trilinear" \
 	-variable mip_interpolation_type -value 1 \
 	-bg #999999 -fg #000000 -selectcolor #aa00ff \
 	-highlightthickness 0 -activebackground #999999 \
-	-font $demo_font \
+	-font {Helvetica -12 bold} \
 	-activeforeground #7700ff -command \
 	{ mip_prop SetInterpolationTypeToLinear; $renWin2 Render }
  
@@ -291,7 +289,7 @@ pack $ww.mip.rb1 -side top -padx 22 -pady 2 -expand 0 -fill none -anchor w
 pack $ww.mip.rb2 -side top -padx 22 -pady 2 -expand 0 -fill none -anchor w
 
 label $ww.mip.l2 -text "Value To Color Mapping:" -bg #999999 -fg #000000 \
-	-font $demo_font
+	-font {Helvetica -12 bold}
 
 set mip_color_type 0
 
@@ -299,7 +297,7 @@ radiobutton $ww.mip.rb3 -text "Greyscale" \
 	-variable mip_color_type -value 0 \
 	-bg #999999 -fg #000000 -selectcolor #aa00ff \
 	-highlightthickness 0 -activebackground #999999 \
-	-font $demo_font \
+	-font {Helvetica -12 bold} \
 	-activeforeground #7700ff -command \
 	{ mip_prop SetColor gtfun; $renWin2 Render }
 
@@ -307,7 +305,7 @@ radiobutton $ww.mip.rb4 -text "Color" \
 	-variable mip_color_type -value 1 \
 	-bg #999999 -fg #000000 -selectcolor #aa00ff \
 	-highlightthickness 0 -activebackground #999999 \
-	-font $demo_font \
+	-font {Helvetica -12 bold} \
 	-activeforeground #7700ff -command \
 	{ mip_prop SetColor ctfun; $renWin2 Render }
 
@@ -324,7 +322,7 @@ set ww .top.f1.f1.f1
 frame $ww.comp -bg #999999
 
 label $ww.comp.l1 -text "Interpolation Type:" -bg #999999 -fg #000000 \
-	-font $demo_font
+	-font {Helvetica -12 bold}
 
 set comp_interpolation_type 0
 
@@ -332,7 +330,7 @@ radiobutton $ww.comp.rb1 -text "Nearest Neighbor" \
 	-variable comp_interpolation_type -value 0 \
 	-bg #999999 -fg #000000 -selectcolor #aa00ff \
 	-highlightthickness 0 -activebackground #999999 \
-	-font $demo_font \
+	-font {Helvetica -12 bold} \
 	-activeforeground #7700ff -command \
 	{ comp_prop SetInterpolationTypeToNearest ; $renWin3 Render }
 
@@ -341,7 +339,7 @@ radiobutton $ww.comp.rb2 -text "Trilinear" \
 	-variable comp_interpolation_type -value 1 \
 	-bg #999999 -fg #000000 -selectcolor #aa00ff \
 	-highlightthickness 0 -activebackground #999999 \
-	-font $demo_font \
+	-font {Helvetica -12 bold} \
 	-activeforeground #7700ff -command \
 	{ comp_prop SetInterpolationTypeToLinear ; $renWin3 Render }
  
@@ -351,7 +349,7 @@ pack $ww.comp.rb1 -side top -padx 22 -pady 2 -expand 0 -fill none -anchor w
 pack $ww.comp.rb2 -side top -padx 22 -pady 2 -expand 0 -fill none -anchor w
 
 label $ww.comp.l2 -text "Value To Color Mapping:" -bg #999999 -fg #000000 \
-	-font $demo_font \
+	-font {Helvetica -12 bold} \
 
 set comp_color_type 1
 
@@ -359,7 +357,7 @@ radiobutton $ww.comp.rb3 -text "Greyscale" \
 	-variable comp_color_type -value 0 \
 	-bg #999999 -fg #000000 -selectcolor #aa00ff \
 	-highlightthickness 0 -activebackground #999999 \
-	-font $demo_font \
+	-font {Helvetica -12 bold} \
 	-activeforeground #7700ff -command \
 	{ comp_prop SetColor gtfun; $renWin3 Render }
 
@@ -368,7 +366,7 @@ radiobutton $ww.comp.rb4 -text "Color" \
 	-variable comp_color_type -value 1 \
 	-bg #999999 -fg #000000 -selectcolor #aa00ff \
 	-highlightthickness 0 -activebackground #999999 \
-	-font $demo_font \
+	-font {Helvetica -12 bold} \
 	-activeforeground #7700ff -command \
 	{ comp_prop SetColor ctfun; $renWin3 Render }
 
@@ -379,7 +377,7 @@ pack $ww.comp.rb3 -side top -padx 22 -pady 2 -expand 0 -fill none -anchor w
 pack $ww.comp.rb4 -side top -padx 22 -pady 2 -expand 0 -fill none -anchor w
 
 label $ww.comp.l3 -text "Shading:" -bg #999999 -fg #000000 \
-	-font $demo_font
+	-font {Helvetica -12 bold}
 
 set comp_shade_type 0
 
@@ -387,7 +385,7 @@ radiobutton $ww.comp.rb5 -text "Off" \
 	-variable comp_shade_type -value 0 \
 	-bg #999999 -fg #000000 -selectcolor #aa00ff \
 	-highlightthickness 0 -activebackground #999999 \
-	-font $demo_font \
+	-font {Helvetica -12 bold} \
 	-activeforeground #7700ff -command \
 	{ comp_prop ShadeOff ; tfun AddPoint 255.0 0.2 ; $renWin3 Render }
 
@@ -396,7 +394,7 @@ radiobutton $ww.comp.rb6 -text "On" \
 	-variable comp_shade_type -value 1 \
 	-bg #999999 -fg #000000 -selectcolor #aa00ff \
 	-highlightthickness 0 -activebackground #999999 \
-	-font $demo_font \
+	-font {Helvetica -12 bold} \
 	-activeforeground #7700ff -command \
 	{ comp_prop ShadeOn ; tfun AddPoint 255.0 0.4 ; $renWin3 Render }
  
@@ -414,7 +412,7 @@ set ww .top.f1.f1.f1
 frame $ww.iso -bg #999999
 
 label $ww.iso.l1 -text "Interpolation Type:" -bg #999999 -fg #000000 \
-	-font $demo_font
+	-font {Helvetica -12 bold}
 
 set iso_interpolation_type 1
 
@@ -422,7 +420,7 @@ radiobutton $ww.iso.rb1 -text "Nearest Neighbor" \
 	-variable iso_interpolation_type -value 0 \
 	-bg #999999 -fg #000000 -selectcolor #aa00ff \
 	-highlightthickness 0 -activebackground #999999 \
-	-font $demo_font \
+	-font {Helvetica -12 bold} \
 	-activeforeground #7700ff -command \
 	{ iso_prop SetInterpolationTypeToNearest; $renWin4 Render }
 
@@ -431,7 +429,7 @@ radiobutton $ww.iso.rb2 -text "Trilinear" \
 	-variable iso_interpolation_type -value 1 \
 	-bg #999999 -fg #000000 -selectcolor #aa00ff \
 	-highlightthickness 0 -activebackground #999999 \
-	-font $demo_font \
+	-font {Helvetica -12 bold} \
 	-activeforeground #7700ff -command \
 	{ iso_prop SetInterpolationTypeToLinear; $renWin4 Render }
  
@@ -441,7 +439,7 @@ pack $ww.iso.rb1 -side top -padx 22 -pady 2 -expand 0 -fill none -anchor w
 pack $ww.iso.rb2 -side top -padx 22 -pady 2 -expand 0 -fill none -anchor w
 
 label $ww.iso.l2 -text "Shading:" -bg #999999 -fg #000000 \
-	-font $demo_font
+	-font {Helvetica -12 bold}
 
 
 set iso_shade_type 1
@@ -450,7 +448,7 @@ radiobutton $ww.iso.rb3 -text "Off" \
 	-variable iso_shade_type -value 0 \
 	-bg #999999 -fg #000000 -selectcolor #aa00ff \
 	-highlightthickness 0 -activebackground #999999 \
-	-font $demo_font \
+	-font {Helvetica -12 bold} \
 	-activeforeground #7700ff -command \
 	{ iso_prop ShadeOff; $renWin4 Render }
 
@@ -459,7 +457,7 @@ radiobutton $ww.iso.rb4 -text "On" \
 	-variable iso_shade_type -value 1 \
 	-bg #999999 -fg #000000 -selectcolor #aa00ff \
 	-highlightthickness 0 -activebackground #999999 \
-	-font $demo_font \
+	-font {Helvetica -12 bold} \
 	-activeforeground #7700ff -command \
 	{ iso_prop ShadeOn; $renWin4 Render }
  
@@ -470,13 +468,13 @@ pack $ww.iso.rb3 -side top -padx 22 -pady 2 -expand 0 -fill none -anchor w
 pack $ww.iso.rb4 -side top -padx 22 -pady 2 -expand 0 -fill none -anchor w
 
 label $ww.iso.l3 -text "Isovalue:" -bg #999999 -fg #000000 \
-	-font $demo_font
+	-font {Helvetica -12 bold}
 
 set iso_value 128
 
 scale $ww.iso.s1 -length 120 -from 1 -to 255 -resolution 1 \
 	-bg #999999 -fg #770099 -variable iso_value \
-	-font $demo_font \
+	-font {Helvetica -12 bold} \
 	-orient horizontal -highlightthickness 0
 
 bind $ww.iso.s1 <ButtonRelease> { set_isosurface_value }
@@ -485,7 +483,7 @@ pack $ww.iso.l3 -side top -padx 2 -pady 2 -expand 0 -fill none -anchor w
 pack $ww.iso.s1 -side top -padx 22 -pady 10 -expand 0 -fill none -anchor n
 
 label $ww.iso.l4 -text "Surface Color:" -bg #999999 -fg #000000 \
-	-font $demo_font
+	-font {Helvetica -12 bold}
 
 image create photo color_wheel -file "ColorWheel.ppm"
 
