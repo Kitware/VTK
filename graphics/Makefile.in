@@ -57,6 +57,7 @@ vtkStructuredPointsCollection \
 vtkVolumeCollection
 
 ABSTRACT = \
+vtkAbstractMapper \
 vtkEncodedGradientEstimator \
 vtkExporter \
 vtkImporter \
