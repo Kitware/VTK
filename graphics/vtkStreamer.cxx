@@ -567,6 +567,7 @@ void vtkStreamer::Integrate()
     sPtr->t = 0.0;
     sPtr->s = 0.0;
     sPtr->theta = 0.0;
+    sPtr->omega = 0.0;
     
     if ( sPtr->cellId >= 0 ) //starting point in dataset
       {
