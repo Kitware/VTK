@@ -200,7 +200,7 @@ void vtkFieldDataToAttributeDataFilter::Execute()
 }
 
 void vtkFieldDataToAttributeDataFilter::PrintSelf(ostream& os, 
-						  vtkIndent indent)
+                                                  vtkIndent indent)
 {
   vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 
@@ -306,7 +306,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructScalars(int num, vtkFieldData *
                                                          char *arrays[4], int arrayComp[4],
                                                          int normalize[4], int numComp)
 {
-  int i;
+  int i, normalizeAny;
   vtkDataArray *fieldArray[4];
   
   if ( numComp < 1 ) return;
@@ -323,7 +323,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructScalars(int num, vtkFieldData *
       }
     }
   
-  for (i=0; i < numComp; i++)
+  for (normalizeAny=i=0; i < numComp; i++)
     {
     this->UpdateComponentRange(fieldArray[i], componentRange[i]);
     if ( num != (componentRange[i][1] - componentRange[i][0] + 1) )
@@ -331,6 +331,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructScalars(int num, vtkFieldData *
       vtkErrorMacro(<<"Number of scalars not consistent");
       return;
       }
+    normalizeAny |= normalize[i];
     }
   
   vtkScalars *newScalars = vtkScalars::New();
@@ -341,7 +342,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructScalars(int num, vtkFieldData *
   
   // see whether we can reuse the data array from the field
   if ( i >= numComp && fieldArray[0]->GetNumberOfComponents() == numComp && 
-       fieldArray[0]->GetNumberOfTuples() == num )
+       fieldArray[0]->GetNumberOfTuples() == num && !normalizeAny )
     {
     newScalars->SetData(fieldArray[0]);
     }
@@ -354,12 +355,12 @@ void vtkFieldDataToAttributeDataFilter::ConstructScalars(int num, vtkFieldData *
     for ( i=0; i < numComp; i++ )
       {
       if ( this->ConstructArray(newScalars->GetData(), i, fieldArray[i], arrayComp[i],
-				componentRange[i][0], componentRange[i][1],
-				normalize[i]) == 0 )
-	{
-	newScalars->Delete();
-	return;
-	}
+                                componentRange[i][0], componentRange[i][1],
+                                normalize[i]) == 0 )
+        {
+        newScalars->Delete();
+        return;
+        }
       }
     }
   
@@ -468,7 +469,8 @@ void vtkFieldDataToAttributeDataFilter::ConstructVectors(int num, vtkFieldData *
   vtkVectors *newVectors = vtkVectors::New();
   if ( fieldArray[0]->GetNumberOfComponents() == 3 && 
        fieldArray[0] == fieldArray[1] && fieldArray[1] == fieldArray[2] &&
-       fieldArray[0]->GetNumberOfTuples() == num )
+       fieldArray[0]->GetNumberOfTuples() == num &&
+       !normalize[0] && !normalize[1] && !normalize[2] )
     {
     newVectors->SetData(fieldArray[0]);
     }
@@ -480,12 +482,12 @@ void vtkFieldDataToAttributeDataFilter::ConstructVectors(int num, vtkFieldData *
     for ( i=0; i < 3; i++ )
       {
       if ( this->ConstructArray(newVectors->GetData(), i, fieldArray[i], arrayComp[i],
-				componentRange[i][0], componentRange[i][1],
-				normalize[i]) == 0 )
-	{
-	newVectors->Delete();
-	return;
-	}
+                                componentRange[i][0], componentRange[i][1],
+                                normalize[i]) == 0 )
+        {
+        newVectors->Delete();
+        return;
+        }
       }
     }
   
@@ -594,7 +596,8 @@ void vtkFieldDataToAttributeDataFilter::ConstructNormals(int num, vtkFieldData *
   vtkNormals *newNormals = vtkNormals::New();
   if ( fieldArray[0]->GetNumberOfComponents() == 3 && 
        fieldArray[0] == fieldArray[1] && fieldArray[1] == fieldArray[2] &&
-       fieldArray[0]->GetNumberOfTuples() == num )
+       fieldArray[0]->GetNumberOfTuples() == num &&
+       !normalize[0] && !normalize[1] && !normalize[2] )
     {
     newNormals->SetData(fieldArray[0]);
     }
@@ -606,12 +609,12 @@ void vtkFieldDataToAttributeDataFilter::ConstructNormals(int num, vtkFieldData *
     for ( i=0; i < 3; i++ )
       {
       if ( this->ConstructArray(newNormals->GetData(), i, fieldArray[i], arrayComp[i],
-				componentRange[i][0], componentRange[i][1],
-				normalize[i]) == 0 )
-	{
-	newNormals->Delete();
-	return;
-	}
+                                componentRange[i][0], componentRange[i][1],
+                                normalize[i]) == 0 )
+        {
+        newNormals->Delete();
+        return;
+        }
       }
     }
   
@@ -693,13 +696,13 @@ void vtkFieldDataToAttributeDataFilter::ConstructTCoords(int num, vtkFieldData *
                                                          char *arrays[3], int arrayComp[3], 
                                                          int normalize[3], int numComp)
 {
-  int i;
+  int i, normalizeAny;
   vtkDataArray *fieldArray[3];
   
   if ( numComp < 1 ) return;
   for (i=0; i<numComp; i++) if ( arrays[i] == NULL ) return;
   
-  for ( i=0; i < numComp; i++ )
+  for ( normalizeAny=i=0; i < numComp; i++ )
     {
     fieldArray[i] = this->GetFieldArray(fd, arrays[i], arrayComp[i]);
 
@@ -708,6 +711,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructTCoords(int num, vtkFieldData *
       vtkErrorMacro(<<"Can't find array/component requested");
       return;
       }
+    normalizeAny |= normalize[i];
     }
   
   for (i=0; i < numComp; i++)
@@ -728,7 +732,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructTCoords(int num, vtkFieldData *
   
   // see whether we can reuse the data array from the field
   if ( i >= numComp && fieldArray[0]->GetNumberOfComponents() == numComp && 
-       fieldArray[0]->GetNumberOfTuples() == num )
+       fieldArray[0]->GetNumberOfTuples() == num && !normalizeAny )
     {
     newTCoords->SetData(fieldArray[0]);
     }
@@ -741,12 +745,12 @@ void vtkFieldDataToAttributeDataFilter::ConstructTCoords(int num, vtkFieldData *
     for ( i=0; i < numComp; i++ )
       {
       if ( this->ConstructArray(newTCoords->GetData(), i, fieldArray[i], arrayComp[i],
-				componentRange[i][0], componentRange[i][1],
-				normalize[i]) == 0 )
-	{
-	newTCoords->Delete();
-	return;
-	}
+                                componentRange[i][0], componentRange[i][1],
+                                normalize[i]) == 0 )
+        {
+        newTCoords->Delete();
+        return;
+        }
       }
     }
   
@@ -824,7 +828,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructTensors(int num, vtkFieldData *
                                                          char *arrays[9], int arrayComp[9], 
                                                          int normalize[9])
 {
-  int i;
+  int i, normalizeAny;
   vtkDataArray *fieldArray[9];
 
   for (i=0; i<9; i++) if ( arrays[i] == NULL ) return;
@@ -840,7 +844,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructTensors(int num, vtkFieldData *
       }
     }
   
-  for (i=0; i < 9; i++)
+  for (normalizeAny=i=0; i < 9; i++)
     {
     this->UpdateComponentRange(fieldArray[i], componentRange[i]);
     if ( num != (componentRange[i][1] - componentRange[i][0] + 1) )
@@ -848,6 +852,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructTensors(int num, vtkFieldData *
       vtkErrorMacro(<<"Number of tensors not consistent");
       return;
       }
+    normalizeAny |= normalize[i];
     }
   
   vtkTensors *newTensors = vtkTensors::New();
@@ -858,7 +863,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructTensors(int num, vtkFieldData *
   
   // see whether we can reuse the data array from the field
   if ( i >= 9 && fieldArray[0]->GetNumberOfComponents() == 9 && 
-       fieldArray[0]->GetNumberOfTuples() == num )
+       fieldArray[0]->GetNumberOfTuples() == num && !normalizeAny )
     {
     newTensors->SetData(fieldArray[0]);
     }
@@ -870,12 +875,12 @@ void vtkFieldDataToAttributeDataFilter::ConstructTensors(int num, vtkFieldData *
     for ( i=0; i < 9; i++ )
       {
       if ( this->ConstructArray(newTensors->GetData(), i, fieldArray[i], arrayComp[i],
-				componentRange[i][0], componentRange[i][1],
-				normalize[i]) == 0 )
-	{
-	newTensors->Delete();
-	return;
-	}
+                                componentRange[i][0], componentRange[i][1],
+                                normalize[i]) == 0 )
+        {
+        newTensors->Delete();
+        return;
+        }
       }
     }
   

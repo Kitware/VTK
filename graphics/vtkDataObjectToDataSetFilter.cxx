@@ -460,7 +460,8 @@ int vtkDataObjectToDataSetFilter::ConstructPoints(vtkPointSet *ps)
   vtkPoints *newPts = vtkPoints::New();
   if ( fieldArray[0]->GetNumberOfComponents() == 3 && 
        fieldArray[0] == fieldArray[1] && fieldArray[1] == fieldArray[2] &&
-       fieldArray[0]->GetNumberOfTuples() == npts )
+       fieldArray[0]->GetNumberOfTuples() == npts &&
+       !this->PointNormalize[0] && !this->PointNormalize[1] && !this->PointNormalize[2] )
     {
     newPts->SetData(fieldArray[0]);
     }
@@ -472,14 +473,14 @@ int vtkDataObjectToDataSetFilter::ConstructPoints(vtkPointSet *ps)
     for ( i=0; i < 3; i++ )
       {
       if ( vtkFieldDataToAttributeDataFilter::ConstructArray(
-	newPts->GetData(), i, fieldArray[i], this->PointArrayComponents[i],
-	this->PointComponentRange[i][0],
-	this->PointComponentRange[i][1],
-	this->PointNormalize[i]) == 0 )
-	{
-	newPts->Delete();
-	return 0;
-	}
+        newPts->GetData(), i, fieldArray[i], this->PointArrayComponents[i],
+        this->PointComponentRange[i][0],
+        this->PointComponentRange[i][1],
+        this->PointNormalize[i]) == 0 )
+        {
+        newPts->Delete();
+        return 0;
+        }
       }
     }
 
@@ -518,49 +519,82 @@ int vtkDataObjectToDataSetFilter::ConstructPoints(vtkRectilinearGrid *rg)
   nZpts = this->PointComponentRange[2][1] - this->PointComponentRange[2][0] + 1;
   npts = nXpts * nYpts * nZpts;
   
+  // Create the coordinate arrays
   vtkScalars *XPts = vtkScalars::New();
-  XPts->SetDataType(vtkFieldDataToAttributeDataFilter::GetComponentsType(1, fieldArray));
-  XPts->SetNumberOfScalars(nXpts);
-  XPts->SetNumberOfComponents(1);
-  
   vtkScalars *YPts = vtkScalars::New();
-  YPts->SetDataType(vtkFieldDataToAttributeDataFilter::GetComponentsType(1, fieldArray+1));
-  YPts->SetNumberOfScalars(nYpts);
-  YPts->SetNumberOfComponents(1);
-  
   vtkScalars *ZPts = vtkScalars::New();
-  ZPts->SetDataType(vtkFieldDataToAttributeDataFilter::GetComponentsType(1, fieldArray+2));
-  ZPts->SetNumberOfScalars(nZpts);
-  ZPts->SetNumberOfComponents(1);
-  
-  if ( vtkFieldDataToAttributeDataFilter::ConstructArray(
-    XPts->GetData(), 0, fieldArray[0], this->PointArrayComponents[0],
-    this->PointComponentRange[0][0],
-    this->PointComponentRange[0][1],
-    this->PointNormalize[0]) == 0 )
+
+  // Decide whether to use the field array or whether to copy data
+  // First look at the x-coordinates
+  if ( fieldArray[0]->GetNumberOfComponents() == 1 && 
+       fieldArray[0]->GetNumberOfTuples() == nXpts &&
+       !this->PointNormalize[0] )
     {
-    XPts->Delete(); YPts->Delete(); ZPts->Delete(); 
-    return 0;
+    XPts->SetData(fieldArray[0]);
+    }
+  else //have to copy data into created array
+    {
+    XPts->SetDataType(vtkFieldDataToAttributeDataFilter::GetComponentsType(1, fieldArray));
+    XPts->SetNumberOfScalars(nXpts);
+    XPts->SetNumberOfComponents(1);
+
+    if ( vtkFieldDataToAttributeDataFilter::ConstructArray(
+      XPts->GetData(), 0, fieldArray[0], this->PointArrayComponents[0],
+      this->PointComponentRange[0][0],
+      this->PointComponentRange[0][1],
+      this->PointNormalize[0]) == 0 )
+      {
+      XPts->Delete(); YPts->Delete(); ZPts->Delete(); 
+      return 0;
+      }
     }
   
-  if ( vtkFieldDataToAttributeDataFilter::ConstructArray(
-    YPts->GetData(), 0, fieldArray[1], this->PointArrayComponents[1],
-    this->PointComponentRange[1][0],
-    this->PointComponentRange[1][1],
-    this->PointNormalize[1]) == 0 )
+  // Look at the y-coordinates
+  if ( fieldArray[1]->GetNumberOfComponents() == 1 && 
+       fieldArray[1]->GetNumberOfTuples() == nYpts &&
+       !this->PointNormalize[1] )
     {
-    XPts->Delete(); YPts->Delete(); ZPts->Delete(); 
-    return 0;
+    YPts->SetData(fieldArray[1]);
+    }
+  else //have to copy data into created array
+    {
+    YPts->SetDataType(vtkFieldDataToAttributeDataFilter::GetComponentsType(1, fieldArray+1));
+    YPts->SetNumberOfScalars(nYpts);
+    YPts->SetNumberOfComponents(1);
+
+    if ( vtkFieldDataToAttributeDataFilter::ConstructArray(
+      YPts->GetData(), 0, fieldArray[1], this->PointArrayComponents[1],
+      this->PointComponentRange[1][0],
+      this->PointComponentRange[1][1],
+      this->PointNormalize[1]) == 0 )
+      {
+      XPts->Delete(); YPts->Delete(); ZPts->Delete(); 
+      return 0;
+      }
     }
   
-  if ( vtkFieldDataToAttributeDataFilter::ConstructArray(
-    ZPts->GetData(), 0, fieldArray[2], this->PointArrayComponents[2],
-    this->PointComponentRange[2][0],
-    this->PointComponentRange[2][1],
-    this->PointNormalize[2]) == 0 )
+  // Look at the z-coordinates
+  if ( fieldArray[2]->GetNumberOfComponents() == 1 && 
+       fieldArray[2]->GetNumberOfTuples() == nZpts &&
+       !this->PointNormalize[2] )
     {
-    XPts->Delete(); YPts->Delete(); ZPts->Delete(); 
-    return 0;
+    ZPts->SetData(fieldArray[2]);
+    }
+  else //have to copy data into created array
+    {
+    ZPts->SetDataType(vtkFieldDataToAttributeDataFilter::GetComponentsType(1, fieldArray+2));
+    ZPts->SetNumberOfScalars(nZpts);
+    ZPts->SetNumberOfComponents(1);
+
+    if ( vtkFieldDataToAttributeDataFilter::ConstructArray(
+      ZPts->GetData(), 0, fieldArray[2], this->PointArrayComponents[2],
+      this->PointComponentRange[2][0],
+      this->PointComponentRange[2][1],
+      this->PointNormalize[2]) == 0 )
+      {
+      XPts->Delete(); YPts->Delete(); ZPts->Delete(); 
+      return 0;
+      }
     }
   
   rg->SetXCoordinates(XPts);
@@ -1050,7 +1084,7 @@ vtkCellArray *vtkDataObjectToDataSetFilter::ConstructCellArray(vtkDataArray *da,
 // Alternative methods for Dimensions, Spacing, and Origin ---------------------------------
 //
 void vtkDataObjectToDataSetFilter::SetDimensionsComponent(char *arrayName, int arrayComp, 
-							  int min, int max)
+                                                          int min, int max)
 {
   vtkFieldDataToAttributeDataFilter::SetArrayName(this, this->DimensionsArray, arrayName);
   if ( this->DimensionsArrayComponent != arrayComp )
@@ -1071,7 +1105,7 @@ void vtkDataObjectToDataSetFilter::SetDimensionsComponent(char *arrayName, int a
 }
 
 void vtkDataObjectToDataSetFilter::SetSpacingComponent(char *arrayName, int arrayComp, 
-						       int min, int max)
+                                                       int min, int max)
 {
   vtkFieldDataToAttributeDataFilter::SetArrayName(this, this->SpacingArray, arrayName);
   if ( this->SpacingArrayComponent != arrayComp )
@@ -1092,7 +1126,7 @@ void vtkDataObjectToDataSetFilter::SetSpacingComponent(char *arrayName, int arra
 }
 
 void vtkDataObjectToDataSetFilter::SetOriginComponent(char *arrayName, int arrayComp, 
-						      int min, int max)
+                                                      int min, int max)
 {
   vtkFieldDataToAttributeDataFilter::SetArrayName(this, this->OriginArray, arrayName);
   if ( this->OriginArrayComponent != arrayComp )
