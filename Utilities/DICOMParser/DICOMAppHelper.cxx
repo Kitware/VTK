@@ -75,7 +75,7 @@ DICOMAppHelper::DICOMAppHelper()
 {
   this->BitsAllocated = 8;
   this->ByteSwapData = false;
-  this->PixelSpacing[0] = this->PixelSpacing[1] = 1.0;
+  this->PixelSpacing[0] = this->PixelSpacing[1] = this->PixelSpacing[2] = 1.0;
   this->Dimensions[0] = this->Dimensions[1] = 0;
   this->PhotometricInterpretation = new dicom_stl::string();
   this->TransferSyntaxUID = new dicom_stl::string();
