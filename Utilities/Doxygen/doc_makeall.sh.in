@@ -1,6 +1,6 @@
 # -------------------------------------------------------------------------
 # Doxygen documentation batch
-# modified by S. Barre (Time-stamp: <2001-10-26 10:42:47 barre>
+# modified by S. Barre (Time-stamp: <2001-11-02 16:39:46 barre>
 # -------------------------------------------------------------------------
 
 # Path to several tools (_PROG to avoid the typical GZIP env var pb)
@@ -120,9 +120,6 @@ export RESULTING_HTML_HELP_FILE=$DOXTEMP/vtk4.chm
 # CREATE_HTML_TARZ_ARCHIVE RESULTING_HTML_TARZ_ARCHIVE_FILE:
 # Create a compressed (gzip) tar archive of the html directory (located
 # under the OUTPUT_DIRECTORY), and name of the resulting archive file. 
-# Note: if ON, the whole $OUTPUT_DIRECTORY will be erased at the end of
-#       this script, since this file is considered to be one of the 
-#       advanced final output, unless ALLOW_ERASE_OUTPUT_DIRECTORY is OFF
 # Note: your doxyfile should be configured to enable HTML creation 
 #       (using GENERATE_HTML = YES)
 # Example: 
@@ -252,6 +249,11 @@ fi
 # Create the Doxygen doc.
 
 if test "x$DOXYGEN_PROG" != "xNOTFOUND" ; then
+
+    if test "x$RM_PROG" != "xNOTFOUND" ; then
+        $RM_PROG -fr $OUTPUT_DIRECTORY
+    fi
+
     $DOXYGEN_PROG $DOXYFILE
 fi
 
@@ -315,14 +317,6 @@ if test "x$RM_PROG" != "xNOTFOUND" ; then
 
     if test "x$COMPILE_HTML_HELP" == "xON" ; then
         if test "x$RESULTING_HTML_HELP_FILE" != "x" ; then
-            if test "x$ALLOW_ERASE_OUTPUT_DIRECTORY" == "xON" ; then
-                $RM_PROG -fr $OUTPUT_DIRECTORY
-            fi
-        fi
-    fi
-
-    if test "x$CREATE_HTML_TARZ_ARCHIVE" == "xON" ; then
-        if test "x$RESULTING_HTML_TARZ_ARCHIVE_FILE" != "x" ; then
             if test "x$ALLOW_ERASE_OUTPUT_DIRECTORY" == "xON" ; then
                 $RM_PROG -fr $OUTPUT_DIRECTORY
             fi
