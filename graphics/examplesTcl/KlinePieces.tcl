@@ -309,6 +309,7 @@ vtkPolyData model
 
 vtkExtractPolyDataPiece piece
     piece SetInput model
+    piece CreateGhostCellsOff
 vtkAppendPolyData append1
     # append will ask for different pieces form each of its inputs.
     append1 ParallelStreamingOn
