@@ -91,7 +91,7 @@ vtkOpenGLFreeTypeTextMapper_GetGL2PSFontName(vtkTextProperty *tprop,
 
 //----------------------------------------------------------------------------
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.42");
+vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.43");
 vtkStandardNewMacro(vtkOpenGLFreeTypeTextMapper);
 #endif
 
@@ -173,7 +173,7 @@ void vtkOpenGLFreeTypeTextMapper::GetSize(vtkViewport* viewport, int *size)
 
   vtkFreeTypeUtilities::Entry *entry = 
     vtkFreeTypeUtilities::GetInstance()->GetFont(tprop);
-  FTFont *font = entry->Font;
+  FTFont *font = entry ? entry->Font : NULL;
   if (!font) 
     {
     vtkErrorMacro(<< "Render - No font");
@@ -357,8 +357,9 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
 
   // Get the font
   
-  FTFont *font = 
-    vtkFreeTypeUtilities::GetInstance()->GetFont(tprop, tprop_color)->Font;
+  vtkFreeTypeUtilities::Entry *entry = 
+    vtkFreeTypeUtilities::GetInstance()->GetFont(tprop, tprop_color);
+  FTFont *font = entry ? entry->Font : NULL;
   if (!font) 
     {
     vtkErrorMacro(<< "Render - No font");
@@ -394,8 +395,9 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
 
     // Get the shadow font
   
-    FTFont *shadow_font = vtkFreeTypeUtilities::GetInstance()->GetFont(
-      tprop, shadow_color)->Font;
+    vtkFreeTypeUtilities::Entry *shadow_entry = 
+      vtkFreeTypeUtilities::GetInstance()->GetFont(tprop, shadow_color);
+    FTFont *shadow_font = shadow_entry ? shadow_entry->Font : NULL;
     if (!shadow_font) 
       {
       vtkErrorMacro(<< "Render - No shadow font");
