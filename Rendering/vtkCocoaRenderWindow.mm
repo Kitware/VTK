@@ -58,7 +58,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define id Id // since id is a reserved token in ObjC and is used a _lot_ in vtk
 
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.6");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.7");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 
@@ -403,6 +403,7 @@ void vtkCocoaRenderWindow::WindowInitialize (void)
 	[glView setVTKRenderWindowInteractor:0];
 	[[(vtkCocoaWindow *)this->WindowId getvtkCocoaGLView] display];
         this->OwnWindow = 1;
+        this->ContextId = [[(vtkCocoaWindow *)this->WindowId getvtkCocoaGLView ] getOpenGLContext];
     }
     this->OpenGLInit();
     this->Mapped = 1;

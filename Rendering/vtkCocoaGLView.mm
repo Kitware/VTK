@@ -85,6 +85,11 @@
   return YES;
 }
 
+- (void*)getOpenGLContext
+{
+  return [ self openGLContext ];
+}
+
 - (void)keyDown:(NSEvent *)theEvent
 {
   NSPoint mouseLoc = [self convertPoint:[theEvent locationInWindow] fromView:nil];

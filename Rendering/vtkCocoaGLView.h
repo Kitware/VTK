@@ -25,5 +25,6 @@
 - (vtkCocoaRenderWindowInteractor *)getVTKRenderWindowInteractor;
 - (void)setVTKRenderWindowInteractor:(vtkCocoaRenderWindowInteractor *)theVTKRenderWindowInteractor;
 
+- (void*)getOpenGLContext;
 
 @end
