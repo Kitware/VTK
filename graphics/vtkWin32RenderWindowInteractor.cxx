@@ -88,7 +88,7 @@ void vtkWin32RenderWindowInteractor::Initialize()
   int *size;
   int *position;
   int argc = 0;
-  HWND tmp;
+  vtkWin32OglrRenderWindow *tmp;
 
   // make sure we have a RenderWindow and camera
   if ( ! this->RenderWindow)
@@ -107,9 +107,9 @@ void vtkWin32RenderWindowInteractor::Initialize()
   position= ren->GetPosition();
   this->WindowId = ren->GetWindowId();
   this->OldProc = (WNDPROC)GetWindowLong(this->WindowId,GWL_WNDPROC);
-  tmp = (HWND)GetWindowLong(this->WindowId,GWL_USERDATA);
+  tmp = (vtkWin32OglrRenderWindow *)GetWindowLong(this->WindowId,GWL_USERDATA);
   // watch for odd conditions
-  if (tmp != this->WindowId)
+  if (tmp != ren)
     {
     // OK someone else has a hold on our event handler
     // so lets have them handle this stuff
