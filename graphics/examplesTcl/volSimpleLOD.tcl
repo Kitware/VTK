@@ -253,10 +253,16 @@ proc TkCheckAbort {} {
 renWin SetAbortCheckMethod {TkCheckAbort}
 
 renWin Render
+
+if { [info command rtExMath] != "" } {
+    lod AutomaticLODSelectionOff
+    lod SetSelectedLODID $level3
+}
+
 UpdateRenderer .top.ren.rw 0 0
 Render .top.ren.rw
 
-#renWin SetFileName "valid/volSimple.ppm"
+#renWin SetFileName "volSimpleLOD.tcl.ppm"
 #renWin SaveImageAsPPM
 
 
