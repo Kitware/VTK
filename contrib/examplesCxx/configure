@@ -458,7 +458,7 @@ echo > confdefs.h
 
 # A filename unique to this package, relative to the directory that
 # configure is in, which we can look for to find out if srcdir is correct.
-ac_unique_file=TimeMPI.cxx
+ac_unique_file=TestMPI.cxx
 
 # Find the source files, if location was not specified.
 if test -z "$srcdir"; then
@@ -527,7 +527,7 @@ fi
 
 
 
-VTK_LIB_FILE="../../contrib/libVTKContrib\${VTK_LIB_EXT} ../../graphics/libVTKGraphics\${VTK_LIB_EXT} ../../common/libVTKCommon\${VTK_LIB_EXT}"
+VTK_LIB_FILE="-L../../contrib/libVTKContrib\${VTK_LIB_EXT} -L../../graphics/libVTKGraphics\${VTK_LIB_EXT} -L../../common/libVTKCommon\${VTK_LIB_EXT}"
 
 
 # if using imaging we also need imaging library
@@ -535,10 +535,10 @@ VTK_LIB_FILE="../../contrib/libVTKContrib\${VTK_LIB_EXT} ../../graphics/libVTKGr
 if test "${with_imaging+set}" = set; then
   withval="$with_imaging"
   if test "$withval" = yes; then
-     VTK_LIB_FILE="../../imaging/libVTKImaging\${VTK_LIB_EXT} ${VTK_LIB_FILE}"
+     VTK_LIB_FILE="-L../../imaging/libVTKImaging\${VTK_LIB_EXT} ${VTK_LIB_FILE}"
          fi
 else
-  VTK_LIB_FILE="../../imaging/libVTKImaging\${VTK_LIB_EXT} ${VTK_LIB_FILE}"
+  VTK_LIB_FILE="-L../../imaging/libVTKImaging\${VTK_LIB_EXT} ${VTK_LIB_FILE}"
          
 fi
 
@@ -548,7 +548,7 @@ fi
 if test "${with_patented+set}" = set; then
   withval="$with_patented"
   if test "$withval" = yes; then
-     VTK_LIB_FILE="../../patented/libVTKPatented\${VTK_LIB_EXT} ${VTK_LIB_FILE}"
+     VTK_LIB_FILE="-L../../patented/libVTKPatented\${VTK_LIB_EXT} ${VTK_LIB_FILE}"
          fi
 fi
 
@@ -562,12 +562,6 @@ else
   vtk_shared_ok=no
 fi
 
-
-# if not using shared libraries, then repeat libraries twice to handle
-# circular dependencies
-if test "$vtk_shared_ok" = "no"; then
-     VTK_LIB_FILE="${VTK_LIB_FILE} ${VTK_LIB_FILE}"
-fi
 
 
 
