@@ -43,9 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .SECTION Description
 // vtkQuadricClustering is a filter to reduce the number of triangles in a
 // triangle mesh, forming a good approximation to the original geometry.  The
-// input to vtkQuadricClustering is a vtkPolyData object, and only triangles
-// are treated. If you desire to decimate polygonal meshes, first triangulate
-// the polygons with vtkTriangleFilter object. 
+// input to vtkQuadricClustering is a vtkPolyData object, and all types of
+// polygonal data are handled.
 //
 // The algorithm used is the one described by Peter Lindstrom in his Siggraph
 // 2000 paper, "Out-of-Core Simplification of Large Polygonal Models."  The
@@ -178,7 +177,7 @@ public:
   void StartAppend(float *bounds);
   void StartAppend(float x0,float x1,float y0,float y1,float z0,float z1)
     {float b[6]; b[0]=x0; b[1]=x1; b[2]=y0; b[3]=y1; b[4]=z0; b[5]=z1; 
-     this->StartAppend(b);}  
+    this->StartAppend(b);}  
   void Append(vtkPolyData *piece);
   void EndAppend();
 
@@ -202,10 +201,12 @@ protected:
   // Description:
   // Add triangles to the quadric array.  If geometry flag is on then
   // triangles are added to the output.
-  void AddTriangles(vtkCellArray *edges, vtkPoints *points,
-                int geometryFlag);
+  void AddTriangles(vtkCellArray *tris, vtkPoints *points,
+                    int geometryFlag);
+  void AddPolygons(vtkCellArray *polys, vtkPoints *points,
+                   int geometryFlag);
   void AddTriangle(int *binIds, float *pt0, float *pt1, float *pt2,
-                int geometeryFlag);
+                   int geometeryFlag);
 
   // Description:
   // Add edges to the quadric array.  If geometry flag is on then

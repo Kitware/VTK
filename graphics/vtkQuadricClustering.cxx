@@ -269,7 +269,8 @@ void vtkQuadricClustering::Append(vtkPolyData *pd)
   inputTris = pd->GetPolys();
   if (inputTris)
     {
-    this->AddTriangles(inputTris, inputPoints, 1);
+//    this->AddTriangles(inputTris, inputPoints, 1);
+    this->AddPolygons(inputTris, inputPoints, 1);
     }
 
   inputTris = pd->GetStrips();
@@ -277,10 +278,7 @@ void vtkQuadricClustering::Append(vtkPolyData *pd)
     {
     this->AddTriangles(inputTris, inputPoints, 1);
     }
-
 }
-
-
 
 //----------------------------------------------------------------------------
 void vtkQuadricClustering::AddTriangles(vtkCellArray *tris, vtkPoints *points,
@@ -314,6 +312,35 @@ void vtkQuadricClustering::AddTriangles(vtkCellArray *tris, vtkPoints *points,
       }
     }
 }
+
+//----------------------------------------------------------------------------
+void vtkQuadricClustering::AddPolygons(vtkCellArray *polys, vtkPoints *points,
+                                       int geometryFlag)
+{
+  int numCells, i, j, numPts, *ptIds;
+  float **pts;
+  int binIds[3];
+
+  numCells = polys->GetNumberOfCells();
+  polys->InitTraversal();
+  for (i = 0; i < numCells; ++i)
+    {
+    polys->GetNextCell(numPts, ptIds);
+    pts = new float *[numPts];
+    pts[0] = points->GetPoint(ptIds[0]);
+    binIds[0] = this->HashPoint(pts[0]);
+    for (j = 0; j < numPts-2; j++)
+      {
+      pts[j+1] = points->GetPoint(ptIds[j+1]);
+      binIds[1] = this->HashPoint(pts[j+1]);
+      pts[j+2] = points->GetPoint(ptIds[j+2]);
+      binIds[2] = this->HashPoint(pts[j+2]);
+      this->AddTriangle(binIds, pts[0], pts[j+1], pts[j+2], geometryFlag);
+      }
+    delete [] pts;
+    }
+}
+
 //----------------------------------------------------------------------------
 // The error function is the volume (squared) of the tetrahedron formed by the 
 // triangle and the point.  We ignore constant factors across all coefficents, 
