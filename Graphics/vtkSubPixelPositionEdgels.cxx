@@ -153,7 +153,7 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
   // handle the 2d case
   if (zdim < 2)
     {
-    if (x < 1 || y < 1 || x == (xdim-1) || y == (ydim -1))
+    if (x < 1 || y < 1 || x == (xdim-2) || y == (ydim -2))
       {
       result[0] = x;
       result[1] = y;
@@ -241,7 +241,7 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
   else
     {
     if (x < 1 || y < 1 || z < 1 || 
-	x == (xdim-1) || y == (ydim -1) || z == (zdim -1))
+	x == (xdim-2) || y == (ydim -2) || z == (zdim -2))
       {
       result[0] = x;
       result[1] = y;
