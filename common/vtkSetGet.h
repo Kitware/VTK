@@ -145,7 +145,7 @@ type Get##name () { \
 // is succeptible to this problem.
 //
 #define vtkSafeSetStringMacro(name) \
-void Set##name (char* _arg);
+void Set##name (char* _arg)
 
 #define vtkSafeSetStringMacro2(name,cname) \
 void cname##::Set##name (char* _arg) \
