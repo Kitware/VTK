@@ -19,10 +19,12 @@ vtkRecursiveDividingCubes iso
     iso SetInput [reader GetOutput]
     iso SetValue 128
     iso SetDistance 0.5
-    iso SetIncrement 1
+    iso SetIncrement 2
 vtkPolyDataMapper isoMapper
     isoMapper SetInput [iso GetOutput]
     isoMapper ScalarVisibilityOff
+    isoMapper ImmediateModeRenderingOn
+
 vtkActor isoActor
     isoActor SetMapper isoMapper
     eval [isoActor GetProperty] SetColor $bisque
