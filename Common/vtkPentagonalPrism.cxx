@@ -35,7 +35,7 @@
 #include "vtkPoints.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkPentagonalPrism, "1.3");
+vtkCxxRevisionMacro(vtkPentagonalPrism, "1.4");
 vtkStandardNewMacro(vtkPentagonalPrism);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -503,7 +503,7 @@ void vtkPentagonalPrism::Clip(double value, vtkDataArray *cellScalars,
 void vtkPentagonalPrism::Subdivide(vtkPointData *inPd, vtkCellData *inCd, vtkIdType cellId)
 {
   int i, j;
-  double x[3], x1[3], x2[3], s1, s2, weights[5];
+  double x[3], x1[3], x2[3], weights[5];
 
   this->PointData->CopyAllocate(inPd, 10+2);
   this->CellData->CopyAllocate(inCd,6);
@@ -517,7 +517,6 @@ void vtkPentagonalPrism::Subdivide(vtkPointData *inPd, vtkCellData *inCd, vtkIdT
 
   x1[0] = x1[1] = x1[2] = 0.;
   x2[0] = x2[1] = x2[2] = 0.;
-  s1 = s2 = 0.;
   
   for(i=0; i<5; ++i)
     {
