@@ -17,16 +17,16 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
-// .NAME vtkPlanesIntersection - Computes whether the convex region
-//    defined by (bounded by) it's planes intersects an axis aligned box.
+// .NAME vtkPlanesIntersection - A vtkPlanesIntersection object is a
+//    vtkPlanes object that can compute whether the arbitrary convex region
+//    bounded by it's planes intersects an axis-aligned box.
 //
 // .SECTION Description
 //    A subclass of vtkPlanes, this class determines whether it
 //    intersects an axis aligned box.   This is motivated by the
 //    need to intersect the axis aligned region of a spacial
-//    decomposition of volume data with a view frustum created by
-//    a rectangular portion of the view plane.  It uses the 
-//    algorithm from Graphics Gems IV, page 81.
+//    decomposition of volume data with various other regions.
+//    It uses the algorithm from Graphics Gems IV, page 81.
 //
 // .SECTION Caveat
 //    An instance of vtkPlanes can be redefined by changing the planes,
@@ -90,6 +90,12 @@ public:
 
 protected:
 
+  static void ComputeNormal(double *p1, double *p2, double *p3, double normal[3]);
+  static double EvaluatePlaneEquation(double *x, double *p);
+  static void PlaneEquation(double *n, double *x, double *p);
+  static int GoodNormal(double *n);
+  static int Invert3x3(double M[3][3]);
+
   vtkPlanesIntersection();
   ~vtkPlanesIntersection();
 
@@ -107,13 +113,6 @@ private:
   int duplicate(double testv[3]) const;
   void planesRHS(int p1, int p2, int p3, double r[3]) const;
   int outsideRegion(double v[3]) ;
-
-  static double EvaluatePlaneEquation(double *x, double *p);
-  static void PlaneEquation(double *n, double *x, double *p);
-  static void ComputeNormal(double *p1, double *p2, double *p3, double normal[3]);
-  static int GoodNormal(double *n);
-    
-  static int Invert3x3(double M[3][3]);
 
   // plane equations
   double *Plane;
