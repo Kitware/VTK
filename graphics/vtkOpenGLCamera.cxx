@@ -142,10 +142,9 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
   matrix->Transpose();
   if(ren->GetIsPicking())
     {
-    GLint viewport[4];
-    glGetIntegerv( GL_VIEWPORT, viewport);
+    int size[2]; size[0] = usize; size[1] = vsize;
     glLoadIdentity();
-    vtkgluPickMatrix(ren->GetPickX(), ren->GetPickY(), 1, 1, viewport);
+    vtkgluPickMatrix(ren->GetPickX(), ren->GetPickY(), 1, 1, lowerLeft, size);
     glMultMatrixd(matrix->Element[0]);
     }
   else
