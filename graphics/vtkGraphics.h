@@ -50,7 +50,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkBooleanTexture.h"
 #include "vtkBrownianPoints.h"
 #include "vtkCamera.h"
-#include "vtkCastToConcrete.h"
 #include "vtkCellLocator.h"
 #include "vtkCellPicker.h"
 #include "vtkCleanPolyData.h"
