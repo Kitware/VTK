@@ -374,10 +374,32 @@ int vtkTetra::Triangulate(int vtkNotUsed(index), vtkFloatPoints &pts)
   return 1;
 }
 
-void vtkTetra::Derivatives(int subId, float pcoords[3], float *values, 
-                           int dim, float *derivs)
+void vtkTetra::Derivatives(int vtkNotUsed(subId), float vtkNotUsed(pcoords)[3],
+                           float *values, int dim, float *derivs)
 {
+  double *jI[3], j0[3], j1[3], j2[3];
+  float functionDerivs[12], sum[3];
+  int i, j, k;
 
+  // compute inverse Jacobian and interpolation function derivatives
+  jI[0] = j0; jI[1] = j1; jI[2] = j2;
+  this->JacobianInverse(jI, functionDerivs);
+
+  // now compute derivates of values provided
+  for (k=0; k < dim; k++) //loop over values per vertex
+    {
+    for (j=0; j < 3; j++) //loop over derivative directions
+      {
+      sum[0] = sum[1] = sum[2] = 0.0;
+      for ( i=0; i < 4; i++) //loop over interp. function derivatives
+        {
+        sum[0] += functionDerivs[i] * values[dim*i + k]; 
+        sum[1] += functionDerivs[4 + i] * values[dim*i + k];
+        sum[2] += functionDerivs[8 + i] * values[dim*i + k];
+        }
+      derivs[3*k + j] = sum[0]*jI[j][0] + sum[1]*jI[j][1] + sum[2]*jI[j][2];
+      }
+    }
 }
 
 // Description:
@@ -501,5 +523,77 @@ int vtkTetra::BarycentricCoords(float x[3], float  x1[3], float x2[3],
   else
     {
     return 0;
+    }
+}
+
+//
+// Compute iso-parametrix interpolation functions
+//
+void vtkTetra::InterpolationFunctions(float pcoords[3], float sf[4])
+{
+  sf[0] = 1.0 - pcoords[0] - pcoords[1] - pcoords[2];
+  sf[1] = pcoords[0];
+  sf[2] = pcoords[1];
+  sf[3] = pcoords[2];
+}
+
+void vtkTetra::InterpolationDerivs(float derivs[12])
+{
+  // r-derivatives
+  derivs[0] = -1.0;
+  derivs[1] = 1.0;
+  derivs[2] = 0.0;
+  derivs[3] = 0.0;
+
+  // s-derivatives
+  derivs[4] = -1.0;
+  derivs[5] = 0.0;
+  derivs[6] = 1.0;
+  derivs[7] = 0.0;
+
+  // t-derivatives
+  derivs[8] = -1.0;
+  derivs[9] = 0.0;
+  derivs[10] = 0.0;
+  derivs[11] = 1.0;
+}
+
+// Description:
+// Given parametric coordinates compute inverse Jacobian transformation
+// matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
+// function derivatives.
+void vtkTetra::JacobianInverse(double **inverse, float derivs[12])
+{
+  static vtkMath math;
+  int i, j;
+  double *m[3], m0[3], m1[3], m2[3];
+  float *x;
+
+  // compute interpolation function derivatives
+  this->InterpolationDerivs(derivs);
+
+  // create Jacobian matrix
+  m[0] = m0; m[1] = m1; m[2] = m2;
+  for (i=0; i < 3; i++) //initialize matrix
+    {
+    m0[i] = m1[i] = m2[i] = 0.0;
+    }
+
+  for ( j=0; j < 4; j++ )
+    {
+    x = this->Points.GetPoint(j);
+    for ( i=0; i < 3; i++ )
+      {
+      m0[i] += x[i] * derivs[j];
+      m1[i] += x[i] * derivs[4 + j];
+      m2[i] += x[i] * derivs[8 + j];
+      }
+    }
+
+  // now find the inverse
+  if ( math.InvertMatrix(m,inverse,3) == 0 )
+    {
+    vtkErrorMacro(<<"Jacobian inverse not found");
+    return;
     }
 }
