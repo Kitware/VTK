@@ -183,12 +183,18 @@ proc Zoom {widget x y} {
     if { ! $RendererFound } { return }
 
     set zoomFactor [expr pow(1.02,($y - $LastY))]
-    set clippingRange [$CurrentCamera GetClippingRange]
-    set minRange [lindex $clippingRange 0]
-    set maxRange [lindex $clippingRange 1]
-    $CurrentCamera SetClippingRange [expr $minRange / $zoomFactor] \
-                                    [expr $maxRange / $zoomFactor]
-    $CurrentCamera Dolly $zoomFactor
+
+    if {[$CurrentCamera GetParallelProjection]} {
+      set parallelScale [expr [$CurrentCamera GetParallelScale] * $zoomFactor];
+      $CurrentCamera SetParallelScale $parallelScale;
+    } else {
+      set clippingRange [$CurrentCamera GetClippingRange]
+      set minRange [lindex $clippingRange 0]
+      set maxRange [lindex $clippingRange 1]
+      $CurrentCamera SetClippingRange [expr $minRange / $zoomFactor] \
+                                      [expr $maxRange / $zoomFactor]
+      $CurrentCamera Dolly $zoomFactor
+    }
 
     set LastX $x
     set LastY $y
