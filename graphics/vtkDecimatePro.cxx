@@ -142,6 +142,7 @@ void vtkDecimatePro::Execute()
   vtkPointData *outputPD=output->GetPointData();
   vtkPointData *inPD=input->GetPointData();
   int *map, numNewPts, totalPts, newCellPts[3];
+  int abort=0;
 
   // do it this way because some compilers can't handle construction of
   // static objects in file scope.
@@ -224,11 +225,22 @@ void vtkDecimatePro::Execute()
   // necessary to resolve non-manifold geometry or to split edges.) 
   // Then evaluate the local error for the vertex. The vertex is then
   // inserted into the priority queue.
-  for ( ptId=0; ptId < Mesh->GetNumberOfPoints(); ptId++ )
+  npts = Mesh->GetNumberOfPoints();
+  for ( ptId=0; ptId < npts && !abort ; ptId++ )
     {
-    if ( ! (ptId % 10000) ) vtkDebugMacro(<<"Inserting vertex #" << ptId);
+    if ( ! (ptId % 10000) ) 
+      {
+      vtkDebugMacro(<<"Inserting vertex #" << ptId);
+      this->UpdateProgress (0.25*ptId/npts);//25% spent inserting
+      if (this->GetAbortExecute())
+        {
+        abort = 1;
+        break;
+        }
+      }
     this->Insert(ptId);
     }
+  this->UpdateProgress (0.25);//25% spent inserting
 
   // While the priority queue is not empty, retrieve the top vertex from the
   // queue and attempt to delete it by performing an edge collapse. This 
@@ -237,12 +249,20 @@ void vtkDecimatePro::Execute()
   // (While this is happening we keep track of operations on the data - 
   // this forms the core of the progressive mesh representation.)
   for ( totalEliminated=0, reduction=0.0, numRecycles=0, numPops=0;
-  reduction < this->TargetReduction && (ptId = this->Pop(error)) >= 0; 
+  reduction < this->TargetReduction && (ptId = this->Pop(error)) >= 0 && !abort; 
   numPops++)
     {
-    if ( ! (numPops % 10000) )
+    if ( numPops && !(numPops % 5000) )
+      {
       vtkDebugMacro(<<"Deleting vertex #" << numPops);
-
+      this->UpdateProgress (0.25 + 0.75*(reduction/this->TargetReduction));
+      if (this->GetAbortExecute())
+        {
+        abort = 1;
+        break;
+        }
+      }
+    
     Mesh->GetPoint(ptId,X);
     Mesh->GetPointCells(ptId,ncells,cells);
 
