@@ -314,6 +314,14 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
     this->GetRGBTextureInput()->Update();
     }
 
+  int scalarType = this->GetInput()->GetPointData()->GetScalars()->GetDataType();
+  if (scalarType != VTK_UNSIGNED_SHORT && scalarType != VTK_UNSIGNED_CHAR)
+    {
+    vtkErrorMacro ("Cannot volume render data of type " 
+                   << vtkImageScalarTypeNameMacro(scalarType) 
+                   << ", only unsigned char or unsigned short.");
+    return;
+    }
   // Start timing now. We didn't want to capture the update of the
   // input data in the times
   this->Timer->StartTimer();
