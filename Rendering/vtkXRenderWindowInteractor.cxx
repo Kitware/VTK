@@ -30,7 +30,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.109");
+vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.110");
 vtkStandardNewMacro(vtkXRenderWindowInteractor);
 
 typedef struct
@@ -605,7 +605,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
                                    shift, 
                                    buffer[0], 
                                    1, 
-                                   buffer);
+                                   XKeysymToString(ks));
       me->InvokeEvent(vtkCommand::KeyPressEvent, NULL);
       me->InvokeEvent(vtkCommand::CharEvent, NULL);
       }
