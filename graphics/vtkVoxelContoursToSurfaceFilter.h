@@ -75,10 +75,20 @@ public:
   ~vtkVoxelContoursToSurfaceFilter();
   static vtkVoxelContoursToSurfaceFilter *New() {return new vtkVoxelContoursToSurfaceFilter;};
   const char *GetClassName() {return "vtkVoxelContoursToSurfaceFilter";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // Set / Get the memory limit in bytes for this filter. This is the limit
+  // of the size of the structured points data set that is created for
+  // intermediate processing. The data will be streamed through this volume
+  // in as many pieces as necessary.
+  vtkSetMacro( MemoryLimitInBytes, int );
+  vtkGetMacro( MemoryLimitInBytes, int );
    
 protected:
   void    Execute();
+
+  int     MemoryLimitInBytes;
 
   float   *LineList;
   int     LineListLength;
@@ -100,7 +110,7 @@ protected:
   void    CastLines( float *slice, float gridOrigin[3], 
 		     int gridSize[3], int type );
 
-  void    PushDistances( float *ptr, int gridSize[3] );
+  void    PushDistances( float *ptr, int gridSize[3], int chunkSize );
 };
 
 #endif
