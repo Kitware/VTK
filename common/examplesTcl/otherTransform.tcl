@@ -55,8 +55,8 @@ proc rtOtherTest { fileid } {
     puts $fileid "trans TransformVector 1 2 3  [trans TransformVector 1 2 3]"
     puts $fileid ""
 
-    vtkProjectionTransform ptrans
-    puts $fileid "vtkProjectionTransform: "
+    vtkPerspectiveTransform ptrans
+    puts $fileid "vtkPerspectiveTransform: "
     puts $fileid "ptrans [ptrans Print]"
 
     vtkMatrix4x4 matrix
@@ -103,32 +103,32 @@ proc rtOtherTest { fileid } {
     puts $fileid "itrans TransformVector 1 2 3  [itrans TransformVector 1 2 3]"
     puts $fileid ""
 
-    vtkPerspectiveTransformConcatenation pctrans
-    puts $fileid "vtkPerspectiveTransformConcatenation: "
+    vtkPerspectiveTransform pctrans
+    puts $fileid "vtkPerspectiveTransform: "
     puts $fileid "pctrans [pctrans Print]"
 
-    pctrans Concatenate itrans
+    pctrans SetInput itrans
     pctrans Concatenate ptrans
     pctrans PostMultiply
     pctrans Concatenate trans
     pctrans Update
-    puts $fileid "Concatenate itrans"
+    puts $fileid "SetInput itrans"
     puts $fileid "Concatenate ptrans"
     puts $fileid "PostMultiply"
     puts $fileid "Concatenate trans"
     puts $fileid "Update"
     puts $fileid "pctrans [pctrans Print]"
 
-    vtkGeneralTransformConcatenation gctrans
-    puts $fileid "vtkGeneralTransformConcatenation: "
+    vtkGeneralTransform gctrans
+    puts $fileid "vtkGeneralTransform: "
     puts $fileid "gctrans [gctrans Print]"
 
-    gctrans Concatenate itrans
+    gctrans SetInput itrans
     gctrans Concatenate ptrans
     gctrans PostMultiply
     gctrans Concatenate trans
     gctrans Update
-    puts $fileid "Concatenate itrans"
+    puts $fileid "SetInput itrans"
     puts $fileid "Concatenate ptrans"
     puts $fileid "PostMultiply"
     puts $fileid "Concatenate trans"
