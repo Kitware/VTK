@@ -212,6 +212,10 @@ void vtkWin32TextMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
   DrawText(hdc, this->Input, strlen(this->Input), &rect, 
 	   DT_CALCRECT|DT_LEFT|DT_NOPREFIX);
 
+  // adjust the rectangle to account for lower left origin
+  rect.top = 2*rect.top - rect.bottom;
+  rect.bottom = ptDestOff.y;
+
   // Set the colors for the shadow
   long status;
   if (this->Shadow)
