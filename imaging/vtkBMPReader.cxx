@@ -64,7 +64,6 @@ void vtkBMPReader::UpdateImageInformation()
 {
   int xsize, ysize;
   FILE *fp;
-  char lFileName[1024];
   long tmp;
   short stmp;
   long infoSize;
@@ -85,30 +84,13 @@ void vtkBMPReader::UpdateImageInformation()
     this->DataExtent[5] = this->DataVOI[5];
     }
 
-  // Allocate the space for the filename
-  if (this->FileName)
-    {
-    sprintf(lFileName,"%s",this->FileName);
-    }
-  else 
-    {
-    if (this->FilePrefix)
-      {
-      sprintf (lFileName, this->FilePattern, 
-	       this->FilePrefix, this->DataExtent[4]);
-      }
-    else
-      {
-      sprintf (lFileName, this->FilePattern, 
-	       this->DataExtent[4]);
-      }
-    }
+  this->ComputeInternalFileName(this->DataExtent[4]);
   
   // get the magic number by reading in a file
-  fp = fopen(lFileName,"rb");
+  fp = fopen(this->InternalFileName,"rb");
   if (!fp)
     {
-    vtkErrorMacro("Unable to open file " << lFileName);
+    vtkErrorMacro("Unable to open file " << this->InternalFileName);
     return;
     }
 
@@ -218,7 +200,7 @@ void vtkBMPReader::UpdateImageInformation()
 	(this->DataVOI[2] < 0) ||
 	(this->DataVOI[3] >= ysize))
       {
-      vtkWarningMacro("The requested VOI is larger than the file's (" << lFileName << ") extent ");
+      vtkWarningMacro("The requested VOI is larger than the file's (" << this->InternalFileName << ") extent ");
       this->DataVOI[0] = 0;
       this->DataVOI[1] = xsize - 1;
       this->DataVOI[2] = 0;
@@ -334,11 +316,9 @@ static void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data,
   pixelSkip = self->Depth/8;
     
   // read from the bottom up
-  if (!self->FileLowerLeft) 
+  if (!self->GetFileLowerLeft()) 
     streamSkip0 = -streamRead - self->DataIncrements[1];
   
-  self->InternalFileName = new char [1024];
-    
   // create a buffer to hold a row of the data
   buf = new unsigned char[streamRead];
   
@@ -407,8 +387,6 @@ static void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data,
 
   // delete the temporary buffer
   delete [] buf;
-  delete [] self->InternalFileName;
-  self->InternalFileName = NULL;
 }
 
 

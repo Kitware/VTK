@@ -131,6 +131,8 @@ public:
   // Description:
   // Get the size of the header computed by this object.
   int GetHeaderSize();
+  int GetHeaderSize(int slice);
+
   // Description:
   // If there is a tail on the file, you want to explicitly set the
   // header size.
@@ -187,14 +189,28 @@ public:
 
   void OpenFile();
   void OpenAndSeekFile(int extent[6], int slice);
+
+  // Description:
+  // Set/Get whether the data comes from the file starting in the lower left
+  // corner or upper left corner.
+  vtkBooleanMacro(FileLowerLeft, int);
+  vtkGetMacro(FileLowerLeft, int);
+  vtkSetMacro(FileLowerLeft, int);
+
+  // Description:
+  // Set/Get the internal file name
+  void ComputeInternalFileName(int slice);
+  vtkGetStringMacro(InternalFileName);
+  
+  
+protected:
   char *InternalFileName;
   char *FileName;
   char *FilePrefix;
   char *FilePattern;
   int NumberOfScalarComponents;
   int FileLowerLeft;
-  
-protected:
+
   int FileDimensionality;
   int HeaderSize;
   int DataScalarType;

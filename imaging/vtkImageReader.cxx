@@ -105,7 +105,48 @@ vtkImageReader::~vtkImageReader()
     delete [] this->FilePattern;
     this->FilePattern = NULL;
     }
+  if (this->InternalFileName)
+    {
+    delete [] this->InternalFileName;
+    this->InternalFileName = NULL;
+    }
 }
+
+//----------------------------------------------------------------------------
+// Description:
+// This function sets the name of the file. 
+void vtkImageReader::ComputeInternalFileName(int slice)
+{
+  // delete any old filename
+  if (this->InternalFileName)
+    {
+    delete [] this->InternalFileName;
+    }
+
+  
+  // make sure we figure out a filename to open
+  if (this->FileName)
+    {
+    this->InternalFileName = new char [strlen(this->FileName) + 10];
+    sprintf(this->InternalFileName,"%s",this->FileName);
+    }
+  else 
+    {
+    if (this->FilePrefix)
+      {
+      this->InternalFileName = new char [strlen(this->FilePrefix) +
+                                        strlen(this->FilePattern) + 10];
+      sprintf (this->InternalFileName, this->FilePattern, 
+               this->FilePrefix, slice);
+      }
+    else
+      {
+      this->InternalFileName = new char [strlen(this->FilePattern) + 10];
+      sprintf (this->InternalFileName, this->FilePattern, slice);
+      }
+    }
+}
+
 
 //----------------------------------------------------------------------------
 // Description:
@@ -405,41 +446,21 @@ void vtkImageReader::OpenFile()
     }
 }
 
+
 int vtkImageReader::GetHeaderSize()
+{
+  return this->GetHeaderSize(this->DataExtent[4]);
+}
+
+int vtkImageReader::GetHeaderSize(int idx)
 {
   if ( ! this->ManualHeaderSize)
     {
     this->ComputeDataIncrements();
 
     // make sure we figure out a filename to open
-    if (!this->InternalFileName)
-      {
-      this->InternalFileName = new char [1024];
-      if (this->FileName)
-	{
-	sprintf(this->InternalFileName,"%s",this->FileName);
-	}
-      else 
-	{
-	if (this->FilePrefix)
-	  {
-	  sprintf (this->InternalFileName, this->FilePattern, 
-		   this->FilePrefix, this->DataExtent[4]);
-	  }
-	else
-	  {
-	  sprintf (this->InternalFileName, this->FilePattern, 
-		   this->DataExtent[4]);
-	  }
-	}
-      this->OpenFile();
-      delete [] this->InternalFileName;
-      this->InternalFileName = NULL;
-      }
-    else
-      {
-      this->OpenFile();
-      }
+    this->ComputeInternalFileName(idx);
+    this->OpenFile();
     
     // Get the size of the header from the size of the image
     this->File->seekg(0,ios::end);
@@ -455,24 +476,10 @@ void vtkImageReader::OpenAndSeekFile(int dataExtent[6], int idx)
 {
   long streamStart;
 
-  if (this->FileName)
-    {
-    sprintf(this->InternalFileName,"%s",this->FileName);
-    }
-  else
-    {
-    if (this->FilePrefix)
-      {
-      sprintf (this->InternalFileName, this->FilePattern, 
-	       this->FilePrefix, idx);
-      }
-    else
-      {
-      sprintf (this->InternalFileName, this->FilePattern, idx);
-      }
-    }
+  this->ComputeInternalFileName(idx);
   
-  this->UpdateProgress ((float) (idx - dataExtent[4]) / (float) (dataExtent[5] - dataExtent[4] + 1));
+  this->UpdateProgress ((float) (idx - dataExtent[4])
+                        / (float) (dataExtent[5] - dataExtent[4] + 1));
   this->OpenFile();
 
   // convert data extent into constants that can be used to seek.
@@ -498,7 +505,7 @@ void vtkImageReader::OpenAndSeekFile(int dataExtent[6], int idx)
       (dataExtent[4] - this->DataExtent[4]) * this->DataIncrements[2];
     }
   
-  streamStart += this->GetHeaderSize();
+  streamStart += this->GetHeaderSize(idx);
   
   // error checking
   if (streamStart < 0)
@@ -560,14 +567,13 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
   pixelSkip = data->GetNumberOfScalarComponents();
     
   // read from the bottom up
-  if (!self->FileLowerLeft) 
+  if (!self->GetFileLowerLeft()) 
     {
     streamSkip0 = -streamRead - self->DataIncrements[1];
     streamSkip1 = self->DataIncrements[2] + 
       (dataExtent[3] - dataExtent[2] + 1)* self->DataIncrements[1];
     }
   
-  self->InternalFileName = new char [1024];
     
   // create a buffer to hold a row of the data
   buf = new unsigned char[streamRead];
@@ -640,8 +646,6 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
 
   // delete the temporary buffer
   delete [] buf;
-  delete [] self->InternalFileName;
-  self->InternalFileName = NULL;
 }
 
 

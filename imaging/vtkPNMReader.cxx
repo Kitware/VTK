@@ -96,8 +96,7 @@ void vtkPNMReader::UpdateImageInformation()
   char magic[80];
   char c;
   FILE *fp;
-  char lFileName[1024];
-  
+
   // if the user has not set the extent, but has set the VOI
   // set the zaxis extent to the VOI z axis
   if (this->DataExtent[4]==0 && this->DataExtent[5] == 0 &&
@@ -108,32 +107,16 @@ void vtkPNMReader::UpdateImageInformation()
     }
 
   // Allocate the space for the filename
-  if (this->FileName)
-    {
-    sprintf(lFileName,"%s",this->FileName);
-    }
-  else 
-    {
-    if (this->FilePrefix)
-      {
-      sprintf (lFileName, this->FilePattern, 
-	       this->FilePrefix, this->DataExtent[4]);
-      }
-    else
-      {
-      sprintf (lFileName, this->FilePattern, 
-	       this->DataExtent[4]);
-      }
-    }
+  this->ComputeInternalFileName(this->DataExtent[4]);
   
   // get the magic number by reading in a file
-  fp = fopen(lFileName,"rb");
+  fp = fopen(this->InternalFileName,"rb");
   if (!fp)
     {
-    vtkErrorMacro("Unable to open file " << lFileName);
+    vtkErrorMacro("Unable to open file " << this->InternalFileName);
     return;
     }
-  
+
   do
     {
     c = vtkPNMReaderGetChar(fp);
@@ -174,7 +157,7 @@ void vtkPNMReader::UpdateImageInformation()
 	(this->DataVOI[2] < 0) ||
 	(this->DataVOI[3] >= ysize))
       {
-      vtkWarningMacro("The requested VOI is larger than the file's (" << lFileName << ") extent ");
+      vtkWarningMacro("The requested VOI is larger than the file's (" << this->InternalFileName << ") extent ");
       this->DataVOI[0] = 0;
       this->DataVOI[1] = xsize - 1;
       this->DataVOI[2] = 0;

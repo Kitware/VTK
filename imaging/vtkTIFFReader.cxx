@@ -135,7 +135,6 @@ void vtkTIFFReader::UpdateImageInformation()
 {
   int xsize, ysize;
   FILE *fp;
-  char lFileName[1024];
   short stmp;
   long IFDOffset;
   _vtkTifTag aTag;
@@ -155,29 +154,13 @@ void vtkTIFFReader::UpdateImageInformation()
     }
 
   // Allocate the space for the filename
-  if (this->FileName)
-    {
-    sprintf(lFileName,"%s",this->FileName);
-    }
-  else 
-    {
-    if (this->FilePrefix)
-      {
-      sprintf (lFileName, this->FilePattern, 
-	       this->FilePrefix, this->DataExtent[4]);
-      }
-    else
-      {
-      sprintf (lFileName, this->FilePattern, 
-	       this->DataExtent[4]);
-      }
-    }
-  
+  this->ComputeInternalFileName(this->DataExtent[4]);
+
   // get the magic number by reading in a file
-  fp = fopen(lFileName,"rb");
+  fp = fopen(this->InternalFileName,"rb");
   if (!fp)
     {
-    vtkErrorMacro("Unable to open file " << lFileName);
+    vtkErrorMacro("Unable to open file " << this->InternalFileName);
     return;
     }
 
@@ -306,7 +289,7 @@ void vtkTIFFReader::UpdateImageInformation()
 	(this->DataVOI[2] < 0) ||
 	(this->DataVOI[3] >= ysize))
       {
-      vtkWarningMacro("The requested VOI is larger than the file's (" << lFileName << ") extent ");
+      vtkWarningMacro("The requested VOI is larger than the file's (" << this->InternalFileName << ") extent ");
       this->DataVOI[0] = 0;
       this->DataVOI[1] = xsize - 1;
       this->DataVOI[2] = 0;
