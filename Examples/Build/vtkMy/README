@@ -10,6 +10,8 @@ If you do not care about this ordering, you might put your classes into the Unso
 What you should do:
 -------------------
 
+- Copy this vtkMy to a different out-of-source place, and remove all CVS subdirs to avoid any commit to the main VTK CVS.
+
 - Fill the subdirs with your own classes. Remove the dummy classes. For each CMakeList.txt in the package dirs, add or remove the class(es) pertaining to this directory (SOURCE_FILES command).
 
 - Run CMake as usual.
