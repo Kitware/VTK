@@ -1,3 +1,6 @@
+suppress umr vtkDoubleArray::GetTuple; vtkDataArray::InsertComponent; vtkDataArrayCppCommand
+suppress umr vtkLongArray::GetTuple; vtkDataArray::InsertComponent; vtkDataArrayCppCommand
+suppress umr stdiobuf::overflow; ostream::operator<<
 suppress umc vtkDataSet::InternalDataSetCopy
 suppress umc vtkDataObject::InternalDataObjectCopy
 suppress umc memcpy; SetupStacks
