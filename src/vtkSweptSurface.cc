@@ -38,9 +38,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "SweptSur.hh"
-#include "Actor.hh"
-#include "Voxel.hh"
+#include "vtkSweptSurface.hh"
+#include "vtkActor.hh"
+#include "vtkVoxel.hh"
 
 // Description:
 // Construct object with SampleDimensions = (50,50,50), FillValue = 

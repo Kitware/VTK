@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "Shepard.hh"
+#include "vtkShepardMethod.hh"
 #include "vtkMath.hh"
 
 // Description:

@@ -38,10 +38,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "SampleF.hh"
+#include "vtkSampleFunction.hh"
 #include "vtkMath.hh"
-#include "FScalars.hh"
-#include "FNormals.hh"
+#include "vtkFloatScalars.hh"
+#include "vtkFloatNormals.hh"
 
 // Description:
 // Construct with ModelBounds=(-1,1,-1,1,-1,1), SampleDimensions=(50,50,50),

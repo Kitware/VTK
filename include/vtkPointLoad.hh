@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkPointLoad_h
 #define __vtkPointLoad_h
 
-#include "SPtsSrc.hh"
+#include "vtkStructuredPointsSource.hh"
 
 class vtkPointLoad : public vtkStructuredPointsSource
 {

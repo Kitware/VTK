@@ -50,8 +50,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkSampleFunction_h
 #define __vtkSampleFunction_h
 
-#include "SPtsSrc.hh"
-#include "ImpFunc.hh"
+#include "vtkStructuredPointsSource.hh"
+#include "vtkImplicitFunction.hh"
 
 class vtkSampleFunction : public vtkStructuredPointsSource
 {

@@ -39,8 +39,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "Splatter.hh"
-#include "FScalars.hh"
+#include "vtkGaussianSplatter.hh"
+#include "vtkFloatScalars.hh"
 
 // Description:
 // Construct object with dimensions=(50,50,50); automatic computation of 

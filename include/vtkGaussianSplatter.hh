@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkGaussianSplatter_h
 #define __vtkGaussianSplatter_h
 
-#include "DS2SPtsF.hh"
+#include "vtkDataSetToStructuredPointsFilter.hh"
 
 class vtkGaussianSplatter : public vtkDataSetToStructuredPointsFilter 
 {

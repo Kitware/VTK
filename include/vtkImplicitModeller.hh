@@ -47,7 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkImplicitModeller_h
 #define __vtkImplicitModeller_h
 
-#include "DS2SPtsF.hh"
+#include "vtkDataSetToStructuredPointsFilter.hh"
 
 class vtkImplicitModeller : public vtkDataSetToStructuredPointsFilter 
 {

@@ -57,7 +57,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkShepardMethod_h
 #define __vtkShepardMethod_h
 
-#include "DS2SPtsF.hh"
+#include "vtkDataSetToStructuredPointsFilter.hh"
 
 class vtkShepardMethod : public vtkDataSetToStructuredPointsFilter 
 {
