@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -15,10 +13,12 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// DataSetToStructuredPointsFilter are filters that take DataSets in and 
-// generate StructuredPoints data
-//
+// .NAME vlDataSetToStructuredPointsFilter - abstract filter class
+// .SECTION Description
+// vlDataSetToStructuredPointsFilter is an abstract filter class whose
+// subclasses take as input any dataset and generate structured points 
+// data on output.
+
 #ifndef __vlDataSetToStructuredPointsFilter_h
 #define __vlDataSetToStructuredPointsFilter_h
 

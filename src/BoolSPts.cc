@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -17,8 +15,22 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "BoolSPts.hh"
 
+// Description:
+// Construct with sample resolution of (50,50,50) and automatic 
+// computation of sample bounds. Initial boolean operation is union.
 vlBooleanStructuredPoints::vlBooleanStructuredPoints()
 {
+  this->SampleDimensions[0] = 50;
+  this->SampleDimensions[1] = 50;
+  this->SampleDimensions[2] = 50;
+
+  this->ModelBounds[0] = 0.0;
+  this->ModelBounds[1] = 0.0;
+  this->ModelBounds[2] = 0.0;
+  this->ModelBounds[3] = 0.0;
+  this->ModelBounds[4] = 0.0;
+  this->ModelBounds[5] = 0.0;
+
   this->OperationType = UNION_OPERATOR;
   // this->Operator = this->Union;
 }
@@ -34,6 +46,8 @@ vlBooleanStructuredPoints::~vlBooleanStructuredPoints()
     }
 }
 
+// Description:
+// Add another structured point set to the list of objects to boolean.
 void vlBooleanStructuredPoints::AddInput(vlStructuredPoints *sp)
 {
   if ( ! this->Input.IsItemPresent(sp) )
@@ -44,6 +58,8 @@ void vlBooleanStructuredPoints::AddInput(vlStructuredPoints *sp)
     }
 }
 
+// Description:
+// Remove an object from the list of objects to boolean.
 void vlBooleanStructuredPoints::RemoveInput(vlStructuredPoints *sp)
 {
   if ( this->Input.IsItemPresent(sp) )
@@ -174,7 +190,8 @@ void vlBooleanStructuredPoints::Execute()
     }
 }
 
-// Perform Boolean operations by appending to current data
+// Description:
+// Perform Boolean operations by appending to current output data.
 void vlBooleanStructuredPoints::Append(vlStructuredPoints *sp)
 {
   vlScalars *currentScalars, *inScalars;
@@ -260,6 +277,8 @@ void vlBooleanStructuredPoints::PrintSelf(ostream& os, vlIndent indent)
     }
 }
 
+// Description:
+// Set the i-j-k dimensions on which to perform boolean operation.
 void vlBooleanStructuredPoints::SetSampleDimensions(int i, int j, int k)
 {
   int dim[3];
@@ -292,6 +311,8 @@ void vlBooleanStructuredPoints::SetSampleDimensions(int dim[3])
     }
 }
 
+// Description:
+// Set the size of the volume oon which to perform the sampling.
 void vlBooleanStructuredPoints::SetModelBounds(float *bounds)
 {
   vlBooleanStructuredPoints::SetModelBounds(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);

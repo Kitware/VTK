@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -15,6 +13,13 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
+// .NAME vlBooleanStructuredPoints - combine two or more structured point sets
+// .SECTION Description
+// vlBooleanStructuredPoints is a filter that performs boolean combinations on
+// two or more input structured point sets. Operations supported include union,
+// intersection, and difference. A special method is provided that allows 
+// incremental appending of data to the filter output.
+
 #ifndef __vlBooleanStructuredPoints_h
 #define __vlBooleanStructuredPoints_h
 
@@ -44,7 +49,8 @@ public:
   // alternative method to boolean data
   void Append(vlStructuredPoints *);
   
-  // Various operations
+  // Description:
+  // Specify the type of boolean operation.
   vlSetClampMacro(OperationType,int,UNION_OPERATOR,DIFFERENCE_OPERATOR);
   vlGetMacro(OperationType,int);
 

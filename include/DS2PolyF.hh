@@ -13,9 +13,11 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// DataSetToPolyFilter are filters that take DataSets in and generate PolyData
-//
+// .NAME vlDataSetToPolyFilter - abstract filter class
+// .SECTION Description
+// vlDataSetToPolyFilter is an abstract filter class whose subclasses 
+// take as input any dataset and generate polygonal data on output.
+
 #ifndef __vlDataSetToPolyFilter_h
 #define __vlDataSetToPolyFilter_h
 

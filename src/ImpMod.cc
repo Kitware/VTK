@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -19,6 +17,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "ImpMod.hh"
 #include "FScalars.hh"
 
+// Description:
+// Construct with sample dimensions=(50,50,50) and so that model bounds are
+// automatically computer from input. Capping is turned on with CapValue equal
+// to a large positive number.
 vlImplicitModeller::vlImplicitModeller()
 {
   this->MaximumDistance = 0.1;
@@ -180,6 +182,8 @@ void vlImplicitModeller::Execute()
 
 }
 
+// Description:
+// Compute ModelBounds from input geometry.
 float vlImplicitModeller::ComputeModelBounds()
 {
   float *bounds, maxDist;
@@ -225,6 +229,8 @@ float vlImplicitModeller::ComputeModelBounds()
   return maxDist;  
 }
 
+// Description:
+// Set the i-j-k dimensions on which to sample the distance function.
 void vlImplicitModeller::SetSampleDimensions(int i, int j, int k)
 {
   int dim[3];

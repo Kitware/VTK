@@ -33,12 +33,18 @@ public:
   char *GetClassName() {return "vlElevationFilter";};
   void PrintSelf(ostream& os, vlIndent indent);
 
+  // Description:
+  // Define one end of the line (small scalar values).
   vlSetVector3Macro(LowPoint,float);
   vlGetVectorMacro(LowPoint,float);
 
+  // Description:
+  // Define other end of the line (large scalar values).
   vlSetVector3Macro(HighPoint,float);
   vlGetVectorMacro(HighPoint,float);
 
+  // Description:
+  // Specify range to map scalars into.
   vlSetVector2Macro(ScalarRange,float);
   vlGetVectorMacro(ScalarRange,float);
 

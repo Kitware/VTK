@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -34,6 +32,8 @@ public:
   char *GetClassName() {return "vlHedgeHog";};
   void PrintSelf(ostream& os, vlIndent indent);
 
+  // Description:
+  // Set scale factor to control size of oriented lines.
   vlSetMacro(ScaleFactor,float);
   vlGetMacro(ScaleFactor,float);
 

@@ -20,6 +20,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "vlMath.hh"
 #include "FScalars.hh"
 
+// Description:
+// Construct object with LowPoint=(0,0,0) and HighPoint=(0,0,1). Scalar
+// range is (0,1).
 vlElevationFilter::vlElevationFilter()
 {
   this->LowPoint[0] = 0.0;
