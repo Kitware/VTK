@@ -78,8 +78,15 @@ public class vtkPanel extends Canvas {
 
 	public native void setWindow(vtkRenderWindow renWin);
 
+	public boolean mouseUp(Event e, int x, int y)
+	{
+          rw.SetDesiredUpdateRate(0.01);
+	  return true;
+	}
+
 	public boolean mouseDown(Event e, int x, int y)
 	{
+          rw.SetDesiredUpdateRate(5.0);
           lastX = x;
 	  lastY = y;
 	  return true;
