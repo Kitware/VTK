@@ -323,9 +323,9 @@ vtkActor actor
 
 # Welcome banner
 vtkTextMapper banner
-    banner SetInput "vtk Decimator"
+    banner SetInput "vtk Decimator\nVersion 1.0"
     banner SetFontFamilyToArial
-    banner SetFontSize 14
+    banner SetFontSize 18
     banner ItalicOn
     banner SetJustificationToCentered
 vtkActor2D bannerActor
