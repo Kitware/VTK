@@ -3,8 +3,8 @@
   Program:   Visualization Toolkit
   Module:    Object.cc
   Language:  C++
-  Date:      30 Jun 1995
-  Version:   1.19
+  Date:      $Date$
+  Version:   $Revision$
 
 This file is part of the Visualization Toolkit. No part of this file or its 
 contents may be copied, reproduced or altered in any way without the express
@@ -13,7 +13,6 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-
 #include "Object.hh"
 
 // Description:
@@ -24,10 +23,21 @@ ostream& operator<<(ostream& os, vtkObject& o)
   return os;
 }
 
+// Description:
+// Create an object with Debug turned off and modified time initialized 
+// to zero.
 vtkObject::vtkObject()
 {
   this->Debug = 0;
   this->Modified(); // Insures modified time > than any other time
+}
+
+// Description:
+// Delete a vtk object. Delete() should always be used to delete an object 
+// when the new operator is used.
+void vtkObject::Delete() 
+{
+  delete this;
 }
 
 vtkObject::~vtkObject() 
