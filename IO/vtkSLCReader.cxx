@@ -23,7 +23,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkSLCReader, "1.45");
+vtkCxxRevisionMacro(vtkSLCReader, "1.46");
 vtkStandardNewMacro(vtkSLCReader);
 
 // Constructor for a vtkSLCReader.
@@ -309,7 +309,7 @@ int vtkSLCReader::CanReadFile(const char* fname)
     return 0;
     }
   fclose(fp);
-  return 1;
+  return 3;
 }
 
 
