@@ -576,6 +576,21 @@ int TestException()
 # pragma warning (pop)
 #endif
 
+//----------------------------------------------------------------------------
+
+/* Test void return type syntax.  */
+
+void TestVoidReturnInner() {}
+void TestVoidReturnOuter()
+{
+  // Visual Studio 6 does not support void returns.
+#if !(defined(_MSC_VER) && (_MSC_VER < 1300))
+  return TestVoidReturnInner();
+#endif
+}
+
+void const TestVoidConstReturn() {}
+
 //-------------------------------------------------------------------
 // See if the following code works on all platforms
 #if defined(_MSC_VER) && defined(_DEBUG)
