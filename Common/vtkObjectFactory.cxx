@@ -309,13 +309,14 @@ void vtkObjectFactory::RegisterFactory(vtkObjectFactory* factory)
     factory->LibraryPath = strcpy(new char[strlen(nonDynamicName)+1], 
 				  nonDynamicName);
     }
-  if(strcmp(factory->GetVTKSourceVersion(), 
-	    vtkVersion::GetVTKSourceVersion()) != 0)
+  else if(strcmp(factory->GetVTKSourceVersion(), 
+                 vtkVersion::GetVTKSourceVersion()) != 0)
     {
     vtkGenericWarningMacro(<< "Possible incompatible factory load:" 
     << "\nRunning vtk version :\n" << vtkVersion::GetVTKSourceVersion() 
     << "\nLoaded Factory version:\n" << factory->GetVTKSourceVersion()
-    << "\nLoading factory:\n" << factory->LibraryPath << "\n");
+    << "\nRejecting factory:\n" << factory->LibraryPath << "\n");
+    return;
     }
   vtkObjectFactory::Init();
   vtkObjectFactory::RegisteredFactories->AddItem(factory);
