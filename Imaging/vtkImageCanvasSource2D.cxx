@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageCanvasSource2D, "1.29");
+vtkCxxRevisionMacro(vtkImageCanvasSource2D, "1.30");
 vtkStandardNewMacro(vtkImageCanvasSource2D);
 
 //----------------------------------------------------------------------------
@@ -34,6 +34,8 @@ vtkImageCanvasSource2D::vtkImageCanvasSource2D()
 
   this->ImageData = this;
   this->DefaultZ = 0;
+
+  this->Ratio[0] = this->Ratio[1] = this->Ratio[2] = 1.0;
 }
 
 
@@ -68,6 +70,9 @@ void vtkImageCanvasSource2D::PrintSelf(ostream& os, vtkIndent indent)
     os << ", " << this->DrawColor[idx];
     }
   os << ")\n";
+  os << indent << "Ratio: (" 
+     << this->Ratio[0] << ", " << this->Ratio[1] << ", " << this->Ratio[2] 
+     << ")\n";
 }
 
 
@@ -141,7 +146,23 @@ void vtkImageCanvasSource2D::FillBox(int min0, int max0, int min1, int max1)
   int *extent;
   void *ptr;
   int z = this->DefaultZ;
-  
+
+  // Pre-multiply coords if needed
+  if (this->Ratio[0] != 1.0) 
+    {
+    min0 *= this->Ratio[0];
+    max0 *= this->Ratio[0];
+    }
+  if (this->Ratio[1] != 1.0) 
+    {
+    min1 *= this->Ratio[1];
+    max1 *= this->Ratio[1];
+    }
+  if (this->Ratio[2] != 1.0) 
+    {
+    z *= this->Ratio[2];
+    }
+
   // Clip the data to keep in in bounds
   extent = this->ImageData->GetExtent();
   min0 = (min0 < extent[0]) ? extent[0] : min0;
@@ -250,6 +271,23 @@ void vtkImageCanvasSource2D::FillTube(int a0, int a1, int b0, int b1, float radi
   int z = this->DefaultZ;
   int *extent = this->ImageData->GetExtent();
   
+  // Pre-multiply coords if needed
+  if (this->Ratio[0] != 1.0) 
+    {
+    a0 *= this->Ratio[0];
+    b0 *= this->Ratio[0];
+    radius *= this->Ratio[0];
+    }
+  if (this->Ratio[1] != 1.0) 
+    {
+    a1 *= this->Ratio[1];
+    b1 *= this->Ratio[1];
+    }
+  if (this->Ratio[2] != 1.0) 
+    {
+    z *= this->Ratio[2];
+    }
+
   z = (z < extent[4]) ? extent[4] : z;
   z = (z > extent[5]) ? extent[5] : z;
 
@@ -384,13 +422,32 @@ static void vtkImageCanvasSource2DFillTriangle(vtkImageData *image,
 void vtkImageCanvasSource2D::FillTriangle(int a0,int a1, int b0,int b1, int c0,int c1)
 {
   void *ptr;
+  int z = this->DefaultZ;
   
+  // Pre-multiply coords if needed
+  if (this->Ratio[0] != 1.0) 
+    {
+    a0 *= this->Ratio[0];
+    b0 *= this->Ratio[0];
+    c0 *= this->Ratio[0];
+    }
+  if (this->Ratio[1] != 1.0) 
+    {
+    a1 *= this->Ratio[1];
+    b1 *= this->Ratio[1];
+    c1 *= this->Ratio[1];
+    }
+  if (this->Ratio[2] != 1.0) 
+    {
+    z *= this->Ratio[2];
+    }
+
   ptr = this->ImageData->GetScalarPointer();
   switch (this->ImageData->GetScalarType())
     {
     vtkTemplateMacro10(vtkImageCanvasSource2DFillTriangle, this->ImageData, 
                        this->DrawColor, (VTK_TT *)(ptr), 
-                       a0,a1, b0,b1, c0,c1, this->DefaultZ);
+                       a0,a1, b0,b1, c0,c1, z);
     default:
       vtkErrorMacro(<< "FillTriangle: Cannot handle ScalarType.");
     }   
@@ -438,14 +495,29 @@ static void vtkImageCanvasSource2DDrawPoint(vtkImageData *image,
 void vtkImageCanvasSource2D::DrawPoint(int p0, int p1)
 {
   void *ptr = NULL;
+  int z = this->DefaultZ;
   
   vtkDebugMacro(<< "Drawing a point: (" << p0 << ", " << p1 << ")");
   
+  // Pre-multiply coords if needed
+  if (this->Ratio[0] != 1.0) 
+    {
+    p0 *= this->Ratio[0];
+    }
+  if (this->Ratio[1] != 1.0) 
+    {
+    p1 *= this->Ratio[1];
+    }
+  if (this->Ratio[2] != 1.0) 
+    {
+    z *= this->Ratio[2];
+    }
+
   switch (this->ImageData->GetScalarType())
     {
     vtkTemplateMacro6(vtkImageCanvasSource2DDrawPoint, this->ImageData, 
                       this->DrawColor, (VTK_TT *)(ptr), p0, p1, 
-                      this->DefaultZ);
+                      z);
     default:
       vtkErrorMacro(<< "DrawPoint: Cannot handle ScalarType.");
     }   
@@ -512,15 +584,31 @@ static void vtkImageCanvasSource2DDrawCircle(vtkImageData *image,
 void vtkImageCanvasSource2D::DrawCircle(int c0, int c1, float radius)
 {
   void *ptr = NULL;
+  int z = this->DefaultZ;
   
   vtkDebugMacro(<< "Drawing a circle: center = (" << c0 << ", " << c1 
                 << "), radius = " << radius);
   
+  // Pre-multiply coords if needed
+  if (this->Ratio[0] != 1.0) 
+    {
+    c0 *= this->Ratio[0];
+    radius *= this->Ratio[0];
+    }
+  if (this->Ratio[1] != 1.0) 
+    {
+    c1 *= this->Ratio[1];
+    }
+  if (this->Ratio[2] != 1.0) 
+    {
+    z *= this->Ratio[2];
+    }
+
   switch (this->ImageData->GetScalarType())
     {
     vtkTemplateMacro7(vtkImageCanvasSource2DDrawCircle, this->ImageData, 
                       this->DrawColor, 
-                      (VTK_TT *)(ptr), c0, c1, radius, this->DefaultZ);
+                      (VTK_TT *)(ptr), c0, c1, radius, z);
     default:
       vtkErrorMacro(<< "DrawCircle: Cannot handle ScalarType.");
     }   
@@ -628,6 +716,22 @@ void vtkImageCanvasSource2D::DrawSegment(int a0, int a1, int b0, int b1)
   vtkDebugMacro(<< "Drawing a segment: " << a0 << ", " << a1 << " to "
                 << b0 << ", " << b1);
   
+  // Pre-multiply coords if needed
+  if (this->Ratio[0] != 1.0) 
+    {
+    a0 *= this->Ratio[0];
+    b0 *= this->Ratio[0];
+    }
+  if (this->Ratio[1] != 1.0) 
+    {
+    a1 *= this->Ratio[1];
+    b1 *= this->Ratio[1];
+    }
+  if (this->Ratio[2] != 1.0) 
+    {
+    z *= this->Ratio[2];
+    }
+
   // check to make sure line segment is in bounds.
   extent = this->ImageData->GetExtent();
   z = (z < extent[4]) ? extent[4] : z;
@@ -869,6 +973,23 @@ void vtkImageCanvasSource2D::DrawSegment3D(float *a, float *b)
   void *ptr;
   int a0, a1, a2;
   
+  // Pre-multiply coords if needed
+  if (this->Ratio[0] != 1.0) 
+    {
+    a[0] *= this->Ratio[0];
+    b[0] *= this->Ratio[0];
+    }
+  if (this->Ratio[1] != 1.0) 
+    {
+    a[1] *= this->Ratio[1];
+    b[1] *= this->Ratio[1];
+    }
+  if (this->Ratio[2] != 1.0) 
+    {
+    a[2] *= this->Ratio[2];
+    b[2] *= this->Ratio[2];
+    }
+
   ptr = this->ImageData->GetScalarPointer((int)(b[0] + 0.5), 
                                             (int)(b[1] + 0.5), 
                                             (int)(b[2] + 0.5));
@@ -1158,6 +1279,20 @@ void vtkImageCanvasSource2D::FillPixel(int x, int y)
   void *ptr;
   int *ext = this->ImageData->GetExtent();
   int z = this->DefaultZ;
+
+  // Pre-multiply coords if needed
+  if (this->Ratio[0] != 1.0) 
+    {
+    x *= this->Ratio[0];
+    }
+  if (this->Ratio[1] != 1.0) 
+    {
+    y *= this->Ratio[1];
+    }
+  if (this->Ratio[2] != 1.0) 
+    {
+    z *= this->Ratio[2];
+    }
 
   z = (z < ext[4]) ? ext[4] : z;
   z = (z > ext[5]) ? ext[5] : z;
