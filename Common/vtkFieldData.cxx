@@ -572,16 +572,19 @@ unsigned long int vtkFieldData::GetMTime()
   unsigned long int mTime = this->MTime;
   unsigned long int otherMTime;
 
-  vtkFieldData::Iterator it(this);
-  vtkDataArray* da;
-  for(da=it.Begin(); !it.End(); da=it.Next())
+  if ( this->NumberOfActiveArrays > 0 )
     {
-    if (da)
+    vtkFieldData::Iterator it(this);
+    vtkDataArray* da;
+    for(da=it.Begin(); !it.End(); da=it.Next())
       {
-      otherMTime = da->GetMTime();
-      if ( otherMTime > mTime )
+      if (da)
 	{
-	mTime = otherMTime;
+	otherMTime = da->GetMTime();
+	if ( otherMTime > mTime )
+	  {
+	  mTime = otherMTime;
+	  }
 	}
       }
     }
