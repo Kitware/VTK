@@ -169,12 +169,11 @@ void vtkMCubesReader::Execute()
       if ( (nodes[j] = this->Locator->IsInsertedPoint(point.x)) < 0 )
         {
         nodes[j] = this->Locator->InsertNextPoint(point.x);
-        }
-
-      if ( this->Normals )
-        {
-        for (k=0; k<3; k++) n[k] = point.n[k] * direction;
-        newNormals->InsertNormal(nodes[j],n);
+        if ( this->Normals )
+          {
+          for (k=0; k<3; k++) n[k] = point.n[k] * direction;
+          newNormals->InsertNormal(nodes[j],n);
+          }
         }
       }
     if ( nodes[0] != nodes[1] && nodes[0] != nodes[2] && 
