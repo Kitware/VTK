@@ -9,7 +9,7 @@ source ../../examplesTcl/colors.tcl
 source ../../examplesTcl/vtkInclude.tcl
 
 # Create a reader and write out the field
-vtkRectilinearGridReader reader
+vtkDataSetReader reader
     reader SetFileName "../../../vtkdata/RectGrid.vtk"
 vtkDataSetToDataObjectFilter ds2do
     ds2do SetInput [reader GetOutput]
