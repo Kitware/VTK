@@ -25,7 +25,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkRenderWindow, "1.133");
+vtkCxxRevisionMacro(vtkRenderWindow, "1.134");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -51,6 +51,7 @@ vtkRenderWindow::vtkRenderWindow()
   this->StereoType = VTK_STEREO_RED_BLUE;
   this->StereoStatus = 0;
   this->StereoCapableWindow = 0;
+  this->AlphaBitPlanes = 0;
   this->Interactor = NULL;
   this->AAFrames = 0;
   this->FDFrames = 0;
@@ -723,6 +724,8 @@ void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "No AbortCheck method.\n";
     }
+  os << indent << "AlphaBitPlanes: " << (this->AlphaBitPlanes ? "On" : "Off")
+     << endl;
 }
 
 

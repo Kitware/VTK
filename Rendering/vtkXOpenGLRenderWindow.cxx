@@ -87,7 +87,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.45");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.46");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -111,7 +111,8 @@ void *vtkOSMesaCreateWindow(int width, int height)
 
 XVisualInfo *vtkXOpenGLRenderWindowTryForVisual(Display *DisplayId,
                                                int doublebuff, int stereo,
-                                               int multisamples)
+                                               int multisamples,
+                                               int alphaBitPlanes)
 {
   int           index;
   static int    attributes[50];
@@ -127,6 +128,11 @@ XVisualInfo *vtkXOpenGLRenderWindowTryForVisual(Display *DisplayId,
   attributes[index++] = 1;
   attributes[index++] = GLX_DEPTH_SIZE;
   attributes[index++] = 1;
+  if (alphaBitPlanes)
+    {
+    attributes[index++] = GLX_ALPHA_SIZE;
+    attributes[index++] = 1;
+    }
   if (doublebuff)
     {
     attributes[index++] = GLX_DOUBLEBUFFER;
@@ -179,7 +185,8 @@ XVisualInfo *vtkXOpenGLRenderWindow::GetDesiredVisualInfo()
         }
       v = vtkXOpenGLRenderWindowTryForVisual(this->DisplayId,
                                             this->DoubleBuffer, 
-                                            stereo, multi);
+                                            stereo, multi,
+                                            this->AlphaBitPlanes);
       if (v && this->StereoCapableWindow && !stereo)
         {
         // requested a stereo capable window but we could not get one
@@ -197,7 +204,8 @@ XVisualInfo *vtkXOpenGLRenderWindow::GetDesiredVisualInfo()
         }
       v = vtkXOpenGLRenderWindowTryForVisual(this->DisplayId,
                                             !this->DoubleBuffer, 
-                                            stereo, multi);
+                                            stereo, multi,
+                                            this->AlphaBitPlanes);
       if (v)
         {
         this->DoubleBuffer = !this->DoubleBuffer;

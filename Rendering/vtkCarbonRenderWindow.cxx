@@ -32,7 +32,7 @@ Thanks:    to Yves Starreveld for developing this class
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.20");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.21");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 
@@ -671,6 +671,11 @@ void vtkCarbonRenderWindow::CreateAWindow(int, int, int, int)
   this->aglAttributes [i++] = AGL_PIXEL_SIZE;
   this->aglAttributes [i++] = 32;
   this->aglAttributes [i++] = AGL_ACCELERATED;
+  if (this->AlphaBitPlanes)
+    {
+    this->aglAttributes [i++] = AGL_ALPHA_SIZE;
+    this->aglAttributes [i++] = 8;
+    }
   this->aglAttributes [i++] = AGL_NONE;
   this->draggable = true;
 

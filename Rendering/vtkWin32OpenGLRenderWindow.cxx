@@ -38,7 +38,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <GL/gl.h>
 #endif
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.115");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.116");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -426,7 +426,7 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormat(HDC hDC, DWORD dwFlags,
     PFD_TYPE_RGBA,                  /* color type */
     bpp,                             /* prefered color depth */
     0, 0, 0, 0, 0, 0,               /* color bits (ignored) */
-    0,                              /* no alpha buffer */
+    this->AlphaBitPlanes ? bpp/4 : 0, /* no alpha buffer */
     0,                              /* alpha bits (ignored) */
     0,                              /* no accumulation buffer */
     0, 0, 0, 0,                     /* accum bits (ignored) */

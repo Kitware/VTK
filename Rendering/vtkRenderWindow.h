@@ -163,6 +163,12 @@ public:
   vtkBooleanMacro(StereoRender,int);
 
   // Description:
+  // Turn on/off the use of alpha bitplanes.
+  vtkSetMacro(AlphaBitPlanes, int);
+  vtkGetMacro(AlphaBitPlanes, int);
+  vtkBooleanMacro(AlphaBitPlanes, int);
+  
+  // Description:
   // Turn on/off point smoothing. Default is off.
   // This must be applied before the first Render.
   vtkSetMacro(PointSmoothing,int);
@@ -424,6 +430,7 @@ protected:
   int StereoType;
   int StereoStatus; // used for keeping track of what's going on
   int StereoCapableWindow;
+  int AlphaBitPlanes;
   vtkRenderWindowInteractor *Interactor;
   unsigned char* StereoBuffer; // used for red blue stereo
   float *AccumulationBuffer;   // used for many techniques
