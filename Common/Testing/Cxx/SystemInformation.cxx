@@ -85,6 +85,10 @@ int SystemInformation(int,char *[])
     {
     vtkSystemInformationPrintFile(*f, cout);
     }
-  
+
+#if defined(__sgi) && !defined(__GNUC__) && defined(_COMPILER_VERSION)
+  cout << "SGI compiler version: " << int(_COMPILER_VERSION) << endl;
+#endif
+
   return 0;
 } 
