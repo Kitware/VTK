@@ -21,7 +21,7 @@
 #include "vtkPointSet.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkXMLPUnstructuredDataReader, "1.8");
+vtkCxxRevisionMacro(vtkXMLPUnstructuredDataReader, "1.9");
 
 //----------------------------------------------------------------------------
 vtkXMLPUnstructuredDataReader::vtkXMLPUnstructuredDataReader()
@@ -273,6 +273,10 @@ void vtkXMLPUnstructuredDataReader::ReadXMLData()
     fractions[index+1] = (fractions[index] +
                           this->GetNumberOfPointsInPiece(i) + 
                           this->GetNumberOfCellsInPiece(i));
+    }
+  if(fractions[this->EndPiece-this->StartPiece] == 0)
+    {
+    fractions[this->EndPiece-this->StartPiece] = 1;
     }
   for(i=this->StartPiece; i < this->EndPiece; ++i)
     {
