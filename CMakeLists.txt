@@ -175,11 +175,15 @@ IF(WIN32)
   ENDIF(UNIX)   
 ENDIF(WIN32)
 
-IF(CMAKE_BUILD_TOOL MATCHES "devenv")
+IF(CMAKE_COMPILER_IS_GNUCXX)
   OPTION(VTK_USE_ANSI_STDLIB "Use the ANSI standard iostream library" ON)
-ELSE(CMAKE_BUILD_TOOL MATCHES "devenv")
-  OPTION(VTK_USE_ANSI_STDLIB "Use the ANSI standard iostream library" OFF)
-ENDIF(CMAKE_BUILD_TOOL MATCHES "devenv")
+ELSE(CMAKE_COMPILER_IS_GNUCXX)
+  IF(CMAKE_BUILD_TOOL MATCHES "devenv")
+    OPTION(VTK_USE_ANSI_STDLIB "Use the ANSI standard iostream library" ON)
+  ELSE(CMAKE_BUILD_TOOL MATCHES "devenv")
+    OPTION(VTK_USE_ANSI_STDLIB "Use the ANSI standard iostream library" OFF)
+  ENDIF(CMAKE_BUILD_TOOL MATCHES "devenv")
+ENDIF(CMAKE_COMPILER_IS_GNUCXX)
 
 #
 # try to find the data files for VTKData
