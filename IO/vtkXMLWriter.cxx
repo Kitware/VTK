@@ -21,18 +21,23 @@
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkErrorCode.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkOutputStream.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkZLibDataCompressor.h"
+
+
 #if !defined(_WIN32) || defined(__CYGWIN__)
 # include <unistd.h> /* unlink */
 #else
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.38");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.39");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 
 //----------------------------------------------------------------------------
@@ -70,6 +75,9 @@ vtkXMLWriter::vtkXMLWriter()
   this->DataMode = vtkXMLWriter::Appended;
   this->ProgressRange[0] = 0;
   this->ProgressRange[1] = 1;
+
+  this->SetNumberOfOutputPorts(0);
+  this->SetNumberOfInputPorts(1);
 }
 
 //----------------------------------------------------------------------------
@@ -132,6 +140,36 @@ void vtkXMLWriter::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Stream: (none)\n";
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLWriter::SetInput(vtkDataObject* input)
+{
+  this->SetInput(0, input);
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLWriter::SetInput(int index, vtkDataObject* input)
+{
+  if(input)
+    {
+    this->SetInputConnection(index, input->GetProducerPort());
+    }
+  else
+    {
+    // Setting a NULL input removes the connection.
+    this->SetInputConnection(index, 0);
+    }
+}
+
+//----------------------------------------------------------------------------
+vtkDataObject* vtkXMLWriter::GetInput(int port)
+{
+  if (this->GetNumberOfInputConnections(port) < 1)
+    {
+    return 0;
+    }
+  return this->GetExecutive()->GetInputData(port, 0);
 }
 
 //----------------------------------------------------------------------------
@@ -228,26 +266,33 @@ void vtkXMLWriter::SetBlockSize(unsigned int blockSize)
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLWriter::Write()
+int vtkXMLWriter::ProcessRequest(vtkInformation* request,
+                                 vtkInformationVector** inputVector,
+                                 vtkInformationVector* outputVector)
+{
+  // generate the data
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+    {
+    return this->RequestData(request, inputVector, outputVector);
+    }
+
+  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
+}
+
+int vtkXMLWriter::RequestData(
+  vtkInformation* vtkNotUsed( request ),
+  vtkInformationVector** vtkNotUsed( inputVector ) ,
+  vtkInformationVector* vtkNotUsed( outputVector) )
 {
   this->SetErrorCode(vtkErrorCode::NoError);
-
-  // Make sure we have input.
-  if(!this->Inputs || !this->Inputs[0])
-    {
-    vtkErrorMacro("No input provided!");
-    return 0;
-    }
 
   // Make sure we have a file to write.
   if(!this->Stream && !this->FileName)
     {
-    vtkErrorMacro("Write() called with no FileName set.");
+    vtkErrorMacro("Writer called with no FileName set.");
     this->SetErrorCode(vtkErrorCode::NoFileNameError);
     return 0;
     }
-
-  this->InvokeEvent(vtkCommand::StartEvent);
 
   // We are just starting to write.  Do not call
   // UpdateProgressDiscrete because we want a 0 progress callback the
@@ -272,9 +317,23 @@ int vtkXMLWriter::Write()
   // We have finished writing.
   this->UpdateProgressDiscrete(1);
 
-  this->InvokeEvent(vtkCommand::EndEvent);
-
   return result;
+}
+
+//----------------------------------------------------------------------------
+int vtkXMLWriter::Write()
+{
+  // Make sure we have input.
+  if (this->GetNumberOfInputConnections(0) < 1)
+    {
+    vtkErrorMacro("No input provided!");
+    return 0;
+    }
+
+  // always write even if the data hasn't changed
+  this->Modified();
+  this->UpdateWholeExtent();
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -339,12 +398,7 @@ int vtkXMLWriter::GetDataSetMinorVersion()
 //----------------------------------------------------------------------------
 vtkDataSet* vtkXMLWriter::GetInputAsDataSet()
 {
-  if(this->NumberOfInputs < 1)
-    {
-    return 0;
-    }
-
-  return static_cast<vtkDataSet*>(this->Inputs[0]);
+  return static_cast<vtkDataSet*>(this->GetInput());
 }
 
 //----------------------------------------------------------------------------

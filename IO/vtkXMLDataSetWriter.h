@@ -37,15 +37,19 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLDataSetWriter* New();
   
+  //BTX
   // Description:
   // Get/Set the writer's input.
-  void SetInput(vtkDataSet* input);
   vtkDataSet* GetInput();
-  
+  //ETX
+
 protected:
   vtkXMLDataSetWriter();
   ~vtkXMLDataSetWriter();
   
+  // see algorithm for more info
+  virtual int FillInputPortInformation(int port, vtkInformation* info);
+
   // Override writing method from superclass.
   virtual int WriteInternal();
   
@@ -58,7 +62,7 @@ protected:
   static void ProgressCallbackFunction(vtkObject*, unsigned long, void*,
                                        void*);
   // Progress callback from internal writer.
-  virtual void ProgressCallback(vtkProcessObject* w);
+  virtual void ProgressCallback(vtkAlgorithm* w);
   
   // The observer to report progress from the internal writer.
   vtkCallbackCommand* ProgressObserver;  

@@ -17,12 +17,13 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkErrorCode.h"
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredGridWriter, "1.8");
+vtkCxxRevisionMacro(vtkXMLUnstructuredGridWriter, "1.9");
 vtkStandardNewMacro(vtkXMLUnstructuredGridWriter);
 
 //----------------------------------------------------------------------------
@@ -42,20 +43,9 @@ void vtkXMLUnstructuredGridWriter::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLUnstructuredGridWriter::SetInput(vtkUnstructuredGrid* input)
-{
-  this->vtkProcessObject::SetNthInput(0, input);
-}
-
-//----------------------------------------------------------------------------
 vtkUnstructuredGrid* vtkXMLUnstructuredGridWriter::GetInput()
 {
-  if(this->NumberOfInputs < 1)
-    {
-    return 0;
-    }
-  
-  return static_cast<vtkUnstructuredGrid*>(this->Inputs[0]);
+  return static_cast<vtkUnstructuredGrid*>(this->Superclass::GetInput());
 }
 
 //----------------------------------------------------------------------------
@@ -231,4 +221,11 @@ void vtkXMLUnstructuredGridWriter::CalculateSuperclassFraction(float* fractions)
   fractions[0] = 0;
   fractions[1] = float(pdSize+cdSize+pointsSize)/total;
   fractions[2] = 1;
+}
+
+int vtkXMLUnstructuredGridWriter::FillInputPortInformation(
+  int vtkNotUsed(port), vtkInformation* info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
+  return 1;
 }

@@ -13,12 +13,14 @@
 
 =========================================================================*/
 #include "vtkXMLPImageDataWriter.h"
-#include "vtkObjectFactory.h"
-#include "vtkXMLImageDataWriter.h"
+
 #include "vtkErrorCode.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkObjectFactory.h"
+#include "vtkXMLImageDataWriter.h"
 
-vtkCxxRevisionMacro(vtkXMLPImageDataWriter, "1.5");
+vtkCxxRevisionMacro(vtkXMLPImageDataWriter, "1.6");
 vtkStandardNewMacro(vtkXMLPImageDataWriter);
 
 //----------------------------------------------------------------------------
@@ -38,20 +40,9 @@ void vtkXMLPImageDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLPImageDataWriter::SetInput(vtkImageData* input)
-{
-  this->vtkProcessObject::SetNthInput(0, input);
-}
-
-//----------------------------------------------------------------------------
 vtkImageData* vtkXMLPImageDataWriter::GetInput()
 {
-  if(this->NumberOfInputs < 1)
-    {
-    return 0;
-    }
-  
-  return static_cast<vtkImageData*>(this->Inputs[0]);
+  return static_cast<vtkImageData*>(this->Superclass::GetInput());
 }
 
 //----------------------------------------------------------------------------
@@ -93,4 +84,11 @@ vtkXMLPImageDataWriter::CreateStructuredPieceWriter()
   vtkXMLImageDataWriter* pWriter = vtkXMLImageDataWriter::New();
   pWriter->SetInput(this->GetInput());
   return pWriter;
+}
+
+int vtkXMLPImageDataWriter::FillInputPortInformation(
+  int vtkNotUsed(port), vtkInformation* info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+  return 1;
 }

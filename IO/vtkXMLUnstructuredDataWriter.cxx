@@ -27,7 +27,7 @@
 #include "vtkPoints.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredDataWriter, "1.8");
+vtkCxxRevisionMacro(vtkXMLUnstructuredDataWriter, "1.9");
 
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredDataWriter::vtkXMLUnstructuredDataWriter()
@@ -60,12 +60,7 @@ void vtkXMLUnstructuredDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 vtkPointSet* vtkXMLUnstructuredDataWriter::GetInputAsPointSet()
 {
-  if(this->NumberOfInputs < 1)
-    {
-    return 0;
-    }
-  
-  return static_cast<vtkPointSet*>(this->Inputs[0]);
+  return static_cast<vtkPointSet*>(this->Superclass::GetInput());
 }
 
 //----------------------------------------------------------------------------
