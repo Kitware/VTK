@@ -148,7 +148,7 @@ int vtkXglrRenderer::UpdateLights ()
 }
  
 // Description:
-// Concrete starbase render method.
+// Concrete XGL render method.
 void vtkXglrRenderer::Render(void)
 {
   vtkXglrRenderWindow *temp;
