@@ -154,6 +154,8 @@ public:
   // The class uses the actual array provided; it does not copy the data 
   // from the suppled array.
   void SetArray(unsigned int* array, vtkIdType size, int save);
+  void SetVoidArray(void *array,vtkIdType size, int save) 
+    {this->SetArray((unsigned int*)array, size, save);};
 
   // Description:
   // Resize object to just fit data requirement. Reclaims extra memory.
