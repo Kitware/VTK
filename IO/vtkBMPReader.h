@@ -19,6 +19,8 @@
 // .SECTION Description
 // vtkBMPReader is a source object that reads Windows BMP files.
 // This includes indexed and 24bit bitmaps
+// Usually, all BMPs are converted to 24bit RGB, but BMPs may be output
+// as 8bit images with a LookupTable if the Allow8BitBMP flag is set.
 //
 // BMPReader creates structured point datasets. The dimension of the 
 // dataset depends upon the number of files read. Reading a single file 
@@ -26,12 +28,12 @@
 // 3D volume.
 //
 // To read a volume, files must be of the form "FileName.<number>"
-// (e.g., foo.ppm.0, foo.ppm.1, ...). You must also specify the image 
+// (e.g., foo.bmp.0, foo.bmp.1, ...). You must also specify the image 
 // range. This range specifies the beginning and ending files to read (range
 // can be any pair of non-negative numbers). 
 //
 // The default behavior is to read a single file. In this case, the form
-// of the file is simply "FileName" (e.g., foo.bar, foo.ppm, foo.BMP). 
+// of the file is simply "FileName" (e.g., foo.bmp).
 
 // .SECTION See Also
 // vtkBMPWriter
@@ -40,6 +42,7 @@
 #define __vtkBMPReader_h
 
 #include "vtkImageReader.h"
+class vtkLookupTable;
 
 class VTK_IO_EXPORT vtkBMPReader : public vtkImageReader
 {
@@ -71,6 +74,16 @@ public:
       return "Windows BMP";
     }
   
+  // Description:
+  // If this flag is set and the BMP reader encounters an 8bit file,
+  // the data will be kept as unsigned chars and a lookuptable will be
+  // exported
+  vtkSetMacro(Allow8BitBMP,int);
+  vtkGetMacro(Allow8BitBMP,int);
+  vtkBooleanMacro(Allow8BitBMP,int);
+
+  vtkLookupTable *GetLookupTable(void);
+
 //BTX
   // Description:
   // Returns the color lut.
@@ -83,6 +96,8 @@ protected:
 
   unsigned char *Colors;
   short Depth;
+  int Allow8BitBMP;
+  vtkLookupTable *LookupTable;
   
   virtual void ComputeDataIncrements();
   virtual void ExecuteInformation();

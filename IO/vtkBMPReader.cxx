@@ -20,8 +20,9 @@
 #include "vtkByteSwap.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
+#include "vtkLookupTable.h"
 
-vtkCxxRevisionMacro(vtkBMPReader, "1.37");
+vtkCxxRevisionMacro(vtkBMPReader, "1.38");
 vtkStandardNewMacro(vtkBMPReader);
 
 #ifdef read
@@ -45,17 +46,29 @@ vtkBMPReader::vtkBMPReader()
   this->Colors = NULL;
   this->SetDataByteOrderToLittleEndian();
   this->Depth = 0;
+  // we need to create it now in case its asked for later (pointer must be valid)
+  this->LookupTable = vtkLookupTable::New();
+  this->Allow8BitBMP = false;
 }
 
 //----------------------------------------------------------------------------
 vtkBMPReader::~vtkBMPReader()
-{ 
+{
   // free any old memory
-  if (this->Colors) 
+  if (this->Colors)
     {
     delete [] this->Colors;
     this->Colors = NULL;
     }
+  if (this->LookupTable)
+    {
+    this->LookupTable->Delete();
+    this->LookupTable = NULL;
+    }
+}
+
+vtkLookupTable *vtkBMPReader::GetLookupTable(void) {
+    return this->LookupTable;
 }
 
 void vtkBMPReader::ExecuteInformation()
@@ -67,9 +80,9 @@ void vtkBMPReader::ExecuteInformation()
   long infoSize;
   int  iinfoSize;  // in case we are on a 64bit machine
   int  itmp;       // in case we are on a 64bit machine
-  
+
   // free any old memory
-  if (this->Colors) 
+  if (this->Colors)
     {
     delete [] this->Colors;
     this->Colors = NULL;
@@ -244,15 +257,35 @@ void vtkBMPReader::ExecuteInformation()
         fgetc(fp);
         }
       }
+    if (this->Allow8BitBMP)
+      {
+      if (!this->LookupTable)
+        {
+        this->LookupTable = vtkLookupTable::New();
+        }
+      this->LookupTable->SetNumberOfTableValues(numColors);
+      for (tmp=0; tmp<numColors; tmp++)
+        {
+        this->LookupTable->SetTableValue(tmp,
+              (float)this->Colors[tmp*3+0]/255.0,
+              (float)this->Colors[tmp*3+1]/255.0,
+              (float)this->Colors[tmp*3+2]/255.0,
+              1);
+        }
+      this->LookupTable->SetRange(0,255);
+      }
     }
-  
-  fclose(fp);
+
+  if (fclose(fp))
+    {
+    vtkWarningMacro("File close failed on " << this->InternalFileName);
+    }
 
   // if the user has set the VOI, just make sure its valid
-  if (this->DataVOI[0] || this->DataVOI[1] || 
+  if (this->DataVOI[0] || this->DataVOI[1] ||
       this->DataVOI[2] || this->DataVOI[3] ||
       this->DataVOI[4] || this->DataVOI[5])
-    { 
+    {
     if ((this->DataVOI[0] < 0) ||
         (this->DataVOI[1] >= xsize) ||
         (this->DataVOI[2] < 0) ||
@@ -272,7 +305,14 @@ void vtkBMPReader::ExecuteInformation()
   this->DataExtent[3] = ysize - 1;
 
   this->SetDataScalarTypeToUnsignedChar();
-  this->SetNumberOfScalarComponents(3);
+  if ((this->Depth == 8) && this->Allow8BitBMP)
+    {
+    this->SetNumberOfScalarComponents(1);
+    }
+  else
+    {
+    this->SetNumberOfScalarComponents(3);
+    }
   this->vtkImageReader::ExecuteInformation();
 }
 
@@ -345,18 +385,25 @@ void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data, OT *outPtr)
   unsigned char *Colors;
   unsigned long count = 0;
   unsigned long target;
-  
+  int Keep8bit = 0;
+
   // Get the requested extents.
   data->GetExtent(inExtent);
-  // Convert them into to the extent needed from the file. 
+  // Convert them into to the extent needed from the file.
   self->ComputeInverseTransformedExtent(inExtent,dataExtent);
-  
+
   // get and transform the increments
   data->GetIncrements(inIncr);
   self->ComputeInverseTransformedIncrements(inIncr,outIncr);
 
   // get the color lut
   Colors = self->GetColors();
+
+  // are we converting to RGB or staying as 8bit
+  if ((self->GetDepth() == 8) && self->GetAllow8BitBMP())
+    {
+    Keep8bit = 1;
+    }
 
   // compute outPtr2 
   outPtr2 = outPtr;
@@ -382,7 +429,7 @@ void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data, OT *outPtr)
   pixelSkip = self->GetDepth()/8;
     
   // read from the bottom up
-  if (!self->GetFileLowerLeft()) 
+  if (!self->GetFileLowerLeft())
     {
     streamSkip0 = (long) (-streamRead - self->GetDataIncrements()[1]);
     }
@@ -423,7 +470,9 @@ void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data, OT *outPtr)
                                << ", Read = " << streamRead
                                << ", Skip0 = " << streamSkip0
                                << ", Skip1 = " << streamSkip1
-                               << ", FilePos = " << self->GetFile()->tellg());
+                               << ", FilePos = " << self->GetFile()->tellg()
+                               << ", FileName = " << self->GetInternalFileName()
+                               );
         return;
         }
       
@@ -433,11 +482,15 @@ void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data, OT *outPtr)
       for (idx0 = dataExtent[0]; idx0 <= dataExtent[1]; ++idx0)
         {
         // Copy pixel into the output.
-        if (self->GetDepth() == 8)
+        if (self->GetDepth() == 8 && !Keep8bit)
           {
           outPtr0[0] = (OT)(Colors[inPtr[0]*3]);
           outPtr0[1] = (OT)(Colors[inPtr[0]*3+1]);
           outPtr0[2] = (OT)(Colors[inPtr[0]*3+2]);
+          }
+        else if (self->GetDepth() == 8 && Keep8bit)
+          {
+          outPtr0[0] = (OT)(inPtr[0]);
           }
         else
           {
@@ -528,8 +581,16 @@ void vtkBMPReader::PrintSelf(ostream& os, vtkIndent indent)
 
   // this->Colors is not printed
   os << indent << "Depth: " << this->Depth << "\n";
+  os << indent << "Allow8BitBMP: " << this->Allow8BitBMP << "\n";
+  if (this->LookupTable)
+    {
+    os << indent << "LookupTable: " << this->LookupTable << "\n";
+    }
+    else
+    {
+    os << indent << "LookupTable: NULL\n";
+    }
 }
-
 
 int vtkBMPReader::CanReadFile(const char* fname)
 {
