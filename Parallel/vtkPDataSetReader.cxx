@@ -678,7 +678,7 @@ void vtkPDataSetReader::ReadPVTKFileInformation(ifstream *file)
       if (strcmp(param,"fileName") == 0)
         {
         // Copy filename (relative path?)
-        if (val[0] != '/' && val[0] != ':' && dirLength > 0)
+        if (val[0] != '/' && val[1] != ':' && dirLength > 0)
           { // Must be a relative path.
           sprintf(this->PieceFileNames[i], "%s%s", dir, val);
           }
