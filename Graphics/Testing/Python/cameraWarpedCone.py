@@ -46,10 +46,12 @@ mat.SetElement(3,3,1)
 
 trans = vtkTransform()
 trans.SetMatrix(mat)
-ren.GetActiveCamera().SetUserTransform(trans); 
 
 # assign our actor to the renderer
 ren.AddActor(coneActor)
+
+ren.GetActiveCamera().SetUserTransform(trans); 
+
 renWin.Render()
 retVal = vtkRegressionTestImage(renWin)
 

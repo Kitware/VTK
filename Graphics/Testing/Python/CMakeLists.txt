@@ -6,7 +6,7 @@ IF (VTK_USE_RENDERING)
   IF (VTK_DATA_ROOT)
     IF (PYTHON_EXECUTABLE)
       FOREACH ( tfile
-                Cone
+                cameraWarpedCone
                 glyphComb
                 streamComb
                 tubeComb
