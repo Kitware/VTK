@@ -28,7 +28,8 @@
 #define __vtkMapperC_h
 
 #include "vtkCollection.h"
-#include "vtkMapper.h"
+#include "vtkMapper.h" // Needed for direct access to mapper methods in 
+                       // inline functions
 
 class VTK_RENDERING_EXPORT vtkMapperCollection : public vtkCollection
 {
