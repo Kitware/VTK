@@ -53,9 +53,8 @@ vtkActor2D text$vectorFunction
   text$vectorFunction SetPosition 2 5
   [text$vectorFunction GetProperty] SetColor .3 1 1
   if { [info command rtExMath] == ""} {
-    ren$scalarFunction AddActor2D text$scalarFunction
+    ren$vectorFunction AddActor2D text$vectorFunction
   }
-ren$vectorFunction AddActor2D text$vectorFunction
 incr i
 }
 #
