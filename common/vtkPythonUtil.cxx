@@ -176,6 +176,10 @@ PyObject *vtkPythonGetObjectFromPointer(vtkObject *ptr)
     vtkPythonAddObjectToHash(obj,ptr);
     ((vtkObject *)ptr)->Register(NULL);
     }
+  else
+    {
+    Py_INCREF(obj);
+    }
 
   return obj;
 }
@@ -212,11 +216,53 @@ vtkObject *vtkPythonGetPointerFromObject(PyObject *obj, char *result_type)
 #ifdef VTKPYTHONDEBUG
     vtkGenericWarningMacro("vtk bad argument, type conversion failed.");
 #endif
-    sprintf(error_string,"method requires a %s object, a %s object was provided.",
+    sprintf(error_string,"method requires a %s, a %s was provided.",
 	    result_type,((vtkObject *)ptr)->GetClassName());
     PyErr_SetString(PyExc_ValueError,error_string);
     return NULL;
     }
+}
+
+//--------------------------------------------------------------------
+// create a python object from a python string object
+PyObject *vtkPythonGetObjectFromObject(PyObject *arg, const char *type)
+{
+  if (PyString_Check(arg))
+    {
+    char *ptrText = PyString_AsString(arg);
+
+    vtkObject *ptr;
+    char typeCheck[256];  // typeCheck is currently not used
+    int i = sscanf(ptrText,"_%lx_%s",(long *)&ptr,typeCheck);
+
+    if (i <= 0)
+      {
+      i = sscanf(ptrText,"Addr=0x%lx",(long *)&ptr);
+      }      
+    if (i <= 0)
+      {
+      i = sscanf(ptrText,"%lx",(long *)&ptr);
+      }
+    if (i <= 0)
+      {
+      PyErr_SetString(PyExc_ValueError,"could not extract hexidecimal address from argument string");
+      return NULL;
+      }
+
+    if (!ptr->IsA(type))
+      {
+      char error_string[256];
+      sprintf(error_string,"method requires a %s address, a %s address was provided.",
+	      type,((vtkObject *)ptr)->GetClassName());
+      PyErr_SetString(PyExc_ValueError,error_string);
+      return NULL;
+      }
+
+    return vtkPythonGetObjectFromPointer(ptr);
+    }
+
+  PyErr_SetString(PyExc_ValueError,"method requires a string argument");
+  return NULL;
 }
 
 //--------------------------------------------------------------------

@@ -53,6 +53,7 @@ extern vtkObject *vtkPythonGetPointerFromObject(PyObject *obj, char *type);
 extern PyObject *vtkPythonGetObjectFromPointer(vtkObject *ptr);
 extern void vtkPythonAddObjectToHash(PyObject *obj, vtkObject *anInstance);
 extern void vtkPythonDeleteObjectFromHash(PyObject *obj);
+extern PyObject *vtkPythonGetObjectFromObject(PyObject *arg, const char *type);
 
 extern char *vtkPythonManglePointer(void *ptr, const char *type);
 extern void *vtkPythonUnmanglePointer(char *ptrText, int *len,

@@ -204,7 +204,6 @@ void do_return(FILE *fp)
       fprintf(fp,"        return Py_None;\n        }\n");
       fprintf(fp,"      tempH = vtkPythonGetObjectFromPointer((vtkObject *)temp%i);\n",
 	      MAX_ARGS);
-      fprintf(fp,"      Py_INCREF(tempH);\n");
       fprintf(fp,"      return tempH;\n");
       break;
       }
@@ -723,7 +722,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   fprintf(fp,"  (getattrfunc)Py%s_PyGetAttr,\n  0, 0, (reprfunc)Py%s_PyRepr, 0, 0, 0,\n};\n\n",
 	  data->ClassName, data->ClassName);
 
-  fprintf(fp,"static PyObject *Py%s_PyNew(PyObject *vtkNotUsed(self),PyObject *vtkNotUsed(args))\n",
+  fprintf(fp,"static PyObject *Py%s_PyNew(PyObject *vtkNotUsed(self),PyObject *arg)\n",
           data->ClassName);
   fprintf(fp,"  {\n");
   fprintf(fp,"  PyObject *obj;\n\n");
@@ -734,6 +733,9 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     }
   else
     {
+    fprintf(fp,"  if (arg)\n    {\n");
+    fprintf(fp,"    return vtkPythonGetObjectFromObject(arg,\"%s\");\n    }",
+	    data->ClassName);
     fprintf(fp,"  if ((obj = PyObject_NEW(PyObject, &Py%sType)) == NULL)\n",
 	    data->ClassName);
     fprintf(fp,"    return NULL;\n\n");
