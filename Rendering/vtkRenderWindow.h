@@ -322,8 +322,8 @@ public:
   // its layer set individually.  Some algorithms iterate through all layers,
   // so it is not wise to set the number of layers to be exorbitantly large
   // (say bigger than 100).
-  vtkGetMacro(NumLayers, int);
-  vtkSetClampMacro(NumLayers, int, 1, VTK_LARGE_INTEGER);
+  vtkGetMacro(NumberOfLayers, int);
+  vtkSetClampMacro(NumberOfLayers, int, 1, VTK_LARGE_INTEGER);
 
   // Description:
   // Get the interactor associated with this render window
@@ -391,7 +391,7 @@ protected:
   int   InAbortCheck;
   int   InRender;
   int   NeverRendered;
-  int   NumLayers;
+  int   NumberOfLayers;
   void (*AbortCheckMethod)(void *);
   void (*AbortCheckMethodArgDelete)(void *);
   void *AbortCheckMethodArg;

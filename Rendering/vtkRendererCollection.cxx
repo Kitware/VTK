@@ -78,7 +78,7 @@ void vtkRendererCollection::Render()
     return;
     }
   renWin = firstRen->GetRenderWindow();
-  numLayers = renWin->GetNumLayers();
+  numLayers = renWin->GetNumberOfLayers();
 
   // Only have the renderers render from back to front.  This is necessary
   // because transparent renderers clear the z-buffer before each render and
@@ -119,7 +119,7 @@ void vtkRendererCollection::RenderOverlay()
     return;
     }
   renWin = firstRen->GetRenderWindow();
-  numLayers = renWin->GetNumLayers();
+  numLayers = renWin->GetNumberOfLayers();
 
   // Only have the renderers render from back to front.  This is necessary
   // because transparent renderers clear the z-buffer before each render and

@@ -85,7 +85,7 @@ vtkRenderWindow::vtkRenderWindow()
   this->AbortCheckMethodArg = NULL;
   this->AbortCheckMethodArgDelete = NULL;
   this->Renderers = vtkRendererCollection::New();
-  this->NumLayers = 1;
+  this->NumberOfLayers = 1;
 }
 
 vtkRenderWindow::~vtkRenderWindow()
@@ -479,7 +479,7 @@ void vtkRenderWindow::DoAARender()
 
       // draw the images
       this->DoFDRender();
-
+      
       // restore the jitter to normal
       for (this->Renderers->InitTraversal(); 
            (aren = this->Renderers->GetNextItem()); )
@@ -741,7 +741,7 @@ void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Motion Blur Frames: " << this->SubFrames << "\n";
   os << indent << "Swap Buffers: " << (this->SwapBuffers ? "On\n":"Off\n");
   os << indent << "Stereo Type: " << this->GetStereoTypeAsString() << "\n";
-  os << indent << "Number of Layers: " << this->NumLayers << "\n";
+  os << indent << "Number of Layers: " << this->NumberOfLayers << "\n";
   os << indent << "AccumulationBuffer Size " << this->AccumulationBufferSize << "\n";
   if ( this->AbortCheckMethod )
     {
