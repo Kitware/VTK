@@ -626,6 +626,11 @@ int vtkObjectFactory::HasOverride(const char* className,
 
 vtkObjectFactoryCollection* vtkObjectFactory::GetRegisteredFactories()
 {
+  if(!vtkObjectFactory::RegisteredFactories)
+    {
+    vtkObjectFactory::Init();
+    }
+
   return vtkObjectFactory::RegisteredFactories;
 }
 
