@@ -9,9 +9,13 @@
 #include "vtkVolume.h"
 
 #include "vtkRegressionTestImage.h"
+#include "vtkDebugLeaks.h"
 
 int main( int argc, char *argv[] )
 {
+
+  vtkDebugLeaks::PromptUserOff();
+
   // Create the renderer, render window, and interactor
   vtkRenderer *ren1 = vtkRenderer::New();
   vtkRenderWindow *renWin = vtkRenderWindow::New();

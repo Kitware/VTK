@@ -9,9 +9,12 @@
 #include "vtkRenderWindowInteractor.h"
 
 #include "vtkRegressionTestImage.h"
+#include "vtkDebugLeaks.h"
 
 int main( int argc, char *argv[] )
 {
+  vtkDebugLeaks::PromptUserOff();
+
   vtkRenderer *renderer = vtkRenderer::New();
   vtkRenderWindow *renWin = vtkRenderWindow::New();
     renWin->AddRenderer(renderer);

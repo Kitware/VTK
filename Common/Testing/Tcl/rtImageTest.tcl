@@ -38,6 +38,9 @@ rtTempObject GlobalWarningDisplayOff;
 vtkMath rtExMath
 rtExMath RandomSeed 6
 
+vtkDebugLeaks rtDebugLeaks
+rtDebugLeaks PromptUserOff
+
 # load in the script
 set file [lindex $argv 0]
 

@@ -56,7 +56,9 @@ import sys, os.path
 from vtkGetDataRoot import vtkGetDataRoot
     
 def vtkRegressionTestImage( renWin ):
-    
+
+    dl = vtkDebugLeaks()
+    dl.PromptUserOff()
     imageIndex=-1;
     for i in range(0, len(sys.argv)):
         if sys.argv[i] == '-V' and i < len(sys.argv)-1:

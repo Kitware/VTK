@@ -16,9 +16,12 @@
 #include "vtkActor.h"
 
 #include "vtkRegressionTestImage.h"
+#include "vtkDebugLeaks.h"
 
 int main( int argc, char *argv[] )
 {
+  vtkDebugLeaks::PromptUserOff();
+
   int i, numPts;
   float x[3];
   double r, deriv;
