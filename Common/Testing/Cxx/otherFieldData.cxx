@@ -51,7 +51,7 @@ int main()
   ptIds->Delete();
 
   int arrayComp;
-  int id = fd->GetArrayContainingComponent(1, arrayComp);
+  //int id = fd->GetArrayContainingComponent(1, arrayComp);
 
   float tuple[10];
   fd->GetTuple(2);
