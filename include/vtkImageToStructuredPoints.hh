@@ -81,7 +81,7 @@ public:
   vtkBooleanMacro(FlipYFlag,int);
 
   void ConditionalUpdate(int forcedFlag);
-  
+  void Update();
   
 protected:
   vtkImageSource *Input;

@@ -88,6 +88,13 @@ void vtkImageToStructuredPoints::ConditionalUpdate(int forcedFlag)
     }
 }
 
+//----------------------------------------------------------------------------
+// Description:
+// To keep the old update method working.
+void vtkImageToStructuredPoints::Update()
+{
+  this->ConditionalUpdate(0);
+}
 
 
 // Not connected to the Image pipeline yet. Just uses the Input variable.
