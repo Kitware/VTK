@@ -34,7 +34,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataWriter, "1.95");
+vtkCxxRevisionMacro(vtkDataWriter, "1.96");
 vtkStandardNewMacro(vtkDataWriter);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -55,18 +55,10 @@ vtkDataWriter::vtkDataWriter()
   this->FileType = VTK_ASCII;
 
   this->ScalarsName = 0;
-
-  this->VectorsName = new char[8];
-  strcpy(this->VectorsName,"vectors");
-
-  this->TensorsName = new char[8];
-  strcpy(this->TensorsName,"tensors");
-
-  this->NormalsName = new char[8];
-  strcpy(this->NormalsName,"normals");
-
-  this->TCoordsName = new char[14];
-  strcpy(this->TCoordsName,"textureCoords");
+  this->VectorsName = 0;
+  this->TensorsName = 0;
+  this->NormalsName = 0;
+  this->TCoordsName = 0;
 
   this->LookupTableName = new char[13];
   strcpy(this->LookupTableName,"lookup_table");
