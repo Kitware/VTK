@@ -1,3 +1,5 @@
+package require Tk
+
 catch {load vtktcl}
 #
 # This is a regression test script for VTK.
