@@ -39,7 +39,7 @@
 
 #define VTK_MAX_PLOTS 50
 
-vtkCxxRevisionMacro(vtkXYPlotActor, "1.52");
+vtkCxxRevisionMacro(vtkXYPlotActor, "1.53");
 vtkStandardNewMacro(vtkXYPlotActor);
 
 vtkCxxSetObjectMacro(vtkXYPlotActor,TitleTextProperty,vtkTextProperty);
@@ -365,10 +365,11 @@ void vtkXYPlotActor::RemoveInput(vtkDataSet *ds, const char *arrayName, int comp
 
   // This is my own find routine, because the array names have to match also.
   num = this->InputList->GetNumberOfItems();
-  this->InputList->InitTraversal();
+  vtkCollectionSimpleIterator dsit;
+  this->InputList->InitTraversal(dsit);
   for (idx = 0; idx < num && found == -1; ++idx)
     {
-    input = this->InputList->GetNextItem();
+    input = this->InputList->GetNextDataSet(dsit);
     if (input == ds)
       {
       if (arrayName == NULL && this->SelectedInputScalars[idx] == NULL &&
@@ -483,8 +484,9 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
   if ( numDS > 0 )
     {
     vtkDebugMacro(<<"Plotting input data sets");
-    for (mtime=0, this->InputList->InitTraversal(); 
-         (ds = this->InputList->GetNextItem()); )
+    vtkCollectionSimpleIterator dsit;
+    for (mtime=0, this->InputList->InitTraversal(dsit); 
+         (ds = this->InputList->GetNextDataSet(dsit)); )
       {
       ds->Update();
       dsMtime = ds->GetMTime();
@@ -497,8 +499,9 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
   else if ( numDO > 0 )
     {
     vtkDebugMacro(<<"Plotting input data objects");
-    for (mtime=0, this->DataObjectInputList->InitTraversal(); 
-         (dobj = this->DataObjectInputList->GetNextItem()); )
+    vtkCollectionSimpleIterator doit;
+    for (mtime=0, this->DataObjectInputList->InitTraversal(doit); 
+         (dobj = this->DataObjectInputList->GetNextDataObject(doit)); )
       {
       dobj->Update();
       dsMtime = dobj->GetMTime();
@@ -843,12 +846,13 @@ void vtkXYPlotActor::PrintSelf(ostream& os, vtkIndent indent)
 
   this->Superclass::PrintSelf(os,indent);
 
-  this->InputList->InitTraversal();
+  vtkCollectionSimpleIterator dsit;
+  this->InputList->InitTraversal(dsit);
   num = this->InputList->GetNumberOfItems();
   os << indent << "DataSetInputs: " << endl;
   for (idx = 0; idx < num; ++idx)
     {
-    input = this->InputList->GetNextItem();
+    input = this->InputList->GetNextDataSet(dsit);
     array = this->SelectedInputScalars[idx];
     component = this->SelectedInputScalarsComponent->GetValue((vtkIdType)idx);
     if (array == NULL)
@@ -968,8 +972,9 @@ void vtkXYPlotActor::ComputeXRange(double range[2], double *lengths)
 
   range[0] = VTK_DOUBLE_MAX;
   range[1] = -VTK_DOUBLE_MAX;
-  for ( dsNum=0, maxNum=0, this->InputList->InitTraversal(); 
-        (ds = this->InputList->GetNextItem()); dsNum++)
+  vtkCollectionSimpleIterator dsit;
+  for ( dsNum=0, maxNum=0, this->InputList->InitTraversal(dsit); 
+        (ds = this->InputList->GetNextDataSet(dsit)); dsNum++)
     {
     numPts = ds->GetNumberOfPoints();
 
@@ -1075,8 +1080,9 @@ void vtkXYPlotActor::ComputeYRange(double range[2])
 
   range[0]=VTK_DOUBLE_MAX, range[1]=(-VTK_DOUBLE_MAX);
 
-  for ( this->InputList->InitTraversal(), count = 0; 
-        (ds = this->InputList->GetNextItem()); ++count)
+  vtkCollectionSimpleIterator dsit;
+  for ( this->InputList->InitTraversal(dsit), count = 0; 
+        (ds = this->InputList->GetNextDataSet(dsit)); ++count)
     {
     scalars = ds->GetPointData()->GetScalars(this->SelectedInputScalars[count]);
     component = this->SelectedInputScalarsComponent->GetValue(count);
@@ -1118,8 +1124,9 @@ void vtkXYPlotActor::ComputeDORange(double xrange[2], double yrange[2],
 
   xrange[0] = yrange[0] = VTK_DOUBLE_MAX;
   xrange[1] = yrange[1] = -VTK_DOUBLE_MAX;
-  for ( doNum=0, maxNum=0, this->DataObjectInputList->InitTraversal(); 
-        (dobj = this->DataObjectInputList->GetNextItem()); doNum++)
+  vtkCollectionSimpleIterator doit;
+  for ( doNum=0, maxNum=0, this->DataObjectInputList->InitTraversal(doit); 
+        (dobj = this->DataObjectInputList->GetNextDataObject(doit)); doNum++)
     {
     lengths[doNum] = 0.0;
     field = dobj->GetFieldData();
@@ -1331,8 +1338,9 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, double xRange[2],
   //
   if ( numDS > 0 )
     {
-    for ( dsNum=0, this->InputList->InitTraversal(); 
-          (ds = this->InputList->GetNextItem()); dsNum++ )
+    vtkCollectionSimpleIterator dsit;
+    for ( dsNum=0, this->InputList->InitTraversal(dsit); 
+          (ds = this->InputList->GetNextDataSet(dsit)); dsNum++ )
       {
       clippingRequired = 0;
       numPts = ds->GetNumberOfPoints();
@@ -1433,8 +1441,10 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, double xRange[2],
     vtkIdType numRows, numTuples;
     vtkDataArray *array;
     vtkFieldData *field;
-    for ( doNum=0, this->DataObjectInputList->InitTraversal(); 
-          (dobj = this->DataObjectInputList->GetNextItem()); doNum++ )
+    vtkCollectionSimpleIterator doit;
+    for ( doNum=0, this->DataObjectInputList->InitTraversal(doit); 
+          (dobj = this->DataObjectInputList->GetNextDataObject(doit)); 
+          doNum++ )
       {
       // determine the shape of the field
       field = dobj->GetFieldData();
