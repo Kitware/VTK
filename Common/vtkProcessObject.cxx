@@ -27,7 +27,7 @@
 
 #include "vtkDebugLeaks.h"
 
-vtkCxxRevisionMacro(vtkProcessObject, "1.45");
+vtkCxxRevisionMacro(vtkProcessObject, "1.46");
 
 //----------------------------------------------------------------------------
 
@@ -640,8 +640,22 @@ void vtkProcessObject::SetupInputs()
           }
         else
           {
-          newInputs[count]->Register(this);
-          newInputs[count]->AddConsumer(this);
+          // If the data object was already an input, avoid the
+          // Register/UnRegister cycle.
+          int found = 0;
+          for(int j=0; !found && j < this->NumberOfInputs; ++j)
+            {
+            if(newInputs[count] == this->Inputs[j])
+              {
+              this->Inputs[j] = 0;
+              found = 1;
+              }
+            }
+          if(!found)
+            {
+            newInputs[count]->Register(this);
+            newInputs[count]->AddConsumer(this);
+            }
           }
         ++count;
         }
