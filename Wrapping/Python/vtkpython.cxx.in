@@ -90,6 +90,7 @@ main(int argc, char **argv)
   // so that we are left with full location of the executable.
   const char* cpath = Py_GetProgramFullPath();
   char* rpath = new char[ strlen(cpath) +1 ];
+  char epath[] = "@VTK_EXECUTABLE_PATH@";
   unsigned int last = 0;
   unsigned int cc;
   for ( cc = 0; cc < strlen(cpath); cc ++ )
@@ -97,12 +98,32 @@ main(int argc, char **argv)
     if ( cpath[cc] == '/' || cpath[cc] == '\\' )
       {
       last = cc;
+      rpath[cc] = '/';
       }
-    rpath[cc] = cpath[cc];
+    else
+      {
+      rpath[cc] = cpath[cc];
+      }
     }
   rpath[last] = 0;
 
-  if ( strcmp(rpath, "@VTK_EXECUTABLE_PATH@") == 0 )
+#ifdef _WIN32
+  // On Windows we might have to fix the case of letter. This will not
+  // fix all the cases, but in most cases it will work. There might
+  // still be a problem with network paths.
+  if ( rpath[0] >= 'a' && rpath[0] <= 'z' && rpath[1] == ':' )
+    {
+    rpath[0] += 'A' - 'a';
+    }
+  if ( epath[0] >= 'a' && epath[0] <= 'z' && epath[1] == ':' )
+    {
+    epath[0] += 'A' - 'a';
+    }
+#endif
+
+  unsigned int l1 = strlen(rpath);
+  unsigned int l2 = strlen(epath);
+  if ( l1 > l2 && strncmp(rpath, epath, l2) == 0 )
     {
     // If the location of the executable is the same as executable
     // output path, then we are running from the build tree.
