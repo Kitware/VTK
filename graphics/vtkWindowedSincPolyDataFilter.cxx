@@ -87,7 +87,7 @@ void vtkWindowedSincPolyDataFilter::Execute()
   float x1[3], x2[3], x3[3], l1[3], l2[3];
   float CosFeatureAngle; //Cosine of angle between adjacent polys
   float CosEdgeAngle; // Cosine of angle between adjacent edges
-  int iterationNumber;
+  int iterationNumber, abortExecute;
   int numSimple=0, numBEdges=0, numFixed=0, numFEdges=0;
   vtkPolyData *inMesh, *Mesh;
   vtkPoints *inPts;
@@ -168,6 +168,8 @@ void vtkWindowedSincPolyDataFilter::Execute()
       }
     }
 
+  this->UpdateProgress(0.10);
+
   // now check lines. Only manifold lines can be smoothed------------
   for (inLines=input->GetLines(), inLines->InitTraversal(); 
   inLines->GetNextCell(npts,pts); )
@@ -207,6 +209,7 @@ void vtkWindowedSincPolyDataFilter::Execute()
       } //for all points in this line
     } //for all lines
 
+  this->UpdateProgress(0.25);
 
   // now polygons and triangle strips-------------------------------
   inPolys=input->GetPolys();
@@ -347,6 +350,8 @@ void vtkWindowedSincPolyDataFilter::Execute()
       }
     neighbors->Delete();
     }//if strips or polys
+
+  this->UpdateProgress(0.50);
 
   //post-process edge vertices to make sure we can smooth them
   for (i=0; i<numPts; i++)
@@ -592,9 +597,20 @@ void vtkWindowedSincPolyDataFilter::Execute()
   }//for all points
     
   // for the rest of the iterations
-  for ( iterationNumber=2; iterationNumber <= this->NumberOfIterations;
+  for ( iterationNumber=2, abortExecute=0;
+	iterationNumber <= this->NumberOfIterations && !abortExecute;
 	iterationNumber++ )
   {
+    if ( iterationNumber && !(iterationNumber % 5) )
+      {
+      this->UpdateProgress (0.5 + 0.5*iterationNumber/this->NumberOfIterations);
+      if (this->GetAbortExecute())
+	{
+	abortExecute = 1;
+	break;
+	}
+      }
+
     for (i=0; i<numPts; i++) 
     {
       if ( Verts[i].edges != NULL &&
