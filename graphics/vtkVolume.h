@@ -60,6 +60,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class vtkRenderer;
 class vtkVolumeMapper;
+class vtkPropCollection;
 class vtkVolumeCollection;
 class vtkWindow;
 
@@ -87,7 +88,7 @@ public:
   // For some exporters and other other operations we must be
   // able to collect all the actors or volumes. These methods
   // are used in that process.
-  virtual void GetVolumes(vtkVolumeCollection *vc);
+  virtual void GetVolumes(vtkPropCollection *vc);
 
   // Description:
   // Support the standard render methods.

@@ -40,6 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 
 #include <stdio.h>
+#include <string.h>
 #include "vtkParse.h"
 
 int numberOfWrappedFunctions = 0;
@@ -487,9 +488,28 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   fprintf(fp,"#include \"vtkTclUtil.h\"\n");
   if (data->IsConcrete)
     {
-    fprintf(fp,"\nClientData %sNewCommand()\n{\n",data->ClassName);
-    fprintf(fp,"  %s *temp = %s::New();\n",data->ClassName,data->ClassName);
-    fprintf(fp,"  return ((ClientData)temp);\n}\n\n");
+    if (strcmp(data->ClassName, "vtkRenderWindowInteractor") == 0)
+      {
+      fprintf(fp,"#ifndef _WIN32\n");
+      fprintf(fp,"#include \"vtkXRenderWindowTclInteractor.h\"\n");
+      fprintf(fp,"#endif\n");
+
+      fprintf(fp,"\nClientData %sNewCommand()\n{\n",data->ClassName);
+
+      fprintf(fp,"#ifndef _WIN32\n");
+      fprintf(fp,"  %s *temp = vtkXRenderWindowTclInteractor::New();\n",
+	      data->ClassName);
+      fprintf(fp,"#else\n");
+      fprintf(fp,"  %s *temp = %s::New();\n",data->ClassName,data->ClassName);
+      fprintf(fp,"#endif\n");
+      fprintf(fp,"  return ((ClientData)temp);\n}\n\n");
+      }
+    else
+      {
+      fprintf(fp,"\nClientData %sNewCommand()\n{\n",data->ClassName);
+      fprintf(fp,"  %s *temp = %s::New();\n",data->ClassName,data->ClassName);
+      fprintf(fp,"  return ((ClientData)temp);\n}\n\n");
+      }
     }
   
   for (i = 0; i < data->NumberOfSuperClasses; i++)
@@ -508,10 +528,10 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   fprintf(fp,"  double tempd;\n");
   fprintf(fp,"  static char temps[80];\n");
   fprintf(fp,"  int    error;\n\n");
-  fprintf(fp,"  error = 0;\n");
-  fprintf(fp,"  tempi = 0;\n");
-  fprintf(fp,"  tempd = 0;\n");
-  fprintf(fp,"  temps[0] = 0;\n\n");
+  fprintf(fp,"  error = 0; error = error;\n");
+  fprintf(fp,"  tempi = 0; tempi = tempi;\n");
+  fprintf(fp,"  tempd = 0; tempd = tempd;\n");
+  fprintf(fp,"  temps[0] = 0; temps[0] = temps[0];\n\n");
 
   fprintf(fp,"  if (argc < 2)\n    {\n    sprintf(interp->result,\"Could not find requested method.\");\n    return TCL_ERROR;\n    }\n");
 

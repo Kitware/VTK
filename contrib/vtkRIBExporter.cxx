@@ -133,7 +133,7 @@ void vtkRIBExporter::WriteData()
   //  All textures must be made first
   //
   ac = ren->GetActors();
-  for ( ac->InitTraversal (); (anActor = ac->GetNextItem()); )
+  for ( ac->InitTraversal (); (anActor = ac->GetNextActor()); )
     {
     // see if the actor has a mapper. it could be an assembly
     if (anActor->GetMapper() == NULL)
@@ -195,7 +195,7 @@ void vtkRIBExporter::WriteData()
   // Write all actors
   //
   ac = ren->GetActors();
-  for (ac->InitTraversal(); (anActor = ac->GetNextItem()); )
+  for (ac->InitTraversal(); (anActor = ac->GetNextActor()); )
     {
     for (anActor->InitPartTraversal();(aPart=anActor->GetNextPart()); )
       {

@@ -83,8 +83,8 @@ int main (int argc, char *argv[])
     }
 
   // if this is the graphics library we need to add dependencies
-  // for two odd classes vtkXRenderWindowInteractor and
-  // vtkXRenderTclWindowInteractor
+  // for three odd classes vtkXRenderWindowInteractor, 
+  // vtkXRenderWindowTclInteractor and vtkTkRenderWidget
   if (!strcmp(vtkLocal + strlen(vtkLocal) - 8,"graphics"))
     {
     fprintf(fp,"vtkXRenderWindowInteractor.o : %s/vtkXRenderWindowInteractor.cxx",
@@ -92,9 +92,9 @@ int main (int argc, char *argv[])
     sprintf(filename,"%s/vtkXRenderWindowInteractor.cxx",vtkLocal);
     OutputUNIXDepends(filename,fp, vtkHome, argv+extra_start,extra_num);
     fprintf(fp,"\n");
-    fprintf(fp,"vtkXRenderTclWindowInteractor.o : %s/vtkXRenderTclWindowInteractor.cxx",
+    fprintf(fp,"vtkXRenderWindowTclInteractor.o : %s/vtkXRenderWindowTclInteractor.cxx",
 	    vtkLocal,vtkLocal,argv[i]);
-    sprintf(filename,"%s/vtkXRenderTclWindowInteractor.cxx",vtkLocal);
+    sprintf(filename,"%s/vtkXRenderWindowTclInteractor.cxx",vtkLocal);
     OutputUNIXDepends(filename,fp, vtkHome, argv+extra_start,extra_num);
     fprintf(fp,"\n");
     fprintf(fp,"vtkTkRenderWidget.o : %s/vtkTkRenderWidget.cxx",

@@ -74,11 +74,11 @@ class VTK_EXPORT vtkPropCollection : public vtkCollection
 
   // Description:
   // Get the next Prop in the list.
-  vtkProp *GetNextItem();
+  vtkProp *GetNextProp();
 
   // Description:
   // Get the last Prop in the list.
-  vtkProp *GetLastItem();
+  vtkProp *GetLastProp();
 };
 
 inline void vtkPropCollection::AddItem(vtkProp *a) 
@@ -96,12 +96,12 @@ inline int vtkPropCollection::IsItemPresent(vtkProp *a)
   return this->vtkCollection::IsItemPresent((vtkObject *)a);
 }
 
-inline vtkProp *vtkPropCollection::GetNextItem() 
+inline vtkProp *vtkPropCollection::GetNextProp() 
 { 
   return (vtkProp *)(this->GetNextItemAsObject());
 }
 
-inline vtkProp *vtkPropCollection::GetLastItem() 
+inline vtkProp *vtkPropCollection::GetLastProp() 
 { 
   if ( this->Bottom == NULL )
     {

@@ -30,7 +30,7 @@ LDLIBS =  \
 	${USE_PATENTED_LIBS}	\
 	${USE_IMAGING_LIBS}	\
 	${USE_GRAPHICS_LIBS}	\
-        -L../common -lVTKCommonTcl \
+        -L../common -lVTKCommonTcl -lVTKCommon \
 	${XLIBS} ${GRAPHICS_API_LIBS} \
 	${TK_LIB} ${TCL_LIB} ${DL_LIBS} \
 	${THREAD_LIBS}

@@ -31,7 +31,7 @@ LDLIBS = -L../common \
         ${USE_PATENTED_JAVA}		\
 	${USE_IMAGING_JAVA}	\
 	${USE_GRAPHICS_JAVA}	\
-        -lVTKCommonJava \
+        -lVTKCommonJava -lVTKCommon \
         ${XLIBS} ${GRAPHICS_API_LIBS} ${DL_LIBS} ${THREAD_LIBS}
 
 C_FLAGS = ${CPPFLAGS} ${XCFLAGS} ${CFLAGS} -I${srcdir} 

@@ -64,6 +64,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkAssemblyPaths.h"
 
 class vtkRenderer;
+class vtkPropCollection;
 class vtkActorCollection;
 
 class VTK_EXPORT vtkActor : public vtkProp3D
@@ -84,7 +85,7 @@ class VTK_EXPORT vtkActor : public vtkProp3D
   // For some exporters and other other operations we must be
   // able to collect all the actors or volumes. These methods
   // are used in that process.
-  virtual void GetActors(vtkActorCollection *);
+  virtual void GetActors(vtkPropCollection *);
 
   // Description:
   // Support the standard render methods.

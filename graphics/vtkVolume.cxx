@@ -93,7 +93,7 @@ vtkVolume::~vtkVolume()
 
 }
 
-void vtkVolume::GetVolumes(vtkVolumeCollection *vc)
+void vtkVolume::GetVolumes(vtkPropCollection *vc)
 {
   vc->AddItem(this);
 }

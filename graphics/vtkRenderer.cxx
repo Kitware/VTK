@@ -194,7 +194,7 @@ void vtkRenderer::Render(void)
 	}
       }
     for (this->Props->InitTraversal(); 
-	 (aProp = this->Props->GetNextItem()); )
+	 (aProp = this->Props->GetNextProp()); )
       {
       // if it's invisible, we can skip the rest 
       if (aProp->GetVisibility())
@@ -257,7 +257,7 @@ void vtkRenderer::RenderOverlay()
   vtkProp *aProp;
   
   for (this->Props->InitTraversal(); 
-       (aProp = this->Props->GetNextItem()); )
+       (aProp = this->Props->GetNextProp()); )
     {
     aProp->RenderOverlay(this);
     }
@@ -281,7 +281,7 @@ int vtkRenderer::UpdateVolumes()
   // loop through volumes to count the visible volumes of each type
   // Also, render the frame buffer volumes at this time
   for (this->Props->InitTraversal(); 
-       (aProp = this->Props->GetNextItem()); )
+       (aProp = this->Props->GetNextProp()); )
     {
     if (aProp->GetVisibility() && 
 	!strcmp( aProp->GetClassName(), "vtkVolume" ) )
@@ -362,7 +362,7 @@ int vtkRenderer::UpdateActors()
 
     // loop through props doing opaque and then translucent
     for ( this->Props->InitTraversal(); 
-	  (aProp=this->Props->GetNextItem()); )
+	  (aProp=this->Props->GetNextProp()); )
       {
       // we need to draw it only if it is visible 
       if ( aProp->GetVisibility() )
@@ -372,7 +372,7 @@ int vtkRenderer::UpdateActors()
 	}
       }
     for ( this->Props->InitTraversal(); 
-	  (aProp=this->Props->GetNextItem()); )
+	  (aProp=this->Props->GetNextProp()); )
       {
       // we need to draw it only if it is visible 
       if ( aProp->GetVisibility() )
@@ -399,7 +399,7 @@ int vtkRenderer::UpdateActors()
     // Create the initial list of actors
     actorList = new vtkProp *[num_actors];
     for ( i = 0, this->Props->InitTraversal(); 
-	  (aProp = this->Props->GetNextItem());i++ )
+	  (aProp = this->Props->GetNextProp());i++ )
       {
       actorList[i] = aProp;
       }
@@ -601,7 +601,7 @@ vtkActorCollection *vtkRenderer::GetActors()
   this->Actors->RemoveAllItems();
   
   for (this->Props->InitTraversal(); 
-       (aProp = this->Props->GetNextItem()); )
+       (aProp = this->Props->GetNextProp()); )
     {
     aProp->GetActors(this->Actors);
     }
@@ -617,7 +617,7 @@ vtkVolumeCollection *vtkRenderer::GetVolumes()
   this->Volumes->RemoveAllItems();
   
   for (this->Props->InitTraversal(); 
-       (aProp = this->Props->GetNextItem()); )
+       (aProp = this->Props->GetNextProp()); )
     {
     aProp->GetVolumes(this->Volumes);
     }
@@ -675,7 +675,7 @@ void vtkRenderer::ResetCamera()
   vtkActorCollection *ac = this->GetActors();
   
   // loop through actors (and their parts)
-  for (ac->InitTraversal(); (anActor = ac->GetNextItem()); )
+  for (ac->InitTraversal(); (anActor = ac->GetNextActor()); )
     {
     // if it's invisible, or has no geometry, we can skip the rest 
     if ( anActor->GetVisibility() )
@@ -719,7 +719,7 @@ void vtkRenderer::ResetCamera()
   // loop through volumes
   vtkVolumeCollection *vc = this->GetVolumes();
 
-  for (vc->InitTraversal(); (aVolume = vc->GetNextItem()); )
+  for (vc->InitTraversal(); (aVolume = vc->GetNextVolume()); )
     {
     // if it's invisible we can skip the rest 
     if ( aVolume->GetVisibility() )
@@ -847,13 +847,13 @@ void vtkRenderer::SetRenderWindow(vtkRenderWindow *renwin)
   if (renwin != this->RenderWindow)
     {
     // This renderer is be dis-associated with its previous render window.
-    // this information needs to be passed to the renderer's actors and volumes
-    // so they can release and render window specific (or graphics context
-    // specific) information (such as display lists and texture ids)
+    // this information needs to be passed to the renderer's actors and
+    // volumes so they can release and render window specific (or graphics
+    // context specific) information (such as display lists and texture ids)
     this->Props->InitTraversal();
-    for ( aProp = this->Props->GetNextItem();
+    for ( aProp = this->Props->GetNextProp();
 	  aProp != NULL;
-	  aProp = this->Props->GetNextItem() )
+	  aProp = this->Props->GetNextProp() )
       {
       aProp->ReleaseGraphicsResources(this->RenderWindow);
       }
@@ -1057,7 +1057,7 @@ int vtkRenderer::VisibleActorCount()
 
   // loop through Props
   for (this->Props->InitTraversal();
-       (aProp = this->Props->GetNextItem()); )
+       (aProp = this->Props->GetNextProp()); )
     {
     if (aProp->GetVisibility())
       {
@@ -1074,7 +1074,7 @@ int vtkRenderer::VisibleVolumeCount()
 
   // loop through volumes
   for (this->Props->InitTraversal(); 
-	(aProp = this->Props->GetNextItem()); )
+	(aProp = this->Props->GetNextProp()); )
     {
     if (aProp->GetVisibility())
       {

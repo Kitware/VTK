@@ -156,7 +156,7 @@ vtkActor *vtkActor::New()
   return new vtkActor;
 }
 
-void vtkActor::GetActors(vtkActorCollection *ac)
+void vtkActor::GetActors(vtkPropCollection *ac)
 {
   ac->AddItem(this);
 }
@@ -562,7 +562,7 @@ void vtkActor::BuildPaths(vtkAssemblyPaths *vtkNotUsed(paths),
 
   *copy = *this;
 
-  previous = path->GetLastItem();
+  previous = path->GetLastActor();
 
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
   matrix->DeepCopy(previous->vtkProp3D::GetMatrixPointer());

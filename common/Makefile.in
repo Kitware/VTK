@@ -147,7 +147,7 @@ PYTHON_O_ADD = vtkPythonUtil.o
 
 # standard stuff here
 KIT_OBJ = ${SRC_OBJ}
-KIT_TCL_OBJ = ${TCL_OBJ} ${KIT_OBJ}
+KIT_TCL_OBJ = ${TCL_OBJ}
 KIT_NEWS = ${TCL_NEWS}
 
 

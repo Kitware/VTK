@@ -314,7 +314,7 @@ public void keyPressed(KeyEvent e)
       ac.InitTraversal();
       for (i = 0; i < ac.GetNumberOfItems(); i++)
 	{
-	anActor = ac.GetNextItem();
+	anActor = ac.GetNextActor();
 	anActor.InitPartTraversal();
 	for (j = 0; j < anActor.GetNumberOfParts(); j++)
 	  { 
@@ -335,7 +335,7 @@ public void keyPressed(KeyEvent e)
       ac.InitTraversal();
       for (i = 0; i < ac.GetNumberOfItems(); i++)
 	{
-	anActor = ac.GetNextItem();
+	anActor = ac.GetNextActor();
 	anActor.InitPartTraversal();
 	for (j = 0; j < anActor.GetNumberOfParts(); j++)
 	  { 

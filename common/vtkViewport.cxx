@@ -140,7 +140,7 @@ vtkActor2DCollection *vtkViewport::GetActors2D()
   this->Actors2D->RemoveAllItems();
   
   for (this->Props->InitTraversal(); 
-       (aProp = this->Props->GetNextItem()); )
+       (aProp = this->Props->GetNextProp()); )
     {
     aProp->GetActors2D(this->Actors2D);
     }

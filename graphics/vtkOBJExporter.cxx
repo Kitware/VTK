@@ -111,7 +111,7 @@ void vtkOBJExporter::WriteData()
 	  "# wavefront mtl file written by the visualization toolkit\n\n");
   
   ac = ren->GetActors();
-  for (ac->InitTraversal(); (anActor = ac->GetNextItem()); )
+  for (ac->InitTraversal(); (anActor = ac->GetNextActor()); )
     {
     for (anActor->InitPartTraversal();(aPart=anActor->GetNextPart()); )
       {

@@ -466,7 +466,7 @@ float vtkRayCaster::GetViewportScaleFactor( vtkRenderer *ren )
   visible_volume = 0;
   volumes = ren->GetVolumes();
 
-  for (volumes->InitTraversal(); (volume = volumes->GetNextItem()); )
+  for (volumes->InitTraversal(); (volume = volumes->GetNextVolume()); )
     {
     if (volume->GetVisibility() &&
 	( volume->GetVolumeMapper()->GetMapperType() == 
@@ -659,7 +659,7 @@ void vtkRayCaster::InitializeRenderBuffers(vtkRenderer *ren)
   if ( !something_in_framebuffer )
     {
     volumes = ren->GetVolumes();
-    for (volumes->InitTraversal(); (aVolume = volumes->GetNextItem()); )
+    for (volumes->InitTraversal(); (aVolume = volumes->GetNextVolume()); )
       {
       if (aVolume->GetVisibility() && 
 	  aVolume->GetVolumeMapper()->GetMapperType() == 
@@ -863,7 +863,7 @@ void vtkRayCaster::InitializeRayCasting(vtkRenderer *ren)
   // stored there
   i = 0;
   volumes = ren->GetVolumes();
-  for ( volumes->InitTraversal(); (aVolume = volumes->GetNextItem()); )
+  for ( volumes->InitTraversal(); (aVolume = volumes->GetNextVolume()); )
     {
     // Check visibility of volume 
     if( aVolume->GetVisibility() &&
@@ -1361,7 +1361,7 @@ void vtkRayCaster::Render(vtkRenderer *ren, int raycastCount,
 
       // Find that first software buffer volume
       volumes = ren->GetVolumes();
-      for ( volumes->InitTraversal(); (aVolume = volumes->GetNextItem()); )
+      for ( volumes->InitTraversal(); (aVolume = volumes->GetNextVolume()); )
 	{
 	if( aVolume->GetVisibility() &&
 	    aVolume->GetVolumeMapper()->GetMapperType() == 
@@ -1383,7 +1383,7 @@ void vtkRayCaster::Render(vtkRenderer *ren, int raycastCount,
       {     
       // Render each volume of the right type
       volumes = ren->GetVolumes();
-      for ( volumes->InitTraversal(); (aVolume = volumes->GetNextItem()); )
+      for ( volumes->InitTraversal(); (aVolume = volumes->GetNextVolume()); )
 	{
 	if( aVolume->GetVisibility() &&
 	    aVolume->GetVolumeMapper()->GetMapperType() == 

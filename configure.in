@@ -229,8 +229,8 @@ AC_ARG_WITH(graphics,
          [  --without-graphics      do not include the graphics classes],
 	 if test "$withval" = yes; then
          graphicsdir=graphics
-         USE_GRAPHICS_LIBS="-L\${VTK_OBJ}/graphics -lVTKGraphicsTcl"
-         USE_GRAPHICS_JAVA="-L\${VTK_OBJ}/graphics -lVTKGraphicsJava"
+         USE_GRAPHICS_LIBS="-L\${VTK_OBJ}/graphics -lVTKGraphicsTcl -lVTKGraphics "
+         USE_GRAPHICS_JAVA="-L\${VTK_OBJ}/graphics -lVTKGraphicsJava -lVTKGraphics "
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../graphics -DVTK_USE_GRAPHICS"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_graphics"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_graphics"
@@ -239,8 +239,8 @@ AC_ARG_WITH(graphics,
          fi
          ,
          graphicsdir=graphics
-         USE_GRAPHICS_LIBS="-L\${VTK_OBJ}/graphics -lVTKGraphicsTcl"
-         USE_GRAPHICS_JAVA="-L\${VTK_OBJ}/graphics -lVTKGraphicsJava"
+         USE_GRAPHICS_LIBS="-L\${VTK_OBJ}/graphics -lVTKGraphicsTcl -lVTKGraphics"
+         USE_GRAPHICS_JAVA="-L\${VTK_OBJ}/graphics -lVTKGraphicsJava -lVTKGraphics"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../graphics -DVTK_USE_GRAPHICS"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_graphics"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_graphics"
@@ -251,8 +251,8 @@ AC_ARG_WITH(imaging,
          [  --without-imaging       do not include the imaging classes],
 	 if test "$withval" = yes; then
          imagingdir=imaging
-         USE_IMAGING_LIBS="-L\${VTK_OBJ}/imaging -lVTKImagingTcl"
-         USE_IMAGING_JAVA="-L\${VTK_OBJ}/imaging -lVTKImagingJava"
+         USE_IMAGING_LIBS="-L\${VTK_OBJ}/imaging -lVTKImagingTcl -lVTKImaging"
+         USE_IMAGING_JAVA="-L\${VTK_OBJ}/imaging -lVTKImagingJava -lVTKImaging"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../imaging -DVTK_USE_IMAGING"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_imaging"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_imaging"
@@ -260,8 +260,8 @@ AC_ARG_WITH(imaging,
          CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_imaging"
          fi,
          imagingdir=imaging
-         USE_IMAGING_LIBS="-L\${VTK_OBJ}/imaging -lVTKImagingTcl"
-         USE_IMAGING_JAVA="-L\${VTK_OBJ}/imaging -lVTKImagingJava"
+         USE_IMAGING_LIBS="-L\${VTK_OBJ}/imaging -lVTKImagingTcl -lVTKImaging"
+         USE_IMAGING_JAVA="-L\${VTK_OBJ}/imaging -lVTKImagingJava -lVTKImaging"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../imaging -DVTK_USE_IMAGING"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_imaging"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_imaging"
@@ -275,8 +275,8 @@ AC_ARG_WITH(patented,
          [  --with-patented           include the patented classes],
 	 if test "$withval" = yes; then
          patenteddir=patented
-         USE_PATENTED_LIBS="-L\${VTK_OBJ}/patented -lVTKPatentedTcl"
-         USE_PATENTED_JAVA="-L\${VTK_OBJ}/patented -lVTKPatentedJava"
+         USE_PATENTED_LIBS="-L\${VTK_OBJ}/patented -lVTKPatentedTcl -lVTKPatented"
+         USE_PATENTED_JAVA="-L\${VTK_OBJ}/patented -lVTKPatentedJava -lVTKPatented"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../patented -DVTK_USE_PATENTED"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_patented"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_patented"
@@ -288,8 +288,8 @@ AC_ARG_WITH(contrib,
          [  --with-contrib          include the contrib classes],
 	 if test "$withval" = yes; then
          contribdir=contrib
-         USE_CONTRIB_LIBS="-L\${VTK_OBJ}/contrib -lVTKContribTcl"
-         USE_CONTRIB_JAVA="-L\${VTK_OBJ}/contrib -lVTKContribJava"
+         USE_CONTRIB_LIBS="-L\${VTK_OBJ}/contrib -lVTKContribTcl -lVTKContrib "
+         USE_CONTRIB_JAVA="-L\${VTK_OBJ}/contrib -lVTKContribJava -lVTKContrib "
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../contrib -DVTK_USE_CONTRIB"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_contrib"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_contrib"

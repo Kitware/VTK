@@ -50,35 +50,44 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkActorC_h
 #define __vtkActorC_h
 
-#include "vtkCollection.h"
+#include "vtkPropCollection.h"
 class vtkActor;
 
-class VTK_EXPORT vtkActorCollection : public vtkCollection
+class VTK_EXPORT vtkActorCollection : public vtkPropCollection
 {
- public:
-  static vtkActorCollection *New() {return new vtkActorCollection;};
-  const char *GetClassName() {return "vtkActorCollection";};
+  public:
+    static vtkActorCollection *New() {return new vtkActorCollection;};
+    const char *GetClassName() {return "vtkActorCollection";};
+    
+    // Description:
+    // Add an actor to the list.
+    void AddItem(vtkActor *a);
+    
+    // Description:
+    // Remove an actor from the list.
+    void RemoveItem(vtkActor *a);
+    
+    // Description:
+    // Determine whether a particular actor is present. Returns its position
+    // in the list.
+    int IsItemPresent(vtkActor *a);
 
-  // Description:
-  // Add an actor to the list.
-  void AddItem(vtkActor *a);
+    // Description:
+    // Get the next actor in the list.
+    vtkActor *GetNextActor();
+    
+    // Description:
+    // Get the last actor in the list.
+    vtkActor *GetLastActor();
 
-  // Description:
-  // Remove an actor from the list.
-  void RemoveItem(vtkActor *a);
+    // Description:
+    // Access routines that are provided for compatibility with previous
+    // version of VTK.  Please use the GetNextActor(), GetLastActor() variants
+    // where possible.
+    vtkActor *GetNextItem();
+    vtkActor *GetLastItem();
 
-  // Description:
-  // Determine whether a particular actor is present. Returns its position
-  // in the list.
-  int IsItemPresent(vtkActor *a);
-
-  // Description:
-  // Get the next actor in the list.
-  vtkActor *GetNextItem();
-
-  // Description:
-  // Get the last actor in the list.
-  vtkActor *GetLastItem();
+    
 };
 
 inline void vtkActorCollection::AddItem(vtkActor *a) 
@@ -96,12 +105,12 @@ inline int vtkActorCollection::IsItemPresent(vtkActor *a)
   return this->vtkCollection::IsItemPresent((vtkObject *)a);
 }
 
-inline vtkActor *vtkActorCollection::GetNextItem() 
+inline vtkActor *vtkActorCollection::GetNextActor() 
 { 
   return (vtkActor *)(this->GetNextItemAsObject());
 }
 
-inline vtkActor *vtkActorCollection::GetLastItem() 
+inline vtkActor *vtkActorCollection::GetLastActor() 
 { 
   if ( this->Bottom == NULL )
     {
@@ -111,6 +120,16 @@ inline vtkActor *vtkActorCollection::GetLastItem()
     {
     return (vtkActor *)(this->Bottom->Item);
     }
+}
+
+inline vtkActor *vtkActorCollection::GetNextItem() 
+{ 
+  return this->GetNextActor();
+}
+
+inline vtkActor *vtkActorCollection::GetLastItem() 
+{
+  return this->GetLastActor();
 }
 
 #endif

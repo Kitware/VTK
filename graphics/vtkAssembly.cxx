@@ -106,7 +106,7 @@ int vtkAssembly::RenderTranslucentGeometry(vtkViewport *ren)
   // render the Paths
   for ( this->Paths->InitTraversal(); (path = this->Paths->GetNextItem()); )
     {
-    actor = path->GetLastItem();
+    actor = path->GetLastActor();
     if ( actor->GetVisibility() )
       {
       actor->SetAllocatedRenderTime(fraction);
@@ -142,7 +142,7 @@ int vtkAssembly::RenderOpaqueGeometry(vtkViewport *ren)
   // render the Paths
   for ( this->Paths->InitTraversal(); (path = this->Paths->GetNextItem()); )
     {
-    actor = path->GetLastItem();
+    actor = path->GetLastActor();
     if ( actor->GetVisibility() )
       {
       actor->SetAllocatedRenderTime(fraction);
@@ -186,7 +186,7 @@ vtkActor *vtkAssembly::GetNextPart()
     }
   else
     {
-    return path->GetLastItem();
+    return path->GetLastActor();
     }
 }
 
@@ -237,7 +237,7 @@ void vtkAssembly::BuildPaths(vtkAssemblyPaths *paths, vtkActorCollection *path)
     }
   else //somewhere in the middle of the assembly hierarchy
     {
-    previous = path->GetLastItem();
+    previous = path->GetLastActor();
     matrix = vtkMatrix4x4::New();
     previous->GetMatrix(matrix);
     copy->SetUserMatrix(matrix);
@@ -249,14 +249,14 @@ void vtkAssembly::BuildPaths(vtkAssemblyPaths *paths, vtkActorCollection *path)
   // add our children to the path (if we're visible). 
   if ( this->Visibility )
     {
-    for ( this->Parts->InitTraversal(); (part = this->Parts->GetNextItem()); )
+    for ( this->Parts->InitTraversal(); (part = this->Parts->GetNextActor()); )
       {
       //a new path is created for each child
       childPath = vtkActorCollection::New();
       paths->AddItem(childPath);
 
       // copy incoming path
-      for ( path->InitTraversal(); (actor = path->GetNextItem()); )
+      for ( path->InitTraversal(); (actor = path->GetNextActor()); )
         {
         copy = vtkActor::New();
         *copy = *actor;
@@ -288,7 +288,7 @@ void vtkAssembly::DeletePaths()
 
     for ( this->Paths->InitTraversal(); (path = this->Paths->GetNextItem()); )
       {
-      for ( path->InitTraversal(); (actor = path->GetNextItem()); )
+      for ( path->InitTraversal(); (actor = path->GetNextActor()); )
         {
         actor->Delete();
         }
@@ -306,7 +306,7 @@ void vtkAssembly::ApplyProperties()
   vtkProperty *prop=this->GetProperty();
   vtkProperty *actorProp;
 
-  for (this->Parts->InitTraversal(); (part = this->Parts->GetNextItem()); )
+  for (this->Parts->InitTraversal(); (part = this->Parts->GetNextActor()); )
     {
     actorProp = part->GetProperty();
     *actorProp = *prop;
@@ -342,7 +342,7 @@ float *vtkAssembly::GetBounds()
   this->Transform->PostMultiply();  
   for ( this->Paths->InitTraversal(); (path = this->Paths->GetNextItem()); )
     {
-    actor = path->GetLastItem();
+    actor = path->GetLastActor();
 
     if ( actor->GetVisibility() && (mapper = actor->GetMapper()) )
       {
@@ -416,7 +416,7 @@ unsigned long int vtkAssembly::GetMTime()
   unsigned long time;
   vtkActor *part;
 
-  for (this->Parts->InitTraversal(); (part = this->Parts->GetNextItem()); )
+  for (this->Parts->InitTraversal(); (part = this->Parts->GetNextActor()); )
     {
     time = part->GetMTime();
     mTime = ( time > mTime ? time : mTime );

@@ -392,7 +392,7 @@ void vtkLODActor::BuildPaths(vtkAssemblyPaths *vtkNotUsed(paths),
     copy->AddLODMapper(mapper);
     }
   
-  previous = path->GetLastItem();
+  previous = path->GetLastActor();
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
   matrix->DeepCopy(previous->vtkProp3D::GetMatrixPointer());
   copy->SetUserMatrix(matrix);

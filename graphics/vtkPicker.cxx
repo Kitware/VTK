@@ -293,7 +293,7 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
     }
   
   this->Transform->PostMultiply();
-  for ( actors->InitTraversal(); (actor=actors->GetNextItem()); )
+  for ( actors->InitTraversal(); (actor=actors->GetNextActor()); )
     {
     for ( actor->InitPartTraversal(); (part=actor->GetNextPart()); )
       {

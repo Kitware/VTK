@@ -51,11 +51,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkActor2DCollection_h
 #define __vtkActor2DCollection_h
 
-#include "vtkCollection.h"
+#include "vtkPropCollection.h"
 class vtkActor2D;
 class vtkViewport;
 
-class VTK_EXPORT vtkActor2DCollection : public vtkCollection
+class VTK_EXPORT vtkActor2DCollection : public vtkPropCollection
 {
  public:
   // Description:
@@ -79,9 +79,17 @@ class VTK_EXPORT vtkActor2DCollection : public vtkCollection
   // Description:
   // Standard Collection methods
   int IsItemPresent(vtkActor2D *a);
-  vtkActor2D *GetNextItem();
-  vtkActor2D *GetLastItem();
+  vtkActor2D *GetNextActor2D();
+  vtkActor2D *GetLastActor2D();
 
+  // Description:
+ // Access routines that are provided for compatibility with previous
+ // version of VTK.  Please use the GetNextActor2D(), GetLastActor2D()
+ // variants where possible.
+ vtkActor2D *GetNextItem();
+ vtkActor2D *GetLastItem();
+
+    
   // Description:
   // Sort and then render the collection of 2D actors.  
   void RenderOverlay(vtkViewport* viewport);
@@ -96,12 +104,12 @@ inline int vtkActor2DCollection::IsItemPresent(vtkActor2D *a)
   return this->vtkCollection::IsItemPresent((vtkObject *)a);
 }
 
-inline vtkActor2D *vtkActor2DCollection::GetNextItem() 
+inline vtkActor2D *vtkActor2DCollection::GetNextActor2D() 
 { 
-  return (vtkActor2D *)(this->GetNextItemAsObject());
+    return (vtkActor2D *)(this->GetNextItemAsObject());
 }
 
-inline vtkActor2D *vtkActor2DCollection::GetLastItem() 
+inline vtkActor2D *vtkActor2DCollection::GetLastActor2D() 
 { 
   if ( this->Bottom == NULL )
     {
@@ -111,6 +119,16 @@ inline vtkActor2D *vtkActor2DCollection::GetLastItem()
     {
     return (vtkActor2D *)(this->Bottom->Item);
     }
+}
+
+inline vtkActor2D *vtkActor2DCollection::GetNextItem() 
+{ 
+  return this->GetNextActor2D();
+}
+
+inline vtkActor2D *vtkActor2DCollection::GetLastItem() 
+{
+  return this->GetLastActor2D();
 }
 
 #endif

@@ -338,7 +338,7 @@ vtkJavaPanel.o: java/vtk_vtkPanel.h java/vtk_vtkPanel.c
 # standard stuff here
 KIT_OBJ = vtkXRenderWindowInteractor.o ${SRC_OBJ} 
 
-KIT_TCL_OBJ = vtkXRenderTclWindowInteractor.o ${TCL_OBJ} ${SRC_OBJ} 
+KIT_TCL_OBJ = vtkXRenderWindowTclInteractor.o ${TCL_OBJ}
 
 KIT_NEWS = ${TCL_NEWS} 
 

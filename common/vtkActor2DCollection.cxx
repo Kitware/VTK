@@ -64,7 +64,7 @@ void vtkActor2DCollection::RenderOverlay(vtkViewport* viewport)
     this->Sort();  
     vtkActor2D* tempActor;
     for ( this->InitTraversal(); 
-           (tempActor = this->GetNextItem());)
+           (tempActor = this->GetNextActor2D());)
       {
       // Make sure that the actor is visible before rendering
       if (tempActor->GetVisibility() == 1)
@@ -151,7 +151,7 @@ void vtkActor2DCollection::Sort()
    // Fill the actor array with the items in the collection
    for (index = 0; index < numElems; index++)
      {
-     actorPtrArr[index] = this->GetNextItem();
+     actorPtrArr[index] = this->GetNextActor2D();
      }
 
   vtkDebugMacro(<<"vtkActor2DCollection::Sort - Starting selection sort");

@@ -538,7 +538,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
           me->CurrentCamera->GetPosition(me->ViewPoint);
           while (i < pickPositions->GetNumberOfPoints())
             {
-            actor = actors->GetNextItem();
+            actor = actors->GetNextActor();
             if (actor != NULL)
               {
               pickPoint = pickPositions->GetPoint(i);
@@ -753,7 +753,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
           me->FindPokedRenderer(((XKeyEvent*)event)->x,
 				me->Size[1] - ((XKeyEvent*)event)->y - 1);
 	  ac = me->CurrentRenderer->GetActors();
-	  for (ac->InitTraversal(); (anActor = ac->GetNextItem()); )
+	  for (ac->InitTraversal(); (anActor = ac->GetNextActor()); )
 	    {
             for (anActor->InitPartTraversal();(aPart=anActor->GetNextPart()); )
               {
@@ -774,7 +774,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
           me->FindPokedRenderer(((XKeyEvent*)event)->x,
 			        me->Size[1] - ((XKeyEvent*)event)->y - 1);
 	  ac = me->CurrentRenderer->GetActors();
-	  for (ac->InitTraversal(); (anActor = ac->GetNextItem()); )
+	  for (ac->InitTraversal(); (anActor = ac->GetNextActor()); )
 	    {
             for (anActor->InitPartTraversal();(aPart=anActor->GetNextPart()); )
               {
