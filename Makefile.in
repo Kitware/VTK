@@ -10,12 +10,16 @@ SHELL=/bin/sh
 #------------------------------------------------------------------------------
 # Autoconfig defines that can be overridden in Config.mk
 
+CC                = @CC@
+CFLAGS            = @CFLAGS@
 srcdir            = @srcdir@
 VPATH             = @srcdir@
 prefix            = @prefix@
 exec_prefix       = @exec_prefix@
 BUILD_TCL         = @BUILD_TCL@
 CLEAN_TCL         = @CLEAN_TCL@
+BUILD_JAVA        = @BUILD_JAVA@
+CLEAN_JAVA        = @CLEAN_JAVA@
 BUILD_GRAPHICS    = @BUILD_GRAPHICS@
 DEPEND_GRAPHICS   = @DEPEND_GRAPHICS@
 CLEAN_GRAPHICS    = @CLEAN_GRAPHICS@
@@ -51,43 +55,59 @@ CLEAN_GEMSVOLUME  = @CLEAN_GEMSVOLUME@
 
 #------------------------------------------------------------------------------
 
-all: ${BUILD_TCL} build_common \
+all: build_target ${BUILD_TCL} ${BUILD_JAVA} build_common \
 	${BUILD_GRAPHICS} ${BUILD_IMAGING} ${BUILD_BORESCOPE} ${BUILD_VOLUME} \
 	${BUILD_CONTRIB} ${BUILD_GEAE} ${BUILD_GEMSIP} ${BUILD_GEMSIO} \
 	${BUILD_GEMSVOLUME} \
 	${BUILD_TCL}${BUILD_TCL}
 
+build_target: ${srcdir}/targets.c
+	${CC} -o targets ${srcdir}/targets.c
+
 build_common:
+	cd common;     ${MAKE} -${MAKEFLAGS} targets
 	cd common;     ${MAKE} -${MAKEFLAGS} all
 
 build_graphics:
+	cd graphics;   ${MAKE} -${MAKEFLAGS} targets
 	cd graphics;   ${MAKE} -${MAKEFLAGS} all
 
 build_imaging:
+	cd imaging;    ${MAKE} -${MAKEFLAGS} targets
 	cd imaging;    ${MAKE} -${MAKEFLAGS} all
 
 build_volume:
+	cd volume;    ${MAKE} -${MAKEFLAGS} targets
 	cd volume;    ${MAKE} -${MAKEFLAGS} all
 
 build_borescope:
+	cd borescope;  ${MAKE} -${MAKEFLAGS} targets
 	cd borescope;  ${MAKE} -${MAKEFLAGS} all
 
 build_tcl:
 	cd tcl;        ${MAKE} -${MAKEFLAGS} all
 
+build_java:
+	cd java;       ${MAKE} -${MAKEFLAGS} all
+
 build_gemsio:
+	cd gemsio;     ${MAKE} -${MAKEFLAGS} targets
 	cd gemsio;     ${MAKE} -${MAKEFLAGS} all
 
 build_gemsvolume:
+	cd gemsvolume; ${MAKE} -${MAKEFLAGS} targets
 	cd gemsvolume; ${MAKE} -${MAKEFLAGS} all
 
 build_gemsip:
+	cd gemsip;     ${MAKE} -${MAKEFLAGS} targets
 	cd gemsip;     ${MAKE} -${MAKEFLAGS} all
 
 build_geae:
+	cd geae;     ${MAKE} -${MAKEFLAGS} targets
 	cd geae;     ${MAKE} -${MAKEFLAGS} all
 
 build_contrib:
+	cd contrib;     ${MAKE} -${MAKEFLAGS} targets
 	cd contrib;     ${MAKE} -${MAKEFLAGS} all
 
 # tcl part2
@@ -134,7 +154,7 @@ depend_gemsvolume:
 
 #------------------------------------------------------------------------------
 # Clean up all files that were built by make.
-clean: ${CLEAN_TCL} ${CLEAN_GRAPHICS} ${CLEAN_IMAGING} \
+clean: ${CLEAN_TCL} ${CLEAN_JAVA} ${CLEAN_GRAPHICS} ${CLEAN_IMAGING} \
 	${CLEAN_BORESCOPE} ${CLEAN_VOLUME} ${CLEAN_GEMSVOLUME} \
 	${CLEAN_CONTRIB} ${CLEAN_GEAE} ${CLEAN_GEMSIP} ${CLEAN_GEMSIO} 
 	cd common;    ${MAKE} -${MAKEFLAGS} clean
@@ -142,6 +162,9 @@ clean: ${CLEAN_TCL} ${CLEAN_GRAPHICS} ${CLEAN_IMAGING} \
 
 clean_tcl:
 	cd tcl;       ${MAKE} -${MAKEFLAGS} clean
+
+clean_java:
+	cd java;      ${MAKE} -${MAKEFLAGS} clean
 
 clean_graphics:
 	cd graphics;  ${MAKE} -${MAKEFLAGS} clean
