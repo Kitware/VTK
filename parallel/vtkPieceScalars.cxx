@@ -104,6 +104,7 @@ void vtkPieceScalars::Execute()
     }
     
   output->ShallowCopy(input);
+  pieceColors->GetData()->SetName("Piece");  
   if (this->CellScalarsFlag)
     {
     output->GetCellData()->SetScalars(pieceColors);
@@ -151,7 +152,6 @@ vtkScalars *vtkPieceScalars::MakeRandomScalars(int piece, int num)
   pieceColors = vtkScalars::New();
   pieceColors->Allocate(num);
   pieceColors->SetNumberOfScalars(num);
-  pieceColors->GetData()->SetName("Piece");
   
   for (i = 0; i < num; ++i)
     {
