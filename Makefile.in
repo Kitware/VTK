@@ -27,7 +27,7 @@ CLEAN_TOOLKITS    = @CLEAN_TOOLKITS@
 #------------------------------------------------------------------------------
 
 all: targets ${BUILD_TCL} ${BUILD_JAVA} ${BUILD_PYTHON} build_common ${BUILD_TOOLKITS} \
-    ${BUILD_TCL}${BUILD_TCL} ${BUILD_JAVA}${BUILD_JAVA} ${BUILD_PYTHON}${BUILD_PYTHON}
+    ${BUILD_TCL}${BUILD_TCL} ${BUILD_JAVA}${BUILD_JAVA}
 
 targets: ${srcdir}/targets.cxx ${srcdir}/makedepend.cxx
 	${CXX} -o targets ${srcdir}/targets.cxx ${srcdir}/makedepend.cxx
