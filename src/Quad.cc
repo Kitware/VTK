@@ -49,7 +49,7 @@ int vlQuad::EvaluatePosition(float x[3], float closestPoint[3],
   float derivs[8];
 
   subId = 0;
-  pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
+  pcoords[0] = pcoords[1] = pcoords[2] = params[0] = params[1] = 0.0;
 //
 // Get normal for quadrilateral
 //
@@ -108,7 +108,7 @@ int vlQuad::EvaluatePosition(float x[3], float closestPoint[3],
         }
       }
 
-    for (i=0; i<3; i++) fcol[i] -= x[i];
+    for (j=0; j<2; j++) fcol[j] -= x[indices[j]];
 //
 //  compute determinates and generate improvements
 //
@@ -148,10 +148,12 @@ int vlQuad::EvaluatePosition(float x[3], float closestPoint[3],
     }
   else
     {
-    if ( pcoords[0] >= -1.0 && pcoords[1] <= 1.0 &&
-    pcoords[1] >= -1.0 && pcoords[1] <= 1.0 )
+    // shift to (0,1)
+    for(i=0; i<3; i++) pcoords[i] = 0.5*(pcoords[i]+1.0); 
+
+    if ( pcoords[0] >= 0.0 && pcoords[0] <= 1.0 &&
+    pcoords[1] >= 0.0 && pcoords[1] <= 1.0 )
       {
-      for(i=0; i<3; i++) pcoords[i] = 0.5*(pcoords[i]+1.0); // shift to (0,1)
       dist2 = math.Distance2BetweenPoints(closestPoint,x); //projection distance
       return 1;
       }
@@ -159,11 +161,10 @@ int vlQuad::EvaluatePosition(float x[3], float closestPoint[3],
       {
       for (i=0; i<2; i++)
         {
-        if (pcoords[i] < -1.0) pcoords[i] = -1.0;
+        if (pcoords[i] < 0.0) pcoords[i] = 0.0;
         if (pcoords[i] > 1.0) pcoords[i] = 1.0;
         }
       this->EvaluateLocation(subId, pcoords, closestPoint, weights);
-      for(i=0; i<2; i++) pcoords[i] = 0.5*(pcoords[i]+1.0); // shift to (0,1)
       dist2 = math.Distance2BetweenPoints(closestPoint,x);
       return 0;
       }
