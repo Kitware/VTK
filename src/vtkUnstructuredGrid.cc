@@ -312,6 +312,17 @@ void vtkUnstructuredGrid::GetCellPoints(int cellId, vtkIdList& ptIds)
   for (i=0; i<numPts; i++) ptIds.SetId(i,pts[i]);
 }
 
+// Description:
+// Return a pointer to a list of point ids defining cell. (More efficient than alternative
+// method.)
+void vtkUnstructuredGrid::GetCellPoints(int cellId, int& npts, int* &pts)
+{
+  int loc;
+
+  loc = this->Cells->GetCellLocation(cellId);
+  this->Connectivity->GetCell(loc,npts,pts);
+}
+
 void vtkUnstructuredGrid::GetPointCells(int ptId, vtkIdList& cellIds)
 {
   int *cells;
@@ -344,5 +355,67 @@ void vtkUnstructuredGrid::Squeeze()
   if ( this->Links ) this->Links->Squeeze();
 
   vtkPointSet::Squeeze();
+}
+
+// Description:
+// Remove a reference to a cell in a particular point's link list. You may 
+// also consider using RemoveCellReference() to remove the references from 
+// all the cell's points to the cell. This operator does not reallocate 
+// memory; use the operator ResizeCellList() to do this if necessary.
+void vtkUnstructuredGrid::RemoveReferenceToCell(int ptId, int cellId)
+{
+  this->Links->RemoveCellReference(cellId, ptId);  
+}
+
+// Description:
+// Add a reference to a cell in a particular point's link list. (You may also
+// consider using AddCellReference() to add the references from all the 
+// cell's points to the cell.) This operator does not realloc memory; use the
+// operator ResizeCellList() to do this if necessary.
+void vtkUnstructuredGrid::AddReferenceToCell(int ptId, int cellId)
+{
+  this->Links->AddCellReference(cellId, ptId);  
+}
+
+// Description:
+// Resize the list of cells using a particular point. (This operator assumes
+// that BuildLinks() has been called.)
+inline void vtkUnstructuredGrid::ResizeCellList(int ptId, int size)
+{
+  this->Links->ResizeCellList(ptId,size);
+}
+
+// Description:
+// Replace the points defining cell "cellId" with a new set of points. This
+// operator is (typically) used when links from points to cells have not been
+// built (i.e., BuildLinks() has not been executed). Use the operator 
+// ReplaceLinkedCell() to replace a cell when cell structure has been built.
+void vtkUnstructuredGrid::ReplaceCell(int cellId, int npts, int *pts)
+{
+  int loc, type;
+
+  loc = this->Cells->GetCellLocation(cellId);
+  type = this->Cells->GetCellType(cellId);
+
+  this->Connectivity->ReplaceCell(loc,npts,pts);
+}
+
+// Description:
+// Add a new cell to the cell data structure (after cell links have been
+// built). This method adds the cell and then updates the links from the points
+// to the cells. (Memory is allocated as necessary.)
+int vtkUnstructuredGrid::InsertNextLinkedCell(int type, int npts, int *pts)
+{
+  int i, id;
+
+  id = this->InsertNextCell(type,npts,pts);
+
+  for (i=0; i<3; i++)
+    {
+    this->Links->ResizeCellList(pts[i],1);
+    this->Links->AddCellReference(id,pts[i]);  
+    }
+
+  return id;
 }
 
