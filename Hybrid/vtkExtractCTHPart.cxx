@@ -40,7 +40,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkExtractCTHPart, "1.2");
+vtkCxxRevisionMacro(vtkExtractCTHPart, "1.2.2.1");
 vtkStandardNewMacro(vtkExtractCTHPart);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,ClipPlane,vtkPlane);
 
@@ -59,10 +59,7 @@ public:
 vtkExtractCTHPart::vtkExtractCTHPart()
 {
   this->Internals = new vtkExtractCTHPartInternal;
-  this->ClipPlane = vtkPlane::New();
-  // For consistent references.
-  this->ClipPlane->Register(this);
-  this->ClipPlane->Delete();
+  this->ClipPlane = 0;
 }
 
 //------------------------------------------------------------------------------
