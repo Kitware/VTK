@@ -72,7 +72,7 @@ void vtkReverseSense::Execute()
   vtkPolyData *input= this->GetInput();
   vtkPolyData *output= this->GetOutput();
   vtkNormals *normals=input->GetPointData()->GetNormals();
-  vtkNormals *cellNormals=input->GetPointData()->GetNormals();
+  vtkNormals *cellNormals=input->GetCellData()->GetNormals();
 
   vtkDebugMacro(<<"Reversing sense of poly data");
 
@@ -132,13 +132,13 @@ void vtkReverseSense::Execute()
   if ( this->ReverseNormals && cellNormals )
     {
     int numCells=input->GetNumberOfCells();
-    vtkNormals *outNormals=(vtkNormals *)normals->MakeObject();
+    vtkNormals *outNormals=(vtkNormals *)cellNormals->MakeObject();
     outNormals->SetNumberOfNormals(numCells);
     float n[3];
 
     for ( int cellId=0; cellId < numCells; cellId++ )
       {
-      normals->GetNormal(cellId,n);
+      cellNormals->GetNormal(cellId,n);
       n[0] = -n[0]; n[1] = -n[1]; n[2] = -n[2];
       outNormals->SetNormal(cellId,n);
       }
