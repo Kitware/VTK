@@ -142,7 +142,7 @@ void vtkLinkEdgels::Execute()
     
     region = new vtkImageRegion;
     region->SetScalarType(VTK_FLOAT);
-    region->SetExtent(temp->GetExtent());
+    region->SetExtent(VTK_IMAGE_DIMENSIONS, temp->GetExtent());
     region->CopyRegionData(temp);
     temp->Delete();
     }
@@ -163,13 +163,13 @@ void vtkLinkEdgels::Execute()
     {
     // Set extent to be just one slice.
     regionExtent[6] = regionExtent[7] = sliceNum;
-    region->SetExtent(regionExtent);
+    region->SetExtent(4, regionExtent);
     this->LinkEdgels(region, newLines,newPts,outScalars,outVectors, sliceNum);
     }
   // restore original extent.
   regionExtent[6] = sliceMin;
   regionExtent[7] = sliceMax;
-  region->SetExtent(regionExtent);
+  region->SetExtent(4, regionExtent);
   
   
   output->SetPoints(newPts);

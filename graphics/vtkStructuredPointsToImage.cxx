@@ -243,10 +243,9 @@ void vtkStructuredPointsToImage::Execute(vtkImageRegion *region)
     // Create a new data object for the scalars
     data = new vtkImageData;
     data->SetExtent(0, size[0]-1, 0, size[1]-1, 0, size[2]-1, 0, 0, 0, 0);
-    pointData = new vtkPointData;
+    pointData = data->GetPointData();
     pointData->SetScalars(newScalars);
     newScalars->Delete();  // registered by point data.
-    /*data->SetPointData(pointData); help */
     }
   else if ((strcmp(type,"float") == 0) || (strcmp(type,"short") == 0) || 
 	   (strcmp(type,"int") == 0) || (strcmp(type,"unsigned short") == 0) ||
@@ -255,9 +254,8 @@ void vtkStructuredPointsToImage::Execute(vtkImageRegion *region)
     // Create a new data object for the scalars
     data = new vtkImageData;
     data->SetExtent(0, size[0]-1, 0, size[1]-1, 0, size[2]-1, 0, 0, 0, 0);
-    pointData = new vtkPointData;
+    pointData = data->GetPointData();
     pointData->SetScalars(scalars);
-    /* help data->SetPointData(pointData); */
     }
   else
     {
@@ -277,14 +275,16 @@ vtkStructuredPointsToImage::ComputeImageInformation(vtkImageRegion *region)
   vtkStructuredPoints *input;
   int size[3];
   float aspectRatio[3];
+  float origin[3];
 
   input = this->Input;
   input->GetDimensions(size);
-  //input->GetOrigin(origin);
   input->GetAspectRatio(aspectRatio);
+  input->GetOrigin(origin);
 
   region->SetImageExtent(0, size[0]-1, 0, size[1]-1, 0, size[2]-1);
   region->SetAspectRatio(3, aspectRatio);
+  region->SetOrigin(3, origin);
   if (region->GetScalarType() == VTK_VOID)
     {
     region->SetScalarType(this->ComputeDataType());
