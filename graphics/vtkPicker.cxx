@@ -430,7 +430,7 @@ float vtkPicker::IntersectWithLine(float p1[3], float p2[3],
 // Initialize the picking process.
 void vtkPicker::Initialize()
 {
-  this->vtkAbstractPicker::Initialize();
+  this->vtkAbstractPropPicker::Initialize();
 
   this->Actors->RemoveAllItems();
   this->PickedPositions->Reset();
