@@ -72,8 +72,6 @@ vtkExporter \
 vtkMapper \
 vtkPolyMapperDevice \
 vtkProp \
-vtkRenderWindow \
-vtkRenderer \
 vtkVolumeMapper \
 vtkVolumeReader \
 vtkWriter \
@@ -195,7 +193,9 @@ vtkProperty \
 vtkQuadric \
 vtkRecursiveDividingCubes \
 vtkRenderMaster \
+vtkRenderWindow \
 vtkRenderWindowInteractor \
+vtkRenderer \
 vtkRendererCollection \
 vtkRendererSource \
 vtkRibbonFilter \
@@ -316,7 +316,7 @@ OGLR_INCLUDE       = @OGLR_INCLUDE@
 
 # add in any extra libraies here
 KIT_LIBS = 
-JAVA_O_ADD = vtkJavaPanel.o 
+#JAVA_O_ADD = vtkJavaPanel.o 
 JAVA_CODE_ADD = ../java/vtk/vtkPanel.class
 
 java/vtk_vtkPanel.h: ../java/vtk/vtkPanel.java

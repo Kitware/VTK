@@ -84,15 +84,15 @@ public:
 
   // Description:
   // Initialize the rendering process.
-  virtual void Start() = 0;
+  virtual void Start() {};
 
   // Description:
   // A termination method performed at the end of the rendering process
   // to do things like swapping buffers (if necessary) or similar actions.
-  virtual void Frame() = 0;
+  virtual void Frame() {};
 
-  virtual void SetDisplayId(void *) = 0;
-  virtual void SetWindowId(void *) = 0;
+  virtual void SetDisplayId(void *) {};
+  virtual void SetWindowId(void *) {};
 
   // Description:
   // Performed at the end of the rendering process to generate image.
@@ -104,60 +104,60 @@ public:
   // a renderer that will work. This method is implemented in the
   // subclasses of vtkRenderWindow so that each subclass will return
   // the correct renderer for its graphics library.
-  virtual vtkRenderer  *MakeRenderer() = 0;
+  virtual vtkRenderer  *MakeRenderer() { return new vtkRenderer;};
 
   // Description:
   // Create a device specific light. This is used by vtkLight to create
   // the correct type of vtkLightDevice.
-  virtual vtkLightDevice *MakeLight() = 0;
+  virtual vtkLightDevice *MakeLight() {return (vtkLightDevice *)NULL;};
 
   // Description:
   // Create a device specific camera. This is used by vtkCamera to create
   // the correct type of vtkCameraDevice.
-  virtual vtkCameraDevice    *MakeCamera() = 0;
+  virtual vtkCameraDevice    *MakeCamera() {return (vtkCameraDevice *)NULL;};
 
   // Description:
   // Create a device specific actor. This is used by vtkActor to create
   // the correct type of vtkActorDevice.
-  virtual vtkActorDevice    *MakeActor() = 0;
+  virtual vtkActorDevice    *MakeActor() {return (vtkActorDevice *)NULL;};
 
   // Description:
   // Create a device specific property. This is used by vtkProperty to create
   // the correct type of vtkPropertyDevice.
-  virtual vtkPropertyDevice    *MakeProperty() = 0;
+  virtual vtkPropertyDevice    *MakeProperty() {return (vtkPropertyDevice *)NULL;};
 
   // Description:
   // Create a device specific texture. This is used by vtkTexture to create
   // the correct type of vtkTextureDevice.
-  virtual vtkTextureDevice     *MakeTexture() = 0;
+  virtual vtkTextureDevice     *MakeTexture() {return (vtkTextureDevice *)NULL;};
 
   // Description:
   // Create a device specific PolyMapper. This is used by vtkPolyMapper
   // to convert vtkPolyData into the appropriate primitive calls
   // for the Rendering library in question.
-  virtual vtkPolyMapperDevice *MakePolyMapper() = 0;
+  virtual vtkPolyMapperDevice *MakePolyMapper() {return (vtkPolyMapperDevice *)NULL;};
   
   // Description:
   // Create an interactor to control renderers in this window. We need
   // to know what type of interactor to create, because we might be in
   // X Windows or MS Windows. 
-  virtual vtkRenderWindowInteractor *MakeRenderWindowInteractor() = 0;
+  virtual vtkRenderWindowInteractor *MakeRenderWindowInteractor() {return (vtkRenderWindowInteractor *)NULL;};
 
   // Description:
   // Set/Get the position in screen coordinates of the rendering window.
-  virtual int *GetPosition() = 0;
+  virtual int *GetPosition() {return (int *)NULL;};
   virtual void SetPosition(int,int);
   virtual void SetPosition(int a[2]);
 
   // Description:
   // Set/Get the size of the window in screen coordinates.
-  virtual int *GetSize() = 0;
-  virtual void SetSize(int,int) = 0;
+  virtual int *GetSize() {return (int *)NULL;};
+  virtual void SetSize(int,int) {};
   virtual void SetSize(int a[2]);
 
   // Description:
   // Turn on/off rendering full screen window size.
-  virtual void SetFullScreen(int) = 0;
+  virtual void SetFullScreen(int) {};
   vtkGetMacro(FullScreen,int);
   vtkBooleanMacro(FullScreen,int);
 
@@ -243,20 +243,20 @@ public:
   // of the screen is in the lower left corner. The y axis increases as
   // you go up the screen. So the storage of pixels is from left to right
   // and from bottom to top.
-  virtual unsigned char *GetPixelData(int x,int y,int x2,int y2,int front) = 0;
-  virtual void SetPixelData(int x,int y,int x2,int y2,unsigned char *,int front) = 0;
+  virtual unsigned char *GetPixelData(int, int, int, int, int) {return (unsigned char *)NULL;};
+  virtual void SetPixelData(int, int, int, int, unsigned char *,int) {};
 
   // Description:
   // Same as Get/SetPixelData except that the image also contains an alpha
   // component. The image is transmitted as RGBARGBARGBA... each of which is a
   // float value.
-  virtual float *GetRGBAPixelData(int x,int y,int x2,int y2,int front) = 0;
-  virtual void SetRGBAPixelData(int x,int y,int x2,int y2,float *,int front) =0;
+  virtual float *GetRGBAPixelData(int ,int ,int ,int ,int ) {return (float *)NULL;};
+  virtual void SetRGBAPixelData(int ,int ,int ,int ,float *,int ) {};
 
   // Description:
   // Set/Get the zbuffer data from the frame buffer.
-  virtual float *GetZbufferData(int x, int y, int x2, int y2) = 0;
-  virtual void SetZbufferData(int x, int y, int x2, int y2, float *) = 0;
+  virtual float *GetZbufferData(int, int, int, int ) {return (float *)NULL;};
+  virtual void SetZbufferData(int, int, int, int, float *) {};
 
   // Description:
   // Set the number of frames for doing antialiasing. The default is
