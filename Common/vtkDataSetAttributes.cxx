@@ -29,7 +29,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataSetAttributes, "1.72");
+vtkCxxRevisionMacro(vtkDataSetAttributes, "1.73");
 vtkStandardNewMacro(vtkDataSetAttributes);
 
 //--------------------------------------------------------------------------
@@ -432,12 +432,6 @@ void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes* pd,
 {
   vtkDataArray* newDA;
   int i;
-
-  // If we are not copying on self
-  if ( pd != this )
-    {
-    this->InitializeFields();
-    }
 
   // Create various point data depending upon input
   //
@@ -1710,9 +1704,6 @@ void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes::FieldList& list,
 {
   vtkDataArray* newDA=0;
   int i;
-
-  // Get rid of any old stuff
-  this->Initialize();
 
   // Allocate attributes if any
   for (i=0; i < list.NumberOfFields; i++)
