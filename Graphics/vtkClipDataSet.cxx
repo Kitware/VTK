@@ -33,7 +33,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkClipDataSet, "1.28");
+vtkCxxRevisionMacro(vtkClipDataSet, "1.29");
 vtkStandardNewMacro(vtkClipDataSet);
 vtkCxxSetObjectMacro(vtkClipDataSet,ClipFunction,vtkImplicitFunction);
 
@@ -145,7 +145,6 @@ void vtkClipDataSet::Execute()
   vtkUnsignedCharArray *types[2];
   vtkIntArray *locs[2];
   int numOutputs = 1;
-  vtkIdType newCellId;
   
   vtkDebugMacro(<< "Clipping dataset");
   
@@ -340,7 +339,7 @@ void vtkClipDataSet::Execute()
             break;
           } //switch
 
-        newCellId = types[i]->InsertNextValue(cellType);
+        types[i]->InsertNextValue(cellType);
         } //for each new cell
       } //for both outputs
     } //for each cell
