@@ -53,6 +53,11 @@ public:
   vtkDataSet* GetOutput(int);
 
   // Description:
+  // Get the input data object. This method is not recommended for use, but
+  // lots of old style filters use it.
+  vtkDataObject* GetInput();
+  
+  // Description:
   // Get the output as vtkPolyData.
   vtkPolyData *GetPolyDataOutput();
 
