@@ -1,8 +1,8 @@
 #
 # This example shows how to generate and manipulate texture coordinates.
-# A random cloud of points is generated and then triangulated with 
-# vtkDelaunay3D. Since these points do not have texture coordinates,
-# we generate them with vtkTextureMapToCylinder.
+# The user can interact with the vtkTransformTextureCoords object to
+# modify the texture coordinates interactively. Different objects, textures
+# and texture mappers can be selected.
 #
 
 #
@@ -13,8 +13,9 @@ package require vtk
 package require vtkinteraction
 
 #
-# Settings. 
-# (models, textures, mapper types)
+# These are the different choices made available to the user.
+# They include: models, textures (relative to VTK_DATA_ROOT) 
+# and mapper types.
 #
 set models { \
         "teapot.g" \
@@ -23,8 +24,8 @@ set models { \
     }
 
 set textures { \
-        "masonry.bmp" \
         "vtk.png" \
+        "masonry.bmp" \
         "earth.ppm" \
         "B.pgm" \
         "beach.jpg" \
@@ -38,8 +39,8 @@ set texture_mapper_types { \
     }
 
 #
-# Read 3D model.
-# Compute normals.
+# A 3D model is loaded using an BYU reader. 
+# Compute normals, in case they are not provided with the model.
 #
 vtkBYUReader model_reader
   model_reader SetGeometryFileName "$VTK_DATA_ROOT/Data/[lindex $models 0]"
@@ -48,17 +49,18 @@ vtkPolyDataNormals model_normals
   model_normals SetInput [model_reader GetOutput]
  
 #   
-# Create all texture coordinates generators.
+# Create all texture coordinates generators/mappers and use the first one
+# for the current pipeline.
 #
 foreach texture_mapper_type $texture_mapper_types {
     set texture_mapper \
             [$texture_mapper_type [string tolower $texture_mapper_type]]
     $texture_mapper SetInput [model_normals GetOutput]
-    # $texture_mapper PreventSeamOn
 }
 
 #
-# Create texture coordinate transformer.
+# Create a texture coordinate transformer, which can be used to 
+# translate, scale or flip the texture.
 #
 set texture_mapper_type [lindex $texture_mapper_types 0]
 vtkTransformTextureCoords transform_texture
@@ -77,8 +79,8 @@ vtkPolyDataMapper mapper
 #
 set filename "$VTK_DATA_ROOT/Data/[lindex $textures 0]"
 vtkImageReader2Factory create_reader
-set texture_reader [create_reader CreateImageReader2 $filename]
-$texture_reader SetFileName $filename
+  set texture_reader [create_reader CreateImageReader2 $filename]
+  $texture_reader SetFileName $filename
 
 vtkTexture texture
   texture SetInput [$texture_reader GetOutput]
@@ -87,6 +89,31 @@ vtkTexture texture
 vtkActor actor
   actor SetMapper mapper
   actor SetTexture texture
+
+#
+# Create a triangle filter that will feed the model geometry to
+# the feature edge extractor. Create the corresponding mapper 
+# and actor.
+#
+vtkTriangleFilter triangle_filter
+  triangle_filter SetInput [model_normals GetOutput]
+ 
+vtkFeatureEdges edges_extractor
+  edges_extractor SetInput [triangle_filter GetOutput]
+  edges_extractor ColoringOff
+  edges_extractor BoundaryEdgesOn
+  edges_extractor ManifoldEdgesOn
+  edges_extractor NonManifoldEdgesOn
+
+vtkPolyDataMapper edges_mapper
+  edges_mapper SetInput [edges_extractor GetOutput]
+  edges_mapper SetResolveCoincidentTopologyToPolygonOffset
+
+vtkActor edges_actor
+  edges_actor SetMapper edges_mapper
+  eval [edges_actor GetProperty] SetColor 0 0 0
+  eval [edges_actor GetProperty] SetLineStipplePattern 4369
+  edges_actor VisibilityOff
 
 #
 # Create the standard rendering stuff.
@@ -100,6 +127,7 @@ vtkRenderWindow renWin
 # Add the actors to the renderer, set the background
 #
 ren1 AddActor actor
+ren1 AddActor edges_actor
 ren1 SetBackground 1 1 1
 
 # 
@@ -110,6 +138,9 @@ set vtkw [vtkTkRenderWidget .ren \
         -height 400 \
         -rw renWin]
 
+#
+# Pack the Tk widget.
+#
 pack $vtkw -side top -fill both -expand yes
 
 #
@@ -119,11 +150,14 @@ pack $vtkw -side top -fill both -expand yes
 BindTkRenderWidget $vtkw
 
 #
-# Create menubar
+# Create a menubar.
 #
 set menubar [menu .menubar]
 . config -menu $menubar
 
+#
+# Create a "File" menu.
+#
 set file_menu [menu  $menubar.file]
 
 $file_menu add command \
@@ -137,8 +171,11 @@ proc bye {} {
 
 $menubar add cascade -label "File" -menu $file_menu
 
-# Create "Model" menubar
-
+#
+# Create a "Model" menu.
+# Each model is a radio menu entry, associated to 
+# the load_model callback.
+#
 set model_menu [menu $menubar.model]
 
 set gui_vars(model_reader,filename) \
@@ -161,8 +198,11 @@ proc load_model {filename} {
 
 $menubar add cascade -label "Model" -menu $model_menu
 
-# Create "Texture" menubar
-
+#
+# Create a "Texture" menu.
+# Each texture is a radio menu entry, associated to
+# the load_texture callback.
+#
 set texture_menu [menu $menubar.texture]
 
 set gui_vars(texture_reader,filename) \
@@ -186,8 +226,11 @@ proc load_texture {filename} {
 
 $menubar add cascade -label "Texture" -menu $texture_menu
 
-# Create "Mapper" menubar
-
+#
+# Create a "Mapper" menu.
+# Each mapper type is a radio menu entry, associated to
+# the use_texture_mapper_type callback.
+#
 set texture_mapper_type_menu [menu $menubar.texture_mapper_type]
 
 set gui_vars(texture_mapper_type) \
@@ -210,8 +253,40 @@ proc use_texture_mapper_type {texture_mapper_type} {
 $menubar add cascade -label "Mapper" -menu $texture_mapper_type_menu
 
 #
+# Create a "View" menu.
+# It stores various properties.
 #
-# Create the texture coords transformer gui
+set view_menu [menu $menubar.view]
+
+set gui_vars(view,edges) [edges_actor GetVisibility]
+
+$view_menu add radio \
+        -label "Edges" \
+        -command toggle_edges_visibility \
+        -value 1 \
+        -variable gui_vars(view,edges)
+
+proc toggle_edges_visibility {} {
+    if {[edges_actor GetVisibility]} {
+        edges_actor VisibilityOff
+    } else {
+        edges_actor VisibilityOn
+    }
+    set gui_vars(view,edges) [edges_actor GetVisibility]
+    renWin Render
+}
+
+$menubar add cascade -label "View" -menu $view_menu
+
+#
+# Create the vtkTransformTextureCoords gui.
+#
+# Each entry in the following array describe a "control" in the GUI:
+#       - unique name of the control,
+#       - title for the control,
+#       - texture coordinates parametrized by that control,
+#       - name of the corresponding vtkTransformTextureCoords attribute,
+#       - start, end, increment value of each Tk scale widget in the control.
 #
 set transform_texture_coords_gui_controls \
         { \
@@ -224,6 +299,9 @@ proc create_transform_texture_coords_gui {parent obj} {
 
     global gui_vars transform_texture_coords_gui_controls
 
+    #
+    # Create a main frame
+    #
     if {$parent == "."} {
         set main_frame [frame .main]
     } else {
@@ -233,11 +311,16 @@ proc create_transform_texture_coords_gui {parent obj} {
     set scale_width 9
     set command [list update_transform_texture_from_gui_vars $obj]
 
+    #
+    # Loop over each "control" description
+    #
     foreach {control label coords obj_method scale_from scale_to scale_res} \
             $transform_texture_coords_gui_controls { 
 
-        # Controls (frame: label + frame/grid)
-        
+        #
+        # Create a frame for the control, a label for its title, and a
+        # sub-frame that will hold all Tk scale widgets.
+        #
         upvar ${control}_frame control_frame
         set control_frame [frame $main_frame.$control -relief groove -border 2]
         
@@ -248,8 +331,14 @@ proc create_transform_texture_coords_gui {parent obj} {
         upvar ${control}_rst control_rst
         set control_rst [frame $control_frame.rst]
         
-        # Add (r,s,t) components to each controls
-
+        #
+        # Add (r,s,t) texture coordinate widgets to the control.
+        # Each one is made of a label for the coordinate's name, a label
+        # for the coordinate's value and a Tk scale widget to control
+        # that value. 
+        # All scale widgets are associated to the same callback:
+        # update_transform_texture_from_gui_vars
+        #
         for {set i 0} {$i < [llength $coords]} {incr i} {
 
             set coord [lindex $coords $i]
@@ -271,8 +360,10 @@ proc create_transform_texture_coords_gui {parent obj} {
             label $control_rst.${coord}_value \
                     -textvariable gui_vars($obj,$control,$coord)
 
-            # For "origin", add flip controls
-
+            #
+            # For "origin", add flip checkbuttons.
+            # Pack the 3 (or 5) elements into a single row.
+            #
             if {$control == "origin"} {
 
                 label $control_rst.${coord}_flip_label \
@@ -299,9 +390,15 @@ proc create_transform_texture_coords_gui {parent obj} {
                         -sticky news 
             }
 
+            # 
+            # Allow the scale widgets to grow when the GUI is expanded.
+            #
             grid columnconfigure $control_rst 2 -weight 1
         }
         
+        # 
+        # Pack everything
+        #
         pack $control_frame \
                 -side top -fill x -expand true -padx 1 -pady 2
 
@@ -313,6 +410,12 @@ proc create_transform_texture_coords_gui {parent obj} {
     return $main_frame
 }
 
+#
+# This callback is used whenever the value of a Tk scale is changed.
+# It recovers the gui values from the gui_vars global array, and
+# change the corresponding vtkTransformTextureCoords attribute.
+# The render window is re-rendered.
+#
 proc update_transform_texture_from_gui_vars {obj args} {
 
     global gui_vars transform_texture_coords_gui_controls
@@ -334,6 +437,9 @@ proc update_transform_texture_from_gui_vars {obj args} {
     renWin Render
 }
 
+#
+# Create the gui and pack it.
+#
 set gui [create_transform_texture_coords_gui . transform_texture]
 
 pack $gui -side top -anchor s -fill x -expand yes
@@ -342,6 +448,7 @@ pack $gui -side top -anchor s -fill x -expand yes
 # We set the window manager (wm command) so that it registers a
 # command to handle the WM_DELETE_WINDOW protocal request..
 #
+wm title . "Texture mapper/transform demo"
 wm protocol . WM_DELETE_WINDOW bye 
 
 #
