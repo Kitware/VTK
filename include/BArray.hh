@@ -100,7 +100,7 @@ inline int vlBitArray::InsertNextValue(const int i)
 {
   this->InsertValue (++this->MaxId,i); return this->MaxId;
 }
-void vlBitArray::operator+=(const char i) 
+inline void vlBitArray::operator+=(const char i) 
 {
   this->InsertNextValue(i);
 }

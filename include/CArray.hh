@@ -88,7 +88,7 @@ inline int vlCharArray::InsertNextValue(const char i)
   this->InsertValue (++this->MaxId,i); 
   return this->MaxId;
 }
-void vlCharArray::operator+=(const char i) 
+inline void vlCharArray::operator+=(const char i) 
 {
   this->InsertNextValue(i);
 }
