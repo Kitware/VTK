@@ -178,6 +178,7 @@ proc check_header_file { filename } {
           set super_class [string trim $super_class]
 
           set class_list($class_name.s.$super_class) 0
+          set class_list($class_name.s.Superclass) 0
         }
       }
 
@@ -285,7 +286,11 @@ proc check_printself { filename } {
 
 	#puts "Line: $data"
 
-        if { [string match "*::PrintSelf(*)*" $data] == 1 } {
+        if { [string match "*this->Superclass::PrintSelf(*)*" $data] == 1 } {
+          if { [list_contains "$class_name.s.Superclass"] == 1 } {
+            set class_list($class_name.s.Superclass) 1
+          }
+        } elseif { [string match "*::PrintSelf(*)*" $data] == 1 } {
           set start [string first "vtk" $data]
           set end [string wordend $data $start]
 
@@ -523,13 +528,14 @@ proc check_for_defects { print } {
         set end [expr [string wordend $element 0] - 1]
         set curr_class [string range $element 0 $end]
 
-        if { [class_has_ivars $curr_class] == 1 &&
+        if { $class_list($curr_class.s.Superclass) != 1 &&
+             [class_has_ivars $curr_class] == 1 &&
              $class_list($element) != 1 } {
 
             set start [expr $end + 4]
             set end [expr [string wordend $element $start] - 1]
             set parent [string range $element $start $end]
-
+            if { $parent == "Superclass" } continue;
             puts $pd_id "    $curr_class did not print superclass $parent"
         }
       }
