@@ -16,6 +16,7 @@ public class Regression {
 
     ren1.AddActor(coneActor);
     renWin.Render();
+    renWin.Render();
 
     vtkWindowToImageFilter w2if = new vtkWindowToImageFilter();
     w2if.SetInput(renWin);
