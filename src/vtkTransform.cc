@@ -49,23 +49,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // creates an identity matrix as the top matrix on the stack.
 vtkTransform::vtkTransform ()
 {
-  // pre multiply is on
   this->PreMultiplyFlag = 1;
-  // create a reasonable size stack
   this->StackSize = 10;
-  // allocate the stack
   this->Stack = new vtkMatrix4x4 *[this->StackSize];
-  // put a matrix on the top
   *this->Stack = new vtkMatrix4x4;
-  // initialize the bottom of the stack
   this->StackBottom = this->Stack;
-  // initialize current matrix to identity
   this->Identity ();
 
   this->Point[0] = this->Point[1] = this->Point[2] = this->Point[3] = 0.0;
   this->Orientation[0] = this->Orientation[1] = this->Orientation[2] = 0.0;
-
-  this->Modified ();
 }
 
 // Description:
@@ -73,7 +65,7 @@ vtkTransform::vtkTransform ()
 // copies its instance variables from the values in t. 
 vtkTransform::vtkTransform (const vtkTransform& t)
 {
-  int i;
+  int i, n;
   vtkMatrix4x4 *stack;
 
   this->PreMultiplyFlag = t.PreMultiplyFlag;
@@ -81,12 +73,37 @@ vtkTransform::vtkTransform (const vtkTransform& t)
   this->Stack = new vtkMatrix4x4 *[this->StackSize];
 
   // now copy each matrix in the stack
-  for (stack = *this->Stack, i = 0; i < this->StackSize; i++)
+  for ( n=t.Stack-t.StackBottom+1, i=0; i < n; i++ )
     {
     this->Stack[i] = new vtkMatrix4x4(*(t.Stack[i]));
+    *(this->Stack[i]) = *(t.Stack[i]);
     }
 
-  this->StackBottom = this->Stack + (this->StackSize - 1);
+  this->StackBottom = this->Stack + (n - 1);
+}
+
+vtkTransform& vtkTransform::operator=(const vtkTransform& t)
+{
+  int i, n;
+
+  this->PreMultiplyFlag = t.PreMultiplyFlag;
+  this->StackSize = t.StackSize;
+  this->Stack = new vtkMatrix4x4 *[this->StackSize];
+  for ( n=t.Stack-t.StackBottom+1, i=0; i < n; i++ )
+    {
+    this->Stack[i] = new vtkMatrix4x4;
+    *(this->Stack[i]) = *(t.Stack[i]);
+    }
+  this->StackBottom = this->Stack + (n - 1);
+
+  for ( i=0; i < 3; i++)
+    {
+    this->Point[i] = t.Point[i];
+    this->Orientation[i] = t.Orientation[i];
+    }
+
+  this->Modified();
+  return *this;
 }
 
 // Description:
@@ -114,10 +131,11 @@ void vtkTransform::Pop ()
 // in the current transformation matrix.
 void vtkTransform::PostMultiply ()
 {
-  if (this->PreMultiplyFlag != 0) {
+  if (this->PreMultiplyFlag != 0) 
+    {
     this->PreMultiplyFlag = 0;
     this->Modified ();
-  }
+    }
 }
 
 // Description:
@@ -127,10 +145,11 @@ void vtkTransform::PostMultiply ()
 // in the current transformation matrix.
 void vtkTransform::PreMultiply ()
 {
-  if (this->PreMultiplyFlag != 1) {
+  if (this->PreMultiplyFlag != 1) 
+    {
     this->PreMultiplyFlag = 1;
     this->Modified ();
-  }
+    }
 }
 
 // Description:
@@ -142,12 +161,14 @@ void vtkTransform::Push ()
 
   ctm = **this->Stack;
   this->Stack++;
-  if ((this->Stack - this->StackBottom) > this->StackSize) {
+  if ((this->Stack - this->StackBottom) > this->StackSize) 
+    {
     this->Stack--;
+    vtkErrorMacro(<<"Exceeded matrix stack size");
     return;
-  }
-  // allocate a new matrix on the stack
+    }
 
+  // allocate a new matrix on the stack
   *this->Stack = new vtkMatrix4x4;
 
   // set the new matrix to the previous top of stack matrix
@@ -403,8 +424,8 @@ void vtkTransform::GetOrientation(float& rx, float& ry, float &rz)
 // array of three floating point values.
 float *vtkTransform::GetOrientation ()
 {
-#define AXIS_EPSILON .01
-  float	scale_x, scale_y, scale_z;
+#define VTK_AXIS_EPSILON 0.001
+  float	scaleX, scaleY, scaleZ;
   vtkMatrix4x4  temp;
   float   x,y,z;
   float   d;
@@ -414,9 +435,9 @@ float *vtkTransform::GetOrientation ()
   float   alpha;
   float   phi;
   float   theta;
-  float   cos_phi, sin_phi;
-  float   cos_theta, sin_theta;
-  float   cos_alpha, sin_alpha;
+  float   cosPhi, sinPhi;
+  float   cosTheta, sinTheta;
+  float   cosAlpha, sinAlpha;
   float   x2, y2, z2;
   float   x3, y3, z3;
   float   x3p, y3p;
@@ -426,32 +447,32 @@ float *vtkTransform::GetOrientation ()
   temp = **this->Stack;
 
   // get scale factors
-  this->GetScale (scale_x, scale_y, scale_z);
+  this->GetScale (scaleX, scaleY, scaleZ);
 
   // first rotate about y axis
-  x2 = temp.Element[2][0] / scale_x;
-  y2 = temp.Element[2][1] / scale_y;
-  z2 = temp.Element[2][2] / scale_z;
+  x2 = temp.Element[2][0] / scaleX;
+  y2 = temp.Element[2][1] / scaleY;
+  z2 = temp.Element[2][2] / scaleZ;
 
-  x3 = temp.Element[1][0] / scale_x;
-  y3 = temp.Element[1][1] / scale_y;
-  z3 = temp.Element[1][2] / scale_z;
+  x3 = temp.Element[1][0] / scaleX;
+  y3 = temp.Element[1][1] / scaleY;
+  z3 = temp.Element[1][2] / scaleZ;
 
   dot = x2 * x2 + z2 * z2;
   d1 = sqrt (dot);
 
-  if (d1 < AXIS_EPSILON) 
+  if (d1 < VTK_AXIS_EPSILON) 
     {
-    cos_theta = 1.0;
-    sin_theta = 0.0;
+    cosTheta = 1.0;
+    sinTheta = 0.0;
     }
   else 
     {
-    cos_theta = z2 / d1;
-    sin_theta = x2 / d1;
+    cosTheta = z2 / d1;
+    sinTheta = x2 / d1;
     }
 
-  theta = atan2 (sin_theta, cos_theta);
+  theta = atan2 (sinTheta, cosTheta);
 
   y = -theta / math.DegreesToRadians();
 
@@ -459,44 +480,44 @@ float *vtkTransform::GetOrientation ()
   dot = x2 * x2 + y2 * y2 + z2 * z2;
   d = sqrt (dot);
 
-  if (d < AXIS_EPSILON) 
+  if (d < VTK_AXIS_EPSILON) 
     {
-    sin_phi = 0.0;
-    cos_phi = 1.0;
+    sinPhi = 0.0;
+    cosPhi = 1.0;
     }
-  else if (d1 < AXIS_EPSILON) 
+  else if (d1 < VTK_AXIS_EPSILON) 
     {
-    sin_phi = y2 / d;
-    cos_phi = z2 / d;
+    sinPhi = y2 / d;
+    cosPhi = z2 / d;
     }
   else 
     {
-    sin_phi = y2 / d;
-    cos_phi = ( x2 * x2 + z2 * z2) / (d1 * d);
+    sinPhi = y2 / d;
+    cosPhi = ( x2 * x2 + z2 * z2) / (d1 * d);
     }
 
-  phi = atan2 (sin_phi, cos_phi);
+  phi = atan2 (sinPhi, cosPhi);
 
   x = phi / math.DegreesToRadians();
 
   // finally, rotate about z
-  x3p = x3 * cos_theta - z3 * sin_theta;
-  y3p = - sin_phi * sin_theta * x3 + cos_phi * y3 - sin_phi * cos_theta * z3;
+  x3p = x3 * cosTheta - z3 * sinTheta;
+  y3p = - sinPhi * sinTheta * x3 + cosPhi * y3 - sinPhi * cosTheta * z3;
   dot = x3p * x3p + y3p * y3p;
 
   d2 = sqrt (dot);
-  if (d2 < AXIS_EPSILON) 
+  if (d2 < VTK_AXIS_EPSILON) 
     {
-    cos_alpha = 1.0;
-    sin_alpha = 0.0;
+    cosAlpha = 1.0;
+    sinAlpha = 0.0;
     }
   else 
     {
-    cos_alpha = y3p / d2;
-    sin_alpha = x3p / d2;
+    cosAlpha = y3p / d2;
+    sinAlpha = x3p / d2;
     }
 
-  alpha = atan2 (sin_alpha, cos_alpha);
+  alpha = atan2 (sinAlpha, cosAlpha);
 
   z = alpha / math.DegreesToRadians();
 
@@ -653,15 +674,14 @@ void vtkTransform::GetMatrix (vtkMatrix4x4 & ctm)
 
 vtkTransform::~vtkTransform ()
 {
-  // delete all matrices on the stack
+  int i, n=this->Stack-this->StackBottom+1;
 
-  while (this->Stack != this->StackBottom) this->Pop ();
+  for (n=this->Stack-this->StackBottom+1, i=0; i < n; i++)
+    {
+    this->Stack[i]->Delete();
+    }
 
-  // delete the bottom matrix
-  (*this->Stack)->Delete();
-
-  // delete the stack itself
-  delete this->Stack;
+  delete [] this->Stack;
 }
 
 void vtkTransform::PrintSelf (ostream& os, vtkIndent indent)

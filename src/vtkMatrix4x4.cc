@@ -264,7 +264,7 @@ void vtkMatrix4x4::Adjoint (vtkMatrix4x4 & in,vtkMatrix4x4 & out)
   out.Element[3][3]  =   m.Determinant3x3( a1, a2, a3, b1, b2, b3, c1, c2, c3);
 }
 
-void vtkMatrix4x4::operator= (vtkMatrix4x4& source)
+vtkMatrix4x4& vtkMatrix4x4::operator= (const vtkMatrix4x4& source)
 {
   int i, j;
 
@@ -275,6 +275,7 @@ void vtkMatrix4x4::operator= (vtkMatrix4x4& source)
       this->Element[i][j] = source.Element[i][j];
       }
     }
+  return *this;
 }
 
 // Description:
@@ -285,12 +286,14 @@ void vtkMatrix4x4::Transpose (vtkMatrix4x4 in,vtkMatrix4x4 & out)
   float temp;
 
   for (i=0; i<4; i++)
+    {
     for(j=i; j<4; j++)
       {
       temp = in.Element[i][j];
       out.Element[i][j] = in.Element[j][i];
       out.Element[j][i] = temp;
       }
+    }
 }
 
 void vtkMatrix4x4::PrintSelf (ostream& os, vtkIndent indent)

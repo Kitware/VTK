@@ -117,11 +117,15 @@ vtkActor& vtkActor::operator=(const vtkActor& actor)
     this->Center[i] = actor.Center[i];
     }
 
+  this->Transform = actor.Transform;
+
   this->Visibility = actor.Visibility;
   this->Pickable   = actor.Pickable;
   this->Dragable   = actor.Dragable;
   
   for (i=0; i < 6; i++) this->Bounds[i] = actor.Bounds[i];
+
+  return *this;
 }
 
 // Description:
@@ -131,6 +135,8 @@ vtkActor& vtkActor::operator=(const vtkActor& actor)
 // side effect of this method is that the visualization network is updated.
 void vtkActor::Render(vtkRenderer *ren)
 {
+  if ( ! this->Mapper ) return;
+
   // render the property
   if (!this->Property)
     {
@@ -147,7 +153,7 @@ void vtkActor::Render(vtkRenderer *ren)
     this->Device = ren->GetRenderWindow()->MakeActor();
     }
   
-  if ( this->Mapper ) this->Device->Render(this,ren,this->Mapper);
+  this->Device->Render(this,ren,this->Mapper);
 }
 
 void vtkActor::SetProperty(vtkProperty *lut)
@@ -390,9 +396,9 @@ float *vtkActor::GetBounds()
   
     // now store the result
     result = this->Transform.GetPoint();
-    fptr[0] = result[0];
-    fptr[1] = result[1];
-    fptr[2] = result[2];
+    fptr[0] = result[0] / result[3];
+    fptr[1] = result[1] / result[3];
+    fptr[2] = result[2] / result[3];
     fptr += 3;
     }
   
@@ -490,6 +496,24 @@ void vtkActor::Update()
     {
     this->Mapper->Update();
     }
+}
+
+// This method is used in conjunction with the assembly object to build a copy
+// of the assembly hierarchy. This hierarchy can then be traversed for 
+// rendering or other operations.
+void vtkActor::BuildPaths(vtkAssemblyPaths *paths, vtkActorCollection *path)
+{
+  vtkActor *copy=new vtkActor, *previous;
+
+  *copy = *this;
+
+  previous = path->GetLastItem();
+
+  vtkMatrix4x4 *matrix = new vtkMatrix4x4;
+  *matrix = previous->GetMatrix();
+  copy->SetUserMatrix(matrix);
+
+  path->AddItem(copy);
 }
 
 void vtkActor::PrintSelf(ostream& os, vtkIndent indent)
