@@ -2423,6 +2423,36 @@ static void vtkOptimizedPermuteExecuteCubic(vtkImageReslice *self,
   delete [] background;
 }
 
+// Check to see if we can do nearest-neighbor instead of linear or cubic.  
+// This check only works on permutation+scale+translation matrices.
+
+static int vtkCanUseNearestNeighbor(vtkMatrix4x4 *matrix, int outExt[6])
+{
+  int i,j;
+  double x,y;
+
+  // loop through dimensions
+  for (i = 0; i < 3; i++)
+    {
+    x = 0;
+    for (j = 0; j < 3; j++)
+      {
+      x += matrix->GetElement(i,j);
+      }
+    y = matrix->GetElement(i,3);
+    if (outExt[2*i] == outExt[2*i+1])
+      {
+      y += x*outExt[2*i];
+      x = 0;
+      }
+    if (x != int(x) || y != int(y)) 
+      {
+      return 0;
+      }
+    }
+  return 1;
+}
+ 
 template <class T>
 static void vtkOptimizedPermuteExecute(vtkImageReslice *self,
 				       vtkImageData *inData, T *inPtr,
@@ -2430,18 +2460,23 @@ static void vtkOptimizedPermuteExecute(vtkImageReslice *self,
 				       int outExt[6], int id,
 				       vtkMatrix4x4 *matrix)
 {
-  if (self->GetInterpolationMode() == VTK_RESLICE_LINEAR)
+  if (!vtkCanUseNearestNeighbor(matrix,outExt))
     {
-    vtkOptimizedPermuteExecuteLinear(self,inData,inPtr,outData,outPtr,
-				     outExt,id,matrix);
-    return;
+    if (self->GetInterpolationMode() == VTK_RESLICE_LINEAR)
+      {
+      vtkOptimizedPermuteExecuteLinear(self,inData,inPtr,outData,outPtr,
+				       outExt,id,matrix);
+      return;
+      }
+    else if (self->GetInterpolationMode() == VTK_RESLICE_CUBIC)
+      {
+      vtkOptimizedPermuteExecuteCubic(self,inData,inPtr,outData,outPtr,
+				      outExt,id,matrix);
+      return;
+      }
     }
-  else if (self->GetInterpolationMode() == VTK_RESLICE_CUBIC)
-    {
-    vtkOptimizedPermuteExecuteCubic(self,inData,inPtr,outData,outPtr,
-				    outExt,id,matrix);
-    return;
-    }
+
+  // looks like we're doing nearest-neighbor!
 
   int i, j, k, numscalars;
   int idX, idY, idZ;
@@ -2568,32 +2603,56 @@ static void vtkOptimizedPermuteExecute(vtkImageReslice *self,
 	r1 = clipExt[0];
 	r2 = clipExt[1];
 	}
-  
-      // clear pixels to left of input extent
-      for (idX = outExt[0]; idX < r1; idX++)
-	{
-	for (i = 0; i < numscalars; i++)
+ 
+      if (numscalars == 1) // fast path for single-scalar data
+	{ 
+        // clear pixels to left of input extent
+	for (idX = outExt[0]; idX < r1; idX++)
 	  {
-	  *outPtr++ = background[i];
+	  *outPtr++ = background[0];
+	  }
+
+	// do nearest-neighbor interpolation
+	for (idX = r1; idX <= r2; idX++)
+	  {
+	  *outPtr++ = inPtr1[traversal[0][idX]];
+	  }
+
+	// clear pixels to right of input extent
+	for (idX = r2+1; idX <= outExt[1]; idX++)
+	  {
+	  *outPtr++ = background[0];
 	  }
 	}
-
-      for (idX = r1; idX <= r2; idX++)
+      else // multiple scalars
 	{
-	inPtr2 = inPtr1 + traversal[0][idX];
+        // clear pixels to left of input extent
+        for (idX = outExt[0]; idX < r1; idX++)
+ 	  {
+	  for (i = 0; i < numscalars; i++)
+	    {
+	    *outPtr++ = background[i];
+	    }
+	  }
+
+	// do nearest-neighbor interpolation
+        for (idX = r1; idX <= r2; idX++)
+	  {
+	  inPtr2 = inPtr1 + traversal[0][idX];
 	
-	for (i = 0; i < numscalars; i++)
-	  {
-	  *outPtr++ = *inPtr2++;
+	  for (i = 0; i < numscalars; i++)
+	    {
+	    *outPtr++ = *inPtr2++;
+	    }
 	  }
-	}
 
-      // clear pixels to right of input extent
-      for (idX = r2+1; idX <= outExt[1]; idX++)
-        {
-	for (i = 0; i < numscalars; i++)
-	  {
-	  *outPtr++ = background[i];
+        // clear pixels to right of input extent
+        for (idX = r2+1; idX <= outExt[1]; idX++)
+          {
+	  for (i = 0; i < numscalars; i++)
+	    {
+	    *outPtr++ = background[i];
+	    }
 	  }
 	}
 
@@ -2672,7 +2731,7 @@ void vtkImageReslice::ThreadedExecute(vtkImageData *inData,
   // input coords -> output coords it takes output indices -> input indices
   vtkMatrix4x4 *matrix = this->GetIndexMatrix();
   
-  if (this->Optimization == 2 && vtkIsPermutationMatrix(matrix) &&
+  if (this->Optimization && vtkIsPermutationMatrix(matrix) &&
       !this->Wrap && !this->Mirror)
     {
     switch (inData->GetScalarType())

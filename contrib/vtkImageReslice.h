@@ -44,13 +44,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // the reslicing matrix.  The extent, origin, and sampling
 // density of the output data can also be set.  This class is the
 // swiss-army-knife of image geometry filters:  It can permute, flip,
-// rotate, scale, resample, and pad image data in any combination.
+// rotate, scale, resample, and pad image data in any combination. 
+// It does the permute and resample operations at close to the 
+// efficency of vtkImagePermute and vtkImageResample. 
 // .SECTION Caveats
-// The OptimizationOn() in conjunction with InterpolateOff()
-// may cause this filter to crash for compilers with poor floating 
-// point consistency.  Doing crazy things like using nonlinear 
-// (i.e. perspective) transformations is also risky, but will
-// work under a broad set of circumstances. 
+// This filter is very inefficient if the output X dimension is 1.
 // .SECTION see also
 // vtkImageToImageFilter, vtkTransform
 
