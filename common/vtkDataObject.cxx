@@ -725,4 +725,6 @@ void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "LastUpdateExtentWasOutsideOfTheExtent: " << 
     this->LastUpdateExtentWasOutsideOfTheExtent << endl;
+
+  os << indent << "Locality: " << this->Locality << endl;
 }
