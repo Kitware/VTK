@@ -95,6 +95,7 @@ protected:
   void operator=(const vtkExtractGrid&) {};
 
   void Execute();
+  void ExecuteInformation();
 
   int VOI[6];
   int SampleRate[3];

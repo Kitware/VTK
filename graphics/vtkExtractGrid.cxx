@@ -69,6 +69,67 @@ vtkExtractGrid::vtkExtractGrid()
   this->SampleRate[0] = this->SampleRate[1] = this->SampleRate[2] = 1;
 }
 
+void vtkExtractGrid::ExecuteInformation()
+{
+  vtkStructuredGrid *input= this->GetInput();
+  vtkStructuredGrid *output= this->GetOutput();
+  int i, dims[3], outDims[3], voi[6], wholeExtent[6];
+  int rate[3];
+
+  this->vtkStructuredGridToStructuredGridFilter::ExecuteInformation();
+
+  input->GetWholeExtent(wholeExtent);
+  dims[0] = wholeExtent[1] - wholeExtent[0] + 1;
+  dims[1] = wholeExtent[3] - wholeExtent[2] + 1;
+  dims[2] = wholeExtent[5] - wholeExtent[4] + 1;
+
+  for ( i=0; i < 6; i++ )
+    {
+    voi[i] = this->VOI[i];
+    }
+
+  for ( i=0; i < 3; i++ )
+    {
+    if ( voi[2*i+1] >= dims[i] )
+      {
+      voi[2*i+1] = dims[i] - 1;
+      }
+    else if ( voi[2*i+1] < 0 )
+      {
+      voi[2*i+1] = 0;
+      }
+
+    if ( voi[2*i] > voi[2*i+1] )
+      {
+      voi[2*i] = voi[2*i+1];
+      }
+    else if ( voi[2*i] < 0 )
+      {
+      voi[2*i] = 0;
+      }
+
+    if ( (rate[i] = this->SampleRate[i]) < 1 )
+      {
+      rate[i] = 1;
+      }
+
+    outDims[i] = (voi[2*i+1] - voi[2*i]) / rate[i] + 1;
+    if ( outDims[i] < 1 )
+      {
+      outDims[i] = 1;
+      }
+    }
+
+  wholeExtent[0] = 0;
+  wholeExtent[1] = outDims[0] - 1;
+  wholeExtent[2] = 0;
+  wholeExtent[3] = outDims[1] - 1;
+  wholeExtent[4] = 0;
+  wholeExtent[5] = outDims[2] - 1;
+
+  output->SetWholeExtent(wholeExtent);
+}
+
 void vtkExtractGrid::Execute()
 {
   vtkStructuredGrid *input= this->GetInput();
