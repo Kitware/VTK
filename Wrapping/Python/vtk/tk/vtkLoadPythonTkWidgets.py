@@ -30,7 +30,7 @@ def vtkLoadPythonTkWidgets(interp):
     except AttributeError:
         auto_paths = interp.getvar('auto_path')
     for path in auto_paths:
-        prev = pathlist[-1]
+        prev = str(pathlist[-1])
         try:            
             # try block needed when one uses Gordon McMillan's Python
             # Installer.
