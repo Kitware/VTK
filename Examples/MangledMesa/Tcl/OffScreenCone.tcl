@@ -12,7 +12,7 @@ package require vtkinteraction
 # render windows, mappers, actors, lights, cameras etc...
 # See the Mesa classes in the Rendering directory for a list of
 # existing classes.
-vtkMesaRenderWindow renWin
+vtkXMesaRenderWindow renWin
 # Will render in memory.
 renWin OffScreenRenderingOn
 
