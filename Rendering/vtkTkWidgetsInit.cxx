@@ -64,7 +64,7 @@ extern "C"
 
 int Vtkrenderingpythontkwidgets_Init(Tcl_Interp *interp)
 {
-  if(Tcl_PkgPresent(interp, "Tk", TK_VERSION, 0))
+  if(Tcl_PkgPresent(interp, (char *)"Tk", (char *)TK_VERSION, 0))
     {
     Tcl_CreateCommand(interp, (char *) "vtkTkRenderWidget", vtkTkRenderWidget_Cmd, 
                       Tk_MainWindow(interp), NULL);

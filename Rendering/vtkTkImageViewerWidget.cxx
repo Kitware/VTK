@@ -424,7 +424,7 @@ extern "C"
 extern "C" {VTK_TK_EXPORT int Vtktkimageviewerwidget_Init(Tcl_Interp *interp);}
 int Vtktkimageviewerwidget_Init(Tcl_Interp *interp)
 {
-  if(Tcl_PkgPresent(interp, "Tk", TK_VERSION, 0))
+  if(Tcl_PkgPresent(interp, (char *)"Tk", (char *)TK_VERSION, 0))
     {
     Tcl_CreateCommand(interp, (char *) "vtkTkImageViewerWidget", 
                       vtkTkImageViewerWidget_Cmd, 
