@@ -37,7 +37,7 @@
 #include "vtkPointWidget.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkLineWidget, "1.36");
+vtkCxxRevisionMacro(vtkLineWidget, "1.37");
 vtkStandardNewMacro(vtkLineWidget);
 
 // This class is used to coordinate the interaction between the point widget
@@ -284,6 +284,7 @@ void vtkLineWidget::SetEnabled(int enabling)
       this->CurrentRenderer->AddActor(this->Handle[j]);
       this->Handle[j]->SetProperty(this->HandleProperty);
       }
+    
     this->BuildRepresentation();
     this->SizeHandles();
 
@@ -313,6 +314,11 @@ void vtkLineWidget::SetEnabled(int enabling)
       this->CurrentRenderer->RemoveActor(this->Handle[i]);
       }
 
+    if (this->CurrentPointWidget)
+      {
+      this->CurrentPointWidget->EnabledOff();
+      }
+    
     this->CurrentHandle = NULL;
     this->InvokeEvent(vtkCommand::DisableEvent,NULL);
     }
