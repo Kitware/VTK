@@ -33,7 +33,7 @@
 #endif
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.19");
+vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.20");
 vtkStandardNewMacro(vtkOpenGLImageActor);
 #endif
 
@@ -189,8 +189,6 @@ unsigned char *vtkOpenGLImageActor::MakeDataSuitable(int &xsize, int &ysize,
         reuseTexture = 1;
         }
 #endif
-      this->TextureSize[0] = xsize;
-      this->TextureSize[1] = ysize;
       return (unsigned char *)
         this->Input->GetScalarPointerForExtent(this->DisplayExtent);
       }
@@ -224,21 +222,22 @@ unsigned char *vtkOpenGLImageActor::MakeDataSuitable(int &xsize, int &ysize,
   this->TCoords[7] = this->TCoords[5];  
 
 #ifdef GL_VERSION_1_1
-  // if contiguous and texture size hasn't changed, don't copy or pad
-  if (contiguous &&
-      xsize == this->TextureSize[0] && ysize == this->TextureSize[1])
+  // reuse texture if texture size has not changed
+  if (xsize == this->TextureSize[0] && ysize == this->TextureSize[1])
     {
-    release = 0;
     reuseTexture = 1;
     xsize = this->DisplayExtent[xdim*2+1] - this->DisplayExtent[xdim*2] + 1;
     ysize = this->DisplayExtent[ydim*2+1] - this->DisplayExtent[ydim*2] + 1;
-    return (unsigned char *)
-      this->Input->GetScalarPointerForExtent(this->DisplayExtent);
     }
 #endif
 
-  this->TextureSize[0] = xsize;
-  this->TextureSize[1] = ysize;
+  // if contiguous and texture size hasn't changed, don't copy or pad
+  if (reuseTexture && contiguous)
+    {
+    release = 0;
+    return (unsigned char *)
+      this->Input->GetScalarPointerForExtent(this->DisplayExtent);
+    }
 
   // allocate the memory
   unsigned char *res = new unsigned char [ysize*xsize*numComp];
@@ -388,6 +387,8 @@ void vtkOpenGLImageActor::Load(vtkRenderer *ren)
       glTexImage2D( GL_TEXTURE_2D, 0, internalFormat,
                     xsize, ysize, 0, format, 
                     GL_UNSIGNED_BYTE, (const GLvoid *)data );
+      this->TextureSize[0] = xsize;
+      this->TextureSize[1] = ysize;
       }
 
 #ifndef GL_VERSION_1_1
