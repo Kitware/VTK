@@ -49,6 +49,7 @@ EXAMPLES = VisQuad \
 	UGrid \
 	VisQuad \
 	Vol \
+	VRMLServer \
 	XMace \
 	alphaFreq \
 	bluntStr \
@@ -66,9 +67,9 @@ EXAMPLES = VisQuad \
 	vtkLogo \
 	vol
   
-CXX_FLAGS = ${CPPFLAGS} ${CXXFLAGS} -I${srcdir}/../../common \
-	-I${srcdir}/../../graphics \
-	${GRAPHICS_API_FLAGS} -D_HP_NO_FAST_MACROS
+CXX_FLAGS = ${CPPFLAGS} ${USER_CXXFLAGS} ${CXXFLAGS} -I${srcdir} \
+	${KIT_FLAGS} -I. ${USE_TOOLKIT_FLAGS} ${GRAPHICS_API_FLAGS} \
+	 -I${srcdir}/../../common -I${srcdir}/.. -I${srcdir}/../../patented
 
 VTKLIB = ${VTK_LIB_FILE}
 
@@ -154,6 +155,9 @@ UGrid: UGrid.o ${VTKLIB}
 Vol: Vol.o ${VTKLIB}
 	${CXX} -o Vol ${CXX_FLAGS} Vol.o ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+VRMLServer: VRMLServer.o ${VTKLIB}
+	${CXX} -o VRMLServer ${CXX_FLAGS} VRMLServer.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 XMace: XMace.o ${VTKLIB}
 	${CXX} -o XMace ${CXX_FLAGS} XMace.o ${XLDFLAGS} ${LDLIBS} \
 	-lXm ${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
@@ -168,6 +172,9 @@ contQuad: contQuad.o ${VTKLIB}
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 finance: finance.o ${VTKLIB}
 	${CXX} -o finance ${CXX_FLAGS} finance.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+medical1: medical1.o ${VTKLIB}
+	${CXX} -o medical1 ${CXX_FLAGS} medical1.o ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 pickCells: pickCells.o ${VTKLIB}
 	${CXX} -o pickCells ${CXX_FLAGS} pickCells.o ${XLDFLAGS} ${LDLIBS} \
