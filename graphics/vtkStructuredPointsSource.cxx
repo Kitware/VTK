@@ -67,3 +67,25 @@ vtkStructuredPoints *vtkStructuredPointsSource::GetOutput()
 }
 
 
+//----------------------------------------------------------------------------
+// Default method performs Update to get information.  Not all the old
+// structured points sources compute information
+void vtkStructuredPointsSource::ExecuteInformation()
+{
+  vtkStructuredPoints *output = this->GetOutput();
+  vtkScalars *scalars;
+
+  output->InternalUpdate();
+  scalars = output->GetPointData()->GetScalars();
+
+  if (scalars)
+    {
+    output->SetScalarType(scalars->GetDataType());
+    output->SetNumberOfScalarComponents(scalars->GetNumberOfComponents());
+    }
+
+  output->SetWholeExtent(output->GetExtent());
+}
+
+
+
