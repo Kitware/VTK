@@ -88,8 +88,8 @@ proc ExecuteDot {} {
    # overflowing.
 
    set inputs [dotProduct GetInputList]
-   set input0 [$inputs GetItem 0]
-   set input1 [$inputs GetItem 1]
+   set input0 [$inputs GetDataSet 0]
+   set input1 [$inputs GetDataSet 1]
    set numPts [$input0 GetNumberOfPoints]
 
    set vectors0 [[$input0 GetPointData] GetVectors]
