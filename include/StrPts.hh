@@ -23,9 +23,11 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #ifndef __vlStructuredPoints_h
 #define __vlStructuredPoints_h
 
+#include "DataSet.hh"
 #include "StrData.hh"
 
-class vlStructuredPoints : public vlStructuredData {
+class vlStructuredPoints : public vlDataSet, public vlStructuredData 
+{
 public:
   vlStructuredPoints();
   vlStructuredPoints(const vlStructuredPoints& v);
@@ -34,13 +36,20 @@ public:
   char *GetDataType() {return "vlStructuredPoints";};
   void PrintSelf(ostream& os, vlIndent indent);
 
+  unsigned long GetMtime();
+
   // dataset interface
   vlDataSet *MakeObject() {return new vlStructuredPoints(*this);};
+  int GetNumberOfCells();
+  int GetNumberOfPoints();
   float *GetPoint(int ptId);
   vlCell *GetCell(int cellId);
   void Initialize();
   int FindCell(float x[3], vlCell *cell, float tol2, int& subId, float pcoords[3]);
   int GetCellType(int cellId);
+  void GetCellPoints(int cellId, vlIdList& ptIds);
+  void GetPointCells(int ptId, vlIdList& cellIds);
+
 
   // Description:
   // Set the aspect ratio of the cubical cells that compose the structured
@@ -58,5 +67,25 @@ protected:
   float Origin[3];
   float AspectRatio[3];
 };
+
+inline int vlStructuredPoints::GetNumberOfCells() 
+{
+  return this->vlStructuredData::_GetNumberOfCells();
+}
+
+inline int vlStructuredPoints::GetNumberOfPoints()
+{
+  return this->vlStructuredData::_GetNumberOfCells();
+}
+
+inline void vlStructuredPoints::GetCellPoints(int cellId, vlIdList& ptIds)
+{
+  this->vlStructuredData::_GetCellPoints(cellId, ptIds);
+}
+
+inline void vlStructuredPoints::GetPointCells(int ptId, vlIdList& cellIds)
+{
+  this->vlStructuredData::_GetPointCells(ptId, cellIds);
+}
 
 #endif

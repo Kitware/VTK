@@ -21,64 +21,48 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #ifndef __vlDataSetCollection_hh
 #define __vlDataSetCollection_hh
 
-#include "Object.hh"
+#include "Collect.hh"
 #include "DataSet.hh"
 
-class vlDataSetCollectionElement
-{
- public:
-  vlDataSetCollectionElement():Item(NULL),Next(NULL) {};
-  vlDataSet *Item;
-  vlDataSetCollectionElement *Next;
-};
-
-class vlDataSetCollection : public vlObject
+class vlDataSetCollection : public vlCollection
 {
 public:
-  vlDataSetCollection();
-  ~vlDataSetCollection();
-  void PrintSelf(ostream& os, vlIndent indent);
   char *GetClassName() {return "vlDataSetCollection";};
 
   void AddItem(vlDataSet *);
   void RemoveItem(vlDataSet *);
   int IsItemPresent(vlDataSet *);
-  int GetNumberOfItems();
-  void InitTraversal();
   vlDataSet *GetNextItem();
-
-protected:
-  int NumberOfItems;
-  vlDataSetCollectionElement *Top;
-  vlDataSetCollectionElement *Bottom;
-  vlDataSetCollectionElement *Current;
 
 };
 
 // Description:
-// Initialize the traversal of the collection. This means the data pointer
-// is set at the beginning of the list.
-inline void vlDataSetCollection::InitTraversal()
+// Add an DataSet to the list.
+inline void vlDataSetCollection::AddItem(vlDataSet *ds) 
 {
-  this->Current = this->Top;
+  this->vlCollection::AddItem((vlObject *)ds);
 }
 
 // Description:
-// Get the next item in the collection. NULL is returned if the collection
-// is exhausted.
-inline vlDataSet *vlDataSetCollection::GetNextItem()
+// Remove an DataSet from the list.
+inline void vlDataSetCollection::RemoveItem(vlDataSet *ds) 
 {
-  vlDataSetCollectionElement *elem=this->Current;
+  this->vlCollection::RemoveItem((vlObject *)ds);
+}
 
-  if ( elem != NULL )
-    {
-    this->Current = elem->Next;
-    return elem->Item;
-    }
-  else
-    {
-    return NULL;
-    }
+// Description:
+// Determine whether a particular DataSet is present. Returns its position
+// in the list.
+inline int vlDataSetCollection::IsItemPresent(vlDataSet *ds) 
+{
+  return this->vlCollection::IsItemPresent((vlObject *)ds);
+}
+
+// Description:
+// Get the next DataSet in the list.
+inline vlDataSet *vlDataSetCollection::GetNextItem() 
+{ 
+  return (vlDataSet *)(this->vlCollection::GetNextItem());
 }
 
 #endif

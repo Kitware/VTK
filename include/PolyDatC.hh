@@ -21,64 +21,47 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #ifndef __vlPolyDataCollection_hh
 #define __vlPolyDataCollection_hh
 
-#include "Object.hh"
+#include "Collect.hh"
 #include "PolyData.hh"
 
-class vlPolyDataCollectionElement
-{
- public:
-  vlPolyDataCollectionElement():Item(NULL),Next(NULL) {};
-  vlPolyData *Item;
-  vlPolyDataCollectionElement *Next;
-};
-
-class vlPolyDataCollection : public vlObject
+class vlPolyDataCollection : public vlCollection
 {
 public:
-  vlPolyDataCollection();
-  ~vlPolyDataCollection();
-  void PrintSelf(ostream& os, vlIndent indent);
   char *GetClassName() {return "vlPolyDataCollection";};
 
   void AddItem(vlPolyData *);
   void RemoveItem(vlPolyData *);
   int IsItemPresent(vlPolyData *);
-  int GetNumberOfItems();
-  void InitTraversal();
   vlPolyData *GetNextItem();
-
-protected:
-  int NumberOfItems;
-  vlPolyDataCollectionElement *Top;
-  vlPolyDataCollectionElement *Bottom;
-  vlPolyDataCollectionElement *Current;
-
 };
 
 // Description:
-// Initialize the traversal of the collection. This means the data pointer
-// is set at the beginning of the list.
-inline void vlPolyDataCollection::InitTraversal()
+// Add an PolyData to the list.
+inline void vlPolyDataCollection::AddItem(vlPolyData *ds) 
 {
-  this->Current = this->Top;
+  this->vlCollection::AddItem((vlObject *)ds);
 }
 
 // Description:
-// Get the next item in the collection. NULL is returned if the collection
-// is exhausted.
-inline vlPolyData *vlPolyDataCollection::GetNextItem()
+// Remove an PolyData from the list.
+inline void vlPolyDataCollection::RemoveItem(vlPolyData *ds) 
 {
-  vlPolyDataCollectionElement *elem=this->Current;
+  this->vlCollection::RemoveItem((vlObject *)ds);
+}
 
-  if ( elem != NULL )
-    {
-    this->Current = elem->Next;
-    return elem->Item;
-    }
-  else
-    {
-    return NULL;
-    }
+// Description:
+// Determine whether a particular PolyData is present. Returns its position
+// in the list.
+inline int vlPolyDataCollection::IsItemPresent(vlPolyData *ds) 
+{
+  return this->vlCollection::IsItemPresent((vlObject *)ds);
+}
+
+// Description:
+// Get the next PolyData in the list.
+inline vlPolyData *vlPolyDataCollection::GetNextItem() 
+{ 
+  return (vlPolyData *)(this->vlCollection::GetNextItem());
 }
 
 #endif

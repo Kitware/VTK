@@ -27,7 +27,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "DataSet.hh"
 #include "Locator.hh"
 
-class vlPointSet : virtual public vlDataSet
+class vlPointSet : public vlDataSet
 {
 public:
   vlPointSet();

@@ -19,12 +19,42 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // Construct new filter without start or end methods.
 vlFilter::vlFilter()
 {
+  this->Input = NULL;
+
   this->StartMethod = NULL;
   this->StartMethodArg = NULL;
   this->EndMethod = NULL;
   this->EndMethodArg = NULL;
 
   this->Updating = 0;
+}
+
+// Description:
+// Update input to this filter and the filter itself.
+void vlFilter::UpdateFilter()
+{
+  // make sure input is available
+  if ( !this->Input )
+    {
+//    vlErrorMacro(<< "No input!");
+    return;
+    }
+
+  // prevent chasing our tail
+  if (this->Updating) return;
+
+  this->Updating = 1;
+  this->Input->Update();
+  this->Updating = 0;
+
+  if (this->Input->GetMTime() > this->_GetMTime() || 
+  this->_GetMTime() > this->ExecuteTime )
+    {
+    if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
+    this->Execute();
+    this->ExecuteTime.Modified();
+    if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
+    }
 }
 
 // Description:
@@ -36,7 +66,7 @@ void vlFilter::SetStartMethod(void (*f)(void *), void *arg)
     {
     this->StartMethod = f;
     this->StartMethodArg = arg;
-    this->Modified();
+    this->_Modified();
     }
 }
 
@@ -49,34 +79,46 @@ void vlFilter::SetEndMethod(void (*f)(void *), void *arg)
     {
     this->EndMethod = f;
     this->EndMethodArg = arg;
-    this->Modified();
+    this->_Modified();
     }
 }
 
-void vlFilter::PrintSelf(ostream& os, vlIndent indent)
+void vlFilter::Execute()
 {
-  if (this->ShouldIPrint(vlFilter::GetClassName()))
-    {
-    vlObject::PrintSelf(os,indent);
-
-    if ( this->StartMethod )
-      {
-      os << indent << "Start Method: (" << this->StartMethod << ")\n";
-      }
-    else
-      {
-      os << indent << "Start Method: (none)\n";
-      }
-
-    if ( this->EndMethod )
-      {
-      os << indent << "End Method: (" << this->EndMethod << ")\n";
-      }
-    else
-      {
-      os << indent << "End Method: (none)\n";
-      }
-
-    os << indent << "Execute Time: " <<this->ExecuteTime.GetMTime() << "\n";
-   }
+  cerr << "Execution of filter should be in derived class" << "\n";
 }
+
+void vlFilter::_PrintSelf(ostream& os, vlIndent indent)
+{
+  vlLWObject::_PrintSelf(os,indent);
+
+  if ( this->StartMethod )
+    {
+    os << indent << "Start Method: (" << this->StartMethod << ")\n";
+    }
+  else
+    {
+    os << indent << "Start Method: (none)\n";
+    }
+
+  if ( this->EndMethod )
+    {
+    os << indent << "End Method: (" << this->EndMethod << ")\n";
+    }
+  else
+    {
+    os << indent << "End Method: (none)\n";
+    }
+
+  os << indent << "Execute Time: " <<this->ExecuteTime.GetMTime() << "\n";
+
+  if ( this->Input )
+    {
+    os << indent << "Input: (" << this->Input << ")\n";
+    }
+  else
+    {
+    os << indent << "Input: (none)\n";
+    }
+}
+

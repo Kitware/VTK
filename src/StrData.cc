@@ -26,8 +26,7 @@ vlStructuredData::vlStructuredData()
   this->PointVisibility = NULL;
 }
 
-vlStructuredData::vlStructuredData(const vlStructuredData& sds) :
-vlDataSet(sds)
+vlStructuredData::vlStructuredData(const vlStructuredData& sds)
 {
   this->Dimensions[0] = sds.Dimensions[0];
   this->Dimensions[1] = sds.Dimensions[1];
@@ -43,7 +42,6 @@ vlDataSet(sds)
 
 vlStructuredData::~vlStructuredData()
 {
-  this->Initialize();
 }
 
 // Description:
@@ -61,7 +59,6 @@ int vlStructuredData::GetDataDimension()
     case XYZ_GRID: return 3;
 
     default:
-      vlErrorMacro(<<"Bad data description!");
       return -1;                       
     }
 }
@@ -81,14 +78,14 @@ void vlStructuredData::SetDimensions(int i, int j, int k)
 
 void vlStructuredData::SetDimensions(int dim[3])
 {
-  vlDebugMacro(<< " setting Dimensions to (" << dim[0] << "," << dim[1] << "," << dim[2] << ")");
+//  vlDebugMacro(<< " setting Dimensions to (" << dim[0] << "," << dim[1] << "," << dim[2] << ")");
 
   if ( dim[0] != this->Dimensions[0] || dim[1] != Dimensions[1] ||
   dim[2] != Dimensions[2] )
     {
     if ( dim[0]<1 || dim[1]<1 || dim[2]<1 )
       {
-      vlErrorMacro (<< "Bad Dimensions, retaining previous values");
+//      vlErrorMacro (<< "Bad Dimensions, retaining previous values");
       return;
       }
 
@@ -119,38 +116,20 @@ void vlStructuredData::SetDimensions(int dim[3])
       this->DataDescription = SINGLE_POINT;
       }
 
-    this->Modified();
+    this->_Modified();
     }
 }
 
-void vlStructuredData::PrintSelf(ostream& os, vlIndent indent)
-{
-  if (this->ShouldIPrint(vlStructuredData::GetClassName()))
-    {
-    vlDataSet::PrintSelf(os,indent);
-    
-    os << indent << "Dimensions: (" << this->Dimensions[0] << ", "
-                                    << this->Dimensions[1] << ", "
-                                    << this->Dimensions[2] << ")\n";
-    }
+int *vlStructuredData::GetDimensions() 
+{ 
+  return this->Dimensions;
 }
 
-int vlStructuredData::GetNumberOfCells()
-{
-  int nCells=1;
-  int i;
-
-  for (i=0; i<3; i++)
-    if (this->Dimensions[i] > 1)
-      nCells *= (this->Dimensions[i]-1);
-
-  return nCells;
+void vlStructuredData::GetDimensions(int dim[3])
+{ 
+  for (int i=0; i<3; i++) dim[i] = this->Dimensions[i];
 }
 
-int vlStructuredData::GetNumberOfPoints()
-{
-  return Dimensions[0]*Dimensions[1]*Dimensions[2];
-}
 
 // Description:
 // Turn on data blanking. Data blanking is the ability to turn off
@@ -160,12 +139,12 @@ int vlStructuredData::GetNumberOfPoints()
 void vlStructuredData::BlankingOn()
 {
   this->Blanking = 1;
-  this->Modified();
+  this->_Modified();
 
   if ( !this->PointVisibility )
     {
-    this->PointVisibility = new vlBitArray(this->GetNumberOfPoints(),1000);
-    for (int i=0; i<this->GetNumberOfPoints(); i++)
+    this->PointVisibility = new vlBitArray(this->_GetNumberOfPoints(),1000);
+    for (int i=0; i<this->_GetNumberOfPoints(); i++)
       {
       this->PointVisibility->InsertValue(i,1);
       }
@@ -177,7 +156,7 @@ void vlStructuredData::BlankingOn()
 void vlStructuredData::BlankingOff()
 {
   this->Blanking = 0;
-  this->Modified();
+  this->_Modified();
 }
 
 // Description:
@@ -196,21 +175,36 @@ void vlStructuredData::UnBlankPoint(int ptId)
   this->PointVisibility->InsertValue(ptId,1);
 }
 
-void vlStructuredData::Initialize()
+int vlStructuredData::_GetNumberOfCells()
 {
-  vlDataSet::Initialize();
+  int nCells=1;
+  int i;
 
+  for (i=0; i<3; i++)
+    if (this->Dimensions[i] > 1)
+      nCells *= (this->Dimensions[i]-1);
+
+  return nCells;
+}
+
+int vlStructuredData::_GetNumberOfPoints()
+{
+  return Dimensions[0]*Dimensions[1]*Dimensions[2];
+}
+
+void vlStructuredData::_Initialize()
+{
   this->SetDimensions(1,1,1);
   this->Blanking = 0;
 
   if ( this->PointVisibility )
     {
-    delete this->PointVisibility;
+    delete [] this->PointVisibility;
     this->PointVisibility = NULL;
     }
 }
 
-void vlStructuredData::GetCellPoints(int cellId, vlIdList& ptIds)
+void vlStructuredData::_GetCellPoints(int cellId, vlIdList& ptIds)
 {
   int idx, loc[3], npts;
   int iMin, iMax, jMin, jMax, kMin, kMax;
@@ -290,7 +284,7 @@ void vlStructuredData::GetCellPoints(int cellId, vlIdList& ptIds)
     }
 }
 
-void vlStructuredData::GetPointCells(int ptId, vlIdList& cellIds)
+void vlStructuredData::_GetPointCells(int ptId, vlIdList& cellIds)
 {
   int ptDim[3], cellDim[3];
   int ptLoc[3], cellLoc[3];
@@ -335,4 +329,13 @@ void vlStructuredData::GetPointCells(int ptId, vlIdList& cellIds)
     }
 
   return;
+}
+
+void vlStructuredData::_PrintSelf(ostream& os, vlIndent indent)
+{
+  vlLWObject::_PrintSelf(os,indent);
+
+  os << indent << "Dimensions: (" << this->Dimensions[0] << ", "
+                                  << this->Dimensions[1] << ", "
+                                  << this->Dimensions[2] << ")\n";
 }

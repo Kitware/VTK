@@ -28,20 +28,13 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 class vlStructuredPointsFilter : public vlFilter 
 {
 public:
-  vlStructuredPointsFilter();
+  vlStructuredPointsFilter() {};
   ~vlStructuredPointsFilter();
-  char *GetClassName() {return "vlStructuredPointsFilter";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  void _PrintSelf(ostream& os, vlIndent indent);
 
-  void Update();
-
-  // Description:
-  // Specify the input object.
-  vlSetObjectMacro(Input,vlStructuredPoints);
-  vlGetObjectMacro(Input,vlStructuredPoints);
-
-protected:
-  vlStructuredPoints *Input;
+  void SetInput(vlStructuredPoints *input);
+  void SetInput(vlStructuredPoints &input) {this->SetInput(&input);};
+  vlStructuredPoints *GetInput() {return (vlStructuredPoints *)this->Input;};
 
 };
 

@@ -202,10 +202,8 @@ inline void vlCellArray::ReverseCell(int loc)
 // Replace the point ids of the cell with a different list of point ids.
 inline void vlCellArray::ReplaceCell(int loc, int npts, int *pts)
 {
-  int i;
-  int npts=this->Ia.GetValue(loc);
   int *oldPts=this->Ia.GetPtr(loc+1);
-  for (i=0; i < npts; i++)  oldPts[i] = pts[i];
+  for (int i=0; i < npts; i++)  oldPts[i] = pts[i];
 }
 
 #endif

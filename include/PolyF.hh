@@ -24,23 +24,17 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Filter.hh"
 #include "PolyData.hh"
 
-class vlPolyFilter : public vlFilter {
+class vlPolyFilter : public vlFilter 
+{
 public:
-  vlPolyFilter() : Input(NULL) {};
+  vlPolyFilter() {};
   ~vlPolyFilter();
-  char *GetClassName() {return "vlPolyFilter";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  void _PrintSelf(ostream& os, vlIndent indent);
 
-  void Update();
-
-  // Description:
-  // Specify the input object.
-  vlSetObjectMacro(Input,vlPolyData);
-  vlGetObjectMacro(Input,vlPolyData);
-
-protected:
-  vlPolyData *Input;
-
+  void SetInput(vlPolyData *input);
+  void SetInput(vlPolyData &input) {this->SetInput(&input);};
+  vlPolyData *GetInput() {return (vlPolyData *)this->Input;};
+                               
 };
 
 #endif

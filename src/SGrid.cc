@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -35,10 +33,17 @@ vlStructuredGrid::~vlStructuredGrid()
   this->Initialize();
 }
 
+unsigned long vlStructuredGrid::GetMtime()
+{
+  unsigned long dtime = this->vlPointSet::GetMTime();
+  unsigned long ftime = this->vlStructuredData::_GetMTime();
+  return (dtime > ftime ? dtime : ftime);
+}
+
 void vlStructuredGrid::Initialize()
 {
   vlPointSet::Initialize(); 
-  vlStructuredData::Initialize();
+  vlStructuredData::_Initialize();
 }
 
 int vlStructuredGrid::GetCellType(int cellId)
@@ -171,7 +176,8 @@ void vlStructuredGrid::PrintSelf(ostream& os, vlIndent indent)
 {
   if (this->ShouldIPrint(vlStructuredGrid::GetClassName()))
     {
-    vlStructuredData::PrintSelf(os,indent);
+    vlPointSet::PrintSelf(os,indent);
+//    vlStructuredData::PrintSelf(os,indent);
     }
 }
 

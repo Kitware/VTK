@@ -42,7 +42,7 @@ public:
 
   // modified time
   virtual unsigned long int GetMTime();
-  void Modified();
+  virtual void Modified();
 
   // printing
   virtual void PrintSelf(ostream& os, vlIndent indent);

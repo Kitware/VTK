@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -204,9 +202,16 @@ float *vlStructuredPoints::GetPoint(int ptId)
   return x;
 }
 
+unsigned long vlStructuredPoints::GetMtime()
+{
+  unsigned long dtime = this->vlDataSet::GetMTime();
+  unsigned long ftime = this->vlStructuredData::_GetMTime();
+  return (dtime > ftime ? dtime : ftime);
+}
+
 void vlStructuredPoints::Initialize()
 {
-  vlStructuredData::Initialize();
+  vlStructuredData::_Initialize();
 
   this->SetAspectRatio(1,1,1);
   this->SetOrigin(0,0,0);
@@ -268,7 +273,7 @@ void vlStructuredPoints::PrintSelf(ostream& os, vlIndent indent)
 {
   if (this->ShouldIPrint(vlStructuredPoints::GetClassName()))
     {
-    vlStructuredData::PrintSelf(os,indent);
+    vlDataSet::PrintSelf(os,indent);
     
     os << indent << "Origin: (" << this->Origin[0] << ", "
                                     << this->Origin[1] << ", "

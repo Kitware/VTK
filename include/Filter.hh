@@ -16,34 +16,35 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // .NAME vlFilter - abstract class for specifying filter behaviour
 // .SECTION Description
 // vlFilter is an abstract class that specifies the interface for data 
-// filters. Each filter must have an Update() method that will cause the 
-// filter to execute if its input or the filter itself has been modified
-// since the last execution time.
+// filters. Each filter must have an UpdateFilter() and Execute() method 
+// that will cause the filter to execute if its input or the filter itself 
+// has been modified since the last execution time.
 
 #ifndef __vlFilter_h
 #define __vlFilter_h
 
-#include "Object.hh"
+#include "LWObject.hh"
+#include "DataSet.hh"
 
-class vlFilter : virtual public vlObject 
+class vlFilter : public vlLWObject
 {
 public:
   vlFilter();
-  ~vlFilter() {};
-  char *GetClassName() {return "vlFilter";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  virtual ~vlFilter() {};
+  void _PrintSelf(ostream& os, vlIndent indent);
 
   // Description:
   // All filters must provide a method to update the visualization 
   // pipeline.
-  virtual void Update() = 0;
+  virtual void UpdateFilter();
 
   void SetStartMethod(void (*f)(void *), void *arg);
   void SetEndMethod(void (*f)(void *), void *arg);
 
 protected:
-  virtual void Execute() 
-    {vlErrorMacro(<< "Execute is a Filter subclass responsibility");};
+  vlDataSet *Input;
+
+  virtual void Execute();
   char Updating;
   void (*StartMethod)(void *);
   void *StartMethodArg;

@@ -27,21 +27,13 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 class vlDataSetFilter : public vlFilter 
 {
 public:
-  vlDataSetFilter();
+  vlDataSetFilter() {};
   ~vlDataSetFilter();
-  char *GetClassName() {return "vlDataSetFilter";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  void _PrintSelf(ostream& os, vlIndent indent);
 
-  void Update();
-
-  // Description:
-  // Specify the input object.
-  vlSetObjectMacro(Input,vlDataSet);
-  vlGetObjectMacro(Input,vlDataSet);
-
-protected:
-  vlDataSet *Input;
-
+  void SetInput(vlDataSet *input);
+  void SetInput(vlDataSet &input) {this->SetInput(&input);};
+  vlDataSet *GetInput() {return this->Input;};
 };
 
 #endif

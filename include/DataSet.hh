@@ -29,7 +29,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "PtData.hh"
 #include "Cell.hh"
 
-class vlDataSet : virtual public vlObject 
+class vlDataSet : public vlObject 
 {
 public:
   vlDataSet();
@@ -43,7 +43,7 @@ public:
   virtual void Initialize();
 
   // Description:
-  // Absorb update methods which propagate through network.
+  // Provides opportunity for data to clean itself up before execution.
   virtual void Update() {};
 
   // Description:

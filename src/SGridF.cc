@@ -13,58 +13,26 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Abstract class for objects that filter structured datasets
-//
-#include "StrDataF.hh"
+#include "SGridF.hh"
 
-vlStructuredDataFilter::vlStructuredDataFilter()
-{
-  this->Input = NULL;
-}
-
-vlStructuredDataFilter::~vlStructuredDataFilter()
+vlStructuredGridFilter::~vlStructuredGridFilter()
 {
 }
 
-void vlStructuredDataFilter::Update()
+
+// Description:
+// Specify the input Grid or filter.
+void vlStructuredGridFilter::SetInput(vlStructuredGrid *input)
 {
-  // make sure input is available
-  if ( !this->Input )
+  if ( this->Input != input )
     {
-    vlErrorMacro(<< "No input!");
-    return;
-    }
-
-  // prevent chasing our tail
-  if (this->Updating) return;
-
-  this->Updating = 1;
-  this->Input->Update();
-  this->Updating = 0;
-
-  if (this->Input->GetMTime() > this->GetMTime() || this->GetMTime() > this->ExecuteTime )
-    {
-    if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
-    this->Execute();
-    this->ExecuteTime.Modified();
-    if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
+    this->Input = (vlDataSet *) input;
+    this->_Modified();
     }
 }
 
-void vlStructuredDataFilter::PrintSelf(ostream& os, vlIndent indent)
+void vlStructuredGridFilter::_PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlStructuredDataFilter::GetClassName()))
-    {
-    vlFilter::PrintSelf(os,indent);
+  vlFilter::_PrintSelf(os,indent);
 
-    if ( this->Input )
-      {
-      os << indent << "Input: (" << this->Input << ")\n";
-      }
-    else
-      {
-      os << indent << "Input: (none)\n";
-      }
-   }
 }

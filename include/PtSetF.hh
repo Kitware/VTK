@@ -27,21 +27,13 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 class vlPointSetFilter : public vlFilter 
 {
 public:
-  vlPointSetFilter();
+  vlPointSetFilter() {};
   ~vlPointSetFilter();
-  char *GetClassName() {return "vlPointSetFilter";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  void _PrintSelf(ostream& os, vlIndent indent);
 
-  void Update();
-
-  // Description:
-  // Specify the input object.
-  vlSetObjectMacro(Input,vlPointSet);
-  vlGetObjectMacro(Input,vlPointSet);
-
-protected:
-  vlPointSet *Input;
-
+  void SetInput(vlPointSet *input);
+  void SetInput(vlPointSet &input) {this->SetInput(&input);};
+  vlPointSet *GetInput() {return (vlPointSet *)this->Input;};
 };
 
 #endif

@@ -23,8 +23,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #ifndef __vlStructuredData_h
 #define __vlStructuredData_h
 
-#include "DataSet.hh"
+#include "LWObject.hh"
 #include "BArray.hh"
+#include "IdList.hh"
 
 #define SINGLE_POINT 0
 #define X_LINE 1
@@ -35,25 +36,19 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #define XZ_PLANE 6
 #define XYZ_GRID 7
 
-class vlStructuredData : virtual public vlDataSet {
+class vlStructuredData : public vlLWObject 
+{
 public:
   vlStructuredData();
   vlStructuredData(const vlStructuredData& sds);
-  ~vlStructuredData();
-  char *GetClassName() {return "vlStructuredData";};
-  void PrintSelf(ostream& os, vlIndent indent);
+  virtual ~vlStructuredData();
+  void _PrintSelf(ostream& os, vlIndent indent);
 
-  // dataset interface
-  int GetNumberOfCells();
-  int GetNumberOfPoints(); 
-  void Initialize();
-  void GetCellPoints(int cellId, vlIdList& ptIds);
-  void GetPointCells(int ptId, vlIdList& cellIds);
-
-  // specific object methods
+  // setting object dimensions
   void SetDimensions(int i, int j, int k);
   void SetDimensions(int dim[3]);
-  vlGetVectorMacro(Dimensions,int,3);
+  int *GetDimensions();
+  void GetDimensions(int dim[3]);
 
   int GetDataDimension();
 
@@ -65,6 +60,13 @@ public:
   int IsPointVisible(int ptId);
 
 protected:
+  // methods to support datasets (done because of MI problems)
+  int _GetNumberOfCells();
+  int _GetNumberOfPoints(); 
+  void _Initialize();
+  void _GetCellPoints(int cellId, vlIdList& ptIds);
+  void _GetPointCells(int ptId, vlIdList& cellIds);
+
   int Dimensions[3];
   int DataDescription;
   int Blanking;

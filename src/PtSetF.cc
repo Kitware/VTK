@@ -13,58 +13,24 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Abstract class for objects that filter structured datasets
-//
 #include "PtSetF.hh"
-
-vlPointSetFilter::vlPointSetFilter()
-{
-  this->Input = NULL;
-}
 
 vlPointSetFilter::~vlPointSetFilter()
 {
 }
 
-void vlPointSetFilter::Update()
+// Description:
+// Specify the input data or filter.
+void vlPointSetFilter::SetInput(vlPointSet *input)
 {
-  // make sure input is available
-  if ( !this->Input )
+  if ( this->Input != input )
     {
-    vlErrorMacro(<< "No input!\n");
-    return;
-    }
-
-  // prevent chasing our tail
-  if (this->Updating) return;
-
-  this->Updating = 1;
-  this->Input->Update();
-  this->Updating = 0;
-
-  if (this->Input->GetMTime() > this->GetMTime() || this->GetMTime() > this->ExecuteTime )
-    {
-    if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
-    this->Execute();
-    this->ExecuteTime.Modified();
-    if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
+    this->Input = (vlDataSet *) input;
+    this->_Modified();
     }
 }
 
-void vlPointSetFilter::PrintSelf(ostream& os, vlIndent indent)
+void vlPointSetFilter::_PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlPointSetFilter::GetClassName()))
-    {
-    vlFilter::PrintSelf(os,indent);
-
-    if ( this->Input )
-      {
-      os << indent << "Input: (" << this->Input << ")\n";
-      }
-    else
-      {
-      os << indent << "Input: (none)\n";
-      }
-   }
+  vlFilter::_PrintSelf(os,indent);
 }

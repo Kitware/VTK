@@ -37,6 +37,8 @@ public:
   char *GetDataType() {return "vlStructuredGrid";};
   void PrintSelf(ostream& os, vlIndent indent);
  
+  unsigned long GetMtime();
+
   // dataset interface
   vlDataSet *MakeObject() {return new vlStructuredGrid(*this);};
   void Initialize();
@@ -45,16 +47,29 @@ public:
   int GetCellType(int cellId);
   float *GetPoint(int ptId) {return this->vlPointSet::GetPoint(ptId);};
   int FindCell(float x[3], vlCell *cell, float tol2, int& subId, float pcoords[3]) { return this->vlPointSet::FindCell(x,cell,tol2,subId,pcoords);}
-  int GetNumberOfCells() {return this->vlStructuredData::GetNumberOfCells();};
-  void GetCellPoints(int cellId, vlIdList& ptIds) {this->vlStructuredData::GetCellPoints(cellId,ptIds);};
-  void GetPointCells(int ptId, vlIdList& cellIds) {this->vlStructuredData::GetPointCells(ptId,cellIds);};
-  void GetCellNeighbors(int cellId, vlIdList& ptIds, vlIdList& cellIds) 
-    {this->vlStructuredData::GetCellNeighbors(cellId,ptIds,cellIds);};
+  int GetNumberOfCells();
+  void GetCellPoints(int cellId, vlIdList& ptIds);
+  void GetPointCells(int ptId, vlIdList& cellIds);
 
 protected:
   // points inherited
   // point data (i.e., scalars, vectors, normals, tcoords) inherited
   // blanking information inherited
 };
+
+inline int vlStructuredGrid::GetNumberOfCells() 
+{
+  return this->vlStructuredData::_GetNumberOfCells();
+}
+
+inline void vlStructuredGrid::GetCellPoints(int cellId, vlIdList& ptIds) 
+{
+  this->vlStructuredData::_GetCellPoints(cellId,ptIds);
+}
+
+inline void vlStructuredGrid::GetPointCells(int ptId, vlIdList& cellIds) 
+{
+  this->vlStructuredData::_GetPointCells(ptId,cellIds);
+}
 
 #endif
