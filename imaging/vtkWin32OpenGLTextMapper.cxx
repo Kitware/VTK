@@ -184,7 +184,7 @@ void vtkWin32OpenGLTextMapper::ReleaseGraphicsResources(vtkWindow *win)
     this->Font = 0;
     }
   
-  this->Window = NULL;
+  this->LastWindow = NULL;
   
   // very important
   // the release of graphics resources indicates that significant changes have
@@ -199,9 +199,9 @@ vtkWin32OpenGLTextMapper::vtkWin32OpenGLTextMapper()
 
 vtkWin32OpenGLTextMapper::~vtkWin32OpenGLTextMapper()
 {
-  if (this->Window)
+  if (this->LastWindow)
     {
-    this->ReleaseGraphicsResources(this->Window);
+    this->ReleaseGraphicsResources(this->LastWindow);
     }  
 }
 
@@ -212,11 +212,11 @@ void vtkWin32OpenGLTextMapper::RenderOpaqueGeometry(vtkViewport* viewport,
 
   // Get the window information for display
   vtkWindow*  window = viewport->GetVTKWindow();
-  if (this->Window && this->Window != window)
+  if (this->LastWindow && this->LastWindow != window)
     {
     this->ReleaseGraphicsResources(this->Window);
     }
-  this->Window = window;
+  this->LastWindow = window;
   
   // Check for input
   if ( this->NumberOfLines > 1 )

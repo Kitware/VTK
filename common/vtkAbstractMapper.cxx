@@ -47,7 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 vtkAbstractMapper::vtkAbstractMapper()
 {
   this->TimeToDraw = 0.0;
-  this->Window = NULL;
+  this->LastWindow = NULL;
 }
 
 void vtkAbstractMapper::PrintSelf(vtkOstream& os, vtkIndent indent)

@@ -86,9 +86,9 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
 // Destructor (don't call ReleaseGraphicsResources() since it is virtual
 vtkOpenGLPolyDataMapper::~vtkOpenGLPolyDataMapper()
 {
-  if (this->Window)
+  if (this->LastWindow)
     {
-    this->ReleaseGraphicsResources(this->Window);
+    this->ReleaseGraphicsResources(this->LastWindow);
     }  
 }
 
@@ -103,7 +103,7 @@ void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow *win)
     glDeleteLists(this->ListId,1);
     this->ListId = 0;
     }
-  this->Window = NULL; 
+  this->LastWindow = NULL; 
 }
 
 
@@ -237,7 +237,7 @@ void vtkOpenGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
   if ( this->GetMTime() > this->BuildTime || 
        input->GetMTime() > this->BuildTime ||
        act->GetProperty()->GetMTime() > this->BuildTime ||
-       ren->GetRenderWindow() != this->Window)
+       ren->GetRenderWindow() != this->LastWindow)
     {
     // sets this->Colors as side effect
     this->GetColors();
@@ -246,7 +246,7 @@ void vtkOpenGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
 	!this->GetGlobalImmediateModeRendering())
       {
       this->ReleaseGraphicsResources(ren->GetRenderWindow());
-      this->Window = ren->GetRenderWindow();
+      this->LastWindow = ren->GetRenderWindow();
       
       // get a unique display list id
       this->ListId = glGenLists(1);
@@ -262,7 +262,7 @@ void vtkOpenGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
     else
       {
       this->ReleaseGraphicsResources(ren->GetRenderWindow());
-      this->Window = ren->GetRenderWindow();
+      this->LastWindow = ren->GetRenderWindow();
       }
     this->BuildTime.Modified();
     }
