@@ -22,6 +22,7 @@ IF (BUILD_TESTING)
       vtkmyEx1
       ${VTK_BINARY_DIR}/Examples/Build/vtkMy/bin
       vtkMy
+      CMAKE_ARGS
       -DVTK_BINARY_PATH:PATH=${VTK_BINARY_DIR})
 
   ENDIF (CMAKETEST_COMMAND)
