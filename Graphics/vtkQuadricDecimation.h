@@ -38,10 +38,6 @@
 
 class vtkPointData;
 
-typedef struct {
-  float *Quadric;
-} VTK_ERROR_QUADRIC;
-
 class VTK_GRAPHICS_EXPORT vtkQuadricDecimation : public vtkPolyDataToPolyDataFilter
 {
 public:
@@ -106,7 +102,12 @@ protected:
   vtkIdList *EndPoint1List;
   vtkIdList *EndPoint2List;
   vtkPriorityQueue *EdgeCosts;
-  VTK_ERROR_QUADRIC *ErrorQuadrics;
+
+  typedef struct {
+    float *Quadric;
+  } ErrorQuadricStruct;
+  ErrorQuadricStruct *ErrorQuadrics;
+
   int AttributeComponents[6];
   int NumberOfComponents;
   vtkPolyData *Mesh;
