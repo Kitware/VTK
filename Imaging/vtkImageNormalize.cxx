@@ -17,10 +17,11 @@
 =========================================================================*/
 #include "vtkImageNormalize.h"
 #include "vtkObjectFactory.h"
+#include "vtkImageProgressIterator.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageNormalize, "1.9");
+vtkCxxRevisionMacro(vtkImageNormalize, "1.10");
 vtkStandardNewMacro(vtkImageNormalize);
 
 //----------------------------------------------------------------------------
@@ -37,76 +38,52 @@ void vtkImageNormalize::ExecuteInformation(vtkImageData *vtkNotUsed(inData),
 // out of extent.
 template <class T>
 static void vtkImageNormalizeExecute(vtkImageNormalize *self,
-                                     vtkImageData *inData, T *inPtr,
-                                     vtkImageData *outData, float *outPtr,
-                                     int outExt[6], int id)
+                                     vtkImageData *inData,
+                                     vtkImageData *outData,
+                                     int outExt[6], int id, T *)
 {
-  int idxC, idxX, idxY, idxZ;
-  int maxC, maxX, maxY, maxZ;
-  int inIncX, inIncY, inIncZ;
-  int outIncX, outIncY, outIncZ;
-  unsigned long count = 0;
-  unsigned long target;
+  vtkImageIterator<T> inIt(inData, outExt);
+  vtkImageProgressIterator<float> outIt(outData, outExt, self, id);
+  int idxC, maxC;
   float sum;
   T *inVect;
   
   // find the region to loop over
   maxC = inData->GetNumberOfScalarComponents();
-  maxX = outExt[1] - outExt[0];
-  maxY = outExt[3] - outExt[2]; 
-  maxZ = outExt[5] - outExt[4];
-  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
-  target++;
-
-  // Get increments to march through data 
-  inData->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
-  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
   // Loop through ouput pixels
-  for (idxZ = 0; idxZ <= maxZ; idxZ++)
+  while (!outIt.IsAtEnd())
     {
-    for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
+    T* inSI = inIt.BeginSpan();
+    float *outSI = outIt.BeginSpan();
+    float *outSIEnd = outIt.EndSpan();
+    while (outSI != outSIEnd)
       {
-      if (!id) 
+      // save the start of the vector
+      inVect = inSI;
+      
+      // compute the magnitude.
+      sum = 0.0;
+      for (idxC = 0; idxC < maxC; idxC++)
         {
-        if (!(count%target))
-          {
-          self->UpdateProgress(count/(50.0*target));
-          }
-        count++;
+        sum += (float)(*inSI) * (float)(*inSI);
+        inSI++;
         }
-      for (idxX = 0; idxX <= maxX; idxX++)
+      if (sum > 0.0)
         {
-
-        // save the start of the vector
-        inVect = inPtr;
-
-        // compute the magnitude.
-        sum = 0.0;
-        for (idxC = 0; idxC < maxC; idxC++)
-          {
-          sum += (float)(*inPtr) * (float)(*inPtr);
-          inPtr++;
-          }
-        if (sum > 0.0)
-          {
-          sum = 1.0 / sqrt(sum);
-          }
-        
-        // now divide to normalize.
-        for (idxC = 0; idxC < maxC; idxC++)
-          {
-          *outPtr = (float)(*inVect) * sum;
-          inVect++;
-          outPtr++;
-          }
-
+        sum = 1.0 / sqrt(sum);
         }
-      outPtr += outIncY;
-      inPtr += inIncY;
+      
+      // now divide to normalize.
+      for (idxC = 0; idxC < maxC; idxC++)
+        {
+        *outSI = (float)(*inVect) * sum;
+        inVect++;
+        outSI++;
+        }
       }
-    outPtr += outIncZ;
-    inPtr += inIncZ;
+    inIt.NextSpan();
+    outIt.NextSpan();
     }
 }
 
@@ -119,9 +96,6 @@ void vtkImageNormalize::ThreadedExecute(vtkImageData *inData,
                                         vtkImageData *outData,
                                         int outExt[6], int id)
 {
-  void *inPtr = inData->GetScalarPointerForExtent(outExt);
-  void *outPtr = outData->GetScalarPointerForExtent(outExt);
-  
   vtkDebugMacro(<< "Execute: inData = " << inData 
   << ", outData = " << outData);
   
@@ -135,8 +109,8 @@ void vtkImageNormalize::ThreadedExecute(vtkImageData *inData,
   
   switch (inData->GetScalarType())
     {
-    vtkTemplateMacro7(vtkImageNormalizeExecute, this, inData,(VTK_TT *)(inPtr),
-                     outData, (float *)(outPtr), outExt, id);
+    vtkTemplateMacro6(vtkImageNormalizeExecute, this, inData,
+                     outData, outExt, id, static_cast<VTK_TT *>(0));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
