@@ -34,7 +34,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkIVExporter, "1.56");
+vtkCxxRevisionMacro(vtkIVExporter, "1.57");
 vtkStandardNewMacro(vtkIVExporter);
 
 vtkIVExporter::vtkIVExporter()
@@ -248,7 +248,6 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   vtkDataArray *tcoords = NULL;
   int i;
   vtkProperty *prop;
-  float *tempf;
   double *tempd;
   vtkCellArray *cells;
   vtkIdType npts = 0;
