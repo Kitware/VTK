@@ -103,6 +103,8 @@ void vlDecimate::Execute()
 
   vlDebugMacro(<<"Decimating mesh...");
   this->Initialize();
+  V = &VertexArray;
+  T = &TriangleArray;
 //
 // Check input
 //
