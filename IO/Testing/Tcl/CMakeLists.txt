@@ -19,11 +19,11 @@ IF (VTK_USE_RENDERING)
 
     IF(PLY_LIBRARY)
       IF(PLY_PATH)
-        ADD_TEST(${tfile}-image ${VTK_EXECUTABLE}
+        ADD_TEST(TestPLYReadWrite-image ${VTK_EXECUTABLE}
           ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
           ${VTK_SOURCE_DIR}/IO/Testing/Tcl/TestPLYReadWrite.tcl
           -D ${VTK_DATA_ROOT}
-          -V Baseline/IO/TestPLYReadWrite.png
+          -V Baseline/IO/TestPLYReadWrite.tcl.png
           -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
       ENDIF(PLY_PATH)
     ENDIF(PLY_LIBRARY)
