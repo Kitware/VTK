@@ -46,6 +46,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTkRenderWidget.h"
 #include "vtkRenderMaster.h"
 
+#ifdef _WIN32
+#include "vtkWin32OglrRenderWindow.h"
+#else
+#include "vtkXRenderWindow.h"
+#endif
+
 // This is for creating the render window associated with the widget.
 static vtkRenderMaster vtkRenderWidgetMaster;
 
@@ -322,7 +328,7 @@ int Vtktkrenderwidget_Init(Tcl_Interp *interp)
 }
 
 
-#if defined(__WIN32__) || defined(_WIN32)
+#ifdef _WIN32
 //-----------------------------------------------------------------------------
 // Creates a render window and forces Tk to use the window.
 static int Vtkrenderwidget_MakeRenderWindow(struct Vtkrenderwidget *self) 
@@ -332,7 +338,7 @@ static int Vtkrenderwidget_MakeRenderWindow(struct Vtkrenderwidget *self)
   TkWindow *winPtr2;
   Tcl_HashEntry *hPtr;
   int new_flag;
-  vtkWin32OglrRendererWindow *renderWindow;
+  vtkWin32OglrRenderWindow *renderWindow;
   
   if (self->RenderWindow)
     {
