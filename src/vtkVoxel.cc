@@ -463,7 +463,7 @@ void vtkVoxel::Derivatives(int vtkNotUsed(subId), float pcoords[3],
       {
       for (sum=0.0, i=0; i < 8; i++) //loop over interp. function derivatives
         {
-        sum += functionDerivs[8*j + i] * values[3*i + k];
+        sum += functionDerivs[8*j + i] * values[dim*i + k];
         }
       derivs[3*k + j] = sum / ar[j];
       }

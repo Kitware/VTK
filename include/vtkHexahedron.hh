@@ -82,7 +82,7 @@ public:
   // Hexahedron specific
   void InterpolationFunctions(float pcoords[3], float weights[8]);
   void InterpolationDerivs(float pcoords[3], float derivs[24]);
-  void JacobianInverse(float pcoords[3], float inverse[9], float derivs[24]);
+  void JacobianInverse(float pcoords[3], double **inverse, float derivs[24]);
 
 };
 

@@ -192,6 +192,7 @@ void vtkHexahedron::InterpolationDerivs(float pcoords[3], float derivs[24])
   sm = 1. - pcoords[1];
   tm = 1. - pcoords[2];
 
+  // r-derivatives
   derivs[0] = -sm*tm;
   derivs[1] = sm*tm;
   derivs[2] = pcoords[1]*tm;
@@ -200,6 +201,8 @@ void vtkHexahedron::InterpolationDerivs(float pcoords[3], float derivs[24])
   derivs[5] = sm*pcoords[2];
   derivs[6] = pcoords[1]*pcoords[2];
   derivs[7] = -pcoords[1]*pcoords[2];
+
+  // s-derivatives
   derivs[8] = -rm*tm;
   derivs[9] = -pcoords[0]*tm;
   derivs[10] = pcoords[0]*tm;
@@ -208,6 +211,8 @@ void vtkHexahedron::InterpolationDerivs(float pcoords[3], float derivs[24])
   derivs[13] = -pcoords[0]*pcoords[2];
   derivs[14] = pcoords[0]*pcoords[2];
   derivs[15] = rm*pcoords[2];
+
+  // t-derivatives
   derivs[16] = -rm*sm;
   derivs[17] = -pcoords[0]*sm;
   derivs[18] = -pcoords[0]*pcoords[1];
@@ -521,26 +526,75 @@ int vtkHexahedron::Triangulate(int index, vtkFloatPoints &pts)
   return 1;
 }
 
-void vtkHexahedron::Derivatives(int subId, float pcoords[3], float *values, 
-                                int dim, float *derivs)
+//
+// Compute derivatives in x-y-z directions. Use chain rule in combination
+// with interpolation function derivatives.
+//
+void vtkHexahedron::Derivatives(int vtkNotUsed(subId), float pcoords[3], 
+                                float *values, int dim, float *derivs)
 {
+  double *jI[3], j0[3], j1[3], j2[3];
+  float functionDerivs[24], sum[3];
+  int i, j, k;
+
+  // compute inverse Jacobian and interpolation function derivatives
+  jI[0] = j0; jI[1] = j1; jI[2] = j2;
+  this->JacobianInverse(pcoords, jI, functionDerivs);
+
+  // now compute derivates of values provided
+  for (k=0; k < dim; k++) //loop over values per vertex
+    {
+    for (j=0; j < 3; j++) //loop over derivative directions
+      {
+      sum[0] = sum[1] = sum[2] = 0.0;
+      for ( i=0; i < 8; i++) //loop over interp. function derivatives
+        {
+        sum[0] += functionDerivs[i] * values[dim*i + k]; 
+        sum[1] += functionDerivs[8 + i] * values[dim*i + k];
+        sum[2] += functionDerivs[16 + i] * values[dim*i + k];
+        }
+      derivs[3*k + j] = sum[0]*jI[j][0] + sum[1]*jI[j][1] + sum[2]*jI[j][2];
+      }
+    }
 }
 
 // Description:
 // Given parametric coordinates compute inverse Jacobian transformation
 // matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
 // function derivatives.
-void vtkHexahedron::JacobianInverse(float pcoords[3], float inverse[9],
+void vtkHexahedron::JacobianInverse(float pcoords[3], double **inverse,
                                     float derivs[24])
 {
-  int i;
-  double xCol[3], yCol[3], zCol[3];
+  static vtkMath math;
+  int i, j;
+  double *m[3], m0[3], m1[3], m2[3];
+  float *x;
 
+  // compute interpolation function derivatives
   this->InterpolationDerivs(pcoords, derivs);
 
-  for (i=0; i<3; i++)
+  // create Jacobian matrix
+  m[0] = m0; m[1] = m1; m[2] = m2;
+  for (i=0; i < 3; i++) //initialize matrix
     {
-    xCol[i] = yCol[i] = zCol[i] = 0.0;
+    m0[i] = m1[i] = m2[i] = 0.0;
     }
 
+  for ( j=0; j < 8; j++ )
+    {
+    x = this->Points.GetPoint(j);
+    for ( i=0; i < 3; i++ )
+      {
+      m0[i] += x[i] * derivs[j];
+      m1[i] += x[i] * derivs[8 + j];
+      m2[i] += x[i] * derivs[16 + j];
+      }
+    }
+
+  // now find the inverse
+  if ( math.InvertMatrix(m,inverse,3) == 0 )
+    {
+    vtkErrorMacro(<<"Jacobian inverse not found");
+    return;
+    }
 }
