@@ -282,6 +282,22 @@ int vtkTkImageViewerWidget_Height( const struct vtkTkImageViewerWidget *self)
    return self->Height;
 }
 
+
+static void vtkTkImageViewerWidget_Destroy(char *memPtr)
+{
+  struct vtkTkImageViewerWidget *self = (struct vtkTkImageViewerWidget *)memPtr;
+
+  if (self->ImageViewer)
+    {
+		// Squash the ImageViewer's WindowID
+	  self->ImageViewer->SetWindowId ( (void*)NULL );
+    self->ImageViewer->UnRegister(NULL);
+    self->ImageViewer = NULL;
+    ckfree (self->IV);
+    }
+  ckfree((char *) memPtr);
+}
+
 //----------------------------------------------------------------------------
 // This gets called to handle vtkTkImageViewerWidget wind configuration events
 // Possibly X dependent
@@ -321,10 +337,7 @@ static void vtkTkImageViewerWidget_EventProc(ClientData clientData,
     case MapNotify:
       break;
     case DestroyNotify:
-		// Squash the ImageViewer's WindowID
-		  self->ImageViewer->SetWindowId ( (void*)NULL );
-
-      // Tcl_EventuallyFree( (ClientData) self, vtkTkImageViewerWidget_Destroy );
+      Tcl_EventuallyFree( (ClientData) self, vtkTkImageViewerWidget_Destroy );
       break;
     default:
       // nothing
