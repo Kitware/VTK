@@ -69,16 +69,11 @@ vtkTransformToGrid transformToGrid
   transformToGrid SetGridSpacing 16 16 1
   transformToGrid SetGridOrigin -0.5 -0.5 0
   transformToGrid SetGridExtent 0 16 0 16 0 0
-  transformToGrid SetGridScalarTypeToFloat
 
 vtkGridTransform transform
   transform SetDisplacementGrid [transformToGrid GetOutput]
-  transform SetDisplacementScale [transformToGrid GetDisplacementScale]
-  transform SetDisplacementShift [transformToGrid GetDisplacementShift]
   transform SetInterpolationModeToCubic
 # you must invert the transform before passing it to vtkImageReslice
-# (it is much more efficient to invert the thinPlate instead of the
-#  grid, but we invert the grid for better code coverage)
   transform Inverse
 
 # apply the grid warp to the image
