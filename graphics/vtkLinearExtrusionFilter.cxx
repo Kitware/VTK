@@ -42,9 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkLinearExtrusionFilter.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 vtkLinearExtrusionFilter* vtkLinearExtrusionFilter::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -58,14 +56,14 @@ vtkLinearExtrusionFilter* vtkLinearExtrusionFilter::New()
 }
 
 
-
-
 // Create object with normal extrusion type, capping on, scale factor=1.0,
 // vector (0,0,1), and extrusion point (0,0,0).
 vtkLinearExtrusionFilter::vtkLinearExtrusionFilter()
 {
   this->ExtrusionType = VTK_NORMAL_EXTRUSION;
   this->Capping = 1;
+  this->LowerCap = 1;
+  this->UpperCap = 1;
   this->ScaleFactor = 1.0;
   this->Vector[0] = this->Vector[1] = 0.0; this->Vector[2] = 1.0;
   this->ExtrusionPoint[0] = this->ExtrusionPoint[1] = this->ExtrusionPoint[2] = 0.0;
@@ -86,7 +84,7 @@ float *vtkLinearExtrusionFilter::ViaNormal(float x[3], int id, vtkNormals *n)
 }
 
 float *vtkLinearExtrusionFilter::ViaVector(float x[3], int vtkNotUsed(id), 
-					   vtkNormals *vtkNotUsed(n))
+                                           vtkNormals *vtkNotUsed(n))
 {
   static float xNew[3];
   int i;
@@ -100,7 +98,7 @@ float *vtkLinearExtrusionFilter::ViaVector(float x[3], int vtkNotUsed(id),
 }
 
 float *vtkLinearExtrusionFilter::ViaPoint(float x[3], int vtkNotUsed(id), 
-					  vtkNormals *vtkNotUsed(n))
+                                          vtkNormals *vtkNotUsed(n))
 {
   static float xNew[3];
   int i;
@@ -132,7 +130,6 @@ void vtkLinearExtrusionFilter::Execute()
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   
-  //
   // Initialize / check input
   //
   vtkDebugMacro(<<"Linearly extruding data");
@@ -145,7 +142,7 @@ void vtkLinearExtrusionFilter::Execute()
     vtkErrorMacro(<<"No data to extrude!");
     return;
     }
-  //
+
   // Decide which vector to use for extrusion
   //
   if ( this->ExtrusionType == VTK_POINT_EXTRUSION )
@@ -162,7 +159,7 @@ void vtkLinearExtrusionFilter::Execute()
     {
     this->ExtrudePoint = &vtkLinearExtrusionFilter::ViaVector;
     }
-  //
+
   // Build cell data structure.
   //
   mesh = vtkPolyData::New();
@@ -184,7 +181,6 @@ void vtkLinearExtrusionFilter::Execute()
   cellIds = vtkIdList::New();
   cellIds->Allocate(VTK_CELL_SIZE);
 
-  //
   // Allocate memory for output. We don't copy normals because surface geometry
   // is modified. Copy all points - this is the usual requirement and it makes
   // creation of skirt much easier.
@@ -213,7 +209,7 @@ void vtkLinearExtrusionFilter::Execute()
     outputPD->CopyData(pd,ptId,ptId);
     outputPD->CopyData(pd,ptId,ptId+numPts);
     }
-  //
+
   // If capping is on, copy 2D cells to output (plus create cap)
   //
   if ( this->Capping )
@@ -224,29 +220,41 @@ void vtkLinearExtrusionFilter::Execute()
       newPolys->Allocate(inPolys->GetSize());
       for ( inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); )
         {
-        newPolys->InsertNextCell(npts,pts);
-        newPolys->InsertNextCell(npts);
-        for (i=0; i < npts; i++)
-	  {
-          newPolys->InsertCellPoint(pts[i] + numPts);
-	  }
+        if ( this->LowerCap )
+          {
+          newPolys->InsertNextCell(npts,pts);
+          }
+        if ( this->UpperCap )
+          {
+          newPolys->InsertNextCell(npts);
+          for (i=0; i < npts; i++)
+            {
+            newPolys->InsertCellPoint(pts[i] + numPts);
+            }
+          }
         }
-      }
+      }//if there are polygons to copy
     
     if ( inStrips->GetNumberOfCells() > 0 )
       {
       for ( inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
         {
-        newStrips->InsertNextCell(npts,pts);
-        newStrips->InsertNextCell(npts);
-        for (i=0; i < npts; i++)
-	  {
-          newStrips->InsertCellPoint(pts[i] + numPts);
-	  }
+        if ( this->LowerCap )
+          {
+          newStrips->InsertNextCell(npts,pts);
+          }
+        if ( this->UpperCap )
+          {
+          newStrips->InsertNextCell(npts);
+          for (i=0; i < npts; i++)
+            {
+            newStrips->InsertCellPoint(pts[i] + numPts);
+            }
+          }
         }
       }
-    }
-  //
+    }//if there are triangle strips to copy
+
   // Loop over all polygons and triangle strips searching for boundary edges. 
   // If boundary edge found, extrude triangle strip.
   //
@@ -304,7 +312,7 @@ void vtkLinearExtrusionFilter::Execute()
         } //for each edge
       } //for each polygon or triangle strip
     } //for each cell
-  //
+
   // Send data to output and release memory
   //
   output->SetPoints(newPts);
@@ -354,6 +362,8 @@ void vtkLinearExtrusionFilter::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "Capping: " << (this->Capping ? "On\n" : "Off\n");
+  os << indent << "Lower Cap: " << (this->LowerCap ? "On\n" : "Off\n");
+  os << indent << "Upper Cap: " << (this->UpperCap ? "On\n" : "Off\n");
   os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
 }
 
