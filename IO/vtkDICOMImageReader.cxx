@@ -29,7 +29,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDICOMImageReader, "1.24");
+vtkCxxRevisionMacro(vtkDICOMImageReader, "1.25");
 vtkStandardNewMacro(vtkDICOMImageReader);
 
 class vtkDICOMImageReaderVector : public vtkstd::vector<vtkstd::string>
@@ -55,25 +55,25 @@ vtkDICOMImageReader::~vtkDICOMImageReader()
   delete this->AppHelper;
   delete this->DICOMFileNames;
 
-  if (this->DirectoryName) 
-    { 
-    delete [] this->DirectoryName; 
+  if (this->DirectoryName)
+    {
+    delete [] this->DirectoryName;
     }
-  if (this->PatientName) 
-    { 
-    delete [] this->PatientName; 
+  if (this->PatientName)
+    {
+    delete [] this->PatientName;
     }
-  if (this->StudyUID) 
-    { 
-    delete [] this->StudyUID; 
+  if (this->StudyUID)
+    {
+    delete [] this->StudyUID;
     }
-  if (this->StudyID) 
-    { 
-    delete [] this->StudyID; 
+  if (this->StudyID)
+    {
+    delete [] this->StudyID;
     }
-  if (this->TransferSyntaxUID) 
-    { 
-    delete [] this->TransferSyntaxUID; 
+  if (this->TransferSyntaxUID)
+    {
+    delete [] this->TransferSyntaxUID;
     }
 }
 
@@ -130,7 +130,7 @@ void vtkDICOMImageReader::ExecuteInformation()
     this->DICOMFileNames->clear();
     this->AppHelper->Clear();
     this->Parser->ClearAllDICOMTagCallbacks();
- 
+
     this->Parser->OpenFile(this->FileName);
     this->AppHelper->RegisterCallbacks(this->Parser);
 
@@ -180,14 +180,14 @@ void vtkDICOMImageReader::ExecuteInformation()
 
       }
     vtkstd::vector<vtkstd::string>::iterator iter;
-        
+
     for (iter = this->DICOMFileNames->begin();
          iter != this->DICOMFileNames->end();
          iter++)
       {
       char* fn = (char*) (*iter).c_str();
       vtkDebugMacro( << "Trying : " << fn);
- 
+
       bool couldOpen = this->Parser->OpenFile(fn);
       if (!couldOpen)
         {
@@ -204,9 +204,9 @@ void vtkDICOMImageReader::ExecuteInformation()
       vtkDebugMacro( << "File name : " << fn );
       vtkDebugMacro( << "Slice number : " << this->AppHelper->GetSliceNumber());
       }
-    
+
     vtkstd::vector<vtkstd::pair<float, vtkstd::string> > sortedFiles;
-    
+
     this->AppHelper->GetImagePositionPatientFilenamePairs(sortedFiles, false);
     this->SetupOutputInformation(static_cast<int>(sortedFiles.size()));
 
@@ -231,7 +231,7 @@ void vtkDICOMImageReader::ExecuteInformation()
       }
     dir->Delete();
     }
-    
+
 }
 
 void vtkDICOMImageReader::ExecuteData(vtkDataObject *output)
@@ -300,8 +300,8 @@ void vtkDICOMImageReader::ExecuteData(vtkDataObject *output)
       vtkErrorMacro(<< "No memory allocated for image data!");
       return;
       }
-    
-    vtkstd::vector<vtkstd::string>::iterator fiter; 
+
+    vtkstd::vector<vtkstd::string>::iterator fiter;
 
     int count = 0;
     int numFiles = static_cast<int>(this->DICOMFileNames->size());
@@ -386,50 +386,50 @@ void vtkDICOMImageReader::SetupOutputInformation(int num_slices)
     }
   this->SetNumberOfScalarComponents(num_comp);
 
-  this->GetPixelSpacing();  
+  this->GetPixelSpacing();
 
   this->vtkImageReader2::ExecuteInformation();
 }
 
 void vtkDICOMImageReader::SetDirectoryName(const char* dn)
 {
-  vtkDebugMacro(<< this->GetClassName() << " (" << this << 
-                "): setting DirectoryName to " << (dn ? dn : "(null)") ); 
-  if ( this->DirectoryName == NULL && dn == NULL) 
-    { 
+  vtkDebugMacro(<< this->GetClassName() << " (" << this <<
+                "): setting DirectoryName to " << (dn ? dn : "(null)") );
+  if ( this->DirectoryName == NULL && dn == NULL)
+    {
     return;
-    } 
+    }
   if (this->FileName)
     {
     delete [] this->FileName;
     this->FileName = NULL;
     }
-  if ( this->DirectoryName && dn && (!strcmp(this->DirectoryName,dn))) 
-    { 
+  if ( this->DirectoryName && dn && (!strcmp(this->DirectoryName,dn)))
+    {
     return;
     }
-  if (this->DirectoryName) 
-    { 
-    delete [] this->DirectoryName; 
-    } 
-  if (dn) 
-    { 
-    this->DirectoryName = new char[strlen(dn)+1]; 
-    strcpy(this->DirectoryName,dn); 
-    } 
-   else 
-    { 
-    this->DirectoryName = NULL; 
-    } 
-  this->Modified(); 
+  if (this->DirectoryName)
+    {
+    delete [] this->DirectoryName;
+    }
+  if (dn)
+    {
+    this->DirectoryName = new char[strlen(dn)+1];
+    strcpy(this->DirectoryName,dn);
+    }
+   else
+    {
+    this->DirectoryName = NULL;
+    }
+  this->Modified();
 }
 
 double* vtkDICOMImageReader::GetPixelSpacing()
 {
   vtkstd::vector<vtkstd::pair<float, vtkstd::string> > sortedFiles;
-    
+
   this->AppHelper->GetImagePositionPatientFilenamePairs(sortedFiles, false);
-  
+
   float* spacing = this->AppHelper->GetPixelSpacing();
   this->DataSpacing[0] = spacing[0];
   this->DataSpacing[1] = spacing[1];
@@ -447,7 +447,7 @@ double* vtkDICOMImageReader::GetPixelSpacing()
 
   return this->DataSpacing;
 }
-  
+
 int vtkDICOMImageReader::GetWidth()
 {
   return this->AppHelper->GetWidth();
@@ -481,7 +481,7 @@ int vtkDICOMImageReader::GetNumberOfComponents()
 const char* vtkDICOMImageReader::GetTransferSyntaxUID()
 {
   vtkstd::string tmp = this->AppHelper->GetTransferSyntaxUID();
-  
+
   if (this->TransferSyntaxUID)
     {
     delete [] this->TransferSyntaxUID;
@@ -506,7 +506,7 @@ float vtkDICOMImageReader::GetRescaleOffset()
 const char* vtkDICOMImageReader::GetPatientName()
 {
   vtkstd::string tmp = this->AppHelper->GetPatientName();
-  
+
   if (this->PatientName)
     {
     delete [] this->PatientName;
@@ -521,7 +521,7 @@ const char* vtkDICOMImageReader::GetPatientName()
 const char* vtkDICOMImageReader::GetStudyUID()
 {
   vtkstd::string tmp = this->AppHelper->GetStudyUID();
-  
+
   if (this->StudyUID)
     {
     delete [] this->StudyUID;
@@ -536,7 +536,7 @@ const char* vtkDICOMImageReader::GetStudyUID()
 const char* vtkDICOMImageReader::GetStudyID()
 {
   vtkstd::string tmp = this->AppHelper->GetStudyID();
-  
+
   if (this->StudyID)
     {
     delete [] this->StudyID;

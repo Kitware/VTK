@@ -39,8 +39,8 @@ class VTK_IO_EXPORT vtkDICOMImageReader : public vtkImageReader2
 
   // Description:
   // Prints the ivars.
-  void PrintSelf(ostream& os, vtkIndent indent);   
-  
+  void PrintSelf(ostream& os, vtkIndent indent);
+
   // Description:
   // Set the filename for the file to read. If this method is used,
   // the reader will only read a single file.
@@ -61,14 +61,14 @@ class VTK_IO_EXPORT vtkDICOMImageReader : public vtkImageReader2
 
   // Description:
   // Set the directory name for the reader to look in for DICOM
-  // files. If this method is used, the reader will try to find 
-  // all the DICOM files in a directory. It will select the subset 
+  // files. If this method is used, the reader will try to find
+  // all the DICOM files in a directory. It will select the subset
   // corresponding to the first series UID it stumbles across and
   // it will try to build an ordered volume from them based on
   // the slice number. The volume building will be upgraded to
   // something more sophisticated in the future.
   void SetDirectoryName(const char* dn);
-  
+
   // Description:
   // Returns the directory name.
   vtkGetStringMacro(DirectoryName);
@@ -76,7 +76,7 @@ class VTK_IO_EXPORT vtkDICOMImageReader : public vtkImageReader2
   // Description:
   // Returns the pixel spacing.
   double* GetPixelSpacing();
-  
+
   // Description:
   // Returns the image width.
   int GetWidth();
@@ -129,7 +129,7 @@ class VTK_IO_EXPORT vtkDICOMImageReader : public vtkImageReader2
   // Description:
   // Get the Study ID for the last image processed.
   const char* GetStudyID();
-  
+
   // Description:
   // Get the gantry angle for the last image processed.
   float GetGantryAngle();
@@ -142,35 +142,35 @@ protected:
 
   //
   // Can I read the file?
-  // 
+  //
   virtual int CanReadFile(const char* fname);
 
   //
   // What file extensions are supported?
-  // 
+  //
   virtual const char* GetFileExtensions()
   {
     return ".dcm";
   }
 
-  // Description: 
+  // Description:
   // Return a descriptive name for the file format that might be useful in a GUI.
   virtual const char* GetDescriptiveName()
   {
     return "DICOM";
   }
-  
+
   virtual void ExecuteInformation();
   virtual void ExecuteData(vtkDataObject *out);
 
   //
-  // Constructor 
+  // Constructor
   //
   vtkDICOMImageReader();
 
   //
   // Destructor
-  // 
+  //
   virtual ~vtkDICOMImageReader();
 
   //
@@ -182,7 +182,7 @@ protected:
   // Instance of the callbacks that get the data from the file.
   //
   DICOMAppHelper* AppHelper;
-  
+
   //
   // vtkDICOMImageReaderVector wants to be a PIMPL and it will be, but not quite yet.
   //
@@ -193,7 +193,7 @@ protected:
   char* StudyUID;
   char* StudyID;
   char* TransferSyntaxUID;
-  
+
 private:
   vtkDICOMImageReader(const vtkDICOMImageReader&);  // Not implemented.
   void operator=(const vtkDICOMImageReader&);  // Not implemented.
