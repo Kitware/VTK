@@ -4,6 +4,41 @@
 #include "vtkActor2D.h"
 #include "vtkActor2DCollection.h"
 
+vtkActor2DCollection::vtkActor2DCollection()
+{
+
+}
+
+vtkActor2DCollection::~vtkActor2DCollection()
+{
+// Traverse the list 
+// Unregister the actors (items)
+// Delete the list elements
+
+  vtkCollectionElement* indexElem;
+  vtkCollectionElement* delElem;
+  vtkActor2D* tempActor;
+
+  delElem = this->Top;
+
+  for (indexElem = this->Top->Next;
+         indexElem != NULL;
+           indexElem = indexElem->Next)
+    {
+     tempActor = (vtkActor2D*) delElem->Item;
+     tempActor->UnRegister(this);
+     delete delElem;
+     delElem = indexElem;	
+    }  
+
+  // The last item on the list will fall through,
+  // so delete it here
+  tempActor = (vtkActor2D*) delElem->Item;
+  tempActor->UnRegister(this);
+  delete delElem;
+
+}
+
 // Description:
 // Render the collection of 2D actors.
 void vtkActor2DCollection::Render(vtkViewport* viewport)
@@ -142,6 +177,16 @@ void vtkActor2DCollection::Sort()
 
   delete[] actorPtrArr;
 }
+
+
+
+
+
+
+
+
+
+
 
 
 

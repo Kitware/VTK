@@ -58,9 +58,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkActor2DCollection : public vtkCollection
 {
  public:
+  vtkActor2DCollection();
+  ~vtkActor2DCollection();
+
   static vtkActor2DCollection *New() {return new vtkActor2DCollection;};
   const char *GetClassName() {return "vtkActor2DCollection";};
-
   void Sort();
   void AddItem(vtkActor2D *a);
   void RemoveItem(vtkActor2D *a);
