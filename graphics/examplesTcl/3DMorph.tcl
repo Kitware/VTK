@@ -79,7 +79,7 @@ vtkCamera camera
 ren1 SetActiveCamera camera
 
 #  now  make a renderer and tell it about lights and actors
-renWin SetSize 500 575
+renWin SetSize 300 350
   
 ren1 AddActor blobby
 ren1 SetBackground 1 1 1
