@@ -69,7 +69,7 @@ public:
 
   // Description:
   // Set / get the file name of vtk data file to read.
-  void SetFileName(char *name);
+  void SetFileName(const char *name);
   char *GetFileName();
 
   // Description:

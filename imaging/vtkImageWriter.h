@@ -65,7 +65,7 @@ public:
   // Specify file name for the image file. You should specify either
   // a FileName or a FilePrefix. Use FilePrefix if the data is stored 
   // in multiple files.
-  void SetFileName(char *);
+  void SetFileName(const char *);
   vtkGetStringMacro(FileName);
 
   // Description:

@@ -98,6 +98,9 @@ void vtkStructuredPointsWriter::WriteData()
   //
   *fp << "DATASET STRUCTURED_POINTS\n";
 
+  // Write data owned by the dataset
+  this->WriteDataSetData(fp, input);
+
   input->GetDimensions(dim);
   *fp << "DIMENSIONS " << dim[0] << " " << dim[1] << " " << dim[2] << "\n";
 

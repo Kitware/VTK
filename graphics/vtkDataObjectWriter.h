@@ -71,7 +71,7 @@ public:
               
   // Description:
   // Methods delegated to vtkDataWriter, see vtkDataWriter.
-  void SetFileName(char *filename) {this->Writer->SetFileName(filename);};
+  void SetFileName(const char *filename) {this->Writer->SetFileName(filename);};
   char *GetFileName() {return this->Writer->GetFileName();};
   void SetHeader(char *header) {this->Writer->SetHeader(header);};
   char *GetHeader() {return this->Writer->GetHeader();};

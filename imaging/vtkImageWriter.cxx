@@ -151,7 +151,7 @@ vtkImageData *vtkImageWriter::GetInput()
 
 //----------------------------------------------------------------------------
 // This function sets the name of the file. 
-void vtkImageWriter::SetFileName(char *name)
+void vtkImageWriter::SetFileName(const char *name)
 {
   if ( this->FileName && name && (!strcmp(this->FileName,name)))
     {

@@ -94,6 +94,11 @@ void vtkPolyDataWriter::WriteData()
   // Write polygonal data specific stuff
   //
   *fp << "DATASET POLYDATA\n"; 
+  
+  //
+  // Write data owned by the dataset
+  this->WriteDataSetData(fp, input);
+
   this->WritePoints(fp, input->GetPoints());
 
   if (input->GetVerts())

@@ -97,6 +97,9 @@ void vtkRectilinearGridWriter::WriteData()
   //
   *fp << "DATASET RECTILINEAR_GRID\n"; 
 
+  // Write data owned by the dataset
+  this->WriteDataSetData(fp, input);
+
   input->GetDimensions(dim);
   *fp << "DIMENSIONS " << dim[0] << " " << dim[1] << " " << dim[2] << "\n";
 

@@ -80,7 +80,7 @@ unsigned long int vtkUnstructuredGridReader::GetMTime()
 }
 
 // Specify file name of vtk polygonal data file to read.
-void vtkUnstructuredGridReader::SetFileName(char *name) 
+void vtkUnstructuredGridReader::SetFileName(const char *name) 
 {
   this->Reader->SetFileName(name);
 }
@@ -237,7 +237,13 @@ void vtkUnstructuredGridReader::Execute()
         break;
         }
 
-      if ( ! strncmp(this->Reader->LowerCase(line),"points",6) )
+      if (! strncmp(this->Reader->LowerCase(line), "field", 5))
+	{
+	vtkFieldData* fd = this->Reader->ReadFieldData();
+	output->SetFieldData(fd);
+	fd->Delete(); // ?
+	}
+      else if ( ! strncmp(line, "points",6) )
         {
         if (!this->Reader->Read(&numPts))
           {

@@ -79,7 +79,7 @@ unsigned long int vtkDataObjectReader::GetMTime()
 }
 
 // Specify file name of vtk field data file to read.
-void vtkDataObjectReader::SetFileName(char *name) 
+void vtkDataObjectReader::SetFileName(const char *name) 
 {
   this->Reader->SetFileName(name);
 }

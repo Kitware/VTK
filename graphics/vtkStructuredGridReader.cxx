@@ -309,7 +309,13 @@ void vtkStructuredGridReader::Execute()
 	break;
 	}
 
-      if ( ! strncmp(this->Reader->LowerCase(line),"dimensions",10) )
+      if (! strncmp(this->Reader->LowerCase(line), "field", 5))
+	{
+	vtkFieldData* fd = this->Reader->ReadFieldData();
+	output->SetFieldData(fd);
+	fd->Delete(); // ?
+	}
+      else if ( ! strncmp(line, "dimensions",10) )
         {
         int dim[3];
         if (!(this->Reader->Read(dim) && 

@@ -122,7 +122,7 @@ unsigned long int vtkDataSetReader::GetMTime()
 }
 
 // Specify file name of vtk data file to read.
-void vtkDataSetReader::SetFileName(char *name) 
+void vtkDataSetReader::SetFileName(const char *name) 
 {
   this->Reader->SetFileName(name);
 }

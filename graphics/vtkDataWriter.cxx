@@ -1042,3 +1042,16 @@ void vtkDataWriter::PrintSelf(ostream& os, vtkIndent indent)
     }
 
 }
+
+int vtkDataWriter::WriteDataSetData(ostream *fp, vtkDataSet *ds)
+{
+  vtkFieldData* field = ds->GetFieldData();
+  if (field && field->GetNumberOfTuples() > 0) 
+    {
+    if ( !this->WriteFieldData(fp, field) ) 
+      {
+      return 0; // we tried to write field data, but we couldn't
+      }
+    }
+  return 1;
+}

@@ -83,7 +83,7 @@ unsigned long int vtkRectilinearGridReader::GetMTime()
 
 //----------------------------------------------------------------------------
 // Specify file name of vtk polygonal data file to read.
-void vtkRectilinearGridReader::SetFileName(char *name) 
+void vtkRectilinearGridReader::SetFileName(const char *name) 
 {
   this->Reader->SetFileName(name);
 }
@@ -261,7 +261,7 @@ void vtkRectilinearGridReader::ExecuteInformation()
 }
 
 //----------------------------------------------------------------------------
-// This used to be the execute method.
+
 void vtkRectilinearGridReader::Execute()
 {
   int numPts=0, npts, ncoords, numCells=0, ncells;
@@ -322,7 +322,13 @@ void vtkRectilinearGridReader::Execute()
 	break;
 	}
 
-      if ( ! strncmp(this->Reader->LowerCase(line),"dimensions",10) )
+      if (! strncmp(this->Reader->LowerCase(line), "field", 5))
+	{
+	vtkFieldData* fd = this->Reader->ReadFieldData();
+	output->SetFieldData(fd);
+	fd->Delete(); // ?
+	}
+      else if ( ! strncmp(line,"dimensions",10) )
         {
         int dim[3];
         if (!(this->Reader->Read(dim) && 

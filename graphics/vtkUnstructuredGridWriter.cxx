@@ -96,6 +96,10 @@ void vtkUnstructuredGridWriter::WriteData()
   // Write unstructured grid specific stuff
   //
   *fp << "DATASET UNSTRUCTURED_GRID\n"; 
+
+  // Write data owned by the dataset
+  this->WriteDataSetData(fp, input);
+
   this->WritePoints(fp, input->GetPoints());
   this->WriteCells(fp, input->GetCells(),"CELLS");
   //

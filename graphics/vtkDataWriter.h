@@ -197,7 +197,12 @@ public:
   // Description:
   // Write out the field data.
   int WriteFieldData(ostream *fp, vtkFieldData *f);
-  
+
+  // Description:
+  // Write out the data associated with the dataset (i.e. field data owned by
+  // the dataset itself - distinct from that owned by the cells or points).
+  int WriteDataSetData(ostream *fp, vtkDataSet *ds);
+
   // Description:
   // Close a vtk file.
   void CloseVTKFile(ostream *fp);

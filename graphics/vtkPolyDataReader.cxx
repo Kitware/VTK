@@ -80,7 +80,7 @@ unsigned long int vtkPolyDataReader::GetMTime()
 }
 
 // Specify file name of vtk polygonal data file to read.
-void vtkPolyDataReader::SetFileName(char *name) 
+void vtkPolyDataReader::SetFileName(const char *name) 
 {
   this->Reader->SetFileName(name);
 }
@@ -233,7 +233,13 @@ void vtkPolyDataReader::Execute()
 	break;
 	}
 
-      if ( ! strncmp(this->Reader->LowerCase(line),"points",6) )
+      if (! strncmp(this->Reader->LowerCase(line), "field", 5))
+	{
+	vtkFieldData* fd = this->Reader->ReadFieldData();
+	output->SetFieldData(fd);
+	fd->Delete(); // ?
+	}
+      else if ( ! strncmp(line, "points",6) )
         {
         if (!this->Reader->Read(&numPts))
           {

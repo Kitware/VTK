@@ -288,6 +288,8 @@ protected:
   int ReadLutData(vtkDataSetAttributes *a);
   int ReadTCoordsData(vtkDataSetAttributes *a, int num);
 
+  int ReadDataSetData(vtkDataSet *ds);
+
   char *Header;
 
 };
