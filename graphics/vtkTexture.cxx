@@ -53,6 +53,7 @@ vtkTexture::vtkTexture()
   this->Input = NULL;
   this->LookupTable = NULL;
   this->MappedScalars = NULL;
+  this->MapColorScalarsThroughLookupTable = 0;
   this->SelfCreatedLookupTable = 0;
 }
 

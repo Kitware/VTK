@@ -358,8 +358,9 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
       }
 
     // make sure using unsigned char data of color scalars type
-    if (strcmp(scalars->GetDataType(),"unsigned char") ||
-        strcmp(scalars->GetScalarType(),"ColorScalar") )
+    if (aTexture->GetMapColorScalarsThroughLookupTable () ||
+        (strcmp(scalars->GetDataType(),"unsigned char") ||
+        strcmp(scalars->GetScalarType(),"ColorScalar")) )
       {
       mappedScalars = aTexture->GetMappedScalars ();
       }

@@ -106,6 +106,22 @@ public:
   vtkBooleanMacro(Interpolate,int);
 
   // Description:
+  // Turn on/off the mapping of color scalars through the lookup table.
+  // The default is Off.
+  //
+  // If Off, unsigned char ColorScalars will be used
+  // directly as texture.
+  //
+  // If On, unsigned char ColorScalars will be mapped through the
+  // lookup table.
+  //
+  // This ivar does not affect other scalars like unsigned short, float,
+  // etc. These scalars are always mapped thorugh lookup tables.
+  vtkGetMacro(MapColorScalarsThroughLookupTable,int);
+  vtkSetMacro(MapColorScalarsThroughLookupTable,int);
+  vtkBooleanMacro(MapColorScalarsThroughLookupTable,int);
+
+  // Description:
   // Specify the data for the texture map.
   vtkSetObjectMacro(Input,vtkStructuredPoints);
   vtkGetObjectMacro(Input,vtkStructuredPoints);
@@ -130,6 +146,7 @@ protected:
   int   Repeat;
   int   Interpolate;
   int   SelfCreatedLookupTable;
+  int   MapColorScalarsThroughLookupTable;
   vtkStructuredPoints *Input;
   vtkLookupTable *LookupTable;
   vtkColorScalars *MappedScalars;
