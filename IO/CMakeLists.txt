@@ -58,6 +58,7 @@ vtkUnstructuredGridWriter
 vtkVolume16Reader
 vtkVolumeReader
 vtkWriter
+vtkXMLParser
 )
 
 # for cmake version 1.1 and later
@@ -83,9 +84,10 @@ ABSTRACT_FILES(
 vtkEnSightReader
 vtkVolumeReader
 vtkWriter
+vtkXMLParser
 )
 
-LINK_LIBRARIES( vtkpng vtkzlib vtkjpeg vtktiff )
+LINK_LIBRARIES( vtkpng vtkzlib vtkjpeg vtktiff vtkexpat )
 
 # if we are wrapping into Tcl then add the library and extra 
 # source files
