@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkSetGet_h
 #define __vtkSetGet_h
 #include <string.h>
-
+#include "vtkWin32Header.h"
 //
 // Some constants used throughout code
 //
@@ -442,7 +442,8 @@ extern VTK_EXPORT void vtkOutputWindowDisplayText(const char*);
 //
 #define vtkGenericWarningMacro(x) \
 { if (vtkObject::GetGlobalWarningDisplay()) {char *vtkmsgbuff; ostrstream vtkmsg; \
-      vtkmsg << "Generic Warning: In " __FILE__ ", line " << __LINE__ << "\n" x << "\nPress Cancel to supress any further messages." << ends; \
+      vtkmsg << "Generic Warning: In " __FILE__ ", line " << __LINE__ << "\n" x \
+      << ends; \
       vtkmsgbuff = vtkmsg.str(); \
       vtkOutputWindowDisplayText(vtkmsgbuff);\
       vtkmsg.rdbuf()->freeze(0);}}
@@ -457,7 +458,7 @@ extern VTK_EXPORT void vtkOutputWindowDisplayText(const char*);
 #define vtkDebugMacro(x) \
 { if (this->Debug && vtkObject::GetGlobalWarningDisplay()) \
     { char *vtkmsgbuff; ostrstream vtkmsg; \
-      vtkmsg << "Debug: In " __FILE__ ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\nPress Cancel to supress any further messages." << ends; \
+      vtkmsg << "Debug: In " __FILE__ ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x  << ends; \
       vtkmsgbuff = vtkmsg.str(); \
       vtkOutputWindowDisplayText(vtkmsgbuff);\
       vtkmsg.rdbuf()->freeze(0);}}
@@ -468,7 +469,7 @@ extern VTK_EXPORT void vtkOutputWindowDisplayText(const char*);
 //
 #define vtkWarningMacro(x) \
 { if (vtkObject::GetGlobalWarningDisplay()) {char *vtkmsgbuff; ostrstream vtkmsg; \
-      vtkmsg << "Warning: In " __FILE__ ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\nPress Cancel to supress any further messages." << ends; \
+      vtkmsg << "Warning: In " __FILE__ ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << ends; \
       vtkmsgbuff = vtkmsg.str(); \
       vtkOutputWindowDisplayText(vtkmsgbuff);\
       vtkmsg.rdbuf()->freeze(0);}}
@@ -479,7 +480,7 @@ extern VTK_EXPORT void vtkOutputWindowDisplayText(const char*);
 //
 #define vtkErrorMacro(x) \
 { if (vtkObject::GetGlobalWarningDisplay()) {char *vtkmsgbuff; ostrstream vtkmsg; \
-      vtkmsg << "ERROR: In " __FILE__ ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\nPress Cancel to supress any further messages." << ends; \
+      vtkmsg << "ERROR: In " __FILE__ ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << ends; \
       vtkmsgbuff = vtkmsg.str(); \
       vtkOutputWindowDisplayText(vtkmsgbuff);\
       vtkmsg.rdbuf()->freeze(0); vtkObject::BreakOnError();}}
