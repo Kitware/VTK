@@ -63,6 +63,10 @@ vtkPolyDataMapper2D::vtkPolyDataMapper2D()
 
 vtkPolyDataMapper2D::~vtkPolyDataMapper2D()
 {  
+  if (this->TransformCoordinate)
+    {
+    this->TransformCoordinate->UnRegister(this);
+    }
   if (this->LookupTable)
     {
     this->LookupTable->UnRegister(this);
