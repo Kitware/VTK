@@ -48,6 +48,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define vtkCloseSocketMacro(sock) (close(sock))
 #endif
 
+static const int VTK_MAX_MSG_SIZE=16000;
+
 //------------------------------------------------------------------------------
 vtkSocketCommunicator* vtkSocketCommunicator::New()
 {
@@ -140,7 +142,18 @@ static int sendMessage(T* data, int length, int tag, int sock)
 {
   // Need to check the return value of these
   send(sock, (char *)&tag, sizeof(int), 0);
-  send(sock, (char *)data, length*sizeof(T), 0);
+
+  int totalLength = length*sizeof(T);
+  if ( totalLength < VTK_MAX_MSG_SIZE )
+    send(sock, (char *)data, totalLength, 0);
+  else
+    {
+    int num = totalLength/VTK_MAX_MSG_SIZE;
+    for(int i=0; i<num; i++)
+      send(sock, &(((char *)data)[i*VTK_MAX_MSG_SIZE]), VTK_MAX_MSG_SIZE, 0);
+    send(sock, &(((char *)data)[num*VTK_MAX_MSG_SIZE]), totalLength-num*VTK_MAX_MSG_SIZE, 0);
+    }
+
   return 1;
 }
 
@@ -201,7 +214,17 @@ static int receiveMessage(T* data, int length, int tag, int sock)
     return 0;
 
   recv(sock, (char *)&recvTag, sizeof(int), 0);
-  recv(sock, (char *)data, length*sizeof(T), 0);
+  int totalLength = length*sizeof(T);
+  if ( totalLength < VTK_MAX_MSG_SIZE )
+    recv(sock, (char *)data, totalLength, 0);
+  else
+    {
+    int num = totalLength/VTK_MAX_MSG_SIZE;
+    for(int i=0; i<num; i++)
+      recv(sock, &(((char *)data)[i*VTK_MAX_MSG_SIZE]), VTK_MAX_MSG_SIZE, 0);
+    recv(sock, &(((char *)data)[num*VTK_MAX_MSG_SIZE]), totalLength-num*VTK_MAX_MSG_SIZE, 0);
+    }
+  
 
   return 1;
 
@@ -222,7 +245,6 @@ static int receiveFromAnySource(T* data, int length,
       success = receiveMessage(data, length, tag, sockets[i]);
       if (success)
 	{
-	cout << "success" << endl;
 	return i;
 	}
       }
@@ -237,7 +259,6 @@ int vtkSocketCommunicator::Receive(int *data, int length, int remoteProcessId,
 {
   int status;
 
-  cout << remoteProcessId << endl;
   if ( checkForError(remoteProcessId, this->NumberOfProcesses) )
     {
     return 0;
