@@ -66,11 +66,11 @@ vtkDividingCubes::vtkDividingCubes()
 }
 
 static float Normals[8][3]; //voxel normals
-static vtkFloatPoints *NewPts; //points being generated
-static vtkFloatNormals *NewNormals; //points being generated
+static vtkPoints *NewPts; //points being generated
+static vtkNormals *NewNormals; //points being generated
 static vtkCellArray *NewVerts; //verts being generated
-static vtkFloatNormals *SubNormals; //sub-volume normals
-static vtkFloatScalars *SubScalars; //sub-volume scalars
+static vtkNormals *SubNormals; //sub-volume normals
+static vtkScalars *SubScalars; //sub-volume scalars
 static int SubSliceSize;
 
 void vtkDividingCubes::Execute()
@@ -78,7 +78,7 @@ void vtkDividingCubes::Execute()
   int i, j, k, idx;
   vtkScalars *inScalars;
   vtkIdList voxelPts(8); voxelPts.SetNumberOfIds(8);
-  vtkFloatScalars voxelScalars(8); voxelScalars.SetNumberOfScalars(8);
+  vtkScalars voxelScalars; voxelScalars.SetNumberOfScalars(8);
   float origin[3], x[3], ar[3], h[3];
   int dim[3], jOffset, kOffset, sliceSize;
   int above, below, vertNum, n[3];
@@ -110,8 +110,8 @@ void vtkDividingCubes::Execute()
   input->GetOrigin(origin);
 
   // creating points
-  NewPts = vtkFloatPoints::New(); NewPts->Allocate(500000,500000);
-  NewNormals = vtkFloatNormals::New(); NewNormals->Allocate(500000,500000);
+  NewPts = vtkPoints::New(); NewPts->Allocate(500000,500000);
+  NewNormals = vtkNormals::New(); NewNormals->Allocate(500000,500000);
   NewVerts = vtkCellArray::New(); NewVerts->Allocate(500000,500000);
   NewVerts->InsertNextCell(0); //temporary cell count
 //
@@ -126,10 +126,10 @@ void vtkDividingCubes::Execute()
     }
 
   SubSliceSize = n[0] * n[1];
-  SubNormals = vtkFloatNormals::New();
+  SubNormals = vtkNormals::New();
   SubNormals->SetNumberOfNormals(SubSliceSize*n[2]);
 
-  SubScalars = vtkFloatScalars::New();
+  SubScalars = vtkScalars::New();
   SubScalars->SetNumberOfScalars(SubSliceSize*n[2]);
 
   for ( k=0; k < (dim[2]-1); k++)
@@ -179,7 +179,8 @@ void vtkDividingCubes::Execute()
             input->GetPointGradient(i,j+1,k+1, inScalars, Normals[6]);
             input->GetPointGradient(i+1,j+1,k+1, inScalars, Normals[7]);
 
-            this->SubDivide(x, n, h, voxelScalars.GetPointer(0));
+            this->SubDivide(x, n, h, 
+			    ((vtkFloatArray *)voxelScalars.GetData())->GetPointer(0));
             }
           }
         }
@@ -217,8 +218,8 @@ void vtkDividingCubes::SubDivide(float origin[3], int dim[3], float h[3],
   float p[3], w[8], n[3], *normal, offset[3];
   static vtkIdList subVoxelPts(8); subVoxelPts.SetNumberOfIds(8);
   static vtkVoxel subVoxel;
-  static vtkFloatScalars subVoxelScalars(8); subVoxelScalars.SetNumberOfScalars(8);
-  static vtkFloatNormals subVoxelNormals(8); subVoxelNormals.SetNumberOfNormals(8);
+  static vtkScalars subVoxelScalars; subVoxelScalars.SetNumberOfScalars(8);
+  static vtkNormals subVoxelNormals; subVoxelNormals.SetNumberOfNormals(8);
   subVoxelScalars.ReferenceCountingOff();
   subVoxelScalars.Reset();
   subVoxelNormals.ReferenceCountingOff();

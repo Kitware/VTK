@@ -193,23 +193,23 @@ void vtkImageMarchingCubes::Execute()
     estimatedSize = 1024;
     }
   vtkDebugMacro(<< "Estimated number of points/triangles: " << estimatedSize);
-  this->Points = vtkFloatPoints::New();
+  this->Points = vtkPoints::New();
   this->Points->Allocate(estimatedSize,estimatedSize/2);
   this->Triangles = vtkCellArray::New();
   this->Triangles->Allocate(estimatedSize,estimatedSize/2);
   if (this->ComputeScalars)
     {
-    this->Scalars = vtkFloatScalars::New();
+    this->Scalars = vtkScalars::New();
     this->Scalars->Allocate(estimatedSize,estimatedSize/2);
     }
   if (this->ComputeNormals)
     {
-    this->Normals = vtkFloatNormals::New();
+    this->Normals = vtkNormals::New();
     this->Normals->Allocate(estimatedSize,estimatedSize/2);
     }
   if (this->ComputeGradients)
     {
-    this->Gradients = vtkFloatVectors::New();
+    this->Gradients = vtkVectors::New();
     this->Gradients->Allocate(estimatedSize,estimatedSize/2);
     }
 

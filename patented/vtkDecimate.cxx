@@ -150,6 +150,7 @@ void vtkDecimate::Execute()
   int size;
   int abort = 0;
   vtkPolyData *input=(vtkPolyData *)this->Input;
+  vtkPolyData *output=(vtkPolyData *)this->Output;
 
   // do it this way because some compilers can't handle construction of
   // static objects in file scope.
@@ -211,8 +212,8 @@ void vtkDecimate::Execute()
     }
   else
     {
-    this->Output->CopyStructure(this->Input);
-    this->Output->GetPointData()->PassData(this->Input->GetPointData());
+    output->CopyStructure(input);
+    output->GetPointData()->PassData(input->GetPointData());
     vtkWarningMacro(<<"Maximum iterations == 0: passing data through unchanged");
     return;
     }
@@ -407,9 +408,9 @@ void vtkDecimate::CreateOutput(int numPts, int numTris, int numEliminated,
   unsigned short int ncells;
   int *cells;
   int ptId, cellId, npts, *pts;
-  vtkFloatPoints *newPts;
+  vtkPoints *newPts;
   vtkCellArray *newPolys;
-  vtkFloatScalars *newScalars = NULL;
+  vtkScalars *newScalars = NULL;
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   
@@ -432,7 +433,7 @@ void vtkDecimate::CreateOutput(int numPts, int numTris, int numEliminated,
     outputPD->CopyScalarsOff();
     }
   outputPD->CopyAllocate(pd,numNewPts);
-  newPts = vtkFloatPoints::New();
+  newPts = vtkPoints::New();
   newPts->SetNumberOfPoints(numNewPts);
 
   for (ptId=0; ptId < numPts; ptId++)
@@ -446,7 +447,7 @@ void vtkDecimate::CreateOutput(int numPts, int numTris, int numEliminated,
 
   if ( this->GenerateErrorScalars )
     {
-    newScalars = vtkFloatScalars::New();
+    newScalars = vtkScalars::New();
     newScalars->SetNumberOfScalars(numNewPts);
     for (ptId=0; ptId < numPts; ptId++)
       if ( map[ptId] > -1 )

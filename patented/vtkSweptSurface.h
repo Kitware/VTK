@@ -188,7 +188,7 @@ protected:
 private:
   //used to perform computations
   vtkIdList *IdList;
-  vtkFloatScalars *VoxelScalars;
+  vtkScalars *VoxelScalars;
   vtkTransform *T;
 
   void GetRelativePosition(vtkTransform &t, float *origin, float *position);

@@ -82,7 +82,7 @@ vtkSweptSurface::vtkSweptSurface()
   this->AdjustDistance = 0.040;
 
   this->IdList = vtkIdList::New(); this->IdList->SetNumberOfIds(8);
-  this->VoxelScalars = vtkFloatScalars::New(); this->VoxelScalars->SetNumberOfScalars(8);
+  this->VoxelScalars = vtkScalars::New(); this->VoxelScalars->SetNumberOfScalars(8);
   this->T = vtkTransform::New();
 
 }
@@ -131,11 +131,11 @@ void vtkSweptSurface::Execute()
   vtkDebugMacro(<<"Creating swept surface");
 
   // make sure there is input
-  pd = this->Input->GetPointData();
+  pd = input->GetPointData();
   outPD = output->GetPointData();
   
   inScalars = pd->GetScalars();
-  if ( (numPts=this->Input->GetNumberOfPoints()) < 1 ||
+  if ( (numPts=input->GetNumberOfPoints()) < 1 ||
   inScalars == NULL )
     {
     vtkErrorMacro(<<"No input scalars defined!");
@@ -179,7 +179,7 @@ void vtkSweptSurface::Execute()
 //
   numOutPts = this->SampleDimensions[0] * this->SampleDimensions[1] * 
               this->SampleDimensions[2];
-  newScalars = inScalars->MakeObject(numOutPts);
+  newScalars = (vtkScalars *)inScalars->MakeObject();
   newScalars->SetNumberOfScalars(numOutPts);
   for (i = 0; i < numOutPts; i++) newScalars->SetScalar(i,this->FillValue);
 //
@@ -358,9 +358,10 @@ void vtkSweptSurface::ComputeBounds(float origin[3], float spacing[3], float bbo
   int i, j, k, ii, idx, dim;
   float *bounds;
   float xmin[3], xmax[3], x[4], xTrans[4], h;
+  vtkStructuredPoints *input=(vtkStructuredPoints *)this->Input;
 
   // Compute eight points of bounding box (used later)
-  bounds = this->Input->GetBounds();
+  bounds = input->GetBounds();
 
   for (idx=0, k=4; k<6; k++) 
     {

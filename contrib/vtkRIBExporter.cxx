@@ -581,7 +581,7 @@ void vtkRIBExporter::WriteActor(vtkActor *anActor)
   if (geometryFilter) geometryFilter->Delete();
 }
 
-void vtkRIBExporter::WritePolygons (vtkPolyData *polyData, vtkColorScalars *c, vtkProperty *aProperty)
+void vtkRIBExporter::WritePolygons (vtkPolyData *polyData, vtkScalars *s, vtkProperty *aProperty)
 {
   float vertexColors[100][3];
   RtFloat *TCoords;
@@ -624,7 +624,7 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData, vtkColorScalars *c, v
   t = polyData->GetPointData()->GetTCoords();
   if ( t ) 
     {
-    tDim = t->GetDimension();
+    tDim = t->GetNumberOfComponents();
     if (tDim != 2)
       {
       vtkDebugMacro(<< "Currently only 2d textures are supported.\n");
@@ -636,7 +636,6 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData, vtkColorScalars *c, v
   !(n=polyData->GetPointData()->GetNormals()) ) n = 0;
 
   for (polys->InitTraversal(); polys->GetNextCell(npts,pts); )
-
     { 
     if (!n)
       polygon.ComputeNormal(p,npts,pts,poly_norm);
@@ -644,9 +643,9 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData, vtkColorScalars *c, v
     for (j = 0; j < npts; j++) 
       {
       k = j;
-      if (c) 
+      if (s) 
         {
-	colors = c->GetColor (pts[k]);
+	colors = s->GetColor(pts[k]);
 	vertexColors[k][0] = colors[0] / 255.0;
 	vertexColors[k][1] = colors[1] / 255.0;
 	vertexColors[k][2] = colors[2] / 255.0;
@@ -677,49 +676,49 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData, vtkColorScalars *c, v
       vertexPoints[k][1] = points[1]; 
       vertexPoints[k][2] = points[2];
       }
-      fprintf (this->FilePtr, "Polygon ");
-      fprintf (this->FilePtr, "\"P\" [");
-      for (kk = 0; kk < npts; kk++)
-        {
-	fprintf (this->FilePtr, "%f %f %f ",
-	    vertexPoints[kk][0], vertexPoints[kk][1], vertexPoints[kk][2]);
-        }
-      fprintf (this->FilePtr, "] ");
-
-      fprintf (this->FilePtr, "\"N\" [");
-      for (kk = 0; kk < npts; kk++)
-        {
-	fprintf (this->FilePtr, "%f %f %f ",
-	    vertexNormals[kk][0], vertexNormals[kk][1], vertexNormals[kk][2]);
-        }
-      fprintf (this->FilePtr, "] ");
-
-
-      if (c)
-       {
-        fprintf (this->FilePtr, "\"Cs\" [");
-        for (kk = 0; kk < npts; kk++)
-          {
-          fprintf (this->FilePtr, "%f %f %f ",
-              vertexColors[kk][0], vertexColors[kk][1], vertexColors[kk][2]);
-          }
-        fprintf (this->FilePtr, "] ");
+    fprintf (this->FilePtr, "Polygon ");
+    fprintf (this->FilePtr, "\"P\" [");
+    for (kk = 0; kk < npts; kk++)
+      {
+      fprintf (this->FilePtr, "%f %f %f ",
+	       vertexPoints[kk][0], vertexPoints[kk][1], vertexPoints[kk][2]);
       }
-      if (t)
-       {
-        fprintf (this->FilePtr, "\"st\" [");
-        for (kk = 0; kk < npts; kk++)
-          {
-          fprintf (this->FilePtr, "%f %f ",
-              vertexTCoords[kk][0], vertexTCoords[kk][1]);
-          }
-        fprintf (this->FilePtr, "] ");
+    fprintf (this->FilePtr, "] ");
+
+    fprintf (this->FilePtr, "\"N\" [");
+    for (kk = 0; kk < npts; kk++)
+      {
+      fprintf (this->FilePtr, "%f %f %f ",
+	       vertexNormals[kk][0], vertexNormals[kk][1], vertexNormals[kk][2]);
       }
-      fprintf (this->FilePtr, "\n");
-  }
+    fprintf (this->FilePtr, "] ");
+
+
+    if (s)
+      {
+      fprintf (this->FilePtr, "\"Cs\" [");
+      for (kk = 0; kk < npts; kk++)
+	{
+	fprintf (this->FilePtr, "%f %f %f ",
+		 vertexColors[kk][0], vertexColors[kk][1], vertexColors[kk][2]);
+	}
+      fprintf (this->FilePtr, "] ");
+      }
+    if (t)
+      {
+      fprintf (this->FilePtr, "\"st\" [");
+      for (kk = 0; kk < npts; kk++)
+	{
+	fprintf (this->FilePtr, "%f %f ",
+		 vertexTCoords[kk][0], vertexTCoords[kk][1]);
+	}
+      fprintf (this->FilePtr, "] ");
+      }
+    fprintf (this->FilePtr, "\n");
+    }
 }
 
-void vtkRIBExporter::WriteStrips (vtkPolyData *polyData, vtkColorScalars *c, vtkProperty *aProperty)
+void vtkRIBExporter::WriteStrips (vtkPolyData *polyData, vtkScalars *s, vtkProperty *aProperty)
 {
   float vertexColors[100][3];
   RtFloat *TCoords;
@@ -764,7 +763,7 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData, vtkColorScalars *c, vtk
   t = polyData->GetPointData()->GetTCoords();
   if ( t ) 
     {
-    tDim = t->GetDimension();
+    tDim = t->GetNumberOfComponents();
     if (tDim != 2)
       {
       vtkDebugMacro(<< "Currently only 2d textures are supported.\n");
@@ -785,102 +784,102 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData, vtkColorScalars *c, vtk
     p3 = pts[2];
     for (j = 0; j < (npts-2); j++) 
       {
-        if (j%2)
-          {
-          idx[0] = p2;
-          idx[1] = p1;
-          idx[2] = p3;
-          }
-        else
-          {
-          idx[0] = p1;
-          idx[1] = p2;
-          idx[2] = p3;
-          }
+      if (j%2)
+	{
+	idx[0] = p2;
+	idx[1] = p1;
+	idx[2] = p3;
+	}
+      else
+	{
+	idx[0] = p1;
+	idx[1] = p2;
+	idx[2] = p3;
+	}
 
-	if (!n)
-	  polygon.ComputeNormal (p, 3, idx, poly_norm);
-    
-	// build colors, texture coordinates and normals for the triangle
-	for (k = 0; k < 3; k++)
+      if (!n)
+	polygon.ComputeNormal (p, 3, idx, poly_norm);
+
+      // build colors, texture coordinates and normals for the triangle
+      for (k = 0; k < 3; k++)
+	{
+	if (s) 
 	  {
-	    if (c) 
-	      {
-		colors = c->GetColor (idx[k]);
-		vertexColors[k][0] = colors[0] / 255.0;
-		vertexColors[k][1] = colors[1] / 255.0;
-		vertexColors[k][2] = colors[2] / 255.0;
-	      }
-	    if (t)
-	      {
-		TCoords = t->GetTCoord (idx[k]);
-		vertexTCoords[k][0] = TCoords[0];
-		// Renderman Textures have origin at upper left
-		vertexTCoords[k][1] = 1.0 - TCoords[1];
-	      }
-	    if (n) 
-	      {
-		normals = n->GetNormal (idx[k]);
-		vertexNormals[k][0] = normals[0];
-		vertexNormals[k][1] = normals[1];
-
-		vertexNormals[k][2] = normals[2];
-	      }
-	    else 
-	      {
-		vertexNormals[k][0] = poly_norm[0];
-		vertexNormals[k][1] = poly_norm[1];
-		vertexNormals[k][2] = poly_norm[2];
-	      }
-	    points = p->GetPoint(idx[k]);
-	    vertexPoints[k][0] = points[0];
-	    vertexPoints[k][1] = points[1]; 
-	    vertexPoints[k][2] = points[2];
+	  colors = s->GetColor(idx[k]);
+	  vertexColors[k][0] = colors[0] / 255.0;
+	  vertexColors[k][1] = colors[1] / 255.0;
+	  vertexColors[k][2] = colors[2] / 255.0;
 	  }
+	if (t)
+	  {
+	  TCoords = t->GetTCoord (idx[k]);
+	  vertexTCoords[k][0] = TCoords[0];
+	  // Renderman Textures have origin at upper left
+	  vertexTCoords[k][1] = 1.0 - TCoords[1];
+	  }
+	if (n) 
+	  {
+	  normals = n->GetNormal (idx[k]);
+	  vertexNormals[k][0] = normals[0];
+	  vertexNormals[k][1] = normals[1];
+
+	  vertexNormals[k][2] = normals[2];
+	  }
+	else 
+	  {
+	  vertexNormals[k][0] = poly_norm[0];
+	  vertexNormals[k][1] = poly_norm[1];
+	  vertexNormals[k][2] = poly_norm[2];
+	  }
+	points = p->GetPoint(idx[k]);
+	vertexPoints[k][0] = points[0];
+	vertexPoints[k][1] = points[1]; 
+	vertexPoints[k][2] = points[2];
+	}
       fprintf (this->FilePtr, "Polygon ");
       fprintf (this->FilePtr, "\"P\" [");
       for (kk = 0; kk < 3; kk++)
-        {
+	{
 	fprintf (this->FilePtr, "%f %f %f ",
-	    vertexPoints[kk][0], vertexPoints[kk][1], vertexPoints[kk][2]);
-        }
+		 vertexPoints[kk][0], vertexPoints[kk][1], vertexPoints[kk][2]);
+	}
       fprintf (this->FilePtr, "] ");
 
       fprintf (this->FilePtr, "\"N\" [");
       for (kk = 0; kk < 3; kk++)
-        {
+	{
 	fprintf (this->FilePtr, "%f %f %f ",
-	    vertexNormals[kk][0], vertexNormals[kk][1], vertexNormals[kk][2]);
-        }
+		 vertexNormals[kk][0], vertexNormals[kk][1], vertexNormals[kk][2]);
+	}
       fprintf (this->FilePtr, "] ");
 
-      if (c)
-       {
-        fprintf (this->FilePtr, "\"Cs\" [");
-        for (kk = 0; kk < 3; kk++)
-          {
-          fprintf (this->FilePtr, "%f %f %f ",
-              vertexColors[kk][0], vertexColors[kk][1], vertexColors[kk][2]);
-          }
-        fprintf (this->FilePtr, "] ");
-      }
+      if (s)
+	{
+	fprintf (this->FilePtr, "\"Cs\" [");
+	for (kk = 0; kk < 3; kk++)
+	  {
+	  fprintf (this->FilePtr, "%f %f %f ",
+		   vertexColors[kk][0], vertexColors[kk][1], vertexColors[kk][2]);
+	  }
+	fprintf (this->FilePtr, "] ");
+	}
       if (t)
-       {
-        fprintf (this->FilePtr, "\"st\" [");
-        for (kk = 0; kk < 3; kk++)
-          {
-          fprintf (this->FilePtr, "%f %f ",
-              vertexTCoords[kk][0], vertexTCoords[kk][1]);
-          }
-        fprintf (this->FilePtr, "] ");
-        }
+	{
+	fprintf (this->FilePtr, "\"st\" [");
+	for (kk = 0; kk < 3; kk++)
+	  {
+	  fprintf (this->FilePtr, "%f %f ",
+		   vertexTCoords[kk][0], vertexTCoords[kk][1]);
+	  }
+	fprintf (this->FilePtr, "] ");
+	}
       fprintf (this->FilePtr, "\n");
       // Get ready for next triangle
       p1 = p2;
       p2 = p3;
       if (3*j < npts) p3 = pts[3+j];
       }
-  }
+    }
 }
 
 void vtkRIBExporter::PrintSelf(ostream& os, vtkIndent indent)
@@ -891,16 +890,17 @@ void vtkRIBExporter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "TexturePrefix: " << this->TexturePrefix << "\n";
   os << indent << "Background: " << (this->Background ? "On\n" : "Off\n");
   os << indent << "Size: " << this->Size[0] << " " << this->Size[1] << "\n";
-  os << indent << "PixelSamples: " << this->PixelSamples[0] << " " << this->PixelSamples[1] << "\n";
+  os << indent << "PixelSamples: " << this->PixelSamples[0] << " " 
+     << this->PixelSamples[1] << "\n";
 }
 
 void vtkRIBExporter::WriteTexture (vtkTexture *aTexture)
 {
-    vtkScalars *scalars;
-    vtkColorScalars *mappedScalars;
-    int *size;
-    int xsize, ysize;
-    unsigned short xs,ys;
+  vtkScalars *scalars;
+  vtkScalars *mappedScalars;
+  int *size;
+  int xsize, ysize;
+  unsigned short xs,ys;
 
 //    RtToken wrap = aTexture->GetRepeat () ? RI_PERIODIC : RI_CLAMP;
 //    RiMakeTexture (this->GetTIFFName (aTexture),
@@ -909,111 +909,110 @@ void vtkRIBExporter::WriteTexture (vtkTexture *aTexture)
 //                   RiBoxFilter,
 //                   1, 1,
 //                   RI_NULL);
-    const char *wrap = aTexture->GetRepeat () ? "periodic" : "clamp";
-    fprintf (this->FilePtr, "MakeTexture \"%s\" ", this->GetTIFFName (aTexture));
-    fprintf (this->FilePtr, "\"%s\" ", this->GetTextureName (aTexture));
-    fprintf (this->FilePtr, "\"%s\" \"%s\" ", wrap, wrap);
-    fprintf (this->FilePtr, "\"%s\" 1 1\n", "box");
+  const char *wrap = aTexture->GetRepeat () ? "periodic" : "clamp";
+  fprintf (this->FilePtr, "MakeTexture \"%s\" ", this->GetTIFFName (aTexture));
+  fprintf (this->FilePtr, "\"%s\" ", this->GetTextureName (aTexture));
+  fprintf (this->FilePtr, "\"%s\" \"%s\" ", wrap, wrap);
+  fprintf (this->FilePtr, "\"%s\" 1 1\n", "box");
 
-    // do an Update and get some info
-    if (aTexture->GetInput() == NULL)
-      {
-      vtkErrorMacro(<< "texture has no input!\n");
-      return;
-      }
-    aTexture->GetInput()->Update();
-    size = aTexture->GetInput()->GetDimensions();
-    scalars = (aTexture->GetInput()->GetPointData())->GetScalars();
+  // do an Update and get some info
+  if (aTexture->GetInput() == NULL)
+    {
+    vtkErrorMacro(<< "texture has no input!\n");
+    return;
+    }
+  aTexture->GetInput()->Update();
+  size = aTexture->GetInput()->GetDimensions();
+  scalars = (aTexture->GetInput()->GetPointData())->GetScalars();
 
-    // make sure scalars are non null
-    if (!scalars) 
-      {
-      vtkErrorMacro(<< "No scalar values found for texture input!\n");
-      return;
-      }
+  // make sure scalars are non null
+  if (!scalars) 
+    {
+    vtkErrorMacro(<< "No scalar values found for texture input!\n");
+    return;
+    }
 
-    // make sure using unsigned char data of color scalars type
-    if (aTexture->GetMapColorScalarsThroughLookupTable () ||
-        (scalars->GetDataType() != VTK_UNSIGNED_CHAR ||
-        scalars->GetScalarType() != VTK_COLOR_SCALAR) )
+  // make sure using unsigned char data of color scalars type
+  if (aTexture->GetMapColorScalarsThroughLookupTable () ||
+     (scalars->GetDataType() != VTK_UNSIGNED_CHAR) )
+    {
+    mappedScalars = aTexture->GetMappedScalars ();
+    }
+  else
+    {
+    mappedScalars = scalars;
+    }
+
+  // we only support 2d texture maps right now
+  // so one of the three sizes must be 1, but it 
+  // could be any of them, so lets find it
+  if (size[0] == 1)
+    {
+    xsize = size[1]; ysize = size[2];
+    }
+  else
+    {
+    xsize = size[0];
+    if (size[1] == 1)
       {
-      mappedScalars = aTexture->GetMappedScalars ();
+      ysize = size[2];
       }
     else
       {
-      mappedScalars = (vtkColorScalars *) scalars;
-      }
-
-    // we only support 2d texture maps right now
-    // so one of the three sizes must be 1, but it 
-    // could be any of them, so lets find it
-    if (size[0] == 1)
-      {
-      xsize = size[1]; ysize = size[2];
-      }
-    else
-      {
-      xsize = size[0];
-      if (size[1] == 1)
+      ysize = size[1];
+      if (size[2] != 1)
 	{
-	ysize = size[2];
-	}
-      else
-	{
-	ysize = size[1];
-	if (size[2] != 1)
-	  {
-	  vtkErrorMacro(<< "3D texture maps currently are not supported!\n");
-	  return;
-	  }
+	vtkErrorMacro(<< "3D texture maps currently are not supported!\n");
+	return;
 	}
       }
+    }
 
-    // xsize and ysize must be a power of 2 in OpenGL
-    xs = (unsigned short)xsize;
-    ys = (unsigned short)ysize;
-    while (!(xs & 0x01))
-      {
-      xs = xs >> 1;
-      }
-    while (!(ys & 0x01))
-      {
-      ys = ys >> 1;
-      }
-    if ((xs > 1)||(ys > 1))
-      {
-      vtkWarningMacro(<< "Texture map's width and height must be a power of two in RenderMan\n");
-      }
+  // xsize and ysize must be a power of 2 in OpenGL
+  xs = (unsigned short)xsize;
+  ys = (unsigned short)ysize;
+  while (!(xs & 0x01))
+    {
+    xs = xs >> 1;
+    }
+  while (!(ys & 0x01))
+    {
+    ys = ys >> 1;
+    }
+  if ((xs > 1)||(ys > 1))
+    {
+    vtkWarningMacro(<< "Texture map's width and height must be a power of two in RenderMan\n");
+    }
 
-    vtkTIFFWriter *aWriter = vtkTIFFWriter::New();
-    vtkImageConstantPad *icp;
-    vtkStructuredPoints *anImage = vtkStructuredPoints::New();
-    anImage->SetDimensions (xsize, ysize, 1);
-    anImage->GetPointData()->SetScalars (mappedScalars);
-    int bpp = mappedScalars->GetNumberOfValuesPerScalar();
-    // renderman and bmrt seem to require an alpha in all their
-    // texture maps. So if out tmap doesn't have alpha we pad it 
-    if (bpp == 1 || bpp == 3)
-      {
-      icp = vtkImageConstantPad::New();
-      icp->SetInput( anImage);
-      icp->SetConstant(255);
-      icp->SetOutputNumberOfScalarComponents(bpp+1);
-      aWriter->SetInput (icp->GetOutput());
-      }
-    else
-      {
-      aWriter->SetInput (anImage);
-      }
-    aWriter->SetFileName (GetTIFFName (aTexture));
-    aWriter->Write ();
+  vtkTIFFWriter *aWriter = vtkTIFFWriter::New();
+  vtkImageConstantPad *icp;
+  vtkStructuredPoints *anImage = vtkStructuredPoints::New();
+  anImage->SetDimensions (xsize, ysize, 1);
+  anImage->GetPointData()->SetScalars (mappedScalars);
+  int bpp = mappedScalars->GetNumberOfComponents();
+  // renderman and bmrt seem to require an alpha in all their
+  // texture maps. So if out tmap doesn't have alpha we pad it 
+  if (bpp == 1 || bpp == 3)
+    {
+    icp = vtkImageConstantPad::New();
+    icp->SetInput( anImage);
+    icp->SetConstant(255);
+    icp->SetOutputNumberOfScalarComponents(bpp+1);
+    aWriter->SetInput (icp->GetOutput());
+    }
+  else
+    {
+    aWriter->SetInput (anImage);
+    }
+  aWriter->SetFileName (GetTIFFName (aTexture));
+  aWriter->Write ();
 
-    if (bpp == 1 || bpp == 3)
-      {
-      icp->Delete();
-      }
-    aWriter->Delete();
-    anImage->Delete();
+  if (bpp == 1 || bpp == 3)
+    {
+    icp->Delete();
+    }
+  aWriter->Delete();
+  anImage->Delete();
 }
 
 static char tiffName[4096];

@@ -56,11 +56,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMergePoints.h"
 #include "vtkStructuredPoints.h"
 #include "vtkMath.h"
-#include "vtkUnsignedCharScalars.h"
-#include "vtkUnsignedShortScalars.h"
-#include "vtkShortScalars.h"
-#include "vtkFloatScalars.h"
-#include "vtkIntScalars.h"
+#include "vtkCharArray.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkShortArray.h"
+#include "vtkUnsignedShortArray.h"
+#include "vtkIntArray.h"
+#include "vtkUnsignedIntArray.h"
+#include "vtkLongArray.h"
+#include "vtkUnsignedLongArray.h"
+#include "vtkDoubleArray.h"
+
 
 // Description:
 // Construct object with initial range (0,1) and single contour value
@@ -169,11 +174,11 @@ static void ComputePointGradient(int i, int j, int k, T *s, int dims[3],
 //
 template <class T>
 static void ContourVolume(vtkMarchingCubes *self,T *scalars, int dims[3], 
-			  float origin[3], float Spacing[3],
-			  vtkPointLocator *locator, vtkScalars *newScalars, 
-			  vtkFloatVectors *newGradients, 
-			  vtkFloatNormals *newNormals, 
-			  vtkCellArray *newPolys, float *values, int numValues)
+                          float origin[3], float Spacing[3],
+                          vtkPointLocator *locator, vtkScalars *newScalars, 
+                          vtkVectors *newGradients, 
+                          vtkNormals *newNormals, 
+                          vtkCellArray *newPolys, float *values, int numValues)
 {
   float s[8], value;
   int i, j, k, sliceSize;
@@ -271,20 +276,20 @@ static void ContourVolume(vtkMarchingCubes *self,T *scalars, int dims[3],
         pts[7][1] = yp;
         pts[7][2] = zp;
 
-	NeedGradients = ComputeGradients || ComputeNormals;
+        NeedGradients = ComputeGradients || ComputeNormals;
 
         //create gradients if needed
-	if (NeedGradients)
-	  {
-	  ComputePointGradient(i,j,k, scalars, dims, sliceSize, Spacing, gradients[0]);
-	  ComputePointGradient(i+1,j,k, scalars, dims, sliceSize, Spacing, gradients[1]);
-	  ComputePointGradient(i+1,j+1,k, scalars, dims, sliceSize, Spacing, gradients[2]);
-	  ComputePointGradient(i,j+1,k, scalars, dims, sliceSize, Spacing, gradients[3]);
-	  ComputePointGradient(i,j,k+1, scalars, dims, sliceSize, Spacing, gradients[4]);
-	  ComputePointGradient(i+1,j,k+1, scalars, dims, sliceSize, Spacing, gradients[5]);
-	  ComputePointGradient(i+1,j+1,k+1, scalars, dims, sliceSize, Spacing, gradients[6]);
-	  ComputePointGradient(i,j+1,k+1, scalars, dims, sliceSize, Spacing, gradients[7]);
-	  }
+        if (NeedGradients)
+          {
+          ComputePointGradient(i,j,k, scalars, dims, sliceSize, Spacing, gradients[0]);
+          ComputePointGradient(i+1,j,k, scalars, dims, sliceSize, Spacing, gradients[1]);
+          ComputePointGradient(i+1,j+1,k, scalars, dims, sliceSize, Spacing, gradients[2]);
+          ComputePointGradient(i,j+1,k, scalars, dims, sliceSize, Spacing, gradients[3]);
+          ComputePointGradient(i,j,k+1, scalars, dims, sliceSize, Spacing, gradients[4]);
+          ComputePointGradient(i+1,j,k+1, scalars, dims, sliceSize, Spacing, gradients[5]);
+          ComputePointGradient(i+1,j+1,k+1, scalars, dims, sliceSize, Spacing, gradients[6]);
+          ComputePointGradient(i,j+1,k+1, scalars, dims, sliceSize, Spacing, gradients[7]);
+          }
         for (contNum=0; contNum < numValues; contNum++)
           {
           value = values[contNum];
@@ -310,36 +315,36 @@ static void ContourVolume(vtkMarchingCubes *self,T *scalars, int dims[3],
                 {
                 x[jj] = x1[jj] + t * (x2[jj] - x1[jj]);
                 }
-	      // check for a new point
-	      if ( (ptIds[ii] = locator->IsInsertedPoint (x)) < 0)
+              // check for a new point
+              if ( (ptIds[ii] = locator->IsInsertedPoint (x)) < 0)
                   {
                   ptIds[ii] = locator->InsertNextPoint(x);
 
-	          if (NeedGradients)
-    		    {
-		    n1 = gradients[vert[0]];
-		    n2 = gradients[vert[1]];
-		    for (jj=0; jj<3; jj++)
-		      {
-		      n[jj] = n1[jj] + t * (n2[jj] - n1[jj]);
- 		      }
-		    }
+                  if (NeedGradients)
+                    {
+                    n1 = gradients[vert[0]];
+                    n2 = gradients[vert[1]];
+                    for (jj=0; jj<3; jj++)
+                      {
+                      n[jj] = n1[jj] + t * (n2[jj] - n1[jj]);
+                      }
+                    }
                   if (ComputeScalars) newScalars->InsertScalar(ptIds[ii],value);
-	          if (ComputeGradients) newGradients->InsertVector(ptIds[ii],n);
+                  if (ComputeGradients) newGradients->InsertVector(ptIds[ii],n);
                   if (ComputeNormals)
-		    {
- 		    vtkMath::Normalize(n);
-		    newNormals->InsertNormal(ptIds[ii],n);
-		    }	
-	          }
-	      }
+                    {
+                    vtkMath::Normalize(n);
+                    newNormals->InsertNormal(ptIds[ii],n);
+                    }   
+                  }
+              }
             // check for degenerate triangle
-	    if ( ptIds[0] != ptIds[1] &&
-	         ptIds[0] != ptIds[2] &&
-	   	 ptIds[1] != ptIds[2] )
-	        {
-	   	newPolys->InsertNextCell(3,ptIds);
-	        }
+            if ( ptIds[0] != ptIds[1] &&
+                 ptIds[0] != ptIds[2] &&
+                 ptIds[1] != ptIds[2] )
+                {
+                newPolys->InsertNextCell(3,ptIds);
+                }
             }//for each triangle
           }//for all contours
         }//for i
@@ -352,11 +357,11 @@ static void ContourVolume(vtkMarchingCubes *self,T *scalars, int dims[3],
 //
 void vtkMarchingCubes::Execute()
 {
-  vtkFloatPoints *newPts;
+  vtkPoints *newPts;
   vtkCellArray *newPolys;
   vtkScalars *newScalars;
-  vtkFloatNormals *newNormals;
-  vtkFloatVectors *newGradients;
+  vtkNormals *newNormals;
+  vtkVectors *newGradients;
   vtkStructuredPoints *input=(vtkStructuredPoints *)this->Input;
   vtkPointData *pd=input->GetPointData();
   vtkScalars *inScalars=pd->GetScalars();
@@ -393,7 +398,7 @@ void vtkMarchingCubes::Execute()
   if (estimatedSize < 1024) estimatedSize = 1024;
 
   vtkDebugMacro(<< "Estimated allocation size is " << estimatedSize);
-  newPts = vtkFloatPoints::New(); newPts->Allocate(estimatedSize,estimatedSize/2);
+  newPts = vtkPoints::New(); newPts->Allocate(estimatedSize,estimatedSize/2);
   // compute bounds for merging points
   for ( int i=0; i<3; i++)
     {
@@ -405,7 +410,7 @@ void vtkMarchingCubes::Execute()
 
   if (this->ComputeNormals)
     {
-    newNormals = vtkFloatNormals::New();
+    newNormals = vtkNormals::New();
     newNormals->Allocate(estimatedSize,estimatedSize/2);
     }
   else
@@ -415,7 +420,7 @@ void vtkMarchingCubes::Execute()
 
   if (this->ComputeGradients)
     {
-    newGradients = vtkFloatVectors::New();
+    newGradients = vtkVectors::New();
     newGradients->Allocate(estimatedSize,estimatedSize/2);
     }
   else
@@ -426,138 +431,114 @@ void vtkMarchingCubes::Execute()
   newPolys = vtkCellArray::New();
   newPolys->Allocate(estimatedSize,estimatedSize/2);
 
-  switch (inScalars->GetDataType())
+  if (this->ComputeScalars)
     {
-    case VTK_FLOAT:
+    newScalars = vtkScalars::New();
+    newScalars->Allocate(estimatedSize,estimatedSize/2);
+    }
+  else
+    {
+    newScalars = NULL;
+    }
+
+  if (inScalars->GetNumberOfComponents() == 1 )
+    {
+    switch (inScalars->GetDataType())
       {
-      float *scalars = ((vtkFloatScalars *)inScalars)->GetPointer(0);
-      if (this->ComputeScalars)
-	{
-	newScalars = vtkFloatScalars::New();
-	newScalars->Allocate(estimatedSize,estimatedSize/2);
-	}
-      else
-	{
-	newScalars = NULL;
-	}
-      ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,
-		    newScalars,newGradients,
-		    newNormals,newPolys,values,numContours);
-      }
-    break;
-    case VTK_INT:
-      {
-      int *scalars = ((vtkIntScalars *)inScalars)->GetPointer(0);
-      if (this->ComputeScalars)
-	{
-	newScalars = vtkIntScalars::New();
-	newScalars->Allocate(estimatedSize,estimatedSize/2);
-	}
-      else
-	{
-	newScalars = NULL;
-	}
-      ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,
-		    newScalars,newGradients,
-		    newNormals,newPolys,values,numContours);
-      }
-    break;
-    case VTK_SHORT:
-      {
-      short *scalars = ((vtkShortScalars *)inScalars)->GetPointer(0);
-      if (this->ComputeScalars)
-	{
-	newScalars = vtkShortScalars::New();
-	newScalars->Allocate(estimatedSize,estimatedSize/2);
-	}
-      else
-	{
-	newScalars = NULL;
-	}
-      
-      ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,
-		    newScalars,newGradients,
-		    newNormals,newPolys,values,numContours);
-      }
-    break;
-    case VTK_UNSIGNED_SHORT:
-      {
-      unsigned short *scalars = ((vtkUnsignedShortScalars *)inScalars)->GetPointer(0);
-      if (this->ComputeScalars)
-	{
-	newScalars = vtkUnsignedShortScalars::New();
-	newScalars->Allocate(estimatedSize,estimatedSize/2);
-	}
-      else
-	{
-	newScalars = NULL;
-	}
-      
-      ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,
-		    newScalars,newGradients,
-		    newNormals,newPolys,values,numContours);
-      }
-    break;
-    case VTK_UNSIGNED_CHAR:
-      if (inScalars->GetNumberOfValuesPerScalar() == 1 )
-	{
-	unsigned char *scalars = ((vtkUnsignedCharScalars *)inScalars)->GetPointer(0);
-	if (this->ComputeScalars)
-	  {
-	  newScalars = vtkUnsignedCharScalars::New();
-	  newScalars->Allocate(estimatedSize,estimatedSize/2);
-	  }
-	else
-	  {
-	  newScalars = NULL;
-	  }
-	ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,
-		      newScalars,newGradients,
-		      newNormals,newPolys,values,numContours);
-	}
-      else
-	{
-	// we have color scalars
-	int dataSize = dims[0] * dims[1] * dims[2];
-	vtkFloatScalars *image=vtkFloatScalars::New(); 
-	image->Allocate(dataSize);
-	inScalars->GetScalars(0,dataSize,*image);
-	if (this->ComputeScalars)
-	  {
-	  newScalars = vtkFloatScalars::New();
-	  newScalars->Allocate(estimatedSize,estimatedSize/2);
-	  }
-	else
-	  {
-	  newScalars = NULL;
-	  }
-	float *scalars = image->GetPointer(0);
-	ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,
-		      newScalars,newGradients,
-		      newNormals,newPolys,values,numContours);
-	image->Delete();
-	}
+      case VTK_CHAR:
+        {
+        char *scalars = ((vtkCharArray *)inScalars->GetData())->GetPointer(0);
+        ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,
+                      newScalars,newGradients,
+                      newNormals,newPolys,values,numContours);
+        }
       break;
-    default:
-      {
-      int dataSize = dims[0] * dims[1] * dims[2];
-      vtkFloatScalars *image=vtkFloatScalars::New(); image->Allocate(dataSize);
-      inScalars->GetScalars(0,dataSize,*image);
-      if (this->ComputeScalars)
-	{
-	newScalars = vtkFloatScalars::New();
-	newScalars->Allocate(estimatedSize,estimatedSize/2);
-	}
-      else
-	{
-	newScalars = NULL;
-	}
-      float *scalars = image->GetPointer(0);
-      ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,
-		    newScalars,newGradients,
-		    newNormals,newPolys,values,numContours);
-      image->Delete();
-      }
+      case VTK_UNSIGNED_CHAR:
+        {
+        unsigned char *scalars = ((vtkUnsignedCharArray *)inScalars->GetData())->GetPointer(0);
+        ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,
+                      newScalars,newGradients,
+                      newNormals,newPolys,values,numContours);
+        }
+        break;
+      case VTK_SHORT:
+        {
+        short *scalars = ((vtkShortArray *)inScalars->GetData())->GetPointer(0);
+        ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,
+                      newScalars,newGradients,
+                      newNormals,newPolys,values,numContours);
+        }
+      break;
+      case VTK_UNSIGNED_SHORT:
+        {
+        unsigned short *scalars = ((vtkUnsignedShortArray *)inScalars->GetData())->GetPointer(0);
+        ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,
+                      newScalars,newGradients,
+                      newNormals,newPolys,values,numContours);
+        }
+      break;
+      case VTK_INT:
+        {
+        int *scalars = ((vtkIntArray *)inScalars->GetData())->GetPointer(0);
+        ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,
+                      newScalars,newGradients,
+                      newNormals,newPolys,values,numContours);
+        }
+      break;
+      case VTK_UNSIGNED_INT:
+        {
+        unsigned int *scalars = ((vtkUnsignedIntArray *)inScalars->GetData())->GetPointer(0);
+        ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,
+                      newScalars,newGradients,
+                      newNormals,newPolys,values,numContours);
+        }
+      break;
+      case VTK_LONG:
+        {
+        long *scalars = ((vtkLongArray *)inScalars->GetData())->GetPointer(0);
+        ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,
+                      newScalars,newGradients,
+                      newNormals,newPolys,values,numContours);
+        }
+      break;
+      case VTK_UNSIGNED_LONG:
+        {
+        unsigned long *scalars = ((vtkUnsignedLongArray *)inScalars->GetData())->GetPointer(0);
+        ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,
+                      newScalars,newGradients,
+                      newNormals,newPolys,values,numContours);
+        }
+      break;
+      case VTK_FLOAT:
+        {
+        float *scalars = ((vtkFloatArray *)inScalars->GetData())->GetPointer(0);
+        ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,
+                      newScalars,newGradients,
+                      newNormals,newPolys,values,numContours);
+        }
+      break;
+      case VTK_DOUBLE:
+        {
+        double *scalars = ((vtkDoubleArray *)inScalars->GetData())->GetPointer(0);
+        ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,
+                      newScalars,newGradients,
+                      newNormals,newPolys,values,numContours);
+        }
+      break;
+      } //switch
+    }
+
+  else //multiple components - have to convert
+    {
+    int dataSize = dims[0] * dims[1] * dims[2];
+    vtkScalars *image=vtkScalars::New(VTK_FLOAT); image->Allocate(dataSize);
+    inScalars->GetScalars(0,dataSize,*image);
+
+    float *scalars = ((vtkFloatArray *)image->GetData())->GetPointer(0);
+    ContourVolume(this,scalars,dims,origin,Spacing,this->Locator,
+                  newScalars,newGradients,
+                  newNormals,newPolys,values,numContours);
+    image->Delete();
     }
   
   vtkDebugMacro(<<"Created: " 
@@ -628,12 +609,3 @@ void vtkMarchingCubes::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Locator: (none)\n";
     }
 }
-
-
-
-
-
-
-
-
-

@@ -41,8 +41,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkEarthSource.h"
-#include "vtkFloatPoints.h"
-#include "vtkFloatNormals.h"
+#include "vtkPoints.h"
+#include "vtkNormals.h"
 #include "vtkMath.h"
 
 // Description:
@@ -6835,8 +6835,8 @@ void vtkEarthSource::Execute()
   int i;
   int maxPts;
   int maxPolys;
-  vtkFloatPoints *newPoints;
-  vtkFloatNormals *newNormals;
+  vtkPoints *newPoints;
+  vtkNormals *newNormals;
   vtkCellArray *newPolys;
   float x[3], base[3];
   int Pts[4000];
@@ -6852,9 +6852,9 @@ void vtkEarthSource::Execute()
   maxPolys = 16;
   actualpts = actualpolys = 0;
 
-  newPoints = vtkFloatPoints::New();
+  newPoints = vtkPoints::New();
   newPoints->Allocate(maxPts);
-  newNormals = vtkFloatNormals::New();
+  newNormals = vtkNormals::New();
   newNormals->Allocate(maxPts);
   newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(maxPolys,4000/this->OnRatio));

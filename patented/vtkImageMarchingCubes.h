@@ -139,10 +139,10 @@ public:
   int NeedGradients;
 
   vtkCellArray *Triangles;
-  vtkFloatScalars *Scalars;
-  vtkFloatPoints *Points;
-  vtkFloatNormals *Normals;
-  vtkFloatVectors *Gradients;
+  vtkScalars *Scalars;
+  vtkPoints *Points;
+  vtkNormals *Normals;
+  vtkVectors *Gradients;
   
   int GetLocatorPoint(int cellX, int cellY, int edge);
   void AddLocatorPoint(int cellX, int cellY, int edge, int ptId);

@@ -84,7 +84,7 @@ void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
   vtkCellArray *cells;
   int npts, *indx;
   vtkPolyDataMapper *pm;
-  vtkColorScalars *colors;
+  vtkScalars *colors;
   
   pm = vtkPolyDataMapper::New();
   pm->SetInput(pd);
@@ -121,10 +121,10 @@ void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
     fprintf(fp,"\tMaterial {\n");
     fprintf(fp,"\t\tdiffuseColor [\n");
     fprintf(fp, "\t\t\t");
-    for (i=0; i<colors->GetNumberOfColors(); i++) 
+    for (i=0; i<colors->GetNumberOfScalars(); i++) 
       {
-      unsigned char rgba[4];
-      colors->GetColor(i,rgba);
+      unsigned char *rgba;
+      rgba = colors->GetColor(i);
       fprintf(fp, "%g %g %g, ", rgba[0]/255.0f, 
 	      rgba[1]/255.0f, rgba[2]/255.0f);
       if (!((i+1)%2)) fprintf(fp, "\n\t\t\t");
