@@ -24,6 +24,7 @@ IF (VTK_USE_RENDERING)
       largeImageOffset
       largeImageParallel
       MassProperties
+      OverlayTextOnImage
       TestCaptionActor
       TestGridWarp3D
       TestGridWarpCubic
