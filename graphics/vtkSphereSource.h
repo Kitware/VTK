@@ -38,13 +38,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkSphereSource - create a sphere centered at the origin
+// .NAME vtkSphereSource - create a polygonal sphere centered at the origin
 // .SECTION Description
-// vtkSphereSource creates a polygonal sphere of specified radius centered 
-// at the origin. The resolution (polygonal discretization) in both the
-// latitude (phi) and longitude (theta) directions can be specified. It also is
-// possible to create partial spheres by specifying maximum phi and 
-// theta angles.
+// vtkSphereSource creates a sphere (represented by polygons) of specified
+// radius centered at the origin. The resolution (polygonal discretization)
+// in both the latitude (phi) and longitude (theta) directions can be
+// specified. It also is possible to create partial spheres by specifying
+// maximum phi and theta angles.
+// .SECTION Caveats
+// Resolution means the number of latitude or longitude lines for a complete 
+// sphere. If you create partial spheres the number of latitude/longitude 
+// lines may be off by one. 
 
 #ifndef __vtkSphereSource_h
 #define __vtkSphereSource_h
@@ -72,33 +76,48 @@ public:
   vtkGetVectorMacro(Center,float,3);
 
   // Description:
-  // Set the number of points in the longitude direction.
+  // Set the number of points in the longitude direction (ranging from
+  // StartTheta to EndTheta).
   vtkSetClampMacro(ThetaResolution,int,4,VTK_MAX_SPHERE_RESOLUTION);
   vtkGetMacro(ThetaResolution,int);
 
   // Description:
-  // Set the number of points in the latitude direction.
+  // Set the number of points in the latitude direction (ranging
+  // from StartPhi to EndPhi).
   vtkSetClampMacro(PhiResolution,int,4,VTK_MAX_SPHERE_RESOLUTION);
   vtkGetMacro(PhiResolution,int);
 
   // Description:
-  // Set the maximum longitude angle.
-  vtkSetClampMacro(Theta,float,0.0,360.0);
-  vtkGetMacro(Theta,float);
+  // Set the starting longitude angle. By default StartTheta=0 degrees.
+  vtkSetClampMacro(StartTheta,float,0.0,360.0);
+  vtkGetMacro(StartTheta,float);
 
   // Description:
-  // Set the maximum latitude angle (0 is at north pole).
-  vtkSetClampMacro(Phi,float,0.0,180.0);
-  vtkGetMacro(Phi,float);
+  // Set the ending longitude angle. By default EndTheta=360 degrees.
+  vtkSetClampMacro(EndTheta,float,0.0,360.0);
+  vtkGetMacro(EndTheta,float);
+
+  // Description:
+  // Set the starting latitude angle (0 is at north pole). By default
+  // StartPhi=0 degrees.
+  vtkSetClampMacro(StartPhi,float,0.0,360.0);
+  vtkGetMacro(StartPhi,float);
+
+  // Description:
+  // Set the ending latitude angle. By default EndPhi=180 degrees.
+  vtkSetClampMacro(EndPhi,float,0.0,360.0);
+  vtkGetMacro(EndPhi,float);
 
 protected:
   void Execute();
   float Radius;
   float Center[3];
-  float Theta;
-  float Phi;
   int ThetaResolution;
   int PhiResolution;
+  float StartTheta;
+  float EndTheta;
+  float StartPhi;
+  float EndPhi;
 
 };
 

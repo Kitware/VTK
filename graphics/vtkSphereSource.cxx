@@ -46,7 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Description:
 // Construct sphere with radius=0.5 and default resolution 8 in both Phi
-// and Theta directions.
+// and Theta directions. Theta ranges from (0,360) and phi (0,180) degrees.
 vtkSphereSource::vtkSphereSource(int res)
 {
   res = res < 4 ? 4 : res;
@@ -57,20 +57,22 @@ vtkSphereSource::vtkSphereSource(int res)
 
   this->ThetaResolution = res;
   this->PhiResolution = res;
-  this->Theta = 0.0;
-  this->Phi = 0.0;
+  this->StartTheta = 0.0;
+  this->EndTheta = 360.0;
+  this->StartPhi = 0.0;
+  this->EndPhi = 180.0;
 }
 
 void vtkSphereSource::Execute()
 {
   int i, j;
-  int numPts;
-  int numPolys;
+  int numPts, numPolys;
   vtkPoints *newPoints; 
   vtkNormals *newNormals;
   vtkCellArray *newPolys;
   float x[3], n[3], deltaPhi, deltaTheta, phi, theta, radius, norm;
-  int pts[3], base;
+  float startTheta, endTheta, startPhi, endPhi;
+  int pts[3], base, numPoles=0, thetaResolution;
   vtkPolyData *output=(vtkPolyData *)this->Output;
 //
 // Set things up; allocate memory
@@ -89,33 +91,55 @@ void vtkSphereSource::Execute()
 //
 // Create sphere
 //
-  // Create north pole
-  x[0] = this->Center[0];
-  x[1] = this->Center[1];
-  x[2] = this->Center[2] + this->Radius;
-  newPoints->InsertPoint(0,x);
+  // Create north pole if needed
+  if ( this->StartPhi <= 0.0 )
+    {
+    x[0] = this->Center[0];
+    x[1] = this->Center[1];
+    x[2] = this->Center[2] + this->Radius;
+    newPoints->InsertPoint(numPoles,x);
 
-  x[0] = x[1] = 0.0; x[2] = 1.0;
-  newNormals->InsertNormal(0,x);
+    x[0] = x[1] = 0.0; x[2] = 1.0;
+    newNormals->InsertNormal(numPoles,x);
+    numPoles++;
+    }
 
-  // Create south pole
-  x[0] = this->Center[0];
-  x[1] = this->Center[1];
-  x[2] = this->Center[2] - this->Radius;
-  newPoints->InsertPoint(1,x);
- 
-  x[0] = x[1] = 0.0; x[2] = -1.0;
-  newNormals->InsertNormal(1,x);
+  // Create south pole if needed
+  if ( this->EndPhi >= 180.0 )
+    {
+    x[0] = this->Center[0];
+    x[1] = this->Center[1];
+    x[2] = this->Center[2] - this->Radius;
+    newPoints->InsertPoint(numPoles,x);
+
+    x[0] = x[1] = 0.0; x[2] = -1.0;
+    newNormals->InsertNormal(numPoles,x);
+    numPoles++;
+    }
+
+  // Check data, determine increments, and convert to radians
+  startTheta = (this->StartTheta < this->EndTheta ? this->StartTheta : this->EndTheta);
+  startTheta *= vtkMath::Pi() / 180.0;
+  endTheta = (this->EndTheta > this->StartTheta ? this->EndTheta : this->StartTheta);
+  endTheta *= vtkMath::Pi() / 180.0;
+
+  startPhi = (this->StartPhi < this->EndPhi ? this->StartPhi : this->EndPhi);
+  startPhi *= vtkMath::Pi() / 180.0;
+  endPhi = (this->EndPhi > this->StartPhi ? this->EndPhi : this->StartPhi);
+  endPhi *= vtkMath::Pi() / 180.0;
+
+  deltaPhi = (endPhi - startPhi) / this->PhiResolution;
+  thetaResolution = (fabs(this->StartTheta - this->EndTheta) >= 360.0 ?
+		     this->ThetaResolution : this->ThetaResolution - 1);
+  deltaTheta = (endTheta - startTheta) / thetaResolution;
 
   // Create intermediate points
-  deltaPhi = vtkMath::Pi() / this->PhiResolution;
-  deltaTheta = 2.0 * vtkMath::Pi() / this->ThetaResolution;
   for (i=0; i < this->ThetaResolution; i++)
     {
-    theta = i * deltaTheta;
-    for (j=1; j < this->PhiResolution; j++)
+    theta = startTheta + i*deltaTheta;
+    for (j=0; j < (this->PhiResolution-1); j++)
       {
-      phi = j * deltaPhi;
+      phi = startPhi + (j+1)*deltaPhi;
       radius = this->Radius * sin((double)phi);
       n[0] = radius * cos((double)theta);
       n[1] = radius * sin((double)theta);
@@ -130,33 +154,43 @@ void vtkSphereSource::Execute()
       newNormals->InsertNextNormal(n);
       }
     }
-//
-// Generate mesh connectivity
-//
-  base = (this->PhiResolution - 1) * this->ThetaResolution;
-  for (i=0; i < this->ThetaResolution; i++)
-    {
-    // around north pole
-    pts[0] = (this->PhiResolution-1)*i + 2;
-    pts[1] = (((this->PhiResolution-1)*(i+1)) % base) + 2;
-    pts[2] = 0;
-    newPolys->InsertNextCell(3,pts);
 
-    // around south pole
-    pts[0] = pts[0] + this->PhiResolution - 2;
-    pts[2] = pts[1] + this->PhiResolution - 2;
-    pts[1] = 1;
-    newPolys->InsertNextCell(3,pts);
+  // Generate mesh connectivity
+  if ( fabs(this->StartTheta - this->EndTheta) >= 360.0 )
+    base = (this->PhiResolution - 1) * this->ThetaResolution;
+  else
+    base = (this->PhiResolution - 1)*this->ThetaResolution + 1;
+
+  if ( this->StartPhi <= 0.0 ) // around north pole
+    {
+    for (i=0; i < thetaResolution; i++)
+      {
+      pts[0] = (this->PhiResolution-1)*i + numPoles;
+      pts[1] = (((this->PhiResolution-1)*(i+1)) % base) + numPoles;
+      pts[2] = 0;
+      newPolys->InsertNextCell(3,pts);
+      }
+    }
+  
+  if ( this->EndPhi >= 180.0 ) // around south pole
+    {
+    for (i=0; i < thetaResolution; i++)
+      {
+      pts[0] = (this->PhiResolution-1)*i + this->PhiResolution - (2-numPoles);
+      pts[2] = (((this->PhiResolution-1)*(i+1)) % base) + this->PhiResolution - (2-numPoles);
+      pts[1] = numPoles - 1;
+      newPolys->InsertNextCell(3,pts);
+      }
     }
 
   // bands inbetween poles
-  for (i=0; i < this->ThetaResolution; i++)
+  for (i=0; i < thetaResolution; i++)
     {
     for (j=0; j < (this->PhiResolution-2); j++)
       {
-      pts[0] = 2 + (this->PhiResolution-1)*i + j;
+      pts[0] = numPoles + (this->PhiResolution-1)*i + j;
       pts[1] = pts[0] + 1;
-      pts[2] = (((this->PhiResolution-1)*(i+1)+j) % base) + 3;
+      pts[2] = (((this->PhiResolution-1)*(i+1)+j) % base) + numPoles + 1;
       newPolys->InsertNextCell(3,pts);
 
       pts[1] = pts[2];
