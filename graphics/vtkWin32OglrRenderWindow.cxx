@@ -183,6 +183,33 @@ void vtkWin32OglrRenderWindow::MakeCurrent()
     }
 }
 
+void vtkWin32OglrRenderWindow::SetSize(int x, int y)
+{
+  static int resizing = 0;
+
+  if ((this->Size[0] != x) || (this->Size[1] != y))
+    {
+    this->Modified();
+    this->Size[0] = x;
+    this->Size[1] = y;
+    if (this->Mapped)
+      {
+      if (!resizing)
+        {
+        resizing = 1;
+
+        SetWindowPos(this->WindowId,HWND_TOP,0,0,x,y,SWP_NOMOVE | SWP_NOZORDER);
+        resizing = 0;
+        //HDC adc;
+
+        //adc = GetDC(this->WindowId);
+        //SetWindowExtEx(adc,x,y,NULL);
+        //ReleaseDC(this->WindowId,adc);
+        }
+      }
+    }
+}
+
 static void vtkWin32OglrSwapBuffers(HDC hdc)
 {
   SwapBuffers(hdc);
@@ -442,27 +469,6 @@ void vtkWin32OglrRenderWindow::WindowRemap()
   // configure the window 
   this->WindowInitialize();
 }
-
-// Description:
-// Specify the size of the rendering window.
-void vtkWin32OglrRenderWindow::SetSize(int x,int y)
-{
-  // if we arent mappen then just set the ivars 
-  if (!this->Mapped)
-    {
-    if ((this->Size[0] != x)||(this->Size[1] != y))
-      {
-      this->Modified();
-      }
-    this->Size[0] = x;
-    this->Size[1] = y;
-    return;
-    }
-
-//  XResizeWindow(this->DisplayId,this->WindowId,x,y);
-//  XSync(this->DisplayId,False);
-}
-
 
 void vtkWin32OglrRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {

@@ -240,7 +240,14 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
     case WM_CHAR:
       switch (wParam)
 	{
-	case 'e': exit(1); break;
+	case 'e': 
+    {
+      // do a cleaner exit from windows
+      // first free up the windows resources
+      // me->RenderWindow->Delete();
+      PostQuitMessage(0); 
+    }
+    break;
 	case 'u':
 	  if (me->UserMethod) (*me->UserMethod)(me->UserMethodArg);
 	  break;
