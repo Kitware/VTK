@@ -2,7 +2,7 @@ package require vtk
 
 # This script calculates the luminanace of an image
 
-vtkImageWindow imgWin
+vtkRenderWindow imgWin
 
 
 # Image pipeline
@@ -42,10 +42,10 @@ foreach operator $operators {
     vtkActor2D actor${operator}
     actor${operator} SetMapper mapper${operator}
 
-    vtkImager imager${operator}
+    vtkRenderer imager${operator}
     imager${operator} AddActor2D actor${operator}
 
-    imgWin AddImager imager${operator}
+    imgWin AddRenderer imager${operator}
 }
 
 set column 1

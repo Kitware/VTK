@@ -4,7 +4,7 @@ package require vtk
 
 # Image pipeline
 
-vtkImageWindow imgWin
+vtkRenderWindow imgWin
 
 set logics "And Or Xor Nand Nor Not"
 set types "Float Double UnsignedInt UnsignedLong UnsignedShort UnsignedChar"
@@ -33,9 +33,9 @@ foreach operator $logics {
       mapper${operator} SetColorLevel 127.5
     vtkActor2D actor${operator}
       actor${operator} SetMapper mapper${operator}
-    vtkImager imager${operator}
+    vtkRenderer imager${operator}
       imager${operator} AddActor2D actor${operator}
-    imgWin AddImager imager${operator}
+    imgWin AddRenderer imager${operator}
     incr i
 }
 
@@ -48,7 +48,5 @@ imagerNot SetViewport .66 0 1 .5
 
 imgWin SetSize 768 512
 imgWin Render
-imgWin SetFileName TestAllLogic.tcl.ppm
-#imgWin SaveImageAsPPM
 
 wm withdraw .

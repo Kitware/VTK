@@ -115,37 +115,37 @@ vtkActor2D actor5
 vtkActor2D actor6
   actor6 SetMapper mapper6
 
-vtkImager imager1
+vtkRenderer imager1
   imager1 AddActor2D actor1
   imager1 SetViewport 0.0 0.0 0.3333 0.5
 
-vtkImager imager2
+vtkRenderer imager2
   imager2 AddActor2D actor2
   imager2 SetViewport 0.0 0.5 0.3333 1.0
 
-vtkImager imager3
+vtkRenderer imager3
   imager3 AddActor2D actor3
   imager3 SetViewport 0.3333 0.0 0.6667 0.5
 
-vtkImager imager4
+vtkRenderer imager4
   imager4 AddActor2D actor4
   imager4 SetViewport 0.3333 0.5 0.6667 1.0
 
-vtkImager imager5
+vtkRenderer imager5
   imager5 AddActor2D actor5
   imager5 SetViewport 0.6667 0.0 1.0 0.5
 
-vtkImager imager6
+vtkRenderer imager6
   imager6 AddActor2D actor6
   imager6 SetViewport 0.6667 0.5 1.0 1.0
 
-vtkImageWindow imgWin
-  imgWin AddImager imager1
-  imgWin AddImager imager2
-  imgWin AddImager imager3
-  imgWin AddImager imager4
-  imgWin AddImager imager5
-  imgWin AddImager imager6
+vtkRenderWindow imgWin
+  imgWin AddRenderer imager1
+  imgWin AddRenderer imager2
+  imgWin AddRenderer imager3
+  imgWin AddRenderer imager4
+  imgWin AddRenderer imager5
+  imgWin AddRenderer imager6
   imgWin SetSize 225 150
 
 imgWin Render

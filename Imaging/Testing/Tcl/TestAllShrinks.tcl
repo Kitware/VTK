@@ -2,7 +2,7 @@ package require vtk
 
 set prefix "$VTK_DATA_ROOT/Data/headsq/quarter"
 
-vtkImageWindow imgWin
+vtkRenderWindow imgWin
 
 # Image pipeline
 vtkImageReader reader
@@ -32,9 +32,9 @@ foreach operator $ops {
     mapper${operator} SetZSlice 45
   vtkActor2D actor${operator}
     actor${operator} SetMapper mapper${operator}
-  vtkImager imager${operator}
+  vtkRenderer imager${operator}
     imager${operator} AddActor2D actor${operator}
-  imgWin AddImager imager${operator}
+  imgWin AddRenderer imager${operator}
 }
 
   vtkImageShrink3D shrink
@@ -52,9 +52,9 @@ foreach operator $ops {
     mapper SetZSlice 45
   vtkActor2D actor
     actor SetMapper mapper
-  vtkImager imager
+  vtkRenderer imager
     imager AddActor2D actor
-  imgWin AddImager imager
+  imgWin AddRenderer imager
 
 #shrinkMinimum Update
 #shrinkMaximum Update

@@ -2,7 +2,7 @@ package require vtk
 
 # This script calculates the luminanace of an image
 
-vtkImageWindow imgWin
+vtkRenderWindow imgWin
 imgWin SetSize 512 256
 
 # Image pipeline
@@ -79,12 +79,12 @@ foreach background $backgrounds {
 	vtkActor2D actor${row}${column}
 	actor${row}${column} SetMapper mapper${row}${column}
 	
-	vtkImager imager${row}${column}
+	vtkRenderer imager${row}${column}
 	imager${row}${column} AddActor2D actor${row}${column}
 
 	imager${row}${column} SetViewport [expr ($column - 1) * $deltaX] [expr ($row - 1) * $deltaY] [expr $column * $deltaX] [expr $row * $deltaY]
 
-	imgWin AddImager imager${row}${column}
+	imgWin AddRenderer imager${row}${column}
 
 	incr column
     }

@@ -6,7 +6,7 @@ package require vtkinteraction
 
 # Image pipeline
 
-vtkImageWindow imgWin
+vtkRenderWindow imgWin
 
 vtkImageEllipsoidSource sphere1
 sphere1 SetCenter 40 20 0
@@ -58,9 +58,9 @@ foreach operator $mathematics {
       mapper${operator} SetColorLevel .75
     vtkActor2D actor${operator}
       actor${operator} SetMapper mapper${operator}
-    vtkImager imager${operator}
+    vtkRenderer imager${operator}
       imager${operator} AddActor2D actor${operator}
-    imgWin AddImager imager${operator}
+    imgWin AddRenderer imager${operator}
 }
 
 set column 1
