@@ -64,10 +64,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkDataSet_h
 
 #include "vtkDataObject.h"
-#include "vtkPoints.h"
 #include "vtkCellData.h"
 #include "vtkPointData.h"
 #include "vtkGenericCell.h"
+#include "vtkCellTypes.h"
 
 class VTK_EXPORT vtkDataSet : public vtkDataObject
 {

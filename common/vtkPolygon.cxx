@@ -45,6 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDataSet.h"
 #include "vtkCellArray.h"
 #include "vtkPriorityQueue.h"
+#include "vtkFloatArray.h"
 
 // Instantiate polygon.
 vtkPolygon::vtkPolygon()
