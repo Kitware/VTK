@@ -51,7 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkDataSetMapper_h
 #define __vtkDataSetMapper_h
 
-#include "vtkGeometryFilter.h"
+#include "vtkDataSetSurfaceFilter.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderer.h"
 #include "vtkImageData.h"
@@ -90,7 +90,7 @@ protected:
   vtkDataSetMapper(const vtkDataSetMapper&);
   void operator=(const vtkDataSetMapper&);
 
-  vtkGeometryFilter *GeometryExtractor;
+  vtkDataSetSurfaceFilter *GeometryExtractor;
   vtkPolyDataMapper *PolyDataMapper;
 };
 
