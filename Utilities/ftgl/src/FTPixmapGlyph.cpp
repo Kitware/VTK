@@ -113,10 +113,6 @@ void FTPixmapGlyph::ConvertGlyph()
   pos.x = bitmap->left;
   pos.y = srcHeight - bitmap->top;
   
-  // discard glyph image (bitmap or not)
-  // Is this the right place to do this?
-  FT_Done_Glyph( this->glyph );
-  
   this->glyphHasBeenConverted = 1;
 }
 
@@ -125,6 +121,10 @@ FTPixmapGlyph::~FTPixmapGlyph()
 {
   if( data)
     delete [] data;
+
+  // discard glyph image (bitmap or not)
+  // Is this the right place to do this?
+  FT_Done_Glyph( this->glyph );
 }
 
 
