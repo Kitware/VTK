@@ -37,6 +37,7 @@ public:
   char *GetClassName() {return "vlFloatScalars";};
   int NumberOfScalars() {return (this->S.GetMaxId()+1);};
   void Reset() {this->S.Reset();};
+  void Squeeze() {this->S.Squeeze();};
   vlFloatScalars &operator=(const vlFloatScalars& fs);
   void operator+=(const vlFloatScalars& fs) {this->S += fs.S;};
 

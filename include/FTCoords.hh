@@ -42,6 +42,7 @@ public:
   void operator+=(const vlFloatTCoords& ftc) {this->TC += ftc.TC;};
   int NumberOfTCoords() {return (this->TC.GetMaxId()+1)/this->Dimension;};
   void Reset() {this->TC.Reset();};
+  void Squeeze() {this->TC.Squeeze();};
 
   float *GetTCoord(int i) {return this->TC.GetPtr(this->Dimension*i);};
   void SetTCoord(int i, float *x) 

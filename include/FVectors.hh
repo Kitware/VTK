@@ -37,6 +37,7 @@ public:
   char *GetClassName() {return "vlFloatVectors";};
   int NumberOfVectors() {return (V.GetMaxId()+1)/3;};
   void Reset() {this->V.Reset();};
+  void Squeeze() {this->V.Squeeze();};
   vlFloatVectors &operator=(const vlFloatVectors& fv);
   void operator+=(const vlFloatVectors& fv){this->V += fv.V;};
 

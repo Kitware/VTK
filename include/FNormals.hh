@@ -37,6 +37,7 @@ public:
   char *GetClassName() {return "vlFloatNormals";};
   int NumberOfNormals() {return (N.GetMaxId()+1)/3;};
   void Reset() {this->N.Reset();};
+  void Squeeze() {this->N.Squeeze();};
   vlFloatNormals &operator=(const vlFloatNormals& fn);
   void operator+=(const vlFloatNormals& fn);
 

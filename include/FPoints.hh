@@ -37,6 +37,7 @@ public:
   char *GetClassName() {return "vlFloatPoints";};
   int NumberOfPoints() {return (P.GetMaxId()+1)/3;};
   void Reset() {this->P.Reset();};
+  void Squeeze() {this->P.Squeeze();};
   vlFloatPoints &operator=(const vlFloatPoints& fp);
   void operator+=(const vlFloatPoints& fp) {this->P += fp.P;};
 
