@@ -11,7 +11,7 @@ vtk3DSImporter importer
   importer Read
 
 [importer GetRenderer] SetBackground 0.1 0.2 0.4
-[importer GetRenderWindow] SetSize 125 125
+[importer GetRenderWindow] SetSize 150 150
 
 #
 # the importer created the renderer
@@ -40,7 +40,7 @@ wm withdraw .
 
 vtkRenderLargeImage renderLarge
   renderLarge SetInput ren1
-  renderLarge SetMagnification 4
+  renderLarge SetMagnification 3
   renderLarge Update
 
 vtkImageViewer viewer
