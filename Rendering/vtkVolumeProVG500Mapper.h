@@ -53,9 +53,21 @@
 #include "vtkVolumeProMapper.h"
 
 #ifdef _WIN32
-#include "VolumePro/inc/vli.h" // Needed for VLI internals
+// This ugly thing will prevent MS Visual Studio .NET from complaining
+// about mixing new and old IOStream. This is necessary due to lack of
+// platform independency in vli.h. It probably will not work or
+// anything, but it will at least compile.
+# if ( defined(_MSC_VER) && (_MSC_VER >= 1300) && !defined(_INC_IOSTREAM) )
+#   define _INC_IOSTREAM
+#   define _VTK_HACKED_UP_INCLUDE_BLOCKER
+# endif
+# include "VolumePro/inc/vli.h" // Needed for VLI internals
+# if defined(_VTK_HACKED_UP_INCLUDE_BLOCKER)
+#   undef _INC_IOSTREAM
+#   undef _VTK_HACKED_UP_INCLUDE_BLOCKER
+# endif
 #else
-#include "vli/include/vli.h" // Needed for VLI internals
+# include "vli/include/vli.h" // Needed for VLI internals
 #endif
 
 #ifdef VTK_USE_VOLUMEPRO
