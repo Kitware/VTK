@@ -610,7 +610,12 @@ static PyObject *PyVTKSpecialObject_PyGetAttr(PyObject *self, char *name)
 //--------------------------------------------------------------------
 static void PyVTKSpecialObject_PyDelete(PyObject *self)
 {
-  delete ((PyVTKSpecialObject *)self)->vtk_ptr;
+  // commented out the following line because it is not allowed in C++
+  // even though some compilers seem to do something with with it.
+  // basically the gist is that you cannto delete a void * because the
+  // compiler doesn't have any idea how big the void is.
+  //
+  //delete ((PyVTKSpecialObject *)self)->vtk_ptr;
   ((PyVTKSpecialObject *)self)->vtk_ptr = NULL;
 
   PyMem_DEL(self);
