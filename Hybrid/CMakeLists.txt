@@ -28,7 +28,7 @@ vtkWeightedTransformFilter
 WRAP_EXCLUDE_FILES(vtkVRML)
 
 IF (WIN32)
-  OPTION(VTK_USE_VIDEO_FOR_WINDOWS "Use Video for Windows for video input" ON)
+  OPTION(VTK_USE_VIDEO_FOR_WINDOWS "Use Video for Windows for video input" OFF)
   IF (VTK_USE_VIDEO_FOR_WINDOWS)
     SOURCE_FILES ( Hybrid_SRCS
       vtkWin32VideoSource
