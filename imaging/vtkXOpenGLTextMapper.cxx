@@ -204,6 +204,9 @@ void vtkXOpenGLTextMapper::RenderOpaqueGeometry(vtkViewport* viewport,
 {
   vtkDebugMacro (<< "RenderOpaqueGeometry");
 
+  // turn off texturing in case it is on
+  glDisable( GL_TEXTURE_2D );
+  
   // Get the window information for display
   vtkWindow*  window = viewport->GetVTKWindow();
   if (this->LastWindow && this->LastWindow != window)
