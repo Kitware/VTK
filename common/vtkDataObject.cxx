@@ -99,6 +99,9 @@ vtkDataObject::vtkDataObject()
 
   this->PipelineMTime = 0;
   this->LastUpdateExtentWasOutsideOfTheExtent = 0;
+
+  // First update, the update extent will be set to the whole extent.
+  this->UpdateExtentInitialized = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -203,26 +206,14 @@ void vtkDataObject::UpdateInformation()
     memcpy( this->WholeExtent, this->Extent, 6*sizeof(int) );
     }
   
+  
   // Now we should know what our whole extent is. If our update extent
   // was not set yet, (or has been set to something invalid - with no 
   // data in it ) then set it to the whole extent.
-  switch ( this->GetExtentType() )
+  if ( ! this->UpdateExtentInitialized)
     {
-    case VTK_PIECES_EXTENT:
-      if ( this->UpdatePiece == -1 && this->UpdateNumberOfPieces == 0 )
-	{
-	this->SetUpdateExtentToWholeExtent();
-	}
-      break;
-      
-    case VTK_3D_EXTENT:
-      if ( this->UpdateExtent[1] < this->UpdateExtent[0] ||
-	   this->UpdateExtent[3] < this->UpdateExtent[2] ||
-	   this->UpdateExtent[5] < this->UpdateExtent[4] ) 
-	{
-	this->SetUpdateExtentToWholeExtent();
-	}
-      break;
+    this->SetUpdateExtentToWholeExtent();
+    this->UpdateExtentInitialized = 1;
     }
   
   this->LastUpdateExtentWasOutsideOfTheExtent = 0;
@@ -232,6 +223,11 @@ void vtkDataObject::UpdateInformation()
 
 void vtkDataObject::PropagateUpdateExtent()
 {
+  if (this->UpdateExtentIsEmpty())
+    {
+    return;
+    }
+  
   // If we need to update due to PipelineMTime, or the fact that our
   // data was released, then propagate the update extent to the source 
   // if there is one.
@@ -261,6 +257,12 @@ void vtkDataObject::PropagateUpdateExtent()
 
 void vtkDataObject::TriggerAsynchronousUpdate()
 {
+  // I want to find out if the requested extent is empty.
+  if (this->UpdateExtentIsEmpty())
+    {
+    return;
+    }
+  
   // If we need to update due to PipelineMTime, or the fact that our
   // data was released, then propagate the trigger to the source
   // if there is one.
@@ -278,6 +280,15 @@ void vtkDataObject::TriggerAsynchronousUpdate()
 
 void vtkDataObject::UpdateData()
 {
+  // This is a bit of a hack.  I do not want to add another method, but
+  // I do want to find out if the requested extent is empty.
+  // If UpdateExtentIsOutsideOfTheExtent returns -1 then the extent
+  // is invalid (a signal that no data is requested).
+  if (this->UpdateExtentIsEmpty())
+    {
+    return;
+    }
+  
   // If we need to update due to PipelineMTime, or the fact that our
   // data was released, then propagate the UpdateData to the source
   // if there is one.
@@ -423,7 +434,6 @@ void vtkDataObject::SetUpdateExtentToWholeExtent()
 }
 
 //----------------------------------------------------------------------------
-
 int vtkDataObject::VerifyUpdateExtent()
 {
   int retval = 1;
@@ -443,9 +453,9 @@ int vtkDataObject::VerifyUpdateExtent()
       if ( this->UpdatePiece >= this->UpdateNumberOfPieces ||
 	   this->UpdatePiece < 0 )
 	{
-	  vtkErrorMacro( << "Invalid update piece " << this->UpdatePiece
-	                 << ". Must be between 0 and " 
-	                 << this->UpdateNumberOfPieces - 1);
+	vtkErrorMacro( << "Invalid update piece " << this->UpdatePiece
+	               << ". Must be between 0 and " 
+	               << this->UpdateNumberOfPieces - 1);
 	retval = 0;
 	}
       break;
@@ -489,6 +499,40 @@ int vtkDataObject::VerifyUpdateExtent()
 }
 
 
+//----------------------------------------------------------------------------
+int vtkDataObject::UpdateExtentIsEmpty()
+{
+  switch ( this->GetExtentType() )
+    {
+    case VTK_PIECES_EXTENT:
+      // Special way of asking for no input.
+      if ( this->UpdateNumberOfPieces == 0 )
+	{
+        return 1;
+	}
+      break;
+
+    case VTK_3D_EXTENT:
+      // Special way of asking for no input. (zero volume)
+      if (this->UpdateExtent[0] == (this->UpdateExtent[1] + 1) ||
+	  this->UpdateExtent[2] == (this->UpdateExtent[3] + 1) ||
+	  this->UpdateExtent[4] == (this->UpdateExtent[5] + 1))
+	{
+	return 1;
+	}
+      break;
+
+    // We should never have this case occur
+    default:
+      vtkErrorMacro( << "Internal error - invalid extent type!" );
+      break;
+    }
+
+  return 0;
+}
+
+
+//----------------------------------------------------------------------------
 int vtkDataObject::UpdateExtentIsOutsideOfTheExtent()
 {
   switch ( this->GetExtentType() )

@@ -299,10 +299,6 @@ public:
   void CopyTypeSpecificInformation( vtkDataObject *image );
 
   // Description:
-  // Return non zero if the UpdateExtent is outside of the Extent
-  virtual int UpdateExtentIsOutsideOfTheExtent();
-
-  // Description:
   // Needs to be overridden from vtkDataObject so that we can call
   // the correct version of SetExtent rather than just doing a memcpy.
   virtual void ModifyExtentForUpdateExtent();

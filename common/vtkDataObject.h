@@ -210,7 +210,8 @@ public:
 
   // Description:
   // A generic way of specifying an update extent.  Subclasses
-  // must decide what a piece is.
+  // must decide what a piece is.  When the NumberOfPieces is zero, then
+  // no data is requested, and the source will not execute.
   virtual void SetUpdateExtent(int vtkNotUsed(piece),int vtkNotUsed(numPieces))
     { vtkErrorMacro("Subclass did not implement 'SetUpdateExtent'");}
   
@@ -220,7 +221,8 @@ public:
   // vtkUnstructuredGrid) has no real effect.
   // Don't use the set macro to set the update extent
   // since we don't want this object to be modified just due to
-  // a change in update extent.
+  // a change in update extent. When the volume of the extent is zero (0, -1,..), 
+  // then no data is requested, and the source will not execute.
   virtual void SetUpdateExtent(int x1, int x2, int y1, int y2, int z1, int z2);
   virtual void SetUpdateExtent( int ext[6] );
   vtkGetVector6Macro( UpdateExtent, int );
@@ -289,10 +291,6 @@ public:
   void DataHasBeenGenerated();
 
   // Description:
-  // Return non zero if the UpdateExtent is outside of the Extent
-  virtual int UpdateExtentIsOutsideOfTheExtent();
-  
-  // Description:
   // make the output data ready for new data to be inserted. For most 
   // objects we just call Initialize. But for imagedata we leave the old
   // data in case the memory can be reused.
@@ -320,6 +318,17 @@ protected:
   // Keep track of data release during network execution
   int DataReleased; 
 
+  // Description:
+  // Return non zero if the UpdateExtent is outside of the Extent
+  int UpdateExtentIsOutsideOfTheExtent();
+  
+  // Description:
+  // This detects when the UpdateExtent will generate no data, and
+  // UpdateData on the source is not necessary.  This condition is satisfied
+  // wehen the UpdateExtent has zero volume (0,-1,...) 
+  // of the UpdateNumberOfPieces is 0.
+  int UpdateExtentIsEmpty();
+  
   // Description:
   // Default behavior is to make sure that the update extent lies within
   // the whole extent. If it does not, an error condition occurs and this
@@ -350,7 +359,9 @@ protected:
   int WholeExtent[6];
   int Extent[6];
   int UpdateExtent[6];
-
+  // First update, the update extent will be set to the whole extent.
+  unsigned char UpdateExtentInitialized;  
+  
   // If the ExtentType is VTK_PIECES_EXTENT, then these three variables 
   // represent the maximum number of pieces that the data object can be
   // broken into, which piece out of how many is currently in the extent,
