@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -21,6 +19,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 //
 #include "CArray.hh"
 
+// Description:
+// Allocate memory for this array. Delete old storage if present.
 vlCharArray::Allocate(const int sz, const int ext)
 {
   if ( this->Array != NULL ) delete [] this->Array;
@@ -33,7 +33,8 @@ vlCharArray::Allocate(const int sz, const int ext)
   return 1;
 }
 
-
+// Description:
+// Release storage and reset array to initial state.
 void vlCharArray::Initialize()
 {
   if ( this->Array != NULL )
@@ -45,6 +46,8 @@ void vlCharArray::Initialize()
   this->MaxId = -1;
 }
 
+// Description:
+// Construct with specified storage size and extend value.
 vlCharArray::vlCharArray(const int sz, const int ext)
 {
   this->Size = ( sz > 0 ? sz : 1);
@@ -58,6 +61,8 @@ vlCharArray::~vlCharArray()
   delete [] this->Array;
 }
 
+// Description:
+// Construct array from another array. Copy each element of other array.
 vlCharArray::vlCharArray(const vlCharArray& ia)
 {
   int i;
@@ -72,6 +77,8 @@ vlCharArray::vlCharArray(const vlCharArray& ia)
 
 }
 
+// Description:
+// Deep copy of another array.
 vlCharArray& vlCharArray::operator=(const vlCharArray& ia)
 {
   int i;
@@ -91,10 +98,9 @@ vlCharArray& vlCharArray::operator=(const vlCharArray& ia)
   return *this;
 }
 
-//
-// Copy on write if used by more than one object
-//
-vlCharArray& vlCharArray::operator+=(const vlCharArray& ia)
+// Description:
+// Append one array onto the end of this array.
+void vlCharArray::operator+=(const vlCharArray& ia)
 {
   int i, sz;
 
@@ -105,7 +111,6 @@ vlCharArray& vlCharArray::operator+=(const vlCharArray& ia)
     this->Array[this->MaxId+1+i] = ia.Array[i];
     }
   this->MaxId += ia.MaxId + 1;
-  return *this;
 }
 
 void vlCharArray::PrintSelf(ostream& os, vlIndent indent)

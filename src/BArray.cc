@@ -13,13 +13,11 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
-//
-//  Dynamic, self adjusting bit array
-//
-//
 #include "BArray.hh"
 
-vlBitArray::Allocate(const int sz, const int ext)
+// Description:
+// Allocate memory for this array. Delete old storage if present.
+int vlBitArray::Allocate(const int sz, const int ext)
 {
   if ( this->Array != NULL ) delete [] this->Array;
 
@@ -31,6 +29,8 @@ vlBitArray::Allocate(const int sz, const int ext)
   return 1;
 }
 
+// Description:
+// Release storage and reset array to initial state.
 void vlBitArray::Initialize()
 {
   if ( this->Array != NULL )
@@ -42,6 +42,8 @@ void vlBitArray::Initialize()
   this->MaxId = -1;
 }
 
+// Description:
+// Construct with specified storage and extend value.
 vlBitArray::vlBitArray(const int sz, const int ext)
 {
   this->Size = ( sz > 0 ? sz : 1);
@@ -55,6 +57,8 @@ vlBitArray::~vlBitArray()
   delete [] this->Array;
 }
 
+// Description:
+// Construct array from another array. Copy each element of other array.
 vlBitArray::vlBitArray(const vlBitArray& ia)
 {
   int i;
@@ -69,6 +73,8 @@ vlBitArray::vlBitArray(const vlBitArray& ia)
 
 }
 
+// Description:
+// Deep copy of another array.
 vlBitArray& vlBitArray::operator=(const vlBitArray& ia)
 {
   int i;
@@ -88,9 +94,8 @@ vlBitArray& vlBitArray::operator=(const vlBitArray& ia)
   return *this;
 }
 
-//
-// Copy on write if used by more than one object
-//
+// Description:
+// Append one array onto the end of this array.
 vlBitArray& vlBitArray::operator+=(const vlBitArray& ia)
 {
   int i, sz;

@@ -29,10 +29,8 @@ public:
   void Modified() {this->ModifiedTime = ++vlTime;};
   unsigned long int GetMTime() {return ModifiedTime;};
 
-  int operator>(vlTimeStamp& ts) 
-    {return (this->ModifiedTime > ts.ModifiedTime);};
-  int operator<(vlTimeStamp& ts) 
-    {return (this->ModifiedTime < ts.ModifiedTime);};
+  int operator>(vlTimeStamp& ts) {return (this->ModifiedTime > ts.ModifiedTime);};
+  int operator<(vlTimeStamp& ts) {return (this->ModifiedTime < ts.ModifiedTime);};
   operator unsigned long int() {return this->ModifiedTime;};
 
 private:

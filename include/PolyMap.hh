@@ -13,9 +13,12 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// PolyMapper takes PolyData as input
-//
+// .NAME vlPolyMapper - map vlPolyData to graphics primitives
+// .SECTION Description
+// vlPolyMapper is a mapper to map polygonal data (i.e., vlPolyData) to 
+// graphics primitives. It is possible to control which geometric 
+// primitives are displayed using the boolean variables provided.
+
 #ifndef __vlPolyMapper_h
 #define __vlPolyMapper_h
 
@@ -33,21 +36,32 @@ public:
 
   void Render(vlRenderer *ren);
   float *GetBounds();
+
+  // Description:
+  // Specify the input data to map.
   virtual void SetInput(vlPolyData *in);
   virtual vlPolyData* GetInput();
 
+  // Description:
+  // Control the visibility of vertices.
   vlSetMacro(VertsVisibility,int);
   vlGetMacro(VertsVisibility,int);
   vlBooleanMacro(VertsVisibility,int);
 
+  // Description:
+  // Control the visibility of lines.
   vlSetMacro(LinesVisibility,int);
   vlGetMacro(LinesVisibility,int);
   vlBooleanMacro(LinesVisibility,int);
 
+  // Description:
+  // Control the visibility of polygons.
   vlSetMacro(PolysVisibility,int);
   vlGetMacro(PolysVisibility,int);
   vlBooleanMacro(PolysVisibility,int);
 
+  // Description:
+  // Control the visibility of triangle strips.
   vlSetMacro(StripsVisibility,int);
   vlGetMacro(StripsVisibility,int);
   vlBooleanMacro(StripsVisibility,int);

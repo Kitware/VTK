@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -15,13 +13,11 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-//  Dynamic, self adjusting short array
-//
-//
 #include "SArray.hh"
 
-vlShortArray::Allocate(const int sz, const int ext)
+// Description:
+// Allocate memory for this array. Delete old storage if present.
+int vlShortArray::Allocate(const int sz, const int ext)
 {
   if ( this->Array != NULL ) delete [] this->Array;
 
@@ -33,7 +29,8 @@ vlShortArray::Allocate(const int sz, const int ext)
   return 1;
 }
 
-
+// Description:
+// Release storage and reset array to initial state.
 void vlShortArray::Initialize()
 {
   if ( this->Array != NULL )
@@ -45,6 +42,8 @@ void vlShortArray::Initialize()
   this->MaxId = -1;
 }
 
+// Description:
+// Construct with specified storage size and extend value.
 vlShortArray::vlShortArray(const int sz, const int ext)
 {
   this->Size = ( sz > 0 ? sz : 1);
@@ -58,6 +57,8 @@ vlShortArray::~vlShortArray()
   delete [] this->Array;
 }
 
+// Description:
+// Construct array from another array. Copy each element of other array.
 vlShortArray::vlShortArray(const vlShortArray& sa)
 {
   int i;
@@ -72,6 +73,8 @@ vlShortArray::vlShortArray(const vlShortArray& sa)
 
 }
 
+// Description:
+// Deep copy of another array.
 vlShortArray& vlShortArray::operator=(const vlShortArray& sa)
 {
   int i;
@@ -91,10 +94,9 @@ vlShortArray& vlShortArray::operator=(const vlShortArray& sa)
   return *this;
 }
 
-//
-// Copy on write if used by more than one object
-//
-vlShortArray& vlShortArray::operator+=(const vlShortArray& sa)
+// Description:
+// Append one array onto the end of this array.
+void vlShortArray::operator+=(const vlShortArray& sa)
 {
   int i, sz;
 
@@ -105,8 +107,6 @@ vlShortArray& vlShortArray::operator+=(const vlShortArray& sa)
     this->Array[this->MaxId+1+i] = sa.Array[i];
     }
   this->MaxId += sa.MaxId + 1;
-
-  return *this;
 }
 
 void vlShortArray::PrintSelf(ostream& os, vlIndent indent)

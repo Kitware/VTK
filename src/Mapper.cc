@@ -13,16 +13,19 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Methods for abstract class mapper
-//
 #include "Mapper.hh"
 
+// Description:
+// Construct with initial range (0,1).
 vlMapper::vlMapper()
 {
-  this->StartRender = 0;
-  this->EndRender = 0;
-  this->LookupTable = 0;
+  this->StartRender = NULL;
+  this->StartRenderArg = NULL;
+  this->EndRender = NULL;
+  this->EndRenderArg = NULL;
+
+  this->LookupTable = NULL;
+
   this->ScalarsVisible = 1;
   this->ScalarRange[0] = 0.0; this->ScalarRange[1] = 1.0;
 }
@@ -42,24 +45,32 @@ void vlMapper::operator=(const vlMapper& m)
   this->SetScalarsVisible(m.ScalarsVisible);
   this->SetScalarRange(m.ScalarRange[0], m.ScalarRange[1]);
 
-  this->SetStartRender(m.StartRender);
-  this->SetEndRender(m.EndRender);
+  this->SetStartRender(m.StartRender,m.StartRenderArg);
+  this->SetEndRender(m.EndRender,m.EndRenderArg);
 }
 
-void vlMapper::SetStartRender(void (*f)())
+// Description:
+// Specify a function to be called before rendering process begins.
+// Function will be called with argument provided.
+void vlMapper::SetStartRender(void (*f)(void *), void *arg)
 {
-  if ( f != this->StartRender )
+  if ( f != this->StartRender || arg != this->StartRenderArg )
     {
     this->StartRender = f;
+    this->StartRenderArg = arg;
     this->Modified();
     }
 }
 
-void vlMapper::SetEndRender(void (*f)())
+// Description:
+// Specify a function to be called when rendering process completes.
+// Function will be called with argument provided.
+void vlMapper::SetEndRender(void (*f)(void *), void *arg)
 {
-  if ( f != this->EndRender )
+  if ( f != this->EndRender || arg != EndRenderArg )
     {
     this->EndRender = f;
+    this->EndRenderArg = arg;
     this->Modified();
     }
 }

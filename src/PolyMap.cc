@@ -13,11 +13,11 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Methods for polygon mapper
-//
 #include "PolyMap.hh"
 
+// Description:
+// Construct mapper with vertices, lines, polygons, and triangle strips
+// turned on.
 vlPolyMapper::vlPolyMapper()
 {
   this->Input = NULL;

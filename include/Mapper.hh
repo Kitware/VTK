@@ -13,9 +13,15 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Abstract class to map pipeline data to graphics primitives
-//
+// .NAME vlMapper - abstract class specifies interface to map data to graphics primitives
+// .SECTION Description
+// vlMapper is an abstract class to specify interface between data and 
+// graphics primitives. Subclasses of vlMapper map data through a 
+// lookuptable and control the creation of rendering primitives that
+// interface to the graphics library. The mapping can be controlled by 
+// supplying a lookup table and specifying a scalar range to map data
+// through.
+
 #ifndef __vlMapper_hh
 #define __vlMapper_hh
 
@@ -33,24 +39,42 @@ public:
   char *GetClassName() {return "vlMapper";};
   void PrintSelf(ostream& os, vlIndent indent);
   void operator=(const vlMapper& m);
-  virtual void Render(vlRenderer *) = 0;
-  virtual float *GetBounds() = 0;
-  void SetStartRender(void (*f)());
-  void SetEndRender(void (*f)());
+  void SetStartRender(void (*f)(void *), void *arg);
+  void SetEndRender(void (*f)(void *), void *arg);
 
+  // Description:
+  // Method initiates the mapping process. Generally sent by the actor 
+  // as each frame is rendered.
+  virtual void Render(vlRenderer *) = 0;
+
+  // Description:
+  // Return bounding box of data in terms of (xmin,xmax, ymin,ymax, zmin,zmax).
+  // Used in the rendering process to automatically create a camera in the 
+  // proper initial configuration.
+  virtual float *GetBounds() = 0;
+
+  // Description:
+  // Specify a lookup table for the mapper to use.
   vlSetObjectMacro(LookupTable,vlLookupTable);
   vlGetObjectMacro(LookupTable,vlLookupTable);
 
+  // Description:
+  // Set flag to control whether scalar data is used to color objects.
   vlSetMacro(ScalarsVisible,int);
   vlGetMacro(ScalarsVisible,int);
   vlBooleanMacro(ScalarsVisible,int);
 
+  // Description:
+  // Specify range in terms of (smin,smax) through which to map scalars
+  // into lookup table.
   vlSetVector2Macro(ScalarRange,float)
   vlGetVectorMacro(ScalarRange,float)
 
 protected:
-  void (*StartRender)();
-  void (*EndRender)();
+  void (*StartRender)(void *);
+  void *StartRenderArg;
+  void (*EndRender)(void *);
+  void *EndRenderArg;
   vlLookupTable *LookupTable;
   int ScalarsVisible;
   vlTimeStamp BuildTime;

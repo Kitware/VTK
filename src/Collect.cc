@@ -14,12 +14,12 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include <stdlib.h>
-#include <iostream.h>
 #include <math.h>
 
 #include "Collect.hh"
 
-
+// Description:
+// Construct with empty list.
 vlCollection::vlCollection()
 {
   this->NumberOfItems = 0;
@@ -27,6 +27,8 @@ vlCollection::vlCollection()
   this->Bottom = NULL;
 }
 
+// Description:
+// Add an object to the list. Does not prevent duplicate entries.
 void vlCollection::AddItem(vlObject *a)
 {
   vlCollectionElement *elem;
@@ -49,6 +51,9 @@ void vlCollection::AddItem(vlObject *a)
   this->NumberOfItems++;
 }
 
+// Description:
+// Remove an object from the list. Removes the first object found, not
+// all occurences.
 void vlCollection::RemoveItem(vlObject *a)
 {
   int i;
@@ -87,6 +92,9 @@ void vlCollection::RemoveItem(vlObject *a)
     }
 }
 
+// Description:
+// Search for an object and return location in list. If location == 0,
+// object was not found.
 int vlCollection::IsItemPresent(vlObject *a)
 {
   int i;
@@ -111,11 +119,15 @@ int vlCollection::IsItemPresent(vlObject *a)
 }
 
 
+// Description:
+// Return the number of objects in the list.
 int vlCollection::GetNumberOfItems()
 {
   return this->NumberOfItems;
 }
 
+// Description:
+// Return a pointer to the object at the specified location in the list.
 vlObject *vlCollection::GetItem(int num)
 {
   int i;
