@@ -43,15 +43,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .NAME vtkGraphLayoutFilter - nice layout of undirected graphs in 3D
 // .SECTION Description
 // vtkGraphLayoutFilter will reposition a network of nodes, connected by
-// lines, into a more pleasing arrangement. The class implements a simple
-// force-directed placement algorithm (Fruchterman & Reingold "Graph Drawing 
-// by Force-directed Placement" Software-Practice and Experience 21(11) 1991).
+// lines or polylines, into a more pleasing arrangement. The class 
+// implements a simple force-directed placement algorithm 
+// (Fruchterman & Reingold "Graph Drawing by Force-directed Placement" 
+// Software-Practice and Experience 21(11) 1991).
 //
 // The input to the filter is a vtkPolyData representing the undirected 
-// graphs. A graph is represented by a set of polylines. The output is
-// also a vtkPolyData, where the point positions have been modified.
-// To use the filter, specify whether you wish the layout to occur in
-// 2D or 3D; the bounds in which the graph should lie (note that you
+// graphs. A graph is represented by a set of polylines and/or lines. 
+// The output is also a vtkPolyData, where the point positions have been 
+// modified. To use the filter, specify whether you wish the layout to 
+// occur in 2D or 3D; the bounds in which the graph should lie (note that you
 // can just use automatic bounds computation); and modify the cool down
 // rate (controls the final process of simulated annealing).
 
@@ -69,9 +70,16 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Turn on/off automatic length/width calculation. If this
-  // boolean is off, then the manually specified Length, Width,
-  // and Height is used.
+  // Set / get the region in space in which to place the final graph.
+  // The GraphBounds only affects the results if AutomaticBoundsComputation
+  // is off.
+  vtkSetVector6Macro(GraphBounds,float);
+  vtkGetVectorMacro(GraphBounds,float,6);
+
+  // Description:
+  // Turn on/off automatic graph bounds calculation. If this
+  // boolean is off, then the manually specified GraphBounds is used.
+  // If on, then the input's bounds us used as the graph bounds.
   vtkSetMacro(AutomaticBoundsComputation, int);
   vtkGetMacro(AutomaticBoundsComputation, int);
   vtkBooleanMacro(AutomaticBoundsComputation, int);
@@ -91,17 +99,11 @@ public:
   vtkGetMacro(CoolDownRate, float);
 
   // Turn on/off layout of graph in three dimensions. If off, graph
-  // layout occurs in two dimensions.
+  // layout occurs in two dimensions. By default, three dimensional
+  // layout is on.
   vtkSetMacro(ThreeDimensionalLayout, int);
   vtkGetMacro(ThreeDimensionalLayout, int);
   vtkBooleanMacro(ThreeDimensionalLayout, int);
-
-  // Description:
-  // The bounds factor is used when the ivar AutomaticBoundsComputation is
-  // set to "on".  When it is, this factor determines how much larger the
-  // dimensions of the graph are in relation to how big the graph is itself.
-  vtkSetClampMacro(BoundsFactor, float, 0, VTK_LARGE_FLOAT);
-  vtkGetMacro(BoundsFactor, float);
 
 protected:
   vtkGraphLayoutFilter();
@@ -112,11 +114,10 @@ protected:
   void Execute();
 
   float GraphBounds[6];
-  int MaxNumberOfIterations;  //Maximum number of iterations.
+  int   AutomaticBoundsComputation;  //Boolean controls automatic bounds calc.
+  int   MaxNumberOfIterations;  //Maximum number of iterations.
   float CoolDownRate;  //Cool-down rate.  Note:  Higher # = Slower rate.
-  int AutomaticBoundsComputation;  //Boolean to calculate bounds automatically.
-  int ThreeDimensionalLayout;  //Boolean for a third dimension.
-  float BoundsFactor;  //Factor to extent the bounds.  0.1 = 10%, etc.
+  int   ThreeDimensionalLayout;  //Boolean for a third dimension.
 };
 
 #endif

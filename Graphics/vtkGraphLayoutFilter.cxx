@@ -62,11 +62,10 @@ vtkGraphLayoutFilter::vtkGraphLayoutFilter()
 {
   this->GraphBounds[0] = this->GraphBounds[2] = this->GraphBounds[4] = -0.5;
   this->GraphBounds[1] = this->GraphBounds[3] = this->GraphBounds[5] =  0.5;
-  this->MaxNumberOfIterations = 100;
+  this->MaxNumberOfIterations = 50;
   this->CoolDownRate = 10.0;
   this->AutomaticBoundsComputation = 1;
   this->ThreeDimensionalLayout = 1;
-  this->BoundsFactor = 0.1;
 }
 
 // A vertex contains a position and a displacement.
@@ -128,7 +127,8 @@ void vtkGraphLayoutFilter::Execute()
     return;
     }
 
-  // Generate bounds automatically if necessary.
+  // Generate bounds automatically if necessary. It's the same
+  // as the input bounds.
   if ( this->AutomaticBoundsComputation )
     {
     pts->GetBounds(this->GraphBounds);
@@ -142,17 +142,6 @@ void vtkGraphLayoutFilter::Execute()
       }
     }
   
-  if ( this->AutomaticBoundsComputation )
-    {
-    for (i=0; i<3; i++)
-      {
-      len = this->GraphBounds[2*i+1] - this->GraphBounds[2*i];
-      this->GraphBounds[2*i] = this->GraphBounds[2*i] - len*this->BoundsFactor;
-      this->GraphBounds[2*i+1] = 
-        this->GraphBounds[2*i+1] + len*this->BoundsFactor;
-      }
-    }
-
   // Allocate memory for structures. Break polylines into line segments.
   numLines=0;
   for (i=0, lines->InitTraversal(); lines->GetNextCell(npts, cellPts); i++)
@@ -256,21 +245,30 @@ void vtkGraphLayoutFilter::Execute()
     {
     newPts->SetPoint(i,v[i].x);
     }
-  float bounds[6], sf[3], translation[3], *x, xNew[3];
+  float bounds[6], sf[3], *x, xNew[3];
+  float center[3], graphCenter[3];
   newPts->GetBounds(bounds);
   for (i=0; i<3; i++)
     {
-    sf[i] = (bounds[2*i+1] - bounds[2*i]) /
-      (this->GraphBounds[2*i+1] - this->GraphBounds[2*i]);
-    translation[i] = (bounds[2*i+1] + bounds[2*i])/2.0 -
-      (this->GraphBounds[2*i+1] + this->GraphBounds[2*i])/2.0;
+    if ( (len=(bounds[2*i+1] - bounds[2*i])) == 0.0 )
+      {
+      len = 1.0;
+      }
+    sf[i] = (this->GraphBounds[2*i+1] - this->GraphBounds[2*i]) / len;
+    center[i] = (bounds[2*i+1] + bounds[2*i])/2.0;
+    graphCenter[i] = (this->GraphBounds[2*i+1] + this->GraphBounds[2*i])/2.0;
     }
+
+  float scale = sf[0];
+  scale = (scale < sf[1] ? scale : sf[1]);
+  scale = (scale < sf[2] ? scale : sf[2]);
+
   for (i=0; i<numPts; i++)
     {
     x = newPts->GetPoint(i);
     for (j=0; j<3; j++)
       {
-      xNew[j] = x[j];
+      xNew[j] = graphCenter[j] + scale*(x[j]-center[j]);
       }
     newPts->SetPoint(i,xNew);
     }
@@ -301,9 +299,6 @@ void vtkGraphLayoutFilter::PrintSelf(ostream& os, vtkIndent indent)
      << this->GraphBounds[3] << ")\n";
   os << indent << "  Zmin,Zmax: (" << this->GraphBounds[4] << ", " 
      << this->GraphBounds[5] << ")\n";
-
-  os << indent << "BoundsFactor: " 
-     << this->BoundsFactor << endl;
 
   os << indent << "MaxNumberOfIterations: " 
      << this->MaxNumberOfIterations << endl;
