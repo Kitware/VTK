@@ -142,7 +142,7 @@ set cam1 [ren1 GetActiveCamera]
     $cam1 SetViewUp 0.060772 -0.319905 0.945498
 iren Initialize
 
-#renWin SetFileName "probeComb.tcl.ppm"
+renWin SetFileName "xyPlot.tcl.ppm"
 #renWin SaveImageAsPPM
 
 # render the image
