@@ -73,6 +73,20 @@ public class vtkTesting2
       {
       vtkTesting2.LoadLibrary(lpath, "vtk" + kits[cc] + "Java", verbose); 
       }
+    vtkTesting2.Tester = new vtk.vtkTesting();
+    for ( cc = 0; cc < args.length; cc ++ )
+      {
+      vtkTesting2.Tester.AddArgument(args[cc]);
+      }
+    }
+
+  public static boolean IsInteractive()
+    {
+    if ( vtkTesting2.Tester.IsInteractiveModeSpecified() == 0 )
+      {
+      return false;
+      }
+    return true;
     }
 
   public static void Exit(int retVal)
@@ -85,133 +99,19 @@ public class vtkTesting2
     System.out.println("Test passed");
     System.exit(0);
     }
-   
-  public static String ExpandDataFileName(String[] args, String path)
+
+  public static int RegressionTest( vtkRenderWindow renWin, int threshold )
     {
-    return vtkTesting2.ExpandDataFileName(args, path, false);
-    }
+    vtkTesting2.Tester.SetRenderWindow(renWin);
 
-  public static String ExpandDataFileName(String[] args, String path, boolean slash)
-    {
-    return vtkTesting2.ExpandFileNameWithArgOrDefault(
-      "-D", args, 
-      "../../../../VTKData",
-      path, slash);
-    }
-
-  public static String GetArgOrDefault(String arg, String[] args, String def)
-    {
-    int index = -1;
-    int cc;
-    for ( cc = 0; cc < args.length; cc ++ )
-      {
-      if ( args[cc].equals(arg) && cc < args.length - 1 )
-        {
-        index = cc + 1;
-        }
-      }
-    String value = null;
-    if ( index > -1 )
-      {
-      value = args[index];
-      }
-    else
-      {
-      value = def;
-      }
-    return value;
-    }
-
-    private static String ExpandFileNameWithArgOrDefault(String arg, 
-                                                         String[] args, 
-                                                         String def, 
-                                                         String fname,
-                                                         boolean slash)
-    {
-    String fullName = null;
-    String value = vtkTesting2.GetArgOrDefault(arg, args, def);
-    if (value != null)
-      {
-      fullName = value;
-      fullName = fullName + "/";
-      fullName = fullName + fname;
-      }
-    else
-      {
-      fullName = fname;
-      }
-
-    if (slash)
-      {
-      fullName = fullName + "/";
-      }
-
-    return fullName;
-    }
-
-  public static int RegressionTestImage( vtkRenderWindow renWin, String[] args,
-    int threshold )
-    {
-    String image_path = null;
-    String data_path = null;
-    int cc;
-    boolean last = false;
-    for ( cc = 0; cc < args.length; cc ++ )
-      {
-      if( cc == args.length )
-        {
-        last = true;
-        }
-      if ( args[cc].equals("-I") )
-        {
-        System.out.println("Interactive mode");
-        return vtkTesting2.DO_INTERACTOR;
-        }
-      if ( args[cc].equals("-D") )
-        {
-        if ( !last )
-          {
-          data_path = args[cc+1];
-          System.out.println("Set data path to: " + data_path);
-          cc++;
-          }
-        else
-          {
-          System.err.println("Data path not specified");
-          System.exit(1);
-          }
-        }
-      if ( args[cc].equals("-V") )
-        {
-        if ( !last )
-          {
-          image_path = args[cc+1];
-          System.out.println("Set image path to: " + image_path);
-          cc++;
-          }
-        else
-          {
-          System.err.println("Image path not specified");
-          return vtkTesting2.NOT_RUN;
-          }
-        }
-      }
-
-    File file = new File(data_path + "/" + image_path);
-    if ( !file.exists() )
-      {
-      System.err.println("File " + file.getName() + " does not exists");
-      return vtkTesting2.NOT_RUN;
-      }
-    vtkTesting tt = new vtkTesting();
-    tt.SetDataFileName(data_path + "/" + image_path);
-    tt.SetRenderWindow(renWin);
-
-    if (tt.RegressionTest(threshold) == vtkTesting2.PASSED ) 
+    if (vtkTesting2.Tester.RegressionTest(threshold) == vtkTesting2.PASSED ) 
       {
       return vtkTesting2.PASSED;
       } 
-    System.out.println("Image difference: " + tt.GetImageDifference());
+    System.out.println("Image difference: " + vtkTesting2.Tester.GetImageDifference());
     return vtkTesting2.FAILED;
-    } 
+    }
+
+
+  private static vtkTesting Tester = null;
 }

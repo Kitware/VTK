@@ -152,11 +152,16 @@ public class Regression
       retVal1 = vtkTesting2.FAILED;
       }
 
-    int retVal2 = vtkTesting2.RegressionTestImage(renWin, args, 10);
-    if ( retVal2 == vtkTesting2.DO_INTERACTOR )
+    int retVal2 = vtkTesting2.PASSED;
+    if ( vtkTesting2.IsInteractive() )
       {
       iren.Start();
       }
+    else
+      {
+      vtkTesting2.RegressionTest(renWin, 10);
+      }
+
     if ( retVal0 != vtkTesting2.PASSED )
       {
       vtkTesting2.Exit(retVal0);
