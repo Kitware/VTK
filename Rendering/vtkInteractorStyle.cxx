@@ -22,6 +22,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkCellPicker.h"
 #include "vtkMath.h" 
+#include "vtkObjectFactory.h"
 #include "vtkOldStyleCallbackCommand.h"
 #include "vtkOutlineSource.h"
 #include "vtkPolyDataMapper.h"
@@ -31,13 +32,8 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkTextProperty.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyle, "1.80");
-
-//----------------------------------------------------------------------------
-vtkInteractorStyle *vtkInteractorStyle::New() 
-{
-  return new vtkInteractorStyle;
-}
+vtkCxxRevisionMacro(vtkInteractorStyle, "1.81");
+vtkStandardNewMacro(vtkInteractorStyle);
 
 //----------------------------------------------------------------------------
 vtkInteractorStyle::vtkInteractorStyle() 
