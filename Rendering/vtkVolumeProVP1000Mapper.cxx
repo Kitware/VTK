@@ -22,6 +22,7 @@
 #include "vtkDebugLeaks.h"
 #include "vtkGraphicsFactory.h"
 #include "vtkLight.h"
+#include "vtkLightCollection.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLVolumeProVP1000Mapper.h"
 #include "vtkPiecewiseFunction.h"
@@ -33,7 +34,7 @@
 #include <stdio.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeProVP1000Mapper, "1.19");
+vtkCxxRevisionMacro(vtkVolumeProVP1000Mapper, "1.20");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
