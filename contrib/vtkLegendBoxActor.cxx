@@ -381,7 +381,7 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
     int maxTextMapper;
     char *str;
     int tempi[2], fontSize;
-    float sf, twr, swr, *bounds, *center;
+    float sf, twr, swr, *bounds;
     for (swr=0.0, maxLength=i=0; i<this->NumberOfEntries; i++)
       {
       str = this->TextMapper[i]->GetInput();
@@ -494,7 +494,6 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
         {
         this->SymbolTransform[i]->SetInput(this->Symbol[i]);
         bounds = this->Symbol[i]->GetBounds();
-        center = this->Symbol[i]->GetCenter();
         sf = size[0]/(bounds[1]-bounds[0]);
         if ( (size[1]/(bounds[3]-bounds[2])) < sf )
           {

@@ -2014,7 +2014,7 @@ void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "InputStringLength: " << this->InputStringLength << endl;
 }
 
-int vtkDataReader::ReadDataSetData(vtkDataSet *ds)
+int vtkDataReader::ReadDataSetData(vtkDataSet *vtkNotUsed(ds))
 {
   vtkFieldData* fd = this->ReadFieldData();
   return 0;
