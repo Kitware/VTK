@@ -177,7 +177,7 @@ private:
   vtkPolyDataMapper    *CurrentMapper;
 
   vtkPoints* PointsNew();
-  vtkIntArray* IntArrayNew();
+  vtkIdTypeArray* IdTypeArrayNew();
 
   void DeleteObject(vtkObject*);
 
