@@ -413,7 +413,7 @@ void vtkMarchingCubes::Execute()
     bounds[2*i+1] = origin[i] + (dims[i]-1) * Spacing[i];
     }
   if ( this->Locator == NULL ) this->CreateDefaultLocator();
-  this->Locator->InitPointInsertion (newPts, bounds);
+  this->Locator->InitPointInsertion (newPts, bounds, estimatedSize);
 
   if (this->ComputeNormals)
     {
