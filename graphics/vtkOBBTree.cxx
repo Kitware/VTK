@@ -220,6 +220,9 @@ void vtkOBBTree::ComputeOBB(vtkDataSet *input, float corner[3], float max[3],
 
   vtkDebugMacro(<<"Computing OBB");
 
+  // what was the value of this supposed to be?
+  numCells = 1000;
+
   if ( input == NULL || (numPts = input->GetNumberOfPoints()) < 1 ||
       (input->GetNumberOfCells()) < 1 )
     {
