@@ -21,7 +21,7 @@
 #include "vtkTextProperty.h"
 #include "vtkToolkits.h"
 
-vtkCxxRevisionMacro(vtkTextMapper, "1.51");
+vtkCxxRevisionMacro(vtkTextMapper, "1.52");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -186,8 +186,8 @@ int vtkTextMapper::SetConstrainedFontSize(vtkViewport *viewport,
 
   // While the size is too small increase it
 
-  while (tempi[1] < targetHeight &&
-         tempi[0] < targetWidth && 
+  while (tempi[1] <= targetHeight &&
+         tempi[0] <= targetWidth && 
          fontSize < 100)
     {
     fontSize++;
