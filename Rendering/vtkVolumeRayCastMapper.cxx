@@ -37,7 +37,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.96");
+vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.97");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -1598,7 +1598,10 @@ void vtkVolumeRayCastMapper::ComputeMatrices( vtkImageData *data,
   // Get the origin of the data.  This translation is not accounted for in
   // the volume's matrix, so we must add it in.
   float volumeOrigin[3];
-  data->GetOrigin( volumeOrigin );
+  float *bds = data->GetBounds();
+  volumeOrigin[0] = bds[0];
+  volumeOrigin[1] = bds[2];
+  volumeOrigin[2] = bds[4];
 
   // Get the dimensions of the data.
   int volumeDimensions[3];

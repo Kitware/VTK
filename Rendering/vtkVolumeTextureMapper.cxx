@@ -24,7 +24,7 @@
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
-vtkCxxRevisionMacro(vtkVolumeTextureMapper, "1.25");
+vtkCxxRevisionMacro(vtkVolumeTextureMapper, "1.26");
 
 vtkVolumeTextureMapper::vtkVolumeTextureMapper()
 {
@@ -201,11 +201,13 @@ void vtkVolumeTextureMapper::InitializeRender( vtkRenderer *ren,
     this->GradientMagnitudes = NULL;
     }
 
-  this->GetInput()->GetOrigin( this->DataOrigin );
+  float *bds = this->GetInput()->GetBounds();
+  this->DataOrigin[0] = bds[0];
+  this->DataOrigin[1] = bds[2];
+  this->DataOrigin[2] = bds[4];
   this->GetInput()->GetSpacing( this->DataSpacing );
   
   this->ConvertCroppingRegionPlanesToVoxels();
-  
 }
 
 float vtkVolumeTextureMapper::GetGradientMagnitudeScale()
