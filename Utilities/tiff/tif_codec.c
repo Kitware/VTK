@@ -95,7 +95,7 @@ TIFFCodec _TIFFBuiltinCODECS[] = {
     { "PixarLog",       COMPRESSION_PIXARLOG,   TIFFInitPixarLog },
     { "SGILog",         COMPRESSION_SGILOG,     TIFFInitSGILog },
     { "SGILog24",       COMPRESSION_SGILOG24,   TIFFInitSGILog },
-    { NULL }
+    { NULL, 0, 0 }
 };
 
 static int
