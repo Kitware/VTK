@@ -415,8 +415,10 @@ void vtkClipVolume::ClipVoxel(float value, vtkScalars *cellScalars,
                               float spacing[3], 
                               vtkIdList *cellIds, vtkPoints *cellPts,
                               vtkPointData *inPD, vtkPointData *outPD,
-                              vtkCellData *inCD, int cellId, 
-                              vtkCellData *outCD, vtkCellData *clippedCD)
+                              vtkCellData *vtkNotUsed(inCD),
+			      int vtkNotUsed(cellId), 
+                              vtkCellData *vtkNotUsed(outCD),
+			      vtkCellData *vtkNotUsed(clippedCD))
 {
   float x[3], *xPtr, s1, s2, t, voxelOrigin[3];
   float bounds[6], p1[3], p2[3];
