@@ -108,17 +108,20 @@ int main(int argc,char *argv[])
   /* fill in the correct arrays */
   for (i = 2, j = 0; i < argc; i++)
     {
+    /* first check validity of the wrapper for the class */ 
     strcpy(tmp,"./tcl/");
-    strcpy(tmp+strlen(tmp)-2,argv[i]);
-    strcpy(tmp+strlen(tmp),"Tcl.cxx");
+    strcpy(tmp+strlen(tmp),argv[i]);
+    strcpy(tmp+strlen(tmp)-2,"Tcl.cxx");
     file = fopen(tmp,"r");
     if (file) 
       {
       fgets(tmp,19,file);
+      tmp[19] = '\0';
       fclose(file);
       }
-    if (strcmp(tmp,"// tcl wrapper for") != 0)
+    if (file && strcmp(tmp,"// tcl wrapper for") != 0)
       {
+      /* the wrapper file wasn't built or isn't valid */ 
       continue;
       }
     /* remove the .h and store */
