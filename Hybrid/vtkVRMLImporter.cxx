@@ -80,7 +80,7 @@ char *alloca ();
 #include "vtkTransform.h"
 #include "vtkVRML.h"
 
-#ifdef WIN32
+#ifdef _MSC_VER
 #pragma warning( disable : 4005 )
 #endif
 
@@ -88,13 +88,13 @@ class vtkVRMLImporterInternal {
 public:
   vtkVRMLImporterInternal() : Heap(1) {}
 //BTX
-#ifdef WIN32
+#ifdef _MSC_VER
 #pragma warning( disable : 4251 )
 #endif
 
   vtkVRMLVectorType<vtkObject*> Heap;
 
-#ifdef WIN32
+#ifdef _MSC_VER
 #pragma warning( default : 4251 )
 #endif
 
@@ -4257,7 +4257,7 @@ YY_MALLOC_DECL
 #define YY_BREAK break;
 #endif
 
-vtkCxxRevisionMacro(vtkVRMLImporter, "1.69");
+vtkCxxRevisionMacro(vtkVRMLImporter, "1.70");
 vtkStandardNewMacro(vtkVRMLImporter);
 
 vtkPoints* vtkVRMLImporter::PointsNew()
