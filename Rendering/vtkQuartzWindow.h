@@ -1,17 +1,28 @@
 #import <Cocoa/Cocoa.h>
 
-@class vtkQuartzWindowController;
+@class vtkQuartzGLView;
 
 @interface vtkQuartzWindow : NSWindow
 {
     @private
-    IBOutlet vtkQuartzWindowController *controller;
     NSTimer *MyNSTimer;
+    IBOutlet vtkQuartzGLView *myvtkQuartzGLView;
+    void *myVTKRenderWindow;
+    void *myVTKRenderWindowInteractor;
 }
 
-// DemoController accessor and convenience
-- (void)setvtkQuartzWindowController:(vtkQuartzWindowController *)theController;
-- (vtkQuartzWindowController *)getvtkQuartzWindowController;
+// accessor and convenience
+
+- (vtkQuartzGLView *)getvtkQuartzGLView;
+- (void)setvtkQuartzGLView:vtkQuartzGLView;
+
+- (void *)getVTKRenderWindow;
+- (void)setVTKRenderWindow:(void *)theVTKRenderWindow;
+
+- (void *)getVTKRenderWindowInteractor;
+- (void)setVTKRenderWindowInteractor:(void *)theVTKRenderWindowInteractor;
+
+- (void)makeCurrentContext;
 
 - (NSSize)windowWillResize:(NSWindow *)sender toSize:(NSSize)proposedFrameSize;
 - (BOOL)windowShouldZoom:(NSWindow *)sender toFrame:(NSRect)newFrame;

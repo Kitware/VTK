@@ -8,16 +8,19 @@
     enum NSOpenGLPixelFormatAttribute bitsPerPixel, depthSize;
 
     @private
-    IBOutlet vtkQuartzWindowController *controller;
+    void *myVTKRenderWindow;
+    void *myVTKRenderWindowInteractor;
 }
 
 // Overrides
 - (void) drawRect:(NSRect)theRect;
 - (id)initWithFrame:(NSRect)theFrame;
 
-// vtkQuartzWindowController accessors and convenience methods
-- (void)setvtkQuartzWindowController:(vtkQuartzWindowController *)theController;
-- (vtkQuartzWindowController *)getvtkQuartzWindowController;
+- (void *)getVTKRenderWindow;
+- (void)setVTKRenderWindow:(void *)theVTKRenderWindow;
+
+- (void *)getVTKRenderWindowInteractor;
+- (void)setVTKRenderWindowInteractor:(void *)theVTKRenderWindowInteractor;
 
 
 @end

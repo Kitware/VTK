@@ -1,5 +1,4 @@
 #import "vtkQuartzGLView.h"
-#import "vtkQuartzWindowController.h"
 #define id Id // since id is a reserved word in ObjC which vtk uses a _lot_
 #import "vtkQuartzRenderWindow.h"
 #import "vtkQuartzRenderWindowInteractor.h"
@@ -42,15 +41,20 @@
   return self;
 }
 
-
-// vtkQuartzWindowController accessors and convenience methods
-- (void)setvtkQuartzWindowController:(vtkQuartzWindowController *)theController
-{
-  controller = theController;
+- (void *)getVTKRenderWindow {
+    return myVTKRenderWindow;
 }
 
-- (vtkQuartzWindowController *)getvtkQuartzWindowController {
-    return controller;
+- (void)setVTKRenderWindow:(void *)theVTKRenderWindow {
+    myVTKRenderWindow = theVTKRenderWindow;
+}
+
+- (void *)getVTKRenderWindowInteractor {
+    return myVTKRenderWindowInteractor;
+}
+
+- (void)setVTKRenderWindowInteractor:(void *)theVTKRenderWindowInteractor {
+    myVTKRenderWindowInteractor = theVTKRenderWindowInteractor;
 }
 
 - (void)drawRect:(NSRect)theRect
@@ -63,7 +67,7 @@
   // Set proper viewport
   glViewport((long int)visibleRect.origin.x, (long int)visibleRect.origin.y, 
 	     (long int)visibleRect.size.width, (long int)visibleRect.size.height);
-  VBRedrawWindow([[self getvtkQuartzWindowController] getVTKRenderWindow]);
+  VBRedrawWindow(myVTKRenderWindow);
   [[self openGLContext] flushBuffer];
 }
 
@@ -91,8 +95,8 @@
 
     mouseLoc = [self convertPoint:[theEvent locationInWindow] fromView:nil];
 
-    DoMouseMoved([[self getvtkQuartzWindowController] getVTKRenderWindowInteractor],
-                  shiftDown, controlDown, altDown, commandDown, mouseLoc.x, mouseLoc.y);
+    DoMouseMoved(myVTKRenderWindowInteractor, shiftDown, controlDown,
+                 altDown, commandDown, mouseLoc.x, mouseLoc.y);
 
 }
 
@@ -107,24 +111,24 @@
     int commandDown = ([theEvent modifierFlags] & NSCommandKeyMask);
 
     mouseLoc = [self convertPoint:[theEvent locationInWindow] fromView:nil];
-    DoMouseDown([[self getvtkQuartzWindowController]  getVTKRenderWindowInteractor], shiftDown, controlDown, altDown, commandDown, mouseLoc.x, mouseLoc.y);
+    DoMouseDown(myVTKRenderWindowInteractor, shiftDown, controlDown, altDown, commandDown, mouseLoc.x, mouseLoc.y);
     
     do {
         isInside = [self mouse:mouseLoc inRect:[self bounds]];
         switch ([theEvent type]) {
             case NSLeftMouseDragged:
-                DoMouseDragged([[self getvtkQuartzWindowController] getVTKRenderWindowInteractor], shiftDown, controlDown, altDown, commandDown,
+                DoMouseDragged(myVTKRenderWindowInteractor, shiftDown, controlDown, altDown, commandDown,
                                 mouseLoc.x, mouseLoc.y);
                 break;
             case NSLeftMouseUp:
-                if (isInside) DoMouseUp([[self getvtkQuartzWindowController]  getVTKRenderWindowInteractor], shiftDown, 					controlDown, altDown, commandDown, 
+                if (isInside) DoMouseUp(myVTKRenderWindowInteractor, shiftDown, 					controlDown, altDown, commandDown, 
                                 mouseLoc.x, mouseLoc.y);
                 keepOn = NO;
                 [NSEvent stopPeriodicEvents];
                 return;
             case NSPeriodic:
                 [NSEvent stopPeriodicEvents];
-                VBTimerEvent([[self getvtkQuartzWindowController] getVTKRenderWindowInteractor]);
+                VBTimerEvent(myVTKRenderWindowInteractor);
                 break;
             default:
                 break;

@@ -2,11 +2,10 @@
 #define id Id // needed since id is a reserved word in ObjC!
 #import "vtkQuartzRenderWindow.h"
 #undef id
-#import "vtkQuartzWindowController.h"
-//#import "vtkCaller.h"
 #import "vtkQuartzGLView.h"
 
 @implementation vtkQuartzWindow
+
 
 - (void)close {
     [super close];
@@ -14,26 +13,46 @@
 //    VBDestroyWindow(myVTKRenderWindow);
 }
 
-//vtkQuartzWindowController accessors and convenience
-- (void)setvtkQuartzWindowController:(vtkQuartzWindowController *)theController
-{
-    controller = theController;
+
+- (vtkQuartzGLView *)getvtkQuartzGLView {
+    return myvtkQuartzGLView;
 }
 
-- (vtkQuartzWindowController *)getvtkQuartzWindowController {
-    return controller;
+- (void)setvtkQuartzGLView:(vtkQuartzGLView *)thevtkQuartzGLView {
+    myvtkQuartzGLView = thevtkQuartzGLView;
+    [self setContentView:myvtkQuartzGLView];
+}
+
+- (void *)getVTKRenderWindow {
+    return myVTKRenderWindow;
+}
+
+- (void)setVTKRenderWindow:(void *)theVTKRenderWindow {
+    myVTKRenderWindow = theVTKRenderWindow;
+}
+
+- (void *)getVTKRenderWindowInteractor {
+    return myVTKRenderWindowInteractor;
+}
+
+- (void)setVTKRenderWindowInteractor:(void *)theVTKRenderWindowInteractor {
+    myVTKRenderWindowInteractor = theVTKRenderWindowInteractor;
+}
+
+- (void)makeCurrentContext {
+    [[myvtkQuartzGLView openGLContext] makeCurrentContext];
 }
 
 - (NSSize)windowWillResize:(NSWindow *)sender toSize:(NSSize)proposedFrameSize {
-    VBResizeWindow([[self getvtkQuartzWindowController] getVTKRenderWindow], proposedFrameSize.width, proposedFrameSize.height,
-                    [self frame].origin.x, [self frame].origin.y);
+    VBResizeWindow(myVTKRenderWindow, (int)proposedFrameSize.width, (int)proposedFrameSize.height,
+                    (int)[self frame].origin.x, (int)[self frame].origin.y);
     return proposedFrameSize;
 }
 
 - (BOOL)windowShouldZoom:(NSWindow *)sender toFrame:(NSRect)newFrame {
-    VBResizeWindow([[self getvtkQuartzWindowController] getVTKRenderWindow], newFrame.size.width, newFrame.size.height,
-                    newFrame.origin.x, newFrame.origin.y);
-    [[[self getvtkQuartzWindowController] getvtkQuartzGLView] setNeedsDisplay:YES];
+    VBResizeWindow(myVTKRenderWindow, (int)newFrame.size.width, (int)newFrame.size.height,
+                    (int)newFrame.origin.x, (int)newFrame.origin.y);
+    [myvtkQuartzGLView setNeedsDisplay:YES];
     return YES;
 }
 

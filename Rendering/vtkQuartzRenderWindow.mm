@@ -56,7 +56,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #import "vtkQuartzWindow.h"
 #import "vtkQuartzGLView.h"
-#import "vtkQuartzWindowController.h"
 
 #define id Id // since id is a reserved token in ObjC and is used a _lot_ in vtk
 
@@ -113,7 +112,6 @@ vtkQuartzRenderWindow::vtkQuartzRenderWindow()
   this->ContextId = 0;
   this->MultiSamples = 8;
   this->WindowId = 0;
-  this->WindowController = 0;
   this->DeviceContext = 0;		// hsr
   this->StereoType = 0;  
   this->SetWindowName("Visualization Toolkit - Quartz");
@@ -133,7 +131,7 @@ vtkQuartzRenderWindow::~vtkQuartzRenderWindow()
     // can't set WindowId=NULL, needed for DestroyWindow
     this->DeviceContext = NULL;
     
-    [(vtkQuartzWindowController *)this->WindowId close];
+    [(vtkQuartzWindow *)this->WindowId close];
     }
   this->TextureResourceIds->Delete();
 }
@@ -177,7 +175,7 @@ void vtkQuartzRenderWindow::Clean()
       ren->SetRenderWindow(NULL);
       }
 
-    [(vtkQuartzWindowController *)this->WindowId makeCurrentContext];
+    [(vtkQuartzWindow *)this->WindowId makeCurrentContext];
     //DOQUARTZwglDeleteContext(this->ContextId);
     this->ContextId = NULL;
     }
@@ -215,7 +213,7 @@ void vtkQuartzRenderWindow::Start(void)
 
 void vtkQuartzRenderWindow::MakeCurrent()
 {
-    [(vtkQuartzWindowController *)this->WindowId makeCurrentContext];
+    [(vtkQuartzWindow *)this->WindowId makeCurrentContext];
 }
 
 void vtkQuartzRenderWindow::SetSize(int x, int y)
@@ -236,7 +234,7 @@ void vtkQuartzRenderWindow::SetSize(int x, int y)
 				     this->Position[1],
 				     this->Size[0],
 				     this->Size[1]);
-	[[(vtkQuartzWindowController *)this->WindowId getvtkQuartzWindow] setFrame:sizeRect display:YES];
+	[(vtkQuartzWindow *)this->WindowId setFrame:sizeRect display:YES];
         resizing = 0;
         }
       }
@@ -261,8 +259,7 @@ void vtkQuartzRenderWindow::SetPosition(int x, int y)
                                      this->Position[1],
                                      this->Size[0],
                                      this->Size[1]);
-        [[(vtkQuartzWindowController *)this->WindowId getvtkQuartzWindow] 
-         setFrame:sizeRect display:YES];
+        [(vtkQuartzWindow *)this->WindowId setFrame:sizeRect display:YES];
         resizing = 0;
         }
       }
@@ -279,6 +276,7 @@ static void vtkQuartzSwapBuffers(void *hdc)
 void vtkQuartzRenderWindow::Frame(void)
 {
   glFlush();
+  [[(vtkQuartzWindow *)this->WindowId getvtkQuartzGLView] display];
   if (!this->AbortRender && this->DoubleBuffer)
     {
     vtkQuartzSwapBuffers(this->DeviceContext);
@@ -390,6 +388,9 @@ void vtkQuartzRenderWindow::WindowInitialize (void)
   int x, y, width, height;
   static int count = 1;
   char *windowName;
+  NSRect ctRect;
+  NSRect glRect;
+  vtkQuartzGLView *glView;
 #undef id
   id item;
 #define id Id
@@ -411,23 +412,26 @@ void vtkQuartzRenderWindow::WindowInitialize (void)
         sprintf(windowName,"Visualization Toolkit - Quartz #%i",count++);
         this->SetWindowName(windowName);
         delete [] windowName;
-
+ 
+        ctRect = NSMakeRect(50, 50, 350, 350);
+        glRect = NSMakeRect(0,0,400,400);
         /* create window */
-	this->WindowId = (void *)[[vtkQuartzWindowController alloc] retain];
+        
+	this->WindowId = (void *)[[[vtkQuartzWindow alloc] initWithContentRect:ctRect styleMask:NSTitledWindowMask|NSClosableWindowMask|NSMiniaturizableWindowMask|NSResizableWindowMask backing:NSBackingStoreBuffered defer:NO] retain];
         if (!this->WindowId)
         {
             vtkErrorMacro("Could not create window, serious error!");
             return;
         }
-        [(vtkQuartzWindowController *)this->WindowId setNibFileName:@"/usr/local/lib/vtkQuartzWindow.nib"];
-	[(vtkQuartzWindowController *)this->WindowId init];
-	[(vtkQuartzWindowController *)this->WindowId setVTKRenderWindow:this];
-	[(vtkQuartzWindowController *)this->WindowId setVTKRenderWindowInteractor:0];
-        [NSApp setMainMenu:[[NSMenu allocWithZone:[NSMenu menuZone]] initWithTitle:@"mainmenu"]];
-        item = [[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:@"RawApp" action:NULL keyEquivalent:@""];
-        [[NSApp mainMenu] addItem:item];
-//        cout<<"Setting main menu to "<<[(vtkQuartzWindowController *)this->WindowId getMyMenu]<<"\n";
-        [NSApp setMainMenu:[(vtkQuartzWindowController *)this->WindowId getMyMenu]];
+        [(vtkQuartzWindow *)this->WindowId setFrame:ctRect display:YES];
+        [(vtkQuartzWindow *)this->WindowId orderFrontRegardless];
+        glView = [[[vtkQuartzGLView alloc] initWithFrame:glRect] retain];
+        [(vtkQuartzWindow *)this->WindowId setvtkQuartzGLView:glView];
+	[(vtkQuartzWindow *)this->WindowId setAcceptsMouseMovedEvents:YES];
+	[(vtkQuartzWindow *)this->WindowId setVTKRenderWindow:this];
+	[(vtkQuartzWindow *)this->WindowId setVTKRenderWindowInteractor:0];
+	[glView setVTKRenderWindow:this];
+	[glView setVTKRenderWindowInteractor:0];
 	
         this->OwnWindow = 1;
     }
@@ -469,8 +473,8 @@ int *vtkQuartzRenderWindow::GetSize(void)
     }
 
     //  Find the current window size
-    this->Size[0] = (int) [[(vtkQuartzWindowController *)this->WindowId getvtkQuartzGLView] frame].size.width;
-    this->Size[1] = (int) [[(vtkQuartzWindowController *)this->WindowId getvtkQuartzGLView] frame].size.height;
+    this->Size[0] = (int) [[(vtkQuartzWindow *)this->WindowId getvtkQuartzGLView] frame].size.width;
+    this->Size[1] = (int) [[(vtkQuartzWindow *)this->WindowId getvtkQuartzGLView] frame].size.height;
     return this->Size;
 }
 
@@ -494,8 +498,8 @@ int *vtkQuartzRenderWindow::GetPosition(void)
     }
 
     //  Find the current window position
-    this->Position[0] = (int)[[(vtkQuartzWindowController *)this->WindowId getvtkQuartzWindow] frame].origin.x;
-    this->Position[1] = (int)[[(vtkQuartzWindowController *)this->WindowId getvtkQuartzWindow] frame].origin.y;
+    this->Position[0] = (int)[(vtkQuartzWindow *)this->WindowId frame].origin.x;
+    this->Position[1] = (int)[(vtkQuartzWindow *)this->WindowId frame].origin.y;
     return this->Position;
 }
 
