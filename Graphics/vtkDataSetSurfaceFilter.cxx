@@ -33,7 +33,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.30");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.31");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
@@ -884,6 +884,7 @@ void vtkDataSetSurfaceFilter::UnstructuredGridExecute()
             {
             newLines->InsertNextCell(2);
             inPtId = pts->GetId(i);
+            outputCD->CopyData( cd, cellId, this->NumberOfNewCells++ );
             outPtId = this->GetOutputPointId(inPtId, input, newPts, outputPD); 
             newLines->InsertCellPoint(outPtId);
             inPtId = pts->GetId(i+1);
@@ -898,6 +899,7 @@ void vtkDataSetSurfaceFilter::UnstructuredGridExecute()
             {
             newPolys->InsertNextCell(3);
             inPtId = pts->GetId(i);
+            outputCD->CopyData( cd, cellId, this->NumberOfNewCells++ );
             outPtId = this->GetOutputPointId(inPtId, input, newPts, outputPD); 
             newPolys->InsertCellPoint(outPtId);
             inPtId = pts->GetId(i+1);
@@ -923,6 +925,7 @@ void vtkDataSetSurfaceFilter::UnstructuredGridExecute()
                 {
                 newPolys->InsertNextCell(3);
                 inPtId = pts->GetId(i);
+                outputCD->CopyData( cd, cellId, this->NumberOfNewCells++ );
                 outPtId = this->GetOutputPointId(inPtId, input, newPts, outputPD); 
                 newPolys->InsertCellPoint(outPtId);
                 inPtId = pts->GetId(i+1);
