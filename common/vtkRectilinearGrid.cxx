@@ -522,6 +522,7 @@ int vtkRectilinearGrid::FindPoint(float x[3])
 	  loc[j] = i;
 	  }
         }
+      xPrev = xNext;
       }
     }
 //
@@ -703,6 +704,7 @@ int vtkRectilinearGrid::ComputeStructuredCoordinates(float x[3], int ijk[3],
         pcoords[j] = 1.0;
         break;
         }
+      xPrev = xNext;
       }
     }
 
