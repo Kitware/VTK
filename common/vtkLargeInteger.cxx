@@ -496,7 +496,9 @@ vtkLargeInteger& vtkLargeInteger::operator<<=(int n)
     return *this;
     }
   this->Expand(this->Sig + n);
-  for (i = this->Sig; i >= n; i--) // copy
+
+  // first shift
+  for (i = this->Sig; i >= n; i--) 
     {
     this->Number[i] = this->Number[i - n];
     }
@@ -515,11 +517,19 @@ vtkLargeInteger& vtkLargeInteger::operator>>=(int n)
     *this <<= -n;
     return *this;
     }
-  // why can't I use - for (int i = 0; i <= sig - n; i++)
-  for (unsigned int i = 0; i <= this->Sig; i++) // copy
+
+  // first shift the data
+  unsigned int i;
+  for (i = 0; i <= (this->Sig - n); i++) 
     {
     this->Number[i] = this->Number[i + n];
     }
+  // then clear the other values to be safe
+  for (i = (this->Sig - n + 1); i <= this->Sig; i++) 
+    {
+    this->Number[i] = 0;
+    }
+
   this->Sig = this->Sig - n; // shorten
   if (this->Sig < 0)
     {
