@@ -128,7 +128,7 @@ static void vtkImageCastExecute(vtkImageCast *self,
 			  outRegion, (unsigned char *)(outPtr)); 
       break;
     default:
-      cerr << "Execute: Unknown output ScalarType";
+      vtkGenericWarningMacro("Execute: Unknown output ScalarType");
       return;
     }
 }

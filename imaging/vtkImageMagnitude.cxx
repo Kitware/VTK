@@ -178,7 +178,7 @@ static void vtkImageMagnitudeExecute(vtkImageMagnitude *self,
 			       outRegion, outPtr);
       break;
     default:
-      cerr << "Execute: Unknown ScalarType\n";
+      vtkGenericWarningMacro("Execute: Unknown ScalarType");
       return;
     }
 }

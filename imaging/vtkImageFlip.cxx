@@ -159,7 +159,7 @@ static void vtkImageFlipExecute(vtkImageFlip *self,
 			  outRegion, (unsigned char *)(outPtr)); 
       break;
     default:
-      cerr << "Execute: Unknown output ScalarType";
+      vtkGenericWarningMacro("Execute: Unknown output ScalarType");
       return;
     }
 }

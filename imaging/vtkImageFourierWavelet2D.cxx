@@ -388,7 +388,7 @@ vtkImageFourierWavelet2DExecute(vtkImageFourierWavelet2D *self,
   // Sanity check
   if (outMin0 != waveMin0 || outMax0 != waveMax0)
     {
-    cerr << "ERROR: Execute: Components do not match.\n";
+    vtkGenericWarningMacro("ERROR: Execute: Components do not match.");
     return;
     }
   

@@ -115,7 +115,7 @@ static void vtkImageDilate1DExecute(vtkImageDilate1D *self,
     // just some error checking
     if (outMin < outImageExtentMin || outMax > outImageExtentMax)
       {
-      cerr << "vtkImageDilate1DExecute: Boundaries not handled.";
+      vtkGenericWarningMacro("vtkImageDilate1DExecute: Boundaries not handled.");
       return;
       }
     }

@@ -64,7 +64,7 @@ void vtkImageMIPFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageFilter::PrintSelf(os,indent);
   os << indent << "MinMaxIP : (" << this->MinMaxIP << ")\n";
-
+  
   os << indent << "MIP Direction: x-y, x-z, or y-z plane : ("
      << this->GetMIPX() << ", " << this->GetMIPY() << ", "
      << this->GetMIPZ() << ")\n";
@@ -78,8 +78,8 @@ int  mipflag(int m1, int m2, int m3);
 // This templated function executes the filter for any type of data.
 template <class T>
 static void vtkImageMIPFilterExecute(vtkImageMIPFilter *self,
-				   vtkImageRegion *inRegion, T *inPtr,
-				   vtkImageRegion *outRegion, T *outPtr)
+				     vtkImageRegion *inRegion, T *inPtr,
+				     vtkImageRegion *outRegion, T *outPtr)
 {
   int min0, max0, min1, max1;
   int idx0, idx1,idx2;
@@ -100,188 +100,220 @@ static void vtkImageMIPFilterExecute(vtkImageMIPFilter *self,
   mipx = self->GetMIPX();
   mipy = self->GetMIPY();
   mipz = self->GetMIPZ();
-  if (!mipflag(mipx,mipy,mipz)){ return;}
+  if (!mipflag(mipx,mipy,mipz))
+    { 
+    return;
+    }
 
 
-   //  Loop first through projection range then along the other two axes
-	inPtr1  = inPtr ;
-        outPtr1 = outPtr;
-   
-    if ( minmaxip == 1) {
-       if (mipz) {
-       cout << " MIPZ is on !!!" << endl;
-
-	for (idx1 = min1; idx1 <= max1; ++idx1){
-    	    outPtr0 = outPtr1;
-    	    inPtr0  = inPtr1;
-    	    for (idx0 = min0; idx0 <= max0; ++idx0){
-		*outPtr0 = 0;
-		inPtr2  = inPtr0;
-		for (idx2 = prorange[0];idx2 <= prorange[1];idx2++){
-		    if (*inPtr2 > *outPtr0) *outPtr0 = *inPtr2;
-      	               inPtr2 += inInc2;
-		}
-		outPtr0 += outInc0;
-      	        inPtr0  += inInc0;
+  //  Loop first through projection range then along the other two axes
+  inPtr1  = inPtr ;
+  outPtr1 = outPtr;
+  
+  if ( minmaxip == 1) 
+    {
+    if (mipz) 
+      {
+      cout << " MIPZ is on !!!" << endl;
+      
+      for (idx1 = min1; idx1 <= max1; ++idx1)
+	{
+	outPtr0 = outPtr1;
+	inPtr0  = inPtr1;
+	for (idx0 = min0; idx0 <= max0; ++idx0)
+	  {
+	  *outPtr0 = 0;
+	  inPtr2  = inPtr0;
+	  for (idx2 = prorange[0];idx2 <= prorange[1];idx2++)
+	    {
+	    if (*inPtr2 > *outPtr0) *outPtr0 = *inPtr2;
+	    inPtr2 += inInc2;
 	    }
-	    outPtr1 += outInc1;
-    	    inPtr1  += inInc1;
+	  outPtr0 += outInc0;
+	  inPtr0  += inInc0;
+	  }
+	outPtr1 += outInc1;
+	inPtr1  += inInc1;
 	}
       }
-      else if (mipy) {
-        // clear output image ...
-        outPtr1 = outPtr;
-	for (idx1 = min1; idx1 <= max1; ++idx1){
-    	    outPtr0 = outPtr1;
-    	    for (idx0 = min0; idx0 <= max0; ++idx0){
-		*outPtr0 = 0;
-		 outPtr0 += outInc0;
-	    }
-	    outPtr1 += outInc1;
+    else if (mipy) 
+      {
+      // clear output image ...
+      outPtr1 = outPtr;
+      for (idx1 = min1; idx1 <= max1; ++idx1)
+	{
+	outPtr0 = outPtr1;
+	for (idx0 = min0; idx0 <= max0; ++idx0)
+	  {
+	  *outPtr0 = 0;
+	  outPtr0 += outInc0;
+	  }
+	outPtr1 += outInc1;
 	}
-        cout << " MIPXZ is on !!!" << endl;
-	inPtr2  = inPtr ;
-        outPtr1 = outPtr;
-	for (idx2 = prorange[0];idx2 <= prorange[1];idx2++){
-    	    outPtr0 = outPtr1;
-    	    inPtr0  = inPtr2;
-    	    for (idx0 = min0; idx0 <= max0; ++idx0){
-		*outPtr0 = 0;
-		inPtr1  = inPtr0;
-                for (idx1 = min1; idx1 <= max1; ++idx1){
-		    if (*inPtr1 > *outPtr0) *outPtr0 = *inPtr1;
-    	            inPtr1  += inInc1;
-		}
-		outPtr0 += outInc0;
-      	        inPtr0  += inInc0;
+      inPtr2  = inPtr ;
+      outPtr1 = outPtr;
+      for (idx2 = prorange[0];idx2 <= prorange[1];idx2++)
+	{
+	outPtr0 = outPtr1;
+	inPtr0  = inPtr2;
+	for (idx0 = min0; idx0 <= max0; ++idx0)
+	  {
+	  *outPtr0 = 0;
+	  inPtr1  = inPtr0;
+	  for (idx1 = min1; idx1 <= max1; ++idx1)
+	    {
+	    if (*inPtr1 > *outPtr0) *outPtr0 = *inPtr1;
+	    inPtr1  += inInc1;
 	    }
-	    outPtr1 += outInc1;
-      	    inPtr2  += inInc2;
-	}
-      }
-      else if (mipx) {
-        // clear output image ...
-        outPtr1 = outPtr;
-	for (idx1 = min1; idx1 <= max1; ++idx1){
-    	    outPtr0 = outPtr1;
-    	    for (idx0 = min0; idx0 <= max0; ++idx0){
-		*outPtr0 = 0;
-		 outPtr0 += outInc0;
-	    }
-	    outPtr1 += outInc1;
-	}
-        cout << " MIPYZ is on !!!" << endl;
-	inPtr2  = inPtr ;
-        outPtr0 = outPtr;
-	for (idx2 = prorange[0];idx2 <= prorange[1];idx2++){
-    	    outPtr1 = outPtr0;
-    	    inPtr1  = inPtr2;
-            for (idx1 = min1; idx1 <= max1; ++idx1){
-		*outPtr1 = 0;
-		inPtr0   = inPtr1;
-                for (idx0 = min0; idx0 <= max0; ++idx0){
-		    if (*inPtr0 > *outPtr1) *outPtr1 = *inPtr0;
-    	            inPtr0  += inInc0;
-		}
-		outPtr1 += outInc1;
-      	        inPtr1  += inInc1;
-	    }
-	    outPtr0 += outInc0;
-      	    inPtr2  += inInc2;
+	  outPtr0 += outInc0;
+	  inPtr0  += inInc0;
+	  }
+	outPtr1 += outInc1;
+	inPtr2  += inInc2;
 	}
       }
-   }
-   else if ( minmaxip == 0) {
-        defmin = sizeof(startvalue);
-        startvalue = (T)pow(2.0,double(8*defmin -1)) - 1;
-      if ( mipz ) {
-	for (idx1 = min1; idx1 <= max1; ++idx1){
-    	    outPtr0 = outPtr1;
-    	    inPtr0  = inPtr1;
-    	    for (idx0 = min0; idx0 <= max0; ++idx0){
-		// need to find optimum minimum !!! interesting
-		*outPtr0 = startvalue;
-		inPtr2  = inPtr0;
-		for (idx2 = prorange[0];idx2 <= prorange[1];idx2++){
-		    if (*inPtr2 < *outPtr0) *outPtr0 = *inPtr2;
-      	               inPtr2 += inInc2;
-		}
-		outPtr0 += outInc0;
-      	        inPtr0  += inInc0;
+    else if (mipx) 
+      {
+      // clear output image ...
+      outPtr1 = outPtr;
+      for (idx1 = min1; idx1 <= max1; ++idx1)
+	{
+	outPtr0 = outPtr1;
+	for (idx0 = min0; idx0 <= max0; ++idx0)
+	  {
+	  *outPtr0 = 0;
+	  outPtr0 += outInc0;
+	  }
+	outPtr1 += outInc1;
+	}
+      inPtr2  = inPtr ;
+      outPtr0 = outPtr;
+      for (idx2 = prorange[0];idx2 <= prorange[1];idx2++)
+	{
+	outPtr1 = outPtr0;
+	inPtr1  = inPtr2;
+	for (idx1 = min1; idx1 <= max1; ++idx1)
+	  {
+	  *outPtr1 = 0;
+	  inPtr0   = inPtr1;
+	  for (idx0 = min0; idx0 <= max0; ++idx0)
+	    {
+	    if (*inPtr0 > *outPtr1) *outPtr1 = *inPtr0;
+	    inPtr0  += inInc0;
 	    }
-	    outPtr1 += outInc1;
-    	    inPtr1  += inInc1;
+	  outPtr1 += outInc1;
+	  inPtr1  += inInc1;
+	  }
+	outPtr0 += outInc0;
+	inPtr2  += inInc2;
+	}
+      }
+    }
+  else if ( minmaxip == 0) 
+    {
+    defmin = sizeof(startvalue);
+    startvalue = (T)pow(2.0,double(8*defmin -1)) - 1;
+    if ( mipz ) 
+      {
+      for (idx1 = min1; idx1 <= max1; ++idx1)
+	{
+	outPtr0 = outPtr1;
+	inPtr0  = inPtr1;
+	for (idx0 = min0; idx0 <= max0; ++idx0)
+	  {
+	  // need to find optimum minimum !!! interesting
+	  *outPtr0 = startvalue;
+	  inPtr2  = inPtr0;
+	  for (idx2 = prorange[0];idx2 <= prorange[1];idx2++)
+	    {
+	    if (*inPtr2 < *outPtr0) *outPtr0 = *inPtr2;
+	    inPtr2 += inInc2;
+	    }
+	  outPtr0 += outInc0;
+	  inPtr0  += inInc0;
+	  }
+	outPtr1 += outInc1;
+	inPtr1  += inInc1;
         }
       }
-      else if (mipy) {
-        // clear output image ...
-        outPtr1 = outPtr;
-	for (idx1 = min1; idx1 <= max1; ++idx1){
-    	    outPtr0 = outPtr1;
-    	    for (idx0 = min0; idx0 <= max0; ++idx0){
-		*outPtr0 = 0;
-		 outPtr0 += outInc0;
-	    }
-	    outPtr1 += outInc1;
+    else if (mipy) 
+      {
+      // clear output image ...
+      outPtr1 = outPtr;
+      for (idx1 = min1; idx1 <= max1; ++idx1)
+	{
+	outPtr0 = outPtr1;
+	for (idx0 = min0; idx0 <= max0; ++idx0)
+	  {
+	  *outPtr0 = 0;
+	  outPtr0 += outInc0;
+	  }
+	outPtr1 += outInc1;
 	}
-        cout << " MIPXZ is on !!!" << endl;
-        inPtr2  = inPtr ;
-        outPtr1 = outPtr;
-	for (idx2 = prorange[0];idx2 <= prorange[1];idx2++){
-    	    outPtr0 = outPtr1;
-    	    inPtr0  = inPtr2;
-    	    for (idx0 = min0; idx0 <= max0; ++idx0){
-		*outPtr0 = startvalue;
-		inPtr1  = inPtr0;
-                for (idx1 = min1; idx1 <= max1; ++idx1){
-		    if (*inPtr1 < *outPtr0) *outPtr0 = *inPtr1;
-    	            inPtr1  += inInc1;
-		}
-		outPtr0 += outInc0;
-      	        inPtr0  += inInc0;
+      inPtr2  = inPtr ;
+      outPtr1 = outPtr;
+      for (idx2 = prorange[0];idx2 <= prorange[1];idx2++)
+	{
+	outPtr0 = outPtr1;
+	inPtr0  = inPtr2;
+	for (idx0 = min0; idx0 <= max0; ++idx0)
+	  {
+	  *outPtr0 = startvalue;
+	  inPtr1  = inPtr0;
+	  for (idx1 = min1; idx1 <= max1; ++idx1)
+	    {
+	    if (*inPtr1 < *outPtr0) *outPtr0 = *inPtr1;
+	    inPtr1  += inInc1;
 	    }
-	    outPtr1 += outInc1;
-      	    inPtr2  += inInc2;
+	  outPtr0 += outInc0;
+	  inPtr0  += inInc0;
+	  }
+	outPtr1 += outInc1;
+	inPtr2  += inInc2;
 	}
       }
-      else if (mipx) {
-        // clear output image ...
-        outPtr1 = outPtr;
-	for (idx1 = min1; idx1 <= max1; ++idx1){
-    	    outPtr0 = outPtr1;
-    	    for (idx0 = min0; idx0 <= max0; ++idx0){
-		*outPtr0 = 0;
-		 outPtr0 += outInc0;
-	    }
-	    outPtr1 += outInc1;
+    else if (mipx) 
+      {
+      // clear output image ...
+      outPtr1 = outPtr;
+      for (idx1 = min1; idx1 <= max1; ++idx1)
+	{
+	outPtr0 = outPtr1;
+	for (idx0 = min0; idx0 <= max0; ++idx0)
+	  {
+	  *outPtr0 = 0;
+	  outPtr0 += outInc0;
+	  }
+	outPtr1 += outInc1;
 	}
-        cout << " MIPYZ is on !!!" << endl;
-	inPtr2  = inPtr ;
-        outPtr0 = outPtr;
-	for (idx2 = prorange[0];idx2 <= prorange[1];idx2++){
-    	    outPtr1 = outPtr0;
-    	    inPtr1  = inPtr2;
-            for (idx1 = min1; idx1 <= max1; ++idx1){
-		*outPtr1 = startvalue;
-		inPtr0  = inPtr1;
-                for (idx0 = min0; idx0 <= max0; ++idx0){
-		    if (*inPtr0 < *outPtr1) *outPtr1 = *inPtr0;
-    	            inPtr0  += inInc0;
-		}
-		outPtr1 += outInc1;
-      	        inPtr1  += inInc1;
+      inPtr2  = inPtr ;
+      outPtr0 = outPtr;
+      for (idx2 = prorange[0];idx2 <= prorange[1];idx2++)
+	{
+	outPtr1 = outPtr0;
+	inPtr1  = inPtr2;
+	for (idx1 = min1; idx1 <= max1; ++idx1)
+	  {
+	  *outPtr1 = startvalue;
+	  inPtr0  = inPtr1;
+	  for (idx0 = min0; idx0 <= max0; ++idx0)
+	    {
+	    if (*inPtr0 < *outPtr1) *outPtr1 = *inPtr0;
+	    inPtr0  += inInc0;
 	    }
-	    outPtr0 += outInc0;
-      	    inPtr2  += inInc2;
+	  outPtr1 += outInc1;
+	  inPtr1  += inInc1;
+	  }
+	outPtr0 += outInc0;
+	inPtr2  += inInc2;
 	}
-
       }
-   }
-   else {
-	cerr << "Not Valid value for MinMaxIP, must be either 0 or 1" << endl;
-        return;
-   }
-
+    }
+  else 
+    {
+    vtkGenericWarningMacro("Not Valid value for MinMaxIP, must be either 0 or 1");
+    return;
+    }
 
 }
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -290,33 +322,41 @@ Function: int mipflag(int mipx,int mipy,int mipz)
 checks that only one flag is set to do MIP.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-int mipflag(int mipx,int mipy,int mipz) {
+int mipflag(int mipx,int mipy,int mipz) 
+{
   // check that only one flag for MIP is on ...
-  if ( mipx) {
-     if ( mipy | mipz ) {
-        cerr << "Please set only on flag for MIP!!!" << endl;
-        return 0;
-     }
+  if ( mipx) 
+    {
+    if ( mipy | mipz ) 
+      {
+      vtkGenericWarningMacro("Please set only on flag for MIP!!!");
+      return 0;
+      }
      else return 1;
-  }
-  else if ( mipy) {
-     if ( mipx | mipz) {
-        cerr << "Please set only on flag for MIP!!!" << endl;
-        return 0;
-     }
-     else return 1;
-  }
-  else if ( mipz) {
-     if ( mipx | mipy) {
-        cerr << "Please set only on flag for MIP!!!" << endl;
-        return 0;
-     }
-     else return 1;
-  }
-  else {
-	cerr << "Please set either (MIPX, MIPY, or MIPZ) On for MIP!!!" << endl;
-        return 0;
-  }
+    }
+  else if ( mipy) 
+    {
+    if ( mipx | mipz) 
+      {
+      vtkGenericWarningMacro("Please set only on flag for MIP!!!");
+      return 0;
+      }
+    else return 1;
+    }
+  else if ( mipz) 
+    {
+    if ( mipx | mipy) 
+      {
+      vtkGenericWarningMacro("Please set only on flag for MIP!!!");
+      return 0;
+      }
+    else return 1;
+    }
+  else 
+    {
+    vtkGenericWarningMacro("Please set either (MIPX, MIPY, or MIPZ) On for MIP!!!");
+    return 0;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -332,13 +372,13 @@ void vtkImageMIPFilter::Execute(vtkImageRegion *inRegion,
   void *outPtr = outRegion->GetScalarPointer();
   
   vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
-		<< ", outRegion = " << outRegion);
+  << ", outRegion = " << outRegion);
   
   // this filter expects that input is the same type as output.
   if (inRegion->GetScalarType() != outRegion->GetScalarType())
     {
     vtkErrorMacro(<< "Execute: input ScalarType, " << inRegion->GetScalarType()
-                  << ", must match out ScalarType " << outRegion->GetScalarType());
+    << ", must match out ScalarType " << outRegion->GetScalarType());
     return;
     }
   

@@ -142,7 +142,7 @@ static void vtkImageConvolution1DExecuteCenter(vtkImageConvolution1D *self,
   
   if ( ! self->Kernel)
     {
-    cerr << "vtkImageConvolution1DExecuteCenter: Kernel not set";
+    vtkGenericWarningMacro("vtkImageConvolution1DExecuteCenter: Kernel not set");
     return;
     }
 
@@ -257,7 +257,7 @@ static void vtkImageConvolution1DExecute(vtkImageConvolution1D *self,
   
   if ( ! self->Kernel)
     {
-    cerr << "vtkImageConvolution1DExecuteCenter: Kernel not set";
+    vtkGenericWarningMacro("vtkImageConvolution1DExecuteCenter: Kernel not set");
     return;
     }
   
