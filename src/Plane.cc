@@ -29,6 +29,7 @@ vlPlane::vlPlane()
   this->Origin[2] = 0.0;
 }
 
+// NOTE : normal assumed to have magnitude 1
 void vlPlane::ProjectPoint(float x[3], float origin[3], float normal[3], float xproj[3])
 {
   int i;
