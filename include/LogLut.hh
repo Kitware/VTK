@@ -20,9 +20,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // or rgba into scalar values. The difference between this class and its
 // superclass vtkLookupTable is that this class performs scalar mapping based
 // on a logarithmic lookup process. (Uses log base 10).
-//    The mapping of scalar values automatically shifts the range into values
-// that are strictly positive. Thus you can use the logarithmic table to
-// map negative scalar values.
+//    If non-positive ranges are encountered, then they are converted to 
+// positive values using absolute value.
 // .SECTION See Also
 // vtkLookupTable
 
@@ -44,7 +43,7 @@ public:
 protected:
   float LogMinRange;
   float LogMaxRange;
-  float ShiftValue;
+  float UseAbsoluteValue;
 };
 
 #endif
