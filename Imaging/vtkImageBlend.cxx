@@ -133,7 +133,7 @@ double vtkImageBlend::GetOpacity(int idx)
 
 //----------------------------------------------------------------------------
 void vtkImageBlend::ExecuteInformation(vtkImageData **inDatas,
-				       vtkImageData *outData)
+				       vtkImageData *vtkNotUsed(outData))
 {
   vtkImageStencilData *stencil = this->GetStencil();
   if (stencil)
