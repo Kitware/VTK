@@ -65,7 +65,7 @@ vtkImageEuclideanDistance::vtkImageEuclideanDistance()
   this->MaximumDistance = VTK_INT_MAX;
   this->Initialize = 1;
   this->ConsiderAnisotropy = 1;
-  this->SetAlgorithmToSaito();
+  this->Algorithm = VTK_EDT_SAITO;
 }
 
 //----------------------------------------------------------------------------
