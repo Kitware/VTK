@@ -25,7 +25,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.3");
+vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.4");
 vtkStandardNewMacro(vtkQuadraticHexahedron);
 
 // Construct the hex with 20 points + 7 extra points for internal
@@ -434,7 +434,7 @@ void vtkQuadraticHexahedron::Derivatives(int vtkNotUsed(subId),
                                          int dim, float *derivs)
 {
   double *jI[3], j0[3], j1[3], j2[3];
-  float functionDerivs[24], sum[3];
+  float functionDerivs[60], sum[3];
   int i, j, k;
 
   // compute inverse Jacobian and interpolation function derivatives
@@ -459,8 +459,8 @@ void vtkQuadraticHexahedron::Derivatives(int vtkNotUsed(subId),
 }
 
 
-// Clip this line using scalar value provided. Like contouring, except
-// that it cuts the line to produce other lines.
+// Clip this quadratic hex using scalar value provided. Like contouring, 
+// except that it cuts the hex to produce tetrahedra.
 void vtkQuadraticHexahedron::Clip(float vtkNotUsed(value), 
                                   vtkDataArray* vtkNotUsed(cellScalars), 
                                   vtkPointLocator* vtkNotUsed(locator),
@@ -474,21 +474,134 @@ void vtkQuadraticHexahedron::Clip(float vtkNotUsed(value),
 {
 }
 
-// Compute interpolation functions. Node [2] is the mid-edge node.
+// Compute interpolation functions for the twenty nodes.
 void vtkQuadraticHexahedron::InterpolationFunctions(float pcoords[3], 
-                                                    float weights[3])
+                                                    float weights[20])
 {
-  weights[0] = 2.0 * (pcoords[0] - 0.5) * (pcoords[0] - 1.0);
-  weights[1] = 2.0 * pcoords[0] * (pcoords[0] - 0.5);
-  weights[2] = 4.0 * pcoords[0] * (1.0 - pcoords[0]);
+  //VTK needs parametric coordinates to be between (0,1). Isoparametric
+  //shape functions are formulated between (-1,1). Here we do a 
+  //coordinate system conversion from (0,1) to (-1,1).
+  float r = 2.0*(pcoords[0]-0.5);
+  float s = 2.0*(pcoords[1]-0.5);
+  float t = 2.0*(pcoords[1]-0.5);
+
+  float rm = 1.0 - r;
+  float rp = 1.0 + r;
+  float sm = 1.0 - s;
+  float sp = 1.0 + s;
+  float tm = 1.0 - t;
+  float tp = 1.0 + t;
+  float r2 = 1.0 - r*r;
+  float s2 = 1.0 - s*s;
+  float t2 = 1.0 - t*t;
+
+  //The eight corner points
+  weights[0] = 0.125 * rm * sm * tm * (-r - s - t - 2.0);
+  weights[1] = 0.125 * rp * sm * tm * ( r - s - t - 2.0);
+  weights[2] = 0.125 * rp * sp * tm * ( r + s - t - 2.0);
+  weights[3] = 0.125 * rm * sp * tm * (-r + s - t - 2.0);
+  weights[4] = 0.125 * rm * sm * tp * (-r - s + t - 2.0);
+  weights[5] = 0.125 * rp * sm * tp * ( r - s + t - 2.0);
+  weights[6] = 0.125 * rp * sp * tp * ( r + s + t - 2.0);
+  weights[7] = 0.125 * rm * sp * tp * (-r + s + t - 2.0);
+  
+  //The mid-edge nodes
+  weights[8] =  0.25 * r2 * sm * tm;
+  weights[9] =  0.25 * s2 * rm * tm;
+  weights[10] = 0.25 * r2 * sp * tm;
+  weights[11] = 0.25 * s2 * rp * tm;
+  weights[12] = 0.25 * r2 * sm * tp;
+  weights[13] = 0.25 * s2 * rp * tp;
+  weights[14] = 0.25 * r2 * sp * tp;
+  weights[15] = 0.25 * s2 * rm * tp;
+  weights[16] = 0.25 * t2 * rm * sm;
+  weights[17] = 0.25 * t2 * rp * sm;
+  weights[18] = 0.25 * t2 * rp * sp;
+  weights[19] = 0.25 * t2 * rm * sp;
 }
 
 // Derivatives in parametric space.
 void vtkQuadraticHexahedron::InterpolationDerivs(float pcoords[3], 
-                                                 float derivs[3])
+                                                 float derivs[60])
 {
-  derivs[0] = 4.0 * pcoords[0] - 3.0;
-  derivs[1] = 4.0 * pcoords[0] - 1.0;
-  derivs[2] = 4.0 - pcoords[0] * 8.0;
+  //VTK needs parametric coordinates to be between (0,1). Isoparametric
+  //shape functions are formulated between (-1,1). Here we do a 
+  //coordinate system conversion from (0,1) to (-1,1).
+  float r = 2.0*(pcoords[0]-0.5);
+  float s = 2.0*(pcoords[1]-0.5);
+  float t = 2.0*(pcoords[1]-0.5);
+
+  float rm = 1.0 - r;
+  float rp = 1.0 + r;
+  float sm = 1.0 - s;
+  float sp = 1.0 + s;
+  float tm = 1.0 - t;
+  float tp = 1.0 + t;
+
+  //r-derivatives
+  derivs[0] = -0.125*(sm*tm - 2.0*r*sm*tm - s*sm*tm - t*sm*tm - 2.0*sm*tm);
+  derivs[1] =  0.125*(sm*tm + 2.0*r*sm*tm - s*sm*tm - t*sm*tm - 2.0*sm*tm);
+  derivs[2] =  0.125*(sp*tm + 2.0*r*sp*tm + s*sp*tm - t*sp*tm - 2.0*sp*tm);
+  derivs[3] = -0.125*(sp*tm - 2.0*r*sp*tm + s*sp*tm - t*sp*tm - 2.0*sp*tm);
+  derivs[4] = -0.125*(sm*tp - 2.0*r*sm*tp - s*sm*tp + t*sm*tp - 2.0*sm*tp);
+  derivs[5] =  0.125*(sm*tp + 2.0*r*sm*tp - s*sm*tp + t*sm*tp - 2.0*sm*tp);
+  derivs[6] =  0.125*(sp*tp + 2.0*r*sp*tp + s*sp*tp + t*sp*tp - 2.0*sp*tp);
+  derivs[7] = -0.125*(sp*tp - 2.0*r*sp*tp + s*sp*tp + t*sp*tp - 2.0*sp*tp);
+  derivs[8] = 0.0;
+  derivs[9] = 0.0;
+  derivs[10] = 0.0;
+  derivs[11] = 0.0;
+  derivs[12] = 0.0;
+  derivs[13] = 0.0;
+  derivs[14] = 0.0;
+  derivs[15] = 0.0;
+  derivs[16] = 0.0;
+  derivs[17] = 0.0;
+  derivs[18] = 0.0;
+  derivs[19] = 0.0;
+
+  //s-derivatives
+  derivs[20] = -0.125*(rm*tm - 2.0*s*rm*tm - r*rm*tm - t*rm*tm - 2.0*rm*tm);
+  derivs[21] = -0.125*(rp*tm - 2.0*s*rp*tm + r*rp*tm - t*rp*tm - 2.0*rp*tm); 
+  derivs[22] =  0.125*(rp*tm + 2.0*s*rp*tm + r*rp*tm - t*rp*tm - 2.0*rp*tm); 
+  derivs[23] =  0.125*(rm*tm + 2.0*s*rm*tm - r*rm*tm - t*rm*tm - 2.0*rm*tm); 
+  derivs[24] = -0.125*(rm*tp - 2.0*s*rm*tp - r*rm*tp + t*rm*tp - 2.0*rm*tp); 
+  derivs[25] = -0.125*(rp*tp - 2.0*s*rp*tp + r*rp*tp + t*rp*tp - 2.0*rp*tp); 
+  derivs[26] =  0.125*(rp*tp + 2.0*s*rp*tp + r*rp*tp + t*rp*tp - 2.0*rp*tp); 
+  derivs[27] =  0.125*(rm*tp + 2.0*s*rm*tp - r*rm*tp + t*rm*tp - 2.0*rm*tp); 
+  derivs[28] = 0.0;
+  derivs[29] = 0.0;
+  derivs[20] = 0.0;
+  derivs[31] = 0.0;
+  derivs[32] = 0.0;
+  derivs[33] = 0.0;
+  derivs[34] = 0.0;
+  derivs[35] = 0.0;
+  derivs[36] = 0.0;
+  derivs[37] = 0.0;
+  derivs[38] = 0.0;
+  derivs[39] = 0.0;
+
+  //t-derivatives
+  derivs[40] = -0.125*(rm*sm - 2.0*t*rm*sm - r*rm*sm - s*rm*sm - 2.0*rm*sm); 
+  derivs[41] = -0.125*(rp*sm - 2.0*t*rp*sm + r*rp*sm - s*rp*sm - 2.0*rp*sm);  
+  derivs[42] = -0.125*(rp*sp - 2.0*t*rp*sp + r*rp*sp + s*rp*sp - 2.0*rp*sp);  
+  derivs[43] = -0.125*(rm*sp - 2.0*t*rm*sp - r*rm*sp + s*rm*sp - 2.0*rm*sp);  
+  derivs[44] =  0.125*(rm*sm + 2.0*t*rm*sm - r*rm*sm - s*rm*sm - 2.0*rm*sm);  
+  derivs[45] =  0.125*(rp*sm + 2.0*t*rp*sm + r*rp*sm - s*rp*sm - 2.0*rp*sm);  
+  derivs[46] =  0.125*(rp*sp + 2.0*t*rp*sp + r*rp*sp + s*rp*sp - 2.0*rp*sp);  
+  derivs[47] =  0.125*(rm*sp + 2.0*t*rm*sp - r*rm*sp + s*rm*sp - 2.0*rm*sp);  
+  derivs[48] = 0.0;
+  derivs[49] = 0.0;
+  derivs[50] = 0.0;
+  derivs[51] = 0.0;
+  derivs[52] = 0.0;
+  derivs[53] = 0.0;
+  derivs[54] = 0.0;
+  derivs[55] = 0.0;
+  derivs[56] = 0.0;
+  derivs[57] = 0.0;
+  derivs[58] = 0.0;
+  derivs[59] = 0.0;
 }
 
