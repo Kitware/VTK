@@ -34,7 +34,7 @@
 #include "vtkSphere.h"
 #include "vtkSphereSource.h"
 
-vtkCxxRevisionMacro(vtkSphereWidget, "1.23");
+vtkCxxRevisionMacro(vtkSphereWidget, "1.23.2.1");
 vtkStandardNewMacro(vtkSphereWidget);
 
 vtkSphereWidget::vtkSphereWidget()
@@ -101,6 +101,7 @@ vtkSphereWidget::vtkSphereWidget()
 
 vtkSphereWidget::~vtkSphereWidget()
 {
+  this->SetEnabled(0);
   this->SphereActor->Delete();
   this->SphereMapper->Delete();
   this->SphereSource->Delete();
