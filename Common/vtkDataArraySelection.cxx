@@ -30,7 +30,7 @@
 #pragma warning(pop)
 #endif
 
-vtkCxxRevisionMacro(vtkDataArraySelection, "1.10");
+vtkCxxRevisionMacro(vtkDataArraySelection, "1.11");
 vtkStandardNewMacro(vtkDataArraySelection);
 
 class vtkDataArraySelectionArrayNamesType: public vtkstd::vector<vtkstd::string> {};
@@ -60,6 +60,7 @@ void vtkDataArraySelection::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkDataArraySelection::EnableArray(const char* name)
 {
+  vtkDebugMacro("Enabling array \"" << name << "\".");
   vtkstd::vector<vtkstd::string>::iterator i =
     vtkstd::find(this->ArrayNames->begin(), this->ArrayNames->end(), vtkstd::string(name));
   if(i != this->ArrayNames->end())
@@ -82,6 +83,7 @@ void vtkDataArraySelection::EnableArray(const char* name)
 //----------------------------------------------------------------------------
 void vtkDataArraySelection::DisableArray(const char* name)
 {
+  vtkDebugMacro("Disabling array \"" << name << "\".");
   vtkstd::vector<vtkstd::string>::iterator i =
     vtkstd::find(this->ArrayNames->begin(), this->ArrayNames->end(), vtkstd::string(name));
   if(i != this->ArrayNames->end())
@@ -128,6 +130,7 @@ int vtkDataArraySelection::ArrayExists(const char* name)
 //----------------------------------------------------------------------------
 void vtkDataArraySelection::EnableAllArrays()
 {
+  vtkDebugMacro("Enabling all arrays.");
   int modified = 0;
   for(vtkstd::vector<int>::iterator i = this->ArraySettings->begin();
       i != this->ArraySettings->end(); ++i)
@@ -147,6 +150,7 @@ void vtkDataArraySelection::EnableAllArrays()
 //----------------------------------------------------------------------------
 void vtkDataArraySelection::DisableAllArrays()
 {
+  vtkDebugMacro("Disabling all arrays.");
   int modified = 0;
   for(vtkstd::vector<int>::iterator i = this->ArraySettings->begin();
       i != this->ArraySettings->end(); ++i)
@@ -194,6 +198,7 @@ int vtkDataArraySelection::GetArraySetting(int index)
 //----------------------------------------------------------------------------
 void vtkDataArraySelection::RemoveAllArrays()
 {
+  vtkDebugMacro("Removing all arrays.");
   if(this->GetNumberOfArrays() > 0)
     {
     this->ArrayNames->erase(this->ArrayNames->begin(),
@@ -207,6 +212,8 @@ void vtkDataArraySelection::RemoveAllArrays()
 //----------------------------------------------------------------------------
 int vtkDataArraySelection::AddArray(const char* name)
 {
+  vtkDebugMacro("Adding array \"" << name << "\".");
+  
   // This function is called only by the filter owning the selection.
   // It should not call Modified() because array settings are not
   // changed.
@@ -222,10 +229,20 @@ int vtkDataArraySelection::AddArray(const char* name)
 //----------------------------------------------------------------------------
 void vtkDataArraySelection::SetArrays(const char* const* names, int numArrays)
 {
+  this->SetArrays(names, numArrays, 1);
+}
+
+//----------------------------------------------------------------------------
+void vtkDataArraySelection::SetArrays(const char* const* names, int numArrays,
+                                      int defaultStatus)
+{
   // This function is called only by the filter owning the selection.
   // It should not call Modified() because array settings are not
   // changed.
-  
+
+  vtkDebugMacro("Settings arrays to given list of " << numArrays
+                << " arrays.");
+
   // Create a new map for this set of arrays.
   vtkDataArraySelectionArrayNamesType* newNames =
     new vtkDataArraySelectionArrayNamesType;
@@ -247,7 +264,7 @@ void vtkDataArraySelection::SetArrays(const char* const* names, int numArrays)
     vtkstd::vector<vtkstd::string>::iterator it =
       vtkstd::find(this->ArrayNames->begin(), this->ArrayNames->end(),
                    vtkstd::string(names[i]));
-    int setting = 1;
+    int setting = defaultStatus?1:0;
     if(it != this->ArrayNames->end())
       {
       setting = (*this->ArraySettings)[it - this->ArrayNames->begin()];
@@ -269,6 +286,9 @@ void vtkDataArraySelection::CopySelections(vtkDataArraySelection* selections)
     {
     return;
     }
+  
+  vtkDebugMacro("Copying arrays and settings from " << selections << ".");
+
   this->RemoveAllArrays();
   
   this->ArrayNames->insert(this->ArrayNames->begin(),
