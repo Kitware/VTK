@@ -1,12 +1,3 @@
-LINK_LIBRARIES (
-vtkCommon 
-vtkFiltering 
-vtkImaging
-vtkGraphics
-vtkIO
-)
-
-LINK_LIBRARIES( png zlib )
 
 IF (VTK_USE_RENDERING)
   LINK_LIBRARIES (vtkRendering)
@@ -59,5 +50,12 @@ IF (VTK_USE_RENDERING)
 
 ENDIF (VTK_USE_RENDERING)
 
+LINK_LIBRARIES (
+vtkImaging
+vtkGraphics
+vtkIO
+vtkFiltering 
+vtkCommon 
+)
 
-
+LINK_LIBRARIES( png zlib )

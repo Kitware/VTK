@@ -21,9 +21,10 @@ OPTION (VTK_USE_RENDERING "Build the rendering classes used for displaying" ON)
 OPTION (VTK_DEBUG_LEAKS "Build leak checking support into vtk." OFF)
 OPTION (VTK_USE_HYBRID "Build the hybrid directory classes")
 OPTION (VTK_USE_PATENTED "Build the patented directory classes, these classes are patented and may require a license to use")
-#ifdef __APPLE__
-OPTION (VTK_USE_QUARTZ "Build classes for the Quartz window manager" OFF)
-#endif
+IF (APPLE)
+  OPTION (VTK_USE_QUARTZ "Build classes for the Quartz window manager" OFF)
+ENDIF(APPLE)
+
 IF (CMAKE_HAS_X)
   OPTION(VTK_USE_X "Build classes for the X11 window manager" ON)
 ENDIF (CMAKE_HAS_X)
