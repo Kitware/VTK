@@ -34,19 +34,20 @@ void stuffit()
   fprintf(stdout,"extern void vtkTclDeleteObjectFromHash(void *);\n");  
   fprintf(stdout,"extern void vtkTclListInstances(Tcl_Interp *interp, ClientData arg);\n");
   
-  fprintf(stdout,"\n\nextern \"C\" {int %s_SafeInit(Tcl_Interp *interp);}\n\n",
+  fprintf(stdout,"\n\nextern \"C\" {int VTK_EXPORT %s_SafeInit(Tcl_Interp *interp);}\n\n",
 	  kitName);
-  fprintf(stdout,"\n\nextern \"C\" {int %s_Init(Tcl_Interp *interp);}\n\n",
+  fprintf(stdout,"\n\nextern \"C\" {int VTK_EXPORT %s_Init(Tcl_Interp *interp);}\n\n",
 	  kitName);
 
   /* create an extern ref to the generic delete function */
   fprintf(stdout,"\n\nextern void vtkTclGenericDeleteObject(ClientData cd);\n\n");
 
   /* the main declaration */
-  fprintf(stdout,"\n\nint %s_SafeInit(Tcl_Interp *interp)\n{\n",kitName);
+  fprintf(stdout,"\n\nint VTK_EXPORT %s_SafeInit(Tcl_Interp *interp)\n{\n",kitName);
   fprintf(stdout,"  return %s_Init(interp);\n}\n",kitName);
   
-  fprintf(stdout,"\n\nint %s_Init(Tcl_Interp *interp)\n{\n",kitName);
+  fprintf(stdout,"\n\nint VTK_EXPORT %s_Init(Tcl_Interp *interp)\n{\n",
+          kitName);
   if (!strcmp(kitName,"Vtkcommontcl"))
     {
     /* claw: I am adding this to allow c++ to evaluate tcl commands. */
