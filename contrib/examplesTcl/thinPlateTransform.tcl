@@ -1,5 +1,4 @@
-# Test the vtkThinPlateSplineMeshWarp class
-# Class contributed by Tim Hutton
+# Test the vtkThinPlateSplineTransform class
 #
 
 catch {load vtktcl}
