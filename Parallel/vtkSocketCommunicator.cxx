@@ -36,7 +36,7 @@
 #define vtkCloseSocketMacro(sock) (close(sock))
 #endif
 
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.47");
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.48");
 vtkStandardNewMacro(vtkSocketCommunicator);
 
 //----------------------------------------------------------------------------
@@ -312,7 +312,11 @@ int vtkSocketCommunicator::GetPort(int sock)
 {
   struct sockaddr_in sockinfo;
   memset(&sockinfo, 0, sizeof(sockinfo));
+#if defined(_WIN32) &&  !defined(__CYGWIN__)
   int sizebuf = sizeof(sockinfo);
+#else
+  socklen_t sizebuf = sizeof(sockinfo);
+#endif
   if(getsockname(sock, (sockaddr*)&sockinfo, &sizebuf) != 0)
     {
     vtkErrorMacro("No port found for socket " << sock);
