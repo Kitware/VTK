@@ -72,7 +72,7 @@ void vtkCell::Initialize(int npts, int *pts, vtkPoints *p)
 void vtkCell::ShallowCopy(vtkCell *c)
 {
   this->Points->ShallowCopy(c->Points);
-  this->PointIds->ShallowCopy(c->PointIds);
+  this->PointIds->DeepCopy(c->PointIds);
 }
 
 void vtkCell::DeepCopy(vtkCell *c)
