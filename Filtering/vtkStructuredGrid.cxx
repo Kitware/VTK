@@ -28,7 +28,7 @@
 #include "vtkQuad.h"
 #include "vtkVertex.h"
 
-vtkCxxRevisionMacro(vtkStructuredGrid, "1.1");
+vtkCxxRevisionMacro(vtkStructuredGrid, "1.1.2.1");
 vtkStandardNewMacro(vtkStructuredGrid);
 
 vtkCxxSetObjectMacro(vtkStructuredGrid,
@@ -68,7 +68,6 @@ vtkStructuredGrid::vtkStructuredGrid()
 vtkStructuredGrid::~vtkStructuredGrid()
 {
   this->Initialize();
-
   this->Vertex->Delete();
   this->Line->Delete();
   this->Quad->Delete();
@@ -112,7 +111,10 @@ void vtkStructuredGrid::Initialize()
   this->CellVisibility->Delete();
   this->CellVisibility = vtkStructuredVisibilityConstraint::New();
 
-  this->SetDimensions(0,0,0);
+  if(this->Information)
+    {
+    this->SetDimensions(0,0,0);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -858,9 +860,9 @@ void vtkStructuredGrid::SetUpdateExtent(int piece, int numPieces,
   this->ExtentTranslator->PieceToExtent();
   this->SetUpdateExtent(this->ExtentTranslator->GetExtent());
 
-  this->UpdatePiece = piece;
-  this->UpdateNumberOfPieces = numPieces;
-  this->UpdateGhostLevel = ghostLevel;
+  this->SetUpdatePiece(piece);
+  this->SetUpdateNumberOfPieces(numPieces);
+  this->SetUpdateGhostLevel(ghostLevel);
 }
 
 //----------------------------------------------------------------------------
@@ -1109,17 +1111,19 @@ void vtkStructuredGrid::Crop()
   int uExt[6];
   int extent[6];
   this->GetExtent(extent);
+  int updateExtent[6] = {0,-1,0,-1,0,-1};
+  this->GetUpdateExtent(updateExtent);
 
   // If the update extent is larger than the extent, 
   // we cannot do anything about it here.
   for (i = 0; i < 3; ++i)
     {
-    uExt[i*2] = this->UpdateExtent[i*2];
+    uExt[i*2] = updateExtent[i*2];
     if (uExt[i*2] < extent[i*2])
       {
       uExt[i*2] = extent[i*2];
       }
-    uExt[i*2+1] = this->UpdateExtent[i*2+1];
+    uExt[i*2+1] = updateExtent[i*2+1];
     if (uExt[i*2+1] > extent[i*2+1])
       {
       uExt[i*2+1] = extent[i*2+1];
@@ -1226,10 +1230,6 @@ void vtkStructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
                                   << dim[1] << ", "
                                   << dim[2] << ")\n";
 
-  os << indent << "WholeExtent: " << this->WholeExtent[0] << ", "
-     << this->WholeExtent[1] << ", " << this->WholeExtent[2] << ", "
-     << this->WholeExtent[3] << ", " << this->WholeExtent[4] << ", "
-     << this->WholeExtent[5] << endl;
   int extent[6];
   this->GetExtent(extent);
   os << indent << "Extent: " << extent[0] << ", "

@@ -56,9 +56,11 @@ public:
   vtkGetMacro(PipelineMTime, unsigned long);
     
   // Description:
-  // Get the data object storing the output for the given port.
+  // Get/Set the data object storing the output for the given port.
   virtual vtkDataObject* GetOutputData(int port);
   virtual vtkDataObject* GetOutputData(vtkAlgorithm* algorithm, int port);
+  virtual void SetOutputData(int port, vtkDataObject*);
+  virtual void SetOutputData(vtkAlgorithm* algorithm, int port, vtkDataObject*);
 
   static vtkInformationKeyVectorKey* DOWNSTREAM_KEYS_TO_COPY();
   static vtkInformationIntegerKey* REQUEST_DATA_OBJECT();

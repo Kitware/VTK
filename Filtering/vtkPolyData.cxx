@@ -32,7 +32,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkVertex.h"
 
-vtkCxxRevisionMacro(vtkPolyData, "1.1");
+vtkCxxRevisionMacro(vtkPolyData, "1.1.2.1");
 vtkStandardNewMacro(vtkPolyData);
 
 //----------------------------------------------------------------------------
@@ -805,9 +805,12 @@ void vtkPolyData::Initialize()
     this->Links = NULL;
     }
 
-  this->Information->Set(vtkDataObject::DATA_PIECE_NUMBER(), -1);
-  this->Information->Set(vtkDataObject::DATA_NUMBER_OF_PIECES(), 0);
-  this->Information->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(), 0);
+  if(this->Information)
+    {
+    this->Information->Set(vtkDataObject::DATA_PIECE_NUMBER(), -1);
+    this->Information->Set(vtkDataObject::DATA_NUMBER_OF_PIECES(), 0);
+    this->Information->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(), 0);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -1700,22 +1703,38 @@ int vtkPolyData::IsEdge(vtkIdType p1, vtkIdType p2)
 
 
 //----------------------------------------------------------------------------
-
 void vtkPolyData::SetUpdateExtent(int piece, int numPieces, int ghostLevel)
 {
-  this->UpdatePiece = piece;
-  this->UpdateNumberOfPieces = numPieces;
-  this->UpdateGhostLevel = ghostLevel;
-  this->UpdateExtentInitialized = 1;
+  this->SetUpdatePiece(piece);
+  this->SetUpdateNumberOfPieces(numPieces);
+  this->SetUpdateGhostLevel(ghostLevel);
 }
 
 //----------------------------------------------------------------------------
-
-void vtkPolyData::GetUpdateExtent(int &piece, int &numPieces, int &ghostLevel)
+void vtkPolyData::GetUpdateExtent(int& piece, int& numPieces, int& ghostLevel)
 {
-  piece = this->UpdatePiece;
-  numPieces = this->UpdateNumberOfPieces;
-  ghostLevel = this->UpdateGhostLevel;
+  piece = this->GetUpdatePiece();
+  numPieces = this->GetUpdateNumberOfPieces();
+  ghostLevel = this->GetUpdateGhostLevel();
+}
+
+//----------------------------------------------------------------------------
+int* vtkPolyData::GetUpdateExtent()
+{
+  return this->Superclass::GetUpdateExtent();
+}
+
+//----------------------------------------------------------------------------
+void vtkPolyData::GetUpdateExtent(int& x0, int& x1, int& y0, int& y1,
+                                  int& z0, int& z1)
+{
+  this->Superclass::GetUpdateExtent(x0, x1, y0, y1, z0, z1);
+}
+
+//----------------------------------------------------------------------------
+void vtkPolyData::GetUpdateExtent(int extent[6])
+{
+  this->Superclass::GetUpdateExtent(extent);
 }
 
 //----------------------------------------------------------------------------
@@ -1984,8 +2003,4 @@ void vtkPolyData::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number Of Pieces: " << this->GetNumberOfPieces() << endl;
   os << indent << "Piece: " << this->GetPiece() << endl;
   os << indent << "Ghost Level: " << this->GetGhostLevel() << endl;
-  os << indent << "UpdateExtent: " << this->UpdateExtent[0] << ", "
-     << this->UpdateExtent[1] << ", " << this->UpdateExtent[2] << ", "
-     << this->UpdateExtent[3] << ", " << this->UpdateExtent[4] << ", "
-     << this->UpdateExtent[5] << endl;
 }

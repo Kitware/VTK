@@ -49,7 +49,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.1");
+vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.1.2.1");
 vtkStandardNewMacro(vtkUnstructuredGrid);
 
 vtkUnstructuredGrid::vtkUnstructuredGrid ()
@@ -136,7 +136,6 @@ void vtkUnstructuredGrid::Allocate (vtkIdType numCells, int extSize)
 vtkUnstructuredGrid::~vtkUnstructuredGrid()
 {
   vtkUnstructuredGrid::Initialize();
-  
   this->Vertex->Delete();
   this->PolyVertex->Delete();
   this->Line->Delete();
@@ -241,9 +240,12 @@ void vtkUnstructuredGrid::Initialize()
     this->Locations = NULL;
     }
 
-  this->Information->Set(vtkDataObject::DATA_PIECE_NUMBER(), -1);
-  this->Information->Set(vtkDataObject::DATA_NUMBER_OF_PIECES(), 0);
-  this->Information->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(), 0);
+  if(this->Information)
+    {
+    this->Information->Set(vtkDataObject::DATA_PIECE_NUMBER(), -1);
+    this->Information->Set(vtkDataObject::DATA_NUMBER_OF_PIECES(), 0);
+    this->Information->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(), 0);
+    }
 }
 
 int vtkUnstructuredGrid::GetCellType(vtkIdType cellId)
@@ -795,22 +797,38 @@ int vtkUnstructuredGrid::InsertNextLinkedCell(int type, int npts,
 }
 
 //----------------------------------------------------------------------------
-void vtkUnstructuredGrid::SetUpdateExtent(int piece, int numPieces,
-                                          int ghostLevel)
+void vtkUnstructuredGrid::SetUpdateExtent(int piece, int numPieces, int ghostLevel)
 {
-  this->UpdatePiece = piece;
-  this->UpdateNumberOfPieces = numPieces;
-  this->UpdateGhostLevel = ghostLevel;
-  this->UpdateExtentInitialized = 1;
+  this->SetUpdatePiece(piece);
+  this->SetUpdateNumberOfPieces(numPieces);
+  this->SetUpdateGhostLevel(ghostLevel);
 }
 
 //----------------------------------------------------------------------------
-void vtkUnstructuredGrid::GetUpdateExtent(int &piece, int &numPieces,
-                                          int &ghostLevel)
+void vtkUnstructuredGrid::GetUpdateExtent(int& piece, int& numPieces, int& ghostLevel)
 {
-  piece = this->UpdatePiece;
-  numPieces = this->UpdateNumberOfPieces;
-  ghostLevel = this->UpdateGhostLevel;
+  piece = this->GetUpdatePiece();
+  numPieces = this->GetUpdateNumberOfPieces();
+  ghostLevel = this->GetUpdateGhostLevel();
+}
+
+//----------------------------------------------------------------------------
+int* vtkUnstructuredGrid::GetUpdateExtent()
+{
+  return this->Superclass::GetUpdateExtent();
+}
+
+//----------------------------------------------------------------------------
+void vtkUnstructuredGrid::GetUpdateExtent(int& x0, int& x1, int& y0, int& y1,
+                                          int& z0, int& z1)
+{
+  this->Superclass::GetUpdateExtent(x0, x1, y0, y1, z0, z1);
+}
+
+//----------------------------------------------------------------------------
+void vtkUnstructuredGrid::GetUpdateExtent(int extent[6])
+{
+  this->Superclass::GetUpdateExtent(extent);
 }
 
 //----------------------------------------------------------------------------
@@ -967,11 +985,6 @@ void vtkUnstructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number Of Pieces: " << this->GetNumberOfPieces() << endl;
   os << indent << "Piece: " << this->GetPiece() << endl;
   os << indent << "Ghost Level: " << this->GetGhostLevel() << endl;
-  
-  os << indent << "UpdateExtent: " << this->UpdateExtent[0] << ", "
-     << this->UpdateExtent[1] << ", " << this->UpdateExtent[2] << ", "
-     << this->UpdateExtent[3] << ", " << this->UpdateExtent[4] << ", "
-     << this->UpdateExtent[5] << endl;
 }
 
 // Determine neighbors as follows. Find the (shortest) list of cells that

@@ -53,6 +53,22 @@ public:
 
   int PropagateUpdateExtent(int outputPort);
 
+  void SetMaximumNumberOfPieces(int port, int n);
+  int GetMaximumNumberOfPieces(int port);
+  void SetWholeExtent(int port, int extent[6]);
+  void GetWholeExtent(int port, int extent[6]);
+  int* GetWholeExtent(int port);
+  void SetUpdateExtentToWholeExtent(int port);
+  void SetUpdateExtent(int port, int extent[6]);
+  void GetUpdateExtent(int port, int extent[6]);
+  int* GetUpdateExtent(int port);
+  void SetUpdatePiece(int port, int piece);
+  int GetUpdatePiece(int port);
+  void SetUpdateNumberOfPieces(int port, int n);
+  int GetUpdateNumberOfPieces(int port);
+  void SetUpdateGhostLevel(int port, int n);
+  int GetUpdateGhostLevel(int port);
+
 protected:
   vtkStreamingDemandDrivenPipeline();
   ~vtkStreamingDemandDrivenPipeline();

@@ -28,7 +28,7 @@
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationStringKey.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.2");
+vtkCxxRevisionMacro(vtkDataObject, "1.2.2.1");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -42,7 +42,7 @@ static int vtkDataObjectGlobalReleaseDataFlag = 0;
 vtkDataObject::vtkDataObject()
 {
   this->Source = NULL;
-  this->ProducerPort = 0;
+  this->PipelineInformation = 0;
 
   this->Information = vtkInformation::New();
 
@@ -56,27 +56,7 @@ vtkDataObject::vtkDataObject()
   this->SetFieldData(fd);
   fd->Delete();
 
-  // The extent is uninitialized
-  this->WholeExtent[0] = this->WholeExtent[2] = this->WholeExtent[4] = 0;
-  this->WholeExtent[1] = this->WholeExtent[3] = this->WholeExtent[5] = -1;
-
-  this->UpdateExtent[0] = this->UpdateExtent[2] = this->UpdateExtent[4] = 0;
-  this->UpdateExtent[1] = this->UpdateExtent[3] = this->UpdateExtent[5] = 0;
-
-  // If we used pieces instead of 3D extent, then assume this object was
-  // created by the user and this is piece 0 of 1 pieces.
-  this->MaximumNumberOfPieces = -1;
-
-  this->UpdatePiece          =   0;
-  this->UpdateNumberOfPieces =   1;
-
-  // ivars for ghost levels
-  this->UpdateGhostLevel = 0;
-  
   this->PipelineMTime = 0;
-
-  // First update, the update extent will be set to the whole extent.
-  this->UpdateExtentInitialized = 0;
 
   this->RequestExactExtent = 0;
   
@@ -96,14 +76,177 @@ vtkDataObject::vtkDataObject()
 //----------------------------------------------------------------------------
 vtkDataObject::~vtkDataObject()
 {
+  this->SetPipelineInformation(0);
   this->SetInformation(0);
-  this->SetProducerPort(0);
   this->SetFieldData(NULL);
 
   this->SetExtentTranslator(NULL);
   delete [] this->Consumers;
 }
 
+//----------------------------------------------------------------------------
+void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+
+  if ( this->Source )
+    {
+    os << indent << "Source: " << this->Source << "\n";
+    }
+  else
+    {
+    os << indent << "Source: (none)\n";
+    }
+
+  if ( this->Information )
+    {
+    os << indent << "Information: " << this->Information << "\n";
+    }
+  else
+    {
+    os << indent << "Information: (none)\n";
+    }
+
+  os << indent << "Release Data: "
+     << (this->ReleaseDataFlag ? "On\n" : "Off\n");
+  os << indent << "Data Released: "
+     << (this->DataReleased ? "True\n" : "False\n");
+  os << indent << "Global Release Data: "
+     << (vtkDataObjectGlobalReleaseDataFlag ? "On\n" : "Off\n");
+
+  os << indent << "PipelineMTime: " << this->PipelineMTime << endl;
+  os << indent << "UpdateTime: " << this->UpdateTime << endl;
+
+  if(vtkInformation* pInfo = this->GetPipelineInformation())
+    {
+    if(pInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED()))
+      {
+      os << indent << "UpdateExtent: Initialized\n";
+      }
+    else
+      {
+      os << indent << "UpdateExtent: Not Initialized\n";
+      }
+    if(pInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()))
+      {
+      int updateExtent[6] = {0,-1,0,-1,0,-1};
+      this->GetUpdateExtent(updateExtent);
+      os << indent << "UpdateExtent: " << updateExtent[0] << ", "
+         << updateExtent[1] << ", " << updateExtent[2] << ", "
+         << updateExtent[3] << ", " << updateExtent[4] << ", "
+         << updateExtent[5] << endl;
+      }
+    if(pInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()))
+      {
+      os << indent << "Update Number Of Pieces: "
+         << pInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES())
+         << endl;
+      }
+    if(pInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()))
+      {
+      os << indent << "Update Piece: "
+         << pInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER())
+         << endl;
+      }
+    if(pInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()))
+      {
+      os << indent << "Update Ghost Level: "
+         << pInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS())
+         << endl;
+      }
+    if(pInfo->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
+      {
+      int wholeExtent[6] = {0,-1,0,-1,0,-1};
+      this->GetWholeExtent(wholeExtent);
+      os << indent << "WholeExtent: " << wholeExtent[0] << ", "
+         << wholeExtent[1] << ", " << wholeExtent[2] << ", "
+         << wholeExtent[3] << ", " << wholeExtent[4] << ", "
+         << wholeExtent[5] << endl;
+      }
+    if(pInfo->Has(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES()))
+      {
+      os << indent << "MaximumNumberOfPieces: "
+         << pInfo->Get(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES())
+         << endl;
+      }
+    }
+
+  if (this->RequestExactExtent)
+    {
+    os << indent << "RequestExactExtent: On\n ";
+    }
+  else
+    {
+    os << indent << "RequestExactExtent: Off\n ";
+    }
+
+  os << indent << "Field Data:\n";
+  this->FieldData->PrintSelf(os,indent.GetNextIndent());
+
+  os << indent << "Locality: " << this->Locality << endl;
+  os << indent << "NumberOfConsumers: " << this->NumberOfConsumers << endl;
+  os << indent << "ExtentTranslator: (" << this->ExtentTranslator << ")\n";
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObject::SetPipelineInformation(vtkInformation* newInfo)
+{
+  vtkInformation* oldInfo = this->PipelineInformation;
+  if(newInfo != oldInfo)
+    {
+    if(newInfo)
+      {
+      // Reference the new information.
+      newInfo->Register(this);
+
+      // Detach the output that used to be held by the new information.
+      if(vtkDataObject* oldData = newInfo->Get(vtkDataObject::DATA_OBJECT()))
+        {
+        oldData->SetPipelineInformation(0);
+        }
+
+      // Tell the new information about this object.
+      newInfo->Set(vtkDataObject::DATA_OBJECT(), this);
+      }
+
+    // Save the pointer to the new information.
+    this->PipelineInformation = newInfo;
+
+    if(oldInfo)
+      {
+      // Remove the old information's reference to us.
+      oldInfo->Set(vtkDataObject::DATA_OBJECT(), 0);
+
+      // Remove our reference to the old information.
+      oldInfo->UnRegister(this);
+      }
+
+    // Set the Source ivar for backwards compatibility.
+    this->Source = 0;
+    if(vtkExecutive* executive = this->GetExecutive())
+      {
+      if(vtkAlgorithmOutput* producerPort = executive->GetProducerPort(this))
+        {
+        this->Source = vtkSource::SafeDownCast(producerPort->GetProducer());
+        }
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+vtkAlgorithmOutput* vtkDataObject::GetProducerPort()
+{
+  // Make sure there is an executive.
+  if(!this->GetExecutive())
+    {
+    vtkTrivialProducer* tp = vtkTrivialProducer::New();
+    tp->SetOutput(this);
+    tp->Delete();
+    }
+
+  // Get the port from the executive.
+  return this->GetExecutive()->GetProducerPort(this);
+}
 
 //----------------------------------------------------------------------------
 // Determine the modified time of this object
@@ -214,10 +357,10 @@ void vtkDataObject::DataHasBeenGenerated()
 
   // This is here so that the data can be easlily marked as up to date.
   // It is used specifically when the filter vtkQuadricClustering
-  // is executed manually with the append methods. 
-  this->Information->Set(DATA_PIECE_NUMBER(), this->UpdatePiece);
-  this->Information->Set(DATA_NUMBER_OF_PIECES(), this->UpdateNumberOfPieces);
-  this->Information->Set(DATA_NUMBER_OF_GHOST_LEVELS(), this->UpdateGhostLevel);
+  // is executed manually with the append methods.
+  this->Information->Set(DATA_PIECE_NUMBER(), this->GetUpdatePiece());
+  this->Information->Set(DATA_NUMBER_OF_PIECES(), this->GetUpdateNumberOfPieces());
+  this->Information->Set(DATA_NUMBER_OF_GHOST_LEVELS(), this->GetUpdateGhostLevel());
 }
 
 //----------------------------------------------------------------------------
@@ -247,306 +390,48 @@ int vtkDataObject::ShouldIReleaseData()
 }
 
 //----------------------------------------------------------------------------
-void vtkDataObject::Update()
-{
-#ifdef VTK_USE_EXECUTIVES
-  this->SetupProducer();
-  vtkAlgorithm* producer = this->ProducerPort->GetProducer();
-  int index = this->ProducerPort->GetIndex();
-  if(vtkStreamingDemandDrivenPipeline* sddp =
-     vtkStreamingDemandDrivenPipeline::SafeDownCast(producer->GetExecutive()))
-    {
-    // Synchronize ivars for compatibility layer.
-    this->CopyUpstreamIVarsToInformation(sddp->GetOutputInformation(index));
-
-    // Update this output.
-    sddp->Update(producer, index);
-    }
-  else
-    {
-    vtkErrorMacro("Update called on data object whose producer is not "
-                  "managed by a vtkStreamingDemandDrivenPipeline.");
-    }
-#else
-  this->UpdateInformation();
-  this->PropagateUpdateExtent();
-  this->TriggerAsynchronousUpdate();
-  this->UpdateData();
-#endif
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::UpdateInformation()
-{
-#ifdef VTK_USE_EXECUTIVES
-  this->SetupProducer();
-  vtkAlgorithm* producer = this->ProducerPort->GetProducer();
-  if(vtkDemandDrivenPipeline* ddp =
-     vtkDemandDrivenPipeline::SafeDownCast(producer->GetExecutive()))
-    {
-    ddp->UpdateInformation();
-    int index = this->ProducerPort->GetIndex();
-    this->CopyDownstreamIVarsFromInformation(ddp->GetOutputInformation(index));
-    }
-  else
-    {
-    vtkErrorMacro("UpdateInformation called on data object whose "
-                  "producer is not managed by a vtkDemandDrivenPipeline.");
-    }
-#else
-  if (this->Source)
-    {
-    this->Source->UpdateInformation();
-    }
-  else
-    {
-    // If we don't have a source, then let's make our whole
-    // extent equal to our extent.
-    this->Information->Get(DATA_EXTENT(), this->WholeExtent);
-    // We also need to set the PipeineMTime to our MTime.
-    this->PipelineMTime = this->GetMTime();
-    }
-  
-  // Now we should know what our whole extent is. If our update extent
-  // was not set yet, then set it to the whole extent.
-  if ( ! this->UpdateExtentInitialized)
-    {
-    this->SetUpdateExtentToWholeExtent();
-    }
-
-  this->LastUpdateExtentWasOutsideOfTheExtent = 0;
-#endif
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::PropagateUpdateExtent()
-{
-#ifdef VTK_USE_EXECUTIVES
-  this->SetupProducer();
-  vtkAlgorithm* producer = this->ProducerPort->GetProducer();
-  int index = this->ProducerPort->GetIndex();
-  if(vtkStreamingDemandDrivenPipeline* sddp =
-     vtkStreamingDemandDrivenPipeline::SafeDownCast(producer->GetExecutive()))
-    {
-    // Synchronize ivars for compatibility layer.
-    this->CopyUpstreamIVarsToInformation(sddp->GetOutputInformation(index));
-
-    // Propagate the extent.
-    sddp->PropagateUpdateExtent(this->ProducerPort->GetIndex());
-    }
-  else
-    {
-    vtkErrorMacro("PropagateUpdateExtent called on data object whose "
-                  "producer is not managed by a "
-                  "vtkStreamingDemandDrivenPipeline.");
-    }
-#else
-  // If we need to update due to PipelineMTime, or the fact that our
-  // data was released, then propagate the update extent to the source 
-  // if there is one.
-  if ( this->UpdateTime < this->PipelineMTime || this->DataReleased ||
-       this->UpdateExtentIsOutsideOfTheExtent())
-    {
-    if (this->Source)
-      {
-      this->Source->PropagateUpdateExtent(this);
-      }
-    }
-  
-  // Check that the update extent lies within the whole extent
-  this->VerifyUpdateExtent();
-#endif
-}
-
-//----------------------------------------------------------------------------
-
-void vtkDataObject::TriggerAsynchronousUpdate()
-{  
-  if (this->MaximumNumberOfPieces > 0 &&
-      this->UpdatePiece >= this->MaximumNumberOfPieces)
-    {
-    return;
-    }
-
-  // If we need to update due to PipelineMTime, or the fact that our
-  // data was released, then propagate the trigger to the source
-  // if there is one.
-  if ( this->UpdateTime < this->PipelineMTime || this->DataReleased ||
-       this->UpdateExtentIsOutsideOfTheExtent() ||
-       this->LastUpdateExtentWasOutsideOfTheExtent)
-    {
-    if (this->Source)
-      {
-      this->Source->TriggerAsynchronousUpdate();
-      }
-    }
-
-  this->LastUpdateExtentWasOutsideOfTheExtent =        
-            this->UpdateExtentIsOutsideOfTheExtent();
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::UpdateData()
-{
-#ifdef VTK_USE_EXECUTIVES
-  this->SetupProducer();
-  vtkAlgorithm* producer = this->ProducerPort->GetProducer();
-  if(vtkDemandDrivenPipeline* ddp =
-     vtkDemandDrivenPipeline::SafeDownCast(producer->GetExecutive()))
-    {
-    ddp->UpdateData(this->ProducerPort->GetIndex());
-    }
-  else
-    {
-    vtkErrorMacro("UpdateData called on data object whose "
-                  "producer is not managed by a vtkDemandDrivenPipeline.");
-    }
-#else
-  // If we need to update due to PipelineMTime, or the fact that our
-  // data was released, then propagate the UpdateData to the source
-  // if there is one.
-  if ( this->UpdateTime < this->PipelineMTime || this->DataReleased ||
-       this->UpdateExtentIsOutsideOfTheExtent())
-    {
-    if (this->Source)
-      {
-      this->Source->UpdateData(this);
-      }
-    }
-#endif
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::SetUpdateExtent( int x1, int x2, 
-                                     int y1, int y2, 
-                                     int z1, int z2 )
-{
-  this->UpdateExtent[0] = x1;
-  this->UpdateExtent[1] = x2;
-  this->UpdateExtent[2] = y1;
-  this->UpdateExtent[3] = y2;
-  this->UpdateExtent[4] = z1;
-  this->UpdateExtent[5] = z2;
-  
-  this->UpdateExtentInitialized = 1;
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::SetUpdateExtent( int ext[6] )
-{
-  memcpy( this->UpdateExtent, ext, 6*sizeof(int) );
-  this->UpdateExtentInitialized = 1;
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::SetUpdatePiece( int piece )
-{
-  this->UpdatePiece = piece;
-  this->UpdateExtentInitialized = 1;
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::SetUpdateNumberOfPieces( int num )
-{
-  this->UpdateNumberOfPieces = num;
-  this->UpdateExtentInitialized = 1;
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::SetUpdateGhostLevel(int level)
-{
-  this->UpdateGhostLevel = level;
-}
-
-//----------------------------------------------------------------------------
 void vtkDataObject::SetRequestExactExtent( int flag )
 {
   this->RequestExactExtent = flag;
 }
 
 //----------------------------------------------------------------------------
-#ifdef VTK_USE_EXECUTIVES
-void vtkDataObject::SetProducerPort(vtkAlgorithmOutput* newPort)
+void vtkDataObject::CopyPipelineInformation(vtkInformation* oldPInfo,
+                                            vtkInformation* newPInfo)
 {
-  vtkAlgorithmOutput* oldPort = this->ProducerPort;
-  if((newPort == oldPort) ||
-     (newPort && oldPort &&
-      oldPort->GetProducer() == newPort->GetProducer() &&
-      oldPort->GetIndex() == newPort->GetIndex()))
-    {
-    return;
-    }
-  this->ProducerPort = newPort;
-  if(newPort)
-    {
-    newPort->Register(this);
-    if(newPort->GetProducer())
-      {
-      newPort->GetProducer()->Register(this);
-      }
-    this->Source = vtkSource::SafeDownCast(newPort->GetProducer());
-    }
-  else
-    {
-    this->Source = 0;
-    }
-  if(oldPort)
-    {
-    if(oldPort->GetProducer())
-      {
-      oldPort->GetProducer()->UnRegister(this);
-      }
-    oldPort->UnRegister(this);
-    }
-  this->Modified();
+  newPInfo->CopyEntry(oldPInfo, vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  newPInfo->CopyEntry(oldPInfo, vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES());
+  newPInfo->CopyEntry(oldPInfo, vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED());
+  newPInfo->CopyEntry(oldPInfo, vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+  newPInfo->CopyEntry(oldPInfo, vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  newPInfo->CopyEntry(oldPInfo, vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  newPInfo->CopyEntry(oldPInfo, vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
 }
-#else
-void vtkDataObject::SetProducerPort(vtkAlgorithmOutput*)
-{
-}
-#endif
 
 //----------------------------------------------------------------------------
 void vtkDataObject::SetSource(vtkSource* newSource)
 {
   vtkDebugMacro( << this->GetClassName() << " ("
                  << this << "): setting Source to " << newSource );
-#ifdef VTK_USE_EXECUTIVES
   if(newSource)
     {
     // Find the output index on the source producing this data object.
     int index = newSource->GetOutputIndex(this);
     if(index >= 0)
       {
-      this->SetProducerPort(newSource->GetOutputPort(index));
+      newSource->GetExecutive()->SetOutputData(newSource, index, this);
       }
     else
       {
       vtkErrorMacro("SetSource cannot find the output index of this "
                     "data object from the source.");
-      this->SetProducerPort(0);
+      this->SetPipelineInformation(0);
       }
     }
   else
     {
-    this->SetProducerPort(0);
+    this->SetPipelineInformation(0);
     }
-#else
-  if (this->Source != newSource)
-    {
-    vtkSource *tmp = this->Source;
-    this->Source = newSource;
-    if (this->Source != NULL)
-      {
-      this->Source->Register(this);
-      }
-    if (tmp != NULL)
-      {
-      tmp->UnRegister(this);
-      }
-    this->Modified();
-    }
-#endif
 }
 
 //----------------------------------------------------------------------------
@@ -574,146 +459,49 @@ unsigned long vtkDataObject::GetEstimatedMemorySize()
 }
 
 //----------------------------------------------------------------------------
-void vtkDataObject::SetUpdateExtentToWholeExtent()
+vtkExecutive* vtkDataObject::GetExecutive()
 {
-  // I am setting the update extent to not initialized here so that 
-  // the update extent will always be the whole extent even
-  // it the whole extent changes.
-  this->UpdateExtentInitialized = 0;    
-
-  switch ( this->GetExtentType() )
+  if(this->PipelineInformation)
     {
-    // Our update extent will be the first piece of one piece (the whole thing)
-    case VTK_PIECES_EXTENT:
-      this->UpdateNumberOfPieces  = 1;
-      this->UpdatePiece           = 0;
-      break;
-
-    // Our update extent will be the whole extent
-    case VTK_3D_EXTENT:
-      memcpy( this->UpdateExtent, this->WholeExtent, 6*sizeof(int) );
-      break;
-
-    // We should never have this case occur
-    default:
-      vtkErrorMacro( << "Internal error - invalid extent type!" );
-      break;
-    }
-}
-
-//----------------------------------------------------------------------------
-int vtkDataObject::VerifyUpdateExtent()
-{
-  int retval = 1;
-
-  switch ( this->GetExtentType() )
-    {
-    // Are we asking for more pieces than we can get?
-    case VTK_PIECES_EXTENT:
-      if ( 0 && this->UpdatePiece >= this->UpdateNumberOfPieces ||
-        this->UpdatePiece < 0 )
-        {
-        retval = 0;
-        }
-      break;
-
-    // Is our update extent within the whole extent?
-    case VTK_3D_EXTENT:
-      if (this->UpdateExtent[0] < this->WholeExtent[0] ||
-          this->UpdateExtent[1] > this->WholeExtent[1] ||
-          this->UpdateExtent[2] < this->WholeExtent[2] ||
-          this->UpdateExtent[3] > this->WholeExtent[3] ||
-          this->UpdateExtent[4] < this->WholeExtent[4] ||
-          this->UpdateExtent[5] > this->WholeExtent[5] )
-        { // Update extent outside whole extent.
-        if (this->UpdateExtent[1] >= this->UpdateExtent[0] &&
-            this->UpdateExtent[3] >= this->UpdateExtent[2] &&
-            this->UpdateExtent[5] >= this->UpdateExtent[4])
-          { // non empty update extent.
-          vtkErrorMacro( << "Update extent does not lie within whole extent" );
-          vtkErrorMacro( << "Update extent is: " <<
-            this->UpdateExtent[0] << ", " <<
-            this->UpdateExtent[1] << ", " <<
-            this->UpdateExtent[2] << ", " <<
-            this->UpdateExtent[3] << ", " <<
-            this->UpdateExtent[4] << ", " <<
-            this->UpdateExtent[5]);
-          vtkErrorMacro( << "Whole extent is: " <<
-            this->WholeExtent[0] << ", " <<
-            this->WholeExtent[1] << ", " <<
-            this->WholeExtent[2] << ", " <<
-            this->WholeExtent[3] << ", " <<
-            this->WholeExtent[4] << ", " <<
-            this->WholeExtent[5]);
-          }
-        retval = 0;
-        }
-      break;
-
-    // We should never have this case occur
-    default:
-      vtkErrorMacro( << "Internal error - invalid extent type!" );
-      break;
-    }
-
-  return retval;
-}
-
-//----------------------------------------------------------------------------
-int vtkDataObject::UpdateExtentIsOutsideOfTheExtent()
-{
-  switch ( this->GetExtentType() )
-    {
-    case VTK_PIECES_EXTENT:
-      {
-      int piece = this->Information->Get(DATA_PIECE_NUMBER());
-      int numberOfPieces =
-        this->Information->Get(DATA_NUMBER_OF_PIECES());
-      int ghostLevel =
-        this->Information->Get(DATA_NUMBER_OF_GHOST_LEVELS());
-      if ( this->UpdatePiece != piece ||
-           this->UpdateNumberOfPieces != numberOfPieces ||
-           this->UpdateGhostLevel != ghostLevel)
-        {
-        return 1;
-        }
-      } break;
-
-    case VTK_3D_EXTENT:
-      {
-      int extent[6];
-      this->Information->Get(DATA_EXTENT(), extent);
-      if ( this->UpdateExtent[0] < extent[0] ||
-           this->UpdateExtent[1] > extent[1] ||
-           this->UpdateExtent[2] < extent[2] ||
-           this->UpdateExtent[3] > extent[3] ||
-           this->UpdateExtent[4] < extent[4] ||
-           this->UpdateExtent[5] > extent[5] )
-        {
-        return 1;
-        }
-      if (   this->RequestExactExtent )
-        {
-        if ( this->UpdateExtent[0] != extent[0] ||
-             this->UpdateExtent[1] != extent[1] ||
-             this->UpdateExtent[2] != extent[2] ||
-             this->UpdateExtent[3] != extent[3] ||
-             this->UpdateExtent[4] != extent[4] ||
-             this->UpdateExtent[5] != extent[5] )
-          {
-          return 1;
-          }
-        }
-      } break;
-
-    // We should never have this case occur
-    default:
-      vtkErrorMacro( << "Internal error - invalid extent type!" );
-      break;
+    return this->PipelineInformation->Get(vtkExecutive::EXECUTIVE());
     }
   return 0;
 }
 
+//----------------------------------------------------------------------------
+int vtkDataObject::GetPortNumber()
+{
+  if(this->PipelineInformation)
+    {
+    return this->PipelineInformation->Get(vtkExecutive::PORT_NUMBER());
+    }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+vtkStreamingDemandDrivenPipeline* vtkDataObject::TrySDDP(const char* method)
+{
+  // Make sure there is an executive.
+  if(!this->GetExecutive())
+    {
+    vtkTrivialProducer* tp = vtkTrivialProducer::New();
+    tp->SetOutput(this);
+    tp->Delete();
+    }
+
+  // Try downcasting the executive to the proper type.
+  if(SDDP* sddp = SDDP::SafeDownCast(this->GetExecutive()))
+    {
+    return sddp;
+    }
+  else if(method)
+    {
+    vtkErrorMacro("Method " << method << " cannot be called unless the "
+                  "data object is managed by a "
+                  "vtkStreamingDemandDrivenPipeline.");
+    }
+  return 0;
+}
 
 //----------------------------------------------------------------------------
 
@@ -729,11 +517,11 @@ void vtkDataObject::CopyInformation( vtkDataObject *data )
   if ( this->GetExtentType() == VTK_3D_EXTENT &&
        data->GetExtentType() == VTK_3D_EXTENT )
     {
-    memcpy( this->WholeExtent, data->GetWholeExtent(), 6*sizeof(int) );
+    this->SetWholeExtent(data->GetWholeExtent());
     }
   else
     {
-    this->MaximumNumberOfPieces = data->GetMaximumNumberOfPieces();
+    this->SetMaximumNumberOfPieces(data->GetMaximumNumberOfPieces());
     }
   this->SetExtentTranslator(data->GetExtentTranslator());
 }
@@ -792,8 +580,6 @@ void vtkDataObject::DeepCopy(vtkDataObject *src)
 //----------------------------------------------------------------------------
 void vtkDataObject::InternalDataObjectCopy(vtkDataObject *src)
 {
-  int idx;
-
   this->DataReleased = src->DataReleased;
   if(src->Information->Has(DATA_EXTENT()))
     {
@@ -816,17 +602,21 @@ void vtkDataObject::InternalDataObjectCopy(vtkDataObject *src)
     this->Information->Set(DATA_NUMBER_OF_GHOST_LEVELS(),
                            src->Information->Get(DATA_NUMBER_OF_GHOST_LEVELS()));
     }
-  for (idx = 0; idx < 6; ++idx)
+  vtkInformation* thatPInfo = src->GetPipelineInformation();
+  vtkInformation* thisPInfo = this->GetPipelineInformation();
+  if(thatPInfo)
     {
-    this->WholeExtent[idx] = src->WholeExtent[idx];
-    // Copying these update variables caused me no end of grief.
-    //this->UpdateExtent[idx] = src->UpdateExtent[idx];
+    if(thisPInfo)
+      {
+      thisPInfo->CopyEntry(thatPInfo, SDDP::WHOLE_EXTENT());
+      thisPInfo->CopyEntry(thatPInfo, SDDP::MAXIMUM_NUMBER_OF_PIECES());
+      }
+    else
+      {
+      vtkErrorMacro("Cannot copy pipeline information because "
+                    "no executive produces this data object.");
+      }
     }
-  this->MaximumNumberOfPieces = src->MaximumNumberOfPieces;
-  // Copying these update variables caused me no end of grief.
-  //this->UpdateNumberOfPieces = src->UpdateNumberOfPieces;
-  //this->UpdatePiece = src->UpdatePiece;
-  //this->UpdateGhostLevel = src->UpdateGhostLevel;
   this->ReleaseDataFlag = src->ReleaseDataFlag;
   // This also caused a pipeline problem.
   // An input pipelineMTime was copied to output.  Pipeline did not execute...
@@ -871,115 +661,17 @@ void vtkDataObject::Crop()
 }
 
 //----------------------------------------------------------------------------
-void vtkDataObject::SetupProducer()
-{
-#ifdef VTK_USE_EXECUTIVES
-  if(!this->ProducerPort || !this->ProducerPort->GetProducer())
-    {
-    // This data object has no producer.  Give it a trivial source.
-    vtkTrivialProducer* producer = vtkTrivialProducer::New();
-    producer->SetOutput(this);
-    producer->Delete();
-    }
-#endif
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::CopyUpstreamIVarsToInformation(vtkInformation* info)
-{
-  // Copy update extent to the information object.
-  info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED(),
-            this->UpdateExtentInitialized);
-  if(this->GetExtentType() == VTK_PIECES_EXTENT)
-    {
-    // Setup unstructured extent.
-    info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
-              this->UpdatePiece);
-    info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
-              this->UpdateNumberOfPieces);
-    info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
-              this->UpdateGhostLevel);
-    }
-  else
-    {
-    // Setup structured extent.
-    info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-              this->UpdateExtent, 6);
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::CopyUpstreamIVarsFromInformation(vtkInformation* info)
-{
-  // Copy update extent from the information object.
-  this->UpdateExtentInitialized =
-    info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED());
-  if(this->GetExtentType() == VTK_PIECES_EXTENT)
-    {
-    // Setup unstructured extent.
-    this->UpdatePiece =
-      info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-    this->UpdateNumberOfPieces =
-      info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-    this->UpdateGhostLevel =
-      info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
-    }
-  else
-    {
-    // Setup structured extent.
-    info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-              this->UpdateExtent);
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::CopyDownstreamIVarsToInformation(vtkInformation* info)
-{
-  // Copy whole extent to the information object.
-  if(this->GetExtentType() == VTK_PIECES_EXTENT)
-    {
-    // Setup unstructured extent.
-    info->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
-              this->MaximumNumberOfPieces);
-    }
-  else
-    {
-    // Setup structured extent.
-    info->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-              this->WholeExtent, 6);
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::CopyDownstreamIVarsFromInformation(vtkInformation* info)
-{
-  // Copy whole extent from the information object.
-  if(this->GetExtentType() == VTK_PIECES_EXTENT)
-    {
-    // Setup unstructured extent.
-    this->MaximumNumberOfPieces =
-      info->Get(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES());
-    }
-  else
-    {
-    // Setup structured extent.
-    info->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-              this->WholeExtent);
-    }
-}
-
-//----------------------------------------------------------------------------
 void vtkDataObject::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
-#ifdef VTK_USE_EXECUTIVES
-  if(this->ProducerPort)
+  if(this->Information)
     {
-    collector->ReportReference(this->ProducerPort->GetProducer(), "Producer");
+    collector->ReportReference(this->Information, "Information");
     }
-#else
-  collector->ReportReference(this->GetSource(), "Source");
-#endif
+  if(this->PipelineInformation)
+    {
+    collector->ReportReference(this->PipelineInformation, "PipelineInformation");
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -992,11 +684,16 @@ void vtkDataObject::GarbageCollectionStarting()
 //----------------------------------------------------------------------------
 void vtkDataObject::RemoveReferences()
 {
-#ifdef VTK_USE_EXECUTIVES
-  this->SetProducerPort(0);
-#else
-  this->SetSource(0);
-#endif
+  if(this->PipelineInformation)
+    {
+    this->PipelineInformation->UnRegister(this);
+    this->PipelineInformation = 0;
+    }
+  if(this->Information)
+    {
+    this->Information->UnRegister(this);
+    this->Information = 0;
+    }
   this->Superclass::RemoveReferences();
 }
 
@@ -1025,88 +722,235 @@ VTK_DATA_OBJECT_DEFINE_KEY_METHOD(FIELD_OPERATION, Integer);
 #undef VTK_DATA_OBJECT_DEFINE_KEY_METHOD
 
 //----------------------------------------------------------------------------
-void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
+void vtkDataObject::Update()
 {
-  this->Superclass::PrintSelf(os,indent);
-
-  if (this->ProducerPort && this->ProducerPort->GetProducer())
+  if(SDDP* sddp = this->TrySDDP("Update"))
     {
-    os << indent << "ProducerPort: "
-       << this->ProducerPort->GetProducer()->GetClassName()
-       << "(" << this->ProducerPort->GetProducer() << ") port "
-       << this->ProducerPort->GetIndex() << "\n";
+    sddp->Update(this->GetPortNumber());
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObject::UpdateInformation()
+{
+  if(SDDP* sddp = this->TrySDDP("UpdateInformation"))
+    {
+    sddp->UpdateInformation();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObject::PropagateUpdateExtent()
+{
+  if(SDDP* sddp = this->TrySDDP("PropagateUpdateExtent"))
+    {
+    sddp->PropagateUpdateExtent(this->GetPortNumber());
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObject::TriggerAsynchronousUpdate()
+{
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObject::UpdateData()
+{
+  if(SDDP* sddp = this->TrySDDP("UpdateData"))
+    {
+    sddp->UpdateData(this->GetPortNumber());
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObject::SetUpdateExtentToWholeExtent()
+{
+  if(SDDP* sddp = this->TrySDDP("SetUpdateExtentToWholeExtent"))
+    {
+    sddp->SetUpdateExtentToWholeExtent(this->GetPortNumber());
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObject::SetMaximumNumberOfPieces(int n)
+{
+  if(SDDP* sddp = this->TrySDDP("SetMaximumNumberOfPieces"))
+    {
+    sddp->SetMaximumNumberOfPieces(this->GetPortNumber(), n);
+    }
+}
+
+//----------------------------------------------------------------------------
+int vtkDataObject::GetMaximumNumberOfPieces()
+{
+  if(SDDP* sddp = this->TrySDDP("GetMaximumNumberOfPieces"))
+    {
+    return sddp->GetMaximumNumberOfPieces(this->GetPortNumber());
+    }
+  return -1;
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObject::SetWholeExtent(int x0, int x1, int y0, int y1,
+                                   int z0, int z1)
+{
+  int extent[6] = {x0, x1, y0, y1, z0, z1};
+  this->SetWholeExtent(extent);
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObject::SetWholeExtent(int extent[6])
+{
+  if(SDDP* sddp = this->TrySDDP("SetWholeExtent"))
+    {
+    sddp->SetWholeExtent(this->GetPortNumber(), extent);
+    }
+}
+
+//----------------------------------------------------------------------------
+int* vtkDataObject::GetWholeExtent()
+{
+  if(SDDP* sddp = this->TrySDDP("GetWholeExtent"))
+    {
+    return sddp->GetWholeExtent(this->GetPortNumber());
     }
   else
     {
-    os << indent << "ProducerPort: (none)\n";
+    static int extent[6] = {0,-1,0,-1,0,-1};
+    return extent;
     }
+}
 
-  if ( this->Source )
+//----------------------------------------------------------------------------
+void vtkDataObject::GetWholeExtent(int& x0, int& x1, int& y0, int& y1,
+                                   int& z0, int& z1)
+{
+  int extent[6];
+  this->GetWholeExtent(extent);
+  x0 = extent[0];
+  x1 = extent[1];
+  y0 = extent[2];
+  y1 = extent[3];
+  z0 = extent[4];
+  z1 = extent[5];
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObject::GetWholeExtent(int extent[6])
+{
+  if(SDDP* sddp = this->TrySDDP("GetWholeExtent"))
     {
-    os << indent << "Source: " << this->Source << "\n";
+    sddp->GetWholeExtent(this->GetPortNumber(), extent);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObject::SetUpdateExtent(int x0, int x1, int y0, int y1,
+                                   int z0, int z1)
+{
+  int extent[6] = {x0, x1, y0, y1, z0, z1};
+  this->SetUpdateExtent(extent);
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObject::SetUpdateExtent(int extent[6])
+{
+  if(SDDP* sddp = this->TrySDDP("SetUpdateExtent"))
+    {
+    sddp->SetUpdateExtent(this->GetPortNumber(), extent);
+    }
+}
+
+//----------------------------------------------------------------------------
+int* vtkDataObject::GetUpdateExtent()
+{
+  if(SDDP* sddp = this->TrySDDP("GetUpdateExtent"))
+    {
+    return sddp->GetUpdateExtent(this->GetPortNumber());
     }
   else
     {
-    os << indent << "Source: (none)\n";
+    static int extent[6] = {0,-1,0,-1,0,-1};
+    return extent;
     }
+}
 
-  if ( this->Information )
+//----------------------------------------------------------------------------
+void vtkDataObject::GetUpdateExtent(int& x0, int& x1, int& y0, int& y1,
+                                   int& z0, int& z1)
+{
+  int extent[6];
+  this->GetUpdateExtent(extent);
+  x0 = extent[0];
+  x1 = extent[1];
+  y0 = extent[2];
+  y1 = extent[3];
+  z0 = extent[4];
+  z1 = extent[5];
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObject::GetUpdateExtent(int extent[6])
+{
+  if(SDDP* sddp = this->TrySDDP("GetUpdateExtent"))
     {
-    os << indent << "Information: " << this->Information << "\n";
+    sddp->GetUpdateExtent(this->GetPortNumber(), extent);
     }
-  else
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObject::SetUpdatePiece(int piece)
+{
+  if(SDDP* sddp = this->TrySDDP("SetUpdatePiece"))
     {
-    os << indent << "Information: (none)\n";
+    sddp->SetUpdatePiece(this->GetPortNumber(), piece);
     }
+}
 
-  os << indent << "Release Data: " 
-     << (this->ReleaseDataFlag ? "On\n" : "Off\n");
-
-  os << indent << "Data Released: " 
-     << (this->DataReleased ? "True\n" : "False\n");
-  
-  os << indent << "Global Release Data: " 
-     << (vtkDataObjectGlobalReleaseDataFlag ? "On\n" : "Off\n");
-
-  os << indent << "MaximumNumberOfPieces: " << this->MaximumNumberOfPieces << endl;
-  os << indent << "PipelineMTime: " << this->PipelineMTime << endl;
-  os << indent << "UpdateTime: " << this->UpdateTime << endl;
-  
-  if (this->UpdateExtentInitialized)
+//----------------------------------------------------------------------------
+int vtkDataObject::GetUpdatePiece()
+{
+  if(SDDP* sddp = this->TrySDDP("GetUpdatePiece"))
     {
-    os << indent << "UpdateExtent: Initialized\n";
+    return sddp->GetUpdatePiece(this->GetPortNumber());
     }
-  else
-    {
-    os << indent << "UpdateExtent: Not Initialized\n";
-    }
-  os << indent << "Update Number Of Pieces: " << this->UpdateNumberOfPieces << endl;
-  os << indent << "Update Piece: " << this->UpdatePiece << endl;
-  os << indent << "Update Ghost Level: " << this->UpdateGhostLevel << endl;
-  
-  if (this->RequestExactExtent)
-    {
-    os << indent << "RequestExactExtent: On\n ";  
-    }
-  else
-    {
-    os << indent << "RequestExactExtent: Off\n ";  
-    }    
-  
-  os << indent << "UpdateExtent: " << this->UpdateExtent[0] << ", "
-     << this->UpdateExtent[1] << ", " << this->UpdateExtent[2] << ", "
-     << this->UpdateExtent[3] << ", " << this->UpdateExtent[4] << ", "
-     << this->UpdateExtent[5] << endl;
-  os << indent << "WholeExtent: " << this->WholeExtent[0] << ", "
-     << this->WholeExtent[1] << ", " << this->WholeExtent[2] << ", "
-     << this->WholeExtent[3] << ", " << this->WholeExtent[4] << ", "
-     << this->WholeExtent[5] << endl;
+  return 0;
+}
 
-  os << indent << "Field Data:\n";
-  this->FieldData->PrintSelf(os,indent.GetNextIndent());
+//----------------------------------------------------------------------------
+void vtkDataObject::SetUpdateNumberOfPieces(int n)
+{
+  if(SDDP* sddp = this->TrySDDP("SetUpdateNumberOfPieces"))
+    {
+    sddp->SetUpdateNumberOfPieces(this->GetPortNumber(), n);
+    }
+}
 
-  os << indent << "Locality: " << this->Locality << endl;
-  os << indent << "NumberOfConsumers: " << this->NumberOfConsumers << endl;
-  os << indent << "ExtentTranslator: (" << this->ExtentTranslator << ")\n";
-  os << indent << "MaximumNumberOfPieces: " << this->MaximumNumberOfPieces << endl;
+//----------------------------------------------------------------------------
+int vtkDataObject::GetUpdateNumberOfPieces()
+{
+  if(SDDP* sddp = this->TrySDDP("GetUpdateNumberOfPieces"))
+    {
+    return sddp->GetUpdateNumberOfPieces(this->GetPortNumber());
+    }
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObject::SetUpdateGhostLevel(int level)
+{
+  if(SDDP* sddp = this->TrySDDP("SetUpdateGhostLevel"))
+    {
+    sddp->SetUpdateGhostLevel(this->GetPortNumber(), level);
+    }
+}
+
+//----------------------------------------------------------------------------
+int vtkDataObject::GetUpdateGhostLevel()
+{
+  if(SDDP* sddp = this->TrySDDP("GetUpdateGhostLevel"))
+    {
+    return sddp->GetUpdateGhostLevel(this->GetPortNumber());
+    }
+  return 0;
 }

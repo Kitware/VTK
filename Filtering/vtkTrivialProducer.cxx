@@ -21,7 +21,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTrivialProducer, "1.1.2.2");
+vtkCxxRevisionMacro(vtkTrivialProducer, "1.1.2.3");
 vtkStandardNewMacro(vtkTrivialProducer);
 
 //----------------------------------------------------------------------------
@@ -55,15 +55,14 @@ void vtkTrivialProducer::SetOutput(vtkDataObject*
   vtkDataObject* oldOutput = this->Output;
   if(newOutput != oldOutput)
     {
-    this->Output = newOutput;
     if(newOutput)
       {
       newOutput->Register(this);
-      newOutput->SetProducerPort(this->GetOutputPort(0));
       }
+    this->Output = newOutput;
+    this->GetExecutive()->SetOutputData(this, 0, newOutput);
     if(oldOutput)
       {
-      oldOutput->SetProducerPort(0);
       oldOutput->UnRegister(this);
       }
     this->Modified();
@@ -118,13 +117,6 @@ vtkTrivialProducer::ProcessDownstreamRequest(vtkInformation* request,
                                              vtkInformationVector*,
                                              vtkInformationVector* outputVector)
 {
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()) ||
-     request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()) ||
-     request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
-    {
-    vtkInformation* info = outputVector->GetInformationObject(0);
-    info->Set(vtkDataObject::DATA_OBJECT(), this->Output);
-    }
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()) &&
      this->Output)
     {
@@ -172,6 +164,10 @@ void vtkTrivialProducer::ReportReferences(vtkGarbageCollector* collector)
 //----------------------------------------------------------------------------
 void vtkTrivialProducer::RemoveReferences()
 {
-  this->SetOutput(0);
+  if(this->Output)
+    {
+    this->Output->UnRegister(this);
+    this->Output = 0;
+    }
   this->Superclass::RemoveReferences();
 }

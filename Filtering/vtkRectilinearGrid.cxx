@@ -29,7 +29,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGrid, "1.1");
+vtkCxxRevisionMacro(vtkRectilinearGrid, "1.1.2.1");
 vtkStandardNewMacro(vtkRectilinearGrid);
 
 vtkCxxSetObjectMacro(vtkRectilinearGrid,XCoordinates,vtkDataArray);
@@ -80,7 +80,10 @@ vtkRectilinearGrid::~vtkRectilinearGrid()
 void vtkRectilinearGrid::Initialize()
 {
   this->Superclass::Initialize();
-  this->SetDimensions(0,0,0);
+  if(this->Information)
+    {
+    this->SetDimensions(0,0,0);
+    }
 
   if ( this->XCoordinates ) 
     {
@@ -877,9 +880,9 @@ void vtkRectilinearGrid::SetUpdateExtent(int piece, int numPieces,
   this->ExtentTranslator->PieceToExtent();
   this->SetUpdateExtent(this->ExtentTranslator->GetExtent());
 
-  this->UpdatePiece = piece;
-  this->UpdateNumberOfPieces = numPieces;
-  this->UpdateGhostLevel = ghostLevel;
+  this->SetUpdatePiece(piece);
+  this->SetUpdateNumberOfPieces(numPieces);
+  this->SetUpdateGhostLevel(ghostLevel);
 }
 
 
@@ -986,18 +989,20 @@ void vtkRectilinearGrid::Crop()
   int ext[6];
   int extent[6];
   this->GetExtent(extent);
+  int updateExtent[6] = {0,-1,0,-1,0,-1};
+  this->GetUpdateExtent(updateExtent);
 
   // If the update extent is larger than the extent, 
   // we cannot do anything about it here.
   for (i = 0; i < 3; ++i)
     {
-    uExt[i*2] = this->UpdateExtent[i*2];
+    uExt[i*2] = updateExtent[i*2];
     ext[i*2] = extent[i*2];
     if (uExt[i*2] < ext[i*2])
       {
       uExt[i*2] = ext[i*2];
       }
-    uExt[i*2+1] = this->UpdateExtent[i*2+1];
+    uExt[i*2+1] = updateExtent[i*2+1];
     ext[i*2+1] = extent[i*2+1];
     if (uExt[i*2+1] > ext[i*2+1])
       {
@@ -1135,11 +1140,6 @@ void vtkRectilinearGrid::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "X Coordinates: " << this->XCoordinates << "\n";
   os << indent << "Y Coordinates: " << this->YCoordinates << "\n";
   os << indent << "Z Coordinates: " << this->ZCoordinates << "\n";
-
-  os << indent << "WholeExtent: " << this->WholeExtent[0] << ", "
-     << this->WholeExtent[1] << ", " << this->WholeExtent[2] << ", "
-     << this->WholeExtent[3] << ", " << this->WholeExtent[4] << ", "
-     << this->WholeExtent[5] << endl;
 
   int extent[6];
   this->GetExtent(extent);

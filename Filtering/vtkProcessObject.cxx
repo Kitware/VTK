@@ -22,12 +22,11 @@
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkSource.h"
-#include "vtkTrivialProducer.h"
 #include "vtkInformation.h"
 
 #include "vtkDebugLeaks.h"
 
-vtkCxxRevisionMacro(vtkProcessObject, "1.1");
+vtkCxxRevisionMacro(vtkProcessObject, "1.1.2.1");
 
 //----------------------------------------------------------------------------
 
@@ -323,18 +322,7 @@ void vtkProcessObject::SetNthInput(int idx, vtkDataObject* input)
     }
   else if(input && num < this->GetNumberOfInputConnections(0))
     {
-    if(vtkAlgorithmOutput* producerPort = input->GetProducerPort())
-      {
-      this->SetNthInputConnection(0, num, producerPort);
-      }
-    else
-      {
-      // The data object has no producer.  Give it a trivial source.
-      vtkTrivialProducer* producer = vtkTrivialProducer::New();
-      producer->SetOutput(input);
-      this->SetNthInputConnection(0, num, producer->GetOutputPort(0));
-      producer->Delete();
-      }
+    this->SetNthInputConnection(0, num, input->GetProducerPort());
     }
 #else
   if (idx < 0)
@@ -559,18 +547,7 @@ void vtkProcessObject::AddInputInternal(vtkDataObject* input)
 {
   if(input)
     {
-    if(vtkAlgorithmOutput* producerPort = input->GetProducerPort())
-      {
-      this->AddInputConnection(0, producerPort);
-      }
-    else
-      {
-      // The data object has no producer.  Give it a trivial source.
-      vtkTrivialProducer* producer = vtkTrivialProducer::New();
-      producer->SetOutput(input);
-      this->AddInputConnection(0, producer->GetOutputPort(0));
-      producer->Delete();
-      }
+    this->AddInputConnection(0, input->GetProducerPort());
     }
 }
 #else
@@ -585,27 +562,7 @@ void vtkProcessObject::RemoveInputInternal(vtkDataObject* input)
 {
   if(input)
     {
-    if(vtkAlgorithmOutput* producerPort = input->GetProducerPort())
-      {
-      this->RemoveInputConnection(0, producerPort);
-      }
-    else
-      {
-      // The data object has no producer.  Search for an input
-      // connection with this data object.
-      for(int i=0; i < this->GetNumberOfInputConnections(0); ++i)
-        {
-        vtkAlgorithmOutput* ic = this->GetInputConnection(0, i);
-        if(input == ic->GetProducer()->GetOutputDataObject(ic->GetIndex()))
-          {
-          // Remove the connection.
-          this->RemoveInputConnection(0, ic);
-          return;
-          }
-        }
-      vtkErrorMacro("Cannot remove input " << input->GetClassName()
-                    << "(" << input << ") because it is not a current input.");
-      }
+    this->RemoveInputConnection(0, input->GetProducerPort());
     }
 }
 #else

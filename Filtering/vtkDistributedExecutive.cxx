@@ -15,11 +15,14 @@
 #include "vtkDistributedExecutive.h"
 
 #include "vtkAlgorithm.h"
+#include "vtkAlgorithmOutput.h"
+#include "vtkDataObject.h"
+#include "vtkInformation.h"
 #include "vtkGarbageCollector.h"
 #include "vtkObjectFactory.h"
 #include "vtkSource.h"
 
-vtkCxxRevisionMacro(vtkDistributedExecutive, "1.1");
+vtkCxxRevisionMacro(vtkDistributedExecutive, "1.1.2.1");
 vtkStandardNewMacro(vtkDistributedExecutive);
 vtkCxxSetObjectMacro(vtkDistributedExecutive, Algorithm, vtkAlgorithm);
 
@@ -176,6 +179,25 @@ vtkDataObject* vtkDistributedExecutive::GetOutputData(vtkAlgorithm* algorithm,
 }
 
 //----------------------------------------------------------------------------
+void vtkDistributedExecutive::SetOutputData(int, vtkDataObject*)
+{
+  vtkErrorMacro("SetOutputData(int, vtkDataObject*) must be implemented for this executive.");
+}
+
+//----------------------------------------------------------------------------
+void vtkDistributedExecutive::SetOutputData(vtkAlgorithm* algorithm, int port,
+                                            vtkDataObject* newOutput)
+{
+  if(algorithm != this->GetAlgorithm())
+    {
+    vtkErrorMacro("Request to set output data from an algorithm not managed "
+                  "by this executive: " << algorithm);
+    return;
+    }
+  return this->SetOutputData(port, newOutput);
+}
+
+//----------------------------------------------------------------------------
 int vtkDistributedExecutive::InputPortIndexInRange(int port,
                                                    const char* action)
 {
@@ -212,41 +234,16 @@ int vtkDistributedExecutive::OutputPortIndexInRange(int port,
 }
 
 //----------------------------------------------------------------------------
-void vtkDistributedExecutive::SetOutputDataInternal(vtkAlgorithm* algorithm,
-                                                    int port,
-                                                    vtkDataObject* output)
+vtkAlgorithmOutput* vtkDistributedExecutive::GetProducerPort(vtkDataObject* d)
 {
-  if(vtkSource* source = vtkSource::SafeDownCast(algorithm))
+  if(this->Algorithm && d)
     {
-    source->SetNthOutput(port, output);
-    }
-  else
-    {
-    this->Superclass::SetOutputDataInternal(algorithm, port, output);
-    }
-}
-
-//----------------------------------------------------------------------------
-vtkDataObject*
-vtkDistributedExecutive::GetOutputDataInternal(vtkAlgorithm* algorithm,
-                                               int port)
-{
-  vtkDataObject* output;
-  output = this->Superclass::GetOutputDataInternal(algorithm, port);
-  if(output)
-    {
-    return output;
-    }
-  else if(vtkSource* source = vtkSource::SafeDownCast(algorithm))
-    {
-    if(source->NumberOfOutputs >= port)
+    vtkInformation* info = d->GetPipelineInformation();
+    vtkExecutive* dExecutive = info->Get(vtkExecutive::EXECUTIVE());
+    int port = info->Get(vtkExecutive::PORT_NUMBER());
+    if(dExecutive == this)
       {
-      output = source->Outputs[port];
-      if(output)
-        {
-        this->Superclass::SetOutputDataInternal(algorithm, port, output);
-        return output;
-        }
+      return this->Algorithm->GetOutputPort(port);
       }
     }
   return 0;

@@ -38,7 +38,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.1.2.2");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.1.2.3");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 //----------------------------------------------------------------------------
@@ -221,7 +221,17 @@ vtkInformationVector* vtkDemandDrivenPipeline::GetOutputInformation()
     this->FillDownstreamKeysToCopy(
       this->DemandDrivenInternal->OutputInformation->GetInformationObject(i));
     }
-  
+
+  // Set the executive pointer and port number on the information objects.
+  for(int j=numberOfInfoObjs; j < this->Algorithm->GetNumberOfOutputPorts();
+      ++j)
+    {
+    vtkInformation* info =
+      this->DemandDrivenInternal->OutputInformation->GetInformationObject(j);
+    info->Set(vtkExecutive::EXECUTIVE(), this);
+    info->Set(vtkExecutive::PORT_NUMBER(), j);
+    }
+
   return this->DemandDrivenInternal->OutputInformation.GetPointer();
 }
 
@@ -573,10 +583,9 @@ int vtkDemandDrivenPipeline::CheckDataObject(int port)
       {
       // Try to create an instance of the correct type.
       data = this->NewDataObject(dt);
-      this->SetOutputDataInternal(this->Algorithm, port, data);
+      this->SetOutputData(this->Algorithm, port, data);
       if(data)
         {
-        data->SetProducerPort(this->Algorithm->GetOutputPort(port));
         data->Delete();
         }
       }
@@ -623,7 +632,11 @@ vtkDataObject* vtkDemandDrivenPipeline::GetOutputData(int port)
   this->UpdateDataObject();
 
   // Return the data object.
-  return this->GetOutputDataInternal(this->Algorithm, port);
+  if(vtkInformation* info = this->GetOutputInformation(port))
+    {
+    return info->Get(vtkDataObject::DATA_OBJECT());
+    }
+  return 0;
 }
 
 //----------------------------------------------------------------------------
@@ -631,6 +644,34 @@ vtkDataObject* vtkDemandDrivenPipeline::GetOutputData(vtkAlgorithm* algorithm,
                                                       int port)
 {
   return this->Superclass::GetOutputData(algorithm, port);
+}
+
+//----------------------------------------------------------------------------
+void vtkDemandDrivenPipeline::SetOutputData(int newPort,
+                                            vtkDataObject* newOutput)
+{
+  if(vtkInformation* info = this->GetOutputInformation(newPort))
+    {
+    if(newOutput)
+      {
+      newOutput->SetPipelineInformation(info);
+      }
+    else if(vtkDataObject* oldOutput = info->Get(vtkDataObject::DATA_OBJECT()))
+      {
+      oldOutput->SetPipelineInformation(0);
+      }
+    }
+  else
+    {
+    vtkErrorMacro("Could not set output on port " << newPort << ".");
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkDemandDrivenPipeline::SetOutputData(vtkAlgorithm* algorithm, int port,
+                                            vtkDataObject* newOutput)
+{
+  this->Superclass::SetOutputData(algorithm, port, newOutput);
 }
 
 //----------------------------------------------------------------------------
@@ -1054,26 +1095,16 @@ vtkDataObject* vtkDemandDrivenPipeline::NewDataObject(const char* type)
 void vtkDemandDrivenPipeline::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
-  
-  // if we have an algorithm then report our references to its data objects 
-  if (this->Algorithm)
-    {
-    for(int i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
-      {
-      collector->ReportReference(
-      this->GetOutputInformation(i)->Get(vtkDataObject::DATA_OBJECT()),
-      "AlgorithmOutput");
-      }
-    }
+  collector->ReportReference(this->DemandDrivenInternal->InputInformation.GetPointer(),
+                             "Input Information Vector");
+  collector->ReportReference(this->DemandDrivenInternal->OutputInformation.GetPointer(),
+                             "Output Information Vector");
 }
 
 //----------------------------------------------------------------------------
 void vtkDemandDrivenPipeline::RemoveReferences()
 {
-  for(int i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
-    {
-    this->GetOutputInformation(i)->Remove(vtkDataObject::DATA_OBJECT());
-    }
+  this->DemandDrivenInternal->OutputInformation = 0;
   this->Superclass::RemoveReferences();
 }
 
