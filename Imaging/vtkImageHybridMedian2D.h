@@ -39,7 +39,7 @@ protected:
   vtkImageHybridMedian2D();
   ~vtkImageHybridMedian2D() {};
 
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
+  void ThreadedExecute (vtkImageData ***inData, vtkImageData **outData,
                        int outExt[6], int id);
 private:
   vtkImageHybridMedian2D(const vtkImageHybridMedian2D&);  // Not implemented.

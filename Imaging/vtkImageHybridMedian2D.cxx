@@ -20,7 +20,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/numeric>
 
-vtkCxxRevisionMacro(vtkImageHybridMedian2D, "1.23");
+vtkCxxRevisionMacro(vtkImageHybridMedian2D, "1.23.10.1");
 vtkStandardNewMacro(vtkImageHybridMedian2D);
 
 //----------------------------------------------------------------------------
@@ -58,7 +58,7 @@ void vtkImageHybridMedian2DExecute(vtkImageHybridMedian2D *self,
 
 
   inData->GetIncrements(inInc0, inInc1, inInc2);
-  self->GetInput()->GetWholeExtent(wholeMin0, wholeMax0, wholeMin1, wholeMax1,
+  inData->GetWholeExtent(wholeMin0, wholeMax0, wholeMin1, wholeMax1,
                               wholeMin2, wholeMax2);
   numComps = inData->GetNumberOfScalarComponents();
   outData->GetIncrements(outInc0, outInc1, outInc2);
@@ -245,26 +245,26 @@ void vtkImageHybridMedian2DExecute(vtkImageHybridMedian2D *self,
 // This method contains the first switch statement that calls the correct
 // templated function for the input and output Data types.
 // It hanldes image boundaries, so the image does not shrink.
-void vtkImageHybridMedian2D::ThreadedExecute(vtkImageData *inData,
-                                       vtkImageData *outData,
+void vtkImageHybridMedian2D::ThreadedExecute (vtkImageData ***inData,
+                                       vtkImageData **outData,
                                        int outExt[6], int id)
 {
-  void *inPtr = inData->GetScalarPointerForExtent(outExt);
-  void *outPtr = outData->GetScalarPointerForExtent(outExt);
+  void *inPtr = inData[0][0]->GetScalarPointerForExtent(outExt);
+  void *outPtr = outData[0]->GetScalarPointerForExtent(outExt);
 
   // this filter expects the output type to be same as input
-  if (outData->GetScalarType() != inData->GetScalarType())
+  if (outData[0]->GetScalarType() != inData[0][0]->GetScalarType())
     {
     vtkErrorMacro(<< "Execute: output ScalarType, "
-      << vtkImageScalarTypeNameMacro(outData->GetScalarType())
+      << vtkImageScalarTypeNameMacro(outData[0]->GetScalarType())
       << " must match input scalar type");
     return;
     }
 
-  switch (inData->GetScalarType())
+  switch (inData[0][0]->GetScalarType())
     {
-    vtkTemplateMacro7(vtkImageHybridMedian2DExecute, this, inData,
-                      (VTK_TT *)(inPtr), outData, (VTK_TT *)(outPtr),
+    vtkTemplateMacro7(vtkImageHybridMedian2DExecute, this, inData[0][0],
+                      (VTK_TT *)(inPtr), outData[0], (VTK_TT *)(outPtr),
                       outExt, id);
 
     default:
