@@ -19,6 +19,15 @@
 #ifndef __FTOPTION_H__
 #define __FTOPTION_H__
 
+#if defined( _MSC_VER )      /* Visual C++ (and Intel C++) */
+
+#pragma warning( disable : 4244 ) // conversion [...] possible loss of data
+#pragma warning( disable : 4267 ) // same
+#pragma warning( disable : 4311 ) // same for pointer
+#pragma warning( disable : 4312 ) // same for pointer
+
+#endif /* _MSC_VER */ 
+
 #include <ft2build.h>
 
 FT_BEGIN_HEADER
