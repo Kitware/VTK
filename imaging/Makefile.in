@@ -90,6 +90,7 @@ vtkImageWrapPad \
 vtkImageWriter \
 vtkPNMReader \
 vtkPNMWriter \
+vtkPolyDataMapper2D \
 vtkTextMapper \
 vtkTIFFReader \
 vtkTIFFWriter \
