@@ -31,6 +31,11 @@ vlPointData::vlPointData (const vlPointData& pd)
 
   this->TCoords = pd.TCoords;
   if(this->TCoords) this->TCoords->Register((void *)this);
+
+  this->CopyScalars = 1;
+  this->CopyVectors = 1;
+  this->CopyNormals = 1;
+  this->CopyTCoords = 1;
 }
 
 vlPointData::~vlPointData()
@@ -65,6 +70,11 @@ vlPointData& vlPointData::operator=(vlPointData& pd)
     this->SetTCoords(t);
     }
 
+  this->CopyScalars = pd.CopyScalars;
+  this->CopyVectors = pd.CopyVectors;
+  this->CopyNormals = pd.CopyNormals;
+  this->CopyTCoords = pd.CopyTCoords;
+
   return *this;
 }
 
@@ -73,22 +83,22 @@ vlPointData& vlPointData::operator=(vlPointData& pd)
 //
 void vlPointData::CopyData(vlPointData* from_pd, int from_id, int to_id)
 {
-  if ( from_pd->Scalars && this->Scalars )
+  if ( this->CopyScalars && from_pd->Scalars && this->Scalars )
     {
     this->Scalars->InsertScalar(to_id,from_pd->Scalars->GetScalar(from_id));
     }
 
-  if ( from_pd->Vectors && this->Vectors )
+  if ( this->CopyVectors && from_pd->Vectors && this->Vectors )
     {
     this->Vectors->InsertVector(to_id,from_pd->Vectors->GetVector(from_id));
     }
 
-  if ( from_pd->Normals && this->Normals )
+  if ( this->CopyNormals && from_pd->Normals && this->Normals )
     {
     this->Normals->InsertNormal(to_id,from_pd->Normals->GetNormal(from_id));
     }
 
-  if ( from_pd->TCoords && this->TCoords )
+  if ( this->CopyTCoords && from_pd->TCoords && this->TCoords )
     {
     this->TCoords->InsertTCoord(to_id,from_pd->TCoords->GetTCoord(from_id));
     }
@@ -134,7 +144,7 @@ void vlPointData::Initialize()
 // the input PointData to create (i.e., find initial size of) new objects; otherwise
 // use the sze variable.
 //
-void vlPointData::CopyInitialize(vlPointData* pd, int sze, int ext)
+void vlPointData::CopyInitialize(vlPointData* pd, int sFlg, int vFlg, int nFlg, int tFlg, int sze, int ext)
 {
   vlScalars *s, *newScalars;
   vlVectors *v, *newVectors;
@@ -147,28 +157,28 @@ void vlPointData::CopyInitialize(vlPointData* pd, int sze, int ext)
 //
   if ( !pd ) return;
 
-  if ( (s = pd->GetScalars()) ) 
+  if ( (this->CopyScalars = sFlg) && (s = pd->GetScalars()) ) 
     {
     if ( sze > 0 ) newScalars = s->MakeObject(sze,ext);
     else newScalars = s->MakeObject(s->NumberOfScalars());
     this->SetScalars(newScalars);
     }
 
-  if ( (v = pd->GetVectors()) ) 
+  if ( (this->CopyVectors = vFlg) && (v = pd->GetVectors()) ) 
     {
     if ( sze > 0 ) newVectors = v->MakeObject(sze,ext);
     else newVectors = v->MakeObject(v->NumberOfVectors());
     this->SetVectors(newVectors);
     }
 
-  if ( (n = pd->GetNormals()) ) 
+  if ( (this->CopyNormals = nFlg) && (n = pd->GetNormals()) ) 
     {
     if ( sze > 0 ) newNormals = n->MakeObject(sze,ext);
     else newNormals = n->MakeObject(n->NumberOfNormals());
     this->SetNormals(newNormals);
     }
 
-  if ( (t = pd->GetTCoords()) ) 
+  if ( (this->CopyTCoords = tFlg) && (t = pd->GetTCoords()) ) 
     {
     if ( sze > 0 ) newTCoords = t->MakeObject(sze,t->GetDimension(),ext);
     else newTCoords = t->MakeObject(t->NumberOfTCoords(),t->GetDimension());
@@ -221,5 +231,11 @@ void vlPointData::PrintSelf(ostream& os, vlIndent indent)
       {
       os << indent << "Texture Coordinates: (none)\n";
       }
+    os << indent << "Copy Scalars: " << (this->CopyScalars ? "On\n" : "Off\n");
+    os << indent << "Copy Vectors: " << (this->CopyVectors ? "On\n" : "Off\n");
+    os << indent << "Copy Normals: " << (this->CopyNormals ? "On\n" : "Off\n");
+    os << indent << "Copy Texture Coordinates: " << (this->CopyTCoords ? "On\n" : "Off\n");
+
+
     }
 }

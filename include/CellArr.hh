@@ -12,7 +12,7 @@ public:
   vlCellArray() : NumberOfCells(0), Location(0) {};
   int Initialize(const int sz, const int ext=1000) 
     {return this->Ia.Initialize(sz,ext);};
-  vlCellArray (const int sz, const int ext=1000):NumberOfCells(0),Location(0),Ia(sz,ext){};
+  vlCellArray (const int sz, const int ext=1000):NumberOfCells(0),Location(0),InsertPoint(0),Ia(sz,ext){};
   ~vlCellArray() {};
   int GetNextCell(int& npts, int* &pts)
   {
@@ -36,16 +36,24 @@ public:
     for (int i=0; i<npts-1; i++) this->Ia[id-npts+i+1] = pts[i];
     NumberOfCells++;
   }
+  void InsertNextCell(int npts)
+  {
+    this->InsertPoint = this->Ia.InsertNextValue(npts) + 1;
+    NumberOfCells++;
+  }
+  void InsertCellPoint(int id) 
+    {this->Ia.InsertValue(this->InsertPoint++,id);};
   int GetNumberOfCells() {return NumberOfCells;};
   void InitTraversal() {this->Location=0;};
   void Squeeze() {this->Ia.Squeeze();};
   int EstimateSize(int numCells, int maxPtsPerCell) 
     {return numCells*(1+maxPtsPerCell);};
   
-private:
+protected:
   int NumberOfCells;
   int Location;
   vlIntArray Ia;
+  int InsertPoint;
 };
 
 #endif

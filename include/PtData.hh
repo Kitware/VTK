@@ -30,7 +30,7 @@ class vlPointData : public vlObject
 public:
   vlPointData() : Scalars(0), Vectors(0), Normals(0), TCoords(0) {};
   void Initialize();
-  void CopyInitialize(vlPointData* pd, int sze=0, int ext=1000);
+  void CopyInitialize(vlPointData* pd, int sFlg=1, int vFlg=1, int nFlg=1, int tFlg=1, int sze=0, int ext=1000);
   ~vlPointData();
   char *GetClassName() {return "vlPointData";};
   void PrintSelf(ostream& os, vlIndent indent);
@@ -56,6 +56,10 @@ protected:
   vlVectors *Vectors;
   vlNormals *Normals;
   vlTCoords *TCoords;
+  int CopyScalars;
+  int CopyVectors;
+  int CopyNormals;
+  int CopyTCoords;
 };
 
 #endif

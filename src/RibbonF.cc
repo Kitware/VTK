@@ -17,6 +17,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "vlMath.hh"
 #include "RibbonF.hh"
+#include "FPoints.hh"
+#include "FNormals.hh"
+#include "Line.hh"
 
 vlRibbonFilter::vlRibbonFilter()
 {
@@ -27,17 +30,20 @@ vlRibbonFilter::vlRibbonFilter()
 void vlRibbonFilter::Execute()
 {
   int i, j, k;
-  float center[3], *p;
   vlPoints *inPts;
-  vlPointData *pd;
-  vlCellArray *inVerts,*inLines,*inPolys,*inStrips;
-  int numNewPts, numNewLines, numNewPolys, poly_alloc_size;
-  int npts, *pts;
-  vlFloatPoints *newPoints;
   vlNormals *inNormals;
-  vlCellArray *newVerts, *newLines, *newPolys;
-  int newIds[MAX_CELL_SIZE];
-  float *p1, *p2, *p3, pt[3];
+  vlPointData *pd;
+  vlCellArray *inLines;
+  int numNewPts;
+  vlFloatPoints *newPts;
+  vlFloatNormals *newNormals;
+  vlCellArray *newStrips;
+  int npts, *pts;
+  float *x1, *x2, norm, *n, normal[3];
+  float l[3], pt[3], p[3];
+  vlMath math;
+  float theta;
+  int deleteNormals=0;
 //
 // Initialize
 //
@@ -45,21 +51,86 @@ void vlRibbonFilter::Execute()
 
   inPts = this->Input->GetPoints();
   pd = this->Input->GetPointData();
+  // copy scalars, vectors, tcoords.  Normals are computed here.
+  this->PointData.CopyInitialize(pd,1,1,0,1);
 
-  if ( !(inLines = this->Input->GetLines()) || inLines->GetNumberOfCells() < 1 )
+  if ( !(inLines = this->Input->GetLines()) || 
+  inLines->GetNumberOfCells() < 1 )
     {
     cerr << this->GetClassName() << ": No input data!\n";
     return;
     }
 
-  if (pd)
+  if ( !(inNormals=pd->GetNormals()) )
     {
-    inNormals = pd->GetNormals();
+    deleteNormals = 1;
+    vlLine lineNormalGenerator;
+    inNormals = new vlFloatNormals(inPts->NumberOfPoints());
+    if ( !lineNormalGenerator.GenerateNormals(inPts,inLines,(vlFloatNormals*)inNormals) )
+      {
+      cerr << this->GetClassName() << ": No normals for line!\n";
+      delete inNormals;
+      return;
+      }
     }
-  else 
+
+  numNewPts = inPts->NumberOfPoints() * 2;
+  newPts = new vlFloatPoints(numNewPts);
+  newNormals = new vlFloatNormals(numNewPts);
+  newStrips = new vlCellArray;
+  newStrips->Initialize(newStrips->EstimateSize(1,numNewPts));
+//
+//  Create pairs of points along the line that are later connected into a 
+//  triangle strip.
+//
+  theta = this->Angle * math.DegreesToRadians();
+  for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); )
     {
-    ; //for now
+    for (j=0; j<npts; j++)
+      {
+        // compute first point
+        x1 = inPts->GetPoint(pts[j]);
+        n = inNormals->GetNormal(pts[j]);
+        for (k=0; k<3; k++) pt[k] = x1[k] + this->Radius*n[k];
+        newPts->InsertNextPoint(pt);
+        newNormals->InsertNextNormal(n);
+
+        // now next point
+        if ( j < (npts - 1) )
+          {
+          x2 = inPts->GetPoint(pts[j+1]);
+          for (k=0; k<3; k++) l[k] = x2[k] - x1[k];
+          }
+        else
+          {
+          ; // use old l[k]
+          }
+        math.Cross(n,l,p);
+        if ((norm=math.Norm(p)) == 0.0) norm = 1.0;
+        for (k=0; k<3; k++) p[k] /= norm;
+        for (k=0; k<3; k++) normal[k] = n[k]*cos((double)theta) + p[k]*sin((double)theta);
+        for (k=0; k<3; k++) pt[k] = x1[k] + this->Radius*normal[k];
+        newPts->InsertNextPoint(pt);
+        newNormals->InsertNextNormal(normal);
+      }
     }
+//
+// Generate the strip topology
+//
+  newStrips->InsertNextCell(numNewPts);
+  for (i=0; i < numNewPts; i++) 
+    {
+    newStrips->InsertCellPoint(i);
+    }
+//
+// Update ourselves
+//
+  if ( deleteNormals ) delete inNormals;
+
+  this->SetPoints(newPts);
+
+  this->SetStrips(newStrips);
+  this->PointData.SetNormals(newNormals);
 }
 
 void vlRibbonFilter::PrintSelf(ostream& os, vlIndent indent)
