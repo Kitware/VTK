@@ -83,6 +83,7 @@ public:
   // Set/Get a transformation to apply to input points before
   // executing the implicit function.
   virtual void SetTransform(vtkAbstractTransform*);
+  virtual void SetTransform(double elements[16]);
   vtkGetObjectMacro(Transform,vtkAbstractTransform);
 
   // Description:

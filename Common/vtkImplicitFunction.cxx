@@ -15,9 +15,10 @@
 #include "vtkImplicitFunction.h"
 
 #include "vtkMath.h"
-#include "vtkAbstractTransform.h"
+#include "vtkAbstractTransform."
+#include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImplicitFunction, "1.34");
+vtkCxxRevisionMacro(vtkImplicitFunction, "1.35");
 vtkCxxSetObjectMacro(vtkImplicitFunction,Transform,vtkAbstractTransform);
 
 vtkImplicitFunction::vtkImplicitFunction()
@@ -27,7 +28,7 @@ vtkImplicitFunction::vtkImplicitFunction()
 
 vtkImplicitFunction::~vtkImplicitFunction()
 {
-  this->SetTransform(NULL);
+  this->SetTransform(static_cast<vtkAbstractTransform*>(NULL));
 }
 
 // Evaluate function at position x-y-z and return value. Point x[3] is
@@ -141,4 +142,10 @@ void vtkImplicitFunction::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
+void vtkImplicitFunction::SetTransform(double elements[16])
+{
+  vtkTransform* transform = vtkTransform::New();
+  transform->SetMatrix(elements);
+  this->SetTransform(transform);
+}
 
