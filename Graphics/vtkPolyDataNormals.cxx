@@ -26,8 +26,9 @@
 #include "vtkPolyData.h"
 #include "vtkPolygon.h"
 #include "vtkTriangleStrip.h"
+#include "vtkPriorityQueue.h"
 
-vtkCxxRevisionMacro(vtkPolyDataNormals, "1.57");
+vtkCxxRevisionMacro(vtkPolyDataNormals, "1.58");
 vtkStandardNewMacro(vtkPolyDataNormals);
 
 // Construct with feature angle=30, splitting and consistency turned on, 
@@ -88,6 +89,8 @@ void vtkPolyDataNormals::Execute()
     vtkErrorMacro(<<"No data to generate normals for!");
     return;
     }
+
+  vtkErrorMacro(<<"numPts is " << numPts);
 
   // If there is nothing to do, pass the data through
   if ( this->ComputePointNormals == 0 && this->ComputeCellNormals == 0) 
@@ -153,7 +156,7 @@ void vtkPolyDataNormals::Execute()
 
   // The visited array keeps track of which polygons have been visited.
   //
-  if ( this->Consistency || this->Splitting ) 
+  if ( this->Consistency || this->Splitting || this->AutoOrientNormals ) 
     {
     this->Visited = new int[numPolys];
     memset(this->Visited, VTK_CELL_NOT_VISITED, numPolys*sizeof(int));
@@ -171,34 +174,132 @@ void vtkPolyDataNormals::Execute()
   //  with its (already checked) neighbors.
   //
   this->NumFlips = 0;
-  if ( this->Consistency ) 
-    {    
+  if (this->AutoOrientNormals)
+    {
+    // No need to check this->Consistency. It's implied.
+
+    // Ok, here's the basic idea: the "left-most" polygon should 
+    // have its outward pointing normal facing left. If it doesn't,
+    // reverse the vertex order. Then use it as the seed for other
+    // connected polys. To find left-most polygon, first find left-most
+    // point, and examine neighboring polys and see which one
+    // has a normal that's "most aligned" with the X-axis. This process
+    // will need to be repeated to handle all connected components in
+    // the mesh. Report bugs/issues to cvolpe@ara.com.
+    int foundLeftmostCell;
+    vtkIdType leftmostCellID=-1, currentPointID, currentCellID;
+    vtkIdType *leftmostCells;
+    unsigned short nleftmostCells;
+    vtkIdType *cellPts;
+    vtkIdType nCellPts;
+    int cIdx;
+    double bestNormalAbsXComponent;
+    int bestReverseFlag;
+    vtkPriorityQueue *leftmostPoints = vtkPriorityQueue::New();
     this->Wave = vtkIdList::New();
     this->Wave->Allocate(numPolys/4+1,numPolys);
     this->Wave2 = vtkIdList::New();
     this->Wave2->Allocate(numPolys/4+1,numPolys);
-    for (cellId=0; cellId < numPolys; cellId++)
-      {
-      if ( this->Visited[cellId] == VTK_CELL_NOT_VISITED) 
-        {
-        if ( this->FlipNormals ) 
-          {
-          this->NumFlips++;
-          this->NewMesh->ReverseCell(cellId);
-          }
-        this->Wave->InsertNextId(cellId);
-        this->Visited[cellId] = VTK_CELL_VISITED; 
-        this->TraverseAndOrder();
-        }
 
-      this->Wave->Reset();
-      this->Wave2->Reset(); 
+    // Put all the points in the priority queue, based on x coord
+    // So that we can find leftmost point
+    leftmostPoints->Allocate(numPts);
+    for (ptId=0; ptId < numPts; ptId++)
+      {
+      leftmostPoints->Insert(inPts->GetPoint(ptId)[0],ptId);
       }
 
+    // Repeat this while loop as long as the queue is not empty,
+    // because there may be multiple connected components, each of
+    // which needs to be seeded independently with a correctly
+    // oriented polygon.
+    while (leftmostPoints->GetNumberOfItems())
+      {
+      foundLeftmostCell = 0;
+      // Keep iterating through leftmost points and cells located at
+      // those points until I've got a leftmost point with 
+      // unvisited cells attached and I've found the best cell
+      // at that point
+      do {
+        currentPointID = leftmostPoints->Pop();
+        this->OldMesh->GetPointCells(currentPointID, nleftmostCells, leftmostCells);
+        bestNormalAbsXComponent = 0.0;
+        bestReverseFlag = 0;
+        for (cIdx = 0; cIdx < nleftmostCells; cIdx++)
+          {
+          currentCellID = leftmostCells[cIdx];
+          if (this->Visited[currentCellID] == VTK_CELL_VISITED)
+            {
+            continue;
+            }
+          this->OldMesh->GetCellPoints(currentCellID, nCellPts, cellPts);
+          vtkPolygon::ComputeNormal(inPts, nCellPts, cellPts, n);
+          // Ok, see if this leftmost cell candidate is the best
+          // so far
+          if (fabs(n[0]) > bestNormalAbsXComponent)
+            {
+            bestNormalAbsXComponent = fabs(n[0]);
+            leftmostCellID = currentCellID;
+            // If the current leftmost cell's normal is pointing to the
+            // right, then the vertex ordering is wrong
+            bestReverseFlag = (n[0] > 0);
+            foundLeftmostCell = 1;
+            } // if this normal is most x-aligned so far
+          } // for each cell at current leftmost point
+        } while (leftmostPoints->GetNumberOfItems() && !foundLeftmostCell);
+      if (foundLeftmostCell)
+        {
+        // We've got the seed for a connected component! But do
+        // we need to flip it first? We do, if it was pointed the wrong
+        // way to begin with, or if the user requested flipping all
+        // normals, but if both are true, then we leave it as it is.
+        if (bestReverseFlag ^ this->FlipNormals)
+          {
+          this->NewMesh->ReverseCell(leftmostCellID);
+          this->NumFlips++;
+          }
+        this->Wave->InsertNextId(leftmostCellID);
+        this->Visited[leftmostCellID] = VTK_CELL_VISITED;
+        this->TraverseAndOrder();
+        this->Wave->Reset();
+        this->Wave2->Reset();
+        } // if found leftmost cell
+      } // Still some points in the queue
     this->Wave->Delete();
     this->Wave2->Delete();
     vtkDebugMacro(<<"Reversed ordering of " << this->NumFlips << " polygons");
-    }//Consistent ordering
+    } // automatically orient normals
+  else
+    {
+    if ( this->Consistency ) 
+      {    
+      this->Wave = vtkIdList::New();
+      this->Wave->Allocate(numPolys/4+1,numPolys);
+      this->Wave2 = vtkIdList::New();
+      this->Wave2->Allocate(numPolys/4+1,numPolys);
+      for (cellId=0; cellId < numPolys; cellId++)
+        {
+        if ( this->Visited[cellId] == VTK_CELL_NOT_VISITED) 
+          {
+          if ( this->FlipNormals ) 
+            {
+            this->NumFlips++;
+            this->NewMesh->ReverseCell(cellId);
+            }
+          this->Wave->InsertNextId(cellId);
+          this->Visited[cellId] = VTK_CELL_VISITED; 
+          this->TraverseAndOrder();
+          }
+
+        this->Wave->Reset();
+        this->Wave2->Reset(); 
+        }
+
+      this->Wave->Delete();
+      this->Wave2->Delete();
+      vtkDebugMacro(<<"Reversed ordering of " << this->NumFlips << " polygons");
+      }//Consistent ordering
+    } // don't automatically orient normals
   
   this->UpdateProgress(0.333);
 
@@ -614,6 +715,7 @@ void vtkPolyDataNormals::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Splitting: " << (this->Splitting ? "On\n" : "Off\n");
   os << indent << "Consistency: " << (this->Consistency ? "On\n" : "Off\n"); 
   os << indent << "Flip Normals: " << (this->FlipNormals ? "On\n" : "Off\n");
+  os << indent << "Num Flips: " << this->NumFlips << endl;
   os << indent << "Compute Point Normals: " 
      << (this->ComputePointNormals ? "On\n" : "Off\n");
   os << indent << "Compute Cell Normals: " 
