@@ -124,6 +124,10 @@ public:
   // Set/Get the radius of sphere. Default is .5.
   void SetRadius(float r)
     {
+    if ( r <= 0 )
+      {
+      r = .00001;
+      }
     this->SphereSource->SetRadius(r); 
     }
   float GetRadius()
