@@ -313,7 +313,7 @@ int vtkDEMReader::ReadProfiles (vtkImageData *data)
   int profileId[2], profileSize[2];
   int rowId, columnId;
   int updateInterval;
-  int status;
+  int status = 0;
   FILE *fp;
 
   this->UpdateImageInformation ();
@@ -364,7 +364,10 @@ int vtkDEMReader::ReadProfiles (vtkImageData *data)
 		   &profileId[1],	/* 1 */
 		   &profileSize[0],	/* 2 */
 		   &profileSize[1]);	/* 2 */
-    if (status == EOF) break;
+    if (status == EOF)
+      {
+      break;
+      }
 
     //
     // read the doubles as strings so we can convert floating point format
@@ -405,7 +408,7 @@ int vtkDEMReader::ReadProfiles (vtkImageData *data)
     }
   fclose (fp);
 
-  return 0;
+  return status;
 }
 
 // Description: Converts Fortran D notation to C++ e notation
