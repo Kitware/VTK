@@ -439,6 +439,14 @@ void vtkStructuredData::GetCellNeigbors(int cellId, vtkIdList *ptIds,
   cellDim[1] = dim[1] - 1;
   cellDim[2] = dim[2] - 1;
 
+  for(i=0; i<3; i++)
+    {
+    if ( cellDim[i] < 1 )
+      {
+      cellDim[i] = 1;
+      }
+    }
+
   for (j=0; j<8; j++) 
     {
     for (i=0; i<3; i++) 
