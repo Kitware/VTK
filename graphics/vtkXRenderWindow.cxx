@@ -68,6 +68,7 @@ vtkXRenderWindow::~vtkXRenderWindow()
   if (this->OwnDisplay && this->DisplayId)
     {
     XCloseDisplay(this->DisplayId);
+    this->DisplayId = NULL;
     }
 }
 
