@@ -24,7 +24,7 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkTetra, "1.3");
+vtkCxxRevisionMacro(vtkTetra, "1.4");
 vtkStandardNewMacro(vtkTetra);
 
 //----------------------------------------------------------------------------
@@ -915,7 +915,22 @@ void vtkTetra::Clip(double value, vtkDataArray *cellScalars,
       }
     }
 
-  if ( edge[0] > 0 )
+  int allDifferent, numUnique=1;
+  for (i=0; i<(edge[0]-1); i++)
+    {
+    for (allDifferent=1, j=i+1; j<edge[0] && allDifferent; j++)
+      {
+      if (pts[i] == pts[j]) allDifferent = 0;
+      }
+    if (allDifferent) numUnique++;
+    }
+
+  if ( edge[0] == 4 && numUnique == 4 ) // check for degenerate tetra
+    {
+    newCellId = tets->InsertNextCell(edge[0],pts);
+    outCD->CopyData(inCD,cellId,newCellId);
+    }
+  else if ( edge[0] == 6 && numUnique > 3 ) // check for degenerate wedge
     {
     newCellId = tets->InsertNextCell(edge[0],pts);
     outCD->CopyData(inCD,cellId,newCellId);
