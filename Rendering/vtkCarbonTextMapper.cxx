@@ -20,10 +20,13 @@
 #include <OpenGL/gl.h>
 #include <AGL/agl.h>
 #include "vtkObjectFactory.h"
-#include "vtkgluPickMatrix.h"
+#include "vtkProperty2D.h"
 #include "vtkString.h"
+#include "vtkTextProperty.h"
+#include "vtkViewport.h"
+#include "vtkgluPickMatrix.h"
 
-vtkCxxRevisionMacro(vtkCarbonTextMapper, "1.5");
+vtkCxxRevisionMacro(vtkCarbonTextMapper, "1.6");
 vtkStandardNewMacro(vtkCarbonTextMapper);
 
 struct vtkFontStruct
@@ -72,8 +75,11 @@ void vtkCarbonTextMapper::GetSize(vtkViewport* viewport, int *size)
     return;
   }
 
+  vtkTextProperty *tprop = this->GetTextProperty();
+ 
   // Check to see whether we have to rebuild anything
-  if ( this->GetMTime() < this->BuildTime)
+  if ( this->GetMTime() < this->BuildTime &&
+       tprop->GetMTime() < this->BuildTime)
   {
     size[0] = this->LastSize[0];
     size[1] = this->LastSize[1];
@@ -93,7 +99,7 @@ void vtkCarbonTextMapper::GetSize(vtkViewport* viewport, int *size)
   AGLDrawable hdc = (AGLDrawable) window->GetGenericContext();
 
   // Get the font number
-  switch (this->FontFamily)
+  switch (tprop->GetFontFamily())
   {
     case VTK_ARIAL:
       GetFNum("\pArial", &(this->currentFontNum));
@@ -110,13 +116,14 @@ void vtkCarbonTextMapper::GetSize(vtkViewport* viewport, int *size)
   }
 
   TextFont(this->currentFontNum);
-  TextFace(normal + (italic*this->Italic) + (bold*this->Bold) +
-           (shadow*this->Shadow));
-  if (this->FontSize < 9)
+  TextFace(normal + (italic * tprop->GetItalic()) + (bold * tprop->GetBold()) +
+           (shadow * tprop->GetShadow()));
+  int adjusted_size = tprop->GetFontSize();
+  if (adjusted_size < 9)
     {// adjust since smaller sizes disappear in aglUseFont
-    this->FontSize = 9;
+    adjusted_size = 9;
     }
-  TextSize(this->FontSize);
+  TextSize(adjusted_size);
 
   GetFontInfo(&(this->myFontInfo));
   
@@ -139,15 +146,16 @@ int vtkCarbonTextMapper::GetListBaseForFont(vtkViewport *vp)
 {
   int i, j;
   vtkCarbonRenderWindow *win = (vtkCarbonRenderWindow *)(vp->GetVTKWindow());
+  vtkTextProperty *tprop = this->GetTextProperty();
 
   // has the font been cached ?
   for (i = 0; i < numCached; i++)
     {
     if (cache[i]->Window == win &&
-        cache[i]->Italic == this->GetItalic() &&
-        cache[i]->Bold == this->GetBold() &&
-        cache[i]->FontSize == this->GetFontSize() &&
-        cache[i]->FontFamily == this->GetFontFamily())
+        cache[i]->Italic == tprop->GetItalic() &&
+        cache[i]->Bold == tprop->GetBold() &&
+        cache[i]->FontSize == tprop->GetFontSize() &&
+        cache[i]->FontFamily == tprop->GetFontFamily())
       {
       // make this the most recently used
       if (i != 0)
@@ -199,15 +207,17 @@ int vtkCarbonTextMapper::GetListBaseForFont(vtkViewport *vp)
   short fNum = 0;
   // set the other info and build the font
   cache[numCached]->Window = win;
-  cache[numCached]->Italic = this->GetItalic();
-  cache[numCached]->Bold = this->GetBold();
-  cache[numCached]->FontSize = this->GetFontSize();
-  cache[numCached]->FontFamily = this->GetFontFamily();
+  cache[numCached]->Italic = tprop->GetItalic();
+  cache[numCached]->Bold = tprop->GetBold();
+  cache[numCached]->FontFamily = tprop->GetFontFamily();
+  cache[numCached]->FontSize = tprop->GetFontSize();
   if (cache[numCached]->FontSize < 9)
+    {
     cache[numCached]->FontSize = 9; // minimum font size (or it goes blank!)
+    }
   aglUseFont((AGLContext)win->GetGenericDisplayId(), this->currentFontNum,
-             normal+(italic*this->Italic) + (bold*this->Bold) +
-             (shadow*this->Shadow), cache[numCached]->FontSize, 0, 256, cache[numCached]->ListBase);
+             normal+(italic * tprop->GetItalic()) + (bold * tprop->GetBold()) +
+             (shadow * tprop->GetShadow()), cache[numCached]->FontSize, 0, 256, cache[numCached]->ListBase);
   GLenum err = aglGetError();
   if (AGL_NO_ERROR != err)
     {
@@ -274,6 +284,8 @@ void vtkCarbonTextMapper::RenderOverlay(vtkViewport* viewport,
 {
   vtkDebugMacro (<< "RenderOverlay");
 
+  vtkTextProperty *tprop = this->GetTextProperty();
+
   // turn off texturing in case it is on
   glDisable( GL_TEXTURE_2D );
   
@@ -309,7 +321,7 @@ void vtkCarbonTextMapper::RenderOverlay(vtkViewport* viewport,
   int* actorPos = 
     actor->GetActualPositionCoordinate()->GetComputedViewportValue(viewport);
   ptDestOff.h = actorPos[0];
-  ptDestOff.v = static_cast<long>(actorPos[1] - this->LineOffset);
+  ptDestOff.v = static_cast<long>(actorPos[1] - tprop->GetLineOffset());
 
   // Set up the font color from the text actor
   unsigned char red = 0;
@@ -317,11 +329,29 @@ void vtkCarbonTextMapper::RenderOverlay(vtkViewport* viewport,
   unsigned char blue = 0;
   unsigned char alpha = 0;
   
-  float*  actorColor = actor->GetProperty()->GetColor();
+  // TOFIX: the default text prop color is set to a special (-1, -1, -1) value
+  // to maintain backward compatibility for a while. Text mapper classes will
+  // use the Actor2D color instead of the text prop color if this value is 
+  // found (i.e. if the text prop color has not been set).
+
+  float* actorColor = this->GetTextProperty()->GetColor();
+  if (actorColor[0] < 0.0 && actorColor[1] < 0.0 && actorColor[2] < 0.0)
+    {
+    actorColor = actor->GetProperty()->GetColor();
+    }
+
+  // TOFIX: same goes for opacity
+
+  float opacity = this->GetTextProperty()->GetOpacity();
+  if (opacity < 0.0)
+    {
+    opacity = actor->GetProperty()->GetOpacity();
+    }
+
   red = (unsigned char) (actorColor[0] * 255.0);
   green = (unsigned char) (actorColor[1] * 255.0);
   blue = (unsigned char) (actorColor[2] * 255.0);
-  alpha = (unsigned char) (actorColor[3] * 255.0);
+  alpha = (unsigned char) (opacity * 255.0);
   
   // Set up the shadow color
   float intensity;
@@ -347,7 +377,7 @@ void vtkCarbonTextMapper::RenderOverlay(vtkViewport* viewport,
   rect.right = rect.left + size[0];
   rect.top = rect.bottom + size[1];
   
-  switch (this->Justification)
+  switch (tprop->GetJustification())
     {
     int tmp;
     case VTK_TEXT_LEFT: 
@@ -362,7 +392,7 @@ void vtkCarbonTextMapper::RenderOverlay(vtkViewport* viewport,
       rect.right = rect.left;
       rect.left = rect.left - tmp;
     }
-  switch (this->VerticalJustification)
+  switch (tprop->GetVerticalJustification())
     {
     case VTK_TEXT_TOP: 
       rect.top = rect.bottom;
@@ -441,7 +471,7 @@ void vtkCarbonTextMapper::RenderOverlay(vtkViewport* viewport,
   glListBase(this->GetListBaseForFont(viewport));
 
   // Set the colors for the shadow
-  if (this->Shadow)
+  if (tprop->GetShadow())
     {
     // set the colors for the foreground
     glColor4ub(shadowRed, shadowGreen, shadowBlue, alpha);
