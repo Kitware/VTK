@@ -52,6 +52,7 @@ them. If the -V option is provided the test will try to perform image
 differences between the valid image and the rendered image. If the valid
 image specified with -V doesn't exist it will create it.
 
+
 Running a Tcl example
 -----------------------
 
@@ -79,6 +80,21 @@ argument to VTK/Common/Testing/Tcl/rtImageTest.tcl. For example
 That is a long command line but normally Dart will take care of it for you.
 
 
+VTK-Python tests
+------------------
+
+Writing and running VTK-Python tests is documented in
+Wrapping/Python/README.txt.  There are two types of Python tests, the
+old tests and the newer tests that use unit testing approach
+(unittest).  The newer tests can be run with a -h or --help argument.
+This provides information on the available command line options.  The
+other options for the newer tests are slightly different from the Tcl
+test scripts.  Please read Wrapping/Python/README.txt for more details
+on the newer tests.  The older tests should have the same command line
+options that the Tcl scripts have.  Test writers are encouraged to use
+the new approach (unittest) for the tests.
+
+
 Producing a dashboard
 -------------------------
 
@@ -92,10 +108,10 @@ make Experimental
 
 on UNIX to perform a build, run the tests, and submit the result to the dashboard. If you just want to run the tests you can do 
 
-make ExperimentalTests
+make ExperimentalTest
 
 on windows there are targets in the workspace for Experiemental and
-ExperimentalTests
+ExperimentalTest
 
 
 
