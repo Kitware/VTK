@@ -40,17 +40,24 @@ public:
   static vtkXMLDataElement* New();
   
   // Description:
-  // Get the name of the element.  This is its XML tag.
+  // Set/Get the name of the element.  This is its XML tag.
   vtkGetStringMacro(Name);
+  vtkSetStringMacro(Name);
   
   // Description:
-  // Get the value of the id attribute of the element, if any.
+  // Set/Get the value of the id attribute of the element, if any.
   vtkGetStringMacro(Id);
+  vtkSetStringMacro(Id);
   
   // Description:
   // Get the attribute with the given name.  If it doesn't exist,
   // returns 0.
   const char* GetAttribute(const char* name);
+
+  // Description:
+  // Set the attribute with the given name and value. If it doesn't exist,
+  // adds it.
+  void SetAttribute(const char* name, const char* value);
   
   // Description:
   // Get the attribute with the given name and converted to a scalar
@@ -61,6 +68,16 @@ public:
   int GetScalarAttribute(const char* name, unsigned long& value);
 #ifdef VTK_ID_TYPE_IS_NOT_BASIC_TYPE
   int GetScalarAttribute(const char* name, vtkIdType& value);
+#endif
+
+  // Description:
+  // Set the attribute with the given name.
+  void SetScalarAttribute(const char* name, int value);
+  void SetScalarAttribute(const char* name, float value);
+  void SetScalarAttribute(const char* name, double value);
+  void SetScalarAttribute(const char* name, unsigned long value);
+#ifdef VTK_ID_TYPE_IS_NOT_BASIC_TYPE
+  void SetScalarAttribute(const char* name, vtkIdType value);
 #endif
   
   // Description:
@@ -75,13 +92,33 @@ public:
 #endif
   
   // Description:
+  // Set the attribute with the given name.
+  void SetVectorAttribute(const char* name, int length, int* value);
+  void SetVectorAttribute(const char* name, int length, float* value);
+  void SetVectorAttribute(const char* name, int length, double* value);
+  void SetVectorAttribute(const char* name, int length, unsigned long* value);
+#ifdef VTK_ID_TYPE_IS_NOT_BASIC_TYPE
+  void SetVectorAttribute(const char* name, int length, vtkIdType* value);
+#endif
+  
+  // Description:
   // Get the attribute with the given name and converted to a word type
   // such as VTK_FLOAT or VTK_UNSIGNED_LONG.
   int GetWordTypeAttribute(const char* name, int& value);
   
   // Description:
-  // Get the parent of this element.
+  // Get the number of attributes.
+  vtkGetMacro(NumberOfAttributes, int);
+
+  // Description:
+  // Get the n-th attribute name.
+  // Returns 0 if there is no such attribute.
+  const char* GetAttributeName(int idx);
+
+  // Description:
+  // Set/Get the parent of this element.
   vtkXMLDataElement* GetParent();
+  void SetParent(vtkXMLDataElement* parent);
   
   // Description:
   // Get the number of elements nested in this one.
@@ -92,16 +129,24 @@ public:
   vtkXMLDataElement* GetNestedElement(int index);
   
   // Description:
-  // Find a nested element with the given id.
+  // Add nested element
+  void AddNestedElement(vtkXMLDataElement* element);
+
+  // Description:
+  // Find a nested element with the given id, given name, or given name and id.
   vtkXMLDataElement* FindNestedElement(const char* id);
+  vtkXMLDataElement* FindNestedElementWithName(const char* name);
+  vtkXMLDataElement* FindNestedElementWithNameAndId(const char* name, 
+                                                    const char* id);
   
   // Description:
   // Lookup the element with the given id, starting at this scope.
   vtkXMLDataElement* LookupElement(const char* id);
   
   // Description:
-  // Get the offset from the beginning of the XML document to this element.
+  // Set/Get the offset from the beginning of the XML document to this element.
   vtkGetMacro(XMLByteIndex, unsigned long);
+  vtkSetMacro(XMLByteIndex, unsigned long);
   
 protected:
   vtkXMLDataElement();
@@ -134,11 +179,7 @@ protected:
   vtkXMLDataElement* Parent;
   
   // Method used by vtkXMLFileParser to setup the element.
-  vtkSetStringMacro(Name);
-  vtkSetStringMacro(Id);
-  vtkSetMacro(XMLByteIndex, unsigned long);
   void ReadXMLAttributes(const char** atts);  
-  void AddNestedElement(vtkXMLDataElement* element);
   void SeekInlineDataPosition(vtkXMLDataParser* parser);
   
   void PrintXML(ostream& os, vtkIndent indent);
@@ -146,7 +187,6 @@ protected:
   // Internal utility methods.
   vtkXMLDataElement* LookupElementInScope(const char* id);
   vtkXMLDataElement* LookupElementUpScope(const char* id);
-  void SetParent(vtkXMLDataElement* parent);
   static int IsSpace(char c);
   
   //BTX

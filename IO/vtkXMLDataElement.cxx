@@ -21,7 +21,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkXMLDataElement, "1.6");
+vtkCxxRevisionMacro(vtkXMLDataElement, "1.7");
 vtkStandardNewMacro(vtkXMLDataElement);
 
 //----------------------------------------------------------------------------
@@ -71,44 +71,72 @@ void vtkXMLDataElement::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "XMLByteIndex: " << this->XMLByteIndex << "\n";
   os << indent << "Name: " << (this->Name? this->Name : "(none)") << "\n";
   os << indent << "Id: " << (this->Id? this->Id : "(none)") << "\n";
+  os << indent << "NumberOfAttributes: " << this->NumberOfAttributes << "\n";
 }
 
 //----------------------------------------------------------------------------
 void vtkXMLDataElement::ReadXMLAttributes(const char** atts)
 {
-  if(this->NumberOfAttributes > 0)
-    {
-    int i;
-    for(i=0;i < this->NumberOfAttributes;++i)
-      {
-      delete [] this->AttributeNames[i];
-      delete [] this->AttributeValues[i];
-      }
-    this->NumberOfAttributes = 0;
-    }
   if(atts)
     {
-    const char** attsIter = atts;
-    int count=0;
-    while(*attsIter++) { ++count; }
-    this->NumberOfAttributes = count/2;
-    this->AttributesSize = this->NumberOfAttributes;
-    
+    for (int i = 0; atts[i] && atts[i + 1]; i += 2)
+      {
+      this->SetAttribute(atts[i], atts[i + 1]);
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLDataElement::SetAttribute(const char *name, const char *value)
+{
+  if (!name || !name[0] || !value || !value[0])
+    {
+    return;
+    }
+
+  int i;
+
+  // Set an existing attribute
+
+  for(i = 0; i < this->NumberOfAttributes; ++i)
+    {
+    if(!strcmp(this->AttributeNames[i], name))
+      {
+      delete [] this->AttributeValues[i];
+      this->AttributeValues[i] = new char [strlen(value) + 1];
+      strcpy(this->AttributeValues[i], value);
+      return;
+      }
+    }
+
+  // Or add an attribute
+
+  if (this->NumberOfAttributes == this->AttributesSize)
+    {
+    int newSize = this->AttributesSize * 2;
+    char **newAttributeNames = new char* [newSize];
+    char **newAttributeValues = new char* [newSize];
+    for(i = 0; i < this->NumberOfAttributes; ++i)
+      {
+      newAttributeNames[i] = new char [strlen(this->AttributeNames[i]) + 1];
+      strcpy(newAttributeNames[i], this->AttributeNames[i]);
+      delete [] this->AttributeNames[i];
+      newAttributeValues[i] = new char [strlen(this->AttributeValues[i]) + 1];
+      strcpy(newAttributeValues[i], this->AttributeValues[i]);
+      delete [] this->AttributeValues[i];
+      }
     delete [] this->AttributeNames;
     delete [] this->AttributeValues;
-    this->AttributeNames = new char* [this->AttributesSize];
-    this->AttributeValues = new char* [this->AttributesSize];
-    
-    int i;
-    for(i=0;i < this->NumberOfAttributes; ++i)
-      {
-      this->AttributeNames[i] = new char[strlen(atts[i*2])+1];
-      strcpy(this->AttributeNames[i], atts[i*2]);
-      
-      this->AttributeValues[i] = new char[strlen(atts[i*2+1])+1];
-      strcpy(this->AttributeValues[i], atts[i*2+1]);
-      }
-    }  
+    this->AttributeNames = newAttributeNames;
+    this->AttributeValues = newAttributeValues;
+    this->AttributesSize = newSize;
+    }
+  
+  i = this->NumberOfAttributes++;
+  this->AttributeNames[i] = new char [strlen(name) + 1];
+  strcpy(this->AttributeNames[i], name);
+  this->AttributeValues[i] = new char [strlen(value) + 1];
+  strcpy(this->AttributeValues[i], value);
 }
 
 //----------------------------------------------------------------------------
@@ -146,6 +174,17 @@ const char* vtkXMLDataElement::GetAttribute(const char* name)
       }
     }
   return 0;
+}
+
+//----------------------------------------------------------------------------
+const char* vtkXMLDataElement::GetAttributeName(int idx)
+{
+  if (idx < 0 || idx >= this->NumberOfAttributes)
+    {
+    return 0;
+    }
+
+  return this->AttributeNames[idx];
 }
 
 //----------------------------------------------------------------------------
@@ -198,6 +237,38 @@ vtkXMLDataElement* vtkXMLDataElement::GetNestedElement(int index)
   if(index < this->NumberOfNestedElements)
     {
     return this->NestedElements[index];
+    }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+vtkXMLDataElement* vtkXMLDataElement::FindNestedElementWithName(const char* name)
+{
+  int i;
+  for(i=0;i < this->NumberOfNestedElements;++i)
+    {
+    const char* nname = this->NestedElements[i]->GetName();
+    if(nname && (strcmp(nname, name) == 0))
+      {
+      return this->NestedElements[i];
+      }
+    }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+vtkXMLDataElement* vtkXMLDataElement::FindNestedElementWithNameAndId(
+  const char* name, const char* id)
+{
+  int i;
+  for(i=0;i < this->NumberOfNestedElements;++i)
+    {
+    const char* nname = this->NestedElements[i]->GetName();
+    const char* nid = this->NestedElements[i]->GetId();
+    if(nname && nid && (strcmp(nname, name) == 0) && (strcmp(nid, id) == 0))
+      {
+      return this->NestedElements[i];
+      }
     }
   return 0;
 }
@@ -519,6 +590,94 @@ int vtkXMLDataElement::GetWordTypeAttribute(const char* name, int& value)
     return 0;
     }
 }
+
+//----------------------------------------------------------------------------
+void vtkXMLDataElement::SetScalarAttribute(const char* name, int value)
+{
+  this->SetVectorAttribute(name, 1, &value);
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLDataElement::SetScalarAttribute(const char* name, float value)
+{
+  this->SetVectorAttribute(name, 1, &value);
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLDataElement::SetScalarAttribute(const char* name, double value)
+{
+  this->SetVectorAttribute(name, 1, &value);
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLDataElement::SetScalarAttribute(const char* name,
+                                           unsigned long value)
+{
+  this->SetVectorAttribute(name, 1, &value);
+}
+
+//----------------------------------------------------------------------------
+#ifdef VTK_ID_TYPE_IS_NOT_BASIC_TYPE
+void vtkXMLDataElement::SetScalarAttribute(const char* name, vtkIdType value)
+{
+  this->SetVectorAttribute(name, 1, &value);
+}
+#endif
+
+//----------------------------------------------------------------------------
+template <class T>
+void vtkXMLDataElementVectorAttributeSet(vtkXMLDataElement *elem, const char* name, int length, T* data)
+{
+  if (!name || !length) 
+    { 
+    return; 
+    }
+  strstream vstr;
+  vstr << data[0];
+  for(int i = 1; i < length; ++i)
+    {
+    vstr << ' ' << data[i];
+    }
+  vstr << ends;
+  elem->SetAttribute(name, vstr.str());
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLDataElement::SetVectorAttribute(const char* name, int length,
+                                           int* data)
+{
+  vtkXMLDataElementVectorAttributeSet(this, name, length, data);
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLDataElement::SetVectorAttribute(const char* name, int length,
+                                           float* data)
+{
+  vtkXMLDataElementVectorAttributeSet(this, name, length, data);
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLDataElement::SetVectorAttribute(const char* name, int length,
+                                           double* data)
+{
+  vtkXMLDataElementVectorAttributeSet(this, name, length, data);
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLDataElement::SetVectorAttribute(const char* name, int length,
+                                           unsigned long* data)
+{
+  vtkXMLDataElementVectorAttributeSet(this, name, length, data);
+}
+
+//----------------------------------------------------------------------------
+#ifdef VTK_ID_TYPE_IS_NOT_BASIC_TYPE
+void vtkXMLDataElement::SetVectorAttribute(const char* name, int length,
+                                           vtkIdType* data)
+{
+  vtkXMLDataElementVectorAttributeSet(this, name, length, data);
+}
+#endif
 
 //----------------------------------------------------------------------------
 void vtkXMLDataElement::SeekInlineDataPosition(vtkXMLDataParser* parser)
