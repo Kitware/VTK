@@ -84,9 +84,6 @@ protected:
   // be replaced by subclasses to change how input is read.
   virtual int ParseXML();
   
-  // Legacy method.  Deprecated.  Use ParseXML instead.
-  virtual int ParseStream();
-  
   // Called before each block of input is read from the stream to
   // check if parsing is complete.  Can be replaced by subclasses to
   // change the terminating condition for parsing.  Parsing always
@@ -136,8 +133,6 @@ protected:
   // Utility for convenience of subclasses.  Wraps isspace C library
   // routine.
   static int IsSpace(char c);  
-  
-  int LegacyHack;
   
   //BTX
   friend void vtkXMLParserStartElement(void*, const char*, const char**);

@@ -27,7 +27,7 @@
 #define VTK_IOS_NOCREATE | ios::nocreate
 #endif
 
-vtkCxxRevisionMacro(vtkXMLParser, "1.7");
+vtkCxxRevisionMacro(vtkXMLParser, "1.8");
 vtkStandardNewMacro(vtkXMLParser);
 
 //----------------------------------------------------------------------------
@@ -35,7 +35,6 @@ vtkXMLParser::vtkXMLParser()
 {
   this->Stream      = 0;
   this->Parser      = 0;
-  this->LegacyHack  = 0;
   this->FileName    = 0;
   this->InputString = 0;
 }
@@ -141,20 +140,6 @@ int vtkXMLParser::ParseXML()
     return 0;
     }
   
-  this->LegacyHack = 1;
-  int result = this->ParseStream();
-  if(this->LegacyHack)
-    {
-    vtkWarningMacro("The ParseStream() method has been deprectated and "
-                    "will soon be removed.  Use ParseXML() instead.");
-    }
-  return result;
-}
-
-//----------------------------------------------------------------------------
-int vtkXMLParser::ParseStream()
-{
-  this->LegacyHack = 0;
   // Default stream parser just reads a block at a time.
   istream& in = *(this->Stream);
   const int bufferSize = 4096;  
