@@ -70,7 +70,7 @@ static void CreateInitFile(cmLoadedCommandInfo *info,
   
   if (!strcmp(kitName,"Vtkcommontcl"))
     {
-    fprintf(fout,"int vtkCommand(ClientData cd, Tcl_Interp *interp,\n"
+    fprintf(fout,"int vtkCreateCommand(ClientData cd, Tcl_Interp *interp,\n"
             "               int argc, char *argv[]);\n");
     fprintf(fout,"\nTcl_HashTable vtkInstanceLookup;\n");
     fprintf(fout,"Tcl_HashTable vtkPointerLookup;\n");
@@ -139,7 +139,7 @@ static void CreateInitFile(cmLoadedCommandInfo *info,
     
     /* create special vtkCommand command */
     fprintf(fout,"  Tcl_CreateCommand(interp,(char *) \"vtkCommand\",\n"
-            "                    reinterpret_cast<vtkTclCommandType>(vtkCommand),\n"
+            "                    reinterpret_cast<vtkTclCommandType>(vtkCreateCommand),\n"
             "                    (ClientData *)NULL, NULL);\n\n");
     }
   
@@ -257,14 +257,25 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
     {
     /* what is the current source dir */
     const char *cdir = info->CAPI->GetCurrentDirectory(mf);
+    int sourceListSize = 0;
     char *sourceListValue = 0;
     void *cfile = 0;
     char *newName;
 
     /* was the list already populated */
     const char *def = info->CAPI->GetDefinition(mf, sources[0]);
-    sourceListValue = 
-      (char *)malloc(info->CAPI->GetTotalArgumentSize(newArgc,newArgv)+numSources*12);  
+
+    /* Calculate size of source list.  */
+    /* Start with list of source files.  */
+    sourceListSize = info->CAPI->GetTotalArgumentSize(newArgc,newArgv);
+    /* Add enough to extend the name of each class. */
+    sourceListSize += numSources*strlen("Tcl.cxx");
+    /* Add enough to include the def and init file.  */
+    sourceListSize += def?strlen(def):0;
+    sourceListSize += strlen(";Init.cxx");
+
+    /* Allocate and initialize the source list.  */
+    sourceListValue = (char *)malloc(sourceListSize);
     if (def)
       {
       sprintf(sourceListValue,"%s;%sInit.cxx",def,argv[0]);
@@ -373,7 +384,7 @@ static void FinalPass(void *inf, void *mf)
   /* get our client data from initial pass */
   cmVTKWrapTclData *cdata = 
     (cmVTKWrapTclData *)info->CAPI->GetClientData(info);
-  
+
   /* first we add the rules for all the .h to Tcl.cxx files */
   const char *wtcl = "${VTK_WRAP_TCL_EXE}";
   const char *hints = info->CAPI->GetDefinition(mf,"VTK_WRAP_HINTS");
@@ -382,6 +393,12 @@ static void FinalPass(void *inf, void *mf)
   int i;
   int numDepends, numArgs;
   const char *cdir = info->CAPI->GetCurrentDirectory(mf);
+  
+  /* If the first pass terminated early, we have nothing to do.  */
+  if(!cdata)
+    {
+    return;
+    }
   
   /* wrap all the .h files */
   depends[0] = wtcl;
@@ -459,7 +476,3 @@ void CM_PLUGIN_EXPORT VTK_WRAP_TCL2Init(cmLoadedCommandInfo *info)
   info->GetFullDocumentation = GetFullDocumentation;  
   info->Name = "VTK_WRAP_TCL2";
 }
-
-
-
-
