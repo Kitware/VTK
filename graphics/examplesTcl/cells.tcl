@@ -393,10 +393,17 @@ vtkRIBProperty aProperty
   aProperty AddVariable veincolor color
   aProperty AddParameter veinfreq 2
   aProperty AddParameter veincolor $ivory
+vtkRIBProperty bProperty
+  bProperty SetVariable Km float
+  bProperty SetParameter Km 1.0
+  bProperty SetDisplacementShader dented
+  bProperty SetSurfaceShader plastic
 } else {
   vtkProperty aProperty
+  vtkProperty bProperty
 }
 aTriangleActor SetProperty aProperty
+aTriangleStripActor SetProperty bProperty
 
 ren1 SetBackground .1 .2 .4
 
