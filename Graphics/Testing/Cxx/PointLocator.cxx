@@ -44,7 +44,6 @@ int main( int argc, char *argv[] )
 
   // 
   float p1[] = {2.0, 1.0, 3.0};
-  float p2[] = {0.0, 0.0, 0.0};
 
   // Find closest point
   vtkIdType ptId;
