@@ -135,7 +135,7 @@ public:
   // Return an array with all the inputs of this process object.
   // This is useful for tracing back in the pipeline to contruct
   // graphs etc.
-  vtkDataObject **GetInputs();
+  vtkDataObject **GetInputs() {return this->Inputs;};
   vtkGetMacro(NumberOfInputs,int);
 
 protected:
