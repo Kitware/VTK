@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -17,6 +15,15 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "ExtractG.hh"
 #include "vlMath.hh"
+
+// Description:
+// Construct with selection sphere centered at (0,0,0) with radius 0.5.
+vlExtractGeometry::vlExtractGeometry()
+{
+  this->Radius = 0.5;
+  this->Center[0] = this->Center[1] = this->Center[2] = 0.0;
+}
+
 
 void vlExtractGeometry::Execute()
 {
@@ -32,7 +39,6 @@ void vlExtractGeometry::Execute()
   vlIdList newCellPts(MAX_CELL_SIZE);
 
   vlDebugMacro(<< "Extracting geometry in sphere");
-
   this->Initialize();
 //
 // Loop over all points determining whether they are inside sphere. Copy if

@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -15,9 +13,15 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Splat points using Gaussian distribution
-//
+// .NAME vlGaussianSplatter - splat points with Gaussian distribution
+// .SECTION Description
+// vlGaussianSplatter is a filter that injects input points into a structured 
+// points dataset. As each point is injected, it "splats" or distributes 
+// values to neighboring voxels in the structured points dataset. Data is
+// distributed using a Gaussian distribution function. The distribution
+// function is modified using scalar values (expands distribution) or normals
+// (creates ellipsoidal distribution rather than spherical).
+
 #ifndef __vlGaussianSplatter_h
 #define __vlGaussianSplatter_h
 
@@ -37,15 +41,27 @@ public:
   void SetSampleDimensions(int dim[3]);
   vlGetVectorMacro(SampleDimensions,int);
 
+  // Description:
+  // Specify the radius of propagation of the splat. This value is expressed
+  // as percentage  of the sampling structured point set. Smaller numbers 
+  // greatly reduce execution time.
   vlSetClampMacro(Radius,float,0.0,1.0);
   vlGetMacro(Radius,float);
 
+  // Description:
+  // Multiply Gaussian splat distribution by this value.
   vlSetClampMacro(ScaleFactor,float,0.0,LARGE_FLOAT);
   vlGetMacro(ScaleFactor,float);
 
+  // Description:
+  // Specify sharpness of decay of splat
   vlSetMacro(ExponentFactor,float);
   vlGetMacro(ExponentFactor,float);
 
+  // Description:
+  // Control the shape of elliptical splatting. Eccentricity is the ratio
+  // of the major axis (aligned along normal) to the minor (axes) aligned
+  // along other two axes.
   vlSetClampMacro(Eccentricity,float,0.001,LARGE_FLOAT);
   vlGetMacro(Eccentricity,float);
 
@@ -53,18 +69,27 @@ public:
   void SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax);
   vlGetVectorMacro(ModelBounds,float);
 
+  // Description:
+  // Turn on/off the generation of elliptical splats.
   vlSetMacro(NormalWarping,int);
   vlGetMacro(NormalWarping,int);
   vlBooleanMacro(NormalWarping,int);
 
+  // Description:
+  // Turn on/off the scaling of splats by scalar value.
   vlSetMacro(ScalarWarping,int);
   vlGetMacro(ScalarWarping,int);
   vlBooleanMacro(ScalarWarping,int);
 
+  // Description:
+  // Turn on/off the capping of the outside parts of the structured point
+  // set by setting to a specified cap value.
   vlSetMacro(Capping,int);
   vlGetMacro(Capping,int);
   vlBooleanMacro(Capping,int);
   
+  // Description:
+  // Specify the cap value to use.
   vlSetMacro(CapValue,float);
   vlGetMacro(CapValue,float);
 

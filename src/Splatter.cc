@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -19,6 +17,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Splatter.hh"
 #include "FScalars.hh"
 
+// Description:
+// Construct object with dimensions=(50,50,50); automatic computation of 
+// bounds; a splat radius of 0.1; an exponent factor of -5; and normal and 
+// scalar warping turned on.
 vlGaussianSplatter::vlGaussianSplatter()
 {
   this->SampleDimensions[0] = 50;
@@ -45,35 +47,9 @@ vlGaussianSplatter::vlGaussianSplatter()
   this->CapValue = LARGE_FLOAT;
 }
 
-void vlGaussianSplatter::PrintSelf(ostream& os, vlIndent indent)
-{
-  if (this->ShouldIPrint(vlGaussianSplatter::GetClassName()))
-    {
-    vlDataSetToStructuredPointsFilter::PrintSelf(os,indent);
-
-    os << indent << "Sample Dimensions: (" << this->SampleDimensions[0] << ", "
-                 << this->SampleDimensions[1] << ", "
-                 << this->SampleDimensions[2] << ")\n";
-
-    os << indent << "Radius: " << this->Radius << "\n";
-    os << indent << "Exponent Factor: " << this->ExponentFactor << "\n";
-
-    os << indent << "ModelBounds: \n";
-    os << indent << "  Xmin,Xmax: (" << this->ModelBounds[0] << ", " << this->ModelBounds[1] << ")\n";
-    os << indent << "  Ymin,Ymax: (" << this->ModelBounds[2] << ", " << this->ModelBounds[3] << ")\n";
-    os << indent << "  Zmin,Zmax: (" << this->ModelBounds[4] << ", " << this->ModelBounds[5] << ")\n";
-
-    os << indent << "Normal Warping: " << (this->NormalWarping ? "On\n" : "Off\n");
-    os << indent << "Eccentricity: " << this->Eccentricity << "\n";
-
-    os << indent << "Scalar Warping: " << (this->ScalarWarping ? "On\n" : "Off\n");
-    os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
-
-    os << indent << "Capping: " << (this->Capping ? "On\n" : "Off\n");
-    os << indent << "Cap Value: " << this->CapValue << "\n";
-    }
-}
-
+// Description:
+// Set the (xmin,xmax, ymin,ymax, zmin,zmax) bounding box in which the 
+// sampling is performed.
 void vlGaussianSplatter::SetModelBounds(float *bounds)
 {
   vlGaussianSplatter::SetModelBounds(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
@@ -128,9 +104,6 @@ void vlGaussianSplatter::Execute()
   int loc[3], ip, jp, kp, idir, jdir, kdir;
 
   vlDebugMacro(<< "Splatting data");
-//
-// Initialize self; create output objects
-//
   this->Initialize();
 //
 //  Make sure points are available
@@ -226,6 +199,9 @@ void vlGaussianSplatter::Execute()
 
 }
 
+// Description:
+// Compute the size of the sample bounding box automatically from the
+// input data.
 void vlGaussianSplatter::ComputeModelBounds()
 {
   float *bounds, maxDist;
@@ -269,6 +245,8 @@ void vlGaussianSplatter::ComputeModelBounds()
     }
 }
 
+// Description:
+// Set the dimensions of the sampling structured point set.
 void vlGaussianSplatter::SetSampleDimensions(int i, int j, int k)
 {
   int dim[3];
@@ -644,3 +622,33 @@ void vlGaussianSplatter::SetScalar(int idx, float dist2)
     NewScalars->SetScalar(idx,v);
     }
 }
+
+void vlGaussianSplatter::PrintSelf(ostream& os, vlIndent indent)
+{
+  if (this->ShouldIPrint(vlGaussianSplatter::GetClassName()))
+    {
+    vlDataSetToStructuredPointsFilter::PrintSelf(os,indent);
+
+    os << indent << "Sample Dimensions: (" << this->SampleDimensions[0] << ", "
+                 << this->SampleDimensions[1] << ", "
+                 << this->SampleDimensions[2] << ")\n";
+
+    os << indent << "Radius: " << this->Radius << "\n";
+    os << indent << "Exponent Factor: " << this->ExponentFactor << "\n";
+
+    os << indent << "ModelBounds: \n";
+    os << indent << "  Xmin,Xmax: (" << this->ModelBounds[0] << ", " << this->ModelBounds[1] << ")\n";
+    os << indent << "  Ymin,Ymax: (" << this->ModelBounds[2] << ", " << this->ModelBounds[3] << ")\n";
+    os << indent << "  Zmin,Zmax: (" << this->ModelBounds[4] << ", " << this->ModelBounds[5] << ")\n";
+
+    os << indent << "Normal Warping: " << (this->NormalWarping ? "On\n" : "Off\n");
+    os << indent << "Eccentricity: " << this->Eccentricity << "\n";
+
+    os << indent << "Scalar Warping: " << (this->ScalarWarping ? "On\n" : "Off\n");
+    os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
+
+    os << indent << "Capping: " << (this->Capping ? "On\n" : "Off\n");
+    os << indent << "Cap Value: " << this->CapValue << "\n";
+    }
+}
+

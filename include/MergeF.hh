@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -15,10 +13,11 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Extracts cells where scalar value of every point in cell satisfies 
-// threshold criterion. 
-//
+// .NAME vlMergeFilter - extract separate components of data from different datasets
+// .SECTION Description
+// vlMergeFilter is a filter that extracts separate components of data from
+// different datasets and merges them into a single dataset.
+
 #ifndef __vlMergeFilter_h
 #define __vlMergeFilter_h
 
@@ -53,19 +52,28 @@ public:
   // Filter interface
   void Update();
 
-  // Components to merge
+  // Description:
+  // Specify object from which to extract geometry information.
   vlSetObjectMacro(Geometry,vlDataSet);
   vlGetObjectMacro(Geometry,vlDataSet);
   
+  // Description:
+  // Specify object from which to extract scalar information.
   vlSetObjectMacro(Scalars,vlDataSet);
   vlGetObjectMacro(Scalars,vlDataSet);
   
+  // Description:
+  // Specify object from which to extract vector information.
   vlSetObjectMacro(Vectors,vlDataSet);
   vlGetObjectMacro(Vectors,vlDataSet);
   
+  // Description:
+  // Specify object from which to extract normal information.
   vlSetObjectMacro(Normals,vlDataSet);
   vlGetObjectMacro(Normals,vlDataSet);
   
+  // Description:
+  // Specify object from which to extract texture coordinates information.
   vlSetObjectMacro(TCoords,vlDataSet);
   vlGetObjectMacro(TCoords,vlDataSet);
 

@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -15,9 +13,23 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
+// .NAME vlStreamLine - generate streamline in arbitrary dataset
+// .SECTION Description
+// vlStreamLine is a filter that generates a streamline for an arbitrary 
+// dataset. A streamline is a line that is everywhere tangent to the vector
+// field. Scalar values are also calculated along the streamline and can be 
+// used to color the line. Streamlines are calculated by integrating from
+// a starting point through the vector field. Integration can be performed
+// forward in time (see where the line goes), backward in time (see where the
+// line came from), or in both directions. It is also possible to compute
+// vorticity along the streamline. Vorticity is the projection (i.e., dot
+// product) of the flow rotation on the velocity vector, i.e., the rotation
+// of flow around the streamline.
 //
-// Extracts geometry connected at common vertices.
-//
+// While the streamline representation is typically a line, it is also possible
+// to generate a dashed line where the dash length is proportional to the 
+// magnitude of the vector velocity.
+
 #ifndef __vlStreamLine_h
 #define __vlStreamLine_h
 
@@ -41,29 +53,51 @@ public:
   void SetStartPosition(float x[3]);
   float *GetStartPosition();
 
+  // Description:
+  // Specify the maximum length of the streamline expressed in elapsed time.
   vlSetClampMacro(MaximumPropagationTime,float,0.0,LARGE_FLOAT);
   vlGetMacro(MaximumPropagationTime,float);
 
+  // Description:
+  // Specify the maximum length of the streamline expressed in the number
+  // of integration steps.
   vlSetClampMacro(MaximumSteps,int,1,LARGE_INTEGER);
   vlGetMacro(MaximumSteps,int);
 
+  // Description:
+  // Specify the direction in which to integrate the streamline.
   vlSetClampMacro(IntegrationDirection,int,
                   INTEGRATE_FORWARD,INTEGRATE_BOTH_DIRECTIONS);
   vlGetMacro(IntegrationDirection,int);
 
+  // Description:
+  // Specify a nominal integration step size (expressed as a fraction of
+  // the size of each cell).
   vlSetClampMacro(IntegrationStepLength,float,0.001,0.5);
   vlGetMacro(IntegrationStepLength,float);
 
+  // Description:
+  // Specify the nominal length of the line segements used to graphically 
+  // depict the streamline. This is a fractional value of the input bounding
+  // box.
   vlSetClampMacro(RepresentationStepLength,float,0.0001,0.1);
   vlGetMacro(RepresentationStepLength,float);
  
+  // Description:
+  // Turn on/off the computation of vorticity.
   vlSetMacro(Vorticity,int);
   vlGetMacro(Vorticity,int);
   vlBooleanMacro(Vorticity,int);
 
+  // Description:
+  // Specify the length of a dash expressed in time.
   vlSetClampMacro(DashTime,float,0.0,LARGE_FLOAT);
   vlGetMacro(DashTime,float);
 
+  // Description:
+  // For each dash, specify the fraction of the dash that is "on". A factor
+  // of 1.0 will result in a continuous line, a factor of 0.5 will result in 
+  // dashed that are half on and half off.
   vlSetClampMacro(DashFactor,float,0.0,1.0);
   vlGetMacro(DashFactor,float);
 

@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -33,6 +31,8 @@ vlAppendPolyData::~vlAppendPolyData()
     }
 }
 
+// Description:
+// Add a dataset to the list of data to append.
 void vlAppendPolyData::AddInput(vlPolyData *ds)
 {
   if ( ! this->Input.IsItemPresent(ds) )
@@ -43,6 +43,8 @@ void vlAppendPolyData::AddInput(vlPolyData *ds)
     }
 }
 
+// Description:
+// Remove a dataset from the list of data to append.
 void vlAppendPolyData::RemoveInput(vlPolyData *ds)
 {
   if ( this->Input.IsItemPresent(ds) )

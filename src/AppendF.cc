@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -33,6 +31,8 @@ vlAppendFilter::~vlAppendFilter()
     }
 }
 
+// Description:
+// Add a dataset to the list of data to append.
 void vlAppendFilter::AddInput(vlDataSet *ds)
 {
   if ( ! this->Input.IsItemPresent(ds) )
@@ -43,6 +43,8 @@ void vlAppendFilter::AddInput(vlDataSet *ds)
     }
 }
 
+// Description:
+// Remove a dataset from the list of data to append.
 void vlAppendFilter::RemoveInput(vlDataSet *ds)
 {
   if ( this->Input.IsItemPresent(ds) )
