@@ -18,6 +18,8 @@
 #include "vtkCellArray.h"
 #include "vtkDataSet.h"
 #include "vtkMatrix4x4.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
@@ -25,7 +27,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkSelectVisiblePoints, "1.32");
+vtkCxxRevisionMacro(vtkSelectVisiblePoints, "1.33");
 vtkStandardNewMacro(vtkSelectVisiblePoints);
 
 // Instantiate object with no renderer; window selection turned off; 
@@ -45,14 +47,25 @@ vtkSelectVisiblePoints::~vtkSelectVisiblePoints()
   this->SetRenderer(NULL);
 }
 
-void vtkSelectVisiblePoints::Execute()
+int vtkSelectVisiblePoints::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType ptId, id;
   int visible;
   vtkPoints *outPts;
   vtkCellArray *outputVertices;
-  vtkDataSet *input= this->GetInput();
-  vtkPolyData *output=this->GetOutput();
   vtkPointData *inPD=input->GetPointData();
   vtkPointData *outPD=output->GetPointData();
   vtkIdType numPts=input->GetNumberOfPoints();
@@ -63,12 +76,12 @@ void vtkSelectVisiblePoints::Execute()
   if ( this->Renderer == NULL )
     {
     vtkErrorMacro(<<"Renderer must be set");
-    return;
+    return 0;
     }
 
   if ( numPts < 1 )
     {
-    return;
+    return 0;
     }
   
   outPts = vtkPoints::New();
@@ -84,7 +97,7 @@ void vtkSelectVisiblePoints::Execute()
   // specify a selection window to avoid querying 
   if ( this->SelectionWindow )
     {
-      for (int i=0; i<4; i++)
+    for (int i=0; i<4; i++)
       {
       selection[i] = this->Selection[i];
       }
@@ -187,11 +200,13 @@ void vtkSelectVisiblePoints::Execute()
 
   vtkDebugMacro(<<"Selected " << id + 1 << " out of " 
                 << numPts << " original points");
+
+  return 1;
 }
 
 unsigned long int vtkSelectVisiblePoints::GetMTime()
 {
-  unsigned long mTime=this->vtkDataSetToPolyDataFilter::GetMTime();
+  unsigned long mTime=this->Superclass::GetMTime();
   unsigned long time;
  
   if ( this->Renderer != NULL )
