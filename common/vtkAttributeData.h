@@ -139,7 +139,8 @@ public:
 protected:
   // Construct object with an initial data array of type dataType (by default
   // dataType is VTK_FLOAT.
-  vtkAttributeData(int dataType=VTK_FLOAT);
+  vtkAttributeData();
+  vtkAttributeData(int dataType);
   ~vtkAttributeData();
   vtkAttributeData(const vtkAttributeData&) {};
   void operator=(const vtkAttributeData&) {};
