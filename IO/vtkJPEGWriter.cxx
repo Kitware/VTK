@@ -22,7 +22,7 @@ extern "C" {
 #include <jpeglib.h>
 }
 
-vtkCxxRevisionMacro(vtkJPEGWriter, "1.6");
+vtkCxxRevisionMacro(vtkJPEGWriter, "1.7");
 vtkStandardNewMacro(vtkJPEGWriter);
 
 vtkJPEGWriter::vtkJPEGWriter()
@@ -32,6 +32,17 @@ vtkJPEGWriter::vtkJPEGWriter()
 
   this->Quality = 95;
   this->Progressive = 1;
+  this->WriteToMemory = 0;
+  this->Result = 0;
+}
+
+vtkJPEGWriter::~vtkJPEGWriter()
+{
+  if (this->Result)
+    {
+    this->Result->Delete();
+    this->Result = 0;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -44,7 +55,7 @@ void vtkJPEGWriter::Write()
     vtkErrorMacro(<<"Write:Please specify an input!");
     return;
     }
-  if ( ! this->FileName && !this->FilePattern)
+  if (!this->WriteToMemory && ! this->FileName && !this->FilePattern)
     {
     vtkErrorMacro(<<"Write:Please specify either a FileName or a file prefix and pattern");
     return;
@@ -96,6 +107,51 @@ void vtkJPEGWriter::Write()
   this->InternalFileName = NULL;
 }
 
+// these three routines are for wqriting into memory
+void vtkJPEGWriteToMemoryInit(j_compress_ptr cinfo)
+{
+  vtkJPEGWriter *self = vtkJPEGWriter::SafeDownCast(
+    static_cast<vtkObject *>(cinfo->client_data));
+  if (self)
+    {
+    vtkUnsignedCharArray *uc = vtkUnsignedCharArray::New();
+    self->SetResult(uc);
+    // start out with 10K as a guess for the image size
+    uc->Allocate(10000);
+    cinfo->dest->next_output_byte = uc->GetPointer(0);
+    cinfo->dest->free_in_buffer = uc->GetSize();
+    uc->Delete();
+    }
+}
+
+boolean vtkJPEGWriteToMemoryEmpty(j_compress_ptr cinfo)
+{
+  vtkJPEGWriter *self = vtkJPEGWriter::SafeDownCast(
+    static_cast<vtkObject *>(cinfo->client_data));
+  if (self)
+    {
+    vtkUnsignedCharArray *uc = self->GetResult();
+    // we must grow the array, we grow by 50% each time
+    int oldSize = uc->GetSize();
+    uc->Resize(oldSize + oldSize/2);
+    cinfo->dest->next_output_byte = uc->GetPointer(oldSize);
+    cinfo->dest->free_in_buffer = oldSize/2;
+    }
+  return TRUE;
+}
+
+void vtkJPEGWriteToMemoryTerm(j_compress_ptr cinfo)
+{
+  vtkJPEGWriter *self = vtkJPEGWriter::SafeDownCast(
+    static_cast<vtkObject *>(cinfo->client_data));
+  if (self)
+    {
+    vtkUnsignedCharArray *uc = self->GetResult();
+    // we must close the array
+    int oldSize = uc->GetSize();
+    uc->SetNumberOfTuples(oldSize - cinfo->dest->free_in_buffer);
+    }
+}
 
 void vtkJPEGWriter::WriteSlice(vtkImageData *data)
 {
@@ -113,13 +169,6 @@ void vtkJPEGWriter::WriteSlice(vtkImageData *data)
     return;
     }   
 
-  FILE *fp = fopen(this->InternalFileName, "wb");
-  if (!fp)
-    {
-    vtkErrorMacro("Unable to open file " << this->InternalFileName);
-    return;
-    }
-
   if (data->GetNumberOfScalarComponents() > MAX_COMPONENTS)
     {
     vtkErrorMacro("Exceed JPEG limits for number of components (" << data->GetNumberOfScalarComponents() << " > " << MAX_COMPONENTS << ")" );
@@ -134,8 +183,28 @@ void vtkJPEGWriter::WriteSlice(vtkImageData *data)
   jpeg_create_compress(&cinfo);
 
   // set the destination file
-  jpeg_stdio_dest(&cinfo, fp);
-
+  struct jpeg_destination_mgr compressionDestination;
+  FILE *fp = 0;
+  if (this->WriteToMemory)
+    {
+    // setup the compress structure to write to memory
+    compressionDestination.init_destination = vtkJPEGWriteToMemoryInit;
+    compressionDestination.empty_output_buffer = vtkJPEGWriteToMemoryEmpty;
+    compressionDestination.term_destination = vtkJPEGWriteToMemoryTerm;
+    cinfo.dest = &compressionDestination;
+    cinfo.client_data = static_cast<void *>(this);
+    }
+  else
+    {
+    fp = fopen(this->InternalFileName, "wb");
+    if (!fp)
+      {
+      vtkErrorMacro("Unable to open file " << this->InternalFileName);
+      return;
+      }
+    jpeg_stdio_dest(&cinfo, fp);
+    }
+  
   // set the information about image
   int *uExtent = data->GetUpdateExtent();
   unsigned int width, height;
@@ -184,7 +253,11 @@ void vtkJPEGWriter::WriteSlice(vtkImageData *data)
   // clean up and close the file
   delete [] row_pointers;
   jpeg_destroy_compress(&cinfo);
-  fclose(fp);
+  
+  if (!this->WriteToMemory)
+    {
+    fclose(fp);
+    }
 }
 
 void vtkJPEGWriter::PrintSelf(ostream& os, vtkIndent indent)
