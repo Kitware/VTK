@@ -48,12 +48,22 @@ if {[catch {set channel [open test.tmp w]}] == 0 } {
    pnm2 SetInput [luminance GetOutput]
    pnm2 SetFileName pnm2.pnm
 
+   vtkPostScriptWriter psw1
+   psw1 SetInput [image1 GetOutput]
+   psw1 SetFileName psw1.ps
+
+   vtkPostScriptWriter psw2
+   psw2 SetInput [luminance GetOutput]
+   psw2 SetFileName psw2.ps
+
    tiff1 Write
    tiff2 Write
    bmp1 Write
    bmp2 Write
    pnm1 Write
    pnm2 Write
+   psw1 Write
+   psw2 Write
 
    file delete -force tiff1.tif
    file delete -force tiff2.tif
@@ -61,6 +71,8 @@ if {[catch {set channel [open test.tmp w]}] == 0 } {
    file delete -force bmp2.bmp
    file delete -force pnm1.pnm
    file delete -force pnm2.pnm
+   file delete -force psw1.ps
+   file delete -force psw2.ps
 }
 
 vtkImageViewer viewer
