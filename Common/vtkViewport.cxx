@@ -24,7 +24,7 @@
 #include "vtkPropCollection.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkViewport, "1.52");
+vtkCxxRevisionMacro(vtkViewport, "1.53");
 
 // Create a vtkViewport with a black background, a white ambient light, 
 // two-sided lighting turned on, a viewport of (0,0,1,1), and backface culling
@@ -108,9 +108,14 @@ void vtkViewport::RemoveActor2D(vtkProp* p)
   this->RemoveProp(p);
 }
 
+int vtkViewport::HasProp(vtkProp *p)
+{
+  return (p && this->Props->IsItemPresent(p));
+}
+
 void vtkViewport::AddProp(vtkProp *p)
 {
-  if (!this->Props->IsItemPresent(p))
+  if (p && !this->HasProp(p))
     {
     this->Props->AddItem(p);
     p->AddConsumer(this);
@@ -119,7 +124,7 @@ void vtkViewport::AddProp(vtkProp *p)
 
 void vtkViewport::RemoveProp(vtkProp *p)
 {
-  if (p && this->Props->IsItemPresent(p))
+  if (p && this->HasProp(p))
     {
     p->ReleaseGraphicsResources(this->VTKWindow);
     p->RemoveConsumer(this);
