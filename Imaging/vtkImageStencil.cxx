@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageStencil, "1.17");
+vtkCxxRevisionMacro(vtkImageStencil, "1.18");
 vtkStandardNewMacro(vtkImageStencil);
 
 //----------------------------------------------------------------------------
@@ -122,9 +122,9 @@ inline void vtkCopyPixel(T *&out, const T *in, int numscalars)
 // Convert background color from double to appropriate type
 
 template <class T>
-void vtkAllocBackground(vtkImageStencil *self, T *&background)
+void vtkAllocBackground(vtkImageStencil *self, T *&background,
+                        vtkInformation *outInfo)
 {
-  vtkInformation *outInfo = self->GetExecutive()->GetOutputInformation(0);
   vtkImageData *output = vtkImageData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
   int numComponents = output->GetNumberOfScalarComponents();
@@ -166,7 +166,8 @@ void vtkImageStencilExecute(vtkImageStencil *self,
                             vtkImageData *inData, T *inPtr,
                             vtkImageData *in2Data,T *in2Ptr,
                             vtkImageData *outData, T *outPtr,
-                            int outExt[6], int id)
+                            int outExt[6], int id,
+                            vtkInformation *outInfo)
 {
   int numscalars, inIncX;
   int idX, idY, idZ;
@@ -199,7 +200,7 @@ void vtkImageStencilExecute(vtkImageStencil *self,
   target++;  
   
   // set color for area outside of input volume extent
-  vtkAllocBackground(self, background);
+  vtkAllocBackground(self, background, outInfo);
 
   // Loop through output pixels
   for (idZ = outExt[4]; idZ <= outExt[5]; idZ++)
@@ -286,7 +287,7 @@ void vtkImageStencilExecute(vtkImageStencil *self,
 void vtkImageStencil::ThreadedRequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
-  vtkInformationVector *vtkNotUsed(outputVector),
+  vtkInformationVector *outputVector,
   vtkImageData ***inData,
   vtkImageData **outData,
   int outExt[6], int id)
@@ -297,6 +298,8 @@ void vtkImageStencil::ThreadedRequestData(
   
   inPtr = inData[0][0]->GetScalarPointer();
   outPtr = outData[0]->GetScalarPointerForExtent(outExt);
+
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   inPtr2 = NULL;
   if (inData2)
@@ -347,9 +350,9 @@ void vtkImageStencil::ThreadedRequestData(
   
   switch (inData[0][0]->GetScalarType())
     {
-    vtkTemplateMacro9(vtkImageStencilExecute, this, inData[0][0],
-                      (VTK_TT *)(inPtr), inData2, (VTK_TT *)(inPtr2), 
-                      outData[0], (VTK_TT *)(outPtr), outExt, id);
+    vtkTemplateMacro10(vtkImageStencilExecute, this, inData[0][0],
+                       (VTK_TT *)(inPtr), inData2, (VTK_TT *)(inPtr2), 
+                       outData[0], (VTK_TT *)(outPtr), outExt, id, outInfo);
     default:
       vtkErrorMacro("Execute: Unknown ScalarType");
       return;

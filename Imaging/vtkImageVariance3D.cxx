@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageVariance3D, "1.27");
+vtkCxxRevisionMacro(vtkImageVariance3D, "1.28");
 vtkStandardNewMacro(vtkImageVariance3D);
 
 //----------------------------------------------------------------------------
@@ -124,7 +124,8 @@ void vtkImageVariance3DExecute(vtkImageVariance3D *self,
                                vtkImageData *mask,
                                vtkImageData *inData, T *inPtr, 
                                vtkImageData *outData, int *outExt, 
-                               float *outPtr, int id)
+                               float *outPtr, int id,
+                               vtkInformation *inInfo)
 {
   int *kernelMiddle, *kernelSize;
   // For looping though output (and input) pixels.
@@ -154,7 +155,6 @@ void vtkImageVariance3DExecute(vtkImageVariance3D *self,
 
   // Get information to march through data
   inData->GetIncrements(inInc0, inInc1, inInc2);
-  vtkInformation *inInfo = self->GetExecutive()->GetInputInformation(0, 0);
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), inImageExt);
   inImageMin0 = inImageExt[0];
   inImageMax0 = inImageExt[1];
@@ -314,9 +314,9 @@ void vtkImageVariance3D::ThreadedRequestData(
 
   switch (inData[0][0]->GetScalarType())
     {
-    vtkTemplateMacro8(vtkImageVariance3DExecute, this, mask, inData[0][0], 
+    vtkTemplateMacro9(vtkImageVariance3DExecute, this, mask, inData[0][0], 
                       (VTK_TT *)(inPtr), outData[0], outExt,
-                      (float *)(outPtr),id);
+                      (float *)(outPtr),id, inInfo);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

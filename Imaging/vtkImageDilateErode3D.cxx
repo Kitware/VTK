@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageDilateErode3D, "1.42");
+vtkCxxRevisionMacro(vtkImageDilateErode3D, "1.43");
 vtkStandardNewMacro(vtkImageDilateErode3D);
 
 //----------------------------------------------------------------------------
@@ -119,7 +119,7 @@ void vtkImageDilateErode3DExecute(vtkImageDilateErode3D *self,
                                   vtkImageData *mask,
                                   vtkImageData *inData, T *inPtr, 
                                   vtkImageData *outData, int *outExt, 
-                                  T *outPtr, int id)
+                                  T *outPtr, int id, vtkInformation *inInfo)
 {
   int *kernelMiddle, *kernelSize;
   // For looping though output (and input) pixels.
@@ -148,7 +148,6 @@ void vtkImageDilateErode3DExecute(vtkImageDilateErode3D *self,
 
   // Get information to march through data
   inData->GetIncrements(inInc0, inInc1, inInc2);
-  vtkInformation *inInfo = self->GetExecutive()->GetInputInformation(0, 0);
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), inImageExt);
   inImageMin0 = inImageExt[0];
   inImageMax0 = inImageExt[1];
@@ -310,9 +309,9 @@ void vtkImageDilateErode3D::ThreadedRequestData(
 
   switch (inData[0][0]->GetScalarType())
     {
-    vtkTemplateMacro8(vtkImageDilateErode3DExecute, this, mask, inData[0][0],
+    vtkTemplateMacro9(vtkImageDilateErode3DExecute, this, mask, inData[0][0],
                       (VTK_TT *)(inPtr),outData[0], outExt, 
-                      (VTK_TT *)(outPtr),id);
+                      (VTK_TT *)(outPtr),id, inInfo);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

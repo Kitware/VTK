@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageResample, "1.40");
+vtkCxxRevisionMacro(vtkImageResample, "1.41");
 vtkStandardNewMacro(vtkImageResample);
 
 //----------------------------------------------------------------------------
@@ -79,7 +79,8 @@ void vtkImageResample::SetAxisMagnificationFactor(int axis, double factor)
 }
 
 //----------------------------------------------------------------------------
-double vtkImageResample::GetAxisMagnificationFactor(int axis)
+double vtkImageResample::GetAxisMagnificationFactor(int axis,
+                                                    vtkInformation *inInfo)
 {
   if (axis < 0 || axis > 2)
     {
@@ -96,7 +97,10 @@ double vtkImageResample::GetAxisMagnificationFactor(int axis)
       return 0.0;
       }
     this->GetInput()->UpdateInformation();
-    vtkInformation *inInfo = this->GetExecutive()->GetInputInformation(0, 0);
+    if (!inInfo)
+      {
+      inInfo = this->GetExecutive()->GetInputInformation(0, 0);
+      }
     inputSpacing = inInfo->Get(vtkDataObject::SPACING());
     this->MagnificationFactors[axis] = 
       inputSpacing[axis] / this->OutputSpacing[axis];
@@ -136,7 +140,7 @@ void vtkImageResample::RequestInformation(
     factor = 1.0;
     if (axis < this->Dimensionality)
       {
-      factor = this->GetAxisMagnificationFactor(axis);
+      factor = this->GetAxisMagnificationFactor(axis, inInfo);
       }
 
     wholeMin = (int)(ceil((double)(wholeMin) * factor));

@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageConvolve, "1.15");
+vtkCxxRevisionMacro(vtkImageConvolve, "1.16");
 vtkStandardNewMacro(vtkImageConvolve);
 
 //----------------------------------------------------------------------------
@@ -274,7 +274,8 @@ template <class T>
 void vtkImageConvolveExecute(vtkImageConvolve *self,
                              vtkImageData *inData, T *inPtr, 
                              vtkImageData *outData, T *outPtr,
-                             int outExt[6], int id)
+                             int outExt[6], int id,
+                             vtkInformation *inInfo)
 {
   int *kernelSize;
   int kernelMiddle[3];
@@ -306,7 +307,6 @@ void vtkImageConvolveExecute(vtkImageConvolve *self,
 
   // Get information to march through data
   inData->GetIncrements(inInc0, inInc1, inInc2);
-  vtkInformation *inInfo = self->GetExecutive()->GetInputInformation(0, 0);
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), inImageExt);
   outData->GetIncrements(outInc0, outInc1, outInc2); 
   outMin0 = outExt[0];   outMax0 = outExt[1];
@@ -444,7 +444,7 @@ void vtkImageConvolveExecute(vtkImageConvolve *self,
 // It hanldes image boundaries, so the image does not shrink.
 void vtkImageConvolve::ThreadedRequestData(
   vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector **inputVector,
   vtkInformationVector *vtkNotUsed(outputVector),
   vtkImageData ***inData,
   vtkImageData **outData,
@@ -452,6 +452,8 @@ void vtkImageConvolve::ThreadedRequestData(
 {
   void *inPtr = inData[0][0]->GetScalarPointerForExtent(outExt);
   void *outPtr = outData[0]->GetScalarPointerForExtent(outExt);
+
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
 
   // this filter expects the output type to be same as input
   if (outData[0]->GetScalarType() != inData[0][0]->GetScalarType())
@@ -464,9 +466,9 @@ void vtkImageConvolve::ThreadedRequestData(
   
   switch (inData[0][0]->GetScalarType())
     {
-    vtkTemplateMacro7(vtkImageConvolveExecute, this, inData[0][0],
+    vtkTemplateMacro8(vtkImageConvolveExecute, this, inData[0][0],
                       (VTK_TT *)(inPtr), outData[0], (VTK_TT *)(outPtr),
-                      outExt, id);
+                      outExt, id, inInfo);
 
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");

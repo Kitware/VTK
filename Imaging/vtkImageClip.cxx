@@ -23,7 +23,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageClip, "1.54");
+vtkCxxRevisionMacro(vtkImageClip, "1.55");
 vtkStandardNewMacro(vtkImageClip);
 
 //----------------------------------------------------------------------------
@@ -67,7 +67,7 @@ void vtkImageClip::PrintSelf(ostream& os, vtkIndent indent)
 }
   
 //----------------------------------------------------------------------------
-void vtkImageClip::SetOutputWholeExtent(int extent[6])
+void vtkImageClip::SetOutputWholeExtent(int extent[6], vtkInformation *outInfo)
 {
   int idx;
   int modified = 0;
@@ -84,7 +84,10 @@ void vtkImageClip::SetOutputWholeExtent(int extent[6])
   if (modified)
     {
     this->Modified();
-    vtkInformation *outInfo = this->GetExecutive()->GetOutputInformation(0);
+    if (!outInfo)
+      {
+      outInfo = this->GetExecutive()->GetOutputInformation(0);
+      }
     outInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), extent, 6);
     }
 }
@@ -129,7 +132,7 @@ void vtkImageClip::RequestInformation (
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent);
   if ( ! this->Initialized)
     {
-    this->SetOutputWholeExtent(extent);
+    this->SetOutputWholeExtent(extent, outInfo);
     }
 
   // Clip the OutputWholeExtent with the input WholeExtent

@@ -82,7 +82,8 @@ protected:
   void InternalRequestUpdateExtent(int *, int*);
   void ExecuteAxis(int axis, vtkImageData *inData, int inExt[6],
                    vtkImageData *outData, int outExt[6],
-                   int *pcycle, int target, int *pcount, int total);
+                   int *pcycle, int target, int *pcount, int total,
+                   vtkInformation *inInfo);
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,

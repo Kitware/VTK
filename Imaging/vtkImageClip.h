@@ -38,7 +38,7 @@ public:
 
   // Description:
   // The whole extent of the output has to be set explicitly.
-  void SetOutputWholeExtent(int extent[6]);
+  void SetOutputWholeExtent(int extent[6], vtkInformation *outInfo=0);
   void SetOutputWholeExtent(int minX, int maxX, int minY, int maxY, 
                             int minZ, int maxZ);
   void GetOutputWholeExtent(int extent[6]);

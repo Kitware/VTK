@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGaussianSmooth, "1.42");
+vtkCxxRevisionMacro(vtkImageGaussianSmooth, "1.43");
 vtkStandardNewMacro(vtkImageGaussianSmooth);
 
 //----------------------------------------------------------------------------
@@ -244,7 +244,8 @@ void vtkImageGaussianSmooth::ExecuteAxis(int axis,
                                          vtkImageData *inData, int inExt[6],
                                          vtkImageData *outData, int outExt[6],
                                          int *pcycle, int target, 
-                                         int *pcount, int total)
+                                         int *pcount, int total,
+                                         vtkInformation *inInfo)
 {
   int idxA, max;
   int wholeExtent[6], wholeMax, wholeMin;
@@ -308,7 +309,6 @@ void vtkImageGaussianSmooth::ExecuteAxis(int axis,
   coords[2] = inExt[4];
   
   // get whole extent for boundary checking ...
-  vtkInformation *inInfo = this->GetExecutive()->GetInputInformation(0, 0);
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtent);
   wholeMin = wholeExtent[axis*2];
   wholeMax = wholeExtent[axis*2+1];  
@@ -480,7 +480,7 @@ void vtkImageGaussianSmooth::ThreadedRequestData(
     {
     case 1:
       this->ExecuteAxis(0, inData[0][0], inExt, outData[0], outExt, 
-                  &cycle, target, &count, total);
+                        &cycle, target, &count, total, inInfo);
       break;
     case 2:
       int tempExt[6];
@@ -496,9 +496,9 @@ void vtkImageGaussianSmooth::ThreadedRequestData(
         inData[0][0]->GetNumberOfScalarComponents());
       tempData->SetScalarType(inData[0][0]->GetScalarType());
       this->ExecuteAxis(1, inData[0][0], inExt, tempData, tempExt, 
-                  &cycle, target, &count, total);
+                        &cycle, target, &count, total, inInfo);
       this->ExecuteAxis(0, tempData, tempExt, outData[0], outExt, 
-                  &cycle, target, &count, total);
+                        &cycle, target, &count, total, inInfo);
       // release temporary data
       tempData->Delete();
       break;
@@ -528,12 +528,12 @@ void vtkImageGaussianSmooth::ThreadedRequestData(
         inData[0][0]->GetNumberOfScalarComponents());
       temp1Data->SetScalarType(inData[0][0]->GetScalarType());
       this->ExecuteAxis(2, inData[0][0], inExt, temp0Data, temp0Ext,
-                  &cycle, target, &count, total);
+                        &cycle, target, &count, total, inInfo);
       this->ExecuteAxis(1, temp0Data, temp0Ext, temp1Data, temp1Ext,
-                  &cycle, target, &count, total);
+                        &cycle, target, &count, total, inInfo);
       temp0Data->Delete();
       this->ExecuteAxis(0, temp1Data, temp1Ext, outData[0], outExt,
-                  &cycle, target, &count, total);
+                        &cycle, target, &count, total, inInfo);
       temp1Data->Delete();
       break;
     }  

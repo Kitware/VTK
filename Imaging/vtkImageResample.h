@@ -42,7 +42,7 @@ public:
   // Set/Get Magnification factors.
   // Zero is a reserved value indicating values have not been computed.
   void SetAxisMagnificationFactor(int axis, double factor);
-  double GetAxisMagnificationFactor(int axis);
+  double GetAxisMagnificationFactor(int axis, vtkInformation *inInfo=0);
   
   // Description:
   // Dimensionality is the number of axes which are considered during

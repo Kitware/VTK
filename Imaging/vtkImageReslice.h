@@ -310,10 +310,12 @@ protected:
                                    vtkImageData ***inData,
                                    vtkImageData **outData, int ext[6], int id);
 
-  vtkMatrix4x4 *GetIndexMatrix();
+  vtkMatrix4x4 *GetIndexMatrix(vtkInformation *inInfo, vtkInformation *outInfo);
   vtkAbstractTransform *GetOptimizedTransform() { 
     return this->OptimizedTransform; };
-  void OptimizedComputeInputUpdateExtent(int inExt[6], int outExt[6]);
+  void OptimizedComputeInputUpdateExtent(int inExt[6], int outExt[6],
+                                         vtkInformation *inInfo,
+                                         vtkInformation *outInfo);
   void OptimizedThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
                                 int ext[6], int id);
   virtual int FillInputPortInformation(int port, vtkInformation *info);

@@ -27,7 +27,7 @@
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.51");
+vtkCxxRevisionMacro(vtkImageReslice, "1.52");
 vtkStandardNewMacro(vtkImageReslice);
 vtkCxxSetObjectMacro(vtkImageReslice, InformationInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkImageReslice,ResliceAxes,vtkMatrix4x4);
@@ -360,7 +360,7 @@ void vtkImageReslice::RequestUpdateExtent(
 
   if (this->Optimization)
     {
-    this->OptimizedComputeInputUpdateExtent(inExt,outExt);
+    this->OptimizedComputeInputUpdateExtent(inExt,outExt,inInfo,outInfo);
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt, 6);
     return;
     }
@@ -753,7 +753,7 @@ void vtkImageReslice::RequestInformation(
   outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),
                inInfo->Get(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS()));
 
-  this->GetIndexMatrix();
+  this->GetIndexMatrix(inInfo, outInfo);
 
   if (this->GetNumberOfInputConnections(1) > 0)
     {
@@ -2043,10 +2043,10 @@ void vtkResliceOptimizedComputeInputUpdateExtent(vtkImageReslice *self,
     }
 }
 
-void vtkImageReslice::OptimizedComputeInputUpdateExtent(int inExt[6], 
-                                                        int outExt[6])
+void vtkImageReslice::OptimizedComputeInputUpdateExtent(
+  int inExt[6], int outExt[6], vtkInformation *inInfo, vtkInformation *outInfo)
 {
-  vtkMatrix4x4 *matrix = this->GetIndexMatrix();
+  vtkMatrix4x4 *matrix = this->GetIndexMatrix(inInfo, outInfo);
 
   if (this->GetOptimizedTransform() != NULL)
     { // update the entire input extent
@@ -3551,7 +3551,8 @@ int vtkIsIdentityMatrix(vtkMatrix4x4 *matrix)
 // If it does, this->OptimizedTransform will be set to NULL, otherwise
 // this->OptimizedTransform will be equal to this->ResliceTransform.
 
-vtkMatrix4x4 *vtkImageReslice::GetIndexMatrix()
+vtkMatrix4x4 *vtkImageReslice::GetIndexMatrix(vtkInformation *inInfo,
+                                              vtkInformation *outInfo)
 {
   // first verify that we have to update the matrix
   if (this->IndexMatrix == NULL)
@@ -3565,8 +3566,6 @@ vtkMatrix4x4 *vtkImageReslice::GetIndexMatrix()
   double outOrigin[3];
   double outSpacing[3];
 
-  vtkInformation *inInfo = this->GetExecutive()->GetInputInformation(0, 0);
-  vtkInformation *outInfo = this->GetExecutive()->GetOutputInformation(0);
   inInfo->Get(vtkDataObject::SPACING(), inSpacing);
   inInfo->Get(vtkDataObject::ORIGIN(), inOrigin);
   outInfo->Get(vtkDataObject::SPACING(), outSpacing);

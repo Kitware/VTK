@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageSobel3D, "1.33");
+vtkCxxRevisionMacro(vtkImageSobel3D, "1.34");
 vtkStandardNewMacro(vtkImageSobel3D);
 
 //----------------------------------------------------------------------------
@@ -63,7 +63,7 @@ template <class T>
 void vtkImageSobel3DExecute(vtkImageSobel3D *self,
                             vtkImageData *inData, T *inPtr, 
                             vtkImageData *outData, int *outExt, 
-                            double *outPtr, int id)
+                            double *outPtr, int id, vtkInformation *inInfo)
 {
   double r0, r1, r2, *r;
   // For looping though output (and input) pixels.
@@ -85,7 +85,6 @@ void vtkImageSobel3DExecute(vtkImageSobel3D *self,
   unsigned long target;
 
   // Get boundary information 
-  vtkInformation *inInfo = self->GetExecutive()->GetInputInformation(0, 0);
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), inWholeExt);
   inWholeMin0 = inWholeExt[0];
   inWholeMax0 = inWholeExt[1];
@@ -240,9 +239,9 @@ void vtkImageSobel3D::ThreadedRequestData(
   
   switch (inData[0][0]->GetScalarType())
     {
-    vtkTemplateMacro7(vtkImageSobel3DExecute, this, inData[0][0],
+    vtkTemplateMacro8(vtkImageSobel3DExecute, this, inData[0][0],
                       (VTK_TT *)(inPtr), outData[0], outExt,
-                      (double *)(outPtr),id);
+                      (double *)(outPtr),id, inInfo);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageContinuousErode3D, "1.28");
+vtkCxxRevisionMacro(vtkImageContinuousErode3D, "1.29");
 vtkStandardNewMacro(vtkImageContinuousErode3D);
 
 //----------------------------------------------------------------------------
@@ -122,7 +122,8 @@ void vtkImageContinuousErode3DExecute(vtkImageContinuousErode3D *self,
                                       vtkImageData *inData, T *inPtr, 
                                       vtkImageData *outData, 
                                       int *outExt, T *outPtr, int id,
-                                      const char* inputScalars)
+                                      const char* inputScalars,
+                                      vtkInformation *inInfo)
 {
   int *kernelMiddle, *kernelSize;
   // For looping though output (and input) pixels.
@@ -155,7 +156,6 @@ void vtkImageContinuousErode3DExecute(vtkImageContinuousErode3D *self,
 
   // Get information to march through data
   inData->GetIncrements(inInc0, inInc1, inInc2); 
-  vtkInformation *inInfo = self->GetExecutive()->GetInputInformation(0, 0);
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), inImageExt);
   inImageMin0 = inImageExt[0];
   inImageMax0 = inImageExt[1];
@@ -323,9 +323,10 @@ void vtkImageContinuousErode3D::ThreadedRequestData(
   
   switch (inArray->GetDataType())
     {
-    vtkTemplateMacro9(vtkImageContinuousErode3DExecute, this, mask, 
-                      inData[0][0], (VTK_TT *)(inPtr), outData[0], outExt, 
-                      (VTK_TT *)(outPtr),id, this->InputScalarsSelection);
+    vtkTemplateMacro10(vtkImageContinuousErode3DExecute, this, mask, 
+                       inData[0][0], (VTK_TT *)(inPtr), outData[0], outExt, 
+                       (VTK_TT *)(outPtr),id, this->InputScalarsSelection,
+                       inInfo);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

@@ -23,7 +23,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/numeric>
 
-vtkCxxRevisionMacro(vtkImageHybridMedian2D, "1.25");
+vtkCxxRevisionMacro(vtkImageHybridMedian2D, "1.26");
 vtkStandardNewMacro(vtkImageHybridMedian2D);
 
 //----------------------------------------------------------------------------
@@ -40,9 +40,10 @@ vtkImageHybridMedian2D::vtkImageHybridMedian2D()
 
 template <class T>
 void vtkImageHybridMedian2DExecute(vtkImageHybridMedian2D *self,
-                             vtkImageData *inData, T *inPtr2,
-                             vtkImageData *outData, T *outPtr2,
-                             int outExt[6], int id)
+                                   vtkImageData *inData, T *inPtr2,
+                                   vtkImageData *outData, T *outPtr2,
+                                   int outExt[6], int id,
+                                   vtkInformation *inInfo)
 {
   int idx0, idx1, idx2, idxC;
   int inInc0, inInc1, inInc2;
@@ -60,7 +61,6 @@ void vtkImageHybridMedian2DExecute(vtkImageHybridMedian2D *self,
   id = id;
 
   inData->GetIncrements(inInc0, inInc1, inInc2);
-  vtkInformation *inInfo = self->GetExecutive()->GetInputInformation(0, 0);
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExt);
   wholeMin0 = wholeExt[0];
   wholeMax0 = wholeExt[1];
@@ -253,7 +253,7 @@ void vtkImageHybridMedian2DExecute(vtkImageHybridMedian2D *self,
 // It hanldes image boundaries, so the image does not shrink.
 void vtkImageHybridMedian2D::ThreadedRequestData(
   vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector **inputVector,
   vtkInformationVector *vtkNotUsed(outputVector),
   vtkImageData ***inData,
   vtkImageData **outData,
@@ -261,6 +261,8 @@ void vtkImageHybridMedian2D::ThreadedRequestData(
 {
   void *inPtr = inData[0][0]->GetScalarPointerForExtent(outExt);
   void *outPtr = outData[0]->GetScalarPointerForExtent(outExt);
+
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
 
   // this filter expects the output type to be same as input
   if (outData[0]->GetScalarType() != inData[0][0]->GetScalarType())
@@ -273,9 +275,9 @@ void vtkImageHybridMedian2D::ThreadedRequestData(
 
   switch (inData[0][0]->GetScalarType())
     {
-    vtkTemplateMacro7(vtkImageHybridMedian2DExecute, this, inData[0][0],
+    vtkTemplateMacro8(vtkImageHybridMedian2DExecute, this, inData[0][0],
                       (VTK_TT *)(inPtr), outData[0], (VTK_TT *)(outPtr),
-                      outExt, id);
+                      outExt, id, inInfo);
 
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");

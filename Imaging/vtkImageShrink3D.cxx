@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageShrink3D, "1.65");
+vtkCxxRevisionMacro(vtkImageShrink3D, "1.66");
 vtkStandardNewMacro(vtkImageShrink3D);
 
 //----------------------------------------------------------------------------
@@ -237,7 +237,8 @@ template <class T>
 void vtkImageShrink3DExecute(vtkImageShrink3D *self,
                              vtkImageData *inData, T *inPtr,
                              vtkImageData *outData, T *outPtr,
-                             int outExt[6], int id)
+                             int outExt[6], int id,
+                             vtkInformation *inInfo)
 {
   int outIdx0, outIdx1, outIdx2, inIdx0, inIdx1, inIdx2;
   int inInc0, inInc1, inInc2;
@@ -267,7 +268,6 @@ void vtkImageShrink3DExecute(vtkImageShrink3D *self,
 #endif
 
   self->GetShrinkFactors(factor0, factor1, factor2);
-  vtkInformation *inInfo = self->GetExecutive()->GetInputInformation(0, 0);
 
   // make sure we don't have a 3D shrinkfactor for a 2D image
   if (factor2>1 && inData && inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT())[5]==0)
@@ -565,7 +565,7 @@ void vtkImageShrink3DExecute(vtkImageShrink3D *self,
 // data type.
 void vtkImageShrink3D::ThreadedRequestData(
   vtkInformation * vtkNotUsed( request ),
-  vtkInformationVector ** vtkNotUsed( inputVector ),
+  vtkInformationVector **inputVector,
   vtkInformationVector * vtkNotUsed( outputVector ),
   vtkImageData ***inData,
   vtkImageData **outData,
@@ -573,7 +573,9 @@ void vtkImageShrink3D::ThreadedRequestData(
 {
   int inExt[6];
   void *outPtr = outData[0]->GetScalarPointerForExtent(outExt);
-  
+
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+
   this->InternalRequestUpdateExtent(inExt, outExt);
   void *inPtr = inData[0][0]->GetScalarPointerForExtent(inExt);
   if (!inPtr)
@@ -593,9 +595,9 @@ void vtkImageShrink3D::ThreadedRequestData(
   
   switch (inData[0][0]->GetScalarType())
     {
-    vtkTemplateMacro7(vtkImageShrink3DExecute, this, inData[0][0],
+    vtkTemplateMacro8(vtkImageShrink3DExecute, this, inData[0][0],
                       (VTK_TT *)(inPtr), outData[0], (VTK_TT *)(outPtr),
-                      outExt, id);
+                      outExt, id, inInfo);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

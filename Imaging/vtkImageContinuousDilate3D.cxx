@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageContinuousDilate3D, "1.28");
+vtkCxxRevisionMacro(vtkImageContinuousDilate3D, "1.29");
 vtkStandardNewMacro(vtkImageContinuousDilate3D);
 
 //----------------------------------------------------------------------------
@@ -123,7 +123,8 @@ void vtkImageContinuousDilate3DExecute(vtkImageContinuousDilate3D *self,
                                        vtkImageData *inData, T *inPtr, 
                                        vtkImageData *outData, 
                                        int *outExt, T *outPtr, int id,
-                                       const char* inputScalars)
+                                       const char* inputScalars,
+                                       vtkInformation *inInfo)
 {
   int *kernelMiddle, *kernelSize;
   // For looping though output (and input) pixels.
@@ -157,7 +158,6 @@ void vtkImageContinuousDilate3DExecute(vtkImageContinuousDilate3D *self,
 
   // Get information to march through data
   inData->GetIncrements(inInc0, inInc1, inInc2); 
-  vtkInformation *inInfo = self->GetExecutive()->GetInputInformation(0, 0);
   inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inImageExt);
   inImageMin0 = inImageExt[0];
   inImageMax0 = inImageExt[1];
@@ -325,10 +325,10 @@ void vtkImageContinuousDilate3D::ThreadedRequestData(
 
   switch (inArray->GetDataType())
     {
-    vtkTemplateMacro9(vtkImageContinuousDilate3DExecute, this, 
-                      mask, inData[0][0], (VTK_TT *)(inPtr), 
-                      outData[0], outExt, (VTK_TT *)(outPtr), id,
-                      this->InputScalarsSelection);
+    vtkTemplateMacro10(vtkImageContinuousDilate3DExecute, this, 
+                       mask, inData[0][0], (VTK_TT *)(inPtr), 
+                       outData[0], outExt, (VTK_TT *)(outPtr), id,
+                       this->InputScalarsSelection, inInfo);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
