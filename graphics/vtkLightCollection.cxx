@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkExtractVectorComponents.h
+  Module:    vtkLightCollection.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,56 +38,58 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkExtractVectorComponents - extract components of vector as separate scalars
-// .SECTION Description
-// vtkExtractVectorComponents is a filter that extracts vector components as
-// separate scalars. This is accomplished by creating three different outputs.
-// Each output is the same as the input, except that the scalar values will be
-// one of the three components of the vector. These can be found in the
-// VxComponent, VyComponent, and VzComponent.
+#include <stdlib.h>
+#include <math.h>
 
-// .SECTION Caveats
-// This filter is unusual in that it creates multiple outputs. As a result,
-// it cannot take advantage of the convenience classes (e.g., 
-// vtkPolyDataToPolyDataFilter) for deriving concrete filters. Instead, it overloads 
-// the Update() method of its superclasses and provides methods for retrieving
-// the output.
-//
-// If you use the GetOutput() method, you will be retrieving the x vector component.
+#include "vtkLightCollection.h"
 
-#ifndef __vtkExtractVectorComponents_h
-#define __vtkExtractVectorComponents_h
-
-#include "vtkFilter.h"
-#include "vtkDataSet.h"
-
-class VTK_EXPORT vtkExtractVectorComponents : public vtkFilter
+vtkLightCollection::~vtkLightCollection()
 {
-public:
-  vtkExtractVectorComponents();
-  ~vtkExtractVectorComponents();
-  static vtkExtractVectorComponents *New() {return new vtkExtractVectorComponents;};
-  const char *GetClassName() {return "vtkExtractVectorComponents";};
+  this->RemoveAllItems();
+}
 
-  // filter interface (need to overload because of multiple output
-  void Update();
-  virtual void SetInput(vtkDataSet *input);
-  void SetInput(vtkDataSet &input) {this->SetInput(&input);};
+// Description:
+// Add a light to the list.
+void vtkLightCollection::AddItem(vtkLight *a) 
+{
+  a->Register(this);
+  this->vtkCollection::AddItem((vtkObject *)a);
+}
 
-  vtkDataSet *GetVxComponent();
-  vtkDataSet *GetVyComponent();
-  vtkDataSet *GetVzComponent();
+// Description:
+// Remove a light from the list.
+void vtkLightCollection::RemoveItem(vtkLight *a) 
+{
+  this->vtkCollection::RemoveItem((vtkObject *)a);
+}
 
-  vtkDataSet *GetOutput(int i=0); //default extracts vector component.
+// Description:
+// Determine whether a particular light is present. Returns its position
+// in the list.
+int vtkLightCollection::IsItemPresent(vtkLight *a) 
+{
+  return this->vtkCollection::IsItemPresent((vtkObject *)a);
+}
 
-protected:
-  void Execute();
+// Description:
+// Get the next light in the list. NULL is returned when the collection is 
+// exhausted.
+vtkLight *vtkLightCollection::GetNextItem() 
+{ 
+  return (vtkLight *)(this->GetNextItemAsObject());
+}
 
-  //Note; inverited ivar Output serves as pointer to VxComponent
-  vtkDataSet *VyComponent;
-  vtkDataSet *VzComponent;
-};
+// Description:
+// protected function to delete an element. Internal use only.
+void vtkLightCollection::DeleteElement(vtkCollectionElement *e)
+{
+  ((vtkLight *)(e->Item))->UnRegister(this); 
+  vtkCollection::DeleteElement(e);
+}
 
-#endif
+
+
+
+
 
 

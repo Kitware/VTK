@@ -46,6 +46,20 @@ vtkExtractVectorComponents::vtkExtractVectorComponents()
   this->VzComponent = NULL;
 }
 
+vtkExtractVectorComponents::~vtkExtractVectorComponents()
+{
+  if (this->VyComponent) 
+    {
+    this->VyComponent->Delete();
+    this->VyComponent = NULL;
+    }
+  if (this->VzComponent) 
+    {
+    this->VzComponent->Delete();
+    this->VzComponent = NULL;
+    }
+}
+
 // Description:
 // Get the output dataset containing the indicated component. The component is 
 // specified by an index between (0,2) corresponding to the x, y, or z vector

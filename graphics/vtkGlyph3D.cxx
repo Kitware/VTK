@@ -460,6 +460,7 @@ void vtkGlyph3D::SetNumberOfSources(int num)
   
   this->Modified();
   if ( num < 1 ) num = 1;
+  if ( this->Source ) delete [] this->Source;
   this->Source = new vtkPolyData *[num];
   this->NumberOfSources = num;
 }

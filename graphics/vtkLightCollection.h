@@ -56,6 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkLightCollection : public vtkCollection
 {
  public:
+  ~vtkLightCollection();
   static vtkLightCollection *New() {return new vtkLightCollection;};
   const char *GetClassName() {return "vtkLightCollection";};
 
@@ -66,45 +67,6 @@ class VTK_EXPORT vtkLightCollection : public vtkCollection
 protected:
   virtual void DeleteElement(vtkCollectionElement *); 
 };
-
-// Description:
-// Add a light to the list.
-inline void vtkLightCollection::AddItem(vtkLight *a) 
-{
-  a->Register(this);
-  this->vtkCollection::AddItem((vtkObject *)a);
-}
-
-// Description:
-// Remove a light from the list.
-inline void vtkLightCollection::RemoveItem(vtkLight *a) 
-{
-  this->vtkCollection::RemoveItem((vtkObject *)a);
-}
-
-// Description:
-// Determine whether a particular light is present. Returns its position
-// in the list.
-inline int vtkLightCollection::IsItemPresent(vtkLight *a) 
-{
-  return this->vtkCollection::IsItemPresent((vtkObject *)a);
-}
-
-// Description:
-// Get the next light in the list. NULL is returned when the collection is 
-// exhausted.
-inline vtkLight *vtkLightCollection::GetNextItem() 
-{ 
-  return (vtkLight *)(this->GetNextItemAsObject());
-}
-
-// Description:
-// protected function to delete an element. Internal use only.
-inline void vtkLightCollection::DeleteElement(vtkCollectionElement *e)
-{
-  ((vtkLight *)(e->Item))->UnRegister(this); 
-  vtkCollection::DeleteElement(e);
-}
 
 
 #endif
