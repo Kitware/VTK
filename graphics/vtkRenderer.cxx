@@ -602,7 +602,7 @@ void vtkRenderer::ResetCamera()
 
   if ( allBounds[0] == VTK_LARGE_FLOAT )
     {
-    vtkErrorMacro( << "Cannot reset camera!" );
+    vtkDebugMacro( << "Cannot reset camera!" );
     return;
     }
 
@@ -619,7 +619,7 @@ void vtkRenderer::ResetCameraClippingRange()
 
   if ( allBounds[0] == VTK_LARGE_FLOAT )
     {
-    vtkErrorMacro( << "Cannot reset camera!" );
+    vtkDebugMacro( << "Cannot reset camera clipping range!" );
     return;
     }
 
