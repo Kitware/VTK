@@ -313,11 +313,16 @@ static void ContourVolume(vtkMarchingCubes *self,T *scalars, int dims[3],
           value = values[contNum];
           // Build the case table
           for ( ii=0, index = 0; ii < 8; ii++)
-              if ( s[ii] >= value )
-                  index |= CASE_MASK[ii];
-
-          if ( index == 0 || index == 255 ) continue; //no surface
-
+	    {
+            if ( s[ii] >= value )
+	      {
+              index |= CASE_MASK[ii];
+	      }
+	    }
+          if ( index == 0 || index == 255 ) //no surface
+	    {
+	    continue;
+	    }
           triCase = triCases + index;
           edge = triCase->edges;
 
@@ -347,8 +352,14 @@ static void ContourVolume(vtkMarchingCubes *self,T *scalars, int dims[3],
                       n[jj] = n1[jj] + t * (n2[jj] - n1[jj]);
                       }
                     }
-                  if (ComputeScalars) newScalars->InsertScalar(ptIds[ii],value);
-                  if (ComputeGradients) newGradients->InsertVector(ptIds[ii],n);
+                  if (ComputeScalars)
+		    {
+		    newScalars->InsertScalar(ptIds[ii],value);
+		    }
+                  if (ComputeGradients)
+		    {
+		    newGradients->InsertVector(ptIds[ii],n);
+		    }
                   if (ComputeNormals)
                     {
                     vtkMath::Normalize(n);
@@ -413,8 +424,10 @@ void vtkMarchingCubes::Execute()
   // estimate the number of points from the volume dimensions
   estimatedSize = (int) pow ((double) (dims[0] * dims[1] * dims[2]), .75);
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
-  if (estimatedSize < 1024) estimatedSize = 1024;
-
+  if (estimatedSize < 1024)
+    {
+    estimatedSize = 1024;
+    }
   vtkDebugMacro(<< "Estimated allocation size is " << estimatedSize);
   newPts = vtkPoints::New(); newPts->Allocate(estimatedSize,estimatedSize/2);
   // compute bounds for merging points
@@ -423,7 +436,10 @@ void vtkMarchingCubes::Execute()
     bounds[2*i] = origin[i];
     bounds[2*i+1] = origin[i] + (dims[i]-1) * Spacing[i];
     }
-  if ( this->Locator == NULL ) this->CreateDefaultLocator();
+  if ( this->Locator == NULL )
+    {
+    this->CreateDefaultLocator();
+    }
   this->Locator->InitPointInsertion (newPts, bounds, estimatedSize);
 
   if (this->ComputeNormals)
@@ -588,7 +604,10 @@ void vtkMarchingCubes::Execute()
     newNormals->Delete();
     }
   output->Squeeze();
-  if (this->Locator) this->Locator->Initialize(); //free storage
+  if (this->Locator)
+    {
+    this->Locator->Initialize(); //free storage
+    }
 }
 
 // Description:
