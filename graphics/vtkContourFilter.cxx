@@ -118,7 +118,6 @@ unsigned long vtkContourFilter::GetMTime()
   return mTime;
 }
 
-//
 // General contouring filter.  Handles arbitrary input.
 //
 void vtkContourFilter::Execute()
@@ -126,7 +125,6 @@ void vtkContourFilter::Execute()
   int cellId, i, abortExecute=0;
   vtkIdList *cellPts;
   vtkScalars *inScalars;
-  vtkCell *cell;
   float range[2];
   vtkCellArray *newVerts, *newLines, *newPolys;
   vtkPoints *newPts;
@@ -143,11 +141,11 @@ void vtkContourFilter::Execute()
 
   if (input->GetDataObjectType() == VTK_UNSTRUCTURED_GRID)
     {
-    vtkDebugMacro(<< "executing contour grid filter");
+    vtkDebugMacro(<< "Processing unstructured grid");
     vtkContourGrid *cgrid;
 
     cgrid = vtkContourGrid::New();
-    cgrid->SetInput(input);
+    cgrid->SetInput((vtkUnstructuredGrid *)input);
     for (i = 0; i < numContours; i++)
       {
       cgrid->SetValue(i, values[i]);
@@ -170,10 +168,10 @@ void vtkContourFilter::Execute()
       }
 
     inScalars->GetRange(range);
-//
-// Create objects to hold output of contour operation. First estimate
-// allocation size.
-//
+
+    // Create objects to hold output of contour operation. First estimate
+    // allocation size.
+    //
     estimatedSize = (int) pow ((double) numCells, .75);
     estimatedSize *= numContours;
     estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
@@ -198,10 +196,11 @@ void vtkContourFilter::Execute()
       {
       this->CreateDefaultLocator();
       }
-    this->Locator->InitPointInsertion (newPts, input->GetBounds(),estimatedSize);
+    this->Locator->InitPointInsertion (newPts, 
+                                       input->GetBounds(),estimatedSize);
 
-  // interpolate data along edge
-  // if we did not ask for scalars to be computed, don't copy them
+    // interpolate data along edge
+    // if we did not ask for scalars to be computed, don't copy them
     if (!this->ComputeScalars)
       {
       outPd->CopyScalarsOff();
@@ -213,9 +212,10 @@ void vtkContourFilter::Execute()
     //
     if ( !this->UseScalarTree )
       {
+      vtkGenericCell *cell = vtkGenericCell::New();
       for (cellId=0; cellId < numCells && !abortExecute; cellId++)
         {
-        cell = input->GetCell(cellId);
+        input->GetCell(cellId,cell);
         cellPts = cell->GetPointIds();
         inScalars->GetScalars(cellPts,cellScalars);
         
@@ -223,11 +223,7 @@ void vtkContourFilter::Execute()
           {
           vtkDebugMacro(<<"Contouring #" << cellId);
           this->UpdateProgress ((float)cellId/numCells);
-          if (this->GetAbortExecute())
-            {
-            abortExecute = 1;
-            break;
-            }
+          abortExecute = this->GetAbortExecute();
           }
         
         for (i=0; i < numContours; i++)
@@ -238,15 +234,16 @@ void vtkContourFilter::Execute()
           
           } // for all contour values
         } // for all cells
+      cell->Delete();
       } //if using scalar tree
     else
       {
+      vtkCell *cell;
       if ( this->ScalarTree == NULL )
         {
         this->ScalarTree = vtkScalarTree::New();
         }
       this->ScalarTree->SetDataSet(input);
-      //
       // Loop over all contour values.  Then for each contour value, 
       // loop over all cells.
       //
@@ -264,11 +261,11 @@ void vtkContourFilter::Execute()
       } //using scalar tree
     
     vtkDebugMacro(<<"Created: " 
-    << newPts->GetNumberOfPoints() << " points, " 
-    << newVerts->GetNumberOfCells() << " verts, " 
-    << newLines->GetNumberOfCells() << " lines, " 
-    << newPolys->GetNumberOfCells() << " triangles");
-    //
+                  << newPts->GetNumberOfPoints() << " points, " 
+                  << newVerts->GetNumberOfCells() << " verts, " 
+                  << newLines->GetNumberOfCells() << " lines, " 
+                  << newPolys->GetNumberOfCells() << " triangles");
+
     // Update ourselves.  Because we don't know up front how many verts, lines,
     // polys we've created, take care to reclaim memory. 
     //
@@ -296,7 +293,7 @@ void vtkContourFilter::Execute()
     
     this->Locator->Initialize();//releases leftover memory
     output->Squeeze();
-    } //else (for if vtkUnstructuredGrid)
+    } //else if not vtkUnstructuredGrid
 }
 
 // Specify a spatial locator for merging points. By default, 
@@ -332,10 +329,14 @@ void vtkContourFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
 
-  os << indent << "Compute Gradients: " << (this->ComputeGradients ? "On\n" : "Off\n");
-  os << indent << "Compute Normals: " << (this->ComputeNormals ? "On\n" : "Off\n");
-  os << indent << "Compute Scalars: " << (this->ComputeScalars ? "On\n" : "Off\n");
-  os << indent << "Use Scalar Tree: " << (this->UseScalarTree ? "On\n" : "Off\n");
+  os << indent << "Compute Gradients: " 
+     << (this->ComputeGradients ? "On\n" : "Off\n");
+  os << indent << "Compute Normals: " 
+     << (this->ComputeNormals ? "On\n" : "Off\n");
+  os << indent << "Compute Scalars: " 
+     << (this->ComputeScalars ? "On\n" : "Off\n");
+  os << indent << "Use Scalar Tree: " 
+     << (this->UseScalarTree ? "On\n" : "Off\n");
 
   this->ContourValues->PrintSelf(os,indent);
 
