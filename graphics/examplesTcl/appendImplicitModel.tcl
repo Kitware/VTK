@@ -26,6 +26,7 @@ set Data(3) "aPlane"
 vtkImplicitModeller imp
     imp SetModelBounds -2.5 2.5 -2.5 2.5 -2.5 2.5
     imp SetSampleDimensions 100 100 100
+    imp SetCapValue 1000
 
 # Okay now let's see if we can append
 imp StartAppend
