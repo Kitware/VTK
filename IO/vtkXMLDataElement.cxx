@@ -16,12 +16,14 @@
 
 =========================================================================*/
 #include "vtkXMLDataElement.h"
+
 #include "vtkObjectFactory.h"
 #include "vtkXMLDataParser.h"
+#include "vtkXMLUtilities.h"
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkXMLDataElement, "1.14");
+vtkCxxRevisionMacro(vtkXMLDataElement, "1.15");
 vtkStandardNewMacro(vtkXMLDataElement);
 
 //----------------------------------------------------------------------------
@@ -42,6 +44,8 @@ vtkXMLDataElement::vtkXMLDataElement()
   
   this->InlineDataPosition = 0;
   this->XMLByteIndex = 0;
+
+  this->AttributeEncoding = VTK_ENCODING_UTF_8;
 }
 
 //----------------------------------------------------------------------------
@@ -80,13 +84,37 @@ void vtkXMLDataElement::RemoveAllNestedElements()
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLDataElement::ReadXMLAttributes(const char** atts)
+void vtkXMLDataElement::ReadXMLAttributes(const char** atts, int encoding)
 {
   if(atts)
     {
+    // If the target encoding is VTK_ENCODING_NONE or VTK_ENCODING_UNKNOWN, 
+    // then keep the internal/default encoding, otherwise encode each
+    // attribute using that new format
+
+    if (encoding != VTK_ENCODING_NONE && encoding != VTK_ENCODING_UNKNOWN)
+      {
+      this->SetAttributeEncoding(encoding);
+      }
+
+    // Process each attributes returned by Expat in UTF-8 encoding, and
+    // convert them to our encoding
+
     for (int i = 0; atts[i] && atts[i + 1]; i += 2)
       {
-      this->SetAttribute(atts[i], atts[i + 1]);
+      if (this->GetAttributeEncoding() == VTK_ENCODING_UTF_8)
+        {
+        this->SetAttribute(atts[i], atts[i + 1]);
+        }
+      else
+        {
+        ostrstream str;
+        vtkXMLUtilities::EncodeString(
+          atts[i+1], VTK_ENCODING_UTF_8, str, this->GetAttributeEncoding(), 0);
+        str << ends;
+        this->SetAttribute(atts[i], str.str());
+        str.rdbuf()->freeze(0);
+        }
       }
     }
 }
@@ -879,6 +907,7 @@ void vtkXMLDataElement::DeepCopy(vtkXMLDataElement *elem)
   this->SetName(elem->GetName());
   this->SetId(elem->GetId());
   this->SetXMLByteIndex(elem->GetXMLByteIndex());
+  this->SetAttributeEncoding(elem->GetAttributeEncoding());
 
   // Copy attributes
 
@@ -912,5 +941,6 @@ void vtkXMLDataElement::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Name: " << (this->Name? this->Name : "(none)") << "\n";
   os << indent << "Id: " << (this->Id? this->Id : "(none)") << "\n";
   os << indent << "NumberOfAttributes: " << this->NumberOfAttributes << "\n";
+  os << indent << "AttributeEncoding: " << this->AttributeEncoding << "\n";
 }
 

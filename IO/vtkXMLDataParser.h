@@ -112,6 +112,16 @@ public:
   vtkGetMacro(Progress, float);
   vtkSetMacro(Progress, float);  
   
+  // Description:
+  // Get/Set the character encoding that will be used to set the attributes's
+  // encoding type of each vtkXMLDataElement created by this parser (i.e.,
+  // the data element attributes will use that encoding internally).
+  // If set to VTK_ENCODING_NONE (default), the attribute encoding type will
+  // not be changed and will default to the vtkXMLDataElement default encoding
+  // type (see vtkXMLDataElement::AttributeEncoding).
+  vtkSetClampMacro(AttributesEncoding,int,VTK_ENCODING_NONE,VTK_ENCODING_UNKNOWN);
+  vtkGetMacro(AttributesEncoding, int);
+  
 protected:
   vtkXMLDataParser();
   ~vtkXMLDataParser();
@@ -217,7 +227,9 @@ protected:
   
   // Abort flag checked during reading of data.
   int Abort;
-  
+
+  int AttributesEncoding;
+
 private:
   vtkXMLDataParser(const vtkXMLDataParser&);  // Not implemented.
   void operator=(const vtkXMLDataParser&);  // Not implemented.

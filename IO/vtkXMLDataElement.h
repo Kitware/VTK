@@ -185,6 +185,16 @@ public:
   // Warning: Parent is ignored.
   virtual void DeepCopy(vtkXMLDataElement *elem);
 
+  // Description:
+  // Get/Set the internal character encoding of the attributes.
+  // Default type is VTK_ENCODING_UTF_8.
+  // Note that a vtkXMLDataParser has its own AttributesEncoding ivar. If 
+  // this ivar is set to something other than VTK_ENCODING_NONE, it will be
+  // used to set the attribute encoding of each vtkXMLDataElement 
+  // created by this vtkXMLDataParser.
+  vtkSetClampMacro(AttributeEncoding,int,VTK_ENCODING_NONE,VTK_ENCODING_UNKNOWN);
+  vtkGetMacro(AttributeEncoding, int);
+  
 protected:
   vtkXMLDataElement();
   ~vtkXMLDataElement();  
@@ -206,7 +216,8 @@ protected:
   char** AttributeValues;
   int NumberOfAttributes;
   int AttributesSize;
-  
+  int AttributeEncoding;
+
   // The set of nested elements.
   int NumberOfNestedElements;
   int NestedElementsSize;
@@ -216,7 +227,7 @@ protected:
   vtkXMLDataElement* Parent;
   
   // Method used by vtkXMLFileParser to setup the element.
-  void ReadXMLAttributes(const char** atts);  
+  void ReadXMLAttributes(const char** atts, int encoding);  
   void SeekInlineDataPosition(vtkXMLDataParser* parser);
   
   void PrintXML(ostream& os, vtkIndent indent);
@@ -229,7 +240,7 @@ protected:
   //BTX
   friend class vtkXMLDataParser;
   //ETX
-  
+
 private:
   vtkXMLDataElement(const vtkXMLDataElement&);  // Not implemented.
   void operator=(const vtkXMLDataElement&);  // Not implemented.
