@@ -59,8 +59,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-
-
 //----------------------------------------------------------------------------
 vtkDataReader* vtkDataReader::New()
 {
@@ -73,10 +71,6 @@ vtkDataReader* vtkDataReader::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkDataReader;
 }
-
-
-
-
 
 // this undef is required on the hp. vtkMutexLock ends up including
 // /usr/inclue/dce/cma_ux.h which has the gall to #define read as cma_read
@@ -106,6 +100,28 @@ vtkDataReader::vtkDataReader()
   this->IS = NULL;
   this->Source = NULL;
   this->Header = NULL;
+
+  this->NumberOfScalarsInFile = 0;
+  this->ScalarsNameInFile = NULL;
+  this->ScalarsNameAllocSize = 0;
+  this->NumberOfVectorsInFile = 0;
+  this->VectorsNameInFile = NULL;
+  this->VectorsNameAllocSize = 0;
+  this->NumberOfTensorsInFile = 0;
+  this->TensorsNameInFile = NULL;
+  this->TensorsNameAllocSize = 0;
+  this->NumberOfGhostLevelsInFile = 0;
+  this->GhostLevelsNameInFile = NULL;
+  this->GhostLevelsNameAllocSize = 0;
+  this->NumberOfTCoordsInFile = 0;
+  this->TCoordsNameInFile = NULL;
+  this->TCoordsNameAllocSize = 0;
+  this->NumberOfNormalsInFile = 0;
+  this->NormalsNameInFile = NULL;
+  this->NormalsNameAllocSize = 0;
+  this->NumberOfFieldDataInFile = 0;
+  this->FieldDataNameInFile = NULL;
+  this->FieldDataNameAllocSize = 0;
 }  
 
 vtkDataReader::~vtkDataReader()
@@ -158,6 +174,8 @@ vtkDataReader::~vtkDataReader()
     {
     delete [] this->Header;
     }
+
+  this->InitializeCharacteristics();
 }
 
 // no reference counting
@@ -1195,9 +1213,7 @@ int vtkDataReader::ReadScalarData(vtkDataSetAttributes *a, int numPts)
                   << this->FileName);
     return 0;
     }
-    
 
-//
   // See whether scalar has been already read or scalar name (if specified) 
   // matches name in file. 
   //
@@ -1881,6 +1897,272 @@ void vtkDataReader::CloseVTKFile()
     delete this->IS;
     }
   this->IS = NULL;
+}
+
+void vtkDataReader::InitializeCharacteristics()
+{
+  int i;
+
+  // Release any old stuff first
+  if ( this->ScalarsNameInFile )
+    {
+    for (i=0; i<this->NumberOfScalarsInFile; i++)
+      {
+      delete [] this->ScalarsNameInFile[i];
+      }
+    this->NumberOfScalarsInFile = 0;
+    delete [] this->ScalarsNameInFile;
+    this->ScalarsNameInFile = NULL;
+    }
+
+  if ( this->VectorsNameInFile )
+    {
+    for (i=0; i<this->NumberOfVectorsInFile; i++)
+      {
+      delete [] this->VectorsNameInFile[i];
+      }
+    this->NumberOfVectorsInFile = 0;
+    delete [] this->VectorsNameInFile;
+    this->VectorsNameInFile = NULL;
+    }
+
+  if ( this->TensorsNameInFile )
+    {
+    for (i=0; i<this->NumberOfTensorsInFile; i++)
+      {
+      delete [] this->TensorsNameInFile[i];
+      }
+    this->NumberOfTensorsInFile = 0;
+    delete [] this->TensorsNameInFile;
+    this->TensorsNameInFile = NULL;
+    }
+
+  if ( this->NormalsNameInFile )
+    {
+    for (i=0; i<this->NumberOfNormalsInFile; i++)
+      {
+      delete [] this->NormalsNameInFile[i];
+      }
+    this->NumberOfNormalsInFile = 0;
+    delete [] this->NormalsNameInFile;
+    this->NormalsNameInFile = NULL;
+    }
+
+  if ( this->TCoordsNameInFile )
+    {
+    for (i=0; i<this->NumberOfTCoordsInFile; i++)
+      {
+      delete [] this->TCoordsNameInFile[i];
+      }
+    this->NumberOfTCoordsInFile = 0;
+    delete [] this->TCoordsNameInFile;
+    this->TCoordsNameInFile = NULL;
+    }
+
+  if ( this->FieldDataNameInFile )
+    {
+    for (i=0; i<this->NumberOfFieldDataInFile; i++)
+      {
+      delete [] this->FieldDataNameInFile[i];
+      }
+    this->NumberOfFieldDataInFile = 0;
+    delete [] this->FieldDataNameInFile;
+    this->FieldDataNameInFile = NULL;
+    }
+
+  if ( this->GhostLevelsNameInFile )
+    {
+    for (i=0; i<this->NumberOfGhostLevelsInFile; i++)
+      {
+      delete [] this->GhostLevelsNameInFile[i];
+      }
+    this->NumberOfGhostLevelsInFile = 0;
+    delete [] this->GhostLevelsNameInFile;
+    this->GhostLevelsNameInFile = NULL;
+    }
+}
+
+//read entire file, storing important characteristics
+int vtkDataReader::CharacterizeFile()
+{
+  if ( this->CharacteristicsTime > this->MTime )
+    {
+    return 1;
+    }
+
+  this->InitializeCharacteristics();
+  this->CharacteristicsTime.Modified();
+  
+  // Open the file
+  if (!this->OpenVTKFile() || !this->ReadHeader())
+    {
+    return 0;
+    }
+  
+  //If it's ASCII, read line-by-line looking for key words
+  if ( this->FileType == VTK_ASCII )
+    {
+    char line[256];
+    while (this->ReadLine(line))
+      {
+      this->CheckFor("scalars", line, this->NumberOfScalarsInFile,
+                     this->ScalarsNameInFile, this->ScalarsNameAllocSize);
+      this->CheckFor("vectors", line, this->NumberOfVectorsInFile,
+                     this->VectorsNameInFile, this->VectorsNameAllocSize);
+      this->CheckFor("tensors", line, this->NumberOfTensorsInFile,
+                     this->TensorsNameInFile, this->TensorsNameAllocSize);
+      this->CheckFor("normals", line, this->NumberOfNormalsInFile,
+                     this->NormalsNameInFile, this->NormalsNameAllocSize);
+      this->CheckFor("tcoords", line, this->NumberOfTCoordsInFile,
+                     this->TCoordsNameInFile, this->TCoordsNameAllocSize);
+      this->CheckFor("ghostlevels", line, this->NumberOfGhostLevelsInFile,
+                     this->GhostLevelsNameInFile, this->GhostLevelsNameAllocSize);
+      this->CheckFor("fielddata", line, this->NumberOfFieldDataInFile,
+                     this->FieldDataNameInFile, this->FieldDataNameAllocSize);
+      }
+    }
+  else //binary
+    {
+    vtkErrorMacro(<<"Can't handle binary yet");
+    }
+
+  this->CloseVTKFile ();
+  return 1;
+}
+
+void vtkDataReader::CheckFor(const char* name, char *line, int &num, 
+                             char** &array, int &allocSize)
+{
+  if ( !strncmp(this->LowerCase(line),name,strlen(name)) )
+    {
+    int i;
+    int newAllocSize;
+    char **newArray;
+
+    //update numbers
+    num++;
+
+    if ( !array )
+      {
+      allocSize = 25;
+      array = new char* [allocSize];
+      for (i=0; i<allocSize; i++)
+        {
+        array[i] = NULL;
+        }
+      }
+    else if ( num >= allocSize )
+      {
+      newAllocSize = 2*num;
+      newArray = new char* [newAllocSize];
+      for (i=0; i<allocSize; i++)
+        {
+        newArray[i] = array[i];
+        }
+      for (i=allocSize; i<newAllocSize; i++)
+        {
+        newArray[i] = NULL;
+        }
+      allocSize = newAllocSize;
+      delete [] array;
+      array = newArray;
+      }
+
+    // enter the name
+    char nameOfAttribute[256];
+    sscanf(line, "%*s %s", nameOfAttribute);
+    if ( nameOfAttribute )
+      {
+      array[num-1] = new char [strlen(nameOfAttribute)];
+      strcpy(array[num-1],nameOfAttribute);
+      }
+    }//found one
+}
+
+const char *vtkDataReader::GetScalarsNameInFile(int i)
+{
+  if ( !this->ScalarsNameInFile || 
+       i < 0 || i >= this->NumberOfScalarsInFile )
+    {
+    return NULL;
+    }
+  else
+    {
+    return this->ScalarsNameInFile[i];
+    }
+}
+
+const char *vtkDataReader::GetVectorsNameInFile(int i)
+{
+  if ( !this->VectorsNameInFile || 
+       i < 0 || i >= this->NumberOfVectorsInFile )
+    {
+    return NULL;
+    }
+  else
+    {
+    return this->VectorsNameInFile[i];
+    }
+}
+const char *vtkDataReader::GetTensorsNameInFile(int i)
+{
+  if ( !this->TensorsNameInFile || 
+       i < 0 || i >= this->NumberOfTensorsInFile )
+    {
+    return NULL;
+    }
+  else
+    {
+    return this->TensorsNameInFile[i];
+    }
+}
+const char *vtkDataReader::GetNormalsNameInFile(int i)
+{
+  if ( !this->NormalsNameInFile || 
+       i < 0 || i >= this->NumberOfNormalsInFile )
+    {
+    return NULL;
+    }
+  else
+    {
+    return this->NormalsNameInFile[i];
+    }
+}
+const char *vtkDataReader::GetTCoordsNameInFile(int i)
+{
+  if ( !this->TCoordsNameInFile || 
+       i < 0 || i >= this->NumberOfTCoordsInFile )
+    {
+    return NULL;
+    }
+  else
+    {
+    return this->TCoordsNameInFile[i];
+    }
+}
+const char *vtkDataReader::GetFieldDataNameInFile(int i)
+{
+  if ( !this->FieldDataNameInFile || 
+       i < 0 || i >= this->NumberOfFieldDataInFile )
+    {
+    return NULL;
+    }
+  else
+    {
+    return this->FieldDataNameInFile[i];
+    }
+}
+const char *vtkDataReader::GetGhostLevelsNameInFile(int i)
+{
+  if ( !this->GhostLevelsNameInFile || 
+       i < 0 || i >= this->NumberOfGhostLevelsInFile )
+    {
+    return NULL;
+    }
+  else
+    {
+    return this->GhostLevelsNameInFile[i];
+    }
 }
 
 void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)
