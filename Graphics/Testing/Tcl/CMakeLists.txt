@@ -107,6 +107,7 @@ IF (VTK_USE_RENDERING)
       progGlyphs
       progGlyphsBySource
       quadricCut
+      QuadricDecimation
       rectGrid
       recursiveDC
       reverseNormals
@@ -139,7 +140,6 @@ IF (VTK_USE_RENDERING)
       testDataSetTriangleFilter2
       TestGraphLayoutFilter
       TestMultiBlockStreamer
-      TestQuadricDecimation
       TestQuadricClustering
       testReflect
       TestRuledSurface
