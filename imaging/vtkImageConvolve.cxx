@@ -115,9 +115,8 @@ void vtkImageConvolve::ComputeInputUpdateExtent(int inExt[6],
 }
 
 //----------------------------------------------------------------------------
-// This execute method handles boundaries.
-// it handles boundaries. Pixels are just replicated to get values 
-// out of extent.
+// This execute method handles boundaries.  Pixels are just replicated to get
+// values out of extent.
 template <class T>
 static void vtkImageConvolveExecute(vtkImageConvolve *self,
 				      vtkImageData *inData, T *inPtr,
@@ -185,28 +184,27 @@ static void vtkImageConvolveExecute(vtkImageConvolve *self,
         for (idxC = 0; idxC < maxC; idxC++)
           {
           //the center kernel position
-          sum = kernel[2]*(*inPtr);
+          sum = kernel[1]*(*inPtr);
           
           // do X axis 
-          sum += kernel[1]*(float)(inPtr[useXMin]);
-          sum += kernel[3]*(float)(inPtr[useXMax]);
+          sum += kernel[0]*(float)(inPtr[useXMin]);
+          sum += kernel[2]*(float)(inPtr[useXMax]);
           
           // do Y axis
-          sum += kernel[1]*(float)(inPtr[useYMin]);
-          sum += kernel[3]*(float)(inPtr[useYMax]);
+          sum += kernel[0]*(float)(inPtr[useYMin]);
+          sum += kernel[2]*(float)(inPtr[useYMax]);
           
           if (axesNum == 3)
             {
             // do z axis
-            sum += kernel[1]*(float)(inPtr[useZMin]);
-            sum += kernel[3]*(float)(inPtr[useZMax]);
+            sum += kernel[0]*(float)(inPtr[useZMin]);
+            sum += kernel[2]*(float)(inPtr[useZMax]);
             }
           
           *outPtr = (T)sum;
           inPtr++;
           outPtr++;
           }
-        
         }
       
       outPtr += outIncY;
