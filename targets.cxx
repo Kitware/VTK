@@ -131,7 +131,7 @@ int main (int argc, char *argv[])
 	strcmp(argv[i],"concrete_h")&&strcmp(argv[i],"abstract_h"))
       {
       fprintf(fp,"tcl/%sTcl.cxx : %s/%s.h %s/common/vtkTclUtil.h %s/common/vtkCommand.h %s/wrap/vtkParse.y %s/wrap/vtkWrapTcl.c",
-	      argv[i],vtkLocal,argv[i],vtkHome,vtkHome, vtkHome);
+	      argv[i],vtkLocal,argv[i],vtkHome,vtkHome, vtkHome, vtkHome);
       sprintf(filename,"%s/%s.h",vtkLocal,argv[i]);
       OutputUNIXDepends(filename,fp, vtkHome, argv+extra_start,extra_num);
       fprintf(fp,"\n");
