@@ -278,3 +278,11 @@ void vtkImageCorrelation::ThreadedExecute(vtkImageData **inData,
       return;
     }
 }
+
+void vtkImageCorrelation::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkImageTwoInputFilter::PrintSelf(os,indent);
+
+  os << indent << "Dimensionality: " << this->Dimensionality << "\n";
+}
+

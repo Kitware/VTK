@@ -264,5 +264,22 @@ void vtkImageSeedConnectivity::Execute(vtkImageData *inData,
 }
 
 
+void vtkImageSeedConnectivity::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkImageFilter::PrintSelf(os,indent);
 
+  if ( this->Connector )
+    {
+    os << indent << "Connector: " << this->Connector << "\n";
+    }
+  else
+    {
+    os << indent << "Connector: (none)\n";
+    }
+
+  os << indent << "Dimensionality: " << this->Dimensionality << "\n";
+  os << indent << "InputConnectValue: " << this->InputConnectValue << "\n";
+  os << indent << "OutputConnectedValue: " << this->OutputConnectedValue << "\n";
+  os << indent << "OutputUnconnectedValue: " << this->OutputUnconnectedValue << "\n";
+}
 

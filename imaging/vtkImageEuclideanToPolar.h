@@ -56,6 +56,7 @@ public:
   static vtkImageEuclideanToPolar *New() 
     {return new vtkImageEuclideanToPolar;};
   const char *GetClassName() {return "vtkImageEuclideanToPolar";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Theta is an angle. Maximum specifies when it maps back to 0.

@@ -176,17 +176,9 @@ void vtkImageEuclideanToPolar::ThreadedExecute(vtkImageData *inData,
     }
 }
 
-  
+void vtkImageEuclideanToPolar::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkImageFilter::PrintSelf(os,indent);
 
-
-
-
-
-
-
-
-
-
-
-
-
+  os << indent << "Maximum Angle: " << this->ThetaMaximum << "\n";
+}

@@ -290,7 +290,16 @@ void vtkImageReader::PrintSelf(ostream& os, vtkIndent indent)
      << vtkImageScalarTypeNameMacro(this->DataScalarType) << "\n";
   os << indent << "NumberOfScalarComponents: " 
      << this->NumberOfScalarComponents << "\n";
-  
+ 
+  os << indent << "Data Mask: " << this->DataMask << "\n";
+
+  os << indent << "File Dimensionality: " << this->FileDimensionality << "\n";
+
+  os << indent << "File Lower Left: " << 
+    (this->FileLowerLeft ? "On\n" : "Off\n");
+
+  os << indent << "Swap Bytes: " << (this->SwapBytes ? "On\n" : "Off\n");
+
   os << indent << "DataExtent: (" << this->DataExtent[0];
   for (idx = 1; idx < 6; ++idx)
     {
@@ -320,6 +329,24 @@ void vtkImageReader::PrintSelf(ostream& os, vtkIndent indent)
   os << ")\n";
   
   os << indent << "HeaderSize: " << this->HeaderSize << "\n";
+
+  if ( this->Transform )
+    {
+    os << indent << "Transform: " << this->Transform << "\n";
+    }
+  else
+    {
+    os << indent << "Transform: (none)\n";
+    }
+
+  if ( this->InternalFileName )
+    {
+    os << indent << "Internal File Name: " << this->InternalFileName << "\n";
+    }
+  else
+    {
+    os << indent << "Internal File Name: (none)\n";
+    }
 }
 
 

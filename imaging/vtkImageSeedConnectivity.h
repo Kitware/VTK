@@ -68,6 +68,7 @@ public:
   static vtkImageSeedConnectivity *New() 
     {return new vtkImageSeedConnectivity;};
   const char *GetClassName() {return "vtkImageSeedConnectivity";};
+  void PrintSelf(ostream& os, vtkIndent indent);
   
   void RemoveAllSeeds();
   void AddSeed(int num, int *index);
