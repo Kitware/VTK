@@ -151,6 +151,7 @@ void vtkElevationFilter::Execute()
 
   this->GetOutput()->GetCellData()->PassData(input->GetCellData());
 
+  newScalars->GetData()->SetName("Elevation");
   this->GetOutput()->GetPointData()->SetScalars(newScalars);
   newScalars->Delete();
 }
