@@ -209,6 +209,8 @@ public:
   void SetStartRenderMethodArgDelete(void (*f)(void *));
   void SetEndRenderMethodArgDelete(void (*f)(void *));
 
+  float GetZ (int x, int y);
+
 protected:
   void UpdateViewRays();
 

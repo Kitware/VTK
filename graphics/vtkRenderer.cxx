@@ -359,6 +359,25 @@ void vtkRenderer::SetRenderWindow(vtkRenderWindow *renwin)
 }
 
 // Description:
+// Given a pixel location, return the Z value
+float vtkRenderer::GetZ (int x, int y)
+{
+  float *zPtr;
+  float z;
+
+  zPtr = this->RenderWindow->GetZbufferData (x, y, x, y);
+  if (zPtr)
+    {
+    z = *zPtr;
+    }
+  else
+    {
+    z = 1.0;
+    }
+  return z;
+}
+
+// Description:
 // Convert display coordinates to view coordinates.
 void vtkRenderer::DisplayToView()
 {
