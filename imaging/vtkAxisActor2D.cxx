@@ -375,8 +375,16 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
   // generate point along axis (as well as tick points)
   deltaX = p2[0] - p1[0];
   deltaY = p2[1] - p1[1];
-  theta = atan2 (deltaY, deltaX);
   
+  if (deltaX == 0. && deltaY == 0.)
+    {
+    theta = 0.;
+    }
+  else
+    {
+    theta = atan2(deltaY, deltaX);
+    }
+
   ptIds[0] = pts->InsertNextPoint(p1); //first axis point
   xTick[0] = p1[0] + this->TickLength*sin(theta);
   xTick[1] = p1[1] - this->TickLength*cos(theta);
