@@ -16,6 +16,8 @@
 
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
@@ -23,7 +25,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCylinderSource, "1.53");
+vtkCxxRevisionMacro(vtkCylinderSource, "1.54");
 vtkStandardNewMacro(vtkCylinderSource);
 
 vtkCylinderSource::vtkCylinderSource (int res)
@@ -33,10 +35,22 @@ vtkCylinderSource::vtkCylinderSource (int res)
   this->Radius = 0.5;
   this->Capping = 1;
   this->Center[0] = this->Center[1] = this->Center[2] = 0.0;
+
+  this->SetNumberOfInputPorts(0);
 }
 
-void vtkCylinderSource::Execute()
+int vtkCylinderSource::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the ouptut
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   double angle= 2.0*3.141592654/this->Resolution;
   int numPolys, numPts;
   double xbot[3], tcbot[2], nbot[3];
@@ -48,7 +62,6 @@ void vtkCylinderSource::Execute()
   vtkFloatArray *newNormals;
   vtkFloatArray *newTCoords;
   vtkCellArray *newPolys;
-  vtkPolyData *output = this->GetOutput();
   
 //
 // Set things up; allocate memory
@@ -187,6 +200,8 @@ void vtkCylinderSource::Execute()
   newPolys->Squeeze(); // since we've estimated size; reclaim some space
   output->SetPolys(newPolys);
   newPolys->Delete();
+
+  return 1;
 }
 
 void vtkCylinderSource::PrintSelf(ostream& os, vtkIndent indent)

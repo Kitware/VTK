@@ -23,15 +23,15 @@
 #ifndef __vtkCylinderSource_h
 #define __vtkCylinderSource_h
 
-#include "vtkPolyDataSource.h"
+#include "vtkPolyDataAlgorithm.h"
 
 #include "vtkCell.h" // Needed for VTK_CELL_SIZE
 
-class VTK_GRAPHICS_EXPORT vtkCylinderSource : public vtkPolyDataSource 
+class VTK_GRAPHICS_EXPORT vtkCylinderSource : public vtkPolyDataAlgorithm 
 {
 public:
   static vtkCylinderSource *New();
-  vtkTypeRevisionMacro(vtkCylinderSource,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkCylinderSource,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -64,7 +64,7 @@ protected:
   vtkCylinderSource(int res=6);
   ~vtkCylinderSource() {};
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   double Height;
   double Radius;
   double Center[3];
@@ -77,5 +77,3 @@ private:
 };
 
 #endif
-
-
