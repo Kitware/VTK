@@ -35,7 +35,7 @@
 #include "vtkRungeKutta4.h"
 #include "vtkRungeKutta45.h"
 
-vtkCxxRevisionMacro(vtkStreamTracer, "1.16");
+vtkCxxRevisionMacro(vtkStreamTracer, "1.17");
 vtkStandardNewMacro(vtkStreamTracer);
 vtkCxxSetObjectMacro(vtkStreamTracer,Integrator,vtkInitialValueProblemSolver);
 
@@ -677,8 +677,14 @@ void vtkStreamTracer::Integrate(vtkPolyData* output,
   vtkIdType numPtsTotal=0;
   float velocity[3];
 
+  int shouldAbort = 0;
+
   for(int currentLine = 0; currentLine < numLines; currentLine++)
     {
+
+    float progress = static_cast<float>(currentLine)/numLines;
+    this->UpdateProgress(progress);
+
     switch (integrationDirections->GetValue(currentLine))
       {
       case FORWARD:
@@ -769,12 +775,26 @@ void vtkStreamTracer::Integrate(vtkPolyData* output,
     // Begin Integration
     while ( propagation < this->MaximumPropagation.Interval )
       {
+
       if (numSteps > this->MaximumNumberOfSteps)
         {
         retVal = OUT_OF_STEPS;
         break;
         }
-      numSteps++;
+
+      if ( numSteps++ % 1000 == 1 )
+        {
+        progress = 
+          (currentLine + propagation / this->MaximumPropagation.Interval) /
+          numLines ;
+        this->UpdateProgress(progress);
+
+        if (this->GetAbortExecute())
+          {
+          shouldAbort = 1;
+          break;
+          }
+        }
 
       // Never call conversion methods if speed == 0
       if ( (speed == 0) || (speed <= this->TerminalSpeed) )
@@ -911,6 +931,11 @@ void vtkStreamTracer::Integrate(vtkPolyData* output,
       // End Integration
       }
 
+    if (shouldAbort)
+      {
+      break;
+      }
+
     if (numPts > 1)
       {
       outputLines->InsertNextCell(numPts);
@@ -922,79 +947,86 @@ void vtkStreamTracer::Integrate(vtkPolyData* output,
       }
     }
 
-  // Create the output polyline
-  output->SetPoints(outputPoints);
-  outputPD->AddArray(time);
+  if (!shouldAbort)
+    {
+    // Create the output polyline
+    output->SetPoints(outputPoints);
+    outputPD->AddArray(time);
+    if (vorticity)
+      {
+      outputPD->AddArray(vorticity);
+      outputPD->AddArray(rotation);
+      outputPD->AddArray(angularVel);
+      }
+    
+    vtkIdType numPts = outputPoints->GetNumberOfPoints();
+    if ( numPts > 1 )
+      {
+      
+      // Assign geometry and attributes
+      output->SetLines(outputLines);
+      
+      if (vorticity)
+        {
+        vtkPolyLine* lineNormalGenerator = vtkPolyLine::New();
+        vtkFloatArray* normals = vtkFloatArray::New();
+        normals->SetNumberOfComponents(3);
+        normals->SetNumberOfTuples(numPts);
+        
+        lineNormalGenerator->GenerateSlidingNormals(outputPoints,
+                                                    outputLines,
+                                                    normals);
+        lineNormalGenerator->Delete();
+        
+        int j;
+        float normal[3], local1[3], local2[3], theta, costheta, sintheta, length;
+        for(i=0; i<numPts; i++)
+          {
+          normals->GetTuple(i, normal);
+          normals->SetName("Normals");
+          vtkDataArray* newVectors = 
+            outputPD->GetVectors(this->InputVectorsSelection);
+          if (newVectors == NULL)
+            { // This should never happen.
+            vtkErrorMacro("Could not find output array.");
+            return;
+            }
+          newVectors->GetTuple(i, velocity);
+          // obtain two unit orthogonal vectors on the plane perpendicular to
+          // the streamline
+          for(j=0; j<3; j++) { local1[j] = normal[j]; }
+          length = vtkMath::Normalize(local1);
+          vtkMath::Cross(local1, velocity, local2);
+          vtkMath::Normalize(local2);
+          // Rotate the normal with theta
+          rotation->GetTuple(i, &theta);
+          costheta = cos(theta);
+          sintheta = sin(theta);
+          for(j=0; j<3; j++)
+            {
+            normal[j] = length* (costheta*local1[j] + sintheta*local2[j]);
+            }
+          normals->SetTuple(i, normal);
+          }
+        outputPD->AddArray(normals);
+        outputPD->SetActiveAttribute("Normals", vtkDataSetAttributes::VECTORS);
+        normals->Delete();
+        }
+      
+      outputCD->AddArray(retVals);
+      }
+    }
+
   if (vorticity)
     {
-    outputPD->AddArray(vorticity);
     vorticity->Delete();
-    outputPD->AddArray(rotation);
     rotation->Delete();
-    outputPD->AddArray(angularVel);
     angularVel->Delete();
-
     }
+
   if (cellVectors)
     {
     cellVectors->Delete();
-    }
-  
-  vtkIdType numPts = outputPoints->GetNumberOfPoints();
-  if ( numPts > 1 )
-    {
-
-    // Assign geometry and attributes
-    output->SetLines(outputLines);
-
-    if (vorticity)
-      {
-      vtkPolyLine* lineNormalGenerator = vtkPolyLine::New();
-      vtkFloatArray* normals = vtkFloatArray::New();
-      normals->SetNumberOfComponents(3);
-      normals->SetNumberOfTuples(numPts);
-
-      lineNormalGenerator->GenerateSlidingNormals(outputPoints,
-                                                  outputLines,
-                                                  normals);
-      lineNormalGenerator->Delete();
-      
-      int j;
-      float normal[3], local1[3], local2[3], theta, costheta, sintheta, length;
-      for(i=0; i<numPts; i++)
-        {
-        normals->GetTuple(i, normal);
-        normals->SetName("Normals");
-        vtkDataArray* newVectors = 
-          outputPD->GetVectors(this->InputVectorsSelection);
-        if (newVectors == NULL)
-          { // This should never happen.
-          vtkErrorMacro("Could not find output array.");
-          return;
-          }
-        newVectors->GetTuple(i, velocity);
-        // obtain two unit orthogonal vectors on the plane perpendicular to
-        // the streamline
-        for(j=0; j<3; j++) { local1[j] = normal[j]; }
-        length = vtkMath::Normalize(local1);
-        vtkMath::Cross(local1, velocity, local2);
-        vtkMath::Normalize(local2);
-        // Rotate the normal with theta
-        rotation->GetTuple(i, &theta);
-        costheta = cos(theta);
-        sintheta = sin(theta);
-        for(j=0; j<3; j++)
-          {
-          normal[j] = length* (costheta*local1[j] + sintheta*local2[j]);
-          }
-        normals->SetTuple(i, normal);
-        }
-      outputPD->AddArray(normals);
-      outputPD->SetActiveAttribute("Normals", vtkDataSetAttributes::VECTORS);
-      normals->Delete();
-      }
-  
-    outputCD->AddArray(retVals);
     }
   retVals->Delete();
 
