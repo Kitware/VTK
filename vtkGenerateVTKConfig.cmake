@@ -26,6 +26,9 @@ SET(VTK_USE_FILE ${VTK_BINARY_DIR}/UseVTK.cmake)
 # The build settings file.
 SET(VTK_BUILD_SETTINGS_FILE ${VTK_BINARY_DIR}/VTKBuildSettings.cmake)
 
+# The directory containing class list files for each kit.
+SET(VTK_KITS_DIR_CONFIG ${VTK_BINARY_DIR}/Utilities)
+
 # Library directory.
 SET(VTK_LIBRARY_DIRS_CONFIG ${LIBRARY_OUTPUT_PATH})
 
@@ -114,6 +117,9 @@ SET(VTK_USE_FILE ${CMAKE_INSTALL_PREFIX}/lib/vtk/UseVTK.cmake)
 
 # The build settings file.
 SET(VTK_BUILD_SETTINGS_FILE ${CMAKE_INSTALL_PREFIX}/lib/vtk/VTKBuildSettings.cmake)
+
+# The directory containing class list files for each kit.
+SET(VTK_KITS_DIR_CONFIG ${CMAKE_INSTALL_PREFIX}/lib/vtk)
 
 # Include directories.
 SET(VTK_INCLUDE_DIRS_CONFIG

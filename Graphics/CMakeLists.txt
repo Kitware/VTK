@@ -252,6 +252,8 @@ TARGET_LINK_LIBRARIES(vtk${KIT} ${KIT_LIBS})
 INSTALL_TARGETS(/lib/vtk vtk${KIT})
 INSTALL_FILES(/include/vtk .h ${Kit_SRCS})
 
+VTK_EXPORT_KIT("${KIT}" "${UKIT}" "${Kit_SRCS}")
+
 # If the user defined a custom macro, execute it now and pass in all the srcs
 #
 IF(LOCALUSERMACRODEFINED)

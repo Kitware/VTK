@@ -7,7 +7,7 @@ ELSE(APPLE)
   SET(KIT_PYTHON_LIBS vtkFilteringPython)
 ENDIF(APPLE)
 SET(KIT_JAVA_LIBS vtkFilteringJava)
-SET(KIT_LIBS vtkFiltering
+SET(KIT_LIBS vtkFiltering vtkDICOMParser
   ${VTK_PNG_LIBRARIES} ${VTK_ZLIB_LIBRARIES} ${VTK_JPEG_LIBRARIES}
   ${VTK_TIFF_LIBRARIES} ${VTK_EXPAT_LIBRARIES})
 
@@ -227,10 +227,12 @@ IF (VTK_WRAP_JAVA)
   INSTALL_TARGETS(/lib/vtk vtk${KIT}Java)
 ENDIF (VTK_WRAP_JAVA)
 
-TARGET_LINK_LIBRARIES(vtk${KIT} ${KIT_LIBS} vtkDICOMParser)
+TARGET_LINK_LIBRARIES(vtk${KIT} ${KIT_LIBS})
 
 INSTALL_TARGETS(/lib/vtk vtk${KIT})
 INSTALL_FILES(/include/vtk .h ${Kit_SRCS})
+
+VTK_EXPORT_KIT("${KIT}" "${UKIT}" "${Kit_SRCS}")
 
 # If the user defined a custom macro, execute it now and pass in all the srcs
 #

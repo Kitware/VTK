@@ -30,6 +30,7 @@ LINK_DIRECTORIES(.)
 # Load some macros.
 INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkDependentOption.cmake)
 INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkThirdParty.cmake)
+INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkExportKit.cmake)
 
 #-----------------------------------------------------------------------------
 # Platform configuration tests.
@@ -57,7 +58,7 @@ IF("VTK_COMPILER_HAS_BOOL" MATCHES "^VTK_COMPILER_HAS_BOOL$")
   ELSE(VTK_COMPILER_HAS_BOOL)
     MESSAGE(STATUS "Checking support for C++ type bool -- no")
     SET(VTK_COMPILER_HAS_BOOL 0 CACHE INTERNAL "Support for C++ type bool")
-    WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeError.log 
+    WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeError.log
       "Determining if the C++ compiler supports type bool "
       "failed with the following output:\n"
       "${OUTPUT}\n" APPEND)
@@ -226,7 +227,7 @@ ENDIF(VTK_WRAP_JAVA)
 
 # Testing.
 IF(BUILD_TESTING)
-  SUBDIRS(Common/Testing Filtering/Testing Graphics/Testing Imaging/Testing 
+  SUBDIRS(Common/Testing Filtering/Testing Graphics/Testing Imaging/Testing
           IO/Testing)
   IF(VTK_USE_RENDERING)
     SUBDIRS(Rendering/Testing)
@@ -308,7 +309,7 @@ IF(VTK_HAVE_ANSI_STREAMS AND VTK_HAVE_OLD_STREAMS)
 ELSE(VTK_HAVE_ANSI_STREAMS AND VTK_HAVE_OLD_STREAMS)
   IF(VTK_HAVE_ANSI_STREAMS)
     # Have only new streams.  Use them.
-    SET(VTK_USE_ANSI_STDLIB ON)  
+    SET(VTK_USE_ANSI_STDLIB ON)
   ELSE(VTK_HAVE_ANSI_STREAMS)
     # Have only old streams.  Use them.
     SET(VTK_USE_ANSI_STDLIB OFF)
@@ -324,7 +325,7 @@ MARK_AS_ADVANCED(VTK_DEBUG_LEAKS VTK_USE_64BIT_IDS)
 
 VTK_DEPENDENT_OPTION(VTK_USE_MANGLED_MESA "Use mangled Mesa with OpenGL." OFF
                      "VTK_USE_RENDERING" OFF)
-VTK_DEPENDENT_OPTION(VTK_OPENGL_HAS_OSMESA 
+VTK_DEPENDENT_OPTION(VTK_OPENGL_HAS_OSMESA
                      "The opengl library being used supports off screen Mesa calls." OFF
                      "VTK_USE_RENDERING;UNIX" OFF)
 VTK_DEPENDENT_OPTION(VTK_USE_MPI
@@ -382,7 +383,7 @@ IF(CMAKE_COMPILER_IS_GNUCXX)
     # Disable warnings that occur in X11 headers.
     IF(DART_ROOT AND BUILD_TESTING)
       SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -Wno-unknown-pragmas")
-      SET(VTK_REQUIRED_C_FLAGS "${VTK_REQUIRED_C_FLAGS} -Wno-unknown-pragmas")      
+      SET(VTK_REQUIRED_C_FLAGS "${VTK_REQUIRED_C_FLAGS} -Wno-unknown-pragmas")
     ENDIF(DART_ROOT AND BUILD_TESTING)
   ENDIF(CMAKE_SYSTEM MATCHES "SunOS.*")
 ELSE(CMAKE_COMPILER_IS_GNUCXX)
@@ -571,7 +572,7 @@ IF(VTK_WRAP_TCL)
 
   IF(TCL_TK_STATIC AND WIN32)
      IF(TK_LIBRARY MATCHES tk84)
-	   SET(TRY_TK_RESOURCE_FILE_IN 
+	   SET(TRY_TK_RESOURCE_FILE_IN
            ${VTK_SOURCE_DIR}/Rendering/tkInternals/tk84/win/rc)
      ENDIF(TK_LIBRARY MATCHES tk84)
      FIND_FILE(TK_RESOURCE_FILE tk.rc ${TRY_TK_RESOURCE_FILE_IN} DOC "The resource file required to add the proper resources to a static Tk build")
@@ -645,7 +646,7 @@ ENDIF(VTK_USE_RENDERING)
 IF(VTK_INCLUDE_NEED_TK)
   # Need Tk sources on windows
   IF(WIN32)
-    FIND_PATH(TK_XLIB_PATH X11/Xlib.h ${TK_INCLUDE_PATH} 
+    FIND_PATH(TK_XLIB_PATH X11/Xlib.h ${TK_INCLUDE_PATH}
               ${TK_INCLUDE_PATH}/../xlib)
     MARK_AS_ADVANCED(TK_XLIB_PATH)
   ENDIF(WIN32)
@@ -727,10 +728,10 @@ FIND_PATH(VTK_DATA_ROOT VTKData.readme ${VTK_SOURCE_DIR}/../VTKData $ENV{VTK_DAT
 CONFIGURE_FILE(${VTK_SOURCE_DIR}/vtkConfigure.h.in
                ${VTK_BINARY_DIR}/vtkConfigure.h @ONLY IMMEDIATE)
 
-CONFIGURE_FILE(${VTK_SOURCE_DIR}/UseVTK.cmake.in 
+CONFIGURE_FILE(${VTK_SOURCE_DIR}/UseVTK.cmake.in
                ${VTK_BINARY_DIR}/UseVTK.cmake COPYONLY IMMEDIATE)
 
-CONFIGURE_FILE(${VTK_SOURCE_DIR}/vtkToolkits.h.in 
+CONFIGURE_FILE(${VTK_SOURCE_DIR}/vtkToolkits.h.in
                ${VTK_BINARY_DIR}/vtkToolkits.h @ONLY IMMEDIATE)
 
 #-----------------------------------------------------------------------------
@@ -753,7 +754,7 @@ INCLUDE_DIRECTORIES(
 # Help other projects use VTK.
 
 # Install the instantiator headers.
-INSTALL_FILES(/include/vtk .h vtkCommonInstantiator vtkFilteringInstantiator 
+INSTALL_FILES(/include/vtk .h vtkCommonInstantiator vtkFilteringInstantiator
               vtkIOInstantiator vtkImagingInstantiator vtkGraphicsInstantiator)
 IF(VTK_USE_RENDERING)
   INSTALL_FILES(/include/vtk .h vtkRenderingInstantiator)
