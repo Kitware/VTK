@@ -5859,7 +5859,6 @@ vtkVRMLImporter::exitField()
         {
         this->CurrentScalars->InsertNextScalar(i);
         }
-      yylval.vec3f->Reset();yylval.vec3f->Delete(); yylval.vec3f = NULL;
       if (creatingDEF) 
         {
         useList += new vtkVRMLUseStruct(curDEFName, this->CurrentPoints);
