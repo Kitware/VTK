@@ -201,25 +201,6 @@ suppress umr vtkIntArray::GetTuple(const int,float*); vtkDataArray::InsertCompon
 suppress umr vtkUnsignedLongArray::GetTuple(const int,float*); vtkDataArray::InsertComponent(const int,const int,const float)
 suppress umr vtkUnsignedLongArray::GetTuple(const int,float*); vtkDataArray::InsertComponent(const int,const int,const float)
 
-suppress mlk _malloc; operator new(unsigned int); operator new(unsigned int); vtkPoints::vtkPoints(int); vtkPoints::New(int); vtkPoints::New(void); yylex(void); yyparse(void); vtkVRMLImporter::ImportBegin(void)
-suppress mlk _malloc; operator new(unsigned int); operator new(unsigned int); vtkFloatArray::vtkFloatArray(int); vtkFloatArray::New(void); vtkAttributeData::vtkAttributeData(int); vtkPoints::vtkPoints(int); vtkPoints::New(int); vtkPoints::New(void); yylex(void)
-suppress mlk _malloc; operator new(unsigned int); operator new(unsigned int); VrmlNodeType::VrmlNodeType(const char*)
-suppress mlk _malloc; _strdup; yylex(void); yyparse(void); vtkVRMLImporter::ImportBegin(void)
-suppress mlk _malloc; operator new(unsigned int); operator new(unsigned int); VrmlNodeType::add(VectorType<VrmlNodeType::NameTypeRec*>&,const char*,int); VrmlNodeType::addExposedField(const char*,int); add(void (VrmlNodeType::*)(const char*,int),const char*,const char*); addExposedField(const char*,const char*); yyparse(void)
-suppress mlk _malloc; _strdup; VrmlNodeType::add(VectorType<VrmlNodeType::NameTypeRec*>&,const char*,int); VrmlNodeType::addField(const char*,int); add(void (VrmlNodeType::*)(const char*,int),const char*,const char*); addField(const char*,const char*); yyparse(void)
-suppress mlk _malloc; operator new(unsigned int); operator new(unsigned int); VrmlNodeType::add(VectorType<VrmlNodeType::NameTypeRec*>&,const char*,int); VrmlNodeType::addField(const char*,int); add(void (VrmlNodeType::*)(const char*,int),const char*,const char*); addField(const char*,const char*); yyparse(void)
-suppress mlk _malloc; _strdup; VrmlNodeType::VrmlNodeType(const char*); beginProto(const char*); yyparse(void); vtkVRMLImporter::ImportBegin(void)
-
-suppress mlk _malloc; _strdup; VrmlNodeType::add(VectorType<VrmlNodeType::NameTypeRec*>&,const char*,int); VrmlNodeType::addEventOut(const char*,int); add(void (VrmlNodeType::*)(const char*,int),const char*,const char*); addEventOut(const char*,const char*); yyparse(void)
-suppress mlk _malloc; operator new(unsigned int); operator new(unsigned int); vtkIntArray::vtkIntArray(int); vtkIntArray::New(void); yylex(void); yyparse(void)
-suppress mlk _malloc; operator new(unsigned int); operator new(unsigned int); vtkFloatArray::ResizeAndExtend(const int); vtkFloatArray::InsertTuple(const int,const float*); yylex(void); yyparse(void); vtkVRMLImporter::ImportBegin(void)
-suppress mlk _malloc; operator new(unsigned int); operator new(unsigned int); VrmlNodeType::add(VectorType<VrmlNodeType::NameTypeRec*>&,const char*,int); VrmlNodeType::addEventOut(const char*,int); add(void (VrmlNodeType::*)(const char*,int),const char*,const char*); addEventOut(const char*,const char*); yyparse(void)
-suppress mlk _malloc; operator new(unsigned int); operator new(unsigned int); VrmlNodeType::add(VectorType<VrmlNodeType::NameTypeRec*>&,const char*,int); VrmlNodeType::addEventIn(const char*,int); add(void (VrmlNodeType::*)(const char*,int),const char*,const char*); addEventIn(const char*,const char*); yyparse(void)
-suppress mlk _malloc; operator new(unsigned int); operator new(unsigned int); vtkVRMLImporter::enterNode(const char*)
-suppress mlk _malloc; operator new(unsigned int); operator new(unsigned int); vtkVRMLImporter::exitField(void)
-suppress mlk _malloc; operator new(unsigned int); operator new(unsigned int); vtkFloatArray::ResizeAndExtend(const int); vtkFloatArray::InsertNextTuple(const float*); yylex(void)
-suppress mlk _malloc; _strdup; VrmlNodeType::add(VectorType<VrmlNodeType::NameTypeRec*>&,const char*,int); VrmlNodeType::addExposedField(const char*,int); add(void (VrmlNodeType::*)(const char*,int),const char*,const char*); addExposedField(const char*,const char*); yyparse(void)
-suppress mlk _malloc; _strdup; VrmlNodeType::add(VectorType<VrmlNodeType::NameTypeRec*>&,const char*,int); VrmlNodeType::addEventIn(const char*,int); add(void (VrmlNodeType::*)(const char*,int),const char*,const char*); addEventIn(const char*,const char*); yyparse(void)
 
 suppress umc __glce_EndList; vtkOpenGLPolyDataMapper::Render(vtkRenderer*,vtkActor*)
 suppress miu _malloc; __glXMalloc
