@@ -69,6 +69,8 @@ for {set i  1} {$i < [expr $argc - 1]} {incr i} {
    }
 }
 
+set threshold -1
+
 #catch {source $file; if {[info commands iren] == "iren"} {renWin Render}}
 source $file; if {[info commands iren] == "iren"} {renWin Render}
 
@@ -84,9 +86,13 @@ if {$validImageFound != 0} {
    # first check for some common names
    if {[info commands renWin] == "renWin"} {
       rt_w2if SetInput renWin
-      set threshold 10
+       if {$threshold == -1} {
+	   set threshold 10
+       }
    } else {
-      set threshold 5
+       if {$threshold == -1} {
+	   set threshold 5
+       }
       if {[info commands viewer] == "viewer"} {
          rt_w2if SetInput [viewer GetImageWindow]
          viewer Render
