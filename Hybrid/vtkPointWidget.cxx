@@ -31,7 +31,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPointWidget, "1.13");
+vtkCxxRevisionMacro(vtkPointWidget, "1.14");
 vtkStandardNewMacro(vtkPointWidget);
 
 vtkPointWidget::vtkPointWidget()
@@ -301,9 +301,15 @@ void vtkPointWidget::OnLeftButtonDown()
   int X = this->Interactor->GetEventPosition()[0];
   int Y = this->Interactor->GetEventPosition()[1];
 
-  // Okay, we can process this. Pick the cursor.
+  // Okay, make sure that the pick is in the current renderer
+  vtkRenderer *ren = this->Interactor->FindPokedRenderer(X,Y);
+  if ( ren != this->CurrentRenderer )
+    {
+    this->State = vtkPointWidget::Outside;
+    return;
+    }
+  
   vtkAssemblyPath *path;
-  this->Interactor->FindPokedRenderer(X,Y);
   this->CursorPicker->Pick(X,Y,0.0,this->CurrentRenderer);
   path = this->CursorPicker->GetPath();
   if ( path != NULL )
@@ -348,10 +354,16 @@ void vtkPointWidget::OnMiddleButtonDown()
   int X = this->Interactor->GetEventPosition()[0];
   int Y = this->Interactor->GetEventPosition()[1];
 
-  // Okay, we can process this. Pick 
-  // if no handles picked, then pick the bounding box.
+  // Okay, make sure that the pick is in the current renderer
+  vtkRenderer *ren = this->Interactor->FindPokedRenderer(X,Y);
+  if ( ren != this->CurrentRenderer )
+    {
+    this->State = vtkPointWidget::Outside;
+    return;
+    }
+  
+  // Okay, we can process this.
   vtkAssemblyPath *path;
-  this->Interactor->FindPokedRenderer(X,Y);
   this->CursorPicker->Pick(X,Y,0.0,this->CurrentRenderer);
   path = this->CursorPicker->GetPath();
   if ( path != NULL )
@@ -395,9 +407,16 @@ void vtkPointWidget::OnRightButtonDown()
   int X = this->Interactor->GetEventPosition()[0];
   int Y = this->Interactor->GetEventPosition()[1];
 
+  // Okay, make sure that the pick is in the current renderer
+  vtkRenderer *ren = this->Interactor->FindPokedRenderer(X,Y);
+  if ( ren != this->CurrentRenderer )
+    {
+    this->State = vtkPointWidget::Outside;
+    return;
+    }
+  
   // Okay, we can process this. Pick the cursor.
   vtkAssemblyPath *path;
-  this->Interactor->FindPokedRenderer(X,Y);
   this->CursorPicker->Pick(X,Y,0.0,this->CurrentRenderer);
   path = this->CursorPicker->GetPath();
   if ( path != NULL )
