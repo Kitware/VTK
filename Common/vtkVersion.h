@@ -35,7 +35,7 @@
 #define VTK_MINOR_VERSION 1
 #define VTK_BUILD_VERSION 1
 #define VTK_VERSION "4.1.1"
-#define VTK_SOURCE_VERSION "vtk version " VTK_VERSION ", vtk source $Revision: 1.1196 $, $Date: 2002-04-03 03:44:25 $ (GMT)"
+#define VTK_SOURCE_VERSION "vtk version " VTK_VERSION ", vtk source $Revision: 1.1197 $, $Date: 2002-04-04 03:45:02 $ (GMT)"
 
 
 class VTK_COMMON_EXPORT vtkVersion : public vtkObject
