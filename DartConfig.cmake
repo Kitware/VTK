@@ -13,4 +13,4 @@ SET (DOXYGEN_URL "http://${DROP_SITE}/" )
 SET (GNATS_WEB_URL "http://${DROP_SITE}/")
 
 # copy over the testing logo
-CONFIGURE_FILE(TestingLogo.gif ${VTK_BINARY_DIR}/Testing/HTML/TestingResults/Icons/Logo.gif COPYONLY)
+CONFIGURE_FILE(${VTK_SOURCE_DIR}/TestingLogo.gif ${VTK_BINARY_DIR}/Testing/HTML/TestingResults/Icons/Logo.gif COPYONLY)
