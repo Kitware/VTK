@@ -80,6 +80,8 @@ vtkQuadricClustering::vtkQuadricClustering()
   this->DivisionSpacing[2] = 1.0;
 
   this->UseFeatureEdges = 0;
+  this->UseFeaturePoints = 0;
+  this->FeaturePointsAngle = 30.0;
 
   this->UseInputPoints = 0;
 
@@ -94,6 +96,9 @@ vtkQuadricClustering::vtkQuadricClustering()
   this->FeatureEdges = vtkFeatureEdges::New();
   this->FeatureEdges->FeatureEdgesOff();
   this->FeatureEdges->BoundaryEdgesOn();
+  this->FeaturePoints = vtkPoints::New();
+
+  this->FeaturePD = vtkPolyData::New();
 }
 
 //----------------------------------------------------------------------------
@@ -101,6 +106,11 @@ vtkQuadricClustering::~vtkQuadricClustering()
 {
   this->FeatureEdges->Delete();
   this->FeatureEdges = NULL;
+  this->FeaturePoints->Delete();
+  this->FeaturePoints = NULL;
+  
+  this->FeaturePD->Delete();
+  this->FeaturePD = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -252,7 +262,7 @@ void vtkQuadricClustering::Append(vtkPolyData *pd)
   inputVerts = pd->GetVerts();
   if (inputVerts)
     {
-    this->AddVerticies(inputVerts, inputPoints, 1);
+    this->AddVertices(inputVerts, inputPoints, 1);
     }
 
   inputLines = pd->GetLines();
@@ -311,7 +321,7 @@ void vtkQuadricClustering::AddTriangles(vtkCellArray *tris, vtkPoints *points,
 }
 //----------------------------------------------------------------------------
 // The error function is the volume (squared) of the tetrahedron formed by the 
-// triangle and the point.  We ignore constants factors across all coefficents, 
+// triangle and the point.  We ignore constant factors across all coefficents, 
 // and the constant coefficient.
 // If geomertyFlag is 1 then the triangle is added to the output.  Otherwise,
 // only the quadric is affected.
@@ -400,9 +410,9 @@ void vtkQuadricClustering::AddEdges(vtkCellArray *edges, vtkPoints *points,
     }
 }
 //----------------------------------------------------------------------------
-// The error function is the area of the triangle formed by the edge and the 
-// point squared.  We ignore constants across all terms.
-// If geomertyFlag is 1 then the edge is added to the output.  Otherwise,
+// The error function is the square of the area of the triangle formed by the
+// edge and the point.  We ignore constants across all terms.
+// If geometryFlag is 1 then the edge is added to the output.  Otherwise,
 // only the quadric is affected.
 void vtkQuadricClustering::AddEdge(int *binIds, float *pt0, float *pt1,
                                    int geometryFlag)
@@ -501,8 +511,8 @@ void vtkQuadricClustering::AddEdge(int *binIds, float *pt0, float *pt1,
 
 
 //----------------------------------------------------------------------------
-void vtkQuadricClustering::AddVerticies(vtkCellArray *verts, vtkPoints *points,
-                                        int geometryFlag)
+void vtkQuadricClustering::AddVertices(vtkCellArray *verts, vtkPoints *points,
+                                       int geometryFlag)
 {
   int numCells, i, j, numPts, *ptIds;
   float *pt;
@@ -513,7 +523,7 @@ void vtkQuadricClustering::AddVerticies(vtkCellArray *verts, vtkPoints *points,
   for (i = 0; i < numCells; ++i)
     {
     verts->GetNextCell(numPts, ptIds);
-    // Can there be poly verticies?
+    // Can there be poly vertices?
     for (j = 0; j < numPts; ++j)
       {
       pt = points->GetPoint(ptIds[j]);
@@ -1031,6 +1041,8 @@ void vtkQuadricClustering::AppendFeatureQuadrics(vtkPolyData *pd)
   vtkPolyData *input = vtkPolyData::New();
   vtkPoints *edgePts;
   vtkCellArray *edges;
+  int i, binId;
+  float *featurePt;
 
   // Find the boundary edges.
   input->ShallowCopy(pd);
@@ -1039,15 +1051,131 @@ void vtkQuadricClustering::AppendFeatureQuadrics(vtkPolyData *pd)
   edgePts = this->FeatureEdges->GetOutput()->GetPoints();
   edges = this->FeatureEdges->GetOutput()->GetLines();
 
-  if (edges)
+  if (edges && edges->GetNumberOfCells() && edgePts)
     {
     this->AddEdges(edges, edgePts, 0);
+    if (this->UseFeaturePoints)
+      {
+      this->FindFeaturePoints(edges, edgePts, this->FeaturePointsAngle);
+      for (i = 0; i < this->FeaturePoints->GetNumberOfPoints(); i++)
+        {
+        featurePt = this->FeaturePoints->GetPoint(i);
+        binId = this->HashPoint(featurePt);
+        this->AddVertex(binId, featurePt, 0);
+        }
+      }
     }
 
   // Release data.
   this->FeatureEdges->SetInput(NULL);
   this->FeatureEdges->GetOutput()->ReleaseData();
   input->Delete();
+}
+
+// Find the feature points of a given set of edges.
+// The points returned are (1) those used by only one edge, (2) those
+// used by > 2 edges, and (3) those where the angle between 2 edges
+// using this point is < angle.
+void vtkQuadricClustering::FindFeaturePoints(vtkCellArray *edges,
+                                             vtkPoints *edgePts,
+                                             float angle)
+{
+  int i, j, pointIds[2], numCellPts, *cellPts;
+  vtkIdList *pointIdList = vtkIdList::New();
+  int numPts = edgePts->GetNumberOfPoints();
+  int numEdges = edges->GetNumberOfCells();
+  int edgeCount;
+  int **pointTable = new int *[numPts];
+  float featurePoint[3];
+  float featureEdges[2][3];
+  float point1[3], point2[3];
+  int *cellPointIds;
+  int pointId[1];
+  float radAngle = vtkMath::DegreesToRadians() * this->FeaturePointsAngle;
+  
+  this->FeaturePoints->Allocate(numPts);
+  this->FeaturePD->Allocate(numPts);
+  
+  for (i = 0; i < numPts; i++)
+    {
+    pointTable[i] = new int[4];
+    pointTable[i][1] = 0;
+    }
+  
+  edges->InitTraversal();
+  for (i = 0; i < numEdges; i++)
+    {
+    edges->GetNextCell(numCellPts, cellPts);
+    for (j = 0; j < 2; j++)
+      {
+      pointIds[j] = pointIdList->InsertUniqueId(cellPts[j]);
+      pointTable[pointIds[j]][0] = cellPts[j];
+      edgeCount = pointTable[pointIds[j]][1];
+      if (edgeCount < 2)
+        {
+        pointTable[pointIds[j]][edgeCount+2] = i;
+        }
+      pointTable[pointIds[j]][1]++;
+      }
+    }
+  
+  for (i = 0; i < numPts; i++)
+    {
+    if (pointTable[i][1] == 1)
+      {
+      edgePts->GetPoint(pointTable[i][0], featurePoint);
+      pointId[0] = this->FeaturePoints->InsertNextPoint(featurePoint);
+      this->FeaturePD->InsertNextCell(VTK_VERTEX, 1, pointId);
+      vtkDebugMacro("inserting end point");
+      }
+    else if (pointTable[i][1] > 2)
+      {
+      edgePts->GetPoint(pointTable[i][0], featurePoint);
+      pointId[0] = this->FeaturePoints->InsertNextPoint(featurePoint);
+      this->FeaturePD->InsertNextCell(VTK_VERTEX, 1, pointId);
+      vtkDebugMacro("inserting point with multiple edges");
+      }
+    else if (pointTable[i][1] == 2)
+      {
+      for (j = 0; j < 2; j++)
+        {
+        edges->GetCell(3*pointTable[i][j+2], numCellPts, cellPointIds);
+        if (cellPointIds[0] == pointTable[i][0])
+          {
+          edgePts->GetPoint(cellPointIds[0], point1);
+          edgePts->GetPoint(cellPointIds[1], point2);
+          }
+        else
+          {
+          edgePts->GetPoint(cellPointIds[1], point1);
+          edgePts->GetPoint(cellPointIds[0], point2);
+          }
+        featureEdges[j][0] = point2[0] - point1[0];
+        featureEdges[j][1] = point2[1] - point1[1];
+        featureEdges[j][2] = point2[2] - point1[2];
+        vtkMath::Normalize(featureEdges[j]);
+        }
+      if (acos(vtkMath::Dot(featureEdges[0], featureEdges[1])) < radAngle)
+        {
+        edgePts->GetPoint(pointTable[i][0], featurePoint);
+        pointId[0] = this->FeaturePoints->InsertNextPoint(featurePoint);
+        this->FeaturePD->InsertNextCell(VTK_VERTEX, 1, pointId);
+        vtkDebugMacro("inserting feature point");
+        }
+      }
+    }
+
+  this->FeaturePD->SetPoints(this->FeaturePoints);
+  
+  pointIdList->Delete();
+  pointIdList = NULL;
+  for (i = 0; i < numPts; i++)
+    {
+    delete [] pointTable[i];
+    pointTable[i] = NULL;
+    }
+  delete [] pointTable;
+  pointTable = NULL;
 }
 
 //----------------------------------------------------------------------------

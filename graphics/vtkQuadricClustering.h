@@ -96,7 +96,7 @@ class vtkFeatureEdges;
 
 typedef struct {
   int VertexId;
-  // Dimension is suposed to be a flag representing the dimension of the cells
+  // Dimension is supposed to be a flag representing the dimension of the cells
   // contributing to the quadric. Lines: 1, Triangles: 2 (and points 0 in the future?)
   unsigned char Dimension;
   float Quadric[9];
@@ -111,14 +111,30 @@ public:
 
   // Description:
   // By default, this flag is off.  When "UseFeatureEdges" is on, then quadrics
-  // are computed for boundary edges/feature edges.  The influence the quadrics
+  // are computed for boundary edges/feature edges.  They influence the quadrics
   // (position of points), but not the mesh.  Which features to use can be controlled 
-  // buy the filter "FeatureEdges".  
+  // by the filter "FeatureEdges".  
   vtkSetMacro(UseFeatureEdges, int);
   vtkGetMacro(UseFeatureEdges, int);
   vtkBooleanMacro(UseFeatureEdges, int);
   vtkFeatureEdges *GetFeatureEdges() {return this->FeatureEdges;}
 
+  // Description:
+  // By default, this flag is off.  It only has an effect when
+  // "UseFeatureEdges" is also on.  When "UseFeaturePoints" is on, then
+  // quadrics are computed for boundary / feature points used in the boundary /
+  // feature edges.  They influence the quadrics (position of points), but not
+  // the mesh.
+  vtkSetMacro(UseFeaturePoints, int);
+  vtkGetMacro(UseFeaturePoints, int);
+  vtkBooleanMacro(UseFeaturePoints, int);
+
+  // Description:
+  // Set/Get the angle to use in determining whether a point on a boundary /
+  // feature edge is a feature point.
+  vtkSetClampMacro(FeaturePointsAngle, float, 0.0, 180.0);
+  vtkGetMacro(FeaturePointsAngle, float);
+  
   // Description:
   // Set/Get the number of divisions along each axis for the spatial bins.
   // The number of spatial bins is NumberOfXDivisions*NumberOfYDivisions*
@@ -165,7 +181,9 @@ public:
      this->StartAppend(b);}  
   void Append(vtkPolyData *piece);
   void EndAppend();
-    
+
+  vtkGetObjectMacro(FeaturePD, vtkPolyData);
+  
 protected:
   vtkQuadricClustering();
   ~vtkQuadricClustering();
@@ -199,10 +217,10 @@ protected:
   void AddEdge(int *binIds, float *pt0, float *pt1, int geometeryFlag);
 
   // Description:
-  // Add verticies to the quadric array.  If geometry flag is on then
-  // verticies are added to the output.
-  void AddVerticies(vtkCellArray *verts, vtkPoints *points,
-                int geometryFlag);
+  // Add vertices to the quadric array.  If geometry flag is on then
+  // vertices are added to the output.
+  void AddVertices(vtkCellArray *verts, vtkPoints *points,
+                   int geometryFlag);
   void AddVertex(int binId, float *pt, int geometeryFlag);
 
   // Description:
@@ -214,6 +232,13 @@ protected:
   void AddQuadric(int binId, float quadric[9]);
 
   // Description:
+  // Find the feature points of a given set of edges.
+  // The points returned are (1) those used by only one edge, (2) those
+  // used by > 2 edges, and (3) those where the angle between 2 edges
+  // using this point is < angle.
+  void FindFeaturePoints(vtkCellArray *edges, vtkPoints *edgePts, float angle);
+  
+  // Description:
   // This method will rep[lace the quadric  generated points with the
   // input points with the lowest error.
   void EndAppendUsingPoints(vtkPolyData *input);
@@ -222,6 +247,7 @@ protected:
   // Unfinished option to handle boundary edges differently.
   void AppendFeatureQuadrics(vtkPolyData *pd);
   int UseFeatureEdges;
+  int UseFeaturePoints;
 
   int NumberOfXDivisions;
   int NumberOfYDivisions;
@@ -249,6 +275,11 @@ protected:
   vtkCellArray *OutputVerts;
 
   vtkFeatureEdges *FeatureEdges;
+  vtkPoints *FeaturePoints;
+  float FeaturePointsAngle;
+
+  // for debugging the feature points
+  vtkPolyData *FeaturePD;
 };
 
 #endif
