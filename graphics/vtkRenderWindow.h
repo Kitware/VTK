@@ -351,15 +351,15 @@ public:
   
   // Description:
   // Dummy stubs for vtkWindow API.
-  virtual void SetDisplayId(void *) {};
-  virtual void SetWindowId(void *)  {};
-  virtual void SetParentId(void *)  {};
-  virtual void *GetGenericDisplayId() {return NULL;};
-  virtual void *GetGenericWindowId() {return NULL;};
-  virtual void *GetGenericParentId() {return NULL;};
-  virtual void *GetGenericContext() {return NULL;};
-  virtual void *GetGenericDrawable() {return NULL;};
-  virtual void SetWindowInfo(char *) {};
+  virtual void SetDisplayId(void *) {}
+  virtual void SetWindowId(void *)  {}
+  virtual void SetParentId(void *)  {}
+  virtual void *GetGenericDisplayId() {return NULL;}
+  virtual void *GetGenericWindowId() {return NULL;}
+  virtual void *GetGenericParentId() {return NULL;}
+  virtual void *GetGenericContext() {return NULL;}
+  virtual void *GetGenericDrawable() {return NULL;}
+  virtual void SetWindowInfo(char *) {}
 
   // Description:
   // Make this the current window. 
@@ -368,7 +368,7 @@ public:
   // Description:
   // This method should be defined by the subclass. How many bits of
   // precision are there in the zbuffer?
-  virtual int GetDepthBufferSize() {return -1;};
+  virtual int GetDepthBufferSize() {return -1;}
 
 protected:
   vtkRenderWindow();
