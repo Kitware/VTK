@@ -90,9 +90,17 @@ int vtkTkImageViewerWidget_Configure(Tcl_Interp *interp,
                                      int argc, char *argv[], int flags) 
 {
   // Let Tk handle generic configure options.
-  if (Tk_ConfigureWidget(interp, self->TkWin, 
+  if (Tk_ConfigureWidget(interp, 
+                         self->TkWin, 
                          vtkTkImageViewerWidgetConfigSpecs,
-                         argc, argv, (char *)self, flags) == TCL_ERROR) 
+                         argc, 
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
+                         const_cast<const char **>(argv), 
+#else
+                         argv, 
+#endif
+                         (char *)self, 
+                         flags) == TCL_ERROR) 
     {
     return(TCL_ERROR);
     }
@@ -115,8 +123,13 @@ int vtkTkImageViewerWidget_Configure(Tcl_Interp *interp,
 // to choose the appropriate method to invoke.
 extern "C"
 {
-  int vtkTkImageViewerWidget_Widget(ClientData clientData, Tcl_Interp *interp,
-                                    int argc, char *argv[]) 
+  int vtkTkImageViewerWidget_Widget(ClientData clientData, 
+                                    Tcl_Interp *interp,
+                                    int argc, 
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
+                                    const
+#endif
+                                    char *argv[]) 
   {
     struct vtkTkImageViewerWidget *self = 
       (struct vtkTkImageViewerWidget *)clientData;
@@ -165,8 +178,15 @@ extern "C"
       else 
         {
         /* Execute a configuration change */
-        result = vtkTkImageViewerWidget_Configure(interp, self, argc-2, 
-                                                  argv+2, TK_CONFIG_ARGV_ONLY);
+        result = vtkTkImageViewerWidget_Configure(interp, 
+                                                  self, 
+                                                  argc-2, 
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
+                                                  const_cast<char **>(argv+2), 
+#else
+                                                  argv+2, 
+#endif
+                                                  TK_CONFIG_ARGV_ONLY);
         }
       }
     else if (!strcmp(argv[1], "GetImageViewer"))
@@ -206,8 +226,15 @@ extern "C"
 {
   int vtkTkImageViewerWidget_Cmd(ClientData clientData, 
                                  Tcl_Interp *interp, 
-                                 int argc, char **argv)
+                                 int argc, 
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
+                                 const
+#endif
+                                 char **argv)
   {
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
+    const
+#endif
     char *name;
     Tk_Window main = (Tk_Window)clientData;
     Tk_Window tkwin;
@@ -254,7 +281,15 @@ extern "C"
                           vtkTkImageViewerWidget_EventProc, (ClientData)self);
     
     // Configure vtkTkImageViewerWidget widget
-    if (vtkTkImageViewerWidget_Configure(interp, self, argc-2, argv+2, 0) 
+    if (vtkTkImageViewerWidget_Configure(interp, 
+                                         self, 
+                                         argc-2, 
+#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4)
+                                         const_cast<char **>(argv+2), 
+#else
+                                         argv+2, 
+#endif
+                                         0) 
         == TCL_ERROR) 
       {
       Tk_DestroyWindow(tkwin);
