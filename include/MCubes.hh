@@ -13,7 +13,7 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlMarchingCubes - generate iso-surfaces/iso-lines from scalar values
+// .NAME vlMarchingCubes - generate iso-surface(s) from volume
 // .SECTION Description
 // vlMarchingCubes is a filter that takes as input a volume (e.g., 3D
 // structured point set) and generates on output one or more iso-surfaces.
@@ -24,6 +24,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // The output primitives are disjoint - that is, points may
 // be generated that are coincident but distinct. You may want to use
 // vlCleanPolyData to remove the coincident points. 
+// .SECTION See Also
+// This filter is specialized to volumes. If you are interested in 
+// contouring other types of data, use the general vlContourFilter.
 
 #ifndef __vlMarchingCubes_h
 #define __vlMarchingCubes_h
