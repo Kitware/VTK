@@ -76,8 +76,8 @@ gets because all three names are available.
 Here is how all three names can be provided in a VTK header regardless
 of whether windows.h has been included before it:
 
+// See vtkWin32Header.h for definition of VTK_WORKAROUND_WINDOWS_MANGLE.
 #ifdef VTK_WORKAROUND_WINDOWS_MANGLE
-  // Avoid windows name mangling.
 # define GetClassNameA GetClassName
 # define GetClassNameW GetClassName
 #endif
@@ -86,21 +86,22 @@ of whether windows.h has been included before it:
 # undef GetClassNameW
 # undef GetClassNameA
   //BTX
-  // Define possible mangled names.
   const char* GetClassNameA() const;
   const char* GetClassNameW() const;
   //ETX
 #endif
 
+The method GetClassName has three cases.  If windows.h is not included
+then it is not mangled and the name is provided.  If windows.h is
+included and UNICODE is not defined then GetClassName gets mangled to
+GetClassNameA, but then gets replaced by GetClassName again.  The
+preprocessor will not recursively expand a macro, so replacement stops
+there and the GetClassName method is declared.  When UNICODE is
+defined the same process occurs but through GetClassNameW instead.
 The methods GetClassNameA and GetClassNameW are not mangled so they
-can be provided directly.  The method GetClassName has three cases.
-If windows.h is not included then it is not mangled and the name is
-provided.  If windows.h is included and UNICODE is not defined then
-GetClassName gets mangled to GetClassNameA, but then gets replaced by
-GetClassName again.  The preprocessor will not recursively expand a
-macro, so replacement stops there and the GetClassName method is
-declared.  When UNICODE is defined the same process occurs but through
-GetClassNameW instead.
+can be provided directly.  They are surrounded by a BTX/ETX pair
+because they should not be wrapped since scripting language code will
+not be mangled by windows.h.
 
 Now that all three names are provided we can address the fact that
 GetClassName is supposed to be a virtual function.  When a subclass

@@ -65,6 +65,7 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
    typedef vtkWindowsDWORD (__stdcall *vtkWindowsLPTHREAD_START_ROUTINE)(vtkWindowsLPVOID);
 # endif
   // Enable workaround for windows header name mangling.
+  // See VTK/Utilities/Upgrading/README.WindowsMangling.txt for details.
 # define VTK_WORKAROUND_WINDOWS_MANGLE
 #endif
 
