@@ -239,10 +239,10 @@ void vtkByteSwap::Swap2BE(short *) {}
 #else
 void vtkByteSwap::Swap2BE(short *mem_ptr)
 {
-  unsigned h1,h2;
+  unsigned short h1,h2;
 
-  h1 = *mem_ptr << 8;
-  h2 = *mem_ptr >> 8;
+  h1 = (unsigned short)*mem_ptr << 8;
+  h2 = (unsigned short)*mem_ptr >> 8;
   *mem_ptr = (short) h1 | h2;
 
 }
