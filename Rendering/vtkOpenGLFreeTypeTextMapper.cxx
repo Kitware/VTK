@@ -17,7 +17,6 @@
 =========================================================================*/
 #include "vtkOpenGLFreeTypeTextMapper.h"
 #include "vtkObjectFactory.h"
-#include <GL/gl.h>
 #include "vtkgluPickMatrix.h"
 #include "vtkProperty2D.h"
 #include "vtkTextProperty.h"
@@ -121,7 +120,7 @@ static vtkEmbeddedFontStruct embedded_fonts[3][2][2] =
   }
 };
 
-vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.1");
+vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.2");
 vtkStandardNewMacro(vtkOpenGLFreeTypeTextMapper);
 
 //----------------------------------------------------------------------------
@@ -514,8 +513,8 @@ void vtkOpenGLFreeTypeTextMapper::GetSize(vtkViewport* viewport, int *size)
 
   font->BBox(this->Input, llx, lly, llz, urx, ury, urz);
 
-  this->LastSize[0] = size[0] = urx - llx;
-  this->LastSize[1] = size[1] = ury - lly;
+  this->LastSize[0] = size[0] = (int)(urx - llx);
+  this->LastSize[1] = size[1] = (int)(ury - lly);
 
   this->SizeBuildTime.Modified();
 }
@@ -789,9 +788,6 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
   font->render(this->Input);  
 
   glFlush();
-#ifndef _WIN32_WCE
-  GdiFlush();
-#endif  
 
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();
