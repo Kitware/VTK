@@ -417,18 +417,18 @@ void vtkImageCache::GetCenter(float center[3])
     {
     center[idx] = this->Origin[idx] + 
       this->Spacing[idx] * (this->WholeExtent[idx*2+1] 
-			    - this->WholeExtent[idx*2] + 1)/2.0;
+			    + this->WholeExtent[idx*2] + 1)/2.0;
     }
 }
 //----------------------------------------------------------------------------
 void vtkImageCache::GetCenter(float &x, float &y, float &z)
 {
   x = this->Origin[0] + 
-    this->Spacing[0] * (this->WholeExtent[1] - this->WholeExtent[0] + 1)/2.0;
+    this->Spacing[0] * (this->WholeExtent[1] + this->WholeExtent[0] + 1)/2.0;
   y = this->Origin[1] + 
-    this->Spacing[1] * (this->WholeExtent[3] - this->WholeExtent[2] + 1)/2.0;
+    this->Spacing[1] * (this->WholeExtent[3] + this->WholeExtent[2] + 1)/2.0;
   z = this->Origin[2] + 
-    this->Spacing[2] * (this->WholeExtent[5] - this->WholeExtent[4] + 1)/2.0;
+    this->Spacing[2] * (this->WholeExtent[5] + this->WholeExtent[4] + 1)/2.0;
 }
 
 //----------------------------------------------------------------------------
