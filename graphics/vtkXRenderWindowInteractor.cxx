@@ -169,6 +169,13 @@ void BreakXtLoop(void *iren)
 // application is exited.
 void vtkXRenderWindowInteractor::Start()
 {
+  // Let the compositing handle the event loop if it wants to.
+  if (this->HasObserver(vtkCommand::StartEvent))
+    {
+    this->InvokeEvent(vtkCommand::StartEvent,NULL);
+    return;
+    }
+
   if (!this->Initialized)
     {
     this->Initialize();

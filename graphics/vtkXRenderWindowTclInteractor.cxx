@@ -175,6 +175,13 @@ void vtkXRenderWindowTclInteractor::SetTopLevelShell(Widget topLevel)
 
 void  vtkXRenderWindowTclInteractor::Start()
 {
+  // Let the compositing handle the event loop if it wants to.
+  if (this->HasObserver(vtkCommand::StartEvent))
+    {
+    this->InvokeEvent(vtkCommand::StartEvent,NULL);
+    return;
+    }
+
   Tk_MainLoop();
 }
 

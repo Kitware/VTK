@@ -727,6 +727,10 @@ void vtkRenderer::ResetCamera()
     }
 
   this->ResetCamera(allBounds);
+
+  // Here to let parallel/distributed compositing intercept 
+  // and do the right thing.
+  this->InvokeEvent(vtkCommand::ResetCameraEvent,this);
 }
 
 // Automatically set the clipping range of the camera based on the
@@ -744,6 +748,10 @@ void vtkRenderer::ResetCameraClippingRange()
     }
 
   this->ResetCameraClippingRange(allBounds);
+
+  // Here to let parallel/distributed compositing intercept 
+  // and do the right thing.
+  this->InvokeEvent(vtkCommand::ResetCameraClippingRangeEvent,this);
 }
 
 
