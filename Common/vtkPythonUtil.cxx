@@ -65,6 +65,13 @@ vtkPythonUtil::~vtkPythonUtil()
 }
 
 //--------------------------------------------------------------------
+void vtkPythonHashDelete()
+{
+  delete vtkPythonHash;
+  vtkPythonHash = 0;
+}
+
+//--------------------------------------------------------------------
 static PyObject *PyVTKObject_PyString(PyVTKObject *self)
 {
   PyObject *func = PyObject_GetAttrString((PyObject *)self, "__str__");
@@ -1179,6 +1186,7 @@ void vtkPythonAddClassToHash(PyObject *vtkclass, const char *classname)
   if (vtkPythonHash == NULL)
     {
     vtkPythonHash = new vtkPythonUtil();
+    Py_AtExit(vtkPythonHashDelete);
     }
 
 #ifdef VTKPYTHONDEBUG
@@ -1208,6 +1216,7 @@ void vtkPythonAddObjectToHash(PyObject *obj, vtkObjectBase *ptr)
   if (vtkPythonHash == NULL)
     {
     vtkPythonHash = new vtkPythonUtil();
+    Py_AtExit(vtkPythonHashDelete);
     }
 
 #ifdef VTKPYTHONDEBUG
