@@ -252,7 +252,7 @@ proc check_printself { filename } {
       incr line_count
 
       # Search for the PrintSelf string
-      if { $search_state == 0 && [string match "*PrintSelf*(*)*" $data] == 1 } {
+      if { $search_state == 0 && [string match "*PrintSelf*(*" $data] == 1 } {
 
         set search_state 1
 
