@@ -2426,7 +2426,7 @@ static void vtkOptimizedPermuteExecuteCubic(vtkImageReslice *self,
 // Check to see if we can do nearest-neighbor instead of linear or cubic.  
 // This check only works on permutation+scale+translation matrices.
 
-static int vtkCanUseNearestNeighbor(vtkMatrix4x4 *matrix, int outExt[6])
+static inline int vtkCanUseNearestNeighbor(vtkMatrix4x4 *matrix, int outExt[6])
 {
   int i,j;
   double x,y;
