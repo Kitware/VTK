@@ -161,6 +161,8 @@ protected:
   ~vtkCutter();
 
   void Execute();
+  void UnstructuredGridCutter();
+  void DataSetCutter();
   vtkImplicitFunction *CutFunction;
   
   vtkPointLocator *Locator;
