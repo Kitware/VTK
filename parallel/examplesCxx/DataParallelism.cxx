@@ -185,16 +185,13 @@ void saveData(vtkRenderWindow* renWin,
   vtkFloatArray *zArray = vtkFloatArray::New();
   zArray->Allocate(numPixels);
   zArray->SetNumberOfTuples(numPixels);
+  zArray->SetName("ZBuffer");
   float* zPtr = zArray->WritePointer(0, numPixels);
   memcpy(zPtr,zdata,numPixels*sizeof(float));
       
   // z buffer goes into field data
-  vtkFieldData *zField = vtkFieldData::New();
-  zField->SetArray(0, zArray);
-  zField->SetArrayName(0, "ZBuffer");
+  pts->GetPointData()->AddArray(zArray);
   zArray->Delete();
-  pts->GetPointData()->SetFieldData(zField);
-  zField->Delete();
       
   // write it out using a structured points writer
   vtkStructuredPointsWriter* writer = vtkStructuredPointsWriter::New();
