@@ -121,7 +121,8 @@ public:
   // Description:
   // Get the inverse of this transform.  If you modify this transform,
   // the returned inverse transform will automatically update.
-  virtual vtkGeneralTransform *GetInverse();
+  vtkGeneralTransform *GetInverse() { 
+    return this->VirtualGetInverse(); };
 
   // Description:
   // Make another transform of the same type.
@@ -161,6 +162,11 @@ protected:
                           { this->MyInverse->Delete(); } }; 
   vtkGeneralTransform(const vtkGeneralTransform&) {};
   void operator=(const vtkGeneralTransform&) {};
+
+  // VirtualGetInverse() returns the InverseTransform as a
+  // vtkGeneralTransform, as opposed to GetInverse() which
+  // typecasts the InverseTransform to the correct type.
+  virtual vtkGeneralTransform *VirtualGetInverse();
 
   int TransformType;
   vtkGeneralTransform *MyInverse;

@@ -216,9 +216,7 @@ void vtkIdentityTransform::TransformVectors(vtkVectors *inNms,
 }
 
 //----------------------------------------------------------------------------
-// The vtkIdentityTransformInverse is a special-purpose class.
-// See vtkIdentityTransformInverse.h for more details.
-vtkGeneralTransform *vtkIdentityTransform::GetInverse()
+vtkGeneralTransform *vtkIdentityTransform::VirtualGetInverse()
 {
   return this;
 }

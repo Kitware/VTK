@@ -53,13 +53,10 @@ void vtkPerspectiveTransform::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------
-void vtkPerspectiveTransform::TransformPoint(const float in[3], 
-					     float out[3])
+template <class T>
+static inline void vtkPerspectiveTransformPoint(const T in[3], T out[3], 
+					   double M[4][4])
 {
-  this->Update();
-
-  double (*M)[4] = this->Matrix->Element;
-
   float x = M[0][0]*in[0] + M[0][1]*in[1] + M[0][2]*in[2] + M[0][3];
   float y = M[1][0]*in[0] + M[1][1]*in[1] + M[1][2]*in[2] + M[1][3];
   float z = M[2][0]*in[0] + M[2][1]*in[1] + M[2][2]*in[2] + M[2][3];
@@ -69,6 +66,15 @@ void vtkPerspectiveTransform::TransformPoint(const float in[3],
   out[0] = x*f; 
   out[1] = y*f; 
   out[2] = z*f; 
+}
+
+//------------------------------------------------------------------------
+void vtkPerspectiveTransform::TransformPoint(const float in[3], 
+					     float out[3])
+{
+  this->Update();
+
+  vtkPerspectiveTransformPoint(in,out,this->Matrix->Element);
 }
 
 //------------------------------------------------------------------------
@@ -78,34 +84,14 @@ void vtkPerspectiveTransform::TransformPoint(const double in[3],
 {
   this->Update();
 
-  double (*M)[4] = this->Matrix->Element;
-
-  double x = M[0][0]*in[0] + M[0][1]*in[1] + M[0][2]*in[2] + M[0][3];
-  double y = M[1][0]*in[0] + M[1][1]*in[1] + M[1][2]*in[2] + M[1][3];
-  double z = M[2][0]*in[0] + M[2][1]*in[1] + M[2][2]*in[2] + M[2][3];
-  double w = M[3][0]*in[0] + M[3][1]*in[1] + M[3][2]*in[2] + M[3][3];
-
-  double f = 1.0/w;
-  out[0] = x*f; 
-  out[1] = y*f; 
-  out[2] = z*f; 
+  vtkPerspectiveTransformPoint(in,out,this->Matrix->Element);
 }
 
 //------------------------------------------------------------------------
 void vtkPerspectiveTransform::InternalTransformPoint(const float in[3], 
 						     float out[3])
 {
-  double (*M)[4] = this->Matrix->Element;
-
-  float x = M[0][0]*in[0] + M[0][1]*in[1] + M[0][2]*in[2] + M[0][3];
-  float y = M[1][0]*in[0] + M[1][1]*in[1] + M[1][2]*in[2] + M[1][3];
-  float z = M[2][0]*in[0] + M[2][1]*in[1] + M[2][2]*in[2] + M[2][3];
-  float w = M[3][0]*in[0] + M[3][1]*in[1] + M[3][2]*in[2] + M[3][3];
-
-  double f = 1.0/w;
-  out[0] = x*f; 
-  out[1] = y*f; 
-  out[2] = z*f; 
+  vtkPerspectiveTransformPoint(in,out,this->Matrix->Element);
 }
 
 //----------------------------------------------------------------------------
@@ -114,16 +100,16 @@ void vtkPerspectiveTransform::InternalTransformDerivative(const float in[3],
 						    float derivative[3][3])
 {
   double (*M)[4] = this->Matrix->Element;
-
+  
   float x = M[0][0]*in[0] + M[0][1]*in[1] + M[0][2]*in[2] + M[0][3];
   float y = M[1][0]*in[0] + M[1][1]*in[1] + M[1][2]*in[2] + M[1][3];
   float z = M[2][0]*in[0] + M[2][1]*in[1] + M[2][2]*in[2] + M[2][3];
   float w = M[3][0]*in[0] + M[3][1]*in[1] + M[3][2]*in[2] + M[3][3];
 
   double f = 1.0/w;
-  out[0] = x*f;
-  out[1] = y*f;
-  out[2] = z*f;
+  out[0] = x*f; 
+  out[1] = y*f; 
+  out[2] = z*f; 
 
   for (int i = 0; i < 3; i++)
     { 
@@ -139,27 +125,17 @@ void vtkPerspectiveTransform::TransformPoints(vtkPoints *inPts,
 {
   int n = inPts->GetNumberOfPoints();
   double (*M)[4] = this->Matrix->Element;
-  float inPnt[3],out[3];  
-  float w;
-  double f;
+  float point[3];  
 
   this->Update();
 
   for (int i = 0; i < n; i++)
     {
-    inPts->GetPoint(i,inPnt);
+    inPts->GetPoint(i,point);
 
-    out[0] = M[0][0]*inPnt[0] + M[0][1]*inPnt[1] + M[0][2]*inPnt[2] + M[0][3];
-    out[1] = M[1][0]*inPnt[0] + M[1][1]*inPnt[1] + M[1][2]*inPnt[2] + M[1][3];
-    out[2] = M[2][0]*inPnt[0] + M[2][1]*inPnt[1] + M[2][2]*inPnt[2] + M[2][3];
-    w =      M[3][0]*inPnt[0] + M[3][1]*inPnt[1] + M[3][2]*inPnt[2] + M[3][3];
+    vtkPerspectiveTransformPoint(point,point,M);
 
-    f = 1.0/w;
-    out[0] *= f;
-    out[0] *= f;
-    out[0] *= f;
-
-    outPts->InsertNextPoint(out);
+    outPts->InsertNextPoint(point);
     }
 }
 
@@ -180,7 +156,7 @@ void vtkPerspectiveTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
   int n = inNms->GetNumberOfNormals();
   double (*M)[4] = this->Matrix->Element;
   double L[4][4];
-  float inPnt[3],outPnt[3],inNrm[3],inVec[3],out[3];
+  float inPnt[3],outPnt[3],inNrm[3],outNrm[3],inVec[3],outVec[3];
   float w;
   double f;
   
@@ -197,36 +173,26 @@ void vtkPerspectiveTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
     {
     inPts->GetPoint(i,inPnt);
 
-    // do the linear homogenous transformation
-    out[0] = M[0][0]*inPnt[0] + M[0][1]*inPnt[1] + M[0][2]*inPnt[2] + M[0][3];
-    out[1] = M[1][0]*inPnt[0] + M[1][1]*inPnt[1] + M[1][2]*inPnt[2] + M[1][3];
-    out[2] = M[2][0]*inPnt[0] + M[2][1]*inPnt[1] + M[2][2]*inPnt[2] + M[2][3];
-    w =      M[3][0]*inPnt[0] + M[3][1]*inPnt[1] + M[3][2]*inPnt[2] + M[3][3];
+    vtkPerspectiveTransformPoint(inPnt,outPnt,M);
 
-    // apply perspective correction
-    f = 1.0/w;
-    outPnt[0] = out[0]*f;
-    outPnt[1] = out[1]*f;
-    outPnt[2] = out[2]*f;
-
-    outPts->InsertNextPoint(out);
+    outPts->InsertNextPoint(outPnt);
 
     if (inVrs)
       { 
       inVrs->GetVector(i,inVec);
 
       // do the linear homogenous transformation
-      out[0] = M[0][0]*inVec[0] + M[0][1]*inVec[1] + M[0][2]*inVec[2];
-      out[1] = M[1][0]*inVec[0] + M[1][1]*inVec[1] + M[1][2]*inVec[2];
-      out[2] = M[2][0]*inVec[0] + M[2][1]*inVec[1] + M[2][2]*inVec[2];
-      w =      M[3][0]*inVec[0] + M[3][1]*inVec[1] + M[3][2]*inVec[2];
+      outVec[0] = M[0][0]*inVec[0] + M[0][1]*inVec[1] + M[0][2]*inVec[2];
+      outVec[1] = M[1][0]*inVec[0] + M[1][1]*inVec[1] + M[1][2]*inVec[2];
+      outVec[2] = M[2][0]*inVec[0] + M[2][1]*inVec[1] + M[2][2]*inVec[2];
+      w =         M[3][0]*inVec[0] + M[3][1]*inVec[1] + M[3][2]*inVec[2];
 
       // apply perspective correction
-      out[0] = (out[0]-w*outPnt[0])*f;
-      out[1] = (out[1]-w*outPnt[1])*f;
-      out[2] = (out[2]-w*outPnt[2])*f;
+      outVec[0] = (outVec[0]-w*outPnt[0])*f;
+      outVec[1] = (outVec[1]-w*outPnt[1])*f;
+      outVec[2] = (outVec[2]-w*outPnt[2])*f;
 
-      outVrs->InsertNextVector(out);
+      outVrs->InsertNextVector(outVec);
       }
 
     if (inNms)
@@ -237,13 +203,13 @@ void vtkPerspectiveTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
       w = -(inNrm[0]*inPnt[0] + inNrm[1]*inPnt[1] + inNrm[2]*inPnt[2]);
 
       // perform the transformation in homogenous coordinates
-      out[0] = L[0][0]*inNrm[0]+L[0][1]*inNrm[1]+L[0][2]*inNrm[2]+L[0][3]*w;
-      out[1] = L[1][0]*inNrm[0]+L[1][1]*inNrm[1]+L[1][2]*inNrm[2]+L[1][3]*w;
-      out[2] = L[2][0]*inNrm[0]+L[2][1]*inNrm[1]+L[2][2]*inNrm[2]+L[2][3]*w;
+      outNrm[0] = L[0][0]*inNrm[0]+L[0][1]*inNrm[1]+L[0][2]*inNrm[2]+L[0][3]*w;
+      outNrm[1] = L[1][0]*inNrm[0]+L[1][1]*inNrm[1]+L[1][2]*inNrm[2]+L[1][3]*w;
+      outNrm[2] = L[2][0]*inNrm[0]+L[2][1]*inNrm[1]+L[2][2]*inNrm[2]+L[2][3]*w;
 
       // re-normalize
-      vtkMath::Normalize(out);
-      outNms->InsertNextNormal(out);
+      vtkMath::Normalize(outNrm);
+      outNms->InsertNextNormal(outNrm);
       }
     }
 }
@@ -251,7 +217,7 @@ void vtkPerspectiveTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
 //----------------------------------------------------------------------------
 // The vtkPerspectiveTransformInverse is a special-purpose class.
 // See vtkPerspectiveTransformInverse.h for more details.
-vtkGeneralTransform *vtkPerspectiveTransform::GetInverse()
+vtkGeneralTransform *vtkPerspectiveTransform::VirtualGetInverse()
 {
   if (this->MyInverse == NULL)
     {
@@ -271,6 +237,5 @@ void vtkPerspectiveTransform::GetMatrix(vtkMatrix4x4 *m)
   this->Update(); 
   m->DeepCopy(this->Matrix); 
 }
- 
 
 

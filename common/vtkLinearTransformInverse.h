@@ -61,7 +61,6 @@ public:
   // Description:
   // Set the transform that you want this to be an inverse of.
   virtual void SetInverse(vtkLinearTransform *transform);
-  vtkGeneralTransform *GetInverse();
  
   // Description:
   // Get the cached copy of the forward transform (i.e. the inverse
@@ -100,6 +99,8 @@ protected:
   ~vtkLinearTransformInverse();
   vtkLinearTransformInverse(const vtkLinearTransformInverse&) {};
   void operator=(const vtkLinearTransformInverse&) {};
+
+  vtkGeneralTransform *VirtualGetInverse();
 
   int UpdateRequired;
   vtkLinearTransform *Transform;

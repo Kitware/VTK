@@ -110,7 +110,7 @@ void vtkLinearTransformInverse::SetInverse(vtkLinearTransform *trans)
 }
 
 //----------------------------------------------------------------------------
-vtkGeneralTransform *vtkLinearTransformInverse::GetInverse()
+vtkGeneralTransform *vtkLinearTransformInverse::VirtualGetInverse()
 {
   return (vtkLinearTransform *)this->MyInverse;
 }
