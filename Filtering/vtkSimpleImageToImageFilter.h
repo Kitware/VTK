@@ -15,7 +15,7 @@
 // .NAME vtkSimpleImageToImageFilter - Generic image filter with one input.
 // .SECTION Description
 // vtkSimpleImageToImageFilter is a filter which aims to avoid much
-// of the complexity associated with vtkImageToImageFilter (i.e.
+// of the complexity associated with vtkImageAlgorithm (i.e.
 // support for pieces, multi-threaded operation). If you need to write
 // a simple image-image filter which operates on the whole input, use
 // this as the superclass. The subclass has to provide only an execute
@@ -32,38 +32,36 @@
 // types, see  vtkSimpleFilterExample.
 
 // .SECTION See also
-// vtkImageToImageFilter vtkSimpleImageFilterExample
+// vtkImageAlgorithm vtkSimpleImageFilterExample
 
 #ifndef __vtkSimpleImageToImageFilter_h
 #define __vtkSimpleImageToImageFilter_h
 
-#include "vtkImageSource.h"
+#include "vtkImageAlgorithm.h"
 
-class VTK_FILTERING_EXPORT vtkSimpleImageToImageFilter : public vtkImageSource
+class VTK_FILTERING_EXPORT vtkSimpleImageToImageFilter : public vtkImageAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkSimpleImageToImageFilter,vtkImageSource);
+  vtkTypeRevisionMacro(vtkSimpleImageToImageFilter,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set the Input of a filter. 
-  virtual void SetInput(vtkImageData *input);
-  vtkImageData *GetInput();
-  
-  
 protected:
   vtkSimpleImageToImageFilter();
   ~vtkSimpleImageToImageFilter();
 
   // These are called by the superclass.
-  // You might have to override ExecuteInformation
-  virtual void ExecuteInformation();
-  virtual void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
+  virtual void RequestUpdateExtent (vtkInformation *, 
+                                    vtkInformationVector **, 
+                                    vtkInformationVector *);
 
   // You don't have to touch this unless you have a good reason.
-  virtual void ExecuteData(vtkDataObject *output);
+  virtual void RequestData(vtkInformation *, 
+                           vtkInformationVector **, 
+                           vtkInformationVector *);
+
   // In the simplest case, this is the only method you need to define.
   virtual void SimpleExecute(vtkImageData* input, vtkImageData* output) = 0;
+
 private:
   vtkSimpleImageToImageFilter(const vtkSimpleImageToImageFilter&);  // Not implemented.
   void operator=(const vtkSimpleImageToImageFilter&);  // Not implemented.

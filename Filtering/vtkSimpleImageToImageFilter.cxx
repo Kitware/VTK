@@ -15,14 +15,16 @@
 #include "vtkSimpleImageToImageFilter.h"
 
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkSimpleImageToImageFilter, "1.12");
+vtkCxxRevisionMacro(vtkSimpleImageToImageFilter, "1.13");
 
 //----------------------------------------------------------------------------
 vtkSimpleImageToImageFilter::vtkSimpleImageToImageFilter()
 {
-  this->NumberOfRequiredInputs = 1;
-  this->SetNumberOfInputPorts(1);
 }
 
 //----------------------------------------------------------------------------
@@ -30,76 +32,35 @@ vtkSimpleImageToImageFilter::~vtkSimpleImageToImageFilter()
 {
 }
 
-//----------------------------------------------------------------------------
-void vtkSimpleImageToImageFilter::SetInput(vtkImageData *input)
+void vtkSimpleImageToImageFilter::RequestUpdateExtent (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *vtkNotUsed( outputVector ))
 {
-  this->vtkProcessObject::SetNthInput(0, input);
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+
+  // always request the whole extent
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+              inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),6);
 }
 
-//----------------------------------------------------------------------------
-vtkImageData *vtkSimpleImageToImageFilter::GetInput()
+void vtkSimpleImageToImageFilter::RequestData(
+  vtkInformation* vtkNotUsed( request ),
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
 {
-  if (this->NumberOfInputs < 1)
-    {
-    return NULL;
-    }
+  // get the data object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkImageData *output = vtkImageData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkImageData *input = vtkImageData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
   
-  return (vtkImageData *)(this->Inputs[0]);
-}
-
-void vtkSimpleImageToImageFilter::ExecuteInformation()
-{
-  vtkImageData *input = this->GetInput();
-  vtkImageData *output = this->GetOutput();
-
-  // Make sure the Input has been set.
-  if ( input == NULL)
-    {
-    vtkErrorMacro(<< "ExecuteInformation: Input is not set.");
-    return;
-    }
-
-  // Start with some defaults.
-  output->CopyTypeSpecificInformation( input );
-}
-
-
-void vtkSimpleImageToImageFilter::ComputeInputUpdateExtent( int inExt[6], 
-                                                            int vtkNotUsed(outExt)[6] )
-{
-  vtkImageData *input = this->GetInput();
-  // Make sure the Input has been set.
-  if ( input == NULL)
-    {
-    vtkErrorMacro(<< "ComputeInputUpdateExtent: Input is not set.");
-    return;
-    }
-  int* wholeExtent = input->GetWholeExtent();
-  memcpy(inExt,wholeExtent,sizeof(int)*6);
-}
-
-void vtkSimpleImageToImageFilter::ExecuteData(vtkDataObject *vtkNotUsed(out))
-{
-
-  vtkDebugMacro("Executing.");
-  vtkImageData* output = this->GetOutput();
-  vtkImageData* input = this->GetInput();
-
-  if (!input)
-    {
-    vtkErrorMacro("No input is specified!");
-    return;
-    }
-
-  // Too many filters have floating point exceptions to execute
-  // with empty input/ no request.
-  if (this->UpdateExtentIsEmpty(output))
-    {
-    return;
-    }
-
   // Set the extent of the output and allocate memory.
-  output->SetExtent(output->GetWholeExtent());
+  output->SetExtent(
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
   output->AllocateScalars();
 
   this->SimpleExecute(input, output);
