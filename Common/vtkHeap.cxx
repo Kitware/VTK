@@ -117,7 +117,7 @@ void* vtkHeap::AllocateMemory(size_t n)
   return node->Ptr;
 }
 
-char* vtkHeap::StrDup(const char* str)
+char* vtkHeap::vtkStrDup(const char* str)
 {
   this->NumberOfAllocations++;
 
