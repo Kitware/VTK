@@ -454,6 +454,75 @@ void vtkPolyData::GetCell(int cellId, vtkGenericCell *cell)
     }
 }
 
+void vtkPolyData::CopyCells(vtkPolyData *pd, vtkIdList *idList,
+			    vtkPointLocator *locator)
+{
+  int numPts, cellId, numCellPts, i, ptId, newId, newCellId, locatorPtId;
+  vtkPoints *newPoints;
+  vtkIdList *pointMap = vtkIdList::New(); //maps old pt ids into new
+  vtkIdList *cellPts, *newCellPts = vtkIdList::New();
+  vtkCell *cell;
+  float x[3];
+  vtkPointData *outPD = this->GetPointData();
+  vtkCellData *outCD = this->GetCellData();
+  
+  numPts = pd->GetNumberOfPoints();
+
+  if (this->GetPoints() == NULL)
+    {
+    this->Points = vtkPoints::New();
+    }
+  
+  newPoints = this->GetPoints();
+  
+  pointMap->SetNumberOfIds(numPts);
+  for (i=0; i < numPts; i++)
+    {
+    pointMap->SetId(i,-1);
+    }
+
+  // Filter the cells
+  for (cellId=0; cellId < idList->GetNumberOfIds(); cellId++)
+    {
+    cell = pd->GetCell(idList->GetId(cellId));
+    cellPts = cell->GetPointIds();
+    numCellPts = cell->GetNumberOfPoints();
+    
+    for (i=0; i < numCellPts; i++)
+      {
+      ptId = cellPts->GetId(i);
+      if ( (newId = pointMap->GetId(ptId)) < 0 )
+	{
+	pd->GetPoint(ptId, x);
+	if (locator != NULL)
+	  {
+	  if ((locatorPtId = locator->IsInsertedPoint(x)) == -1)
+	    {
+	    newId = newPoints->InsertNextPoint(x);
+	    pointMap->SetId(ptId, newId);
+	    outPD->CopyData(pd->GetPointData(), ptId, newId);
+	    }
+	  else
+	    {
+	    newId = locatorPtId;
+	    }
+	  }
+	else
+	  {
+	  newId = newPoints->InsertNextPoint(x);
+	  pointMap->SetId(ptId, newId);
+	  outPD->CopyData(pd->GetPointData(), ptId, newId);
+	  }
+	}
+      newCellPts->InsertId(i,newId);
+      }
+    newCellId = this->InsertNextCell(cell->GetCellType(), newCellPts);
+    outCD->CopyData(pd->GetCellData(), idList->GetId(cellId), newCellId);
+    newCellPts->Reset();
+    } // for all cells
+  newCellPts->Delete();
+  pointMap->Delete();
+}
 
 //----------------------------------------------------------------------------
 // Fast implementation of GetCellBounds().  Bounds are calculated without

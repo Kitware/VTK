@@ -102,6 +102,9 @@ vtkDataWriter::vtkDataWriter()
   this->TensorsName = new char[8];
   strcpy(this->TensorsName,"tensors");
 
+  this->GhostLevelsName = new char[11];
+  strcpy(this->GhostLevelsName, "ghostLevels");
+  
   this->NormalsName = new char[8];
   strcpy(this->NormalsName,"normals");
 
@@ -141,6 +144,10 @@ vtkDataWriter::~vtkDataWriter()
   if ( this->TensorsName )
     {
     delete [] this->TensorsName;
+    }
+  if ( this->GhostLevelsName )
+    {
+    delete [] this->GhostLevelsName;
     }
   if ( this->NormalsName )
     {
@@ -263,6 +270,7 @@ int vtkDataWriter::WriteCellData(ostream *fp, vtkDataSet *ds)
   vtkNormals *normals;
   vtkTCoords *tcoords;
   vtkTensors *tensors;
+  vtkGhostLevels *ghostLevels;
   vtkFieldData *field;
   vtkCellData *cd=ds->GetCellData();
 
@@ -274,9 +282,10 @@ int vtkDataWriter::WriteCellData(ostream *fp, vtkDataSet *ds)
   normals = cd->GetNormals();
   tcoords = cd->GetTCoords();
   tensors = cd->GetTensors();
+  ghostLevels = cd->GetGhostLevels();
   field = cd->GetFieldData();
 
-  if ( numCells <= 0 || !(scalars || vectors || normals || tcoords || tensors || field) )
+  if ( numCells <= 0 || !(scalars || vectors || normals || tcoords || tensors || ghostLevels || field) )
     {
     vtkDebugMacro(<<"No cell data to write!");
     return 1;
@@ -334,6 +343,16 @@ int vtkDataWriter::WriteCellData(ostream *fp, vtkDataSet *ds)
       }
     }
   //
+  // Write ghost levels
+  //
+  if ( ghostLevels && ghostLevels->GetNumberOfGhostLevels() > 0 )
+    {
+    if ( ! this->WriteGhostLevelData(fp, ghostLevels, numCells) )
+      {
+      return 0;
+      }
+    }
+  //
   // Write field
   //
   if ( field && field->GetNumberOfTuples() > 0 )
@@ -357,6 +376,7 @@ int vtkDataWriter::WritePointData(ostream *fp, vtkDataSet *ds)
   vtkNormals *normals;
   vtkTCoords *tcoords;
   vtkTensors *tensors;
+  vtkGhostLevels *ghostLevels;
   vtkFieldData *field;
   vtkPointData *pd=ds->GetPointData();
 
@@ -368,9 +388,10 @@ int vtkDataWriter::WritePointData(ostream *fp, vtkDataSet *ds)
   normals = pd->GetNormals();
   tcoords = pd->GetTCoords();
   tensors = pd->GetTensors();
+  ghostLevels = pd->GetGhostLevels();
   field = pd->GetFieldData();
 
-  if ( numPts <= 0 || !(scalars || vectors || normals || tcoords || tensors || field) )
+  if ( numPts <= 0 || !(scalars || vectors || normals || tcoords || tensors || ghostLevels || field) )
     {
     vtkDebugMacro(<<"No point data to write!");
     return 1;
@@ -427,7 +448,16 @@ int vtkDataWriter::WritePointData(ostream *fp, vtkDataSet *ds)
       return 0;
       }
     }
-
+  //
+  // Write ghost levels
+  //
+  if ( ghostLevels && ghostLevels->GetNumberOfGhostLevels() > 0)
+    {
+    if ( ! this->WriteGhostLevelData(fp, ghostLevels, numPts))
+      {
+      return 0;
+      }
+    }
   //
   // Write field
   //
@@ -784,6 +814,17 @@ int vtkDataWriter::WriteTensorData(ostream *fp, vtkTensors *tensors, int num)
   return this->WriteArray(fp, tensors->GetDataType(), tensors->GetData(), format, num, 9);
 }
 
+int vtkDataWriter::WriteGhostLevelData(ostream *fp,
+				       vtkGhostLevels *ghostLevels, int num)
+{
+  char format[1024];
+  
+  *fp << "GHOST_LEVELS ";
+  sprintf(format, "%s %s\n", this->GhostLevelsName, "%s");
+  return this->WriteArray(fp, ghostLevels->GetDataType(),
+			  ghostLevels->GetData(), format, num, 1);
+}
+
 int vtkDataWriter::WriteFieldData(ostream *fp, vtkFieldData *f)
 {
   char format[1024];
@@ -964,6 +1005,15 @@ void vtkDataWriter::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Tensors Name: (None)\n";
     }
 
+  if ( this->GhostLevelsName )
+    {
+    os << indent << "Ghost Levels Name: " << this->GhostLevelsName << "\n";
+    }
+  else
+    {
+    os << indent << "Ghost Levels Name: (None)\n";
+    }
+  
   if ( this->TCoordsName )
     {
     os << indent << "Texture Coords Name: " << this->TCoordsName << "\n";

@@ -109,6 +109,14 @@ public:
   void GetCellNeighbors(int cellId, vtkIdList *ptIds, vtkIdList *cellIds);
   
   // Description:
+  // Copy cells listed in idList from pd, including points, point data,
+  // and cell data.  This method assumes that point and cell data have
+  // been allocated.  If you pass in a point locator, then the points
+  // won't be duplicated in the output.
+  void CopyCells(vtkPolyData *pd, vtkIdList *idList,
+		 vtkPointLocator *locator = NULL);
+  
+  // Description:
   // Copy a cells point ids into list provided. (Less efficient.)
   void GetCellPoints(int cellId, vtkIdList *ptIds);
 

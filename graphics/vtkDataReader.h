@@ -130,6 +130,12 @@ public:
   vtkGetStringMacro(TensorsName);
 
   // Description:
+  // Set the name of the ghost level data to extract.  If not specified,
+  // first ghost level data encountered is extracted.
+  vtkSetStringMacro(GhostLevelsName);
+  vtkGetStringMacro(GhostLevelsName);
+  
+  // Description:
   // Set the name of the normal data to extract. If not specified, first 
   // normal data encountered is extracted.
   vtkSetStringMacro(NormalsName);
@@ -256,6 +262,7 @@ protected:
   char *ScalarsName;
   char *VectorsName;
   char *TensorsName;
+  char *GhostLevelsName;
   char *TCoordsName;
   char *NormalsName;
   char *LookupTableName;
@@ -276,6 +283,7 @@ protected:
   int ReadVectorData(vtkDataSetAttributes *a, int num);
   int ReadNormalData(vtkDataSetAttributes *a, int num);
   int ReadTensorData(vtkDataSetAttributes *a, int num);
+  int ReadGhostLevelData(vtkDataSetAttributes *a, int num);
   int ReadCoScalarData(vtkDataSetAttributes *a, int num);
   int ReadLutData(vtkDataSetAttributes *a);
   int ReadTCoordsData(vtkDataSetAttributes *a, int num);
