@@ -55,6 +55,8 @@ vtkImageReslice::vtkImageReslice()
 
   this->Interpolate = 0; // nearest-neighbor interpolation by default
   this->BackgroundLevel = 0;
+
+  this->ResliceTransform = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -62,9 +64,11 @@ void vtkImageReslice::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageFilter::PrintSelf(os,indent);
 
-  os << indent << "ResliceTransform: " << this->ResliceTransform << "\n";
-  if (this->ResliceTransform) 
+  if (this->ResliceTransform)
+    {
+    os << indent << "ResliceTransform: " << this->ResliceTransform << "\n";
     this->ResliceTransform->PrintSelf(os,indent.GetNextIndent());
+    }
   os << indent << "OutputSpacing: " << this->OutputSpacing[0] << " " <<
     this->OutputSpacing[1] << " " << this->OutputSpacing[2] << "\n";
   os << indent << "OutputOrigin: " << this->OutputOrigin[0] << " " <<
