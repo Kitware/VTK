@@ -23,7 +23,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 
-vtkCxxRevisionMacro(vtkInteractorObserver, "1.25");
+vtkCxxRevisionMacro(vtkInteractorObserver, "1.26");
 
 vtkCxxSetObjectMacro(vtkInteractorObserver,DefaultRenderer,vtkRenderer);
 
@@ -84,12 +84,11 @@ void vtkInteractorObserver::SetCurrentRenderer(vtkRenderer *_arg)
   // the CurrentRender is set to NULL. In that case, the next time
   // SetEnabled(1) is called, the widget will try to set CurrentRenderer
   // to the renderer over which the mouse pointer is positioned, and we 
-  // will use our user-defined renderer. To solve that, we made
-  // SetCurrentRenderer() protected, and introduced the DefaultRenderer
-  // ivar, which will be used to force the value of CurrentRenderer each
-  // time SetCurrentRenderer is called (i.e., no matter if SetCurrentRenderer
-  // is called with the renderer that was poked at the mouse coords, the
-  // DefaultRenderer will be used).
+  // will use our user-defined renderer. To solve that, we introduced the
+  // DefaultRenderer ivar, which will be used to force the value of 
+  // CurrentRenderer each time SetCurrentRenderer is called (i.e., no matter
+  // if SetCurrentRenderer is called with the renderer that was poked at
+  // the mouse coords, the DefaultRenderer will be used).
 
   if (_arg && this->DefaultRenderer)
     {
