@@ -34,7 +34,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkIVExporter, "1.58");
+vtkCxxRevisionMacro(vtkIVExporter, "1.59");
 vtkStandardNewMacro(vtkIVExporter);
 
 vtkIVExporter::vtkIVExporter()
@@ -91,8 +91,7 @@ void vtkIVExporter::WriteData()
     }
 
   // get the renderer
-  this->RenderWindow->GetRenderers()->InitTraversal();
-  ren = this->RenderWindow->GetRenderers()->GetNextItem();
+  ren = this->RenderWindow->GetRenderers()->GetFirstRenderer();
   
   // make sure it has at least one actor
   if (ren->GetActors()->GetNumberOfItems() < 1)
@@ -159,8 +158,8 @@ void vtkIVExporter::WriteData()
   // make sure we have a default light
   // if we dont then use a headlight
   lc = ren->GetLights();
-  vtkCollectionSimpleIterator sit;
-  for (lc->InitTraversal(sit); (aLight = lc->GetNextLight(sit)); )
+  vtkCollectionSimpleIterator lsit;
+  for (lc->InitTraversal(lsit); (aLight = lc->GetNextLight(lsit)); )
     {
     this->WriteALight(aLight, fp);
     }

@@ -36,7 +36,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkVersion.h"
 
-vtkCxxRevisionMacro(vtkOOGLExporter, "1.26");
+vtkCxxRevisionMacro(vtkOOGLExporter, "1.27");
 vtkStandardNewMacro(vtkOOGLExporter);
 
 vtkOOGLExporter::vtkOOGLExporter()
@@ -96,8 +96,7 @@ void vtkOOGLExporter::WriteData()
     }
 
   // get the renderer
-  this->RenderWindow->GetRenderers()->InitTraversal();
-  ren = this->RenderWindow->GetRenderers()->GetNextItem();
+  ren = this->RenderWindow->GetRenderers()->GetFirstRenderer();
   
   // make sure it has at least one actor
   if (ren->GetActors()->GetNumberOfItems() < 1)

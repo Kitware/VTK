@@ -22,7 +22,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkRenderWindow, "1.138");
+vtkCxxRevisionMacro(vtkRenderWindow, "1.139");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -142,8 +142,9 @@ void vtkRenderWindow::SetDesiredUpdateRate(double rate)
 
   if (this->DesiredUpdateRate != rate)
     {
-    for (this->Renderers->InitTraversal(); 
-         (aren = this->Renderers->GetNextItem()); )
+    vtkCollectionSimpleIterator rsit;
+    for (this->Renderers->InitTraversal(rsit); 
+         (aren = this->Renderers->GetNextRenderer(rsit)); )
       {
       aren->SetAllocatedRenderTime(1.0/
                                    (rate*this->Renderers->GetNumberOfItems()));
@@ -405,8 +406,9 @@ void vtkRenderWindow::DoAARender()
       offsets[0] = vtkMath::Random() - 0.5;
       offsets[1] = vtkMath::Random() - 0.5;
 
-      for (this->Renderers->InitTraversal(); 
-           (aren = this->Renderers->GetNextItem()); )
+      vtkCollectionSimpleIterator rsit;
+      for (this->Renderers->InitTraversal(rsit); 
+           (aren = this->Renderers->GetNextRenderer(rsit)); )
         {
         acam = aren->GetActiveCamera();
 
@@ -439,8 +441,8 @@ void vtkRenderWindow::DoAARender()
       this->DoFDRender();
       
       // restore the jitter to normal
-      for (this->Renderers->InitTraversal(); 
-           (aren = this->Renderers->GetNextItem()); )
+      for (this->Renderers->InitTraversal(rsit); 
+           (aren = this->Renderers->GetNextRenderer(rsit)); )
         {
         acam = aren->GetActiveCamera();
 
@@ -526,6 +528,7 @@ void vtkRenderWindow::DoFDRender()
     vtkTransform *aTrans = vtkTransform::New();
     double offsets[2];
     double *orig;
+    vtkCollectionSimpleIterator rsit;
 
     // get the size
     size = this->GetSize();
@@ -540,8 +543,8 @@ void vtkRenderWindow::DoFDRender()
       offsets[1] = vtkMath::Random()*360.0; // angle
 
       // store offsets for each renderer 
-      for (this->Renderers->InitTraversal(); 
-           (aren = this->Renderers->GetNextItem()); )
+      for (this->Renderers->InitTraversal(rsit); 
+           (aren = this->Renderers->GetNextRenderer(rsit)); )
         {
         acam = aren->GetActiveCamera();
         focalDisk = acam->GetFocalDisk()*offsets[0];
@@ -568,8 +571,8 @@ void vtkRenderWindow::DoFDRender()
 
       // restore the jitter to normal
       j = 0;
-      for (this->Renderers->InitTraversal(); 
-           (aren = this->Renderers->GetNextItem()); )
+      for (this->Renderers->InitTraversal(rsit); 
+           (aren = this->Renderers->GetNextRenderer(rsit)); )
         {
         acam = aren->GetActiveCamera();
         acam->SetPosition(orig + j*3);
@@ -640,8 +643,10 @@ void vtkRenderWindow::AddRenderer(vtkRenderer *ren)
   ren->SetRenderWindow(this);
   this->Renderers->AddItem(ren);
   vtkRenderer *aren;
-  for (this->Renderers->InitTraversal(); 
-       (aren = this->Renderers->GetNextItem()); )
+  vtkCollectionSimpleIterator rsit;
+
+  for (this->Renderers->InitTraversal(rsit); 
+       (aren = this->Renderers->GetNextRenderer(rsit)); )
     {
     aren->SetAllocatedRenderTime
       (1.0/(this->DesiredUpdateRate*this->Renderers->GetNumberOfItems()));

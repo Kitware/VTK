@@ -24,7 +24,7 @@
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
 
-vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.104");
+vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.105");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -321,8 +321,7 @@ vtkRenderer* vtkRenderWindowInteractor::FindPokedRenderer(int x,int y)
   // We must have a value - take anything.
   if ( currentRenderer == NULL) 
     {
-    rc->InitTraversal();
-    aren = rc->GetNextItem();
+    aren = rc->GetFirstRenderer();
     currentRenderer = aren;
     }
 

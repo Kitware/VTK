@@ -20,7 +20,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRendererCollection.h"
 
-vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.23");
+vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.24");
 vtkStandardNewMacro(vtkWindowToImageFilter);
 
 //----------------------------------------------------------------------------
@@ -151,10 +151,11 @@ void vtkWindowToImageFilter::ExecuteData(vtkDataObject *vtkNotUsed(data))
   viewAngles = new float [numRenderers];
   windowCenters = new double [numRenderers*2];
   double *parallelScale = new double [numRenderers];
-  rc->InitTraversal();
+  vtkCollectionSimpleIterator rsit;
+  rc->InitTraversal(rsit);
   for (i = 0; i < numRenderers; ++i)
     {
-    aren = rc->GetNextItem();
+    aren = rc->GetNextRenderer(rsit);
     cams[i] = aren->GetActiveCamera();
     cams[i]->Register(this);
     cams[i]->GetWindowCenter(windowCenters+i*2);
@@ -189,10 +190,10 @@ void vtkWindowToImageFilter::ExecuteData(vtkDataObject *vtkNotUsed(data))
       double *tvp = this->Input->GetTileViewport();
       
       // for each renderer, setup camera
-      rc->InitTraversal();
+      rc->InitTraversal(rsit);
       for (i = 0; i < numRenderers; ++i)
         {
-        aren = rc->GetNextItem();
+        aren = rc->GetNextRenderer(rsit);
         cam = aren->GetActiveCamera();
         double *vp = aren->GetViewport();
         double visVP[4];
@@ -259,10 +260,10 @@ void vtkWindowToImageFilter::ExecuteData(vtkDataObject *vtkNotUsed(data))
   
   // restore settings
   // for each renderer
-  rc->InitTraversal();
+  rc->InitTraversal(rsit);
   for (i = 0; i < numRenderers; ++i)
     {
-    aren = rc->GetNextItem();
+    aren = rc->GetNextRenderer(rsit);
     // store the old view angle & set the new
     cam = aren->GetActiveCamera();
     aren->SetActiveCamera(cams[i]);

@@ -30,7 +30,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkOBJExporter, "1.53");
+vtkCxxRevisionMacro(vtkOBJExporter, "1.54");
 vtkStandardNewMacro(vtkOBJExporter);
 
 vtkOBJExporter::vtkOBJExporter()
@@ -71,8 +71,7 @@ void vtkOBJExporter::WriteData()
     }
 
   // get the renderer
-  this->RenderWindow->GetRenderers()->InitTraversal();
-  ren = this->RenderWindow->GetRenderers()->GetNextItem();
+  ren = this->RenderWindow->GetRenderers()->GetFirstRenderer();
   
   // make sure it has at least one actor
   if (ren->GetActors()->GetNumberOfItems() < 1)

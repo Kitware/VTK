@@ -35,7 +35,7 @@
 #include <GL/gl.h>
 #endif
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.123");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.124");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -112,10 +112,11 @@ void vtkWin32OpenGLRenderWindow::Clean()
     // tell each of the renderers that this render window/graphics context
     // is being removed (the RendererCollection is removed by vtkRenderWindow's
     // destructor)
-    this->Renderers->InitTraversal();
-    for ( ren = (vtkOpenGLRenderer *) this->Renderers->GetNextItemAsObject();
+    vtkCollectionSimpleIterator rsit;
+    this->Renderers->InitTraversal(rsit);
+    for ( ren = (vtkOpenGLRenderer *) this->Renderers->GetNextRenderer(rsit);
           ren != NULL;
-          ren = (vtkOpenGLRenderer *) this->Renderers->GetNextItemAsObject() )
+          ren = (vtkOpenGLRenderer *) this->Renderers->GetNextRenderer(rsit) )
       {
       ren->SetRenderWindow(NULL);
       }
@@ -821,8 +822,9 @@ void vtkWin32OpenGLRenderWindow::CreateAWindow(int x, int y, int width,
   
   // wipe out any existing display lists
   vtkRenderer* ren;
-  for (this->Renderers->InitTraversal(); 
-       (ren = this->Renderers->GetNextItem());)
+  vtkCollectionSimpleIterator rsit;
+  for (this->Renderers->InitTraversal(rsit); 
+       (ren = this->Renderers->GetNextRenderer(rsit));)
     {
     ren->SetRenderWindow(0);
     ren->SetRenderWindow(this);
@@ -1194,8 +1196,9 @@ void vtkWin32OpenGLRenderWindow::SetOffScreenRendering(int offscreen)
           vtkRenderer* ren;
           this->CleanUpOffScreenRendering();
           this->WindowInitialize();
-          for (this->Renderers->InitTraversal(); 
-               (ren = this->Renderers->GetNextItem());)
+          vtkCollectionSimpleIterator rsit;
+          for (this->Renderers->InitTraversal(rsit); 
+               (ren = this->Renderers->GetNextRenderer(rsit));)
             {
               ren->SetRenderWindow(this);
             }
@@ -1254,7 +1257,9 @@ void vtkWin32OpenGLRenderWindow::CreateOffScreenDC(HBITMAP hbmp, HDC aHdc)
   
   // Renderers will need to redraw anything cached in display lists
   vtkRenderer *ren;
-  for (this->Renderers->InitTraversal(); (ren = this->Renderers->GetNextItem());)
+  vtkCollectionSimpleIterator rsit;
+  for (this->Renderers->InitTraversal(rsit); 
+       (ren = this->Renderers->GetNextRenderer(rsit));)
     {
       ren->SetRenderWindow(NULL);
     }
@@ -1278,8 +1283,8 @@ void vtkWin32OpenGLRenderWindow::CreateOffScreenDC(HBITMAP hbmp, HDC aHdc)
   this->MakeCurrent();
   
   // Renderers will need to redraw anything cached in display lists
-  for (this->Renderers->InitTraversal(); 
-       (ren = this->Renderers->GetNextItem());)
+  for (this->Renderers->InitTraversal(rsit); 
+       (ren = this->Renderers->GetNextRenderer(rsit));)
     {
       ren->SetRenderWindow(this);
     }
@@ -1337,8 +1342,9 @@ void vtkWin32OpenGLRenderWindow::CleanUpOffScreenRendering(void)
   
   // we need to release resources
   vtkRenderer *ren;
-  for (this->Renderers->InitTraversal(); 
-       (ren = this->Renderers->GetNextItem());)
+  vtkCollectionSimpleIterator rsit;
+  for (this->Renderers->InitTraversal(rsit); 
+       (ren = this->Renderers->GetNextRenderer(rsit));)
     {
       ren->SetRenderWindow(NULL);
     }
@@ -1363,8 +1369,9 @@ void vtkWin32OpenGLRenderWindow::ResumeScreenRendering(void)
   this->MakeCurrent();
 
   vtkRenderer* ren;
-  for (this->Renderers->InitTraversal();
-       (ren = this->Renderers->GetNextItem());)
+  vtkCollectionSimpleIterator rsit;
+  for (this->Renderers->InitTraversal(rsit);
+       (ren = this->Renderers->GetNextRenderer(rsit));)
     {
       ren->SetRenderWindow(this);
     }
