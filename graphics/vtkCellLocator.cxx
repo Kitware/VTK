@@ -314,19 +314,6 @@ vtkIdList* vtkCellLocator::GetCells(int octantId)
   return this->Tree[octantId];
 }
 
-// Intersect against another vtkCellLocator returning cells that lie in 
-// intersecting octants. Not implimented yet.
-void vtkCellLocator::InitializeIntersection(vtkCellLocator& )
-{
-  // not yet implemented
-}
-
-int vtkCellLocator::GetNextIntersection(int& , int& )
-{
-  // not yet implemented
-  return 0;
-}
-
 
 //
 //  Method to form subdivision of space based on the cells provided and
