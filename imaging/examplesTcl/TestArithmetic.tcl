@@ -1,4 +1,6 @@
-# Simple viewer for images.
+# A script to test the difference filter.
+# An image is smoothed then sbutracted from the original image.
+# The result is a high-pass filter.
 
 
 set sliceNumber 22
@@ -17,7 +19,6 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 
 
 
-
 # Image pipeline
 
 vtkImage4dShortReader reader;
@@ -27,11 +28,22 @@ reader SwapBytesOn;
 reader SetSize 256 256 94 1;
 reader SetFileRoot "../../data/fullHead/headsq.%d"
 reader SetPixelMask 0x7fff;
+reader SetOutputDataType $VTK_IMAGE_SHORT;
+
+vtkImage2dGaussianSmoothFilter smooth
+smooth SetInput [reader GetOutput];
+smooth SetGaussianStdRadius 6.0 8;
+
+vtkImageDifferenceFilter subtract;
+subtract SetInput1 [reader GetOutput];
+subtract SetInput2 [smooth GetOutput];
+subtract ReleaseDataFlagOff;
 
 vtkImageXViewer viewer;
 #viewer DebugOn;
 viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS;
-viewer SetInput [reader GetOutput];
+viewer SetInput [subtract GetOutput];
+viewer SetBounds 0 255 0 255;
 viewer SetDefaultCoordinate2 $sliceNumber;
 viewer SetColorWindow 3000
 viewer SetColorLevel 1500

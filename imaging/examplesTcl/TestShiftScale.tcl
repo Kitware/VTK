@@ -1,4 +1,5 @@
-# Simple viewer for images.
+# Shift and scale an image (in that order)
+# This filter is usefull for converting to a lower precision data type.
 
 
 set sliceNumber 22
@@ -16,25 +17,29 @@ set VTK_IMAGE_TIME_AXIS          3
 set VTK_IMAGE_COMPONENT_AXIS     4
 
 
-
-
 # Image pipeline
 
 vtkImage4dShortReader reader;
-#reader DebugOn
+reader DebugOn
 [reader GetCache] ReleaseDataFlagOff;
 reader SwapBytesOn;
 reader SetSize 256 256 94 1;
 reader SetFileRoot "../../data/fullHead/headsq.%d"
 reader SetPixelMask 0x7fff;
 
+vtkImageShiftScaleFilter shiftScale;
+#shiftScale DebugOn;
+shiftScale SetInput [reader GetOutput];
+shiftScale SetShift 270.0;
+shiftScale SetScale 0.085;
+
 vtkImageXViewer viewer;
 #viewer DebugOn;
 viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS;
-viewer SetInput [reader GetOutput];
+viewer SetInput [shiftScale GetOutput];
 viewer SetDefaultCoordinate2 $sliceNumber;
-viewer SetColorWindow 3000
-viewer SetColorLevel 1500
+viewer SetColorWindow 256
+viewer SetColorLevel 128
 viewer Render;
 
 
@@ -48,15 +53,15 @@ button .slice.down -text "Slice Down" -command SliceDown
 frame .wl
 frame .wl.f1;
 label .wl.f1.windowLabel -text Window;
-scale .wl.f1.window -from 1 -to 3000 -orient horizontal -command SetWindow
+scale .wl.f1.window -from 1 -to 512 -orient horizontal -command SetWindow
 frame .wl.f2;
 label .wl.f2.levelLabel -text Level;
-scale .wl.f2.level -from 1 -to 1500 -orient horizontal -command SetLevel
+scale .wl.f2.level -from 1 -to 256 -orient horizontal -command SetLevel
 checkbutton .wl.video -text "Inverse Video" -variable inverseVideo -command SetInverseVideo
 
 
-.wl.f1.window set 3000
-.wl.f2.level set 1500
+.wl.f1.window set 256
+.wl.f2.level set 128
 
 
 pack .slice .wl -side left
