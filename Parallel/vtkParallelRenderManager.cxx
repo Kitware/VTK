@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.35");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.35.2.1");
 
 vtkParallelRenderManager::vtkParallelRenderManager()
 {
@@ -1695,6 +1695,18 @@ void vtkParallelRenderManager::SatelliteStartRender()
   rens->InitTraversal(rsit);
   for (i = 0; i < winInfoInt.NumberOfRenderers; i++)
     {
+    vtkLightCollection *lc = NULL;
+    vtkCollectionSimpleIterator lsit;
+    vtkRenderer *ren = rens->GetNextRenderer(rsit);
+    if (ren == NULL)
+      {
+      vtkErrorMacro("Not enough renderers");
+      continue;
+      }
+    // Moved here because this can cause a pipeline update and should
+    // be done at the same place as the root node
+    vtkCamera *cam = ren->GetActiveCamera();
+
     if (!this->Controller->Receive((int *)(&renInfoInt), 
                                    vtkParallelRenderManager::REN_INFO_INT_SIZE,
                                    this->RootProcessId,
@@ -1710,38 +1722,27 @@ void vtkParallelRenderManager::SatelliteStartRender()
       continue;
       }
     
-    vtkLightCollection *lc = NULL;
-    vtkCollectionSimpleIterator lsit;
-    vtkRenderer *ren = rens->GetNextRenderer(rsit);
-    if (ren == NULL)
+    this->Viewports->SetTuple(i, ren->GetViewport());
+    ren->SetViewport(renInfoDouble.Viewport);
+    ren->SetBackground(renInfoDouble.Background[0],
+                       renInfoDouble.Background[1],
+                       renInfoDouble.Background[2]);
+    cam->SetPosition(renInfoDouble.CameraPosition);
+    cam->SetFocalPoint(renInfoDouble.CameraFocalPoint);
+    cam->SetViewUp(renInfoDouble.CameraViewUp);
+    cam->SetClippingRange(renInfoDouble.CameraClippingRange);
+    cam->SetViewAngle(renInfoDouble.CameraViewAngle);
+    if (renInfoDouble.ParallelScale != 0.0)
       {
-      vtkErrorMacro("Not enough renderers");
+      cam->ParallelProjectionOn();
+      cam->SetParallelScale(renInfoDouble.ParallelScale);
       }
     else
       {
-      this->Viewports->SetTuple(i, ren->GetViewport());
-      ren->SetViewport(renInfoDouble.Viewport);
-      ren->SetBackground(renInfoDouble.Background[0],
-                         renInfoDouble.Background[1],
-                         renInfoDouble.Background[2]);
-      vtkCamera *cam = ren->GetActiveCamera();
-      cam->SetPosition(renInfoDouble.CameraPosition);
-      cam->SetFocalPoint(renInfoDouble.CameraFocalPoint);
-      cam->SetViewUp(renInfoDouble.CameraViewUp);
-      cam->SetClippingRange(renInfoDouble.CameraClippingRange);
-      cam->SetViewAngle(renInfoDouble.CameraViewAngle);
-      if (renInfoDouble.ParallelScale != 0.0)
-        {
-        cam->ParallelProjectionOn();
-        cam->SetParallelScale(renInfoDouble.ParallelScale);
-        }
-      else
-        {
-        cam->ParallelProjectionOff();
-        }
-      lc = ren->GetLights();
-      lc->InitTraversal(lsit);
+      cam->ParallelProjectionOff();
       }
+    lc = ren->GetLights();
+    lc->InitTraversal(lsit);
 
     for (j = 0; j < renInfoInt.NumberOfLights; j++)
       {
