@@ -67,7 +67,7 @@ protected:
   ~vtkImageHybridMedian2D() {};
 
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
-		       int outExt[6], int id);
+                       int outExt[6], int id);
   float ComputeMedian(float *array, int size);
 private:
   vtkImageHybridMedian2D(const vtkImageHybridMedian2D&);  // Not implemented.

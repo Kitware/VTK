@@ -122,7 +122,7 @@ void vtkBMPWriter::WriteFileHeader(ofstream *file, vtkImageData *cache)
 
 
 void vtkBMPWriter::WriteFile(ofstream *file, vtkImageData *data,
-			     int extent[6])
+                             int extent[6])
 {
   int idx1, idx2;
   int rowLength, rowAdder, i; // in bytes
@@ -156,12 +156,12 @@ void vtkBMPWriter::WriteFile(ofstream *file, vtkImageData *data,
 
   wExtent = this->GetInput()->GetWholeExtent();
   area = ((extent[5] - extent[4] + 1)*(extent[3] - extent[2] + 1)*
-	  (extent[1] - extent[0] + 1)) / 
+          (extent[1] - extent[0] + 1)) / 
     ((wExtent[5] -wExtent[4] + 1)*(wExtent[3] -wExtent[2] + 1)*
      (wExtent[1] -wExtent[0] + 1));
     
   target = (unsigned long)((extent[5]-extent[4]+1)*
-			   (extent[3]-extent[2]+1)/(50.0*area));
+                           (extent[3]-extent[2]+1)/(50.0*area));
   target++;
 
   for (idx2 = extent[4]; idx2 <= extent[5]; ++idx2)
@@ -169,51 +169,51 @@ void vtkBMPWriter::WriteFile(ofstream *file, vtkImageData *data,
     for (idx1 = extent[2]; idx1 <= extent[3]; idx1++)
       {
       if (!(count%target))
-	{
-	this->UpdateProgress(progress + count/(50.0*target));
-	}
+        {
+        this->UpdateProgress(progress + count/(50.0*target));
+        }
       count++;
       ptr = (unsigned char *)data->GetScalarPointer(extent[0], idx1, idx2);
       if (bpp == 1)
-	{
-	for (i = 0; i < rowLength; i++)
-	  {
-	  file->put(ptr[i]);
-	  file->put(ptr[i]);
-	  file->put(ptr[i]);
-	  }
-	}
+        {
+        for (i = 0; i < rowLength; i++)
+          {
+          file->put(ptr[i]);
+          file->put(ptr[i]);
+          file->put(ptr[i]);
+          }
+        }
       if (bpp == 2)
-	{
-	for (i = 0; i < rowLength; i++)
-	  {
-	  file->put(ptr[i*2]);
-	  file->put(ptr[i*2]);
-	  file->put(ptr[i*2]);
-	  }
-	}
+        {
+        for (i = 0; i < rowLength; i++)
+          {
+          file->put(ptr[i*2]);
+          file->put(ptr[i*2]);
+          file->put(ptr[i*2]);
+          }
+        }
       if (bpp == 3)
-	{
-	for (i = 0; i < rowLength; i++)
-	  {
-	  file->put(ptr[i*3 + 2]);
-	  file->put(ptr[i*3 + 1]);
-	  file->put(ptr[i*3]);
-	  }
-	}
+        {
+        for (i = 0; i < rowLength; i++)
+          {
+          file->put(ptr[i*3 + 2]);
+          file->put(ptr[i*3 + 1]);
+          file->put(ptr[i*3]);
+          }
+        }
       if (bpp == 4)
-	{
-	for (i = 0; i < rowLength; i++)
-	  {
-	  file->put(ptr[i*4 + 2]);
-	  file->put(ptr[i*4 + 1]);
-	  file->put(ptr[i*4]);
-	  }
-	}
+        {
+        for (i = 0; i < rowLength; i++)
+          {
+          file->put(ptr[i*4 + 2]);
+          file->put(ptr[i*4 + 1]);
+          file->put(ptr[i*4]);
+          }
+        }
       for (i = 0; i < rowAdder; i++)
-	{
-	file->put((char)0);
-	}
+        {
+        file->put((char)0);
+        }
       }
     }
 }

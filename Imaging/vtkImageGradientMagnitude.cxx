@@ -85,7 +85,7 @@ void vtkImageGradientMagnitude::PrintSelf(ostream& os, vtkIndent indent)
 // input, and changes the region to hold the image extent of this filters
 // output.
 void vtkImageGradientMagnitude::ExecuteInformation(vtkImageData *inData, 
-						   vtkImageData *outData)
+                                                   vtkImageData *outData)
 {  
   int extent[6];
   int idx;
@@ -108,7 +108,7 @@ void vtkImageGradientMagnitude::ExecuteInformation(vtkImageData *inData,
 //----------------------------------------------------------------------------
 // This method computes the input extent necessary to generate the output.
 void vtkImageGradientMagnitude::ComputeInputUpdateExtent(int inExt[6],
-							 int outExt[6])
+                                                         int outExt[6])
 {
   int *wholeExtent;
   int idx;
@@ -126,13 +126,13 @@ void vtkImageGradientMagnitude::ComputeInputUpdateExtent(int inExt[6],
       {
       // we must clip extent with whole extent is we hanlde boundaries.
       if (inExt[idx*2] < wholeExtent[idx*2])
-	{
-	inExt[idx*2] = wholeExtent[idx*2];
-	}
+        {
+        inExt[idx*2] = wholeExtent[idx*2];
+        }
       if (inExt[idx*2 + 1] > wholeExtent[idx*2 + 1])
-	{
-	inExt[idx*2 + 1] = wholeExtent[idx*2 + 1];
-	}
+        {
+        inExt[idx*2 + 1] = wholeExtent[idx*2 + 1];
+        }
       }
     }
 }
@@ -147,9 +147,9 @@ void vtkImageGradientMagnitude::ComputeInputUpdateExtent(int inExt[6],
 // out of extent.
 template <class T>
 static void vtkImageGradientMagnitudeExecute(vtkImageGradientMagnitude *self,
-					     vtkImageData *inData, T *inPtr,
-					     vtkImageData *outData, T *outPtr,
-					     int outExt[6], int id)
+                                             vtkImageData *inData, T *inPtr,
+                                             vtkImageData *outData, T *outPtr,
+                                             int outExt[6], int id)
 {
   int idxC, idxX, idxY, idxZ;
   int maxC, maxX, maxY, maxZ;
@@ -195,44 +195,44 @@ static void vtkImageGradientMagnitudeExecute(vtkImageGradientMagnitude *self,
     for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
       {
       if (!id) 
-	{
-	if (!(count%target))
-	  {
-	  self->UpdateProgress(count/(50.0*target));
-	  }
-	count++;
-	}
+        {
+        if (!(count%target))
+          {
+          self->UpdateProgress(count/(50.0*target));
+          }
+        count++;
+        }
       useYMin = ((idxY + outExt[2]) <= wholeExtent[2]) ? 0 : -inIncs[1];
       useYMax = ((idxY + outExt[2]) >= wholeExtent[3]) ? 0 : inIncs[1];
       for (idxX = 0; idxX <= maxX; idxX++)
-	{
-	useXMin = ((idxX + outExt[0]) <= wholeExtent[0]) ? 0 : -inIncs[0];
-	useXMax = ((idxX + outExt[0]) >= wholeExtent[1]) ? 0 : inIncs[0];
-	for (idxC = 0; idxC < maxC; idxC++)
-	  {
-	  // do X axis
-	  d = (float)(inPtr[useXMin]);
-	  d -= (float)(inPtr[useXMax]);
-	  d *= r[0]; // multiply by the data spacing
-	  sum = d * d;
-	  // do y axis
-	  d = (float)(inPtr[useYMin]);
-	  d -= (float)(inPtr[useYMax]);
-	  d *= r[1]; // multiply by the data spacing
-	  sum += (d * d);
-	  if (axesNum == 3)
-	    {
-	    // do z axis
-	    d = (float)(inPtr[useZMin]);
-	    d -= (float)(inPtr[useZMax]);
-	    d *= r[2]; // multiply by the data spacing
-	    sum += (d * d);
-	    }
-	  *outPtr = (T)(sqrt(sum));
-	  outPtr++;
-	  inPtr++;
-	  }
-	}
+        {
+        useXMin = ((idxX + outExt[0]) <= wholeExtent[0]) ? 0 : -inIncs[0];
+        useXMax = ((idxX + outExt[0]) >= wholeExtent[1]) ? 0 : inIncs[0];
+        for (idxC = 0; idxC < maxC; idxC++)
+          {
+          // do X axis
+          d = (float)(inPtr[useXMin]);
+          d -= (float)(inPtr[useXMax]);
+          d *= r[0]; // multiply by the data spacing
+          sum = d * d;
+          // do y axis
+          d = (float)(inPtr[useYMin]);
+          d -= (float)(inPtr[useYMax]);
+          d *= r[1]; // multiply by the data spacing
+          sum += (d * d);
+          if (axesNum == 3)
+            {
+            // do z axis
+            d = (float)(inPtr[useZMin]);
+            d -= (float)(inPtr[useZMax]);
+            d *= r[2]; // multiply by the data spacing
+            sum += (d * d);
+            }
+          *outPtr = (T)(sqrt(sum));
+          outPtr++;
+          inPtr++;
+          }
+        }
       outPtr += outIncY;
       inPtr += inIncY;
       }
@@ -247,14 +247,14 @@ static void vtkImageGradientMagnitudeExecute(vtkImageGradientMagnitude *self,
 // templated function for the input data type.  The output data
 // must match input type.  This method does handle boundary conditions.
 void vtkImageGradientMagnitude::ThreadedExecute(vtkImageData *inData, 
-					 vtkImageData *outData,
-					 int outExt[6], int id)
+                                         vtkImageData *outData,
+                                         int outExt[6], int id)
 {
   void *inPtr = inData->GetScalarPointerForExtent(outExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
   
   vtkDebugMacro(<< "Execute: inData = " << inData 
-		<< ", outData = " << outData);
+                << ", outData = " << outData);
   
   // this filter expects that input is the same type as output.
   if (inData->GetScalarType() != outData->GetScalarType())

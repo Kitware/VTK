@@ -70,7 +70,7 @@ protected:
   ~vtkImageCheckerboard() {};
 
   void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
-		       int extent[6], int id);
+                       int extent[6], int id);
   int NumberOfDivisions[3];
 private:
   vtkImageCheckerboard(const vtkImageCheckerboard&) {};  // Not implemented.

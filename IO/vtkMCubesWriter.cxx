@@ -69,7 +69,7 @@ vtkMCubesWriter::~vtkMCubesWriter()
     }
 }
 static void WriteMCubes(FILE *fp, vtkPoints *pts, vtkDataArray *normals, 
-			vtkCellArray *polys);
+                        vtkCellArray *polys);
 static void WriteLimits(FILE *fp, float *bounds);
 
 // Write out data in MOVIE.BYU format.
@@ -125,7 +125,7 @@ void vtkMCubesWriter::WriteData()
 }
 
 void WriteMCubes(FILE *fp, vtkPoints *pts, vtkDataArray *normals, 
-		 vtkCellArray *polys)
+                 vtkCellArray *polys)
 {
   typedef struct {float x[3], n[3];} pointType;
   pointType point;

@@ -186,7 +186,7 @@ void vtkImageConnector::MarkData(vtkImageData *data, int numberOfAxes, int exten
         if (*ptr == this->UnconnectedValue)
           { // add a new seed
           --(*pIndex);
-	  *ptr = this->ConnectedValue;
+          *ptr = this->ConnectedValue;
           this->AddSeedToEnd(this->NewSeed(newIndex, ptr));
           ++(*pIndex);
           }
@@ -199,7 +199,7 @@ void vtkImageConnector::MarkData(vtkImageData *data, int numberOfAxes, int exten
         if (*ptr == this->UnconnectedValue)
           { // add a new seed
           ++(*pIndex);
-	  *ptr = this->ConnectedValue;
+          *ptr = this->ConnectedValue;
           this->AddSeedToEnd(this->NewSeed(newIndex, ptr));
           --(*pIndex);
           }

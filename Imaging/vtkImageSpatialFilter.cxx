@@ -137,7 +137,7 @@ void vtkImageSpatialFilter::ExecuteInformation(
 //----------------------------------------------------------------------------
 // A helper method to compute output image extent
 void vtkImageSpatialFilter::ComputeOutputWholeExtent(int extent[6], 
-						     int handleBoundaries)
+                                                     int handleBoundaries)
 {
   int idx;
 
@@ -161,7 +161,7 @@ void vtkImageSpatialFilter::ComputeOutputWholeExtent(int extent[6],
 // extent of the output region.  After this method finishes, "region" should 
 // have the extent of the required input region.
 void vtkImageSpatialFilter::ComputeInputUpdateExtent(int extent[6], 
-						     int inExtent[6])
+                                                     int inExtent[6])
 {
   int idx;
   int *wholeExtent;
@@ -186,27 +186,27 @@ void vtkImageSpatialFilter::ComputeInputUpdateExtent(int extent[6],
     if (extent[idx*2] < wholeExtent[idx*2])
       {
       if (this->HandleBoundaries)
-	{
-	// shrink the required region extent
-	extent[idx*2] = wholeExtent[idx*2];
-	}
+        {
+        // shrink the required region extent
+        extent[idx*2] = wholeExtent[idx*2];
+        }
       else
-	{
-	vtkWarningMacro(<< "Required region is out of the image extent.");
-	}
+        {
+        vtkWarningMacro(<< "Required region is out of the image extent.");
+        }
       }
     // If the expanded region is out of the IMAGE Extent (shrink max)      
     if (extent[idx*2+1] > wholeExtent[idx*2+1])
       {
       if (this->HandleBoundaries)
-	{
-	// shrink the required region extent
-	extent[idx*2+1] = wholeExtent[idx*2+1];
-	}
+        {
+        // shrink the required region extent
+        extent[idx*2+1] = wholeExtent[idx*2+1];
+        }
       else
-	{
-	vtkWarningMacro(<< "Required region is out of the image extent.");
-	}
+        {
+        vtkWarningMacro(<< "Required region is out of the image extent.");
+        }
       }
     }
 }

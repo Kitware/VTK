@@ -143,13 +143,13 @@ vtkTiffLong vtkTIFFReader::ReadTagLong(_vtkTifTag *tag, FILE *fp)
       {
       case 1: result = *((unsigned char *)&(result)); break;
       case 3:
-	this->Swap2((short *)(&result));
-	result = *((short *)&(result)); 
-	break;
+        this->Swap2((short *)(&result));
+        result = *((short *)&(result)); 
+        break;
       case 4:     
-	this->Swap4(&result);
+        this->Swap4(&result);
         result = (int)(result); 
-	break;
+        break;
       default: vtkGenericWarningMacro("Bad data in tag!");
       }
     fseek(fp, curPos, SEEK_SET);
@@ -161,13 +161,13 @@ vtkTiffLong vtkTIFFReader::ReadTagLong(_vtkTifTag *tag, FILE *fp)
       {
       case 1: result = *((unsigned char *)&(result)); break;
       case 3:
-	this->Swap2((short *)(&result));
-	result = *((short *)&(result)); 
-	break;
+        this->Swap2((short *)(&result));
+        result = *((short *)&(result)); 
+        break;
       case 4:     
-	this->Swap4(&result);
+        this->Swap4(&result);
         result = (int)(result); 
-	break;
+        break;
       default: vtkGenericWarningMacro("Bad data in tag!");
       }
     }
@@ -280,62 +280,62 @@ void vtkTIFFReader::ExecuteInformation()
     switch (aTag.TagId) 
       {
       case 256: 
-	xsize = this->ReadTagLong(&aTag,fp);
-	break;
+        xsize = this->ReadTagLong(&aTag,fp);
+        break;
       case 257:
-	ysize = this->ReadTagLong(&aTag,fp);
-	break;
+        ysize = this->ReadTagLong(&aTag,fp);
+        break;
       case 258:
-	bpp = (int)this->ReadTagLong(&aTag,fp);
-	if ((bpp != 8)&&(bpp != 16))
-	  {
-	  vtkWarningMacro(" vtkTIFFReader only supports 8 and 16 bits per sample!");
-	  }
-	break;
+        bpp = (int)this->ReadTagLong(&aTag,fp);
+        if ((bpp != 8)&&(bpp != 16))
+          {
+          vtkWarningMacro(" vtkTIFFReader only supports 8 and 16 bits per sample!");
+          }
+        break;
       case 259:
-	ltmp = this->ReadTagLong(&aTag,fp);
-	if ((ltmp != 1)&&(ltmp != 32771))
-	  {
-	  vtkWarningMacro(" vtkTIFFReader does not support compressed TIFF images!");
-	  }
-	break;
+        ltmp = this->ReadTagLong(&aTag,fp);
+        if ((ltmp != 1)&&(ltmp != 32771))
+          {
+          vtkWarningMacro(" vtkTIFFReader does not support compressed TIFF images!");
+          }
+        break;
       case 273:
-	ltmp = this->ReadTagLong(&aTag,fp);
-	this->SetHeaderSize(ltmp);
-	break;
+        ltmp = this->ReadTagLong(&aTag,fp);
+        this->SetHeaderSize(ltmp);
+        break;
       case 274:
-	// is corner in upper left or lower left, the default is upper left
-	ltmp = this->ReadTagLong(&aTag,fp);
-	if (ltmp == 4)
-	  {
-	  this->FileLowerLeft = 1;
-	  }
-	break;
+        // is corner in upper left or lower left, the default is upper left
+        ltmp = this->ReadTagLong(&aTag,fp);
+        if (ltmp == 4)
+          {
+          this->FileLowerLeft = 1;
+          }
+        break;
       case 277:
-	numComp = (int)this->ReadTagLong(&aTag,fp);
-	break;
+        numComp = (int)this->ReadTagLong(&aTag,fp);
+        break;
       case 278:
-	ltmp = this->ReadTagLong(&aTag,fp);
-	if (ltmp != ysize)
-	  {
-	  vtkWarningMacro(" vtkTIFFReader only supports one strip!");
-	  }
-	break;
+        ltmp = this->ReadTagLong(&aTag,fp);
+        if (ltmp != ysize)
+          {
+          vtkWarningMacro(" vtkTIFFReader only supports one strip!");
+          }
+        break;
       case 284:
-	ltmp = this->ReadTagLong(&aTag,fp);
-	if (ltmp != 1)
-	  {
-	  vtkWarningMacro(" vtkTIFFReader requires planar contiguous images!");
-	  }
-	break;
+        ltmp = this->ReadTagLong(&aTag,fp);
+        if (ltmp != 1)
+          {
+          vtkWarningMacro(" vtkTIFFReader requires planar contiguous images!");
+          }
+        break;
       case 297:
-	// logic 700 stores volume of data, need to find out how big
-	if (aTag.DataCount == 2)
-	  {
-	  this->Swap2(((short *)(&aTag.DataOffset))+1);
-	  numSlices = *(((short *)&aTag.DataOffset)+1); 
-	  }
-	break;
+        // logic 700 stores volume of data, need to find out how big
+        if (aTag.DataCount == 2)
+          {
+          this->Swap2(((short *)(&aTag.DataOffset))+1);
+          numSlices = *(((short *)&aTag.DataOffset)+1); 
+          }
+        break;
       }
     }
   
@@ -347,9 +347,9 @@ void vtkTIFFReader::ExecuteInformation()
       this->DataVOI[4] || this->DataVOI[5])
     { 
     if ((this->DataVOI[0] < 0) ||
-	(this->DataVOI[1] >= xsize) ||
-	(this->DataVOI[2] < 0) ||
-	(this->DataVOI[3] >= ysize))
+        (this->DataVOI[1] >= xsize) ||
+        (this->DataVOI[2] < 0) ||
+        (this->DataVOI[3] >= ysize))
       {
       vtkWarningMacro("The requested VOI is larger than the file's (" << this->InternalFileName << ") extent ");
       this->DataVOI[0] = 0;

@@ -187,16 +187,16 @@ void vtkOBJReader::Execute()
       while ((ptr = (char *) strchr (ptr, (int) ' '))) 
         {
         while (*ptr == ' ')
-	  {
-	  ptr++;
-	  }
+          {
+          ptr++;
+          }
         if ( sscanf(ptr, "%d", &objPtId) == 1 ) 
           {
           polys->InsertCellPoint(ptId++);
-	  pts->InsertNextPoint (objPts->GetPoint (objPtId-1));
+          pts->InsertNextPoint (objPts->GetPoint (objPtId-1));
           count++;
-	  objNormalId = -1;
-	  objTCoordId = -1;
+          objNormalId = -1;
+          objTCoordId = -1;
           if ((next = (char *) strchr (ptr, (int) '/'))) 
             {
             ptr = next + 1;
@@ -216,14 +216,14 @@ void vtkOBJReader::Execute()
                 }
               }
             }
-	  if (normals && objNormalId != -1)
-	    {
-	    normals->InsertNextTuple (objNormals->GetTuple (objNormalId - 1));
-	    }
-	  if (tcoords && objTCoordId != -1)
-	    {
-	    tcoords->InsertNextTuple (objTCoords->GetTuple (objTCoordId - 1));
-	    }
+          if (normals && objNormalId != -1)
+            {
+            normals->InsertNextTuple (objNormals->GetTuple (objNormalId - 1));
+            }
+          if (tcoords && objTCoordId != -1)
+            {
+            tcoords->InsertNextTuple (objTCoords->GetTuple (objTCoordId - 1));
+            }
           }
         }
       polys->UpdateCellCount(count);

@@ -66,7 +66,7 @@ vtkImageAppendComponents* vtkImageAppendComponents::New()
 //----------------------------------------------------------------------------
 // This method tells the ouput it will have more components
 void vtkImageAppendComponents::ExecuteInformation(vtkImageData **inputs, 
-						  vtkImageData *output)
+                                                  vtkImageData *output)
 {
   int idx1, num;
 
@@ -86,11 +86,11 @@ void vtkImageAppendComponents::ExecuteInformation(vtkImageData **inputs,
 // This templated function executes the filter for any type of data.
 template <class T>
 static void vtkImageAppendComponentsExecute(vtkImageAppendComponents *self,
-					    vtkImageData *inData, 
-					    T *inPtrP, int inComp,
-					    vtkImageData *outData, 
-					    T *outPtrP, int outComp,
-					    int outExt[6], int id)
+                                            vtkImageData *inData, 
+                                            T *inPtrP, int inComp,
+                                            vtkImageData *outData, 
+                                            T *outPtrP, int outComp,
+                                            int outExt[6], int id)
 {
   int idxX, idxY, idxZ;
   int maxX, maxY, maxZ;
@@ -105,7 +105,7 @@ static void vtkImageAppendComponentsExecute(vtkImageAppendComponents *self,
   maxY = outExt[3] - outExt[2]; 
   maxZ = outExt[5] - outExt[4];
   target = (unsigned long)(outData->GetNumberOfScalarComponents()*
-			   (maxZ+1)*(maxY+1)/50.0);
+                           (maxZ+1)*(maxY+1)/50.0);
   target++;
 
   // Get increments to march through data 
@@ -122,21 +122,21 @@ static void vtkImageAppendComponentsExecute(vtkImageAppendComponents *self,
     for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
       {
       if (!id) 
-	{
-	if (!(count%target)) 
-	  {
-	  self->UpdateProgress(count/(50.0*target) 
-			       + (maxZ+1)*(maxY+1)*outComp);
-	  }
-	count++;
-	}
+        {
+        if (!(count%target)) 
+          {
+          self->UpdateProgress(count/(50.0*target) 
+                               + (maxZ+1)*(maxY+1)*outComp);
+          }
+        count++;
+        }
       for (idxX = 0; idxX <= maxX; idxX++)
-	{
-	// Pixel operation
-	*outPtr = *inPtr;
-	outPtr += outIncX;
-	inPtr += inIncX;
-	}
+        {
+        // Pixel operation
+        *outPtr = *inPtr;
+        outPtr += outIncX;
+        inPtr += inIncX;
+        }
       outPtr += outIncY;
       inPtr += inIncY;
       }
@@ -151,8 +151,8 @@ static void vtkImageAppendComponentsExecute(vtkImageAppendComponents *self,
 // It just executes a switch statement to call the correct function for
 // the regions data types.
 void vtkImageAppendComponents::ThreadedExecute(vtkImageData **inData, 
-					       vtkImageData *outData,
-					       int outExt[6], int id)
+                                               vtkImageData *outData,
+                                               int outExt[6], int id)
 {
   int idx1, inComp, outComp, num;
   void *inPtr;
@@ -167,29 +167,29 @@ void vtkImageAppendComponents::ThreadedExecute(vtkImageData **inData,
       num = inData[idx1]->GetNumberOfScalarComponents();
       // inefficient to have this loop here (could be inner loop)
       for (inComp = 0; inComp < num; ++inComp)
-	{
-	++outComp;
-	// this filter expects that input is the same type as output.
-	if (inData[idx1]->GetScalarType() != outData->GetScalarType())
-	  {
-	  vtkErrorMacro(<< "Execute: input" << idx1 << " ScalarType (" << 
-	  inData[idx1]->GetScalarType() << 
-	  "), must match output ScalarType (" << outData->GetScalarType() 
-	  << ")");
-	  return;
-	  }
-	
-	switch (inData[idx1]->GetScalarType())
-	  {
+        {
+        ++outComp;
+        // this filter expects that input is the same type as output.
+        if (inData[idx1]->GetScalarType() != outData->GetScalarType())
+          {
+          vtkErrorMacro(<< "Execute: input" << idx1 << " ScalarType (" << 
+          inData[idx1]->GetScalarType() << 
+          "), must match output ScalarType (" << outData->GetScalarType() 
+          << ")");
+          return;
+          }
+        
+        switch (inData[idx1]->GetScalarType())
+          {
           vtkTemplateMacro9(vtkImageAppendComponentsExecute, this, 
                             inData[idx1], (VTK_TT *)(inPtr), inComp,
                             outData, (VTK_TT *)(outPtr), 
                             outComp, outExt, id);
-	  default:
-	    vtkErrorMacro(<< "Execute: Unknown ScalarType");
-	    return;
-	  }
-	}
+          default:
+            vtkErrorMacro(<< "Execute: Unknown ScalarType");
+            return;
+          }
+        }
       }
     }
   

@@ -1441,42 +1441,42 @@ void vtkGetResliceInterpFunc(vtkImageReslice *self,
     {
     case VTK_RESLICE_NEAREST:
       switch (dataType)
-	{
-	vtkTypeCaseMacro(*((int (**)(VTK_TT *&outPtr, const VTK_TT *inPtr,
-				     const int inExt[6], const int inInc[3],
-				     int numscalars, const F point[3],
-				     int mode,
-				     const VTK_TT *background))interpolate) = \
-			 &vtkNearestNeighborInterpolation);
-	default:
-	  interpolate = 0;
-	}
+        {
+        vtkTypeCaseMacro(*((int (**)(VTK_TT *&outPtr, const VTK_TT *inPtr,
+                                     const int inExt[6], const int inInc[3],
+                                     int numscalars, const F point[3],
+                                     int mode,
+                                     const VTK_TT *background))interpolate) = \
+                         &vtkNearestNeighborInterpolation);
+        default:
+          interpolate = 0;
+        }
       break;
     case VTK_RESLICE_LINEAR:
       switch (dataType)
-	{
-	vtkTypeCaseMacro(*((int (**)(VTK_TT *&outPtr, const VTK_TT *inPtr,
-				     const int inExt[6], const int inInc[3],
-				     int numscalars, const F point[3],
-				     int mode,
-				     const VTK_TT *background))interpolate) = \
-			 &vtkTrilinearInterpolation);
-	default:
-	  interpolate = 0;
-	}
+        {
+        vtkTypeCaseMacro(*((int (**)(VTK_TT *&outPtr, const VTK_TT *inPtr,
+                                     const int inExt[6], const int inInc[3],
+                                     int numscalars, const F point[3],
+                                     int mode,
+                                     const VTK_TT *background))interpolate) = \
+                         &vtkTrilinearInterpolation);
+        default:
+          interpolate = 0;
+        }
       break;
     case VTK_RESLICE_CUBIC:
       switch (dataType)
-	{
-	vtkTypeCaseMacro(*((int (**)(VTK_TT *&outPtr, const VTK_TT *inPtr,
-				     const int inExt[6], const int inInc[3],
-				     int numscalars, const F point[3],
-				     int mode,
-				     const VTK_TT *background))interpolate) = \
-			 &vtkTricubicInterpolation);
-	default:
-	  interpolate = 0;
-	}
+        {
+        vtkTypeCaseMacro(*((int (**)(VTK_TT *&outPtr, const VTK_TT *inPtr,
+                                     const int inExt[6], const int inInc[3],
+                                     int numscalars, const F point[3],
+                                     int mode,
+                                     const VTK_TT *background))interpolate) = \
+                         &vtkTricubicInterpolation);
+        default:
+          interpolate = 0;
+        }
       break;
     default:
       interpolate = 0;
@@ -1529,22 +1529,22 @@ void vtkGetSetPixelsFunc(vtkImageReslice *self,
     {
     case 1:
       switch (dataType)
-	{
-	vtkTypeCaseMacro(*((void (**)(VTK_TT *&out, const VTK_TT *in,
-				      int numscalars, int n))setpixels) = \
-			 vtkSetPixels1);
-	default:
-	  setpixels = 0;
-	}
+        {
+        vtkTypeCaseMacro(*((void (**)(VTK_TT *&out, const VTK_TT *in,
+                                      int numscalars, int n))setpixels) = \
+                         vtkSetPixels1);
+        default:
+          setpixels = 0;
+        }
     default:
       switch (dataType)
-	{
-	vtkTypeCaseMacro(*((void (**)(VTK_TT *&out, const VTK_TT *in,
-				      int numscalars, int n))setpixels) = \
-			 vtkSetPixels);
-	default:
-	  setpixels = 0;
-	}
+        {
+        vtkTypeCaseMacro(*((void (**)(VTK_TT *&out, const VTK_TT *in,
+                                      int numscalars, int n))setpixels) = \
+                         vtkSetPixels);
+        default:
+          setpixels = 0;
+        }
     }
 }
 
@@ -1577,7 +1577,7 @@ void vtkAllocBackgroundPixel(vtkImageReslice *self, void **rval,
   switch (self->GetOutput()->GetScalarType())
     {
     vtkTypeCaseMacro(vtkAllocBackgroundPixelT(self, (VTK_TT **)rval,
-					      numComponents));
+                                              numComponents));
     }
 }      
 
@@ -2843,8 +2843,8 @@ void vtkPermuteTricubicSummation(T *&outPtr, const T *inPtr,
         if (fz != 0)
           {
           int iz = iZ[k];
-	  int j = 0;
-	  do
+          int j = 0;
+          do
             { // loop over y
             F fy = fY[j];
             F fzy = fz*fy;
@@ -2856,7 +2856,7 @@ void vtkPermuteTricubicSummation(T *&outPtr, const T *inPtr,
                            fX2*tmpPtr[iX2] +
                            fX3*tmpPtr[iX3]);
             }
-	  while (++j <= 3);
+          while (++j <= 3);
           }
         }
       while (++k <= k2);
@@ -2888,45 +2888,45 @@ void vtkGetResliceSummationFunc(vtkImageReslice *self,
     {
     case VTK_RESLICE_NEAREST:
       switch (scalarType)
-	{
-	vtkTypeCaseMacro(*((void (**)(VTK_TT *&out, const VTK_TT *in,
-				      int numscalars, int n,
-				      const int *iX, const F *fX,
-				      const int *iY, const F *fY,
-				      const int *iZ, const F *fZ,
-				      const int useNearest[3]))summation) = \
-			 vtkPermuteNearestSummation);
-	default:
-	  summation = 0;
-	}
+        {
+        vtkTypeCaseMacro(*((void (**)(VTK_TT *&out, const VTK_TT *in,
+                                      int numscalars, int n,
+                                      const int *iX, const F *fX,
+                                      const int *iY, const F *fY,
+                                      const int *iZ, const F *fZ,
+                                      const int useNearest[3]))summation) = \
+                         vtkPermuteNearestSummation);
+        default:
+          summation = 0;
+        }
       break;
     case VTK_RESLICE_LINEAR:
       switch (scalarType)
-	{
-	vtkTypeCaseMacro(*((void (**)(VTK_TT *&out, const VTK_TT *in,
-				      int numscalars, int n,
-				      const int *iX, const F *fX,
-				      const int *iY, const F *fY,
-				      const int *iZ, const F *fZ,
-				      const int useNearest[3]))summation) = \
-			 vtkPermuteTrilinearSummation);
-	default:
-	  summation = 0;
-	}
+        {
+        vtkTypeCaseMacro(*((void (**)(VTK_TT *&out, const VTK_TT *in,
+                                      int numscalars, int n,
+                                      const int *iX, const F *fX,
+                                      const int *iY, const F *fY,
+                                      const int *iZ, const F *fZ,
+                                      const int useNearest[3]))summation) = \
+                         vtkPermuteTrilinearSummation);
+        default:
+          summation = 0;
+        }
       break;
     case VTK_RESLICE_CUBIC:
       switch (scalarType)
-	{
-	vtkTypeCaseMacro(*((void (**)(VTK_TT *&out, const VTK_TT *in,
-				      int numscalars, int n,
-				      const int *iX, const F *fX,
-				      const int *iY, const F *fY,
-				      const int *iZ, const F *fZ,
-				      const int useNearest[3]))summation) = \
-			 vtkPermuteTricubicSummation);
-	default:
-	  summation = 0;
-	}
+        {
+        vtkTypeCaseMacro(*((void (**)(VTK_TT *&out, const VTK_TT *in,
+                                      int numscalars, int n,
+                                      const int *iX, const F *fX,
+                                      const int *iY, const F *fY,
+                                      const int *iZ, const F *fZ,
+                                      const int useNearest[3]))summation) = \
+                         vtkPermuteTricubicSummation);
+        default:
+          summation = 0;
+        }
       break;
     default:
       summation = 0;

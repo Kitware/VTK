@@ -89,7 +89,7 @@ void vtkImageTranslateExtent::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 // Change the WholeExtent
 void vtkImageTranslateExtent::ExecuteInformation(vtkImageData *inData, 
-						 vtkImageData *outData)
+                                                 vtkImageData *outData)
 {
   int idx, extent[6];
   float *spacing, origin[3];
@@ -133,7 +133,7 @@ void vtkImageTranslateExtent::ExecuteData(vtkDataObject *data)
 
 //----------------------------------------------------------------------------
 void vtkImageTranslateExtent::ComputeInputUpdateExtent(int extent[6], 
-						       int inExtent[6])
+                                                       int inExtent[6])
 {
   extent[0] = inExtent[0] - this->Translation[0];
   extent[1] = inExtent[1] - this->Translation[0];

@@ -152,7 +152,7 @@ void vtkBMPReader::ExecuteInformation()
     {
     fread(&infoSize,sizeof(long),1,fp);
     vtkByteSwap::Swap4LE(&infoSize);
-		       
+                       
     // error checking
     if ((infoSize != 40)&&(infoSize != 12))
       {
@@ -260,9 +260,9 @@ void vtkBMPReader::ExecuteInformation()
       this->Colors[tmp*3+1] = fgetc(fp);
       this->Colors[tmp*3] = fgetc(fp);
       if (infoSize == 40)
-	{
-	fgetc(fp);
-	}
+        {
+        fgetc(fp);
+        }
       }
     }
   
@@ -274,9 +274,9 @@ void vtkBMPReader::ExecuteInformation()
       this->DataVOI[4] || this->DataVOI[5])
     { 
     if ((this->DataVOI[0] < 0) ||
-	(this->DataVOI[1] >= xsize) ||
-	(this->DataVOI[2] < 0) ||
-	(this->DataVOI[3] >= ysize))
+        (this->DataVOI[1] >= xsize) ||
+        (this->DataVOI[2] < 0) ||
+        (this->DataVOI[3] >= ysize))
       {
       vtkWarningMacro("The requested VOI is larger than the file's (" << this->InternalFileName << ") extent ");
       this->DataVOI[0] = 0;
@@ -351,7 +351,7 @@ void vtkBMPReader::ComputeDataIncrements()
 // templated to handle different data types.
 template <class OT>
 static void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data, 
-				OT *outPtr)
+                                OT *outPtr)
 {
   int inIncr[3], outIncr[3];
   OT *outPtr0, *outPtr1, *outPtr2;
@@ -412,7 +412,7 @@ static void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data,
   buf = new unsigned char[streamRead];
   
   target = (unsigned long)((dataExtent[5]-dataExtent[4]+1)*
-			   (dataExtent[3]-dataExtent[2]+1)/50.0);
+                           (dataExtent[3]-dataExtent[2]+1)/50.0);
   target++;
 
   // read the data row by row
@@ -428,48 +428,48 @@ static void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data,
       }
     outPtr1 = outPtr2;
     for (idx1 = dataExtent[2]; 
-	 !self->AbortExecute && idx1 <= dataExtent[3]; ++idx1)
+         !self->AbortExecute && idx1 <= dataExtent[3]; ++idx1)
       {
       if (!(count%target))
-	{
-	self->UpdateProgress(count/(50.0*target));
-	}
+        {
+        self->UpdateProgress(count/(50.0*target));
+        }
       count++;
       outPtr0 = outPtr1;
       
       // read the row.
       if ( ! self->GetFile()->read((char *)buf, streamRead))
-	{
-	vtkGenericWarningMacro("File operation failed. row = " << idx1
-			       << ", Read = " << streamRead
-			       << ", Skip0 = " << streamSkip0
-			       << ", Skip1 = " << streamSkip1
-			       << ", FilePos = " << self->GetFile()->tellg());
-	return;
-	}
+        {
+        vtkGenericWarningMacro("File operation failed. row = " << idx1
+                               << ", Read = " << streamRead
+                               << ", Skip0 = " << streamSkip0
+                               << ", Skip1 = " << streamSkip1
+                               << ", FilePos = " << self->GetFile()->tellg());
+        return;
+        }
       
 
       // copy the bytes into the typed data
       inPtr = buf;
       for (idx0 = dataExtent[0]; idx0 <= dataExtent[1]; ++idx0)
-	{
-	// Copy pixel into the output.
-	if (self->GetDepth() == 8)
-	  {
-	  outPtr0[0] = (OT)(Colors[inPtr[0]*3]);
-	  outPtr0[1] = (OT)(Colors[inPtr[0]*3+1]);
-	  outPtr0[2] = (OT)(Colors[inPtr[0]*3+2]);
-	  }
-	else
-	  {
-	  outPtr0[0] = (OT)(inPtr[2]);
-	  outPtr0[1] = (OT)(inPtr[1]);
-	  outPtr0[2] = (OT)(inPtr[0]);
-	  }
-	// move to next pixel
-	inPtr += pixelSkip;
-	outPtr0 += outIncr[0];
-	}
+        {
+        // Copy pixel into the output.
+        if (self->GetDepth() == 8)
+          {
+          outPtr0[0] = (OT)(Colors[inPtr[0]*3]);
+          outPtr0[1] = (OT)(Colors[inPtr[0]*3+1]);
+          outPtr0[2] = (OT)(Colors[inPtr[0]*3+2]);
+          }
+        else
+          {
+          outPtr0[0] = (OT)(inPtr[2]);
+          outPtr0[1] = (OT)(inPtr[1]);
+          outPtr0[2] = (OT)(inPtr[0]);
+          }
+        // move to next pixel
+        inPtr += pixelSkip;
+        outPtr0 += outIncr[0];
+        }
       // move to the next row in the file and data
       self->GetFile()->seekg(self->GetFile()->tellg() + streamSkip0, ios::beg);
       outPtr1 += outIncr[1];

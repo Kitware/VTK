@@ -65,7 +65,7 @@ vtkImageLuminance* vtkImageLuminance::New()
 //----------------------------------------------------------------------------
 // This method overrides information set by parent's ExecuteInformation.
 void vtkImageLuminance::ExecuteInformation(vtkImageData *vtkNotUsed(inData), 
-					   vtkImageData *outData)
+                                           vtkImageData *outData)
 {
   outData->SetNumberOfScalarComponents(1);
 }
@@ -76,9 +76,9 @@ void vtkImageLuminance::ExecuteInformation(vtkImageData *vtkNotUsed(inData),
 // out of extent.
 template <class T>
 static void vtkImageLuminanceExecute(vtkImageLuminance *self,
-					     vtkImageData *inData, T *inPtr,
-					     vtkImageData *outData, T *outPtr,
-					     int outExt[6], int id)
+                                             vtkImageData *inData, T *inPtr,
+                                             vtkImageData *outData, T *outPtr,
+                                             int outExt[6], int id)
 {
   int idxX, idxY, idxZ;
   int maxX, maxY, maxZ;
@@ -105,21 +105,21 @@ static void vtkImageLuminanceExecute(vtkImageLuminance *self,
     for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
       {
       if (!id) 
-	{
-	if (!(count%target))
-	  {
-	  self->UpdateProgress(count/(50.0*target));
-	  }
-	count++;
-	}
+        {
+        if (!(count%target))
+          {
+          self->UpdateProgress(count/(50.0*target));
+          }
+        count++;
+        }
       for (idxX = 0; idxX <= maxX; idxX++)
-	{
+        {
         luminance =  0.30 * *inPtr++;
         luminance += 0.59 * *inPtr++;
-	luminance += 0.11 * *inPtr++;
-	*outPtr = (T)(luminance);
-	outPtr++;
-	}
+        luminance += 0.11 * *inPtr++;
+        *outPtr = (T)(luminance);
+        outPtr++;
+        }
       outPtr += outIncY;
       inPtr += inIncY;
       }
@@ -134,8 +134,8 @@ static void vtkImageLuminanceExecute(vtkImageLuminance *self,
 // templated function for the input data type.  The output data
 // must match input type.  This method does handle boundary conditions.
 void vtkImageLuminance::ThreadedExecute(vtkImageData *inData, 
-					vtkImageData *outData,
-					int outExt[6], int id)
+                                        vtkImageData *outData,
+                                        int outExt[6], int id)
 {
   void *inPtr = inData->GetScalarPointerForExtent(outExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);

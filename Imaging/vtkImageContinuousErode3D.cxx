@@ -127,18 +127,18 @@ void vtkImageContinuousErode3D::SetKernelSize(int size0, int size1, int size2)
     {
     this->Modified();
     this->Ellipse->SetWholeExtent(0, this->KernelSize[0]-1, 
-				  0, this->KernelSize[1]-1, 
-				  0, this->KernelSize[2]-1);
+                                  0, this->KernelSize[1]-1, 
+                                  0, this->KernelSize[2]-1);
     this->Ellipse->SetCenter((float)(this->KernelSize[0]-1)*0.5,
-			     (float)(this->KernelSize[1]-1)*0.5,
-			     (float)(this->KernelSize[2]-1)*0.5);
+                             (float)(this->KernelSize[1]-1)*0.5,
+                             (float)(this->KernelSize[2]-1)*0.5);
     this->Ellipse->SetRadius((float)(this->KernelSize[0])*0.5,
-			     (float)(this->KernelSize[1])*0.5,
-			     (float)(this->KernelSize[2])*0.5);
+                             (float)(this->KernelSize[1])*0.5,
+                             (float)(this->KernelSize[2])*0.5);
     // make sure scalars have been allocated (needed if multithreaded is used)
     this->Ellipse->GetOutput()->SetUpdateExtent(0, this->KernelSize[0]-1, 
-						0, this->KernelSize[1]-1, 
-						0, this->KernelSize[2]-1);
+                                                0, this->KernelSize[1]-1, 
+                                                0, this->KernelSize[2]-1);
     this->Ellipse->GetOutput()->Update();
     }
 }
@@ -151,10 +151,10 @@ void vtkImageContinuousErode3D::SetKernelSize(int size0, int size1, int size2)
 // for strictly center (no boundary ) processing.
 template <class T>
 static void vtkImageContinuousErode3DExecute(vtkImageContinuousErode3D *self,
-					     vtkImageData *mask,
-					     vtkImageData *inData, T *inPtr, 
-					     vtkImageData *outData, 
-					     int *outExt, T *outPtr, int id)
+                                             vtkImageData *mask,
+                                             vtkImageData *inData, T *inPtr, 
+                                             vtkImageData *outData, 
+                                             int *outExt, T *outPtr, int id)
 {
   int *kernelMiddle, *kernelSize;
   // For looping though output (and input) pixels.
@@ -183,7 +183,7 @@ static void vtkImageContinuousErode3DExecute(vtkImageContinuousErode3D *self,
   // Get information to march through data
   inData->GetIncrements(inInc0, inInc1, inInc2); 
   self->GetInput()->GetWholeExtent(inImageMin0, inImageMax0, inImageMin1,
-				   inImageMax1, inImageMin2, inImageMax2);
+                                   inImageMax1, inImageMin2, inImageMax2);
   outData->GetIncrements(outInc0, outInc1, outInc2); 
   outMin0 = outExt[0];   outMax0 = outExt[1];
   outMin1 = outExt[2];   outMax1 = outExt[3];
@@ -209,7 +209,7 @@ static void vtkImageContinuousErode3DExecute(vtkImageContinuousErode3D *self,
   inPtr = (T *)(inData->GetScalarPointer(outMin0, outMin1, outMin2));
 
   target = (unsigned long)(numComps*(outMax2-outMin2+1)*
-			   (outMax1-outMin1+1)/50.0);
+                           (outMax1-outMin1+1)/50.0);
   target++;
   
   // loop through components
@@ -223,73 +223,73 @@ static void vtkImageContinuousErode3DExecute(vtkImageContinuousErode3D *self,
       outPtr1 = outPtr2;
       inPtr1 = inPtr2;
       for (outIdx1 = outMin1; 
-	   !self->AbortExecute && outIdx1 <= outMax1; ++outIdx1)
-	{
-	if (!id) 
-	  {
-	  if (!(count%target))
-	    {
-	    self->UpdateProgress(count/(50.0*target));
-	    }
-	  count++;
-	  }
-	outPtr0 = outPtr1;
-	inPtr0 = inPtr1;
-	for (outIdx0 = outMin0; outIdx0 <= outMax0; ++outIdx0)
-	  {
-	  
-	  // Find min
-	  pixelMin = *inPtr0;
-	  // loop through neighborhood pixels
-	  // as sort of a hack to handle boundaries, 
-	  // input pointer will be marching through data that does not exist.
-	  hoodPtr2 = inPtr0 - kernelMiddle[0] * inInc0 
-	    - kernelMiddle[1] * inInc1 - kernelMiddle[2] * inInc2;
-	  maskPtr2 = maskPtr;
-	  for (hoodIdx2 = hoodMin2; hoodIdx2 <= hoodMax2; ++hoodIdx2)
-	    {
-	    hoodPtr1 = hoodPtr2;
-	    maskPtr1 = maskPtr2;
-	    for (hoodIdx1 = hoodMin1; hoodIdx1 <= hoodMax1; ++hoodIdx1)
-	      {
-	      hoodPtr0 = hoodPtr1;
-	      maskPtr0 = maskPtr1;
-	      for (hoodIdx0 = hoodMin0; hoodIdx0 <= hoodMax0; ++hoodIdx0)
-		{
-		// A quick but rather expensive way to handle boundaries
-		if ( outIdx0 + hoodIdx0 >= inImageMin0 &&
-		     outIdx0 + hoodIdx0 <= inImageMax0 &&
-		     outIdx1 + hoodIdx1 >= inImageMin1 &&
-		     outIdx1 + hoodIdx1 <= inImageMax1 &&
-		     outIdx2 + hoodIdx2 >= inImageMin2 &&
-		     outIdx2 + hoodIdx2 <= inImageMax2)
-		  {
-		  if (*maskPtr0)
-		    {
-		    if (*hoodPtr0 < pixelMin)
-		      {
-		      pixelMin = *hoodPtr0;
-		      }
-		    }
-		  }
-		
-		hoodPtr0 += inInc0;
-		maskPtr0 += maskInc0;
-		}
-	      hoodPtr1 += inInc1;
-	      maskPtr1 += maskInc1;
-	      }
-	    hoodPtr2 += inInc2;
-	    maskPtr2 += maskInc2;
-	    }
-	  *outPtr0 = pixelMin;
-	  
-	  inPtr0 += inInc0;
-	  outPtr0 += outInc0;
-	  }
-	inPtr1 += inInc1;
-	outPtr1 += outInc1;
-	}
+           !self->AbortExecute && outIdx1 <= outMax1; ++outIdx1)
+        {
+        if (!id) 
+          {
+          if (!(count%target))
+            {
+            self->UpdateProgress(count/(50.0*target));
+            }
+          count++;
+          }
+        outPtr0 = outPtr1;
+        inPtr0 = inPtr1;
+        for (outIdx0 = outMin0; outIdx0 <= outMax0; ++outIdx0)
+          {
+          
+          // Find min
+          pixelMin = *inPtr0;
+          // loop through neighborhood pixels
+          // as sort of a hack to handle boundaries, 
+          // input pointer will be marching through data that does not exist.
+          hoodPtr2 = inPtr0 - kernelMiddle[0] * inInc0 
+            - kernelMiddle[1] * inInc1 - kernelMiddle[2] * inInc2;
+          maskPtr2 = maskPtr;
+          for (hoodIdx2 = hoodMin2; hoodIdx2 <= hoodMax2; ++hoodIdx2)
+            {
+            hoodPtr1 = hoodPtr2;
+            maskPtr1 = maskPtr2;
+            for (hoodIdx1 = hoodMin1; hoodIdx1 <= hoodMax1; ++hoodIdx1)
+              {
+              hoodPtr0 = hoodPtr1;
+              maskPtr0 = maskPtr1;
+              for (hoodIdx0 = hoodMin0; hoodIdx0 <= hoodMax0; ++hoodIdx0)
+                {
+                // A quick but rather expensive way to handle boundaries
+                if ( outIdx0 + hoodIdx0 >= inImageMin0 &&
+                     outIdx0 + hoodIdx0 <= inImageMax0 &&
+                     outIdx1 + hoodIdx1 >= inImageMin1 &&
+                     outIdx1 + hoodIdx1 <= inImageMax1 &&
+                     outIdx2 + hoodIdx2 >= inImageMin2 &&
+                     outIdx2 + hoodIdx2 <= inImageMax2)
+                  {
+                  if (*maskPtr0)
+                    {
+                    if (*hoodPtr0 < pixelMin)
+                      {
+                      pixelMin = *hoodPtr0;
+                      }
+                    }
+                  }
+                
+                hoodPtr0 += inInc0;
+                maskPtr0 += maskInc0;
+                }
+              hoodPtr1 += inInc1;
+              maskPtr1 += maskInc1;
+              }
+            hoodPtr2 += inInc2;
+            maskPtr2 += maskInc2;
+            }
+          *outPtr0 = pixelMin;
+          
+          inPtr0 += inInc0;
+          outPtr0 += outInc0;
+          }
+        inPtr1 += inInc1;
+        outPtr1 += outInc1;
+        }
       inPtr2 += inInc2;
       outPtr2 += outInc2;
       }
@@ -299,15 +299,15 @@ static void vtkImageContinuousErode3DExecute(vtkImageContinuousErode3D *self,
 }
 
 
-		
+                
 
 //----------------------------------------------------------------------------
 // This method contains the first switch statement that calls the correct
 // templated function for the input and output Data types.
 // It hanldes image boundaries, so the image does not shrink.
 void vtkImageContinuousErode3D::ThreadedExecute(vtkImageData *inData, 
-						vtkImageData *outData, 
-						int outExt[6], int id)
+                                                vtkImageData *outData, 
+                                                int outExt[6], int id)
 {
   int inExt[6];
   this->ComputeInputUpdateExtent(inExt,outExt);

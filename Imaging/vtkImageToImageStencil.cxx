@@ -136,7 +136,7 @@ void vtkImageToImageStencil::ThresholdBetween(float lower, float upper)
 
 //----------------------------------------------------------------------------
 void vtkImageToImageStencil::ThreadedExecute(vtkImageStencilData *data,
-					     int outExt[6], int id)
+                                             int outExt[6], int id)
 {
   vtkImageData *inData = this->GetInput();
   if (!inData)
@@ -183,13 +183,13 @@ void vtkImageToImageStencil::ThreadedExecute(vtkImageStencilData *data,
     for (int idY = extent[2]; idY <= extent[3]; idY++)
       {
       if (id == 0)
-	{ // update progress if we're the main thread
-	if (count%target == 0) 
-	  {
-	  this->UpdateProgress(count/(50.0*target));
-	  }
-	count++;
-	}
+        { // update progress if we're the main thread
+        if (count%target == 0) 
+          {
+          this->UpdateProgress(count/(50.0*target));
+          }
+        count++;
+        }
 
       int state = 1; // inside or outside, start outside
       int r1 = extent[0];
@@ -197,32 +197,32 @@ void vtkImageToImageStencil::ThreadedExecute(vtkImageStencilData *data,
 
       // index into scalar array
       int idS = ((inExt[1] - inExt[0] + 1)*
-		 ((inExt[3] - inExt[2] + 1)*(idZ - inExt[4]) +
-		  (idY - inExt[2])) + (extent[0] - inExt[0]));
+                 ((inExt[3] - inExt[2] + 1)*(idZ - inExt[4]) +
+                  (idY - inExt[2])) + (extent[0] - inExt[0]));
 
       for (int idX = extent[0]; idX <= extent[1]; idX++)
-	{
-	int newstate = 1;
-	float value = inScalars->GetComponent(idS++,0);
-	if (value >= lowerThreshold && value <= upperThreshold)
-	  {
+        {
+        int newstate = 1;
+        float value = inScalars->GetComponent(idS++,0);
+        if (value >= lowerThreshold && value <= upperThreshold)
+          {
           newstate = -1;
-	  if (newstate != state)
-	    { // sub extent starts
-	    r1 = idX;
-	    }
-	  }
-	else if (newstate != state)
-	  { // sub extent ends
-	  r2 = idX - 1;
-	  data->InsertNextExtent(r1, r2, idY, idZ);
-	  }
-	state = newstate;
-	} // for idX
+          if (newstate != state)
+            { // sub extent starts
+            r1 = idX;
+            }
+          }
+        else if (newstate != state)
+          { // sub extent ends
+          r2 = idX - 1;
+          data->InsertNextExtent(r1, r2, idY, idZ);
+          }
+        state = newstate;
+        } // for idX
       if (state < 0)
-	{ // if inside at end, cap off the sub extent
-	data->InsertNextExtent(r1, extent[1], idY, idZ);
-	}
+        { // if inside at end, cap off the sub extent
+        data->InsertNextExtent(r1, extent[1], idY, idZ);
+        }
       } // for idY
     } // for idZ
 }

@@ -125,9 +125,9 @@ protected:
   int GradientMagnitudeThreshold;
   
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
-		       int extent[6], int id);
+                       int extent[6], int id);
   void Iterate(vtkImageData *in, vtkImageData *out, 
-	       float ar0, float ar1, int *coreExtent, int count);
+               float ar0, float ar1, int *coreExtent, int count);
 private:
   vtkImageAnisotropicDiffusion2D(const vtkImageAnisotropicDiffusion2D&);  // Not implemented.
   void operator=(const vtkImageAnisotropicDiffusion2D&);  // Not implemented.

@@ -205,7 +205,7 @@ ostream *vtkDataWriter::OpenVTKFile()
     this->OutputString = new char[this->OutputStringAllocatedLength];
 
     fptr = new ostrstream(this->OutputString, 
-			  this->OutputStringAllocatedLength);
+                          this->OutputStringAllocatedLength);
     }
   else 
     {
@@ -277,7 +277,7 @@ int vtkDataWriter::WriteCellData(ostream *fp, vtkDataSet *ds)
   field = cd;
 
   if ( numCells <= 0 || !(scalars || vectors || normals || tcoords || 
-			  tensors || field))
+                          tensors || field))
     {
     vtkDebugMacro(<<"No cell data to write!");
     return 1;
@@ -372,7 +372,7 @@ int vtkDataWriter::WritePointData(ostream *fp, vtkDataSet *ds)
   field = pd;
 
   if ( numPts <= 0 || !(scalars || vectors || normals || tcoords || 
-			tensors || field))
+                        tensors || field))
     {
     vtkDebugMacro(<<"No point data to write!");
     return 1;
@@ -458,14 +458,14 @@ static void WriteDataArray(ostream *fp, T *data, int fileType, const char *forma
     for (j=0; j<num; j++)
       {
       for (i=0; i<numComp; i++)
-	{
-	idx = i + j*numComp;
-	sprintf (str, format, *data++); *fp << str; 
-	if ( !((idx+1)%9) )
-	  {
-	  *fp << "\n";
-	  }
-	}
+        {
+        idx = i + j*numComp;
+        sprintf (str, format, *data++); *fp << str; 
+        if ( !((idx+1)%9) )
+          {
+          *fp << "\n";
+          }
+        }
       }
     }
   else
@@ -474,15 +474,15 @@ static void WriteDataArray(ostream *fp, T *data, int fileType, const char *forma
     switch (sizeT)
       {
       case 2:
-	// typecast doesn't have to be valid here
-	vtkByteSwap::SwapWrite2BERange((short *)data,num*numComp, fp);
-	break;
+        // typecast doesn't have to be valid here
+        vtkByteSwap::SwapWrite2BERange((short *)data,num*numComp, fp);
+        break;
       case 4:
-	// typecast doesn't have to be valid here
-	vtkByteSwap::SwapWrite4BERange((float *)data,num*numComp, fp);
-	break;
+        // typecast doesn't have to be valid here
+        vtkByteSwap::SwapWrite4BERange((float *)data,num*numComp, fp);
+        break;
       default:
-	fp->write((char *)data, ( sizeof(T))*( num*numComp));
+        fp->write((char *)data, ( sizeof(T))*( num*numComp));
 
       }
     }
@@ -502,32 +502,32 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkDataArray *data,
       {
       sprintf (str, format, "bit"); *fp << str; 
       if ( this->FileType == VTK_ASCII )
-	{
-	int s;
-	for (j=0; j<num; j++)
-	  {
-	  for (i=0; i<numComp; i++)
-	    {
-	    idx = i + j*numComp;
-	    s = ((vtkBitArray *)data)->GetValue(idx);
-	    *fp << (s!=0.0?1:0); 
-	    if ( !((idx+1)%8) )
-	      {
-	      *fp << "\n";
-	      }
-	    else
-	      {
-	      *fp << " ";
-	      }
-	    }
-	  }
-	}
+        {
+        int s;
+        for (j=0; j<num; j++)
+          {
+          for (i=0; i<numComp; i++)
+            {
+            idx = i + j*numComp;
+            s = ((vtkBitArray *)data)->GetValue(idx);
+            *fp << (s!=0.0?1:0); 
+            if ( !((idx+1)%8) )
+              {
+              *fp << "\n";
+              }
+            else
+              {
+              *fp << " ";
+              }
+            }
+          }
+        }
       else
-	{
+        {
         unsigned char *cptr=((vtkUnsignedCharArray *)data)->GetPointer(0);
-	fp->write((char *)cptr, (sizeof(unsigned char))*((num-1)/8+1));
+        fp->write((char *)cptr, (sizeof(unsigned char))*((num-1)/8+1));
 
-	}
+        }
       *fp << "\n";
       }
     break;
@@ -655,7 +655,7 @@ int vtkDataWriter::WritePoints(ostream *fp, vtkPoints *points)
 
 // Write out coordinates for rectilinear grids.
 int vtkDataWriter::WriteCoordinates(ostream *fp, vtkDataArray *coords, 
-				    int axes)
+                                    int axes)
 {
   int ncoords=coords->GetNumberOfTuples();
   
@@ -708,7 +708,7 @@ int vtkDataWriter::WriteScalarData(ostream *fp, vtkDataArray *scalars, int num)
               this->ScalarsName, numComp, name);
       }
     if (this->WriteArray(fp, scalars->GetDataType(), scalars, format, 
-			 num, numComp) == 0)
+                         num, numComp) == 0)
       {
       return 0;
       }
@@ -724,14 +724,14 @@ int vtkDataWriter::WriteScalarData(ostream *fp, vtkDataArray *scalars, int num)
       {
       for (i=0; i<num; i++)
         {
-	for (j=0; j<nvs; j++)
-	  {
-	  *fp << ((float)data[nvs*i+j]/255.0) << " ";
-	  }
+        for (j=0; j<nvs; j++)
+          {
+          *fp << ((float)data[nvs*i+j]/255.0) << " ";
+          }
         if ( i != 0 && !(i%2) )
-	  {
-	  *fp << "\n";
-	  }
+          {
+          *fp << "\n";
+          }
         }
       }
     else // binary type
@@ -793,7 +793,7 @@ int vtkDataWriter::WriteTCoordData(ostream *fp, vtkDataArray *tcoords, int num)
   *fp << "TEXTURE_COORDINATES ";
   sprintf(format, "%s %d %s\n", this->TCoordsName, dim, "%s");
   return this->WriteArray(fp, tcoords->GetDataType(), tcoords, format, num, 
-			  dim);
+                          dim);
 }
 
 int vtkDataWriter::WriteTensorData(ostream *fp, vtkDataArray *tensors, int num)
@@ -838,7 +838,7 @@ int vtkDataWriter::WriteFieldData(ostream *fp, vtkFieldData *f)
   for (i=0; i < numArrays; i++)
     {
     if (!vtkIsInTheList(i, attributeIndices, 
-			vtkDataSetAttributes::NUM_ATTRIBUTES))
+                        vtkDataSetAttributes::NUM_ATTRIBUTES))
       {
       actNumArrays++;
       }
@@ -853,22 +853,22 @@ int vtkDataWriter::WriteFieldData(ostream *fp, vtkFieldData *f)
   for (i=0; i < numArrays; i++)
     {
     if (!vtkIsInTheList(i, attributeIndices, 
-			vtkDataSetAttributes::NUM_ATTRIBUTES))
+                        vtkDataSetAttributes::NUM_ATTRIBUTES))
       {
       array = f->GetArray(i);
       if ( array != NULL )
-	{
-	numComp = array->GetNumberOfComponents();
-	numTuples = array->GetNumberOfTuples();
-	sprintf(format, "%s %d %d %s\n", array->GetName(), numComp, numTuples, 
-		"%s");
-	this->WriteArray(fp, array->GetDataType(), array, format, numTuples, 
-			 numComp);
-	}
+        {
+        numComp = array->GetNumberOfComponents();
+        numTuples = array->GetNumberOfTuples();
+        sprintf(format, "%s %d %d %s\n", array->GetName(), numComp, numTuples, 
+                "%s");
+        this->WriteArray(fp, array->GetDataType(), array, format, numTuples, 
+                         numComp);
+        }
       else
-	{
-	*fp << "NULL_ARRAY"; 
-	}
+        {
+        *fp << "NULL_ARRAY"; 
+        }
       }
     }
   
@@ -944,15 +944,15 @@ void vtkDataWriter::CloseVTKFile(ostream *fp)
       this->OutputStringLength = ostr->pcount();
 
       if (this->OutputStringLength == this->OutputStringAllocatedLength)
-	{
-	vtkErrorMacro("OutputString was not long enough.");
-	}
+        {
+        vtkErrorMacro("OutputString was not long enough.");
+        }
       // Sanity check.
       tmp = ostr->str();
       if (tmp != this->OutputString)
-	{
-	vtkErrorMacro("String mismatch");
-	}
+        {
+        vtkErrorMacro("String mismatch");
+        }
       this->OutputString = tmp;
       }
     delete fp;

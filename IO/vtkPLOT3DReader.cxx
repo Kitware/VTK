@@ -445,7 +445,7 @@ int vtkPLOT3DReader::ReadBinaryGrid(FILE *fp,vtkStructuredGrid *output)
 
 // for UpdateInformation
 int vtkPLOT3DReader::ReadBinaryGridDimensions(FILE *fp,
-					      vtkStructuredGrid *output)
+                                              vtkStructuredGrid *output)
 {
   int dim[3];
   int i, offset, gridSize;
@@ -1445,9 +1445,9 @@ void vtkPLOT3DReader::ComputePressureGradient(vtkPointData *outputPD)
           {
           factor = 1.0;
           for (ii=0; ii<3; ii++)
-	    {
-	    xp[ii] = xm[ii] = 0.0;
-	    }
+            {
+            xp[ii] = xm[ii] = 0.0;
+            }
           xp[0] = 1.0; pp = pm = 0.0;
           }
         else if ( i == 0 ) 
@@ -1491,9 +1491,9 @@ void vtkPLOT3DReader::ComputePressureGradient(vtkPointData *outputPD)
           {
           factor = 1.0;
           for (ii=0; ii<3; ii++)
-	    {
-	    xp[ii] = xm[ii] = 0.0;
-	    }
+            {
+            xp[ii] = xm[ii] = 0.0;
+            }
           xp[1] = 1.0; pp = pm = 0.0;
           }
         else if ( j == 0 ) 
@@ -1537,9 +1537,9 @@ void vtkPLOT3DReader::ComputePressureGradient(vtkPointData *outputPD)
           {
           factor = 1.0;
           for (ii=0; ii<3; ii++)
-	    {
-	    xp[ii] = xm[ii] = 0.0;
-	    }
+            {
+            xp[ii] = xm[ii] = 0.0;
+            }
           xp[2] = 1.0; pp = pm = 0.0;
           }
         else if ( k == 0 ) 
@@ -1586,9 +1586,9 @@ void vtkPLOT3DReader::ComputePressureGradient(vtkPointData *outputPD)
         aj =  xxi*yeta*zzeta+yxi*zeta*xzeta+zxi*xeta*yzeta
               -zxi*yeta*xzeta-yxi*xeta*zzeta-xxi*zeta*yzeta;
         if (aj != 0.0)
-	  {
-	  aj = 1. / aj;
-	  }
+          {
+          aj = 1. / aj;
+          }
 
         //  Xi metrics.
         xix  =  aj*(yeta*zzeta-zeta*yzeta);

@@ -63,7 +63,7 @@ public:
   // Set/Get the extent of the whole output image.
   void SetWholeExtent(int extent[6]);
   void SetWholeExtent(int minX, int maxX, int minY, int maxY, 
-			    int minZ, int maxZ);
+                            int minZ, int maxZ);
   void GetWholeExtent(int extent[6]);
   int *GetWholeExtent() {return this->WholeExtent;}
   

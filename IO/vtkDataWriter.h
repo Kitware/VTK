@@ -220,7 +220,7 @@ protected:
   char *FieldDataName;
 
   int WriteArray(ostream *fp, int dataType, vtkDataArray *data, const char *format, 
-		 int num, int numComp);
+                 int num, int numComp);
   int WriteScalarData(ostream *fp, vtkDataArray *s, int num);
   int WriteVectorData(ostream *fp, vtkDataArray *v, int num);
   int WriteNormalData(ostream *fp, vtkDataArray *n, int num);

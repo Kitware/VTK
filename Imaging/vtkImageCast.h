@@ -101,7 +101,7 @@ protected:
   void UpdateData(vtkDataObject *data);
   void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
-		       int ext[6], int id);
+                       int ext[6], int id);
 
 private:
   vtkImageCast(const vtkImageCast&);  // Not implemented.

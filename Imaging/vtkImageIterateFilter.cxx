@@ -206,7 +206,7 @@ void vtkImageIterateFilter::ExecuteInformation()
 //  Called by the above for each decomposition.  Subclass can modify
 // the defaults by implementing this method.
 void vtkImageIterateFilter::ExecuteInformation(vtkImageData *vtkNotUsed(inData),
-				       vtkImageData *vtkNotUsed(outData))
+                                       vtkImageData *vtkNotUsed(outData))
 {
 }
 

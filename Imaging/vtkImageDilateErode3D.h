@@ -88,7 +88,7 @@ protected:
   float ErodeValue;
     
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
-		       int extent[6], int id);
+                       int extent[6], int id);
 private:
   vtkImageDilateErode3D(const vtkImageDilateErode3D&);  // Not implemented.
   void operator=(const vtkImageDilateErode3D&);  // Not implemented.

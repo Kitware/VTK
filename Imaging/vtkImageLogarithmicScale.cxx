@@ -75,9 +75,9 @@ vtkImageLogarithmicScale::vtkImageLogarithmicScale()
 // This templated function executes the filter for any type of data.
 template <class T>
 static void vtkImageLogarithmicScaleExecute(vtkImageLogarithmicScale *self,
-					    vtkImageData *inData, T *inPtr,
-					    vtkImageData *outData, T *outPtr, 
-					    int outExt[6], int id)
+                                            vtkImageData *inData, T *inPtr,
+                                            vtkImageData *outData, T *outPtr, 
+                                            int outExt[6], int id)
 {
   int idxR, idxY, idxZ;
   int maxY, maxZ;
@@ -107,29 +107,29 @@ static void vtkImageLogarithmicScaleExecute(vtkImageLogarithmicScale *self,
     for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
       {
       if (!id) 
-	{
-	if (!(count%target))
-	  {
-	  self->UpdateProgress(count/(50.0*target));
-	  }
-	count++;
-	}
+        {
+        if (!(count%target))
+          {
+          self->UpdateProgress(count/(50.0*target));
+          }
+        count++;
+        }
       for (idxR = 0; idxR < rowLength; idxR++)
-	{
+        {
 
-	// Pixel operation
-	if (*inPtr > 0)
-	  {
-	  *outPtr = (T)(c*log((double)(*inPtr)+1.0));
-	  }
-	else
-	  {
-	  *outPtr = (T)(-c*log(1.0-(double)(*inPtr)));
-	  }
+        // Pixel operation
+        if (*inPtr > 0)
+          {
+          *outPtr = (T)(c*log((double)(*inPtr)+1.0));
+          }
+        else
+          {
+          *outPtr = (T)(-c*log(1.0-(double)(*inPtr)));
+          }
 
-	outPtr++;
-	inPtr++;
-	}
+        outPtr++;
+        inPtr++;
+        }
       outPtr += outIncY;
       inPtr += inIncY;
       }
@@ -145,8 +145,8 @@ static void vtkImageLogarithmicScaleExecute(vtkImageLogarithmicScale *self,
 // It just executes a switch statement to call the correct function for
 // the regions data types.
 void vtkImageLogarithmicScale::ThreadedExecute(vtkImageData *inData, 
-					vtkImageData *outData,
-					int outExt[6], int id)
+                                        vtkImageData *outData,
+                                        int outExt[6], int id)
 {
   void *inPtr = inData->GetScalarPointerForExtent(outExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);

@@ -79,7 +79,7 @@ vtkImageMagnify::vtkImageMagnify()
 //----------------------------------------------------------------------------
 // Computes any global image information associated with regions.
 void vtkImageMagnify::ExecuteInformation(vtkImageData *inData, 
-					 vtkImageData *outData)
+                                         vtkImageData *outData)
 {
   float *spacing;
   int idx;
@@ -109,7 +109,7 @@ void vtkImageMagnify::ExecuteInformation(vtkImageData *inData,
 // This method computes the Region of input necessary to generate outRegion.
 // It assumes offset and size are multiples of Magnify Factors.
 void vtkImageMagnify::ComputeInputUpdateExtent(int inExt[6],
-					       int outExt[6])
+                                               int outExt[6])
 {
   int idx;
   
@@ -117,9 +117,9 @@ void vtkImageMagnify::ComputeInputUpdateExtent(int inExt[6],
     {
     // For Min. Round Down
     inExt[idx*2] = (int)(floor((float)(outExt[idx*2]) / 
-			       (float)(this->MagnificationFactors[idx])));
+                               (float)(this->MagnificationFactors[idx])));
     inExt[idx*2+1] = (int)(floor((float)(outExt[idx*2+1]) / 
-				 (float)(this->MagnificationFactors[idx])));
+                                 (float)(this->MagnificationFactors[idx])));
     }
 }
 
@@ -132,9 +132,9 @@ void vtkImageMagnify::ComputeInputUpdateExtent(int inExt[6],
 // Note: Slight misalignment (pixel replication is not nearest neighbor).
 template <class T>
 static void vtkImageMagnifyExecute(vtkImageMagnify *self,
-				  vtkImageData *inData, T *inPtr, int inExt[6],
-				  vtkImageData *outData, T *outPtr,
-				  int outExt[6], int id)
+                                  vtkImageData *inData, T *inPtr, int inExt[6],
+                                  vtkImageData *outData, T *outPtr,
+                                  int outExt[6], int id)
 {
   int idxC, idxX, idxY, idxZ;
   int inIdxX, inIdxY, inIdxZ;
@@ -193,124 +193,124 @@ static void vtkImageMagnifyExecute(vtkImageMagnify *self,
       inIdxY = inExt[2];
       magYIdx = magY - outExt[2]%magY - 1;
       for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++, magYIdx--)
-	{
-	if (!id) 
-	  {
-	  if (!(count%target))
-	    {
-	    self->UpdateProgress(count/(50.0*target));
-	    }
-	  count++;
-	  }
-	
-	if (interpolate)
-	  {
-	  // precompute some values for interpolation
-	  iMagP = (magYIdx + 1)*(magZIdx + 1)*iMag;
-	  iMagPY = (magY - magYIdx - 1)*(magZIdx + 1)*iMag;
-	  iMagPZ = (magYIdx + 1)*(magZ - magZIdx - 1)*iMag;
-	  iMagPYZ = (magY - magYIdx - 1)*(magZ - magZIdx - 1)*iMag;
-	  }
-	
-	magXIdx = magX - outExt[0]%magX - 1;
-	inPtrX = inPtrY;
-	inIdxX = inExt[0];
-	interpSetup = 0;
-	for (idxX = 0; idxX <= maxX; idxX++, magXIdx--)
-	  {
-	  // Pixel operation
-	  if (!interpolate)
-	    {
-	    *outPtrC = *inPtrX;
-	    }
-	  else
-	    {
-	    // setup data values for interp, overload dataP as an 
-	    // indicator of if this has been done yet
-	    if (!interpSetup) 
-	      {
-	      int tiX, tiY, tiZ;
-	      
-	      dataP = *inPtrX;
+        {
+        if (!id) 
+          {
+          if (!(count%target))
+            {
+            self->UpdateProgress(count/(50.0*target));
+            }
+          count++;
+          }
+        
+        if (interpolate)
+          {
+          // precompute some values for interpolation
+          iMagP = (magYIdx + 1)*(magZIdx + 1)*iMag;
+          iMagPY = (magY - magYIdx - 1)*(magZIdx + 1)*iMag;
+          iMagPZ = (magYIdx + 1)*(magZ - magZIdx - 1)*iMag;
+          iMagPYZ = (magY - magYIdx - 1)*(magZ - magZIdx - 1)*iMag;
+          }
+        
+        magXIdx = magX - outExt[0]%magX - 1;
+        inPtrX = inPtrY;
+        inIdxX = inExt[0];
+        interpSetup = 0;
+        for (idxX = 0; idxX <= maxX; idxX++, magXIdx--)
+          {
+          // Pixel operation
+          if (!interpolate)
+            {
+            *outPtrC = *inPtrX;
+            }
+          else
+            {
+            // setup data values for interp, overload dataP as an 
+            // indicator of if this has been done yet
+            if (!interpSetup) 
+              {
+              int tiX, tiY, tiZ;
+              
+              dataP = *inPtrX;
 
-	      // Now I am putting in my own boundary check because of 
-	      // ABRs and FMRs
-	      // And I do not understand (nor do I care to figure out) what
-	      // Ken was doing with his checks. (Charles)
-	      if (inIdxX < inMaxX) 
-		{
-		tiX = inIncX;
-		}
-	      else
-		{
-		tiX = 0;
-		}
-	      if (inIdxY < inMaxY) 
-		{
-		tiY = inIncY;
-		}
-	      else
-		{
-		tiY = 0;
-		}
-	      if (inIdxZ < inMaxZ)
-		{
-		tiZ = inIncZ;
-		}
-	      else
-		{
-		tiZ = 0;
-		}
-	      dataPX = *(inPtrX + tiX); 
-	      dataPY = *(inPtrX + tiY); 
-	      dataPZ = *(inPtrX + tiZ);
-	      dataPXY = *(inPtrX + tiX + tiY); 
-	      dataPXZ = *(inPtrX + tiX + tiZ); 
-	      dataPYZ = *(inPtrX + tiY + tiZ); 
-	      dataPXYZ = *(inPtrX + tiX + tiY + tiZ); 
-	      interpSetup = 1;
-	      }
-	    *outPtrC = (T)
-	      ((float)dataP*(magXIdx + 1)*iMagP + 
-	       (float)dataPX*(magX - magXIdx - 1)*iMagP +
-	       (float)dataPY*(magXIdx + 1)*iMagPY + 
-	       (float)dataPXY*(magX - magXIdx - 1)*iMagPY +
-	       (float)dataPZ*(magXIdx + 1)*iMagPZ + 
-	       (float)dataPXZ*(magX - magXIdx - 1)*iMagPZ +
-	       (float)dataPYZ*(magXIdx + 1)*iMagPYZ + 
-	       (float)dataPXYZ*(magX - magXIdx - 1)*iMagPYZ);
-	    }
-	  outPtrC += maxC;
-	  if (!magXIdx) 
-	    {
-	    inPtrX += inIncX;
-	    ++inIdxX;
-	    magXIdx = magX;
-	    interpSetup = 0;
-	    }
-	  }
-	outPtrC += outIncY;
-	if (!magYIdx) 
-	  {
-	  inPtrY += inIncY;
-	  ++inIdxY;
-	  magYIdx = magY;
-	  }
-	}
+              // Now I am putting in my own boundary check because of 
+              // ABRs and FMRs
+              // And I do not understand (nor do I care to figure out) what
+              // Ken was doing with his checks. (Charles)
+              if (inIdxX < inMaxX) 
+                {
+                tiX = inIncX;
+                }
+              else
+                {
+                tiX = 0;
+                }
+              if (inIdxY < inMaxY) 
+                {
+                tiY = inIncY;
+                }
+              else
+                {
+                tiY = 0;
+                }
+              if (inIdxZ < inMaxZ)
+                {
+                tiZ = inIncZ;
+                }
+              else
+                {
+                tiZ = 0;
+                }
+              dataPX = *(inPtrX + tiX); 
+              dataPY = *(inPtrX + tiY); 
+              dataPZ = *(inPtrX + tiZ);
+              dataPXY = *(inPtrX + tiX + tiY); 
+              dataPXZ = *(inPtrX + tiX + tiZ); 
+              dataPYZ = *(inPtrX + tiY + tiZ); 
+              dataPXYZ = *(inPtrX + tiX + tiY + tiZ); 
+              interpSetup = 1;
+              }
+            *outPtrC = (T)
+              ((float)dataP*(magXIdx + 1)*iMagP + 
+               (float)dataPX*(magX - magXIdx - 1)*iMagP +
+               (float)dataPY*(magXIdx + 1)*iMagPY + 
+               (float)dataPXY*(magX - magXIdx - 1)*iMagPY +
+               (float)dataPZ*(magXIdx + 1)*iMagPZ + 
+               (float)dataPXZ*(magX - magXIdx - 1)*iMagPZ +
+               (float)dataPYZ*(magXIdx + 1)*iMagPYZ + 
+               (float)dataPXYZ*(magX - magXIdx - 1)*iMagPYZ);
+            }
+          outPtrC += maxC;
+          if (!magXIdx) 
+            {
+            inPtrX += inIncX;
+            ++inIdxX;
+            magXIdx = magX;
+            interpSetup = 0;
+            }
+          }
+        outPtrC += outIncY;
+        if (!magYIdx) 
+          {
+          inPtrY += inIncY;
+          ++inIdxY;
+          magYIdx = magY;
+          }
+        }
       outPtrC += outIncZ;
       if (!magZIdx) 
-	{
-	inPtrZ += inIncZ;
-	++inIdxZ;
-	magZIdx = magZ;
-	}
+        {
+        inPtrZ += inIncZ;
+        ++inIdxZ;
+        magZIdx = magZ;
+        }
       }
     }
 }
 
 void vtkImageMagnify::ThreadedExecute(vtkImageData *inData, 
-				      vtkImageData *outData,
-				      int outExt[6], int id)
+                                      vtkImageData *outData,
+                                      int outExt[6], int id)
 {
   int inExt[6];
   this->ComputeInputUpdateExtent(inExt,outExt);

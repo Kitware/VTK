@@ -109,19 +109,19 @@ void vtkImageConvolve::PrintSelf(ostream& os, vtkIndent indent)
         os << this->Kernel[this->KernelSize[1]*this->KernelSize[0]*k +
                            this->KernelSize[0]*j +
                            i];
-	
+        
         if (i != this->KernelSize[0] - 1)
           {
           os << ", ";
           }
-	}
+        }
       if (j != this->KernelSize[1] - 1 || k != this->KernelSize[2] - 1)
         {
         os << ",\n" << indent << "         ";
-	}
+        }
       }
     }
-  os << ")\n";	      
+  os << ")\n";        
 }
 
 
@@ -177,7 +177,7 @@ void vtkImageConvolve::SetKernel7x7x7(float kernel[343])
 //----------------------------------------------------------------------------
 // Set a kernel, this is an internal method
 void vtkImageConvolve::SetKernel(const float* kernel,
-				 int sizeX, int sizeY, int sizeZ)
+                                 int sizeX, int sizeY, int sizeZ)
 {
   int modified=0;
 
@@ -427,11 +427,11 @@ static void vtkImageConvolveExecute(vtkImageConvolve *self,
           kernelIdx = 0;
 
           for (hoodIdx2 = hoodMin2; hoodIdx2 <= hoodMax2; ++hoodIdx2)
-	    {
+            {
             hoodPtr1 = hoodPtr2;
 
             for (hoodIdx1 = hoodMin1; hoodIdx1 <= hoodMax1; ++hoodIdx1)
-	      {
+              {
               hoodPtr0 = hoodPtr1;
 
               for (hoodIdx0 = hoodMin0; hoodIdx0 <= hoodMax0; ++hoodIdx0)

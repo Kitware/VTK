@@ -86,7 +86,7 @@ protected:
   // by multiple threads, but it isn't for now.  But please ensure
   // that all code inside this method is thread-safe.
   virtual void ThreadedExecute(vtkImageStencilData *output,
-			       int extent[6], int threadId);
+                               int extent[6], int threadId);
 private:
   vtkImageStencilSource(const vtkImageStencilSource&);  // Not implemented.
   void operator=(const vtkImageStencilSource&);  // Not implemented.

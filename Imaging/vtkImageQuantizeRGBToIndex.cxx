@@ -122,7 +122,7 @@ public:
   int GetIndex( int c[3] ) 
     {  if ( this->Index>=0 ) {return this->Index;}
        if ( c[this->Axis]>this->SplitPoint ) 
-	 {return this->Child2->GetIndex(c);}
+         {return this->Child2->GetIndex(c);}
        return this->Child1->GetIndex(c); };
     
 
@@ -141,7 +141,7 @@ public:
       {
       this->AverageCount = 0;
       this->AverageColor[0] = 
-	this->AverageColor[1] = this->AverageColor[2] = 0.0;
+        this->AverageColor[1] = this->AverageColor[2] = 0.0;
       }
     };
 
@@ -170,11 +170,11 @@ protected:
 
 template <class T>
 static void vtkImageQuantizeRGBToIndexHistogram( T *inPtr,
-						 int extent[6],
-						 int inIncrement[3],
-						 int type,
-						 int bounds[6],
-						 int *histogram[3] )
+                                                 int extent[6],
+                                                 int inIncrement[3],
+                                                 int type,
+                                                 int bounds[6],
+                                                 int *histogram[3] )
 {
   T      *rgbPtr, v[3];
   int    x, y, z, c;
@@ -200,45 +200,45 @@ static void vtkImageQuantizeRGBToIndexHistogram( T *inPtr,
     for (y = extent[2]; y <= extent[3]; y++)
       {
       for (x = extent[0]; x <= extent[1]; x++)
-	{
-	if ( type == VTK_UNSIGNED_CHAR )
-	  {
-	  v[0] = *(rgbPtr++) - bounds[0];
-	  v[1] = *(rgbPtr++) - bounds[2];
-	  v[2] = *(rgbPtr++) - bounds[4];
-	  if ( (int)v[0] < max[0] && (int)v[1] < max[1] && (int)v[2] < max[2] )
-	    {
-	    histogram[0][(unsigned char)v[0]]++;  
-	    histogram[1][(unsigned char)v[1]]++;  
-	    histogram[2][(unsigned char)v[2]]++;  
-	    }
-	  }
-	else if ( type == VTK_UNSIGNED_SHORT )
-	  {
-	  v[0] = (((unsigned short)(*(rgbPtr++)))>>8) - bounds[0];
-	  v[1] = (((unsigned short)(*(rgbPtr++)))>>8) - bounds[2];
-	  v[2] = (((unsigned short)(*(rgbPtr++)))>>8) - bounds[4];
-	  if ((int)(v[0]) < max[0] && (int)(v[1]) < max[1] && (int)(v[2]) < max[2] )
-	    {
-	    histogram[0][(unsigned short)v[0]]++;  
-	    histogram[1][(unsigned short)v[1]]++;  
-	    histogram[2][(unsigned short)v[2]]++;  
-	    }
-	  }
-	else
-	  {
-	  value[0] = (int)( *(rgbPtr++) * 255.5 ) - bounds[0];
-	  value[1] = (int)( *(rgbPtr++) * 255.5 ) - bounds[2];
-	  value[2] = (int)( *(rgbPtr++) * 255.5 ) - bounds[4];
-	  if ( (int)(v[0]) < max[0] && (int)(v[1]) < max[1] && (int)(v[2]) < max[2] )
-	    {
-	    histogram[0][value[0]]++;
-	    histogram[1][value[1]]++;
-	    histogram[2][value[2]]++;
-	    }
-	  }
-	rgbPtr += inIncrement[0];
-	}
+        {
+        if ( type == VTK_UNSIGNED_CHAR )
+          {
+          v[0] = *(rgbPtr++) - bounds[0];
+          v[1] = *(rgbPtr++) - bounds[2];
+          v[2] = *(rgbPtr++) - bounds[4];
+          if ( (int)v[0] < max[0] && (int)v[1] < max[1] && (int)v[2] < max[2] )
+            {
+            histogram[0][(unsigned char)v[0]]++;  
+            histogram[1][(unsigned char)v[1]]++;  
+            histogram[2][(unsigned char)v[2]]++;  
+            }
+          }
+        else if ( type == VTK_UNSIGNED_SHORT )
+          {
+          v[0] = (((unsigned short)(*(rgbPtr++)))>>8) - bounds[0];
+          v[1] = (((unsigned short)(*(rgbPtr++)))>>8) - bounds[2];
+          v[2] = (((unsigned short)(*(rgbPtr++)))>>8) - bounds[4];
+          if ((int)(v[0]) < max[0] && (int)(v[1]) < max[1] && (int)(v[2]) < max[2] )
+            {
+            histogram[0][(unsigned short)v[0]]++;  
+            histogram[1][(unsigned short)v[1]]++;  
+            histogram[2][(unsigned short)v[2]]++;  
+            }
+          }
+        else
+          {
+          value[0] = (int)( *(rgbPtr++) * 255.5 ) - bounds[0];
+          value[1] = (int)( *(rgbPtr++) * 255.5 ) - bounds[2];
+          value[2] = (int)( *(rgbPtr++) * 255.5 ) - bounds[4];
+          if ( (int)(v[0]) < max[0] && (int)(v[1]) < max[1] && (int)(v[2]) < max[2] )
+            {
+            histogram[0][value[0]]++;
+            histogram[1][value[1]]++;
+            histogram[2][value[2]]++;
+            }
+          }
+        rgbPtr += inIncrement[0];
+        }
       rgbPtr += inIncrement[1];
       }
     rgbPtr += inIncrement[2];
@@ -248,9 +248,9 @@ static void vtkImageQuantizeRGBToIndexHistogram( T *inPtr,
 // This templated function executes the filter for supported types of data.
 template <class T>
 static void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
-					      vtkImageData *inData, T *inPtr,
-					      vtkImageData *outData, 
-					      unsigned short *outPtr)
+                                              vtkImageData *inData, T *inPtr,
+                                              vtkImageData *outData, 
+                                              unsigned short *outPtr)
 {
   int                  extent[6];
   int                  inIncrement[3], outIncrement[3];
@@ -282,9 +282,9 @@ static void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
   inData->GetExtent( extent );
 
   inData->GetContinuousIncrements(extent, inIncrement[0], 
-				  inIncrement[1], inIncrement[2]);
+                                  inIncrement[1], inIncrement[2]);
   outData->GetContinuousIncrements(extent, outIncrement[0], 
-				  outIncrement[1], outIncrement[2]);
+                                  outIncrement[1], outIncrement[2]);
   
   timer->StopTimer();
 
@@ -318,17 +318,17 @@ static void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
     for ( leaf = 0; leaf < numLeafNodes; leaf++ )
       {
       for ( axis = 0; axis < 3; axis++ )
-	{
-	dev = leafNodes[leaf]->GetStdDev( axis );
-	weight = (float)(leafNodes[leaf]->GetCount())/(float)(totalCount);
-	dev *= weight;
-	if ( dev > maxdev )
-	  {
-	  maxdevAxis     = axis;
-	  maxdevLeafNode = leaf;
-	  maxdev         = dev;
-	  }
-	}
+        {
+        dev = leafNodes[leaf]->GetStdDev( axis );
+        weight = (float)(leafNodes[leaf]->GetCount())/(float)(totalCount);
+        dev *= weight;
+        if ( dev > maxdev )
+          {
+          maxdevAxis     = axis;
+          maxdevLeafNode = leaf;
+          maxdev         = dev;
+          }
+        }
       }
     if ( maxdev == 0.0 )
       {
@@ -359,46 +359,46 @@ static void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
     for (y = extent[2]; !self->AbortExecute && y <= extent[3]; y++)
       {
       for (x = extent[0]; x <= extent[1]; x++)
-	{
-	for (c = 0; c < 3; c++)
-	  {
-	  if ( type == VTK_UNSIGNED_CHAR )
-	    {
-	    rgb[c]  = (int)(*rgbPtr);
-	    }
-	  else if ( type == VTK_UNSIGNED_SHORT )
-	    {
-	    rgb[c] = ((unsigned short)(*rgbPtr))>>8;
-	    }
-	  else
-	    {
-	    rgb[c] = (int)(*rgbPtr * 255.5);
-	    }
-	  rgbPtr++;	  
-	  }
-	tmp = root;
-	while( !done )
-	  {
-	  if ( tmp->GetIndex() != -1 )
-	    {
-	    *indexPtr = tmp->GetIndex();
-	    break;
-	    }
-	  if ( rgb[tmp->GetAxis()] > tmp->GetSplitPoint() )
-	    {
-	    tmp = tmp->GetChild2();
-	    }
-	  else
-	    {
-	    tmp = tmp->GetChild1();
-	    }
-	  }
-	tmp->AddColor( rgb );
-	indexPtr++;
+        {
+        for (c = 0; c < 3; c++)
+          {
+          if ( type == VTK_UNSIGNED_CHAR )
+            {
+            rgb[c]  = (int)(*rgbPtr);
+            }
+          else if ( type == VTK_UNSIGNED_SHORT )
+            {
+            rgb[c] = ((unsigned short)(*rgbPtr))>>8;
+            }
+          else
+            {
+            rgb[c] = (int)(*rgbPtr * 255.5);
+            }
+          rgbPtr++;       
+          }
+        tmp = root;
+        while( !done )
+          {
+          if ( tmp->GetIndex() != -1 )
+            {
+            *indexPtr = tmp->GetIndex();
+            break;
+            }
+          if ( rgb[tmp->GetAxis()] > tmp->GetSplitPoint() )
+            {
+            tmp = tmp->GetChild2();
+            }
+          else
+            {
+            tmp = tmp->GetChild1();
+            }
+          }
+        tmp->AddColor( rgb );
+        indexPtr++;
 
-	rgbPtr   += inIncrement[0];
-	indexPtr += outIncrement[0];
-	}
+        rgbPtr   += inIncrement[0];
+        indexPtr += outIncrement[0];
+        }
       rgbPtr   += inIncrement[1];
       indexPtr += outIncrement[1];
       }
@@ -431,7 +431,7 @@ static void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
   delete root;
 }
 
-	
+        
 void vtkColorQuantizeNode::ComputeStdDev()
 {
   int   i, j;
@@ -498,12 +498,12 @@ void vtkColorQuantizeNode::ComputeStdDev()
       {
       count += this->Histogram[i][j];
       this->StdDev[i] += (float)this->Histogram[i][j] * 
-	((float)j+this->Bounds[i*2]-mean) * 
-	((float)j+this->Bounds[i*2]-mean); 
+        ((float)j+this->Bounds[i*2]-mean) * 
+        ((float)j+this->Bounds[i*2]-mean); 
       if ( this->Median[i] == -1 && count > medianCount )
-	{
-	this->Median[i] = j + this->Bounds[i*2];
-	}
+        {
+        this->Median[i] = j + this->Bounds[i*2];
+        }
       }
 
     // If our median is at the upper bound, bump down by one. This will
@@ -626,7 +626,7 @@ void vtkImageQuantizeRGBToIndex::ExecuteData(vtkDataObject *)
   if (outData->GetScalarType() != VTK_UNSIGNED_SHORT)
     {
     vtkErrorMacro(<< "Execute: out ScalarType " << outData->GetScalarType()
-		  << " must be unsigned short\n");
+                  << " must be unsigned short\n");
     return;
     }
 
@@ -654,7 +654,7 @@ void vtkImageQuantizeRGBToIndex::ExecuteInformation(
 
 // Get ALL of the input.
 void vtkImageQuantizeRGBToIndex::ComputeInputUpdateExtent(int inExt[6],
-						    int vtkNotUsed(outExt)[6])
+                                                    int vtkNotUsed(outExt)[6])
 {
   int *wholeExtent;
 

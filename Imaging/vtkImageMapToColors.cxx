@@ -105,7 +105,7 @@ void vtkImageMapToColors::ExecuteData(vtkDataObject *output)
   if (this->LookupTable == NULL)
     {
     vtkDebugMacro("ExecuteData: LookupTable not set, "\
-		  "passing input to output.");
+                  "passing input to output.");
 
     outData->SetExtent(inData->GetExtent());
     outData->GetPointData()->PassData(inData->GetPointData());
@@ -125,7 +125,7 @@ void vtkImageMapToColors::ExecuteData(vtkDataObject *output)
 
 //----------------------------------------------------------------------------
 void vtkImageMapToColors::ExecuteInformation(vtkImageData *inData, 
-					     vtkImageData *outData)
+                                             vtkImageData *outData)
 {
   int numComponents = 4;
 
@@ -171,10 +171,10 @@ void vtkImageMapToColors::ExecuteInformation(vtkImageData *inData,
 // This non-templated function executes the filter for any type of data.
 
 static void vtkImageMapToColorsExecute(vtkImageMapToColors *self,
-				       vtkImageData *inData, void *inPtr,
-				       vtkImageData *outData, 
-				       unsigned char *outPtr,
-				       int outExt[6], int id)
+                                       vtkImageData *inData, void *inPtr,
+                                       vtkImageData *outData, 
+                                       unsigned char *outPtr,
+                                       int outExt[6], int id)
 {
   int idxY, idxZ;
   int extX, extY, extZ;
@@ -218,31 +218,31 @@ static void vtkImageMapToColorsExecute(vtkImageMapToColors *self,
     for (idxY = 0; !self->AbortExecute && idxY < extY; idxY++)
       {
       if (!id) 
-	{
-	if (!(count%target))
-	  {
-	  self->UpdateProgress(count/(50.0*target));
-	  }
-	count++;
-	}
+        {
+        if (!(count%target))
+          {
+          self->UpdateProgress(count/(50.0*target));
+          }
+        count++;
+        }
       lookupTable->MapScalarsThroughTable2(inPtr1,outPtr1,
-					   dataType,extX,numberOfComponents,
-					   outputFormat);
+                                           dataType,extX,numberOfComponents,
+                                           outputFormat);
       if (self->GetPassAlphaToOutput() && 
-	  dataType == VTK_UNSIGNED_CHAR && numberOfComponents > 1 &&
-	  (outputFormat == VTK_RGBA || outputFormat == VTK_LUMINANCE_ALPHA))
-	{
-	unsigned char *outPtr2 = outPtr1 + numberOfOutputComponents - 1;
-	unsigned char *inPtr2 = (unsigned char *)inPtr1
-	                              - self->GetActiveComponent()*scalarSize
-	                              + numberOfComponents - 1;
-	for (int i = 0; i < extX; i++)
-	  {
-	  *outPtr2 = (*outPtr2 * *inPtr2)/255;
-	  outPtr2 += numberOfOutputComponents;
-	  inPtr2 += numberOfComponents;
-	  }
-	}
+          dataType == VTK_UNSIGNED_CHAR && numberOfComponents > 1 &&
+          (outputFormat == VTK_RGBA || outputFormat == VTK_LUMINANCE_ALPHA))
+        {
+        unsigned char *outPtr2 = outPtr1 + numberOfOutputComponents - 1;
+        unsigned char *inPtr2 = (unsigned char *)inPtr1
+                                      - self->GetActiveComponent()*scalarSize
+                                      + numberOfComponents - 1;
+        for (int i = 0; i < extX; i++)
+          {
+          *outPtr2 = (*outPtr2 * *inPtr2)/255;
+          outPtr2 += numberOfOutputComponents;
+          inPtr2 += numberOfComponents;
+          }
+        }
       outPtr1 += outIncY + extX*numberOfOutputComponents;
       inPtr1 = (void *) ((char *) inPtr1 + inIncY + rowLength);
       }
@@ -256,14 +256,14 @@ static void vtkImageMapToColorsExecute(vtkImageMapToColors *self,
 // algorithm to fill the output from the input.
 
 void vtkImageMapToColors::ThreadedExecute(vtkImageData *inData, 
-					 vtkImageData *outData,
-					 int outExt[6], int id)
+                                         vtkImageData *outData,
+                                         int outExt[6], int id)
 {
   void *inPtr = inData->GetScalarPointerForExtent(outExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
   
   vtkImageMapToColorsExecute(this, inData, inPtr, 
-			   outData, (unsigned char *)outPtr, outExt, id);
+                           outData, (unsigned char *)outPtr, outExt, id);
 }
 
 void vtkImageMapToColors::PrintSelf(ostream& os, vtkIndent indent)

@@ -78,9 +78,9 @@ char vtkPNMReaderGetChar(FILE *fp)
     do
       {
       if ((result = getc(fp)) == EOF )
-	{
-	return '\0';
-	}
+        {
+        return '\0';
+        }
       c = (char)result;
       }
     while (c != '\n');
@@ -176,7 +176,7 @@ void vtkPNMReader::ExecuteInformation()
      c = getc(fp);
      if ( c != 0x0a )
         {
-	ungetc( c, fp );
+        ungetc( c, fp );
         }
      }
      
@@ -206,9 +206,9 @@ void vtkPNMReader::ExecuteInformation()
       this->DataVOI[4] || this->DataVOI[5])
     { 
     if ((this->DataVOI[0] < 0) ||
-	(this->DataVOI[1] >= xsize) ||
-	(this->DataVOI[2] < 0) ||
-	(this->DataVOI[3] >= ysize))
+        (this->DataVOI[1] >= xsize) ||
+        (this->DataVOI[2] < 0) ||
+        (this->DataVOI[3] >= ysize))
       {
       vtkWarningMacro("The requested VOI is larger than the file's (" << this->InternalFileName << ") extent ");
       this->DataVOI[0] = 0;

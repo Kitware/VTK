@@ -90,7 +90,7 @@ protected:
   ~vtkImageToImageStencil();
 
   void ThreadedExecute(vtkImageStencilData *output,
-		       int extent[6], int threadId);
+                       int extent[6], int threadId);
 
   float UpperThreshold;
   float LowerThreshold;

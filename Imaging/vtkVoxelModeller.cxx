@@ -167,13 +167,13 @@ void vtkVoxelModeller::Execute()
       min[i] = (int) ((float)(adjBounds[2*i] - origin[i]) / spacing[i]);
       max[i] = (int) ((float)(adjBounds[2*i+1] - origin[i]) / spacing[i]);
       if (min[i] < 0)
-	{
-	min[i] = 0;
-	}
+        {
+        min[i] = 0;
+        }
       if (max[i] >= this->SampleDimensions[i])
-	{
-	max[i] = this->SampleDimensions[i] - 1;
-	}
+        {
+        max[i] = this->SampleDimensions[i] - 1;
+        }
       }
 
     jkFactor = this->SampleDimensions[0]*this->SampleDimensions[1];
@@ -185,21 +185,21 @@ void vtkVoxelModeller::Execute()
         x[1] = spacing[1] * j + origin[1];
         for (i = min[0]; i <= max[0]; i++) 
           {
-	  idx = jkFactor*k + this->SampleDimensions[0]*j + i;
-	  if (!(newScalars->GetComponent(idx,0)))
-	    {
-	    x[0] = spacing[0] * i + origin[0];
+          idx = jkFactor*k + this->SampleDimensions[0]*j + i;
+          if (!(newScalars->GetComponent(idx,0)))
+            {
+            x[0] = spacing[0] * i + origin[0];
 
-	    if ( cell->EvaluatePosition(x, closestPoint, subId, pcoords,
+            if ( cell->EvaluatePosition(x, closestPoint, subId, pcoords,
                                         distance2, weights) != -1 &&
                  ((fabs(closestPoint[0] - x[0]) <= voxelHalfWidth[0]) &&
                   (fabs(closestPoint[1] - x[1]) <= voxelHalfWidth[1]) &&
                   (fabs(closestPoint[2] - x[2]) <= voxelHalfWidth[2])) )
-	      {
-	      newScalars->SetComponent(idx,0,1);
-	      }
-	    }
-	  }
+              {
+              newScalars->SetComponent(idx,0,1);
+              }
+            }
+          }
         }
       }
     }
@@ -291,9 +291,9 @@ void vtkVoxelModeller::SetSampleDimensions(int dim[3])
     for (dataDim=0, i=0; i<3 ; i++)
       {
       if (dim[i] > 1)
-	{
+        {
         dataDim++;
-	}
+        }
       }
     if ( dataDim  < 3 )
       {
@@ -342,7 +342,7 @@ void vtkVoxelModeller::Write(char *fname)
   fprintf(fp,"Origin: %f %f %f\n",origin[0],origin[1],origin[2]);
   fprintf(fp,"Aspect: %f %f %f\n",spacing[0],spacing[1],spacing[2]);
   fprintf(fp,"Dimensions: %i %i %i\n",this->SampleDimensions[0],
-	  this->SampleDimensions[1],this->SampleDimensions[2]);
+          this->SampleDimensions[1],this->SampleDimensions[2]);
 
   // write out the data
   bitcount = 0;
@@ -354,20 +354,20 @@ void vtkVoxelModeller::Write(char *fname)
     for (j = 0; j < this->SampleDimensions[1]; j++)
       {
       for (i = 0; i < this->SampleDimensions[0]; i++)
-	{
-	if (newScalars->GetComponent(idx,0))
-	  {
-	  uc |= (0x80 >> bitcount);
-	  }
-	bitcount++;
-	if (bitcount == 8)
-	  {
-	  fputc(uc,fp);
-	  uc = 0x00;
-	  bitcount = 0;
-	  }
-	idx++;
-	}
+        {
+        if (newScalars->GetComponent(idx,0))
+          {
+          uc |= (0x80 >> bitcount);
+          }
+        bitcount++;
+        if (bitcount == 8)
+          {
+          fputc(uc,fp);
+          uc = 0x00;
+          bitcount = 0;
+          }
+        idx++;
+        }
       }
     }
   if (bitcount)

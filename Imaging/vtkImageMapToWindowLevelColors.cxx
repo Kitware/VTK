@@ -84,8 +84,8 @@ void vtkImageMapToWindowLevelColors::ExecuteData(vtkDataObject *output)
        this->Window == 255 && this->Level == 127.5))
     {
     vtkDebugMacro("ExecuteData: LookupTable not set, "\
-		  "Window / Level at default, "\
-		  "passing input to output.");
+                  "Window / Level at default, "\
+                  "passing input to output.");
 
     outData->SetExtent(inData->GetExtent());
     outData->GetPointData()->PassData(inData->GetPointData());
@@ -109,7 +109,7 @@ void vtkImageMapToWindowLevelColors::ExecuteData(vtkDataObject *output)
 
 //----------------------------------------------------------------------------
 void vtkImageMapToWindowLevelColors::ExecuteInformation(vtkImageData *inData, 
-					     vtkImageData *outData)
+                                             vtkImageData *outData)
 {
   // If LookupTable is null and window / level produces no change,
   // then the data will be passed
@@ -128,7 +128,7 @@ void vtkImageMapToWindowLevelColors::ExecuteInformation(vtkImageData *inData,
       // no lookup table, pass the input if it was UNSIGNED_CHAR 
       outData->SetScalarType(VTK_UNSIGNED_CHAR);
       outData->SetNumberOfScalarComponents(
-			      inData->GetNumberOfScalarComponents());
+                              inData->GetNumberOfScalarComponents());
       }
     }
   else  // the lookup table was set or window / level produces a change
@@ -138,20 +138,20 @@ void vtkImageMapToWindowLevelColors::ExecuteInformation(vtkImageData *inData,
     switch (this->OutputFormat)
       {
       case VTK_RGBA:
-	numComponents = 4;
-	break;
+        numComponents = 4;
+        break;
       case VTK_RGB:
-	numComponents = 3;
-	break;
+        numComponents = 3;
+        break;
       case VTK_LUMINANCE_ALPHA:
-	numComponents = 2;
-	break;
+        numComponents = 2;
+        break;
       case VTK_LUMINANCE:
-	numComponents = 1;
-	break;
+        numComponents = 1;
+        break;
       default:
-	vtkErrorMacro("ExecuteInformation: Unrecognized color format.");
-	break;
+        vtkErrorMacro("ExecuteInformation: Unrecognized color format.");
+        break;
       }
     outData->SetNumberOfScalarComponents(numComponents);
     }
@@ -260,10 +260,10 @@ static void vtkImageMapToWindowLevelClamps ( vtkImageData *data, float w,
 // This non-templated function executes the filter for any type of data.
 template <class T>
 static void vtkImageMapToWindowLevelColorsExecute(vtkImageMapToWindowLevelColors *self,
-				       vtkImageData *inData, T *inPtr,
-				       vtkImageData *outData, 
-				       unsigned char *outPtr,
-				       int outExt[6], int id)
+                                       vtkImageData *inData, T *inPtr,
+                                       vtkImageData *outData, 
+                                       unsigned char *outPtr,
+                                       int outExt[6], int id)
 {
   int idxX, idxY, idxZ;
   int extX, extY, extZ;
@@ -315,13 +315,13 @@ static void vtkImageMapToWindowLevelColorsExecute(vtkImageMapToWindowLevelColors
     for (idxY = 0; !self->AbortExecute && idxY < extY; idxY++)
       {
       if (!id) 
-	{
-	if (!(count%target))
-	  {
-	  self->UpdateProgress(count/(50.0*target));
-	  }
-	count++;
-	}
+        {
+        if (!(count%target))
+          {
+          self->UpdateProgress(count/(50.0*target));
+          }
+        count++;
+        }
       
       iptr = inPtr1;
       optr = outPtr1;
@@ -415,8 +415,8 @@ static void vtkImageMapToWindowLevelColorsExecute(vtkImageMapToWindowLevelColors
 // algorithm to fill the output from the input.
 
 void vtkImageMapToWindowLevelColors::ThreadedExecute(vtkImageData *inData, 
-					 vtkImageData *outData,
-					 int outExt[6], int id)
+                                         vtkImageData *outData,
+                                         int outExt[6], int id)
 {
   void *inPtr = inData->GetScalarPointerForExtent(outExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);

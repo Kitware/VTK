@@ -71,7 +71,7 @@ protected:
   float ThetaMaximum;
   
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
-		       int ext[6], int id);
+                       int ext[6], int id);
 private:
   vtkImageEuclideanToPolar(const vtkImageEuclideanToPolar&);  // Not implemented.
   void operator=(const vtkImageEuclideanToPolar&);  // Not implemented.

@@ -348,7 +348,7 @@ void vtkBYUReader::ReadTextureFile(int numPts)
 //----------------------------------------------------------------------------
 // This source does not know how to generate pieces yet.
 int vtkBYUReader::ComputeDivisionExtents(vtkDataObject *vtkNotUsed(output),
-					 int idx, int numDivisions)
+                                         int idx, int numDivisions)
 {
   if (idx == 0 && numDivisions == 1)
     {

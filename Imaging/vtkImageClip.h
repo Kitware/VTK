@@ -67,7 +67,7 @@ public:
   // The whole extent of the output has to be set explicitly.
   void SetOutputWholeExtent(int extent[6]);
   void SetOutputWholeExtent(int minX, int maxX, int minY, int maxY, 
-			    int minZ, int maxZ);
+                            int minZ, int maxZ);
   void GetOutputWholeExtent(int extent[6]);
   int *GetOutputWholeExtent() {return this->OutputWholeExtent;}
 

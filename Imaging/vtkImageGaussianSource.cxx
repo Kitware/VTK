@@ -79,8 +79,8 @@ vtkImageGaussianSource::vtkImageGaussianSource()
 
 //----------------------------------------------------------------------------
 void vtkImageGaussianSource::SetWholeExtent(int xMin, int xMax, 
-					    int yMin, int yMax,
-					    int zMin, int zMax)
+                                            int yMin, int yMax,
+                                            int zMin, int zMax)
 {
   int modified = 0;
   
@@ -174,21 +174,21 @@ void vtkImageGaussianSource::ExecuteData(vtkDataObject *output)
     for (idxY = 0; !this->AbortExecute && idxY <= maxY; idxY++)
       {
       if (!(count%target))
-	{
-	this->UpdateProgress(count/(50.0*target));
-	}
+        {
+        this->UpdateProgress(count/(50.0*target));
+        }
       count++;
       yContrib = this->Center[1] - (idxY + outExt[2]);
       yContrib = yContrib*yContrib;
       for (idxX = 0; idxX <= maxX; idxX++)
-	{
-	// Pixel operation
-	sum = zContrib + yContrib;
-	temp = this->Center[0] - (idxX + outExt[0]);
-	sum = sum + (temp * temp);
-	*outPtr = this->Maximum * exp(-sum * temp2);
-	outPtr++;
-	}
+        {
+        // Pixel operation
+        sum = zContrib + yContrib;
+        temp = this->Center[0] - (idxX + outExt[0]);
+        sum = sum + (temp * temp);
+        *outPtr = this->Maximum * exp(-sum * temp2);
+        outPtr++;
+        }
       outPtr += outIncY;
       }
     outPtr += outIncZ;

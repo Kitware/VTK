@@ -180,11 +180,11 @@ void vtkUnstructuredGridReader::Execute()
         }
 
       if (! strncmp(this->LowerCase(line), "field", 5))
-	{
-	vtkFieldData* fd = this->ReadFieldData();
-	output->SetFieldData(fd);
-	fd->Delete(); // ?
-	}
+        {
+        vtkFieldData* fd = this->ReadFieldData();
+        output->SetFieldData(fd);
+        fd->Delete(); // ?
+        }
       else if ( ! strncmp(line, "points",6) )
         {
         if (!this->Read(&numPts))

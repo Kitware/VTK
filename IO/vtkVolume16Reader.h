@@ -165,7 +165,7 @@ protected:
   vtkUnsignedShortArray *ReadImage(int ImageNumber);
   vtkUnsignedShortArray *ReadVolume(int FirstImage, int LastImage);
   int Read16BitImage(FILE *fp, unsigned short *pixels, int xsize, int ysize, 
-		     int skip, int swapBytes);
+                     int skip, int swapBytes);
 
 private:
   vtkVolume16Reader(const vtkVolume16Reader&);  // Not implemented.

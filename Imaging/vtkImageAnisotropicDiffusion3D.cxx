@@ -159,8 +159,8 @@ void vtkImageAnisotropicDiffusion3D::SetNumberOfIterations(int num)
 // templated function for the input region type.  The input and output regions
 // must have the same data type.
 void vtkImageAnisotropicDiffusion3D::ThreadedExecute(vtkImageData *inData, 
-						     vtkImageData *outData,
-						     int outExt[6], int id)
+                                                     vtkImageData *outData,
+                                                     int outExt[6], int id)
 {
   int inExt[6];
   float *ar;
@@ -203,7 +203,7 @@ void vtkImageAnisotropicDiffusion3D::ThreadedExecute(vtkImageData *inData,
     if (!id)
       {
       this->UpdateProgress((float)(this->NumberOfIterations - idx)
-			   /this->NumberOfIterations);
+                           /this->NumberOfIterations);
       }
     this->Iterate(in, out, ar[0], ar[1], ar[2], outExt, idx);
     temp = in;
@@ -227,9 +227,9 @@ void vtkImageAnisotropicDiffusion3D::ThreadedExecute(vtkImageData *inData,
 // The inData and outData are assumed to have data type float,
 // and have the same extent.
 void vtkImageAnisotropicDiffusion3D::Iterate(vtkImageData *inData, 
-					     vtkImageData *outData,
-					     float ar0, float ar1, float ar2,
-					     int *coreExtent, int count)
+                                             vtkImageData *outData,
+                                             float ar0, float ar1, float ar2,
+                                             int *coreExtent, int count)
 {
   int idx0, idx1, idx2;
   int inInc0, inInc1, inInc2;
@@ -339,292 +339,292 @@ void vtkImageAnisotropicDiffusion3D::Iterate(vtkImageData *inData,
       inPtr1 = inPtr2;
       outPtr1 = outPtr2;    
       for (idx1 = min1; idx1 <= max1; ++idx1, inPtr1+=inInc1, outPtr1+=outInc1)
-	{
-	inPtr0 = inPtr1;
-	outPtr0 = outPtr1;    
-	for (idx0 = min0; idx0 <= max0; ++idx0, inPtr0+=inInc0, outPtr0+=outInc0)
-	  {
-	  // Copy center
-	  *outPtr0 = *inPtr0;
-	  
-	  // Special case for gradient magnitude threhsold 
-	  if (this->GradientMagnitudeThreshold)
-	    {
-	    float d0, d1, d2;
-	    // compute the gradient magnitude (central differences).
-	    d0  = (idx0 != inMax0) ? inPtr0[inInc0] : *inPtr0;
-	    d0 -= (idx0 != inMin0) ? inPtr0[-inInc0] : *inPtr0;
-	    d0 /= ar0;
-	    d1  = (idx1 != inMax1) ? inPtr0[inInc1] : *inPtr0;
-	    d1 -= (idx1 != inMin1) ? inPtr0[-inInc1] : *inPtr0;
-	    d1 /= ar1;
-	    d2  = (idx2 != inMax2) ? inPtr0[inInc2] : *inPtr0;
-	    d2 -= (idx2 != inMin2) ? inPtr0[-inInc2] : *inPtr0;
-	    d2 /= ar2;
-	    // If magnitude is big, don't diffuse.
-	    d0 = sqrt(d0*d0 + d1*d1 + d2*d2);
-	    if (d0 > this->DiffusionThreshold)
-	      {
-	      // hack to not diffuse
-	      th0 = th1 = th2 = th01 = th02 = th12 = th012 = 0.0;
-	      }
-	    else
-	      {
-	      // hack to diffuse
-	      th0 = th1 = th2 = th01 = th02 = th12 = th012 = VTK_LARGE_FLOAT;
-	      }
-	    }
-	
-	  // Start diffusing
-	  if (this->Faces)
-	    {
-	    // left
-	    if (idx0 != inMin0)
-	      {
-	      temp = inPtr0[-inInc0] - *inPtr0;
-	      if (fabs(temp) < th0)
-		{
-		*outPtr0 += temp * df0;
-		}
-	      }
-	    // right
-	    if (idx0 != inMax0)
-	      {
-	      temp = inPtr0[inInc0] - *inPtr0;
-	      if (fabs(temp) < th0)
-		{
-		*outPtr0 += temp * df0;
-		}
-	      }
-	    // up
-	    if (idx1 != inMin1)
-	      {
-	      temp = inPtr0[-inInc1] - *inPtr0;
-	      if (fabs(temp) < th1)
-		{
-		*outPtr0 += temp * df1;
-		}
-	      }
-	    // down
-	    if (idx1 != inMax1)
-	      {
-	      temp = inPtr0[inInc1] - *inPtr0;
-	      if (fabs(temp) < th1)
-		{
-		*outPtr0 += temp * df1;
-		}
-	      }
-	    // in
-	    if (idx2 != inMin2)
-	      {
-	      temp = inPtr0[-inInc2] - *inPtr0;
-	      if (fabs(temp) < th2)
-		{
-		*outPtr0 += temp * df2;
-		}
-	      }
-	    // out
-	    if (idx2 != inMax2)
-	      {
-	      temp = inPtr0[inInc2] - *inPtr0;
-	      if (fabs(temp) < th2)
-		{
-		*outPtr0 += temp * df2;
-		}
-	      }
-	    }
-	
-	  if (this->Edges)
-	    {
-	    // left up
-	    if (idx0 != inMin0 && idx1 != inMin1)
-	      {
-	      temp = inPtr0[-inInc0-inInc1] - *inPtr0;
-	      if (fabs(temp) < th01)
-		{
-		*outPtr0 += temp * df01;
-		}
-	      }
-	    // right up
-	    if (idx0 != inMax0 && idx1 != inMin1)
-	      {
-	      temp = inPtr0[inInc0-inInc1] - *inPtr0;
-	      if (fabs(temp) < th01)
-		{
-		*outPtr0 += temp * df01;
-		}
-	      }
-	    // left down
-	    if (idx0 != inMin0 && idx1 != inMax1)
-	      {
-	      temp = inPtr0[-inInc0+inInc1] - *inPtr0;
-	      if (fabs(temp) < th01)
-		{
-		*outPtr0 += temp * df01;
-		}
-	      }
-	    // right down
-	    if (idx0 != inMax0 && idx1 != inMax1)
-	      {
-	      temp = inPtr0[inInc0+inInc1] - *inPtr0;
-	      if (fabs(temp) < th01)
-		{
-		*outPtr0 += temp * df01;
-		}
-	      }
-	  
-	    // left in
-	    if (idx0 != inMin0 && idx2 != inMin2)
-	      {
-	      temp = inPtr0[-inInc0-inInc2] - *inPtr0;
-	      if (fabs(temp) < th02)
-		{
-		*outPtr0 += temp * df02;
-		}
-	      }
-	    // right in
-	    if (idx0 != inMax0 && idx2 != inMin2)
-	      {
-	      temp = inPtr0[inInc0-inInc2] - *inPtr0;
-	      if (fabs(temp) < th02)
-		{
-		*outPtr0 += temp * df02;
-		}
-	      }
-	    // left out
-	    if (idx0 != inMin0 && idx2 != inMax2)
-	      {
-	      temp = inPtr0[-inInc0+inInc2] - *inPtr0;
-	      if (fabs(temp) < th02)
-		{
-		*outPtr0 += temp * df02;
-		}
-	      }
-	    // right out
-	    if (idx0 != inMax0 && idx2 != inMax2)
-	      {
-	      temp = inPtr0[inInc0+inInc2] - *inPtr0;
-	      if (fabs(temp) < th02)
-		{
-		*outPtr0 += temp * df02;
-		}
-	      }
-	  
-	    // up in
-	    if (idx1 != inMin1 && idx2 != inMin2)
-	      {
-	      temp = inPtr0[-inInc1-inInc2] - *inPtr0;
-	      if (fabs(temp) < th12)
-		{
-		*outPtr0 += temp * df12;
-		}
-	      }
-	    // down in
-	    if (idx1 != inMax1 && idx2 != inMin2)
-	      {
-	      temp = inPtr0[inInc1-inInc2] - *inPtr0;
-	      if (fabs(temp) < th12)
-		{
-		*outPtr0 += temp * df12;
-		}
-	      }
-	    // up out
-	    if (idx1 != inMin1 && idx2 != inMax2)
-	      {
-	      temp = inPtr0[-inInc1+inInc2] - *inPtr0;
-	      if (fabs(temp) < th12)
-		{
-		*outPtr0 += temp * df12;
-		}
-	      }
-	    // down out
-	    if (idx1 != inMax1 && idx2 != inMax2)
-	      {
-	      temp = inPtr0[inInc1+inInc2] - *inPtr0;
-	      if (fabs(temp) < th12)
-		{
-		*outPtr0 += temp * df12;
-		}
-	      }
-	    }
-	
-	  if (this->Corners)
-	    {
-	    // left up in
-	    if (idx0 != inMin0 && idx1 != inMin1 && idx2 != inMin2)
-	      {
-	      temp = inPtr0[-inInc0-inInc1-inInc2] - *inPtr0;
-	      if (fabs(temp) < th012)
-		{
-		*outPtr0 += temp * df012;
-		}
-	      }
-	    // right up in
-	    if (idx0 != inMax0 && idx1 != inMin1 && idx2 != inMin2)
-	      {
-	      temp = inPtr0[inInc0-inInc1-inInc2] - *inPtr0;
-	      if (fabs(temp) < th012)
-		{
-		*outPtr0 += temp * df012;
-		}
-	      }
-	    // left down in
-	    if (idx0 != inMin0 && idx1 != inMax1 && idx2 != inMin2)
-	      {
-	      temp = inPtr0[-inInc0+inInc1-inInc2] - *inPtr0;
-	      if (fabs(temp) < th012)
-		{
-		*outPtr0 += temp * df012;
-		}
-	      }
-	    // right down in
-	    if (idx0 != inMax0 && idx1 != inMax1 && idx2 != inMin2)
-	      {
-	      temp = inPtr0[inInc0+inInc1-inInc2] - *inPtr0;
-	      if (fabs(temp) < th012)
-		{
-		*outPtr0 += temp * df012;
-		}
-	      }
-	    // left up out
-	    if (idx0 != inMin0 && idx1 != inMin1 && idx2 != inMax2)
-	      {
-	      temp = inPtr0[-inInc0-inInc1+inInc2] - *inPtr0;
-	      if (fabs(temp) < th012)
-		{
-		*outPtr0 += temp * df012;
-		}
-	      }
-	    // right up out
-	    if (idx0 != inMax0 && idx1 != inMin1 && idx2 != inMax2)
-	      {
-	      temp = inPtr0[inInc0-inInc1+inInc2] - *inPtr0;
-	      if (fabs(temp) < th012)
-		{
-		*outPtr0 += temp * df012;
-		}
-	      }
-	    // left down out
-	    if (idx0 != inMin0 && idx1 != inMax1 && idx2 != inMax2)
-	      {
-	      temp = inPtr0[-inInc0+inInc1+inInc2] - *inPtr0;
-	      if (fabs(temp) < th012)
-		{
-		*outPtr0 += temp * df012;
-		}
-	      }
-	    // right down out
-	    if (idx0 != inMax0 && idx1 != inMax1 && idx2 != inMax2)
-	      {
-	      temp = inPtr0[inInc0+inInc1+inInc2] - *inPtr0;
-	      if (fabs(temp) < th012)
-		{
-		*outPtr0 += temp * df012;
-		}
-	      }
-	    }
-	  }
-	}
+        {
+        inPtr0 = inPtr1;
+        outPtr0 = outPtr1;    
+        for (idx0 = min0; idx0 <= max0; ++idx0, inPtr0+=inInc0, outPtr0+=outInc0)
+          {
+          // Copy center
+          *outPtr0 = *inPtr0;
+          
+          // Special case for gradient magnitude threhsold 
+          if (this->GradientMagnitudeThreshold)
+            {
+            float d0, d1, d2;
+            // compute the gradient magnitude (central differences).
+            d0  = (idx0 != inMax0) ? inPtr0[inInc0] : *inPtr0;
+            d0 -= (idx0 != inMin0) ? inPtr0[-inInc0] : *inPtr0;
+            d0 /= ar0;
+            d1  = (idx1 != inMax1) ? inPtr0[inInc1] : *inPtr0;
+            d1 -= (idx1 != inMin1) ? inPtr0[-inInc1] : *inPtr0;
+            d1 /= ar1;
+            d2  = (idx2 != inMax2) ? inPtr0[inInc2] : *inPtr0;
+            d2 -= (idx2 != inMin2) ? inPtr0[-inInc2] : *inPtr0;
+            d2 /= ar2;
+            // If magnitude is big, don't diffuse.
+            d0 = sqrt(d0*d0 + d1*d1 + d2*d2);
+            if (d0 > this->DiffusionThreshold)
+              {
+              // hack to not diffuse
+              th0 = th1 = th2 = th01 = th02 = th12 = th012 = 0.0;
+              }
+            else
+              {
+              // hack to diffuse
+              th0 = th1 = th2 = th01 = th02 = th12 = th012 = VTK_LARGE_FLOAT;
+              }
+            }
+        
+          // Start diffusing
+          if (this->Faces)
+            {
+            // left
+            if (idx0 != inMin0)
+              {
+              temp = inPtr0[-inInc0] - *inPtr0;
+              if (fabs(temp) < th0)
+                {
+                *outPtr0 += temp * df0;
+                }
+              }
+            // right
+            if (idx0 != inMax0)
+              {
+              temp = inPtr0[inInc0] - *inPtr0;
+              if (fabs(temp) < th0)
+                {
+                *outPtr0 += temp * df0;
+                }
+              }
+            // up
+            if (idx1 != inMin1)
+              {
+              temp = inPtr0[-inInc1] - *inPtr0;
+              if (fabs(temp) < th1)
+                {
+                *outPtr0 += temp * df1;
+                }
+              }
+            // down
+            if (idx1 != inMax1)
+              {
+              temp = inPtr0[inInc1] - *inPtr0;
+              if (fabs(temp) < th1)
+                {
+                *outPtr0 += temp * df1;
+                }
+              }
+            // in
+            if (idx2 != inMin2)
+              {
+              temp = inPtr0[-inInc2] - *inPtr0;
+              if (fabs(temp) < th2)
+                {
+                *outPtr0 += temp * df2;
+                }
+              }
+            // out
+            if (idx2 != inMax2)
+              {
+              temp = inPtr0[inInc2] - *inPtr0;
+              if (fabs(temp) < th2)
+                {
+                *outPtr0 += temp * df2;
+                }
+              }
+            }
+        
+          if (this->Edges)
+            {
+            // left up
+            if (idx0 != inMin0 && idx1 != inMin1)
+              {
+              temp = inPtr0[-inInc0-inInc1] - *inPtr0;
+              if (fabs(temp) < th01)
+                {
+                *outPtr0 += temp * df01;
+                }
+              }
+            // right up
+            if (idx0 != inMax0 && idx1 != inMin1)
+              {
+              temp = inPtr0[inInc0-inInc1] - *inPtr0;
+              if (fabs(temp) < th01)
+                {
+                *outPtr0 += temp * df01;
+                }
+              }
+            // left down
+            if (idx0 != inMin0 && idx1 != inMax1)
+              {
+              temp = inPtr0[-inInc0+inInc1] - *inPtr0;
+              if (fabs(temp) < th01)
+                {
+                *outPtr0 += temp * df01;
+                }
+              }
+            // right down
+            if (idx0 != inMax0 && idx1 != inMax1)
+              {
+              temp = inPtr0[inInc0+inInc1] - *inPtr0;
+              if (fabs(temp) < th01)
+                {
+                *outPtr0 += temp * df01;
+                }
+              }
+          
+            // left in
+            if (idx0 != inMin0 && idx2 != inMin2)
+              {
+              temp = inPtr0[-inInc0-inInc2] - *inPtr0;
+              if (fabs(temp) < th02)
+                {
+                *outPtr0 += temp * df02;
+                }
+              }
+            // right in
+            if (idx0 != inMax0 && idx2 != inMin2)
+              {
+              temp = inPtr0[inInc0-inInc2] - *inPtr0;
+              if (fabs(temp) < th02)
+                {
+                *outPtr0 += temp * df02;
+                }
+              }
+            // left out
+            if (idx0 != inMin0 && idx2 != inMax2)
+              {
+              temp = inPtr0[-inInc0+inInc2] - *inPtr0;
+              if (fabs(temp) < th02)
+                {
+                *outPtr0 += temp * df02;
+                }
+              }
+            // right out
+            if (idx0 != inMax0 && idx2 != inMax2)
+              {
+              temp = inPtr0[inInc0+inInc2] - *inPtr0;
+              if (fabs(temp) < th02)
+                {
+                *outPtr0 += temp * df02;
+                }
+              }
+          
+            // up in
+            if (idx1 != inMin1 && idx2 != inMin2)
+              {
+              temp = inPtr0[-inInc1-inInc2] - *inPtr0;
+              if (fabs(temp) < th12)
+                {
+                *outPtr0 += temp * df12;
+                }
+              }
+            // down in
+            if (idx1 != inMax1 && idx2 != inMin2)
+              {
+              temp = inPtr0[inInc1-inInc2] - *inPtr0;
+              if (fabs(temp) < th12)
+                {
+                *outPtr0 += temp * df12;
+                }
+              }
+            // up out
+            if (idx1 != inMin1 && idx2 != inMax2)
+              {
+              temp = inPtr0[-inInc1+inInc2] - *inPtr0;
+              if (fabs(temp) < th12)
+                {
+                *outPtr0 += temp * df12;
+                }
+              }
+            // down out
+            if (idx1 != inMax1 && idx2 != inMax2)
+              {
+              temp = inPtr0[inInc1+inInc2] - *inPtr0;
+              if (fabs(temp) < th12)
+                {
+                *outPtr0 += temp * df12;
+                }
+              }
+            }
+        
+          if (this->Corners)
+            {
+            // left up in
+            if (idx0 != inMin0 && idx1 != inMin1 && idx2 != inMin2)
+              {
+              temp = inPtr0[-inInc0-inInc1-inInc2] - *inPtr0;
+              if (fabs(temp) < th012)
+                {
+                *outPtr0 += temp * df012;
+                }
+              }
+            // right up in
+            if (idx0 != inMax0 && idx1 != inMin1 && idx2 != inMin2)
+              {
+              temp = inPtr0[inInc0-inInc1-inInc2] - *inPtr0;
+              if (fabs(temp) < th012)
+                {
+                *outPtr0 += temp * df012;
+                }
+              }
+            // left down in
+            if (idx0 != inMin0 && idx1 != inMax1 && idx2 != inMin2)
+              {
+              temp = inPtr0[-inInc0+inInc1-inInc2] - *inPtr0;
+              if (fabs(temp) < th012)
+                {
+                *outPtr0 += temp * df012;
+                }
+              }
+            // right down in
+            if (idx0 != inMax0 && idx1 != inMax1 && idx2 != inMin2)
+              {
+              temp = inPtr0[inInc0+inInc1-inInc2] - *inPtr0;
+              if (fabs(temp) < th012)
+                {
+                *outPtr0 += temp * df012;
+                }
+              }
+            // left up out
+            if (idx0 != inMin0 && idx1 != inMin1 && idx2 != inMax2)
+              {
+              temp = inPtr0[-inInc0-inInc1+inInc2] - *inPtr0;
+              if (fabs(temp) < th012)
+                {
+                *outPtr0 += temp * df012;
+                }
+              }
+            // right up out
+            if (idx0 != inMax0 && idx1 != inMin1 && idx2 != inMax2)
+              {
+              temp = inPtr0[inInc0-inInc1+inInc2] - *inPtr0;
+              if (fabs(temp) < th012)
+                {
+                *outPtr0 += temp * df012;
+                }
+              }
+            // left down out
+            if (idx0 != inMin0 && idx1 != inMax1 && idx2 != inMax2)
+              {
+              temp = inPtr0[-inInc0+inInc1+inInc2] - *inPtr0;
+              if (fabs(temp) < th012)
+                {
+                *outPtr0 += temp * df012;
+                }
+              }
+            // right down out
+            if (idx0 != inMax0 && idx1 != inMax1 && idx2 != inMax2)
+              {
+              temp = inPtr0[inInc0+inInc1+inInc2] - *inPtr0;
+              if (fabs(temp) < th012)
+                {
+                *outPtr0 += temp * df012;
+                }
+              }
+            }
+          }
+        }
       }
     }
 }

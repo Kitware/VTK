@@ -158,8 +158,8 @@ float vtkImageResample::GetAxisMagnificationFactor(int axis)
     }
 
   vtkDebugMacro("Returning magnification factor " 
-		<<  this->MagnificationFactors[axis] << " for axis "
-		<< axis);
+                <<  this->MagnificationFactors[axis] << " for axis "
+                << axis);
   
   return this->MagnificationFactors[axis];
 }
@@ -171,7 +171,7 @@ float vtkImageResample::GetAxisMagnificationFactor(int axis)
 // This method computes the Region of input necessary to generate outRegion.
 // It assumes offset and size are multiples of Magnify Factors.
 void vtkImageResample::ComputeInputUpdateExtent(int inExt[6], 
-						int outExt[6])
+                                                int outExt[6])
 {
   int min, max, axis;
   float factor;
@@ -200,7 +200,7 @@ void vtkImageResample::ComputeInputUpdateExtent(int inExt[6],
 //----------------------------------------------------------------------------
 // Computes any global image information associated with regions.
 void vtkImageResample::ExecuteInformation(vtkImageData *inData, 
-					  vtkImageData *outData) 
+                                          vtkImageData *outData) 
 {
   int wholeMin, wholeMax, axis, ext[6];
   float spacing[3], factor;
@@ -309,8 +309,8 @@ static void vtkImageResampleExecuteNI(vtkImageResample *self,
         
         inPtrX = inPtrY;
         xPos = xStart;
-	for (idxX = 0; idxX <= maxX; idxX++)
-	  {
+        for (idxX = 0; idxX <= maxX; idxX++)
+          {
           *outPtrC = (T)*inPtrX;
           outPtrC += maxC;
           xPos += xFloatInc;
@@ -476,8 +476,8 @@ static void vtkImageResampleExecute2D(vtkImageResample *self,
         D = (float)*(inPtrX + off3);
         pXRatios = XRatios;
         pXSteps = XSteps;
-	for (idxX = 0; idxX <= xMaxIdx; idxX++)
-	  {
+        for (idxX = 0; idxX <= xMaxIdx; idxX++)
+          {
           vtkBilinFuncMacro( *outPtrC, xPos, yPos, A, B, C, D);
           outPtrC += maxC;
           xPos = *pXRatios++;
@@ -491,8 +491,8 @@ static void vtkImageResampleExecute2D(vtkImageResample *self,
             }
           pXSteps++;
           }
-	for (;idxX <= maxX; idxX++)
-	  {
+        for (;idxX <= maxX; idxX++)
+          {
           *outPtrC = (T)(B + (yPos)*(D-B));
           outPtrC += maxC;
           }
@@ -665,7 +665,7 @@ static void vtkImageResampleExecute3D(vtkImageResample *self,
         off7 = inIncY + inIncX;
         }
       for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
-	{
+        {
         if (idxY > yMaxIdx)
           {
           off2 = 0;
@@ -681,16 +681,16 @@ static void vtkImageResampleExecute3D(vtkImageResample *self,
             off7 = inIncZ + inIncX;
             }
           }
-	if (!id) 
-	  {
-	  if (!(count%target))
-	    {
-	    self->UpdateProgress(count/(50.0*target));
-	    }
-	  count++;
-	  }
-	
-	inPtrX = inPtrY;
+        if (!id) 
+          {
+          if (!(count%target))
+            {
+            self->UpdateProgress(count/(50.0*target));
+            }
+          count++;
+          }
+        
+        inPtrX = inPtrY;
         xPos = xStart;
         A = (float)*(inPtrX);
         B = (float)*(inPtrX + off1);
@@ -702,8 +702,8 @@ static void vtkImageResampleExecute3D(vtkImageResample *self,
         H = (float)*(inPtrX + off7);
         pXRatios = XRatios;
         pXSteps = XSteps;
-	for (idxX = 0; idxX <= xMaxIdx; idxX++)
-	  {
+        for (idxX = 0; idxX <= xMaxIdx; idxX++)
+          {
           vtkTrilinFuncMacro( *outPtrC, xPos, yPos, zPos, 
                               A, B, C, D, E, F, G, H );
           outPtrC += maxC;
@@ -722,8 +722,8 @@ static void vtkImageResampleExecute3D(vtkImageResample *self,
             }
           pXSteps++;
           }
-	for (;idxX <= maxX; idxX++)
-	  {
+        for (;idxX <= maxX; idxX++)
+          {
           vtkBilinFuncMacro( *outPtrC, yPos, zPos, B, D, F, H );
           outPtrC += maxC;
           }
@@ -734,7 +734,7 @@ static void vtkImageResampleExecute3D(vtkImageResample *self,
           inPtrY += inIncY;
           yPos -= 1.0;
           }
-	}
+        }
       outPtrC += outIncZ;
       zPos += zFloatInc;
       while (zPos >= 1.0) 
@@ -750,9 +750,9 @@ static void vtkImageResampleExecute3D(vtkImageResample *self,
 
 template <class T>
 static void vtkImageResampleExecute(vtkImageResample *self,
-				  vtkImageData *inData, T *inPtr, int inExt[6],
-				  vtkImageData *outData, T *outPtr,
-				  int outExt[6], int id)
+                                  vtkImageData *inData, T *inPtr, int inExt[6],
+                                  vtkImageData *outData, T *outPtr,
+                                  int outExt[6], int id)
 {
   float magZ = self->GetAxisMagnificationFactor(2);
 
@@ -780,8 +780,8 @@ static void vtkImageResampleExecute(vtkImageResample *self,
 }
 
 void vtkImageResample::ThreadedExecute(vtkImageData *inData, 
-				      vtkImageData *outData,
-				      int outExt[6], int id)
+                                      vtkImageData *outData,
+                                      int outExt[6], int id)
 {
   int inExt[6];
   this->ComputeInputUpdateExtent(inExt,outExt);

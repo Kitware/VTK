@@ -102,7 +102,7 @@ void vtkImageGaussianSmooth::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 void vtkImageGaussianSmooth::ComputeKernel(double *kernel, int min, int max,
-					   double std)
+                                           double std)
 {
   int x;
   double sum;
@@ -132,7 +132,7 @@ void vtkImageGaussianSmooth::ComputeKernel(double *kernel, int min, int max,
 
 //----------------------------------------------------------------------------
 void vtkImageGaussianSmooth::ComputeInputUpdateExtent(int inExt[6], 
-						      int outExt[6])
+                                                      int outExt[6])
 {
   int *wholeExtent;
   int idx, radius;
@@ -166,10 +166,10 @@ void vtkImageGaussianSmooth::ComputeInputUpdateExtent(int inExt[6],
 template <class T>
 static void 
 vtkImageGaussianSmoothExecute(vtkImageGaussianSmooth *self, int axis,
-		      double *kernel, int kernelSize,
-		      vtkImageData *inData, T *inPtrC,
-		      vtkImageData *outData, int outExt[6], T *outPtrC,
-		      int *pcycle, int target, int *pcount, int total)
+                      double *kernel, int kernelSize,
+                      vtkImageData *inData, T *inPtrC,
+                      vtkImageData *outData, int outExt[6], T *outPtrC,
+                      int *pcycle, int target, int *pcount, int total)
 {
   int maxC, max0, max1;
   int idxC, idx0, idx1, idxK;
@@ -219,36 +219,36 @@ vtkImageGaussianSmoothExecute(vtkImageGaussianSmooth *self, int axis,
       inPtr0 = inPtr1;
       outPtr0 = outPtr1;    
       for (idx0 = 0; idx0 < max0; ++idx0)
-	{
-	inPtrK = inPtr0;
-	ptrK = kernel;
-	sum = 0.0;
-	// too bad this short loop has to be the inner most loop
-	for (idxK = 0; idxK < kernelSize; ++idxK)
-	  {
-	  sum += *ptrK * (double)(*inPtrK);
-	  ++ptrK;
-	  inPtrK += inIncK;
-	  }
-	*outPtr0 = (T)(sum);
-	inPtr0 += inInc0;
-	outPtr0 += outInc0;
-	}
+        {
+        inPtrK = inPtr0;
+        ptrK = kernel;
+        sum = 0.0;
+        // too bad this short loop has to be the inner most loop
+        for (idxK = 0; idxK < kernelSize; ++idxK)
+          {
+          sum += *ptrK * (double)(*inPtrK);
+          ++ptrK;
+          inPtrK += inIncK;
+          }
+        *outPtr0 = (T)(sum);
+        inPtr0 += inInc0;
+        outPtr0 += outInc0;
+        }
       inPtr1 += inInc1;
       outPtr1 += outInc1;
       // we finished a row ... do we update ???
       if (total)
-	{ // yes this is the main thread
-	*pcycle += max0;
-	if (*pcycle > target)
-	  { // yes
-	  *pcycle -= target;
-	  *pcount += target;
-	  self->UpdateProgress((float)(*pcount) / (float)total);
-	  //fprintf(stderr, "count: %d, total: %d, progress: %f\n",
-	  //*pcount, total, (float)(*pcount) / (float)total);
-	  }
-	}
+        { // yes this is the main thread
+        *pcycle += max0;
+        if (*pcycle > target)
+          { // yes
+          *pcycle -= target;
+          *pcount += target;
+          self->UpdateProgress((float)(*pcount) / (float)total);
+          //fprintf(stderr, "count: %d, total: %d, progress: %f\n",
+          //*pcount, total, (float)(*pcount) / (float)total);
+          }
+        }
       }
     
     ++inPtrC;
@@ -261,10 +261,10 @@ vtkImageGaussianSmoothExecute(vtkImageGaussianSmooth *self, int axis,
 // This method convolves over one axis. It loops over the convolved axis,
 // and handles boundary conditions.
 void vtkImageGaussianSmooth::ExecuteAxis(int axis, 
-					 vtkImageData *inData, int inExt[6],
-					 vtkImageData *outData, int outExt[6],
-					 int *pcycle, int target, 
-					 int *pcount, int total)
+                                         vtkImageData *inData, int inExt[6],
+                                         vtkImageData *outData, int outExt[6],
+                                         int *pcycle, int target, 
+                                         int *pcount, int total)
 {
   int idxA, max;
   int *wholeExtent, wholeMax, wholeMin;
@@ -366,8 +366,8 @@ void vtkImageGaussianSmooth::ExecuteAxis(int axis,
     if (currentClipped || previousClipped)
       {
       this->ComputeKernel(kernel, -radius+kernelLeftClip, 
-			  radius-kernelRightClip,
-			  (double)(this->StandardDeviations[axis]));
+                          radius-kernelRightClip,
+                          (double)(this->StandardDeviations[axis]));
       kernelSize = size - kernelLeftClip - kernelRightClip;
       }
     previousClipped = currentClipped;
@@ -377,71 +377,71 @@ void vtkImageGaussianSmooth::ExecuteAxis(int axis,
     switch (inData->GetScalarType())
       {
       case VTK_DOUBLE:
-	vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
-				      inData, (double *)(inPtr),
-				      outData, outExt, (double *)(outPtr),
-				      pcycle, target, pcount, total);
-	break;
+        vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
+                                      inData, (double *)(inPtr),
+                                      outData, outExt, (double *)(outPtr),
+                                      pcycle, target, pcount, total);
+        break;
       case VTK_FLOAT:
-	vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
-				      inData, (float *)(inPtr),
-				      outData, outExt, (float *)(outPtr),
-				      pcycle, target, pcount, total);
-	break;
+        vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
+                                      inData, (float *)(inPtr),
+                                      outData, outExt, (float *)(outPtr),
+                                      pcycle, target, pcount, total);
+        break;
       case VTK_LONG:
-	vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
-				      inData, (long *)(inPtr),
-				      outData, outExt, (long *)(outPtr),
-				      pcycle, target, pcount, total);
-	break;
+        vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
+                                      inData, (long *)(inPtr),
+                                      outData, outExt, (long *)(outPtr),
+                                      pcycle, target, pcount, total);
+        break;
       case VTK_UNSIGNED_LONG:
-	vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
-			      inData, (unsigned long *)(inPtr),
-			      outData, outExt, (unsigned long *)(outPtr),
-			      pcycle, target, pcount, total);
-				      
-	break;
+        vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
+                              inData, (unsigned long *)(inPtr),
+                              outData, outExt, (unsigned long *)(outPtr),
+                              pcycle, target, pcount, total);
+                                      
+        break;
       case VTK_INT:
-	vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
-				      inData, (int *)(inPtr),
-				      outData, outExt, (int *)(outPtr),
-				      pcycle, target, pcount, total);
-	break;
+        vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
+                                      inData, (int *)(inPtr),
+                                      outData, outExt, (int *)(outPtr),
+                                      pcycle, target, pcount, total);
+        break;
       case VTK_UNSIGNED_INT:
-	vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
-			      inData, (unsigned int *)(inPtr),
-			      outData, outExt, (unsigned int *)(outPtr),
-			      pcycle, target, pcount, total);
-				      
-	break;
+        vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
+                              inData, (unsigned int *)(inPtr),
+                              outData, outExt, (unsigned int *)(outPtr),
+                              pcycle, target, pcount, total);
+                                      
+        break;
       case VTK_SHORT:
-	vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
-				      inData, (short *)(inPtr),
-				      outData, outExt, (short *)(outPtr),
-				      pcycle, target, pcount, total);
-	break;
+        vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
+                                      inData, (short *)(inPtr),
+                                      outData, outExt, (short *)(outPtr),
+                                      pcycle, target, pcount, total);
+        break;
       case VTK_UNSIGNED_SHORT:
-	vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
-			      inData, (unsigned short *)(inPtr),
-			      outData, outExt, (unsigned short *)(outPtr),
-			      pcycle, target, pcount, total);
-				      
-	break;
+        vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
+                              inData, (unsigned short *)(inPtr),
+                              outData, outExt, (unsigned short *)(outPtr),
+                              pcycle, target, pcount, total);
+                                      
+        break;
       case VTK_CHAR:
-	vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
-				      inData, (char *)(inPtr),
-				      outData, outExt, (char *)(outPtr),
-				      pcycle, target, pcount, total);
-	break;
+        vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
+                                      inData, (char *)(inPtr),
+                                      outData, outExt, (char *)(outPtr),
+                                      pcycle, target, pcount, total);
+        break;
       case VTK_UNSIGNED_CHAR:
-	vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
-			      inData, (unsigned char *)(inPtr),
-			      outData, outExt, (unsigned char *)(outPtr),
-			      pcycle, target, pcount, total);
-	break;
+        vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
+                              inData, (unsigned char *)(inPtr),
+                              outData, outExt, (unsigned char *)(outPtr),
+                              pcycle, target, pcount, total);
+        break;
       default:
-	vtkErrorMacro("Unknown scalar type");
-	return;
+        vtkErrorMacro("Unknown scalar type");
+        return;
       }
     outPtr = (void *)((unsigned char *)outPtr + outIncA);
     }
@@ -453,8 +453,8 @@ void vtkImageGaussianSmooth::ExecuteAxis(int axis,
 //----------------------------------------------------------------------------
 // This method decomposes the gaussian and smooths along each axis.
 void vtkImageGaussianSmooth::ThreadedExecute(vtkImageData *inData, 
-					     vtkImageData *outData,
-					     int outExt[6], int id)
+                                             vtkImageData *outData,
+                                             int outExt[6], int id)
 {
   int inExt[6];
   int target, count, total, cycle;
@@ -486,7 +486,7 @@ void vtkImageGaussianSmooth::ThreadedExecute(vtkImageData *inData,
     {
     case 1:
       this->ExecuteAxis(0, inData, inExt, outData, outExt, 
-		  &cycle, target, &count, total);
+                  &cycle, target, &count, total);
       break;
     case 2:
       int tempExt[6];
@@ -501,9 +501,9 @@ void vtkImageGaussianSmooth::ThreadedExecute(vtkImageData *inData,
       tempData->SetNumberOfScalarComponents(inData->GetNumberOfScalarComponents());
       tempData->SetScalarType(inData->GetScalarType());
       this->ExecuteAxis(1, inData, inExt, tempData, tempExt, 
-		  &cycle, target, &count, total);
+                  &cycle, target, &count, total);
       this->ExecuteAxis(0, tempData, tempExt, outData, outExt, 
-		  &cycle, target, &count, total);
+                  &cycle, target, &count, total);
       // release temporary data
       tempData->Delete();
       tempData = NULL;
@@ -532,13 +532,13 @@ void vtkImageGaussianSmooth::ThreadedExecute(vtkImageData *inData,
       temp1Data->SetNumberOfScalarComponents(inData->GetNumberOfScalarComponents());
       temp1Data->SetScalarType(inData->GetScalarType());
       this->ExecuteAxis(2, inData, inExt, temp0Data, temp0Ext,
-		  &cycle, target, &count, total);
+                  &cycle, target, &count, total);
       this->ExecuteAxis(1, temp0Data, temp0Ext, temp1Data, temp1Ext,
-		  &cycle, target, &count, total);
+                  &cycle, target, &count, total);
       temp0Data->Delete();
       temp0Data = NULL;
       this->ExecuteAxis(0, temp1Data, temp1Ext, outData, outExt,
-		  &cycle, target, &count, total);
+                  &cycle, target, &count, total);
       temp1Data->Delete();
       temp1Data = NULL;
       break;

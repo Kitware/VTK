@@ -107,9 +107,9 @@ void vtkImageIslandRemoval2D::PrintSelf(ostream& os, vtkIndent indent)
 // not want to break the templated function into pieces.
 template <class T>
 static void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
-					  vtkImageData *inData, T *inPtr,
-					  vtkImageData *outData, T *outPtr,
-					   int outExt[6])
+                                          vtkImageData *inData, T *inPtr,
+                                          vtkImageData *outData, T *outPtr,
+                                           int outExt[6])
 {
   int outIdx0, outIdx1, outIdx2;
   int outInc0, outInc1, outInc2;
@@ -151,15 +151,15 @@ static void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
       {
       outPtr1 = outPtr2;
       for (outIdx1 = outExt[2]; outIdx1 <= outExt[3]; ++outIdx1)
-	{
-	outPtr0 = outPtr1;
-	for (outIdx0 = outExt[0]; outIdx0 <= outExt[1]; ++outIdx0)
-	  {
-	  *outPtr0 = (T)(0);  // Unvisited
-	  outPtr0 += outInc0;
-	  }
-	outPtr1 += outInc1;
-	}
+        {
+        outPtr0 = outPtr1;
+        for (outIdx0 = outExt[0]; outIdx0 <= outExt[1]; ++outIdx0)
+          {
+          *outPtr0 = (T)(0);  // Unvisited
+          outPtr0 += outInc0;
+          }
+        outPtr1 += outInc1;
+        }
       outPtr2 += outInc2;
       }
     }
@@ -170,9 +170,9 @@ static void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
     {
     return;
     }
-		       
+                       
   target = (unsigned long)(maxC*(outExt[5]-outExt[4]+1)*
-			   (outExt[3]-outExt[2]+1)/50.0);
+                           (outExt[3]-outExt[2]+1)/50.0);
   target++;
 
   // Loop though all pixels looking for islands
@@ -181,286 +181,286 @@ static void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
     outPtr2 = outPtr + idxC;
     inPtr2 = inPtr + idxC;
     for (outIdx2 = outExt[4]; 
-	 !self->AbortExecute && outIdx2 <= outExt[5]; ++outIdx2)
+         !self->AbortExecute && outIdx2 <= outExt[5]; ++outIdx2)
       {
       if (!(count%target))
-	{
-	self->UpdateProgress(0.1 + 0.8*count/(50.0*target));
-	}
+        {
+        self->UpdateProgress(0.1 + 0.8*count/(50.0*target));
+        }
       count++;
       outPtr1 = outPtr2;
       inPtr1 = inPtr2;
       for (outIdx1 = outExt[2]; outIdx1 <= outExt[3]; ++outIdx1)
-	{
-	outPtr0 = outPtr1;
-	inPtr0 = inPtr1;
-	for (outIdx0 = outExt[0]; outIdx0 <= outExt[1]; ++outIdx0)
-	  {
-	  if (*outPtr0 == 0)
-	    {
-	    if (*inPtr0 != islandValue)
-	      {
-	      // not an island, keep and go on
-	      *outPtr0 = 2;
-	      }
-	    else
-	      {
-	    
-	      // Start an island search
-	      // Save first pixel.
-	      newPixel = pixels;
-	      newPixel->inPtr = (void *)(inPtr0);
-	      newPixel->outPtr = (void *)(outPtr0);
-	      newPixel->idx0 = outIdx0;
-	      newPixel->idx1 = outIdx1;
-	      numPixels = 1;
-	      nextPixelIdx = 0;
-	      nextPixel = pixels;
-	      *outPtr0 = 1;  // visited don't know
-	      keepValue = 1;
-	      // breadth first search
-	      while (keepValue == 1)  // don't know
-		{
-		// Check all the neighbors
-		// left
-		if (nextPixel->idx0 > outExt[0])
-		  {
-		  inNeighborPtr = (T *)(nextPixel->inPtr) - inInc0;
-		  if ( *inNeighborPtr == islandValue)
-		    {
-		    outNeighborPtr = (T *)(nextPixel->outPtr) - outInc0;
-		    if ( *outNeighborPtr == 2)
-		      {
-		      // This is part of a bigger island.
-		      keepValue = 2;
-		      }
-		    if ( *outNeighborPtr == 0)
-		      {
-		      // New pixel to add
-		      ++newPixel;
-		      ++numPixels;
-		      newPixel->inPtr = (void *)(inNeighborPtr);
-		      newPixel->outPtr = (void *)(outNeighborPtr);
-		      newPixel->idx0 = nextPixel->idx0 - 1;
-		      newPixel->idx1 = nextPixel->idx1;
-		      *outNeighborPtr = 1;  // visited don't know
-		      }
-		    }
-		  }
-		// right
-		if (nextPixel->idx0 < outExt[1])
-		  {
-		  inNeighborPtr = (T *)(nextPixel->inPtr) + inInc0;
-		  if ( *inNeighborPtr == islandValue)
-		    {
-		    outNeighborPtr = (T *)(nextPixel->outPtr) + outInc0;
-		    if ( *outNeighborPtr == 2)
-		      {
-		      // This is part of a bigger island.
-		      keepValue = 2;
-		      }
-		    if ( *outNeighborPtr == 0)
-		      {
-		      // New pixel to add
-		      ++newPixel;
-		      ++numPixels;
-		      newPixel->inPtr = (void *)(inNeighborPtr);
-		      newPixel->outPtr = (void *)(outNeighborPtr);
-		      newPixel->idx0 = nextPixel->idx0 + 1;
-		      newPixel->idx1 = nextPixel->idx1;
-		      *outNeighborPtr = 1;  // visited don't know
-		      }
-		    }
-		  }
-		// up
-		if (nextPixel->idx1 > outExt[2])
-		  {
-		  inNeighborPtr = (T *)(nextPixel->inPtr) - inInc1;
-		  if ( *inNeighborPtr == islandValue)
-		    {
-		    outNeighborPtr = (T *)(nextPixel->outPtr) - outInc1;
-		    if ( *outNeighborPtr == 2)
-		      {
-		      // This is part of a bigger island.
-		      keepValue = 2;
-		      }
-		    if ( *outNeighborPtr == 0)
-		      {
-		      // New pixel to add
-		      ++newPixel;
-		      ++numPixels;
-		      newPixel->inPtr = (void *)(inNeighborPtr);
-		      newPixel->outPtr = (void *)(outNeighborPtr);
-		      newPixel->idx0 = nextPixel->idx0;
-		      newPixel->idx1 = nextPixel->idx1 - 1;
-		      *outNeighborPtr = 1;  // visited don't know
-		      }
-		    }
-		  }
-		// down
-		if (nextPixel->idx1 < outExt[3])
-		  {
-		  inNeighborPtr = (T *)(nextPixel->inPtr) + inInc1;
-		  if ( *inNeighborPtr == islandValue)
-		    {
-		    outNeighborPtr = (T *)(nextPixel->outPtr) + outInc1;
-		    if ( *outNeighborPtr == 2)
-		      {
-		      // This is part of a bigger island.
-		      keepValue = 2;
-		      }
-		    if ( *outNeighborPtr == 0)
-		      {
-		      // New pixel to add
-		      ++newPixel;
-		      ++numPixels;
-		      newPixel->inPtr = (void *)(inNeighborPtr);
-		      newPixel->outPtr = (void *)(outNeighborPtr);
-		      newPixel->idx0 = nextPixel->idx0;
-		      newPixel->idx1 = nextPixel->idx1 + 1;
-		      *outNeighborPtr = 1;  // visited don't know
-		      }
-		    }
-		  }
-		// Corners
-		if (squareNeighborhood)
-		  {
-		  // upper left
-		  if (nextPixel->idx0 > outExt[0] && nextPixel->idx1 > outExt[2])
-		    {
-		    inNeighborPtr = (T *)(nextPixel->inPtr) - inInc0 - inInc1;
-		    if ( *inNeighborPtr == islandValue)
-		      {
-		      outNeighborPtr = (T *)(nextPixel->outPtr) - outInc0 -outInc1;
-		      if ( *outNeighborPtr == 2)
-			{
-			// This is part of a bigger island.
-			keepValue = 2;
-			}
-		      if ( *outNeighborPtr == 0)
-			{
-			// New pixel to add
-			++newPixel;
-			++numPixels;
-			newPixel->inPtr = (void *)(inNeighborPtr);
-			newPixel->outPtr = (void *)(outNeighborPtr);
-			newPixel->idx0 = nextPixel->idx0 - 1;
-			newPixel->idx1 = nextPixel->idx1 - 1;
-			*outNeighborPtr = 1;  // visited don't know
-			}
-		      }
-		    }
-		  // upper right
-		  if (nextPixel->idx0 < outExt[1] && nextPixel->idx1 > outExt[2])
-		    {
-		    inNeighborPtr = (T *)(nextPixel->inPtr) + inInc0 - inInc1;
-		    if ( *inNeighborPtr == islandValue)
-		      {
-		      outNeighborPtr = (T *)(nextPixel->outPtr) + outInc0 -outInc1;
-		      if ( *outNeighborPtr == 2)
-			{
-			// This is part of a bigger island.
-			keepValue = 2;
-			}
-		      if ( *outNeighborPtr == 0)
-			{
-			// New pixel to add
-			++newPixel;
-			++numPixels;
-			newPixel->inPtr = (void *)(inNeighborPtr);
-			newPixel->outPtr = (void *)(outNeighborPtr);
-			newPixel->idx0 = nextPixel->idx0 + 1;
-			newPixel->idx1 = nextPixel->idx1 - 1;
-			*outNeighborPtr = 1;  // visited don't know
-			}
-		      }
-		    }
-		  // lower left
-		  if (nextPixel->idx0 > outExt[0] && nextPixel->idx1 < outExt[3])
-		    {
-		    inNeighborPtr = (T *)(nextPixel->inPtr) - inInc0 + inInc1;
-		    if ( *inNeighborPtr == islandValue)
-		      {
-		      outNeighborPtr = (T *)(nextPixel->outPtr) - outInc0 +outInc1;
-		      if ( *outNeighborPtr == 2)
-			{
-			// This is part of a bigger island.
-			keepValue = 2;
-			}
-		      if ( *outNeighborPtr == 0)
-			{
-			// New pixel to add
-			++newPixel;
-			++numPixels;
-			newPixel->inPtr = (void *)(inNeighborPtr);
-			newPixel->outPtr = (void *)(outNeighborPtr);
-			newPixel->idx0 = nextPixel->idx0 - 1;
-			newPixel->idx1 = nextPixel->idx1 + 1;
-			*outNeighborPtr = 1;  // visited don't know
-			}
-		      }
-		    }
-		  // lower right
-		  if (nextPixel->idx0 < outExt[1] && nextPixel->idx1 < outExt[3])
-		    {
-		    inNeighborPtr = (T *)(nextPixel->inPtr) + inInc0 + inInc1;
-		    if ( *inNeighborPtr == islandValue)
-		      {
-		      outNeighborPtr = (T *)(nextPixel->outPtr) + outInc0 +outInc1;
-		      if ( *outNeighborPtr == 2)
-			{
-			// This is part of a bigger island.
-			keepValue = 2;
-			}
-		      if ( *outNeighborPtr == 0)
-			{
-			// New pixel to add
-			++newPixel;
-			++numPixels;
-			newPixel->inPtr = (void *)(inNeighborPtr);
-			newPixel->outPtr = (void *)(outNeighborPtr);
-			newPixel->idx0 = nextPixel->idx0 + 1;
-			newPixel->idx1 = nextPixel->idx1 + 1;
-			*outNeighborPtr = 1;  // visited don't know
-			}
-		      }
-		    }
-		  }
-	      
-		// Move to the next pixel to grow.
-		++nextPixel;
-		++nextPixelIdx;
-	      
-		// Have we visted enogh pixels to determine this is a keeper?
-		if (keepValue == 1 && numPixels >= area)
-		  {
-		  keepValue = 2;
-		  }
-	      
-		// Have we run out of pixels to grow?
-		if (keepValue == 1 && nextPixelIdx >= numPixels)
-		  {
-		  // The island is too small. Set island values too replace.
-		  keepValue = 3;
-		  }
-		}
-	    
-	      // Change "don't knows" to keep value
-	      nextPixel = pixels;
-	      for (nextPixelIdx = 0; nextPixelIdx < numPixels; ++nextPixelIdx)
-		{
-		*((T *)(nextPixel->outPtr)) = keepValue;
-		++nextPixel;
-		}
-	      }
-	    }
-	
-	  outPtr0 += outInc0;
-	  inPtr0 += inInc0;
-	  }
-	outPtr1 += outInc1;
-	inPtr1 += inInc1;
-	}
+        {
+        outPtr0 = outPtr1;
+        inPtr0 = inPtr1;
+        for (outIdx0 = outExt[0]; outIdx0 <= outExt[1]; ++outIdx0)
+          {
+          if (*outPtr0 == 0)
+            {
+            if (*inPtr0 != islandValue)
+              {
+              // not an island, keep and go on
+              *outPtr0 = 2;
+              }
+            else
+              {
+            
+              // Start an island search
+              // Save first pixel.
+              newPixel = pixels;
+              newPixel->inPtr = (void *)(inPtr0);
+              newPixel->outPtr = (void *)(outPtr0);
+              newPixel->idx0 = outIdx0;
+              newPixel->idx1 = outIdx1;
+              numPixels = 1;
+              nextPixelIdx = 0;
+              nextPixel = pixels;
+              *outPtr0 = 1;  // visited don't know
+              keepValue = 1;
+              // breadth first search
+              while (keepValue == 1)  // don't know
+                {
+                // Check all the neighbors
+                // left
+                if (nextPixel->idx0 > outExt[0])
+                  {
+                  inNeighborPtr = (T *)(nextPixel->inPtr) - inInc0;
+                  if ( *inNeighborPtr == islandValue)
+                    {
+                    outNeighborPtr = (T *)(nextPixel->outPtr) - outInc0;
+                    if ( *outNeighborPtr == 2)
+                      {
+                      // This is part of a bigger island.
+                      keepValue = 2;
+                      }
+                    if ( *outNeighborPtr == 0)
+                      {
+                      // New pixel to add
+                      ++newPixel;
+                      ++numPixels;
+                      newPixel->inPtr = (void *)(inNeighborPtr);
+                      newPixel->outPtr = (void *)(outNeighborPtr);
+                      newPixel->idx0 = nextPixel->idx0 - 1;
+                      newPixel->idx1 = nextPixel->idx1;
+                      *outNeighborPtr = 1;  // visited don't know
+                      }
+                    }
+                  }
+                // right
+                if (nextPixel->idx0 < outExt[1])
+                  {
+                  inNeighborPtr = (T *)(nextPixel->inPtr) + inInc0;
+                  if ( *inNeighborPtr == islandValue)
+                    {
+                    outNeighborPtr = (T *)(nextPixel->outPtr) + outInc0;
+                    if ( *outNeighborPtr == 2)
+                      {
+                      // This is part of a bigger island.
+                      keepValue = 2;
+                      }
+                    if ( *outNeighborPtr == 0)
+                      {
+                      // New pixel to add
+                      ++newPixel;
+                      ++numPixels;
+                      newPixel->inPtr = (void *)(inNeighborPtr);
+                      newPixel->outPtr = (void *)(outNeighborPtr);
+                      newPixel->idx0 = nextPixel->idx0 + 1;
+                      newPixel->idx1 = nextPixel->idx1;
+                      *outNeighborPtr = 1;  // visited don't know
+                      }
+                    }
+                  }
+                // up
+                if (nextPixel->idx1 > outExt[2])
+                  {
+                  inNeighborPtr = (T *)(nextPixel->inPtr) - inInc1;
+                  if ( *inNeighborPtr == islandValue)
+                    {
+                    outNeighborPtr = (T *)(nextPixel->outPtr) - outInc1;
+                    if ( *outNeighborPtr == 2)
+                      {
+                      // This is part of a bigger island.
+                      keepValue = 2;
+                      }
+                    if ( *outNeighborPtr == 0)
+                      {
+                      // New pixel to add
+                      ++newPixel;
+                      ++numPixels;
+                      newPixel->inPtr = (void *)(inNeighborPtr);
+                      newPixel->outPtr = (void *)(outNeighborPtr);
+                      newPixel->idx0 = nextPixel->idx0;
+                      newPixel->idx1 = nextPixel->idx1 - 1;
+                      *outNeighborPtr = 1;  // visited don't know
+                      }
+                    }
+                  }
+                // down
+                if (nextPixel->idx1 < outExt[3])
+                  {
+                  inNeighborPtr = (T *)(nextPixel->inPtr) + inInc1;
+                  if ( *inNeighborPtr == islandValue)
+                    {
+                    outNeighborPtr = (T *)(nextPixel->outPtr) + outInc1;
+                    if ( *outNeighborPtr == 2)
+                      {
+                      // This is part of a bigger island.
+                      keepValue = 2;
+                      }
+                    if ( *outNeighborPtr == 0)
+                      {
+                      // New pixel to add
+                      ++newPixel;
+                      ++numPixels;
+                      newPixel->inPtr = (void *)(inNeighborPtr);
+                      newPixel->outPtr = (void *)(outNeighborPtr);
+                      newPixel->idx0 = nextPixel->idx0;
+                      newPixel->idx1 = nextPixel->idx1 + 1;
+                      *outNeighborPtr = 1;  // visited don't know
+                      }
+                    }
+                  }
+                // Corners
+                if (squareNeighborhood)
+                  {
+                  // upper left
+                  if (nextPixel->idx0 > outExt[0] && nextPixel->idx1 > outExt[2])
+                    {
+                    inNeighborPtr = (T *)(nextPixel->inPtr) - inInc0 - inInc1;
+                    if ( *inNeighborPtr == islandValue)
+                      {
+                      outNeighborPtr = (T *)(nextPixel->outPtr) - outInc0 -outInc1;
+                      if ( *outNeighborPtr == 2)
+                        {
+                        // This is part of a bigger island.
+                        keepValue = 2;
+                        }
+                      if ( *outNeighborPtr == 0)
+                        {
+                        // New pixel to add
+                        ++newPixel;
+                        ++numPixels;
+                        newPixel->inPtr = (void *)(inNeighborPtr);
+                        newPixel->outPtr = (void *)(outNeighborPtr);
+                        newPixel->idx0 = nextPixel->idx0 - 1;
+                        newPixel->idx1 = nextPixel->idx1 - 1;
+                        *outNeighborPtr = 1;  // visited don't know
+                        }
+                      }
+                    }
+                  // upper right
+                  if (nextPixel->idx0 < outExt[1] && nextPixel->idx1 > outExt[2])
+                    {
+                    inNeighborPtr = (T *)(nextPixel->inPtr) + inInc0 - inInc1;
+                    if ( *inNeighborPtr == islandValue)
+                      {
+                      outNeighborPtr = (T *)(nextPixel->outPtr) + outInc0 -outInc1;
+                      if ( *outNeighborPtr == 2)
+                        {
+                        // This is part of a bigger island.
+                        keepValue = 2;
+                        }
+                      if ( *outNeighborPtr == 0)
+                        {
+                        // New pixel to add
+                        ++newPixel;
+                        ++numPixels;
+                        newPixel->inPtr = (void *)(inNeighborPtr);
+                        newPixel->outPtr = (void *)(outNeighborPtr);
+                        newPixel->idx0 = nextPixel->idx0 + 1;
+                        newPixel->idx1 = nextPixel->idx1 - 1;
+                        *outNeighborPtr = 1;  // visited don't know
+                        }
+                      }
+                    }
+                  // lower left
+                  if (nextPixel->idx0 > outExt[0] && nextPixel->idx1 < outExt[3])
+                    {
+                    inNeighborPtr = (T *)(nextPixel->inPtr) - inInc0 + inInc1;
+                    if ( *inNeighborPtr == islandValue)
+                      {
+                      outNeighborPtr = (T *)(nextPixel->outPtr) - outInc0 +outInc1;
+                      if ( *outNeighborPtr == 2)
+                        {
+                        // This is part of a bigger island.
+                        keepValue = 2;
+                        }
+                      if ( *outNeighborPtr == 0)
+                        {
+                        // New pixel to add
+                        ++newPixel;
+                        ++numPixels;
+                        newPixel->inPtr = (void *)(inNeighborPtr);
+                        newPixel->outPtr = (void *)(outNeighborPtr);
+                        newPixel->idx0 = nextPixel->idx0 - 1;
+                        newPixel->idx1 = nextPixel->idx1 + 1;
+                        *outNeighborPtr = 1;  // visited don't know
+                        }
+                      }
+                    }
+                  // lower right
+                  if (nextPixel->idx0 < outExt[1] && nextPixel->idx1 < outExt[3])
+                    {
+                    inNeighborPtr = (T *)(nextPixel->inPtr) + inInc0 + inInc1;
+                    if ( *inNeighborPtr == islandValue)
+                      {
+                      outNeighborPtr = (T *)(nextPixel->outPtr) + outInc0 +outInc1;
+                      if ( *outNeighborPtr == 2)
+                        {
+                        // This is part of a bigger island.
+                        keepValue = 2;
+                        }
+                      if ( *outNeighborPtr == 0)
+                        {
+                        // New pixel to add
+                        ++newPixel;
+                        ++numPixels;
+                        newPixel->inPtr = (void *)(inNeighborPtr);
+                        newPixel->outPtr = (void *)(outNeighborPtr);
+                        newPixel->idx0 = nextPixel->idx0 + 1;
+                        newPixel->idx1 = nextPixel->idx1 + 1;
+                        *outNeighborPtr = 1;  // visited don't know
+                        }
+                      }
+                    }
+                  }
+              
+                // Move to the next pixel to grow.
+                ++nextPixel;
+                ++nextPixelIdx;
+              
+                // Have we visted enogh pixels to determine this is a keeper?
+                if (keepValue == 1 && numPixels >= area)
+                  {
+                  keepValue = 2;
+                  }
+              
+                // Have we run out of pixels to grow?
+                if (keepValue == 1 && nextPixelIdx >= numPixels)
+                  {
+                  // The island is too small. Set island values too replace.
+                  keepValue = 3;
+                  }
+                }
+            
+              // Change "don't knows" to keep value
+              nextPixel = pixels;
+              for (nextPixelIdx = 0; nextPixelIdx < numPixels; ++nextPixelIdx)
+                {
+                *((T *)(nextPixel->outPtr)) = keepValue;
+                ++nextPixel;
+                }
+              }
+            }
+        
+          outPtr0 += outInc0;
+          inPtr0 += inInc0;
+          }
+        outPtr1 += outInc1;
+        inPtr1 += inInc1;
+        }
       outPtr2 += outInc2;
       inPtr2 += inInc2;
       }
@@ -485,25 +485,25 @@ static void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
       outPtr1 = outPtr2;
       inPtr1 = inPtr2;
       for (outIdx1 = outExt[2]; outIdx1 <= outExt[3]; ++outIdx1)
-	{
-	outPtr0 = outPtr1;
-	inPtr0 = inPtr1;
-	for (outIdx0 = outExt[0]; outIdx0 <= outExt[1]; ++outIdx0)
-	  {
-	  if (*outPtr0 == 3)
-	    {
-	    *outPtr0 = replaceValue;
-	    }
-	  else
-	    {
-	    *outPtr0 = *inPtr0;
-	    }
-	  inPtr0 += inInc0;
-	  outPtr0 += outInc0;
-	  }
-	inPtr1 += inInc1;
-	outPtr1 += outInc1;
-	}
+        {
+        outPtr0 = outPtr1;
+        inPtr0 = inPtr1;
+        for (outIdx0 = outExt[0]; outIdx0 <= outExt[1]; ++outIdx0)
+          {
+          if (*outPtr0 == 3)
+            {
+            *outPtr0 = replaceValue;
+            }
+          else
+            {
+            *outPtr0 = *inPtr0;
+            }
+          inPtr0 += inInc0;
+          outPtr0 += outInc0;
+          }
+        inPtr1 += inInc1;
+        outPtr1 += outInc1;
+        }
       inPtr2 += inInc2;
       outPtr2 += outInc2;
       }

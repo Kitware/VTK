@@ -544,14 +544,14 @@ int vtkEnSightReader::ReadCaseFile()
         {
         if (sscanf(line, " %*s %d %d %s", &timeSet, &fileSet, subLine) == 3)
           {
-	  this->GeometryTimeSet = timeSet;
-	  this->GeometryFileSet = fileSet;
+          this->GeometryTimeSet = timeSet;
+          this->GeometryFileSet = fileSet;
           this->SetGeometryFileName(subLine);
           vtkDebugMacro(<<this->GetGeometryFileName());
           }
         else if (sscanf(line, " %*s %d %s", &timeSet, subLine) == 2)
           {
-	  this->GeometryTimeSet = timeSet;
+          this->GeometryTimeSet = timeSet;
           this->SetGeometryFileName(subLine);
           vtkDebugMacro(<<this->GetGeometryFileName());
           }
@@ -565,14 +565,14 @@ int vtkEnSightReader::ReadCaseFile()
         {
         if (sscanf(line, " %*s %d %d %s", &timeSet, &fileSet, subLine) == 3)
           {
-	  this->MeasuredTimeSet = timeSet;
-	  this->MeasuredFileSet = fileSet;
+          this->MeasuredTimeSet = timeSet;
+          this->MeasuredFileSet = fileSet;
           this->SetMeasuredFileName(subLine);
           vtkDebugMacro(<< this->GetMeasuredFileName());
           }
         else if (sscanf(line, " %*s %d %s", &timeSet, subLine) == 2)
           {
-	  this->MeasuredTimeSet = timeSet;
+          this->MeasuredTimeSet = timeSet;
           this->SetMeasuredFileName(subLine);
           vtkDebugMacro(<< this->GetMeasuredFileName());
           }
@@ -613,16 +613,16 @@ int vtkEnSightReader::ReadCaseFile()
           this->VariableMode = VTK_SCALAR_PER_NODE;
           this->AddVariableType();
           if (sscanf(line, " %*s %*s %*s %d %d %s", &timeSet, &fileSet,
-		     subLine) == 3)
+                     subLine) == 3)
             {
-	    this->VariableTimeSets->InsertNextId(timeSet);
-	    this->VariableFileSets->InsertNextId(fileSet);
+            this->VariableTimeSets->InsertNextId(timeSet);
+            this->VariableFileSets->InsertNextId(fileSet);
             this->AddVariableDescription(subLine);
             sscanf(line, " %*s %*s %*s %*d %*d %*s %s", subLine);
             }
           else if (sscanf(line, " %*s %*s %*s %d %s", &timeSet, subLine) == 2)
             {
-	    this->VariableTimeSets->InsertNextId(timeSet);
+            this->VariableTimeSets->InsertNextId(timeSet);
             this->AddVariableDescription(subLine);
             sscanf(line, " %*s %*s %*s %*d %*s %s", subLine);
             }
@@ -639,16 +639,16 @@ int vtkEnSightReader::ReadCaseFile()
           this->VariableMode = VTK_SCALAR_PER_ELEMENT;
           this->AddVariableType();
           if (sscanf(line, " %*s %*s %*s %d %d %s", &timeSet, &fileSet,
-		     subLine) == 3)
+                     subLine) == 3)
             {
-	    this->VariableTimeSets->InsertNextId(timeSet);
-	    this->VariableFileSets->InsertNextId(fileSet);
+            this->VariableTimeSets->InsertNextId(timeSet);
+            this->VariableFileSets->InsertNextId(fileSet);
             this->AddVariableDescription(subLine);
             sscanf(line, " %*s %*s %*s %*d %*d %*s %s", subLine);
             }
           else if (sscanf(line, " %*s %*s %*s %d %s", &timeSet, subLine) == 2)
             {
-	    this->VariableTimeSets->InsertNextId(timeSet);
+            this->VariableTimeSets->InsertNextId(timeSet);
             this->AddVariableDescription(subLine);
             sscanf(line, " %*s %*s %*s %*d %*s %s", subLine);
             }
@@ -665,17 +665,17 @@ int vtkEnSightReader::ReadCaseFile()
           this->VariableMode = VTK_SCALAR_PER_MEASURED_NODE;
           this->AddVariableType();
           if (sscanf(line, " %*s %*s %*s %*s %d %d %s", &timeSet, &fileSet,
-		     subLine) == 3)
+                     subLine) == 3)
             {
-	    this->VariableTimeSets->InsertNextId(timeSet);
-	    this->VariableFileSets->InsertNextId(fileSet);
+            this->VariableTimeSets->InsertNextId(timeSet);
+            this->VariableFileSets->InsertNextId(fileSet);
             this->AddVariableDescription(subLine);
             sscanf(line, " %*s %*s %*s %*s %*d %*d %*s %s", subLine);
             }
           else if (sscanf(line, " %*s %*s %*s %*s %d %s", &timeSet,
-			  subLine) == 2)
+                          subLine) == 2)
             {
-	    this->VariableTimeSets->InsertNextId(timeSet);
+            this->VariableTimeSets->InsertNextId(timeSet);
             this->AddVariableDescription(subLine);
             sscanf(line, " %*s %*s %*s %*s %*d %*s %s", subLine);
             }
@@ -698,16 +698,16 @@ int vtkEnSightReader::ReadCaseFile()
           this->VariableMode = VTK_VECTOR_PER_NODE;
           this->AddVariableType();
           if (sscanf(line, " %*s %*s %*s %d %d %s", &timeSet, &fileSet,
-		     subLine) == 3)
+                     subLine) == 3)
             {
-	    this->VariableTimeSets->InsertNextId(timeSet);
-	    this->VariableFileSets->InsertNextId(fileSet);
+            this->VariableTimeSets->InsertNextId(timeSet);
+            this->VariableFileSets->InsertNextId(fileSet);
             this->AddVariableDescription(subLine);
             sscanf(line, " %*s %*s %*s %*d %*d %*s %s", subLine);
             }
           else if (sscanf(line, " %*s %*s %*s %d %s", &timeSet, subLine) == 2)
             {
-	    this->VariableTimeSets->InsertNextId(timeSet);
+            this->VariableTimeSets->InsertNextId(timeSet);
             this->AddVariableDescription(subLine);
             sscanf(line, " %*s %*s %*s %*d %*s %s", subLine);
             }
@@ -724,16 +724,16 @@ int vtkEnSightReader::ReadCaseFile()
           this->VariableMode = VTK_VECTOR_PER_ELEMENT;
           this->AddVariableType();
           if (sscanf(line, " %*s %*s %*s %d %d %s", &timeSet, &fileSet,
-		     subLine) == 3)
+                     subLine) == 3)
             {
-	    this->VariableTimeSets->InsertNextId(timeSet);
-	    this->VariableFileSets->InsertNextId(fileSet);
+            this->VariableTimeSets->InsertNextId(timeSet);
+            this->VariableFileSets->InsertNextId(fileSet);
             this->AddVariableDescription(subLine);
             sscanf(line, " %*s %*s %*s %*d %*d %*s %s", subLine);
             }
           else if (sscanf(line, " %*s %*s %*s %d %s", &timeSet, subLine) == 2)
             {
-	    this->VariableTimeSets->InsertNextId(timeSet);
+            this->VariableTimeSets->InsertNextId(timeSet);
             this->AddVariableDescription(subLine);
             sscanf(line, " %*s %*s %*s %*d %*s %s", subLine);
             }
@@ -750,17 +750,17 @@ int vtkEnSightReader::ReadCaseFile()
           this->VariableMode = VTK_VECTOR_PER_MEASURED_NODE;
           this->AddVariableType();
           if (sscanf(line, " %*s %*s %*s %*s %d %d %s", &timeSet, &fileSet,
-		     subLine) == 3)
+                     subLine) == 3)
             {
-	    this->VariableTimeSets->InsertNextId(timeSet);
-	    this->VariableFileSets->InsertNextId(fileSet);
+            this->VariableTimeSets->InsertNextId(timeSet);
+            this->VariableFileSets->InsertNextId(fileSet);
             this->AddVariableDescription(subLine);
             sscanf(line, " %*s %*s %*s %*s %*d %*d %*s %s", subLine);
             }
           else if (sscanf(line, " %*s %*s %*s %*s %d %s", &timeSet,
-			  subLine) == 2)
+                          subLine) == 2)
             {
-	    this->VariableTimeSets->InsertNextId(timeSet);
+            this->VariableTimeSets->InsertNextId(timeSet);
             this->AddVariableDescription(subLine);
             sscanf(line, " %*s %*s %*s %*s %*d %*s %s", subLine);
             }
@@ -783,17 +783,17 @@ int vtkEnSightReader::ReadCaseFile()
           this->VariableMode = VTK_TENSOR_SYMM_PER_NODE;
           this->AddVariableType();
           if (sscanf(line, " %*s %*s %*s %*s %d %d %s", &timeSet, &fileSet,
-		     subLine) == 3)
+                     subLine) == 3)
             {
-	    this->VariableTimeSets->InsertNextId(timeSet);
-	    this->VariableFileSets->InsertNextId(fileSet);
+            this->VariableTimeSets->InsertNextId(timeSet);
+            this->VariableFileSets->InsertNextId(fileSet);
             this->AddVariableDescription(subLine);
             sscanf(line, " %*s %*s %*s %*s %*d %*d %*s %s", subLine);
             }
           else if (sscanf(line, " %*s %*s %*s %*s %d %s", &timeSet,
-			  subLine) == 2)
+                          subLine) == 2)
             {
-	    this->VariableTimeSets->InsertNextId(timeSet);
+            this->VariableTimeSets->InsertNextId(timeSet);
             this->AddVariableDescription(subLine);
             sscanf(line, " %*s %*s %*s %*s %*d %*s %s", subLine);
             }
@@ -810,17 +810,17 @@ int vtkEnSightReader::ReadCaseFile()
           this->VariableMode = VTK_TENSOR_SYMM_PER_ELEMENT;
           this->AddVariableType();
           if (sscanf(line, " %*s %*s %*s %*s %d %d %s", &timeSet, &fileSet,
-		     subLine) == 3)
+                     subLine) == 3)
             {
-	    this->VariableTimeSets->InsertNextId(timeSet);
-	    this->VariableFileSets->InsertNextId(fileSet);
+            this->VariableTimeSets->InsertNextId(timeSet);
+            this->VariableFileSets->InsertNextId(fileSet);
             this->AddVariableDescription(subLine);
             sscanf(line, " %*s %*s %*s %*s %*d %*d %*s %s", subLine);
             }
           else if (sscanf(line, " %*s %*s %*s %*s %d %s", &timeSet,
-			  subLine) == 2)
+                          subLine) == 2)
             {
-	    this->VariableTimeSets->InsertNextId(timeSet);
+            this->VariableTimeSets->InsertNextId(timeSet);
             this->AddVariableDescription(subLine);
             sscanf(line, " %*s %*s %*s %*s %*d %*s %s", subLine);
             }
@@ -846,18 +846,18 @@ int vtkEnSightReader::ReadCaseFile()
             this->VariableMode = VTK_COMPLEX_SCALAR_PER_NODE;
             this->AddVariableType();
             if (sscanf(line, " %*s %*s %*s %*s %d %d %s", &timeSet, &fileSet,
-		       subLine) == 3)
+                       subLine) == 3)
               {
-	      this->ComplexVariableTimeSets->InsertNextId(timeSet);
-	      this->ComplexVariableFileSets->InsertNextId(fileSet);
+              this->ComplexVariableTimeSets->InsertNextId(timeSet);
+              this->ComplexVariableFileSets->InsertNextId(fileSet);
               this->AddVariableDescription(subLine);
               sscanf(line, " %*s %*s %*s %*s %*d %*d %*s %s %s", subLine,
                      subLine2);
               }
             else if (sscanf(line, " %*s %*s %*s %*s %d %s", &timeSet,
-			    subLine) == 2)
+                            subLine) == 2)
               {
-	      this->ComplexVariableTimeSets->InsertNextId(timeSet);
+              this->ComplexVariableTimeSets->InsertNextId(timeSet);
               this->AddVariableDescription(subLine);
               sscanf(line, " %*s %*s %*s %*s %*d %*s %s %s", subLine,
                      subLine2);
@@ -875,18 +875,18 @@ int vtkEnSightReader::ReadCaseFile()
             this->VariableMode = VTK_COMPLEX_SCALAR_PER_ELEMENT;
             this->AddVariableType();
             if (sscanf(line, " %*s %*s %*s %*s %d %d %s", &timeSet, &fileSet,
-		       subLine) == 3)
+                       subLine) == 3)
               {
-	      this->ComplexVariableTimeSets->InsertNextId(timeSet);
-	      this->ComplexVariableFileSets->InsertNextId(fileSet);
+              this->ComplexVariableTimeSets->InsertNextId(timeSet);
+              this->ComplexVariableFileSets->InsertNextId(fileSet);
               this->AddVariableDescription(subLine);
               sscanf(line, " %*s %*s %*s %*s %*d %*d %*s %s %s", subLine,
                      subLine2);
               }
             else if (sscanf(line, " %*s %*s %*s %*s %d %s", &timeSet,
-			    subLine) == 2)
+                            subLine) == 2)
               {
-	      this->ComplexVariableTimeSets->InsertNextId(timeSet);
+              this->ComplexVariableTimeSets->InsertNextId(timeSet);
               this->AddVariableDescription(subLine);
               sscanf(line, " %*s %*s %*s %*s %*d %*s %s %s", subLine,
                      subLine2);
@@ -908,18 +908,18 @@ int vtkEnSightReader::ReadCaseFile()
             this->VariableMode = VTK_COMPLEX_VECTOR_PER_NODE;
             this->AddVariableType();
             if (sscanf(line, " %*s %*s %*s %*s %d %d %s", &timeSet, &fileSet,
-		       subLine) == 3)
+                       subLine) == 3)
               {
-	      this->ComplexVariableTimeSets->InsertNextId(timeSet);
-	      this->ComplexVariableFileSets->InsertNextId(fileSet);
+              this->ComplexVariableTimeSets->InsertNextId(timeSet);
+              this->ComplexVariableFileSets->InsertNextId(fileSet);
               this->AddVariableDescription(subLine);
               sscanf(line, " %*s %*s %*s %*s %*d %*d %*s %s %s", subLine,
                      subLine2);
               }
             else if (sscanf(line, " %*s %*s %*s %*s %d %s", &timeSet,
-			    subLine) == 2)
+                            subLine) == 2)
               {
-	      this->ComplexVariableTimeSets->InsertNextId(timeSet);
+              this->ComplexVariableTimeSets->InsertNextId(timeSet);
               this->AddVariableDescription(subLine);
               sscanf(line, " %*s %*s %*s %*s %*d %*s %s %s", subLine,
                      subLine2);
@@ -937,18 +937,18 @@ int vtkEnSightReader::ReadCaseFile()
             this->VariableMode = VTK_COMPLEX_VECTOR_PER_ELEMENT;
             this->AddVariableType();
             if (sscanf(line, " %*s %*s %*s %*s %d %d %s", &timeSet, &fileSet,
-		       subLine) == 3)
+                       subLine) == 3)
               {
-	      this->ComplexVariableTimeSets->InsertNextId(timeSet);
-	      this->ComplexVariableFileSets->InsertNextId(fileSet);
+              this->ComplexVariableTimeSets->InsertNextId(timeSet);
+              this->ComplexVariableFileSets->InsertNextId(fileSet);
               this->AddVariableDescription(subLine);
               sscanf(line, " %*s %*s %*s %*s %*d %*d %*s %s %s", subLine,
                      subLine2);
               }
             else if (sscanf(line, " %*s %*s %*s %*s %d %s", &timeSet,
-			    subLine) == 2)
+                            subLine) == 2)
               {
-	      this->ComplexVariableTimeSets->InsertNextId(timeSet);
+              this->ComplexVariableTimeSets->InsertNextId(timeSet);
               this->AddVariableDescription(subLine);
               sscanf(line, " %*s %*s %*s %*s %*d %*s %s %s", subLine,
                      subLine2);
@@ -989,53 +989,53 @@ int vtkEnSightReader::ReadCaseFile()
       sscanf(line, "%*s %*s %*s %d", &numTimeSteps);
       this->ReadNextDataLine(line);
       if (strncmp(line, "filename", 8) == 0)
-	{
-	vtkIdList *filenameNumbers = vtkIdList::New();
-	this->TimeSetsWithFilenameNumbers->InsertNextId(timeSet);
-	sscanf(line, "%*s %s", subLine);
-	if (strncmp(subLine, "numbers", 7) == 0)
-	  {
-	  strcpy(formatLine, "%*s %*s");
-	  strcpy(subLine, "%*s %*s");
-	  for (i = 0; i < numTimeSteps; i++)
-	    {
-	    strcat(formatLine, " %d");
-	    sscanf(line, formatLine, &filenameNum);
-	    filenameNumbers->InsertNextId(filenameNum);
-	    strcat(subLine, " %*d");
-	    strcpy(formatLine, subLine);
-	    }
-	  }
-	else
-	  {
-	  sscanf(line, "%*s %*s %*s %d", &filenameNum);
-	  this->ReadNextDataLine(line);
-	  sscanf(line, "%*s %*s %d", &increment);
-	  for (i = 0; i < numTimeSteps; i++)
-	    {
-	    filenameNumbers->InsertNextId(filenameNum + i*increment);
-	    }
-	  }
-	this->TimeSetFilenameNumbersCollection->AddItem(filenameNumbers);
-	filenameNumbers->Delete();
-	filenameNumbers = NULL;
-	this->ReadLine(line);
-	}
+        {
+        vtkIdList *filenameNumbers = vtkIdList::New();
+        this->TimeSetsWithFilenameNumbers->InsertNextId(timeSet);
+        sscanf(line, "%*s %s", subLine);
+        if (strncmp(subLine, "numbers", 7) == 0)
+          {
+          strcpy(formatLine, "%*s %*s");
+          strcpy(subLine, "%*s %*s");
+          for (i = 0; i < numTimeSteps; i++)
+            {
+            strcat(formatLine, " %d");
+            sscanf(line, formatLine, &filenameNum);
+            filenameNumbers->InsertNextId(filenameNum);
+            strcat(subLine, " %*d");
+            strcpy(formatLine, subLine);
+            }
+          }
+        else
+          {
+          sscanf(line, "%*s %*s %*s %d", &filenameNum);
+          this->ReadNextDataLine(line);
+          sscanf(line, "%*s %*s %d", &increment);
+          for (i = 0; i < numTimeSteps; i++)
+            {
+            filenameNumbers->InsertNextId(filenameNum + i*increment);
+            }
+          }
+        this->TimeSetFilenameNumbersCollection->AddItem(filenameNumbers);
+        filenameNumbers->Delete();
+        filenameNumbers = NULL;
+        this->ReadLine(line);
+        }
       vtkFloatArray *timeValues = vtkFloatArray::New();
       timeValues->SetNumberOfComponents(1);
       timeValues->SetNumberOfTuples(numTimeSteps);
       strcpy(formatLine, "%*s %*s");
       strcpy(subLine, "%*s %*s");
       for (i = 0; i < numTimeSteps; i++)
-	{
-	strcat(formatLine, " %f");
-	if (sscanf(line, formatLine, &timeStep) != 1)
-	  {
-	  this->ReadNextDataLine(line);
-	  strcpy(formatLine, " %f");
-	  strcpy(subLine, "");
-	  sscanf(line, formatLine, &timeStep);
-	  }
+        {
+        strcat(formatLine, " %f");
+        if (sscanf(line, formatLine, &timeStep) != 1)
+          {
+          this->ReadNextDataLine(line);
+          strcpy(formatLine, " %f");
+          strcpy(subLine, "");
+          sscanf(line, formatLine, &timeStep);
+          }
         if (firstTimeStep)
           {
           this->MinimumTimeValue = timeStep;
@@ -1053,10 +1053,10 @@ int vtkEnSightReader::ReadCaseFile()
             this->MaximumTimeValue = timeStep;
             }
           }
-	timeValues->SetComponent(i, 0, timeStep);
-	strcat(subLine, " %*f");
-	strcpy(formatLine, subLine);
-	}
+        timeValues->SetComponent(i, 0, timeStep);
+        strcat(subLine, " %*f");
+        strcpy(formatLine, subLine);
+        }
       this->TimeSetTimeValuesCollection->AddItem(timeValues);
       timeValues->Delete();
       timeValues = NULL;
@@ -1076,25 +1076,25 @@ int vtkEnSightReader::ReadCaseFile()
       this->FileSets->InsertNextId(fileSet);
       lineRead = this->ReadNextDataLine(line);
       if (strncmp(line, "filename", 8) == 0)
-	{
-	this->FileSetsWithFilenameNumbers->InsertNextId(fileSet);
-	while (lineRead != 0 && strncmp(line, "filename", 8) == 0)
-	  {
-	  sscanf(line, "%*s %*s %d", &filenameNum);
-	  filenameNums->InsertNextId(filenameNum);
-	  this->ReadNextDataLine(line);
-	  sscanf(line, "%*s %*s %*s %d", &numTimeSteps);
-	  numSteps->InsertNextId(numTimeSteps);
-	  lineRead = this->ReadNextDataLine(line);
-	  }
-	this->FileSetFilenameNumbersCollection->AddItem(filenameNums);
-	}
+        {
+        this->FileSetsWithFilenameNumbers->InsertNextId(fileSet);
+        while (lineRead != 0 && strncmp(line, "filename", 8) == 0)
+          {
+          sscanf(line, "%*s %*s %d", &filenameNum);
+          filenameNums->InsertNextId(filenameNum);
+          this->ReadNextDataLine(line);
+          sscanf(line, "%*s %*s %*s %d", &numTimeSteps);
+          numSteps->InsertNextId(numTimeSteps);
+          lineRead = this->ReadNextDataLine(line);
+          }
+        this->FileSetFilenameNumbersCollection->AddItem(filenameNums);
+        }
       else
-	{
-	sscanf(line, "%*s %*s %*s %d", &numTimeSteps);
-	numSteps->InsertNextId(numTimeSteps);
-	lineRead = this->ReadNextDataLine(line);
-	}
+        {
+        sscanf(line, "%*s %*s %*s %d", &numTimeSteps);
+        numSteps->InsertNextId(numTimeSteps);
+        lineRead = this->ReadNextDataLine(line);
+        }
       
       this->FileSetNumberOfStepsCollection->AddItem(numSteps);
       
@@ -1135,118 +1135,118 @@ int vtkEnSightReader::ReadVariableFiles()
       validTime = 0;
       timeSet = this->VariableTimeSets->GetId(i);
       times = (vtkFloatArray*)this->TimeSetTimeValuesCollection->
-	GetItemAsObject(this->TimeSets->IsId(timeSet));
+        GetItemAsObject(this->TimeSets->IsId(timeSet));
       for (j = 0; j < times->GetNumberOfTuples(); j++)
-	{
-	newTime = times->GetComponent(j, 0);
-	if (newTime <= this->TimeValue)
-	  {
-	  timeStep++;
-	  if (this->VariableTypes[i] == VTK_SCALAR_PER_MEASURED_NODE ||
-	       this->VariableTypes[i] == VTK_VECTOR_PER_MEASURED_NODE)
-	    {
-	    if (newTime >= this->MeasuredTimeValue ||
+        {
+        newTime = times->GetComponent(j, 0);
+        if (newTime <= this->TimeValue)
+          {
+          timeStep++;
+          if (this->VariableTypes[i] == VTK_SCALAR_PER_MEASURED_NODE ||
+               this->VariableTypes[i] == VTK_VECTOR_PER_MEASURED_NODE)
+            {
+            if (newTime >= this->MeasuredTimeValue ||
                 this->MeasuredTimeSet == -1)
-	      {
-	      validTime = 1;
-	      }
-	    }
-	  else if (newTime >= this->GeometryTimeValue ||
+              {
+              validTime = 1;
+              }
+            }
+          else if (newTime >= this->GeometryTimeValue ||
                    this->GeometryTimeSet == -1)
-	    {
-	    validTime = 1;
-	    }
-	  }
-	}
+            {
+            validTime = 1;
+            }
+          }
+        }
       if (this->TimeSetFilenameNumbersCollection->GetNumberOfItems() > 0 &&
-	  validTime)
-	{
-	int collectionNum = this->TimeSetsWithFilenameNumbers->IsId(timeSet);
-	if (collectionNum > -1)
-	  {
-	  filenameNumbers =
-	    (vtkIdList*)this->TimeSetFilenameNumbersCollection->
-	    GetItemAsObject(collectionNum);
-	  filenameNum = filenameNumbers->GetId(timeStep-1);
-	  this->ReplaceWildcards(fileName, filenameNum);
-	  }
-	}
+          validTime)
+        {
+        int collectionNum = this->TimeSetsWithFilenameNumbers->IsId(timeSet);
+        if (collectionNum > -1)
+          {
+          filenameNumbers =
+            (vtkIdList*)this->TimeSetFilenameNumbersCollection->
+            GetItemAsObject(collectionNum);
+          filenameNum = filenameNumbers->GetId(timeStep-1);
+          this->ReplaceWildcards(fileName, filenameNum);
+          }
+        }
       
       // There can only be file sets if there are also time sets.
       if (this->UseFileSets)
-	{
-	timeStepInFile = timeStep;
-	fileSet = this->VariableFileSets->GetId(i);
-	numStepsList = (vtkIdList*)this->FileSetNumberOfStepsCollection->
-	  GetItemAsObject(this->FileSets->IsId(fileSet));
+        {
+        timeStepInFile = timeStep;
+        fileSet = this->VariableFileSets->GetId(i);
+        numStepsList = (vtkIdList*)this->FileSetNumberOfStepsCollection->
+          GetItemAsObject(this->FileSets->IsId(fileSet));
 
-	if (timeStep > numStepsList->GetId(0))
-	  {
-	  numSteps = numStepsList->GetId(0);
-	  timeStepInFile -= numSteps;
-	  for (i = 1; i < numStepsList->GetNumberOfIds(); i++)
-	    {
-	    numSteps += numStepsList->GetId(i);
-	    if (timeStep > numSteps)
-	      {
-	      fileNum++;
-	      timeStepInFile -= numStepsList->GetId(i);
-	      }
-	    }
-	  }
-	if (this->FileSetFilenameNumbersCollection->GetNumberOfItems() > 0 &&
-	    validTime)
-	  {
-	  int collectionNum = this->FileSetsWithFilenameNumbers->IsId(fileSet);
-	  if (collectionNum > -1)
-	    {
-	    filenameNumbers =
-	      (vtkIdList*)this->TimeSetFilenameNumbersCollection->
-	      GetItemAsObject(collectionNum);
-	    filenameNum = filenameNumbers->GetId(timeStep-1);
-	    this->ReplaceWildcards(fileName, filenameNum);
-	    }
-	  }
-	}
+        if (timeStep > numStepsList->GetId(0))
+          {
+          numSteps = numStepsList->GetId(0);
+          timeStepInFile -= numSteps;
+          for (i = 1; i < numStepsList->GetNumberOfIds(); i++)
+            {
+            numSteps += numStepsList->GetId(i);
+            if (timeStep > numSteps)
+              {
+              fileNum++;
+              timeStepInFile -= numStepsList->GetId(i);
+              }
+            }
+          }
+        if (this->FileSetFilenameNumbersCollection->GetNumberOfItems() > 0 &&
+            validTime)
+          {
+          int collectionNum = this->FileSetsWithFilenameNumbers->IsId(fileSet);
+          if (collectionNum > -1)
+            {
+            filenameNumbers =
+              (vtkIdList*)this->TimeSetFilenameNumbersCollection->
+              GetItemAsObject(collectionNum);
+            filenameNum = filenameNumbers->GetId(timeStep-1);
+            this->ReplaceWildcards(fileName, filenameNum);
+            }
+          }
+        }
       }
 
     if (validTime)
       {
       switch (this->VariableTypes[i])
-	{
-	case VTK_SCALAR_PER_NODE:
-	  this->ReadScalarsPerNode(fileName, this->VariableDescriptions[i],
-				   timeStepInFile);
-	  break;
-	case VTK_SCALAR_PER_MEASURED_NODE:
-	  this->ReadScalarsPerNode(fileName, this->VariableDescriptions[i], 
-				   timeStepInFile, 1);
-	  break;
-	case VTK_VECTOR_PER_NODE:
-	  this->ReadVectorsPerNode(fileName, this->VariableDescriptions[i],
-				   timeStepInFile);
-	  break;
-	case VTK_VECTOR_PER_MEASURED_NODE:
-	  this->ReadVectorsPerNode(fileName, this->VariableDescriptions[i],
-				   timeStepInFile, 1);
-	  break;
-	case VTK_TENSOR_SYMM_PER_NODE:
-	  this->ReadTensorsPerNode(fileName, this->VariableDescriptions[i],
-				   timeStepInFile);
-	  break;
-	case VTK_SCALAR_PER_ELEMENT:
-	  this->ReadScalarsPerElement(fileName, this->VariableDescriptions[i],
-				      timeStepInFile);
-	  break;
-	case VTK_VECTOR_PER_ELEMENT:
-	  this->ReadVectorsPerElement(fileName, this->VariableDescriptions[i],
-				      timeStepInFile);
-	  break;
-	case VTK_TENSOR_SYMM_PER_ELEMENT:
-	  this->ReadTensorsPerElement(fileName, this->VariableDescriptions[i],
-				      timeStepInFile);
-	  break;
-	}
+        {
+        case VTK_SCALAR_PER_NODE:
+          this->ReadScalarsPerNode(fileName, this->VariableDescriptions[i],
+                                   timeStepInFile);
+          break;
+        case VTK_SCALAR_PER_MEASURED_NODE:
+          this->ReadScalarsPerNode(fileName, this->VariableDescriptions[i], 
+                                   timeStepInFile, 1);
+          break;
+        case VTK_VECTOR_PER_NODE:
+          this->ReadVectorsPerNode(fileName, this->VariableDescriptions[i],
+                                   timeStepInFile);
+          break;
+        case VTK_VECTOR_PER_MEASURED_NODE:
+          this->ReadVectorsPerNode(fileName, this->VariableDescriptions[i],
+                                   timeStepInFile, 1);
+          break;
+        case VTK_TENSOR_SYMM_PER_NODE:
+          this->ReadTensorsPerNode(fileName, this->VariableDescriptions[i],
+                                   timeStepInFile);
+          break;
+        case VTK_SCALAR_PER_ELEMENT:
+          this->ReadScalarsPerElement(fileName, this->VariableDescriptions[i],
+                                      timeStepInFile);
+          break;
+        case VTK_VECTOR_PER_ELEMENT:
+          this->ReadVectorsPerElement(fileName, this->VariableDescriptions[i],
+                                      timeStepInFile);
+          break;
+        case VTK_TENSOR_SYMM_PER_ELEMENT:
+          this->ReadTensorsPerElement(fileName, this->VariableDescriptions[i],
+                                      timeStepInFile);
+          break;
+        }
       }
     delete [] fileName;
     }
@@ -1265,118 +1265,118 @@ int vtkEnSightReader::ReadVariableFiles()
       validTime = 0;
       timeSet = this->VariableTimeSets->GetId(i);
       times = (vtkFloatArray*)this->TimeSetTimeValuesCollection->
-	GetItemAsObject(this->TimeSets->IsId(timeSet));
+        GetItemAsObject(this->TimeSets->IsId(timeSet));
       for (j = 0; j < times->GetNumberOfTuples(); j++)
-	{
-	newTime = times->GetComponent(j, 0);
-	if (newTime <= this->TimeValue)
-	  {
-	  timeStep++;
-	  if (this->VariableTypes[i] == VTK_SCALAR_PER_MEASURED_NODE ||
-	       this->VariableTypes[i] == VTK_VECTOR_PER_MEASURED_NODE)
-	    {
-	    if (newTime >= this->MeasuredTimeValue)
-	      {
-	      validTime = 1;
-	      }
-	    }
-	  else if (newTime >= this->GeometryTimeValue)
-	    {
-	    validTime = 1;
-	    }
-	  }
-	}
+        {
+        newTime = times->GetComponent(j, 0);
+        if (newTime <= this->TimeValue)
+          {
+          timeStep++;
+          if (this->VariableTypes[i] == VTK_SCALAR_PER_MEASURED_NODE ||
+               this->VariableTypes[i] == VTK_VECTOR_PER_MEASURED_NODE)
+            {
+            if (newTime >= this->MeasuredTimeValue)
+              {
+              validTime = 1;
+              }
+            }
+          else if (newTime >= this->GeometryTimeValue)
+            {
+            validTime = 1;
+            }
+          }
+        }
       if (this->TimeSetFilenameNumbersCollection->GetNumberOfItems() > 0 &&
-	  validTime)
-	{
-	int collectionNum = this->TimeSetsWithFilenameNumbers->IsId(timeSet);
-	if (collectionNum > -1)
-	  {
-	  filenameNumbers =
-	    (vtkIdList*)this->TimeSetFilenameNumbersCollection->
-	    GetItemAsObject(collectionNum);
-	  filenameNum = filenameNumbers->GetId(timeStep-1);
-	  this->ReplaceWildcards(fileName, filenameNum);
-	  this->ReplaceWildcards(fileName2, filenameNum);
-	  }
-	}
+          validTime)
+        {
+        int collectionNum = this->TimeSetsWithFilenameNumbers->IsId(timeSet);
+        if (collectionNum > -1)
+          {
+          filenameNumbers =
+            (vtkIdList*)this->TimeSetFilenameNumbersCollection->
+            GetItemAsObject(collectionNum);
+          filenameNum = filenameNumbers->GetId(timeStep-1);
+          this->ReplaceWildcards(fileName, filenameNum);
+          this->ReplaceWildcards(fileName2, filenameNum);
+          }
+        }
       
       // There can only be file sets if there are also time sets.
       if (this->UseFileSets)
-	{
-	timeStepInFile = timeStep;
-	fileSet = this->VariableFileSets->GetId(i);
-	numStepsList = (vtkIdList*)this->FileSetNumberOfStepsCollection->
-	  GetItemAsObject(this->FileSets->IsId(fileSet));
+        {
+        timeStepInFile = timeStep;
+        fileSet = this->VariableFileSets->GetId(i);
+        numStepsList = (vtkIdList*)this->FileSetNumberOfStepsCollection->
+          GetItemAsObject(this->FileSets->IsId(fileSet));
 
-	if (timeStep > numStepsList->GetId(0))
-	  {
-	  numSteps = numStepsList->GetId(0);
-	  timeStepInFile -= numSteps;
-	  for (i = 1; i < numStepsList->GetNumberOfIds(); i++)
-	    {
-	    numSteps += numStepsList->GetId(i);
-	    if (timeStep > numSteps)
-	      {
-	      fileNum++;
-	      timeStepInFile -= numStepsList->GetId(i);
-	      }
-	    }
-	  }
-	if (this->FileSetFilenameNumbersCollection->GetNumberOfItems() > 0 &&
-	    validTime)
-	  {
-	  int collectionNum = this->FileSetsWithFilenameNumbers->IsId(fileSet);
-	  if (collectionNum > -1)
-	    {
-	    filenameNumbers =
-	      (vtkIdList*)this->FileSetFilenameNumbersCollection->
-	      GetItemAsObject(collectionNum);
-	    filenameNum = filenameNumbers->GetId(timeStep-1);
-	    this->ReplaceWildcards(fileName, filenameNum);
-	    this->ReplaceWildcards(fileName2, filenameNum);
-	    }
-	  }
-	}
+        if (timeStep > numStepsList->GetId(0))
+          {
+          numSteps = numStepsList->GetId(0);
+          timeStepInFile -= numSteps;
+          for (i = 1; i < numStepsList->GetNumberOfIds(); i++)
+            {
+            numSteps += numStepsList->GetId(i);
+            if (timeStep > numSteps)
+              {
+              fileNum++;
+              timeStepInFile -= numStepsList->GetId(i);
+              }
+            }
+          }
+        if (this->FileSetFilenameNumbersCollection->GetNumberOfItems() > 0 &&
+            validTime)
+          {
+          int collectionNum = this->FileSetsWithFilenameNumbers->IsId(fileSet);
+          if (collectionNum > -1)
+            {
+            filenameNumbers =
+              (vtkIdList*)this->FileSetFilenameNumbersCollection->
+              GetItemAsObject(collectionNum);
+            filenameNum = filenameNumbers->GetId(timeStep-1);
+            this->ReplaceWildcards(fileName, filenameNum);
+            this->ReplaceWildcards(fileName2, filenameNum);
+            }
+          }
+        }
       }
 
     if (validTime)
       {
       switch (this->ComplexVariableTypes[i])
-	{
-	case VTK_COMPLEX_SCALAR_PER_NODE:
-	  this->ReadScalarsPerNode(fileName,
-				   this->ComplexVariableDescriptions[i],
-				   timeStepInFile, 0, 2);
-	  this->ReadScalarsPerNode(fileName2,
-				   this->ComplexVariableDescriptions[i],
-				   timeStepInFile, 0, 2, 1);
-	  break;
-	case VTK_COMPLEX_VECTOR_PER_NODE:
-	  strcpy(description, this->ComplexVariableDescriptions[i]);
-	  strcat(description, "_r");
-	  this->ReadVectorsPerNode(fileName, description, timeStepInFile);
-	  strcpy(description, this->ComplexVariableDescriptions[i]);
-	  strcat(description, "_i");
-	  this->ReadVectorsPerNode(fileName2, description, timeStepInFile);
-	  break;
-	case VTK_COMPLEX_SCALAR_PER_ELEMENT:
-	  this->ReadScalarsPerElement(fileName,
-				      this->ComplexVariableDescriptions[i],
-				      timeStepInFile, 2);
-	  this->ReadScalarsPerElement(fileName2,
-				      this->ComplexVariableDescriptions[i],
-				      timeStepInFile, 2, 1);
-	  break;
-	case VTK_COMPLEX_VECTOR_PER_ELEMENT:
-	  strcpy(description, this->ComplexVariableDescriptions[i]);
-	  strcat(description, "_r");
-	  this->ReadVectorsPerElement(fileName, description, timeStepInFile);
-	  strcpy(description, this->ComplexVariableDescriptions[i]);
-	  strcat(description, "_i");
-	  this->ReadVectorsPerElement(fileName2, description, timeStepInFile);
-	  break;
-	}
+        {
+        case VTK_COMPLEX_SCALAR_PER_NODE:
+          this->ReadScalarsPerNode(fileName,
+                                   this->ComplexVariableDescriptions[i],
+                                   timeStepInFile, 0, 2);
+          this->ReadScalarsPerNode(fileName2,
+                                   this->ComplexVariableDescriptions[i],
+                                   timeStepInFile, 0, 2, 1);
+          break;
+        case VTK_COMPLEX_VECTOR_PER_NODE:
+          strcpy(description, this->ComplexVariableDescriptions[i]);
+          strcat(description, "_r");
+          this->ReadVectorsPerNode(fileName, description, timeStepInFile);
+          strcpy(description, this->ComplexVariableDescriptions[i]);
+          strcat(description, "_i");
+          this->ReadVectorsPerNode(fileName2, description, timeStepInFile);
+          break;
+        case VTK_COMPLEX_SCALAR_PER_ELEMENT:
+          this->ReadScalarsPerElement(fileName,
+                                      this->ComplexVariableDescriptions[i],
+                                      timeStepInFile, 2);
+          this->ReadScalarsPerElement(fileName2,
+                                      this->ComplexVariableDescriptions[i],
+                                      timeStepInFile, 2, 1);
+          break;
+        case VTK_COMPLEX_VECTOR_PER_ELEMENT:
+          strcpy(description, this->ComplexVariableDescriptions[i]);
+          strcat(description, "_r");
+          this->ReadVectorsPerElement(fileName, description, timeStepInFile);
+          strcpy(description, this->ComplexVariableDescriptions[i]);
+          strcat(description, "_i");
+          this->ReadVectorsPerElement(fileName2, description, timeStepInFile);
+          break;
+        }
       }
     delete [] fileName;
     delete [] fileName2;
@@ -1387,7 +1387,7 @@ int vtkEnSightReader::ReadVariableFiles()
 
 //----------------------------------------------------------------------------
 void vtkEnSightReader::AddVariableFileName(char* fileName1,
-					       char* fileName2)
+                                               char* fileName2)
 {
   int size;
   int i;
@@ -1434,7 +1434,7 @@ void vtkEnSightReader::AddVariableFileName(char* fileName1,
     for (i = 0; i < 2*size; i++)
       {
       newFileNameList[i] =
-	new char[strlen(this->ComplexVariableFileNames[i]) + 1];
+        new char[strlen(this->ComplexVariableFileNames[i]) + 1];
       strcpy(newFileNameList[i], this->ComplexVariableFileNames[i]);
       delete [] this->ComplexVariableFileNames[i];
       }
@@ -1447,7 +1447,7 @@ void vtkEnSightReader::AddVariableFileName(char* fileName1,
     for (i = 0; i < 2*size; i++)
       {
       this->ComplexVariableFileNames[i] =
-	new char[strlen(newFileNameList[i]) + 1];
+        new char[strlen(newFileNameList[i]) + 1];
       strcpy(this->ComplexVariableFileNames[i], newFileNameList[i]);
       delete [] newFileNameList[i];
       }
@@ -1481,7 +1481,7 @@ void vtkEnSightReader::AddVariableDescription(char* description)
     for (i = 0; i < size; i++)
       {
       newDescriptionList[i] =
-	new char[strlen(this->VariableDescriptions[i]) + 1];
+        new char[strlen(this->VariableDescriptions[i]) + 1];
       strcpy(newDescriptionList[i], this->VariableDescriptions[i]);
       delete [] this->VariableDescriptions[i];
       }
@@ -1494,7 +1494,7 @@ void vtkEnSightReader::AddVariableDescription(char* description)
     for (i = 0; i < size; i++)
       {
       this->VariableDescriptions[i] =
-	new char[strlen(newDescriptionList[i]) + 1];
+        new char[strlen(newDescriptionList[i]) + 1];
       strcpy(this->VariableDescriptions[i], newDescriptionList[i]);
       delete [] newDescriptionList[i];
       }
@@ -1580,9 +1580,9 @@ void vtkEnSightReader::AddVariableType()
       {
       types = new int[size];
       for (i = 0; i < size; i++)
-	{
-	types[i] = this->ComplexVariableTypes[i];
-	}
+        {
+        types[i] = this->ComplexVariableTypes[i];
+        }
       delete [] this->ComplexVariableTypes;
       }
     
@@ -1893,35 +1893,35 @@ void vtkEnSightReader::ReplaceWildcards(char* filename, int num)
     switch (newNum)
       {
       case 0:
-	newChar = '0';
-	break;
+        newChar = '0';
+        break;
       case 1:
-	newChar = '1';
-	break;
+        newChar = '1';
+        break;
       case 2:
-	newChar = '2';
-	break;
+        newChar = '2';
+        break;
       case 3:
-	newChar = '3';
-	break;
+        newChar = '3';
+        break;
       case 4:
-	newChar = '4';
-	break;
+        newChar = '4';
+        break;
       case 5:
-	newChar = '5';
-	break;
+        newChar = '5';
+        break;
       case 6:
-	newChar = '6';
-	break;
+        newChar = '6';
+        break;
       case 7:
-	newChar = '7';
-	break;
+        newChar = '7';
+        break;
       case 8:
-	newChar = '8';
-	break;
+        newChar = '8';
+        break;
       case 9:
-	newChar = '9';
-	break;
+        newChar = '9';
+        break;
       default:
         // This case should never be reached.
         return;

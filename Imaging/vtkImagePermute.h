@@ -73,7 +73,7 @@ protected:
   void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
   void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
-		       int ext[6], int id);
+                       int ext[6], int id);
 private:
   vtkImagePermute(const vtkImagePermute&);  // Not implemented.
   void operator=(const vtkImagePermute&);  // Not implemented.

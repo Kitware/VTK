@@ -82,8 +82,8 @@ void vtkImageCorrelation::ExecuteInformation(
 //----------------------------------------------------------------------------
 // Grow
 void vtkImageCorrelation::ComputeInputUpdateExtent(int inExt[6], 
-						   int outExt[6],
-						   int whichInput)
+                                                   int outExt[6],
+                                                   int whichInput)
 {
   if (whichInput == 1)
     {
@@ -101,13 +101,13 @@ void vtkImageCorrelation::ComputeInputUpdateExtent(int inExt[6],
     for (idx = 0; idx < 3; idx++)
       {
       inExt[idx*2+1] = outExt[idx*2+1] +
-	(i1WExtent[idx*2+1] - i1WExtent[idx*2]);
+        (i1WExtent[idx*2+1] - i1WExtent[idx*2]);
 
       // clip to whole extent
       if (inExt[idx*2+1] > i0WExtent[idx*2+1])
-	{
-	inExt[idx*2+1] = i0WExtent[idx*2+1];
-	}
+        {
+        inExt[idx*2+1] = i0WExtent[idx*2+1];
+        }
       }
     }
 }
@@ -118,10 +118,10 @@ void vtkImageCorrelation::ComputeInputUpdateExtent(int inExt[6],
 // Handles the two input operations
 template <class T>
 static void vtkImageCorrelationExecute(vtkImageCorrelation *self,
-				       vtkImageData *in1Data, T *in1Ptr,
-				       vtkImageData *in2Data, T *in2Ptr,
-				       vtkImageData *outData, float *outPtr,
-				       int outExt[6], int id)
+                                       vtkImageData *in1Data, T *in1Ptr,
+                                       vtkImageData *in2Data, T *in2Ptr,
+                                       vtkImageData *outData, float *outPtr,
+                                       int outExt[6], int id)
 {
   int idxC, idxX, idxY, idxZ;
   int maxC, maxX, maxY, maxZ;
@@ -175,49 +175,49 @@ static void vtkImageCorrelationExecute(vtkImageCorrelation *self,
     for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
       {
       if (!id) 
-	{
-	if (!(count%target))
-	  {
-	  self->UpdateProgress(count/(50.0*target));
-	  }
-	count++;
-	}
+        {
+        if (!(count%target))
+          {
+          self->UpdateProgress(count/(50.0*target));
+          }
+        count++;
+        }
       yKernMax = maxIY - idxY;
       if (yKernMax > in2Extent[3])
-	{
-	yKernMax = in2Extent[3];
-	}
+        {
+        yKernMax = in2Extent[3];
+        }
       for (idxX = 0; idxX <= maxX; idxX++)
-	{
-	// determine the extent of input 1 that contributes to this pixel
-	*outPtr = 0.0;
-	xKernMax = maxIX - idxX;
-	if (xKernMax > in2Extent[1])
-	  {
-	  xKernMax = in2Extent[1];
-	  }
+        {
+        // determine the extent of input 1 that contributes to this pixel
+        *outPtr = 0.0;
+        xKernMax = maxIX - idxX;
+        if (xKernMax > in2Extent[1])
+          {
+          xKernMax = in2Extent[1];
+          }
 
-	// sumation
-	for (kIdxZ = 0; kIdxZ <= zKernMax; kIdxZ++)
-	  {
-	  for (kIdxY = 0; kIdxY <= yKernMax; kIdxY++)
-	    {
-	    in1Ptr2 = in1Ptr + kIdxY*in1IncY + kIdxZ*in1IncZ;
-	    in2Ptr2 = in2Ptr + kIdxY*in2IncY + kIdxZ*in2IncZ;
-	    for (kIdxX = 0; kIdxX <= xKernMax; kIdxX++)
-	      {
-	      for (idxC = 0; idxC < maxC; idxC++)
-		{
-		*outPtr = *outPtr + (float)((*in1Ptr2) * (*in2Ptr2));
-		in1Ptr2++;
-		in2Ptr2++;
-		}
-	      }
-	    }
-	  }
-	in1Ptr += maxC;
-	outPtr++;
-	}
+        // sumation
+        for (kIdxZ = 0; kIdxZ <= zKernMax; kIdxZ++)
+          {
+          for (kIdxY = 0; kIdxY <= yKernMax; kIdxY++)
+            {
+            in1Ptr2 = in1Ptr + kIdxY*in1IncY + kIdxZ*in1IncZ;
+            in2Ptr2 = in2Ptr + kIdxY*in2IncY + kIdxZ*in2IncZ;
+            for (kIdxX = 0; kIdxX <= xKernMax; kIdxX++)
+              {
+              for (idxC = 0; idxC < maxC; idxC++)
+                {
+                *outPtr = *outPtr + (float)((*in1Ptr2) * (*in2Ptr2));
+                in1Ptr2++;
+                in2Ptr2++;
+                }
+              }
+            }
+          }
+        in1Ptr += maxC;
+        outPtr++;
+        }
       in1Ptr += in1CIncY;
       outPtr += outIncY;
       }
@@ -233,8 +233,8 @@ static void vtkImageCorrelationExecute(vtkImageCorrelation *self,
 // It just executes a switch statement to call the correct function for
 // the datas data types.
 void vtkImageCorrelation::ThreadedExecute(vtkImageData **inData, 
-					  vtkImageData *outData,
-					  int outExt[6], int id)
+                                          vtkImageData *outData,
+                                          int outExt[6], int id)
 {
   int *in2Extent;
   void *in1Ptr;

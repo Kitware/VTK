@@ -76,7 +76,7 @@ vtkImageShiftScale::vtkImageShiftScale()
 
 //----------------------------------------------------------------------------
 void vtkImageShiftScale::ExecuteInformation(vtkImageData *inData, 
-					    vtkImageData *outData)
+                                            vtkImageData *outData)
 {
   this->vtkImageToImageFilter::ExecuteInformation( inData, outData );
 
@@ -93,9 +93,9 @@ void vtkImageShiftScale::ExecuteInformation(vtkImageData *inData,
 // This templated function executes the filter for any type of data.
 template <class IT, class OT>
 static void vtkImageShiftScaleExecute(vtkImageShiftScale *self,
-				      vtkImageData *inData, IT *inPtr,
-				      vtkImageData *outData, OT *outPtr,
-				      int outExt[6], int id)
+                                      vtkImageData *inData, IT *inPtr,
+                                      vtkImageData *outData, OT *outPtr,
+                                      int outExt[6], int id)
 {
   float typeMin, typeMax, val;
   int clamp;
@@ -131,43 +131,43 @@ static void vtkImageShiftScaleExecute(vtkImageShiftScale *self,
     for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
       {
       if (!id) 
-	{
-	if (!(count%target))
-	  {
-	  self->UpdateProgress(count/(50.0*target));
-	  }
-	count++;
-	}
+        {
+        if (!(count%target))
+          {
+          self->UpdateProgress(count/(50.0*target));
+          }
+        count++;
+        }
       // put the test for clamp to avoid the innermost loop
       if (clamp)
-	{
-	for (idxR = 0; idxR < rowLength; idxR++)
-	  {
-	  // Pixel operation
-	  val = ((float)(*inPtr) + shift) * scale;
-	  if (val > typeMax)
-	    {
-	    val = typeMax;
-	    }
-	  if (val < typeMin)
-	    {
-	    val = typeMin;
-	    }
-	  *outPtr = (OT)(val);
-	  outPtr++;
-	  inPtr++;
-	  }
-	}
+        {
+        for (idxR = 0; idxR < rowLength; idxR++)
+          {
+          // Pixel operation
+          val = ((float)(*inPtr) + shift) * scale;
+          if (val > typeMax)
+            {
+            val = typeMax;
+            }
+          if (val < typeMin)
+            {
+            val = typeMin;
+            }
+          *outPtr = (OT)(val);
+          outPtr++;
+          inPtr++;
+          }
+        }
       else
-	{
-	for (idxR = 0; idxR < rowLength; idxR++)
-	  {
-	  // Pixel operation
-	  *outPtr = (OT)(((float)(*inPtr) + shift) * scale);
-	  outPtr++;
-	  inPtr++;
-	  }
-	}
+        {
+        for (idxR = 0; idxR < rowLength; idxR++)
+          {
+          // Pixel operation
+          *outPtr = (OT)(((float)(*inPtr) + shift) * scale);
+          outPtr++;
+          inPtr++;
+          }
+        }
       outPtr += outIncY;
       inPtr += inIncY;
       }
@@ -181,9 +181,9 @@ static void vtkImageShiftScaleExecute(vtkImageShiftScale *self,
 //----------------------------------------------------------------------------
 template <class T>
 static void vtkImageShiftScaleExecute1(vtkImageShiftScale *self,
-				      vtkImageData *inData, T *inPtr,
-				      vtkImageData *outData,
-				      int outExt[6], int id)
+                                      vtkImageData *inData, T *inPtr,
+                                      vtkImageData *outData,
+                                      int outExt[6], int id)
 {
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
   
@@ -206,8 +206,8 @@ static void vtkImageShiftScaleExecute1(vtkImageShiftScale *self,
 // It just executes a switch statement to call the correct function for
 // the datas data types.
 void vtkImageShiftScale::ThreadedExecute(vtkImageData *inData, 
-					 vtkImageData *outData,
-					 int outExt[6], int id)
+                                         vtkImageData *outData,
+                                         int outExt[6], int id)
 {
   void *inPtr = inData->GetScalarPointerForExtent(outExt);
   

@@ -82,7 +82,7 @@ protected:
   float CutOff[3];
   
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
-		       int outExt[6], int id);
+                       int outExt[6], int id);
 private:
   vtkImageIdealLowPass(const vtkImageIdealLowPass&);  // Not implemented.
   void operator=(const vtkImageIdealLowPass&);  // Not implemented.

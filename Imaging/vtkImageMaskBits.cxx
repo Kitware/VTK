@@ -78,9 +78,9 @@ vtkImageMaskBits::vtkImageMaskBits()
 // out of extent.
 template <class T>
 static void vtkImageMaskBitsExecute(vtkImageMaskBits *self,
-					     vtkImageData *inData, T *inPtr,
-					     vtkImageData *outData, T *outPtr,
-					     int outExt[6], int id)
+                                             vtkImageData *inData, T *inPtr,
+                                             vtkImageData *outData, T *outPtr,
+                                             int outExt[6], int id)
 {
   int idxX, idxY, idxZ, idxC;
   int maxX, maxY, maxZ, maxC;
@@ -122,56 +122,56 @@ static void vtkImageMaskBitsExecute(vtkImageMaskBits *self,
       switch (operation)
          {
          case VTK_AND:
-	   for (idxX = 0; idxX <= maxX; idxX++)
-	     {
-	     for (idxC = 0; idxC < maxC; idxC++)
-	       {
-	       // Pixel operation
-	       *outPtr++ = *inPtr++ & (T) masks[idxC];
-	       }
-	     }
-	   break;
+           for (idxX = 0; idxX <= maxX; idxX++)
+             {
+             for (idxC = 0; idxC < maxC; idxC++)
+               {
+               // Pixel operation
+               *outPtr++ = *inPtr++ & (T) masks[idxC];
+               }
+             }
+           break;
          case VTK_OR:
-	   for (idxX = 0; idxX <= maxX; idxX++)
-	     {
-	     for (idxC = 0; idxC < maxC; idxC++)
-	       {
-	       // Pixel operation
-	       *outPtr++ = *inPtr++ | (T) masks[idxC];
-	       }
-	     }
-	   break;
+           for (idxX = 0; idxX <= maxX; idxX++)
+             {
+             for (idxC = 0; idxC < maxC; idxC++)
+               {
+               // Pixel operation
+               *outPtr++ = *inPtr++ | (T) masks[idxC];
+               }
+             }
+           break;
          case VTK_XOR:
-	   for (idxX = 0; idxX <= maxX; idxX++)
-	     {
-	     for (idxC = 0; idxC < maxC; idxC++)
-	       {
-	       // Pixel operation
-	       *outPtr++ = *inPtr++ ^ (T) masks[idxC];
-	       }
-	     }
-	   break;
+           for (idxX = 0; idxX <= maxX; idxX++)
+             {
+             for (idxC = 0; idxC < maxC; idxC++)
+               {
+               // Pixel operation
+               *outPtr++ = *inPtr++ ^ (T) masks[idxC];
+               }
+             }
+           break;
          case VTK_NAND:
-	   for (idxX = 0; idxX <= maxX; idxX++)
-	     {
-	     for (idxC = 0; idxC < maxC; idxC++)
-	       {
-	       // Pixel operation
-	       *outPtr++ = ~(*inPtr++ & (T) masks[idxC]);
-	       }
-	     }
-	   break;
+           for (idxX = 0; idxX <= maxX; idxX++)
+             {
+             for (idxC = 0; idxC < maxC; idxC++)
+               {
+               // Pixel operation
+               *outPtr++ = ~(*inPtr++ & (T) masks[idxC]);
+               }
+             }
+           break;
          case VTK_NOR:
-	   for (idxX = 0; idxX <= maxX; idxX++)
-	     {
-	     for (idxC = 0; idxC < maxC; idxC++)
-	       {
-	       // Pixel operation
-	       *outPtr++ = ~(*inPtr++ | (T) masks[idxC]);
-	       }
-	     }
-	   break;
-      }	   
+           for (idxX = 0; idxX <= maxX; idxX++)
+             {
+             for (idxC = 0; idxC < maxC; idxC++)
+               {
+               // Pixel operation
+               *outPtr++ = ~(*inPtr++ | (T) masks[idxC]);
+               }
+             }
+           break;
+      }    
       outPtr += outIncY;
       inPtr += inIncY;
       }
@@ -186,8 +186,8 @@ static void vtkImageMaskBitsExecute(vtkImageMaskBits *self,
 // templated function for the input data type.  The output data
 // must match input type.  This method does handle boundary conditions.
 void vtkImageMaskBits::ThreadedExecute(vtkImageData *inData, 
-					vtkImageData *outData,
-					int outExt[6], int id)
+                                        vtkImageData *outData,
+                                        int outExt[6], int id)
 {
   void *inPtr = inData->GetScalarPointerForExtent(outExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
@@ -208,44 +208,44 @@ void vtkImageMaskBits::ThreadedExecute(vtkImageData *inData,
     {
     case VTK_INT:
       vtkImageMaskBitsExecute(this, 
-			       inData, (int *)(inPtr), 
-			       outData, (int *)(outPtr), outExt, id);
+                               inData, (int *)(inPtr), 
+                               outData, (int *)(outPtr), outExt, id);
       break;
     case VTK_UNSIGNED_INT:
       vtkImageMaskBitsExecute(this, 
-			       inData, (unsigned int *)(inPtr), 
-			       outData, (unsigned int *)(outPtr), outExt, id);
+                               inData, (unsigned int *)(inPtr), 
+                               outData, (unsigned int *)(outPtr), outExt, id);
       break;
     case VTK_LONG:
       vtkImageMaskBitsExecute(this, 
-			       inData, (long *)(inPtr), 
-			       outData, (long *)(outPtr), outExt, id);
+                               inData, (long *)(inPtr), 
+                               outData, (long *)(outPtr), outExt, id);
       break;
     case VTK_UNSIGNED_LONG:
       vtkImageMaskBitsExecute(this, 
-			       inData, (unsigned long *)(inPtr), 
-			       outData, (unsigned long *)(outPtr), outExt, id);
+                               inData, (unsigned long *)(inPtr), 
+                               outData, (unsigned long *)(outPtr), outExt, id);
       break;
     case VTK_SHORT:
       vtkImageMaskBitsExecute(this, 
-			       inData, (short *)(inPtr), 
-			       outData, (short *)(outPtr), outExt, id);
+                               inData, (short *)(inPtr), 
+                               outData, (short *)(outPtr), outExt, id);
       break;
     case VTK_UNSIGNED_SHORT:
       vtkImageMaskBitsExecute(this, 
-			       inData, (unsigned short *)(inPtr), 
-			       outData, (unsigned short *)(outPtr), 
-			       outExt, id);
+                               inData, (unsigned short *)(inPtr), 
+                               outData, (unsigned short *)(outPtr), 
+                               outExt, id);
       break;
     case VTK_CHAR:
       vtkImageMaskBitsExecute(this, 
-			       inData, (char *)(inPtr), 
-			       outData, (char *)(outPtr), outExt, id);
+                               inData, (char *)(inPtr), 
+                               outData, (char *)(outPtr), outExt, id);
       break;
     case VTK_UNSIGNED_CHAR:
       vtkImageMaskBitsExecute(this, 
-			       inData, (unsigned char *)(inPtr), 
-			       outData, (unsigned char *)(outPtr), outExt, id);
+                               inData, (unsigned char *)(inPtr), 
+                               outData, (unsigned char *)(outPtr), outExt, id);
       break;
     default:
       vtkErrorMacro(<< "Execute: ScalarType can only be [unsigned] char, [unsigned] short, "

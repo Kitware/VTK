@@ -7,7 +7,7 @@
   Version:   $Revision$
   Thanks:    Olivier Cuisenaire who developed this class
              URL: http://ltswww.epfl.ch/~cuisenai
-	     Email: Olivier.Cuisenaire@epfl.ch
+             Email: Olivier.Cuisenaire@epfl.ch
 
 Copyright (c) 1993-2001 Ken Martin, Will Schroeder, Bill Lorensen 
 All rights reserved.
@@ -80,7 +80,7 @@ void vtkImageEuclideanDistance::ExecuteInformation(vtkImageData *input, vtkImage
 // This method tells the superclass that the whole input array is needed
 // to compute any output region.
 void vtkImageEuclideanDistance::ComputeInputUpdateExtent(int inExt[6], 
-						   int outExt[6])
+                                                   int outExt[6])
 {
   int *extent;
   
@@ -105,9 +105,9 @@ void vtkImageEuclideanDistance::ComputeInputUpdateExtent(int inExt[6],
 // is always floats.
 template <class TT>
 static void vtkImageEuclideanDistanceCopyData(vtkImageEuclideanDistance *self,
-			 vtkImageData *inData, int inExt[6], TT *inPtr,
-			 vtkImageData *outData, int outExt[6], float *outPtr,
-			 int id)
+                         vtkImageData *inData, int inExt[6], TT *inPtr,
+                         vtkImageData *outData, int outExt[6], float *outPtr,
+                         int id)
 {
   int inInc0, inInc1, inInc2;
   TT *inPtr0, *inPtr1, *inPtr2;
@@ -154,9 +154,9 @@ static void vtkImageEuclideanDistanceCopyData(vtkImageEuclideanDistance *self,
 template <class T>
 static
 void vtkImageEuclideanDistanceInitialize(vtkImageEuclideanDistance *self,
-			 vtkImageData *inData, int inExt[6], T *inPtr,
-			 vtkImageData *outData, int outExt[6], float *outPtr,
-			 int id)
+                         vtkImageData *inData, int inExt[6], T *inPtr,
+                         vtkImageData *outData, int outExt[6], float *outPtr,
+                         int id)
 {
   int inInc0, inInc1, inInc2;
   T *inPtr0, *inPtr1, *inPtr2;
@@ -190,16 +190,16 @@ void vtkImageEuclideanDistanceInitialize(vtkImageEuclideanDistance *self,
         {
         inPtr0 = inPtr1;
         outPtr0 = outPtr1;
-	      
+              
         for (idx0 = outMin0; idx0 <= outMax0; ++idx0)
           {
           if( *inPtr0 == 0 ) {*outPtr0 = 0;}
           else {*outPtr0 = maxDist;}
-		  
+                  
           inPtr0 += inInc0;
           outPtr0 += outInc0;
           }
-	      
+              
         inPtr1 += inInc1;
         outPtr1 += outInc1;
         }
@@ -227,7 +227,7 @@ void vtkImageEuclideanDistanceInitialize(vtkImageEuclideanDistance *self,
 // Notations stay as close as possible to those used in the paper.
 //
 void vtkImageEuclideanDistanceExecuteSaito(vtkImageEuclideanDistance *self,
-					   vtkImageData *outData, int outExt[6], float *outPtr )
+                                           vtkImageData *outData, int outExt[6], float *outPtr )
 {
   
   int outMin0, outMax0, outMin1, outMax1, outMin2, outMax2;
@@ -297,7 +297,7 @@ void vtkImageEuclideanDistanceExecuteSaito(vtkImageEuclideanDistance *self,
             }
           outPtr0 += outInc0;
           }
-	      
+              
         outPtr0 -= outInc0;
         df= inSize0 ;
         for (idx0 = outMax0; idx0 >= outMin0; --idx0)
@@ -313,7 +313,7 @@ void vtkImageEuclideanDistanceExecuteSaito(vtkImageEuclideanDistance *self,
             }
           outPtr0 -= outInc0;
           }
-	      
+              
         outPtr1 += outInc1;
         }
       outPtr2 += outInc2;
@@ -328,19 +328,19 @@ void vtkImageEuclideanDistanceExecuteSaito(vtkImageEuclideanDistance *self,
       for (idx1 = outMin1; idx1 <= outMax1; ++idx1)
         {
         outPtr0 = outPtr1;
-	      
+              
         // Buffer current values 
         for (idx0 = outMin0; idx0 <= outMax0; ++idx0)
           {
           buff[idx0]= *outPtr0;
           outPtr0 += outInc0;
           }
-	      
+              
         // forward scan 
         a=0; buffer=buff[ outMin0 ];
         outPtr0 = outPtr1;
         outPtr0 += outInc0;
-	      
+              
         for (idx0 = outMin0+1; idx0 <= outMax0; ++idx0)
           {
           if(a>0) {a--;}
@@ -348,7 +348,7 @@ void vtkImageEuclideanDistanceExecuteSaito(vtkImageEuclideanDistance *self,
             {
             b=(int)(floor)((((buff[idx0]-buffer)/spacing)-1)/2); 
             if((idx0+b)>outMax0) {b=(outMax0)-idx0;}
-		      
+                      
             for(n=a;n<=b;n++) 
               {
               m=buffer+sq[n+1];
@@ -361,11 +361,11 @@ void vtkImageEuclideanDistanceExecuteSaito(vtkImageEuclideanDistance *self,
             {
             a=0;
             }
-		  
+                  
           buffer=buff[idx0];
           outPtr0 += outInc0;
           }
-	      
+              
         outPtr0 -= 2*outInc0;
         a=0;
         buffer=buff[outMax0];
@@ -377,7 +377,7 @@ void vtkImageEuclideanDistanceExecuteSaito(vtkImageEuclideanDistance *self,
             {
             b=(int)(floor)((((buff[idx0]-buffer)/spacing)-1)/2); 
             if((idx0-b)<outMin0) {b=idx0-outMin0;}
-		    
+                    
             for(n=a;n<=b;n++) 
               {
               m=buffer+sq[n+1];
@@ -396,8 +396,8 @@ void vtkImageEuclideanDistanceExecuteSaito(vtkImageEuclideanDistance *self,
           }
         outPtr1 += outInc1;
         }
-      outPtr2 += outInc2;	     
-      }	
+      outPtr2 += outInc2;            
+      } 
     }
   
   free(buff);
@@ -409,7 +409,7 @@ void vtkImageEuclideanDistanceExecuteSaito(vtkImageEuclideanDistance *self,
 // Execute Saito's algorithm, modified for Cache Efficiency
 //
 void vtkImageEuclideanDistanceExecuteSaitoCached(vtkImageEuclideanDistance *self,
-					   vtkImageData *outData, int outExt[6], float *outPtr )
+                                           vtkImageData *outData, int outExt[6], float *outPtr )
 {
   
   int outMin0, outMax0, outMin1, outMax1, outMin2, outMax2;
@@ -478,10 +478,10 @@ void vtkImageEuclideanDistanceExecuteSaitoCached(vtkImageEuclideanDistance *self
             {
             df=0;
             }
-		  
+                  
           outPtr0 += outInc0;
           }
-	      
+              
         outPtr0 -= outInc0;
         df= inSize0 ;
         for (idx0 = outMax0; idx0 >= outMin0; --idx0)
@@ -498,7 +498,7 @@ void vtkImageEuclideanDistanceExecuteSaitoCached(vtkImageEuclideanDistance *self
           
           outPtr0 -= outInc0;
           }
-	      
+              
         outPtr1 += outInc1;
         }
       outPtr2 += outInc2;
@@ -519,12 +519,12 @@ void vtkImageEuclideanDistanceExecuteSaitoCached(vtkImageEuclideanDistance *self
           temp[idx0] = buff[idx0]= *outPtr0;
           outPtr0 += outInc0;
           }
-	      
+              
         // forward scan 
         a=0; buffer=buff[ outMin0 ];
         outPtr0 = temp ;
         outPtr0 ++;
-	      
+              
         for (idx0 = outMin0+1; idx0 <= outMax0; ++idx0)
           {
           if(a>0) {a--;}
@@ -533,7 +533,7 @@ void vtkImageEuclideanDistanceExecuteSaitoCached(vtkImageEuclideanDistance *self
             {
             b=(int)(floor)((((buff[idx0]-buffer)/spacing)-1)/2); 
             if((idx0+b)>outMax0) {b=(outMax0)-idx0;}
-		      
+                      
             for(n=a;n<=b;n++) 
               {
               m=buffer+sq[n+1];
@@ -546,11 +546,11 @@ void vtkImageEuclideanDistanceExecuteSaitoCached(vtkImageEuclideanDistance *self
             {
             a=0;
             }
-		  
+                  
           buffer=buff[idx0];
           outPtr0 ++;
           }
-	      
+              
         // backward scan
 
         outPtr0 -= 2;
@@ -564,7 +564,7 @@ void vtkImageEuclideanDistanceExecuteSaitoCached(vtkImageEuclideanDistance *self
             {
             b=(int)(floor)((((buff[idx0]-buffer)/spacing)-1)/2); 
             if((idx0-b)<outMin0) b=idx0-outMin0;
-		    
+                    
             for(n=a;n<=b;n++) 
               {
               m=buffer+sq[n+1];
@@ -591,8 +591,8 @@ void vtkImageEuclideanDistanceExecuteSaitoCached(vtkImageEuclideanDistance *self
 
         outPtr1 += outInc1;
         }
-      outPtr2 += outInc2;	     
-      }	
+      outPtr2 += outInc2;            
+      } 
     }
   
   free(buff);
@@ -604,7 +604,7 @@ void vtkImageEuclideanDistanceExecuteSaitoCached(vtkImageEuclideanDistance *self
 // This method is passed input and output Datas, and executes the EuclideanDistance
 // algorithm to fill the output from the input.
 void vtkImageEuclideanDistance::ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
-				  int outExt[6], int threadId)
+                                  int outExt[6], int threadId)
 {
   void *inPtr, *outPtr;
   int inExt[6];
@@ -681,15 +681,15 @@ void vtkImageEuclideanDistance::ThreadedExecute(vtkImageData *inData, vtkImageDa
 // This can be from 1 to "total".  
 // If 1 is returned, the extent cannot be split.
 int vtkImageEuclideanDistance::SplitExtent(int splitExt[6], int startExt[6], 
-			     int num, int total)
+                             int num, int total)
 {
   int splitAxis;
   int min, max;
 
   vtkDebugMacro("SplitExtent: ( " << startExt[0] << ", " << startExt[1] << ", "
-		<< startExt[2] << ", " << startExt[3] << ", "
-		<< startExt[4] << ", " << startExt[5] << "), " 
-		<< num << " of " << total);
+                << startExt[2] << ", " << startExt[3] << ", "
+                << startExt[4] << ", " << startExt[5] << "), " 
+                << num << " of " << total);
 
   // start with same extent
   memcpy(splitExt, startExt, 6 * sizeof(int));
@@ -718,7 +718,7 @@ int vtkImageEuclideanDistance::SplitExtent(int splitExt[6], int startExt[6],
   if (num >= total)
     {
     vtkDebugMacro("  SplitRequest (" << num 
-		  << ") larger than total: " << total);
+                  << ") larger than total: " << total);
     return total;
     }
   
@@ -734,8 +734,8 @@ int vtkImageEuclideanDistance::SplitExtent(int splitExt[6], int startExt[6],
     }
   
   vtkDebugMacro("  Split Piece: ( " <<splitExt[0]<< ", " <<splitExt[1]<< ", "
-		<< splitExt[2] << ", " << splitExt[3] << ", "
-		<< splitExt[4] << ", " << splitExt[5] << ")");
+                << splitExt[2] << ", " << splitExt[3] << ", "
+                << splitExt[4] << ", " << splitExt[5] << ")");
   fflush(stderr);
 
   return total;

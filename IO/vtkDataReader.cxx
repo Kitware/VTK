@@ -555,9 +555,9 @@ int vtkDataReader::ReadCellData(vtkDataSet *ds, int numCells)
     if ( ! strncmp(this->LowerCase(line), "scalars", 7) )
       {
       if ( ! this->ReadScalarData(a, numCells) )
-	{
-	return 0;
-	}
+        {
+        return 0;
+        }
       }
     //
     // read vector data
@@ -565,9 +565,9 @@ int vtkDataReader::ReadCellData(vtkDataSet *ds, int numCells)
     else if ( ! strncmp(line, "vectors", 7) )
       {
       if ( ! this->ReadVectorData(a, numCells) )
-	{
-	return 0;
-	}
+        {
+        return 0;
+        }
       }
     //
     // read 3x3 tensor data
@@ -575,9 +575,9 @@ int vtkDataReader::ReadCellData(vtkDataSet *ds, int numCells)
     else if ( ! strncmp(line, "tensors", 7) )
       {
       if ( ! this->ReadTensorData(a, numCells) )
-	{
-	return 0;
-	}
+        {
+        return 0;
+        }
       }
     //
     // read normals data
@@ -585,9 +585,9 @@ int vtkDataReader::ReadCellData(vtkDataSet *ds, int numCells)
     else if ( ! strncmp(line, "normals", 7) )
       {
       if ( ! this->ReadNormalData(a, numCells) )
-	{
-	return 0;
-	}
+        {
+        return 0;
+        }
       }
     //
     // read texture coordinates data
@@ -595,9 +595,9 @@ int vtkDataReader::ReadCellData(vtkDataSet *ds, int numCells)
     else if ( ! strncmp(line, "texture_coordinates", 19) )
       {
       if ( ! this->ReadTCoordsData(a, numCells) )
-	{
-	return 0;
-	}
+        {
+        return 0;
+        }
       }
     //
     // read color scalars data
@@ -605,9 +605,9 @@ int vtkDataReader::ReadCellData(vtkDataSet *ds, int numCells)
     else if ( ! strncmp(line, "color_scalars", 13) )
       {
       if ( ! this->ReadCoScalarData(a, numCells) )
-	{
-	return 0;
-	}
+        {
+        return 0;
+        }
       }
     //
     // read lookup table. Associate with scalar data.
@@ -615,9 +615,9 @@ int vtkDataReader::ReadCellData(vtkDataSet *ds, int numCells)
     else if ( ! strncmp(line, "lookup_table", 12) )
       {
       if ( ! this->ReadLutData(a) )
-	{
-	return 0;
-	}
+        {
+        return 0;
+        }
       }
     //
     // read field of data
@@ -626,13 +626,13 @@ int vtkDataReader::ReadCellData(vtkDataSet *ds, int numCells)
       {
       vtkFieldData *f;
       if ( ! (f=this->ReadFieldData()) )
-	{
-	return 0;
-	}
+        {
+        return 0;
+        }
       for(int i=0; i<f->GetNumberOfArrays(); i++)
-	{
-	a->AddArray(f->GetArray(i));
-	}
+        {
+        a->AddArray(f->GetArray(i));
+        }
       f->Delete();
       }
     //
@@ -683,9 +683,9 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, int numPts)
     if ( ! strncmp(this->LowerCase(line), "scalars", 7) )
       {
       if ( ! this->ReadScalarData(a, numPts) )
-	{
-	return 0;
-	}
+        {
+        return 0;
+        }
       }
     //
     // read vector data
@@ -693,9 +693,9 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, int numPts)
     else if ( ! strncmp(line, "vectors", 7) )
       {
       if ( ! this->ReadVectorData(a, numPts) )
-	{
-	return 0;
-	}
+        {
+        return 0;
+        }
       }
     //
     // read 3x3 tensor data
@@ -703,9 +703,9 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, int numPts)
     else if ( ! strncmp(line, "tensors", 7) )
       {
       if ( ! this->ReadTensorData(a, numPts) )
-	{
-	return 0;
-	}
+        {
+        return 0;
+        }
       }
     //
     // read normals data
@@ -714,9 +714,9 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, int numPts)
       {
 
       if ( ! this->ReadNormalData(a, numPts) )
-	{
-	return 0;
-	}
+        {
+        return 0;
+        }
       }
     //
     // read texture coordinates data
@@ -724,9 +724,9 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, int numPts)
     else if ( ! strncmp(line, "texture_coordinates", 19) )
       {
       if ( ! this->ReadTCoordsData(a, numPts) )
-	{
-	return 0;
-	}
+        {
+        return 0;
+        }
       }
     //
     // read color scalars data
@@ -734,9 +734,9 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, int numPts)
     else if ( ! strncmp(line, "color_scalars", 13) )
       {
       if ( ! this->ReadCoScalarData(a, numPts) )
-	{
-	return 0;
-	}
+        {
+        return 0;
+        }
       }
     //
     // read lookup table. Associate with scalar data.
@@ -744,9 +744,9 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, int numPts)
     else if ( ! strncmp(line, "lookup_table", 12) )
       {
       if ( ! this->ReadLutData(a) )
-	{
-	return 0;
-	}
+        {
+        return 0;
+        }
       }
     //
     // read field of data
@@ -755,13 +755,13 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, int numPts)
       {
       vtkFieldData *f;
       if ( ! (f=this->ReadFieldData()) )
-	{
-	return 0;
-	}
+        {
+        return 0;
+        }
       for(int i=0; i<f->GetNumberOfArrays(); i++)
-	{
-	a->AddArray(f->GetArray(i));
-	}
+        {
+        a->AddArray(f->GetArray(i));
+        }
       f->Delete();
       }
     //
@@ -853,7 +853,7 @@ vtkDataArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, int 
       if (this->IS->eof())
         {
         vtkErrorMacro(<<"Error reading binary bit array!");
-	free(type);
+        free(type);
         return NULL;
         }
       }
@@ -866,9 +866,9 @@ vtkDataArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, int 
           {
           if ( !this->Read(&b) )
             {
-	      vtkErrorMacro(<<"Error reading ascii bit array! tuple: " << i << ", component: " << j);
-	      free(type);
-	      return NULL;
+              vtkErrorMacro(<<"Error reading ascii bit array! tuple: " << i << ", component: " << j);
+              free(type);
+              return NULL;
             }
           else
             {
@@ -1369,15 +1369,15 @@ int vtkDataReader::ReadCoScalarData(vtkDataSetAttributes *a, int numPts)
     if ( data != NULL )
       {
       if ( ! skipScalar ) 
-	{
-	data->SetName(name);
-	a->SetScalars(data);
-	}
+        {
+        data->SetName(name);
+        a->SetScalars(data);
+        }
       data->Delete();
       }
     else
       {
-	return 0;
+        return 0;
       }
     }
   else
@@ -1389,27 +1389,27 @@ int vtkDataReader::ReadCoScalarData(vtkDataSetAttributes *a, int numPts)
     if ( data != NULL )
       {
       if ( ! skipScalar ) 
-	{
-	vtkUnsignedCharArray *scalars=vtkUnsignedCharArray::New();
-	scalars->SetNumberOfComponents(numComp);
-	scalars->SetNumberOfTuples(numPts);
-	scalars->SetName(name);
-	for (i=0; i<numPts; i++)
-	  {
-	  for (j=0; j<numComp; j++)
-	    {
-	    idx = i*numComp + j;
-	    scalars->SetValue(idx,(unsigned char)(255.0*data->GetValue(idx)));
-	    }
-	  }
-	a->SetScalars(scalars);
-	scalars->Delete();
-	}
+        {
+        vtkUnsignedCharArray *scalars=vtkUnsignedCharArray::New();
+        scalars->SetNumberOfComponents(numComp);
+        scalars->SetNumberOfTuples(numPts);
+        scalars->SetName(name);
+        for (i=0; i<numPts; i++)
+          {
+          for (j=0; j<numComp; j++)
+            {
+            idx = i*numComp + j;
+            scalars->SetValue(idx,(unsigned char)(255.0*data->GetValue(idx)));
+            }
+          }
+        a->SetScalars(scalars);
+        scalars->Delete();
+        }
       data->Delete();
       }
     else
       {
-	return 0;
+        return 0;
       }
     }
 
@@ -1579,7 +1579,7 @@ int vtkDataReader::ReadCells(int size, int *data)
 }
 
 int vtkDataReader::ReadCells(int size, int *data, 
-			     int skip1, int read2, int skip3)
+                             int skip1, int read2, int skip3)
 {
   char line[256];
   int i, numCellPts, junk, *tmp, *pTmp;
@@ -1625,9 +1625,9 @@ int vtkDataReader::ReadCells(int size, int *data,
       // the first value is the number of point ids
       *data++ = i = *pTmp++;
       while (i-- > 0)
-	{
-	*data++ = *pTmp++;
-	}
+        {
+        *data++ = *pTmp++;
+        }
       --read2;
       }
     // delete the temporary array
@@ -1645,9 +1645,9 @@ int vtkDataReader::ReadCells(int size, int *data,
         return 0;
         }
       while (numCellPts-- > 0)
-	{
-	this->Read(&junk);
-	}
+        {
+        this->Read(&junk);
+        }
       }
     // read the cells in the piece
     for (i=0; i<read2; i++)
@@ -1660,9 +1660,9 @@ int vtkDataReader::ReadCells(int size, int *data,
         }
       numCellPts = *data++;
       while (numCellPts-- > 0)
-	{
-	this->Read(data++);
-	}
+        {
+        this->Read(data++);
+        }
       }
     // skip cells after the piece
     for (i=0; i<skip3; i++)
@@ -1674,9 +1674,9 @@ int vtkDataReader::ReadCells(int size, int *data,
         return 0;
         }
       while (numCellPts-- > 0)
-	{
-	this->Read(&junk);
-	}
+        {
+        this->Read(&junk);
+        }
       }
     }
 

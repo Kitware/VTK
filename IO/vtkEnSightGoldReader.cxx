@@ -110,9 +110,9 @@ int vtkEnSightGoldReader::ReadGeometryFile(char* fileName, int timeStep)
     for (i = 0; i < timeStep - 1; i++)
       {
       while (strncmp(line, "END TIME STEP", 13) != 0)
-	{
-	this->ReadLine(line);
-	}
+        {
+        this->ReadLine(line);
+        }
       this->ReadLine(line);
       }
     
@@ -194,7 +194,7 @@ int vtkEnSightGoldReader::ReadGeometryFile(char* fileName, int timeStep)
 
 //----------------------------------------------------------------------------
 int vtkEnSightGoldReader::ReadMeasuredGeometryFile(char* fileName,
-						   int timeStep)
+                                                   int timeStep)
 {
   char line[256], subLine[256];
   vtkPoints *newPoints;
@@ -240,7 +240,7 @@ int vtkEnSightGoldReader::ReadMeasuredGeometryFile(char* fileName,
     if (strcmp(subLine, "Binary") == 0)
       {
       vtkErrorMacro("This is a binary data set. Try "
-		    << "vtkEnSight6BinaryReader.");
+                    << "vtkEnSight6BinaryReader.");
       return 0;
       }
     }
@@ -250,9 +250,9 @@ int vtkEnSightGoldReader::ReadMeasuredGeometryFile(char* fileName,
     for (i = 0; i < timeStep - 1; i++)
       {
       while (strncmp(line, "END TIME STEP", 13) != 0)
-	{
-	this->ReadLine(line);
-	}
+        {
+        this->ReadLine(line);
+        }
       this->ReadLine(line);
       }
     
@@ -305,9 +305,9 @@ int vtkEnSightGoldReader::ReadMeasuredGeometryFile(char* fileName,
 
 //----------------------------------------------------------------------------
 int vtkEnSightGoldReader::ReadScalarsPerNode(char* fileName, char* description,
-					     int timeStep, int measured,
-					     int numberOfComponents,
-					     int component)
+                                             int timeStep, int measured,
+                                             int numberOfComponents,
+                                             int component)
 {
   char line[256], formatLine[256], tempLine[256];
   int partId, numPts, i, j, numLines, moreScalars;
@@ -348,9 +348,9 @@ int vtkEnSightGoldReader::ReadScalarsPerNode(char* fileName, char* description,
       {
       this->ReadLine(line);
       while (strncmp(line, "END TIME STEP", 13) != 0)
-	{
-	this->ReadLine(line);
-	}
+        {
+        this->ReadLine(line);
+        }
       }
   
     this->ReadLine(line);
@@ -427,7 +427,7 @@ int vtkEnSightGoldReader::ReadScalarsPerNode(char* fileName, char* description,
     else
       {
       scalars = (vtkFloatArray*)(output->GetPointData()->
-				 GetArray(description));
+                                 GetArray(description));
       }
 
     for (i = 0; i < numPts; i++)
@@ -458,7 +458,7 @@ int vtkEnSightGoldReader::ReadScalarsPerNode(char* fileName, char* description,
 
 //----------------------------------------------------------------------------
 int vtkEnSightGoldReader::ReadVectorsPerNode(char* fileName, char* description,
-					     int timeStep, int measured)
+                                             int timeStep, int measured)
 {
   char line[256], formatLine[256], tempLine[256]; 
   int partId, numPts, i, j, numLines, moreVectors;
@@ -499,9 +499,9 @@ int vtkEnSightGoldReader::ReadVectorsPerNode(char* fileName, char* description,
       {
       this->ReadLine(line);
       while (strncmp(line, "END TIME STEP", 13) != 0)
-	{
-	this->ReadLine(line);
-	}
+        {
+        this->ReadLine(line);
+        }
       }
   
     this->ReadLine(line);
@@ -590,7 +590,7 @@ int vtkEnSightGoldReader::ReadVectorsPerNode(char* fileName, char* description,
 
 //----------------------------------------------------------------------------
 int vtkEnSightGoldReader::ReadTensorsPerNode(char* fileName, char* description,
-					     int timeStep)
+                                             int timeStep)
 {
   char line[256];
   int partId, numPts, i, j;
@@ -630,9 +630,9 @@ int vtkEnSightGoldReader::ReadTensorsPerNode(char* fileName, char* description,
       {
       this->ReadLine(line);
       while (strncmp(line, "END TIME STEP", 13) != 0)
-	{
-	this->ReadLine(line);
-	}
+        {
+        this->ReadLine(line);
+        }
       }
   
     this->ReadLine(line);
@@ -676,10 +676,10 @@ int vtkEnSightGoldReader::ReadTensorsPerNode(char* fileName, char* description,
 
 //----------------------------------------------------------------------------
 int vtkEnSightGoldReader::ReadScalarsPerElement(char* fileName,
-						char* description,
-						int timeStep,
-						int numberOfComponents,
-						int component)
+                                                char* description,
+                                                int timeStep,
+                                                int numberOfComponents,
+                                                int component)
 {
   char line[256];
   int partId, numCells, numCellsPerElement, i, idx;
@@ -721,9 +721,9 @@ int vtkEnSightGoldReader::ReadScalarsPerElement(char* fileName,
       {
       this->ReadLine(line);
       while (strncmp(line, "END TIME STEP", 13) != 0)
-	{
-	this->ReadLine(line);
-	}
+        {
+        this->ReadLine(line);
+        }
       }
   
     this->ReadLine(line);
@@ -814,8 +814,8 @@ int vtkEnSightGoldReader::ReadScalarsPerElement(char* fileName,
 
 //----------------------------------------------------------------------------
 int vtkEnSightGoldReader::ReadVectorsPerElement(char* fileName,
-						char* description,
-						int timeStep)
+                                                char* description,
+                                                int timeStep)
 {
   char line[256];
   int partId, numCells, numCellsPerElement, i, j, idx;
@@ -857,9 +857,9 @@ int vtkEnSightGoldReader::ReadVectorsPerElement(char* fileName,
       {
       this->ReadLine(line);
       while (strncmp(line, "END TIME STEP", 13) != 0)
-	{
-	this->ReadLine(line);
-	}
+        {
+        this->ReadLine(line);
+        }
       }
   
     this->ReadLine(line);
@@ -943,7 +943,7 @@ int vtkEnSightGoldReader::ReadVectorsPerElement(char* fileName,
 //----------------------------------------------------------------------------
 int vtkEnSightGoldReader::ReadTensorsPerElement(char* fileName,
                                                 char* description,
-						int timeStep)
+                                                int timeStep)
 {
   char line[256];
   int partId, numCells, numCellsPerElement, i, j, idx;
@@ -985,9 +985,9 @@ int vtkEnSightGoldReader::ReadTensorsPerElement(char* fileName,
       {
       this->ReadLine(line);
       while (strncmp(line, "END TIME STEP", 13) != 0)
-	{
-	this->ReadLine(line);
-	}
+        {
+        this->ReadLine(line);
+        }
       }
   
     this->ReadLine(line);

@@ -60,7 +60,7 @@ protected:
   ~vtkTIFFWriter() {};
 
   virtual void WriteFile(ofstream *file, vtkImageData *data, 
-			 int ext[6]);
+                         int ext[6]);
   virtual void WriteFileHeader(ofstream *, vtkImageData *);
 private:
   vtkTIFFWriter(const vtkTIFFWriter&);  // Not implemented.

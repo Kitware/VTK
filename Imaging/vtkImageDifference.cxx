@@ -131,8 +131,8 @@ vtkImageDifference::vtkImageDifference()
 //----------------------------------------------------------------------------
 // This method computes the input extent necessary to generate the output.
 void vtkImageDifference::ComputeInputUpdateExtent(int inExt[6],
-							  int outExt[6],
-							  int whichInput)
+                                                          int outExt[6],
+                                                          int whichInput)
 {
   int *wholeExtent;
   int idx;
@@ -150,19 +150,19 @@ void vtkImageDifference::ComputeInputUpdateExtent(int inExt[6],
     // we must clip extent with whole extent is we hanlde boundaries.
     if (inExt[idx*2] < wholeExtent[idx*2])
       {
-	inExt[idx*2] = wholeExtent[idx*2];
+        inExt[idx*2] = wholeExtent[idx*2];
       }
     if (inExt[idx*2 + 1] > wholeExtent[idx*2 + 1])
       {
-	inExt[idx*2 + 1] = wholeExtent[idx*2 + 1];
+        inExt[idx*2 + 1] = wholeExtent[idx*2 + 1];
       }
     }
 }
 
 //----------------------------------------------------------------------------
 void vtkImageDifference::ThreadedExecute(vtkImageData **inData, 
-					 vtkImageData *outData,
-					 int outExt[6], int id)
+                                         vtkImageData *outData,
+                                         int outExt[6], int id)
 {
   unsigned char *in1Ptr0, *in1Ptr1, *in1Ptr2;
   unsigned char *in2Ptr0, *in2Ptr1, *in2Ptr2;
@@ -213,9 +213,9 @@ void vtkImageDifference::ThreadedExecute(vtkImageData **inData,
       outData->GetScalarType() != VTK_UNSIGNED_CHAR)
       {
       if (!id)
-	{
-	vtkErrorMacro(<< "Execute: All ScalarTypes must be unsigned char");
-	}
+        {
+        vtkErrorMacro(<< "Execute: All ScalarTypes must be unsigned char");
+        }
       this->ErrorPerThread[id] = 1000;
       this->ThresholdedErrorPerThread[id] = 1000;
       return;
@@ -250,101 +250,101 @@ void vtkImageDifference::ThreadedExecute(vtkImageData **inData,
     for (idx1 = min1; !this->AbortExecute && idx1 <= max1; ++idx1)
       {
       if (!id) 
-	{
-	if (!(count%target))
-	  {
-	  this->UpdateProgress(count/(50.0*target));
-	  }
-	count++;
-	}
+        {
+        if (!(count%target))
+          {
+          this->UpdateProgress(count/(50.0*target));
+          }
+        count++;
+        }
       in1Ptr0 = in1Ptr1;
       in2Ptr0 = in2Ptr1;
       outPtr0 = outPtr1;
       for (idx0 = min0; idx0 <= max0; ++idx0)
-	{
-	tr = 1000;
-	tg = 1000;
-	tb = 1000;
+        {
+        tr = 1000;
+        tg = 1000;
+        tb = 1000;
       
-	/* check the exact match pixel */
-	vtkImageDifferenceComputeError(in1Ptr0,in2Ptr0);
-	
-	// do a quick check to see if this match is exact, if so
-	// we can save some seious time by skipping the eight
-	// connected neighbors
-	matched = 0;
-	if ((tr <= 0)&&(tg <= 0)&&(tb <= 0))
-	  {
-	  matched = 1;
-	  }
-	
-	/* If AllowShift, then we examine neighboring pixels to 
-	   find the least difference.  This feature is used to 
-	   allow images to shift slightly between different graphics
-	   systems, like between opengl and starbase. */
-	if (!matched && this->AllowShift) 
-	  {
-	  /* lower row */
- 	  if (idx1 > inMinY)
-	    {
-	    vtkImageDifferenceComputeError(in1Ptr0-in1Inc1,in2Ptr0);
-	    if (idx0 > inMinX)
-	      {
-	      vtkImageDifferenceComputeError(in1Ptr0-in1Inc0-in1Inc1,in2Ptr0);
-	      }
-	    if (idx0 < inMaxX)
-	      {
-	      vtkImageDifferenceComputeError(in1Ptr0+in1Inc0-in1Inc1,in2Ptr0);
-	      }
-	    }
-	  /* middle row (center already considered) */
-	  if (idx0 > inMinX)
-	    {
-	    vtkImageDifferenceComputeError(in1Ptr0-in1Inc0,in2Ptr0);
-	    }
-	  if (idx0 < inMaxX)
-	    {
-	    vtkImageDifferenceComputeError(in1Ptr0+in1Inc0,in2Ptr0);
-	    }
-	  /* upper row */
-	  if (idx1 < inMaxY)
-	    {
-	    vtkImageDifferenceComputeError(in1Ptr0+in1Inc1,in2Ptr0);
-	    if (idx0 > inMinX)
-	      {
-	      vtkImageDifferenceComputeError(in1Ptr0-in1Inc0+in1Inc1,in2Ptr0);
-	      }
-	    if (idx0 < inMaxX)
-	      {
-	      vtkImageDifferenceComputeError(in1Ptr0+in1Inc0+in1Inc1,in2Ptr0);
-	      }
-	    }
-	  }
-	
-	this->ErrorPerThread[id] = this->ErrorPerThread[id] + (tr + tg + tb)/(3.0*255);
-	tr -= this->Threshold;
-	if (tr < 0)
-	  {
-	  tr = 0;
-	  }
-	tg -= this->Threshold;
-	if (tg < 0)
-	  {
-	  tg = 0;
-	  }
-	tb -= this->Threshold;
-	if (tb < 0)
-	  {
-	  tb = 0;
-	  }
-	*outPtr0++ = (unsigned char)tr;
-	*outPtr0++ = (unsigned char)tg;
-	*outPtr0++ = (unsigned char)tb;
-	this->ThresholdedErrorPerThread[id] += (tr + tg + tb)/(3.0*255.0);
+        /* check the exact match pixel */
+        vtkImageDifferenceComputeError(in1Ptr0,in2Ptr0);
+        
+        // do a quick check to see if this match is exact, if so
+        // we can save some seious time by skipping the eight
+        // connected neighbors
+        matched = 0;
+        if ((tr <= 0)&&(tg <= 0)&&(tb <= 0))
+          {
+          matched = 1;
+          }
+        
+        /* If AllowShift, then we examine neighboring pixels to 
+           find the least difference.  This feature is used to 
+           allow images to shift slightly between different graphics
+           systems, like between opengl and starbase. */
+        if (!matched && this->AllowShift) 
+          {
+          /* lower row */
+          if (idx1 > inMinY)
+            {
+            vtkImageDifferenceComputeError(in1Ptr0-in1Inc1,in2Ptr0);
+            if (idx0 > inMinX)
+              {
+              vtkImageDifferenceComputeError(in1Ptr0-in1Inc0-in1Inc1,in2Ptr0);
+              }
+            if (idx0 < inMaxX)
+              {
+              vtkImageDifferenceComputeError(in1Ptr0+in1Inc0-in1Inc1,in2Ptr0);
+              }
+            }
+          /* middle row (center already considered) */
+          if (idx0 > inMinX)
+            {
+            vtkImageDifferenceComputeError(in1Ptr0-in1Inc0,in2Ptr0);
+            }
+          if (idx0 < inMaxX)
+            {
+            vtkImageDifferenceComputeError(in1Ptr0+in1Inc0,in2Ptr0);
+            }
+          /* upper row */
+          if (idx1 < inMaxY)
+            {
+            vtkImageDifferenceComputeError(in1Ptr0+in1Inc1,in2Ptr0);
+            if (idx0 > inMinX)
+              {
+              vtkImageDifferenceComputeError(in1Ptr0-in1Inc0+in1Inc1,in2Ptr0);
+              }
+            if (idx0 < inMaxX)
+              {
+              vtkImageDifferenceComputeError(in1Ptr0+in1Inc0+in1Inc1,in2Ptr0);
+              }
+            }
+          }
+        
+        this->ErrorPerThread[id] = this->ErrorPerThread[id] + (tr + tg + tb)/(3.0*255);
+        tr -= this->Threshold;
+        if (tr < 0)
+          {
+          tr = 0;
+          }
+        tg -= this->Threshold;
+        if (tg < 0)
+          {
+          tg = 0;
+          }
+        tb -= this->Threshold;
+        if (tb < 0)
+          {
+          tb = 0;
+          }
+        *outPtr0++ = (unsigned char)tr;
+        *outPtr0++ = (unsigned char)tg;
+        *outPtr0++ = (unsigned char)tb;
+        this->ThresholdedErrorPerThread[id] += (tr + tg + tb)/(3.0*255.0);
 
-	in1Ptr0 += in1Inc0;
-	in2Ptr0 += in2Inc0;
-	}
+        in1Ptr0 += in1Inc0;
+        in2Ptr0 += in2Inc0;
+        }
       outPtr1 += outInc1;
       in1Ptr1 += in1Inc1;
       in2Ptr1 += in2Inc1;
@@ -359,7 +359,7 @@ void vtkImageDifference::ThreadedExecute(vtkImageData **inData,
 // Make sure both the inputs are the same size. Doesn't really change 
 // the output. Just performs a sanity check
 void vtkImageDifference::ExecuteInformation(vtkImageData **inputs,
-					    vtkImageData *vtkNotUsed(output))
+                                            vtkImageData *vtkNotUsed(output))
 {
   int *in1Ext, *in2Ext;
   

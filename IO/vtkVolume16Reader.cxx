@@ -318,8 +318,8 @@ vtkUnsignedShortArray *vtkVolume16Reader::ReadImage(int sliceNumber)
 
   // read the image data
   status = this->Read16BitImage (fp, pixels, this->DataDimensions[0], 
-				 this->DataDimensions[1], this->HeaderSize, 
-				 this->SwapBytes);
+                                 this->DataDimensions[1], this->HeaderSize, 
+                                 this->SwapBytes);
 
   // close the file
   fclose (fp);
@@ -542,8 +542,8 @@ void vtkVolume16Reader::ComputeTransformedDimensions (int dimensions[3])
       dimensions[2] = -dimensions[2];
       }
     vtkDebugMacro(<< "Transformed dimensions are:" << dimensions[0] << ", "
-					     << dimensions[1] << ", "
-					     << dimensions[2]);
+                                             << dimensions[1] << ", "
+                                             << dimensions[2]);
     }
 }
 
@@ -590,9 +590,9 @@ void vtkVolume16Reader::ComputeTransformedBounds (int bounds[6])
         }
       }
     vtkDebugMacro(<< "Transformed bounds are: "
-		<< bounds[0] << ", " << bounds[1] << ", "
+                << bounds[0] << ", " << bounds[1] << ", "
                 << bounds[2] << ", " << bounds[3] << ", "
-		<< bounds[4] << ", " << bounds[5]);
+                << bounds[4] << ", " << bounds[5]);
     }
 }
 
@@ -639,13 +639,13 @@ void vtkVolume16Reader::TransformSlice (unsigned short *slice, unsigned short *p
         {
         ijk[0] = i;
         this->Transform->MultiplyPoint (ijk, transformedIjk);
-	xyz[0] = (int) ((float)transformedIjk[0] - bounds[0]);
-	xyz[1] = (int) ((float)transformedIjk[1] - bounds[2]);
-	xyz[2] = (int) ((float)transformedIjk[2] - bounds[4]);
+        xyz[0] = (int) ((float)transformedIjk[0] - bounds[0]);
+        xyz[1] = (int) ((float)transformedIjk[1] - bounds[2]);
+        xyz[2] = (int) ((float)transformedIjk[2] - bounds[4]);
         index = xyz[0] +
                 xyz[1] * xSize +
                 xyz[2] * xySize;
-	*(pixels + index) = *slice;
+        *(pixels + index) = *slice;
         }
       }
     }

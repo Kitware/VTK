@@ -116,9 +116,9 @@ void vtkImageMask::SetMaskedOutputValue(int num, float *v)
 // This templated function executes the filter for any type of data.
 template <class T>
 static void vtkImageMaskExecute(vtkImageMask *self, int ext[6],
-				vtkImageData *in1Data, T *in1Ptr,
-				vtkImageData *in2Data, unsigned char *in2Ptr,
-				vtkImageData *outData, T *outPtr, int id)
+                                vtkImageData *in1Data, T *in1Ptr,
+                                vtkImageData *in2Data, unsigned char *in2Ptr,
+                                vtkImageData *outData, T *outPtr, int id)
 {
   int num0, num1, num2, numC, pixSize;
   int idx0, idx1, idx2;
@@ -165,33 +165,33 @@ static void vtkImageMaskExecute(vtkImageMask *self, int ext[6],
     for (idx1 = 0; !self->AbortExecute && idx1 < num1; ++idx1)
       {
       if (!id) 
-	{
-	if (!(count%target))
-	  {
-	  self->UpdateProgress(count/(50.0*target));
-	  }
-	count++;
-	}
+        {
+        if (!(count%target))
+          {
+          self->UpdateProgress(count/(50.0*target));
+          }
+        count++;
+        }
       for (idx0 = 0; idx0 < num0; ++idx0)
-	{
-	// Pixel operation
-	if (*in2Ptr && maskState == 1)
-	  {
-	  memcpy(outPtr, maskedValue, pixSize);
-	  }
-	else if ( ! *in2Ptr && maskState == 0)
-	  {
-	  memcpy(outPtr, maskedValue, pixSize);
-	  }
-	else
-	  {
-	  memcpy(outPtr, in1Ptr, pixSize);
-	  }
-	
-	in1Ptr += numC;
-	outPtr += numC;
-	in2Ptr += 1;
-	}
+        {
+        // Pixel operation
+        if (*in2Ptr && maskState == 1)
+          {
+          memcpy(outPtr, maskedValue, pixSize);
+          }
+        else if ( ! *in2Ptr && maskState == 0)
+          {
+          memcpy(outPtr, maskedValue, pixSize);
+          }
+        else
+          {
+          memcpy(outPtr, in1Ptr, pixSize);
+          }
+        
+        in1Ptr += numC;
+        outPtr += numC;
+        in2Ptr += 1;
+        }
       in1Ptr += in1Inc1;
       in2Ptr += in2Inc1;
       outPtr += outInc1;
@@ -212,8 +212,8 @@ static void vtkImageMaskExecute(vtkImageMask *self, int ext[6],
 // It just executes a switch statement to call the correct function for
 // the Datas data types.
 void vtkImageMask::ThreadedExecute(vtkImageData **inData, 
-				   vtkImageData *outData,
-				   int outExt[6], int id)
+                                   vtkImageData *outData,
+                                   int outExt[6], int id)
 {
   void *inPtr1;
   void *inPtr2;
@@ -221,7 +221,7 @@ void vtkImageMask::ThreadedExecute(vtkImageData **inData,
   int *tExt;
   
   vtkDebugMacro(<< "Execute: inData = " << inData 
-		<< ", outData = " << outData);
+                << ", outData = " << outData);
   
 
   if (inData[0] == NULL)
@@ -277,7 +277,7 @@ inPtr1 = inData[0]->GetScalarPointerForExtent(outExt);
 //----------------------------------------------------------------------------
 // The output extent is the intersection.
 void vtkImageMask::ExecuteInformation(vtkImageData **inDatas, 
-				      vtkImageData *outData)
+                                      vtkImageData *outData)
 {
   int ext[6], *ext2, idx;
 

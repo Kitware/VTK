@@ -120,8 +120,8 @@ void vtkImageEllipsoidSource::SetWholeExtent(int extent[6])
 
 //----------------------------------------------------------------------------
 void vtkImageEllipsoidSource::SetWholeExtent(int minX, int maxX, 
-					    int minY, int maxY,
-					    int minZ, int maxZ)
+                                            int minY, int maxY,
+                                            int minZ, int maxZ)
 {
   int extent[6];
   
@@ -160,8 +160,8 @@ void vtkImageEllipsoidSource::ExecuteInformation()
 
 template <class T>
 static void vtkImageEllipsoidSourceExecute(vtkImageEllipsoidSource *self,
-					  vtkImageData *data, int ext[6],
-					  T *ptr)
+                                          vtkImageData *data, int ext[6],
+                                          T *ptr)
 {
   int min0, max0;
   int idx0, idx1, idx2;
@@ -194,13 +194,13 @@ static void vtkImageEllipsoidSourceExecute(vtkImageEllipsoidSource *self,
     else
       {
       if ((float)idx2 - center[2] == 0.0)
-	{
-	temp = 0.0;
-	}
+        {
+        temp = 0.0;
+        }
       else
-	{
-	temp = VTK_LARGE_FLOAT;
-	}  
+        {
+        temp = VTK_LARGE_FLOAT;
+        }  
       }
     
     
@@ -208,60 +208,60 @@ static void vtkImageEllipsoidSourceExecute(vtkImageEllipsoidSource *self,
     for (idx1 = ext[2]; !self->AbortExecute && idx1 <= ext[3]; ++idx1)
       {
       if (!(count%target))
-	{
-	self->UpdateProgress(count/(50.0*target));
-	}
+        {
+        self->UpdateProgress(count/(50.0*target));
+        }
       count++;
       
       // handle divide by zero
       if (radius[1] != 0.0)
-	{
-	temp = ((double)idx1 - (double)(center[1])) / (double)(radius[1]);
-	}
+        {
+        temp = ((double)idx1 - (double)(center[1])) / (double)(radius[1]);
+        }
       else
-	{
-	if ((float)idx1 - center[1] == 0.0)
-	  {
-	  temp = 0.0;
-	  }
-	else
-	  {
-	  temp = VTK_LARGE_FLOAT;
-	  }  
-	}
+        {
+        if ((float)idx1 - center[1] == 0.0)
+          {
+          temp = 0.0;
+          }
+        else
+          {
+          temp = VTK_LARGE_FLOAT;
+          }  
+        }
       
       s1 = temp * temp;
       for (idx0 = min0; idx0 <= max0; ++idx0)
-	{
-	// handle divide by zero
-	if (radius[0] != 0.0)
-	  {
-	  temp = ((double)idx0 - (double)(center[0])) / (double)(radius[0]);
-	  }
-	else
-	  {
-	  if ((float)idx0 - center[0] == 0.0)
-	    {
-	    temp = 0.0;
-	    }
-	  else
-	    {
-	    temp = VTK_LARGE_FLOAT;
-	    }  
-	  }
+        {
+        // handle divide by zero
+        if (radius[0] != 0.0)
+          {
+          temp = ((double)idx0 - (double)(center[0])) / (double)(radius[0]);
+          }
+        else
+          {
+          if ((float)idx0 - center[0] == 0.0)
+            {
+            temp = 0.0;
+            }
+          else
+            {
+            temp = VTK_LARGE_FLOAT;
+            }  
+          }
 
-	s0 = temp * temp;
-	if (s0 + s1 + s2 > 1.0)
-	  {
-	  *ptr = outVal;
-	  }
-	else
-	  {
-	  *ptr = inVal;
-	  }
-	++ptr;
-	// inc0 is 0
-	}
+        s0 = temp * temp;
+        if (s0 + s1 + s2 > 1.0)
+          {
+          *ptr = outVal;
+          }
+        else
+          {
+          *ptr = inVal;
+          }
+        ++ptr;
+        // inc0 is 0
+        }
       ptr += inc1;
       }
     ptr += inc2;

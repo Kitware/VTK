@@ -118,10 +118,10 @@ protected:
   
   void ExecuteInformation(vtkImageData **inputs, vtkImageData *output); 
   void ComputeInputUpdateExtent(int inExt[6], int outExt[6],
-				int whichInput);
+                                int whichInput);
   void ExecuteInformation(){this->vtkImageTwoInputFilter::ExecuteInformation();};
   void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
-		       int extent[6], int id);  
+                       int extent[6], int id);  
   
 private:
   vtkImageDifference(const vtkImageDifference&);  // Not implemented.

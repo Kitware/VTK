@@ -121,8 +121,8 @@ void vtkWindowToImageFilter::ExecuteInformation()
   
   // set the extent, if the VOI has not been set then default to
   out->SetWholeExtent(0, this->Input->GetSize()[0] - 1,
-		      0, this->Input->GetSize()[1] - 1,
-		      0, 0);
+                      0, this->Input->GetSize()[1] - 1,
+                      0, 0);
   
   // set the spacing
   out->SetSpacing(1.0, 1.0, 1.0);

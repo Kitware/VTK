@@ -94,7 +94,7 @@ protected:
   void ExecuteInformation(){this->vtkImageMultipleInputFilter::ExecuteInformation();};
   
   void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
-		       int extent[6], int id);
+                       int extent[6], int id);
 
   void InitOutput(int outExt[6], vtkImageData *outData);
 private:

@@ -76,8 +76,8 @@ vtkImageHybridMedian2D::vtkImageHybridMedian2D()
 
 
 void vtkImageHybridMedian2D::ThreadedExecute(vtkImageData *inData, 
-					     vtkImageData *outData,
-					     int outExt[6], int id)
+                                             vtkImageData *outData,
+                                             int outExt[6], int id)
 {
   int inExt[6];
   int idx0, idx1, idx2, idxC;
@@ -105,7 +105,7 @@ void vtkImageHybridMedian2D::ThreadedExecute(vtkImageData *inData,
   this->ComputeInputUpdateExtent(inExt, outExt); 
   inData->GetIncrements(inInc0, inInc1, inInc2);
   this->GetInput()->GetWholeExtent(wholeMin0, wholeMax0, wholeMin1, wholeMax1,
-			      wholeMin2, wholeMax2);
+                              wholeMin2, wholeMax2);
   numComps = inData->GetNumberOfScalarComponents();
   outData->GetIncrements(outInc0, outInc1, outInc2);
   min0 = outExt[0];   max0 = outExt[1];
@@ -125,155 +125,155 @@ void vtkImageHybridMedian2D::ThreadedExecute(vtkImageData *inData,
     for (idx1 = min1; !this->AbortExecute && idx1 <= max1; ++idx1)
       {
       if (!id) 
-	{
-	if (!(count%target))
-	  {
-	  this->UpdateProgress(count/(50.0*target));
-	  }
-	count++;
-	}
+        {
+        if (!(count%target))
+          {
+          this->UpdateProgress(count/(50.0*target));
+          }
+        count++;
+        }
       inPtr0 = inPtr1;
       outPtr0 = outPtr1;
       for (idx0 = min0; idx0 <= max0; ++idx0)
-	{
-	inPtrC = inPtr0;
-	outPtrC = outPtr0;
-	for (idxC = 0; idxC < numComps; ++idxC)
-	  {
-	  // compute median of + neighborhood
-	  icount = 0;
-	  // Center
-	  ptr = inPtrC;
-	  array[icount++] = *ptr;
-	  // left
-	  ptr = inPtrC;
-	  if (idx0 > wholeMin0)
-	    {
-	    ptr -= inInc0;
-	    array[icount++] = *ptr;
-	    }
-	  if (idx0 - 1 > wholeMin0)
-	    {
-	    ptr -= inInc0;
-	    array[icount++] = *ptr;
-	    }
-	  // right
-	  ptr = inPtrC;
-	  if (idx0 < wholeMax0)
-	    {
-	    ptr += inInc0;
-	    array[icount++] = *ptr;
-	    }
-	  if (idx0 + 1 < wholeMax0)
-	    {
-	    ptr += inInc0;
-	    array[icount++] = *ptr;
-	    }
-	  // up
-	  ptr = inPtrC;
-	  if (idx1 > wholeMin1)
-	    {
-	    ptr -= inInc1;
-	    array[icount++] = *ptr;
-	    }
-	  if (idx1 - 1 > wholeMin1)
-	    {
-	    ptr -= inInc1;
-	    array[icount++] = *ptr;
-	    }
-	  // right
-	  ptr = inPtrC;
-	  if (idx1 < wholeMax1)
-	    {
-	    ptr += inInc1;
-	    array[icount++] = *ptr;
-	    }
-	  if (idx1 + 1 < wholeMax1)
-	    {
-	    ptr += inInc1;
-	    array[icount++] = *ptr;
-	    }
-	  median1 = this->ComputeMedian(array, icount);
-	  
-	  // Cross median
-	  icount = 0;
-	  // Center
-	  array[icount++] = *ptr;
-	  // Lower Left
-	  ptr = inPtrC;
-	  if (idx0 > wholeMin0 && idx1 > wholeMin1)
-	    {
-	    ptr -= inInc0 + inInc1;
-	    array[icount++] = *ptr;
-	    }
-	  if (idx0-1 > wholeMin0 && idx1-1 > wholeMin1)
-	    {
-	    ptr -= inInc0 + inInc1;
-	    array[icount++] = *ptr;
-	    }
-	  // Upper Right       
-	  ptr = inPtrC;
-	  if (idx0 < wholeMax0 && idx1 < wholeMax1)
-	    {
-	    ptr += inInc0 + inInc1;
-	    array[icount++] = *ptr;
-	    }
-	  if (idx0+1 > wholeMax0 && idx1+1 > wholeMax1)
-	    {
-	    ptr -= inInc0 + inInc1;
-	    array[icount++] = *ptr;
-	    }
-	  // Upper Left
-	  ptr = inPtrC;
-	  if (idx0 > wholeMin0 && idx1 < wholeMax1)
-	    {
-	    ptr += -inInc0 + inInc1;
-	    array[icount++] = *ptr;
-	    }
-	  if (idx0-1 > wholeMin0 && idx1+1 < wholeMax1)
-	    {
-	    ptr += -inInc0 + inInc1;
-	    array[icount++] = *ptr;
-	    }
-	  // Lower Right
-	  ptr = inPtrC;
-	  if (idx0 < wholeMax0 && idx1 > wholeMin1)
-	    {
-	    ptr += inInc0 - inInc1;
-	    array[icount++] = *ptr;
-	    }
-	  if (idx0+1 < wholeMax0 && idx1-1 > wholeMin1)
-	    {
-	    ptr += inInc0 - inInc1;
-	    array[icount++] = *ptr;
-	    }
-	  median2 = this->ComputeMedian(array, icount);
-	  
-	  // Compute the median of the three. (med1, med2 and center)
-	  if (median1 > median2)
-	    {
-	    temp = median1;
-	    median1 = median2;
-	    median2 = temp;
-	    }
-	  if (*inPtrC < median1)
-	    {
-	    *outPtrC = median1;
-	    }
-	  else if (*inPtrC < median2)
-	    {
-	    *outPtrC = *inPtrC;
-	    }
-	  else
-	    {
-	    *outPtrC = median2;
-	    }
-	  ++inPtrC;
-	  ++outPtrC;
-	  }
-	inPtr0 += inInc0;
-	outPtr0 += outInc0;
-	}
+        {
+        inPtrC = inPtr0;
+        outPtrC = outPtr0;
+        for (idxC = 0; idxC < numComps; ++idxC)
+          {
+          // compute median of + neighborhood
+          icount = 0;
+          // Center
+          ptr = inPtrC;
+          array[icount++] = *ptr;
+          // left
+          ptr = inPtrC;
+          if (idx0 > wholeMin0)
+            {
+            ptr -= inInc0;
+            array[icount++] = *ptr;
+            }
+          if (idx0 - 1 > wholeMin0)
+            {
+            ptr -= inInc0;
+            array[icount++] = *ptr;
+            }
+          // right
+          ptr = inPtrC;
+          if (idx0 < wholeMax0)
+            {
+            ptr += inInc0;
+            array[icount++] = *ptr;
+            }
+          if (idx0 + 1 < wholeMax0)
+            {
+            ptr += inInc0;
+            array[icount++] = *ptr;
+            }
+          // up
+          ptr = inPtrC;
+          if (idx1 > wholeMin1)
+            {
+            ptr -= inInc1;
+            array[icount++] = *ptr;
+            }
+          if (idx1 - 1 > wholeMin1)
+            {
+            ptr -= inInc1;
+            array[icount++] = *ptr;
+            }
+          // right
+          ptr = inPtrC;
+          if (idx1 < wholeMax1)
+            {
+            ptr += inInc1;
+            array[icount++] = *ptr;
+            }
+          if (idx1 + 1 < wholeMax1)
+            {
+            ptr += inInc1;
+            array[icount++] = *ptr;
+            }
+          median1 = this->ComputeMedian(array, icount);
+          
+          // Cross median
+          icount = 0;
+          // Center
+          array[icount++] = *ptr;
+          // Lower Left
+          ptr = inPtrC;
+          if (idx0 > wholeMin0 && idx1 > wholeMin1)
+            {
+            ptr -= inInc0 + inInc1;
+            array[icount++] = *ptr;
+            }
+          if (idx0-1 > wholeMin0 && idx1-1 > wholeMin1)
+            {
+            ptr -= inInc0 + inInc1;
+            array[icount++] = *ptr;
+            }
+          // Upper Right       
+          ptr = inPtrC;
+          if (idx0 < wholeMax0 && idx1 < wholeMax1)
+            {
+            ptr += inInc0 + inInc1;
+            array[icount++] = *ptr;
+            }
+          if (idx0+1 > wholeMax0 && idx1+1 > wholeMax1)
+            {
+            ptr -= inInc0 + inInc1;
+            array[icount++] = *ptr;
+            }
+          // Upper Left
+          ptr = inPtrC;
+          if (idx0 > wholeMin0 && idx1 < wholeMax1)
+            {
+            ptr += -inInc0 + inInc1;
+            array[icount++] = *ptr;
+            }
+          if (idx0-1 > wholeMin0 && idx1+1 < wholeMax1)
+            {
+            ptr += -inInc0 + inInc1;
+            array[icount++] = *ptr;
+            }
+          // Lower Right
+          ptr = inPtrC;
+          if (idx0 < wholeMax0 && idx1 > wholeMin1)
+            {
+            ptr += inInc0 - inInc1;
+            array[icount++] = *ptr;
+            }
+          if (idx0+1 < wholeMax0 && idx1-1 > wholeMin1)
+            {
+            ptr += inInc0 - inInc1;
+            array[icount++] = *ptr;
+            }
+          median2 = this->ComputeMedian(array, icount);
+          
+          // Compute the median of the three. (med1, med2 and center)
+          if (median1 > median2)
+            {
+            temp = median1;
+            median1 = median2;
+            median2 = temp;
+            }
+          if (*inPtrC < median1)
+            {
+            *outPtrC = median1;
+            }
+          else if (*inPtrC < median2)
+            {
+            *outPtrC = *inPtrC;
+            }
+          else
+            {
+            *outPtrC = median2;
+            }
+          ++inPtrC;
+          ++outPtrC;
+          }
+        inPtr0 += inInc0;
+        outPtr0 += outInc0;
+        }
       inPtr1 += inInc1;
       outPtr1 += outInc1;
       }
@@ -298,12 +298,12 @@ float vtkImageHybridMedian2D::ComputeMedian(float *array, int size)
     for (idx = 1; idx < size; ++idx)
       {
       if (array[idx-1] > array[idx])
-	{
-	flag = 1;
-	temp = array[idx-1];
-	array[idx-1] = array[idx];
-	array[idx] = temp;
-	}
+        {
+        flag = 1;
+        temp = array[idx-1];
+        array[idx-1] = array[idx];
+        array[idx] = temp;
+        }
       }
     }
   

@@ -177,9 +177,9 @@ void vtkImageDataStreamer::UpdateData(vtkDataObject *vtkNotUsed(out))
     if (this->Inputs[idx] != NULL)
       {
       if ( this->Inputs[idx]->ShouldIReleaseData() )
-	{
-	this->Inputs[idx]->ReleaseData();
-	}
+        {
+        this->Inputs[idx]->ReleaseData();
+        }
       }  
     }
   

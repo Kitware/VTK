@@ -67,7 +67,7 @@ public:
   // Set/Get the extent of the whole output Volume.
   void SetWholeExtent(int extent[6]);
   void SetWholeExtent(int minX, int maxX, int minY, int maxY, 
-			    int minZ, int maxZ);
+                            int minZ, int maxZ);
   vtkGetVector6Macro(WholeExtent,int);
   
   // Description:

@@ -163,7 +163,7 @@ void vtkImageShrink3D::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 // This method computes the Region of input necessary to generate outRegion.
 void vtkImageShrink3D::ComputeInputUpdateExtent(int inExt[6], 
-						int outExt[6])
+                                                int outExt[6])
 {
   int idx;
   
@@ -188,7 +188,7 @@ void vtkImageShrink3D::ComputeInputUpdateExtent(int inExt[6],
 // Computes any global image information associated with regions.
 // Any problems with roundoff or negative numbers ???
 void vtkImageShrink3D::ExecuteInformation(vtkImageData *inData, 
-					  vtkImageData *outData)
+                                          vtkImageData *outData)
 {
   int idx;
   int wholeExtent[6];
@@ -203,7 +203,7 @@ void vtkImageShrink3D::ExecuteInformation(vtkImageData *inData,
     // Scale the output extent
     wholeExtent[2*idx] = 
       (int)(ceil((float)(wholeExtent[2*idx] - this->Shift[idx]) 
-		 / (float)(this->ShrinkFactors[idx])));
+                 / (float)(this->ShrinkFactors[idx])));
     wholeExtent[2*idx+1] = (int)(floor(
      (float)(wholeExtent[2*idx+1]-this->Shift[idx]-this->ShrinkFactors[idx]+1)
          / (float)(this->ShrinkFactors[idx])));
@@ -237,9 +237,9 @@ static int compare(const T *y1,const T *y2)
 // The templated execute function handles all the data types.
 template <class T>
 static void vtkImageShrink3DExecute(vtkImageShrink3D *self,
-				    vtkImageData *inData, T *inPtr,
-				    vtkImageData *outData, T *outPtr,
-				    int outExt[6], int id)
+                                    vtkImageData *inData, T *inPtr,
+                                    vtkImageData *outData, T *outPtr,
+                                    int outExt[6], int id)
 {
   int outIdx0, outIdx1, outIdx2, inIdx0, inIdx1, inIdx2;
   int inInc0, inInc1, inInc2;
@@ -270,7 +270,7 @@ static void vtkImageShrink3DExecute(vtkImageShrink3D *self,
   outData->GetContinuousIncrements(outExt,outInc0, outInc1, outInc2);
 
   target = (unsigned long)((outExt[5] - outExt[4] + 1)*
-			   (outExt[3] - outExt[2] + 1)/50.0);
+                           (outExt[3] - outExt[2] + 1)/50.0);
   target++;
 
   maxX = outExt[1] - outExt[0];
@@ -285,50 +285,50 @@ static void vtkImageShrink3DExecute(vtkImageShrink3D *self,
       tmpPtr2 = inPtr + idxC;
       outPtr2 = outPtr + idxC;
       for (outIdx2 = outExt[4]; outIdx2 <= outExt[5]; ++outIdx2)
-	{
-	tmpPtr1 = tmpPtr2;
-	for (outIdx1 = outExt[2]; 
-	     !self->AbortExecute && outIdx1 <= outExt[3]; ++outIdx1)
-	  {
-	  if (!id) 
-	    {
-	    if (!(count%target))
-	      {
-	      self->UpdateProgress(count/(50.0*target));
-	      }
-	    count++;
-	    }
-	  tmpPtr0 = tmpPtr1;
-	  for (outIdx0 = 0; outIdx0 <= maxX; ++outIdx0)
-	    {
-	    sum = 0.0;
-	    // Loop through neighborhood pixels
-	    inPtr2 = tmpPtr0;
-	    for (inIdx2 = 0; inIdx2 < factor2; ++inIdx2)
-	      {
-	      inPtr1 = inPtr2;
-	      for (inIdx1 = 0; inIdx1 < factor1; ++inIdx1)
-		{
-		inPtr0 = inPtr1;
-		for (inIdx0 = 0; inIdx0 < factor0; ++inIdx0)
-		  {
-		  sum += (float)(*inPtr0);
-		  inPtr0 += inInc0;
-		  }
-		inPtr1 += inInc1;
-		}
-	      inPtr2 += inInc2;
-	      }
-	    *outPtr2 = (T)(sum * norm);
-	    tmpPtr0 += tmpInc0;
-	    outPtr2 += maxC;
-	    }
-	  tmpPtr1 += tmpInc1;
-	  outPtr2 += outInc1;
-	  }
-	tmpPtr2 += tmpInc2;
-	outPtr2 += outInc2;
-	}
+        {
+        tmpPtr1 = tmpPtr2;
+        for (outIdx1 = outExt[2]; 
+             !self->AbortExecute && outIdx1 <= outExt[3]; ++outIdx1)
+          {
+          if (!id) 
+            {
+            if (!(count%target))
+              {
+              self->UpdateProgress(count/(50.0*target));
+              }
+            count++;
+            }
+          tmpPtr0 = tmpPtr1;
+          for (outIdx0 = 0; outIdx0 <= maxX; ++outIdx0)
+            {
+            sum = 0.0;
+            // Loop through neighborhood pixels
+            inPtr2 = tmpPtr0;
+            for (inIdx2 = 0; inIdx2 < factor2; ++inIdx2)
+              {
+              inPtr1 = inPtr2;
+              for (inIdx1 = 0; inIdx1 < factor1; ++inIdx1)
+                {
+                inPtr0 = inPtr1;
+                for (inIdx0 = 0; inIdx0 < factor0; ++inIdx0)
+                  {
+                  sum += (float)(*inPtr0);
+                  inPtr0 += inInc0;
+                  }
+                inPtr1 += inInc1;
+                }
+              inPtr2 += inInc2;
+              }
+            *outPtr2 = (T)(sum * norm);
+            tmpPtr0 += tmpInc0;
+            outPtr2 += maxC;
+            }
+          tmpPtr1 += tmpInc1;
+          outPtr2 += outInc1;
+          }
+        tmpPtr2 += tmpInc2;
+        outPtr2 += outInc2;
+        }
       }
     }
   else if (self->GetMinimum())
@@ -340,53 +340,53 @@ static void vtkImageShrink3DExecute(vtkImageShrink3D *self,
       tmpPtr2 = inPtr + idxC;
       outPtr2 = outPtr + idxC;
       for (outIdx2 = outExt[4]; outIdx2 <= outExt[5]; ++outIdx2)
-	{
-	tmpPtr1 = tmpPtr2;
-	for (outIdx1 = outExt[2]; 
-	     !self->AbortExecute && outIdx1 <= outExt[3]; ++outIdx1)
-	  {
-	  if (!id) 
-	    {
-	    if (!(count%target))
-	      {
-	      self->UpdateProgress(count/(50.0*target));
-	      }
-	    count++;
-	    }
-	  tmpPtr0 = tmpPtr1;
-	  for (outIdx0 = 0; outIdx0 <= maxX; ++outIdx0)
-	    {
+        {
+        tmpPtr1 = tmpPtr2;
+        for (outIdx1 = outExt[2]; 
+             !self->AbortExecute && outIdx1 <= outExt[3]; ++outIdx1)
+          {
+          if (!id) 
+            {
+            if (!(count%target))
+              {
+              self->UpdateProgress(count/(50.0*target));
+              }
+            count++;
+            }
+          tmpPtr0 = tmpPtr1;
+          for (outIdx0 = 0; outIdx0 <= maxX; ++outIdx0)
+            {
             minValue = (T) self->GetOutput()->GetScalarTypeMax();
-	    // Loop through neighborhood pixels
-	    inPtr2 = tmpPtr0;
-	    for (inIdx2 = 0; inIdx2 < factor2; ++inIdx2)
-	      {
-	      inPtr1 = inPtr2;
-	      for (inIdx1 = 0; inIdx1 < factor1; ++inIdx1)
-		{
-		inPtr0 = inPtr1;
-		for (inIdx0 = 0; inIdx0 < factor0; ++inIdx0)
-		  {
-		  if (*inPtr0 < minValue)
-		    {
-		    minValue = *inPtr0;
-		    }
-		  inPtr0 += inInc0;
-		  }
-		inPtr1 += inInc1;
-		}
-	      inPtr2 += inInc2;
-	      }
-	    *outPtr2 = minValue;
-	    tmpPtr0 += tmpInc0;
-	    outPtr2 += maxC;
-	    }
-	  tmpPtr1 += tmpInc1;
-	  outPtr2 += outInc1;
-	  }
-	tmpPtr2 += tmpInc2;
-	outPtr2 += outInc2;
-	}
+            // Loop through neighborhood pixels
+            inPtr2 = tmpPtr0;
+            for (inIdx2 = 0; inIdx2 < factor2; ++inIdx2)
+              {
+              inPtr1 = inPtr2;
+              for (inIdx1 = 0; inIdx1 < factor1; ++inIdx1)
+                {
+                inPtr0 = inPtr1;
+                for (inIdx0 = 0; inIdx0 < factor0; ++inIdx0)
+                  {
+                  if (*inPtr0 < minValue)
+                    {
+                    minValue = *inPtr0;
+                    }
+                  inPtr0 += inInc0;
+                  }
+                inPtr1 += inInc1;
+                }
+              inPtr2 += inInc2;
+              }
+            *outPtr2 = minValue;
+            tmpPtr0 += tmpInc0;
+            outPtr2 += maxC;
+            }
+          tmpPtr1 += tmpInc1;
+          outPtr2 += outInc1;
+          }
+        tmpPtr2 += tmpInc2;
+        outPtr2 += outInc2;
+        }
       }
     }
   else if (self->GetMaximum())
@@ -398,53 +398,53 @@ static void vtkImageShrink3DExecute(vtkImageShrink3D *self,
       tmpPtr2 = inPtr + idxC;
       outPtr2 = outPtr + idxC;
       for (outIdx2 = outExt[4]; outIdx2 <= outExt[5]; ++outIdx2)
-	{
-	tmpPtr1 = tmpPtr2;
-	for (outIdx1 = outExt[2]; 
-	     !self->AbortExecute && outIdx1 <= outExt[3]; ++outIdx1)
-	  {
-	  if (!id) 
-	    {
-	    if (!(count%target))
-	      {
-	      self->UpdateProgress(count/(50.0*target));
-	      }
-	    count++;
-	    }
-	  tmpPtr0 = tmpPtr1;
-	  for (outIdx0 = 0; outIdx0 <= maxX; ++outIdx0)
-	    {
+        {
+        tmpPtr1 = tmpPtr2;
+        for (outIdx1 = outExt[2]; 
+             !self->AbortExecute && outIdx1 <= outExt[3]; ++outIdx1)
+          {
+          if (!id) 
+            {
+            if (!(count%target))
+              {
+              self->UpdateProgress(count/(50.0*target));
+              }
+            count++;
+            }
+          tmpPtr0 = tmpPtr1;
+          for (outIdx0 = 0; outIdx0 <= maxX; ++outIdx0)
+            {
             maxValue = (T) self->GetOutput()->GetScalarTypeMin();
-	    // Loop through neighborhood pixels
-	    inPtr2 = tmpPtr0;
-	    for (inIdx2 = 0; inIdx2 < factor2; ++inIdx2)
-	      {
-	      inPtr1 = inPtr2;
-	      for (inIdx1 = 0; inIdx1 < factor1; ++inIdx1)
-		{
-		inPtr0 = inPtr1;
-		for (inIdx0 = 0; inIdx0 < factor0; ++inIdx0)
-		  {
-		  if (*inPtr0 > maxValue)
-		    {
-		    maxValue = *inPtr0;
-		    }
-		  inPtr0 += inInc0;
-		  }
-		inPtr1 += inInc1;
-		}
-	      inPtr2 += inInc2;
-	      }
-	    *outPtr2 = maxValue;
-	    tmpPtr0 += tmpInc0;
-	    outPtr2 += maxC;
-	    }
-	  tmpPtr1 += tmpInc1;
-	  outPtr2 += outInc1;
-	  }
-	tmpPtr2 += tmpInc2;
-	outPtr2 += outInc2;
-	}
+            // Loop through neighborhood pixels
+            inPtr2 = tmpPtr0;
+            for (inIdx2 = 0; inIdx2 < factor2; ++inIdx2)
+              {
+              inPtr1 = inPtr2;
+              for (inIdx1 = 0; inIdx1 < factor1; ++inIdx1)
+                {
+                inPtr0 = inPtr1;
+                for (inIdx0 = 0; inIdx0 < factor0; ++inIdx0)
+                  {
+                  if (*inPtr0 > maxValue)
+                    {
+                    maxValue = *inPtr0;
+                    }
+                  inPtr0 += inInc0;
+                  }
+                inPtr1 += inInc1;
+                }
+              inPtr2 += inInc2;
+              }
+            *outPtr2 = maxValue;
+            tmpPtr0 += tmpInc0;
+            outPtr2 += maxC;
+            }
+          tmpPtr1 += tmpInc1;
+          outPtr2 += outInc1;
+          }
+        tmpPtr2 += tmpInc2;
+        outPtr2 += outInc2;
+        }
       }
     }
   else if (self->GetMedian())
@@ -458,53 +458,53 @@ static void vtkImageShrink3DExecute(vtkImageShrink3D *self,
       tmpPtr2 = inPtr + idxC;
       outPtr2 = outPtr + idxC;
       for (outIdx2 = outExt[4]; outIdx2 <= outExt[5]; ++outIdx2)
-	{
-	tmpPtr1 = tmpPtr2;
-	for (outIdx1 = outExt[2]; 
-	     !self->AbortExecute && outIdx1 <= outExt[3]; ++outIdx1)
-	  {
-	  if (!id) 
-	    {
-	    if (!(count%target))
-	      {
-	      self->UpdateProgress(count/(50.0*target));
-	      }
-	    count++;
-	    }
-	  tmpPtr0 = tmpPtr1;
-	  for (outIdx0 = 0; outIdx0 <= maxX; ++outIdx0)
-	    {
-	    // Loop through neighborhood pixels
-	    inPtr2 = tmpPtr0;
-	    index = 0;
-	    for (inIdx2 = 0; inIdx2 < factor2; ++inIdx2)
-	      {
-	      inPtr1 = inPtr2;
-	      for (inIdx1 = 0; inIdx1 < factor1; ++inIdx1)
-		{
-		inPtr0 = inPtr1;
-		for (inIdx0 = 0; inIdx0 < factor0; ++inIdx0)
-		  {
-		  kernel[index++] = *inPtr0;
+        {
+        tmpPtr1 = tmpPtr2;
+        for (outIdx1 = outExt[2]; 
+             !self->AbortExecute && outIdx1 <= outExt[3]; ++outIdx1)
+          {
+          if (!id) 
+            {
+            if (!(count%target))
+              {
+              self->UpdateProgress(count/(50.0*target));
+              }
+            count++;
+            }
+          tmpPtr0 = tmpPtr1;
+          for (outIdx0 = 0; outIdx0 <= maxX; ++outIdx0)
+            {
+            // Loop through neighborhood pixels
+            inPtr2 = tmpPtr0;
+            index = 0;
+            for (inIdx2 = 0; inIdx2 < factor2; ++inIdx2)
+              {
+              inPtr1 = inPtr2;
+              for (inIdx1 = 0; inIdx1 < factor1; ++inIdx1)
+                {
+                inPtr0 = inPtr1;
+                for (inIdx0 = 0; inIdx0 < factor0; ++inIdx0)
+                  {
+                  kernel[index++] = *inPtr0;
 
-		  inPtr0 += inInc0;
-		  }
-		inPtr1 += inInc1;
-		}
-	      inPtr2 += inInc2;
-	      }
-	    qsort(kernel,index,sizeof(T),compareFn);
-	    *outPtr2 = *(kernel + index/2);
+                  inPtr0 += inInc0;
+                  }
+                inPtr1 += inInc1;
+                }
+              inPtr2 += inInc2;
+              }
+            qsort(kernel,index,sizeof(T),compareFn);
+            *outPtr2 = *(kernel + index/2);
 
-	    tmpPtr0 += tmpInc0;
-	    outPtr2 += maxC;
-	    }
-	  tmpPtr1 += tmpInc1;
-	  outPtr2 += outInc1;
-	  }
-	tmpPtr2 += tmpInc2;
-	outPtr2 += outInc2;
-	}
+            tmpPtr0 += tmpInc0;
+            outPtr2 += maxC;
+            }
+          tmpPtr1 += tmpInc1;
+          outPtr2 += outInc1;
+          }
+        tmpPtr2 += tmpInc2;
+        outPtr2 += outInc2;
+        }
       }
     delete [] kernel;
     }
@@ -516,33 +516,33 @@ static void vtkImageShrink3DExecute(vtkImageShrink3D *self,
       tmpPtr2 = inPtr + idxC;
       outPtr2 = outPtr + idxC;
       for (outIdx2 = outExt[4]; outIdx2 <= outExt[5]; ++outIdx2)
-	{
-	tmpPtr1 = tmpPtr2;
-	for (outIdx1 = outExt[2]; 
-	     !self->AbortExecute && outIdx1 <= outExt[3]; ++outIdx1)
-	  {
-	  if (!id) 
-	    {
-	    if (!(count%target))
-	      {
-	      self->UpdateProgress(count/(50.0*target));
-	      }
-	    count++;
-	    }
-	  tmpPtr0 = tmpPtr1;
-	  for (outIdx0 = 0; outIdx0 <= maxX; ++outIdx0)
-	    {
-	    *outPtr2 = *tmpPtr0;
+        {
+        tmpPtr1 = tmpPtr2;
+        for (outIdx1 = outExt[2]; 
+             !self->AbortExecute && outIdx1 <= outExt[3]; ++outIdx1)
+          {
+          if (!id) 
+            {
+            if (!(count%target))
+              {
+              self->UpdateProgress(count/(50.0*target));
+              }
+            count++;
+            }
+          tmpPtr0 = tmpPtr1;
+          for (outIdx0 = 0; outIdx0 <= maxX; ++outIdx0)
+            {
+            *outPtr2 = *tmpPtr0;
 
-	    tmpPtr0 += tmpInc0;
-	    outPtr2 += maxC;
-	    }
-	  tmpPtr1 += tmpInc1;
-	  outPtr2 += outInc1;
-	  }
-	tmpPtr2 += tmpInc2;
-	outPtr2 += outInc2;
-	}
+            tmpPtr0 += tmpInc0;
+            outPtr2 += maxC;
+            }
+          tmpPtr1 += tmpInc1;
+          outPtr2 += outInc1;
+          }
+        tmpPtr2 += tmpInc2;
+        outPtr2 += outInc2;
+        }
       }
     }
 }
@@ -553,8 +553,8 @@ static void vtkImageShrink3DExecute(vtkImageShrink3D *self,
 // It can handle any type data, but the two datas must have the same 
 // data type.
 void vtkImageShrink3D::ThreadedExecute(vtkImageData *inData, 
-				       vtkImageData *outData,
-				       int outExt[6], int id)
+                                       vtkImageData *outData,
+                                       int outExt[6], int id)
 {
   int inExt[6];
   void *outPtr = outData->GetScalarPointerForExtent(outExt);

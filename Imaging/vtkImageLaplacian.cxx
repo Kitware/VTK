@@ -82,7 +82,7 @@ void vtkImageLaplacian::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 // Just clip the request.  The subclass may need to overwrite this method.
 void vtkImageLaplacian::ComputeInputUpdateExtent(int inExt[6], 
-						 int outExt[6])
+                                                 int outExt[6])
 {
   int idx;
   int *wholeExtent;
@@ -122,9 +122,9 @@ void vtkImageLaplacian::ComputeInputUpdateExtent(int inExt[6],
 // out of extent.
 template <class T>
 static void vtkImageLaplacianExecute(vtkImageLaplacian *self,
-				      vtkImageData *inData, T *inPtr,
-				      vtkImageData *outData, T *outPtr,
-				      int outExt[6], int id)
+                                      vtkImageData *inData, T *inPtr,
+                                      vtkImageData *outData, T *outPtr,
+                                      int outExt[6], int id)
 {
   int idxC, idxX, idxY, idxZ;
   int maxC, maxX, maxY, maxZ;
@@ -171,45 +171,45 @@ static void vtkImageLaplacianExecute(vtkImageLaplacian *self,
     for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
       {
       if (!id) 
-	{
-	if (!(count%target))
-	  {
-	  self->UpdateProgress(count/(50.0*target));
-	  }
-	count++;
-	}
+        {
+        if (!(count%target))
+          {
+          self->UpdateProgress(count/(50.0*target));
+          }
+        count++;
+        }
       useYMin = ((idxY + outExt[2]) <= wholeExtent[2]) ? 0 : -inIncs[1];
       useYMax = ((idxY + outExt[2]) >= wholeExtent[3]) ? 0 : inIncs[1];
       for (idxX = 0; idxX <= maxX; idxX++)
-	{
-	useXMin = ((idxX + outExt[0]) <= wholeExtent[0]) ? 0 : -inIncs[0];
-	useXMax = ((idxX + outExt[0]) >= wholeExtent[1]) ? 0 : inIncs[0];
-	for (idxC = 0; idxC < maxC; idxC++)
-	  {
-	  // do X axis
-	  d = -2.0*(*inPtr);
-	  d += (float)(inPtr[useXMin]);
-	  d += (float)(inPtr[useXMax]);
-	  sum = d * r[0];
+        {
+        useXMin = ((idxX + outExt[0]) <= wholeExtent[0]) ? 0 : -inIncs[0];
+        useXMax = ((idxX + outExt[0]) >= wholeExtent[1]) ? 0 : inIncs[0];
+        for (idxC = 0; idxC < maxC; idxC++)
+          {
+          // do X axis
+          d = -2.0*(*inPtr);
+          d += (float)(inPtr[useXMin]);
+          d += (float)(inPtr[useXMax]);
+          sum = d * r[0];
 
-	  // do y axis
-	  d = -2.0*(*inPtr);
-	  d += (float)(inPtr[useYMin]);
-	  d += (float)(inPtr[useYMax]);
-	  sum = sum + d * r[1];
-	  if (axesNum == 3)
-	    {
-	    // do z axis
-	    d = -2.0*(*inPtr);
-	    d += (float)(inPtr[useZMin]);
-	    d += (float)(inPtr[useZMax]);
-	    sum = sum + d * r[2];
-	    }
-	  *outPtr = (T)sum;
-	  inPtr++;
-	  outPtr++;
-	  }
-	}
+          // do y axis
+          d = -2.0*(*inPtr);
+          d += (float)(inPtr[useYMin]);
+          d += (float)(inPtr[useYMax]);
+          sum = sum + d * r[1];
+          if (axesNum == 3)
+            {
+            // do z axis
+            d = -2.0*(*inPtr);
+            d += (float)(inPtr[useZMin]);
+            d += (float)(inPtr[useZMax]);
+            sum = sum + d * r[2];
+            }
+          *outPtr = (T)sum;
+          inPtr++;
+          outPtr++;
+          }
+        }
       outPtr += outIncY;
       inPtr += inIncY;
       }
@@ -224,8 +224,8 @@ static void vtkImageLaplacianExecute(vtkImageLaplacian *self,
 // templated function for the input data type.  The output data
 // must match input type.  This method does handle boundary conditions.
 void vtkImageLaplacian::ThreadedExecute(vtkImageData *inData, 
-					vtkImageData *outData,
-					   int outExt[6], int id)
+                                        vtkImageData *outData,
+                                           int outExt[6], int id)
 {
   void *inPtr = inData->GetScalarPointerForExtent(outExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);

@@ -66,7 +66,7 @@ vtkImageNormalize* vtkImageNormalize::New()
 //----------------------------------------------------------------------------
 // This method tells the superclass that the first axis will collapse.
 void vtkImageNormalize::ExecuteInformation(vtkImageData *vtkNotUsed(inData), 
-					   vtkImageData *outData)
+                                           vtkImageData *outData)
 {
   outData->SetScalarType(VTK_FLOAT);
 }
@@ -77,9 +77,9 @@ void vtkImageNormalize::ExecuteInformation(vtkImageData *vtkNotUsed(inData),
 // out of extent.
 template <class T>
 static void vtkImageNormalizeExecute(vtkImageNormalize *self,
-				     vtkImageData *inData, T *inPtr,
-				     vtkImageData *outData, float *outPtr,
-				     int outExt[6], int id)
+                                     vtkImageData *inData, T *inPtr,
+                                     vtkImageData *outData, float *outPtr,
+                                     int outExt[6], int id)
 {
   int idxC, idxX, idxY, idxZ;
   int maxC, maxX, maxY, maxZ;
@@ -108,40 +108,40 @@ static void vtkImageNormalizeExecute(vtkImageNormalize *self,
     for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
       {
       if (!id) 
-	{
-	if (!(count%target))
-	  {
-	  self->UpdateProgress(count/(50.0*target));
-	  }
-	count++;
-	}
+        {
+        if (!(count%target))
+          {
+          self->UpdateProgress(count/(50.0*target));
+          }
+        count++;
+        }
       for (idxX = 0; idxX <= maxX; idxX++)
-	{
+        {
 
-	// save the start of the vector
-	inVect = inPtr;
+        // save the start of the vector
+        inVect = inPtr;
 
-	// compute the magnitude.
-	sum = 0.0;
-	for (idxC = 0; idxC < maxC; idxC++)
-	  {
-	  sum += (float)(*inPtr) * (float)(*inPtr);
-	  inPtr++;
-	  }
-	if (sum > 0.0)
-	  {
-	  sum = 1.0 / sqrt(sum);
-	  }
-	
-	// now divide to normalize.
-	for (idxC = 0; idxC < maxC; idxC++)
-	  {
-	  *outPtr = (float)(*inVect) * sum;
-	  inVect++;
-	  outPtr++;
-	  }
+        // compute the magnitude.
+        sum = 0.0;
+        for (idxC = 0; idxC < maxC; idxC++)
+          {
+          sum += (float)(*inPtr) * (float)(*inPtr);
+          inPtr++;
+          }
+        if (sum > 0.0)
+          {
+          sum = 1.0 / sqrt(sum);
+          }
+        
+        // now divide to normalize.
+        for (idxC = 0; idxC < maxC; idxC++)
+          {
+          *outPtr = (float)(*inVect) * sum;
+          inVect++;
+          outPtr++;
+          }
 
-	}
+        }
       outPtr += outIncY;
       inPtr += inIncY;
       }
@@ -156,8 +156,8 @@ static void vtkImageNormalizeExecute(vtkImageNormalize *self,
 // templated function for the input data type.  The output data
 // must match input type.  This method does handle boundary conditions.
 void vtkImageNormalize::ThreadedExecute(vtkImageData *inData, 
-					vtkImageData *outData,
-					int outExt[6], int id)
+                                        vtkImageData *outData,
+                                        int outExt[6], int id)
 {
   void *inPtr = inData->GetScalarPointerForExtent(outExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);

@@ -72,7 +72,7 @@ vtkImageFlip::vtkImageFlip()
 //----------------------------------------------------------------------------
 // Image extent is modified by this filter.
 void vtkImageFlip::ExecuteInformation(vtkImageData *inData, 
-				      vtkImageData *outData)
+                                      vtkImageData *outData)
 {
   int extent[6];
   int axis, temp;
@@ -90,7 +90,7 @@ void vtkImageFlip::ExecuteInformation(vtkImageData *inData,
 //----------------------------------------------------------------------------
 // What input should be requested.
 void vtkImageFlip::ComputeInputUpdateExtent(int inExt[6], 
-					    int outExt[6])
+                                            int outExt[6])
 {
   int axis, sum;
   int *wholeExtent;
@@ -118,8 +118,8 @@ void vtkImageFlip::ComputeInputUpdateExtent(int inExt[6],
 // This templated function executes the filter for any type of data.
 template <class T>
 static void vtkImageFlipExecute(vtkImageFlip *self, int id,
-				vtkImageData *inData, int *inExt,
-				vtkImageData *outData, int *outExt, T *outPtr)
+                                vtkImageData *inData, int *inExt,
+                                vtkImageData *outData, int *outExt, T *outPtr)
 {
   int idxX, idxY, idxZ;
   int maxX, maxY, maxZ;
@@ -177,21 +177,21 @@ static void vtkImageFlipExecute(vtkImageFlip *self, int id,
       {
       // handle updating progress method
       if (!id) 
-	{
-	if (!(count%target))
-	  {
-	  self->UpdateProgress(count/(50.0*target));
-	  }
-	count++;
-	}
+        {
+        if (!(count%target))
+          {
+          self->UpdateProgress(count/(50.0*target));
+          }
+        count++;
+        }
       inPtrX = inPtrY;
       for (idxX = 0; idxX <= maxX; idxX++)
-	{
-	// Pixel operation
-	memcpy((void *)outPtr, (void *)inPtrX, scalarSize);
-	outPtr += outIncX;
-	inPtrX += inIncX;
-	}
+        {
+        // Pixel operation
+        memcpy((void *)outPtr, (void *)inPtrX, scalarSize);
+        outPtr += outIncX;
+        inPtrX += inIncX;
+        }
       outPtr += outSkipY;
       inPtrY += inIncY;
       }
@@ -208,8 +208,8 @@ static void vtkImageFlipExecute(vtkImageFlip *self, int id,
 // It just executes a switch statement to call the correct function for
 // the regions data types.
 void vtkImageFlip::ThreadedExecute(vtkImageData *inData, 
-				   vtkImageData *outData,
-				   int outExt[6], int id) 
+                                   vtkImageData *outData,
+                                   int outExt[6], int id) 
 {
   int inExt[6];
   void *outPtr;

@@ -54,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //BTX
 /*******************************************************************
-			COMPLEX number stuff
+                        COMPLEX number stuff
 *******************************************************************/
 
 
@@ -140,11 +140,11 @@ protected:
 
   //BTX
   void ExecuteFftStep2(vtkImageComplex *p_in, vtkImageComplex *p_out, 
-		       int N, int bsize, int fb);
+                       int N, int bsize, int fb);
   void ExecuteFftStepN(vtkImageComplex *p_in, vtkImageComplex *p_out,
-		       int N, int bsize, int n, int fb);
+                       int N, int bsize, int n, int fb);
   void ExecuteFftForwardBackward(vtkImageComplex *in, vtkImageComplex *out, 
-				 int N, int fb);
+                                 int N, int fb);
   //ETX
 private:
   vtkImageFourierFilter(const vtkImageFourierFilter&);  // Not implemented.

@@ -121,9 +121,9 @@ public:
                    VTK_IMAGE_BLEND_MODE_COMPOUND );
   vtkGetMacro(BlendMode,int);
   void SetBlendModeToNormal() 
-	{this->SetBlendMode(VTK_IMAGE_BLEND_MODE_NORMAL);};
+        {this->SetBlendMode(VTK_IMAGE_BLEND_MODE_NORMAL);};
   void SetBlendModeToCompound() 
-	{this->SetBlendMode(VTK_IMAGE_BLEND_MODE_COMPOUND);};
+        {this->SetBlendMode(VTK_IMAGE_BLEND_MODE_COMPOUND);};
   const char *GetBlendModeAsString(void);
 
   // Description:
@@ -137,7 +137,7 @@ protected:
   ~vtkImageBlend();
 
   void ComputeInputUpdateExtent(int inExt[6], int outExt[6],
-				int whichInput);
+                                int whichInput);
 
   void ExecuteInformation() {
     this->vtkImageMultipleInputFilter::ExecuteInformation(); };
@@ -146,7 +146,7 @@ protected:
 
   void ThreadedExecute(vtkImageData **inDatas, 
                        vtkImageData *outData,
-		       int extent[6], 
+                       int extent[6], 
                        int id);
 
   void ExecuteData(vtkDataObject *output);

@@ -191,103 +191,103 @@ static void vtkcopygenesisimage(FILE *infp, int width, int height,
       unsigned short end;
       
       if (compress == 2 || compress == 4) 
-	{ // packed/compacked
-	  start=map_left[row];
-	  end=start+map_wide[row];
-	}
+        { // packed/compacked
+          start=map_left[row];
+          end=start+map_wide[row];
+        }
       else 
-	{
-	  start=0;
-	  end=width;
-	}
+        {
+          start=0;
+          end=width;
+        }
       // Pad the first "empty" part of the line ...
       for (j=0; j<start; j++) 
-	{
-	  (*output) = 0;
-	  ++output;
-	}
+        {
+          (*output) = 0;
+          ++output;
+        }
 
       if (compress == 3 || compress == 4) 
-	{ // compressed/compacked
-	  while (start<end) 
-	    {
-	      unsigned char byte;
-	      if (!fread(&byte,1,1,infp))
-		{
-		  return;
-		}
-	      if (byte & 0x80) 
-		{
-		  unsigned char byte2;
-		  if (!fread(&byte2,1,1,infp))
-		    {
-		      return;
-		    }
-		  if (byte & 0x40) 
-		    {      // next word
-		      if (!fread(&byte,1,1,infp))
-			{
-			  return;
-			}
-		      last_pixel=
-			(((unsigned short)byte2<<8)+byte);
-		    }
-		  else 
-		    {                  // 14 bit delta
-		      if (byte & 0x20) 
-			{
-			  byte|=0xe0;
-			}
-		      else 
-			{
-			  byte&=0x1f;
-			}
-		      last_pixel+=
-			(((short)byte<<8)+byte2);
-		    }
-		}
-	      else 
-		{                          // 7 bit delta
-		  if (byte & 0x40) 
-		    {
-		      byte|=0xc0;
-		    }
-		  last_pixel+=(signed char)byte;
-		}
-	      (*output) = last_pixel;
-	      ++output;
-	      ++start;
-	    }
-	}
+        { // compressed/compacked
+          while (start<end) 
+            {
+              unsigned char byte;
+              if (!fread(&byte,1,1,infp))
+                {
+                  return;
+                }
+              if (byte & 0x80) 
+                {
+                  unsigned char byte2;
+                  if (!fread(&byte2,1,1,infp))
+                    {
+                      return;
+                    }
+                  if (byte & 0x40) 
+                    {      // next word
+                      if (!fread(&byte,1,1,infp))
+                        {
+                          return;
+                        }
+                      last_pixel=
+                        (((unsigned short)byte2<<8)+byte);
+                    }
+                  else 
+                    {                  // 14 bit delta
+                      if (byte & 0x20) 
+                        {
+                          byte|=0xe0;
+                        }
+                      else 
+                        {
+                          byte&=0x1f;
+                        }
+                      last_pixel+=
+                        (((short)byte<<8)+byte2);
+                    }
+                }
+              else 
+                {                          // 7 bit delta
+                  if (byte & 0x40) 
+                    {
+                      byte|=0xc0;
+                    }
+                  last_pixel+=(signed char)byte;
+                }
+              (*output) = last_pixel;
+              ++output;
+              ++start;
+            }
+        }
       else 
-	{
-	  while (start<end) 
-	    {
-	      unsigned short u;
-	      if (!fread(&u,2,1,infp))
-		{
-		  return;
-		}
-	      vtkByteSwap::Swap2BE(&u);
-	      (*output) = u;
-	      ++output;
-	      ++start;
-	    }
-	}
+        {
+          while (start<end) 
+            {
+              unsigned short u;
+              if (!fread(&u,2,1,infp))
+                {
+                  return;
+                }
+              vtkByteSwap::Swap2BE(&u);
+              (*output) = u;
+              ++output;
+              ++start;
+            }
+        }
       
       // Pad the last "empty" part of the line ...
       for (j=end; j<width; j++) 
-	{
-	  (*output) = 0;
-	  ++output;
-	}
+        {
+          (*output) = 0;
+          ++output;
+        }
     }
 }
 
 
 static void vtkGESignaReaderUpdate2(vtkGESignaReader *self, 
-				    unsigned short *outPtr, int *outExt, 
-				    int *outInc)
+                                    unsigned short *outPtr, int *outExt, 
+                                    int *outInc)
 {
   FILE *fp = fopen(self->GetInternalFileName(), "rb");
   if (!fp)
@@ -342,12 +342,12 @@ static void vtkGESignaReaderUpdate2(vtkGESignaReader *self,
       // read in the maps
       int i;
       for (i = 0; i < height; i++)
-	{
-	  fread(leftMap+i, 2, 1, fp);
-	  vtkByteSwap::Swap2BE(leftMap+i);
-	  fread(widthMap+i, 2, 1, fp);
-	  vtkByteSwap::Swap2BE(widthMap+i);
-	}
+        {
+          fread(leftMap+i, 2, 1, fp);
+          vtkByteSwap::Swap2BE(leftMap+i);
+          fread(widthMap+i, 2, 1, fp);
+          vtkByteSwap::Swap2BE(widthMap+i);
+        }
     }
 
   // seek to pixel data
@@ -384,7 +384,7 @@ static void vtkGESignaReaderUpdate2(vtkGESignaReader *self,
 // This function reads in one data of data.
 // templated to handle different data types.
 static void vtkGESignaReaderUpdate(vtkGESignaReader *self, vtkImageData *data, 
-				   unsigned short *outPtr)
+                                   unsigned short *outPtr)
 {
   int outIncr[3];
   int outExtent[6];

@@ -75,9 +75,9 @@ vtkImageConstantPad::vtkImageConstantPad()
 // This templated function executes the filter for any type of data.
 template <class T>
 static void vtkImageConstantPadExecute(vtkImageConstantPad *self,
-				       vtkImageData *inData, T *inPtr,
-				       vtkImageData *outData, T *outPtr,
-				       int outExt[6], int inExt[6], int id)
+                                       vtkImageData *inData, T *inPtr,
+                                       vtkImageData *outData, T *outPtr,
+                                       int outExt[6], int inExt[6], int id)
 {
   int idxC, idxX, idxY, idxZ;
   int maxC, maxX, maxY, maxZ;
@@ -112,59 +112,59 @@ static void vtkImageConstantPadExecute(vtkImageConstantPad *self,
     for (idxY = outExt[2]; !self->AbortExecute && idxY <= outExt[3]; idxY++)
       {
       if (!id) 
-	{
-	if (!(count%target))
-	  {
-	  self->UpdateProgress(count/(50.0*target));
-	  }
-	count++;
-	}
+        {
+        if (!(count%target))
+          {
+          self->UpdateProgress(count/(50.0*target));
+          }
+        count++;
+        }
       state2 = (state3 || idxY < inExt[2] || idxY > inExt[3]);
       if ((maxC == inMaxC) && (maxC == 1))
-	{
-	for (idxX = 0; idxX <= maxX; idxX++)
-	  {
-	  state1 = (state2 || idxX < inMinX || idxX > inMaxX);
-	  if (state1)
-	    {
-	    *outPtr = constant;
-	    }
-	  else
-	    {
-	    *outPtr = *inPtr;
-	    inPtr++;
-	    }
-	  outPtr++;
-	  }
-	}
+        {
+        for (idxX = 0; idxX <= maxX; idxX++)
+          {
+          state1 = (state2 || idxX < inMinX || idxX > inMaxX);
+          if (state1)
+            {
+            *outPtr = constant;
+            }
+          else
+            {
+            *outPtr = *inPtr;
+            inPtr++;
+            }
+          outPtr++;
+          }
+        }
       else
-	{
-	for (idxX = 0; idxX <= maxX; idxX++)
-	  {
-	  state1 = (state2 || idxX < inMinX || idxX > inMaxX);
-	  for (idxC = 0; idxC < maxC; idxC++)
-	    {
-	    // Pixel operation
-	    // Copy Pixel
-	    state0 = (state1 || idxC >= inMaxC);
-	    if (state0)
-	      {
-	      *outPtr = constant;
-	      }
-	    else
-	      {
-	      *outPtr = *inPtr;
-	      inPtr++;
-	      }
-	    outPtr++;
-	    }
-	  }
-	}
+        {
+        for (idxX = 0; idxX <= maxX; idxX++)
+          {
+          state1 = (state2 || idxX < inMinX || idxX > inMaxX);
+          for (idxC = 0; idxC < maxC; idxC++)
+            {
+            // Pixel operation
+            // Copy Pixel
+            state0 = (state1 || idxC >= inMaxC);
+            if (state0)
+              {
+              *outPtr = constant;
+              }
+            else
+              {
+              *outPtr = *inPtr;
+              inPtr++;
+              }
+            outPtr++;
+            }
+          }
+        }
       outPtr += outIncY;
       if (!state2)
-	{
-	inPtr += inIncY;
-	}
+        {
+        inPtr += inIncY;
+        }
       }
     outPtr += outIncZ;
     if (!state3)
@@ -181,8 +181,8 @@ static void vtkImageConstantPadExecute(vtkImageConstantPad *self,
 // It just executes a switch statement to call the correct function for
 // the datas data types.
 void vtkImageConstantPad::ThreadedExecute(vtkImageData *inData, 
-					vtkImageData *outData,
-					int outExt[6], int id)
+                                        vtkImageData *outData,
+                                        int outExt[6], int id)
 {
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
   

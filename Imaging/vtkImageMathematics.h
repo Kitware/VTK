@@ -126,7 +126,7 @@ protected:
   void ExecuteInformation(vtkImageData **inDatas, vtkImageData *outData);
   void ExecuteInformation(){this->vtkImageTwoInputFilter::ExecuteInformation();};
   void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
-		       int extent[6], int id);
+                       int extent[6], int id);
 private:
   vtkImageMathematics(const vtkImageMathematics&);  // Not implemented.
   void operator=(const vtkImageMathematics&);  // Not implemented.

@@ -61,10 +61,10 @@ vtkDEMReader* vtkDEMReader::New()
 
 
 
-#define VTK_SW	0
-#define VTK_NW	1
-#define VTK_NE	2
-#define VTK_SE	3
+#define VTK_SW  0
+#define VTK_NW  1
+#define VTK_NE  2
+#define VTK_SE  3
 #define VTK_METERS_PER_FEET .305
 #define VTK_METERS_PER_ARC_SECOND 23.111
 
@@ -228,10 +228,10 @@ int vtkDEMReader::ReadTypeARecord ()
   current += 144;
 
   sscanf(current, "%6d%6d%6d%6d",
-		 &this->DEMLevel,
-		 &this->ElevationPattern,
-		 &this->GroundSystem,
-		 &this->GroundZone);
+                 &this->DEMLevel,
+                 &this->ElevationPattern,
+                 &this->GroundSystem,
+                 &this->GroundZone);
   current += 24;
   sscanf(current, "%24g%24g%24g%24g%24g%24g%24g%24g%24g%24g%24g%24g%24g%24g%24g",
    &this->ProjectionParameters[0],
@@ -299,8 +299,8 @@ int vtkDEMReader::ReadTypeARecord ()
 }
 
 void vtkDEMReader::ComputeExtentOriginAndSpacing (int extent[6],
-						  float origin[3],
-						  float spacing[3])
+                                                  float origin[3],
+                                                  float spacing[3])
 {
   float eastMost, westMost, northMost, southMost;
   float planeConversion;
@@ -441,10 +441,10 @@ int vtkDEMReader::ReadProfiles (vtkImageData *data)
     // read four int's
     //
     status = fscanf (fp, "%6d%6d%6d%6d",
-		   &profileId[0],	/* 1 */
-		   &profileId[1],	/* 1 */
-		   &profileSize[0],	/* 2 */
-		   &profileSize[1]);	/* 2 */
+                   &profileId[0],       /* 1 */
+                   &profileId[1],       /* 1 */
+                   &profileSize[0],     /* 2 */
+                   &profileSize[1]);    /* 2 */
     if (status == EOF)
       {
       break;
@@ -461,11 +461,11 @@ int vtkDEMReader::ReadProfiles (vtkImageData *data)
     ConvertDNotationToENotation (record);
 
     sscanf(record, "%24g%24g%24g%24g%24g",
-		   &planCoords[0],	/* 3 */
-		   &planCoords[1],	/* 3 */
-		   &localElevation,	/* 4 */
-		   &elevationExtrema[0],	/* 5 */
-		   &elevationExtrema[1]);	/* 5 */
+                   &planCoords[0],      /* 3 */
+                   &planCoords[1],      /* 3 */
+                   &localElevation,     /* 4 */
+                   &elevationExtrema[0],        /* 5 */
+                   &elevationExtrema[1]);       /* 5 */
 
     rowId = profileId[0] - 1;
     columnId = profileId[1] - 1;
@@ -476,9 +476,9 @@ int vtkDEMReader::ReadProfiles (vtkImageData *data)
       {
       this->UpdateProgress ((float) column / ((float) columnCount - 1));
       if (this->GetAbortExecute())
-	{
-	break;
-	}
+        {
+        break;
+        }
       }
     // read a column
     for (row = rowId; row <= lastRow; row++)

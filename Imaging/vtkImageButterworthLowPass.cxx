@@ -109,8 +109,8 @@ void vtkImageButterworthLowPass::SetZCutOff(float cutOff)
 
 //----------------------------------------------------------------------------
 void vtkImageButterworthLowPass::ThreadedExecute(vtkImageData *inData, 
-						 vtkImageData *outData,
-						 int ext[6], int id)
+                                                 vtkImageData *outData,
+                                                 int ext[6], int id)
 {
   int idx0, idx1, idx2;
   int min0, max0;
@@ -131,7 +131,7 @@ void vtkImageButterworthLowPass::ThreadedExecute(vtkImageData *inData,
   if (inData->GetNumberOfScalarComponents() != 2)
     {
     vtkErrorMacro("Expecting 2 components not " 
-		  << inData->GetNumberOfScalarComponents());
+                  << inData->GetNumberOfScalarComponents());
     return;
     }
   if (inData->GetScalarType() != VTK_FLOAT || 
@@ -199,53 +199,53 @@ void vtkImageButterworthLowPass::ThreadedExecute(vtkImageData *inData,
     for (idx1 = ext[2]; !this->AbortExecute && idx1 <= ext[3]; ++idx1)
       {
       if (!id) 
-	{
-	if (!(count%target))
-	  {
-	  this->UpdateProgress(count/(50.0*target));
-	  }
-	count++;
-	}
+        {
+        if (!(count%target))
+          {
+          this->UpdateProgress(count/(50.0*target));
+          }
+        count++;
+        }
       // distance to min (this axis' contribution)
       temp1 = (float)idx1;
       // Wrap back to 0.
       if (temp1 > mid1)
-	{
-	temp1 = mid1 + mid1 - temp1;
-	}
+        {
+        temp1 = mid1 + mid1 - temp1;
+        }
       // Convert location into cycles / world unit
       temp1 = temp1 * norm1;
       sum1 = temp2 * temp2 + temp1 * temp1;
       
       for (idx0 = min0; idx0 <= max0; ++idx0)
-	{
-	// distance to min (this axis' contribution)
-	temp0 = (float)idx0;
-	// Wrap back to 0.
-	if (temp0 > mid0)
-	  {
-	  temp0 = mid0 + mid0 - temp0;
-	  }
-	// Convert location into cycles / world unit
-	temp0 = temp0 * norm0;
-	sum0 = sum1 + temp0 * temp0;
-	
-	// compute Butterworth1D function from sum = d^2
-	if (this->Order == 1)
-	  {
-	  sum0 = 1.0 / (1.0 + sum0);
-	  }
-	else
-	  {
-	  sum0 = 1.0 / (1.0 + pow(sum0, (float)this->Order));
-	  }	
-	
-	// real component
-	*outPtr++ = *inPtr++ * sum0;
-	// imaginary component	
-	*outPtr++ = *inPtr++ * sum0;
-	
-	}
+        {
+        // distance to min (this axis' contribution)
+        temp0 = (float)idx0;
+        // Wrap back to 0.
+        if (temp0 > mid0)
+          {
+          temp0 = mid0 + mid0 - temp0;
+          }
+        // Convert location into cycles / world unit
+        temp0 = temp0 * norm0;
+        sum0 = sum1 + temp0 * temp0;
+        
+        // compute Butterworth1D function from sum = d^2
+        if (this->Order == 1)
+          {
+          sum0 = 1.0 / (1.0 + sum0);
+          }
+        else
+          {
+          sum0 = 1.0 / (1.0 + pow(sum0, (float)this->Order));
+          }     
+        
+        // real component
+        *outPtr++ = *inPtr++ * sum0;
+        // imaginary component  
+        *outPtr++ = *inPtr++ * sum0;
+        
+        }
       inPtr += inInc1;
       outPtr += outInc1;
       }

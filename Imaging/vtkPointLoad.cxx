@@ -182,7 +182,7 @@ void vtkPointLoad::Execute()
           {
           vtkWarningMacro(<<"Attempting to set singularity, resetting");
           tensor[0] = VTK_LARGE_FLOAT; // Component(0,0)
-	  tensor[4] = VTK_LARGE_FLOAT; // Component(1,1);
+          tensor[4] = VTK_LARGE_FLOAT; // Component(1,1);
           tensor[8] = VTK_LARGE_FLOAT; // Component(2,2);
           tensor[3] = 0.0; // Component(0,1);
           tensor[6] = 0.0; // Component(0,2);
@@ -192,10 +192,10 @@ void vtkPointLoad::Execute()
           tensor[5] = 0.0; // Component(2,1);
           newTensors->InsertNextTuple(tensor);
           if ( this->ComputeEffectiveStress )
-	    {
-	    float val = VTK_LARGE_FLOAT;
+            {
+            float val = VTK_LARGE_FLOAT;
             newScalars->InsertNextTuple(&val);
-	    }
+            }
           continue;
           }
 
@@ -228,7 +228,7 @@ void vtkPointLoad::Execute()
         tensor[4] = sy;  // Component(1,1);
         tensor[8] = sz;  // Component(2,2);
         tensor[3] = txy; // Component(0,1);  real symmetric matrix
-	tensor[1] = txy; // Component(1,0);
+        tensor[1] = txy; // Component(1,0);
         tensor[6] = txz; // Component(0,2);
         tensor[2] = txz; // Component(2,0);
         tensor[7] = tyz; // Component(1,2);

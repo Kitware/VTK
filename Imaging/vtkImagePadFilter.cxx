@@ -100,8 +100,8 @@ void vtkImagePadFilter::SetOutputWholeExtent(int extent[6])
 }
 //----------------------------------------------------------------------------
 void vtkImagePadFilter::SetOutputWholeExtent(int minX, int maxX, 
-					     int minY, int maxY,
-					     int minZ, int maxZ)
+                                             int minY, int maxY,
+                                             int minZ, int maxZ)
 {
   int extent[6];
   
@@ -127,7 +127,7 @@ void vtkImagePadFilter::GetOutputWholeExtent(int extent[6])
 //----------------------------------------------------------------------------
 // Just change the Image extent.
 void vtkImagePadFilter::ExecuteInformation(vtkImageData *inData, 
-					   vtkImageData *outData)
+                                           vtkImageData *outData)
 {
   if (this->OutputWholeExtent[0] > this->OutputWholeExtent[1])
     {
@@ -148,7 +148,7 @@ void vtkImagePadFilter::ExecuteInformation(vtkImageData *inData,
 //----------------------------------------------------------------------------
 // Just clip the request.  The subclass may need to overwrite this method.
 void vtkImagePadFilter::ComputeInputUpdateExtent(int inExt[6], 
-						 int outExt[6])
+                                                 int outExt[6])
 {
   int idx;
   int *wholeExtent;

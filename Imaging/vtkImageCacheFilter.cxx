@@ -94,8 +94,8 @@ void vtkImageCacheFilter::PrintSelf(ostream& os, vtkIndent indent)
       {
       ext = this->Data[idx]->GetExtent();
       os << i2 << idx << ": (" << this->Times[idx] 
-	 << ") " << ext[0] << ", " << ext[1] << ", " << ext[2] << ", " 
-	 << ext[3] << ", " << ext[4] << ", " << ext[5] << endl;
+         << ") " << ext[0] << ", " << ext[1] << ", " << ext[2] << ", " 
+         << ext[3] << ", " << ext[4] << ", " << ext[5] << endl;
       }
     }
 }
@@ -184,17 +184,17 @@ void vtkImageCacheFilter::UpdateData(vtkDataObject *outObject)
       {
       ext = this->Data[i]->GetExtent();
       if (uExt[0] >= ext[0] && uExt[1] <= ext[1] &&
-	  uExt[2] >= ext[2] && uExt[3] <= ext[3] &&
-	  uExt[4] >= ext[4] && uExt[5] <= ext[5])
-	{
-	vtkDebugMacro("Found Cached Data to meet request" );
-	
-	// Pass this data to output.
-	outData->SetExtent(ext);
-	outData->GetPointData()->PassData(this->Data[i]->GetPointData());
-	outData->DataHasBeenGenerated();
-	flag = 1;
-	}
+          uExt[2] >= ext[2] && uExt[3] <= ext[3] &&
+          uExt[4] >= ext[4] && uExt[5] <= ext[5])
+        {
+        vtkDebugMacro("Found Cached Data to meet request" );
+        
+        // Pass this data to output.
+        outData->SetExtent(ext);
+        outData->GetPointData()->PassData(this->Data[i]->GetPointData());
+        outData->DataHasBeenGenerated();
+        flag = 1;
+        }
       }
     }
 
@@ -225,16 +225,16 @@ void vtkImageCacheFilter::UpdateData(vtkDataObject *outObject)
     for (i = 0; i < this->CacheSize; ++i)
       {
       if (this->Data[i] == NULL)
-	{
-	bestIdx = i;
-	bestTime = 0;
-	break;
-	}
+        {
+        bestIdx = i;
+        bestTime = 0;
+        break;
+        }
       if (this->Times[i] < bestTime)
-	{
-	bestIdx = i;
-	bestTime = this->Times[i];
-	}
+        {
+        bestIdx = i;
+        bestTime = this->Times[i];
+        }
       }
     if (this->Data[bestIdx] == NULL)
       {

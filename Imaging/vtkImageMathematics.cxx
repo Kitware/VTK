@@ -77,7 +77,7 @@ vtkImageMathematics::vtkImageMathematics()
 //----------------------------------------------------------------------------
 // The output extent is the intersection.
 void vtkImageMathematics::ExecuteInformation(vtkImageData **inDatas, 
-					     vtkImageData *outData)
+                                             vtkImageData *outData)
 {
   int ext[6], *ext2, idx;
 
@@ -93,13 +93,13 @@ void vtkImageMathematics::ExecuteInformation(vtkImageData **inDatas,
     for (idx = 0; idx < 3; ++idx)
       {
       if (ext2[idx*2] > ext[idx*2])
-	{
-	ext[idx*2] = ext2[idx*2];
-	}
+        {
+        ext[idx*2] = ext2[idx*2];
+        }
       if (ext2[idx*2+1] < ext[idx*2+1])
-	{
-	ext[idx*2+1] = ext2[idx*2+1];
-	}
+        {
+        ext[idx*2+1] = ext2[idx*2+1];
+        }
       }
     }
   
@@ -116,9 +116,9 @@ void vtkImageMathematics::ExecuteInformation(vtkImageData **inDatas,
 // Handles the one input operations
 template <class T>
 static void vtkImageMathematicsExecute1(vtkImageMathematics *self,
-					vtkImageData *in1Data, T *in1Ptr,
-					vtkImageData *outData, T *outPtr,
-					int outExt[6], int id)
+                                        vtkImageData *in1Data, T *in1Ptr,
+                                        vtkImageData *outData, T *outPtr,
+                                        int outExt[6], int id)
 {
   int idxR, idxY, idxZ;
   int maxY, maxZ;
@@ -154,65 +154,65 @@ static void vtkImageMathematicsExecute1(vtkImageMathematics *self,
     for (idxY = 0; idxY <= maxY; idxY++)
       {
       if (!id) 
-	{
-	if (!(count%target))
-	  {
-	  self->UpdateProgress(count/(50.0*target));
-	  }
-	count++;
-	}
+        {
+        if (!(count%target))
+          {
+          self->UpdateProgress(count/(50.0*target));
+          }
+        count++;
+        }
       for (idxR = 0; idxR < rowLength; idxR++)
-	{
-	// Pixel operaton
-	switch (op)
-	  {
-	  case VTK_INVERT:
-	    *outPtr = (T)(1.0 / *in1Ptr);
-	    break;
-	  case VTK_SIN:
-	    *outPtr = (T)(sin((double)*in1Ptr));
-	    break;
-	  case VTK_COS:
-	    *outPtr = (T)(cos((double)*in1Ptr));
-	    break;
-	  case VTK_EXP:
-	    *outPtr = (T)(exp((double)*in1Ptr));
-	    break;
-	  case VTK_LOG:
-	    *outPtr = (T)(log((double)*in1Ptr));
-	    break;
-	  case VTK_ABS:
-	    *outPtr = (T)(fabs((double)*in1Ptr));
-	    break;
-	  case VTK_SQR:
-	    *outPtr = (T)(*in1Ptr * *in1Ptr);
-	    break;
-	  case VTK_SQRT:
-	    *outPtr = (T)(sqrt((double)*in1Ptr));
-	    break;
-	  case VTK_ATAN:
-	    *outPtr = (T)(atan((double)*in1Ptr));
-	    break;
-	  case VTK_MULTIPLYBYK:
-	    *outPtr = (T)(constantk*(double)*in1Ptr);
-	    break;
-	  case VTK_ADDC:
-	    *outPtr = (T)((T)constantc + *in1Ptr);
-	    break;
-	  case VTK_REPLACECBYK:
-	    *outPtr = (*in1Ptr == (T)constantc)?((T)constantk):(*in1Ptr);
-	    break;
-	  case VTK_CONJUGATE:
-	    outPtr[0] = in1Ptr[0];
-	    outPtr[1] = (T)(-1.0*(double)(in1Ptr[1]));
-	    // Why bother trtying to figure out the continuous increments.
-	    outPtr++;
-	    in1Ptr++;
-	    break;
-	  }
-	outPtr++;
-	in1Ptr++;
-	}
+        {
+        // Pixel operaton
+        switch (op)
+          {
+          case VTK_INVERT:
+            *outPtr = (T)(1.0 / *in1Ptr);
+            break;
+          case VTK_SIN:
+            *outPtr = (T)(sin((double)*in1Ptr));
+            break;
+          case VTK_COS:
+            *outPtr = (T)(cos((double)*in1Ptr));
+            break;
+          case VTK_EXP:
+            *outPtr = (T)(exp((double)*in1Ptr));
+            break;
+          case VTK_LOG:
+            *outPtr = (T)(log((double)*in1Ptr));
+            break;
+          case VTK_ABS:
+            *outPtr = (T)(fabs((double)*in1Ptr));
+            break;
+          case VTK_SQR:
+            *outPtr = (T)(*in1Ptr * *in1Ptr);
+            break;
+          case VTK_SQRT:
+            *outPtr = (T)(sqrt((double)*in1Ptr));
+            break;
+          case VTK_ATAN:
+            *outPtr = (T)(atan((double)*in1Ptr));
+            break;
+          case VTK_MULTIPLYBYK:
+            *outPtr = (T)(constantk*(double)*in1Ptr);
+            break;
+          case VTK_ADDC:
+            *outPtr = (T)((T)constantc + *in1Ptr);
+            break;
+          case VTK_REPLACECBYK:
+            *outPtr = (*in1Ptr == (T)constantc)?((T)constantk):(*in1Ptr);
+            break;
+          case VTK_CONJUGATE:
+            outPtr[0] = in1Ptr[0];
+            outPtr[1] = (T)(-1.0*(double)(in1Ptr[1]));
+            // Why bother trtying to figure out the continuous increments.
+            outPtr++;
+            in1Ptr++;
+            break;
+          }
+        outPtr++;
+        in1Ptr++;
+        }
       outPtr += outIncY;
       in1Ptr += inIncY;
       }
@@ -228,10 +228,10 @@ static void vtkImageMathematicsExecute1(vtkImageMathematics *self,
 // Handles the two input operations
 template <class T>
 static void vtkImageMathematicsExecute2(vtkImageMathematics *self,
-					vtkImageData *in1Data, T *in1Ptr,
-					vtkImageData *in2Data, T *in2Ptr,
-					vtkImageData *outData, T *outPtr,
-					int outExt[6], int id)
+                                        vtkImageData *in1Data, T *in1Ptr,
+                                        vtkImageData *in2Data, T *in2Ptr,
+                                        vtkImageData *outData, T *outPtr,
+                                        int outExt[6], int id)
 {
   int idxR, idxY, idxZ;
   int maxY, maxZ;
@@ -268,80 +268,80 @@ static void vtkImageMathematicsExecute2(vtkImageMathematics *self,
     for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
       {
       if (!id) 
-	{
-	if (!(count%target))
-	  {
-	  self->UpdateProgress(count/(50.0*target));
-	  }
-	count++;
-	}
+        {
+        if (!(count%target))
+          {
+          self->UpdateProgress(count/(50.0*target));
+          }
+        count++;
+        }
       for (idxR = 0; idxR < rowLength; idxR++)
-	{
-	// Pixel operation
-	switch (op)
-	  {
-	  case VTK_ADD:
-	    *outPtr = *in1Ptr + *in2Ptr;
-	    break;
-	  case VTK_SUBTRACT:
-	    *outPtr = *in1Ptr - *in2Ptr;
-	    break;
-	  case VTK_MULTIPLY:
-	    *outPtr = *in1Ptr * *in2Ptr;
-	    break;
-	  case VTK_DIVIDE:
-	    if (*in2Ptr)
-	      {
-	      *outPtr = *in1Ptr / *in2Ptr;
-	      }
-	    else
-	      {
-	      *outPtr = (T)(*in1Ptr / 0.00001);
-	      }
-	    break;
-	  case VTK_MIN:
-	    if (*in1Ptr < *in2Ptr)
-	      {
-	      *outPtr = *in1Ptr;
-	      }
-	    else
-	      {
-	      *outPtr = *in2Ptr;
-	      }
-	    break;
-	  case VTK_MAX:
-	    if (*in1Ptr > *in2Ptr)
-	      {
-	      *outPtr = *in1Ptr;
-	      }
-	    else
-	      {
-	      *outPtr = *in2Ptr;
-	      }
-	    break;
-	  case VTK_ATAN2:
-	      if (*in1Ptr == 0.0 && *in2Ptr == 0.0)
-		{
-		*outPtr = 0;
-		}
-	      else
-		{
-	        *outPtr =  (T)atan2((double)*in1Ptr,(double)*in2Ptr);
-		}
-	    break;
-	  case VTK_COMPLEX_MULTIPLY:
-	    outPtr[0] = in1Ptr[0] * in2Ptr[0] - in1Ptr[1] * in2Ptr[1];
-	    outPtr[1] = in1Ptr[1] * in2Ptr[0] + in1Ptr[0] * in2Ptr[1];
-	    // Why bother trtying to figure out the continuous increments.
-	    outPtr++;
-	    in1Ptr++;
-	    in2Ptr++;
-	    break;
-	  }
-	outPtr++;
-	in1Ptr++;
-	in2Ptr++;
-	}
+        {
+        // Pixel operation
+        switch (op)
+          {
+          case VTK_ADD:
+            *outPtr = *in1Ptr + *in2Ptr;
+            break;
+          case VTK_SUBTRACT:
+            *outPtr = *in1Ptr - *in2Ptr;
+            break;
+          case VTK_MULTIPLY:
+            *outPtr = *in1Ptr * *in2Ptr;
+            break;
+          case VTK_DIVIDE:
+            if (*in2Ptr)
+              {
+              *outPtr = *in1Ptr / *in2Ptr;
+              }
+            else
+              {
+              *outPtr = (T)(*in1Ptr / 0.00001);
+              }
+            break;
+          case VTK_MIN:
+            if (*in1Ptr < *in2Ptr)
+              {
+              *outPtr = *in1Ptr;
+              }
+            else
+              {
+              *outPtr = *in2Ptr;
+              }
+            break;
+          case VTK_MAX:
+            if (*in1Ptr > *in2Ptr)
+              {
+              *outPtr = *in1Ptr;
+              }
+            else
+              {
+              *outPtr = *in2Ptr;
+              }
+            break;
+          case VTK_ATAN2:
+              if (*in1Ptr == 0.0 && *in2Ptr == 0.0)
+                {
+                *outPtr = 0;
+                }
+              else
+                {
+                *outPtr =  (T)atan2((double)*in1Ptr,(double)*in2Ptr);
+                }
+            break;
+          case VTK_COMPLEX_MULTIPLY:
+            outPtr[0] = in1Ptr[0] * in2Ptr[0] - in1Ptr[1] * in2Ptr[1];
+            outPtr[1] = in1Ptr[1] * in2Ptr[0] + in1Ptr[0] * in2Ptr[1];
+            // Why bother trtying to figure out the continuous increments.
+            outPtr++;
+            in1Ptr++;
+            in2Ptr++;
+            break;
+          }
+        outPtr++;
+        in1Ptr++;
+        in2Ptr++;
+        }
       outPtr += outIncY;
       in1Ptr += inIncY;
       in2Ptr += in2IncY;
@@ -359,14 +359,14 @@ static void vtkImageMathematicsExecute2(vtkImageMathematics *self,
 // It just executes a switch statement to call the correct function for
 // the datas data types.
 void vtkImageMathematics::ThreadedExecute(vtkImageData **inData, 
-					  vtkImageData *outData,
-					  int outExt[6], int id)
+                                          vtkImageData *outData,
+                                          int outExt[6], int id)
 {
   void *inPtr1;
   void *outPtr;
   
   vtkDebugMacro(<< "Execute: inData = " << inData 
-		<< ", outData = " << outData);
+                << ", outData = " << outData);
   
 
   if (inData[0] == NULL)
@@ -395,11 +395,11 @@ void vtkImageMathematics::ThreadedExecute(vtkImageData **inData,
     if ( this->Operation == VTK_COMPLEX_MULTIPLY )
       {
       if (inData[0]->GetNumberOfScalarComponents() != 2 ||
-	  inData[1]->GetNumberOfScalarComponents() != 2)
-	{
+          inData[1]->GetNumberOfScalarComponents() != 2)
+        {
         vtkErrorMacro("Complex inputs must have two components.");
-	return;
-	}
+        return;
+        }
       }
 
     inPtr2 = inData[1]->GetScalarPointerForExtent(outExt);
@@ -441,8 +441,8 @@ void vtkImageMathematics::ThreadedExecute(vtkImageData **inData,
                         inData[1], (VTK_TT *)(inPtr2), 
                         outData, (VTK_TT *)(outPtr), outExt, id);
       default:
-	vtkErrorMacro(<< "Execute: Unknown ScalarType");
-	return;
+        vtkErrorMacro(<< "Execute: Unknown ScalarType");
+        return;
       }
     }
   else
@@ -458,10 +458,10 @@ void vtkImageMathematics::ThreadedExecute(vtkImageData **inData,
     if ( this->Operation == VTK_CONJUGATE )
       {
       if (inData[0]->GetNumberOfScalarComponents() != 2)
-	{
+        {
         vtkErrorMacro("Complex inputs must have two components.");
-	return;
-	}
+        return;
+        }
       }
 
     switch (inData[0]->GetScalarType())
@@ -470,8 +470,8 @@ void vtkImageMathematics::ThreadedExecute(vtkImageData **inData,
                         this, inData[0], (VTK_TT *)(inPtr1), 
                         outData, (VTK_TT *)(outPtr), outExt, id);
       default:
-	vtkErrorMacro(<< "Execute: Unknown ScalarType");
-	return;
+        vtkErrorMacro(<< "Execute: Unknown ScalarType");
+        return;
       }
     }
 }

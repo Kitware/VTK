@@ -72,7 +72,7 @@ protected:
   float Constant;
   
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
-		       int outExt[6], int id);
+                       int outExt[6], int id);
 private:
   vtkImageLogarithmicScale(const vtkImageLogarithmicScale&);  // Not implemented.
   void operator=(const vtkImageLogarithmicScale&);  // Not implemented.

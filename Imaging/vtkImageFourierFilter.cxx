@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 /*=========================================================================
-	Vectors of complex numbers.
+        Vectors of complex numbers.
 =========================================================================*/
 
 
@@ -57,8 +57,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // It is engineered for no decimation.
 // (forward: fb = 1, backward: fb = -1)
 void vtkImageFourierFilter::ExecuteFftStep2(vtkImageComplex *p_in, 
-					    vtkImageComplex *p_out, 
-					    int N, int bsize, int fb)
+                                            vtkImageComplex *p_out, 
+                                            int N, int bsize, int fb)
 {
   int i1, i2;
   vtkImageComplex *p1, *p2, *p3;
@@ -126,8 +126,8 @@ void vtkImageFourierFilter::ExecuteFftStep2(vtkImageComplex *p_in,
 //  n: size of this steps butterfly.
 //  fb: forward: fb = 1, backward: fb = -1 
 void vtkImageFourierFilter::ExecuteFftStepN(vtkImageComplex *p_in, 
-					    vtkImageComplex *p_out,
-					    int N, int bsize, int n, int fb)
+                                            vtkImageComplex *p_out,
+                                            int N, int bsize, int n, int fb)
 {
   int i0, i1, i2, i3;
   vtkImageComplex *p1, *p2, *p3;
@@ -154,17 +154,17 @@ void vtkImageFourierFilter::ExecuteFftStepN(vtkImageComplex *p_in,
       fact.Real = 1.0;
       fact.Imag = 0.0;
       for(i3 = 0; i3 < n; ++i3)
-	{
+        {
         p2 = p1;
-	for(i2 = 0; i2 < bsize; ++i2)
-	  {
+        for(i2 = 0; i2 < bsize; ++i2)
+          {
           vtkImageComplexMultiply(fact, *p2, temp);
-	  vtkImageComplexAdd(temp, *p3, *p3);
-	  vtkImageComplexMultiply(q, fact, fact);
-	  ++p2;
-	  ++p3;
-	  }
-	}
+          vtkImageComplexAdd(temp, *p3, *p3);
+          vtkImageComplexMultiply(q, fact, fact);
+          ++p2;
+          ++p3;
+          }
+        }
       
       p1 = p1 + bsize;
       }
@@ -179,8 +179,8 @@ void vtkImageFourierFilter::ExecuteFftStepN(vtkImageComplex *p_in,
 // It is engineered for no decimation so input and output cannot be equal.
 // (fb = 1) => fft, (fb = -1) => rfft;
 void vtkImageFourierFilter::ExecuteFftForwardBackward(vtkImageComplex *in, 
-						      vtkImageComplex *out, 
-						      int N, int fb)
+                                                      vtkImageComplex *out, 
+                                                      int N, int fb)
 {
   vtkImageComplex *p1, *p2, *p3;
   int block_size = 1;
@@ -207,13 +207,13 @@ void vtkImageFourierFilter::ExecuteFftForwardBackward(vtkImageComplex *in,
       {
       // n is a prime factor, perform one "butterfly" stage of the fft.
       if(n == 2)
-	{
-	this->ExecuteFftStep2(p1, p2, N, block_size, fb);
-	}
+        {
+        this->ExecuteFftStep2(p1, p2, N, block_size, fb);
+        }
       else
-	{
-	this->ExecuteFftStepN(p1, p2, N, block_size, n, fb);
-	}
+        {
+        this->ExecuteFftStepN(p1, p2, N, block_size, n, fb);
+        }
       block_size = block_size * n;
       rest_size = rest_size / n;
       // switch input and output.
@@ -244,7 +244,7 @@ void vtkImageFourierFilter::ExecuteFftForwardBackward(vtkImageComplex *in,
 // The contents of the input array are changed.
 // (It is engineered for no decimation)
 void vtkImageFourierFilter::ExecuteFft(vtkImageComplex *in, 
-				       vtkImageComplex *out, int N)
+                                       vtkImageComplex *out, int N)
 {
   this->ExecuteFftForwardBackward(in, out, N, 1);
 }
@@ -254,7 +254,7 @@ void vtkImageFourierFilter::ExecuteFft(vtkImageComplex *in,
 // The contents of the input array are changed.
 // (It is engineered for no decimation)
 void vtkImageFourierFilter::ExecuteRfft(vtkImageComplex *in, 
-					vtkImageComplex *out, int N)
+                                        vtkImageComplex *out, int N)
 {
   this->ExecuteFftForwardBackward(in, out, N, -1);
 }

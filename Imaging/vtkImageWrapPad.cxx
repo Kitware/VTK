@@ -65,7 +65,7 @@ vtkImageWrapPad* vtkImageWrapPad::New()
 //----------------------------------------------------------------------------
 // Just clip the request.
 void vtkImageWrapPad::ComputeInputUpdateExtent(int inExt[6],
-					       int outExt[6])
+                                               int outExt[6])
 {
   int idx;
   int min, max, width, imageMin, imageMax, imageWidth;
@@ -111,9 +111,9 @@ void vtkImageWrapPad::ComputeInputUpdateExtent(int inExt[6],
 // This templated function executes the filter for any type of data.
 template <class T>
 static void vtkImageWrapPadExecute(vtkImageWrapPad *self,
-				   vtkImageData *inData, T *vtkNotUsed(inPtr),
-				   vtkImageData *outData, T *outPtr,
-				   int outExt[6], int id)
+                                   vtkImageData *inData, T *vtkNotUsed(inPtr),
+                                   vtkImageData *outData, T *outPtr,
+                                   int outExt[6], int id)
 {
   int min0, max0;
   int imageMin0, imageMax0, imageMin1, imageMax1, 
@@ -131,7 +131,7 @@ static void vtkImageWrapPadExecute(vtkImageWrapPad *self,
   // Get information to march through data 
   inData->GetIncrements(inInc0, inInc1, inInc2);
   self->GetInput()->GetWholeExtent(imageMin0, imageMax0, imageMin1, imageMax1, 
-				   imageMin2, imageMax2);
+                                   imageMin2, imageMax2);
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
   
   // initialize pointers to coresponding pixels.
@@ -157,7 +157,7 @@ static void vtkImageWrapPadExecute(vtkImageWrapPad *self,
   inMaxC = inData->GetNumberOfScalarComponents();
   maxC = outData->GetNumberOfScalarComponents();
   target = (unsigned long)((outExt[5]-outExt[4]+1)*
-			   (outExt[3]-outExt[2]+1)/50.0);
+                           (outExt[3]-outExt[2]+1)/50.0);
   target++;
   
   inIdx2 = start2;
@@ -171,56 +171,56 @@ static void vtkImageWrapPadExecute(vtkImageWrapPad *self,
     inPtr1 = inPtr2;
     inIdx1 = start1;
     for (outIdx1 = outExt[2]; 
-	 !self->AbortExecute && outIdx1 <= outExt[3]; ++outIdx1, ++inIdx1)
+         !self->AbortExecute && outIdx1 <= outExt[3]; ++outIdx1, ++inIdx1)
       {
       if (!id) 
-	{
-	if (!(count%target))
-	  {
-	  self->UpdateProgress(count/(50.0*target));
-	  }
-	count++;
-	}
+        {
+        if (!(count%target))
+          {
+          self->UpdateProgress(count/(50.0*target));
+          }
+        count++;
+        }
       if (inIdx1 > imageMax1) 
-	{ // we need to wrap(rewind) the input on this axis
-	inIdx1 = imageMin1;
-	inPtr1 -= (imageMax1-imageMin1+1)*inInc1;
-	}
+        { // we need to wrap(rewind) the input on this axis
+        inIdx1 = imageMin1;
+        inPtr1 -= (imageMax1-imageMin1+1)*inInc1;
+        }
       inPtr0 = inPtr1;
       inIdx0 = start0;
       // if components are same much faster
       if ((maxC == inMaxC) && (maxC == 1))
-	{
-	for (outIdx0 = min0; outIdx0 <= max0; ++outIdx0, ++inIdx0)
-	  {
-	  if (inIdx0 > imageMax0) 
-	    { // we need to wrap(rewind) the input on this axis
-	    inIdx0 = imageMin0;
-	    inPtr0 -= (imageMax0-imageMin0+1)*inInc0;
-	    }
-	  // Copy Pixel
-	  *outPtr = *inPtr0;
-	  outPtr++; inPtr0++;
-	  }
-	}
+        {
+        for (outIdx0 = min0; outIdx0 <= max0; ++outIdx0, ++inIdx0)
+          {
+          if (inIdx0 > imageMax0) 
+            { // we need to wrap(rewind) the input on this axis
+            inIdx0 = imageMin0;
+            inPtr0 -= (imageMax0-imageMin0+1)*inInc0;
+            }
+          // Copy Pixel
+          *outPtr = *inPtr0;
+          outPtr++; inPtr0++;
+          }
+        }
       else
-	{
-	for (outIdx0 = min0; outIdx0 <= max0; ++outIdx0, ++inIdx0)
-	  {
-	  if (inIdx0 > imageMax0) 
-	    { // we need to wrap(rewind) the input on this axis
-	    inIdx0 = imageMin0;
-	    inPtr0 -= (imageMax0-imageMin0+1)*inInc0;
-	    }	
-	  for (idxC = 0; idxC < maxC; idxC++)
-	    {
-	    // Copy Pixel
-	    *outPtr = inPtr0[idxC%inMaxC];
-	    outPtr++;
-	    }
-	  inPtr0 += inInc0;
-	  }
-	}
+        {
+        for (outIdx0 = min0; outIdx0 <= max0; ++outIdx0, ++inIdx0)
+          {
+          if (inIdx0 > imageMax0) 
+            { // we need to wrap(rewind) the input on this axis
+            inIdx0 = imageMin0;
+            inPtr0 -= (imageMax0-imageMin0+1)*inInc0;
+            }   
+          for (idxC = 0; idxC < maxC; idxC++)
+            {
+            // Copy Pixel
+            *outPtr = inPtr0[idxC%inMaxC];
+            outPtr++;
+            }
+          inPtr0 += inInc0;
+          }
+        }
       outPtr += outIncY;
       inPtr1 += inInc1;
       }
@@ -237,8 +237,8 @@ static void vtkImageWrapPadExecute(vtkImageWrapPad *self,
 // It just executes a switch statement to call the correct function for
 // the regions data types.
 void vtkImageWrapPad::ThreadedExecute(vtkImageData *inData, 
-				      vtkImageData *outData,
-				      int outExt[6], int id)
+                                      vtkImageData *outData,
+                                      int outExt[6], int id)
 {
   int inExt[6];
   
@@ -248,7 +248,7 @@ void vtkImageWrapPad::ThreadedExecute(vtkImageData *inData,
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
   
   vtkDebugMacro(<< "Execute: inData = " << inData 
-		<< ", outData = " << outData);
+                << ", outData = " << outData);
   
   // this filter expects that input is the same type as output.
   if (inData->GetScalarType() != outData->GetScalarType())

@@ -105,10 +105,10 @@ void vtkDataObjectReader::Execute()
       {
       field = this->ReadFieldData(); //reads named field (or first found)
       if ( field != NULL )
-	{
-	this->GetOutput()->SetFieldData(field);
-	field->Delete();
-	}
+        {
+        this->GetOutput()->SetFieldData(field);
+        field->Delete();
+        }
       }
 
     else if ( !strncmp(this->LowerCase(line),"dataset",(unsigned long)7) )

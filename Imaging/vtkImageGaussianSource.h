@@ -60,7 +60,7 @@ public:
   // Description:
   // Set/Get the extent of the whole output image.
   void SetWholeExtent(int xMinx, int xMax, int yMin, int yMax,
-		      int zMin, int zMax);
+                      int zMin, int zMax);
   
   // Description:
   // Set/Get the center of the Gaussian.

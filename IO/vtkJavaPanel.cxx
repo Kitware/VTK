@@ -80,7 +80,7 @@ struct CanvasData {
 #include "vtkRenderWindow.h"
 
 void vtk_vtkPanel_setWindow(struct Hvtk_vtkPanel *me,
-			    struct Hvtk_vtkRenderWindow *id0)
+                            struct Hvtk_vtkRenderWindow *id0)
 {
   void *temp;
   vtkRenderWindow *op;

@@ -85,7 +85,7 @@ protected:
   void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
   void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
-		       int extent[6], int id);
+                       int extent[6], int id);
 private:
   vtkImageGradient(const vtkImageGradient&);  // Not implemented.
   void operator=(const vtkImageGradient&);  // Not implemented.

@@ -200,9 +200,9 @@ public:
   // Warning !!!
   // following should only be used by methods or template helpers, not users
   void ComputeInverseTransformedExtent(int inExtent[6],
-				       int outExtent[6]);
+                                       int outExtent[6]);
   void ComputeInverseTransformedIncrements(int inIncr[3],
-					   int outIncr[3]);
+                                           int outIncr[3]);
 
   void OpenFile();
   void OpenAndSeekFile(int extent[6], int slice);
@@ -249,9 +249,9 @@ protected:
   void ComputeTransformedSpacing (float Spacing[3]);
   void ComputeTransformedOrigin (float origin[3]);
   void ComputeTransformedExtent(int inExtent[6],
-				int outExtent[6]);
+                                int outExtent[6]);
   void ComputeTransformedIncrements(int inIncr[3],
-				    int outIncr[3]);
+                                    int outIncr[3]);
 
   int DataDimensions[3];
   float DataSpacing[3];

@@ -73,9 +73,9 @@ vtkImageRGBToHSV::vtkImageRGBToHSV()
 // This templated function executes the filter for any type of data.
 template <class T>
 static void vtkImageRGBToHSVExecute(vtkImageRGBToHSV *self,
-				    vtkImageData *inData, T *inPtr,
-				    vtkImageData *outData, T *outPtr,
-				    int outExt[6], int id)
+                                    vtkImageData *inData, T *inPtr,
+                                    vtkImageData *outData, T *outPtr,
+                                    int outExt[6], int id)
 {
   int idxC, idxX, idxY, idxZ;
   int maxC, maxX, maxY, maxZ;
@@ -105,56 +105,56 @@ static void vtkImageRGBToHSVExecute(vtkImageRGBToHSV *self,
     for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
       {
       if (!id) 
-	{
-	if (!(count%target))
-	  {
-	  self->UpdateProgress(count/(50.0*target));
-	  }
-	count++;
-	}
+        {
+        if (!(count%target))
+          {
+          self->UpdateProgress(count/(50.0*target));
+          }
+        count++;
+        }
       for (idxX = 0; idxX <= maxX; idxX++)
-	{
-	// Pixel operation
-	R = (float)(*inPtr); inPtr++;
-	G = (float)(*inPtr); inPtr++;
-	B = (float)(*inPtr); inPtr++;
-	temp = (float)(R + G + B);
-	// Value is easy
-	V = temp / 3.0;
-	
-	// Hue
-	temp = acos((0.5 * ((R-G) + (R-B))) / sqrt((R-G)*(R-G) + (R-B)*(G-B)));
-	if (G >= B)
-	  {
-	  H = max * (temp / 6.2831853);
-	  }
-	else
-	  {
-	  H = max * (1.0 - (temp / 6.2831853));
-	  }
-	
-	// Saturation
-	temp = R;
-	if (G < temp)
-	  {
-	  temp = G;
-	  }
-	if (B < temp)
-	  {
-	  temp = B;
-	  }
-	S = max * (1.0 - (3.0 * temp / (R+G+B)));
-	
-	// assign output.
-	*outPtr = (T)(H); outPtr++;
-	*outPtr = (T)(S); outPtr++;
-	*outPtr = (T)(V); outPtr++;
+        {
+        // Pixel operation
+        R = (float)(*inPtr); inPtr++;
+        G = (float)(*inPtr); inPtr++;
+        B = (float)(*inPtr); inPtr++;
+        temp = (float)(R + G + B);
+        // Value is easy
+        V = temp / 3.0;
+        
+        // Hue
+        temp = acos((0.5 * ((R-G) + (R-B))) / sqrt((R-G)*(R-G) + (R-B)*(G-B)));
+        if (G >= B)
+          {
+          H = max * (temp / 6.2831853);
+          }
+        else
+          {
+          H = max * (1.0 - (temp / 6.2831853));
+          }
+        
+        // Saturation
+        temp = R;
+        if (G < temp)
+          {
+          temp = G;
+          }
+        if (B < temp)
+          {
+          temp = B;
+          }
+        S = max * (1.0 - (3.0 * temp / (R+G+B)));
+        
+        // assign output.
+        *outPtr = (T)(H); outPtr++;
+        *outPtr = (T)(S); outPtr++;
+        *outPtr = (T)(V); outPtr++;
 
-	for (idxC = 3; idxC <= maxC; idxC++)
-	  {
-	  *outPtr++ = *inPtr++;
-	  }
-	}
+        for (idxC = 3; idxC <= maxC; idxC++)
+          {
+          *outPtr++ = *inPtr++;
+          }
+        }
       outPtr += outIncY;
       inPtr += inIncY;
       }
@@ -165,14 +165,14 @@ static void vtkImageRGBToHSVExecute(vtkImageRGBToHSV *self,
 
 //----------------------------------------------------------------------------
 void vtkImageRGBToHSV::ThreadedExecute(vtkImageData *inData, 
-					 vtkImageData *outData,
-					 int outExt[6], int id)
+                                         vtkImageData *outData,
+                                         int outExt[6], int id)
 {
   void *inPtr = inData->GetScalarPointerForExtent(outExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
   
   vtkDebugMacro(<< "Execute: inData = " << inData 
-		<< ", outData = " << outData);
+                << ", outData = " << outData);
   
   // this filter expects that input is the same type as output.
   if (inData->GetScalarType() != outData->GetScalarType())

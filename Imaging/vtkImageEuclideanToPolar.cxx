@@ -73,9 +73,9 @@ vtkImageEuclideanToPolar::vtkImageEuclideanToPolar()
 // This templated function executes the filter for any type of data.
 template <class T>
 static void vtkImageEuclideanToPolarExecute(vtkImageEuclideanToPolar *self,
-				    vtkImageData *inData, T *inPtr,
-				    vtkImageData *outData, T *outPtr,
-				    int outExt[6], int id)
+                                    vtkImageData *inData, T *inPtr,
+                                    vtkImageData *outData, T *outPtr,
+                                    int outExt[6], int id)
 {
   int idxX, idxY, idxZ;
   int maxC, maxX, maxY, maxZ;
@@ -104,39 +104,39 @@ static void vtkImageEuclideanToPolarExecute(vtkImageEuclideanToPolar *self,
     for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
       {
       if (!id) 
-	{
-	if (!(count%target))
-	  {
-	  self->UpdateProgress(count/(50.0*target));
-	  }
-	count++;
-	}
+        {
+        if (!(count%target))
+          {
+          self->UpdateProgress(count/(50.0*target));
+          }
+        count++;
+        }
       for (idxX = 0; idxX <= maxX; idxX++)
-	{
-	// Pixel operation
-	X = (float)(*inPtr);
-	Y = (float)(inPtr[1]);
+        {
+        // Pixel operation
+        X = (float)(*inPtr);
+        Y = (float)(inPtr[1]);
 
-	if ((X == 0.0) && (Y == 0.0))
-	  {
-	  Theta = 0.0;
-	  R = 0.0;
-	  }
-	else
-	  {
-	  Theta = atan2(Y, X) * thetaMax / 6.2831853;
-	  if (Theta < 0.0)
-	    {
-	    Theta += thetaMax;
-	    }
-	  R = sqrt(X*X + Y*Y);
-	  }
-	
-	*outPtr = (T)(Theta);
-	outPtr[1] = (T)(R);
-	inPtr += maxC;
-	outPtr += maxC;
-	}
+        if ((X == 0.0) && (Y == 0.0))
+          {
+          Theta = 0.0;
+          R = 0.0;
+          }
+        else
+          {
+          Theta = atan2(Y, X) * thetaMax / 6.2831853;
+          if (Theta < 0.0)
+            {
+            Theta += thetaMax;
+            }
+          R = sqrt(X*X + Y*Y);
+          }
+        
+        *outPtr = (T)(Theta);
+        outPtr[1] = (T)(R);
+        inPtr += maxC;
+        outPtr += maxC;
+        }
       outPtr += outIncY;
       inPtr += inIncY;
       }
@@ -147,14 +147,14 @@ static void vtkImageEuclideanToPolarExecute(vtkImageEuclideanToPolar *self,
 
 //----------------------------------------------------------------------------
 void vtkImageEuclideanToPolar::ThreadedExecute(vtkImageData *inData, 
-				       vtkImageData *outData,
-				       int outExt[6], int id)
+                                       vtkImageData *outData,
+                                       int outExt[6], int id)
 {
   void *inPtr = inData->GetScalarPointerForExtent(outExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
   
   vtkDebugMacro(<< "Execute: inData = " << inData 
-		<< ", outData = " << outData);
+                << ", outData = " << outData);
   
   // this filter expects that input is the same type as output.
   if (inData->GetScalarType() != outData->GetScalarType())

@@ -71,7 +71,7 @@ vtkImagePermute::vtkImagePermute()
 
 //----------------------------------------------------------------------------
 void vtkImagePermute::ExecuteInformation(vtkImageData *inData, 
-					 vtkImageData *outData) 
+                                         vtkImageData *outData) 
 {
   int idx, axis;
   int ext[6];
@@ -102,7 +102,7 @@ void vtkImagePermute::ExecuteInformation(vtkImageData *inData,
 
 //----------------------------------------------------------------------------
 void vtkImagePermute::ComputeInputUpdateExtent(int inExt[6], 
-					       int outExt[6])
+                                               int outExt[6])
 {
   int idx, axis;
 
@@ -119,9 +119,9 @@ void vtkImagePermute::ComputeInputUpdateExtent(int inExt[6],
 // This templated function executes the filter for any type of data.
 template <class T>
 static void vtkImagePermuteExecute(vtkImagePermute *self,
-				   vtkImageData *inData, T *inPtr,
-				   vtkImageData *outData, T *outPtr,
-				   int outExt[6], int id)
+                                   vtkImageData *inData, T *inPtr,
+                                   vtkImageData *outData, T *outPtr,
+                                   int outExt[6], int id)
 {
   int idxX, idxY, idxZ, idxC;
   int maxX, maxY, maxZ;
@@ -164,35 +164,35 @@ static void vtkImagePermuteExecute(vtkImagePermute *self,
     for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
       {
       if (!id) 
-	{
-	if (!(count%target))
-	  {
-	  self->UpdateProgress(count/(50.0*target));
-	  }
-	count++;
-	}
+        {
+        if (!(count%target))
+          {
+          self->UpdateProgress(count/(50.0*target));
+          }
+        count++;
+        }
       inPtr0 = inPtr1;
       if (outIncX == 1) // optimization for single component
-	{
-	for (idxX = 0; idxX <= maxX; idxX++)
-	  {
-	  // Pixel operation
-	  *outPtr++ = *inPtr0++;
-	  inPtr0 += inInc0;
-	  }
-	}
+        {
+        for (idxX = 0; idxX <= maxX; idxX++)
+          {
+          // Pixel operation
+          *outPtr++ = *inPtr0++;
+          inPtr0 += inInc0;
+          }
+        }
       else // multiple components
-	{
-	for (idxX = 0; idxX <= maxX; idxX++)
-	  {
-	  // Pixel operation
-	  for (idxC = 0; idxC < outIncX; idxC++)
-	    { 
-	    *outPtr++ = *inPtr0++;
-	    }
-	  inPtr0 += inInc0;
-	  }
-	}
+        {
+        for (idxX = 0; idxX <= maxX; idxX++)
+          {
+          // Pixel operation
+          for (idxC = 0; idxC < outIncX; idxC++)
+            { 
+            *outPtr++ = *inPtr0++;
+            }
+          inPtr0 += inInc0;
+          }
+        }
       outPtr += outIncY;
       inPtr1 += inInc1;
       }
@@ -208,8 +208,8 @@ static void vtkImagePermuteExecute(vtkImagePermute *self,
 // It just executes a switch statement to call the correct function for
 // the regions data types.
 void vtkImagePermute::ThreadedExecute(vtkImageData *inData, 
-				      vtkImageData *outData,
-				      int outExt[6], int id)
+                                      vtkImageData *outData,
+                                      int outExt[6], int id)
 {
   int inExt[6];
   

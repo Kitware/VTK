@@ -263,9 +263,9 @@ void vtkUGFacetReader::Execute()
 
       if ( nodes[0] != nodes[1] && nodes[0] != nodes[2] && 
       nodes[1] != nodes[2] )
-	{
+        {
         mergedPolys->InsertNextCell(3,nodes);
-	}
+        }
       }
 
       newPts->Delete();

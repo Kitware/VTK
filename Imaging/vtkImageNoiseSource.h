@@ -73,7 +73,7 @@ public:
   // Description:
   // Set how large of an image to generate.
   void SetWholeExtent(int xMinx, int xMax, int yMin, int yMax,
-		      int zMin, int zMax);
+                      int zMin, int zMax);
 
 protected:
   vtkImageNoiseSource();

@@ -84,7 +84,7 @@ void vtkImageGradient::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 void vtkImageGradient::ExecuteInformation(vtkImageData *inData, 
-					  vtkImageData *outData)
+                                          vtkImageData *outData)
 {
   int extent[6];
   int idx;
@@ -109,7 +109,7 @@ void vtkImageGradient::ExecuteInformation(vtkImageData *inData,
 //----------------------------------------------------------------------------
 // This method computes the input extent necessary to generate the output.
 void vtkImageGradient::ComputeInputUpdateExtent(int inExt[6],
-						int outExt[6])
+                                                int outExt[6])
 {
   int *wholeExtent;
   int idx;
@@ -127,13 +127,13 @@ void vtkImageGradient::ComputeInputUpdateExtent(int inExt[6],
       {
       // we must clip extent with whole extent is we hanlde boundaries.
       if (inExt[idx*2] < wholeExtent[idx*2])
-	{
-	inExt[idx*2] = wholeExtent[idx*2];
-	}
+        {
+        inExt[idx*2] = wholeExtent[idx*2];
+        }
       if (inExt[idx*2 + 1] > wholeExtent[idx*2 + 1])
-	{
-	inExt[idx*2 + 1] = wholeExtent[idx*2 + 1];
-	}
+        {
+        inExt[idx*2 + 1] = wholeExtent[idx*2 + 1];
+        }
       }
     }
 }
@@ -145,9 +145,9 @@ void vtkImageGradient::ComputeInputUpdateExtent(int inExt[6],
 // out of extent.
 template <class T>
 static void vtkImageGradientExecute(vtkImageGradient *self,
-				    vtkImageData *inData, T *inPtr,
-				    vtkImageData *outData, float *outPtr,
-				    int outExt[6], int id)
+                                    vtkImageData *inData, T *inPtr,
+                                    vtkImageData *outData, float *outPtr,
+                                    int outExt[6], int id)
 {
   int idxX, idxY, idxZ;
   int maxX, maxY, maxZ;
@@ -194,44 +194,44 @@ static void vtkImageGradientExecute(vtkImageGradient *self,
     for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
       {
       if (!id) 
-	{
-	if (!(count%target))
-	  {
-	  self->UpdateProgress(count/(50.0*target));
-	  }
-	count++;
-	}
+        {
+        if (!(count%target))
+          {
+          self->UpdateProgress(count/(50.0*target));
+          }
+        count++;
+        }
       useYMin = ((idxY + outExt[2]) <= wholeExtent[2]) ? 0 : -inIncs[1];
       useYMax = ((idxY + outExt[2]) >= wholeExtent[3]) ? 0 : inIncs[1];
       for (idxX = 0; idxX <= maxX; idxX++)
-	{
-	useXMin = ((idxX + outExt[0]) <= wholeExtent[0]) ? 0 : -inIncs[0];
-	useXMax = ((idxX + outExt[0]) >= wholeExtent[1]) ? 0 : inIncs[0];
+        {
+        useXMin = ((idxX + outExt[0]) <= wholeExtent[0]) ? 0 : -inIncs[0];
+        useXMax = ((idxX + outExt[0]) >= wholeExtent[1]) ? 0 : inIncs[0];
 
-	// do X axis
-	d = (float)(inPtr[useXMin]);
-	d -= (float)(inPtr[useXMax]);
-	d *= r[0]; // multiply by the data spacing
-	*outPtr = d;
-	outPtr++;
-	
-	// do y axis
-	d = (float)(inPtr[useYMin]);
-	d -= (float)(inPtr[useYMax]);
-	d *= r[1]; // multiply by the data spacing
-	*outPtr = d;
-	outPtr++;
-	if (axesNum == 3)
-	  {
-	  // do z axis
-	  d = (float)(inPtr[useZMin]);
-	  d -= (float)(inPtr[useZMax]);
-	  d *= r[2]; // multiply by the data spacing
-	  *outPtr = d;
-	  outPtr++;
-	  }
-	inPtr++;
-	}
+        // do X axis
+        d = (float)(inPtr[useXMin]);
+        d -= (float)(inPtr[useXMax]);
+        d *= r[0]; // multiply by the data spacing
+        *outPtr = d;
+        outPtr++;
+        
+        // do y axis
+        d = (float)(inPtr[useYMin]);
+        d -= (float)(inPtr[useYMax]);
+        d *= r[1]; // multiply by the data spacing
+        *outPtr = d;
+        outPtr++;
+        if (axesNum == 3)
+          {
+          // do z axis
+          d = (float)(inPtr[useZMin]);
+          d -= (float)(inPtr[useZMax]);
+          d *= r[2]; // multiply by the data spacing
+          *outPtr = d;
+          outPtr++;
+          }
+        inPtr++;
+        }
       outPtr += outIncY;
       inPtr += inIncY;
       }
@@ -246,14 +246,14 @@ static void vtkImageGradientExecute(vtkImageGradient *self,
 // templated function for the input data type.  The output data
 // must match input type.  This method does handle boundary conditions.
 void vtkImageGradient::ThreadedExecute(vtkImageData *inData, 
-				       vtkImageData *outData,
-				       int outExt[6], int id)
+                                       vtkImageData *outData,
+                                       int outExt[6], int id)
 {
   void *inPtr = inData->GetScalarPointerForExtent(outExt);
   float *outPtr = (float *)(outData->GetScalarPointerForExtent(outExt));
   
   vtkDebugMacro(<< "Execute: inData = " << inData 
-		<< ", outData = " << outData);
+                << ", outData = " << outData);
 
   if (!id)
     {

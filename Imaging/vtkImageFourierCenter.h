@@ -69,7 +69,7 @@ protected:
 
   void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
-		       int outExt[6], int threadId);
+                       int outExt[6], int threadId);
 private:
   vtkImageFourierCenter(const vtkImageFourierCenter&);  // Not implemented.
   void operator=(const vtkImageFourierCenter&);  // Not implemented.

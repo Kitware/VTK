@@ -76,7 +76,7 @@ vtkImageNonMaximumSuppression::vtkImageNonMaximumSuppression()
 // input, and changes the region to hold the image extent of this filters
 // output.
 void vtkImageNonMaximumSuppression::ExecuteInformation(vtkImageData **inDatas,
-						       vtkImageData *outData)
+                                                       vtkImageData *outData)
 {
   int extent[6];
   int idx;
@@ -100,8 +100,8 @@ void vtkImageNonMaximumSuppression::ExecuteInformation(vtkImageData **inDatas,
 //----------------------------------------------------------------------------
 // This method computes the input extent necessary to generate the output.
 void vtkImageNonMaximumSuppression::ComputeInputUpdateExtent(int inExt[6], 
-							     int outExt[6],
-							     int whichInput)
+                                                             int outExt[6],
+                                                             int whichInput)
 {
   int *wholeExtent;
   int idx;
@@ -122,13 +122,13 @@ void vtkImageNonMaximumSuppression::ComputeInputUpdateExtent(int inExt[6],
       {
       // we must clip extent with whole extent if we hanlde boundaries.
       if (inExt[idx*2] < wholeExtent[idx*2])
-	{
-	inExt[idx*2] = wholeExtent[idx*2];
-	}
+        {
+        inExt[idx*2] = wholeExtent[idx*2];
+        }
       if (inExt[idx*2 + 1] > wholeExtent[idx*2 + 1])
-	{
-	inExt[idx*2 + 1] = wholeExtent[idx*2 + 1];
-	}
+        {
+        inExt[idx*2 + 1] = wholeExtent[idx*2 + 1];
+        }
       }
     }
 }
@@ -139,13 +139,13 @@ void vtkImageNonMaximumSuppression::ComputeInputUpdateExtent(int inExt[6],
 // Handles the two input operations
 template <class T>
 static void vtkImageNonMaximumSuppressionExecute(vtkImageNonMaximumSuppression *self,
-						 vtkImageData *in1Data, 
-						 T *in1Ptr,
-						 vtkImageData *in2Data, 
-						 T *in2Ptr,
-						 vtkImageData *outData, 
-						 T *outPtr,
-						 int outExt[6], int id)
+                                                 vtkImageData *in1Data, 
+                                                 T *in1Ptr,
+                                                 vtkImageData *in2Data, 
+                                                 T *in2Ptr,
+                                                 vtkImageData *outData, 
+                                                 T *outPtr,
+                                                 int outExt[6], int id)
 {
   int idxC, idxX, idxY, idxZ;
   int maxC, maxX, maxY, maxZ;
@@ -193,104 +193,104 @@ static void vtkImageNonMaximumSuppressionExecute(vtkImageNonMaximumSuppression *
       useYMin = ((idxY + outExt[2]) <= wholeExtent[2]) ? 0 : -inIncs[1];
       useYMax = ((idxY + outExt[2]) >= wholeExtent[3]) ? 0 : inIncs[1];
       if (!id) 
-	{
-	if (!(count%target))
-	  {
-	  self->UpdateProgress(count/(50.0*target));
-	  }
-	count++;
-	}
+        {
+        if (!(count%target))
+          {
+          self->UpdateProgress(count/(50.0*target));
+          }
+        count++;
+        }
       for (idxX = 0; idxX <= maxX; idxX++)
-	{
-	useXMin = ((idxX + outExt[0]) <= wholeExtent[0]) ? 0 : -inIncs[0];
-	useXMax = ((idxX + outExt[0]) >= wholeExtent[1]) ? 0 : inIncs[0];
+        {
+        useXMin = ((idxX + outExt[0]) <= wholeExtent[0]) ? 0 : -inIncs[0];
+        useXMax = ((idxX + outExt[0]) >= wholeExtent[1]) ? 0 : inIncs[0];
 
-	// calculate the neighbors
-	d = vector[0] = (float)*in2Ptr * ratio[0];
-	normalizeFactor = (d * d);
-	d = vector[1] = (float)in2Ptr[1] * ratio[1];
-	normalizeFactor += (d * d);
-	if (axesNum == 3)
-	  {
-	  d = vector[2] = (float)in2Ptr[2] * ratio[2];
-	  normalizeFactor += (d * d);
-	  }
-	if (normalizeFactor)
-	  {
-	  normalizeFactor = 1.0 / sqrt(normalizeFactor);
-	  }
-	// Vector points positive along this idx?
-	// (can point along multiple axes)
-	d = vector[0] * normalizeFactor;  
-	
-	if (d > 0.5)  
-	  {
-	  neighborA = useXMax;
-	  neighborB = useXMin;
-	  }
-	else if (d < -0.5)
-	  {
-	  neighborB = useXMax;
-	  neighborA = useXMin;
-	  }
-	else
-	  {
-	  neighborA = 0;
-	  neighborB = 0;
-	  }
-	d = vector[1] * normalizeFactor;  
-	if (d > 0.5)  
-	  {
-	  neighborA += useYMax;
-	  neighborB += useYMin;
-	  }
-	else if (d < -0.5)
-	  {
-	  neighborB += useYMax;
-	  neighborA += useYMin;
-	  }
-	if (axesNum == 3)
-	  {
-	  d = vector[2] * normalizeFactor;  
-	  if (d > 0.5)  
-	    {
-	    neighborA += useZMax;
-	    neighborB += useZMin;
-	    }
-	  else if (d < -0.5)
-	    {
-	    neighborB += useZMax;
-	    neighborA += useZMin;
-	    }
-	  }
-	
-	// now process the components
-	for (idxC = 0; idxC < maxC; idxC++)
-	  {
-	  // Pixel operation
-	  // Set Output Magnitude
-	  if (in1Ptr[neighborA] > *in1Ptr || in1Ptr[neighborB] > *in1Ptr)
-	    {
-	    *outPtr = 0;
-	    }
-	  else
-	    {
-	    *outPtr = *in1Ptr;
-	    // also check for them being equal is neighbor with larger ptr
-	    if ((neighborA > neighborB)&&(in1Ptr[neighborA] == *in1Ptr))
-	      {
-	      *outPtr = 0;
-	      }
-	    else if ((neighborB > neighborA)&&(in1Ptr[neighborB] == *in1Ptr))
-	      {
-	      *outPtr = 0;
-	      }
-	    }
-	  outPtr++;
-	  in1Ptr++;
-	  }
-	in2Ptr += axesNum;
-	}
+        // calculate the neighbors
+        d = vector[0] = (float)*in2Ptr * ratio[0];
+        normalizeFactor = (d * d);
+        d = vector[1] = (float)in2Ptr[1] * ratio[1];
+        normalizeFactor += (d * d);
+        if (axesNum == 3)
+          {
+          d = vector[2] = (float)in2Ptr[2] * ratio[2];
+          normalizeFactor += (d * d);
+          }
+        if (normalizeFactor)
+          {
+          normalizeFactor = 1.0 / sqrt(normalizeFactor);
+          }
+        // Vector points positive along this idx?
+        // (can point along multiple axes)
+        d = vector[0] * normalizeFactor;  
+        
+        if (d > 0.5)  
+          {
+          neighborA = useXMax;
+          neighborB = useXMin;
+          }
+        else if (d < -0.5)
+          {
+          neighborB = useXMax;
+          neighborA = useXMin;
+          }
+        else
+          {
+          neighborA = 0;
+          neighborB = 0;
+          }
+        d = vector[1] * normalizeFactor;  
+        if (d > 0.5)  
+          {
+          neighborA += useYMax;
+          neighborB += useYMin;
+          }
+        else if (d < -0.5)
+          {
+          neighborB += useYMax;
+          neighborA += useYMin;
+          }
+        if (axesNum == 3)
+          {
+          d = vector[2] * normalizeFactor;  
+          if (d > 0.5)  
+            {
+            neighborA += useZMax;
+            neighborB += useZMin;
+            }
+          else if (d < -0.5)
+            {
+            neighborB += useZMax;
+            neighborA += useZMin;
+            }
+          }
+        
+        // now process the components
+        for (idxC = 0; idxC < maxC; idxC++)
+          {
+          // Pixel operation
+          // Set Output Magnitude
+          if (in1Ptr[neighborA] > *in1Ptr || in1Ptr[neighborB] > *in1Ptr)
+            {
+            *outPtr = 0;
+            }
+          else
+            {
+            *outPtr = *in1Ptr;
+            // also check for them being equal is neighbor with larger ptr
+            if ((neighborA > neighborB)&&(in1Ptr[neighborA] == *in1Ptr))
+              {
+              *outPtr = 0;
+              }
+            else if ((neighborB > neighborA)&&(in1Ptr[neighborB] == *in1Ptr))
+              {
+              *outPtr = 0;
+              }
+            }
+          outPtr++;
+          in1Ptr++;
+          }
+        in2Ptr += axesNum;
+        }
       outPtr += outIncY;
       in1Ptr += inIncY;
       in2Ptr += in2IncY;
@@ -301,7 +301,7 @@ static void vtkImageNonMaximumSuppressionExecute(vtkImageNonMaximumSuppression *
     }
 }
 
-	  
+          
 
 //----------------------------------------------------------------------------
 // This method is passed a input and output regions, and executes the filter
@@ -309,15 +309,15 @@ static void vtkImageNonMaximumSuppressionExecute(vtkImageNonMaximumSuppression *
 // It just executes a switch statement to call the correct function for
 // the regions data types.
 void vtkImageNonMaximumSuppression::ThreadedExecute(vtkImageData **inData, 
-						    vtkImageData *outData,
-						    int outExt[6], int id)
+                                                    vtkImageData *outData,
+                                                    int outExt[6], int id)
 {
   void *in1Ptr;
   void *in2Ptr;
   void *outPtr;
   
   vtkDebugMacro(<< "Execute: inData = " << inData 
-		<< ", outData = " << outData);
+                << ", outData = " << outData);
 
   if (id == 0)
     {

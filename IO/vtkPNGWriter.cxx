@@ -83,8 +83,8 @@ void vtkPNGWriter::Write()
   // Make sure the file name is allocated
   this->InternalFileName = 
     new char[(this->FileName ? strlen(this->FileName) : 1) +
-	    (this->FilePrefix ? strlen(this->FilePrefix) : 1) +
-	    (this->FilePattern ? strlen(this->FilePattern) : 1) + 10];
+            (this->FilePrefix ? strlen(this->FilePrefix) : 1) +
+            (this->FilePattern ? strlen(this->FilePattern) : 1) + 10];
   
   // Fill in image information.
   this->GetInput()->UpdateInformation();

@@ -196,7 +196,7 @@ void vtkSTLReader::Execute()
       for (i=0; i < 3; i++) 
         {
         x = newPts->GetPoint(pts[i]);
-	this->Locator->InsertUniquePoint(x, nodes[i]);
+        this->Locator->InsertUniquePoint(x, nodes[i]);
         }
 
       if ( nodes[0] != nodes[1] &&
@@ -204,10 +204,10 @@ void vtkSTLReader::Execute()
            nodes[1] != nodes[2] )
         {
         mergedPolys->InsertNextCell(3,nodes);
-	if (newScalars) 
-	  {
-	  mergedScalars->InsertNextValue(newScalars->GetValue(nextCell));	
-	  }
+        if (newScalars) 
+          {
+          mergedScalars->InsertNextValue(newScalars->GetValue(nextCell));       
+          }
         }
       nextCell++;
       }
@@ -253,7 +253,7 @@ void vtkSTLReader::Execute()
 }
 
 int vtkSTLReader::ReadBinarySTL(FILE *fp, vtkPoints *newPts, 
-				vtkCellArray *newPolys)
+                                vtkCellArray *newPolys)
 {
   int i, numTris;
   vtkIdType pts[3];
@@ -316,7 +316,7 @@ int vtkSTLReader::ReadBinarySTL(FILE *fp, vtkPoints *newPts,
 }
 
 int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts, 
-			       vtkCellArray *newPolys, vtkFloatArray *scalars)
+                               vtkCellArray *newPolys, vtkFloatArray *scalars)
 {
   char line[256];
   float x[3];
@@ -369,10 +369,10 @@ int vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
       fgets(line, 255, fp);
       done = feof(fp);
       while (strncmp(line, "SOLID", 5) && !done) 
-	{
-	fgets(line, 255, fp);
-	done = feof(fp);
-	}
+        {
+        fgets(line, 255, fp);
+        done = feof(fp);
+        }
 
       done = (fscanf(fp,"%s", line)==EOF);
       }

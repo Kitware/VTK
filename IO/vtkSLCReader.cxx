@@ -181,7 +181,7 @@ void vtkSLCReader::ExecuteInformation()
 
   fclose( fp );
 }
-	  
+          
 // Reads an SLC file and creates a vtkStructuredPoints dataset.
 void vtkSLCReader::Execute()
 {
@@ -286,21 +286,21 @@ void vtkSLCReader::Execute()
           }
 
         if( fread( scan_ptr, 1, plane_size, fp ) != (unsigned int)plane_size )
-	  {
+          {
           vtkErrorMacro( << 
             "Unable to read slice " << z_counter << " from SLC File" );
           newScalars->Delete();
           return;
-	  }
+          }
 
         break;
 
       case 1:
 
         if( scan_ptr )
-	  {
+          {
           delete [] scan_ptr;
-	  }
+          }
 
         fscanf( fp, "%d X", &compressed_size );
 
@@ -308,15 +308,15 @@ void vtkSLCReader::Execute()
 
         if( fread(compressed_ptr, 1, compressed_size, fp) != 
             (unsigned int)compressed_size )
-	  {
+          {
           vtkErrorMacro( << "Unable to read compressed slice " << 
             z_counter << " from SLC File" );
           newScalars->Delete();
           return;
-	  }
+          }
 
         scan_ptr = this->Decode8BitData( compressed_ptr, plane_size );
-	delete [] compressed_ptr;
+        delete [] compressed_ptr;
 
         break;
       default:

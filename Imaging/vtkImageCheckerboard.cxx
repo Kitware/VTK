@@ -69,11 +69,11 @@ vtkImageCheckerboard::vtkImageCheckerboard()
 // Handles the two input operations
 template <class T>
 static void vtkImageCheckerboardExecute2(vtkImageCheckerboard *self,
-				  vtkImageData *in1Data, T *in1Ptr,
-				  vtkImageData *in2Data, T *in2Ptr,
-				  vtkImageData *outData, 
-				  T *outPtr,
-				  int outExt[6], int id)
+                                  vtkImageData *in1Data, T *in1Ptr,
+                                  vtkImageData *in2Data, T *in2Ptr,
+                                  vtkImageData *outData, 
+                                  T *outPtr,
+                                  int outExt[6], int id)
 {
   int idxR, idxY, idxZ;
   int maxY, maxZ;
@@ -134,50 +134,50 @@ static void vtkImageCheckerboardExecute2(vtkImageCheckerboard *self,
     for (idxY = 0; idxY <= maxY; idxY++)
       {
       if (!id) 
-	{
-	if (!(count%target))
-	  {
-	  self->UpdateProgress(count/(50.0*target));
-	  }
-	count++;
-	}
+        {
+        if (!(count%target))
+          {
+          self->UpdateProgress(count/(50.0*target));
+          }
+        count++;
+        }
       selectY = (((idxY + outExt[2]) / divY) % 2) << 1;
       for (idxR = 0; idxR < rowLength; idxR++)
-	{
-	
-	selectX = ((idxR + outExt[0]) / divX) % 2;
-	which = selectZ + selectY + selectX;
-	switch (which)
-	  {
-	  case 0:
-	    *outPtr = *in1Ptr;
-	    break;
-	  case 1:
-	    *outPtr = *in2Ptr;
-	    break;
-	  case 2:
-	    *outPtr = *in2Ptr;
-	    break;
-	  case 3:
-	    *outPtr = *in1Ptr;
-	    break;
-	  case 4:
-	    *outPtr = *in2Ptr;
-	    break;
-	  case 5:
-	    *outPtr = *in1Ptr;
-	    break;
-	  case 6:
-	    *outPtr = *in1Ptr;
-	    break;
-	  case 7:
-	    *outPtr = *in2Ptr;
-	    break;
-	  }	    
-	outPtr++;
-	in1Ptr++;
-	in2Ptr++;
-	}
+        {
+        
+        selectX = ((idxR + outExt[0]) / divX) % 2;
+        which = selectZ + selectY + selectX;
+        switch (which)
+          {
+          case 0:
+            *outPtr = *in1Ptr;
+            break;
+          case 1:
+            *outPtr = *in2Ptr;
+            break;
+          case 2:
+            *outPtr = *in2Ptr;
+            break;
+          case 3:
+            *outPtr = *in1Ptr;
+            break;
+          case 4:
+            *outPtr = *in2Ptr;
+            break;
+          case 5:
+            *outPtr = *in1Ptr;
+            break;
+          case 6:
+            *outPtr = *in1Ptr;
+            break;
+          case 7:
+            *outPtr = *in2Ptr;
+            break;
+          }         
+        outPtr++;
+        in1Ptr++;
+        in2Ptr++;
+        }
       outPtr += outIncY;
       in1Ptr += inIncY;
       in2Ptr += in2IncY;
@@ -194,14 +194,14 @@ static void vtkImageCheckerboardExecute2(vtkImageCheckerboard *self,
 // This method is passed a input and output regions, and executes the filter
 // algorithm to fill the output from the inputs.
 void vtkImageCheckerboard::ThreadedExecute(vtkImageData **inData, 
-				    vtkImageData *outData,
-				    int outExt[6], int id)
+                                    vtkImageData *outData,
+                                    int outExt[6], int id)
 {
   void *in1Ptr, *in2Ptr;
   void *outPtr;
   
   vtkDebugMacro(<< "Execute: inData = " << inData 
-		<< ", outData = " << outData);
+                << ", outData = " << outData);
   
   if (inData[0] == NULL)
     {
@@ -241,8 +241,8 @@ void vtkImageCheckerboard::ThreadedExecute(vtkImageData **inData,
   switch (inData[0]->GetScalarType())
     {
     vtkTemplateMacro9(vtkImageCheckerboardExecute2, this, inData[0], 
-		      (VTK_TT *)(in1Ptr), inData[1], (VTK_TT *)(in2Ptr), 
-		      outData, (VTK_TT *)(outPtr), outExt, id);
+                      (VTK_TT *)(in1Ptr), inData[1], (VTK_TT *)(in2Ptr), 
+                      outData, (VTK_TT *)(outPtr), outExt, id);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

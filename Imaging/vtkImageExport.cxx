@@ -172,11 +172,11 @@ void vtkImageExport::Export(void *output)
       {
       ptr = (void *)(((char *)ptr) + ysize*xsize*csize);
       for (int j = 0; j < ysize; j++)
-	{
-	ptr = (void *)(((char *)ptr) - xsize*csize);
-	memcpy(output, ptr, xsize*csize);
-	output = (void *)(((char *)output) + xsize*csize);
-	}
+        {
+        ptr = (void *)(((char *)ptr) - xsize*csize);
+        memcpy(output, ptr, xsize*csize);
+        output = (void *)(((char *)output) + xsize*csize);
+        }
       ptr = (void *)(((char *)ptr) + ysize*xsize*csize);
       }
     }

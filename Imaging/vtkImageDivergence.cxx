@@ -63,7 +63,7 @@ vtkImageDivergence* vtkImageDivergence::New()
 //----------------------------------------------------------------------------
 // This method tells the superclass that the first axis will collapse.
 void vtkImageDivergence::ExecuteInformation(vtkImageData *vtkNotUsed(inData), 
-					    vtkImageData *outData)
+                                            vtkImageData *outData)
 {
   outData->SetNumberOfScalarComponents(1);
 }
@@ -71,7 +71,7 @@ void vtkImageDivergence::ExecuteInformation(vtkImageData *vtkNotUsed(inData),
 //----------------------------------------------------------------------------
 // Just clip the request.  The subclass may need to overwrite this method.
 void vtkImageDivergence::ComputeInputUpdateExtent(int inExt[6], 
-						  int outExt[6])
+                                                  int outExt[6])
 {
   int idx;
   int *wholeExtent;
@@ -117,9 +117,9 @@ void vtkImageDivergence::ComputeInputUpdateExtent(int inExt[6],
 // out of extent.
 template <class T>
 static void vtkImageDivergenceExecute(vtkImageDivergence *self,
-			       vtkImageData *inData, T *inPtr,
-			       vtkImageData *outData, T *outPtr,
-			       int outExt[6], int id)
+                               vtkImageData *inData, T *inPtr,
+                               vtkImageData *outData, T *outPtr,
+                               int outExt[6], int id)
 {
   int idxC, idxX, idxY, idxZ;
   int maxC, maxX, maxY, maxZ;
@@ -168,31 +168,31 @@ static void vtkImageDivergenceExecute(vtkImageDivergence *self,
     for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
       {
       if (!id) 
-	{
-	if (!(count%target))
-	  {
-	  self->UpdateProgress(count/(50.0*target));
-	  }
-	count++;
-	}
+        {
+        if (!(count%target))
+          {
+          self->UpdateProgress(count/(50.0*target));
+          }
+        count++;
+        }
       useMin[1] = ((idxY + outExt[2]) <= wholeExtent[2]) ? 0 : -inIncs[1];
       useMax[1] = ((idxY + outExt[2]) >= wholeExtent[3]) ? 0 : inIncs[1];
       for (idxX = 0; idxX <= maxX; idxX++)
-	{
-	useMin[0] = ((idxX + outExt[0]) <= wholeExtent[0]) ? 0 : -inIncs[0];
-	useMax[0] = ((idxX + outExt[0]) >= wholeExtent[1]) ? 0 : inIncs[0];
-	sum = 0.0;
-	for (idxC = 0; idxC < maxC; idxC++)
-	  {
-	  // do X axis
-	  d = (float)(inPtr[useMin[idxC]]);
-	  d -= (float)(inPtr[useMax[idxC]]);
-	  sum = d * r[idxC];
-	  inPtr++;
-	  }
-	*outPtr = (T)sum;
-	outPtr++;
-	}
+        {
+        useMin[0] = ((idxX + outExt[0]) <= wholeExtent[0]) ? 0 : -inIncs[0];
+        useMax[0] = ((idxX + outExt[0]) >= wholeExtent[1]) ? 0 : inIncs[0];
+        sum = 0.0;
+        for (idxC = 0; idxC < maxC; idxC++)
+          {
+          // do X axis
+          d = (float)(inPtr[useMin[idxC]]);
+          d -= (float)(inPtr[useMax[idxC]]);
+          sum = d * r[idxC];
+          inPtr++;
+          }
+        *outPtr = (T)sum;
+        outPtr++;
+        }
       outPtr += outIncY;
       inPtr += inIncY;
       }
@@ -207,8 +207,8 @@ static void vtkImageDivergenceExecute(vtkImageDivergence *self,
 // templated function for the input data type.  The output data
 // must match input type.  This method does handle boundary conditions.
 void vtkImageDivergence::ThreadedExecute(vtkImageData *inData, 
-					   vtkImageData *outData,
-					   int outExt[6], int id)
+                                           vtkImageData *outData,
+                                           int outExt[6], int id)
 {
   void *inPtr = inData->GetScalarPointerForExtent(outExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);

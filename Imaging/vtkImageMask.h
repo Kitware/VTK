@@ -105,7 +105,7 @@ protected:
   void ExecuteInformation(){this->vtkImageTwoInputFilter::ExecuteInformation();};
  
   void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
-		       int extent[6], int id);
+                       int extent[6], int id);
 private:
   vtkImageMask(const vtkImageMask&);  // Not implemented.
   void operator=(const vtkImageMask&);  // Not implemented.

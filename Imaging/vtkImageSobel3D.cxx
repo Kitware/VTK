@@ -86,7 +86,7 @@ void vtkImageSobel3D::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 void vtkImageSobel3D::ExecuteInformation(vtkImageData *vtkNotUsed(inData), 
-					 vtkImageData *outData)
+                                         vtkImageData *outData)
 {
   outData->SetNumberOfScalarComponents(3);
   outData->SetScalarType(VTK_FLOAT);
@@ -99,9 +99,9 @@ void vtkImageSobel3D::ExecuteInformation(vtkImageData *vtkNotUsed(inData),
 // out of extent.
 template <class T>
 static void vtkImageSobel3DExecute(vtkImageSobel3D *self,
-				   vtkImageData *inData, T *inPtr, 
-				   vtkImageData *outData, int *outExt, 
-				   float *outPtr, int id)
+                                   vtkImageData *inData, T *inPtr, 
+                                   vtkImageData *outData, int *outExt, 
+                                   float *outPtr, int id)
 {
   float r0, r1, r2, *r;
   // For looping though output (and input) pixels.
@@ -123,8 +123,8 @@ static void vtkImageSobel3DExecute(vtkImageSobel3D *self,
 
   // Get boundary information 
   self->GetInput()->GetWholeExtent(inWholeMin0,inWholeMax0, 
-			   inWholeMin1,inWholeMax1,
-			   inWholeMin2,inWholeMax2);
+                           inWholeMin1,inWholeMax1,
+                           inWholeMin2,inWholeMax2);
   
   // Get information to march through data (skip component)
   inData->GetIncrements(inInc0, inInc1, inInc2); 
@@ -159,71 +159,71 @@ static void vtkImageSobel3DExecute(vtkImageSobel3D *self,
     for (outIdx1 = min1; !self->AbortExecute && outIdx1 <= max1; ++outIdx1)
       {
       if (!id) 
-	{
-	if (!(count%target))
-	  {
-	  self->UpdateProgress(count/(50.0*target));
-	  }
-	count++;
-	}
+        {
+        if (!(count%target))
+          {
+          self->UpdateProgress(count/(50.0*target));
+          }
+        count++;
+        }
       inInc1L = (outIdx1 == inWholeMin1) ? 0 : -inInc1;
       inInc1R = (outIdx1 == inWholeMax1) ? 0 : inInc1;
 
       outPtr0 = outPtr1;
       inPtr0 = inPtr1;
       for (outIdx0 = min0; outIdx0 <= max0; ++outIdx0)
-	{
-	inInc0L = (outIdx0 == inWholeMin0) ? 0 : -inInc0;
-	inInc0R = (outIdx0 == inWholeMax0) ? 0 : inInc0;
+        {
+        inInc0L = (outIdx0 == inWholeMin0) ? 0 : -inInc0;
+        inInc0R = (outIdx0 == inWholeMax0) ? 0 : inInc0;
 
-	// compute vector.
-	outPtrV = outPtr0;
-	// 12 Plane
-	inPtrL = inPtr0 + inInc0L;
-	inPtrR = inPtr0 + inInc0R;
-	sum = 2.0 * (*inPtrR - *inPtrL);
-	sum += (float)(inPtrR[inInc1L] + inPtrR[inInc1R] 
-		+ inPtrR[inInc2L] + inPtrR[inInc2R]);
-	sum += (float)(0.586 * (inPtrR[inInc1L+inInc2L] + inPtrR[inInc1L+inInc2R]
-			 + inPtrR[inInc1R+inInc2L] + inPtrR[inInc1R+inInc2R]));
-	sum -= (float)(inPtrL[inInc1L] + inPtrL[inInc1R] 
-		+ inPtrL[inInc2L] + inPtrL[inInc2R]);
-	sum -= (float)(0.586 * (inPtrL[inInc1L+inInc2L] + inPtrL[inInc1L+inInc2R]
-			 + inPtrL[inInc1R+inInc2L] + inPtrL[inInc1R+inInc2R]));
-	*outPtrV = sum * r0;
-	++outPtrV;
-	// 02 Plane
-	inPtrL = inPtr0 + inInc1L;
-	inPtrR = inPtr0 + inInc1R;
-	sum = 2.0 * (*inPtrR - *inPtrL);
-	sum += (float)(inPtrR[inInc0L] + inPtrR[inInc0R] 
-		+ inPtrR[inInc2L] + inPtrR[inInc2R]);
-	sum += (float)(0.586 * (inPtrR[inInc0L+inInc2L] + inPtrR[inInc0L+inInc2R]
-			 + inPtrR[inInc0R+inInc2L] + inPtrR[inInc0R+inInc2R]));
-	sum -= (float)(inPtrL[inInc0L] + inPtrL[inInc0R] 
-		+ inPtrL[inInc2L] + inPtrL[inInc2R]);
-	sum -= (float)(0.586 * (inPtrL[inInc0L+inInc2L] + inPtrL[inInc0L+inInc2R]
-			 + inPtrL[inInc0R+inInc2L] + inPtrL[inInc0R+inInc2R]));
-	*outPtrV = sum * r1;
-	++outPtrV;
-	// 01 Plane
-	inPtrL = inPtr0 + inInc2L;
-	inPtrR = inPtr0 + inInc2R;
-	sum = 2.0 * (*inPtrR - *inPtrL);
-	sum += (float)(inPtrR[inInc0L] + inPtrR[inInc0R] 
-		+ inPtrR[inInc1L] + inPtrR[inInc1R]);
-	sum += (float)(0.586 * (inPtrR[inInc0L+inInc1L] + inPtrR[inInc0L+inInc1R]
-			 + inPtrR[inInc0R+inInc1L] + inPtrR[inInc0R+inInc1R]));
-	sum -= (float)(inPtrL[inInc0L] + inPtrL[inInc0R] 
-		+ inPtrL[inInc1L] + inPtrL[inInc1R]);
-	sum -= (float)(0.586 * (inPtrL[inInc0L+inInc1L] + inPtrL[inInc0L+inInc1R]
-			 + inPtrL[inInc0R+inInc1L] + inPtrL[inInc0R+inInc1R]));
-	*outPtrV = sum * r2;
-	++outPtrV;
+        // compute vector.
+        outPtrV = outPtr0;
+        // 12 Plane
+        inPtrL = inPtr0 + inInc0L;
+        inPtrR = inPtr0 + inInc0R;
+        sum = 2.0 * (*inPtrR - *inPtrL);
+        sum += (float)(inPtrR[inInc1L] + inPtrR[inInc1R] 
+                + inPtrR[inInc2L] + inPtrR[inInc2R]);
+        sum += (float)(0.586 * (inPtrR[inInc1L+inInc2L] + inPtrR[inInc1L+inInc2R]
+                         + inPtrR[inInc1R+inInc2L] + inPtrR[inInc1R+inInc2R]));
+        sum -= (float)(inPtrL[inInc1L] + inPtrL[inInc1R] 
+                + inPtrL[inInc2L] + inPtrL[inInc2R]);
+        sum -= (float)(0.586 * (inPtrL[inInc1L+inInc2L] + inPtrL[inInc1L+inInc2R]
+                         + inPtrL[inInc1R+inInc2L] + inPtrL[inInc1R+inInc2R]));
+        *outPtrV = sum * r0;
+        ++outPtrV;
+        // 02 Plane
+        inPtrL = inPtr0 + inInc1L;
+        inPtrR = inPtr0 + inInc1R;
+        sum = 2.0 * (*inPtrR - *inPtrL);
+        sum += (float)(inPtrR[inInc0L] + inPtrR[inInc0R] 
+                + inPtrR[inInc2L] + inPtrR[inInc2R]);
+        sum += (float)(0.586 * (inPtrR[inInc0L+inInc2L] + inPtrR[inInc0L+inInc2R]
+                         + inPtrR[inInc0R+inInc2L] + inPtrR[inInc0R+inInc2R]));
+        sum -= (float)(inPtrL[inInc0L] + inPtrL[inInc0R] 
+                + inPtrL[inInc2L] + inPtrL[inInc2R]);
+        sum -= (float)(0.586 * (inPtrL[inInc0L+inInc2L] + inPtrL[inInc0L+inInc2R]
+                         + inPtrL[inInc0R+inInc2L] + inPtrL[inInc0R+inInc2R]));
+        *outPtrV = sum * r1;
+        ++outPtrV;
+        // 01 Plane
+        inPtrL = inPtr0 + inInc2L;
+        inPtrR = inPtr0 + inInc2R;
+        sum = 2.0 * (*inPtrR - *inPtrL);
+        sum += (float)(inPtrR[inInc0L] + inPtrR[inInc0R] 
+                + inPtrR[inInc1L] + inPtrR[inInc1R]);
+        sum += (float)(0.586 * (inPtrR[inInc0L+inInc1L] + inPtrR[inInc0L+inInc1R]
+                         + inPtrR[inInc0R+inInc1L] + inPtrR[inInc0R+inInc1R]));
+        sum -= (float)(inPtrL[inInc0L] + inPtrL[inInc0R] 
+                + inPtrL[inInc1L] + inPtrL[inInc1R]);
+        sum -= (float)(0.586 * (inPtrL[inInc0L+inInc1L] + inPtrL[inInc0L+inInc1R]
+                         + inPtrL[inInc0R+inInc1L] + inPtrL[inInc0R+inInc1R]));
+        *outPtrV = sum * r2;
+        ++outPtrV;
 
-	outPtr0 += outInc0;
-	inPtr0 += inInc0;
-	}
+        outPtr0 += outInc0;
+        inPtr0 += inInc0;
+        }
       outPtr1 += outInc1;
       inPtr1 += inInc1;
       }
@@ -239,8 +239,8 @@ static void vtkImageSobel3DExecute(vtkImageSobel3D *self,
 // must be of type float.  This method does handle boundary conditions.
 // The third axis is the component axis for the output.
 void vtkImageSobel3D::ThreadedExecute(vtkImageData *inData, 
-				      vtkImageData *outData,
-				      int outExt[6], int id)
+                                      vtkImageData *outData,
+                                      int outExt[6], int id)
 {
   void *inPtr, *outPtr;
   int inExt[6];

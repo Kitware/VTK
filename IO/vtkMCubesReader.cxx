@@ -162,7 +162,7 @@ void vtkMCubesReader::Execute()
 
     // calculate the number of triangles and vertices from file size
     numTris = buf.st_size / (18*sizeof(float)); //3 points + normals
-    numPts = numTris * 3;	    
+    numPts = numTris * 3;           
     }
   else // read data to get bounds
     {
@@ -173,13 +173,13 @@ void vtkMCubesReader::Execute()
       {
       // swap bytes if necc
       if (byteOrder == VTK_FILE_BYTE_ORDER_BIG_ENDIAN)
-	{
-	vtkByteSwap::Swap4BERange((float *) (&point),6);
-	}
+        {
+        vtkByteSwap::Swap4BERange((float *) (&point),6);
+        }
       else
-	{
-	vtkByteSwap::Swap4LERange((float *) (&point),6);
-	}
+        {
+        vtkByteSwap::Swap4LERange((float *) (&point),6);
+        }
       for (j=0; j<3; j++) 
         {
         bounds[2*j] = (bounds[2*j] < point.x[j] ? bounds[2*j] : point.x[j]);
@@ -233,28 +233,28 @@ void vtkMCubesReader::Execute()
 
       // swap bytes if necc
       if (byteOrder == VTK_FILE_BYTE_ORDER_BIG_ENDIAN)
-	{
-	vtkByteSwap::Swap4BERange((float *) (&point),6);
-	}
+        {
+        vtkByteSwap::Swap4BERange((float *) (&point),6);
+        }
       else
-	{
-	vtkByteSwap::Swap4LERange((float *) (&point),6);
-	}
+        {
+        vtkByteSwap::Swap4LERange((float *) (&point),6);
+        }
       if ( this->Locator->InsertUniquePoint(point.x, nodes[j]) )
         {
         if ( this->Normals )
           {
           for (k=0; k<3; k++)
-	    {
-	    n[k] = point.n[k] * direction;
-	    }
+            {
+            n[k] = point.n[k] * direction;
+            }
           newNormals->InsertTuple(nodes[j],n);
           }
         }
       }
     if ( nodes[0] != nodes[1] &&
-	 nodes[0] != nodes[2] && 
-	 nodes[1] != nodes[2] )
+         nodes[0] != nodes[2] && 
+         nodes[1] != nodes[2] )
       {
       newPolys->InsertNextCell(3,nodes);
       }

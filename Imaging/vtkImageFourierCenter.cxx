@@ -74,7 +74,7 @@ vtkImageFourierCenter::vtkImageFourierCenter()
 // This method tells the superclass which input extent is needed.
 // This gets the whole input (even though it may not be needed).
 void vtkImageFourierCenter::ComputeInputUpdateExtent(int inExt[6], 
-						     int outExt[6])
+                                                     int outExt[6])
 {
   int *extent;
 
@@ -89,8 +89,8 @@ void vtkImageFourierCenter::ComputeInputUpdateExtent(int inExt[6],
 // This method is passed input and output regions, and executes the fft
 // algorithm to fill the output from the input.
 void vtkImageFourierCenter::ThreadedExecute(vtkImageData *inData, 
-					    vtkImageData *outData,
-					    int outExt[6], int threadId)
+                                            vtkImageData *outData,
+                                            int outExt[6], int threadId)
 {
   float *inPtr0, *inPtr1, *inPtr2;
   float *outPtr0, *outPtr1, *outPtr2;
@@ -147,7 +147,7 @@ void vtkImageFourierCenter::ThreadedExecute(vtkImageData *inData,
   inCoords[2] = outExt[4];
   
   target = (unsigned long)((max2-min2+1)*(max0-min0+1)
-			   * this->GetNumberOfIterations() / 50.0);
+                           * this->GetNumberOfIterations() / 50.0);
   target++;
 
   // loop over the filtered axis first
@@ -168,27 +168,27 @@ void vtkImageFourierCenter::ThreadedExecute(vtkImageData *inData,
     for (idx2 = min2; !this->AbortExecute && idx2 <= max2; ++idx2)
       {
       if (!threadId) 
-	{
-	if (!(count%target))
-	  {
-	  this->UpdateProgress(count/(50.0*target) + startProgress);
-	  }
-	count++;
-	}
+        {
+        if (!(count%target))
+          {
+          this->UpdateProgress(count/(50.0*target) + startProgress);
+          }
+        count++;
+        }
       inPtr1 = inPtr2;
       outPtr1 = outPtr2;
       for (idx1 = min1; idx1 <= max1; ++idx1)
-	{
-	// handle components (up to 2) explicitly
-	*outPtr1 = *inPtr1;
-	if (numberOfComponents == 2)
-	  {
-	  outPtr1[1] = inPtr1[1];
-	  }
+        {
+        // handle components (up to 2) explicitly
+        *outPtr1 = *inPtr1;
+        if (numberOfComponents == 2)
+          {
+          outPtr1[1] = inPtr1[1];
+          }
 
-	inPtr1 += inInc1;
-	outPtr1 += outInc1;
-	}
+        inPtr1 += inInc1;
+        outPtr1 += outInc1;
+        }
       inPtr2 += inInc2;
       outPtr2 += outInc2;
       }

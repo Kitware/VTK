@@ -282,7 +282,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
           if (strncmp(line, "model:", 6) == 0)
             {
             if (sscanf(line, " %*s %d %d %s", &timeSet, &fileSet,
-		       subLine) == 3)
+                       subLine) == 3)
               {
               this->SetGeometryFileName(subLine);
               }
@@ -297,10 +297,10 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
             } // geometry file name set
           delete this->IS;
           this->IS = NULL;
-	  
-	  fileName = new char[strlen(this->GeometryFileName) + 1];
-	  strcpy(fileName, this->GeometryFileName);
-	  
+          
+          fileName = new char[strlen(this->GeometryFileName) + 1];
+          strcpy(fileName, this->GeometryFileName);
+          
           if (!fileName)
             {
             vtkErrorMacro("A GeometryFileName must be specified in the case file.");
@@ -308,10 +308,10 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
             }
           if (strrchr(fileName, '*') != NULL)
             {
-	    // reopen case file; find right time set and fill in wildcards from
-	    // there if possible; if not, then find right file set and fill in
-	    // wildcards from there.
-	    this->ReplaceWildcards(fileName, timeSet, fileSet);
+            // reopen case file; find right time set and fill in wildcards from
+            // there if possible; if not, then find right file set and fill in
+            // wildcards from there.
+            this->ReplaceWildcards(fileName, timeSet, fileSet);
             }
           if (this->FilePath)
             {
@@ -330,7 +330,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
             vtkErrorMacro("Unable to open file: " << line);
             fclose(this->IFile);
             this->IFile = NULL;
-	    delete [] fileName;
+            delete [] fileName;
             return 0;
             } // end if IFile == NULL
           
@@ -340,13 +340,13 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
             {
             fclose(this->IFile);
             this->IFile = NULL;
-	    delete [] fileName;
+            delete [] fileName;
             return VTK_ENSIGHT_GOLD_BINARY;
             } //end if binary
           
           fclose(this->IFile);
           this->IFile = NULL;
-	  delete [] fileName;
+          delete [] fileName;
           return VTK_ENSIGHT_GOLD;
           } // if we found the geometry section in the case file
         }
@@ -375,10 +375,10 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
             this->SetGeometryFileName(subLine);
             }
           } // geometry file name set
-	
-	fileName = new char[strlen(this->GeometryFileName) + 1];
-	strcpy(fileName, this->GeometryFileName);
-	
+        
+        fileName = new char[strlen(this->GeometryFileName) + 1];
+        strcpy(fileName, this->GeometryFileName);
+        
         delete this->IS;
         this->IS = NULL;
         if (!fileName)
@@ -388,10 +388,10 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
           }
         if (strrchr(fileName, '*') != NULL)
           {
-	  // reopen case file; find right time set and fill in wildcards from
-	  // there if possible; if not, then find right file set and fill in
-	  // wildcards from there.
-	  this->ReplaceWildcards(fileName, timeSet, fileSet);
+          // reopen case file; find right time set and fill in wildcards from
+          // there if possible; if not, then find right file set and fill in
+          // wildcards from there.
+          this->ReplaceWildcards(fileName, timeSet, fileSet);
           }
         if (this->FilePath)
           {
@@ -410,7 +410,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
           vtkErrorMacro("Unable to open file: " << line);
           fclose(this->IFile);
           this->IFile = NULL;
-	  delete [] fileName;
+          delete [] fileName;
           return 0;
           } // end if IFile == NULL
         
@@ -420,13 +420,13 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
           {
           fclose(this->IFile);
           this->IFile = NULL;
-	  delete [] fileName;
+          delete [] fileName;
           return VTK_ENSIGHT_6_BINARY;
           } //end if binary
         
         fclose(this->IFile);
         this->IFile = NULL;
-	delete [] fileName;
+        delete [] fileName;
         return VTK_ENSIGHT_6;
         } // if we found the geometry section in the case file
       } // not ensight gold
@@ -618,7 +618,7 @@ void vtkGenericEnSightReader::AddComplexVariableDescription(char* description)
     new char[strlen(description) + 1];
   strcpy(this->ComplexVariableDescriptions[size], description);
   vtkDebugMacro("description: "
-		<< this->ComplexVariableDescriptions[size]);
+                << this->ComplexVariableDescriptions[size]);
 }
 
 int vtkGenericEnSightReader::GetNumberOfVariables(int type)
@@ -770,7 +770,7 @@ void vtkGenericEnSightReader::AddComplexVariableType(int variableType)
     }
   this->ComplexVariableTypes[size] = variableType;
   vtkDebugMacro("complex variable type: "
-		<< this->ComplexVariableTypes[size]);
+                << this->ComplexVariableTypes[size]);
 }
 
 int vtkGenericEnSightReader::GetVariableType(int n)
@@ -792,7 +792,7 @@ int vtkGenericEnSightReader::GetComplexVariableType(int n)
 }
 
 void vtkGenericEnSightReader::ReplaceWildcards(char* fileName, int timeSet,
-					       int fileSet)
+                                               int fileSet)
 {
   char line[256], subLine[256];
   int cmpTimeSet, cmpFileSet, fileNameNum;
@@ -865,9 +865,9 @@ void vtkGenericEnSightReader::ReplaceWildcards(char* fileName, int timeSet,
       this->ReadNextDataLine(line);
       sscanf(line, " %s", subLine);
       if (strncmp(subLine, "filename", 8) == 0)
-	{
-	this->ReadNextDataLine(line);
-	}
+        {
+        this->ReadNextDataLine(line);
+        }
       sscanf(line, " %*s %*s %d", &cmpFileSet);
       }
     this->ReadNextDataLine(line);
@@ -906,35 +906,35 @@ void vtkGenericEnSightReader::ReplaceWildcardsHelper(char* fileName, int num)
     switch (newNum)
       {
       case 0:
-	newChar = '0';
-	break;
+        newChar = '0';
+        break;
       case 1:
-	newChar = '1';
-	break;
+        newChar = '1';
+        break;
       case 2:
-	newChar = '2';
-	break;
+        newChar = '2';
+        break;
       case 3:
-	newChar = '3';
-	break;
+        newChar = '3';
+        break;
       case 4:
-	newChar = '4';
-	break;
+        newChar = '4';
+        break;
       case 5:
-	newChar = '5';
-	break;
+        newChar = '5';
+        break;
       case 6:
-	newChar = '6';
-	break;
+        newChar = '6';
+        break;
       case 7:
-	newChar = '7';
-	break;
+        newChar = '7';
+        break;
       case 8:
-	newChar = '8';
-	break;
+        newChar = '8';
+        break;
       case 9:
-	newChar = '9';
-	break;
+        newChar = '9';
+        break;
       default:
         // This case should never be reached.
         return;

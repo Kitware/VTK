@@ -61,8 +61,8 @@ vtkSimpleImageFilterExample* vtkSimpleImageFilterExample::New()
 // This is not always the case.
 template <class IT>
 static void vtkSimpleImageFilterExampleExecute(vtkImageData* input,
-					       vtkImageData* output,
-					       IT* inPtr, IT* outPtr)
+                                               vtkImageData* output,
+                                               IT* inPtr, IT* outPtr)
 {
   int dims[3];
   input->GetDimensions(dims);

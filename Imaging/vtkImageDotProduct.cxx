@@ -65,7 +65,7 @@ vtkImageDotProduct* vtkImageDotProduct::New()
 //----------------------------------------------------------------------------
 // Colapse the first axis
 void vtkImageDotProduct::ExecuteInformation(vtkImageData **vtkNotUsed(inDatas),
-					    vtkImageData *outData)
+                                            vtkImageData *outData)
 {
   outData->SetNumberOfScalarComponents(1);
 }
@@ -76,13 +76,13 @@ void vtkImageDotProduct::ExecuteInformation(vtkImageData **vtkNotUsed(inDatas),
 // Handles the two input operations
 template <class T>
 static void vtkImageDotProductExecute(vtkImageDotProduct *self,
-				      vtkImageData *in1Data, 
-				      T *in1Ptr,
-				      vtkImageData *in2Data, 
-				      T *in2Ptr,
-				      vtkImageData *outData, 
-				      T *outPtr,
-				      int outExt[6], int id)
+                                      vtkImageData *in1Data, 
+                                      T *in1Ptr,
+                                      vtkImageData *in2Data, 
+                                      T *in2Ptr,
+                                      vtkImageData *outData, 
+                                      T *outPtr,
+                                      int outExt[6], int id)
 {
   int idxC, idxX, idxY, idxZ;
   int maxC, maxX, maxY, maxZ;
@@ -112,27 +112,27 @@ static void vtkImageDotProductExecute(vtkImageDotProduct *self,
     for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
       {
       if (!id) 
-	{
-	if (!(count%target))
-	  {
-	  self->UpdateProgress(count/(50.0*target));
-	  }
-	count++;
-	}
+        {
+        if (!(count%target))
+          {
+          self->UpdateProgress(count/(50.0*target));
+          }
+        count++;
+        }
       for (idxX = 0; idxX <= maxX; idxX++)
-	{
-	// now process the components
-	dot = 0.0;
-	for (idxC = 0; idxC < maxC; idxC++)
-	  {
-	  // Pixel operation
-	  dot += (float)(*in1Ptr * *in2Ptr);
-	  in1Ptr++;
-	  in2Ptr++;
-	  }
-	*outPtr = (T)dot;
-	outPtr++;
-	}
+        {
+        // now process the components
+        dot = 0.0;
+        for (idxC = 0; idxC < maxC; idxC++)
+          {
+          // Pixel operation
+          dot += (float)(*in1Ptr * *in2Ptr);
+          in1Ptr++;
+          in2Ptr++;
+          }
+        *outPtr = (T)dot;
+        outPtr++;
+        }
       outPtr += outIncY;
       in1Ptr += inIncY;
       in2Ptr += in2IncY;
@@ -150,15 +150,15 @@ static void vtkImageDotProductExecute(vtkImageDotProduct *self,
 // It just executes a switch statement to call the correct function for
 // the regions data types.
 void vtkImageDotProduct::ThreadedExecute(vtkImageData **inData, 
-					 vtkImageData *outData,
-					 int outExt[6], int id)
+                                         vtkImageData *outData,
+                                         int outExt[6], int id)
 {
   void *in1Ptr;
   void *in2Ptr;
   void *outPtr;
   
   vtkDebugMacro(<< "Execute: inData = " << inData 
-		<< ", outData = " << outData);
+                << ", outData = " << outData);
   
   if (inData[0] == NULL)
     {

@@ -167,22 +167,22 @@ void vtkStructuredPointsReader::Execute()
     while (!done)
       {
       if (!this->ReadString(line))
-	{
-	break;
-	}
+        {
+        break;
+        }
 
       if (! strncmp(this->LowerCase(line), "field", 5))
-	{
-	vtkFieldData* fd = this->ReadFieldData();
-	output->SetFieldData(fd);
-	fd->Delete(); // ?
-	}
+        {
+        vtkFieldData* fd = this->ReadFieldData();
+        output->SetFieldData(fd);
+        fd->Delete(); // ?
+        }
       else if ( ! strncmp(line, "dimensions",10) )
         {
         int dim[3];
         if (!(this->Read(dim) && 
-	      this->Read(dim+1) && 
-	      this->Read(dim+2)))
+              this->Read(dim+1) && 
+              this->Read(dim+2)))
           {
           vtkErrorMacro(<<"Error reading dimensions!");
           this->CloseVTKFile ();
@@ -191,7 +191,7 @@ void vtkStructuredPointsReader::Execute()
 
         numPts = dim[0] * dim[1] * dim[2];
         output->SetDimensions(dim);
-	numCells = output->GetNumberOfCells();
+        numCells = output->GetNumberOfCells();
         dimsRead = 1;
         }
 
@@ -199,8 +199,8 @@ void vtkStructuredPointsReader::Execute()
         {
         float ar[3];
         if (!(this->Read(ar) && 
-	      this->Read(ar+1) && 
-	      this->Read(ar+2)))
+              this->Read(ar+1) && 
+              this->Read(ar+2)))
           {
           vtkErrorMacro(<<"Error reading spacing!");
           this->CloseVTKFile ();
@@ -215,8 +215,8 @@ void vtkStructuredPointsReader::Execute()
         {
         float origin[3];
         if (!(this->Read(origin) && 
-	      this->Read(origin+1) && 
-	      this->Read(origin+2)))
+              this->Read(origin+1) && 
+              this->Read(origin+2)))
           {
           vtkErrorMacro(<<"Error reading origin!");
           this->CloseVTKFile ();

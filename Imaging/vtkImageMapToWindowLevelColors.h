@@ -86,7 +86,7 @@ protected:
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
   void ExecuteInformation(){this->vtkImageMapToColors::ExecuteInformation();};
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
-		       int extent[6], int id);
+                       int extent[6], int id);
   void ExecuteData(vtkDataObject *output);
   
   float Window;

@@ -139,8 +139,8 @@ void vtkImageCanvasSource2D::SetImageData(vtkImageData *image)
 // Draw a data.  Only implentented for 2D extents.
 template <class T>
 static void vtkImageCanvasSource2DFillBox(vtkImageData *image, 
-					  float *drawColor, T *ptr, 
-					  int min0, int max0, int min1, int max1)
+                                          float *drawColor, T *ptr, 
+                                          int min0, int max0, int min1, int max1)
 {
   T *ptr0, *ptr1, *ptrV;
   int idx0, idx1, idxV;
@@ -211,8 +211,8 @@ void vtkImageCanvasSource2D::FillBox(int min0, int max0, int min1, int max1)
 // Fill a tube (thick line for initial 2D implementation.
 template <class T>
 static void vtkImageCanvasSource2DFillTube(vtkImageData *image, 
-				  float *drawColor, T *ptr, 
-				  int a0, int a1, int b0, int b1, float radius)
+                                  float *drawColor, T *ptr, 
+                                  int a0, int a1, int b0, int b1, float radius)
 {
   T *ptr0, *ptr1, *ptrV;
   int idx0, idx1, idxV;
@@ -310,8 +310,8 @@ void vtkImageCanvasSource2D::FillTube(int a0, int a1, int b0, int b1, float radi
 // Fill a triangle (rasterize)
 template <class T>
 static void vtkImageCanvasSource2DFillTriangle(vtkImageData *image, 
-				      float *drawColor, T *ptr, int a0, int a1,
-				      int b0, int b1, int c0, int c1, int z)
+                                      float *drawColor, T *ptr, int a0, int a1,
+                                      int b0, int b1, int c0, int c1, int z)
 {
   int temp;
   float longT, shortT;  // end points of intersection of trainge and row.
@@ -443,8 +443,8 @@ void vtkImageCanvasSource2D::FillTriangle(int a0,int a1, int b0,int b1, int c0,i
 // Draw a point.  Only implentented for 2D images.
 template <class T>
 static void vtkImageCanvasSource2DDrawPoint(vtkImageData *image, 
-				   float *drawColor, T *ptr, 
-				   int p0, int p1, int z)
+                                   float *drawColor, T *ptr, 
+                                   int p0, int p1, int z)
 {
   int min0, max0, min1, max1, min2, max2, maxV;
   int idxV;
@@ -496,8 +496,8 @@ void vtkImageCanvasSource2D::DrawPoint(int p0, int p1)
 // Draw a circle.  Only implentented for 2D images.
 template <class T>
 static void vtkImageCanvasSource2DDrawCircle(vtkImageData *image, 
-				    float *drawColor, T *ptr, 
-				    int c0, int c1, float radius, int z)
+                                    float *drawColor, T *ptr, 
+                                    int c0, int c1, float radius, int z)
 {
   int min0, max0, min1, max1, min2, max2, maxV;
   int idxV;
@@ -572,8 +572,8 @@ void vtkImageCanvasSource2D::DrawCircle(int c0, int c1, float radius)
 // First point is already shifted to origin.
 template <class T>
 static void vtkImageCanvasSource2DDrawSegment(vtkImageData *image, 
-				     float *drawColor, T *ptr, 
-				     int p0, int p1)
+                                     float *drawColor, T *ptr, 
+                                     int p0, int p1)
 {
   float f0, f1;
   float s0, s1;
@@ -814,8 +814,8 @@ int vtkImageCanvasSource2D::ClipSegment(int &a0, int &a1, int &b0, int &b1)
 // First point is already shifted to origin.
 template <class T>
 static void vtkImageCanvasSource2DDrawSegment3D(vtkImageData *image, 
-				       float *drawColor, 
-				       T *ptr, int p0, int p1, int p2)
+                                       float *drawColor, 
+                                       T *ptr, int p0, int p1, int p2)
 {
   float f0, f1, f2;
   float s0, s1, s2;
@@ -909,8 +909,8 @@ void vtkImageCanvasSource2D::DrawSegment3D(float *a, float *b)
   int a0, a1, a2;
   
   ptr = this->ImageData->GetScalarPointer((int)(b[0] + 0.5), 
-					    (int)(b[1] + 0.5), 
-					    (int)(b[2] + 0.5));
+                                            (int)(b[1] + 0.5), 
+                                            (int)(b[2] + 0.5));
   a0 = (int)(a[0] - b[0] + 0.5);
   a1 = (int)(a[1] - b[1] + 0.5);
   a2 = (int)(a[2] - b[2] + 0.5);
@@ -928,7 +928,7 @@ void vtkImageCanvasSource2D::DrawSegment3D(float *a, float *b)
 //----------------------------------------------------------------------------
 template <class T>
 static void vtkImageCanvasSource2DFill(vtkImageData *image, float *color, 
-			      T *ptr, int x, int y)
+                              T *ptr, int x, int y)
 {
   vtkImageCanvasSource2DPixel *pixel;
   vtkImageCanvasSource2DPixel *first, *last;
@@ -995,40 +995,40 @@ static void vtkImageCanvasSource2DFill(vtkImageData *image, float *color,
       ptrC = fillColor;
       temp = 1;
       for (idxV = 0; idxV <= maxV; ++idxV)
-	{
-	if (*ptrV != *ptrC++)
-	  {
-	  temp = 0;
-	  break;
-	  }
-	ptrV++;
-	}
+        {
+        if (*ptrV != *ptrC++)
+          {
+          temp = 0;
+          break;
+          }
+        ptrV++;
+        }
       if (temp)
-	{ // color match add a new seed to end of list
-	if (heap)
-	  {
-	  pixel = heap;
-	  heap = heap->Next;
-	  }
-	else
-	  {
-	  pixel = vtkImageCanvasSource2DPixel::New();
-	  }
-	pixel->X = first->X-1;
-	pixel->Y = first->Y;
-	pixel->Pointer = (void *)(ptr - inc0);
-	pixel->Next = NULL;
-	last->Next = pixel;
-	last = pixel;
-	// change the seeds color
-	ptrV = (T *)(last->Pointer);
-	ptrC = drawColor;
-	for (idxV = 0; idxV <= maxV; ++idxV)
-	  {
-	  *ptrV = *ptrC++;
-	  ptrV++;
-	  }
-	}
+        { // color match add a new seed to end of list
+        if (heap)
+          {
+          pixel = heap;
+          heap = heap->Next;
+          }
+        else
+          {
+          pixel = vtkImageCanvasSource2DPixel::New();
+          }
+        pixel->X = first->X-1;
+        pixel->Y = first->Y;
+        pixel->Pointer = (void *)(ptr - inc0);
+        pixel->Next = NULL;
+        last->Next = pixel;
+        last = pixel;
+        // change the seeds color
+        ptrV = (T *)(last->Pointer);
+        ptrC = drawColor;
+        for (idxV = 0; idxV <= maxV; ++idxV)
+          {
+          *ptrV = *ptrC++;
+          ptrV++;
+          }
+        }
       }
   
     // check bounds for +x neighbor
@@ -1040,40 +1040,40 @@ static void vtkImageCanvasSource2DFill(vtkImageData *image, float *color,
       ptrC = fillColor;
       temp = 1;
       for (idxV = 0; idxV <= maxV; ++idxV)
-	{
-	if (*ptrV != *ptrC++)
-	  {
-	  temp = 0;
-	  break;
-	  }
-	ptrV++;
-	}
+        {
+        if (*ptrV != *ptrC++)
+          {
+          temp = 0;
+          break;
+          }
+        ptrV++;
+        }
       if (temp)
-	{ // color match add a new seed to end of list
-	if (heap)
-	  {
-	  pixel = heap;
-	  heap = heap->Next;
-	  }
-	else
-	  {
-	  pixel = vtkImageCanvasSource2DPixel::New();
-	  }
-	pixel->X = first->X+1;
-	pixel->Y = first->Y;
-	pixel->Pointer = (void *)(ptr + inc0);
-	pixel->Next = NULL;
-	last->Next = pixel;
-	last = pixel;
-	// change the seeds color
-	ptrV = (T *)(last->Pointer);
-	ptrC = drawColor;
-	for (idxV = 0; idxV <= maxV; ++idxV)
-	  {
-	  *ptrV = *ptrC++;
-	  ptrV++;
-	  }
-	}
+        { // color match add a new seed to end of list
+        if (heap)
+          {
+          pixel = heap;
+          heap = heap->Next;
+          }
+        else
+          {
+          pixel = vtkImageCanvasSource2DPixel::New();
+          }
+        pixel->X = first->X+1;
+        pixel->Y = first->Y;
+        pixel->Pointer = (void *)(ptr + inc0);
+        pixel->Next = NULL;
+        last->Next = pixel;
+        last = pixel;
+        // change the seeds color
+        ptrV = (T *)(last->Pointer);
+        ptrC = drawColor;
+        for (idxV = 0; idxV <= maxV; ++idxV)
+          {
+          *ptrV = *ptrC++;
+          ptrV++;
+          }
+        }
       }
   
     // check bounds for -y neighbor
@@ -1085,40 +1085,40 @@ static void vtkImageCanvasSource2DFill(vtkImageData *image, float *color,
       ptrC = fillColor;
       temp = 1;
       for (idxV = 0; idxV <= maxV; ++idxV)
-	{
-	if (*ptrV != *ptrC++)
-	  {
-	  temp = 0;
-	  break;
-	  }
-	ptrV++;
-	}
+        {
+        if (*ptrV != *ptrC++)
+          {
+          temp = 0;
+          break;
+          }
+        ptrV++;
+        }
       if (temp)
-	{ // color match add a new seed to end of list
-	if (heap)
-	  {
-	  pixel = heap;
-	  heap = heap->Next;
-	  }
-	else
-	  {
-	  pixel = vtkImageCanvasSource2DPixel::New();
-	  }
-	pixel->X = first->X;
-	pixel->Y = first->Y-1;
-	pixel->Pointer = (void *)(ptr - inc1);
-	pixel->Next = NULL;
-	last->Next = pixel;
-	last = pixel;
-	// change the seeds color
-	ptrV = (T *)(last->Pointer);
-	ptrC = drawColor;
-	for (idxV = 0; idxV <= maxV; ++idxV)
-	  {
-	  *ptrV = *ptrC++;
-	  ptrV++;
-	  }
-	}
+        { // color match add a new seed to end of list
+        if (heap)
+          {
+          pixel = heap;
+          heap = heap->Next;
+          }
+        else
+          {
+          pixel = vtkImageCanvasSource2DPixel::New();
+          }
+        pixel->X = first->X;
+        pixel->Y = first->Y-1;
+        pixel->Pointer = (void *)(ptr - inc1);
+        pixel->Next = NULL;
+        last->Next = pixel;
+        last = pixel;
+        // change the seeds color
+        ptrV = (T *)(last->Pointer);
+        ptrC = drawColor;
+        for (idxV = 0; idxV <= maxV; ++idxV)
+          {
+          *ptrV = *ptrC++;
+          ptrV++;
+          }
+        }
       }
   
     // check bounds for +y neighbor
@@ -1130,40 +1130,40 @@ static void vtkImageCanvasSource2DFill(vtkImageData *image, float *color,
       ptrC = fillColor;
       temp = 1;
       for (idxV = 0; idxV <= maxV; ++idxV)
-	{
-	if (*ptrV != *ptrC++)
-	  {
-	  temp = 0;
-	  break;
-	  }
-	ptrV++;
-	}
+        {
+        if (*ptrV != *ptrC++)
+          {
+          temp = 0;
+          break;
+          }
+        ptrV++;
+        }
       if (temp)
-	{ // color match add a new seed to end of list
-	if (heap)
-	  {
-	  pixel = heap;
-	  heap = heap->Next;
-	  }
-	else
-	  {
-	  pixel = vtkImageCanvasSource2DPixel::New();
-	  }
-	pixel->X = first->X;
-	pixel->Y = first->Y+1;
-	pixel->Pointer = (void *)(ptr + inc1);
-	pixel->Next = NULL;
-	last->Next = pixel;
-	last = pixel;
-	// change the seeds color
-	ptrV = (T *)(last->Pointer);
-	ptrC = drawColor;
-	for (idxV = 0; idxV <= maxV; ++idxV)
-	  {
-	  *ptrV = *ptrC++;
-	  ptrV++;
-	  }
-	}
+        { // color match add a new seed to end of list
+        if (heap)
+          {
+          pixel = heap;
+          heap = heap->Next;
+          }
+        else
+          {
+          pixel = vtkImageCanvasSource2DPixel::New();
+          }
+        pixel->X = first->X;
+        pixel->Y = first->Y+1;
+        pixel->Pointer = (void *)(ptr + inc1);
+        pixel->Next = NULL;
+        last->Next = pixel;
+        last = pixel;
+        // change the seeds color
+        ptrV = (T *)(last->Pointer);
+        ptrC = drawColor;
+        for (idxV = 0; idxV <= maxV; ++idxV)
+          {
+          *ptrV = *ptrC++;
+          ptrV++;
+          }
+        }
       }
 
     // remove the first from the list.
@@ -1223,7 +1223,7 @@ void vtkImageCanvasSource2D::SetExtent(int *extent)
 
 //----------------------------------------------------------------------------
 void vtkImageCanvasSource2D::SetExtent(int x1, int x2, int y1, int y2, 
-					int z1, int z2)
+                                        int z1, int z2)
 {
   this->vtkStructuredPoints::SetExtent(x1, x2, y1, y2, z1, z2);
   this->SetWholeExtent(x1, x2, y1, y2, z1, z2);

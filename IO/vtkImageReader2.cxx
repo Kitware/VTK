@@ -590,7 +590,7 @@ void vtkImageReader2::SeekFile(int i, int j, int k)
 // templated to handle different data types.
 template <class OT>
 static void vtkImageReader2Update(vtkImageReader2 *self, vtkImageData *data,
-				  OT *outPtr)
+                                  OT *outPtr)
 {
   int outIncr[3];
   OT *outPtr1, *outPtr2;
@@ -611,7 +611,7 @@ static void vtkImageReader2Update(vtkImageReader2 *self, vtkImageData *data,
   
   // create a buffer to hold a row of the data
   target = (unsigned long)((outExtent[5]-outExtent[4]+1)*
-			   (outExtent[3]-outExtent[2]+1)/50.0);
+                           (outExtent[3]-outExtent[2]+1)/50.0);
   target++;
 
   // read the data row by row
@@ -630,29 +630,29 @@ static void vtkImageReader2Update(vtkImageReader2 *self, vtkImageData *data,
       }
     outPtr1 = outPtr2;
     for (idx1 = outExtent[2]; 
-	 !self->AbortExecute && idx1 <= outExtent[3]; ++idx1)
+         !self->AbortExecute && idx1 <= outExtent[3]; ++idx1)
       {
       if (!(count%target))
-	{
-	self->UpdateProgress(count/(50.0*target));
-	}
+        {
+        self->UpdateProgress(count/(50.0*target));
+        }
       count++;
       
       // seek to the correct row
       self->SeekFile(outExtent[0],idx1,idx2);
       // read the row.
       if ( !self->GetFile()->read((char *)outPtr1, streamRead))
-	{
-	vtkGenericWarningMacro("File operation failed. row = " << idx1
-			       << ", Read = " << streamRead
-			       << ", FilePos = " << self->GetFile()->tellg());
-	return;
-	}
+        {
+        vtkGenericWarningMacro("File operation failed. row = " << idx1
+                               << ", Read = " << streamRead
+                               << ", FilePos = " << self->GetFile()->tellg());
+        return;
+        }
       // handle swapping
       if (self->GetSwapBytes() && sizeof(OT) > 1)
-	{
-	vtkByteSwap::SwapVoidRange(outPtr1, pixelRead*nComponents, sizeof(OT));
-	}
+        {
+        vtkByteSwap::SwapVoidRange(outPtr1, pixelRead*nComponents, sizeof(OT));
+        }
       outPtr1 += outIncr[1];
       }
     // move to the next image in the file and data
@@ -679,7 +679,7 @@ void vtkImageReader2::ExecuteData(vtkDataObject *output)
   ext = data->GetExtent();
 
   vtkDebugMacro("Reading extent: " << ext[0] << ", " << ext[1] << ", " 
-	<< ext[2] << ", " << ext[3] << ", " << ext[4] << ", " << ext[5]);
+        << ext[2] << ", " << ext[3] << ", " << ext[4] << ", " << ext[5]);
   
   this->ComputeDataIncrements();
   

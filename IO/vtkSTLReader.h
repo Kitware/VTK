@@ -118,7 +118,7 @@ protected:
   void Execute();
   int ReadBinarySTL(FILE *fp, vtkPoints*, vtkCellArray*);
   int ReadASCIISTL(FILE *fp, vtkPoints*, vtkCellArray*, 
-		   vtkFloatArray* scalars=0);
+                   vtkFloatArray* scalars=0);
   int GetSTLFileType(FILE *fp);
 private:
   vtkSTLReader(const vtkSTLReader&);  // Not implemented.

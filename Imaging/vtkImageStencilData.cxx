@@ -206,9 +206,9 @@ void vtkImageStencilData::InternalImageStencilDataCopy(vtkImageStencilData *s)
       int m = this->ExtentListLengths[i];
       this->ExtentLists[i] = new int[m];
       for (int j = 0; j < m; j++)
-	{
-	this->ExtentLists[i][j] = s->ExtentLists[i][j];
-	}
+        {
+        this->ExtentLists[i][j] = s->ExtentLists[i][j];
+        }
       }
     }
 }
@@ -311,8 +311,8 @@ int vtkImageStencilData::SpacingOrOriginHasChanged()
   float *oorigin = this->OldOrigin;
 
   return (spacing[0] != ospacing[0] || origin[0] != oorigin[0] ||
-	  spacing[1] != ospacing[1] || origin[1] != oorigin[1] ||
-	  spacing[2] != ospacing[2] || origin[2] != oorigin[2]);
+          spacing[1] != ospacing[1] || origin[1] != oorigin[1] ||
+          spacing[2] != ospacing[2] || origin[2] != oorigin[2]);
 }
 
 //----------------------------------------------------------------------------
@@ -327,9 +327,9 @@ void vtkImageStencilData::AllocateExtents()
       {
       int n = this->NumberOfExtentEntries;
       for (int i = 0; i < n; i++)
-	{
-	delete [] this->ExtentLists[i];
-	}
+        {
+        delete [] this->ExtentLists[i];
+        }
       delete [] this->ExtentLists;
       delete [] this->ExtentListLengths;
       }
@@ -343,10 +343,10 @@ void vtkImageStencilData::AllocateExtents()
       this->ExtentLists = new int *[numEntries];
       this->ExtentListLengths = new int[numEntries];
       for (int i = 0; i < numEntries; i++)
-	{
-	this->ExtentListLengths[i] = 0;
-	this->ExtentLists[i] = NULL;
-	}
+        {
+        this->ExtentListLengths[i] = 0;
+        this->ExtentLists[i] = NULL;
+        }
       }
     }
   else
@@ -354,11 +354,11 @@ void vtkImageStencilData::AllocateExtents()
     for (int i = 0; i < numEntries; i++)
       {
       if (this->ExtentListLengths[i] != 0)
-	{
-	this->ExtentListLengths[i] = 0;
-	delete this->ExtentLists[i];
-	this->ExtentLists[i] = NULL;
-	}
+        {
+        this->ExtentListLengths[i] = 0;
+        delete this->ExtentLists[i];
+        this->ExtentLists[i] = NULL;
+        }
       }
     }
 }
@@ -370,8 +370,8 @@ void vtkImageStencilData::AllocateExtents()
 // before the first call.  The return value is zero if there are no
 // extents remaining.
 int vtkImageStencilData::GetNextExtent(int &r1, int &r2,
-				       int rmin, int rmax,
-				       int yIdx, int zIdx, int &iter)
+                                       int rmin, int rmax,
+                                       int yIdx, int zIdx, int &iter)
 {
   int yExt = this->Extent[3] - this->Extent[2] + 1;
   int zExt = this->Extent[5] - this->Extent[4] + 1;
@@ -418,9 +418,9 @@ int vtkImageStencilData::GetNextExtent(int &r1, int &r2,
       {
       r1 = rmin;
       if (state > 0)
-	{
-	r1 = rmax + 1;
-	}
+        {
+        r1 = rmax + 1;
+        }
       }
     }
   else
@@ -484,9 +484,9 @@ void vtkImageStencilData::InsertNextExtent(int r1, int r2, int yIdx, int zIdx)
       clistmaxlen *= 2;
       int *newclist = new int[clistmaxlen];
       for (int k = 0; k < clistlen; k++)
-	{
-	newclist[k] = clist[k];
-	}
+        {
+        newclist[k] = clist[k];
+        }
       delete [] clist;
       clist = newclist;
       }

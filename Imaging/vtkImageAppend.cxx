@@ -78,7 +78,7 @@ vtkImageAppend::~vtkImageAppend()
 //----------------------------------------------------------------------------
 // This method tells the ouput it will have more components
 void vtkImageAppend::ExecuteInformation(vtkImageData **inputs, 
-					vtkImageData *output)
+                                        vtkImageData *output)
 {
   int idx;
   int min, max, size, tmp;
@@ -168,7 +168,7 @@ void vtkImageAppend::ExecuteInformation(vtkImageData **inputs,
 
 //----------------------------------------------------------------------------
 void vtkImageAppend::ComputeInputUpdateExtent(int inExt[6],
-					      int outExt[6], int whichInput)
+                                              int outExt[6], int whichInput)
 {
   int min, max, shift, tmp, idx;
   int *extent;
@@ -226,8 +226,8 @@ void vtkImageAppend::ComputeInputUpdateExtent(int inExt[6],
 // This templated function executes the filter for any type of data.
 template <class T>
 static void vtkImageAppendExecute(vtkImageAppend *self, int id, 
-			  int inExt[6], vtkImageData *inData, T *inPtr,
-			  int outExt[6], vtkImageData *outData, T *outPtr)
+                          int inExt[6], vtkImageData *inData, T *inPtr,
+                          int outExt[6], vtkImageData *outData, T *outPtr)
 {
   int idxR, idxY, idxZ;
   int maxY, maxZ;
@@ -357,7 +357,7 @@ void vtkImageAppend::ThreadedExecute(vtkImageData **inData,
           vtkErrorMacro("Components of the inputs do not match");
           return;
           }
-	
+        
         // this filter expects that input is the same type as output.
         if (inData[idx1]->GetScalarType() != outData->GetScalarType())
           {
@@ -367,7 +367,7 @@ void vtkImageAppend::ThreadedExecute(vtkImageData **inData,
               << ")");
           return;
           }
-	
+        
         switch (inData[idx1]->GetScalarType())
           {
           vtkTemplateMacro8(vtkImageAppendExecute, this, id, 

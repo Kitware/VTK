@@ -66,7 +66,7 @@ vtkImageMirrorPad* vtkImageMirrorPad::New()
 //----------------------------------------------------------------------------
 // Just clip the request.
 void vtkImageMirrorPad::ComputeInputUpdateExtent(int inExt[6], 
-						 int outExt[6])
+                                                 int outExt[6])
 {
   int *wExtent = this->GetInput()->GetWholeExtent();
   int idx;
@@ -80,7 +80,7 @@ void vtkImageMirrorPad::ComputeInputUpdateExtent(int inExt[6],
   for (idx = 0; idx < 3; idx++)
     {
     if (outExt[idx*2] >= wExtent[idx*2] &&
-	outExt[idx*2+1] <= wExtent[idx*2+1])
+        outExt[idx*2+1] <= wExtent[idx*2+1])
       {
       inExt[idx*2] = outExt[idx*2];
       inExt[idx*2+1] = outExt[idx*2+1];
@@ -92,9 +92,9 @@ void vtkImageMirrorPad::ComputeInputUpdateExtent(int inExt[6],
 //----------------------------------------------------------------------------
 template <class T>
 static void vtkImageMirrorPadExecute(vtkImageMirrorPad *self,
-				     vtkImageData *inData,
-				     vtkImageData *outData, T *outPtr,
-				     int outExt[6], int id)
+                                     vtkImageData *inData,
+                                     vtkImageData *outData, T *outPtr,
+                                     int outExt[6], int id)
 {
   int idxC, idxX, idxY, idxZ;
   int maxX, maxY, maxZ;
@@ -162,69 +162,69 @@ static void vtkImageMirrorPadExecute(vtkImageMirrorPad *self,
       inIdx[0] = inIdxStart[0];
       inInc[0] = inIncStart[0];
       if (!id) 
-	{
-	if (!(count%target))
-	  {
-	  self->UpdateProgress(count/(50.0*target));
-	  }
-	count++;
-	}
+        {
+        if (!(count%target))
+          {
+          self->UpdateProgress(count/(50.0*target));
+          }
+        count++;
+        }
 
       // if components are same much faster
       if ((maxC == inMaxC) && (maxC == 1))
-	{
-	for (idxX = 0; idxX <= maxX; idxX++)
-	  {
-	  // Pixel operation
-	  *outPtr = *inPtrX;
-	  outPtr++;
-	  inIdx[0] += inInc[0];
-	  inPtrX = inPtrX + inInc[0]*inIncX;
-	  if (inIdx[0] < wExtent[0] || inIdx[0] > wExtent[1])
-	    {
-	    inInc[0] *= -1;
-	    inIdx[0] += inInc[0];
-	    inPtrX = inPtrX + inInc[0]*inIncX;
-	    }
-	  }
-	}
+        {
+        for (idxX = 0; idxX <= maxX; idxX++)
+          {
+          // Pixel operation
+          *outPtr = *inPtrX;
+          outPtr++;
+          inIdx[0] += inInc[0];
+          inPtrX = inPtrX + inInc[0]*inIncX;
+          if (inIdx[0] < wExtent[0] || inIdx[0] > wExtent[1])
+            {
+            inInc[0] *= -1;
+            inIdx[0] += inInc[0];
+            inPtrX = inPtrX + inInc[0]*inIncX;
+            }
+          }
+        }
       else // components are not the same
-	{
-	for (idxX = 0; idxX <= maxX; idxX++)
-	  {
-	  for (idxC = 0; idxC < maxC; idxC++)
-	    {
-	    // Pixel operation
-	    if (idxC < inMaxC)
-	      {
-	      *outPtr = *(inPtrX + idxC);
-	      }
-	    else
-	      {
-	      *outPtr = *(inPtrX + idxC%inMaxC);
-	      }
-	    outPtr++;
-	    }
-	  inIdx[0] += inInc[0];
-	  inPtrX = inPtrX + inInc[0]*inIncX;
-	  if (inIdx[0] < wExtent[0] || inIdx[0] > wExtent[1])
-	    {
-	    inInc[0] *= -1;
-	    inIdx[0] += inInc[0];
-	    inPtrX = inPtrX + inInc[0]*inIncX;
-	    }
-	  }
-	}
+        {
+        for (idxX = 0; idxX <= maxX; idxX++)
+          {
+          for (idxC = 0; idxC < maxC; idxC++)
+            {
+            // Pixel operation
+            if (idxC < inMaxC)
+              {
+              *outPtr = *(inPtrX + idxC);
+              }
+            else
+              {
+              *outPtr = *(inPtrX + idxC%inMaxC);
+              }
+            outPtr++;
+            }
+          inIdx[0] += inInc[0];
+          inPtrX = inPtrX + inInc[0]*inIncX;
+          if (inIdx[0] < wExtent[0] || inIdx[0] > wExtent[1])
+            {
+            inInc[0] *= -1;
+            inIdx[0] += inInc[0];
+            inPtrX = inPtrX + inInc[0]*inIncX;
+            }
+          }
+        }
       
       outPtr += outIncY;
       inIdx[1] += inInc[1];
       inPtrY = inPtrY + inInc[1]*inIncY;
       if (inIdx[1] < wExtent[2] || inIdx[1] > wExtent[3])
-	{
-	inInc[1] *= -1;
-	inIdx[1] += inInc[1];
-	inPtrY = inPtrY + inInc[1]*inIncY;
-	}
+        {
+        inInc[1] *= -1;
+        inIdx[1] += inInc[1];
+        inPtrY = inPtrY + inInc[1]*inIncY;
+        }
       }
     outPtr += outIncZ;
     inIdx[2] += inInc[2];
@@ -246,13 +246,13 @@ static void vtkImageMirrorPadExecute(vtkImageMirrorPad *self,
 // It just executes a switch statement to call the correct function for
 // the regions data types.
 void vtkImageMirrorPad::ThreadedExecute(vtkImageData *inData, 
-					vtkImageData *outData,
-					int outExt[6], int id)
+                                        vtkImageData *outData,
+                                        int outExt[6], int id)
 {
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
   
   vtkDebugMacro(<< "Execute: inData = " << inData 
-		<< ", outData = " << outData);
+                << ", outData = " << outData);
   
   // this filter expects that input is the same type as output.
   if (inData->GetScalarType() != outData->GetScalarType())

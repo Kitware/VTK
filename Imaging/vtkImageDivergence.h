@@ -67,7 +67,7 @@ protected:
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
   void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();}
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
-		       int ext[6], int id);
+                       int ext[6], int id);
 
 private:
   vtkImageDivergence(const vtkImageDivergence&);  // Not implemented.

@@ -87,10 +87,10 @@ vtkImageOpenClose3D::vtkImageOpenClose3D()
   // create the filter chain 
   this->Filter0 = vtkImageDilateErode3D::New();
   this->Filter0->SetProgressMethod(vtkImageOpenClose3DUpdateProgress0,
-				   (void *)this);
+                                   (void *)this);
   this->Filter1 = vtkImageDilateErode3D::New();
   this->Filter1->SetProgressMethod(vtkImageOpenClose3DUpdateProgress1, 
-				   (void *)this); 
+                                   (void *)this); 
   this->SetOpenValue(0.0);
   this->SetCloseValue(255.0);
 

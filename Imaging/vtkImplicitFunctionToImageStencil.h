@@ -78,7 +78,7 @@ protected:
   void operator=(const vtkImplicitFunctionToImageStencil&);
 
   void ThreadedExecute(vtkImageStencilData *output,
-		       int extent[6], int threadId);
+                       int extent[6], int threadId);
 
   vtkImplicitFunction *Input;
   float Threshold;

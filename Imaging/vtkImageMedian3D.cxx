@@ -89,7 +89,7 @@ void vtkImageMedian3D::SetKernelSize(int size0, int size1, int size2)
   if (this->KernelSize[0] == size0 && this->KernelSize[1] == size1 && 
       this->KernelSize[2] == size2)
     {
-  	modified = 0;
+        modified = 0;
     }
   
   // Set the kernel size and middle
@@ -107,16 +107,16 @@ void vtkImageMedian3D::SetKernelSize(int size0, int size1, int size2)
   this->NumberOfElements = volume;
   if ( modified )
   {
-	  this->Modified();
+          this->Modified();
   }
 }
 
 //----------------------------------------------------------------------------
 // Add a sample to the median computation
 double *vtkImageMedian3DAccumulateMedian(int &UpNum, int &DownNum,
-					 int &UpMax, int &DownMax,
-					 int &NumNeighborhood,
-					 double *Median, double val)
+                                         int &UpMax, int &DownMax,
+                                         int &NumNeighborhood,
+                                         double *Median, double val)
 {
   int idx, max;
   double temp, *ptr;
@@ -217,9 +217,9 @@ double *vtkImageMedian3DAccumulateMedian(int &UpNum, int &DownNum,
 // templated function for the mask types.
 template <class T>
 static void vtkImageMedian3DExecute(vtkImageMedian3D *self,
-				    vtkImageData *inData, T *inPtr, 
-				    vtkImageData *outData, T *outPtr,
-				    int outExt[6], int id)
+                                    vtkImageData *inData, T *inPtr, 
+                                    vtkImageData *outData, T *outPtr,
+                                    int outExt[6], int id)
 {
   int *kernelMiddle, *kernelSize;
   int NumberOfElements;
@@ -295,78 +295,78 @@ static void vtkImageMedian3DExecute(vtkImageMedian3D *self,
     hoodMin1 = hoodStartMin1;
     hoodMax1 = hoodStartMax1;
     for (outIdx1 = outExt[2]; 
-	 !self->AbortExecute && outIdx1 <= outExt[3]; ++outIdx1)
+         !self->AbortExecute && outIdx1 <= outExt[3]; ++outIdx1)
       {
       if (!id) 
-	{
-	if (!(count%target))
-	  {
-	  self->UpdateProgress(count/(50.0*target));
-	  }
-	count++;
-	}
+        {
+        if (!(count%target))
+          {
+          self->UpdateProgress(count/(50.0*target));
+          }
+        count++;
+        }
       inPtr0 = inPtr1;
       hoodMin0 = hoodStartMin0;
       hoodMax0 = hoodStartMax0;
       for (outIdx0 = outExt[0]; outIdx0 <= outExt[1]; ++outIdx0)
-	{
-	for (outIdxC = 0; outIdxC < numComp; outIdxC++)
-	  {
-	  // Compute median of neighborhood
-	  // Note: For boundary, NumNeighborhood could be changed for
-	  // a faster sort.
-	  DownNum = UpNum = 0;
+        {
+        for (outIdxC = 0; outIdxC < numComp; outIdxC++)
+          {
+          // Compute median of neighborhood
+          // Note: For boundary, NumNeighborhood could be changed for
+          // a faster sort.
+          DownNum = UpNum = 0;
           Median = Sort + (NumberOfElements / 2) + 4;
-	  // loop through neighborhood pixels
-	  tmpPtr2 = inPtr0 + outIdxC;
-	  for (hoodIdx2 = hoodMin2; hoodIdx2 <= hoodMax2; ++hoodIdx2)
-	    {
-	    tmpPtr1 = tmpPtr2;
-	    for (hoodIdx1 = hoodMin1; hoodIdx1 <= hoodMax1; ++hoodIdx1)
-	      {
-	      tmpPtr0 = tmpPtr1;
-	      for (hoodIdx0 = hoodMin0; hoodIdx0 <= hoodMax0; ++hoodIdx0)
-		{
-		// Add this pixel to the median
-		Median = vtkImageMedian3DAccumulateMedian(UpNum, DownNum, 
-							  UpMax, DownMax,
-							  NumberOfElements,
-							  Median,
-							  double(*tmpPtr0));
-		
-		tmpPtr0 += inInc0;
-		}
-	      tmpPtr1 += inInc1;
-	      }
-	    tmpPtr2 += inInc2;
-	    }
-	
-	  // Replace this pixel with the hood median
-	  *outPtr = (T)(*Median);
-	  outPtr++;
-	  }
-	
-	// shift neighborhood considering boundaries
-	if (outIdx0 >= middleMin0)
-	  {
-	  inPtr0 += inInc0;
-	  ++hoodMin0;
-	  }
-	if (outIdx0 < middleMax0)
-	  {
-	  ++hoodMax0;
-	  }
-	}
+          // loop through neighborhood pixels
+          tmpPtr2 = inPtr0 + outIdxC;
+          for (hoodIdx2 = hoodMin2; hoodIdx2 <= hoodMax2; ++hoodIdx2)
+            {
+            tmpPtr1 = tmpPtr2;
+            for (hoodIdx1 = hoodMin1; hoodIdx1 <= hoodMax1; ++hoodIdx1)
+              {
+              tmpPtr0 = tmpPtr1;
+              for (hoodIdx0 = hoodMin0; hoodIdx0 <= hoodMax0; ++hoodIdx0)
+                {
+                // Add this pixel to the median
+                Median = vtkImageMedian3DAccumulateMedian(UpNum, DownNum, 
+                                                          UpMax, DownMax,
+                                                          NumberOfElements,
+                                                          Median,
+                                                          double(*tmpPtr0));
+                
+                tmpPtr0 += inInc0;
+                }
+              tmpPtr1 += inInc1;
+              }
+            tmpPtr2 += inInc2;
+            }
+        
+          // Replace this pixel with the hood median
+          *outPtr = (T)(*Median);
+          outPtr++;
+          }
+        
+        // shift neighborhood considering boundaries
+        if (outIdx0 >= middleMin0)
+          {
+          inPtr0 += inInc0;
+          ++hoodMin0;
+          }
+        if (outIdx0 < middleMax0)
+          {
+          ++hoodMax0;
+          }
+        }
       // shift neighborhood considering boundaries
       if (outIdx1 >= middleMin1)
-	{
-	inPtr1 += inInc1;
-	++hoodMin1;
-	}
+        {
+        inPtr1 += inInc1;
+        ++hoodMin1;
+        }
       if (outIdx1 < middleMax1)
-	{
-	++hoodMax1;
-	}
+        {
+        ++hoodMax1;
+        }
       outPtr += outIncY;
     }
     // shift neighborhood considering boundaries
@@ -390,8 +390,8 @@ static void vtkImageMedian3DExecute(vtkImageMedian3D *self,
 // This method contains the first switch statement that calls the correct
 // templated function for the input and output region types.
 void vtkImageMedian3D::ThreadedExecute(vtkImageData *inData, 
-				       vtkImageData *outData,
-				       int outExt[6], int id)
+                                       vtkImageData *outData,
+                                       int outExt[6], int id)
 {
   void *inPtr = inData->GetScalarPointerForExtent(outExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);

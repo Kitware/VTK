@@ -77,7 +77,7 @@ protected:
   vtkImageEllipsoidSource *Ellipse;
     
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
-		       int extent[6], int id);
+                       int extent[6], int id);
 private:
   vtkImageContinuousErode3D(const vtkImageContinuousErode3D&);  // Not implemented.
   void operator=(const vtkImageContinuousErode3D&);  // Not implemented.

@@ -215,7 +215,7 @@ void vtkParticleReader::Execute()
   if ( ! this->File->read((char *)data, length*4*sizeof(float)))
     {
     vtkErrorMacro("Could not read points: " << start 
-	   << " to " << next-1);
+           << " to " << next-1);
     delete [] data;
     return;
     }

@@ -122,7 +122,7 @@ void vtkImageExtractComponents::SetComponents(int c1, int c2)
     this->Modified();
     }
 }
-							
+                                                        
 //----------------------------------------------------------------------------
 void vtkImageExtractComponents::SetComponents(int c1)
 {
@@ -152,9 +152,9 @@ void vtkImageExtractComponents::ExecuteInformation(
 //----------------------------------------------------------------------------
 template <class T>
 static void vtkImageExtractComponentsExecute(vtkImageExtractComponents *self,
-					     vtkImageData *inData, T *inPtr,
-					     vtkImageData *outData, T *outPtr,
-					     int outExt[6], int id)
+                                             vtkImageData *inData, T *inPtr,
+                                             vtkImageData *outData, T *outPtr,
+                                             int outExt[6], int id)
 {
   int idxR, idxY, idxZ;
   int maxX, maxY, maxZ;
@@ -188,50 +188,50 @@ static void vtkImageExtractComponentsExecute(vtkImageExtractComponents *self,
     for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
       {
       if (!id) 
-	{
-	if (!(count%target))
-	  {
-	  self->UpdateProgress(count/(50.0*target));
-	  }
-	count++;
-	}
+        {
+        if (!(count%target))
+          {
+          self->UpdateProgress(count/(50.0*target));
+          }
+        count++;
+        }
       // handle inner loop based on number of components extracted
       switch (cnt)
-	{
-	case 1:
-	  for (idxR = 0; idxR <= maxX; idxR++)
-	    {
-	    // Pixel operation
-	    *outPtr = *(inPtr + offset1);
-	    outPtr++;
-	    inPtr += inCnt;
-	    }
-	  break;
-	case 2:
-	  for (idxR = 0; idxR <= maxX; idxR++)
-	    {
-	    // Pixel operation
-	    *outPtr = *(inPtr + offset1);
-	    outPtr++;
-	    *outPtr = *(inPtr + offset2);
-	    outPtr++;
-	    inPtr += inCnt;
-	    }
-	  break;
-	case 3:
-	  for (idxR = 0; idxR <= maxX; idxR++)
-	    {
-	    // Pixel operation
-	    *outPtr = *(inPtr + offset1);
-	    outPtr++;
-	    *outPtr = *(inPtr + offset2);
-	    outPtr++;
-	    *outPtr = *(inPtr + offset3);
-	    outPtr++;
-	    inPtr += inCnt;
-	    }
-	  break;
-	}
+        {
+        case 1:
+          for (idxR = 0; idxR <= maxX; idxR++)
+            {
+            // Pixel operation
+            *outPtr = *(inPtr + offset1);
+            outPtr++;
+            inPtr += inCnt;
+            }
+          break;
+        case 2:
+          for (idxR = 0; idxR <= maxX; idxR++)
+            {
+            // Pixel operation
+            *outPtr = *(inPtr + offset1);
+            outPtr++;
+            *outPtr = *(inPtr + offset2);
+            outPtr++;
+            inPtr += inCnt;
+            }
+          break;
+        case 3:
+          for (idxR = 0; idxR <= maxX; idxR++)
+            {
+            // Pixel operation
+            *outPtr = *(inPtr + offset1);
+            outPtr++;
+            *outPtr = *(inPtr + offset2);
+            outPtr++;
+            *outPtr = *(inPtr + offset3);
+            outPtr++;
+            inPtr += inCnt;
+            }
+          break;
+        }
       outPtr += outIncY;
       inPtr += inIncY;
       }
@@ -245,15 +245,15 @@ static void vtkImageExtractComponentsExecute(vtkImageExtractComponents *self,
 // This method is passed input and output datas, and executes the
 // ExtractComponents function on each line.  
 void vtkImageExtractComponents::ThreadedExecute(vtkImageData *inData, 
-						vtkImageData *outData,
-						int outExt[6], int id)
+                                                vtkImageData *outData,
+                                                int outExt[6], int id)
 {
   int max, idx;
   void *inPtr = inData->GetScalarPointerForExtent(outExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
   
   vtkDebugMacro(<< "Execute: inData = " << inData 
-		<< ", outData = " << outData);
+                << ", outData = " << outData);
   
   // this filter expects that input is the same type as output.
   if (inData->GetScalarType() != outData->GetScalarType())
@@ -270,7 +270,7 @@ void vtkImageExtractComponents::ThreadedExecute(vtkImageData *inData,
     if (this->Components[idx] > max)
       {
       vtkErrorMacro("Execute: Component " << this->Components[idx]
-		    << " is not in input.");
+                    << " is not in input.");
       return;
       }
     }

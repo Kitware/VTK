@@ -73,7 +73,7 @@ vtkImplicitFunctionToImageStencil::~vtkImplicitFunctionToImageStencil()
 
 //----------------------------------------------------------------------------
 void vtkImplicitFunctionToImageStencil::PrintSelf(ostream& os,
-						  vtkIndent indent)
+                                                  vtkIndent indent)
 {
   vtkImageStencilSource::PrintSelf(os,indent);
 
@@ -85,8 +85,8 @@ void vtkImplicitFunctionToImageStencil::PrintSelf(ostream& os,
 // set up the clipping extents from an implicit function by brute force
 // (i.e. by evaluating the function at each and every voxel)
 void vtkImplicitFunctionToImageStencil::ThreadedExecute(vtkImageStencilData 
-							              *data,
-							int extent[6], int id)
+                                                                      *data,
+                                                        int extent[6], int id)
 {
   vtkImplicitFunction *function = this->Input;
   float *spacing = data->GetSpacing();
@@ -115,37 +115,37 @@ void vtkImplicitFunctionToImageStencil::ThreadedExecute(vtkImageStencilData
       int r2 = extent[1];
 
       if (id == 0)
-	{ // update progress if we're the main thread
-	if (count%target == 0) 
-	  {
-	  this->UpdateProgress(count/(50.0*target));
-	  }
-	count++;
-	}
+        { // update progress if we're the main thread
+        if (count%target == 0) 
+          {
+          this->UpdateProgress(count/(50.0*target));
+          }
+        count++;
+        }
 
       for (int idX = extent[0]; idX <= extent[1]; idX++)
-	{
+        {
         point[0] = idX*spacing[0] + origin[0];
-	int newstate = 1;
-	if (function->FunctionValue(point) < threshold)
-	  {
+        int newstate = 1;
+        if (function->FunctionValue(point) < threshold)
+          {
           newstate = -1;
-	  if (newstate != state)
-	    { // sub extent starts
-	    r1 = idX;
-	    }
-	  }
-	else if (newstate != state)
-	  { // sub extent ends
-	  r2 = idX - 1;
-	  data->InsertNextExtent(r1, r2, idY, idZ);
-	  }
-	state = newstate;
-	} // for idX
+          if (newstate != state)
+            { // sub extent starts
+            r1 = idX;
+            }
+          }
+        else if (newstate != state)
+          { // sub extent ends
+          r2 = idX - 1;
+          data->InsertNextExtent(r1, r2, idY, idZ);
+          }
+        state = newstate;
+        } // for idX
       if (state == -1)
-	{ // if inside at end, cap off the sub extent
-	data->InsertNextExtent(r1, extent[1], idY, idZ);
-	}
+        { // if inside at end, cap off the sub extent
+        data->InsertNextExtent(r1, extent[1], idY, idZ);
+        }
       } // for idY    
     } // for idZ
 }

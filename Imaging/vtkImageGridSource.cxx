@@ -96,8 +96,8 @@ void vtkImageGridSource::ExecuteInformation()
 //----------------------------------------------------------------------------
 template<class T>
 static void vtkImageGridSourceExecute(vtkImageGridSource *self,
-			       vtkImageData *data, T *outPtr,
-			       int outExt[6], int id)
+                               vtkImageData *data, T *outPtr,
+                               int outExt[6], int id)
 {
   int idxX, idxY, idxZ;
   int xval, yval, zval;
@@ -116,7 +116,7 @@ static void vtkImageGridSourceExecute(vtkImageGridSource *self,
   data->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
   
   target = (unsigned long)((outExt[5]-outExt[4]+1)*
-			   (outExt[3]-outExt[2]+1)/50.0);
+                           (outExt[3]-outExt[2]+1)/50.0);
   target++;
 
   // Loop through ouput pixel
@@ -133,39 +133,39 @@ static void vtkImageGridSourceExecute(vtkImageGridSource *self,
     for (idxY = outExt[2]; !self->GetAbortExecute() && idxY<=outExt[3]; idxY++)
       {
       if (gridSpacing[1])
-	{
+        {
         yval = (idxY % gridSpacing[1] == gridOrigin[1]);
-	}
+        }
       else
-	{
+        {
         yval = 0;
-	}
+        }
       if (id == 0)
-	{
-	if (!(count%target))
-	  {
-	  self->UpdateProgress(count/(50.0*target));
-	  }
-	count++;
-	}
+        {
+        if (!(count%target))
+          {
+          self->UpdateProgress(count/(50.0*target));
+          }
+        count++;
+        }
 
       if (gridSpacing[0])
-	{
-	for (idxX = outExt[0]; idxX <= outExt[1]; idxX++)
-	  {
-	  xval = (idxX % gridSpacing[0] == gridOrigin[0]); 
+        {
+        for (idxX = outExt[0]; idxX <= outExt[1]; idxX++)
+          {
+          xval = (idxX % gridSpacing[0] == gridOrigin[0]); 
 
-	  // not very efficient, but it gets the job done
-	  *outPtr++ = ((zval|yval|xval) ? lineValue : fillValue);
-	  }
-	}
+          // not very efficient, but it gets the job done
+          *outPtr++ = ((zval|yval|xval) ? lineValue : fillValue);
+          }
+        }
       else
-	{
-	for (idxX = outExt[0]; idxX <= outExt[1]; idxX++)
-	  {
-	  *outPtr++ = ((zval|yval) ? lineValue : fillValue);
-	  }
-	}
+        {
+        for (idxX = outExt[0]; idxX <= outExt[1]; idxX++)
+          {
+          *outPtr++ = ((zval|yval) ? lineValue : fillValue);
+          }
+        }
       outPtr += outIncY;
       }
     outPtr += outIncZ;
@@ -183,7 +183,7 @@ void vtkImageGridSource::ExecuteData(vtkDataObject *output)
   switch (this->GetDataScalarType())
     {
     vtkTemplateMacro5(vtkImageGridSourceExecute, this, data,
-		      (VTK_TT *)(outPtr), outExt, 0);
+                      (VTK_TT *)(outPtr), outExt, 0);
     default:
       vtkErrorMacro(<< "Execute: Unknown data type");
     }

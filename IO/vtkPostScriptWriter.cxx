@@ -62,7 +62,7 @@ vtkPostScriptWriter* vtkPostScriptWriter::New()
 #define VTK_MARGIN 0.95
 
 void vtkPostScriptWriter::WriteFileTrailer(ofstream *file, 
-					   vtkImageData *vtkNotUsed(cache))
+                                           vtkImageData *vtkNotUsed(cache))
 {
   *file << "\ngrestore\nshowpage\n%%%%Trailer\n";
 }
@@ -84,7 +84,7 @@ void vtkPostScriptWriter::WriteFileHeader(ofstream *file,
   cols = max1 - min1 + 1;
   rows = max2 - min2 + 1;
   
-  float pixfac = 0.96;	/* 1, approx. */
+  float pixfac = 0.96;  /* 1, approx. */
   scols = (int)(cols * pixfac);
   srows = (int)(rows * pixfac);
   if ( scols > pagewid * VTK_MARGIN || srows > pagehgt * VTK_MARGIN )
@@ -188,7 +188,7 @@ void vtkPostScriptWriter::WriteFile(ofstream *file, vtkImageData *data,
   
   wExtent = this->GetInput()->GetWholeExtent();
   area = ((extent[5] - extent[4] + 1)*(extent[3] - extent[2] + 1)*
-	  (extent[1] - extent[0] + 1)) / 
+          (extent[1] - extent[0] + 1)) / 
     ((wExtent[5] -wExtent[4] + 1)*(wExtent[3] -wExtent[2] + 1)*
      (wExtent[1] -wExtent[0] + 1));
     
@@ -205,7 +205,7 @@ void vtkPostScriptWriter::WriteFile(ofstream *file, vtkImageData *data,
     maxComponent = 3;
     }
   target = (unsigned long)((extent[5]-extent[4]+1)*
-			   (extent[3]-extent[2]+1)/(50.0*area));
+                           (extent[3]-extent[2]+1)/(50.0*area));
   target++;
   
   for (idx2 = extent[4]; idx2 <= extent[5]; ++idx2)
@@ -213,27 +213,27 @@ void vtkPostScriptWriter::WriteFile(ofstream *file, vtkImageData *data,
     for (idx1 = extent[3]; idx1 >= extent[2]; idx1--)
       {
       if (!(count%target))
-	{
-	this->UpdateProgress(progress + count/(50.0*target));
-	}
+        {
+        this->UpdateProgress(progress + count/(50.0*target));
+        }
       count++;
       // write out components one at a time because
       for (idxC = 0; idxC < maxComponent; idxC++)
-	{
-	ptr = (unsigned char*)data->GetScalarPointer(extent[0],idx1, idx2);
-	ptr += idxC;
-	for ( idx0 = extent[0]; idx0 <= extent[1]; idx0++ )
-	  {
-	  if ( itemsperline == 30 )
-	    {
-	    *file << endl;
-	    itemsperline = 0;
-	    }
-	  *file << hexits[*ptr >> 4] << hexits[*ptr & 15];
-	  ++itemsperline;
-	  ptr += numComponents;
-	  }
-	}
+        {
+        ptr = (unsigned char*)data->GetScalarPointer(extent[0],idx1, idx2);
+        ptr += idxC;
+        for ( idx0 = extent[0]; idx0 <= extent[1]; idx0++ )
+          {
+          if ( itemsperline == 30 )
+            {
+            *file << endl;
+            itemsperline = 0;
+            }
+          *file << hexits[*ptr >> 4] << hexits[*ptr & 15];
+          ++itemsperline;
+          ptr += numComponents;
+          }
+        }
       }
     }
   

@@ -138,7 +138,7 @@ void vtkImageChangeInformation::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 // Change the information
 void vtkImageChangeInformation::ExecuteInformation(vtkImageData *inData, 
-						   vtkImageData *outData)
+                                                   vtkImageData *outData)
 {
   int i;
   int extent[6], inExtent[6];
@@ -234,7 +234,7 @@ void vtkImageChangeInformation::ExecuteData(vtkDataObject *data)
 
 //----------------------------------------------------------------------------
 void vtkImageChangeInformation::ComputeInputUpdateExtent(int inExt[6], 
-							 int outExt[6])
+                                                         int outExt[6])
 {
   if (this->FinalExtentTranslation[0] == VTK_INT_MAX)
     {

@@ -82,7 +82,7 @@ void vtkImageSkeleton2D::SetNumberOfIterations(int num)
 // extent of the output region.  After this method finishes, "region" should 
 // have the extent of the required input region.
 void vtkImageSkeleton2D::ComputeInputUpdateExtent(int inExt[6], 
-						  int outExt[6])
+                                                  int outExt[6])
 {
   int idx;
   int *wholeExtent;
@@ -122,9 +122,9 @@ void vtkImageSkeleton2D::ComputeInputUpdateExtent(int inExt[6],
 // desired results with a 3x3 kernel.
 template <class T>
 static void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
-				      vtkImageData *inData, T *inPtr, 
-				      vtkImageData *outData, int *outExt, 
-				      T *outPtr, int id)
+                                      vtkImageData *inData, T *inPtr, 
+                                      vtkImageData *outData, int *outExt, 
+                                      T *outPtr, int id)
 {
   // For looping though output (and input) pixels.
   int outMin0, outMax0, outMin1, outMax1, outMin2, outMax2, numComps;
@@ -148,11 +148,11 @@ static void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
   outMin1 = outExt[2];  outMax1 = outExt[3];
   outMin2 = outExt[4];  outMax2 = outExt[5];
   self->GetInput()->GetWholeExtent(wholeMin0, wholeMax0, wholeMin1, wholeMax1,
-				   wholeMin2, wholeMax2);
+                                   wholeMin2, wholeMax2);
   numComps = inData->GetNumberOfScalarComponents();
   
   target = (unsigned long)(numComps*(outMax2-outMin2+1)*
-			   (outMax1-outMin1+1)/50.0);
+                           (outMax1-outMin1+1)/50.0);
   target++;
 
   inPtrC = inPtr;
@@ -164,138 +164,138 @@ static void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
       // erode input
       inPtr1 = inPtr2;
       for (idx1 = outMin1; !self->AbortExecute && idx1 <= outMax1; ++idx1)
-	{
-	if (!id) 
-	  {
-	  if (!(count%target))
-	    {
-	    self->UpdateProgress(0.9*count/(50.0*target));
-	    }
-	  count++;
-	  }
-	inPtr0 = inPtr1;
-	for (idx0 = outMin0; idx0 <= outMax0; ++idx0)
-	  {
-	  // Center pixel has to be on.
-	  if (*inPtr0)
-	    {
-	    // neighbors independant of boundaries
-	    n[0] = (idx0>wholeMin0) ? (float)*(inPtr0-inInc0) : 0;
-	    n[1] = (idx0>wholeMin0)&&(idx1>wholeMin1) 
-	      ? (float)*(inPtr0-inInc0-inInc1) : 0;
-	    n[2] = (idx1>wholeMin1) ? (float)*(inPtr0-inInc1) : 0;
-	    n[3] = (idx1>wholeMin1)&&(idx0<wholeMax0) 
-	      ? (float)*(inPtr0-inInc1+inInc0) : 0;
-	    n[4] = (idx0<wholeMax0) ? (float)*(inPtr0+inInc0) : 0;
-	    n[5] = (idx0<wholeMax0)&&(idx1<wholeMax1) 
-	      ? (float)*(inPtr0+inInc0+inInc1) : 0;
-	    n[6] = (idx1<wholeMax1) ? (float)*(inPtr0+inInc1) : 0;
-	    n[7] = (idx1<wholeMax1)&&(idx0>wholeMin0) 
-	      ? (float)*(inPtr0+inInc1-inInc0) : 0;
-	    
-	    // Lets try a case table. (shifting bits would be faster)
-	    erodeCase = 0;
-	    if (n[7] > 0) {++erodeCase;} 
-	    erodeCase *= 2;
-	    if (n[6] > 0) {++erodeCase;} 
-	    erodeCase *= 2;
-	    if (n[5] > 0) {++erodeCase;} 
-	    erodeCase *= 2;
-	    if (n[4] > 0) {++erodeCase;} 
-	    erodeCase *= 2;
-	    if (n[3] > 0) {++erodeCase;} 
-	    erodeCase *= 2;
-	    if (n[2] > 0) {++erodeCase;} 
-	    erodeCase *= 2;
-	    if (n[1] > 0) {++erodeCase;} 
-	    erodeCase *= 2;
-	    if (n[0] > 0) {++erodeCase;}
-	    
-	    if (erodeCase == 54 || erodeCase == 216)
-	      { // erode
-	      // 54 top part of diagonal / double thick line
-	      // 216 bottom part of diagonal \ double thick line
-	      *inPtr0 = 1;
-	      }
-	    else if (erodeCase == 99 || erodeCase == 141)
-	      {	// No errosion
-	      // 99 bottom part of diagonal / double thick line
-	      // 141 top part of diagonal \ double thick line
-	      }
-	    else
-	      {
-	      // old heuristic method
-	      countFaces = (n[0]>0)+(n[2]>0)+(n[4]>0)+(n[6]>0);
-	      countCorners = (n[1]>0)+(n[3]>0)+(n[5]>0)+(n[7]>0);
-	      
-	      // special case to void split dependent results.
-	      // (should we just have a case table?)
-	      if (countFaces == 2 && countCorners == 0 &&
-		  n[2] > 0 && n[4] > 0)
-		{
-		*inPtr0 = 1;
-		}
-	      
-	      // special case
-	      if (prune > 1 && ((countFaces + countCorners) <= 1))
-		{
-		*inPtr0 = 1;
-		}
-	      
-	      // one of four face neighbors has to be off
-	      if (n[0] == 0 || n[2] == 0 ||
-		  n[4] == 0 || n[6] == 0)
-		{
-		// Special condition not to prune diamond corners
-		if (prune > 1 || countFaces != 1 || countCorners != 2 ||
-		    ((n[1]==0 || n[2]==0 || n[3]==0) && 
-		     (n[3]==0 || n[4]==0 || n[5]==0) && 
-		     (n[5]==0 || n[6]==0 || n[7]==0) && 
-		     (n[7]==0 || n[0]==0 || n[1]==0)))
-		  {
-		  // special condition (making another prune level)
-		  // pruning 135 degree corners
-		  if (prune || countFaces != 2 || countCorners != 2 ||
-		      ((n[1]==0 || n[2]==0 || n[3]==0 || n[4]) && 
-		       (n[0]==0 || n[1]==0 || n[2]==0 || n[3]) && 
-		       (n[7]==0 || n[0]==0 || n[1]==0 || n[2]) && 
-		       (n[6]==0 || n[7]==0 || n[0]==0 || n[1]) && 
-		       (n[5]==0 || n[6]==0 || n[7]==0 || n[0]) && 
-		       (n[4]==0 || n[5]==0 || n[6]==0 || n[7]) && 
-		       (n[3]==0 || n[4]==0 || n[5]==0 || n[6]) && 
-		       (n[2]==0 || n[3]==0 || n[4]==0 || n[5])))
-		    {
-		    // remaining pixels need to be connected.
-		    // do not break corner connectivity
-		    if ((n[1] == 0 || n[0] > 1 || n[2] > 1) &&
-			(n[3] == 0 || n[2] > 1 || n[4] > 1) &&
-			(n[5] == 0 || n[4] > 1 || n[6] > 1) &&
-			(n[7] == 0 || n[6] > 1 || n[0] > 1))
-		      {
-		      // opposite faces 
-		      // (special condition so double thick lines
-		      // will not be completely eroded)
-		      if ((n[0] == 0 || n[4] == 0 || n[2] > 1 || n[6] > 1) &&
-			  (n[2] == 0 || n[6] == 0 || n[0] > 1 || n[4] > 1))
-			{
-			// check to stop pruning (sort of a hack huristic)
-			if (prune > 1 || (countFaces > 2) || 
-			    ((countFaces == 2) && (countCorners > 1)))
-			  {
-			  *inPtr0 = 1;
-			  }
-			}
-		      }
-		    }
-		  }
-		}
-	      }
-	    
-	    }
-	  inPtr0 += inInc0;
-	  }
-	inPtr1 += inInc1;
-	}
+        {
+        if (!id) 
+          {
+          if (!(count%target))
+            {
+            self->UpdateProgress(0.9*count/(50.0*target));
+            }
+          count++;
+          }
+        inPtr0 = inPtr1;
+        for (idx0 = outMin0; idx0 <= outMax0; ++idx0)
+          {
+          // Center pixel has to be on.
+          if (*inPtr0)
+            {
+            // neighbors independant of boundaries
+            n[0] = (idx0>wholeMin0) ? (float)*(inPtr0-inInc0) : 0;
+            n[1] = (idx0>wholeMin0)&&(idx1>wholeMin1) 
+              ? (float)*(inPtr0-inInc0-inInc1) : 0;
+            n[2] = (idx1>wholeMin1) ? (float)*(inPtr0-inInc1) : 0;
+            n[3] = (idx1>wholeMin1)&&(idx0<wholeMax0) 
+              ? (float)*(inPtr0-inInc1+inInc0) : 0;
+            n[4] = (idx0<wholeMax0) ? (float)*(inPtr0+inInc0) : 0;
+            n[5] = (idx0<wholeMax0)&&(idx1<wholeMax1) 
+              ? (float)*(inPtr0+inInc0+inInc1) : 0;
+            n[6] = (idx1<wholeMax1) ? (float)*(inPtr0+inInc1) : 0;
+            n[7] = (idx1<wholeMax1)&&(idx0>wholeMin0) 
+              ? (float)*(inPtr0+inInc1-inInc0) : 0;
+            
+            // Lets try a case table. (shifting bits would be faster)
+            erodeCase = 0;
+            if (n[7] > 0) {++erodeCase;} 
+            erodeCase *= 2;
+            if (n[6] > 0) {++erodeCase;} 
+            erodeCase *= 2;
+            if (n[5] > 0) {++erodeCase;} 
+            erodeCase *= 2;
+            if (n[4] > 0) {++erodeCase;} 
+            erodeCase *= 2;
+            if (n[3] > 0) {++erodeCase;} 
+            erodeCase *= 2;
+            if (n[2] > 0) {++erodeCase;} 
+            erodeCase *= 2;
+            if (n[1] > 0) {++erodeCase;} 
+            erodeCase *= 2;
+            if (n[0] > 0) {++erodeCase;}
+            
+            if (erodeCase == 54 || erodeCase == 216)
+              { // erode
+              // 54 top part of diagonal / double thick line
+              // 216 bottom part of diagonal \ double thick line
+              *inPtr0 = 1;
+              }
+            else if (erodeCase == 99 || erodeCase == 141)
+              { // No errosion
+              // 99 bottom part of diagonal / double thick line
+              // 141 top part of diagonal \ double thick line
+              }
+            else
+              {
+              // old heuristic method
+              countFaces = (n[0]>0)+(n[2]>0)+(n[4]>0)+(n[6]>0);
+              countCorners = (n[1]>0)+(n[3]>0)+(n[5]>0)+(n[7]>0);
+              
+              // special case to void split dependent results.
+              // (should we just have a case table?)
+              if (countFaces == 2 && countCorners == 0 &&
+                  n[2] > 0 && n[4] > 0)
+                {
+                *inPtr0 = 1;
+                }
+              
+              // special case
+              if (prune > 1 && ((countFaces + countCorners) <= 1))
+                {
+                *inPtr0 = 1;
+                }
+              
+              // one of four face neighbors has to be off
+              if (n[0] == 0 || n[2] == 0 ||
+                  n[4] == 0 || n[6] == 0)
+                {
+                // Special condition not to prune diamond corners
+                if (prune > 1 || countFaces != 1 || countCorners != 2 ||
+                    ((n[1]==0 || n[2]==0 || n[3]==0) && 
+                     (n[3]==0 || n[4]==0 || n[5]==0) && 
+                     (n[5]==0 || n[6]==0 || n[7]==0) && 
+                     (n[7]==0 || n[0]==0 || n[1]==0)))
+                  {
+                  // special condition (making another prune level)
+                  // pruning 135 degree corners
+                  if (prune || countFaces != 2 || countCorners != 2 ||
+                      ((n[1]==0 || n[2]==0 || n[3]==0 || n[4]) && 
+                       (n[0]==0 || n[1]==0 || n[2]==0 || n[3]) && 
+                       (n[7]==0 || n[0]==0 || n[1]==0 || n[2]) && 
+                       (n[6]==0 || n[7]==0 || n[0]==0 || n[1]) && 
+                       (n[5]==0 || n[6]==0 || n[7]==0 || n[0]) && 
+                       (n[4]==0 || n[5]==0 || n[6]==0 || n[7]) && 
+                       (n[3]==0 || n[4]==0 || n[5]==0 || n[6]) && 
+                       (n[2]==0 || n[3]==0 || n[4]==0 || n[5])))
+                    {
+                    // remaining pixels need to be connected.
+                    // do not break corner connectivity
+                    if ((n[1] == 0 || n[0] > 1 || n[2] > 1) &&
+                        (n[3] == 0 || n[2] > 1 || n[4] > 1) &&
+                        (n[5] == 0 || n[4] > 1 || n[6] > 1) &&
+                        (n[7] == 0 || n[6] > 1 || n[0] > 1))
+                      {
+                      // opposite faces 
+                      // (special condition so double thick lines
+                      // will not be completely eroded)
+                      if ((n[0] == 0 || n[4] == 0 || n[2] > 1 || n[6] > 1) &&
+                          (n[2] == 0 || n[6] == 0 || n[0] > 1 || n[4] > 1))
+                        {
+                        // check to stop pruning (sort of a hack huristic)
+                        if (prune > 1 || (countFaces > 2) || 
+                            ((countFaces == 2) && (countCorners > 1)))
+                          {
+                          *inPtr0 = 1;
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            
+            }
+          inPtr0 += inInc0;
+          }
+        inPtr1 += inInc1;
+        }
       inPtr2 += inInc2;
       }
     ++inPtrC;
@@ -312,26 +312,26 @@ static void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
       outPtr1 = outPtr2;
       inPtr1 = inPtr2;
       for (idx1 = outMin1; idx1 <= outMax1; ++idx1)
-	{
-	outPtr0 = outPtr1;
-	inPtr0 = inPtr1;
-	for (idx0 = outMin0; idx0 <= outMax0; ++idx0)
-	  {
-	  if (*inPtr0 <= 1)
-	    {
-	    *outPtr0 = (T)(0.0);
-	    }
-	  else
-	    {
-	    *outPtr0 = *inPtr0;
-	    }
+        {
+        outPtr0 = outPtr1;
+        inPtr0 = inPtr1;
+        for (idx0 = outMin0; idx0 <= outMax0; ++idx0)
+          {
+          if (*inPtr0 <= 1)
+            {
+            *outPtr0 = (T)(0.0);
+            }
+          else
+            {
+            *outPtr0 = *inPtr0;
+            }
       
-	  inPtr0 += inInc0;
-	  outPtr0 += outInc0;      
-	  }
-	inPtr1 += inInc1;
-	outPtr1 += outInc1;      
-	}
+          inPtr0 += inInc0;
+          outPtr0 += outInc0;      
+          }
+        inPtr1 += inInc1;
+        outPtr1 += outInc1;      
+        }
       inPtr2 += inInc2;
       outPtr2 += outInc2;      
       }
@@ -348,8 +348,8 @@ static void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
 // This method contains the first switch statement that calls the correct
 // templated function for the input and output region types.
 void vtkImageSkeleton2D::ThreadedExecute(vtkImageData *inData, 
-					 vtkImageData *outData, 
-					 int outExt[6], int id)
+                                         vtkImageData *outData, 
+                                         int outExt[6], int id)
 {
   void *inPtr;
   void *outPtr = outData->GetScalarPointerForExtent(outExt);

@@ -66,7 +66,7 @@ vtkImageMagnitude* vtkImageMagnitude::New()
 //----------------------------------------------------------------------------
 // This method tells the superclass that the first axis will collapse.
 void vtkImageMagnitude::ExecuteInformation(vtkImageData *vtkNotUsed(inData), 
-					   vtkImageData *outData)
+                                           vtkImageData *outData)
 {
   outData->SetNumberOfScalarComponents(1);
 }
@@ -77,9 +77,9 @@ void vtkImageMagnitude::ExecuteInformation(vtkImageData *vtkNotUsed(inData),
 // out of extent.
 template <class T>
 static void vtkImageMagnitudeExecute(vtkImageMagnitude *self,
-					     vtkImageData *inData, T *inPtr,
-					     vtkImageData *outData, T *outPtr,
-					     int outExt[6], int id)
+                                             vtkImageData *inData, T *inPtr,
+                                             vtkImageData *outData, T *outPtr,
+                                             int outExt[6], int id)
 {
   int idxC, idxX, idxY, idxZ;
   int maxC, maxX, maxY, maxZ;
@@ -107,24 +107,24 @@ static void vtkImageMagnitudeExecute(vtkImageMagnitude *self,
     for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
       {
       if (!id) 
-	{
-	if (!(count%target))
-	  {
-	  self->UpdateProgress(count/(50.0*target));
-	  }
-	count++;
-	}
+        {
+        if (!(count%target))
+          {
+          self->UpdateProgress(count/(50.0*target));
+          }
+        count++;
+        }
       for (idxX = 0; idxX <= maxX; idxX++)
-	{
-	sum = 0;
-	for (idxC = 0; idxC < maxC; idxC++)
-	  {
-	  sum += (float) (*inPtr * *inPtr);
-	  inPtr++;
-	  }
-	*outPtr = (T)(sqrt(sum));
-	outPtr++;
-	}
+        {
+        sum = 0;
+        for (idxC = 0; idxC < maxC; idxC++)
+          {
+          sum += (float) (*inPtr * *inPtr);
+          inPtr++;
+          }
+        *outPtr = (T)(sqrt(sum));
+        outPtr++;
+        }
       outPtr += outIncY;
       inPtr += inIncY;
       }
@@ -139,8 +139,8 @@ static void vtkImageMagnitudeExecute(vtkImageMagnitude *self,
 // templated function for the input data type.  The output data
 // must match input type.  This method does handle boundary conditions.
 void vtkImageMagnitude::ThreadedExecute(vtkImageData *inData, 
-					vtkImageData *outData,
-					int outExt[6], int id)
+                                        vtkImageData *outData,
+                                        int outExt[6], int id)
 {
   void *inPtr = inData->GetScalarPointerForExtent(outExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);

@@ -238,62 +238,62 @@ static void vtkImageStencilExecute(vtkImageStencil *self,
 
       iter = 0;
       if (self->GetReverseStencil())
-	{ // flag that we want the complementary extents
-	iter = -1;
-	}
+        { // flag that we want the complementary extents
+        iter = -1;
+        }
 
       cr1 = outExt[0];
       for (;;)
-	{
-	rval = 0;
-	r1 = outExt[1] + 1;
-	r2 = outExt[1];
-	if (stencil)
-	  {
-	  rval = stencil->GetNextExtent(r1, r2, outExt[0], outExt[1],
-					idY, idZ, iter);
-	  }
-	else if (iter < 0)
-	  {
-	  r1 = outExt[0];
-	  r2 = outExt[1];
-	  rval = 1;
-	  iter = 1;
-	  }
+        {
+        rval = 0;
+        r1 = outExt[1] + 1;
+        r2 = outExt[1];
+        if (stencil)
+          {
+          rval = stencil->GetNextExtent(r1, r2, outExt[0], outExt[1],
+                                        idY, idZ, iter);
+          }
+        else if (iter < 0)
+          {
+          r1 = outExt[0];
+          r2 = outExt[1];
+          rval = 1;
+          iter = 1;
+          }
 
-	tempPtr = background;
-	inIncX = 0; 
-	if (in2Ptr)
-	  {
-	  tempPtr = in2Ptr + (in2Inc[2]*(idZ - in2Ext[4]) +
-			      in2Inc[1]*(idY - in2Ext[2]) +
-			      numscalars*(cr1 - in2Ext[0]));
-	  inIncX = numscalars;
-	  }
+        tempPtr = background;
+        inIncX = 0; 
+        if (in2Ptr)
+          {
+          tempPtr = in2Ptr + (in2Inc[2]*(idZ - in2Ext[4]) +
+                              in2Inc[1]*(idY - in2Ext[2]) +
+                              numscalars*(cr1 - in2Ext[0]));
+          inIncX = numscalars;
+          }
 
-	cr2 = r1 - 1;
-	for (idX = cr1; idX <= cr2; idX++)
-	  {
+        cr2 = r1 - 1;
+        for (idX = cr1; idX <= cr2; idX++)
+          {
           vtkCopyPixel(outPtr, tempPtr, numscalars);
-	  tempPtr += inIncX;
-	  }
-	cr1 = r2 + 1; // for next time 'round
+          tempPtr += inIncX;
+          }
+        cr1 = r2 + 1; // for next time 'round
 
-	// break if no foreground extents left
-	if (rval == 0)
-	  {
+        // break if no foreground extents left
+        if (rval == 0)
+          {
           break;
-	  }
+          }
 
-	tempPtr = inPtr + (inInc[2]*(idZ - inExt[4]) +
-			   inInc[1]*(idY - inExt[2]) +
-			   numscalars*(r1 - inExt[0]));
+        tempPtr = inPtr + (inInc[2]*(idZ - inExt[4]) +
+                           inInc[1]*(idY - inExt[2]) +
+                           numscalars*(r1 - inExt[0]));
 
-	for (idX = r1; idX <= r2; idX++)
-	  {
+        for (idX = r1; idX <= r2; idX++)
+          {
           vtkCopyPixel(outPtr, tempPtr, numscalars);
-	  tempPtr += numscalars;
-	  }
+          tempPtr += numscalars;
+          }
         }
       outPtr += outIncY;
       }
@@ -325,24 +325,24 @@ void vtkImageStencil::ThreadedExecute(vtkImageData *inData,
     if (inData2->GetScalarType() != inData->GetScalarType())
       {
       if (id == 0)
-	{
-	vtkErrorMacro("Execute: BackgroundInput ScalarType " 
-		      << inData2->GetScalarType()
-		      << ", must match Input ScalarType "
-		      << inData->GetScalarType());
-	}
+        {
+        vtkErrorMacro("Execute: BackgroundInput ScalarType " 
+                      << inData2->GetScalarType()
+                      << ", must match Input ScalarType "
+                      << inData->GetScalarType());
+        }
       return;
       }
     else if (inData2->GetNumberOfScalarComponents() 
-	     != inData->GetNumberOfScalarComponents())
+             != inData->GetNumberOfScalarComponents())
       {
       if (id == 0)
-	{
+        {
         vtkErrorMacro("Execute: BackgroundInput NumberOfScalarComponents " 
-		      << inData2->GetNumberOfScalarComponents()
-		      << ", must match Input NumberOfScalarComponents "
-		      << inData->GetNumberOfScalarComponents());
-	}
+                      << inData2->GetNumberOfScalarComponents()
+                      << ", must match Input NumberOfScalarComponents "
+                      << inData->GetNumberOfScalarComponents());
+        }
       return;
       }
     int *wholeExt1 = inData->GetWholeExtent();
@@ -350,14 +350,14 @@ void vtkImageStencil::ThreadedExecute(vtkImageData *inData,
     for (int i = 0; i < 6; i++)
       {
       if (wholeExt1[i] != wholeExt2[i])
-	{
-	if (id == 0)
-	  {
-	  vtkErrorMacro("Execute: BackgroundInput must have the same "
-			"WholeExtent as the Input");
-	  }
-	return;
-	}
+        {
+        if (id == 0)
+          {
+          vtkErrorMacro("Execute: BackgroundInput must have the same "
+                        "WholeExtent as the Input");
+          }
+        return;
+        }
       }
     }
   
@@ -378,7 +378,7 @@ void vtkImageStencil::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Stencil: " << this->GetStencil() << "\n";
   os << indent << "ReverseStencil: " << (this->ReverseStencil ?
-		                         "On\n" : "Off\n");
+                                         "On\n" : "Off\n");
 
   os << indent << "BackgroundInput: " << this->GetBackgroundInput() << "\n";
   os << indent << "BackgroundValue: " << this->BackgroundColor[0] << "\n";

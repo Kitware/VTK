@@ -114,8 +114,8 @@ void vtkImageIdealHighPass::SetZCutOff(float cutOff)
 
 //----------------------------------------------------------------------------
 void vtkImageIdealHighPass::ThreadedExecute(vtkImageData *inData, 
-					    vtkImageData *outData,
-					    int ext[6], int id)
+                                            vtkImageData *outData,
+                                            int ext[6], int id)
 {
   int idx0, idx1, idx2;
   int min0, max0;
@@ -136,7 +136,7 @@ void vtkImageIdealHighPass::ThreadedExecute(vtkImageData *inData,
   if (inData->GetNumberOfScalarComponents() != 2)
     {
     vtkErrorMacro("Expecting 2 components not " 
-		  << inData->GetNumberOfScalarComponents());
+                  << inData->GetNumberOfScalarComponents());
     return;
     }
   if (inData->GetScalarType() != VTK_FLOAT || 
@@ -204,54 +204,54 @@ void vtkImageIdealHighPass::ThreadedExecute(vtkImageData *inData,
     for (idx1 = ext[2]; !this->AbortExecute && idx1 <= ext[3]; ++idx1)
       {
       if (!id) 
-	{
-	if (!(count%target))
-	  {
-	  this->UpdateProgress(count/(50.0*target));
-	  }
-	count++;
-	}
+        {
+        if (!(count%target))
+          {
+          this->UpdateProgress(count/(50.0*target));
+          }
+        count++;
+        }
       // distance to min (this axis' contribution)
       temp1 = (float)idx1;
       // Wrap back to 0.
       if (temp1 > mid1)
-	{
-	temp1 = mid1 + mid1 - temp1;
-	}
+        {
+        temp1 = mid1 + mid1 - temp1;
+        }
       // Convert location into cycles / world unit
       temp1 = temp1 * norm1;
       sum1 = temp2 * temp2 + temp1 * temp1;
       
       for (idx0 = min0; idx0 <= max0; ++idx0)
-	{
-	// distance to min (this axis' contribution)
-	temp0 = (float)idx0;
-	// Wrap back to 0.
-	if (temp0 > mid0)
-	  {
-	  temp0 = mid0 + mid0 - temp0;
-	  }
-	// Convert location into cycles / world unit
-	temp0 = temp0 * norm0;
-	sum0 = sum1 + temp0 * temp0;
-	
-	if (sum0 > 1.0)
-	  {
-	  // real component
-	  *outPtr++ = *inPtr++;
-	  // imaginary component	
-	  *outPtr++ = *inPtr++;
-	  }
-	else
-	  {
-	  // real component
-	  *outPtr++ = 0.0;
-	  ++inPtr;
-	  // imaginary component	
-	  *outPtr++ = 0.0;
-	  ++inPtr;
-	  }
-	}
+        {
+        // distance to min (this axis' contribution)
+        temp0 = (float)idx0;
+        // Wrap back to 0.
+        if (temp0 > mid0)
+          {
+          temp0 = mid0 + mid0 - temp0;
+          }
+        // Convert location into cycles / world unit
+        temp0 = temp0 * norm0;
+        sum0 = sum1 + temp0 * temp0;
+        
+        if (sum0 > 1.0)
+          {
+          // real component
+          *outPtr++ = *inPtr++;
+          // imaginary component        
+          *outPtr++ = *inPtr++;
+          }
+        else
+          {
+          // real component
+          *outPtr++ = 0.0;
+          ++inPtr;
+          // imaginary component        
+          *outPtr++ = 0.0;
+          ++inPtr;
+          }
+        }
       inPtr += inInc1;
       outPtr += outInc1;
       }

@@ -93,7 +93,7 @@ vtkImageCursor3D::vtkImageCursor3D()
 
 template <class T>
 static void vtkImageCursor3DExecute(vtkImageCursor3D *self,
-				    vtkImageData *outData, T *ptr)
+                                    vtkImageData *outData, T *ptr)
 {
   int min0, max0, min1, max1, min2, max2;
   int c0, c1, c2;
@@ -113,10 +113,10 @@ static void vtkImageCursor3DExecute(vtkImageCursor3D *self,
     for (idx = c0 - rad; idx <= c0 + rad; ++idx)
       {
       if (idx >= min0 && idx <= max0)
-	{
-	ptr = (T *)(outData->GetScalarPointer(idx, c1, c2));
-	*ptr = (T)(value);
-	}
+        {
+        ptr = (T *)(outData->GetScalarPointer(idx, c1, c2));
+        *ptr = (T)(value);
+        }
       }
     }
   
@@ -126,10 +126,10 @@ static void vtkImageCursor3DExecute(vtkImageCursor3D *self,
     for (idx = c1 - rad; idx <= c1 + rad; ++idx)
       {
       if (idx >= min1 && idx <= max1)
-	{
-	ptr = (T *)(outData->GetScalarPointer(c0, idx, c2));
-	*ptr = (T)(value);
-	}
+        {
+        ptr = (T *)(outData->GetScalarPointer(c0, idx, c2));
+        *ptr = (T)(value);
+        }
       }
     }
   
@@ -139,10 +139,10 @@ static void vtkImageCursor3DExecute(vtkImageCursor3D *self,
     for (idx = c2 - rad; idx <= c2 + rad; ++idx)
       {
       if (idx >= min2 && idx <= max2)
-	{
-	ptr = (T *)(outData->GetScalarPointer(c0, c1, idx));
-	*ptr = (T)(value);
-	}
+        {
+        ptr = (T *)(outData->GetScalarPointer(c0, c1, idx));
+        *ptr = (T)(value);
+        }
       }
     }
 }
