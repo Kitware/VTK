@@ -5,6 +5,27 @@ IF (HAVE_PNG)
   # Add tests, with the data
   #
   IF (VTK_DATA_ROOT)
+    ADD_TEST(socbal-image ${VTK_EXECUTABLE}
+      ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+      ${VTK_SOURCE_DIR}/Graphics/Testing/Tcl/socbal.tcl
+      -D ${VTK_DATA_ROOT}
+      -V Baseline/Graphics/socbal.png
+      -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+
+    ADD_TEST(spToPd-image ${VTK_EXECUTABLE}
+      ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+      ${VTK_SOURCE_DIR}/Graphics/Testing/Tcl/spToPd.tcl
+      -D ${VTK_DATA_ROOT}
+      -V Baseline/Graphics/spToPd.png
+      -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+
+    ADD_TEST(createBFont-image ${VTK_EXECUTABLE}
+      ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+      ${VTK_SOURCE_DIR}/Graphics/Testing/Tcl/createBFont.tcl
+      -D ${VTK_DATA_ROOT}
+      -V Baseline/Graphics/createBFont.png
+      -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+
     ADD_TEST(Delaunay2D-image ${VTK_EXECUTABLE}
       ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
       ${VTK_SOURCE_DIR}/Graphics/Testing/Tcl/Delaunay2D.tcl
