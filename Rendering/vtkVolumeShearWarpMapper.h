@@ -65,15 +65,15 @@ class vtkRenderWindow;
 
 class vtkShearWarpPixelData;
 class vtkShearWarpRLEImage;
-struct vtkShearWarpVoxelData;
-class vtkShearWarpRLERun;
-class vtkShearWarpRLESlice;
+template <class T> struct vtkShearWarpVoxelData;
+template <class T> class vtkShearWarpRLERun;
+template <class T> class vtkShearWarpRLESlice;
 class vtkShearWarpBase;
-class vtkShearWarpRLEVolume;
-class vtkShearWarpSummedAreaTable;
+template <class T> class vtkShearWarpRLEVolume;
+template <class T> class vtkShearWarpSummedAreaTable;
 struct vtkShearWarpOctreeRun;
-class vtkShearWarpOctreeNode;
-class vtkShearWarpOctree;
+template <class T> class vtkShearWarpOctreeNode;
+template <class T> class vtkShearWarpOctree;
 
 #define VTK_X_AXIS  0
 #define VTK_Y_AXIS  1

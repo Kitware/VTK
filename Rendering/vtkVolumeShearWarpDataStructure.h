@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkShearWarpBase.h"
+//#include "vtkShearWarpBase.h"
 
 #define VTK_X_AXIS  0
 #define VTK_Y_AXIS  1
@@ -550,7 +550,7 @@ private:
 };
 
 // Base class for encoded volume
-class vtkShearWarpBase
+class vtkShearWarpBase : public vtkObjectBase
 {
 public:
   vtkShearWarpBase()
@@ -563,6 +563,7 @@ public:
   virtual ~vtkShearWarpBase()
   {
   };
+  vtkTypeRevisionMacro(vtkShearWarpBase,vtkObjectBase);
   
   // Returns the volume dimensions
   int * GetDimensions()
@@ -1023,7 +1024,6 @@ class VTK_RENDERING_EXPORT vtkShearWarpOctree : public vtkShearWarpBase
 {
 public:
   vtkTypeRevisionMacro(vtkShearWarpOctree,vtkShearWarpBase);
-  void PrintSelf(ostream& os, vtkIndent indent);
 
   vtkShearWarpOctree()
   {
