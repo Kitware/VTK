@@ -363,12 +363,6 @@ void vtkOpenGLRenderWindow::WindowInitialize (void)
 		       &matcher, &nItems);
     }
 
-  // free the visual info
-  if (v)
-    {
-    XFree(v);
-    }
-  
   // RESIZE THE WINDOW TO THE DESIRED SIZE
   vtkDebugMacro(<< "Resizing the xwindow\n");
   XResizeWindow(this->DisplayId,this->WindowId,
@@ -410,6 +404,12 @@ void vtkOpenGLRenderWindow::WindowInitialize (void)
   glAlphaFunc(GL_GREATER,0);
   
   this->Mapped = 1;
+
+  // free the visual info
+  if (v)
+    {
+    XFree(v);
+    }
 }
 
 // Description:
