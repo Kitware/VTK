@@ -38,7 +38,7 @@
 
 #define ABS(x) ((x)<0 ? -(x) : (x))
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.13");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.14");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkImagePlaneWidget::vtkImagePlaneWidget()
@@ -199,7 +199,7 @@ void vtkImagePlaneWidget::SetEnabled(int enabling)
       }
     
     this->CurrentRenderer = 
-      this->Interactor->FindPokedRenderer(this->OldX,this->OldY);
+      this->Interactor->FindPokedRenderer(this->LastPos[0],this->LastPos[1]);
     if ( this->CurrentRenderer == NULL )
       {
       return;
@@ -429,8 +429,8 @@ void vtkImagePlaneWidget::OnLeftButtonDown (int vtkNotUsed(ctrl),
   this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
   this->Interactor->Render();
 
-  this->OldX = X;
-  this->OldY = Y;
+  this->LastPos[0] = X;
+  this->LastPos[1] = Y;
 }
 
 void vtkImagePlaneWidget::OnLeftButtonUp (int vtkNotUsed(ctrl), int vtkNotUsed(shift),
@@ -491,8 +491,8 @@ void vtkImagePlaneWidget::OnMiddleButtonDown (int vtkNotUsed(ctrl),
   this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
   this->Interactor->Render();
 
-  this->OldX = X;
-  this->OldY = Y;
+  this->LastPos[0] = X;
+  this->LastPos[1] = Y;
 }
 
 void vtkImagePlaneWidget::OnMiddleButtonUp (int vtkNotUsed(ctrl), int vtkNotUsed(shift),
@@ -553,8 +553,8 @@ void vtkImagePlaneWidget::OnRightButtonDown (int vtkNotUsed(ctrl),
   this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
   this->Interactor->Render();
 
-  this->OldX = X;
-  this->OldY = Y;
+  this->LastPos[0] = X;
+  this->LastPos[1] = Y;
 }
 
 void vtkImagePlaneWidget::OnRightButtonUp (int vtkNotUsed(ctrl), int vtkNotUsed(shift),
@@ -600,7 +600,7 @@ void vtkImagePlaneWidget::OnMouseMove (int vtkNotUsed(ctrl),
   this->ComputeWorldToDisplay(focalPoint[0], focalPoint[1],
                               focalPoint[2], focalPoint);
   z = focalPoint[2];
-  this->ComputeDisplayToWorld(double(this->OldX),double(this->OldY),
+  this->ComputeDisplayToWorld(double(this->LastPos[0]),double(this->LastPos[1]),
                               z, prevPickPoint);
   this->ComputeDisplayToWorld(double(X), double(Y), z, pickPoint);
 
@@ -619,8 +619,8 @@ void vtkImagePlaneWidget::OnMouseMove (int vtkNotUsed(ctrl),
   this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
 
   this->Interactor->Render();
-  this->OldX = X;
-  this->OldY = Y;
+  this->LastPos[0] = X;
+  this->LastPos[1] = Y;
 }
 
 void vtkImagePlaneWidget::WindowLevel(int X, int Y)
@@ -637,8 +637,8 @@ void vtkImagePlaneWidget::WindowLevel(int X, int Y)
 
   float owin = this->OriginalWindow;
 
-  level = level + (X - this->OldX)*owin/500.0;
-  window = window + (this->OldY - Y)*owin/250.0;
+  level = level + (X - this->LastPos[0])*owin/500.0;
+  window = window + (this->LastPos[1] - Y)*owin/250.0;
 
   if ( window == 0.0 )
     {

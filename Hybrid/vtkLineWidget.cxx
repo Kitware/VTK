@@ -28,7 +28,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkLineWidget, "1.8");
+vtkCxxRevisionMacro(vtkLineWidget, "1.9");
 vtkStandardNewMacro(vtkLineWidget);
 
 vtkLineWidget::vtkLineWidget()
@@ -155,7 +155,7 @@ void vtkLineWidget::SetEnabled(int enabling)
       return;
       }
     
-    this->CurrentRenderer = this->Interactor->FindPokedRenderer(this->OldX,this->OldY);
+    this->CurrentRenderer = this->Interactor->FindPokedRenderer(this->LastPos[0],this->LastPos[1]);
     if (this->CurrentRenderer == NULL)
       {
       return;
@@ -402,8 +402,8 @@ void vtkLineWidget::OnLeftButtonDown (int vtkNotUsed(ctrl),
   this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
   this->Interactor->Render();
 
-  this->OldX = X;
-  this->OldY = Y;
+  this->LastPos[0] = X;
+  this->LastPos[1] = Y;
 }
 
 void vtkLineWidget::OnMouseMove (int vtkNotUsed(ctrl), 
@@ -432,7 +432,7 @@ void vtkLineWidget::OnMouseMove (int vtkNotUsed(ctrl),
   this->ComputeWorldToDisplay(focalPoint[0], focalPoint[1],
                               focalPoint[2], focalPoint);
   z = focalPoint[2];
-  this->ComputeDisplayToWorld(double(this->OldX),double(this->OldY),
+  this->ComputeDisplayToWorld(double(this->LastPos[0]),double(this->LastPos[1]),
                               z, prevPickPoint);
   this->ComputeDisplayToWorld(double(X), double(Y), z, pickPoint);
 
@@ -467,8 +467,8 @@ void vtkLineWidget::OnMouseMove (int vtkNotUsed(ctrl),
   this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
   
   this->Interactor->Render();
-  this->OldX = X;
-  this->OldY = Y;
+  this->LastPos[0] = X;
+  this->LastPos[1] = Y;
 }
 
 void vtkLineWidget::OnLeftButtonUp (int vtkNotUsed(ctrl), 
@@ -520,8 +520,8 @@ void vtkLineWidget::OnMiddleButtonDown (int vtkNotUsed(ctrl),
   this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
   this->Interactor->Render();
   
-  this->OldX = X;
-  this->OldY = Y;
+  this->LastPos[0] = X;
+  this->LastPos[1] = Y;
 }
 
 void vtkLineWidget::OnMiddleButtonUp (int vtkNotUsed(ctrl), 
@@ -572,8 +572,8 @@ void vtkLineWidget::OnRightButtonDown (int vtkNotUsed(ctrl),
   this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
   this->Interactor->Render();
   
-  this->OldX = X;
-  this->OldY = Y;
+  this->LastPos[0] = X;
+  this->LastPos[1] = Y;
 }
 
 void vtkLineWidget::OnRightButtonUp (int vtkNotUsed(ctrl), 
@@ -683,7 +683,7 @@ void vtkLineWidget::Scale(double *p1, double *p2, int vtkNotUsed(X), int Y)
 
   // Compute the scale factor
   float sf = vtkMath::Norm(v) / sqrt(vtkMath::Distance2BetweenPoints(pt1,pt2));
-  if ( Y > this->OldY )
+  if ( Y > this->LastPos[1] )
     {
     sf = 1.0 + sf;
     }

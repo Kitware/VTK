@@ -23,7 +23,7 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTerrain, "1.4");
+vtkCxxRevisionMacro(vtkInteractorStyleTerrain, "1.5");
 vtkStandardNewMacro(vtkInteractorStyleTerrain);
 
 vtkInteractorStyleTerrain::vtkInteractorStyleTerrain()
@@ -204,8 +204,8 @@ void vtkInteractorStyleTerrain::OnLeftButtonDown (int vtkNotUsed(ctrl),
   this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
   this->Interactor->Render();
 
-  this->OldX = X;
-  this->OldY = Y;
+  this->LastPos[0] = X;
+  this->LastPos[1] = Y;
 }
 
 void vtkInteractorStyleTerrain::OnLeftButtonUp (int vtkNotUsed(ctrl), 
@@ -235,8 +235,8 @@ void vtkInteractorStyleTerrain::OnMiddleButtonDown (int vtkNotUsed(ctrl),
   this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
   this->Interactor->Render();
 
-  this->OldX = X;
-  this->OldY = Y;
+  this->LastPos[0] = X;
+  this->LastPos[1] = Y;
 }
 
 void vtkInteractorStyleTerrain::OnMiddleButtonUp (int vtkNotUsed(ctrl), 
@@ -266,8 +266,8 @@ void vtkInteractorStyleTerrain::OnRightButtonDown (int vtkNotUsed(ctrl),
   this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
   this->Interactor->Render();
 
-  this->OldX = X;
-  this->OldY = Y;
+  this->LastPos[0] = X;
+  this->LastPos[1] = Y;
 }
 
 void vtkInteractorStyleTerrain::OnRightButtonUp (int vtkNotUsed(ctrl), 
@@ -310,12 +310,12 @@ void vtkInteractorStyleTerrain::OnMouseMove (int vtkNotUsed(ctrl), int shift,
   // Do the right thing depending on the mouse button
   if ( this->State == vtkInteractorStyleTerrain::Rotating ) //left mouse
     {
-    float a = (float)(OldX-X) / size[0] * 180.0f;
-    float e = (float)(OldY-Y) / size[1] * 180.0f;
+    float a = (float)(LastPos[0]-X) / size[0] * 180.0f;
+    float e = (float)(LastPos[1]-Y) / size[1] * 180.0f;
   
     if ( shift )
       {
-      if ( fabs((float)(OldX-X)) >= fabs((float)(OldY-Y)) )
+      if ( fabs((float)(LastPos[0]-X)) >= fabs((float)(LastPos[1]-Y)) )
         {
         e = 0.0;
         }
@@ -348,7 +348,7 @@ void vtkInteractorStyleTerrain::OnMouseMove (int vtkNotUsed(ctrl), int shift,
     this->ComputeWorldToDisplay(fp[0], fp[1], fp[2], focalPoint);
     z = focalPoint[2];
     this->ComputeDisplayToWorld(double(X), double(Y), z, p1);
-    this->ComputeDisplayToWorld(double(this->OldX),double(this->OldY), z, p2);
+    this->ComputeDisplayToWorld(double(this->LastPos[0]),double(this->LastPos[1]), z, p2);
 
     for (int i=0; i<3; i++)
       {
@@ -362,7 +362,7 @@ void vtkInteractorStyleTerrain::OnMouseMove (int vtkNotUsed(ctrl), int shift,
 
   else if ( this->State == vtkInteractorStyleTerrain::Zooming ) //right mouse
     {
-    double dyf = 10.0 * (double)(Y - this->OldY) /
+    double dyf = 10.0 * (double)(Y - this->LastPos[1]) /
       (double)(this->CurrentRenderer->GetCenter()[1]);
     double zoomFactor = pow((double)1.1, dyf);
           
@@ -383,8 +383,8 @@ void vtkInteractorStyleTerrain::OnMouseMove (int vtkNotUsed(ctrl), int shift,
   this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
   
   this->Interactor->Render();
-  this->OldX = X;
-  this->OldY = Y;
+  this->LastPos[0] = X;
+  this->LastPos[1] = Y;
 }
 
 
