@@ -239,6 +239,10 @@ public:
   // indicating whether the range was updated.
   static int UpdateComponentRange(vtkDataArray *da, vtkIdType compRange[2]);
 
+  // Description:
+  // If output does not need exact extent, the I do not either.
+  virtual void ComputeInputUpdateExtents( vtkDataObject *output );
+
 protected:
   vtkFieldDataToAttributeDataFilter();
   ~vtkFieldDataToAttributeDataFilter();

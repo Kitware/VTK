@@ -1178,3 +1178,13 @@ int vtkFieldDataToAttributeDataFilter::UpdateComponentRange(vtkDataArray *da,
     return 0;
     }
 }
+
+
+//----------------------------------------------------------------------------
+void vtkFieldDataToAttributeDataFilter::ComputeInputUpdateExtents(vtkDataObject *output)
+{
+  vtkDataObject *input = this->GetInput();
+
+  this->vtkDataSetToDataSetFilter::ComputeInputUpdateExtents(output);
+  input->SetRequestExactExtent(output->GetRequestExactExtent());
+}
