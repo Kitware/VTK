@@ -468,7 +468,7 @@ void vtkVolumeRayCaster::InitializeParallelImage( vtkRenderer *ren,
   // Create the perspective matrix for the camera.  This will be used
   // to decode z values, so we will need to invert it
   transform->SetMatrix( ren->GetActiveCamera()->GetPerspectiveTransform(
-    aspect, 0, 1 ) );
+    aspect, -1, 1 ) );
   transform->Inverse();
 
   // To speed things up, we pull the matrix out of the transform. 
@@ -478,20 +478,17 @@ void vtkVolumeRayCaster::InitializeParallelImage( vtkRenderer *ren,
 
   // Just checking that our assumptions are correct.  This code should
   // be removed after the debugging phase is complete
-  if ( this->Debug )
+  if (  matrix->Element[3][0] || matrix->Element[3][1]  ||
+        matrix->Element[3][2] || (matrix->Element[3][3] != 1.0) )
     {
-    if (  matrix->Element[3][0] || matrix->Element[3][1]  ||
-          matrix->Element[3][2] || matrix->Element[2][3]  ||
-         (matrix->Element[3][3] != 1.0) )
-      {
-      vtkErrorMacro( << "Oh no! They aren't 0 like they are supposed to be!");
-      cout << *transform;
-      }
+    vtkErrorMacro( << "Oh no! They aren't 0 like they are supposed to be!");
+    cout << *transform;
     }
 
   // This is the important element of the matrix.  We will decode
   // z values by : ((zbuffer value)*ParallelZFactor)
-  this->ParallelZFactor = matrix->Element[2][2];
+  this->ParallelZScale = matrix->Element[2][2];
+  this->ParallelZBias  = matrix->Element[2][3];
 
   p_scale = ren->GetActiveCamera()->GetParallelScale();
 
@@ -572,7 +569,7 @@ VTK_THREAD_RETURN_TYPE RenderParallelImage( void *arg )
   float                *zptr;
   int                  num_samples;
   float                near_z, far_z, tmp_z;
-  float                zfactor;
+  float                zscale, zbias;
   float                *z_range_ptr;
   float                world_sample_distance;
   float                ray_increment[3];
@@ -614,7 +611,8 @@ VTK_THREAD_RETURN_TYPE RenderParallelImage( void *arg )
 
   // This is the scale factor used to convert z buffer values to 
   // z distance values
-  zfactor = mapper->ParallelZFactor;
+  zscale = mapper->ParallelZScale;
+  zbias  = mapper->ParallelZBias;
 
   // This is the length of the ray in the local volume space
   world_sample_distance = mapper->WorldSampleDistance;
@@ -737,7 +735,7 @@ VTK_THREAD_RETURN_TYPE RenderParallelImage( void *arg )
 	  far_z = clipping_range[1];
 	  if ( ren_z_ptr )
 	    {
-	    tmp_z = ((*ren_z_ptr)*2.0 -1.0) * (-zfactor);
+	    tmp_z = -(((*ren_z_ptr)*2.0 -1.0) * zscale + zbias);
 	    if ( tmp_z < far_z )
 	      far_z = tmp_z;
 	    }
@@ -863,7 +861,7 @@ void vtkVolumeRayCaster::InitializePerspectiveImage( vtkRenderer *ren,
   // Create the perspective matrix for the camera.  This will be used
   // to decode z values, so we will need to invert it
   transform->SetMatrix( ren->GetActiveCamera()->GetPerspectiveTransform(
-    aspect, 0, 1 ) );
+    aspect, -1, 1 ) );
   transform->Inverse();
 
   // To speed things up, we pull the matrix out of the transform. 

@@ -232,7 +232,8 @@ protected:
   float                      *DepthRangeBufferPointer;
   int                        ScalarDataType;
   void                       *ScalarDataPointer;
-  float                      ParallelZFactor;
+  float                      ParallelZScale;
+  float                      ParallelZBias;
   float                      ZNumerator;
   float                      ZDenomMult;
   float                      ZDenomAdd;
