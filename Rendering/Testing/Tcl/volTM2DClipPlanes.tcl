@@ -53,11 +53,11 @@ plane2 SetOrigin 25 25 30
 plane2 SetNormal 0 0 -1
 
 vtkPlane plane3
-plane3 SetOrigin 20 25 25
+plane3 SetOrigin 20.5 25 25
 plane3 SetNormal 1 0 0
 
 vtkPlane plane4
-plane4 SetOrigin 30 25 25
+plane4 SetOrigin 30.5 25 25
 plane4 SetNormal -1 0 0
 
 sphereMapper AddClippingPlane plane1
