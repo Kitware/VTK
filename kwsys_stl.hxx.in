@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   KWSys - Kitware System Library
-  Module:    kwsys_stl.h.in
+  Module:    kwsys_stl.hxx.in
 
   Copyright (c) Kitware, Inc., Insight Consortium.  All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
@@ -28,4 +28,5 @@
 # pragma warning(pop)
 #endif
 
+@KWSYS_STL_HEADER_EXTRA@
 #endif
