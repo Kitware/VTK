@@ -106,6 +106,8 @@ int vlCollection::IsItemPresent(vlObject *a)
       elem = elem->Next;
       }
     }
+
+  return 0;
 }
 
 
