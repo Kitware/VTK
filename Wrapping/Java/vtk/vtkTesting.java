@@ -1,5 +1,4 @@
 package vtk;
-import vtk.*;
 import java.io.File;
 
 import java.util.Properties;
