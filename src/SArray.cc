@@ -127,7 +127,6 @@ void vlShortArray::PrintSelf(ostream& os, vlIndent indent)
 //
 short *vlShortArray::Resize(const int sz)
 {
-  int i;
   short *newArray;
   int newSize;
 
@@ -141,8 +140,8 @@ short *vlShortArray::Resize(const int sz)
     return 0;
     }
 
-  for (i=0; i<sz && i<this->Size; i++)
-      newArray[i] = this->Array[i];
+  memcpy(newArray, this->Array, 
+         (sz < this->Size ? sz : this->Size) * sizeof(short));
 
   this->Size = newSize;
   delete [] this->Array;

@@ -127,7 +127,6 @@ void vlIntArray::PrintSelf(ostream& os, vlIndent indent)
 //
 int *vlIntArray::Resize(const int sz)
 {
-  int i;
   int *newArray;
   int newSize;
 
@@ -141,8 +140,8 @@ int *vlIntArray::Resize(const int sz)
     return 0;
     }
 
-  for (i=0; i<sz && i<this->Size; i++)
-      newArray[i] = this->Array[i];
+  memcpy(newArray, this->Array, 
+         (sz < this->Size ? sz : this->Size) * sizeof(int));
 
   this->Size = newSize;
   delete [] this->Array;
