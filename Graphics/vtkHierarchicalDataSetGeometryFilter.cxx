@@ -25,7 +25,7 @@
 #include "vtkHierarchicalDataSet.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalDataSetGeometryFilter, "1.3");
+vtkCxxRevisionMacro(vtkHierarchicalDataSetGeometryFilter, "1.4");
 vtkStandardNewMacro(vtkHierarchicalDataSetGeometryFilter);
 
 vtkHierarchicalDataSetGeometryFilter::vtkHierarchicalDataSetGeometryFilter()
@@ -69,12 +69,20 @@ int vtkHierarchicalDataSetGeometryFilter::RequestCompositeData(
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   vtkHierarchicalDataSet *input = vtkHierarchicalDataSet::SafeDownCast(
     inInfo->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET()));
-  if (!input) {return 0;}
+  if (!input) 
+    {
+    vtkErrorMacro("No input composite dataset provided.");
+    return 0;
+    }
 
   vtkInformation* info = outputVector->GetInformationObject(0);
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     info->Get(vtkDataObject::DATA_OBJECT()));
-  if (!output) {return 0;}
+  if (!output) 
+    {
+    vtkErrorMacro("No output polydata provided.");
+    return 0;
+    }
 
   vtkCompositeDataIterator* iter = input->NewIterator();
   iter->GoToFirstItem();
