@@ -260,9 +260,9 @@ void vtkQuadricDecimation::Execute()
       else
         { // This edge already has one point as the merged point.
         // Compute cost (target point/data) and add to priority cue.
-        cost = this->ComputeCost(edgeId, x, targetPointData);
-        this->EdgeCosts->Insert(cost, edgeId);
-        targetPoints->InsertPoint(edgeId, x);
+        cost = this->ComputeCost(changedEdges->GetId(i), x, targetPointData);
+        this->EdgeCosts->Insert(cost, changedEdges->GetId(i));
+        targetPoints->InsertPoint(changedEdges->GetId(i), x);
         }
       }
     
