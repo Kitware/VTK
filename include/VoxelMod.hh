@@ -31,6 +31,10 @@ public:
 
   float ComputeModelBounds();
 
+  void SetSampleDimensions(int i, int j, int k);
+  void SetSampleDimensions(int dim[3]);
+  vlGetVectorMacro(SampleDimensions,int);
+
   vlSetClampMacro(MaximumDistance,float,0.0,1.0);
   vlGetMacro(MaximumDistance,float);
 
@@ -40,6 +44,7 @@ public:
 
 protected:
   void Execute();
+  int SampleDimensions[3];
   float MaximumDistance;
   float ModelBounds[6];
 };

@@ -30,7 +30,9 @@ vlImplicitModeller::vlImplicitModeller()
   this->ModelBounds[4] = 0.0;
   this->ModelBounds[5] = 0.0;
 
-  this->SetDimensions(50,50,50);
+  this->SampleDimensions[0] = 50;
+  this->SampleDimensions[1] = 50;
+  this->SampleDimensions[2] = 50;
 }
 
 void vlImplicitModeller::PrintSelf(ostream& os, vlIndent indent)
@@ -99,17 +101,12 @@ void vlImplicitModeller::Execute()
 //
   this->Initialize();
 
-  if ( this->Dimensions[0] <= 1 || this->Dimensions[1] <= 1 ||
-  this->Dimensions[2] <= 1 )
-    {
-    vlErrorMacro(<<"Bad Dimensions, requires volume cells");
-    return;
-    }
-
-  numPts = this->Dimensions[0] * this->Dimensions[1] * this->Dimensions[2];
+  numPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
+           * this->SampleDimensions[2];
   newScalars = new vlFloatScalars(numPts);
   for (i=0; i<numPts; i++) newScalars->SetScalar(i,LARGE_FLOAT);
 
+  this->SetDimensions(this->GetSampleDimensions());
   maxDistance = this->ComputeModelBounds();
 //
 // Traverse all cells; computing distance function on volume points.
@@ -130,11 +127,11 @@ void vlImplicitModeller::Execute()
       min[i] = (adjBounds[2*i] - this->Origin[i]) / this->AspectRatio[i];
       max[i] = (adjBounds[2*i+1] - this->Origin[i]) / this->AspectRatio[i];
       if (min[i] < 0) min[i] = 0;
-      if (max[i] >= this->Dimensions[i]) max[i] = this->Dimensions[i] - 1;
+      if (max[i] >= this->SampleDimensions[i]) max[i] = this->SampleDimensions[i] - 1;
       }
 
-    jkFactor = this->Dimensions[0]*this->Dimensions[1];
-    for (k = min[2]; k <= max[k]; k++) 
+    jkFactor = this->SampleDimensions[0]*this->SampleDimensions[1];
+    for (k = min[2]; k <= max[2]; k++) 
       {
       x[2] = this->AspectRatio[2] * k + this->Origin[2];
       for (j = min[1]; j <= max[1]; j++)
@@ -143,7 +140,7 @@ void vlImplicitModeller::Execute()
         for (i = min[0]; i <= max[0]; i++) 
           {
           x[0] = this->AspectRatio[0] * i + this->Origin[0];
-          idx = jkFactor*k + this->Dimensions[0]*j + i;
+          idx = jkFactor*k + this->SampleDimensions[0]*j + i;
           prevDistance2 = newScalars->GetScalar(idx);
           cell->EvaluatePosition(x, subId, pcoords, distance2, weights);
           if (distance2 < prevDistance2)
@@ -205,9 +202,47 @@ float vlImplicitModeller::ComputeModelBounds()
   for (i=0; i<3; i++)
     {
     this->Origin[i] = this->ModelBounds[2*i];
-    this->AspectRatio[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i]) / 
-                           (this->Dimensions[i] - 1);
+    this->AspectRatio[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
+                           / (this->SampleDimensions[i] - 1);
     }
 
   return maxDist;  
+}
+
+void vlImplicitModeller::SetSampleDimensions(int i, int j, int k)
+{
+  int dim[3];
+
+  dim[0] = i;
+  dim[1] = j;
+  dim[2] = k;
+
+  this->SetSampleDimensions(dim);
+}
+
+void vlImplicitModeller::SetSampleDimensions(int dim[3])
+{
+  vlDebugMacro(<< " setting SampleDimensions to (" << dim[0] << "," << dim[1] << "," << dim[2] << ")");
+
+  if ( dim[0] != this->SampleDimensions[0] || dim[1] != SampleDimensions[1] ||
+  dim[2] != SampleDimensions[2] )
+    {
+    if ( dim[0]<1 || dim[1]<1 || dim[2]<1 )
+      {
+      vlErrorMacro (<< "Bad Sample Dimensions, retaining previous values");
+      return;
+      }
+
+    for (int dataDim=0, i=0; i<3 ; i++) if (dim[i] > 1) dataDim++;
+
+    if ( dataDim  < 3 )
+      {
+      vlErrorMacro(<<"Sample dimensions must define a volume!");
+      return;
+      }
+
+    for ( i=0; i<3; i++) this->SampleDimensions[i] = dim[i];
+
+    this->Modified();
+    }
 }

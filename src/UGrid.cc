@@ -150,7 +150,7 @@ vlCell *vlUnstructuredGrid::GetCell(int cellId)
   for (i=0; i<numPts; i++)
     {
     cell->PointIds.SetId(i,pts[i]);
-    cell->Points.SetPoint(i,this->Points->GetPoint(i));
+    cell->Points.SetPoint(i,this->Points->GetPoint(pts[i]));
     }
 
   return cell;
