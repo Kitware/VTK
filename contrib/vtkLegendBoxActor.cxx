@@ -87,6 +87,7 @@ vtkLegendBoxActor::vtkLegendBoxActor()
   
   // Symbols and text strings
   this->NumberOfEntries = 0;
+  this->Colors = NULL;
   this->Symbol = NULL;
   this->Transform = NULL;
   this->SymbolTransform = NULL;
@@ -137,6 +138,7 @@ void vtkLegendBoxActor::InitializeEntries()
 
   if ( this->NumberOfEntries > 0 )
     {
+    this->Colors->Delete();
     for (i=0; i<this->NumberOfEntries; i++)
       {
       if ( this->Symbol[i] )
@@ -177,11 +179,21 @@ void vtkLegendBoxActor::SetNumberOfEntries(int num)
   
   else //allocate space
     {
+        int i;
+
     //Clear out the old stuff
     this->InitializeEntries();
 
     //Rebuild the internal actors, etc.
     this->NumberOfEntries = num;
+    this->Colors = vtkFloatArray::New();
+    this->Colors->SetNumberOfComponents(3);
+    this->Colors->SetNumberOfTuples(num);
+    static float color[3]={-1.0,-1.0,-1.0};
+    for (i=0; i<num; i++) //initialize to dummy value
+      {
+      this->Colors->SetTuple(i,color);
+      }
     this->TextMapper = new vtkTextMapper* [num];
     this->TextActor = new vtkActor2D* [num];
     this->Symbol = new vtkPolyData* [num];
@@ -189,7 +201,7 @@ void vtkLegendBoxActor::SetNumberOfEntries(int num)
     this->SymbolTransform = new vtkTransformPolyDataFilter* [num];
     this->SymbolMapper = new vtkPolyDataMapper2D* [num];
     this->SymbolActor = new vtkActor2D* [num];
-    for (int i=0; i<num; i++)
+    for (i=0; i<num; i++)
       {
       this->TextMapper[i] = vtkTextMapper::New();
       this->TextMapper[i]->SetJustificationToLeft();
@@ -211,12 +223,14 @@ void vtkLegendBoxActor::SetNumberOfEntries(int num)
   return;
 }
 
-void vtkLegendBoxActor::SetEntry(int i, vtkPolyData *symbol, char* string)
+void vtkLegendBoxActor::SetEntry(int i, vtkPolyData *symbol, char* string,
+                                 float color[3])
 {
   if ( i >= 0 && i < this->NumberOfEntries )
     {
     this->SetEntrySymbol(i,symbol);
     this->SetEntryString(i,string);
+    this->SetEntryColor(i,color);
     }
   
   return;
@@ -257,6 +271,28 @@ void vtkLegendBoxActor::SetEntryString(int i, char* string)
     }
 }
 
+void vtkLegendBoxActor::SetEntryColor(int i, float color[3])
+{
+  if ( i >= 0 && i < this->NumberOfEntries )
+    {
+    float *oldColor = this->Colors->GetTuple(i);
+    
+    if ( oldColor[0] != color[0] || oldColor[1] != color[1] || 
+         oldColor[2] != color[2] )
+      {
+      this->Colors->SetTuple(i,color);
+      this->Modified(); 
+      }
+    }
+}
+
+void vtkLegendBoxActor::SetEntryColor(int i, float r, float g, float b)
+{
+  float rgb[3];
+  rgb[0] = r; rgb[1] = g; rgb[2] = b;
+  this->SetEntryColor(i,rgb);
+}
+
 vtkPolyData *vtkLegendBoxActor::GetEntrySymbol(int i)
 {
   if ( i < 0 || i >= this->NumberOfEntries )
@@ -278,6 +314,18 @@ char* vtkLegendBoxActor::GetEntryString(int i)
   else
     {
     return this->TextMapper[i]->GetInput();
+    }
+}
+
+float* vtkLegendBoxActor::GetEntryColor(int i)
+{
+  if ( i < 0 || i >= this->NumberOfEntries )
+    {
+    return NULL;
+    }
+  else
+    {
+    return this->Colors->GetTuple(i);
     }
 }
 
@@ -335,11 +383,8 @@ int vtkLegendBoxActor::RenderOverlay(vtkViewport *viewport)
       {
       if ( this->Symbol[i] )
         {
-        this->SymbolMapper[i]->SetScalarVisibility(this->ScalarVisibility);
-        this->SymbolActor[i]->SetProperty(this->GetProperty());
         renderedSomething += this->SymbolActor[i]->RenderOpaqueGeometry(viewport);
         }
-      this->TextActor[i]->SetProperty(this->GetProperty());
       renderedSomething += this->TextActor[i]->RenderOpaqueGeometry(viewport);
       }
     }
@@ -416,7 +461,7 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
     //Compute the final proportion (symbol width to text width)
     fontSize = 12;
-	this->TextMapper[maxTextMapper]->SetFontSize(fontSize);
+        this->TextMapper[maxTextMapper]->SetFontSize(fontSize);
     this->TextMapper[maxTextMapper]->GetSize(viewport,tempi);
     twr = (float)tempi[0]/tempi[1];
     symbolSize = swr / (swr + twr);
@@ -472,6 +517,7 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
       }
     
     //Place text strings
+    float *color;
     float posY;
     float posX = p1[0] + this->Padding + 
                  symbolSize*(p2[0] - p1[0] - 2.0*this->Padding);
@@ -479,7 +525,13 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
       {
       posY = p2[1] - this->Padding - (float)i*size[1] - 0.5*size[1];
       this->TextActor[i]->SetPosition(posX,posY);
-	  this->TextMapper[i]->SetFontSize(fontSize);
+          this->TextMapper[i]->SetFontSize(fontSize);
+      color = this->Colors->GetTuple(i);
+      if ( color[0] < 0.0 )
+        {
+        color = this->GetProperty()->GetColor();
+        }
+      this->TextActor[i]->GetProperty()->SetColor(color);
       }
     
     //Place symbols
@@ -504,6 +556,13 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
         this->Transform[i]->Identity();
         this->Transform[i]->Translate(posX, posY, 0.0);
         this->Transform[i]->Scale(0.5*sf, 0.5*sf, 1);
+        this->SymbolMapper[i]->SetScalarVisibility(this->ScalarVisibility);
+        color = this->Colors->GetTuple(i);
+        if ( color[0] < 0.0 )
+          {
+          color = this->GetProperty()->GetColor();
+          }
+        this->SymbolActor[i]->GetProperty()->SetColor(color);
         }//if symbol defined
       }//for all entries
 
@@ -524,11 +583,8 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
       {
       if ( this->Symbol[i] )
         {
-        this->SymbolMapper[i]->SetScalarVisibility(this->ScalarVisibility);
-        this->SymbolActor[i]->SetProperty(this->GetProperty());
         renderedSomething += this->SymbolActor[i]->RenderOpaqueGeometry(viewport);
         }
-      this->TextActor[i]->SetProperty(this->GetProperty());
       renderedSomething += this->TextActor[i]->RenderOpaqueGeometry(viewport);
       }
     }

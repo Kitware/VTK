@@ -114,12 +114,17 @@ public:
   // used as a symbol (it can be NULL) and a text string (which also can
   // be NULL). The vtkPolyData is assumed to be defined in the x-y plane,
   // and the text is assumed to be a single line in height. Note that when
-  // this method is invoked previous entries are deleted.
-  void SetEntry(int i, vtkPolyData *symbol, char* string);
+  // this method is invoked previous entries are deleted. Also supply a text
+  // string and optionally a color. (If a color is not specified, then the
+  // entry color is the same as this actor's color.)
+  void SetEntry(int i, vtkPolyData *symbol, char* string, float colot[3]);
   void SetEntrySymbol(int i, vtkPolyData *symbol);
   void SetEntryString(int i, char* string);
+  void SetEntryColor(int i, float color[3]);
+  void SetEntryColor(int i, float r, float g, float b);
   vtkPolyData *GetEntrySymbol(int i);
   char* GetEntryString(int i);
+  float *GetEntryColor(int i);
 
   // Description:
   // Enable/Disable bolding legend entries.
@@ -214,7 +219,7 @@ protected:
   void InitializeEntries();
 
   vtkCoordinate *Position2Coordinate;
-  int	Bold;
+  int   Bold;
   int   Italic;
   int   Shadow;
   int   FontFamily;
@@ -225,6 +230,7 @@ protected:
   
   // Internal actors, mappers, data to represent the legend
   int                        NumberOfEntries;
+  vtkFloatArray              *Colors;
   vtkTextMapper              **TextMapper;
   vtkActor2D                 **TextActor;
   vtkPolyData                **Symbol;
