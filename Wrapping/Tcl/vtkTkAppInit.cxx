@@ -34,9 +34,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkToolkits.h"
 #include "Wrapping/Tcl/vtkTkAppInitConfigure.h"
 
-#ifdef VTK_TCL_TK_STATIC
 #include <sys/stat.h>
-#endif
 
 #if defined(CMAKE_INTDIR)
 # define VTK_TCL_PACKAGE_DIR VTK_TCL_PACKAGE_DIR_BUILD "/" CMAKE_INTDIR
@@ -198,7 +196,6 @@ void help()
 {
 }
 
-#ifdef VTK_TCL_TK_STATIC
 int vtkTkAppInitFileExists(const char *filename)
 {
   struct stat fs;
@@ -279,7 +276,6 @@ const char* vtkTkAppInitConvertToUnixSlashes(const char* path, char *unix_path)
   
   return unix_path;
 }
-#endif
 
 int Tcl_AppInit(Tcl_Interp *interp)
 {
@@ -307,7 +303,6 @@ int Tcl_AppInit(Tcl_Interp *interp)
     be copied. 
   */
 
-#ifdef VTK_TCL_TK_STATIC
   int has_tcllibpath_env = getenv("TCL_LIBRARY") ? 1 : 0;
   int has_tklibpath_env = getenv("TK_LIBRARY") ? 1 : 0;
   if (!has_tcllibpath_env || !has_tklibpath_env)
@@ -348,7 +343,6 @@ int Tcl_AppInit(Tcl_Interp *interp)
         }
       }
     }
-#endif
 
   if (Tcl_Init(interp) == TCL_ERROR) 
     {
