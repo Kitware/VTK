@@ -360,9 +360,9 @@ void vtkGLRenderWindow::WindowInitialize (void)
   vtkDebugMacro(<< "Resizing the xwindow\n");
   XResizeWindow(this->DisplayId,this->WindowId,
 		((this->Size[0] > 0) ? 
-		 (int)(this->Size[0]) : 256),
+		 (int)(this->Size[0]) : 300),
 		((this->Size[1] > 0) ? 
-		 (int)(this->Size[1]) : 256));
+		 (int)(this->Size[1]) : 300));
   XSync(this->DisplayId,False);
 
   set_window(GLX_NORMAL, this->WindowId, conf);

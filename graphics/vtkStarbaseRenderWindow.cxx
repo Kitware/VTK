@@ -681,9 +681,9 @@ void vtkStarbaseRenderWindow::WindowInitialize (void)
   vtkDebugMacro(<< "Resizing the xwindow\n");
   XResizeWindow(this->DisplayId,this->WindowId,
 		((this->Size[0] > 0) ? 
-		 (int)(this->Size[0]) : 256),
+		 (int)(this->Size[0]) : 300),
 		((this->Size[1] > 0) ? 
-		 (int)(this->Size[1]) : 256));
+		 (int)(this->Size[1]) : 300));
   XSync(this->DisplayId,False);
 
   list[0] = this->WindowName;
@@ -701,9 +701,9 @@ void vtkStarbaseRenderWindow::WindowInitialize (void)
     }
   
   size_hints->width  = 
-    ((this->Size[0] > 0) ? (int)(this->Size[0]) : 256);
+    ((this->Size[0] > 0) ? (int)(this->Size[0]) : 300);
   size_hints->height = 
-    ((this->Size[1] > 0) ?  (int)(this->Size[1]) : 256);
+    ((this->Size[1] > 0) ?  (int)(this->Size[1]) : 300);
   
   wm_hints = XAllocWMHints();
 

@@ -494,9 +494,9 @@ void vtkXGLRenderWindow::WindowInitialize (void)
     }
   
   size_hints->width  = 
-    ((this->Size[0] > 0) ? this->Size[0] : 256);
+    ((this->Size[0] > 0) ? this->Size[0] : 300);
   size_hints->height = 
-    ((this->Size[1] > 0) ? this->Size[1] : 256);
+    ((this->Size[1] > 0) ? this->Size[1] : 300);
   
   wm_hints = XAllocWMHints();
 
