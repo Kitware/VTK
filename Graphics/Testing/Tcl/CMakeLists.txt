@@ -31,6 +31,7 @@ IF (VTK_USE_RENDERING)
       extractVectors
       glyph2D
       KlineBottle
+      MultidimensionalSolution
       nacaBinary
       OBBTree
       OBBCylinder
