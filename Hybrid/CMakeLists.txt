@@ -9,6 +9,7 @@ vtkEarthSource
 vtkGridTransform 
 vtkIVWriter 
 vtkImageToPolyDataFilter 
+vtkIterativeClosestPointTransform
 vtkLandmarkTransform 
 vtkLegendBoxActor 
 vtkLightKit 
