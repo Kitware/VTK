@@ -227,6 +227,12 @@ public:
   vtkGetMacro(MaximumFeatureAngle,float);
 
   // Description:
+  // Turn on/off the generation of error scalars.
+  vtkSetMacro(GenerateErrorScalars,int);
+  vtkGetMacro(GenerateErrorScalars,int);
+  vtkBooleanMacro(GenerateErrorScalars,int);
+
+  // Description:
   // Turn on/off the preservation of feature edges.
   vtkSetMacro(PreserveEdges,int);
   vtkGetMacro(PreserveEdges,int);
