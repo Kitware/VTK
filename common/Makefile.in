@@ -97,7 +97,6 @@ vtkMultiThreader \
 vtkMutexLock \
 vtkNormals \
 vtkObject \
-vtkOrderedTriangulator \
 vtkOutputWindow \
 vtkOverrideInformationCollection \
 vtkPerspectiveTransform \
