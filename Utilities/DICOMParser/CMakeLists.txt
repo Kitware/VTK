@@ -30,4 +30,4 @@ ADD_LIBRARY(vtkDICOMParser DICOMFile.cxx DICOMParser.cxx DICOMAppHelper.cxx)
 
 INSTALL_TARGETS(/lib/vtk vtkDICOMParser)
 INSTALL_FILES(/include/vtk "(\\.h|\\.txx)$")
-
+INSTALL_FILES(/include/vtk FILES ${DICOMParser_BINARY_DIR}/DICOMCMakeConfig.h) 
