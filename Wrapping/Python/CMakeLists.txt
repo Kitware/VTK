@@ -212,9 +212,9 @@ IF(PYTHON_EXECUTABLE)
 # Done listing of files.
 
 # Now copy these files if necessary.
-  IF ("${VTK_BINARY_DIR}" MATCHES "${VTK_SOURCE_DIR}")
+  IF ("${VTK_BINARY_DIR}" MATCHES "^${VTK_SOURCE_DIR}$")
     #MESSAGE("In source build -- no need to copy Python files.")
-  ELSE ("${VTK_BINARY_DIR}" MATCHES "${VTK_SOURCE_DIR}")
+  ELSE ("${VTK_BINARY_DIR}" MATCHES "^${VTK_SOURCE_DIR}$")
     FOREACH(file ${VTK_PYTHON_FILES})
       SET(src "${VTK_SOURCE_DIR}/Wrapping/Python/${file}.py")
       SET(tgt "${VTK_BINARY_DIR}/Wrapping/Python/${file}.py")
@@ -222,7 +222,7 @@ IF(PYTHON_EXECUTABLE)
     ENDFOREACH(file)
     CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Python/vtk.pth
                    ${VTK_BINARY_DIR}/Wrapping/Python/vtk.pth COPYONLY)
-  ENDIF ("${VTK_BINARY_DIR}" MATCHES "${VTK_SOURCE_DIR}")
+  ENDIF ("${VTK_BINARY_DIR}" MATCHES "^${VTK_SOURCE_DIR}$")
 
 # Byte compile the Python files.
   SET(py_compile_quiet 1)
