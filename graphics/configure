@@ -1013,7 +1013,7 @@ fi
 # Check whether --with-patented or --without-patented was given.
 if test "${with_patented+set}" = set; then
   withval="$with_patented"
-  PATENTED_FLAGS=-DUSE_PATENTED -I\${srcdir}/../patented
+  PATENTED_FLAGS="-DUSE_PATENTED -I\${srcdir}/../patented"
 fi
 
 
