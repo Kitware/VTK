@@ -171,9 +171,9 @@ void vtkImageToStructuredPoints::Execute()
   // setup the structured points with the scalars
   bounds = region->GetBounds3d();
   region->GetAspectRatio3d(aspectRatio);
-  origin[0] = (float)(bounds[0]); 
-  origin[1] = (float)(bounds[2]); 
-  origin[2] = (float)(bounds[4]);
+  origin[0] = (float)(bounds[0]) * aspectRatio[0]; 
+  origin[1] = (float)(bounds[2]) * aspectRatio[1]; 
+  origin[2] = (float)(bounds[4]) * aspectRatio[2];
   dim[0] = bounds[1] - bounds[0] + 1;
   dim[1] = bounds[3] - bounds[2] + 1;
   dim[2] = bounds[5] - bounds[4] + 1;
@@ -225,16 +225,17 @@ int vtkImageToStructuredPoints::SplitExecute(vtkImageRegion *outRegion)
          splitBounds[6] << ", " <<
          splitBounds[7]);
 
-  while (splitBounds[splitAxes[splitAxisIdx] * 2] == splitBounds[splitAxes[splitAxisIdx] * 2 + 1])
+  splitAxis = splitAxes[splitAxisIdx];
+  while (splitBounds[splitAxis * 2] == splitBounds[splitAxis * 2 + 1])
     {
     ++splitAxisIdx;
-    if (splitAxes[splitAxisIdx] >= VTK_IMAGE_DIMENSIONS)
+    if (splitAxisIdx >= VTK_IMAGE_DIMENSIONS)
       {
       vtkErrorMacro(<< "SplitExecute: Cannot split one pixel.");
       return 0;
       }
+    splitAxis = splitAxes[splitAxisIdx];
     }
-  splitAxis = splitAxes[splitAxisIdx];
   min = splitBounds[splitAxis * 2];
   max = splitBounds[splitAxis * 2 + 1];
   // lower part
