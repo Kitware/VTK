@@ -284,7 +284,9 @@ void vlXRenderWindowInteractorCallback(Widget w,XtPointer client_data,
       switch (ks)
 	{
 	case XK_e : exit(1); break;
-
+	case XK_u :
+	  if (me->UserMethod) (*me->UserMethod)(me->UserMethodArg);
+	  break;
 	case XK_r : //reset
 	  {
           me->FindPokedRenderer(((XKeyEvent*)event)->x,
@@ -552,3 +554,4 @@ void vlXRenderWindowInteractor::FinishSettingUpNewWindow()
   this->Size[0] = size[0];
   this->Size[1] = size[1];
 }
+
