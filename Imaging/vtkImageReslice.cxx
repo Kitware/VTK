@@ -2099,8 +2099,6 @@ int isBounded(F *point, F *xAxis, int *inMin, int *inMax, int ai, int r)
 
 // this huge mess finds out where the current output raster
 // line intersects the input volume
-
-static
 void vtkResliceFindExtentHelper(int &r1, int &r2, int sign, int *outExt)
 {
   if (sign < 0)
