@@ -53,7 +53,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // coordinates 0<=r<0.5, and an opaque full intensity map for texture 
 // coordinates 0.5<r<=1.0. There is a small transition region for r=0.5.
 // .SECTION See Also
-// vtkThreshold vtkThresholdPoints
+// vtkThreshold vtkThresholdPoints vtkTextureMapToPlane vtkTextureMapToSphere
+// vtkTextureMapToCylinder vtkTextureMapToBox
 
 #ifndef __vtkThresholdTextureCoords_h
 #define __vtkThresholdTextureCoords_h

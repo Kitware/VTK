@@ -50,12 +50,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // then mapped into the user specified s-t coordinate range. For more control,
 // you can specify a plane with three points: an origin and two points defining
 // the two axes of the plane. (This is compatible with the vtkPlaneSource.) Using
-// the second method, points may fall outside of the user specified s-t coordinate 
-// range. Modulo arithmetic is then used to map the points into the specified s-t
-// texture coordinate range.
+// the second method, the SRange and TRange vectors are ignored, since the 
+// presumption is that the user does not want to scale the texture coordinates;
+// and you can adjust the origin and axes points to achieve the texture coordinate
+// scaling you need. Note also that using the three point method the axes do not
+// have to be orthogonal.
 
 // .SECTION See Also
-// vtkPlaneSource vtkTextureMapToBox
+// vtkTextureMapToBox vtkPlaneSource vtkTextureMapToCylinder vtkTextureMapToSphere
+// vtkThresholdTextureCoords
 
 #ifndef __vtkTextureMapToPlane_h
 #define __vtkTextureMapToPlane_h
@@ -70,7 +73,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Specify a point defining the origin of the plane.
+  // Specify a point defining the origin of the plane. Used in conjunction with
+  // the Point1 and Point2 ivars to specify a map plane.
   vtkSetVector3Macro(Origin,float);
   vtkGetVectorMacro(Origin,float,3);
 
@@ -85,7 +89,9 @@ public:
   vtkGetVectorMacro(Point2,float,3);
 
   // Description:
-  // Specify plane normal.
+  // Specify plane normal. An alternative way to specify a map plane. Using this
+  // method, the object will scale the resulting texture coordinate between the
+  // SRange and TRange specified.
   vtkSetVector3Macro(Normal,float);
   vtkGetVectorMacro(Normal,float,3);
 

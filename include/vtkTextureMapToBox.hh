@@ -45,8 +45,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // can either be user specified or generated automatically. If the box
 // is generated automatically, all points will lie inside of it. If a
 // point lies outside the bounding box (only for manual box 
-// specification), its generated texture coordinate will be clamped
+// specification), its generated texture coordinate will be mapped
 // into the r-s-t texture coordinate range.
+
+// .SECTION See Also
+// vtkTextureMapToPlane vtkTextureMapToCylinder vtkTextureMapToSphere
+// vtkThresholdTextureCoords
 
 #ifndef __vtkTextureMapToBox_h
 #define __vtkTextureMapToBox_h
