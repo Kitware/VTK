@@ -23,7 +23,7 @@
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMetaImageReader, "1.12");
+vtkCxxRevisionMacro(vtkMetaImageReader, "1.12.2.1");
 vtkStandardNewMacro(vtkMetaImageReader);
 
 //----------------------------------------------------------------------------
@@ -53,6 +53,7 @@ public:
   static void ConvertToUnixSlashes(vtkstd::string& path);
   static vtkstd::string GetFilenamePath(const vtkstd::string& filename);
   static int StringEquals(const char* s1, const char* s2, size_t maxlen);
+  static int StringEqualsCase(const char* s1, const char* s2, size_t maxlen);
   static int GetLineFromStream(istream& is, vtkstd::string& line,
     bool *has_newline /* = 0 */, size_t maxlen /* = 0 */);
 };
@@ -210,6 +211,34 @@ int vtkMetaImageReaderInternal::GetLineFromStream(istream& is, vtkstd::string& l
   return haveData;
 }
 
+#if defined( _WIN32 ) && !defined(__CYGWIN__)
+#  if defined(__BORLANDC__)
+#    define STRCASECMP stricmp
+#  else
+#    define STRCASECMP _stricmp
+#  endif
+#else
+#  define STRCASECMP strcasecmp
+#endif
+
+#define MHDMIN(x,y) (((x)<(y))?(x):(y))
+
+//----------------------------------------------------------------------------
+int vtkMetaImageReaderInternal::StringEqualsCase(const char* s1, const char* s2, size_t maxlen)
+{
+  if ( s1 == s2 )
+    {
+    return 1;
+    }
+  if ( !s1 || !s2 )
+    {
+    return 0;
+    }
+  vtkstd::string ss1(s1, MHDMIN(maxlen, strlen(s1)));
+  vtkstd::string ss2(s2, MHDMIN(maxlen, strlen(s2)));
+
+  return STRCASECMP(ss1.c_str(), ss2.c_str()) == 0;
+}
 //----------------------------------------------------------------------------
 int vtkMetaImageReaderInternal::StringEquals(const char* s1, const char* s2, size_t maxlen)
 {
@@ -328,7 +357,7 @@ int vtkMetaImageReader::GetFileInformation(const char* fname, int populate)
       //cout << "]" << endl;
       if ( vtkMetaImageReaderInternal::StringEquals(key, "ObjectType", keylen) )
         {
-        if ( !vtkMetaImageReaderInternal::StringEquals(value, "Image", valuelen) )
+        if ( !vtkMetaImageReaderInternal::StringEqualsCase(value, "Image", valuelen) )
           {
           if ( populate )
             {
@@ -355,8 +384,7 @@ int vtkMetaImageReader::GetFileInformation(const char* fname, int populate)
         }
       else if ( vtkMetaImageReaderInternal::StringEquals(key, "BinaryData", keylen) )
         {
-        if ( !vtkMetaImageReaderInternal::StringEquals(value, "True", valuelen) && 
-          vtkMetaImageReaderInternal::StringEquals(value, "true", valuelen) )
+        if ( !vtkMetaImageReaderInternal::StringEqualsCase(value, "true", valuelen) )
           {
           if ( populate )
             {
@@ -371,8 +399,7 @@ int vtkMetaImageReader::GetFileInformation(const char* fname, int populate)
       else if ( vtkMetaImageReaderInternal::StringEquals(key, 
           "BinaryDataByteOrderMSB", keylen) )
         {
-        if ( vtkMetaImageReaderInternal::StringEquals(value, "True", valuelen) ||
-          vtkMetaImageReaderInternal::StringEquals(value, "true", valuelen) )
+        if ( vtkMetaImageReaderInternal::StringEqualsCase(value, "true", valuelen) )
           {
           bigendian = 1;
           }
@@ -419,62 +446,62 @@ int vtkMetaImageReader::GetFileInformation(const char* fname, int populate)
         }
       else if ( vtkMetaImageReaderInternal::StringEquals(key, "ElementType", keylen) )
         {
-        if ( vtkMetaImageReaderInternal::StringEquals(value, "MET_CHAR", valuelen) || 
-          vtkMetaImageReaderInternal::StringEquals(value, "MET_CHAR_ARRAY", valuelen) )
+        if ( vtkMetaImageReaderInternal::StringEqualsCase(value, "MET_CHAR", valuelen) || 
+          vtkMetaImageReaderInternal::StringEqualsCase(value, "MET_CHAR_ARRAY", valuelen) )
           {
           data_type = VTK_CHAR;
           size_type = sizeof(char);
           }
-        else if ( vtkMetaImageReaderInternal::StringEquals(value, "MET_UCHAR", valuelen) || 
-          vtkMetaImageReaderInternal::StringEquals(value, "MET_UCHAR_ARRAY", valuelen) )
+        else if ( vtkMetaImageReaderInternal::StringEqualsCase(value, "MET_UCHAR", valuelen) || 
+          vtkMetaImageReaderInternal::StringEqualsCase(value, "MET_UCHAR_ARRAY", valuelen) )
           {
           data_type = VTK_UNSIGNED_CHAR;
           size_type = sizeof(unsigned char);
           }
-        else if ( vtkMetaImageReaderInternal::StringEquals(value, "MET_SHORT", valuelen) || 
-          vtkMetaImageReaderInternal::StringEquals(value, "MET_SHORT_ARRAY", valuelen) )
+        else if ( vtkMetaImageReaderInternal::StringEqualsCase(value, "MET_SHORT", valuelen) || 
+          vtkMetaImageReaderInternal::StringEqualsCase(value, "MET_SHORT_ARRAY", valuelen) )
           {
           data_type = VTK_SHORT;
           size_type = sizeof(short);
           }
-        else if ( vtkMetaImageReaderInternal::StringEquals(value, "MET_USHORT", valuelen) || 
-          vtkMetaImageReaderInternal::StringEquals(value, "MET_USHORT_ARRAY", valuelen) )
+        else if ( vtkMetaImageReaderInternal::StringEqualsCase(value, "MET_USHORT", valuelen) || 
+          vtkMetaImageReaderInternal::StringEqualsCase(value, "MET_USHORT_ARRAY", valuelen) )
           {
           data_type = VTK_UNSIGNED_SHORT;
           size_type = sizeof(unsigned short);
           }
-        else if ( vtkMetaImageReaderInternal::StringEquals(value, "MET_INT", valuelen) || 
-          vtkMetaImageReaderInternal::StringEquals(value, "MET_INT_ARRAY", valuelen) )
+        else if ( vtkMetaImageReaderInternal::StringEqualsCase(value, "MET_INT", valuelen) || 
+          vtkMetaImageReaderInternal::StringEqualsCase(value, "MET_INT_ARRAY", valuelen) )
           {
           data_type = VTK_INT;
           size_type = sizeof(int);
           }
-        else if ( vtkMetaImageReaderInternal::StringEquals(value, "MET_UINT", valuelen) || 
-          vtkMetaImageReaderInternal::StringEquals(value, "MET_UINT_ARRAY", valuelen) )
+        else if ( vtkMetaImageReaderInternal::StringEqualsCase(value, "MET_UINT", valuelen) || 
+          vtkMetaImageReaderInternal::StringEqualsCase(value, "MET_UINT_ARRAY", valuelen) )
           {
           data_type = VTK_UNSIGNED_INT;
           size_type = sizeof(unsigned int);
           }
-        else if ( vtkMetaImageReaderInternal::StringEquals(value, "MET_LONG", valuelen) || 
-          vtkMetaImageReaderInternal::StringEquals(value, "MET_LONG_ARRAY", valuelen) )
+        else if ( vtkMetaImageReaderInternal::StringEqualsCase(value, "MET_LONG", valuelen) || 
+          vtkMetaImageReaderInternal::StringEqualsCase(value, "MET_LONG_ARRAY", valuelen) )
           {
           data_type = VTK_LONG;
           size_type = sizeof(long);
           }
-        else if ( vtkMetaImageReaderInternal::StringEquals(value, "MET_ULONG", valuelen) || 
-          vtkMetaImageReaderInternal::StringEquals(value, "MET_ULONG_ARRAY", valuelen) )
+        else if ( vtkMetaImageReaderInternal::StringEqualsCase(value, "MET_ULONG", valuelen) || 
+          vtkMetaImageReaderInternal::StringEqualsCase(value, "MET_ULONG_ARRAY", valuelen) )
           {
           data_type = VTK_UNSIGNED_LONG;
           size_type = sizeof(unsigned long);
           }
-        else if ( vtkMetaImageReaderInternal::StringEquals(value, "MET_FLOAT", valuelen) || 
-          vtkMetaImageReaderInternal::StringEquals(value, "MET_FLOAT_ARRAY", valuelen) )
+        else if ( vtkMetaImageReaderInternal::StringEqualsCase(value, "MET_FLOAT", valuelen) || 
+          vtkMetaImageReaderInternal::StringEqualsCase(value, "MET_FLOAT_ARRAY", valuelen) )
           {
           data_type = VTK_FLOAT;
           size_type = sizeof(float);
           }
-        else if ( vtkMetaImageReaderInternal::StringEquals(value, "MET_DOUBLE", valuelen) || 
-          vtkMetaImageReaderInternal::StringEquals(value, "MET_DOUBLE_ARRAY", valuelen) )
+        else if ( vtkMetaImageReaderInternal::StringEqualsCase(value, "MET_DOUBLE", valuelen) || 
+          vtkMetaImageReaderInternal::StringEqualsCase(value, "MET_DOUBLE_ARRAY", valuelen) )
           {
           data_type = VTK_DOUBLE;
           size_type = sizeof(double);
@@ -490,7 +517,7 @@ int vtkMetaImageReader::GetFileInformation(const char* fname, int populate)
         }
       else if ( vtkMetaImageReaderInternal::StringEquals(key, "ElementDataFile", keylen) )
         {
-        if ( vtkMetaImageReaderInternal::StringEquals(value, "LOCAL", valuelen) )
+        if ( vtkMetaImageReaderInternal::StringEqualsCase(value, "LOCAL", valuelen) )
           {
           datafile = fname;
           }

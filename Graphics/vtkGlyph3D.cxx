@@ -26,7 +26,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkGlyph3D, "1.112");
+vtkCxxRevisionMacro(vtkGlyph3D, "1.112.6.1");
 vtkStandardNewMacro(vtkGlyph3D);
 
 // Construct object with scaling on, scaling mode is by scalar value,
@@ -241,7 +241,7 @@ void vtkGlyph3D::Execute()
       }
 
     // Prepare to copy output.
-    pd = this->GetSource(0)->GetPointData();
+    pd = input->GetPointData();
     outputPD->CopyAllocate(pd,numPts*numSourcePts);
     }
 
@@ -530,7 +530,7 @@ void vtkGlyph3D::Execute()
       {
       for (i=0; i < numSourcePts; i++)
         {
-        outputPD->CopyData(pd,i,ptIncr+i);
+        outputPD->CopyData(pd,inPtId,ptIncr+i);
         }
       }
 
