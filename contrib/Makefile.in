@@ -42,6 +42,7 @@ vtkSurfaceReconstructionFilter \
 vtkVideoSource \
 vtkVolumeProMapper \
 vtkThinPlateSplineMeshWarp \
+vtkThinPlateSplineTransform \
 ${CONTROLLER_API_OBJ}
 
 #vtkOutputPort \
