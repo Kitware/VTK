@@ -1,25 +1,24 @@
 # get the interactor ui
 source vtkInt.tcl
 
-#vtkSTLReader reader;
-#  reader SetFilename ../../data/42400-IDGH.stl;
-vtkCyberReader reader;
-  reader SetFilename ../../data/fran_cut
+vtkSTLReader reader;
+  reader SetFilename ../../data/42400-IDGH.stl;
   reader DebugOn;
 vtkPolyMapper dataMapper;
   dataMapper SetInput [reader GetOutput];
 vtkActor model;
   model SetMapper dataMapper;
   [model GetProperty] SetColor 1 0 0;
-  model VisibilityOff;
 
-vtkOBBFilter boxes;
+vtkOBBTree obb;
+  obb SetMaxLevel 4;
+  obb SetNumberOfCellsPerBucket 4;
+  obb DebugOn;
+vtkSpatialRepFilter boxes;
   boxes SetInput [reader GetOutput];
-  boxes SetMaxLevel 12;
-  boxes DebugOn;
+  boxes SetSpatialRep obb;
 vtkPolyMapper boxMapper;
   boxMapper SetInput [boxes GetOutput];
-#  boxMapper SetInput [boxes GetOutput 4];
   boxMapper DebugOn;
 vtkActor boxActor;
   boxActor SetMapper boxMapper;
