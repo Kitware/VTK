@@ -138,9 +138,8 @@ void readInMakefile(char *fname,const char *libname)
     MessageBox(NULL,"ERROR: failed to open Makefile.in for parsing.",
 	       "Error",MB_OK);
     return;
-    }
-
-
+    }  
+  
   // search for keywords
   do
     {
@@ -186,6 +185,18 @@ void readInMakefile(char *fname,const char *libname)
     }
   
   // now store concrete classes
+  while (strcmp(line,"WIN32_OBJ") && strcmp(line,"@MAKEINCLUDE@"))
+    {
+    if ((line[0] == 'v')&&(line[1] == 't'))
+      {
+      concrete[num_concrete] = strdup(line);
+      concrete_lib[num_concrete] = libname;
+      num_concrete++;
+      }
+    *IS >> line;
+    }
+
+  // look for win32 classes
   while (strcmp(line,"@MAKEINCLUDE@"))
     {
     if ((line[0] == 'v')&&(line[1] == 't'))
@@ -198,77 +209,6 @@ void readInMakefile(char *fname,const char *libname)
     }
 }
 
-
-
-
-
-
-// order of the files is important for doing the incremental build
-void removeUNIXOnlyFiles(CPcmakerDlg *vals)
-{
-  int i, j;
-
-
-  for (i = 0; i < num_concrete; i++)
-    {
-    if (!(strcmp(concrete[i],"vtkXRenderWindow") &&
-          strcmp(concrete[i],"vtkXRenderWindowInteractor") &&
-          strcmp(concrete[i],"vtkXRenderWindowTclInteractor") &&
-          strcmp(concrete[i], "vtkXImageMapper") &&
-	  strcmp(concrete[i], "vtkXImageWindow") &&
-	  strcmp(concrete[i], "vtkXTextMapper") &&
-	  strcmp(concrete[i], "vtkXPolyDataMapper2D") &&
-          strncmp(concrete[i],"vtkTcl",6) && 
-          strncmp(concrete[i],"vtkTk",5) ))
-      {
-      if (i < num_concrete - 1)
-        {
-        memmove((void *)(concrete + i), (void *)(concrete + i + 1), sizeof(char*)*(num_concrete - i - 1) );
-        memmove((void *)(concrete_lib + i), (void *)(concrete_lib + i + 1), sizeof(char*)*(num_concrete - i - 1) );
-        }
-      
-      for ( j = 0; j <= LT_COMMON; j++)
-        {
-        if (concreteStart[j] > i )
-          concreteStart[j]--;
-        if (concreteEnd[j] > i )
-          concreteEnd[j]--;
-        }
-      num_concrete--;
-      i--;
-      }
-    }
-  for (i = 0; i < num_abstract; i++)
-    {
-    if (!(strcmp(abstract[i],"vtkXRenderWindow") &&
-          strcmp(abstract[i],"vtkXRenderWindowInteractor") &&
-          strcmp(abstract[i],"vtkXRenderWindowTclInteractor") &&
-          strcmp(abstract[i], "vtkXImageMapper") &&
-	  strcmp(abstract[i], "vtkXImageWindow") &&
-	  strcmp(abstract[i], "vtkXTextMapper") &&
-	  strcmp(abstract[i], "vtkXPolyMapper2D") &&
-          strncmp(abstract[i],"vtkTcl",6) && 
-          strncmp(abstract[i],"vtkTk",5) ))
-      {
-      if (i < num_abstract - 1)
-        {
-        memmove((void *)(abstract + i), (void *)(abstract + i + 1), sizeof(char*)*(num_abstract - i - 1) );
-        memmove((void *)(abstract_lib + i), (void *)(abstract_lib + i + 1), sizeof(char*)*(num_abstract - i - 1) );
-        }
-
-
-      for ( j = 0; j <= LT_COMMON; j++)
-        {
-        if (abstractStart[j] > i )
-          abstractStart[j]--;
-        if (abstractEnd[j] > i )
-          abstractEnd[j]--;
-        }
-      num_abstract--;
-      i--;
-      }
-    }
-}
 
 // order of the files is important for doing the incremental build
 void removeExtraFiles(CPcmakerDlg *vals)
@@ -760,56 +700,15 @@ void ReadMakefiles(CPcmakerDlg *vals)
 
   // do graphics first (if present) and LT_COMMON last for
   // doing split obj.lib's in Tcl and Jave
-  if (vals->m_Graphics) // also include patented if selected
+  if (vals->m_Graphics) 
     {
     UpdateStart(LT_GRAPHICS);
     sprintf(fname,"%s\\graphics\\Makefile.in",vals->m_WhereVTK);
     readInMakefile(fname,strdup("graphics"));
-
-
-    concrete[num_concrete] = strdup("vtkOpenGLRenderer");
-    concrete_lib[num_concrete] = strdup("graphics");
-    num_concrete++;
-    concrete[num_concrete] = strdup("vtkOpenGLTexture");
-    concrete_lib[num_concrete] = strdup("graphics");
-    num_concrete++;
-    concrete[num_concrete] = strdup("vtkOpenGLProperty");
-    concrete_lib[num_concrete] = strdup("graphics");
-    num_concrete++;
-    concrete[num_concrete] = strdup("vtkOpenGLActor");
-    concrete_lib[num_concrete] = strdup("graphics");
-    num_concrete++;
-    concrete[num_concrete] = strdup("vtkOpenGLCamera");
-    concrete_lib[num_concrete] = strdup("graphics");
-    num_concrete++;
-    concrete[num_concrete] = strdup("vtkOpenGLPolyDataMapper");
-    concrete_lib[num_concrete] = strdup("graphics");
-    num_concrete++;
-    concrete[num_concrete] = strdup("vtkOpenGLProjectedPolyDataRayBounder");
-    concrete_lib[num_concrete] = strdup("graphics");
-    num_concrete++;
-    concrete[num_concrete] = strdup("vtkOpenGLLight");
-    concrete_lib[num_concrete] = strdup("graphics");
-    num_concrete++;
-    concrete[num_concrete] = strdup("vtkOpenGLVolumeTextureMapper2D");
-    concrete_lib[num_concrete] = strdup("graphics");
-    num_concrete++;
-    concrete[num_concrete] = strdup("vtkWin32OpenGLRenderWindow");
-    concrete_lib[num_concrete] = strdup("graphics");
-    num_concrete++;
-    concrete[num_concrete] = strdup("vtkWin32RenderWindowInteractor");
-    concrete_lib[num_concrete] = strdup("graphics");
-    num_concrete++;
-
-    if (vals->m_Patented)
-      {
-      sprintf(fname,"%s\\patented\\Makefile.in",vals->m_WhereVTK);
-      readInMakefile(fname,strdup("patented"));
-      }
-    
     UpdateEnd(LT_GRAPHICS);
     }
-  else if (vals->m_Patented)
+  
+  if (vals->m_Patented)
     {
     UpdateStart(LT_PATENTED);
     sprintf(fname,"%s\\patented\\Makefile.in",vals->m_WhereVTK);
@@ -817,39 +716,11 @@ void ReadMakefiles(CPcmakerDlg *vals)
     UpdateEnd(LT_PATENTED);
     }
 
-
   if (vals->m_Imaging)
     {
     UpdateStart(LT_IMAGING);
     sprintf(fname,"%s\\imaging\\Makefile.in",vals->m_WhereVTK);
     readInMakefile(fname,strdup("imaging"));
-    concrete[num_concrete] = strdup("vtkWin32ImageMapper");
-    concrete_lib[num_concrete] = strdup("imaging");
-    num_concrete++;
-    concrete[num_concrete] = strdup("vtkWin32OpenGLTextMapper");
-    concrete_lib[num_concrete] = strdup("imaging");
-    num_concrete++;
-    concrete[num_concrete] = strdup("vtkOpenGLImageMapper");
-    concrete_lib[num_concrete] = strdup("imaging");
-    num_concrete++;
-    concrete[num_concrete] = strdup("vtkOpenGLPolyDataMapper2D");
-    concrete_lib[num_concrete] = strdup("imaging");
-    num_concrete++;
-    concrete[num_concrete] = strdup("vtkOpenGLImager");
-    concrete_lib[num_concrete] = strdup("imaging");
-    num_concrete++;
-    concrete[num_concrete] = strdup("vtkWin32OpenGLImageWindow");
-    concrete_lib[num_concrete] = strdup("imaging");
-    num_concrete++;
-    concrete[num_concrete] = strdup("vtkWin32ImageWindow");
-    concrete_lib[num_concrete] = strdup("imaging");
-    num_concrete++;
-    concrete[num_concrete] = strdup("vtkWin32TextMapper");
-    concrete_lib[num_concrete] = strdup("imaging");
-    num_concrete++;
-    concrete[num_concrete] = strdup("vtkWin32PolyDataMapper2D");
-    concrete_lib[num_concrete] = strdup("imaging");
-    num_concrete++;
     UpdateEnd(LT_IMAGING);
     }
   if (vals->m_Contrib)
@@ -857,9 +728,6 @@ void ReadMakefiles(CPcmakerDlg *vals)
     UpdateStart(LT_CONTRIB);
     sprintf(fname,"%s\\contrib\\Makefile.in",vals->m_WhereVTK);
     readInMakefile(fname,strdup("contrib"));
-    concrete[num_concrete] = strdup("vtkWin32OffscreenRenderWindow");
-    concrete_lib[num_concrete] = strdup("contrib");
-    num_concrete++;
     UpdateEnd(LT_CONTRIB);
     }
   if (vals->m_Local)
@@ -873,9 +741,6 @@ void ReadMakefiles(CPcmakerDlg *vals)
   UpdateStart(LT_COMMON);
   sprintf(fname,"%s\\common\\Makefile.in",vals->m_WhereVTK);
   readInMakefile(fname,strdup("common"));
-  concrete[num_concrete] = strdup("vtkWin32OutputWindow");
-  concrete_lib[num_concrete] = strdup("common");
-  num_concrete++;
   UpdateEnd(LT_COMMON);
 }
 
@@ -903,7 +768,7 @@ void CreateRequiredFiles(CPcmakerDlg *vals)
     sprintf(fname,"%s\\vtkdll\\src\\vtkPCForceGraphics.cxx",vals->m_WhereBuild);
     MakeForce(fname,LT_GRAPHICS);
     }
-  else if (vals->m_Patented)
+  if (vals->m_Patented)
     {
     sprintf(fname,"%s\\Debug\\vtkdll\\src\\vtkPCForcePatented.cxx",vals->m_WhereBuild);
     MakeForce(fname,LT_PATENTED);
@@ -991,7 +856,6 @@ void makeMakefiles(CPcmakerDlg *vals)
     }        // JCP end of physical check for Borland Builder. 
 
   ReadMakefiles(vals);
-  removeUNIXOnlyFiles(vals);
   removeExtraFiles(vals);
   CreateRequiredFiles(vals);
 
@@ -1316,11 +1180,17 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
       fprintf(fp,"\n");
       }
     }
-  else if ( vals->m_Patented )
+  if ( vals->m_Patented )
     {
     fprintf(fp,"PATENTED_FLAGS= /dll /incremental:yes /machine:I386\\\n");
     fprintf(fp," /out:\"$(LIBDIR)/vtkPatented.dll\" /implib:\"$(LIBDIR)/vtkPatented.lib\" \n");
-    fprintf(fp,"PATENTED_LIBS=\"$(LIBDIR)/vtkCommon.lib\"\n");
+    fprintf(fp,"PATENTED_LIBS=\"$(LIBDIR)/vtkCommon.lib\" \"$(LIBDIR)/vtkImaging.lib\" ");
+    if ( vals->m_Graphics )
+      {
+      for (i = 0; i < NumOfGraphicsLibs ; i++)
+        fprintf(fp,"\"$(LIBDIR)/vtkGraphics%d.lib\" ",i);
+      }
+    fprintf(fp,"\n");
 
 
     fprintf(fp,"PATENTED_OBJS= \\\n");
@@ -1406,10 +1276,10 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     for (i = 0; i < NumOfGraphicsLibs; i++)
       fprintf(fp,"          \"$(LIBDIR)\\vtkGraphics%d.dll\"\\\n ",i);
     }
-  else if ( vals->m_Patented )
-    fprintf(fp,"          \"$(LIBDIR)\\vtkPatented.dll\"\\\n ");
   if ( vals->m_Imaging )
     fprintf(fp,"          \"$(LIBDIR)\\vtkImaging.dll\"\\\n ");
+  if ( vals->m_Patented )
+    fprintf(fp,"          \"$(LIBDIR)\\vtkPatented.dll\"\\\n ");
   if ( vals->m_Contrib )
     fprintf(fp,"          \"$(LIBDIR)\\vtkContrib.dll\"\\\n ");
   if ( vals->m_Local )
@@ -1455,7 +1325,7 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
       fprintf(fp,"\n");
       }
     }
-  else if ( vals->m_Patented )
+  if ( vals->m_Patented )
     {
     fprintf(fp,"\"$(LIBDIR)\\vtkPatented.dll\" : $(DEF_FILE) $(PATENTED_OBJS) %s\\GraphicsSplitInfo.txt\n",vals->m_WhereBuild);
     fprintf(fp,"    $(LINK32) @<<\n");
@@ -1541,6 +1411,14 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     vals->m_Progress.OffsetPos(1);
     fprintf(fp,"\"$(OBJDIR)\\vtkPCForceImaging.obj\" : src\\vtkPCForceImaging.cxx $(DEPENDS) \n");
     fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\vtkPCForceImaging.cxx\n\n");
+    }
+  if ( vals->m_Patented )
+    {
+    sprintf(file,"%s\\vtkPCForcePatented.cxx",temp);
+    OutputPCDepends(file,fp,vals->m_WhereVTK, extraPtr, extra_num);
+    vals->m_Progress.OffsetPos(1);
+    fprintf(fp,"\"$(OBJDIR)\\vtkPCForcePatented.obj\" : src\\vtkPCForcePatented.cxx $(DEPENDS) \n");
+    fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\vtkPCForcePatented.cxx\n\n");
     }
   if ( vals->m_Contrib )
     {
@@ -1920,10 +1798,10 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     for (i = 0; i < NumOfGraphicsLibs; i++)
       fprintf(fp,"..\\lib\\vtkGraphics%d.lib  ",i);
     }
-  else if (vals->m_Patented)
-    fprintf(fp,"..\\lib\\vtkPatented.lib ");
   if (vals->m_Imaging) 
     fprintf(fp,"..\\lib\\vtkImaging.lib ");
+  if (vals->m_Patented)
+    fprintf(fp,"..\\lib\\vtkPatented.lib ");
   if (vals->m_Contrib)
     fprintf(fp,"..\\lib\\vtkContrib.lib ");     
   if (vals->m_Local)
@@ -2487,10 +2365,10 @@ void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     for (i = 0; i < NumOfGraphicsLibs; i++)
       fprintf(fp,"..\\lib\\vtkGraphics%d.lib  ",i);
     }
-  else if (vals->m_Patented)
-    fprintf(fp,"..\\lib\\vtkPatented.lib ");
   if (vals->m_Imaging) 
     fprintf(fp,"..\\lib\\vtkImaging.lib ");
+  if (vals->m_Patented)
+    fprintf(fp,"..\\lib\\vtkPatented.lib ");
   if (vals->m_Contrib)
     fprintf(fp,"..\\lib\\vtkContrib.lib ");     
   if (vals->m_Local)
@@ -3067,7 +2945,7 @@ void doMSCPythonHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     for (i = 0; i < NumOfGraphicsLibs; i++)
       fprintf(fp,"..\\lib\\vtkGraphics%d.lib  ",i);
     }
-  else if (vals->m_Patented)
+  if (vals->m_Patented)
     fprintf(fp,"..\\lib\\vtkPatented.lib ");
   if (vals->m_Imaging) 
     fprintf(fp,"..\\lib\\vtkImaging.lib ");
