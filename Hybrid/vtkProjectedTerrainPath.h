@@ -38,7 +38,12 @@
 // are evaluated for maximum error. This process continues until the line is
 // not occluded by the terrain (non-occluded mode) or satisfies the error on
 // variation from the surface (hug mode). (Note this process is repeated for
-// each polyline in the input).
+// each polyline in the input. Also, the maximum error is computed in two
+// parts: a maximum positive error and maximum negative error. If the
+// polyline is above the terrain--i.e., the height offset is positive--in
+// non-occluded or hug mode all negative errors are eliminated. If the
+// polyline is below the terrain--i.e., the height offset is negative--in
+// non-occluded or hug mode all positive errors are eliminated.)
 // 
 // .SECTION Caveats
 // This algorithm requires the entire input image to be in memory, hence it 
@@ -60,6 +65,9 @@
 #include "vtkPolyDataAlgorithm.h"
 
 class vtkPriorityQueue;
+class vtkImageData;
+class vtkEdgeList;
+class vtkPoints;
 
 class VTK_HYBRID_EXPORT vtkProjectedTerrainPath : public vtkPolyDataAlgorithm
 {
@@ -73,6 +81,12 @@ public:
   // Instantiate the class.
   static vtkProjectedTerrainPath* New();
 
+  // Description:
+  // Specify the second input (the terrain) onto which the polyline(s) should
+  // be projected.
+  void SetSource(vtkImageData *source);
+  vtkImageData *GetSource();
+
 //BTX
   enum {SIMPLE_PROJECTION=0,NONOCCLUDED_PROJECTION,HUG_PROJECTION};
 //ETX
@@ -81,7 +95,7 @@ public:
   // Determine how to control the projection process. Simple projection
   // just projects the original polyline points. Non-occluded projection
   // insures that the polyline does not intersect the terrain surface.
-  // Hug projection is similar o non-occulded projection except that
+  // Hug projection is similar to non-occulded projection except that
   // produces a path that is nearly parallel to the terrain (within the
   // user specified height tolerance).
   vtkSetClampMacro(ProjectionMode,int,SIMPLE_PROJECTION,HUG_PROJECTION);
@@ -125,14 +139,32 @@ protected:
                           vtkInformationVector *);
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
+  // Supporting methods
+  void GetImageIndex(double x[3], double loc[2], int ij[2]);
+  double GetHeight(double loc[2], int ij[2]);
+  void ComputeError(vtkIdType edgeId);
+
   //ivars that the API addresses
-  int       ProjectionMode;
-  double    HeightOffset;
-  double    HeightTolerance;
-  int       SubdivisionFactor;
+  int    ProjectionMode;
+  double HeightOffset;
+  double HeightTolerance;
+  int    SubdivisionFactor;
 
   //Bookeeping arrays
-  vtkPriorityQueue *LineError; //errors for each pt in height field
+  int          Dimensions[3];
+  int          Extent[6];
+  double       Origin[3];
+  double       Spacing[3];
+  vtkDataArray *Heights;
+  vtkPoints    *Points;
+
+  //Errors above/below terrain. In both instances, negative values are 
+  //inserted because the priority queue puts smallest values on top.
+  vtkPriorityQueue *PositiveLineError; //errors above terrain
+  vtkPriorityQueue *NegativeLineError; //errors below terrain
+
+  //This is a PIMPL'd vector representing edges
+  vtkEdgeList *EdgeList;
 
 private:
   vtkProjectedTerrainPath(const vtkProjectedTerrainPath&);  // Not implemented.
