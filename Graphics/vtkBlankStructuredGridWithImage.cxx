@@ -22,7 +22,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkBlankStructuredGridWithImage, "1.10");
+vtkCxxRevisionMacro(vtkBlankStructuredGridWithImage, "1.11");
 vtkStandardNewMacro(vtkBlankStructuredGridWithImage);
 
 //----------------------------------------------------------------------------
@@ -70,7 +70,11 @@ void vtkBlankStructuredGridWithImage::Execute()
   if ( gridDims[0] != imageDims[0] || gridDims[1] != imageDims[1] ||
        gridDims[2] != imageDims[2] )
     {
-    vtkErrorMacro(<< "Blanking dimensions must be identical with grid dimensions");
+    vtkErrorMacro("Blanking dimensions must be identical with grid dimensions. "
+                  "Blanking dimensions are " << imageDims[0] << " "
+                  << imageDims[1] << " " << imageDims[2]
+                  << ". Grid dimensions are " << gridDims[0] << " "
+                  << gridDims[1] << " " << gridDims[2] << ".");
     return;
     }
   
