@@ -56,7 +56,7 @@ typedef float Vector[3];
 
 typedef unsigned char  byte;
 typedef unsigned short word;
-typedef unsigned long  dword;
+typedef unsigned int  dword;
 
 typedef struct {
    VTK_LIST_FIELDS

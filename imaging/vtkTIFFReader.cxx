@@ -50,6 +50,13 @@ void vtkTIFFReader::Swap2(short *stmp)
     vtkByteSwap::SwapVoidRange(stmp, 1, 2);
     }
 }
+void vtkTIFFReader::Swap4(int *stmp)
+{
+  if (this->SwapBytes)
+    {
+    vtkByteSwap::SwapVoidRange(stmp, 1, 4);
+    }
+}
 void vtkTIFFReader::Swap4(long *stmp)
 {
   if (this->SwapBytes)
@@ -62,6 +69,7 @@ void vtkTIFFReader::ReadTag(_vtkTifTag *tag, FILE *fp)
 {
   short stmp;
   long ltmp;
+  int itmp;
   
   fread(&stmp,sizeof(short),1,fp);
   this->Swap2(&stmp);
@@ -70,19 +78,31 @@ void vtkTIFFReader::ReadTag(_vtkTifTag *tag, FILE *fp)
   fread(&stmp,sizeof(short),1,fp);
   this->Swap2(&stmp);
   tag->DataType = stmp;
-  
-  fread(&ltmp,sizeof(long),1,fp);
-  this->Swap4(&ltmp);
-  tag->DataCount = ltmp;
 
-  fread(&ltmp,sizeof(long),1,fp);
-  tag->DataOffset = ltmp;
+  if (sizeof(long) == 4)
+    {
+    fread(&ltmp,sizeof(long),1,fp);
+    this->Swap4(&ltmp);
+    tag->DataCount = ltmp;
+    
+    fread(&ltmp,sizeof(long),1,fp);
+    tag->DataOffset = ltmp;
+    }
+  else
+    {
+    fread(&itmp,sizeof(int),1,fp);
+    this->Swap4(&itmp);
+    tag->DataCount = itmp;
+    
+    fread(&itmp,sizeof(int),1,fp);
+    tag->DataOffset = itmp;
+    }
 }
 
 long vtkTIFFReader::ReadTagLong(_vtkTifTag *tag, FILE *fp)
 {
-  long result;
-  long curPos;
+  int result;
+  int curPos;
   
   // if the tag is an offset just return the first value
   if (((tag->DataCount > 1)&&(tag->DataType == 4))||
@@ -94,7 +114,7 @@ long vtkTIFFReader::ReadTagLong(_vtkTifTag *tag, FILE *fp)
     // swap offset as 4 byte
     this->Swap4(&tag->DataOffset);
     fseek(fp, tag->DataOffset, SEEK_SET);
-    fread(&result,sizeof(long),1,fp);
+    fread(&result,sizeof(int),1,fp);
     switch (tag->DataType) 
       {
       case 1: result = *((unsigned char *)&(result)); break;
@@ -104,7 +124,7 @@ long vtkTIFFReader::ReadTagLong(_vtkTifTag *tag, FILE *fp)
 	break;
       case 4:     
 	this->Swap4(&result);
-        result = (long)(result); 
+        result = (int)(result); 
 	break;
       default: vtkGenericWarningMacro("Bad data in tag!");
       }
@@ -122,7 +142,7 @@ long vtkTIFFReader::ReadTagLong(_vtkTifTag *tag, FILE *fp)
 	break;
       case 4:     
 	this->Swap4(&result);
-        result = (long)(result); 
+        result = (int)(result); 
 	break;
       default: vtkGenericWarningMacro("Bad data in tag!");
       }
@@ -137,6 +157,7 @@ void vtkTIFFReader::UpdateImageInformation()
   FILE *fp;
   short stmp;
   long IFDOffset;
+  int iIFDOffset;
   _vtkTifTag aTag;
   int i;
   short numTags;
@@ -196,8 +217,17 @@ void vtkTIFFReader::UpdateImageInformation()
     }
   
   // get the offset to the image file directory
-  fread(&IFDOffset,sizeof(long),1,fp);
-  this->Swap4(&IFDOffset);
+  if (sizeof(long) == 4)
+    {
+    fread(&IFDOffset,sizeof(long),1,fp);
+    this->Swap4(&IFDOffset);
+    }
+  else
+    {
+    fread(&iIFDOffset,sizeof(int),1,fp);
+    this->Swap4(&iIFDOffset);
+    IFDOffset = iIFDOffset;
+    }
 
   
   // now we need to read the IFD to get the additional info we need

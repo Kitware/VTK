@@ -77,6 +77,7 @@ public:
   
 protected:
   virtual void UpdateImageInformation();
+  void Swap4(int *stmp);
   void Swap4(long *stmp);
   void Swap2(short *stmp);
   void ReadTag(_vtkTifTag *tag, FILE *fp);

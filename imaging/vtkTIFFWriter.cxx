@@ -352,7 +352,7 @@ void vtkTIFFWriter::WriteFileHeader(ofstream *file, vtkImageCache *cache)
   myDir.tdir_tag = TIFFTAG_STRIPOFFSETS;
   myDir.tdir_type = TIFF_LONG;
   myDir.tdir_count = 1;
-  myDir.tdir_offset = offset + bpp*sizeof(short) + 4*sizeof(long);
+  myDir.tdir_offset = offset + bpp*sizeof(short) + 4*4; // TIFF_LONG is 4 bytes
   file->write((char *)&myDir, sizeof (myDir));
   
   long orientation = 1;
@@ -392,7 +392,7 @@ void vtkTIFFWriter::WriteFileHeader(ofstream *file, vtkImageCache *cache)
   myDir.tdir_tag = TIFFTAG_YRESOLUTION;
   myDir.tdir_type = TIFF_RATIONAL;
   myDir.tdir_count = 1;
-  myDir.tdir_offset = offset + bpp*sizeof(short) + 2*sizeof(long);
+  myDir.tdir_offset = offset + bpp*sizeof(short) + 2*4; // 32bits 
   file->write((char *)&myDir, sizeof (myDir));
   
   short planarConfiguration = PLANARCONFIG_CONTIG;

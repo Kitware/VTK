@@ -67,6 +67,8 @@ void vtkBMPReader::UpdateImageInformation()
   long tmp;
   short stmp;
   long infoSize;
+  int  iinfoSize;  // in case we are on a 64bit machine
+  int  itmp;       // in case we are on a 64bit machine
   
   // free any old memory
   if (this->Colors) 
@@ -103,42 +105,90 @@ void vtkBMPReader::UpdateImageInformation()
     }
 
   // get the size of the file
-  fread(&tmp,sizeof(long),1,fp);
-  // skip 4 bytes
-  fread(&tmp,sizeof(long),1,fp);
-  // read the offset
-  fread(&tmp,sizeof(long),1,fp);
-
-  // get size of header
-  fread(&infoSize,sizeof(long),1,fp);
-  vtkByteSwap::Swap4LE(&infoSize);
-		       
-  // error checking
-  if ((infoSize != 40)&&(infoSize != 12))
+  if (sizeof(long) == 4)
     {
-    vtkErrorMacro(<<"Unknown file type! Not a Windows BMP file!");
-    fclose(fp);
-    return;
-    }
-  
-  // there are two different types of BMP files
-  if (infoSize == 40)
-    {
-    // now get the dimensions
-    fread(&xsize,sizeof(long),1,fp);
-    vtkByteSwap::Swap4LE(&xsize);
-    fread(&ysize,sizeof(long),1,fp);
-    vtkByteSwap::Swap4LE(&ysize);
+    fread(&tmp,4,1,fp);
+    // skip 4 bytes
+    fread(&tmp,4,1,fp);
+    // read the offset
+    fread(&tmp,4,1,fp);
     }
   else
     {
-    fread(&stmp,sizeof(short),1,fp);
-    vtkByteSwap::Swap2LE(&stmp);
-    xsize = stmp;
-    fread(&stmp,sizeof(short),1,fp);
-    vtkByteSwap::Swap2LE(&stmp);
-    ysize = stmp;
+    fread(&itmp,4,1,fp);
+    // skip 4 bytes
+    fread(&itmp,4,1,fp);
+    // read the offset
+    fread(&itmp,4,1,fp);
     }
+
+  // get size of header
+  if (sizeof(long) == 4)   // if we are on a 32 bit machine
+    {
+    fread(&infoSize,sizeof(long),1,fp);
+    vtkByteSwap::Swap4LE(&infoSize);
+		       
+    // error checking
+    if ((infoSize != 40)&&(infoSize != 12))
+      {
+      vtkErrorMacro(<<"Unknown file type! Not a Windows BMP file!");
+      fclose(fp);
+      return;
+      }
+  
+    // there are two different types of BMP files
+    if (infoSize == 40)
+      {
+      // now get the dimensions
+      fread(&xsize,sizeof(long),1,fp);
+      vtkByteSwap::Swap4LE(&xsize);
+      fread(&ysize,sizeof(long),1,fp);
+      vtkByteSwap::Swap4LE(&ysize);
+      }
+    else
+      {
+      fread(&stmp,sizeof(short),1,fp);
+      vtkByteSwap::Swap2LE(&stmp);
+      xsize = stmp;
+      fread(&stmp,sizeof(short),1,fp);
+      vtkByteSwap::Swap2LE(&stmp);
+      ysize = stmp;
+      }
+    }
+  else    // else we are on a 64bit machine
+    {
+    fread(&iinfoSize,sizeof(int),1,fp);
+    vtkByteSwap::Swap4LE(&iinfoSize);
+    infoSize = iinfoSize;
+    
+    // error checking
+    if ((infoSize != 40)&&(infoSize != 12))
+      {
+      vtkErrorMacro(<<"Unknown file type! Not a Windows BMP file!");
+      fclose(fp);
+      return;
+      }
+  
+    // there are two different types of BMP files
+    if (infoSize == 40)
+      {
+      // now get the dimensions
+      fread(&xsize,sizeof(int),1,fp);
+      vtkByteSwap::Swap4LE(&xsize);
+      fread(&ysize,sizeof(int),1,fp);
+      vtkByteSwap::Swap4LE(&ysize);
+      }
+    else
+      {
+      fread(&stmp,sizeof(short),1,fp);
+      vtkByteSwap::Swap2LE(&stmp);
+      xsize = stmp;
+      fread(&stmp,sizeof(short),1,fp);
+      vtkByteSwap::Swap2LE(&stmp);
+      ysize = stmp;
+      }
+    }
+  
   
   // is corner in upper left or lower left
   if (ysize < 0)
