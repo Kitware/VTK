@@ -129,7 +129,7 @@ int vtkImageToImageFilter::ComputeDivisionExtents(vtkDataObject *output,
   if (input == NULL)
     {
     vtkErrorMacro("No input");
-    return;
+    return 0;
     }
   
   outExt = this->GetOutput()->GetUpdateExtent();

@@ -131,7 +131,7 @@ int vtkImageMultipleInputFilter::ComputeDivisionExtents(vtkDataObject *out,
   
   outExt = this->GetOutput()->GetUpdateExtent();
   actualSplits = this->SplitExtent(this->ExecuteExtent, outExt, 
-				   idx, numDivisions);
+				   division, numDivisions);
   
   if (idx < actualSplits)
     { // yes this is a vaid piece.
