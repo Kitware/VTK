@@ -75,9 +75,9 @@ public:
   // For some exporters and other other operations we must be
   // able to collect all the actors or volumes. These methods
   // are used in that process.
-  virtual void GetActors(vtkPropCollection *) {};
-  virtual void GetActors2D(vtkPropCollection *) {};
-  virtual void GetVolumes(vtkPropCollection *) {};
+  virtual void GetActors(vtkPropCollection *) {}
+  virtual void GetActors2D(vtkPropCollection *) {}
+  virtual void GetVolumes(vtkPropCollection *) {}
 
   // Description:
   // Set/Get visibility of this vtkProp.
@@ -118,12 +118,12 @@ public:
   // appear differently. Usually this involves checking the mtime of the 
   // prop plus anything else it depends on such as properties, textures
   // etc.
-  virtual unsigned long GetRedrawMTime() {return this->GetMTime();};
+  virtual unsigned long GetRedrawMTime() {return this->GetMTime();}
   
   // Description:
   // Get the bounds for this Prop as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
   // in world coordinates. NULL means that the bounds are not defined.
-  virtual float *GetBounds() {return NULL;};
+  virtual float *GetBounds() {return NULL;}
 
   // Description:
   // Shallow copy of this vtkProp.
@@ -142,15 +142,14 @@ public:
   // GetNextPath() returns a NULL pointer when the list is exhausted.
   virtual void InitPathTraversal();
   virtual vtkAssemblyPath *GetNextPath();
-  virtual int GetNumberOfPaths() {return 1;};
+  virtual int GetNumberOfPaths() {return 1;}
 
   // Description:
   // These methods are used by subclasses to place a matrix (if any) in the
   // prop prior to rendering. Generally used only for picking. See vtkProp3D
   // for more information.
-  virtual void PokeMatrix(vtkMatrix4x4 *vtkNotUsed(matrix)) {};
-  virtual vtkMatrix4x4 *GetMatrix() 
-    {return NULL;}
+  virtual void PokeMatrix(vtkMatrix4x4 *vtkNotUsed(matrix)) {}
+  virtual vtkMatrix4x4 *GetMatrix() {return NULL;}
 
 //BTX  
   // Description:
@@ -161,7 +160,7 @@ public:
   // method is not guaranteed to work outside of the rendering
   // process, since a level of detail must be selected before this
   // question can be answered.
-  virtual int RequiresRayCasting() { return 0; };
+  virtual int RequiresRayCasting() { return 0; }
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -171,7 +170,7 @@ public:
   // method is not guaranteed to work outside of the rendering
   // process, since a level of detail must be selected before this
   // question can be answered.
-  virtual int RequiresRenderingIntoImage() { return 0; };
+  virtual int RequiresRenderingIntoImage() { return 0; }
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -196,21 +195,21 @@ public:
   // data. For the ray cast initialization, the integer indicated whether or
   // not the initialization was successful. For ray casting, the integer 
   // return value indicates whether or not the ray intersected something.
-  virtual int RenderOpaqueGeometry(      vtkViewport *) { return 0; };
-  virtual int RenderTranslucentGeometry( vtkViewport *) { return 0; };
-  virtual int InitializeRayCasting(      vtkViewport *) { return 0; };
-  virtual int CastViewRay(         VTKRayCastRayInfo *) { return 0; };
-  virtual int RenderIntoImage(           vtkViewport *) { return 0; };
-  virtual float *GetRGBAImage()                         { return NULL; };
-  virtual float *GetZImage()                            { return NULL; };
-  virtual int RenderOverlay(             vtkViewport *) { return 0; };
+  virtual int RenderOpaqueGeometry(      vtkViewport *) { return 0; }
+  virtual int RenderTranslucentGeometry( vtkViewport *) { return 0; }
+  virtual int InitializeRayCasting(      vtkViewport *) { return 0; }
+  virtual int CastViewRay(         VTKRayCastRayInfo *) { return 0; }
+  virtual int RenderIntoImage(           vtkViewport *) { return 0; }
+  virtual float *GetRGBAImage()                         { return NULL; }
+  virtual float *GetZImage()                            { return NULL; }
+  virtual int RenderOverlay(             vtkViewport *) { return 0; }
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // Release any graphics resources that are being consumed by this actor.
   // The parameter window could be used to determine which graphic
   // resources to release.
-  virtual void ReleaseGraphicsResources(vtkWindow *) {};
+  virtual void ReleaseGraphicsResources(vtkWindow *) {}
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -224,8 +223,8 @@ public:
   // The no-arguments version simply returns the value of the variable with
   // no estimation.
   virtual float GetEstimatedRenderTime( vtkViewport * )
-    { return this->EstimatedRenderTime; };
-  virtual float GetEstimatedRenderTime(){ return this->EstimatedRenderTime; };
+    { return this->EstimatedRenderTime; }
+  virtual float GetEstimatedRenderTime(){ return this->EstimatedRenderTime; }
   
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -234,7 +233,7 @@ public:
   // initialize the estimated render time at start-up to some user defined
   // value.
   virtual void SetEstimatedRenderTime(float t) 
-    {this->EstimatedRenderTime = t; this->SavedEstimatedRenderTime = t;};
+    {this->EstimatedRenderTime = t; this->SavedEstimatedRenderTime = t;}
     
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -244,7 +243,7 @@ public:
   // method is used to restore that old value should the render be
   // aborted.
   virtual void RestoreEstimatedRenderTime()
-    { this->EstimatedRenderTime = this->SavedEstimatedRenderTime; };
+    { this->EstimatedRenderTime = this->SavedEstimatedRenderTime; }
   
   
   // Description:
@@ -260,7 +259,7 @@ public:
   // to rebuild matrices at every render because the estimated render time
   // is changing)
   virtual void AddEstimatedRenderTime(float t, vtkViewport *vtkNotUsed(vp))
-    {this->EstimatedRenderTime+=t;};
+    {this->EstimatedRenderTime+=t;}
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -271,11 +270,12 @@ public:
   // A side effect of this method is to reset the EstimatedRenderTime to
   // 0.0. This way, each of the ways that this prop may be rendered can
   // be timed and added together into this value.
-  virtual void SetAllocatedRenderTime(float t, vtkViewport *vtkNotUsed(v)) {
+  virtual void SetAllocatedRenderTime(float t, vtkViewport *vtkNotUsed(v)) 
+    {
     this->AllocatedRenderTime = t;
     this->SavedEstimatedRenderTime = this->EstimatedRenderTime;
     this->EstimatedRenderTime = 0.0;
-  };
+    }
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -288,7 +288,7 @@ public:
   // Get/Set the multiplier for the render time. This is used
   // for culling and is a number between 0 and 1. It is used
   // to create the allocated render time value.
-  void SetRenderTimeMultiplier( float t ) { this->RenderTimeMultiplier = t; };
+  void SetRenderTimeMultiplier( float t ) { this->RenderTimeMultiplier = t; }
   vtkGetMacro(RenderTimeMultiplier, float);
 
   // Description:
@@ -301,7 +301,7 @@ public:
 
 #ifndef VTK_REMOVE_LEGACY_CODE
   virtual vtkMatrix4x4 *GetMatrixPointer() 
-    {VTK_LEGACY_METHOD(GetMatrixPointer,"3.2"); return NULL;};
+    {VTK_LEGACY_METHOD(GetMatrixPointer,"3.2"); return NULL;}
 #endif
 
 protected:
