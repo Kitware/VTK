@@ -74,7 +74,6 @@ vtkMath \
 vtkMatrix4x4 \
 vtkMultiThreader \
 vtkMutexLock \
-vtkMutexFunctionLock \
 vtkNormals \
 vtkObject \
 vtkPixel \
