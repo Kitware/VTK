@@ -36,7 +36,7 @@ public:
 
   // Description:
   // Specify the maximum number of triangles in a triangle strip.
-  vlSetClampMacro(MaximumStripLength,int,4,MAX_CELL_SIZE);
+  vlSetClampMacro(MaximumStripLength,int,4,MAX_CELL_SIZE-2);
   vlGetMacro(MaximumStripLength,int);
 
   // Description:

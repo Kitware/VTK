@@ -15,9 +15,11 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "Stripper.hh"
 
+// Description:
+// Construct object with vertex and line passing turned on.
 vlStripper::vlStripper()
 {
-  this->MaximumStripLength = MAX_CELL_SIZE;
+  this->MaximumStripLength = MAX_CELL_SIZE - 2;
 
   this->PassVerts = 1;
   this->PassLines = 1;
@@ -29,7 +31,7 @@ void vlStripper::Execute()
   vlCell *cell;
   vlCellArray *newStrips, *inStrips;
   vlPointData *pd=this->Input->GetPointData();
-  vlIdList *triPts;
+  vlIdList triPts(MAX_CELL_SIZE);
   vlIdList edge(2);
   vlIdList cellIds(MAX_CELL_SIZE);
   int neighbor;
@@ -74,7 +76,7 @@ void vlStripper::Execute()
 //  neighbor that isn't visited.  Add this to the strip and mark as
 //  visited (and so on).
 //
-  for (longest=3, numStrips=0, cellId=0; cellId < numCells; cellId++)
+  for (longest=0, numStrips=0, cellId=0; cellId < numCells; cellId++)
     {
     if ( ! visited[cellId] )
       {
@@ -89,12 +91,12 @@ void vlStripper::Execute()
         numStrips++;
         numPts = 3;
 
-        triPts = cell->GetPointIds();
+        triPts = *(cell->GetPointIds());
 
         for (i=0; i<3; i++) 
           {
-          pts[1] = triPts->GetId(i);
-          pts[2] = triPts->GetId((i+1)%3);
+          pts[1] = triPts.GetId(i);
+          pts[2] = triPts.GetId((i+1)%3);
 
           edge.SetId(0,pts[1]);
           edge.SetId(1,pts[2]);
@@ -104,7 +106,7 @@ void vlStripper::Execute()
           !visited[neighbor=cellIds.GetId(0)] &&
           Mesh.GetCellType(neighbor) == vlTRIANGLE )
             {
-            pts[0] = triPts->GetId((i+2)%3);
+            pts[0] = triPts.GetId((i+2)%3);
             break;
             }
           }
@@ -113,6 +115,9 @@ void vlStripper::Execute()
 //
         if ( i >= 3 ) 
           {
+          pts[0] = triPts.GetId(0);
+          pts[1] = triPts.GetId(1);
+          pts[2] = triPts.GetId(2);
           newStrips->InsertNextCell(3,pts);
           } 
         else // continue strip 
@@ -120,18 +125,18 @@ void vlStripper::Execute()
 //
 //  Have a neighbor.  March along grabbing new points
 //
-          while ( neighbor >= 0 && numPts < (this->MaximumStripLength-1) )
+          while ( neighbor >= 0 )
             {
             visited[neighbor] = 1;
             cell = Mesh.GetCell(neighbor);
-            triPts = cell->GetPointIds();
+            triPts = *(cell->GetPointIds());
 
             for (i=0; i<3; i++)
-              if ( triPts->GetId(i) != pts[numPts-2] && 
-              triPts->GetId(i) != pts[numPts-1] )
+              if ( triPts.GetId(i) != pts[numPts-2] && 
+              triPts.GetId(i) != pts[numPts-1] )
                 break;
 
-            pts[numPts] = triPts->GetId(i);
+            pts[numPts] = triPts.GetId(i);
             edge.SetId(0,pts[numPts]);
             edge.SetId(1,pts[numPts-1]);
             if ( ++numPts > longest ) longest = numPts;
@@ -140,7 +145,8 @@ void vlStripper::Execute()
             // note: if updates value of neighbor
             if ( cellIds.GetNumberOfIds() <= 0 || 
             visited[neighbor=cellIds.GetId(0)] ||
-            Mesh.GetCellType(neighbor) != vlTRIANGLE )
+            Mesh.GetCellType(neighbor) != vlTRIANGLE ||
+            numPts >= (this->MaximumStripLength+2) )
               {
               newStrips->InsertNextCell(numPts,pts);
               neighbor = (-1);
@@ -165,7 +171,7 @@ void vlStripper::Execute()
   this->SetVerts(this->Input->GetVerts());
   this->SetLines(this->Input->GetLines());
 
-  vlDebugMacro (<<"Reduced " << numCells << " cells to " << numStrips << " triangle strips \n\t(Average " << (float)numCells/numStrips << " triangles per strip, longest strip = "<<  (longest-2) << " triangles)");
+  vlDebugMacro (<<"Reduced " << numCells << " cells to " << numStrips << " triangle strips \n\t(Average " << (float)numCells/numStrips << " triangles per strip, longest strip = "<<  ((longest-2)>0?(longest-2):0) << " triangles)");
 
 }
 
