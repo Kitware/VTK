@@ -209,7 +209,9 @@ void vtkDecimate::Execute()
     inPolys = input->GetPolys();
     Mesh = vtkPolyData::New();
     Mesh->SetPoints(inPts);
-    newPolys = new vtkCellArray(*(inPolys));
+
+    newPolys = vtkCellArray::New();
+    newPolys->DeepCopy(inPolys);
     Mesh->SetPolys(newPolys);
     newPolys->Delete(); //registered by Mesh and preserved
     Mesh->BuildLinks();
