@@ -41,12 +41,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageFilter.h"
 #include "vtkImageCache.h"
 
-
 //----------------------------------------------------------------------------
 vtkImageFilter::vtkImageFilter()
 {
   this->Input = NULL;
   this->UseExecuteMethod = 1;
+  this->SetSplitOrder(4,3,2,1,0);
+  this->InputMemoryLimit = 5000000;   // 5 GB
 }
 
 //----------------------------------------------------------------------------
@@ -135,6 +136,7 @@ void vtkImageFilter::SetInput(vtkImageSource *input)
 void vtkImageFilter::UpdatePointData(int dim, vtkImageRegion *outRegion)
 {
   vtkImageRegion *inRegion;
+  
 
   // If outBBox is empty return imediately.
   if (outRegion->IsEmpty())
@@ -165,46 +167,109 @@ void vtkImageFilter::UpdatePointData(int dim, vtkImageRegion *outRegion)
   // Set the coordinate system
   inRegion->SetAxes(VTK_IMAGE_DIMENSIONS, this->Axes);
   
+  // Pass on to a method that can be called recursively (for streaming)
+  // inRegion is passed to avoid setting up a new region many times.
+  this->UpdatePointData2(dim, inRegion, outRegion);
+
+  // free the input region
+  inRegion->Delete();
+  
+  // Save the new region in cache.
+  this->Output->CacheRegion(outRegion);
+}
+
+
+
+  
+//----------------------------------------------------------------------------
+// Description:
+// This method can be called recursively for streaming.
+// The extent of the outRegion changes, dim remains the same.
+void vtkImageFilter::UpdatePointData2(int dim, vtkImageRegion *inRegion,
+				      vtkImageRegion *outRegion)
+{
+  int memory;
+
   // Compute the required input region extent.
   // Copy to fill in extent of extra dimensions.
   inRegion->SetExtent(VTK_IMAGE_DIMENSIONS, outRegion->GetExtent());
   this->ComputeRequiredInputRegionExtent(outRegion, inRegion);
-
-  // Streaming not implemented yet.
-  if (inRegion->GetVolume() > this->InputMemoryLimit)
+  
+  // determine the amount of memory that will be used by the input region.
+  memory = inRegion->GetVolume();
+  switch (this->Input->GetScalarType())
     {
-    vtkWarningMacro(<< "Streaming not implemented yet: Volume = "
-      << inRegion->GetVolume() << ", limit = " 
-      << this->InputMemoryLimit);
+    case VTK_FLOAT:
+      memory *= sizeof(float);
+      break;
+    case VTK_INT:
+      memory *= sizeof(int);
+      break;
+    case VTK_SHORT:
+      memory *= sizeof(short);
+      break;
+    case VTK_UNSIGNED_SHORT:
+      memory *= sizeof(unsigned short);
+      break;
+    case VTK_UNSIGNED_CHAR:
+      memory *= sizeof(unsigned char);
+      break;
+    default:
+      vtkWarningMacro(<< "UpdateRegion: Cannot determine input scalar type");
     }
+  // convert to kilobytes
+  memory /= 1000;
   
-  // Use the input to fill the data of the region.
-  this->Input->UpdateRegion(inRegion);
-  
-  // Make sure the region was not too large 
-  if ( ! inRegion->AreScalarsAllocated())
+  // Split the outRegion if we are streaming.
+  if (memory > this->InputMemoryLimit)
     {
-    // Try Streaming
-    inRegion->Delete();
-    if (dim == 0)
+    int splitAxisIdx, splitAxis;
+    int min, max, mid;
+    // We need to split the inRegion.
+    // Pick an axis to split
+    splitAxisIdx = 0;
+    splitAxis = this->SplitOrder[splitAxisIdx];
+    outRegion->GetAxisExtent(splitAxis, min, max);
+    while ( (min == max) && splitAxisIdx < this->NumberOfSplitAxes)
       {
-      vtkErrorMacro(<< "UpdatePointData: Could not get input.");
+      ++splitAxisIdx;
+      splitAxis = this->SplitOrder[splitAxisIdx];
+      outRegion->GetAxisExtent(splitAxis, min, max);
       }
-    else
+    // Special case if we cannot split any more
+    if (min == max)
       {
-      this->vtkImageCachedSource::UpdatePointData(dim, outRegion);
+      vtkWarningMacro(<< "UpdatePointData2: Cannot split. memory = "
+        << memory << ", limit = " << this->InputMemoryLimit << ", "
+        << vtkImageAxisNameMacro(splitAxis) << ": " << min << "->" << max);
+
+      // Request the data anyway
+      // Use the input to fill the data of the region.
+      this->Input->UpdateRegion(inRegion);
+      // fill the output region 
+      this->Execute(dim, inRegion, outRegion);
+      return;
       }
+    // Set the first half to update
+    mid = (min + max) / 2;
+    vtkDebugMacro(<< "UpdatePointData2: Splitting " 
+        << vtkImageAxisNameMacro(splitAxis) << ": " << min << "->" << mid
+        << ", " << mid+1 << "->" << max);
+    outRegion->SetAxisExtent(splitAxis, min, mid);
+    this->UpdatePointData2(dim, inRegion, outRegion);
+    // Set the second half to update
+    outRegion->SetAxisExtent(splitAxis, mid+1, max);
+    this->UpdatePointData2(dim, inRegion, outRegion);
+    // Restore the original extent
+    outRegion->SetAxisExtent(splitAxis, min, max);
     return;
     }
-  
+
+  // No Streaming required.
+  // Use the input to fill the data of the region.
+  this->Input->UpdateRegion(inRegion);
   // fill the output region 
   this->Execute(dim, inRegion, outRegion);
-
-  // Save the new region in cache.
-  this->Output->CacheRegion(outRegion);
-
-  // free the input region
-  inRegion->Delete();
 }
 
 
@@ -320,7 +385,91 @@ void vtkImageFilter::Execute(vtkImageRegion *inRegion,
   vtkErrorMacro(<< "Subclass needs to suply an execute function.");
 }
 
+
+
+//----------------------------------------------------------------------------
+// reorder axes so that num has value axis.
+void vtkImageFilter::InsertAxis(int num, int axis)
+{
+  int idx, count;
+  int axes[VTK_IMAGE_DIMENSIONS];
   
+  // error checking
+  if (num < 0 || num >= VTK_IMAGE_DIMENSIONS)
+    {
+    vtkErrorMacro(<< "InsertAxes: Bad position " << num);
+    return;
+    }
+  
+  // Set all the axes before num
+  for (idx = 0, count = 0; idx < num; ++idx, ++count)
+    {
+    // skip over axis
+    if (this->Axes[count] == axis)
+      {
+      ++count;
+      }
+    axes[idx] = this->Axes[count];
+    }
+  
+  // Set all the axes after num
+  count = VTK_IMAGE_DIMENSIONS-1;
+  for (idx = VTK_IMAGE_DIMENSIONS-1; idx > num; --idx, --count)
+    {
+    // skip over axis
+    if (this->Axes[count] == axis)
+      {
+      --count;
+      }
+    axes[idx] = this->Axes[count];
+    }
+  
+  // Set the actual axis
+  axes[num] = axis;
+  
+  // save them
+  this->SetAxes(VTK_IMAGE_DIMENSIONS, axes);
+}
+
+  
+//----------------------------------------------------------------------------
+void vtkImageFilter::SetSplitOrder(int num, int *axes)
+{
+  int idx;
+  
+  // Error checking
+  if (num < 0 || num > VTK_IMAGE_DIMENSIONS)
+    {
+    vtkErrorMacro(<< "SetSplitOrder: Bad num " << num);
+    return;
+    }
+
+  for (idx = 0; idx < num; ++idx)
+    {
+    this->SplitOrder[idx] = axes[idx];
+    }
+  this->NumberOfSplitAxes = num;
+}
+//----------------------------------------------------------------------------
+void vtkImageFilter::GetSplitOrder(int num, int *axes)
+{
+  int idx;
+  
+  // Error checking
+  if (num < 0 || num > this->NumberOfSplitAxes)
+    {
+    vtkErrorMacro(<< "GetSplitOrder: Bad num " << num);
+    return;
+    }
+
+  for (idx = 0; idx < num; ++idx)
+    {
+    axes[idx] = this->SplitOrder[idx];
+    }
+}
+
+  
+    
 
 
 //============================================================================

@@ -50,6 +50,9 @@ vtkImageRFFT1D::vtkImageRFFT1D()
   this->SetAxes(VTK_IMAGE_X_AXIS);
   // Output is whatever type you want, but defaults to float.
   this->SetOutputScalarType(VTK_FLOAT);
+
+  // To avoid compiler warnings
+  _vtkImageComplexMultiplyTemp.Real = 0.0;
 }
 
 //----------------------------------------------------------------------------

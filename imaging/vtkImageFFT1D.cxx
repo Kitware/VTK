@@ -52,6 +52,9 @@ vtkImageFFT1D::vtkImageFFT1D()
   this->SetOutputScalarType(VTK_FLOAT);
   this->InputRealComponent = 0;
   this->InputImaginaryComponent = 1;
+
+  // To avoid compiler warnings
+  _vtkImageComplexMultiplyTemp.Real = 0.0;
 }
 
 

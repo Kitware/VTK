@@ -85,14 +85,26 @@ public:
   // Set/Get input memory limit.  Make this smaller to stream.
   vtkSetMacro(InputMemoryLimit,long);
   vtkGetMacro(InputMemoryLimit,long);
+
+  // Description:
+  // This inserts an axis at a specific point.  This is used for the filters
+  // that want to put the component axis at a specific location.
+  void InsertAxis(int num, int axis);
+  
+  // Description:
+  // Set/Get the order to split region requests if we need to stream
+  void SetSplitOrder(int num, int *axes);
+  vtkImageSetMacro(SplitOrder,int);
+  void GetSplitOrder(int num, int *axes);
+  vtkImageGetMacro(SplitOrder,int);
+  int *GetSplitOrder() {return this->SplitOrder;};
   
 protected:
   vtkImageSource *Input;     
   // Flag toggles between use of execute and update methods.
   int UseExecuteMethod; 
-  // Flag tells this superclass to loop over component axis (or not).
-  int ComponentAxisLoop;
-  
+  int SplitOrder[VTK_IMAGE_DIMENSIONS];
+  int NumberOfSplitAxes;
   long InputMemoryLimit;
 
   // Description:
@@ -108,7 +120,12 @@ protected:
   // of the unspecified dimensions default to [0, 0];
   // Used in vtkImageScatterPlot.
   vtkImageRegion *GetInputRegion(int dim, int *extent);    
-  
+
+  // Description:
+  // Recursive for streaming
+  void UpdatePointData2(int dim, vtkImageRegion *inRegion, 
+			vtkImageRegion *outRegion);
+
   virtual void ComputeOutputImageInformation(vtkImageRegion *inRegion,
 					     vtkImageRegion *outRegion);
   virtual void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,

@@ -43,6 +43,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //----------------------------------------------------------------------------
 vtkImageFFT::vtkImageFFT()
 {
+  // To avoid compiler warnings
+  _vtkImageComplexMultiplyTemp.Real = 0.0;
 }
 
 
