@@ -68,6 +68,12 @@ public:
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
 
+  // Description:
+  // Set the file pointer to write to. This will override
+  // a FileName if specified.
+  void SetFilePointer(FILE *);
+  FILE *GetFilePointer();
+  
 protected:
   void WriteData();
   void WriteALight(vtkLight *aLight, FILE *fp);
@@ -75,6 +81,7 @@ protected:
   void WritePointData(vtkPoints *points, vtkNormals *normals, 
 		      vtkTCoords *tcoords, vtkColorScalars *colors, FILE *fp);
   char *FileName;
+  FILE *FilePointer;
 };
 
 #endif

@@ -46,6 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkVRMLExporter::vtkVRMLExporter()
 {
   this->FileName = NULL;
+  this->FilePointer = NULL;
 }
 
 vtkVRMLExporter::~vtkVRMLExporter()
@@ -53,19 +54,29 @@ vtkVRMLExporter::~vtkVRMLExporter()
   if ( this->FileName ) delete [] this->FileName;
 }
 
+void vtkVRMLExporter::SetFilePointer(FILE *fp)
+{
+  if (fp != this->FilePointer)
+    {
+    this->Modified();
+    this->FilePointer = fp;
+    }
+}
+
+  
 void vtkVRMLExporter::WriteData()
 {
   vtkRenderer *ren;
-  FILE *fp;
   vtkActorCollection *ac;
   vtkActor *anActor, *aPart;
   vtkLightCollection *lc;
   vtkLight *aLight;
   vtkCamera *cam;
   float *tempf;
+  FILE *fp;
   
-  // make sure the user specified a FileName
-  if ( this->FileName == NULL)
+  // make sure the user specified a FileName or FilePointer
+  if (!this->FilePointer && (this->FileName == NULL))
     {
     vtkErrorMacro(<< "Please specify FileName to use");
     return;
@@ -90,11 +101,18 @@ void vtkVRMLExporter::WriteData()
     }
     
   // try opening the files
-  fp = fopen(this->FileName,"w");
-  if (!fp)
+  if (!this->FilePointer)
     {
-    vtkErrorMacro(<< "unable to open VRML file " << this->FileName);
-    return;
+    fp = fopen(this->FileName,"w");
+    if (!fp)
+      {
+      vtkErrorMacro(<< "unable to open VRML file " << this->FileName);
+      return;
+      }
+    }
+  else
+    {
+    fp = this->FilePointer;
     }
   
   //
@@ -147,7 +165,7 @@ void vtkVRMLExporter::WriteData()
       }
     }
 
-  fclose(fp);
+  if (!this->FilePointer) fclose(fp);
 }
 
 void vtkVRMLExporter::WriteALight(vtkLight *aLight, FILE *fp)
@@ -273,6 +291,16 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   fprintf(fp,"            material Material {\n");
   prop = anActor->GetProperty();
   fprintf(fp,"              ambientIntensity %g\n", prop->GetAmbient());
+  // if we don't have colors and we have only lines & points
+  // use emissive to color them
+  if (!(normals || colors || pd->GetNumberOfPolys() || 
+	pd->GetNumberOfStrips()))
+    {
+    tempf2 = prop->GetAmbient();
+    tempf = prop->GetAmbientColor();
+    fprintf(fp,"              emissiveColor %g %g %g\n",
+	    tempf[0]*tempf2, tempf[1]*tempf2, tempf[2]*tempf2);
+    }
   tempf2 = prop->GetDiffuse();
   tempf = prop->GetDiffuseColor();
   fprintf(fp,"              diffuseColor %g %g %g\n",
