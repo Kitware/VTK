@@ -1099,7 +1099,9 @@ void vtkDecimate::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Maximum Iterations: " << this->MaximumIterations << "\n";
   os << indent << "Maximum Sub Iterations: " << this->MaximumSubIterations << "\n";
   os << indent << "Aspect Ratio: " << this->AspectRatio << "\n";
+  os << indent << "Degree: " << this->Degree << "\n";
   os << indent << "Preserve Edges: " << (this->PreserveEdges ? "On\n" : "Off\n");
+  os << indent << "Boundary Vertex Deletion: " << (this->BoundaryVertexDeletion ? "On\n" : "Off\n");
   os << indent << "Initial Feature Angle: " << this->InitialFeatureAngle << "\n";
   os << indent << "Feature Angle Increment: " << this->FeatureAngleIncrement << "\n";
   os << indent << "Maximum Feature Angle: " << this->MaximumFeatureAngle << "\n";

@@ -619,6 +619,10 @@ void vtkMarchingCubes::PrintSelf(ostream& os, vtkIndent indent)
 
   this->ContourValues->PrintSelf(os,indent);
 
+  os << indent << "Compute Normals: " << (this->ComputeNormals ? "On\n" : "Off\n");
+  os << indent << "Compute Gradients: " << (this->ComputeGradients ? "On\n" : "Off\n");
+  os << indent << "Compute Scalars: " << (this->ComputeScalars ? "On\n" : "Off\n");
+
   if ( this->Locator )
     {
     os << indent << "Locator: " << this->Locator << "\n";

@@ -515,6 +515,14 @@ void vtkMarchingSquares::PrintSelf(ostream& os, vtkIndent indent)
 
   this->ContourValues->PrintSelf(os,indent);
 
+  os << indent << "Image Range: ( " 
+     << this->ImageRange[0] << ", "
+     << this->ImageRange[1] << ", "
+     << this->ImageRange[2] << ", "
+     << this->ImageRange[3] << ", "
+     << this->ImageRange[4] << ", "
+     << this->ImageRange[5] << " )\n";
+
   if ( this->Locator )
     {
     os << indent << "Locator: " << this->Locator << "\n";

@@ -569,6 +569,8 @@ void vtkSliceCubes::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 
+  os << indent << "Iso Value: " << this->Value << "\n";
+
   if ( this->Reader )
     {
     os << indent << "Reader:\n";

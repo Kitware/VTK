@@ -812,6 +812,15 @@ void vtkImageMarchingCubes::PrintSelf(ostream& os, vtkIndent indent)
 
   this->ContourValues->PrintSelf(os,indent);
 
+  if ( this->Input )
+    {
+    os << indent << "Input: " << this->Input << "\n";
+    }
+  else
+    {
+    os << indent << "Input: (none)\n";
+    }
+
   os << indent << "ComputeScalars: " << this->ComputeScalars << "\n";
   os << indent << "ComputeNormals: " << this->ComputeNormals << "\n";
   os << indent << "ComputeGradients: " << this->ComputeGradients << "\n";
