@@ -115,10 +115,9 @@ void vtkAppendPolyData::Execute()
 
   for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {
-    if (this->Inputs[idx] != NULL)
+    ds = (vtkPolyData *)(this->Inputs[idx]);
+    if (ds != NULL && ds->GetNumberOfCells() > 0)
       {
-      ds = (vtkPolyData *)(this->Inputs[idx]);
-
       numPts += ds->GetNumberOfPoints();
       numCells += ds->GetNumberOfCells();
       pd = ds->GetPointData();
@@ -178,7 +177,7 @@ void vtkAppendPolyData::Execute()
 
   if ( numPts < 1 || numCells < 1 )
     {
-    vtkErrorMacro(<<"No data to append!");
+    //vtkErrorMacro(<<"No data to append!");
     return;
     }
 
@@ -257,10 +256,10 @@ void vtkAppendPolyData::Execute()
   cellOffset = 0;
   for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {
+    ds = (vtkPolyData *)(this->Inputs[idx]);
     // this check is not necessary, but I'll put it in anyway
-    if (this->Inputs[idx] != NULL)
+    if (ds != NULL)
       {
-      ds = (vtkPolyData *)(this->Inputs[idx]);
     
       numPts = ds->GetNumberOfPoints();
       numCells = ds->GetNumberOfCells();
