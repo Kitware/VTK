@@ -15,7 +15,7 @@ grabber Grab
 
 vtkImageViewer viewer  
 viewer SetInput [grabber GetOutput]   
-[viewer GetImageWindow] DoubleBufferOn  
+#[viewer GetImageWindow] DoubleBufferOn  
 viewer SetColorWindow 255 
 viewer SetColorLevel 127.5 
 viewer SetZSlice 0 
