@@ -28,8 +28,8 @@ EXAMPLES = TestPolyDataPort \
 	TestStructuredPointsPort \
         TestImagePort \
 	TestStructuredGridPort \
-	ParallelIso 
-
+	ParallelIso \
+	DataParallelism
 
 CXX_FLAGS = ${CPPFLAGS} ${USER_CXXFLAGS} ${CXXFLAGS} -I${srcdir} \
 	${KIT_FLAGS} -I. ${GRAPHICS_API_FLAGS} ${CONTROLLER_API_FLAGS} \
@@ -50,6 +50,11 @@ LDLIBS =-L../../common -L../../graphics -L../../parallel -L../../imaging \
 #
 
 all: ${EXAMPLES}
+
+DataParallelism: DataParallelism.o composite.o
+	${CXX} -o TestMPI ${CXX_FLAGS} DataParallelism.o composite.o \
+	${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 
 TestMPI: TestMPI.o 
 	${CXX} -o TestMPI ${CXX_FLAGS} TestMPI.o ${XLDFLAGS} ${LDLIBS} \
