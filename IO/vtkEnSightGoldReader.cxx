@@ -30,7 +30,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.50");
+vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.51");
 vtkStandardNewMacro(vtkEnSightGoldReader);
 
 //BTX
@@ -1295,8 +1295,10 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
       
       lineRead = this->ReadNextDataLine(line);
       sscanf(line, " %s", subLine);
-      
-      if (isdigit(subLine[0]))
+
+      char *endptr;
+      strtod(subLine, &endptr); // Testing is we can convert this string to double
+      if ( subLine != endptr )
         { // necessary if node ids were listed
         for (i = 0; i < numPts; i++)
           {
