@@ -67,7 +67,7 @@
 // Finally, when Execute() is reading from the FrameBuffer it must do
 // so from within a mutex lock.  Otherwise tearing artifacts might result.
 
-vtkCxxRevisionMacro(vtkVideoSource, "1.35");
+vtkCxxRevisionMacro(vtkVideoSource, "1.36");
 vtkStandardNewMacro(vtkVideoSource);
 
 #if ( _MSC_VER >= 1300 ) // Visual studio .NET
@@ -479,7 +479,7 @@ static inline void vtkSleep(double duration)
 // Sleep until the specified absolute time has arrived.
 // You must pass a handle to the current thread.  
 // If '0' is returned, then the thread was aborted before or during the wait.
-static int vtkThreadSleep(struct vtkMultiThreader::ThreadInfo *data, double time)
+static int vtkThreadSleep(vtkMultiThreader::ThreadInfo *data, double time)
 {
   for (int i = 0;; i++)
     {
@@ -516,7 +516,7 @@ static int vtkThreadSleep(struct vtkMultiThreader::ThreadInfo *data, double time
 
 //----------------------------------------------------------------------------
 // this function runs in an alternate thread to asyncronously grab frames
-static void *vtkVideoSourceRecordThread(struct vtkMultiThreader::ThreadInfo *data)
+static void *vtkVideoSourceRecordThread(vtkMultiThreader::ThreadInfo *data)
 {
   vtkVideoSource *self = (vtkVideoSource *)(data->UserData);
   
@@ -560,7 +560,7 @@ void vtkVideoSource::Record()
 //----------------------------------------------------------------------------
 // this function runs in an alternate thread to 'play the tape' at the
 // specified frame rate.
-static void *vtkVideoSourcePlayThread(struct vtkMultiThreader::ThreadInfo *data)
+static void *vtkVideoSourcePlayThread(vtkMultiThreader::ThreadInfo *data)
 {
   vtkVideoSource *self = (vtkVideoSource *)(data->UserData);
  
