@@ -80,10 +80,12 @@ int TIFFInternal::Open( const char *filename )
   this->Image = TIFFOpen(filename, "r");
   if ( !this->Image)
     {
+    this->Clean();
     return 0;
     }
   if ( !this->Initialize() )
     {
+    this->Clean();
     return 0;
     }
   return 1;
@@ -96,19 +98,22 @@ void TIFFInternal::Clean()
     TIFFClose(this->Image);
     }
   this->Image=NULL;
+  this->Width = 0;
+  this->Height = 0;
+  this->SamplesPerPixel = 0;
+  this->Compression = 0;
+  this->BitsPerSample = 0;
+  this->Photometrics = 0;
+  this->PlanarConfig = 0;
+  this->TileDepth = 0;
 }
 
 TIFFInternal::TIFFInternal()
 {
   this->Image           = NULL;
-  this->Width           = 0;
-  this->Height          = 0;
-  this->SamplesPerPixel = 0;
-  this->Compression     = 0;
-  this->BitsPerSample   = 0;
-  this->Photometrics    = 0;
-  this->PlanarConfig    = 0;  
   TIFFSetErrorHandler(&TIFFInternal::ErrorHandler);
+  TIFFSetWarningHandler(&TIFFInternal::ErrorHandler);
+  this->Clean();
 }
 
 int TIFFInternal::Initialize()
@@ -132,16 +137,16 @@ int TIFFInternal::Initialize()
 
 int TIFFInternal::CanRead()
 {
-  return ( this->Image && ( this->Width > 0 ) && ( this->Height > 0 ) &&
-           ( this->SamplesPerPixel > 0 ) && 
-           ( this->Compression == COMPRESSION_NONE ) &&
-           ( this->Photometrics == PHOTOMETRIC_RGB ||
-             this->Photometrics == PHOTOMETRIC_MINISWHITE ||
-             this->Photometrics == PHOTOMETRIC_MINISBLACK ||
-             this->Photometrics == PHOTOMETRIC_PALETTE ) &&
-             this->PlanarConfig == PLANARCONFIG_CONTIG &&
-           ( !this->TileDepth ) &&
-           ( this->BitsPerSample == 8 ) );
+  return 0 && ( this->Image && ( this->Width > 0 ) && ( this->Height > 0 ) &&
+                ( this->SamplesPerPixel > 0 ) && 
+                ( this->Compression == COMPRESSION_NONE ) &&
+                ( this->Photometrics == PHOTOMETRIC_RGB ||
+                  this->Photometrics == PHOTOMETRIC_MINISWHITE ||
+                  this->Photometrics == PHOTOMETRIC_MINISBLACK ||
+                  this->Photometrics == PHOTOMETRIC_PALETTE ) &&
+                this->PlanarConfig == PLANARCONFIG_CONTIG &&
+                ( !this->TileDepth ) &&
+                ( this->BitsPerSample == 8 ) );
 }
 
 //-------------------------------------------------------------------------
@@ -171,13 +176,17 @@ void vtkTIFFReader::ExecuteInformation()
   if ( !this->InternalImage->Open(this->InternalFileName) )
     {  
     vtkErrorMacro("Unable to open file " <<this->InternalFileName );
+    this->DataExtent[0] = 0;
+    this->DataExtent[1] = 0;
+    this->DataExtent[2] = 0;
+    this->DataExtent[3] = 0;
+    this->DataExtent[4] = 0;
+    this->DataExtent[5] = 0;
+    this->SetNumberOfScalarComponents(1);
+    this->vtkImageReader2::ExecuteInformation();
     return;
     }
 
-
-  // Get information about the image
-  this->GetInternalImage()->Initialize();
-  
   // pull out the width/height, etc.
   this->DataExtent[0] = 0;
   this->DataExtent[1] = this->GetInternalImage()->Width - 1;
@@ -611,3 +620,4 @@ int vtkTIFFReader::CanReadFile(const char* fname)
   tf.Clean();
   return res;
 }
+
