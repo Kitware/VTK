@@ -142,6 +142,7 @@ vtkDiskSource \
 vtkEdgePoints \
 vtkElevationFilter \
 vtkEncodedGradientShader \
+vtkEnSightGoldReader \
 vtkExtractEdges \
 vtkExtractGeometry \
 vtkExtractPolyDataGeometry \
