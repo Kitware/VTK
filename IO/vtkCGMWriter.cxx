@@ -27,7 +27,7 @@
 #include "vtkCellData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCGMWriter, "1.12");
+vtkCxxRevisionMacro(vtkCGMWriter, "1.13");
 vtkStandardNewMacro(vtkCGMWriter);
 
 vtkCxxSetObjectMacro(vtkCGMWriter, Viewport, vtkViewport);
@@ -509,7 +509,9 @@ typedef struct _vtkSortValues {
   int   cellId;
 } vtkSortValues;
 
-static int qsortCompare(const void *val1, const void *val2)
+extern "C" 
+{
+int vtkCGMqsortCompare(const void *val1, const void *val2)
 {
   if (((vtkSortValues *)val1)->z > ((vtkSortValues *)val2)->z)
     {
@@ -523,6 +525,7 @@ static int qsortCompare(const void *val1, const void *val2)
     {
     return (0);
     }
+}
 }
 
 void vtkCGMWriter::WriteData()
@@ -675,7 +678,7 @@ void vtkCGMWriter::WriteData()
       depth[cellId].cellId = cellId;
       }
     
-    qsort((void *)depth, numCells, sizeof(vtkSortValues), qsortCompare);
+    qsort((void *)depth, numCells, sizeof(vtkSortValues), vtkCGMqsortCompare);
     }
  
 
