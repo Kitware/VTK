@@ -34,7 +34,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkBoxWidget, "1.46");
+vtkCxxRevisionMacro(vtkBoxWidget, "1.47");
 vtkStandardNewMacro(vtkBoxWidget);
 
 vtkBoxWidget::vtkBoxWidget()
@@ -1278,17 +1278,25 @@ void vtkBoxWidget::GetTransform(vtkTransform *t)
     scaleVec[2][i] = (p4[i] - p0[i]);
     }
 
-  scale[0] = vtkMath::Norm(scaleVec[0]) /
-    (this->InitialBounds[1]-this->InitialBounds[0]);
-  scale[1] = vtkMath::Norm(scaleVec[1]) /
-    (this->InitialBounds[3]-this->InitialBounds[2]);
-  scale[2] = vtkMath::Norm(scaleVec[2]) /
-    (this->InitialBounds[5]-this->InitialBounds[4]);
+  scale[0] = vtkMath::Norm(scaleVec[0]);
+  if (this->InitialBounds[1] != this->InitialBounds[0])
+    {
+    scale[0] = scale[0] / (this->InitialBounds[1]-this->InitialBounds[0]);
+    }
+  scale[1] = vtkMath::Norm(scaleVec[1]);
+  if (this->InitialBounds[3] != this->InitialBounds[2])
+    {
+    scale[1] = scale[1] / (this->InitialBounds[3]-this->InitialBounds[2]);
+    }
+  scale[2] = vtkMath::Norm(scaleVec[2]);
+  if (this->InitialBounds[5] != this->InitialBounds[4])
+    {
+    scale[2] = scale[2] / (this->InitialBounds[5]-this->InitialBounds[4]);
+    }
   t->Scale(scale[0],scale[1],scale[2]);
   
   // Add back in the contribution due to non-origin center
   t->Translate(-InitialCenter[0], -InitialCenter[1], -InitialCenter[2]);
-
 }
 
 void vtkBoxWidget::SetTransform(vtkTransform* t)
