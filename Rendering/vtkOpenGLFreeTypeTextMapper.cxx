@@ -23,6 +23,8 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
+#include <sys/stat.h>
+
 #include "vtkfreetypeConfig.h"
 #include "vtkftglConfig.h"
 #include "FTLibrary.h"
@@ -514,6 +516,22 @@ FTFont* vtkFontCache::GetFont(vtkTextProperty *tprop,
       delete font;
       return 0;
       }
+    // Try to load an AFM metrics file for the PFB/PFA Postscript fonts
+    int length = strlen(tprop->GetFaceFileName());
+    if (length > 4 &&
+        (!strcmp(tprop->GetFaceFileName() + length - 4, ".pfb") ||
+         !strcmp(tprop->GetFaceFileName() + length - 4, ".pfa")))
+      {
+      char *metrics = new char[length + 1];
+      strncpy(metrics, tprop->GetFaceFileName(), length - 3);
+      strcpy(metrics + length - 3, "afm");
+      struct stat fs;
+      if (stat(metrics, &fs) == 0)
+        {
+        font->Attach(metrics); 
+        }
+      delete [] metrics;
+      }
     }
   else
     {
@@ -606,7 +624,7 @@ FTFont* vtkFontCache::GetFont(vtkTextProperty *tprop,
 }
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.14");
+vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.15");
 vtkStandardNewMacro(vtkOpenGLFreeTypeTextMapper);
 
 //----------------------------------------------------------------------------
