@@ -27,7 +27,7 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkDelaunay3D, "1.64");
+vtkCxxRevisionMacro(vtkDelaunay3D, "1.65");
 vtkStandardNewMacro(vtkDelaunay3D);
 
 //----------------------------------------------------------------------------
@@ -260,9 +260,21 @@ vtkIdType vtkDelaunay3D::FindEnclosingFaces(float x[3],
     for (j=0; j < 4; j++)
       {
       insertFace = 0;
-      p1 = tetraPts[j];
-      p2 = tetraPts[(j+1)%4];
-      p3 = tetraPts[(j+2)%4];
+      // Make sure to arrange these points so that they're in
+      // counterclockwise order when viewed from the center of the
+      // cell
+      switch (j)
+        {
+        case 0: // face 0: points 0, 1, 2
+          p1 = tetraPts[0]; p2 = tetraPts[1]; p3 = tetraPts[2]; break;
+        case 1: // face 1: points 1, 2, 3 (must flip order!)
+          p1 = tetraPts[1]; p2 = tetraPts[3]; p3 = tetraPts[2]; break;
+        case 2: // face 2: points 2, 3, 0
+          p1 = tetraPts[2]; p2 = tetraPts[3]; p3 = tetraPts[0]; break;
+        case 3: // face 3: points 3, 0, 1 (must flip order!)
+          p1 = tetraPts[3]; p2 = tetraPts[1]; p3 = tetraPts[0]; break;
+        }
+
       hasNei = GetTetraFaceNeighbor(Mesh, tetraId, p1, p2, p3, nei);
 
       //if a boundary face or an enclosing face
@@ -486,6 +498,7 @@ void vtkDelaunay3D::Execute()
   output->Allocate(5*numPoints);
   numTetras = Mesh->GetNumberOfCells();
   tetraUse = new char[numTetras];
+
   for (i=0; i < numTetras; i++)
     {
     tetraUse[i] = 2; //mark as non-deleted
@@ -774,8 +787,8 @@ vtkUnstructuredGrid *vtkDelaunay3D::InitPointInsertion(float center[3],
   this->TetraArray = new vtkTetraArray(5*numPtsToInsert,numPtsToInsert);
 
   //create bounding tetras (there are four)
-  pts[0] = numPtsToInsert + 4; pts[1] = numPtsToInsert + 5; 
-  pts[2] = numPtsToInsert ; pts[3] = numPtsToInsert + 2;
+  pts[0] = numPtsToInsert + 4; pts[1] = numPtsToInsert + 5;
+  pts[2] = numPtsToInsert;     pts[3] = numPtsToInsert + 2;
   tetraId = Mesh->InsertNextCell(VTK_TETRA,4,pts);
   this->InsertTetra(Mesh,points,tetraId);
 
@@ -840,11 +853,17 @@ void vtkDelaunay3D::InsertPoint(vtkUnstructuredGrid *Mesh, vtkPoints *points,
     // create new tetra for each face
     for (tetraNum=0; tetraNum < numFaces; tetraNum++)
       {
-      //define tetrahedron
-      nodes[0] = ptId;
-      nodes[1] = this->Faces->GetId(3*tetraNum);
-      nodes[2] = this->Faces->GetId(3*tetraNum+1);
-      nodes[3] = this->Faces->GetId(3*tetraNum+2);
+      // Define tetrahedron.  The order of the points matters: points
+      // 0, 1, and 2 must appear in counterclockwise order when seen
+      // from point 3.  When we get here, point ptId is inside the
+      // tetrahedron whose faces we're considering and we've
+      // guaranteed that the 3 points in this face are
+      // counterclockwise wrt the new point.  That lets us create a
+      // new tetrahedron with the right ordering.
+      nodes[0] = this->Faces->GetId(3*tetraNum);
+      nodes[1] = this->Faces->GetId(3*tetraNum+1);
+      nodes[2] = this->Faces->GetId(3*tetraNum+2);
+      nodes[3] = ptId;
 
       //either replace previously deleted tetra or create new one
       if ( tetraNum < numTetras )
