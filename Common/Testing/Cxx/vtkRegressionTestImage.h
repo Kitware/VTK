@@ -10,35 +10,82 @@
 
 int vtkRegressionTestImage2(int argc, char *argv[], vtkWindow *rw ) 
 {
-  if( (argc >= 3) && (strcmp("-V", argv[argc-2]) == 0) ) 
+  int dataIndex=-1, imageIndex=-1;
+
+  for (int i=0; i<argc; i++)
+    {
+    if ( strcmp("-V", argv[i]) == 0 )
+      {
+      if ( i < argc-1 )
+	{
+	imageIndex = i+1;
+	}
+      }
+    else if ( strcmp("-D", argv[i]) == 0 )
+      {
+      if ( i < argc-1 )
+	{
+	dataIndex = i+1;
+	}
+      }
+    }
+
+  if( imageIndex != -1 ) 
     { 
+    char* dataRoot=0;
+    if ( dataIndex != -1 ) 
+      {
+      dataRoot = argv[dataIndex];
+      }
+    else 
+      {
+      dataRoot = getenv("VTK_DATA_ROOT");
+      }
+
+    char* fname;
+    if (dataRoot)
+      {
+      fname = new char[strlen(dataRoot)+strlen(argv[imageIndex])+2];
+      fname[0] = 0;
+      strcat(fname, dataRoot);
+      int len = strlen(fname);
+      fname[len] = '/';
+      fname[len+1] = 0;
+      strcat(fname, argv[imageIndex]);
+      }
+    else
+      {
+      fname = argv[imageIndex];
+      }
+
     vtkWindowToImageFilter *rt_w2if = vtkWindowToImageFilter::New(); 
     rt_w2if->SetInput(rw);
-    FILE *rt_fin = fopen(argv[argc-1],"r"); 
+    FILE *rt_fin = fopen(fname,"r"); 
     if (rt_fin) 
       { 
       fclose(rt_fin);
       }
     else
       {
-      FILE *rt_fout = fopen(argv[argc-1],"wb"); 
+      FILE *rt_fout = fopen(fname,"wb"); 
       if (rt_fout) 
         { 
         fclose(rt_fout);
         vtkPNGWriter *rt_pngw = vtkPNGWriter::New();
-        rt_pngw->SetFileName(argv[argc-1]);
+        rt_pngw->SetFileName(fname);
         rt_pngw->SetInput(rt_w2if->GetOutput());
         rt_pngw->Write();
         rt_pngw->Delete();
         }
       else
         {
-        fprintf(stderr,"Unable to find valid image!!!");
+	cerr << "Unable to open file for writing: " << fname << endl;
+	rt_w2if->Delete(); 
         return 0;
         }
       }
     vtkPNGReader *rt_png = vtkPNGReader::New(); 
-    rt_png->SetFileName(argv[argc-1]); 
+    rt_png->SetFileName(fname); 
     vtkImageDifference *rt_id = vtkImageDifference::New(); 
     rt_id->SetInput(rt_w2if->GetOutput()); 
     rt_id->SetImage(rt_png->GetOutput()); 
@@ -50,7 +97,7 @@ int vtkRegressionTestImage2(int argc, char *argv[], vtkWindow *rw )
       rt_id->Delete(); 
       return 1; 
       } 
-    fprintf(stderr,"Failed Image Test : %f", rt_id->GetThresholdedError()); 
+    cerr << "Failed Image Test : " << rt_id->GetThresholdedError() << endl;
     rt_id->Delete(); 
     return 0;
     }

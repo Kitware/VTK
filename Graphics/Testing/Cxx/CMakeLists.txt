@@ -32,9 +32,11 @@ IF (VTK_USE_RENDERING)
   #
   IF (VTK_DATA_ROOT)
     ADD_TEST(Mace-image ${CXX_TEST_PATH}/Mace
-                -V ${VTK_DATA_ROOT}/Baseline/Graphics/Mace.png)
+                -D ${VTK_DATA_ROOT}
+                -V Baseline/Graphics/Mace.png)
     ADD_TEST(expCos-image ${CXX_TEST_PATH}/expCos 
-                -V ${VTK_DATA_ROOT}/Baseline/Graphics/expCos.png)
+                -D ${VTK_DATA_ROOT}
+                -V Baseline/Graphics/expCos.png)
   #
   # If we do not have the data, still run the tests that we can
   #
