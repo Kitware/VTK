@@ -17,6 +17,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // Methods for polygon mapper
 //
 #include "DSMapper.hh"
+#include "PolyMap.hh"
+#include "UGridMap.hh"
+#include "UPtsMap.hh"
 
 vlDataSetMapper::vlDataSetMapper()
 {
@@ -92,19 +95,61 @@ void vlDataSetMapper::Render(vlRenderer *ren)
 int vlDataSetMapper::CreateMapper()
 {
   vlMapper *mapper;
+  char *InputType;
+  char *OldMapperType = NULL;
 
-  if ( !(mapper = this->Input->MakeMapper()) )
+  InputType = this->Input->GetDataType();
+
+  // if we have an old mapper get its type otherwise set it to none
+  if (this->Mapper)
     {
-    vlErrorMacro(<< "Cannot map type: " << this->Input->GetClassName() <<"\n");
-    return 0;
+    OldMapperType = this->Mapper->GetClassName();
     }
-  if ( mapper != this->Mapper ) 
+  else
     {
-    *mapper = *this; // Update lookup table, etc.
-    if (this->Mapper) this->Mapper->UnRegister(this);
-    this->Mapper = mapper;
-    this->Mapper->Register(this);
+    OldMapperType = "none";
     }
+
+  if (!strcmp("vlPolyData",InputType))
+    {
+    if (strcmp(OldMapperType,"vlPolyMapper"))
+      {
+      if (this->Mapper) this->Mapper->UnRegister(this);
+      this->Mapper = new vlPolyMapper;
+      this->Mapper->Register(this);
+      }
+    }
+  
+  if (!strcmp("vlStructuredPoints",InputType))
+    {
+    vlErrorMacro(<< "Structured Points Mapper not supported");
+    }
+
+  if (!strcmp("vlStructuredGrid",InputType))
+    {
+    vlErrorMacro(<< "Structured Grid Mapper not supported");
+    }
+
+  if (!strcmp("vlUnstructuredGrid",InputType))
+    {
+    if (strcmp(OldMapperType,"vlUnstructuredGridMapper"))
+      {
+      if (this->Mapper) this->Mapper->UnRegister(this);
+      this->Mapper = new vlUnstructuredGridMapper;
+      this->Mapper->Register(this);
+      }
+    }
+
+  if (!strcmp("vlUnstructuredPoints",InputType))
+    {
+    if (strcmp(OldMapperType,"vlUnstructuredPointsMapper"))
+      {
+      if (this->Mapper) this->Mapper->UnRegister(this);
+      this->Mapper = new vlUnstructuredPointsMapper;
+      this->Mapper->Register(this);
+      }
+    }
+
   return 1;
 } 
 
