@@ -3,6 +3,8 @@
 #include "vtkDynamicLoader.h"
 #include "vtkDirectory.h"
 #include "vtkVersion.h"
+#include <stdlib.h>
+#include <ctype.h>
 
 
 vtkObjectFactoryCollection* vtkObjectFactory::RegisterdFactories = 0;
@@ -129,6 +131,26 @@ static char* CreateFullPath(const char* path, const char* file)
 // function cleaner to read.
 typedef vtkObjectFactory* (* VTK_LOAD_FUNCTION)();
 
+
+// A file scoped function to determine if a file has
+// the shared library extension in its name, this converts name to lower
+// case before the compare, vtkDynamicLoader always uses
+// lower case for LibExtension values. 
+
+inline int vtkNameIsSharedLibrary(const char* name)
+{
+  int len = strlen(name);
+  char* copy = new char[len+1];
+  
+  for(int i = 0; i < len; i++)
+    {
+    copy[i] = tolower(name[i]);
+    }
+  char* ret = strstr(copy, vtkDynamicLoader::LibExtension());
+  delete [] copy;
+  return (int)ret;
+}
+
 void vtkObjectFactory::LoadLibrariesInPath(const char* path)
 {
   vtkDirectory* dir = vtkDirectory::New();
@@ -141,28 +163,35 @@ void vtkObjectFactory::LoadLibrariesInPath(const char* path)
   for(int i = 0; i < dir->GetNumberOfFiles(); i++)
     {
     const char* file = dir->GetFile(i);
-    char* fullpath = CreateFullPath(path, file);
-    vtkLibHandle lib = vtkDynamicLoader::OpenLibrary(fullpath);
-    if(lib)
+    // try to make sure the file has at least the extension
+    // for a shared library in it.
+    if(vtkNameIsSharedLibrary(file))
       {
-      // Look for the symbol vtkLoad in the library
-      VTK_LOAD_FUNCTION loadfunction
-	= (VTK_LOAD_FUNCTION)vtkDynamicLoader::GetSymbolAddress(lib, "vtkLoad");
-      // if the symbol is found call it to create the factory
-      // from the library
-      if(loadfunction)
+      vtkGenericWarningMacro("Attempt to load dll: " << file);
+      char* fullpath = CreateFullPath(path, file);
+      vtkLibHandle lib = vtkDynamicLoader::OpenLibrary(fullpath);
+      if(lib)
 	{
-	vtkObjectFactory* newfactory = (*loadfunction)();
-	// initialize class members if load worked
-	newfactory->LibraryHandle = (void*)lib;
-	newfactory->LibraryPath = strcpy(new char[strlen(fullpath)+1], fullpath);
-	newfactory->LibraryDate = 0; // unused for now...
-	vtkObjectFactory::RegisterFactory(newfactory);
+	// Look for the symbol vtkLoad in the library
+	VTK_LOAD_FUNCTION loadfunction
+	  = (VTK_LOAD_FUNCTION)vtkDynamicLoader::GetSymbolAddress(lib, "vtkLoad");
+	// if the symbol is found call it to create the factory
+	// from the library
+	if(loadfunction)
+	  {
+	  vtkObjectFactory* newfactory = (*loadfunction)();
+	  // initialize class members if load worked
+	  newfactory->LibraryHandle = (void*)lib;
+	  newfactory->LibraryPath = strcpy(new char[strlen(fullpath)+1], fullpath);
+	  newfactory->LibraryDate = 0; // unused for now...
+	  vtkObjectFactory::RegisterFactory(newfactory);
+	  }
 	}
+      delete [] fullpath;
       }
-    delete [] fullpath;
     }
 }
+
 
 // Recheck the VTK_AUTOLOAD_PATH for new libraries
 
