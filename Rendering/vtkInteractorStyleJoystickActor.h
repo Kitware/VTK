@@ -37,33 +37,28 @@
 #include "vtkInteractorStyle.h"
 #include "vtkCellPicker.h"
 
-
-#define VTK_INTERACTOR_STYLE_ACTOR_NONE    0
-#define VTK_INTERACTOR_STYLE_ACTOR_ROTATE  1
-#define VTK_INTERACTOR_STYLE_ACTOR_PAN     2
-#define VTK_INTERACTOR_STYLE_ACTOR_ZOOM    3
-#define VTK_INTERACTOR_STYLE_ACTOR_SPIN    4
-#define VTK_INTERACTOR_STYLE_ACTOR_SCALE   5
+// Motion flags
 
 class VTK_RENDERING_EXPORT vtkInteractorStyleJoystickActor : public vtkInteractorStyle
 {
 public:
   static vtkInteractorStyleJoystickActor *New();
 
-  vtkTypeRevisionMacro(vtkInteractorStyleJoystickActor, vtkObject);
+  vtkTypeRevisionMacro(vtkInteractorStyleJoystickActor,vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Event bindings controlling the effects of pressing mouse buttons
   // or moving the mouse.
-  void OnMouseMove  (int ctrl, int shift, int x, int y);
-  void OnLeftButtonDown(int ctrl, int shift, int x, int y);
-  void OnLeftButtonUp  (int ctrl, int shift, int x, int y);
-  void OnMiddleButtonDown(int ctrl, int shift, int x, int y);
-  void OnMiddleButtonUp  (int ctrl, int shift, int x, int y);
-  void OnRightButtonDown(int ctrl, int shift, int x, int y);
-  void OnRightButtonUp  (int ctrl, int shift, int x, int y);
-  void OnTimer(void);
+  virtual void OnMouseMove       (int ctrl, int shift, int x, int y);
+  virtual void OnLeftButtonDown  (int ctrl, int shift, int x, int y);
+  virtual void OnLeftButtonUp    (int ctrl, int shift, int x, int y);
+  virtual void OnMiddleButtonDown(int ctrl, int shift, int x, int y);
+  virtual void OnMiddleButtonUp  (int ctrl, int shift, int x, int y);
+  virtual void OnRightButtonDown (int ctrl, int shift, int x, int y);
+  virtual void OnRightButtonUp   (int ctrl, int shift, int x, int y);
+
+  virtual void OnTimer(void);
 
 protected:
   vtkInteractorStyleJoystickActor();
@@ -74,15 +69,17 @@ protected:
   void DollyXY(int x, int y);
   void SpinXY(int x, int y);
   void ScaleXY(int x, int y);
+
   void FindPickedActor(int x, int y);
+
   void Prop3DTransform(vtkProp3D *prop3D, double *boxCenter,
                       int numRotation, double **rotate,
                       double *scale);
+
   void Prop3DTransform(vtkProp3D *prop3D,float *boxCenter,
                       int NumRotation,double **rotate,
                       double *scale);
   
-  int State;
   float MotionFactor;
   float RadianToDegree;                 // constant: for conv from deg to rad
   vtkProp3D *InteractionProp;
@@ -97,8 +94,9 @@ protected:
   float MotionVector[3];
   double ViewPoint[3];
   double ViewFocus[3];
-//  vtkAbstractPropPicker *InteractionPicker;
+
   vtkCellPicker *InteractionPicker;
+
 private:
   vtkInteractorStyleJoystickActor(const vtkInteractorStyleJoystickActor&);  // Not implemented.
   void operator=(const vtkInteractorStyleJoystickActor&);  // Not implemented.
