@@ -1,5 +1,5 @@
 #ifdef _WIN32
-#include "stdafx.h"
+#include "pcmaker/stdafx.h"
 #endif
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -8,8 +8,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #ifdef _WIN32
-#include "pcmaker.h"
-#include "pcmakerDlg.h"
+#include "pcmaker/pcmaker.h"
+#include "pcmaker/pcmakerDlg.h"
 #endif
 
 #define MAX_DEPENDS 2000
