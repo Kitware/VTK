@@ -20,6 +20,7 @@ IF (VTK_USE_RENDERING)
       earth
       imageToPolyData
       financialField2
+      financialField3
       largeImageOffset
       largeImageParallel
       MassProperties
