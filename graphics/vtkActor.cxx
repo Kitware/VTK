@@ -482,6 +482,34 @@ void vtkActor::PrintSelf(ostream& os, vtkIndent indent)
 
 }
 
+// Compatibility methods...to be deprecated in the future.
+#include "vtkAssemblyNode.h"
+void vtkActor::InitPartTraversal()
+{
+  this->InitPathTraversal();
+}
 
+vtkActor *vtkActor::GetNextPart()
+{
+  vtkAssemblyPath *path = this->GetNextPath();
+  if ( !path )
+    {
+    return NULL;
+    }
+  else
+    {
+    vtkAssemblyNode *node = path->GetLastNode();
+    if ( node && node->GetProp()->IsA("vtkActor") )
+      {
+      return (vtkActor *)node->GetProp();
+      }
+    }
+  return NULL;
+}
+
+int vtkActor::GetNumberOfParts()
+{
+  return this->GetNumberOfPaths();
+}
 
 

@@ -178,6 +178,15 @@ public:
   // etc.
   virtual unsigned long GetRedrawMTime();
 
+  // Description:
+  // The following methods are for compaibility. The methods will be deprecated
+  // in the near future. Use vtkProp::GetNextPath() (and related functionality)
+  // to get the parts in an assembly (or more correctly, the paths in the
+  // assembly).
+  void InitPartTraversal();
+  vtkActor *GetNextPart();
+  int GetNumberOfParts();
+  
 protected:
   vtkActor();
   ~vtkActor();
