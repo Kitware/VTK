@@ -8,6 +8,7 @@ vtkArrowSource
 vtkAssignAttribute
 vtkAttributeDataToFieldDataFilter
 vtkAxes
+vtkBandedPolyDataContourFilter
 vtkBlankStructuredGrid
 vtkBlankStructuredGridWithImage
 vtkBrownianPoints
