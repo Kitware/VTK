@@ -197,7 +197,7 @@ void vtkXRenderWindowInteractor::Initialize()
     vis     = ren->GetDesiredVisual();
     position= ren->GetPosition();
 
-    this->top = XtVaAppCreateShell(this->RenderWindow->GetName(),"vtk",
+    this->top = XtVaAppCreateShell(this->RenderWindow->GetWindowName(),"vtk",
 				   applicationShellWidgetClass,
 				   this->DisplayId,
 				   XtNdepth, depth,
@@ -654,7 +654,7 @@ void vtkXRenderWindowInteractor::SetupNewWindow(int Stereo)
 
   this->oldTop = this->top;
   
-  this->top = XtVaAppCreateShell(this->RenderWindow->GetName(),"vtk",
+  this->top = XtVaAppCreateShell(this->RenderWindow->GetWindowName(),"vtk",
 				 applicationShellWidgetClass,
 				 this->DisplayId,
 				 XtNdepth, depth,
