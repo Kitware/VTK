@@ -43,7 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_TOLERANCE 1.0e-05
 
 #define VTK_MAX_TRIS_PER_VERTEX VTK_CELL_SIZE
-#define VTK_MAX_SQUAWKS 10
 
 #define VTK_COMPLEX_VERTEX 0
 #define VTK_SIMPLE_VERTEX 1
@@ -110,6 +109,7 @@ vtkDecimate::vtkDecimate()
   this->Degree = 25;
 
   this->GenerateErrorScalars = 0;
+  this->MaximumNumberOfSquawks = 10;
 }
 
 //
@@ -454,7 +454,7 @@ int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
 //
   if ( numTris >= this->Degree ) 
     {
-    if ( Squawks++ < VTK_MAX_SQUAWKS ) 
+    if ( Squawks++ < this->MaximumNumberOfSquawks ) 
       vtkWarningMacro (<<"Exceeded maximum vertex degree");
     this->Stats[VTK_COMPLEX_VERTEX]++;
     this->Stats[VTK_FAILED_DEGREE_TEST]++;
@@ -492,7 +492,7 @@ int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
   numNei = 1;
 //
 //  Traverse the edge neighbors and see whether a cycle can be
-//  completed.  Also have to keep track or orientation of faces for
+//  completed.  Also have to keep track of orientation of faces for
 //  computing normals.
 //
   while ( T->MaxId < numTris && numNei == 1 && nextVertex != startVertex) 
@@ -541,7 +541,7 @@ int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
 //
   else if ( numNei > 1 || T->GetNumberOfTriangles() > numTris ) 
     {
-    if ( Squawks++ < VTK_MAX_SQUAWKS ) 
+    if ( Squawks++ < this->MaximumNumberOfSquawks ) 
       vtkWarningMacro(<<"Non-manifold geometry encountered");
     this->Stats[VTK_FAILED_NON_MANIFOLD]++;
     this->Stats[VTK_COMPLEX_VERTEX]++;
@@ -648,7 +648,7 @@ int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
       } 
     else // non-manifold
       {
-      if ( Squawks++ < VTK_MAX_SQUAWKS ) 
+      if ( Squawks++ < this->MaximumNumberOfSquawks ) 
         vtkWarningMacro(<<"Non-manifold geometry encountered");
       this->Stats[VTK_FAILED_NON_MANIFOLD]++;
       this->Stats[VTK_COMPLEX_VERTEX]++;
@@ -1056,6 +1056,7 @@ void vtkDecimate::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Feature Angle Increment: " << this->FeatureAngleIncrement << "\n";
   os << indent << "Maximum Feature Angle: " << this->MaximumFeatureAngle << "\n";
   os << indent << "Generate Error Scalars: " << (this->GenerateErrorScalars ? "On\n" : "Off\n");
+  os << indent << "Maximum Number Of Squawks: " << this->MaximumNumberOfSquawks << "\n";
 
 
 }
