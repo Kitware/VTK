@@ -122,6 +122,10 @@ public:
   vtkSetClampMacro(T,float,0.0,VTK_LARGE_FLOAT);
   vtkGetMacro(T,float);
 
+  // Description:
+  // Handle the source/data loop.
+  void UnRegister(vtkObject *o);
+
 protected:
   void Execute();
 
