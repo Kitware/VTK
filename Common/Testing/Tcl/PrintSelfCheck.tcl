@@ -380,7 +380,6 @@ proc read_directory { dirname } {
   set total_defects 0
 
   set files [glob -nocomplain "$dirname/vtk*.h"]
-
   if { $files != "" } {
     foreach headername $files {
 
@@ -668,55 +667,51 @@ proc clear_results { } {
   set super_miss_count 0
 }
 
-proc measure_vtk {kits} {
-
-  global pd_id
-
-  global verbose
-
-  global class_list
-  global class_count
-  global class_print_count
-  global printself_miss_count
-  global ivar_count
-  global ivar_miss_count
-  global super_miss_count
-
-  global total_class_count
-  global total_class_print_count
-  global total_printself_miss_count
-  global total_ivar_count
-  global total_ivar_miss_count
-  global total_super_miss_count
-
-  set path ""
-
-  open_files
-
-  foreach toolkit $kits {
-    clear_results
-
-    read_directory $path$toolkit
-
-    print_toolkit_results $toolkit
-
-    set total_class_count [expr $total_class_count + $class_count]
-    set total_class_print_count [expr $total_class_print_count + $class_print_count]
-    set total_printself_miss_count [expr $total_printself_miss_count + $printself_miss_count];
-    set total_ivar_count [expr $total_ivar_count + $ivar_count];
-    set total_ivar_miss_count [expr $total_ivar_miss_count + $ivar_miss_count];
-    set total_super_miss_count [expr $total_super_miss_count + $super_miss_count];
-  }
-
-  print_totals
-
-  close_files
-
-  if { $verbose } {
-    parray class_list
-  }
-
+proc measure_vtk {kit} {
+   
+   global pd_id
+   
+   global verbose
+   
+   global class_list
+   global class_count
+   global class_print_count
+   global printself_miss_count
+   global ivar_count
+   global ivar_miss_count
+   global super_miss_count
+   
+   global total_class_count
+   global total_class_print_count
+   global total_printself_miss_count
+   global total_ivar_count
+   global total_ivar_miss_count
+   global total_super_miss_count
+   
+   open_files
+   
+   clear_results
+   
+   read_directory "$kit"
+   
+   print_toolkit_results $kit
+   
+   set total_class_count [expr $total_class_count + $class_count]
+   set total_class_print_count [expr $total_class_print_count + $class_print_count]
+   set total_printself_miss_count [expr $total_printself_miss_count + $printself_miss_count];
+   set total_ivar_count [expr $total_ivar_count + $ivar_count];
+   set total_ivar_miss_count [expr $total_ivar_miss_count + $ivar_miss_count];
+   set total_super_miss_count [expr $total_super_miss_count + $super_miss_count];
+   
+   print_totals
+   close_files
+   
+   if { $verbose } {
+      parray class_list
+   }
+   
 }
 measure_vtk [lindex $argv 0]
 
 exit $total_defects
+
