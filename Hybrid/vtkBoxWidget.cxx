@@ -34,7 +34,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkBoxWidget, "1.48");
+vtkCxxRevisionMacro(vtkBoxWidget, "1.49");
 vtkStandardNewMacro(vtkBoxWidget);
 
 vtkBoxWidget::vtkBoxWidget()
@@ -450,7 +450,8 @@ void vtkBoxWidget::PositionHandles()
     {
     this->HandleGeometry[i]->SetCenter(this->Points->GetPoint(8+i));
     }
-  
+
+  this->Points->GetData()->Modified();
   this->HexFacePolyData->Modified();
   this->HexPolyData->Modified();
   this->GenerateOutline();

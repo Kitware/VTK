@@ -33,7 +33,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkSplineWidget, "1.27");
+vtkCxxRevisionMacro(vtkSplineWidget, "1.28");
 vtkStandardNewMacro(vtkSplineWidget);
 
 vtkCxxSetObjectMacro(vtkSplineWidget, HandleProperty, vtkProperty);
@@ -571,6 +571,7 @@ void vtkSplineWidget::BuildRepresentation()
     this->ParametricSpline->Evaluate(u, pt, NULL);
     points->SetPoint(i, pt);
     }
+  points->GetData()->Modified();
   this->LineData->Modified();
 }
 

@@ -37,7 +37,7 @@
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImageTracerWidget, "1.14");
+vtkCxxRevisionMacro(vtkImageTracerWidget, "1.15");
 vtkStandardNewMacro(vtkImageTracerWidget);
 
 vtkCxxSetObjectMacro(vtkImageTracerWidget, HandleProperty, vtkProperty);
@@ -1015,6 +1015,7 @@ void vtkImageTracerWidget::Trace(int X, int Y)
         {
         this->AdjustHandlePosition(this->CurrentHandleIndex,pos);
         this->LinePoints->SetPoint(this->PickCount,pos);
+        this->LinePoints->GetData()->Modified();
         this->LineData->Modified();
         }
       }
@@ -1055,6 +1056,7 @@ void vtkImageTracerWidget::MovePoint(const double *p1, const double *p2)
             this->HandleGeometry[0]->GetCenter());
     }
 
+  this->LinePoints->GetData()->Modified();
   this->LineData->Modified();
 }
 
@@ -1090,6 +1092,7 @@ void vtkImageTracerWidget::Translate(const double *p1, const double *p2)
     this->LinePoints->SetPoint(i,newCtr);
     }
 
+  this->LinePoints->GetData()->Modified();
   this->LineData->Modified();
 }
 
@@ -1310,6 +1313,7 @@ void vtkImageTracerWidget::AppendLine(double* pos)
   this->LinePoints->InsertPoint(this->PickCount,pos);
   this->LineCells->InsertNextCell(2,this->CurrentPoints);
 
+  this->LinePoints->GetData()->Modified();
   this->LineData->SetPoints(this->LinePoints);
   this->LineData->SetLines(this->LineCells);
   this->LineData->Modified();
@@ -1340,6 +1344,7 @@ void vtkImageTracerWidget::ClosePath()
   if ( sqrt(vtkMath::Distance2BetweenPoints(p0,p1)) <= this->CaptureRadius )
     {
     this->LinePoints->SetPoint(npts-1,p0);
+    this->LinePoints->GetData()->Modified();
     this->LineData->Modified();
     }
 }
