@@ -90,8 +90,8 @@ public:
   int GetZSlice() {return this->ImageActor->GetZSlice();}
   void SetZSlice(int s)
     {
-    this->Renderer->ResetCameraClippingRange(); 
     this->ImageActor->SetZSlice(s);
+    this->Renderer->ResetCameraClippingRange(); 
     }
   
   // Description:
