@@ -7,7 +7,7 @@ def vtkLoadPythonTkWidgets(interp):
     shared object file that contains the python-vtk-tk widgets.  Both
     the python path and the tcl path are searched.
     """
-    name = 'vtkPythonTkWidgets'
+    name = 'vtkRenderingPythonTkWidgets'
 
     # find out if the file is already loaded
     loaded = interp.call('info', 'loaded')
