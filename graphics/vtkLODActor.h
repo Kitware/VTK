@@ -85,8 +85,7 @@ class VTK_EXPORT vtkLODActor : public vtkActor
   // Description:
   // This causes the actor to be rendered. It, in turn, will render the actor's
   // property and then mapper.  
-  virtual void Render(vtkRenderer *ren);
-  virtual void Render(vtkRenderer *, vtkMapper *) {};
+  virtual void Render(vtkRenderer *, vtkMapper *);
 
   // Description:
   // Release any graphics resources that are being consumed by this actor.

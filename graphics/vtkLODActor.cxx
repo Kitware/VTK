@@ -88,7 +88,7 @@ void vtkLODActor::PrintSelf(ostream& os, vtkIndent indent)
 
 
 //----------------------------------------------------------------------------
-void vtkLODActor::Render(vtkRenderer *ren)
+void vtkLODActor::Render(vtkRenderer *ren, vtkMapper *m)
 {
   float myTime, bestTime, tempTime;
   double aTime;
