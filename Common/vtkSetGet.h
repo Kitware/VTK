@@ -692,7 +692,7 @@ virtual double *Get##name() \
   // Setup compile-time warnings for uses of deprecated methods if
   // possible on this compiler.
 # if defined(__GNUC__) && !defined(__INTEL_COMPILER) && (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1))
-#  define VTK_LEGACY(method) __attribute__((deprecated)) method
+#  define VTK_LEGACY(method) method __attribute__((deprecated))
 # elif defined(_MSC_VER) && _MSC_VER >= 1300
 #  define VTK_LEGACY(method) __declspec(deprecated) method
 # else
