@@ -1,9 +1,11 @@
+# load the necessary VTK libraries.
 package require vtk
 package require vtkinteraction
 package require vtktesting
 
 # This example demonstrates how to use Tcl/Tk in a simple GUI to control 
-# the color of the spikes on the mace.
+# the color of the spikes on the mace. The spikes are a separate actor so
+# the actor's property via the SetColor() method is manipulated.
 
 # Create a sphere source and actor. This forms the head of the mace.
 #
@@ -43,15 +45,17 @@ ren1 AddActor spikeActor
 ren1 SetBackground 0.1 0.2 0.4
 renWin SetSize 300 300
 
-# render the image
+# An observer is added to allow the invocation of the interaction Tk GUI.
+# When the 'u' key is pressed (which is translated into the UserEvent)
+# then the corresponding Tcl proc is invoked.
 #
 iren AddObserver UserEvent {wm deiconify .vtkInteract}
 
-set cam1 [ren1 GetActiveCamera]
-$cam1 Zoom 1.4
+[ren1 GetActiveCamera] Zoom 1.4
 iren Initialize
 
-# Create Tk user interface. This is a simple frame with some color sliders.
+# Create Tk user interface. This is a simple frame with three sliders
+# to control the R-G-B components.
 #
 frame .f
 label .f.l -text "Spike Color"
