@@ -199,6 +199,9 @@ static void vtkImageMathematicsExecute1(vtkImageMathematics *self,
 	  case VTK_ADDC:
 	    *outPtr = (T)((T)constantc + *in1Ptr);
 	    break;
+	  case VTK_REPLACECBYK:
+	    *outPtr = (*in1Ptr == (T)constantc)?((T)constantk):(*in1Ptr);
+	    break;
 	  case VTK_CONJUGATE:
 	    outPtr[0] = in1Ptr[0];
 	    outPtr[1] = (T)(-1.0*(double)(in1Ptr[1]));

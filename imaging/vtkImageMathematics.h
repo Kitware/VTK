@@ -51,26 +51,27 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 // Operation options.
-#define VTK_ADD          0
-#define VTK_SUBTRACT     1
-#define VTK_MULTIPLY     2
-#define VTK_DIVIDE       3
-#define VTK_INVERT       4
-#define VTK_SIN          5
-#define VTK_COS          6
-#define VTK_EXP          7
-#define VTK_LOG          8
-#define VTK_ABS          9
-#define VTK_SQR          10
-#define VTK_SQRT         11
-#define VTK_MIN          12
-#define VTK_MAX          13
-#define VTK_ATAN         14
-#define VTK_ATAN2        15
-#define VTK_MULTIPLYBYK  16
-#define VTK_ADDC         17
-#define VTK_CONJUGATE    18
+#define VTK_ADD                0
+#define VTK_SUBTRACT           1
+#define VTK_MULTIPLY           2
+#define VTK_DIVIDE             3
+#define VTK_INVERT             4  
+#define VTK_SIN                5
+#define VTK_COS                6
+#define VTK_EXP                7
+#define VTK_LOG                8
+#define VTK_ABS                9
+#define VTK_SQR               10
+#define VTK_SQRT              11
+#define VTK_MIN               12
+#define VTK_MAX               13
+#define VTK_ATAN              14
+#define VTK_ATAN2             15
+#define VTK_MULTIPLYBYK       16
+#define VTK_ADDC              17
+#define VTK_CONJUGATE         18
 #define VTK_COMPLEX_MULTIPLY  19
+#define VTK_REPLACECBYK       20
 
 #include "vtkImageTwoInputFilter.h"
 
@@ -108,6 +109,7 @@ public:
   void SetOperationToATAN2() {this->SetOperation(VTK_ATAN2);};
   void SetOperationToMultiplyByK() {this->SetOperation(VTK_MULTIPLYBYK);};
   void SetOperationToAddConstant() {this->SetOperation(VTK_ADDC);};
+  void SetOperationToReplaceCByK() {this->SetOperation(VTK_REPLACECBYK);};
   vtkSetMacro(ConstantK,double);
   vtkGetMacro(ConstantK,double);
   vtkSetMacro(ConstantC,double);
