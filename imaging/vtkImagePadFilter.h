@@ -56,6 +56,7 @@ class VTK_EXPORT vtkImagePadFilter : public vtkImageFilter
 {
 public:
   vtkImagePadFilter();
+  static vtkImagePadFilter *New() {return new vtkImagePadFilter;};
   char *GetClassName() {return "vtkImagePadFilter";};
 
   // Description:

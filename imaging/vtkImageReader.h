@@ -58,6 +58,7 @@ class VTK_EXPORT vtkImageReader : public vtkImageCachedSource
 public:
   vtkImageReader();
   ~vtkImageReader();
+  static vtkImageReader *New() {return new vtkImageReader;};
   char *GetClassName() {return "vtkImageReader";};
   void PrintSelf(ostream& os, vtkIndent indent);   
 

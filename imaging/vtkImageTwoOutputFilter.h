@@ -68,6 +68,7 @@ class VTK_EXPORT vtkImageTwoOutputFilter : public vtkImageCachedSource
 {
 public:
   vtkImageTwoOutputFilter();
+  static vtkImageTwoOutputFilter *New() {return new vtkImageTwoOutputFilter;};
   char *GetClassName() {return "vtkImageTwoOutputFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

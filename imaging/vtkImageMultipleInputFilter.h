@@ -64,7 +64,7 @@ class VTK_EXPORT vtkImageMultipleInputFilter : public vtkImageCachedSource
 public:
   vtkImageMultipleInputFilter();
   ~vtkImageMultipleInputFilter();
-  static vtkImageMutlipleInputFilter *New() {return new vtkImageMultipleInputFilter;};
+  static vtkImageMultipleInputFilter *New() {return new vtkImageMultipleInputFilter;};
   char *GetClassName() {return "vtkImageMultipleInputFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

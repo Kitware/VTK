@@ -71,6 +71,7 @@ class VTK_EXPORT vtkImageSpatialFilter : public vtkImageFilter
 {
 public:
   vtkImageSpatialFilter();
+  static vtkImageSpatialFilter *New() {return new vtkImageSpatialFilter;};
   char *GetClassName() {return "vtkImageSpatialFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
