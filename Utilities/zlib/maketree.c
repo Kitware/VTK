@@ -1,5 +1,5 @@
 /* maketree.c -- make inffixed.h table for decoding fixed codes
- * Copyright (C) 1998 Mark Adler
+ * Copyright (C) 1995-2002 Mark Adler
  * For conditions of distribution and use, see copyright notice in zlib.h 
  */
 
@@ -49,7 +49,7 @@ void maketree(uInt b, inflate_huft *t)
 }
 
 /* create the fixed tables in C initialization syntax */
-int main(void)
+void main(void)
 {
   int r;
   uInt bl, bd;
@@ -63,7 +63,7 @@ int main(void)
   if (r)
   {
     fprintf(stderr, "inflate_trees_fixed error %d\n", r);
-    return 1;
+    return;
   }
   puts("/* inffixed.h -- table for decoding fixed codes");
   puts(" * Generated automatically by the maketree.c program");
@@ -82,5 +82,4 @@ int main(void)
   printf("local inflate_huft fixed_td[] = {");
   maketree(bd, td);
   puts("  };");
-  return 0;
 }
