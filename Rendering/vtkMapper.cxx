@@ -60,6 +60,7 @@ vtkMapper::vtkMapper()
 
   this->ScalarVisibility = 1;
   this->ScalarRange[0] = 0.0; this->ScalarRange[1] = 1.0;
+  this->UseLookupTableScalarRange = 0;
 
   this->ImmediateModeRendering = 0;
 
@@ -313,14 +314,18 @@ vtkScalars *vtkMapper::GetColors()
       {
       // make sure we have a lookup table
       if ( this->LookupTable == NULL )
-	{
-	this->CreateDefaultLookupTable();
-	}
+	      {
+	      this->CreateDefaultLookupTable();
+	      }
       this->LookupTable->Build();
       }
 
     // Setup mapper/scalar object for color generation
-    this->LookupTable->SetRange(this->ScalarRange);
+    if (!this->UseLookupTableScalarRange)
+      {
+      this->LookupTable->SetRange(this->ScalarRange);
+      }
+
     if (this->Colors)
       {
       this->Colors->Delete();
@@ -490,13 +495,15 @@ void vtkMapper::PrintSelf(ostream& os, vtkIndent indent)
 
   float *range = this->GetScalarRange();
   os << indent << "Scalar Range: (" << range[0] << ", " << range[1] << ")\n";
-  
+
+  os << indent << "UseLookupTableScalarRange: " << this->UseLookupTableScalarRange << "\n";
+
   os << indent << "Color Mode: " << this->GetColorModeAsString() << endl;
 
   os << indent << "Scalar Mode: " << this->GetScalarModeAsString() << endl;
 
   os << indent << "RenderTime: " << this->RenderTime << endl;
-  
+
   os << indent << "Resolve Coincident Topology: ";
   if ( vtkMapperGlobalResolveCoincidentTopology == VTK_RESOLVE_OFF )
     {
@@ -506,7 +513,7 @@ void vtkMapper::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "Polygon Offset" << endl;
     }
-  else 
+  else
     {
     os << "Shift Z-Buffer" << endl;
     }

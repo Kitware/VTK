@@ -114,8 +114,20 @@ public:
   const char *GetColorModeAsString();
 
   // Description:
+  // Control whether the mapper sets the lookuptable range based on its
+  // own ScalarRange, or whether it will use the LookupTable ScalarRange
+  // regardless of it's own setting. By default the Mapper is allowed to set
+  // the LookupTable range, but users who are sharing LookupTables between
+  // mappers/actors will probably wish to force the mapper to use the
+  // LookupTable unchanged.
+  vtkSetMacro(UseLookupTableScalarRange,int);
+  vtkGetMacro(UseLookupTableScalarRange,int);
+  vtkBooleanMacro(UseLookupTableScalarRange,int);
+
+  // Description:
   // Specify range in terms of scalar minimum and maximum (smin,smax). These
-  // values are used to map scalars into lookup table.
+  // values are used to map scalars into lookup table. Has no effect when
+  // UseLookupTableScalarRange is true.
   vtkSetVector2Macro(ScalarRange,float);
   vtkGetVectorMacro(ScalarRange,float,2);
 
@@ -153,6 +165,7 @@ protected:
   int ScalarVisibility;
   vtkTimeStamp BuildTime;
   float ScalarRange[2];
+  int UseLookupTableScalarRange;
   int ColorMode;
   
   vtkCoordinate *TransformCoordinate;
