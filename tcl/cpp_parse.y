@@ -1104,7 +1104,9 @@ return_result()
       fprintf(yyout,"      sprintf(interp->result,\"%%hu\",temp10);\n"); 
       break;
     case 303:
-      fprintf(yyout,"      sprintf(interp->result,\"%%s\",temp10);\n"); 
+      fprintf(yyout,"      if (temp10)\n        {\n        sprintf(interp->result,\"%%s\",temp10);\n"); 
+      fprintf(yyout,"        }\n      else\n        {\n");
+      fprintf(yyout,"        interp->result[0] = '\\0';\n        }\n"); 
       break;
     case 3:
       fprintf(yyout,"      sprintf(interp->result,\"%%c\",temp10);\n"); 
