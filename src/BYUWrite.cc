@@ -77,6 +77,15 @@ void vlBYUWriter::WriteGeometryFile(FILE *geomFile, int numPts)
   vlPoints *inPts;
   vlCellArray *inPolys;
 //
+// Check input
+//
+  if ( (inPts=this->Input->GetPoints()) == NULL ||
+  (inPolys=this->Input->GetPolys()) == NULL )
+    {
+    vlErrorMacro(<<"No data to write!");
+    return;
+    }
+//
 // Write header (not using fixed format! - potential problem in some files.)
 //
   numPolys = this->Input->GetPolys()->GetNumberOfCells();
