@@ -20,16 +20,18 @@
 #include "vtkPointLocator.h"
 #include "vtkMath.h"
 #include "vtkLine.h"
+#include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticEdge, "1.7");
+vtkCxxRevisionMacro(vtkQuadraticEdge, "1.8");
 vtkStandardNewMacro(vtkQuadraticEdge);
 
 // Construct the line with two points.
 vtkQuadraticEdge::vtkQuadraticEdge()
 {
+  this->Line = vtkLine::New();
+
   int i;
-  
   this->Points->SetNumberOfPoints(3);
   this->PointIds->SetNumberOfIds(3);
   for (i = 0; i < 3; i++)
@@ -41,17 +43,11 @@ vtkQuadraticEdge::vtkQuadraticEdge()
     this->PointIds->SetId(i,0);
     }
   
-  this->Tesselation = NULL;
-  this->InternalDataSet = NULL;
 }
 
 vtkQuadraticEdge::~vtkQuadraticEdge()
 {
-  if ( this->Tesselation )
-    {
-    this->Tesselation->Delete();
-    this->InternalDataSet->Delete();
-    }
+  this->Line->Delete();
 }
 
 
@@ -59,99 +55,62 @@ vtkCell *vtkQuadraticEdge::MakeObject()
 {
   vtkQuadraticEdge *cell = vtkQuadraticEdge::New();
   cell->DeepCopy(this);
-  cell->SetError(this->GetError());
   return (vtkCell *)cell;
 }
 
 static const int VTK_QUADRATIC_EDGE_MAX_ITERATION=10;
-int vtkQuadraticEdge::EvaluatePosition(float* x, 
-                                       float* closestPoint, 
+int vtkQuadraticEdge::EvaluatePosition(float* x, float* closestPoint, 
                                        int& subId, float pcoords[3],
-                                       float& vtkNotUsed(dist2), 
-                                       float *weights)
+                                       float& minDist2, float *weights)
 {
-  subId = 0;
+  float closest[3];
+  float pc[3], dist2;
+  int ignoreId, i, returnStatus, status;
+  float lineWeights[2];
+
   pcoords[1] = pcoords[2] = 0.0;
 
-  //Bisection method to determine closest point
-  float tl[3], tm[3], tr[3];
-  float xl[3], wl[3], xm[3], wm[3], xr[3], wr[3], dl2, dm2, dr2;
-  int iterNum, converged;
-
-  //Note: the initial left and right parametric values tl,tr are set past
-  //the valid parametric range (0,1). This is to allow the convergence of
-  //the bisection method to end up outside the cell.
-  tl[0] = -0.1;
-  vtkQuadraticEdge::EvaluateLocation(subId,tl,xl,wl);
-  dl2 = vtkMath::Distance2BetweenPoints(x,xl);
-  
-  tm[0] = 0.5;
-  vtkQuadraticEdge::EvaluateLocation(subId,tm,xm,wm);
-  dm2 = vtkMath::Distance2BetweenPoints(x,xm);
-  
-  tr[0] = 1.1;
-  vtkQuadraticEdge::EvaluateLocation(subId,tr,xr,wr);
-  dr2 = vtkMath::Distance2BetweenPoints(x,xr);
-  
-  for ( iterNum=0, converged=0; 
-        !converged && iterNum<VTK_QUADRATIC_EDGE_MAX_ITERATION; iterNum++ )
+  returnStatus = -1;
+  weights[0] = 0.0;
+  for (minDist2=VTK_LARGE_FLOAT,i=0; i < 2; i++)
     {
-    if ( dl2 == dm2 && dm2 == dr2 ) //special case, at center of circle
+    if ( i == 0)
       {
-      break;
+      this->Line->Points->SetPoint(0,this->Points->GetPoint(0));
+      this->Line->Points->SetPoint(1,this->Points->GetPoint(2));
       }
     else
       {
-      if ( dl2 < dr2 ) //move to the left
-        {
-        tr[0] = tm[0];
-        tm[0] = (tl[0] + tm[0]) / 2.0;
-        dr2 = dm2;
-        xr[0] = xm[0];
-        xr[1] = xm[1];
-        xr[2] = xm[2];
-        wr[0] = wm[0];
-        wr[1] = wm[1];
-        wr[2] = wm[2];
-        }
-      else //move to the right
-        {
-        tl[0] = tm[0];
-        tm[0] = (tr[0] + tm[0]) / 2.0;
-        dl2 = dm2;
-        xl[0] = xm[0];
-        xl[1] = xm[1];
-        xl[2] = xm[2];
-        wl[0] = wm[0];
-        wl[1] = wm[1];
-        wl[2] = wm[2];
-        }
-        
-      vtkQuadraticEdge::EvaluateLocation(subId,tm,xm,wm);
-      dm2 = vtkMath::Distance2BetweenPoints(x,xm);
+      this->Line->Points->SetPoint(0,this->Points->GetPoint(2));
+      this->Line->Points->SetPoint(1,this->Points->GetPoint(1));
       }
+    
+    status = this->Line->EvaluatePosition(x,closest,ignoreId,pc,
+                                          dist2,lineWeights);
+    if ( status != -1 && dist2 < minDist2 )
+      {
+      returnStatus = status;
+      minDist2 = dist2;
+      subId = i;
+      pcoords[0] = pc[0];
+      }
+    }
 
-    //check convergence in parametric space
-    if ( (tr[0]-tl[0]) < 0.01 ) converged = 1;
+  // adjust parametric coordinate
+  if ( returnStatus != -1 )
+    {
+    if ( subId == 0 ) //first part
+      {
+      pcoords[0] = pcoords[0]/2.0;
+      }
+    else
+      {
+      pcoords[0] = 0.5 + pcoords[0]/2.0;
+      }
+    this->EvaluateLocation(subId,pcoords,closestPoint,weights);
     }
-  
-  //outta here
-  pcoords[0] = tm[0];
-  weights[0] = wm[0];
-  weights[1] = wm[1];
-  weights[2] = wm[2];
-  closestPoint[0] = xm[0];
-  closestPoint[1] = xm[1];
-  closestPoint[2] = xm[2];
 
-  if ( pcoords[0] < 0.0 || pcoords[0] > 1.0 )
-    {
-    return 0;
-    }
-  else
-    {
-    return 1;
-    }
+  return returnStatus;
 }
 
 void vtkQuadraticEdge::EvaluateLocation(int& vtkNotUsed(subId), 
@@ -171,49 +130,44 @@ void vtkQuadraticEdge::EvaluateLocation(int& vtkNotUsed(subId),
     }
 }
 
-int vtkQuadraticEdge::CellBoundary(int vtkNotUsed(subId), float pcoords[3], 
+int vtkQuadraticEdge::CellBoundary(int subId, float pcoords[3], 
                                    vtkIdList *pts)
 {
-  pts->SetNumberOfIds(1);
-
-  if ( pcoords[0] >= 0.5 )
-    {
-    pts->SetId(0,this->PointIds->GetId(1));
-    if ( pcoords[0] > 1.0 )
-      {
-      return 0;
-      }
-    else
-      {
-      return 1;
-      }
-    }
-  else
-    {
-    pts->SetId(0,this->PointIds->GetId(0));
-    if ( pcoords[0] < 0.0 )
-      {
-      return 0;
-      }
-    else
-      {
-      return 1;
-      }
-    }
+  return this->Line->CellBoundary(subId, pcoords, pts);
 }
 
-void vtkQuadraticEdge::Contour(float vtkNotUsed(value), 
-                               vtkDataArray* vtkNotUsed(cellScalars), 
-                               vtkPointLocator* vtkNotUsed(locator), 
-                               vtkCellArray *vtkNotUsed(verts), 
-                               vtkCellArray* vtkNotUsed(lines), 
-                               vtkCellArray* vtkNotUsed(polys), 
-                               vtkPointData* vtkNotUsed(inPd), 
-                               vtkPointData* vtkNotUsed(outPd),
-                               vtkCellData* vtkNotUsed(inCd), 
-                               vtkIdType vtkNotUsed(cellId), 
-                               vtkCellData* vtkNotUsed(outCd))
+static linearLines[2][2] = { {0,2}, {2,1} };                             
+    
+
+void vtkQuadraticEdge::Contour(float value, vtkDataArray *cellScalars,
+                               vtkPointLocator *locator, vtkCellArray *verts, 
+                               vtkCellArray *lines, vtkCellArray *polys, 
+                               vtkPointData *inPd, vtkPointData *outPd,
+                               vtkCellData *inCd, vtkIdType cellId,
+                               vtkCellData *outCd)
 {
+  int i;
+  vtkDataArray *lineScalars=cellScalars->MakeObject();
+  lineScalars->SetNumberOfTuples(2);
+
+  for ( i=0; i < 2; i++)
+    {
+    this->Line->Points->SetPoint(0,this->Points->GetPoint(linearLines[i][0]));
+    this->Line->Points->SetPoint(1,this->Points->GetPoint(linearLines[i][1]));
+
+    if ( outPd )
+      {
+      this->Line->PointIds->SetId(0,this->PointIds->GetId(linearLines[i][0]));
+      this->Line->PointIds->SetId(1,this->PointIds->GetId(linearLines[i][1]));
+      }
+
+    lineScalars->SetTuple(0,cellScalars->GetTuple(linearLines[i][0]));
+    lineScalars->SetTuple(1,cellScalars->GetTuple(linearLines[i][1]));
+
+    this->Line->Contour(value, lineScalars, locator, verts,
+                       lines, polys, inPd, outPd, inCd, cellId, outCd);
+    }
+  lineScalars->Delete();
 }
 
 // Line-line intersection. Intersection has to occur within [0,1] parametric
@@ -222,14 +176,31 @@ void vtkQuadraticEdge::Contour(float vtkNotUsed(value),
 // The following arguments were modified to avoid warnings:
 // float p1[3], float p2[3], float x[3], float pcoords[3], 
 
-int vtkQuadraticEdge::IntersectWithLine(float* vtkNotUsed(p1), 
-                                        float* vtkNotUsed(p2), 
-                                        float vtkNotUsed(tol), 
-                                        float& vtkNotUsed(t),
-                                        float* vtkNotUsed(x), 
-                                        float* vtkNotUsed(pcoords), 
-                                        int& vtkNotUsed(subId))
+int vtkQuadraticEdge::IntersectWithLine(float p1[3], float p2[3], float tol,
+                                        float& t, float x[3], float pcoords[3],
+                                        int& subId)
 {
+  int subTest, numLines=2;
+
+  for (subId=0; subId < numLines; subId++)
+    {
+    if ( subId == 0)
+      {
+      this->Line->Points->SetPoint(0,this->Points->GetPoint(0));
+      this->Line->Points->SetPoint(1,this->Points->GetPoint(2));
+      }
+    else
+      {
+      this->Line->Points->SetPoint(0,this->Points->GetPoint(2));
+      this->Line->Points->SetPoint(1,this->Points->GetPoint(1));
+      }
+
+    if ( this->Line->IntersectWithLine(p1, p2, tol, t, x, pcoords, subTest) )
+      {
+      return 1;
+      }
+    }
+
   return 0;
 }
 
@@ -239,11 +210,19 @@ int vtkQuadraticEdge::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
   pts->Reset();
   ptIds->Reset();
 
+  // The first line
   ptIds->InsertId(0,this->PointIds->GetId(0));
   pts->InsertPoint(0,this->Points->GetPoint(0));
 
-  ptIds->InsertId(1,this->PointIds->GetId(1));
-  pts->InsertPoint(1,this->Points->GetPoint(1));
+  ptIds->InsertId(1,this->PointIds->GetId(2));
+  pts->InsertPoint(1,this->Points->GetPoint(2));
+
+  // The second line
+  ptIds->InsertId(2,this->PointIds->GetId(2));
+  pts->InsertPoint(2,this->Points->GetPoint(2));
+
+  ptIds->InsertId(3,this->PointIds->GetId(1));
+  pts->InsertPoint(3,this->Points->GetPoint(1));
 
   return 1;
 }
@@ -262,156 +241,70 @@ void vtkQuadraticEdge::Derivatives(int vtkNotUsed(subId),
   this->InterpolationFunctions(pcoords,weights);
   this->InterpolationDerivs(pcoords,derivs);
   
-  for (i=0; i<3; i++)
-    {
-    deltaX[i] = x1[i] - x0[i]              - x2[i];
-    }
-  for (i=0; i<dim; i++) 
-    {
-    for (j=0; j<3; j++)
-      {
-      if ( deltaX[j] != 0 )
-        {
-        derivs[3*i+j] = (values[2*i+1] - values[2*i]) / deltaX[j];
-        }
-      else
-        {
-        derivs[3*i+j] =0;
-        }
-      }
-    }
 }
 
 
 // Clip this line using scalar value provided. Like contouring, except
 // that it cuts the line to produce other lines.
-void vtkQuadraticEdge::Clip(float vtkNotUsed(value), 
-                            vtkDataArray* vtkNotUsed(cellScalars), 
-                            vtkPointLocator* vtkNotUsed(locator),
-                            vtkCellArray* vtkNotUsed(lines),
-                            vtkPointData* vtkNotUsed(inPd), 
-                            vtkPointData* vtkNotUsed(outPd),
-                            vtkCellData* vtkNotUsed(inCd), 
-                            vtkIdType vtkNotUsed(cellId), 
-                            vtkCellData* vtkNotUsed(outCd),
-                            int vtkNotUsed(insideOut))
+void vtkQuadraticEdge::Clip(float value, vtkDataArray *cellScalars, 
+                            vtkPointLocator *locator, vtkCellArray *lines,
+                            vtkPointData *inPd, vtkPointData *outPd,
+                            vtkCellData *inCd, vtkIdType cellId, 
+                            vtkCellData *outCd, int insideOut)
 {
+  int i, numLines=2;
+  vtkFloatArray *lineScalars=vtkFloatArray::New();
+  lineScalars->SetNumberOfTuples(2);
+
+  for ( i=0; i < numLines; i++)
+    {
+    if ( i == 0 )
+      {
+      this->Line->Points->SetPoint(0,this->Points->GetPoint(0));
+      this->Line->Points->SetPoint(1,this->Points->GetPoint(2));
+
+      this->Line->PointIds->SetId(0,this->PointIds->GetId(0));
+      this->Line->PointIds->SetId(1,this->PointIds->GetId(2));
+
+      lineScalars->SetComponent(0,0,cellScalars->GetComponent(0,0));
+      lineScalars->SetComponent(1,0,cellScalars->GetComponent(2,0));
+      }
+    else
+      {
+      this->Line->Points->SetPoint(0,this->Points->GetPoint(2));
+      this->Line->Points->SetPoint(1,this->Points->GetPoint(1));
+
+      this->Line->PointIds->SetId(0,this->PointIds->GetId(2));
+      this->Line->PointIds->SetId(1,this->PointIds->GetId(1));
+
+      lineScalars->SetComponent(0,0,cellScalars->GetComponent(2,0));
+      lineScalars->SetComponent(1,0,cellScalars->GetComponent(1,0));
+      }
+
+    this->Line->Clip(value, lineScalars, locator, lines, inPd, outPd, 
+                     inCd, cellId, outCd, insideOut);
+    }
+  
+  lineScalars->Delete();
 }
 
 // Compute interpolation functions. Node [2] is the mid-edge node.
 void vtkQuadraticEdge::InterpolationFunctions(float pcoords[3], float weights[3])
 {
-  weights[0] = 2.0 * (pcoords[0] - 0.5) * (pcoords[0] - 1.0);
-  weights[1] = 2.0 * pcoords[0] * (pcoords[0] - 0.5);
-  weights[2] = 4.0 * pcoords[0] * (1.0 - pcoords[0]);
+  float r = pcoords[0];
+
+  weights[0] = 2.0 * (r - 0.5) * (r - 1.0);
+  weights[1] = 2.0 * r * (r - 0.5);
+  weights[2] = 4.0 * r * (1.0 - r);
 }
 
 // Derivatives in parametric space.
 void vtkQuadraticEdge::InterpolationDerivs(float pcoords[3], float derivs[3])
 {
-  derivs[0] = 4.0 * pcoords[0] - 3.0;
-  derivs[1] = 4.0 * pcoords[0] - 1.0;
-  derivs[2] = 4.0 - pcoords[0] * 8.0;
+  float r = pcoords[0];
+
+  derivs[0] = 4.0 * r - 3.0;
+  derivs[1] = 4.0 * r - 1.0;
+  derivs[2] = 4.0 - r * 8.0;
 }
 
-// Create linear primitives from this quadratic cell.
-void vtkQuadraticEdge::Tesselate(vtkIdType cellId, 
-                                 vtkDataSet *input, vtkPolyData *output, 
-                                 vtkPointLocator *locator)
-{
-  vtkPointData *inPD = input->GetPointData();
-  vtkCellData *inCD = input->GetCellData();
-  vtkPointData *outPD = output->GetPointData();
-  vtkCellData *outCD = output->GetCellData();
-
-  vtkCellArray *outputLines = output->GetLines();
-  vtkPoints *pts = output->GetPoints();
-
-  float *x0 = this->Points->GetPoint(0);
-  float *x1 = this->Points->GetPoint(1);
-  float *x2 = this->Points->GetPoint(2);
-  
-  float l2 = vtkMath::Distance2BetweenPoints(x0,x1);
-  float d2 = vtkLine::DistanceToLine(x2, x0,x1); //midnode to endpoints
-  float e2 = this->Error*this->Error;
-  
-  //the error divided by the maximum permissable error is an approximation to
-  //the number of subdivisions.
-  int numDivs = static_cast<int>(ceil( d2/(l2*e2) ));
-  int numPts = numDivs + 1;
-  
-  //add new points to the output
-  vtkIdType newCellId;
-  vtkIdType p0 = this->InsertPoint(locator,pts,x0);
-  vtkIdType p1 = this->InsertPoint(locator,pts,x1);
-  vtkIdType p2 = this->InsertPoint(locator,pts,x2);
-  outPD->CopyData(inPD,this->PointIds->GetId(0),p0);
-  outPD->CopyData(inPD,this->PointIds->GetId(1),p1);
-  outPD->CopyData(inPD,this->PointIds->GetId(2),p2);
-  
-  //at a minimum the edge is subdivided into two polylines
-  if ( numPts <= 3 )
-    {//end points plus mid-node
-    newCellId = outputLines->InsertNextCell(3);
-    outputLines->InsertCellPoint(p0);
-    outputLines->InsertCellPoint(p1);
-    outputLines->InsertCellPoint(p2);
-    outCD->CopyData(inCD,cellId,newCellId);
-    }
-  else
-    {//have to interpolate points
-    float pcoords[3], weights[3], x[3];
-    vtkIdType p;
-
-    newCellId = outputLines->InsertNextCell(numDivs);
-    outputLines->InsertCellPoint(p0);
-    float delta = 1.0/numDivs;
-    for (int i=1; i<(numPts-1); i++)
-      {
-      pcoords[0] = i*delta;
-      this->InterpolationFunctions(pcoords,weights);
-      x[0] = x0[0]*weights[0] + x1[0]*weights[1] + x2[0]*weights[2];
-      x[1] = x0[1]*weights[0] + x1[1]*weights[1] + x2[1]*weights[2];
-      x[2] = x0[2]*weights[0] + x1[2]*weights[1] + x2[2]*weights[2];
-      p = this->InsertPoint(locator,pts,x);
-      outPD->InterpolatePoint(inPD,p,this->PointIds,weights);
-      outputLines->InsertCellPoint(p);
-      }
-    outputLines->InsertCellPoint(p1);
-    outCD->CopyData(inCD,cellId,newCellId);
-    }
-}
-
-// The second Tesselate() method is empty (intended only for 3D cells).
-void vtkQuadraticEdge::Tesselate(vtkIdType vtkNotUsed(cellId),
-                                 vtkDataSet* vtkNotUsed(input),
-                                 vtkUnstructuredGrid* vtkNotUsed(output),
-                                 vtkPointLocator* vtkNotUsed(locator))
-{
-}
-
-void vtkQuadraticEdge::InternalTesselate()
-{
-  vtkPoints *pts;
-  vtkCellArray *lines;
-  
-  if ( this->Tesselation == NULL )
-    {
-    this->Tesselation = vtkPolyData::New();
-    vtkPoints *pts = vtkPoints::New();
-    this->Tesselation->SetPoints(pts);
-    pts->Delete();
-    vtkCellArray *lines = vtkCellArray::New();
-    this->Tesselation->SetLines(lines);
-    lines->Delete();
-
-    this->InternalDataSet = vtkPolyData::New();
-    }
-  else
-    {
-    pts = this->Tesselation->GetPoints();
-    pts->Reset();
-    lines = this->Tesselation->GetLines();
-    lines->Reset();
-    }
-}

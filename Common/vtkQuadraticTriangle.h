@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkQuadraticEdge.h
+  Module:    vtkQuadraticTriangle.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -15,38 +15,41 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkQuadraticEdge - cell represents a parabolic, isoparametric edge
+// .NAME vtkQuadraticTriangle - cell represents a parabolic, isoparametric triangle
 // .SECTION Description
-// vtkQuadraticEdge is a concrete implementation of vtkNonLinearCell to
-// represent a one-dimensional, isoparametric parabolic line. The
+// vtkQuadraticTriangle is a concrete implementation of vtkNonLinearCell to
+// represent a rwo-dimensional, isoparametric parabolic triangle. The
 // interpolation is the standard finite element, quadratic isoparametric
-// shape function. The cell includes a mid-edge node. The ordering of the
-// three points defining the cell is point ids (1,2,3) where id #3 is the
-// midedge node.
+// shape function. The cell includes three mid-edge nodes besides the three
+// triangle vertices. The ordering of the three points defining the cell is 
+// point ids (1-3,4-6) where id #4 is the midedge node between points
+// (1,2); id #5 is the midedge node between points (2,3); and id #6 is the 
+// midedge node between points (3,1).
 
-#ifndef __vtkQuadraticEdge_h
-#define __vtkQuadraticEdge_h
+#ifndef __vtkQuadraticTriangle_h
+#define __vtkQuadraticTriangle_h
 
 #include "vtkNonLinearCell.h"
 
 class vtkPolyData;
-class vtkLine;
+class vtkQuadraticEdge;
+class vtkTriangle;
 
-class VTK_COMMON_EXPORT vtkQuadraticEdge : public vtkNonLinearCell
+class VTK_COMMON_EXPORT vtkQuadraticTriangle : public vtkNonLinearCell
 {
 public:
-  static vtkQuadraticEdge *New();
-  vtkTypeRevisionMacro(vtkQuadraticEdge,vtkNonLinearCell);
+  static vtkQuadraticTriangle *New();
+  vtkTypeRevisionMacro(vtkQuadraticTriangle,vtkNonLinearCell);
 
   // Description:
   // Implement the vtkCell API. See the vtkCell API for descriptions 
   // of these methods.
   vtkCell *MakeObject();
-  int GetCellType() {return VTK_QUADRATIC_EDGE;};
-  int GetCellDimension() {return 1;}
-  int GetNumberOfEdges() {return 0;}
+  int GetCellType() {return VTK_QUADRATIC_TRIANGLE;};
+  int GetCellDimension() {return 2;}
+  int GetNumberOfEdges() {return 3;}
   int GetNumberOfFaces() {return 0;}
-  vtkCell *GetEdge(int) {return 0;}
+  vtkCell *GetEdge(int edgeId);
   vtkCell *GetFace(int) {return 0;}
 
   int CellBoundary(int subId, float pcoords[3], vtkIdList *pts);
@@ -68,7 +71,7 @@ public:
   // Clip this edge using scalar value provided. Like contouring, except
   // that it cuts the edge to produce linear line segments.
   void Clip(float value, vtkDataArray *cellScalars, 
-            vtkPointLocator *locator, vtkCellArray *lines,
+            vtkPointLocator *locator, vtkCellArray *polys,
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
             int insideOut);
@@ -81,19 +84,24 @@ public:
 
   
   // Description:
+  // Return the center of the quadratic triangle in parametric coordinates.
+  int GetParametricCenter(float pcoords[3]);
+
+  // Description:
   // Quadratic edge specific methods. 
   static void InterpolationFunctions(float pcoords[3], float weights[3]);
   static void InterpolationDerivs(float pcoords[3], float derivs[3]);
 
 protected:
-  vtkQuadraticEdge();
-  ~vtkQuadraticEdge();
+  vtkQuadraticTriangle();
+  ~vtkQuadraticTriangle();
 
-  vtkLine *Line;
+  vtkQuadraticEdge *Edge;
+  vtkTriangle      *Face;
 
 private:
-  vtkQuadraticEdge(const vtkQuadraticEdge&);  // Not implemented.
-  void operator=(const vtkQuadraticEdge&);  // Not implemented.
+  vtkQuadraticTriangle(const vtkQuadraticTriangle&);  // Not implemented.
+  void operator=(const vtkQuadraticTriangle&);  // Not implemented.
 };
 
 #endif
