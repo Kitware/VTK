@@ -18,12 +18,13 @@
 #include "vtkReflectionFilter.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkReflectionFilter, "1.1");
+vtkCxxRevisionMacro(vtkReflectionFilter, "1.2");
 vtkStandardNewMacro(vtkReflectionFilter);
 
 //---------------------------------------------------------------------------
 vtkReflectionFilter::vtkReflectionFilter()
 {
+  this->Plane = VTK_USE_X_MIN;
 }
 
 //---------------------------------------------------------------------------
