@@ -22,10 +22,10 @@
 #include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticTetra, "1.20");
+vtkCxxRevisionMacro(vtkQuadraticTetra, "1.21");
 vtkStandardNewMacro(vtkQuadraticTetra);
 
-// Construct the line with two points.
+// Construct the tetra with ten points.
 vtkQuadraticTetra::vtkQuadraticTetra()
 {
   this->Edge = vtkQuadraticEdge::New();
@@ -53,30 +53,31 @@ vtkQuadraticTetra::~vtkQuadraticTetra()
 }
 
 
-static int TetraEdge[6][3] = { {0,1,4}, {1,2,5}, {2,0,6}, 
-                               {0,3,7}, {1,3,8}, {2,3,9} };
-
-static int TetraFace[4][6] = { {0,1,3,4,8,7}, {1,2,3,5,9,8}, 
-                               {2,0,3,6,7,9}, {0,2,1,6,5,4} };
-
 //clip each of the four vertices; the remaining octahedron is
 //divided into four tetrahedron.
-static int Tetras[8][4] = { {0,4,6,7}, {4,1,5,8}, {6,5,2,9}, {7,8,9,3}, 
-                            {6,4,5,8}, {6,5,9,8}, {6,9,7,8}, {6,7,4,8} };
+static int LinearTetras[8][4] = { {0,4,6,7}, {4,1,5,8}, {6,5,2,9}, {7,8,9,3}, 
+                                  {6,4,5,8}, {6,5,9,8}, {6,9,7,8}, {6,7,4,8} };
+
+static int TetraFaces[4][6] = { {0,1,3,4,8,7}, {1,2,3,5,9,8}, 
+                                {2,0,3,6,7,9}, {0,2,1,6,5,4} };
+
+static int TetraEdges[6][3] = { {0,1,4}, {1,2,5}, {2,0,6}, 
+                                {0,3,7}, {1,3,8}, {2,3,9} };
+
 
 vtkCell *vtkQuadraticTetra::GetEdge(int edgeId)
 {
   edgeId = (edgeId < 0 ? 0 : (edgeId > 5 ? 5 : edgeId ));
 
   // load point id's
-  this->Edge->PointIds->SetId(0,this->PointIds->GetId(TetraEdge[edgeId][0]));
-  this->Edge->PointIds->SetId(1,this->PointIds->GetId(TetraEdge[edgeId][1]));
-  this->Edge->PointIds->SetId(2,this->PointIds->GetId(TetraEdge[edgeId][2]));
+  this->Edge->PointIds->SetId(0,this->PointIds->GetId(TetraEdges[edgeId][0]));
+  this->Edge->PointIds->SetId(1,this->PointIds->GetId(TetraEdges[edgeId][1]));
+  this->Edge->PointIds->SetId(2,this->PointIds->GetId(TetraEdges[edgeId][2]));
 
   // load coordinates
-  this->Edge->Points->SetPoint(0,this->Points->GetPoint(TetraEdge[edgeId][0]));
-  this->Edge->Points->SetPoint(1,this->Points->GetPoint(TetraEdge[edgeId][1]));
-  this->Edge->Points->SetPoint(2,this->Points->GetPoint(TetraEdge[edgeId][2]));
+  this->Edge->Points->SetPoint(0,this->Points->GetPoint(TetraEdges[edgeId][0]));
+  this->Edge->Points->SetPoint(1,this->Points->GetPoint(TetraEdges[edgeId][1]));
+  this->Edge->Points->SetPoint(2,this->Points->GetPoint(TetraEdges[edgeId][2]));
 
   return this->Edge;
 }
@@ -89,9 +90,9 @@ vtkCell *vtkQuadraticTetra::GetFace(int faceId)
   for (int i=0; i< 6; i++)
     {
     this->Face->PointIds->SetId(
-      i,this->PointIds->GetId(TetraFace[faceId][i]));
+      i,this->PointIds->GetId(TetraFaces[faceId][i]));
     this->Face->Points->SetPoint(
-      i,this->Points->GetPoint(TetraFace[faceId][i]));
+      i,this->Points->GetPoint(TetraFaces[faceId][i]));
     }
 
   return this->Face;
@@ -268,9 +269,9 @@ void vtkQuadraticTetra::Contour(double value, vtkDataArray* cellScalars,
     {
     for ( int j=0; j<4; j++) //for each of the four vertices of the tetra
       {
-      this->Tetra->Points->SetPoint(j,this->Points->GetPoint(Tetras[i][j]));
-      this->Tetra->PointIds->SetId(j,this->PointIds->GetId(Tetras[i][j]));
-      this->Scalars->SetTuple(j,cellScalars->GetTuple(Tetras[i][j]));
+      this->Tetra->Points->SetPoint(j,this->Points->GetPoint(LinearTetras[i][j]));
+      this->Tetra->PointIds->SetId(j,this->PointIds->GetId(LinearTetras[i][j]));
+      this->Scalars->SetTuple(j,cellScalars->GetTuple(LinearTetras[i][j]));
       }
 
     this->Tetra->Contour(value, this->Scalars, locator, verts,
@@ -294,7 +295,7 @@ int vtkQuadraticTetra::IntersectWithLine(double* p1, double* p2,
     {
     for (int i=0; i<4; i++)
       {
-      this->Face->Points->SetPoint(i,this->Points->GetPoint(TetraFace[faceNum][i]));
+      this->Face->Points->SetPoint(i,this->Points->GetPoint(TetraFaces[faceNum][i]));
       }
 
     if ( this->Face->IntersectWithLine(p1, p2, tol, tTemp, 
@@ -330,7 +331,7 @@ int vtkQuadraticTetra::IntersectWithLine(double* p1, double* p2,
 }
 
 int vtkQuadraticTetra::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, 
-                                  vtkPoints *pts)
+                                   vtkPoints *pts)
 {
   pts->Reset();
   ptIds->Reset();
@@ -339,8 +340,8 @@ int vtkQuadraticTetra::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
     {
     for ( int j=0; j < 4; j++)
       {
-      ptIds->InsertId(4*i+j,this->PointIds->GetId(Tetras[i][j]));
-      pts->InsertPoint(4*i+j,this->Points->GetPoint(Tetras[i][j]));
+      ptIds->InsertId(4*i+j,this->PointIds->GetId(LinearTetras[i][j]));
+      pts->InsertPoint(4*i+j,this->Points->GetPoint(LinearTetras[i][j]));
       }
     }
 
@@ -427,9 +428,9 @@ void vtkQuadraticTetra::Clip(double value, vtkDataArray* cellScalars,
     {
     for ( int j=0; j<4; j++) //for each of the four vertices of the tetra
       {
-      this->Tetra->Points->SetPoint(j,this->Points->GetPoint(Tetras[i][j]));
-      this->Tetra->PointIds->SetId(j,this->PointIds->GetId(Tetras[i][j]));
-      this->Scalars->SetTuple(j,cellScalars->GetTuple(Tetras[i][j]));
+      this->Tetra->Points->SetPoint(j,this->Points->GetPoint(LinearTetras[i][j]));
+      this->Tetra->PointIds->SetId(j,this->PointIds->GetId(LinearTetras[i][j]));
+      this->Scalars->SetTuple(j,cellScalars->GetTuple(LinearTetras[i][j]));
       }
 
     this->Tetra->Clip(value, this->Scalars, locator, tetras, inPd, outPd, 
