@@ -97,6 +97,9 @@ suppress umc memcpy; vtkWindowToImageFilter::Execute(vtkImageData*)
 suppress abr strncmp; vtkDataReader::SetInputString(char*,int)
 suppress fmr  __glXCloseDisplay; XCloseDisplay
 
+suppress umc TkpGetColor;Tk_GetColor
+suppress umc  __getcwd; _getcwd
+suppress umc Tk_QueueWindowEvent; TkInOutEvents
 
 
 suppress mse _open
