@@ -119,7 +119,6 @@ void vtkVolumeTextureMapper::InitializeRender( vtkRenderer *ren,
   float *GArray;
   int   colorChannels;
   float gradientOpacityConstant;
-  float tmp;
   
   // Hang on to the render window - we'll need it to test for abort
   this->RenderWindow = ren->GetRenderWindow();
