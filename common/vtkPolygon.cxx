@@ -181,10 +181,10 @@ int vtkPolygon::EvaluatePosition(float x[3], float closestPoint[3],
     float closest[3];
 
     numPts = this->Points.GetNumberOfPoints();
-    for (minDist2=VTK_LARGE_FLOAT,i=0; i<numPts - 1; i++)
+    for (minDist2=VTK_LARGE_FLOAT,i=0; i<numPts; i++)
       {
       dist2 = vtkLine::DistanceToLine(x,this->Points.GetPoint(i),
-                                  this->Points.GetPoint(i+1),t,closest);
+                                  this->Points.GetPoint((i+1)%numPts),t,closest);
       if ( dist2 < minDist2 )
         {
         closestPoint[0] = closest[0]; 
@@ -257,8 +257,12 @@ int vtkPolygon::ParameterizePolygon(float *p0, float *p10, float& l10,
     {
     x1 = this->Points.GetPoint(i);
     for(j=0; j<3; j++) p[j] = x1[j] - p0[j];
+#ifdef BAD_WITH_NODEBUG
     s = vtkMath::Dot(p,p10) / l10;
     t = vtkMath::Dot(p,p20) / l20;
+#endif
+    s = (p[0]*p10[0] + p[1]*p10[1] + p[2]*p10[2]) / l10;
+    t = (p[0]*p20[0] + p[1]*p20[1] + p[2]*p20[2]) / l20;
     sbounds[0] = (s<sbounds[0]?s:sbounds[0]);
     sbounds[1] = (s>sbounds[1]?s:sbounds[1]);
     tbounds[0] = (t<tbounds[0]?t:tbounds[0]);
