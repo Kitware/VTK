@@ -1385,7 +1385,15 @@ vtkFieldData *vtkDataReader::ReadFieldData()
       }
     }
 
-  return f;
+  if ( skipField ) 
+    {
+    f->Delete();
+    return NULL;
+    }
+  else 
+    {
+    return f;
+    }
 }
 
 
