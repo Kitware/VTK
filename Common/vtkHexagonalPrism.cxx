@@ -35,7 +35,7 @@
 #include "vtkPoints.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkHexagonalPrism, "1.8");
+vtkCxxRevisionMacro(vtkHexagonalPrism, "1.9");
 vtkStandardNewMacro(vtkHexagonalPrism);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -422,113 +422,6 @@ static int faces[8][6] = { {0,5,4,3,2,1}, {6,7,8,9,10,11},
                            {0,1,7,6,-1,-1}, {1,2,8,7,-1,-1}, 
                            {2,3,9,8,-1,-1}, {3,4,10,9,-1,-1}, 
                            {4,5,11,10,-1,-1}, {5,0,6,11,-1,-1} };
-
-//----------------------------------------------------------------------------
-#if 0
-void vtkHexagonalPrism::Contour(double value, vtkDataArray *cellScalars, 
-                                vtkPointLocator *locator, vtkCellArray *verts, 
-                                vtkCellArray *lines, vtkCellArray *polys, 
-                                vtkPointData *inPd, vtkPointData *outPd,
-                                vtkCellData *inCd, vtkIdType cellId,
-                                vtkCellData *outCd)
-{
-  int i;
-  double s1, s2;
-
-  // subdivide into 3 internal hexahedra with two points added in the middle
-  // of the 2 hexagonal faces
-  this->Subdivide(inPd, inCd, cellId);
-
-  vtkDoubleArray *newCellScalars=vtkDoubleArray::New();
-  newCellScalars->SetNumberOfValues(8);
-
-  s1 = s2 = 0.0;
-  for(i=0; i<6; ++i)
-    {
-    s1 +=  cellScalars->GetComponent(i,0);
-    s2 +=  cellScalars->GetComponent(i+6,0);
-  }
-  s1 /= 6;
-  s2 /= 6;
-  newCellScalars->SetValue(3, s1);
-  newCellScalars->SetValue(7, s2);
-
-  vtkDataArray *localScalars = this->PointData->GetScalars();
-
- //contour each internal hexahedron separately
-  for(i=0; i<3; ++i) // for each hexahedron
-    {
-    for(int j=0; j<8; j++)
-      {
-      this->Hexahedron->Points->SetPoint(j, 
-          this->Points->GetPoint(InternalWedges[i][j]));
-      this->Hexahedron->PointIds->SetId(j, InternalWedges[i][j]);
-      if(j!=3 && j!=7)
-        {
-        newCellScalars->SetValue(j, 
-          cellScalars->GetTuple1(InternalWedges[i][j]));
-        }
-      this->Scalars->SetValue(j, 
-        localScalars->GetTuple1(InternalWedges[i][j]));
-      }
-    this->Hexahedron->Contour(value, newCellScalars, locator, verts, lines, 
-                              polys, this->PointData, outPd, this->CellData, 
-                              0, outCd);
-    }
-  newCellScalars->Delete();
-}
-#endif
-//----------------------------------------------------------------------------
-void vtkHexagonalPrism::Clip(double value, vtkDataArray *cellScalars, 
-                         vtkPointLocator *locator, vtkCellArray *tetras,
-                         vtkPointData *inPd, vtkPointData *outPd,
-                         vtkCellData *inCd, vtkIdType cellId, 
-                         vtkCellData *outCd, int insideOut)
-{
-  int i;
-  double s1, s2;
-
-  // subdivide into 3 internal hexahedra with two points added in the middle
-  // of the 2 hexagonal faces
-  this->Subdivide(inPd, inCd, cellId);
-
-  vtkDoubleArray *newCellScalars=vtkDoubleArray::New();
-  newCellScalars->SetNumberOfValues(8);
-
-  s1 = s2 = 0.;
-  for(i=0; i<6; ++i)
-    {
-    s1 +=  cellScalars->GetComponent(i,0);
-    s2 +=  cellScalars->GetComponent(i+6,0);
-  }
-  s1 /= 6;
-  s2 /= 6;
-  newCellScalars->SetValue(3, s1);
-  newCellScalars->SetValue(7, s2);
-
-  vtkDataArray *localScalars = this->PointData->GetScalars();
-
- //contour each internal hexahedron separately
-  for(i=0; i<3; ++i) // for each hexahedron
-    {
-    for(int j=0; j<8; j++)
-      {
-      this->Hexahedron->Points->SetPoint(j, 
-          this->Points->GetPoint(InternalWedges[i][j]));
-      this->Hexahedron->PointIds->SetId(j,InternalWedges[i][j]);
-      if(j!=3 && j!=7)
-        {
-        newCellScalars->SetValue(j, 
-            cellScalars->GetTuple1(InternalWedges[i][j]));
-        }
-      this->Scalars->SetValue(j, localScalars->GetTuple1(InternalWedges[i][j]));
-      }
-    this->Hexahedron->Clip(value, newCellScalars, locator, tetras, 
-                           this->PointData, outPd, this->CellData, cellId, 
-                           outCd, insideOut);
-    }
-  newCellScalars->Delete();
-}
 
 //----------------------------------------------------------------------------
 void vtkHexagonalPrism::Subdivide(vtkPointData *inPd, vtkCellData *inCd, vtkIdType cellId)

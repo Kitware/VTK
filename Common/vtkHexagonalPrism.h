@@ -61,15 +61,6 @@ public:
   vtkCell *GetEdge(int edgeId);
   vtkCell *GetFace(int faceId);
   int CellBoundary(int subId, double pcoords[3], vtkIdList *pts);
-  void Contour(double value, vtkDataArray *cellScalars, 
-               vtkPointLocator *locator, vtkCellArray *verts, 
-               vtkCellArray *lines, vtkCellArray *polys,
-               vtkPointData *inPd, vtkPointData *outPd,
-               vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd);
-  void Clip(double value, vtkDataArray *cellScalars, 
-            vtkPointLocator *locator, vtkCellArray *tetras,
-            vtkPointData *inPd, vtkPointData *outPd,
-            vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd, int insideOut);
 
   int EvaluatePosition(double x[3], double* closestPoint,
                        int& subId, double pcoords[3],
