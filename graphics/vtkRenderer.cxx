@@ -478,7 +478,8 @@ void vtkRenderer::AllocateTime()
     // to the renderer's AllocatedRenderTime.
     aProp->
       SetAllocatedRenderTime(( renderTime / totalTime ) * 
-                             this->AllocatedRenderTime * this->TimeFactor, vp );  
+                             this->AllocatedRenderTime * this->TimeFactor, 
+			     this );  
     }
 
   // Since we now have allocated render times, we can select an LOD
