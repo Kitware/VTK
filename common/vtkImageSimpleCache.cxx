@@ -91,9 +91,11 @@ void vtkImageSimpleCache::ReleaseData()
 void vtkImageSimpleCache::AllocateData()
 {
   int dim[3];
-  if (this->CachedData) this->ReleaseData();
+  if (!this->CachedData) 
+    {
+    this->CachedData = vtkImageData::New();
+    }
   
-  this->CachedData = vtkImageData::New();
   this->CachedData->SetExtent(this->UpdateExtent);
   this->CachedData->SetOrigin(this->GetOrigin());
   this->CachedData->SetSpacing(this->GetSpacing());
