@@ -212,7 +212,7 @@ static void vtkImageAccumulateExecute(vtkImageAccumulate *self,
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for
 // the Datas data types.
-void vtkImageAccumulate::Execute()
+void vtkImageAccumulate::ExecuteData(vtkDataObject *out)
 {
   void *inPtr;
   void *outPtr;

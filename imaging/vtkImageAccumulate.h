@@ -91,9 +91,7 @@ protected:
   void ExecuteInformation(vtkImageData *input, vtkImageData *output);
   void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
   void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
-  void Execute();
-  void Execute(vtkImageData *vtkNotUsed(outData)) {};
-  void Execute(vtkImageData *vtkNotUsed(inData), vtkImageData *vtkNotUsed(outData)) {}
+  void ExecuteData(vtkDataObject *out);
 };
 
 #endif
