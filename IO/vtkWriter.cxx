@@ -16,10 +16,12 @@
 
 #include "vtkCommand.h"
 #include "vtkDataObject.h"
+#include "vtkDemandDrivenPipeline.h"
 #include "vtkErrorCode.h"
-#include "vtkExecutive.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkWriter, "1.42");
+vtkCxxRevisionMacro(vtkWriter, "1.43");
 
 // Construct with no start and end write methods or arguments.
 vtkWriter::vtkWriter()
@@ -67,7 +69,38 @@ vtkDataObject *vtkWriter::GetInput(int port)
 
 // Write data to output. Method executes subclasses WriteData() method, as 
 // well as StartMethod() and EndMethod() methods.
-void vtkWriter::Write()
+int vtkWriter::Write()
+{
+  // Make sure we have input.
+  if (this->GetNumberOfInputConnections(0) < 1)
+    {
+    vtkErrorMacro("No input provided!");
+    return 0;
+    }
+
+  // always write even if the data hasn't changed
+  this->Modified();
+  this->UpdateWholeExtent();
+  return 1;
+}
+
+int vtkWriter::ProcessRequest(vtkInformation *request,
+                              vtkInformationVector **inputVector,
+                              vtkInformationVector *outputVector)
+{
+  // generate the data
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+    {
+    return this->RequestData(request, inputVector, outputVector);
+    }
+
+  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
+}
+
+int vtkWriter::RequestData(
+  vtkInformation *,
+  vtkInformationVector **,
+  vtkInformationVector *)
 {
   this->SetErrorCode(vtkErrorCode::NoError);
   
@@ -78,7 +111,7 @@ void vtkWriter::Write()
   if ( !input )
     {
     vtkErrorMacro(<< "No input!");
-    return;
+    return 0;
     }
 
   for (idx = 0; idx < this->GetNumberOfInputPorts(); ++idx)
@@ -102,7 +135,7 @@ void vtkWriter::Write()
   if (lastUpdateTime < this->WriteTime && this->GetMTime() < this->WriteTime)
     {
     // we are up to date
-    return;
+    return 1;
     }
 
   this->InvokeEvent(vtkCommand::StartEvent,NULL);
@@ -119,12 +152,8 @@ void vtkWriter::Write()
     }
 
   this->WriteTime.Modified();
-}
 
-// Convenient alias for Write() method.
-void vtkWriter::Update()
-{
-  this->Write();
+  return 1;
 }
 
 void vtkWriter::PrintSelf(ostream& os, vtkIndent indent)

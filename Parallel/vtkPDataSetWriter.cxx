@@ -22,7 +22,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkErrorCode.h"
 
-vtkCxxRevisionMacro(vtkPDataSetWriter, "1.14");
+vtkCxxRevisionMacro(vtkPDataSetWriter, "1.15");
 vtkStandardNewMacro(vtkPDataSetWriter);
 
 //----------------------------------------------------------------------------
@@ -62,7 +62,7 @@ void vtkPDataSetWriter::SetNumberOfPieces(int num)
 }
 
 //----------------------------------------------------------------------------
-void vtkPDataSetWriter::Write()
+int vtkPDataSetWriter::Write()
 {
   int i;
   int length;
@@ -75,7 +75,7 @@ void vtkPDataSetWriter::Write()
   if (this->FileName == NULL)
     {
     vtkErrorMacro("No file name.");
-    return;
+    return 0;
     }
 
   if (this->StartPiece < 0)
@@ -85,16 +85,14 @@ void vtkPDataSetWriter::Write()
   if (this->NumberOfPieces < 0 || this->EndPiece < this->StartPiece)
     {
     vtkWarningMacro("No pieces to write.");
-    return;
+    return 1;
     }
 
   // Only one piece? The just write one vtk file.
   if (this->StartPiece == 0 && this->NumberOfPieces == 1)
     {
-    this->vtkDataSetWriter::Write();
-    return;
+    return this->vtkDataSetWriter::Write();
     }
-
 
   // Lets compute the file root from the file name supplied by the user.
   length = static_cast<int>(strlen(this->FileName));
@@ -147,7 +145,7 @@ void vtkPDataSetWriter::Write()
       {
       delete [] fileRoot;
       delete [] fileName;
-      return;
+      return 0;
       }
     // Write a tag so that we know this file type.
     *fptr << "<File version=\"pvtk-1.0\"\n";
@@ -161,7 +159,7 @@ void vtkPDataSetWriter::Write()
       delete [] fileName;
       delete fptr;
       this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
-      return;
+      return 0;
       }
 
     input->UpdateInformation();
@@ -177,7 +175,7 @@ void vtkPDataSetWriter::Write()
           delete [] fileName;
           delete fptr;
           this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
-          return;
+          return 0;
           }
         break;
       case VTK_IMAGE_DATA:
@@ -191,7 +189,7 @@ void vtkPDataSetWriter::Write()
           delete [] fileName;
           delete fptr;
           this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
-          return;
+          return 0;
           }
         break;
       case VTK_RECTILINEAR_GRID:
@@ -204,7 +202,7 @@ void vtkPDataSetWriter::Write()
           delete [] fileName;
           delete fptr;
           this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
-          return;
+          return 0;
           }
         break;
       case VTK_STRUCTURED_GRID:
@@ -217,7 +215,7 @@ void vtkPDataSetWriter::Write()
           delete [] fileName;
           delete fptr;
           this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
-          return;
+          return 0;
           }
         break;
       }
@@ -272,8 +270,9 @@ void vtkPDataSetWriter::Write()
   writer = NULL;
   delete [] fileName;
   delete [] fileRoot;
-}
 
+  return 1;
+}
 
 //----------------------------------------------------------------------------
 int vtkPDataSetWriter::WriteUnstructuredMetaData(vtkDataSet *input,

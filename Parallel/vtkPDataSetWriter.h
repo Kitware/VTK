@@ -36,7 +36,7 @@ public:
 
   // Description:
   // Write the pvtk file and cooresponding vtk files.
-  virtual void Write();
+  virtual int Write();
 
   // Description:
   // This is how many pieces the whole data set will be divided into.

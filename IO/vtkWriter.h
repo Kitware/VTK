@@ -49,11 +49,8 @@ public:
   // Description:
   // Write data to output. Method executes subclasses WriteData() method, as 
   // well as StartMethod() and EndMethod() methods.
-  virtual void Write();
-
-  // Description:
-  // Convenient alias for Write() method.
-  void Update();
+  // Returns 1 on success and 0 on failure.
+  virtual int Write();
 
   // Description:
   // Encode the name so that the reader will not have problems.
@@ -71,7 +68,14 @@ public:
 protected:
   vtkWriter();
   ~vtkWriter();
-  
+
+  virtual int ProcessRequest(vtkInformation *request,
+                             vtkInformationVector **inputVector,
+                             vtkInformationVector *outputVector);
+  virtual int RequestData(vtkInformation *request,
+                          vtkInformationVector **inputVector,
+                          vtkInformationVector *outputVector);
+
   virtual void WriteData() = 0; //internal method subclasses must respond to
   vtkTimeStamp WriteTime;
 private:
