@@ -54,6 +54,69 @@ public class vtkTesting
     System.out.println("Test passed");
     System.exit(0);
     }
+   
+  public static String ExpandDataFileName(String[] args, String path)
+    {
+    return vtkTesting.ExpandDataFileName(args, path, false);
+    }
+
+  public static String ExpandDataFileName(String[] args, String path, boolean slash)
+    {
+    return vtkTesting.ExpandFileNameWithArgOrDefault(
+      "-D", args, 
+      "../../../../VTKData",
+      path, slash);
+    }
+
+  public static String GetArgOrDefault(String arg, String[] args, String def)
+    {
+    int index = -1;
+    int cc;
+    for ( cc = 0; cc < args.length; cc ++ )
+      {
+      if ( args[cc].equals(arg) && cc < args.length - 1 )
+        {
+        index = cc + 1;
+        }
+      }
+    String value = null;
+    if ( index > -1 )
+      {
+      value = args[index];
+      }
+    else
+      {
+      value = def;
+      }
+    return value;
+    }
+
+    private static String ExpandFileNameWithArgOrDefault(String arg, 
+                                                         String[] args, 
+                                                         String def, 
+                                                         String fname,
+                                                         boolean slash)
+    {
+    String fullName = null;
+    String value = vtkTesting.GetArgOrDefault(arg, args, def);
+    if (value != null)
+      {
+      fullName = value;
+      fullName = fullName + "/";
+      fullName = fullName + fname;
+      }
+    else
+      {
+      fullName = fname;
+      }
+
+    if (slash)
+      {
+      fullName = fullName + "/";
+      }
+
+    return fullName;
+    }
 
   public static int RegressionTestImage( vtkRenderWindow renWin, String[] args,
     int threshold )
