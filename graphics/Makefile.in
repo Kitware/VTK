@@ -113,6 +113,7 @@ vtkPointPicker.o \
 vtkPointSetFilter.o \
 vtkPointSetToPointSetFilter.o \
 vtkPointSource.o \
+vtkPolyConnectivityFilter.o \
 vtkPolyFilter.o \
 vtkPolyMapper.o \
 vtkPolyMapperDevice.o \
@@ -314,6 +315,7 @@ tcl/vtkPointSetFilterTcl.o \
 tcl/vtkPointSetToPointSetFilterTcl.o \
 tcl/vtkPointSourceTcl.o \
 tcl/vtkPolyDataCollectionTcl.o \
+tcl/vtkPolyConnectivityFilterTcl.o \
 tcl/vtkPolyFilterTcl.o \
 tcl/vtkPolyMapperTcl.o \
 tcl/vtkPolyMapperDeviceTcl.o \
@@ -514,6 +516,7 @@ vtkPointPicker.h \
 vtkPointSetFilter.h \
 vtkPointSetToPointSetFilter.h \
 vtkPointSource.h \
+vtkPolyConnectivityFilter.o \
 vtkPolyDataCollection.h \
 vtkPolyFilter.h \
 vtkPolyMapper.h \
@@ -1049,6 +1052,9 @@ tcl/vtkPointSetToPointSetFilterTcl.cxx: vtkPointSetToPointSetFilter.h ../tcl/cpp
 
 tcl/vtkPointSourceTcl.cxx: vtkPointSource.h ../tcl/cpp_parse 
 	rm -f tcl/vtkPointSourceTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkPointSource.h $(srcdir)/../tcl/hints 1 > tcl/vtkPointSourceTcl.cxx
+
+tcl/vtkPolyConnectivityFilterTcl.cxx: vtkPolyConnectivityFilter.h ../tcl/cpp_parse 
+	rm -f tcl/vtkPolyConnectivityFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkPolyConnectivityFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkPolyConnectivityFilterTcl.cxx
 
 tcl/vtkPolyDataCollectionTcl.cxx: vtkPolyDataCollection.h ../tcl/cpp_parse 
 	rm -f tcl/vtkPolyDataCollectionTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkPolyDataCollection.h $(srcdir)/../tcl/hints 1 > tcl/vtkPolyDataCollectionTcl.cxx
