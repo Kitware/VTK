@@ -1,5 +1,3 @@
-// -*- c++ -*-
-
 /*=========================================================================
 
   Program:   Visualization Toolkit
@@ -22,7 +20,7 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkPiecewiseFunction.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridTestRayIntegrator, "1.1");
+vtkCxxRevisionMacro(vtkUnstructuredGridTestRayIntegrator, "1.2");
 vtkStandardNewMacro(vtkUnstructuredGridTestRayIntegrator);
 
 template<class T>
