@@ -160,7 +160,11 @@ void vtkGeometryFilter::Execute()
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
-
+  // ghost cell stuff
+  unsigned char  updateLevel = (unsigned char)(output->GetUpdateGhostLevel());
+  vtkGhostLevels *levels;
+  unsigned char  *cellGhostLevels = NULL;
+  
   if (numCells == 0)
     {
     return;
@@ -179,6 +183,17 @@ void vtkGeometryFilter::Execute()
       return;
     }
 
+  // Get a pointer to ghost level array (if there is one).
+  levels = input->GetCellData()->GetGhostLevels();
+  if (levels)
+    {
+    if (levels->GetDataType() != VTK_UNSIGNED_CHAR)
+      { // sanity check
+      vtkErrorMacro("Expecting unsigned char levels.");
+      }  
+    cellGhostLevels = (unsigned char *)(levels->GetVoidPointer(0));
+    }  
+  
   cellIds = vtkIdList::New();
   pts = vtkIdList::New();
 
@@ -258,6 +273,12 @@ void vtkGeometryFilter::Execute()
   //
   for(cellId=0; cellId < numCells; cellId++)
     {
+    // Handle ghost cells here.  Another option was used cellVis array.
+    if (cellGhostLevels && cellGhostLevels[cellId] > updateLevel)
+      { // Do not create surfaces in outer ghost cells.
+      continue;
+      }
+    
     if ( allVisible || cellVis[cellId] )
       {
       input->GetCell(cellId,cell);
@@ -436,9 +457,24 @@ void vtkGeometryFilter::PolyDataExecute()
   vtkCellData *outputCD = output->GetCellData();
   int newCellId, visible, type, ptId;
   float *x;
+  // ghost cell stuff
+  unsigned char  updateLevel = (unsigned char)(output->GetUpdateGhostLevel());
+  vtkGhostLevels *levels;
+  unsigned char  *cellGhostLevels = NULL;
   
   vtkDebugMacro(<<"Executing geometry filter for poly data input");
 
+  // Get a pointer to ghost level array (if there is one).
+  levels = input->GetCellData()->GetGhostLevels();
+  if (levels)
+    {
+    if (levels->GetDataType() != VTK_UNSIGNED_CHAR)
+      { // sanity check
+      vtkErrorMacro("Expecting unsigned char levels.");
+      }  
+    cellGhostLevels = (unsigned char *)(levels->GetVoidPointer(0));
+    }  
+  
   if ( (!this->CellClipping) && (!this->PointClipping) &&
        (!this->ExtentClipping) )
     {
@@ -469,6 +505,12 @@ void vtkGeometryFilter::PolyDataExecute()
   
   for(cellId=0; cellId < numCells; cellId++)
     {
+    // Handle ghost cells here.  Another option was used cellVis array.
+    if (cellGhostLevels && cellGhostLevels[cellId] > updateLevel)
+      { // Do not create surfaces in outer ghost cells.
+      continue;
+      }
+    
     input->GetCellPoints(cellId,npts,pts);
     visible = 1;
     if ( !allVisible )
@@ -538,6 +580,10 @@ void vtkGeometryFilter::UnstructuredGridExecute()
   int newCellId, faceId, *faceVerts, numFacePts;
   float *x;
   int PixelConvert[4];
+  // ghost cell stuff
+  unsigned char  updateLevel = (unsigned char)(output->GetUpdateGhostLevel());
+  vtkGhostLevels *levels;
+  unsigned char  *cellGhostLevels = NULL;  
   
   PixelConvert[0] = 0;
   PixelConvert[1] = 1;
@@ -546,6 +592,17 @@ void vtkGeometryFilter::UnstructuredGridExecute()
   
   vtkDebugMacro(<<"Executing geometry filter for unstructured grid input");
 
+  // Get a pointer to ghost level array (if there is one).
+  levels = input->GetCellData()->GetGhostLevels();
+  if (levels)
+    {
+    if (levels->GetDataType() != VTK_UNSIGNED_CHAR)
+      { // sanity check
+      vtkErrorMacro("Expecting unsigned char levels.");
+      }  
+    cellGhostLevels = (unsigned char *)(levels->GetVoidPointer(0));
+    }  
+  
   // Check input
   if ( Connectivity == NULL )
     {
@@ -622,6 +679,12 @@ void vtkGeometryFilter::UnstructuredGridExecute()
        Connectivity->GetNextCell(npts,pts); 
        cellId++)
     {
+    // Handle ghost cells here.  Another option was used cellVis array.
+    if (cellGhostLevels && cellGhostLevels[cellId] > updateLevel)
+      { // Do not create surfaces in outer ghost cells.
+      continue;
+      }
+    
     if (allVisible || cellVis[cellId])  //now if visible extract geometry
       {
       switch (input->GetCellType(cellId))
@@ -833,6 +896,10 @@ void vtkGeometryFilter::StructuredGridExecute()
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
   vtkCellArray *cells;
+  // ghost cell stuff
+  unsigned char  updateLevel = (unsigned char)(output->GetUpdateGhostLevel());
+  vtkGhostLevels *levels;
+  unsigned char  *cellGhostLevels = NULL;
   
   cellIds = vtkIdList::New();
   pts = vtkIdList::New();
@@ -841,6 +908,17 @@ void vtkGeometryFilter::StructuredGridExecute()
 
   cell = vtkGenericCell::New();
 
+  // Get a pointer to ghost level array (if there is one).
+  levels = input->GetCellData()->GetGhostLevels();
+  if (levels)
+    {
+    if (levels->GetDataType() != VTK_UNSIGNED_CHAR)
+      { // sanity check
+      vtkErrorMacro("Expecting unsigned char levels.");
+      }  
+    cellGhostLevels = (unsigned char *)(levels->GetVoidPointer(0));
+    }  
+  
   if ( (!this->CellClipping) && (!this->PointClipping) && 
   (!this->ExtentClipping) )
     {
@@ -902,7 +980,13 @@ void vtkGeometryFilter::StructuredGridExecute()
   //
   for(cellId=0; cellId < numCells; cellId++)
     {
-    if ( allVisible || cellVis[cellId] )
+    // Handle ghost cells here.  Another option was used cellVis array.
+    if (cellGhostLevels && cellGhostLevels[cellId] > updateLevel)
+      { // Do not create surfaces in outer ghost cells.
+      continue;
+      }
+    
+    if ( (allVisible || cellVis[cellId]))
       {
       input->GetCell(cellId,cell);
       switch (cell->GetCellDimension())
@@ -973,13 +1057,18 @@ void vtkGeometryFilter::StructuredGridExecute()
 
 void vtkGeometryFilter::ComputeInputUpdateExtents(vtkDataObject *output)
 {
-  vtkPolyData *outPd;
+  int piece, numPieces, ghostLevels;
+  
+  piece = output->GetUpdatePiece();
+  numPieces = output->GetUpdateNumberOfPieces();
+  ghostLevels = output->GetUpdateGhostLevel();
+  
+  if (numPieces > 0)
+    {
+    ++ghostLevels;
+    }
 
-  output = output;
-  outPd = this->GetOutput();
-  this->GetInput()->SetUpdateExtent(outPd->GetUpdatePiece(), 
-                                    outPd->GetUpdateNumberOfPieces(),
-				    outPd->GetUpdateGhostLevel());
+  this->GetInput()->SetUpdateExtent(piece, numPieces, ghostLevels);
 }
 
 void vtkGeometryFilter::ExecuteInformation()
