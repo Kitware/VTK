@@ -66,7 +66,7 @@ public:
 
   // Description:
   // This is how many pieces the whole data set will be divided into.
-  vtkSetMacro(NumberOfPieces, int);
+  void SetNumberOfPieces(int num);
   vtkGetMacro(NumberOfPieces, int);
 
   // Description:
