@@ -38,7 +38,7 @@
 #define VTK_FTFC_DEBUG_CD 0
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.3");
+vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.4");
 vtkInstantiatorNewMacro(vtkFreeTypeUtilities);
 
 //----------------------------------------------------------------------------
@@ -920,12 +920,12 @@ int vtkFreeTypeUtilities::GetBoundingBox(vtkTextProperty *tprop,
     y += (bitmap_glyph->root.advance.y + 0x8000) >> 16;
     }
 
-  // Margin for shadow (x + 1, y - 1)
+  // Margin for shadow
 
   if (tprop->GetShadow() && this->IsBoundingBoxValid(bbox))
     {
-    bbox[1]++;
-    bbox[2]--;
+    bbox[1] += tprop->GetShadowOffset()[0];
+    bbox[2] += tprop->GetShadowOffset()[1];
     }
 
   return 1;
@@ -962,7 +962,7 @@ int vtkFreeTypeUtilitiesRenderString(
 
   int tprop_font_size = tprop->GetFontSize();
 
-  float tprop_opacity = tprop->GetOpacity();
+  double tprop_opacity = tprop->GetOpacity();
 
   // Text color (get the shadow color if we are actually drawing the shadow)
   // Also compute the luminance, if we are drawing to a grayscale image
@@ -976,11 +976,11 @@ int vtkFreeTypeUtilitiesRenderString(
     {
     tprop->GetColor(color);
     }
-  float tprop_r = color[0];
-  float tprop_g = color[1];
-  float tprop_b = color[2];
+  double tprop_r = color[0];
+  double tprop_g = color[1];
+  double tprop_b = color[2];
 
-  float tprop_l = 0.3 * tprop_r + 0.59 * tprop_g + 0.11 * tprop_b;
+  double tprop_l = 0.3 * tprop_r + 0.59 * tprop_g + 0.11 * tprop_b;
 
   // Image params (comps, increments, range)
 
@@ -1072,55 +1072,68 @@ int vtkFreeTypeUtilitiesRenderString(
 
       T *data_ptr = (T*)data->GetScalarPointer(pen_x, pen_y, 0);
 
-      int data_pitch = (-data->GetDimensions()[0] - bitmap->width) * data_inc_x;
+      int data_pitch = 
+        (-data->GetDimensions()[0] - bitmap->width) * data_inc_x;
 
       unsigned char *glyph_ptr_row = bitmap->buffer;
       unsigned char *glyph_ptr;
 
-      float t_alpha, t_1_m_alpha, data_alpha;
+      double t_alpha, t_1_m_alpha, data_alpha;
 
       int i, j;
       for (j = 0; j < bitmap->rows; j++)
         {
         glyph_ptr = glyph_ptr_row;
 
-        // That loop should probably be located inside the switch for efficency
-
-        for (i = 0; i < bitmap->width; i++)
+        switch (data_nb_comp)
           {
-          t_alpha = tprop_opacity * (*glyph_ptr / 255.0);
-          t_1_m_alpha = 1.0 - t_alpha;
+          // L
 
-          switch (data_nb_comp)
-            {
-            // L
+          case 1:
+            for (i = 0; i < bitmap->width; i++)
+              {
+              t_alpha = tprop_opacity * (*glyph_ptr / 255.0);
+              t_1_m_alpha = 1.0 - t_alpha;
 
-            case 1:
               *data_ptr = (T)(
                 (data_min + data_range * tprop_l * t_alpha) + 
                 *data_ptr * t_1_m_alpha);
               glyph_ptr++;
               data_ptr++;
-              break;
+              }
+            break;
+
+          // L,A
+
+          case 2:
+            for (i = 0; i < bitmap->width; i++)
+              {
+              t_alpha = tprop_opacity * (*glyph_ptr / 255.0);
+              t_1_m_alpha = 1.0 - t_alpha;
+
+              *data_ptr = (T)(
+                (data_min + data_range * tprop_l * t_alpha) + 
+                *data_ptr * t_1_m_alpha);
+              glyph_ptr++;
+              data_ptr++;
+
+              data_alpha = (*data_ptr - data_min) / data_range;
+              if (t_alpha > data_alpha)
+                {
+                *data_ptr = (T)(data_min + t_alpha * data_range);
+                }
+              data_ptr++;
+              }
+            break;
             
-              // L,A
-              // TOFIX: that code is so wrong (alpha)  
+            // RGB
 
-            case 2:
-              data_alpha = (data_ptr[1] - data_min) / data_range;
-              *data_ptr = (T)(
-                (data_min + data_range * tprop_l * t_alpha) + 
-                (*data_ptr * data_alpha) * t_1_m_alpha);
-              data_ptr++;
-              *data_ptr = (T)(
-                data_min + data_range * (t_alpha + data_alpha * t_1_m_alpha));
-              data_ptr++;
-              glyph_ptr++;
-              break;
+          case 3:
+            for (i = 0; i < bitmap->width; i++)
+              {
+              t_alpha = tprop_opacity * (*glyph_ptr / 255.0);
+              t_1_m_alpha = 1.0 - t_alpha;
 
-              // RGB
-
-            case 3:
               *data_ptr = (T)(
                 (data_min + data_range * tprop_r * t_alpha) + 
                 *data_ptr * t_1_m_alpha);
@@ -1132,41 +1145,49 @@ int vtkFreeTypeUtilitiesRenderString(
               *data_ptr = (T)(
                 (data_min + data_range * tprop_b * t_alpha) + 
                 *data_ptr * t_1_m_alpha);
-              data_ptr++;
               glyph_ptr++;
-              break;
+              data_ptr++;
+              }
+            break;
 
-              // RGB,A
-              // TOFIX: that code is so wrong (alpha)  
+            // RGB,A
 
-            case 4:
-              data_alpha = (data_ptr[1] - data_min) / data_range;
+          case 4:
+            for (i = 0; i < bitmap->width; i++)
+              {
+              t_alpha = tprop_opacity * (*glyph_ptr / 255.0);
+              t_1_m_alpha = 1.0 - t_alpha;
+
               *data_ptr = (T)(
                 (data_min + data_range * tprop_r * t_alpha) + 
-                (*data_ptr * data_alpha) * t_1_m_alpha);
+                *data_ptr * t_1_m_alpha);
               data_ptr++;
               *data_ptr = (T)(
                 (data_min + data_range * tprop_g * t_alpha) + 
-                (*data_ptr * data_alpha) * t_1_m_alpha);
+                *data_ptr * t_1_m_alpha);
               data_ptr++;
               *data_ptr = (T)(
                 (data_min + data_range * tprop_b * t_alpha) + 
-                (*data_ptr * data_alpha) * t_1_m_alpha);
-              data_ptr++;
-              *data_ptr = (T)(
-                data_min + data_range * (t_alpha + data_alpha * t_1_m_alpha));
-              data_ptr++;
+                *data_ptr * t_1_m_alpha);
               glyph_ptr++;
-              break;
-            }
+              data_ptr++;
+
+              data_alpha = (*data_ptr - data_min) / data_range;
+              if (t_alpha > data_alpha)
+                {
+                *data_ptr = (T)(data_min + t_alpha * data_range);
+                }
+              data_ptr++;
+              }
+            break;
           }
         glyph_ptr_row += bitmap->pitch;
         data_ptr += data_pitch;
         }
       }
-
+    
     // Advance to next char
-
+    
     x += (bitmap_glyph->root.advance.x + 0x8000) >> 16;
     y += (bitmap_glyph->root.advance.y + 0x8000) >> 16;
     }
@@ -1206,7 +1227,8 @@ int vtkFreeTypeUtilities::RenderString(vtkTextProperty *tprop,
                         this, 
                         tprop,
                         str,
-                        x + 1, y - 1,
+                        x + tprop->GetShadowOffset()[0], 
+                        y + tprop->GetShadowOffset()[1],
                         data, 
                         (VTK_TT *)(NULL),
                         1);
@@ -1391,7 +1413,7 @@ vtkFreeTypeUtilities::GetFont(vtkTextProperty *tprop,
       }
     }
 
-  float tprop_opacity = 
+  double tprop_opacity = 
     (tprop->GetOpacity() < 0.0) ? 1.0 : tprop->GetOpacity();
   
   // Has the font been cached ?
