@@ -71,6 +71,8 @@ float vtkKochanekSpline::Evaluate (float t)
   intervals = this->Intervals;
   coefficients = this->Coefficients;
 
+  if ( this->Closed ) size = size + 1;
+
   // clamp the function at both ends
   if (t < intervals[0]) t = intervals[0];
   if (t > intervals[size - 1]) t = intervals[size - 1];
@@ -105,30 +107,64 @@ void vtkKochanekSpline::Compute ()
   // get the size of the independent variables
   size = this->PiecewiseFunction->GetSize ();
 
-  // copy the independent variables
-  if (this->Intervals) delete [] this->Intervals;
-  this->Intervals = new float[size];
-  ts = this->PiecewiseFunction->GetDataPointer ();  
-  for (i = 0; i < size; i++)
+  if ( !this->Closed )
     {
-    this->Intervals[i] = *(ts + 2 * i);    
+    // copy the independent variables
+    if (this->Intervals) delete [] this->Intervals;
+    this->Intervals = new float[size];
+    ts = this->PiecewiseFunction->GetDataPointer ();  
+    for (i = 0; i < size; i++)
+      {
+      this->Intervals[i] = *(ts + 2 * i);    
+      }
+
+    // allocate memory for coefficients
+    if (this->Coefficients) delete [] this->Coefficients;
+    this->Coefficients = new float [4 * size];
+
+    // allocate memory for dependent variables
+    dependent = new float [size];
+
+    // get start of coefficients for this dependent variable
+    coefficients = this->Coefficients;
+
+    // get the dependent variable values
+    xs = this->PiecewiseFunction->GetDataPointer () + 1;
+    for (int j = 0; j < size; j++)
+      {
+      *(dependent + j) = *(xs + 2*j);
+      }
     }
-
-  // allocate memory for coefficients
-  if (this->Coefficients) delete [] this->Coefficients;
-  this->Coefficients = new float [4 * size];
-
-  // allocate memory for dependent variables
-  dependent = new float [size];
-
-  // get start of coefficients for this dependent variable
-  coefficients = this->Coefficients;
-
-  // get the dependent variable values
-  xs = this->PiecewiseFunction->GetDataPointer () + 1;
-  for (int j = 0; j < size; j++)
+  else //spline is closed, create extra "fictitious" point
     {
-    *(dependent + j) = *(xs + 2*j);
+    size = size + 1;
+    // copy the independent variables
+    if (this->Intervals) delete [] this->Intervals;
+    this->Intervals = new float[size];
+    ts = this->PiecewiseFunction->GetDataPointer ();  
+    for (i = 0; i < size-1; i++)
+      {
+      this->Intervals[i] = *(ts + 2 * i);    
+      }
+     this->Intervals[size-1] = this->Intervals[size-2] + 1.0;
+
+    // allocate memory for coefficients
+    if (this->Coefficients) delete [] this->Coefficients;
+    this->Coefficients = new float [4 * size];
+
+    // allocate memory for dependent variables
+    dependent = new float [size];
+
+    // get start of coefficients for this dependent variable
+    coefficients = this->Coefficients;
+
+    // get the dependent variable values
+    xs = this->PiecewiseFunction->GetDataPointer () + 1;
+    for (int j = 0; j < size-1; j++)
+      {
+      *(dependent + j) = *(xs + 2*j);
+      }
+    dependent[size-1] = *xs;
     }
 
   this->Fit1D (size, this->Intervals, dependent,
@@ -166,15 +202,16 @@ void vtkKochanekSpline::Fit1D (int size, float *x, float *y,
 
   if (size == 2)
     {
-    // two points, set coeffieints for a straight line
-  	coefficients[0][3] = 0.0;
-  	coefficients[1][3] = 0.0;
-  	coefficients[0][2] = 0.0;
-  	coefficients[1][2] = 0.0;
-  	coefficients[0][1] = (y[1] - y[0]) / (x[1] - x[0]);
-  	coefficients[1][1] = coefficients[0][1];
-  	coefficients[0][0] = y[0];
-  	coefficients[1][0] = y[1];
+    // two points, set coefficients for a straight line
+    coefficients[0][3] = 0.0;
+    coefficients[1][3] = 0.0;
+    coefficients[0][2] = 0.0;
+    coefficients[1][2] = 0.0;
+    coefficients[0][1] = (y[1] - y[0]) / (x[1] - x[0]);
+    coefficients[1][1] = coefficients[0][1];
+    coefficients[0][0] = y[0];
+    coefficients[1][0] = y[1];
+    return;
     }
 
   N = size - 1;
@@ -206,64 +243,90 @@ void vtkKochanekSpline::Fit1D (int size, float *x, float *y,
   coefficients[0][0] = y[0];
   coefficients[N][0] = y[N];
 
-  switch (leftConstraint) {
-    case 1:
-      // desired slope at leftmost point is leftValue
-      coefficients[0][1] = leftValue;
-      break;
-
-    case 2:
-      // desired second derivative at leftmost point is leftValue
-      coefficients[0][1] = (6*(y[1] - y[0]) - 2*coefficients[1][2] - leftValue)
-  	    / 4.0;
-      break;
-
-    case 3:
-      // desired secord derivative at leftmost point is leftValue
-      // times secod derivative at first interior point
-      if ((leftValue > (-2.0 + EPSILON)) || 
-  	  (leftValue < (-2.0 - EPSILON)))
-	{
-        coefficients[0][1] = (3*(1 + leftValue)*(y[1] - y[0]) -
-  				  (1 + 2*leftValue)*coefficients[1][2])
-                                / (2 + leftValue);
-  	}
-        else
-        {
-  	coefficients[0][1] = 0.0;
-  	}
-  	break;
-     }
-
-  switch (rightConstraint)
+  if ( this->Closed ) //the curve is continuous and closed at P0=Pn
     {
-    case 1:
-      // desired slope at rightmost point is rightValue
-      coefficients[N][2] = rightValue;
-      break;
+    cs = y[N] - y[N-1];
+    cd = y[1] - y[0];
 
-     case 2:
-       // desired second derivative at rightmost point is rightValue
-       coefficients[N][2] = (6*(y[N] - y[N-1]) - 2*coefficients[N-1][1] + 
-			rightValue) / 4.0;
-       break;
+    ds = cs*((1 - tension)*(1 - continuity)*(1 + bias)) / 2.0 
+       + cd*((1 - tension)*(1 + continuity)*(1 - bias)) / 2.0;
 
-    case 3:
-      // desired secord derivative at rightmost point is rightValue
-      // times secord derivative at last interior point
-      if ((rightValue > (-2.0 + EPSILON)) ||
-          (rightValue < (-2.0 - EPSILON)))
-        {
-        coefficients[N][2] = (3*(1 + rightValue)*(y[N] - y[N-1]) -
-  				(1 + 2*rightValue)*coefficients[N-1][1])
-  		       / (2 + rightValue);
-        }
-      else
-        {
-  	coefficients[N][2] = 0.0;
-  	}
-  	break;
+    dd = cs*((1 - tension)*(1 + continuity)*(1 + bias)) / 2.0
+       + cd*((1 - tension)*(1 - continuity)*(1 - bias)) / 2.0;
+
+    // adjust deriviatives for non uniform spacing between nodes
+    n1  = x[1] - x[0];
+    n0  = x[N] - x[N-1];
+    ds *= (2 * n1 / (n0 + n1));
+    dd *= (2 * n0 / (n0 + n1));
+
+    coefficients[0][1] = dd;
+    coefficients[0][2] = ds;
+    coefficients[N][1] = dd;
+    coefficients[N][2] = ds;
     }
+  else //curve is open
+    {
+    switch (leftConstraint) 
+      {
+      case 1:
+	// desired slope at leftmost point is leftValue
+	coefficients[0][1] = leftValue;
+	break;
+
+      case 2:
+	// desired second derivative at leftmost point is leftValue
+	coefficients[0][1] = (6*(y[1] - y[0]) - 2*coefficients[1][2] - leftValue)
+	      / 4.0;
+	break;
+
+      case 3:
+	// desired secord derivative at leftmost point is leftValue
+	// times secod derivative at first interior point
+	if ((leftValue > (-2.0 + EPSILON)) || 
+	    (leftValue < (-2.0 - EPSILON)))
+	  {
+	  coefficients[0][1] = (3*(1 + leftValue)*(y[1] - y[0]) -
+				    (1 + 2*leftValue)*coefficients[1][2])
+				  / (2 + leftValue);
+	  }
+	else
+	  {
+	  coefficients[0][1] = 0.0;
+	  }
+	break;
+      }
+
+    switch (rightConstraint)
+      {
+      case 1:
+	// desired slope at rightmost point is rightValue
+	coefficients[N][2] = rightValue;
+	break;
+
+       case 2:
+	 // desired second derivative at rightmost point is rightValue
+	 coefficients[N][2] = (6*(y[N] - y[N-1]) - 2*coefficients[N-1][1] + 
+			  rightValue) / 4.0;
+	 break;
+
+      case 3:
+	// desired secord derivative at rightmost point is rightValue
+	// times secord derivative at last interior point
+	if ((rightValue > (-2.0 + EPSILON)) ||
+	    (rightValue < (-2.0 - EPSILON)))
+	  {
+	  coefficients[N][2] = (3*(1 + rightValue)*(y[N] - y[N-1]) -
+				  (1 + 2*rightValue)*coefficients[N-1][1])
+			 / (2 + rightValue);
+	  }
+	else
+	  {
+	  coefficients[N][2] = 0.0;
+	  }
+	  break;
+      }
+    }//curve is open
 
   // Compute the Coefficients
   for (i=0; i < N; i++) {

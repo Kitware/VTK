@@ -41,9 +41,21 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkSpline - spline abstract class
 // .SECTION Description
 // vtkSpline is used to create interpolated data points for specified
-// data. vtkSpline is an abstract class: its subclasses vtkCardinalSpline,
-// vtkKochenekSpline do the interpolation, The current implementation of
-// splines is limited to data dimensions not exceeding four.
+// data. vtkSpline is an abstract class: its subclasses vtkCardinalSpline
+// and vtkKochenekSpline do the interpolation, The current implementation 
+// of splines is limited to data dimensions not exceeding four.
+//
+// Typically a spline is used by adding a sequence of points followed by
+// use of an evaluation function (e.g., vtkCardinalSpline::Evaluate()).
+// Since these splines are 1D, a point in this context is a independent/
+// dependent variable pair. Note that the parameter space of the spline
+// ranges from (0,N-1), where N is the number of points in the spline.
+//
+// Splines can also be set up to be closed or open. Closed splines continue
+// from the last point to the first point with continous function and 
+// derivative values. (You don't need to duplicate the first point to close
+// the spline, just set ClosedOn.) If the spline is closed, the parameter
+// space of the spline becomes (0,N).
 // .SECTION See Also
 // vtkCardinalSpline vtkKochenekSpline
 
@@ -86,6 +98,14 @@ public:
   void RemoveAllPoints ();
 
   // Description:
+  // Control whether the spline is open or closed. A closed spline forms
+  // a continous loop: the first and last points are the same, and
+  // derivatives are continuous.
+  vtkSetMacro(Closed,int);
+  vtkGetMacro(Closed,int);
+  vtkBooleanMacro(Closed,int);
+
+  // Description:
   // Set the type of constraint of the left(right) end points. Three
   // contraints are available:
   // 
@@ -118,6 +138,7 @@ protected:
   int RightConstraint;
   float RightValue;
   vtkPiecewiseFunction *PiecewiseFunction;
+  int Closed;
 };
 
 #endif

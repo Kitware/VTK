@@ -61,9 +61,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // 
 // These three parameters give the user broad control over the shape of
 // the interpolating spline. The original Kochanek paper describes the
-// effects nicely and is recommened reading.
+// effects nicely and is recommended reading.
 // .SECTION See Also
-// vtkSpline
+// vtkSpline vtkCardinalSpline
 
 
 #ifndef __vtkKochanekSpline_h
