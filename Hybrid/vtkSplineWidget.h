@@ -15,11 +15,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSplineWidget - 3D widget for manipulating a line
+// .NAME vtkSplineWidget - 3D widget for manipulating a spline
 // .SECTION Description
 // This 3D widget defines a spline that can be interactively placed in a
 // scene. The spline has handles, the number of which can be changed, plus it
-// can be picked on the spline itself to translate it in the scene.
+// can be picked on the spline itself to translate or rotate it in the scene.
 // A nice feature of the object is that the vtkSplineWidget, like any 3D
 // widget, will work with the current interactor style. That is, if
 // vtkSplineWidget does not handle an event, then all other registered
@@ -118,12 +118,12 @@ public:
     {this->Superclass::PlaceWidget(xmin,xmax,ymin,ymax,zmin,zmax);}
 
   // Description:
-  // Force the line widget to be projected onto one of the orthogoanal planes.
+  // Force the spline widget to be projected onto one of the orthogonal planes.
   // Remember that when the state changes, a ModifiedEvent is invoked.
-  // This can be used to snap the line to the plane if it is orginally
-  // not aligned.  The normal is 0,1,2 for YZ,XZ,XY planes respectively.
-  // The position defines the plane distance relative to the input data origin.
-
+  // This can be used to snap the spline to the plane if it is orginally
+  // not aligned.  The normal in SetProjectionNormal is 0,1,2 for YZ,XZ,XY
+  // planes respectively and 3 for arbitrary oblique planes when the widget
+  // is tied to a vtkPlaneSource.
   vtkSetMacro(ProjectToPlane,int);
   vtkGetMacro(ProjectToPlane,int);
   vtkBooleanMacro(ProjectToPlane,int);
@@ -131,7 +131,7 @@ public:
   // Description:
   // Set up a reference to a vtkPlaneSource that could be from another widget
   // object, e.g. a vtkPolyDataSourceWidget.
-  void SetPlaneSource(vtkPlaneSource* plane);  
+  void SetPlaneSource(vtkPlaneSource* plane);
 
   vtkSetClampMacro(ProjectionNormal,int,VTK_PROJECTION_YZ,VTK_PROJECTION_OBLIQUE);
   vtkGetMacro(ProjectionNormal,int);
@@ -143,22 +143,27 @@ public:
     { this->SetProjectionNormal(2); }
   void SetProjectionNormalToOblique()
     { this->SetProjectionNormal(3); }
-    
+
+  // Description:
+  // Set the position of spline handles and points in terms of a plane's
+  // position. i.e., if ProjectionNormal is 0, all of the x-coordinate
+  // values of the points are set to position. Any value can be passed (and is
+  // ignored) to update the spline points when Projection normal is set to 3
+  // for arbritrary plane orientations.
   void SetProjectionPosition(float position);
   vtkGetMacro(ProjectionPosition, float);
 
   // Description:
-  // Grab the polydata (including points) that defines the line.  The
+  // Grab the polydata (including points) that defines the spline.  The
   // polydata consists of the NumberOfSplinePoints points. These point values
-  // are guaranteed to be up-to-date when either the
-  // InteractionEvent or EndInteraction events are invoked. The user provides
-  // the vtkPolyData and the points and polyline are added to it.
+  // are guaranteed to be up-to-date when either the InteractionEvent or
+  // EndInteraction events are invoked. The user provides the vtkPolyData and
+  // the points and polyline are added to it.
   void GetPolyData(vtkPolyData *pd);
 
   // Description:
   // Get the handle properties (the little balls are the handles). The
-  // properties of the handles when selected and normal can be
-  // manipulated.
+  // properties of the handles when selected and normal can be manipulated.
   vtkGetObjectMacro(HandleProperty, vtkProperty);
   vtkGetObjectMacro(SelectedHandleProperty, vtkProperty);
 
@@ -174,7 +179,8 @@ public:
   vtkGetMacro(NumberOfHandles, int);
 
   // Description:
-  // Set/Get the number of segments representing the line for this widget.
+  // Set/Get the number of line segments representing the spline for
+  // this widget.
   void SetResolution(int resolution);
   vtkGetMacro(Resolution,int);
 
