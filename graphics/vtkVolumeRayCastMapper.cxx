@@ -202,21 +202,21 @@ int vtkVolumeRayCastMapper::ClipRayAgainstVolume( float ray_info[12],
   bounds       = bound_info;
   inner_bounds = bound_info + 6;
 
-  if ( ray_start[0] >= bounds[3] ||
-       ray_start[1] >= bounds[4] ||
+  if ( ray_start[0] >= bounds[1] ||
+       ray_start[1] >= bounds[3] ||
        ray_start[2] >= bounds[5] ||
        ray_start[0] < bounds[0] || 
-       ray_start[1] < bounds[1] || 
-       ray_start[2] < bounds[2] )
+       ray_start[1] < bounds[2] || 
+       ray_start[2] < bounds[4] )
     {
     for ( loop = 0; loop < 3; loop++ )
       {
       diff = 0;
 
-      if ( ray_start[loop] < inner_bounds[loop] )
-	diff = inner_bounds[loop] - ray_start[loop];
-      else if ( ray_start[loop] > inner_bounds[loop+3] )
-	diff = inner_bounds[loop+3] - ray_start[loop];
+      if ( ray_start[loop] < inner_bounds[2*loop] )
+	diff = inner_bounds[2*loop] - ray_start[loop];
+      else if ( ray_start[loop] > inner_bounds[2*loop+1] )
+	diff = inner_bounds[2*loop+1] - ray_start[loop];
       
       if ( diff )
 	{
@@ -238,33 +238,33 @@ int vtkVolumeRayCastMapper::ClipRayAgainstVolume( float ray_info[12],
   // If the voxel still isn't inside the volume, then this ray
   // doesn't really intersect the volume
 	  
-  if ( ray_start[0] >= bounds[3] ||
-       ray_start[1] >= bounds[4] ||
+  if ( ray_start[0] >= bounds[1] ||
+       ray_start[1] >= bounds[3] ||
        ray_start[2] >= bounds[5] ||
        ray_start[0] < bounds[0] || 
-       ray_start[1] < bounds[1] || 
-       ray_start[2] < bounds[2] )
+       ray_start[1] < bounds[2] || 
+       ray_start[2] < bounds[4] )
     {
     return 0;
     }
 
   // The ray does intersect the volume, and we have a starting
   // position that is inside the volume
-  if ( ray_end[0] >= bounds[3] ||
-       ray_end[1] >= bounds[4] ||
+  if ( ray_end[0] >= bounds[1] ||
+       ray_end[1] >= bounds[3] ||
        ray_end[2] >= bounds[5] ||
        ray_end[0] < bounds[0] || 
-       ray_end[1] < bounds[1] || 
-       ray_end[2] < bounds[2] )
+       ray_end[1] < bounds[2] || 
+       ray_end[2] < bounds[4] )
     {
     for ( loop = 0; loop < 3; loop++ )
       {
       diff = 0;
       
-      if ( ray_end[loop] < inner_bounds[loop] )
-	diff = inner_bounds[loop] - ray_end[loop];
-      else if ( ray_end[loop] > inner_bounds[loop+3] )
-	diff = inner_bounds[loop+3] - ray_end[loop];
+      if ( ray_end[loop] < inner_bounds[2*loop] )
+	diff = inner_bounds[2*loop] - ray_end[loop];
+      else if ( ray_end[loop] > inner_bounds[2*loop+1] )
+	diff = inner_bounds[2*loop+1] - ray_end[loop];
       
       if ( diff )
 	{
@@ -282,12 +282,12 @@ int vtkVolumeRayCastMapper::ClipRayAgainstVolume( float ray_info[12],
       }
     }
   
-  if ( ray_end[0] >= bounds[3] ||
-       ray_end[1] >= bounds[4] ||
+  if ( ray_end[0] >= bounds[1] ||
+       ray_end[1] >= bounds[3] ||
        ray_end[2] >= bounds[5] ||
        ray_end[0] < bounds[0] || 
-       ray_end[1] < bounds[1] || 
-       ray_end[2] < bounds[2] )
+       ray_end[1] < bounds[2] || 
+       ray_end[2] < bounds[4] )
     {
       return 0;
     }
@@ -682,25 +682,25 @@ VTK_THREAD_RETURN_TYPE RenderParallelImage( void *arg )
   // Set the bounds of the volume
   for ( i = 0; i < 3; i++ )
     {
-    bounds[i] = 0.0;
-    bounds[i+3] = mapper->ScalarDataSize[i] - 1;
+    bounds[2*i] = 0.0;
+    bounds[2*i+1] = mapper->ScalarDataSize[i] - 1;
     }
 
   if ( mapper->Clipping )
     {
     for ( i = 0; i < 3; i++ )
       {
-      if ( mapper->ClippingPlanes[i] > bounds[i] )
-	bounds[i] = mapper->ClippingPlanes[i];
-      if ( mapper->ClippingPlanes[i+3] < bounds[i+3] )
-	bounds[i+3] = mapper->ClippingPlanes[i+3];
+      if ( mapper->ClippingPlanes[2*i] > bounds[2*i] )
+	bounds[2*i] = mapper->ClippingPlanes[2*i];
+      if ( mapper->ClippingPlanes[2*i+1] < bounds[2*i+1] )
+	bounds[2*i+1] = mapper->ClippingPlanes[2*i+1];
       }
     }
 
   for ( i = 0; i < 3; i++ )
     {
-    bounds[i+6] = bounds[i]   + 0.001;
-    bounds[i+9] = bounds[i+3] - 0.001;
+    bounds[2*i+6] = bounds[2*i]   + 0.001;
+    bounds[2*i+7] = bounds[2*i+1] - 0.001;
     }
 
   // Just in case it is the wrong data type, we have valid default values
@@ -993,25 +993,25 @@ VTK_THREAD_RETURN_TYPE RenderPerspectiveImage( void *arg )
   // Set the bounds of the volume
   for ( i = 0; i < 3; i++ )
     {
-    bounds[i] = 0.0;
-    bounds[i+3] = mapper->ScalarDataSize[i] - 1;
+    bounds[2*i] = 0.0;
+    bounds[2*i+1] = mapper->ScalarDataSize[i] - 1;
     }
 
   if ( mapper->Clipping )
     {
     for ( i = 0; i < 3; i++ )
       {
-      if ( mapper->ClippingPlanes[i] > bounds[i] )
-	bounds[i] = mapper->ClippingPlanes[i];
-      if ( mapper->ClippingPlanes[i+3] < bounds[i+3] )
-	bounds[i+3] = mapper->ClippingPlanes[i+3];
+      if ( mapper->ClippingPlanes[2*i] > bounds[2*i] )
+	bounds[2*i] = mapper->ClippingPlanes[2*i];
+      if ( mapper->ClippingPlanes[2*i+1] < bounds[2*i+1] )
+	bounds[2*i+1] = mapper->ClippingPlanes[2*i+1];
       }
     }
 
   for ( i = 0; i < 3; i++ )
     {
-    bounds[i+6] = bounds[i]   + 0.001;
-    bounds[i+9] = bounds[i+3] - 0.001;
+    bounds[2*i+6] = bounds[2*i]   + 0.001;
+    bounds[2*i+7] = bounds[2*i+1] - 0.001;
     }
 
   // Loop through all pixel    
