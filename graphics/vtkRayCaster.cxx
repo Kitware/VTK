@@ -1076,7 +1076,7 @@ void vtkRayCaster::Render(vtkRenderer *ren, int raycastCount,
   // after geometry rendering, and therefore we will not correctly account 
   // for the background color. Check to see if this is the case so we
   // can handle it.
-  this->NeedBackgroundBlend;
+  this->NeedBackgroundBlend = 0;
   if ( this->FirstBlend )
     {
     ren->GetBackground( this->Background );
@@ -1110,6 +1110,7 @@ void vtkRayCaster::Render(vtkRenderer *ren, int raycastCount,
     // Delete the structures that we created during
     // ray casting.
     delete this->RayCastVolumes;
+    delete this->VolumeInfo;
     }
 
   // If we have any volumes with software buffer mappers, render them
