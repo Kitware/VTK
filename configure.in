@@ -89,7 +89,13 @@ AC_ARG_WITH(mesa,
          [use_oglr=yes]
 	 [use_mesa_oglr=yes])
 
+# If we want to use Mesa on a Sun machine, including Sun's OpenGL
+# header files breaks a Mesa compile because of Sun specific macro
+# definitions that exist in /usr/openwin/include/glmacros.h
 OGLR_INCLUDE=""
+if test "$use_mesa_oglr" = "yes"; then
+OGLR_INCLUDE="$MESA_INCLUDE"
+else
 AC_CHECK_HEADERS(GL/gl.h, [use_oglr=yes])
 AC_CHECK_HEADERS(/usr/openwin/share/include/GL/glxmd.h, 
 		[use_oglr=yes]
@@ -97,7 +103,9 @@ AC_CHECK_HEADERS(/usr/openwin/share/include/GL/glxmd.h,
 AC_CHECK_HEADERS(/opt/graphics/OpenGL/include/GL/glxmd.h, 
 		[use_oglr=yes]
 		OGLR_INCLUDE="-I/opt/graphics/OpenGL/include")
+fi
 
+if test "$use_mesa_oglr" = "no"; then
 AC_MSG_CHECKING(for OpenGL library)
 OPENGLSW=""
 dirs="/opt/graphics/OpenGL/lib /usr/openwin/lib"
@@ -109,6 +117,7 @@ for i in $dirs; do
   fi
 done
 GRAPHICS_API_LIBS="$GRAPHICS_API_LIBS $OPENGLSW"
+fi
 
 if test "$use_oglr" = "yes"; then
 	GRAPHICS_API_OBJ="${GRAPHICS_API_OBJ} \${OGLR_OBJ}"
@@ -128,6 +137,7 @@ fi
 ##			##
 ##########################
 use_xglr=no
+if test "$use_mesa_oglr" = "no"; then
 # Check if the user set up XGL_HOME
 if test "X$XGL_HOME" = "X" ; then
 	XGL_HOME=/opt/SUNWits/Graphics-sw/xgl
@@ -147,6 +157,7 @@ if test "$use_xglr" = "yes"; then
 	GRAPHICS_API_LIBS="${GRAPHICS_API_LIBS} ${XGLR_LIBS}"
 	GRAPHICS_API_OBJ="${GRAPHICS_API_OBJ} \${XGLR_OBJ}"
 	GRAPHICS_API_FLAGS="${GRAPHICS_API_FLAGS} -DVTK_USE_XGLR -I${XGLR_INCLUDE}"
+fi
 fi
 
 AC_SUBST(GRAPHICS_API_OBJ)
@@ -608,8 +619,11 @@ if test "$use_pthreads" = "yes"; then
   if test "$use_sproc" = "no"; then
     AC_CHECK_LIB(pthreads, pthread_create, THREAD_LIBS="-lpthreads")
     AC_CHECK_LIB(pthread, pthread_create, THREAD_LIBS="-lpthread")
-# Work around Solaris 5.6 bug:
+# Work around Solaris 5.6 and 5.7 bug:
     if test "`/usr/bin/uname -s -r`" = "SunOS 5.6"; then
+      AC_CHECK_LIB(thread, thr_create, THREAD_LIBS="$THREAD_LIBS -lthread")
+    fi
+    if test "`/usr/bin/uname -s -r`" = "SunOS 5.7"; then
       AC_CHECK_LIB(thread, thr_create, THREAD_LIBS="$THREAD_LIBS -lthread")
     fi
 	THREAD_FLAGS="-DVTK_USE_PTHREADS"
