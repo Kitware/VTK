@@ -128,9 +128,6 @@ public:
   vtkGetMacro( IncrementalUpdate, int );
   vtkBooleanMacro( IncrementalUpdate, int );
 
-// Don't change the numbers here - they are used in the code
-// to indicate array indices.
-
 
 protected:
   vtkImageDataStreamer();
@@ -147,6 +144,9 @@ protected:
   vtkImageDataStreamerExtentStack ExtentStack;
 
 //BTX
+
+// Don't change the numbers here - they are used in the code
+// to indicate array indices.
 
   enum Modes {
     VTK_IMAGE_DATA_STREAMER_X_SLAB_MODE=0,
