@@ -30,9 +30,18 @@
 #include "vtkUnstructuredGrid.h"
 
 #include <ctype.h>
+
+#ifdef _MSC_VER
+#pragma warning (push, 3)
+#endif
+
 #include <string>
 
-vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.30");
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
+
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.31");
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 //----------------------------------------------------------------------------
