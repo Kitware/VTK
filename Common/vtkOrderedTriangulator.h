@@ -147,14 +147,6 @@ public:
   vtkBooleanMacro(PreSorted,int)
 
   // Description:
-  // Add the tetrahedra classified (0=inside,1=outside) to the connectivity
-  // list provided. Inside tetrahedron are those whose points are all
-  // classified "inside." Outside tetrahedron have at least one point
-  // classified "outside." The method returns the number of tetrahedron
-  // of the type requested.    
-  int GetTetras(int classification, vtkCellArray *connectivity);
-  
-  // Description:
   // Initialize and add the tetras and points from the triangulation to the
   // unstructured grid provided.  New points are created and the mesh is
   // allocated. (This method differs from AddTetras() in that it inserts
@@ -176,6 +168,14 @@ public:
   // The method returns the number of tetrahedrahedron of the type 
   // requested.
   int AddTetras(int classification, vtkUnstructuredGrid *ugrid);
+  
+  // Description:
+  // Add the tetrahedra classified (0=inside,1=outside) to the connectivity
+  // list provided. Inside tetrahedron are those whose points are all
+  // classified "inside." Outside tetrahedron have at least one point
+  // classified "outside." The method returns the number of tetrahedron
+  // of the type requested.    
+  int AddTetras(int classification, vtkCellArray *connectivity);
   
 protected:
   vtkOrderedTriangulator();
