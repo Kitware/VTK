@@ -48,28 +48,8 @@ build_patented: targets build_wrap
 	cd patented;    ${MAKE} -${MAKEFLAGS} targets.make
 	cd patented;    ${MAKE} -${MAKEFLAGS} all
 
-build_working: targets build_wrap
-	cd working;    ${MAKE} -${MAKEFLAGS} targets.make
-	cd working;    ${MAKE} -${MAKEFLAGS} all
-
 build_wrap: targets
 	cd wrap;        ${MAKE} -${MAKEFLAGS} all
-
-build_gemsio: targets build_wrap
-	cd gemsio;     ${MAKE} -${MAKEFLAGS} targets.make
-	cd gemsio;     ${MAKE} -${MAKEFLAGS} all
-
-build_gemsvolume: targets build_wrap
-	cd gemsvolume; ${MAKE} -${MAKEFLAGS} targets.make
-	cd gemsvolume; ${MAKE} -${MAKEFLAGS} all
-
-build_gemsip: targets build_wrap
-	cd gemsip;     ${MAKE} -${MAKEFLAGS} targets.make
-	cd gemsip;     ${MAKE} -${MAKEFLAGS} all
-
-build_geae: targets build_wrap
-	cd geae;     ${MAKE} -${MAKEFLAGS} targets.make
-	cd geae;     ${MAKE} -${MAKEFLAGS} all
 
 build_contrib: targets build_wrap
 	cd contrib;     ${MAKE} -${MAKEFLAGS} targets.make
@@ -99,23 +79,8 @@ depend_imaging:
 depend_patented:
 	cd patented;    ${MAKE} -${MAKEFLAGS} depend
 
-depend_working:
-	cd working;    ${MAKE} -${MAKEFLAGS} depend
-
 depend_contrib:
 	cd contrib; ${MAKE} -${MAKEFLAGS} depend
-
-depend_geae:
-	cd geae; ${MAKE} -${MAKEFLAGS} depend
-
-depend_gemsip:
-	cd gemsip; ${MAKE} -${MAKEFLAGS} depend
-
-depend_gemsio:
-	cd gemsio; ${MAKE} -${MAKEFLAGS} depend
-
-depend_gemsvolume:
-	cd gemsvolume; ${MAKE} -${MAKEFLAGS} depend
 
 #------------------------------------------------------------------------------
 # Clean up all files that were built by make.
@@ -139,24 +104,8 @@ clean_imaging:
 clean_patented:
 	cd patented;    ${MAKE} -${MAKEFLAGS} clean
 
-clean_working:
-	cd working;    ${MAKE} -${MAKEFLAGS} clean
-
 clean_contrib:
 	cd contrib;   ${MAKE} -${MAKEFLAGS} clean
-
-clean_geae:
-	cd geae; ${MAKE} -${MAKEFLAGS} clean
-
-clean_gemsip:
-	cd gemsip; ${MAKE} -${MAKEFLAGS} clean
-
-clean_gemsio:
-	cd gemsio; ${MAKE} -${MAKEFLAGS} clean
-
-clean_gemsvolume:
-	cd gemsvolume; ${MAKE} -${MAKEFLAGS} clean
-
 
 #------------------------------------------------------------------------------
 # Clean up all files that were built by make.
@@ -173,21 +122,6 @@ install_imaging:
 
 install_patented: 
 	cd patented;    ${MAKE} -${MAKEFLAGS} @INSTALL_TARGET@
-
-install_working: 
-	cd working;    ${MAKE} -${MAKEFLAGS} @INSTALL_TARGET@
-
-install_gemsio: 
-	cd gemsio;     ${MAKE} -${MAKEFLAGS} @INSTALL_TARGET@
-
-install_gemsvolume:
-	cd gemsvolume; ${MAKE} -${MAKEFLAGS} @INSTALL_TARGET@
-
-install_gemsip:
-	cd gemsip;     ${MAKE} -${MAKEFLAGS} @INSTALL_TARGET@
-
-install_geae:
-	cd geae;     ${MAKE} -${MAKEFLAGS} @INSTALL_TARGET@
 
 install_contrib:
 	cd contrib;     ${MAKE} -${MAKEFLAGS} @INSTALL_TARGET@

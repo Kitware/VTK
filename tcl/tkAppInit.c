@@ -105,27 +105,6 @@ extern Vtkpatentedtcl_Init(Tcl_Interp *interp);
 extern Vtkcontribtcl_Init(Tcl_Interp *interp);
 #endif
 
-#ifdef VTK_USE_WORKING
-extern Vtkworkingtcl_Init(Tcl_Interp *interp);
-#endif
-
-
-#ifdef VTK_USE_GEMSVOLUME
-extern Vtkgemsvolumetcl_Init(Tcl_Interp *interp);
-#endif
-
-#ifdef VTK_USE_GEAE
-extern Vtkgeaetcl_Init(Tcl_Interp *interp);
-#endif
-
-#ifdef VTK_USE_GEMSIO
-extern Vtkgemsiotcl_Init(Tcl_Interp *interp);
-#endif
-
-#ifdef VTK_USE_GEMSIP
-extern Vtkgemsiptcl_Init(Tcl_Interp *interp);
-#endif
-
 int Tcl_AppInit(Tcl_Interp *interp)
 {
   Tk_Window main;
@@ -185,43 +164,8 @@ int Tcl_AppInit(Tcl_Interp *interp)
     }
 #endif
 
-#ifdef VTK_USE_WORKING
-  if (Vtkworkingtcl_Init(interp) == TCL_ERROR) 
-    {
-    return TCL_ERROR;
-    }
-#endif
-
 #ifdef VTK_USE_CONTRIB
   if (Vtkcontribtcl_Init(interp) == TCL_ERROR) 
-    {
-    return TCL_ERROR;
-    }
-#endif
-
-#ifdef VTK_USE_GEAE
-  if (Vtkgeaetcl_Init(interp) == TCL_ERROR) 
-    {
-    return TCL_ERROR;
-    }
-#endif
-
-#ifdef VTK_USE_GEMSIP
-  if (Vtkgemsiptcl_Init(interp) == TCL_ERROR) 
-    {
-    return TCL_ERROR;
-    }
-#endif
-
-#ifdef VTK_USE_GEMSIO
-  if (Vtkgemsiotcl_Init(interp) == TCL_ERROR) 
-    {
-    return TCL_ERROR;
-    }
-#endif
-
-#ifdef VTK_USE_GEMSVOLUME
-  if (Vtkgemsvolumetcl_Init(interp) == TCL_ERROR) 
     {
     return TCL_ERROR;
     }

@@ -28,11 +28,6 @@ VPATH         = @srcdir@
 #------------------------------------------------------------------------------
 LDLIBS = -L../common \
         ${USE_CONTRIB_JAVA}	\
-        ${USE_GEAE_JAVA}	\
-        ${USE_GEMSIO_JAVA}	\
-        ${USE_GEMSVOLUME_JAVA}	\
-        ${USE_GEMSIP_JAVA}	\
-        ${USE_WORKING_JAVA}		\
         ${USE_PATENTED_JAVA}		\
 	${USE_IMAGING_JAVA}	\
 	${USE_GRAPHICS_JAVA}	\
