@@ -1320,6 +1320,81 @@ vtkDataArray* vtkDataSetAttributes::GetTensors()
   return this->GetAttribute(TENSORS); 
 }
 
+vtkDataArray* vtkDataSetAttributes::GetScalars(const char* name)
+{
+  if (name == NULL)
+    {
+    return this->GetScalars();
+    }
+  vtkDataArray *array = this->GetArray(name);
+  if (array)
+    {
+    return array;
+    }
+  vtkWarningMacro("Could not find array with name " << name);
+  return this->GetScalars();
+}
+
+vtkDataArray* vtkDataSetAttributes::GetVectors(const char* name)
+{
+  if (name == NULL)
+    {
+    return this->GetVectors();
+    }
+  vtkDataArray *array = this->GetArray(name);
+  if (array)
+    {
+    return array;
+    }
+  vtkWarningMacro("Could not find array with name " << name);
+  return this->GetVectors();
+}
+
+vtkDataArray* vtkDataSetAttributes::GetNormals(const char* name)
+{
+  if (name == NULL)
+    {
+    return this->GetNormals();
+    }
+  vtkDataArray *array = this->GetArray(name);
+  if (array)
+    {
+    return array;
+    }
+  vtkWarningMacro("Could not find array with name " << name);
+  return this->GetNormals();
+}
+
+vtkDataArray* vtkDataSetAttributes::GetTCoords(const char* name)
+{
+  if (name == NULL)
+    {
+    return this->GetTCoords();
+    }
+  vtkDataArray *array = this->GetArray(name);
+  if (array)
+    {
+    return array;
+    }
+  vtkWarningMacro("Could not find array with name " << name);
+  return this->GetTCoords();
+}
+
+vtkDataArray* vtkDataSetAttributes::GetTensors(const char* name)
+{
+  if (name == NULL)
+    {
+    return this->GetTensors();
+    }
+  vtkDataArray *array = this->GetArray(name);
+  if (array)
+    {
+    return array;
+    }
+  vtkWarningMacro("Could not find array with name " << name);
+  return this->GetTensors();
+}
+
 int vtkDataSetAttributes::SetActiveAttribute(int index, int attributeType)
 {
   if ( (index >= 0) && (index < this->GetNumberOfArrays()))

@@ -179,6 +179,16 @@ public:
   vtkDataArray* GetTensors();
 
   // Description:
+  // This will first look for an array with the correct name.
+  // If one exists, it is returned. Otherwise, the name argument
+  // is ignored, and the active attribute is returned.
+  vtkDataArray* GetScalars(const char* name);
+  vtkDataArray* GetVectors(const char* name);
+  vtkDataArray* GetNormals(const char* name);
+  vtkDataArray* GetTCoords(const char* name);
+  vtkDataArray* GetTensors(const char* name);
+
+  // Description:
   // Make the array with the given name the active attribute.
   // Attribute types are:
   //  vtkDataSetAttributes::SCALARS = 0
