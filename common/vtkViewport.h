@@ -104,6 +104,13 @@ public:
   void ComputeAspect();
   
   // Description:
+  // Set the aspect ratio of a pixel in the rendered image. 
+  // This factor permits the image to rendered anisotropically
+  // (i.e., stretched in one direction or the other).
+  vtkSetVector2Macro(PixelAspect,float);
+  vtkGetVectorMacro(PixelAspect,float,2);
+
+  // Description:
   // Specify the viewport for the Viewport to draw in the rendering window. 
   // Coordinates are expressed as (xmin,ymin,xmax,ymax), where each
   // coordinate is 0 <= coordinate <= 1.0.
@@ -292,6 +299,7 @@ protected:
   float Background[3];  
   float Viewport[4];
   float Aspect[2];
+  float PixelAspect[2];
   float Center[2];
 
   unsigned long StartTag;

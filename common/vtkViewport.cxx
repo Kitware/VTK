@@ -79,6 +79,7 @@ vtkViewport::vtkViewport()
   this->ViewPoint[2] = 0;
 
   this->Aspect[0] = this->Aspect[1] = 1.0;
+  this->PixelAspect[0] = this->PixelAspect[1] = 1.0;
 
   this->StartTag = 0;
   this->EndTag = 0;
@@ -95,6 +96,7 @@ vtkViewport::vtkViewport()
   this->CurrentPickId = 0;
   this->PickX = -1;
   this->PickY = -1;
+
 
   this->Props = vtkPropCollection::New();
   this->Actors2D = vtkActor2DCollection::New();
@@ -576,8 +578,8 @@ void vtkViewport::ComputeAspect()
     upperRight[1]--;
 
     aspect[0] = (float)(upperRight[0]-lowerLeft[0]+1)/
-      (float)(upperRight[1]-lowerLeft[1]+1);
-    aspect[1] = 1.0;
+      (float)(upperRight[1]-lowerLeft[1]+1)*this->PixelAspect[0];
+    aspect[1] = 1.0*this->PixelAspect[1];
 
     this->SetAspect(aspect);
     }
