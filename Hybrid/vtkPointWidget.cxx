@@ -28,7 +28,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPointWidget, "1.8");
+vtkCxxRevisionMacro(vtkPointWidget, "1.9");
 vtkStandardNewMacro(vtkPointWidget);
 
 vtkPointWidget::vtkPointWidget()
@@ -62,8 +62,6 @@ vtkPointWidget::vtkPointWidget()
   this->CursorPicker->SetTolerance(0.005); //need some fluff
 
   // Set up the initial properties
-  this->Property = NULL;
-  this->SelectedProperty = NULL;
   this->CreateDefaultProperties();
 
   // Constraints not set
@@ -85,14 +83,8 @@ vtkPointWidget::~vtkPointWidget()
 
   this->CursorPicker->Delete();
 
-  if ( this->Property )
-    {
-    this->Property->Delete();
-    }
-  if ( this->SelectedProperty )
-    {
-    this->SelectedProperty->Delete();
-    }
+  this->Property->Delete();
+  this->SelectedProperty->Delete();
 }
 
 void vtkPointWidget::SetEnabled(int enabling)
@@ -618,20 +610,15 @@ void vtkPointWidget::Scale(double *p1, double *p2, int vtkNotUsed(X), int Y)
 
 void vtkPointWidget::CreateDefaultProperties()
 {
-  if ( ! this->Property )
-    {
-    this->Property = vtkProperty::New();
-    this->Property->SetAmbient(1.0);
-    this->Property->SetAmbientColor(1.0,1.0,1.0);
-    this->Property->SetLineWidth(0.5);
-    }
-  if ( ! this->SelectedProperty )
-    {
-    this->SelectedProperty = vtkProperty::New();
-    this->SelectedProperty->SetAmbient(1.0);
-    this->SelectedProperty->SetAmbientColor(0.0,1.0,0.0);
-    this->SelectedProperty->SetLineWidth(2.0);
-    }
+  this->Property = vtkProperty::New();
+  this->Property->SetAmbient(1.0);
+  this->Property->SetAmbientColor(1.0,1.0,1.0);
+  this->Property->SetLineWidth(0.5);
+
+  this->SelectedProperty = vtkProperty::New();
+  this->SelectedProperty->SetAmbient(1.0);
+  this->SelectedProperty->SetAmbientColor(0.0,1.0,0.0);
+  this->SelectedProperty->SetLineWidth(2.0);
 }
 
 void vtkPointWidget::PlaceWidget(float bds[6])

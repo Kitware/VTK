@@ -32,7 +32,7 @@
 #include "vtkSphereSource.h"
 #include "vtkRenderWindowInteractor.h"
 
-vtkCxxRevisionMacro(vtkBoxWidget, "1.18");
+vtkCxxRevisionMacro(vtkBoxWidget, "1.19");
 vtkStandardNewMacro(vtkBoxWidget);
 
 vtkBoxWidget::vtkBoxWidget()
@@ -112,14 +112,9 @@ vtkBoxWidget::vtkBoxWidget()
   cells->Delete();
 
   // Set up the initial properties
-  this->HandleProperty = NULL;
-  this->SelectedHandleProperty = NULL;
-  this->FaceProperty = NULL;
-  this->SelectedFaceProperty = NULL;
-  this->OutlineProperty = NULL;
-  this->SelectedOutlineProperty = NULL;
   this->CreateDefaultProperties();
 
+  // Create the outline
   this->GenerateOutline();
 
   // Create the handles
@@ -198,30 +193,12 @@ vtkBoxWidget::~vtkBoxWidget()
 
   this->Transform->Delete();
   
-  if ( this->HandleProperty )
-    {
-    this->HandleProperty->Delete();
-    }
-  if ( this->SelectedHandleProperty )
-    {
-    this->SelectedHandleProperty->Delete();
-    }
-  if ( this->FaceProperty )
-    {
-    this->FaceProperty->Delete();
-    }
-  if ( this->SelectedFaceProperty )
-    {
-    this->SelectedFaceProperty->Delete();
-    }
-  if ( this->OutlineProperty )
-    {
-    this->OutlineProperty->Delete();
-    }
-  if ( this->SelectedOutlineProperty )
-    {
-    this->SelectedOutlineProperty->Delete();
-    }
+  this->HandleProperty->Delete();
+  this->SelectedHandleProperty->Delete();
+  this->FaceProperty->Delete();
+  this->SelectedFaceProperty->Delete();
+  this->OutlineProperty->Delete();
+  this->SelectedOutlineProperty->Delete();
 }
 
 void vtkBoxWidget::SetEnabled(int enabling)
@@ -1084,46 +1061,34 @@ void vtkBoxWidget::Rotate(int X, int Y, double *p1, double *p2, double *vpn)
   
 void vtkBoxWidget::CreateDefaultProperties()
 {
-  if ( ! this->HandleProperty )
-    {
-    this->HandleProperty = vtkProperty::New();
-    this->HandleProperty->SetColor(1,1,1);
-    }
-  if ( ! this->SelectedHandleProperty )
-    {
-    this->SelectedHandleProperty = vtkProperty::New();
-    this->SelectedHandleProperty->SetColor(1,0,0);
-    }
+  // Handle properties
+  this->HandleProperty = vtkProperty::New();
+  this->HandleProperty->SetColor(1,1,1);
+
+  this->SelectedHandleProperty = vtkProperty::New();
+  this->SelectedHandleProperty->SetColor(1,0,0);
+
+  // Face properties
+  this->FaceProperty = vtkProperty::New();
+  this->FaceProperty->SetColor(1,1,1);
+  this->FaceProperty->SetOpacity(0.0);
+
+  this->SelectedFaceProperty = vtkProperty::New();
+  this->SelectedFaceProperty->SetColor(1,1,0);
+  this->SelectedFaceProperty->SetOpacity(0.25);
   
-  if ( ! this->FaceProperty )
-    {
-    this->FaceProperty = vtkProperty::New();
-    this->FaceProperty->SetColor(1,1,1);
-    this->FaceProperty->SetOpacity(0.0);
-    }
-  if ( ! this->SelectedFaceProperty )
-    {
-    this->SelectedFaceProperty = vtkProperty::New();
-    this->SelectedFaceProperty->SetColor(1,1,0);
-    this->SelectedFaceProperty->SetOpacity(0.25);
-    }
-  
-  if ( ! this->OutlineProperty )
-    {
-    this->OutlineProperty = vtkProperty::New();
-    this->OutlineProperty->SetRepresentationToWireframe();
-    this->OutlineProperty->SetAmbient(1.0);
-    this->OutlineProperty->SetAmbientColor(1.0,1.0,1.0);
-    this->OutlineProperty->SetLineWidth(2.0);
-    }
-  if ( ! this->SelectedOutlineProperty )
-    {
-    this->SelectedOutlineProperty = vtkProperty::New();
-    this->SelectedOutlineProperty->SetRepresentationToWireframe();
-    this->SelectedOutlineProperty->SetAmbient(1.0);
-    this->SelectedOutlineProperty->SetAmbientColor(0.0,1.0,0.0);
-    this->SelectedOutlineProperty->SetLineWidth(2.0);
-    }
+  // Outline properties
+  this->OutlineProperty = vtkProperty::New();
+  this->OutlineProperty->SetRepresentationToWireframe();
+  this->OutlineProperty->SetAmbient(1.0);
+  this->OutlineProperty->SetAmbientColor(1.0,1.0,1.0);
+  this->OutlineProperty->SetLineWidth(2.0);
+
+  this->SelectedOutlineProperty = vtkProperty::New();
+  this->SelectedOutlineProperty->SetRepresentationToWireframe();
+  this->SelectedOutlineProperty->SetAmbient(1.0);
+  this->SelectedOutlineProperty->SetAmbientColor(0.0,1.0,0.0);
+  this->SelectedOutlineProperty->SetLineWidth(2.0);
 }
 
 void vtkBoxWidget::PlaceWidget(float bds[6])

@@ -37,7 +37,7 @@
 #include "vtkFeatureEdges.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.8");
+vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.9");
 vtkStandardNewMacro(vtkImplicitPlaneWidget);
 
 vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()
@@ -153,15 +153,7 @@ vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()
   this->Picker->PickFromListOn();
   
   // Set up the initial properties
-  this->NormalProperty = NULL;
-  this->SelectedNormalProperty = NULL;
-  this->PlaneProperty = NULL;
-  this->SelectedPlaneProperty = NULL;
-  this->OutlineProperty = NULL;
-  this->SelectedOutlineProperty = NULL;
-  this->EdgesProperty = NULL;
   this->CreateDefaultProperties();
-  
 }
 
 vtkImplicitPlaneWidget::~vtkImplicitPlaneWidget()
@@ -205,37 +197,13 @@ vtkImplicitPlaneWidget::~vtkImplicitPlaneWidget()
 
   this->Picker->Delete();
 
-  if ( this->NormalProperty )
-    {
-    this->NormalProperty->Delete();
-    }
-  if ( this->SelectedNormalProperty )
-    {
-    this->SelectedNormalProperty->Delete();
-    }
-
-  if ( this->PlaneProperty )
-    {
-    this->PlaneProperty->Delete();
-    }
-  if ( this->SelectedPlaneProperty )
-    {
-    this->SelectedPlaneProperty->Delete();
-    }
-
-  if ( this->OutlineProperty )
-    {
-    this->OutlineProperty->Delete();
-    }
-  if ( this->SelectedOutlineProperty )
-    {
-    this->SelectedOutlineProperty->Delete();
-    }
-
-  if ( this->EdgesProperty )
-    {
-    this->EdgesProperty->Delete();
-    }
+  this->NormalProperty->Delete();
+  this->SelectedNormalProperty->Delete();
+  this->PlaneProperty->Delete();
+  this->SelectedPlaneProperty->Delete();
+  this->OutlineProperty->Delete();
+  this->SelectedOutlineProperty->Delete();
+  this->EdgesProperty->Delete();
 }
 
 void vtkImplicitPlaneWidget::SetEnabled(int enabling)
@@ -907,52 +875,38 @@ void vtkImplicitPlaneWidget::Push(double *p1, double *p2)
 
 void vtkImplicitPlaneWidget::CreateDefaultProperties()
 {
-  if ( ! this->NormalProperty )
-    {
-    this->NormalProperty = vtkProperty::New();
-    this->NormalProperty->SetColor(1,1,1);
-    this->NormalProperty->SetLineWidth(2);
-    }
-  if ( ! this->SelectedNormalProperty )
-    {
-    this->SelectedNormalProperty = vtkProperty::New();
-    this->SelectedNormalProperty->SetColor(1,0,0);
-    this->NormalProperty->SetLineWidth(2);
-    }
-  
-  if ( ! this->PlaneProperty )
-    {
-    this->PlaneProperty = vtkProperty::New();
-    this->PlaneProperty->SetAmbient(1.0);
-    this->PlaneProperty->SetAmbientColor(1.0,1.0,1.0);
-    }
-  if ( ! this->SelectedPlaneProperty )
-    {
-    this->SelectedPlaneProperty = vtkProperty::New();
-    this->SelectedPlaneProperty->SetAmbient(1.0);
-    this->SelectedPlaneProperty->SetAmbientColor(0.0,1.0,0.0);
-    this->SelectedPlaneProperty->SetOpacity(0.25);
-    }
+  // Normal properties
+  this->NormalProperty = vtkProperty::New();
+  this->NormalProperty->SetColor(1,1,1);
+  this->NormalProperty->SetLineWidth(2);
 
-  if ( ! this->OutlineProperty )
-    {
-    this->OutlineProperty = vtkProperty::New();
-    this->OutlineProperty->SetAmbient(1.0);
-    this->OutlineProperty->SetAmbientColor(1.0,1.0,1.0);
-    }
-  if ( ! this->SelectedOutlineProperty )
-    {
-    this->SelectedOutlineProperty = vtkProperty::New();
-    this->SelectedOutlineProperty->SetAmbient(1.0);
-    this->SelectedOutlineProperty->SetAmbientColor(0.0,1.0,0.0);
-    }
+  this->SelectedNormalProperty = vtkProperty::New();
+  this->SelectedNormalProperty->SetColor(1,0,0);
+  this->NormalProperty->SetLineWidth(2);
 
-  if ( ! this->EdgesProperty )
-    {
-    this->EdgesProperty = vtkProperty::New();
-    this->EdgesProperty->SetAmbient(1.0);
-    this->EdgesProperty->SetAmbientColor(1.0,1.0,1.0);
-    }
+  // Plane properties
+  this->PlaneProperty = vtkProperty::New();
+  this->PlaneProperty->SetAmbient(1.0);
+  this->PlaneProperty->SetAmbientColor(1.0,1.0,1.0);
+
+  this->SelectedPlaneProperty = vtkProperty::New();
+  this->SelectedPlaneProperty->SetAmbient(1.0);
+  this->SelectedPlaneProperty->SetAmbientColor(0.0,1.0,0.0);
+  this->SelectedPlaneProperty->SetOpacity(0.25);
+
+  // Outline properties
+  this->OutlineProperty = vtkProperty::New();
+  this->OutlineProperty->SetAmbient(1.0);
+  this->OutlineProperty->SetAmbientColor(1.0,1.0,1.0);
+
+  this->SelectedOutlineProperty = vtkProperty::New();
+  this->SelectedOutlineProperty->SetAmbient(1.0);
+  this->SelectedOutlineProperty->SetAmbientColor(0.0,1.0,0.0);
+
+  // Edge property
+  this->EdgesProperty = vtkProperty::New();
+  this->EdgesProperty->SetAmbient(1.0);
+  this->EdgesProperty->SetAmbientColor(1.0,1.0,1.0);
 }
 
 void vtkImplicitPlaneWidget::PlaceWidget(float bds[6])

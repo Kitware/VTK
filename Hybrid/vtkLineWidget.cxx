@@ -35,7 +35,7 @@
 #include "vtkPointWidget.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkLineWidget, "1.29");
+vtkCxxRevisionMacro(vtkLineWidget, "1.30");
 vtkStandardNewMacro(vtkLineWidget);
 
 // This class is used to coordinate the interaction between the point widget
@@ -163,10 +163,6 @@ vtkLineWidget::vtkLineWidget()
   this->CurrentHandle = NULL;
 
   // Set up the initial properties
-  this->HandleProperty = NULL;
-  this->SelectedHandleProperty = NULL;
-  this->LineProperty = NULL;
-  this->SelectedLineProperty = NULL;
   this->CreateDefaultProperties();
   
   // Create the point widgets and associated callbacks
@@ -219,22 +215,10 @@ vtkLineWidget::~vtkLineWidget()
   this->HandlePicker->Delete();
   this->LinePicker->Delete();
 
-  if ( this->HandleProperty )
-    {
-    this->HandleProperty->Delete();
-    }
-  if ( this->SelectedHandleProperty )
-    {
-    this->SelectedHandleProperty->Delete();
-    }
-  if ( this->LineProperty )
-    {
-    this->LineProperty->Delete();
-    }
-  if ( this->SelectedLineProperty )
-    {
-    this->SelectedLineProperty->Delete();
-    }
+  this->HandleProperty->Delete();
+  this->SelectedHandleProperty->Delete();
+  this->LineProperty->Delete();
+  this->SelectedLineProperty->Delete();
 
   this->PointWidget->RemoveObserver(this->PWCallback);
   this->PointWidget1->RemoveObserver(this->PW1Callback);
@@ -870,33 +854,25 @@ void vtkLineWidget::Scale(double *p1, double *p2, int vtkNotUsed(X), int Y)
 
 void vtkLineWidget::CreateDefaultProperties()
 {
-  if ( ! this->HandleProperty )
-    {
-    this->HandleProperty = vtkProperty::New();
-    this->HandleProperty->SetColor(1,1,1);
-    }
-  if ( ! this->SelectedHandleProperty )
-    {
-    this->SelectedHandleProperty = vtkProperty::New();
-    this->SelectedHandleProperty->SetColor(1,0,0);
-    }
+  // Handle properties
+  this->HandleProperty = vtkProperty::New();
+  this->HandleProperty->SetColor(1,1,1);
+
+  this->SelectedHandleProperty = vtkProperty::New();
+  this->SelectedHandleProperty->SetColor(1,0,0);
   
-  if ( ! this->LineProperty )
-    {
-    this->LineProperty = vtkProperty::New();
-    this->LineProperty->SetRepresentationToWireframe();
-    this->LineProperty->SetAmbient(1.0);
-    this->LineProperty->SetAmbientColor(1.0,1.0,1.0);
-    this->LineProperty->SetLineWidth(2.0);
-    }
-  if ( ! this->SelectedLineProperty )
-    {
-    this->SelectedLineProperty = vtkProperty::New();
-    this->SelectedLineProperty->SetRepresentationToWireframe();
-    this->SelectedLineProperty->SetAmbient(1.0);
-    this->SelectedLineProperty->SetAmbientColor(0.0,1.0,0.0);
-    this->SelectedLineProperty->SetLineWidth(2.0);
-    }
+  // Line properties
+  this->LineProperty = vtkProperty::New();
+  this->LineProperty->SetRepresentationToWireframe();
+  this->LineProperty->SetAmbient(1.0);
+  this->LineProperty->SetAmbientColor(1.0,1.0,1.0);
+  this->LineProperty->SetLineWidth(2.0);
+
+  this->SelectedLineProperty = vtkProperty::New();
+  this->SelectedLineProperty->SetRepresentationToWireframe();
+  this->SelectedLineProperty->SetAmbient(1.0);
+  this->SelectedLineProperty->SetAmbientColor(0.0,1.0,0.0);
+  this->SelectedLineProperty->SetLineWidth(2.0);
 }
 
 void vtkLineWidget::PlaceWidget(float bds[6])

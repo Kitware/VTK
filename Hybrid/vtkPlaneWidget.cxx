@@ -36,7 +36,7 @@
 #include "vtkSphereSource.h"
 #include "vtkPlane.h"
 
-vtkCxxRevisionMacro(vtkPlaneWidget, "1.24");
+vtkCxxRevisionMacro(vtkPlaneWidget, "1.25");
 vtkStandardNewMacro(vtkPlaneWidget);
 
 vtkCxxSetObjectMacro(vtkPlaneWidget,PlaneProperty,vtkProperty);
@@ -157,10 +157,6 @@ vtkPlaneWidget::vtkPlaneWidget() : vtkPolyDataSourceWidget()
   this->CurrentHandle = NULL;
 
   // Set up the initial properties
-  this->HandleProperty = NULL;
-  this->SelectedHandleProperty = NULL;
-  this->PlaneProperty = NULL;
-  this->SelectedPlaneProperty = NULL;
   this->CreateDefaultProperties();
   
   this->SelectRepresentation();
@@ -202,22 +198,10 @@ vtkPlaneWidget::~vtkPlaneWidget()
   this->HandlePicker->Delete();
   this->PlanePicker->Delete();
 
-  if ( this->HandleProperty )
-    {
-    this->HandleProperty->Delete();
-    }
-  if ( this->SelectedHandleProperty )
-    {
-    this->SelectedHandleProperty->Delete();
-    }
-  if ( this->PlaneProperty )
-    {
-    this->PlaneProperty->Delete();
-    }
-  if ( this->SelectedPlaneProperty )
-    {
-    this->SelectedPlaneProperty->Delete();
-    }
+  this->HandleProperty->Delete();
+  this->SelectedHandleProperty->Delete();
+  this->PlaneProperty->Delete();
+  this->SelectedPlaneProperty->Delete();
   
   this->Transform->Delete();
 }
@@ -230,7 +214,7 @@ void vtkPlaneWidget::SetEnabled(int enabling)
     return;
     }
 
-  if ( enabling ) //------------------------------------------------------------
+  if ( enabling ) //-----------------------------------------------------------
     {
     vtkDebugMacro(<<"Enabling plane widget");
 
@@ -1155,31 +1139,22 @@ void vtkPlaneWidget::Push(double *p1, double *p2)
 
 void vtkPlaneWidget::CreateDefaultProperties()
 {
-  if ( ! this->HandleProperty )
-    {
-    this->HandleProperty = vtkProperty::New();
-    this->HandleProperty->SetColor(1,1,1);
-    }
-  if ( ! this->SelectedHandleProperty )
-    {
-    this->SelectedHandleProperty = vtkProperty::New();
-    this->SelectedHandleProperty->SetColor(1,0,0);
-    }
-  
-  if ( ! this->PlaneProperty )
-    {
-    this->PlaneProperty = vtkProperty::New();
-    this->SelectRepresentation();
-    this->PlaneProperty->SetAmbient(1.0);
-    this->PlaneProperty->SetAmbientColor(1.0,1.0,1.0);
-    }
-  if ( ! this->SelectedPlaneProperty )
-    {
-    this->SelectedPlaneProperty = vtkProperty::New();
-    this->SelectRepresentation();
-    this->SelectedPlaneProperty->SetAmbient(1.0);
-    this->SelectedPlaneProperty->SetAmbientColor(0.0,1.0,0.0);
-    }
+  // Handle properties
+  this->HandleProperty = vtkProperty::New();
+  this->HandleProperty->SetColor(1,1,1);
+
+  this->SelectedHandleProperty = vtkProperty::New();
+  this->SelectedHandleProperty->SetColor(1,0,0);
+
+  // Plane properties
+  this->PlaneProperty = vtkProperty::New();
+  this->PlaneProperty->SetAmbient(1.0);
+  this->PlaneProperty->SetAmbientColor(1.0,1.0,1.0);
+
+  this->SelectedPlaneProperty = vtkProperty::New();
+  this->SelectRepresentation();
+  this->SelectedPlaneProperty->SetAmbient(1.0);
+  this->SelectedPlaneProperty->SetAmbientColor(0.0,1.0,0.0);
 }
 
 void vtkPlaneWidget::PlaceWidget(float bds[6])
