@@ -128,18 +128,20 @@ void vtkVoxel::InterpolationFunctions(float pcoords[3], float sf[8])
 {
   float rm, sm, tm;
 
-  rm = 1. - pcoords[0];
-  sm = 1. - pcoords[1];
-  tm = 1. - pcoords[2];
+  float r = pcoords[0], s = pcoords[1], t = pcoords[2];
+
+  rm = 1. - r;
+  sm = 1. - s;
+  tm = 1. - t;
 
   sf[0] = rm * sm * tm;
-  sf[1] = pcoords[0] * sm * tm;
-  sf[2] = rm * pcoords[1] * tm;
-  sf[3] = pcoords[0] * pcoords[1] * tm;
-  sf[4] = rm * sm * pcoords[2];
-  sf[5] = pcoords[0] * sm * pcoords[2];
-  sf[6] = rm * pcoords[1] * pcoords[2];
-  sf[7] = pcoords[0] * pcoords[1] * pcoords[2];
+  sf[1] = r * sm * tm;
+  sf[2] = rm * s * tm;
+  sf[3] = r * s * tm;
+  sf[4] = rm * sm * t;
+  sf[5] = r * sm * t;
+  sf[6] = rm * s * t;
+  sf[7] = r * s * t;
 }
 
 void vtkVoxel::InterpolationDerivs(float pcoords[3], float derivs[24])
