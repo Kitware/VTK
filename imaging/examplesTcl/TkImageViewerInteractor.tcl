@@ -193,7 +193,10 @@ proc ResetTkImageViewer {widget} {
    # Get the extent in viewer
    set z [$viewer GetZSlice]
    # x, y????
-   $input SetUpdateExtent -99999 99999 -99999 99999 $z $z
+   $input UpdateInformation
+   set whole [$input GetWholeExtent]
+   $input SetUpdateExtent [lindex $whole 0] [lindex $whole 1] \
+	   [lindex $whole 2] [lindex $whole 3] $z $z
    $input Update
 
    set range [$input GetScalarRange]
