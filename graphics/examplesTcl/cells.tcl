@@ -3,6 +3,7 @@ catch {load vtktcl}
 
 # get the interactor ui
 source ../../examplesTcl/vtkInt.tcl
+source ../../examplesTcl/colors.tcl
 
 vtkRenderer ren1
 vtkRenderWindow renWin
@@ -359,8 +360,14 @@ vtkActor aPolyVertexActor
 
 
 if { [info command vtkRIBProperty] != "" } {
-  vtkRIBProperty aProperty
-
+vtkRIBProperty aProperty
+  aProperty SetVariable Km float
+  aProperty SetSurfaceShader LGVeinedmarble
+  aProperty SetVariable veinfreq float
+  aProperty AddVariable warpfreq float
+  aProperty AddVariable veincolor color
+  aProperty AddParameter veinfreq 2
+  aProperty AddParameter veincolor $ivory
 } else {
   vtkProperty aProperty
 }
