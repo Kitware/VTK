@@ -209,6 +209,7 @@ void vtkMPIController::Finalize()
     { 
     vtkMPIController::WorldRMICommunicator->Delete();
     vtkMPIController::WorldRMICommunicator = 0;
+    vtkMPICommunicator::WorldCommunicator->Delete();
     MPI_Finalize();
     vtkMPIController::Initialized = 0;
     this->Modified();
