@@ -276,7 +276,14 @@ static void vtkImageMathematicsExecute2(vtkImageMathematics *self,
 	      }
 	    break;
 	  case VTK_ATAN2:
-	      *outPtr =  (T)atan2(*in1Ptr,*in2Ptr);
+	      if (*in1Ptr == 0.0 && *in2Ptr == 0.0)
+		{
+		*outPtr = 0;
+		}
+	      else
+		{
+	        *outPtr =  (T)atan2(*in1Ptr,*in2Ptr);
+		}
 	    break;
 	  }
 	outPtr++;
