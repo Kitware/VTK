@@ -131,6 +131,7 @@ vtkRectilinearGridGeometryFilter.cxx
 vtkRectilinearGridToTetrahedra.cxx
 vtkRecursiveDividingCubes.cxx
 vtkReflectionFilter.cxx
+vtkRegularPolygonSource.cxx
 vtkReverseSense.cxx
 vtkRibbonFilter.cxx
 vtkRotationalExtrusionFilter.cxx
