@@ -18,10 +18,6 @@ ABSTRACT =
 
 
 CONCRETE = \
-vtkThreadedController \
-vtkMultiProcessController \
-vtkOutputPort \
-vtkInputPort \
 vtkDEMReader \
 vtkEarthSource \
 vtkImageReslice \
