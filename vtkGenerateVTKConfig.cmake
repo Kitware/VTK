@@ -110,6 +110,7 @@ IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
     "IF(NOT TK_LIBRARY)\n"
     "  SET(TK_LIBRARY \"${TK_LIBRARY}\" CACHE FILEPATH \"Location of Tk library imported from VTK.  This may mean your project is depending on VTK to get this setting.  Consider using FindTCL.cmake.\")\n"
     "ENDIF(NOT TK_LIBRARY)\n"
+    "MARK_AS_ADVANCED(TCL_LIBRARY TK_LIBRARY)\n"
     APPEND
   )
 ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
