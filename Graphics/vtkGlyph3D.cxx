@@ -77,6 +77,7 @@ vtkGlyph3D::vtkGlyph3D()
   this->IndexMode = VTK_INDEXING_OFF;
   this->NumberOfRequiredInputs = 1;
   this->GeneratePointIds = 0;
+  this->PointIdsName = NULL;
   this->SetPointIdsName("InputPointIds");
 }
 
