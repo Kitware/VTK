@@ -54,14 +54,18 @@ vtkImager* vtkImager::New()
 #ifdef _WIN32
 #ifndef VTK_USE_NATIVE_IMAGING
   return vtkOpenGLImager::New();
+#else
+  return new vtkImager;
 #endif
-#endif
+#else
 #ifdef VTK_USE_OGLR
 #ifndef VTK_USE_NATIVE_IMAGING
   return vtkOpenGLImager::New();
-#endif
-#endif
+#else
   return new vtkImager;
+#endif
+#endif
+#endif
 }
 
 // Create an imager with viewport (0, 0, 1, 1)
@@ -155,8 +159,21 @@ int vtkImager::RenderOverlay()
 // It is to hard to detect win<->imager reference loop.
 void vtkImager::SetImageWindow(vtkImageWindow* win)
 {
+  vtkProp *aProp;
+
   if (win != this->VTKWindow)
     {
+    // This renderer is be dis-associated with its previous render window.
+    // this information needs to be passed to the renderer's actors and
+    // volumes so they can release and render window specific (or graphics
+    // context specific) information (such as display lists and texture ids)
+    this->Props->InitTraversal();
+    for ( aProp = this->Props->GetNextProp();
+	  aProp != NULL;
+	  aProp = this->Props->GetNextProp() )
+      {
+      aProp->ReleaseGraphicsResources(this->VTKWindow);
+      }
     this->VTKWindow = (vtkWindow*) win;
     this->Modified();
     }

@@ -109,10 +109,10 @@ vtkImageMapper* vtkImageMapper::New()
 #else
   return vtkXImageMapper::New();
 #endif
-#endif
+#else
   return vtkXImageMapper::New();
 #endif
-
+#endif
 }
 
 float vtkImageMapper::GetColorShift()
