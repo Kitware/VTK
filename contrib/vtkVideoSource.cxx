@@ -277,7 +277,8 @@ void vtkVideoSource::UpdateFrameBuffer()
 
   // total number of bytes required for the framebuffer
   int bytesPerRow = (ext[0]*this->FrameBufferBitsPerPixel+7)/8;
-  bytesPerRow += bytesPerRow % this->FrameBufferRowAlignment;
+  bytesPerRow = ((bytesPerRow + this->FrameBufferRowAlignment - 1) /
+		 this->FrameBufferRowAlignment)*this->FrameBufferRowAlignment;
   int totalSize = bytesPerRow * ext[1] * ext[2];
 
   i = this->FrameBufferSize;
@@ -420,7 +421,8 @@ void vtkVideoSource::InternalGrab()
 
   int bytesPerRow = ((this->FrameBufferExtent[1]-this->FrameBufferExtent[0]+1)*
                      this->FrameBufferBitsPerPixel + 7)/8;
-  bytesPerRow += bytesPerRow % this->FrameBufferRowAlignment;
+  bytesPerRow = ((bytesPerRow + this->FrameBufferRowAlignment - 1) /
+		 this->FrameBufferRowAlignment)*this->FrameBufferRowAlignment;
   int totalSize = bytesPerRow * 
                    (this->FrameBufferExtent[3]-this->FrameBufferExtent[2]+1) *
                    (this->FrameBufferExtent[5]-this->FrameBufferExtent[4]+1);
@@ -513,6 +515,11 @@ static void *vtkVideoSourceGrabThread(struct ThreadInfoStruct *data)
       // using Sleep() instead of vtkTimerLog::Sleep() seemed
       // to fix.
       Sleep((int)(1000*remaining));
+#elif defined(__FreeBSD__) || defined(__linux__) || defined(sgi)
+      struct timespec sleep_time, dummy;
+      sleep_time.tv_sec = (int)remaining;
+      sleep_time.tv_nsec = (int)(1000000000*(remaining-sleep_time.tv_sec));
+      nanosleep(&sleep_time,&dummy);
 #endif
       }
     }
@@ -578,7 +585,7 @@ void vtkVideoSource::SetOutputFormat(int format)
   this->OutputFormat = format;
 
   // convert color format to number of scalar components
-  int numComponents;
+  int numComponents = 1;
 
   switch (this->OutputFormat)
     {
@@ -892,7 +899,8 @@ void vtkVideoSource::Execute(vtkImageData *data)
   char *outPtrTmp;
 
   int inIncY = (frameExtentX*this->FrameBufferBitsPerPixel + 7)/8;
-  inIncY += inIncY % this->FrameBufferRowAlignment;
+  inIncY = ((inIncY + this->FrameBufferRowAlignment - 1)/
+	    this->FrameBufferRowAlignment)*this->FrameBufferRowAlignment;
   int inIncZ = inIncY*frameExtentY;
 
   int outIncX = this->NumberOfScalarComponents;
@@ -1003,12 +1011,12 @@ void vtkVideoSource::Execute(vtkImageData *data)
     if (this->FlipFrames)
       { // apply a vertical flip while copying to output
       outPtr += outIncZ*outPadZ+outIncY*outPadY+outIncX*outPadX;
-      inPtr += inIncZ*inPadZ+inIncY*inPadY;
+      inPtr += inIncZ*inPadZ+inIncY*(frameExtentY-inPadY-outY);
 
       for (i = 0; i < outZ; i++)
 	{
-        inPtrTmp = inPtr + inIncY*(this->FrameOutputExtent[3]-outputExtent[3]);
-	outPtrTmp = outPtr + outIncY*(extentY - 2*outPadY);
+        inPtrTmp = inPtr;
+	outPtrTmp = outPtr + outIncY*outY;
 	for (j = 0; j < outY; j++)
 	  {
 	  outPtrTmp -= outIncY;
