@@ -127,21 +127,35 @@ static inline int checkForError(int id, int maxId)
   return 0;
 }
 
-template <class T>
-static int SendMessage(T* data, int length, int tag, int sock)
+static int SendMessage(char* data, int length, int tag, int sock)
 {
 
-  // Need to check the return value of these
-  send(sock, (char *)&tag, sizeof(int), 0);
+  int sent, total = 0;
 
-  int totalLength = length*sizeof(T);
-  int sent;
-  sent = send(sock, (char*)data, totalLength, 0);
-  vtkSCSendError;
-  while ( sent < totalLength )
+  total = send(sock, (char *)&tag, sizeof(int), 0);
+  if (total == -1)
     {
-    sent += send ( sock, (char*)data+sent, totalLength-sent, 0 );
+    vtkGenericWarningMacro("Could not send tag.");
+    return 0;
+    }
+  while ( total < sizeof(int) )
+    {
+    sent = send ( sock, (char*)data + total, sizeof(int) - total, 0 );
     vtkSCSendError;
+    total += sent;
+    }
+
+  total = send(sock, (char*)data, length, 0);
+  if (total == -1)
+    {
+    vtkGenericWarningMacro("Could not send message.");
+    return 0;
+    }
+  while ( total < length )
+    {
+    sent = send ( sock, (char*)data + total, length - total, 0 );
+    vtkSCSendError;
+    total += sent;
     }
 
   return 1;
@@ -153,8 +167,8 @@ int vtkSocketCommunicator::Send(int *data, int length, int remoteProcessId,
 {
   vtkSCCheckForError;
 
-  vtkDebugMacro("Sending a message of length "<<length*sizeof(int)<<" bytes.");
-  return SendMessage(data, length, tag, this->Socket);
+  return SendMessage(reinterpret_cast<char*>(data), length*sizeof(int), 
+		     tag, this->Socket);
 }
 
 //----------------------------------------------------------------------------
@@ -163,8 +177,8 @@ int vtkSocketCommunicator::Send(unsigned long *data, int length,
 {
   vtkSCCheckForError;
 
-  vtkDebugMacro("Sending a message of length "<<length*sizeof(unsigned long)<<" bytes.");
-  return SendMessage(data, length, tag, this->Socket);
+  return SendMessage(reinterpret_cast<char*>(data),length*sizeof(unsigned long), 
+		     tag, this->Socket);
 }
 //----------------------------------------------------------------------------
 int vtkSocketCommunicator::Send(char *data, int length, 
@@ -172,8 +186,7 @@ int vtkSocketCommunicator::Send(char *data, int length,
 {
   vtkSCCheckForError;
 
-  vtkDebugMacro("Sending a message of length "<<length*sizeof(char)<<" bytes.");
-  return SendMessage(data, length, tag, this->Socket);
+  return SendMessage(reinterpret_cast<char*>(data), length, tag, this->Socket);
 }
 
 //----------------------------------------------------------------------------
@@ -182,8 +195,7 @@ int vtkSocketCommunicator::Send(unsigned char *data, int length,
 {
   vtkSCCheckForError;
 
-  vtkDebugMacro("Sending a message of length "<<length*sizeof(unsigned char)<<" bytes.");
-  return SendMessage(data, length, tag, this->Socket);
+  return SendMessage(reinterpret_cast<char*>(data), length, tag, this->Socket);
 }
 
 //----------------------------------------------------------------------------
@@ -192,8 +204,8 @@ int vtkSocketCommunicator::Send(float *data, int length,
 {
   vtkSCCheckForError;
 
-  vtkDebugMacro("Sending a message of length "<<length*sizeof(float)<<" bytes.");
-  return SendMessage(data, length, tag, this->Socket);
+  return SendMessage(reinterpret_cast<char*>(data), length*sizeof(float), 
+		     tag, this->Socket);
 }
 
 //----------------------------------------------------------------------------
@@ -202,8 +214,8 @@ int vtkSocketCommunicator::Send(double *data, int length,
 {
   vtkSCCheckForError;
 
-  vtkDebugMacro("Sending a message of length "<<length*sizeof(double)<<" bytes.");
-  return SendMessage(data, length, tag, this->Socket);
+  return SendMessage(reinterpret_cast<char*>(data), length*sizeof(double), 
+		     tag, this->Socket);
 }
 
 //----------------------------------------------------------------------------
@@ -212,44 +224,61 @@ int vtkSocketCommunicator::Send(vtkIdType *data, int length,
 {
   vtkSCCheckForError;
 
-  vtkDebugMacro("Sending a message of length "<<length*sizeof(vtkIdType)<<" bytes.");
-  return SendMessage(data, length, tag, this->Socket);
+  return SendMessage(reinterpret_cast<char*>(data), length*sizeof(vtkIdType), 
+		     tag, this->Socket);
 }
 
 //----------------------------------------------------------------------------
 int vtkSocketCommunicator::ReceiveMessage( char *data, int size, int length,
                                            int tag )
 {
-  vtkDebugMacro("Receiving a message of length " << size*length << " bytes.");
+  int totalLength = length * size;
+  int received, total;
+  int recvTag = -1;
+  char* charTag = (char*)&recvTag;
 
-  int recvTag=-1;
-
-  // Need to check the return value of these
-  recv( this->Socket, (char *)&recvTag, sizeof(int), MSG_PEEK );
+  total = recv( this->Socket, charTag, sizeof(int), MSG_PEEK );
+  if ( total == -1 )
+    {
+    vtkErrorMacro("Could not receive tag.");
+    return 0;
+    }
+  while ( total < sizeof(int) )
+    {
+    cout << total << endl;
+    received = recv( this->Socket, &(charTag[total]), sizeof(int) - total, 0 );
+    vtkSCReceiveError;
+    total += received;
+    }
 
   if ( this->SwapBytesInReceivedData )
     {
-    vtkSwap4( &recvTag );
+    vtkSwap4( charTag );
     }
   if ( recvTag != tag )
     {
     return 0;
     }
   
-  if (recv( this->Socket, (char *)&recvTag, sizeof(int), 0 ) == -1)
+  // Since we've already peeked at the entire tag, it must all be here, so
+  // we should be able to get all of it in one try.
+  if (recv( this->Socket, charTag, sizeof(int), 0 ) == -1)
+    {
+    vtkErrorMacro("Could not receive tag (even though it's already here).");
+    return 0;
+    }
+
+  total = recv( this->Socket, data, totalLength, 0 );
+  if (total == -1)
     {
     vtkErrorMacro("Could not receive message.");
     return 0;
     }
-  int totalLength = length * size;
-  int received;
-
-  received = recv( this->Socket, data, totalLength, 0 );
-  vtkSCReceiveError;
-  while ( received < totalLength )
+  while ( total < totalLength )
     {
-    received += recv( this->Socket, &(data[received]), totalLength-received, 0 );
+    received = recv( this->Socket, &(data[total]), totalLength - total, 0 );
     vtkSCReceiveError;
+    total += received;
     }
 
   // Unless we're dealing with chars, then check byte ordering

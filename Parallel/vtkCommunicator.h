@@ -45,6 +45,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // an object into a string (currently used by the MPI communicator but
 // not the shared memory communicator).
 
+// .SECTION Caveats
+// Communication between systems with different vtkIdTypes is not
+// supported. All machines have to have the same vtkIdType.
+
 // .SECTION see also
 // vtkSharedMemoryCommunicator vtkMPICommunicator
 
