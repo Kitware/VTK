@@ -22,7 +22,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.11");
+vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.12");
 vtkStandardNewMacro(vtkWindowToImageFilter);
 
 //----------------------------------------------------------------------------
@@ -69,6 +69,7 @@ void vtkWindowToImageFilter::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Input: (none)\n";
     }
+  os << indent << "ReadFrontBuffer: " << this->ReadFrontBuffer << "\n";
   os << indent << "Magnification: " << this->Magnification << "\n";
 }
 
