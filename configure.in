@@ -37,16 +37,25 @@ AC_ARG_WITH(imaging,
 AC_SUBST(BUILD_IMAGING)
 AC_SUBST(CLEAN_IMAGING)
 
-AC_ARG_WITH(imaging,
-         [  --with-borescope        include the borescope classes],,
+AC_ARG_WITH(volume,
+         [  --without-volume       do not include the volume classes],,
+         volumedir=volume
+         BUILD_VOLUME=build_volume
+         CLEAN_VOLUME=clean_volume)
+
+AC_SUBST(BUILD_VOLUME)
+AC_SUBST(CLEAN_VOLUME)
+
+AC_ARG_WITH(borescope,
+         [  --with-borescope        include the borescope classes],
          borescopedir=borescope
          BUILD_BORESCOPE=build_borescope
-         CLEAN_BORESCOPE=clean_borescope)
+         CLEAN_BORESCOPE=clean_borescope,)
 
 AC_SUBST(BUILD_BORESCOPE)
 AC_SUBST(CLEAN_BORESCOPE)
 
-AC_CONFIG_SUBDIRS(common $tcldir $graphicsdir $imagingdir $borescopedir)
+AC_CONFIG_SUBDIRS(common $tcldir $graphicsdir $imagingdir $borescopedir $volumedir)
 
 #------------------------------------------------------------------------------
 #       Some make programs require includes to be 

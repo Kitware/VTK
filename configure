@@ -22,6 +22,8 @@ ac_help="$ac_help
 ac_help="$ac_help
   --without-imaging       do not include the imaging classes"
 ac_help="$ac_help
+  --without-volume       do not include the volume classes"
+ac_help="$ac_help
   --with-borescope        include the borescope classes"
 
 # Initialize some variables set by options.
@@ -582,11 +584,23 @@ fi
 
 
 
-# Check whether --with-imaging or --without-imaging was given.
-if test "${with_imaging+set}" = set; then
-  withval="$with_imaging"
+# Check whether --with-volume or --without-volume was given.
+if test "${with_volume+set}" = set; then
+  withval="$with_volume"
   :
 else
+  volumedir=volume
+         BUILD_VOLUME=build_volume
+         CLEAN_VOLUME=clean_volume
+fi
+
+
+
+
+
+# Check whether --with-borescope or --without-borescope was given.
+if test "${with_borescope+set}" = set; then
+  withval="$with_borescope"
   borescopedir=borescope
          BUILD_BORESCOPE=build_borescope
          CLEAN_BORESCOPE=clean_borescope
@@ -615,7 +629,7 @@ ac_config_guess=$ac_aux_dir/config.guess
 ac_config_sub=$ac_aux_dir/config.sub
 ac_configure=$ac_aux_dir/configure # This should be Cygnus configure.
 
-subdirs="common $tcldir $graphicsdir $imagingdir $borescopedir"
+subdirs="common $tcldir $graphicsdir $imagingdir $borescopedir $volumedir"
 
 
 #------------------------------------------------------------------------------
@@ -800,6 +814,8 @@ s%@BUILD_GRAPHICS@%$BUILD_GRAPHICS%g
 s%@CLEAN_GRAPHICS@%$CLEAN_GRAPHICS%g
 s%@BUILD_IMAGING@%$BUILD_IMAGING%g
 s%@CLEAN_IMAGING@%$CLEAN_IMAGING%g
+s%@BUILD_VOLUME@%$BUILD_VOLUME%g
+s%@CLEAN_VOLUME@%$CLEAN_VOLUME%g
 s%@BUILD_BORESCOPE@%$BUILD_BORESCOPE%g
 s%@CLEAN_BORESCOPE@%$CLEAN_BORESCOPE%g
 s%@subdirs@%$subdirs%g
@@ -894,7 +910,7 @@ if test "$no_recursion" != yes; then
     esac
   done
 
-  for ac_config_dir in common $tcldir $graphicsdir $imagingdir $borescopedir; do
+  for ac_config_dir in common $tcldir $graphicsdir $imagingdir $borescopedir $volumedir; do
 
     # Do not complain, so a configure script can configure whichever
     # parts of a large source tree are present.
