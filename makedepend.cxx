@@ -12,7 +12,7 @@
 #include "pcmaker/pcmakerDlg.h"
 #endif
 
-#define MAX_DEPENDS 2000
+#define MAX_DEPENDS 4000
 
 struct DEPENDS_STRUCT
 {
@@ -241,7 +241,7 @@ void AddToDepends(const char *filename, const char *vtkHome,
   if ( NumInDepends >= MAX_DEPENDS )
     {
 #ifdef WIN32
-    AfxMessageBox("ERROR:  To many depends files... recompile with larger MAX_DEPENDS!!!");
+    AfxMessageBox("ERROR:  Too many depends files... recompile with larger MAX_DEPENDS!!!");
 #else
     fprintf(stderr,
        "ERROR:  To many depends files... recompile with larger MAX_DEPENDS!!!");
