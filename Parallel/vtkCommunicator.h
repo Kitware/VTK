@@ -107,6 +107,8 @@ public:
                       int tag) = 0;
 #endif
 
+  static void SetUseCopy(int useCopy);
+
 protected:
 
   void DeleteAndSetMarshalString(char *str, int strLength);
@@ -132,6 +134,8 @@ protected:
   int MarshalStringLength;
   // The data may not take up all of the string.
   int MarshalDataLength;
+
+  static int UseCopy;
 
 private:
   vtkCommunicator(const vtkCommunicator&);  // Not implemented.

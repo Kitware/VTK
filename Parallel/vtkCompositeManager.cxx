@@ -29,7 +29,11 @@
 #include "vtkMesaRenderWindow.h"
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeManager, "1.19");
+#ifdef VTK_USE_MPI
+ #include <mpi.h>
+#endif
+
+vtkCxxRevisionMacro(vtkCompositeManager, "1.20");
 
 // Structures to communicate render info.
 struct vtkCompositeRenderWindowInfo 
@@ -82,6 +86,8 @@ vtkCompositeManager::vtkCompositeManager()
   this->Manual = 0;
 
   this->Timer = vtkTimerLog::New();
+
+  this->FirstRender = 0;
 }
 
   
@@ -583,6 +589,13 @@ void vtkCompositeManager::StartRender()
   winInfo.NumberOfRenderers = rens->GetNumberOfItems();
   winInfo.DesiredUpdateRate = this->RenderWindow->GetDesiredUpdateRate();
   
+  if ( winInfo.Size[0] == 0 || winInfo.Size[1] == 0 )
+    {
+    this->FirstRender = 1;
+    renWin->SwapBuffersOff();
+    return;
+    }
+
   this->SetRendererSize(winInfo.Size[0]/this->ReductionFactor, 
                         winInfo.Size[1]/this->ReductionFactor);
   
@@ -635,6 +648,14 @@ void vtkCompositeManager::StartRender()
 //-------------------------------------------------------------------------
 void vtkCompositeManager::EndRender()
 {
+
+  if (this->FirstRender)
+    {
+    this->FirstRender = 0;
+    this->Lock = 0;
+    this->StartRender();
+    }
+
   vtkRenderWindow* renWin = this->RenderWindow;
   vtkMultiProcessController *controller = this->Controller;
   int numProcs;
@@ -808,21 +829,71 @@ void vtkCompositeManager::InitializeOffScreen()
 //-------------------------------------------------------------------------
 
 void vtkCompositeManager::ResizeFloatArray(vtkFloatArray* fa, int numComp,
-					   int size)
+					   vtkIdType size)
 {
   fa->SetNumberOfComponents(numComp);
+
+#ifdef MPIPROALLOC
+  vtkIdType fa_size = fa->GetSize();
+  if ( fa_size < size*numComp )
+    {
+    float* ptr = fa->GetPointer(0);
+    if (ptr)
+      {
+      MPI_Free_mem(ptr);
+      }
+    char* tptr;
+    MPI_Alloc_mem(size*numComp*sizeof(float), NULL, &tptr);
+    ptr = (float*)tptr;
+    fa->SetArray(ptr, size*numComp, 1);
+    }
+  else
+    {
+    fa->SetNumberOfTuples(size);
+    }
+#else
   fa->SetNumberOfTuples(size);
+#endif
 }
 
 void vtkCompositeManager::ResizeUnsignedCharArray(vtkUnsignedCharArray* uca, 
-						  int numComp, int size)
+						  int numComp, 
+						  vtkIdType size)
 {
   uca->SetNumberOfComponents(numComp);
+#ifdef MPIPROALLOC
+  vtkIdType uca_size = uca->GetSize();
+
+  if ( uca_size < size*numComp )
+    {
+    unsigned char* ptr = uca->GetPointer(0);
+    if (ptr)
+      {
+      MPI_Free_mem(ptr);
+      }
+    char* tptr;
+    MPI_Alloc_mem(size*numComp*sizeof(unsigned char), NULL, &tptr);
+    ptr = (unsigned char*)tptr;
+    uca->SetArray(ptr, size*numComp, 1);
+    }
+  else
+    {
+    uca->SetNumberOfTuples(size);
+    }
+#else
   uca->SetNumberOfTuples(size);
+#endif
 }
 
 void vtkCompositeManager::DeleteArray(vtkDataArray* da)
 {
+#ifdef MPIPROALLOC
+  void* ptr = da->GetVoidPointer(0);
+  if (ptr)
+    {
+    MPI_Free_mem(ptr);
+    }
+#endif
   da->Delete();
 }
 
@@ -836,14 +907,14 @@ void vtkCompositeManager::SetUseChar(int useChar)
       if (useChar && !vtkUnsignedCharArray::SafeDownCast(this->PData))
 	{
 	int size = this->PData->GetNumberOfTuples();
-	this->PData->Delete();
+	vtkCompositeManager::DeleteArray(this->PData);
 	this->PData = vtkUnsignedCharArray::New();
 	vtkCompositeManager::ResizeUnsignedCharArray(static_cast<vtkUnsignedCharArray*>(this->PData), 4, size);
 	}
       else if (!useChar && !vtkFloatArray::SafeDownCast(this->PData))
 	{
 	int size = this->PData->GetNumberOfTuples();
-	this->PData->Delete();
+	vtkCompositeManager::DeleteArray(this->PData);
 	this->PData = vtkFloatArray::New();
 	vtkCompositeManager::ResizeFloatArray(static_cast<vtkFloatArray*>(this->PData), 4, size);
 	}
@@ -853,14 +924,14 @@ void vtkCompositeManager::SetUseChar(int useChar)
       if (useChar && !vtkUnsignedCharArray::SafeDownCast(this->LocalPData))
 	{
 	int size = this->LocalPData->GetNumberOfTuples();
-	this->LocalPData->Delete();
+	vtkCompositeManager::DeleteArray(this->LocalPData);
 	this->LocalPData = vtkUnsignedCharArray::New();
 	vtkCompositeManager::ResizeUnsignedCharArray(static_cast<vtkUnsignedCharArray*>(this->LocalPData), 4, size);
 	}
       else if (!useChar && !vtkFloatArray::SafeDownCast(this->LocalPData))
 	{
 	int size = this->LocalPData->GetNumberOfTuples();
-	this->LocalPData->Delete();
+	vtkCompositeManager::DeleteArray(this->LocalPData);
 	this->LocalPData = vtkFloatArray::New();
 	vtkCompositeManager::ResizeFloatArray(static_cast<vtkFloatArray*>(this->LocalPData), 4, size);
 	}
@@ -875,7 +946,6 @@ void vtkCompositeManager::SetRendererSize(int x, int y)
     {
     return;
     }
-  
   
   int numPixels = x * y;
   if (numPixels > 0)

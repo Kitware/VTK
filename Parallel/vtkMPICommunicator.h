@@ -161,6 +161,9 @@ public:
 
 //ETX
 
+  static char* Allocate(size_t size);
+  static void Free(char* ptr);
+
 protected:
 
   vtkSetObjectMacro(Group, vtkMPIGroup);
@@ -176,6 +179,7 @@ protected:
   // complicated for this case.
   vtkSetMacro(KeepHandle, int);
   vtkBooleanMacro(KeepHandle, int);
+
 
   static vtkMPICommunicator* WorldCommunicator;
 

@@ -220,6 +220,8 @@ protected:
 
   // For manual compositing.
   int Manual;
+
+  int FirstRender;
 };
 
 #endif
