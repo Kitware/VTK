@@ -21,7 +21,7 @@
 #include "vtkRenderWindow.h"
 #include "gl2ps.h"
 
-vtkCxxRevisionMacro(vtkGL2PSExporter, "1.4");
+vtkCxxRevisionMacro(vtkGL2PSExporter, "1.5");
 vtkStandardNewMacro(vtkGL2PSExporter);
 
 vtkGL2PSExporter::vtkGL2PSExporter()
@@ -128,7 +128,7 @@ void vtkGL2PSExporter::WriteData()
   
 
   // Setup the file.
-  fName = new char [strlen(this->FilePrefix) + 4] ;
+  fName = new char [strlen(this->FilePrefix) + 5] ;
   if (this->FileFormat == PS_FILE)
     {
     sprintf(fName, "%s.ps", this->FilePrefix);
