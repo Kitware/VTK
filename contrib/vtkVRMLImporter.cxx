@@ -42,6 +42,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #pragma warning( disable : 4005 )
 #endif
 
+#include "vtkVRML.h"
+
 #include "vtkVRMLImporter.h"
 #include "vtkByteSwap.h"
 #include "vtkPolyDataMapper.h"
@@ -55,8 +57,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkFloatPoints.h"
 #include "vtkFloatNormals.h"
 #include "vtkSystemIncludes.h"
-
-#include "vtkVRML.h"
 
 // Used later to get the current VRMLImporter
 vtkVRMLImporter *curImporter;
