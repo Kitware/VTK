@@ -19,6 +19,13 @@ package ifneeded vtkinit {@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@} {
         return 1
       }
     }
+    set version {@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@}
+    set kits {}
+    foreach kit { base Common Filtering IO Imaging Graphics
+                  @VTK_TCL_RENDERING_CONFIG@ @VTK_TCL_HYBRID_CONFIG@ 
+                  @VTK_TCL_PATENTED_CONFIG@ @VTK_TCL_PARALLEL_CONFIG@ } {
+      lappend kits [string tolower "${kit}"]
+    }
   }
   package provide vtkinit {@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@}
 }
