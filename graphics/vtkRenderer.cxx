@@ -84,7 +84,6 @@ vtkRenderer::vtkRenderer()
   
   this->Cullers = vtkCullerCollection::New();  
   vtkFrustumCoverageCuller *cull = vtkFrustumCoverageCuller::New();
-  cull->SetSortingStyleToBackToFront();
   this->Cullers->AddItem(cull);
   cull->Delete();
 }
