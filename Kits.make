@@ -10,11 +10,12 @@ SHELL = /bin/sh
 #------------------------------------------------------------------------------
 
 CC_FLAGS = ${CPPFLAGS} ${USER_CFLAGS} ${CFLAGS} ${USE_TOOLKIT_FLAGS} \
-	   ${GRAPHICS_API_FLAGS}
+	   ${GRAPHICS_API_FLAGS} ${JAVA_INCLUDES}
 
 CXX_FLAGS = ${CPPFLAGS} ${USER_CXXFLAGS} ${CXXFLAGS} -I${srcdir} \
 	${KIT_FLAGS} -I. ${USE_TOOLKIT_FLAGS} ${GRAPHICS_API_FLAGS} \
-	 -I${srcdir}/../common ${TK_INCLUDE} ${TCL_INCLUDE} 
+	 -I${srcdir}/../common ${TK_INCLUDE} ${TCL_INCLUDE} \
+	${JAVA_INCLUDES}
 
 all: ${VTK_LIB_FILE} ${BUILD_TCL} ${BUILD_JAVA}
 
@@ -38,10 +39,10 @@ libVTK${ME}.a: ${SRC_OBJ} ${KIT_OBJ}
 	${RANLIB} libVTK$(ME).a
 
 
-libVTK$(ME)$(SHLIB_SUFFIX)$(SHLIB_VERSION): ${KIT_OBJ}
-	rm -f libVTK$(ME)$(SHLIB_SUFFIX)$(SHLIB_VERSION)
+libVTK$(ME)$(SHLIB_SUFFIX): ${KIT_OBJ}
+	rm -f libVTK$(ME)$(SHLIB_SUFFIX)
 	$(CXX) ${CXX_FLAGS} ${VTK_SHLIB_BUILD_FLAGS} -o \
-	libVTK$(ME)$(SHLIB_SUFFIX)$(SHLIB_VERSION) \
+	libVTK$(ME)$(SHLIB_SUFFIX) \
 	   ${KIT_OBJ} ${SHLIB_LD_LIBS}
 
 #------------------------------------------------------------------------------
@@ -56,30 +57,30 @@ libVTK${ME}Tcl.a: tcl/${ME}Init.o ${KIT_LIBS} ${KIT_TCL_OBJ}
 	${AR} cr libVTK${ME}Tcl.a tcl/${ME}Init.o ${KIT_LIBS} ${KIT_TCL_OBJ}
 	${RANLIB} libVTK$(ME)Tcl.a
 
-libVTK$(ME)Tcl$(SHLIB_SUFFIX)$(SHLIB_VERSION): tcl/${ME}Init.o ${KIT_LIBS} ${KIT_TCL_OBJ}
-	rm -f libVTK$(ME)Tcl$(SHLIB_SUFFIX)$(SHLIB_VERSION)
+libVTK$(ME)Tcl$(SHLIB_SUFFIX): tcl/${ME}Init.o ${KIT_LIBS} ${KIT_TCL_OBJ}
+	rm -f libVTK$(ME)Tcl$(SHLIB_SUFFIX)
 	$(CXX) ${CXX_FLAGS} ${VTK_SHLIB_BUILD_FLAGS} -o \
-	libVTK$(ME)Tcl$(SHLIB_SUFFIX)$(SHLIB_VERSION) \
+	libVTK$(ME)Tcl$(SHLIB_SUFFIX) \
 	tcl/${ME}Init.o ${KIT_LIBS} ${KIT_TCL_OBJ}
 
 #------------------------------------------------------------------------------
 # rules for the java library
 #
-build_java: ${JAVA_CLASSES} ${JAVA_CODE} ${JAVA_CODE_ADD} ${JAVA_O_ADD} ${JAVA_WRAP} libVTK${ME}Java${SHLIB_SUFFIX}${SHLIB_VERSION}
+build_java: ${JAVA_CLASSES} ${JAVA_CODE} ${JAVA_CODE_ADD} ${JAVA_O_ADD} ${JAVA_WRAP} libVTK${ME}Java${SHLIB_SUFFIX}
 
 .java.class:
 	${JAVAC} -d ${JAVA_CLASS_HOME} $< 
 
-libVTK$(ME)Java$(SHLIB_SUFFIX)$(SHLIB_VERSION): ${KIT_OBJ} ${JAVA_O_ADD} ${JAVA_WRAP}
-	rm -f libVTK$(ME)Java$(SHLIB_SUFFIX)$(SHLIB_VERSION)
+libVTK$(ME)Java$(SHLIB_SUFFIX): ${KIT_OBJ} ${JAVA_O_ADD} ${JAVA_WRAP}
+	rm -f libVTK$(ME)Java$(SHLIB_SUFFIX)
 	$(CXX) ${CSS_FLAGS} ${VTK_SHLIB_BUILD_FLAGS} \
-	-o libVTK$(ME)Java$(SHLIB_SUFFIX)$(SHLIB_VERSION) \
+	-o libVTK$(ME)Java$(SHLIB_SUFFIX) \
 	  ${KIT_OBJ} ${JAVA_O_ADD} ${JAVA_WRAP}
 
 
 #------------------------------------------------------------------------------
 clean: ${CLEAN_TCL} $(CLEAN_JAVA)
-	-rm -f *.o *.a *.so *.sl *~ *.make Makefile
+	-rm -f *.o *.a *.so *.sl *~ Makefile
 
 clean_tcl:
 	-cd tcl; rm -f *
@@ -89,14 +90,14 @@ clean_java:
 
 #------------------------------------------------------------------------------
 install_tcl_java: install_tcl
-	@echo "Installing libVTK${ME}Java${SHLIB_SUFFIX}${SHLIB_VERSION}"
-	@$(INSTALL) libVTK${ME}Java${SHLIB_SUFFIX}${SHLIB_VERSION} $(LIB_INSTALL_DIR)/libVTK${ME}Java${SHLIB_SUFFIX}${SHLIB_VERSION}
-	@chmod 555 $(LIB_INSTALL_DIR)/libVTK${ME}Java${SHLIB_SUFFIX}${SHLIB_VERSION}
+	@echo "Installing libVTK${ME}Java${SHLIB_SUFFIX}"
+	@$(INSTALL) libVTK${ME}Java${SHLIB_SUFFIX} $(LIB_INSTALL_DIR)/libVTK${ME}Java${SHLIB_SUFFIX}
+	@chmod 555 $(LIB_INSTALL_DIR)/libVTK${ME}Java${SHLIB_SUFFIX}
 
 install_java: install
-	@echo "Installing libVTK${ME}Java${SHLIB_SUFFIX}${SHLIB_VERSION}"
-	@$(INSTALL) libVTK${ME}Java${SHLIB_SUFFIX}${SHLIB_VERSION} $(LIB_INSTALL_DIR)/libVTK${ME}Java${SHLIB_SUFFIX}${SHLIB_VERSION}
-	@chmod 555 $(LIB_INSTALL_DIR)/libVTK${ME}Java${SHLIB_SUFFIX}${SHLIB_VERSION}
+	@echo "Installing libVTK${ME}Java${SHLIB_SUFFIX}"
+	@$(INSTALL) libVTK${ME}Java${SHLIB_SUFFIX} $(LIB_INSTALL_DIR)/libVTK${ME}Java${SHLIB_SUFFIX}
+	@chmod 555 $(LIB_INSTALL_DIR)/libVTK${ME}Java${SHLIB_SUFFIX}
 
 install_tcl: install ${TCL_LIB_FILE}
 	@echo "Installing ${TCL_LIB_FILE}"

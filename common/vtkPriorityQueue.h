@@ -75,7 +75,7 @@ public:
   vtkPriorityQueue(const int sz, const int ext=1000);
   ~vtkPriorityQueue();
   static vtkPriorityQueue *New() {return new vtkPriorityQueue;};
-  char *GetClassName() {return "vtkPriorityQueue";};
+  const char *GetClassName() {return "vtkPriorityQueue";};
   
   void PrintSelf(ostream& os, vtkIndent indent);
 

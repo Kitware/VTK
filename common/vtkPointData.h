@@ -64,7 +64,7 @@ public:
   void Initialize();
   ~vtkPointData();
   static vtkPointData *New() {return new vtkPointData;};
-  char *GetClassName() {return "vtkPointData";};
+  const char *GetClassName() {return "vtkPointData";};
   void PrintSelf(ostream& os, vtkIndent indent);
   vtkPointData (const vtkPointData& pd);
   vtkPointData &operator=(vtkPointData& pd);

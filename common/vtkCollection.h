@@ -72,7 +72,7 @@ public:
   virtual ~vtkCollection();
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkCollection *New() {return new vtkCollection;};
-  char *GetClassName() {return "vtkCollection";};
+  const char *GetClassName() {return "vtkCollection";};
 
   void AddItem(vtkObject *);
   void ReplaceItem(int i, vtkObject *);

@@ -58,7 +58,7 @@ public:
   vtkPixmap(const int sz, const int ext=1000);
   ~vtkPixmap();
   static vtkPixmap *New() {return new vtkPixmap;};
-  char *GetClassName() {return "vtkPixmap";};
+  const char *GetClassName() {return "vtkPixmap";};
 
   void Initialize() {this->S->Initialize();};
   int Allocate(const int sz, const int ext=1000) {return this->S->Allocate(3*sz,3*ext);};

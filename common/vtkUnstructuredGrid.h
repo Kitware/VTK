@@ -60,7 +60,7 @@ public:
   vtkUnstructuredGrid(const vtkUnstructuredGrid& up);
   ~vtkUnstructuredGrid();
   static vtkUnstructuredGrid *New() {return new vtkUnstructuredGrid;};
-  char *GetClassName() {return "vtkUnstructuredGrid";};
+  const char *GetClassName() {return "vtkUnstructuredGrid";};
   char *GetDataType() {return "vtkUnstructuredGrid";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -56,7 +56,7 @@ public:
   vtkPolygon() {};
   vtkPolygon(const vtkPolygon& p);
   static vtkPolygon *New() {return new vtkPolygon;};
-  char *GetClassName() {return "vtkPolygon";};
+  const char *GetClassName() {return "vtkPolygon";};
 
   // Cell interface
   vtkCell *MakeObject() {return new vtkPolygon(*this);};

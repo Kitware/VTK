@@ -63,7 +63,7 @@ class VTK_EXPORT vtkImageSource : public vtkObject
 public:
   vtkImageSource();
   ~vtkImageSource();
-  char *GetClassName() {return "vtkImageSource";};
+  const char *GetClassName() {return "vtkImageSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual vtkImageRegion *UpdateRegion();

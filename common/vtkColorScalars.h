@@ -69,7 +69,7 @@ class VTK_EXPORT vtkColorScalars : public vtkScalars
 {
 public:
   vtkColorScalars() {};
-  char *GetClassName() {return "vtkColorScalars";};
+  const char *GetClassName() {return "vtkColorScalars";};
 
   // vtkScalars interface
   char *GetScalarType() {return "ColorScalar";};

@@ -61,7 +61,7 @@ class VTK_EXPORT vtkLogLookupTable : public vtkLookupTable
 public:
   vtkLogLookupTable(int sze=256, int ext=256);
   static vtkLogLookupTable *New() {return new vtkLogLookupTable;};
-  char *GetClassName() {return "vtkLogLookupTable";};
+  const char *GetClassName() {return "vtkLogLookupTable";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void SetTableRange(float min, float max);

@@ -63,7 +63,7 @@ class VTK_EXPORT vtkImageCache : public vtkImageSource
 public:
   vtkImageCache();
   ~vtkImageCache();
-  char *GetClassName() {return "vtkImageCache";};
+  const char *GetClassName() {return "vtkImageCache";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
   unsigned long int GetPipelineMTime();

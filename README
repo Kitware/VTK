@@ -38,7 +38,7 @@ Welcome to the Visualization Toolkit.
 "The Visualization Toolkit, an Object-Oriented Approach to 3D Graphics" is
 the title of a new book published by Prentice Hall (ISBN 013199837-4).  
 
-This is version 1.3. In this release there have been many bugs fixed and a
+This is version 2.0. In this release there have been many bugs fixed and a
 number of new classes. Depending on when you get this, there may be more
 recent versions out. For more information and a FAQ see our web page at
 http://www.cs.rpi.edu/~martink/
@@ -71,24 +71,24 @@ If you will be using C++ as your development language:
 
   1) untar the src files
   2) untar the data files
-  3) cd vtk1.3
-  4) read and edit Config.mk (set your CC and CXX variables)
-  5) ./configure
+  3) cd vtk
+  4) ./configure (set your CC and CXX environment variables first)
+  5) read and edit user.make 
   6) make
 
 If you will be using tcl in addition to C++:
 
   1) untar the src files
   2) untar the data files
-  3) cd vtk1.3
+  3) cd vtk
   4) obtain and build Tcl/Tk if you don't already have it
-  5) read and edit Config.mk (set your CC and CXX variables)
-  6) ./configure --with-tcl 
+  5) ./configure --with-tcl  (set your CC and CXX environment variables first)
+  6) read and edit user.make
   7) make
 
-This release has some alpha java support, you can use --with-java but
-it is alpha, probably will core dump, and I think it only works on
-Sun Solaris. But feel free to experiment.
+This release has some java support, you can use --with-java but
+I think it only works on Sun Solaris and Windows. But feel free 
+to experiment.
 
 If you do not have OpenGL, GL, Starbase or XGL the you will need to get and
 compile Mesa, a wonderful free version of OpenGL. You will need to add
@@ -149,6 +149,9 @@ configure from the vtk directory, create a new directory where you have some
 free disk space (not in the vtk tree), a possible name would be
 vtk-solaris. cd into this directory and then run configure similar to the
 following example:
+
+ls /home/joe_user
+    vtk vtk-solaris vtk-sgi
 
 cd vtk-solaris
 /home/joe_user/vtk/configure --with-tcl 

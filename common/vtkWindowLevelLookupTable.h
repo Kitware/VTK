@@ -66,7 +66,7 @@ public:
   vtkWindowLevelLookupTable(int sze=256, int ext=256);
   void Build();
   static vtkWindowLevelLookupTable *New() {return new vtkWindowLevelLookupTable;};
-  char *GetClassName() {return "vtkWindowLevelLookupTable";};
+  const char *GetClassName() {return "vtkWindowLevelLookupTable";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -84,7 +84,7 @@ class VTK_EXPORT vtkLocator : public vtkObject
 public:
   vtkLocator();
   ~vtkLocator();
-  char *GetClassName() {return "vtkLocator";};
+  const char *GetClassName() {return "vtkLocator";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

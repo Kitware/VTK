@@ -58,7 +58,7 @@ public:
   vtkTriangleStrip() {};
   vtkTriangleStrip(const vtkTriangleStrip& ts);
   static vtkTriangleStrip *New() {return new vtkTriangleStrip;};
-  char *GetClassName() {return "vtkTriangleStrip";};
+  const char *GetClassName() {return "vtkTriangleStrip";};
 
   // cell methods
   vtkCell *MakeObject() {return new vtkTriangleStrip(*this);};

@@ -59,7 +59,7 @@ public:
   vtkUnsignedShortArray(const vtkUnsignedShortArray& ia);
   ~vtkUnsignedShortArray();
   static vtkUnsignedShortArray *New() {return new vtkUnsignedShortArray;};
-  char *GetClassName() {return "vtkUnsignedShortArray";};
+  const char *GetClassName() {return "vtkUnsignedShortArray";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // access/insertion methods

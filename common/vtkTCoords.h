@@ -59,7 +59,7 @@ class VTK_EXPORT vtkTCoords : public vtkReferenceCount
 {
 public:
   vtkTCoords(int dim=2);
-  char *GetClassName() {return "vtkTCoords";};
+  const char *GetClassName() {return "vtkTCoords";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -2486,10 +2486,6 @@ fi
 #	SHLIB_SUFFIX -	Suffix to use for the name of the shared library.  An
 #			empty string means we don't know how to use shared
 #			libraries on this platform.
-#	SHLIB_VERSION -	If this platform *requires* shared libraries to end
-#			in a version string, this provides a default version
-#			string to use;  it is an empty string on platforms
-#			where it isn't needed.
 #	VTK_SHLIB_BUILD_FLAGS -
 #                       Flags to use when building a shared library.	
 #	VTK_SHLIB_LINK_FLAGS -	
@@ -2503,7 +2499,7 @@ fi
 # there are a few systems, like Next, where this doesn't work.
 
 echo $ac_n "checking system version (for dynamic loading)""... $ac_c" 1>&6
-echo "configure:2507: checking system version (for dynamic loading)" >&5
+echo "configure:2503: checking system version (for dynamic loading)" >&5
 if test -f /usr/lib/NextStep/software_version; then
   system=NEXTSTEP-`awk '/3/,/3/' /usr/lib/NextStep/software_version`
 else
@@ -2526,7 +2522,7 @@ fi
 # Linux can use either -ldl or -ldld for dynamic loading.
 
 echo $ac_n "checking for dlopen in -ldl""... $ac_c" 1>&6
-echo "configure:2530: checking for dlopen in -ldl" >&5
+echo "configure:2526: checking for dlopen in -ldl" >&5
 ac_lib_var=`echo dl'_'dlopen | sed 'y%./+-%__p_%'`
 if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
@@ -2534,7 +2530,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-ldl  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 2538 "configure"
+#line 2534 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 /* We use char because int might match the return type of a gcc2
@@ -2545,7 +2541,7 @@ int main() {
 dlopen()
 ; return 0; }
 EOF
-if { (eval echo configure:2549: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest; then
+if { (eval echo configure:2545: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -2577,10 +2573,9 @@ case $system in
 	SHLIB_CFLAGS=""
 	SHLIB_LD_LIBS='${LIBS}'
 	SHLIB_SUFFIX="..o"
-	SHLIB_VERSION=""
 	DL_LIBS=""
         echo $ac_n "checking for printf in -lld""... $ac_c" 1>&6
-echo "configure:2584: checking for printf in -lld" >&5
+echo "configure:2579: checking for printf in -lld" >&5
 ac_lib_var=`echo ld'_'printf | sed 'y%./+-%__p_%'`
 if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
@@ -2588,7 +2583,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lld  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 2592 "configure"
+#line 2587 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 /* We use char because int might match the return type of a gcc2
@@ -2599,7 +2594,7 @@ int main() {
 printf()
 ; return 0; }
 EOF
-if { (eval echo configure:2603: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest; then
+if { (eval echo configure:2598: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -2625,7 +2620,6 @@ fi
 	SHLIB_CFLAGS="+z"
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".sl"
-	SHLIB_VERSION=""
 	DL_LIBS="-ldld"
 	VTK_SHLIB_BUILD_FLAGS='-shared -Wl,-E -Wl,-b'
 	VTK_SHLIB_LINK_FLAGS='-Wl,+s -Wl,+b,${LIB_RUNTIME_DIR}'
@@ -2634,7 +2628,6 @@ fi
 	SHLIB_CFLAGS=""
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
 	DL_LIBS=""
 	VTK_SHLIB_BUILD_FLAGS="-shared -rdata_shared"
 	;;
@@ -2642,7 +2635,6 @@ fi
 	SHLIB_CFLAGS=""
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
 	DL_LIBS=""
 	VTK_SHLIB_BUILD_FLAGS="-shared -rdata_shared"
 	;;
@@ -2650,24 +2642,23 @@ fi
 	SHLIB_CFLAGS="-fPIC"
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
 	if test "$have_dl" = yes; then
 	    DL_LIBS="-ldl"
 	    VTK_SHLIB_LINK_FLAGS="-rdynamic"
 	else
 	    ac_safe=`echo "dld.h" | sed 'y%./+-%__p_%'`
 echo $ac_n "checking for dld.h""... $ac_c" 1>&6
-echo "configure:2661: checking for dld.h" >&5
+echo "configure:2652: checking for dld.h" >&5
 if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 2666 "configure"
+#line 2657 "configure"
 #include "confdefs.h"
 #include <dld.h>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:2671: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:2662: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -2696,7 +2687,6 @@ fi
 	SHLIB_CFLAGS="-K PIC"
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
 	DL_LIBS="-ldl"
 	VTK_SHLIB_LINK_FLAGS=""
 	;;
@@ -2704,7 +2694,6 @@ fi
 	SHLIB_CFLAGS="-K PIC"
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
 	DL_LIBS="-ldl"
 	VTK_SHLIB_LINK_FLAGS="-Wl,-Bexport"
 	;;
@@ -2714,14 +2703,12 @@ fi
 	    SHLIB_CFLAGS="-fpic"
 	    SHLIB_LD_LIBS=""
 	    SHLIB_SUFFIX=".so"
-	    SHLIB_VERSION=".1.0"
 	    DL_LIBS=""
 	    VTK_SHLIB_LINK_FLAGS=""
 	else
 	    SHLIB_CFLAGS=""
 	    SHLIB_LD_LIBS=""
 	    SHLIB_SUFFIX="..o"
-	    SHLIB_VERSION=""
 	    DL_LIBS=""
 	    VTK_SHLIB_LINK_FLAGS=""
 	fi
@@ -2730,7 +2717,6 @@ fi
 	SHLIB_CFLAGS=""
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
 	DL_LIBS=""
 	VTK_SHLIB_LINK_FLAGS=""
 	;;
@@ -2740,7 +2726,6 @@ fi
 	# Hack: make package name same as library name
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
 	DL_LIBS=""
 	VTK_SHLIB_LINK_FLAGS=""
 	;;
@@ -2749,7 +2734,6 @@ fi
 	SHLIB_CFLAGS="-fpic"
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
 	DL_LIBS=""
 	VTK_SHLIB_LINK_FLAGS=""
 	;;
@@ -2758,7 +2742,6 @@ fi
 	SHLIB_CFLAGS=""
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
 	DL_LIBS=""
 	VTK_SHLIB_BUILD_FLAGS='-shared -Wl,-expect_unresolved,"*"'
 	VTK_SHLIB_LINK_FLAGS='-Wl,-rpath,${LIB_RUNTIME_DIR}'
@@ -2767,7 +2750,6 @@ fi
 	SHLIB_CFLAGS="-G 0"
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX="..o"
-	SHLIB_VERSION=""
 	DL_LIBS=""
 	VTK_SHLIB_LINK_FLAGS="-Wl,-D,08000000"
 	;;
@@ -2778,7 +2760,6 @@ fi
 	SHLIB_CFLAGS="-Kpic -belf"
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
 	DL_LIBS=""
 	VTK_SHLIB_LINK_FLAGS="-belf -Wl,-Bexport"
 	;;
@@ -2786,7 +2767,6 @@ fi
 	SHLIB_CFLAGS="-K PIC"
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
 	DL_LIBS="-ldl"
 	VTK_SHLIB_LINK_FLAGS=""
 	;;
@@ -2794,7 +2774,6 @@ fi
 	SHLIB_CFLAGS="-PIC"
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
 	DL_LIBS="-ldl"
 	VTK_SHLIB_BUILD_FLAGS='-shared -Wl,-r -nostdlib'
 	VTK_SHLIB_LINK_FLAGS='-Wl,-L${LIB_RUNTIME_DIR}'
@@ -2803,7 +2782,6 @@ fi
 	SHLIB_CFLAGS="-KPIC"
 	SHLIB_LD_LIBS='${LIBS}'
 	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
 	DL_LIBS="-ldl"
 	VTK_SHLIB_BUILD_FLAGS='-G'
 	VTK_SHLIB_LINK_FLAGS='-R ${LIB_RUNTIME_DIR}'
@@ -2816,7 +2794,6 @@ fi
 	SHLIB_CFLAGS="-G 0"
 	SHLIB_SUFFIX="..o"
 	SHLIB_LD_LIBS=""
-	SHLIB_VERSION=""
 	DL_LIBS=""
 	VTK_SHLIB_LINK_FLAGS="-Wl,-D,08000000"
 	;;
@@ -2824,7 +2801,6 @@ fi
 	SHLIB_CFLAGS="-K PIC"
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
 	DL_LIBS="-ldl"
 	VTK_SHLIB_LINK_FLAGS="-Wl,-Bexport"
 	;;
@@ -2843,7 +2819,7 @@ if test "$vtk_shared_ok" = "yes"; then
     VTK_TCL_SHLIB_TARGET="vtktcl"
     RANLIB=":"
     TOOLKIT_DEPENDS=""
-    VTK_LIB_EXT="${SHLIB_SUFFIX}${SHLIB_VERSION}"
+    VTK_LIB_EXT="${SHLIB_SUFFIX}"
 else
     VTK_LIB_EXT=".a"
     SHLIB_LD_LIBS=""
@@ -2903,7 +2879,6 @@ fi
 
 
 
-
 ##########################
 ##			##
 ## Check thread support ##
@@ -2916,17 +2891,17 @@ for ac_hdr in sys/prctl.h
 do
 ac_safe=`echo "$ac_hdr" | sed 'y%./+-%__p_%'`
 echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
-echo "configure:2920: checking for $ac_hdr" >&5
+echo "configure:2895: checking for $ac_hdr" >&5
 if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 2925 "configure"
+#line 2900 "configure"
 #include "confdefs.h"
 #include <$ac_hdr>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:2930: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:2905: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -2965,17 +2940,17 @@ for ac_hdr in pthread.h
 do
 ac_safe=`echo "$ac_hdr" | sed 'y%./+-%__p_%'`
 echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
-echo "configure:2969: checking for $ac_hdr" >&5
+echo "configure:2944: checking for $ac_hdr" >&5
 if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 2974 "configure"
+#line 2949 "configure"
 #include "confdefs.h"
 #include <$ac_hdr>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:2979: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:2954: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -3004,7 +2979,7 @@ done
 if test "$use_pthreads" = "yes"; then
   if test "$use_sproc" = "no"; then
     echo $ac_n "checking for pthread_create in -lpthreads""... $ac_c" 1>&6
-echo "configure:3008: checking for pthread_create in -lpthreads" >&5
+echo "configure:2983: checking for pthread_create in -lpthreads" >&5
 ac_lib_var=`echo pthreads'_'pthread_create | sed 'y%./+-%__p_%'`
 if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
@@ -3012,7 +2987,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lpthreads  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 3016 "configure"
+#line 2991 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 /* We use char because int might match the return type of a gcc2
@@ -3023,7 +2998,7 @@ int main() {
 pthread_create()
 ; return 0; }
 EOF
-if { (eval echo configure:3027: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest; then
+if { (eval echo configure:3002: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -3044,7 +3019,7 @@ else
 fi
 
     echo $ac_n "checking for pthread_create in -lpthread""... $ac_c" 1>&6
-echo "configure:3048: checking for pthread_create in -lpthread" >&5
+echo "configure:3023: checking for pthread_create in -lpthread" >&5
 ac_lib_var=`echo pthread'_'pthread_create | sed 'y%./+-%__p_%'`
 if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
@@ -3052,7 +3027,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lpthread  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 3056 "configure"
+#line 3031 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 /* We use char because int might match the return type of a gcc2
@@ -3063,7 +3038,7 @@ int main() {
 pthread_create()
 ; return 0; }
 EOF
-if { (eval echo configure:3067: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest; then
+if { (eval echo configure:3042: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -3369,7 +3344,6 @@ s%@VTK_LIB_EXT@%$VTK_LIB_EXT%g
 s%@DL_LIBS@%$DL_LIBS%g
 s%@SHLIB_LD_LIBS@%$SHLIB_LD_LIBS%g
 s%@SHLIB_SUFFIX@%$SHLIB_SUFFIX%g
-s%@SHLIB_VERSION@%$SHLIB_VERSION%g
 s%@THREAD_FLAGS@%$THREAD_FLAGS%g
 s%@THREAD_LIBS@%$THREAD_LIBS%g
 s%@VTK_INLINE_FLAGS@%$VTK_INLINE_FLAGS%g

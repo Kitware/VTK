@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTransformCollection : public vtkCollection
 {
 public:
-  char *GetClassName() {return "vtkTransformCollection";};
+  const char *GetClassName() {return "vtkTransformCollection";};
   static vtkTransformCollection *New() {return new vtkTransformCollection;};
 
   void AddItem(vtkTransform *);

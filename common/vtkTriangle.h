@@ -55,7 +55,7 @@ public:
   vtkTriangle();
   vtkTriangle(const vtkTriangle& t);
   static vtkTriangle *New() {return new vtkTriangle;};
-  char *GetClassName() {return "vtkTriangle";};
+  const char *GetClassName() {return "vtkTriangle";};
 
   // cell methods
   vtkCell *MakeObject() {return new vtkTriangle(*this);};

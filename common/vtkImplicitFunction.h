@@ -77,7 +77,7 @@ class VTK_EXPORT vtkImplicitFunction : public vtkObject
 {
 public:
   vtkImplicitFunction();
-  char *GetClassName() {return "vtkImplicitFunction";};
+  const char *GetClassName() {return "vtkImplicitFunction";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   unsigned long int GetMTime();

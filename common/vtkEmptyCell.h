@@ -54,7 +54,7 @@ public:
   vtkEmptyCell() {};
   vtkEmptyCell(const vtkEmptyCell& p);
   static vtkEmptyCell *New() {return new vtkEmptyCell;};
-  char *GetClassName() {return "vtkEmptyCell";};
+  const char *GetClassName() {return "vtkEmptyCell";};
 
   vtkCell *MakeObject() {return new vtkEmptyCell(*this);};
   int GetCellType() {return VTK_VERTEX;};

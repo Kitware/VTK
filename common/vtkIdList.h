@@ -56,7 +56,7 @@ class VTK_EXPORT vtkIdList : public vtkObject
   vtkIdList(const int sz=512, const int ext=1000);
   ~vtkIdList();
   int Allocate(const int sz=512, const int ext=1000) {return this->Ia->Allocate(sz,ext);};
-  char *GetClassName() {return "vtkIdList";};
+  const char *GetClassName() {return "vtkIdList";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   vtkIdList &operator=(const vtkIdList& ids) {*(this->Ia) = *(ids.Ia); return *this;};

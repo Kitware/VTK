@@ -60,7 +60,7 @@ public:
   int Allocate(const int sz, const int dim=3, const int ext=1000);
   void Initialize() {this->T->Initialize();};
   static vtkFloatTensors *New() {return new vtkFloatTensors;};
-  char *GetClassName() {return "vtkFloatTensors";};
+  const char *GetClassName() {return "vtkFloatTensors";};
 
   // vtkTensors interface
   vtkTensors *MakeObject(int sze, int d=3, int ext=1000);

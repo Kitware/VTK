@@ -77,7 +77,7 @@ class VTK_EXPORT vtkKochanekSpline : public vtkSpline
 public:
   vtkKochanekSpline();
   static vtkKochanekSpline *New() {return new vtkKochanekSpline;};
-  char *GetClassName() {return "vtkKochanekSpline";};
+  const char *GetClassName() {return "vtkKochanekSpline";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void Compute ();

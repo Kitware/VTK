@@ -60,7 +60,7 @@ public:
   int Allocate(const int sz, const int ext=1000) {return this->V->Allocate(3*sz,3*ext);};
   void Initialize() {this->V->Initialize();};
   static vtkFloatVectors *New() {return new vtkFloatVectors;};
-  char *GetClassName() {return "vtkFloatVectors";};
+  const char *GetClassName() {return "vtkFloatVectors";};
 
   // vtkVector interface
   vtkVectors *MakeObject(int sze, int ext=1000);

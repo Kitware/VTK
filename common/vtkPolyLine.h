@@ -57,7 +57,7 @@ public:
   vtkPolyLine() {};
   vtkPolyLine(const vtkPolyLine& pl);
   static vtkPolyLine *New() {return new vtkPolyLine;};
-  char *GetClassName() {return "vtkPolyLine";};
+  const char *GetClassName() {return "vtkPolyLine";};
 
   int GenerateNormals(vtkPoints *, vtkCellArray *, vtkFloatNormals *);
   int GenerateSlidingNormals(vtkPoints *, vtkCellArray *, vtkFloatNormals *);

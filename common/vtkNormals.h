@@ -59,7 +59,7 @@ class VTK_EXPORT vtkNormals : public vtkReferenceCount
 public:
   vtkNormals() {};
   virtual ~vtkNormals() {};
-  char *GetClassName() {return "vtkNormals";};
+  const char *GetClassName() {return "vtkNormals";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -73,7 +73,7 @@ public:
   ~vtkCellTypes();
   static vtkCellTypes *New() {return new vtkCellTypes;};
   int Allocate(int sz=512, int ext=1000);
-  char *GetClassName() {return "vtkCellTypes";};
+  const char *GetClassName() {return "vtkCellTypes";};
 
   void InsertCell(int id, unsigned char type, int loc);
   int InsertNextCell(unsigned char type, int loc);

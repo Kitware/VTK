@@ -94,7 +94,7 @@ public:
   vtkMultiThreader();
   ~vtkMultiThreader();
   static vtkMultiThreader *New() {return new vtkMultiThreader;};
-  char *GetClassName() {return "vtkMultiThreader";};
+  const char *GetClassName() {return "vtkMultiThreader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
 

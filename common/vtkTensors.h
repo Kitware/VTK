@@ -58,7 +58,7 @@ class VTK_EXPORT vtkTensors : public vtkReferenceCount
 {
 public:
   vtkTensors(int dim=3);
-  char *GetClassName() {return "vtkTensors";};
+  const char *GetClassName() {return "vtkTensors";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -58,7 +58,7 @@ class VTK_EXPORT vtkSpline : public vtkObject
 {
 public:
   vtkSpline();
-  char *GetClassName() {return "vtkSpline";};
+  const char *GetClassName() {return "vtkSpline";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -9,17 +9,12 @@ source ../imaging/examplesTcl/vtkImageInclude.tcl
 
 vtkImageFileReader reader
 reader ReleaseDataFlagOff
-reader SetAxes $VTK_IMAGE_COMPONENT_AXIS $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS 
+reader SetDataMemoryOrder $VTK_IMAGE_COMPONENT_AXIS $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS 
 reader SetFlips 0 0 1 0
-reader SetDataDimensions 3 512 256
-reader SetFileName "../../data/earth.ppm"
+reader SetDataDimensions 3 256 256
+reader SetFileName "../../data/masonry.ppm"
 reader SetDataScalarType $VTK_UNSIGNED_CHAR
-reader SetOutputScalarType $VTK_SHORT
 #reader DebugOn
-
-vtkImageToStructuredPoints image
-image SetScalarInput [reader GetOutput]
-image DebugOn
 
 # Create the RenderWindow, Renderer and both Actors
 vtkRenderer ren1
@@ -38,7 +33,7 @@ planeActor SetMapper planeMapper
 # load in the texture map
 #
 vtkTexture atext
-atext SetInput [image GetOutput]
+atext SetInput [reader GetOutput]
 atext InterpolateOn
 planeActor SetTexture atext
 

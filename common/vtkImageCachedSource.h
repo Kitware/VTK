@@ -63,7 +63,7 @@ class VTK_EXPORT vtkImageCachedSource : public vtkObject
 public:
   vtkImageCachedSource();
   ~vtkImageCachedSource();
-  char *GetClassName() {return "vtkImageCachedSource";};
+  const char *GetClassName() {return "vtkImageCachedSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual void InterceptCacheUpdate(vtkImageRegion *region);

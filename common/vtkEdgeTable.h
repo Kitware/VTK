@@ -56,7 +56,7 @@ public:
   vtkEdgeTable(int numPoints=1);
   ~vtkEdgeTable();
   static vtkEdgeTable *New() {return new vtkEdgeTable;};
-  char *GetClassName() {return "vtkEdgeTable";};
+  const char *GetClassName() {return "vtkEdgeTable";};
 
   // Insert/check existence of edges
   int IsEdge(int p1, int p2);

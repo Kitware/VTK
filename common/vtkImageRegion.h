@@ -70,7 +70,7 @@ public:
   vtkImageRegion();
   ~vtkImageRegion();
   static vtkImageRegion *New() {return new vtkImageRegion;};
-  char *GetClassName() {return "vtkImageRegion";};
+  const char *GetClassName() {return "vtkImageRegion";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
 

@@ -71,7 +71,7 @@ public:
   ~vtkReferenceCount();
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkReferenceCount *New() {return new vtkReferenceCount;};
-  char *GetClassName() {return "vtkReferenceCount";};
+  const char *GetClassName() {return "vtkReferenceCount";};
 
   void Register(vtkObject* o);
   void UnRegister(vtkObject* o);

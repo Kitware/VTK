@@ -57,7 +57,7 @@ class VTK_EXPORT vtkVectors : public vtkReferenceCount
 {
 public:
   vtkVectors();
-  char *GetClassName() {return "vtkVectors";};
+  const char *GetClassName() {return "vtkVectors";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

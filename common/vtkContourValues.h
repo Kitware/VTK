@@ -60,7 +60,7 @@ public:
   vtkContourValues();
   ~vtkContourValues();
   static vtkContourValues *New() {return new vtkContourValues;};
-  char *GetClassName() {return "vtkContourValues";};
+  const char *GetClassName() {return "vtkContourValues";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void SetValue(int i, float value);

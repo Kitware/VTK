@@ -72,7 +72,7 @@ public:
     {return this->Ia->Allocate(sz,ext);};
   void Initialize() {this->Ia->Initialize();};
   static vtkCellArray *New() {return new vtkCellArray;};
-  char *GetClassName() {return "vtkCellArray";};
+  const char *GetClassName() {return "vtkCellArray";};
 
   int GetNumberOfCells();
 

@@ -62,23 +62,38 @@ int main (int argc, char *argv[])
     {
     for (i = concrete_start; i <= concrete_end; i++)
       {
-      fprintf(fp,"%s.o : %s/%s.cxx %s/%s.h ",argv[i],vtkLocal,
-	      argv[i],vtkLocal,argv[i]);
+      fprintf(fp,"%s.o : %s/%s.cxx ",argv[i],vtkLocal,argv[i]);
       sprintf(filename,"%s/%s.cxx",vtkLocal,argv[i]);
       OutputUNIXDepends(filename,fp,vtkHome);
       fprintf(fp,"\n");
       }
     for (i = abstract_start; i <= abstract_end; i++)
       {
-      fprintf(fp,"%s.o : %s/%s.cxx %s/%s.h ",argv[i],vtkLocal,
-	      argv[i],vtkLocal,argv[i]);
+      fprintf(fp,"%s.o : %s/%s.cxx ",argv[i],vtkLocal, argv[i]);
       sprintf(filename,"%s/%s.cxx",vtkLocal,argv[i]);
       OutputUNIXDepends(filename,fp,vtkHome);
       fprintf(fp,"\n");
       }
     fprintf(fp,"\n\n");
     }
-  
+
+  // if this is the graphics library we need to add dependencies
+  // for two odd classes vtkXRenderWindowInteractor and
+  // vtkXRenderTclWindowInteractor
+  if (!strcmp(vtkLocal + strlen(vtkLocal) - 8,"graphics"))
+    {
+    fprintf(fp,"vtkXRenderWindowInteractor.o : %s/vtkXRenderWindowInteractor.cxx",
+	    vtkLocal,vtkLocal,argv[i]);
+    sprintf(filename,"%s/vtkXRenderWindowInteractor.cxx",vtkLocal);
+    OutputUNIXDepends(filename,fp,vtkHome);
+    fprintf(fp,"\n");
+    fprintf(fp,"vtkXRenderTclWindowInteractor.o : %s/vtkXRenderTclWindowInteractor.cxx",
+	    vtkLocal,vtkLocal,argv[i]);
+    sprintf(filename,"%s/vtkXRenderTclWindowInteractor.cxx",vtkLocal);
+    OutputUNIXDepends(filename,fp,vtkHome);
+    fprintf(fp,"\n");
+    }
+      
   // generate depends for all the tcl wrappers
   for (i = 2; i < argc; i++)
     {

@@ -69,7 +69,7 @@ public:
   int Allocate(int sz=256, int ext=256);
   virtual void Build();
   static vtkLookupTable *New() {return new vtkLookupTable;};
-  char *GetClassName() {return "vtkLookupTable";};
+  const char *GetClassName() {return "vtkLookupTable";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

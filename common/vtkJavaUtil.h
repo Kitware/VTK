@@ -24,7 +24,7 @@ extern void vtkJavaDeleteObjectFromHash(JNIEnv *env, int id);
 extern jobject vtkJavaGetObjectFromPointer(void *ptr);
 extern int  vtkJavaShouldIDeleteObject(JNIEnv *env,jobject obj);
 extern char *vtkJavaUTFToChar(JNIEnv *env, jstring in);
-extern jstring vtkJavaMakeJavaString(JNIEnv *env, char *in);
+extern jstring vtkJavaMakeJavaString(JNIEnv *env, const char *in);
 
 extern jarray vtkJavaMakeJArrayOfDoubleFromFloat(JNIEnv *env,
 						 float *arr, int size);

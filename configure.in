@@ -314,10 +314,6 @@ fi
 #	SHLIB_SUFFIX -	Suffix to use for the name of the shared library.  An
 #			empty string means we don't know how to use shared
 #			libraries on this platform.
-#	SHLIB_VERSION -	If this platform *requires* shared libraries to end
-#			in a version string, this provides a default version
-#			string to use;  it is an empty string on platforms
-#			where it isn't needed.
 #	VTK_SHLIB_BUILD_FLAGS -
 #                       Flags to use when building a shared library.	
 #	VTK_SHLIB_LINK_FLAGS -	
@@ -364,7 +360,6 @@ case $system in
 	SHLIB_CFLAGS=""
 	SHLIB_LD_LIBS='${LIBS}'
 	SHLIB_SUFFIX="..o"
-	SHLIB_VERSION=""
 	DL_LIBS=""
         AC_CHECK_LIB(ld,printf, DL_LIBS="-lld")
 	VTK_SHLIB_LINK_FLAGS=""
@@ -373,7 +368,6 @@ case $system in
 	SHLIB_CFLAGS="+z"
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".sl"
-	SHLIB_VERSION=""
 	DL_LIBS="-ldld"
 	VTK_SHLIB_BUILD_FLAGS='-shared -Wl,-E -Wl,-b'
 	VTK_SHLIB_LINK_FLAGS='-Wl,+s -Wl,+b,${LIB_RUNTIME_DIR}'
@@ -382,7 +376,6 @@ case $system in
 	SHLIB_CFLAGS=""
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
 	DL_LIBS=""
 	VTK_SHLIB_BUILD_FLAGS="-shared -rdata_shared"
 	;;
@@ -390,7 +383,6 @@ case $system in
 	SHLIB_CFLAGS=""
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
 	DL_LIBS=""
 	VTK_SHLIB_BUILD_FLAGS="-shared -rdata_shared"
 	;;
@@ -398,7 +390,6 @@ case $system in
 	SHLIB_CFLAGS="-fPIC"
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
 	if test "$have_dl" = yes; then
 	    DL_LIBS="-ldl"
 	    VTK_SHLIB_LINK_FLAGS="-rdynamic"
@@ -412,7 +403,6 @@ case $system in
 	SHLIB_CFLAGS="-K PIC"
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
 	DL_LIBS="-ldl"
 	VTK_SHLIB_LINK_FLAGS=""
 	;;
@@ -420,7 +410,6 @@ case $system in
 	SHLIB_CFLAGS="-K PIC"
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
 	DL_LIBS="-ldl"
 	VTK_SHLIB_LINK_FLAGS="-Wl,-Bexport"
 	;;
@@ -430,14 +419,12 @@ case $system in
 	    SHLIB_CFLAGS="-fpic"
 	    SHLIB_LD_LIBS=""
 	    SHLIB_SUFFIX=".so"
-	    SHLIB_VERSION=".1.0"
 	    DL_LIBS=""
 	    VTK_SHLIB_LINK_FLAGS=""
 	else
 	    SHLIB_CFLAGS=""
 	    SHLIB_LD_LIBS=""
 	    SHLIB_SUFFIX="..o"
-	    SHLIB_VERSION=""
 	    DL_LIBS=""
 	    VTK_SHLIB_LINK_FLAGS=""
 	fi
@@ -446,7 +433,6 @@ case $system in
 	SHLIB_CFLAGS=""
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
 	DL_LIBS=""
 	VTK_SHLIB_LINK_FLAGS=""
 	;;
@@ -456,7 +442,6 @@ case $system in
 	# Hack: make package name same as library name
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
 	DL_LIBS=""
 	VTK_SHLIB_LINK_FLAGS=""
 	;;
@@ -465,7 +450,6 @@ case $system in
 	SHLIB_CFLAGS="-fpic"
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
 	DL_LIBS=""
 	VTK_SHLIB_LINK_FLAGS=""
 	;;
@@ -474,7 +458,6 @@ case $system in
 	SHLIB_CFLAGS=""
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
 	DL_LIBS=""
 	VTK_SHLIB_BUILD_FLAGS='-shared -Wl,-expect_unresolved,"*"'
 	VTK_SHLIB_LINK_FLAGS='-Wl,-rpath,${LIB_RUNTIME_DIR}'
@@ -483,7 +466,6 @@ case $system in
 	SHLIB_CFLAGS="-G 0"
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX="..o"
-	SHLIB_VERSION=""
 	DL_LIBS=""
 	VTK_SHLIB_LINK_FLAGS="-Wl,-D,08000000"
 	;;
@@ -494,7 +476,6 @@ case $system in
 	SHLIB_CFLAGS="-Kpic -belf"
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
 	DL_LIBS=""
 	VTK_SHLIB_LINK_FLAGS="-belf -Wl,-Bexport"
 	;;
@@ -502,7 +483,6 @@ case $system in
 	SHLIB_CFLAGS="-K PIC"
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
 	DL_LIBS="-ldl"
 	VTK_SHLIB_LINK_FLAGS=""
 	;;
@@ -510,7 +490,6 @@ case $system in
 	SHLIB_CFLAGS="-PIC"
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
 	DL_LIBS="-ldl"
 	VTK_SHLIB_BUILD_FLAGS='-shared -Wl,-r -nostdlib'
 	VTK_SHLIB_LINK_FLAGS='-Wl,-L${LIB_RUNTIME_DIR}'
@@ -519,7 +498,6 @@ case $system in
 	SHLIB_CFLAGS="-KPIC"
 	SHLIB_LD_LIBS='${LIBS}'
 	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
 	DL_LIBS="-ldl"
 	VTK_SHLIB_BUILD_FLAGS='-G'
 	VTK_SHLIB_LINK_FLAGS='-R ${LIB_RUNTIME_DIR}'
@@ -532,7 +510,6 @@ case $system in
 	SHLIB_CFLAGS="-G 0"
 	SHLIB_SUFFIX="..o"
 	SHLIB_LD_LIBS=""
-	SHLIB_VERSION=""
 	DL_LIBS=""
 	VTK_SHLIB_LINK_FLAGS="-Wl,-D,08000000"
 	;;
@@ -540,7 +517,6 @@ case $system in
 	SHLIB_CFLAGS="-K PIC"
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
-	SHLIB_VERSION=""
 	DL_LIBS="-ldl"
 	VTK_SHLIB_LINK_FLAGS="-Wl,-Bexport"
 	;;
@@ -559,7 +535,7 @@ if test "$vtk_shared_ok" = "yes"; then
     VTK_TCL_SHLIB_TARGET="vtktcl"
     RANLIB=":"
     TOOLKIT_DEPENDS=""
-    VTK_LIB_EXT="${SHLIB_SUFFIX}${SHLIB_VERSION}"
+    VTK_LIB_EXT="${SHLIB_SUFFIX}"
 else
     VTK_LIB_EXT=".a"
     SHLIB_LD_LIBS=""
@@ -618,7 +594,6 @@ AC_SUBST(VTK_LIB_EXT)
 AC_SUBST(DL_LIBS)
 AC_SUBST(SHLIB_LD_LIBS)
 AC_SUBST(SHLIB_SUFFIX)
-AC_SUBST(SHLIB_VERSION)
 
 ##########################
 ##			##

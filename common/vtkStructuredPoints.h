@@ -60,7 +60,7 @@ public:
   vtkStructuredPoints(const vtkStructuredPoints& v);
   ~vtkStructuredPoints();
   static vtkStructuredPoints *New() {return new vtkStructuredPoints;};
-  char *GetClassName() {return "vtkStructuredPoints";};
+  const char *GetClassName() {return "vtkStructuredPoints";};
   char *GetDataType() {return "vtkStructuredPoints";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

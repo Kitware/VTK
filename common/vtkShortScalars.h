@@ -60,7 +60,7 @@ public:
   int Allocate(const int sz, const int ext=1000) {return this->S->Allocate(sz,ext);};
   void Initialize() {this->S->Initialize();};
   static vtkShortScalars *New() {return new vtkShortScalars;};
-  char *GetClassName() {return "vtkShortScalars";};
+  const char *GetClassName() {return "vtkShortScalars";};
 
   // vtkScalar interface
   vtkScalars *MakeObject(int sze, int ext=1000);

@@ -85,7 +85,7 @@ public:
   vtkSource();
   virtual ~vtkSource() { if (this->Output) this->Output->Delete();};
   static vtkSource *New() {return new vtkSource;};
-  char *GetClassName() {return "vtkSource";};
+  const char *GetClassName() {return "vtkSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -42,7 +42,6 @@ VTK_LIB_EXT          = @VTK_LIB_EXT@
 DL_LIBS              = @DL_LIBS@
 SHLIB_LD_LIBS        = @SHLIB_LD_LIBS@
 SHLIB_SUFFIX         = @SHLIB_SUFFIX@
-SHLIB_VERSION        = @SHLIB_VERSION@
 
 THREAD_LIBS          = @THREAD_LIBS@
 

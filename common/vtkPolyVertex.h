@@ -54,7 +54,7 @@ public:
   vtkPolyVertex() {};
   vtkPolyVertex(const vtkPolyVertex& pp);
   static vtkPolyVertex *New() {return new vtkPolyVertex;};
-  char *GetClassName() {return "vtkPolyVertex";};
+  const char *GetClassName() {return "vtkPolyVertex";};
 
   // cell methods
   vtkCell *MakeObject() {return new vtkPolyVertex(*this);};

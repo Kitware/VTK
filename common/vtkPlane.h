@@ -56,7 +56,7 @@ class VTK_EXPORT vtkPlane : public vtkImplicitFunction
 public:
   vtkPlane();
   static vtkPlane *New() {return new vtkPlane;};
-  char *GetClassName() {return "vtkPlane";};
+  const char *GetClassName() {return "vtkPlane";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // ImplicitFunction interface

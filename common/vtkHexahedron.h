@@ -54,7 +54,7 @@ public:
   vtkHexahedron();
   vtkHexahedron(const vtkHexahedron& h);
   static vtkHexahedron *New() {return new vtkHexahedron;};
-  char *GetClassName() {return "vtkHexahedron";};
+  const char *GetClassName() {return "vtkHexahedron";};
 
   // cell methods
   vtkCell *MakeObject() {return new vtkHexahedron(*this);};

@@ -56,7 +56,7 @@ public:
   vtkTetra();
   vtkTetra(const vtkTetra& t);
   static vtkTetra *New() {return new vtkTetra;};
-  char *GetClassName() {return "vtkTetra";};
+  const char *GetClassName() {return "vtkTetra";};
 
   // cell methods
   vtkCell *MakeObject() {return new vtkTetra(*this);};

@@ -61,7 +61,7 @@ public:
   vtkStructuredPointsToImage();
   ~vtkStructuredPointsToImage();
   static vtkStructuredPointsToImage *New() {return new vtkStructuredPointsToImage;};
-  char *GetClassName() {return "vtkStructuredPointsToImage";};
+  const char *GetClassName() {return "vtkStructuredPointsToImage";};
   void PrintSelf(ostream& os, vtkIndent indent);   
   
   void Update(vtkImageRegion *region);

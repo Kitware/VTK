@@ -53,7 +53,7 @@ public:
   vtkVertex();
   vtkVertex(const vtkVertex& p);
   static vtkVertex *New() {return new vtkVertex;};
-  char *GetClassName() {return "vtkVertex";};
+  const char *GetClassName() {return "vtkVertex";};
 
   vtkCell *MakeObject() {return new vtkVertex(*this);};
   int GetCellType() {return VTK_VERTEX;};

@@ -61,7 +61,7 @@ public:
   int Allocate(const int sz, const int ext=1000) {return this->UD.Allocate(sz,ext);};
   void Initialize() {this->UD.Initialize();};
   static vtkUserDefined *New() {return new vtkUserDefined;};
-  char *GetClassName() {return "vtkUserDefined";};
+  const char *GetClassName() {return "vtkUserDefined";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   vtkUserDefined *MakeObject(int sze, int ext=1000);

@@ -75,7 +75,7 @@ class VTK_EXPORT vtkScalars : public vtkReferenceCount
 public:
   vtkScalars();
   virtual ~vtkScalars();
-  char *GetClassName() {return "vtkScalars";};
+  const char *GetClassName() {return "vtkScalars";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // For ImageData

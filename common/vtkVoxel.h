@@ -56,7 +56,7 @@ public:
   vtkVoxel();
   vtkVoxel(const vtkVoxel& b);
   static vtkVoxel *New() {return new vtkVoxel;};
-  char *GetClassName() {return "vtkVoxel";};
+  const char *GetClassName() {return "vtkVoxel";};
 
   // cell methods
   vtkCell *MakeObject() {return new vtkVoxel(*this);};

@@ -60,7 +60,7 @@ public:
   int Allocate(const int sz, const int ext=1000) {return this->N->Allocate(3*sz,3*ext);};
   void Initialize() {this->N->Initialize();};
   static vtkFloatNormals *New() {return new vtkFloatNormals;};
-  char *GetClassName() {return "vtkFloatNormals";};
+  const char *GetClassName() {return "vtkFloatNormals";};
 
   // vtkNormal interface
   vtkNormals *MakeObject(int sze, int ext=1000);

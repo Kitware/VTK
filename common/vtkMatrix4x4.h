@@ -60,7 +60,7 @@ class VTK_EXPORT vtkMatrix4x4 : public vtkObject
   vtkMatrix4x4 ();
   vtkMatrix4x4 (const vtkMatrix4x4& m);
   static vtkMatrix4x4 *New() {return new vtkMatrix4x4;};
-  char *GetClassName () {return "vtkMatrix4x4";};
+  const char *GetClassName () {return "vtkMatrix4x4";};
   void PrintSelf (ostream& os, vtkIndent indent);
 
   void operator= (float element);

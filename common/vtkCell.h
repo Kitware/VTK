@@ -76,7 +76,7 @@ class VTK_EXPORT vtkCell : public vtkObject
 public:
   vtkCell();
   void Initialize(int npts, int *pts, vtkPoints *p);
-  char *GetClassName() {return "vtkCell";};
+  const char *GetClassName() {return "vtkCell";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -54,7 +54,7 @@ public:
   vtkQuad();
   vtkQuad(const vtkQuad& q);
   static vtkQuad *New() {return new vtkQuad;};
-  char *GetClassName() {return "vtkQuad";};
+  const char *GetClassName() {return "vtkQuad";};
 
   // cell methods
   vtkCell *MakeObject() {return new vtkQuad(*this);};

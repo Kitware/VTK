@@ -66,7 +66,7 @@ class VTK_EXPORT vtkStructuredData : public vtkObject
 {
 public:
   static vtkStructuredData *New() {return new vtkStructuredData;};
-  char *GetClassName() {return "vtkStructuredData";};
+  const char *GetClassName() {return "vtkStructuredData";};
   static int SetDimensions(int inDim[3], int dim[3]);
   static int GetDataDimension(int dataDescription);
 

@@ -70,7 +70,7 @@ public:
   vtkRectilinearGrid(const vtkRectilinearGrid& v);
   ~vtkRectilinearGrid();
   static vtkRectilinearGrid *New() {return new vtkRectilinearGrid;};
-  char *GetClassName() {return "vtkRectilinearGrid";};
+  const char *GetClassName() {return "vtkRectilinearGrid";};
   char *GetDataType() {return "vtkRectilinearGrid";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImplicitFunctionCollection : public vtkCollection
 {
 public:
-  char *GetClassName() {return "vtkImplicitFunctionCollection";};
+  const char *GetClassName() {return "vtkImplicitFunctionCollection";};
   static vtkImplicitFunctionCollection *New() 
     {return new vtkImplicitFunctionCollection;};
 

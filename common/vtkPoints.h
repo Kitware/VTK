@@ -60,7 +60,7 @@ class VTK_EXPORT vtkPoints : public vtkReferenceCount
 {
 public:
   vtkPoints();
-  char *GetClassName() {return "vtkPoints";};
+  const char *GetClassName() {return "vtkPoints";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

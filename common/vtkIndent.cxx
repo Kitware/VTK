@@ -42,7 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define vtkStdIndent 2
 #define NumberOfBlanks 40
 
-static char blanks[NumberOfBlanks+1]="                                        ";
+static const char blanks[NumberOfBlanks+1]="                                        ";
 
 // Description:
 // Determine the next indentation level. Keep indenting by two until the 
@@ -53,7 +53,7 @@ vtkIndent vtkIndent::GetNextIndent()
   if ( indent > NumberOfBlanks ) indent = NumberOfBlanks;
   return indent;
 }
-
+ 
 // Description:
 // Print out the indentation. Basically output a bunch of spaces.
 ostream& operator<<(ostream& os, vtkIndent& ind)

@@ -63,7 +63,7 @@ public:
   virtual void Delete(); //delete a vtk object.
   virtual ~vtkObject(); //use Delete() whenever possible
   static vtkObject *New() {return new vtkObject;};
-  virtual char *GetClassName() {return "vtkObject";};
+  virtual const char *GetClassName() {return "vtkObject";};
 
   // debugging
   virtual void DebugOn();

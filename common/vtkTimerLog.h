@@ -88,7 +88,7 @@ public:
   
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkTimerLog *New() {return new vtkTimerLog;};
-  char *GetClassName() {return "vtkTimerLog";};
+  const char *GetClassName() {return "vtkTimerLog";};
 
   // Description:
   // Set/Get the maximum number of entries allowed in the timer log

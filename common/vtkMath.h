@@ -57,7 +57,7 @@ class VTK_EXPORT vtkMath
 public:
   vtkMath() {};
   static vtkMath *New() {return new vtkMath;};
-  virtual char *GetClassName() {return "vtkMath";};
+  virtual const char *GetClassName() {return "vtkMath";};
   
   // constants
   static float Pi() {return 3.14159265358979;};

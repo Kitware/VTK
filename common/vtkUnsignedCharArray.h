@@ -59,7 +59,7 @@ public:
   vtkUnsignedCharArray(const vtkUnsignedCharArray& ia);
   ~vtkUnsignedCharArray();
   static vtkUnsignedCharArray *New() {return new vtkUnsignedCharArray;};
-  char *GetClassName() {return "vtkUnsignedCharArray";};
+  const char *GetClassName() {return "vtkUnsignedCharArray";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // access/insertion methods

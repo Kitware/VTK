@@ -56,7 +56,7 @@ public:
   vtkPixel();
   vtkPixel(const vtkPixel& r);
   static vtkPixel *New() {return new vtkPixel;};
-  char *GetClassName() {return "vtkPixel";};
+  const char *GetClassName() {return "vtkPixel";};
 
   // cell methods
   vtkCell *MakeObject() {return new vtkPixel(*this);};

@@ -111,7 +111,7 @@ class VTK_EXPORT vtkImageData : public vtkReferenceCount
 public:
   vtkImageData();
   static vtkImageData *New() {return new vtkImageData;};
-  char *GetClassName() {return "vtkImageData";};
+  const char *GetClassName() {return "vtkImageData";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

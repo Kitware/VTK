@@ -53,7 +53,7 @@ public:
   vtkLine();
   vtkLine(const vtkLine& l);
   static vtkLine *New() {return new vtkLine;};
-  char *GetClassName() {return "vtkLine";};
+  const char *GetClassName() {return "vtkLine";};
 
   // cell methods
   vtkCell *MakeObject() {return new vtkLine(*this);};

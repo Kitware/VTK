@@ -66,7 +66,7 @@ public:
   vtkCellLinks(int sz, int ext=1000);
   ~vtkCellLinks();
   static vtkCellLinks *New() {return new vtkCellLinks;};
-  char *GetClassName() {return "vtkCellLinks";};
+  const char *GetClassName() {return "vtkCellLinks";};
 
   _vtkLink_s &GetLink(int ptId);
   unsigned short GetNcells(int ptId);

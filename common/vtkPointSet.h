@@ -61,7 +61,7 @@ public:
   vtkPointSet();
   ~vtkPointSet();
   vtkPointSet(const vtkPointSet& ps);
-  char *GetClassName() {return "vtkPointSet";};
+  const char *GetClassName() {return "vtkPointSet";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // dataset interface

@@ -59,7 +59,7 @@ public:
   vtkCharArray(const vtkCharArray& ia);
   ~vtkCharArray();
   static vtkCharArray *New() {return new vtkCharArray;};
-  char *GetClassName() {return "vtkCharArray";};
+  const char *GetClassName() {return "vtkCharArray";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // access/insertion methods

@@ -59,7 +59,7 @@ public:
   vtkFloatArray(const vtkFloatArray& fa);
   ~vtkFloatArray();
   static vtkFloatArray *New() {return new vtkFloatArray;};
-  char *GetClassName() {return "vtkFloatArray";};
+  const char *GetClassName() {return "vtkFloatArray";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // access/insertion methods
