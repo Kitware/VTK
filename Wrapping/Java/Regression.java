@@ -92,6 +92,13 @@ public class Regression {
       else 
         {
         System.out.println("Java smoke test error!"); 
+        System.out.println("Image difference: " + imgDiff.GetThresholdedError());
+        vtkJPEGWriter wr = new vtkJPEGWriter();
+        wr.SetFileName(data_path + "/" + image_path + ".error.jpg");
+        wr.SetInput(w2if.GetOutput());
+        wr.Write();
+        wr.SetFileName(data_path + "/" + image_path + ".diff.jpg");
+        wr.SetInput(imgDiff.GetOutput());
         System.exit(1);
 	}	
     } 
