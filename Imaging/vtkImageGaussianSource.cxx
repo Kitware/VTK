@@ -65,7 +65,7 @@ vtkImageGaussianSource* vtkImageGaussianSource::New()
 //----------------------------------------------------------------------------
 vtkImageGaussianSource::vtkImageGaussianSource()
 {
-  this->Maximum = 10.0;
+  this->Maximum = 1.0;
   this->Center[0] = 0.0;
   this->Center[1] = 0.0;
   this->Center[2] = 0.0;
