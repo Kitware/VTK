@@ -1,6 +1,6 @@
 # -------------------------------------------------------------------------
 # Doxygen documentation batch
-# modified by S. Barre (Time-stamp: <2002-01-29 18:34:35 barre>
+# modified by S. Barre (Time-stamp: <2002-01-30 09:28:26 barre>
 # -------------------------------------------------------------------------
 
 # Path to several tools (_PROG to avoid the typical GZIP env var pb)
@@ -239,7 +239,6 @@ if test "x$PERL_PROG" != "xNOTFOUND" ; then
     $PERL_PROG $PATH_TO_VTK_DOX_SCRIPTS/doc_contributors.pl \
         --authors  "$PATH_TO_VTK_DOX_SCRIPTS/authors.txt" \
         --cachedir "$DOXTEMP/cache" \
-        --cvsdir "$SOURCE_DIR" \
         --in 1.0 \
         --out 0.5 \
         --massive 200 \
