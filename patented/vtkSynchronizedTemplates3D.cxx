@@ -473,19 +473,18 @@ void vtkSynchronizedTemplates3D::SetInputMemoryLimit(unsigned long limit)
 {
   vtkErrorMacro( << "This filter no longer supports a memory limit." );
   vtkErrorMacro( << "This filter no longer initiates streaming." );
-  vtkErrorMacro( << "Please use a .... after this filter to achieve similar functionality." );
+  vtkErrorMacro( << "Please use a vtkPolyDataStreamer after this filter to achieve similar functionality." );
 }
 
 
 //----------------------------------------------------------------------------
 unsigned long vtkSynchronizedTemplates3D::GetInputMemoryLimit()
 {
-  if (this->GetInput() == NULL)
-    {
-    vtkErrorMacro("Input not set");
-    return 0;
-    }
-  return this->GetInput()->GetMemoryLimit();
+  vtkErrorMacro( << "This filter no longer supports a memory limit." );
+  vtkErrorMacro( << "This filter no longer initiates streaming." );
+  vtkErrorMacro( << "Please use a vtkPolyDataStreamer after this filter to achieve similar functionality." );
+
+  return 0;
 }
 
 

@@ -290,9 +290,6 @@ public:
   // data in case the memory can be reused.
   virtual void PrepareForNewData();
 
-  int GetMemoryLimit() 
-    {return 0;}
-
   // Description:
   // Shallow and Deep copy.
   void ShallowCopy(vtkDataObject *src);  
@@ -307,8 +304,6 @@ public:
     {VTK_LEGACY_METHOD(GetPointCells,"3.2");this->GetPointCells(ptId, &cellIds);}
   void GetVoxelGradient(int i,int j,int k, vtkScalars *s, vtkVectors &g)
     {VTK_LEGACY_METHOD(GetVoxelGradient,"3.2");this->GetVoxelGradient(i, j, k, s, &g);}
-  void SetMemoryLimit( int vtkNotUsed(x) ) 
-    {VTK_LEGACY_METHOD(SetMemoryLimit,"3.2");}
   vtkImageData *UpdateAndReturnData() 
     {VTK_LEGACY_METHOD(UpdateAndReturnData,"3.2");this->Update();return this;}
 #endif
