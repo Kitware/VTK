@@ -23,16 +23,16 @@ vtkActor sphereActor2
     sphereActor2 SetMapper sphereMapper2
 
 # An image - some drawn rectangles
-vtkImageCanvasSource2D image
-    image SetNumberOfScalarComponents 3
-    image SetScalarType 3 
-    image SetExtent 0 120 0 120 0 0
-    image SetDrawColor 100 100 0 1
-    image FillBox 0 120 0 120
-    image SetDrawColor 200 0 200 1
-    image FillBox 32 100 50 75
+vtkImageCanvasSource2D imageCanvas
+    imageCanvas SetNumberOfScalarComponents 3
+    imageCanvas SetScalarType 3 
+    imageCanvas SetExtent 0 120 0 120 0 0
+    imageCanvas SetDrawColor 100 100 0 1
+    imageCanvas FillBox 0 120 0 120
+    imageCanvas SetDrawColor 200 0 200 1
+    imageCanvas FillBox 32 100 50 75
 vtkImageMapper imagemapper
-    imagemapper SetInput image
+    imagemapper SetInput imageCanvas
     imagemapper SetColorWindow 25
     imagemapper SetColorLevel 1
 vtkActor2D imageactor
