@@ -150,10 +150,6 @@ public:
   vtkGetMacro( NumberOfPieces, int );
 
   // Description:
-  // Set the maximum number of pieces. Similar to WholeExtent in 3D.
-  vtkSetMacro( MaximumNumberOfPieces, int );
-
-  // Description:
   // Return the actual size of the data in kilobytes. This number
   // is valid only after the pipeline has updated. The memory size
   // returned is guaranteed to be greater than or equal to the

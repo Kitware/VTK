@@ -166,10 +166,6 @@ public:
     {this->GetVoxelGradient(i, j, k, s, &g);}
 
   // Description:
-  // Set the whole extent of the data.
-  vtkSetVector6Macro( WholeExtent, int );
-  
-  // Description:
   // Set / Get the extent on just one axis
   void SetAxisUpdateExtent(int axis, int min, int max);
   void GetAxisUpdateExtent(int axis, int &min, int &max);

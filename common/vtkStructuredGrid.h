@@ -134,10 +134,6 @@ public:
     {this->GetPointCells(ptId, &cellIds);}
 
   // Description:
-  // Set the whole extent of the data.
-  vtkSetVector6Macro( WholeExtent, int );
-  
-  // Description:
   // Required for the lowest common denominator for setting the UpdateExtent
   // (i.e. vtkDataSetToStructuredPointsFilter).  This assumes that WholeExtent
   // is valid (UpdateInformation has been called).
