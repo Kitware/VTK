@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageIdealLowPass, "1.20");
+vtkCxxRevisionMacro(vtkImageIdealLowPass, "1.21");
 vtkStandardNewMacro(vtkImageIdealLowPass);
 
 //----------------------------------------------------------------------------
@@ -67,7 +67,7 @@ void vtkImageIdealLowPass::SetZCutOff(double cutOff)
 void vtkImageIdealLowPass::ThreadedRequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector,
+  vtkInformationVector *vtkNotUsed(outputVector),
   vtkImageData ***inData, 
   vtkImageData **outData,
   int ext[6], int id)
@@ -88,24 +88,23 @@ void vtkImageIdealLowPass::ThreadedRequestData(
   unsigned long target;
 
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   // Error checking
-  if (inInfo->Get(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS()) != 2)
+  if (inData[0][0]->GetNumberOfScalarComponents() != 2)
     {
     vtkErrorMacro("Expecting 2 components not " 
-                  << inInfo->Get(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS()));
+                  << inData[0][0]->GetNumberOfScalarComponents());
     return;
     }
-  if (inInfo->Get(vtkDataObject::SCALAR_TYPE()) != VTK_DOUBLE || 
-      outInfo->Get(vtkDataObject::SCALAR_TYPE()) != VTK_DOUBLE)
+  if (inData[0][0]->GetScalarType() != VTK_DOUBLE || 
+      outData[0]->GetScalarType() != VTK_DOUBLE)
     {
     vtkErrorMacro("Expecting input and output to be of type double");
     return;
     }
   
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtent);
-  inInfo->Get(vtkDataObject::SPACING(), spacing);
+  inData[0][0]->GetSpacing(spacing);
 
   inPtr = (double *)(inData[0][0]->GetScalarPointerForExtent(ext));
   outPtr = (double *)(outData[0]->GetScalarPointerForExtent(ext));

@@ -21,7 +21,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageChangeInformation, "1.18");
+vtkCxxRevisionMacro(vtkImageChangeInformation, "1.19");
 vtkStandardNewMacro(vtkImageChangeInformation);
 
 //----------------------------------------------------------------------------
@@ -123,18 +123,22 @@ void vtkImageChangeInformation::ExecuteInformation (
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
 
+  vtkImageData *inData = vtkImageData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   int i;
   int extent[6], inExtent[6];
   double spacing[3], origin[3];
   
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),inExtent);
 
-  if (this->GetInformationInput())
+  vtkImageData *infoInput;
+  if (infoInput = this->GetInformationInput())
     {
     // If there is an InformationInput, it is set as a second input
     vtkInformation *in2Info = inputVector[1]->GetInformationObject(0);
-    in2Info->Get(vtkDataObject::ORIGIN(),origin);
-    in2Info->Get(vtkDataObject::SPACING(),spacing);
+    infoInput->GetOrigin(origin);
+    infoInput->GetSpacing(spacing);
     in2Info->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent);
     for (i = 0; i < 3; i++)
       {
@@ -144,8 +148,8 @@ void vtkImageChangeInformation::ExecuteInformation (
   else
     {
     inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent);
-    inInfo->Get(vtkDataObject::ORIGIN(),origin);
-    inInfo->Get(vtkDataObject::SPACING(),spacing);
+    inData->GetOrigin(origin);
+    inData->GetSpacing(spacing);
     }
 
   for (i = 0; i < 3; i++)

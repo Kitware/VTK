@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageIslandRemoval2D, "1.44");
+vtkCxxRevisionMacro(vtkImageIslandRemoval2D, "1.45");
 vtkStandardNewMacro(vtkImageIslandRemoval2D);
 
 //----------------------------------------------------------------------------
@@ -503,15 +503,12 @@ void vtkImageIslandRemoval2D::RequestData(
   outData->AllocateScalars();
   
   // this filter expects that input is the same type as output.
-  if (inInfo->Get(vtkDataObject::SCALAR_TYPE()) !=
-      outInfo->Get(vtkDataObject::SCALAR_TYPE()))
+  if (inData->GetScalarType() != outData->GetScalarType())
     {
     vtkErrorMacro(<< "Execute: input ScalarType, " 
-                  << vtkImageScalarTypeNameMacro(
-                    inInfo->Get(vtkDataObject::SCALAR_TYPE()))
+                  << vtkImageScalarTypeNameMacro(inData->GetScalarType())
                   << ", must match out ScalarType "
-                  << vtkImageScalarTypeNameMacro(
-                    outInfo->Get(vtkDataObject::SCALAR_TYPE())));
+                  << vtkImageScalarTypeNameMacro(outData->GetScalarType()));
     return;
     }
 
@@ -519,7 +516,7 @@ void vtkImageIslandRemoval2D::RequestData(
   void *inPtr = inData->GetScalarPointerForExtent(outExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
   
-  switch (inInfo->Get(vtkDataObject::SCALAR_TYPE()))
+  switch (inData->GetScalarType())
     {
     vtkTemplateMacro6(vtkImageIslandRemoval2DExecute, this, inData, 
                       (VTK_TT *)(inPtr), outData, (VTK_TT *)(outPtr), outExt);

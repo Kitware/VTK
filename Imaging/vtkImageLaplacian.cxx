@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageLaplacian, "1.29");
+vtkCxxRevisionMacro(vtkImageLaplacian, "1.30");
 vtkStandardNewMacro(vtkImageLaplacian);
 
 //----------------------------------------------------------------------------
@@ -193,8 +193,8 @@ void vtkImageLaplacianExecute(vtkImageLaplacian *self,
 // must match input type.  This method does handle boundary conditions.
 void vtkImageLaplacian::ThreadedRequestData(
   vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector,
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *vtkNotUsed(outputVector),
   vtkImageData ***inData, 
   vtkImageData **outData,
   int outExt[6], int id)
@@ -202,21 +202,17 @@ void vtkImageLaplacian::ThreadedRequestData(
   void *inPtr = inData[0][0]->GetScalarPointerForExtent(outExt);
   void *outPtr = outData[0]->GetScalarPointerForExtent(outExt);
 
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-
   // this filter expects that input is the same type as output.
-  if (inInfo->Get(vtkDataObject::SCALAR_TYPE()) !=
-      outInfo->Get(vtkDataObject::SCALAR_TYPE()))
+  if (inData[0][0]->GetScalarType() !=
+      outData[0]->GetScalarType())
     {
     vtkErrorMacro(<< "Execute: input ScalarType, "
-    << inInfo->Get(vtkDataObject::SCALAR_TYPE())
-    << ", must match out ScalarType "
-    << outInfo->Get(vtkDataObject::SCALAR_TYPE()));
+    << inData[0][0]->GetScalarType() << ", must match out ScalarType "
+    << outData[0]->GetScalarType());
     return;
     }
 
-  switch (inInfo->Get(vtkDataObject::SCALAR_TYPE()))
+  switch (inData[0][0]->GetScalarType())
     {
     vtkTemplateMacro7(vtkImageLaplacianExecute, this, inData[0][0],
                       (VTK_TT *)(inPtr), outData[0], (VTK_TT *)(outPtr), 
