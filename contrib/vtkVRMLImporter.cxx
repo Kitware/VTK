@@ -173,7 +173,8 @@ VrmlNodeType::~VrmlNodeType()
 
     // Free strings duplicated when fields/eventIns/eventOuts added:
 
-    for (int i = 0;i < eventIns.Count(); i++) {
+    int i;
+    for (i = 0;i < eventIns.Count(); i++) {
     	NameTypeRec *r = eventIns[i];
     	free(r->name);
         delete r;
@@ -698,17 +699,20 @@ static const short yycheck[] = {    66,
    in version 1.24 of Bison.  */
 
 #ifdef __GNUC__
-#define alloca __builtin_alloca
+    #define alloca __builtin_alloca
 #else /* not __GNUC__ */
-#if HAVE_ALLOCA_H
-#include <alloca.h>
-#else /* not HAVE_ALLOCA_H */
-#ifdef _AIX
- #pragma alloca
-#else /* not _AIX */
-char *alloca ();
-#endif /* not _AIX */
-#endif /* not HAVE_ALLOCA_H */
+    #if HAVE_ALLOCA_H
+        #include <alloca.h>
+    #else /* not HAVE_ALLOCA_H */
+        #ifdef _AIX
+            #pragma alloca
+        #else /* not _AIX */
+            #ifndef alloca
+                char *alloca ();
+            #endif
+            #include <malloc.h>
+        #endif /* not _AIX */
+    #endif /* not HAVE_ALLOCA_H */
 #endif /* not __GNUC__ */
 
 extern int yylex();
