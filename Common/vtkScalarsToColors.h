@@ -34,14 +34,6 @@
 #include "vtkObject.h"
 #include "vtkUnsignedCharArray.h"
 
-#define VTK_LUMINANCE       1
-#define VTK_LUMINANCE_ALPHA 2
-#define VTK_RGB             3
-#define VTK_RGBA            4
-
-#define VTK_COLOR_MODE_DEFAULT 0
-#define VTK_COLOR_MODE_MAP_SCALARS 1
-
 class vtkDataArray;
 
 class VTK_COMMON_EXPORT vtkScalarsToColors : public vtkObject
