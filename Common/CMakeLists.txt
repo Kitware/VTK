@@ -160,7 +160,6 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkCommand.cxx
   vtkDebugLeaksManager.cxx
   vtkErrorCode.cxx
-  vtkGarbageCollector.cxx
   vtkIOStream.cxx
   vtkIndent.cxx
   vtkLargeInteger.cxx
