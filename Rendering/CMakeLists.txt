@@ -88,25 +88,6 @@ vtkVolumeTextureMapper2D
 vtkWorldPointPicker
 )
 
-ABSTRACT_FILES(
-vtkAbstractMapper3D
-vtkAbstractPicker 
-vtkAbstractPropPicker 
-vtkCuller
-vtkDirectionEncoder
-vtkEncodedGradientEstimator 
-vtkExporter
-vtkGraphicsFactory
-vtkImporter
-vtkMapper
-vtkProp3D
-vtkRayBounder
-vtkVolumeMapper 
-vtkVolumeRayCastFunction 
-vtkVolumeReader 
-vtkVolumeTextureMapper 
-)
-
 SOURCE_FILES ( RenderingOpenGL_SRCS
                vtkOpenGLActor
                vtkOpenGLCamera
@@ -119,9 +100,31 @@ SOURCE_FILES ( RenderingOpenGL_SRCS
                vtkOpenGLProjectedPolyDataRayBounder
                vtkOpenGLProperty
                vtkOpenGLRenderer
+               vtkOpenGLRenderWindow
                vtkOpenGLTexture
                vtkOpenGLVolumeTextureMapper2D
               )
+
+ABSTRACT_FILES(
+vtkAbstractMapper3D
+vtkAbstractPicker 
+vtkAbstractPropPicker 
+vtkCuller
+vtkDirectionEncoder
+vtkEncodedGradientEstimator 
+vtkExporter
+vtkGraphicsFactory
+vtkImporter
+vtkMapper
+vtkOpenGLRenderWindow
+vtkProp3D
+vtkRayBounder
+vtkVolumeMapper 
+vtkVolumeRayCastFunction 
+vtkVolumeReader 
+vtkVolumeTextureMapper 
+)
+
 
 IF(UNIX)
   IF(NOT WIN32)
@@ -148,7 +151,7 @@ ELSE (WIN32)
     SET(HAVE_OPENGL_SRCS ON)
     SOURCE_FILES(RenderingOpenGL_SRCS 
                vtkOpenGLImageWindow
-               vtkOpenGLRenderWindow
+               vtkXOpenGLRenderWindow
                vtkXOpenGLTextMapper)
     ABSTRACT_FILES(
               vtkXImageWindow
