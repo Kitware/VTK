@@ -30,7 +30,7 @@
 
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.45.2.1");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.45.2.2");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -170,6 +170,7 @@ void vtkGenericEnSightReader::Execute()
     return;
     }
 
+  vtkWarningMacro("In execute");
   // Set the real reader's data array selections from ours.
   this->SetReaderDataArraySelectionSetsFromSelf();
   
@@ -201,9 +202,11 @@ void vtkGenericEnSightReader::Execute()
   
   for (i = 0; i < this->Reader->GetNumberOfOutputs(); i++)
     {
-    if ( ! this->GetOutput(i))
+    vtkDataObject* output = this->GetOutput(i);
+    if ( ! output )
       {
-      this->SetNthOutput(i, this->Reader->GetOutput(i));
+      output = this->Reader->GetOutput(i);
+      this->SetNthOutput(i, output);
       }
     else
       {
@@ -214,9 +217,16 @@ void vtkGenericEnSightReader::Execute()
       // but then this shallow copy destroys this reader's update
       // extent.  Save it and restore.
       int tempExtent[6];
-      this->GetOutput(i)->GetUpdateExtent(tempExtent);
-      this->GetOutput(i)->ShallowCopy(this->Reader->GetOutput(i));
-      this->GetOutput(i)->SetUpdateExtent(tempExtent);
+      output->GetUpdateExtent(tempExtent);
+      output->ShallowCopy(this->Reader->GetOutput(i));
+      output->SetUpdateExtent(tempExtent);
+      }
+    // Since most unstructured filters in VTK generate all their data once,
+    // make it the default.
+    // protected: if ( output->GetExtentType() == VTK_PIECES_EXTENT )
+    if (output->IsA("vtkPolyData") || output->IsA("vtkUnstructuredGrid"))
+      {
+      output->SetMaximumNumberOfPieces(1);
       }
     }
   for (i = 0; i < this->Reader->GetNumberOfVariables(); i++)
