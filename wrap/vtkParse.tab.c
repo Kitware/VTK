@@ -820,7 +820,8 @@ extern void vtkParseOutput(FILE *,FileInfo *);
 int main(int argc,char *argv[])
 {
   FILE *fin;
-
+  int ret;
+  
   if (argc != 4)
     {
     fprintf(stderr,"Usage: %s input_file hint_file is_concrete\n",argv[0]);
@@ -852,7 +853,11 @@ int main(int argc,char *argv[])
   
   yyin = fin;
   yyout = stdout;
-  yyparse();
+  ret = yyparse();
+  if (ret)
+    {
+    return ret;
+    }
   vtkParseOutput(stdout,&data);
   return 0;
 }
