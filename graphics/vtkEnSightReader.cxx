@@ -1303,6 +1303,7 @@ void vtkEnSightReader::SetCaseFileName(char* fileName)
     strncpy(newFileName, this->CaseFileName + position, numChars - position);
     this->SetCaseFileName(newFileName);
     delete [] path;
+    delete [] newFileName;
     }
       
   this->Modified();
