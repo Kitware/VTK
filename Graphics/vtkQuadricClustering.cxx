@@ -841,8 +841,8 @@ void vtkQuadricClustering::ComputeRepresentativePoint(float quadric[9],
     }
   vtkMath::Transpose3x3(U, UT);
   vtkMath::Transpose3x3(VT, V);
-  vtkMath::Multiply3x3(W, V, tempMatrix);
-  vtkMath::Multiply3x3(UT, tempMatrix, tempMatrix);
+  vtkMath::Multiply3x3(W, UT, tempMatrix);
+  vtkMath::Multiply3x3(V, tempMatrix, tempMatrix);
   vtkMath::Multiply3x3(A, cellCenter, tempVector);
   for (i = 0; i < 3; i++)
     {
