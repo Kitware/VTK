@@ -64,5 +64,27 @@ int main(int, char** argv)
     cout << "Append does not work" << endl;
     res = 1;
     }
+  delete [] hello_world;
+  char *hello_ = vtkString::Append("Hello", 0);
+  if ( !vtkString::Equals(hello_, "Hello") )
+    {
+    cout << "Append does not work for second string empty" << endl;
+    res = 1;
+    }
+  delete [] hello_;
+  char *_world = vtkString::Append(0, "World");
+  if ( !vtkString::Equals(_world, "World") )
+    {
+    cout << "Append does not work for first string empty" << endl;
+    res = 1;
+    }
+  delete [] _world;
+  char *empty = vtkString::Append(0,0);
+  if ( empty )
+    {
+    cout << "Append does not work: string not empty" << endl;
+    res = 1;
+    }
+  
   return res;
 }
