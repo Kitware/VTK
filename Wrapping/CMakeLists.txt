@@ -5,6 +5,8 @@ INCLUDE (${VTK_SOURCE_DIR}/Wrapping/LocalUserOptions.cmake OPTIONAL)
 IF (VTK_WRAP_TCL)
   ADD_EXECUTABLE(vtkWrapTcl vtkWrapTcl.c vtkParse.tab)
   INSTALL_TARGETS(/bin vtkWrapTcl)
+  ADD_EXECUTABLE(vtkWrapTclInit vtkWrapTclInit.c)
+  INSTALL_TARGETS(/bin vtkWrapTclInit)
 ENDIF (VTK_WRAP_TCL)
 
 IF (VTK_WRAP_PYTHON)
