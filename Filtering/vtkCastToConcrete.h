@@ -33,27 +33,27 @@
 // error results.
 
 // .SECTION See Also
-// vtkDataSetToDataSetFilter vtkPointSetToPointSetFilter
+// vtkDataSetAlgorithm vtkPointSetToPointSetFilter
 
 #ifndef __vtkCastToConcrete_h
 #define __vtkCastToConcrete_h
 
-#include "vtkDataSetToDataSetFilter.h"
+#include "vtkDataSetAlgorithm.h"
 
-class VTK_FILTERING_EXPORT vtkCastToConcrete : public vtkDataSetToDataSetFilter
+class VTK_FILTERING_EXPORT vtkCastToConcrete : public vtkDataSetAlgorithm
 {
 
 public:
   static vtkCastToConcrete *New();
-  vtkTypeRevisionMacro(vtkCastToConcrete,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkCastToConcrete,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
   vtkCastToConcrete() {};
   ~vtkCastToConcrete() {};
 
-  void Execute(); //insures compatibility; satisfies abstract api in vtkFilter
-  void ExecuteInformation();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *); //insures compatibility; satisfies abstract api in vtkFilter
+  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 private:
   vtkCastToConcrete(const vtkCastToConcrete&);  // Not implemented.
   void operator=(const vtkCastToConcrete&);  // Not implemented.
