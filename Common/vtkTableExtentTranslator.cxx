@@ -18,7 +18,7 @@
 #include "vtkTableExtentTranslator.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTableExtentTranslator, "1.2");
+vtkCxxRevisionMacro(vtkTableExtentTranslator, "1.3");
 vtkStandardNewMacro(vtkTableExtentTranslator);
 
 //----------------------------------------------------------------------------
@@ -161,7 +161,7 @@ vtkTableExtentTranslator::PieceToExtentThreadSafe(int piece, int numPieces,
                                                   int ghostLevel, 
                                                   int *wholeExtent, 
                                                   int *resultExtent, 
-                                                  int splitMode, 
+                                                  int vtkNotUsed(splitMode), 
                                                   int byPoints)
 {
   if (byPoints)
