@@ -37,7 +37,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkBoxWidget, "1.39");
+vtkCxxRevisionMacro(vtkBoxWidget, "1.40");
 vtkStandardNewMacro(vtkBoxWidget);
 
 vtkBoxWidget::vtkBoxWidget()
@@ -563,8 +563,7 @@ void vtkBoxWidget::OnLeftButtonDown()
 
   // Okay, we can process this. Try to pick handles first;
   // if no handles picked, then pick the bounding box.
-  vtkRenderer *ren = this->Interactor->FindPokedRenderer(X,Y);
-  if ( ren != this->CurrentRenderer )
+  if (!this->CurrentRenderer || !this->CurrentRenderer->IsInViewport(X, Y))
     {
     this->State = vtkBoxWidget::Outside;
     return;
@@ -641,8 +640,7 @@ void vtkBoxWidget::OnMiddleButtonDown()
 
   // Okay, we can process this. Try to pick handles first;
   // if no handles picked, then pick the bounding box.
-  vtkRenderer *ren = this->Interactor->FindPokedRenderer(X,Y);
-  if ( ren != this->CurrentRenderer )
+  if (!this->CurrentRenderer || !this->CurrentRenderer->IsInViewport(X, Y))
     {
     this->State = vtkBoxWidget::Outside;
     return;
@@ -711,8 +709,7 @@ void vtkBoxWidget::OnRightButtonDown()
 
   // Okay, we can process this. Try to pick handles first;
   // if no handles picked, then pick the bounding box.
-  vtkRenderer *ren = this->Interactor->FindPokedRenderer(X,Y);
-  if ( ren != this->CurrentRenderer )
+  if (!this->CurrentRenderer || !this->CurrentRenderer->IsInViewport(X, Y))
     {
     this->State = vtkBoxWidget::Outside;
     return;
@@ -786,8 +783,7 @@ void vtkBoxWidget::OnMouseMove()
   double focalPoint[4], pickPoint[4], prevPickPoint[4];
   double z, vpn[3];
 
-  vtkRenderer *renderer = this->Interactor->FindPokedRenderer(X,Y);
-  vtkCamera *camera = renderer->GetActiveCamera();
+  vtkCamera *camera = this->CurrentRenderer->GetActiveCamera();
   if ( !camera )
     {
     return;

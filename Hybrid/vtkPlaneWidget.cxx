@@ -41,7 +41,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkPlaneWidget, "1.37");
+vtkCxxRevisionMacro(vtkPlaneWidget, "1.38");
 vtkStandardNewMacro(vtkPlaneWidget);
 
 vtkCxxSetObjectMacro(vtkPlaneWidget,PlaneProperty,vtkProperty);
@@ -554,8 +554,7 @@ void vtkPlaneWidget::OnLeftButtonDown()
   int Y = this->Interactor->GetEventPosition()[1];
 
   // Okay, make sure that the pick is in the current renderer
-  vtkRenderer *ren = this->Interactor->FindPokedRenderer(X,Y);
-  if ( ren != this->CurrentRenderer )
+  if (!this->CurrentRenderer || !this->CurrentRenderer->IsInViewport(X, Y))
     {
     this->State = vtkPlaneWidget::Outside;
     return;
@@ -635,8 +634,7 @@ void vtkPlaneWidget::OnMiddleButtonDown()
   int Y = this->Interactor->GetEventPosition()[1];
 
   // Okay, make sure that the pick is in the current renderer
-  vtkRenderer *ren = this->Interactor->FindPokedRenderer(X,Y);
-  if ( ren != this->CurrentRenderer )
+  if (!this->CurrentRenderer || !this->CurrentRenderer->IsInViewport(X, Y))
     {
     this->State = vtkPlaneWidget::Outside;
     return;
@@ -703,8 +701,7 @@ void vtkPlaneWidget::OnRightButtonDown()
   int Y = this->Interactor->GetEventPosition()[1];
 
   // Okay, make sure that the pick is in the current renderer
-  vtkRenderer *ren = this->Interactor->FindPokedRenderer(X,Y);
-  if ( ren != this->CurrentRenderer )
+  if (!this->CurrentRenderer || !this->CurrentRenderer->IsInViewport(X, Y))
     {
     this->State = vtkPlaneWidget::Outside;
     return;
@@ -778,8 +775,7 @@ void vtkPlaneWidget::OnMouseMove()
   double focalPoint[4], pickPoint[4], prevPickPoint[4];
   double z, vpn[3];
 
-  vtkRenderer *renderer = this->Interactor->FindPokedRenderer(X,Y);
-  vtkCamera *camera = renderer->GetActiveCamera();
+  vtkCamera *camera = this->CurrentRenderer->GetActiveCamera();
   if ( !camera )
     {
     return;

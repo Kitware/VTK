@@ -41,7 +41,7 @@
 #include "vtkTransform.h"
 #include "vtkTubeFilter.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.18");
+vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.19");
 vtkStandardNewMacro(vtkImplicitPlaneWidget);
 
 vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()
@@ -494,8 +494,7 @@ void vtkImplicitPlaneWidget::OnLeftButtonDown()
 
   // Okay, we can process this. See if we've picked anything.
   // Make sure it's in the activated renderer
-  vtkRenderer *ren = this->Interactor->FindPokedRenderer(X,Y);
-  if ( ren != this->CurrentRenderer )
+  if (!this->CurrentRenderer || !this->CurrentRenderer->IsInViewport(X, Y))
     {
     this->State = vtkImplicitPlaneWidget::Outside;
     return;
@@ -575,8 +574,7 @@ void vtkImplicitPlaneWidget::OnMiddleButtonDown()
 
   // Okay, we can process this. See if we've picked anything.
   // Make sure it's in the activated renderer
-  vtkRenderer *ren = this->Interactor->FindPokedRenderer(X,Y);
-  if ( ren != this->CurrentRenderer )
+  if (!this->CurrentRenderer || !this->CurrentRenderer->IsInViewport(X, Y))
     {
     this->State = vtkImplicitPlaneWidget::Outside;
     return;
@@ -633,8 +631,7 @@ void vtkImplicitPlaneWidget::OnRightButtonDown()
 
   // Okay, we can process this. See if we've picked anything.
   // Make sure it's in the activated renderer
-  vtkRenderer *ren = this->Interactor->FindPokedRenderer(X,Y);
-  if ( ren != this->CurrentRenderer )
+  if (!this->CurrentRenderer || !this->CurrentRenderer->IsInViewport(X, Y))
     {
     this->State = vtkImplicitPlaneWidget::Outside;
     return;

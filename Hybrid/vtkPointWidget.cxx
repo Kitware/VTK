@@ -31,7 +31,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPointWidget, "1.16");
+vtkCxxRevisionMacro(vtkPointWidget, "1.17");
 vtkStandardNewMacro(vtkPointWidget);
 
 vtkPointWidget::vtkPointWidget()
@@ -306,8 +306,7 @@ void vtkPointWidget::OnLeftButtonDown()
   int Y = this->Interactor->GetEventPosition()[1];
 
   // Okay, make sure that the pick is in the current renderer
-  vtkRenderer *ren = this->Interactor->FindPokedRenderer(X,Y);
-  if ( ren != this->CurrentRenderer )
+  if (!this->CurrentRenderer || !this->CurrentRenderer->IsInViewport(X, Y))
     {
     this->State = vtkPointWidget::Outside;
     return;
@@ -359,8 +358,7 @@ void vtkPointWidget::OnMiddleButtonDown()
   int Y = this->Interactor->GetEventPosition()[1];
 
   // Okay, make sure that the pick is in the current renderer
-  vtkRenderer *ren = this->Interactor->FindPokedRenderer(X,Y);
-  if ( ren != this->CurrentRenderer )
+  if (!this->CurrentRenderer || !this->CurrentRenderer->IsInViewport(X, Y))
     {
     this->State = vtkPointWidget::Outside;
     return;
@@ -412,8 +410,7 @@ void vtkPointWidget::OnRightButtonDown()
   int Y = this->Interactor->GetEventPosition()[1];
 
   // Okay, make sure that the pick is in the current renderer
-  vtkRenderer *ren = this->Interactor->FindPokedRenderer(X,Y);
-  if ( ren != this->CurrentRenderer )
+  if (!this->CurrentRenderer || !this->CurrentRenderer->IsInViewport(X, Y))
     {
     this->State = vtkPointWidget::Outside;
     return;
@@ -480,8 +477,7 @@ void vtkPointWidget::OnMouseMove()
   double focalPoint[4], pickPoint[4], prevPickPoint[4];
   double z;
 
-  vtkRenderer *renderer = this->Interactor->FindPokedRenderer(X,Y);
-  vtkCamera *camera = renderer->GetActiveCamera();
+  vtkCamera *camera = this->CurrentRenderer->GetActiveCamera();
   if ( !camera )
     {
     return;

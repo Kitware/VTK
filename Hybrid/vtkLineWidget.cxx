@@ -38,7 +38,7 @@
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 
-vtkCxxRevisionMacro(vtkLineWidget, "1.43");
+vtkCxxRevisionMacro(vtkLineWidget, "1.44");
 vtkStandardNewMacro(vtkLineWidget);
 
 // This class is used to coordinate the interaction between the point widget
@@ -261,7 +261,11 @@ void vtkLineWidget::SetEnabled(int enabling)
         return;
         }
       }
-
+    
+    this->PointWidget->SetCurrentRenderer(this->CurrentRenderer);
+    this->PointWidget1->SetCurrentRenderer(this->CurrentRenderer);
+    this->PointWidget2->SetCurrentRenderer(this->CurrentRenderer);
+    
     this->Enabled = 1;
 
     // listen for the following events
@@ -536,6 +540,7 @@ void vtkLineWidget::EnablePointWidget()
   this->CurrentPointWidget->PlaceWidget(bounds);
   this->CurrentPointWidget->TranslationModeOn();
   this->CurrentPointWidget->SetPosition(x);
+  this->CurrentPointWidget->SetCurrentRenderer(this->CurrentRenderer);
   this->CurrentPointWidget->On();
 }
 
@@ -587,8 +592,7 @@ void vtkLineWidget::OnLeftButtonDown()
   int Y = this->Interactor->GetEventPosition()[1];
 
   // Okay, make sure that the pick is in the current renderer
-  vtkRenderer *ren = this->Interactor->FindPokedRenderer(X,Y);
-  if ( ren != this->CurrentRenderer )
+  if (!this->CurrentRenderer || !this->CurrentRenderer->IsInViewport(X, Y))
     {
     this->State = vtkLineWidget::Outside;
     return;
@@ -671,8 +675,7 @@ void vtkLineWidget::OnMiddleButtonDown()
   int Y = this->Interactor->GetEventPosition()[1];
 
   // Okay, make sure that the pick is in the current renderer
-  vtkRenderer *ren = this->Interactor->FindPokedRenderer(X,Y);
-  if ( ren != this->CurrentRenderer )
+  if (!this->CurrentRenderer || !this->CurrentRenderer->IsInViewport(X, Y))
     {
     this->State = vtkLineWidget::Outside;
     return;
@@ -755,8 +758,7 @@ void vtkLineWidget::OnRightButtonDown()
   int Y = this->Interactor->GetEventPosition()[1];
 
   // Okay, make sure that the pick is in the current renderer
-  vtkRenderer *ren = this->Interactor->FindPokedRenderer(X,Y);
-  if ( ren != this->CurrentRenderer )
+  if (!this->CurrentRenderer || !this->CurrentRenderer->IsInViewport(X, Y))
     {
     this->State = vtkLineWidget::Outside;
     return;

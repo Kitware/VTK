@@ -37,7 +37,7 @@
 #include "vtkSpline.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkSplineWidget, "1.17");
+vtkCxxRevisionMacro(vtkSplineWidget, "1.18");
 vtkStandardNewMacro(vtkSplineWidget);
 
 vtkCxxSetObjectMacro(vtkSplineWidget, HandleProperty, vtkProperty);
@@ -728,8 +728,7 @@ void vtkSplineWidget::OnLeftButtonDown()
   int Y = this->Interactor->GetEventPosition()[1];
 
   // Okay, make sure that the pick is in the current renderer
-  vtkRenderer *ren = this->Interactor->FindPokedRenderer(X,Y);
-  if ( ren != this->CurrentRenderer )
+  if (!this->CurrentRenderer || !this->CurrentRenderer->IsInViewport(X, Y))
     {
     this->State = vtkSplineWidget::Outside;
     return;
@@ -794,8 +793,7 @@ void vtkSplineWidget::OnMiddleButtonDown()
   int Y = this->Interactor->GetEventPosition()[1];
 
   // Okay, make sure that the pick is in the current renderer
-  vtkRenderer *ren = this->Interactor->FindPokedRenderer(X,Y);
-  if ( ren != this->CurrentRenderer )
+  if (!this->CurrentRenderer || !this->CurrentRenderer->IsInViewport(X, Y))
     {
     this->State = vtkSplineWidget::Outside;
     return;
@@ -867,8 +865,7 @@ void vtkSplineWidget::OnRightButtonDown()
   int Y = this->Interactor->GetEventPosition()[1];
 
   // Okay, make sure that the pick is in the current renderer
-  vtkRenderer *ren = this->Interactor->FindPokedRenderer(X,Y);
-  if ( ren != this->CurrentRenderer )
+  if (!this->CurrentRenderer || !this->CurrentRenderer->IsInViewport(X, Y))
     {
     this->State = vtkSplineWidget::Outside;
     return;
@@ -943,8 +940,7 @@ void vtkSplineWidget::OnMouseMove()
   double focalPoint[4], pickPoint[4], prevPickPoint[4];
   double z, vpn[3];
 
-  vtkRenderer *renderer = this->Interactor->FindPokedRenderer(X,Y);
-  vtkCamera *camera = renderer->GetActiveCamera();
+  vtkCamera *camera = this->CurrentRenderer->GetActiveCamera();
   if ( !camera )
     {
     return;
@@ -1318,14 +1314,17 @@ void vtkSplineWidget::SetNumberOfHandles(int npts)
 
   if ( this->Interactor )
     {
-    this->SetCurrentRenderer(this->Interactor->FindPokedRenderer(
-                               this->Interactor->GetLastEventPosition()[0],
-                               this->Interactor->GetLastEventPosition()[1]));
-    if (this->CurrentRenderer != NULL)
+    if (!this->CurrentRenderer)
       {
-      for (i=0; i<this->NumberOfHandles; i++)
+      this->SetCurrentRenderer(this->Interactor->FindPokedRenderer(
+        this->Interactor->GetLastEventPosition()[0],
+        this->Interactor->GetLastEventPosition()[1]));
+      if (this->CurrentRenderer != NULL)
         {
-        this->CurrentRenderer->AddProp(this->Handle[i]);
+        for (i=0; i<this->NumberOfHandles; i++)
+          {
+          this->CurrentRenderer->AddProp(this->Handle[i]);
+          }
         }
       }
       this->Interactor->Render();
@@ -1337,14 +1336,17 @@ void vtkSplineWidget::Initialize(void)
   int i;
   if ( this->Interactor )
     {
-    this->SetCurrentRenderer(this->Interactor->FindPokedRenderer(
-                               this->Interactor->GetLastEventPosition()[0],
-                               this->Interactor->GetLastEventPosition()[1]));
-    if ( this->CurrentRenderer != NULL)
+    if (!this->CurrentRenderer)
       {
-      for (i=0; i<this->NumberOfHandles; i++)
+      this->SetCurrentRenderer(this->Interactor->FindPokedRenderer(
+        this->Interactor->GetLastEventPosition()[0],
+        this->Interactor->GetLastEventPosition()[1]));
+      if ( this->CurrentRenderer != NULL)
         {
-        this->CurrentRenderer->RemoveProp(this->Handle[i]);
+        for (i=0; i<this->NumberOfHandles; i++)
+          {
+          this->CurrentRenderer->RemoveProp(this->Handle[i]);
+          }
         }
       }
     }
