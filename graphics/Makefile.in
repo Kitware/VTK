@@ -1,628 +1,235 @@
 #
 # vtk library makefile
 #
-#
-# vtk library makefile
-#
-# NOTE !!! when adding a class, it must be added in four locations
-# It must be in the SRC_OBJ list, TCL_OBJ list and TCL_RULES
-# If it is a concrete class then it should be added to TCL_NEWS
-# as well. At the end of this file there are a number of makefile
-# rules to build the tcl wrappers. On the command line there is a 1 
-# if the class is concrete or a 0 if it is abstract.
+# NOTE !!! when adding a class, it must be added in one location.
+# Place it in the correct list based on whether it is only a .h file
+# and whether it is abstract or concrete.
 #
 ME = Graphics
 
-# put all vtkFoo.cxx files here as .o files
-SRC_OBJ = \
-vtkActor.o \
-vtkAppendFilter.o \
-vtkAppendPolyData.o \
-vtkAssembly.o \
-vtkAxes.o \
-vtkBYUReader.o \
-vtkBYUWriter.o \
-vtkBooleanStructuredPoints.o \
-vtkBooleanTexture.o \
-vtkBrownianPoints.o \
-vtkCamera.o \
-vtkCastToConcrete.o \
-vtkCellLocator.o \
-vtkCellPicker.o \
-vtkCleanPolyData.o \
-vtkClipPolyData.o \
-vtkCone.o \
-vtkConeSource.o \
-vtkConnectivityFilter.o \
-vtkContourFilter.o \
-vtkCubeSource.o \
-vtkCursor3D.o \
-vtkCutter.o \
-vtkCyberReader.o \
-vtkCylinder.o \
-vtkCylinderSource.o \
-vtkDashedStreamLine.o \
-vtkDataReader.o \
-vtkDataSetFilter.o \
-vtkDataSetMapper.o \
-vtkDataSetReader.o \
-vtkDataSetToDataSetFilter.o \
-vtkDataSetToPolyFilter.o \
-vtkDataSetToStructuredGridFilter.o \
-vtkDataSetToStructuredPointsFilter.o \
-vtkDataSetToUnstructuredGridFilter.o \
-vtkDataSetWriter.o \
-vtkDataWriter.o \
-vtkDecimate.o \
-vtkDelaunay2D.o \
-vtkDelaunay3D.o \
-vtkDicer.o \
-vtkDiskSource.o \
-vtkDividingCubes.o \
-vtkEarthSource.o \
-vtkEdgePoints.o \
-vtkElevationFilter.o \
-vtkExporter.o \
-vtkExtractEdges.o \
-vtkExtractGeometry.o \
-vtkExtractGrid.o \
-vtkExtractVOI.o \
-vtkExtractVectorComponents.o \
-vtkFeatureEdges.o \
-vtkFeatureVertices.o \
-vtkFilter.o \
-vtkFollower.o \
-vtkGaussianSplatter.o \
-vtkGeometryFilter.o \
-vtkGlyph3D.o \
-vtkHedgeHog.o \
-vtkHyperStreamline.o \
-vtkImageDifference.o \
-vtkImageToStructuredPoints.o \
-vtkImplicitBoolean.o \
-vtkImplicitDataSet.o \
-vtkImplicitModeller.o \
-vtkImplicitTextureCoords.o \
-vtkImplicitVolume.o \
-vtkImplicitWindowFunction.o \
-vtkLODActor.o \
-vtkLight.o \
-vtkLineSource.o \
-vtkLinearExtrusionFilter.o \
-vtkLinkEdgels.o \
-vtkMCubesReader.o \
-vtkMCubesWriter.o \
-vtkMapper.o \
-vtkMarchingCubes.o \
-vtkMarchingSquares.o \
-vtkMaskPoints.o \
-vtkMaskPolyData.o \
-vtkMergeFilter.o \
-vtkMergePoints.o \
-vtkNewVolumeRenderer.o \
-vtkOBBTree.o \
-vtkOBJExporter.o \
-vtkOutlineFilter.o \
-vtkOutlineSource.o \
-vtkPLOT3DReader.o \
-vtkPNMReader.o \
-vtkPNMWriter.o \
-vtkPicker.o \
-vtkPlaneSource.o \
-vtkPlanes.o \
-vtkPointLoad.o \
-vtkPointPicker.o \
-vtkPointSetFilter.o \
-vtkPointSetToPointSetFilter.o \
-vtkPointSource.o \
-vtkPolyConnectivityFilter.o \
-vtkPolyFilter.o \
-vtkPolyMapper.o \
-vtkPolyMapperDevice.o \
-vtkPolyNormals.o \
-vtkPolyReader.o \
-vtkPolySource.o \
-vtkPolyToPolyFilter.o \
-vtkPolyWriter.o \
-vtkProbeFilter.o \
-vtkProperty.o \
-vtkQuadric.o \
-vtkRecursiveDividingCubes.o \
-vtkRenderMaster.o \
-vtkRenderWindow.o \
-vtkRenderWindowInteractor.o \
-vtkRenderer.o \
-vtkRendererCollection.o \
-vtkRendererSource.o \
-vtkRibbonFilter.o \
-vtkRotationalExtrusionFilter.o \
-vtkSTLReader.o \
-vtkSTLWriter.o \
-vtkSampleFunction.o \
-vtkShepardMethod.o \
-vtkShrinkFilter.o \
-vtkShrinkPolyData.o \
-vtkSliceCubes.o \
-vtkSmoothPolyFilter.o \
-vtkSpatialRepFilter.o \
-vtkSphere.o \
-vtkSphereSource.o \
-vtkStreamLine.o \
-vtkStreamPoints.o \
-vtkStreamer.o \
-vtkStripper.o \
-vtkStructuredGridFilter.o \
-vtkStructuredGridGeometryFilter.o \
-vtkStructuredGridOutlineFilter.o \
-vtkStructuredGridReader.o \
-vtkStructuredGridSource.o \
-vtkStructuredGridToPolyFilter.o \
-vtkStructuredGridToStructuredGridFilter.o \
-vtkStructuredGridWriter.o \
-vtkStructuredPointsFilter.o \
-vtkStructuredPointsGeometryFilter.o \
-vtkStructuredPointsReader.o \
-vtkStructuredPointsSource.o \
-vtkStructuredPointsToImage.o \
-vtkStructuredPointsToPolyDataFilter.o \
-vtkStructuredPointsToStructuredPointsFilter.o \
-vtkStructuredPointsWriter.o \
-vtkSubPixelPositionEdgels.o \
-vtkSweptSurface.o \
-vtkTensorGlyph.o \
-vtkTextSource.o \
-vtkTexture.o \
-vtkTextureMapToBox.o \
-vtkTextureMapToCylinder.o \
-vtkTextureMapToPlane.o \
-vtkTextureMapToSphere.o \
-vtkTexturedSphereSource.o \
-vtkThreshold.o \
-vtkThresholdPoints.o \
-vtkThresholdTextureCoords.o \
-vtkTransformFilter.o \
-vtkTransformPolyFilter.o \
-vtkTransformStructuredPoints.o \
-vtkTransformTextureCoords.o \
-vtkTriangularTCoords.o \
-vtkTriangularTexture.o \
-vtkTriangleFilter.o \
-vtkTubeFilter.o \
-vtkUGFacetReader.o \
-vtkUnstructuredGridFilter.o \
-vtkUnstructuredGridReader.o \
-vtkUnstructuredGridSource.o \
-vtkUnstructuredGridWriter.o \
-vtkVRMLExporter.o \
-vtkVectorDot.o \
-vtkVectorNorm.o \
-vtkVectorText.o \
-vtkVectorTopology.o \
-vtkVolume.o \
-vtkVolume16Reader.o \
-vtkVolumeReader.o \
-vtkVolumeRenderer.o \
-vtkVoxelModeller.o \
-vtkVoxelReader.o \
-vtkVoxelWriter.o \
-vtkWarpScalar.o \
-vtkWarpTo.o \
-vtkWarpVector.o \
-vtkWriter.o \
-vtkXRenderWindow.o 
+ABSTRACT_H = \
+vtkActorDevice \
+vtkCameraDevice \
+vtkLightDevice \
+vtkPropertyDevice \
+vtkTextureDevice 
 
-# put all vtk classes that are to be wrapped here as tcl/vtkFooTcl.o files
-TCL_OBJ = \
-tcl/vtkActorTcl.o \
-tcl/vtkActorCollectionTcl.o \
-tcl/vtkActorDeviceTcl.o \
-tcl/vtkAppendFilterTcl.o \
-tcl/vtkAppendPolyDataTcl.o \
-tcl/vtkAssemblyTcl.o \
-tcl/vtkAssemblyPathsTcl.o \
-tcl/vtkAxesTcl.o \
-tcl/vtkBYUReaderTcl.o \
-tcl/vtkBYUWriterTcl.o \
-tcl/vtkBooleanStructuredPointsTcl.o \
-tcl/vtkBooleanTextureTcl.o \
-tcl/vtkBrownianPointsTcl.o \
-tcl/vtkCameraTcl.o \
-tcl/vtkCameraDeviceTcl.o \
-tcl/vtkCastToConcreteTcl.o \
-tcl/vtkCellLocatorTcl.o \
-tcl/vtkCellPickerTcl.o \
-tcl/vtkCleanPolyDataTcl.o \
-tcl/vtkClipPolyDataTcl.o \
-tcl/vtkConeTcl.o \
-tcl/vtkConeSourceTcl.o \
-tcl/vtkConnectivityFilterTcl.o \
-tcl/vtkContourFilterTcl.o \
-tcl/vtkCubeSourceTcl.o \
-tcl/vtkCursor3DTcl.o \
-tcl/vtkCutterTcl.o \
-tcl/vtkCyberReaderTcl.o \
-tcl/vtkCylinderTcl.o \
-tcl/vtkCylinderSourceTcl.o \
-tcl/vtkDashedStreamLineTcl.o \
-tcl/vtkDataReaderTcl.o \
-tcl/vtkDataSetCollectionTcl.o \
-tcl/vtkDataSetFilterTcl.o \
-tcl/vtkDataSetMapperTcl.o \
-tcl/vtkDataSetReaderTcl.o \
-tcl/vtkDataSetToDataSetFilterTcl.o \
-tcl/vtkDataSetToPolyFilterTcl.o \
-tcl/vtkDataSetToStructuredGridFilterTcl.o \
-tcl/vtkDataSetToStructuredPointsFilterTcl.o \
-tcl/vtkDataSetToUnstructuredGridFilterTcl.o \
-tcl/vtkDataSetWriterTcl.o \
-tcl/vtkDataWriterTcl.o \
-tcl/vtkDecimateTcl.o \
-tcl/vtkDelaunay2DTcl.o \
-tcl/vtkDelaunay3DTcl.o \
-tcl/vtkDicerTcl.o \
-tcl/vtkDiskSourceTcl.o \
-tcl/vtkDividingCubesTcl.o \
-tcl/vtkEarthSourceTcl.o \
-tcl/vtkEdgePointsTcl.o \
-tcl/vtkElevationFilterTcl.o \
-tcl/vtkExporterTcl.o \
-tcl/vtkExtractEdgesTcl.o \
-tcl/vtkExtractGeometryTcl.o \
-tcl/vtkExtractGridTcl.o \
-tcl/vtkExtractVOITcl.o \
-tcl/vtkExtractVectorComponentsTcl.o \
-tcl/vtkFeatureEdgesTcl.o \
-tcl/vtkFeatureVerticesTcl.o \
-tcl/vtkFilterTcl.o \
-tcl/vtkFollowerTcl.o \
-tcl/vtkGaussianSplatterTcl.o \
-tcl/vtkGeometryFilterTcl.o \
-tcl/vtkGlyph3DTcl.o \
-tcl/vtkHedgeHogTcl.o \
-tcl/vtkHyperStreamlineTcl.o \
-tcl/vtkImageDifferenceTcl.o \
-tcl/vtkImageToStructuredPointsTcl.o \
-tcl/vtkImplicitBooleanTcl.o \
-tcl/vtkImplicitDataSetTcl.o \
-tcl/vtkImplicitModellerTcl.o \
-tcl/vtkImplicitTextureCoordsTcl.o \
-tcl/vtkImplicitVolumeTcl.o \
-tcl/vtkImplicitWindowFunctionTcl.o \
-tcl/vtkLODActorTcl.o \
-tcl/vtkLightTcl.o \
-tcl/vtkLightCollectionTcl.o \
-tcl/vtkLightDeviceTcl.o \
-tcl/vtkLineSourceTcl.o \
-tcl/vtkLinearExtrusionFilterTcl.o \
-tcl/vtkLinkEdgelsTcl.o \
-tcl/vtkMCubesReaderTcl.o \
-tcl/vtkMCubesWriterTcl.o \
-tcl/vtkMapperTcl.o \
-tcl/vtkMarchingCubesTcl.o \
-tcl/vtkMarchingSquaresTcl.o \
-tcl/vtkMaskPointsTcl.o \
-tcl/vtkMaskPolyDataTcl.o \
-tcl/vtkMergeFilterTcl.o \
-tcl/vtkMergePointsTcl.o \
-tcl/vtkNewVolumeRendererTcl.o \
-tcl/vtkOBBTreeTcl.o \
-tcl/vtkOBJExporterTcl.o \
-tcl/vtkOutlineFilterTcl.o \
-tcl/vtkOutlineSourceTcl.o \
-tcl/vtkPLOT3DReaderTcl.o \
-tcl/vtkPNMReaderTcl.o \
-tcl/vtkPNMWriterTcl.o \
-tcl/vtkPickerTcl.o \
-tcl/vtkPlaneSourceTcl.o \
-tcl/vtkPlanesTcl.o \
-tcl/vtkPointLoadTcl.o \
-tcl/vtkPointPickerTcl.o \
-tcl/vtkPointSetFilterTcl.o \
-tcl/vtkPointSetToPointSetFilterTcl.o \
-tcl/vtkPointSourceTcl.o \
-tcl/vtkPolyDataCollectionTcl.o \
-tcl/vtkPolyConnectivityFilterTcl.o \
-tcl/vtkPolyFilterTcl.o \
-tcl/vtkPolyMapperTcl.o \
-tcl/vtkPolyMapperDeviceTcl.o \
-tcl/vtkPolyNormalsTcl.o \
-tcl/vtkPolyReaderTcl.o \
-tcl/vtkPolySourceTcl.o \
-tcl/vtkPolyToPolyFilterTcl.o \
-tcl/vtkPolyWriterTcl.o \
-tcl/vtkProbeFilterTcl.o \
-tcl/vtkPropertyTcl.o \
-tcl/vtkPropertyDeviceTcl.o \
-tcl/vtkQuadricTcl.o \
-tcl/vtkRecursiveDividingCubesTcl.o \
-tcl/vtkRenderMasterTcl.o \
-tcl/vtkRenderWindowTcl.o \
-tcl/vtkRenderWindowCollectionTcl.o \
-tcl/vtkRenderWindowInteractorTcl.o \
-tcl/vtkRendererTcl.o \
-tcl/vtkRendererCollectionTcl.o \
-tcl/vtkRendererSourceTcl.o \
-tcl/vtkRibbonFilterTcl.o \
-tcl/vtkRotationalExtrusionFilterTcl.o \
-tcl/vtkSTLReaderTcl.o \
-tcl/vtkSTLWriterTcl.o \
-tcl/vtkSampleFunctionTcl.o \
-tcl/vtkShepardMethodTcl.o \
-tcl/vtkShrinkFilterTcl.o \
-tcl/vtkShrinkPolyDataTcl.o \
-tcl/vtkSliceCubesTcl.o \
-tcl/vtkSmoothPolyFilterTcl.o \
-tcl/vtkSpatialRepFilterTcl.o \
-tcl/vtkSphereTcl.o \
-tcl/vtkSphereSourceTcl.o \
-tcl/vtkStreamLineTcl.o \
-tcl/vtkStreamPointsTcl.o \
-tcl/vtkStreamerTcl.o \
-tcl/vtkStripperTcl.o \
-tcl/vtkStructuredGridFilterTcl.o \
-tcl/vtkStructuredGridGeometryFilterTcl.o \
-tcl/vtkStructuredGridOutlineFilterTcl.o \
-tcl/vtkStructuredGridReaderTcl.o \
-tcl/vtkStructuredGridSourceTcl.o \
-tcl/vtkStructuredGridToPolyFilterTcl.o \
-tcl/vtkStructuredGridToStructuredGridFilterTcl.o \
-tcl/vtkStructuredGridWriterTcl.o \
-tcl/vtkStructuredPointsCollectionTcl.o \
-tcl/vtkStructuredPointsFilterTcl.o \
-tcl/vtkStructuredPointsGeometryFilterTcl.o \
-tcl/vtkStructuredPointsReaderTcl.o \
-tcl/vtkStructuredPointsSourceTcl.o \
-tcl/vtkStructuredPointsToImageTcl.o \
-tcl/vtkStructuredPointsToPolyDataFilterTcl.o \
-tcl/vtkStructuredPointsToStructuredPointsFilterTcl.o \
-tcl/vtkStructuredPointsWriterTcl.o \
-tcl/vtkSubPixelPositionEdgelsTcl.o \
-tcl/vtkSweptSurfaceTcl.o \
-tcl/vtkTensorGlyphTcl.o \
-tcl/vtkTextSourceTcl.o \
-tcl/vtkTextureTcl.o \
-tcl/vtkTextureDeviceTcl.o \
-tcl/vtkTextureMapToBoxTcl.o \
-tcl/vtkTextureMapToCylinderTcl.o \
-tcl/vtkTextureMapToPlaneTcl.o \
-tcl/vtkTextureMapToSphereTcl.o \
-tcl/vtkTexturedSphereSourceTcl.o \
-tcl/vtkThresholdTcl.o \
-tcl/vtkThresholdPointsTcl.o \
-tcl/vtkThresholdTextureCoordsTcl.o \
-tcl/vtkTransformFilterTcl.o \
-tcl/vtkTransformPolyFilterTcl.o \
-tcl/vtkTransformStructuredPointsTcl.o \
-tcl/vtkTransformTextureCoordsTcl.o \
-tcl/vtkTriangularTextureTcl.o \
-tcl/vtkTriangularTCoordsTcl.o \
-tcl/vtkTriangleFilterTcl.o \
-tcl/vtkTubeFilterTcl.o \
-tcl/vtkUGFacetReaderTcl.o \
-tcl/vtkUnstructuredGridFilterTcl.o \
-tcl/vtkUnstructuredGridReaderTcl.o \
-tcl/vtkUnstructuredGridSourceTcl.o \
-tcl/vtkUnstructuredGridWriterTcl.o \
-tcl/vtkVRMLExporterTcl.o \
-tcl/vtkVectorDotTcl.o \
-tcl/vtkVectorNormTcl.o \
-tcl/vtkVectorTextTcl.o \
-tcl/vtkVectorTopologyTcl.o \
-tcl/vtkVolumeTcl.o \
-tcl/vtkVolume16ReaderTcl.o \
-tcl/vtkVolumeCollectionTcl.o \
-tcl/vtkVolumeReaderTcl.o \
-tcl/vtkVolumeRendererTcl.o \
-tcl/vtkVoxelModellerTcl.o \
-tcl/vtkVoxelReaderTcl.o \
-tcl/vtkVoxelWriterTcl.o \
-tcl/vtkWarpScalarTcl.o \
-tcl/vtkWarpToTcl.o \
-tcl/vtkWarpVectorTcl.o \
-tcl/vtkWriterTcl.o \
-tcl/vtkXRenderWindowTcl.o \
-tcl/vtkXRenderWindowInteractorTcl.o 
+CONCRETE_H = \
+vtkActorCollection \
+vtkAssemblyPaths \
+vtkDataSetCollection \
+vtkLightCollection \
+vtkPolyDataCollection \
+vtkRenderWindowCollection \
+vtkStructuredPointsCollection \
+vtkVolumeCollection 
 
-# put all vtk classes that are concrete here as vtkFooTcl.h files
-TCL_NEWS = \
-vtkActor.h \
-vtkActorCollection.h \
-vtkAppendFilter.h \
-vtkAppendPolyData.h \
-vtkAssembly.h \
-vtkAssemblyPaths.h \
-vtkAxes.h \
-vtkBYUReader.h \
-vtkBYUWriter.h \
-vtkBooleanStructuredPoints.h \
-vtkBooleanTexture.h \
-vtkBrownianPoints.h \
-vtkCamera.h \
-vtkCastToConcrete.h \
-vtkCellLocator.h \
-vtkCellPicker.h \
-vtkCleanPolyData.h \
-vtkClipPolyData.h \
-vtkCone.h \
-vtkConeSource.h \
-vtkConnectivityFilter.h \
-vtkContourFilter.h \
-vtkCubeSource.h \
-vtkCursor3D.h \
-vtkCutter.h \
-vtkCyberReader.h \
-vtkCylinder.h \
-vtkCylinderSource.h \
-vtkDashedStreamLine.h \
-vtkDataReader.h \
-vtkDataSetCollection.h \
-vtkDataSetFilter.h \
-vtkDataSetMapper.h \
-vtkDataSetReader.h \
-vtkDataSetToDataSetFilter.h \
-vtkDataSetToPolyFilter.h \
-vtkDataSetToStructuredGridFilter.h \
-vtkDataSetToStructuredPointsFilter.h \
-vtkDataSetToUnstructuredGridFilter.h \
-vtkDataSetWriter.h \
-vtkDecimate.h \
-vtkDelaunay2D.h \
-vtkDelaunay3D.h \
-vtkDicer.h \
-vtkDiskSource.h \
-vtkDividingCubes.h \
-vtkEarthSource.h \
-vtkEdgePoints.h \
-vtkElevationFilter.h \
-vtkExtractEdges.h \
-vtkExtractGeometry.h \
-vtkExtractGrid.h \
-vtkExtractVOI.h \
-vtkExtractVectorComponents.h \
-vtkFeatureEdges.h \
-vtkFeatureVertices.h \
-vtkFilter.h \
-vtkFollower.h \
-vtkGaussianSplatter.h \
-vtkGeometryFilter.h \
-vtkGlyph3D.h \
-vtkHedgeHog.h \
-vtkHyperStreamline.h \
-vtkImageDifference.h \
-vtkImageToStructuredPoints.h \
-vtkImplicitBoolean.h \
-vtkImplicitDataSet.h \
-vtkImplicitModeller.h \
-vtkImplicitTextureCoords.h \
-vtkImplicitVolume.h \
-vtkImplicitWindowFunction.h \
-vtkLODActor.h \
-vtkLight.h \
-vtkLightCollection.h \
-vtkLineSource.h \
-vtkLinearExtrusionFilter.h \
-vtkLinkEdgels.h \
-vtkMCubesReader.h \
-vtkMCubesWriter.h \
-vtkMarchingCubes.h \
-vtkMarchingSquares.h \
-vtkMaskPoints.h \
-vtkMaskPolyData.h \
-vtkMergeFilter.h \
-vtkMergePoints.h \
-vtkNewVolumeRenderer.h \
-vtkOBBTree.h \
-vtkOBJExporter.h \
-vtkOutlineFilter.h \
-vtkOutlineSource.h \
-vtkPLOT3DReader.h \
-vtkPNMReader.h \
-vtkPNMWriter.h \
-vtkPicker.h \
-vtkPlaneSource.h \
-vtkPlanes.h \
-vtkPointLoad.h \
-vtkPointPicker.h \
-vtkPointSetFilter.h \
-vtkPointSetToPointSetFilter.h \
-vtkPointSource.h \
-vtkPolyConnectivityFilter.o \
-vtkPolyDataCollection.h \
-vtkPolyFilter.h \
-vtkPolyMapper.h \
-vtkPolyNormals.h \
-vtkPolyReader.h \
-vtkPolySource.h \
-vtkPolyToPolyFilter.h \
-vtkPolyWriter.h \
-vtkProbeFilter.h \
-vtkProperty.h \
-vtkQuadric.h \
-vtkRecursiveDividingCubes.h \
-vtkRenderMaster.h \
-vtkRenderWindowCollection.h \
-vtkRenderWindowInteractor.h \
-vtkRendererCollection.h \
-vtkRendererSource.h \
-vtkRibbonFilter.h \
-vtkRotationalExtrusionFilter.h \
-vtkSTLReader.h \
-vtkSTLWriter.h \
-vtkSampleFunction.h \
-vtkShepardMethod.h \
-vtkShrinkFilter.h \
-vtkShrinkPolyData.h \
-vtkSliceCubes.h \
-vtkSmoothPolyFilter.h \
-vtkSpatialRepFilter.h \
-vtkSphere.h \
-vtkSphereSource.h \
-vtkStreamLine.h \
-vtkStreamPoints.h \
-vtkStreamer.h \
-vtkStripper.h \
-vtkStructuredGridFilter.h \
-vtkStructuredGridGeometryFilter.h \
-vtkStructuredGridOutlineFilter.h \
-vtkStructuredGridReader.h \
-vtkStructuredGridSource.h \
-vtkStructuredGridToPolyFilter.h \
-vtkStructuredGridToStructuredGridFilter.h \
-vtkStructuredGridWriter.h \
-vtkStructuredPointsCollection.h \
-vtkStructuredPointsFilter.h \
-vtkStructuredPointsGeometryFilter.h \
-vtkStructuredPointsReader.h \
-vtkStructuredPointsSource.h \
-vtkStructuredPointsToImage.h \
-vtkStructuredPointsToPolyDataFilter.h \
-vtkStructuredPointsToStructuredPointsFilter.h \
-vtkStructuredPointsWriter.h \
-vtkSubPixelPositionEdgels.h \
-vtkSweptSurface.h \
-vtkTensorGlyph.h \
-vtkTextSource.h \
-vtkTexture.h \
-vtkTextureMapToBox.h \
-vtkTextureMapToCylinder.h \
-vtkTextureMapToPlane.h \
-vtkTextureMapToSphere.h \
-vtkTexturedSphereSource.h \
-vtkThreshold.h \
-vtkThresholdPoints.h \
-vtkThresholdTextureCoords.h \
-vtkTransformFilter.h \
-vtkTransformPolyFilter.h \
-vtkTransformStructuredPoints.h \
-vtkTransformTextureCoords.h \
-vtkTriangularTexture.h \
-vtkTriangularTCoords.h \
-vtkTriangleFilter.h \
-vtkTubeFilter.h \
-vtkUGFacetReader.h \
-vtkUnstructuredGridFilter.h \
-vtkUnstructuredGridReader.h \
-vtkUnstructuredGridSource.h \
-vtkUnstructuredGridWriter.h \
-vtkVRMLExporter.h \
-vtkVectorDot.h \
-vtkVectorNorm.h \
-vtkVectorText.h \
-vtkVectorTopology.h \
-vtkVolume.h \
-vtkVolume16Reader.h \
-vtkVolumeCollection.h \
-vtkVolumeRenderer.h \
-vtkVoxelModeller.h \
-vtkVoxelReader.h \
-vtkVoxelWriter.h \
-vtkWarpScalar.h \
-vtkWarpTo.h \
-vtkWarpVector.h \
-vtkXRenderWindowInteractor.h 
+ABSTRACT = \
+vtkDataWriter \
+vtkExporter \
+vtkMapper \
+vtkPolyMapperDevice \
+vtkRenderWindow \
+vtkRenderer \
+vtkVolumeReader \
+vtkWriter \
+vtkXRenderWindow 
 
+# put all concrete classes here
+CONCRETE = \
+vtkActor \
+vtkAppendFilter \
+vtkAppendPolyData \
+vtkAssembly \
+vtkAxes \
+vtkBYUReader \
+vtkBYUWriter \
+vtkBooleanStructuredPoints \
+vtkBooleanTexture \
+vtkBrownianPoints \
+vtkCamera \
+vtkCastToConcrete \
+vtkCellLocator \
+vtkCellPicker \
+vtkCleanPolyData \
+vtkClipPolyData \
+vtkCone \
+vtkConeSource \
+vtkConnectivityFilter \
+vtkContourFilter \
+vtkCubeSource \
+vtkCursor3D \
+vtkCutter \
+vtkCyberReader \
+vtkCylinder \
+vtkCylinderSource \
+vtkDashedStreamLine \
+vtkDataReader \
+vtkDataSetFilter \
+vtkDataSetMapper \
+vtkDataSetReader \
+vtkDataSetToDataSetFilter \
+vtkDataSetToPolyFilter \
+vtkDataSetToStructuredGridFilter \
+vtkDataSetToStructuredPointsFilter \
+vtkDataSetToUnstructuredGridFilter \
+vtkDataSetWriter \
+vtkDecimate \
+vtkDelaunay2D \
+vtkDelaunay3D \
+vtkDicer \
+vtkDiskSource \
+vtkDividingCubes \
+vtkEarthSource \
+vtkEdgePoints \
+vtkElevationFilter \
+vtkExtractEdges \
+vtkExtractGeometry \
+vtkExtractGrid \
+vtkExtractVOI \
+vtkExtractVectorComponents \
+vtkFeatureEdges \
+vtkFeatureVertices \
+vtkFilter \
+vtkFollower \
+vtkGaussianSplatter \
+vtkGeometryFilter \
+vtkGlyph3D \
+vtkHedgeHog \
+vtkHyperStreamline \
+vtkImageDifference \
+vtkImageToStructuredPoints \
+vtkImplicitBoolean \
+vtkImplicitDataSet \
+vtkImplicitModeller \
+vtkImplicitTextureCoords \
+vtkImplicitVolume \
+vtkImplicitWindowFunction \
+vtkLODActor \
+vtkLight \
+vtkLineSource \
+vtkLinearExtrusionFilter \
+vtkLinkEdgels \
+vtkMCubesReader \
+vtkMCubesWriter \
+vtkMarchingCubes \
+vtkMarchingSquares \
+vtkMaskPoints \
+vtkMaskPolyData \
+vtkMergeFilter \
+vtkMergePoints \
+vtkNewVolumeRenderer \
+vtkOBBTree \
+vtkOBJExporter \
+vtkOutlineFilter \
+vtkOutlineSource \
+vtkPLOT3DReader \
+vtkPNMReader \
+vtkPNMWriter \
+vtkPicker \
+vtkPlaneSource \
+vtkPlanes \
+vtkPointLoad \
+vtkPointPicker \
+vtkPointSetFilter \
+vtkPointSetToPointSetFilter \
+vtkPointSource \
+vtkPolyConnectivityFilter \
+vtkPolyFilter \
+vtkPolyMapper \
+vtkPolyNormals \
+vtkPolyReader \
+vtkPolySource \
+vtkPolyToPolyFilter \
+vtkPolyWriter \
+vtkProbeFilter \
+vtkProperty \
+vtkQuadric \
+vtkRecursiveDividingCubes \
+vtkRenderMaster \
+vtkRenderWindowInteractor \
+vtkRendererCollection \
+vtkRendererSource \
+vtkRibbonFilter \
+vtkRotationalExtrusionFilter \
+vtkSTLReader \
+vtkSTLWriter \
+vtkSampleFunction \
+vtkShepardMethod \
+vtkShrinkFilter \
+vtkShrinkPolyData \
+vtkSliceCubes \
+vtkSmoothPolyFilter \
+vtkSpatialRepFilter \
+vtkSphere \
+vtkSphereSource \
+vtkStreamLine \
+vtkStreamPoints \
+vtkStreamer \
+vtkStripper \
+vtkStructuredGridFilter \
+vtkStructuredGridGeometryFilter \
+vtkStructuredGridOutlineFilter \
+vtkStructuredGridReader \
+vtkStructuredGridSource \
+vtkStructuredGridToPolyFilter \
+vtkStructuredGridToStructuredGridFilter \
+vtkStructuredGridWriter \
+vtkStructuredPointsFilter \
+vtkStructuredPointsGeometryFilter \
+vtkStructuredPointsReader \
+vtkStructuredPointsSource \
+vtkStructuredPointsToImage \
+vtkStructuredPointsToPolyDataFilter \
+vtkStructuredPointsToStructuredPointsFilter \
+vtkStructuredPointsWriter \
+vtkSubPixelPositionEdgels \
+vtkSweptSurface \
+vtkTensorGlyph \
+vtkTextSource \
+vtkTexture \
+vtkTextureMapToBox \
+vtkTextureMapToCylinder \
+vtkTextureMapToPlane \
+vtkTextureMapToSphere \
+vtkTexturedSphereSource \
+vtkThreshold \
+vtkThresholdPoints \
+vtkThresholdTextureCoords \
+vtkTransformFilter \
+vtkTransformPolyFilter \
+vtkTransformStructuredPoints \
+vtkTransformTextureCoords \
+vtkTriangleFilter \
+vtkTriangularTexture \
+vtkTriangularTCoords \
+vtkTubeFilter \
+vtkUGFacetReader \
+vtkUnstructuredGridFilter \
+vtkUnstructuredGridReader \
+vtkUnstructuredGridSource \
+vtkUnstructuredGridWriter \
+vtkVRMLExporter \
+vtkVectorDot \
+vtkVectorNorm \
+vtkVectorText \
+vtkVectorTopology \
+vtkVolume \
+vtkVolume16Reader \
+vtkVolumeRenderer \
+vtkVoxelModeller \
+vtkVoxelReader \
+vtkVoxelWriter \
+vtkWarpScalar \
+vtkWarpTo \
+vtkWarpVector 
 
 # The following is all boiler plate 
+#------------------------------------------------------------------------------
+# Include the generated targets
+
+@MAKEINCLUDE@ @MAKEQUOTE@targets.make@MAKEQUOTE@
+
 #------------------------------------------------------------------------------
 # Autoconfig defines that can be overridden in Config.mk
 
@@ -651,10 +258,13 @@ VTK_TEMPLATE_FLAGS = @VTK_TEMPLATE_FLAGS@
 VTK_INLINE_FLAGS   = @VTK_INLINE_FLAGS@
 BUILD_TCL          = @BUILD_TCL@
 CLEAN_TCL          = @CLEAN_TCL@
+BUILD_JAVA         = @BUILD_JAVA@
+CLEAN_JAVA         = @CLEAN_JAVA@
 OGLR_INCLUDE       = @OGLR_INCLUDE@
 
 # add in any extra libraies here
 KIT_LIBS = 
+JAVA_O := ${JAVA_O} vtkJavaPanel.o
 
 # standard stuff here
 KIT_OBJ = vtkXRenderWindowInteractor.o ${SRC_OBJ} \
@@ -695,739 +305,3 @@ KIT_FLAGS = ${SBR_FLAGS} ${XGLR_FLAGS} ${GLR_FLAGS} ${OGLR_FLAGS}
 # Include the depend stuff here
 
 @MAKEINCLUDE@ @MAKEQUOTE@depend.make@MAKEQUOTE@
-
-#------------------------------------------------------------------------------
-# all Tcl wrapped classes need a line here
-#
-# concrete classes will pass the last argument of 1 abstract will be 0.
-#
-tcl/vtkXRenderTclWindowInteractor.o: vtkXRenderTclWindowInteractor.cxx
-	${CXX} ${CXX_FLAGS} -c $< -o $@
-
-tcl/vtkActorTcl.cxx: vtkActor.h ../tcl/cpp_parse 
-	rm -f tcl/vtkActorTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkActor.h $(srcdir)/../tcl/hints 1 > tcl/vtkActorTcl.cxx
-
-tcl/vtkActorCollectionTcl.cxx: vtkActorCollection.h ../tcl/cpp_parse 
-	rm -f tcl/vtkActorCollectionTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkActorCollection.h $(srcdir)/../tcl/hints 1 > tcl/vtkActorCollectionTcl.cxx
-
-tcl/vtkActorDeviceTcl.cxx: vtkActorDevice.h ../tcl/cpp_parse 
-	rm -f tcl/vtkActorDeviceTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkActorDevice.h $(srcdir)/../tcl/hints 0 > tcl/vtkActorDeviceTcl.cxx
-
-tcl/vtkAppendFilterTcl.cxx: vtkAppendFilter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkAppendFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkAppendFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkAppendFilterTcl.cxx
-
-tcl/vtkAppendPolyDataTcl.cxx: vtkAppendPolyData.h ../tcl/cpp_parse 
-	rm -f tcl/vtkAppendPolyDataTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkAppendPolyData.h $(srcdir)/../tcl/hints 1 > tcl/vtkAppendPolyDataTcl.cxx
-
-tcl/vtkAssemblyTcl.cxx: vtkAssembly.h ../tcl/cpp_parse 
-	rm -f tcl/vtkAssemblyTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkAssembly.h $(srcdir)/../tcl/hints 1 > tcl/vtkAssemblyTcl.cxx
-
-tcl/vtkAssemblyPathsTcl.cxx: vtkAssemblyPaths.h ../tcl/cpp_parse 
-	rm -f tcl/vtkAssemblyPathsTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkAssemblyPaths.h $(srcdir)/../tcl/hints 1 > tcl/vtkAssemblyPathsTcl.cxx
-
-tcl/vtkAxesTcl.cxx: vtkAxes.h ../tcl/cpp_parse 
-	rm -f tcl/vtkAxesTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkAxes.h $(srcdir)/../tcl/hints 1 > tcl/vtkAxesTcl.cxx
-
-tcl/vtkBYUReaderTcl.cxx: vtkBYUReader.h ../tcl/cpp_parse 
-	rm -f tcl/vtkBYUReaderTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkBYUReader.h $(srcdir)/../tcl/hints 1 > tcl/vtkBYUReaderTcl.cxx
-
-tcl/vtkBYUWriterTcl.cxx: vtkBYUWriter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkBYUWriterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkBYUWriter.h $(srcdir)/../tcl/hints 1 > tcl/vtkBYUWriterTcl.cxx
-
-tcl/vtkBooleanStructuredPointsTcl.cxx: vtkBooleanStructuredPoints.h ../tcl/cpp_parse 
-	rm -f tcl/vtkBooleanStructuredPointsTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkBooleanStructuredPoints.h $(srcdir)/../tcl/hints 1 > tcl/vtkBooleanStructuredPointsTcl.cxx
-
-tcl/vtkBooleanTextureTcl.cxx: vtkBooleanTexture.h ../tcl/cpp_parse 
-	rm -f tcl/vtkBooleanTextureTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkBooleanTexture.h $(srcdir)/../tcl/hints 1 > tcl/vtkBooleanTextureTcl.cxx
-
-tcl/vtkBrownianPointsTcl.cxx: vtkBrownianPoints.h ../tcl/cpp_parse 
-	rm -f tcl/vtkBrownianPointsTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkBrownianPoints.h $(srcdir)/../tcl/hints 1 > tcl/vtkBrownianPointsTcl.cxx
-
-tcl/vtkCameraTcl.cxx: vtkCamera.h ../tcl/cpp_parse 
-	rm -f tcl/vtkCameraTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkCamera.h $(srcdir)/../tcl/hints 1 > tcl/vtkCameraTcl.cxx
-
-tcl/vtkCameraDeviceTcl.cxx: vtkCameraDevice.h ../tcl/cpp_parse 
-	rm -f tcl/vtkCameraDeviceTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkCameraDevice.h $(srcdir)/../tcl/hints 0 > tcl/vtkCameraDeviceTcl.cxx
-
-tcl/vtkCastToConcreteTcl.cxx: vtkCastToConcrete.h ../tcl/cpp_parse 
-	rm -f tcl/vtkCastToConcreteTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkCastToConcrete.h $(srcdir)/../tcl/hints 1 > tcl/vtkCastToConcreteTcl.cxx
-
-tcl/vtkCellLocatorTcl.cxx: vtkCellLocator.h ../tcl/cpp_parse 
-	rm -f tcl/vtkCellLocatorTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkCellLocator.h $(srcdir)/../tcl/hints 1 > tcl/vtkCellLocatorTcl.cxx
-
-tcl/vtkCellPickerTcl.cxx: vtkCellPicker.h ../tcl/cpp_parse 
-	rm -f tcl/vtkCellPickerTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkCellPicker.h $(srcdir)/../tcl/hints 1 > tcl/vtkCellPickerTcl.cxx
-
-tcl/vtkCleanPolyDataTcl.cxx: vtkCleanPolyData.h ../tcl/cpp_parse 
-	rm -f tcl/vtkCleanPolyDataTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkCleanPolyData.h $(srcdir)/../tcl/hints 1 > tcl/vtkCleanPolyDataTcl.cxx
-
-tcl/vtkClipPolyDataTcl.cxx: vtkClipPolyData.h ../tcl/cpp_parse 
-	rm -f tcl/vtkClipPolyDataTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkClipPolyData.h $(srcdir)/../tcl/hints 1 > tcl/vtkClipPolyDataTcl.cxx
-
-tcl/vtkConeTcl.cxx: vtkCone.h ../tcl/cpp_parse 
-	rm -f tcl/vtkConeTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkCone.h $(srcdir)/../tcl/hints 1 > tcl/vtkConeTcl.cxx
-
-tcl/vtkConeSourceTcl.cxx: vtkConeSource.h ../tcl/cpp_parse 
-	rm -f tcl/vtkConeSourceTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkConeSource.h $(srcdir)/../tcl/hints 1 > tcl/vtkConeSourceTcl.cxx
-
-tcl/vtkConnectivityFilterTcl.cxx: vtkConnectivityFilter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkConnectivityFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkConnectivityFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkConnectivityFilterTcl.cxx
-
-tcl/vtkContourFilterTcl.cxx: vtkContourFilter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkContourFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkContourFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkContourFilterTcl.cxx
-
-tcl/vtkCubeSourceTcl.cxx: vtkCubeSource.h ../tcl/cpp_parse 
-	rm -f tcl/vtkCubeSourceTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkCubeSource.h $(srcdir)/../tcl/hints 1 > tcl/vtkCubeSourceTcl.cxx
-
-tcl/vtkCursor3DTcl.cxx: vtkCursor3D.h ../tcl/cpp_parse 
-	rm -f tcl/vtkCursor3DTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkCursor3D.h $(srcdir)/../tcl/hints 1 > tcl/vtkCursor3DTcl.cxx
-
-tcl/vtkCutterTcl.cxx: vtkCutter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkCutterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkCutter.h $(srcdir)/../tcl/hints 1 > tcl/vtkCutterTcl.cxx
-
-tcl/vtkCyberReaderTcl.cxx: vtkCyberReader.h ../tcl/cpp_parse 
-	rm -f tcl/vtkCyberReaderTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkCyberReader.h $(srcdir)/../tcl/hints 1 > tcl/vtkCyberReaderTcl.cxx
-
-tcl/vtkCylinderTcl.cxx: vtkCylinder.h ../tcl/cpp_parse 
-	rm -f tcl/vtkCylinderTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkCylinder.h $(srcdir)/../tcl/hints 1 > tcl/vtkCylinderTcl.cxx
-
-tcl/vtkCylinderSourceTcl.cxx: vtkCylinderSource.h ../tcl/cpp_parse 
-	rm -f tcl/vtkCylinderSourceTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkCylinderSource.h $(srcdir)/../tcl/hints 1 > tcl/vtkCylinderSourceTcl.cxx
-
-tcl/vtkDashedStreamLineTcl.cxx: vtkDashedStreamLine.h ../tcl/cpp_parse 
-	rm -f tcl/vtkDashedStreamLineTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkDashedStreamLine.h $(srcdir)/../tcl/hints 1 > tcl/vtkDashedStreamLineTcl.cxx
-
-tcl/vtkDataReaderTcl.cxx: vtkDataReader.h ../tcl/cpp_parse 
-	rm -f tcl/vtkDataReaderTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkDataReader.h $(srcdir)/../tcl/hints 1 > tcl/vtkDataReaderTcl.cxx
-
-tcl/vtkDataSetCollectionTcl.cxx: vtkDataSetCollection.h ../tcl/cpp_parse 
-	rm -f tcl/vtkDataSetCollectionTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkDataSetCollection.h $(srcdir)/../tcl/hints 1 > tcl/vtkDataSetCollectionTcl.cxx
-
-tcl/vtkDataSetFilterTcl.cxx: vtkDataSetFilter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkDataSetFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkDataSetFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkDataSetFilterTcl.cxx
-
-tcl/vtkDataSetMapperTcl.cxx: vtkDataSetMapper.h ../tcl/cpp_parse 
-	rm -f tcl/vtkDataSetMapperTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkDataSetMapper.h $(srcdir)/../tcl/hints 1 > tcl/vtkDataSetMapperTcl.cxx
-
-tcl/vtkDataSetReaderTcl.cxx: vtkDataSetReader.h ../tcl/cpp_parse 
-	rm -f tcl/vtkDataSetReaderTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkDataSetReader.h $(srcdir)/../tcl/hints 1 > tcl/vtkDataSetReaderTcl.cxx
-
-tcl/vtkDataSetToDataSetFilterTcl.cxx: vtkDataSetToDataSetFilter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkDataSetToDataSetFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkDataSetToDataSetFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkDataSetToDataSetFilterTcl.cxx
-
-tcl/vtkDataSetToPolyFilterTcl.cxx: vtkDataSetToPolyFilter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkDataSetToPolyFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkDataSetToPolyFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkDataSetToPolyFilterTcl.cxx
-
-tcl/vtkDataSetToStructuredGridFilterTcl.cxx: vtkDataSetToStructuredGridFilter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkDataSetToStructuredGridFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkDataSetToStructuredGridFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkDataSetToStructuredGridFilterTcl.cxx
-
-tcl/vtkDataSetToStructuredPointsFilterTcl.cxx: vtkDataSetToStructuredPointsFilter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkDataSetToStructuredPointsFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkDataSetToStructuredPointsFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkDataSetToStructuredPointsFilterTcl.cxx
-
-tcl/vtkDataSetToUnstructuredGridFilterTcl.cxx: vtkDataSetToUnstructuredGridFilter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkDataSetToUnstructuredGridFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkDataSetToUnstructuredGridFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkDataSetToUnstructuredGridFilterTcl.cxx
-
-tcl/vtkDataSetWriterTcl.cxx: vtkDataSetWriter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkDataSetWriterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkDataSetWriter.h $(srcdir)/../tcl/hints 1 > tcl/vtkDataSetWriterTcl.cxx
-
-tcl/vtkDataWriterTcl.cxx: vtkDataWriter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkDataWriterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkDataWriter.h $(srcdir)/../tcl/hints 0 > tcl/vtkDataWriterTcl.cxx
-
-tcl/vtkDecimateTcl.cxx: vtkDecimate.h ../tcl/cpp_parse 
-	rm -f tcl/vtkDecimateTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkDecimate.h $(srcdir)/../tcl/hints 1 > tcl/vtkDecimateTcl.cxx
-
-tcl/vtkDelaunay2DTcl.cxx: vtkDelaunay2D.h ../tcl/cpp_parse 
-	rm -f tcl/vtkDelaunay2DTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkDelaunay2D.h $(srcdir)/../tcl/hints 1 > tcl/vtkDelaunay2DTcl.cxx
-
-tcl/vtkDelaunay3DTcl.cxx: vtkDelaunay3D.h ../tcl/cpp_parse 
-	rm -f tcl/vtkDelaunay3DTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkDelaunay3D.h $(srcdir)/../tcl/hints 1 > tcl/vtkDelaunay3DTcl.cxx
-
-tcl/vtkDicerTcl.cxx: vtkDicer.h ../tcl/cpp_parse 
-	rm -f tcl/vtkDicerTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkDicer.h $(srcdir)/../tcl/hints 1 > tcl/vtkDicerTcl.cxx
-
-tcl/vtkDiskSourceTcl.cxx: vtkDiskSource.h ../tcl/cpp_parse 
-	rm -f tcl/vtkDiskSourceTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkDiskSource.h $(srcdir)/../tcl/hints 1 > tcl/vtkDiskSourceTcl.cxx
-
-tcl/vtkDividingCubesTcl.cxx: vtkDividingCubes.h ../tcl/cpp_parse 
-	rm -f tcl/vtkDividingCubesTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkDividingCubes.h $(srcdir)/../tcl/hints 1 > tcl/vtkDividingCubesTcl.cxx
-
-tcl/vtkEarthSourceTcl.cxx: vtkEarthSource.h ../tcl/cpp_parse 
-	rm -f tcl/vtkEarthSourceTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkEarthSource.h $(srcdir)/../tcl/hints 1 > tcl/vtkEarthSourceTcl.cxx
-
-tcl/vtkEdgePointsTcl.cxx: vtkEdgePoints.h ../tcl/cpp_parse 
-	rm -f tcl/vtkEdgePointsTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkEdgePoints.h $(srcdir)/../tcl/hints 1 > tcl/vtkEdgePointsTcl.cxx
-
-tcl/vtkElevationFilterTcl.cxx: vtkElevationFilter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkElevationFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkElevationFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkElevationFilterTcl.cxx
-
-tcl/vtkExporterTcl.cxx: vtkExporter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkExporterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkExporter.h $(srcdir)/../tcl/hints 0 > tcl/vtkExporterTcl.cxx
-
-tcl/vtkExtractEdgesTcl.cxx: vtkExtractEdges.h ../tcl/cpp_parse 
-	rm -f tcl/vtkExtractEdgesTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkExtractEdges.h $(srcdir)/../tcl/hints 1 > tcl/vtkExtractEdgesTcl.cxx
-
-tcl/vtkExtractGeometryTcl.cxx: vtkExtractGeometry.h ../tcl/cpp_parse 
-	rm -f tcl/vtkExtractGeometryTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkExtractGeometry.h $(srcdir)/../tcl/hints 1 > tcl/vtkExtractGeometryTcl.cxx
-
-tcl/vtkExtractGridTcl.cxx: vtkExtractGrid.h ../tcl/cpp_parse 
-	rm -f tcl/vtkExtractGridTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkExtractGrid.h $(srcdir)/../tcl/hints 1 > tcl/vtkExtractGridTcl.cxx
-
-tcl/vtkExtractVOITcl.cxx: vtkExtractVOI.h ../tcl/cpp_parse 
-	rm -f tcl/vtkExtractVOITcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkExtractVOI.h $(srcdir)/../tcl/hints 1 > tcl/vtkExtractVOITcl.cxx
-
-tcl/vtkExtractVectorComponentsTcl.cxx: vtkExtractVectorComponents.h ../tcl/cpp_parse 
-	rm -f tcl/vtkExtractVectorComponentsTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkExtractVectorComponents.h $(srcdir)/../tcl/hints 1 > tcl/vtkExtractVectorComponentsTcl.cxx
-
-tcl/vtkFeatureEdgesTcl.cxx: vtkFeatureEdges.h ../tcl/cpp_parse 
-	rm -f tcl/vtkFeatureEdgesTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkFeatureEdges.h $(srcdir)/../tcl/hints 1 > tcl/vtkFeatureEdgesTcl.cxx
-
-tcl/vtkFeatureVerticesTcl.cxx: vtkFeatureVertices.h ../tcl/cpp_parse 
-	rm -f tcl/vtkFeatureVerticesTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkFeatureVertices.h $(srcdir)/../tcl/hints 1 > tcl/vtkFeatureVerticesTcl.cxx
-
-tcl/vtkFilterTcl.cxx: vtkFilter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkFilterTcl.cxx
-
-tcl/vtkFollowerTcl.cxx: vtkFollower.h ../tcl/cpp_parse 
-	rm -f tcl/vtkFollowerTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkFollower.h $(srcdir)/../tcl/hints 1 > tcl/vtkFollowerTcl.cxx
-
-tcl/vtkGaussianSplatterTcl.cxx: vtkGaussianSplatter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkGaussianSplatterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkGaussianSplatter.h $(srcdir)/../tcl/hints 1 > tcl/vtkGaussianSplatterTcl.cxx
-
-tcl/vtkGeometryFilterTcl.cxx: vtkGeometryFilter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkGeometryFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkGeometryFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkGeometryFilterTcl.cxx
-
-tcl/vtkGlrActorTcl.cxx: vtkGlrActor.h ../tcl/cpp_parse 
-	rm -f tcl/vtkGlrActorTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkGlrActor.h $(srcdir)/../tcl/hints 1 > tcl/vtkGlrActorTcl.cxx
-
-tcl/vtkGlrCameraTcl.cxx: vtkGlrCamera.h ../tcl/cpp_parse 
-	rm -f tcl/vtkGlrCameraTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkGlrCamera.h $(srcdir)/../tcl/hints 1 > tcl/vtkGlrCameraTcl.cxx
-
-tcl/vtkGlrLightTcl.cxx: vtkGlrLight.h ../tcl/cpp_parse 
-	rm -f tcl/vtkGlrLightTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkGlrLight.h $(srcdir)/../tcl/hints 1 > tcl/vtkGlrLightTcl.cxx
-
-tcl/vtkGlrPolyMapperTcl.cxx: vtkGlrPolyMapper.h ../tcl/cpp_parse 
-	rm -f tcl/vtkGlrPolyMapperTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkGlrPolyMapper.h $(srcdir)/../tcl/hints 1 > tcl/vtkGlrPolyMapperTcl.cxx
-
-tcl/vtkGlrPropertyTcl.cxx: vtkGlrProperty.h ../tcl/cpp_parse 
-	rm -f tcl/vtkGlrPropertyTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkGlrProperty.h $(srcdir)/../tcl/hints 1 > tcl/vtkGlrPropertyTcl.cxx
-
-tcl/vtkGlrRenderWindowTcl.cxx: vtkGlrRenderWindow.h ../tcl/cpp_parse 
-	rm -f tcl/vtkGlrRenderWindowTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkGlrRenderWindow.h $(srcdir)/../tcl/hints 1 > tcl/vtkGlrRenderWindowTcl.cxx
-
-tcl/vtkGlrRendererTcl.cxx: vtkGlrRenderer.h ../tcl/cpp_parse 
-	rm -f tcl/vtkGlrRendererTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkGlrRenderer.h $(srcdir)/../tcl/hints 1 > tcl/vtkGlrRendererTcl.cxx
-
-tcl/vtkGlrTextureTcl.cxx: vtkGlrTexture.h ../tcl/cpp_parse 
-	rm -f tcl/vtkGlrTextureTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkGlrTexture.h $(srcdir)/../tcl/hints 1 > tcl/vtkGlrTextureTcl.cxx
-
-tcl/vtkGlyph3DTcl.cxx: vtkGlyph3D.h ../tcl/cpp_parse 
-	rm -f tcl/vtkGlyph3DTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkGlyph3D.h $(srcdir)/../tcl/hints 1 > tcl/vtkGlyph3DTcl.cxx
-
-tcl/vtkHedgeHogTcl.cxx: vtkHedgeHog.h ../tcl/cpp_parse 
-	rm -f tcl/vtkHedgeHogTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkHedgeHog.h $(srcdir)/../tcl/hints 1 > tcl/vtkHedgeHogTcl.cxx
-
-tcl/vtkHyperStreamlineTcl.cxx: vtkHyperStreamline.h ../tcl/cpp_parse 
-	rm -f tcl/vtkHyperStreamlineTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkHyperStreamline.h $(srcdir)/../tcl/hints 1 > tcl/vtkHyperStreamlineTcl.cxx
-
-tcl/vtkImageDifferenceTcl.cxx: vtkImageDifference.h ../tcl/cpp_parse 
-	rm -f tcl/vtkImageDifferenceTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkImageDifference.h $(srcdir)/../tcl/hints 1 > tcl/vtkImageDifferenceTcl.cxx
-
-tcl/vtkImageToStructuredPointsTcl.cxx: vtkImageToStructuredPoints.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImageToStructuredPointsTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageToStructuredPoints.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageToStructuredPointsTcl.cxx
-
-tcl/vtkImplicitBooleanTcl.cxx: vtkImplicitBoolean.h ../tcl/cpp_parse 
-	rm -f tcl/vtkImplicitBooleanTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkImplicitBoolean.h $(srcdir)/../tcl/hints 1 > tcl/vtkImplicitBooleanTcl.cxx
-
-tcl/vtkImplicitDataSetTcl.cxx: vtkImplicitDataSet.h ../tcl/cpp_parse 
-	rm -f tcl/vtkImplicitDataSetTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkImplicitDataSet.h $(srcdir)/../tcl/hints 1 > tcl/vtkImplicitDataSetTcl.cxx
-
-tcl/vtkImplicitModellerTcl.cxx: vtkImplicitModeller.h ../tcl/cpp_parse 
-	rm -f tcl/vtkImplicitModellerTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkImplicitModeller.h $(srcdir)/../tcl/hints 1 > tcl/vtkImplicitModellerTcl.cxx
-
-tcl/vtkImplicitTextureCoordsTcl.cxx: vtkImplicitTextureCoords.h ../tcl/cpp_parse 
-	rm -f tcl/vtkImplicitTextureCoordsTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkImplicitTextureCoords.h $(srcdir)/../tcl/hints 1 > tcl/vtkImplicitTextureCoordsTcl.cxx
-
-tcl/vtkImplicitVolumeTcl.cxx: vtkImplicitVolume.h ../tcl/cpp_parse 
-	rm -f tcl/vtkImplicitVolumeTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkImplicitVolume.h $(srcdir)/../tcl/hints 1 > tcl/vtkImplicitVolumeTcl.cxx
-
-tcl/vtkImplicitWindowFunctionTcl.cxx: vtkImplicitWindowFunction.h ../tcl/cpp_parse 
-	rm -f tcl/vtkImplicitWindowFunctionTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkImplicitWindowFunction.h $(srcdir)/../tcl/hints 1 > tcl/vtkImplicitWindowFunctionTcl.cxx
-
-tcl/vtkLODActorTcl.cxx: vtkLODActor.h ../tcl/cpp_parse 
-	rm -f tcl/vtkLODActorTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkLODActor.h $(srcdir)/../tcl/hints 1 > tcl/vtkLODActorTcl.cxx
-
-tcl/vtkLightTcl.cxx: vtkLight.h ../tcl/cpp_parse 
-	rm -f tcl/vtkLightTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkLight.h $(srcdir)/../tcl/hints 1 > tcl/vtkLightTcl.cxx
-
-tcl/vtkLightCollectionTcl.cxx: vtkLightCollection.h ../tcl/cpp_parse 
-	rm -f tcl/vtkLightCollectionTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkLightCollection.h $(srcdir)/../tcl/hints 1 > tcl/vtkLightCollectionTcl.cxx
-
-tcl/vtkLightDeviceTcl.cxx: vtkLightDevice.h ../tcl/cpp_parse 
-	rm -f tcl/vtkLightDeviceTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkLightDevice.h $(srcdir)/../tcl/hints 0 > tcl/vtkLightDeviceTcl.cxx
-
-tcl/vtkLineSourceTcl.cxx: vtkLineSource.h ../tcl/cpp_parse 
-	rm -f tcl/vtkLineSourceTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkLineSource.h $(srcdir)/../tcl/hints 1 > tcl/vtkLineSourceTcl.cxx
-
-tcl/vtkLinearExtrusionFilterTcl.cxx: vtkLinearExtrusionFilter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkLinearExtrusionFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkLinearExtrusionFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkLinearExtrusionFilterTcl.cxx
-
-tcl/vtkLinkEdgelsTcl.cxx: vtkLinkEdgels.h ../tcl/cpp_parse 
-	rm -f tcl/vtkLinkEdgelsTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkLinkEdgels.h $(srcdir)/../tcl/hints 1 > tcl/vtkLinkEdgelsTcl.cxx
-
-tcl/vtkMCubesReaderTcl.cxx: vtkMCubesReader.h ../tcl/cpp_parse 
-	rm -f tcl/vtkMCubesReaderTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkMCubesReader.h $(srcdir)/../tcl/hints 1 > tcl/vtkMCubesReaderTcl.cxx
-
-tcl/vtkMCubesWriterTcl.cxx: vtkMCubesWriter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkMCubesWriterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkMCubesWriter.h $(srcdir)/../tcl/hints 1 > tcl/vtkMCubesWriterTcl.cxx
-
-tcl/vtkMapperTcl.cxx: vtkMapper.h ../tcl/cpp_parse 
-	rm -f tcl/vtkMapperTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkMapper.h $(srcdir)/../tcl/hints 0 > tcl/vtkMapperTcl.cxx
-
-tcl/vtkMarchingCubesTcl.cxx: vtkMarchingCubes.h ../tcl/cpp_parse 
-	rm -f tcl/vtkMarchingCubesTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkMarchingCubes.h $(srcdir)/../tcl/hints 1 > tcl/vtkMarchingCubesTcl.cxx
-
-tcl/vtkMarchingSquaresTcl.cxx: vtkMarchingSquares.h ../tcl/cpp_parse 
-	rm -f tcl/vtkMarchingSquaresTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkMarchingSquares.h $(srcdir)/../tcl/hints 1 > tcl/vtkMarchingSquaresTcl.cxx
-
-tcl/vtkMarchingSquaresCasesTcl.cxx: vtkMarchingSquaresCases.h ../tcl/cpp_parse 
-	rm -f tcl/vtkMarchingSquaresCasesTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkMarchingSquaresCases.h $(srcdir)/../tcl/hints 1 > tcl/vtkMarchingSquaresCasesTcl.cxx
-
-tcl/vtkMaskPointsTcl.cxx: vtkMaskPoints.h ../tcl/cpp_parse 
-	rm -f tcl/vtkMaskPointsTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkMaskPoints.h $(srcdir)/../tcl/hints 1 > tcl/vtkMaskPointsTcl.cxx
-
-tcl/vtkMaskPolyDataTcl.cxx: vtkMaskPolyData.h ../tcl/cpp_parse 
-	rm -f tcl/vtkMaskPolyDataTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkMaskPolyData.h $(srcdir)/../tcl/hints 1 > tcl/vtkMaskPolyDataTcl.cxx
-
-tcl/vtkMergeFilterTcl.cxx: vtkMergeFilter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkMergeFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkMergeFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkMergeFilterTcl.cxx
-
-tcl/vtkMergePointsTcl.cxx: vtkMergePoints.h ../tcl/cpp_parse 
-	rm -f tcl/vtkMergePointsTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkMergePoints.h $(srcdir)/../tcl/hints 1 > tcl/vtkMergePointsTcl.cxx
-
-tcl/vtkNewVolumeRendererTcl.cxx: vtkNewVolumeRenderer.h ../tcl/cpp_parse 
-	rm -f tcl/vtkNewVolumeRendererTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkNewVolumeRenderer.h $(srcdir)/../tcl/hints 1 > tcl/vtkNewVolumeRendererTcl.cxx
-
-tcl/vtkOBBTreeTcl.cxx: vtkOBBTree.h ../tcl/cpp_parse 
-	rm -f tcl/vtkOBBTreeTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkOBBTree.h $(srcdir)/../tcl/hints 1 > tcl/vtkOBBTreeTcl.cxx
-
-tcl/vtkOBJExporterTcl.cxx: vtkOBJExporter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkOBJExporterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkOBJExporter.h $(srcdir)/../tcl/hints 1 > tcl/vtkOBJExporterTcl.cxx
-
-tcl/vtkOglrActorTcl.cxx: vtkOglrActor.h ../tcl/cpp_parse 
-	rm -f tcl/vtkOglrActorTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkOglrActor.h $(srcdir)/../tcl/hints 1 > tcl/vtkOglrActorTcl.cxx
-
-tcl/vtkOglrCameraTcl.cxx: vtkOglrCamera.h ../tcl/cpp_parse 
-	rm -f tcl/vtkOglrCameraTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkOglrCamera.h $(srcdir)/../tcl/hints 1 > tcl/vtkOglrCameraTcl.cxx
-
-tcl/vtkOglrLightTcl.cxx: vtkOglrLight.h ../tcl/cpp_parse 
-	rm -f tcl/vtkOglrLightTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkOglrLight.h $(srcdir)/../tcl/hints 1 > tcl/vtkOglrLightTcl.cxx
-
-tcl/vtkOglrPolyMapperTcl.cxx: vtkOglrPolyMapper.h ../tcl/cpp_parse 
-	rm -f tcl/vtkOglrPolyMapperTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkOglrPolyMapper.h $(srcdir)/../tcl/hints 1 > tcl/vtkOglrPolyMapperTcl.cxx
-
-tcl/vtkOglrPropertyTcl.cxx: vtkOglrProperty.h ../tcl/cpp_parse 
-	rm -f tcl/vtkOglrPropertyTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkOglrProperty.h $(srcdir)/../tcl/hints 1 > tcl/vtkOglrPropertyTcl.cxx
-
-tcl/vtkOglrRenderWindowTcl.cxx: vtkOglrRenderWindow.h ../tcl/cpp_parse 
-	rm -f tcl/vtkOglrRenderWindowTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkOglrRenderWindow.h $(srcdir)/../tcl/hints 1 > tcl/vtkOglrRenderWindowTcl.cxx
-
-tcl/vtkOglrRendererTcl.cxx: vtkOglrRenderer.h ../tcl/cpp_parse 
-	rm -f tcl/vtkOglrRendererTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkOglrRenderer.h $(srcdir)/../tcl/hints 1 > tcl/vtkOglrRendererTcl.cxx
-
-tcl/vtkOglrTextureTcl.cxx: vtkOglrTexture.h ../tcl/cpp_parse 
-	rm -f tcl/vtkOglrTextureTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkOglrTexture.h $(srcdir)/../tcl/hints 1 > tcl/vtkOglrTextureTcl.cxx
-
-tcl/vtkOutlineFilterTcl.cxx: vtkOutlineFilter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkOutlineFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkOutlineFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkOutlineFilterTcl.cxx
-
-tcl/vtkOutlineSourceTcl.cxx: vtkOutlineSource.h ../tcl/cpp_parse 
-	rm -f tcl/vtkOutlineSourceTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkOutlineSource.h $(srcdir)/../tcl/hints 1 > tcl/vtkOutlineSourceTcl.cxx
-
-tcl/vtkPLOT3DReaderTcl.cxx: vtkPLOT3DReader.h ../tcl/cpp_parse 
-	rm -f tcl/vtkPLOT3DReaderTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkPLOT3DReader.h $(srcdir)/../tcl/hints 1 > tcl/vtkPLOT3DReaderTcl.cxx
-
-tcl/vtkPNMReaderTcl.cxx: vtkPNMReader.h ../tcl/cpp_parse 
-	rm -f tcl/vtkPNMReaderTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkPNMReader.h $(srcdir)/../tcl/hints 1 > tcl/vtkPNMReaderTcl.cxx
-
-tcl/vtkPNMWriterTcl.cxx: vtkPNMWriter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkPNMWriterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkPNMWriter.h $(srcdir)/../tcl/hints 1 > tcl/vtkPNMWriterTcl.cxx
-
-tcl/vtkPickerTcl.cxx: vtkPicker.h ../tcl/cpp_parse 
-	rm -f tcl/vtkPickerTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkPicker.h $(srcdir)/../tcl/hints 1 > tcl/vtkPickerTcl.cxx
-
-tcl/vtkPlaneSourceTcl.cxx: vtkPlaneSource.h ../tcl/cpp_parse 
-	rm -f tcl/vtkPlaneSourceTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkPlaneSource.h $(srcdir)/../tcl/hints 1 > tcl/vtkPlaneSourceTcl.cxx
-
-tcl/vtkPlanesTcl.cxx: vtkPlanes.h ../tcl/cpp_parse 
-	rm -f tcl/vtkPlanesTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkPlanes.h $(srcdir)/../tcl/hints 1 > tcl/vtkPlanesTcl.cxx
-
-tcl/vtkPointLoadTcl.cxx: vtkPointLoad.h ../tcl/cpp_parse 
-	rm -f tcl/vtkPointLoadTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkPointLoad.h $(srcdir)/../tcl/hints 1 > tcl/vtkPointLoadTcl.cxx
-
-tcl/vtkPointPickerTcl.cxx: vtkPointPicker.h ../tcl/cpp_parse 
-	rm -f tcl/vtkPointPickerTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkPointPicker.h $(srcdir)/../tcl/hints 1 > tcl/vtkPointPickerTcl.cxx
-
-tcl/vtkPointSetFilterTcl.cxx: vtkPointSetFilter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkPointSetFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkPointSetFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkPointSetFilterTcl.cxx
-
-tcl/vtkPointSetToPointSetFilterTcl.cxx: vtkPointSetToPointSetFilter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkPointSetToPointSetFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkPointSetToPointSetFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkPointSetToPointSetFilterTcl.cxx
-
-tcl/vtkPointSourceTcl.cxx: vtkPointSource.h ../tcl/cpp_parse 
-	rm -f tcl/vtkPointSourceTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkPointSource.h $(srcdir)/../tcl/hints 1 > tcl/vtkPointSourceTcl.cxx
-
-tcl/vtkPolyConnectivityFilterTcl.cxx: vtkPolyConnectivityFilter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkPolyConnectivityFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkPolyConnectivityFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkPolyConnectivityFilterTcl.cxx
-
-tcl/vtkPolyDataCollectionTcl.cxx: vtkPolyDataCollection.h ../tcl/cpp_parse 
-	rm -f tcl/vtkPolyDataCollectionTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkPolyDataCollection.h $(srcdir)/../tcl/hints 1 > tcl/vtkPolyDataCollectionTcl.cxx
-
-tcl/vtkPolyFilterTcl.cxx: vtkPolyFilter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkPolyFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkPolyFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkPolyFilterTcl.cxx
-
-tcl/vtkPolyMapperTcl.cxx: vtkPolyMapper.h ../tcl/cpp_parse 
-	rm -f tcl/vtkPolyMapperTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkPolyMapper.h $(srcdir)/../tcl/hints 1 > tcl/vtkPolyMapperTcl.cxx
-
-tcl/vtkPolyMapperDeviceTcl.cxx: vtkPolyMapperDevice.h ../tcl/cpp_parse 
-	rm -f tcl/vtkPolyMapperDeviceTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkPolyMapperDevice.h $(srcdir)/../tcl/hints 0 > tcl/vtkPolyMapperDeviceTcl.cxx
-
-tcl/vtkPolyNormalsTcl.cxx: vtkPolyNormals.h ../tcl/cpp_parse 
-	rm -f tcl/vtkPolyNormalsTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkPolyNormals.h $(srcdir)/../tcl/hints 1 > tcl/vtkPolyNormalsTcl.cxx
-
-tcl/vtkPolyReaderTcl.cxx: vtkPolyReader.h ../tcl/cpp_parse 
-	rm -f tcl/vtkPolyReaderTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkPolyReader.h $(srcdir)/../tcl/hints 1 > tcl/vtkPolyReaderTcl.cxx
-
-tcl/vtkPolySourceTcl.cxx: vtkPolySource.h ../tcl/cpp_parse 
-	rm -f tcl/vtkPolySourceTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkPolySource.h $(srcdir)/../tcl/hints 1 > tcl/vtkPolySourceTcl.cxx
-
-tcl/vtkPolyToPolyFilterTcl.cxx: vtkPolyToPolyFilter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkPolyToPolyFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkPolyToPolyFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkPolyToPolyFilterTcl.cxx
-
-tcl/vtkPolyWriterTcl.cxx: vtkPolyWriter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkPolyWriterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkPolyWriter.h $(srcdir)/../tcl/hints 1 > tcl/vtkPolyWriterTcl.cxx
-
-tcl/vtkProbeFilterTcl.cxx: vtkProbeFilter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkProbeFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkProbeFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkProbeFilterTcl.cxx
-
-tcl/vtkPropertyTcl.cxx: vtkProperty.h ../tcl/cpp_parse 
-	rm -f tcl/vtkPropertyTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkProperty.h $(srcdir)/../tcl/hints 1 > tcl/vtkPropertyTcl.cxx
-
-tcl/vtkPropertyDeviceTcl.cxx: vtkPropertyDevice.h ../tcl/cpp_parse 
-	rm -f tcl/vtkPropertyDeviceTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkPropertyDevice.h $(srcdir)/../tcl/hints 0 > tcl/vtkPropertyDeviceTcl.cxx
-
-tcl/vtkQuadricTcl.cxx: vtkQuadric.h ../tcl/cpp_parse 
-	rm -f tcl/vtkQuadricTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkQuadric.h $(srcdir)/../tcl/hints 1 > tcl/vtkQuadricTcl.cxx
-
-tcl/vtkRecursiveDividingCubesTcl.cxx: vtkRecursiveDividingCubes.h ../tcl/cpp_parse 
-	rm -f tcl/vtkRecursiveDividingCubesTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkRecursiveDividingCubes.h $(srcdir)/../tcl/hints 1 > tcl/vtkRecursiveDividingCubesTcl.cxx
-
-tcl/vtkRenderMasterTcl.cxx: vtkRenderMaster.h ../tcl/cpp_parse 
-	rm -f tcl/vtkRenderMasterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkRenderMaster.h $(srcdir)/../tcl/hints 1 > tcl/vtkRenderMasterTcl.cxx
-
-tcl/vtkRenderWindowTcl.cxx: vtkRenderWindow.h ../tcl/cpp_parse 
-	rm -f tcl/vtkRenderWindowTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkRenderWindow.h $(srcdir)/../tcl/hints 0 > tcl/vtkRenderWindowTcl.cxx
-
-tcl/vtkRenderWindowCollectionTcl.cxx: vtkRenderWindowCollection.h ../tcl/cpp_parse 
-	rm -f tcl/vtkRenderWindowCollectionTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkRenderWindowCollection.h $(srcdir)/../tcl/hints 1 > tcl/vtkRenderWindowCollectionTcl.cxx
-
-tcl/vtkRenderWindowInteractorTcl.cxx: vtkRenderWindowInteractor.h ../tcl/cpp_parse 
-	rm -f tcl/vtkRenderWindowInteractorTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkRenderWindowInteractor.h $(srcdir)/../tcl/hints 1 > tcl/vtkRenderWindowInteractorTcl.cxx
-
-tcl/vtkRendererTcl.cxx: vtkRenderer.h ../tcl/cpp_parse 
-	rm -f tcl/vtkRendererTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkRenderer.h $(srcdir)/../tcl/hints 0 > tcl/vtkRendererTcl.cxx
-
-tcl/vtkRendererCollectionTcl.cxx: vtkRendererCollection.h ../tcl/cpp_parse 
-	rm -f tcl/vtkRendererCollectionTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkRendererCollection.h $(srcdir)/../tcl/hints 1 > tcl/vtkRendererCollectionTcl.cxx
-
-tcl/vtkRendererSourceTcl.cxx: vtkRendererSource.h ../tcl/cpp_parse 
-	rm -f tcl/vtkRendererSourceTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkRendererSource.h $(srcdir)/../tcl/hints 1 > tcl/vtkRendererSourceTcl.cxx
-
-tcl/vtkRibbonFilterTcl.cxx: vtkRibbonFilter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkRibbonFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkRibbonFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkRibbonFilterTcl.cxx
-
-tcl/vtkRotationalExtrusionFilterTcl.cxx: vtkRotationalExtrusionFilter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkRotationalExtrusionFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkRotationalExtrusionFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkRotationalExtrusionFilterTcl.cxx
-
-tcl/vtkSTLReaderTcl.cxx: vtkSTLReader.h ../tcl/cpp_parse 
-	rm -f tcl/vtkSTLReaderTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkSTLReader.h $(srcdir)/../tcl/hints 1 > tcl/vtkSTLReaderTcl.cxx
-
-tcl/vtkSTLWriterTcl.cxx: vtkSTLWriter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkSTLWriterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkSTLWriter.h $(srcdir)/../tcl/hints 1 > tcl/vtkSTLWriterTcl.cxx
-
-tcl/vtkSampleFunctionTcl.cxx: vtkSampleFunction.h ../tcl/cpp_parse 
-	rm -f tcl/vtkSampleFunctionTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkSampleFunction.h $(srcdir)/../tcl/hints 1 > tcl/vtkSampleFunctionTcl.cxx
-
-tcl/vtkSbrActorTcl.cxx: vtkSbrActor.h ../tcl/cpp_parse 
-	rm -f tcl/vtkSbrActorTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkSbrActor.h $(srcdir)/../tcl/hints 1 > tcl/vtkSbrActorTcl.cxx
-
-tcl/vtkSbrCameraTcl.cxx: vtkSbrCamera.h ../tcl/cpp_parse 
-	rm -f tcl/vtkSbrCameraTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkSbrCamera.h $(srcdir)/../tcl/hints 1 > tcl/vtkSbrCameraTcl.cxx
-
-tcl/vtkSbrLightTcl.cxx: vtkSbrLight.h ../tcl/cpp_parse 
-	rm -f tcl/vtkSbrLightTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkSbrLight.h $(srcdir)/../tcl/hints 1 > tcl/vtkSbrLightTcl.cxx
-
-tcl/vtkSbrPolyMapperTcl.cxx: vtkSbrPolyMapper.h ../tcl/cpp_parse 
-	rm -f tcl/vtkSbrPolyMapperTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkSbrPolyMapper.h $(srcdir)/../tcl/hints 1 > tcl/vtkSbrPolyMapperTcl.cxx
-
-tcl/vtkSbrPropertyTcl.cxx: vtkSbrProperty.h ../tcl/cpp_parse 
-	rm -f tcl/vtkSbrPropertyTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkSbrProperty.h $(srcdir)/../tcl/hints 1 > tcl/vtkSbrPropertyTcl.cxx
-
-tcl/vtkSbrRenderWindowTcl.cxx: vtkSbrRenderWindow.h ../tcl/cpp_parse 
-	rm -f tcl/vtkSbrRenderWindowTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkSbrRenderWindow.h $(srcdir)/../tcl/hints 1 > tcl/vtkSbrRenderWindowTcl.cxx
-
-tcl/vtkSbrRendererTcl.cxx: vtkSbrRenderer.h ../tcl/cpp_parse 
-	rm -f tcl/vtkSbrRendererTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkSbrRenderer.h $(srcdir)/../tcl/hints 1 > tcl/vtkSbrRendererTcl.cxx
-
-tcl/vtkSbrTextureTcl.cxx: vtkSbrTexture.h ../tcl/cpp_parse 
-	rm -f tcl/vtkSbrTextureTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkSbrTexture.h $(srcdir)/../tcl/hints 1 > tcl/vtkSbrTextureTcl.cxx
-
-tcl/vtkShepardMethodTcl.cxx: vtkShepardMethod.h ../tcl/cpp_parse 
-	rm -f tcl/vtkShepardMethodTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkShepardMethod.h $(srcdir)/../tcl/hints 1 > tcl/vtkShepardMethodTcl.cxx
-
-tcl/vtkShrinkFilterTcl.cxx: vtkShrinkFilter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkShrinkFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkShrinkFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkShrinkFilterTcl.cxx
-
-tcl/vtkShrinkPolyDataTcl.cxx: vtkShrinkPolyData.h ../tcl/cpp_parse 
-	rm -f tcl/vtkShrinkPolyDataTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkShrinkPolyData.h $(srcdir)/../tcl/hints 1 > tcl/vtkShrinkPolyDataTcl.cxx
-
-tcl/vtkSliceCubesTcl.cxx: vtkSliceCubes.h ../tcl/cpp_parse 
-	rm -f tcl/vtkSliceCubesTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkSliceCubes.h $(srcdir)/../tcl/hints 1 > tcl/vtkSliceCubesTcl.cxx
-
-tcl/vtkSmoothPolyFilterTcl.cxx: vtkSmoothPolyFilter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkSmoothPolyFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkSmoothPolyFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkSmoothPolyFilterTcl.cxx
-
-tcl/vtkSpatialRepFilterTcl.cxx: vtkSpatialRepFilter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkSpatialRepFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkSpatialRepFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkSpatialRepFilterTcl.cxx
-
-tcl/vtkSphereTcl.cxx: vtkSphere.h ../tcl/cpp_parse 
-	rm -f tcl/vtkSphereTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkSphere.h $(srcdir)/../tcl/hints 1 > tcl/vtkSphereTcl.cxx
-
-tcl/vtkSphereSourceTcl.cxx: vtkSphereSource.h ../tcl/cpp_parse 
-	rm -f tcl/vtkSphereSourceTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkSphereSource.h $(srcdir)/../tcl/hints 1 > tcl/vtkSphereSourceTcl.cxx
-
-tcl/vtkStreamLineTcl.cxx: vtkStreamLine.h ../tcl/cpp_parse 
-	rm -f tcl/vtkStreamLineTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkStreamLine.h $(srcdir)/../tcl/hints 1 > tcl/vtkStreamLineTcl.cxx
-
-tcl/vtkStreamPointsTcl.cxx: vtkStreamPoints.h ../tcl/cpp_parse 
-	rm -f tcl/vtkStreamPointsTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkStreamPoints.h $(srcdir)/../tcl/hints 1 > tcl/vtkStreamPointsTcl.cxx
-
-tcl/vtkStreamerTcl.cxx: vtkStreamer.h ../tcl/cpp_parse 
-	rm -f tcl/vtkStreamerTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkStreamer.h $(srcdir)/../tcl/hints 1 > tcl/vtkStreamerTcl.cxx
-
-tcl/vtkStripperTcl.cxx: vtkStripper.h ../tcl/cpp_parse 
-	rm -f tcl/vtkStripperTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkStripper.h $(srcdir)/../tcl/hints 1 > tcl/vtkStripperTcl.cxx
-
-tcl/vtkStructuredGridFilterTcl.cxx: vtkStructuredGridFilter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkStructuredGridFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkStructuredGridFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkStructuredGridFilterTcl.cxx
-
-tcl/vtkStructuredGridGeometryFilterTcl.cxx: vtkStructuredGridGeometryFilter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkStructuredGridGeometryFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkStructuredGridGeometryFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkStructuredGridGeometryFilterTcl.cxx
-
-tcl/vtkStructuredGridOutlineFilterTcl.cxx: vtkStructuredGridOutlineFilter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkStructuredGridOutlineFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkStructuredGridOutlineFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkStructuredGridOutlineFilterTcl.cxx
-
-tcl/vtkStructuredGridReaderTcl.cxx: vtkStructuredGridReader.h ../tcl/cpp_parse 
-	rm -f tcl/vtkStructuredGridReaderTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkStructuredGridReader.h $(srcdir)/../tcl/hints 1 > tcl/vtkStructuredGridReaderTcl.cxx
-
-tcl/vtkStructuredGridSourceTcl.cxx: vtkStructuredGridSource.h ../tcl/cpp_parse 
-	rm -f tcl/vtkStructuredGridSourceTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkStructuredGridSource.h $(srcdir)/../tcl/hints 1 > tcl/vtkStructuredGridSourceTcl.cxx
-
-tcl/vtkStructuredGridToPolyFilterTcl.cxx: vtkStructuredGridToPolyFilter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkStructuredGridToPolyFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkStructuredGridToPolyFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkStructuredGridToPolyFilterTcl.cxx
-
-tcl/vtkStructuredGridToStructuredGridFilterTcl.cxx: vtkStructuredGridToStructuredGridFilter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkStructuredGridToStructuredGridFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkStructuredGridToStructuredGridFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkStructuredGridToStructuredGridFilterTcl.cxx
-
-tcl/vtkStructuredGridWriterTcl.cxx: vtkStructuredGridWriter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkStructuredGridWriterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkStructuredGridWriter.h $(srcdir)/../tcl/hints 1 > tcl/vtkStructuredGridWriterTcl.cxx
-
-tcl/vtkStructuredPointsCollectionTcl.cxx: vtkStructuredPointsCollection.h ../tcl/cpp_parse 
-	rm -f tcl/vtkStructuredPointsCollectionTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkStructuredPointsCollection.h $(srcdir)/../tcl/hints 1 > tcl/vtkStructuredPointsCollectionTcl.cxx
-
-tcl/vtkStructuredPointsFilterTcl.cxx: vtkStructuredPointsFilter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkStructuredPointsFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkStructuredPointsFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkStructuredPointsFilterTcl.cxx
-
-tcl/vtkStructuredPointsGeometryFilterTcl.cxx: vtkStructuredPointsGeometryFilter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkStructuredPointsGeometryFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkStructuredPointsGeometryFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkStructuredPointsGeometryFilterTcl.cxx
-
-tcl/vtkStructuredPointsReaderTcl.cxx: vtkStructuredPointsReader.h ../tcl/cpp_parse 
-	rm -f tcl/vtkStructuredPointsReaderTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkStructuredPointsReader.h $(srcdir)/../tcl/hints 1 > tcl/vtkStructuredPointsReaderTcl.cxx
-
-tcl/vtkStructuredPointsSourceTcl.cxx: vtkStructuredPointsSource.h ../tcl/cpp_parse 
-	rm -f tcl/vtkStructuredPointsSourceTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkStructuredPointsSource.h $(srcdir)/../tcl/hints 1 > tcl/vtkStructuredPointsSourceTcl.cxx
-
-tcl/vtkStructuredPointsToImageTcl.cxx: vtkStructuredPointsToImage.h ../tcl/cpp_parse 
-	rm -f tcl/vtkStructuredPointsToImageTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkStructuredPointsToImage.h $(srcdir)/../tcl/hints 1 > tcl/vtkStructuredPointsToImageTcl.cxx
-
-tcl/vtkStructuredPointsToPolyDataFilterTcl.cxx: vtkStructuredPointsToPolyDataFilter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkStructuredPointsToPolyDataFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkStructuredPointsToPolyDataFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkStructuredPointsToPolyDataFilterTcl.cxx
-
-tcl/vtkStructuredPointsToStructuredPointsFilterTcl.cxx: vtkStructuredPointsToStructuredPointsFilter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkStructuredPointsToStructuredPointsFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkStructuredPointsToStructuredPointsFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkStructuredPointsToStructuredPointsFilterTcl.cxx
-
-tcl/vtkStructuredPointsWriterTcl.cxx: vtkStructuredPointsWriter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkStructuredPointsWriterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkStructuredPointsWriter.h $(srcdir)/../tcl/hints 1 > tcl/vtkStructuredPointsWriterTcl.cxx
-
-tcl/vtkSubPixelPositionEdgelsTcl.cxx: vtkSubPixelPositionEdgels.h ../tcl/cpp_parse 
-	rm -f tcl/vtkSubPixelPositionEdgelsTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkSubPixelPositionEdgels.h $(srcdir)/../tcl/hints 1 > tcl/vtkSubPixelPositionEdgelsTcl.cxx
-
-tcl/vtkSweptSurfaceTcl.cxx: vtkSweptSurface.h ../tcl/cpp_parse 
-	rm -f tcl/vtkSweptSurfaceTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkSweptSurface.h $(srcdir)/../tcl/hints 1 > tcl/vtkSweptSurfaceTcl.cxx
-
-tcl/vtkTensorGlyphTcl.cxx: vtkTensorGlyph.h ../tcl/cpp_parse 
-	rm -f tcl/vtkTensorGlyphTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkTensorGlyph.h $(srcdir)/../tcl/hints 1 > tcl/vtkTensorGlyphTcl.cxx
-
-tcl/vtkTextSourceTcl.cxx: vtkTextSource.h ../tcl/cpp_parse 
-	rm -f tcl/vtkTextSourceTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkTextSource.h $(srcdir)/../tcl/hints 1 > tcl/vtkTextSourceTcl.cxx
-
-tcl/vtkTextureTcl.cxx: vtkTexture.h ../tcl/cpp_parse 
-	rm -f tcl/vtkTextureTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkTexture.h $(srcdir)/../tcl/hints 1 > tcl/vtkTextureTcl.cxx
-
-tcl/vtkTextureDeviceTcl.cxx: vtkTextureDevice.h ../tcl/cpp_parse 
-	rm -f tcl/vtkTextureDeviceTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkTextureDevice.h $(srcdir)/../tcl/hints 0 > tcl/vtkTextureDeviceTcl.cxx
-
-tcl/vtkTextureMapToBoxTcl.cxx: vtkTextureMapToBox.h ../tcl/cpp_parse 
-	rm -f tcl/vtkTextureMapToBoxTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkTextureMapToBox.h $(srcdir)/../tcl/hints 1 > tcl/vtkTextureMapToBoxTcl.cxx
-
-tcl/vtkTextureMapToCylinderTcl.cxx: vtkTextureMapToCylinder.h ../tcl/cpp_parse 
-	rm -f tcl/vtkTextureMapToCylinderTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkTextureMapToCylinder.h $(srcdir)/../tcl/hints 1 > tcl/vtkTextureMapToCylinderTcl.cxx
-
-tcl/vtkTextureMapToPlaneTcl.cxx: vtkTextureMapToPlane.h ../tcl/cpp_parse 
-	rm -f tcl/vtkTextureMapToPlaneTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkTextureMapToPlane.h $(srcdir)/../tcl/hints 1 > tcl/vtkTextureMapToPlaneTcl.cxx
-
-tcl/vtkTextureMapToSphereTcl.cxx: vtkTextureMapToSphere.h ../tcl/cpp_parse 
-	rm -f tcl/vtkTextureMapToSphereTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkTextureMapToSphere.h $(srcdir)/../tcl/hints 1 > tcl/vtkTextureMapToSphereTcl.cxx
-
-tcl/vtkTexturedSphereSourceTcl.cxx: vtkTexturedSphereSource.h ../tcl/cpp_parse 
-	rm -f tcl/vtkTexturedSphereSourceTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkTexturedSphereSource.h $(srcdir)/../tcl/hints 1 > tcl/vtkTexturedSphereSourceTcl.cxx
-
-tcl/vtkThresholdTcl.cxx: vtkThreshold.h ../tcl/cpp_parse 
-	rm -f tcl/vtkThresholdTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkThreshold.h $(srcdir)/../tcl/hints 1 > tcl/vtkThresholdTcl.cxx
-
-tcl/vtkThresholdPointsTcl.cxx: vtkThresholdPoints.h ../tcl/cpp_parse 
-	rm -f tcl/vtkThresholdPointsTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkThresholdPoints.h $(srcdir)/../tcl/hints 1 > tcl/vtkThresholdPointsTcl.cxx
-
-tcl/vtkThresholdTextureCoordsTcl.cxx: vtkThresholdTextureCoords.h ../tcl/cpp_parse 
-	rm -f tcl/vtkThresholdTextureCoordsTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkThresholdTextureCoords.h $(srcdir)/../tcl/hints 1 > tcl/vtkThresholdTextureCoordsTcl.cxx
-
-tcl/vtkTransformFilterTcl.cxx: vtkTransformFilter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkTransformFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkTransformFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkTransformFilterTcl.cxx
-
-tcl/vtkTransformPolyFilterTcl.cxx: vtkTransformPolyFilter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkTransformPolyFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkTransformPolyFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkTransformPolyFilterTcl.cxx
-
-tcl/vtkTransformStructuredPointsTcl.cxx: vtkTransformStructuredPoints.h ../tcl/cpp_parse 
-	rm -f tcl/vtkTransformStructuredPointsTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkTransformStructuredPoints.h $(srcdir)/../tcl/hints 1 > tcl/vtkTransformStructuredPointsTcl.cxx
-
-tcl/vtkTransformTextureCoordsTcl.cxx: vtkTransformTextureCoords.h ../tcl/cpp_parse 
-	rm -f tcl/vtkTransformTextureCoordsTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkTransformTextureCoords.h $(srcdir)/../tcl/hints 1 > tcl/vtkTransformTextureCoordsTcl.cxx
-
-tcl/vtkTriangularTCoordsTcl.cxx: vtkTriangularTCoords.h ../tcl/cpp_parse 
-	rm -f tcl/vtkTriangularTCoordsTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkTriangularTCoords.h $(srcdir)/../tcl/hints 1 > tcl/vtkTriangularTCoordsTcl.cxx
-
-tcl/vtkTriangularTextureTcl.cxx: vtkTriangularTexture.h ../tcl/cpp_parse 
-	rm -f tcl/vtkTriangularTextureTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkTriangularTexture.h $(srcdir)/../tcl/hints 1 > tcl/vtkTriangularTextureTcl.cxx
-
-tcl/vtkTriangleFilterTcl.cxx: vtkTriangleFilter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkTriangleFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkTriangleFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkTriangleFilterTcl.cxx
-
-tcl/vtkTubeFilterTcl.cxx: vtkTubeFilter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkTubeFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkTubeFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkTubeFilterTcl.cxx
-
-tcl/vtkUGFacetReaderTcl.cxx: vtkUGFacetReader.h ../tcl/cpp_parse 
-	rm -f tcl/vtkUGFacetReaderTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkUGFacetReader.h $(srcdir)/../tcl/hints 1 > tcl/vtkUGFacetReaderTcl.cxx
-
-tcl/vtkUnstructuredGridFilterTcl.cxx: vtkUnstructuredGridFilter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkUnstructuredGridFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkUnstructuredGridFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkUnstructuredGridFilterTcl.cxx
-
-tcl/vtkUnstructuredGridReaderTcl.cxx: vtkUnstructuredGridReader.h ../tcl/cpp_parse 
-	rm -f tcl/vtkUnstructuredGridReaderTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkUnstructuredGridReader.h $(srcdir)/../tcl/hints 1 > tcl/vtkUnstructuredGridReaderTcl.cxx
-
-tcl/vtkUnstructuredGridSourceTcl.cxx: vtkUnstructuredGridSource.h ../tcl/cpp_parse 
-	rm -f tcl/vtkUnstructuredGridSourceTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkUnstructuredGridSource.h $(srcdir)/../tcl/hints 1 > tcl/vtkUnstructuredGridSourceTcl.cxx
-
-tcl/vtkUnstructuredGridWriterTcl.cxx: vtkUnstructuredGridWriter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkUnstructuredGridWriterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkUnstructuredGridWriter.h $(srcdir)/../tcl/hints 1 > tcl/vtkUnstructuredGridWriterTcl.cxx
-
-tcl/vtkVRMLExporterTcl.cxx: vtkVRMLExporter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkVRMLExporterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkVRMLExporter.h $(srcdir)/../tcl/hints 1 > tcl/vtkVRMLExporterTcl.cxx
-
-tcl/vtkVectorDotTcl.cxx: vtkVectorDot.h ../tcl/cpp_parse 
-	rm -f tcl/vtkVectorDotTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkVectorDot.h $(srcdir)/../tcl/hints 1 > tcl/vtkVectorDotTcl.cxx
-
-tcl/vtkVectorNormTcl.cxx: vtkVectorNorm.h ../tcl/cpp_parse 
-	rm -f tcl/vtkVectorNormTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkVectorNorm.h $(srcdir)/../tcl/hints 1 > tcl/vtkVectorNormTcl.cxx
-
-tcl/vtkVectorTextTcl.cxx: vtkVectorText.h ../tcl/cpp_parse 
-	rm -f tcl/vtkVectorTextTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkVectorText.h $(srcdir)/../tcl/hints 1 > tcl/vtkVectorTextTcl.cxx
-
-tcl/vtkVectorTopologyTcl.cxx: vtkVectorTopology.h ../tcl/cpp_parse 
-	rm -f tcl/vtkVectorTopologyTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkVectorTopology.h $(srcdir)/../tcl/hints 1 > tcl/vtkVectorTopologyTcl.cxx
-
-tcl/vtkVolumeTcl.cxx: vtkVolume.h ../tcl/cpp_parse 
-	rm -f tcl/vtkVolumeTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkVolume.h $(srcdir)/../tcl/hints 1 > tcl/vtkVolumeTcl.cxx
-
-tcl/vtkVolume16ReaderTcl.cxx: vtkVolume16Reader.h ../tcl/cpp_parse 
-	rm -f tcl/vtkVolume16ReaderTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkVolume16Reader.h $(srcdir)/../tcl/hints 1 > tcl/vtkVolume16ReaderTcl.cxx
-
-tcl/vtkVolumeCollectionTcl.cxx: vtkVolumeCollection.h ../tcl/cpp_parse 
-	rm -f tcl/vtkVolumeCollectionTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkVolumeCollection.h $(srcdir)/../tcl/hints 1 > tcl/vtkVolumeCollectionTcl.cxx
-
-tcl/vtkVolumeReaderTcl.cxx: vtkVolumeReader.h ../tcl/cpp_parse 
-	rm -f tcl/vtkVolumeReaderTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkVolumeReader.h $(srcdir)/../tcl/hints 0 > tcl/vtkVolumeReaderTcl.cxx
-
-tcl/vtkVolumeRendererTcl.cxx: vtkVolumeRenderer.h ../tcl/cpp_parse 
-	rm -f tcl/vtkVolumeRendererTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkVolumeRenderer.h $(srcdir)/../tcl/hints 1 > tcl/vtkVolumeRendererTcl.cxx
-
-tcl/vtkVoxelModellerTcl.cxx: vtkVoxelModeller.h ../tcl/cpp_parse 
-	rm -f tcl/vtkVoxelModellerTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkVoxelModeller.h $(srcdir)/../tcl/hints 1 > tcl/vtkVoxelModellerTcl.cxx
-
-tcl/vtkVoxelReaderTcl.cxx: vtkVoxelReader.h ../tcl/cpp_parse 
-	rm -f tcl/vtkVoxelReaderTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkVoxelReader.h $(srcdir)/../tcl/hints 1 > tcl/vtkVoxelReaderTcl.cxx
-
-tcl/vtkVoxelWriterTcl.cxx: vtkVoxelWriter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkVoxelWriterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkVoxelWriter.h $(srcdir)/../tcl/hints 1 > tcl/vtkVoxelWriterTcl.cxx
-
-tcl/vtkWarpScalarTcl.cxx: vtkWarpScalar.h ../tcl/cpp_parse 
-	rm -f tcl/vtkWarpScalarTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkWarpScalar.h $(srcdir)/../tcl/hints 1 > tcl/vtkWarpScalarTcl.cxx
-
-tcl/vtkWarpToTcl.cxx: vtkWarpTo.h ../tcl/cpp_parse 
-	rm -f tcl/vtkWarpToTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkWarpTo.h $(srcdir)/../tcl/hints 1 > tcl/vtkWarpToTcl.cxx
-
-tcl/vtkWarpVectorTcl.cxx: vtkWarpVector.h ../tcl/cpp_parse 
-	rm -f tcl/vtkWarpVectorTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkWarpVector.h $(srcdir)/../tcl/hints 1 > tcl/vtkWarpVectorTcl.cxx
-
-tcl/vtkWriterTcl.cxx: vtkWriter.h ../tcl/cpp_parse 
-	rm -f tcl/vtkWriterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkWriter.h $(srcdir)/../tcl/hints 0 > tcl/vtkWriterTcl.cxx
-
-tcl/vtkXRenderWindowTcl.cxx: vtkXRenderWindow.h ../tcl/cpp_parse 
-	rm -f tcl/vtkXRenderWindowTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkXRenderWindow.h $(srcdir)/../tcl/hints 0 > tcl/vtkXRenderWindowTcl.cxx
-
-tcl/vtkXRenderWindowInteractorTcl.cxx: vtkXRenderWindowInteractor.h ../tcl/cpp_parse 
-	rm -f tcl/vtkXRenderWindowInteractorTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkXRenderWindowInteractor.h $(srcdir)/../tcl/hints 1 > tcl/vtkXRenderWindowInteractorTcl.cxx
-
-tcl/vtkXglrActorTcl.cxx: vtkXglrActor.h ../tcl/cpp_parse 
-	rm -f tcl/vtkXglrActorTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkXglrActor.h $(srcdir)/../tcl/hints 1 > tcl/vtkXglrActorTcl.cxx
-
-tcl/vtkXglrCameraTcl.cxx: vtkXglrCamera.h ../tcl/cpp_parse 
-	rm -f tcl/vtkXglrCameraTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkXglrCamera.h $(srcdir)/../tcl/hints 1 > tcl/vtkXglrCameraTcl.cxx
-
-tcl/vtkXglrLightTcl.cxx: vtkXglrLight.h ../tcl/cpp_parse 
-	rm -f tcl/vtkXglrLightTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkXglrLight.h $(srcdir)/../tcl/hints 1 > tcl/vtkXglrLightTcl.cxx
-
-tcl/vtkXglrPolyMapperTcl.cxx: vtkXglrPolyMapper.h ../tcl/cpp_parse 
-	rm -f tcl/vtkXglrPolyMapperTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkXglrPolyMapper.h $(srcdir)/../tcl/hints 1 > tcl/vtkXglrPolyMapperTcl.cxx
-
-tcl/vtkXglrPropertyTcl.cxx: vtkXglrProperty.h ../tcl/cpp_parse 
-	rm -f tcl/vtkXglrPropertyTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkXglrProperty.h $(srcdir)/../tcl/hints 1 > tcl/vtkXglrPropertyTcl.cxx
-
-tcl/vtkXglrRenderWindowTcl.cxx: vtkXglrRenderWindow.h ../tcl/cpp_parse 
-	rm -f tcl/vtkXglrRenderWindowTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkXglrRenderWindow.h $(srcdir)/../tcl/hints 1 > tcl/vtkXglrRenderWindowTcl.cxx
-
-tcl/vtkXglrRendererTcl.cxx: vtkXglrRenderer.h ../tcl/cpp_parse 
-	rm -f tcl/vtkXglrRendererTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkXglrRenderer.h $(srcdir)/../tcl/hints 1 > tcl/vtkXglrRendererTcl.cxx
-
-tcl/vtkXglrTextureTcl.cxx: vtkXglrTexture.h ../tcl/cpp_parse 
-	rm -f tcl/vtkXglrTextureTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkXglrTexture.h $(srcdir)/../tcl/hints 1 > tcl/vtkXglrTextureTcl.cxx
-
-

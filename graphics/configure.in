@@ -13,7 +13,7 @@ AC_PROG_LN_S
 
 AC_ISC_POSIX
 
-AC_CONFIG_SUBDIRS(tcl)
+AC_CONFIG_SUBDIRS(tcl java)
 
 #
 # Checks for header files.
@@ -37,6 +37,13 @@ AC_ARG_WITH(tcl,
 AC_SUBST(BUILD_TCL)
 AC_SUBST(CLEAN_TCL)
 
+AC_ARG_WITH(java,
+         [  --with-java             build vtk with java support],
+         BUILD_JAVA=build_java
+	 CLEAN_JAVA=clean_java)
+
+AC_SUBST(BUILD_JAVA)
+AC_SUBST(CLEAN_JAVA)
 #
 # use mesa
 #
@@ -512,6 +519,12 @@ if test ! -r depend.make
 then
     echo "Copying $srcdir/depend.make to build directory"
     cp $srcdir/depend.make depend.make || exit 1
+fi
+
+if test ! -r targets.make
+then
+    echo "Copying $srcdir/targets.make to build directory"
+    cp $srcdir/targets.make targets.make || exit 1
 fi
 
 AC_CONFIG_SUBDIRS(examplesCxx)
