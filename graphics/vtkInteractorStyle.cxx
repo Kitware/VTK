@@ -119,6 +119,12 @@ vtkInteractorStyle::~vtkInteractorStyle()
   this->Outline->Delete();
   this->Outline = NULL;
 
+  if ( this->CurrentRenderer)
+    {
+    this->CurrentRenderer->UnRegister(this);
+    this->CurrentRenderer = NULL;
+    }
+
   if ((this->LeftButtonPressMethodArg)&&(this->LeftButtonPressMethodArgDelete))
     {
     (*this->LeftButtonPressMethodArgDelete)(this->LeftButtonPressMethodArg);
