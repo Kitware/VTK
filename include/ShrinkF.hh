@@ -37,10 +37,10 @@ public:
   char *GetClassName() {return "vlShrinkFilter";};
   void PrintSelf(ostream& os, vlIndent indent);
 
-  // Description:
+  // Macro Description:
   // Set the fraction of shrink for each cell.
   vlSetClampMacro(ShrinkFactor,float,0.0,1.0);
-  // Description:
+  // Macro Description:
   // Get the fraction of shrink for each cell.
   vlGetMacro(ShrinkFactor,float);
 

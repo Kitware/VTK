@@ -17,6 +17,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "FScalars.hh"
 #include "Cell.hh"
 
+// Description:
+// Construct object with initial range (0,1) and single contour value
+// of 0.0.
 vlContourFilter::vlContourFilter()
 {
   for (int i=0; i<MAX_CONTOURS; i++) this->Values[i] = 0.0;
@@ -25,6 +28,8 @@ vlContourFilter::vlContourFilter()
   this->Range[1] = 1.0;
 }
 
+// Description:
+// Set a particular contour value at contour number i.
 void vlContourFilter::SetValue(int i, float value)
 {
   i = (i >= MAX_CONTOURS ? MAX_CONTOURS-1 : (i < 0 ? 0 : i) );
@@ -38,6 +43,9 @@ void vlContourFilter::SetValue(int i, float value)
     }
 }
 
+// Description:
+// Generate numContours equally spaced contour values between specified
+// range.
 void vlContourFilter::GenerateValues(int numContours, float range[2])
 {
   float val, incr;
