@@ -60,10 +60,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkInteractorStyleImage;
 
-// For placement of origin in the viewer.
-#define VTK_IMAGE_VIEWER_UPPER_LEFT 0
-#define VTK_IMAGE_VIEWER_LOWER_LEFT 1
-
 class VTK_RENDERING_EXPORT vtkImageViewer2 : public vtkObject 
 {
 public:
