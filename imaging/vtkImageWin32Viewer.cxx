@@ -296,7 +296,7 @@ void vtkImageWin32Viewer::Render(void)
       this->MakeDefaultWindow();
       }
 
-    vtkErrorMacro(<< "Render: Please Set the input.");
+    vtkDebugMacro(<< "Render: Please Set the input.");
     return;
     }
 
