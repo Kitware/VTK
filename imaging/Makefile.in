@@ -122,6 +122,7 @@ vtkImagerCollection \
 vtkImageReader \
 vtkImageReader2 \
 vtkImageResample \
+vtkImageReslice \
 vtkImageRFFT \
 vtkImageRGBToHSV \
 vtkImageRange3D \
