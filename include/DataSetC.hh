@@ -41,8 +41,8 @@ class vlDataSetCollection : public vlObject
   vlDataSetCollection();
   void AddItem(vlDataSet *);
   void RemoveItem(vlDataSet *);
-  int  IsItemPresent(vlDataSet *);
-  int  GetNumberOfItems();
+  int IsItemPresent(vlDataSet *);
+  int GetNumberOfItems();
   vlDataSet *GetItem(int num);
   void PrintSelf(ostream& os, vlIndent indent);
   char *GetClassName() {return "vlDataSetCollection";};
