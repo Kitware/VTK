@@ -145,9 +145,9 @@ void vtkAppendPolyData::Execute()
   vtkCellArray *inVerts, *newVerts;
   vtkCellArray *inLines, *newLines;
   vtkCellArray *inPolys, *newPolys;
-  int sizePolys, numPolys;
+  vtkIdType sizePolys, numPolys;
   vtkCellArray *inStrips, *newStrips;
-  int numPts, numCells;
+  vtkIdType numPts, numCells;
   vtkPointData *inPD = NULL;
   vtkCellData *inCD = NULL;
   vtkPolyData *output = this->GetOutput();
@@ -158,8 +158,8 @@ void vtkAppendPolyData::Execute()
   vtkDataArray *newPtNormals = NULL;
   vtkDataArray *newPtTCoords = NULL;
   vtkDataArray *newPtTensors = NULL;
-  int i, ptId, cellId;
-  vtkIdType *pts, *pPolys, npts;
+  int i;
+  vtkIdType *pts, *pPolys, npts, ptId, cellId;
   
   vtkDebugMacro(<<"Appending polydata");
 
@@ -306,8 +306,8 @@ void vtkAppendPolyData::Execute()
   outputCD->CopyAllocate(cellList,numCells);
 
   // loop over all input sets
-  int ptOffset = 0;
-  int cellOffset = 0;
+  vtkIdType ptOffset = 0;
+  vtkIdType cellOffset = 0;
   for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {
     this->UpdateProgress(0.2 + 0.8*idx/this->NumberOfInputs);
@@ -554,10 +554,10 @@ void vtkAppendPolyData::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 void vtkAppendPolyData::AppendData(vtkDataArray *dest, vtkDataArray *src,
-                                   int offset)
+                                   vtkIdType offset)
 {
   void *pSrc, *pDest;
-  int length;
+  vtkIdType length;
 
   // sanity checks
   if (src->GetDataType() != dest->GetDataType())
@@ -622,12 +622,13 @@ void vtkAppendPolyData::AppendData(vtkDataArray *dest, vtkDataArray *src,
   memcpy(pDest, pSrc, length);
 }
 
-void vtkAppendPolyData::AppendDifferentPoints(vtkDataArray *dest, vtkDataArray *src,
-                                                        int offset)
+void vtkAppendPolyData::AppendDifferentPoints(vtkDataArray *dest,
+                                              vtkDataArray *src,
+                                              vtkIdType offset)
 {
   float  *fSrc;
   double *dSrc, *dDest;
-  int p;
+  vtkIdType p;
 
   if (src->GetNumberOfTuples() + offset > dest->GetNumberOfTuples())
     {
@@ -635,7 +636,7 @@ void vtkAppendPolyData::AppendDifferentPoints(vtkDataArray *dest, vtkDataArray *
     return;
     }
 
-  int vals = src->GetMaxId()+1;
+  vtkIdType vals = src->GetMaxId()+1;
   switch (dest->GetDataType())
     {
     //
@@ -680,7 +681,7 @@ void vtkAppendPolyData::AppendDifferentPoints(vtkDataArray *dest, vtkDataArray *
 
 // returns the next pointer in dest
 vtkIdType *vtkAppendPolyData::AppendCells(vtkIdType *pDest, vtkCellArray *src,
-                                          int offset)
+                                          vtkIdType offset)
 {
   vtkIdType *pSrc, *end, *pNum;
 

@@ -242,7 +242,7 @@ void vtkDataSetToDataObjectFilter::Execute()
 	ca->GetData()->SetName("Cells");
         fd->AddArray( ca->GetData() );
 
-        int numCells=input->GetNumberOfCells();
+        vtkIdType numCells=input->GetNumberOfCells();
         vtkIntArray *types=vtkIntArray::New();
         types->SetNumberOfValues(numCells);
         for (i=0; i<numCells; i++)

@@ -156,7 +156,7 @@ void vtkCellLocator::FreeSearchStructure()
 // an i,j,k location in the octree; return the index (idx) into the structure.
 // Method returns 1 is the specified i,j,k location is "outside" of the octree.
 int vtkCellLocator::GenerateIndex(int offset, int numDivs, int i, int j,
-                                  int k, int &idx)
+                                  int k, vtkIdType &idx)
 {
   if ( i < 0 || i >= numDivs || 
        j < 0 || j >= numDivs || k < 0 || k >= numDivs )
@@ -176,7 +176,7 @@ int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
                                       float& t, float x[3], float pcoords[3],
                                       int &subId)
 {
-  int cellId = -1;
+  vtkIdType cellId = -1;
   
   return this->IntersectWithLine( a0, a1, tol, t, x, pcoords,
                                   subId, cellId);
@@ -186,7 +186,7 @@ int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
 // finite line
 int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
                                       float& t, float x[3], float pcoords[3],
-                                      int &subId, int &cellId)
+                                      int &subId, vtkIdType &cellId)
 {
   vtkGenericCell *cell=vtkGenericCell::New();
   int returnVal;
@@ -203,7 +203,7 @@ int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
 // finite line
 int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
                                       float& t, float x[3], float pcoords[3],
-                                      int &subId, int &cellId,
+                                      int &subId, vtkIdType &cellId,
                                       vtkGenericCell *cell)
 {
   float origin[3];
@@ -217,8 +217,8 @@ int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
   float *bounds;
   float bounds2[6];
   int i, leafStart, prod, loop;
-  int bestCellId = -1;
-  int idx, cId;
+  vtkIdType bestCellId = -1, cId;
+  int idx;
   float tMax, dist[3];
   int npos[3];
   int pos[3];
@@ -422,9 +422,10 @@ void vtkCellLocator::FindClosestPoint(float x[3], float closestPoint[3],
                                       vtkGenericCell *cell, vtkIdType &cellId,
                                       int &subId, float& dist2)
 {
-  int i, j;
+  int i;
+  vtkIdType j;
   int *nei;
-  int closestCell = -1;
+  vtkIdType closestCell = -1;
   int closestSubCell = -1;
   int leafStart;
   int level;
@@ -686,10 +687,13 @@ void vtkCellLocator::FindClosestPoint(float x[3], float closestPoint[3],
 }
 
 int vtkCellLocator::FindClosestPointWithinRadius(float x[3], float radius,
-                      float closestPoint[3], vtkGenericCell *cell, int &cellId,
-                      int &subId, float& dist2, int &inside)
+                                                 float closestPoint[3],
+                                                 vtkGenericCell *cell,
+                                                 vtkIdType &cellId, int &subId,
+                                                 float& dist2, int &inside)
 {
-  int i, j;
+  int i;
+  vtkIdType j;
   int tmpInside;
   int *nei;
   int closestCell = -1;
@@ -978,8 +982,10 @@ int vtkCellLocator::FindClosestPointWithinRadius(float x[3], float radius,
 }
 
 int vtkCellLocator::FindClosestPointWithinRadius(float x[3], float radius,
-                    float closestPoint[3], vtkGenericCell *cell, int &cellId,
-                    int &subId, float& dist2)
+                                                 float closestPoint[3],
+                                                 vtkGenericCell *cell,
+                                                 vtkIdType &cellId,
+                                                 int &subId, float& dist2)
 {
   int inside;
 
@@ -989,8 +995,9 @@ int vtkCellLocator::FindClosestPointWithinRadius(float x[3], float radius,
 }
 
 int vtkCellLocator::FindClosestPointWithinRadius(float x[3], float radius,
-                                             float closestPoint[3],int &cellId,
-                                             int &subId, float& dist2)
+                                                 float closestPoint[3],
+                                                 vtkIdType &cellId, int &subId,
+                                                 float& dist2)
 {
   vtkGenericCell *cell = vtkGenericCell::New();
   int found, inside;
@@ -1201,10 +1208,11 @@ vtkIdList* vtkCellLocator::GetCells(int octantId)
 void vtkCellLocator::BuildLocator()
   {
   float *bounds, length, cellBounds[6], *boundsPtr;
-  int numCells;
+  vtkIdType numCells;
   int ndivs, product;
-  int i, j, k, cellId, ijkMin[3], ijkMax[3];
-  int idx, parentOffset;
+  int i, j, k, ijkMin[3], ijkMax[3];
+  vtkIdType cellId, idx;
+  int parentOffset;
   vtkIdList *octant;
   int numCellsPerBucket = this->NumberOfCellsPerBucket;
   typedef vtkIdList *vtkIdListPtr;
@@ -1359,7 +1367,8 @@ void vtkCellLocator::BuildLocator()
 void vtkCellLocator::MarkParents(void* a, int i, int j, int k, 
                                  int ndivs, int level)
 {
-  int offset, prod, ii, parentIdx;
+  int offset, prod, ii;
+  vtkIdType parentIdx;
   
   for (offset=0, prod=1, ii=0; ii<level-1; ii++) 
     {
@@ -1394,7 +1403,8 @@ void vtkCellLocator::GenerateRepresentation(int level, vtkPolyData *pd)
 {
   vtkPoints *pts;
   vtkCellArray *polys;
-  int l, i, j, k, ii, idx, boundary[3];
+  int l, i, j, k, ii, boundary[3];
+  vtkIdType idx;
   vtkIdList *inside, *Inside[3];
   int numDivs=1;
   

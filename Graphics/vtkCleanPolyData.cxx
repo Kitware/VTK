@@ -104,7 +104,7 @@ void vtkCleanPolyData::Execute()
     return;
     }
   vtkPoints    *inPts = input->GetPoints();
-  int numPts = input->GetNumberOfPoints();
+  vtkIdType numPts = input->GetNumberOfPoints();
   //
   vtkDebugMacro(<<"Beginning PolyData clean");
   if ( (numPts<1) || (inPts == NULL ) )
@@ -114,12 +114,12 @@ void vtkCleanPolyData::Execute()
     }
   vtkIdType *updatedPts = new vtkIdType[input->GetMaxCellSize()];
 
-  int numNewPts;
+  vtkIdType numNewPts;
   vtkPoints *newPts = vtkPoints::New();
   newPts->Allocate(numPts);
 
   // we'll be needing these
-  int inCellID, newId;
+  vtkIdType inCellID, newId;
   int i;
   vtkIdType ptId;
   vtkIdType npts;
@@ -166,8 +166,8 @@ void vtkCleanPolyData::Execute()
   vtkCellData  *outLineData = NULL;
   vtkCellData  *outPolyData = NULL;
   vtkCellData  *outStrpData = NULL;
-  int vertIDcounter = 0, lineIDcounter = 0;
-  int polyIDcounter = 0, strpIDcounter = 0;
+  vtkIdType vertIDcounter = 0, lineIDcounter = 0;
+  vtkIdType polyIDcounter = 0, strpIDcounter = 0;
 
   // Begin to adjust topology.
   //

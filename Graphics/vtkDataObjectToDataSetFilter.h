@@ -284,42 +284,43 @@ protected:
   // Support definition of points
   char *PointArrays[3]; //the name of the arrays
   int PointArrayComponents[3]; //the array components used for x-y-z
-  int PointComponentRange[3][2]; //the range of the components to use
+  vtkIdType PointComponentRange[3][2]; //the range of the components to use
   int PointNormalize[3]; //flags control normalization
 
   // These define cells for vtkPolyData
   char *VertsArray; //the name of the array
   int VertsArrayComponent; //the array component
-  int VertsComponentRange[2]; //the range of the components to use
+  vtkIdType VertsComponentRange[2]; //the range of the components to use
 
   char *LinesArray; //the name of the array
   int LinesArrayComponent; //the array component used for cell types
-  int LinesComponentRange[2]; //the range of the components to use
+  vtkIdType LinesComponentRange[2]; //the range of the components to use
 
   char *PolysArray; //the name of the array
   int PolysArrayComponent; //the array component
-  int PolysComponentRange[2]; //the range of the components to use
+  vtkIdType PolysComponentRange[2]; //the range of the components to use
 
   char *StripsArray; //the name of the array
   int StripsArrayComponent; //the array component
-  int StripsComponentRange[2]; //the range of the components to use
+  vtkIdType StripsComponentRange[2]; //the range of the components to use
 
   // Used to define vtkUnstructuredGrid datasets
   char *CellTypeArray; //the name of the array
   int CellTypeArrayComponent; //the array component used for cell types
-  int CellTypeComponentRange[2]; //the range of the components to use
+  vtkIdType CellTypeComponentRange[2]; //the range of the components to use
 
   char *CellConnectivityArray; //the name of the array
   int CellConnectivityArrayComponent; //the array components used for cell connectivity
-  int CellConnectivityComponentRange[2]; //the range of the components to use
+  vtkIdType CellConnectivityComponentRange[2]; //the range of the components to use
 
   // helper methods (and attributes) to construct datasets
   void SetArrayName(char* &name, char *newName);
-  int ConstructPoints(vtkPointSet *ps);
-  int ConstructPoints(vtkRectilinearGrid *rg);
+  vtkIdType ConstructPoints(vtkPointSet *ps);
+  vtkIdType ConstructPoints(vtkRectilinearGrid *rg);
   int ConstructCells(vtkPolyData *pd);
   int ConstructCells(vtkUnstructuredGrid *ug);
-  vtkCellArray *ConstructCellArray(vtkDataArray *da, int comp, int compRange[2]);
+  vtkCellArray *ConstructCellArray(vtkDataArray *da, int comp,
+                                   vtkIdType compRange[2]);
 
   // Default value for normalization
   int DefaultNormalize;
@@ -331,15 +332,15 @@ protected:
   
   char *DimensionsArray; //the name of the array
   int DimensionsArrayComponent; //the component of the array used for dimensions
-  int DimensionsComponentRange[2]; //the ComponentRange of the array for the dimensions
+  vtkIdType DimensionsComponentRange[2]; //the ComponentRange of the array for the dimensions
   
   char *OriginArray; //the name of the array
   int OriginArrayComponent; //the component of the array used for Origins
-  int OriginComponentRange[2]; //the ComponentRange of the array for the Origins
+  vtkIdType OriginComponentRange[2]; //the ComponentRange of the array for the Origins
   
   char *SpacingArray; //the name of the array
   int SpacingArrayComponent; //the component of the array used for Spacings
-  int SpacingComponentRange[2]; //the ComponentRange of the array for the Spacings
+  vtkIdType SpacingComponentRange[2]; //the ComponentRange of the array for the Spacings
   
   void ConstructDimensions();
   void ConstructSpacing();
@@ -348,5 +349,3 @@ protected:
 };
 
 #endif
-
-

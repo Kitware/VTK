@@ -122,7 +122,7 @@ vtkDataSetCollection *vtkAppendFilter::GetInputList()
 // Append data sets into single unstructured grid
 void vtkAppendFilter::Execute()
 {
-  int numPts, numCells, ptOffset, cellOffset;
+  vtkIdType numPts, numCells, ptOffset, cellOffset;
   int   tenth, count, abort=0;
   float decimal;
   vtkPoints *newPts;
@@ -131,7 +131,7 @@ void vtkAppendFilter::Execute()
   vtkIdList *ptIds, *newPtIds;
   int i, idx;
   vtkDataSet *ds;
-  int ptId, cellId, newCellId;
+  vtkIdType ptId, cellId, newCellId;
   vtkUnstructuredGrid *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
