@@ -1,4 +1,4 @@
-package provide vtk 3.3
+package provide vtktesting 4.0
 
 proc BuildBackdrop {minX maxX minY maxY minZ maxZ thickness} {
     if { [info command basePlane] == "" } {vtkCubeSource basePlane;}

@@ -4,7 +4,7 @@ for {set i  0} {$i < [expr $argc - 1]} {incr i} {
    }
 }
 
-package require vtktcl
+package require vtk
 
 vtkDebugLeaks rtDebugLeaks
 rtDebugLeaks PromptUserOff

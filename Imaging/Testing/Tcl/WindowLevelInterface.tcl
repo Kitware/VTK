@@ -1,4 +1,4 @@
-package require vtktcl_interactor
+package require vtkinteraction
 
 # a simple user interface that manipulates window level.
 # places in the tcl top window.  Looks for object named viewer

@@ -1,7 +1,6 @@
+package require vtkio
+package require vtkrendering
 
-package provide vtkhybrid 4.0
-package require vtkgraphics
-package require vtkimaging
-
-vtk::load_component vtkHybridTCL
-
+if {[::vtk::load_component vtkHybridTCL] == ""} {
+    package provide vtkhybrid 4.0
+}

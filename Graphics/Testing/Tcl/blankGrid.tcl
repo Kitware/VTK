@@ -1,5 +1,6 @@
-package require vtktcl_interactor
-::vtktcl::load_script colors
+package require vtk
+package require vtkinteraction
+package require vtktesting
 
 # Demonstrate how to use structured grid blanking with an image. There are two
 # techniques demonstrated: one uses an image to perform the blanking;

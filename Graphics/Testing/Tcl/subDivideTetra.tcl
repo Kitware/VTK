@@ -1,4 +1,5 @@
-package require vtktcl
+package require vtk
+package require vtkinteraction
 
 vtkPoints tetraPoints
   tetraPoints SetNumberOfPoints 4

@@ -1,4 +1,5 @@
-package require vtktcl
+package require vtk
+
 
 # A script to test the stencil filter.
 # removes all but a sphere.

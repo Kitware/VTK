@@ -1,4 +1,4 @@
-package require vtktcl
+package require vtk
 
 # Create the RenderWindow, Renderer and both Actors
 #

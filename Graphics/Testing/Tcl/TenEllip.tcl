@@ -1,4 +1,5 @@
-package require vtktcl
+package require vtk
+package require vtkinteraction
 
 # create tensor ellipsoids
 # Create the RenderWindow, Renderer and interactive renderer

@@ -1,4 +1,5 @@
-package require vtktcl_interactor
+package require vtk
+package require vtkinteraction
 
 # Demonstrates vtkCellDerivatives for all cell types
 #

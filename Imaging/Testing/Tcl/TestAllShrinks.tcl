@@ -1,5 +1,4 @@
-package require vtktcl
-
+package require vtk
 
 set prefix "$VTK_DATA_ROOT/Data/headsq/quarter"
 

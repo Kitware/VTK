@@ -1,72 +1,98 @@
 package provide vtkbase 4.0
 
-namespace eval vtk {
+namespace eval ::vtk {
 
+    namespace export *
 
-  proc load_tk {} {
-    if { [lsearch [package names] Tk] == -1 } {
-      ::vtk::load_componont tk
+    # load_component: load a VTK component 
+    #        Example: ::vtk::load_component vtkFilteringTCL
+
+    # Windows: the 'load' command looks for DLL in the Tcl/Tk dir,
+    #          the current dir, c:\window\system[32], c:\windows and the dirs 
+    #          listed in the PATH environment var.
+    #    Unix: the 'load' command looks for shared libs in dirs listed in the 
+    #          LD_LIBRARY_PATH environment var.
+
+    variable complain_on_loading 1
+
+    proc load_component {name} {
+
+        # Already loaded ?
+
+        set ifloaded [string totitle $name]
+	foreach pkg [info loaded] {
+	    if {$ifloaded == [lindex $pkg 1]} {
+                return ""
+	    }
+        }
+
+        global tcl_platform auto_path env
+
+        # First dir is empty, to let Tcl try in the current dir
+
+        set dirs {""}
+        set ext [info sharedlibextension]
+        if {$tcl_platform(platform) == "unix"} {
+            set prefix "lib"
+            # Help Unix a bit by browsing into $auto_path and /usr/lib...
+            set dirs [concat $dirs /usr/local/lib /usr/local/lib/vtk $auto_path]
+            if {[info exists env(LD_LIBRARY_PATH)]} {
+                set dirs [concat $dirs [split $env(LD_LIBRARY_PATH) ":"]]
+            }
+        } else {
+            set prefix ""
+        }
+
+        foreach dir $dirs {
+            set libname [file join $dir ${prefix}${name}${ext}]
+            if {![catch {load $libname} errormsg]} {
+                # WARNING: it HAS to be "" so that pkg_mkIndex work (since
+                # while evaluating a package ::vtk::load_component won't
+                # exist and will default to the unknown() proc that returns ""
+                return ""
+            }
+            # If not loaded but file was found, oops
+            if {[file exists $libname] && $::vtk::complain_on_loading} {
+                puts stderr $errormsg
+            }
+        }
+
+        if {$::vtk::complain_on_loading} {
+            puts stderr "::vtk::load_component: $name could not be found."
+        }
+
+        return 1
     }
-  }
-  
-# load_component: load a VTK component 
-#        Example: ::vtk::load_component vtkFilteringTCL
 
-# Windows: the 'load' command looks in the same dir as the Tcl/Tk app,
-#          the current dir, c:\window\system[32], c:\windows and the dirs 
-#          listed in the PATH env var.
-#    Unix: the 'load' command looks in dirs listed in the 
-#          LD_LIBRARY_PATH env var.
+    # Get VTK_DATA_ROOT if we can
 
-proc load_component {name} {
-  global tcl_platform auto_path env
-  # First dir is empty, to let Tcl try a relative name
-  set dirs {""}
-  set ext [info sharedlibextension]
-  if {$tcl_platform(platform) == "unix"} {
-    set prefix "lib"
-    # Help Unix a bit by browsing into $auto_path and /usr/lib...
-    set dirs [concat $dirs /usr/local/lib $auto_path [split $env(LD_LIBRARY_PATH) ":"]]
-  } else {
-    set prefix ""
-  }
-  foreach dir $dirs {
-    set libname [file join $dir ${prefix}${name}${ext}]
-    if {![catch {load $libname} errormsg]} {
-      return
+    proc get_VTK_DATA_ROOT {} {
+
+        # First look at environment vars
+
+        global env
+        if {[info exists env(VTK_DATA_ROOT)]} {
+            return $env(VTK_DATA_ROOT)
+        }
+
+        # Then look at command line args
+
+        global argc argv
+        if {[info exists argc]} { 
+            set argcm1 [expr $argc - 1]
+            for {set i 0} {$i < $argcm1} {incr i} {
+                if {[lindex $argv $i] == "-D" && $i < $argcm1} {
+                    return [lindex $argv [expr $i + 1]]
+                }
+            }
+        }
+
+        # Make a final guess at a relativepath
+
+        return [file nativename [file join [file dirname [info script]] "../../../../VTKData"]]
     }
-    # If not loaded but file was found, return immediately
-    if {[file exists $libname]} {
-      puts stderr $errormsg
-    }
-  }
-  puts stderr "::vtk::load_component: $name could not be found!"
+
+    variable VTK_DATA_ROOT [get_VTK_DATA_ROOT]
 }
 
-# I won't 'rename ::vtk::load_component ""' because it will be 
-# quite useful for user-defined packages depending on vtktcl.
-
-# set VTK_DATA if we can, first look at environment vars
-proc SetVTK_DATA {} {
-  global argc argv
-  if { ![info exists argc] } { set argc 0; set argv {} }
-  if { [catch {set VTK_DATA_ROOT $env(VTK_DATA_ROOT)}] != 0} { 
-    # then look at command line args
-    set vtkDataFound 0
-    for {set i 0} {$i < [expr $argc - 1]} {incr i} {
-      if {[lindex $argv $i] == "-D"} {
-	set vtkDataFound 1
-	set VTK_DATA_ROOT [lindex $argv [expr $i + 1]]
-      }
-    }
-    # make a final guess at a relativepath
-    if {$vtkDataFound == 0} {
-      set VTK_DATA_ROOT "../../../../VTKData" 
-    }
-  }
-}
-
-variable DATA_ROOT [SetVTK_DATA]
-}
-
-set VTK_DATA_ROOT $::vtk::DATA_ROOT
+set VTK_DATA_ROOT $::vtk::VTK_DATA_ROOT

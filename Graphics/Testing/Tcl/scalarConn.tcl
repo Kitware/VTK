@@ -1,4 +1,5 @@
-package require vtktcl
+package require vtk
+package require vtkinteraction
 
 # Quadric definition
 vtkQuadric quadric

@@ -1,5 +1,5 @@
-package require vtktcl_interactor
-package require vtktcl_widgets
+package require vtk
+package require vtkinteraction
 
 set root [toplevel .top -visual {truecolor 24}]
 wm title .top "superquadric viewer"

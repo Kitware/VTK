@@ -1,5 +1,5 @@
 # Divergence measures rate of change of gradient.
-package require vtktcl
+package require vtk
 
 
 # Image pipeline

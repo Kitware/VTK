@@ -1,4 +1,4 @@
-package require vtktcl
+package require vtk
 
 # A script to test the mask filter.
 #  replaces a circle with a color

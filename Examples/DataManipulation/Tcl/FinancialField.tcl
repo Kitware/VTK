@@ -3,7 +3,8 @@
 # (as compared to reading a vtk field file), but shows you how to
 # interface to your own raw data.
 
-package require vtktcl_interactor
+package require vtk
+package require vtkinteraction
 
 set xAxis INTEREST_RATE
 set yAxis MONTHLY_PAYMENT

@@ -11,7 +11,8 @@
 # will create render windows but only the render window of the root 
 # process will contain the composited image).
 
-package require vtktcl_interactor
+package require vtk
+package require vtkinteraction
 
 # Create a controller. At this point, MPI has already been initialized
 # therefore there is no need to call Initialize.

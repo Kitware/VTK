@@ -1,4 +1,4 @@
-package require vtktcl
+package require vtk
 
 # In this example, an image is centered at (0,0,0) before a
 # rotation is applied to ensure that the rotation occurs about

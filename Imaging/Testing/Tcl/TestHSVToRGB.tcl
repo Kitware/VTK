@@ -1,8 +1,7 @@
 # Use the painter to draw using colors.
 # This is not a pipeline object.  It will support pipeline objects.
 # Please do not use this object directly.
-
-package require vtktcl
+package require vtk
 
 
 

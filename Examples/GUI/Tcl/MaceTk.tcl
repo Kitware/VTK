@@ -11,10 +11,11 @@
 #
 
 #
-# First we include the vtktcl package which will make available 
+# First we include the VTK Tcl packages which will make available 
 # all of the vtk commands to Tcl
 #
-package require vtktcl_widgets
+package require vtk
+package require vtkinteraction
 
 #
 # Next we create an instance of vtkSphereSource and set some of its 
@@ -225,13 +226,18 @@ proc setGlyphScaleFactor {factor} {
     renWin Render
 }
 
+#
+# Let's add a quit button that will call the bye() (see below)
+
+button .params.quit -text "Quit" -command bye
+
 
 #
 # Finally we pack all sliders on top of each other (-side top) inside
 # the frame and we pack the VTK widget $vtkw and the frame .params
 # inside the main root widget.
 #
-pack $sth $sph $cre $gsc -side top -anchor nw -fill both
+pack $sth $sph $cre $gsc .params.quit -side top -anchor nw -fill both
 pack $vtkw .params -side top -fill both -expand yes
 
 #
@@ -248,3 +254,8 @@ proc bye {} {
     exit
 }
 
+#
+# You only need this line if you run this script from a Tcl shell
+# (tclsh) instead of a Tk shell (wish) 
+#
+tkwait window .

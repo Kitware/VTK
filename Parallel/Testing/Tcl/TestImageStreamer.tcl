@@ -1,4 +1,4 @@
-package require vtktcl
+package require vtk
 
 vtkImageReader reader
 reader ReleaseDataFlagOff

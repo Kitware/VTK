@@ -1,5 +1,5 @@
-package require vtktcl
-package require vtktcl_interactor
+package require vtk
+package require vtkinteraction
 
 # Demonstrates all cell types
 #

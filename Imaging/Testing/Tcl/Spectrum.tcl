@@ -1,4 +1,4 @@
-package require vtktcl
+package require vtk
 
 # This scripts shows a compressed spectrum of an image.
 

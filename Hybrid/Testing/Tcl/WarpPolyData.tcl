@@ -1,4 +1,4 @@
-package require vtktcl
+package require vtk
 
 # this example tests the warping of PolyData using thin plate splines
 # and with grid transforms using different interpolation modes

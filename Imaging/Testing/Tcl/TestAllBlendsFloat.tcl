@@ -1,4 +1,4 @@
-package require vtktcl
+package require vtk
 
 # This script blends images that consist of float data
 

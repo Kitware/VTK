@@ -1,4 +1,5 @@
-package require vtktcl_interactor
+package require vtk
+package require vtkinteraction
 
 
 # Lets create a data set.

@@ -1,4 +1,4 @@
-package require vtktcl
+package require vtk
 
 # this script tests vtkImageReslice with various axes permutations,
 # in order to cover a nasty set of "if" statements that check 

@@ -1,4 +1,4 @@
-package require vtktcl
+package require vtk
 
 # Simple viewer for images.
 

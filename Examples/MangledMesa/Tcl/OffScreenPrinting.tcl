@@ -1,4 +1,5 @@
-package require vtktcl
+package require vtk
+package require vtkinteraction
 
 # This script demonstrates the use of mangled Mesa to generate an 
 # off-screen copy of the OpenGL render window. A cone is created

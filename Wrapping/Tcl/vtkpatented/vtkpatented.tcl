@@ -1,7 +1,7 @@
+package require vtkio
+package require vtkrendering
 
-package provide vtkpatented 4.0
-package require vtkgraphics
-package require vtkimaging
-
-vtk::load_component vtkPatentedTCL
+if {[::vtk::load_component vtkPatentedTCL] == ""} {
+    package provide vtkpatented 4.0
+}
 

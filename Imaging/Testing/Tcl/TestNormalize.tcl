@@ -1,4 +1,4 @@
-package require vtktcl
+package require vtk
 
 # This script is for testing the normalize filter.
 # Image pipeline

@@ -1,6 +1,4 @@
-package require vtktcl
-
-
+package require vtk
 
 # Image pipeline
 
@@ -17,12 +15,14 @@ gradient SetDimensionality 2
 gradient SetInput [clip GetOutput]
 gradient HandleBoundariesOff
 
+
+
 vtkImageChangeInformation slide
 slide SetInput [gradient GetOutput]
 slide SetExtentTranslation -100 -100 0
 
 vtkImageViewer viewer
-#viewer DebugOn
+viewer DebugOn
 viewer SetInput [slide GetOutput]
 viewer SetColorWindow -1000
 viewer SetColorLevel 500

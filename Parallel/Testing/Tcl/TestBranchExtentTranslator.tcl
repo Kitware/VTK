@@ -1,4 +1,5 @@
-package require vtktcl_interactor
+package require vtk
+package require vtkinteraction
 
 vtkImageGaussianSource gauss
   gauss SetWholeExtent 0 30 0 30 0 2

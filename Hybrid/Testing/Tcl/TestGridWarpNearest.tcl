@@ -1,4 +1,4 @@
-package require vtktcl
+package require vtk
 
 # first, create an image to warp
 vtkImageGridSource imageGrid

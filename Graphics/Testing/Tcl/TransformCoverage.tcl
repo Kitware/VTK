@@ -1,4 +1,4 @@
-package require vtktcl
+package require vtk
 
 # this test covers a lot of the code in vtkAbstractTransform that
 # is not covered elsewhere

@@ -1,6 +1,6 @@
-package require vtktcl
-package require vtktcl_interactor
-::vtktcl::load_script colors
+package require vtk
+package require vtkinteraction
+package require vtktesting
 
 set size 3187;#maximum number possible
 #set size 100;#maximum number possible

@@ -1,4 +1,5 @@
-package require vtktcl_interactor
+package require vtk
+package require vtkinteraction
 
 set res 6
 vtkPlaneSource plane

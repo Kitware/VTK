@@ -1,4 +1,4 @@
-package require vtktcl
+package require vtk
 
 # This example demonstrates how to use a matrix in place of a transfrom
 # via vtkMatrixToLinearTransform and vtkMatrixToHomogeneousTransform.

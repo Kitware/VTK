@@ -6,10 +6,10 @@
 #
 
 #
-# First we include the vtktcl package which will make available 
+# First we include the VTK Tcl packages which will make available 
 # all of the vtk commands to Tcl
 #
-package require vtktcl
+package require vtk
 
 #
 # Next we create an instance of vtkConeSource and set some of its 

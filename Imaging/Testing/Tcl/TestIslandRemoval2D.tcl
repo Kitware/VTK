@@ -1,4 +1,4 @@
-package require vtktcl
+package require vtk
 
 # A script to test the island removal filter.
 # first the image is thresholded, then small islands are removed.

@@ -1,4 +1,5 @@
-package require vtktcl_interactor
+package require vtk
+package require vtkinteraction
 
 # create reader and extract the velocity and temperature
 vtkPNGReader reader

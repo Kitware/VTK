@@ -4,7 +4,8 @@
 # VTK with mangled Mesa. See the README.txt file in this directory 
 # for instructions on how this can be done.
 
-package require vtktcl
+package require vtk
+package require vtkinteraction
 
 # Create Mesa specific render window and renderer
 # When using Mesa, you should always create Mesa specific renderers,

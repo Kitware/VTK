@@ -5,10 +5,11 @@
 # and/or vtkRenderer or will use the ones you specify.
 
 #
-# First we include the vtktcl package which will make available 
+# First we include the VTK Tcl packages which will make available 
 # all of the vtk commands to Tcl
 #
-package require vtktcl
+package require vtk
+package require vtkinteraction
 
 # Create the importer and read a file
 vtk3DSImporter importer

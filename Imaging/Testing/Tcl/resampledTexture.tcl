@@ -1,4 +1,5 @@
-package require vtktcl_interactor
+package require vtk
+package require vtkinteraction
 
 # Demonstrate automatic resampling of textures (i.e., OpenGL only handles
 # power of two texture maps. This examples exercise's vtk's automatic

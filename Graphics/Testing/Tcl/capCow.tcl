@@ -1,5 +1,6 @@
-package require vtktcl
-::vtktcl::load_script colors
+package require vtk
+package require vtkinteraction
+package require vtktesting
 
 #
 # Demonstrate the use of clipping and capping on polyhedral data. Also shows how to

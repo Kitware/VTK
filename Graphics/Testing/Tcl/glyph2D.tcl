@@ -1,4 +1,5 @@
-package require vtktcl
+package require vtk
+package require vtkinteraction
 
 # Create some random points, scalars, and vectors to glyph
 #

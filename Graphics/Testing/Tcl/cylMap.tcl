@@ -1,4 +1,4 @@
-package require vtktcl
+package require vtk
 
 # Generate texture coordinates on a "random" sphere.
 

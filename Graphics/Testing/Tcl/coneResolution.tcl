@@ -1,4 +1,5 @@
-package require vtktcl_interactor
+package require vtk
+package require vtkinteraction
 
 # create a rendering window and renderer
 vtkRenderer ren1

@@ -1,4 +1,4 @@
-package require vtktcl
+package require vtk
 
 # Make an image larger by repeating the data.  Tile.
 

@@ -1,4 +1,5 @@
-package require vtktcl
+package require vtk
+package require vtkinteraction
 
 vtkRenderer ren1
 vtkRenderWindow renWin

@@ -1,4 +1,5 @@
-package require vtktcl_interactor
+package require vtk
+package require vtkinteraction
 
 # create some random points in the unit cube centered at (.5,.5,.5)
 #

@@ -13,8 +13,8 @@
 # You will most likely use vtkFieldDataToAttributeDataFilter, vtkHedgeHog, 
 # and vtkProgrammableAttributeDataFilter.
 #
-package require vtktcl
-package require vtktcl_interactor
+package require vtk
+package require vtkinteraction
 
 # Create the RenderWindow, Renderer and interactor
 #

@@ -1,4 +1,5 @@
-package require vtktcl_interactor
+package require vtk
+package require vtkinteraction
 
 # This example demonstrates the use of the linear extrusion filter and
 # the USA state outline vtk dataset. It also tests the triangulation filter.

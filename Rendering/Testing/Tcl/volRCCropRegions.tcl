@@ -1,4 +1,5 @@
-package require vtktcl
+package require vtk
+package require vtkinteraction
 
 # Simple volume rendering example.
 vtkSLCReader reader

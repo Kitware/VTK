@@ -1,6 +1,6 @@
-package require vtktcl_interactor
-::vtktcl::load_script mccases
-::vtktcl::load_script colors
+package require vtk
+package require vtkinteraction
+package require vtktesting
 
 #define a Single Cube
 vtkScalars Scalars

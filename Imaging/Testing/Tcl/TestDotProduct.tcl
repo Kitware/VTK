@@ -1,4 +1,4 @@
-package require vtktcl
+package require vtk
 
 # This script shows the magnitude of an image in frequency domain.
 

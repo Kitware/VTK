@@ -1,5 +1,8 @@
 ## Procedure should be called to set bindings and initialize variables
 #
+
+package provide vtkinteraction 4.0
+
 set TkInteractor_StartRenderMethod ""
 set TkInteractor_EndRenderMethod ""
 set TkInteractor_InteractiveUpdateRate 15.0

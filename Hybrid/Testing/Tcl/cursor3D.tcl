@@ -1,5 +1,5 @@
-package require vtktcl_interactor
-package require vtktcl_widgets
+package require vtk
+package require vtkinteraction
 
 # This little example shows how a cursor can be created in 
 # image viewers, and renderers.  The standard TkImageViewerWidget and

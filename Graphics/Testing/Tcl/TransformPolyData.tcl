@@ -1,4 +1,4 @@
-package require vtktcl
+package require vtk
 
 # create a rendering window
 vtkRenderWindow renWin

@@ -1,4 +1,4 @@
-package require vtktcl
+package require vtk
 
 # this script tests vtkImageReslice with different interpolation modes
 

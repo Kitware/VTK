@@ -1,4 +1,4 @@
-package require vtktcl
+package require vtk
 
 # Derived from Cursor3D.  This script increases the coverage of the
 # vtkImageInplaceFilter super class.

@@ -1,4 +1,5 @@
-package require vtktcl
+package require vtk
+package require vtkinteraction
 
 # Read some points. Use a programmable filter to read them.
 #

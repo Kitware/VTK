@@ -1,5 +1,6 @@
-package require vtktcl_interactor
-::vtktcl::load_script colors
+package require vtk
+package require vtkinteraction
+package require vtktesting
 
 set VTK_VARY_RADIUS_BY_VECTOR 2
 

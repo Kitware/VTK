@@ -1,6 +1,5 @@
+package require vtkfiltering
 
-package provide vtkio 4.0
-package require vtkcommon
-
-vtk::load_component vtkIOTCL
-
+if {[::vtk::load_component vtkIOTCL] == ""} {
+    package provide vtkio 4.0
+}

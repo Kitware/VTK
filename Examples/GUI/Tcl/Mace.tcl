@@ -9,10 +9,11 @@
 #
 
 #
-# First we include the vtktcl package which will make available 
+# First we include the VTK Tcl packages which will make available 
 # all of the vtk commands to Tcl
 #
-package require vtktcl_interactor
+package require vtk
+package require vtkinteraction
 
 #
 # Next we create an instance of vtkSphereSource and set some of its 
@@ -118,13 +119,15 @@ vtkRenderWindowInteractor iren
 # SetExitMethod. The corresponding "user-method" Tcl code will bring
 # up the .vtkInteract widget and allow the user to evaluate any Tcl
 # code and get access to all previously-created VTK objects. The
-# "exit-method" Tcl code will free up any objects we created.
+# "exit-method" Tcl code will exit (do not try to free up any objects
+# we created using 'vtkCommand DeleteAllObjects' because you are right
+# inside a VTK object.
 #
 iren SetUserMethod {
     wm deiconify .vtkInteract
 }
 iren SetExitMethod {
-    vtkCommand DeleteAllObjects
+   exit
 }
 
 #
@@ -136,3 +139,9 @@ renWin Render
 # Hide the default . widget
 #
 wm withdraw .
+
+#
+# You only need this line if you run this script from a Tcl shell
+# (tclsh) instead of a Tk shell (wish) 
+#
+tkwait window .

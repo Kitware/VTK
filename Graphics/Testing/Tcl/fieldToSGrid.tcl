@@ -1,5 +1,6 @@
-package require vtktcl_interactor
-::vtktcl::load_script colors
+package require vtk
+package require vtkinteraction
+package require vtktesting
 
 # Demonstrate the generation of a structured grid from field data. The output
 # should be similar to combIso.tcl.

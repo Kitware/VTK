@@ -1,4 +1,5 @@
-package require vtktcl
+package require vtk
+package require vtkinteraction
 
 # Now create the RenderWindow, Renderer and Interactor
 #

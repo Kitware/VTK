@@ -1,4 +1,4 @@
-package require vtktcl
+package require vtk
 
 # this script tests vtkImageReslice with different interpolation modes,
 # with the wrap-pad feature turned on and with a rotation

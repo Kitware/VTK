@@ -1,4 +1,4 @@
-package require vtktcl
+package require vtk
 
 # This example demonstrates how to permute an image with vtkImageReslice.
 # The advantage of using vtkImageReslice for this (rather than

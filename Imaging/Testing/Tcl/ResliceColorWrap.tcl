@@ -1,4 +1,4 @@
-package require vtktcl
+package require vtk
 
 # we have to make sure it works with multiple scalar components 
 

@@ -1,6 +1,6 @@
 # This Script test the euclidean to polar by coverting 2D vectors 
 # from a gradient into polar, which is converted into HSV, and then to RGB.
-package require vtktcl
+package require vtk
 
 
 

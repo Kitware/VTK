@@ -1,4 +1,4 @@
-package require vtktcl
+package require vtk
 
 # Doubles the The number of images (x dimension).
 

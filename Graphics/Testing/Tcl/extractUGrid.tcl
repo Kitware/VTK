@@ -1,4 +1,4 @@
-package require vtktcl
+package require vtk
 
 # create reader and warp data with vectors
 vtkDataSetReader reader

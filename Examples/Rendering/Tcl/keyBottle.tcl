@@ -1,7 +1,7 @@
 # This example demonstrates keyframe animation. It changes the
 # camera's azimuth by interpolating given azimuth values (using splines)
 
-package require vtktcl
+package require vtk
 
 # Get keyframe procs
 # See KeyFrame.tcl for details.

@@ -1,4 +1,4 @@
-package require vtktcl
+package require vtk
 
 # This script shows how to use vtkImageEuclideanDistance
 

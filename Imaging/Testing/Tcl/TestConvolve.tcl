@@ -1,6 +1,6 @@
 # Show the constant kernel.  Smooth an impulse function.
 
-package require vtktcl
+package require vtk
 
 vtkImageCanvasSource2D s1
 s1 SetScalarTypeToFloat

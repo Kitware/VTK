@@ -1,5 +1,5 @@
 # append multiple displaced spheres into an RGB image.
-package require vtktcl
+package require vtk
 
 
 # Image pipeline

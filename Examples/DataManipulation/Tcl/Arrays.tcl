@@ -2,7 +2,8 @@
 # data as well as field data. It creates geometry (vtkPolyData) as
 # well as attribute data explicitly.
 
-package require vtktcl_interactor
+package require vtk
+package require vtkinteraction
 
 # Create a float array which represents the points.
 vtkFloatArray pcoords

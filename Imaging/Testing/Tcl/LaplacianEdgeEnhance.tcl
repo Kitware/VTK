@@ -1,4 +1,4 @@
-package require vtktcl
+package require vtk
 
 # This script subtracts the 2D laplacian from an image to enhance the edges.
 

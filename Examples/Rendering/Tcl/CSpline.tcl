@@ -2,13 +2,12 @@
 # It creates random points and connects them with a spline
 
 #
-# First we include the vtktcl package which will make available 
+# First we include the VTK Tcl packages which will make available 
 # all of the vtk commands to Tcl
 #
-package require vtktcl_interactor
-
-# Load the color definitions
-::vtktcl::load_script colors
+package require vtk
+package require vtkinteraction
+package require vtktesting
 
 # This will be used later to get random numbers.
 vtkMath math

@@ -1,4 +1,5 @@
-package require vtktcl
+package require vtk
+package require vtkinteraction
 
 # cut data
 vtkPLOT3DReader pl3d

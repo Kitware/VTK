@@ -1,4 +1,4 @@
-package require vtktcl
+package require vtk
 
 # A script to test the threshold filter.
 # Values above 2000 are set to 255.

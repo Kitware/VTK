@@ -1,7 +1,7 @@
 # Used for setting vertex values for clipping, cutting, and contouring tests
 
 
-package provide vtk 4.0
+package provide vtktesting 4.0
 
 proc case1 { scalars IN OUT } {
 $scalars InsertScalar 0 $IN

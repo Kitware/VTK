@@ -1,3 +1,5 @@
+package provide vtkinteraction 4.0
+
 proc BindTkImageViewer {widget} {
    # to avoid queing up multple expose events.
    SetWidgetVariableValue $widget Rendering 0

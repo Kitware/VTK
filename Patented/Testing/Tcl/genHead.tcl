@@ -1,5 +1,6 @@
-package require vtktcl_interactor
-::vtktcl::load_script colors
+package require vtk
+package require vtkinteraction
+package require vtktesting
 
 if {[catch {set channel [open fullHead.tri w]}] == 0 } {
    close $channel

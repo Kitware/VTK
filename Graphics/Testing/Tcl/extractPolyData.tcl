@@ -1,4 +1,5 @@
-package require vtktcl_interactor
+package require vtk
+package require vtkinteraction
 
 # Demonstrate how to extract polygonal cells with an implicit function
 # get the interactor ui

@@ -4,10 +4,10 @@
 # more information on the basics of the pipeline
 #
 #
-# First we include the vtktcl package which will make available 
+# First we include the VTK Tcl packages which will make available 
 # all of the vtk commands to Tcl
 #
-package require vtktcl
+package require vtk
 
 #
 # Here we define our callback

@@ -1,4 +1,5 @@
-package require vtktcl
+package require vtk
+package require vtkinteraction
 
 # demonstrate the use and manipulation of fields and use of 
 # vtkProgrammableDataObjectSource. This creates fields the hard way 

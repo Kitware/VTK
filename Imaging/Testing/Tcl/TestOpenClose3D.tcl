@@ -1,6 +1,6 @@
 # Tst the OpenClose3D filter.
 
-package require vtktcl
+package require vtk
 
 
 # Image pipeline

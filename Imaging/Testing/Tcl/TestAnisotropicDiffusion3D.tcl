@@ -1,4 +1,4 @@
-package require vtktcl
+package require vtk
 
 # Diffuses to 26 neighbors if difference is below threshold.
 

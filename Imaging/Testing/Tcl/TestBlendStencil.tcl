@@ -1,4 +1,4 @@
-package require vtktcl
+package require vtk
 
 # do alpha-blending of two images, but also clip with stencil
 

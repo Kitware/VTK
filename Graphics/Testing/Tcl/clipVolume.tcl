@@ -1,4 +1,5 @@
-package require vtktcl_interactor
+package require vtk
+package require vtkinteraction
 
 # Example demonstrates how to generate a 3D tetrahedra mesh from a volume
 #

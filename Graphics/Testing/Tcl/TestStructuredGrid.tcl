@@ -1,4 +1,5 @@
-package require vtktcl_interactor
+package require vtk
+package require vtkinteraction
 
 # Remove cullers so single vertex will render
 vtkRenderer ren1

@@ -1,4 +1,4 @@
-package require vtktcl
+package require vtk
 
 # This script shows the result of an ideal highpass filter in frequency space.
 

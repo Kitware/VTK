@@ -1,4 +1,5 @@
-package require vtktcl
+package require vtk
+package require vtkinteraction
 
 vtkPoints points
 points InsertNextPoint 0 -16 0 

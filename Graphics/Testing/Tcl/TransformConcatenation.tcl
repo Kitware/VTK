@@ -1,4 +1,4 @@
-package require vtktcl
+package require vtk
 
 # This example demonstrates how to set up flexible joints using 
 # the transformation pipeline and vtkTransformPolyDataFilter.

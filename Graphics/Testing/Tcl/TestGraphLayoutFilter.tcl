@@ -1,5 +1,6 @@
-package require vtktcl_interactor
-::vtktcl::load_script colors
+package require vtk
+package require vtkinteraction
+package require vtktesting
 
 # Create a simple graph (it's jittered from optimum)
 vtkPoints pts

@@ -1,4 +1,5 @@
-package require vtktcl
+package require vtk
+package require vtkinteraction
 
 set solidTexture "255  255"
 set clearTexture  "255  0"
