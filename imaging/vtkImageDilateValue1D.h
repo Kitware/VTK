@@ -63,33 +63,12 @@ public:
   vtkSetMacro(Value, float);
   vtkGetMacro(Value, float);
 
-  
-protected:
+  // users shouldn't access these directly but templated functions need to
   float Value;
   
+protected:
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 
-  // for templated function.
-  friend void vtkImageDilateValue1DExecute(
-			   vtkImageDilateValue1D *self,
-			   vtkImageRegion *inRegion, float *inPtr,
-			   vtkImageRegion *outRegion, float *outPtr);
-  friend void vtkImageDilateValue1DExecute(
-			   vtkImageDilateValue1D *self,
-			   vtkImageRegion *inRegion, int *inPtr,
-			   vtkImageRegion *outRegion, int *outPtr);
-  friend void vtkImageDilateValue1DExecute(
-			   vtkImageDilateValue1D *self,
-			   vtkImageRegion *inRegion, short *inPtr,
-			   vtkImageRegion *outRegion, short *outPtr);
-  friend void vtkImageDilateValue1DExecute(
-			   vtkImageDilateValue1D *self,
-			   vtkImageRegion *inRegion, unsigned short *inPtr,
-			   vtkImageRegion *outRegion, unsigned short *outPtr);
-  friend void vtkImageDilateValue1DExecute(
-			   vtkImageDilateValue1D *self,
-			   vtkImageRegion *inRegion, unsigned char *inPtr,
-			   vtkImageRegion *outRegion, unsigned char *outPtr);
 };
 
 #endif

@@ -184,7 +184,8 @@ void vtkImageVolumeShortWriter::Write(int *extent)
 // This function writes a slice into a file.
 template <class T>
 void vtkImageVolumeShortWriterWrite2D(vtkImageVolumeShortWriter *self,
-				      vtkImageRegion *region, T *ptr)
+				      vtkImageRegion *region, T *ptr,
+				      int Debug)
 {
   ofstream *file;
   int streamRowRead;
@@ -197,7 +198,7 @@ void vtkImageVolumeShortWriterWrite2D(vtkImageVolumeShortWriter *self,
   
   sprintf(self->FileName, "%s.%d", self->FileRoot, 
 	  extent[4] + self->First);
-  if (self->Debug)
+  if (Debug)
     {
     cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" 
 	 << self->GetClassName() << " (" << self << "): ";
@@ -274,19 +275,24 @@ void vtkImageVolumeShortWriter::Write2d(vtkImageRegion *region)
   switch (region->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImageVolumeShortWriterWrite2D(this, region, (float *)(ptr));
+      vtkImageVolumeShortWriterWrite2D(this, region, (float *)(ptr),
+				       this->Debug);
       break;
     case VTK_INT:
-      vtkImageVolumeShortWriterWrite2D(this, region, (int *)(ptr));
+      vtkImageVolumeShortWriterWrite2D(this, region, (int *)(ptr),
+				       this->Debug);
       break;
     case VTK_SHORT:
-      vtkImageVolumeShortWriterWrite2D(this, region, (short *)(ptr));
+      vtkImageVolumeShortWriterWrite2D(this, region, (short *)(ptr),
+				       this->Debug);
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImageVolumeShortWriterWrite2D(this, region, (unsigned short *)(ptr));
+      vtkImageVolumeShortWriterWrite2D(this, region, (unsigned short *)(ptr),
+				       this->Debug);
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImageVolumeShortWriterWrite2D(this, region, (unsigned char *)(ptr));
+      vtkImageVolumeShortWriterWrite2D(this, region, (unsigned char *)(ptr),
+				       this->Debug);
       break;
     default:
       vtkErrorMacro(<< "Write2d: Cannot handle data type.");

@@ -80,13 +80,13 @@ public:
   vtkGetMacro(UseExecuteCenter,int);
   vtkBooleanMacro(UseExecuteCenter,int);
   
-  
-protected:
+  // users shouldn't access these directly but templated functions need to
   int   KernelSize[VTK_IMAGE_DIMENSIONS];
   int   KernelMiddle[VTK_IMAGE_DIMENSIONS];      // Index of kernel origin
   int   HandleBoundaries;     // Shrink kernel at boundaries?
   int   UseExecuteCenter;     // Will the subclass have special execute method.
 
+protected:
   void ComputeOutputImageInformation(vtkImageRegion *inRegion,
 				     vtkImageRegion *outRegion);
   void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion, 

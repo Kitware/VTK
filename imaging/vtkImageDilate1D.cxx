@@ -182,7 +182,7 @@ vtkImageRegion *inRegion, T *inPtr,
 // This method is passed a input and output region, and executes the Conv1d
 // algorithm to fill the output from the input.
 void vtkImageDilate1D::Execute(vtkImageRegion *inRegion, 
-				       vtkImageRegion *outRegion)
+			       vtkImageRegion *outRegion)
 {
   void *inPtr, *outPtr;
 

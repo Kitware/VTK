@@ -62,27 +62,6 @@ protected:
   
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 
-  // for templated function.
-  friend void vtkImageDilate1DExecute(
-			   vtkImageDilate1D *self,
-			   vtkImageRegion *inRegion, float *inPtr,
-			   vtkImageRegion *outRegion, float *outPtr);
-  friend void vtkImageDilate1DExecute(
-			   vtkImageDilate1D *self,
-			   vtkImageRegion *inRegion, int *inPtr,
-			   vtkImageRegion *outRegion, int *outPtr);
-  friend void vtkImageDilate1DExecute(
-			   vtkImageDilate1D *self,
-			   vtkImageRegion *inRegion, short *inPtr,
-			   vtkImageRegion *outRegion, short *outPtr);
-  friend void vtkImageDilate1DExecute(
-			   vtkImageDilate1D *self,
-			   vtkImageRegion *inRegion, unsigned short *inPtr,
-			   vtkImageRegion *outRegion, unsigned short *outPtr);
-  friend void vtkImageDilate1DExecute(
-			   vtkImageDilate1D *self,
-			   vtkImageRegion *inRegion, unsigned char *inPtr,
-			   vtkImageRegion *outRegion, unsigned char *outPtr);
 };
 
 #endif

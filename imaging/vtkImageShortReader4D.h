@@ -106,47 +106,30 @@ public:
   // Get the size of the header computed by this object.
   vtkGetMacro(HeaderSize, int);
   
-  // Templated function that reads into different data types.
-  friend void vtkImageShortReader4DGenerateRegion(
-			     vtkImageShortReader4D *self,
-			     vtkImageRegion *region, float *ptr);
-  friend void vtkImageShortReader4DGenerateRegion(
-			     vtkImageShortReader4D *self,
-			     vtkImageRegion *region, int *ptr);
-  friend void vtkImageShortReader4DGenerateRegion(
-			     vtkImageShortReader4D *self,
-			     vtkImageRegion *region, short *ptr);
-  friend void vtkImageShortReader4DGenerateRegion(
-			     vtkImageShortReader4D *self,
-			     vtkImageRegion *region, unsigned short *ptr);
-  friend void vtkImageShortReader4DGenerateRegion(
-			     vtkImageShortReader4D *self,
-			     vtkImageRegion *region, unsigned char *ptr);
+  // only public for templated functions
+  ifstream *File;
+  int FileSize;
+  int HeaderSize;
+  int Signed;
+  int SwapBytes;
+  unsigned short PixelMask;   // Mask each pixel with
+  // Reader keeps track of the min and max for convenience.
+  double PixelMin;
+  double PixelMax;
+  // For seeking to the correct location in the files.
+  int Increments[4];
   
 protected:
   int Initialized;
   char *FilePrefix;
   char *FilePattern;
   char *FileName;
-  ifstream *File;
-  int FileSize;
-  int HeaderSize;
-  int Signed;
-  int SwapBytes;
   int Dimensions[4];
   float AspectRatio[4];
   float Origin[4];
   
-  // For seeking to the correct location in the files.
-  int Increments[4];
   // The first image has this number
   int First;
-  // Mask each pixel with
-  unsigned short PixelMask;
-
-  // Reader keeps track of the min and max for convenience.
-  double PixelMin;
-  double PixelMax;
 
   void Initialize();
   void UpdatePointData(vtkImageRegion *outRegion);    

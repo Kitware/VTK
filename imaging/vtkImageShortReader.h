@@ -99,7 +99,8 @@ public:
   // Description:
   // Set/Get the pixel mask
   vtkGetMacro(PixelMask,unsigned short);
-  void SetPixelMask(int val) {this->PixelMask = ((unsigned short)(val)); this->Modified();};
+  void SetPixelMask(int val) 
+  {this->PixelMask = ((unsigned short)(val)); this->Modified();};
   
   // Description:
   // Set/Get the Signed flag
@@ -117,47 +118,30 @@ public:
   // Get the size of the header computed by this object.
   vtkGetMacro(HeaderSize, int);
   
-  // Templated function that reads into different data types.
-  friend void vtkImageShortReaderGenerateRegion(
-			     vtkImageShortReader *self,
-			     vtkImageRegion *region, float *ptr);
-  friend void vtkImageShortReaderGenerateRegion(
-			     vtkImageShortReader *self,
-			     vtkImageRegion *region, int *ptr);
-  friend void vtkImageShortReaderGenerateRegion(
-			     vtkImageShortReader *self,
-			     vtkImageRegion *region, short *ptr);
-  friend void vtkImageShortReaderGenerateRegion(
-			     vtkImageShortReader *self,
-			     vtkImageRegion *region, unsigned short *ptr);
-  friend void vtkImageShortReaderGenerateRegion(
-			     vtkImageShortReader *self,
-			     vtkImageRegion *region, unsigned char *ptr);
-  
-protected:
-  int Initialized;
-  char *FilePrefix;
-  char *FilePattern;
-  char *FileName;
+  // following should only be used by methods or template helpers, not users
   ifstream *File;
   int FileSize;
   int HeaderSize;
   int Signed;
   int SwapBytes;
+  unsigned short PixelMask;  // Mask each pixel with
+  // Reader keeps track of the min and max for convenience.
+  double PixelMin;
+  double PixelMax;
+  // For seeking to the correct location in the files.
+  int Increments[VTK_IMAGE_DIMENSIONS];
+
+protected:
+  int Initialized;
+  char *FilePrefix;
+  char *FilePattern;
+  char *FileName;
   int Dimensions[VTK_IMAGE_DIMENSIONS];
   float AspectRatio[VTK_IMAGE_DIMENSIONS];
   float Origin[VTK_IMAGE_DIMENSIONS];
   
-  // For seeking to the correct location in the files.
-  int Increments[VTK_IMAGE_DIMENSIONS];
   // The first image file has this index
   int First;
-  // Mask each pixel with
-  unsigned short PixelMask;
-
-  // Reader keeps track of the min and max for convenience.
-  double PixelMin;
-  double PixelMax;
 
   void Initialize();
   void UpdatePointData(vtkImageRegion *outRegion);    

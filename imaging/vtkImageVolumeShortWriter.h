@@ -87,29 +87,17 @@ public:
   vtkSetObjectMacro(Input,vtkImageSource);
   vtkGetObjectMacro(Input,vtkImageSource);
   
-protected:
-  // Get you input from this source
-  vtkImageSource *Input;
   // Enumeration of image files start with this value (i.e. 0 or 1)
+  // only public for the template functions
   int First;
-  
-  friend void vtkImageVolumeShortWriterWrite2D(vtkImageVolumeShortWriter *self,
-			       vtkImageRegion *region, float *ptr);
-  friend void vtkImageVolumeShortWriterWrite2D(vtkImageVolumeShortWriter *self,
-			       vtkImageRegion *region, int *ptr);
-  friend void vtkImageVolumeShortWriterWrite2D(vtkImageVolumeShortWriter *self,
-			       vtkImageRegion *region, short *ptr);
-  friend void vtkImageVolumeShortWriterWrite2D(vtkImageVolumeShortWriter *self,
-			       vtkImageRegion *region, unsigned short *ptr);
-  friend void vtkImageVolumeShortWriterWrite2D(vtkImageVolumeShortWriter *self,
-			       vtkImageRegion *region, unsigned char *ptr);
-  
-  
-protected:
   char *FileRoot;
   char *FileName;
   int Signed;
   int SwapBytes;
+
+protected:
+  // Get you input from this source
+  vtkImageSource *Input;
   
   void Write2d(vtkImageRegion *region);  
 };

@@ -69,34 +69,13 @@ public:
   vtkGetMacro(BoundaryRescale,int);
   vtkBooleanMacro(BoundaryRescale,int);
 
-protected:
+  // users shouldn't access these directly but templated functions need to
   float *Kernel;
   float *BoundaryFactors;     // Used to scale boundary-truncated kernel
   int   BoundaryRescale;  // Kernel is rescaled at boundaries
 
+protected:
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-  
-  // for templated function.
-  friend void vtkImageConvolution1DExecute(
-			   vtkImageConvolution1D *self,
-			   vtkImageRegion *inRegion, float *inPtr,
-			   vtkImageRegion *outRegion, float *outPtr);
-  friend void vtkImageConvolution1DExecute(
-			   vtkImageConvolution1D *self,
-			   vtkImageRegion *inRegion, int *inPtr,
-			   vtkImageRegion *outRegion, int *outPtr);
-  friend void vtkImageConvolution1DExecute(
-			   vtkImageConvolution1D *self,
-			   vtkImageRegion *inRegion, short *inPtr,
-			   vtkImageRegion *outRegion, short *outPtr);
-  friend void vtkImageConvolution1DExecute(
-			   vtkImageConvolution1D *self,
-			   vtkImageRegion *inRegion, unsigned short *inPtr,
-			   vtkImageRegion *outRegion, unsigned short *outPtr);
-  friend void vtkImageConvolution1DExecute(
-			   vtkImageConvolution1D *self,
-			   vtkImageRegion *inRegion, unsigned char *inPtr,
-			   vtkImageRegion *outRegion, unsigned char *outPtr);
   
 };
 
