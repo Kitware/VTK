@@ -26,6 +26,7 @@ vtkImageTwoInputFilter
 vtkInterpolatingSubdivisionFilter
 vtkMaskPoints
 vtkMergePoints
+vtkMergePoints2D 
 vtkOutlineFilter
 vtkOutlineSource
 vtkPiecewiseFunction

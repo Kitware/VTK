@@ -73,7 +73,6 @@ vtkMath
 vtkMatrix4x4 
 vtkMatrixToHomogeneousTransform 
 vtkMatrixToLinearTransform 
-vtkMergePoints2D 
 vtkMultiThreader 
 vtkMutexLock 
 vtkNormals 
