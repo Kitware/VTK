@@ -84,8 +84,8 @@ int vtkWin32PolyDataMapper2D::GetCompositingMode(vtkActor2D* actor)
 }
 
 
-void vtkWin32PolyDataMapper2D::RenderPostSwap(vtkViewport* viewport, 
-					      vtkActor2D* actor)
+void vtkWin32PolyDataMapper2D::RenderOverlay(vtkViewport* viewport, 
+					     vtkActor2D* actor)
 {
   int numPts;
   vtkPolyData *input= (vtkPolyData *)this->Input;
