@@ -112,14 +112,17 @@ SOURCE=.\pcmaker.cpp
 # Begin Source File
 
 SOURCE=.\pcmaker.rc
+
+!IF  "$(CFG)" == "pcmaker - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "pcmaker - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=.\pcmakerDlg.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\ReadMe.txt
 # End Source File
 # Begin Source File
 
