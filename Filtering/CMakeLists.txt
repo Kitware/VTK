@@ -61,6 +61,9 @@ vtkGenericCell.cxx
 vtkGenericCellIterator.cxx
 vtkGenericCellTessellator.cxx
 vtkGenericDataSet.cxx
+vtkGenericDataSetSource.cxx
+vtkGenericDataSetToPolyDataFilter.cxx
+vtkGenericDataSetToUnstructuredGridFilter.cxx
 vtkGenericEdgeTable.cxx
 vtkGenericPointIterator.cxx
 vtkGenericSubdivisionErrorMetric.cxx
@@ -201,8 +204,11 @@ vtkExecutive
 vtkExplicitCell
 vtkGenericAdaptorCell
 vtkGenericAttribute
-vtkGenericDataSet
 vtkGenericCellIterator
+vtkGenericDataSet
+vtkGenericDataSetSource
+vtkGenericDataSetToUnstructuredGridFilter
+vtkGenericDataSetToPolyDataFilter
 vtkGenericPointIterator
 vtkHierarchicalBoxSource
 vtkHierarchicalBoxToHierarchicalBoxFilter
