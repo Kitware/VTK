@@ -39,7 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkImageRegion.h"
+#include "vtkImageCache.h"
 #include "vtkImageLogarithmicScale.h"
 
 
@@ -49,63 +49,73 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Constructor sets default values
 vtkImageLogarithmicScale::vtkImageLogarithmicScale()
 {
-  // For better performance, the execute function was written as a 2d.
-  this->NumberOfExecutionAxes = 2;
   this->Constant = 10.0;
 }
-
-
 
 //----------------------------------------------------------------------------
 // Description:
 // This templated function executes the filter for any type of data.
 template <class T>
 static void vtkImageLogarithmicScaleExecute(vtkImageLogarithmicScale *self,
-					 vtkImageRegion *inRegion, T *inPtr,
-					 vtkImageRegion *outRegion, T *outPtr)
+					    vtkImageData *inData, T *inPtr,
+					    vtkImageData *outData, T *outPtr, 
+					    int outExt[6], int id)
 {
-  int min0, max0, min1, max1;
-  int idx0, idx1;
-  int inInc0, inInc1;
-  int outInc0, outInc1;
-  T *inPtr0, *inPtr1;
-  T *outPtr0, *outPtr1;
-  float c = self->GetConstant();
+  int idxR, idxY, idxZ;
+  int maxY, maxZ;
+  int inIncX, inIncY, inIncZ;
+  int outIncX, outIncY, outIncZ;
+  int rowLength;
+  unsigned long count = 0;
+  unsigned long target;
+  float c;
+
+  c = self->GetConstant();
+
+  // find the region to loop over
+  rowLength = (outExt[1] - outExt[0]+1)*inData->GetNumberOfScalarComponents();
+  maxY = outExt[3] - outExt[2]; 
+  maxZ = outExt[5] - outExt[4];
+  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
+  target++;
   
-  // Get information to march through data 
-  inRegion->GetIncrements(inInc0, inInc1);
-  outRegion->GetIncrements(outInc0, outInc1);
-  outRegion->GetExtent(min0, max0, min1, max1);
+  // Get increments to march through data 
+  inData->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
+  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
   // Loop through ouput pixels
-  inPtr1 = inPtr;
-  outPtr1 = outPtr;
-  for (idx1 = min1; idx1 <= max1; ++idx1)
+  for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
-    outPtr0 = outPtr1;
-    inPtr0 = inPtr1;
-    for (idx0 = min0; idx0 <= max0; ++idx0)
+    for (idxY = 0; idxY <= maxY; idxY++)
       {
-      
-      // Pixel operation
-      if (*inPtr0 > 0)
+      if (!id) 
 	{
-	*outPtr0 = (T)(c*log((double)(*inPtr0)+1.0));
+	if (!(count%target)) self->UpdateProgress(count/(50.0*target));
+	count++;
 	}
-      else
+      for (idxR = 0; idxR < rowLength; idxR++)
 	{
-	*outPtr0 = (T)(-c*log(1.0-(double)(*inPtr0)));
-	}
-      
-      outPtr0 += outInc0;
-      inPtr0 += inInc0;
-      }
-    outPtr1 += outInc1;
-    inPtr1 += inInc1;
-    }
-  
-}
 
+	// Pixel operation
+	if (*inPtr > 0)
+	  {
+	  *outPtr = (T)(c*log((double)(*inPtr)+1.0));
+	  }
+	else
+	  {
+	  *outPtr = (T)(-c*log(1.0-(double)(*inPtr)));
+	  }
+
+	outPtr++;
+	inPtr++;
+	}
+      outPtr += outIncY;
+      inPtr += inIncY;
+      }
+    outPtr += outIncZ;
+    inPtr += inIncZ;
+    }
+}
 
 
 //----------------------------------------------------------------------------
@@ -114,55 +124,57 @@ static void vtkImageLogarithmicScaleExecute(vtkImageLogarithmicScale *self,
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for
 // the regions data types.
-void vtkImageLogarithmicScale::Execute(vtkImageRegion *inRegion, 
-					     vtkImageRegion *outRegion)
+void vtkImageLogarithmicScale::ThreadedExecute(vtkImageData *inData, 
+					vtkImageData *outData,
+					int outExt[6], int id)
 {
-  void *inPtr = inRegion->GetScalarPointer();
-  void *outPtr = outRegion->GetScalarPointer();
+  void *inPtr = inData->GetScalarPointerForExtent(outExt);
+  void *outPtr = outData->GetScalarPointerForExtent(outExt);
   
-  vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
-		<< ", outRegion = " << outRegion);
+  vtkDebugMacro(<< "Execute: inData = " << inData 
+    << ", outData = " << outData);
   
   // this filter expects that input is the same type as output.
-  if (inRegion->GetScalarType() != outRegion->GetScalarType())
+  if (inData->GetScalarType() != outData->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input ScalarType, " << inRegion->GetScalarType()
-                  << ", must match out ScalarType " << outRegion->GetScalarType());
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
+                << ", must match out ScalarType " << outData->GetScalarType());
     return;
     }
   
-  switch (inRegion->GetScalarType())
+  switch (inData->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImageLogarithmicScaleExecute(this, 
-			  inRegion, (float *)(inPtr), 
-			  outRegion, (float *)(outPtr));
+      vtkImageLogarithmicScaleExecute(this, inData, (float *)(inPtr), 
+			       outData, (float *)(outPtr),outExt, id);
       break;
     case VTK_INT:
-      vtkImageLogarithmicScaleExecute(this, 
-			  inRegion, (int *)(inPtr), 
-			  outRegion, (int *)(outPtr));
+      vtkImageLogarithmicScaleExecute(this, inData, (int *)(inPtr), 
+			       outData, (int *)(outPtr),outExt, id);
       break;
     case VTK_SHORT:
-      vtkImageLogarithmicScaleExecute(this, 
-			  inRegion, (short *)(inPtr), 
-			  outRegion, (short *)(outPtr));
+      vtkImageLogarithmicScaleExecute(this, inData, (short *)(inPtr), 
+			       outData, (short *)(outPtr),outExt, id);
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImageLogarithmicScaleExecute(this, 
-			  inRegion, (unsigned short *)(inPtr), 
-			  outRegion, (unsigned short *)(outPtr));
+      vtkImageLogarithmicScaleExecute(this, inData, 
+			       (unsigned short *)(inPtr), 
+			       outData, (unsigned short *)(outPtr),outExt, id);
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImageLogarithmicScaleExecute(this, 
-			  inRegion, (unsigned char *)(inPtr), 
-			  outRegion, (unsigned char *)(outPtr));
+      vtkImageLogarithmicScaleExecute(this, inData, 
+			       (unsigned char *)(inPtr), 
+			       outData, (unsigned char *)(outPtr),outExt, id);
       break;
     default:
-      vtkErrorMacro(<< "Execute: Unknown ScalarType");
+      vtkErrorMacro(<< "Execute: Unknown input ScalarType");
       return;
     }
 }
+
+
+
+
 
 
 

@@ -40,34 +40,39 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkImageSkeleton2D - Skeleton of 2D images.
 // .SECTION Description
-// vtkImageSkeleton2D leaves only single pixel width lines
+// vtkImageSkeleton2D should leave only single pixel width lines
 // of non-zero-valued pixels.  Input scalar type has to be the same as output.
+// This is my first attempt at a skeleton, and may not work entirely correctly.
 
 
 #ifndef __vtkImageSkeleton2D_h
 #define __vtkImageSkeleton2D_h
 
-#include "vtkImageSpatialFilter.h"
+#include "vtkImageIterateFilter.h"
 
-class VTK_EXPORT vtkImageSkeleton2D : public vtkImageSpatialFilter
+class VTK_EXPORT vtkImageSkeleton2D : public vtkImageIterateFilter
 {
 public:
   vtkImageSkeleton2D();
   static vtkImageSkeleton2D *New() {return new vtkImageSkeleton2D;};
   const char *GetClassName() {return "vtkImageSkeleton2D";};
 
-  void SetFilteredAxes(int axis0, int axis1);
-
   // Description:
   // When prune is on, only closed loops are left un changed.
   vtkSetMacro(Prune,int);
   vtkGetMacro(Prune,int);
   vtkBooleanMacro(Prune,int);
+
+  // Description:
+  // Sets the number of cycles in the errosion.
+  void SetNumberOfIterations(int num);
   
 protected:
   int Prune;
 
-  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void ComputeRequiredInputUpdateExtent(int *extent, int *wholeExtent);
+  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
+		       int outExt[6], int id);
 };
 
 #endif

@@ -65,7 +65,8 @@ public:
 protected:
   float Constant;
   
-  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
+		       int outExt[6], int id);
 };
 
 #endif

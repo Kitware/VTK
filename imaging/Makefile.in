@@ -67,6 +67,7 @@ vtkImageIdealHighPass \
 vtkImageIdealLowPass \
 vtkImageIslandRemoval2D \
 vtkImageLaplacian \
+vtkImageLogarithmicScale \
 vtkImageLogic \
 vtkImageLuminance \
 vtkImageMagnify \
@@ -78,6 +79,7 @@ vtkImageMedian3D \
 vtkImageMirrorPad \
 vtkImageNoiseSource \
 vtkImageNonMaximumSuppression \
+vtkImageOpenClose3D \
 vtkImagePermute \
 vtkImager \
 vtkImageReader \
@@ -89,6 +91,7 @@ vtkImageSeedConnectivity \
 vtkImageShiftScale \
 vtkImageShrink3D \
 vtkImageSinusoidSource \
+vtkImageSkeleton2D \
 vtkImageSobel2D \
 vtkImageSobel3D \
 vtkImageStaticCache \
@@ -114,10 +117,7 @@ vtkXTextMapper
 #vtkImageHistogram \
 #vtkImageHistogramEqualization \
 
-#vtkImageLogarithmicScale \
 #vtkImageMIPFilter \
-#vtkImageOpenClose3D \
-#vtkImageSkeleton2D \
 #vtkImageSubsample3D \
 
 

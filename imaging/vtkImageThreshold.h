@@ -89,6 +89,16 @@ public:
   vtkGetMacro(UpperThreshold, float);
   vtkGetMacro(LowerThreshold, float);
   
+  vtkSetMacro(OutputScalarType, int);
+  vtkGetMacro(OutputScalarType, int);
+  void SetOutputScalarTypeToFloat() {this->SetOutputScalarType(VTK_FLOAT);}
+  void SetOutputScalarTypeToInt() {this->SetOutputScalarType(VTK_INT);}
+  void SetOutputScalarTypeToShort() {this->SetOutputScalarType(VTK_SHORT);}
+  void SetOutputScalarTypeToUnsignedShort() 
+    {this->SetOutputScalarType(VTK_UNSIGNED_SHORT);}
+  void SetOutputScalarTypeToUnsignedChar() 
+    {this->SetOutputScalarType(VTK_UNSIGNED_CHAR);}
+
 protected:
   float UpperThreshold;
   float LowerThreshold;
@@ -97,6 +107,9 @@ protected:
   int ReplaceOut;
   float OutValue;
 
+  int OutputScalarType;
+
+  void ExecuteImageInformation();
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
 		       int extent[6], int id);
 };

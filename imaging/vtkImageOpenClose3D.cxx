@@ -39,7 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include<math.h>
-#include "vtkImageRegion.h"
+#include "vtkImageData.h"
 #include "vtkImageCache.h"
 #include "vtkImageOpenClose3D.h"
 
@@ -239,26 +239,6 @@ void vtkImageOpenClose3D::SetInput(vtkImageCache *input)
   this->Filter1->SetInput(this->Filter0->GetOutput());
 }
 
-
-
-//----------------------------------------------------------------------------
-// Description:
-// Set the plane of the smoothing.
-void vtkImageOpenClose3D::SetFilteredAxes(int axis0, int axis1, int axis2)
-{
-  vtkDebugMacro(<< "SetAxes: axis0 = " << axis0 << ", axis1 = " << axis1
-                << ", axis2 = " << axis2);
-
-  if ( ! this->Filter0 || ! this->Filter1)
-    {
-    vtkErrorMacro(<< "SetAxes: Sub filter not created yet.");
-    return;
-    }
-  
-  this->Filter0->SetFilteredAxes(axis0, axis1, axis2);
-  this->Filter1->SetFilteredAxes(axis0, axis1, axis2);
-  this->Modified();
-}
 
 
 

@@ -83,7 +83,7 @@ protected:
   // is called SetNumberOfIterations()
   vtkImageCache **IterationCaches;
   
-  void SetNumberOfIterations(int num);
+  virtual void SetNumberOfIterations(int num);
   void IterateExecute(vtkImageData *inData, vtkImageData *outData);
   void IterateRequiredInputUpdateExtent();
 };

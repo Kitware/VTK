@@ -77,7 +77,6 @@ public:
   vtkImageCache *GetOutput();
   unsigned long GetPipelineMTime();
   // Foward filter messages
-  void SetFilteredAxes(int axis0, int axis1, int axis2);
   void SetInput(vtkImageCache *Input);
   void SetInput(vtkStructuredPoints *spts)
     {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}
