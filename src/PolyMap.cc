@@ -92,14 +92,6 @@ void vlPolyMapper::Render(vlRenderer *ren)
   if ( ! this->LookupTable ) this->LookupTable = new vlLookupTable;
   this->LookupTable->Build();
 
-  if ( ! this->Polys )
-    {
-    forceBuild = 1;
-    this->Verts = ren->GetPrimitive("points");
-    this->Lines = ren->GetPrimitive("lines");
-    this->Polys = ren->GetPrimitive("polygons");
-    this->Strips = ren->GetPrimitive("triangle_strips");
-    }
 //
 // Now send data down to primitives and draw it
 //
@@ -125,20 +117,48 @@ void vlPolyMapper::Render(vlRenderer *ren)
       {
       colors = 0;
       }
-//
-//  Cause primitives to build themselves
-//
-    this->Verts->Build(this->Input,colors);
-    this->Lines->Build(this->Input,colors);
-    this->Polys->Build(this->Input,colors);
-    this->Strips->Build(this->Input,colors);
+
+    if (this->VertsVisibility && this->Input->NumberOfVerts())
+      {
+      if (!this->Verts) this->Verts = ren->GetPrimitive("points");
+      this->Verts->Build(this->Input,colors);
+      }
+    if ( this->LinesVisibility && this->Input->NumberOfLines())
+      {
+      if (!this->Lines) this->Lines = ren->GetPrimitive("lines");
+      this->Lines->Build(this->Input,colors);
+      }
+    if ( this->PolysVisibility && this->Input->NumberOfPolys())
+      {
+      if (!this->Polys) this->Polys = ren->GetPrimitive("polygons");
+      this->Polys->Build(this->Input,colors);
+      }
+    if ( this->StripsVisibility && this->Input->NumberOfStrips())
+      {
+      if (!this->Strips) this->Strips = ren->GetPrimitive("triangle_strips");
+      this->Strips->Build(this->Input,colors);
+      }
+
     this->BuildTime.Modified();
     }
 
-  if ( this->VertsVisibility ) this->Verts->Draw(ren);
-  if ( this->LinesVisibility ) this->Lines->Draw(ren);
-  if ( this->PolysVisibility ) this->Polys->Draw(ren);
-  if ( this->StripsVisibility ) this->Strips->Draw(ren);
+  // draw the primitives
+  if (this->VertsVisibility && this->Input->NumberOfVerts())
+    {
+    this->Verts->Draw(ren);
+    }
+  if ( this->LinesVisibility && this->Input->NumberOfLines())
+    {
+    this->Lines->Draw(ren);
+    }
+  if ( this->PolysVisibility && this->Input->NumberOfPolys())
+    {
+    this->Polys->Draw(ren);
+    }
+  if ( this->StripsVisibility && this->Input->NumberOfStrips())
+    {
+    this->Strips->Draw(ren);
+    }
 
 }
 
