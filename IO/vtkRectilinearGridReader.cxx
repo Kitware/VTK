@@ -332,17 +332,17 @@ void vtkRectilinearGridReader::Execute()
 
       if ( !dimsRead ) vtkWarningMacro(<<"No dimensions read.");
       if ( !output->GetXCoordinates() || 
-      output->GetXCoordinates()->GetNumberOfScalars() < 1 )
+      output->GetXCoordinates()->GetNumberOfTuples() < 1 )
         {
         vtkWarningMacro(<<"No x coordinatess read.");
         }
       if ( !output->GetYCoordinates() || 
-      output->GetYCoordinates()->GetNumberOfScalars() < 1 )
+      output->GetYCoordinates()->GetNumberOfTuples() < 1 )
         {
         vtkWarningMacro(<<"No y coordinates read.");
         }
       if ( !output->GetZCoordinates() || 
-      output->GetZCoordinates()->GetNumberOfScalars() < 1 )
+      output->GetZCoordinates()->GetNumberOfTuples() < 1 )
         {
         vtkWarningMacro(<<"No z coordinates read.");
         }

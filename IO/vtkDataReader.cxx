@@ -1088,7 +1088,6 @@ int vtkDataReader::ReadCoordinates(vtkRectilinearGrid *rg, int axes,
                                    int numCoords)
 {
   char line[256];
-  vtkScalars *coords;
   vtkDataArray *data;
 
   if (!this->ReadString(line)) 
@@ -1099,34 +1098,27 @@ int vtkDataReader::ReadCoordinates(vtkRectilinearGrid *rg, int axes,
     }
 
   data = this->ReadArray(line, numCoords, 1);
-  if ( data != NULL )
-    {
-    coords=vtkScalars::New();
-    coords->SetData(data);
-    data->Delete();
-    }
-  else
+  if ( !data  )
     {
     return 0;
     }
 
   if ( axes == 0 )
     {
-    rg->SetXCoordinates(coords);
+    rg->SetXCoordinates(data);
     }
   else if ( axes == 1 )
     {
-    rg->SetYCoordinates(coords);
+    rg->SetYCoordinates(data);
     }
   else
     {
-    rg->SetZCoordinates(coords);
+    rg->SetZCoordinates(data);
     }
 
 
-  coords->Delete();
 
-  vtkDebugMacro(<<"Read " << coords->GetNumberOfScalars() << " coordinates");
+  vtkDebugMacro(<<"Read " << data->GetNumberOfTuples() << " coordinates");
   float progress = this->GetProgress();
   this->UpdateProgress(progress + 0.5*(1.0 - progress));
 

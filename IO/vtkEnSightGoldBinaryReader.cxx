@@ -1661,9 +1661,9 @@ int vtkEnSightGoldBinaryReader::CreateRectilinearGridOutput(int partId,
   int iblanked = 0;
   int dimensions[3];
   int i;
-  vtkScalars *xCoords = vtkScalars::New();
-  vtkScalars *yCoords = vtkScalars::New();
-  vtkScalars *zCoords = vtkScalars::New();
+  vtkFloatArray *xCoords = vtkFloatArray::New();
+  vtkFloatArray *yCoords = vtkFloatArray::New();
+  vtkFloatArray *zCoords = vtkFloatArray::New();
   float *tempCoords;
   int numPts;
   
@@ -1696,21 +1696,21 @@ int vtkEnSightGoldBinaryReader::CreateRectilinearGridOutput(int partId,
   this->ReadFloatArray(tempCoords, dimensions[0]);
   for (i = 0; i < dimensions[0]; i++)
     {
-    xCoords->InsertNextScalar(tempCoords[i]);
+    xCoords->InsertNextTuple(&tempCoords[i]);
     }
   delete [] tempCoords;
   tempCoords = new float[dimensions[1]];
   this->ReadFloatArray(tempCoords, dimensions[1]);
   for (i = 0; i < dimensions[1]; i++)
     {
-    yCoords->InsertNextScalar(tempCoords[i]);
+    yCoords->InsertNextTuple(&tempCoords[i]);
     }
   delete [] tempCoords;
   tempCoords = new float[dimensions[2]];
   this->ReadFloatArray(tempCoords, dimensions[2]);
   for (i = 0; i < dimensions[2]; i++)
     {
-    zCoords->InsertNextScalar(tempCoords[i]);
+    zCoords->InsertNextTuple(&tempCoords[i]);
     }
   delete [] tempCoords;
   if (iblanked)

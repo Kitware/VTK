@@ -45,6 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImplicitFunction.h"
 #include "vtkContourValues.h"
 #include "vtkObjectFactory.h"
+#include "vtkFloatArray.h"
 
 //---------------------------------------------------------------------------
 vtkCutter* vtkCutter::New()
@@ -117,7 +118,7 @@ void vtkCutter::Execute()
   vtkGenericCell *cell;
   vtkCellArray *newVerts, *newLines, *newPolys;
   vtkPoints *newPoints;
-  vtkScalars *cutScalars;
+  vtkFloatArray *cutScalars;
   float value, s;
   vtkPolyData *output = this->GetOutput();
   vtkDataSet *input=this->GetInput();
@@ -162,8 +163,8 @@ void vtkCutter::Execute()
   newLines->Allocate(estimatedSize,estimatedSize/2);
   newPolys = vtkCellArray::New();
   newPolys->Allocate(estimatedSize,estimatedSize/2);
-  cutScalars = vtkScalars::New();
-  cutScalars->SetNumberOfScalars(numPts);
+  cutScalars = vtkFloatArray::New();
+  cutScalars->SetNumberOfTuples(numPts);
 
   // Interpolate data along edge. If generating cut scalars, do necessary setup
   if ( this->GenerateCutScalars )
@@ -192,7 +193,7 @@ void vtkCutter::Execute()
   for ( i=0; i < numPts; i++ )
     {
     s = this->CutFunction->FunctionValue(input->GetPoint(i));
-    cutScalars->SetScalar(i,s);
+    cutScalars->SetComponent(i,s);
     }
 
   // Compute some information for progress methods
@@ -229,7 +230,7 @@ void vtkCutter::Execute()
         cellScalars->SetNumberOfScalars(numCellPts);
         for (i=0; i < numCellPts; i++)
           {
-          s = cutScalars->GetScalar(cellIds->GetId(i));
+          s = cutScalars->GetComponent(cellIds->GetId(i));
           cellScalars->SetScalar(i,s);
           }
 
@@ -257,7 +258,7 @@ void vtkCutter::Execute()
       cellScalars->SetNumberOfScalars(numCellPts);
       for (i=0; i < numCellPts; i++)
         {
-        s = cutScalars->GetScalar(cellIds->GetId(i));
+        s = cutScalars->GetComponent(cellIds->GetId(i));
         cellScalars->SetScalar(i,s);
         }
 

@@ -686,9 +686,9 @@ int vtkDataObjectToDataSetFilter::ConstructPoints(vtkRectilinearGrid *rg)
   npts = nXpts * nYpts * nZpts;
   
   // Create the coordinate arrays
-  vtkScalars *XPts = vtkScalars::New();
-  vtkScalars *YPts = vtkScalars::New();
-  vtkScalars *ZPts = vtkScalars::New();
+  vtkDataArray *XPts;
+  vtkDataArray *YPts;
+  vtkDataArray *ZPts;
 
   // Decide whether to use the field array or whether to copy data
   // First look at the x-coordinates
@@ -696,16 +696,18 @@ int vtkDataObjectToDataSetFilter::ConstructPoints(vtkRectilinearGrid *rg)
        fieldArray[0]->GetNumberOfTuples() == nXpts &&
        !this->PointNormalize[0] )
     {
-    XPts->SetData(fieldArray[0]);
+    XPts = fieldArray[0];
+    XPts->Register(this);
     }
   else //have to copy data into created array
     {
-    XPts->SetDataType(vtkFieldDataToAttributeDataFilter::GetComponentsType(1, fieldArray));
-    XPts->SetNumberOfScalars(nXpts);
+    XPts = vtkDataArray::CreateDataArray(
+      vtkFieldDataToAttributeDataFilter::GetComponentsType(1, fieldArray));
     XPts->SetNumberOfComponents(1);
+    XPts->SetNumberOfTuples(nXpts);
 
     if ( vtkFieldDataToAttributeDataFilter::ConstructArray(
-      XPts->GetData(), 0, fieldArray[0], this->PointArrayComponents[0],
+      XPts, 0, fieldArray[0], this->PointArrayComponents[0],
       this->PointComponentRange[0][0],
       this->PointComponentRange[0][1],
       this->PointNormalize[0]) == 0 )
@@ -720,16 +722,18 @@ int vtkDataObjectToDataSetFilter::ConstructPoints(vtkRectilinearGrid *rg)
        fieldArray[1]->GetNumberOfTuples() == nYpts &&
        !this->PointNormalize[1] )
     {
-    YPts->SetData(fieldArray[1]);
+    YPts = fieldArray[1];
+    YPts->Register(this);
     }
   else //have to copy data into created array
     {
-    YPts->SetDataType(vtkFieldDataToAttributeDataFilter::GetComponentsType(1, fieldArray+1));
-    YPts->SetNumberOfScalars(nYpts);
+    YPts = vtkDataArray::CreateDataArray(
+      vtkFieldDataToAttributeDataFilter::GetComponentsType(1, fieldArray+1));
     YPts->SetNumberOfComponents(1);
+    YPts->SetNumberOfTuples(nYpts);
 
     if ( vtkFieldDataToAttributeDataFilter::ConstructArray(
-      YPts->GetData(), 0, fieldArray[1], this->PointArrayComponents[1],
+      YPts, 0, fieldArray[1], this->PointArrayComponents[1],
       this->PointComponentRange[1][0],
       this->PointComponentRange[1][1],
       this->PointNormalize[1]) == 0 )
@@ -744,16 +748,18 @@ int vtkDataObjectToDataSetFilter::ConstructPoints(vtkRectilinearGrid *rg)
        fieldArray[2]->GetNumberOfTuples() == nZpts &&
        !this->PointNormalize[2] )
     {
-    ZPts->SetData(fieldArray[2]);
+    ZPts = fieldArray[2];
+    ZPts->Register(this);
     }
   else //have to copy data into created array
     {
-    ZPts->SetDataType(vtkFieldDataToAttributeDataFilter::GetComponentsType(1, fieldArray+2));
-    ZPts->SetNumberOfScalars(nZpts);
+    ZPts = vtkDataArray::CreateDataArray(
+      vtkFieldDataToAttributeDataFilter::GetComponentsType(1, fieldArray+2));
     ZPts->SetNumberOfComponents(1);
+    ZPts->SetNumberOfTuples(nZpts);
 
     if ( vtkFieldDataToAttributeDataFilter::ConstructArray(
-      ZPts->GetData(), 0, fieldArray[2], this->PointArrayComponents[2],
+      ZPts, 0, fieldArray[2], this->PointArrayComponents[2],
       this->PointComponentRange[2][0],
       this->PointComponentRange[2][1],
       this->PointNormalize[2]) == 0 )
