@@ -28,7 +28,7 @@
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationStringKey.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.2.2.2");
+vtkCxxRevisionMacro(vtkDataObject, "1.2.2.3");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -597,6 +597,14 @@ void vtkDataObject::DeepCopy(vtkDataObject *src)
 //----------------------------------------------------------------------------
 void vtkDataObject::InternalDataObjectCopy(vtkDataObject *src)
 {
+  // If the input data object has pipeline information and this object
+  // does not, setup a trivial producer so that this object will have
+  // pipeline information into which to copy values.
+  if(src->GetPipelineInformation() && !this->GetPipelineInformation())
+    {
+    this->GetProducerPort();
+    }
+
   this->DataReleased = src->DataReleased;
   if(src->Information->Has(DATA_EXTENT()))
     {
@@ -621,18 +629,10 @@ void vtkDataObject::InternalDataObjectCopy(vtkDataObject *src)
     }
   vtkInformation* thatPInfo = src->GetPipelineInformation();
   vtkInformation* thisPInfo = this->GetPipelineInformation();
-  if(thatPInfo)
+  if(thisPInfo && thatPInfo)
     {
-    if(thisPInfo)
-      {
-      thisPInfo->CopyEntry(thatPInfo, SDDP::WHOLE_EXTENT());
-      thisPInfo->CopyEntry(thatPInfo, SDDP::MAXIMUM_NUMBER_OF_PIECES());
-      }
-    else
-      {
-      vtkErrorMacro("Cannot copy pipeline information because "
-                    "no executive produces this data object.");
-      }
+    thisPInfo->CopyEntry(thatPInfo, SDDP::WHOLE_EXTENT());
+    thisPInfo->CopyEntry(thatPInfo, SDDP::MAXIMUM_NUMBER_OF_PIECES());
     }
   this->ReleaseDataFlag = src->ReleaseDataFlag;
   // This also caused a pipeline problem.
