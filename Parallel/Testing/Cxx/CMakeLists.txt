@@ -18,6 +18,7 @@ ENDIF (VTK_USE_HYBRID)
 ADD_EXECUTABLE(SocketServer SocketServer)
 ADD_EXECUTABLE(SocketClient SocketClient)
 ADD_EXECUTABLE(GenericCommunicator GenericCommunicator)
+ADD_EXECUTABLE(ThreadedCommunicator ThreadedCommunicator)
  
 LINK_LIBRARIES ( ${OPENGL_LIBRARY} )
 IF (VTK_MANGLE_MESA)
@@ -47,6 +48,11 @@ ENDIF (VTK_USE_MPI)
 
 IF (VTK_DATA_ROOT)
   IF (VTK_USE_HYBRID)
+    ADD_TEST(ThreadedCommunicator-image 
+             ${CXX_TEST_PATH}/ThreadedCommunicator
+             -D ${VTK_DATA_ROOT}
+             -V Baseline/Parallel/ParallelIsoTest.png)
+
     IF (VTK_USE_MPI)
       IF (MPIRUN)
         ADD_TEST(ParallelIsoMPI-image ${MPIRUN} ${MPI_PREFLAGS}
@@ -76,6 +82,8 @@ IF (VTK_DATA_ROOT)
 #
 ELSE (VTK_DATA_ROOT)
   IF (VTK_USE_HYBRID)
+    ADD_TEST(ThreadedCommunicator-image 
+             ${CXX_TEST_PATH}/ThreadedCommunicator)
     IF (VTK_USE_MPI)
       IF (MPIRUN)
         ADD_TEST(ParallelIsoMPI ${MPIRUN} ${MPI_PREFLAGS}
