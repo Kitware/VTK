@@ -1,5 +1,5 @@
-source ../../examplesTcl/WidgetObject.tcl
-source ../../examplesTcl/vtkInt.tcl
+catch {source ../../examplesTcl/WidgetObject.tcl}
+catch {source ../../examplesTcl/vtkInt.tcl}
 
 
 proc BindTkImageViewer {widget} {
@@ -100,9 +100,9 @@ proc StartWindowLevelInteraction {widget x y} {
    #puts "start: ($x, $y), w = [$viewer GetColorWindow], l =[$viewer GetColorLevel] "
 
    # make the window level text visible
-   set actor [GetWidgetObject $widget Actor1]
+   set actor [GetWidgetVariableValue $widget Actor1]
    $actor SetVisibility 1
-   set actor [GetWidgetObject $widget Actor2]
+   set actor [GetWidgetVariableValue $widget Actor2]
    $actor SetVisibility 1
 
    UpdateWindowLevelInteraction $widget $x $y
@@ -110,9 +110,9 @@ proc StartWindowLevelInteraction {widget x y} {
 
 
 proc EndWindowLevelInteraction {widget} {
-   set actor [GetWidgetObject $widget Actor1]
+   set actor [GetWidgetVariableValue $widget Actor1]
    $actor SetVisibility 0
-   set actor [GetWidgetObject $widget Actor2]
+   set actor [GetWidgetVariableValue $widget Actor2]
    $actor SetVisibility 0
    $widget Render
 }
@@ -168,10 +168,10 @@ proc UpdateWindowLevelInteraction {widget x y} {
    $viewer SetColorWindow $new_window
    $viewer SetColorLevel $new_level
 
-   set mapper [GetWidgetObject $widget Mapper1]
+   set mapper [GetWidgetVariableValue $widget Mapper1]
    $mapper SetInput "Window: $new_window"
 
-   set mapper [GetWidgetObject $widget Mapper2]
+   set mapper [GetWidgetVariableValue $widget Mapper2]
    $mapper SetInput "Level: $new_level"
 
    $widget Render
@@ -186,7 +186,7 @@ proc ResetTkImageViewer {widget} {
       return
    }
    # Get the extent in viewer
-   set z [viewer GetZSlice]
+   set z [$viewer GetZSlice]
    # x, y????
    $input SetUpdateExtent -99999 99999 -99999 99999 $z $z
    $input Update
@@ -207,7 +207,7 @@ proc ResetTkImageViewer {widget} {
 # ----------- Query PixleValue stuff ---------------
 
 proc StartQueryInteraction {widget x y} {
-   set actor [GetWidgetObject $widget Actor2]
+   set actor [GetWidgetVariableValue $widget Actor2]
    $actor SetVisibility 1
 
    UpdateQueryInteraction $widget $x $y
@@ -215,7 +215,7 @@ proc StartQueryInteraction {widget x y} {
 
 
 proc EndQueryInteraction {widget} {
-   set actor [GetWidgetObject $widget Actor2]
+   set actor [GetWidgetVariableValue $widget Actor2]
    $actor SetVisibility 0
    $widget Render
 }
@@ -239,7 +239,7 @@ proc UpdateQueryInteraction {widget x y} {
       set str [format "%s  %.1f" $str $val]
    }
 
-   set mapper [GetWidgetObject $widget Mapper2]
+   set mapper [GetWidgetVariableValue $widget Mapper2]
    $mapper SetInput "($x, $y): $str"
 
    $widget Render
