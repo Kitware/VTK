@@ -93,7 +93,6 @@ class vtkPolyData;
 class vtkPolyDataMapper;
 class vtkProperty;
 class vtkTextActor;
-class vtkTextProperty;
 class vtkTexture;
 class vtkTextureMapToPlane;
 class vtkTransform;
@@ -186,7 +185,7 @@ public:
 
   // Description:
   // Convenience method to get the vtkImageReslice output.
-  vtkImageData* GetResliceOutput();    
+  vtkImageData* GetResliceOutput();
 
   // Description:
   // Make sure that the plane remains within the volume.
@@ -255,12 +254,6 @@ public:
   vtkBooleanMacro(DisplayText,int);
 
   // Description:
-  // Set the text property associated with the text actor/mapper for
-  // displaying window-level and cursor data.
-  virtual void SetTextProperty(vtkTextProperty*);
-  vtkGetObjectMacro(TextProperty,vtkTextProperty);
-
-  // Description:
   // Set the properties of the cross-hair cursor.
   virtual void SetCursorProperty(vtkProperty*);
   vtkGetObjectMacro(CursorProperty,vtkProperty);
@@ -272,7 +265,7 @@ public:
   // Description:
   // Get the image coordinate position and voxel value.  Currently only
   // supports single component image data.
-  int GetCursorData(float xyzv[4]);    
+  int GetCursorData(float xyzv[4]);
 
 
 protected:
@@ -292,9 +285,9 @@ protected:
 //ETX
 
   // Handles the events
-  static void ProcessEvents(vtkObject* object, 
+  static void ProcessEvents(vtkObject* object,
                             unsigned long event,
-                            void* clientdata, 
+                            void* clientdata,
                             void* calldata);
 
   // ProcessEvents() dispatches to these methods.
@@ -353,7 +346,6 @@ protected:
   // the manipulator in general.
   vtkProperty   *PlaneProperty;
   vtkProperty   *SelectedPlaneProperty;
-  vtkTextProperty *TextProperty;
   vtkProperty   *CursorProperty;
   void           CreateDefaultProperties();
 

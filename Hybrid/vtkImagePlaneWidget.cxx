@@ -40,12 +40,11 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.28");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.29");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, SelectedPlaneProperty, vtkProperty);
-vtkCxxSetObjectMacro(vtkImagePlaneWidget, TextProperty, vtkTextProperty);
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, CursorProperty, vtkProperty);
 
 vtkImagePlaneWidget::vtkImagePlaneWidget()
@@ -164,10 +163,6 @@ vtkImagePlaneWidget::~vtkImagePlaneWidget()
     {
     this->SelectedPlaneProperty->Delete();
     }
-  if ( this->TextProperty )
-    {
-    this->TextProperty->Delete();
-    }
   if ( this->CursorProperty )
     {
     this->CursorProperty->Delete();
@@ -262,7 +257,6 @@ void vtkImagePlaneWidget::SetEnabled(int enabling)
 
     // Add the image data annotation
     this->CurrentRenderer->AddProp(this->TextActor);
-    this->TextActor->SetTextProperty(this->TextProperty);
 
     this->SetRepresentation();
 
@@ -376,16 +370,6 @@ void vtkImagePlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     os << indent << "LookupTable: (none)\n";
-    }
-
-  if ( this->TextProperty )
-    {
-    os << indent << "Text Property: "
-       << this->TextProperty << "\n";
-    }
-  else
-    {
-    os << indent << "Text Property: (none)\n";
     }
 
   if ( this->CursorProperty )
@@ -835,18 +819,6 @@ void vtkImagePlaneWidget::CreateDefaultProperties()
     this->SetRepresentation();
     this->SelectedPlaneProperty->SetAmbient(1.0);
     this->SelectedPlaneProperty->SetColor(0.0,1.0,0.0);
-    }
-  if ( ! this->TextProperty )
-    {
-    this->TextProperty = vtkTextProperty::New();
-    this->TextProperty->SetColor(0.0,1.0,1.0);
-    this->TextProperty->SetFontFamilyToArial();
-    this->TextProperty->SetFontSize(18);
-    this->TextProperty->BoldOn();
-    this->TextProperty->ItalicOn();
-    this->TextProperty->ShadowOn();
-    this->TextProperty->SetJustificationToLeft();
-    this->TextProperty->SetVerticalJustificationToBottom();
     }
   if ( ! this->CursorProperty )
     {
@@ -1708,9 +1680,22 @@ void vtkImagePlaneWidget::GenerateText()
   sprintf(this->TextBuff,"NA");
   this->TextActor->SetInput(this->TextBuff);
   this->TextActor->ScaledTextOff();
+
+  vtkTextProperty* textprop = this->TextActor->GetTextProperty();
+  textprop->SetColor(1.0,1.0,1.0);
+  textprop->SetFontFamilyToArial();
+  textprop->SetFontSize(18);
+  textprop->BoldOff();
+  textprop->ItalicOff();
+  textprop->ShadowOff();
+  textprop->SetJustificationToLeft();
+  textprop->SetVerticalJustificationToBottom();
+
+
   vtkCoordinate* coord = this->TextActor->GetPositionCoordinate();
   coord->SetCoordinateSystemToNormalizedDisplay();
   coord->SetValue(0.01, 0.01);
+
   this->TextActor->VisibilityOff();
 }
 
