@@ -9,12 +9,32 @@ IF (VTK_DATA_ROOT)
            ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
            ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/TestPolyDataPieces.tcl
            -D ${VTK_DATA_ROOT}
-           -V Baseline/Parallel/PolyDataPieces.tcl.png
+           -V Baseline/Parallel/TestPolyDataPieces.tcl.png
+           -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+  ADD_TEST(UnstructuredPieces-image ${VTK_EXECUTABLE}
+           ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+           ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/TestUnstructuredPieces.tcl
+           -D ${VTK_DATA_ROOT}
+           -V Baseline/Parallel/TestUnstructuredPieces.tcl.png
+           -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+  ADD_TEST(ImageStreamer-image ${VTK_EXECUTABLE}
+           ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+           ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/TestImageStreamer.tcl
+           -D ${VTK_DATA_ROOT}
+           -V Baseline/Parallel/TestImageStreamer.tcl.png
            -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
 ELSE (VTK_DATA_ROOT)
-  ADD_TEST(PolyDataPieces-image ${VTK_EXECUTABLE}
+  ADD_TEST(PolyDataPieces ${VTK_EXECUTABLE}
            ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
            ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/TestPolyDataPieces.tcl
+           -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+  ADD_TEST(UnstructuredPieces ${VTK_EXECUTABLE}
+           ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+           ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/TestUnstructuredPieces.tcl
+           -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+  ADD_TEST(ImageStreamer ${VTK_EXECUTABLE}
+           ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+           ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/TestImageStreamer.tcl
            -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
 ENDIF (VTK_DATA_ROOT)
 
