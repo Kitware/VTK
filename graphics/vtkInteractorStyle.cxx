@@ -792,12 +792,16 @@ void vtkInteractorStyle::OnChar(int ctrl, int shift,
     case 'P' :
       if (this->State == VTKIS_START) 
         {
-        vtkAssemblyPath *path;
+        vtkAssemblyPath *path=NULL;
         this->FindPokedRenderer(this->LastPos[0],this->LastPos[1]);
         rwi->StartPickCallback();
         rwi->GetPicker()->Pick(this->LastPos[0],this->LastPos[1], 0.0, 
                                this->CurrentRenderer);
-        path = rwi->GetPicker()->GetPath();
+        vtkAbstractPropPicker *picker;
+        if ( picker=vtkAbstractPropPicker::SafeDownCast(rwi->GetPicker()) )
+          {
+          path = picker->GetPath();
+          }
         if ( path == NULL )
           {
           this->HighlightProp(NULL);
