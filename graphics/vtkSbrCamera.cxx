@@ -46,7 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Description:
 // Implement base class method.
-void vtkSbrCamera::Render(vtkCamera *cam, vtkRenderer *ren)
+void vtkSbrCamera::Render(vtkRenderer *ren)
 {
   float aspect[3];
   float viewport[4];
@@ -57,9 +57,8 @@ void vtkSbrCamera::Render(vtkCamera *cam, vtkRenderer *ren)
   vtkSbrRenderWindow *rw;
   float view_size[2];
   float vdc_vals[6];
-  fd = ren->GetFd();
+  fd = ((vtkSbrRenderer *)ren)->GetFd();
   vtkMatrix4x4 matrix;
-  float *pos;
   
   // get the background color
   background = ren->GetBackground();
@@ -79,7 +78,7 @@ void vtkSbrCamera::Render(vtkCamera *cam, vtkRenderer *ren)
   memcpy(viewport,ren->GetViewport(),sizeof(float)*4);
 
   // if were on a stereo renderer draw to special parts of screen 
-  if (stereo)
+  if (this->Stereo)
     {
     switch ((ren->GetRenderWindow())->GetStereoType())
       {
@@ -108,7 +107,7 @@ void vtkSbrCamera::Render(vtkCamera *cam, vtkRenderer *ren)
   vdc_vals[5] = 1.0;
 
   // make sure the aspect is up to date
-  if (stereo)
+  if (this->Stereo)
     {
     switch ((ren->GetRenderWindow())->GetStereoType())
       {
