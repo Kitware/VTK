@@ -201,8 +201,8 @@ public:
   void DisplayToWorld();
   void WorldToDisplay();
 
-  void UpdateViewRays();
   float *GetViewRays();
+  vtkGetVectorMacro(ViewRaysSize,int,2); // Call this AFTER GetViewRays()
 
   void SetStartRenderMethod(void (*f)(void *), void *arg);
   void SetEndRenderMethod(void (*f)(void *), void *arg);
@@ -210,6 +210,8 @@ public:
   void SetEndRenderMethodArgDelete(void (*f)(void *));
 
 protected:
+  void UpdateViewRays();
+
   vtkVolumeRenderer *VolumeRenderer;
   vtkNewVolumeRenderer *NewVolumeRenderer;
 
@@ -220,6 +222,7 @@ protected:
 
   float *ViewRays;
   int   ViewRaysSize[2];
+  unsigned long ViewRaysCamMtime;
 
   float Ambient[3];  
   float Background[3];  
@@ -234,7 +237,7 @@ protected:
   int   SelfCreatedLight;
   float AllocatedRenderTime;
   int   TwoSidedLighting;
-  
+
   void (*StartRenderMethod)(void *);
   void (*StartRenderMethodArgDelete)(void *);
   void *StartRenderMethodArg;
