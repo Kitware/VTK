@@ -32,12 +32,12 @@
 #ifndef __vtkCellCenters_h
 #define __vtkCellCenters_h
 
-#include "vtkPolyDataAlgorithm.h"
+#include "vtkDataSetToPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkCellCenters : public vtkPolyDataAlgorithm
+class VTK_GRAPHICS_EXPORT vtkCellCenters : public vtkDataSetToPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkCellCenters,vtkPolyDataAlgorithm);
+  vtkTypeRevisionMacro(vtkCellCenters,vtkDataSetToPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -55,7 +55,6 @@ protected:
   ~vtkCellCenters() {};
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  int FillInputPortInformation(int port, vtkInformation *info);
 
   int VertexCells;
 private:

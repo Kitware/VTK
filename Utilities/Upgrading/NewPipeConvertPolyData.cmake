@@ -29,7 +29,7 @@ STRING (REGEX REPLACE
 
 STRING (REGEX REPLACE 
   "vtkDataSetToPolyDataFilter" 
-  "vtkPolyDataAlgorithm" 
+  "vtkDataSetToPolyDataAlgorithm" 
   H_CONTENTS "${H_CONTENTS}")
 
 STRING (REGEX REPLACE

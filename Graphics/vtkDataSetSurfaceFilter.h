@@ -25,7 +25,7 @@
 #ifndef __vtkDataSetSurfaceFilter_h
 #define __vtkDataSetSurfaceFilter_h
 
-#include "vtkPolyDataAlgorithm.h"
+#include "vtkDataSetToPolyDataAlgorithm.h"
 
 
 class vtkPointData;
@@ -44,11 +44,11 @@ struct vtkFastGeomQuadStruct
 typedef struct vtkFastGeomQuadStruct vtkFastGeomQuad;
 //ETX
 
-class VTK_GRAPHICS_EXPORT vtkDataSetSurfaceFilter : public vtkPolyDataAlgorithm
+class VTK_GRAPHICS_EXPORT vtkDataSetSurfaceFilter : public vtkDataSetToPolyDataAlgorithm
 {
 public:
   static vtkDataSetSurfaceFilter *New();
-  vtkTypeRevisionMacro(vtkDataSetSurfaceFilter,vtkPolyDataAlgorithm);
+  vtkTypeRevisionMacro(vtkDataSetSurfaceFilter,vtkDataSetToPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -72,7 +72,6 @@ protected:
                          vtkInformation *inInfo);
   int UnstructuredGridExecute(vtkDataSet *input, vtkPolyData *output);
   int DataSetExecute(vtkDataSet *input, vtkPolyData *output);
-  int FillInputPortInformation(int, vtkInformation *);
 
   // Helper methods.
   void ExecuteFaceStrips(vtkDataSet *input, vtkPolyData *output,

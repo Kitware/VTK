@@ -27,7 +27,7 @@
 #include "vtkThreshold.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkCutMaterial, "1.15");
+vtkCxxRevisionMacro(vtkCutMaterial, "1.16");
 vtkStandardNewMacro(vtkCutMaterial);
 
 // Instantiate object with no input and no defined output.
@@ -208,12 +208,6 @@ void vtkCutMaterial::ComputeMaximumPoint(vtkDataSet *input)
   this->MaximumPoint[0] = (bds[0] + bds[1]) * 0.5;
   this->MaximumPoint[1] = (bds[2] + bds[3]) * 0.5;
   this->MaximumPoint[2] = (bds[4] + bds[5]) * 0.5;  
-}
-
-int vtkCutMaterial::FillInputPortInformation(int, vtkInformation *info)
-{
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
-  return 1;
 }
 
 void vtkCutMaterial::PrintSelf(ostream& os, vtkIndent indent)

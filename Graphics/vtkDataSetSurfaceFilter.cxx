@@ -37,7 +37,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.39");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.40");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
@@ -1437,12 +1437,4 @@ vtkIdType vtkDataSetSurfaceFilter::GetOutputPointId(vtkIdType inPtId,
     }
   
   return outPtId;
-}
-
-//----------------------------------------------------------------------------
-int vtkDataSetSurfaceFilter::FillInputPortInformation(
-  int, vtkInformation *info)
-{
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
-  return 1;
 }

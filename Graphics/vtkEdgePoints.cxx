@@ -26,7 +26,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkEdgePoints, "1.54");
+vtkCxxRevisionMacro(vtkEdgePoints, "1.55");
 vtkStandardNewMacro(vtkEdgePoints);
 
 // Construct object with contour value of 0.0.
@@ -224,12 +224,6 @@ int vtkEdgePoints::RequestData(
   
   cellScalars->Delete();
 
-  return 1;
-}
-
-int vtkEdgePoints::FillInputPortInformation(int, vtkInformation *info)
-{
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }
 

@@ -23,15 +23,15 @@
 #ifndef __vtkCutMaterial_h
 #define __vtkCutMaterial_h
 
-#include "vtkPolyDataAlgorithm.h"
+#include "vtkDataSetToPolyDataAlgorithm.h"
 
 class vtkPlane;
 
-class VTK_PARALLEL_EXPORT vtkCutMaterial : public vtkPolyDataAlgorithm
+class VTK_PARALLEL_EXPORT vtkCutMaterial : public vtkDataSetToPolyDataAlgorithm
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent);
-  vtkTypeRevisionMacro(vtkCutMaterial,vtkPolyDataAlgorithm);
+  vtkTypeRevisionMacro(vtkCutMaterial,vtkDataSetToPolyDataAlgorithm);
   static vtkCutMaterial *New();
 
   // Description:
@@ -67,7 +67,6 @@ protected:
   ~vtkCutMaterial();
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *); //generate output data
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
   void ComputeMaximumPoint(vtkDataSet *input);
   void ComputeNormal();
 

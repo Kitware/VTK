@@ -45,6 +45,7 @@ vtkDataSetCollection.cxx
 vtkDataSetSource.cxx
 vtkDataSetToDataSetFilter.cxx
 vtkDataSetToImageFilter.cxx
+vtkDataSetToPolyDataAlgorithm.cxx
 vtkDataSetToPolyDataFilter.cxx
 vtkDataSetToStructuredGridFilter.cxx
 vtkDataSetToStructuredPointsFilter.cxx
