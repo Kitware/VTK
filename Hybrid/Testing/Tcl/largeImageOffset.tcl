@@ -7,7 +7,7 @@ vtkRenderWindow renWin1
 vtk3DSImporter importer
   importer SetRenderWindow renWin1
   importer ComputeNormalsOn
-  importer SetFileName "c:/lorensen/GPS/spcsatg1.3ds"
+  importer SetFileName "$VTK_DATA_ROOT/Data/iflamigm.3ds"
   importer Read
 
 [importer GetRenderer] SetBackground 0.1 0.2 0.4
