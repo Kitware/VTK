@@ -412,7 +412,7 @@ extern "C"
       case MapNotify:
         break;
       case DestroyNotify:
-#if _WIN32
+#ifdef _WIN32
         if (self->ImageViewer->GetRenderWindow()->GetGenericWindowId())
           {
           SetWindowLong((HWND)self->ImageViewer->GetRenderWindow()->GetGenericWindowId(),
