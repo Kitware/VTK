@@ -65,6 +65,8 @@ vtkArrayCalculator::vtkArrayCalculator()
   this->ResultArrayName = NULL;
   this->ScalarArrayNames = NULL;
   this->VectorArrayNames = NULL;
+  this->ScalarVariableNames = NULL;
+  this->VectorVariableNames = NULL;
   this->NumberOfScalarArrays = 0;
   this->NumberOfVectorArrays = 0;
   this->AttributeMode = VTK_ATTRIBUTE_MODE_DEFAULT;
@@ -113,6 +115,28 @@ vtkArrayCalculator::~vtkArrayCalculator()
     this->VectorArrayNames = NULL;
     }
 
+  if (this->ScalarVariableNames)
+    {
+    for (i = 0; i < this->NumberOfScalarArrays; i++)
+      {
+      delete [] this->ScalarVariableNames[i];
+      this->ScalarVariableNames[i] = NULL;
+      }
+    delete [] this->ScalarVariableNames;
+    this->ScalarVariableNames = NULL;
+    }
+  
+  if (this->VectorVariableNames)
+    {
+    for (i = 0; i < this->NumberOfVectorArrays; i++)
+      {
+      delete [] this->VectorVariableNames[i];
+      this->VectorVariableNames[i] = NULL;
+      }
+    delete [] this->VectorVariableNames;
+    this->VectorVariableNames = NULL;
+    }
+  
   if (this->SelectedScalarComponents)
     {
     delete [] this->SelectedScalarComponents;
@@ -200,8 +224,8 @@ void vtkArrayCalculator::Execute()
           this->SelectedScalarComponents[i])
         {
         this->FunctionParser->
-          SetScalarVariableValue(this->ScalarArrayNames[i],
-                                 currentArray->GetComponent(i, this->SelectedScalarComponents[i]));
+          SetScalarVariableValue(this->ScalarVariableNames[i],
+                                 currentArray->GetComponent(0, this->SelectedScalarComponents[i]));
         }
       else
         {
@@ -230,10 +254,10 @@ void vtkArrayCalculator::Execute()
            this->SelectedVectorComponents[i][2]))
         {
         this->FunctionParser->
-          SetVectorVariableValue(this->VectorArrayNames[i],
-                                 currentArray->GetComponent(i, this->SelectedVectorComponents[i][0]),
-                                 currentArray->GetComponent(i, this->SelectedVectorComponents[i][1]),
-                                 currentArray->GetComponent(i, this->SelectedVectorComponents[i][2]));
+          SetVectorVariableValue(this->VectorVariableNames[i],
+                                 currentArray->GetComponent(0, this->SelectedVectorComponents[i][0]),
+                                 currentArray->GetComponent(0, this->SelectedVectorComponents[i][1]),
+                                 currentArray->GetComponent(0, this->SelectedVectorComponents[i][2]));
         }
       else
         {
@@ -352,21 +376,31 @@ void vtkArrayCalculator::AddScalarArrayName(const char* arrayName,
     }
   
   int i;
-  char** tempNames = new char *[this->NumberOfScalarArrays];
+  char** arrayNames = new char *[this->NumberOfScalarArrays];
+  char** varNames = new char *[this->NumberOfScalarArrays];
   int* tempComponents = new int[this->NumberOfScalarArrays];
   
   for (i = 0; i < this->NumberOfScalarArrays; i++)
     {
-    tempNames[i] = new char[strlen(this->ScalarArrayNames[i]) + 1];
-    strcpy(tempNames[i], this->ScalarArrayNames[i]);
+    arrayNames[i] = new char[strlen(this->ScalarArrayNames[i]) + 1];
+    strcpy(arrayNames[i], this->ScalarArrayNames[i]);
     delete [] this->ScalarArrayNames[i];
     this->ScalarArrayNames[i] = NULL;
+    varNames[i] = new char[strlen(this->ScalarArrayNames[i]) + 1];
+    strcpy(varNames[i], this->ScalarVariableNames[i]);
+    delete [] this->ScalarVariableNames[i];
+    this->ScalarVariableNames[i] = NULL;
     tempComponents[i] = this->SelectedScalarComponents[i];
     }
   if (this->ScalarArrayNames)
     {
     delete [] this->ScalarArrayNames;
     this->ScalarArrayNames = NULL;
+    }
+  if (this->ScalarVariableNames)
+    {
+    delete [] this->ScalarVariableNames;
+    this->ScalarVariableNames = NULL;
     }
   if (this->SelectedScalarComponents)
     {
@@ -375,23 +409,32 @@ void vtkArrayCalculator::AddScalarArrayName(const char* arrayName,
     }
   
   this->ScalarArrayNames = new char *[this->NumberOfScalarArrays + 1];
+  this->ScalarVariableNames = new char *[this->NumberOfScalarArrays + 1];
   this->SelectedScalarComponents = new int[this->NumberOfScalarArrays + 1];
   
   for (i = 0; i < this->NumberOfScalarArrays; i++)
     {
-    this->ScalarArrayNames[i] = new char[strlen(tempNames[i]) + 1];
-    strcpy(this->ScalarArrayNames[i], tempNames[i]);
-    delete [] tempNames[i];
-    tempNames[i] = NULL;
+    this->ScalarArrayNames[i] = new char[strlen(arrayNames[i]) + 1];
+    strcpy(this->ScalarArrayNames[i], arrayNames[i]);
+    delete [] arrayNames[i];
+    arrayNames[i] = NULL;
+    this->ScalarVariableNames[i] = new char[strlen(varNames[i]) + 1];
+    strcpy(this->ScalarVariableNames[i], varNames[i]);
+    delete [] varNames[i];
+    varNames[i] = NULL;
     this->SelectedScalarComponents[i] = tempComponents[i];
     }
-  delete [] tempNames;
-  tempNames = NULL;
+  delete [] arrayNames;
+  arrayNames = NULL;
+  delete [] varNames;
+  varNames = NULL;
   delete [] tempComponents;
   tempComponents = NULL;
 
   this->ScalarArrayNames[i] = new char[strlen(arrayName) + 1];
   strcpy(this->ScalarArrayNames[i], arrayName);
+  this->ScalarVariableNames[i] = new char[strlen(arrayName) + 1];
+  strcpy(this->ScalarVariableNames[i], arrayName);
   this->SelectedScalarComponents[i] = component;
   
   this->NumberOfScalarArrays++;
@@ -407,15 +450,20 @@ void vtkArrayCalculator::AddVectorArrayName(const char* arrayName,
     }
   
   int i;
-  char** tempNames = new char *[this->NumberOfVectorArrays];
+  char** arrayNames = new char *[this->NumberOfVectorArrays];
+  char** varNames = new char *[this->NumberOfVectorArrays];
   int** tempComponents = new int *[this->NumberOfVectorArrays];
   
   for (i = 0; i < this->NumberOfVectorArrays; i++)
     {
-    tempNames[i] = new char[strlen(this->VectorArrayNames[i]) + 1];
-    strcpy(tempNames[i], this->VectorArrayNames[i]);
+    arrayNames[i] = new char[strlen(this->VectorArrayNames[i]) + 1];
+    strcpy(arrayNames[i], this->VectorArrayNames[i]);
     delete [] this->VectorArrayNames[i];
     this->VectorArrayNames[i] = NULL;
+    varNames[i] = new char[strlen(this->VectorVariableNames[i]) + 1];
+    strcpy(varNames[i], this->VectorVariableNames[i]);
+    delete [] this->VectorVariableNames[i];
+    this->VectorVariableNames[i] = NULL;
     tempComponents[i] = new int[3];
     tempComponents[i][0] = this->SelectedVectorComponents[i][0];
     tempComponents[i][1] = this->SelectedVectorComponents[i][1];
@@ -429,6 +477,11 @@ void vtkArrayCalculator::AddVectorArrayName(const char* arrayName,
     delete [] this->VectorArrayNames;
     this->VectorArrayNames = NULL;
     }
+  if (this->VectorVariableNames)
+    {
+    delete [] this->VectorVariableNames;
+    this->VectorVariableNames = NULL;
+    }
   if (this->SelectedVectorComponents)
     {
     delete [] this->SelectedVectorComponents;
@@ -436,14 +489,19 @@ void vtkArrayCalculator::AddVectorArrayName(const char* arrayName,
     }
   
   this->VectorArrayNames = new char *[this->NumberOfVectorArrays + 1];
+  this->VectorVariableNames = new char *[this->NumberOfVectorArrays + 1];
   this->SelectedVectorComponents = new int *[this->NumberOfVectorArrays + 1];
   
   for (i = 0; i < this->NumberOfVectorArrays; i++)
     {
-    this->VectorArrayNames[i] = new char[strlen(tempNames[i]) + 1];
-    strcpy(this->VectorArrayNames[i], tempNames[i]);
-    delete [] tempNames[i];
-    tempNames[i] = NULL;
+    this->VectorArrayNames[i] = new char[strlen(arrayNames[i]) + 1];
+    strcpy(this->VectorArrayNames[i], arrayNames[i]);
+    delete [] arrayNames[i];
+    arrayNames[i] = NULL;
+    this->VectorVariableNames[i] = new char[strlen(varNames[i]) + 1];
+    strcpy(this->VectorVariableNames[i], varNames[i]);
+    delete [] varNames[i];
+    varNames[i] = NULL;
     this->SelectedVectorComponents[i] = new int[3];
     this->SelectedVectorComponents[i][0] = component0;
     this->SelectedVectorComponents[i][1] = component1;
@@ -451,13 +509,180 @@ void vtkArrayCalculator::AddVectorArrayName(const char* arrayName,
     delete [] tempComponents[i];
     tempComponents[i] = NULL;
     }
-  delete [] tempNames;
-  tempNames = NULL;
+  delete [] arrayNames;
+  arrayNames = NULL;
+  delete [] varNames;
+  varNames = NULL;
   delete [] tempComponents;
   tempComponents = NULL;
 
   this->VectorArrayNames[i] = new char[strlen(arrayName) + 1];
   strcpy(this->VectorArrayNames[i], arrayName);
+  this->VectorVariableNames[i] = new char[strlen(arrayName) + 1];
+  strcpy(this->VectorVariableNames[i], arrayName);
+  this->SelectedVectorComponents[i] = new int[3];
+  this->SelectedVectorComponents[i][0] = component0;
+  this->SelectedVectorComponents[i][1] = component1;
+  this->SelectedVectorComponents[i][2] = component2;
+  
+  this->NumberOfVectorArrays++;
+}
+
+void vtkArrayCalculator::AddScalarVariable(const char* variableName,
+                                           const char* arrayName,
+                                           int component)
+{
+  if (!arrayName)
+    {
+    return;
+    }
+  
+  int i;
+  char** arrayNames = new char *[this->NumberOfScalarArrays];
+  char** varNames = new char *[this->NumberOfScalarArrays];
+  int* tempComponents = new int[this->NumberOfScalarArrays];
+  
+  for (i = 0; i < this->NumberOfScalarArrays; i++)
+    {
+    arrayNames[i] = new char[strlen(this->ScalarArrayNames[i]) + 1];
+    strcpy(arrayNames[i], this->ScalarArrayNames[i]);
+    delete [] this->ScalarArrayNames[i];
+    this->ScalarArrayNames[i] = NULL;
+    varNames[i] = new char[strlen(this->ScalarVariableNames[i]) + 1];
+    strcpy(varNames[i], this->ScalarVariableNames[i]);
+    delete [] this->ScalarVariableNames[i];
+    this->ScalarVariableNames[i] = NULL;
+    tempComponents[i] = this->SelectedScalarComponents[i];
+    }
+  if (this->ScalarArrayNames)
+    {
+    delete [] this->ScalarArrayNames;
+    this->ScalarArrayNames = NULL;
+    }
+  if (this->ScalarVariableNames)
+    {
+    delete [] this->ScalarVariableNames;
+    this->ScalarVariableNames = NULL;
+    }
+  if (this->SelectedScalarComponents)
+    {
+    delete [] this->SelectedScalarComponents;
+    this->SelectedScalarComponents = NULL;
+    }
+  
+  this->ScalarArrayNames = new char *[this->NumberOfScalarArrays + 1];
+  this->ScalarVariableNames = new char *[this->NumberOfScalarArrays + 1];
+  this->SelectedScalarComponents = new int[this->NumberOfScalarArrays + 1];
+  
+  for (i = 0; i < this->NumberOfScalarArrays; i++)
+    {
+    this->ScalarArrayNames[i] = new char[strlen(arrayNames[i]) + 1];
+    strcpy(this->ScalarArrayNames[i], arrayNames[i]);
+    delete [] arrayNames[i];
+    arrayNames[i] = NULL;
+    this->ScalarVariableNames[i] = new char[strlen(varNames[i]) + 1];
+    strcpy(this->ScalarVariableNames[i], varNames[i]);
+    delete [] varNames[i];
+    varNames[i] = NULL;
+    this->SelectedScalarComponents[i] = tempComponents[i];
+    }
+  delete [] arrayNames;
+  arrayNames = NULL;
+  delete [] varNames;
+  varNames = NULL;
+  delete [] tempComponents;
+  tempComponents = NULL;
+
+  this->ScalarArrayNames[i] = new char[strlen(arrayName) + 1];
+  strcpy(this->ScalarArrayNames[i], arrayName);
+  this->ScalarVariableNames[i] = new char[strlen(variableName) + 1];
+  strcpy(this->ScalarVariableNames[i], variableName);
+  this->SelectedScalarComponents[i] = component;
+  
+  this->NumberOfScalarArrays++;
+}
+
+void vtkArrayCalculator::AddVectorVariable(const char* variableName,
+                                           const char* arrayName,
+                                           int component0, int component1,
+                                           int component2)
+{
+  if (!arrayName)
+    {
+    return;
+    }
+  
+  int i;
+  char** arrayNames = new char *[this->NumberOfVectorArrays];
+  char** varNames = new char *[this->NumberOfVectorArrays];
+  int** tempComponents = new int *[this->NumberOfVectorArrays];
+  
+  for (i = 0; i < this->NumberOfVectorArrays; i++)
+    {
+    arrayNames[i] = new char[strlen(this->VectorArrayNames[i]) + 1];
+    strcpy(arrayNames[i], this->VectorArrayNames[i]);
+    delete [] this->VectorArrayNames[i];
+    this->VectorArrayNames[i] = NULL;
+    varNames[i] = new char[strlen(this->VectorVariableNames[i]) + 1];
+    strcpy(varNames[i], this->VectorVariableNames[i]);
+    delete [] this->VectorVariableNames[i];
+    this->VectorVariableNames[i] = NULL;
+    tempComponents[i] = new int[3];
+    tempComponents[i][0] = this->SelectedVectorComponents[i][0];
+    tempComponents[i][1] = this->SelectedVectorComponents[i][1];
+    tempComponents[i][2] = this->SelectedVectorComponents[i][2];
+    delete [] this->SelectedVectorComponents[i];
+    this->SelectedVectorComponents = NULL;
+    }
+  
+  if (this->VectorArrayNames)
+    {
+    delete [] this->VectorArrayNames;
+    this->VectorArrayNames = NULL;
+    }
+  if (this->VectorVariableNames)
+    {
+    delete [] this->VectorVariableNames;
+    this->VectorVariableNames = NULL;
+    }
+  if (this->SelectedVectorComponents)
+    {
+    delete [] this->SelectedVectorComponents;
+    this->SelectedVectorComponents = NULL;
+    }
+  
+  this->VectorArrayNames = new char *[this->NumberOfVectorArrays + 1];
+  this->VectorVariableNames = new char *[this->NumberOfVectorArrays + 1];
+  this->SelectedVectorComponents = new int *[this->NumberOfVectorArrays + 1];
+  
+  for (i = 0; i < this->NumberOfVectorArrays; i++)
+    {
+    this->VectorArrayNames[i] = new char[strlen(arrayNames[i]) + 1];
+    strcpy(this->VectorArrayNames[i], arrayNames[i]);
+    delete [] arrayNames[i];
+    arrayNames[i] = NULL;
+    this->VectorVariableNames[i] = new char[strlen(varNames[i]) + 1];
+    strcpy(this->VectorVariableNames[i], varNames[i]);
+    delete [] varNames[i];
+    varNames[i] = NULL;
+    this->SelectedVectorComponents[i] = new int[3];
+    this->SelectedVectorComponents[i][0] = tempComponents[i][0];
+    this->SelectedVectorComponents[i][1] = tempComponents[i][1];
+    this->SelectedVectorComponents[i][2] = tempComponents[i][2];
+    delete [] tempComponents[i];
+    tempComponents[i] = NULL;
+    }
+  delete [] arrayNames;
+  arrayNames = NULL;
+  delete [] varNames;
+  varNames = NULL;
+  delete [] tempComponents;
+  tempComponents = NULL;
+
+  this->VectorArrayNames[i] = new char[strlen(arrayName) + 1];
+  strcpy(this->VectorArrayNames[i], arrayName);
+  this->VectorVariableNames[i] = new char[strlen(variableName) + 1];
+  strcpy(this->VectorVariableNames[i], variableName);
   this->SelectedVectorComponents[i] = new int[3];
   this->SelectedVectorComponents[i][0] = component0;
   this->SelectedVectorComponents[i][1] = component1;
