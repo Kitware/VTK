@@ -52,6 +52,7 @@ using std::ostream;
 using std::istream;
 using std::ostrstream;
 using std::istrstream;
+using std::strstream;
 using std::ofstream;
 using std::ifstream;
 
