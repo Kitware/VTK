@@ -158,7 +158,7 @@ void vtkBYUWriter::WriteDisplacementFile(int numPts)
   if ( this->WriteDisplacement && this->DisplacementFileName &&
   (inVectors = input->GetPointData()->GetVectors()) != NULL )
     {
-    if ( !(dispFp = fopen(this->DisplacementFileName, "r")) )
+    if ( !(dispFp = fopen(this->DisplacementFileName, "w")) )
       {
       vtkErrorMacro (<<"Couldn't open displacement file");
       return;
@@ -190,7 +190,7 @@ void vtkBYUWriter::WriteScalarFile(int numPts)
   if ( this->WriteScalar && this->ScalarFileName &&
   (inScalars = input->GetPointData()->GetScalars()) != NULL )
     {
-    if ( !(scalarFp = fopen(this->ScalarFileName, "r")) )
+    if ( !(scalarFp = fopen(this->ScalarFileName, "w")) )
       {
       vtkErrorMacro (<<"Couldn't open scalar file");
       return;
@@ -222,7 +222,7 @@ void vtkBYUWriter::WriteTextureFile(int numPts)
   if ( this->WriteTexture && this->TextureFileName &&
   (inTCoords = input->GetPointData()->GetTCoords()) != NULL )
     {
-    if ( !(textureFp = fopen(this->TextureFileName, "r")) )
+    if ( !(textureFp = fopen(this->TextureFileName, "w")) )
       {
       vtkErrorMacro (<<"Couldn't open texture file");
       return;
