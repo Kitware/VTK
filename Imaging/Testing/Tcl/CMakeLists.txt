@@ -21,6 +21,7 @@ IF (HAVE_PNG)
         TestAllShrinks
         TestButterworthLowPass
         TestButterworthHighPass
+        TestCache
         TestCityBlockDistance
         TestCorrelation
         TestDilateErode3D
@@ -35,6 +36,7 @@ IF (HAVE_PNG)
         TestIdealLowPass
         TestInPlaceFilter
         TestIslandRemoval2D
+        TestMapToRGBABlockStreaming
         TestMapToWindowLevelColors
         TestMask2
         TestMedian3D
