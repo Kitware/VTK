@@ -8,7 +8,7 @@
 // Constructor for a vtkSLCReader.
 vtkSLCReader::vtkSLCReader()
 {
-  this->Filename = NULL;
+  this->FileName = NULL;
 }
 
 // Description:
@@ -81,9 +81,9 @@ void vtkSLCReader::Execute()
   vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;
 
   // Initialize
-  if ((fp = fopen(this->Filename, "r")) == NULL)
+  if ((fp = fopen(this->FileName, "r")) == NULL)
   {
-    vtkErrorMacro(<< "File " << this->Filename << " not found");
+    vtkErrorMacro(<< "File " << this->FileName << " not found");
     return;
   }
 
@@ -208,6 +208,6 @@ void vtkSLCReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkStructuredPointsSource::PrintSelf(os,indent);
 
-  os << indent << "Filename: " 
-     << (this->Filename ? this->Filename : "(none)") << "\n";
+  os << indent << "File Name: " 
+     << (this->FileName ? this->FileName : "(none)") << "\n";
 }

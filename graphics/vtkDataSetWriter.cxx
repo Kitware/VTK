@@ -98,7 +98,7 @@ void vtkDataSetWriter::WriteData()
     return;
     }
 
-  writer->SetFilename(this->Filename);
+  writer->SetFileName(this->FileName);
   writer->SetScalarsName(this->ScalarsName);
   writer->SetVectorsName(this->VectorsName);
   writer->SetNormalsName(this->NormalsName);

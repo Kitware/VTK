@@ -47,7 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // turned on.
 vtkUGFacetReader::vtkUGFacetReader()
 {
-  this->Filename = NULL;
+  this->FileName = NULL;
   this->PartColors = NULL;
   this->PartNumber = (-1); //extract all parts
 
@@ -58,7 +58,7 @@ vtkUGFacetReader::vtkUGFacetReader()
 
 vtkUGFacetReader::~vtkUGFacetReader()
 {
-  if ( this->Filename ) delete [] this->Filename;
+  if ( this->FileName ) delete [] this->FileName;
   if ( this->PartColors ) this->PartColors->Delete();
   if ( this->SelfCreatedLocator ) this->Locator->Delete();
 }
@@ -77,14 +77,14 @@ void vtkUGFacetReader::Execute()
   vtkPolyData *output=(vtkPolyData *)this->Output;
 
   vtkDebugMacro(<<"Reading UG facet file...");
-  if ( this->Filename == NULL )
+  if ( this->FileName == NULL )
     {
-    vtkErrorMacro(<<"No filename specified...please specify one.");
+    vtkErrorMacro(<<"No FileName specified...please specify one.");
     return;
     }
 
   // open the file
-  if ( (fp = fopen(this->Filename, "r")) == NULL) 
+  if ( (fp = fopen(this->FileName, "r")) == NULL) 
     {
     vtkErrorMacro(<<"Cannot open file specified.");
     return;
@@ -244,14 +244,14 @@ int vtkUGFacetReader::GetNumberOfParts()
   FILE *fp;
   int numberOfParts;
 
-  if ( this->Filename == NULL )
+  if ( this->FileName == NULL )
     {
-    vtkErrorMacro(<<"No filename specified...please specify one.");
+    vtkErrorMacro(<<"No FileName specified...please specify one.");
     return 0;
     }
 
   // open the file
-  if ( (fp = fopen(this->Filename, "r")) == NULL) 
+  if ( (fp = fopen(this->FileName, "r")) == NULL) 
     {
     vtkErrorMacro(<<"Cannot open file specified.");
     return 0;
@@ -319,8 +319,8 @@ void vtkUGFacetReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolySource::PrintSelf(os,indent);
 
-  os << indent << "Filename: " 
-     << (this->Filename ? this->Filename : "(none)") << "\n";
+  os << indent << "File Name: " 
+     << (this->FileName ? this->FileName : "(none)") << "\n";
 
   os << indent << "Merging: " << (this->Merging ? "On\n" : "Off\n");
   if ( this->Locator )

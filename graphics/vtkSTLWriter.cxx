@@ -44,13 +44,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkSTLWriter::vtkSTLWriter()
 {
-  this->Filename = NULL;
+  this->FileName = NULL;
   this->FileType = VTK_ASCII;
 }
 
 vtkSTLWriter::~vtkSTLWriter()
 {
-  if ( this->Filename ) delete [] this->Filename;
+  if ( this->FileName ) delete [] this->FileName;
 }
 
 
@@ -68,9 +68,9 @@ void vtkSTLWriter::WriteData()
     return;
     }
 
-  if ( this->Filename == NULL)
+  if ( this->FileName == NULL)
     {
-    vtkErrorMacro(<< "Please specify filename to write");
+    vtkErrorMacro(<< "Please specify FileName to write");
     return;
     }
 
@@ -86,9 +86,9 @@ void vtkSTLWriter::WriteAsciiSTL(vtkPoints *pts, vtkCellArray *polys)
   float n[3], *v1, *v2, *v3;
   int npts, *indx;
 
-  if ((fp = fopen(this->Filename, "w")) == NULL)
+  if ((fp = fopen(this->FileName, "w")) == NULL)
     {
-    vtkErrorMacro(<< "Couldn't open file: " << this->Filename);
+    vtkErrorMacro(<< "Couldn't open file: " << this->FileName);
     return;
     }
 //
@@ -130,9 +130,9 @@ void vtkSTLWriter::WriteBinarySTL(vtkPoints *pts, vtkCellArray *polys)
   unsigned long ulint;
   unsigned short ibuff2=0;
 
-  if ((fp = fopen(this->Filename, "wb")) == NULL)
+  if ((fp = fopen(this->FileName, "wb")) == NULL)
     {
-    vtkErrorMacro(<< "Couldn't open file: " << this->Filename);
+    vtkErrorMacro(<< "Couldn't open file: " << this->FileName);
     return;
     }
 //
@@ -179,7 +179,7 @@ void vtkSTLWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkWriter::PrintSelf(os,indent);
  
-  os << indent << "Filename: " << this->Filename << "\n";
+  os << indent << "File Name: " << this->FileName << "\n";
 
   if ( this->FileType == VTK_ASCII  )
     os << indent << "FileType: ASCII\n";

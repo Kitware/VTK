@@ -69,10 +69,8 @@ public:
 
   // Description:
   // Specify file name of vtk data file to read.
-  vtkSetStringMacro(Filename);
-  vtkGetStringMacro(Filename);
-  void SetFileName(char *str){this->SetFilename(str);}
-  char *GetFileName(){return this->GetFilename();}
+  vtkSetStringMacro(FileName);
+  vtkGetStringMacro(FileName);
 
   // Description:
   // Specify the InputString for use when reading from a character array.
@@ -150,7 +148,7 @@ public:
   istream *GetIStream() {return this->IS;};
 
 protected:
-  char *Filename;
+  char *FileName;
   int FileType;
   istream *IS;
 

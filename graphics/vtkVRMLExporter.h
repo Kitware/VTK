@@ -65,10 +65,8 @@ public:
 
   // Description:
   // Specify the name of the VRML file to write.
-  vtkSetStringMacro(Filename);
-  vtkGetStringMacro(Filename);
-  void SetFileName(char *str){this->SetFilename(str);}
-  char *GetFileName(){return this->GetFilename();}
+  vtkSetStringMacro(FileName);
+  vtkGetStringMacro(FileName);
 
 protected:
   void WriteData();
@@ -76,7 +74,7 @@ protected:
   void WriteAnActor(vtkActor *anActor, FILE *fp);
   void WritePointData(vtkPoints *points, vtkNormals *normals, 
 		      vtkTCoords *tcoords, vtkColorScalars *colors, FILE *fp);
-  char *Filename;
+  char *FileName;
 };
 
 #endif

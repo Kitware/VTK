@@ -100,7 +100,7 @@ public:
   vtkGetVectorMacro(PixelSamples,int,2);
 
   // Description:
-  // Specify the prefix of the files to write out. The resulting filenames
+  // Specify the prefix of the files to write out. The resulting file names
   // will have .RIB appended to them.
   vtkSetStringMacro(FilePrefix);
   vtkGetStringMacro(FilePrefix);

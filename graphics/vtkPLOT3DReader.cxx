@@ -56,10 +56,10 @@ vtkPLOT3DReader::vtkPLOT3DReader()
 {
   this->FileFormat = VTK_WHOLE_SINGLE_GRID_NO_IBLANKING;
 
-  this->XYZFilename = NULL;
-  this->QFilename = NULL;
-  this->FunctionFilename = NULL;
-  this->VectorFunctionFilename = NULL;
+  this->XYZFileName = NULL;
+  this->QFileName = NULL;
+  this->FunctionFileName = NULL;
+  this->VectorFunctionFileName = NULL;
 
   this->GridNumber = 0;
   this->ScalarFunctionNumber = 100;
@@ -85,10 +85,10 @@ vtkPLOT3DReader::vtkPLOT3DReader()
 
 vtkPLOT3DReader::~vtkPLOT3DReader()
 {
-  if ( this->XYZFilename ) delete [] this->XYZFilename;
-  if ( this->QFilename ) delete [] this->QFilename;
-  if ( this->FunctionFilename ) delete [] this->FunctionFilename;
-  if ( this->VectorFunctionFilename ) delete [] this->VectorFunctionFilename;
+  if ( this->XYZFileName ) delete [] this->XYZFileName;
+  if ( this->QFileName ) delete [] this->QFileName;
+  if ( this->FunctionFileName ) delete [] this->FunctionFileName;
+  if ( this->VectorFunctionFileName ) delete [] this->VectorFunctionFileName;
 }
 
 void vtkPLOT3DReader::Execute()
@@ -102,14 +102,14 @@ void vtkPLOT3DReader::Execute()
   // Initialize output and read geometry
   //
 
-  if ( this->XYZFilename == NULL )
+  if ( this->XYZFileName == NULL )
     {
     vtkErrorMacro(<< "Must specify geometry file");
     return;
     }
-  if ( (xyzFp = fopen(this->XYZFilename, "r")) == NULL)
+  if ( (xyzFp = fopen(this->XYZFileName, "r")) == NULL)
     {
-    vtkErrorMacro(<< "File: " << this->XYZFilename << " not found");
+    vtkErrorMacro(<< "File: " << this->XYZFileName << " not found");
     return;
     }
   if ( this->GetFileType(xyzFp) == ASCII )
@@ -120,7 +120,7 @@ void vtkPLOT3DReader::Execute()
   else
     {
     fclose(xyzFp);
-    xyzFp = fopen(this->XYZFilename, "rb");
+    xyzFp = fopen(this->XYZFileName, "rb");
     error = this->ReadBinaryGrid(xyzFp,output);
     fclose(xyzFp);
     }
@@ -133,13 +133,13 @@ void vtkPLOT3DReader::Execute()
   //
   // Read solution file (if available and requested)
   //
-  if ( this->QFilename && 
-  ((this->FunctionFilename == NULL && this->ScalarFunctionNumber >= 0) ||
-  (this->VectorFunctionFilename == NULL && this->VectorFunctionNumber >= 0)) )
+  if ( this->QFileName && 
+  ((this->FunctionFileName == NULL && this->ScalarFunctionNumber >= 0) ||
+  (this->VectorFunctionFileName == NULL && this->VectorFunctionNumber >= 0)) )
     {
-    if ( (QFp = fopen(this->QFilename, "r")) == NULL)
+    if ( (QFp = fopen(this->QFileName, "r")) == NULL)
       {
-      vtkErrorMacro(<< "File: " << this->QFilename << " not found");
+      vtkErrorMacro(<< "File: " << this->QFileName << " not found");
       return;
       }
 
@@ -151,7 +151,7 @@ void vtkPLOT3DReader::Execute()
     else
       {
       fclose(QFp);
-      QFp = fopen(this->QFilename, "rb");
+      QFp = fopen(this->QFileName, "rb");
       error = this->ReadBinarySolution(QFp,output);
       fclose(QFp);
       }
@@ -167,11 +167,11 @@ void vtkPLOT3DReader::Execute()
 //
 // Read function file (if available)
 //
-  if ( this->FunctionFilename != NULL)
+  if ( this->FunctionFileName != NULL)
     {
-    if ( (funcFp = fopen(this->FunctionFilename, "r")) == NULL)
+    if ( (funcFp = fopen(this->FunctionFileName, "r")) == NULL)
       {
-      vtkErrorMacro(<< "File: " << this->FunctionFilename << " not found");
+      vtkErrorMacro(<< "File: " << this->FunctionFileName << " not found");
       return;
       }
 
@@ -183,7 +183,7 @@ void vtkPLOT3DReader::Execute()
     else
       {
       fclose(funcFp);
-      funcFp = fopen(this->FunctionFilename, "rb");
+      funcFp = fopen(this->FunctionFileName, "rb");
       error = this->ReadBinaryFunctionFile(funcFp,output);
       fclose(funcFp);
       }
@@ -197,11 +197,11 @@ void vtkPLOT3DReader::Execute()
 //
 // Read vector function file (if available)
 //
-  if ( this->VectorFunctionFilename != NULL )
+  if ( this->VectorFunctionFileName != NULL )
     {
-    if ( (funcFp = fopen(this->VectorFunctionFilename, "r")) == NULL)
+    if ( (funcFp = fopen(this->VectorFunctionFileName, "r")) == NULL)
       {
-      vtkErrorMacro(<< "File: " << this->VectorFunctionFilename << " not found");
+      vtkErrorMacro(<< "File: " << this->VectorFunctionFileName << " not found");
       return;
       }
 
@@ -213,7 +213,7 @@ void vtkPLOT3DReader::Execute()
     else
       {
       fclose(funcFp);
-      funcFp = fopen(this->VectorFunctionFilename, "rb");
+      funcFp = fopen(this->VectorFunctionFileName, "rb");
       error = this->ReadBinaryVectorFunctionFile(funcFp,output);
       fclose(funcFp);
       }
@@ -1401,12 +1401,12 @@ void vtkPLOT3DReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkStructuredGridSource::PrintSelf(os,indent);
 
-  os << indent << "XYZ Filename: " << 
-    (this->XYZFilename ? this->XYZFilename : "(none)") << "\n";
-  os << indent << "Q Filename: " <<
-    (this->QFilename ? this->QFilename : "(none)") << "\n";
-  os << indent << "Function Filename: " << 
-    (this->FunctionFilename ? this->FunctionFilename : "(none)") << "\n";
+  os << indent << "XYZ File Name: " << 
+    (this->XYZFileName ? this->XYZFileName : "(none)") << "\n";
+  os << indent << "Q File Name: " <<
+    (this->QFileName ? this->QFileName : "(none)") << "\n";
+  os << indent << "Function File Name: " << 
+    (this->FunctionFileName ? this->FunctionFileName : "(none)") << "\n";
 
   os << indent << "Grid Number: " << this->GridNumber << "\n";
   os << indent << "Scalar Function Number: " << this->ScalarFunctionNumber << "\n";

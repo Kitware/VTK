@@ -46,10 +46,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkBYUReader::vtkBYUReader()
 {
-  this->GeometryFilename = NULL;
-  this->DisplacementFilename = NULL;
-  this->ScalarFilename = NULL;
-  this->TextureFilename = NULL;
+  this->GeometryFileName = NULL;
+  this->DisplacementFileName = NULL;
+  this->ScalarFileName = NULL;
+  this->TextureFileName = NULL;
 
   this->ReadDisplacement = 1;
   this->ReadScalar = 1;
@@ -60,10 +60,10 @@ vtkBYUReader::vtkBYUReader()
 
 vtkBYUReader::~vtkBYUReader()
 {
-  if ( this->GeometryFilename ) delete [] this->GeometryFilename;
-  if ( this->DisplacementFilename ) delete [] this->DisplacementFilename;
-  if ( this->ScalarFilename ) delete [] this->ScalarFilename;
-  if ( this->TextureFilename ) delete [] this->TextureFilename;
+  if ( this->GeometryFileName ) delete [] this->GeometryFileName;
+  if ( this->DisplacementFileName ) delete [] this->DisplacementFileName;
+  if ( this->ScalarFileName ) delete [] this->ScalarFileName;
+  if ( this->TextureFileName ) delete [] this->TextureFileName;
 }
 
 void vtkBYUReader::Execute()
@@ -71,9 +71,9 @@ void vtkBYUReader::Execute()
   FILE *geomFp;
   int numPts;
 
-  if ((geomFp = fopen(this->GeometryFilename, "r")) == NULL)
+  if ((geomFp = fopen(this->GeometryFileName, "r")) == NULL)
     {
-    vtkErrorMacro(<< "Geometry file: " << this->GeometryFilename << " not found");
+    vtkErrorMacro(<< "Geometry file: " << this->GeometryFileName << " not found");
     return;
     }
   else
@@ -181,9 +181,9 @@ void vtkBYUReader::ReadDisplacementFile(int numPts)
   vtkFloatVectors *newVectors;
   vtkPolyData *output = this->GetOutput();
   
-  if ( this->ReadDisplacement && this->DisplacementFilename )
+  if ( this->ReadDisplacement && this->DisplacementFileName )
     {
-    if ( !(dispFp = fopen(this->DisplacementFilename, "r")) )
+    if ( !(dispFp = fopen(this->DisplacementFileName, "r")) )
       {
       vtkErrorMacro (<<"Couldn't open displacement file");
       return;
@@ -216,9 +216,9 @@ void vtkBYUReader::ReadScalarFile(int numPts)
   vtkFloatScalars *newScalars;
   vtkPolyData *output = this->GetOutput();
   
-  if ( this->ReadScalar && this->ScalarFilename )
+  if ( this->ReadScalar && this->ScalarFileName )
     {
-    if ( !(scalarFp = fopen(this->ScalarFilename, "r")) )
+    if ( !(scalarFp = fopen(this->ScalarFileName, "r")) )
       {
       vtkErrorMacro (<<"Couldn't open scalar file");
       return;
@@ -251,9 +251,9 @@ void vtkBYUReader::ReadTextureFile(int numPts)
   vtkFloatTCoords *newTCoords;
   vtkPolyData *output = this->GetOutput();
 
-  if ( this->ReadTexture && this->TextureFilename )
+  if ( this->ReadTexture && this->TextureFileName )
     {
-    if ( !(textureFp = fopen(this->TextureFilename, "r")) )
+    if ( !(textureFp = fopen(this->TextureFileName, "r")) )
       {
       vtkErrorMacro (<<"Couldn't open texture file");
       return;
@@ -282,16 +282,16 @@ void vtkBYUReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolySource::PrintSelf(os,indent);
 
-  os << indent << "Geometry Filename: " 
-     << (this->GeometryFilename ? this->GeometryFilename : "(none)") << "\n";
+  os << indent << "Geometry File Name: " 
+     << (this->GeometryFileName ? this->GeometryFileName : "(none)") << "\n";
   os << indent << "Read Displacement: " << (this->ReadDisplacement ? "On\n" : "Off\n");
-  os << indent << "Displacement Filename: " 
-     << (this->DisplacementFilename ? this->DisplacementFilename : "(none)") << "\n";
+  os << indent << "Displacement File Name: " 
+     << (this->DisplacementFileName ? this->DisplacementFileName : "(none)") << "\n";
   os << indent << "Read Scalar: " << (this->ReadScalar ? "On\n" : "Off\n");
-  os << indent << "Scalar Filename: " 
-     << (this->ScalarFilename ? this->ScalarFilename : "(none)") << "\n";
+  os << indent << "Scalar File Name: " 
+     << (this->ScalarFileName ? this->ScalarFileName : "(none)") << "\n";
   os << indent << "Read Texture: " << (this->ReadTexture ? "On\n" : "Off\n");
-  os << indent << "Texture Filename: " 
-     << (this->TextureFilename ? this->TextureFilename : "(none)") << "\n";
+  os << indent << "Texture File Name: " 
+     << (this->TextureFileName ? this->TextureFileName : "(none)") << "\n";
 }
 

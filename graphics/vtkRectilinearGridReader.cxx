@@ -53,13 +53,13 @@ unsigned long int vtkRectilinearGridReader::GetMTime()
 
 // Description:
 // Specify file name of vtk polygonal data file to read.
-void vtkRectilinearGridReader::SetFilename(char *name) 
+void vtkRectilinearGridReader::SetFileName(char *name) 
 {
-  this->Reader.SetFilename(name);
+  this->Reader.SetFileName(name);
 }
-char *vtkRectilinearGridReader::GetFilename() 
+char *vtkRectilinearGridReader::GetFileName() 
 {
-  return this->Reader.GetFilename();
+  return this->Reader.GetFileName();
 }
 
 // Description:

@@ -64,7 +64,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // scalars, vectors, tensors, normals, and texture coordinates.
 vtkDataWriter::vtkDataWriter()
 {
-  this->Filename = NULL;
+  this->FileName = NULL;
 
   this->Header = new char[257];
   strcpy(this->Header,"vtk output");
@@ -91,7 +91,7 @@ vtkDataWriter::vtkDataWriter()
 
 vtkDataWriter::~vtkDataWriter()
 {
-  if ( this->Filename ) delete [] this->Filename;
+  if ( this->FileName ) delete [] this->FileName;
   if ( this->Header ) delete [] this->Header;
   if ( this->ScalarsName ) delete [] this->ScalarsName;
   if ( this->VectorsName ) delete [] this->VectorsName;
@@ -109,15 +109,15 @@ FILE *vtkDataWriter::OpenVTKFile()
 
   vtkDebugMacro(<<"Opening vtk file for writing...");
 
-  if ( !this->Filename )
+  if ( !this->FileName )
     {
-    vtkErrorMacro(<< "No filename specified! Can't write!");
+    vtkErrorMacro(<< "No FileName specified! Can't write!");
     return NULL;
     }
 
-  if ( (fptr=fopen(this->Filename, "wb")) == NULL )
+  if ( (fptr=fopen(this->FileName, "wb")) == NULL )
     {
-    vtkErrorMacro(<< "Unable to open file: "<< this->Filename);
+    vtkErrorMacro(<< "Unable to open file: "<< this->FileName);
     return NULL;
     }
 
@@ -888,8 +888,8 @@ void vtkDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkWriter::PrintSelf(os,indent);
 
-  os << indent << "Filename: " 
-     << (this->Filename ? this->Filename : "(none)") << "\n";
+  os << indent << "File Name: " 
+     << (this->FileName ? this->FileName : "(none)") << "\n";
 
   if ( this->FileType == VTK_BINARY )
     os << indent << "File Type: BINARY\n";

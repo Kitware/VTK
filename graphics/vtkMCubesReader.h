@@ -87,15 +87,13 @@ public:
 
   // Description:
   // Specify file name of marching cubes file.
-  vtkSetStringMacro(Filename);
-  vtkGetStringMacro(Filename);
-  void SetFileName(char *str){this->SetFilename(str);}
-  char *GetFileName(){return this->GetFilename();}
+  vtkSetStringMacro(FileName);
+  vtkGetStringMacro(FileName);
 
   // Description:
   // Specify file name of marching cubes limits file.
-  vtkSetStringMacro(LimitsFilename);
-  vtkGetStringMacro(LimitsFilename);
+  vtkSetStringMacro(LimitsFileName);
+  vtkGetStringMacro(LimitsFileName);
 
   // Description:
   // Specify whether to flip normals in opposite direction. Flipping ONLY changes
@@ -122,8 +120,8 @@ public:
 protected:
   void Execute();
 
-  char *Filename;
-  char *LimitsFilename;
+  char *FileName;
+  char *LimitsFileName;
   vtkPointLocator *Locator;
   int SelfCreatedLocator;
   int FlipNormals;

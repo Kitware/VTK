@@ -53,13 +53,13 @@ unsigned long int vtkStructuredPointsReader::GetMTime()
 
 // Description:
 // Specify file name of vtk structured points data file to read.
-void vtkStructuredPointsReader::SetFilename(char *name) 
+void vtkStructuredPointsReader::SetFileName(char *name) 
 {
-  this->Reader.SetFilename(name);
+  this->Reader.SetFileName(name);
 }
-char *vtkStructuredPointsReader::GetFilename() 
+char *vtkStructuredPointsReader::GetFileName() 
 {
-  return this->Reader.GetFilename();
+  return this->Reader.GetFileName();
 }
 
 // Description:

@@ -47,8 +47,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct object with FlipNormals turned off and Normals set to true.
 vtkMCubesReader::vtkMCubesReader()
 {
-  this->Filename = NULL;
-  this->LimitsFilename = NULL;
+  this->FileName = NULL;
+  this->LimitsFileName = NULL;
 
   this->Locator = NULL;
   this->SelfCreatedLocator = 0;
@@ -59,8 +59,8 @@ vtkMCubesReader::vtkMCubesReader()
 
 vtkMCubesReader::~vtkMCubesReader()
 {
-  if (this->Filename) delete [] this->Filename;
-  if (this->LimitsFilename) delete [] this->LimitsFilename;
+  if (this->FileName) delete [] this->FileName;
+  if (this->LimitsFileName) delete [] this->LimitsFileName;
   if (this->SelfCreatedLocator) this->Locator->Delete();
 }
 
@@ -86,21 +86,21 @@ void vtkMCubesReader::Execute()
   // Initialize
   //
 
-  if ( this->Filename == NULL )
+  if ( this->FileName == NULL )
     {
-    vtkErrorMacro(<< "Please specify input filename");
+    vtkErrorMacro(<< "Please specify input FileName");
     return;
     }
-  if ( (fp = fopen(this->Filename, "r")) == NULL)
+  if ( (fp = fopen(this->FileName, "r")) == NULL)
     {
-    vtkErrorMacro(<< "File " << this->Filename << " not found");
+    vtkErrorMacro(<< "File " << this->FileName << " not found");
     return;
     }
 
   // Try to read limits file to get bounds. Otherwise, read data.
-  if ( this->LimitsFilename != NULL && 
-  (limitp = fopen (this->LimitsFilename, "r")) != NULL &&
-  stat (this->Filename, &buf) == 0 )
+  if ( this->LimitsFileName != NULL && 
+  (limitp = fopen (this->LimitsFileName, "r")) != NULL &&
+  stat (this->FileName, &buf) == 0 )
     {
     // skip first three pairs
     fread (dummy, sizeof(float), 2, limitp);
@@ -236,10 +236,10 @@ void vtkMCubesReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolySource::PrintSelf(os,indent);
 
-  os << indent << "Filename: " 
-     << (this->Filename ? this->Filename : "(none)") << "\n";
-  os << indent << "Limits Filename: " 
-     << (this->LimitsFilename ? this->LimitsFilename : "(none)") << "\n";
+  os << indent << "File Name: " 
+     << (this->FileName ? this->FileName : "(none)") << "\n";
+  os << indent << "Limits File Name: " 
+     << (this->LimitsFileName ? this->LimitsFileName : "(none)") << "\n";
   os << indent << "Normals: " << (this->Normals ? "On\n" : "Off\n");
   os << indent << "FlipNormals: " << (this->FlipNormals ? "On\n" : "Off\n");
 }

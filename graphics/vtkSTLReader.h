@@ -41,7 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkSTLReader - read ASCII or binary stereo lithography files
 // .SECTION Description
 // vtkSTLReader is a source object that reads ASCII or binary stereo 
-// lithography files (.stl files). The filename must be specified to
+// lithography files (.stl files). The FileName must be specified to
 // vtkSTLReader. The object automatically detects whether the file is
 // ASCII or binary.
 //
@@ -73,10 +73,8 @@ public:
 
   // Description:
   // Specify file name of stereo lithography file.
-  vtkSetStringMacro(Filename);
-  vtkGetStringMacro(Filename);
-  void SetFileName(char *str){this->SetFilename(str);}
-  char *GetFileName(){return this->GetFilename();}
+  vtkSetStringMacro(FileName);
+  vtkGetStringMacro(FileName);
 
   // Description:
   // Turn on/off merging of points/triangles.
@@ -93,7 +91,7 @@ public:
   void CreateDefaultLocator();
 
 protected:
-  char *Filename;
+  char *FileName;
   int Merging;
   vtkPointLocator *Locator;
   int SelfCreatedLocator;

@@ -120,33 +120,24 @@ public:
   vtkGetMacro(FileFormat,int);
 
   // Description:
-  // Set/Get the PLOT3D geometry filename.
-  vtkSetStringMacro(XYZFilename);
-  vtkGetStringMacro(XYZFilename);
-  void SetXYZFileName(char *str){this->SetXYZFilename(str);}
-  char *GetXYZFileName(){return this->GetXYZFilename();}
+  // Set/Get the PLOT3D geometry FileName.
+  vtkSetStringMacro(XYZFileName);
+  vtkGetStringMacro(XYZFileName);
 
   // Description:
-  // Set/Get the PLOT3D solution filename.
-  vtkSetStringMacro(QFilename);
-  vtkGetStringMacro(QFilename);
-  void SetQFileName(char *str){this->SetQFilename(str);}
-  char *GetQFileName(){return this->GetQFilename();}
+  // Set/Get the PLOT3D solution FileName.
+  vtkSetStringMacro(QFileName);
+  vtkGetStringMacro(QFileName);
 
   // Description:
-  // Set/Get the PLOT3D function filename.
-  vtkSetStringMacro(FunctionFilename);
-  vtkGetStringMacro(FunctionFilename);
-  void SetFunctionFileName(char *str){this->SetFunctionFilename(str);}
-  char *GetFunctionFileName(){return this->GetFunctionFilename();}
+  // Set/Get the PLOT3D function FileName.
+  vtkSetStringMacro(FunctionFileName);
+  vtkGetStringMacro(FunctionFileName);
 
   // Description:
-  // Set/Get the PLOT3D vector filename.
-  vtkSetStringMacro(VectorFunctionFilename);
-  vtkGetStringMacro(VectorFunctionFilename);
-  void SetVectorFunctionFileName(char *str)
-    {this->SetVectorFunctionFilename(str);}
-  char *GetVectorFunctionFileName(){return this->GetVectorFunctionFilename();}
+  // Set/Get the PLOT3D vector FileName.
+  vtkSetStringMacro(VectorFunctionFileName);
+  vtkGetStringMacro(VectorFunctionFileName);
 
   // Description:
   // Specify the grid to read.
@@ -211,12 +202,12 @@ protected:
   void Execute();
   int GetFileType(FILE *fp);
 
-  //plot3d filenames
+  //plot3d FileNames
   int FileFormat; //various PLOT3D formats
-  char *XYZFilename;
-  char *QFilename;
-  char *FunctionFilename;
-  char *VectorFunctionFilename;
+  char *XYZFileName;
+  char *QFileName;
+  char *FunctionFileName;
+  char *VectorFunctionFileName;
 
   //flags describing data to be read
   int GridNumber; //for multi-grid files, the one we're interested in

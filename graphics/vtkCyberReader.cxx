@@ -57,12 +57,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkCyberReader::vtkCyberReader()
 {
-  this->Filename = NULL;
+  this->FileName = NULL;
 }
 
 vtkCyberReader::~vtkCyberReader()
 {
-  if ( this->Filename ) delete [] this->Filename;
+  if ( this->FileName ) delete [] this->FileName;
 }
 
 //
@@ -298,13 +298,13 @@ void vtkCyberReader::Execute()
   vtkPolyData *output = this->GetOutput();
   
 
-  if ( this->Filename == NULL )
+  if ( this->FileName == NULL )
     {
     vtkErrorMacro(<<"No file specified!");
     return;
     }
 
-  vtkDebugMacro(<<"Reading Cyberware file: " << this->Filename);
+  vtkDebugMacro(<<"Reading Cyberware file: " << this->FileName);
 
   vtx = (struct Vertex *)calloc(1,sizeof(struct Vertex));
   vtx->ltresol = 1;
@@ -312,7 +312,7 @@ void vtkCyberReader::Execute()
 //
 // Open file
 //
-  if ((fd = open(this->Filename, O_RDONLY)) == -1) 
+  if ((fd = open(this->FileName, O_RDONLY)) == -1) 
     {
     vtkErrorMacro(<<"Cannot open file!");
     return;
@@ -431,8 +431,8 @@ void vtkCyberReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolySource::PrintSelf(os,indent);
 
-  os << indent << "Filename: " 
-     << (this->Filename ? this->Filename : "(none)") << "\n";
+  os << indent << "File Name: " 
+     << (this->FileName ? this->FileName : "(none)") << "\n";
 }
 
 //---------------------- Cyberware code follows ---------------------------//

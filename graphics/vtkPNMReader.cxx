@@ -96,7 +96,7 @@ int vtkPNMReaderGetInt(FILE *fp)
 
 vtkPNMReader::vtkPNMReader()
 {
-  this->Filename = NULL;
+  this->FileName = NULL;
   this->ImageRange[0] = this->ImageRange[1] = -1;
 
   this->DataOrigin[0] = this->DataOrigin[1] = this->DataOrigin[2] = 0.0;
@@ -112,11 +112,11 @@ void vtkPNMReader::Execute()
 
   if (this->FilePrefix)
     {
-    this->Filename = strdup(this->FilePrefix);
+    this->FileName = strdup(this->FilePrefix);
     }
-  if ( this->Filename == NULL )
+  if ( this->FileName == NULL )
     {
-    vtkErrorMacro(<<"Please specify a filename!");
+    vtkErrorMacro(<<"Please specify a FileName!");
     return;
     }
 
@@ -148,11 +148,11 @@ vtkStructuredPoints *vtkPNMReader::GetImage(int ImageNum)
 
   if (this->FilePrefix)
     {
-    this->Filename = strdup(this->FilePrefix);
+    this->FileName = strdup(this->FilePrefix);
     }
-  if ( this->Filename == NULL )
+  if ( this->FileName == NULL )
     {
-    vtkErrorMacro(<<"Please specify a filename!");
+    vtkErrorMacro(<<"Please specify a FileName!");
     return NULL;
     }
 
@@ -172,21 +172,21 @@ vtkStructuredPoints *vtkPNMReader::GetImage(int ImageNum)
 vtkColorScalars *vtkPNMReader::ReadImage(int dim[3])
 {
   int type;
-  char filename[1024];
+  char FileName[1024];
   FILE *fp;
 
   if (dim[2] > 0)
     {
-    sprintf (filename, this->FilePattern, this->Filename, dim[2]);
+    sprintf (FileName, this->FilePattern, this->FileName, dim[2]);
     }
   else
     {
-    sprintf (filename, "%s",this->Filename);
+    sprintf (FileName, "%s",this->FileName);
     }
 
-  if ( !(fp = fopen(filename,"rb")) )
+  if ( !(fp = fopen(FileName,"rb")) )
     {
-      vtkErrorMacro(<<"Can't open file: " << filename);
+      vtkErrorMacro(<<"Can't open file: " << FileName);
       return NULL;
     }                                                                          
 
@@ -199,14 +199,14 @@ vtkColorScalars *vtkPNMReader::ReadVolume(int dim[3])
   vtkColorScalars *s;
   int size, imageSize, imageNum, type;
   int numImages=this->ImageRange[1] - this->ImageRange[0] + 1;
-  char filename[1024];
+  char FileName[1024];
   FILE *fp;
 
-  sprintf (filename, this->FilePattern, this->Filename, this->ImageRange[0]);
+  sprintf (FileName, this->FilePattern, this->FileName, this->ImageRange[0]);
 
-  if ( !(fp = fopen(filename,"rb")) )
+  if ( !(fp = fopen(FileName,"rb")) )
     {
-    vtkErrorMacro(<<"Can't open file: " << filename);
+    vtkErrorMacro(<<"Can't open file: " << FileName);
     return NULL;
     }
 
@@ -227,11 +227,11 @@ vtkColorScalars *vtkPNMReader::ReadVolume(int dim[3])
   //loop over remaining images; read them; assemble into volume
   for (imageNum=1; imageNum < numImages; imageNum++)
     {
-    sprintf (filename, this->FilePattern, this->Filename, this->ImageRange[0]+imageNum);
-    if ( !(fp = fopen(filename,"rb")) ||
+    sprintf (FileName, this->FilePattern, this->FileName, this->ImageRange[0]+imageNum);
+    if ( !(fp = fopen(FileName,"rb")) ||
     ! this->ReadBinaryPNM(fp, s, type, imageNum*imageSize, dim[0], dim[1]) )
       {
-      vtkErrorMacro(<<"Can't read file: " << filename);
+      vtkErrorMacro(<<"Can't read file: " << FileName);
       s->Delete();
       return NULL;
       }
@@ -452,6 +452,6 @@ void vtkPNMReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkVolumeReader::PrintSelf(os,indent);
 
-  os << indent << "Filename: " 
-     << (this->Filename ? this->Filename : "(none)") << "\n";
+  os << indent << "File Name: " 
+     << (this->FileName ? this->FileName : "(none)") << "\n";
 }

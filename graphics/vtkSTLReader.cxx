@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct object with merging set to true.
 vtkSTLReader::vtkSTLReader()
 {
-  this->Filename = NULL;
+  this->FileName = NULL;
   this->Merging = 1;
   this->Locator = NULL;
   this->SelfCreatedLocator = 0;
@@ -58,7 +58,7 @@ vtkSTLReader::vtkSTLReader()
 
 vtkSTLReader::~vtkSTLReader()
 {
-  if (this->Filename) delete [] this->Filename;
+  if (this->FileName) delete [] this->FileName;
   if (this->SelfCreatedLocator) this->Locator->Delete();
 }
 
@@ -72,9 +72,9 @@ void vtkSTLReader::Execute()
 //
 // Initialize
 //
-  if ((fp = fopen(this->Filename, "r")) == NULL)
+  if ((fp = fopen(this->FileName, "r")) == NULL)
     {
-    vtkErrorMacro(<< "File " << this->Filename << " not found");
+    vtkErrorMacro(<< "File " << this->FileName << " not found");
     return;
     }
 
@@ -92,7 +92,7 @@ void vtkSTLReader::Execute()
   else
     {
     fclose(fp);
-    fp = fopen(this->Filename, "rb");
+    fp = fopen(this->FileName, "rb");
     if ( this->ReadBinarySTL(fp,newPts,newPolys) ) return;
     }
 
@@ -295,8 +295,8 @@ void vtkSTLReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolySource::PrintSelf(os,indent);
 
-  os << indent << "Filename: " 
-     << (this->Filename ? this->Filename : "(none)") << "\n";
+  os << indent << "File Name: " 
+     << (this->FileName ? this->FileName : "(none)") << "\n";
 
   os << indent << "Merging: " << (this->Merging ? "On\n" : "Off\n");
   if ( this->Locator )

@@ -50,13 +50,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkByteSwap.h"
 
 // Description:
-// Construct with NULL reader, output filename specification, and limits 
-// filename.
+// Construct with NULL reader, output FileName specification, and limits 
+// FileName.
 vtkSliceCubes::vtkSliceCubes()
 {
   this->Reader = NULL;
-  this->Filename = NULL;
-  this->LimitsFilename = NULL;
+  this->FileName = NULL;
+  this->LimitsFileName = NULL;
 }
 
 // Description:
@@ -369,13 +369,13 @@ void vtkSliceCubes::Execute()
    return;
    }
 
-  if ( this->Filename == NULL )
+  if ( this->FileName == NULL )
    {
-   vtkErrorMacro(<<"No filename specified...can't output isosurface");
+   vtkErrorMacro(<<"No FileName specified...can't output isosurface");
    return;
    }
 
-  if ( (outFP = fopen(this->Filename, "w")) == NULL )
+  if ( (outFP = fopen(this->FileName, "w")) == NULL )
    {
    vtkErrorMacro(<<"Cannot open specified output file...");
    return;
@@ -453,12 +453,12 @@ void vtkSliceCubes::Execute()
   vtkDebugMacro(<<"Created: " << 3*numTriangles << " points, " 
                 << numTriangles << " triangles");
 
-  if ( this->LimitsFilename )
+  if ( this->LimitsFileName )
     {
     int i;
     float t;
 
-    if ( (outFP = fopen(this->LimitsFilename, "w")) == NULL )
+    if ( (outFP = fopen(this->LimitsFileName, "w")) == NULL )
       {
       vtkWarningMacro(<<"Sorry, couldn't write limits file...");
       }
@@ -495,8 +495,8 @@ void vtkSliceCubes::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Reader: (none)\n";
     }
 
-  os << indent << "Filename: " 
-     << (this->Filename ? this->Filename : "(none)") << "\n";
-  os << indent << "Limits Filename: " 
-     << (this->LimitsFilename ? this->LimitsFilename : "(none)") << "\n";
+  os << indent << "File Name: " 
+     << (this->FileName ? this->FileName : "(none)") << "\n";
+  os << indent << "Limits File Name: " 
+     << (this->LimitsFileName ? this->LimitsFileName : "(none)") << "\n";
 }

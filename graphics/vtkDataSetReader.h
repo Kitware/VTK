@@ -62,10 +62,8 @@ public:
   char *GetClassName() {return "vtkDataSetReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  void SetFilename(char *name);
-  char *GetFilename();
-  void SetFileName(char *str){this->SetFilename(str);}
-  char *GetFileName(){return this->GetFilename();}
+  void SetFileName(char *name);
+  char *GetFileName();
 
   // Description:
   // Specify the InputString for use when reading from a character array.

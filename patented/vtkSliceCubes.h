@@ -93,10 +93,8 @@ public:
 
   // Description:
   // Specify file name of marching cubes output file.
-  vtkSetStringMacro(Filename);
-  vtkGetStringMacro(Filename);
-  void SetFileName(char *str){this->SetFilename(str);}
-  char *GetFileName(){return this->GetFilename();}
+  vtkSetStringMacro(FileName);
+  vtkGetStringMacro(FileName);
 
   // Description:
   // Set/get isosurface contour value.
@@ -106,18 +104,16 @@ public:
   // Description:
   // Specify file name of marching cubes limits file. The limits file
   // speeds up subsequent reading of output triangle file.
-  vtkSetStringMacro(LimitsFilename);
-  vtkGetStringMacro(LimitsFilename);
-  void SetLimitsFileName(char *str){this->SetLimitsFilename(str);}
-  char *GetLimitsFileName(){return this->GetLimitsFilename();}
+  vtkSetStringMacro(LimitsFileName);
+  vtkGetStringMacro(LimitsFileName);
 
 protected:
   void Execute();
 
   vtkVolumeReader *Reader;
-  char *Filename;  
+  char *FileName;  
   float Value;
-  char *LimitsFilename;
+  char *LimitsFileName;
 };
 
 #endif

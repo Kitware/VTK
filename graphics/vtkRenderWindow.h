@@ -198,12 +198,10 @@ public:
   virtual void SetWindowName( char * );
 
   // Description:
-  // Set/Get the filename used for saving images. See the SaveImageAsPPM 
+  // Set/Get the FileName used for saving images. See the SaveImageAsPPM 
   // method.
-  vtkSetStringMacro(Filename);
-  vtkGetStringMacro(Filename);
-  void SetFileName(char *str){this->SetFilename(str);}
-  char *GetFileName(){return this->GetFilename();}
+  vtkSetStringMacro(FileName);
+  vtkGetStringMacro(FileName);
 
   // Description:
   // Save the current image as a PPM file.
@@ -308,7 +306,7 @@ protected:
   int StereoType;
   int StereoStatus; // used for keeping track of what's going on
   vtkRenderWindowInteractor *Interactor;
-  char *Filename;
+  char *FileName;
   unsigned char* StereoBuffer; // used for red blue stereo
   float *AccumulationBuffer;   // used for many techniques
   int AAFrames;

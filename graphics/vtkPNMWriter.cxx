@@ -43,12 +43,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkPNMWriter::vtkPNMWriter()
 {
-  this->Filename = NULL;
+  this->FileName = NULL;
 }
 
 vtkPNMWriter::~vtkPNMWriter()
 {
-  if ( this->Filename ) delete [] this->Filename;
+  if ( this->FileName ) delete [] this->FileName;
 }
 
 // Description:
@@ -97,16 +97,16 @@ void vtkPNMWriter::WriteData()
     return;
     }
   
-  if ( this->Filename == NULL)
+  if ( this->FileName == NULL)
     {
-    vtkErrorMacro(<< "Please specify filename to write");
+    vtkErrorMacro(<< "Please specify FileName to write");
     return;
     }
 
-  fp = fopen(this->Filename,"wb");
+  fp = fopen(this->FileName,"wb");
   if (!fp) 
     {
-    vtkErrorMacro(<< "Couldn't open file: " << this->Filename << endl);
+    vtkErrorMacro(<< "Couldn't open file: " << this->FileName << endl);
     return;
     }
 
@@ -142,8 +142,8 @@ void vtkPNMWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkWriter::PrintSelf(os,indent);
 
-  os << indent << "Filename: " 
-     << (this->Filename ? this->Filename : "(none)") << "\n";
+  os << indent << "File Name: " 
+     << (this->FileName ? this->FileName : "(none)") << "\n";
 }
 
 

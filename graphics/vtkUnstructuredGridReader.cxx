@@ -54,13 +54,13 @@ unsigned long int vtkUnstructuredGridReader::GetMTime()
 
 // Description:
 // Specify file name of vtk polygonal data file to read.
-void vtkUnstructuredGridReader::SetFilename(char *name) 
+void vtkUnstructuredGridReader::SetFileName(char *name) 
 {
-  this->Reader.SetFilename(name);
+  this->Reader.SetFileName(name);
 }
-char *vtkUnstructuredGridReader::GetFilename() 
+char *vtkUnstructuredGridReader::GetFileName() 
 {
-  return this->Reader.GetFilename();
+  return this->Reader.GetFileName();
 }
 
 // Description:

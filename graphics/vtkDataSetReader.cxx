@@ -51,13 +51,13 @@ vtkDataSetReader::vtkDataSetReader()
 
 // Description:
 // Specify file name of vtk data file to read.
-void vtkDataSetReader::SetFilename(char *name) 
+void vtkDataSetReader::SetFileName(char *name) 
 {
-  this->Reader.SetFilename(name);
+  this->Reader.SetFileName(name);
 }
-char *vtkDataSetReader::GetFilename() 
+char *vtkDataSetReader::GetFileName() 
 {
-  return this->Reader.GetFilename();
+  return this->Reader.GetFileName();
 }
 
 // Description:
@@ -175,7 +175,7 @@ void vtkDataSetReader::Execute()
     if ( ! strncmp(this->Reader.LowerCase(line),"polydata",8) )
       {
       vtkPolyReader *preader = vtkPolyReader::New();
-      preader->SetFilename(this->Reader.GetFilename());
+      preader->SetFileName(this->Reader.GetFileName());
       preader->SetInputString(this->Reader.GetInputString());
       preader->SetReadFromInputString(this->Reader.GetReadFromInputString());
       preader->SetScalarsName(this->Reader.GetScalarsName());
@@ -191,7 +191,7 @@ void vtkDataSetReader::Execute()
     else if ( ! strncmp(line,"structured_points",17) )
       {
       vtkStructuredPointsReader *preader = vtkStructuredPointsReader::New();
-      preader->SetFilename(this->Reader.GetFilename());
+      preader->SetFileName(this->Reader.GetFileName());
       preader->SetInputString(this->Reader.GetInputString());
       preader->SetReadFromInputString(this->Reader.GetReadFromInputString());
       preader->SetScalarsName(this->Reader.GetScalarsName());
@@ -207,7 +207,7 @@ void vtkDataSetReader::Execute()
     else if ( ! strncmp(line,"structured_grid",15) )
       {
       vtkStructuredGridReader *preader = vtkStructuredGridReader::New();
-      preader->SetFilename(this->Reader.GetFilename());
+      preader->SetFileName(this->Reader.GetFileName());
       preader->SetInputString(this->Reader.GetInputString());
       preader->SetReadFromInputString(this->Reader.GetReadFromInputString());
       preader->SetScalarsName(this->Reader.GetScalarsName());
@@ -223,7 +223,7 @@ void vtkDataSetReader::Execute()
     else if ( ! strncmp(line,"unstructured_grid",17) )
       {
       vtkUnstructuredGridReader *preader = vtkUnstructuredGridReader::New();
-      preader->SetFilename(this->Reader.GetFilename());
+      preader->SetFileName(this->Reader.GetFileName());
       preader->SetInputString(this->Reader.GetInputString());
       preader->SetReadFromInputString(this->Reader.GetReadFromInputString());
       preader->SetScalarsName(this->Reader.GetScalarsName());

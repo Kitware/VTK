@@ -49,13 +49,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // results in a 2D image, while reading more than one file results in a 
 // 3D volume.
 //
-// To read a volume, files must be of the form "filename.<number>"
+// To read a volume, files must be of the form "FileName.<number>"
 // (e.g., foo.ppm.0, foo.ppm.1, ...). You must also specify the image 
 // range. This range specifies the beginning and ending files to read (range
 // can be any pair of non-negative numbers). 
 //
 // The default behavior is to read a single file. In this case, the form
-// of the file is simply "filename" (e.g., foo.bar, foo.ppm, foo.pnm). To 
+// of the file is simply "FileName" (e.g., foo.bar, foo.ppm, foo.pnm). To 
 // differentiate between reading images and volumes, the image range is set
 // to  (-1,-1) to read a single image file.
 
@@ -78,16 +78,14 @@ public:
 
   // Description:
   // Specify file name of pnm file(s).
-  vtkSetStringMacro(Filename);
-  vtkGetStringMacro(Filename);
-  void SetFileName(char *str){this->SetFilename(str);}
-  char *GetFileName(){return this->GetFilename();}
+  vtkSetStringMacro(FileName);
+  vtkGetStringMacro(FileName);
 
   vtkStructuredPoints *GetImage(int ImageNum);
   
 protected:
   void Execute();
-  char *Filename;
+  char *FileName;
 
   vtkColorScalars *ReadImage(int dim[3]);
   vtkColorScalars *ReadVolume(int dim[3]);

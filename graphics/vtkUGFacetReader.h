@@ -62,10 +62,8 @@ public:
 
   // Description:
   // Specify Unigraphics file name.
-  vtkSetStringMacro(Filename);
-  vtkGetStringMacro(Filename);
-  void SetFileName(char *str){this->SetFilename(str);}
-  char *GetFileName(){return this->GetFilename();}
+  vtkSetStringMacro(FileName);
+  vtkGetStringMacro(FileName);
 
   // Special methods for interrogating data file.
   int GetNumberOfParts();
@@ -96,7 +94,7 @@ public:
 protected:
   void Execute();
 
-  char *Filename;
+  char *FileName;
   vtkShortArray *PartColors;
   int PartNumber;
   int Merging;

@@ -45,12 +45,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkVRMLExporter::vtkVRMLExporter()
 {
-  this->Filename = NULL;
+  this->FileName = NULL;
 }
 
 vtkVRMLExporter::~vtkVRMLExporter()
 {
-  if ( this->Filename ) delete [] this->Filename;
+  if ( this->FileName ) delete [] this->FileName;
 }
 
 void vtkVRMLExporter::WriteData()
@@ -64,10 +64,10 @@ void vtkVRMLExporter::WriteData()
   vtkCamera *cam;
   float *tempf;
   
-  // make sure the user specified a filename
-  if ( this->Filename == NULL)
+  // make sure the user specified a FileName
+  if ( this->FileName == NULL)
     {
-    vtkErrorMacro(<< "Please specify filename to use");
+    vtkErrorMacro(<< "Please specify FileName to use");
     return;
     }
 
@@ -90,10 +90,10 @@ void vtkVRMLExporter::WriteData()
     }
     
   // try opening the files
-  fp = fopen(this->Filename,"w");
+  fp = fopen(this->FileName,"w");
   if (!fp)
     {
-    vtkErrorMacro(<< "unable to open VRML file " << this->Filename);
+    vtkErrorMacro(<< "unable to open VRML file " << this->FileName);
     return;
     }
   
@@ -625,6 +625,6 @@ void vtkVRMLExporter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkExporter::PrintSelf(os,indent);
  
-  os << indent << "Filename: " << this->Filename << "\n";
+  os << indent << "File Name: " << this->FileName << "\n";
 }
 

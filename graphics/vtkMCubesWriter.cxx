@@ -44,14 +44,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Create object.
 vtkMCubesWriter::vtkMCubesWriter()
 {
-  this->Filename = NULL;
-  this->LimitsFilename = NULL;
+  this->FileName = NULL;
+  this->LimitsFileName = NULL;
 }
 
 vtkMCubesWriter::~vtkMCubesWriter()
 {
-  if ( this->Filename ) delete [] this->Filename;
-  if ( this->LimitsFilename ) delete [] this->LimitsFilename;
+  if ( this->FileName ) delete [] this->FileName;
+  if ( this->LimitsFileName ) delete [] this->LimitsFileName;
 }
 static void WriteMCubes(FILE *fp, vtkPoints *pts, vtkNormals *normals, vtkCellArray *polys);
 static void WriteLimits(FILE *fp, float *bounds);
@@ -80,27 +80,27 @@ void vtkMCubesWriter::WriteData()
     return;
     }
 
-  if ( this->Filename == NULL)
+  if ( this->FileName == NULL)
     {
-    vtkErrorMacro(<< "Please specify filename to write");
+    vtkErrorMacro(<< "Please specify FileName to write");
     return;
     }
 
   vtkDebugMacro("Writing MCubes tri file");
   FILE *fp;
-  if ((fp = fopen(this->Filename, "w")) == NULL)
+  if ((fp = fopen(this->FileName, "w")) == NULL)
     {
-    vtkErrorMacro(<< "Couldn't open file: " << this->Filename);
+    vtkErrorMacro(<< "Couldn't open file: " << this->FileName);
     return;
     }
   WriteMCubes (fp, pts, normals, polys);
   fclose (fp);
 
-  if (this->LimitsFilename) {
+  if (this->LimitsFileName) {
       vtkDebugMacro("Writing MCubes limits file");
-      if ((fp = fopen(this->LimitsFilename, "w")) == NULL)
+      if ((fp = fopen(this->LimitsFileName, "w")) == NULL)
         {
-        vtkErrorMacro(<< "Couldn't open file: " << this->LimitsFilename);
+        vtkErrorMacro(<< "Couldn't open file: " << this->LimitsFileName);
         return;
         }
         WriteLimits (fp, input->GetBounds ());
@@ -138,10 +138,10 @@ void vtkMCubesWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyWriter::PrintSelf(os,indent);
 
-  os << indent << "Filename: " 
-     << (this->Filename ? this->Filename : "(none)") << "\n";
+  os << indent << "File Name: " 
+     << (this->FileName ? this->FileName : "(none)") << "\n";
 
-  os << indent << "LimitsFilename: " 
-     << (this->LimitsFilename ? this->LimitsFilename : "(none)") << "\n";
+  os << indent << "Limits File Name: " 
+     << (this->LimitsFileName ? this->LimitsFileName : "(none)") << "\n";
 }
 

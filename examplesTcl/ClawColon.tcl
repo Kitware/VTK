@@ -196,7 +196,7 @@ $iren Initialize;
 $iren SetUserMethod {wm deiconify .vtkInteract};
 [$ren1 GetActiveCamera] Zoom 1.5;
 $renWin Render;
-#$renWin SetFilename "complexV.tcl.ppm";
+#$renWin SetFileName "complexV.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

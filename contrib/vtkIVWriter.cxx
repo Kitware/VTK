@@ -46,18 +46,18 @@ void vtkIVWriter::WriteData()
 {
   FILE *fp;
   
-  // make sure the user specified a filename
-  if ( this->Filename == NULL)
+  // make sure the user specified a FileName
+  if ( this->FileName == NULL)
     {
-    vtkErrorMacro(<< "Please specify filename to use");
+    vtkErrorMacro(<< "Please specify FileName to use");
     return;
     }
 
   // try opening the files
-  fp = fopen(this->Filename,"w");
+  fp = fopen(this->FileName,"w");
   if (!fp)
     {
-    vtkErrorMacro(<< "unable to open OpenInventor file: " << this->Filename);
+    vtkErrorMacro(<< "unable to open OpenInventor file: " << this->FileName);
     return;
     }
   
@@ -70,7 +70,7 @@ void vtkIVWriter::WriteData()
   this->WritePolyData((vtkPolyData *)this->Input, fp);
   if (fclose(fp)) 
     {
-    vtkErrorMacro(<< this->Filename << " did not close successfully. Check disk space.");
+    vtkErrorMacro(<< this->FileName << " did not close successfully. Check disk space.");
     }
 }
 

@@ -48,7 +48,7 @@ $cam1 Elevation -30;
 $cam1 Roll -20;
 renWin Render;
 
-#renWin SetFilename "TPlane.tcl.ppm";
+#renWin SetFileName "TPlane.tcl.ppm";
 #renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

@@ -53,13 +53,13 @@ unsigned long int vtkPolyReader::GetMTime()
 
 // Description:
 // Specify file name of vtk polygonal data file to read.
-void vtkPolyReader::SetFilename(char *name) 
+void vtkPolyReader::SetFileName(char *name) 
 {
-  this->Reader.SetFilename(name);
+  this->Reader.SetFileName(name);
 }
-char *vtkPolyReader::GetFilename() 
+char *vtkPolyReader::GetFileName() 
 {
-  return this->Reader.GetFilename();
+  return this->Reader.GetFileName();
 }
 
 // Description:

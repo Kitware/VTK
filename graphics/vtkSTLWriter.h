@@ -64,8 +64,8 @@ public:
 
   // Description:
   // Specify the name of the file to write.
-  vtkSetStringMacro(Filename);
-  vtkGetStringMacro(Filename);
+  vtkSetStringMacro(FileName);
+  vtkGetStringMacro(FileName);
 
   // Description:
   // Specify type of file to write (ascii or binary).
@@ -75,7 +75,7 @@ public:
 protected:
   void WriteData();
 
-  char *Filename;
+  char *FileName;
   int FileType;
 
   void WriteBinarySTL(vtkPoints *pts, vtkCellArray *polys);

@@ -16,25 +16,23 @@ class VTK_EXPORT vtkSLCReader : public vtkStructuredPointsSource
 {
 public:
   vtkSLCReader();
-  ~vtkSLCReader() {if (this->Filename) delete [] this->Filename;};
+  ~vtkSLCReader() {if (this->FileName) delete [] this->FileName;};
   static vtkSLCReader *New() {return new vtkSLCReader;};
   char *GetClassName() {return "vtkSLCReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set/Get the name of the file to read.
-  vtkSetStringMacro(Filename);
-  vtkGetStringMacro(Filename);
-  void SetFileName(char *str){this->SetFilename(str);}
-  char *GetFileName(){return this->GetFilename();}
+  vtkSetStringMacro(FileName);
+  vtkGetStringMacro(FileName);
 
 protected:
   // Description:
-  // Stores the filename of the SLC file to read.
-  char *Filename;
+  // Stores the FileName of the SLC file to read.
+  char *FileName;
 
   // Description:
-  // Reads the filename and builds a vtkStructuredPoints dataset
+  // Reads the file name and builds a vtkStructuredPoints dataset.
   void Execute();
   
   // Description:

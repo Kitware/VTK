@@ -102,18 +102,18 @@ void vtkRIBExporter::WriteData()
     return;
     }
     
-  char *ribFilename = new char [strlen (this->FilePrefix) + strlen (".rib") + 1];
-  sprintf (ribFilename, "%s%s", this->FilePrefix, ".rib");
+  char *ribFileName = new char [strlen (this->FilePrefix) + strlen (".rib") + 1];
+  sprintf (ribFileName, "%s%s", this->FilePrefix, ".rib");
 
-  this->FilePtr = fopen (ribFilename, "w");
+  this->FilePtr = fopen (ribFileName, "w");
   if (this->FilePtr == NULL)
     {
-    vtkErrorMacro (<< "Cannot open " << ribFilename);
-    delete ribFilename;
+    vtkErrorMacro (<< "Cannot open " << ribFileName);
+    delete ribFileName;
     return;
     }
 
-  delete ribFilename;
+  delete ribFileName;
 	
   //
   //  Write Header
@@ -196,12 +196,12 @@ void vtkRIBExporter::WriteData()
 void vtkRIBExporter::WriteHeader (vtkRenderer *aRen)
 {
 
-  // create a filename to hold the renderered image
-  char *imageFilename = new char [strlen (this->FilePrefix) + strlen (".tif") + 1];
-  sprintf (imageFilename, "%s%s", this->FilePrefix, ".tif");
+  // create a FileName to hold the renderered image
+  char *imageFileName = new char [strlen (this->FilePrefix) + strlen (".tif") + 1];
+  sprintf (imageFileName, "%s%s", this->FilePrefix, ".tif");
 
   fprintf (this->FilePtr, "FrameBegin %d\n", 1);
-  fprintf (this->FilePtr, "Display \"%s\" \"file\" \"rgba\"\n", imageFilename);
+  fprintf (this->FilePtr, "Display \"%s\" \"file\" \"rgba\"\n", imageFileName);
   fprintf (this->FilePtr, "Declare \"bgcolor\" \"uniform color\"\n");
   if (this->Background)
   {
@@ -213,7 +213,7 @@ void vtkRIBExporter::WriteHeader (vtkRenderer *aRen)
 		this->PixelSamples[0],
 		this->PixelSamples[1]);
 	
-  delete imageFilename;
+  delete imageFileName;
 
 }
 
@@ -960,7 +960,7 @@ void vtkRIBExporter::WriteTexture (vtkTexture *aTexture)
       anImage->SetDimensions (xsize, ysize, 1);
       anImage->GetPointData()->SetScalars (mappedScalars);
       aWriter->SetInput (anImage);
-      aWriter->SetFilename (GetTIFFName (aTexture));
+      aWriter->SetFileName (GetTIFFName (aTexture));
       aWriter->Write ();
     delete aWriter;
     delete anImage;

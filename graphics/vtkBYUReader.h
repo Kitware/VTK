@@ -61,32 +61,24 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Specify name of geometry filename.
-  vtkSetStringMacro(GeometryFilename);
-  vtkGetStringMacro(GeometryFilename);
-  void SetGeometryFileName(char *str){this->SetGeometryFilename(str);}
-  char *GetGeometryFileName(){return this->GetGeometryFilename();}
+  // Specify name of geometry FileName.
+  vtkSetStringMacro(GeometryFileName);
+  vtkGetStringMacro(GeometryFileName);
 
   // Description:
-  // Specify name of displacement filename.
-  vtkSetStringMacro(DisplacementFilename);
-  vtkGetStringMacro(DisplacementFilename);
-  void SetDisplacementFileName(char *str){this->SetDisplacementFilename(str);}
-  char *GetDisplacementFileName(){return this->GetDisplacementFilename();}
+  // Specify name of displacement FileName.
+  vtkSetStringMacro(DisplacementFileName);
+  vtkGetStringMacro(DisplacementFileName);
 
   // Description:
-  // Specify name of scalar filename.
-  vtkSetStringMacro(ScalarFilename);
-  vtkGetStringMacro(ScalarFilename);
-  void SetScalarFileName(char *str){this->SetScalarFilename(str);}
-  char *GetScalarFileName(){return this->GetScalarFilename();}
+  // Specify name of scalar FileName.
+  vtkSetStringMacro(ScalarFileName);
+  vtkGetStringMacro(ScalarFileName);
 
   // Description:
-  // Specify name of texture coordinates filename.
-  vtkSetStringMacro(TextureFilename);
-  vtkGetStringMacro(TextureFilename);
-  void SetTextureFileName(char *str){this->SetTextureFilename(str);}
-  char *GetTextureFileName(){return this->GetTextureFilename();}
+  // Specify name of texture coordinates FileName.
+  vtkSetStringMacro(TextureFileName);
+  vtkGetStringMacro(TextureFileName);
 
   // Description:
   // Turn on/off the reading of the displacement file.
@@ -102,7 +94,7 @@ public:
   
   // Description:
   // Turn on/off the reading of the texture coordinate file.
-  // Specify name of geometry filename.
+  // Specify name of geometry FileName.
   vtkSetMacro(ReadTexture,int)
   vtkGetMacro(ReadTexture,int)
   vtkBooleanMacro(ReadTexture,int)
@@ -113,10 +105,10 @@ public:
 protected:
   void Execute();
 
-  char *GeometryFilename;
-  char *DisplacementFilename;
-  char *ScalarFilename;
-  char *TextureFilename;
+  char *GeometryFileName;
+  char *DisplacementFileName;
+  char *ScalarFileName;
+  char *TextureFileName;
   int ReadDisplacement;
   int ReadScalar;
   int ReadTexture;

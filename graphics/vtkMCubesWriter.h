@@ -69,21 +69,19 @@ public:
 
   // Description:
   // Specify file name of marching cubes file.
-  vtkSetStringMacro(Filename);
-  vtkGetStringMacro(Filename);
-  void SetFileName(char *str){this->SetFilename(str);}
-  char *GetFileName(){return this->GetFilename();}
+  vtkSetStringMacro(FileName);
+  vtkGetStringMacro(FileName);
 
   // Description:
   // Specify file name of marching cubes limits file.
-  vtkSetStringMacro(LimitsFilename);
-  vtkGetStringMacro(LimitsFilename);
+  vtkSetStringMacro(LimitsFileName);
+  vtkGetStringMacro(LimitsFileName);
 
 protected:
   void WriteData();
 
-  char *Filename;
-  char *LimitsFilename;
+  char *FileName;
+  char *LimitsFileName;
 };
 
 #endif
