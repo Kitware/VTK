@@ -106,7 +106,8 @@ void main( int argc, char *argv[] )
   ren->GetActiveCamera()->Elevation(30.0);
   ren->GetActiveCamera()->Azimuth(30.0);
   ren->GetActiveCamera()->Zoom(2.7);
-
+  ren->ResetCameraClippingRange();
+  
   renWin->SetSize(300,150);
   renWin->Render();
 
