@@ -120,12 +120,12 @@ class vtkImageExportToArray:
         return imArray
         
     def GetDataExtent(self):
-        return self.__export.GetInput().GetWholeExtent()
+        return self.__export.GetDataExtent()
     
     def GetDataSpacing(self):
-        return self.__export.GetInput().GetSpacing()
+        return self.__export.GetDataSpacing()
     
     def GetDataOrigin(self):
-        return self.__export.GetInput().GetOrigin()
+        return self.__export.GetDataOrigin()
     
 
