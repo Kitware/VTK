@@ -106,7 +106,6 @@ vtkClipPolyData clipper
     clipper SetInput data
     clipper SetClipFunction plane
     clipper SetValue 0.0
-    clipper GenerateClipScalarsOn
 
 # turn off the scalars
 [[clipper GetOutput] GetPointData] CopyScalarsOff
