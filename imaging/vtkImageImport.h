@@ -131,8 +131,10 @@ protected:
 
 inline void vtkImageImport::SetImportVoidPointer(void *ptr)
 {
-  //  if (ptr != this->ImportVoidPointer)
-  //    this->Modified();
+  if (ptr != this->ImportVoidPointer)
+    {
+    this->Modified();
+    }
   this->ImportVoidPointer = ptr;
 }
 
