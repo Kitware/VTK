@@ -22,7 +22,7 @@
 #include "vtkMath.h"
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGeometricErrorMetric,"1.6");
+vtkCxxRevisionMacro(vtkGeometricErrorMetric,"1.7");
 vtkStandardNewMacro(vtkGeometricErrorMetric);
 
 //-----------------------------------------------------------------------------
@@ -185,7 +185,7 @@ double vtkGeometricErrorMetric::GetError(double *leftPoint,
 #endif
   if(this->Relative)
     {
-    return sqrt(squareAbsoluteError)*this->SmallestSize;
+    return sqrt(squareAbsoluteError)/this->SmallestSize;
     }
   else
     {
