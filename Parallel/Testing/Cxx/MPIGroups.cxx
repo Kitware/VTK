@@ -26,8 +26,8 @@ void proc2( vtkMultiProcessController *controller, void *arg );
 void MyMain( vtkMultiProcessController *controller, void *arg )
 {
 
-  MPIGroupsArgs_tmp* args = 
-    reinterpret_cast<MPIGroupsArgs_tmp*>(arg);
+//  MPIGroupsArgs_tmp* args = 
+//    reinterpret_cast<MPIGroupsArgs_tmp*>(arg);
 
   int myId = controller->GetLocalProcessId();
   int numProcs = controller->GetNumberOfProcesses();
@@ -37,7 +37,6 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   vtkMPIController* localController = vtkMPIController::New();
   vtkMPICommunicator* worldComm = vtkMPICommunicator::GetWorldCommunicator();
 
-  int numGroups = numProcs / NUM_PROC_PER_GROUP;
   int currentGroup = myId / NUM_PROC_PER_GROUP;
 
   localGroup->Initialize( static_cast<vtkMPIController*>(controller) );
@@ -74,8 +73,6 @@ void proc1( vtkMultiProcessController *controller, void *arg )
     reinterpret_cast<MPIGroupsArgs_tmp*>(arg);
 
   int myid, numProcs;
-  float val;
-  int numTris;
 
   // Obtain the id of the running process and the total
   // number of processes

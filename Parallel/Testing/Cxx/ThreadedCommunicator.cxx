@@ -35,8 +35,6 @@ void TestBarrier(vtkMultiProcessController *contr, void *arg)
 
 void Process1(vtkMultiProcessController *contr, void *arg)
 {
-  vtkCommunicator* comm = contr->GetCommunicator();
-
   int i;
 
   // Test receiving all supported types of arrays
@@ -173,8 +171,6 @@ void Process2(vtkMultiProcessController *contr, void *arg)
 {
   GenericCommunicatorArgs_tmp* args = 
     reinterpret_cast<GenericCommunicatorArgs_tmp*>(arg);
-
-  vtkCommunicator* comm = contr->GetCommunicator();
 
   int i;
 

@@ -116,7 +116,6 @@ vtkIntArray *vtkPieceScalars::MakePieceScalars(int piece, vtkIdType num)
 {
   vtkIdType i;
   vtkIntArray *pieceColors = NULL;
-  vtkIntArray *ia;
 
   pieceColors = vtkIntArray::New();
   pieceColors->SetNumberOfTuples(num);
