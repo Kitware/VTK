@@ -73,7 +73,6 @@ class VTK_EXPORT vtkIdList : public vtkObject
   void Squeeze() {this->Ia->Squeeze();};
   void ShallowCopy(vtkIdList& ids);
   void DeepCopy(vtkIdList& ids);
-  vtkIdList &operator=(const vtkIdList& ids) {vtkErrorMacro(<<"operator="); return *this;};
 
   // special set operations
   void DeleteId(int Id);
