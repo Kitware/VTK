@@ -17,7 +17,7 @@ SET (TRIGGER_SITE
        "http://${DROP_SITE}/cgi-bin/Submit-vtk-TestingResults.pl")
 
 # Project Home Page
-SET (PROJECT_URL "http://www.vtk.org/")
+SET (PROJECT_URL "http://www.vtk.org")
 
 # Dart server configuration 
 SET (ROLLUP_URL "http://${DROP_SITE}/cgi-bin/vtk-rollup-dashboard.sh")
