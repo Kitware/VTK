@@ -146,7 +146,7 @@ iren SetUserMethod {wm deiconify .vtkInteract}
 [ren1 GetActiveCamera] Zoom 2
 iren Initialize
 
-renWin SetFileName "constrainedDelaunay.ppm"
+renWin SetFileName "constrainedDelaunay.tcl.ppm"
 #renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
