@@ -25,7 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkStreamTracer, "1.8");
+vtkCxxRevisionMacro(vtkStreamTracer, "1.9");
 vtkStandardNewMacro(vtkStreamTracer);
 
 const float vtkStreamTracer::EPSILON = 1.0E-12;
@@ -58,11 +58,14 @@ vtkStreamTracer::vtkStreamTracer()
 
   this->ComputeVorticity = 1;
   this->RotationScale = 1.0;
+
+  this->InputVectorsSelection = 0;
 }
 
 vtkStreamTracer::~vtkStreamTracer()
 {
   this->SetIntegrator(0);
+  this->SetInputVectorsSelection(0);
 }
 
 void vtkStreamTracer::SetSource(vtkDataSet *source)
@@ -438,7 +441,8 @@ void vtkStreamTracer::Integrate(vtkDataArray* seedSource, vtkIdList* seedIds)
   vtkDataSetAttributes* outputCD = this->GetOutput()->GetCellData();
   vtkPointData* inputPD  = this->GetInput()->GetPointData();
   vtkDataSet* input = this->GetInput();
-  vtkDataArray* inVectors = input->GetPointData()->GetVectors();
+  vtkDataArray* inVectors = input->GetPointData()->GetVectors(
+    this->InputVectorsSelection);
   if (!inVectors)
     {
     vtkErrorMacro("The input does not contain a velocity vector.");
@@ -453,6 +457,7 @@ void vtkStreamTracer::Integrate(vtkDataArray* seedSource, vtkIdList* seedIds)
   // Set the function set to be integrated
   vtkInterpolatedVelocityField* func = vtkInterpolatedVelocityField::New();
   func->SetDataSet(input);
+  func->SelectVectors(this->InputVectorsSelection);
 
   if (this->GetIntegrator() == 0)
     {
@@ -922,4 +927,9 @@ void vtkStreamTracer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Vorticity computation: " 
      << (this->ComputeVorticity ? " On" : " Off") << endl;
   os << indent << "Rotation scale: " << this->RotationScale << endl;
+
+  if (this->InputVectorsSelection)
+    {
+    os << indent << "InputVectorsSelection: " << this->InputVectorsSelection;
+    } 
 }

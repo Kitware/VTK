@@ -18,7 +18,7 @@
 #include "vtkInterpolatedVelocityField.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.14");
+vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.15");
 vtkStandardNewMacro(vtkInterpolatedVelocityField);
 
 vtkInterpolatedVelocityField::vtkInterpolatedVelocityField()
@@ -34,6 +34,7 @@ vtkInterpolatedVelocityField::vtkInterpolatedVelocityField()
   this->Caching = 1; // Caching on by default
 
   this->Cell = vtkGenericCell::New();
+  this->VectorsSelection = 0;
 }
 
 vtkInterpolatedVelocityField::~vtkInterpolatedVelocityField()
@@ -46,6 +47,7 @@ vtkInterpolatedVelocityField::~vtkInterpolatedVelocityField()
   this->Weights = 0;
 
   this->Cell->Delete();
+  this->SetVectorsSelection(0);
 }
 
 void vtkInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent indent)
@@ -99,7 +101,8 @@ int vtkInterpolatedVelocityField::FunctionValues(float* x, float* f)
 
   // See if a dataset has been specified and if there are input vectors
   if ( !this->DataSet || 
-       !(vectors = this->DataSet->GetPointData()->GetVectors()) )
+       !(vectors = this->DataSet->GetPointData()->GetVectors(
+         this->VectorsSelection)) )
     {
     vtkErrorMacro(<<"Can't evaluate dataset!");
     return 0;

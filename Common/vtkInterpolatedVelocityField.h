@@ -93,6 +93,15 @@ public:
   // Caching statistics.
   vtkGetMacro(CacheHit, int);
   vtkGetMacro(CacheMiss, int);
+
+  // Description:
+  // If you want to work with an arbitrary vector array, then set its name 
+  // here. By default this in NULL and the filter will use the active vector 
+  // array.
+  vtkGetStringMacro(VectorsSelection);
+  void SelectVectors(const char *fieldName) 
+    {this->SetVectorsSelection(fieldName);}
+  
   
 protected:
   vtkInterpolatedVelocityField();
@@ -107,6 +116,10 @@ protected:
   int CacheHit;
   int CacheMiss;
   int Caching;
+
+  vtkSetStringMacro(VectorsSelection);
+  char *VectorsSelection;
+
 private:
   vtkInterpolatedVelocityField(const vtkInterpolatedVelocityField&);  // Not implemented.
   void operator=(const vtkInterpolatedVelocityField&);  // Not implemented.
