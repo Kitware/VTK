@@ -67,15 +67,15 @@
 #ifndef __vtkWeightedTransformFilter_h
 #define __vtkWeightedTransformFilter_h
 
-#include "vtkPointSetToPointSetFilter.h"
+#include "vtkPointSetAlgorithm.h"
 
 class vtkAbstractTransform;
 
-class VTK_HYBRID_EXPORT vtkWeightedTransformFilter : public vtkPointSetToPointSetFilter
+class VTK_HYBRID_EXPORT vtkWeightedTransformFilter : public vtkPointSetAlgorithm
 {
 public:
   static vtkWeightedTransformFilter *New();
-  vtkTypeRevisionMacro(vtkWeightedTransformFilter,vtkPointSetToPointSetFilter);
+  vtkTypeRevisionMacro(vtkWeightedTransformFilter,vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -164,7 +164,7 @@ protected:
   vtkWeightedTransformFilter();
   ~vtkWeightedTransformFilter();
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 private:
   vtkWeightedTransformFilter(const vtkWeightedTransformFilter&);  // Not implemented.
   void operator=(const vtkWeightedTransformFilter&);  // Not implemented.

@@ -14,13 +14,15 @@
 =========================================================================*/
 #include "vtkWarpTo.h"
 
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkWarpTo, "1.41");
+vtkCxxRevisionMacro(vtkWarpTo, "1.42");
 vtkStandardNewMacro(vtkWarpTo);
 
 vtkWarpTo::vtkWarpTo() 
@@ -30,15 +32,26 @@ vtkWarpTo::vtkWarpTo()
   this->Position[0] = this->Position[1] = this->Position[2] = 0.0;
 }
 
-void vtkWarpTo::Execute()
+int vtkWarpTo::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPointSet *input = vtkPointSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPointSet *output = vtkPointSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkPoints *inPts;
   vtkPoints *newPts;
   vtkIdType ptId, numPts;
   int i;
   double x[3], newX[3];
-  vtkPointSet *input = this->GetInput();
-  vtkPointSet *output = this->GetOutput();
   double mag;
   double minMag = 0;
   
@@ -52,7 +65,7 @@ void vtkWarpTo::Execute()
   if (!inPts )
     {
     vtkErrorMacro(<<"No input data");
-    return;
+    return 1;
     }
 
   numPts = inPts->GetNumberOfPoints();
@@ -106,6 +119,8 @@ void vtkWarpTo::Execute()
 
   output->SetPoints(newPts);
   newPts->Delete();
+
+  return 1;
 }
 
 void vtkWarpTo::PrintSelf(ostream& os, vtkIndent indent)

@@ -14,13 +14,15 @@
 =========================================================================*/
 #include "vtkWarpLens.h"
 
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkWarpLens, "1.28");
+vtkCxxRevisionMacro(vtkWarpLens, "1.29");
 vtkStandardNewMacro(vtkWarpLens);
 
 //
@@ -65,14 +67,25 @@ vtkWarpLens::vtkWarpLens()
   this->ImageHeight = 1;        
 }
 
-void vtkWarpLens::Execute()
+int vtkWarpLens::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPointSet *input = vtkPointSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPointSet *output = vtkPointSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkPoints *inPts;
   vtkPoints *newPts;
   vtkIdType ptId, numPts;
   double pixel[3], newPixel[3];
-  vtkPointSet *input = this->GetInput();
-  vtkPointSet *output = this->GetOutput();
   double x;
   double y;
   double newX;
@@ -88,7 +101,7 @@ void vtkWarpLens::Execute()
   if (!inPts )
     {
     vtkErrorMacro(<<"No input data");
-    return;
+    return 1;
     }
 
   numPts = inPts->GetNumberOfPoints();
@@ -146,6 +159,8 @@ void vtkWarpLens::Execute()
 
   output->SetPoints(newPts);
   newPts->Delete();
+
+  return 1;
 }
 
 void vtkWarpLens::PrintSelf(ostream& os, vtkIndent indent)

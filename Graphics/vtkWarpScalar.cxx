@@ -16,12 +16,14 @@
 
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkWarpScalar, "1.47");
+vtkCxxRevisionMacro(vtkWarpScalar, "1.48");
 vtkStandardNewMacro(vtkWarpScalar);
 
 vtkWarpScalar::vtkWarpScalar()
@@ -60,8 +62,21 @@ double *vtkWarpScalar::ZNormal(vtkIdType vtkNotUsed(id),
   return zNormal;
 }
 
-void vtkWarpScalar::Execute()
+int vtkWarpScalar::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPointSet *input = vtkPointSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPointSet *output = vtkPointSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkPoints *inPts;
   vtkDataArray *inNormals;
   vtkDataArray *inScalars;
@@ -70,8 +85,6 @@ void vtkWarpScalar::Execute()
   int i;
   vtkIdType ptId, numPts;
   double x[3], *n, s, newX[3];
-  vtkPointSet *input = this->GetInput();
-  vtkPointSet *output = this->GetOutput();
   
   vtkDebugMacro(<<"Warping data with scalars");
 
@@ -86,7 +99,7 @@ void vtkWarpScalar::Execute()
   if ( !inPts || !inScalars )
     {
     vtkDebugMacro(<<"No data to warp");
-    return;
+    return 1;
     }
 
   numPts = inPts->GetNumberOfPoints();
@@ -149,6 +162,8 @@ void vtkWarpScalar::Execute()
 
   output->SetPoints(newPts);
   newPts->Delete();
+
+  return 1;
 }
 
 void vtkWarpScalar::PrintSelf(ostream& os, vtkIndent indent)

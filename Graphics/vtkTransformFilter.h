@@ -32,15 +32,15 @@
 #ifndef __vtkTransformFilter_h
 #define __vtkTransformFilter_h
 
-#include "vtkPointSetToPointSetFilter.h"
+#include "vtkPointSetAlgorithm.h"
 
 class vtkAbstractTransform;
 
-class VTK_GRAPHICS_EXPORT vtkTransformFilter : public vtkPointSetToPointSetFilter
+class VTK_GRAPHICS_EXPORT vtkTransformFilter : public vtkPointSetAlgorithm
 {
 public:
   static vtkTransformFilter *New();
-  vtkTypeRevisionMacro(vtkTransformFilter,vtkPointSetToPointSetFilter);
+  vtkTypeRevisionMacro(vtkTransformFilter,vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -56,7 +56,7 @@ protected:
   vtkTransformFilter();
   ~vtkTransformFilter();
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   vtkAbstractTransform *Transform;
 private:
   vtkTransformFilter(const vtkTransformFilter&);  // Not implemented.

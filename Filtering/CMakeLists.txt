@@ -132,6 +132,7 @@ vtkPixel.cxx
 vtkPointData.cxx
 vtkPointLocator.cxx
 vtkPointSet.cxx
+vtkPointSetAlgorithm.cxx
 vtkPointSetSource.cxx
 vtkPointSetToPolyDataAlgorithm.cxx
 vtkPointSetToPointSetFilter.cxx

@@ -15,12 +15,14 @@
 #include "vtkWarpVector.h"
 
 #include "vtkCellData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkWarpVector, "1.44");
+vtkCxxRevisionMacro(vtkWarpVector, "1.45");
 vtkStandardNewMacro(vtkWarpVector);
 
 vtkWarpVector::vtkWarpVector()
@@ -64,13 +66,14 @@ void vtkWarpVectorExecute2(vtkWarpVector *self, T1 *inPts,
           
 template <class T>
 void vtkWarpVectorExecute(vtkWarpVector *self, 
+                          vtkPointSet *input,
                           T *inPts, 
                           T *outPts, 
                           vtkIdType max,
                           const char* vectorsSelection)
 {
   void *inVec;
-  vtkDataArray *vectors = self->GetInput()->GetPointData()->
+  vtkDataArray *vectors = input->GetPointData()->
                             GetVectors(vectorsSelection);
 
   if (vectors == NULL)
@@ -90,10 +93,21 @@ void vtkWarpVectorExecute(vtkWarpVector *self,
 }
 
 //----------------------------------------------------------------------------
-void vtkWarpVector::Execute()
+int vtkWarpVector::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkPointSet *input = this->GetInput();
-  vtkPointSet *output = this->GetOutput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPointSet *input = vtkPointSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPointSet *output = vtkPointSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkPoints *points;
   vtkIdType numPts;
 
@@ -102,14 +116,14 @@ void vtkWarpVector::Execute()
 
   if (input == NULL || input->GetPoints() == NULL)
     {
-    return;
+    return 1;
     }
   numPts = input->GetPoints()->GetNumberOfPoints();
   if ( !input->GetPointData()->GetVectors(this->InputVectorsSelection) 
           || !numPts)
     {
     vtkDebugMacro(<<"No input data");
-    return;
+    return 1;
     }
 
   // SETUP AND ALLOCATE THE OUTPUT
@@ -127,7 +141,7 @@ void vtkWarpVector::Execute()
   // call templated function
   switch (input->GetPoints()->GetDataType())
     {
-    vtkTemplateMacro5(vtkWarpVectorExecute, this, 
+    vtkTemplateMacro6(vtkWarpVectorExecute, this, input,
                       (VTK_TT *)(inPtr), (VTK_TT *)(outPtr), numPts, this->InputVectorsSelection);
     default:
       break;
@@ -137,6 +151,8 @@ void vtkWarpVector::Execute()
   output->GetPointData()->CopyNormalsOff(); // distorted geometry
   output->GetPointData()->PassData(input->GetPointData());
   output->GetCellData()->PassData(input->GetCellData());
+
+  return 1;
 }
 
 void vtkWarpVector::PrintSelf(ostream& os, vtkIndent indent)

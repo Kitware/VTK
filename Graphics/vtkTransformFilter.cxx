@@ -16,12 +16,14 @@
 
 #include "vtkCellData.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkLinearTransform.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 
-vtkCxxRevisionMacro(vtkTransformFilter, "1.44");
+vtkCxxRevisionMacro(vtkTransformFilter, "1.45");
 vtkStandardNewMacro(vtkTransformFilter);
 vtkCxxSetObjectMacro(vtkTransformFilter,Transform,vtkAbstractTransform);
 
@@ -35,8 +37,21 @@ vtkTransformFilter::~vtkTransformFilter()
   this->SetTransform(NULL);
 }
 
-void vtkTransformFilter::Execute()
+int vtkTransformFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPointSet *input = vtkPointSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPointSet *output = vtkPointSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkPoints *inPts;
   vtkPoints *newPts;
   vtkDataArray *inVectors, *inCellVectors;;
@@ -44,8 +59,6 @@ void vtkTransformFilter::Execute()
   vtkDataArray *inNormals, *inCellNormals;
   vtkFloatArray *newNormals=NULL, *newCellNormals=NULL;
   vtkIdType numPts, numCells;
-  vtkPointSet *input = this->GetInput();
-  vtkPointSet *output = this->GetOutput();
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
 
@@ -59,7 +72,7 @@ void vtkTransformFilter::Execute()
   if ( this->Transform == NULL )
     {
     vtkErrorMacro(<<"No transform defined!");
-    return;
+    return 1;
     }
 
   inPts = input->GetPoints();
@@ -71,7 +84,7 @@ void vtkTransformFilter::Execute()
   if ( !inPts )
     {
     vtkErrorMacro(<<"No input data");
-    return;
+    return 1;
     }
 
   numPts = inPts->GetNumberOfPoints();
@@ -184,6 +197,8 @@ void vtkTransformFilter::Execute()
       }
     outFD->PassData(inFD);
     }
+
+  return 1;
 }
 
 unsigned long vtkTransformFilter::GetMTime()

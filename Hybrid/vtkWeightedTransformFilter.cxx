@@ -17,15 +17,17 @@
 #include "vtkCellData.h"
 #include "vtkFieldData.h"
 #include "vtkFloatArray.h"
-#include "vtkUnsignedShortArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkLinearTransform.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
+#include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkWeightedTransformFilter, "1.19");
+vtkCxxRevisionMacro(vtkWeightedTransformFilter, "1.20");
 vtkStandardNewMacro(vtkWeightedTransformFilter);
 
 // helper functions.  Can't easily get to these in Matrix4x4 as written.
@@ -47,7 +49,6 @@ static inline void LinearTransformPoint(double mtx[4][4],
 }
 
 //----------------------------------------------------------------------------
-
 vtkWeightedTransformFilter::vtkWeightedTransformFilter()
 {
   this->AddInputValues = 0;
@@ -61,7 +62,6 @@ vtkWeightedTransformFilter::vtkWeightedTransformFilter()
 }
 
 //----------------------------------------------------------------------------
-
 vtkWeightedTransformFilter::~vtkWeightedTransformFilter()
 {
   int i;
@@ -86,7 +86,6 @@ vtkWeightedTransformFilter::~vtkWeightedTransformFilter()
 }
 
 //----------------------------------------------------------------------------
-
 void vtkWeightedTransformFilter::SetNumberOfTransforms(int num)
 {
   int i;
@@ -156,7 +155,6 @@ void vtkWeightedTransformFilter::SetNumberOfTransforms(int num)
 }
 
 //----------------------------------------------------------------------------
-
 void vtkWeightedTransformFilter::SetTransform(vtkAbstractTransform *trans,
                                               int num)
 {
@@ -184,7 +182,6 @@ void vtkWeightedTransformFilter::SetTransform(vtkAbstractTransform *trans,
 }
 
 //----------------------------------------------------------------------------
-
 vtkAbstractTransform *vtkWeightedTransformFilter::GetTransform(int num)
 {
   if(num < 0) 
@@ -204,9 +201,21 @@ vtkAbstractTransform *vtkWeightedTransformFilter::GetTransform(int num)
 }
 
 //----------------------------------------------------------------------------
-
-void vtkWeightedTransformFilter::Execute()
+int vtkWeightedTransformFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPointSet *input = vtkPointSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPointSet *output = vtkPointSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkPoints *inPts;
   vtkPoints *newPts;
   vtkDataArray *inVectors, *inCellVectors;
@@ -230,8 +239,6 @@ void vtkWeightedTransformFilter::Execute()
   vtkDataArray *pdArray, *cdArray;
   vtkUnsignedShortArray *tiArray, *cdtiArray;
   vtkFieldData *fd;
-  vtkPointSet *input = this->GetInput();
-  vtkPointSet *output = this->GetOutput();
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
   vtkLinearTransform *linearTransform;
@@ -246,7 +253,7 @@ void vtkWeightedTransformFilter::Execute()
   if ( this->Transforms == NULL || this->NumberOfTransforms == 0) 
     {
     vtkErrorMacro(<<"No transform defined!");
-    return;
+    return 1;
     }
 
   activeTransforms = 0;
@@ -261,7 +268,7 @@ void vtkWeightedTransformFilter::Execute()
   if(activeTransforms == 0) 
     {
     vtkErrorMacro(<<"No transform defined!");
-    return;
+    return 1;
     }
 
   linearPtMtx   = new double*[this->NumberOfTransforms];
@@ -312,7 +319,7 @@ void vtkWeightedTransformFilter::Execute()
       {
       vtkErrorMacro(<<"WeightArray " << this->WeightArray <<
       " " << "doesn't exist");
-      return;
+      return 1;
       }
 
     pdComponents = pdArray->GetNumberOfComponents();
@@ -342,7 +349,7 @@ void vtkWeightedTransformFilter::Execute()
       {
       vtkErrorMacro(<<"TransformIndexArray " << this->TransformIndexArray <<
       " " << "doesn't exist");
-      return;
+      return 1;
       }
 
     if (pdComponents != tiArray->GetNumberOfComponents())
@@ -381,7 +388,7 @@ void vtkWeightedTransformFilter::Execute()
       {
       vtkErrorMacro(<<"CellDataWeightArray " << this->CellDataWeightArray <<
       " " << "doesn't exist");
-      return;
+      return 1;
       }
     cdComponents = cdArray->GetNumberOfComponents();
     if(cdComponents > this->NumberOfTransforms) 
@@ -412,7 +419,7 @@ void vtkWeightedTransformFilter::Execute()
       vtkErrorMacro(<<"CellDataTransformIndexArray " << 
                     this->CellDataTransformIndexArray <<
                     " " << "doesn't exist");
-      return;
+      return 1;
       }
 
     if (cdComponents != cdtiArray->GetNumberOfComponents())
@@ -442,7 +449,7 @@ void vtkWeightedTransformFilter::Execute()
   if ( !inPts )
     {
     vtkErrorMacro(<<"No input data");
-    return;
+    return 1;
     }
 
   numPts = inPts->GetNumberOfPoints();
@@ -811,10 +818,11 @@ void vtkWeightedTransformFilter::Execute()
 
   outPD->PassData(pd);
   outCD->PassData(cd);
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-
 unsigned long vtkWeightedTransformFilter::GetMTime()
 {
   int i;
@@ -837,7 +845,6 @@ unsigned long vtkWeightedTransformFilter::GetMTime()
 }
 
 //----------------------------------------------------------------------------
-
 void vtkWeightedTransformFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   int i;
@@ -862,4 +869,3 @@ void vtkWeightedTransformFilter::PrintSelf(ostream& os, vtkIndent indent)
      << (this->CellDataTransformIndexArray ? this->CellDataTransformIndexArray : "(none)")
      << "\n";
 }
-

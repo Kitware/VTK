@@ -23,13 +23,13 @@
 #ifndef __vtkWarpVector_h
 #define __vtkWarpVector_h
 
-#include "vtkPointSetToPointSetFilter.h"
+#include "vtkPointSetAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkWarpVector : public vtkPointSetToPointSetFilter
+class VTK_GRAPHICS_EXPORT vtkWarpVector : public vtkPointSetAlgorithm
 {
 public:
   static vtkWarpVector *New();
-  vtkTypeRevisionMacro(vtkWarpVector,vtkPointSetToPointSetFilter);
+  vtkTypeRevisionMacro(vtkWarpVector,vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -48,7 +48,7 @@ protected:
   vtkWarpVector();
   ~vtkWarpVector();
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   double ScaleFactor;
 
   char *InputVectorsSelection;
