@@ -237,6 +237,21 @@ public:
   vtkBooleanMacro(BackingStore,int);
 
   // Description:
+  // Turn on/off transparent rendering.  This allow multiple renderers to
+  // be cascaded together in the same section of a viewport.
+  vtkSetMacro(TransparentRenderer,int);
+  vtkGetMacro(TransparentRenderer,int);
+  vtkBooleanMacro(TransparentRenderer,int);
+
+  // Description:
+  // Turn on/off interactive status.  An interactive renderer is one that 
+  // can receive events from an interactor.  Should only be set if
+  // there are multiple renderers in the same section of the viewport.
+  vtkSetMacro(Interactive,int);
+  vtkGetMacro(Interactive,int);
+  vtkBooleanMacro(Interactive,int);
+
+  // Description:
   // Convert world point coordinates to view coordinates.
   void WorldToView();
 
@@ -344,6 +359,14 @@ protected:
   // A temporary list used for picking
   vtkAssemblyPath    **PathArray;
   int                PathArrayCount;
+
+  // Indicates if there are renderers below this one at the same location in
+  // the viewport, meaning it should behave as a transparent renderer.
+  int                TransparentRenderer;
+
+  // Indicates if the renderer should receive events from an interactor.
+  // Typically only used in conjunction with transparent renderers.
+  int                Interactive;
 
   // Description:
   // Ask all props to update and draw any opaque and translucent
