@@ -1,7 +1,12 @@
 #!/usr/bin/env python
 
+import sys
+
+for i in range(0, len(sys.argv)):
+    if sys.argv[i] == '-A' and i < len(sys.argv)-1:
+        sys.path = sys.path + [sys.argv[i+1]]
+
 from vtkpython import *
-from vtkRegressionTestImage import *
 
 # create a rendering window and renderer
 ren = vtkRenderer()
