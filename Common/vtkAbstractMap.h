@@ -123,8 +123,8 @@ vtkContainerCreateMethod(const vtkAbstractMapItem<KeyType, DataType>& item)
   // Copy both components from the input.
   vtkAbstractMapItem<KeyType, DataType> result =
     {
-      vtkContainerCreateMethod(item.Key),
-      vtkContainerCreateMethod(item.Data)
+      static_cast<KeyType>(vtkContainerCreateMethod(item.Key)),
+      static_cast<DataType>(vtkContainerCreateMethod(item.Data))
     };
   return result;
 }
