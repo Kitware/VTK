@@ -87,7 +87,7 @@ vtkDEMReader::~vtkDEMReader()
 }
 
 //----------------------------------------------------------------------------
-void vtkDEMReader::UpdateInformation()
+void vtkDEMReader::ExecuteInformation()
 {
   float spacing[3], origin[3];
   int extent[6];
