@@ -43,13 +43,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .SECTION Description
 // vtkImageBlend takes L, LA, RGB, or RGBA images as input and blends them 
 // according to the alpha values and/or the opacity setting for each input.
+//
+// The spacing, origin, extent, and number of components of the output are
+// the same as those for the first input.  If the input has an alpha
+// component, then this component is copied unchanged into the output.
+// In addition, if the first input has either one component or two
+// components i.e. if it is either L (greyscale) or LA (greyscale + alpha)
+// then all other inputs must also be L or LA.
+//
 // Different blending modes are available:
 //
 // \em Normal (default) : 
-// The blending rules are very similar to those for VTK texture maps.
-// The alpha value of the first input, if present, is copied to the alpha 
-// value of the output.  The output always has the same number of components
-// and the same extent as the first input.
+// This is the standard blending mode used by OpenGL and other graphics
+// packages.  The output always has the same number of components
+// and the same extent as the first input.  The alpha value of the first
+// input is not used in the blending computation, instead it is copied
+// directly to the output.
 //
 // \code
 // output <- input[0]
