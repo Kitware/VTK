@@ -48,10 +48,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkGaussianCubeReader_h
 #define __vtkGaussianCubeReader_h
 
-#include "vtkStructuredPointsSource.h"
-#include "vtkTransform.h"
 #include "vtkMoleculeReaderBase.h"
+
 class vtkImageData;
+class vtkTransform;
 
 class VTK_IO_EXPORT vtkGaussianCubeReader : public vtkMoleculeReaderBase 
 {
