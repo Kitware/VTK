@@ -47,39 +47,36 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // of vtkInteractorStyle: vtkInteractorStyleUser allows you to customize
 // the interaction to without subclassing vtkInteractorStyle.  This is
 // particularly useful for setting up custom interaction modes in
-// scripting languages such as Tcl and Python.
+// scripting languages such as Tcl and Python.  To customize the
+// interaction for a particular button, you must call the
+// SetXXButtonPressMethod()/SetXXButtonReleaseMethod() (See the documentation
+// for vtkInteractorStyle) as well as SetMouseMoveMethod().
 
 #ifndef __vtkInteractorStyleUser_h
 #define __vtkInteractorStyleUser_h
 
-#include "vtkInteractorStyleTrackball.h"
+#include "vtkInteractorStyleSwitch.h"
 
 // new motion flag
 #define VTKIS_USERINTERACTION 8 
 
-class VTK_EXPORT vtkInteractorStyleUser : public vtkInteractorStyleTrackball 
+class VTK_EXPORT vtkInteractorStyleUser : public vtkInteractorStyleSwitch 
 {
 public:
   static vtkInteractorStyleUser *New();
-  vtkTypeMacro(vtkInteractorStyleUser,vtkInteractorStyleTrackball);
+  vtkTypeMacro(vtkInteractorStyleUser,vtkInteractorStyleSwitch);
   void PrintSelf(ostream& os, vtkIndent indent);
   
-  // Description: 
-  // Start/Stop user interaction mode.  While the UserInteraction mode
-  // is set, the UserInteraction method will be called every time the
-  // mouse moves.  You must not call these methods before you have
-  // Initialized the vtkRenderWindowInteractor.  
-  void StartUserInteraction();
-  void EndUserInteraction();
-
   // Description:
   // Set a method that will be called every time the mouse is
-  // moved while UserInteraction mode is on.  You can use
-  // GetLastPos() to determine the position of the cursor in
-  // display coordinates, and GetOldPos() to determine the
-  // previous position.
-  void SetUserInteractionMethod(void (*f)(void *), void *arg);
-  void SetUserInteractionMethodArgDelete(void (*f)(void *));
+  // moved.  You can use GetLastPos() to determine the position of
+  // the cursor in display coordinates, and GetOldPos() to determine
+  // the previous position.  Use GetButton() to query which mouse
+  // button is being held down.  This should be used in conjunction
+  // with SetXXButtonPressMethod()/SetXXButtonReleaseMethod() in
+  // vtkInteractorStyle.
+  void SetMouseMoveMethod(void (*f)(void *), void *arg);
+  void SetMouseMoveMethodArgDelete(void (*f)(void *));
 
   // Description:
   // Set a method that will be called every time a key is pressed.
@@ -124,7 +121,9 @@ public:
 
   // Description:
   // Set a method that will be called continuously at a fairly rapid
-  // rate (fast enough to be used for interaction).
+  // rate (fast enough to be used for interaction).  For this method
+  // to work, it must be called after the RenderWindowInteractor
+  // has been Initialized.
   void SetTimerMethod(void (*f)(void *), void *arg);
   void SetTimerMethodArgDelete(void (*f)(void *));
 
@@ -156,15 +155,23 @@ public:
   // KeyPress or KeyRelease method.
   vtkGetStringMacro(KeySym);
 
-//BTX
   // Description:
-  // Get information about which mode the Interactor is in.  You
-  // can use this information to modify the behaviour of your
-  // UserInteractionMethod.  Deprecated.
-  vtkGetMacro(ActorMode,int);
-  vtkGetMacro(TrackballMode,int);
-  vtkGetMacro(ControlMode,int);
-//ETX
+  // Get the mouse button that was last pressed inside the window
+  // (returns zero when the button is released).
+  vtkGetMacro(Button,int);
+
+  // Description:
+  // This method behaves just like OnTimer, but is only called if the
+  // mouse has moved.  Deprecated, do not use.
+  void SetUserInteractionMethod(void (*f)(void *), void *arg);
+  void SetUserInteractionMethodArgDelete(void (*f)(void *));
+
+  // Description: 
+  // Start/Stop user interaction mode.  You must not call these methods
+  // before you have Initialized the vtkRenderWindowInteractor.  Deprecated,
+  // do not use.
+  void StartUserInteraction();
+  void EndUserInteraction();
 
 protected:
   vtkInteractorStyleUser();
@@ -178,6 +185,13 @@ protected:
   void OnKeyRelease(int ctrl, int shift, char keycode, char *keysym,
 		    int repeatcount);
 
+  void OnLeftButtonDown(int ctrl, int shift, int X, int Y);
+  void OnLeftButtonUp(int ctrl, int shift, int X, int Y);
+  void OnMiddleButtonDown(int ctrl, int shift, int X, int Y);
+  void OnMiddleButtonUp(int ctrl, int shift, int X, int Y);
+  void OnRightButtonDown(int ctrl, int shift, int X, int Y);
+  void OnRightButtonUp(int ctrl, int shift, int X, int Y);
+
   void OnMouseMove(int ctrl, int shift, int X, int Y);
 
   void OnConfigure(int width, int height);
@@ -188,13 +202,15 @@ protected:
   void OnTimer(void);
 
   int OldPos[2];
+  int UserInteractionPos[2];
 
   int Char;
   char *KeySym;
+  int Button;
 
-  void (*UserInteractionMethod)(void *);
-  void (*UserInteractionMethodArgDelete)(void *);
-  void *UserInteractionMethodArg;
+  void (*MouseMoveMethod)(void *);
+  void (*MouseMoveMethodArgDelete)(void *);
+  void *MouseMoveMethodArg;
 
   void (*KeyPressMethod)(void *);
   void (*KeyPressMethodArgDelete)(void *);
@@ -223,6 +239,10 @@ protected:
   void (*TimerMethod)(void *);
   void (*TimerMethodArgDelete)(void *);
   void *TimerMethodArg;
+
+  void (*UserInteractionMethod)(void *);
+  void (*UserInteractionMethodArgDelete)(void *);
+  void *UserInteractionMethodArg;
 };
 
 #endif

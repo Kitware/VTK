@@ -63,9 +63,9 @@ vtkInteractorStyleUser* vtkInteractorStyleUser::New()
 //----------------------------------------------------------------------------
 vtkInteractorStyleUser::vtkInteractorStyleUser()
 {
-  this->UserInteractionMethod = NULL;
-  this->UserInteractionMethodArgDelete = NULL;
-  this->UserInteractionMethodArg = NULL;
+  this->MouseMoveMethod = NULL;
+  this->MouseMoveMethodArgDelete = NULL;
+  this->MouseMoveMethodArg = NULL;
   this->KeyPressMethod = NULL;
   this->KeyPressMethodArgDelete = NULL;
   this->KeyPressMethodArg = NULL;
@@ -87,11 +87,16 @@ vtkInteractorStyleUser::vtkInteractorStyleUser()
   this->TimerMethod = NULL;
   this->TimerMethodArgDelete = NULL;
   this->TimerMethodArg = NULL;
+  this->UserInteractionMethod = NULL;
+  this->UserInteractionMethodArgDelete = NULL;
+  this->UserInteractionMethodArg = NULL;
 
   this->LastPos[0] = this->LastPos[1] = 0;
   this->OldPos[0] = this->OldPos[1] = 0;
+  this->UserInteractionPos[0] = this->UserInteractionPos[1] = 0;
   this->Char = '\0';
   this->KeySym = "";
+  this->Button = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -107,7 +112,7 @@ vtkInteractorStyleUser::~vtkInteractorStyleUser()
 //----------------------------------------------------------------------------
 void vtkInteractorStyleUser::PrintSelf(ostream& os, vtkIndent indent) 
 {
-  this->vtkInteractorStyleTrackball::PrintSelf(os,indent);
+  this->vtkInteractorStyleSwitch::PrintSelf(os,indent);
 
   os << indent << "LastPos: (" << this->LastPos[0] << ", " 
                                << this->LastPos[1] << ")\n";  
@@ -117,37 +122,35 @@ void vtkInteractorStyleUser::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "CtrlKey: " << this->CtrlKey << "\n";
   os << indent << "Char: " << this->Char << "\n";
   os << indent << "KeySym: " << this->KeySym << "\n";
-  os << indent << "ActorMode: " << this->ActorMode << "\n";
-  os << indent << "TrackballMode: " << this->TrackballMode << "\n";
-  os << indent << "ControlMode: " << this->ControlMode << "\n";
+  os << indent << "Button: " << this->Button << "\n";
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleUser::SetUserInteractionMethod(void (*f)(void *), 
+void vtkInteractorStyleUser::SetMouseMoveMethod(void (*f)(void *), 
 						      void *arg)
 {
-  if ( f != this->UserInteractionMethod || 
-       arg != this->UserInteractionMethodArg )
+  if ( f != this->MouseMoveMethod || 
+       arg != this->MouseMoveMethodArg )
     {
     // delete the current arg if there is one and a delete meth
-    if ((this->UserInteractionMethodArg)&&
-        (this->UserInteractionMethodArgDelete))
+    if ((this->MouseMoveMethodArg)&&
+        (this->MouseMoveMethodArgDelete))
       {
-      (*this->UserInteractionMethodArgDelete)(this->UserInteractionMethodArg);
+      (*this->MouseMoveMethodArgDelete)(this->MouseMoveMethodArg);
       }
-    this->UserInteractionMethod = f;
-    this->UserInteractionMethodArg = arg;
+    this->MouseMoveMethod = f;
+    this->MouseMoveMethodArg = arg;
     this->Modified();
     }
 }
 
 //----------------------------------------------------------------------------
 // Called when a void* argument is being discarded.  Lets the user free it.
-void vtkInteractorStyleUser::SetUserInteractionMethodArgDelete(void (*f)(void *))
+void vtkInteractorStyleUser::SetMouseMoveMethodArgDelete(void (*f)(void *))
 {
-  if ( f != this->UserInteractionMethodArgDelete)
+  if ( f != this->MouseMoveMethodArgDelete)
     {
-    this->UserInteractionMethodArgDelete = f;
+    this->MouseMoveMethodArgDelete = f;
     this->Modified();
     }
 }
@@ -341,6 +344,11 @@ void vtkInteractorStyleUser::SetTimerMethod(void (*f)(void *), void *arg)
     this->TimerMethod = f;
     this->TimerMethodArg = arg;
     this->Modified();
+
+    if (this->Interactor->GetInitialized() && f)
+      {
+      this->StartState(this->State);
+      }
     }
 }
 
@@ -351,6 +359,36 @@ void vtkInteractorStyleUser::SetTimerMethodArgDelete(void (*f)(void *))
   if ( f != this->TimerMethodArgDelete)
     {
     this->TimerMethodArgDelete = f;
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleUser::SetUserInteractionMethod(void (*f)(void *), 
+						      void *arg)
+{
+  if ( f != this->UserInteractionMethod || 
+       arg != this->UserInteractionMethodArg )
+    {
+    // delete the current arg if there is one and a delete meth
+    if ((this->UserInteractionMethodArg)&&
+        (this->UserInteractionMethodArgDelete))
+      {
+      (*this->UserInteractionMethodArgDelete)(this->UserInteractionMethodArg);
+      }
+    this->UserInteractionMethod = f;
+    this->UserInteractionMethodArg = arg;
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+// Called when a void* argument is being discarded.  Lets the user free it.
+void vtkInteractorStyleUser::SetUserInteractionMethodArgDelete(void (*f)(void *))
+{
+  if ( f != this->UserInteractionMethodArgDelete)
+    {
+    this->UserInteractionMethodArgDelete = f;
     this->Modified();
     }
 }
@@ -376,19 +414,36 @@ void  vtkInteractorStyleUser::EndUserInteraction()
 }
 
 //----------------------------------------------------------------------------
-// checks for USERINTERACTION state, then defers to the trackball modes
+// checks for USERINTERACTION state, then defers to the superclass modes
 void vtkInteractorStyleUser::OnTimer(void) 
 {
-  if (this->State != VTKIS_USERINTERACTION)
+  if (this->TimerMethod)
     {
-    this->vtkInteractorStyleTrackball::OnTimer();
+    (*this->TimerMethod)(this->TimerMethodArg);
     }
-  else 
+
+  if (this->State == VTKIS_USERINTERACTION)
     {
-    if (this->TimerMethod)
+    if (this->UserInteractionMethod && 
+	(this->UserInteractionPos[0] != this->LastPos[0] ||
+	 this->UserInteractionPos[1] != this->LastPos[1]))
       {
-      (*this->TimerMethod)(this->TimerMethodArg);
+      this->UserInteractionPos[0] = this->LastPos[0];
+      this->UserInteractionPos[1] = this->LastPos[1];
+      (*this->UserInteractionMethod)(this->UserInteractionMethodArg);
+      this->Interactor->CreateTimer(VTKI_TIMER_UPDATE);
       }
+    }
+  else if (!(this->MouseMoveMethod && 
+	     (this->Button == 0 ||
+	      (this->LeftButtonPressMethod && this->Button == 1) ||
+	      (this->MiddleButtonPressMethod && this->Button == 2) ||
+	      (this->RightButtonPressMethod && this->Button == 3))))
+    {
+    this->vtkInteractorStyleSwitch::OnTimer();
+    }
+  else if (this->TimerMethod)
+    {
     this->Interactor->CreateTimer(VTKI_TIMER_UPDATE);
     }
 }
@@ -398,13 +453,13 @@ void vtkInteractorStyleUser::OnKeyPress(int ctrl, int shift,
 					char keycode, char *keysym, 
 					int vtkNotUsed(repeatcount))
 {
-  this->ShiftKey = shift;
-  this->CtrlKey = ctrl;
-  this->KeySym = keysym;
-  this->Char = keycode;  
-
   if (this->KeyPressMethod)
     {
+    this->ShiftKey = shift;
+    this->CtrlKey = ctrl;
+    this->KeySym = keysym;
+    this->Char = keycode;  
+
     (*this->KeyPressMethod)(this->KeyPressMethodArg);
     }
 }
@@ -414,13 +469,13 @@ void vtkInteractorStyleUser::OnKeyRelease(int ctrl, int shift,
 					  char keycode, char *keysym, 
 					  int vtkNotUsed(repeatcount))
 {
-  this->ShiftKey = shift;
-  this->CtrlKey = ctrl;
-  this->KeySym = keysym;
-  this->Char = keycode;  
-
   if (this->KeyReleaseMethod)
     {
+    this->ShiftKey = shift;
+    this->CtrlKey = ctrl;
+    this->KeySym = keysym;
+    this->Char = keycode;  
+
     (*this->KeyReleaseMethod)(this->KeyReleaseMethodArg);
     }
 }
@@ -429,43 +484,176 @@ void vtkInteractorStyleUser::OnKeyRelease(int ctrl, int shift,
 void vtkInteractorStyleUser::OnChar(int ctrl, int shift, char keycode,
 				    int repeatcount) 
 {
-  this->ShiftKey = shift;
-  this->CtrlKey = ctrl;
-  this->Char = keycode;  
-
   // do nothing if a KeyPressMethod has been set,
-  // otherwise pass the OnChar to the vtkInteractorStyleTrackball.
+  // otherwise pass the OnChar to the vtkInteractorStyleSwitch.
   if (this->CharMethod)
     {
+    this->ShiftKey = shift;
+    this->CtrlKey = ctrl;
+    this->Char = keycode;  
+
     (*this->CharMethod)(this->CharMethodArg);    
     }
   else
     {
-    this->vtkInteractorStyleTrackball::OnChar(ctrl,shift,keycode,repeatcount);
+    this->vtkInteractorStyleSwitch::OnChar(ctrl,shift,keycode,repeatcount);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleUser::OnRightButtonDown(int ctrl, int shift, int x, int y) 
+{
+  this->Button = 3;
+
+  if (this->RightButtonPressMethod) 
+    {
+    this->CtrlKey  = ctrl;
+    this->ShiftKey = shift;
+    this->LastPos[0] = x;
+    this->LastPos[1] = y;
+    // this last one is for backwards compatibility
+    this->Interactor->SetEventPosition(x, y);
+
+    (*this->RightButtonPressMethod)(this->RightButtonPressMethodArg);
+    }
+  else 
+    {
+    this->vtkInteractorStyleSwitch::OnRightButtonDown(ctrl, shift, x, y);
+    }
+}
+//----------------------------------------------------------------------------
+void vtkInteractorStyleUser::OnRightButtonUp(int ctrl, int shift, int x, int y) 
+{
+  if (this->RightButtonReleaseMethod) 
+    {
+    this->CtrlKey  = ctrl;
+    this->ShiftKey = shift;
+    this->LastPos[0] = x;
+    this->LastPos[1] = y;
+    // this last one is for backwards compatibility
+    this->Interactor->SetEventPosition(x, y);
+
+    (*this->RightButtonReleaseMethod)(this->RightButtonReleaseMethodArg);
+    }
+  else 
+    {
+    this->vtkInteractorStyleSwitch::OnRightButtonUp(ctrl, shift, x, y);
+    }
+
+  if (this->Button == 3)
+    {
+    this->Button = 0;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleUser::OnMiddleButtonDown(int ctrl,int shift,int x,int y) 
+{
+  this->Button = 2;
+
+  if (this->MiddleButtonPressMethod) 
+    {
+    this->CtrlKey  = ctrl;
+    this->ShiftKey = shift;
+    this->LastPos[0] = x;
+    this->LastPos[1] = y;
+    // this last one is for backwards compatibility
+    this->Interactor->SetEventPosition(x, y);
+
+    (*this->MiddleButtonPressMethod)(this->MiddleButtonPressMethodArg);
+    }
+  else 
+    {
+    this->vtkInteractorStyleSwitch::OnMiddleButtonDown(ctrl, shift, x, y);
+    }
+}
+//----------------------------------------------------------------------------
+void vtkInteractorStyleUser::OnMiddleButtonUp(int ctrl,int shift,int x,int y) 
+{
+  if (this->MiddleButtonReleaseMethod) 
+    {
+    this->CtrlKey  = ctrl;
+    this->ShiftKey = shift;
+    this->LastPos[0] = x;
+    this->LastPos[1] = y;
+    // this last one is for backwards compatibility
+    this->Interactor->SetEventPosition(x, y);
+
+    (*this->MiddleButtonReleaseMethod)(this->MiddleButtonReleaseMethodArg);
+    }
+  else 
+    {
+    this->vtkInteractorStyleSwitch::OnMiddleButtonUp(ctrl, shift, x, y);
+    }
+
+  if (this->Button == 2)
+    {
+    this->Button = 0;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleUser::OnLeftButtonDown(int ctrl,int shift,int x,int y) 
+{
+  this->Button = 1;
+
+  if (this->LeftButtonPressMethod) 
+    {
+    this->CtrlKey  = ctrl;
+    this->ShiftKey = shift;
+    this->LastPos[0] = x;
+    this->LastPos[1] = y;
+    // this last one is for backwards compatibility
+    this->Interactor->SetEventPosition(x, y);
+
+    (*this->LeftButtonPressMethod)(this->LeftButtonPressMethodArg);
+    }
+  else 
+    {
+    this->vtkInteractorStyleSwitch::OnLeftButtonDown(ctrl, shift, x, y);
+    }
+}
+//----------------------------------------------------------------------------
+void vtkInteractorStyleUser::OnLeftButtonUp(int ctrl, int shift, int x, int y) 
+{
+  if (this->LeftButtonReleaseMethod) 
+    {
+    this->CtrlKey  = ctrl;
+    this->ShiftKey = shift;
+    this->LastPos[0] = x;
+    this->LastPos[1] = y;
+    // this last one is for backwards compatibility
+    this->Interactor->SetEventPosition(x, y);
+
+    (*this->LeftButtonReleaseMethod)(this->LeftButtonReleaseMethodArg);
+    }
+  else 
+    {
+    this->vtkInteractorStyleSwitch::OnLeftButtonUp(ctrl, shift, x, y);
+    }
+
+  if (this->Button == 1)
+    {
+    this->Button = 0;
     }
 }
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleUser::OnMouseMove(int ctrl, int shift, int x, int y) 
 {
-  if (this->State == VTKIS_USERINTERACTION)
+  this->vtkInteractorStyleSwitch::OnMouseMove(ctrl,shift,x,y);
+
+  if (this->MouseMoveMethod) 
     {
     this->ShiftKey = shift;
     this->CtrlKey = ctrl;
     this->LastPos[0] = x;
     this->LastPos[1] = y;
-    this->OldPos[0] = int(this->OldX);
-    this->OldPos[1] = int(this->OldY);
-    if (this->UserInteractionMethod && (x != this->OldX || y != this->OldY))
-      {
-      (*this->UserInteractionMethod)(this->UserInteractionMethodArg);
-      }
-    this->OldX = x;
-    this->OldY = y;
-    }
-  else
-    {
-    this->vtkInteractorStyleTrackball::OnMouseMove(ctrl,shift,x,y);
+
+    (*this->MouseMoveMethod)(this->MouseMoveMethodArg);
+
+    this->OldPos[0] = x;
+    this->OldPos[1] = y;
     }
 }
 
@@ -482,12 +670,13 @@ void vtkInteractorStyleUser::OnConfigure(int vtkNotUsed(width),
 //----------------------------------------------------------------------------
 void vtkInteractorStyleUser::OnEnter(int ctrl, int shift, int x, int y)
 {
-  this->ShiftKey = shift;
-  this->CtrlKey = ctrl;
-  this->LastPos[0] = x;
-  this->LastPos[1] = y;
   if (this->EnterMethod)
     {
+    this->ShiftKey = shift;
+    this->CtrlKey = ctrl;
+    this->LastPos[0] = x;
+    this->LastPos[1] = y;
+
     (*this->EnterMethod)(this->EnterMethodArg);
     }
 }
@@ -495,12 +684,13 @@ void vtkInteractorStyleUser::OnEnter(int ctrl, int shift, int x, int y)
 //----------------------------------------------------------------------------
 void vtkInteractorStyleUser::OnLeave(int ctrl, int shift, int x, int y)
 {
-  this->ShiftKey = shift;
-  this->CtrlKey = ctrl;
-  this->LastPos[0] = x;
-  this->LastPos[1] = y;
   if (this->LeaveMethod)
     {
+    this->ShiftKey = shift;
+    this->CtrlKey = ctrl;
+    this->LastPos[0] = x;
+    this->LastPos[1] = y;
+
     (*this->LeaveMethod)(this->LeaveMethodArg);
     }
 }
