@@ -310,9 +310,9 @@ VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
       streamer = self->GetStreamers() + ptId;
       sPtr = streamer->GetStreamPoint(0);
       if ( sPtr->cellId < 0 )
-	{
+        {
         continue;
-	}
+        }
       // Set the last cell id in the vtkInterpolatedVelocityField
       // object to speed up FindCell calls
       func->SetLastCellId(sPtr->cellId);
@@ -326,134 +326,134 @@ VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
 
       //integrate until time has been exceeded
       while ( pt1.cellId >= 0 && pt1.speed > termspeed && pt1.t <  maxtime )
-	{
+        {
 
-	if ( counter++ % 1000 == 0 )
-	  {
-	  if (!thread_id)
-	    {
-	    self->UpdateProgress((float)ptId/self->GetNumberOfStreamers()
-				 +pt1.t/maxtime/self->GetNumberOfStreamers());
-	    }
-	  if (self->GetAbortExecute())
-	    {
-	    break;
-	    }
-	  }
+        if ( counter++ % 1000 == 0 )
+          {
+          if (!thread_id)
+            {
+            self->UpdateProgress((float)ptId/self->GetNumberOfStreamers()
+                                 +pt1.t/maxtime/self->GetNumberOfStreamers());
+            }
+          if (self->GetAbortExecute())
+            {
+            break;
+            }
+          }
 
-	// Set the integration step to be characteristic cell length
-	// time IntegrationStepLength
-	input->GetCell(pt1.cellId, cell);
-	step = dir*self->GetIntegrationStepLength() 
-	  * sqrt((double)cell->GetLength2())/pt1.speed;
+        // Set the integration step to be characteristic cell length
+        // time IntegrationStepLength
+        input->GetCell(pt1.cellId, cell);
+        step = dir*self->GetIntegrationStepLength() 
+          * sqrt((double)cell->GetLength2())/pt1.speed;
 
-	// Calculate the next step using the integrator provided
-	if (integrator->ComputeNextStep(pt1.x, pt1.v, xNext, 0, step)
-	    == -1)
-	  {
-	  break;
-	  }
+        // Calculate the next step using the integrator provided
+        if (integrator->ComputeNextStep(pt1.x, pt1.v, xNext, 0, step)
+            == -1)
+          {
+          break;
+          }
 
-	for(i=0; i<3; i++)
-	  {
-	  coords[i] = xNext[i];
-	  }
+        for(i=0; i<3; i++)
+          {
+          coords[i] = xNext[i];
+          }
 
-	// Interpolate the velocity field at coords
-	if ( !func->FunctionValues(coords, vel) )
-	  {
-	  break;
-	  }
+        // Interpolate the velocity field at coords
+        if ( !func->FunctionValues(coords, vel) )
+          {
+          break;
+          }
 
-	for(i=0; i<3; i++)
-	  {
-	  pt2.v[i] = vel[i];
-	  }
+        for(i=0; i<3; i++)
+          {
+          pt2.v[i] = vel[i];
+          }
 
-	for (i=0; i<3; i++)
-	  {
-	  pt2.x[i] = xNext[i];
-	  }
-	
-	pt2.cellId = func->GetLastCellId();
-	func->GetLastWeights(w);
-	func->GetLastLocalCoordinates(pcoords);
-	input->GetCell(pt2.cellId, cell);
-	
-	if ( inScalars )
-	  {
-	  // Interpolate scalars
-	  inScalars->GetTuples(cell->PointIds, cellScalars);
-	  for (pt2.s=0.0, i=0; i < cell->GetNumberOfPoints(); i++)
-	    {
-	    pt2.s += cellScalars->GetComponent(i,0) * w[i];
-	    }
-	  }
+        for (i=0; i<3; i++)
+          {
+          pt2.x[i] = xNext[i];
+          }
+        
+        pt2.cellId = func->GetLastCellId();
+        func->GetLastWeights(w);
+        func->GetLastLocalCoordinates(pcoords);
+        input->GetCell(pt2.cellId, cell);
+        
+        if ( inScalars )
+          {
+          // Interpolate scalars
+          inScalars->GetTuples(cell->PointIds, cellScalars);
+          for (pt2.s=0.0, i=0; i < cell->GetNumberOfPoints(); i++)
+            {
+            pt2.s += cellScalars->GetComponent(i,0) * w[i];
+            }
+          }
 
-	pt2.speed = vtkMath::Norm(pt2.v);
+        pt2.speed = vtkMath::Norm(pt2.v);
 
-	d = sqrt((double)vtkMath::Distance2BetweenPoints(pt1.x,pt2.x));
-	pt2.d = pt1.d + d;
-	// If at stagnation region, stop the integration
-	if ( d == 0 || (pt1.speed + pt2.speed) < VTK_EPSILON )
-	  {
-	  pt2.t = pt1.t;
-	  break;
-	  }
-	pt2.t = pt1.t + (2.0 * d / (pt1.speed + pt2.speed));
+        d = sqrt((double)vtkMath::Distance2BetweenPoints(pt1.x,pt2.x));
+        pt2.d = pt1.d + d;
+        // If at stagnation region, stop the integration
+        if ( d == 0 || (pt1.speed + pt2.speed) < VTK_EPSILON )
+          {
+          pt2.t = pt1.t;
+          break;
+          }
+        pt2.t = pt1.t + (2.0 * d / (pt1.speed + pt2.speed));
 
-	if (self->GetVorticity() && inVectors)
-	  {
-	  // compute vorticity
-	  inVectors->GetTuples(cell->PointIds, cellVectors);
-	  cellVel = cellVectors->GetPointer(0);
-	  cell->Derivatives(0, pcoords, cellVel, 3, derivs);
+        if (self->GetVorticity() && inVectors)
+          {
+          // compute vorticity
+          inVectors->GetTuples(cell->PointIds, cellVectors);
+          cellVel = cellVectors->GetPointer(0);
+          cell->Derivatives(0, pcoords, cellVel, 3, derivs);
           vort[0] = derivs[7] - derivs[5];
           vort[1] = derivs[2] - derivs[6];
           vort[2] = derivs[3] - derivs[1];
-	  // rotation
-	  pt2.omega = vtkMath::Dot(vort, pt2.v);
-	  pt2.omega /= pt2.speed;
-	  pt2.theta += (pt1.omega+pt2.omega)/2 * (pt2.t - pt1.t);
-	  }
-	
-	
-	// Store only points which have a point to be displayed
-	// between them
-	if (tOffset >= pt1.t && tOffset <= pt2.t)
-	  {
-	  // Do not store if same as the last point.
-	  // To avoid storing some points twice.
-	  if ( !sNext || sNext->x[0] != pt1.x[0] || sNext->x[1] != pt1.x[1]
-	       || sNext->x[2] != pt1.x[2] )
-	    {
-	    idxNext = streamer->InsertNextStreamPoint();
-	    sNext = streamer->GetStreamPoint(idxNext);
-	    *sNext = pt1;
-	    nSavePts++;
-	    }
-	  idxNext = streamer->InsertNextStreamPoint();
-	  sNext = streamer->GetStreamPoint(idxNext);
-	  *sNext = pt2;
-	  nSavePts++;
-	  }
-	if (tOffset < pt2.t)
-	  {
-	  tOffset += ((int)(( pt2.t - tOffset) / savePointInterval) + 1)
-	    * savePointInterval;
-	  }
-	pt1 = pt2;
+          // rotation
+          pt2.omega = vtkMath::Dot(vort, pt2.v);
+          pt2.omega /= pt2.speed;
+          pt2.theta += (pt1.omega+pt2.omega)/2 * (pt2.t - pt1.t);
+          }
+        
+        
+        // Store only points which have a point to be displayed
+        // between them
+        if (tOffset >= pt1.t && tOffset <= pt2.t)
+          {
+          // Do not store if same as the last point.
+          // To avoid storing some points twice.
+          if ( !sNext || sNext->x[0] != pt1.x[0] || sNext->x[1] != pt1.x[1]
+               || sNext->x[2] != pt1.x[2] )
+            {
+            idxNext = streamer->InsertNextStreamPoint();
+            sNext = streamer->GetStreamPoint(idxNext);
+            *sNext = pt1;
+            nSavePts++;
+            }
+          idxNext = streamer->InsertNextStreamPoint();
+          sNext = streamer->GetStreamPoint(idxNext);
+          *sNext = pt2;
+          nSavePts++;
+          }
+        if (tOffset < pt2.t)
+          {
+          tOffset += ((int)(( pt2.t - tOffset) / savePointInterval) + 1)
+            * savePointInterval;
+          }
+        pt1 = pt2;
 
-	} 
+        } 
       // Store the last point anyway.
       if ( !sNext || sNext->x[0] != pt2.x[0] || sNext->x[1] != pt2.x[1]
-	   || sNext->x[2] != pt2.x[2] )
-	{
-	idxNext = streamer->InsertNextStreamPoint();
-	sNext = streamer->GetStreamPoint(idxNext);
-	*sNext = pt2;
-	nSavePts++;
-	}
+           || sNext->x[2] != pt2.x[2] )
+        {
+        idxNext = streamer->InsertNextStreamPoint();
+        sNext = streamer->GetStreamPoint(idxNext);
+        *sNext = pt2;
+        nSavePts++;
+        }
       // Clear the last cell to avoid starting a search from
       // the last point in the streamline
       func->ClearLastCellId();
@@ -595,44 +595,44 @@ void vtkStreamer::Integrate()
         {
         v =  cellVectors->GetTuple(i);
         for (j=0; j<3; j++)
-	  {
-	  sPtr->v[j] += v[j] * w[i];
-	  }
+          {
+          sPtr->v[j] += v[j] * w[i];
+          }
         }
 
       sPtr->speed = vtkMath::Norm(sPtr->v);
 
       if (this->GetVorticity() && inVectors)
-	{
-	  // compute vorticity
-	inVectors->GetTuples(cell->PointIds, cellVectors);
-	cellVel = cellVectors->GetPointer(0);
-	cell->Derivatives(0, sPtr->p, cellVel, 3, derivs);
-	vort[0] = derivs[7] - derivs[5];
-	vort[1] = derivs[2] - derivs[6];
-	vort[2] = derivs[3] - derivs[1];
-	// rotation
-	sPtr->omega = vtkMath::Dot(vort, sPtr->v);
-	sPtr->omega /= sPtr->speed;
-	sPtr->theta = 0;
-	}
+        {
+          // compute vorticity
+        inVectors->GetTuples(cell->PointIds, cellVectors);
+        cellVel = cellVectors->GetPointer(0);
+        cell->Derivatives(0, sPtr->p, cellVel, 3, derivs);
+        vort[0] = derivs[7] - derivs[5];
+        vort[1] = derivs[2] - derivs[6];
+        vort[2] = derivs[3] - derivs[1];
+        // rotation
+        sPtr->omega = vtkMath::Dot(vort, sPtr->v);
+        sPtr->omega /= sPtr->speed;
+        sPtr->theta = 0;
+        }
 
       if ( inScalars ) 
         {
         inScalars->GetTuples(cell->PointIds, cellScalars);
         for (sPtr->s=0, i=0; i < cell->GetNumberOfPoints(); i++)
-	  {
+          {
           sPtr->s += cellScalars->GetComponent(i,0) * w[i];
-	  }
+          }
         }
       }
     else
       {
       for (j=0; j<3; j++)
-	{
-	sPtr->p[j] = 0.0;
-	sPtr->v[j] = 0.0;
-	}
+        {
+        sPtr->p[j] = 0.0;
+        sPtr->v[j] = 0.0;
+        }
       sPtr->speed = 0;
       }
 
@@ -671,8 +671,8 @@ void vtkStreamer::Integrate()
     for (ptId=0; ptId < this->NumberOfStreamers; ptId++)
       {
       for ( sPtr=this->Streamers[ptId].GetStreamPoint(0), i=0; 
-	    i < this->Streamers[ptId].GetNumberOfPoints() && sPtr->cellId >= 0; 
-	    i++, sPtr=this->Streamers[ptId].GetStreamPoint(i) )
+            i < this->Streamers[ptId].GetNumberOfPoints() && sPtr->cellId >= 0; 
+            i++, sPtr=this->Streamers[ptId].GetStreamPoint(i) )
         {
         sPtr->s = sPtr->theta;
         }
@@ -684,8 +684,8 @@ void vtkStreamer::Integrate()
     for (ptId=0; ptId < this->NumberOfStreamers; ptId++)
       {
       for ( sPtr=this->Streamers[ptId].GetStreamPoint(0), i=0; 
-	    i < this->Streamers[ptId].GetNumberOfPoints() && sPtr->cellId >= 0; 
-	    i++, sPtr=this->Streamers[ptId].GetStreamPoint(i) )
+            i < this->Streamers[ptId].GetNumberOfPoints() && sPtr->cellId >= 0; 
+            i++, sPtr=this->Streamers[ptId].GetStreamPoint(i) )
         {
         sPtr->s = sPtr->speed;
         }

@@ -131,7 +131,7 @@ public:
   // component in that array. The (min,max) values are the range of data in
   // the component you wish to extract.
   void SetScalarComponent(int comp, const char *arrayName, int arrayComp,
-			  int min, int max, int normalize);
+                          int min, int max, int normalize);
   void SetScalarComponent(int comp, const char *arrayName, int arrayComp)
     {this->SetScalarComponent(comp, arrayName, arrayComp, -1, -1, this->DefaultNormalize);};
   const char *GetScalarComponentArrayName(int comp);
@@ -147,7 +147,7 @@ public:
   // component in that array. The (min,max) values are the range of data in
   // the component you wish to extract.
   void SetVectorComponent(int comp, const char *arrayName, int arrayComp,
-			  int min, int max, int normalize);
+                          int min, int max, int normalize);
   void SetVectorComponent(int comp, const char *arrayName, int arrayComp)
     {this->SetVectorComponent(comp, arrayName, arrayComp, -1, -1, this->DefaultNormalize);};
   const char *GetVectorComponentArrayName(int comp);
@@ -163,7 +163,7 @@ public:
   // component in that array. The (min,max) values are the range of data in
   // the component you wish to extract.
   void SetNormalComponent(int comp, const char *arrayName, int arrayComp,
-			  int min, int max, int normalize);
+                          int min, int max, int normalize);
   void SetNormalComponent(int comp, const char *arrayName, int arrayComp)
     {this->SetNormalComponent(comp, arrayName, arrayComp, -1, -1, this->DefaultNormalize);};
   const char *GetNormalComponentArrayName(int comp);
@@ -179,7 +179,7 @@ public:
   // component in that array. The (min,max) values are the range of data in
   // the component you wish to extract.
   void SetTensorComponent(int comp, const char *arrayName, int arrayComp,
-			  int min, int max, int normalize);
+                          int min, int max, int normalize);
   void SetTensorComponent(int comp, const char *arrayName, int arrayComp)
     {this->SetTensorComponent(comp, arrayName, arrayComp, -1, -1, this->DefaultNormalize);};
   const char *GetTensorComponentArrayName(int comp);
@@ -195,7 +195,7 @@ public:
   // component in that array. The (min,max) values are the range of data in
   // the component you wish to extract.
   void SetTCoordComponent(int comp, const char *arrayName, int arrayComp,
-			  int min, int max, int normalize);
+                          int min, int max, int normalize);
   void SetTCoordComponent(int comp, const char *arrayName, int arrayComp)
     {this->SetTCoordComponent(comp, arrayName, arrayComp, -1, -1, this->DefaultNormalize);};
   const char *GetTCoordComponentArrayName(int comp);
@@ -289,24 +289,24 @@ protected:
   int DefaultNormalize;
 
   void ConstructScalars(int num, vtkFieldData *fd, vtkDataSetAttributes *attr, 
-			vtkIdType componentRange[4][2], char *arrays[4], 
-			int arrayComponents[4],	int normalize[4], int numComp);
+                        vtkIdType componentRange[4][2], char *arrays[4], 
+                        int arrayComponents[4], int normalize[4], int numComp);
   void ConstructVectors(int num, vtkFieldData *fd, vtkDataSetAttributes *attr, 
-			vtkIdType componentRange[3][2], char *arrays[3], 
-			int arrayComponents[3], int normalize[3]);
+                        vtkIdType componentRange[3][2], char *arrays[3], 
+                        int arrayComponents[3], int normalize[3]);
   void ConstructGhostLevels(int num, vtkFieldData *fd,
-			    vtkDataSetAttributes *attr,
+                            vtkDataSetAttributes *attr,
                             vtkIdType componentRange[2], 
-			    char *array, int arrayComponent, int normalize);
+                            char *array, int arrayComponent, int normalize);
   void ConstructNormals(int num, vtkFieldData *fd, vtkDataSetAttributes *attr, 
-			vtkIdType componentRange[3][2], char *arrays[3], 
-			int arrayComponents[3], int normalize[3]);
+                        vtkIdType componentRange[3][2], char *arrays[3], 
+                        int arrayComponents[3], int normalize[3]);
   void ConstructTCoords(int num, vtkFieldData *fd, vtkDataSetAttributes *attr, 
-			vtkIdType componentRange[3][2], char *arrays[3], 
-			int arrayComponents[3],	int normalize[3], int numComp);
+                        vtkIdType componentRange[3][2], char *arrays[3], 
+                        int arrayComponents[3], int normalize[3], int numComp);
   void ConstructTensors(int num, vtkFieldData *fd, vtkDataSetAttributes *attr, 
-			vtkIdType componentRange[9][2], char *arrays[9], 
-			int arrayComponents[9],	int normalize[9]);
+                        vtkIdType componentRange[9][2], char *arrays[9], 
+                        int arrayComponents[9], int normalize[9]);
   void ConstructFieldData(int num, vtkDataSetAttributes *attr);
   
 private:

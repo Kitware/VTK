@@ -83,7 +83,7 @@ vtkAssignAttribute::~vtkAssignAttribute()
 }
 
 void vtkAssignAttribute::Assign(const char* fieldName, int attributeType, 
-				int attributeLoc)
+                                int attributeLoc)
 {
   if (!fieldName)
     {
@@ -115,7 +115,7 @@ void vtkAssignAttribute::Assign(const char* fieldName, int attributeType,
 }
 
 void vtkAssignAttribute::Assign(int inputAttributeType, int attributeType, 
-				int attributeLoc)
+                                int attributeLoc)
 {
   if ( (attributeType < 0) || 
        (attributeType > vtkDataSetAttributes::NUM_ATTRIBUTES) ||
@@ -141,8 +141,8 @@ void vtkAssignAttribute::Assign(int inputAttributeType, int attributeType,
 }
 
 void vtkAssignAttribute::Assign(const char* name, 
-				const char* attributeType, 
-				const char* attributeLoc)
+                                const char* attributeType, 
+                                const char* attributeLoc)
 {
   if (!name || !attributeType || !attributeLoc)
     {
@@ -225,18 +225,18 @@ void vtkAssignAttribute::Execute()
     switch (this->AttributeLocation)
       {
       case vtkAssignAttribute::POINT_DATA:
-	ods = output->GetPointData();
-	break;
+        ods = output->GetPointData();
+        break;
       case vtkAssignAttribute::CELL_DATA:
-	ods = output->GetCellData();
-	break;
+        ods = output->GetCellData();
+        break;
       }
     if (this->FieldType == vtkAssignAttribute::NAME && this->FieldName)
       {
       ods->SetActiveAttribute(this->FieldName, this->AttributeType);
       }
     else if (this->FieldType == vtkAssignAttribute::ATTRIBUTE  && 
-	     (this->InputAttributeType != -1))
+             (this->InputAttributeType != -1))
       {
       // If labeling an attribute as another attribute, we
       // need to get it's index and call SetActiveAttribute()
@@ -244,10 +244,10 @@ void vtkAssignAttribute::Execute()
       int attributeIndices[vtkDataSetAttributes::NUM_ATTRIBUTES];
       ods->GetAttributeIndices(attributeIndices);
       if (attributeIndices[this->InputAttributeType] != -1)
-	{
-	ods->SetActiveAttribute(attributeIndices[this->InputAttributeType], 
-				this->AttributeType);
-	}
+        {
+        ods->SetActiveAttribute(attributeIndices[this->InputAttributeType], 
+                                this->AttributeType);
+        }
       }
     }
 }

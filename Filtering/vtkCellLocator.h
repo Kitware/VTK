@@ -96,22 +96,22 @@ public:
   // Return intersection point (if any) of finite line with cells contained
   // in cell locator.
   virtual int IntersectWithLine(float a0[3], float a1[3], float tol,
-				float& t, float x[3], float pcoords[3],
-				int &subId);
+                                float& t, float x[3], float pcoords[3],
+                                int &subId);
 
   // Description:
   // Return intersection point (if any) AND the cell which was intersected by
   // the finite line.
   virtual int IntersectWithLine(float a0[3], float a1[3], float tol,
-				float& t, float x[3], float pcoords[3],
-				int &subId, vtkIdType &cellId);
+                                float& t, float x[3], float pcoords[3],
+                                int &subId, vtkIdType &cellId);
 
   // Description:
   // Return intersection point (if any) AND the cell which was intersected by
   // the finite line. The cell is returned as a cell id and as a generic cell.
   virtual int IntersectWithLine(float a0[3], float a1[3], float tol,
-				float& t, float x[3], float pcoords[3],
-				int &subId, vtkIdType &cellId,
+                                float& t, float x[3], float pcoords[3],
+                                int &subId, vtkIdType &cellId,
                                 vtkGenericCell *cell);
 
   // Description:
@@ -119,7 +119,7 @@ public:
   // The closest point is somewhere on a cell, it need not be one of the
   // vertices of the cell.
   void FindClosestPoint(float x[3], float closestPoint[3], vtkIdType &cellId,
-			int &subId, float& dist2);
+                        int &subId, float& dist2);
   
   // Description:
   // Return the closest point and the cell which is closest to the point x.
@@ -132,8 +132,8 @@ public:
   // found, "cell" contains the points and ptIds for the cell "cellId" upon
   // exit.
   void FindClosestPoint(float x[3], float closestPoint[3],
-			vtkGenericCell *cell, vtkIdType &cellId, int &subId,
-			float& dist2);
+                        vtkGenericCell *cell, vtkIdType &cellId, int &subId,
+                        float& dist2);
   
   // Description:
   // Return the closest point within a specified radius and the cell which is
@@ -143,8 +143,8 @@ public:
   // the specified radius, the method returns 0 and the values of closestPoint,
   // cellId, subId, and dist2 are undefined.
   int FindClosestPointWithinRadius(float x[3], float radius,
-				   float closestPoint[3], vtkIdType &cellId,
-				   int &subId, float& dist2);
+                                   float closestPoint[3], vtkIdType &cellId,
+                                   int &subId, float& dist2);
  
   // Description:
   // Return the closest point within a specified radius and the cell which is
@@ -160,9 +160,9 @@ public:
   // for loop.  If a closest point is found, "cell" contains the points and
   // ptIds for the cell "cellId" upon exit.
   int FindClosestPointWithinRadius(float x[3], float radius,
-				   float closestPoint[3],
-				   vtkGenericCell *cell, vtkIdType &cellId,
-				   int &subId, float& dist2);
+                                   float closestPoint[3],
+                                   vtkGenericCell *cell, vtkIdType &cellId,
+                                   int &subId, float& dist2);
 
   // Description:
   // Return the closest point within a specified radius and the cell which is
@@ -180,9 +180,9 @@ public:
   // inside returns the return value of the EvaluatePosition call to the
   // closest cell; inside(=1) or outside(=0).
   int FindClosestPointWithinRadius(float x[3], float radius,
-				   float closestPoint[3],
-				   vtkGenericCell *cell, vtkIdType &cellId,
-				   int &subId, float& dist2, int &inside);
+                                   float closestPoint[3],
+                                   vtkGenericCell *cell, vtkIdType &cellId,
+                                   int &subId, float& dist2, int &inside);
   
   // Description:
   // Get the cells in a particular bucket.

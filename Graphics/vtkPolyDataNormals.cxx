@@ -118,7 +118,7 @@ void vtkPolyDataNormals::Execute()
     output->CopyStructure(input);
     output->GetPointData()->PassData(input->GetPointData());
     output->GetCellData()->PassData(input->GetCellData());
-	output->SetFieldData(input->GetFieldData());
+        output->SetFieldData(input->GetFieldData());
     return;
     }
   output->GetCellData()->PassData(input->GetCellData());

@@ -167,27 +167,27 @@ void vtkProjectedTexture::Execute()
       p = output->GetPoint(i);
 
       for (j = 0; j < 3; j++) {
-	diff[j] = p[j] - this->Position[j];
+        diff[j] = p[j] - this->Position[j];
       }
       
       proj = vtkMath::Dot(diff, this->Orientation);
       if(proj < 1.0e-10 && proj > -1.0e-10) {
-	vtkWarningMacro(<<"Singularity:  point located at frustum Position");
-	tcoords[0] = sOffset;
-	tcoords[1] = tOffset;
+        vtkWarningMacro(<<"Singularity:  point located at frustum Position");
+        tcoords[0] = sOffset;
+        tcoords[1] = tOffset;
       } 
 
       else {
-	for (j = 0; j < 3; j++)
-	  {
-	  diff[j] = diff[j]/proj - this->Orientation[j];
-	  }
+        for (j = 0; j < 3; j++)
+          {
+          diff[j] = diff[j]/proj - this->Orientation[j];
+          }
 
-	s = vtkMath::Dot(diff, rightv);
-	t = vtkMath::Dot(diff, upv);
+        s = vtkMath::Dot(diff, rightv);
+        t = vtkMath::Dot(diff, upv);
 
-	tcoords[0] = s * sScale + sOffset;
-	tcoords[1] = t * tScale + tOffset;
+        tcoords[0] = s * sScale + sOffset;
+        tcoords[1] = t * tScale + tOffset;
       }
       
       newTCoords->SetTuple(i,tcoords);

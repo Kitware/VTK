@@ -72,12 +72,12 @@ vtkSuperquadricSource* vtkSuperquadricSource::New()
 
 
 static void evalSuperquadric(float u, float v, 
-			     float du, float dv,
-			     float n, float e, 
-			     float dims[3],
-			     float alpha,  
-			     float xyz[3], 
-			     float nrm[3]);
+                             float du, float dv,
+                             float n, float e, 
+                             float dims[3],
+                             float alpha,  
+                             float xyz[3], 
+                             float nrm[3]);
   
 // Description:
 vtkSuperquadricSource::vtkSuperquadricSource(int res)
@@ -264,66 +264,66 @@ void vtkSuperquadricSource::Execute()
       // evaluated exactly on a crease;  if that were to happen, 
       // large shading errors can occur.
       if(i == 0)
-	{
-	phiOffset =  SQ_SMALL_OFFSET*deltaPhi;
-	}
+        {
+        phiOffset =  SQ_SMALL_OFFSET*deltaPhi;
+        }
       else if (i == phiSubsegs)
-	{
-	phiOffset = -SQ_SMALL_OFFSET*deltaPhi;
-	}
+        {
+        phiOffset = -SQ_SMALL_OFFSET*deltaPhi;
+        }
       else
-	{
-	phiOffset =  0.0;
-	}
+        {
+        phiOffset =  0.0;
+        }
       
       for(jq = 0; jq < thetaSegs; jq++) {
-	for(j = 0; j <= thetaSubsegs; j++) {
-	  theta = thetaLim[0] + deltaTheta*(j + jq*thetaSubsegs);
-	  texCoord[0] = deltaThetaTex*(j + jq*thetaSubsegs);
-	  
-	  if(j == 0)
-	    {
-	    thetaOffset =  SQ_SMALL_OFFSET*deltaTheta;
-	    }
-	  else if (j == thetaSubsegs)
-	    {
-	    thetaOffset = -SQ_SMALL_OFFSET*deltaTheta;
-	    }
-	  else
-	    {
-	    thetaOffset =  0.0;
-	    }
+        for(j = 0; j <= thetaSubsegs; j++) {
+          theta = thetaLim[0] + deltaTheta*(j + jq*thetaSubsegs);
+          texCoord[0] = deltaThetaTex*(j + jq*thetaSubsegs);
+          
+          if(j == 0)
+            {
+            thetaOffset =  SQ_SMALL_OFFSET*deltaTheta;
+            }
+          else if (j == thetaSubsegs)
+            {
+            thetaOffset = -SQ_SMALL_OFFSET*deltaTheta;
+            }
+          else
+            {
+            thetaOffset =  0.0;
+            }
 
-	  evalSuperquadric(theta, phi, 
-			   thetaOffset, phiOffset, 
-			   this->PhiRoundness, this->ThetaRoundness,
-			   dims, alpha, pt, nv);
-	  
-	  if((len = vtkMath::Norm(nv)) == 0.0)
-	    {
-	    len = 1.0;
-	    }
-	  nv[0] /= len; nv[1] /= len; nv[2] /= len;
+          evalSuperquadric(theta, phi, 
+                           thetaOffset, phiOffset, 
+                           this->PhiRoundness, this->ThetaRoundness,
+                           dims, alpha, pt, nv);
+          
+          if((len = vtkMath::Norm(nv)) == 0.0)
+            {
+            len = 1.0;
+            }
+          nv[0] /= len; nv[1] /= len; nv[2] /= len;
 
-	  if(!this->Toroidal && 
-	     ((iq == 0 && i == 0) || (iq == (phiSegs-1) && i == phiSubsegs))) {
+          if(!this->Toroidal && 
+             ((iq == 0 && i == 0) || (iq == (phiSegs-1) && i == phiSubsegs))) {
 
-	    // we're at a pole:
-	    // make sure the pole is at the same location for all evals
-	    // (the superquadric evaluation is numerically unstable
-	    // at the poles)
+            // we're at a pole:
+            // make sure the pole is at the same location for all evals
+            // (the superquadric evaluation is numerically unstable
+            // at the poles)
 
-	    pt[0] = pt[2] = 0.0;
-	  }
-	  
-	  pt[0] += this->Center[0];
-	  pt[1] += this->Center[1];
-	  pt[2] += this->Center[2];
-	  
-	  newPoints->InsertNextPoint(pt);
-	  newNormals->InsertNextTuple(nv);
-	  newTCoords->InsertNextTuple(texCoord);
-	}
+            pt[0] = pt[2] = 0.0;
+          }
+          
+          pt[0] += this->Center[0];
+          pt[1] += this->Center[1];
+          pt[2] += this->Center[2];
+          
+          newPoints->InsertNextPoint(pt);
+          newNormals->InsertNextTuple(nv);
+          newTCoords->InsertNextTuple(texCoord);
+        }
       }
     }
   }
@@ -338,12 +338,12 @@ void vtkSuperquadricSource::Execute()
     for(i = 0; i < phiSubsegs; i++) {
       pbase = rowOffset*(i +iq*(phiSubsegs+1));
       for(jq = 0; jq < thetaSegs; jq++) {
-	base = pbase + jq*(thetaSubsegs+1);
-	for(j = 0; j <= thetaSubsegs; j++) {
-	  ptidx[2*j] = base + rowOffset + j;
-	  ptidx[2*j+1] = base + j;
-	}
-	newPolys->InsertNextCell(ptsPerStrip, ptidx);
+        base = pbase + jq*(thetaSubsegs+1);
+        for(j = 0; j <= thetaSubsegs; j++) {
+          ptidx[2*j] = base + rowOffset + j;
+          ptidx[2*j+1] = base + j;
+        }
+        newPolys->InsertNextCell(ptsPerStrip, ptidx);
       }
     }
   }
@@ -400,12 +400,12 @@ static float sf(float w, float m)
 }
 
 static void evalSuperquadric(float u, float v,  // parametric coords
-			     float du, float dv, // offsets for normals
-			     float n, float e,  // roundness params
-			     float dims[3],     // x, y, z dimensions
-			     float alpha,       // hole size
-			     float xyz[3],      // output coords
-			     float nrm[3])      // output normals
+                             float du, float dv, // offsets for normals
+                             float n, float e,  // roundness params
+                             float dims[3],     // x, y, z dimensions
+                             float alpha,       // hole size
+                             float xyz[3],      // output coords
+                             float nrm[3])      // output normals
   
 {
   float cf1, cf2;

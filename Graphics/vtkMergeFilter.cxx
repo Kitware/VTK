@@ -55,14 +55,14 @@ public:
     {
       int length = strlen(name);
       if (length > 0)
-	{
-	this->Name = new char[length+1];
-	strcpy(this->Name, name);
-	}
+        {
+        this->Name = new char[length+1];
+        strcpy(this->Name, name);
+        }
       else
-	{
-	this->Name = 0;
-	}
+        {
+        this->Name = 0;
+        }
       this->Ptr = ptr;
       this->Next = 0;
     }
@@ -96,11 +96,11 @@ public:
       vtkFieldNode* node = this->First;
       vtkFieldNode* next;
       while(node)
-	{
-	next = node->Next;
-	delete node;
-	node = next;
-	}
+        {
+        next = node->Next;
+        delete node;
+        node = next;
+        }
     }
 
 
@@ -108,15 +108,15 @@ public:
     {
       vtkFieldNode* newNode = new vtkFieldNode(name, ptr);
       if (!this->First)
-	{
-	this->First = newNode;
-	this->Last = newNode;
-	}
+        {
+        this->First = newNode;
+        this->Last = newNode;
+        }
       else
-	{
-	this->Last->Next = newNode;
-	this->Last = newNode;
-	}
+        {
+        this->Last->Next = newNode;
+        this->Last = newNode;
+        }
     }
 
   friend class vtkFieldListIterator;
@@ -141,9 +141,9 @@ public:
   void Next()
     {
       if (this->Position)
-	{
- 	this->Position = this->Position->Next;
-	}
+        {
+        this->Position = this->Position->Next;
+        }
     }
   int End()
     {
@@ -427,17 +427,17 @@ void vtkMergeFilter::Execute()
       {
       num = da->GetNumberOfTuples();
       if (num == numPts)
-	{
-	outputPD->AddArray(da);
-	}
+        {
+        outputPD->AddArray(da);
+        }
       }
     if ( (da=cd->GetArray(name)) )
       {
       num = da->GetNumberOfTuples();
       if (num == numPts)
-	{
-	outputCD->AddArray(da);
-	}
+        {
+        outputCD->AddArray(da);
+        }
       }
     }
 }

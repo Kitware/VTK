@@ -91,9 +91,9 @@ protected:
 
   // Helper methods.
   void ExecuteFaceStrips(vtkDataSet *input, int maxFlag, int *ext,
-			 int aAxis, int bAxis, int cAxis);
+                         int aAxis, int bAxis, int cAxis);
   void ExecuteFaceQuads(vtkDataSet *input, int maxFlag, int *ext,
-			int aAxis, int bAxis, int cAxis);
+                        int aAxis, int bAxis, int cAxis);
 
   void InitializeQuadHash(vtkIdType numPoints);
   void DeleteQuadHash();

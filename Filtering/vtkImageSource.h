@@ -80,7 +80,7 @@ protected:
   vtkImageData *AllocateOutputData(vtkDataObject *out);
 
   void ComputeRequiredInputUpdateExtent( int *vtkNotUsed(in), 
-					 int *vtkNotUsed(out) ) 
+                                         int *vtkNotUsed(out) ) 
     {VTK_LEGACY_METHOD(ComputeRequiredInputUpdateExtent,"3.2");}
   
 private:

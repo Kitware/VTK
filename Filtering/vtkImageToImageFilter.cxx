@@ -161,22 +161,22 @@ void vtkImageToImageFilter::ComputeInputUpdateExtents( vtkDataObject *output )
     if (this->Inputs[idx] != NULL)
       {
       if (this->Inputs[idx]->GetRequestExactExtent())
-	{
-	int *currentExt = this->Inputs[idx]->GetUpdateExtent();
-	for (int i = 0; i < 6; i += 2)
-	  {
-	  if (inExt[i] < currentExt[i] ||
-	      inExt[i+1] > currentExt[i+1])
-	    {
-	    this->Inputs[idx]->SetUpdateExtent( inExt );
-	    break;
-	    }
-	  }
-	}
+        {
+        int *currentExt = this->Inputs[idx]->GetUpdateExtent();
+        for (int i = 0; i < 6; i += 2)
+          {
+          if (inExt[i] < currentExt[i] ||
+              inExt[i+1] > currentExt[i+1])
+            {
+            this->Inputs[idx]->SetUpdateExtent( inExt );
+            break;
+            }
+          }
+        }
       else
-	{
-	this->Inputs[idx]->SetUpdateExtent( inExt );
-	}
+        {
+        this->Inputs[idx]->SetUpdateExtent( inExt );
+        }
       }
     }  
 }
@@ -184,7 +184,7 @@ void vtkImageToImageFilter::ComputeInputUpdateExtents( vtkDataObject *output )
 // By default, simply set the input update extent to match the given output
 // extent
 void vtkImageToImageFilter::ComputeInputUpdateExtent( int inExt[6], 
-						      int outExt[6] )
+                                                      int outExt[6] )
 {
   memcpy(inExt,outExt,sizeof(int)*6);
 }
@@ -246,15 +246,15 @@ VTK_THREAD_RETURN_TYPE vtkImageThreadedExecute( void *arg )
 // This can be from 1 to "total".  
 // If 1 is returned, the extent cannot be split.
 int vtkImageToImageFilter::SplitExtent(int splitExt[6], int startExt[6], 
-				       int num, int total)
+                                       int num, int total)
 {
   int splitAxis;
   int min, max;
 
   vtkDebugMacro("SplitExtent: ( " << startExt[0] << ", " << startExt[1] << ", "
-		<< startExt[2] << ", " << startExt[3] << ", "
-		<< startExt[4] << ", " << startExt[5] << "), " 
-		<< num << " of " << total);
+                << startExt[2] << ", " << startExt[3] << ", "
+                << startExt[4] << ", " << startExt[5] << "), " 
+                << num << " of " << total);
 
   // start with same extent
   memcpy(splitExt, startExt, 6 * sizeof(int));
@@ -289,8 +289,8 @@ int vtkImageToImageFilter::SplitExtent(int splitExt[6], int startExt[6],
     }
   
   vtkDebugMacro("  Split Piece: ( " <<splitExt[0]<< ", " <<splitExt[1]<< ", "
-		<< splitExt[2] << ", " << splitExt[3] << ", "
-		<< splitExt[4] << ", " << splitExt[5] << ")");
+                << splitExt[2] << ", " << splitExt[3] << ", "
+                << splitExt[4] << ", " << splitExt[5] << ")");
 
   return maxThreadIdUsed + 1;
 }

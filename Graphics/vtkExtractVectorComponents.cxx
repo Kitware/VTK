@@ -222,9 +222,9 @@ void vtkExtractVectorComponents::Execute()
   vectors = pd->GetVectors();
   vectorsc = cd->GetVectors();
   if ( (vectors == NULL ||
-	((numVectors = vectors->GetNumberOfTuples()) < 1) ) && 
+        ((numVectors = vectors->GetNumberOfTuples()) < 1) ) && 
        (vectorsc == NULL ||
-	((numVectorsc = vectorsc->GetNumberOfTuples()) < 1)))  
+        ((numVectorsc = vectorsc->GetNumberOfTuples()) < 1)))  
     {
     vtkErrorMacro(<<"No vector data to extract!");
     return;
@@ -260,10 +260,10 @@ void vtkExtractVectorComponents::Execute()
     switch (vectors->GetDataType())
       {
       vtkTemplateMacro5(ExtractComponents, numVectors,
-			(VTK_TT *)vectors->GetVoidPointer(0),
-			(VTK_TT *)vx->GetVoidPointer(0),
-			(VTK_TT *)vy->GetVoidPointer(0),
-			(VTK_TT *)vz->GetVoidPointer(0));
+                        (VTK_TT *)vectors->GetVoidPointer(0),
+                        (VTK_TT *)vx->GetVoidPointer(0),
+                        (VTK_TT *)vy->GetVoidPointer(0),
+                        (VTK_TT *)vz->GetVoidPointer(0));
       }
 
     outVx->CopyScalarsOff();
@@ -311,10 +311,10 @@ void vtkExtractVectorComponents::Execute()
     switch (vectorsc->GetDataType())
       {
       vtkTemplateMacro5(ExtractComponents, numVectorsc,
-			(VTK_TT *)vectorsc->GetVoidPointer(0),
-			(VTK_TT *)vxc->GetVoidPointer(0),
-			(VTK_TT *)vyc->GetVoidPointer(0),
-			(VTK_TT *)vzc->GetVoidPointer(0));
+                        (VTK_TT *)vectorsc->GetVoidPointer(0),
+                        (VTK_TT *)vxc->GetVoidPointer(0),
+                        (VTK_TT *)vyc->GetVoidPointer(0),
+                        (VTK_TT *)vzc->GetVoidPointer(0));
       }
 
     outVxc->CopyScalarsOff();

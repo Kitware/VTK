@@ -136,7 +136,7 @@ void vtkMergeFields::SetOutputField(const char* name, const char* fieldLoc)
 }
 
 void vtkMergeFields::Merge(int component, const char* arrayName, 
-			   int sourceComp)
+                           int sourceComp)
 {
   if (!arrayName)
     {
@@ -224,27 +224,27 @@ void vtkMergeFields::Execute()
     else
       {
       if (dataType == -1)
-	{
-	dataType = inputArray->GetDataType();
-	}
+        {
+        dataType = inputArray->GetDataType();
+        }
       else
-	{
-	if ( inputArray->GetDataType() != dataType )
-	  {
-	  sameDataType = 0;
-	  }
-	}
+        {
+        if ( inputArray->GetDataType() != dataType )
+          {
+          sameDataType = 0;
+          }
+        }
       if (numTuples == -1)
-	{
-	numTuples = inputArray->GetNumberOfTuples();
-	}
+        {
+        numTuples = inputArray->GetNumberOfTuples();
+        }
       else
-	{
-	if ( inputArray->GetNumberOfTuples() != numTuples )
-	  {
-	  sameNumTuples = 0;
-	  }
-	}
+        {
+        if ( inputArray->GetNumberOfTuples() != numTuples )
+          {
+          sameNumTuples = 0;
+          }
+        }
       }
     } 
   while (cur);
@@ -262,7 +262,7 @@ void vtkMergeFields::Execute()
   if (!sameDataType)
     {
     vtkWarningMacro("The input data types do not match. The output will be "<<
-		    "float. This will potentially cause accuracy and speed.");
+                    "float. This will potentially cause accuracy and speed.");
     outputArray = vtkFloatArray::New();
     }
   else
@@ -273,7 +273,7 @@ void vtkMergeFields::Execute()
   if (this->NumberOfComponents <= 0)
     {
     vtkErrorMacro("NumberOfComponents has be set prior to the execution of "
-		  "this filter");
+                  "this filter");
     }
 
   outputArray->SetNumberOfComponents(this->NumberOfComponents);
@@ -290,20 +290,20 @@ void vtkMergeFields::Execute()
     if (inputArray)
       {
       if (!this->MergeArray(inputArray, outputArray, 
-			    before->SourceIndex, before->Index))
-	{
-	outputArray->Delete();
-	outputArray = 0;
-	return;
-	}
+                            before->SourceIndex, before->Index))
+        {
+        outputArray->Delete();
+        outputArray = 0;
+        return;
+        }
       }
     else
       {
       if (before->FieldName)
-	{
-	vtkWarningMacro("Input array " << before->FieldName 
-			<< " does not exist.");
-	}
+        {
+        vtkWarningMacro("Input array " << before->FieldName 
+                        << " does not exist.");
+        }
       continue;
       }
     } 
@@ -315,8 +315,8 @@ void vtkMergeFields::Execute()
 // fast pointer copy
 template <class T>
 static void CopyTuples(T* input, T* output, vtkIdType numTuples, 
- 		       int numInComp, int numOutComp,
-		       int inComp, int outComp)
+                       int numInComp, int numOutComp,
+                       int inComp, int outComp)
 {
   for (int i=0; i<numTuples; i++)
     {
@@ -325,7 +325,7 @@ static void CopyTuples(T* input, T* output, vtkIdType numTuples,
 }
 
 int vtkMergeFields::MergeArray(vtkDataArray* in, vtkDataArray* out,
-			       int inComp, int outComp)
+                               int inComp, int outComp)
 {
   if ( (inComp < 0) || (inComp > in->GetNumberOfComponents()) ||
        (outComp < 0) || (outComp > out->GetNumberOfComponents()) )
@@ -343,33 +343,33 @@ int vtkMergeFields::MergeArray(vtkDataArray* in, vtkDataArray* out,
     if ( in->GetDataType() == out->GetDataType() )
       {
       switch (out->GetDataType())
-	{
-	vtkTemplateMacro7(CopyTuples, (VTK_TT *)in->GetVoidPointer(0), 
-			  (VTK_TT *)out->GetVoidPointer(0), numTuples,
-			  in->GetNumberOfComponents(), 
-			  out->GetNumberOfComponents(), inComp, outComp );
-	// This is not supported by the template macro.
-	// Switch to using the float interface.
-	case VTK_BIT:
-	{
-	for(i=0; i<numTuples; i++)
-	  {
-	  out->SetComponent(i, outComp, in->GetComponent(i, inComp));
-	  }
-	}
-	break;
-	default:
-	  vtkErrorMacro(<<"Sanity check failed: Unsupported data type.");
-	  return 0;
-	}
+        {
+        vtkTemplateMacro7(CopyTuples, (VTK_TT *)in->GetVoidPointer(0), 
+                          (VTK_TT *)out->GetVoidPointer(0), numTuples,
+                          in->GetNumberOfComponents(), 
+                          out->GetNumberOfComponents(), inComp, outComp );
+        // This is not supported by the template macro.
+        // Switch to using the float interface.
+        case VTK_BIT:
+        {
+        for(i=0; i<numTuples; i++)
+          {
+          out->SetComponent(i, outComp, in->GetComponent(i, inComp));
+          }
+        }
+        break;
+        default:
+          vtkErrorMacro(<<"Sanity check failed: Unsupported data type.");
+          return 0;
+        }
       }
     // otherwise use slow float copy
     else
       {
       for(i=0; i<numTuples; i++)
-	{
-	out->SetComponent(i, outComp, in->GetComponent(i, inComp));
-	}
+        {
+        out->SetComponent(i, outComp, in->GetComponent(i, inComp));
+        }
       }
     }
   

@@ -191,9 +191,9 @@ void vtkProgrammableGlyphFilter::Execute()
       {
       this->UpdateProgress ((float)this->PointId/numPts);
       if (this->GetAbortExecute())
-	{
-	break;
-	}
+        {
+        break;
+        }
       }
 
     input->GetPoint(this->PointId, this->Point);

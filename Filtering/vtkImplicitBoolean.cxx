@@ -124,9 +124,9 @@ float vtkImplicitBoolean::EvaluateFunction(float x[3])
     (f=this->FunctionList->GetNextItem()); )
       {
       if ( (v=f->FunctionValue(x)) < value )
-	{
-	value = v;
-	}
+        {
+        value = v;
+        }
       }
     }
 
@@ -136,9 +136,9 @@ float vtkImplicitBoolean::EvaluateFunction(float x[3])
     (f=this->FunctionList->GetNextItem()); )
       {
       if ( (v=f->FunctionValue(x)) > value )
-	{
-	value = v;
-	}
+        {
+        value = v;
+        }
       }
     }
 
@@ -148,9 +148,9 @@ float vtkImplicitBoolean::EvaluateFunction(float x[3])
     (f=this->FunctionList->GetNextItem()); )
       {
       if ( (v=fabs(f->FunctionValue(x))) < value )
-	{
-	value = v;
-	}
+        {
+        value = v;
+        }
       }
     }
 
@@ -169,9 +169,9 @@ float vtkImplicitBoolean::EvaluateFunction(float x[3])
       if ( f != firstF )
         {
         if ( (v=(-1.0)*f->FunctionValue(x)) > value )
-	  {
-	  value = v;
-	  }
+          {
+          value = v;
+          }
         }
       }
     }//else

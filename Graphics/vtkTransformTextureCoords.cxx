@@ -142,7 +142,7 @@ void vtkTransformTextureCoords::Execute()
   // move back from origin and translate
   transform->Translate(this->Origin[0] + this->Position[0],
                       this->Origin[1] + this->Position[1],
-		      this->Origin[2] + this->Position[2]);
+                      this->Origin[2] + this->Position[2]);
 
   matrix->DeepCopy(transform->GetMatrix());
 

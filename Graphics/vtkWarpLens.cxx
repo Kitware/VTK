@@ -95,7 +95,7 @@ vtkWarpLens::vtkWarpLens()
   this->FormatWidth = 1.0;
   this->FormatHeight = 1.0;
   this->ImageWidth = 1;
-  this->ImageHeight = 1;	
+  this->ImageHeight = 1;        
 }
 
 void vtkWarpLens::Execute()
@@ -167,7 +167,7 @@ void vtkWarpLens::Execute()
     newPixel[1] = (newY - this->PrincipalPoint[1]) / 
       this->FormatHeight * this->ImageHeight * -1; 
 
-    newPixel[2] = pixel[2];		// pixel color
+    newPixel[2] = pixel[2];             // pixel color
     newPts->SetPoint(ptId, newPixel);
     }
 

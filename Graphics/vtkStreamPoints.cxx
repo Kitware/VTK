@@ -130,7 +130,7 @@ void vtkStreamPoints::Execute()
 
           // add point to line
           id = newPts->InsertNextPoint(x);
-	  pts->InsertNextId(id);
+          pts->InsertNextId(id);
           newVectors->InsertTuple(id,v);
 
           if ( newScalars ) 

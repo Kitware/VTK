@@ -390,7 +390,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructScalars(int num, vtkFieldData *
   else //have to copy data into created array
     {
     newScalars = vtkDataArray::CreateDataArray(this->GetComponentsType(numComp,
-								       fieldArray));
+                                                                       fieldArray));
     newScalars->SetNumberOfTuples(num);
   
     for ( i=0; i < numComp; i++ )
@@ -1095,29 +1095,29 @@ vtkDataArray *vtkFieldDataToAttributeDataFilter::GetFieldArray(vtkFieldData *fd,
       {
       found=1;
       if(!strcmp("PointScalars", name) || !strcmp("CellScalars", name))
-	{
-	da = dsa->GetScalars();
-	}
+        {
+        da = dsa->GetScalars();
+        }
       else if(!strcmp("PointVectors", name) || !strcmp("CellVectors", name))
-	{
-	da = dsa->GetVectors();
-	}
+        {
+        da = dsa->GetVectors();
+        }
       else if(!strcmp("PointTensors", name) || !strcmp("CellTensors", name))
-	{
-	da = dsa->GetTensors();
-	}
+        {
+        da = dsa->GetTensors();
+        }
       else if(!strcmp("PointNormals", name) || !strcmp("CellNormals", name))
-	{
-	da = dsa->GetNormals();
-	}
+        {
+        da = dsa->GetNormals();
+        }
       else if(!strcmp("PointTCoords", name) || !strcmp("CellTCoords", name))
-	{
-	da = dsa->GetTCoords();
-	}
+        {
+        da = dsa->GetTCoords();
+        }
       else
-	{
-	found=0;
-	}
+        {
+        found=0;
+        }
       }
     if (!found || !da)
       {

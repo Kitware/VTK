@@ -159,13 +159,13 @@ void vtkEdgePoints::Execute()
     for ( above=below=0, ptId=0; ptId < cell->GetNumberOfPoints(); ptId++ )
       {
       if ( cellScalars->GetComponent(ptId,0) >= this->Value )
-	{
+        {
         above = 1;
-	}
+        }
       else if ( cellScalars->GetComponent(ptId,0) < this->Value )
-	{
+        {
         below = 1;
-	}
+        }
       }
 
     if ( above && below ) //contour passes through cell
@@ -189,33 +189,33 @@ void vtkEdgePoints::Execute()
           if ( (s0 < this->Value && s1 >= this->Value) ||
           (s0 >= this->Value && s1 < this->Value) )
             {
-	    //ordering intersection direction avoids numerical problems
-	    deltaScalar = s1 - s0; 
-	    if (deltaScalar > 0)
-	      {
-	      e0 = 0; e1 = 1;
-	      e0Scalar = s0;
-	      }
-	    else
-	      {
-	      e0 = 1; e1 = 0;
-	      e0Scalar = s1;
-	      deltaScalar = -deltaScalar;
-	      }
+            //ordering intersection direction avoids numerical problems
+            deltaScalar = s1 - s0; 
+            if (deltaScalar > 0)
+              {
+              e0 = 0; e1 = 1;
+              e0Scalar = s0;
+              }
+            else
+              {
+              e0 = 1; e1 = 0;
+              e0Scalar = s1;
+              deltaScalar = -deltaScalar;
+              }
 
-	    t = (this->Value - e0Scalar) / deltaScalar;
+            t = (this->Value - e0Scalar) / deltaScalar;
 
             edge->Points->GetPoint(e0,x0);
             edge->Points->GetPoint(e1,x1);
 
             for (i=0; i<3; i++)
-	      {
-	      x[i] = x0[i] + t * (x1[i] - x0[i]);
-	      }
+              {
+              x[i] = x0[i] + t * (x1[i] - x0[i]);
+              }
             if ( this->Locator->InsertUniquePoint(x, pts[0]) )
               {
               newCellId = newVerts->InsertNextCell(1,pts);
-	      outCd->CopyData(inCd,cellId,newCellId);
+              outCd->CopyData(inCd,cellId,newCellId);
               p1 = edge->PointIds->GetId(e0);
               p2 = edge->PointIds->GetId(e1);
               outPd->InterpolateEdge(inPd,pts[0],p1,p2,t);

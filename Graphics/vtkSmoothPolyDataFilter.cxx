@@ -496,8 +496,8 @@ void vtkSmoothPolyDataFilter::Execute()
           l2[k] = x3[k] - x2[k];
           }
         if ( vtkMath::Normalize(l1) >= 0.0 &&
-	     vtkMath::Normalize(l2) >= 0.0 &&
-	     vtkMath::Dot(l1,l2) < CosEdgeAngle)
+             vtkMath::Normalize(l2) >= 0.0 &&
+             vtkMath::Dot(l1,l2) < CosEdgeAngle)
           {
           numFixed++;
           Verts[i].type = VTK_FIXED_VERTEX;
@@ -649,7 +649,7 @@ void vtkSmoothPolyDataFilter::Execute()
       inPts->GetPoint(i,x1);
       newPts->GetPoint(i,x2);
       newScalars->SetComponent(i,0,
-			       sqrt(vtkMath::Distance2BetweenPoints(x1,x2)));
+                               sqrt(vtkMath::Distance2BetweenPoints(x1,x2)));
       }
     output->GetPointData()->SetScalars(newScalars);
     newScalars->Delete();

@@ -114,7 +114,7 @@ public:
   // is step through the input table.  It is used by vtkColorTransferFunction
   // to construct 3 piecewise functions from an rgb table.
   void BuildFunctionFromTable( float x1, float x2, int size,
-			       float *table, int stride=1 );
+                               float *table, int stride=1 );
   
   // Description:
   // When zero range clamping is Off, GetValue() returns 0.0 when a
@@ -151,16 +151,16 @@ protected:
   ~vtkPiecewiseFunction();
 
   // Size of the array used to store function points
-  int	ArraySize;
+  int   ArraySize;
 
   // Determines the function value outside of defined points
   // Zero = always return 0.0 outside of defined points
   // One  = clamp to the lowest value below defined points and
   //        highest value above defined points
-  int	Clamping;
+  int   Clamping;
 
   // Array of points ((X,Y) pairs)
-  float	*Function;
+  float *Function;
 
   // Number of points used to specify function
   int   FunctionSize;

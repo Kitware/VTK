@@ -81,8 +81,8 @@ public:
   // will call this method. It is public so that the thread functions
   // can call this method.
   virtual void ThreadedExecute(vtkImageData *inData, 
-			       vtkImageData *outData,
-			       int extent[6], int threadId);
+                               vtkImageData *outData,
+                               int extent[6], int threadId);
   
   // Description:
   // Get/Set the number of threads to create when rendering
@@ -97,7 +97,7 @@ public:
   // Description:
   // Putting this here until I merge graphics and imaging streaming.
   virtual int SplitExtent(int splitExt[6], int startExt[6], 
-			  int num, int total);
+                          int num, int total);
   
 protected:
   vtkImageToImageFilter();

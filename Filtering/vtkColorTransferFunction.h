@@ -176,9 +176,9 @@ protected:
 
   // Transfer functions for each color component
   // Remove after corresponding depricated methods are removed
-  vtkPiecewiseFunction	*Red;
-  vtkPiecewiseFunction	*Green;
-  vtkPiecewiseFunction	*Blue;
+  vtkPiecewiseFunction  *Red;
+  vtkPiecewiseFunction  *Green;
+  vtkPiecewiseFunction  *Blue;
   vtkTimeStamp BuildTime;
   unsigned char *Table;
   int TableSize;

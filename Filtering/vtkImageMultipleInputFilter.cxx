@@ -158,7 +158,7 @@ void vtkImageMultipleInputFilter::ExecuteInformation()
 // Call the alternate version of this method, and use the returned input
 // update extent for all inputs
 void vtkImageMultipleInputFilter::ComputeInputUpdateExtents( vtkDataObject 
-							     *output )
+                                                             *output )
 {
   int outExt[6], inExt[6];
 
@@ -177,9 +177,9 @@ void vtkImageMultipleInputFilter::ComputeInputUpdateExtents( vtkDataObject
 // By default, simply set the input update extent to match the given output
 // extent
 void vtkImageMultipleInputFilter::ComputeInputUpdateExtent( 
-					    int inExt[6],
-					    int outExt[6],
-					    int vtkNotUsed(whichInput) )
+                                            int inExt[6],
+                                            int outExt[6],
+                                            int vtkNotUsed(whichInput) )
 {
   memcpy(inExt,outExt,sizeof(int)*6);
 }
@@ -208,7 +208,7 @@ VTK_THREAD_RETURN_TYPE vtkImageMultiThreadedExecute( void *arg )
   str = (vtkImageMultiThreadStruct *)(((ThreadInfoStruct *)(arg))->UserData);
   
   memcpy(ext,str->Filter->GetOutput()->GetUpdateExtent(),
-	 sizeof(int)*6);
+         sizeof(int)*6);
 
   // execute the actual method with appropriate extent
   // first find out how many pieces extent can be split into.
@@ -258,9 +258,9 @@ void vtkImageMultipleInputFilter::ExecuteData(vtkDataObject *out)
 //----------------------------------------------------------------------------
 // The execute method created by the subclass.
 void vtkImageMultipleInputFilter::ThreadedExecute(vtkImageData 
-				  **vtkNotUsed(inData), 
-				  vtkImageData *vtkNotUsed(outData),
-				  int extent[6], int threadId)
+                                  **vtkNotUsed(inData), 
+                                  vtkImageData *vtkNotUsed(outData),
+                                  int extent[6], int threadId)
 {
   extent = extent;
   if (threadId == 0)
@@ -278,15 +278,15 @@ void vtkImageMultipleInputFilter::ThreadedExecute(vtkImageData
 // This can be from 1 to "total".  
 // If 1 is returned, the extent cannot be split.
 int vtkImageMultipleInputFilter::SplitExtent(int splitExt[6], int startExt[6], 
-					     int num, int total)
+                                             int num, int total)
 {
   int splitAxis;
   int min, max;
 
   vtkDebugMacro("SplitExtent: ( " << startExt[0] << ", " << startExt[1] << ", "
-		<< startExt[2] << ", " << startExt[3] << ", "
-		<< startExt[4] << ", " << startExt[5] << "), " 
-		<< num << " of " << total);
+                << startExt[2] << ", " << startExt[3] << ", "
+                << startExt[4] << ", " << startExt[5] << "), " 
+                << num << " of " << total);
 
   // start with same extent
   memcpy(splitExt, startExt, 6 * sizeof(int));
@@ -321,8 +321,8 @@ int vtkImageMultipleInputFilter::SplitExtent(int splitExt[6], int startExt[6],
     }
   
   vtkDebugMacro("  Split Piece: ( " <<splitExt[0]<< ", " <<splitExt[1]<< ", "
-		<< splitExt[2] << ", " << splitExt[3] << ", "
-		<< splitExt[4] << ", " << splitExt[5] << ")");
+                << splitExt[2] << ", " << splitExt[3] << ", "
+                << splitExt[4] << ", " << splitExt[5] << ")");
 
   return maxThreadIdUsed + 1;
 }

@@ -71,13 +71,13 @@ float *vtkWarpScalar::DataNormal(vtkIdType id, vtkDataArray *normals)
 }
 
 float *vtkWarpScalar::InstanceNormal(vtkIdType vtkNotUsed(id), 
-				     vtkDataArray *vtkNotUsed(normals))
+                                     vtkDataArray *vtkNotUsed(normals))
 {
   return this->Normal;
 }
 
 float *vtkWarpScalar::ZNormal(vtkIdType vtkNotUsed(id), 
-			      vtkDataArray *vtkNotUsed(normals))
+                              vtkDataArray *vtkNotUsed(normals))
 {
   static float zNormal[3]={0.0,0.0,1.0};
   return zNormal;
@@ -141,9 +141,9 @@ void vtkWarpScalar::Execute()
       {
       this->UpdateProgress ((float)ptId/numPts);
       if (this->GetAbortExecute())
-	{
-	break;
-	}
+        {
+        break;
+        }
       }
 
     x = inPts->GetPoint(ptId);

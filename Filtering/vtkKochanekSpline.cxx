@@ -91,7 +91,7 @@ float vtkKochanekSpline::Evaluate (float t)
   if (this->ComputeTime < this->GetMTime ())
     {
     this->Compute ();
-    }	
+    }   
 
   intervals = this->Intervals;
   coefficients = this->Coefficients;
@@ -216,12 +216,12 @@ void vtkKochanekSpline::Compute ()
     }
 
   this->Fit1D (size, this->Intervals, dependent,
-		 this->DefaultTension,
-		 this->DefaultBias,
-		 this->DefaultContinuity,
-		 (float (*)[4])coefficients,
-		 this->LeftConstraint, this->LeftValue,
-		 this->RightConstraint, this->RightValue);
+                 this->DefaultTension,
+                 this->DefaultBias,
+                 this->DefaultContinuity,
+                 (float (*)[4])coefficients,
+                 this->LeftConstraint, this->LeftValue,
+                 this->RightConstraint, this->RightValue);
 
   // free the dependent variable storage
   delete [] dependent;
@@ -235,17 +235,17 @@ void vtkKochanekSpline::Compute ()
 // Compute the coefficients for a 1D spline
 void vtkKochanekSpline::Fit1D (int size, float *x, float *y,
                         float tension, float bias, float continuity,
-			float coefficients[][4],
-			int leftConstraint, float leftValue,
-			int rightConstraint, float rightValue)
+                        float coefficients[][4],
+                        int leftConstraint, float leftValue,
+                        int rightConstraint, float rightValue)
 {
-  float		cs;		/* source chord			*/
-  float		cd;		/* destination chord		*/
-  float		ds;		/* source deriviative		*/
-  float		dd;		/* destination deriviative	*/
-  float		n0, n1;		/* number of frames btwn nodes	*/
-  int		N;		/* top point number		*/
-  int		i;
+  float         cs;             /* source chord                 */
+  float         cd;             /* destination chord            */
+  float         ds;             /* source deriviative           */
+  float         dd;             /* destination deriviative      */
+  float         n0, n1;         /* number of frames btwn nodes  */
+  int           N;              /* top point number             */
+  int           i;
 
   if (size == 2)
     {
@@ -317,61 +317,61 @@ void vtkKochanekSpline::Fit1D (int size, float *x, float *y,
     switch (leftConstraint) 
       {
       case 1:
-	// desired slope at leftmost point is leftValue
-	coefficients[0][1] = leftValue;
-	break;
+        // desired slope at leftmost point is leftValue
+        coefficients[0][1] = leftValue;
+        break;
 
       case 2:
-	// desired second derivative at leftmost point is leftValue
-	coefficients[0][1] = (6*(y[1] - y[0]) - 2*coefficients[1][2] - leftValue)
-	      / 4.0;
-	break;
+        // desired second derivative at leftmost point is leftValue
+        coefficients[0][1] = (6*(y[1] - y[0]) - 2*coefficients[1][2] - leftValue)
+              / 4.0;
+        break;
 
       case 3:
-	// desired secord derivative at leftmost point is leftValue
-	// times secod derivative at first interior point
-	if ((leftValue > (-2.0 + VTK_EPSILON)) || 
-	    (leftValue < (-2.0 - VTK_EPSILON)))
-	  {
-	  coefficients[0][1] = (3*(1 + leftValue)*(y[1] - y[0]) -
-				    (1 + 2*leftValue)*coefficients[1][2])
-				  / (2 + leftValue);
-	  }
-	else
-	  {
-	  coefficients[0][1] = 0.0;
-	  }
-	break;
+        // desired secord derivative at leftmost point is leftValue
+        // times secod derivative at first interior point
+        if ((leftValue > (-2.0 + VTK_EPSILON)) || 
+            (leftValue < (-2.0 - VTK_EPSILON)))
+          {
+          coefficients[0][1] = (3*(1 + leftValue)*(y[1] - y[0]) -
+                                    (1 + 2*leftValue)*coefficients[1][2])
+                                  / (2 + leftValue);
+          }
+        else
+          {
+          coefficients[0][1] = 0.0;
+          }
+        break;
       }
 
     switch (rightConstraint)
       {
       case 1:
-	// desired slope at rightmost point is rightValue
-	coefficients[N][2] = rightValue;
-	break;
+        // desired slope at rightmost point is rightValue
+        coefficients[N][2] = rightValue;
+        break;
 
        case 2:
-	 // desired second derivative at rightmost point is rightValue
-	 coefficients[N][2] = (6*(y[N] - y[N-1]) - 2*coefficients[N-1][1] + 
-			  rightValue) / 4.0;
-	 break;
+         // desired second derivative at rightmost point is rightValue
+         coefficients[N][2] = (6*(y[N] - y[N-1]) - 2*coefficients[N-1][1] + 
+                          rightValue) / 4.0;
+         break;
 
       case 3:
-	// desired secord derivative at rightmost point is rightValue
-	// times secord derivative at last interior point
-	if ((rightValue > (-2.0 + VTK_EPSILON)) ||
-	    (rightValue < (-2.0 - VTK_EPSILON)))
-	  {
-	  coefficients[N][2] = (3*(1 + rightValue)*(y[N] - y[N-1]) -
-				  (1 + 2*rightValue)*coefficients[N-1][1])
-			 / (2 + rightValue);
-	  }
-	else
-	  {
-	  coefficients[N][2] = 0.0;
-	  }
-	  break;
+        // desired secord derivative at rightmost point is rightValue
+        // times secord derivative at last interior point
+        if ((rightValue > (-2.0 + VTK_EPSILON)) ||
+            (rightValue < (-2.0 - VTK_EPSILON)))
+          {
+          coefficients[N][2] = (3*(1 + rightValue)*(y[N] - y[N-1]) -
+                                  (1 + 2*rightValue)*coefficients[N-1][1])
+                         / (2 + rightValue);
+          }
+        else
+          {
+          coefficients[N][2] = 0.0;
+          }
+          break;
       }
     }//curve is open
 

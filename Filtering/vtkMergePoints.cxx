@@ -114,9 +114,9 @@ vtkIdType vtkMergePoints::IsInsertedPoint(const float x[3])
       ptId = idArray[i];
       pt = dataArray->GetTuple(ptId);
       if ( x[0] == pt[0] && x[1] == pt[1] && x[2] == pt[2] )
-	{
-	return ptId;
-	}
+        {
+        return ptId;
+        }
       }
     }
 
@@ -171,11 +171,11 @@ vtkMergePoints::InsertUniquePoint(const float x[3], vtkIdType &id)
       ptId = idArray[i];
       pt = dataArray->GetTuple(ptId);
       if ( x[0] == pt[0] && x[1] == pt[1] && x[2] == pt[2] )
-	{
-	// point is already in the list, return 0 and set the id parameter
-	id = ptId;
-	return 0;
-	}
+        {
+        // point is already in the list, return 0 and set the id parameter
+        id = ptId;
+        return 0;
+        }
       }
     }
   else
@@ -183,7 +183,7 @@ vtkMergePoints::InsertUniquePoint(const float x[3], vtkIdType &id)
     // create a bucket point list and insert the point
     bucket = vtkIdList::New();
     bucket->Allocate(this->NumberOfPointsPerBucket/2,
-	             this->NumberOfPointsPerBucket/3);
+                     this->NumberOfPointsPerBucket/3);
     this->HashTable[idx] = bucket;
     }
 

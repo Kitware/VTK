@@ -105,9 +105,9 @@ protected:
 
   void Execute();
   void LinkEdgels(int xdim, int ydim,float *image, vtkDataArray *inVectors,
-		  vtkCellArray *newLines, vtkPoints *newPts,
-		  vtkFloatArray *outScalars, vtkFloatArray *outVectors,
-		  int z);
+                  vtkCellArray *newLines, vtkPoints *newPts,
+                  vtkFloatArray *outScalars, vtkFloatArray *outVectors,
+                  int z);
   float GradientThreshold;
   float PhiThreshold;
   float LinkThreshold;

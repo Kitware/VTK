@@ -115,19 +115,19 @@ public:
   // one field data to another. Returns an operation id which can later
   // be used to remove the operation.
   int AddOperation(int operationType, int attributeType, int fromFieldLoc,
-		   int toFieldLoc);
+                   int toFieldLoc);
   // Description:
   // Add an operation which copies a field (data array) from one field 
   // data to another. Returns an operation id which can later
   // be used to remove the operation.
   int AddOperation(int operationType, const char* name, int fromFieldLoc,
-		   int toFieldLoc);
+                   int toFieldLoc);
   // Description:
   // Helper method used by other language bindings. Allows the caller to
   // specify arguments as strings instead of enums.Returns an operation id 
   // which can later be used to remove the operation.
   int AddOperation(const char* operationType, const char* attributeType,
-		   const char* fromFieldLoc,  const char* toFieldLoc);
+                   const char* fromFieldLoc,  const char* toFieldLoc);
 
   // Description:
   // Remove an operation with the given id.
@@ -136,17 +136,17 @@ public:
   // Remove an operation with the given signature. See AddOperation
   // for details.
   int RemoveOperation(int operationType, int attributeType, int fromFieldLoc,
-		      int toFieldLoc);
+                      int toFieldLoc);
   // Description:
   // Remove an operation with the given signature. See AddOperation
   // for details.
   int RemoveOperation(int operationType, const char* name, int fromFieldLoc,
-		      int toFieldLoc);
+                      int toFieldLoc);
   // Description:
   // Remove an operation with the given signature. See AddOperation
   // for details.
   int RemoveOperation(const char* operationType, const char* attributeType,
-		      const char* fromFieldLoc,  const char* toFieldLoc);
+                      const char* fromFieldLoc,  const char* toFieldLoc);
 
   // Description:
   // Remove all operations.
@@ -204,11 +204,11 @@ protected:
   Operation* FindOperation(int id, Operation*& before);
   Operation* FindOperation(const char* name, Operation*& before);
   Operation* FindOperation(int operationType, const char* name, 
-			   int fromFieldLoc, int toFieldLoc,
-			   Operation*& before);
+                           int fromFieldLoc, int toFieldLoc,
+                           Operation*& before);
   Operation* FindOperation(int operationType, int attributeType, 
-			   int fromFieldLoc, int toFieldLoc,
-			   Operation*& before);
+                           int fromFieldLoc, int toFieldLoc,
+                           Operation*& before);
   // Used when finding/deleting an operation given a signature.
   int CompareOperationsByType(const Operation* op1, const Operation* op2);
   int CompareOperationsByName(const Operation* op1, const Operation* op2);
@@ -231,12 +231,12 @@ protected:
       if (!cur) { return; }
       Operation* before;
       do
-	{
-	before = cur;
-	cur = cur->Next;
-	os << endl;
-	this->PrintOperation(before, os, indent);
-	} 
+        {
+        before = cur;
+        cur = cur->Next;
+        os << endl;
+        this->PrintOperation(before, os, indent);
+        } 
       while (cur);
     }
 
@@ -246,13 +246,13 @@ protected:
       os << indent << "Type: " << op->OperationType << endl;
       os << indent << "Field type: " << op->FieldType << endl;
       if ( op->FieldName)
-	{
-	os << indent << "Field name: " << op->FieldName << endl;
-	}
+        {
+        os << indent << "Field name: " << op->FieldName << endl;
+        }
       else
-	{
-	os << indent << "Field name: (none)" << endl;
-	}
+        {
+        os << indent << "Field name: (none)" << endl;
+        }
       os << indent << "Attribute type: " << op->AttributeType << endl;
       os << indent << "Source field location: " << op->FromFieldLoc << endl;
       os << indent << "Target field location: " << op->ToFieldLoc << endl;

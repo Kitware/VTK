@@ -103,30 +103,30 @@ void vtkBrownianPoints::Execute()
       {
       this->UpdateProgress ((float)i/numPts);
       if (this->GetAbortExecute())
-	{
-	break;
-	}
+        {
+        break;
+        }
       }
 
     speed = vtkMath::Random(this->MinimumSpeed,this->MaximumSpeed);
     if ( speed != 0.0 )
       {
       for (j=0; j<3; j++)
-	{
-	v[j] = vtkMath::Random(0,speed);
-	}
+        {
+        v[j] = vtkMath::Random(0,speed);
+        }
       norm = vtkMath::Norm(v);
       for (j=0; j<3; j++)
-	{
+        {
         v[j] *= (speed / norm);
-	}
+        }
       }
     else
       {
       for (j=0; j<3; j++)
-	{
-	v[j] = 0.0;
-	}
+        {
+        v[j] = 0.0;
+        }
       }
 
     newVectors->SetTuple(i,v);

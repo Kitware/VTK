@@ -65,7 +65,7 @@ void vtkPointSetToPointSetFilter::SetInput(vtkPointSet *input)
   if (oldInput != NULL)
     {
     if (input == NULL || 
-	oldInput->GetDataObjectType() != input->GetDataObjectType())
+        oldInput->GetDataObjectType() != input->GetDataObjectType())
       {
       vtkWarningMacro("Changing input type.  Deleting output");
       this->SetOutput(NULL);

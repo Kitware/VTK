@@ -138,7 +138,7 @@ void vtkPolyDataStreamer::Execute()
       {
       for (j = 0; j < input->GetNumberOfCells(); ++j)
         {
-	tmp = static_cast<float>(inPiece);
+        tmp = static_cast<float>(inPiece);
         pieceColors->InsertNextTuple(&tmp);
         }
       }

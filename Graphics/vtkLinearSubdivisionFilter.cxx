@@ -95,24 +95,24 @@ void vtkLinearSubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inputDS
 
       // Do we need to  create a point on this edge?
       if (edgeTable->IsEdge (p1, p2) == -1)
-	{
-	edgeTable->InsertEdge (p1, p2);
-	// Compute Position andnew PointData using the same subdivision scheme
-	pointIds->SetId(0,p1);
-	pointIds->SetId(1,p2);
-	newId = this->InterpolatePosition (inputPts, outputPts, pointIds, weights);
-	outputPD->InterpolatePoint (inputPD, newId, pointIds, weights);
-	}
+        {
+        edgeTable->InsertEdge (p1, p2);
+        // Compute Position andnew PointData using the same subdivision scheme
+        pointIds->SetId(0,p1);
+        pointIds->SetId(1,p2);
+        newId = this->InterpolatePosition (inputPts, outputPts, pointIds, weights);
+        outputPD->InterpolatePoint (inputPD, newId, pointIds, weights);
+        }
       else // we have already created a point on this edge. find it
-	{
-	newId = this->FindEdge (inputDS, cellId, p1, p2, edgeData, cellIds);
-	}
+        {
+        newId = this->FindEdge (inputDS, cellId, p1, p2, edgeData, cellIds);
+        }
       edgeData->InsertComponent(cellId,edgeId,newId);
       p1 = p2;
       if (edgeId < 2)
-	{
-	p2 = pts[edgeId + 1];
-	}
+        {
+        p2 = pts[edgeId + 1];
+        }
       } // each edge
     } // each cell
 

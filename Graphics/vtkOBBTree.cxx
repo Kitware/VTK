@@ -65,23 +65,23 @@ vtkOBBTree* vtkOBBTree::New()
 }
 
 #define vtkCELLTRIANGLES(CELLPTIDS, TYPE, IDX, PTID0, PTID1, PTID2) \
-	{ switch( TYPE ) \
-	  { \
-	  case VTK_TRIANGLE: \
-	  case VTK_POLYGON: \
-	  case VTK_QUAD: \
-	    PTID0 = CELLPTIDS[0]; \
-	    PTID1 = CELLPTIDS[(IDX)+1]; \
-	    PTID2 = CELLPTIDS[(IDX)+2]; \
-	    break; \
-	  case VTK_TRIANGLE_STRIP: \
-	    PTID0 = CELLPTIDS[IDX]; \
-	    PTID1 = CELLPTIDS[(IDX)+1+((IDX)&1)]; \
-	    PTID2 = CELLPTIDS[(IDX)+2-((IDX)&1)]; \
-	    break; \
-	  default: \
-	    PTID0 = PTID1 = PTID2 = -1; \
-	  } }
+        { switch( TYPE ) \
+          { \
+          case VTK_TRIANGLE: \
+          case VTK_POLYGON: \
+          case VTK_QUAD: \
+            PTID0 = CELLPTIDS[0]; \
+            PTID1 = CELLPTIDS[(IDX)+1]; \
+            PTID2 = CELLPTIDS[(IDX)+2]; \
+            break; \
+          case VTK_TRIANGLE_STRIP: \
+            PTID0 = CELLPTIDS[IDX]; \
+            PTID1 = CELLPTIDS[(IDX)+1+((IDX)&1)]; \
+            PTID2 = CELLPTIDS[(IDX)+2-((IDX)&1)]; \
+            break; \
+          default: \
+            PTID0 = PTID1 = PTID2 = -1; \
+          } }
 
 vtkOBBNode::vtkOBBNode()
 {
@@ -227,13 +227,13 @@ void vtkOBBTree::ComputeOBB(vtkPoints *pts, float corner[3], float max[3],
       {
       vtkLine::DistanceToLine(x, mean, a[i], t, closest);
       if ( t < tMin[i] )
-	{
-	tMin[i] = t;
-	}
+        {
+        tMin[i] = t;
+        }
       if ( t > tMax[i] )
-	{
-	tMax[i] = t;
-	}
+        {
+        tMax[i] = t;
+        }
       }
     }//for all points
 
@@ -465,9 +465,9 @@ void vtkOBBTree::ComputeOBB(vtkIdList *cells, float corner[3], float max[3],
 
 static inline
 int vtkOBBTreeLineIntersectsTriangle(float p1[3], float p2[3],
-				     float pt1[3], float pt2[3], float pt3[3],
-				     float tolerance, float point[3], 
-				     float &t, int &sense)
+                                     float pt1[3], float pt2[3], float pt3[3],
+                                     float tolerance, float point[3], 
+                                     float &t, int &sense)
 {
   float normal[3];
   vtkTriangle::ComputeNormal(pt1, pt2, pt3, normal);
@@ -601,9 +601,9 @@ int vtkOBBTreeLineIntersectsTriangle(float p1[3], float p2[3],
       vec[2] = (p1[2] + v12[2]*t) - (pt1[2] + (pt2[2] - pt1[2])*v);
 
       if (vtkMath::Dot(vec,vec) < tolsquared)
-	{
-	return 1;
-	}
+        {
+        return 1;
+        }
       }
     }
 
@@ -631,9 +631,9 @@ int vtkOBBTree::InsideOrOutside(const float point[3])
       vtkIdType pt1Id, pt2Id, pt3Id;
       vtkCELLTRIANGLES(ptIds, cellType, j, pt1Id, pt2Id, pt3Id);
       if (pt1Id < 0)
-	{ // cell wasn't a polygon, triangle, quad, or triangle strip
-	continue;
-	}
+        { // cell wasn't a polygon, triangle, quad, or triangle strip
+        continue;
+        }
       // create a point that is guaranteed to be inside the cell
       float *pt1 = this->DataSet->GetPoint(pt1Id);
       float *pt2 = this->DataSet->GetPoint(pt2Id);
@@ -660,13 +660,13 @@ int vtkOBBTree::InsideOrOutside(const float point[3])
       vtkTriangle::ComputeNormal(pt1, pt2, pt3, normal);
       float dotProd = vtkMath::Dot(normal, v12);
       if (dotProd < 0)
-	{
-	dotProd = -dotProd;
-	}
+        {
+        dotProd = -dotProd;
+        }
       if (dotProd >= this->Tolerance + 1e-6)
-	{
-	return this->IntersectWithLine(point, x, NULL, NULL);
-	}
+        {
+        return this->IntersectWithLine(point, x, NULL, NULL);
+        }
       // otherwise go on to next triangle
       }
     }
@@ -682,7 +682,7 @@ int vtkOBBTree::InsideOrOutside(const float point[3])
 // 1 if point 'p1' lies inside the polydata surface, or -1 if point 'p1'
 // lies outside the polydata surface.
 int vtkOBBTree::IntersectWithLine(const float p1[3], const float p2[3],
-				  vtkPoints *points, vtkIdList *cellIds)
+                                  vtkPoints *points, vtkIdList *cellIds)
 {
   if (this->DataSet == NULL)
     {
@@ -736,82 +736,82 @@ int vtkOBBTree::IntersectWithLine(const float p1[3], const float p2[3],
     if (this->LineIntersectsNode(node, (float *)p1, (float *)p2))
       { 
       if (node->Kids == NULL)
-	{ // then this is a leaf node...get Cells
-	cells = node->Cells;
-	vtkIdType numCells = cells->GetNumberOfIds();
-	for (vtkIdType i = 0; i < numCells; i++)
-	  {
-	  // get the current cell
-	  cellId = cells->GetId(i);
-	  int cellType = this->DataSet->GetCellType(cellId);
-	  vtkIdType numPts;
-	  vtkIdType *ptIds;
-	  ((vtkPolyData *)this->DataSet)->GetCellPoints(cellId, numPts, ptIds);
+        { // then this is a leaf node...get Cells
+        cells = node->Cells;
+        vtkIdType numCells = cells->GetNumberOfIds();
+        for (vtkIdType i = 0; i < numCells; i++)
+          {
+          // get the current cell
+          cellId = cells->GetId(i);
+          int cellType = this->DataSet->GetCellType(cellId);
+          vtkIdType numPts;
+          vtkIdType *ptIds;
+          ((vtkPolyData *)this->DataSet)->GetCellPoints(cellId, numPts, ptIds);
 
-	  // break the cell into triangles
-	  for (vtkIdType j = 0; j < numPts-2; j++)
-	    {
-	    vtkIdType pt1Id, pt2Id, pt3Id;
-	    vtkCELLTRIANGLES(ptIds, cellType, j, pt1Id, pt2Id, pt3Id);
-	    if (pt1Id < 0)
-	      { // cell wasn't a polygon, triangle, quad, or triangle strip
-	      continue;
-	      }
+          // break the cell into triangles
+          for (vtkIdType j = 0; j < numPts-2; j++)
+            {
+            vtkIdType pt1Id, pt2Id, pt3Id;
+            vtkCELLTRIANGLES(ptIds, cellType, j, pt1Id, pt2Id, pt3Id);
+            if (pt1Id < 0)
+              { // cell wasn't a polygon, triangle, quad, or triangle strip
+              continue;
+              }
 
-	    // get the points for this triangle
-	    float *pt1 = this->DataSet->GetPoint(pt1Id);
-	    float *pt2 = this->DataSet->GetPoint(pt2Id);
-	    float *pt3 = this->DataSet->GetPoint(pt3Id);
+            // get the points for this triangle
+            float *pt1 = this->DataSet->GetPoint(pt1Id);
+            float *pt2 = this->DataSet->GetPoint(pt2Id);
+            float *pt3 = this->DataSet->GetPoint(pt3Id);
 
-	    if (vtkOBBTreeLineIntersectsTriangle((float *)p1, (float *)p2,
-						 pt1, pt2, pt3,
-						 this->Tolerance, point, 
-						 distance, sense) <= 0)
-	      { // no intersection with triangle
-	      continue;
-	      }
-	    
-	    // we made it! we have a hit!
+            if (vtkOBBTreeLineIntersectsTriangle((float *)p1, (float *)p2,
+                                                 pt1, pt2, pt3,
+                                                 this->Tolerance, point, 
+                                                 distance, sense) <= 0)
+              { // no intersection with triangle
+              continue;
+              }
+            
+            // we made it! we have a hit!
 
-	    if (listSize >= listMaxSize)
-	      { // have to grow the distanceList
-	      listMaxSize *= 2;
-	      float *tmpDistanceList = new float[listMaxSize];
-	      vtkIdType *tmpCellList = new vtkIdType[listMaxSize];
-	      char *tmpSenseList = new char[listMaxSize];
-	      for (int k = 0; k < listSize; k++)
-		{
-		tmpDistanceList[k] = distanceList[k];
-		tmpCellList[k] = cellList[k];
-		tmpSenseList[k] = senseList[k];
-		}
-	      delete [] distanceList;
-	      distanceList = tmpDistanceList;
-	      delete [] cellList;
-	      cellList = tmpCellList;
-	      delete [] senseList;
-	      senseList = tmpSenseList;
-	      }
-	    // store in the distanceList
-	    distanceList[listSize] = distance;
-	    cellList[listSize] = cellId;
-	    senseList[listSize++] = sense;
+            if (listSize >= listMaxSize)
+              { // have to grow the distanceList
+              listMaxSize *= 2;
+              float *tmpDistanceList = new float[listMaxSize];
+              vtkIdType *tmpCellList = new vtkIdType[listMaxSize];
+              char *tmpSenseList = new char[listMaxSize];
+              for (int k = 0; k < listSize; k++)
+                {
+                tmpDistanceList[k] = distanceList[k];
+                tmpCellList[k] = cellList[k];
+                tmpSenseList[k] = senseList[k];
+                }
+              delete [] distanceList;
+              distanceList = tmpDistanceList;
+              delete [] cellList;
+              cellList = tmpCellList;
+              delete [] senseList;
+              senseList = tmpSenseList;
+              }
+            // store in the distanceList
+            distanceList[listSize] = distance;
+            cellList[listSize] = cellId;
+            senseList[listSize++] = sense;
 
-	    // if cell is planar (i.e. not a triangle strip) then proceed
-	    // immediately to the next cell, otherwise go to next triangle
-	    if (cellType != VTK_TRIANGLE_STRIP)
-	      {
-	      break;
-	      }
-	    }
-	  }
-	}
+            // if cell is planar (i.e. not a triangle strip) then proceed
+            // immediately to the next cell, otherwise go to next triangle
+            if (cellType != VTK_TRIANGLE_STRIP)
+              {
+              break;
+              }
+            }
+          }
+        }
       else
-	{ // push kids onto stack
-	OBBstack[depth] = node->Kids[0];
-	OBBstack[depth+1] = node->Kids[1];
-	depth += 2;
-	}
+        { // push kids onto stack
+        OBBstack[depth] = node->Kids[0];
+        OBBstack[depth+1] = node->Kids[1];
+        depth += 2;
+        }
       }
     } // end while
   
@@ -837,13 +837,13 @@ int vtkOBBTree::IntersectWithLine(const float p1[3], const float p2[3],
       {
       int minIdx = 0;
       for (int j = 1; j < listRemainder; j++)
-	{ // check for closest intersection of the correct sense
-	if (senseList[j] != lastSense &&
-	    distanceList[j] < distanceList[minIdx])
-	  {
-	  minIdx = j;
-	  }
-	}
+        { // check for closest intersection of the correct sense
+        if (senseList[j] != lastSense &&
+            distanceList[j] < distanceList[minIdx])
+          {
+          minIdx = j;
+          }
+        }
 
       distance = distanceList[minIdx];
       cellId = cellList[minIdx];
@@ -856,37 +856,37 @@ int vtkOBBTree::IntersectWithLine(const float p1[3], const float p2[3],
       // only use point if it moves us forward, 
       // or it moves us backward by less than tol
       if (distance > lastDistance - ptol  &&  sense != lastSense)
-	{ 
-	if (points)
-	  {
-	  point[0] = p1[0] + distance*v12[0];
-	  point[1] = p1[1] + distance*v12[1];
-	  point[2] = p1[2] + distance*v12[2];
-	  points->SetPoint(nPoints, point);
-	  }
-	if (cellIds)
-	  {
-	  cellIds->InsertNextId(cellId);
-	  }
-	nPoints++;
+        { 
+        if (points)
+          {
+          point[0] = p1[0] + distance*v12[0];
+          point[1] = p1[1] + distance*v12[1];
+          point[2] = p1[2] + distance*v12[2];
+          points->SetPoint(nPoints, point);
+          }
+        if (cellIds)
+          {
+          cellIds->InsertNextId(cellId);
+          }
+        nPoints++;
 
-	// set return value according to sense of first intersection
-	if (rval == 0)
-	  {
-	  rval = sense;
-	  }
-	// remember the last point
-	lastDistance = distance;
-	lastSense = sense;
-	}
+        // set return value according to sense of first intersection
+        if (rval == 0)
+          {
+          rval = sense;
+          }
+        // remember the last point
+        lastDistance = distance;
+        lastSense = sense;
+        }
       }
     // shrink points array if not all points were used
     if (nPoints < listSize)
       {
       if (points)
-	{
-	points->GetData()->Resize(nPoints);
-	}
+        {
+        points->GetData()->Resize(nPoints);
+        }
       }
     // done!
     }
@@ -938,7 +938,7 @@ int vtkOBBTree::IntersectWithLine(float a0[3], float a1[3], float tol,
   int returnVal;
 
   returnVal = this->IntersectWithLine( a0, a1, tol, t, x, pcoords, subId,
-				       cellId, cell);
+                                       cellId, cell);
 
   cell->Delete();
   return returnVal;
@@ -949,7 +949,7 @@ int vtkOBBTree::IntersectWithLine(float a0[3], float a1[3], float tol,
 int vtkOBBTree::IntersectWithLine(float a0[3], float a1[3], float tol,
                                       float& t, float x[3], float pcoords[3],
                                       int &subId, vtkIdType &cellId,
-				      vtkGenericCell *cell)
+                                      vtkGenericCell *cell)
 {
   vtkOBBNode **OBBstack, *node;
   vtkIdList *cells;

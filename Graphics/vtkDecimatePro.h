@@ -155,9 +155,9 @@ public:
   ~vtkProTriArray()
     {
       if (this->Array)
-	{
-	delete [] this->Array;
-	}
+        {
+        delete [] this->Array;
+        }
     };
   vtkIdType GetNumberOfTriangles() {return this->MaxId + 1;};
   void InsertNextTriangle(vtkProLocalTri& t) 

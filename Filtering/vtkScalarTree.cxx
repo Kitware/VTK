@@ -168,13 +168,13 @@ void vtkScalarTree::BuildTree()
       for ( j=0; j < numScalars; j++ )
         {
         if ( s[j] < tree->min )
-	  {
-	  tree->min = s[j];
-	  }
+          {
+          tree->min = s[j];
+          }
         if ( s[j] > tree->max )
-	  {
-	  tree->max = s[j];
-	  }
+          {
+          tree->max = s[j];
+          }
         }
       }
     }
@@ -194,13 +194,13 @@ void vtkScalarTree::BuildTree()
         {
         tree = this->Tree + offset + leaf;
         if ( tree->min < parent->min )
-	  {
-	  parent->min = tree->min; 
-	  }
+          {
+          parent->min = tree->min; 
+          }
         if ( tree->max > parent->max )
-	  {
-	  parent->max = tree->max;
-	  }
+          {
+          parent->max = tree->max;
+          }
         }
       }
 
@@ -324,7 +324,7 @@ vtkCell *vtkScalarTree::GetNextCell(vtkIdType& cellId, vtkIdList* &cellPts,
   if (!array)
     {
     vtkErrorMacro("Expected a float array in scalars, got an array of type:"
-		  << cellScalars->GetDataType());
+                  << cellScalars->GetDataType());
     return 0;
     }
 
@@ -347,13 +347,13 @@ vtkCell *vtkScalarTree::GetNextCell(vtkIdType& cellId, vtkIdList* &cellPts,
       for (i=0; i < numScalars; i++)
         {
         if ( s[i] < min )
-	  {
-	  min = s[i];
-	  }
+          {
+          min = s[i];
+          }
         if ( s[i] > max )
-	  {
-	  max = s[i];
-	  }
+          {
+          max = s[i];
+          }
         }
       if ( this->ScalarValue >= min && this->ScalarValue <= max )
         {

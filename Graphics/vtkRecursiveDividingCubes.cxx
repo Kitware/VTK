@@ -176,13 +176,13 @@ void vtkRecursiveDividingCubes::Execute()
         for ( above=below=0, vertNum=0; vertNum < 8; vertNum++ )
           {
           if ( voxelScalars->GetComponent(vertNum,0) >= this->Value )
-	    {
+            {
             above = 1;
-	    }
+            }
           else if ( voxelScalars->GetComponent(vertNum,0) < this->Value )
-	    {
+            {
             below = 1;
-	    }
+            }
 
           if ( above && below ) // recursively generate points
             { //compute voxel normals and subdivide
@@ -260,16 +260,16 @@ void vtkRecursiveDividingCubes::SubDivide(float origin[3], float h[3],
       id = NewPts->InsertNextPoint(x);
       NewVerts->InsertCellPoint(id);
       for (i=0; i<3; i++)
-	{
-	p[i] = (x[i] - X[i]) / Spacing[i];
-	}
+        {
+        p[i] = (x[i] - X[i]) / Spacing[i];
+        }
       this->Voxel->InterpolationFunctions(p,w);
       for (n[0]=n[1]=n[2]=0.0, i=0; i<8; i++)
-	{
-	n[0] += Normals[i][0]*w[i];
-	n[1] += Normals[i][1]*w[i];
-	n[2] += Normals[i][2]*w[i];
-	}
+        {
+        n[0] += Normals[i][0]*w[i];
+        n[1] += Normals[i][1]*w[i];
+        n[2] += Normals[i][2]*w[i];
+        }
       vtkMath::Normalize(n);
       NewNormals->InsertTuple(id,n);
 
@@ -335,21 +335,21 @@ void vtkRecursiveDividingCubes::SubDivide(float origin[3], float h[3],
             scalar = s[ScalarInterp[idx][ii]];
 
             if ( scalar >= this->Value )
-	      {
-	      above = 1;
-	      }
+              {
+              above = 1;
+              }
             else if ( scalar < this->Value )
-	      {
-	      below = 1;
-	      }
+              {
+              below = 1;
+              }
 
             newValues[ii] = scalar;
             }
 
           if ( above && below )
-	    {
+            {
             this->SubDivide(x, hNew, newValues);
-	    }
+            }
           }
         }
       }

@@ -255,7 +255,7 @@ void vtkDataObjectToDataSetFilter::ExecuteInformation()
       this->ConstructOrigin();
       
       this->GetStructuredPointsOutput()->SetWholeExtent(
-		  0, this->Dimensions[0]-1, 0, this->Dimensions[1]-1, 
+                  0, this->Dimensions[0]-1, 0, this->Dimensions[1]-1, 
                   0, this->Dimensions[2]-1);
       this->GetStructuredPointsOutput()->SetOrigin(this->Origin);
       this->GetStructuredPointsOutput()->SetSpacing(this->Spacing);
@@ -266,7 +266,7 @@ void vtkDataObjectToDataSetFilter::ExecuteInformation()
       input->Update();
       this->ConstructDimensions();
       this->GetStructuredGridOutput()->SetWholeExtent(
-		  0, this->Dimensions[0]-1, 0, this->Dimensions[1]-1, 
+                  0, this->Dimensions[0]-1, 0, this->Dimensions[1]-1, 
                   0, this->Dimensions[2]-1);
       break;
 
@@ -275,7 +275,7 @@ void vtkDataObjectToDataSetFilter::ExecuteInformation()
       input->Update();
       this->ConstructDimensions();
       this->GetRectilinearGridOutput()->SetWholeExtent(
-		  0, this->Dimensions[0]-1, 0, this->Dimensions[1]-1, 
+                  0, this->Dimensions[0]-1, 0, this->Dimensions[1]-1, 
                   0, this->Dimensions[2]-1);
       break;
 
@@ -458,7 +458,7 @@ vtkRectilinearGrid *vtkDataObjectToDataSetFilter::GetRectilinearGridOutput()
 
 //----------------------------------------------------------------------------
 void vtkDataObjectToDataSetFilter::ComputeInputUpdateExtents( 
-				       vtkDataObject *vtkNotUsed(output))
+                                       vtkDataObject *vtkNotUsed(output))
 {
   if (this->GetInput())
     {

@@ -119,7 +119,7 @@ void vtkStructuredGridOutlineFilter::Execute()
         inc = zInc;
       break;
       case 1:
-	    // start (xMax, 0, 0) increment z axis.
+            // start (xMax, 0, 0) increment z axis.
         if (ext[1] >= wExt[1] && ext[2] <= wExt[2])
           {
           edgeFlag = 1;

@@ -151,8 +151,8 @@ void vtkContourFilter::Execute()
       cgrid->SetValue(i, values[i]);
       }
     cgrid->GetOutput()->SetUpdateExtent(output->GetUpdatePiece(),
-					output->GetUpdateNumberOfPieces(),
-					output->GetUpdateGhostLevel());
+                                        output->GetUpdateNumberOfPieces(),
+                                        output->GetUpdateGhostLevel());
     cgrid->Update();
     output->ShallowCopy(cgrid->GetOutput());
     cgrid->Delete();

@@ -152,10 +152,10 @@ void vtkSpatialRepresentationFilter::GenerateOutput()
     for ( i=0; i <= this->Level; i++ )
       {
       if ( i < this->NumberOfOutputs && this->Outputs[i] != NULL )
-	{
-	output = (vtkPolyData *)(this->Outputs[i]);
-	output->Initialize();
-	}
+        {
+        output = (vtkPolyData *)(this->Outputs[i]);
+        output->Initialize();
+        }
       }
     }
 

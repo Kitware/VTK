@@ -110,9 +110,9 @@ void vtkExtractUnstructuredGrid::SetExtent(float extent[6])
     for (i=0; i<3; i++)
       {
       if ( extent[2*i+1] < extent[2*i] )
-	{
-	extent[2*i+1] = extent[2*i];
-	}
+        {
+        extent[2*i+1] = extent[2*i];
+        }
       this->Extent[2*i] = extent[2*i];
       this->Extent[2*i+1] = extent[2*i+1];
       }
@@ -194,9 +194,9 @@ void vtkExtractUnstructuredGrid::Execute()
             }
           }
         if ( i >= numIds )
-	  {
-	  cellVis[cellId] = 1;
-	  }
+          {
+          cellVis[cellId] = 1;
+          }
         }
       }
     }
@@ -263,7 +263,7 @@ void vtkExtractUnstructuredGrid::Execute()
 
       newCellId = output->InsertNextCell(input->GetCellType(cellId), cellIds);
       outputCD->CopyData(cd, cellId, newCellId);
-	
+        
       } //if cell is visible
     } //for all cells
 

@@ -234,9 +234,9 @@ void vtkInterpolateDataSetAttributes::Execute()
       {
       this->UpdateProgress ((float)i/numPts * 0.50);
       if (this->GetAbortExecute())
-	{
-	break;
-	}
+        {
+        break;
+        }
       }
 
     outputPD->InterpolateTime(inputPD, input2PD, i, t);
@@ -249,9 +249,9 @@ void vtkInterpolateDataSetAttributes::Execute()
       {
       this->UpdateProgress (0.5 + (float)i/numCells * 0.50);
       if (this->GetAbortExecute())
-	{
-	break;
-	}
+        {
+        break;
+        }
       }
 
     outputCD->InterpolateTime(inputCD, input2CD, i, t);

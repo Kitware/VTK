@@ -107,7 +107,7 @@ public:
   // Helper method used by other language bindings. Allows the caller to
   // specify arguments as strings instead of enums.
   void Assign(const char* name, const char* attributeType, 
-	      const char* attributeLoc);
+              const char* attributeLoc);
 
 
 //BTX

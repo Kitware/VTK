@@ -118,7 +118,7 @@ void vtkCubeSource::Execute()
       for (x[2]=this->Center[2]-this->ZLength/2.0, k=0; k<2; 
       k++, x[2]+=this->ZLength)
         {
-	tc[0] = (x[2] + 0.5) * ( 1 - 2*i );
+        tc[0] = (x[2] + 0.5) * ( 1 - 2*i );
         newPoints->InsertNextPoint(x);
         newTCoords->InsertNextTuple(tc);
         newNormals->InsertNextTuple(n);
@@ -140,7 +140,7 @@ void vtkCubeSource::Execute()
       for (x[2]=this->Center[2]-this->ZLength/2.0, k=0; k<2; 
       k++, x[2]+=this->ZLength)
         {
-	tc[1] = ( x[2] + 0.5 ) * -1;
+        tc[1] = ( x[2] + 0.5 ) * -1;
         newPoints->InsertNextPoint(x);
         newTCoords->InsertNextTuple(tc);
         newNormals->InsertNextTuple(n);
@@ -162,9 +162,9 @@ void vtkCubeSource::Execute()
       for (x[0]=this->Center[0]-this->XLength/2.0, k=0; k<2; 
       k++, x[0]+=this->XLength)
         {
-	tc[0] = ( x[0] + 0.5 ) * ( 2*i - 1 );
+        tc[0] = ( x[0] + 0.5 ) * ( 2*i - 1 );
         newPoints->InsertNextPoint(x);
-	newTCoords->InsertNextTuple(tc);
+        newTCoords->InsertNextTuple(tc);
         newNormals->InsertNextTuple(n);
         }
       }
@@ -192,8 +192,8 @@ void vtkCubeSource::Execute()
 
 // Convenience method allows creation of cube by specifying bounding box.
 void vtkCubeSource::SetBounds(float xMin, float xMax,
-	                      float yMin, float yMax,
-		              float zMin, float zMax)
+                              float yMin, float yMax,
+                              float zMin, float zMax)
 {
   float bounds[6];
   bounds[0] = xMin;

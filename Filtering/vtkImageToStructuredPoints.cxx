@@ -172,21 +172,21 @@ void vtkImageToStructuredPoints::Execute()
     {
     wExtent = data->GetExtent();
     if (wExtent[0] == uExtent[0] && wExtent[1] == uExtent[1] &&
-	wExtent[2] == uExtent[2] && wExtent[3] == uExtent[3] &&
-	wExtent[4] == uExtent[4] && wExtent[5] == uExtent[5])
+        wExtent[2] == uExtent[2] && wExtent[3] == uExtent[3] &&
+        wExtent[4] == uExtent[4] && wExtent[5] == uExtent[5])
       {
       if (data->GetPointData())
-	{
-	output->GetPointData()->PassData(data->GetPointData());
-	}
+        {
+        output->GetPointData()->PassData(data->GetPointData());
+        }
       if (data->GetCellData())
-	{
-	output->GetCellData()->PassData(data->GetCellData());
-	}
+        {
+        output->GetCellData()->PassData(data->GetCellData());
+        }
       if (data->GetFieldData())
-	{
-	output->GetFieldData()->ShallowCopy(data->GetFieldData());
-	}
+        {
+        output->GetFieldData()->ShallowCopy(data->GetFieldData());
+        }
       }
     else
       {
@@ -206,15 +206,15 @@ void vtkImageToStructuredPoints::Execute()
       
       // Loop through output pixels
       for (idxZ = 0; idxZ <= maxZ; idxZ++)
-	{
-	inPtr1 = inPtr + idxZ*inIncZ;
-	for (idxY = 0; idxY <= maxY; idxY++)
-	  {
-	  memcpy(outPtr,inPtr1,rowLength);
-	  inPtr1 += inIncY;
-	  outPtr += rowLength;
-	  }
-	}
+        {
+        inPtr1 = inPtr + idxZ*inIncZ;
+        for (idxY = 0; idxY <= maxY; idxY++)
+          {
+          memcpy(outPtr,inPtr1,rowLength);
+          inPtr1 += inIncY;
+          outPtr += rowLength;
+          }
+        }
       }
     }
     
@@ -224,8 +224,8 @@ void vtkImageToStructuredPoints::Execute()
     // otherwise we must reformat and copy the data
     wExtent = vData->GetExtent();
     if (wExtent[0] == uExtent[0] && wExtent[1] == uExtent[1] &&
-	wExtent[2] == uExtent[2] && wExtent[3] == uExtent[3] &&
-	wExtent[4] == uExtent[4] && wExtent[5] == uExtent[5])
+        wExtent[2] == uExtent[2] && wExtent[3] == uExtent[3] &&
+        wExtent[4] == uExtent[4] && wExtent[5] == uExtent[5])
       {
       output->GetPointData()->SetVectors(vData->GetPointData()->GetScalars());
       }
@@ -242,19 +242,19 @@ void vtkImageToStructuredPoints::Execute()
       
       // Loop through ouput pixels
       for (idxZ = 0; idxZ <= maxZ; idxZ++)
-	{
-	for (idxY = 0; idxY <= maxY; idxY++)
-	  {
-	  for (idxX = 0; idxX <= maxX; idxX++)
-	    {
-	    fv->SetTuple(idx,inPtr2);
-	    inPtr2 += numComp;
-	    idx++;
-	    }
-	  inPtr2 += inIncY;
-	  }
-	inPtr2 += inIncZ;
-	}
+        {
+        for (idxY = 0; idxY <= maxY; idxY++)
+          {
+          for (idxX = 0; idxX <= maxX; idxX++)
+            {
+            fv->SetTuple(idx,inPtr2);
+            inPtr2 += numComp;
+            idx++;
+            }
+          inPtr2 += inIncY;
+          }
+        inPtr2 += inIncZ;
+        }
       output->GetPointData()->SetVectors(fv);
       fv->Delete();
       }

@@ -148,7 +148,7 @@ void vtkRibbonFilter::Execute()
     else
       {
       if ( !lineNormalGenerator->GenerateSlidingNormals(inPts,inLines,
-							inNormals) )
+                                                        inNormals) )
         {
         vtkErrorMacro(<< "No normals for line!\n");
         inNormals->Delete();
@@ -268,7 +268,7 @@ void vtkRibbonFilter::Execute()
         {
         sFactor = 1.0 + ((this->WidthFactor - 1.0) * 
               (inScalars->GetComponent(pts[j],0) - range[0]) / 
-			 (range[1]-range[0]));
+                         (range[1]-range[0]));
         }
       for (i=0; i<3; i++)
         {
@@ -329,8 +329,8 @@ void vtkRibbonFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Width Factor: " << this->WidthFactor << "\n";
   os << indent << "Use Default Normal: " << this->UseDefaultNormal << "\n";
   os << indent << "Default Normal: " << "( " << 
-	this->DefaultNormal[0] << ", " <<
-	this->DefaultNormal[1] << ", " <<
-	this->DefaultNormal[2] << " )\n";
+        this->DefaultNormal[0] << ", " <<
+        this->DefaultNormal[1] << ", " <<
+        this->DefaultNormal[2] << " )\n";
 }
 

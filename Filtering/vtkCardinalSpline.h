@@ -76,9 +76,9 @@ protected:
   ~vtkCardinalSpline() {};
 
   void Fit1D (int n, float *x, float *y, float *w, float coefficients[][4],
-	      int leftConstraint, float leftValue, int rightConstraint, float rightValue);
+              int leftConstraint, float leftValue, int rightConstraint, float rightValue);
   void FitClosed1D (int n, float *x, float *y, float *w, 
-		    float coefficients[][4]);
+                    float coefficients[][4]);
 private:
   vtkCardinalSpline(const vtkCardinalSpline&);  // Not implemented.
   void operator=(const vtkCardinalSpline&);  // Not implemented.

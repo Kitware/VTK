@@ -114,9 +114,9 @@ void vtkCellDataToPointData::Execute()
       {
       weight = 1.0 / numCells;
       for (cellId=0; cellId < numCells; cellId++)
-	{
-	weights[cellId] = weight;
-	}
+        {
+        weights[cellId] = weight;
+        }
       outPD->InterpolatePoint(inPD, ptId, cellIds, weights);
       }
     else

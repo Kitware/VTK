@@ -99,9 +99,9 @@ void vtkWarpTo::Execute()
       x = inPts->GetPoint(ptId);
       mag = sqrt(vtkMath::Distance2BetweenPoints(this->Position,x));
       if (mag < minMag)
-	{
-	minMag = mag;
-	}
+        {
+        minMag = mag;
+        }
       }
     }
   
@@ -115,19 +115,19 @@ void vtkWarpTo::Execute()
       {
       mag = sqrt(vtkMath::Distance2BetweenPoints(this->Position,x));
       for (i=0; i<3; i++)
-	{
-	newX[i] = this->ScaleFactor*
-	  (this->Position[i] + minMag*(x[i] - this->Position[i])/mag) + 
-	  (1.0 - this->ScaleFactor)*x[i];
-	}
+        {
+        newX[i] = this->ScaleFactor*
+          (this->Position[i] + minMag*(x[i] - this->Position[i])/mag) + 
+          (1.0 - this->ScaleFactor)*x[i];
+        }
       }
     else
       {
       for (i=0; i<3; i++)
-	{
-	newX[i] = (1.0 - this->ScaleFactor)*x[i] + 
-	  this->ScaleFactor*this->Position[i];
-	}
+        {
+        newX[i] = (1.0 - this->ScaleFactor)*x[i] + 
+          this->ScaleFactor*this->Position[i];
+        }
       }
     newPts->SetPoint(ptId, newX);
     }

@@ -239,208 +239,208 @@ void vtkTextSource::Execute()
     if (this->Text[pos] != 32)
       {
       for (col = 0; col < vtkfont_width; col++)
-	{
-	acol = (this->Text[pos] - 32)*vtkfont_width + col - 1;
-	for (row = 0; row < vtkfont_height; row++)
-	  {
-	  pixelPos = acol + row*vtkfont_row_width;
-	  if (vtkfont_bits[pixelPos/8] & (0x01 << pixelPos%8))
-	    {
-	    if (drawingBlack)
-	      {
-	      x[0] = pos*vtkfont_width + col + 1; 
-	      x[1] = vtkfont_height - row;
-	      newPoints->InsertNextPoint(x);
-	      newScalars->InsertNextValue(black[0]);
-	      newScalars->InsertNextValue(black[1]);
-	      newScalars->InsertNextValue(black[2]);
-	      newScalars->InsertNextValue(black[3]);
+        {
+        acol = (this->Text[pos] - 32)*vtkfont_width + col - 1;
+        for (row = 0; row < vtkfont_height; row++)
+          {
+          pixelPos = acol + row*vtkfont_row_width;
+          if (vtkfont_bits[pixelPos/8] & (0x01 << pixelPos%8))
+            {
+            if (drawingBlack)
+              {
+              x[0] = pos*vtkfont_width + col + 1; 
+              x[1] = vtkfont_height - row;
+              newPoints->InsertNextPoint(x);
+              newScalars->InsertNextValue(black[0]);
+              newScalars->InsertNextValue(black[1]);
+              newScalars->InsertNextValue(black[2]);
+              newScalars->InsertNextValue(black[3]);
 
-	      x[0] = pos*vtkfont_width + col; 
-	      x[1] = vtkfont_height - row;
-	      newPoints->InsertNextPoint(x);
-	      newScalars->InsertNextValue(black[0]);
-	      newScalars->InsertNextValue(black[1]);
-	      newScalars->InsertNextValue(black[2]);
-	      newScalars->InsertNextValue(black[3]);
+              x[0] = pos*vtkfont_width + col; 
+              x[1] = vtkfont_height - row;
+              newPoints->InsertNextPoint(x);
+              newScalars->InsertNextValue(black[0]);
+              newScalars->InsertNextValue(black[1]);
+              newScalars->InsertNextValue(black[2]);
+              newScalars->InsertNextValue(black[3]);
 
-	      pts[0] = numPolys*4;
-	      pts[1] = numPolys*4 + 1;
-	      pts[2] = numPolys*4 + 2;
-	      pts[3] = numPolys*4 + 3;
-	      newPolys->InsertNextCell(4,pts);
-	      numPolys++;
-	      drawingBlack = 0;
-	      }
-	    if (!drawingWhite)
-	      {
-	      x[0] = pos*vtkfont_width + col; 
-	      x[1] = vtkfont_height - row;
-	      newPoints->InsertNextPoint(x);
-	      newScalars->InsertNextValue(white[0]);
-	      newScalars->InsertNextValue(white[1]);
-	      newScalars->InsertNextValue(white[2]);
-	      newScalars->InsertNextValue(white[3]);
+              pts[0] = numPolys*4;
+              pts[1] = numPolys*4 + 1;
+              pts[2] = numPolys*4 + 2;
+              pts[3] = numPolys*4 + 3;
+              newPolys->InsertNextCell(4,pts);
+              numPolys++;
+              drawingBlack = 0;
+              }
+            if (!drawingWhite)
+              {
+              x[0] = pos*vtkfont_width + col; 
+              x[1] = vtkfont_height - row;
+              newPoints->InsertNextPoint(x);
+              newScalars->InsertNextValue(white[0]);
+              newScalars->InsertNextValue(white[1]);
+              newScalars->InsertNextValue(white[2]);
+              newScalars->InsertNextValue(white[3]);
 
-	      x[0] = pos*vtkfont_width + col + 1; 
-	      x[1] = vtkfont_height - row;
-	      newPoints->InsertNextPoint(x);
-	      newScalars->InsertNextValue(white[0]);
-	      newScalars->InsertNextValue(white[1]);
-	      newScalars->InsertNextValue(white[2]);
-	      newScalars->InsertNextValue(white[3]);
-	      drawingWhite = 1;
-	      }
-	    }
-	  // if the pixel is not set the close up the rectangle
-	  else
-	    {
-	    if (drawingWhite)
-	      {
-	      x[0] = pos*vtkfont_width + col + 1; 
-	      x[1] = vtkfont_height - row;
-	      newPoints->InsertNextPoint(x);
-	      newScalars->InsertNextValue(white[0]);
-	      newScalars->InsertNextValue(white[1]);
-	      newScalars->InsertNextValue(white[2]);
-	      newScalars->InsertNextValue(white[3]);
+              x[0] = pos*vtkfont_width + col + 1; 
+              x[1] = vtkfont_height - row;
+              newPoints->InsertNextPoint(x);
+              newScalars->InsertNextValue(white[0]);
+              newScalars->InsertNextValue(white[1]);
+              newScalars->InsertNextValue(white[2]);
+              newScalars->InsertNextValue(white[3]);
+              drawingWhite = 1;
+              }
+            }
+          // if the pixel is not set the close up the rectangle
+          else
+            {
+            if (drawingWhite)
+              {
+              x[0] = pos*vtkfont_width + col + 1; 
+              x[1] = vtkfont_height - row;
+              newPoints->InsertNextPoint(x);
+              newScalars->InsertNextValue(white[0]);
+              newScalars->InsertNextValue(white[1]);
+              newScalars->InsertNextValue(white[2]);
+              newScalars->InsertNextValue(white[3]);
 
-	      x[0] = pos*vtkfont_width + col; 
-	      x[1] = vtkfont_height - row;
-	      newPoints->InsertNextPoint(x);
-	      newScalars->InsertNextValue(white[0]);
-	      newScalars->InsertNextValue(white[1]);
-	      newScalars->InsertNextValue(white[2]);
-	      newScalars->InsertNextValue(white[3]);
+              x[0] = pos*vtkfont_width + col; 
+              x[1] = vtkfont_height - row;
+              newPoints->InsertNextPoint(x);
+              newScalars->InsertNextValue(white[0]);
+              newScalars->InsertNextValue(white[1]);
+              newScalars->InsertNextValue(white[2]);
+              newScalars->InsertNextValue(white[3]);
 
-	      pts[0] = numPolys*4;
-	      pts[1] = numPolys*4 + 1;
-	      pts[2] = numPolys*4 + 2;
-	      pts[3] = numPolys*4 + 3;
-	      newPolys->InsertNextCell(4,pts);
-	      numPolys++;
-	      drawingWhite = 0;
-	      }
-	    if (!drawingBlack && this->Backing)
-	      {
-	      x[0] = pos*vtkfont_width + col; 
-	      x[1] = vtkfont_height - row;
-	      newPoints->InsertNextPoint(x);
-	      newScalars->InsertNextValue(black[0]);
-	      newScalars->InsertNextValue(black[1]);
-	      newScalars->InsertNextValue(black[2]);
-	      newScalars->InsertNextValue(black[3]);
+              pts[0] = numPolys*4;
+              pts[1] = numPolys*4 + 1;
+              pts[2] = numPolys*4 + 2;
+              pts[3] = numPolys*4 + 3;
+              newPolys->InsertNextCell(4,pts);
+              numPolys++;
+              drawingWhite = 0;
+              }
+            if (!drawingBlack && this->Backing)
+              {
+              x[0] = pos*vtkfont_width + col; 
+              x[1] = vtkfont_height - row;
+              newPoints->InsertNextPoint(x);
+              newScalars->InsertNextValue(black[0]);
+              newScalars->InsertNextValue(black[1]);
+              newScalars->InsertNextValue(black[2]);
+              newScalars->InsertNextValue(black[3]);
 
-	      x[0] = pos*vtkfont_width + col + 1; 
-	      x[1] = vtkfont_height - row;
-	      newPoints->InsertNextPoint(x);
-	      newScalars->InsertNextValue(black[0]);
-	      newScalars->InsertNextValue(black[1]);
-	      newScalars->InsertNextValue(black[2]);
-	      newScalars->InsertNextValue(black[3]);
-	      drawingBlack = 1;
-	      }
-	    }
-	  }
-	// if we finished up a row but are still drawing close it up
-	if (drawingWhite)
-	  {
-	  x[0] = pos*vtkfont_width + col + 1; 
-	  x[1] = 0;
-	  newPoints->InsertNextPoint(x);
-	  newScalars->InsertNextValue(white[0]);
-	  newScalars->InsertNextValue(white[1]);
-	  newScalars->InsertNextValue(white[2]);
-	  newScalars->InsertNextValue(white[3]);
+              x[0] = pos*vtkfont_width + col + 1; 
+              x[1] = vtkfont_height - row;
+              newPoints->InsertNextPoint(x);
+              newScalars->InsertNextValue(black[0]);
+              newScalars->InsertNextValue(black[1]);
+              newScalars->InsertNextValue(black[2]);
+              newScalars->InsertNextValue(black[3]);
+              drawingBlack = 1;
+              }
+            }
+          }
+        // if we finished up a row but are still drawing close it up
+        if (drawingWhite)
+          {
+          x[0] = pos*vtkfont_width + col + 1; 
+          x[1] = 0;
+          newPoints->InsertNextPoint(x);
+          newScalars->InsertNextValue(white[0]);
+          newScalars->InsertNextValue(white[1]);
+          newScalars->InsertNextValue(white[2]);
+          newScalars->InsertNextValue(white[3]);
 
-	  x[0] = pos*vtkfont_width + col; 
-	  x[1] = 0;
-	  newPoints->InsertNextPoint(x);
-	  newScalars->InsertNextValue(white[0]);
-	  newScalars->InsertNextValue(white[1]);
-	  newScalars->InsertNextValue(white[2]);
-	  newScalars->InsertNextValue(white[3]);
-	  
-	  pts[0] = numPolys*4;
-	  pts[1] = numPolys*4 + 1;
-	  pts[2] = numPolys*4 + 2;
-	  pts[3] = numPolys*4 + 3;
-	  newPolys->InsertNextCell(4,pts);
-	  numPolys++;
-	  drawingWhite = 0;
-	  }
-	if (drawingBlack)
-	  {
-	  x[0] = pos*vtkfont_width + col + 1; 
-	  x[1] = 0;
-	  newPoints->InsertNextPoint(x);
-	  newScalars->InsertNextValue(black[0]);
-	  newScalars->InsertNextValue(black[1]);
-	  newScalars->InsertNextValue(black[2]);
-	  newScalars->InsertNextValue(black[3]);
+          x[0] = pos*vtkfont_width + col; 
+          x[1] = 0;
+          newPoints->InsertNextPoint(x);
+          newScalars->InsertNextValue(white[0]);
+          newScalars->InsertNextValue(white[1]);
+          newScalars->InsertNextValue(white[2]);
+          newScalars->InsertNextValue(white[3]);
+          
+          pts[0] = numPolys*4;
+          pts[1] = numPolys*4 + 1;
+          pts[2] = numPolys*4 + 2;
+          pts[3] = numPolys*4 + 3;
+          newPolys->InsertNextCell(4,pts);
+          numPolys++;
+          drawingWhite = 0;
+          }
+        if (drawingBlack)
+          {
+          x[0] = pos*vtkfont_width + col + 1; 
+          x[1] = 0;
+          newPoints->InsertNextPoint(x);
+          newScalars->InsertNextValue(black[0]);
+          newScalars->InsertNextValue(black[1]);
+          newScalars->InsertNextValue(black[2]);
+          newScalars->InsertNextValue(black[3]);
 
-	  x[0] = pos*vtkfont_width + col; 
-	  x[1] = 0;
-	  newPoints->InsertNextPoint(x);
-	  newScalars->InsertNextValue(black[0]);
-	  newScalars->InsertNextValue(black[1]);
-	  newScalars->InsertNextValue(black[2]);
-	  newScalars->InsertNextValue(black[3]);
-	  
-	  pts[0] = numPolys*4;
-	  pts[1] = numPolys*4 + 1;
-	  pts[2] = numPolys*4 + 2;
-	  pts[3] = numPolys*4 + 3;
-	  newPolys->InsertNextCell(4,pts);
-	  numPolys++;
-	  drawingBlack = 0;
-	  }
-	}
+          x[0] = pos*vtkfont_width + col; 
+          x[1] = 0;
+          newPoints->InsertNextPoint(x);
+          newScalars->InsertNextValue(black[0]);
+          newScalars->InsertNextValue(black[1]);
+          newScalars->InsertNextValue(black[2]);
+          newScalars->InsertNextValue(black[3]);
+          
+          pts[0] = numPolys*4;
+          pts[1] = numPolys*4 + 1;
+          pts[2] = numPolys*4 + 2;
+          pts[3] = numPolys*4 + 3;
+          newPolys->InsertNextCell(4,pts);
+          numPolys++;
+          drawingBlack = 0;
+          }
+        }
       }
     else
       {
       // draw a black square for a space
       if (this->Backing)
-	{
-	x[0] = pos*vtkfont_width; 
-	x[1] = vtkfont_height;
-	newPoints->InsertNextPoint(x);
-	newScalars->InsertNextValue(black[0]);
-	newScalars->InsertNextValue(black[1]);
-	newScalars->InsertNextValue(black[2]);
-	newScalars->InsertNextValue(black[3]);
+        {
+        x[0] = pos*vtkfont_width; 
+        x[1] = vtkfont_height;
+        newPoints->InsertNextPoint(x);
+        newScalars->InsertNextValue(black[0]);
+        newScalars->InsertNextValue(black[1]);
+        newScalars->InsertNextValue(black[2]);
+        newScalars->InsertNextValue(black[3]);
       
-	x[0] = pos*vtkfont_width + vtkfont_width; 
-	x[1] = vtkfont_height;
-	newPoints->InsertNextPoint(x);
-	newScalars->InsertNextValue(black[0]);
-	newScalars->InsertNextValue(black[1]);
-	newScalars->InsertNextValue(black[2]);
-	newScalars->InsertNextValue(black[3]);
+        x[0] = pos*vtkfont_width + vtkfont_width; 
+        x[1] = vtkfont_height;
+        newPoints->InsertNextPoint(x);
+        newScalars->InsertNextValue(black[0]);
+        newScalars->InsertNextValue(black[1]);
+        newScalars->InsertNextValue(black[2]);
+        newScalars->InsertNextValue(black[3]);
 
-	x[0] = pos*vtkfont_width + vtkfont_width; 
-	x[1] = 0;
-	newPoints->InsertNextPoint(x);
-	newScalars->InsertNextValue(black[0]);
-	newScalars->InsertNextValue(black[1]);
-	newScalars->InsertNextValue(black[2]);
-	newScalars->InsertNextValue(black[3]);
+        x[0] = pos*vtkfont_width + vtkfont_width; 
+        x[1] = 0;
+        newPoints->InsertNextPoint(x);
+        newScalars->InsertNextValue(black[0]);
+        newScalars->InsertNextValue(black[1]);
+        newScalars->InsertNextValue(black[2]);
+        newScalars->InsertNextValue(black[3]);
       
-	x[0] = pos*vtkfont_width; 
-	x[1] = 0;
-	newPoints->InsertNextPoint(x);
-	newScalars->InsertNextValue(black[0]);
-	newScalars->InsertNextValue(black[1]);
-	newScalars->InsertNextValue(black[2]);
-	newScalars->InsertNextValue(black[3]);
+        x[0] = pos*vtkfont_width; 
+        x[1] = 0;
+        newPoints->InsertNextPoint(x);
+        newScalars->InsertNextValue(black[0]);
+        newScalars->InsertNextValue(black[1]);
+        newScalars->InsertNextValue(black[2]);
+        newScalars->InsertNextValue(black[3]);
       
-	pts[0] = numPolys*4;
-	pts[1] = numPolys*4 + 1;
-	pts[2] = numPolys*4 + 2;
-	pts[3] = numPolys*4 + 3;
-	newPolys->InsertNextCell(4,pts);
-	numPolys++;
-	}
+        pts[0] = numPolys*4;
+        pts[1] = numPolys*4 + 1;
+        pts[2] = numPolys*4 + 2;
+        pts[3] = numPolys*4 + 3;
+        newPolys->InsertNextCell(4,pts);
+        numPolys++;
+        }
       }
     pos++;
     }

@@ -76,7 +76,7 @@ vtkImageTwoInputFilter::vtkImageTwoInputFilter()
 void vtkImageTwoInputFilter::SetInput1(vtkImageData *input)
 {
   vtkDebugMacro(<< "SetInput1: input = " << input->GetClassName()
-		<< " (" << input << ")");
+                << " (" << input << ")");
 
   // does this change anything?
   if (input == this->Inputs[0])
@@ -107,7 +107,7 @@ void vtkImageTwoInputFilter::SetInput1(vtkImageData *input)
 void vtkImageTwoInputFilter::SetInput2(vtkImageData *input)
 {
   vtkDebugMacro(<< "SetInput2: input = " << input->GetClassName()
-		<< " (" << input << ")");
+                << " (" << input << ")");
 
   // does this change anything?
   if (input == this->Inputs[1])

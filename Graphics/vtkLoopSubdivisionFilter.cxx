@@ -106,36 +106,36 @@ void vtkLoopSubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inputDS,v
       {
       // Do we need to  create a point on this edge?
       if (edgeTable->IsEdge (p1, p2) == -1)
-	{
-	edgeTable->InsertEdge (p1, p2);
-	inputDS->GetCellEdgeNeighbors (-1, p1, p2, cellIds);
+        {
+        edgeTable->InsertEdge (p1, p2);
+        inputDS->GetCellEdgeNeighbors (-1, p1, p2, cellIds);
         if (cellIds->GetNumberOfIds() == 1)
           {
- 	  // Compute new Position and PointData using the same subdivision scheme
-	  stencil->SetNumberOfIds(2);
-	  stencil->SetId(0,p1);
-	  stencil->SetId(1,p2);
-	  weights[0] = .5; weights[1] = .5;
+          // Compute new Position and PointData using the same subdivision scheme
+          stencil->SetNumberOfIds(2);
+          stencil->SetId(0,p1);
+          stencil->SetId(1,p2);
+          weights[0] = .5; weights[1] = .5;
           } // boundary edge
-	else
-	  {
-	    this->GenerateOddStencil (p1, p2,
-				      inputDS, stencil, weights);
-	  }
-	newId = this->InterpolatePosition (inputPts, outputPts,
-					   stencil, weights);
-	outputPD->InterpolatePoint (inputPD, newId, stencil, weights);
-	}
+        else
+          {
+            this->GenerateOddStencil (p1, p2,
+                                      inputDS, stencil, weights);
+          }
+        newId = this->InterpolatePosition (inputPts, outputPts,
+                                           stencil, weights);
+        outputPD->InterpolatePoint (inputPD, newId, stencil, weights);
+        }
       else // we have already created a point on this edge. find it
-	{
-	newId = this->FindEdge (inputDS, cellId, p1, p2, edgeData, cellIds);
-	}
+        {
+        newId = this->FindEdge (inputDS, cellId, p1, p2, edgeData, cellIds);
+        }
       edgeData->InsertComponent(cellId,edgeId,newId);
       p1 = p2;
       if (edgeId < 2)
-	{
-	p2 = pts[edgeId + 1];
-	}
+        {
+        p2 = pts[edgeId + 1];
+        }
       } // each interior edge
     } // each cell
 

@@ -114,9 +114,9 @@ void vtkHedgeHog::Execute()
       {
       this->UpdateProgress ((float)ptId/numPts);
       if (this->GetAbortExecute())
-	{
-	break;
-	}
+        {
+        break;
+        }
       }
     
     x = input->GetPoint(ptId);

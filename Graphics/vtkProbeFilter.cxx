@@ -232,8 +232,8 @@ void vtkProbeFilter::ComputeInputUpdateExtents( vtkDataObject *output )
       // gets external values with computation prescision problems.
       // I think the probe should be changed to have an epsilon ...
       source->SetUpdateExtent(output->GetUpdatePiece(), 
-			      output->GetUpdateNumberOfPieces(),
-			      output->GetUpdateGhostLevel()+1);
+                              output->GetUpdateNumberOfPieces(),
+                              output->GetUpdateGhostLevel()+1);
       }
     else
       {
@@ -244,8 +244,8 @@ void vtkProbeFilter::ComputeInputUpdateExtents( vtkDataObject *output )
   if (usePiece)
     {
     input->SetUpdateExtent(output->GetUpdatePiece(), 
-			   output->GetUpdateNumberOfPieces(),
-			   output->GetUpdateGhostLevel());
+                           output->GetUpdateNumberOfPieces(),
+                           output->GetUpdateGhostLevel());
     }
   else
     {
@@ -258,8 +258,8 @@ void vtkProbeFilter::ComputeInputUpdateExtents( vtkDataObject *output )
     {
     input->SetUpdateExtent(0, 1, 0);
     source->SetUpdateExtent(output->GetUpdatePiece(),
-			    output->GetUpdateNumberOfPieces(),
-			    output->GetUpdateGhostLevel());
+                            output->GetUpdateNumberOfPieces(),
+                            output->GetUpdateGhostLevel());
     }
 }
 

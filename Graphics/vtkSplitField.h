@@ -128,13 +128,13 @@ public:
     Component* Next;   // linked list
     void SetName(const char* name)
       {
-	delete[] this->FieldName;
-	this->FieldName = 0;
-	if (name)
-	  {
-	  this->FieldName = new char[strlen(name)+1];
-	  strcpy(this->FieldName, name);
-	  }
+        delete[] this->FieldName;
+        this->FieldName = 0;
+        if (name)
+          {
+          this->FieldName = new char[strlen(name)+1];
+          strcpy(this->FieldName, name);
+          }
       }
     Component() { FieldName = 0; }
     ~Component() { delete[] FieldName; }
@@ -192,12 +192,12 @@ protected:
       if (!cur) { return; }
       Component* before;
       do
-	{
-	before = cur;
-	cur = cur->Next;
-	os << endl;
-	this->PrintComponent(before, os, indent);
-	} 
+        {
+        before = cur;
+        cur = cur->Next;
+        os << endl;
+        this->PrintComponent(before, os, indent);
+        } 
       while (cur);
     }
 private:

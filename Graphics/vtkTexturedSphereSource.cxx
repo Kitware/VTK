@@ -122,9 +122,9 @@ void vtkTexturedSphereSource::Execute()
       newPoints->InsertNextPoint(x);
 
       if ( (norm = vtkMath::Norm(x)) == 0.0 )
-	{
-	norm = 1.0;
-	}
+        {
+        norm = 1.0;
+        }
       x[0] /= norm; x[1] /= norm; x[2] /= norm; 
       newNormals->InsertNextTuple(x);
 

@@ -239,13 +239,13 @@ void vtkColorTransferFunction::AddRGBPoint( float x, float r,
     if ( this->NumberOfPoints == this->FunctionSize )
       {
       if ( this->FunctionSize )
-	{
+        {
         this->FunctionSize *= 2;
-	}
+        }
       else
-	{
+        {
         this->FunctionSize = 100;
-	}
+        }
 
       float *tmp = new float[this->FunctionSize*4];
       if ( i > 0 )
@@ -258,9 +258,9 @@ void vtkColorTransferFunction::AddRGBPoint( float x, float r,
                 (this->NumberOfPoints-i)*sizeof(float)*4 );
         }
       if ( this->Function )
-	{
-	delete [] this->Function;
-	}
+        {
+        delete [] this->Function;
+        }
       this->Function = tmp;
       }
     else
@@ -472,7 +472,7 @@ float vtkColorTransferFunction::GetBlueValue( float x )
 
 // Returns a table of RGB colors at regular intervals along the function
 void vtkColorTransferFunction::GetTable( float x1, float x2, 
-					 int size, float* table )
+                                         int size, float* table )
 {
   float x, xinc=0;
   float *tptr = table;
@@ -747,7 +747,7 @@ const unsigned char *vtkColorTransferFunction::GetTable( float x1, float x2,
 }
 
 void vtkColorTransferFunction::BuildFunctionFromTable( float x1, float x2,
-						       int size, float *table)
+                                                       int size, float *table)
 {
   // We are assuming the table is in ascending order
 
@@ -1037,14 +1037,14 @@ void vtkColorTransferFunction::MapScalarsThroughTable2(void *input,
                                                        int inputDataType, 
                                                        int numberOfValues,
                                                        int inputIncrement,
-						       int outputFormat)
+                                                       int outputFormat)
 {
   switch (inputDataType)
     {
     case VTK_CHAR:
       vtkColorTransferFunctionMapData(this,(char *)input,output,
-				      numberOfValues,inputIncrement,
-				      outputFormat);
+                                      numberOfValues,inputIncrement,
+                                      outputFormat);
       break;
       
     case VTK_UNSIGNED_CHAR:
@@ -1055,8 +1055,8 @@ void vtkColorTransferFunction::MapScalarsThroughTable2(void *input,
       
     case VTK_SHORT:
       vtkColorTransferFunctionMapData(this,(short *)input,output,
-				      numberOfValues,inputIncrement,
-				      outputFormat);
+                                      numberOfValues,inputIncrement,
+                                      outputFormat);
       break;
       
     case VTK_UNSIGNED_SHORT:
@@ -1069,38 +1069,38 @@ void vtkColorTransferFunction::MapScalarsThroughTable2(void *input,
       
     case VTK_INT:
       vtkColorTransferFunctionMapData(this,(int *)input,output,
-				      numberOfValues,inputIncrement,
-				      outputFormat);
+                                      numberOfValues,inputIncrement,
+                                      outputFormat);
       break;
       
     case VTK_UNSIGNED_INT:
       vtkColorTransferFunctionMapData(this,(unsigned int *)input,output,
-				      numberOfValues,inputIncrement,
-				      outputFormat);
+                                      numberOfValues,inputIncrement,
+                                      outputFormat);
       break;
       
     case VTK_LONG:
       vtkColorTransferFunctionMapData(this,(long *)input,output,
-				      numberOfValues,inputIncrement,
-				      outputFormat);
+                                      numberOfValues,inputIncrement,
+                                      outputFormat);
       break;
       
     case VTK_UNSIGNED_LONG:
       vtkColorTransferFunctionMapData(this,(unsigned long *)input,output,
-				      numberOfValues,inputIncrement,
-				      outputFormat);
+                                      numberOfValues,inputIncrement,
+                                      outputFormat);
       break;
       
     case VTK_FLOAT:
       vtkColorTransferFunctionMapData(this,(float *)input,output,
-				      numberOfValues,inputIncrement,
-				      outputFormat);
+                                      numberOfValues,inputIncrement,
+                                      outputFormat);
       break;
       
     case VTK_DOUBLE:
       vtkColorTransferFunctionMapData(this,(double *)input,output,
-				      numberOfValues,inputIncrement,
-				      outputFormat);
+                                      numberOfValues,inputIncrement,
+                                      outputFormat);
       break;
       
     default:

@@ -64,10 +64,10 @@ vtkPiecewiseFunction* vtkPiecewiseFunction::New()
 // Construct a new vtkPiecewiseFunction with default values
 vtkPiecewiseFunction::vtkPiecewiseFunction()
 {
-  this->ArraySize     	 = 64;
+  this->ArraySize        = 64;
   this->Clamping         = 1;
-  this->Function      	 = new float[this->ArraySize*2];
-  this->FunctionSize  	 = 0;
+  this->Function         = new float[this->ArraySize*2];
+  this->FunctionSize     = 0;
   this->FunctionRange[0] = 0;
   this->FunctionRange[1] = 0;
 
@@ -144,10 +144,10 @@ void vtkPiecewiseFunction::Initialize()
     delete [] this->Function;
     }
 
-  this->ArraySize     	 = 64;
+  this->ArraySize        = 64;
   this->Clamping         = 1;
-  this->Function      	 = new float[this->ArraySize*2];
-  this->FunctionSize  	 = 0;
+  this->Function         = new float[this->ArraySize*2];
+  this->FunctionSize     = 0;
   this->FunctionRange[0] = 0;
   this->FunctionRange[1] = 0;
 
@@ -202,10 +202,10 @@ const char *vtkPiecewiseFunction::GetType()
           {
           case 0:
           case 1:
-            function_type = 1;	// NonDecreasing
+            function_type = 1;  // NonDecreasing
             break;
           case 2:
-            function_type = 3;	// Varied
+            function_type = 3;  // Varied
             break;
           }
         }
@@ -215,10 +215,10 @@ const char *vtkPiecewiseFunction::GetType()
           {
           case 0:
           case 2:
-            function_type = 2;	// NonIncreasing
+            function_type = 2;  // NonIncreasing
             break;
           case 1:
-            function_type = 3;	// Varied
+            function_type = 3;  // Varied
             break;
           }
         } 
@@ -330,7 +330,7 @@ void vtkPiecewiseFunction::AddPoint( float x, float val )
 // Adds a point to the function and returns the array index of the point.
 int vtkPiecewiseFunction::InsertPoint( float x, float val )
 {
-  int	point_index;
+  int   point_index;
   int   i;
 
   // Increase function size if we exceed array bound
@@ -427,18 +427,18 @@ void vtkPiecewiseFunction::MovePoints( int index, int down )
 
       // Move following points down
       while( i < this->FunctionSize )
-	{
-	swap2_x = this->Function[(2*i)];
-	swap2_y = this->Function[(2*i+1)];
-	
-	this->Function[(2*i)] = swap1_x;
-	this->Function[(2*i+1)] = swap1_y;
-	
-	swap1_x = swap2_x;
-	swap1_y = swap2_y;
-	
-	i++;
-	}
+        {
+        swap2_x = this->Function[(2*i)];
+        swap2_y = this->Function[(2*i+1)];
+        
+        this->Function[(2*i)] = swap1_x;
+        this->Function[(2*i+1)] = swap1_y;
+        
+        swap1_x = swap2_x;
+        swap1_y = swap2_y;
+        
+        i++;
+        }
       }
     }
   // Moving up
@@ -483,14 +483,14 @@ void vtkPiecewiseFunction::RemovePoint( float x )
       this->FunctionSize--;
 
       if (this->FunctionSize > 0)
-	{
-	this->FunctionRange[0] = this->Function[0];
-	this->FunctionRange[1] = this->Function[2*(this->FunctionSize-1)];
-	}
+        {
+        this->FunctionRange[0] = this->Function[0];
+        this->FunctionRange[1] = this->Function[2*(this->FunctionSize-1)];
+        }
       else
-	{
-	this->FunctionRange[0] = this->FunctionRange[1] = 0.0;
-	}
+        {
+        this->FunctionRange[0] = this->FunctionRange[1] = 0.0;
+        }
       this->Modified();
       }
     }
@@ -499,7 +499,7 @@ void vtkPiecewiseFunction::RemovePoint( float x )
 // Removes all points from the function.
 void vtkPiecewiseFunction::RemoveAllPoints()
 {
-  this->FunctionSize  	 = 0;
+  this->FunctionSize     = 0;
   this->FunctionRange[0] = 0;
   this->FunctionRange[1] = 0;
   this->Modified();
@@ -509,8 +509,8 @@ void vtkPiecewiseFunction::RemoveAllPoints()
 void vtkPiecewiseFunction::AddSegment( float x1, float val1, 
   float x2, float val2 )
 {
-  int	index1, index2;
-  int	swap;
+  int   index1, index2;
+  int   swap;
   int   distance;
   int   i;
 
@@ -546,8 +546,8 @@ void vtkPiecewiseFunction::AddSegment( float x1, float val1,
 float vtkPiecewiseFunction::GetValue( float x )
 {
   int   i1, i2;
-  float x1, y1;	// Point before x
-  float x2, y2;	// Point after x
+  float x1, y1; // Point before x
+  float x2, y2; // Point after x
 
   float slope;
   float value;
@@ -571,7 +571,7 @@ float vtkPiecewiseFunction::GetValue( float x )
       x = this->Function[(this->FunctionSize-1)*2];
       }
     }
-  else if( this->Clamping == 0 )	// Always zero outside of range
+  else if( this->Clamping == 0 )        // Always zero outside of range
     {
     if( (x < this->FunctionRange[0]) || (x > this->FunctionRange[1]) )
       {
@@ -623,7 +623,7 @@ float *vtkPiecewiseFunction::GetRange()
 
 // Returns a table of function values evaluated at regular intervals
 void vtkPiecewiseFunction::GetTable( float x1, float x2, int size,
-				     float* table, int stride )
+                                     float* table, int stride )
 {
   float x, xi1, xi2, yi1, yi2, tx;
   float inc, value, slope, *tbl;
@@ -658,23 +658,23 @@ void vtkPiecewiseFunction::GetTable( float x1, float x2, int size,
     if( this->Clamping == 1 )  
       {
       if( x < this->FunctionRange[0] ) 
-	{
-	tx = this->Function[0];
-	}
+        {
+        tx = this->Function[0];
+        }
       else if( x > this->FunctionRange[1] )
-	{
-	tx = this->Function[(this->FunctionSize-1)*2];
-	}
+        {
+        tx = this->Function[(this->FunctionSize-1)*2];
+        }
       }
-    else if( this->Clamping == 0 )	// Always zero outside of range
+    else if( this->Clamping == 0 )      // Always zero outside of range
       {
       if( (x < this->FunctionRange[0]) || (x > this->FunctionRange[1]) )
-	{
-	*tbl = 0.0;
-	tbl += stride;
-	x += inc;
-	continue;
-	}
+        {
+        *tbl = 0.0;
+        tbl += stride;
+        x += inc;
+        continue;
+        }
       }
     else
       {
@@ -718,8 +718,8 @@ void vtkPiecewiseFunction::GetTable( float x1, float x2, int size,
 
 
 void vtkPiecewiseFunction::BuildFunctionFromTable( float x1, float x2,
-						   int size,
-						   float* table, int stride )
+                                                   int size,
+                                                   float* table, int stride )
 {
   int i;
   float inc = 0.0;

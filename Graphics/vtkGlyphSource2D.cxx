@@ -506,7 +506,7 @@ void vtkGlyphSource2D::CreateHookedArrow(vtkPoints *pts, vtkCellArray *lines,
 
 void vtkGlyphSource2D::CreateDash(vtkPoints *pts, vtkCellArray *lines,
                                   vtkCellArray *polys, vtkUnsignedCharArray *colors,
-								  float scale)
+                                                                  float scale)
 {
   vtkIdType ptIds[5];
   ptIds[0] = pts->InsertNextPoint(-0.5, -0.1, 0.0);

@@ -184,7 +184,7 @@ void vtkAxes::Execute()
 //----------------------------------------------------------------------------
 // This source does not know how to generate pieces yet.
 int vtkAxes::ComputeDivisionExtents(vtkDataObject *vtkNotUsed(output),
-				      int idx, int numDivisions)
+                                      int idx, int numDivisions)
 {
   if (idx == 0 && numDivisions == 1)
     {

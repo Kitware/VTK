@@ -105,80 +105,80 @@ void vtkButterflySubdivisionFilter::GenerateSubdivisionPoints(
       {
       // Do we need to  create a point on this edge?
       if (edgeTable->IsEdge (p1, p2) == -1)
-	{
+        {
         outputPD->CopyData (inputPD, p1, p1);
         outputPD->CopyData (inputPD, p2, p2);
-	edgeTable->InsertEdge (p1, p2);
+        edgeTable->InsertEdge (p1, p2);
 
         inputDS->GetCellEdgeNeighbors (-1, p1, p2, cellIds);
         // If this is a boundary edge. we need to use a special subdivision rule
         if (cellIds->GetNumberOfIds() == 1)
           {
- 	  // Compute new POsition and PointData using the same subdivision scheme
-	  this->GenerateBoundaryStencil (p1, p2,
-					 inputDS, stencil, weights);
+          // Compute new POsition and PointData using the same subdivision scheme
+          this->GenerateBoundaryStencil (p1, p2,
+                                         inputDS, stencil, weights);
           } // boundary edge
-	else
-	  {
-	  // find the valence of the two points
-	  inputDS->GetPointCells (p1, p1CellIds);
-	  valence1 = p1CellIds->GetNumberOfIds();
-	  inputDS->GetPointCells (p2, p2CellIds);
-	  valence2 = p2CellIds->GetNumberOfIds();
+        else
+          {
+          // find the valence of the two points
+          inputDS->GetPointCells (p1, p1CellIds);
+          valence1 = p1CellIds->GetNumberOfIds();
+          inputDS->GetPointCells (p2, p2CellIds);
+          valence2 = p2CellIds->GetNumberOfIds();
 
-	  if (valence1 == 6 && valence2 == 6)
-	    {
-	    this->GenerateButterflyStencil (p1, p2,
-					    inputDS, stencil, weights);
-	    }
-	  else if (valence1 == 6 && valence2 != 6)
-	    {
-	    this->GenerateLoopStencil (p2, p1,
-				       inputDS, stencil, weights);
-	    }
-	  else if (valence1 != 6 && valence2 == 6)
-	    {
-	    this->GenerateLoopStencil (p1, p2,
-				       inputDS, stencil, weights);
-	    }
-	  else
-	    {
-	    // Edge connects two extraordinary vertices
-	    this->GenerateLoopStencil (p2, p1,
-				       inputDS, stencil1, weights1);
-	    this->GenerateLoopStencil (p1, p2,
-				       inputDS, stencil2, weights2);
-	    // combine the two stencils and halve the weights
-	    vtkIdType total = stencil1->GetNumberOfIds() +
+          if (valence1 == 6 && valence2 == 6)
+            {
+            this->GenerateButterflyStencil (p1, p2,
+                                            inputDS, stencil, weights);
+            }
+          else if (valence1 == 6 && valence2 != 6)
+            {
+            this->GenerateLoopStencil (p2, p1,
+                                       inputDS, stencil, weights);
+            }
+          else if (valence1 != 6 && valence2 == 6)
+            {
+            this->GenerateLoopStencil (p1, p2,
+                                       inputDS, stencil, weights);
+            }
+          else
+            {
+            // Edge connects two extraordinary vertices
+            this->GenerateLoopStencil (p2, p1,
+                                       inputDS, stencil1, weights1);
+            this->GenerateLoopStencil (p1, p2,
+                                       inputDS, stencil2, weights2);
+            // combine the two stencils and halve the weights
+            vtkIdType total = stencil1->GetNumberOfIds() +
               stencil2->GetNumberOfIds();
-	    stencil->SetNumberOfIds (total);
+            stencil->SetNumberOfIds (total);
 
-	    j = 0;
-	    for (i = 0; i < stencil1->GetNumberOfIds(); i++)
-	      {
-	      stencil->InsertId(j, stencil1->GetId(i));
-	      weights[j++] = weights1[i] * .5;
-	      }
-	    for (i = 0; i < stencil2->GetNumberOfIds(); i++)
-	      {
-	      stencil->InsertId(j, stencil2->GetId(i));
-	      weights[j++] = weights2[i] * .5;
-	      }
-	    }
-	  }
-	  newId = this->InterpolatePosition (inputPts, outputPts, stencil, weights);
-	  outputPD->InterpolatePoint (inputPD, newId, stencil, weights);
-	}
+            j = 0;
+            for (i = 0; i < stencil1->GetNumberOfIds(); i++)
+              {
+              stencil->InsertId(j, stencil1->GetId(i));
+              weights[j++] = weights1[i] * .5;
+              }
+            for (i = 0; i < stencil2->GetNumberOfIds(); i++)
+              {
+              stencil->InsertId(j, stencil2->GetId(i));
+              weights[j++] = weights2[i] * .5;
+              }
+            }
+          }
+          newId = this->InterpolatePosition (inputPts, outputPts, stencil, weights);
+          outputPD->InterpolatePoint (inputPD, newId, stencil, weights);
+        }
       else // we have already created a point on this edge. find it
-	{
-	newId = this->FindEdge (inputDS, cellId, p1, p2, edgeData, cellIds);
-	}
+        {
+        newId = this->FindEdge (inputDS, cellId, p1, p2, edgeData, cellIds);
+        }
       edgeData->InsertComponent(cellId,edgeId,newId);
       p1 = p2;
       if (edgeId < 2)
-	{
-	p2 = pts[edgeId + 1];
-	}
+        {
+        p2 = pts[edgeId + 1];
+        }
       } // each interior edge
     } // each cell
 
@@ -243,7 +243,7 @@ void vtkButterflySubdivisionFilter::GenerateLoopStencil(
   if (boundary)
     {
     this->GenerateButterflyStencil (p1, p2,
-				    polys, stencilIds, weights);
+                                    polys, stencilIds, weights);
     cellIds->Delete();
     return;
     }
@@ -256,7 +256,7 @@ void vtkButterflySubdivisionFilter::GenerateLoopStencil(
     for (j = 0; j < K; j++)
       {
       weights[j] = (.25 +  cos (2.0 * VTK_PI * (float) shift[j] / (float) K)
-		   + .5 * cos (4.0 * VTK_PI * (float) shift[j] / (float) K)) / (float) K;
+                   + .5 * cos (4.0 * VTK_PI * (float) shift[j] / (float) K)) / (float) K;
       }
     }
   else if (K == 4)
@@ -319,15 +319,15 @@ void vtkButterflySubdivisionFilter::GenerateBoundaryStencil(
     for (j = 0; j < npts; j++)
       {
       if (pts[j] == p1 || pts[j] == p2)
-	{
-	continue;
-	}
+        {
+        continue;
+        }
       polys->GetCellEdgeNeighbors (-1, p1, pts[j], cellIds);
       if (cellIds->GetNumberOfIds() == 1)
-	{
-	p0 = pts[j];
-	break;
-	}
+        {
+        p0 = pts[j];
+        break;
+        }
       }
     }
   // find a boundary edge that uses p2 other than the one containing p1
@@ -339,15 +339,15 @@ void vtkButterflySubdivisionFilter::GenerateBoundaryStencil(
     for (j = 0; j < npts; j++)
       {
       if (pts[j] == p1 || pts[j] == p2 || pts[j] == p0)
-	{
-	continue;
-	}
+        {
+        continue;
+        }
       polys->GetCellEdgeNeighbors (-1, p2, pts[j], cellIds);
       if (cellIds->GetNumberOfIds() == 1)
-	{
-	p3 = pts[j];
-	break;
-	}
+        {
+        p3 = pts[j];
+        break;
+        }
       }
     }
   stencilIds->SetNumberOfIds (4);
@@ -407,7 +407,7 @@ void vtkButterflySubdivisionFilter::GenerateButterflyStencil (
       {
       if ((p = cell->GetPointId(i)) != p1 && cell->GetPointId(i) != p3)
         {
-	p5 = p;
+        p5 = p;
         break;
         }
       }
@@ -422,7 +422,7 @@ void vtkButterflySubdivisionFilter::GenerateButterflyStencil (
       {
       if ((p = cell->GetPointId(i)) != p2 && cell->GetPointId(i) != p3)
         {
-	p6 = p;
+        p6 = p;
         break;
         }
       }
@@ -437,7 +437,7 @@ void vtkButterflySubdivisionFilter::GenerateButterflyStencil (
       {
       if ((p = cell->GetPointId(i)) != p1 && cell->GetPointId(i) != p4)
         {
-	p7 = p;
+        p7 = p;
         break;
         }
       }
@@ -452,7 +452,7 @@ void vtkButterflySubdivisionFilter::GenerateButterflyStencil (
       {
       if ((p = cell->GetPointId(i)) != p2 && cell->GetPointId(i) != p4)
         {
-	p8= p;
+        p8= p;
         break;
         }
       }

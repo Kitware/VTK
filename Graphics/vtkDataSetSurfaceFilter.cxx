@@ -280,8 +280,8 @@ void vtkDataSetSurfaceFilter::StructuredExecute(vtkDataSet *input, int *ext)
 
 //----------------------------------------------------------------------------
 void vtkDataSetSurfaceFilter::ExecuteFaceStrips(vtkDataSet *input, 
-					      int maxFlag, int *ext,
-					      int aAxis, int bAxis, int cAxis)
+                                              int maxFlag, int *ext,
+                                              int aAxis, int bAxis, int cAxis)
 {
   vtkPolyData  *output;
   vtkPoints    *outPts;
@@ -416,8 +416,8 @@ void vtkDataSetSurfaceFilter::ExecuteFaceStrips(vtkDataSet *input,
 
 //----------------------------------------------------------------------------
 void vtkDataSetSurfaceFilter::ExecuteFaceQuads(vtkDataSet *input, 
-					     int maxFlag, int *ext,
-					     int aAxis, int bAxis, int cAxis)
+                                             int maxFlag, int *ext,
+                                             int aAxis, int bAxis, int cAxis)
 {
   vtkPolyData  *output;
   vtkPoints    *outPts;
@@ -1102,7 +1102,7 @@ void vtkDataSetSurfaceFilter::InsertQuadInHash(vtkIdType a, vtkIdType b,
         // We have a match.
         quad->SourceId = -1;
         // That is all we need to do.  Hide any quad shared by two or more cells.
-	//cerr << "   Duplicate\n";
+        //cerr << "   Duplicate\n";
         return;
         }
       }

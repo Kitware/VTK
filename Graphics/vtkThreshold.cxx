@@ -208,25 +208,25 @@ void vtkThreshold::Execute()
     if ( usePointScalars )
       {
       if (this->AllScalars)
-	{
-	keepCell = 1;
-	for ( i=0; keepCell && (i < numCellPts); i++)
-	  {
-	  ptId = cellPts->GetId(i);
-	  keepCell = 
-	    (this->*(this->ThresholdFunction))(pointScalars->GetComponent(ptId,0));
-	  }
-	}
+        {
+        keepCell = 1;
+        for ( i=0; keepCell && (i < numCellPts); i++)
+          {
+          ptId = cellPts->GetId(i);
+          keepCell = 
+            (this->*(this->ThresholdFunction))(pointScalars->GetComponent(ptId,0));
+          }
+        }
       else
-	{
-	keepCell = 0;
-	for ( i=0; (!keepCell) && (i < numCellPts); i++)
-	  {
-	  ptId = cellPts->GetId(i);
-	  keepCell = 
-	    (this->*(this->ThresholdFunction))(pointScalars->GetComponent(ptId,0));
-	  }
-	}
+        {
+        keepCell = 0;
+        for ( i=0; (!keepCell) && (i < numCellPts); i++)
+          {
+          ptId = cellPts->GetId(i);
+          keepCell = 
+            (this->*(this->ThresholdFunction))(pointScalars->GetComponent(ptId,0));
+          }
+        }
       }
     else //use cell scalars
       {

@@ -407,7 +407,7 @@ void vtkConnectivityFilter::TraverseAndMark ()
             {
             this->PointMap[ptId] = this->PointNumber++;
             this->NewScalars->SetComponent(this->PointMap[ptId], 0,
-					   this->RegionNumber);
+                                           this->RegionNumber);
             }
 
           input->GetPointCells(ptId,this->CellIds);
@@ -423,11 +423,11 @@ void vtkConnectivityFilter::TraverseAndMark ()
               float s, range[2];
 
               input->GetCellPoints(cellId, this->NeighborCellPointIds);
-	      numScalars = this->NeighborCellPointIds->GetNumberOfIds();
-	      this->CellScalars->SetNumberOfComponents(this->InScalars->GetNumberOfComponents());
-	      this->CellScalars->SetNumberOfTuples(numScalars);
+              numScalars = this->NeighborCellPointIds->GetNumberOfIds();
+              this->CellScalars->SetNumberOfComponents(this->InScalars->GetNumberOfComponents());
+              this->CellScalars->SetNumberOfTuples(numScalars);
               this->InScalars->GetTuples(this->NeighborCellPointIds,
-					 this->CellScalars);
+                                         this->CellScalars);
               range[0] = VTK_LARGE_FLOAT; range[1] = -VTK_LARGE_FLOAT;
               for (ii=0; ii < numScalars;  ii++)
                 {

@@ -127,8 +127,8 @@ void vtkTransformPolyDataFilter::Execute()
   if ( inVectors || inNormals )
     {
     this->Transform->TransformPointsNormalsVectors(inPts,newPts,
-						   inNormals,newNormals,
-						   inVectors,newVectors);
+                                                   inNormals,newNormals,
+                                                   inVectors,newVectors);
     }
   else
     {

@@ -213,13 +213,13 @@ void vtkConeSource::Execute()
     if ( createBottom )
       {
       for (i=0; i < this->Resolution; i++) 
-	{
-	x[0] = xbot;
-	x[1] = this->Radius * cos ((double)i*angle);
-	x[2] = this->Radius * sin ((double)i*angle);
-	// Reverse the order
-	pts[this->Resolution - i - 1] = newPoints->InsertNextPoint(x);
-	}
+        {
+        x[0] = xbot;
+        x[1] = this->Radius * cos ((double)i*angle);
+        x[2] = this->Radius * sin ((double)i*angle);
+        // Reverse the order
+        pts[this->Resolution - i - 1] = newPoints->InsertNextPoint(x);
+        }
       newPolys->InsertNextCell(this->Resolution,pts);
       }
     
@@ -232,27 +232,27 @@ void vtkConeSource::Execute()
       x[2] = this->Radius * sin ((double)start*angle);
       pts[1] = newPoints->InsertNextPoint(x);
       for (i = start; i <= end; ++i)
-	{
-	x[1] = this->Radius * cos ((double)(i+1)*angle);
-	x[2] = this->Radius * sin ((double)(i+1)*angle);
-	pts[2] = newPoints->InsertNextPoint(x);
-	newPolys->InsertNextCell(3,pts);
-	pts[1] = pts[2];
-	}
+        {
+        x[1] = this->Radius * cos ((double)(i+1)*angle);
+        x[2] = this->Radius * sin ((double)(i+1)*angle);
+        pts[2] = newPoints->InsertNextPoint(x);
+        newPolys->InsertNextCell(3,pts);
+        pts[1] = pts[2];
+        }
       }
     else
       {
       // bottom and points have already been created.
       for (i=start; i <= end; i++) 
-	{
-	pts[1] = i+1;
-	pts[2] = i+2;
-	if (pts[2] > this->Resolution)
-	  {
-	  pts[2] = 1;
-	  }
-	newPolys->InsertNextCell(3,pts);
-	}
+        {
+        pts[1] = i+1;
+        pts[2] = i+2;
+        if (pts[2] > this->Resolution)
+          {
+          pts[2] = 1;
+          }
+        newPolys->InsertNextCell(3,pts);
+        }
       } // createBottom
     
   } //switch

@@ -139,7 +139,7 @@ protected:
 
   //BTX
   float *(vtkLinearExtrusionFilter::*ExtrudePoint)(float x[3], vtkIdType id, 
-						   vtkDataArray *normals);
+                                                   vtkDataArray *normals);
   float *ViaNormal(float x[3], vtkIdType id, vtkDataArray *normals);
   float *ViaVector(float x[3], vtkIdType id, vtkDataArray *normals=0);
   float *ViaPoint(float x[3], vtkIdType id, vtkDataArray *normals=0);

@@ -192,7 +192,7 @@ void vtkTubeFilter::Execute()
       singlePolyline->InsertNextCell( npts, pts );
     
       if ( !lineNormalGenerator->GenerateSlidingNormals(inPts,singlePolyline,
-							inNormals) )
+                                                        inNormals) )
         {
         vtkErrorMacro(<< "No normals for line!\n");
         if (deleteNormals)
@@ -333,7 +333,7 @@ void vtkTubeFilter::Execute()
         {
         sFactor = 1.0 + ((this->RadiusFactor - 1.0) * 
                   (inScalars->GetComponent(pts[j],0) - range[0]) 
-			 / (range[1]-range[0]));
+                         / (range[1]-range[0]));
         if ((range[1] - range[0]) == 0.0)
           {
           vtkErrorMacro(<< "Dividing by zero");

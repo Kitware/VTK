@@ -215,7 +215,7 @@ protected:
   // Description:
   // Determine the representative point for this bin.
   void ComputeRepresentativePoint(float quadric[9], vtkIdType binId,
-				  float point[3]);
+                                  float point[3]);
 
   // Description:
   // Add triangles to the quadric array.  If geometry flag is on then

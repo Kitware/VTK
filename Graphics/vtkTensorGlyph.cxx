@@ -194,9 +194,9 @@ void vtkTensorGlyph::Execute()
       cellPts = cell->GetPointIds();
       npts = cellPts->GetNumberOfIds();
       for (i=0; i < npts; i++)
-	{
-	pts[i] = cellPts->GetId(i) + ptIncr;
-	}
+        {
+        pts[i] = cellPts->GetId(i) + ptIncr;
+        }
       output->InsertNextCell(cell->GetCellType(),npts,pts);
       }
     }
@@ -221,12 +221,12 @@ void vtkTensorGlyph::Execute()
     if ( this->ExtractEigenvalues ) // extract appropriate eigenfunctions
       {
       for (j=0; j<3; j++)
-	{
+        {
         for (i=0; i<3; i++)
-	  {
+          {
           m[i][j] = tensor[i+3*j];
-	  }
-	}
+          }
+        }
       vtkMath::Jacobi(m, w, v);
 
       //copy eigenvectors
@@ -255,19 +255,19 @@ void vtkTensorGlyph::Execute()
     if ( this->ClampScaling )
       {
       for (maxScale=0.0, i=0; i<3; i++)
-	{
+        {
         if ( maxScale < fabs(w[i]) )
-	  {
-	  maxScale = fabs(w[i]);
-	  }
-	}
+          {
+          maxScale = fabs(w[i]);
+          }
+        }
       if ( maxScale > this->MaxScaleFactor )
         {
         maxScale = this->MaxScaleFactor / maxScale;
         for (i=0; i<3; i++)
-	  {
+          {
           w[i] *= maxScale; //preserve overall shape of glyph
-	  }
+          }
         }
       }
 
@@ -287,9 +287,9 @@ void vtkTensorGlyph::Execute()
     for (maxScale=0.0, i=0; i<3; i++)
       {
       if ( w[i] > maxScale )
-	{
-	maxScale = w[i];
-	}
+        {
+        maxScale = w[i];
+        }
       }
     if ( maxScale == 0.0 )
       {
@@ -298,9 +298,9 @@ void vtkTensorGlyph::Execute()
     for (i=0; i<3; i++)
       {
       if ( w[i] == 0.0 )
-	{
-	w[i] = maxScale * 1.0e-06;
-	}
+        {
+        w[i] = maxScale * 1.0e-06;
+        }
       }
     trans->Scale(w[0], w[1], w[2]);
 
@@ -316,16 +316,16 @@ void vtkTensorGlyph::Execute()
       {
       s = inScalars->GetComponent(inPtId, 0);
       for (i=0; i < numSourcePts; i++) 
-	{
+        {
         newScalars->InsertTuple(ptIncr+i, &s);
-	}
+        }
       }
     else
       {
       for (i=0; i < numSourcePts; i++) 
-	{
+        {
         outPD->CopyData(pd,i,ptIncr+i);
-	}
+        }
       }
     }
   vtkDebugMacro(<<"Generated " << numPts <<" tensor glyphs");

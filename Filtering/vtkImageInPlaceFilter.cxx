@@ -93,7 +93,7 @@ void vtkImageInPlaceFilter::ExecuteData(vtkDataObject *vtkNotUsed(out))
   
 
 void vtkImageInPlaceFilter::CopyData(vtkImageData *inData,
-				     vtkImageData *outData)
+                                     vtkImageData *outData)
 {
   int *outExt = this->GetOutput()->GetUpdateExtent();
   char *inPtr = (char *) inData->GetScalarPointerForExtent(outExt);

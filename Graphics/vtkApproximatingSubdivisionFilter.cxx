@@ -194,10 +194,10 @@ int vtkApproximatingSubdivisionFilter::FindEdge (vtkPolyData *mesh,
     for (edgeId=0; edgeId < numEdges; edgeId++)
       {
       if ( (tp1 == p1 && tp2 == p2) ||
-	   (tp2 == p1 && tp1 == p2))
-	{
-	break;
-	}
+           (tp2 == p1 && tp1 == p2))
+        {
+        break;
+        }
       tp1 = tp2;
       tp2 = cell->GetPointId(edgeId + 1);
       }
@@ -208,7 +208,7 @@ int vtkApproximatingSubdivisionFilter::FindEdge (vtkPolyData *mesh,
 
 vtkIdType vtkApproximatingSubdivisionFilter::InterpolatePosition (
         vtkPoints *inputPts, vtkPoints *outputPts,
-	vtkIdList *stencil, float *weights)
+        vtkIdList *stencil, float *weights)
 {
   float *xx, x[3];
   vtkIdType i;

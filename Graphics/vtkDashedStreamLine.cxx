@@ -168,9 +168,9 @@ void vtkDashedStreamLine::Execute()
           vPrev[j] = v[j];
           }
         if ( newScalars )
-	  {
-	  scalarPrev = s;
-	  }
+          {
+          scalarPrev = s;
+          }
         tOffset += this->StepLength;
 
         } // while

@@ -70,7 +70,7 @@ public:
   // Description:
   // Set / get the boundary of the 3D cursor.
   void SetModelBounds(float xmin, float xmax, float ymin, float ymax, 
-		      float zmin, float zmax);
+                      float zmin, float zmax);
   void SetModelBounds(float bounds[6]);
   vtkGetVectorMacro(ModelBounds,float,6);
 

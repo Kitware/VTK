@@ -114,7 +114,7 @@ protected:
   void Fit1D (int n, float *x, float *y,
               float tension, float bias, float continuity,
               float coefficients[][4],
-	      int leftConstraint, float leftValue, int rightConstraint, float rightValue);
+              int leftConstraint, float leftValue, int rightConstraint, float rightValue);
   float DefaultBias;
   float DefaultTension;
   float DefaultContinuity;

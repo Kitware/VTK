@@ -80,8 +80,8 @@ public:
   // Description:
   // Convenience method allows creation of cube by specifying bounding box.
   void SetBounds(float xMin, float xMax,
-	         float yMin, float yMax,
-		 float zMin, float zMax);
+                 float yMin, float yMax,
+                 float zMin, float zMax);
   void SetBounds(float bounds[6]);
 
 

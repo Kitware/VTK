@@ -126,13 +126,13 @@ void vtkCursor3D::Execute()
     for (i=0; i<3; i++)
       {
       if ( this->FocalPoint[i] < this->ModelBounds[2*i] )
-	{
+        {
         this->FocalPoint[i] = this->ModelBounds[2*i];
-	}
+        }
       if ( this->FocalPoint[i] > this->ModelBounds[2*i+1] )
-	{
+        {
         this->FocalPoint[i] = this->ModelBounds[2*i+1];
-	}
+        }
       }
     }
 //
@@ -443,9 +443,9 @@ void vtkCursor3D::SetModelBounds(float xmin, float xmax, float ymin, float ymax,
     for (int i=0; i<3; i++)
       {
       if ( this->ModelBounds[2*i] > this->ModelBounds[2*i+1] )
-	{
-	this->ModelBounds[2*i] = this->ModelBounds[2*i+1];
-	}
+        {
+        this->ModelBounds[2*i] = this->ModelBounds[2*i+1];
+        }
       }
     }
 }

@@ -139,13 +139,13 @@ void vtkWindowedSincPolyDataFilter::Execute()
                << "\tPassBand= " << this->PassBand << "\n"
                << "\tEdge Angle= " << this->EdgeAngle << "\n"
                << "\tBoundary Smoothing "
-	       << (this->BoundarySmoothing ? "On\n" : "Off\n")
-	       << "\tFeature Edge Smoothing "
-	       << (this->FeatureEdgeSmoothing ? "On\n" : "Off\n")
-	       << "\tError Scalars "
-	       << (this->GenerateErrorScalars ? "On\n" : "Off\n")
-	       << "\tError Vectors "
-	       << (this->GenerateErrorVectors ? "On\n" : "Off\n"));
+               << (this->BoundarySmoothing ? "On\n" : "Off\n")
+               << "\tFeature Edge Smoothing "
+               << (this->FeatureEdgeSmoothing ? "On\n" : "Off\n")
+               << "\tError Scalars "
+               << (this->GenerateErrorScalars ? "On\n" : "Off\n")
+               << "\tError Vectors "
+               << (this->GenerateErrorVectors ? "On\n" : "Off\n"));
 
   if ( this->NumberOfIterations <= 0 ) //don't do anything!
     {
@@ -295,12 +295,12 @@ void vtkWindowedSincPolyDataFilter::Execute()
           {
           // check to make sure that this edge hasn't been marked already
           for (j=0; j < numNei; j++)
-	    {
+            {
             if ( neighbors->GetId(j) < cellId )
-	      {
+              {
               break;
-	      }
-	    }
+              }
+            }
           if ( j >= numNei )
             {
             edge = VTK_FEATURE_EDGE_VERTEX;
@@ -336,9 +336,9 @@ void vtkWindowedSincPolyDataFilter::Execute()
           {
           Verts[p1].edges->InsertNextId(p2);
           if ( Verts[p1].type && edge == VTK_BOUNDARY_EDGE_VERTEX )
-	    {
-	    Verts[p1].type = VTK_BOUNDARY_EDGE_VERTEX;
-	    }
+            {
+            Verts[p1].type = VTK_BOUNDARY_EDGE_VERTEX;
+            }
           }
 
         if ( edge && Verts[p2].type == VTK_SIMPLE_VERTEX )
@@ -353,9 +353,9 @@ void vtkWindowedSincPolyDataFilter::Execute()
           {
           Verts[p2].edges->InsertNextId(p1);
           if ( Verts[p2].type && edge == VTK_BOUNDARY_EDGE_VERTEX )
-	    {
-	    Verts[p2].type = VTK_BOUNDARY_EDGE_VERTEX;
-	    }
+            {
+            Verts[p2].type = VTK_BOUNDARY_EDGE_VERTEX;
+            }
           }
         }
       }
@@ -412,7 +412,7 @@ void vtkWindowedSincPolyDataFilter::Execute()
           l2[k] = x3[k] - x2[k];
           }
         if ((vtkMath::Normalize(l1) >= 0.0) && (vtkMath::Normalize(l2) >= 0.0)
-	    && (vtkMath::Dot(l1,l2) < CosEdgeAngle))
+            && (vtkMath::Dot(l1,l2) < CosEdgeAngle))
           {
           numFixed++;
           Verts[i].type = VTK_FIXED_VERTEX;
@@ -420,13 +420,13 @@ void vtkWindowedSincPolyDataFilter::Execute()
         else
           {
           if ( Verts[i].type == VTK_FEATURE_EDGE_VERTEX )
-	    {
-	    numFEdges++;
-	    }
+            {
+            numFEdges++;
+            }
           else
-	    {
-	    numBEdges++;
-	    }
+            {
+            numBEdges++;
+            }
           }
         }//if along edge
       }//if edge vertex
@@ -490,7 +490,7 @@ void vtkWindowedSincPolyDataFilter::Execute()
   for (i=0; i <= (this->NumberOfIterations); i++)
     {
     w[i] = 0.54 + 0.46*cos(((double)i)*vtkMath::Pi()
-			   /(double)(this->NumberOfIterations+1));
+                           /(double)(this->NumberOfIterations+1));
     }
 
   // Calculate the optimal sigma (offset or fudge factor for the filter).
@@ -515,7 +515,7 @@ void vtkWindowedSincPolyDataFilter::Execute()
     if (this->NumberOfIterations > 1)
       {
       cprime[this->NumberOfIterations-2] = 2.0*(this->NumberOfIterations-1)
-	* c[this->NumberOfIterations-1];
+        * c[this->NumberOfIterations-1];
       }
     for (i=this->NumberOfIterations-3; i>=0; i--)
       {
@@ -531,27 +531,27 @@ void vtkWindowedSincPolyDataFilter::Execute()
     for (i=1; i<= this->NumberOfIterations; i++)
       {
       if (i==1)
-	{
-	f_kpb += c[i]*(1.0 - 0.5*k_pb);
-	fprime_kpb += cprime[i]*(1.0 - 0.5*k_pb);
-	}
+        {
+        f_kpb += c[i]*(1.0 - 0.5*k_pb);
+        fprime_kpb += cprime[i]*(1.0 - 0.5*k_pb);
+        }
       else
-	{
-	f_kpb += c[i]*cos(((double) i)*acos(1.0-0.5*k_pb));
-	fprime_kpb += cprime[i]*cos(((double) i)*acos(1.0-0.5*k_pb));
-	}
+        {
+        f_kpb += c[i]*cos(((double) i)*acos(1.0-0.5*k_pb));
+        fprime_kpb += cprime[i]*cos(((double) i)*acos(1.0-0.5*k_pb));
+        }
       }
     // if f_kpb is not close enough to 1.0, then adjust sigma
     if (this->NumberOfIterations > 1)
       {
       if (fabs(f_kpb - 1.0) >= 1e-3)   
-	{
-	sigma -= (f_kpb - 1.0)/fprime_kpb;   // Newton-Rhapson (want f=1)
-	}
+        {
+        sigma -= (f_kpb - 1.0)/fprime_kpb;   // Newton-Rhapson (want f=1)
+        }
       else
-	{
-	done = 1;
-	}
+        {
+        done = 1;
+        }
       }
     else
       {
@@ -570,7 +570,7 @@ void vtkWindowedSincPolyDataFilter::Execute()
   for (i=0; i<numPts; i++) 
     {
     if ( Verts[i].edges != NULL &&
-	 (npts = Verts[i].edges->GetNumberOfIds()) > 0 )
+         (npts = Verts[i].edges->GetNumberOfIds()) > 0 )
       {
       // point is allowed to move
       x = newPts[zero]->GetPoint(i); //use current points
@@ -579,32 +579,32 @@ void vtkWindowedSincPolyDataFilter::Execute()
       // calculate the negative of the laplacian
       for (j=0; j<npts; j++) //for all connected points
         {
-	y = newPts[zero]->GetPoint(Verts[i].edges->GetId(j));
-	for (k=0; k<3; k++)
+        y = newPts[zero]->GetPoint(Verts[i].edges->GetId(j));
+        for (k=0; k<3; k++)
           {
-	  deltaX[k] += (x[k] - y[k]) / npts;
+          deltaX[k] += (x[k] - y[k]) / npts;
           }
         }
       // newPts[one] = newPts[zero] - 0.5 newPts[one]
       for (k=0; k<3; k++)
-	{
-	deltaX[k] = x[k] - 0.5*deltaX[k];
-	}
+        {
+        deltaX[k] = x[k] - 0.5*deltaX[k];
+        }
       newPts[one]->SetPoint(i, deltaX);
       
       // calculate newPts[three] = c0 newPts[zero] + c1 newPts[one]
       for (k=0; k < 3; k++)
-	{
-	deltaX[k] = c[0]*x[k] + c[1]*deltaX[k];
-	}
+        {
+        deltaX[k] = c[0]*x[k] + c[1]*deltaX[k];
+        }
       if (Verts[i].type == VTK_FIXED_VERTEX)
-	{
-	newPts[three]->SetPoint(i, newPts[zero]->GetPoint(i));
-	}
+        {
+        newPts[three]->SetPoint(i, newPts[zero]->GetPoint(i));
+        }
       else
-	{
-	newPts[three]->SetPoint(i, deltaX);
-	}
+        {
+        newPts[three]->SetPoint(i, deltaX);
+        }
       }//if can move point
     else
       {
@@ -617,64 +617,64 @@ void vtkWindowedSincPolyDataFilter::Execute()
   
   // for the rest of the iterations
   for ( iterationNumber=2, abortExecute=0;
-	iterationNumber <= this->NumberOfIterations && !abortExecute;
-	iterationNumber++ )
+        iterationNumber <= this->NumberOfIterations && !abortExecute;
+        iterationNumber++ )
     {
     if ( iterationNumber && !(iterationNumber % 5) )
       {
       this->UpdateProgress (0.5 + 0.5*iterationNumber/this->NumberOfIterations);
       if (this->GetAbortExecute())
-	{
-	abortExecute = 1;
-	break;
-	}
+        {
+        abortExecute = 1;
+        break;
+        }
       }
     
     for (i=0; i<numPts; i++) 
       {
       if ( Verts[i].edges != NULL &&
-	   (npts = Verts[i].edges->GetNumberOfIds()) > 0 )
+           (npts = Verts[i].edges->GetNumberOfIds()) > 0 )
         {
-	// point is allowed to move
-	p_x0 = newPts[zero]->GetPoint(i); //use current points
-	p_x1 = newPts[one]->GetPoint(i);
-	
-	deltaX[0] = deltaX[1] = deltaX[2] = 0.0;
-	
-	// calculate the negative laplacian of x1
-	for (j=0; j<npts; j++)
+        // point is allowed to move
+        p_x0 = newPts[zero]->GetPoint(i); //use current points
+        p_x1 = newPts[one]->GetPoint(i);
+        
+        deltaX[0] = deltaX[1] = deltaX[2] = 0.0;
+        
+        // calculate the negative laplacian of x1
+        for (j=0; j<npts; j++)
           {
-	  y = newPts[one]->GetPoint(Verts[i].edges->GetId(j));
-	  for (k=0; k<3; k++)
+          y = newPts[one]->GetPoint(Verts[i].edges->GetId(j));
+          for (k=0; k<3; k++)
             {
             deltaX[k] += (p_x1[k] - y[k]) / npts;
             }
           }//for all connected points
-	
-	// Taubin:  x2 = (x1 - x0) + (x1 - x2)
-	for (k=0; k<3; k++)
-	  {
-	  deltaX[k] = p_x1[k] - p_x0[k] + p_x1[k] - deltaX[k];
-	  }
-	newPts[two]->SetPoint(i, deltaX);
+        
+        // Taubin:  x2 = (x1 - x0) + (x1 - x2)
+        for (k=0; k<3; k++)
+          {
+          deltaX[k] = p_x1[k] - p_x0[k] + p_x1[k] - deltaX[k];
+          }
+        newPts[two]->SetPoint(i, deltaX);
 
-	// smooth the vertex (x3 = x3 + cj x2)
-	p_x3 = newPts[three]->GetPoint(i);
-	for (k=0;k<3;k++) 
-	  {
-	  xNew[k] = p_x3[k] + c[iterationNumber] * deltaX[k];
-	  }
-	if (Verts[i].type != VTK_FIXED_VERTEX)
-	  {
-	  newPts[three]->SetPoint(i,xNew);
-	  }
+        // smooth the vertex (x3 = x3 + cj x2)
+        p_x3 = newPts[three]->GetPoint(i);
+        for (k=0;k<3;k++) 
+          {
+          xNew[k] = p_x3[k] + c[iterationNumber] * deltaX[k];
+          }
+        if (Verts[i].type != VTK_FIXED_VERTEX)
+          {
+          newPts[three]->SetPoint(i,xNew);
+          }
         }//if can move point
       else
         {
-	// point is not allowed to move, just use the old point...
-	// (zero out the Laplacian)
-	newPts[one]->SetPoint(i, zerovector);
-	newPts[two]->SetPoint(i, zerovector);
+        // point is not allowed to move, just use the old point...
+        // (zero out the Laplacian)
+        newPts[one]->SetPoint(i, zerovector);
+        newPts[two]->SetPoint(i, zerovector);
         }
       }//for all points
 
@@ -714,7 +714,7 @@ void vtkWindowedSincPolyDataFilter::Execute()
       inPts->GetPoint(i,x1);
       newPts[zero]->GetPoint(i,x2);
       newScalars->SetComponent(i,0,
-			       sqrt(vtkMath::Distance2BetweenPoints(x1,x2)));
+                               sqrt(vtkMath::Distance2BetweenPoints(x1,x2)));
       }
     output->GetPointData()->SetScalars(newScalars);
     newScalars->Delete();
@@ -730,9 +730,9 @@ void vtkWindowedSincPolyDataFilter::Execute()
       inPts->GetPoint(i,x1);
       newPts[zero]->GetPoint(i,x2);
       for (j=0; j<3; j++)
-	{
-	x3[j] = x2[j] - x1[j];
-	}
+        {
+        x3[j] = x2[j] - x1[j];
+        }
       newVectors->SetTuple(i,x3);
       }
     output->GetPointData()->SetVectors(newVectors);

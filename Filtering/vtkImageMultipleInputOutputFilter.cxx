@@ -185,7 +185,7 @@ VTK_THREAD_RETURN_TYPE vtkImageMultiInOutThreadedExecute( void *arg )
   str = (vtkImageMultiThreadStruct *)(((ThreadInfoStruct *)(arg))->UserData);
   
   memcpy(ext,str->Filter->GetOutput()->GetUpdateExtent(),
-	 sizeof(int)*6);
+         sizeof(int)*6);
 
   // execute the actual method with appropriate extent
   // first find out how many pieces extent can be split into.

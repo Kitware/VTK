@@ -96,15 +96,15 @@ public:
   // Description:
   // Putting this here until I merge graphics and imaging streaming.
   virtual int SplitExtent(int splitExt[6], int startExt[6], 
-			  int num, int total);
+                          int num, int total);
 
   // Description:
   // The execute method created by the subclass.
   // This is kept public instead of protected since it is called
   // from a non-member thread function.
   virtual void ThreadedExecute(vtkImageData **inDatas, 
-			       vtkImageData *outData,
-			       int extent[6], int threadId);
+                               vtkImageData *outData,
+                               int extent[6], int threadId);
 
 
 
@@ -119,8 +119,8 @@ protected:
   void ComputeInputUpdateExtents( vtkDataObject *output );
   
   virtual void ComputeInputUpdateExtent( int inExt[6], 
-					 int outExt[6], 
-					 int whichInput );
+                                         int outExt[6], 
+                                         int whichInput );
 
 
   void ExecuteData(vtkDataObject *output);

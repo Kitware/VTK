@@ -109,9 +109,9 @@ int vtkMergePoints2D::IsInsertedPoint(float x[2])
       ptId = bucket->GetId(i);
       pt = this->Points->GetPoint(ptId);
       if (x[0] == pt[0] && x[1] == pt[1])
-	{
-	return ptId;
-	}
+        {
+        return ptId;
+        }
       }
     }
 

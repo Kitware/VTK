@@ -83,7 +83,7 @@ float *vtkLinearExtrusionFilter::ViaNormal(float x[3], vtkIdType id,
 
 float *vtkLinearExtrusionFilter::ViaVector(float x[3],
                                            vtkIdType vtkNotUsed(id), 
-					   vtkDataArray *vtkNotUsed(n))
+                                           vtkDataArray *vtkNotUsed(n))
 {
   static float xNew[3];
   int i;
@@ -97,7 +97,7 @@ float *vtkLinearExtrusionFilter::ViaVector(float x[3],
 }
 
 float *vtkLinearExtrusionFilter::ViaPoint(float x[3], vtkIdType vtkNotUsed(id),
-					  vtkDataArray *vtkNotUsed(n))
+                                          vtkDataArray *vtkNotUsed(n))
 {
   static float xNew[3];
   int i;
@@ -155,7 +155,7 @@ void vtkLinearExtrusionFilter::Execute()
     this->ExtrudePoint = &vtkLinearExtrusionFilter::ViaPoint;
     }
   else if ( this->ExtrusionType == VTK_NORMAL_EXTRUSION  &&
-	    (inNormals = pd->GetNormals()) != NULL )
+            (inNormals = pd->GetNormals()) != NULL )
     {
     this->ExtrudePoint = &vtkLinearExtrusionFilter::ViaNormal;
     inNormals = pd->GetNormals();
@@ -262,9 +262,9 @@ void vtkLinearExtrusionFilter::Execute()
         polyIds->InsertNextId(inCellId);
         newPolys->InsertNextCell(npts);
         for (i=0; i < npts; i++)
-	  {
+          {
           newPolys->InsertCellPoint(pts[i] + numPts);
-	  }
+          }
         polyIds->InsertNextId(inCellId);
         ++inCellId;
         }
@@ -278,9 +278,9 @@ void vtkLinearExtrusionFilter::Execute()
         stripIds->InsertNextId(inCellId);
         newStrips->InsertNextCell(npts);
         for (i=0; i < npts; i++)
-	  {
+          {
           newStrips->InsertCellPoint(pts[i] + numPts);
-	  }
+          }
         stripIds->InsertNextId(inCellId);
         ++inCellId;
         }

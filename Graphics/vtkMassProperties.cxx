@@ -230,7 +230,7 @@ void vtkMassProperties::Execute()
 
     // determine max unit normal component...
     //
-    absu[0] = fabs(u[0]); absu[1] = fabs(u[1]); absu[2] = fabs(u[2]);	
+    absu[0] = fabs(u[0]); absu[1] = fabs(u[1]); absu[2] = fabs(u[2]);   
 
     if (( absu[0] > absu[1]) && ( absu[0] > absu[2]) )
       {

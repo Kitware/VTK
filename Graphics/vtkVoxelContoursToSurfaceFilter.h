@@ -115,7 +115,7 @@ protected:
   void    SortLineList();
   
   void    CastLines( float *slice, float gridOrigin[3], 
-		     int gridSize[3], int type );
+                     int gridSize[3], int type );
 
   void    PushDistances( float *ptr, int gridSize[3], int chunkSize );
 private:

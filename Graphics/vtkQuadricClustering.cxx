@@ -428,7 +428,7 @@ void vtkQuadricClustering::AddTriangle(vtkIdType *binIds, float *pt0,
       }
     // This comparison could just as well be on triPtIds.
     if (binIds[0] != binIds[1] && binIds[0] != binIds[2] &&
-    	binIds[1] != binIds[2])
+        binIds[1] != binIds[2])
       {
       this->OutputTriangleArray->InsertNextCell(3, triPtIds);
       if (this->CopyCellData && this->GetInput())
@@ -799,8 +799,8 @@ void vtkQuadricClustering::EndAppend()
 
 //----------------------------------------------------------------------------
 void vtkQuadricClustering::ComputeRepresentativePoint(float quadric[9],
-						      vtkIdType binId,
-						      float point[3])
+                                                      vtkIdType binId,
+                                                      float point[3])
 {
   int i, j;
   float A[3][3], U[3][3], UT[3][3], VT[3][3], V[3][3];
