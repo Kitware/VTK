@@ -56,7 +56,7 @@ protected:
 
 #ifdef CMAKE_NO_EXPLICIT_TEMPLATE_INSTANTIATION
 // include the code
-#include "vtkImageProgressIterator.cxx"
+#include "vtkImageProgressIterator.txx"
 #endif
 
 #endif

@@ -72,9 +72,8 @@ protected:
   int    ContinuousIncrements[3];
 };
 
-#ifdef CMAKE_NO_EXPLICIT_TEMPLATE_INSTANTIATION
-// include the code
-#include "vtkImageIterator.cxx"
-#endif
+#ifdef CMAKE_NO_EXPLICIT_TEMPLATE_INSTATIATION
+#include "vtkImageIterator.txx"
+#endif 
 
 #endif

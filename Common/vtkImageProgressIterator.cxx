@@ -16,52 +16,8 @@
 
 =========================================================================*/
 
-#ifndef CMAKE_NO_EXPLICIT_TEMPLATE_INSTATIATION
-#include "vtkImageProgressIterator.h"
-#include "vtkImageData.h"
-#include "vtkProcessObject.h"
-#endif
-
-template <typename DType>
-vtkImageProgressIterator<DType>::vtkImageProgressIterator(vtkImageData *imgd, 
-                                                       int *ext, 
-                                                       vtkProcessObject *po, 
-                                                       int id) : 
-  vtkImageIterator<DType>(imgd,ext)
-{
-  this->Target = 
-    (unsigned long)((ext[5] - ext[4]+1)*(ext[3] - ext[2]+1)/50.0);
-  this->Target++;
-  this->Count = 0;
-  this->Count2 = 0;
-  this->ProcessObject = po;
-  this->ID = id;
-}
-
-template <typename DType>
-void vtkImageProgressIterator<DType>::NextSpan()
-{
-  this->Pointer = this->Pointer + this->Increments[1];
-  this->SpanEndPointer += this->Increments[1];
-  if (this->Pointer >= this->SliceEndPointer)
-    {
-    this->Pointer = this->Pointer + this->ContinuousIncrements[2];
-    this->SliceEndPointer += this->Increments[2];
-    }
-  if (this->ID)
-    {
-    if (this->Count2 == this->Target)
-      {
-      this->Count += this->Count2;
-      this->ProcessObject->UpdateProgress(this->Count/(50.0*this->Target));
-      this->Count2 = 0;
-      }
-    this->Count2++;
-    }
-}
-
-
 #ifndef CMAKE_NO_EXPLICIT_TEMPLATE_INSTANTIATION
+#include "vtkImageProgressIterator.txx"
 
 template class VTK_COMMON_EXPORT vtkImageProgressIterator<char>;
 template class VTK_COMMON_EXPORT vtkImageProgressIterator<int>;

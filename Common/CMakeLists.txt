@@ -62,6 +62,8 @@ vtkIdentityTransform
 vtkIdList 
 vtkIdTypeArray
 vtkImageData 
+vtkImageIterator
+vtkImageProgressIterator
 vtkImplicitFunctionCollection 
 vtkIndent 
 vtkInstantiator
@@ -174,6 +176,8 @@ WRAP_EXCLUDE_FILES(
   vtkCallbackCommand 
   vtkOldStyleCallbackCommand
   vtkErrorCode
+  vtkImageIterator
+  vtkImageProgressIterator
 )
 
 IF(VTK_MAKE_INSTANTIATOR)
