@@ -108,7 +108,8 @@ Java_vtk_vtkPanel_RenderCreate(JNIEnv *env, jobject canvas, jobject id0)
 #ifdef VTK_USE_CARBON
   temp0->SetWindowId((void *)dsi_mac->carbonWindowRef);
 #else
-  temp0->SetWindowId((void *)dsi_mac->cocoaWindowRef);
+  //temp0->SetWindowId((void *)dsi_mac->cocoaWindowRef);
+  temp0->SetWindowId((void *)dsi_mac->cocoaViewRef);
 #endif
 // otherwise use X11 code
 #else
