@@ -2,7 +2,7 @@
 #define    __FTGL__
 
 #if defined(VTKFTGL)
-#include "vtkfreetypeConfig.h"
+#include "vtkFreeTypeConfig.h"
 #include "vtkftglConfig.h"
 #endif
 
