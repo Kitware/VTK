@@ -650,12 +650,10 @@ void vtkQuadricClustering::AddVertex(vtkIdType binId, float *pt,
 
   if (geometryFlag)
     {
-    int flag = 1;
     // Now add the vert to the geometry.
     // Get the vertex from the bin.
     if (this->QuadricArray[binId].VertexId == -1)
       {
-      flag = 0;
       this->QuadricArray[binId].VertexId = this->NumberOfBinsUsed;
       this->NumberOfBinsUsed++;
       }

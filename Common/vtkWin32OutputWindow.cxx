@@ -215,7 +215,7 @@ int vtkWin32OutputWindow::Initialize()
   const int maxsize = 5242880;
   
   SendMessage(vtkWin32OutputWindow::OutputWindow, 
-              EM_LIMITTEXT, 5242880, 0L);
+              EM_LIMITTEXT, maxsize, 0L);
 
   
   // show the top level container window

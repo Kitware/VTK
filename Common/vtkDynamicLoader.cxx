@@ -141,7 +141,6 @@ const char* vtkDynamicLoader::LibExtension()
 
 const char* vtkDynamicLoader::LastError()
 {
-   DWORD errcode = GetLastError();
   LPVOID lpMsgBuf;
 
   FormatMessage( 

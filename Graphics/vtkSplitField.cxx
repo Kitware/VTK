@@ -356,15 +356,12 @@ void vtkSplitField::AddComponent(Component* op)
 
 Component* vtkSplitField::FindComponent(int index)
 {
-  Component* before;
   Component* cur = this->GetFirst();
   if (!cur) { return 0; }
 
-  before = 0;
   if (cur->Index == index) { return cur; }
   while (cur->Next)
     {
-    before = cur;
     if (cur->Next->Index == index)
       {
       return cur->Next;
