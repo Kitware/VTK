@@ -175,5 +175,5 @@ IF (VTK_WRAP_JAVA)
   ENDIF (JAVA_AWT_INCLUDE_PATH) 
 ENDIF (VTK_WRAP_JAVA)
 
-
-
+# The doxygen helper perl script location.
+SET(VTK_DOXYGEN_HOME ${VTK_SOURCE_DIR}/Utilities/Doxygen)
