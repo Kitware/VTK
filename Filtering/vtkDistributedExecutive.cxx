@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSource.h"
 
-vtkCxxRevisionMacro(vtkDistributedExecutive, "1.2");
+vtkCxxRevisionMacro(vtkDistributedExecutive, "1.3");
 vtkStandardNewMacro(vtkDistributedExecutive);
 vtkCxxSetObjectMacro(vtkDistributedExecutive, Algorithm, vtkAlgorithm);
 
@@ -214,7 +214,7 @@ void vtkDistributedExecutive::SetOutputData(vtkAlgorithm* algorithm, int port,
                   "by this executive: " << algorithm);
     return;
     }
-  return this->SetOutputData(port, newOutput);
+  this->SetOutputData(port, newOutput);
 }
 
 //----------------------------------------------------------------------------
