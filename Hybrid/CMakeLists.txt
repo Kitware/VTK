@@ -25,11 +25,6 @@ WRAP_EXCLUDE_FILES(vtkVRML)
 
 INCLUDE (${CMAKE_ROOT}/Modules/FindOpenGL.cmake)
 
-IF (WIN32)
-  SOURCE_FILES(Hybrid_SRCS vtkWin32OffscreenRenderWindow)
-  LINK_LIBRARIES ( ${OPENGL_LIBRARY} )
-ENDIF (WIN32)
-
 ADD_LIBRARY(vtkHybrid Hybrid_SRCS)
 
 IF (VTK_WRAP_TCL)
