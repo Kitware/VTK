@@ -41,10 +41,10 @@ public:
   vlGetMacro(PhiResolution,int);
 
   vlSetClampMacro(Theta,float,0.0,360.0);
-  vlGetMacro(Theta,int);
+  vlGetMacro(Theta,float);
 
   vlSetClampMacro(Phi,float,0.0,180.0);
-  vlGetMacro(Phi,int);
+  vlGetMacro(Phi,float);
 
 protected:
   void Execute();
