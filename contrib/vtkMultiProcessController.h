@@ -62,6 +62,9 @@ class vtkDataInformation;
 #define VTK_MP_CONTROLLER_ANY_SOURCE -1
 #define VTK_MP_CONTROLLER_INVALID_SOURCE -2
 
+// Internally implememented RMI to break the process loop.
+#define VTK_BREAK_RMI_TAG           239954
+
 
 class VTK_EXPORT vtkMultiProcessController : public vtkObject
 {
@@ -181,6 +184,13 @@ public:
   vtkGetMacro(ReceiveWaitTime, float);
   vtkGetMacro(ReceiveTime, float);
 
+  // Description:
+  // This will cause the ProcessRMIs loop to return.
+  // This also causes vtkUpStreamPorts to return from
+  // their WaitForUpdate loops.
+  vtkSetMacro(BreakFlag, int);
+  vtkGetMacro(BreakFlag, int);
+  
 protected:
   vtkMultiProcessController();
   ~vtkMultiProcessController();
@@ -205,7 +215,11 @@ protected:
   // The data may not take up all of the string.
   int MarshalDataLength;
   
-  // convenience method
+  // This is a flag that can be used by the ports to break
+  // their update loop. (same as ProcessRMIs)
+  int BreakFlag;
+
+// convenience method
   void DeleteAndSetMarshalString(char *str, int strLength);
   
   // Write and read from marshal string

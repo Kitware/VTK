@@ -71,8 +71,12 @@ public:
   void *Argument;
 };
 
-
-
+//----------------------------------------------------------------------------
+void vtkMultiProcessControllerBreakRMI(void *arg, int vtkNotUsed(id))
+{
+  vtkMultiProcessController *controller = (vtkMultiProcessController*)(arg);
+  controller->SetBreakFlag(1);
+}
 
 //----------------------------------------------------------------------------
 vtkMultiProcessController::vtkMultiProcessController()
@@ -106,6 +110,11 @@ vtkMultiProcessController::vtkMultiProcessController()
   this->ReceiveTime = 0.0;
   this->ReceiveWaitTime = 0.0;
 
+  this->BreakFlag = 0;
+  
+  // Define an rmi internally to exit from the processing loop.
+  this->AddRMI(vtkMultiProcessControllerBreakRMI, this,
+	       VTK_BREAK_RMI_TAG);
 }
 
 //----------------------------------------------------------------------------
@@ -162,12 +171,13 @@ void vtkMultiProcessController::PrintSelf(ostream& os, vtkIndent indent)
     os << nextIndent << rmi->Tag << endl;
     }
   
-  os << indent << "Send Wait Time: " << this->SendWaitTime << endl;
-  os << indent << "Send Time: " << this->SendTime << endl;
-  os << indent << "Receive Wait Time: " << this->ReceiveWaitTime << endl;
-  os << indent << "Receive Time: " << this->ReceiveTime << endl;
-  os << indent << "Read Time: " << this->ReadTime << endl;
-  os << indent << "Write Time: " << this->WriteTime << endl;
+  os << indent << "SendWaitTime: " << this->SendWaitTime << endl;
+  os << indent << "SendTime: " << this->SendTime << endl;
+  os << indent << "ReceiveWaitTime: " << this->ReceiveWaitTime << endl;
+  os << indent << "ReceiveTime: " << this->ReceiveTime << endl;
+  os << indent << "ReadTime: " << this->ReadTime << endl;
+  os << indent << "WriteTime: " << this->WriteTime << endl;
+  os << indent << "BreakFlag: " << this->BreakFlag << endl;
 }
 
 static vtkMultiProcessController *GLOBAL_VTK_MP_CONTROLLER = NULL;
@@ -392,6 +402,13 @@ void vtkMultiProcessController::ProcessRMIs()
 	{
 	(*rmi->Method)(rmi->Argument, remoteProcessId);
 	}     
+      }
+    
+    // check for break
+    if (this->BreakFlag)
+      {
+      this->BreakFlag = 0;
+      return;
       }
     }
 }

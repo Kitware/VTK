@@ -69,8 +69,8 @@ VTK_THREAD_RETURN_TYPE process_b( void *vtkNotUsed(arg) )
   iso->SetValue(0, 0.4);
   iso->SetNumberOfThreads(1);
   // Ask for half
-  //iso->GetOutput()->SetUpdateExtent(0, 2);
-  //iso->Update();
+  iso->GetOutput()->SetUpdateExtent(0, 2);
+  iso->Update();
 
   vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
   mapper->SetInput(iso->GetOutput());

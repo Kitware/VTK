@@ -170,8 +170,8 @@ void main( int argc, char *argv[] )
 
   
   controller->SetNumberOfProcesses(2);
-  controller->SetMultipleMethod(0, process_a, NULL);
-  controller->SetMultipleMethod(1, process_b, NULL);
+  controller->SetMultipleMethod(1, process_a, NULL);
+  controller->SetMultipleMethod(0, process_b, NULL);
   controller->MultipleMethodExecute();
 
   controller->UnRegister(NULL);

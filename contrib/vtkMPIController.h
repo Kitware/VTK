@@ -110,6 +110,8 @@ protected:
   vtkMPIController(const vtkMPIController&) {};
   void operator=(const vtkMPIController&) {};
 
+  // Initialize only once, finialize on destruction.
+  int Initialized;
 };
 
 

@@ -62,11 +62,17 @@ vtkMPIController* vtkMPIController::New()
 //----------------------------------------------------------------------------
 vtkMPIController::vtkMPIController()
 {
+  this->Initialized = 0;
 }
 
 //----------------------------------------------------------------------------
 vtkMPIController::~vtkMPIController()
 {
+  if (this->Initialized)
+    {
+    //MPI_Barrier (MPI_COMM_WORLD);
+    MPI_Finalize();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -78,6 +84,13 @@ void vtkMPIController::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkMPIController::Initialize(int argc, char *argv[])
 {
+  if (this->Initialized)
+    {
+    vtkErrorMacro("Already initialized");
+    return;
+    }
+  
+  this->Initialized = 1;
   this->Modified();
   MPI_Init(&argc, &argv);
   MPI_Comm_size(MPI_COMM_WORLD, &(this->MaximumNumberOfProcesses));

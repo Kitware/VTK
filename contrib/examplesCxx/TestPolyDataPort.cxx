@@ -43,11 +43,6 @@ VTK_THREAD_RETURN_TYPE process_a( void *vtkNotUsed(arg) )
 VTK_THREAD_RETURN_TYPE process_b( void *vtkNotUsed(arg) )
 {
   vtkMultiProcessController *controller;
-  vtkRenderer *ren = vtkRenderer::New();
-  vtkRenderWindow *renWindow = vtkRenderWindow::New();
-  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
-  vtkDownStreamPort *downStreamPort = vtkDownStreamPort::New();
-  vtkPolyDataMapper *coneMapper = vtkPolyDataMapper::New();
   int myid, otherid;
   
   putenv("DISPLAY=:0.0");
@@ -63,22 +58,27 @@ VTK_THREAD_RETURN_TYPE process_b( void *vtkNotUsed(arg) )
     otherid = 0;
     }
 
-  renWindow->AddRenderer(ren);
-  iren->SetRenderWindow(renWindow);
-  renWindow->SetSize( 300, 300 );
-  
-  
+  vtkDownStreamPort *downStreamPort = vtkDownStreamPort::New();
   downStreamPort->SetUpStreamProcessId(otherid);
   downStreamPort->SetTag(999);
+  downStreamPort->GetPolyDataOutput()->SetUpdateExtent(0, 2);
+  downStreamPort->Update();  
+
+  vtkPolyDataMapper *coneMapper = vtkPolyDataMapper::New();
   coneMapper->SetInput(downStreamPort->GetPolyDataOutput());
+
   vtkActor *coneActor = vtkActor::New();
   coneActor->SetMapper(coneMapper);
   
-  downStreamPort->GetPolyDataOutput()->SetUpdateExtent(0, 2);
-  downStreamPort->Update();
-  
-  // assign our actor to the renderer
+  vtkRenderer *ren = vtkRenderer::New();
   ren->AddActor(coneActor);
+  
+  vtkRenderWindow *renWindow = vtkRenderWindow::New();
+  renWindow->AddRenderer(ren);
+  renWindow->SetSize( 300, 300 );
+
+  vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  iren->SetRenderWindow(renWindow);  
   
   // draw the resulting scene
   renWindow->Render();
