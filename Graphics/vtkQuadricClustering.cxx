@@ -128,6 +128,12 @@ void vtkQuadricClustering::Execute()
     return;
     }
   
+  if (input->CheckAttributes())
+    {
+    // avoid crashing if input is not all we expect (is not consistent).
+    return;
+    }
+
   if (this->Debug)
     {
     tlog = vtkTimerLog::New();
