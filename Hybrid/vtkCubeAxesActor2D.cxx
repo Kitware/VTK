@@ -22,7 +22,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkCubeAxesActor2D, "1.50");
+vtkCxxRevisionMacro(vtkCubeAxesActor2D, "1.51");
 vtkStandardNewMacro(vtkCubeAxesActor2D);
 
 vtkCxxSetObjectMacro(vtkCubeAxesActor2D,Input, vtkDataSet);
@@ -785,6 +785,7 @@ void vtkCubeAxesActor2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Label Format: " << this->LabelFormat << "\n";
   os << indent << "Font Factor: " << this->FontFactor << "\n";
   os << indent << "Inertia: " << this->Inertia << "\n";
+  os << indent << "ShowActualBounds: " << this->ShowActualBounds << "\n";
   os << indent << "Corner Offset: " << this->CornerOffset << "\n";
   os << indent << "UseRanges: " << (this->UseRanges ? "On" : "Off") << "\n";
   os << indent << "Ranges: "
