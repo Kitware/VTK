@@ -64,7 +64,7 @@ vtkMergePoints* vtkMergePoints::New()
 // Determine whether point given by x[3] has been inserted into points list.
 // Return id of previously inserted point if this is true, otherwise return
 // -1.
-int vtkMergePoints::IsInsertedPoint(float x[3])
+int vtkMergePoints::IsInsertedPoint(const float x[3])
 {
   int i, ijk0, ijk1, ijk2;
   int idx;

@@ -85,21 +85,23 @@ public:
   // Insert point into object. No range checking performed (fast!).
   // Make sure you use SetNumberOfPoints() to allocate memory prior
   // to using SetPoint().
-  void SetPoint(int id, float x[3]) { this->Data->SetTuple(id,x);};
-  void SetPoint(int id, double x[3]) { this->Data->SetTuple(id,x);};
+  void SetPoint(int id, const float x[3]) { this->Data->SetTuple(id,x);};
+  void SetPoint(int id, const double x[3]) { this->Data->SetTuple(id,x);};
   void SetPoint(int id, double x, double y, double z);
 
   // Description:
   // Insert point into object. Range checking performed and memory
   // allocated as necessary.
-  void InsertPoint(int id, float x[3]) { this->Data->InsertTuple(id,x);};
-  void InsertPoint(int id, double x[3]) { this->Data->InsertTuple(id,x);};
+  void InsertPoint(int id, const float x[3]) { this->Data->InsertTuple(id,x);};
+  void InsertPoint(int id, const double x[3]) {this->Data->InsertTuple(id,x);};
   void InsertPoint(int id, double x, double y, double z);
   
   // Description:
   // Insert point into next available slot. Returns id of slot.
-  int InsertNextPoint(float x[3]) { return this->Data->InsertNextTuple(x);};
-  int InsertNextPoint(double x[3]) { return this->Data->InsertNextTuple(x);};
+  int InsertNextPoint(const float x[3]) { 
+    return this->Data->InsertNextTuple(x);};
+  int InsertNextPoint(const double x[3]) { 
+    return this->Data->InsertNextTuple(x);};
   int InsertNextPoint(double x, double y, double z);
 
   // Description:

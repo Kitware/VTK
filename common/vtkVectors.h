@@ -84,21 +84,25 @@ public:
   // Insert vector into object. No range checking performed (fast!).
   // Make sure you use SetNumberOfVectors() to allocate memory prior
   // to using SetVector().
-  void SetVector(int id, float v[3]) {this->Data->SetTuple(id,v);};
-  void SetVector(int id, double v[3]) {this->Data->SetTuple(id,v);};
+  void SetVector(int id, const float v[3]) {this->Data->SetTuple(id,v);};
+  void SetVector(int id, const double v[3]) {this->Data->SetTuple(id,v);};
   void SetVector(int id, double vx, double vy, double vz);
 
   // Description:
   // Insert vector into object. Range checking performed and memory
   // allocated as necessary.
-  void InsertVector(int id, float v[3]) {this->Data->InsertTuple(id,v);};
-  void InsertVector(int id, double v[3]) {this->Data->InsertTuple(id,v);};
+  void InsertVector(int id, const float v[3])
+    {this->Data->InsertTuple(id,v);};
+  void InsertVector(int id, const double v[3]) 
+    {this->Data->InsertTuple(id,v);};
   void InsertVector(int id, double vx, double vy, double vz);
 
   // Description:
   // Insert vector into next available slot. Returns id of slot.
-  int InsertNextVector(float v[3]) {return this->Data->InsertNextTuple(v);};
-  int InsertNextVector(double v[3]) {return this->Data->InsertNextTuple(v);};
+  int InsertNextVector(const float v[3]) 
+    {return this->Data->InsertNextTuple(v);};
+  int InsertNextVector(const double v[3]) 
+    {return this->Data->InsertNextTuple(v);};
   int InsertNextVector(double vx, double vy, double vz);
 
   // Description:
