@@ -22,13 +22,14 @@
 #include "vtkDataArray.h"
 #include "vtkMultiProcessController.h"
 
-vtkCxxRevisionMacro(vtkCompositer, "1.5");
+vtkCxxRevisionMacro(vtkCompositer, "1.6");
 vtkStandardNewMacro(vtkCompositer);
 
 //-------------------------------------------------------------------------
 vtkCompositer::vtkCompositer()
 {
   this->Controller = vtkMultiProcessController::GetGlobalController();
+  this->NumberOfProcesses = 1;
   if (this->Controller)
     {
     this->Controller->Register(this);
