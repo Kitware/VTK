@@ -210,8 +210,7 @@ void vtkXRenderWindow::SetPosition(int x, int y)
     return;
     }
 
-  XMoveResizeWindow(this->DisplayId,this->WindowId,x,y,
-                    this->Size[0], this->Size[1]);
+  XMoveWindow(this->DisplayId,this->WindowId,x,y);
   XSync(this->DisplayId,False);
 }
 
