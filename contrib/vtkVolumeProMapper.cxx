@@ -479,8 +479,8 @@ void vtkVolumeProMapper::UpdateProperties( vtkRenderer *ren, vtkVolume *vol )
     gradientTable = new double [this->GradientTableSize];
     for ( i = 0; i < this->GradientTableSize; i++ )
       {
-      gradientTable[i] = 0.5 +
-	goFunc->GetValue( ((float)(i) / this->GradientTableSize) * 255.0 );
+      gradientTable[i] =
+	goFunc->GetValue( ((float)(i)/(this->GradientTableSize-1)) * 255.0 );
       }
     
     this->Context->SetGradientOpacityModulation( VLItrue );

@@ -129,6 +129,7 @@ void vtkOpenGLVolumeProVG500Mapper::RenderHexagon(  vtkRenderer  *ren,
 
   glDisable( GL_BLEND );
   glDisable( GL_ALPHA_TEST );
+  glDisable( GL_TEXTURE_2D );
 
   // Pop the OpenGL modelview matrix
   glPopMatrix();
