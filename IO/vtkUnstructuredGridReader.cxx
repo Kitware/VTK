@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridReader, "1.68");
+vtkCxxRevisionMacro(vtkUnstructuredGridReader, "1.69");
 vtkStandardNewMacro(vtkUnstructuredGridReader);
 
 #ifdef read
@@ -42,14 +42,15 @@ vtkUnstructuredGridReader::~vtkUnstructuredGridReader()
 }
 
 //----------------------------------------------------------------------------
-vtkUnstructuredGrid *vtkUnstructuredGridReader::GetOutput()
+vtkUnstructuredGrid* vtkUnstructuredGridReader::GetOutput()
 {
-  if (this->NumberOfOutputs < 1)
-    {
-    return NULL;
-    }
-  
-  return (vtkUnstructuredGrid *)(this->Outputs[0]);
+  return this->GetOutput(0);
+}
+
+//----------------------------------------------------------------------------
+vtkUnstructuredGrid* vtkUnstructuredGridReader::GetOutput(int idx)
+{
+  return static_cast<vtkUnstructuredGrid*>(this->vtkSource::GetOutput(idx));
 }
 
 //----------------------------------------------------------------------------

@@ -21,7 +21,7 @@
 #include "vtkPointData.h"
 #include "vtkStructuredPoints.h"
 
-vtkCxxRevisionMacro(vtkStructuredPointsReader, "1.59");
+vtkCxxRevisionMacro(vtkStructuredPointsReader, "1.60");
 vtkStandardNewMacro(vtkStructuredPointsReader);
 
 vtkStructuredPointsReader::vtkStructuredPointsReader()
@@ -44,16 +44,16 @@ void vtkStructuredPointsReader::SetOutput(vtkStructuredPoints *output)
 }
 
 //----------------------------------------------------------------------------
-vtkStructuredPoints *vtkStructuredPointsReader::GetOutput()
+vtkStructuredPoints* vtkStructuredPointsReader::GetOutput()
 {
-  if (this->NumberOfOutputs < 1)
-    {
-    return NULL;
-    }
-  
-  return (vtkStructuredPoints *)(this->Outputs[0]);
+  return this->GetOutput(0);
 }
 
+//----------------------------------------------------------------------------
+vtkStructuredPoints* vtkStructuredPointsReader::GetOutput(int idx)
+{
+  return static_cast<vtkStructuredPoints*>(this->vtkSource::GetOutput(idx));
+}
 
 //----------------------------------------------------------------------------
 // Default method performs Update to get information.  Not all the old
