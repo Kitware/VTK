@@ -324,7 +324,6 @@ public:
 
   // Description:
   // Return the range of the array values for the given component. 
-  // Note that the range is computed every time GetRange() is called.
   // Range is copied into the array provided.
   void GetRange(float range[2], int comp)
     {
@@ -337,6 +336,22 @@ public:
       return this->Range;
     }
   virtual void ComputeRange(int comp);
+  // Description:
+  // Return the range of the array values for the 0th component. 
+  // Range is copied into the array provided.
+  float* GetRange()
+    {
+      this->ComputeRange(0);
+      return this->Range;
+    }
+
+  // Description:
+  // These methods return the Min and Max possible range of the native
+  // data type. For example if a vtkScalars consists of unsigned char
+  // data these will return (0,255). 
+  void GetDataTypeRange(double range[2]);
+  double GetDataTypeMin();
+  double GetDataTypeMax();
 
   // Description:
   // Return the maximum norm for the tuples.
