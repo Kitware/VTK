@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageGradient2D.h
+  Module:    vtkImageGradient.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,35 +38,62 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageGradient2D - magnitude and phase of gradient.
+// .NAME vtkImageGradient - Computes magnitude or vector of the gradient.
 // .SECTION Description
-// vtkImageGradient2D computes a gradient of 2d image using central
-// differences.  The output is always float and has three components.
-// The magnitude is returned in component 0 and the direction returned
-// in components 1 and 2 as a normalized vector.
+// vtkImageGradient computes either the gradient magnitude or gradient
+// vector of an image. "ComputeMagnitudeOn/Off" toggles between the two
+// behaviors.  If vectors is chosen, the results are placed along the
+// component axis.  Setting the axes determines whether the gradient
+// computed on 1D lines, 2D images, 3D volumes or higher dimensional 
+// images.  The default is two dimensional XY images.  OutputScalarType
+// is always float.
 
 
-#ifndef __vtkImageGradient2D_h
-#define __vtkImageGradient2D_h
+
+#ifndef __vtkImageGradient_h
+#define __vtkImageGradient_h
 
 
 #include "vtkImageSpatialFilter.h"
 
-class vtkImageGradient2D : public vtkImageSpatialFilter
+class vtkImageGradient : public vtkImageFilter
 {
 public:
-  vtkImageGradient2D();
-  char *GetClassName() {return "vtkImageGradient2D";};
+  vtkImageGradient();
+  char *GetClassName() {return "vtkImageGradient";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
-  void SetAxes(int axis0, int axis1);
   void InterceptCacheUpdate(vtkImageRegion *region);
+
+  // Description:
+  // This SetAxes method sets VTK_COMPONENT_AXIS as the num+1 axis.
+  // The superclass is told not to loop over this axis.
+  void SetAxes(int num, int *axes);
+  vtkImageSetMacro(Axes,int);
   
+  // Description:
+  // Compute Magnitude toggles between generating gradient magnitude 
+  // or gradient vector
+  vtkSetMacro(ComputeMagnitude, int);
+  vtkGetMacro(ComputeMagnitude, int);
+  vtkBooleanMacro(ComputeMagnitude, int);
+
+  // Description:
+  // If "HandleBoundariesOn" then boundary pixels are duplicated
+  // So central differences can get values.
+  vtkSetMacro(HandleBoundaries, int);
+  vtkGetMacro(HandleBoundaries, int);
+  vtkBooleanMacro(HandleBoundaries, int);
   
 protected:
-
+  int ComputeMagnitude;
+  int HandleBoundaries;
+  
+  
   void ComputeOutputImageInformation(vtkImageRegion *inRegion,
 				     vtkImageRegion *outRegion);
+  void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion, 
+					vtkImageRegion *inRegion);
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 
 };

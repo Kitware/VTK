@@ -47,9 +47,9 @@ vtkImageMatte::vtkImageMatte()
   this->Input = NULL;
   this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
   // Templated fill function only handles 4 dimensions.
-  // We should really have a separate SetAxes to overide NumberOfAxes.
+  // We should really have a separate SetAxes to overide Dimensionality.
   // Or have execute recursion termination depend on something else.
-  this->NumberOfAxes = 4;
+  this->Dimensionality = 4;
   this->SetBorderWidths(1, 1);
   this->SetBorderValue(0.0);
 }

@@ -51,7 +51,7 @@ vtkImageMagnify1D::vtkImageMagnify1D()
   this->SetAxes(VTK_IMAGE_X_AXIS);
   this->SetMagnificationFactor(1);
   this->InterpolateOff();
-  this->NumberOfAxes = 2;
+  this->Dimensionality = 2;
 }
 
 

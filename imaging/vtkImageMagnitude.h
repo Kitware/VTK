@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageTranslate4D.h
+  Module:    vtkImageMagnitude.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,43 +38,50 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageTranslate4D - Same data, different extent.
+// .NAME vtkImageMagnitude - Colapses 1 axis with magnitude function..
 // .SECTION Description
-// vtkImageTranslate4D translates images to different pixel
-// locations.  For example, this filter might be used as a time delay.
-// It is sort of wasteful to recopy the data, which illustrates
-// the need for non cached filters.
+// vtkImageMagnitude interprets one axes as a list of vector elements.
+// The filter compresses this axis into one value by taking the
+// magnitude of this vector.  By default the magnitude is taken over
+// VTK_IMAGE_COMPONENT_AXIS.  The output and input can be any
+// independent type.
 
 
-#ifndef __vtkImageTranslate4D_h
-#define __vtkImageTranslate4D_h
+
+#ifndef __vtkImageMagnitude_h
+#define __vtkImageMagnitude_h
 
 
 #include "vtkImageFilter.h"
 
-class vtkImageTranslate4D : public vtkImageFilter
+class vtkImageMagnitude : public vtkImageFilter
 {
 public:
-  vtkImageTranslate4D();
-  char *GetClassName() {return "vtkImageTranslate4D";};
+  vtkImageMagnitude();
+  char *GetClassName() {return "vtkImageMagnitude";};
 
   // Description:
-  // Set/Get the translation vector.
-  vtkSetVector4Macro(Translation,int);
-  vtkGetVector4Macro(Translation,int);
-
+  // We only allow one axis to be compressed.
+  void SetAxes(int num, int *axes);
+  vtkImageSetMacro(Axes,int);
+  
 protected:
-  int Translation[4];
 
   void ComputeOutputImageInformation(vtkImageRegion *inRegion,
-					     vtkImageRegion *outRegion);
-  void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,
-						vtkImageRegion *inRegion);
-  
+				     vtkImageRegion *outRegion);
+  void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion, 
+					vtkImageRegion *inRegion);
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 
 #endif
+
+
+
+
+
+
+
 
 
 

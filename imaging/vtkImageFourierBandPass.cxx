@@ -163,7 +163,7 @@ void vtkImageFourierBandPass::SetAxes(int num, int *axes)
 
   // over ride the nuber of axes so execute will only get
   // one complex pixel oer region.
-  this->NumberOfAxes = 1;
+  this->Dimensionality = 1;
 }
 
 

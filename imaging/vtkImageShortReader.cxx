@@ -57,7 +57,7 @@ vtkImageShortReader::vtkImageShortReader()
 		VTK_IMAGE_Z_AXIS, VTK_IMAGE_COMPONENT_AXIS);
 
   // since the update method will only read images.
-  this->NumberOfAxes = 2;
+  this->Dimensionality = 2;
   
   this->PixelMax = -9e99;
   this->PixelMin = +9e99;

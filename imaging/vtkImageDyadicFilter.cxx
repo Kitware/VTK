@@ -356,7 +356,7 @@ void vtkImageDyadicFilter::Execute(int dim, vtkImageRegion *inRegion1,
   
 
   // Terminate recursion?
-  if (dim <= this->NumberOfAxes)
+  if (dim <= this->Dimensionality)
     {
     this->Execute(inRegion1, inRegion2, outRegion);
     return;

@@ -31,15 +31,14 @@ vtkImageFourierFilter.o \
 vtkImageFourierWavelet2D.o \
 vtkImageGaussianSmooth.o \
 vtkImageGaussianSmooth1D.o \
-vtkImageGradient2D.o \
-vtkImageGradient3D.o \
+vtkImageGradient.o \
 vtkImageHarrWavelet2D.o \
 vtkImageInPlaceFilter.o \
 vtkImageIslandRemoval2D.o \
 vtkImageMagnify1D.o \
 vtkImageMagnify.o \
+vtkImageMagnitude.o \
 vtkImageMarkBoundary.o \
-vtkImageMatte4D.o \
 vtkImageMatte.o \
 vtkImageMedian.o \
 vtkImageMIPFilter.o \
@@ -78,15 +77,14 @@ tcl/vtkImageFourierFilterTcl.o \
 tcl/vtkImageFourierWavelet2DTcl.o \
 tcl/vtkImageGaussianSmoothTcl.o \
 tcl/vtkImageGaussianSmooth1DTcl.o \
-tcl/vtkImageGradient2DTcl.o \
-tcl/vtkImageGradient3DTcl.o \
+tcl/vtkImageGradientTcl.o \
 tcl/vtkImageHarrWavelet2DTcl.o \
 tcl/vtkImageInPlaceFilterTcl.o \
 tcl/vtkImageIslandRemoval2DTcl.o \
 tcl/vtkImageMagnify1DTcl.o \
 tcl/vtkImageMagnifyTcl.o \
+tcl/vtkImageMagnitudeTcl.o \
 tcl/vtkImageMarkBoundaryTcl.o \
-tcl/vtkImageMatte4DTcl.o \
 tcl/vtkImageMatteTcl.o \
 tcl/vtkImageMedianTcl.o \
 tcl/vtkImageMIPFilterTcl.o \
@@ -123,15 +121,14 @@ vtkImageFourierFilter.h \
 vtkImageFourierWavelet2D.h \
 vtkImageGaussianSmooth.h \
 vtkImageGaussianSmooth1D.h \
-vtkImageGradient2D.h \
-vtkImageGradient3D.h \
+vtkImageGradient.h \
 vtkImageHarrWavelet2D.h \
 vtkImageInPlaceFilter.h \
 vtkImageIslandRemoval2D.h \
 vtkImageMagnify1D.h \
 vtkImageMagnify.h \
+vtkImageMagnitude.h \
 vtkImageMarkBoundary.h \
-vtkImageMatte4D.h \
 vtkImageMatte.h \
 vtkImageMedian.h \
 vtkImageMIPFilter.h \
@@ -262,11 +259,8 @@ tcl/vtkImageGaussianSmoothTcl.cxx: vtkImageGaussianSmooth.h ../tcl/cpp_parse
 tcl/vtkImageGaussianSmooth1DTcl.cxx: vtkImageGaussianSmooth1D.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageGaussianSmooth1DTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageGaussianSmooth1D.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageGaussianSmooth1DTcl.cxx
 
-tcl/vtkImageGradient2DTcl.cxx: vtkImageGradient2D.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImageGradient2DTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageGradient2D.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageGradient2DTcl.cxx
-
-tcl/vtkImageGradient3DTcl.cxx: vtkImageGradient3D.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImageGradient3DTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageGradient3D.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageGradient3DTcl.cxx
+tcl/vtkImageGradientTcl.cxx: vtkImageGradient.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageGradientTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageGradient.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageGradientTcl.cxx
 
 tcl/vtkImageHarrWavelet2DTcl.cxx: vtkImageHarrWavelet2D.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageHarrWavelet2DTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageHarrWavelet2D.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageHarrWavelet2DTcl.cxx
@@ -283,11 +277,11 @@ tcl/vtkImageMagnify1DTcl.cxx: vtkImageMagnify1D.h ../tcl/cpp_parse
 tcl/vtkImageMagnifyTcl.cxx: vtkImageMagnify.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageMagnifyTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageMagnify.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageMagnifyTcl.cxx
 
+tcl/vtkImageMagnitudeTcl.cxx: vtkImageMagnitude.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageMagnitudeTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageMagnitude.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageMagnitudeTcl.cxx
+
 tcl/vtkImageMarkBoundaryTcl.cxx: vtkImageMarkBoundary.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageMarkBoundaryTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageMarkBoundary.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageMarkBoundaryTcl.cxx
-
-tcl/vtkImageMatte4DTcl.cxx: vtkImageMatte4D.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImageMatte4DTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageMatte4D.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageMatte4DTcl.cxx
 
 tcl/vtkImageMatteTcl.cxx: vtkImageMatte.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageMatteTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageMatte.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageMatteTcl.cxx

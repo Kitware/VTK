@@ -330,7 +330,7 @@ void vtkImageSpatialFilter::ExecuteCenter(int dim,
 
   
   // Terminate recursion?
-  if (dim <= this->NumberOfAxes)
+  if (dim <= this->Dimensionality)
     {
     this->ExecuteCenter(inRegion, outRegion);
     return;
