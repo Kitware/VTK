@@ -105,6 +105,7 @@ void vtkLabeledDataMapper::RenderOverlay(vtkViewport *viewport,
 					 vtkActor2D *actor)
 {
   int i;
+  float val, x[3];
   vtkDataSet *input=this->GetInput();
 
   if ( ! input )
@@ -114,6 +115,9 @@ void vtkLabeledDataMapper::RenderOverlay(vtkViewport *viewport,
     }
   for (i=0; i<this->NumberOfLabels; i++)
     {
+    this->Input->GetPoint(i,x);
+    actor->GetPositionCoordinate()->SetCoordinateSystemToWorld();
+    actor->GetPositionCoordinate()->SetValue(x);
     this->TextMappers[i]->RenderOverlay(viewport, actor);
     }
 }
