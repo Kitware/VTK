@@ -116,7 +116,7 @@ void vtkPerspectiveTransform::Concatenate(vtkHomogeneousTransform *transform)
     }
   this->Concatenation->Concatenate(transform); 
   this->Modified(); 
-};
+}
 
 //----------------------------------------------------------------------------
 void vtkPerspectiveTransform::SetInput(vtkHomogeneousTransform *input)
