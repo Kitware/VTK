@@ -27,10 +27,11 @@
 #include "vtkPolyData.h"
 #include "vtkSimpleScalarTree.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkCutter.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkContourGrid, "1.29");
+vtkCxxRevisionMacro(vtkContourGrid, "1.30");
 vtkStandardNewMacro(vtkContourGrid);
 
 // Construct object with initial range (0,1) and single contour value
@@ -155,70 +156,113 @@ void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
   //
   if ( !useScalarTree )
     {
-    cellArrayPtr = grid->GetCells()->GetPointer();
-    for (cellId=0; cellId < numCells && !abortExecute; cellId++)
+    // Three passes over the cells to process lower dimensional cells first.
+    // For poly data output cells need to be added in the order:
+    // verts, lines and then polys, or cell data gets mixed up.
+    // A better solution is to have an unstructured grid output.
+    // I create a table that maps cell type to cell dimensionality,
+    // because I need a fast way to get cell dimensionality.
+    // This assumes GetCell is slow and GetCellType is fast.
+    // I do not like hard coding a list of cell types here, 
+    // but I do not want to add GetCellDimension(vtkIdType cellId)
+    // to the vtkDataSet API.  Since I anticipate that the output
+    // will change to vtkUnstructuredGrid.  This temporary solution 
+    // is acceptable.
+    //
+    int cellType;
+    unsigned char cellTypeDimensions[VTK_NUMBER_OF_CELL_TYPES];
+    vtkCutter::GetCellTypeDimensions(cellTypeDimensions);
+    int dimensionality;
+    // We skip 0d cells (points), because they cannot be cut (generate no data).
+    for (dimensionality = 1; dimensionality <= 3; ++dimensionality)
       {
-      numPoints = cellArrayPtr[cellArrayIt];
-      cellArrayIt++;
-      
-      //find min and max values in scalar data
-      range[0] = scalarArrayPtr[cellArrayPtr[cellArrayIt]];
-      range[1] = scalarArrayPtr[cellArrayPtr[cellArrayIt]];
-      cellArrayIt++;
-      
-      for (i = 1; i < numPoints; i++)
+      // Loop over all cells; get scalar values for all cell points
+      // and process each cell.
+      //
+      cellArrayIt = 0;
+      cellArrayPtr = grid->GetCells()->GetPointer();
+      for (cellId=0; cellId < numCells && !abortExecute; cellId++)
         {
-        tempScalar = scalarArrayPtr[cellArrayPtr[cellArrayIt]];
-        cellArrayIt++;
-        if (tempScalar <= range[0])
-          {
-          range[0] = tempScalar;
-          } //if tempScalar <= min range value
-        if (tempScalar >= range[1])
-          {
-          range[1] = tempScalar;
-          } //if tempScalar >= max range value
-        } // for all points in this cell
-      
-      if ( ! (cellId % 5000) ) 
-        {
-        self->UpdateProgress ((double)cellId/numCells);
-        if (self->GetAbortExecute())
-          {
-          abortExecute = 1;
-          break;
+        numPoints = cellArrayPtr[cellArrayIt];
+        // I assume that "GetCellType" is fast.
+        cellType = input->GetCellType(cellId);
+        if (cellType >= VTK_NUMBER_OF_CELL_TYPES)
+          { // Protect against new cell types added.
+          vtkGenericWarningMacro("Unknown cell type " << cellType);
+          cellArrayIt += 1+numPoints;
+          continue;
           }
-        }
-      
-      for (i = 0; i < numContours; i++)
-        {
-        if ((values[i] >= range[0]) && (values[i] <= range[1]))
+        if (cellTypeDimensions[cellType] != dimensionality)
           {
-          needCell = 1;
-          } // if contour value in range for this cell
-        } // end for numContours
-      
-      if (needCell)
-        {
-        cell = input->GetCell(cellId);
-        cellPts = cell->GetPointIds();
-        inScalars->GetTuples(cellPts,cellScalars);
+          cellArrayIt += 1+numPoints;
+          continue;
+          }
+        cellArrayIt++;
         
-        for (i=0; i < numContours; i++)
+        //find min and max values in scalar data
+        range[0] = scalarArrayPtr[cellArrayPtr[cellArrayIt]];
+        range[1] = scalarArrayPtr[cellArrayPtr[cellArrayIt]];
+        cellArrayIt++;
+        
+        for (i = 1; i < numPoints; i++)
+          {
+          tempScalar = scalarArrayPtr[cellArrayPtr[cellArrayIt]];
+          cellArrayIt++;
+          if (tempScalar <= range[0])
+            {
+            range[0] = tempScalar;
+            } //if tempScalar <= min range value
+          if (tempScalar >= range[1])
+            {
+            range[1] = tempScalar;
+            } //if tempScalar >= max range value
+          } // for all points in this cell
+        
+        if (dimensionality == 3 &&  ! (cellId % 5000) ) 
+          {
+          self->UpdateProgress ((double)cellId/numCells);
+          if (self->GetAbortExecute())
+            {
+            abortExecute = 1;
+            break;
+            }
+          }
+        
+        for (i = 0; i < numContours; i++)
           {
           if ((values[i] >= range[0]) && (values[i] <= range[1]))
             {
-            cell->Contour(values[i], cellScalars, locator,
-                          newVerts, newLines, newPolys, inPd, outPd,
-                          inCd, cellId, outCd);
-            } // if contour value in range of values for this cell
-          } // for all contour values
-        } // if contour goes through this cell
-      needCell = 0;
-      } // for all cells
+            needCell = 1;
+            } // if contour value in range for this cell
+          } // end for numContours
+        
+        if (needCell)
+          {
+          cell = input->GetCell(cellId);
+          cellPts = cell->GetPointIds();
+          inScalars->GetTuples(cellPts,cellScalars);
+          
+          for (i=0; i < numContours; i++)
+            {
+            if ((values[i] >= range[0]) && (values[i] <= range[1]))
+              {
+              cell->Contour(values[i], cellScalars, locator,
+                            newVerts, newLines, newPolys, inPd, outPd,
+                            inCd, cellId, outCd);
+              } // if contour value in range of values for this cell
+            } // for all contour values
+          } // if contour goes through this cell
+        needCell = 0;
+        } // for all cells
+      } // For all dimensions.
     } //if using scalar tree
   else
     {
+    // Note: This will have problems when input contains 2D and 3D cells.
+    // CellData will get scrabled because of the implicit ordering of
+    // verts, lines and polys in vtkPolyData.  The solution
+    // is to convert this filter to create unstructured grid.
+    //
     if ( scalarTree == NULL )
       {
       scalarTree = vtkSimpleScalarTree::New();

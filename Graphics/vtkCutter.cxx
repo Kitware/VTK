@@ -32,7 +32,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCutter, "1.81");
+vtkCxxRevisionMacro(vtkCutter, "1.82");
 vtkStandardNewMacro(vtkCutter);
 vtkCxxSetObjectMacro(vtkCutter,CutFunction,vtkImplicitFunction);
 
@@ -127,6 +127,34 @@ int vtkCutter::RequestData(
   return 1;
 }
 
+void vtkCutter::GetCellTypeDimensions(unsigned char* cellTypeDimensions)
+{
+  // Assume most cells will be 3d.
+  memset(cellTypeDimensions, 3, VTK_NUMBER_OF_CELL_TYPES);
+  cellTypeDimensions[VTK_EMPTY_CELL] = 0;
+  cellTypeDimensions[VTK_VERTEX] = 0;
+  cellTypeDimensions[VTK_POLY_VERTEX] = 0;
+  cellTypeDimensions[VTK_LINE] = 1;
+  cellTypeDimensions[VTK_POLY_LINE] = 1;
+  cellTypeDimensions[VTK_QUADRATIC_EDGE] = 1;
+  cellTypeDimensions[VTK_PARAMETRIC_CURVE] = 1;
+  cellTypeDimensions[VTK_HIGHER_ORDER_EDGE] = 1;
+  cellTypeDimensions[VTK_TRIANGLE] = 2;
+  cellTypeDimensions[VTK_TRIANGLE_STRIP] = 2;
+  cellTypeDimensions[VTK_POLYGON] = 2;
+  cellTypeDimensions[VTK_PIXEL] = 2;
+  cellTypeDimensions[VTK_QUAD] = 2;
+  cellTypeDimensions[VTK_QUADRATIC_TRIANGLE] = 2;
+  cellTypeDimensions[VTK_QUADRATIC_QUAD] = 2;
+  cellTypeDimensions[VTK_PARAMETRIC_SURFACE] = 2;
+  cellTypeDimensions[VTK_PARAMETRIC_TRI_SURFACE] = 2;
+  cellTypeDimensions[VTK_PARAMETRIC_QUAD_SURFACE] = 2;
+  cellTypeDimensions[VTK_HIGHER_ORDER_TRIANGLE] = 2;
+  cellTypeDimensions[VTK_HIGHER_ORDER_QUAD] = 2;
+  cellTypeDimensions[VTK_HIGHER_ORDER_POLYGON] = 2;
+}
+
+
 void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
 {
   vtkIdType cellId, i;
@@ -211,6 +239,9 @@ void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
     // Loop over all contour values.  Then for each contour value, 
     // loop over all cells.
     //
+    // This is going to have a problem if the input has 2D and 3D cells.
+    // I am fixing a bug where cell data is scrambled becauses with 
+    // vtkPolyData output, verts and lines have lower cell ids than triangles.
     for (iter=0; iter < numContours && !abortExecute; iter++)
       {
       // Loop over all cells; get scalar values for all cell points
@@ -248,39 +279,71 @@ void vtkCutter::DataSetCutter(vtkDataSet *input, vtkPolyData *output)
 
   else // VTK_SORT_BY_VALUE:
     {
-    // Loop over all cells; get scalar values for all cell points
-    // and process each cell.
+    // Three passes over the cells to process lower dimensional cells first.
+    // For poly data output cells need to be added in the order:
+    // verts, lines and then polys, or cell data gets mixed up.
+    // A better solution is to have an unstructured grid output.
+    // I create a table that maps cell type to cell dimensionality,
+    // because I need a fast way to get cell dimensionality.
+    // This assumes GetCell is slow and GetCellType is fast.
+    // I do not like hard coding a list of cell types here, 
+    // but I do not want to add GetCellDimension(vtkIdType cellId)
+    // to the vtkDataSet API.  Since I anticipate that the output
+    // will change to vtkUnstructuredGrid.  This temporary solution 
+    // is acceptable.
     //
-    for (cellId=0; cellId < numCells && !abortExecute; cellId++)
+    int cellType;
+    unsigned char cellTypeDimensions[VTK_NUMBER_OF_CELL_TYPES];
+    vtkCutter::GetCellTypeDimensions(cellTypeDimensions);
+    int dimensionality;
+    // We skip 0d cells (points), because they cannot be cut (generate no data).
+    for (dimensionality = 1; dimensionality <= 3; ++dimensionality)
       {
-      input->GetCell(cellId,cell);
-      cellPts = cell->GetPoints();
-      cellIds = cell->GetPointIds();
-
-      numCellPts = cellPts->GetNumberOfPoints();
-      cellScalars->SetNumberOfTuples(numCellPts);
-      for (i=0; i < numCellPts; i++)
+      // Loop over all cells; get scalar values for all cell points
+      // and process each cell.
+      //
+      for (cellId=0; cellId < numCells && !abortExecute; cellId++)
         {
-        s = cutScalars->GetComponent(cellIds->GetId(i),0);
-        cellScalars->SetTuple(i,&s);
-        }
-
-      // Loop over all contour values.
-      for (iter=0; iter < numContours && !abortExecute; iter++)
-        {
-        if ( !(++cut % progressInterval) )
-          {
-          vtkDebugMacro(<<"Cutting #" << cut);
-          this->UpdateProgress ((double)cut/numCuts);
-          abortExecute = this->GetAbortExecute();
+        // I assume that "GetCellType" is fast.
+        cellType = input->GetCellType(cellId);
+        if (cellType >= VTK_NUMBER_OF_CELL_TYPES)
+          { // Protect against new cell types added.
+          vtkErrorMacro("Unknown cell type " << cellType);
+          continue;
           }
-        value = this->ContourValues->GetValue(iter);
-        cell->Contour(value, cellScalars, this->Locator, 
-                      newVerts, newLines, newPolys, inPD, outPD,
-                      inCD, cellId, outCD);
+        if (cellTypeDimensions[cellType] != dimensionality)
+          {
+          continue;
+          }
+        input->GetCell(cellId,cell);
+        cellPts = cell->GetPoints();
+        cellIds = cell->GetPointIds();
 
-        } // for all contour values
-      } // for all cells
+        numCellPts = cellPts->GetNumberOfPoints();
+        cellScalars->SetNumberOfTuples(numCellPts);
+        for (i=0; i < numCellPts; i++)
+          {
+          s = cutScalars->GetComponent(cellIds->GetId(i),0);
+          cellScalars->SetTuple(i,&s);
+          }
+
+        // Loop over all contour values.
+        for (iter=0; iter < numContours && !abortExecute; iter++)
+          {
+          if (dimensionality == 3 && !(++cut % progressInterval) )
+            {
+            vtkDebugMacro(<<"Cutting #" << cut);
+            this->UpdateProgress ((double)cut/numCuts);
+            abortExecute = this->GetAbortExecute();
+            }
+          value = this->ContourValues->GetValue(iter);
+          cell->Contour(value, cellScalars, this->Locator, 
+                        newVerts, newLines, newPolys, inPD, outPD,
+                        inCD, cellId, outCD);
+
+          } // for all contour values
+        } // for all cells
+      } // for all dimensions.
     } // sort by value
 
   // Update ourselves.  Because we don't know upfront how many verts, lines,
@@ -481,67 +544,102 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
 
   else // SORT_BY_VALUE:
     {
-    // Loop over all cells; get scalar values for all cell points
-    // and process each cell.
+    // Three passes over the cells to process lower dimensional cells first.
+    // For poly data output cells need to be added in the order:
+    // verts, lines and then polys, or cell data gets mixed up.
+    // A better solution is to have an unstructured grid output.
+    // I create a table that maps cell type to cell dimensionality,
+    // because I need a fast way to get cell dimensionality.
+    // This assumes GetCell is slow and GetCellType is fast.
+    // I do not like hard coding a list of cell types here, 
+    // but I do not want to add GetCellDimension(vtkIdType cellId)
+    // to the vtkDataSet API.  Since I anticipate that the output
+    // will change to vtkUnstructuredGrid.  This temporary solution 
+    // is acceptable.
     //
-    for (cellId=0; cellId < numCells && !abortExecute; cellId++)
+    int cellType;
+    unsigned char cellTypeDimensions[VTK_NUMBER_OF_CELL_TYPES];
+    vtkCutter::GetCellTypeDimensions(cellTypeDimensions);
+    int dimensionality;
+    // We skip 0d cells (points), because they cannot be cut (generate no data).
+    for (dimensionality = 1; dimensionality <= 3; ++dimensionality)
       {
-      numCellPts = cellArrayPtr[cellArrayIt];
-      cellArrayIt++;
-          
-      //find min and max values in scalar data
-      range[0] = scalarArrayPtr[cellArrayPtr[cellArrayIt]];
-      range[1] = scalarArrayPtr[cellArrayPtr[cellArrayIt]];
-      cellArrayIt++;
-          
-      for (i = 1; i < numCellPts; i++)
+      // Loop over all cells; get scalar values for all cell points
+      // and process each cell.
+      //
+      cellArrayIt = 0;
+      for (cellId=0; cellId < numCells && !abortExecute; cellId++)
         {
-        tempScalar = scalarArrayPtr[cellArrayPtr[cellArrayIt]];
-        cellArrayIt++;
-        if (tempScalar <= range[0])
-          {
-          range[0] = tempScalar;
-          } //if tempScalar <= min range value
-        if (tempScalar >= range[1])
-          {
-          range[1] = tempScalar;
-          } //if tempScalar >= max range value
-        } // for all points in this cell
-          
-      int needCell = 0;
-      for (int cont = 0; cont < numContours; ++cont) 
-        {
-        double val = this->ContourValues->GetValue(cont);
-        if (val >= range[0] && val <= range[1]) 
-          {
-          needCell = 1;
-          break;
+        numCellPts = cellArrayPtr[cellArrayIt];
+        // I assume that "GetCellType" is fast.
+        cellType = input->GetCellType(cellId);
+        if (cellType >= VTK_NUMBER_OF_CELL_TYPES)
+          { // Protect against new cell types added.
+          vtkErrorMacro("Unknown cell type " << cellType);
+          cellArrayIt += 1+numCellPts;
+          continue;
           }
-        }
-          
-      if (needCell) 
-        {
-        vtkCell *cell = input->GetCell(cellId);
-        cellIds = cell->GetPointIds();
-        cutScalars->GetTuples(cellIds,cellScalars);
-        // Loop over all contour values.
-        for (iter=0; iter < numContours && !abortExecute; iter++)
+        if (cellTypeDimensions[cellType] != dimensionality)
           {
-          if ( !(++cut % progressInterval) )
-            {
-            vtkDebugMacro(<<"Cutting #" << cut);
-            this->UpdateProgress ((double)cut/numCuts);
-            abortExecute = this->GetAbortExecute();
-            }
-          value = this->ContourValues->GetValue(iter);
-                
-          cell->Contour(value, cellScalars, this->Locator, 
-                        newVerts, newLines, newPolys, inPD, outPD,
-                        inCD, cellId, outCD);
-          } // for all contour values
+          cellArrayIt += 1+numCellPts;
+          continue;
+          }
+        cellArrayIt++;
             
-        } // if need cell
-      } // for all cells
+        //find min and max values in scalar data
+        range[0] = scalarArrayPtr[cellArrayPtr[cellArrayIt]];
+        range[1] = scalarArrayPtr[cellArrayPtr[cellArrayIt]];
+        cellArrayIt++;
+            
+        for (i = 1; i < numCellPts; i++)
+          {
+          tempScalar = scalarArrayPtr[cellArrayPtr[cellArrayIt]];
+          cellArrayIt++;
+          if (tempScalar <= range[0])
+            {
+            range[0] = tempScalar;
+            } //if tempScalar <= min range value
+          if (tempScalar >= range[1])
+            {
+            range[1] = tempScalar;
+            } //if tempScalar >= max range value
+          } // for all points in this cell
+            
+        int needCell = 0;
+        for (int cont = 0; cont < numContours; ++cont) 
+          {
+          double val = this->ContourValues->GetValue(cont);
+          if (val >= range[0] && val <= range[1]) 
+            {
+            needCell = 1;
+            break;
+            }
+          }
+            
+        if (needCell) 
+          {
+          vtkCell *cell = input->GetCell(cellId);
+          cellIds = cell->GetPointIds();
+          cutScalars->GetTuples(cellIds,cellScalars);
+          // Loop over all contour values.
+          for (iter=0; iter < numContours && !abortExecute; iter++)
+            {
+            if (dimensionality == 3 && !(++cut % progressInterval) )
+              {
+              vtkDebugMacro(<<"Cutting #" << cut);
+              this->UpdateProgress ((double)cut/numCuts);
+              abortExecute = this->GetAbortExecute();
+              }
+            value = this->ContourValues->GetValue(iter);
+                  
+            cell->Contour(value, cellScalars, this->Locator, 
+                          newVerts, newLines, newPolys, inPD, outPD,
+                          inCD, cellId, outCD);
+            } // for all contour values
+              
+          } // if need cell
+        } // for all cells
+      } // for all dimensions (1,2,3).
     } // sort by value
   
   // Update ourselves.  Because we don't know upfront how many verts, lines,

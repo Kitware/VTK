@@ -26,7 +26,7 @@
 #include "vtkPolygon.h"
 #include "vtkQuadric.h"
 
-vtkCxxRevisionMacro(vtkTriangle, "1.2");
+vtkCxxRevisionMacro(vtkTriangle, "1.3");
 vtkStandardNewMacro(vtkTriangle);
 
 //----------------------------------------------------------------------------
@@ -375,7 +375,7 @@ static int edges[3][2] = { {0,1}, {1,2}, {2,0} };
 //----------------------------------------------------------------------------
 void vtkTriangle::Contour(double value, vtkDataArray *cellScalars, 
                           vtkPointLocator *locator,
-                          vtkCellArray *vtkNotUsed(verts), 
+                          vtkCellArray *verts, 
                           vtkCellArray *lines, 
                           vtkCellArray *vtkNotUsed(polys), 
                           vtkPointData *inPd, vtkPointData *outPd,
@@ -389,6 +389,7 @@ void vtkTriangle::Contour(double value, vtkDataArray *cellScalars,
   vtkIdType pts[2];
   int e1, e2, newCellId;
   double t, x1[3], x2[3], x[3], deltaScalar;
+  vtkIdType offset = verts->GetNumberOfCells();
 
   // Build the case table
   for ( i=0, index = 0; i < 3; i++)
@@ -450,7 +451,7 @@ void vtkTriangle::Contour(double value, vtkDataArray *cellScalars,
     // check for degenerate line
     if ( pts[0] != pts[1] )
       {
-      newCellId = lines->InsertNextCell(2,pts);
+      newCellId = offset + lines->InsertNextCell(2,pts);
       outCd->CopyData(inCd,cellId,newCellId);
       }
     }

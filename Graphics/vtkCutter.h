@@ -43,6 +43,9 @@
 
 #define VTK_SORT_BY_VALUE 0
 #define VTK_SORT_BY_CELL 1
+// This does not really belong here,  ut it is for a temporary
+// fix until this filter can be converted to geernate unstructured grids.
+#define VTK_NUMBER_OF_CELL_TYPES 68
 
 class vtkImplicitFunction;
 class vtkPointLocator;
@@ -140,6 +143,10 @@ public:
   //      in a back-to-front or front-to-back order. This is very problem 
   //      dependent.
   // For most applications, the default order is fine (and faster).
+  //
+  // Sort by cell is going to have a problem if the input has 2D and 3D cells.
+  // Cell data will be scrambled becauses with 
+  // vtkPolyData output, verts and lines have lower cell ids than triangles.
   vtkSetClampMacro(SortBy,int,VTK_SORT_BY_VALUE,VTK_SORT_BY_CELL);
   vtkGetMacro(SortBy,int);
   void SetSortByToSortByValue() 
@@ -152,6 +159,12 @@ public:
   // Create default locator. Used to create one when none is specified. The 
   // locator is used to merge coincident points.
   void CreateDefaultLocator();
+
+  // Description:
+  // Normally I would put this in a different class, but since
+  // This is a temporary fix until we convert this class and contour filter
+  // to generate unstructured grid output instead of poly data, I am leaving it here.
+  static void GetCellTypeDimensions(unsigned char* cellTypeDimensions);
 
 protected:
   vtkCutter(vtkImplicitFunction *cf=NULL);

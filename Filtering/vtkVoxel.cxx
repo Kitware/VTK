@@ -25,7 +25,7 @@
 #include "vtkPoints.h"
 #include "vtkBox.h"
 
-vtkCxxRevisionMacro(vtkVoxel, "1.1");
+vtkCxxRevisionMacro(vtkVoxel, "1.2");
 vtkStandardNewMacro(vtkVoxel);
 
 //----------------------------------------------------------------------------
@@ -295,8 +295,8 @@ static int faces[6][4] = { {2,0,6,4}, {1,3,5,7},
 
 void vtkVoxel::Contour(double value, vtkDataArray *cellScalars, 
                        vtkPointLocator *locator,
-                       vtkCellArray *vtkNotUsed(verts), 
-                       vtkCellArray *vtkNotUsed(lines), 
+                       vtkCellArray *verts, 
+                       vtkCellArray *lines, 
                        vtkCellArray *polys,
                        vtkPointData *inPd, vtkPointData *outPd,
                        vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd)
@@ -309,6 +309,7 @@ void vtkVoxel::Contour(double value, vtkDataArray *cellScalars,
   int newCellId;
   vtkIdType pts[3];
   double t, x1[3], x2[3], x[3];
+  vtkIdType offset = verts->GetNumberOfCells() + lines->GetNumberOfCells();
 
   // Build the case table
   for ( i=0, index = 0; i < 8; i++)
@@ -351,7 +352,7 @@ void vtkVoxel::Contour(double value, vtkDataArray *cellScalars,
          pts[0] != pts[2] &&
          pts[1] != pts[2] )
       {
-      newCellId = polys->InsertNextCell(3,pts);
+      newCellId = offset + polys->InsertNextCell(3,pts);
       outCd->CopyData(inCd,cellId,newCellId);
       }
     }

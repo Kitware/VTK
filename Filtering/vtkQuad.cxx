@@ -26,7 +26,7 @@
 #include "vtkPoints.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuad, "1.2");
+vtkCxxRevisionMacro(vtkQuad, "1.3");
 vtkStandardNewMacro(vtkQuad);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -404,7 +404,7 @@ static LINE_CASES lineCases[] = {
 //----------------------------------------------------------------------------
 void vtkQuad::Contour(double value, vtkDataArray *cellScalars, 
                       vtkPointLocator *locator, 
-                      vtkCellArray *vtkNotUsed(verts), 
+                      vtkCellArray *verts, 
                       vtkCellArray *lines, 
                       vtkCellArray *vtkNotUsed(polys), 
                       vtkPointData *inPd, vtkPointData *outPd,
@@ -418,6 +418,7 @@ void vtkQuad::Contour(double value, vtkDataArray *cellScalars,
   vtkIdType pts[2];
   int e1, e2;
   double t, x1[3], x2[3], x[3], deltaScalar;
+  vtkIdType offset = verts->GetNumberOfCells();
 
   // Build the case table
   for ( i=0, index = 0; i < 4; i++)
@@ -479,7 +480,7 @@ void vtkQuad::Contour(double value, vtkDataArray *cellScalars,
     // check for degenerate line
     if ( pts[0] != pts[1] )
       {
-      newCellId = lines->InsertNextCell(2,pts);
+      newCellId = offset + lines->InsertNextCell(2,pts);
       outCd->CopyData(inCd,cellId,newCellId);
       }
     }
