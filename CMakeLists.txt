@@ -168,7 +168,7 @@ ENDIF (EXECUTABLE_OUTPUT_PATH)
 INCLUDE (${VTK_SOURCE_DIR}/vtkCMakeOptions.cmake)
 
 IF (VTK_USE_RENDERING)
-  OPTION(VTK_USE_FREETYPE "Build VTK with Freetype support (Do not use. Experimental. Seriously.)" OFF)
+  OPTION(VTK_USE_FREETYPE "Build VTK with Freetype support (Do not use. Experimental. Seriously.)" ON)
   MARK_AS_ADVANCED(VTK_USE_FREETYPE)
 
   OPTION(VTK_USE_VOLUMEPRO "Build VTK with volume pro support" OFF)
