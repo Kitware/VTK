@@ -91,6 +91,12 @@ public:
   vtkBooleanMacro(Merging,int);
 
   // Description:
+  // Turn on/off tagging of solids with scalars.
+  vtkSetMacro(ScalarTags,int);
+  vtkGetMacro(ScalarTags,int);
+  vtkBooleanMacro(ScalarTags,int);
+
+  // Description:
   // Specify a spatial locator for merging points. By
   // default an instance of vtkMergePoints is used.
   void SetLocator(vtkPointLocator *locator);
@@ -115,11 +121,12 @@ protected:
 
   char *FileName;
   int Merging;
+  int ScalarTags;
   vtkPointLocator *Locator;
 
   void Execute();
   int ReadBinarySTL(FILE *fp, vtkPoints*, vtkCellArray*);
-  int ReadASCIISTL(FILE *fp, vtkPoints*, vtkCellArray*);
+  int ReadASCIISTL(FILE *fp, vtkPoints*, vtkCellArray*, vtkScalars* scalars=0);
   int GetSTLFileType(FILE *fp);
 };
 
