@@ -1,6 +1,9 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
+source $VTK_TCL/vtkInt.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -21,7 +24,7 @@ vtkImageReader reader1
   reader1 SetDataByteOrderToLittleEndian
   reader1 SetDataExtent 0 255 0 255 1 93
   reader1 SetDataVOI 20 200 20 200 40 40
-  reader1 SetFilePrefix "../../../vtkdata/fullHead/headsq"
+  reader1 SetFilePrefix "$VTK_DATA/fullHead/headsq"
   reader1 SetDataMask 0x7fff
   reader1 Update
 
@@ -48,7 +51,7 @@ vtkImageReader reader2
   reader2 SetDataByteOrderToLittleEndian
   reader2 SetDataExtent 0 255 0 255 1 93
   reader2 SetDataVOI 127 127 20 200 2 90
-  reader2 SetFilePrefix "../../../vtkdata/fullHead/headsq"
+  reader2 SetFilePrefix "$VTK_DATA/fullHead/headsq"
   reader2 SetDataMask 0x7fff
   reader2 Update
 
@@ -76,7 +79,7 @@ vtkImageReader reader3
   reader3 SetDataByteOrderToLittleEndian
   reader3 SetDataExtent 0 255 0 255 1 93
   reader3 SetDataVOI 20 200 127 127 2 90
-  reader3 SetFilePrefix "../../../vtkdata/fullHead/headsq"
+  reader3 SetFilePrefix "$VTK_DATA/fullHead/headsq"
   reader3 SetDataMask 0x7fff
   reader3 Update
 
@@ -104,7 +107,7 @@ vtkImageReader reader4
   reader4 SetDataByteOrderToLittleEndian
   reader4 SetDataExtent 0 255 0 255 1 93
   reader4 SetDataVOI 20 200 160 160 70 70
-  reader4 SetFilePrefix "../../../vtkdata/fullHead/headsq"
+  reader4 SetFilePrefix "$VTK_DATA/fullHead/headsq"
   reader4 SetDataMask 0x7fff
   reader4 Update
 
@@ -131,7 +134,7 @@ vtkImageReader reader5
   reader5 SetDataByteOrderToLittleEndian
   reader5 SetDataExtent 0 255 0 255 1 93
   reader5 SetDataVOI 160 160 20 200 70 70
-  reader5 SetFilePrefix "../../../vtkdata/fullHead/headsq"
+  reader5 SetFilePrefix "$VTK_DATA/fullHead/headsq"
   reader5 SetDataMask 0x7fff
   reader5 Update
 
@@ -158,7 +161,7 @@ vtkImageReader reader6
   reader6 SetDataByteOrderToLittleEndian
   reader6 SetDataExtent 0 255 0 255 1 93
   reader6 SetDataVOI 160 160 160 160 1 93
-  reader6 SetFilePrefix "../../../vtkdata/fullHead/headsq"
+  reader6 SetFilePrefix "$VTK_DATA/fullHead/headsq"
   reader6 SetDataMask 0x7fff
   reader6 Update
 
@@ -184,7 +187,7 @@ vtkImageReader reader7
   reader7 SetDataByteOrderToLittleEndian
   reader7 SetDataExtent 0 255 0 255 1 93
   reader7 SetDataVOI 160 160 160 160 70 70
-  reader7 SetFilePrefix "../../../vtkdata/fullHead/headsq"
+  reader7 SetFilePrefix "$VTK_DATA/fullHead/headsq"
   reader7 SetDataMask 0x7fff
   reader7 Update
 

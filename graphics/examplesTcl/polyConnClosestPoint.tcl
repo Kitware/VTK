@@ -1,7 +1,10 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
-source ../../examplesTcl/colors.tcl
+source $VTK_TCL/vtkInt.tcl
+source $VTK_TCL/colors.tcl
 
 vtkRenderer ren1
   ren1 SetBackground 0.8235 0.7059 0.5490
@@ -24,7 +27,7 @@ vtkActor seed
 ren1 AddActor seed
 
 vtkSTLReader reader
-  reader SetFileName ../../../vtkdata/42400-IDGH.stl
+  reader SetFileName $VTK_DATA/42400-IDGH.stl
 
 vtkCleanPolyData cpd
   cpd SetInput [reader GetOutput]

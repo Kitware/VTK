@@ -1,13 +1,16 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 #
 # Contour data stored as a matrix of values in a vtk structured points file
 #
-source ../../examplesTcl/vtkInt.tcl
+source $VTK_TCL/vtkInt.tcl
 
 # create pipeline
 #
 vtkDataSetReader reader
-  reader SetFileName "../../../vtkdata/matrix.vtk"
+  reader SetFileName "$VTK_DATA/matrix.vtk"
 
 vtkContourFilter contour
   contour SetInput [reader GetStructuredPointsOutput]

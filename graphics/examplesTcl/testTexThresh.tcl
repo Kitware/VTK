@@ -1,7 +1,10 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
-source ../../examplesTcl/colors.tcl
+source $VTK_TCL/vtkInt.tcl
+source $VTK_TCL/colors.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -30,7 +33,7 @@ vtkScalars scalars
 # read in texture map
 #
 vtkStructuredPointsReader tmap
-  tmap SetFileName "../../../vtkdata/texThres2.vtk"
+  tmap SetFileName "$VTK_DATA/texThres2.vtk"
 vtkTexture texture
   texture SetInput [tmap GetOutput]
   texture InterpolateOff

@@ -1,6 +1,9 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
+source $VTK_TCL/vtkInt.tcl
 source TkInteractor.tcl
 
 proc ChangeLabels { } {
@@ -116,7 +119,7 @@ pack .top.controls.quit -side top -padx 5 -pady 6 -expand 1 -fill both
 
 # Simple volume rendering example.
 vtkSLCReader reader
-    reader SetFileName "../../../vtkdata/poship.slc"
+    reader SetFileName "$VTK_DATA/poship.slc"
 
 # Create transfer functions for opacity and color
 vtkPiecewiseFunction opacityTransferFunction

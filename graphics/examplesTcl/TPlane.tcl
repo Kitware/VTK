@@ -1,7 +1,10 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
+source $VTK_TCL/vtkInt.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 vtkRenderer ren1
@@ -22,7 +25,7 @@ planeActor SetMapper planeMapper
 #
 vtkTexture atext
 vtkPNMReader pnmReader
-pnmReader SetFileName "../../../vtkdata/masonry.ppm"
+pnmReader SetFileName "$VTK_DATA/masonry.ppm"
 atext SetInput [pnmReader GetOutput]
 atext InterpolateOn
 planeActor SetTexture atext

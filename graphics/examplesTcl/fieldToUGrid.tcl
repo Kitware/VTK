@@ -1,10 +1,13 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # Read a field representing unstructured grid and display it (similar to blow.tcl)
-source ../../examplesTcl/vtkInt.tcl
+source $VTK_TCL/vtkInt.tcl
 
 # create a reader and write out field daya
 vtkUnstructuredGridReader reader
-    reader SetFileName "../../../vtkdata/blow.vtk"
+    reader SetFileName "$VTK_DATA/blow.vtk"
     reader SetScalarsName "thickness9"
     reader SetVectorsName "displacement9"
 vtkDataSetToDataObjectFilter ds2do

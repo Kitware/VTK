@@ -1,8 +1,11 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # this is a tcl version of motor visualization
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
-source ../../examplesTcl/colors.tcl
+source $VTK_TCL/vtkInt.tcl
+source $VTK_TCL/colors.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -27,7 +30,7 @@ planes SetNormals norms
 
 # texture
 vtkStructuredPointsReader texReader
-    texReader SetFileName "../../../vtkdata/texThres2.vtk"
+    texReader SetFileName "$VTK_DATA/texThres2.vtk"
 vtkTexture texture
     texture SetInput [texReader GetOutput]
     texture InterpolateOff
@@ -36,7 +39,7 @@ vtkTexture texture
 # read motor parts...each part colored separately
 #
 vtkBYUReader byu
-    byu SetGeometryFileName "../../../vtkdata/motor.g"
+    byu SetGeometryFileName "$VTK_DATA/motor.g"
     byu SetPartNumber 1
 vtkPolyDataNormals normals
     normals SetInput [byu GetOutput]
@@ -52,7 +55,7 @@ vtkActor byuActor
     eval [byuActor GetProperty] SetColor $cold_grey
 
 vtkBYUReader byu2
-    byu2 SetGeometryFileName "../../../vtkdata/motor.g"
+    byu2 SetGeometryFileName "$VTK_DATA/motor.g"
     byu2 SetPartNumber 2
 vtkPolyDataNormals normals2
     normals2 SetInput [byu2 GetOutput]
@@ -68,7 +71,7 @@ vtkActor byuActor2
     eval [byuActor2 GetProperty] SetColor $peacock
 
 vtkBYUReader byu3
-    byu3 SetGeometryFileName "../../../vtkdata/motor.g"
+    byu3 SetGeometryFileName "$VTK_DATA/motor.g"
     byu3 SetPartNumber 3
 
 vtkTriangleFilter triangle3
@@ -88,7 +91,7 @@ vtkActor byuActor3
     eval [byuActor3 GetProperty] SetColor $raw_sienna
 
 vtkBYUReader byu4
-    byu4 SetGeometryFileName "../../../vtkdata/motor.g"
+    byu4 SetGeometryFileName "$VTK_DATA/motor.g"
     byu4 SetPartNumber 4
 vtkPolyDataNormals normals4
     normals4 SetInput [byu4 GetOutput]
@@ -104,7 +107,7 @@ vtkActor byuActor4
     eval [byuActor4 GetProperty] SetColor $banana
 
 vtkBYUReader byu5
-    byu5 SetGeometryFileName "../../../vtkdata/motor.g"
+    byu5 SetGeometryFileName "$VTK_DATA/motor.g"
     byu5 SetPartNumber 5
 vtkPolyDataNormals normals5
     normals5 SetInput [byu5 GetOutput]

@@ -15,8 +15,11 @@
 #
 
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
+source $VTK_TCL/vtkInt.tcl
 
 
 # Create the RenderWindow, Renderer and interactor
@@ -32,7 +35,7 @@ vtkRenderWindowInteractor iren
 
 # get the pressure gradient vector field
 vtkPolyDataReader reader
-reader SetFileName "../../../vtkdata/combVectors.vtk"
+reader SetFileName "$VTK_DATA/combVectors.vtk"
 
 #
 # Once we know the two vector fields are named "Velocity" and 
@@ -176,7 +179,7 @@ vtkScalarBarActor barActor
 # The PLOT3DReader is used to draw the outline of the original dataset.
 # 
 vtkPLOT3DReader pl3d
-    pl3d SetXYZFileName "../../../vtkdata/combxyz.bin"
+    pl3d SetXYZFileName "$VTK_DATA/combxyz.bin"
 
 vtkStructuredGridOutlineFilter outline
     outline SetInput [pl3d GetOutput]

@@ -1,12 +1,15 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
 
-source ../../examplesTcl/vtkInt.tcl
-source ../../examplesTcl/WidgetObject.tcl
+
+source $VTK_TCL/vtkInt.tcl
+source $VTK_TCL/WidgetObject.tcl
 source TkInteractor.tcl
 
 proc CreateDataChoice { ww type } {
     vtkSLCReader reader_$type
-    reader_$type SetFileName ../../../vtkdata/$type.slc
+    reader_$type SetFileName $VTK_DATA/$type.slc
     
     vtkVolumeRayCastCompositeFunction composite_$type
 

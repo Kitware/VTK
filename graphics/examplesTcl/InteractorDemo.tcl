@@ -1,4 +1,7 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 
 # demostrates the features of the vtkRenderWindowInteractor
 # with a tcl interface.
@@ -6,7 +9,7 @@ catch {load vtktcl}
 
 
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
+source $VTK_TCL/vtkInt.tcl
 
 
 
@@ -97,7 +100,7 @@ vtkRenderer ren1
 vtk3DSImporter importer
   importer SetRenderWindow $renWin
   importer ComputeNormalsOn
-  importer SetFileName "../../../vtkdata/Viewpoint/iflamigm.3ds"
+  importer SetFileName "$VTK_DATA/Viewpoint/iflamigm.3ds"
   importer Read
 
 # set up call back to change mode radio buttons

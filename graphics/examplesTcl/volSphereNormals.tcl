@@ -1,4 +1,7 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 
 source TkInteractor.tcl
 
@@ -159,7 +162,7 @@ proc MakeSphere { } {
 
 # Simple volume rendering example.
 vtkSLCReader reader
-    reader SetFileName "../../../vtkdata/sphere.slc"
+    reader SetFileName "$VTK_DATA/sphere.slc"
 
 # Create transfer functions for opacity and color
 vtkPiecewiseFunction opacityTransferFunction

@@ -1,9 +1,12 @@
 # Test the recomputation of normals within a subregion
 catch {load vtktcl}
-source ../../examplesTcl/vtkInt.tcl
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
+source $VTK_TCL/vtkInt.tcl
 
 vtkSLCReader reader
-    reader SetFileName "../../../vtkdata/bolt.slc"
+    reader SetFileName "$VTK_DATA/bolt.slc"
 
 vtkExtractVOI voi
     voi SetInput [reader GetOutput]

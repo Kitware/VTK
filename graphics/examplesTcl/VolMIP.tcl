@@ -1,12 +1,15 @@
 catch {load vtktcl}
-source ../../examplesTcl/vtkInt.tcl
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
+source $VTK_TCL/vtkInt.tcl
 
 
 vtkSLCReader reader
-    reader SetFileName ../../../vtkdata/poship.slc
+    reader SetFileName $VTK_DATA/poship.slc
 
 vtkSLCReader reader2
-    reader2 SetFileName ../../../vtkdata/neghip.slc
+    reader2 SetFileName $VTK_DATA/neghip.slc
 
 vtkPiecewiseFunction opacityTransferFunction
     opacityTransferFunction AddPoint  20   0.0

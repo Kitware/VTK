@@ -1,13 +1,16 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
+source $VTK_TCL/vtkInt.tcl
 
 # Simple volume rendering example.
 vtkSLCReader reader
-    reader SetFileName "../../../vtkdata/nut.slc"
+    reader SetFileName "$VTK_DATA/nut.slc"
 
 vtkStructuredPointsReader rgbreader
-    rgbreader SetFileName "../../../vtkdata/hipipTexture.vtk"
+    rgbreader SetFileName "$VTK_DATA/hipipTexture.vtk"
 
 # Create transfer functions for opacity and color
 vtkPiecewiseFunction opacityTransferFunction

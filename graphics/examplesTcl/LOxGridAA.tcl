@@ -1,15 +1,18 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 ## LOx post CFD case study with anti-aliasing
 
 # get helper scripts
-source ../../examplesTcl/vtkInt.tcl
-source ../../examplesTcl/colors.tcl
+source $VTK_TCL/vtkInt.tcl
+source $VTK_TCL/colors.tcl
 
 # read data
 #
 vtkPLOT3DReader pl3d
-  pl3d SetXYZFileName "../../../vtkdata/postxyz.bin"
-  pl3d SetQFileName "../../../vtkdata/postq.bin"
+  pl3d SetXYZFileName "$VTK_DATA/postxyz.bin"
+  pl3d SetQFileName "$VTK_DATA/postq.bin"
   pl3d Update
 
 # computational planes

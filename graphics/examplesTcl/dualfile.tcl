@@ -14,26 +14,29 @@ source ../../examplesTcl/vtkInt.tcl
 wm withdraw .
 
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "$VTK_DATA" }
+
 
 #
 #	input static grid data once
 #
 vtkUnstructuredGridReader r
-    r SetFileName "../../../vtkdata/dualgrid.vtk"
+    r SetFileName "$VTK_DATA/dualgrid.vtk"
     r Update
 
 #
 #	input cell attributes
 #
 vtkDataObjectReader c
-    c SetFileName "../../../vtkdata/dualcell.vtk"
+    c SetFileName "$VTK_DATA/dualcell.vtk"
     c Update
 
 #
 #	input selected step data
 #
 vtkDataObjectReader s
-    s SetFileName "../../../vtkdata/dualpoint.vtk"
+    s SetFileName "$VTK_DATA/dualpoint.vtk"
     s Update
 
 #

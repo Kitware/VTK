@@ -1,6 +1,9 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
+source $VTK_TCL/vtkInt.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -18,7 +21,7 @@ vtkImageReader reader
   reader SetDataByteOrderToLittleEndian
   reader SetDataExtent 0 255 0 255 1 93
   reader SetDataVOI 20 200 20 200 40 40
-  reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
+  reader SetFilePrefix "$VTK_DATA/fullHead/headsq"
   reader SetDataMask 0x7fff
   reader Update
 

@@ -1,7 +1,10 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
-source ../../examplesTcl/colors.tcl
+source $VTK_TCL/vtkInt.tcl
+source $VTK_TCL/colors.tcl
 # create planes
 
 # Create the RenderWindow, Renderer and both Actors
@@ -15,8 +18,8 @@ vtkRenderWindowInteractor iren
 # create pipeline
 #
 vtkPLOT3DReader pl3d
-    pl3d SetXYZFileName "../../../vtkdata/combxyz.bin"
-    pl3d SetQFileName "../../../vtkdata/combq.bin"
+    pl3d SetXYZFileName "$VTK_DATA/combxyz.bin"
+    pl3d SetQFileName "$VTK_DATA/combq.bin"
     pl3d SetScalarFunctionNumber 100
     pl3d SetVectorFunctionNumber 202
     pl3d Update

@@ -1,8 +1,10 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
 # Demonstrates the 3D Studio Importer
 
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
+source $VTK_TCL/vtkInt.tcl
 
 vtkRenderer ren1
 vtkRenderWindow renWin
@@ -11,7 +13,7 @@ vtkRenderWindow renWin
 vtk3DSImporter importer
   importer SetRenderWindow renWin
   importer ComputeNormalsOn
-  importer SetFileName "../../../vtkdata/Viewpoint/iflamigm.3ds"
+  importer SetFileName "$VTK_DATA/Viewpoint/iflamigm.3ds"
   importer Read
 
 vtkRenderWindowInteractor iren

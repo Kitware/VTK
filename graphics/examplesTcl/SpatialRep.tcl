@@ -1,6 +1,9 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
+source $VTK_TCL/vtkInt.tcl
 
 # lines make a nice test
 vtkLineSource line1
@@ -16,9 +19,9 @@ vtkLineSource line2
 #  asource AddInput [line2 GetOutput]
 
 vtkSTLReader asource
-  asource SetFileName ../../../vtkdata/42400-IDGH.stl
+  asource SetFileName $VTK_DATA/42400-IDGH.stl
 #vtkCyberReader asource
-#  asource SetFileName ../../../vtkdata/fran_cut
+#  asource SetFileName $VTK_DATA/fran_cut
 vtkPolyDataMapper dataMapper
   dataMapper SetInput [asource GetOutput]
 vtkActor model

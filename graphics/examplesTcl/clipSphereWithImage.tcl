@@ -1,9 +1,12 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
+source $VTK_TCL/vtkInt.tcl
 # and some nice colors
-source ../../examplesTcl/colors.tcl
+source $VTK_TCL/colors.tcl
 
 # Now create the RenderWindow, Renderer and Interactor
 #
@@ -14,7 +17,7 @@ vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
 vtkPNMReader imageIn
-  imageIn SetFileName "../../../vtkdata/vtks.pgm"
+  imageIn SetFileName "$VTK_DATA/vtks.pgm"
   imageIn SetDataOrigin -.5 [expr -(160.0/320.00) / 2.0] 0
   imageIn SetDataSpacing [expr 1.0 / 320.00] [ expr 1.0 / 320.00] 1
   imageIn Update

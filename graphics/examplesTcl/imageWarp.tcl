@@ -2,12 +2,15 @@
 #
 
 catch {load vtktcl}
-source ../../examplesTcl/vtkInt.tcl
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
+source $VTK_TCL/vtkInt.tcl
 
 # read in some structured points
 #
 vtkPNMReader reader
-  reader SetFileName ../../../vtkdata/masonry.ppm
+  reader SetFileName $VTK_DATA/masonry.ppm
 
 vtkImageLuminance luminance
   luminance SetInput [reader GetOutput]

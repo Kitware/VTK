@@ -1,8 +1,11 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # demonstrate the use and manipulation of fields
 
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
+source $VTK_TCL/vtkInt.tcl
 
 set size 3187;#maximum number possible
 #set size 100;#maximum number possible
@@ -13,7 +16,7 @@ set scalar TIME_LATE
 
 # extract data from field as a polydata (just points), then extract scalars
 vtkDataObjectReader fdr
-    fdr SetFileName "../../../vtkdata/financial.vtk"
+    fdr SetFileName "$VTK_DATA/financial.vtk"
 vtkDataObjectToDataSetFilter do2ds
     do2ds SetInput [fdr GetOutput]
     do2ds SetDataSetTypeToPolyData

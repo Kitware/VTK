@@ -1,10 +1,14 @@
+catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 #
 #   Clip Actor with Spherical Lens
 #
 
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
-source ../../examplesTcl/colors.tcl
+source $VTK_TCL/vtkInt.tcl
+source $VTK_TCL/colors.tcl
 
 proc mkname {a b} {return $a$b}
 
@@ -42,7 +46,7 @@ vtkRenderWindowInteractor iren
 # Add the actors to the renderer, set the background and size
 #
 
-ren1 AddActor [eval MakeActor ../../../vtkdata/skin $flesh]
+ren1 AddActor [eval MakeActor $VTK_DATA/skin $flesh]
 
 set x 0
 set y 70
@@ -88,11 +92,11 @@ set END_SLICE 93
 set PIXEL_SIZE .8
 set origin [expr ( $RESOLUTION / 2.0 ) * $PIXEL_SIZE * -1.0]
 set SLICE_ORDER si
-source ../../examplesTcl/frog/SliceOrder.tcl
+source $VTK_TCL/frog/SliceOrder.tcl
 
 vtkVolume16Reader reader
   eval reader SetDataDimensions $RESOLUTION $RESOLUTION
-  eval reader SetFilePrefix ../../../vtkdata/fullHead/headsq
+  eval reader SetFilePrefix $VTK_DATA/fullHead/headsq
   eval reader SetDataSpacing $PIXEL_SIZE $PIXEL_SIZE 1.5
   eval reader SetDataOrigin $origin $origin 1.5
   eval reader SetImageRange $START_SLICE $END_SLICE
@@ -140,7 +144,7 @@ vtkSphere lensFunction
   lensFunction SetRadius $r
 
 vtkClipPolyData surfaceClipper
-  surfaceClipper SetInput [../../../vtkdata/skinPolyDataReader GetOutput]
+  surfaceClipper SetInput [$VTK_DATA/skinPolyDataReader GetOutput]
   surfaceClipper SetClipFunction lensFunction
   surfaceClipper GenerateClippedOutputOn
   surfaceClipper GenerateClipScalarsOn
@@ -165,8 +169,8 @@ vtkPolyDataMapper insideSurfaceMapper
   insideSurfaceMapper ScalarVisibilityOff
   insideSurfaceMapper ImmediateModeRenderingOn
 
-../../../vtkdata/skinActor SetMapper insideSurfaceMapper
-../../../vtkdata/skinActor VisibilityOn
+$VTK_DATA/skinActor SetMapper insideSurfaceMapper
+$VTK_DATA/skinActor VisibilityOn
 
 #
 # set up volume rendering

@@ -1,16 +1,19 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # Generate marching cubes head model (full resolution)
 
 # get the interactor ui and colors
-source ../../examplesTcl/vtkInt.tcl
-source ../../examplesTcl/colors.tcl
+source $VTK_TCL/vtkInt.tcl
+source $VTK_TCL/colors.tcl
 
 # create pipeline
 # reader reads slices
 vtkVolume16Reader v16
     v16 SetDataDimensions 256 256
     v16 SetDataByteOrderToLittleEndian
-    v16 SetFilePrefix "../../../vtkdata/fullHead/headsq"
+    v16 SetFilePrefix "$VTK_DATA/fullHead/headsq"
     v16 SetDataSpacing 0.8 0.8 1.5
     v16 SetImageRange 30 50
     v16 SetDataMask 0x7fff

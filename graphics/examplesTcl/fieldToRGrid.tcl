@@ -1,16 +1,19 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 
 ## Generate a rectilinear grid from a field.
 ##
 
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
-source ../../examplesTcl/colors.tcl
-source ../../examplesTcl/vtkInclude.tcl
+source $VTK_TCL/vtkInt.tcl
+source $VTK_TCL/colors.tcl
+source $VTK_TCL/vtkInclude.tcl
 
 # Create a reader and write out the field
 vtkDataSetReader reader
-    reader SetFileName "../../../vtkdata/RectGrid.vtk"
+    reader SetFileName "$VTK_DATA/RectGrid.vtk"
 vtkDataSetToDataObjectFilter ds2do
     ds2do SetInput [reader GetOutput]
 vtkDataObjectWriter writer

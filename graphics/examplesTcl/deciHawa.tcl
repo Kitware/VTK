@@ -1,9 +1,12 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # decimate hawaii dataset
 #
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
-source ../../examplesTcl/colors.tcl
+source $VTK_TCL/vtkInt.tcl
+source $VTK_TCL/colors.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -16,7 +19,7 @@ vtkRenderWindowInteractor iren
 # create a cyberware source
 #
 vtkPolyDataReader reader
-    reader SetFileName "../../../vtkdata/honolulu.vtk"
+    reader SetFileName "$VTK_DATA/honolulu.vtk"
 vtkDecimate deci; 
     deci SetInput [reader GetOutput]
     deci SetTargetReduction 0.9

@@ -1,9 +1,12 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # generate four hyperstreamlines
 
 # get the supporting scripts
-source ../../examplesTcl/vtkInt.tcl
-source ../../examplesTcl/vtkInclude.tcl
+source $VTK_TCL/vtkInt.tcl
+source $VTK_TCL/vtkInclude.tcl
 
 # create tensor ellipsoids
 

@@ -1,11 +1,14 @@
 # include get the vtk interactor ui
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # create camera figure
-source ../../examplesTcl/vtkInt.tcl
-source ../../examplesTcl/vtkInclude.tcl
+source $VTK_TCL/vtkInt.tcl
+source $VTK_TCL/vtkInclude.tcl
 
 # get some good color definitions
-source ../../examplesTcl/colors.tcl
+source $VTK_TCL/colors.tcl
 # get the procs that define the marching cubes cases
 source mccases.tcl
 

@@ -1,15 +1,18 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 
 # This example demonstrates the reading of field data associated with
 # dataset point data and cell data.
 
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
+source $VTK_TCL/vtkInt.tcl
 
 # create pipeline
 #
 vtkPolyDataReader reader
-    reader SetFileName "../../../vtkdata/sphereField.vtk"
+    reader SetFileName "$VTK_DATA/sphereField.vtk"
 vtkPolyDataMapper mapper
     mapper SetInput [reader GetOutput]
     eval mapper SetScalarRange [[reader GetOutput] GetScalarRange]

@@ -1,9 +1,12 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
+source $VTK_TCL/vtkInt.tcl
 # and some nice colors
-source ../../examplesTcl/colors.tcl
+source $VTK_TCL/colors.tcl
 
 # Now create the RenderWindow, Renderer and Interactor
 #
@@ -14,7 +17,7 @@ vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
 vtkPNMReader imageIn
-  imageIn SetFileName "../../../vtkdata/B.pgm"
+  imageIn SetFileName "$VTK_DATA/B.pgm"
 
 vtkImageGaussianSmooth gaussian
     eval gaussian SetStandardDeviations 2 2

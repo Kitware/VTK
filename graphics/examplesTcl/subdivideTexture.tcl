@@ -1,7 +1,10 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 
 # include get the vtk interactor ui
-source ../../examplesTcl/vtkInt.tcl
+source $VTK_TCL/vtkInt.tcl
 # Generate texture coordinates on a "random" sphere.
 
 # create some random points in a sphere
@@ -40,7 +43,7 @@ vtkDataSetMapper mapper
 # load in the texture map and assign to actor
 #
 vtkBMPReader bmpReader
-  bmpReader SetFileName "../../../vtkdata/masonry.bmp"
+  bmpReader SetFileName "$VTK_DATA/masonry.bmp"
 vtkTexture atext
   atext SetInput [bmpReader GetOutput]
   atext InterpolateOn

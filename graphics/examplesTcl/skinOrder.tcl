@@ -1,12 +1,16 @@
+catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 #
 # this test is the same as graphics/examplesTcl/skinOrder.tcl
 # except that is uses vtkVolume16Reader, not vtkImageReader
 #
 
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
-source ../../examplesTcl/colors.tcl
-source ../../examplesTcl/frog/SliceOrder.tcl
+source $VTK_TCL/vtkInt.tcl
+source $VTK_TCL/colors.tcl
+source $VTK_TCL/frog/SliceOrder.tcl
 
 # Create the RenderWindow, Renderer and Interactor
 #
@@ -35,7 +39,7 @@ set orders "ap pa si is lr rl"
 foreach order $orders {
   vtkVolume16Reader reader$order
     eval reader$order SetDataDimensions $RESOLUTION $RESOLUTION
-    eval reader$order SetFilePrefix ../../../vtkdata/headsq/quarter
+    eval reader$order SetFilePrefix $VTK_DATA/headsq/quarter
     eval reader$order SetDataSpacing $PIXEL_SIZE $PIXEL_SIZE 1.5
     eval reader$order SetDataOrigin $origin $origin 1.5
     eval reader$order SetImageRange $START_SLICE $END_SLICE

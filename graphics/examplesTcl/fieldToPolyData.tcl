@@ -1,14 +1,17 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 
 # This example demonstrates the reading of a field and conversion to PolyData
 # The output should be the same as polyEx.tcl.
 
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
+source $VTK_TCL/vtkInt.tcl
 
 # Create a reader and write out the field
 vtkPolyDataReader reader
-    reader SetFileName "../../../vtkdata/polyEx.vtk"
+    reader SetFileName "$VTK_DATA/polyEx.vtk"
 vtkDataSetToDataObjectFilter ds2do
     ds2do SetInput [reader GetOutput]
 vtkDataObjectWriter writer

@@ -1,6 +1,9 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
+source $VTK_TCL/vtkInt.tcl
 
 vtkRenderer ren1
 vtkRenderWindow renWin
@@ -22,7 +25,7 @@ vtkRenderWindowInteractor iren
 #  asource AddInput [line2 GetOutput]
 
 vtkSTLReader asource
-  asource SetFileName ../../../vtkdata/42400-IDGH.stl
+  asource SetFileName $VTK_DATA/42400-IDGH.stl
 vtkPolyDataMapper dataMapper
   dataMapper SetInput [asource GetOutput]
 vtkActor model

@@ -1,10 +1,13 @@
 # Volume rendering example with multiple lights
 
 catch {load vtktcl}
-source ../../examplesTcl/vtkInt.tcl
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
+source $VTK_TCL/vtkInt.tcl
 
 vtkSLCReader reader
-    reader SetFileName "../../../vtkdata/sphere.slc"
+    reader SetFileName "$VTK_DATA/sphere.slc"
 
 vtkPiecewiseFunction opacityTransferFunction
     opacityTransferFunction AddPoint   80  0.0

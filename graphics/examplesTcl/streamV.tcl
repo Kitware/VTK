@@ -1,7 +1,10 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # create selected streamlines in arteries
-source ../../examplesTcl/colors.tcl
-source ../../examplesTcl/vtkInclude.tcl
+source $VTK_TCL/colors.tcl
+source $VTK_TCL/vtkInclude.tcl
 
 vtkRenderer ren1
 vtkRenderWindow renWin
@@ -12,7 +15,7 @@ vtkRenderWindowInteractor iren
 # create pipeline
 #
 vtkStructuredPointsReader reader
-    reader SetFileName "../../../vtkdata/carotid.vtk"
+    reader SetFileName "$VTK_DATA/carotid.vtk"
 vtkPointSource psource
     psource SetNumberOfPoints 25
     psource SetCenter 133.1 116.3 5.0

@@ -1,10 +1,13 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # test all polygon rendering
 #
 
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
-source ../../examplesTcl/colors.tcl
+source $VTK_TCL/vtkInt.tcl
+source $VTK_TCL/colors.tcl
 
 vtkRenderer ren1
 vtkRenderWindow renWin
@@ -13,7 +16,7 @@ vtkRenderWindowInteractor iren
   iren SetRenderWindow renWin
 
 vtkPNMReader pnmReader
-  pnmReader SetFileName "../../../vtkdata/masonry.ppm"
+  pnmReader SetFileName "$VTK_DATA/masonry.ppm"
 vtkTexture texture
   texture SetInput [pnmReader GetOutput]
 

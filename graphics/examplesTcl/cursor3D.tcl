@@ -1,5 +1,8 @@
 catch {load vtktcl}
-source ../../examplesTcl/vtkInt.tcl
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
+source $VTK_TCL/vtkInt.tcl
 vtkRenderer ren1
 vtkRenderWindow renWin
   renWin AddRenderer ren1
@@ -8,8 +11,8 @@ vtkRenderWindowInteractor iren
 
   # read data
 vtkPLOT3DReader reader
-  reader SetXYZFileName "../../../vtkdata/combxyz.bin"
-  reader SetQFileName "../../../vtkdata/combq.bin"
+  reader SetXYZFileName "$VTK_DATA/combxyz.bin"
+  reader SetQFileName "$VTK_DATA/combq.bin"
   reader SetScalarFunctionNumber 210
   reader Update
 

@@ -1,10 +1,13 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 
 # This example demonstrates the use of the linear extrusion filter and
 # the USA state outline vtk dataset. It also tests the triangulation filter.
 
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
+source $VTK_TCL/vtkInt.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 vtkRenderer ren1
@@ -16,7 +19,7 @@ vtkRenderWindowInteractor iren
 # create pipeline - read data
 #
 vtkPolyDataReader reader
-    reader SetFileName "../../../vtkdata/usa.vtk"
+    reader SetFileName "$VTK_DATA/usa.vtk"
 
 # okay, now create some extrusion filters with actors for each US state
 vtkMath math

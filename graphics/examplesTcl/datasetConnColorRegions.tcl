@@ -1,7 +1,10 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
-source ../../examplesTcl/colors.tcl
+source $VTK_TCL/vtkInt.tcl
+source $VTK_TCL/colors.tcl
 
 vtkRenderer ren1
 vtkRenderWindow renWin
@@ -10,7 +13,7 @@ vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
 vtkSTLReader reader
-  reader SetFileName "../../../vtkdata/cadPart.stl"
+  reader SetFileName "$VTK_DATA/cadPart.stl"
 
 vtkCleanPolyData cpd
   cpd SetInput [reader GetOutput]

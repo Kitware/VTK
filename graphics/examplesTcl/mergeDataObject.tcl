@@ -1,14 +1,17 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # Demonstrate the separation of datasets (i.e., topology/geometry) from
 # attribute data (i.e., a field) into different files.
-source ../../examplesTcl/vtkInt.tcl
+source $VTK_TCL/vtkInt.tcl
 
 # create readers
 vtkUnstructuredGridReader readGeom
-    readGeom SetFileName "../../../vtkdata/blowGeom.vtk"
+    readGeom SetFileName "$VTK_DATA/blowGeom.vtk"
 
 vtkDataObjectReader readAttr
-    readAttr SetFileName "../../../vtkdata/blowAttr.vtk"
+    readAttr SetFileName "$VTK_DATA/blowAttr.vtk"
     readAttr SetFieldDataName "time9"
 
 # combine data and build scalars and vectors

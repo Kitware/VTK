@@ -1,12 +1,15 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # extract data
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
-source ../../examplesTcl/colors.tcl
+source $VTK_TCL/vtkInt.tcl
+source $VTK_TCL/colors.tcl
 
 # create reader and warp data with vectors
 vtkDataSetReader reader
-    reader SetFileName "../../../vtkdata/blow.vtk"
+    reader SetFileName "$VTK_DATA/blow.vtk"
     reader SetScalarsName "thickness9"
     reader SetVectorsName "displacement9"
 vtkCastToConcrete castToUnstructuredGrid

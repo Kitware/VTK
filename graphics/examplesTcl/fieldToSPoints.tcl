@@ -1,15 +1,18 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 
 ## Demonstrates conversion of field data into structured points
 # Output should be the same as complexV.tcl.
 
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
-source ../../examplesTcl/colors.tcl
+source $VTK_TCL/vtkInt.tcl
+source $VTK_TCL/colors.tcl
 
 # Create a reader and write out the field
 vtkStructuredPointsReader reader
-    reader SetFileName "../../../vtkdata/carotid.vtk"
+    reader SetFileName "$VTK_DATA/carotid.vtk"
 vtkDataSetToDataObjectFilter ds2do
     ds2do SetInput [reader GetOutput]
 vtkDataObjectWriter writer

@@ -1,7 +1,10 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # get the interactor ui and colors
-source ../../examplesTcl/vtkInt.tcl
-source ../../examplesTcl/colors.tcl
+source $VTK_TCL/vtkInt.tcl
+source $VTK_TCL/colors.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -14,7 +17,7 @@ vtkRenderWindowInteractor iren
 # create pipeline
 #
 vtkSTLReader reader
-    reader SetFileName ../../../vtkdata/42400-IDGH.stl
+    reader SetFileName $VTK_DATA/42400-IDGH.stl
 vtkOBBDicer dicer
     dicer SetInput [reader GetOutput]
     dicer SetNumberOfPointsPerPiece 1000

@@ -1,7 +1,10 @@
 ## Procedure should be called to set bindings and initialize variables
 #
 catch {source ../../examplesTcl/vtkInt.tcl}
-catch {source ../../examplesTcl/WidgetObject.tcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "$VTK_DATA" }
+
+catch {source $VTK_TCL/WidgetObject.tcl}
 
 set TkInteractor_StartRenderMethod ""
 set TkInteractor_EndRenderMethod ""

@@ -1,8 +1,12 @@
+catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 ## Procedure should be called to set bindings and initialize variables
 #
 
-source ../../examplesTcl/vtkInt.tcl
-source ../../examplesTcl/WidgetObject.tcl
+source $VTK_TCL/vtkInt.tcl
+source $VTK_TCL/WidgetObject.tcl
 
 proc BindTkRenderWidget {widget} {
     bind $widget <Any-ButtonPress> {StartMotion %W %x %y}

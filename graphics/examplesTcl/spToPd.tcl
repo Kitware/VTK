@@ -3,7 +3,10 @@
 #
 
 catch {load vtktcl}
-source ../../examplesTcl/vtkInt.tcl
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
+source $VTK_TCL/vtkInt.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -16,7 +19,7 @@ vtkRenderWindowInteractor iren
 # read in some structured points
 #
 vtkPNMReader reader
-  reader SetFileName ../../../vtkdata/B.pgm
+  reader SetFileName $VTK_DATA/B.pgm
 
 vtkStructuredPointsGeometryFilter geometry
   geometry SetInput [reader GetOutput]

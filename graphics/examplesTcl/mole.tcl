@@ -1,10 +1,13 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 
 # get the interactor
-source ../../examplesTcl/vtkInt.tcl
+source $VTK_TCL/vtkInt.tcl
 
 
-set f [open "../../../vtkdata/bpa.mol" r]
+set f [open "$VTK_DATA/bpa.mol" r]
 set i 0
 while { [gets $f line] >=0 } {
     scan $line "%f %f %f %f %d" at($i,x) at($i,y) at($i,z) at($i,r) at($i,t)

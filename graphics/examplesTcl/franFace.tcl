@@ -1,7 +1,10 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # this is a tcl version of old franFace
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
+source $VTK_TCL/vtkInt.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -14,12 +17,12 @@ vtkRenderWindowInteractor iren
 # create a cyberware source
 #
 vtkPolyDataReader cyber
-    cyber SetFileName "../../../vtkdata/fran_cut.vtk"
+    cyber SetFileName "$VTK_DATA/fran_cut.vtk"
 vtkPolyDataMapper cyberMapper
     cyberMapper SetInput [cyber GetOutput]
 
 vtkPNMReader pnm1
-    pnm1 SetFileName "../../../vtkdata/fran_cut.ppm"
+    pnm1 SetFileName "$VTK_DATA/fran_cut.ppm"
 
 vtkTexture atext
   atext SetInput [pnm1 GetOutput]

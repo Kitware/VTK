@@ -1,12 +1,15 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # Demonstrates all cell types
 #
 # NOTE: the use of MakeObject is included to increase regression coverage.
 # It is not required in most applications.
 
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
-source ../../examplesTcl/colors.tcl
+source $VTK_TCL/vtkInt.tcl
+source $VTK_TCL/colors.tcl
 
 vtkRenderer ren1
 vtkRenderWindow renWin
@@ -517,7 +520,7 @@ vtkVRMLExporter vrml
 if { [info command vtkRIBExporter] != "" } {
   vtkTexture atext
   vtkPNMReader pnmReader
-    pnmReader SetFileName "../../../vtkdata/masonry.ppm"
+    pnmReader SetFileName "$VTK_DATA/masonry.ppm"
   atext SetInput [pnmReader GetOutput]
   atext InterpolateOff
   aTriangleActor SetTexture atext

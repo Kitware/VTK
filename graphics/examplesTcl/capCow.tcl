@@ -1,16 +1,19 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 #
 # Demonstrate the use of clipping and capping on polyhedral data. Also shows how to
 # use triangle filter to triangulate loops.
 #
-source ../../examplesTcl/vtkInt.tcl
-source ../../examplesTcl/colors.tcl
+source $VTK_TCL/vtkInt.tcl
+source $VTK_TCL/colors.tcl
 
 # create pipeline
 #
 # Read the polygonal data and generate vertex normals
 vtkBYUReader cow
-  cow SetGeometryFileName "../../../vtkdata/Viewpoint/cow.g"
+  cow SetGeometryFileName "$VTK_DATA/Viewpoint/cow.g"
 vtkPolyDataNormals cowNormals
   cowNormals SetInput [cow GetOutput]
 

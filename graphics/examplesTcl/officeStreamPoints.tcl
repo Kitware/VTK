@@ -1,8 +1,11 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
-source ../../examplesTcl/colors.tcl
-source ../../examplesTcl/vtkInclude.tcl
+source $VTK_TCL/vtkInt.tcl
+source $VTK_TCL/colors.tcl
+source $VTK_TCL/vtkInclude.tcl
 
 vtkRenderer ren1
 vtkRenderWindow renWin
@@ -13,7 +16,7 @@ vtkRenderWindowInteractor iren
 # read data
 #
 vtkStructuredGridReader reader
-    reader SetFileName "../../../vtkdata/office.vtk"
+    reader SetFileName "$VTK_DATA/office.vtk"
     reader Update;#force a read to occur
 
 set length [[reader GetOutput] GetLength]

@@ -1,7 +1,10 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # this is a tcl script for the stock case study
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
+source $VTK_TCL/vtkInt.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -39,7 +42,7 @@ proc AddStock {prefix name x y z} {
 
     # create a sphere source and actor
     vtkPolyDataReader $prefix.PolyDataRead
-    $prefix.PolyDataRead SetFileName "../../../vtkdata/$prefix.vtk"
+    $prefix.PolyDataRead SetFileName "$VTK_DATA/$prefix.vtk"
     vtkRibbonFilter $prefix.RibbonFilter;
     $prefix.RibbonFilter SetInput [$prefix.PolyDataRead GetOutput];
     $prefix.RibbonFilter VaryWidthOn;

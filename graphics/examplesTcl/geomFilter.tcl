@@ -1,14 +1,17 @@
 # Exercise vtkGeometryFilter for different data types
 #
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
+source $VTK_TCL/vtkInt.tcl
 
 # create pipeline - structured grid
 #
 vtkPLOT3DReader pl3d
-    pl3d SetXYZFileName "../../../vtkdata/combxyz.bin"
-    pl3d SetQFileName "../../../vtkdata/combq.bin"
+    pl3d SetXYZFileName "$VTK_DATA/combxyz.bin"
+    pl3d SetQFileName "$VTK_DATA/combq.bin"
     pl3d SetScalarFunctionNumber 100
     pl3d SetVectorFunctionNumber 202
     pl3d Update
@@ -100,7 +103,7 @@ vtkActor g6Actor
 # create pipeline - rectilinear grid
 #
 vtkRectilinearGridReader rgridReader
-    rgridReader SetFileName "../../../vtkdata/RectGrid.vtk"
+    rgridReader SetFileName "$VTK_DATA/RectGrid.vtk"
     rgridReader Update
 vtkGeometryFilter gf7
     gf7 SetInput [rgridReader GetOutput]

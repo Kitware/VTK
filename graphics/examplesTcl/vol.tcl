@@ -1,4 +1,7 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 
 source volTkInteractor.tcl
 
@@ -516,7 +519,7 @@ vtkSLCReader reader
 if { $argv == "" || \
      [string range [lindex $argv 0] \
 	  [expr [string length [lindex $argv 0]] - 3] end] != "slc"} {
-    reader SetFileName "../../../vtkdata/poship.slc"
+    reader SetFileName "$VTK_DATA/poship.slc"
 } else {
     reader SetFileName [lindex $argv 0]
 }

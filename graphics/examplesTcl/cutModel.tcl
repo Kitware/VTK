@@ -1,7 +1,10 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
-source ../../examplesTcl/colors.tcl
+source $VTK_TCL/vtkInt.tcl
+source $VTK_TCL/colors.tcl
 
 # Now create the RenderWindow, Renderer and Interactor
 #
@@ -12,7 +15,7 @@ vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
 vtkPolyDataReader skinReader
-  skinReader SetFileName "../../../vtkdata/skin.vtk"
+  skinReader SetFileName "$VTK_DATA/skin.vtk"
 
 vtkPolyDataMapper skinMapper
   skinMapper SetInput [skinReader GetOutput]

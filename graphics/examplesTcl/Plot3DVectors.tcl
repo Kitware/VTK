@@ -2,9 +2,12 @@
 # All Plot3D vector functions
 #
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
-source ../../examplesTcl/colors.tcl
+source $VTK_TCL/vtkInt.tcl
+source $VTK_TCL/colors.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -23,8 +26,8 @@ vtkLight light
 set i 0
 foreach vectorFunction $vectorFunctions {
   vtkPLOT3DReader pl3d$vectorFunction
-    pl3d$vectorFunction SetXYZFileName "../../../vtkdata/bluntfinxyz.bin"
-    pl3d$vectorFunction SetQFileName "../../../vtkdata/bluntfinq.bin"
+    pl3d$vectorFunction SetXYZFileName "$VTK_DATA/bluntfinxyz.bin"
+    pl3d$vectorFunction SetQFileName "$VTK_DATA/bluntfinq.bin"
     pl3d$vectorFunction SetVectorFunctionNumber $vectorFunction
     pl3d$vectorFunction Update
 vtkStructuredGridGeometryFilter plane$vectorFunction

@@ -1,11 +1,14 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # Test conversion from point to cell data attributes and threshold filter
 # get the interactor
-source ../../examplesTcl/vtkInt.tcl
+source $VTK_TCL/vtkInt.tcl
 
 # create reader and warp data with vectors
 vtkUnstructuredGridReader reader
-    reader SetFileName "../../../vtkdata/blow.vtk"
+    reader SetFileName "$VTK_DATA/blow.vtk"
     reader SetScalarsName "thickness9"
     reader SetVectorsName "displacement9"
 vtkPointDataToCellData p2c

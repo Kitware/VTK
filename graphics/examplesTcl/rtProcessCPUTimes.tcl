@@ -3,6 +3,9 @@ proc ReadCPUTimeTable { } {
     global env
 
     if { [catch {set VTK_HISTORY_PATH $env(VTK_HISTORY_PATH)}] != 0} return
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 
     #
     # the first time we run regression tests in a kit, the CPUTimeTable.tcl may not exist

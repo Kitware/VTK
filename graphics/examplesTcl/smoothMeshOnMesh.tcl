@@ -1,14 +1,17 @@
 # this scripts reads in a surface, projects a mesh on the surface, and then
 # smooths the mesh on the surface. In case you're wondering, it's fran's nose.
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
+source $VTK_TCL/vtkInt.tcl
 
 # Read some data from a Cyberware scanner
 #
 vtkPolyDataReader cyber
-    cyber SetFileName "../../../vtkdata/fran_cut.vtk"
+    cyber SetFileName "$VTK_DATA/fran_cut.vtk"
 
 # Create a patch by manual enumeration
 vtkPoints pts

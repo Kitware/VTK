@@ -3,7 +3,10 @@
 ## color (grey or RGB) and the interpolation type (nearest or linear)
 wm withdraw .
 catch {load vtktcl}
-source ../../examplesTcl/vtkInt.tcl
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
+source $VTK_TCL/vtkInt.tcl
 
 vtkRenderer ren1
 vtkRenderWindow renWin
@@ -19,7 +22,7 @@ renWin SetAbortCheckMethod {TkCheckAbort}
 
 vtkSLCReader reader
 
-reader SetFileName "../../../vtkdata/sphere.slc"
+reader SetFileName "$VTK_DATA/sphere.slc"
 
 vtkPiecewiseFunction opacityTransferFunction
 opacityTransferFunction AddPoint    0   0.0
