@@ -101,13 +101,6 @@ public:
                 const double SpacingZ,
                 const double tol=0.001);
 
-  // Description:
-  // Get the input data or filter.
-  // If TetraPerCell is VTK_VOXEL_TO_5_and_12_TET
-  // then the input must have scalars, each set to 5 or 12
-  // to specify how to subdivide each cell.
-  vtkRectilinearGrid *GetInput();
-
 protected:
   vtkRectilinearGridToTetrahedra();
   ~vtkRectilinearGridToTetrahedra() {};

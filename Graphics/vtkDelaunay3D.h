@@ -180,10 +180,6 @@ public:
   // Return the MTime also considering the locator.
   unsigned long GetMTime();
 
-  // Description:
-  // Get the input data or filter.
-  vtkPointSet *GetInput();
-
 protected:
   vtkDelaunay3D();
   ~vtkDelaunay3D();
