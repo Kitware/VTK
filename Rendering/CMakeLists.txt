@@ -133,8 +133,6 @@ vtkInteractorObserver
 vtkMapper
 vtkOpenGLRenderWindow
 vtkProp3D
-vtkKWVolumeMapper
-vtkKWVolumeRayCastHelper
 ABSTRACT
 )
 
