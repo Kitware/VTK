@@ -71,7 +71,7 @@
 #endif
 
 
-vtkCxxRevisionMacro(vtkBridgeCell, "1.2");
+vtkCxxRevisionMacro(vtkBridgeCell, "1.3");
 
 vtkStandardNewMacro(vtkBridgeCell);
 
@@ -169,6 +169,7 @@ int vtkBridgeCell::GetAttributeOrder(vtkGenericAttribute *vtkNotUsed(a))
 // \post definition: result==(GetAttributeOrder()==1)
 int vtkBridgeCell::IsAttributeLinear(vtkGenericAttribute *a)
 {
+  (void)a; // The attribute order is the order of the geometry.
   int result=this->IsGeometryLinear();
   assert("post: definition" && result==(GetAttributeOrder(a)==1));
   return result;
@@ -333,15 +334,12 @@ void vtkBridgeCell::GetNeighbors(vtkGenericAdaptorCell *boundary,
   assert("pre: neighbors_exist" && neighbors!=0);
   
   vtkIdList *cells=vtkIdList::New();
-  vtkIdList *pts=vtkIdList::New();
-  
-  this->DataSet->Implementation->GetCellPoints(this->Id,pts);
+  vtkIdList *pts=static_cast<vtkBridgeCell *>(boundary)->Cell->GetPointIds();  
   this->DataSet->Implementation->GetCellNeighbors(this->Id,pts,cells);
   
   static_cast<vtkBridgeCellIterator *>(neighbors)->InitWithCells(cells,this->DataSet);
 
   cells->Delete();
-  pts->Delete();
 }
 
 //-----------------------------------------------------------------------------
