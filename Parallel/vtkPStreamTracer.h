@@ -28,7 +28,7 @@
 class vtkInterpolatedVelocityField;
 class vtkMultiProcessController;
 
-class VTK_GRAPHICS_EXPORT vtkPStreamTracer : public vtkStreamTracer
+class VTK_PARALLEL_EXPORT vtkPStreamTracer : public vtkStreamTracer
 {
 public:
   vtkTypeRevisionMacro(vtkPStreamTracer,vtkStreamTracer);
