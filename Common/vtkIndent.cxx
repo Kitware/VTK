@@ -51,7 +51,7 @@ vtkIndent* vtkIndent::New()
   vtkObject* ret = vtkObjectFactory::CreateInstance("vtkIndent");
   if(ret)
     {
-    return (vtkIndent*)ret;
+    return reinterpret_cast<vtkIndent*>(ret);
     }
   // If the factory was unable to create the object, then create it here.
   return new vtkIndent;

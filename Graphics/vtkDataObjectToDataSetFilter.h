@@ -90,8 +90,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkSource.h"
 #include "vtkFieldData.h"
+#include "vtkDataSet.h"
 
-class vtkDataSet;
 class vtkPointSet;
 class vtkPolyData;
 class vtkStructuredPoints;
@@ -135,7 +135,7 @@ public:
   // aborted due to inconsistent data.)
   vtkDataSet *GetOutput();
   vtkDataSet *GetOutput(int idx)
-    {return (vtkDataSet *) this->vtkSource::GetOutput(idx); };
+    {return static_cast<vtkDataSet *>(this->vtkSource::GetOutput(idx)); };
   vtkPolyData *GetPolyDataOutput();
   vtkStructuredPoints *GetStructuredPointsOutput();
   vtkStructuredGrid *GetStructuredGridOutput();
