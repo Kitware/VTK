@@ -482,7 +482,7 @@ Entry:
   elem_name - name of element we're talking about
 ******************************************************************************/
 
-void vtkPLY::ply_put_element_setup(PlyFile *plyfile, char *elem_name)
+void vtkPLY::ply_put_element_setup(PlyFile *plyfile, const char *elem_name)
 {
   PlyElement *elem;
 
@@ -647,15 +647,19 @@ Entry:
   obj_info - the text information to be written
 ******************************************************************************/
 
-void vtkPLY::ply_put_obj_info(PlyFile *plyfile, char *obj_info)
+void vtkPLY::ply_put_obj_info(PlyFile *plyfile, const char *obj_info)
 {
   /* (re)allocate space for new info */
   if (plyfile->num_obj_info == 0)
+    {
     plyfile->obj_info = (char **) myalloc (sizeof (char *));
+    }
   else
+    {
     plyfile->obj_info = (char **) realloc (plyfile->obj_info,
-                         sizeof (char *) * (plyfile->num_obj_info + 1));
-
+                                           sizeof (char *) * (plyfile->num_obj_info + 1));
+    }
+  
   /* add info to list */
   plyfile->obj_info[plyfile->num_obj_info] = strdup (obj_info);
   plyfile->num_obj_info++;

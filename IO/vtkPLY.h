@@ -162,10 +162,10 @@ public:
   static void ply_describe_property(PlyFile *, const char *, PlyProperty *);
   static void ply_element_count(PlyFile *, const char *, int);
   static void ply_header_complete(PlyFile *);
-  static void ply_put_element_setup(PlyFile *, char *);
+  static void ply_put_element_setup(PlyFile *, const char *);
   static void ply_put_element(PlyFile *, void *);
   static void ply_put_comment(PlyFile *, const char *);
-  static void ply_put_obj_info(PlyFile *, char *);
+  static void ply_put_obj_info(PlyFile *, const char *);
   static PlyFile *ply_read(FILE *, int *, char ***);
   static PlyFile *ply_open_for_reading( char *, int *, char ***, int *, float *);
   static PlyElement *ply_get_element_description(PlyFile *, char *, int*, int*);
