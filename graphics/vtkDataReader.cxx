@@ -93,7 +93,7 @@ void vtkDataReader::SetInputString(char* _arg, int len)
 { 
   if (this->Debug)
     {
-    cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): setting InputString to " << _arg << "\n\n"; 
+    vtkDebugMacro(<< "setting InputString to " << _arg );
     }
 
   if (this->InputString) delete [] this->InputString; 

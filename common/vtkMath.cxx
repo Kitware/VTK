@@ -418,7 +418,8 @@ int vtkMath::Jacobi(float **a, float *w, float **v)
 
   if ( i >= VTK_MAX_ROTATIONS )
     {
-    cerr << "vtkMath::Jacobi: Error extracting eigenfunctions\n";
+    vtkGenericWarningMacro(
+                << "vtkMath::Jacobi: Error extracting eigenfunctions");
     return 0;
     }
 

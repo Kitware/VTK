@@ -137,7 +137,7 @@ void  vtkWin32RenderWindowInteractor::StartRotate()
   this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
   if (!SetTimer(this->WindowId,this->TimerId,10,NULL))
     {
-    cerr << "not enough timers\n";
+    vtkErrorMacro(<< "Not enough timers");
     }
 }
 void  vtkWin32RenderWindowInteractor::EndRotate()

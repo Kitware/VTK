@@ -263,7 +263,8 @@ static int xlib_get_best_depth(Display *display)
   if(xlib_getpseudocolorvisual(display, DefaultScreen(display), 8))
     return(8);
 
-  cerr << "vtkXglrRenderWindow Error: can't get visual info\n";
+  vtkGenericWarningMacro( 
+        << "vtkXglrRenderWindow Error: can't get visual info");
   exit(1);
 }
 
@@ -287,7 +288,8 @@ static Visual *xlib_get_best_visual(Display *display)
   if(vis != NULL)
     return(vis);
   
-  cerr << "vtkXglrRenderWindow Error: can't get visual info\n";
+  vtkGenericWarningMacro(
+    << "vtkXglrRenderWindow Error: can't get visual info");
   exit(1);
 }
 

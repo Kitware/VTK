@@ -87,10 +87,7 @@ void vtkDataSet::SetGlobalReleaseDataFlag(int val)
 {
   if (val == vtkDataSetGlobalReleaseDataFlag) return;
   vtkDataSetGlobalReleaseDataFlag = val;
-  if (this->Debug)   
-    {
-    cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): setting GlobalReleaseDataFlag to " << val << "\n\n"; 
-    }
+  vtkDebugMacro( << "setting GlobalReleaseDataFlag to " << val );
   this->Modified(); 
 }
 
