@@ -25,7 +25,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGenericAttributeCollection,"1.1");
+vtkCxxRevisionMacro(vtkGenericAttributeCollection,"1.2");
 vtkStandardNewMacro(vtkGenericAttributeCollection);
 
 class vtkGenericAttributeInternalVector
@@ -74,6 +74,12 @@ void vtkGenericAttributeCollection::PrintSelf(ostream& os, vtkIndent indent)
     this->GetAttribute(i)->PrintSelf(os,indent.GetNextIndent());
     }
   os << indent << "Number Of Attributes to interpolate: " << this->GetNumberOfAttributesToInterpolate() << endl;
+  
+  os << indent << "Attributes to interpolate: " << this->AttributesToInterpolate << endl;
+  
+  os << indent << "Active Attribute: " << this->ActiveAttribute << endl;
+  
+  os << indent << "Active Component" << this->ActiveComponent << endl;
 }
 
 //----------------------------------------------------------------------------
