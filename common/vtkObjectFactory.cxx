@@ -2,6 +2,8 @@
 #include "vtkObjectFactoryCollection.h"
 #include "vtkDynamicLoader.h"
 #include "vtkDirectory.h"
+#include "vtkVersion.h"
+
 
 vtkObjectFactoryCollection* vtkObjectFactory::RegisterdFactories = 0;
 
@@ -187,14 +189,22 @@ vtkObjectFactory::~vtkObjectFactory()
 // Add a factory to the registerd list
 void vtkObjectFactory::RegisterFactory(vtkObjectFactory* factory)
 {
-  vtkObjectFactory::Init();
-  vtkObjectFactory::RegisterdFactories->AddItem(factory);
   if(factory->LibraryHandle == 0)
     {
     const char* nonDynamicName = "Non-Dynamic loaded vtkObjectFactory";
     factory->LibraryPath = strcpy(new char[strlen(nonDynamicName)+1], 
 				  nonDynamicName);
     }
+  if(strcmp(factory->GetVTKSourceVersion(), 
+	    vtkVersion::GetVTKSourceVersion()) != 0)
+    {
+    vtkGenericWarningMacro(<< "Possible incompatible factory load:" 
+    << "\nRunning vtk version :\n" << vtkVersion::GetVTKSourceVersion() 
+    << "\nLoaded Factory version:\n" << factory->GetVTKSourceVersion()
+    << "\nLoading factory: " << factory->LibraryPath << "\n");
+    }
+  vtkObjectFactory::Init();
+  vtkObjectFactory::RegisterdFactories->AddItem(factory);
 }
 
 

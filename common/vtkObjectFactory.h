@@ -96,6 +96,12 @@ public:
   // Unregister all factories
   static void UnRegisterAllFactories();
   
+  // Description:
+  // All sub-classes of vtkObjectFactory should must return the version of 
+  // VTK they were built with.  This should be implemented with a call to 
+  // vtkVersion::GetVTKSourceVersion.  This is critical to determine
+  // possible incompatible dynamic factory loads.
+  virtual const char* GetVTKSourceVersion() = 0;
 protected:
   // Description:
   // This method is provioded by sub-classes of vtkObjectFactory.
