@@ -73,6 +73,7 @@ vtkImageRGBToHSV \
 vtkImageSeedConnectivity \
 vtkImageShiftScale \
 vtkImageShrink3D \
+vtkImageStaticCache \
 vtkImageThreshold \
 vtkImageViewer \
 vtkImageWindow \

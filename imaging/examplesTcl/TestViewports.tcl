@@ -120,17 +120,17 @@ vtkImager imager6
 
 
 
-vtkImageWindow win1
-  win1 AddImager imager1
-  win1 AddImager imager2
-  win1 AddImager imager3
-  win1 AddImager imager4
-  win1 AddImager imager5
-  win1 AddImager imager6
-  win1 SetSize 512 512
-#  win1 DebugOn
+vtkImageWindow imgWin
+  imgWin AddImager imager1
+  imgWin AddImager imager2
+  imgWin AddImager imager3
+  imgWin AddImager imager4
+  imgWin AddImager imager5
+  imgWin AddImager imager6
+  imgWin SetSize 512 512
+#  imgWin DebugOn
 
-win1 Render
+imgWin Render
 
 wm withdraw .
 
@@ -140,7 +140,7 @@ set i 0;
 proc timeit {} {
   global i
   puts [expr 1000000.0/[lindex [time {mapper1 SetColorLevel $i; 
-                                      win1 Render; 
+                                      imgWin Render; 
                                       incr i} 100] 0]]
 }
 
@@ -152,19 +152,19 @@ proc cine {} {
     mapper4 SetZSlice [expr $i + 3]
     mapper5 SetZSlice [expr $i + 4]
     mapper6 SetZSlice [expr $i + 5]
-    win1 Render
+    imgWin Render
   }
 }
 
 proc cine_up {} {
   for {set i 30} {$i < 90} {incr i 1} {
     mapper1 SetZSlice $i
-    win1 Render
+    imgWin Render
   }
 }
 
 vtkWindowToImageFilter w2i
-w2i SetInput win1
+w2i SetInput imgWin
 
 vtkBMPWriter bmp
 bmp SetFileName viewport.bmp
