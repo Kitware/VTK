@@ -19,6 +19,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   TestImageIterator.cxx
   TestDirectory.cxx
   TestSmartPointer.cxx
+  TestSort.cxx
   SystemInformation.cxx
   EXTRA_INCLUDE vtkSuppressCrtDbgWarning.h
   FUNCTION vtkSuppressCrtDbgWarning
