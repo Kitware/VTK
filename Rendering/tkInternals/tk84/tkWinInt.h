@@ -127,10 +127,11 @@ typedef struct {
 
 /*
  * The following variable is a translation table between X gc functions and
- * Win32 raster op modes.
+ * Win32 raster and BitBlt op modes.
  */
 
 extern int tkpWinRopModes[];
+extern int tkpWinBltModes[];
 
 /*
  * The following defines are used with TkWinGetBorderPixels to get the

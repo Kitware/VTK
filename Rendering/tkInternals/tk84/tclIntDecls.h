@@ -285,14 +285,8 @@ EXTERN void    TclResetShadowedCmdRefs _ANSI_ARGS_((
 EXTERN int    TclServiceIdle _ANSI_ARGS_((void));
 /* Slot 99 is reserved */
 /* Slot 100 is reserved */
-#if !defined(__WIN32__) && !defined(MAC_TCL) /* UNIX */
 /* 101 */
 EXTERN char *    TclSetPreInitScript _ANSI_ARGS_((char * string));
-#endif /* UNIX */
-#ifdef __WIN32__
-/* 101 */
-EXTERN char *    TclSetPreInitScript _ANSI_ARGS_((char * string));
-#endif /* __WIN32__ */
 /* 102 */
 EXTERN void    TclSetupEnv _ANSI_ARGS_((Tcl_Interp * interp));
 /* 103 */
@@ -502,6 +496,13 @@ EXTERN int    TclCheckExecutionTraces _ANSI_ARGS_((
         int numChars, Command * cmdPtr, int result, 
         int traceFlags, int objc, 
         Tcl_Obj *CONST objv[]));
+/* 172 */
+EXTERN int    TclInThreadExit _ANSI_ARGS_((void));
+/* 173 */
+EXTERN int    TclUniCharMatch _ANSI_ARGS_((
+        CONST Tcl_UniChar * string, int strLen, 
+        CONST Tcl_UniChar * pattern, int ptnLen, 
+        int nocase));
 
 typedef struct TclIntStubs {
     int magic;
@@ -624,15 +625,7 @@ typedef struct TclIntStubs {
     int (*tclServiceIdle) _ANSI_ARGS_((void)); /* 98 */
     void *reserved99;
     void *reserved100;
-#if !defined(__WIN32__) && !defined(MAC_TCL) /* UNIX */
     char * (*tclSetPreInitScript) _ANSI_ARGS_((char * string)); /* 101 */
-#endif /* UNIX */
-#ifdef __WIN32__
-    char * (*tclSetPreInitScript) _ANSI_ARGS_((char * string)); /* 101 */
-#endif /* __WIN32__ */
-#ifdef MAC_TCL
-    void *reserved101;
-#endif /* MAC_TCL */
     void (*tclSetupEnv) _ANSI_ARGS_((Tcl_Interp * interp)); /* 102 */
     int (*tclSockGetPort) _ANSI_ARGS_((Tcl_Interp * interp, char * str, char * proto, int * portPtr)); /* 103 */
 #if !defined(__WIN32__) && !defined(MAC_TCL) /* UNIX */
@@ -711,6 +704,8 @@ typedef struct TclIntStubs {
     int (*tclpUtfNcmp2) _ANSI_ARGS_((CONST char * s1, CONST char * s2, unsigned long n)); /* 169 */
     int (*tclCheckInterpTraces) _ANSI_ARGS_((Tcl_Interp * interp, CONST char * command, int numChars, Command * cmdPtr, int result, int traceFlags, int objc, Tcl_Obj *CONST objv[])); /* 170 */
     int (*tclCheckExecutionTraces) _ANSI_ARGS_((Tcl_Interp * interp, CONST char * command, int numChars, Command * cmdPtr, int result, int traceFlags, int objc, Tcl_Obj *CONST objv[])); /* 171 */
+    int (*tclInThreadExit) _ANSI_ARGS_((void)); /* 172 */
+    int (*tclUniCharMatch) _ANSI_ARGS_((CONST Tcl_UniChar * string, int strLen, CONST Tcl_UniChar * pattern, int ptnLen, int nocase)); /* 173 */
 } TclIntStubs;
 
 #ifdef __cplusplus
@@ -1045,18 +1040,10 @@ extern TclIntStubs *tclIntStubsPtr;
 #endif
 /* Slot 99 is reserved */
 /* Slot 100 is reserved */
-#if !defined(__WIN32__) && !defined(MAC_TCL) /* UNIX */
 #ifndef TclSetPreInitScript
 #define TclSetPreInitScript \
   (tclIntStubsPtr->tclSetPreInitScript) /* 101 */
 #endif
-#endif /* UNIX */
-#ifdef __WIN32__
-#ifndef TclSetPreInitScript
-#define TclSetPreInitScript \
-  (tclIntStubsPtr->tclSetPreInitScript) /* 101 */
-#endif
-#endif /* __WIN32__ */
 #ifndef TclSetupEnv
 #define TclSetupEnv \
   (tclIntStubsPtr->tclSetupEnv) /* 102 */
@@ -1320,6 +1307,14 @@ extern TclIntStubs *tclIntStubsPtr;
 #ifndef TclCheckExecutionTraces
 #define TclCheckExecutionTraces \
   (tclIntStubsPtr->tclCheckExecutionTraces) /* 171 */
+#endif
+#ifndef TclInThreadExit
+#define TclInThreadExit \
+  (tclIntStubsPtr->tclInThreadExit) /* 172 */
+#endif
+#ifndef TclUniCharMatch
+#define TclUniCharMatch \
+  (tclIntStubsPtr->tclUniCharMatch) /* 173 */
 #endif
 
 #endif /* defined(USE_TCL_STUBS) && !defined(USE_TCL_STUB_PROCS) */

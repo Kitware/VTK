@@ -287,6 +287,10 @@ typedef struct CommandTrace {
              * TCL_TRACE_RENAME, TCL_TRACE_DELETE. */
     struct CommandTrace *nextPtr;   /* Next in list of traces associated with
              * a particular command. */
+    int refCount;                   /* Used to ensure this structure is
+                                     * not deleted too early.  Keeps track
+                                     * of how many pieces of code have
+                                     * a pointer to this structure. */
 } CommandTrace;
 
 /*
@@ -763,44 +767,6 @@ typedef struct CallFrame {
  */
 
 typedef VOID **TclHandle;
-
-/*
- *----------------------------------------------------------------
- * Data structures related to history.   These are used primarily
- * in tclHistory.c
- *----------------------------------------------------------------
- */
-
-/*
- * The structure below defines one history event (a previously-executed
- * command that can be re-executed in whole or in part).
- */
-
-typedef struct {
-    char *command;    /* String containing previously-executed
-         * command. */
-    int bytesAvl;    /* Total # of bytes available at *event (not
-         * all are necessarily in use now). */
-} HistoryEvent;
-
-/*
- * The structure below defines a pending revision to the most recent
- * history event.  Changes are linked together into a list and applied
- * during the next call to Tcl_RecordHistory.  See the comments at the
- * beginning of tclHistory.c for information on revisions.
- */
-
-typedef struct HistoryRev {
-    int firstIndex;    /* Index of the first byte to replace in
-         * current history event. */
-    int lastIndex;    /* Index of last byte to replace in
-         * current history event. */
-    int newSize;    /* Number of bytes in newBytes. */
-    char *newBytes;    /* Replacement for the range given by
-         * firstIndex and lastIndex (malloced). */
-    struct HistoryRev *nextPtr;  /* Next in chain of revisions to apply, or
-         * NULL for end of list. */
-} HistoryRev;
 
 /*
  *----------------------------------------------------------------
@@ -1415,37 +1381,6 @@ typedef struct Interp {
 #define INTERP_TRACE_IN_PROGRESS  0x200
 
 /*
- *----------------------------------------------------------------
- * Data structures related to command parsing. These are used in
- * tclParse.c and its clients.
- *----------------------------------------------------------------
- */
-
-/*
- * The following data structure is used by various parsing procedures
- * to hold information about where to store the results of parsing
- * (e.g. the substituted contents of a quoted argument, or the result
- * of a nested command).  At any given time, the space available
- * for output is fixed, but a procedure may be called to expand the
- * space available if the current space runs out.
- */
-
-typedef struct ParseValue {
-    char *buffer;    /* Address of first character in
-         * output buffer. */
-    char *next;      /* Place to store next character in
-         * output buffer. */
-    char *end;      /* Address of the last usable character
-         * in the buffer. */
-    void (*expandProc) _ANSI_ARGS_((struct ParseValue *pvPtr, int needed));
-        /* Procedure to call when space runs out;
-         * it will make more space. */
-    ClientData clientData;  /* Arbitrary information for use of
-         * expandProc. */
-} ParseValue;
-
-
-/*
  * Maximum number of levels of nesting permitted in Tcl commands (used
  * to catch infinite recursion).
  */
@@ -1611,6 +1546,7 @@ extern char *      tclDefaultEncodingDir;
 extern Tcl_ChannelType    tclFileChannelType;
 extern char *      tclMemDumpFileName;
 extern TclPlatformType    tclPlatform;
+extern Tcl_NotifierProcs  tclOriginalNotifier;
 
 /*
  * Variables denoting the Tcl object types defined in the core.
@@ -1628,9 +1564,7 @@ extern Tcl_ObjType  tclStringType;
 extern Tcl_ObjType  tclArraySearchType;
 extern Tcl_ObjType  tclIndexType;
 extern Tcl_ObjType  tclNsNameType;
-#ifndef TCL_WIDE_INT_IS_LONG
 extern Tcl_ObjType  tclWideIntType;
-#endif
 
 /*
  * Variables denoting the hash key types defined in the core.
@@ -1695,6 +1629,7 @@ EXTERN void    TclFinalizeEnvironment _ANSI_ARGS_((void));
 EXTERN void    TclFinalizeExecution _ANSI_ARGS_((void));
 EXTERN void    TclFinalizeIOSubsystem _ANSI_ARGS_((void));
 EXTERN void    TclFinalizeFilesystem _ANSI_ARGS_((void));
+EXTERN void    TclResetFilesystem _ANSI_ARGS_((void));
 EXTERN void    TclFinalizeLoad _ANSI_ARGS_((void));
 EXTERN void    TclFinalizeMemorySubsystem _ANSI_ARGS_((void));
 EXTERN void    TclFinalizeNotifier _ANSI_ARGS_((void));
@@ -1750,6 +1685,9 @@ EXTERN int              TclpObjLstat _ANSI_ARGS_((Tcl_Obj *pathPtr,
           Tcl_StatBuf *buf));
 EXTERN int    TclpCheckStackSpace _ANSI_ARGS_((void));
 EXTERN Tcl_Obj*         TclpTempFileName _ANSI_ARGS_((void));
+EXTERN Tcl_Obj*         TclNewFSPathObj _ANSI_ARGS_((Tcl_Obj *dirPtr, 
+          CONST char *addStrRep, int len));
+EXTERN int              TclpDeleteFile _ANSI_ARGS_((CONST char *path));
 EXTERN void    TclpFinalizeCondition _ANSI_ARGS_((
           Tcl_Condition *condPtr));
 EXTERN void    TclpFinalizeMutex _ANSI_ARGS_((Tcl_Mutex *mutexPtr));
@@ -1811,6 +1749,8 @@ EXTERN int    TclpObjStat _ANSI_ARGS_((Tcl_Obj *pathPtr, Tcl_StatBuf *buf));
 EXTERN Tcl_Channel  TclpOpenFileChannel _ANSI_ARGS_((Tcl_Interp *interp,
           Tcl_Obj *pathPtr, int mode,
           int permissions));
+EXTERN void    TclpCutFileChannel _ANSI_ARGS_((Tcl_Channel chan));
+EXTERN void    TclpSpliceFileChannel _ANSI_ARGS_((Tcl_Channel chan));
 EXTERN void    TclpPanic _ANSI_ARGS_(TCL_VARARGS(CONST char *,
           format));
 EXTERN char *    TclpReadlink _ANSI_ARGS_((CONST char *fileName,
@@ -1843,6 +1783,8 @@ EXTERN int              TclpDlopen _ANSI_ARGS_((Tcl_Interp *interp,
           Tcl_Obj *pathPtr, 
                       Tcl_LoadHandle *loadHandle, 
                 Tcl_FSUnloadFileProc **unloadProcPtr));
+EXTERN int              TclpUtime _ANSI_ARGS_((Tcl_Obj *pathPtr,
+                 struct utimbuf *tval));
 
 /*
  *----------------------------------------------------------------
@@ -2264,6 +2206,45 @@ extern Tcl_Mutex tclObjMutex;
 
 #define TclGetString(objPtr) \
     ((objPtr)->bytes? (objPtr)->bytes : Tcl_GetString((objPtr)))
+
+/*
+ *----------------------------------------------------------------
+ * Macro used by the Tcl core to get a Tcl_WideInt value out of
+ * a Tcl_Obj of the "wideInt" type.  Different implementation on
+ * different platforms depending whether TCL_WIDE_INT_IS_LONG.
+ *----------------------------------------------------------------
+ */
+
+#ifdef TCL_WIDE_INT_IS_LONG
+#    define TclGetWide(resultVar, objPtr) \
+  (resultVar) = (objPtr)->internalRep.longValue
+#    define TclGetLongFromWide(resultVar, objPtr) \
+  (resultVar) = (objPtr)->internalRep.longValue
+#else
+#    define TclGetWide(resultVar, objPtr) \
+  (resultVar) = (objPtr)->internalRep.wideValue
+#    define TclGetLongFromWide(resultVar, objPtr) \
+  (resultVar) = Tcl_WideAsLong((objPtr)->internalRep.wideValue)
+#endif
+
+/*
+ *----------------------------------------------------------------
+ * Macro used by the Tcl core get a unicode char from a utf string.
+ * It checks to see if we have a one-byte utf char before calling
+ * the real Tcl_UtfToUniChar, as this will save a lot of time for
+ * primarily ascii string handling. The macro's expression result
+ * is 1 for the 1-byte case or the result of Tcl_UtfToUniChar.
+ * The ANSI C "prototype" for this macro is:
+ *
+ * EXTERN int TclUtfToUniChar _ANSI_ARGS_((CONST char *string,
+ *             Tcl_UniChar *ch));
+ *----------------------------------------------------------------
+ */
+
+#define TclUtfToUniChar(str, chPtr) \
+  ((((unsigned char) *(str)) < 0xC0) ? \
+      ((*(chPtr) = (Tcl_UniChar) *(str)), 1) \
+      : Tcl_UtfToUniChar(str, chPtr))
 
 /*
  *----------------------------------------------------------------

@@ -556,6 +556,9 @@ EXTERN void    TkSubtractRegion _ANSI_ARGS_((TkRegion sra,
 EXTERN void    TkStylePkgInit _ANSI_ARGS_((TkMainInfo * mainPtr));
 /* 147 */
 EXTERN void    TkStylePkgFree _ANSI_ARGS_((TkMainInfo * mainPtr));
+/* 148 */
+EXTERN Tk_Window  TkToplevelWindowForCommand _ANSI_ARGS_((
+        Tcl_Interp * interp, CONST char * cmdName));
 
 typedef struct TkIntStubs {
     int magic;
@@ -830,6 +833,7 @@ typedef struct TkIntStubs {
 #endif /* MAC_OSX_TK */
     void (*tkStylePkgInit) _ANSI_ARGS_((TkMainInfo * mainPtr)); /* 146 */
     void (*tkStylePkgFree) _ANSI_ARGS_((TkMainInfo * mainPtr)); /* 147 */
+    Tk_Window (*tkToplevelWindowForCommand) _ANSI_ARGS_((Tcl_Interp * interp, CONST char * cmdName)); /* 148 */
 } TkIntStubs;
 
 #ifdef __cplusplus
@@ -1534,6 +1538,10 @@ extern TkIntStubs *tkIntStubsPtr;
 #ifndef TkStylePkgFree
 #define TkStylePkgFree \
   (tkIntStubsPtr->tkStylePkgFree) /* 147 */
+#endif
+#ifndef TkToplevelWindowForCommand
+#define TkToplevelWindowForCommand \
+  (tkIntStubsPtr->tkToplevelWindowForCommand) /* 148 */
 #endif
 
 #endif /* defined(USE_TK_STUBS) && !defined(USE_TK_STUB_PROCS) */

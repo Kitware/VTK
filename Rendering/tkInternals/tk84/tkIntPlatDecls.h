@@ -121,6 +121,8 @@ EXTERN Tcl_Obj *  TkWinGetMenuSystemDefault _ANSI_ARGS_((
         CONST char * className));
 /* 33 */
 EXTERN int    TkWinGetPlatformId _ANSI_ARGS_((void));
+/* 34 */
+EXTERN void    TkWinSetHINSTANCE _ANSI_ARGS_((HINSTANCE hInstance));
 #endif /* __WIN32__ */
 #ifdef MAC_TCL
 /* 0 */
@@ -459,6 +461,7 @@ typedef struct TkIntPlatStubs {
     void (*tkWinDialogDebug) _ANSI_ARGS_((int debug)); /* 31 */
     Tcl_Obj * (*tkWinGetMenuSystemDefault) _ANSI_ARGS_((Tk_Window tkwin, CONST char * dbName, CONST char * className)); /* 32 */
     int (*tkWinGetPlatformId) _ANSI_ARGS_((void)); /* 33 */
+    void (*tkWinSetHINSTANCE) _ANSI_ARGS_((HINSTANCE hInstance)); /* 34 */
 #endif /* __WIN32__ */
 #ifdef MAC_TCL
     void (*tkGenerateActivateEvents) _ANSI_ARGS_((TkWindow * winPtr, int active)); /* 0 */
@@ -749,6 +752,10 @@ extern TkIntPlatStubs *tkIntPlatStubsPtr;
 #ifndef TkWinGetPlatformId
 #define TkWinGetPlatformId \
   (tkIntPlatStubsPtr->tkWinGetPlatformId) /* 33 */
+#endif
+#ifndef TkWinSetHINSTANCE
+#define TkWinSetHINSTANCE \
+  (tkIntPlatStubsPtr->tkWinSetHINSTANCE) /* 34 */
 #endif
 #endif /* __WIN32__ */
 #ifdef MAC_TCL

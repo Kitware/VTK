@@ -42,7 +42,11 @@
 #endif
 
 #include <time.h>
-#include <tchar.h>
+#ifdef __CYGWIN__
+#    define _T(x) L##x
+#else
+#    include <tchar.h>
+#endif
 
 #ifdef _MSC_VER
 #    define hypot _hypot
@@ -55,7 +59,9 @@
 
 #define NBBY 8
 
+#ifndef OPEN_MAX
 #define OPEN_MAX 32
+#endif
 
 /*
  * The following define causes Tk to use its internal keysym hash table
