@@ -24,17 +24,18 @@ SUBDIRS(
   Medical/Cxx
   Modelling/Cxx
   #MultiBlock/Cxx
-  Tutorial/Step1/Cxx
-  Tutorial/Step2/Cxx
-  Tutorial/Step3/Cxx
-  Tutorial/Step4/Cxx
-  Tutorial/Step5/Cxx
-  Tutorial/Step6/Cxx
   )
 
 # Build optional examples.
 IF (VTK_USE_RENDERING)
-  SUBDIRS(Rendering/Cxx)
+  SUBDIRS(Rendering/Cxx
+    Tutorial/Step1/Cxx
+    Tutorial/Step2/Cxx
+    Tutorial/Step3/Cxx
+    Tutorial/Step4/Cxx
+    Tutorial/Step5/Cxx
+    Tutorial/Step6/Cxx
+    )
 ENDIF (VTK_USE_RENDERING)
 
 IF (VTK_USE_PARALLEL)
