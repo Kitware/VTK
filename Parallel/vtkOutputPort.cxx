@@ -23,7 +23,7 @@
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkOutputPort, "1.12");
+vtkCxxRevisionMacro(vtkOutputPort, "1.13");
 vtkStandardNewMacro(vtkOutputPort);
 
 vtkCxxSetObjectMacro(vtkOutputPort,Controller,vtkMultiProcessController);
@@ -251,8 +251,6 @@ void vtkOutputPort::SetInput(vtkDataObject *input)
   if(input)
     {
     this->SetInputConnection(0, input->GetProducerPort());
-    input->GetPipelineInformation()->Set(
-      vtkDataObject::DATA_TYPE_NAME(), input->GetClassName());
     }
   else
     {
