@@ -17,11 +17,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 
-vtkCxxRevisionMacro(vtkCardinalSpline, "1.24");
+vtkCxxRevisionMacro(vtkCardinalSpline, "1.25");
 vtkStandardNewMacro(vtkCardinalSpline);
 
 //-----  This hack needed to compile using gcc3 on OSX until new stdc++.dylib
-#ifdef __APPLE_CC__
+#ifdef __APPLE__
 extern "C"
 {
   void oft_initFiltering() 

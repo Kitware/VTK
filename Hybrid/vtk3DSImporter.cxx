@@ -27,11 +27,11 @@
 #include "vtkRenderer.h"
 #include "vtkStripper.h"
 
-vtkCxxRevisionMacro(vtk3DSImporter, "1.36");
+vtkCxxRevisionMacro(vtk3DSImporter, "1.37");
 vtkStandardNewMacro(vtk3DSImporter);
 
 //-----  This hack needed to compile using gcc3 on OSX until new stdc++.dylib
-#ifdef __APPLE_CC__
+#ifdef __APPLE__
 extern "C"
 {
   void oft_initHybrid() 

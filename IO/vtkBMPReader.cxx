@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkBMPReader, "1.46");
+vtkCxxRevisionMacro(vtkBMPReader, "1.47");
 vtkStandardNewMacro(vtkBMPReader);
 
 #ifdef read
@@ -28,7 +28,7 @@ vtkStandardNewMacro(vtkBMPReader);
 #endif
 
 //-----  This hack needed to compile using gcc3 on OSX until new stdc++.dylib
-#ifdef __APPLE_CC__
+#ifdef __APPLE__
 extern "C"
 {
   void oft_initIO() 

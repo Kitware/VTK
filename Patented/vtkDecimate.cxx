@@ -39,11 +39,11 @@
 #include "vtkPolyData.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkDecimate, "1.78");
+vtkCxxRevisionMacro(vtkDecimate, "1.79");
 vtkStandardNewMacro(vtkDecimate);
 
 //-----  This hack needed to compile using gcc3 on OSX until new stdc++.dylib
-#ifdef __APPLE_CC__
+#ifdef __APPLE__
 extern "C"
 {
   void oft_initPatented() 
