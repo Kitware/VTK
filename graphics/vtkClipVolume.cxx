@@ -656,3 +656,70 @@ void vtkClipVolume::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Generate Clipped Output: " << (this->GenerateClippedOutput ? "On\n" : "Off\n");
 }
+
+void vtkClipVolume::UnRegister(vtkObject *o)
+{
+  // detect the circular loop source <-> data
+  // If we have two references and one of them is my data
+  // and I am not being unregistered by my data, break the loop.
+  if (this->ReferenceCount == 3 && this->Output != NULL &&
+      this->Output->GetSource() == this && o != this->Output &&
+      this->Output->GetNetReferenceCount() == 1 &&
+      this->ClippedOutput && 
+      this->ClippedOutput->GetNetReferenceCount() == 1 &&
+      o != this->ClippedOutput && 
+      this->ClippedOutput->GetSource() == this)
+    {
+    this->Output->SetSource(NULL);
+    this->ClippedOutput->SetSource(NULL);
+    }
+  // detect the circular loop source <-> data
+  // If we have two references and one of them is my data
+  // and I am not being unregistered by my data, break the loop.
+  if (this->ReferenceCount == 2 && this->Output != NULL &&
+      this->Output->GetSource() == this && o != this->Output &&
+      this->Output->GetNetReferenceCount() == 1)
+    {
+    this->Output->SetSource(NULL);
+    }
+  // detect the circular loop source <-> data
+  // If we have two references and one of them is my data
+  // and I am not being unregistered by my data, break the loop.
+  if (this->ReferenceCount == 2 && this->ClippedOutput != NULL &&
+      this->ClippedOutput->GetSource() == this && 
+      o != this->ClippedOutput &&
+      this->ClippedOutput->GetNetReferenceCount() == 1)
+    {
+    this->ClippedOutput->SetSource(NULL);
+    }
+  
+  this->vtkObject::UnRegister(o);
+}
+
+int vtkClipVolume::InRegisterLoop(vtkObject *o)
+{
+  int num = 0;
+  int cnum = 0;
+  
+  if (this->Output->GetSource() == this)
+    {
+    num++;
+    cnum += this->Output->GetNetReferenceCount();
+    }
+  if (this->ClippedOutput->GetSource() == this)
+    {
+    num++;
+    cnum += this->ClippedOutput->GetNetReferenceCount();
+    }
+  
+  // if no one outside is using us
+  // and our data objects are down to one net reference
+  // and we are being asked by one of our data objects
+  if (this->ReferenceCount == num &&
+      cnum == (num + 1) &&
+      (this->Output == o || this->ClippedOutput == o))
+    {
+    return 1;
+    }
+  return 0;
+}
