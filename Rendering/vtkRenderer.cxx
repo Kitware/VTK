@@ -31,7 +31,7 @@
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.182");
+vtkCxxRevisionMacro(vtkRenderer, "1.183");
 
 // Create a vtkRenderer with a black background, a white ambient light, 
 // two-sided lighting turned on, a viewport of (0,0,1,1), and backface culling
@@ -786,6 +786,12 @@ void vtkRenderer::ResetCameraClippingRange( float bounds[6] )
   double  range[2], dist;
   int     i, j, k;
 
+  // Don't reset the clipping range when we don't have any 3D visible props
+  if ( bounds[0] == VTK_LARGE_FLOAT )
+    {
+    return;
+    }
+  
   this->GetActiveCamera();
   if ( this->ActiveCamera == NULL )
     {
