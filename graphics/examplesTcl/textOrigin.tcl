@@ -4,7 +4,7 @@ source ../../examplesTcl/vtkInt.tcl
 
 # pipeline
 vtkAxes axes
-    axes SetOrigin 1000000 1000000 1000000
+    axes SetOrigin 0 0 0
 vtkPolyDataMapper axesMapper
     axesMapper SetInput [axes GetOutput]
 vtkActor axesActor
@@ -27,31 +27,13 @@ vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
 ren1 AddActor axesActor
-
-#ren1 AddActor textActor
-[ren1 GetActiveCamera] SetViewAngle 90
+ren1 AddActor textActor
+[ren1 GetActiveCamera] Zoom 1.6
 renWin Render
 textActor SetCamera [ren1 GetActiveCamera]
 
-#iren SetUserMethod {wm deiconify .vtkInteract}
-#iren Initialize
-
-ren1 SetStartRenderMethod {puts [[[ren1 GetActiveCamera] GetCompositePerspectiveTransformMatrix 1.0 0.0 1.0] Print]}
-for {set i 0} {$i < 100} {incr i} {
-   renWin Render
-#   [ren1 GetActiveCamera] Azimuth 1
-   [ren1 GetActiveCamera] SetPosition 1000000 [expr 1000000 + $i/100.0] 1000002
-   [ren1 GetActiveCamera] SetFocalPoint 1000000 [expr 1000000 + $i/100.0] 1000000
-}
-for {set i 0} {$i < 100} {incr i} {
-   renWin Render
-#   [ren1 GetActiveCamera] Azimuth 1
-   [ren1 GetActiveCamera] SetPosition [expr 1000000 + $i/100.0] 1000000 1000002
-   [ren1 GetActiveCamera] SetFocalPoint [expr 1000000 + $i/100.0] 1000000 1000000
-   puts [expr 1000000 + $i/100.0]
-   puts [[ren1 GetActiveCamera] Print]
-}
-exit
+iren SetUserMethod {wm deiconify .vtkInteract}
+iren Initialize
 
 renWin SetFileName "textOrigin.tcl.ppm"
 #renWin SaveImageAsPPM

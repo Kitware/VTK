@@ -57,13 +57,7 @@ set noTest {
     Decimate.tcl connPineRoot.tcl deciHawa.tcl 
     deciPineRoot.tcl deleted.tcl viewMCubesFile.tcl
     volTkInteractor.tcl spikeColor.tcl tkwin.tcl backdrop.tcl
-<<<<<<< rtExamples.tcl
-    ShotNoiseInclude.tcl TestFeatureAnd.tcl TestHistogram.tcl 
-    TestHistogramEqualization.tcl TestMIPFilter.tcl
-    TestSubsample3D.tcl vtkHistogramWidget.tcl
-=======
     ShotNoiseInclude.tcl 
->>>>>>> 1.58
     TkImageViewerInteractor.tcl TkViewer.tcl TkViewer2.tcl
     Timing.tcl WindowLevelInterface.tcl
     vtkHistogramWidget.tcl
