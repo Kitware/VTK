@@ -9,10 +9,11 @@
 #include "vtkLineSource.h"
 #include "vtkStreamLine.h"
 #include "vtkCamera.h"
+#include "vtkRungeKutta4.h"
 
 #include "SaveImage.h"
 
-void main( int argc, char *argv[] )
+int main( int argc, char *argv[] )
 {
   float range[2];
   float maxVelocity, maxTime;
@@ -235,13 +236,16 @@ void main( int argc, char *argv[] )
   vtkActor *rake = vtkActor::New();
     rake->SetMapper(rakeMapper);
 
+  vtkRungeKutta4 *integ = vtkRungeKutta4::New();
+
   vtkStreamLine *streamers = vtkStreamLine::New();
     //streamers->DebugOn();
     streamers->SetInput(reader->GetOutput());
     streamers->SetSource(line->GetOutput());
     streamers->SetMaximumPropagationTime(maxTime);
     streamers->SetStepLength(maxTime/500.0);
-    streamers->SetIntegrationStepLength(0.2);
+    streamers->SetIntegrationStepLength(0.02);
+    streamers->SetIntegrator(integ);
     streamers->Update();
     //streamers->DebugOff();
   vtkPolyDataMapper *streamersMapper = vtkPolyDataMapper::New();
@@ -292,6 +296,7 @@ void main( int argc, char *argv[] )
   iren->Start();
 
   // Clean up
+  integ->Delete();
   aren->Delete();
   renWin->Delete();
   iren->Delete();
