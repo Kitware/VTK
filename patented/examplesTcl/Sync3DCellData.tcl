@@ -8,8 +8,6 @@ if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdat
 source $VTK_TCL/vtkInt.tcl
 source $VTK_TCL/colors.tcl
 
-vtkMultiProcessController c
-
 vtkImageData d
 d SetDimensions 3 3 3
 d SetScalarType 10
