@@ -31,6 +31,7 @@ vtkPointSetSource
 vtkPointSetToPointSetFilter
 vtkPolyDataCollection
 vtkPolyDataNormals
+vtkPolyDataSource 
 vtkPolyDataToPolyDataFilter
 vtkRectilinearGridSource
 vtkRectilinearGridToPolyDataFilter

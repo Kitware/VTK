@@ -91,7 +91,6 @@ vtkPointLocator
 vtkPointLocator2D 
 vtkPoints 
 vtkPolyData 
-vtkPolyDataSource 
 vtkPolyLine 
 vtkPolyVertex 
 vtkPolygon 
@@ -135,7 +134,6 @@ vtkVoidArray
 vtkVoxel 
 vtkWedge 
 vtkWindowLevelLookupTable 
-vtkWindowToImageFilter 
 vtkInterpolatedVelocityField 
 vtkRungeKutta2 
 vtkRungeKutta4 
