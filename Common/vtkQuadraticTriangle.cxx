@@ -22,7 +22,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticTriangle, "1.13");
+vtkCxxRevisionMacro(vtkQuadraticTriangle, "1.14");
 vtkStandardNewMacro(vtkQuadraticTriangle);
 
 // Construct the line with two points.
@@ -328,7 +328,7 @@ double vtkQuadraticTriangle::GetParametricDistance(double pcoords[3])
 // Compute interpolation functions. The first three nodes are the triangle
 // vertices; the others are mid-edge nodes.
 void vtkQuadraticTriangle::InterpolationFunctions(double pcoords[3], 
-                                                  double weights[3])
+                                                  double weights[6])
 {
   double r = pcoords[0];
   double s = pcoords[1];
@@ -344,7 +344,7 @@ void vtkQuadraticTriangle::InterpolationFunctions(double pcoords[3],
 
 // Derivatives in parametric space.
 void vtkQuadraticTriangle::InterpolationDerivs(double pcoords[3], 
-                                               double derivs[3])
+                                               double derivs[12])
 {
   double r = pcoords[0];
   double s = pcoords[1];
