@@ -22,7 +22,6 @@ srcdir        = @srcdir@
 VPATH         = @srcdir@
 prefix        = @prefix@
 exec_prefix   = @exec_prefix@
-XGL_HOME      = @XGL_HOME@
 X_EXTRA_LIBS  = @X_EXTRA_LIBS@
 X_PRE_LIBS    = @X_PRE_LIBS@
 VTK_LIB_FILE  = @VTK_LIB_FILE@
@@ -41,12 +40,11 @@ EXAMPLES = VisQuad
   
 CXX_FLAGS = ${CPPFLAGS} @THREAD_FLAGS@ ${XCFLAGS} ${CXXFLAGS} -I${srcdir}/../../common \
 	${VTK_INLINE_FLAGS} ${VTK_TEMPLATE_FLAGS} \
-	@XGLR_FLAGS@ @OGLR_FLAGS@ @SBR_FLAGS@ @GLR_FLAGS@ \
-	-D_HP_NO_FAST_MACROS
+	@GRAPHICS_API_FLAGS@ -D_HP_NO_FAST_MACROS
 
 VTKLIB = ${VTK_LIB_FILE}
 
-LDLIBS = ${VTK_LIB_FILE} ${XLIBS} @OGLR_LIBS@ @GLR_LIBS@ @SBR_LIBS@ @XGLR_LIBS@ ${DL_LIBS} @THREAD_LIBS@
+LDLIBS = ${VTK_LIB_FILE} ${XLIBS} @GRAPHICS_API_LIBS@ ${DL_LIBS} @THREAD_LIBS@
 
 .cxx.o:
 	${CXX} ${CXX_FLAGS} -c $< -o $@
