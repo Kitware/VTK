@@ -197,6 +197,7 @@ vtkTexturedSphereSource \
 vtkThreshold \
 vtkThresholdPoints \
 vtkThresholdTextureCoords \
+vtkTIFFWriter \
 vtkTransformFilter \
 vtkTransformPolyFilter \
 vtkTransformStructuredPoints \
