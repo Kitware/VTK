@@ -102,7 +102,6 @@ void vtkGeometryFilter::SetExtent(float *extent)
     this->Modified();
     for (i=0; i<3; i++)
       {
-      if ( extent[2*i] < 0 ) extent[2*i] = 0;
       if ( extent[2*i+1] < extent[2*i] ) extent[2*i+1] = extent[2*i];
       this->Extent[2*i] = extent[2*i];
       this->Extent[2*i+1] = extent[2*i+1];
