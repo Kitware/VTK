@@ -44,8 +44,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct object to extract all of the input data.
 vtkImageDifference::vtkImageDifference()
 {
-  this->Error = 0;
-  this->ThresholdedError = 0.0;
+  int i;
+  for ( i = 0; i < this->NumberOfThreads; i++ )
+    {
+    this->ErrorPerThread[i] = 0;
+    this->ThresholdedErrorPerThread[i] = 0.0;
+    }
   this->Threshold = 16;
   this->AllowShift = 1;
   this->Averaging = 1;
@@ -156,14 +160,17 @@ void vtkImageDifference::ThreadedExecute(vtkImageData **inData,
   unsigned long count = 0;
   unsigned long target;
   
-  this->Error = 0;
-  this->ThresholdedError = 0;
+  this->ErrorPerThread[id] = 0;
+  this->ThresholdedErrorPerThread[id] = 0;
   
   if (inData[0] == NULL || inData[1] == NULL || outData == NULL)
     {
-    vtkErrorMacro(<< "Execute: Missing data");
-    this->Error = 1;
-    this->ThresholdedError = 1;
+    if (!id)
+      {
+      vtkErrorMacro(<< "Execute: Missing data");
+      }
+    this->ErrorPerThread[id] = 1;
+    this->ThresholdedErrorPerThread[id] = 1;
     return;
     }
 
@@ -171,9 +178,12 @@ void vtkImageDifference::ThreadedExecute(vtkImageData **inData,
       inData[1]->GetNumberOfScalarComponents() != 3 ||
       outData->GetNumberOfScalarComponents() != 3)
     {
-    vtkErrorMacro(<< "Execute: Expecting 3 components (RGB)");
-    this->Error = 1;
-    this->ThresholdedError = 1;
+    if (!id)
+      {
+      vtkErrorMacro(<< "Execute: Expecting 3 components (RGB)");
+      }
+    this->ErrorPerThread[id] = 1;
+    this->ThresholdedErrorPerThread[id] = 1;
     return;
     }
     
@@ -182,9 +192,12 @@ void vtkImageDifference::ThreadedExecute(vtkImageData **inData,
       inData[1]->GetScalarType() != VTK_UNSIGNED_CHAR || 
       outData->GetScalarType() != VTK_UNSIGNED_CHAR)
       {
-      vtkErrorMacro(<< "Execute: All ScalarTypes must be unsigned char");
-      this->Error = 1;
-      this->ThresholdedError = 1;
+      if (!id)
+	{
+	vtkErrorMacro(<< "Execute: All ScalarTypes must be unsigned char");
+	}
+      this->ErrorPerThread[id] = 1;
+      this->ThresholdedErrorPerThread[id] = 1;
       return;
       }
   
@@ -288,7 +301,7 @@ void vtkImageDifference::ThreadedExecute(vtkImageData **inData,
 	    }
 	  }
 	
-	this->Error = this->Error + (tr + tg + tb)/(3.0*255);
+	this->ErrorPerThread[id] = this->ErrorPerThread[id] + (tr + tg + tb)/(3.0*255);
 	tr -= this->Threshold;
 	if (tr < 0)
 	  {
@@ -307,7 +320,7 @@ void vtkImageDifference::ThreadedExecute(vtkImageData **inData,
 	*outPtr0++ = (unsigned char)tr;
 	*outPtr0++ = (unsigned char)tg;
 	*outPtr0++ = (unsigned char)tb;
-	this->ThresholdedError += (tr + tg + tb)/(3.0*255.0);
+	this->ThresholdedErrorPerThread[id] += (tr + tg + tb)/(3.0*255.0);
 
 	in1Ptr0 += in1Inc0;
 	in2Ptr0 += in2Inc0;
@@ -334,8 +347,6 @@ void vtkImageDifference::ExecuteImageInformation()
   if ( ! this->Inputs[0] || ! this->Inputs[1])
     {
     vtkErrorMacro(<< "ExecuteImageInformation: Input is not set.");
-    this->Error = 1;
-    this->ThresholdedError = 1;
     return;
     }
   
@@ -347,19 +358,44 @@ void vtkImageDifference::ExecuteImageInformation()
       in1Ext[4] != in2Ext[4] || in1Ext[5] != in2Ext[5])
     {
     vtkErrorMacro("ExecuteImageInformation: Input are not the same size.");
-    this->Error = 1;
-    this->ThresholdedError = 1;
     return;
     }
 }
 
+float vtkImageDifference::GetError()
+{
+  float error = 0.0;
+  int i;
+
+  for ( i= 0; i < this->NumberOfThreads; i++ )
+    error += this->ErrorPerThread[i];
+  
+  return error;
+}
+
+float vtkImageDifference::GetThresholdedError()
+{
+  float error = 0.0;
+  int i;
+
+  for ( i= 0; i < this->NumberOfThreads; i++ )
+    error += this->ThresholdedErrorPerThread[i];
+  
+  return error;
+}
 
 void vtkImageDifference::PrintSelf(ostream& os, vtkIndent indent)
 {
+  int i;
+
   vtkImageTwoInputFilter::PrintSelf(os,indent);
-  
-  os << indent << "Error: " << this->Error << "\n";
-  os << indent << "ThresholdedError: " << this->ThresholdedError << "\n";
+
+  for ( i= 0; i < this->NumberOfThreads; i++ )
+    {
+    os << indent << "Error for thread " << i << ": " << this->ErrorPerThread[i] << "\n";
+    os << indent << "ThresholdedError for thread " << i << ": " 
+       << this->ThresholdedErrorPerThread[i] << "\n";
+    }
   os << indent << "Threshold: " << this->Threshold << "\n";
   os << indent << "AllowShift: " << this->AllowShift << "\n";
   os << indent << "Averaging: " << this->Averaging << "\n";

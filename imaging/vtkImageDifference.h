@@ -73,13 +73,16 @@ public:
 
   // Description:
   // Return the total error in comparing the two images.
-  vtkGetMacro(Error,float);
+  float GetError(void);
+  void GetError(float *e) { *e = this->GetError(); };
   
   // Description:
   // Return the total thresholded error in comparing the two images.
   // The thresholded error is the error for a given pixel minus the
   // threshold and clamped at a minimum of zero. 
-  vtkGetMacro(ThresholdedError,float);
+  float GetThresholdedError(void);
+  void GetThresholdedError(float *e) { *e = this->GetThresholdedError(); };
+
 
   // Description:
   // Specify a threshold tolorance for pixel differences.
@@ -106,8 +109,8 @@ public:
   vtkBooleanMacro(Averaging,int);
 
 protected:
-  float Error;
-  float ThresholdedError;
+  float ErrorPerThread[VTK_MAX_THREADS];
+  float ThresholdedErrorPerThread[VTK_MAX_THREADS];
   int AllowShift;
   int Threshold;
   int Averaging;
