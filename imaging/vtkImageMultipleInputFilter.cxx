@@ -188,7 +188,7 @@ void vtkImageMultipleInputFilter::AddInput(vtkImageCache *input)
     {
     if (this->Inputs[idx] == NULL)
       {
-      this->Inputs[idx] == input;
+      this->Inputs[idx] = input;
       return;
       }
     }
