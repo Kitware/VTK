@@ -368,7 +368,7 @@ int vtkSubjectHelper::HasObserver(unsigned long event)
   vtkObserver *elem = this->Start;
   while (elem)
     {
-    if (elem->Event == event || elem->Event == vtkCommand::AnyEvent)
+    if (elem->Event == event)
       {
       return 1;
       }
@@ -386,7 +386,7 @@ void vtkSubjectHelper::InvokeEvent(unsigned long event, void *callData,
     {
     // store the next pointer because elem could disappear due to Command
     next = elem->Next;
-    if (elem->Event == event || elem->Event == vtkCommand::AnyEvent)
+    if (elem->Event == event)
       {
       elem->Command->Execute(self,event,callData);
       }
