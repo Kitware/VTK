@@ -423,6 +423,8 @@ void vtkLODProp3D::SetLODMapper( int id, vtkMapper *m )
 // Get the mapper for an LOD that is an actor
 void vtkLODProp3D::GetLODMapper( int id, vtkMapper **m )
 {
+  *m = NULL;
+	
   int index = this->ConvertIDToIndex( id );
 
   if ( index == VTK_INVALID_LOD_INDEX )
@@ -433,6 +435,7 @@ void vtkLODProp3D::GetLODMapper( int id, vtkMapper **m )
   if ( this->LODs[index].Prop3DType != VTK_LOD_ACTOR_TYPE )
     {
     vtkErrorMacro( << "Error: Cannot get an actor mapper on a non-actor!");
+
     return;
     }
 
@@ -461,6 +464,8 @@ void vtkLODProp3D::SetLODMapper( int id, vtkVolumeMapper *m )
 // Get the mapper for an LOD that is an actor
 void vtkLODProp3D::GetLODMapper( int id, vtkVolumeMapper **m )
 {
+  *m = NULL;
+  
   int index = this->ConvertIDToIndex( id );
 
   if ( index == VTK_INVALID_LOD_INDEX )
@@ -476,6 +481,31 @@ void vtkLODProp3D::GetLODMapper( int id, vtkVolumeMapper **m )
 
   *m = ((vtkVolume *)this->LODs[index].Prop3D)->GetMapper();
 }
+
+// Get the mapper for an LOD that is an AbstractMapper3D
+vtkAbstractMapper3D *vtkLODProp3D::GetLODMapper( int id )
+{
+  vtkAbstractMapper3D *m = NULL;
+  
+  int index = this->ConvertIDToIndex( id );
+
+  if ( index == VTK_INVALID_LOD_INDEX )
+    {
+    return m;
+    }
+
+  if ( this->LODs[index].Prop3DType == VTK_LOD_ACTOR_TYPE )
+    {
+	m = ((vtkActor *)this->LODs[index].Prop3D)->GetMapper();
+    }
+  else if ( this->LODs[index].Prop3DType == VTK_LOD_VOLUME_TYPE )
+    {
+	m = ((vtkVolume *)this->LODs[index].Prop3D)->GetMapper();
+    }
+
+  return m;
+}
+
 
 // Set the property for an LOD that is an actor
 void vtkLODProp3D::SetLODProperty( int id, vtkProperty *p )
@@ -1008,37 +1038,19 @@ void vtkLODProp3D::GetActors(vtkPropCollection *ac)
 {
   vtkDebugMacro(<< "vtkLODProp3D::GetActors");
   int index = 0;
-  if (this->AutomaticPickLODSelection)
+  int lodID;
+
+  lodID = this->GetPickLODID();
+  index = this->ConvertIDToIndex(lodID);
+
+  if (index == VTK_INVALID_LOD_INDEX) 
     {
-    if ( this->SelectedLODIndex < 0 ||
-	 this->SelectedLODIndex >= this->NumberOfEntries )
-      {
-      index = this->GetAutomaticPickPropIndex();
-      }
-    else
-      {
-      index = this->SelectedLODIndex;
-      }
-    if (! this->LODs[index].Prop3D->IsA("vtkVolume"))
-      {
-      ac->AddItem(this->LODs[index].Prop3D);
-      }
+    return;
     }
-  else
+
+  if (! this->LODs[index].Prop3D->IsA("vtkVolume"))
     {
-    if (this->PreviousPickProp)
-      {
-      this->PreviousPickProp->SetPickMethod(NULL, NULL);
-      }
-    index = this->ConvertIDToIndex(this->SelectedPickLODID);
-    if (index == VTK_INVALID_LOD_INDEX) 
-      {
-      return;
-      }
-    if (! this->LODs[index].Prop3D->IsA("vtkVolume"))
-      {
-      ac->AddItem(this->LODs[index].Prop3D);
-      }
+    ac->AddItem(this->LODs[index].Prop3D);
     }
 }
 
@@ -1105,6 +1117,38 @@ int vtkLODProp3D::GetAutomaticPickPropIndex(void)
 	}
       }
     return index;
+}
+
+
+int vtkLODProp3D::GetPickLODID(void)
+{
+  int lodID=0;
+
+  vtkDebugMacro(<< "vtkLODProp3D::GetPickLODID");
+  int index = 0;
+  if (this->AutomaticPickLODSelection)
+    {
+    if ( this->SelectedLODIndex < 0 ||
+	 this->SelectedLODIndex >= this->NumberOfEntries )
+      {
+      index = this->GetAutomaticPickPropIndex();
+      }
+    else
+      {
+      index = this->SelectedLODIndex;
+      }
+	lodID = this->LODs[index].ID;
+    }
+  else
+    {
+    if (this->PreviousPickProp)
+      {
+      this->PreviousPickProp->SetPickMethod(NULL, NULL);
+      }
+	  lodID = this->SelectedPickLODID;
+    }
+
+    return lodID;
 }
 
 

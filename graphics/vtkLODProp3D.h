@@ -60,6 +60,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkRenderer;
 class vtkMapper;
 class vtkVolumeMapper;
+class vtkAbstractMapper3D;
 class vtkProperty;
 class vtkVolumeProperty;
 class vtkTexture;
@@ -138,6 +139,11 @@ public:
   void GetLODMapper( int id, vtkVolumeMapper  **m );
 
   // Description:
+  // Get the LODMapper as an vtkAbstractMapper3D.  It is the user's respondibility
+  // to safe down cast this to a vtkMapper or vtkVolumeMapper as appropriate.
+  vtkAbstractMapper3D *GetLODMapper(int id);
+
+  // Description:
   // Methods to set / get the texture of an LOD. This method is only
   // valid for LOD ids that are Actors (not Volumes)
   void SetLODTexture( int id, vtkTexture *t );
@@ -185,6 +191,10 @@ public:
   // Description:
   // Get the ID of the previously (during the last render) selected LOD index
   int GetLastRenderedLODID();
+
+  // Description:
+  // Get the ID of the appropriate pick LOD index
+  int GetPickLODID(void);
 
   // Description: 
   // For some exporters and other other operations we must be
