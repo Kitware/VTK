@@ -140,7 +140,7 @@ class vtkVertexArray { //;prevent man page generation
 public:
   vtkVertexArray(const int sz) 
     {this->MaxId = -1; this->Array = new vtkLocalVertex[sz];};
-  ~vtkVertexArray() {if (this->Array) delete [] this->Array;};
+  ~vtkVertexArray() {if (this->Array) {delete [] this->Array;}};
   int GetNumberOfVertices() {return this->MaxId + 1;};
   void InsertNextVertex(vtkLocalVertex& v) 
     {this->MaxId++; this->Array[this->MaxId] = v;};
@@ -155,7 +155,7 @@ class vtkTriArray { //;prevent man page generation
 public:
   vtkTriArray(const int sz) 
     {this->MaxId = -1; this->Array = new vtkLocalTri[sz];};
-  ~vtkTriArray() {if (this->Array) delete [] this->Array;};
+  ~vtkTriArray() {if (this->Array) {delete [] this->Array;}};
   int GetNumberOfTriangles() {return this->MaxId + 1;};
   void InsertNextTriangle(vtkLocalTri& t) 
     {this->MaxId++; this->Array[this->MaxId] = t;};

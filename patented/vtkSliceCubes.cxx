@@ -189,7 +189,10 @@ static int Contour(T *slice, S *scalars, int imageRange[2], int dims[3], float o
   slice2scalars = scalars;
   if (debug)  vtkGenericWarningMacro(<< "  Slice# " << imageRange[0]);
 
-  if ( slice2scalars == NULL ) return 0;
+  if ( slice2scalars == NULL )
+    {
+    return 0;
+    }
   if ( slice != NULL )
     {
     slice1 = slice2 = slice2scalars->GetPointer(0);
@@ -227,7 +230,10 @@ static int Contour(T *slice, S *scalars, int imageRange[2], int dims[3], float o
     {
 
     // swap things around
-    if ( slice0scalars != NULL ) slice0scalars->Delete();
+    if ( slice0scalars != NULL )
+      {
+      slice0scalars->Delete();
+      }
     slice0scalars = slice1scalars;
     slice0 = slice1;
     slice1scalars = slice2scalars;
@@ -276,11 +282,17 @@ static int Contour(T *slice, S *scalars, int imageRange[2], int dims[3], float o
 
         // Build the case table
         for ( ii=0, index = 0; ii < 8; ii++)
-            if ( s[ii] >= value )
-                index |= CASE_MASK[ii];
+	  {
+          if ( s[ii] >= value )
+	    {
+            index |= CASE_MASK[ii];
+	    }
+	  }
 
-        if ( index == 0 || index == 255 ) continue; //no surface
-
+        if ( index == 0 || index == 255 ) // no surface
+	  {
+	  continue;
+	  }
         //create voxel points
         pts[0][0] = origin[0] + i*Spacing[0];
 
@@ -347,8 +359,14 @@ static int Contour(T *slice, S *scalars, int imageRange[2], int dims[3], float o
               {
               point[jj] = x1[jj] + t * (x2[jj] - x1[jj]);
               point[jj+3] = n1[jj] + t * (n2[jj] - n1[jj]);
-              if (point[jj] < xmin[jj] ) xmin[jj] = point[jj];
-              if (point[jj] > xmax[jj] ) xmax[jj] = point[jj];
+              if (point[jj] < xmin[jj] )
+		{
+		xmin[jj] = point[jj];
+		}
+              if (point[jj] > xmax[jj] )
+		{
+		xmax[jj] = point[jj];
+		}
               }
             vtkMath::Normalize(point+3);
 	    // swap bytes if necessary
@@ -364,9 +382,18 @@ static int Contour(T *slice, S *scalars, int imageRange[2], int dims[3], float o
   PREMATURE_TERMINATION:
 
   fclose(outFP);
-  if ( slice == NULL ) floatScalars->Delete();
-  if (slice0scalars && slice0scalars != slice1scalars) slice0scalars->Delete();
-  if (slice3scalars && slice3scalars != slice2scalars) slice3scalars->Delete();
+  if ( slice == NULL )
+    {
+    floatScalars->Delete();
+    }
+  if (slice0scalars && slice0scalars != slice1scalars)
+    {
+    slice0scalars->Delete();
+    }
+  if (slice3scalars && slice3scalars != slice2scalars)
+    {
+    slice3scalars->Delete();
+    }
   slice1scalars->Delete();
   slice2scalars->Delete();
 
