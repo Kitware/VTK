@@ -1,16 +1,12 @@
-
 // include OS specific include file to mix in X code
 #include "vtkXRenderWindow.h"
 #include "vtkXRenderWindowInteractor.h"
-#include "vtkRenderer.h"
-#include "vtkActor.h"
 #include "vtkSphereSource.h"
 #include "vtkConeSource.h"
 #include "vtkGlyph3D.h"
 #include "vtkPolyDataMapper.h"
-#include <Xm/ArrowB.h>
+#include <Xm/PushB.h>
 #include <Xm/Form.h>
-#include <X11/Shell.h>
 
 void quit_cb(Widget,XtPointer,XtPointer);
 
@@ -19,7 +15,7 @@ main (int argc, char *argv[])
   // X window stuff
   XtAppContext app;
   Widget toplevel, form, toplevel2, vtk;
-  Widget button[4];
+  Widget button;
   int depth;
   Visual *vis;
   Display *display;
@@ -35,7 +31,7 @@ main (int argc, char *argv[])
   vtkPolyDataMapper *sphereMapper, *spikeMapper;
   vtkXRenderWindowInteractor *iren;
   
-  renWin = (vtkXRenderWindow *)vtkRenderWindow::New();
+  renWin = vtkXRenderWindow::New();
   ren1 = vtkRenderer::New();
   renWin->AddRenderer(ren1);
   
@@ -66,7 +62,7 @@ main (int argc, char *argv[])
 
   // do the xwindow ui stuff
   XtSetLanguageProc(NULL,NULL,NULL);
-  toplevel = XtVaAppInitialize(&app,"Prog6",NULL,0,&argc,argv,NULL, NULL);
+  toplevel = XtVaAppInitialize(&app,"Sample",NULL,0,&argc,argv,NULL, NULL);
   
   // get the display connection and give it to the renderer
   display = XtDisplay(toplevel);
@@ -80,39 +76,37 @@ main (int argc, char *argv[])
 			       XmNvisual, vis,
 			       XmNcolormap, col,
 			       NULL);
+
   form     = XtVaCreateWidget("form",xmFormWidgetClass, toplevel2, NULL);
+
   vtk      = XtVaCreateManagedWidget("vtk",xmPrimitiveWidgetClass, form, 
-				     XmNwidth, 300,
-				     XmNheight, 300,
+				     XmNwidth, 300, XmNheight, 300,
+				     XmNleftAttachment, XmATTACH_FORM,
+				     XmNrightAttachment, XmATTACH_FORM,
+				     XmNtopAttachment, XmATTACH_FORM,
 				     NULL);
 
-  button[0] = XtVaCreateManagedWidget("arrow1",xmArrowButtonWidgetClass, form,
-				      XmNarrowDirection, XmARROW_LEFT,
-				      XmNwidth, 50,
-				      XmNheight, 50,
+  button    = XtVaCreateManagedWidget("Exit",xmPushButtonWidgetClass, form,
+				      XmNheight, 40,
 				      XmNbottomAttachment, XmATTACH_FORM,
 				      XmNtopAttachment, XmATTACH_WIDGET,
 				      XmNtopWidget, vtk,
-				      XmNleftAttachment, XmATTACH_POSITION,
-				      XmNleftPosition, 0,
-				      XmNrightAttachment, XmATTACH_POSITION,
-				      XmNrightPosition, 25,
+				      XmNleftAttachment, XmATTACH_FORM,
+				      XmNrightAttachment, XmATTACH_FORM,
 				      NULL);
-
-  XtAddCallback(button[0],XmNactivateCallback,quit_cb,NULL);
+  
+  XtAddCallback(button,XmNactivateCallback,quit_cb,NULL);
 
   XtManageChild(form);
   XtRealizeWidget(toplevel2);
   XtMapWidget(toplevel2);
   
   // we typecast to an X specific interactor
-  // Since we have specifically decided to make this 
-  // an X windows program
-  iren = (vtkXRenderWindowInteractor *)vtkRenderWindowInteractor::New();
+  // Since we have specifically decided to make this an X program
+  iren = vtkXRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
   iren->SetWidget(vtk);
   iren->Initialize(app);
-  renWin->Render();
 
   XtAppMainLoop(app);
 }
