@@ -30,6 +30,7 @@ public:
   vlMergeFilter();
   ~vlMergeFilter();
   char *GetClassName() {return "vlMergeFilter";};
+  char *GetDataType() {return this->Geometry->GetDataType();};
   void PrintSelf(ostream& os, vlIndent indent);
 
   // dataset interface
@@ -48,7 +49,6 @@ public:
     {return this->Geometry->FindCell(x,cell,tol2,subId,pc);};
 
   void ComputeBounds() {this->Geometry->ComputeBounds();};
-  vlMapper *MakeMapper();
 
   // Filter interface
   void Update();

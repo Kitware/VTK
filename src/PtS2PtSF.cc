@@ -52,27 +52,6 @@ void vlPointSetToPointSetFilter::Initialize()
     }
 }
 
-vlMapper *vlPointSetToPointSetFilter::MakeMapper()
-{
-//
-// A little tricky because mappers must be of concrete type, but this class 
-// deals at abstract level of PointSet.  Depending upon Input member of this 
-// filter, mapper may change.  Hence need to anticipate change in Input and 
-// create new mappers as necessary.
-//
-  vlMapper *mapper;
-
-  vlPointSetToPointSetFilter::Update(); // compiler bug, had to hard code call
-  mapper = this->PointSet->MakeMapper();
-  if ( !this->Mapper || mapper != this->Mapper )
-    {
-    if (this->Mapper) this->Mapper->UnRegister(this);
-    this->Mapper = mapper;
-    this->Mapper->Register(this);
-    }
-  return this->Mapper;
-}
-
 void vlPointSetToPointSetFilter::PrintSelf(ostream& os, vlIndent indent)
 {
   if (this->ShouldIPrint(vlPointSetToPointSetFilter::GetClassName()))

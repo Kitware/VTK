@@ -31,6 +31,7 @@ public:
   vlPointSetToPointSetFilter();
   ~vlPointSetToPointSetFilter();
   char *GetClassName() {return "vlPointSetToPointSetFilter";};
+  char *GetDataType() {return this->PointSet->GetDataType();};
   void PrintSelf(ostream& os, vlIndent indent);
 
   // dataset interface
@@ -42,7 +43,6 @@ public:
   void Initialize();
 
   void ComputeBounds() {this->PointSet->ComputeBounds();};
-  vlMapper *MakeMapper();
   void Update();
 
 protected:

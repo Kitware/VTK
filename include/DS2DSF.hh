@@ -29,6 +29,7 @@ public:
   vlDataSetToDataSetFilter();
   ~vlDataSetToDataSetFilter();
   char *GetClassName() {return "vlDataSetToDataSetFilter";};
+  char *GetDataType() {return this->DataSet->GetDataType();};
   void PrintSelf(ostream& os, vlIndent indent);
 
   // dataset interface
@@ -47,7 +48,6 @@ public:
     {return this->DataSet->FindCell(x,cell,tol2,subId,pc);};
 
   void ComputeBounds() {this->DataSet->ComputeBounds();};
-  vlMapper *MakeMapper();
   void Update();
 
 protected:

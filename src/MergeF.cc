@@ -59,26 +59,6 @@ void vlMergeFilter::Initialize()
     }
 }
 
-vlMapper *vlMergeFilter::MakeMapper()
-{
-//
-// A little tricky because mappers must be of concrete type, but this class 
-// deals at abstract level of DataSet.  Depending upon Input member of this 
-// filter, mapper may change.  Hence need to anticipate change in Input and 
-// create new mappers as necessary.
-//
-  vlMapper *mapper;
-
-  mapper = this->Geometry->MakeMapper();
-  if ( !this->Mapper || mapper != this->Mapper )
-    {
-    if (this->Mapper) this->Mapper->UnRegister(this);
-    this->Mapper = mapper;
-    this->Mapper->Register(this);
-    }
-  return this->Mapper;
-}
-
 void vlMergeFilter::PrintSelf(ostream& os, vlIndent indent)
 {
   if (this->ShouldIPrint(vlMergeFilter::GetClassName()))
