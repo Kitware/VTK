@@ -18,7 +18,7 @@
 #include "vtkStripper.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkStripper, "1.56");
+vtkCxxRevisionMacro(vtkStripper, "1.57");
 vtkStandardNewMacro(vtkStripper);
 
 // Construct object with MaximumLength set to 1000.
@@ -33,6 +33,7 @@ void vtkStripper::Execute()
   int longestStrip, longestLine, j, numPts;
   vtkIdType numLines, numStrips, nei;
   vtkCellArray *newStrips=NULL, *inStrips, *newLines=NULL, *inLines, *inPolys;
+  vtkCellArray *newPolys;
   vtkIdType numLinePts;
   vtkIdList *cellIds;
   int foundOne;
@@ -76,11 +77,14 @@ void vtkStripper::Execute()
     {
     newStrips = vtkCellArray::New();
     newStrips->Allocate(newStrips->EstimateSize(numCells,6));
-    for(inStrips->InitTraversal();inStrips->GetNextCell(numStripPts,
-                                                        stripPts);)
+    for(inStrips->InitTraversal();
+        inStrips->GetNextCell(numStripPts,stripPts); )
       {
       newStrips->InsertNextCell(numStripPts,stripPts);
       }
+    // These are for passing through non-triangle polygons
+    newPolys = vtkCellArray::New();
+    newPolys->Allocate(newStrips->EstimateSize(numCells/2,4));
     }
 
   // pre-load existing poly-lines
@@ -103,7 +107,7 @@ void vtkStripper::Execute()
     {
     visited[i] = 0;
     }
-  //
+
   // Loop over all cells and find one that hasn't been visited.
   // Start a triangle strip (or poly-line) and mark as visited, and 
   // then find a neighbor that isn't visited.  Add this to the strip 
@@ -280,8 +284,15 @@ void vtkStripper::Execute()
               neighbor = (-1);
               }
             } // while
-          } // else continue strip
+          } // else continue line
         } // if line
+
+      //not line, triangle, or strip must be polygon which we pass through
+      else if ( Mesh->GetCellType(cellId) != VTK_TRIANGLE_STRIP )
+        {
+        Mesh->GetCellPoints(cellId,numTriPts,triPts);
+        newPolys->InsertNextCell(numTriPts,triPts);
+        }
 
       } // if not visited
     } // for all elements
@@ -308,6 +319,14 @@ void vtkStripper::Execute()
                   << " triangles per strip, longest strip = "
                   << ((longestStrip-2)>0?(longestStrip-2):0) << " triangles)");
 
+    if ( newPolys->GetNumberOfCells() > 0 )
+      {
+      vtkDebugMacro(<<"Passed " << newPolys->GetNumberOfCells() 
+                    << " polygons");
+      newPolys->Squeeze();
+      output->SetPolys(newPolys);
+      newPolys->Delete();
+      }
     }
 
   // output poly-lines
