@@ -26,6 +26,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 class vtkByteSwap
 {
 public:
+  void Delete() {delete this;};
   void Swap4(char *c);
   void Swap4(float *p) {Swap4((char *)p);};
   void Swap4(int *i) {Swap4((char *)i);};
