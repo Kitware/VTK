@@ -272,7 +272,7 @@ class VTK_EXPORT vtkTransform : public vtkObject
   vtkTransform &operator=(const vtkTransform &t);
   
   
-private:
+protected:
   vtkTransform ();
   vtkTransform (const vtkTransform& t);
   ~vtkTransform ();
