@@ -693,23 +693,6 @@ static void vtkImageBlendCompoundTransferExecute(vtkImageBlend *self,
                                                    T *outPtr,
                                                    vtkImageData *tmpData)
 {
-  float minA, maxA;
-  float scale;
-
-  if (outData->GetScalarType() == VTK_DOUBLE ||
-      outData->GetScalarType() == VTK_FLOAT)
-    {
-    minA = 0.0;
-    maxA = 1.0;
-    }
-  else
-    {
-    minA = outData->GetScalarTypeMin();
-    maxA = outData->GetScalarTypeMax();
-    }
-
-  scale = maxA - minA;
-
   // find the region to loop over
 
   int maxX, maxY, maxZ;
