@@ -65,6 +65,13 @@ public:
     }
 
   // Description:
+  // Get the contained pointer.
+  operator T* () const
+    {
+    return static_cast<T*>(this->Object);
+    }
+
+  // Description:
   // Dereference the pointer and return a reference to the contained
   // object.
   T& operator*() const
