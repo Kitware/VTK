@@ -23,7 +23,7 @@
 #include <ctype.h>
 #include <string.h>
 
-vtkCxxRevisionMacro(vtkMILVideoSource, "1.16");
+vtkCxxRevisionMacro(vtkMILVideoSource, "1.17");
 vtkStandardNewMacro(vtkMILVideoSource);
 
 //----------------------------------------------------------------------------
@@ -409,6 +409,10 @@ void vtkMILVideoSource::Initialize()
 //----------------------------------------------------------------------------
 void vtkMILVideoSource::ReleaseSystemResources()
 {
+  if (this->MILAppID != 0)
+    {
+    MappControl(M_ERROR, M_PRINT_DISABLE);
+    }
   if (this->MILDigID)
     {
     if (this->Recording)
@@ -438,7 +442,9 @@ void vtkMILVideoSource::ReleaseSystemResources()
     }
   if (this->MILDigID != 0)
     {
-    MdigFree(this->MILDigID);
+    //  The MdigFree call never returns if it is called by atexit(),
+    //  and it doesn't seem to hurt anything if it isn't called.
+    // MdigFree(this->MILDigID);
     this->MILDigID = 0;
     }
   if (this->MILSysInternallyAllocated && this->MILSysID != 0)
