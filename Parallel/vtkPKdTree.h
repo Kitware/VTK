@@ -274,6 +274,11 @@ public:
   int GetCellArrayGlobalRange(const char *name, double range[2]);
   int GetPointArrayGlobalRange(const char *name, double range[2]);
 
+  int GetCellArrayGlobalRange(int arrayIndex, double range[2]);
+  int GetPointArrayGlobalRange(int arrayIndex, double range[2]);
+  int GetCellArrayGlobalRange(int arrayIndex, float range[2]);
+  int GetPointArrayGlobalRange(int arrayIndex, float range[2]);
+
 protected:
 
   vtkPKdTree();
@@ -281,9 +286,6 @@ protected:
 
   void SingleProcessBuildLocator();
   int MultiProcessBuildLocator(double *bounds);
-
-  int GetCellArrayGlobalRange(int arrayIndex, double range[2]);
-  int GetPointArrayGlobalRange(int arrayIndex, double range[2]);
 
 private:
 

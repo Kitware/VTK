@@ -76,7 +76,7 @@ static char * makeEntry(const char *s)
 
 // Timing data ---------------------------------------------
 
-vtkCxxRevisionMacro(vtkPKdTree, "1.11");
+vtkCxxRevisionMacro(vtkPKdTree, "1.12");
 vtkStandardNewMacro(vtkPKdTree);
 
 const int vtkPKdTree::NoRegionAssignment = 0;   // default
@@ -2930,6 +2930,17 @@ int vtkPKdTree::GetPointArrayGlobalRange(const char *n, float range[2])
 
   return fail;
 }
+int vtkPKdTree::GetCellArrayGlobalRange(int arrayIndex, float range[2])
+{
+  double tmp[2];
+  int fail = this->GetCellArrayGlobalRange(arrayIndex, tmp);
+  if (!fail)
+    {
+    range[0] = (float)tmp[0];
+    range[1] = (float)tmp[1];
+    }
+  return fail;
+}
 int vtkPKdTree::GetCellArrayGlobalRange(int arrayIndex, double range[2])
 {
   if ((arrayIndex < 0) || (arrayIndex >= this->NumCellArrays))
@@ -2942,6 +2953,17 @@ int vtkPKdTree::GetCellArrayGlobalRange(int arrayIndex, double range[2])
   range[1] = this->CellDataMax[arrayIndex];
 
   return 0;
+}
+int vtkPKdTree::GetPointArrayGlobalRange(int arrayIndex, float range[2])
+{
+  double tmp[2];
+  int fail = this->GetPointArrayGlobalRange(arrayIndex, tmp);
+  if (!fail)
+    {
+    range[0] = (float)tmp[0];
+    range[1] = (float)tmp[1];
+    }
+  return fail;
 }
 int vtkPKdTree::GetPointArrayGlobalRange(int arrayIndex, double range[2])
 {
