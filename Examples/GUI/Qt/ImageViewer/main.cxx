@@ -30,10 +30,9 @@
 #include "vtkImageViewer.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkPNGReader.h"
+#include "vtkTestUtilities.h"
 
 #include "QVTKWidget.h"
-
-#include "vtkstd/string"
 
 int main(int argc, char** argv)
 {
@@ -45,12 +44,9 @@ int main(int argc, char** argv)
   app.setMainWidget(&widget);
 
   vtkPNGReader* reader = vtkPNGReader::New();
-  const char* data_root = getenv("VTK_DATA_ROOT");
-  if(data_root)
-  {
-    vtkstd::string data_file = data_root + vtkstd::string("/Data/vtk.png");
-    reader->SetFileName(data_file.c_str());
-  }
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vtk.png");
+  reader->SetFileName(fname);
+  delete [] fname;
 
   vtkImageViewer* image_view = vtkImageViewer::New();
   image_view->SetInput(reader->GetOutput());
