@@ -94,6 +94,19 @@ vtkStructuredPoints *vtkStructuredPointsSource::GetOutput()
 // structured points sources compute information
 void vtkStructuredPointsSource::ExecuteInformation()
 {
+  vtkStructuredPoints *output = this->GetOutput();
+  vtkScalars *scalars;
+
+  output->UpdateData();
+  scalars = output->GetPointData()->GetScalars();
+
+  if (scalars)
+    {
+    output->SetScalarType(scalars->GetDataType());
+    output->SetNumberOfScalarComponents(scalars->GetNumberOfComponents());
+    }
+
+  output->SetWholeExtent(output->GetExtent());
 }
 
 
