@@ -40,7 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkImageToImageFilter - an alias for vtkImageToImageFilter
 // .SECTION Description
-// vtkImageToImageFilter is a legacy class and should not be used.
+// vtkImageFilter is a legacy class and should not be used.
 // use vtk ImageToImageFilter instead.
 
 
