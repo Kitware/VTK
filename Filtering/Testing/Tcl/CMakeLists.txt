@@ -46,3 +46,6 @@ ADD_TEST(TestSetObjectMacro-Filtering ${TCL_TCLSH}
          "${VTK_SOURCE_DIR}/Filtering/vtk\\\\*.h"
          "vtkSetObjectMacro"
          )
+ADD_TEST(otherDataSetAttributes ${VTK_EXECUTABLE}
+         ${VTK_SOURCE_DIR}/Filtering/Testing/Tcl/otherDataSetAttributes.tcl 
+         -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)

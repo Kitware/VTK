@@ -13,9 +13,6 @@ ADD_TEST(TestSetGet ${VTK_EXECUTABLE}
 ADD_TEST(TestArrays ${VTK_EXECUTABLE}
          ${VTK_SOURCE_DIR}/Common/Testing/Tcl/TestArrays.tcl 
          -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
-ADD_TEST(otherDataSetAttributes ${VTK_EXECUTABLE}
-         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/otherDataSetAttributes.tcl 
-         -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
 ADD_TEST(TestAmoebaMinimizer ${VTK_EXECUTABLE}
          ${VTK_SOURCE_DIR}/Common/Testing/Tcl/TestAmoebaMinimizer.tcl)
 ADD_TEST(PrintSelf-Common ${TCL_TCLSH}

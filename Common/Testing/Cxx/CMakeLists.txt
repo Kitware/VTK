@@ -24,7 +24,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
 )
 
 ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
-TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkCommon)
+TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkCommon vtkFiltering)
 
 SET (TestsToRun ${Tests})
 REMOVE (TestsToRun ${KIT}CxxTests.cxx)

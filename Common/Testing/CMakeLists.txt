@@ -15,34 +15,26 @@ IF(PYTHON_EXECUTABLE)
            vtkAbstractIterator.h
            vtkAbstractList.h
            vtkAbstractMap.h
-           vtkActor2DCollection.h
            vtkAMRBox.h
            vtkArrayMap.h
            vtkArrayMapIterator.h
            vtkAssemblyPaths.h
            vtkByteSwap.h
            vtkCallbackCommand.h
-           vtkCellType.h
            vtkCommand.h
            vtkContainer.h
            vtkDataArrayCollection.h
            vtkDataArrayTemplate.h
-           vtkDataObjectCollection.h
-           vtkDataSetCollection.h
            vtkDebugLeaks.h
            vtkDebugLeaksManager.h
            vtkDynamicLoader.h
            vtkErrorCode.h
            vtkHashMap.h
            vtkHashMapIterator.h
-           vtkHierarchicalDataSetInternal.h
-           vtkHierarchicalBoxDataSetInternal.h
            vtkIdListCollection.h
            vtkImplicitFunctionCollection.h
            vtkIOStream.h
            vtkIOStreamFwd.h
-           vtkImageIterator.h
-           vtkImageProgressIterator.h
            vtkIndent.h
            vtkJavaAwt.h
            vtkJavaUtil.h
@@ -51,7 +43,6 @@ IF(PYTHON_EXECUTABLE)
            vtkLinkedListIterator.h
            vtkMarchingCubesCases.h
            vtkMarchingSquaresCases.h
-           vtkMultiBlockDataSetInternal.h
            vtkMultiPartExtentTranslator.h
            vtkOStrStreamWrapper.h
            vtkOStreamWrapper.h
@@ -72,7 +63,6 @@ IF(PYTHON_EXECUTABLE)
            vtkSmartPointerBase.h
            vtkStdString.h
            vtkStructuredData.h
-           vtkStructuredPoints.h
            vtkSystemIncludes.h
            vtkTclUtil.h
            vtkTimeStamp.h
