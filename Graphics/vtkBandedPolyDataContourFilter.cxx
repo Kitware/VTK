@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTriangleStrip.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.13");
+vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.14");
 vtkStandardNewMacro(vtkBandedPolyDataContourFilter);
 
 // Construct object.
@@ -235,9 +235,10 @@ void vtkBandedPolyDataContourFilter::Execute()
 
   //  Check input
   //
-  numPts = inPts->GetNumberOfPoints();
+  
   numCells = input->GetNumberOfCells();
-  if ( !inScalars || numCells < 1 || numPts < 1 )
+  if ( !inPts || (numPts=inPts->GetNumberOfPoints()) < 1 || 
+       !inScalars || numCells < 1 )
     {
     vtkErrorMacro(<<"No input data!");
     return;
