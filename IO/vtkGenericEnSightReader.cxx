@@ -27,7 +27,7 @@
 
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.56");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.57");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -480,7 +480,6 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
           {
           vtkErrorMacro("Unable to open file: " << sfilename.c_str());
           vtkWarningMacro("Assuming binary file.");
-          fclose(this->IFile);
           this->IFile = NULL;
           delete [] fileName;
           return vtkGenericEnSightReader::ENSIGHT_6_BINARY;
