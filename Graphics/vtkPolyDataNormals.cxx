@@ -646,16 +646,3 @@ void vtkPolyDataNormals::PrintSelf(ostream& os, vtkIndent indent)
      << (this->NonManifoldTraversal ? "On\n" : "Off\n");
 }
 
-void vtkPolyDataNormals::ComputeInputUpdateExtents(vtkDataObject *output)
-{
-  int numPieces, ghostLevel;
-  
-  this->vtkPolyDataSource::ComputeInputUpdateExtents(output);
-
-  numPieces = output->GetUpdateNumberOfPieces();
-  ghostLevel = output->GetUpdateGhostLevel();
-  if (numPieces > 1)
-    {
-    this->GetInput()->SetUpdateGhostLevel(ghostLevel + 1);
-    }
-}
