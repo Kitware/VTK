@@ -517,6 +517,56 @@ int TestSafeBoolIdiom()
   return result;
 }
 
+//----------------------------------------------------------------------------
+
+/* Test use of exceptions.  */
+
+class TestExceptionUnwind
+{
+  int* pvalue;
+public:
+  TestExceptionUnwind(int* p): pvalue(p) {}
+  ~TestExceptionUnwind() { *pvalue = 1; }
+  void Use() {}
+};
+
+class ExceptionClass {};
+
+void TestThrowException(int* p)
+{
+  TestExceptionUnwind unwind(p);
+  unwind.Use();
+  throw ExceptionClass();
+}
+
+int TestException()
+{
+  int value = 0;
+  try
+    {
+    TestThrowException(&value);
+    }
+  catch(ExceptionClass&)
+    {
+    if(value)
+      {
+      return 1;
+      }
+    else
+      {
+      cerr << "TestExceptionUnwind object not destroyed!" << endl;
+      return 0;
+      }
+    }
+  catch(...)
+    {
+    cerr << "ExceptionClass not caught!" << endl;
+    return 0;
+    }
+  cerr << "No exception caught!" << endl;
+  return 0;
+}
+
 //-------------------------------------------------------------------
 // See if the following code works on all platforms
 #if defined(_MSC_VER) && defined(_DEBUG)
@@ -553,6 +603,7 @@ int main()
 #endif
   DO_TEST(TestBinaryWriting);
   DO_TEST(TestSafeBoolIdiom);
+  DO_TEST(TestException);
 #if defined(_MSC_VER) && defined(_DEBUG)
   // just call the code to shut up a linker warning
   int retVal = 0;
