@@ -110,9 +110,9 @@ public:
 //BTX
   enum ErrorCodes
   {
-    OutOfDomain = 1,
-    NotInitialized = 2,
-    UnexpectedValue = 3
+    OUT_OF_DOMAIN = 1,
+    NOT_INITIALIZED = 2,
+    UNEXPECTED_VALUE = 3
   };
 //ETX
 

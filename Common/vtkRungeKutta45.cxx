@@ -18,7 +18,7 @@
 #include "vtkRungeKutta45.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkRungeKutta45, "1.3");
+vtkCxxRevisionMacro(vtkRungeKutta45, "1.4");
 vtkStandardNewMacro(vtkRungeKutta45);
 
 // Cash-Karp parameters
@@ -112,7 +112,7 @@ int vtkRungeKutta45::ComputeNextStep(float* xprev, float* dxprev,
     }
   else if ( minStep > maxStep )
     {
-    return UnexpectedValue;
+    return UNEXPECTED_VALUE;
     }
 
   float errRatio, tmp, tmp2;
@@ -127,10 +127,10 @@ int vtkRungeKutta45::ComputeNextStep(float* xprev, float* dxprev,
       delTActual = delT;
       return retVal;
       }
-    // If the step just taken was either max or min, we are done,
+    // If the step just taken was either min, we are done,
     // break
     absDT = fabs(delT);
-    if ( (absDT == minStep) || (absDT == maxStep) )
+    if ( absDT == minStep )
       {
       break;
       }
@@ -171,7 +171,7 @@ int vtkRungeKutta45::ComputeNextStep(float* xprev, float* dxprev,
       vtkWarningMacro("Step size underflow. You must choose a larger "
               "tolerance or set the minimum step size to a larger "
               "value.");
-      return UnexpectedValue;
+      return UNEXPECTED_VALUE;
       }
 
     // If the new step size is equal to min or max, 
@@ -179,12 +179,12 @@ int vtkRungeKutta45::ComputeNextStep(float* xprev, float* dxprev,
     // (flagged by setting shouldBreak, see above)
     if (shouldBreak)
       {
-      if (retVal = 
-      this->ComputeAStep(xprev, dxprev, xnext, t, delT, estErr))
-    {
-    delTActual = delT;
-    return retVal;
-    }
+      if ( (retVal = 
+	    this->ComputeAStep(xprev, dxprev, xnext, t, delT, estErr)) )
+	{
+	delTActual = delT;
+	return retVal;
+	}
       break;
       }
     }
@@ -204,13 +204,13 @@ int vtkRungeKutta45::ComputeAStep(float* xprev, float* dxprev,
   if (!this->FunctionSet)
     {
     vtkErrorMacro("No derivative functions are provided!");
-    return NotInitialized;
+    return NOT_INITIALIZED ;
     }
 
   if (!this->Initialized)
     {
     vtkErrorMacro("Integrator not initialized!");
-    return NotInitialized;
+    return NOT_INITIALIZED;
     }
 
   
@@ -237,7 +237,7 @@ int vtkRungeKutta45::ComputeAStep(float* xprev, float* dxprev,
       {
       xnext[i] = this->Vals[i];
       }
-    return OutOfDomain;
+    return OUT_OF_DOMAIN;
     }
 
   double sum;
@@ -263,7 +263,7 @@ int vtkRungeKutta45::ComputeAStep(float* xprev, float* dxprev,
     {
     xnext[i] = this->Vals[i];
     }
-      return OutOfDomain;
+      return OUT_OF_DOMAIN;
       }    
     }
 
