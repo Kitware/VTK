@@ -38,7 +38,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <GL/gl.h>
 #endif
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.117");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.118");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -67,6 +67,9 @@ vtkWin32OpenGLRenderWindow::vtkWin32OpenGLRenderWindow()
   this->StereoType = VTK_STEREO_CRYSTAL_EYES;  
   this->CursorHidden = 0;
   this->Capabilities = 0;
+
+  this->ScreenDeviceContext = (HDC)0;
+  this->MemoryHdc = (HDC)0;
 }
 
 vtkWin32OpenGLRenderWindow::~vtkWin32OpenGLRenderWindow()
@@ -1242,6 +1245,11 @@ HDC vtkWin32OpenGLRenderWindow::GetMemoryDC()
 
 void vtkWin32OpenGLRenderWindow::CleanUpOffScreenRendering(void)
 {
+  if (!this->MemoryHdc)
+    {
+    return;
+    }
+
   GdiFlush();
   
   // we need to release resources
@@ -1252,6 +1260,7 @@ void vtkWin32OpenGLRenderWindow::CleanUpOffScreenRendering(void)
       ren->SetRenderWindow(NULL);
     }
   DeleteDC(this->MemoryHdc);
+  this->MemoryHdc = (HDC)0;
   DeleteObject(this->MemoryBuffer);
   if (wglDeleteContext(this->ContextId) != TRUE) 
     {
