@@ -42,6 +42,10 @@ public:
   vtkTypeRevisionMacro(vtkConvexPointSet,vtkCell3D);
 
   // Description:
+  // See vtkCell3D API for description of this method.
+  virtual int HasFixedTopology() {return 0;}
+
+  // Description:
   // See vtkCell3D API for description of these methods.
   virtual void GetEdgePoints(int vtkNotUsed(edgeId), int* &vtkNotUsed(pts)) {}
   virtual void GetFacePoints(int vtkNotUsed(faceId), int* &vtkNotUsed(pts)) {}

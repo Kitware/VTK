@@ -23,7 +23,13 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkCell3D, "1.34");
+vtkCxxRevisionMacro(vtkCell3D, "1.35");
+
+vtkCell3D::vtkCell3D()
+{
+  this->Triangulator = NULL;
+  this->MergeTolerance = 0.01;
+}
 
 vtkCell3D::~vtkCell3D()
 {
@@ -66,13 +72,56 @@ void vtkCell3D::Clip(float value, vtkDataArray *cellScalars,
     this->Triangulator->UseTemplatesOn();
     }
 
-  // Initialize Delaunay insertion process.
-  // No more than (numPts + numEdges) points can be inserted.
-  // The triangulation is performed in parametric space so the
-  // initial bounds is in the (0,1) cube.
+  // Make sure it's worth continuing by treating the interior and exterior
+  // cases as special cases.
+  for (i=0; i<numPts; i++)
+    {
+    s1 = cellScalars->GetComponent(i,0);
+    if ( (s1 >= value && !insideOut) || (s1 < value && insideOut) )
+      {
+      allOutside = 0;
+      }
+    else
+      {
+      allInside = 0;
+      }
+    }
+
+  if ( allOutside )
+    {
+    return;
+    }
+
+  // If here, the ordered triangulator is going to be used so the triangulation
+  // has to be initialized.
   this->Triangulator->InitTriangulation(0.0,1.0, 0.0,1.0, 0.0,1.0,
                                         (numPts + numEdges));
 
+  // Interior cells use templates
+  if ( allInside && this->HasFixedTopology() )
+    {
+    // Some cell types support templates for interior clipping. Templates
+    // are a heck of a lot faster.
+    float *p, *pPtr = this->GetParametricCoords();
+    type = 0; //inside
+    for (p=pPtr, i=0; i<numPts; i++, p+=3)
+      {
+      ptId = this->PointIds->GetId(i);
+      xPtr = this->Points->GetPoint(i);
+      if ( locator->InsertUniquePoint(xPtr, id) )
+        {
+        outPD->CopyData(inPD,ptId, id);
+        }
+      this->Triangulator->InsertPoint(id, xPtr, p, type);
+      }//for all points
+
+    this->Triangulator->TemplateTriangulate(this->GetCellType(),
+                                            numPts,numEdges);
+    this->Triangulator->AddTetras(0,tets);
+    return;
+    }
+
+  // We're left with a boundary cell (i.e., the clip surface passes through it).
   // Inject cell points into triangulation. Recall that the PreSortedOff() 
   // flag was set which means that the triangulator will order the points 
   // according to point id.
@@ -86,12 +135,10 @@ void vtkCell3D::Clip(float value, vtkDataArray *cellScalars,
     s1 = cellScalars->GetComponent(i,0);
     if ( (s1 >= value && !insideOut) || (s1 < value && insideOut) )
       {
-      allOutside = 0;
       type = 0; //inside
       }
     else
       {
-      allInside = 0;
       type = 4; //outside, its type might change later (nearby intersection)
       }
 
@@ -103,21 +150,6 @@ void vtkCell3D::Clip(float value, vtkDataArray *cellScalars,
     internalId[i] = this->Triangulator->InsertPoint(id, xPtr, p, type);
     }//for all points
   
-  // If everything is outside, then nothing can be produced.
-  if ( allOutside )
-    {
-    return;
-    }
-
-  // Some cell types support templates for interior clipping. Templates
-  // are a heck of a lot faster.
-  if ( allInside )
-    {
-    this->Triangulator->TemplateTriangulate(this->GetCellType(),numPts,numEdges);
-    this->Triangulator->AddTetras(0,tets);
-    return;
-    }
-
   // For each edge intersection point, insert into triangulation. Edge
   // intersections come from clipping value. Have to be careful of 
   // intersections near exisiting points (causes bad Delaunay behavior).
@@ -151,12 +183,12 @@ void vtkCell3D::Clip(float value, vtkDataArray *cellScalars,
       t = ( deltaScalar == 0.0 ? 0.0 :
             (value - cellScalars->GetComponent(v1,0)) / deltaScalar );
 
-      if ( t < 0.01 )
+      if ( t < this->MergeTolerance )
         {
         this->Triangulator->UpdatePointType(internalId[v1], 2);
         continue;
         }
-      else if ( t > 0.99 )
+      else if ( t > (1.0 - this->MergeTolerance) )
         {
         this->Triangulator->UpdatePointType(internalId[v2], 2);
         continue;
@@ -196,6 +228,8 @@ void vtkCell3D::Clip(float value, vtkDataArray *cellScalars,
 void vtkCell3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "Merge Tolerance: " << this->MergeTolerance << "\n";
 }
 
 // Note: the following code is placed here to deal with cross-library

@@ -38,6 +38,11 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Return whether this cell type has a fixed topology or whether the
+  // topology varies depending on the data (e.g., vtkConvexPointSet).
+  virtual int HasFixedTopology() {return 1;}
+
+  // Description:
   // Get the pair of vertices that define an edge. The method returns the
   // number of vertices, along with an array of vertices. Note that the
   // vertices are 0-offset; that is, they refer to the ids of the cell, not
@@ -81,15 +86,19 @@ public:
   // point ordering for the cell.
   virtual float *GetParametricCoords();
 
+  // Description:
+  // Set the tolerance for merging clip intersection points that are near
+  // the vertices of cells. This tolerance is used to prevent the generation
+  // of degenerate tetrahedra during clipping.
+  vtkSetClampMacro(MergeTolerance,float,0.0001,0.25);
+  vtkGetMacro(MergeTolerance,float);
+
 protected:
-  vtkCell3D():Triangulator(NULL) {}
+  vtkCell3D();
   ~vtkCell3D();
   
   vtkOrderedTriangulator *Triangulator;
-  
-  //Some cells define templates for interior clipping
-  virtual int ClipInteriorCell(vtkCellArray *)
-    {return 0;}
+  float MergeTolerance;
 
 private:
   vtkCell3D(const vtkCell3D&);  // Not implemented.
