@@ -38,12 +38,7 @@ Welcome to the Visualization Toolkit.
 "The Visualization Toolkit, an Object-Oriented Approach to 3D Graphics" is
 the title of a new book published by Prentice Hall (ISBN 013199837-4).  
 
-This README file contains information regarding the educational software
-associated with the book. The two big pieces (120 and 80 KLOC) are a C++
-library for visualization, and a Tcl binding to that C++ library so that it
-can be used as a Tcl based interpreted language.
-
-This is version 1.2. In this release there have been many bugs fixed and a
+This is version 1.3. In this release there have been many bugs fixed and a
 number of new classes. Depending on when you get this, there may be more
 recent versions out. For more information and a FAQ see our web page at
 http://www.cs.rpi.edu/~martink/
@@ -76,8 +71,8 @@ If you will be using C++ as your development language:
 
   1) untar the src files
   2) untar the data files
-  3) cd vtk1.2
-  4) read and edit Config.mk (possibly set your CC and CXX variables)
+  3) cd vtk1.3
+  4) read and edit Config.mk (set your CC and CXX variables)
   5) ./configure
   6) make
 
@@ -85,11 +80,15 @@ If you will be using tcl in addition to C++:
 
   1) untar the src files
   2) untar the data files
-  3) cd vtk1.2
+  3) cd vtk1.3
   4) obtain and build Tcl/Tk if you don't already have it
-  5) read and edit Config.mk (possibly set your CC and CXX variables)
+  5) read and edit Config.mk (set your CC and CXX variables)
   6) ./configure --with-tcl 
   7) make
+
+This release has some alpha java support, you can use --with-java but
+it is alpha, probably will core dump, and I think it only works on
+Sun Solaris. But feel free to experiment.
 
 If you do not have OpenGL, GL, Starbase or XGL the you will need to get and
 compile Mesa, a wonderful free version of OpenGL. You will need to add
@@ -142,11 +141,6 @@ shared libraries. On most machines these days it's not too difficult.
 Once this is done you can type make (or gmake if you have it) and it should
 compile :-)  
 
-<< modify this >>
-In the src directory it will build libvtk.a.  In the examples/cc
-directory it will build one example, VisQuad. In the tclsrc directory it will
-build libvtktcl.a and the vtk executable. 
-
 If you are planning to build vtk for multiple architectures then you can
 either make a copy of the entire vtk tree for each architecture and then
 follow the instructions above. Or if you have gmake, you can have one copy of
@@ -163,17 +157,6 @@ This will create makefiles in the vtk-solaris directory.  Then you can run
 gmake in vtk-solaris to compile vtk.  Repeate this process for each
 architecture you wish to build.
 
-There isn't an install target yet for vtk.  Once you have tried some of the
-examples discussed below you might want to do a hand installation.  Basically
-copy tclsrc/vtk into /usr/local/bin or some other place where you keep
-executables. Copy src/libvtk.a into /usr/local/lib or something similar.
-Then copy all the include files in the include directory into
-/usr/local/include or a similar directory. You might want to create a vtk
-subdirectory to put all the include files in since there are quite a few.
-Finally copy the man pages in man/man3 into /usr/local/man/man3 or an
-equivalent place.
-
-
 4. Execution
 ------------
 
@@ -186,7 +169,7 @@ link to the data directory.
 To run the cc examples just type their name.  To run the tcl examples,
 (assuming that you built the tcl stuff) type 
 
-../../tclsrc/vtk mace.tcl
+../../tcl/vtk mace.tcl
 
 
 5. Common Problems
@@ -205,27 +188,25 @@ bison (available at prep.ai.mit.edu in /pub/gnu)
 1) create the .cxx and .h file for the new class in one of the existing 
    directories. 
 2) edit Makefile.in for that directory and follow the instructions in
-   there. You will need to add the class in three or four places. 
-   If the class is concrete (you can instantiate it) then you will
-   add it in four places and the cpp_parse command line will have
-   an argument of 1. (follow common/vtkObject as an example) 
-   If it is an abstract class then you will add it in three places
-   and the argument to cpp_parse will be 0. (follow common/vtkDataSet
-   as an example)
+   there. You will need to add the class in only one place.
 3) you will need to rerun configure
 4) then make (or gmake)
 
 
 7. Adding a new toolkit to vtk (UNIX version)
 ---------------------------------------------
+The short answer is don't do this, its messy. The best thing to
+do is use the contrib directory which only has two classes in it.
+If you insist on makeing your own directory do the following.
+
 If you are not using cvs revision control then you can ignore steps
 2 and 4. You can get autoconf from prep.ai.mit.edu in the /pub/gnu
 directory. 
 
 1) create a directory for it
 2) cvs add that directory
-3) cd into that directory and create a tcl subdirectory
-4) cvs add the tcl subdirectory
+3) cd into that directory and create a tcl and java subdirectory
+4) cvs add the tcl and java subdirectorys
 5) edit configure.in at the top level and follow the example of graphics
    to add your directory. You might want to make it excluded by default.
 6) edit Makefile.in at the top level, again follow the example of graphics
@@ -233,7 +214,7 @@ directory.
 8) using one of the other kits as an example, create a
      configure.in and Makefile.in in your toolkit directory
 9) run autoconf to create the new configure for your configure.in
-10) in the top level tcl directory edit configure.in 
+10) in the top level tcl and java directorys edit configure.in 
 11) generate a new configure file
 12) edit Makefile.in and tkAppInit.c as done for graphics
 
