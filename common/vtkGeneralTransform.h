@@ -51,7 +51,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // inverse of a transformation i.e. if you modify the original transform,
 // any transform previously returned by the GetInverse() method will
 // automatically update itself according to the change.
-// <p>2) you can do pipelined concatenation of transformations through the
+// <p>2) you can do pipelined concatenation of transformations through 
+// either the Concatenate() method or by directly using the
 // vtkGeneralTransformConcatenation class.
 // .SECTION see also
 // vtkWarpTransform vtkPerspectiveTransform vtkLinearTransform 
@@ -208,7 +209,7 @@ protected:
   // Description:
   // Mutliply one 3x3 matrix by another: B = AB.
   static void Multiply3x3(const float A[3][3], const float B[3][3], 
-			  const float C[3][3]);
+			  float C[3][3]);
 
   // Description:
   // Transpose a 3x3 matrix.

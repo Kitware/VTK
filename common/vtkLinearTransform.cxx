@@ -332,7 +332,7 @@ vtkGeneralTransform *vtkLinearTransform::GetInverse()
 }
 
 //----------------------------------------------------------------------------
-static vtkLinearTransform *vtkLinearTransform::Concatenate(
+vtkLinearTransform *vtkLinearTransform::Concatenate(
                                        vtkLinearTransform *t1,
 				       vtkLinearTransform *t2,
 				       vtkLinearTransform *t3,

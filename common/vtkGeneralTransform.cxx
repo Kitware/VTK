@@ -209,7 +209,7 @@ void vtkGeneralTransform::UnRegister(vtkObject *o)
 }
 
 //----------------------------------------------------------------------------
-static vtkGeneralTransform *vtkGeneralTransform::Concatenate(
+vtkGeneralTransform *vtkGeneralTransform::Concatenate(
 					vtkGeneralTransform *t1,
 					vtkGeneralTransform *t2,
 					vtkGeneralTransform *t3,

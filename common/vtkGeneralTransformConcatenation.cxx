@@ -217,7 +217,7 @@ void vtkGeneralTransformConcatenation::InternalTransformDerivative(
       {
       this->InverseList[i]->InternalTransformDerivative(output,output,
 							matrix);
-      vtkGeneralTransform::Multiply3x3(matrix,derivative);
+      vtkGeneralTransform::Multiply3x3(matrix,derivative,derivative);
       }
     }
   else
@@ -226,7 +226,7 @@ void vtkGeneralTransformConcatenation::InternalTransformDerivative(
       {
       this->TransformList[i]->InternalTransformDerivative(output,output,
 							  matrix);
-      vtkGeneralTransform::Multiply3x3(matrix,derivative);
+      vtkGeneralTransform::Multiply3x3(matrix,derivative,derivative);
       }
     }
 }

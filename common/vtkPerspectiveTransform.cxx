@@ -241,7 +241,7 @@ vtkGeneralTransform *vtkPerspectiveTransform::GetInverse()
 }
 
 //----------------------------------------------------------------------------
-static vtkPerspectiveTransform *vtkPerspectiveTransform::Concatenate(
+vtkPerspectiveTransform *vtkPerspectiveTransform::Concatenate(
                                             vtkPerspectiveTransform *t1,
 					    vtkPerspectiveTransform *t2,
 					    vtkPerspectiveTransform *t3,
