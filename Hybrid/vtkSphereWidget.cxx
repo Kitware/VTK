@@ -26,7 +26,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSphereWidget, "1.9");
+vtkCxxRevisionMacro(vtkSphereWidget, "1.10");
 vtkStandardNewMacro(vtkSphereWidget);
 
 vtkSphereWidget::vtkSphereWidget()
@@ -138,7 +138,9 @@ void vtkSphereWidget::SetEnabled(int enabling)
       return;
       }
     
-    this->CurrentRenderer = this->Interactor->FindPokedRenderer(this->LastPos[0],this->LastPos[1]);
+    this->CurrentRenderer = 
+      this->Interactor->FindPokedRenderer(this->Interactor->GetLastEventPosition()[0],
+                                          this->Interactor->GetLastEventPosition()[1]);
     if (this->CurrentRenderer == NULL)
       {
       return;
@@ -386,9 +388,6 @@ void vtkSphereWidget::OnLeftButtonDown (int vtkNotUsed(ctrl),
   this->EventCallbackCommand->SetAbortFlag(1);
   this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
   this->Interactor->Render();
-
-  this->LastPos[0] = X;
-  this->LastPos[1] = Y;
 }
 
 void vtkSphereWidget::OnMouseMove (int vtkNotUsed(ctrl), 
@@ -417,8 +416,10 @@ void vtkSphereWidget::OnMouseMove (int vtkNotUsed(ctrl),
   this->ComputeWorldToDisplay(focalPoint[0], focalPoint[1],
                               focalPoint[2], focalPoint);
   z = focalPoint[2];
-  this->ComputeDisplayToWorld(double(this->LastPos[0]),double(this->LastPos[1]),
-                              z, prevPickPoint);
+  this->ComputeDisplayToWorld(double(this->Interactor->GetLastEventPosition()[0]),
+                              double(this->Interactor->GetLastEventPosition()[1]),
+                              z, 
+                              prevPickPoint);
   this->ComputeDisplayToWorld(double(X), double(Y), z, pickPoint);
 
   // Process the motion
@@ -440,8 +441,6 @@ void vtkSphereWidget::OnMouseMove (int vtkNotUsed(ctrl),
   this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
   
   this->Interactor->Render();
-  this->LastPos[0] = X;
-  this->LastPos[1] = Y;
 }
 
 void vtkSphereWidget::OnLeftButtonUp (int vtkNotUsed(ctrl), 
@@ -487,9 +486,6 @@ void vtkSphereWidget::OnRightButtonDown (int vtkNotUsed(ctrl),
   this->EventCallbackCommand->SetAbortFlag(1);
   this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
   this->Interactor->Render();
-  
-  this->LastPos[0] = X;
-  this->LastPos[1] = Y;
 }
 
 void vtkSphereWidget::OnRightButtonUp (int vtkNotUsed(ctrl), 
@@ -559,7 +555,7 @@ void vtkSphereWidget::ScaleSphere(double *p1, double *p2,
 
   // Compute the scale factor
   float sf = vtkMath::Norm(v) / radius;
-  if ( Y > this->LastPos[1] )
+  if ( Y > this->Interactor->GetLastEventPosition()[1] )
     {
     sf = 1.0 + sf;
     }

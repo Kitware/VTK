@@ -30,7 +30,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPlaneWidget, "1.7");
+vtkCxxRevisionMacro(vtkPlaneWidget, "1.8");
 vtkStandardNewMacro(vtkPlaneWidget);
 
 vtkPlaneWidget::vtkPlaneWidget()
@@ -205,7 +205,7 @@ void vtkPlaneWidget::SetEnabled(int enabling)
       return;
       }
     
-    this->CurrentRenderer = this->Interactor->FindPokedRenderer(this->LastPos[0],this->LastPos[1]);
+    this->CurrentRenderer = this->Interactor->FindPokedRenderer(this->Interactor->GetLastEventPosition()[0],this->Interactor->GetLastEventPosition()[1]);
     if (this->CurrentRenderer == NULL)
       {
       return;
@@ -537,9 +537,6 @@ void vtkPlaneWidget::OnLeftButtonDown (int vtkNotUsed(ctrl),
   this->EventCallbackCommand->SetAbortFlag(1);
   this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
   this->Interactor->Render();
-
-  this->LastPos[0] = X;
-  this->LastPos[1] = Y;
 }
 
 void vtkPlaneWidget::OnLeftButtonUp (int vtkNotUsed(ctrl), int vtkNotUsed(shift), 
@@ -590,9 +587,6 @@ void vtkPlaneWidget::OnMiddleButtonDown (int vtkNotUsed(ctrl),
   this->EventCallbackCommand->SetAbortFlag(1);
   this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
   this->Interactor->Render();
-  
-  this->LastPos[0] = X;
-  this->LastPos[1] = Y;
 }
 
 void vtkPlaneWidget::OnMiddleButtonUp (int vtkNotUsed(ctrl), int vtkNotUsed(shift), 
@@ -642,9 +636,6 @@ void vtkPlaneWidget::OnRightButtonDown (int vtkNotUsed(ctrl),
   this->EventCallbackCommand->SetAbortFlag(1);
   this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
   this->Interactor->Render();
-  
-  this->LastPos[0] = X;
-  this->LastPos[1] = Y;
 }
 
 void vtkPlaneWidget::OnRightButtonUp (int vtkNotUsed(ctrl), int vtkNotUsed(shift), 
@@ -689,7 +680,7 @@ void vtkPlaneWidget::OnMouseMove (int vtkNotUsed(ctrl),
   this->ComputeWorldToDisplay(focalPoint[0], focalPoint[1],
                               focalPoint[2], focalPoint);
   z = focalPoint[2];
-  this->ComputeDisplayToWorld(double(this->LastPos[0]),double(this->LastPos[1]),
+  this->ComputeDisplayToWorld(double(this->Interactor->GetLastEventPosition()[0]),double(this->Interactor->GetLastEventPosition()[1]),
                               z, prevPickPoint);
   this->ComputeDisplayToWorld(double(X), double(Y), z, pickPoint);
 
@@ -740,8 +731,6 @@ void vtkPlaneWidget::OnMouseMove (int vtkNotUsed(ctrl),
   this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
   
   this->Interactor->Render();
-  this->LastPos[0] = X;
-  this->LastPos[1] = Y;
 }
 
 void vtkPlaneWidget::MoveOrigin(double *p1, double *p2)
@@ -967,7 +956,7 @@ void vtkPlaneWidget::Rotate(int X, int Y, double *p1, double *p2, double *vpn)
     return;
     }
   int *size = this->CurrentRenderer->GetSize();
-  double l2 = (X-this->LastPos[0])*(X-this->LastPos[0]) + (Y-this->LastPos[1])*(Y-this->LastPos[1]);
+  double l2 = (X-this->Interactor->GetLastEventPosition()[0])*(X-this->Interactor->GetLastEventPosition()[0]) + (Y-this->Interactor->GetLastEventPosition()[1])*(Y-this->Interactor->GetLastEventPosition()[1]);
   theta = 360.0 * sqrt(l2/((double)size[0]*size[0]+size[1]*size[1]));
 
   //Manipulate the transform to reflect the rotation
@@ -1040,7 +1029,7 @@ void vtkPlaneWidget::Scale(double *p1, double *p2, int vtkNotUsed(X), int Y)
 
   // Compute the scale factor
   float sf = vtkMath::Norm(v) / sqrt(vtkMath::Distance2BetweenPoints(pt1,pt2));
-  if ( Y > this->LastPos[1] )
+  if ( Y > this->Interactor->GetLastEventPosition()[1] )
     {
     sf = 1.0 + sf;
     }

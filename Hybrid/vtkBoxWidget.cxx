@@ -28,7 +28,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkBoxWidget, "1.9");
+vtkCxxRevisionMacro(vtkBoxWidget, "1.10");
 vtkStandardNewMacro(vtkBoxWidget);
 
 vtkBoxWidget::vtkBoxWidget()
@@ -236,7 +236,9 @@ void vtkBoxWidget::SetEnabled(int enabling)
       return;
       }
     
-    this->CurrentRenderer = this->Interactor->FindPokedRenderer(this->LastPos[0],this->LastPos[1]);
+    this->CurrentRenderer = 
+      this->Interactor->FindPokedRenderer(this->Interactor->GetLastEventPosition()[0],
+                                          this->Interactor->GetLastEventPosition()[1]);
     if (this->CurrentRenderer == NULL)
       {
       return;
@@ -577,9 +579,6 @@ void vtkBoxWidget::OnLeftButtonDown (int vtkNotUsed(ctrl), int shift,
   this->EventCallbackCommand->SetAbortFlag(1);
   this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
   this->Interactor->Render();
-
-  this->LastPos[0] = X;
-  this->LastPos[1] = Y;
 }
 
 void vtkBoxWidget::OnLeftButtonUp (int vtkNotUsed(ctrl), int vtkNotUsed(shift),
@@ -635,9 +634,6 @@ void vtkBoxWidget::OnMiddleButtonDown (int vtkNotUsed(ctrl),
   this->EventCallbackCommand->SetAbortFlag(1);
   this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
   this->Interactor->Render();
-
-  this->LastPos[0] = X;
-  this->LastPos[1] = Y;
 }
 
 void vtkBoxWidget::OnMiddleButtonUp (int vtkNotUsed(ctrl), 
@@ -688,9 +684,6 @@ void vtkBoxWidget::OnRightButtonDown (int vtkNotUsed(ctrl),
   this->EventCallbackCommand->SetAbortFlag(1);
   this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
   this->Interactor->Render();
-  
-  this->LastPos[0] = X;
-  this->LastPos[1] = Y;
 }
 
 void vtkBoxWidget::OnRightButtonUp (int vtkNotUsed(ctrl), 
@@ -735,8 +728,10 @@ void vtkBoxWidget::OnMouseMove (int vtkNotUsed(ctrl), int vtkNotUsed(shift),
   this->ComputeWorldToDisplay(focalPoint[0], focalPoint[1],
                               focalPoint[2], focalPoint);
   z = focalPoint[2];
-  this->ComputeDisplayToWorld(double(this->LastPos[0]),double(this->LastPos[1]),
-                              z, prevPickPoint);
+  this->ComputeDisplayToWorld(double(this->Interactor->GetLastEventPosition()[0]),
+                              double(this->Interactor->GetLastEventPosition()[1]),
+                              z, 
+                              prevPickPoint);
   this->ComputeDisplayToWorld(double(X), double(Y), z, pickPoint);
 
   // Process the motion
@@ -793,8 +788,6 @@ void vtkBoxWidget::OnMouseMove (int vtkNotUsed(ctrl), int vtkNotUsed(shift),
   this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
   
   this->Interactor->Render();
-  this->LastPos[0] = X;
-  this->LastPos[1] = Y;
 }
 
 void vtkBoxWidget::MoveFace(double *p1, double *p2,
@@ -946,7 +939,7 @@ void vtkBoxWidget::Scale(double* vtkNotUsed(p1), double* vtkNotUsed(p2),
     = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(3*14);
   double sf;
 
-  if ( Y > this->LastPos[1] )
+  if ( Y > this->Interactor->GetLastEventPosition()[1] )
     {
     sf = 1.03;
     }
@@ -1043,7 +1036,7 @@ void vtkBoxWidget::Rotate(int X, int Y, double *p1, double *p2, double *vpn)
     return;
     }
   int *size = this->CurrentRenderer->GetSize();
-  double l2 = (X-this->LastPos[0])*(X-this->LastPos[0]) + (Y-this->LastPos[1])*(Y-this->LastPos[1]);
+  double l2 = (X-this->Interactor->GetLastEventPosition()[0])*(X-this->Interactor->GetLastEventPosition()[0]) + (Y-this->Interactor->GetLastEventPosition()[1])*(Y-this->Interactor->GetLastEventPosition()[1]);
   theta = 360.0 * sqrt(l2/((double)size[0]*size[0]+size[1]*size[1]));
 
   //Manipulate the transform to reflect the rotation
