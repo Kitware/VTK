@@ -8,6 +8,10 @@ vtkFiltering
 vtkCommon 
 )
 
+IF (HAVE_PNG)
+  LINK_LIBRARIES( ${PNG_LIBRARY} )
+ENDIF (HAVE_PNG)
+
 IF (VTK_USE_HYBRID)
   ADD_EXECUTABLE(ParallelIso ParallelIso)
   TARGET_LINK_LIBRARIES(ParallelIso vtkPatented vtkHybrid)
