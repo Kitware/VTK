@@ -29,7 +29,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.104");
+vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.105");
 vtkStandardNewMacro(vtkXRenderWindowInteractor);
 
 typedef struct
@@ -572,9 +572,8 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
         }
       KeySym ks;
       static char buffer[20];
-      int n;
       buffer[0] = '\0';
-      n = XLookupString(reinterpret_cast<XKeyEvent *>(event),buffer,20,&ks,NULL);
+      XLookupString(reinterpret_cast<XKeyEvent *>(event),buffer,20,&ks,NULL);
       xp = (reinterpret_cast<XKeyEvent *>(event))->x;
       yp = me->Size[1] - (reinterpret_cast<XKeyEvent *>(event))->y - 1;
       if (!me->Enabled) return; 
