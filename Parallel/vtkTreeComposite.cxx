@@ -140,7 +140,7 @@ vtkTreeComposite::~vtkTreeComposite()
 {
   this->SetRenderWindow(NULL);
   
-  this->SetWindowSize(0,0);
+  this->SetRendererSize(0,0);
   
   if (this->Lock)
     {
@@ -261,6 +261,16 @@ void vtkTreeCompositeComputeVisiblePropBoundsRMI(void *arg, void *, int, int)
   vtkTreeComposite* self = (vtkTreeComposite*) arg;
   
   self->ComputeVisiblePropBoundsRMI();
+}
+
+void vtkTreeComposite::SetReductionFactor(int factor)
+{
+  if (factor == this->ReductionFactor)
+    {
+    return;
+    }
+  
+  this->ReductionFactor = factor;
 }
 
 //-------------------------------------------------------------------------
@@ -460,11 +470,9 @@ void vtkTreeComposite::RenderRMI()
         }
       }
     }
-  renWin->Render();  
+  renWin->Render();
   
-  
-  
-  this->SetWindowSize(winInfo.Size[0], winInfo.Size[1]);
+  this->SetRendererSize(winInfo.Size[0], winInfo.Size[1]);
   
   if (this->CheckForAbortComposite())
     {
@@ -566,6 +574,13 @@ void vtkTreeComposite::StartRender()
     {
     winInfo.Size[0] = size[0] / this->ReductionFactor;
     winInfo.Size[1] = size[1] / this->ReductionFactor;
+    vtkRenderer* renderer =
+      ((vtkRenderer*)this->RenderWindow->GetRenderers()->GetItemAsObject(0));
+//    int eraseState = renderer->GetRenderWindow()->GetErase();
+//    renderer->GetRenderWindow()->SetErase(0);
+    renderer->SetViewport(0, 0, 1.0/this->ReductionFactor, 1.0/this->ReductionFactor);
+//    renderer->GetActiveCamera()->Render(renderer);
+//    renderer->GetRenderWindow()->SetErase(eraseState);      
     }
   else
     {
@@ -574,6 +589,9 @@ void vtkTreeComposite::StartRender()
     }
   winInfo.NumberOfRenderers = rens->GetNumberOfItems();
   winInfo.DesiredUpdateRate = this->RenderWindow->GetDesiredUpdateRate();
+  
+  this->SetRendererSize(winInfo.Size[0], winInfo.Size[1]);
+  
   for (id = 1; id < numProcs; ++id)
     {
     
@@ -622,7 +640,6 @@ void vtkTreeComposite::EndRender()
 {
   vtkRenderWindow* renWin = this->RenderWindow;
   vtkMultiProcessController *controller = this->Controller;
-  int *windowSize;
   int numProcs;
   
   if (controller == NULL)
@@ -642,13 +659,10 @@ void vtkTreeComposite::EndRender()
     return;
     }
   
-  windowSize = renWin->GetSize();
   numProcs = controller->GetNumberOfProcesses();
 
   if (numProcs > 1)
     {
-    // It would be more efficient to save these arrays as ivars.
-    this->SetWindowSize(windowSize[0], windowSize[1]);
     this->Composite();
     }
   
@@ -816,9 +830,9 @@ void vtkTreeComposite::InitializeOffScreen()
   
 }
 
-void vtkTreeComposite::SetWindowSize(int x, int y)
+void vtkTreeComposite::SetRendererSize(int x, int y)
 {
-  if (this->WindowSize[0] == x && this->WindowSize[1] == y)
+  if (this->RendererSize[0] == x && this->RendererSize[1] == y)
     {
     return;
     }
@@ -841,8 +855,8 @@ void vtkTreeComposite::SetWindowSize(int x, int y)
     this->PData = new float[4*numPixels];
     this->ZData = new float[numPixels];
     }
-  this->WindowSize[0] = x;
-  this->WindowSize[1] = y;
+  this->RendererSize[0] = x;
+  this->RendererSize[1] = y;
 }
 
 
@@ -855,9 +869,9 @@ float vtkTreeComposite::GetZ(int x, int y)
     int *size = this->RenderWindow->GetSize();
     float *Zdata;
     
-    // Make sure we have defualt values.
+    // Make sure we have default values.
     this->ReductionFactor = 1;
-    this->SetWindowSize(size[0], size[1]);
+    this->SetRendererSize(size[0], size[1]);
     
     // Get the z buffer.
     Zdata = this->RenderWindow->GetZbufferData(0,0,size[0]-1, size[1]-1);
@@ -865,18 +879,20 @@ float vtkTreeComposite::GetZ(int x, int y)
     delete [] Zdata;
     }
   
-  if (x < 0 || x >= this->WindowSize[0] || y < 0 || y >= this->WindowSize[1])
+  if (x < 0 || x >= this->RendererSize[0] || 
+      y < 0 || y >= this->RendererSize[1])
     {
     return 0.0;
     }
   
   if (this->ReductionFactor > 1)
     {
-    idx = (x + (y * this->WindowSize[0] / this->ReductionFactor)) / this->ReductionFactor;
+    idx = (x + (y * this->RendererSize[0] / this->ReductionFactor)) 
+             / this->ReductionFactor;
     }
-  else
+  else 
     {
-    idx = (x + (y * this->WindowSize[0]));
+    idx = (x + (y * this->RendererSize[0]));
     }
 
   return this->ZData[idx];
@@ -884,69 +900,8 @@ float vtkTreeComposite::GetZ(int x, int y)
 
 
 
-
-void vtkTreeComposite::ReduceBuffer(float *localZdata, float *localPdata, 
-                                    int windowSize[2])
-{
-  float *pz1;
-  float *pz2;
-  float *pp1;
-  float *pp2;
-  int   x, y;
-  int   xDim, yDim;
-  // Continous increments.
-  int   pIncY, zIncY, pIncX; 
-
-  pz1 = pz2 = localZdata;
-  pp1 = pp2 = localPdata;
-  xDim = windowSize[0] / this->ReductionFactor;
-  yDim = windowSize[1] / this->ReductionFactor;
-  // Skip remainder and extra rows.
-  zIncY = pIncY = windowSize[0] - (xDim * this->ReductionFactor) 
-    + ((this->ReductionFactor-1)*windowSize[0]);
-    
-  if (this->UseChar)
-    {    
-    for (y = 0; y < yDim; y++)
-      {
-      for (x = 0; x < xDim; x++)
-        {
-        *pz1++ = *pz2;
-        *pp1++ = *pp2;
-        pz2 += this->ReductionFactor;
-        pp2 += this->ReductionFactor;
-        }
-      pz2 += zIncY;
-      pp2 += pIncY;
-      }
-    }
-  else
-    {
-    pIncY = pIncY * 4;
-    pIncX = 4 * (this->ReductionFactor - 1);
-    for (y = 0; y < yDim; y++)
-      {
-      for (x = 0; x < xDim; x++)
-        {
-        *pp1++ = *pp2++;
-        *pp1++ = *pp2++;
-        *pp1++ = *pp2++;
-        *pp1++ = *pp2++;
-        pp2 += pIncX;
-        *pz1++ = *pz2;
-        pz2 += this->ReductionFactor;
-        }
-      pz2 += zIncY;
-      pp2 += pIncY;
-      }
-    }
-
-  windowSize[0] = xDim;
-  windowSize[1] = yDim;
-}
-  
 // We have do do this backward so we can keep it inplace.     
-void vtkTreeComposite::MagnifyBuffer(float *localPdata, int windowSize[2])
+float* vtkTreeComposite::MagnifyBuffer(float *localPdata, int windowSize[2])
 {
   float *rowp, *subp;
   float *pp1;
@@ -955,19 +910,20 @@ void vtkTreeComposite::MagnifyBuffer(float *localPdata, int windowSize[2])
   int   xInDim, yInDim;
   int   xOutDim, yOutDim;
   // Local increments for input.
-  int   pIncY; 
-
-  xInDim = windowSize[0];
-  yInDim = windowSize[1];
-  xOutDim = xInDim * this->ReductionFactor;
-  yOutDim = yInDim * this->ReductionFactor;
-  pIncY = xInDim;
+  int   pInIncY; 
+  float *newLocalPdata;
+  
+  xInDim = this->RendererSize[0];
+  yInDim = this->RendererSize[1];
+  xOutDim = windowSize[0] = this->ReductionFactor * this->RendererSize[0];
+  yOutDim = windowSize[1] = this->ReductionFactor * this->RendererSize[1];
   
   if (this->UseChar)
     {
+    newLocalPdata = new float[xOutDim*yOutDim];
     // Get the last pixel.
-    rowp = localPdata + ((xInDim*yInDim)-1);
-    pp2 = localPdata + ((xOutDim*yOutDim)-1);
+    rowp = localPdata;
+    pp2 = newLocalPdata;
     for (y = 0; y < yInDim; y++)
       {
       // Duplicate the row rowp N times.
@@ -979,20 +935,21 @@ void vtkTreeComposite::MagnifyBuffer(float *localPdata, int windowSize[2])
 	  // Duplicate the pixel p11 N times.
 	  for (xi = 0; xi < this->ReductionFactor; ++xi)
 	    {
-	    *pp2-- = *pp1;
+	    *pp2++ = *pp1;
 	    }
-	  --pp1;
+	  ++pp1;
 	  }
 	}
-      rowp -= pIncY;
+      rowp += xInDim;
       }
     }
   else
     {
+    newLocalPdata = new float[xOutDim*yOutDim*4];
     // Get the last pixel.
-    pIncY *= 4;
-    rowp = localPdata + ((xInDim*yInDim*4)-1);
-    pp2 = localPdata + ((xOutDim*yOutDim*4)-1);
+    pInIncY = 4 * xInDim;
+    rowp = localPdata;
+    pp2 = newLocalPdata;
     for (y = 0; y < yInDim; y++)
       {
       // Duplicate the row rowp N times.
@@ -1005,20 +962,20 @@ void vtkTreeComposite::MagnifyBuffer(float *localPdata, int windowSize[2])
 	  for (xi = 0; xi < this->ReductionFactor; ++xi)
 	    {
 	    subp = pp1;
-	    *pp2-- = *subp--;
-	    *pp2-- = *subp--;
-	    *pp2-- = *subp--;
-	    *pp2-- = *subp;
+	    *pp2++ = *subp++;
+	    *pp2++ = *subp++;
+	    *pp2++ = *subp++;
+	    *pp2++ = *subp;
 	    }
-	  pp1 -= 4;
+	  pp1 += 4;
 	  }
 	}
-      rowp -= pIncY;
+      rowp += pInIncY;
       }
     }
   
-  windowSize[0] = xOutDim;
-  windowSize[1] = yOutDim;
+  delete [] localPdata;
+  return newLocalPdata;
 }
   
      
@@ -1077,8 +1034,6 @@ void vtkTreeComposite::Composite()
 {
   float *localZdata = NULL;
   float *localPdata = NULL;
-  int windowSize[2];
-  int *size;
   int total_pixels;
   int pdata_size, zdata_size;
   int myId, numProcs;
@@ -1088,47 +1043,31 @@ void vtkTreeComposite::Composite()
   
   myId = this->Controller->GetLocalProcessId();
   numProcs = this->Controller->GetNumberOfProcesses();
-
-  size = this->RenderWindow->GetSize();
-  windowSize[0] = size[0];
-  windowSize[1] = size[1];
-  total_pixels = windowSize[0] * windowSize[1];
+  total_pixels = this->RendererSize[0] * this->RendererSize[1];
 
   // Get the z buffer.
   timer->StartTimer();
-  localZdata = this->RenderWindow->GetZbufferData(0,0,windowSize[0]-1, windowSize[1]-1);
+  localZdata = this->RenderWindow->GetZbufferData(0,0,
+			  this->RendererSize[0]-1, this->RendererSize[1]-1);  
   zdata_size = total_pixels;
 
   // Get the pixel data.
   if (this->UseChar) 
     { 
-    // Condition is here until we fix the resize bug in vtkMesaRenderWindow.
-    localPdata = (float*)this->RenderWindow->GetRGBACharPixelData(0,0,windowSize[0]-1,
-								  windowSize[1]-1,0);    
+    localPdata = (float*)this->RenderWindow->GetRGBACharPixelData(0,0,
+						  this->RendererSize[0]-1,
+						  this->RendererSize[1]-1, 0);
     pdata_size = total_pixels;
     } 
   else 
     {
-    localPdata = this->RenderWindow->GetRGBAPixelData(0,0,windowSize[0]-1, \
-						      windowSize[1]-1,0);
+    localPdata = this->RenderWindow->GetRGBAPixelData(0,0,
+			  this->RendererSize[0]-1, this->RendererSize[1]-1, 0);
     pdata_size = 4*total_pixels;
     }
   
   timer->StopTimer();
   this->GetBuffersTime = timer->GetElapsedTime();
-  
-  // Handle reduction factor for process 0 here.
-  if (this->ReductionFactor > 1)
-    {
-    // localZdata, localPdata and window size get modified.
-    this->ReduceBuffer(localZdata, localPdata, windowSize);
-    // Recompute array sizes.
-    pdata_size = total_pixels = windowSize[0] * windowSize[1];
-    if ( ! this->UseChar)
-      {
-      pdata_size *= 4;
-      }
-    }
   
   double doubleLogProcs = log((double)numProcs)/log((double)2);
   int logProcs = (int)doubleLogProcs;
@@ -1158,7 +1097,7 @@ void vtkTreeComposite::Composite()
 	  this->Controller->Receive(this->PData, pdata_size, id, 99);
 	  
 	  // notice the result is stored as the local data
-	  vtkCompositeImagePair(localZdata, localPdata, this->ZData, this->PData, 
+	  vtkCompositeImagePair(localZdata, localPdata,this->ZData,this->PData, 
 				total_pixels, this->UseChar);
 	  }
 	}
@@ -1179,24 +1118,41 @@ void vtkTreeComposite::Composite()
   
   if (myId == 0) 
     {
-    // Save the ZData for picking.
-    memcpy(this->ZData, localZdata, windowSize[0]*windowSize[1]*sizeof(float));
+    int windowSize[2];
+    // Default value (no reduction).
+    windowSize[0] = this->RendererSize[0];
+    windowSize[1] = this->RendererSize[1];
+
     if (this->ReductionFactor > 1)
       {
-      // localZdata, localPdata and window size get modified.
-      this->MagnifyBuffer(localPdata, windowSize);
+      // localPdata gets freed (new memory is allocated and returned.
+      // windowSize get modified.
+      localPdata = this->MagnifyBuffer(localPdata, windowSize);
+      
+      vtkRenderer* renderer =
+	((vtkRenderer*)this->RenderWindow->GetRenderers()->GetItemAsObject(0));
+      renderer->SetViewport(0, 0, 1.0, 1.0);
+      renderer->GetActiveCamera()->UpdateViewport(renderer);
       }
+
+    // Save the ZData for picking.
+    memcpy(this->ZData, localZdata, 
+	   this->RendererSize[0]*this->RendererSize[1]*sizeof(float));
   
+
+    
     timer->StartTimer();
     if (this->UseChar) 
       {
-      this->RenderWindow->SetRGBACharPixelData(0,0, windowSize[0]-1, \
-			     windowSize[1]-1,(unsigned char*)localPdata,0);
+      this->RenderWindow->SetRGBACharPixelData(0, 0, windowSize[0]-1, 
+					       windowSize[1]-1,
+					       (unsigned char*)localPdata, 0);
       } 
     else 
       {
-      this->RenderWindow->SetRGBAPixelData(0,0,windowSize[0]-1, 
-			       windowSize[1]-1,localPdata,0);
+      this->RenderWindow->SetRGBAPixelData(0, 0, windowSize[0]-1, 
+					   windowSize[1]-1,
+					   localPdata, 0);
       }
     timer->StopTimer();
     this->SetBuffersTime = timer->GetElapsedTime();
