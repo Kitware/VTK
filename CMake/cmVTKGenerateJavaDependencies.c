@@ -85,6 +85,11 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
     sprintf(className,"%s/%s.class",srcPath,srcNameWe);
     
     args[2] = strdup(srcName);
+
+#ifndef _WIN32
+    /* On Unix we can just call javac ... *.java */
+    sprintf(args[2], "%s/*.java", srcPath);
+#endif
     info->CAPI->AddCustomCommand(mf, srcName, javac, 3, (const char**)args, 
                                  0, 0, 1, (const char**)&className, target);
     
