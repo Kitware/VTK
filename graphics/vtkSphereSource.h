@@ -129,7 +129,6 @@ protected:
   float EndTheta;
   float StartPhi;
   float EndPhi;
-
 };
 
 #endif

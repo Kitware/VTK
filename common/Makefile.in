@@ -71,6 +71,7 @@ vtkFloatTensors \
 vtkFloatVectors \
 vtkGeneralTransform \
 vtkGenericCell \
+vtkGhostLevels \
 vtkHexahedron \
 vtkIdentityTransform \
 vtkIdList \

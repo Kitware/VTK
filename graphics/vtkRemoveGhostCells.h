@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkPolyDataSource.h
+  Module:    vtkRemoveGhostCells.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -39,58 +39,37 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkPolyDataSource - abstract class whose subclasses generate polygonal data
-// .SECTION Description
-// vtkPolyDataSource is an abstract class whose subclasses generate polygonal
-// data.
+// .NAME vtkRemoveGhostCells - Removes ghost cells whose ghost level is above
+// a specified value
 
-// .SECTION See Also
-// vtkPolyDataReader vtkAxes vtkBYUReader vtkConeSource vtkCubeSource
-// vtkCursor3D vtkCyberReader vtkCylinderSource vtkDiskSource vtkLineSource
-// vtkMCubesReader vtkOutlineSource vtkPlaneSource vtkPointSource vtkSTLReader
-// vtkSphereSource vtkTextSource vtkUGFacetReader vtkVectorText
+#ifndef __vtkRemoveGhostCells_h
+#define __vtkRemoveGhostCells_h
 
-#ifndef __vtkPolyDataSource_h
-#define __vtkPolyDataSource_h
+#include "vtkPolyDataToPolyDataFilter.h"
 
-#include "vtkSource.h"
-#include "vtkPolyData.h"
-
-class VTK_EXPORT vtkPolyDataSource : public vtkSource
+class VTK_EXPORT vtkRemoveGhostCells : public vtkPolyDataToPolyDataFilter
 {
 public:
-  static vtkPolyDataSource *New();
-  vtkTypeMacro(vtkPolyDataSource,vtkSource);
-
+  static vtkRemoveGhostCells *New();
+  vtkTypeMacro(vtkRemoveGhostCells, vtkPolyDataToPolyDataFilter);
+  void PrintSelf(ostream& os, vtkIndent indent);
+  
   // Description:
-  // Get the output of this source.
-  vtkPolyData *GetOutput();
-  vtkPolyData *GetOutput(int idx)
-    {return (vtkPolyData *) this->vtkSource::GetOutput(idx); };
-  void SetOutput(vtkPolyData *output);
+  // Set / Get the lowest ghost level to remove.  (All cells with ghost
+  // levels at this level or higher will be removed.)
+  vtkSetMacro(GhostLevel, int);
+  vtkGetMacro(GhostLevel, int);
 
 protected:
-  vtkPolyDataSource();
-  ~vtkPolyDataSource() {};
-  vtkPolyDataSource(const vtkPolyDataSource&) {};
-  void operator=(const vtkPolyDataSource&) {};
-  
-  // Update extent of PolyData is specified in pieces.  
-  // Since all DataObjects should be able to set UpdateExent as pieces,
-  // just copy output->UpdateExtent  all Inputs.
-  void ComputeInputUpdateExtents(vtkDataObject *output);
-  
-  // Used by streaming: The extent of the output being processed
-  // by the execute method. Set in the ComputeInputUpdateExtents method.
-  int ExecutePiece;
-  int ExecuteNumberOfPieces;
-  
-  int ExecuteGhostLevel;
+  vtkRemoveGhostCells();
+  ~vtkRemoveGhostCells() {};
+  vtkRemoveGhostCells(const vtkRemoveGhostCells&) {};
+  void operator=(const vtkRemoveGhostCells&) {};
+
+  // Usual data generation method
+  void Execute();
+
+  int GhostLevel;
 };
 
-#endif
-
-
-
-
-
+#endihang

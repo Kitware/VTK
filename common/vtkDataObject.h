@@ -273,12 +273,18 @@ public:
   void SetUpdateNumberOfPieces(int num);
   vtkGetMacro( UpdatePiece, int );
   vtkGetMacro( UpdateNumberOfPieces, int );
-
+  
   // Description:
   // Set / Get the maximum number of pieces this data can be broken into
   vtkSetMacro( MaximumNumberOfPieces, int );
   vtkGetMacro( MaximumNumberOfPieces, int );
 
+  // Description:
+  // Set / Get the update ghost level and the update number of ghost levels.
+  // Similar to update extent in 3D.
+  void SetUpdateGhostLevel(int level);
+  vtkGetMacro(UpdateGhostLevel, int);
+  
   // Description:
   // Set/Get the whole extent of this data object
   vtkSetVector6Macro( WholeExtent, int );
@@ -370,6 +376,9 @@ protected:
   int Piece;
   int UpdateNumberOfPieces;
   int UpdatePiece;
+  
+  int GhostLevel;
+  int UpdateGhostLevel;
 
   // Data will release after use by a filter if this flag is set
   int ReleaseDataFlag; 

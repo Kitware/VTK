@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkPolyDataSource.h
+  Module:    vtkGhostLevels.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -39,58 +39,41 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkPolyDataSource - abstract class whose subclasses generate polygonal data
-// .SECTION Description
-// vtkPolyDataSource is an abstract class whose subclasses generate polygonal
-// data.
+#include "vtkGhostLevels.h"
+#include "vtkObjectFactory.h"
 
-// .SECTION See Also
-// vtkPolyDataReader vtkAxes vtkBYUReader vtkConeSource vtkCubeSource
-// vtkCursor3D vtkCyberReader vtkCylinderSource vtkDiskSource vtkLineSource
-// vtkMCubesReader vtkOutlineSource vtkPlaneSource vtkPointSource vtkSTLReader
-// vtkSphereSource vtkTextSource vtkUGFacetReader vtkVectorText
-
-#ifndef __vtkPolyDataSource_h
-#define __vtkPolyDataSource_h
-
-#include "vtkSource.h"
-#include "vtkPolyData.h"
-
-class VTK_EXPORT vtkPolyDataSource : public vtkSource
+//-------------------------------------------------------------------------
+vtkGhostLevels *vtkGhostLevels::New()
 {
-public:
-  static vtkPolyDataSource *New();
-  vtkTypeMacro(vtkPolyDataSource,vtkSource);
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkGhostLevels");
+  if(ret)
+    {
+    return (vtkGhostLevels*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkGhostLevels;
+}
 
-  // Description:
-  // Get the output of this source.
-  vtkPolyData *GetOutput();
-  vtkPolyData *GetOutput(int idx)
-    {return (vtkPolyData *) this->vtkSource::GetOutput(idx); };
-  void SetOutput(vtkPolyData *output);
+// Construct object with an initial data array of type unsigned char.
+vtkGhostLevels::vtkGhostLevels() 
+{
+  this->SetDataType(VTK_UNSIGNED_CHAR);
+  this->Data->SetNumberOfComponents(1);
+}
 
-protected:
-  vtkPolyDataSource();
-  ~vtkPolyDataSource() {};
-  vtkPolyDataSource(const vtkPolyDataSource&) {};
-  void operator=(const vtkPolyDataSource&) {};
-  
-  // Update extent of PolyData is specified in pieces.  
-  // Since all DataObjects should be able to set UpdateExent as pieces,
-  // just copy output->UpdateExtent  all Inputs.
-  void ComputeInputUpdateExtents(vtkDataObject *output);
-  
-  // Used by streaming: The extent of the output being processed
-  // by the execute method. Set in the ComputeInputUpdateExtents method.
-  int ExecutePiece;
-  int ExecuteNumberOfPieces;
-  
-  int ExecuteGhostLevel;
-};
+// Given a list of pt ids, return an array of ghost levels.
+void vtkGhostLevels::GetGhostLevels(vtkIdList *ptIds, vtkGhostLevels *g)
+{
+  int num = ptIds->GetNumberOfIds();
 
-#endif
+  for (int i=0; i < num; i++)
+    {
+    g->SetGhostLevel(i, this->GetGhostLevel(ptIds->GetId(i)));
+    }
+}
 
-
-
-
-
+void vtkGhostLevels::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkAttributeData::PrintSelf(os,indent);
+}

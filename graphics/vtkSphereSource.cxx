@@ -45,8 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkNormals.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-
-
+#include "vtkGhostLevels.h"
 
 //------------------------------------------------------------------------------
 vtkSphereSource* vtkSphereSource::New()
@@ -60,9 +59,6 @@ vtkSphereSource* vtkSphereSource::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkSphereSource;
 }
-
-
-
 
 //----------------------------------------------------------------------------
 // Construct sphere with radius=0.5 and default resolution 8 in both Phi
@@ -91,27 +87,73 @@ void vtkSphereSource::Execute()
   int numPts, numPolys;
   vtkPoints *newPoints; 
   vtkNormals *newNormals;
+  vtkGhostLevels *newGhostPoints = NULL;
+  vtkGhostLevels *newGhostCells = NULL;
   vtkCellArray *newPolys;
   float x[3], n[3], deltaPhi, deltaTheta, phi, theta, radius, norm;
   float startTheta, endTheta, startPhi, endPhi;
   int pts[3], base, numPoles=0, thetaResolution, phiResolution;
   vtkPolyData *output = this->GetOutput();
+  int piece = output->GetUpdatePiece();
+  int numPieces = output->GetUpdateNumberOfPieces();
+  int ghostLevel = output->GetUpdateGhostLevel();
+  
+  int ghostStartTheta;
+  int ghostEndTheta;
+  int ghostThetaResolution;
+  
+  // I want to modify the ivars resoultion start theta and end theta, 
+  // so I will make local copies of them.  THese might be able to be merged 
+  // with the other copies of them, ...
+  int localThetaResolution = this->ThetaResolution;
+  float localStartTheta = this->StartTheta;
+  float localEndTheta = this->EndTheta;
+
+  while (localEndTheta < localStartTheta)
+    {
+    localEndTheta += 360.0;
+    }
+  deltaTheta = (localEndTheta - localStartTheta) / localThetaResolution;
+
+  // Change the ivars based on pieces.
+  int start, end;
+  start = piece * localThetaResolution / numPieces;
+  end = (piece+1) * localThetaResolution / numPieces;
+  localEndTheta = localStartTheta + (float)(end) * deltaTheta;
+  localStartTheta = localStartTheta + (float)(start) * deltaTheta;
+  localThetaResolution = end - start;
+
+  ghostStartTheta = localStartTheta - deltaTheta * ghostLevel;
+  ghostEndTheta = localEndTheta + deltaTheta * ghostLevel;
+  ghostThetaResolution = (ghostEndTheta - ghostStartTheta) / deltaTheta;
+  
   //
   // Set things up; allocate memory
   //
 
   vtkDebugMacro("SphereSource Executing");
 
-  numPts = this->PhiResolution * this->ThetaResolution + 2;
+  numPts = this->PhiResolution * ghostThetaResolution + 2;
   // creating triangles
-  numPolys = this->PhiResolution * 2 * this->ThetaResolution;
+  numPolys = this->PhiResolution * 2 * ghostThetaResolution;
 
   newPoints = vtkPoints::New();
   newPoints->Allocate(numPts);
   newNormals = vtkNormals::New();
   newNormals->Allocate(numPts);
+  if (numPieces > 1)
+    {
+    newGhostPoints = vtkGhostLevels::New();
+    newGhostPoints->Allocate(numPts);
+    }
+  if (ghostLevel > 0)
+    {
+    newGhostCells = vtkGhostLevels::New();
+    newGhostCells->Allocate(numPolys);
+    }
+  
   newPolys = vtkCellArray::New();
-  newPolys->Allocate(newPolys->EstimateSize(numPolys,3));
+  newPolys->Allocate(newPolys->EstimateSize(numPolys, 3));
   //
   // Create sphere
   //
@@ -125,6 +167,17 @@ void vtkSphereSource::Execute()
 
     x[0] = x[1] = 0.0; x[2] = 1.0;
     newNormals->InsertNormal(numPoles,x);
+    if (newGhostPoints)
+      {
+      if (piece == 0)
+        {
+        newGhostPoints->InsertGhostLevel(numPoles, 0);
+        }
+      else
+        {
+        newGhostPoints->InsertGhostLevel(numPoles, 1);
+        }
+      }
     numPoles++;
     }
 
@@ -138,37 +191,53 @@ void vtkSphereSource::Execute()
 
     x[0] = x[1] = 0.0; x[2] = -1.0;
     newNormals->InsertNormal(numPoles,x);
+    if (newGhostPoints)
+      {
+      if (piece == 0)
+        {
+        newGhostPoints->InsertGhostLevel(numPoles, 0);
+        }
+      else
+        {
+        newGhostPoints->InsertGhostLevel(numPoles, 1);
+        }
+      }
     numPoles++;
     }
 
   // Check data, determine increments, and convert to radians
-  startTheta = (this->StartTheta < this->EndTheta ? this->StartTheta : this->EndTheta);
+  startTheta = (localStartTheta < localEndTheta ? localStartTheta : localEndTheta);
   startTheta *= vtkMath::Pi() / 180.0;
-  endTheta = (this->EndTheta > this->StartTheta ? this->EndTheta : this->StartTheta);
+  endTheta = (localEndTheta > localStartTheta ? localEndTheta : localStartTheta);
   endTheta *= vtkMath::Pi() / 180.0;
-
+  
   startPhi = (this->StartPhi < this->EndPhi ? this->StartPhi : this->EndPhi);
   startPhi *= vtkMath::Pi() / 180.0;
   endPhi = (this->EndPhi > this->StartPhi ? this->EndPhi : this->StartPhi);
   endPhi *= vtkMath::Pi() / 180.0;
 
-
   phiResolution = this->PhiResolution - numPoles;
   deltaPhi = (endPhi - startPhi) / (this->PhiResolution - 1);
-  thetaResolution = (fabs(this->StartTheta - this->EndTheta) >= 360.0 ?
-		     this->ThetaResolution : this->ThetaResolution - 1);
+  thetaResolution = localThetaResolution;
+  if (fabs(localStartTheta - localEndTheta) < 360.0)
+    {
+    ++localThetaResolution;
+    }
+  if (fabs(ghostStartTheta - ghostEndTheta) < 360.0)
+    {
+    ++ghostThetaResolution;
+    }
   deltaTheta = (endTheta - startTheta) / thetaResolution;
-
 
   jStart = (this->StartPhi <= 0.0 ? 1 : 0);
   jEnd = (this->EndPhi >= 180.0 ? this->PhiResolution - 1 
         : this->PhiResolution);
 
-
   // Create intermediate points
-  for (i=0; i < this->ThetaResolution; i++)
+  for (i=0; i < ghostThetaResolution; i++)
     {
-    theta = startTheta + i*deltaTheta;
+    theta = ghostStartTheta * vtkMath::Pi() / 180.0 + i*deltaTheta;
+    
     for (j=jStart; j<jEnd; j++)
       {
       phi = startPhi + j*deltaPhi;
@@ -182,25 +251,57 @@ void vtkSphereSource::Execute()
       newPoints->InsertNextPoint(x);
 
       if ( (norm = vtkMath::Norm(n)) == 0.0 )
-	{
-	norm = 1.0;
-	}
+        {
+        norm = 1.0;
+        }
       n[0] /= norm; n[1] /= norm; n[2] /= norm; 
       newNormals->InsertNextNormal(n);
+
+      if (newGhostPoints)
+        {
+        if (i < ghostLevel + 1)
+          {
+          newGhostPoints->InsertNextGhostLevel(ghostLevel - i + 1);
+          }
+	else if (i >= ghostThetaResolution - ghostLevel)
+          {
+          newGhostPoints->InsertNextGhostLevel(i - ghostThetaResolution + 
+					       ghostLevel + 1);
+          }
+        else
+          {
+          newGhostPoints->InsertNextGhostLevel(0);
+          }
+        }
       }
     }
 
   // Generate mesh connectivity
-  base = phiResolution * this->ThetaResolution;
+  base = phiResolution * ghostThetaResolution;
  
   if ( this->StartPhi <= 0.0 )  // around north pole
     {
-    for (i=0; i < thetaResolution; i++)
+    for (i=0; i < ghostThetaResolution - 1; i++)
       {
       pts[0] = phiResolution*i + numPoles;
       pts[1] = (phiResolution*(i+1) % base) + numPoles;
       pts[2] = 0;
-      newPolys->InsertNextCell(3,pts);
+      newPolys->InsertNextCell(3, pts);
+      if (newGhostCells)
+        {
+        if (i < ghostLevel)
+          {
+          newGhostCells->InsertNextGhostLevel(ghostLevel - i);
+          }
+        else if (i > localThetaResolution + ghostLevel - 2)
+          {
+          newGhostCells->InsertNextGhostLevel(i - localThetaResolution - ghostLevel + 2);
+          }
+        else
+          {
+          newGhostCells->InsertNextGhostLevel(0);
+          }
+        }
       }
     }
   
@@ -209,28 +310,73 @@ void vtkSphereSource::Execute()
     numOffset = phiResolution - 1 + numPoles;
 
 
-    for (i=0; i < thetaResolution; i++)
+    for (i=0; i < ghostThetaResolution - 1; i++)
       {
       pts[0] = phiResolution*i + numOffset;
       pts[2] = ((phiResolution*(i+1)) % base) + numOffset;
       pts[1] = numPoles - 1;
-      newPolys->InsertNextCell(3,pts);
+      newPolys->InsertNextCell(3, pts);
+      if (newGhostCells)
+        {
+        if (i < ghostLevel)
+          {
+          newGhostCells->InsertNextGhostLevel(ghostLevel - i);
+          }
+        else if (i > localThetaResolution + ghostLevel - 2)
+          {
+          newGhostCells->InsertNextGhostLevel(i - localThetaResolution - ghostLevel + 2);
+          }
+        else
+          {
+          newGhostCells->InsertNextGhostLevel(0);
+          }
+        }
       }
     }
 
   // bands inbetween poles
-  for (i=0; i < thetaResolution; i++)
+  for (i=0; i < ghostThetaResolution - 1; i++)
     {
     for (j=0; j < (phiResolution-1); j++)
       {
       pts[0] = phiResolution*i + j + numPoles;
       pts[1] = pts[0] + 1;
       pts[2] = ((phiResolution*(i+1)+j) % base) + numPoles + 1;
-      newPolys->InsertNextCell(3,pts);
+      newPolys->InsertNextCell(3, pts);
+      if (newGhostCells)
+        {
+        if (i < ghostLevel)
+          {
+          newGhostCells->InsertNextGhostLevel(ghostLevel - i);
+          }
+        else if (i > localThetaResolution + ghostLevel - 2)
+          {
+          newGhostCells->InsertNextGhostLevel(i - localThetaResolution - ghostLevel + 2);
+          }
+        else
+          {
+          newGhostCells->InsertNextGhostLevel(0);
+          }
+        }
 
       pts[1] = pts[2];
       pts[2] = pts[1] - 1;
-      newPolys->InsertNextCell(3,pts);
+      newPolys->InsertNextCell(3, pts);
+      if (newGhostCells)
+        {
+        if (i < ghostLevel)
+          {
+          newGhostCells->InsertNextGhostLevel(ghostLevel - i);
+          }
+        else if (i > localThetaResolution + ghostLevel - 2)
+          {
+          newGhostCells->InsertNextGhostLevel(i - localThetaResolution - ghostLevel + 2);
+          }
+        else
+          {
+          newGhostCells->InsertNextGhostLevel(0);
+          }
+        }
       }
     }
   //
@@ -242,10 +388,23 @@ void vtkSphereSource::Execute()
   output->GetPointData()->SetNormals(newNormals);
   newNormals->Delete();
 
+  if (newGhostPoints)
+    {
+    output->GetPointData()->SetGhostLevels(newGhostPoints);
+    newGhostPoints->Delete();
+    }
+  
   output->SetPolys(newPolys);
   newPolys->Delete();
+  
+  if (newGhostCells)
+    {
+    output->GetCellData()->SetGhostLevels(newGhostCells);
+    newGhostCells->Delete();
+    }
 }
 
+//----------------------------------------------------------------------------
 void vtkSphereSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataSource::PrintSelf(os,indent);
@@ -260,7 +419,6 @@ void vtkSphereSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Center: (" << this->Center[0] << ", " 
      << this->Center[1] << ", " << this->Center[2] << ")\n";
 }
-
 
 //----------------------------------------------------------------------------
 void vtkSphereSource::ExecuteInformation()
@@ -277,4 +435,5 @@ void vtkSphereSource::ExecuteInformation()
   // convert to kilobytes
   size = (size / 1000) + 1;
   
+  this->GetOutput()->SetMaximumNumberOfPieces(this->ThetaResolution);
 }

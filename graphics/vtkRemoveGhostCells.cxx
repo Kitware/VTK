@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkPolyDataSource.cxx
+  Module:    vtkRemoveGhostCells.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -39,102 +39,79 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include "vtkPolyDataSource.h"
+#include "vtkRemoveGhostCells.h"
 #include "vtkObjectFactory.h"
 
-
-
-//----------------------------------------------------------------------------
-vtkPolyDataSource* vtkPolyDataSource::New()
+//------------------------------------------------------------------------------
+vtkRemoveGhostCells* vtkRemoveGhostCells::New()
 {
   // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPolyDataSource");
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkRemoveGhostCells");
   if(ret)
     {
-    return (vtkPolyDataSource*)ret;
+    return (vtkRemoveGhostCells*)ret;
     }
   // If the factory was unable to create the object, then create it here.
-  return new vtkPolyDataSource;
+  return new vtkRemoveGhostCells;
 }
 
-
-
-
-//----------------------------------------------------------------------------
-vtkPolyDataSource::vtkPolyDataSource()
+// Construct with ghost level = 1.
+vtkRemoveGhostCells::vtkRemoveGhostCells()
 {
-  this->vtkSource::SetNthOutput(0, vtkPolyData::New());
-  // Releasing data for pipeline parallism.
-  // Filters will know it is empty. 
-  this->Outputs[0]->ReleaseData();
-  this->Outputs[0]->Delete();
-  this->ExecutePiece = this->ExecuteNumberOfPieces = 0;
-  this->ExecuteGhostLevel = 0;
+  this->GhostLevel = 1;
 }
 
-//----------------------------------------------------------------------------
-vtkPolyData *vtkPolyDataSource::GetOutput()
+void vtkRemoveGhostCells::Execute()
 {
-  if (this->NumberOfOutputs < 1)
+  vtkCellArray *newCells;
+  vtkCellData *cellData;
+  int numCells, cellId, newCellId;
+  vtkPolyData *input = this->GetInput();
+  vtkPolyData *output = this->GetOutput();
+  vtkCell *cell;
+
+  vtkDebugMacro(<< "Executing remove ghost cells filter");
+
+  if (!input->GetCellData()->GetGhostLevels())
     {
-    return NULL;
-    }
-  
-  return (vtkPolyData *)(this->Outputs[0]);
-}
-
-//----------------------------------------------------------------------------
-void vtkPolyDataSource::SetOutput(vtkPolyData *output)
-{
-  this->vtkSource::SetNthOutput(0, output);
-}
-
-
-//----------------------------------------------------------------------------
-void vtkPolyDataSource::ComputeInputUpdateExtents(vtkDataObject *data)
-{
-  int piece, numPieces;
-  int ghostLevel, numGhostLevels;
-  vtkPolyData *output = (vtkPolyData *)data;
-  int idx;
-
-  output->GetUpdateExtent(piece, numPieces);
-  output->GetUpdateExtent(ghostLevel, numGhostLevels);
-  
-  // make sure piece is valid
-  if (piece < 0 || piece >= numPieces)
-    {
+    vtkErrorMacro(<<"No ghost cells to remove");
     return;
     }
+     
+  cellData = input->GetCellData();
+  numCells = input->GetNumberOfCells();
+  newCells = vtkCellArray::New();
+  newCells->Allocate(numCells);
   
-  if (ghostLevel < 0 || ghostLevel >= numGhostLevels)
+  output->SetPoints(input->GetPoints());
+
+  // Check the ghost level of each cell to determine whether to remove
+  // the cell.
+
+  for (cellId=0; cellId < numCells; cellId++)
     {
-    return;
-    }
-  
-  // just copy the Update extent as default behavior.
-  for (idx = 0; idx < this->NumberOfInputs; ++idx)
-    {
-    if (this->Inputs[idx])
+    if (cellData->GetGhostLevels()->GetGhostLevel(cellId) < this->GhostLevel)
       {
-      this->Inputs[idx]->SetUpdateExtent(piece, numPieces);
-      this->Inputs[idx]->SetUpdateExtent(ghostLevel, numGhostLevels);
-      }
-    }
-  
-  // Save the piece so execute can use this information.
-  this->ExecutePiece = piece;
-  this->ExecuteNumberOfPieces = numPieces;
-  
-  this->ExecuteGhostLevel = ghostLevel;
+      cell = input->GetCell(cellId);
+      newCellId = newCells->InsertNextCell(cell);
+      output->GetCellData()->CopyData(input->GetCellData(), cellId, newCellId);
+      } // keep this cell
+    } // for all cells
+
+//
+// Update ourselves and release memory
+//
+  output->SetPolys(newCells);
+  newCells->Delete();
+
+  output->GetPointData()->PassData(input->GetPointData());
+
+  output->Squeeze();
 }
 
-  
+void vtkRemoveGhostCells::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 
-
-
-
-
-
-
-
+  os << indent << "Ghost Level: " << this->GhostLevel << "\n";;
+}

@@ -104,7 +104,6 @@ protected:
   float Radius;
   int Resolution;
   int Capping;
-
 };
 
 #endif

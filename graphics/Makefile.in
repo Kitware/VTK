@@ -236,6 +236,7 @@ vtkRectilinearGridSource \
 vtkRectilinearGridWriter \
 vtkRecursiveDividingCubes \
 vtkRecursiveSphereDirectionEncoder \
+vtkRemoveGhostCells \
 vtkRenderWindow \
 vtkRenderWindowCollection \
 vtkRenderWindowInteractor \
@@ -257,6 +258,7 @@ vtkShrinkFilter \
 vtkShrinkPolyData \
 vtkSimpleElevationFilter \
 vtkSmoothPolyDataFilter \
+vtkSolidSphereSource \
 vtkSpatialRepresentationFilter \
 vtkSphere \
 vtkSphereSource \

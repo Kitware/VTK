@@ -97,6 +97,10 @@ vtkDataObject::vtkDataObject()
 
   this->MaximumNumberOfPieces = 1;
 
+  // ivars for ghost levels
+  this->GhostLevel = 0;
+  this->UpdateGhostLevel = 0;
+  
   this->PipelineMTime = 0;
   this->LastUpdateExtentWasOutsideOfTheExtent = 0;
 
@@ -389,6 +393,12 @@ void vtkDataObject::SetUpdateNumberOfPieces( int num )
 }
 
 //----------------------------------------------------------------------------
+void vtkDataObject::SetUpdateGhostLevel(int level)
+{
+  this->UpdateGhostLevel = level;
+}
+
+//----------------------------------------------------------------------------
 void vtkDataObject::SetSource(vtkSource *arg)
 {
   vtkDebugMacro( << this->GetClassName() << " (" 
@@ -650,14 +660,16 @@ void vtkDataObject::InternalDataObjectCopy(vtkDataObject *src)
     this->WholeExtent[idx] = this->Extent[idx] = this->UpdateExtent[idx] = 
       src->Extent[idx];
     }
-  this->MaximumNumberOfPieces = 1;
-  this->NumberOfPieces = 1;
-  this->UpdateNumberOfPieces = 1;
-  this->UpdatePiece = 0;
+  this->MaximumNumberOfPieces = src->MaximumNumberOfPieces;
+  this->Piece = src->Piece;
+  this->NumberOfPieces = src->NumberOfPieces;
+  this->UpdateNumberOfPieces = src->UpdateNumberOfPieces;
+  this->UpdatePiece = src->UpdatePiece;
+  this->UpdateGhostLevel = src->UpdateGhostLevel;
   this->ReleaseDataFlag = src->ReleaseDataFlag;
   this->EstimatedWholeMemorySize = src->EstimatedWholeMemorySize;
   this->PipelineMTime = src->PipelineMTime;
-  this->Locality = 0.0;
+  this->Locality = src->Locality;
 }
 
 
@@ -691,6 +703,8 @@ void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Update Piece: " << this->UpdatePiece << endl;
   os << indent << "Maximum Number Of Pieces: " << this->MaximumNumberOfPieces << endl;
 
+  os << indent << "Update Ghost Level: " << this->UpdateGhostLevel << endl;
+  
   os << indent << "UpdateExtent: " << this->UpdateExtent[0] << ", "
      << this->UpdateExtent[1] << ", " << this->UpdateExtent[2] << ", "
      << this->UpdateExtent[3] << ", " << this->UpdateExtent[4] << ", "
