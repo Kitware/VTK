@@ -41,7 +41,10 @@ public:
   // operators will be forwarded.
   vtkOStreamWrapper(ostream& os);
   vtkOStreamWrapper(vtkOStreamWrapper& r);
-  
+
+  // Description:
+  virtual ~vtkOStreamWrapper();
+
   // Description:
   // Type for a fake endl.
   struct EndlType {};
