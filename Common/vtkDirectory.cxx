@@ -117,7 +117,10 @@ int vtkDirectory::Open(const char* name)
 int vtkDirectory::Open(const char* name)
 {
   DIR* dir = opendir(name);
-  if (!dir) return 0;
+  if (!dir) 
+    {
+    return 0;
+    }
   this->NumberOfFiles = 0;
   dirent* d =0;
   
@@ -129,6 +132,10 @@ int vtkDirectory::Open(const char* name)
   closedir(dir);
   
   dir = opendir(name);
+  if (!dir) 
+    {
+    return 0;
+    }
   int i = 0;
   for (d = readdir(dir); d; d = readdir(dir))
     {
@@ -136,6 +143,7 @@ int vtkDirectory::Open(const char* name)
     i++;
     }
   this->Path = strcpy(new char[strlen(name)+1], name);
+  closedir(dir);
   return 1;
 }
 
