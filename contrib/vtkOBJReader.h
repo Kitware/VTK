@@ -55,6 +55,7 @@ class VTK_EXPORT vtkOBJReader : public vtkPolyDataSource
 {
 public:
   vtkOBJReader();
+  virtual ~vtkOBJReader();
   static vtkOBJReader *New() {return new vtkOBJReader;};
   const char *GetClassName() {return "vtkOBJReader";};
   void PrintSelf(ostream& os, vtkIndent indent);

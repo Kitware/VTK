@@ -47,10 +47,22 @@ vtkOBJReader::vtkOBJReader()
   this->FileName = NULL;
 }
 
+vtkOBJReader::~vtkOBJReader()
+{
+  if (this->FileName)
+    {
+    delete [] this->FileName;
+    this->FileName = NULL;
+    }
+}
+
 void vtkOBJReader::Execute()
 {
   FILE *fptr;
   char line[1024];
+  vtkPoints *objPts;
+  vtkNormals *objNormals;
+  vtkTCoords *objTCoords;
   vtkPoints *pts;
   vtkNormals *normals;
   vtkTCoords *tcoords;
@@ -58,7 +70,10 @@ void vtkOBJReader::Execute()
   float xyz[3], n[3], tc[3];
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
-  int id, count;
+  int count;
+  int ptId;
+  int numberOfPts, numberOfNormals, numberOfTCoords;
+  int objPtId, objNormalId, objTCoordId;
   char *slash, *blank, *next, *ptr;
 
   vtkDebugMacro(<<"Reading file");
@@ -70,38 +85,73 @@ void vtkOBJReader::Execute()
     return;
     }
 
-  pts = vtkPoints::New();
-  pts->Allocate(1000,5000);  
+  // allocate points and point data to hold obj input
+  objPts = vtkPoints::New();
+  objPts->Allocate(1000,5000);  
 
-  normals = vtkNormals::New();
-  normals->Allocate(1000,5000);  
+  objNormals = vtkNormals::New();
+  objNormals->Allocate(1000,5000);  
 
-  tcoords = vtkTCoords::New();
-  tcoords->SetNumberOfComponents(2);
-  tcoords->Allocate(1000,5000);  
+  objTCoords = vtkTCoords::New();
+  objTCoords->SetNumberOfComponents(2);
+  objTCoords->Allocate(1000,5000);  
 
   polys = vtkCellArray::New();
   polys->Allocate(1000,5000);
 
-  // parse file
+  // parse file twice... first time to get point data and then cells
   while (fgets (line, 1024, fptr)) 
     {
     if (strncmp (line, "v ", 2) == 0)
       {
       sscanf (line, "%*[^ ]%f %f %f", xyz, xyz + 1, xyz + 2);
-      pts->InsertNextPoint(xyz);
+      objPts->InsertNextPoint(xyz);
       }
     else if (strncmp (line, "vt", 2) == 0)
       {
       sscanf (line, "%*[^ ]%f %f %f", tc, tc + 1, tc + 2);
-      tcoords->InsertNextTCoord(tc);
+      objTCoords->InsertNextTCoord(tc);
       }
     else if (strncmp (line, "vn", 2) == 0)
       {
       sscanf (line, "%*[^ ]%f %f %f", n, n + 1, n + 2);
-      normals->InsertNextNormal(n);
+      objNormals->InsertNextNormal(n);
       }
-    else if ( strncmp(line, "f ", 2) == 0 || strncmp(line, "fo", 2) == 0) 
+    }
+
+  // allocate points and point data for vtk polydata
+  pts = vtkPoints::New();
+  numberOfPts = objPts->GetNumberOfPoints();
+  pts->Allocate(numberOfPts, numberOfPts);
+
+  numberOfNormals = objNormals->GetNumberOfNormals ();
+  if (numberOfNormals > 0)
+    {
+    normals = vtkNormals::New();
+    normals->Allocate(numberOfPts, numberOfPts);
+    }
+  else
+    {
+    normals = NULL;
+    }
+
+  numberOfTCoords = objTCoords->GetNumberOfTCoords ();
+  if (numberOfTCoords > 0)
+    {
+    tcoords = vtkTCoords::New();
+    tcoords->SetNumberOfComponents(2);
+    tcoords->Allocate(numberOfPts, numberOfPts);
+    }
+  else
+    {
+    tcoords = NULL;
+    }
+
+  ptId = 0;
+  rewind (fptr);
+  while (fgets (line, 1024, fptr)) 
+    {
+    if ( strncmp(line, "f ", 2) == 0 || strncmp(line, "fo", 2) == 0) 
       {
       count = 0;
       polys->InsertNextCell(0);
@@ -109,44 +159,75 @@ void vtkOBJReader::Execute()
       while ((ptr = (char *) strchr (ptr, (int) ' '))) 
         {
         while (*ptr == ' ') ptr++;
-        if ( sscanf(ptr, "%d", &id) == 1 ) 
+        if ( sscanf(ptr, "%d", &objPtId) == 1 ) 
           {
-          polys->InsertCellPoint(id-1);
+          polys->InsertCellPoint(ptId++);
+	  pts->InsertNextPoint (objPts->GetPoint (objPtId-1));
           count++;
+	  objNormalId = -1;
+	  objTCoordId = -1;
           if ((next = (char *) strchr (ptr, (int) '/'))) 
             {
             ptr = next + 1;
             if (*ptr == '/') 
               {
-              sscanf (ptr + 1, "%d", &id);
+              sscanf (ptr + 1, "%d", &objNormalId);
               }
             else 
               {
-              sscanf (ptr, "%d", &id);
+              sscanf (ptr, "%d", &objTCoordId);
               blank = (char *) strchr (line, (int) ' ');
               slash = (char *) strchr (line, (int) '/');
               if (blank && slash && (slash < blank)) 
                 {
                 ptr = slash + 1;
-                sscanf (ptr, "%d", &id);
+                sscanf (ptr, "%d", &objNormalId);
                 }
               }
             }
+	  if (normals && objNormalId != -1)
+	    {
+	    normals->InsertNextNormal (objNormals->GetNormal (objNormalId - 1));
+	    }
+	  if (tcoords && objTCoordId != -1)
+	    {
+	    tcoords->InsertNextTCoord (objTCoords->GetTCoord (objTCoordId - 1));
+	    }
           }
         }
       polys->UpdateCellCount(count);
       }
     }
 
+  // close the file
+  fclose (fptr);
+
+  // delete the obj points, normals and tcoords
+  objPts->Delete();
+  objNormals->Delete();
+  objTCoords->Delete();
+
+  output->SetPoints (pts);
+  pts->Delete ();
+
   // update output
-  output->SetPoints(pts);
-  pts->Delete();
+  if (normals)
+    {
+    if ( normals->GetNumberOfNormals() > 0 )
+      {
+      outputPD->SetNormals(normals);
+      }
+    normals->Delete();
+    }    
 
-  if ( normals->GetNumberOfNormals() > 0 ) outputPD->SetNormals(normals);
-  normals->Delete();
-
-  if ( tcoords->GetNumberOfTCoords() > 0 ) outputPD->SetTCoords(tcoords);
-  tcoords->Delete();
+  if (tcoords)
+    {
+    if ( tcoords->GetNumberOfTCoords() > 0 )
+      {
+      outputPD->SetTCoords(tcoords);
+      }
+    tcoords->Delete();
+    }    
 
   output->SetPolys(polys);
   polys->Delete();
