@@ -110,3 +110,10 @@ void vtkOutlineCornerFilter::ExecuteInformation()
 
   this->OutlineCornerSource->UpdateInformation();
 }
+
+
+void vtkOutlineCornerFilter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
+  os << indent << "CornerFactor: " << this->CornerFactor << "\n";
+}

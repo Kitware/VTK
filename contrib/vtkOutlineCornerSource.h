@@ -53,9 +53,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_EXPORT vtkOutlineCornerSource : public vtkOutlineSource
 {
 public:
-  static vtkOutlineCornerSource *New();
   vtkTypeMacro(vtkOutlineCornerSource,vtkOutlineSource);
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Construct outline corner source with defaut corner factor = 0.2
+  static vtkOutlineCornerSource *New();
 
   // Description:
   // Set/Get the factor that controls the relative size of the corners

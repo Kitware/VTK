@@ -55,8 +55,12 @@ class vtkOutlineCornerSource;
 class VTK_EXPORT vtkOutlineCornerFilter : public vtkDataSetToPolyDataFilter
 {
 public:
-  static vtkOutlineCornerFilter *New();
   vtkTypeMacro(vtkOutlineCornerFilter,vtkDataSetToPolyDataFilter);
+  void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Construct outline corner filter with defaut corner factor = 0.2
+  static vtkOutlineCornerFilter *New();
 
   // Description:
   // Set/Get the factor that controls the relative size of the corners
