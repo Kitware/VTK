@@ -86,8 +86,6 @@ static void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
   int prune = self->GetPrune();
   float n[8];
 
-  //inRegion->MakeDataWritable();
-  
   // Get information to march through data
   inRegion->GetIncrements(inInc0, inInc1); 
   outRegion->GetIncrements(outInc0, outInc1); 
@@ -152,15 +150,15 @@ static void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
     inPtr0 = inPtr1;
     for (idx0 = outMin0; idx0 <= outMax0; ++idx0)
       {
-      if (*inPtr <= 1)
+      if (*inPtr0 <= 1)
 	{
-	*outPtr0 = *inPtr0;
+	*outPtr0 = (T)(0.0);
 	}
       else
 	{
-	*outPtr0 = 255;
+	*outPtr0 = *inPtr0;
 	}
-      *outPtr0 = *inPtr1;
+      *outPtr0 = *inPtr0;
       
       inPtr0 += inInc0;
       outPtr0 += outInc0;      
@@ -177,8 +175,9 @@ static void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
 void vtkImageSkeleton2D::Execute(vtkImageRegion *inRegion, 
 				 vtkImageRegion *outRegion)
 {
-  void *inPtr = inRegion->GetScalarPointer();
+  void *inPtr;
   void *outPtr = outRegion->GetScalarPointer();
+
   
   vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
   << ", outRegion = " << outRegion);
@@ -191,6 +190,8 @@ void vtkImageSkeleton2D::Execute(vtkImageRegion *inRegion,
     return;
     }
   
+  inRegion->MakeDataWritable();
+  inPtr = inRegion->GetScalarPointer();
   switch (inRegion->GetScalarType())
     {
     case VTK_FLOAT:

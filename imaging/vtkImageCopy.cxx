@@ -1,11 +1,11 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageConstantPad.cxx
+  Module:    vtkImageCopy.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
-  Thanks:    Thanks to C. Charles Law who developed this class.
+  Thanks:    Thanks to Abdalmajeid M. Alyassin who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -39,118 +39,58 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkImageRegion.h"
-#include "vtkImageConstantPad.h"
-
-
+#include "vtkImageCache.h"
+#include "vtkImageCopy.h"
 
 //----------------------------------------------------------------------------
 // Description:
 // Constructor sets default values
-vtkImageConstantPad::vtkImageConstantPad()
+vtkImageCopy::vtkImageCopy()
 {
-  // execute function handles four axes.
-  this->NumberOfExecutionAxes = 5;
-
-  this->Constant = 0.0;
+  this->SetExecutionAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
 }
-
 
 
 //----------------------------------------------------------------------------
 // Description:
 // This templated function executes the filter for any type of data.
 template <class T>
-static void vtkImageConstantPadExecute(vtkImageConstantPad *self,
-				       vtkImageRegion *inRegion, T *inPtr,
-				       vtkImageRegion *outRegion, T *outPtr)
+static void vtkImageCopyExecute(vtkImageCopy *self,
+				vtkImageRegion *inRegion, T *inPtr,
+				vtkImageRegion *outRegion, T *outPtr)
 {
-  int min0, max0, min1, max1, min2, max2, min3, max3, min4, max4;
-  int imageMin0, imageMax0, imageMin1, imageMax1, 
-    imageMin2, imageMax2, imageMin3, imageMax3, imageMin4, imageMax4;
-  int outIdx0, outIdx1, outIdx2, outIdx3, outIdx4;
-  int inInc0, inInc1, inInc2, inInc3, inInc4;
-  int outInc0, outInc1, outInc2, outInc3, outInc4;
-  T *inPtr0, *inPtr1, *inPtr2, *inPtr3, *inPtr4;
-  T *outPtr0, *outPtr1, *outPtr2, *outPtr3, *outPtr4;
-  int state0, state1, state2, state3, state4;
-  T constant;
+  int min0, max0, min1, max1;
+  int idx0, idx1;
+  int inInc0, inInc1;
+  int outInc0, outInc1;
+  T  *inPtr0, *inPtr1;
+  T  *outPtr0, *outPtr1;
 
-
-  constant = (T)(self->GetConstant());
+  self = self;
+  
   // Get information to march through data 
-  inRegion->GetIncrements(inInc0, inInc1, inInc2, inInc3, inInc4);
-  inRegion->GetWholeExtent(imageMin0, imageMax0, imageMin1, imageMax1, 
-			   imageMin2, imageMax2, imageMin3, imageMax3,
-			   imageMin4, imageMax4);
-  outRegion->GetIncrements(outInc0, outInc1, outInc2, outInc3, outInc4);
-  outRegion->GetExtent(min0, max0, min1, max1, min2, max2, min3, max3,
-		       min4, max4);
+  inRegion->GetIncrements(inInc0, inInc1);
+  outRegion->GetIncrements(outInc0, outInc1);
+  outRegion->GetExtent(min0, max0, min1, max1);
 
   // Loop through ouput pixels
-  inPtr4 = inPtr;
-  outPtr4 = outPtr;
-  for (outIdx4 = min4; outIdx4 <= max4; ++outIdx4)
+  inPtr1 = inPtr;
+  outPtr1 = outPtr;
+  for (idx1 = min1; idx1 <= max1; ++idx1)
     {
-    state4 = (outIdx4 < imageMin4 || outIdx4 > imageMax4);
-    outPtr3 = outPtr4;
-    inPtr3 = inPtr4;
-    for (outIdx3 = min3; outIdx3 <= max3; ++outIdx3)
+    outPtr0 = outPtr1;
+    inPtr0 = inPtr1;
+    for (idx0 = min0; idx0 <= max0; ++idx0)
       {
-      state3 = (state4 || outIdx3 < imageMin3 || outIdx3 > imageMax3);
-      outPtr2 = outPtr3;
-      inPtr2 = inPtr3;
-      for (outIdx2 = min2; outIdx2 <= max2; ++outIdx2)
-	{
-	state2 = (state3 || outIdx2 < imageMin2 || outIdx2 > imageMax2);
-	outPtr1 = outPtr2;
-	inPtr1 = inPtr2;
-	for (outIdx1 = min1; outIdx1 <= max1; ++outIdx1)
-	  {
-	  state1 = (state2 || outIdx1 < imageMin1 || outIdx1 > imageMax1);
-	  outPtr0 = outPtr1;
-	  inPtr0 = inPtr1;
-	  for (outIdx0 = min0; outIdx0 <= max0; ++outIdx0)
-	    {
-	    state0 = (state1 || outIdx0 < imageMin0 || outIdx0 > imageMax0);
-	    
-	    // Copy Pixel
-	    if (state0)
-	      {
-	      *outPtr0 = constant;
-	      }
-	    else
-	      {
-	      *outPtr0 = *inPtr0;
-	      inPtr0 += inInc0;
-	      }
-	    outPtr0 += outInc0;
-	    }
-	  if ( ! state1)
-	    {
-	    inPtr1 += inInc1;
-	    }
-	  outPtr1 += outInc1;
-	  }
-	if ( ! state2)
-	  {
-	  inPtr2 += inInc2;
-	  }
-	outPtr2 += outInc2;
-	}
-      if ( ! state3)
-	{
-	inPtr3 += inInc3;
-	}
-      outPtr3 += outInc3;
+      *outPtr0 = *inPtr0;
+      outPtr0 += outInc0;
+      inPtr0  += inInc0;
       }
-    if ( ! state4)
-      {
-      inPtr4 += inInc4;
-      }
-    outPtr4 += outInc4;
-    }
+    outPtr1 += outInc1;
+    inPtr1 += inInc1;
+  }
 }
-  
+
 
 
 //----------------------------------------------------------------------------
@@ -159,47 +99,48 @@ static void vtkImageConstantPadExecute(vtkImageConstantPad *self,
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for
 // the regions data types.
-void vtkImageConstantPad::Execute(vtkImageRegion *inRegion, 
-				  vtkImageRegion *outRegion)
+void vtkImageCopy::Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion)
 {
   void *inPtr = inRegion->GetScalarPointer();
   void *outPtr = outRegion->GetScalarPointer();
-  
-  vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
-		<< ", outRegion = " << outRegion);
   
   // this filter expects that input is the same type as output.
   if (inRegion->GetScalarType() != outRegion->GetScalarType())
     {
     vtkErrorMacro(<< "Execute: input ScalarType, " << inRegion->GetScalarType()
-          << ", must match out ScalarType " << outRegion->GetScalarType());
+             << ", must match out ScalarType " << outRegion->GetScalarType());
     return;
     }
   
   switch (inRegion->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImageConstantPadExecute(this, inRegion, (float *)(inPtr), 
+      vtkImageCopyExecute(this, 
+			  inRegion, (float *)(inPtr), 
 			  outRegion, (float *)(outPtr));
       break;
     case VTK_INT:
-      vtkImageConstantPadExecute(this, inRegion, (int *)(inPtr), 
+      vtkImageCopyExecute(this, 
+			  inRegion, (int *)(inPtr), 
 			  outRegion, (int *)(outPtr));
       break;
     case VTK_SHORT:
-      vtkImageConstantPadExecute(this, inRegion, (short *)(inPtr), 
+      vtkImageCopyExecute(this, 
+			  inRegion, (short *)(inPtr), 
 			  outRegion, (short *)(outPtr));
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImageConstantPadExecute(this, inRegion, (unsigned short *)(inPtr), 
+      vtkImageCopyExecute(this, 
+			  inRegion, (unsigned short *)(inPtr), 
 			  outRegion, (unsigned short *)(outPtr));
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImageConstantPadExecute(this, inRegion, (unsigned char *)(inPtr), 
+      vtkImageCopyExecute(this, 
+			  inRegion, (unsigned char *)(inPtr), 
 			  outRegion, (unsigned char *)(outPtr));
       break;
     default:
-      vtkErrorMacro(<< "Execute: Unknown ScalarType");
+      vtkErrorMacro(<< "Execute: Unknown input ScalarType");
       return;
     }
 }

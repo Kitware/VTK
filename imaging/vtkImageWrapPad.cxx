@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageWrapPad::vtkImageWrapPad()
 {
   // execute function handles four axes.
-  this->NumberOfExecutionAxes = 4;
+  this->NumberOfExecutionAxes = 5;
 }
 
 
@@ -111,26 +111,27 @@ static void vtkImageWrapPadExecute(vtkImageWrapPad *self,
 			    vtkImageRegion *inRegion, T *inPtr,
 			    vtkImageRegion *outRegion, T *outPtr)
 {
-  int min0, max0, min1, max1, min2, max2, min3, max3;
+  int min0, max0, min1, max1, min2, max2, min3, max3, min4, max4;
   int imageMin0, imageMax0, imageMin1, imageMax1, 
-    imageMin2, imageMax2, imageMin3, imageMax3;
-  int outIdx0, outIdx1, outIdx2, outIdx3;
-  int start0, start1, start2, start3;
-  int inIdx0, inIdx1, inIdx2, inIdx3;
-  int inInc0, inInc1, inInc2, inInc3;
-  int outInc0, outInc1, outInc2, outInc3;
-  T *inPtr0, *inPtr1, *inPtr2, *inPtr3;
-  T *outPtr0, *outPtr1, *outPtr2, *outPtr3;
+    imageMin2, imageMax2, imageMin3, imageMax3, imageMin4, imageMax4;
+  int outIdx0, outIdx1, outIdx2, outIdx3, outIdx4;
+  int start0, start1, start2, start3, start4;
+  int inIdx0, inIdx1, inIdx2, inIdx3, inIdx4;
+  int inInc0, inInc1, inInc2, inInc3, inInc4;
+  int outInc0, outInc1, outInc2, outInc3, outInc4;
+  T *inPtr0, *inPtr1, *inPtr2, *inPtr3, *inPtr4;
+  T *outPtr0, *outPtr1, *outPtr2, *outPtr3, *outPtr4;
 
   self = self;
   inPtr = inPtr;
   
   // Get information to march through data 
-  inRegion->GetIncrements(inInc0, inInc1, inInc2, inInc3);
+  inRegion->GetIncrements(inInc0, inInc1, inInc2, inInc3, inInc4);
   inRegion->GetWholeExtent(imageMin0, imageMax0, imageMin1, imageMax1, 
-			   imageMin2, imageMax2, imageMin3, imageMax3);
-  outRegion->GetIncrements(outInc0, outInc1, outInc2, outInc3);
-  outRegion->GetExtent(min0, max0, min1, max1, min2, max2, min3, max3);
+			   imageMin2, imageMax2, imageMin3, imageMax3,
+			   imageMin4, imageMax4);
+  outRegion->GetIncrements(outInc0, outInc1, outInc2, outInc3, outInc4);
+  outRegion->GetExtent(min0,max0, min1,max1, min2,max2, min3,max3, min4,max4);
 
   // initialize pointers to coresponding pixels.
   start0 = ((min0 - imageMin0) % (imageMax0-imageMin0+1)) + imageMin0;
@@ -141,63 +142,79 @@ static void vtkImageWrapPadExecute(vtkImageWrapPad *self,
   if (start2 < 0) start2 += (imageMax2-imageMin2+1);
   start3 = ((min3 - imageMin3) % (imageMax3-imageMin3+1)) + imageMin3;
   if (start3 < 0) start3 += (imageMax3-imageMin3+1);
-  inPtr3 = (T *)(inRegion->GetScalarPointer(start0, start1, start2, start3));
-  outPtr3 = outPtr; // (min0, min1, min2, min3)
+  start4 = ((min4 - imageMin4) % (imageMax4-imageMin4+1)) + imageMin4;
+  if (start4 < 0) start4 += (imageMax4-imageMin4+1);
+  inPtr4 = (T *)(inRegion->GetScalarPointer(start0, start1, start2, 
+					    start3, start4));
+  outPtr4 = outPtr; // (min0, min1, min2, min3)
   
   // Loop through ouput pixels
-  inIdx3 = start3;
-  for (outIdx3 = min3; outIdx3 <= max3; ++outIdx3, ++inIdx3)
+  inIdx4 = start4;
+  for (outIdx4 = min4; outIdx4 <= max4; ++outIdx4, ++inIdx4)
     {
-    if (inIdx3 > imageMax3) 
+    if (inIdx4 > imageMax4) 
       { // we need to wrap(rewind) the input on this axis
-      inIdx3 = imageMin3;
-      inPtr3 -= (imageMax3-imageMin3+1)*inInc3;
+      inIdx4 = imageMin4;
+      inPtr4 -= (imageMax4-imageMin4+1)*inInc4;
       }
-    outPtr2 = outPtr3;
-    inPtr2 = inPtr3;
-    inIdx2 = start2;
-    for (outIdx2 = min2; outIdx2 <= max2; ++outIdx2, ++inIdx2)
+    outPtr3 = outPtr4;
+    inPtr3 = inPtr4;
+    inIdx3 = start3;
+    for (outIdx3 = min3; outIdx3 <= max3; ++outIdx3, ++inIdx3)
       {
-      if (inIdx2 > imageMax2) 
+      if (inIdx3 > imageMax3) 
 	{ // we need to wrap(rewind) the input on this axis
-	inIdx2 = imageMin2;
-	inPtr2 -= (imageMax2-imageMin2+1)*inInc2;
+	inIdx3 = imageMin3;
+	inPtr3 -= (imageMax3-imageMin3+1)*inInc3;
 	}
-      outPtr1 = outPtr2;
-      inPtr1 = inPtr2;
-      inIdx1 = start1;
-      for (outIdx1 = min1; outIdx1 <= max1; ++outIdx1, ++inIdx1)
+      outPtr2 = outPtr3;
+      inPtr2 = inPtr3;
+      inIdx2 = start2;
+      for (outIdx2 = min2; outIdx2 <= max2; ++outIdx2, ++inIdx2)
 	{
-	if (inIdx1 > imageMax1) 
+	if (inIdx2 > imageMax2) 
 	  { // we need to wrap(rewind) the input on this axis
-	  inIdx1 = imageMin1;
-	  inPtr1 -= (imageMax1-imageMin1+1)*inInc1;
+	  inIdx2 = imageMin2;
+	  inPtr2 -= (imageMax2-imageMin2+1)*inInc2;
 	  }
-	outPtr0 = outPtr1;
-	inPtr0 = inPtr1;
-	inIdx0 = start0;
-	for (outIdx0 = min0; outIdx0 <= max0; ++outIdx0, ++inIdx0)
+	outPtr1 = outPtr2;
+	inPtr1 = inPtr2;
+	inIdx1 = start1;
+	for (outIdx1 = min1; outIdx1 <= max1; ++outIdx1, ++inIdx1)
 	  {
-	  if (inIdx0 > imageMax0) 
+	  if (inIdx1 > imageMax1) 
 	    { // we need to wrap(rewind) the input on this axis
-	    inIdx0 = imageMin0;
-	    inPtr0 -= (imageMax0-imageMin0+1)*inInc0;
+	    inIdx1 = imageMin1;
+	    inPtr1 -= (imageMax1-imageMin1+1)*inInc1;
 	    }
-	  
-	  // Copy Pixel
-	  *outPtr0 = *inPtr0;
-	  
-	  outPtr0 += outInc0;
-	  inPtr0 += inInc0;
+	  outPtr0 = outPtr1;
+	  inPtr0 = inPtr1;
+	  inIdx0 = start0;
+	  for (outIdx0 = min0; outIdx0 <= max0; ++outIdx0, ++inIdx0)
+	    {
+	    if (inIdx0 > imageMax0) 
+	      { // we need to wrap(rewind) the input on this axis
+	      inIdx0 = imageMin0;
+	      inPtr0 -= (imageMax0-imageMin0+1)*inInc0;
+	      }
+	    
+	    // Copy Pixel
+	    *outPtr0 = *inPtr0;
+	    
+	    outPtr0 += outInc0;
+	    inPtr0 += inInc0;
+	    }
+	  outPtr1 += outInc1;
+	  inPtr1 += inInc1;
 	  }
-	outPtr1 += outInc1;
-	inPtr1 += inInc1;
+	outPtr2 += outInc2;
+	inPtr2 += inInc2;
 	}
-      outPtr2 += outInc2;
-      inPtr2 += inInc2;
+      outPtr3 += outInc3;
+      inPtr3 += inInc3;
       }
-    outPtr3 += outInc3;
-    inPtr3 += inInc3;
+    outPtr4 += outInc4;
+    inPtr4 += inInc4;
     }
 }
 

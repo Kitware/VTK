@@ -53,13 +53,14 @@ vtkImagePadFilter::vtkImagePadFilter()
 
   this->NumberOfExecutionAxes = 5;
   
-  // Initialize output image extent to one pixel (origin)
+  // Initialize output image extent to INVALID
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
     this->OutputWholeExtent[idx * 2] = 0;
-    this->OutputWholeExtent[idx * 2 + 1] = 0;
+    this->OutputWholeExtent[idx * 2 + 1] = -1;
     }
-  this->OutputNumberOfScalarComponents = 1;
+  // Set Output numberOfScalarComponents to INVALID
+  this->OutputNumberOfScalarComponents = -1;
 }
 
 //----------------------------------------------------------------------------
@@ -112,7 +113,19 @@ void vtkImagePadFilter::GetOutputWholeExtent(int extent[8])
 // Just change the Image extent.
 void vtkImagePadFilter::ExecuteImageInformation()
 {
+  if (this->OutputWholeExtent[0] > this->OutputWholeExtent[1])
+    {
+    // invalid setting, it has not been set, so default to whole Extent
+    this->Input->GetWholeExtent(this->OutputWholeExtent);
+    }
   this->Output->SetWholeExtent(this->OutputWholeExtent);
+  
+  if (this->OutputNumberOfScalarComponents < 0)
+    {
+    // invalid setting, it has not been set, so default to input.
+    this->OutputNumberOfScalarComponents 
+      = this->Input->GetNumberOfScalarComponents();
+    }
   this->Output->SetNumberOfScalarComponents(
 			    this->OutputNumberOfScalarComponents);
 }

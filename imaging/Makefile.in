@@ -15,6 +15,7 @@ ABSTRACT_H =
 CONCRETE_H = 
 
 ABSTRACT = \
+vtkImageCopy \
 vtkImageDecomposedFilter \
 vtkImageFilter \
 vtkImageFourierFilter \

@@ -1,6 +1,7 @@
 catch {load vtktcl}
 # Make an image larger by repeating the data.  Tile.
 
+
 source vtkImageInclude.tcl
 
 
@@ -14,20 +15,27 @@ reader SetDataMask 0x7fff
 #reader ReleaseDataFlagOff
 #reader DebugOn
 
-vtkImageWrapPad pad
+vtkImageConstantPad pad
 pad SetInput [reader GetOutput]
-pad SetOutputWholeExtent -300 355 -300 370 0 92 0 0
+pad SetOutputNumberOfScalarComponents 3
+pad SetConstant 800
 pad ReleaseDataFlagOff
+
 
 vtkImageViewer viewer
 viewer SetInput [pad GetOutput]
 viewer SetZSlice 22
-viewer SetColorWindow 2000
-viewer SetColorLevel 1000
-#viewer DebugOn
+viewer SetColorWindow 1600
+viewer SetColorLevel 700
+viewer ColorFlagOn
+
 
 # make interface
 source WindowLevelInterface.tcl
+
+
+
+
 
 
 

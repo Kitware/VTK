@@ -135,6 +135,9 @@ void vtkImageCache::PrintSelf(ostream& os, vtkIndent indent)
     }
   os << ")\n";
   
+  os << indent << "NumberOfScalarComponents: " 
+     << this->NumberOfScalarComponents << "\n";
+
   os << indent << "WholeExtent: (" << this->WholeExtent[0];
   for (idx = 1; idx < 8; ++idx)
     {
