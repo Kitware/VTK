@@ -53,6 +53,15 @@ typedef float    FTGL_FLOAT;
   #pragma warning( disable : 4275 )
   #pragma warning( disable : 4786 )
 
+#if ( _MSC_VER >= 1300 ) // Visual studio .NET
+
+#pragma warning( disable : 4244 ) // conversion [...] possible loss of data
+#pragma warning( disable : 4267 ) // same
+#pragma warning( disable : 4311 ) // same for pointer
+#pragma warning( disable : 4312 ) // same for pointer
+
+#endif /* _MSC_VER */ 
+
 #endif
 
 #ifdef WIN32
