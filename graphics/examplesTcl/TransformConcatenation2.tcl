@@ -92,18 +92,18 @@ a3 SetMapper m3
 
 # combine actors into an assembly
 # (this is just an option - you don't have to use an assembly)
-vtkAssembly assembly
-assembly AddPart a1
-assembly AddPart a2
-assembly AddPart a3
+# vtkAssembly assembly
+# assembly AddPart a1
+# assembly AddPart a2
+# assembly AddPart a3
 
 # add to renderer
-ren1 AddActor assembly
+# ren1 AddActor assembly
 
-## You can add actors individually instead of using an assembly
-# ren1 AddActor a1
-# ren1 AddActor a2
-# ren1 AddActor a3
+# You can add actors individually instead of using an assembly
+ren1 AddActor a1
+ren1 AddActor a2
+ren1 AddActor a3
 
 # set clipping range
 ren1 ResetCamera -1 1 -0.1 2 -3 3
@@ -115,10 +115,14 @@ iren Initialize
 # set angles for first joint
 set phi2   70
 set theta2 85
+t2r RotateY $phi2
+t2r RotateX $theta2
 
 # set angles for second joint
 set phi3   50
 set theta3 90
+t3r RotateY $phi3
+t3r RotateX $theta3
 
 global phi2 theta2 phi3 theta3
 
@@ -172,8 +176,4 @@ proc SetAngles3 { dummy } {
 
     renWin Render
 }    
-SetAngles2 x
-SetAngles3 x
-
-
 
