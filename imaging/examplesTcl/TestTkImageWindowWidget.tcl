@@ -61,5 +61,9 @@ pack .top.btn -fill x
 
 bind .top.f1.r1 <Expose> {imgWin Render}
 
+update
 
+imgWin SetFileName "junk.ppm"
+imgWin SaveImageAsPPM
+exec rm junk.ppm
  
