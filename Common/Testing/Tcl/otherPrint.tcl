@@ -43,6 +43,9 @@ proc rtOtherTest { fileid } {
 
 # All tests should end with the following...
 
+vtkDebugLeaks lk
+lk PromptUserOff
+
 if {![info exists rtOutId]} {
     rtOtherTest stdout
     exit

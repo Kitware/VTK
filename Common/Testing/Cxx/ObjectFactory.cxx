@@ -75,6 +75,8 @@ void TestNewVertex(vtkVertex* v, const char* expectedClassName)
 
 int main()
 {
+  vtkDebugLeak::PromptUserOff();
+
   TestFactory* factory = TestFactory::New();
   vtkObjectFactory::RegisterFactory(factory);
   factory->Delete();

@@ -251,6 +251,8 @@ int main( int argc, char* argv[] )
 
   controller->Initialize(&argc, &argv);
 
+  vtkDebugLeaks::PromptUserOff();
+
   // Added for regression test.
   // ----------------------------------------------
   int retVal;
