@@ -27,7 +27,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.19");
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.20");
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 //----------------------------------------------------------------------------
@@ -1248,7 +1248,7 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerNode(char* fileName,
     }
   
   this->IFile = fopen(line, "rb");
-  if (this->IFile)
+  if (this->IFile == NULL)
     {
     vtkErrorMacro("Unable to open file: " << line);
     return 0;
@@ -1766,7 +1766,7 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(char* fileName,
     }
   
   this->IFile = fopen(line, "rb");
-  if (this->IFile)
+  if (this->IFile == NULL)
     {
     vtkErrorMacro("Unable to open file: " << line);
     return 0;

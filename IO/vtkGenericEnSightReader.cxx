@@ -24,7 +24,7 @@
 #include "vtkEnSightGoldReader.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.26");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.27");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSetTimeValuesCollection, 
@@ -163,9 +163,6 @@ void vtkGenericEnSightReader::Execute()
     this->AddComplexVariableType(this->Reader->GetComplexVariableType(i));
     this->NumberOfComplexVariables++;
     }
-
-  this->Reader->Delete();
-  this->Reader = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -430,7 +427,8 @@ void vtkGenericEnSightReader::SetCaseFileName(char* fileName)
 int vtkGenericEnSightReader::ReadLine(char result[256])
 {
   this->IS->getline(result,256);
-  if (this->IS->eof()) 
+//  if (this->IS->eof()) 
+  if (this->IS->fail())
     {
     return 0;
     }
@@ -492,35 +490,90 @@ void vtkGenericEnSightReader::Update()
 //----------------------------------------------------------------------------
 void vtkGenericEnSightReader::UpdateInformation()
 {
-  if ( ! this->Reader)
+  int version = this->DetermineEnSightVersion();
+  int createReader = 1;
+  
+  if (version == VTK_ENSIGHT_6)
     {
-    int version = this->DetermineEnSightVersion();
-    
-    if (version == VTK_ENSIGHT_6)
+    vtkDebugMacro("EnSight6");
+    if (this->Reader)
       {
-      vtkDebugMacro("EnSight6");
+      if (strcmp(this->Reader->GetClassName(), "vtkEnSight6Reader") == 0)
+        {
+        createReader = 0;
+        }
+      else
+        {
+        this->Reader->Delete();
+        }
+      }
+    if (createReader)
+      {
       this->Reader = vtkEnSight6Reader::New();
       }
-    else if (version == VTK_ENSIGHT_6_BINARY)
+    }
+  else if (version == VTK_ENSIGHT_6_BINARY)
+    {
+    vtkDebugMacro("EnSight6 binary");
+    if (this->Reader)
       {
-      vtkDebugMacro("EnSight6 binary");
+      if (strcmp(this->Reader->GetClassName(), "vtkEnSight6BinaryReader") == 0)
+        {
+        createReader = 0;
+        }
+      else
+        {
+        this->Reader->Delete();
+        }
+      }
+    if (createReader)
+      {
       this->Reader = vtkEnSight6BinaryReader::New();
       }
-    else if (version == VTK_ENSIGHT_GOLD)
+    }
+  else if (version == VTK_ENSIGHT_GOLD)
+    {
+    vtkDebugMacro("EnSightGold");
+    if (this->Reader)
       {
-      vtkDebugMacro("EnSightGold");
+      if (strcmp(this->Reader->GetClassName(), "vtkEnSightGoldReader") == 0)
+        {
+        createReader = 0;
+        }
+      else
+        {
+        this->Reader->Delete();
+        }
+      }
+    if (createReader)
+      {
       this->Reader = vtkEnSightGoldReader::New();
       }
-    else if (version == VTK_ENSIGHT_GOLD_BINARY)
+    }
+  else if (version == VTK_ENSIGHT_GOLD_BINARY)
+    {
+    vtkDebugMacro("EnSightGold binary");
+    if (this->Reader)
       {
-      vtkDebugMacro("EnSightGold binary");
+      if (strcmp(this->Reader->GetClassName(),
+                 "vtkEnSightGoldBinaryReader") == 0)
+        {
+        createReader = 0;
+        }
+      else
+        {
+        this->Reader->Delete();
+        }
+      }
+    if (createReader)
+      {
       this->Reader = vtkEnSightGoldBinaryReader::New();
       }
-    else
-      {
-      vtkErrorMacro("Error determining EnSightVersion");
-      return;
-      }
+    }
+  else
+    {
+    vtkErrorMacro("Error determining EnSightVersion");
+    return;
     }
   
   this->Reader->SetCaseFileName(this->GetCaseFileName());

@@ -40,6 +40,8 @@
 
 #include "vtkEnSightReader.h"
 
+class vtkIdTypeArray;
+
 class VTK_IO_EXPORT vtkEnSight6Reader : public vtkEnSightReader
 {
 public:
@@ -113,7 +115,7 @@ protected:
   // global list of points for the unstructured parts of the model
   int NumberOfUnstructuredPoints;
   vtkPoints* UnstructuredPoints;
-  vtkIdList* UnstructuredNodeIds; // matching of node ids to point ids
+  vtkIdTypeArray* UnstructuredNodeIds; // matching of node ids to point ids
 private:
   vtkEnSight6Reader(const vtkEnSight6Reader&);  // Not implemented.
   void operator=(const vtkEnSight6Reader&);  // Not implemented.

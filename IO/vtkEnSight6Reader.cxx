@@ -23,10 +23,11 @@
 #include "vtkStructuredPoints.h"
 #include "vtkPolyData.h"
 #include "vtkFloatArray.h"
+#include "vtkIdTypeArray.h"
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkEnSight6Reader, "1.28");
+vtkCxxRevisionMacro(vtkEnSight6Reader, "1.29");
 vtkStandardNewMacro(vtkEnSight6Reader);
 
 //----------------------------------------------------------------------------
@@ -126,7 +127,7 @@ int vtkEnSight6Reader::ReadGeometryFile(char* fileName, int timeStep)
   sscanf(line, " %*s %*s %s", subLine);
   if (strcmp(subLine, "given") == 0)
     {
-    this->UnstructuredNodeIds = vtkIdList::New();
+    this->UnstructuredNodeIds = vtkIdTypeArray::New();
     pointIdsListed = 1;
     }
   else if (strcmp(subLine, "ignore") == 0)
@@ -144,11 +145,9 @@ int vtkEnSight6Reader::ReadGeometryFile(char* fileName, int timeStep)
   this->ReadNextDataLine(line);
   this->NumberOfUnstructuredPoints = atoi(line);
   this->UnstructuredPoints->Allocate(this->NumberOfUnstructuredPoints);
-  if (this->UnstructuredNodeIds)
-    {
-    this->UnstructuredNodeIds->Allocate(this->NumberOfUnstructuredPoints);
-    }
-  
+  int *tmpIds = new int[this->NumberOfUnstructuredPoints];
+
+  int maxId = 0;
   for (j = 0; j < this->NumberOfUnstructuredPoints; j++)
     {
     this->ReadNextDataLine(line);
@@ -160,7 +159,11 @@ int vtkEnSight6Reader::ReadGeometryFile(char* fileName, int timeStep)
       
       if (this->UnstructuredNodeIds)
         {
-        this->UnstructuredNodeIds->InsertNextId(pointId-1);
+        tmpIds[j] = pointId;
+        if (pointId > maxId)
+          {
+          maxId = pointId;
+          }
         }
       this->UnstructuredPoints->InsertNextPoint(point);
       }
@@ -170,6 +173,19 @@ int vtkEnSight6Reader::ReadGeometryFile(char* fileName, int timeStep)
       this->UnstructuredPoints->InsertNextPoint(point);
       }
     }
+  
+  if (this->UnstructuredNodeIds)
+    {
+    this->UnstructuredNodeIds->SetNumberOfComponents(1);
+    this->UnstructuredNodeIds->SetNumberOfTuples(maxId);
+    this->UnstructuredNodeIds->FillComponent(0, -1);
+    
+    for (j = 0; j < this->NumberOfUnstructuredPoints; j++)
+      {
+      this->UnstructuredNodeIds->InsertValue(tmpIds[j]-1, j);
+      }
+    }
+  delete [] tmpIds;
   
   lineRead = this->ReadNextDataLine(line); // "part"
   
@@ -1403,7 +1419,8 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
           // EnSight ids start at 1
           if (this->UnstructuredNodeIds)
             {
-            nodeIds[0] = this->UnstructuredNodeIds->IsId(atoi(subLine) - 1);
+            nodeIds[0] =
+              this->UnstructuredNodeIds->GetValue(atoi(subLine) - 1);
             }
           else
             {
@@ -1414,7 +1431,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
           {
           if (this->UnstructuredNodeIds)
             {
-            nodeIds[0] = this->UnstructuredNodeIds->IsId(atoi(line) - 1);
+            nodeIds[0] = this->UnstructuredNodeIds->GetValue(atoi(line) - 1);
             }
           else
             {
@@ -1452,7 +1469,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
           {
           for (j = 0; j < 2; j++)
             {
-            intIds[j] = this->UnstructuredNodeIds->IsId(intIds[j]);
+            intIds[j] = this->UnstructuredNodeIds->GetValue(intIds[j]);
             }
           }
         for (j = 0; j < 2; j++)
@@ -1491,7 +1508,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
           {
           for (j = 0; j < 2; j++)
             {
-            intIds[j] = this->UnstructuredNodeIds->IsId(intIds[j]);
+            intIds[j] = this->UnstructuredNodeIds->GetValue(intIds[j]);
             }
           }
         for (j = 0; j < 2; j++)
@@ -1546,7 +1563,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
           {
           for (j = 0; j < 3; j++)
             {
-            intIds[j] = this->UnstructuredNodeIds->IsId(intIds[j]);
+            intIds[j] = this->UnstructuredNodeIds->GetValue(intIds[j]);
             }
           }
         for (j = 0; j < 3; j++)
@@ -1602,7 +1619,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
           {
           for (j = 0; j < 4; j++)
             {
-            intIds[j] = this->UnstructuredNodeIds->IsId(intIds[j]);
+            intIds[j] = this->UnstructuredNodeIds->GetValue(intIds[j]);
             }
           }
         for (j = 0; j < 4; j++)
@@ -1659,7 +1676,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
           {
           for (j = 0; j < 4; j++)
             {
-            intIds[j] = this->UnstructuredNodeIds->IsId(intIds[j]);
+            intIds[j] = this->UnstructuredNodeIds->GetValue(intIds[j]);
             }
           }
         for (j = 0; j < 4; j++)
@@ -1716,7 +1733,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
           {
           for (j = 0; j < 5; j++)
             {
-            intIds[j] = this->UnstructuredNodeIds->IsId(intIds[j]);
+            intIds[j] = this->UnstructuredNodeIds->GetValue(intIds[j]);
             }
           }
         for (j = 0; j < 5; j++)
@@ -1776,7 +1793,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
           {
           for (j = 0; j < 8; j++)
             {
-            intIds[j] = this->UnstructuredNodeIds->IsId(intIds[j]);
+            intIds[j] = this->UnstructuredNodeIds->GetValue(intIds[j]);
             }
           }
         for (j = 0; j < 8; j++)
@@ -1834,7 +1851,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
           {
           for (j = 0; j < 6; j++)
             {
-            intIds[j] = this->UnstructuredNodeIds->IsId(intIds[j]);
+            intIds[j] = this->UnstructuredNodeIds->GetValue(intIds[j]);
             }
           }
         for (j = 0; j < 6; j++)
