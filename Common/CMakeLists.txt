@@ -247,11 +247,11 @@ ENDIF (VTK_WRAP_TCL)
 # source files
 #
 IF (VTK_WRAP_PYTHON)
-  VTK_WRAP_PYTHON(vtkCommonPython CommonPython_SRCS Common_SRCS)
+  VTK_WRAP_PYTHON(vtkCommonPython CommonPython_SRCS ${Common_SRCS})
   IF (APPLE)
-    ADD_LIBRARY(vtkCommonPython MODULE CommonPython_SRCS vtkPythonUtil)
+    ADD_LIBRARY(vtkCommonPython MODULE ${CommonPython_SRCS} vtkPythonUtil)
   ELSE (APPLE)
-    ADD_LIBRARY(vtkCommonPython SHARED CommonPython_SRCS vtkPythonUtil)
+    ADD_LIBRARY(vtkCommonPython SHARED ${CommonPython_SRCS} vtkPythonUtil)
   ENDIF(APPLE)
   IF(WIN32)
     TARGET_LINK_LIBRARIES (vtkCommonPython
@@ -270,8 +270,17 @@ ENDIF (VTK_WRAP_PYTHON)
 # source files
 #
 IF (VTK_WRAP_JAVA)
-  VTK_WRAP_JAVA(vtkCommonJava CommonJava_SRCS Common_SRCS)
-  ADD_LIBRARY(vtkCommonJava SHARED CommonJava_SRCS vtkJavaUtil)
+  VTK_WRAP_JAVA(vtkCommonJava CommonJava_SRCS ${Common_SRCS})
+  ADD_LIBRARY(vtkCommonJava SHARED ${CommonJava_SRCS} vtkJavaUtil)
+  IF(APPLE)
+    SET(CURRENT_KIT "Common")
+    ADD_CUSTOM_COMMAND(SOURCE vtkCommonJava
+		       COMMAND ln
+                       ARGS -s 
+                       ${LIBRARY_OUTPUT_PATH}/libvtk${CURRENT_KIT}Java.dynlib
+                       ${LIBRARY_OUTPUT_PATH}/libvtk${CURRENT_KIT}Java.jnilib
+                       TARGET vtkCommonJava)
+  ENDIF(APPLE)
   INSTALL_TARGETS(/lib/vtk vtkCommonJava)
   INSTALL_FILES(/include/vtk .h
     vtkJavaUtil

@@ -42,6 +42,7 @@ SET_SOURCE_FILES_PROPERTIES(vtkCommunicator ABSTRACT)
 IF (VTK_USE_MPI)
   INCLUDE (${CMAKE_ROOT}/Modules/FindMPI.cmake)
   SET ( Parallel_SRCS
+    ${Parallel_SRCS}
     vtkMPICommunicator.cxx
     vtkMPIController.cxx 
     vtkMPIGroup.cxx)
@@ -83,7 +84,7 @@ IF (VTK_WRAP_TCL)
   IF (VTK_USE_MPI)
 
     ADD_EXECUTABLE(pvtk paraTkAppInit.cxx)
-    TARGET_LINK_LIBRARIES (pvtk vtkParallelTCL)
+    TARGET_LINK_LIBRARIES (pvtk vtkParallelTCL vtkParallel)
 
     IF (VTK_USE_PATENTED)
       TARGET_LINK_LIBRARIES(pvtk vtkPatentedTCL vtkPatented)
@@ -160,4 +161,4 @@ ENDIF (VTK_WRAP_JAVA)
 TARGET_LINK_LIBRARIES (vtkParallel vtkRendering vtkIO)
 
 INSTALL_TARGETS(/lib/vtk vtkParallel)
-INSTALL_FILES(/include/vtk .h Parallel_SRCS)
+INSTALL_FILES(/include/vtk .h ${Parallel_SRCS})

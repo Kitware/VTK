@@ -150,11 +150,11 @@ ENDIF (VTK_WRAP_TCL)
 # source files
 #
 IF (VTK_WRAP_PYTHON)
-  VTK_WRAP_PYTHON(vtkImagingPython ImagingPython_SRCS Imaging_SRCS)
+  VTK_WRAP_PYTHON(vtkImagingPython ImagingPython_SRCS ${Imaging_SRCS})
   IF (APPLE)
-    ADD_LIBRARY(vtkImagingPython MODULE ImagingPython_SRCS)
+    ADD_LIBRARY(vtkImagingPython MODULE ${ImagingPython_SRCS})
   ELSE (APPLE)
-    ADD_LIBRARY(vtkImagingPython SHARED ImagingPython_SRCS)
+    ADD_LIBRARY(vtkImagingPython SHARED ${ImagingPython_SRCS})
     TARGET_LINK_LIBRARIES (vtkImagingPython
                            vtkFilteringPython
                            vtkCommonPython)
@@ -175,8 +175,8 @@ ENDIF (VTK_WRAP_PYTHON)
 # source files
 #
 IF (VTK_WRAP_JAVA)
-  VTK_WRAP_JAVA(vtkImagingJava ImagingJava_SRCS Imaging_SRCS)
-  ADD_LIBRARY(vtkImagingJava SHARED ImagingJava_SRCS)
+  VTK_WRAP_JAVA(vtkImagingJava ImagingJava_SRCS ${Imaging_SRCS})
+  ADD_LIBRARY(vtkImagingJava SHARED ${ImagingJava_SRCS})
   TARGET_LINK_LIBRARIES (vtkImagingJava
                          vtkCommonJava
                          vtkFilteringJava)

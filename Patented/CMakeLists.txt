@@ -82,4 +82,4 @@ vtkIO
 )
 
 INSTALL_TARGETS(/lib/vtk vtkPatented)
-INSTALL_FILES(/include/vtk .h Patented_SRCS)
+INSTALL_FILES(/include/vtk .h ${Patented_SRCS})

@@ -414,18 +414,18 @@ IF (VTK_WRAP_PYTHON)
   IF (HAVE_OPENGL_SRCS)
     VTK_WRAP_PYTHON(vtkRenderingPython
                  RenderingPython_SRCS
-                 Rendering_SRCS
-                 RenderingOpenGL_SRCS)
+                 ${Rendering_SRCS}
+                 ${RenderingOpenGL_SRCS})
   ELSE (HAVE_OPENGL_SRCS)
     VTK_WRAP_PYTHON(vtkRenderingPython
                  RenderingPython_SRCS
-                 Rendering_SRCS)
+                 ${Rendering_SRCS})
   ENDIF (HAVE_OPENGL_SRCS)
 
   IF (APPLE) 
-    ADD_LIBRARY(vtkRenderingPython MODULE RenderingPython_SRCS)
+    ADD_LIBRARY(vtkRenderingPython MODULE ${RenderingPython_SRCS})
   ELSE (APPLE)
-    ADD_LIBRARY(vtkRenderingPython SHARED RenderingPython_SRCS)
+    ADD_LIBRARY(vtkRenderingPython SHARED ${RenderingPython_SRCS})
     TARGET_LINK_LIBRARIES (vtkRenderingPython
                            vtkGraphicsPython
                            vtkImagingPython)
@@ -492,8 +492,8 @@ ENDIF (VTK_WRAP_PYTHON)
 IF (VTK_WRAP_JAVA)
   VTK_WRAP_JAVA(vtkRenderingJava
                 RenderingJava_SRCS
-                Rendering_SRCS)
-  ADD_LIBRARY(vtkRenderingJava SHARED RenderingJava_SRCS)
+                ${Rendering_SRCS})
+  ADD_LIBRARY(vtkRenderingJava SHARED ${RenderingJava_SRCS})
   TARGET_LINK_LIBRARIES (vtkRenderingJava
                          vtkImagingJava
                          vtkGraphicsJava)
