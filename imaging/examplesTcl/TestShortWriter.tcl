@@ -36,10 +36,11 @@ thresh SetInValue 0.0;
 thresh SetOutValue 3000.0;
 thresh ReplaceOutOn;
 
-vtkImageVolumeShortWriter writer;
-writer DebugOn;
+vtkImageShortWriter writer;
 writer SetInput [thresh GetOutput];
-writer SetFileRoot "test";
+writer SwapBytesOn;
+writer SetFilePrefix "test";
+writer DebugOn;
 writer Write;
 
 
