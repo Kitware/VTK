@@ -79,7 +79,6 @@ vtkRenderer::vtkRenderer()
   this->Viewport[2] = 1;
   this->Viewport[3] = 1;
 
-  this->BackLight = 1;
   this->AllocatedRenderTime = 0;
   
   this->Aspect[0] = this->Aspect[1] = 1.0;
@@ -569,7 +568,6 @@ void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Background: (" << this->Background[0] << ", " 
     << this->Background[1] << ", "  << this->Background[2] << ")\n";
 
-  os << indent << "Back Light: " << (this->BackLight ? "On\n" : "Off\n");
   os << indent << "DisplayPoint: ("  << this->DisplayPoint[0] << ", " 
     << this->DisplayPoint[1] << ", " << this->DisplayPoint[2] << ")\n";
   os << indent << "Lights:\n";

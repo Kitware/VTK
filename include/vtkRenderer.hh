@@ -101,14 +101,6 @@ public:
   vtkGetVectorMacro(Ambient,float,3);
 
   // Description:
-  // Turn on/off whether objects are lit from behind with another light.
-  // If backlighting is on, for every light that is created, a second 
-  // opposing light is created to backlight the object.
-  vtkSetMacro(BackLight,int);
-  vtkGetMacro(BackLight,int);
-  vtkBooleanMacro(BackLight,int);
-
-  // Description:
   // Set/Get the amount of time this renderer is allowed to spend
   // rendering its scene. Zero indicates an infinite amount of time.
   // This is used by vtkLODActor's.
@@ -201,7 +193,6 @@ protected:
   vtkActorCollection Actors;
   float Ambient[3];  
   float Background[3];  
-  int BackLight;
   vtkRenderWindow *RenderWindow;
   float DisplayPoint[3];
   float ViewPoint[3];

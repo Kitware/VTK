@@ -82,23 +82,6 @@ void vtkXglrLight::Render(vtkLight *lgt, vtkXglrRenderer *ren,int light_index)
 		 XGL_LIGHT_DIRECTION, &direction,
 		 NULL);
   
-  vtkDebugMacro(<< "Defining front light\n");
-  
-  // define another mirror light if backlit is on
-  if (ren->GetBackLight()) 
-    {
-    direction.x = -direction.x;
-    direction.y = -direction.y;
-    direction.z = -direction.z;
-
-    /* define the light source */
-    xgl_object_set(lights[light_index+1],
-		   XGL_LIGHT_TYPE, XGL_LIGHT_DIRECTIONAL,
-		   XGL_LIGHT_COLOR, &light_color,
-		   XGL_LIGHT_DIRECTION, &direction,
-		   NULL);
-  
-    vtkDebugMacro(<< "Defining back light\n");
-    }
+  vtkDebugMacro(<< "Defining light\n");
 }
 

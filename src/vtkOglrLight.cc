@@ -81,12 +81,6 @@ void vtkOglrLight::Render(vtkLight *lgt, vtkOglrRenderer *ren,int light_index)
   glLightfv((GLenum)light_index, GL_DIFFUSE, color);
   glLightfv((GLenum)light_index, GL_SPECULAR, color);
 
-  if( ren->GetBackLight())
-  {
-  glLightfv((GLenum)(light_index+1), GL_DIFFUSE, color);
-  glLightfv((GLenum)(light_index+1), GL_SPECULAR, color);
-  }
-  
   // define the light source
   if (!lgt->GetPositional())
     {
@@ -95,15 +89,6 @@ void vtkOglrLight::Render(vtkLight *lgt, vtkOglrRenderer *ren,int light_index)
     Info[2]  = -dz;
     Info[3]  = 0.0;
     glLightfv((GLenum)light_index, GL_POSITION, Info );
-    // define another mirror light if backlit is on
-    if (ren->GetBackLight()) 
-      {
-      Info[0]  = dx;
-      Info[1]  = dy;
-      Info[2]  = dz;
-      Info[3]  = 0.0;
-      glLightfv((GLenum)(light_index + 1), GL_POSITION, Info );
-      }
     }
   else
     {

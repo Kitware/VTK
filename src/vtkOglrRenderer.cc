@@ -155,16 +155,6 @@ int vtkOglrRenderer::UpdateLights ()
       // increment the current light by one 
       cur_light++;
       count++;
-      // and do the same for the mirror source if backlit is on
-      // and we aren't out of lights
-      if ((this->BackLight > 0.0) && 
-	  (cur_light < (GL_LIGHT0+MAX_LIGHTS)) &&
-	  ((!light->GetPositional())))
-	{
-	glEnable((GLenum)cur_light);
-	// if backlighting is on then increment the current light again 
-	cur_light++;
-	}
       }
     }
   

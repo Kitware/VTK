@@ -101,19 +101,8 @@ void vtkSbrLight::Render(vtkLight *lgt, vtkSbrRenderer *ren,int light_index)
     }
   
   light_flag |= (0x0001 << light_index);
-  vtkDebugMacro(<< "Defining front light\n");
+  vtkDebugMacro(<< "Defining light\n");
   
-  // define another mirror light if backlit is on and not positional
-  if (ren->GetBackLight() && !lgt->GetPositional()) 
-    {
-    light_index++;
-    light_source(fd, light_index, DIRECTIONAL,
-		 color[0], color[1], color[2],
-		 dx, dy, dz);
-    vtkDebugMacro(<< "Defining back light\n");
-    light_flag |= (0x0001 << light_index);
-    }
-
   // update the light switch
   light_switch(fd, light_flag);
   ren->SetLightSwitch(light_flag);

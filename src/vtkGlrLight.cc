@@ -87,18 +87,7 @@ void vtkGlrLight::Render(vtkLight *lgt, vtkGlrRenderer *ren,int light_index)
   light_info[6] = -dy;
   light_info[7] = -dz;
   
-  vtkDebugMacro(<< "Defining front light\n");
+  vtkDebugMacro(<< "Defining light\n");
   lmdef(DEFLIGHT, light_index, 0, light_info);
-  
-  // define another mirror light if backlit is on
-  if (ren->GetBackLight()) 
-    {
-    light_info[5] = dx;
-    light_info[6] = dy;
-    light_info[7] = dz;
-    vtkDebugMacro(<< "Defining back light\n");
-    lmdef(DEFLIGHT, light_index + 1, 0, light_info);
-    }
-
 }
 

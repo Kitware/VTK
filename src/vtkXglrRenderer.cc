@@ -134,15 +134,6 @@ int vtkXglrRenderer::UpdateLights ()
       // increment the current light by one 
       cur_light++;
       count++;
-      // and do the same for the mirror source if backlit is on
-      // and we aren't out of lights
-      if ((this->BackLight > 0.0) && 
-	  (cur_light < VTK_MAX_LIGHTS))
-	{
-	xglr_switches[cur_light] = TRUE;
-	// if backlighting is on then increment the current light again 
-	cur_light++;
-	}
       }
     }
   
