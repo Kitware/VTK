@@ -42,6 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 #include "vtkImageCache.h"
 #include "vtkImageReslice.h"
+#include <stdio.h>
 
 //----------------------------------------------------------------------------
 vtkImageReslice::vtkImageReslice()
@@ -54,6 +55,7 @@ vtkImageReslice::vtkImageReslice()
   this->OutputExtent[0] = INT_MAX; // ditto
 
   this->Interpolate = 0; // nearest-neighbor interpolation by default
+  this->InterpolationMode = VTK_RESLICE_LINEAR;
   this->Optimization = 1; // optimizations seem to finally be stable...
   this->BackgroundLevel = 0;
 
@@ -85,11 +87,32 @@ void vtkImageReslice::PrintSelf(ostream& os, vtkIndent indent)
     this->OutputExtent[3] << " " << this->OutputExtent[4] << " " <<
     this->OutputExtent[5] << "\n";
   os << indent << "Interpolate: " << this->Interpolate << "\n";
+  os << indent << "InterpolationMode: ";
+  switch (this->InterpolationMode)
+    {
+    case VTK_RESLICE_NEAREST:
+      os << "NearestNeighbor\n";
+      break;
+    case VTK_RESLICE_LINEAR:
+      os << "Linear\n";
+      break;
+    case VTK_RESLICE_CUBIC:
+      os << "Cubic\n";
+      break;
+    default:
+      os << "Unrecognized\n";
+      break;
+    }
   os << indent << "Optimization: " << this->Optimization << "\n";
   os << indent << "BackgroundLevel: " << this->BackgroundLevel << "\n";
 }
 
 //----------------------------------------------------------------------------
+// The transform matrix supplied by the user converts output coordinates
+// to input coordinates.  
+// To speed up the pixel lookup, the following function provides a
+// matrix which converts output pixel indices to input pixel indices.
+
 void vtkImageReslice::ComputeIndexMatrix(vtkMatrix4x4 *matrix)
 {
   int i;
@@ -136,51 +159,59 @@ void vtkImageReslice::ComputeIndexMatrix(vtkMatrix4x4 *matrix)
 }
 
 //----------------------------------------------------------------------------
+static void ComputeRequiredInputUpdateExtentOptimized(vtkImageReslice *self,
+						      int inExt[6], 
+						      int outExt[6]);
+
 void vtkImageReslice::ComputeRequiredInputUpdateExtent(int inExt[6], 
 						       int outExt[6])
 {
-  int i,j,k;
-  int idX,idY,idZ;
-  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
-  float *xAxis, *yAxis, *zAxis, *origin;
-  double point[4],w;
+  if (this->GetOptimization())
+    {
+    ComputeRequiredInputUpdateExtentOptimized(this,inExt,outExt);
+    return;
+    }
 
-  // break transform down (to match vtkImageResliceExecute)
+  int i,j,k;
+  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
+  float point[4];
+
+  // convert matrix from world coordinates to pixel indices
   this->ComputeIndexMatrix(matrix);
-  matrix->Transpose();
-  xAxis = matrix->Element[0];
-  yAxis = matrix->Element[1];
-  zAxis = matrix->Element[2];
-  origin = matrix->Element[3];
 
   for (i = 0; i < 3; i++)
     {
     inExt[2*i] = INT_MAX;
     inExt[2*i+1] = INT_MIN;
     }
-  
-  for (i = 0; i < 8; i++)
+
+  // check the coordinates of the 8 corners of the output extent
+  for (i = 0; i < 8; i++)  
     {
-    // calculate transform using method in vtkImageResliceExecute
-    idX = outExt[i%2];
-    idY = outExt[2+(i/2)%2];
-    idZ = outExt[4+(i/4)%2];
-    
-    for (j = 0; j < 4; j++) 
+    // get output coords
+    point[0] = outExt[i%2];
+    point[1] = outExt[2+(i/2)%2];
+    point[2] = outExt[4+(i/4)%2];
+    point[3] = 1.0;
+
+    // convert to input coords
+    matrix->MultiplyPoint(point,point);
+
+    point[0] /= point[3];
+    point[1] /= point[3];
+    point[2] /= point[3];
+    point[3] = 1.0;
+
+    // set 
+    if (this->GetInterpolate() && 
+	this->GetInterpolationMode() != VTK_RESLICE_NEAREST)
       {
-      point[j] = origin[j] + idZ*zAxis[j];
-      point[j] = point[j] + idY*yAxis[j];
-      }
-    
-    w = point[3] + idX*xAxis[3];
-    
-    if (this->Interpolate)
-      {
+      int extra = (this->GetInterpolationMode() == VTK_RESLICE_CUBIC); 
       for (j = 0; j < 3; j++) 
 	{
-	k = int(float((point[j]+idX*xAxis[j])/w));
+	k = int(floor(point[j]))-extra;
 	if (k < inExt[2*j]) inExt[2*j] = k; 
-	k = int(float((point[j]+idX*xAxis[j])/w))+1;
+	k = int(ceil(point[j]))+extra;	
 	if (k > inExt[2*j+1]) inExt[2*j+1] = k;
 	}
       }
@@ -188,16 +219,14 @@ void vtkImageReslice::ComputeRequiredInputUpdateExtent(int inExt[6],
       {
       for (j = 0; j < 3; j++) 
 	{
-	k = int((point[j]+idX*xAxis[j])/w + 0.5);
+	k = int(point[j] + 0.5);
 	if (k < inExt[2*j]) inExt[2*j] = k; 
-	k = int((point[j]+idX*xAxis[j])/w + 0.5);
 	if (k > inExt[2*j+1]) inExt[2*j+1] = k;
 	}
       }
     }
   matrix->Delete();
 }
-
 
 //----------------------------------------------------------------------------
 void vtkImageReslice::ExecuteImageInformation() 
@@ -310,9 +339,9 @@ static void TrilinearWithCheck(float *point, T *inPtr, T *outPtr,
   // i.e. if the x, y or z lookup indices have no fractional
   // component. 
   
-  doInterpX = (x != int(x));
-  doInterpY = (y != int(y));
-  doInterpZ = (z != int(z));
+  doInterpX = ((fx = x-(inIdX+inExt[0])) != 0);
+  doInterpY = ((fy = y-(inIdY+inExt[2])) != 0);
+  doInterpZ = ((fz = z-(inIdZ+inExt[4])) != 0);
 
   if (inIdX < 0 || inIdX+doInterpX > inExt[1]-inExt[0]
       || inIdY < 0 || inIdY+doInterpY > inExt[3]-inExt[2]
@@ -334,6 +363,15 @@ static void TrilinearWithCheck(float *point, T *inPtr, T *outPtr,
     factY1 = (inIdY+doInterpY)*inInc[1];
     factZ1 = (inIdZ+doInterpZ)*inInc[2];
     
+    rx = 1 - fx;
+    ry = 1 - fy;
+    rz = 1 - fz;
+      
+    ryrz = ry*rz;
+    ryfz = ry*fz;
+    fyrz = fy*rz;
+    fyfz = fy*fz;
+	      
     for (i = 0; i < numscalars; i++) 
       {
       v000 = *(inPtr+factX+factY+factZ);
@@ -345,15 +383,6 @@ static void TrilinearWithCheck(float *point, T *inPtr, T *outPtr,
       v110 = *(inPtr+factX1+factY1+factZ);
       v111 = *(inPtr+factX1+factY1+factZ1);
       
-      rx = 1 - (fx = x-(inIdX+inExt[0]));
-      ry = 1 - (fy = y-(inIdY+inExt[2]));
-      rz = 1 - (fz = z-(inIdZ+inExt[4]));
-      
-      ryrz = ry*rz;
-      ryfz = ry*fz;
-      fyrz = fy*rz;
-      fyfz = fy*fz;
-	      
       *outPtr++ = 
 	T(rx*(ryrz*v000+ryfz*v001+fyrz*v010+fyfz*v011)
 	  + fx*(ryrz*v100+ryfz*v101+fyrz*v110+fyfz*v111)); 
@@ -391,6 +420,147 @@ static void NearestNeighborWithCheck(float *point, T *inPtr, T *outPtr,
 		    +inIdZ*inInc[2]);
     }
 } 
+
+// Do tricubic interpolation of the input data 'inPtr' of extent 'inExt'
+// at the 'point'.  The result is placed at 'outPtr'.  
+// If any of the lookup data is beyond the extent 'inExt', try the
+// trilinear interpolant.
+// The number of scalar components in the data is 'numscalars'
+
+static double CubicInterpolation(double v[4], float f[4])
+{
+  return v[0] + 
+    f[1]*(v[1]-v[0] + 
+	   f[2]*(v[0]-2*v[1]+v[2] +
+		f[3]*(3*(v[1]-v[2])-v[0]+v[3])));
+}
+
+static double LinearInterpolation(double v[4], float f[4])
+{
+  return v[1] + f[0]*(v[2]-v[1]); 
+}
+
+static double NoInterpolation(double v[4], float f[4])
+{
+  return v[1]; 
+}
+
+template <class T>
+static void TricubicWithCheck(float *point, T *inPtr, T *outPtr,
+			      T *background, int numscalars, 
+			      int inExt[6], int inInc[3])
+{
+  int i;
+  float x,y,z,fX[4],fY[4],fZ[4];
+  int factX[4],factY[4],factZ[4];
+  int linInterpX, linInterpY, linInterpZ;   
+
+  int inIdX = int(x=point[0])-inExt[0];
+  int inIdY = int(y=point[1])-inExt[2];
+  int inIdZ = int(z=point[2])-inExt[4];
+
+  // the doInterpX,Y,Z variables are 0 if interpolation
+  // does not have to be done in the specified direction,
+  // i.e. if the x, y or z lookup indices have no fractional
+  // component. 
+  
+  int doInterpX = ((fX[0] = x-(inIdX+inExt[0])) != 0);
+  int doInterpY = ((fY[0] = y-(inIdY+inExt[2])) != 0);
+  int doInterpZ = ((fZ[0] = z-(inIdZ+inExt[4])) != 0);
+
+  // work out the coefficents for the interpolation in advance
+  fX[1] = fX[0]+1;
+  fX[2] = fX[0]/2;
+  fX[3] = 2*(fX[0]-1)/3;
+
+  fY[1] = fY[0]+1;
+  fY[2] = fY[0]/2;
+  fY[3] = 2*(fY[0]-1)/3;
+
+  fZ[1] = fZ[0]+1;
+  fZ[2] = fZ[0]/2;
+  fZ[3] = 2*(fZ[0]-1)/3;
+
+  int OutOfBounds = 0;
+
+  // check whether we can do cubic interpolation, linear, or neither
+  // in each of the three directions
+  if (!(OutOfBounds = (inIdX < 0 || inIdX+doInterpX > inExt[1]-inExt[0])))
+    {
+    linInterpX = (doInterpX && (inIdX < 1 || inIdX+2 > inExt[1]-inExt[0]));
+    
+    if (!(OutOfBounds = (inIdY < 0 || inIdY+doInterpY > inExt[3]-inExt[2])))
+      {
+      linInterpY = (doInterpY && (inIdY < 1 || inIdY+2 > inExt[3]-inExt[2]));
+
+      if (!(OutOfBounds = (inIdZ < 0 || inIdZ+doInterpZ > inExt[5]-inExt[4])))
+	{
+	linInterpZ = (doInterpZ && (inIdZ < 1 || inIdZ+2 > inExt[5]-inExt[4]));
+	}
+      }
+    }
+
+  if (OutOfBounds)
+    {// out of bounds: clear to background color
+    for (i = 0; i < numscalars; i++) 
+      *outPtr++ = *background++;
+    }
+  else 
+    {// do tricubic interpolation
+    double vX[4],vY[4],vZ[4];
+    int j,k,l,jl,jm,kl,km,ll,lm;
+    double (*interpolantX)(double v[4], float f[4]);
+    double (*interpolantY)(double v[4], float f[4]);
+    double (*interpolantZ)(double v[4], float f[4]);
+    
+    for (i = 0; i < 4; i++)
+    {
+      factX[i] = (inIdX-1+i)*inInc[0];
+      factY[i] = (inIdY-1+i)*inInc[1];
+      factZ[i] = (inIdZ-1+i)*inInc[2];
+    }
+
+    // set up the lookup indices and the interpolation function
+    if (!doInterpZ)
+      { jl = 1; jm = 2; interpolantZ = &NoInterpolation; }
+    else if (linInterpZ)
+      { jl = 1; jm = 3; interpolantZ = &LinearInterpolation; }
+    else
+      { jl = 0; jm = 4; interpolantZ = &CubicInterpolation; }
+
+    if (!doInterpY)
+      { kl = 1; km = 2; interpolantY = &NoInterpolation; }
+    else if (linInterpY)
+      { kl = 1; km = 3; interpolantY = &LinearInterpolation; }
+    else
+      { kl = 0; km = 4; interpolantY = &CubicInterpolation; }
+
+    if (!doInterpX)
+      { ll = 1; lm = 2; interpolantX = &NoInterpolation; }
+    else if (linInterpX)
+      { ll = 1; lm = 3; interpolantX = &LinearInterpolation; }
+    else
+      { ll = 0; lm = 4; interpolantX = &CubicInterpolation; }
+
+    // Finally, here is the tricubic interpolation
+    for (i = 0; i < numscalars; i++)
+      {
+      for (j = jl; j < jm; j++)
+	{
+	for (k = kl; k < km; k++)
+	  {
+	  for (l = ll; l < lm; l++) 
+	    vX[l] = *(inPtr+factX[l]+factY[k]+factZ[j]);
+	  
+	  vY[k] = interpolantX(vX,fX);
+	  }
+	vZ[j] = interpolantY(vY,fY);
+	}
+      *outPtr++ = T(interpolantZ(vZ,fZ));
+      inPtr++;
+      }
+    }
+}		  
 
 //----------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
@@ -438,10 +608,18 @@ static void vtkImageResliceExecute(vtkImageReslice *self,
     background[i] = T(self->GetBackgroundLevel());
 
   // Set interpolation method
-  if (self->GetInterpolate())
-    interpolate = &TrilinearWithCheck;
+  if (self->GetInterpolate() &&
+      self->GetInterpolationMode() != VTK_RESLICE_NEAREST)
+    {
+    if (self->GetInterpolationMode() == VTK_RESLICE_CUBIC)
+      interpolate = &TricubicWithCheck;
+    else 
+      interpolate = &TrilinearWithCheck;
+    }
   else
+    {
     interpolate = &NearestNeighborWithCheck;
+    }
 
   // Loop through ouput pixels
   for (idZ = outExt[4]; idZ <= outExt[5]; idZ++)
@@ -485,23 +663,91 @@ static void vtkImageResliceExecute(vtkImageReslice *self,
 }
 
 //----------------------------------------------------------------------------
+// The remainder of this file is the 'optimized' version of the code.
+
+//----------------------------------------------------------------------------
+static void ComputeRequiredInputUpdateExtentOptimized(vtkImageReslice *self,
+						      int inExt[6], 
+						      int outExt[6])
+{
+  int i,j,k;
+  int idX,idY,idZ;
+  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
+  float *xAxis, *yAxis, *zAxis, *origin;
+  double point[4],w;
+
+  // convert matrix from world coordinates to pixel indices
+  self->ComputeIndexMatrix(matrix);
+  matrix->Transpose();
+  xAxis = matrix->Element[0];
+  yAxis = matrix->Element[1];
+  zAxis = matrix->Element[2];
+  origin = matrix->Element[3];
+
+  for (i = 0; i < 3; i++)
+    {
+    inExt[2*i] = INT_MAX;
+    inExt[2*i+1] = INT_MIN;
+    }
+  
+  for (i = 0; i < 8; i++)
+    {
+    // calculate transform using method in vtkImageResliceExecute
+    idX = outExt[i%2];
+    idY = outExt[2+(i/2)%2];
+    idZ = outExt[4+(i/4)%2];
+    
+    for (j = 0; j < 4; j++) 
+      {
+      point[j] = origin[j] + idZ*zAxis[j];
+      point[j] = point[j] + idY*yAxis[j];
+      }
+    
+    w = point[3] + idX*xAxis[3];
+    
+    if (self->GetInterpolate() &&
+	self->GetInterpolationMode() != VTK_RESLICE_NEAREST)
+      {
+      for (j = 0; j < 3; j++) 
+	{
+	int extra = (self->GetInterpolationMode() == VTK_RESLICE_CUBIC); 
+	k = int(floor((point[j]+idX*xAxis[j])/w))-extra;
+	if (k < inExt[2*j]) inExt[2*j] = k; 
+	k = int(ceil((point[j]+idX*xAxis[j])/w))+extra;
+	if (k > inExt[2*j+1]) inExt[2*j+1] = k;
+	}
+      }
+    else
+      {
+      for (j = 0; j < 3; j++) 
+	{
+	k = int((point[j]+idX*xAxis[j])/w + 0.5);
+	if (k < inExt[2*j]) inExt[2*j] = k; 
+	if (k > inExt[2*j+1]) inExt[2*j+1] = k;
+	}
+      }
+    }
+  matrix->Delete();
+}
+
+//----------------------------------------------------------------------------
 // helper functions for vtkOptimizedExecute()
 
 // find approximate intersection of line with the plane x = x_min,
 // y = y_min, or z = z_min (lower limit of data extent) 
 
 static int intersectionLow(double *point, float *axis, int *sign,
-			   int *limit, int ai)
+			   int *limit, int ai, int *outExt)
 {
   // approximate value of r
   int r;
-  double rd = ((limit[ai]+0.5)*point[3]-point[ai])
-    /(axis[ai]-(limit[ai]+0.5)*axis[3]) + 0.5;
-  
-  if (rd < INT_MIN) 
-    r = INT_MIN;
-  else if (rd > INT_MAX)
-    r = INT_MAX;
+  double rd = (limit[ai]*point[3]-point[ai])
+    /(axis[ai]-limit[ai]*axis[3]) + 0.5;
+   
+  if (rd < outExt[2*ai]) 
+    r = outExt[2*ai];
+  else if (rd > outExt[2*ai+1])
+    r = outExt[2*ai+1];
   else
     r = int(rd);
   
@@ -509,39 +755,39 @@ static int intersectionLow(double *point, float *axis, int *sign,
   while (int( (point[ai]+r*axis[ai])/double(point[3]+r*axis[3]) + 0.5 ) 
 	 < limit[ai])
     r += sign[ai];
-  
+
   while (int( (point[ai]+(r-sign[ai])*axis[ai])
 	      /double(point[3]+(r-sign[ai])*axis[3]) + 0.5 ) 
 	 >= limit[ai])
     r -= sign[ai];
-  
+
   return r;
 }
 
 // same as above, but for x = x_max
 static int intersectionHigh(double *point, float *axis, int *sign, 
-			    int *limit, int ai)
+			    int *limit, int ai, int *outExt)
 {
   int r;
-  double rd = ((limit[ai]-0.5)*point[3]-point[ai])
-    /(axis[ai]-(limit[ai]-0.5)*axis[3]) + 0.5; 
+  double rd = (limit[ai]*point[3]-point[ai])
+      /(axis[ai]-limit[ai]*axis[3]) + 0.5; 
     
-  if (rd < INT_MIN) 
-    r = INT_MIN;
-  else if (rd > INT_MAX)
-    r = INT_MAX;
+  if (rd < outExt[2*ai]) 
+    r = outExt[2*ai];
+  else if (rd > outExt[2*ai+1])
+    r = outExt[2*ai+1];
   else
     r = int(rd);
   
   while (int( (point[ai]+r*axis[ai])/double(point[3]+r*axis[3]) + 0.5 ) 
 	 > limit[ai])
     r -= sign[ai];
-  
+
   while (int( (point[ai]+(r+sign[ai])*axis[ai])
 	      /double(point[3]+(r+sign[ai])*axis[3]) + 0.5 ) 
 	 <= limit[ai])
     r += sign[ai];
-  
+
   return r;
 }
 
@@ -563,7 +809,7 @@ static int isBounded(double *point, float *xAxis, int *inMin,
 // this huge mess finds out where the current output raster
 // line intersects the input volume 
 int vtkImageReslice::FindExtent(int& r1, int& r2, double *point, float *xAxis, 
-		      int *inMin, int *inMax)
+		      int *inMin, int *inMax, int *outExt)
 {
   int i, ix, iy, iz;
   int sign[3];
@@ -605,8 +851,8 @@ int vtkImageReslice::FindExtent(int& r1, int& r2, double *point, float *xAxis,
     iz = i;
     }
 
-  r1 = intersectionLow(point,xAxis,sign,inMin,ix);
-  r2 = intersectionHigh(point,xAxis,sign,inMax,ix);
+  r1 = intersectionLow(point,xAxis,sign,inMin,ix,outExt);
+  r2 = intersectionHigh(point,xAxis,sign,inMax,ix,outExt);
   
   // find points of intersections
   // first, find w
@@ -627,7 +873,7 @@ int vtkImageReslice::FindExtent(int& r1, int& r2, double *point, float *xAxis,
     
     if (indx2[iy] < inMin[iy])
       { // check y face
-      r2 = intersectionLow(point,xAxis,sign,inMin,iy);
+      r2 = intersectionLow(point,xAxis,sign,inMin,iy,outExt);
       if (isBounded(point,xAxis,inMin,inMax,iy,r2))
 	{
 	return sign[ix];
@@ -635,7 +881,7 @@ int vtkImageReslice::FindExtent(int& r1, int& r2, double *point, float *xAxis,
       }
     else if (indx2[iy] > inMax[iy])
       { // check other y face
-      r2 = intersectionHigh(point,xAxis,sign,inMax,iy);
+      r2 = intersectionHigh(point,xAxis,sign,inMax,iy,outExt);
       if (isBounded(point,xAxis,inMin,inMax,iy,r2))
 	{
 	return sign[ix];
@@ -644,7 +890,7 @@ int vtkImageReslice::FindExtent(int& r1, int& r2, double *point, float *xAxis,
     
     if (indx2[iz] < inMin[iz])
       { // check z face
-      r2 = intersectionLow(point,xAxis,sign,inMin,iz);
+      r2 = intersectionLow(point,xAxis,sign,inMin,iz,outExt);
       if (isBounded(point,xAxis,inMin,inMax,iz,r2))
 	{
 	return sign[ix];
@@ -652,7 +898,7 @@ int vtkImageReslice::FindExtent(int& r1, int& r2, double *point, float *xAxis,
       }
     else if (indx2[iz] > inMax[iz])
       { // check other z face
-      r2 = intersectionHigh(point,xAxis,sign,inMax,iz);
+      r2 = intersectionHigh(point,xAxis,sign,inMax,iz,outExt);
       if (isBounded(point,xAxis,inMin,inMax,iz,r2))
 	{
 	return sign[ix];
@@ -664,7 +910,7 @@ int vtkImageReslice::FindExtent(int& r1, int& r2, double *point, float *xAxis,
     { // passed through the opposite x face
     if (indx1[iy] < inMin[iy])
 	{ // check y face
-	r1 = intersectionLow(point,xAxis,sign,inMin,iy);
+	r1 = intersectionLow(point,xAxis,sign,inMin,iy,outExt);
 	if (isBounded(point,xAxis,inMin,inMax,iy,r1))
 	  {
 	  return sign[ix];
@@ -672,7 +918,7 @@ int vtkImageReslice::FindExtent(int& r1, int& r2, double *point, float *xAxis,
 	}
     else if (indx1[iy] > inMax[iy])
       { // check other y face
-      r1 = intersectionHigh(point,xAxis,sign,inMax,iy);
+      r1 = intersectionHigh(point,xAxis,sign,inMax,iy,outExt);
       if (isBounded(point,xAxis,inMin,inMax,iy,r1))
 	{
 	return sign[ix];
@@ -681,7 +927,7 @@ int vtkImageReslice::FindExtent(int& r1, int& r2, double *point, float *xAxis,
     
     if (indx1[iz] < inMin[iz])
       { // check z face
-      r1 = intersectionLow(point,xAxis,sign,inMin,iz);
+      r1 = intersectionLow(point,xAxis,sign,inMin,iz,outExt);
       if (isBounded(point,xAxis,inMin,inMax,iz,r1))
 	{
 	return sign[ix];
@@ -689,7 +935,7 @@ int vtkImageReslice::FindExtent(int& r1, int& r2, double *point, float *xAxis,
       }
     else if (indx1[iz] > inMax[iz])
       { // check other z face
-      r1 = intersectionHigh(point,xAxis,sign,inMax,iz);
+      r1 = intersectionHigh(point,xAxis,sign,inMax,iz,outExt);
       if (isBounded(point,xAxis,inMin,inMax,iz,r1))
 	{
 	return sign[ix];
@@ -700,13 +946,13 @@ int vtkImageReslice::FindExtent(int& r1, int& r2, double *point, float *xAxis,
   if ((indx1[iy] >= inMin[iy] && indx2[iy] < inMin[iy]) ||
       (indx1[iy] < inMin[iy] && indx2[iy] >= inMin[iy]))
     { // line might pass through bottom face
-    r1 = intersectionLow(point,xAxis,sign,inMin,iy);
+    r1 = intersectionLow(point,xAxis,sign,inMin,iy,outExt);
     if (isBounded(point,xAxis,inMin,inMax,iy,r1))
       {
       if ((indx1[iy] <= inMax[iy] && indx2[iy] > inMax[iy]) ||
 	  (indx1[iy] > inMax[iy] && indx2[iy] <= inMax[iy]))
 	{ // line might pass through top face
-	r2 = intersectionHigh(point,xAxis,sign,inMax,iy);
+	r2 = intersectionHigh(point,xAxis,sign,inMax,iy,outExt);
 	if (isBounded(point,xAxis,inMin,inMax,iy,r2))
 	  {
 	  return sign[iy];
@@ -716,7 +962,7 @@ int vtkImageReslice::FindExtent(int& r1, int& r2, double *point, float *xAxis,
       if (indx1[iz] < inMin[iz] && indx2[iy] < inMin[iy] ||
 	  indx2[iz] < inMin[iz] && indx1[iy] < inMin[iy])
 	{ // line might pass through in-to-screen face
-	r2 = intersectionLow(point,xAxis,sign,inMin,iz);
+	r2 = intersectionLow(point,xAxis,sign,inMin,iz,outExt);
 	if (isBounded(point,xAxis,inMin,inMax,iz,r2))
 	  {
 	  return sign[iy];
@@ -725,7 +971,7 @@ int vtkImageReslice::FindExtent(int& r1, int& r2, double *point, float *xAxis,
       else if (indx1[iz] > inMax[iz] && indx2[iy] < inMin[iy] ||
 	       indx2[iz] > inMax[iz] && indx1[iy] < inMin[iy])
 	{ // line might pass through out-of-screen face
-	r2 = intersectionHigh(point,xAxis,sign,inMax,iz);
+	r2 = intersectionHigh(point,xAxis,sign,inMax,iz,outExt);
 	if (isBounded(point,xAxis,inMin,inMax,iz,r2))
 	  {
 	  return sign[iy];
@@ -737,13 +983,13 @@ int vtkImageReslice::FindExtent(int& r1, int& r2, double *point, float *xAxis,
   if ((indx1[iy] <= inMax[iy] && indx2[iy] > inMax[iy]) ||
       (indx1[iy] > inMax[iy] && indx2[iy] <= inMax[iy]))
     { // line might pass through top face
-    r2 = intersectionHigh(point,xAxis,sign,inMax,iy);
+    r2 = intersectionHigh(point,xAxis,sign,inMax,iy,outExt);
     if (isBounded(point,xAxis,inMin,inMax,iy,r2))
       {
       if (indx1[iz] < inMin[iz] && indx2[iy] > inMax[iy] ||
 	  indx2[iz] < inMin[iz] && indx1[iy] > inMax[iy])
 	{ // line might pass through in-to-screen face
-	r1 = intersectionLow(point,xAxis,sign,inMin,iz);
+	r1 = intersectionLow(point,xAxis,sign,inMin,iz,outExt);
 	if (isBounded(point,xAxis,inMin,inMax,iz,r1))
 	  {
 	  return sign[iy];
@@ -752,7 +998,7 @@ int vtkImageReslice::FindExtent(int& r1, int& r2, double *point, float *xAxis,
       else if (indx1[iz] > inMax[iz] && indx2[iy] > inMax[iy] || 
 	       indx2[iz] > inMax[iz] && indx1[iy] > inMax[iy])
 	{ // line might pass through out-of-screen face
-	r1 = intersectionHigh(point,xAxis,sign,inMax,iz);
+	r1 = intersectionHigh(point,xAxis,sign,inMax,iz,outExt);
 	if (isBounded(point,xAxis,inMin,inMax,iz,r1))
 	  {
 	  return sign[iy];
@@ -764,12 +1010,12 @@ int vtkImageReslice::FindExtent(int& r1, int& r2, double *point, float *xAxis,
   if ((indx1[iz] >= inMin[iz] && indx2[iz] < inMin[iz]) ||
       (indx1[iz] < inMin[iz] && indx2[iz] >= inMin[iz]))
     { // line might pass through in-to-screen face
-    r1 = intersectionLow(point,xAxis,sign,inMin,iz);
+    r1 = intersectionLow(point,xAxis,sign,inMin,iz,outExt);
     if (isBounded(point,xAxis,inMin,inMax,iz,r1))
       {
       if (indx1[iz] > inMax[iz] || indx2[iz] > inMax[iz])
 	{ // line might pass through out-of-screen face
-	r2 = intersectionHigh(point,xAxis,sign,inMax,iz);
+	r2 = intersectionHigh(point,xAxis,sign,inMax,iz,outExt);
 	if (isBounded(point,xAxis,inMin,inMax,iz,r2))
 	  {
 	  return sign[iz];
@@ -781,7 +1027,6 @@ int vtkImageReslice::FindExtent(int& r1, int& r2, double *point, float *xAxis,
   r1 = r2 = -1;
   return 1;
 }
-
 
 // The vtkOptimizedExecute() function uses an optimization which
 // is conceptually simple, but complicated to implement.
@@ -815,7 +1060,7 @@ static void vtkOptimizedExecute(vtkImageReslice *self,
   int inInc[3];
   unsigned long count = 0;
   unsigned long target;
-  int r1,r2,s1,s2;
+  int r1,r2;
   double inPoint0[4];
   double inPoint1[4];
   float inPoint[4];
@@ -823,6 +1068,14 @@ static void vtkOptimizedExecute(vtkImageReslice *self,
   T *background;
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
   double w;
+  void (*interpolate)(float *point, T *inPtr, T *outPtr,
+		      T *background, int numscalars, 
+		      int inExt[6], int inInc[3]);
+
+  if (self->GetInterpolationMode() == VTK_RESLICE_CUBIC)
+    interpolate = &TricubicWithCheck;
+  else
+    interpolate = &TrilinearWithCheck;
 
   // find maximum input range
   inData->GetExtent(inExt);
@@ -884,7 +1137,7 @@ static void vtkOptimizedExecute(vtkImageReslice *self,
 	}
       
       // find intersections of x raster line with the input extent
-      if (self->FindExtent(r1,r2,inPoint1,xAxis,inMin,inMax) < 0)
+      if (self->FindExtent(r1,r2,inPoint1,xAxis,inMin,inMax,outExt) < 0)
 	{
 	i = r1;
 	r1 = r2;
@@ -905,47 +1158,11 @@ static void vtkOptimizedExecute(vtkImageReslice *self,
 	for (idX = outExt[0]; idX < r1; idX++)
 	  for (i = 0; i < numscalars; i++)
 	    *outPtr++ = background[i];
-      
-      // interpolate pixels while inside input extent
-      if (self->GetInterpolate())
-	{ // do trilinear interpolation
-	float x,y,z,fx,fy,fz,rx,ry,rz,ryrz,ryfz,fyrz,fyfz;
-	T v000,v001,v010,v011,v100,v101,v110,v111;
-	int factX,factY,factZ,factX1,factY1,factZ1;
-	int doInterpX, doInterpY, doInterpZ;
 
-	// check out the questionable region
-
-	// adjust left bound if necessary
-	for (s1 = r1; s1 <= r2; s1++)
-	  {	  
-	  w = inPoint1[3]+idX*xAxis[3]; // don't forget w!  
-	  inIdX = int(x=float((inPoint1[0]+s1*xAxis[0])/w))-inExt[0];
-	  inIdY = int(y=float((inPoint1[1]+s1*xAxis[1])/w))-inExt[2];
-	  inIdZ = int(z=float((inPoint1[2]+s1*xAxis[2])/w))-inExt[4];
-
-	  if (inIdX >= 0 && inIdX+1 <= inExt[1]-inExt[0]
-	      && inIdY >= 0 && inIdY+1 <= inExt[3]-inExt[2]
-	      && inIdZ >= 0 && inIdZ+1 <= inExt[5]-inExt[4] )
-	    break;
-	  }
-	// adjust right bound if necessary
-	for (s2 = r2; s2 >= s1; s2--)
-	  {	  
-	  w = inPoint1[3]+idX*xAxis[3]; // don't forget w!  
-	  inIdX = int(x=float((inPoint1[0]+s2*xAxis[0])/w))-inExt[0];
-	  inIdY = int(y=float((inPoint1[1]+s2*xAxis[1])/w))-inExt[2];
-	  inIdZ = int(z=float((inPoint1[2]+s2*xAxis[2])/w))-inExt[4];
-
-	  if (inIdX >= 0 && inIdX+1 <= inExt[1]-inExt[0]
-	      && inIdY >= 0 && inIdY+1 <= inExt[3]-inExt[2]
-	      && inIdZ >= 0 && inIdZ+1 <= inExt[5]-inExt[4] )
-	    break;
-	  }
-
-	// go through the left part of the questionable region
-
-	for (; idX < s1; idX++)
+      if (self->GetInterpolate() &&
+	self->GetInterpolationMode() != VTK_RESLICE_NEAREST)
+	{ // Trilinear or tricubic
+	for (idX = r1; idX <= r2; idX++)
 	  {
 	  w = inPoint1[3]+idX*xAxis[3];
 	  inPoint[0] = (inPoint1[0]+idX*xAxis[0])/w;
@@ -953,111 +1170,32 @@ static void vtkOptimizedExecute(vtkImageReslice *self,
 	  inPoint[2] = (inPoint1[2]+idX*xAxis[2])/w;
 	  inPoint[3] = 1;
 
-	  TrilinearWithCheck(inPoint, inPtr, outPtr, background, 
-			     numscalars, inExt, inInc);
-
+	  interpolate(inPoint, inPtr, outPtr, background, 
+		      numscalars, inExt, inInc);
 	  outPtr += numscalars;
 	  }
-	
-	// go through the contiguous section, no checks are
-	// required
-  
-	for (; idX <= s2; idX++)
-	  {
-	  w = inPoint1[3]+idX*xAxis[3]; // don't forget w!  
-	  inIdX = int(x=float((inPoint1[0]+idX*xAxis[0])/w))-inExt[0];
-	  inIdY = int(y=float((inPoint1[1]+idX*xAxis[1])/w))-inExt[2];
-	  inIdZ = int(z=float((inPoint1[2]+idX*xAxis[2])/w))-inExt[4];
-	  factX = inIdX*inInc[0];
-	  factY = inIdY*inInc[1];
-	  factZ = inIdZ*inInc[2];
-	  factX1 = (inIdX+1)*inInc[0];
-	  factY1 = (inIdY+1)*inInc[1];
-	  factZ1 = (inIdZ+1)*inInc[2];
-	  
-	  for (i = 0; i < numscalars; i++) 
-	    {
-	    v000 = *(inPtr+factX+factY+factZ);
-	    v001 = *(inPtr+factX+factY+factZ1);
-	    v010 = *(inPtr+factX+factY1+factZ);
-	    v011 = *(inPtr+factX+factY1+factZ1);
-	    v100 = *(inPtr+factX1+factY+factZ);
-	    v101 = *(inPtr+factX1+factY+factZ1);
-	    v110 = *(inPtr+factX1+factY1+factZ);
-	    v111 = *(inPtr+factX1+factY1+factZ1);
-	    
-	    rx = 1 - (fx = x-(inIdX+inExt[0]));
-	    ry = 1 - (fy = y-(inIdY+inExt[2]));
-	    rz = 1 - (fz = z-(inIdZ+inExt[4]));
-	    
-	    ryrz = ry*rz;
-	    ryfz = ry*fz;
-	    fyrz = fy*rz;
-	    fyfz = fy*fz;
-	    
-	    *outPtr++ = 
-	      T(rx*(ryrz*v000+ryfz*v001+fyrz*v010+fyfz*v011)
-		+ fx*(ryrz*v100+ryfz*v101+fyrz*v110+fyfz*v111));
-	    
-	    inPtr++;
-	    }
-	  inPtr -= numscalars;
-	  }
-
-	// go through the left part of the questionable region
-
-	for (; idX <= r2; idX++)
-	  {
-	  w = inPoint1[3]+idX*xAxis[3];
-	  inPoint[0] = (inPoint1[0]+idX*xAxis[0])/w;
-	  inPoint[1] = (inPoint1[1]+idX*xAxis[1])/w;
-	  inPoint[2] = (inPoint1[2]+idX*xAxis[2])/w;
-	  inPoint[3] = 1;
-
-	  TrilinearWithCheck(inPoint, inPtr, outPtr, background, 
-			     numscalars, inExt, inInc);
-
-	  outPtr += numscalars;
-	  }
-	
 	}
       else
-	{ // do nearest-neighbor interpolation
-	if (numscalars == 1)
-	  { // optimize for single scalar (keep that inner loop tight!)
-	  for (; idX <= r2; idX++)
-	    {
-	    w = inPoint1[3]+idX*xAxis[3]; // don't forget w!  
-	    inIdX = int((inPoint1[0]+idX*xAxis[0])/w+0.5)-inExt[0];
-	    inIdY = int((inPoint1[1]+idX*xAxis[1])/w+0.5)-inExt[2];
-	    inIdZ = int((inPoint1[2]+idX*xAxis[2])/w+0.5)-inExt[4];
-	    
+	{  // Nearest-Neighbor, no extent checks
+	for (idX = r1; idX <= r2; idX++)
+	  {
+	  w = inPoint1[3]+idX*xAxis[3]; // don't forget w!  
+	  inIdX = int((inPoint1[0]+idX*xAxis[0])/w+0.5)-inExt[0];
+	  inIdY = int((inPoint1[1]+idX*xAxis[1])/w+0.5)-inExt[2];
+	  inIdZ = int((inPoint1[2]+idX*xAxis[2])/w+0.5)-inExt[4];
+	  
+	  for (i = 0; i < numscalars; i++)
 	    *outPtr++ = *(inPtr+inIdX*inInc[0]+inIdY*inInc[1]
 			  +inIdZ*inInc[2]);
-	    }
-	  }
-	else
-	  { // multiple scalar values
-	  for (; idX <= r2; idX++)
-	    {
-	    w = inPoint1[3]+idX*xAxis[3]; // don't forget w!  
-	    inIdX = int((inPoint1[0]+idX*xAxis[0])/w+0.5)-inExt[0];
-	    inIdY = int((inPoint1[1]+idX*xAxis[1])/w+0.5)-inExt[2];
-	    inIdZ = int((inPoint1[2]+idX*xAxis[2])/w+0.5)-inExt[4];
-	    
-	    for (i = 0; i < numscalars; i++)
-	      *outPtr++ = *(inPtr+inIdX*inInc[0]+inIdY*inInc[1]
-			    +inIdZ*inInc[2]);
-	    }
 	  }
 	}
-      
+  
       // clear pixels to right of input extent
       if (numscalars == 1) // optimize for single scalar
-	for (; idX <= outExt[1]; idX++) 
+	for (idX = r2+1; idX <= outExt[1]; idX++) 
 	  *outPtr++ = background[0];
       else // multiple scalars
-	for (; idX <= outExt[1]; idX++)
+	for (idX = r2+1; idX <= outExt[1]; idX++)
 	  for (i = 0; i < numscalars; i++)
 	    *outPtr++ = background[i];
       

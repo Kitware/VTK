@@ -44,10 +44,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // the reslicing transformation matrix.  The extent, origin, and sampling
 // density of the output data can also be set.
 // .SECTION Caveats
-// The OptimizationOn() method may cause this filter to crash VTK (though
-// I haven't had a crash in a while).  Doing crazy things like using
-// nonlinear (i.e. perspective) transformations is also risky, but will
-// work in many cases. 
+// The OptimizationOn() in conjunction with InterpolateOff()
+// may cause this filter to crash for compilers with poor floating 
+// point consistency.  Doing crazy things like using nonlinear 
+// (i.e. perspective) transformations is also risky, but will
+// work under a broad set of circumstances. 
 // .SECTION see also
 // vtkImageFilter, vtkTransform
 
@@ -60,6 +61,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTransform.h"
 
 class vtkMatrix4x4;
+
+#define VTK_RESLICE_NEAREST 0
+#define VTK_RESLICE_LINEAR 1
+#define VTK_RESLICE_CUBIC 3
 
 class VTK_EXPORT vtkImageReslice : public vtkImageFilter
 {
@@ -77,10 +82,23 @@ public:
   vtkGetObjectMacro(ResliceTransform,vtkTransform);
 
   // Description:
-  // Turn on trilinear interpolation (default: nearest neighbor)
+  // Turn on interpolation (default is nearest-neighbor interpolation)
   vtkSetMacro(Interpolate,int);
   vtkGetMacro(Interpolate,int);
   vtkBooleanMacro(Interpolate,int);
+
+  // Description:
+  // Set interpolation mode, if Interpolate is on (default: trilinear)
+  // Note 1: nearest neighbor is the same as no interpolation
+  // Note 2: Cubic is just cubic, it is not cubic spline 
+  vtkSetMacro(InterpolationMode,int);
+  vtkGetMacro(InterpolationMode,int);
+  void SetInterpolationModeToNearestNeighbor()
+    { SetInterpolationMode(VTK_RESLICE_NEAREST); };
+  void SetInterpolationModeToLinear()
+    { SetInterpolationMode(VTK_RESLICE_LINEAR); };
+  void SetInterpolationModeToCubic()
+    { SetInterpolationMode(VTK_RESLICE_CUBIC); };
 
   // Description:
   // Turn on and off optimizations (default on, turn them off if
@@ -107,10 +125,11 @@ public:
   // Helper functions not meant to be used outside this class
   void ComputeIndexMatrix(vtkMatrix4x4 *matrix);
   int FindExtent(int& r1, int& r2, double *point, float *xAxis,
-		      int *inMin, int *inMax);
+		      int *inMin, int *inMax, int *outExt);
 protected:
   vtkTransform *ResliceTransform;
   int Interpolate;
+  int InterpolationMode;
   int Optimization;
   float OutputOrigin[3];
   float OutputSpacing[3];
