@@ -242,6 +242,7 @@ static void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
 			 vtkImageData *data, vtkPolyData *output,
 			 T *ptr, int threadId)
 {
+  int *inExt = self->GetInput()->GetExtent();
   int xdim = exExt[1] - exExt[0] + 1;
   int ydim = exExt[3] - exExt[2] + 1;
   float *values = self->GetValues();
@@ -373,7 +374,7 @@ static void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
       for (j = yMin; j <= yMax; j++)
         {
 	// Should not impact perfomance here/
-	edgePtId = j*yInc + k*zInc;
+	edgePtId = (j-inExt[2])*yInc + (k-inExt[4])*zInc;
 
         y = origin[1] + j*spacing[1];
         xz[1] = y;

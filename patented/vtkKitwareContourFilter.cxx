@@ -306,8 +306,11 @@ void vtkKitwareContourFilter::StructuredGridContour(int dim)
       gridTemp3D->SetValue(i,values[i]);
       }
 
-    gridTemp3D->Update();
     output = gridTemp3D->GetOutput();
+    output->SetUpdateNumberOfPieces(thisOutput->GetUpdateNumberOfPieces());
+    output->SetUpdatePiece(thisOutput->GetUpdatePiece());
+    output->SetUpdateGhostLevel(thisOutput->GetUpdateGhostLevel());
+    gridTemp3D->Update();
     output->Register(this);
     gridTemp3D->Delete();
     }

@@ -470,7 +470,7 @@ static void ContourGrid(vtkGridSynchronizedTemplates3D *self,
       for (j = YMin; j <= YMax; j++)
         {
 	// Should not impact perfomance here/
-	edgePtId = j*incY + k*incZ;
+	edgePtId = (j-inExt[2])*incY + (k-inExt[4])*incZ;
         
 	p1 = inPtPtrY;
         s1 = inPtrY;
