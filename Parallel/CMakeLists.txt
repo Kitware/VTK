@@ -51,6 +51,7 @@ vtkExtractCells.cxx
 vtkExtractPolyDataPiece.cxx
 vtkExtractUnstructuredGridPiece.cxx
 vtkExtractUserDefinedPiece.cxx
+vtkKdNode.cxx
 vtkKdTree.cxx
 vtkPKdTree.cxx
 vtkPlanesIntersection.cxx
