@@ -41,21 +41,18 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkMutexFunctionLock.h"
 
-// Description:
 // Construct a new vtkMutexFunctionLock
 vtkMutexFunctionLock::vtkMutexFunctionLock(void )
 {
   this->MutexVar = vtkMutexLock::New();
 }
 
-// Description:
 // Destruct the vtkMutexFunctionLock
 vtkMutexFunctionLock::~vtkMutexFunctionLock(void )
 {
   this->MutexVar->Delete();
 }
 
-// Description:
 // Print method for vtkMutexFunctionLock
 void vtkMutexFunctionLock::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -63,7 +60,6 @@ void vtkMutexFunctionLock::PrintSelf(ostream& os, vtkIndent indent)
   this->MutexVar->PrintSelf(os,indent);
 }
 
-// Description:
 // Lock method for vtkMutexFunctionLock
 void vtkMutexFunctionLock::StartLock(void )
 {
@@ -73,7 +69,6 @@ void vtkMutexFunctionLock::StartLock(void )
     }
 }
 
-// Description:
 // Unlock method for vtkMutexFunctionLock
 void vtkMutexFunctionLock::EndLock(void )
 {

@@ -41,7 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDataArray.h"
 #include "vtkFloatArray.h"
 
-// Description:
 // Construct object with default tuple dimension (number of components) of 1.
 vtkDataArray::vtkDataArray(int numComp)
 {

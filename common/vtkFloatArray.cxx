@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkFloatArray.h"
 
-// Description:
 // Instantiate object with 1 components.
 vtkFloatArray::vtkFloatArray(int numComp)
 {
@@ -58,7 +57,6 @@ vtkFloatArray::~vtkFloatArray()
 
 }
 
-// Description:
 // This method lets the user specify data to be held by the array.  The 
 // array argument is a pointer to the data.  size is the size of 
 // the array supplied by the user.  Set save to 1 to keep the class
@@ -86,7 +84,6 @@ void vtkFloatArray::SetArray(float* array, int size, int save)
 }
 
 
-// Description:
 // Allocate memory for this array. Delete old storage only if necessary.
 int vtkFloatArray::Allocate(const int sz, const int ext)
 {
@@ -110,7 +107,6 @@ int vtkFloatArray::Allocate(const int sz, const int ext)
   return 1;
 }
 
-// Description:
 // Release storage and reset array to initial state.
 void vtkFloatArray::Initialize()
 {
@@ -124,7 +120,6 @@ void vtkFloatArray::Initialize()
   this->SaveUserArray = 0;
 }
 
-// Description:
 // Deep copy of another float array.
 void vtkFloatArray::DeepCopy(vtkDataArray& fa)
 {
@@ -201,21 +196,18 @@ float *vtkFloatArray::Resize(const int sz)
   return this->Array;
 }
 
-// Description:
 // Set the number of n-tuples in the array.
 void vtkFloatArray::SetNumberOfTuples(const int number)
 {
   this->SetNumberOfValues(number*this->NumberOfComponents);
 }
 
-// Description:
 // Get a pointer to a tuple at the ith location.
 float *vtkFloatArray::GetTuple(const int i)
 {
   return this->Array + this->NumberOfComponents*i;
 }
 
-// Description:
 // Copy the tuple value into a user-provided array.
 void vtkFloatArray::GetTuple(const int i, float * tuple)
 {
@@ -226,7 +218,6 @@ void vtkFloatArray::GetTuple(const int i, float * tuple)
     }
 }
 
-// Description:
 // Set the tuple value at the ith location in the array.
 void vtkFloatArray::SetTuple(const int i, const float * tuple)
 {
@@ -237,7 +228,6 @@ void vtkFloatArray::SetTuple(const int i, const float * tuple)
     }
 }
 
-// Description:
 // Insert (memory allocation performed) the tuple into the ith location
 // in the array.
 void vtkFloatArray::InsertTuple(const int i, const float * tuple)
@@ -250,7 +240,6 @@ void vtkFloatArray::InsertTuple(const int i, const float * tuple)
     }
 }
 
-// Description:
 // Insert (memory allocation performed) the tuple onto the end of the array.
 int vtkFloatArray::InsertNextTuple(const float * tuple)
 {
@@ -266,7 +255,6 @@ int vtkFloatArray::InsertNextTuple(const float * tuple)
 
 }
 
-// Description:
 // Return the data component at the ith tuple and jth component location.
 // Note that i<NumberOfTuples and j<NumberOfComponents.
 float vtkFloatArray::GetComponent(const int i, const int j)
@@ -274,7 +262,6 @@ float vtkFloatArray::GetComponent(const int i, const int j)
   return this->GetValue(i*this->NumberOfComponents + j);
 }
 
-// Description:
 // Set the data component at the ith tuple and jth component location.
 // Note that i<NumberOfTuples and j<NumberOfComponents. Make sure enough
 // memory has been allocated (use SetNumberOfTuples() and 
@@ -284,7 +271,6 @@ void vtkFloatArray::SetComponent(const int i, const int j, const float c)
   this->SetValue(i*this->NumberOfComponents + j, c);
 }
 
-// Description:
 // Insert the data component at ith tuple and jth component location. 
 // Note that memory allocation is performed as necessary to hold the data.
 void vtkFloatArray::InsertComponent(const int i, const int j, const float c)

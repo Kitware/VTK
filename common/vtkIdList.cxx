@@ -51,7 +51,6 @@ vtkIdList::~vtkIdList()
   this->Ia->Delete();
 }
 
-// Description:
 // Copy an id list by reference counting internal array.
 void vtkIdList::ShallowCopy(vtkIdList& ids)
 {
@@ -63,7 +62,6 @@ void vtkIdList::ShallowCopy(vtkIdList& ids)
     }
 }
 
-// Description:
 // Copy an id list by explicitly copying the internal array.
 void vtkIdList::DeepCopy(vtkIdList& ids)
 {
@@ -73,7 +71,6 @@ void vtkIdList::DeepCopy(vtkIdList& ids)
     }
 }
 
-// Description:
 // Delete specified id from list. Will replace all occurences of id in list.
 void vtkIdList::DeleteId(int Id)
 {
@@ -101,7 +98,6 @@ void vtkIdList::DeleteId(int Id)
 }
 
 #define VTK_TMP_ARRAY_SIZE 500
-// Description:
 // Intersect this list with another vtkIdList. Updates current list according
 // to result of intersection operation.
 void vtkIdList::IntersectWith(vtkIdList& otherIds)

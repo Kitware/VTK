@@ -65,7 +65,6 @@ vtkScalars::~vtkScalars()
     }
 }
 
-// Description:
 // Set the data for this object. The tuple dimension must be consistent with
 // the object.
 void vtkScalars::SetData(vtkDataArray *data)
@@ -84,7 +83,6 @@ void vtkScalars::SetData(vtkDataArray *data)
     }
 }
 
-// Description:
 // Given a list of point ids, return an array of scalar values.
 void vtkScalars::GetScalars(vtkIdList& ptIds, vtkScalars& s)
 {
@@ -97,7 +95,6 @@ void vtkScalars::GetScalars(vtkIdList& ptIds, vtkScalars& s)
     }
 }
 
-// Description:
 // Given a range of point ids [p1,p2], return an array of scalar values.
 // Make sure enough space has been allocated in the vtkScalars object
 // to hold all the values.
@@ -111,7 +108,6 @@ void vtkScalars::GetScalars(int p1, int p2, vtkScalars& fs)
     }
 }
 
-// Description:
 // Determine (rmin,rmax) range of scalar values.
 void vtkScalars::ComputeRange()
 {
@@ -139,7 +135,6 @@ void vtkScalars::ComputeRange()
     }
 }
 
-// Description:
 // Return the range of scalar values. Data returned as pointer to float array
 // of length 2.
 float *vtkScalars::GetRange()
@@ -148,7 +143,6 @@ float *vtkScalars::GetRange()
   return this->Range;
 }
 
-// Description:
 // Return the range of scalar values. Range copied into array provided.
 void vtkScalars::GetRange(float range[2])
 {

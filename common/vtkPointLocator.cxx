@@ -70,7 +70,6 @@ inline int vtkNeighborPoints::InsertNextPoint(int *x)
   return id/3;
 }
 
-// Description:
 // Construct with automatic computation of divisions, averaging
 // 25 points per bucket.
 vtkPointLocator::vtkPointLocator()
@@ -127,7 +126,6 @@ void vtkPointLocator::FreeSearchStructure()
     }
 }
 
-// Description:
 // Given a position x, return the id of the point closest to it.
 int vtkPointLocator::FindClosestPoint(float x[3])
 {
@@ -438,7 +436,6 @@ void vtkPointLocator::GetOverlappingBuckets(float x[3], int ijk[3], float dist)
 // specifically for point insertion
 static float InsertionLevel;
 
-// Description:
 // Initialize the point insertion process. The newPts is an object representing
 // point coordinates into which incremental insertion methods place their 
 // data. Bounds are the box that the points lie in.
@@ -447,7 +444,6 @@ int vtkPointLocator::InitPointInsertion(vtkPoints *newPts, float bounds[6])
   return this->InitPointInsertion(newPts,bounds,0);
 }
 
-// Description:
 // Initialize the point insertion process. The newPts is an object representing
 // point coordinates into which incremental insertion methods place their 
 // data. Bounds are the box that the points lie in.
@@ -533,7 +529,6 @@ int vtkPointLocator::InitPointInsertion(vtkPoints *newPts, float bounds[6],
 }
 
 
-// Description:
 // Incrementally insert a point into search structure. The method returns
 // the insertion location (i.e., point id). You should use the method 
 // IsInsertedPoint() to see whether this point has already been
@@ -571,7 +566,6 @@ int vtkPointLocator::InsertNextPoint(float x[3])
   return this->InsertionPointId++;
 }
 
-// Description:
 // Incrementally insert a point into search structure with a particular
 // index value. You should use the method IsInsertedPoint() to see whether 
 // this point has already been inserted (that is, if you desire to prevent
@@ -607,7 +601,6 @@ void vtkPointLocator::InsertPoint(int ptId, float x[3])
   this->Points->InsertPoint(ptId,x);
 }
 
-// Description:
 // Determine whether point given by x[3] has been inserted into points list.
 // Return id of previously inserted point if this is true, otherwise return
 // -1.
@@ -675,7 +668,6 @@ int vtkPointLocator::IsInsertedPoint(float x[3])
   return -1;
 }
 
-// Description:
 // Given a position x, return the id of the point closest to it. This method
 // is used when performing incremental point insertion.
 int vtkPointLocator::FindClosestInsertedPoint(float x[3])

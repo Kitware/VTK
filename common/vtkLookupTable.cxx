@@ -41,7 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 #include "vtkLookupTable.h"
 
-// Description:
 // Construct with range=(0,1); and hsv ranges set up for rainbow color table 
 // (from red to blue).
 vtkLookupTable::vtkLookupTable(int sze, int ext)
@@ -68,7 +67,6 @@ vtkLookupTable::vtkLookupTable(int sze, int ext)
   this->Table.ReferenceCountingOff();
 };
 
-// Description:
 // Allocate a color table of specified size.
 int vtkLookupTable::Allocate(int sz, int ext) 
 {
@@ -77,7 +75,6 @@ int vtkLookupTable::Allocate(int sz, int ext)
   return this->Table.Allocate(4*this->NumberOfColors,4*ext);
 }
 
-// Description:
 // Set the minimum/maximum scalar values for scalar mapping. Scalar values
 // less than minimum range value are clamped to minimum range value.
 // Scalar values greater than maximum range value are clamped to maximum
@@ -87,7 +84,6 @@ void  vtkLookupTable::SetTableRange(float r[2])
   this->SetTableRange(r[0],r[1]);
 }
 
-// Description:
 // Set the minimum/maximum scalar values for scalar mapping. Scalar values
 // less than minimum range value are clamped to minimum range value.
 // Scalar values greater than maximum range value are clamped to maximum
@@ -104,7 +100,6 @@ void  vtkLookupTable::SetTableRange(float min, float max)
   this->TableRange[1] = max;
 }
 
-// Description:
 // Generate lookup table from hue, saturation, value, alpha min/max values. 
 // Table is built from linear ramp of each value.
 void vtkLookupTable::Build()
@@ -191,7 +186,6 @@ void vtkLookupTable::Build()
   this->BuildTime.Modified();
 }
 
-// Description:
 // Given a scalar value v, return an rgba color value from lookup table.
 unsigned char *vtkLookupTable::MapValue(float v)
 {
@@ -203,7 +197,6 @@ unsigned char *vtkLookupTable::MapValue(float v)
   return this->Table.GetPointer(indx*4);
 }
 
-// Description:
 // Specify the number of values (i.e., colors) in the lookup
 // table. This method simply allocates memory and prepares the table
 // for use with SetTableValue(). It differs from Build() method in
@@ -214,7 +207,6 @@ void vtkLookupTable::SetNumberOfTableValues(int number)
   this->Table.SetNumberOfTuples(number);
 }
 
-// Description:
 // Directly load color into lookup table. Use [0,1] float values for color
 // component specification. Make sure that you've either used the
 // Build() method or used SetNumberOfTableValues() prior to using this method.
@@ -233,7 +225,6 @@ void vtkLookupTable::SetTableValue (int indx, float rgba[4])
   this->Modified();
 }
 
-// Description:
 // Directly load color into lookup table. Use [0,1] float values for color 
 // component specification.
 void vtkLookupTable::SetTableValue(int indx, float r, float g, float b, float a)
@@ -243,7 +234,6 @@ void vtkLookupTable::SetTableValue(int indx, float r, float g, float b, float a)
   this->SetTableValue(indx,rgba);
 }
 
-// Description:
 // Return a rgba color value for the given index into the lookup table. Color
 // components are expressed as [0,1] float values.
 float *vtkLookupTable::GetTableValue (int indx)
@@ -265,7 +255,6 @@ float *vtkLookupTable::GetTableValue (int indx)
   return this->RGBA;
 }
 
-// Description:
 // Return a rgba color value for the given index into the lookup table. Color
 // components are expressed as [0,1] float values.
 void vtkLookupTable::GetTableValue (int indx, float rgba[4])

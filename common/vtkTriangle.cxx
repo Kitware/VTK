@@ -46,7 +46,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkLine.h"
 #include "vtkPointLocator.h"
 
-// Description:
 // Construct the triangle with three points.
 vtkTriangle::vtkTriangle()
 {
@@ -54,6 +53,8 @@ vtkTriangle::vtkTriangle()
   this->PointIds.SetNumberOfIds(3);
 }
 
+// Create a new cell and copy this triangle's information into the cell. Returns a 
+// poiner to the new cell created.
 vtkCell *vtkTriangle::MakeObject()
 {
   vtkCell *cell = vtkTriangle::New();
@@ -401,6 +402,7 @@ void vtkTriangle::Contour(float value, vtkScalars *cellScalars,
     }
 }
 
+// Get the edge specified by edgeId (range 0 to 2) and return that edge's coordinates.
 vtkCell *vtkTriangle::GetEdge(int edgeId)
 {
   int edgeIdPlus1 = edgeId + 1;
@@ -421,9 +423,8 @@ vtkCell *vtkTriangle::GetEdge(int edgeId)
   return &this->Line;
 }
 
-//
-// Plane intersection plus in/out test on triangle.
-//
+// Plane intersection plus in/out test on triangle. The in/out test is 
+// performed using tol as the tolerance.
 int vtkTriangle::IntersectWithLine(float p1[3], float p2[3], float tol, 
                                   float& t, float x[3], float pcoords[3], 
                                   int& subId)
@@ -592,7 +593,6 @@ void vtkTriangle::Derivatives(int vtkNotUsed(subId), float vtkNotUsed(pcoords)[3
     }
 }
 
-// Description:
 // Compute the triangle normal from a points list, and a list of point ids
 // that index into the points list.
 void vtkTriangle::ComputeNormal(vtkPoints *p, int vtkNotUsed(numPts), int *pts, 
@@ -607,7 +607,6 @@ void vtkTriangle::ComputeNormal(vtkPoints *p, int vtkNotUsed(numPts), int *pts,
   vtkTriangle::ComputeNormal(v1,v2,v3,n);
 }
 
-// Description:
 // Compute the circumcenter (center[3]) and radius (method return value) of
 // a triangle defined by the three points x1, x2, and x3. (Note that the
 // coordinates are 2D. 3D points can be used but the z-component will be
@@ -673,7 +672,6 @@ float vtkTriangle::Circumcircle(float  x1[2], float x2[2], float x3[2],
     }
 }
 
-// Description:
 // Given a 2D point x[2], determine the barycentric coordinates of the point.
 // Barycentric coordinates are a natural coordinate system for simplices that
 // express a position as a linear combination of the vertices. For a 
@@ -719,7 +717,6 @@ int vtkTriangle::BarycentricCoords(float x[2], float  x1[2], float x2[2],
     }
 }
 
-// Description:
 // Project triangle defined in 3D to 2D coordinates. Returns 0 if degenerate triangle;
 // non-zero value otherwise. Input points are x1->x3; output 2D points are v1->v3.
 int vtkTriangle::ProjectTo2D(float x1[3], float x2[3], float x3[3],
@@ -771,7 +768,6 @@ static TRIANGLE_CASES triangleCases[] = {
 {{100, 101, 102, -1, -1, -1, -1}}	// 7
 };
 
-// Description:
 // Clip this triangle using scalar value provided. Like contouring, except
 // that it cuts the triangle to produce other triangles.
 void vtkTriangle::Clip(float value, vtkScalars *cellScalars, 
@@ -885,7 +881,6 @@ void vtkTriangle::Clip(float value, vtkScalars *cellScalars,
     }
 }
 
-// Description:
 // Given a point x, determine whether it is inside (within the
 // tolerance squared, tol2) the triangle defined by the three 
 // coordinate values p1, p2, p3. Method is via comparing dot products.

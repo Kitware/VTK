@@ -59,7 +59,6 @@ vtkUnstructuredGrid::vtkUnstructuredGrid ()
   this->Links = NULL;
 }
 
-// Description:
 // Allocate memory space for data insertion. Execute this method before
 // inserting any cells into object.
 void vtkUnstructuredGrid::Allocate (int numCells, int extSize)
@@ -83,7 +82,6 @@ void vtkUnstructuredGrid::Allocate (int numCells, int extSize)
   this->Cells->Delete();
 }
 
-// Description:
 // Shallow construction of object.
 vtkUnstructuredGrid::vtkUnstructuredGrid(const vtkUnstructuredGrid& ug) :
 vtkPointSet(ug)
@@ -112,7 +110,6 @@ vtkUnstructuredGrid::~vtkUnstructuredGrid()
   vtkUnstructuredGrid::Initialize();
 }
 
-// Description:
 // Copy the geometric and topological structure of an input unstructured grid.
 void vtkUnstructuredGrid::CopyStructure(vtkDataSet *ds)
 {
@@ -272,7 +269,6 @@ void vtkUnstructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
   vtkDataSet::PrintSelf(os,indent);
 }
 
-// Description:
 // Insert/create cell in object by type and list of point ids defining
 // cell topology.
 int vtkUnstructuredGrid::InsertNextCell(int type, vtkIdList& ptIds)
@@ -287,7 +283,6 @@ int vtkUnstructuredGrid::InsertNextCell(int type, vtkIdList& ptIds)
     this->Cells->InsertNextCell(type,this->Connectivity->GetInsertLocation(npts));
 }
 
-// Description:
 // Insert/create cell in object by type and list of point ids defining
 // cell topology.
 int vtkUnstructuredGrid::InsertNextCell(int type, int npts, int *pts)
@@ -351,7 +346,6 @@ void vtkUnstructuredGrid::GetCellPoints(int cellId, vtkIdList& ptIds)
     }
 }
 
-// Description:
 // Return a pointer to a list of point ids defining cell. (More efficient than alternative
 // method.)
 void vtkUnstructuredGrid::GetCellPoints(int cellId, int& npts, int* &pts)
@@ -418,7 +412,6 @@ void vtkUnstructuredGrid::Squeeze()
   vtkPointSet::Squeeze();
 }
 
-// Description:
 // Remove a reference to a cell in a particular point's link list. You may 
 // also consider using RemoveCellReference() to remove the references from 
 // all the cell's points to the cell. This operator does not reallocate 
@@ -428,7 +421,6 @@ void vtkUnstructuredGrid::RemoveReferenceToCell(int ptId, int cellId)
   this->Links->RemoveCellReference(cellId, ptId);  
 }
 
-// Description:
 // Add a reference to a cell in a particular point's link list. (You may also
 // consider using AddCellReference() to add the references from all the 
 // cell's points to the cell.) This operator does not realloc memory; use the
@@ -438,7 +430,6 @@ void vtkUnstructuredGrid::AddReferenceToCell(int ptId, int cellId)
   this->Links->AddCellReference(cellId, ptId);  
 }
 
-// Description:
 // Resize the list of cells using a particular point. (This operator assumes
 // that BuildLinks() has been called.)
 void vtkUnstructuredGrid::ResizeCellList(int ptId, int size)
@@ -446,7 +437,6 @@ void vtkUnstructuredGrid::ResizeCellList(int ptId, int size)
   this->Links->ResizeCellList(ptId,size);
 }
 
-// Description:
 // Replace the points defining cell "cellId" with a new set of points. This
 // operator is (typically) used when links from points to cells have not been
 // built (i.e., BuildLinks() has not been executed). Use the operator 
@@ -461,7 +451,6 @@ void vtkUnstructuredGrid::ReplaceCell(int cellId, int npts, int *pts)
   this->Connectivity->ReplaceCell(loc,npts,pts);
 }
 
-// Description:
 // Add a new cell to the cell data structure (after cell links have been
 // built). This method adds the cell and then updates the links from the points
 // to the cells. (Memory is allocated as necessary.)

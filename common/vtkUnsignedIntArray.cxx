@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkUnsignedIntArray.h"
 
-// Description:
 // Instantiate object.
 vtkUnsignedIntArray::vtkUnsignedIntArray(int numComp)
 {
@@ -51,6 +50,7 @@ vtkUnsignedIntArray::vtkUnsignedIntArray(int numComp)
   this->SaveUserArray = 0;
 }
 
+// Desctructor for the vtkUnsignedIntArray class
 vtkUnsignedIntArray::~vtkUnsignedIntArray()
 {
   if ((this->Array) && (!this->SaveUserArray))
@@ -59,7 +59,6 @@ vtkUnsignedIntArray::~vtkUnsignedIntArray()
     }
   delete [] this->Tuple;
 }
-// Description:
 // This method lets the user specify data to be held by the array.  The 
 // array argument is a pointer to the data.  size is the size of 
 // the array supplied by the user.  Set save to 1 to keep the class
@@ -86,7 +85,6 @@ void vtkUnsignedIntArray::SetArray(unsigned int* array, int size, int save)
   this->SaveUserArray = save;
 }
 
-// Description:
 // Allocate memory for this array. Delete old storage only if necessary.
 int vtkUnsignedIntArray::Allocate(const int sz, const int ext)
 {
@@ -110,7 +108,6 @@ int vtkUnsignedIntArray::Allocate(const int sz, const int ext)
   return 1;
 }
 
-// Description:
 // Release storage and reset array to initial state.
 void vtkUnsignedIntArray::Initialize()
 {
@@ -124,7 +121,6 @@ void vtkUnsignedIntArray::Initialize()
   this->SaveUserArray = 0;
 }
 
-// Description:
 // Deep copy of another unsigned int array.
 void vtkUnsignedIntArray::DeepCopy(vtkDataArray& sa)
 {
@@ -205,14 +201,12 @@ unsigned int *vtkUnsignedIntArray::Resize(const int sz)
 }
 
 
-// Description:
 // Set the number of n-tuples in the array.
 void vtkUnsignedIntArray::SetNumberOfTuples(const int number)
 {
   this->SetNumberOfValues(number*this->NumberOfComponents);
 }
 
-// Description:
 // Get a pointer to a tuple at the ith location. This is a dangerous method
 // (it is not thread safe since a pointer is returned).
 float *vtkUnsignedIntArray::GetTuple(const int i) 
@@ -232,7 +226,6 @@ float *vtkUnsignedIntArray::GetTuple(const int i)
   return this->Tuple;
 }
 
-// Description:
 // Copy the tuple value into a user-provided array.
 void vtkUnsignedIntArray::GetTuple(const int i, float * tuple) 
 {
@@ -243,7 +236,6 @@ void vtkUnsignedIntArray::GetTuple(const int i, float * tuple)
     }
 }
 
-// Description:
 // Set the tuple value at the ith location in the array.
 void vtkUnsignedIntArray::SetTuple(const int i, const float * tuple)
 {
@@ -255,7 +247,6 @@ void vtkUnsignedIntArray::SetTuple(const int i, const float * tuple)
     }
 }
 
-// Description:
 // Insert (memory allocation performed) the tuple into the ith location
 // in the array.
 void vtkUnsignedIntArray::InsertTuple(const int i, const float * tuple)
@@ -268,7 +259,6 @@ void vtkUnsignedIntArray::InsertTuple(const int i, const float * tuple)
     }
 }
 
-// Description:
 // Insert (memory allocation performed) the tuple onto the end of the array.
 int vtkUnsignedIntArray::InsertNextTuple(const float * tuple)
 {

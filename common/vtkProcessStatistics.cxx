@@ -89,7 +89,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #endif /* no HAVE_GETPAGESIZE */
 #endif _WIN32
 
-// Description:
 // Construct the ProcessStatistics with eight points.
 vtkProcessStatistics::vtkProcessStatistics()
 {

@@ -41,7 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkProp2D.h"
 #include "vtkProperty2D.h"
 
-// Description:
 // Creates an Prop2D with the following defaults: 
 // position -1, -1 (view coordinates), layer 0, and visibility on.
 vtkProp2D::vtkProp2D()
@@ -54,7 +53,6 @@ vtkProp2D::vtkProp2D()
   this->PositionCoordinate->SetCoordinateSystem(VTK_VIEWPORT);
 }
 
-// Description:
 // Destroy an Prop2D.  If the Prop2D created it's own
 // property, that property is deleted.
 vtkProp2D::~vtkProp2D()
@@ -67,7 +65,6 @@ vtkProp2D::~vtkProp2D()
   this->PositionCoordinate = NULL;
 }
 
-// Description:
 // Set the Prop2D's position in display coordinates.  
 void vtkProp2D::SetDisplayPosition(int XPos, int YPos)
 {
@@ -75,7 +72,6 @@ void vtkProp2D::SetDisplayPosition(int XPos, int YPos)
   this->PositionCoordinate->SetValue((float)XPos,(float)YPos,0.0);
 }
 
-// Description:
 // Returns an Prop2D's property2D.  Creates a property if one
 // doesn't already exist.
 vtkProperty2D *vtkProp2D::GetProperty()

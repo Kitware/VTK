@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkTensors.h"
 
-// Description:
 // Construct object with an initial data array of type float.
 vtkTensors::vtkTensors(int dataType) : vtkAttributeData(dataType)
 {
@@ -104,7 +103,6 @@ int vtkTensors::InsertNextTensor(float t11, float t12, float t13,
   return this->InsertNextTensor(&t);
 }
 
-// Description:
 // Given a list of pt ids, return an array of tensors.
 void vtkTensors::GetTensors(vtkIdList& ptIds, vtkTensors& t)
 {

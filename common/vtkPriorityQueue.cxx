@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkPriorityQueue.h"
 
-// Description:
 // Instantiate priority queue with default size and extension size of 1000.
 vtkPriorityQueue::vtkPriorityQueue()
 {
@@ -56,7 +55,6 @@ vtkPriorityQueue::vtkPriorityQueue()
     }
 }
 
-// Description:
 // Instantiate priority queue with specified size and amount to extend
 // queue (if reallocation required).
 vtkPriorityQueue::vtkPriorityQueue(const int sz, const int ext)
@@ -74,6 +72,7 @@ vtkPriorityQueue::vtkPriorityQueue(const int sz, const int ext)
   this->MaxId = -1;
 }
 
+// Desctructor for the vtkPriorityQueue class
 vtkPriorityQueue::~vtkPriorityQueue()
 {
   this->ItemLocation->Delete();
@@ -83,7 +82,6 @@ vtkPriorityQueue::~vtkPriorityQueue()
     }
 }
 
-// Description:
 // Insert id with priority specified.
 void vtkPriorityQueue::Insert(float priority, int id)
 {
@@ -131,7 +129,6 @@ void vtkPriorityQueue::Insert(float priority, int id)
     this->Array[idx] = temp;
     }
 }
-// Description:
 // Removes item at specified location from tree; then reorders and
 // balances tree. The location == 0 is the root of the tree.
 int vtkPriorityQueue::Pop(float &priority, int location)
@@ -222,6 +219,7 @@ vtkPriorityItem *vtkPriorityQueue::Resize(const int sz)
   return this->Array;
 }
 
+// Reset all of the entries in the queue so they don not have a priority
 void vtkPriorityQueue::Reset()
 {
   this->MaxId = -1;

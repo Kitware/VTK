@@ -44,7 +44,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Construct an instance of vtkImageData with no data.
 vtkImageData::vtkImageData()
 {
@@ -204,7 +203,6 @@ void vtkImageData::GetContinuousIncrements(int extent[6], int &incX,
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method computes the increments from the MemoryOrder and the extent.
 void vtkImageData::ComputeIncrements()
 {
@@ -260,7 +258,6 @@ float vtkImageData::GetScalarComponentAsFloat(int x, int y, int z, int comp)
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This Method returns a pointer to a location in the vtkImageData.
 // Coordinates are in pixel units and are relative to the whole
 // image origin.
@@ -274,7 +271,6 @@ void *vtkImageData::GetScalarPointer(int x, int y, int z)
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // This Method returns a pointer to a location in the vtkImageData.
 // Coordinates are in pixel units and are relative to the whole
 // image origin.
@@ -288,7 +284,6 @@ void *vtkImageData::GetScalarPointerForExtent(int extent[6])
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // This Method returns a pointer to a location in the vtkImageData.
 // Coordinates are in pixel units and are relative to the whole
 // image origin.
@@ -333,7 +328,6 @@ void *vtkImageData::GetScalarPointer(int coordinates[3])
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This Method returns a pointer to the origin of the vtkImageData.
 void *vtkImageData::GetScalarPointer()
 {
@@ -446,7 +440,6 @@ int vtkImageData::GetScalarSize()
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This templated function executes the filter for any type of data.
 template <class IT, class OT>
 static void vtkImageDataCastExecute(vtkImageData *inData, IT *inPtr,
@@ -529,7 +522,6 @@ static void vtkImageDataCastExecute(vtkImageData *inData, T *inPtr,
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method is passed a input and output region, and executes the filter
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for

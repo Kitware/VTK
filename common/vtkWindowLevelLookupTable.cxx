@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 #include "vtkWindowLevelLookupTable.h"
 
-// Description:
 // Construct with range=(0,1); and hsv ranges set up for rainbow color table 
 // (from red to blue).
 vtkWindowLevelLookupTable::vtkWindowLevelLookupTable(int sze, int ext):
@@ -61,7 +60,6 @@ vtkLookupTable(sze,ext)
   this->Table.ReferenceCountingOff();
 };
 
-// Description:
 // Generate lookup table from window and level.
 // Table is built as a linear ramp, centered at Level and of width Window.
 void vtkWindowLevelLookupTable::Build()
@@ -155,7 +153,6 @@ void vtkWindowLevelLookupTable::Build()
   this->BuildTime.Modified();
 }
 
-// Description::
 // Convert scalar value to a table index
 int vtkWindowLevelLookupTable:: MapScalarToIndex (float scalar)
 {

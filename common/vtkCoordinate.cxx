@@ -43,7 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #define VTK_RINT(x) ((x > 0.0) ? (int)(x + 0.5) : (int)(x - 0.5))
 
-// Description:
 // Creates an Coordinate with the following defaults: 
 // value of  0, 0, 0 in world  coordinates
 vtkCoordinate::vtkCoordinate()
@@ -57,7 +56,6 @@ vtkCoordinate::vtkCoordinate()
   this->Computing = 0;
 }
 
-// Description:
 // Destroy a Coordinate.  
 vtkCoordinate::~vtkCoordinate()
 {

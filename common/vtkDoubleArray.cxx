@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkDoubleArray.h"
 
-// Description:
 // Instantiate object.
 vtkDoubleArray::vtkDoubleArray(int numComp)
 {
@@ -51,6 +50,7 @@ vtkDoubleArray::vtkDoubleArray(int numComp)
   this->SaveUserArray = 0;
 }
 
+// Desctructor for vtkDoubleArray object.
 vtkDoubleArray::~vtkDoubleArray()
 {
   if ((this->Array) && (!this->SaveUserArray))
@@ -60,7 +60,6 @@ vtkDoubleArray::~vtkDoubleArray()
   delete [] this->Tuple;
 }
 
-// Description:
 // This method lets the user specify data to be held by the array.  The 
 // array argument is a pointer to the data.  size is the size of 
 // the array supplied by the user.  Set save to 1 to keep the class
@@ -88,7 +87,6 @@ void vtkDoubleArray::SetArray(double* array, int size, int save)
   this->SaveUserArray = save;
 }
 
-// Description:
 // Allocate memory for this array. Delete old storage only if necessary.
 int vtkDoubleArray::Allocate(const int sz, const int ext)
 {
@@ -113,7 +111,6 @@ int vtkDoubleArray::Allocate(const int sz, const int ext)
   return 1;
 }
 
-// Description:
 // Release storage and reset array to initial state.
 void vtkDoubleArray::Initialize()
 {
@@ -127,7 +124,6 @@ void vtkDoubleArray::Initialize()
   this->SaveUserArray = 0;
 }
 
-// Description:
 // Deep copy of another double array.
 void vtkDoubleArray::DeepCopy(vtkDataArray& fa)
 {
@@ -205,14 +201,12 @@ double *vtkDoubleArray::Resize(const int sz)
   return this->Array;
 }
 
-// Description:
 // Set the number of n-tuples in the array.
 void vtkDoubleArray::SetNumberOfTuples(const int number)
 {
   this->SetNumberOfValues(number*this->NumberOfComponents);
 }
 
-// Description:
 // Get a pointer to a tuple at the ith location. This is a dangerous method
 // (it is not thread safe since a pointer is returned).
 float *vtkDoubleArray::GetTuple(const int i) 
@@ -232,7 +226,6 @@ float *vtkDoubleArray::GetTuple(const int i)
   return this->Tuple;
 }
 
-// Description:
 // Copy the tuple value into a user-provided array.
 void vtkDoubleArray::GetTuple(const int i, float * tuple)
 {
@@ -243,7 +236,6 @@ void vtkDoubleArray::GetTuple(const int i, float * tuple)
     }
 }
 
-// Description:
 // Set the tuple value at the ith location in the array.
 void vtkDoubleArray::SetTuple(const int i, const float * tuple)
 {
@@ -254,7 +246,6 @@ void vtkDoubleArray::SetTuple(const int i, const float * tuple)
     }
 }
 
-// Description:
 // Insert (memory allocation performed) the tuple into the ith location
 // in the array.
 void vtkDoubleArray::InsertTuple(const int i, const float * tuple)
@@ -267,7 +258,6 @@ void vtkDoubleArray::InsertTuple(const int i, const float * tuple)
     }
 }
 
-// Description:
 // Insert (memory allocation performed) the tuple onto the end of the array.
 int vtkDoubleArray::InsertNextTuple(const float * tuple)
 {

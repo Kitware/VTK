@@ -77,7 +77,6 @@ void vtkImageSimpleCache::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // This Method deletes any data in cache.
 void vtkImageSimpleCache::ReleaseData()
 {
@@ -115,7 +114,6 @@ vtkImageData *vtkImageSimpleCache::UpdateAndReturnData()
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method updates the region specified by "UpdateExtent".  
 void vtkImageSimpleCache::Update()
 {
@@ -174,7 +172,6 @@ void vtkImageSimpleCache::Update()
 
 
 //----------------------------------------------------------------------------
-// Description:
 // return the un filled data of the UpdateExtent in this cache.
 vtkImageData *vtkImageSimpleCache::GetData()
 {

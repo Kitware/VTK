@@ -44,7 +44,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
-// Description:
 // Create a vtkViewport with a black background, a white ambient light, 
 // two-sided lighting turned on, a viewport of (0,0,1,1), and backface culling
 // turned off.
@@ -122,7 +121,6 @@ void vtkViewport::RemoveActor2D(vtkActor2D* actor)
 
 
 
-// Description:
 // Convert display coordinates to view coordinates.
 void vtkViewport::DisplayToView()
 {
@@ -144,7 +142,6 @@ void vtkViewport::DisplayToView()
   this->SetViewPoint(vx*this->Aspect[0],vy*this->Aspect[1],vz);
 }
 
-// Description:
 // Convert view coordinates to display coordinates.
 void vtkViewport::ViewToDisplay()
 {
@@ -167,7 +164,6 @@ void vtkViewport::ViewToDisplay()
   this->SetDisplayPoint(dx,dy,this->ViewPoint[2]);
 }
 
-// Description:
 // Convert view point coordinates to world coordinates.
 void vtkViewport::ViewToWorld()
 {   
@@ -175,7 +171,6 @@ void vtkViewport::ViewToWorld()
 		      this->ViewPoint[2], 1);
 }
 
-// Description:
 // Convert world point coordinates to view coordinates.
 void vtkViewport::WorldToView()
 {
@@ -186,7 +181,6 @@ void vtkViewport::WorldToView()
 }
 
 
-// Description:
 // Return the size of the viewport in display coordinates.
 int *vtkViewport::GetSize()
 {  
@@ -204,7 +198,6 @@ int *vtkViewport::GetSize()
   return this->Size;
 }
 
-// Description:
 // Return the origin of the viewport in display coordinates.
 int *vtkViewport::GetOrigin()
 {
@@ -218,7 +211,6 @@ int *vtkViewport::GetOrigin()
 }
 
   
-// Description:
 // Return the center of this Viewport in display coordinates.
 float *vtkViewport::GetCenter()
 {
@@ -235,7 +227,6 @@ float *vtkViewport::GetCenter()
   return this->Center;
 }
 
-// Description:
 // Is a given display point in this Viewport's viewport.
 int vtkViewport::IsInViewport(int x,int y)
 {
@@ -255,7 +246,6 @@ int vtkViewport::IsInViewport(int x,int y)
   return 0;
 }
 
-// Description:
 // Specify a function to be called before rendering process begins.
 // Function will be called with argument provided.
 void vtkViewport::SetStartRenderMethod(void (*f)(void *), void *arg)
@@ -273,7 +263,6 @@ void vtkViewport::SetStartRenderMethod(void (*f)(void *), void *arg)
     }
 }
 
-// Description:
 // Set the arg delete method. This is used to free user memory.
 void vtkViewport::SetStartRenderMethodArgDelete(void (*f)(void *))
 {
@@ -284,7 +273,6 @@ void vtkViewport::SetStartRenderMethodArgDelete(void (*f)(void *))
     }
 }
 
-// Description:
 // Set the arg delete method. This is used to free user memory.
 void vtkViewport::SetEndRenderMethodArgDelete(void (*f)(void *))
 {
@@ -295,7 +283,6 @@ void vtkViewport::SetEndRenderMethodArgDelete(void (*f)(void *))
     }
 }
 
-// Description:
 // Specify a function to be called when rendering process completes.
 // Function will be called with argument provided.
 void vtkViewport::SetEndRenderMethod(void (*f)(void *), void *arg)

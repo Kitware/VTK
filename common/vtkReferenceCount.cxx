@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkReferenceCount.h"
 
-// Description:
 // Construct with initial reference count = 1 and reference counting on.
 vtkReferenceCount::vtkReferenceCount()
 {
@@ -48,7 +47,6 @@ vtkReferenceCount::vtkReferenceCount()
   this->ReferenceCounting = 1;
 }
 
-// Description:
 // Overload vtkObject's Delete() method. For reference counted objects the
 // Delete() method simply unregisters the use of the object. This may or
 // may not result in the destruction of the object, depending upon whether 
@@ -58,7 +56,6 @@ void vtkReferenceCount::Delete()
   this->UnRegister((vtkObject *)NULL);
 }
 
-// Description:
 // Destructor for reference counted objects. Reference counted objects should 
 // almost always use the combination of new/Delete() to create and delete 
 // objects. Automatic reference counted objects (i.e., creating them on the 
@@ -75,7 +72,6 @@ vtkReferenceCount::~vtkReferenceCount()
     }
 }
 
-// Description:
 // Sets the reference count (use with care)
 void vtkReferenceCount::SetReferenceCount(int ref)
 {
@@ -87,7 +83,6 @@ void vtkReferenceCount::SetReferenceCount(int ref)
   vtkDebugMacro(<< "Reference Count set to " << this->ReferenceCount);
 }
 
-// Description:
 // Increase the reference count (mark as used by another object).
 void vtkReferenceCount::Register(vtkObject* o)
 {
@@ -105,7 +100,6 @@ void vtkReferenceCount::Register(vtkObject* o)
     }
 }
 
-// Description:
 // Decrease the reference count (release by another object).
 void vtkReferenceCount::UnRegister(vtkObject* o)
 {

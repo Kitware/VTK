@@ -124,7 +124,6 @@ vtkDataSet(v)
     }
 }
 
-// Description:
 // Copy the geometric and topological structure of an input rectilinear grid
 // object.
 void vtkRectilinearGrid::CopyStructure(vtkDataSet *ds)
@@ -436,7 +435,6 @@ void vtkRectilinearGrid::ComputeBounds()
                         this->ZCoordinates->GetNumberOfScalars()-1);
 }
 
-// Description:
 // Set dimensions of rectilinear grid dataset.
 void vtkRectilinearGrid::SetDimensions(int i, int j, int k)
 {
@@ -448,7 +446,6 @@ void vtkRectilinearGrid::SetDimensions(int i, int j, int k)
   this->SetDimensions(dim);
 }
 
-// Description:
 // Set dimensions of rectilinear grid dataset.
 void vtkRectilinearGrid::SetDimensions(int dim[3])
 {
@@ -465,7 +462,6 @@ void vtkRectilinearGrid::SetDimensions(int dim[3])
     }
 }
 
-// Description:
 // Convenience function computes the structured coordinates for a point x[3].
 // The cell is specified by the array ijk[3], and the parametric coordinates
 // in the cell are specified with pcoords[3]. The function returns a 0 if the

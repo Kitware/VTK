@@ -43,7 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <string.h>
 #include "vtkWindow.h"
 
-// Description:
 // Construct an instance of  vtkRenderWindow with its screen size 
 // set to 300x300, borders turned on, positioned at (0,0), double 
 // buffering turned on.
@@ -58,6 +57,7 @@ vtkWindow::vtkWindow()
   this->DoubleBuffer = 0;
 }
 
+// Destructor for the vtkWindow object.
 vtkWindow::~vtkWindow()
 {
   if( this->WindowName )

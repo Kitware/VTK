@@ -45,7 +45,6 @@ vtkImplicitFunction::vtkImplicitFunction()
   this->Transform = NULL;
 }
 
-// Description:
 // Evaluate function at position x-y-z and return value. Point x[3] is
 // transformed through transform (if provided).
 float vtkImplicitFunction::FunctionValue(float x[3])
@@ -77,7 +76,6 @@ float vtkImplicitFunction::FunctionValue(float x[3])
     }
 }
 
-// Description:
 // Evaluate function gradient at position x-y-z and pass back vector. Point
 // x[3] is transformed through transform (if provided).
 void vtkImplicitFunction::FunctionGradient(float x[3], float g[3])
@@ -108,7 +106,6 @@ void vtkImplicitFunction::FunctionGradient(float x[3], float g[3])
     }
 }
 
-// Description:
 // Overload standard modified time function. If Transform is modified,
 // then this object is modified as well.
 unsigned long vtkImplicitFunction::GetMTime()

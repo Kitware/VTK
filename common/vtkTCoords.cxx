@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkTCoords.h"
 
-// Description:
 // Construct object with an initial data array of type float and initial
 // texture dimension of 2.
 vtkTCoords::vtkTCoords(int dataType, int dim) : vtkAttributeData(dataType)
@@ -49,7 +48,6 @@ vtkTCoords::vtkTCoords(int dataType, int dim) : vtkAttributeData(dataType)
   this->Data->SetNumberOfComponents(dim);
 }
 
-// Description:
 // Set the data for this object. The tuple dimension must be consistent with
 // the object.
 void vtkTCoords::SetData(vtkDataArray *data)
@@ -68,7 +66,6 @@ void vtkTCoords::SetData(vtkDataArray *data)
     }
 }
 
-// Description:
 // Given a list of pt ids, return an array of texture coordinates.
 void vtkTCoords::GetTCoords(vtkIdList& ptIds, vtkTCoords& tc)
 {

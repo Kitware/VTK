@@ -72,7 +72,6 @@ vtkPointSet::~vtkPointSet ()
     }
 }
 
-// Description:
 // Copy the geometric structure of an input point set object.
 void vtkPointSet::CopyStructure(vtkDataSet *ds)
 {

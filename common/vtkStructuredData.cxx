@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkStructuredData.h"
 
-// Description:
 // Return the topological dimension of the data (e.g., 0, 1, 2, or 3D).
 int vtkStructuredData::GetDataDimension(int dataDescription)
 {
@@ -59,7 +58,6 @@ int vtkStructuredData::GetDataDimension(int dataDescription)
     }
 }
 
-// Description:
 // Specify the dimensions of a regular, rectangular dataset. The input is
 // the new dimensions (inDim) and the current dimensions (dim). The function 
 // returns the dimension of the dataset (0-3D). If the dimensions are 
@@ -129,7 +127,6 @@ int vtkStructuredData::SetDimensions(int inDim[3], int dim[3])
   return dataDescription;
 }
 
-// Description:
 // Get the points defining a cell. (See vtkDataSet for more info.)
 void vtkStructuredData::GetCellPoints(int cellId, vtkIdList& ptIds,
                                       int dataDescription, int dim[3])
@@ -206,7 +203,6 @@ void vtkStructuredData::GetCellPoints(int cellId, vtkIdList& ptIds,
     }
 }
 
-// Description:
 // Get the cells using a point. (See vtkDataSet for more info.)
 void vtkStructuredData::GetPointCells(int ptId, vtkIdList& cellIds, int dim[3])
 {

@@ -46,7 +46,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCellArray.h"
 #include "vtkPriorityQueue.h"
 
-// Description:
 // Instantiate polygon.
 vtkPolygon::vtkPolygon()
 {
@@ -74,7 +73,6 @@ vtkCell *vtkPolygon::MakeObject()
 // through the GetCell(id) method in the DataSet objects.
 //
 
-// Description:
 // Compute the polygon normal from a points list, and a list of point ids
 // that index into the points list. This version will handle non-convex
 // polygons.
@@ -120,7 +118,6 @@ void vtkPolygon::ComputeNormal(vtkPoints *p, int numPts, int *pts, float *n)
   vtkMath::Normalize(n);
 }
 
-// Description:
 // Compute the polygon normal from a list of floating points. This version
 // will handle non-convex polygons.
 void vtkPolygon::ComputeNormal(vtkPoints *p, float *n)
@@ -155,7 +152,6 @@ void vtkPolygon::ComputeNormal(vtkPoints *p, float *n)
   vtkMath::Normalize(n);
 }
 
-// Description:
 // Compute the polygon normal from an array of points. This version assumes that
 // the polygon is convex, and looks for the first valid normal.
 void vtkPolygon::ComputeNormal (int numPts, float *pts, float n[3])
@@ -270,7 +266,6 @@ void vtkPolygon::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3],
   this->ComputeWeights(x,weights);
 }
 
-// Description:
 // Create a local s-t coordinate system for a polygon. The point p0 is
 // the origin of the local system, p10 is s-axis vector, and p20 is the 
 // t-axis vector. (These are expressed in the modelling coordinate system and
@@ -360,7 +355,6 @@ int vtkPolygon::ParameterizePolygon(float *p0, float *p10, float& l10,
 #define TRUE 1
 #endif
 
-// Description:
 // Determine whether point is inside polygon. Function uses ray-casting
 // to determine if point is inside polygon. Works for arbitrary polygon shape
 // (e.g., non-convex). Returns 0 if point is not in polygon; 1 if it is.
@@ -528,7 +522,6 @@ int vtkPolygon::PointInPolygon (float x[3], int numPts, float *pts,
 
 #define VTK_POLYGON_TOLERANCE 1.0e-06
 
-// Description:
 // Triangulate polygon. Tries to use the fast triangulation technique 
 // first, and if that doesn't work, uses more complex routine that is
 //  guaranteed to work.
@@ -573,7 +566,6 @@ int vtkPolygon::Triangulate(vtkIdList &outTris)
     }
 }
 
-// Description: 
 // A fast triangulation method. Uses recursive divide and 
 // conquer based on plane splitting  to reduce loop into triangles.  
 // The cell (e.g., triangle) is presumed properly initialized (i.e., 
@@ -657,7 +649,6 @@ int vtkPolygon::RecursiveTriangulate (int numVerts, int *verts)
     }
 }
 
-// Description:
 // Determine whether the loop can be split. Determines this by first checking
 // to see whether points in each loop are on opposite sides of the split
 // plane. If so, then the loop can be split; otherwise see whether one of the
@@ -794,7 +785,6 @@ int vtkPolygon::CanSplitLoop (int fedges[2], int numVerts, int *verts,
     }
 }
 
-// Description:
 // Creates two loops from splitting plane provided
 void vtkPolygon::SplitLoop (int fedges[2], int numVerts, int *verts, 
                            int& n1, int *l1, int& n2, int* l2)
@@ -971,7 +961,6 @@ vtkCell *vtkPolygon::GetEdge(int edgeId)
 }
 
 //
-// Description:
 // Compute interpolation weights using 1/r**2 normalized sum.
 //
 void vtkPolygon::ComputeWeights(float x[3], float *weights)
@@ -1227,7 +1216,6 @@ void vtkPolygon::Clip(float value, vtkScalars *cellScalars,
   delete [] polyVerts;
 }
 
-// Description:
 // Method intersects two polygons. You must supply the number of points and
 // point coordinates (npts, *pts) and the bounding box (bounds) of the two
 // polygons. Also supply a tolerance squared for controlling

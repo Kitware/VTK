@@ -72,7 +72,6 @@ vtkCellArray::~vtkCellArray()
 }
 
 
-// Description:
 // Returns the size of the largest cell. The size is the number of points
 // defining the cell.
 int vtkCellArray::GetMaxCellSize()

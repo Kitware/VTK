@@ -270,7 +270,6 @@ void vtkTriangleStrip::Derivatives(int subId, float pcoords[3], float *values,
   this->Triangle.Derivatives(0, pcoords, values, dim, derivs);
 }
 
-// Description:
 // Given a list of triangle strips, decompose into a list of (triangle) 
 // polygons. The polygons are appended to the end of the list of polygons.
 void vtkTriangleStrip::DecomposeStrips(vtkCellArray *strips, vtkCellArray *polys)
@@ -344,7 +343,6 @@ void vtkTriangleStrip::Clip(float value, vtkScalars *cellScalars,
   triScalars->Delete();
 }
 
-// Description:
 // Return the center of the point cloud in parametric coordinates.
 inline int vtkTriangleStrip::GetParametricCenter(float pcoords[3])
 {

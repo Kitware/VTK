@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkUnsignedCharArray.h"
 
-// Description:
 // Instantiate object.
 vtkUnsignedCharArray::vtkUnsignedCharArray(int numComp)
 {
@@ -60,7 +59,6 @@ vtkUnsignedCharArray::~vtkUnsignedCharArray()
   delete [] this->Tuple;
 }
 
-// Description:
 // This method lets the user specify data to be held by the array.  The 
 // array argument is a pointer to the data.  size is the size of 
 // the array supplied by the user.  Set save to 1 to keep the class
@@ -88,7 +86,6 @@ void vtkUnsignedCharArray::SetArray(unsigned char* array, int size, int save)
   this->SaveUserArray = save;
 }
 
-// Description:
 // Allocate memory for this array. Delete old storage only if necessary.
 int vtkUnsignedCharArray::Allocate(const int sz, const int ext)
 {
@@ -112,7 +109,6 @@ int vtkUnsignedCharArray::Allocate(const int sz, const int ext)
   return 1;
 }
 
-// Description:
 // Release storage and reset array to initial state.
 void vtkUnsignedCharArray::Initialize()
 {
@@ -126,7 +122,6 @@ void vtkUnsignedCharArray::Initialize()
   this->SaveUserArray = 0;
 }
 
-// Description:
 // Deep copy of another unsigned char array.
 void vtkUnsignedCharArray::DeepCopy(vtkDataArray& ia)
 {
@@ -208,14 +203,12 @@ unsigned char *vtkUnsignedCharArray::Resize(const int sz)
   return this->Array;
 }
 
-// Description:
 // Set the number of n-tuples in the array.
 void vtkUnsignedCharArray::SetNumberOfTuples(const int number)
 {
   this->SetNumberOfValues(number*this->NumberOfComponents);
 }
 
-// Description:
 // Get a pointer to a tuple at the ith location. This is a dangerous method
 // (it is not thread safe since a pointer is returned).
 float *vtkUnsignedCharArray::GetTuple(const int i) 
@@ -235,7 +228,6 @@ float *vtkUnsignedCharArray::GetTuple(const int i)
   return this->Tuple;
 }
 
-// Description:
 // Copy the tuple value into a user-provided array.
 void vtkUnsignedCharArray::GetTuple(const int i, float * tuple) 
 {
@@ -246,7 +238,6 @@ void vtkUnsignedCharArray::GetTuple(const int i, float * tuple)
     }
 }
 
-// Description:
 // Set the tuple value at the ith location in the array.
 void vtkUnsignedCharArray::SetTuple(const int i, const float * tuple)
 {
@@ -257,7 +248,6 @@ void vtkUnsignedCharArray::SetTuple(const int i, const float * tuple)
     }
 }
 
-// Description:
 // Insert (memory allocation performed) the tuple into the ith location
 // in the array.
 void vtkUnsignedCharArray::InsertTuple(const int i, const float * tuple)
@@ -270,7 +260,6 @@ void vtkUnsignedCharArray::InsertTuple(const int i, const float * tuple)
     }
 }
 
-// Description:
 // Insert (memory allocation performed) the tuple onto the end of the array.
 int vtkUnsignedCharArray::InsertNextTuple(const float * tuple)
 {
@@ -285,7 +274,6 @@ int vtkUnsignedCharArray::InsertNextTuple(const float * tuple)
   return this->MaxId / this->NumberOfComponents;
 }
 
-// Description:
 // Return the data component at the ith tuple and jth component location.
 // Note that i<NumberOfTuples and j<NumberOfComponents.
 float vtkUnsignedCharArray::GetComponent(const int i, const int j)
@@ -293,7 +281,6 @@ float vtkUnsignedCharArray::GetComponent(const int i, const int j)
   return (float) this->GetValue(i*this->NumberOfComponents + j);
 }
 
-// Description:
 // Set the data component at the ith tuple and jth component location.
 // Note that i<NumberOfTuples and j<NumberOfComponents. Make sure enough
 // memory has been allocated (use SetNumberOfTuples() and 
@@ -303,7 +290,6 @@ void vtkUnsignedCharArray::SetComponent(const int i, const int j, const float c)
   this->SetValue(i*this->NumberOfComponents + j, (unsigned char)c);
 }
 
-// Description:
 // Insert the data component at ith tuple and jth component location. 
 // Note that memory allocation is performed as necessary to hold the data.
 void vtkUnsignedCharArray::InsertComponent(const int i, const int j, const float c)

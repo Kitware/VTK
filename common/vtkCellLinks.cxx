@@ -74,7 +74,6 @@ vtkCellLinks::~vtkCellLinks()
   delete [] this->Array;
 }
 
-// Description:
 // Allocate memory for the list of lists of cell ids.
 void vtkCellLinks::AllocateLinks(int n)
 {
@@ -84,7 +83,6 @@ void vtkCellLinks::AllocateLinks(int n)
     }
 }
 
-// Description:
 // Reclaim any unused memory.
 void vtkCellLinks::Squeeze()
 {
@@ -134,7 +132,6 @@ _vtkLink_s *vtkCellLinks::Resize(int sz)
   return this->Array;
 }
 
-// Description:
 // Build the link list array.
 void vtkCellLinks::BuildLinks(vtkDataSet *data)
 {
@@ -181,7 +178,6 @@ void vtkCellLinks::BuildLinks(vtkDataSet *data)
   delete [] linkLoc;
 }
 
-// Description:
 // Insert a new point into the cell-links data structure. The size parameter
 // is the initial size of the list.
 int vtkCellLinks::InsertNextPoint(int numLinks)

@@ -42,7 +42,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageCache.h"
 
 //----------------------------------------------------------------------------
-// Description:
 // Constructor:  By default caches ReleaseDataFlags are turned off. However,
 // the vtkImageSource method CheckCache, which create a default cache, 
 // turns this flag on.  If a cache is created and set explicitely, by 
@@ -283,7 +282,6 @@ void vtkImageCache::GetUpdateExtent(int &xMin, int &xMax, int &yMin, int &yMax,
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // This method updates the instance variables "WholeExtent", "Spacing", 
 // "Origin", "Bounds" etc.
 // It needs to be separate from "Update" because the image information
@@ -301,7 +299,6 @@ void vtkImageCache::UpdateImageInformation()
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // Clip updateExtent so it will nopt be larger than WHoleExtent
 void vtkImageCache::ClipUpdateExtentWithWholeExtent()
 {
@@ -332,7 +329,6 @@ void vtkImageCache::ClipUpdateExtentWithWholeExtent()
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // Make this a separate method to avoid another GetPipelineMTime call.
 unsigned long vtkImageCache::GetPipelineMTime()
 {
@@ -476,7 +472,6 @@ int  vtkImageCache::GetGlobalReleaseDataFlag()
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // Return flag indicating whether data should be released after use  
 // by a filter. 
 int vtkImageCache::ShouldIReleaseData()
@@ -493,7 +488,6 @@ int vtkImageCache::ShouldIReleaseData()
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // This method returns the memory that would be required for scalars on update.
 // The returned value is in units KBytes.
 // This method is used for determining when to stream.
@@ -543,7 +537,6 @@ long vtkImageCache::GetUpdateExtentMemorySize()
 
 
 //----------------------------------------------------------------------------
-// Description:  
 // This method is used translparently by the "SetInput(vtkImageCache *)"
 // method to connect the image pipeline to the visualization pipeline.
 vtkImageToStructuredPoints *vtkImageCache::GetImageToStructuredPoints()

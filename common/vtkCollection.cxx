@@ -43,7 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkCollection.h"
 
-// Description:
 // Construct with empty list.
 vtkCollection::vtkCollection()
 {
@@ -53,19 +52,19 @@ vtkCollection::vtkCollection()
   this->Current = NULL;
 }
 
+// Desctructor for the vtkCollection class. This removes all 
+// objects from the collection.
 vtkCollection::~vtkCollection()
 {
   this->RemoveAllItems();
 }
 
-// Description:
 // protected function to delete an element. Internal use only.
 void vtkCollection::DeleteElement(vtkCollectionElement *e)
 {
   delete e;
 }
 
-// Description:
 // Add an object to the list. Does not prevent duplicate entries.
 void vtkCollection::AddItem(vtkObject *a)
 {
@@ -89,7 +88,6 @@ void vtkCollection::AddItem(vtkObject *a)
   this->NumberOfItems++;
 }
 
-// Description:
 // Remove an object from the list. Removes the first object found, not
 // all occurrences. If no object found, list is unaffected.  See warning
 // in description of RemoveItem(int).
@@ -118,7 +116,6 @@ void vtkCollection::RemoveItem(vtkObject *a)
     }
 }
 
-// Description:
 // Remove all objects from the list.
 void vtkCollection::RemoveAllItems()
 {
@@ -130,7 +127,6 @@ void vtkCollection::RemoveAllItems()
     }
 }
 
-// Description:
 // Search for an object and return location in list. If location == 0,
 // object was not found.
 int vtkCollection::IsItemPresent(vtkObject *a)
@@ -160,7 +156,6 @@ int vtkCollection::IsItemPresent(vtkObject *a)
 }
 
 
-// Description:
 // Return the number of objects in the list.
 int vtkCollection::GetNumberOfItems()
 {
@@ -176,7 +171,6 @@ void vtkCollection::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
-// Description:
 // Get the i'th item in the collection. NULL is returned if i is out
 // of range
 vtkObject *vtkCollection::GetItemAsObject(int i)
@@ -205,7 +199,6 @@ vtkObject *vtkCollection::GetItemAsObject(int i)
 }
 
 
-// Description:
 // Replace the i'th item in the collection with a
 void vtkCollection::ReplaceItem(int i, vtkObject *a)
 {
@@ -225,7 +218,6 @@ void vtkCollection::ReplaceItem(int i, vtkObject *a)
 }
 
 
-// Description:
 // Remove the i'th item in the list.
 // Be careful if using this function during traversal of the list using 
 // GetNextItemAsObject (or GetNextItem in derived class).  The list WILL

@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkProcessObject.h"
 
-// Definition:
 // Instantiate object with no start, end, or progress methods.
 vtkProcessObject::vtkProcessObject()
 {
@@ -57,6 +56,7 @@ vtkProcessObject::vtkProcessObject()
   this->Progress = 0.0;
 }
 
+// Destructor for the vtkProcessObject class
 vtkProcessObject::~vtkProcessObject()
 {
   if ((this->StartMethodArg)&&(this->StartMethodArgDelete))
@@ -73,7 +73,6 @@ vtkProcessObject::~vtkProcessObject()
     }
 }
 
-// Description:
 // Update the progress of the process object. If a ProgressMethod exists, executes it. 
 // Then set the Progress ivar to amount. The parameter amount should range between (0,1).
 void vtkProcessObject::UpdateProgress(float amount)
@@ -85,7 +84,6 @@ void vtkProcessObject::UpdateProgress(float amount)
     }
 }
 
-// Description:
 // Specify function to be called before object executes.
 void vtkProcessObject::SetStartMethod(void (*f)(void *), void *arg)
 {
@@ -102,7 +100,6 @@ void vtkProcessObject::SetStartMethod(void (*f)(void *), void *arg)
     }
 }
 
-// Description:
 // Specify function to be called to show progress of filter
 void vtkProcessObject::SetProgressMethod(void (*f)(void *), void *arg)
 {
@@ -119,7 +116,6 @@ void vtkProcessObject::SetProgressMethod(void (*f)(void *), void *arg)
     }
 }
 
-// Description:
 // Specify function to be called after object executes.
 void vtkProcessObject::SetEndMethod(void (*f)(void *), void *arg)
 {
@@ -137,7 +133,6 @@ void vtkProcessObject::SetEndMethod(void (*f)(void *), void *arg)
 }
 
 
-// Description:
 // Set the arg delete method. This is used to free user memory.
 void vtkProcessObject::SetStartMethodArgDelete(void (*f)(void *))
 {
@@ -148,7 +143,6 @@ void vtkProcessObject::SetStartMethodArgDelete(void (*f)(void *))
     }
 }
 
-// Description:
 // Set the arg delete method. This is used to free user memory.
 void vtkProcessObject::SetProgressMethodArgDelete(void (*f)(void *))
 {
@@ -159,7 +153,6 @@ void vtkProcessObject::SetProgressMethodArgDelete(void (*f)(void *))
     }
 }
 
-// Description:
 // Set the arg delete method. This is used to free user memory.
 void vtkProcessObject::SetEndMethodArgDelete(void (*f)(void *))
 {

@@ -45,7 +45,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDataSet.h"
 #include "vtkSource.h"
 
-// Description:
 // Constructor with default bounds (0,1, 0,1, 0,1).
 vtkDataSet::vtkDataSet ()
 {
@@ -57,7 +56,6 @@ vtkDataSet::vtkDataSet ()
   this->Bounds[5] = 1.0;
 }
 
-// Description:
 // Copy constructor.
 vtkDataSet::vtkDataSet (const vtkDataSet& ds) :
 PointData(ds.PointData)
@@ -80,7 +78,6 @@ void vtkDataSet::Initialize()
   this->PointData.Initialize();
 }
 
-// Description:
 // Compute the data bounding box from data points.
 void vtkDataSet::ComputeBounds()
 {
@@ -146,7 +143,6 @@ float *vtkDataSet::GetScalarRange()
   return this->ScalarRange;
 }
 
-// Description:
 // Return a pointer to the geometry bounding box in the form
 // (xmin,xmax, ymin,ymax, zmin,zmax).
 float *vtkDataSet::GetBounds()
@@ -164,7 +160,6 @@ void vtkDataSet::GetBounds(float bounds[6])
     }
 }
   
-// Description:
 // Get the center of the bounding box.
 float *vtkDataSet::GetCenter()
 {
@@ -185,7 +180,6 @@ void vtkDataSet::GetCenter(float center[3])
     }
 }
   
-// Description:
 // Return the length of the diagonal of the bounding box.
 float vtkDataSet::GetLength()
 {

@@ -74,7 +74,6 @@ tms     vtkTimerLog::FirstCpuTicks;
 tms     vtkTimerLog::CurrentCpuTicks;
 #endif
 
-// Description:
 // Allocate timing table with MaxEntries elements.
 void vtkTimerLog::AllocateLog()
 {
@@ -86,7 +85,6 @@ void vtkTimerLog::AllocateLog()
 }
 
 
-// Description:
 // Clear the timing table.  walltime and cputime will also be set
 // to zero when the first new event is recorded.
 void vtkTimerLog::ResetLog()
@@ -98,7 +96,6 @@ void vtkTimerLog::ResetLog()
 }
 
 
-// Description:
 // Record a timing event.  The event is represented by a formatted
 // string.
 void vtkTimerLog::FormatAndMarkEvent(char *format, ...)
@@ -114,7 +111,6 @@ static  char event[4096];
 }
 
 
-// Description:
 // Record a timing event and capture walltime and cputicks.
 void vtkTimerLog::MarkEvent(char *event)
 {
@@ -186,7 +182,6 @@ void vtkTimerLog::MarkEvent(char *event)
 }
 
 
-// Description:
 // Write the timing table out to a file.  Calculate some helpful
 // statistics (deltas and  percentages) in the process.
 void vtkTimerLog::DumpLog(char *filename)
@@ -255,7 +250,6 @@ void vtkTimerLog::DumpLog(char *filename)
 }
 
 
-// Description:
 // Print method for vtkTimerLog.
 void vtkTimerLog::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -295,7 +289,6 @@ void vtkTimerLog::PrintSelf(ostream& os, vtkIndent indent)
 // Methods to support simple timer functionality, separate from
 // timer table logging.
 
-// Description:
 // Returns the elapsed number of seconds since January 1, 1970. This
 // is also called Universal Coordinated Time.
 double vtkTimerLog::GetCurrentTime()
@@ -317,21 +310,18 @@ double vtkTimerLog::GetCurrentTime()
   return (currentTimeInSeconds);
 }
 
-// Description:
 // Set the StartTime to the current time. Used with GetElapsedTime().
 void vtkTimerLog::StartTimer()
 {
   this->StartTime = vtkTimerLog::GetCurrentTime();
 }
 
-// Description:
 // Sets EndTime to the current time. Used with GetElapsedTime().
 void vtkTimerLog::StopTimer()
 {
   this->EndTime = vtkTimerLog::GetCurrentTime();
 }
 
-// Description:
 // Returns the difference between StartTime and EndTime as 
 // a floating point value indicating the elapsed time in seconds.
 double vtkTimerLog::GetElapsedTime()

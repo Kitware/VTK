@@ -225,7 +225,6 @@ void vtkPolyVertex::Clip(float value, vtkScalars *cellScalars,
     }
 }
 
-// Description:
 // Return the center of the point cloud in parametric coordinates.
 inline int vtkPolyVertex::GetParametricCenter(float pcoords[3])
 {

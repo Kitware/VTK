@@ -58,7 +58,6 @@ long vtkMath::Seed = 1177; // One authors home address
 #define Sign(x)              (( (x) < 0 )?( -1 ):( 1 ))
 // avoid dll boundary problems
 
-// Description:
 // Generate random numbers between 0.0 and 1.0.
 // This is used to provide portability across different systems.
 float vtkMath::Random()
@@ -78,7 +77,6 @@ float vtkMath::Random()
   return ((float) vtkMath::Seed / K_M);
 }
 
-// Description:
 // Initialize seed value. NOTE: Random() has the bad property that 
 // the first random number returned after RandomSeed() is called 
 // is proportional to the seed value! To help solve this, call 
@@ -94,7 +92,6 @@ void vtkMath::RandomSeed(long s)
   vtkMath::Random();
 }
 
-// Description:
 // Cross product of two 3-vectors. Result vector in z[3].
 void vtkMath::Cross(float x[3], float y[3], float z[3])
 {
@@ -106,7 +103,6 @@ void vtkMath::Cross(float x[3], float y[3], float z[3])
 
 #define VTK_SMALL_NUMBER 1.0e-12
 
-// Description:
 // Solve linear equations Ax = b using Crout's method. Input is square matrix A
 // and load vector x. Solution x is written over load vector. The dimension of
 // the matrix is specified in size. If error is found, method returns a 0.
@@ -139,7 +135,6 @@ int vtkMath::SolveLinearSystem(double **A, double *x, int size)
   return 1;
 }
 
-// Description:
 // Invert input square matrix A into matrix AI. Note that A is modified during
 // the inversion. The size variable is the dimension of the matrix. Returns 0
 // if inverse not computed.
@@ -191,7 +186,6 @@ int vtkMath::InvertMatrix(double **A, double **AI, int size)
   return 1;
 }
 
-// Description:
 // Factor linear equations Ax = b using LU decompostion A = LU where L is
 // lower triangular matrix and U is upper triangular matrix. Input is 
 // square matrix A, integer array of pivot indices index[0->n-1], and size
@@ -306,7 +300,6 @@ int vtkMath::LUFactorLinearSystem(double **A, int *index, int size)
 }
 
 
-// Description:
 // Solve linear equations Ax = b using LU decompostion A = LU where L is
 // lower triangular matrix and U is upper triangular matrix. Input is 
 // factored matrix A=LU, integer array of pivot indices index[0->n-1],
@@ -362,7 +355,6 @@ void vtkMath::LUSolveLinearSystem(double **A, int *index, double *x, int size)
 
 #define VTK_MAX_ROTATIONS 20
 
-// Description:
 // Jacobi iteration for the solution of eigenvectors/eigenvalues of a 3x3
 // real symmetric matrix. Square 3x3 matrix a; output eigenvalues in w;
 // and output eigenvectors in v. Resulting eigenvalues/vectors are sorted
@@ -535,7 +527,6 @@ int vtkMath::Jacobi(float **a, float *w, float **v)
 #undef VTK_ROTATE
 #undef VTK_MAX_ROTATIONS
 
-// Description:
 // Estimate the condition number of a LU factored matrix. Used to judge the
 // accuracy of the solution. The matrix A must have been previously factored
 // using the method LUFactorLinearSystem. The condition number is the ratio
@@ -579,7 +570,6 @@ double vtkMath::EstimateMatrixCondition(double **A, int size)
     }
 }
 
-// Description:
 // Solves a cubic equation c0*t^3  + c1*t^2  + c2*t + c3 = 0 when
 // c0, c1, c2, and c3 are REAL.
 // Solution is motivated by Numerical Recipes In C 2nd Ed.
@@ -600,7 +590,6 @@ double* vtkMath::SolveCubic( double c0, double c1, double c2, double c3)
   return roots;
 }
 
-// Description:
 // Solves a cubic equation when c0, c1, c2, And c3 Are REAL.  Solution
 // is motivated by Numerical Recipes In C 2nd Ed.  Roots and number of
 // real roots are stored in user provided variables r1, r2, r3, and
@@ -714,7 +703,6 @@ int vtkMath::SolveCubic( double c0, double c1, double c2, double c3,
     }
 }
 
-// Description:
 // Solves a quadratic equation c1*t^2 + c2*t + c3 = 0 when c1, c2, and
 // c3 are REAL.  Solution is motivated by Numerical Recipes In C 2nd
 // Ed.  Return array contains number of (real) roots (counting
@@ -735,7 +723,6 @@ double* vtkMath::SolveQuadratic( double c1, double c2, double c3)
   return roots;
 }
 
-// Description:
 // Solves A Quadratic Equation c1*t^2  + c2*t  + c3 = 0 when 
 // c1, c2, and c3 are REAL.
 // Solution is motivated by Numerical Recipes In C 2nd Ed.
@@ -792,7 +779,6 @@ int vtkMath::SolveQuadratic( double c1, double c2, double c3,
     }
 }
 
-// Description:
 // Solves a linear equation c2*t  + c3 = 0 when c2 and c3 are REAL.
 // Solution is motivated by Numerical Recipes In C 2nd Ed.
 // Return array contains number of roots followed by roots themselves.
@@ -806,7 +792,6 @@ double* vtkMath::SolveLinear( double c2, double c3)
   return roots;
 }
 
-// Description:
 // Solves a linear equation c2*t + c3 = 0 when c2 and c3 are REAL.
 // Solution is motivated by Numerical Recipes In C 2nd Ed.
 // Root and number of (real) roots are stored in user provided variables

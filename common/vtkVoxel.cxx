@@ -45,7 +45,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCellArray.h"
 #include "vtkPointLocator.h"
 
-// Description:
 // Construct the voxel with eight points.
 vtkVoxel::vtkVoxel()
 {

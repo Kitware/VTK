@@ -86,7 +86,6 @@ vtkStructuredGrid::~vtkStructuredGrid()
   this->PointVisibility = NULL;
 }
 
-// Description:
 // Copy the geometric and topological structure of an input structured grid.
 void vtkStructuredGrid::CopyStructure(vtkDataSet *ds)
 {
@@ -264,7 +263,6 @@ vtkCell *vtkStructuredGrid::GetCell(int cellId)
   return cell;
 }
 
-// Description:
 // Turn on data blanking. Data blanking is the ability to turn off
 // portions of the grid when displaying or operating on it. Some data
 // (like finite difference data) routinely turns off data to simulate
@@ -298,7 +296,6 @@ void vtkStructuredGrid::AllocatePointVisibility()
     }
 }
 
-// Description:
 // Turn off data blanking.
 void vtkStructuredGrid::BlankingOff()
 {
@@ -309,7 +306,6 @@ void vtkStructuredGrid::BlankingOff()
     }
 }
 
-// Description:
 // Turn off a particular data point.
 void vtkStructuredGrid::BlankPoint(int ptId)
 {
@@ -320,7 +316,6 @@ void vtkStructuredGrid::BlankPoint(int ptId)
   this->PointVisibility->InsertScalar(ptId,0);
 }
 
-// Description:
 // Turn on a particular data point.
 void vtkStructuredGrid::UnBlankPoint(int ptId)
 {
@@ -331,7 +326,6 @@ void vtkStructuredGrid::UnBlankPoint(int ptId)
   this->PointVisibility->InsertScalar(ptId,1);
 }
 
-// Description:
 // Set dimensions of structured grid dataset.
 void vtkStructuredGrid::SetDimensions(int i, int j, int k)
 {
@@ -343,7 +337,6 @@ void vtkStructuredGrid::SetDimensions(int i, int j, int k)
   this->SetDimensions(dim);
 }
 
-// Description:
 // Set dimensions of structured grid dataset.
 void vtkStructuredGrid::SetDimensions(int dim[3])
 {

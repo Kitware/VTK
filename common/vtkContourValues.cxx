@@ -41,7 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkContourValues.h"
 #include "vtkFloatArray.h"
 
-// Description:
 // Construct object with a single contour value at 0.0.
 vtkContourValues::vtkContourValues()
 {
@@ -55,7 +54,6 @@ vtkContourValues::~vtkContourValues()
   this->Contours->Delete();
 }
 
-// Description:
 // Set the ith contour value.
 void vtkContourValues::SetValue(int i, float value) 
 {
@@ -69,7 +67,6 @@ void vtkContourValues::SetValue(int i, float value)
     }
 }
 
-// Description:
 // Get the ith contour value. The return value will be clamped if the
 // index i is out of range.
 float vtkContourValues::GetValue(int i) 
@@ -79,7 +76,6 @@ float vtkContourValues::GetValue(int i)
   return this->Contours->GetValue(i);
 }
 
-// Description:
 // Return a pointer to a list of contour values. The contents of the
 // list will be garbage if the number of contours <= 0.
 float *vtkContourValues::GetValues() 
@@ -87,7 +83,6 @@ float *vtkContourValues::GetValues()
   return this->Contours->GetPointer(0);
 }
 
-// Description:
 // Fill a supplied list with contour values. Make sure you've
 // allocated memory of size GetNumberOfContours().
 void vtkContourValues::GetValues(float *contourValues)
@@ -100,7 +95,6 @@ void vtkContourValues::GetValues(float *contourValues)
     }
 }
 
-// Description:
 // Set the number of contours to place into the list. You only really
 // need to use this method to reduce list size. The method SetValue()
 // will automatically increase list size as needed.
@@ -125,7 +119,6 @@ void vtkContourValues::SetNumberOfContours(const int number)
     }
 }
 
-// Description:
 // Generate numContours equally spaced contour values between specified
 // range. Contour values will include min/max range values.
 void vtkContourValues::GenerateValues(int numContours, float rangeStart, 
@@ -138,7 +131,6 @@ void vtkContourValues::GenerateValues(int numContours, float rangeStart,
   this->GenerateValues(numContours,range);
 }
 
-// Description:
 // Generate numContours equally spaced contour values between specified
 // range. Contour values will include min/max range values.
 void vtkContourValues::GenerateValues(int numContours, float range[2])
@@ -161,7 +153,6 @@ void vtkContourValues::GenerateValues(int numContours, float range[2])
     }
 }
 
-// Description:
 // Return the number of contours in the
 int vtkContourValues::GetNumberOfContours() 
 {

@@ -51,7 +51,6 @@ vtkImageSource::vtkImageSource()
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Destructor: Delete the cache as well. (should caches by reference counted?)
 vtkImageSource::~vtkImageSource()
 {
@@ -82,7 +81,6 @@ void vtkImageSource::PrintSelf(ostream& os, vtkIndent indent)
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method can be used to intercept a generate call made to a cache.
 // It allows a source to generate a larger region than was originally 
 // specified.  The default method does not alter the specified region extent.
@@ -92,7 +90,6 @@ void vtkImageSource::InterceptCacheUpdate()
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method can be called directly.
 // It simply forwards the update to the cache.
 void vtkImageSource::Update()
@@ -105,7 +102,6 @@ void vtkImageSource::Update()
 
   
 //----------------------------------------------------------------------------
-// Description:
 // This method is called by the cache.
 void vtkImageSource::InternalUpdate(vtkImageData *data)
 {
@@ -122,7 +118,6 @@ void vtkImageSource::InternalUpdate(vtkImageData *data)
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // This method updates the cache with the whole image extent.
 void vtkImageSource::UpdateWholeExtent()
 {
@@ -132,7 +127,6 @@ void vtkImageSource::UpdateWholeExtent()
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // This function can be defined in a subclass to generate the data
 // for a region.
 void vtkImageSource::Execute(vtkImageData *)
@@ -141,7 +135,6 @@ void vtkImageSource::Execute(vtkImageData *)
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // Returns the cache object of the source.  If one does not exist, a default
 // is created.
 vtkImageCache *vtkImageSource::GetCache()
@@ -154,7 +147,6 @@ vtkImageCache *vtkImageSource::GetCache()
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Returns an object which will generate data for Regions.
 vtkImageCache *vtkImageSource::GetOutput()
 {
@@ -165,7 +157,6 @@ vtkImageCache *vtkImageSource::GetOutput()
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Returns the maximum mtime of this source and every object which effects
 // this sources output. 
 unsigned long vtkImageSource::GetPipelineMTime()
@@ -175,7 +166,6 @@ unsigned long vtkImageSource::GetPipelineMTime()
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Use this method to specify a cache object for the filter.  
 // If a cache has been set previously, it is deleted, and caches
 // are not reference counted yet.  BE CAREFUL.
@@ -205,7 +195,6 @@ void vtkImageSource::SetCache(vtkImageCache *cache)
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // This method sets the value of the caches ReleaseDataFlag.  When this flag
 // is set, the cache releases its data after every generate.  When a default
 // cache is created, this flag is automatically set.
@@ -217,7 +206,6 @@ void vtkImageSource::SetReleaseDataFlag(int value)
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method gets the value of the caches ReleaseDataFlag.
 int vtkImageSource::GetReleaseDataFlag()
 {
@@ -226,7 +214,6 @@ int vtkImageSource::GetReleaseDataFlag()
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // This private method creates a cache if one has not been set.
 // ReleaseDataFlag is turned on.
 void vtkImageSource::CheckCache()
@@ -241,7 +228,6 @@ void vtkImageSource::CheckCache()
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // For streaming and threads.  Splits output update extent into num pieces.
 // This method needs to be called num times.  Results must not overlap for
 // consistent starting extent.  Subclass can override this method.

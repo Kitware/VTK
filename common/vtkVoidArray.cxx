@@ -42,7 +42,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 typedef void *voidPtr;
 
-// Description:
 // Instantiate object.
 vtkVoidArray::vtkVoidArray()
 {
@@ -60,7 +59,6 @@ vtkVoidArray::~vtkVoidArray()
   delete [] this->Tuple;
 }
 
-// Description:
 // Allocate memory for this array. Delete old storage only if necessary.
 int vtkVoidArray::Allocate(const int sz, const int ext)
 {
@@ -81,7 +79,6 @@ int vtkVoidArray::Allocate(const int sz, const int ext)
   return 1;
 }
 
-// Description:
 // Release storage and reset array to initial state.
 void vtkVoidArray::Initialize()
 {
@@ -94,7 +91,6 @@ void vtkVoidArray::Initialize()
   this->MaxId = -1;
 }
 
-// Description:
 // Deep copy of another void array.
 void vtkVoidArray::DeepCopy(vtkDataArray& da)
 {
@@ -161,40 +157,34 @@ void** vtkVoidArray::Resize(const int sz)
 }
 
 
-// Description:
 // Set the number of n-tuples in the array.
 void vtkVoidArray::SetNumberOfTuples(const int number)
 {
   this->SetNumberOfValues(number*this->NumberOfComponents);
 }
 
-// Description:
 // Get a pointer to a tuple at the ith location.
 float *vtkVoidArray::GetTuple(const int vtkNotUsed(i))
 {
   return NULL;
 }
 
-// Description:
 // Copy the tuple value into a user-provided array.
 void vtkVoidArray::GetTuple(const int vtkNotUsed(i), float * vtkNotUsed(tuple))
 {
 }
 
-// Description:
 // Set the tuple value at the ith location in the array.
 void vtkVoidArray::SetTuple(const int vtkNotUsed(i), const float * vtkNotUsed(tuple))
 {
 }
 
-// Description:
 // Insert (memory allocation performed) the tuple into the ith location
 // in the array.
 void vtkVoidArray::InsertTuple(const int vtkNotUsed(i), const float * vtkNotUsed(tuple))
 {
 }
 
-// Description:
 // Insert (memory allocation performed) the tuple onto the end of the array.
 int vtkVoidArray::InsertNextTuple(const float * vtkNotUsed(tuple))
 {

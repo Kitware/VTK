@@ -90,7 +90,6 @@ vtkStructuredPoints::~vtkStructuredPoints()
     }
 }
 
-// Description:
 // Copy the geometric and topological structure of an input structured points 
 // object.
 void vtkStructuredPoints::CopyStructure(vtkDataSet *ds)
@@ -449,7 +448,6 @@ void vtkStructuredPoints::ComputeBounds()
                     (this->Dimensions[2]-1) * this->Spacing[2];
 }
 
-// Description:
 // Given structured coordinates (i,j,k) for a voxel cell, compute the eight 
 // gradient values for the voxel corners. The order in which the gradient
 // vectors are arranged corresponds to the ordering of the voxel points. 
@@ -476,7 +474,6 @@ void vtkStructuredPoints::GetVoxelGradient(int i, int j, int k, vtkScalars *s,
     }
 }
 
-// Description:
 // Given structured coordinates (i,j,k) for a point in a structured point 
 // dataset, compute the gradient vector from the scalar data at that point. 
 // The scalars s are the scalars from which the gradient is to be computed.
@@ -562,7 +559,6 @@ void vtkStructuredPoints::GetPointGradient(int i,int j,int k, vtkScalars *s,
     }
 }
 
-// Description:
 // Set dimensions of structured points dataset.
 void vtkStructuredPoints::SetDimensions(int i, int j, int k)
 {
@@ -574,7 +570,6 @@ void vtkStructuredPoints::SetDimensions(int i, int j, int k)
   this->SetDimensions(dim);
 }
 
-// Description:
 // Set dimensions of structured points dataset.
 void vtkStructuredPoints::SetDimensions(int dim[3])
 {
@@ -594,7 +589,6 @@ void vtkStructuredPoints::SetDimensions(int dim[3])
     }
 }
 
-// Description:
 // Convenience function computes the structured coordinates for a point x[3].
 // The voxel is specified by the array ijk[3], and the parametric coordinates
 // in the cell are specified with pcoords[3]. The function returns a 0 if the

@@ -40,14 +40,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkNormals.h"
 
-// Description:
 // Construct object with an initial data array of type float.
 vtkNormals::vtkNormals(int dataType) : vtkAttributeData(dataType)
 {
   this->Data->SetNumberOfComponents(3);
 }
 
-// Description:
 // Given a list of pt ids, return an array of normals.
 void vtkNormals::GetNormals(vtkIdList& ptIds, vtkNormals& n)
 {

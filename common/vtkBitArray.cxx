@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkBitArray.h"
 
-// Description:
 // Instantiate object.
 vtkBitArray::vtkBitArray(int numComp)
 {
@@ -60,7 +59,6 @@ vtkBitArray::~vtkBitArray()
   delete [] this->Tuple;
 }
 
-// Description:
 // This method lets the user specify data to be held by the array.  The 
 // array argument is a pointer to the data.  size is the size of 
 // the array supplied by the user.  Set save to 1 to keep the class
@@ -88,7 +86,6 @@ void vtkBitArray::SetArray(unsigned char* array, int size, int save)
   this->SaveUserArray = save;
 }
 
-// Description:
 // Get the data at a particular index.
 int vtkBitArray::GetValue(const int id)
 {
@@ -99,7 +96,6 @@ int vtkBitArray::GetValue(const int id)
   return 0;
 }
 
-// Description:
 // Allocate memory for this array. Delete old storage only if necessary.
 int vtkBitArray::Allocate(const int sz, const int ext)
 {
@@ -123,7 +119,6 @@ int vtkBitArray::Allocate(const int sz, const int ext)
   return 1;
 }
 
-// Description:
 // Release storage and reset array to initial state.
 void vtkBitArray::Initialize()
 {
@@ -137,7 +132,6 @@ void vtkBitArray::Initialize()
   this->SaveUserArray = 0;
 }
 
-// Description:
 // Deep copy of another bit array.
 void vtkBitArray::DeepCopy(vtkDataArray& ia)
 {
@@ -220,14 +214,12 @@ unsigned char *vtkBitArray::Resize(const int sz)
 }
 
 
-// Description:
 // Set the number of n-tuples in the array.
 void vtkBitArray::SetNumberOfTuples(const int number)
 {
   this->SetNumberOfValues(number*this->NumberOfComponents);
 }
 
-// Description:
 // Get a pointer to a tuple at the ith location. This is a dangerous method
 // (it is not thread safe since a pointer is returned).
 float *vtkBitArray::GetTuple(const int i)
@@ -248,7 +240,6 @@ float *vtkBitArray::GetTuple(const int i)
   return this->Tuple;
 }
 
-// Description:
 // Copy the tuple value into a user-provided array.
 void vtkBitArray::GetTuple(const int i, float * tuple)
 {
@@ -260,7 +251,6 @@ void vtkBitArray::GetTuple(const int i, float * tuple)
     }
 }
 
-// Description:
 // Set the tuple value at the ith location in the array.
 void vtkBitArray::SetTuple(const int i, const float * tuple)
 {
@@ -272,7 +262,6 @@ void vtkBitArray::SetTuple(const int i, const float * tuple)
     }
 }
 
-// Description:
 // Insert (memory allocation performed) the tuple into the ith location
 // in the array.
 void vtkBitArray::InsertTuple(const int i, const float * tuple)
@@ -285,7 +274,6 @@ void vtkBitArray::InsertTuple(const int i, const float * tuple)
     }
 }
 
-// Description:
 // Insert (memory allocation performed) the tuple onto the end of the array.
 int vtkBitArray::InsertNextTuple(const float * tuple)
 {

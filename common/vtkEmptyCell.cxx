@@ -43,7 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCellArray.h"
 #include "vtkPointLocator.h"
 
-// Description:
 // Deep copy of cell.
 vtkEmptyCell::vtkEmptyCell(const vtkEmptyCell& vtkNotUsed(p))
 {

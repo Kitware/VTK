@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkPoints.h"
 
-// Description:
 // Construct object with an initial data array of type float.
 vtkPoints::vtkPoints(int dataType) : vtkAttributeData(dataType)
 {
@@ -50,7 +49,6 @@ vtkPoints::vtkPoints(int dataType) : vtkAttributeData(dataType)
   this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = 1.0;
 }
 
-// Description:
 // Given a list of pt ids, return an array of points.
 void vtkPoints::GetPoints(vtkIdList& ptIds, vtkPoints& fp)
 {
@@ -62,7 +60,6 @@ void vtkPoints::GetPoints(vtkIdList& ptIds, vtkPoints& fp)
     }
 }
 
-// Description:
 // Determine (xmin,xmax, ymin,ymax, zmin,zmax) bounds of points.
 void vtkPoints::ComputeBounds()
 {
@@ -93,7 +90,6 @@ void vtkPoints::ComputeBounds()
     }
 }
 
-// Description:
 // Return the bounds of the points.
 float *vtkPoints::GetBounds()
 {
@@ -101,7 +97,6 @@ float *vtkPoints::GetBounds()
   return this->Bounds;
 }
 
-// Description:
 // Return the bounds of the points.
 void vtkPoints::GetBounds(float bounds[6])
 {

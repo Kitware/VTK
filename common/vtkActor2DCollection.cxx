@@ -43,7 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkActor2D.h"
 #include "vtkActor2DCollection.h"
 
-// Description:
 // protected function to delete an element. Internal use only.
 void vtkActor2DCollection::DeleteElement(vtkCollectionElement *e)
 {
@@ -51,12 +50,13 @@ void vtkActor2DCollection::DeleteElement(vtkCollectionElement *e)
   vtkCollection::DeleteElement(e);
 }
 
+// Desctructor for the vtkActor2DCollection class. This removes all 
+// objects from the collection.
 vtkActor2DCollection::~vtkActor2DCollection()
 {
   this->RemoveAllItems();
 }
 
-// Description:
 // Sort and then render the collection of 2D actors.  
 void vtkActor2DCollection::Render(vtkViewport* viewport)
 {
@@ -76,7 +76,6 @@ void vtkActor2DCollection::Render(vtkViewport* viewport)
     }
 }
 
-// Description:
 // Add an actor to the list.  The new actor is 
 // inserted in the list according to it's layer
 // number.
@@ -132,7 +131,6 @@ void vtkActor2DCollection::AddItem(vtkActor2D *a)
 
 }
 
-// Description:
 // Sorts the vtkActor2DCollection by layer number.  Smaller layer
 // numbers are first.  Layer numbers can be any integer value.
 void vtkActor2DCollection::Sort()

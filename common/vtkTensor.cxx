@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkTensor.h"
 
-// Description:
 // Construct tensor initially pointing to internal storage.
 vtkTensor::vtkTensor()
 {

@@ -47,7 +47,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkLine.h"
 #include "vtkPointLocator.h"
 
-// Description:
 // Construct the pixel with four points.
 vtkPixel::vtkPixel()
 {

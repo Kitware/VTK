@@ -53,7 +53,6 @@ vtkCellTypes::~vtkCellTypes()
   delete [] this->Array;
 }
 
-// Description:
 // Allocate memory for this array. Delete old storage only if necessary.
 int vtkCellTypes::Allocate(int sz, int ext)
 {
@@ -74,7 +73,6 @@ int vtkCellTypes::Allocate(int sz, int ext)
   return 1;
 }
 
-// Description:
 // Add a cell at specified id.
 void vtkCellTypes::InsertCell(int cellId, unsigned char type, int loc)
 {
@@ -96,7 +94,6 @@ void vtkCellTypes::InsertCell(int cellId, unsigned char type, int loc)
   return;
 }
 
-// Description:
 // Add a cell to the object in the next available slot.
 int vtkCellTypes::InsertNextCell(unsigned char type, int loc)
 {
@@ -104,14 +101,12 @@ int vtkCellTypes::InsertNextCell(unsigned char type, int loc)
   return this->MaxId;
 }
 
-// Description:
 // Reclaim any extra memory.
 void vtkCellTypes::Squeeze()
 {
   this->Resize (this->MaxId+1);
 }
 
-// Description:
 // Initialize object without releasing memory.
 void vtkCellTypes::Reset()
 {

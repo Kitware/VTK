@@ -45,7 +45,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCellArray.h"
 #include "vtkPointLocator.h"
 
-// Description:
 // Construct the hexahedron with eight points.
 vtkHexahedron::vtkHexahedron()
 {
@@ -658,7 +657,6 @@ void vtkHexahedron::Derivatives(int vtkNotUsed(subId), float pcoords[3],
     }
 }
 
-// Description:
 // Given parametric coordinates compute inverse Jacobian transformation
 // matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
 // function derivatives.

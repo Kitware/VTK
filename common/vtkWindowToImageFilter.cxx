@@ -67,7 +67,6 @@ void vtkWindowToImageFilter::PrintSelf(ostream& os, vtkIndent indent)
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method returns the largest region that can be generated.
 void vtkWindowToImageFilter::UpdateImageInformation()
 {
@@ -101,7 +100,6 @@ void vtkWindowToImageFilter::UpdateImageInformation()
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This function reads a region from a file.  The regions extent/axes
 // are assumed to be the same as the file extent/order.
 void vtkWindowToImageFilter::Execute(vtkImageData *data)

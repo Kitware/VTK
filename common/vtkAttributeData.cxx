@@ -51,7 +51,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkFloatArray.h"
 #include "vtkDoubleArray.h"
 
-// Description:
 // Construct object with an initial data array of type dataType (by default
 // dataType is VTK_FLOAT.
 vtkAttributeData::vtkAttributeData(int dataType)
@@ -81,7 +80,6 @@ int vtkAttributeData::GetDataType()
   return this->Data->GetDataType();
 }
 
-// Description:
 // Specify the underlying data type of the object.
 void vtkAttributeData::SetDataType(int dataType)
 {
@@ -176,7 +174,6 @@ void vtkAttributeData::SetDataType(int dataType)
     }
 }
 
-// Description:
 // Set the data for this object. The tuple dimension must be consistent with
 // the object.
 void vtkAttributeData::SetData(vtkDataArray *data)
@@ -195,7 +192,6 @@ void vtkAttributeData::SetData(vtkDataArray *data)
     }
 }
 
-// Description:
 // Deep copy of data. Checks consistency to make sure this operation
 // makes sense.
 void vtkAttributeData::DeepCopy(vtkAttributeData& da)
@@ -212,7 +208,6 @@ void vtkAttributeData::DeepCopy(vtkAttributeData& da)
     }
 }
 
-// Description:
 // Shallow copy of data (i.e. via reference counting). Checks 
 // consistency to make sure this operation makes sense.
 void vtkAttributeData::ShallowCopy(vtkAttributeData& da)

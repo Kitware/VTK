@@ -42,7 +42,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkProperty2D.h"
 #include "vtkMapper2D.h"
 
-// Description:
 // Creates an actor2D with the following defaults: 
 // position -1, -1 (view coordinates)
 // orientation 0, scale (1,1), layer 0, visibility on
@@ -51,13 +50,11 @@ vtkActor2D::vtkActor2D()
   this->Mapper = (vtkMapper2D*) NULL;
 }
 
-// Description:
 // Destroy an actor2D.
 vtkActor2D::~vtkActor2D()
 {
 }
 
-// Description:
 // Renders an actor2D's property and then it's mapper.
 void vtkActor2D::Render (vtkViewport* viewport)
 {

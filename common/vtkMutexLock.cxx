@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkMutexLock.h"
 
-// Description:
 // Construct a new vtkMutexLock 
 vtkMutexLock::vtkMutexLock()
 {
@@ -53,13 +52,11 @@ vtkMutexLock::vtkMutexLock()
 #endif
 }
 
-// Description:
 // Destruct the vtkMutexVariable
 vtkMutexLock::~vtkMutexLock()
 {
 }
 
-// Description:
 // Lock the vtkMutexLock
 void vtkMutexLock::Lock()
 {
@@ -72,7 +69,6 @@ void vtkMutexLock::Lock()
 #endif
 }
 
-// Description:
 // Unlock the vtkMutexLock
 void vtkMutexLock::Unlock()
 {
@@ -85,7 +81,6 @@ void vtkMutexLock::Unlock()
 #endif
 }
 
-// Description:
 // Print method for vtkMutexLock
 void vtkMutexLock::PrintSelf(ostream& os, vtkIndent indent)
 {

@@ -43,7 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCellArray.h"
 #include "vtkPointLocator.h"
 
-// Description:
 // Construct the vertex with a single point.
 vtkVertex::vtkVertex()
 {
@@ -51,6 +50,7 @@ vtkVertex::vtkVertex()
   this->PointIds.SetNumberOfIds(1);
 }
 
+// Make a new vtkVertex object with the same information as this object.
 vtkCell *vtkVertex::MakeObject()
 {
   vtkCell *cell = vtkVertex::New();
@@ -97,6 +97,10 @@ void vtkVertex::EvaluateLocation(int& vtkNotUsed(subId),
   weights[0] = 1.0;
 }
 
+// Given parametric coordinates of a point, return the closest cell boundary,
+// and whether the point is inside or outside of the cell. The cell boundary 
+// is defined by a list of points (pts) that specify a vertex (1D cell). 
+// If the return value of the method is != 0, then the point is inside the cell.
 int vtkVertex::CellBoundary(int vtkNotUsed(subId), float pcoords[3], 
 			    vtkIdList& pts)
 {
@@ -115,6 +119,10 @@ int vtkVertex::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
 
 }
 
+// Generate contouring primitives. The scalar list cellScalars are
+// scalar values at each cell point. The point locator is essentially a 
+// points list that merges points as they are inserted (i.e., prevents 
+// duplicates). 
 void vtkVertex::Contour(float value, vtkScalars *cellScalars, 
 			vtkPointLocator *locator,
 			vtkCellArray *verts, 
@@ -136,8 +144,9 @@ void vtkVertex::Contour(float value, vtkScalars *cellScalars,
     }
 }
 
-// Project point on line. If it lies between 0<=t<=1 and distance off line
-// is less than tolerance, intersection detected.
+// Intersect with a ray. Return parametric coordinates (both line and cell)
+// and global intersection coordinates, given ray definition and tolerance. 
+// The method returns non-zero value if intersection occurs.
 int vtkVertex::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
                                 float x[3], float pcoords[3], int& subId)
 {
@@ -186,6 +195,8 @@ int vtkVertex::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
   return 0;
 }
 
+// Triangulate the vertex. This method fills pts and ptIds with information
+// from the only point in the vertex.
 int vtkVertex::Triangulate(int vtkNotUsed(index),vtkIdList &ptIds, vtkPoints &pts)
 {
   pts.Reset();
@@ -196,6 +207,8 @@ int vtkVertex::Triangulate(int vtkNotUsed(index),vtkIdList &ptIds, vtkPoints &pt
   return 1;
 }
 
+// Get the derivative of the vertex. Returns (0.0, 0.0, 0.0) for all 
+// dimensions.
 void vtkVertex::Derivatives(int vtkNotUsed(subId), 
 			    float vtkNotUsed(pcoords)[3], 
 			    float *vtkNotUsed(values), 

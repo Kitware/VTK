@@ -44,7 +44,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 static const char blanks[VTK_NUMBER_OF_BLANKS+1]="                                        ";
 
-// Description:
 // Determine the next indentation level. Keep indenting by two until the 
 // max of forty.
 vtkIndent vtkIndent::GetNextIndent()
@@ -57,7 +56,6 @@ vtkIndent vtkIndent::GetNextIndent()
   return indent;
 }
  
-// Description:
 // Print out the indentation. Basically output a bunch of spaces.
 ostream& operator<<(ostream& os, vtkIndent& ind)
 {

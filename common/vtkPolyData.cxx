@@ -76,7 +76,6 @@ vtkPolyData::vtkPolyData ()
   this->Links = NULL;
 }
 
-// Description:
 // Perform shallow construction of vtkPolyData.
 vtkPolyData::vtkPolyData(const vtkPolyData& pd) :
 vtkPointSet(pd)
@@ -123,7 +122,6 @@ vtkPolyData::~vtkPolyData()
   vtkPolyData::Initialize();
 }
 
-// Description:
 // Copy the geometric and topological structure of an input poly data object.
 void vtkPolyData::CopyStructure(vtkDataSet *ds)
 {
@@ -251,7 +249,6 @@ vtkCell *vtkPolyData::GetCell(int cellId)
 
 }
 
-// Description:
 // Set the cell array defining vertices.
 void vtkPolyData::SetVerts (vtkCellArray* v) 
 {
@@ -270,7 +267,6 @@ void vtkPolyData::SetVerts (vtkCellArray* v)
     }
 }
 
-// Description:
 // Get the cell array defining vertices. If there are no vertices, an
 // empty array will be returned (convenience to simplify traversal).
 vtkCellArray* vtkPolyData::GetVerts()
@@ -285,7 +281,6 @@ vtkCellArray* vtkPolyData::GetVerts()
     }
 }
 
-// Description:
 // Set the cell array defining lines.
 void vtkPolyData::SetLines (vtkCellArray* l) 
 {
@@ -304,7 +299,6 @@ void vtkPolyData::SetLines (vtkCellArray* l)
     }
 }
 
-// Description:
 // Get the cell array defining lines. If there are no lines, an
 // empty array will be returned (convenience to simplify traversal).
 vtkCellArray* vtkPolyData::GetLines()
@@ -319,7 +313,6 @@ vtkCellArray* vtkPolyData::GetLines()
     }
 }
 
-// Description:
 // Set the cell array defining polygons.
 void vtkPolyData::SetPolys (vtkCellArray* p) 
 {
@@ -338,7 +331,6 @@ void vtkPolyData::SetPolys (vtkCellArray* p)
     }
 }
 
-// Description:
 // Get the cell array defining polygons. If there are no polygons, an
 // empty array will be returned (convenience to simplify traversal).
 vtkCellArray* vtkPolyData::GetPolys()
@@ -353,7 +345,6 @@ vtkCellArray* vtkPolyData::GetPolys()
     }
 }
 
-// Description:
 // Set the cell array defining triangle strips.
 void vtkPolyData::SetStrips (vtkCellArray* s) 
 {
@@ -372,7 +363,6 @@ void vtkPolyData::SetStrips (vtkCellArray* s)
     }
 }
 
-// Description:
 // Get the cell array defining triangle strips. If there are no
 // triangle strips, an empty array will be returned (convenience to 
 // simplify traversal).
@@ -388,7 +378,6 @@ vtkCellArray* vtkPolyData::GetStrips()
     }
 }
 
-// Description:
 // Restore object to initial state. Release memory back to system.
 void vtkPolyData::Initialize()
 {
@@ -500,7 +489,6 @@ int vtkPolyData::GetNumberOfStrips()
   return (this->Strips ? this->Strips->GetNumberOfCells() : 0);
 }
 
-// Description:
 // Create data structure that allows random access of cells.
 void vtkPolyData::BuildCells()
 {
@@ -572,7 +560,6 @@ void vtkPolyData::BuildCells()
     }
 }
 
-// Description:
 // Create upward links from points to cells that use each point. Enables
 // topologically complex queries.
 void vtkPolyData::BuildLinks()
@@ -588,7 +575,6 @@ void vtkPolyData::BuildLinks()
   this->Links->BuildLinks(this);
 }
 
-// Description:
 // Copy a cells point ids into list provided. (Less efficient.)
 void vtkPolyData::GetCellPoints(int cellId, vtkIdList& ptIds)
 {
@@ -608,7 +594,6 @@ void vtkPolyData::GetCellPoints(int cellId, vtkIdList& ptIds)
     }
 }
 
-// Description:
 // Return a pointer to a list of point ids defining cell. (More efficient.)
 // Assumes that cells have been built (with BuildCells()).
 void vtkPolyData::GetCellPoints(int cellId, int& npts, int* &pts)
@@ -664,7 +649,6 @@ void vtkPolyData::GetPointCells(int ptId, vtkIdList& cellIds)
     }
 }
 
-// Description:
 // Method allocates initial storage for vertex, line, polygon, and 
 // triangle strip arrays. Use this method before the method 
 // PolyData::InsertNextCell(). (Or, provide vertex, line, polygon, and
@@ -694,7 +678,6 @@ void vtkPolyData::Allocate(int numCells, int extSize)
   cells->Delete();
 }
 
-// Description:
 // Insert a cell of type vtkVERTEX, vtkPOLY_VERTEX, vtkLINE, vtkPOLY_LINE,
 // vtkTRIANGLE, vtkQUAD, vtkPOLYGON, or vtkTRIANGLE_STRIP.  Make sure that
 // the PolyData::Allocate() function has been called first or that vertex,
@@ -750,7 +733,6 @@ int vtkPolyData::InsertNextCell(int type, int npts, int *pts)
   return id;
 }
 
-// Description:
 // Insert a cell of type VTK_VERTEX, VTK_POLY_VERTEX, VTK_LINE, VTK_POLY_LINE,
 // VTK_TRIANGLE, VTK_QUAD, VTK_POLYGON, or VTK_TRIANGLE_STRIP.  Make sure that
 // the PolyData::Allocate() function has been called first or that vertex,
@@ -808,7 +790,6 @@ int vtkPolyData::InsertNextCell(int type, vtkIdList &pts)
   return id;
 }
 
-// Description:
 // Recover extra allocated memory when creating data whose initial size
 // is unknown. Examples include using the InsertNextCell() method, or
 // when using the CellArray::EstimateSize() method to create vertices,
@@ -835,7 +816,6 @@ void vtkPolyData::Squeeze()
   vtkPointSet::Squeeze();
 }
 
-// Description:
 // Begin inserting data all over again. Memory is not freed but otherwise
 // objects are returned to their initial state.
 void vtkPolyData::Reset()
@@ -858,7 +838,6 @@ void vtkPolyData::Reset()
     }
 }
 
-// Description:
 // Reverse the order of point ids defining the cell.
 void vtkPolyData::ReverseCell(int cellId)
 {
@@ -894,7 +873,6 @@ void vtkPolyData::ReverseCell(int cellId)
     }
 }
 
-// Description:
 // Add a point to the cell data structure (after cell pointers have been
 // built). This method adds the point and then allocates memory for the
 // links to the cells.  (To use this method, make sure points are available
@@ -905,7 +883,6 @@ int vtkPolyData::InsertNextLinkedPoint(float x[3], int numLinks)
   return this->Points->InsertNextPoint(x);
 }
 
-// Description:
 // Add a new cell to the cell data structure (after cell pointers have been
 // built). This method adds the cell and then updates the links from the points
 // to the cells. (Memory is allocated as necessary.)
@@ -924,7 +901,6 @@ int vtkPolyData::InsertNextLinkedCell(int type, int npts, int *pts)
   return id;
 }
 
-// Description:
 // Remove a reference to a cell in a particular point's link list. You may also
 // consider using RemoveCellReference() to remove the references from all the 
 // cell's points to the cell. This operator does not reallocate memory; use the
@@ -934,7 +910,6 @@ void vtkPolyData::RemoveReferenceToCell(int ptId, int cellId)
   this->Links->RemoveCellReference(cellId, ptId);  
 }
 
-// Description:
 // Add a reference to a cell in a particular point's link list. (You may also
 // consider using AddCellReference() to add the references from all the 
 // cell's points to the cell.) This operator does not realloc memory; use the
@@ -944,7 +919,6 @@ void vtkPolyData::AddReferenceToCell(int ptId, int cellId)
   this->Links->AddCellReference(cellId, ptId);  
 }
 
-// Description:
 // Replace the points defining cell "cellId" with a new set of points. This
 // operator is (typically) used when links from points to cells have not been 
 // built (i.e., BuildLinks() has not been executed). Use the operator 
@@ -983,7 +957,6 @@ void vtkPolyData::ReplaceCell(int cellId, int npts, int *pts)
     }
 }
 
-// Description:
 // Replace one cell with another in cell structure. This operator updates the
 // connectivity list and the point's link list. It does not delete references
 // to the old cell in the point's link list. Use the operator 
@@ -1023,7 +996,6 @@ void vtkPolyData::ReplaceLinkedCell(int cellId, int npts, int *pts)
     }
 }
 
-// Description:
 // Get the neighbors at an edge. More efficient than the general 
 // GetCellNeighbors(). Assumes links have been built (with BuildLinks()), 
 // and looks specifically for edge neighbors.

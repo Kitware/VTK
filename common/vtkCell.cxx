@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkCell.h"
 
-// Description:
 // Construct cell.
 vtkCell::vtkCell()
 {
@@ -78,7 +77,6 @@ void vtkCell::DeepCopy(vtkCell& c)
 #define VTK_LEFT 1
 #define VTK_MIDDLE 2
 
-// Description:
 // Bounding box intersection modified from Graphics Gems Vol I.
 // Note: the intersection ray is assumed normalized, such that
 // valid intersections can only occur between [0,1]. Method returns non-zero
@@ -183,7 +181,6 @@ char vtkCell::HitBBox (float bounds[6], float origin[3], float dir[3],
     return 1;
 }
 
-// Description:
 // Compute cell bounding box (xmin,xmax,ymin,ymax,zmin,zmax). Return pointer
 // to array of six float values.
 float *vtkCell::GetBounds ()
@@ -212,7 +209,6 @@ float *vtkCell::GetBounds ()
   return this->Bounds;
 }
 
-// Description:
 // Compute cell bounding box (xmin,xmax,ymin,ymax,zmin,zmax). Copy result into
 // user provided array.
 void vtkCell::GetBounds(float bounds[6])
@@ -224,7 +220,6 @@ void vtkCell::GetBounds(float bounds[6])
     }
 }
 
-// Description:
 // Compute Length squared of cell (i.e., bounding box diagonal squared).
 float vtkCell::GetLength2 ()
 {
@@ -241,7 +236,6 @@ float vtkCell::GetLength2 ()
   return l;
 }
 
-// Description:
 // Return center of the cell in parametric coordinates.
 // Note that the parametric center is not always located 
 // at (0.5,0.5,0.5). The return value is the subId that

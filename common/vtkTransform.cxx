@@ -42,7 +42,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTransform.h"
 #include "vtkMath.h"
 
-// Description:
 // Constructs a transform and sets the following defaults
 // preMultiplyFlag = 1 stackSize = 10. It then
 // creates an identity matrix as the top matrix on the stack.
@@ -59,7 +58,6 @@ vtkTransform::vtkTransform ()
   this->Orientation[0] = this->Orientation[1] = this->Orientation[2] = 0.0;
 }
 
-// Description:
 // Copy constructor. Creates an instance of vtkTransform and then
 // copies its instance variables from the values in t. 
 vtkTransform::vtkTransform (const vtkTransform& t)
@@ -113,7 +111,6 @@ vtkTransform& vtkTransform::operator=(const vtkTransform& t)
   return *this;
 }
 
-// Description:
 // Deletes the transformation on the top of the stack and sets the top 
 // to the next transformation on the stack.
 void vtkTransform::Pop ()
@@ -134,7 +131,6 @@ void vtkTransform::Pop ()
   this->Modified ();
 }
 
-// Description:
 // Sets the internal state of the transform to
 // post multiply. All subsequent matrix
 // operations will occur after those already represented
@@ -148,7 +144,6 @@ void vtkTransform::PostMultiply ()
     }
 }
 
-// Description:
 // Sets the internal state of the transform to
 // pre multiply. All subsequent matrix
 // operations will occur before those already represented
@@ -162,7 +157,6 @@ void vtkTransform::PreMultiply ()
     }
 }
 
-// Description:
 // Pushes the current transformation matrix onto the
 // transformation stack.
 void vtkTransform::Push ()
@@ -187,7 +181,6 @@ void vtkTransform::Push ()
   this->Modified ();
 }
 
-// Description:
 // Creates an x rotation matrix and concatenates it with 
 // the current transformation matrix. The angle is specified
 // in degrees.
@@ -214,7 +207,6 @@ void vtkTransform::RotateX ( float angle)
     }
 }
 
-// Description:
 // Creates a y rotation matrix and concatenates it with
 // the current transformation matrix. The angle is specified
 // in degrees.
@@ -241,7 +233,6 @@ void vtkTransform::RotateY ( float angle)
     }
 }
 
-// Description:
 // Creates a z rotation matrix and concatenates it with
 // the current transformation matrix. The angle is specified
 // in degrees.
@@ -268,7 +259,6 @@ void vtkTransform::RotateZ (float angle)
     }
 }
 
-// Description:
 // Creates a matrix that rotates angle degrees about an axis
 // through the origin and x, y, z. It then concatenates
 // this matrix with the current transformation matrix.
@@ -323,7 +313,6 @@ void vtkTransform::RotateWXYZ ( float angle, float x, float y, float z)
   this->Concatenate (ctm);
 }
 
-// Description:
 // Scales the current transformation matrix in the x, y and z directions.
 // A scale factor of zero will automatically be replaced with one.
 void vtkTransform::Scale ( float x, float y, float z)
@@ -341,7 +330,6 @@ void vtkTransform::Scale ( float x, float y, float z)
     }
 }
 
-// Description:
 // Translate the current transformation matrix by the vector {x, y, z}.
 void vtkTransform::Translate ( float x, float y, float z)
 {
@@ -358,7 +346,6 @@ void vtkTransform::Translate ( float x, float y, float z)
     }
 }
 
-// Description:
 // Obtain the transpose of the current transformation matrix.
 void vtkTransform::GetTranspose (vtkMatrix4x4& (transpose))
 {
@@ -375,7 +362,6 @@ void vtkTransform::GetTranspose (vtkMatrix4x4& (transpose))
   transpose = temp;
 }
 
-// Description:
 // Invert the current transformation matrix.
 void vtkTransform::Inverse ()
 {
@@ -384,14 +370,12 @@ void vtkTransform::Inverse ()
   this->Modified ();
 }
 
-// Description:
 // Return the inverse of the current transformation matrix.
 void vtkTransform::GetInverse ( vtkMatrix4x4& inverse)
 {
   inverse.Invert (**this->Stack, inverse);
 }
 
-// Description:
 // Get the x, y, z orientation angles from the transformation matrix.
 void vtkTransform::GetOrientation(float& rx, float& ry, float &rz)
 {
@@ -401,7 +385,6 @@ void vtkTransform::GetOrientation(float& rx, float& ry, float &rz)
   rz = orientation[2];
 }
 
-// Description:
 // Get the x, y, z orientation angles from the transformation matrix as an
 // array of three floating point values.
 float *vtkTransform::GetOrientation ()
@@ -509,7 +492,6 @@ float *vtkTransform::GetOrientation ()
   return this->Orientation;
 }
 
-// Description:
 // Return the x, y, z positions from the current transformation matrix.
 // This is simply returning the translation component of the 4x4 matrix.
 void vtkTransform::GetPosition (float & x,float & y,float & z)
@@ -595,7 +577,6 @@ float *vtkTransform::GetOrientationWXYZ ()
   return WXYZ;
 } // vtkTransform::GetOrientationWXYZ 
 
-// Description:
 // Return the position from the current transformation matrix as an array
 // of three floating point numbers. This is simply returning the translation 
 // component of the 4x4 matrix.
@@ -610,7 +591,6 @@ float *vtkTransform::GetPosition()
   return pos;
 }
 
-// Description:
 // Return the x, y, z scale factors of the current transformation matrix.
 void vtkTransform::GetScale (float& x, float& y, float& z)
 {
@@ -621,7 +601,6 @@ void vtkTransform::GetScale (float& x, float& y, float& z)
   z = scale[2];
 }
 
-// Description:
 // Return the x, y, z scale factors of the current transformation matrix as 
 // an array of three float numbers.
 float *vtkTransform::GetScale()
@@ -646,21 +625,18 @@ float *vtkTransform::GetScale()
   return scale;
 }
 
-// Description:
 // Returns the current transformation matrix.
 vtkMatrix4x4 & vtkTransform::GetMatrix ()
 {
   return **this->Stack;;
 }
 
-// Description:
 // Set the current matrix directly.
 void vtkTransform::SetMatrix(vtkMatrix4x4& m)
 {
   **this->Stack = m;
 }
 
-// Description:
 // Creates an identity matrix and makes it the current transformation matrix.
 void vtkTransform::Identity ()
 {
@@ -678,7 +654,6 @@ void vtkTransform::Identity ()
   this->Modified();
 }
 
-// Description:
 // Concatenates the input matrix with the current transformation matrix.
 // The resulting matrix becomes the new current transformation matrix.
 // The setting of the PreMultiply flag determines whether the matrix
@@ -696,7 +671,6 @@ void vtkTransform::Concatenate (vtkMatrix4x4 & matrix)
   this->Modified ();
 }
 
-// Description:
 // Multiplies matrices a and b and stores the result in c.
 void vtkTransform::Multiply4x4 ( vtkMatrix4x4 & a, vtkMatrix4x4 & b, vtkMatrix4x4 & c)
 {
@@ -717,7 +691,6 @@ void vtkTransform::Multiply4x4 ( vtkMatrix4x4 & a, vtkMatrix4x4 & b, vtkMatrix4x
   c = result;
 }
 
-// Description:
 // Transposes the current transformation matrix.
 void vtkTransform::Transpose ()
 {
@@ -725,7 +698,6 @@ void vtkTransform::Transpose ()
   this->Modified();
 }
 
-// Description:
 // Returns the current transformation matrix.
 void vtkTransform::GetMatrix (vtkMatrix4x4 & ctm)
 {
@@ -757,7 +729,6 @@ void vtkTransform::PrintSelf (ostream& os, vtkIndent indent)
   (**this->Stack).PrintSelf (os, indent.GetNextIndent());
 }
 
-// Description:
 // Returns the result of multiplying the currently set Point by the current 
 // transformation matrix. Point is expressed in homogeneous coordinates.
 // The setting of the PreMultiplyFlag will determine if the Point is
@@ -784,7 +755,6 @@ void vtkTransform::GetPoint(float p[4])
     }
 }
 
-// Description:
 // Multiplies a list of points (inPts) by the current transformation matrix.
 // Transformed points are appended to the output list (outPts).
 void vtkTransform::MultiplyPoints(vtkPoints *inPts, vtkPoints *outPts)
@@ -809,7 +779,6 @@ void vtkTransform::MultiplyPoints(vtkPoints *inPts, vtkPoints *outPts)
     }
 }
 
-// Description:
 // Multiplies a list of vectors (inVectors) by the current transformation 
 // matrix. The transformed vectors are appended to the output list 
 // (outVectors). This is a special multiplication, since these are vectors. 
@@ -841,7 +810,6 @@ void vtkTransform::MultiplyVectors(vtkVectors *inVectors, vtkVectors *outVectors
     }
 }
 
-// Description:
 
 // Multiplies a list of normals (inNormals) by the current
 // transformation matrix.  The transformed normals are then appended

@@ -42,7 +42,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMath.h"
 
 
-// Description
 // Construct plane passing through origin and normal to z-axis.
 vtkPlane::vtkPlane()
 {
@@ -55,7 +54,6 @@ vtkPlane::vtkPlane()
   this->Origin[2] = 0.0;
 }
 
-// Description
 // Project a point x onto plane defined by origin and normal. The 
 // projected point is returned in xproj. NOTE : normal assumed to
 // have magnitude 1.
@@ -75,7 +73,6 @@ void vtkPlane::ProjectPoint(float x[3], float origin[3], float normal[3], float 
     }
 }
 
-// Description
 // Evaluate plane equation for point x[3].
 float vtkPlane::EvaluateFunction(float x[3])
 {
@@ -84,7 +81,6 @@ float vtkPlane::EvaluateFunction(float x[3])
            this->Normal[2]*(x[2]-this->Origin[2]) );
 }
 
-// Description
 // Evaluate function gradient at point x[3].
 void vtkPlane::EvaluateGradient(float vtkNotUsed(x)[3], float n[3])
 {
@@ -96,7 +92,6 @@ void vtkPlane::EvaluateGradient(float vtkNotUsed(x)[3], float n[3])
 
 #define VTK_PLANE_TOL 1.0e-06
 
-// Description:
 // Given a line defined by the two points p1,p2; and a plane defined by the
 // normal n and point p0, compute an intersection. The parametric
 // coordinate along the line is returned in t, and the coordinates of 

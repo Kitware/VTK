@@ -43,7 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCellArray.h"
 #include "vtkPointLocator.h"
 
-// Description:
 // Construct the line with two points.
 vtkLine::vtkLine()
 {
@@ -105,7 +104,6 @@ void vtkLine::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3],
   weights[1] = 1.0 - pcoords[0];
 }
 
-// Description:
 // Performs intersection of two finite 3D lines. An intersection is found if
 // the projection of the two lines onto the plane perpendicular to the cross
 // product of the two lines intersect. The parameters (u,v) are the 
@@ -263,7 +261,6 @@ void vtkLine::Contour(float value, vtkScalars *cellScalars,
     }
 }
 
-// Description:
 // Compute distance to finite line. Returns parametric coordinate t 
 // and point location on line.
 float vtkLine::DistanceToLine(float x[3], float p1[3], float p2[3], 
@@ -316,7 +313,6 @@ float vtkLine::DistanceToLine(float x[3], float p1[3], float p2[3],
 }
 
 //
-// Description:
 // Determine the distance of the current vertex to the edge defined by
 // the vertices provided.  Returns distance squared. Note: line is assumed
 // infinite in extent.
@@ -349,7 +345,6 @@ float vtkLine::DistanceToLine (float x[3], float p1[3], float p2[3])
   return (vtkMath::Dot(np1,np1) - proj*proj);
 }
 
-// Description:
 // Line-line intersection. Intersection has to occur within [0,1] parametric
 // coordinates and with specified tolerance.
 int vtkLine::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
@@ -489,7 +484,6 @@ static LINE_CASES lineCases[] = {
 {{  0, 101}},   // 2
 {{100, 101}}};  // 3
 
-// Description:
 // Clip this line using scalar value provided. Like contouring, except
 // that it cuts the line to produce other lines.
 void vtkLine::Clip(float value, vtkScalars *cellScalars, 

@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkStack.h"
 
-// Description:
 // Construct with empty stack.
 vtkStack::vtkStack()
 {
@@ -59,7 +58,6 @@ vtkStack::~vtkStack()
     }
 }
 
-// Description:
 // Add an object to the top of the stack. Does not prevent duplicate entries.
 void vtkStack::Push(vtkObject *a)
 {
@@ -81,7 +79,6 @@ void vtkStack::Push(vtkObject *a)
   this->NumberOfItems++;
 }
 
-// Description:
 // Remove an object from the top of the list.
 vtkObject *vtkStack::Pop()
 {
@@ -110,7 +107,6 @@ vtkObject *vtkStack::Pop()
   return item;
 }
 
-// Description:
 // Return the number of objects in the stack.
 vtkObject *vtkStack::GetTop()
 {
@@ -124,7 +120,6 @@ vtkObject *vtkStack::GetTop()
     }
 }
 
-// Description:
 // Return the number of objects in the stack.
 int vtkStack::GetNumberOfItems()
 {

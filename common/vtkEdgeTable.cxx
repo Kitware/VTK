@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkEdgeTable.h"
 
-// Description:
 // Instantiate object based on maximum point id.
 vtkEdgeTable::vtkEdgeTable(int numPoints)
 {
@@ -75,7 +74,6 @@ vtkEdgeTable::~vtkEdgeTable()
     }
 }
 
-// Description:
 // Return non-zero if edge (p1,p2) is an edge; otherwise 0.
 int vtkEdgeTable::IsEdge(int p1, int p2)
 {
@@ -102,7 +100,6 @@ int vtkEdgeTable::IsEdge(int p1, int p2)
     }
 }
 
-// Description:
 // Insert the edge (p1,p2) into the table. It is the user's responsibility to
 // check if the edge has already been inserted.
 void vtkEdgeTable::InsertEdge(int p1, int p2)
@@ -129,7 +126,6 @@ void vtkEdgeTable::InsertEdge(int p1, int p2)
   this->Table[index]->InsertNextId(search);
 }
 
-// Description:
 // Intialize traversal of edges in table.
 void vtkEdgeTable::InitTraversal()
 {
@@ -137,7 +133,6 @@ void vtkEdgeTable::InitTraversal()
   this->Position[1] = -1;
 }
 
-// Description:
 // Traverse list of edges in table. Return the edge as (p1,p2), where p1 and p2
 // are point id's. Method return value is zero if list is exhausted; non-zero
 // otherwise. The value of p1 is guaranteed to be <= p2.

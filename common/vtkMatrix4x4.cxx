@@ -44,7 +44,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMatrix4x4.h"
 #include "vtkMath.h"
 
-// Description:
 // Construct a 4x4 identity matrix.
 vtkMatrix4x4::vtkMatrix4x4 ()
 {
@@ -66,6 +65,8 @@ vtkMatrix4x4::vtkMatrix4x4 ()
     }
 }
 
+// Construct a 4x4 matrix with the values which are contained in the
+// argument m.
 vtkMatrix4x4::vtkMatrix4x4(const vtkMatrix4x4& m)
 {
   int i,j;
@@ -79,7 +80,6 @@ vtkMatrix4x4::vtkMatrix4x4(const vtkMatrix4x4& m)
     }
 }
 
-// Description:
 // Set all the elements of the matrix to the given value.
 void vtkMatrix4x4::operator= (float element)
 {
@@ -95,7 +95,6 @@ void vtkMatrix4x4::operator= (float element)
   this->Modified ();
 }
 
-// Description:
 // Multiply this matrix by a point (in homogeneous coordinates). 
 // and return the result in result. The in[4] and result[4] 
 // arrays must both be allocated but they can be the same array.
@@ -118,7 +117,6 @@ void vtkMatrix4x4::MultiplyPoint(float in[4],float result[4])
   
 }
 
-// Description:
 // Multiply a point (in homogeneous coordinates) by this matrix,
 // and return the result in result. The in[4] and result[4] 
 // arrays must both be allocated, but they can be the same array.
@@ -141,7 +139,6 @@ void vtkMatrix4x4::PointMultiply(float in[4],float result[4])
   
 }
 
-// Description:
 // Matrix Inversion (adapted from Richard Carling in "Graphics Gems," 
 // Academic Press, 1990).
 void vtkMatrix4x4::Invert (vtkMatrix4x4 in,vtkMatrix4x4 & out)
@@ -182,7 +179,6 @@ void vtkMatrix4x4::Invert (vtkMatrix4x4 in,vtkMatrix4x4 & out)
     }
 }
 
-// Description:
 // Compute the determinant of the matrix and return it.
 float vtkMatrix4x4::Determinant (vtkMatrix4x4 & in)
 {
@@ -209,7 +205,6 @@ float vtkMatrix4x4::Determinant (vtkMatrix4x4 & in)
        - d1 * vtkMath::Determinant3x3( a2, a3, a4, b2, b3, b4, c2, c3, c4);
 }
 
-// Description:
 // Compute adjoint of the matrix and put it into out.
 void vtkMatrix4x4::Adjoint (vtkMatrix4x4 & in,vtkMatrix4x4 & out)
 {
@@ -288,6 +283,8 @@ void vtkMatrix4x4::Adjoint (vtkMatrix4x4 & in,vtkMatrix4x4 & out)
     vtkMath::Determinant3x3( a1, a2, a3, b1, b2, b3, c1, c2, c3);
 }
 
+// Set the elements of the matrix to the same values as the elements
+// of the source Matrix.
 vtkMatrix4x4& vtkMatrix4x4::operator= (const vtkMatrix4x4& source)
 {
   int i, j;
@@ -303,7 +300,6 @@ vtkMatrix4x4& vtkMatrix4x4::operator= (const vtkMatrix4x4& source)
   return *this;
 }
 
-// Description:
 // Transpose the matrix and put it into out. 
 void vtkMatrix4x4::Transpose (vtkMatrix4x4 in,vtkMatrix4x4 & out)
 {

@@ -46,7 +46,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPointLocator.h"
 #include "vtkUnstructuredGrid.h"
 
-// Description:
 // Construct the tetra with four points.
 vtkTetra::vtkTetra()
 {
@@ -160,7 +159,6 @@ void vtkTetra::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3],
   weights[3] = pcoords[2];
 }
 
-// Description:
 // Returns the set of points that are on the boundary of the tetrahedron that
 // are closest parametrically to the point specified. This may include faces,
 // edges, or vertices.
@@ -447,7 +445,6 @@ void vtkTetra::Derivatives(int vtkNotUsed(subId), float vtkNotUsed(pcoords)[3],
     }
 }
 
-// Description:
 // Compute the center of the tetrahedron,
 void vtkTetra::TetraCenter(float p1[3], float p2[3], float p3[3],
                            float p4[3], float center[3])
@@ -457,7 +454,6 @@ void vtkTetra::TetraCenter(float p1[3], float p2[3], float p3[3],
   center[2] = (p1[2]+p2[2]+p3[2]+p4[2]) / 4.0;
 }
 
-// Description:
 // Compute the circumcenter (center[3]) and radius (method return value) of
 // a tetrahedron defined by the four points x1, x2, x3, and x4.
 float vtkTetra::Circumsphere(float  x1[3], float x2[3], float x3[3], 
@@ -530,7 +526,6 @@ float vtkTetra::Circumsphere(float  x1[3], float x2[3], float x3[3],
     }
 }
 
-// Description:
 // Given a 3D point x[3], determine the barycentric coordinates of the point.
 // Barycentric coordinates are a natural coordinate system for simplices that
 // express a position as a linear combination of the vertices. For a 
@@ -610,7 +605,6 @@ inline void vtkTetra::InterpolationDerivs(float derivs[12])
   derivs[11] = 1.0;
 }
 
-// Description:
 // Given parametric coordinates compute inverse Jacobian transformation
 // matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
 // function derivatives. Returns 0 if no inverse exists.
@@ -684,7 +678,6 @@ static TETRA_CASES tetraCases[] = {
 {{ 100, 101, 102, 103,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 15
 };
 
-// Description:
 // Clip this tetra using scalar value provided. Like contouring, except
 // that it cuts the tetra to produce other tetrahedra.
 void vtkTetra::Clip(float value, vtkScalars *cellScalars, 

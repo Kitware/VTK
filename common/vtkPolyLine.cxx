@@ -49,7 +49,6 @@ vtkCell *vtkPolyLine::MakeObject()
   return cell;
 }
 
-// Description:
 // Given points and lines, compute normals to lines. These are not true 
 // normals, they are "orientation" normals used by classes like vtkTubeFilter
 // that control the rotation around the line. The normals try to stay pointing
@@ -444,7 +443,6 @@ void vtkPolyLine::Clip(float value, vtkScalars *cellScalars,
   lineScalars->Delete();
 }
 
-// Description:
 // Return the center of the point cloud in parametric coordinates.
 inline int vtkPolyLine::GetParametricCenter(float pcoords[3])
 {

@@ -46,7 +46,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPointLocator.h"
 #include "vtkMath.h"
 
-// Description:
 // Construct the quad with four points.
 vtkQuad::vtkQuad()
 {
@@ -697,7 +696,6 @@ static QUAD_CASES quadCasesComplement[] = {
 {{   4, 100, 101, 102, 103,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 15
 };
 
-// Description:
 // Clip this quad using scalar value provided. Like contouring, except
 // that it cuts the quad to produce other quads and/or triangles.
 void vtkQuad::Clip(float value, vtkScalars *cellScalars, 

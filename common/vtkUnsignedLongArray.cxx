@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkUnsignedLongArray.h"
 
-// Description:
 // Instantiate object.
 vtkUnsignedLongArray::vtkUnsignedLongArray(int numComp)
 {
@@ -61,7 +60,6 @@ vtkUnsignedLongArray::~vtkUnsignedLongArray()
 }
 
 
-// Description:
 // This method lets the user specify data to be held by the array.  The 
 // array argument is a pointer to the data.  size is the size of 
 // the array supplied by the user.  Set save to 1 to keep the class
@@ -90,7 +88,6 @@ void vtkUnsignedLongArray::SetArray(unsigned long* array, int size, int save)
 }
 
 
-// Description:
 // Allocate memory for this array. Delete old storage only if necessary.
 int vtkUnsignedLongArray::Allocate(const int sz, const int ext)
 {
@@ -114,7 +111,6 @@ int vtkUnsignedLongArray::Allocate(const int sz, const int ext)
   return 1;
 }
 
-// Description:
 // Release storage and reset array to initial state.
 void vtkUnsignedLongArray::Initialize()
 {
@@ -127,7 +123,6 @@ void vtkUnsignedLongArray::Initialize()
   this->MaxId = -1;
 }
 
-// Description:
 // Deep copy of another unsigned long array.
 void vtkUnsignedLongArray::DeepCopy(vtkDataArray& sa)
 {
@@ -208,14 +203,12 @@ unsigned long *vtkUnsignedLongArray::Resize(const int sz)
 }
 
 
-// Description:
 // Set the number of n-tuples in the array.
 void vtkUnsignedLongArray::SetNumberOfTuples(const int number)
 {
   this->SetNumberOfValues(number*this->NumberOfComponents);
 }
 
-// Description:
 // Get a pointer to a tuple at the ith location. This is a dangerous method
 // (it is not thread safe since a pointer is returned).
 float *vtkUnsignedLongArray::GetTuple(const int i) 
@@ -235,7 +228,6 @@ float *vtkUnsignedLongArray::GetTuple(const int i)
   return this->Tuple;
 }
 
-// Description:
 // Copy the tuple value into a user-provided array.
 void vtkUnsignedLongArray::GetTuple(const int i, float * tuple) 
 {
@@ -246,7 +238,6 @@ void vtkUnsignedLongArray::GetTuple(const int i, float * tuple)
     }
 }
 
-// Description:
 // Set the tuple value at the ith location in the array.
 void vtkUnsignedLongArray::SetTuple(const int i, const float * tuple)
 {
@@ -258,7 +249,6 @@ void vtkUnsignedLongArray::SetTuple(const int i, const float * tuple)
     }
 }
 
-// Description:
 // Insert (memory allocation performed) the tuple into the ith location
 // in the array.
 void vtkUnsignedLongArray::InsertTuple(const int i, const float * tuple)
@@ -271,7 +261,6 @@ void vtkUnsignedLongArray::InsertTuple(const int i, const float * tuple)
     }
 }
 
-// Description:
 // Insert (memory allocation performed) the tuple onto the end of the array.
 int vtkUnsignedLongArray::InsertNextTuple(const float * tuple)
 {

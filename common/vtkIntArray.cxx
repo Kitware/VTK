@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkIntArray.h"
 
-// Description:
 // Instantiate object.
 vtkIntArray::vtkIntArray(int numComp)
 {
@@ -60,7 +59,6 @@ vtkIntArray::~vtkIntArray()
   delete [] this->Tuple;
 }
 
-// Description:
 // This method lets the user specify data to be held by the array.  The 
 // array argument is a pointer to the data.  size is the size of 
 // the array supplied by the user.  Set save to 1 to keep the class
@@ -87,7 +85,6 @@ void vtkIntArray::SetArray(int* array, int size, int save)
   this->SaveUserArray = save;
 }
 
-// Description:
 // Allocate memory for this array. Delete old storage only if necessary.
 int vtkIntArray::Allocate(const int sz, const int ext)
 {
@@ -111,7 +108,6 @@ int vtkIntArray::Allocate(const int sz, const int ext)
   return 1;
 }
 
-// Description:
 // Release storage and reset array to initial state.
 void vtkIntArray::Initialize()
 {
@@ -125,7 +121,6 @@ void vtkIntArray::Initialize()
   this->SaveUserArray = 0;
 }
 
-// Description:
 // Deep copy of another integer array.
 void vtkIntArray::DeepCopy(vtkDataArray& ia)
 {
@@ -204,14 +199,12 @@ int *vtkIntArray::Resize(const int sz)
   return this->Array;
 }
 
-// Description:
 // Set the number of n-tuples in the array.
 void vtkIntArray::SetNumberOfTuples(const int number)
 {
   this->SetNumberOfValues(number*this->NumberOfComponents);
 }
 
-// Description:
 // Get a pointer to a tuple at the ith location. This is a dangerous method
 // (it is not thread safe since a pointer is returned).
 float *vtkIntArray::GetTuple(const int i) 
@@ -231,7 +224,6 @@ float *vtkIntArray::GetTuple(const int i)
   return this->Tuple;
 }
 
-// Description:
 // Copy the tuple value into a user-provided array.
 void vtkIntArray::GetTuple(const int i, float * tuple) 
 {
@@ -242,7 +234,6 @@ void vtkIntArray::GetTuple(const int i, float * tuple)
     }
 }
 
-// Description:
 // Set the tuple value at the ith location in the array.
 void vtkIntArray::SetTuple(const int i, const float * tuple)
 {
@@ -253,7 +244,6 @@ void vtkIntArray::SetTuple(const int i, const float * tuple)
     }
 }
 
-// Description:
 // Insert (memory allocation performed) the tuple into the ith location
 // in the array.
 void vtkIntArray::InsertTuple(const int i, const float * tuple)
@@ -266,7 +256,6 @@ void vtkIntArray::InsertTuple(const int i, const float * tuple)
     }
 }
 
-// Description:
 // Insert (memory allocation performed) the tuple onto the end of the array.
 int vtkIntArray::InsertNextTuple(const float * tuple)
 {

@@ -53,7 +53,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkFloatArray.h"
 #include "vtkDoubleArray.h"
 
-// Description:
 // Construct object with copying turned on for all data.
 vtkDataSetAttributes::vtkDataSetAttributes()
 {
@@ -87,6 +86,7 @@ vtkDataSetAttributes::vtkDataSetAttributes()
   this->CopyFieldDataEnabled = 0;
 }
 
+// Destructor for the vtkDataSetAttributes objects.
 vtkDataSetAttributes::~vtkDataSetAttributes()
 {
   vtkDataSetAttributes::Initialize();
@@ -101,7 +101,6 @@ vtkDataSetAttributes::~vtkDataSetAttributes()
     }
 }
 
-// Description:
 // Deep copy of data (i.e., create new data arrays and
 // copy from input data).
 void vtkDataSetAttributes::DeepCopy(vtkDataSetAttributes& pd)
@@ -167,7 +166,6 @@ void vtkDataSetAttributes::DeepCopy(vtkDataSetAttributes& pd)
   this->CopyFieldData = pd.CopyFieldData;
 }
 
-// Description:
 // Shallow copy of data (i.e., use reference counting).
 void vtkDataSetAttributes::ShallowCopy(vtkDataSetAttributes& pd)
 {
@@ -186,6 +184,7 @@ void vtkDataSetAttributes::ShallowCopy(vtkDataSetAttributes& pd)
   this->CopyFieldData = pd.CopyFieldData;
 }
 
+// Check object's components for modified times.
 unsigned long int vtkDataSetAttributes::GetMTime()
 {
   unsigned long int mtime = this->MTime;
@@ -248,6 +247,7 @@ unsigned long int vtkDataSetAttributes::GetMTime()
   return mtime;
 }
 
+// Initialize all of the object's data to NULL
 void vtkDataSetAttributes::Initialize()
 {
 //
@@ -296,7 +296,6 @@ void vtkDataSetAttributes::Initialize()
 
 };
 
-// Description:
 // Pass entire arrays of input data through to output. Obey the "copy"
 // flags.
 void vtkDataSetAttributes::PassData(vtkDataSetAttributes* pd)
@@ -327,7 +326,6 @@ void vtkDataSetAttributes::PassData(vtkDataSetAttributes* pd)
     }
 }
 
-// Description:
 // Pass entire arrays of input data through to output. Obey the "copy"
 // flags. Only passes the data if the output attribute is NULL (i.e., not set).
 void vtkDataSetAttributes::PassNoReplaceData(vtkDataSetAttributes* pd)
@@ -358,7 +356,6 @@ void vtkDataSetAttributes::PassNoReplaceData(vtkDataSetAttributes* pd)
     }
 }
 
-// Description:
 // Allocates point data for point-by-point (or cell-by-cell) copy operation.  
 // If sze=0, then use the input DataSetAttributes to create (i.e., find 
 // initial size of) new objects; otherwise use the sze variable.
@@ -527,7 +524,6 @@ void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes* pd, int sze, int e
 };
 
 
-// Description:
 // Copy the attribute data from one id to another. Make sure CopyAllocate() has
 // been invoked before using this method.
 void vtkDataSetAttributes::CopyData(vtkDataSetAttributes* fromPd, int fromId, int toId)
@@ -577,7 +573,6 @@ void vtkDataSetAttributes::CopyData(vtkDataSetAttributes* fromPd, int fromId, in
     }
 }
 
-// Description:
 // Initialize point interpolation method.
 void vtkDataSetAttributes::InterpolateAllocate(vtkDataSetAttributes* pd, int sze, int ext)
 {
@@ -640,7 +635,6 @@ void vtkDataSetAttributes::InterpolatePoint(vtkDataSetAttributes *fromPd, int to
     }
 }
 
-// Description:
 // Interpolate data from the two points p1,p2 (forming an edge) and an 
 // interpolation factor, t, along the edge. The weight ranges from (0,1), 
 // with t=0 located at p1. Make sure that the method InterpolateAllocate() 
@@ -699,6 +693,7 @@ void vtkDataSetAttributes::InterpolateEdge(vtkDataSetAttributes *fromPd, int toI
     }
 }
 
+// Resize object to just fit data requirements. Reclaims extra memory.
 void vtkDataSetAttributes::Squeeze()
 {
   if ( this->Scalars )
@@ -727,7 +722,6 @@ void vtkDataSetAttributes::Squeeze()
     }
 }
 
-// Description:
 // Turn on copying of all data.
 void vtkDataSetAttributes::CopyAllOn()
 {
@@ -739,7 +733,6 @@ void vtkDataSetAttributes::CopyAllOn()
   this->CopyFieldDataOn();
 }
 
-// Description:
 // Turn off copying of all data.
 void vtkDataSetAttributes::CopyAllOff()
 {

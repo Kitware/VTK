@@ -41,7 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkVectors.h"
 #include "vtkMath.h"
 
-// Description:
 // Construct object with an initial data array of type float.
 vtkVectors::vtkVectors(int dataType) : vtkAttributeData(dataType)
 {
@@ -49,7 +48,6 @@ vtkVectors::vtkVectors(int dataType) : vtkAttributeData(dataType)
   this->Data->SetNumberOfComponents(3);
 }
 
-// Description:
 // Given a list of pt ids, return an array of vectors.
 void vtkVectors::GetVectors(vtkIdList& ptIds, vtkVectors& v)
 {
@@ -62,7 +60,6 @@ void vtkVectors::GetVectors(vtkIdList& ptIds, vtkVectors& v)
     }
 }
 
-// Description:
 // Compute the largest norm for these vectors.
 void vtkVectors::ComputeMaxNorm()
 {
@@ -86,7 +83,6 @@ void vtkVectors::ComputeMaxNorm()
     }
 }
 
-// Description:
 // Return the maximum norm for these vectors.
 float vtkVectors::GetMaxNorm()
 {
