@@ -129,6 +129,8 @@ public:
       GetSwapBytesInReceivedData();
     }
 
+
+
 //BTX
 
   enum Consts {
