@@ -32,6 +32,7 @@ class vtkXglrRenderWindow : public vtkXRenderWindow
 {
 public:
   vtkXglrRenderWindow();
+  ~vtkXglrRenderWindow();
   char *GetClassName() {return "vtkXglrRenderWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
