@@ -109,8 +109,8 @@ protected:
   static int               MaxEntries;
   static int               NextEntry;
   static int               WrapFlag;
-  static vtkTimerLogEntry *TimerLog;
   static int               TicksPerSecond;
+  static vtkTimerLogEntry *TimerLog;
 
 #ifdef _WIN32
   static timeb             FirstWallTime;
@@ -133,5 +133,17 @@ protected:
   //ETX
 
 };
+
+
+
+
+//
+// Set built-in type.  Creates member Set"name"() (e.g., SetVisibility());
+//
+#define vtkTimerLogMacro(string) \
+  { \
+      vtkTimerLog::FormatAndMarkEvent("Mark: In %s, line %d, class %s: %s", \
+			      __FILE__, __LINE__, this->GetClassName(), string); \
+  }
 
 #endif
