@@ -27,7 +27,7 @@
 
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.59");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.60");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -203,7 +203,7 @@ void vtkGenericEnSightReader::Execute()
       {
       // Copy the output rather than setting directly.
       // When we set directly, the internal reader looses its output.
-      //  Next execute, a new output is added, 
+      // Next execute, a new output is added, 
       // and another partid is added too.
       vtkDataObject* tmp = this->Reader->GetOutput(i);
       output = tmp->NewInstance();
@@ -597,18 +597,30 @@ int vtkGenericEnSightReader::ReadBinaryLine(char result[80])
 // Returns 0 is there was an error.
 int vtkGenericEnSightReader::ReadNextDataLine(char result[256])
 {
-  int value, sublineFound;
-  char subline[256];
-  
-  value = this->ReadLine(result);
-  sublineFound = sscanf(result, " %s", subline);
-  
-  while((strcmp(result, "") == 0 || subline[0] == '#' || sublineFound < 1) &&
-        value != 0)
+  int isComment = 1;
+  int value = 1; 
+
+  while( isComment && value )
     {
     value = this->ReadLine(result);
-    sublineFound = sscanf(result, " %s", subline);
+    if( *result && result[0] != '#' )
+      {
+      size_t len = strlen( result );
+      unsigned int i = 0;
+      while( i < len && isspace( result[i] ) )
+        {
+        ++i;
+        }
+      // If there was only space characters this is a comment, thus skip it
+      if( i != len )
+        {
+        // The line was not empty, not begining by '#' and not composed 
+        // of only white space, this is not a comment
+        isComment = 0;
+        }
+      }     
     }
+
   return value;
 }
 
@@ -938,6 +950,7 @@ void vtkGenericEnSightReader::AddVariableType(int variableType)
   vtkDebugMacro("variable type: " << this->VariableTypes[size]);
 }
 
+//----------------------------------------------------------------------------
 void vtkGenericEnSightReader::AddComplexVariableType(int variableType)
 {
   int i;
@@ -969,6 +982,7 @@ void vtkGenericEnSightReader::AddComplexVariableType(int variableType)
                 << this->ComplexVariableTypes[size]);
 }
 
+//----------------------------------------------------------------------------
 int vtkGenericEnSightReader::GetVariableType(int n)
 {
   if (n < this->NumberOfVariables)
@@ -978,6 +992,7 @@ int vtkGenericEnSightReader::GetVariableType(int n)
   return -1;
 }
 
+//----------------------------------------------------------------------------
 int vtkGenericEnSightReader::GetComplexVariableType(int n)
 {
   if (n < this->NumberOfComplexVariables)
@@ -987,6 +1002,7 @@ int vtkGenericEnSightReader::GetComplexVariableType(int n)
   return -1;
 }
 
+//----------------------------------------------------------------------------
 void vtkGenericEnSightReader::ReplaceWildcards(char* fileName, int timeSet,
                                                int fileSet)
 {
@@ -1082,6 +1098,7 @@ void vtkGenericEnSightReader::ReplaceWildcards(char* fileName, int timeSet,
   this->IS = NULL;
 }
 
+//----------------------------------------------------------------------------
 void vtkGenericEnSightReader::ReplaceWildcardsHelper(char* fileName, int num)
 {
   int wildcardPos, numWildcards, numDigits = 1, i;
@@ -1152,16 +1169,19 @@ void vtkGenericEnSightReader::ReplaceWildcardsHelper(char* fileName, int num)
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkGenericEnSightReader::SetByteOrderToBigEndian()
 {
   this->ByteOrder = FILE_BIG_ENDIAN;
 }
 
+//----------------------------------------------------------------------------
 void vtkGenericEnSightReader::SetByteOrderToLittleEndian()
 {
   this->ByteOrder = FILE_LITTLE_ENDIAN;
 }
 
+//----------------------------------------------------------------------------
 const char *vtkGenericEnSightReader::GetByteOrderAsString()
 {
   if ( this->ByteOrder ==  FILE_LITTLE_ENDIAN)
