@@ -61,7 +61,7 @@ void vtkSliceCubes::Update()
   this->Execute();
 }
 
-void ComputePointGradient(int i, int j, int k, int dims[3], 
+void ComputePointGradient(int i, int j, int dims[3], 
                           float aspectRatio[3], float n[3],
                           short *s0, short *s1, short *s2)
 {
@@ -277,21 +277,21 @@ void vtkSliceCubes::Execute()
         pts[7][2] = pts[0][2] + aspectRatio[2];
 
         //create gradients
-        ComputePointGradient(i,j,k, dims, aspectRatio, grad[0],
+        ComputePointGradient(i,j, dims, aspectRatio, grad[0],
                              slice0, slice1, slice2);
-        ComputePointGradient(i+1,j,k, dims, aspectRatio, grad[1],
+        ComputePointGradient(i+1,j, dims, aspectRatio, grad[1],
                              slice0, slice1, slice2);
-        ComputePointGradient(i+1,j+1,k, dims, aspectRatio, grad[2],
+        ComputePointGradient(i+1,j+1, dims, aspectRatio, grad[2],
                              slice0, slice1, slice2);
-        ComputePointGradient(i,j+1,k, dims, aspectRatio, grad[3],
+        ComputePointGradient(i,j+1, dims, aspectRatio, grad[3],
                              slice0, slice1, slice2);
-        ComputePointGradient(i,j,k+1, dims, aspectRatio, grad[4],
+        ComputePointGradient(i,j, dims, aspectRatio, grad[4],
                              slice1, slice2, slice3);
-        ComputePointGradient(i+1,j,k+1, dims, aspectRatio, grad[5],
+        ComputePointGradient(i+1,j, dims, aspectRatio, grad[5],
                              slice1, slice2, slice3);
-        ComputePointGradient(i+1,j+1,k+1, dims, aspectRatio, grad[6],
+        ComputePointGradient(i+1,j+1, dims, aspectRatio, grad[6],
                              slice1, slice2, slice3);
-        ComputePointGradient(i,j+1,k+1, dims, aspectRatio, grad[7],
+        ComputePointGradient(i,j+1, dims, aspectRatio, grad[7],
                              slice1, slice2, slice3);
 
         triCase = triCases + index;

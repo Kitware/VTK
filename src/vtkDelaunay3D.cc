@@ -170,11 +170,11 @@ static int FindEnclosingFaces(float x[3], int tetra, vtkUnstructuredGrid *Mesh,
                               vtkIdList &tetras, vtkIdList &faces,
                               vtkPointLocator &Locator)
 {
-  vtkTetra *tetraCell;
+  vtkTetra *tetraCell=NULL;
   int ptIds[4];
   float bcoords[4], *x1, *x2, *x3, *x4;
   float p[4][3];
-  int tetraId, verts[4], onCount, i, j, numTetras;
+  int tetraId=(-1), verts[4], onCount, i, j, numTetras;
   static vtkIdList boundaryPts(3), checkedTetras(25), neiTetras(2);
   int p1, p2, p3, insertFace;
   int npts, *tetraPts, nei, numNeiPts, *neiPts;
