@@ -1,3 +1,6 @@
+# Render a sphere
+#
+
 vtkRenderMaster rm;
 
 # create a window to render into
@@ -34,5 +37,6 @@ $renWin Render;
 wm withdraw .
 
 # Begin mouse interaction
+$iren LightFollowCameraOff;
 $iren Start;
 

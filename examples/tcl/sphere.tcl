@@ -1,11 +1,11 @@
-# get the interactor ui
+# Generate implicit model of a sphere
+#
 source vtkInt.tcl
 source "colors.tcl"
-# First create the render master
-vtkRenderMaster rm;
 
-# Now create the RenderWindow, Renderer and both Actors
+# Create renderer stuff
 #
+vtkRenderMaster rm;
 set renWin [rm MakeRenderWindow];
 set ren1   [$renWin MakeRenderer];
 set iren [$renWin MakeRenderWindowInteractor];
@@ -29,8 +29,7 @@ vtkPolyMapper isoMapper;
     isoMapper ScalarsVisibleOff;
 vtkActor isoActor;
     isoActor SetMapper isoMapper;
-set isoProp [isoActor GetProperty];
-eval $isoProp SetColor $peacock;
+    eval [isoActor GetProperty] SetColor $peacock;
 
 vtkOutlineFilter outline;
     outline SetInput [sample GetOutput];
@@ -38,8 +37,7 @@ vtkPolyMapper outlineMapper;
     outlineMapper SetInput [outline GetOutput];
 vtkActor outlineActor;
     outlineActor SetMapper outlineMapper;
-set outlineProp [outlineActor GetProperty];
-eval $outlineProp SetColor 0 0 0;
+    [outlineActor GetProperty] SetColor 0 0 0;
 
 # Add the actors to the renderer, set the background and size
 #
