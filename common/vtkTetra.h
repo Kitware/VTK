@@ -102,7 +102,7 @@ public:
 
 
   // Description:
-  // Return the center of the triangle in parametric coordinates.
+  // Return the center of the tetrahedron in parametric coordinates.
   int GetParametricCenter(float pcoords[3]);
 
   // Description:
