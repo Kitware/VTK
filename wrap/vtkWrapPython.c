@@ -714,31 +714,20 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   fprintf(fp,"  (getattrfunc)Py%s_PyGetAttr,\n  0, 0, (reprfunc)Py%s_PyRepr, 0, 0, 0,\n};\n\n",
 	  data->ClassName, data->ClassName);
 
-  if ((!data->IsAbstract)&&
-      strcmp(data->ClassName,"vtkDataWriter") &&
-      strcmp(data->ClassName,"vtkPointSet") &&
-      strcmp(data->ClassName,"vtkDataSetSource"))
-    {
-    fprintf(fp,"static PyObject *Py%s_PyNew(PyObject *vtkNotUsed(self),PyObject *vtkNotUsed(args))\n",
-	    data->ClassName);
-    fprintf(fp,"  {\n");
-    fprintf(fp,"  PyObject *obj;\n\n");
-    fprintf(fp,"  if ((obj = PyObject_NEW(PyObject, &Py%sType)) == NULL)\n",
-	    data->ClassName);
-    fprintf(fp,"    return NULL;\n\n");
-    fprintf(fp,"  vtkPythonAddObjectToHash(obj,(void *)(%s::New()),(void *)%s_Typecast);\n",
-	    data->ClassName, data->ClassName);
-    fprintf(fp,"  return obj;\n}\n\n");
+  fprintf(fp,"static PyObject *Py%s_PyNew(PyObject *vtkNotUsed(self),PyObject *vtkNotUsed(args))\n",
+          data->ClassName);
+  fprintf(fp,"  {\n");
+  fprintf(fp,"  PyObject *obj;\n\n");
+  fprintf(fp,"  if ((obj = PyObject_NEW(PyObject, &Py%sType)) == NULL)\n",
+          data->ClassName);
+  fprintf(fp,"    return NULL;\n\n");
+  fprintf(fp,"  vtkPythonAddObjectToHash(obj,(void *)(%s::New()),(void *)%s_Typecast);\n",
+          data->ClassName, data->ClassName);
+  fprintf(fp,"  return obj;\n}\n\n");
 	  
-    fprintf(fp,"static PyMethodDef Py%s_ClassMethods[] = {\n",data->ClassName);
-    fprintf(fp,"  {\"New\", (PyCFunction)Py%s_PyNew},\n",data->ClassName);
-    fprintf(fp,"  {NULL, NULL}\n};\n\n");
-    }
-  else
-    {
-    fprintf(fp,"static PyMethodDef Py%s_ClassMethods[] = {\n",data->ClassName);
-    fprintf(fp,"  {NULL, NULL}\n};\n\n");
-    }
+  fprintf(fp,"static PyMethodDef Py%s_ClassMethods[] = {\n",data->ClassName);
+  fprintf(fp,"  {\"New\", (PyCFunction)Py%s_PyNew},\n",data->ClassName);
+  fprintf(fp,"  {NULL, NULL}\n};\n\n");
 	
   /* output the class initilization function */
   fprintf(fp,"extern \"C\" { void init%s();}\n",data->ClassName);
