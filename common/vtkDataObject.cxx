@@ -105,6 +105,11 @@ void vtkDataObject::ForceUpdate()
     }
 }
 
+void vtkDataObject::SetFieldData(vtkFieldData *fd)
+{
+  this->FieldData.ShallowCopy(*fd);
+}
+
 void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);

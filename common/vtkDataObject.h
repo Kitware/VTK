@@ -118,7 +118,10 @@ public:
   void GlobalReleaseDataFlagOff() {this->SetGlobalReleaseDataFlag(0);};
   static int GetGlobalReleaseDataFlag();
 
-  // return pointer to this data object's generic field data
+  // Description:
+  // Assign or retrieve field data to this data object.
+  void SetFieldData(vtkFieldData *fd);
+  void SetFieldData(vtkFieldData &fd) {this->SetFieldData(&fd);}
   vtkFieldData *GetFieldData() {return &this->FieldData;};
 
 protected:
