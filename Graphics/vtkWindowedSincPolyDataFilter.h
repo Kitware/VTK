@@ -137,12 +137,12 @@
 #define __vtkWindowedSincPolyDataFilter_h
 
 
-#include "vtkPolyDataToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkWindowedSincPolyDataFilter : public vtkPolyDataToPolyDataFilter 
+class VTK_GRAPHICS_EXPORT vtkWindowedSincPolyDataFilter : public vtkPolyDataAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkWindowedSincPolyDataFilter,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkWindowedSincPolyDataFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -221,7 +221,7 @@ public:
   vtkWindowedSincPolyDataFilter();
   ~vtkWindowedSincPolyDataFilter() {};
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   int NumberOfIterations;
   double PassBand;

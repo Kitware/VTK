@@ -18,6 +18,8 @@
 #include "vtkCellData.h"
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -25,7 +27,7 @@
 #include "vtkTriangle.h"
 #include "vtkTriangleFilter.h"
 
-vtkCxxRevisionMacro(vtkWindowedSincPolyDataFilter, "1.38");
+vtkCxxRevisionMacro(vtkWindowedSincPolyDataFilter, "1.39");
 vtkStandardNewMacro(vtkWindowedSincPolyDataFilter);
 
 // Construct object with number of iterations 20; passband .1;
@@ -63,8 +65,21 @@ typedef struct _vtkMeshVertex
   vtkIdList *edges; // connected edges (list of connected point ids)
 } vtkMeshVertex, *vtkMeshVertexPtr;
     
-void vtkWindowedSincPolyDataFilter::Execute()
+int vtkWindowedSincPolyDataFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPolyData *input = vtkPolyData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType numPts, numCells, numPolys, numStrips, i;
   int j, k;
   vtkIdType npts = 0;
@@ -82,8 +97,6 @@ void vtkWindowedSincPolyDataFilter::Execute()
   vtkCellArray *inVerts, *inLines, *inPolys, *inStrips;
   vtkPoints *newPts[4];
   vtkMeshVertexPtr Verts;
-  vtkPolyData *input = this->GetInput();
-  vtkPolyData *output = this->GetOutput();
 
   // variables specific to windowed sinc interpolation
   double theta_pb, k_pb, sigma, p_x0[3], p_x1[3], p_x3[3];
@@ -98,7 +111,7 @@ void vtkWindowedSincPolyDataFilter::Execute()
   if (numPts < 1 || numCells < 1)
     {
     vtkErrorMacro(<<"No data to smooth!");
-    return;
+    return 0;
     }
 
   CosFeatureAngle = 
@@ -127,7 +140,7 @@ void vtkWindowedSincPolyDataFilter::Execute()
     output->GetPointData()->PassData(input->GetPointData());
     output->GetCellData()->PassData(input->GetCellData());
     vtkWarningMacro(<<"Number of iterations == 0: passing data through unchanged");
-    return;
+    return 1;
     }
 //
 // Peform topological analysis. What we're gonna do is build a connectivity
@@ -778,6 +791,8 @@ void vtkWindowedSincPolyDataFilter::Execute()
     if ( Verts[i].edges != NULL ) {Verts[i].edges->Delete();}
     }
   delete [] Verts;
+
+  return 1;
 }
 
 void vtkWindowedSincPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
