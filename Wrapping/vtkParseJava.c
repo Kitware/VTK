@@ -443,7 +443,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   char *dir;
   char *fname;
   char javaDone[] = "VTKJavaWrapped";
-  FILE* fp;
+  FILE* tfp;
   fname = data->OutputFileName;
   dir = (char*)malloc(strlen(fname) + strlen(javaDone) + 2);
   sprintf(dir, "%s", fname);
@@ -457,9 +457,9 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
       }
     }
   strcat(dir, javaDone);
-  fp = fopen(dir, "w");
-  fprintf(fp, "File: %s\n", fname);
-  fclose(fp);
+  tfp = fopen(dir, "w");
+  fprintf(tfp, "File: %s\n", fname);
+  fclose(tfp);
   }
 }
 
