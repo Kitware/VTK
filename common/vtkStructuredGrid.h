@@ -86,9 +86,7 @@ public:
   vtkCell *GetCell(int cellId);
   int GetCellType(int cellId);
   int GetNumberOfCells();
-  void GetCellPoints(int cellId, vtkIdList *ptIds)
-    {vtkStructuredData::GetCellPoints(cellId,ptIds,this->DataDescription,
-				      this->Dimensions);}
+  void GetCellPoints(int cellId, vtkIdList *ptIds);
   void GetPointCells(int ptId, vtkIdList *cellIds)
     {vtkStructuredData::GetPointCells(ptId,cellIds,this->Dimensions);}
   void Initialize();
