@@ -74,6 +74,16 @@ Bool vtkXRenderWindowPredProc(Display *vtkNotUsed(disp), XEvent *event,
   
 }
 
+void *vtkXRenderWindow::GetGenericContext()
+{
+  static GC gc = (GC) NULL; 
+
+  if (!gc) gc = XCreateGC(this->DisplayId, this->WindowId, 0, 0);
+
+  return (void *) gc;
+
+}
+
 int vtkXRenderWindow::GetEventPending()
 {
   XEvent report;

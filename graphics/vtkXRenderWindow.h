@@ -72,6 +72,8 @@ public:
   virtual void *GetGenericDisplayId() {return (void *)this->DisplayId;};
   virtual void *GetGenericWindowId()  {return (void *)this->WindowId;};
   virtual void *GetGenericParentId()  {return (void *)this->ParentId;};
+  virtual void *GetGenericContext();
+
   int     *GetSize();
   int     *GetScreenSize();
   int     *GetPosition();
