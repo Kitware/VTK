@@ -53,8 +53,7 @@ void SetIsoValueRMI(void *localArg, void* vtkNotUsed(remoteArg),
 { 
   float val;
 
-  vtkContourFilter *iso;
-  iso = (vtkContourFilter *)localArg;
+  vtkContourFilter *iso = reinterpret_cast<vtkContourFilter *>(localArg);
   val = iso->GetValue(0);
   iso->SetValue(0, val + ISO_STEP);
 }
@@ -119,7 +118,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
 
     // Loop which processes RMI requests. 
     // Use vtkMultiProcessController::BREAK_RMI_TAG to break it.
-    // The root process with send a ISO_VALUE_RMI_TAG to make this
+    // The root process will send an ISO_VALUE_RMI_TAG to make this
     // process change it's contour value.
     upPort->WaitForUpdate();
     
@@ -256,7 +255,7 @@ int main( int argc, char* argv[] )
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, 
                                                      "Data/headsq/quarter");
 
-  controller->SetSingleMethod(MyMain, reinterpret_cast<void*>(fname));
+  controller->SetSingleMethod(MyMain, (void*)fname );
 
   // When using MPI, the number of processes is determined
   // by the external program which launches this application.
