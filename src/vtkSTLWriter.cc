@@ -129,6 +129,7 @@ void vtkSTLWriter::WriteAsciiSTL(vtkPoints *pts, vtkCellArray *polys)
     fprintf (fp, "  ENDLOOP\n ENDFACET\n");
     }
   fprintf (fp, "ENDSOLID\n");
+  fclose (fp);
 }
 
 void vtkSTLWriter::WriteBinarySTL(vtkPoints *pts, vtkCellArray *polys)
@@ -183,6 +184,7 @@ void vtkSTLWriter::WriteBinarySTL(vtkPoints *pts, vtkCellArray *polys)
 
     fwrite (&ibuff2, 2, 1, fp);
     }
+  fclose (fp);
 }
 
 void vtkSTLWriter::PrintSelf(ostream& os, vtkIndent indent)
