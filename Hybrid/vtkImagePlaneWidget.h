@@ -385,13 +385,13 @@ protected:
   // The geometric represenation of the plane and it's outline
   vtkPlaneSource    *PlaneSource;
   float              Normal[3]; // plane normal normalized
-  vtkPoints         *PlaneOutlinePoints;
   vtkPolyData       *PlaneOutlinePolyData;
   vtkActor          *PlaneOutlineActor;
   vtkPolyDataMapper *PlaneOutlineMapper;
-  void               GeneratePlaneOutline();
   void               HighlightPlane(int highlight);
+  void               GeneratePlaneOutline();
 
+  // Re-builds the plane outline based on the plane source
   void BuildRepresentation();
 
   // Do the picking
