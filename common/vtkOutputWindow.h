@@ -51,10 +51,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkObject.h"
 
+class vtkOutputWindowSmartPointer;
 
 class VTK_EXPORT vtkOutputWindow : public vtkObject
 {
-public: 
+public:
 // Methods from vtkObject
   vtkTypeMacro(vtkOutputWindow,vtkObject);
   // Description:
@@ -64,13 +65,18 @@ public:
   // Description:
   // This is a singleton pattern New.  There will only be ONE
   // reference to a vtkOutputWindow object per process.  Clients that
-  // call this must call Delete on the object so that the reference 
+  // call this must call Delete on the object so that the reference
   // counting will work.   The single instance will be unreferenced when
   // the program exits.
   static vtkOutputWindow* New();
   // Description:
   // Return the singleton instance with no reference counting.
   static vtkOutputWindow* GetInstance();
+  // Description:
+  // Supply a user defined output window. Call ->Delete() on the supplied
+  // instance after setting it.
+  static void SetInstance(vtkOutputWindow *instance);
+  //
   virtual void DisplayText(const char*);
   // Description:
   // If PromptUser is set to true then each time a line of text
@@ -78,14 +84,35 @@ public:
   // messages.
   vtkBooleanMacro(PromptUser,int);
   vtkSetMacro(PromptUser, int);
+//BTX
+  // use this as a way of memory managment when the
+  // program exits the SmartPointer will be deleted which
+  // will delete the Instance singleton
+  static vtkOutputWindowSmartPointer SmartPointer;
+//ETX
 protected:
   vtkOutputWindow();
-  virtual ~vtkOutputWindow(); 
+  virtual ~vtkOutputWindow();
   vtkOutputWindow(const vtkOutputWindow&) {};
   void operator=(const vtkOutputWindow&) {};
   int PromptUser;
 private:
   static vtkOutputWindow* Instance;
 };
+
+//BTX
+class vtkOutputWindowSmartPointer
+{
+public:
+  vtkOutputWindowSmartPointer(vtkOutputWindow* p) { Pointer=p; };
+  void SetPointer(vtkOutputWindow* obj)
+    {
+      Pointer = obj;
+    }
+  ~vtkOutputWindowSmartPointer();
+private:
+  vtkOutputWindow* Pointer;
+};
+//ETX
 
 #endif

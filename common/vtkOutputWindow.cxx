@@ -46,10 +46,20 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 
 vtkOutputWindow* vtkOutputWindow::Instance = 0;
+vtkOutputWindowSmartPointer vtkOutputWindow::SmartPointer(NULL);
+
 
 void vtkOutputWindowDisplayText(const char* message)
 {
   vtkOutputWindow::GetInstance()->DisplayText(message);
+}
+
+vtkOutputWindowSmartPointer::~vtkOutputWindowSmartPointer()
+{
+  if (Pointer)
+    {
+    Pointer->Delete();
+    }
 }
 
 vtkOutputWindow::vtkOutputWindow()
@@ -86,23 +96,6 @@ void vtkOutputWindow::DisplayText(const char* txt)
     }
 }
 
-
-
-class vtkOutputWindowSmartPointer
-{
-public:
-  vtkOutputWindowSmartPointer() {};
-  void SetPointer(vtkOutputWindow* obj)
-    {
-      Pointer = obj;
-    }
-  
-  ~vtkOutputWindowSmartPointer() { Pointer->Delete(); }
-private:
-  vtkOutputWindow* Pointer;
-};
-
-
 // Up the reference count so it behaves like New
 vtkOutputWindow* vtkOutputWindow::New()
 {
@@ -115,10 +108,6 @@ vtkOutputWindow* vtkOutputWindow::New()
 // Return the single instance of the vtkOutputWindow
 vtkOutputWindow* vtkOutputWindow::GetInstance()
 {
-  // use this as a way of memory managment when the 
-  // program exits the static will be deleted which
-  // will delete the Instance singleton
-  static vtkOutputWindowSmartPointer smartPointer;
   if(!vtkOutputWindow::Instance)
     {
     // Try the factory first
@@ -135,8 +124,32 @@ vtkOutputWindow* vtkOutputWindow::GetInstance()
       }
     // set the smart pointer to the instance, so
     // it will be UnRegister'ed at exit of the program
-    smartPointer.SetPointer(vtkOutputWindow::Instance );
+    vtkOutputWindow::SmartPointer.SetPointer(vtkOutputWindow::Instance );
     }
   // return the instance
   return vtkOutputWindow::Instance;
 }
+
+void vtkOutputWindow::SetInstance(vtkOutputWindow* instance)
+{
+  if (vtkOutputWindow::Instance==instance)
+    {
+    return;
+    }
+  vtkOutputWindow::SmartPointer.SetPointer( instance );
+  // preferably this will be NULL
+  if (vtkOutputWindow::Instance)
+    {
+    vtkOutputWindow::Instance->Delete();;
+    }
+  vtkOutputWindow::Instance = instance;
+  // Should be safe to send a message now as instance is set
+  if (instance->GetReferenceCount()!=1)
+    {
+    vtkGenericWarningMacro(<<"OutputWindow should have reference count = 1");
+    }
+  // user will call ->Delete() after setting instance
+  instance->Register(NULL);
+}
+
+
