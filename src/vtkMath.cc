@@ -96,6 +96,134 @@ void vtkMath::Cross(float x[3], float y[3], float z[3])
   z[0] = Zx; z[1] = Zy; z[2] = Zz; 
 }
 
+#define SMALL_NUMBER 1.0e-12
+
+// Description:
+// Solve linear equations Ax = b using Crout's method. Input is square matrix A
+// and load vector x. Solution x is written over load vector. The dimension of
+// the matrix is specified in size. If error is found, method returns a 0.
+int vtkMath::SolveLinearSystem(double **A, double *x, int size)
+{
+  static double *scale = NULL;
+  static int *index = NULL, maxSize=0;
+  int i, maxI, j, k, idx, ii;
+  double largest, temp1, temp2, sum;
+//
+// Check on allocation of working vectors
+//
+  if ( scale == NULL ) 
+    {
+    scale = new double[size];
+    index = new int[size];
+    maxSize = size;
+    } 
+  else if ( size > maxSize ) 
+    {
+    delete [] scale; delete [] index;
+    scale = new double[size];
+    index = new int[size];
+    maxSize = size;
+    }
+//
+// Loop over rows to get implicit scaling information
+//
+  for ( i = 0; i < size; i++ ) 
+    {
+    for ( largest = 0.0, j = 0; j < size; j++ ) 
+      {
+      if ( (temp2 = fabs(A[i][j])) > largest ) largest = temp2;
+      }
+
+      if ( largest == 0.0 ) return 0;
+      scale[i] = 1.0 / largest;
+    }
+//
+// Loop over all columns using Crout's method
+//
+  for ( j = 0; j < size; j++ ) 
+    {
+    for (i = 0; i < j; i++) 
+      {
+      sum = A[i][j];
+      for ( k = 0; k < i; k++ ) sum -= A[i][k] * A[k][j];
+      A[i][j] = sum;
+      }
+//
+// Begin search for largest pivot element
+//
+    for ( largest = 0.0, i = j; i < size; i++ ) 
+      {
+      sum = A[i][j];
+      for ( k = 0; k < j; k++ ) sum -= A[i][k] * A[k][j];
+      A[i][j] = sum;
+
+      if ( (temp1 = scale[i]*fabs(sum)) >= largest ) 
+        {
+        largest = temp1;
+        maxI = i;
+        }
+      }
+//
+// Check for row interchange
+//
+    if ( j != maxI ) 
+      {
+      for ( k = 0; k < size; k++ ) 
+        {
+        temp1 = A[maxI][k];
+        A[maxI][k] = A[j][k];
+        A[j][k] = temp1;
+        }
+      scale[maxI] = scale[j];
+      }
+//
+// Divide by pivot element and perform elimination
+//
+    index[j] = maxI;
+
+    if ( fabs(A[j][j]) <= SMALL_NUMBER ) return 0;
+
+    if ( j != (size-1) ) 
+      {
+      temp1 = 1.0 / A[j][j];
+      for ( i = j + 1; i < size; i++ ) A[i][j] *= temp1;
+      }
+    }
+//
+// Now proceed with forward and backsubstitution for L and U
+// matrices.  First, forward substitution.
+//
+  for ( ii = -1, i = 0; i < size; i++ ) 
+    {
+    idx = index[i];
+    sum = x[idx];
+    x[idx] = x[i];
+
+    if ( ii >= 0 )
+      {
+      for ( j = ii; j <= (i-1); j++ ) sum -= A[i][j]*x[j];
+      }
+    else if (sum)
+      {
+      ii = i;
+      }
+
+    x[i] = sum;
+  }
+//
+// Now, back substitution
+//
+  for ( i = size-1; i >= 0; i-- ) 
+    {
+    sum = x[i];
+    for ( j = i + 1; j < size; j++ ) sum -= A[i][j]*x[j];
+    x[i] = sum / A[i][i];
+    }
+
+  return 1;
+}
+#undef SMALL_NUMBER
+
 #define ROTATE(a,i,j,k,l) g=a[i][j];h=a[k][l];a[i][j]=g-s*(h+g*tau);\
         a[k][l]=h+s*(g-h*tau);
 
@@ -237,3 +365,5 @@ int vtkMath::Jacobi(float **a, float *w, float **v)
 
   return 1;
 }
+#undef ROTATE
+#undef MAX_ROTATIONS
