@@ -112,27 +112,27 @@ public:
 
   // Description:
   // Create an image. Subclasses of vtkRenderer must implement this method.
-  virtual void Render() = 0;
+  virtual void Render() {};
 
   // Description:
   // Ask all actors to build and draw themselves.
   // Returns the number of actors processed.
-  virtual int UpdateActors(void) = 0;
+  virtual int UpdateActors(void) {return 0;};
 
   // Description:
   // Ask the volumes to build and draw themselves.
   // Returns the number of volumes processed.
-  virtual int UpdateVolumes(void) = 0;
+  virtual int UpdateVolumes(void) {return 0;};
 
   // Description:
   // Ask the active camera to do whatever it needs to do prior to rendering.
   // Creates a camera if none found active.
-  virtual int UpdateCameras(void) = 0;
+  virtual int UpdateCameras(void) {return 0;};
 
   // Description:
   // Ask all lights to load themselves into rendering pipeline.
   // This method will return the actual number of lights that were on.
-  virtual int UpdateLights(void) = 0;
+  virtual int UpdateLights(void) {return 0;};
 
   // Description:
   // Returns the number of visible actors.
