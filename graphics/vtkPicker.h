@@ -121,7 +121,7 @@ public:
 
   vtkActorCollection *GetActors();
 
-  int Pick(float selectionX, float selectionY, float selectionZ, 
+  virtual int Pick(float selectionX, float selectionY, float selectionZ, 
            vtkRenderer *renderer);  
   int Pick(float selectionPt[3], vtkRenderer *renderer);  
 
