@@ -57,6 +57,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // (Union means that the minimum scalar value is retained - minimum distance
 // value for example). At the end an implicit representation of the swept
 // surface is defined.
+// .SECTION See Also
+// vtkImplicitModeller vtkContourFilter vtkDecimate
 
 #ifndef __vtkSweptSurface_h
 #define __vtkSweptSurface_h
@@ -104,6 +106,13 @@ public:
   vtkGetMacro(NumberOfInterpolationSteps,int);
 
   // Description:
+  // Set/get the maximum number of interpolation steps to take. This is useful
+  // if you are limited in computation time or just know that the number of 
+  // computed steps should not exceed a certain value.
+  vtkSetMacro(MaximumNumberOfInterpolationSteps,int);
+  vtkGetMacro(MaximumNumberOfInterpolationSteps,int);
+
+  // Description:
   // The outer boundary of the sampling volume can be capped (i.e., assigned 
   // fill value). This will "close" the implicit model if the geometry 
   // approaches close to or passes through the boundary of the volume (i.e.,
@@ -129,8 +138,8 @@ public:
 
 protected:
   void Execute();
-  void ComputeBounds(float origin[3], float ar[3]);
-  int ComputeNumberOfSteps(vtkTransform *t1, vtkTransform *t2);
+  void ComputeBounds(float origin[3], float ar[3], float bbox[24]);
+  int ComputeNumberOfSteps(vtkTransform *t1, vtkTransform *t2, float bbox[24]);
   void SampleInput(vtkMatrix4x4& m, int inDim[3], float inOrigin[3],
                    float inAr[3], vtkScalars *in, vtkScalars *out);
   void Cap(vtkFloatScalars *s);
@@ -139,6 +148,7 @@ protected:
   float FillValue;
   float ModelBounds[6];
   int NumberOfInterpolationSteps;
+  int MaximumNumberOfInterpolationSteps;
   int Capping;
 
   vtkTransformCollection *Transforms;
