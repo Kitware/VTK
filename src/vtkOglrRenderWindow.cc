@@ -315,7 +315,7 @@ void vtkOglrRenderWindow::StereoUpdate(void)
 	{
 #ifdef HAVE_SETMON
 	glFlush();
-	system("/usr/gfx/setmon STR_RECT");
+	system("/usr/gfx/setmon -n STR_RECT");
 	glFlush();
 	// make sure we are in full screen
 	this->FullScreenOn();
@@ -338,7 +338,7 @@ void vtkOglrRenderWindow::StereoUpdate(void)
 #ifdef HAVE_SETMON
 	// restore the monitor 
 	glFlush();
-	system("/usr/gfx/setmon 72HZ");
+	system("/usr/gfx/setmon -n 72HZ");
 	glFlush();
 	// make sure we are out of full screen
 	this->FullScreenOff();
