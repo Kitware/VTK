@@ -56,6 +56,10 @@ public:
   // and Theta directions. Theta ranges from (0,360) and phi (0,180) degrees.
   static vtkPSphereSource *New();
 
+  // Description:
+  // Get the estimated memory size in 1024 bytes
+  unsigned long GetEstimatedMemorySize();
+  
 protected:
   vtkPSphereSource() {};
   ~vtkPSphereSource() {};
@@ -63,7 +67,6 @@ protected:
   void operator=(const vtkPSphereSource&) {};
 
   void Execute();
-  void ExecuteInformation();
 };
 
 #endif

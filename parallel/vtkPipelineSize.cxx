@@ -46,6 +46,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkDataReader.h"
 #include "vtkConeSource.h"
 #include "vtkPlaneSource.h"
+#include "vtkLargeInteger.h"
+#include "vtkPSphereSource.h"
 
 //-------------------------------------------------------------------------
 vtkPipelineSize* vtkPipelineSize::New()
@@ -108,22 +110,33 @@ void vtkPipelineSize::ComputeSourcePipelineSize(vtkSource *src,
     }
   
   // handle some simple sources
+  vtkLargeInteger sz;
   if (src->IsA("vtkConeSource"))
     {
     vtkConeSource *s = vtkConeSource::SafeDownCast(src);
-    int sz = s->GetResolution()*32/1024;
-    size[0] = sz;
-    size[1] = sz;
-    size[2] = sz;
+    sz = s->GetResolution();
+    sz = sz * 32/1024;
+    size[0] = sz.CastToUnsignedLong();
+    size[1] = size[0];
+    size[2] = size[0];
     return;
     }
   if (src->IsA("vtkPlaneSource"))
     {
     vtkPlaneSource *s = vtkPlaneSource::SafeDownCast(src);
-    int sz = s->GetXResolution()*s->GetYResolution()*32/1024;
-    size[0] = sz;
-    size[1] = sz;
-    size[2] = sz;
+    sz = s->GetXResolution();
+    sz = sz * s->GetYResolution()*32/1024;
+    size[0] = sz.CastToUnsignedLong();
+    size[1] = size[0];
+    size[2] = size[0];
+    return;
+    }
+  if (src->IsA("vtkPSphereSource"))
+    {
+    vtkPSphereSource *s = vtkPSphereSource::SafeDownCast(src);
+    size[0] = s->GetEstimatedMemorySize();
+    size[1] = size[0];
+    size[2] = size[0];
     return;
     }
 
@@ -137,9 +150,9 @@ void vtkPipelineSize::GenericComputeSourcePipelineSize(vtkSource *src,
 {
   unsigned long outputSize[2];
   unsigned long inputPipelineSize[3];
-  unsigned long mySize = 0;
+  vtkLargeInteger mySize = 0;
   unsigned long maxSize = 0;
-  unsigned long goingDownstreamSize = 0;
+  vtkLargeInteger goingDownstreamSize = 0;
   unsigned long *inputSize = NULL;
   int idx;
 
@@ -176,11 +189,12 @@ void vtkPipelineSize::GenericComputeSourcePipelineSize(vtkSource *src,
       // downstream from here.
       if ( inputs[idx]->ShouldIReleaseData() )
 	{
-	goingDownstreamSize += inputPipelineSize[0] - inputPipelineSize[1];
+	goingDownstreamSize = goingDownstreamSize + inputPipelineSize[0] - 
+          inputPipelineSize[1];
 	}
       else
 	{
-	goingDownstreamSize += inputPipelineSize[0];
+	goingDownstreamSize = goingDownstreamSize + inputPipelineSize[0];
 	}
       
       // During execution this filter will need all the input data 
@@ -206,9 +220,9 @@ void vtkPipelineSize::GenericComputeSourcePipelineSize(vtkSource *src,
 
   // Is the state of the pipeline during this filter's execution the
   // largest that it has been so far?
-  if ( mySize > maxSize )
+  if ( mySize.CastToUnsignedLong() > maxSize )
     {
-    maxSize = mySize;
+    maxSize = mySize.CastToUnsignedLong();
     }
   
   // The first size is the memory going downstream from here - which is all
@@ -216,7 +230,7 @@ void vtkPipelineSize::GenericComputeSourcePipelineSize(vtkSource *src,
   // size of the specified output (which can be used by the downstream 
   // filter when determining how much data it might release). The final size
   // is the maximum pipeline size encountered here and upstream from here.
-  size[0] = goingDownstreamSize;
+  size[0] = goingDownstreamSize.CastToUnsignedLong();
   size[1] = outputSize[0];
   size[2] = maxSize;
   
@@ -231,6 +245,8 @@ void vtkPipelineSize::
 ComputeOutputMemorySize( vtkSource *src, vtkDataObject *output,
                          unsigned long *inputSize, unsigned long size[2] )
 {
+  vtkLargeInteger sz;
+  
   // watch for special filters such as Glyph3D
   if (src->IsA("vtkGlyph3D"))
     {
@@ -238,7 +254,9 @@ ComputeOutputMemorySize( vtkSource *src, vtkDataObject *output,
     // we guess the number of points to be 1/16 of the input size in bytes
     if (src->GetNumberOfInputs() >= 2)
       {
-      size[0] = inputSize[1]*inputSize[0]*1024/16;
+      sz = inputSize[1];
+      sz = sz * inputSize[0]*1024/16;
+      size[0] = sz.CastToUnsignedLong();
       size[1] = size[0];
       return;
       }
@@ -256,7 +274,9 @@ GenericComputeOutputMemorySize( vtkSource *src, vtkDataObject *output,
 {
   int idx;
   unsigned long tmp;
-
+  vtkLargeInteger sz = 0;
+  
+  
   size[0] = 0;
   size[1] = 0;
 
@@ -286,8 +306,10 @@ GenericComputeOutputMemorySize( vtkSource *src, vtkDataObject *output,
         size[0] = tmp;
         }
       }
-    size[1] += tmp;
+    sz += tmp;
     }
+  
+  size[1] = sz.CastToUnsignedLong();
 }
 
 void vtkPipelineSize::

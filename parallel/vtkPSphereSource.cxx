@@ -45,6 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkNormals.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkLargeInteger.h"
 
 //------------------------------------------------------------------------------
 vtkPSphereSource* vtkPSphereSource::New()
@@ -256,17 +257,31 @@ void vtkPSphereSource::Execute()
 }
 
 //----------------------------------------------------------------------------
-void vtkPSphereSource::ExecuteInformation()
+unsigned long vtkPSphereSource::GetEstimatedMemorySize()
 {
-  int numTris, numPts;
-  unsigned long size;
+  vtkLargeInteger sz;
+  vtkLargeInteger sz2;
+  unsigned long thetaResolution;
+  int numPieces = this->GetOutput()->GetUpdateNumberOfPieces();
   
+  thetaResolution = this->ThetaResolution / numPieces;
+  if (thetaResolution < 1)
+    {
+    thetaResolution = 1;
+    }
+
   // ignore poles
-  numPts = this->ThetaResolution * (this->PhiResolution + 1);
-  numTris = this->ThetaResolution * this->PhiResolution * 2;
-  size = numPts * 3 * sizeof(float);
-  size += numTris * 4 * sizeof(int);
-  
+  sz = thetaResolution;
+  sz = sz * (this->PhiResolution + 1);
+  sz2 = thetaResolution;
+  sz2 = sz2 * this->PhiResolution * 2;
+  sz = sz * 3 * sizeof(float);
+  sz2 = sz2 * 4 * sizeof(int);
+
+  sz = sz + sz2;
+
   // convert to kilobytes
-  size = (size / 1000) + 1;  
+  sz >> 10;
+  
+  return sz.CastToUnsignedLong();
 }
