@@ -273,8 +273,5 @@ void vtkRibbonFilter::PrintSelf(ostream& os, vtkIndent indent)
 	this->DefaultNormal[0] << ", " <<
 	this->DefaultNormal[1] << ", " <<
 	this->DefaultNormal[2] << " )\n";
-
-"\n";
-
 }
 
