@@ -24,35 +24,30 @@ vtkSLCReader reader
     reader SetFileName "$VTK_DATA/poship.slc"
 
 # make the image a little biger
-vtkImageMagnify magnify
-  magnify SetInput [reader GetOutput]
-  magnify SetMagnificationFactors $IMAGE_MAG_X $IMAGE_MAG_Y $IMAGE_MAG_Z
-  magnify ReleaseDataFlagOn
+vtkImageMagnify magnify1
+  magnify1 SetInput [reader GetOutput]
+  magnify1 SetMagnificationFactors $IMAGE_MAG_X $IMAGE_MAG_Y $IMAGE_MAG_Z
+  magnify1 ReleaseDataFlagOn
 
-# one filter that just passes the data trough
-vtkImageCursor3D cursor1
-cursor1 SetInput [magnify GetOutput]
-cursor1 SetCursorPosition [expr $CURSOR_X * $IMAGE_MAG_X] \
-    [expr $CURSOR_Y * $IMAGE_MAG_Y] [expr $CURSOR_Z * $IMAGE_MAG_Z]
-cursor1 SetCursorValue 255
-cursor1 SetCursorRadius [expr 50 * $IMAGE_MAG_X]
-cursor1 BypassOn
+vtkImageMagnify magnify2
+  magnify2 SetInput [reader GetOutput]
+  magnify2 SetMagnificationFactors $IMAGE_MAG_X $IMAGE_MAG_Y $IMAGE_MAG_Z
+  magnify2 ReleaseDataFlagOn
 
-# a second filter that does in place processing (magnify ReleaseDataFlagOn)
-vtkImageCursor3D cursor2
-cursor2 SetInput [magnify GetOutput]
-cursor2 SetCursorPosition [expr $CURSOR_X * $IMAGE_MAG_X] \
+# a filter that does in place processing (magnify ReleaseDataFlagOn)
+vtkImageCursor3D cursor
+cursor SetInput [magnify1 GetOutput]
+cursor SetCursorPosition [expr $CURSOR_X * $IMAGE_MAG_X] \
     [expr $CURSOR_Y * $IMAGE_MAG_Y] [expr $CURSOR_Z * $IMAGE_MAG_Z]
-cursor2 SetCursorValue 255
-cursor2 SetCursorRadius [expr 50 * $IMAGE_MAG_X]
+cursor SetCursorValue 255
+cursor SetCursorRadius [expr 50 * $IMAGE_MAG_X]
 # stream to increase coverage of in place filter.
-cursor2 SetInputMemoryLimit 1
 
 # put thge two together in one image
 vtkImageAppend append
 append SetAppendAxis 0
-append AddInput [cursor1 GetOutput]
-append AddInput [cursor2 GetOutput]
+append AddInput [magnify2 GetOutput]
+append AddInput [cursor GetOutput]
 
 vtkImageViewer viewer
 viewer SetInput [append GetOutput]
