@@ -16,10 +16,13 @@
 
 =========================================================================*/
 #include "vtkExplicitCell.h"
+
 #include "vtkCellArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkExplicitCell, "1.2");
+
+vtkCxxRevisionMacro(vtkExplicitCell, "1.3");
+vtkCxxSetObjectMacro(vtkExplicitCell,DataSet,vtkDataSet);
 
 vtkExplicitCell::vtkExplicitCell()
 {

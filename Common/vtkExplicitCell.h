@@ -28,7 +28,8 @@
 #define __vtkExplicitCell_h
 
 #include "vtkNonLinearCell.h"
-#include "vtkDataSet.h"
+
+class vtkDataSet;
 
 class VTK_COMMON_EXPORT vtkExplicitCell : public vtkNonLinearCell
 {
@@ -56,7 +57,7 @@ public:
   // cells because they often need to keep extra information (typically
   // contained in the cell data of a point set). This information might be
   // things like knot points/weights, boundaries, etc.
-  vtkSetObjectMacro(DataSet,vtkDataSet);
+  virtual void SetDataSet(vtkDataSet*);
   vtkGetObjectMacro(DataSet,vtkDataSet);
 
 protected:
