@@ -146,9 +146,11 @@ vtkPyramid.cxx
 vtkQuad.cxx
 vtkQuadraticEdge.cxx
 vtkQuadraticHexahedron.cxx
+vtkQuadraticPyramid.cxx
 vtkQuadraticQuad.cxx
 vtkQuadraticTetra.cxx
 vtkQuadraticTriangle.cxx
+vtkQuadraticWedge.cxx
 vtkQuadric.cxx
 vtkRectilinearGrid.cxx
 vtkReferenceCount.cxx

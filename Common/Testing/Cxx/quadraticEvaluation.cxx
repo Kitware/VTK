@@ -25,6 +25,8 @@
 #include "vtkQuadraticQuad.h"
 #include "vtkQuadraticHexahedron.h"
 #include "vtkQuadraticTetra.h"
+#include "vtkQuadraticWedge.h"
+#include "vtkQuadraticPyramid.h"
 
 void  ComputeDataValues(vtkPoints *pts, double *edgeValues)
 {
@@ -68,11 +70,19 @@ int TestQE(ostream& strm)
   vtkQuadraticHexahedron *hex = vtkQuadraticHexahedron::New();
   vtkQuadraticHexahedron *hex2 = hex->NewInstance();
 
+  vtkQuadraticWedge *wedge = vtkQuadraticWedge::New();
+  vtkQuadraticWedge *wedge2 = wedge->NewInstance();
+
+  vtkQuadraticPyramid *pyra = vtkQuadraticPyramid::New();
+  vtkQuadraticHexahedron *pyra2 = hex->NewInstance();
+
   edge2->Delete();
   tri2->Delete();
   quad2->Delete();
   tetra2->Delete();
   hex2->Delete();
+  wedge2->Delete();
+  pyra2->Delete();
 
   strm << "Test instantiation New() and NewInstance() End" << endl;
   
@@ -226,7 +236,82 @@ int TestQE(ostream& strm)
   hex->EvaluatePosition(hexPoint[0], hexClosest, subId, hexPCoords, 
                          dist2, hexWeights);
 
+  // vtkQuadraticWedge
+  double wedgePCoords[3], wedgeWeights[20], wedgePosition[3];
+  double wedgePoint[1][3] = {{0.25, 0.33333, 0.666667}};
+  double wedgeClosest[3];
   
+  wedge->GetPointIds()->SetId(0,0);
+  wedge->GetPointIds()->SetId(1,1);
+  wedge->GetPointIds()->SetId(2,2);
+  wedge->GetPointIds()->SetId(3,3);
+  wedge->GetPointIds()->SetId(4,4);
+  wedge->GetPointIds()->SetId(5,5);
+  wedge->GetPointIds()->SetId(6,6);
+  wedge->GetPointIds()->SetId(7,7);
+  wedge->GetPointIds()->SetId(8,8);
+  wedge->GetPointIds()->SetId(9,9);
+  wedge->GetPointIds()->SetId(10,10);
+  wedge->GetPointIds()->SetId(11,11);
+  wedge->GetPointIds()->SetId(12,12);
+  wedge->GetPointIds()->SetId(13,13);
+  wedge->GetPointIds()->SetId(14,14);
+
+  wedge->GetPoints()->SetPoint( 0, 0, 0, 0  );
+  wedge->GetPoints()->SetPoint( 1, 1, 0, 0  );
+  wedge->GetPoints()->SetPoint( 2, 0, 1, 0  );
+  wedge->GetPoints()->SetPoint( 3, 0, 0, 1  );
+  wedge->GetPoints()->SetPoint( 4, 1, 0, 1  );
+  wedge->GetPoints()->SetPoint( 5, 0, 1, 1  );
+  wedge->GetPoints()->SetPoint( 6, 0.5, 0, 0  );
+  wedge->GetPoints()->SetPoint( 7, 0.5, 0.5, 0  );
+  wedge->GetPoints()->SetPoint( 8, 0, 0.5, 0);
+  wedge->GetPoints()->SetPoint( 9, 0.5, 0, 1);
+  wedge->GetPoints()->SetPoint(10, 0.5, 0.5, 1);
+  wedge->GetPoints()->SetPoint(11, 0, 0.5, 1);
+  wedge->GetPoints()->SetPoint(12, 0, 0, 0.5);
+  wedge->GetPoints()->SetPoint(13, 1, 0, 0.5);
+  wedge->GetPoints()->SetPoint(14, 0, 1, 0.5);
+
+  wedge->EvaluatePosition(wedgePoint[0], wedgeClosest, subId, wedgePCoords, 
+                         dist2, wedgeWeights);
+
+  // vtkQuadraticPyramid
+  double pyraPCoords[3], pyraWeights[20], pyraPosition[3];
+  double pyraPoint[1][3] = {{0.25, 0.33333, 0.666667}};
+  double pyraClosest[3];
+  
+  pyra->GetPointIds()->SetId(0,0);
+  pyra->GetPointIds()->SetId(1,1);
+  pyra->GetPointIds()->SetId(2,2);
+  pyra->GetPointIds()->SetId(3,3);
+  pyra->GetPointIds()->SetId(4,4);
+  pyra->GetPointIds()->SetId(5,5);
+  pyra->GetPointIds()->SetId(6,6);
+  pyra->GetPointIds()->SetId(7,7);
+  pyra->GetPointIds()->SetId(8,8);
+  pyra->GetPointIds()->SetId(9,9);
+  pyra->GetPointIds()->SetId(10,10);
+  pyra->GetPointIds()->SetId(11,11);
+  pyra->GetPointIds()->SetId(12,12);
+
+  pyra->GetPoints()->SetPoint( 0, 0, 0, 0  );
+  pyra->GetPoints()->SetPoint( 1, 1, 0, 0  );
+  pyra->GetPoints()->SetPoint( 2, 1, 1, 0  );
+  pyra->GetPoints()->SetPoint( 3, 0, 1, 0  );
+  pyra->GetPoints()->SetPoint( 4, 0, 0, 1  );
+  pyra->GetPoints()->SetPoint( 5, 0.5, 0, 0  );
+  pyra->GetPoints()->SetPoint( 6, 1, 0.5, 0  );
+  pyra->GetPoints()->SetPoint( 7, 0.5, 1, 0  );
+  pyra->GetPoints()->SetPoint( 8, 0, 0.5, 0  );
+  pyra->GetPoints()->SetPoint( 9, 0, 0, 0.5  );
+  pyra->GetPoints()->SetPoint(10, 0.5, 0, 0.5  );
+  pyra->GetPoints()->SetPoint(11, 0.5, 0.5, 0.5  );
+  pyra->GetPoints()->SetPoint(12, 0, 0.5, 0.5  );
+
+  pyra->EvaluatePosition(pyraPoint[0], pyraClosest, subId, pyraPCoords, 
+                         dist2, pyraWeights);
+
   strm << "Test vtkCell::EvaluatePosition End" << endl;
 
   //-------------------------------------------------------------
@@ -249,6 +334,12 @@ int TestQE(ostream& strm)
   hexPCoords[2] = 0.75;
   hex->EvaluateLocation(subId, hexPCoords, hexPosition, hexWeights);
   
+  // vtkQuadraticWedge
+  wedge->EvaluateLocation(subId, wedgePCoords, wedgePosition, wedgeWeights);
+
+  // vtkQuadraticPyramid
+  pyra->EvaluateLocation(subId, pyraPCoords, pyraPosition, pyraWeights);
+
   strm << "Test vtkCell::EvaluateLocation End" << endl;
 
   //-------------------------------------------------------------
@@ -279,6 +370,16 @@ int TestQE(ostream& strm)
   ComputeDataValues(hex->Points,hexValues);
   hex->Derivatives(subId, hexPCoords, hexValues, 1, hexDerivs);
   
+  // vtkQuadraticWedge - temporarily commented out
+//  double wedgeValues[20], wedgeDerivs[3];
+//  ComputeDataValues(wedge->Points,wedgeValues);
+//  wedge->Derivatives(subId, wedgePCoords, wedgeValues, 1, wedgeDerivs);
+
+  // vtkQuadraticPyramid - temporarily commented out
+//  double pyraValues[20], pyraDerivs[3];
+//  ComputeDataValues(pyra->Points,pyraValues);
+//  pyra->Derivatives(subId, pyraPCoords, pyraValues, 1, pyraDerivs);
+
   strm << "Test vtkCell::CellDerivs End" << endl;
 
   edge->Delete();
@@ -286,6 +387,8 @@ int TestQE(ostream& strm)
   quad->Delete();
   tetra->Delete();
   hex->Delete();
+  wedge->Delete();
+  pyra->Delete();
 
   return 0;
 }

@@ -53,6 +53,8 @@
 #define VTK_QUADRATIC_QUAD       23
 #define VTK_QUADRATIC_TETRA      24
 #define VTK_QUADRATIC_HEXAHEDRON 25
+#define VTK_QUADRATIC_WEDGE      26
+#define VTK_QUADRATIC_PYRAMID    27
 
 // Special class of cells formed by convex group of points
 #define VTK_CONVEX_POINT_SET 41

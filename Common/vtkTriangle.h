@@ -75,6 +75,11 @@ public:
             int insideOut);
 
   // Description:
+  // vtkTriangle specific methods.
+  static void InterpolationFunctions(double pcoords[3], double sf[3]);
+  static void InterpolationDerivs(double pcoords[3], double derivs[6]);
+
+  // Description:
   // Plane intersection plus in/out test on triangle. The in/out test is 
   // performed using tol as the tolerance.
   int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,

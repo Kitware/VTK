@@ -18,7 +18,7 @@ vtkFloatArray triScalars
   triScalars InsertValue 1 0.0
   triScalars InsertValue 2 0.0
   triScalars InsertValue 3 1.0
-  triScalars InsertValue 4 0.0
+  triScalars InsertValue 4 1.0
   triScalars InsertValue 5 0.0
 vtkQuadraticTriangle aTri
   [aTri GetPointIds] SetId 0 0
@@ -183,12 +183,135 @@ vtkUnstructuredGrid aHexGrid
   aHexGrid SetPoints hexPoints
   [aHexGrid GetPointData] SetScalars hexScalars
 
+# Quadratic wedge
+vtkPoints wedgePoints
+  wedgePoints SetNumberOfPoints 15
+  wedgePoints InsertPoint 0  10   0   0
+  wedgePoints InsertPoint 1  11   0   0
+  wedgePoints InsertPoint 2  10   1   0
+  wedgePoints InsertPoint 3  10   0   1
+  wedgePoints InsertPoint 4  11   0   1
+  wedgePoints InsertPoint 5  10   1   1
+  wedgePoints InsertPoint 6  10.5 0   0
+  wedgePoints InsertPoint 7  10.5 0.5 0
+  wedgePoints InsertPoint 8  10   0.5 0
+  wedgePoints InsertPoint 9  10.5 0   1
+  wedgePoints InsertPoint 10 10.5 0.5 1
+  wedgePoints InsertPoint 11 10   0.5 1
+  wedgePoints InsertPoint 12 10   0   0.5
+  wedgePoints InsertPoint 13 11   0   0.5
+  wedgePoints InsertPoint 14 10   1   0.5
+vtkFloatArray wedgeScalars
+  wedgeScalars SetNumberOfTuples 15
+  wedgeScalars InsertValue 0 1.0
+  wedgeScalars InsertValue 1 1.0
+  wedgeScalars InsertValue 2 1.0
+  wedgeScalars InsertValue 3 1.0
+  wedgeScalars InsertValue 4 1.0
+  wedgeScalars InsertValue 5 1.0
+  wedgeScalars InsertValue 6 0.0
+  wedgeScalars InsertValue 7 0.0
+  wedgeScalars InsertValue 8 0.0
+  wedgeScalars InsertValue 9 0.0
+  wedgeScalars InsertValue 10 0.0
+  wedgeScalars InsertValue 11 0.0
+  wedgeScalars InsertValue 12 0.0
+  wedgeScalars InsertValue 13 0.0
+  wedgeScalars InsertValue 14 0.0
+vtkQuadraticWedge aWedge
+  [aWedge GetPointIds] SetId 0 0
+  [aWedge GetPointIds] SetId 1 1
+  [aWedge GetPointIds] SetId 2 2
+  [aWedge GetPointIds] SetId 3 3
+  [aWedge GetPointIds] SetId 4 4
+  [aWedge GetPointIds] SetId 5 5
+  [aWedge GetPointIds] SetId 6 6
+  [aWedge GetPointIds] SetId 7 7
+  [aWedge GetPointIds] SetId 8 8
+  [aWedge GetPointIds] SetId 9 9
+  [aWedge GetPointIds] SetId 10 10
+  [aWedge GetPointIds] SetId 11 11
+  [aWedge GetPointIds] SetId 12 12
+  [aWedge GetPointIds] SetId 13 13
+  [aWedge GetPointIds] SetId 14 14
+  #aWedge DebugOn
+  
+  puts aWedge
+  
+vtkUnstructuredGrid aWedgeGrid
+  aWedgeGrid Allocate 1 1
+  aWedgeGrid InsertNextCell [aWedge GetCellType] [aWedge GetPointIds]
+  aWedgeGrid SetPoints wedgePoints
+  [aWedgeGrid GetPointData] SetScalars wedgeScalars
+  
+# Quadratic pyramid
+vtkPoints pyraPoints
+  pyraPoints SetNumberOfPoints 13
+  pyraPoints InsertPoint 0  12   0   0
+  pyraPoints InsertPoint 1  13   0   0
+  pyraPoints InsertPoint 2  13   1   0
+  pyraPoints InsertPoint 3  12   1   0
+  pyraPoints InsertPoint 4  12   0   1
+  pyraPoints InsertPoint 5  12.5 0   0
+  pyraPoints InsertPoint 6  13   0.5 0
+  pyraPoints InsertPoint 7  12.5 1   0
+  pyraPoints InsertPoint 8  12   0.5 0
+  pyraPoints InsertPoint 9  12   0   0.5
+  pyraPoints InsertPoint 10 12.5 0   0.5
+  pyraPoints InsertPoint 11 12.5 0.5 0.5
+  pyraPoints InsertPoint 12 12   0.5 0.5
+vtkFloatArray pyraScalars
+  pyraScalars SetNumberOfTuples 13
+  pyraScalars InsertValue 0 1.0
+  pyraScalars InsertValue 1 1.0
+  pyraScalars InsertValue 2 1.0
+  pyraScalars InsertValue 3 1.0
+  pyraScalars InsertValue 4 1.0
+  pyraScalars InsertValue 5 1.0
+  pyraScalars InsertValue 6 0.0
+  pyraScalars InsertValue 7 0.0
+  pyraScalars InsertValue 8 0.0
+  pyraScalars InsertValue 9 0.0
+  pyraScalars InsertValue 10 0.0
+  pyraScalars InsertValue 11 0.0
+  pyraScalars InsertValue 12 0.0
+vtkQuadraticPyramid aPyramid
+  [aPyramid GetPointIds] SetId 0 0
+  [aPyramid GetPointIds] SetId 1 1
+  [aPyramid GetPointIds] SetId 2 2
+  [aPyramid GetPointIds] SetId 3 3
+  [aPyramid GetPointIds] SetId 4 4
+  [aPyramid GetPointIds] SetId 5 5
+  [aPyramid GetPointIds] SetId 6 6
+  [aPyramid GetPointIds] SetId 7 7
+  [aPyramid GetPointIds] SetId 8 8
+  [aPyramid GetPointIds] SetId 9 9
+  [aPyramid GetPointIds] SetId 10 10
+  [aPyramid GetPointIds] SetId 11 11
+  [aPyramid GetPointIds] SetId 12 12
+  #aPyramid DebugOn
+  
+  puts aPyramid
+  
+vtkUnstructuredGrid aPyraGrid
+  aPyraGrid Allocate 1 1
+  aPyraGrid InsertNextCell [aPyramid GetCellType] [aPyramid GetPointIds]
+  aPyraGrid SetPoints pyraPoints
+  [aPyraGrid GetPointData] SetScalars pyraScalars
+  
+#vtkUnstructuredGridWriter writer
+#  writer SetInput  aWedgeGrid
+#  writer SetFileName foo.vtk
+#  writer Write
+
 # Append the quadratic cells together
 vtkAppendFilter appendF
   appendF AddInput aTriGrid
   appendF AddInput aQuadGrid
   appendF AddInput aTetGrid
   appendF AddInput aHexGrid
+  appendF AddInput aWedgeGrid
+  appendF AddInput aPyraGrid
 
 # Extract the edges
 vtkExtractEdges extract
@@ -200,7 +323,7 @@ vtkShrinkPolyData shrink
 
 vtkDataSetMapper aMapper
   aMapper SetInput [shrink GetOutput]
-  aMapper ScalarVisibilityOff
+  #aMapper ScalarVisibilityOff
 
 vtkActor aActor
   aActor SetMapper aMapper

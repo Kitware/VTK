@@ -22,7 +22,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticTetra, "1.19");
+vtkCxxRevisionMacro(vtkQuadraticTetra, "1.20");
 vtkStandardNewMacro(vtkQuadraticTetra);
 
 // Construct the line with two points.
@@ -199,7 +199,7 @@ int vtkQuadraticTetra::EvaluatePosition(double* x,
     if (closestPoint)
       {
       closestPoint[0] = x[0]; closestPoint[1] = x[1]; closestPoint[2] = x[2];
-      dist2 = 0.0; //inside hexahedron
+      dist2 = 0.0; //inside tetra
       }
     return 1;
     }
@@ -208,7 +208,7 @@ int vtkQuadraticTetra::EvaluatePosition(double* x,
     double pc[3], w[10];
     if (closestPoint)
       {
-      for (i=0; i<3; i++) //only approximate, not really true for warped hexa
+      for (i=0; i<3; i++) //only approximate, not really true for warped tetra
         {
         if (pcoords[i] < 0.0)
           {

@@ -40,6 +40,8 @@ class vtkPyramid;
 class vtkQuad;
 class vtkQuadraticEdge;
 class vtkQuadraticHexahedron;
+class vtkQuadraticWedge;
+class vtkQuadraticPyramid;
 class vtkQuadraticQuad;
 class vtkQuadraticTetra;
 class vtkQuadraticTriangle;
@@ -194,6 +196,8 @@ protected:
   vtkQuadraticQuad       *QuadraticQuad;
   vtkQuadraticTetra      *QuadraticTetra;
   vtkQuadraticHexahedron *QuadraticHexahedron;
+  vtkQuadraticWedge      *QuadraticWedge;
+  vtkQuadraticPyramid    *QuadraticPyramid;
   vtkConvexPointSet      *ConvexPointSet;
   vtkEmptyCell *EmptyCell;
   

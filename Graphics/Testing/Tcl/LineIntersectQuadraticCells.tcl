@@ -241,6 +241,146 @@ vtkActor aHexActor
   [aHexActor GetProperty] SetRepresentationToWireframe
   [aHexActor GetProperty] SetAmbient 1.0
 
+# Quadratic wedge
+vtkPoints wedgePoints
+  wedgePoints SetNumberOfPoints 15
+  wedgePoints InsertPoint 0   0   0   0
+  wedgePoints InsertPoint 1   1   0   0
+  wedgePoints InsertPoint 2   0   1   0
+  wedgePoints InsertPoint 3   0   0   1
+  wedgePoints InsertPoint 4   1   0   1
+  wedgePoints InsertPoint 5   0   1   1
+  wedgePoints InsertPoint 6   0.5 0   0
+  wedgePoints InsertPoint 7   0.5 0.5 0
+  wedgePoints InsertPoint 8   0   0.5 0
+  wedgePoints InsertPoint 9   0.5 0   1
+  wedgePoints InsertPoint 10  0.5 0.5 1
+  wedgePoints InsertPoint 11  0   0.5 1
+  wedgePoints InsertPoint 12  0   0   0.5
+  wedgePoints InsertPoint 13  1   0   0.5
+  wedgePoints InsertPoint 14  0   1   0.5
+vtkFloatArray wedgeScalars
+  wedgeScalars SetNumberOfTuples 15
+  wedgeScalars InsertValue 0 1.0
+  wedgeScalars InsertValue 1 1.0
+  wedgeScalars InsertValue 2 1.0
+  wedgeScalars InsertValue 3 1.0
+  wedgeScalars InsertValue 4 1.0
+  wedgeScalars InsertValue 5 1.0
+  wedgeScalars InsertValue 6 1.0
+  wedgeScalars InsertValue 7 1.0
+  wedgeScalars InsertValue 8 0.0
+  wedgeScalars InsertValue 9 0.0
+  wedgeScalars InsertValue 10 0.0
+  wedgeScalars InsertValue 11 0.0
+  wedgeScalars InsertValue 12 0.0
+  wedgeScalars InsertValue 13 0.0
+  wedgeScalars InsertValue 14 0.0
+vtkQuadraticWedge aWedge
+  [aWedge GetPointIds] SetId 0 0
+  [aWedge GetPointIds] SetId 1 1
+  [aWedge GetPointIds] SetId 2 2
+  [aWedge GetPointIds] SetId 3 3
+  [aWedge GetPointIds] SetId 4 4
+  [aWedge GetPointIds] SetId 5 5
+  [aWedge GetPointIds] SetId 6 6
+  [aWedge GetPointIds] SetId 7 7
+  [aWedge GetPointIds] SetId 8 8
+  [aWedge GetPointIds] SetId 9 9
+  [aWedge GetPointIds] SetId 10 10
+  [aWedge GetPointIds] SetId 11 11
+  [aWedge GetPointIds] SetId 12 12
+  [aWedge GetPointIds] SetId 13 13
+  [aWedge GetPointIds] SetId 14 14
+vtkUnstructuredGrid aWedgeGrid
+  aWedgeGrid Allocate 1 1
+  aWedgeGrid InsertNextCell [aWedge GetCellType] [aWedge GetPointIds]
+  aWedgeGrid SetPoints wedgePoints
+  [aWedgeGrid GetPointData] SetScalars wedgeScalars
+vtkClipDataSet wedgeContours
+  wedgeContours SetInput aWedgeGrid
+  wedgeContours SetValue 0.5
+vtkDataSetMapper aWedgeContourMapper
+  aWedgeContourMapper SetInput [wedgeContours GetOutput]
+  aWedgeContourMapper ScalarVisibilityOff
+vtkDataSetMapper aWedgeMapper
+  aWedgeMapper SetInput aWedgeGrid
+  aWedgeMapper ScalarVisibilityOff
+vtkActor aWedgeActor
+  aWedgeActor SetMapper aWedgeMapper
+  [aWedgeActor GetProperty] SetRepresentationToWireframe
+  [aWedgeActor GetProperty] SetAmbient 1.0
+vtkActor aWedgeContourActor
+  aWedgeContourActor SetMapper aWedgeContourMapper
+  [aWedgeContourActor GetProperty] SetAmbient 1.0
+
+# Quadratic pyramid
+vtkPoints pyraPoints
+  pyraPoints SetNumberOfPoints 13
+  pyraPoints InsertPoint 0  0   0   0
+  pyraPoints InsertPoint 1  1   0   0
+  pyraPoints InsertPoint 2  1   1   0
+  pyraPoints InsertPoint 3  0   1   0
+  pyraPoints InsertPoint 4  0   0   1
+  pyraPoints InsertPoint 5  0.5 0   0
+  pyraPoints InsertPoint 6  1   0.5 0
+  pyraPoints InsertPoint 7  0.5 1   0
+  pyraPoints InsertPoint 8  0   0.5 0
+  pyraPoints InsertPoint 9  0   0   0.5
+  pyraPoints InsertPoint 10 0.5 0   0.5
+  pyraPoints InsertPoint 11 0.5 0.5 0.5
+  pyraPoints InsertPoint 12 0   0.5 0.5
+vtkFloatArray pyraScalars
+  pyraScalars SetNumberOfTuples 13
+  pyraScalars InsertValue 0 1.0
+  pyraScalars InsertValue 1 1.0
+  pyraScalars InsertValue 2 1.0
+  pyraScalars InsertValue 3 1.0
+  pyraScalars InsertValue 4 1.0
+  pyraScalars InsertValue 5 1.0
+  pyraScalars InsertValue 6 1.0
+  pyraScalars InsertValue 7 1.0
+  pyraScalars InsertValue 8 0.0
+  pyraScalars InsertValue 9 0.0
+  pyraScalars InsertValue 10 0.0
+  pyraScalars InsertValue 11 0.0
+  pyraScalars InsertValue 12 0.0
+vtkQuadraticPyramid aPyramid
+  [aPyramid GetPointIds] SetId 0 0
+  [aPyramid GetPointIds] SetId 1 1
+  [aPyramid GetPointIds] SetId 2 2
+  [aPyramid GetPointIds] SetId 3 3
+  [aPyramid GetPointIds] SetId 4 4
+  [aPyramid GetPointIds] SetId 5 5
+  [aPyramid GetPointIds] SetId 6 6
+  [aPyramid GetPointIds] SetId 7 7
+  [aPyramid GetPointIds] SetId 8 8
+  [aPyramid GetPointIds] SetId 9 9
+  [aPyramid GetPointIds] SetId 10 10
+  [aPyramid GetPointIds] SetId 11 11
+  [aPyramid GetPointIds] SetId 12 12
+vtkUnstructuredGrid aPyramidGrid
+  aPyramidGrid Allocate 1 1
+  aPyramidGrid InsertNextCell [aPyramid GetCellType] [aPyramid GetPointIds]
+  aPyramidGrid SetPoints pyraPoints
+  [aPyramidGrid GetPointData] SetScalars pyraScalars
+vtkClipDataSet pyraContours
+  pyraContours SetInput aPyramidGrid
+  pyraContours SetValue 0.5
+vtkDataSetMapper aPyramidContourMapper
+  aPyramidContourMapper SetInput [pyraContours GetOutput]
+  aPyramidContourMapper ScalarVisibilityOff
+vtkDataSetMapper aPyramidMapper
+  aPyramidMapper SetInput aPyramidGrid
+  aPyramidMapper ScalarVisibilityOff
+vtkActor aPyramidActor
+  aPyramidActor SetMapper aPyramidMapper
+  [aPyramidActor GetProperty] SetRepresentationToWireframe
+  [aPyramidActor GetProperty] SetAmbient 1.0
+vtkActor aPyramidContourActor
+  aPyramidContourActor SetMapper aPyramidContourMapper
+  [aPyramidContourActor GetProperty] SetAmbient 1.0
+
 # Create the rendering related stuff.
 # Since some of our actors are a single vertex, we need to remove all
 # cullers so the single vertex actors will render
@@ -256,19 +396,23 @@ ren1 SetBackground .1 .2 .3
 renWin SetSize 400 200
 
 # specify properties
-ren1 AddActor aEdgeActor 
-ren1 AddActor aTriActor 
+ren1 AddActor aEdgeActor
+ren1 AddActor aTriActor
 ren1 AddActor aQuadActor 
 ren1 AddActor aTetActor 
 ren1 AddActor aHexActor 
+ren1 AddActor aWedgeActor 
+ren1 AddActor aPyramidActor 
 
 # places everyone!!
 aTriActor AddPosition 2 0 0
 aQuadActor AddPosition 4 0 0
 aTetActor AddPosition 6 0 0
 aHexActor AddPosition 8 0 0
+aWedgeActor AddPosition 10 0 0
+aPyramidActor AddPosition 12 0 0
 
-BuildBackdrop -1 11 -1 4 -1 2 .1
+BuildBackdrop -1 15 -1 4 -1 2 .1
 ren1 AddActor base
 [base GetProperty] SetDiffuseColor .2 .2 .2
 ren1 AddActor left
@@ -330,6 +474,22 @@ vtkActor hexCheck
 cellPicker Pick 287 80 0 ren1
 if {[cellPicker GetCellId] != "-1" } {
     ren1 AddActor hexCheck
+}
+
+vtkActor wedgeCheck
+  wedgeCheck SetMapper pmapper
+  wedgeCheck AddPosition 10.5 2.5 0
+cellPicker Pick 287 80 0 ren1
+if {[cellPicker GetCellId] != "-1" } {
+    ren1 AddActor wedgeCheck
+}
+
+vtkActor pyraCheck
+  pyraCheck SetMapper pmapper
+  pyraCheck AddPosition 12.5 2.5 0
+cellPicker Pick 287 80 0 ren1
+if {[cellPicker GetCellId] != "-1" } {
+    ren1 AddActor pyraCheck
 }
 
 # render the image
