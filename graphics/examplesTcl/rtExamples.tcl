@@ -20,14 +20,13 @@ set noTest {
    deciPineRoot.tcl deleted.tcl mcTest.tcl viewMCubesFile.tcl vol.tcl
    volTkInteractor.tcl spikeColor.tcl tkwin.tcl 3dsToRIB.tcl
 
-   Close.tcl ContinuousClose.tcl EnhanceEdges.tcl Gradient2D.tcl 
-   HighPassComparison.tcl HybridMedianComparison.tcl IdealHighPass.tcl 
-   ImageGradient.tcl LaplacianEdgeEnhance.tcl LaplacianSurfaceEnhance.tcl 
+   Close.tcl ContinuousClose.tcl Gradient2D.tcl HighPassComparison.tcl 
+   HybridMedianComparison.tcl IdealHighPass.tcl ImageGradient.tcl  
    ShotNoiseInclude.tcl Spectrum.tcl TestContinuousDilate3D.tcl
    TestContinuousErode3D.tcl TestDilateErode3D.tcl TestEuclideanToPolar.tcl 
    TestFeatureAnd.tcl TestHistogram.tcl TestHistogramEqualization.tcl
    TestHybridMedian2D.tcl TestIdealHighPass.tcl TestIdealLowPass.tcl
-   TestLaplacian.tcl TestLogarithmicScale.tcl TestMIPFilter.tcl
+   TestLogarithmicScale.tcl TestMIPFilter.tcl
    TestOpenClose3D.tcl TestRange3D.tcl TestSkeleton2D.tcl
    TestSobel2D.tcl TestSobel3D.tcl TestSubsample3D.tcl TestVariance3D.tcl
    TestWriter.tcl Timing.tcl VTKSpectrum.tcl WindowLevelInterface.tcl
