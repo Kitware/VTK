@@ -597,7 +597,7 @@ void vtkImageShortReader::UpdatePointData(vtkImageRegion *region)
     }
 
   // read in the slice
-  ptr = region->GetScalarWritePointer();
+  ptr = region->GetScalarPointer();
   switch (region->GetScalarType())
     {
     case VTK_FLOAT:

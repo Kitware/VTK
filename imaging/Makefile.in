@@ -34,10 +34,11 @@ vtkImageGaussianSmooth1D.o \
 vtkImageGradient2D.o \
 vtkImageGradient3D.o \
 vtkImageHarrWavelet2D.o \
+vtkImageInPlaceFilter.o \
 vtkImageIslandRemoval2D.o \
 vtkImageMagnify1D.o \
 vtkImageMagnify.o \
-vtkImageMatte4D.o \
+vtkImageMatte.o \
 vtkImageMedian.o \
 vtkImageMIPFilter.o \
 vtkImageNonMaximalSuppression2D.o \
@@ -78,10 +79,11 @@ tcl/vtkImageGaussianSmooth1DTcl.o \
 tcl/vtkImageGradient2DTcl.o \
 tcl/vtkImageGradient3DTcl.o \
 tcl/vtkImageHarrWavelet2DTcl.o \
+tcl/vtkImageInPlaceFilterTcl.o \
 tcl/vtkImageIslandRemoval2DTcl.o \
 tcl/vtkImageMagnify1DTcl.o \
 tcl/vtkImageMagnifyTcl.o \
-tcl/vtkImageMatte4DTcl.o \
+tcl/vtkImageMatteTcl.o \
 tcl/vtkImageMedianTcl.o \
 tcl/vtkImageMIPFilterTcl.o \
 tcl/vtkImageNonMaximalSuppression2DTcl.o \
@@ -120,10 +122,11 @@ vtkImageGaussianSmooth1D.h \
 vtkImageGradient2D.h \
 vtkImageGradient3D.h \
 vtkImageHarrWavelet2D.h \
+vtkImageInPlaceFilter.h \
 vtkImageIslandRemoval2D.h \
 vtkImageMagnify1D.h \
 vtkImageMagnify.h \
-vtkImageMatte4D.h \
+vtkImageMatte.h \
 vtkImageMedian.h \
 vtkImageMIPFilter.h \
 vtkImageNonMaximalSuppression2D.h \
@@ -262,6 +265,9 @@ tcl/vtkImageGradient3DTcl.cxx: vtkImageGradient3D.h ../tcl/cpp_parse
 tcl/vtkImageHarrWavelet2DTcl.cxx: vtkImageHarrWavelet2D.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageHarrWavelet2DTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageHarrWavelet2D.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageHarrWavelet2DTcl.cxx
 
+tcl/vtkImageInPlaceFilterTcl.cxx: vtkImageInPlaceFilter.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageInPlaceFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageInPlaceFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageInPlaceFilterTcl.cxx
+
 tcl/vtkImageIslandRemoval2DTcl.cxx: vtkImageIslandRemoval2D.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageIslandRemoval2DTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageIslandRemoval2D.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageIslandRemoval2DTcl.cxx
 
@@ -271,8 +277,8 @@ tcl/vtkImageMagnify1DTcl.cxx: vtkImageMagnify1D.h ../tcl/cpp_parse
 tcl/vtkImageMagnifyTcl.cxx: vtkImageMagnify.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageMagnifyTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageMagnify.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageMagnifyTcl.cxx
 
-tcl/vtkImageMatte4DTcl.cxx: vtkImageMatte4D.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImageMatte4DTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageMatte4D.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageMatte4DTcl.cxx
+tcl/vtkImageMatteTcl.cxx: vtkImageMatte.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageMatteTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageMatte.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageMatteTcl.cxx
 
 tcl/vtkImageMedianTcl.cxx: vtkImageMedian.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageMedianTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageMedian.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageMedianTcl.cxx

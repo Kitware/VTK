@@ -463,7 +463,7 @@ void vtkImageFourierWavelet2D::Execute(vtkImageRegion *inRegion,
     }
 
   inPtr = inRegion->GetScalarPointer();
-  outPtr = outRegion->GetScalarWritePointer();
+  outPtr = outRegion->GetScalarPointer();
 
   switch (inRegion->GetScalarType())
     {

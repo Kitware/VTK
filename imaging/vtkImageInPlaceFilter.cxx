@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageFilter.cxx
+  Module:    vtkImageInPlaceFilter.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,30 +38,21 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageFilter.h"
+#include "vtkImageInPlaceFilter.h"
 #include "vtkImageCache.h"
 
 
 //----------------------------------------------------------------------------
-vtkImageFilter::vtkImageFilter()
+vtkImageInPlaceFilter::vtkImageInPlaceFilter()
 {
   this->Input = NULL;
-  this->UseExecuteMethod = 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkImageFilter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImageInPlaceFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageCachedSource::PrintSelf(os,indent);
   os << indent << "Input: (" << this->Input << ").\n";
-  if (this->UseExecuteMethod)
-    {
-    os << indent << "Use Execute Method.\n";
-    }
-  else
-    {
-    os << indent << "Use Update Method.\n";
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -70,7 +61,7 @@ void vtkImageFilter::PrintSelf(ostream& os, vtkIndent indent)
 // Note: current implementation may create a cascade of GetPipelineMTime calls.
 // Each GetPipelineMTime call propagates the call all the way to the original
 // source.  
-unsigned long int vtkImageFilter::GetPipelineMTime()
+unsigned long int vtkImageInPlaceFilter::GetPipelineMTime()
 {
   unsigned long int time1, time2;
 
@@ -98,7 +89,7 @@ unsigned long int vtkImageFilter::GetPipelineMTime()
 // Description:
 // Set the Input of a filter. If a ScalarType has not been set for this filter,
 // then the ScalarType of the input is used.
-void vtkImageFilter::SetInput(vtkImageSource *input)
+void vtkImageInPlaceFilter::SetInput(vtkImageSource *input)
 {
   vtkDebugMacro(<< "SetInput: input = " << input->GetClassName()
 		<< " (" << input << ")");
@@ -127,12 +118,9 @@ void vtkImageFilter::SetInput(vtkImageSource *input)
 
 //----------------------------------------------------------------------------
 // Description:
-// This method is called by the cache.  It calls the
-// UpdatePointData(vtkImageRegion *) method or the 
-// Execute(vtkImageRegion *, vtkImageRegion *) method depending of whether
-// UseExecuteMethod is on.  ImageInformation has already been
-// updated by this point, and outRegion is in local coordinates.
-void vtkImageFilter::UpdatePointData(int dim, vtkImageRegion *outRegion)
+// This method is called by the cache.
+// It is not recursive because execute is called imediately.
+void vtkImageInPlaceFilter::UpdatePointData(int dim, vtkImageRegion *outRegion)
 {
   vtkImageRegion *inRegion;
 
@@ -142,15 +130,6 @@ void vtkImageFilter::UpdatePointData(int dim, vtkImageRegion *outRegion)
     return;
     }
     
-  // Determine whether to use the execute methods or the generate methods.
-  // It may be useful (in the future) to switch to the execute function
-  // at some middle axesIdx.  Streaming would result.
-  if ( ! this->UseExecuteMethod)
-    {
-    this->vtkImageCachedSource::UpdatePointData(dim, outRegion);
-    return;
-    }
-  
   // Make sure the Input has been set.
   if ( ! this->Input)
     {
@@ -170,43 +149,29 @@ void vtkImageFilter::UpdatePointData(int dim, vtkImageRegion *outRegion)
   inRegion->SetExtent(VTK_IMAGE_DIMENSIONS, outRegion->GetExtent());
   this->ComputeRequiredInputRegionExtent(outRegion, inRegion);
 
-  // Cheap and dirty streaming
-  // No split order instance variable, and can not split into two ...
-  if (inRegion->GetMemorySize() > this->InputMemoryLimit)
-    {
-    inRegion->Delete();
-    if (dim == 0)
-      {
-      vtkErrorMacro(<< "UpdatePointData: Memory Limit "
-                    << this->InputMemoryLimit << " must be really small");
-      }
-    else
-      {
-      this->vtkImageCachedSource::UpdatePointData(dim, outRegion);
-      }
-    return;
-    }
-  
+  // No streaming
+
   // Use the input to fill the data of the region.
   this->Input->UpdateRegion(inRegion);
   
-  // Make sure the region was not too large 
-  if ( ! inRegion->AreScalarsAllocated())
+  // Copy  Scalars (by reference if possible) from input to output.
+  if ((inRegion->GetData()->GetRefCount() > 1) ||
+      (inRegion->GetData()->GetScalars()->GetRefCount() > 1) ||
+      (inRegion->GetScalarType() != outRegion->GetScalarType()))
     {
-    // Try Streaming
-    inRegion->Delete();
-    if (dim == 0)
-      {
-      vtkErrorMacro(<< "UpdatePointData: Could not get input.");
-      }
-    else
-      {
-      this->vtkImageCachedSource::UpdatePointData(dim, outRegion);
-      }
-    return;
+    // we have to copy the data
+    vtkDebugMacro(<< "UpdatePointData: Cannot copy by reference.");
+    outRegion->CopyRegionData(inRegion);
     }
-  
+  else
+    {
+    // We can just reference the scalars
+    vtkDebugMacro(<< "UpdatePointData: Copying scalars by reference.");
+    outRegion->GetData()->SetScalars(inRegion->GetData()->GetScalars());
+    }
+
   // fill the output region 
+  // The inRegion is passed just in case.
   this->Execute(dim, inRegion, outRegion);
 
   // Save the new region in cache.
@@ -221,7 +186,7 @@ void vtkImageFilter::UpdatePointData(int dim, vtkImageRegion *outRegion)
 // Description:
 // This method gets the boundary of the input then computes and returns 
 // the boundary of the largest region that can be generated. 
-void vtkImageFilter::UpdateImageInformation(vtkImageRegion *region)
+void vtkImageInPlaceFilter::UpdateImageInformation(vtkImageRegion *region)
 {
   // Make sure the Input has been set.
   if ( ! this->Input)
@@ -243,7 +208,7 @@ void vtkImageFilter::UpdateImageInformation(vtkImageRegion *region)
 // the image information after this filter is finished.
 // outImage is identical to inImage when this method is envoked, and
 // outImage may be the same object as in image.
-void vtkImageFilter::ComputeOutputImageInformation(vtkImageRegion *inRegion,
+void vtkImageInPlaceFilter::ComputeOutputImageInformation(vtkImageRegion *inRegion,
 						   vtkImageRegion *outRegion)
 {
   // Default: Image information does not change (do nothing).
@@ -263,7 +228,7 @@ void vtkImageFilter::ComputeOutputImageInformation(vtkImageRegion *inRegion,
 // the required input extent are the same as the output extent.
 // Note: The splitting methods call this method with outRegion = inRegion.
 void 
-vtkImageFilter::ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,
+vtkImageInPlaceFilter::ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,
 						 vtkImageRegion *inRegion)
 {
   inRegion->SetExtent(outRegion->GetExtent());
@@ -275,8 +240,8 @@ vtkImageFilter::ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,
 // Description:
 // This execute method recursively loops over extra dimensions and
 // calls the subclasses Execute method with lower dimensional regions.
-void vtkImageFilter::Execute(int dim, vtkImageRegion *inRegion, 
-			     vtkImageRegion *outRegion)
+void vtkImageInPlaceFilter::Execute(int dim, vtkImageRegion *inRegion, 
+				    vtkImageRegion *outRegion)
 {
   int coordinate, axis;
   int inMin, inMax;
@@ -309,7 +274,7 @@ void vtkImageFilter::Execute(int dim, vtkImageRegion *inRegion,
     // set up the lower dimensional regions.
     inRegion->SetAxisExtent(axis, coordinate, coordinate);
     outRegion->SetAxisExtent(axis, coordinate, coordinate);
-    this->vtkImageFilter::Execute(dim - 1, inRegion, outRegion);
+    this->vtkImageInPlaceFilter::Execute(dim - 1, inRegion, outRegion);
     }
   // restore the original extent
   inRegion->SetAxisExtent(axis, inMin, inMax);
@@ -322,7 +287,7 @@ void vtkImageFilter::Execute(int dim, vtkImageRegion *inRegion,
 //----------------------------------------------------------------------------
 // Description:
 // The execute method created by the subclass.
-void vtkImageFilter::Execute(vtkImageRegion *inRegion, 
+void vtkImageInPlaceFilter::Execute(vtkImageRegion *inRegion, 
 			     vtkImageRegion *outRegion)
 {
   inRegion = outRegion;
@@ -337,7 +302,7 @@ void vtkImageFilter::Execute(vtkImageRegion *inRegion,
 //============================================================================
 
 //----------------------------------------------------------------------------
-vtkImageRegion *vtkImageFilter::GetInputRegion(int dim, int *extent)
+vtkImageRegion *vtkImageInPlaceFilter::GetInputRegion(int dim, int *extent)
 {
   int idx;
   int *imageExtent;

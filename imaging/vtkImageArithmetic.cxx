@@ -115,7 +115,7 @@ void vtkImageArithmetic::Execute(vtkImageRegion *inRegion1,
 {
   void *inPtr1 = inRegion1->GetScalarPointer();
   void *inPtr2 = inRegion2->GetScalarPointer();
-  void *outPtr = outRegion->GetScalarWritePointer();
+  void *outPtr = outRegion->GetScalarPointer();
   
   // this filter expects that inputs are the same type as output.
   if (inRegion1->GetScalarType() != outRegion->GetScalarType() ||

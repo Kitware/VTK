@@ -214,7 +214,7 @@ void vtkImageGradient2D::Execute(vtkImageRegion *inRegion,
 					 vtkImageRegion *outRegion)
 {
   void *inPtr = inRegion->GetScalarPointer();
-  void *outPtr = outRegion->GetScalarWritePointer();
+  void *outPtr = outRegion->GetScalarPointer();
   
   // this filter expects that output is type float.
   if (outRegion->GetScalarType() != VTK_FLOAT)

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMatte4D.h
+  Module:    vtkImageMatte.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,63 +38,44 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMatte4D - Adds a border to an image.
+// .NAME vtkImageMatte - Adds a border to an image.
 // .SECTION Description
-// vtkImageMatte4D adds a border to an image.  The border
-// can have different widths for each axis.  Notice that this
-// filter is not cached.  The input is used directly with no
+// vtkImageMatte adds a border to an image.  The border
+// can have different widths for each axis.  
+// The input is used directly with no
 // copying of data (unless absolutely necessary).
 
 
-#ifndef __vtkImageMatte4D_h
-#define __vtkImageMatte4D_h
+#ifndef __vtkImageMatte_h
+#define __vtkImageMatte_h
 
-#include "vtkImageSource.h"
-#include "vtkImageRegion.h"
+#include "vtkImageInPlaceFilter.h"
 
-class vtkImageMatte4D : public vtkImageSource
+class vtkImageMatte : public vtkImageInPlaceFilter
 {
 public:
-  vtkImageMatte4D();
-  char *GetClassName() {return "vtkImageMatte4D";};
+  vtkImageMatte();
+  char *GetClassName() {return "vtkImageMatte";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  void UpdateRegion(vtkImageRegion *region); 
-  void UpdateImageInformation(vtkImageRegion *region); 
-  unsigned long GetPipelineMTime();
-  int GetScalarType();
-
-  void SetBorderWidths(int w0);
-  void SetBorderWidths(int w0, int w1);
-  void SetBorderWidths(int w0, int w1, int w2);
-
   // Description:
-  // Set/Get the input to this filter
-  vtkSetObjectMacro(Input,vtkImageSource);
-  vtkGetObjectMacro(Input,vtkImageSource);
+  // Set/Get the border that defines the matte.
+  void SetBorderWidths(int num, int *widths);
+  vtkImageSetMacro(BorderWidths, int);
+  void GetBorderWidths(int num, int *widths);
+  vtkImageGetMacro(BorderWidths, int);
 
   // Description:
   // Set/Get the value to use as a border.
   vtkSetMacro(BorderValue,float);
   vtkGetMacro(BorderValue,float);
 
-  // Description:
-  // Set/Get the Border of the mat.
-  vtkSetVector4Macro(BorderWidths,int);
-  vtkGetVector4Macro(BorderWidths,int);
-  
-  // Description:
-  // Set/Get the local coordinate system.
-  vtkSetVector4Macro(Axes,int);
-  vtkGetVector4Macro(Axes,int);
-
-  
 protected:
-  int Axes[4];
-  int BorderWidths[4];
+  int BorderWidths[VTK_IMAGE_DIMENSIONS];
   float BorderValue;
-  vtkImageSource *Input;
   
+  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void FillRegion(vtkImageRegion *region);
 };
 
 

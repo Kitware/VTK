@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageFilter.h
+  Module:    vtkImageInPlaceFilter.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,38 +38,26 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageFilter - Generic filter that has one input..
+// .NAME vtkImageInPlaceFilter - Filter that operates in place.
 // .SECTION Description
-// vtkImageFilter is a filter class that can hide som of the pipeline 
-// complexity.  This super class will loop over extra dimensions so the
-// subclass can deal with simple low dimensional regions.
-// The subclass can implement a filer in two different ways.  It can
-// create an "Update(vtkImageRegion *out)" method, and get the input
-// region itself. Or, it can create an "Execute(vtkImageRegion *in, *out)"
-// and let the superclass get the input.  The execute method requires the
-// UseExecuteMethod is on and also requires some helper method.  
-// "ComputeRequiredInputExtent(vtkImageRegion *out, *in)" must set the
-// extent of in required to compute out. 
-// The advantage of using the execute method is that this super class
-// will automatically break the execution into pieces if the 
-// InputMemroyLimit is violated or the input request fails.
-// This creates streaming where the pipeline processes images
-// in dynamically sized pieces.
+// vtkImageInPlaceFilter is a filter super class that 
+// operates directly on the input region.  The data is copied
+// if the requested region has different extent than the input region
+// or some other object is referencing the input region.
 
 
 
-#ifndef __vtkImageFilter_h
-#define __vtkImageFilter_h
+#ifndef __vtkImageInPlaceFilter_h
+#define __vtkImageInPlaceFilter_h
 
 
 #include "vtkImageCachedSource.h"
-#include "vtkImageRegion.h"
 
-class vtkImageFilter : public vtkImageCachedSource
+class vtkImageInPlaceFilter : public vtkImageCachedSource
 {
 public:
-  vtkImageFilter();
-  char *GetClassName() {return "vtkImageFilter";};
+  vtkImageInPlaceFilter();
+  char *GetClassName() {return "vtkImageInPlaceFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual void SetInput(vtkImageSource *input);
@@ -78,28 +66,14 @@ public:
   unsigned long int GetPipelineMTime();
   
   // Description:
-  // Get input to this filter.
+  // Get input to this InPlaceFilter.
   vtkGetObjectMacro(Input,vtkImageSource);
 
-  // Description:
-  // Set/Get input memory limit.  Make this smaller to stream.
-  vtkSetMacro(InputMemoryLimit,long);
-  vtkGetMacro(InputMemoryLimit,long);
-  
 protected:
   vtkImageSource *Input;     
-  int UseExecuteMethod;      
-  
-  long InputMemoryLimit;
 
   // Description:
-  // Specify whether if subclass will use an execute method or an update method
-  vtkSetMacro(UseExecuteMethod,int);
-  vtkGetMacro(UseExecuteMethod,int);
-  vtkBooleanMacro(UseExecuteMethod,int);
-   
-  // Description:
-  // These are conveniance functions for writing filters that have their
+  // These are conveniance functions for writing InPlaceFilters that have their
   // own UpdateRegion methods.  They create the region object as well as 
   // getting the input source to fill it with data.  The extent
   // of the unspecified dimensions default to [0, 0];

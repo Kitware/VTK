@@ -205,7 +205,7 @@ void vtkImageMagnify1D::Execute(vtkImageRegion *inRegion,
 				  vtkImageRegion *outRegion)
 {
   void *inPtr = inRegion->GetScalarPointer();
-  void *outPtr = outRegion->GetScalarWritePointer();
+  void *outPtr = outRegion->GetScalarPointer();
   
   vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
 		<< ", outRegion = " << outRegion);

@@ -195,7 +195,7 @@ void vtkImageFourierBandPass::Execute(vtkImageRegion *inRegion,
 {
   int idx;
   float *inPtr = (float *)(inRegion->GetScalarPointer());
-  float *outPtr = (float *)(outRegion->GetScalarWritePointer());
+  float *outPtr = (float *)(outRegion->GetScalarPointer());
   int *extent, *imageExtent;
   float *aspectRatio;
   int inInc;

@@ -171,7 +171,7 @@ void vtkImageThresholdExecute(vtkImageThreshold *self,
 			      vtkImageRegion *inRegion, T *inPtr,
 			      vtkImageRegion *outRegion)
 {
-  void *outPtr = outRegion->GetScalarWritePointer();
+  void *outPtr = outRegion->GetScalarPointer();
   
   switch (outRegion->GetScalarType())
     {

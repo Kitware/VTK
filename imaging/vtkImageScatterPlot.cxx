@@ -182,7 +182,7 @@ void vtkImageScatterPlot::UpdateRegion(vtkImageRegion *outRegion)
     }
 
   // Set all the output pixels to 0;
-  outPtr1 = (unsigned short *)(outRegion->GetScalarWritePointer());
+  outPtr1 = (unsigned short *)(outRegion->GetScalarPointer());
   outRegion->GetExtent(min0, max0, min1, max1);
   outRegion->GetIncrements(inc0, inc1);
   for (idx1 = min1; idx1 <= max1; ++idx1)
@@ -221,7 +221,7 @@ void vtkImageScatterPlot::UpdateRegion(vtkImageRegion *outRegion)
       }
     // Call the template function to add to this scatter plot.
     inPtr = inRegion->GetScalarPointer();
-    outPtr = inRegion->GetScalarWritePointer();
+    outPtr = inRegion->GetScalarPointer();
     switch (inRegion->GetScalarType())
       {
       case VTK_FLOAT:
