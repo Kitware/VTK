@@ -290,7 +290,7 @@ void vtkDataObjectToDataSetFilter::ExecuteInformation()
 //----------------------------------------------------------------------------
 void vtkDataObjectToDataSetFilter::Execute()
 {
-  int npts;
+  vtkIdType npts;
   vtkDataObject *input = this->GetInput();
 
   vtkDebugMacro(<<"Generating dataset from field data");
@@ -585,11 +585,11 @@ int vtkDataObjectToDataSetFilter::GetPointComponentNormailzeFlag(int comp)
 }
 
 //----------------------------------------------------------------------------
-int vtkDataObjectToDataSetFilter::ConstructPoints(vtkPointSet *ps)
+vtkIdType vtkDataObjectToDataSetFilter::ConstructPoints(vtkPointSet *ps)
 {
   int i, updated=0;
   vtkDataArray *fieldArray[3];
-  int npts;
+  vtkIdType npts;
   vtkFieldData *fd=this->GetInput()->GetFieldData();
 
   for ( i=0; i < 3; i++ )
@@ -656,9 +656,10 @@ int vtkDataObjectToDataSetFilter::ConstructPoints(vtkPointSet *ps)
 }
 
 //----------------------------------------------------------------------------
-int vtkDataObjectToDataSetFilter::ConstructPoints(vtkRectilinearGrid *rg)
+vtkIdType vtkDataObjectToDataSetFilter::ConstructPoints(vtkRectilinearGrid *rg)
 {
-  int i, nXpts, nYpts, nZpts, npts, updated=0;
+  int i, nXpts, nYpts, nZpts, updated=0;
+  vtkIdType npts;
   vtkDataArray *fieldArray[3];
   vtkFieldData *fd=this->GetInput()->GetFieldData();
 
@@ -1067,7 +1068,7 @@ int vtkDataObjectToDataSetFilter::GetCellConnectivityComponentMaxRange()
 //----------------------------------------------------------------------------
 int vtkDataObjectToDataSetFilter::ConstructCells(vtkPolyData *pd)
 {
-  int ncells=0;
+  vtkIdType ncells=0;
   vtkDataArray *fieldArray[4];
   vtkFieldData *fd=this->GetInput()->GetFieldData();
 
@@ -1244,12 +1245,11 @@ int vtkDataObjectToDataSetFilter::ConstructCells(vtkUnstructuredGrid *ug)
 }
 
 //----------------------------------------------------------------------------
-vtkCellArray *vtkDataObjectToDataSetFilter::ConstructCellArray(vtkDataArray *da, int comp,
-                                                               int compRange[2])
+vtkCellArray *vtkDataObjectToDataSetFilter::ConstructCellArray(vtkDataArray *da, int comp, vtkIdType compRange[2])
 {
-  int ncells, i, j, min, max, numComp=da->GetNumberOfComponents();
+  int j, min, max, numComp=da->GetNumberOfComponents();
   vtkCellArray *carray;
-  vtkIdType npts;
+  vtkIdType npts, ncells, i;
 
   min = 0;
   max = da->GetMaxId();
@@ -1462,5 +1462,3 @@ void vtkDataObjectToDataSetFilter::ConstructOrigin()
 
   this->OriginComponentRange[0] = this->OriginComponentRange[1] = -1;
 }
-
-

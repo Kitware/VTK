@@ -141,9 +141,9 @@ void vtkImplicitModeller::UpdateData(vtkDataObject *output)
 // bounds for the data will be used.
 void vtkImplicitModeller::StartAppend()
 {
-  int numPts;
+  vtkIdType numPts;
   vtkFloatArray *newScalars;
-  int i;
+  vtkIdType i;
   float maxDistance;
 
   vtkDebugMacro(<< "Initializing data");
@@ -179,7 +179,8 @@ static VTK_THREAD_RETURN_TYPE vtkImplicitModeller_ThreadedAppend( void *arg )
   float *bounds, adjBounds[6];
   float pcoords[3];
   vtkDataArray *newScalars;
-  int idx, subId, cellId;
+  int idx, subId;
+  vtkIdType cellId;
   int min[3], max[3];
   float x[3], prevDistance2, distance2;
   int jkFactor;
@@ -404,7 +405,8 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
 
   if (this->ProcessMode == VTK_CELL_MODE)
     {
-    int cellNum, i, j, k, updateTime;
+    int i, j, k, updateTime;
+    vtkIdType cellNum;
     float *bounds, adjBounds[6];
     float pcoords[3];
     vtkDataArray *newScalars;
@@ -683,7 +685,7 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
 void vtkImplicitModeller::EndAppend()
 {
   vtkDataArray *newScalars;
-  int i, numPts;
+  vtkIdType i, numPts;
   float distance2;
 
   vtkDebugMacro(<< "End append");
@@ -711,7 +713,7 @@ void vtkImplicitModeller::EndAppend()
     {
     this->Cap(newScalars);
     }
-	this->UpdateProgress(1.0);
+  this->UpdateProgress(1.0);
 }
 
 
@@ -999,13 +1001,3 @@ void vtkImplicitModeller::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Process Mode: " << this->GetProcessModeAsString() << endl;
   os << indent << "Number Of Threads (for PerVoxel mode): " << this->NumberOfThreads << endl;
 }
-
-
-
-
-
-
-
-
-
-

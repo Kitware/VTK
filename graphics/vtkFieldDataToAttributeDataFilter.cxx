@@ -336,7 +336,7 @@ int vtkFieldDataToAttributeDataFilter::GetScalarComponentNormalizeFlag(int comp)
 
 void vtkFieldDataToAttributeDataFilter::ConstructScalars(int num, vtkFieldData *fd, 
                                                          vtkDataSetAttributes *attr,
-                                                         int componentRange[4][2],
+                                                         vtkIdType componentRange[4][2],
                                                          char *arrays[4], int arrayComp[4],
                                                          int normalize[4], int numComp)
 {
@@ -487,7 +487,7 @@ int vtkFieldDataToAttributeDataFilter::GetVectorComponentNormalizeFlag(int comp)
 
 void vtkFieldDataToAttributeDataFilter::ConstructVectors(int num, vtkFieldData *fd, 
                                                          vtkDataSetAttributes *attr,
-                                                         int componentRange[3][2], 
+                                                         vtkIdType componentRange[3][2], 
                                                          char *arrays[3],
                                                          int arrayComp[3], int normalize[3])
 {
@@ -628,7 +628,7 @@ int vtkFieldDataToAttributeDataFilter::GetNormalComponentNormalizeFlag(int comp)
 
 void vtkFieldDataToAttributeDataFilter::ConstructNormals(int num, vtkFieldData *fd, 
                                                          vtkDataSetAttributes *attr,
-                                                         int componentRange[3][2], 
+                                                         vtkIdType componentRange[3][2], 
                                                          char *arrays[3], int arrayComp[3], 
                                                          int normalize[3])
 {
@@ -772,7 +772,7 @@ int vtkFieldDataToAttributeDataFilter::GetTCoordComponentNormalizeFlag(int comp)
 
 void vtkFieldDataToAttributeDataFilter::ConstructTCoords(int num, vtkFieldData *fd, 
                                                          vtkDataSetAttributes *attr,
-                                                         int componentRange[3][2], 
+                                                         vtkIdType componentRange[3][2], 
                                                          char *arrays[3], int arrayComp[3], 
                                                          int normalize[3], int numComp)
 {
@@ -923,7 +923,7 @@ int vtkFieldDataToAttributeDataFilter::GetTensorComponentNormalizeFlag(int comp)
 
 void vtkFieldDataToAttributeDataFilter::ConstructTensors(int num, vtkFieldData *fd, 
                                                          vtkDataSetAttributes *attr,
-                                                         int componentRange[9][2], 
+                                                         vtkIdType componentRange[9][2], 
                                                          char *arrays[9], int arrayComp[9], 
                                                          int normalize[9])
 {
@@ -1159,7 +1159,7 @@ void vtkFieldDataToAttributeDataFilter::SetArrayName(vtkObject *self, char* &nam
 }
 
 int vtkFieldDataToAttributeDataFilter::UpdateComponentRange(vtkDataArray *da, 
-                                                            int compRange[2])
+                                                            vtkIdType compRange[2])
 {
   if ( compRange[0] == -1 )
     {

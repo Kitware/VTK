@@ -104,14 +104,15 @@ public:
   // the finite line.
   virtual int IntersectWithLine(float a0[3], float a1[3], float tol,
 				float& t, float x[3], float pcoords[3],
-				int &subId, int &cellId);
+				int &subId, vtkIdType &cellId);
 
   // Description:
   // Return intersection point (if any) AND the cell which was intersected by
   // the finite line. The cell is returned as a cell id and as a generic cell.
   virtual int IntersectWithLine(float a0[3], float a1[3], float tol,
 				float& t, float x[3], float pcoords[3],
-				int &subId, int &cellId, vtkGenericCell *cell);
+				int &subId, vtkIdType &cellId,
+                                vtkGenericCell *cell);
 
   // Description:
   // Return the closest point and the cell which is closest to the point x.
@@ -142,7 +143,7 @@ public:
   // the specified radius, the method returns 0 and the values of closestPoint,
   // cellId, subId, and dist2 are undefined.
   int FindClosestPointWithinRadius(float x[3], float radius,
-				   float closestPoint[3], int &cellId,
+				   float closestPoint[3], vtkIdType &cellId,
 				   int &subId, float& dist2);
  
   // Description:
@@ -160,7 +161,7 @@ public:
   // cell "cellId" upon exit.
   int FindClosestPointWithinRadius(float x[3], float radius,
 				   float closestPoint[3],
-				   vtkGenericCell *cell, int &cellId,
+				   vtkGenericCell *cell, vtkIdType &cellId,
 				   int &subId, float& dist2);
 
   // Description:
@@ -180,7 +181,7 @@ public:
   // or outside(=0).
   int FindClosestPointWithinRadius(float x[3], float radius,
 				   float closestPoint[3],
-				   vtkGenericCell *cell, int &cellId,
+				   vtkGenericCell *cell, vtkIdType &cellId,
 				   int &subId, float& dist2, int &inside);
   
   // Description:
@@ -224,7 +225,8 @@ protected:
 
   void MarkParents(void*, int, int, int, int, int);
   void GetChildren(int idx, int level, int children[8]);
-  int GenerateIndex(int offset, int numDivs, int i, int j, int k, int &idx);
+  int GenerateIndex(int offset, int numDivs, int i, int j, int k,
+                    vtkIdType &idx);
   void GenerateFace(int face, int numDivs, int i, int j, int k,
                     vtkPoints *pts, vtkCellArray *polys);
 

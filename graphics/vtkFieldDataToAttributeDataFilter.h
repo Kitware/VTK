@@ -236,7 +236,7 @@ public:
   // Description:
   // Update the maximum and minimum component range values. Returns a flag
   // indicating whether the range was updated.
-  static int UpdateComponentRange(vtkDataArray *da, int compRange[2]);
+  static int UpdateComponentRange(vtkDataArray *da, vtkIdType compRange[2]);
 
 protected:
   vtkFieldDataToAttributeDataFilter();
@@ -252,54 +252,55 @@ protected:
   int NumberOfScalarComponents; //the number of components to fill-in
   char *ScalarArrays[4]; //the name of the arrays used to construct the scalar
   int ScalarArrayComponents[4]; //the components of the arrays used to construct
-  int ScalarComponentRange[4][2]; //the range of the components to use
+  vtkIdType ScalarComponentRange[4][2]; //the range of the components to use
   int ScalarNormalize[4]; //flags control normalization
   
   char *VectorArrays[3]; //the name of the arrays used to construct the vectors
   int VectorArrayComponents[3]; //the components of the arrays used to construct
-  int VectorComponentRange[3][2]; //the range of the components to use
+  vtkIdType VectorComponentRange[3][2]; //the range of the components to use
   int VectorNormalize[3]; //flags control normalization
   
   char *GhostLevelArray; //the name of the array used to construct the ghost levels
   int GhostLevelArrayComponent; //the component of the array used to construct
-  int GhostLevelComponentRange[2]; //the range of the components to use
+  vtkIdType GhostLevelComponentRange[2]; //the range of the components to use
   int GhostLevelNormalize; //flags control normalization
   
   char *NormalArrays[3]; //the name of the arrays used to construct the normals
   int NormalArrayComponents[3]; //the components of the arrays used to construct
-  int NormalComponentRange[3][2]; //the range of the components to use
+  vtkIdType NormalComponentRange[3][2]; //the range of the components to use
   int NormalNormalize[3]; //flags control normalization
   
   char *TensorArrays[9]; //the name of the arrays used to construct the tensors
   int TensorArrayComponents[9]; //the components of the arrays used to construct
-  int TensorComponentRange[9][2]; //the range of the components to use
+  vtkIdType TensorComponentRange[9][2]; //the range of the components to use
   int TensorNormalize[9]; //flags control normalization
   
   int NumberOfTCoordComponents; //the number of components to fill-in
   char *TCoordArrays[3]; //the name of the arrays used to construct the tcoords
   int TCoordArrayComponents[3]; //the components of the arrays used to construct
-  int TCoordComponentRange[3][2]; //the range of the components to use
+  vtkIdType TCoordComponentRange[3][2]; //the range of the components to use
   int TCoordNormalize[3]; //flags control normalization
   
   int DefaultNormalize;
 
   void ConstructScalars(int num, vtkFieldData *fd, vtkDataSetAttributes *attr, 
-			int componentRange[4][2], char *arrays[4], 
+			vtkIdType componentRange[4][2], char *arrays[4], 
 			int arrayComponents[4],	int normalize[4], int numComp);
   void ConstructVectors(int num, vtkFieldData *fd, vtkDataSetAttributes *attr, 
-			int componentRange[3][2], char *arrays[3], 
+			vtkIdType componentRange[3][2], char *arrays[3], 
 			int arrayComponents[3], int normalize[3]);
   void ConstructGhostLevels(int num, vtkFieldData *fd,
-			    vtkDataSetAttributes *attr, int componentRange[2], 
+			    vtkDataSetAttributes *attr,
+                            vtkIdType componentRange[2], 
 			    char *array, int arrayComponent, int normalize);
   void ConstructNormals(int num, vtkFieldData *fd, vtkDataSetAttributes *attr, 
-			int componentRange[3][2], char *arrays[3], 
+			vtkIdType componentRange[3][2], char *arrays[3], 
 			int arrayComponents[3], int normalize[3]);
   void ConstructTCoords(int num, vtkFieldData *fd, vtkDataSetAttributes *attr, 
-			int componentRange[3][2], char *arrays[3], 
+			vtkIdType componentRange[3][2], char *arrays[3], 
 			int arrayComponents[3],	int normalize[3], int numComp);
   void ConstructTensors(int num, vtkFieldData *fd, vtkDataSetAttributes *attr, 
-			int componentRange[9][2], char *arrays[9], 
+			vtkIdType componentRange[9][2], char *arrays[9], 
 			int arrayComponents[9],	int normalize[9]);
   void ConstructFieldData(int num, vtkDataSetAttributes *attr);
   

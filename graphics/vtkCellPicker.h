@@ -65,16 +65,16 @@ public:
 
   // Description:
   // Get the id of the picked cell. If CellId = -1, nothing was picked.
-  vtkGetMacro(CellId,int);
+  vtkGetMacro(CellId, vtkIdType);
 
   // Description:
   // Get the subId of the picked cell. If SubId = -1, nothing was picked.
-  vtkGetMacro(SubId,int);
+  vtkGetMacro(SubId, int);
 
   // Description:
   // Get the parametric coordinates of the picked cell. Only valid if 
   // pick was made.
-  vtkGetVectorMacro(PCoords,float,3);
+  vtkGetVectorMacro(PCoords, float,3);
 
 protected:
   vtkCellPicker();
@@ -82,7 +82,7 @@ protected:
   vtkCellPicker(const vtkCellPicker&) {};
   void operator=(const vtkCellPicker&) {};
 
-  int CellId; // picked cell
+  vtkIdType CellId; // picked cell
   int SubId; // picked cell subId
   float PCoords[3]; // picked cell parametric coordinates
 
