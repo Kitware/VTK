@@ -114,6 +114,7 @@ vtkSpatialRepresentationFilter.cxx
 vtkSpherePuzzle.cxx
 vtkSpherePuzzleArrows.cxx
 vtkSphereSource.cxx
+vtkSplineFilter.cxx
 vtkSplitField.cxx
 vtkStreamLine.cxx
 vtkStreamPoints.cxx
