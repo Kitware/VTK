@@ -12,16 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkParametricFigure8Klein - generate a figure-8 Klein bottle
+// .NAME vtkParametricFigure8Klein - Generate a figure-8 Klein bottle.
 // .SECTION Description
 // vtkParametricFigure8Klein generates a figure-8 Klein bottle.  A Klein bottle
 // is a closed surface with no interior and only one surface.  It is
 // unrealisable in 3 dimensions without intersecting surfaces.  It can be
-// realised in 4 dimensions by considering the map G:R^2->R^4 given by:
+// realised in 4 dimensions by considering the map \f$ F:R^2 \roghtarrow R^4 \f$  given by:
 //
-// - G(u,v) = ((r*cos(v)+a)*cos(u),(r*cos(v)+a)*sin(u),r*sin(v)*cos(u/2),r*sin(v)*sin(u/2))
+// - \f$ f(u,v) = ((r*cos(v)+a)*cos(u),(r*cos(v)+a)*sin(u),r*sin(v)*cos(u/2),r*sin(v)*sin(u/2)) \f$
 //
-// This representation of the immersion in R^3 is formed by taking two Mobius
+// This representation of the immersion in \f$ R^3 \f$ is formed by taking two Mobius
 // strips and joining them along their boundaries, this is the so called
 // "Figure-8 Klein Bottle"
 
@@ -61,41 +61,12 @@ public:
   virtual int GetDimension() {return 2;}
 
   // Description:
-  // A Klein bottle is a closed surface with no interior and only one
-  // surface.  It is unrealisable in 3 dimensions without intersecting
-  // surfaces.  It can be realised in 4 dimensions by considering the map
-  // G:R^2->R^4 given by:
-  // <pre>
-  //   - G(u,v) = ((r*cos(v)+a)*cos(u),(r*cos(v)+a)*sin(u),r*sin(v)*cos(u/2),r*sin(v)*sin(u/2))
-  // </pre>
-  // This representation of the immersion in R^3 is formed by taking two 
-  // Mobius strips and joining them along their boundaries, this the so 
-  // called "Figure-8 Klein Bottle"
-  // 
-  // The parametric form of the equations for a Klein bottle are:
-  // <pre>
-  // - -PI <= u <= PI, -PI <= v <= PI
-  // - x(u,v) = cos(u)*(a + sin(v)*cos(u/2) - sin(2*v)*sin(u/2)/2)
-  // - y(u,v) = sin(u)*(a + sin(v)*cos(u/2) - sin(2*v)*sin(u/2)/2)
-  // - z(u,v) = sin(u/2)*sin(v) + cos(u/2)*sin(2*v)/2
-  // </pre>
+  // A Figure-8 Klein bottle.  
   //
-  // Derivatives are:
-  // <pre>
-  // - d(x(u,v))/du = -Y(u,v)-cos(u)*(2*sin(v)*sin(u/2)+sin(2*v)*cos(u/2))/4
-  // - d(x(u,v))/dv = cos(u)*(cos(v)*cos(u/2)-cos(2*v)*sin(u/2))
-  // - d(y(u,v))/du = X(u,v)-sin(u)*(2*sin(v)*sin(u/2)+sin(2*v)*cos(u/2))/4
-  // - d(y(u,v))/dv = sin(u)*(cos(v)*cos(u/2)-cos(2*v)*sin(u/2))
-  // - d(z(u,v))/du = cos(u/2)*sin(v)/2-sin(u/2)*sin(2*v)/4
-  // - d(z(u,v))/dv = sin(u/2)*cos(v)/2+cos(u/2)*cos(2*v)
-  // </pre>
-  //
-  // Let Du = (dx/du, dy/du, dz/du), and let Dv = (dx/dv, dy/dv, dz/dv). Then
-  // the normal n is Du X Dv.
-  //
-  // This function performs the mapping fn(u,v)->(x,y,x), returning it as
-  // Pt. It also returns the partial derivatives Du and Dv.  Pt = (x, y, z),
-  // Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv)
+  // This function performs the mapping \f$ f(u,v) \rightarrow (x,y,x) \f$, returning it
+  // as Pt. It also returns the partial derivatives Du and Dv.
+  // \f$ Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv) \f$.
+  // Then the normal is \f$ N = Du X Dv \f$.
   virtual void Evaluate(double uvw[3], double Pt[3], double Duvw[9]);
 
   // Description:
@@ -106,7 +77,7 @@ public:
   // Pt, Duvw are obtained from Evaluate().
   //
   // This function is only called if the ScalarMode has the value
-  // vtkParametricTriangulator::userDefined
+  // vtkParametricFunctionSource::SCALAR_FUNCTION_DEFINED
   //
   // If the user does not need to calculate a scalar, then the 
   // instantiated function should return zero. 

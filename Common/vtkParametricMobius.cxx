@@ -16,9 +16,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkParametricMobius, "1.2");
+vtkCxxRevisionMacro(vtkParametricMobius, "1.3");
 vtkStandardNewMacro(vtkParametricMobius);
 
+//----------------------------------------------------------------------------
 vtkParametricMobius::vtkParametricMobius()
 {
   this->MinimumU = 0;
@@ -36,10 +37,12 @@ vtkParametricMobius::vtkParametricMobius()
   this->Radius = 1;
 }
 
+//----------------------------------------------------------------------------
 vtkParametricMobius::~vtkParametricMobius()
 {
 }
 
+//----------------------------------------------------------------------------
 void vtkParametricMobius::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
 {
   double u = uvw[0];
@@ -67,11 +70,13 @@ void vtkParametricMobius::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
   Dv[2] = cu2;
 }
 
+//----------------------------------------------------------------------------
 double vtkParametricMobius::EvaluateScalar(double *, double*, double *)
 {
   return 0;
 }
 
+//----------------------------------------------------------------------------
 void vtkParametricMobius::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

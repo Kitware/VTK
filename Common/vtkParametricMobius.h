@@ -12,9 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkParametricMobius - represent a Mobius strip
+// .NAME vtkParametricMobius - Generate a Mobius strip.
 // .SECTION Description
-// vtkParametricMobius represents a Mobius strip.
+// vtkParametricMobius generates a Mobius strip.
 
 // .SECTION Thanks
 // Andrew Maclean a.maclean@cas.edu.au for creating and contributing the
@@ -52,34 +52,12 @@ public:
   virtual int GetDimension() {return 2;}
 
   // Description:
-  // The Mobius strip is defined as follows:
-  // <pre>
-  // 0 < u < 2 * pi, -1 < v < 1
-  // 
-  // a = 5
-  // 
-  // The parametric equations for a Mobius strip are:
-  // - x = (a - v * sin(u/2))*sin(u)
-  // - y = (a - v * sin(u/2))*cos(u)
-  // - z = v * cos(u/2)
-  // 
-  // Derivatives:
-  // - d(x(u,v)/du = -v*cos(u/2)*sin(u)/2 + y(u,v)
-  // - d(x(u,v)/dv = -sin(u/2)*sin(u)
-  // - d(y(u,v)/du = -v*cos(u/2)cos(u)/2 - x(u,v)
-  // - d(y(u,v)/dv = -sin(u/2)*cos(u)
-  // - d(z(u,v)/du = -v*sin(u/2)/2
-  // - d(z(u,v)/dv = cos(u/2)
-  // 
-  // Let Du = (dx/du, dy/du, dz/du)
-  // 
-  // Let Dv = (dx/dv, dy/dv, dz/dv)
-  // 
-  // Then the normal n = Du X Dv.
-  // </pre>
-  // This function performs the mapping fn(u,v)->(x,y,x), returning it
+  // The Mobius strip.
+  //
+  // This function performs the mapping \f$ f(u,v) \rightarrow (x,y,x) \f$, returning it
   // as Pt. It also returns the partial derivatives Du and Dv.
-  // Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv)
+  // \f$ Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv) \f$.
+  // Then the normal is \f$ N = Du X Dv \f$.
   virtual void Evaluate(double uvw[3], double Pt[3], double Duvw[9]);
 
   // Description:
@@ -90,7 +68,7 @@ public:
   // Pt, Du, Dv are obtained from Evaluate().
   //
   // This function is only called if the ScalarMode has the value
-  // vtkParametricFunction::userDefined
+  // vtkParametricFunctionSource::SCALAR_FUNCTION_DEFINED
   //
   // If the user does not need to calculate a scalar, then the 
   // instantiated function should return zero. 

@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkParametricConicSpiral - generate conic spiral surfaces that resemble sea-shells.
+// .NAME vtkParametricConicSpiral - Generate conic spiral surfaces that resemble sea-shells.
 // .SECTION Description
 // vtkParametricConicSpiral generates conic spiral surfaces. These can resemble sea shells, or
 // may look like a torus "eating" its own tail.
@@ -71,32 +71,12 @@ public:
   vtkGetMacro(N,double);
 
   // Description:
-  // A parametric representation of a conic spiral surface (i.e., a toroid
-  // "eating" its own tail) is given by:
-  // <pre>
-  // Define:
-  // -  X(u,v) = a*(1-v/(2*pi))*cos(n*v)*(1+cos(u))+c*cos(n*v)
-  // -  Y(u,v) = a*(1-v/(2*pi))*sin(n*v)*(1+cos(u))+c*sin(n*v)
-  // -  Z(u,v) = b*v/(2*pi)+a*(1-v/(2*pi))*sin(u)
+  // A conic spiral surface.
   //
-  // Where:  a=0.2,b=1,c=0.1,n=2,u=0..2*pi},v=0..2*pi
-  //
-  // Then
-  // - S(u,v) = (X(u,v),Y(u,v),Z(u,v)) defines the surface. 
-  //
-  // The derivatives are given by:
-  // - d(X(u,v)/du = -a*(1-1/2*v/pi)*cos(n*v)*sin(u)
-  // - d(X(u,v)/dv = -1/2*a/pi*cos(n*v)*(1+cos(u))-a*(1-1/2*v/pi)*sin(n*v)*n*(1+cos(u))-c*sin(n*v)*n
-  // - d(Y(u,v)/du = -a*(1-1/2*v/pi)*sin(n*v)*sin(u)
-  // - d(Y(u,v)/dv = -1/2*a/Pi*sin(n*v)*(1+cos(u))+a*(1-1/2*v/pi)*cos(n*v)*n*(1+cos(u))+c*cos(n*v)*n
-  // - d(Z(u,v)/du = a*(1-1/2*v/pi)*cos(u)
-  // - d(Z(u,v)/dv = 1/2*b/pi-1/2*a/pi*sin(u)
-  //
-  // Let Du = (dy/du, dy/du, dy/du). Let Dv = (dx/dv, dy/dv, dz/dv). Then the normal n = Du X Dv.
-  // </pre>
-  // This function performs the mapping fn(u,v)->(x,y,x), returning it
+  // This function performs the mapping \f$ f(u,v) \rightarrow (x,y,x) \f$, returning it
   // as Pt. It also returns the partial derivatives Du and Dv.
-  // Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv)
+  // \f$ Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv) \f$.
+  // Then the normal is \f$ N = Du X Dv \f$.
   void Evaluate(double uvw[3], double Pt[3], double Duvw[9]);
 
   // Description:
@@ -107,7 +87,7 @@ public:
   // Pt, Duvw are obtained from Evaluate().
   //
   // This function is only called if the ScalarMode has the value
-  // vtkParametricFunctionSource::FunctionDefined.
+  // vtkParametricFunctionSource::SCALAR_FUNCTION_DEFINED
   //
   // If the user does not need to calculate a scalar, then the 
   // instantiated function should return zero. 

@@ -48,33 +48,12 @@ public:
   virtual int GetDimension() {return 2;}
 
   // Description:
-  // A cross-cap is a self intersecting single-sided surface.
+  // A cross-cap.
   //
-  // The parametric form of the equations for a cross cap are:
-  // - x = cos(u) * sin(2*v) 
-  // - y = sin(u) * sin(2*v) 
-  // - z = cos(v) * cos(v) - cos(u) * cos(u) * sin(v) * sin(v) 
-  //
-  // for: 0 <= u <= PI  and 0 <= v <=  PI 
-  //
-  // Derivatives are:
-  // - d(x(u,v))/du = -sin(u) * sin(2*v) = -y
-  // - d(x(u,v))/dv = 2 * cos(u) * cos(2*v)
-  // - d(y(u,v))/du = cos(u) * sin(2*v) = x
-  // - d(y(u,v))/dv = 2 * sin(u) * cos(2*v)
-  // - d(z(u,v))/du = 2 * cos(u) * sin(u) * sin(v) * sin(v)
-  // - d(z(u,v))/dv = -2 * cos(v) * sin(v) * (1 + cos(u) * cos(u))
-  //
-  // Let Du = (dx/du, dy/du, dz/du)
-  //
-  // Let Dv = (dx/dv, dy/dv, dz/dv)
-  //
-  // Then the normal n = Du X Dv
-  //
-  //
-  // This function performs the mapping fn(u,v)->(x,y,x), returning it
+  // This function performs the mapping \f$ f(u,v) \rightarrow (x,y,x) \f$, returning it
   // as Pt. It also returns the partial derivatives Du and Dv.
-  // Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv)
+  // \f$ Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv) \f$.
+  // Then the normal is \f$ N = Du X Dv \f$.
   void Evaluate(double uvw[3], double Pt[3], double Duvw[9]);
 
   // Description:
@@ -85,7 +64,7 @@ public:
   // Pt, Duvw are obtained from Evaluate().
   //
   // This function is only called if the ScalarMode has the value
-  // vtkParametricTriangulator::userDefined
+  // vtkParametricFunctionSource::SCALAR_FUNCTION_DEFINED
   //
   // If the user does not need to calculate a scalar, then the 
   // instantiated function should return zero. 

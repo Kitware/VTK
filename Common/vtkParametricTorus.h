@@ -12,10 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkParametricTorus - a torus parametric function.
+// .NAME vtkParametricTorus - Generate a torus.
 // .SECTION Description
-// vtkParametricTorus generates a torus parametric function. The torus is
-// parameterized between [0,2*Pi] in each of the (u,v) directions.
+// vtkParametricTorus generates a torus.
 //
 // .SECTION Thanks
 // Andrew Maclean a.maclean@cas.edu.au for 
@@ -61,40 +60,12 @@ public:
   virtual int GetDimension() {return 2;}
 
   // Description:
-  // Make a torus.
-  // <pre>
-  // The parametric equations for a torus are:
-  //   - x = (c+a*cos(v))*cos(u)
-  //   - y = (c+a*cos(v))*sin(u)
-  //   - z = a*sin(v)
-  // 
-  //   where:
-  //   - 0 <= u < 2 * pi, 0 <= v < 2*pi
-  //   - c = the radius from the center to the middle of the ring of the torus.
-  //   - a = the radius of the cross section of ring of the torus.
-  // 
-  //   Derivatives:
-  //   - d(x(u,v)/du = -(c+a*cos(v))*sin(u)
-  //   - d(x(u,v)/dv = -a*sin(v))*cos(u)
-  //   - d(y(u,v)/du = (c+a*cos(v))*cos(u)
-  //   - d(y(u,v)/dv = -a*sin(v))*sin(u)
-  //   - d(z(u,v)/du = 0
-  //   - d(z(u,v)/dv = a*cos(v)
-  // 
-  //   Let Du = (dx/du, dy/du, dz/du)
-  //   
-  //   Let Dv = (dx/dv, dy/dv, dz/dv)
-  //   
-  //   Then the normal n = Du X Dv
-  //   
-  //   - c > a corresponds to the ring torus.
-  //   - c = a corresponds to a horn torus which is tangent to itself at the point (0, 0, 0).
-  //   - c < a corresponds to a self-intersecting spindle torus.
+  // A torus.
   //
-  // This function performs the mapping fn(u,v)->(x,y,x), returning it
+  // This function performs the mapping \f$ f(u,v) \rightarrow (x,y,x) \f$, returning it
   // as Pt. It also returns the partial derivatives Du and Dv.
-  // Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv)
-  //</pre>
+  // \f$ Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv) \f$.
+  // Then the normal is \f$ N = Du X Dv \f$.
   virtual void Evaluate(double uvw[3], double Pt[3], double Duvw[9]);
 
   // Description:

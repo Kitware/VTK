@@ -19,9 +19,10 @@
 
 #include <time.h>
 
-vtkCxxRevisionMacro(vtkParametricRandomHills, "1.6");
+vtkCxxRevisionMacro(vtkParametricRandomHills, "1.7");
 vtkStandardNewMacro(vtkParametricRandomHills);
 
+//----------------------------------------------------------------------------
 vtkParametricRandomHills::vtkParametricRandomHills() :
   NumberOfHills(30)
   , HillXVariance(2.5)
@@ -51,12 +52,13 @@ vtkParametricRandomHills::vtkParametricRandomHills() :
   GenerateTheHills();
 }
 
+//----------------------------------------------------------------------------
 vtkParametricRandomHills::~vtkParametricRandomHills()
 {
   this->hillData->Delete();
 }
 
-//! Initialise the random number generator.
+//----------------------------------------------------------------------------
 void vtkParametricRandomHills::InitSeed ( int randomSeed )
 {
   if ( randomSeed < 0 )
@@ -66,12 +68,13 @@ void vtkParametricRandomHills::InitSeed ( int randomSeed )
   srand( (unsigned int) randomSeed );
 }
 
-//! Return a random number between 0 and 1.
+//----------------------------------------------------------------------------
 double vtkParametricRandomHills::Rand ( void )
 {
   return double(rand())/double(RAND_MAX);
 }
 
+//----------------------------------------------------------------------------
 void vtkParametricRandomHills::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
 {
   double u = uvw[0];
@@ -98,6 +101,7 @@ void vtkParametricRandomHills::Evaluate(double uvw[3], double Pt[3], double Duvw
     }
 }
 
+//----------------------------------------------------------------------------
 double vtkParametricRandomHills::EvaluateScalar(double* vtkNotUsed(uv[3]), 
                                                 double* vtkNotUsed(Pt[3]), 
                                                 double* vtkNotUsed(Duv[9]))
@@ -167,6 +171,7 @@ void vtkParametricRandomHills::GenerateTheHills( void )
   this->Modified();
 }
 
+//----------------------------------------------------------------------------
 void vtkParametricRandomHills::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

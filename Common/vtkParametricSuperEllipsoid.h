@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkParametricSuperEllipsoid - generate a superellipsoid
+// .NAME vtkParametricSuperEllipsoid - Generate a superellipsoid.
 // .SECTION Description
 // vtkParametricSuperEllipsoid generates a superellipsoid.  A superellipsoid
 // is a versatile primitive that is controlled by two parameters n1 and
@@ -82,41 +82,12 @@ public:
   vtkGetMacro(N2,double);
 
   // Description:
-  // The parametric equations for a superellipsoid are:
-  // <pre>
-  // - x = rx*sin(v)^n1*cos(u)^n2
-  // - y = ry*sin(v)^n1*sin(u)^n2
-  // - z = rz*sin(v)^n1
-  // 
-  // where:
-  // - 0 <= u < 2*pi, 0 <= v < pi
-  // - 0 <= n1,n2 < infinity
-  // - rx, ry, rx are scaling factors 
-  // ( 0 < rx, ry, rz < infinity )
-  // 
-  // Derivatives:
-  // - dx/du = -rx*sin(v)^n1*cos(u)^n2*n2*sin(u)/cos(u);
-  // - dy/du = ry*sin(v)^n1*sin(u)^n2*n2*cos(u)/sin(u);
-  // - dz/du = 0;
-  // - dx/dv = rx*sin(v)^n1*n1*cos(v)/sin(v)*cos(u)^n2;
-  // - dy/dv = ry*sin(v)^n1*n1*cos(v)/sin(v)*sin(u)^n2;
-  // - dz/dv = rz*sin(v)^n1*n1*cos(v)/sin(v);
-  // </pre>
-  // Let Du = (dx/du, dy/du, dz/du). Let Dv = (dx/dv, dy/dv, dz/dv). Then the normal n = Du X Dv.
-  // 
-  // Note that rx, ry, and rz are the scale factors for each axis 
-  // (axis intercept). The total shape lies at the centre of a box 
-  // of dimension 2rx, 2ry, 2rz. The power n1 acts as the "squareness"
-  // parameter in the z axis and n2 the "squareness" in the x-y plane.
-  // 
-  // Note that there are are some numerical issues with both very 
-  // small or very large values of of n1 and n2.
+  // A superellipsoid.
   //
-  // For more information see: http://astronomy.swin.edu.au/~pbourke/surfaces/.
-  //
-  // This function performs the mapping fn(u,v)->(x,y,x), returning it
+  // This function performs the mapping \f$ f(u,v) \rightarrow (x,y,x) \f$, returning it
   // as Pt. It also returns the partial derivatives Du and Dv.
-  // Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv)
+  // \f$ Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv) \f$.
+  // Then the normal is \f$ N = Du X Dv \f$.
   void Evaluate(double uvw[3], double Pt[3], double Duvw[9]);
 
   // Description:
@@ -127,7 +98,7 @@ public:
   // Pt, Duvw are obtained from Evaluate().
   //
   // This function is only called if the ScalarMode has the value
-  // vtkParametricFunction::userDefined
+  // vtkParametricFunctionSource::SCALAR_FUNCTION_DEFINED
   //
   // If the user does not need to calculate a scalar, then the 
   // instantiated function should return zero. 

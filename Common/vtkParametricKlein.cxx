@@ -16,9 +16,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkParametricKlein, "1.2");
+vtkCxxRevisionMacro(vtkParametricKlein, "1.3");
 vtkStandardNewMacro(vtkParametricKlein);
 
+//----------------------------------------------------------------------------
 vtkParametricKlein::vtkParametricKlein()
 {
   // Preset triangulation parameters
@@ -35,10 +36,12 @@ vtkParametricKlein::vtkParametricKlein()
   this->DerivativesAvailable = 1;
 }
 
+//----------------------------------------------------------------------------
 vtkParametricKlein::~vtkParametricKlein()
 {
 }
 
+//----------------------------------------------------------------------------
 void vtkParametricKlein::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
 {
   double u = uvw[0];
@@ -85,11 +88,13 @@ void vtkParametricKlein::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
   Dv[2] = 2.0/15.0*cv*subZ;
 }
 
+//----------------------------------------------------------------------------
 double vtkParametricKlein::EvaluateScalar(double*, double*, double*)
 {
   return 0;
 }
 
+//----------------------------------------------------------------------------
 void vtkParametricKlein::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

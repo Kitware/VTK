@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkParametricSuperToroid - generate a supertoroid
+// .NAME vtkParametricSuperToroid - Generate a supertoroid.
 // .SECTION Description
 // vtkParametricSuperToroid generates a supertoroid.  Essentially a
 // supertoroid is a torus with the sine and cosine terms raised to a power.
@@ -99,51 +99,12 @@ public:
   vtkGetMacro(N2,double);
 
   // Description:
-  // <pre>
-  // The parametric equations for a supertoroid are:
-  // - x = cos(u)^n1*(r0+r1*cos(v)^n2);
-  // - y = sin(u)^n1*(r0+r1*cos(v)^n2);
-  // - z = r1*sin(v)^n2
-  // 
-  // where:
-  // - 0 <= u <= pi, 0 <= v <= pi
-  // - 0 <= n1,n2 < infinity
-  // - rx, ry, rx are scaling factors ( 0 < rx, ry, rz < infinity )
-  // - r0 = The radius from the center to the middle of the ring of the torus.
-  // - r1 = The radius of the cross section of ring of the torus.
-  // 
-  // Derivatives:
-  // - dx/du = -rx * cos(u)^n1*n1*sin(u)/cos(u)*(r0+r1*cos(v)^n2);
-  // - dy/du = ry * sin(u)^n1*n1*cos(u)/sin(u)*(r0+r1*cos(v)^n2);
-  // - dz/du = 0;
-  // - dx/dv = -rx * cos(u)^n1*r1*cos(v)^n2*n2*sin(v)/cos(v);
-  // - dy/dv = -ry * sin(u)^n1*r1*cos(v)^n2*n2*sin(v)/cos(v);
-  // - dz/dv = rz * r1*sin(v)^n2*n2*cos(v)/sin(v);
-  // 
-  // Note that rx, ry, and rz are the scale factors for each axis (axis
-  // intercept).  The power n1 controls the shape of the torus ring and n2
-  // controls the shape of the cross section of the ring.
-  // 
-  // In practise, the absolute values of the trigonometric functions
-  // are used when raising to a power. This removes any complex values
-  // but may introduce unusual representations of the surface in some cases.
+  // A supertoroid.
   //
-  // Note that there are are some numerical issues with both very 
-  // small or very large values of of n1 and n2.
-  //
-  // Let Du = (dx/du, dy/du, dz/du). Let Dv = (dx/dv, dy/dv, dz/dv). Then the
-  // normal n = Du X Dv.
-  // 
-  // - r0 > r1 corresponds to the ring torus.
-  // - r0 = r1 corresponds to a horn torus which is tangent to itself at the point (0, 0, 0).
-  // - r0 < r1 corresponds to a self-intersecting spindle torus.
-  //
-  // For more information see: http://astronomy.swin.edu.au/~pbourke/surfaces/.
-  //
-  // This function performs the mapping fn(u,v)->(x,y,x), returning it
+  // This function performs the mapping \f$ f(u,v) \rightarrow (x,y,x) \f$, returning it
   // as Pt. It also returns the partial derivatives Du and Dv.
-  // Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv)
-  // </pre>
+  // \f$ Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv) \f$.
+  // Then the normal is \f$ N = Du X Dv \f$.
   void Evaluate(double uvw[3], double Pt[3], double Duvw[9]);
 
   // Description:
@@ -154,7 +115,7 @@ public:
   // Pt, Duvw are obtained from Evaluate().
   //
   // This function is only called if the ScalarMode has the value
-  // vtkParametricFunction::userDefined
+  // vtkParametricFunctionSource::SCALAR_FUNCTION_DEFINED
   //
   // If the user does not need to calculate a scalar, then the 
   // instantiated function should return zero. 

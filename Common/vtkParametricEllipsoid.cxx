@@ -17,9 +17,10 @@
 #include "vtkMath.h"
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkParametricEllipsoid, "1.1");
+vtkCxxRevisionMacro(vtkParametricEllipsoid, "1.2");
 vtkStandardNewMacro(vtkParametricEllipsoid);
 
+//----------------------------------------------------------------------------
 vtkParametricEllipsoid::vtkParametricEllipsoid() :
   XRadius(1)
   , YRadius(1)
@@ -39,10 +40,12 @@ vtkParametricEllipsoid::vtkParametricEllipsoid() :
   this->DerivativesAvailable = 1;
 }
 
+//----------------------------------------------------------------------------
 vtkParametricEllipsoid::~vtkParametricEllipsoid()
 {
 }
 
+//----------------------------------------------------------------------------
 void vtkParametricEllipsoid::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
 {
   double u = uvw[0];
@@ -75,11 +78,13 @@ void vtkParametricEllipsoid::Evaluate(double uvw[3], double Pt[3], double Duvw[9
 
 }
 
+//----------------------------------------------------------------------------
 double vtkParametricEllipsoid::EvaluateScalar(double*, double*, double*)
 {
   return 0;
 }
 
+//----------------------------------------------------------------------------
 void vtkParametricEllipsoid::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

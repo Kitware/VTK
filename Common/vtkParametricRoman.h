@@ -53,39 +53,11 @@ public:
 
   // Description:
   // Steiner's Roman Surface
-  // 
-  // The parametric form of the equations for Steiner's Roman surface are:
   //
-  // - 0 <= u <= PI, 0 <= v <= PI, a = Radius
-  // 
-  // - x(u,v) = 1/2*a^2*cos(v)^2*sin(2*u)
-  //
-  // - y(u,v) = 1/2*a^2*sin(u)*sin(2*v)
-  //
-  // - z(u,v) = 1/2*a^2*cos(u)*sin(2*v)
-  // 
-  // Derivatives are:
-  // - d(x(u,v))/du = a^2*cos(v)^2*cos(2*u)
-  //
-  // - d(x(u,v))/dv = -a^2*cos(v)*sin(2*u)*sin(v)
-  //
-  // - d(y(u,v))/du = 1/2*a^2*cos(u)*sin(2*v)
-  //
-  // - d(y(u,v))/dv = a^2*sin(u)*cos(2*v)
-  //
-  // - d(z(u,v))/du = -1/2*a^2*sin(u)*sin(2*v)
-  //
-  // - d(z(u,v))/dv = a^2*cos(u)*cos(2*v)
-  // 
-  // Let Du = (dx/du, dy/du, dz/du)
-  // 
-  // Let Dv = (dx/dv, dy/dv, dz/dv)
-  // 
-  // Then the normal n = Du X Dv
-  //
-  // This function performs the mapping fn(u,v)->(x,y,x), returning it
+  // This function performs the mapping \f$ f(u,v) \rightarrow (x,y,x) \f$, returning it
   // as Pt. It also returns the partial derivatives Du and Dv.
-  // Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv)
+  // \f$ Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv) \f$.
+  // Then the normal is \f$ N = Du X Dv \f$.
   virtual void Evaluate(double uvw[3], double Pt[3], double Duvw[9]);
 
   // Description:

@@ -17,9 +17,10 @@
 #include "vtkMath.h"
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkParametricSuperEllipsoid, "1.4");
+vtkCxxRevisionMacro(vtkParametricSuperEllipsoid, "1.5");
 vtkStandardNewMacro(vtkParametricSuperEllipsoid);
 
+//----------------------------------------------------------------------------
 vtkParametricSuperEllipsoid::vtkParametricSuperEllipsoid() :
   XRadius(1)
   , YRadius(1)
@@ -40,10 +41,12 @@ vtkParametricSuperEllipsoid::vtkParametricSuperEllipsoid() :
   this->DerivativesAvailable = 0;
 }
 
+//----------------------------------------------------------------------------
 vtkParametricSuperEllipsoid::~vtkParametricSuperEllipsoid()
 {
 }
 
+//----------------------------------------------------------------------------
 void vtkParametricSuperEllipsoid::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
 {
   double u = uvw[0];
@@ -69,11 +72,13 @@ void vtkParametricSuperEllipsoid::Evaluate(double uvw[3], double Pt[3], double D
   Pt[2] = this->ZRadius * this->Power(cv,this->N1);
 }
 
+//----------------------------------------------------------------------------
 double vtkParametricSuperEllipsoid::EvaluateScalar(double*, double*, double*)
 {
   return 0;
 }
 
+//----------------------------------------------------------------------------
 void vtkParametricSuperEllipsoid::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -85,6 +90,7 @@ void vtkParametricSuperEllipsoid::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Squareness in the x-y plane: " << this->N2 << "\n";
 }
 
+//----------------------------------------------------------------------------
 double vtkParametricSuperEllipsoid::Power ( double x, double n )
 {
   if ( x == 0 )

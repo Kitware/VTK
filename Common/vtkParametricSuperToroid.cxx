@@ -17,9 +17,10 @@
 #include "vtkMath.h"
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkParametricSuperToroid, "1.2");
+vtkCxxRevisionMacro(vtkParametricSuperToroid, "1.3");
 vtkStandardNewMacro(vtkParametricSuperToroid);
 
+//----------------------------------------------------------------------------
 vtkParametricSuperToroid::vtkParametricSuperToroid() :
   RingRadius(1)
   , CrossSectionRadius(0.5)
@@ -43,11 +44,13 @@ vtkParametricSuperToroid::vtkParametricSuperToroid() :
   this->DerivativesAvailable = 0;
 }
 
+//----------------------------------------------------------------------------
 vtkParametricSuperToroid::~vtkParametricSuperToroid()
 {
 }
 
 
+//----------------------------------------------------------------------------
 void vtkParametricSuperToroid::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
 {
   double u = uvw[0];
@@ -73,11 +76,13 @@ void vtkParametricSuperToroid::Evaluate(double uvw[3], double Pt[3], double Duvw
   Pt[2] = this->ZRadius * this->CrossSectionRadius * this->Power(sv,this->N2);
 }
 
+//----------------------------------------------------------------------------
 double vtkParametricSuperToroid::EvaluateScalar(double*, double*, double*)
 {
   return 0;
 }
 
+//----------------------------------------------------------------------------
 void vtkParametricSuperToroid::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -92,6 +97,7 @@ void vtkParametricSuperToroid::PrintSelf(ostream& os, vtkIndent indent)
 
 }
 
+//----------------------------------------------------------------------------
 double vtkParametricSuperToroid::Power ( double x, double n )
 {
   if ( x == 0 )

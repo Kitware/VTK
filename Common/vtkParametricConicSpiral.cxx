@@ -16,9 +16,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkParametricConicSpiral, "1.2");
+vtkCxxRevisionMacro(vtkParametricConicSpiral, "1.3");
 vtkStandardNewMacro(vtkParametricConicSpiral);
 
+//----------------------------------------------------------------------------
 vtkParametricConicSpiral::vtkParametricConicSpiral()
 {
   // Preset triangulation parameters
@@ -34,22 +35,19 @@ vtkParametricConicSpiral::vtkParametricConicSpiral()
   this->ClockwiseOrdering = 1;
   this->DerivativesAvailable = 1;
 
-  // Nautilus
-  //this->A = 0.2;
-  //this->B = 0.1;
-  //this->C = 0;
-  //this->N = 2;
-  // Spiral
+  // Conic Spiral
   this->A = 0.2;
   this->B = 1;
   this->C = 0.1;
   this->N = 2;
 }
 
+//----------------------------------------------------------------------------
 vtkParametricConicSpiral::~vtkParametricConicSpiral()
 {
 }
 
+//----------------------------------------------------------------------------
 void vtkParametricConicSpiral::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
 {
   double u = uvw[0];
@@ -78,11 +76,13 @@ void vtkParametricConicSpiral::Evaluate(double uvw[3], double Pt[3], double Duvw
   Dv[2] = this->B*inv2pi-this->A*inv2pi*su;
 }
 
+//----------------------------------------------------------------------------
 double vtkParametricConicSpiral::EvaluateScalar(double *, double *, double *)
 {
   return 0;
 }
 
+//----------------------------------------------------------------------------
 void vtkParametricConicSpiral::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

@@ -12,9 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkParametricEllipsoid - generate a ellipsoid
+// .NAME vtkParametricEllipsoid - Generate an ellipsoid.
 // .SECTION Description
-// vtkParametricEllipsoid generates a ellipsoid.
+// vtkParametricEllipsoid generates an ellipsoid.
 // If all the radii are the same, we have a sphere.
 // An oblate spheroid occurs if RadiusX = RadiusY > RadiusZ. 
 // Here the Z-axis forms the symmetry axis. To a first
@@ -68,32 +68,12 @@ public:
   vtkGetMacro(ZRadius,double);
 
   // Description:
-  // The parametric equations for a ellipsoid are:
-  // <pre>
-  // - x = rx*sin(v)*cos(u)
-  // - y = ry*sin(v)*sin(u)
-  // - z = rz*cos(v)
-  // 
-  // where:
-  // - 0 <= u < pi, 0 <= v < pi/2 
-  // - rx, ry, rx are scaling factors 
-  // ( 0 < rx, ry, rz < infinity )
-  // 
-  // Derivatives:
-  // - dx/du = -rx*sin(v)*sin(u);
-  // - dy/du = ry*sin(v)*cos(u);
-  // - dz/du = 0;
-  // - dx/dv = rx*cos(v)*cos(u);
-  // - dy/dv = ry*cos(v)*sin(u);
-  // - dz/dv = -rz*sin(v);
-  // </pre>
-  // Let Du = (dx/du, dy/du, dz/du). Let Dv = (dx/dv, dy/dv, dz/dv). Then the normal n = Du X Dv.
-  // 
-  // Note that rx, ry, and rz are the scale factors for each axis. 
+  // An ellipsoid.
   //
-  // This function performs the mapping fn(u,v)->(x,y,x), returning it
+  // This function performs the mapping \f$ f(u,v) \rightarrow (x,y,x) \f$, returning it
   // as Pt. It also returns the partial derivatives Du and Dv.
-  // Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv)
+  // \f$ Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv) \f$.
+  // Then the normal is \f$ N = Du X Dv \f$.
   void Evaluate(double uvw[3], double Pt[3], double Duvw[9]);
 
   // Description:
@@ -104,7 +84,7 @@ public:
   // Pt, Duvw are obtained from Evaluate().
   //
   // This function is only called if the ScalarMode has the value
-  // vtkParametricFunction::userDefined
+  // vtkParametricFunctionSource::SCALAR_FUNCTION_DEFINED
   //
   // If the user does not need to calculate a scalar, then the 
   // instantiated function should return zero. 

@@ -121,21 +121,20 @@ public:
   // the u, v coordinates of each hill, its variance in the u, v directions and
   // the amplitude.
   //
-  //
   // NOTE: This function must be called whenever any of the parameters are changed.
   void GenerateTheHills( void );
 
   // Description:
   // Construct a terrain consisting of randomly placed hills on a surface. 
-  // This function performs the mapping fn(u,v)->(x,y,x), returning it
-  // as Pt.
+  //
   // It is assumed that the function GenerateTheHills() has been executed
   // to build the vectors of coordinates required to generate the point Pt.
   // Pt represents the sum of all the amplitudes over the space.
-  // This function performs the mapping fn(u,v)->(x,y,x), returning it
+  //
+  // This function performs the mapping \f$ f(u,v) \rightarrow (x,y,x) \f$, returning it
   // as Pt. It also returns the partial derivatives Du and Dv.
-  // Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv)
-  //</pre>
+  // \f$ Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv) \f$.
+  // Then the normal is \f$ N = Du X Dv \f$.
   virtual void Evaluate(double uvw[3], double Pt[3], double Duvw[9]);
 
   // Description:

@@ -48,45 +48,12 @@ public:
   virtual int GetDimension() {return 2;}
 
   // Description:
-  // Enneper's surface is an example of  a self-intersecting minimal 
-  // surface. Enneper's surface is a well-known minimal surface. Though 
-  // it has a fairly uncomplicated parameterization , it is somewhat 
-  // hard to visualize because of its self-intersections. The plot suggests 
-  // the self-intersections exhibited by the surface, but the plot range 
-  // has been kept small enough that the structure of the surface's center 
-  // is also visible. 
+  // Enneper's surface.
   //
-  // Note that the self-intersection curves are subsets of the planes 
-  // y = 0 and x = 0. The surface is a special case of the more general Enneper's 
-  // surface of degree n. These surfaces tend to be even more complicated and 
-  // difficult to visualize.
-  //
-  // A parametric representation of Enneper's surface
-  // Define:
-  // -  X(u,v) = u-u^3/3+u*v^2
-  // -  Y(u,v) = v-v^3/3+v*u^2
-  // -  Z(u,v) = u^2-v^2
-  //
-  // Then
-  // - S(u,v) = (X(u,v),Y(u,v),Z(u,v)) defines the surface. 
-  //
-  // The derivatives are given by:
-  // - d(X(u,v)/du = 1-u^2+v^2
-  // - d(X(u,v)/dv = 2*u*v
-  // - d(Y(u,v)/du = 2*u*v
-  // - d(Y(u,v)/dv = 1-v^2+u^2
-  // - d(Z(u,v)/du = 2*u
-  // - d(Z(u,v)/dv = -2*v
-  //
-  // Let Du = (dy/du, dy/du, dy/du)
-  //
-  // Let Dv = (dx/dv, dy/dv, dz/dv)
-  //
-  // Then the normal n = Du X Dv
-  //
-  // This function performs the mapping fn(u,v)->(x,y,x), returning it
+  // This function performs the mapping \f$ f(u,v) \rightarrow (x,y,x) \f$, returning it
   // as Pt. It also returns the partial derivatives Du and Dv.
-  // Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv)
+  // \f$ Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv) \f$.
+  // Then the normal is \f$ N = Du X Dv \f$.
   void Evaluate(double uvw[3], double Pt[3], double Duvw[9]);
 
   // Description:
@@ -97,7 +64,7 @@ public:
   // Pt, Duvw are obtained from Evaluate().
   //
   // This function is only called if the ScalarMode has the value
-  // vtkParametricTriangulator::userDefined
+  // vtkParametricFunctionSource::SCALAR_FUNCTION_DEFINED
   //
   // If the user does not need to calculate a scalar, then the 
   // instantiated function should return zero. 

@@ -16,9 +16,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkParametricTorus, "1.2");
+vtkCxxRevisionMacro(vtkParametricTorus, "1.3");
 vtkStandardNewMacro(vtkParametricTorus);
 
+//----------------------------------------------------------------------------
 vtkParametricTorus::vtkParametricTorus() :
   RingRadius(1.0), CrossSectionRadius(0.5)
 {
@@ -35,10 +36,12 @@ vtkParametricTorus::vtkParametricTorus() :
   this->DerivativesAvailable = 1;
 }
 
+//----------------------------------------------------------------------------
 vtkParametricTorus::~vtkParametricTorus()
 {
 }
 
+//----------------------------------------------------------------------------
 void vtkParametricTorus::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
 {
   double u = uvw[0];
@@ -66,6 +69,7 @@ void vtkParametricTorus::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
   Dv[2] = this->CrossSectionRadius * cv;
 }
 
+//----------------------------------------------------------------------------
 double vtkParametricTorus::EvaluateScalar(double* vtkNotUsed(uv[3]), 
                                           double* vtkNotUsed(Pt[3]), 
                                           double* vtkNotUsed(Duv[9]))
@@ -73,6 +77,7 @@ double vtkParametricTorus::EvaluateScalar(double* vtkNotUsed(uv[3]),
   return 0;
 }
 
+//----------------------------------------------------------------------------
 void vtkParametricTorus::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

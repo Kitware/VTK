@@ -43,8 +43,8 @@
 // vtkParametricKlein vtkParametricMobius vtkParametricRoman
 //
 // Implementations of derived classes implementing orientable surfaces:
-// vtkParametricConicSpiral vtkParametricDini vtkParametricEnneper
-// vtkParametricRandomHills vtkParametricSuperEllipsoid 
+// vtkParametricConicSpiral vtkParametricDini vtkParametricEllipsoid 
+// vtkParametricEnneper vtkParametricRandomHills vtkParametricSuperEllipsoid 
 // vtkParametricSuperToroid vtkParametricTorus 
 //
 #ifndef __vtkParametricFunction_h
@@ -63,19 +63,21 @@ public:
   // then the (u,v,w) parameters and associated information (e.g., derivates)
   // have meaning. For example, if the dimension of the function is one, then
   // u[0] and Duvw[0...2] have meaning.
+  // This is a pure virtual function that must be instantiated in 
+  // a derived class. 
   virtual int GetDimension() = 0;
 
   // Description:
-  // Calculate Evaluate(uvw)->(Pt,Duvw).
+  // Performs the mapping (uvw)->(Pt,Duvw).
   // This is a pure virtual function that must be instantiated in 
   // a derived class. 
   //
   // uvw are the parameters, with u corresponding to uvw[0],
-// v to uvw[1] and w to uvw[2] respectively. Pt is the returned Cartesian point, 
-// Duvw are the derivatives of this point with respect to u, v and w.  
-// Note that the first three values in Duvw are Du, the next three are Dv, 
-// and the final three are Dw. Du Dv Dw are the partial derivatives of the 
-// function at the point Pt with respect to u, v and w respectively.
+  // v to uvw[1] and w to uvw[2] respectively. Pt is the returned Cartesian point, 
+  // Duvw are the derivatives of this point with respect to u, v and w.  
+  // Note that the first three values in Duvw are Du, the next three are Dv, 
+  // and the final three are Dw. Du Dv Dw are the partial derivatives of the 
+  // function at the point Pt with respect to u, v and w respectively.
   virtual void Evaluate(double uvw[3], double Pt[3], double Duvw[9]) = 0;
 
   // Description:

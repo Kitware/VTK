@@ -12,17 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkParametricKlein - a "classical" representation of a Klein bottle
+// .NAME vtkParametricKlein - Generates a "classical" representation of a Klein bottle.
 // .SECTION Description
-// vtkParametricKlein is a "classical" representation of a Klein
+// vtkParametricKlein generates a "classical" representation of a Klein
 // bottle.  A Klein bottle is a closed surface with no interior and only one
 // surface.  It is unrealisable in 3 dimensions without intersecting
-// surfaces.  It can be realised in 4 dimensions by considering the map
-// G:R^2->R^4 given by:
+// surfaces.
 //
-// - G(u,v) = ((r*cos(v)+a)*cos(u),(r*cos(v)+a)*sin(u),r*sin(v)*cos(u/2),r*sin(v)*sin(u/2))
-//
-// The classical representation of the immersion in R^3 is returned by this function.
+// The classical representation of the immersion in \f$ R^3\f$ is returned by this function.
 //
 // .SECTION Thanks
 // Andrew Maclean a.maclean@cas.edu.au for creating and contributing the
@@ -54,65 +51,12 @@ public:
   virtual int GetDimension() {return 2;}
 
   // Description:
-  // A Klein bottle is a closed surface with no interior and only one surface.
-  // It is unrealisable in 3 dimensions without intersecting surfaces. 
-  // It can be realised in 4 dimensions by considering 
-  // the map G:R^2->R^4 given by:
-  // 
-  // - G(u,v) = ((r*cos(v)+a)*cos(u),(r*cos(v)+a)*sin(u),r*sin(v)*cos(u/2),r*sin(v)*sin(u/2))
-  // 
-  // The classical representation of the immersion in R^3 is returned 
-  // by this function.
-  //<pre>
-  // - F(u,v) = - (-2/15*cos(u)*(3*cos(v)+5*sin(u)*cos(v)*cos(u)-30*sin(u)-
-  // 60*sin(u)*cos(u)^6+90*sin(u)*cos(u)^4),-1/15*sin(u)*(80*cos(v)*cos(u)^7*sin(u)+
-  // 48*cos(v)*cos(u)^6-80*cos(v)*cos(u)^5*sin(u)-48*cos(v)*cos(u)^4-5*cos(v)*cos(u)^3*sin(u)-
-  // 3*cos(v)*cos(u)^2+5*sin(u)*cos(v)*cos(u)+3*cos(v)-60*sin(u)),2/15*sin(v)*(3+5*sin(u)*cos(u)))
-  //</pre>
-  // Thanks to Robert Israel, israel@math.ubc.ca http://www.math.ubc.ca/~israel
-  // for this parametrisation.
-  // 
-  // The parametric form of the equations for a Klein bottle are:
-  // <pre>
-  // For 0 <= u <= PI, 0 <= v <= 2PI
-  // x(u,v) = -2/15*cos(u)*(3*cos(v)+5*sin(u)*cos(v)*cos(u)-30*sin(u)-
-  //          60*sin(u)*cos(u)^6+90*sin(u)*cos(u)^4)
-  // y(u,v) = -1/15*sin(u)*(80*cos(v)*cos(u)^7*sin(u)+48*cos(v)*cos(u)^6-
-  //          80*cos(v)*cos(u)^5*sin(u)-48*cos(v)*cos(u)^4-5*cos(v)*cos(u)^3*sin(u)-
-  //          3*cos(v)*cos(u)^2+5*sin(u)*cos(v)*cos(u)+3*cos(v)-60*sin(u))
-  // z(u,v) = 2/15*sin(v)*(3+5*sin(u)*cos(u))
-  // </pre>
-  // Derivatives are:
-  // <pre>
-  // - d(x(u,v))/du = 2/15*sin(u)*(3*cos(v)+5*sin(u)*cos(v)*cos(u)-30*sin(u)-
-  //                  60*sin(u)*cos(u)^6+90*sin(u)*cos(u)^4)-2/15*cos(u)*(5*cos(v)*cos(u)^2-
-  //                  5*sin(u)^2*cos(v)-30*cos(u)-60*cos(u)^7+360*sin(u)^2*cos(u)^5+90*cos(u)^5-
-  //                  360*sin(u)^2*cos(u)^3)
-  // - d(x(u,v))/dv = -2/15*cos(u)*(-3*sin(v)-5*sin(u)*sin(v)*cos(u))
-  // - d(y(u,v))/du = -1/15*cos(u)*(80*cos(v)*cos(u)^7*sin(u)+48*cos(v)*cos(u)^6-
-  //                  80*cos(v)*cos(u)^5*sin(u)-48*cos(v)*cos(u)^4-5*cos(v)*cos(u)^3*sin(u)-
-  //                  3*cos(v)*cos(u)^2+5*sin(u)*cos(v)*cos(u)+3*cos(v)-60*sin(u))-
-  //                  1/15*sin(u)*(-560*cos(v)*cos(u)^6*sin(u)^2+80*cos(v)*cos(u)^8-
-  //                  288*cos(v)*cos(u)^5*sin(u)+400*cos(v)*cos(u)^4*sin(u)^2-
-  //                  80*cos(v)*cos(u)^6+192*cos(v)*cos(u)^3*sin(u)+15*sin(u)^2*cos(v)*cos(u)^2-
-  //                  5*cos(v)*cos(u)^4+6*sin(u)*cos(v)*cos(u)+5*cos(v)*cos(u)^2-
-  //                  5*sin(u)^2*cos(v)-60*cos(u))
-  // - d(y(u,v))/dv = -1/15*sin(u)*(-80*sin(v)*cos(u)^7*sin(u)-48*sin(v)*cos(u)^6+
-  //                  80*sin(v)*cos(u)^5*sin(u)+48*sin(v)*cos(u)^4+5*sin(v)*cos(u)^3*sin(u)+
-  //                  3*sin(v)*cos(u)^2-5*sin(u)*sin(v)*cos(u)-3*sin(v))
-  // - d(z(u,v))/du = 2/15*sin(v)*(5*cos(u)^2-5*sin(u)^2)
-  // - d(z(u,v))/dv = 2/15*cos(v)*(3+5*sin(u)*cos(u))
-  // </pre>
-  // 
-  // Let Du = (dx/du, dy/du, dz/du)
-  // 
-  // Let Dv = (dx/dv, dy/dv, dz/dv)
-  // 
-  // Then the normal n = Du X Dv.
+  // A Klein bottle.
   //
-  // This function performs the mapping Evaluate(u)->(x), returning it
+  // This function performs the mapping \f$ f(u,v) \rightarrow (x,y,x) \f$, returning it
   // as Pt. It also returns the partial derivatives Du and Dv.
-  // Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv).
+  // \f$ Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv) \f$.
+  // Then the normal is \f$ N = Du X Dv \f$.
   virtual void Evaluate(double uvw[3], double Pt[3], double Duvw[9]);
 
   // Description:
@@ -123,7 +67,7 @@ public:
   // Pt, Duvw are obtained from Evaluate().
   //
   // This function is only called if the ScalarMode has the value
-  // vtkParametricTriangulator::userDefined
+  // vtkParametricFunctionSource::SCALAR_FUNCTION_DEFINED
   //
   // If the user does not need to calculate a scalar, then the 
   // instantiated function should return zero. 
