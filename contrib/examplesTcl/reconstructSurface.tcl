@@ -12,8 +12,8 @@ proc readPoints {} {
     vtkPoints points
     $output SetPoints points
 
-   set file [open "../../../vtkdata/SampledPoints/club71.16864.pts" r]
-#   set file [open "../../../vtkdata/SampledPoints/cactus.3337.pts" r]
+#   set file [open "../../../vtkdata/SampledPoints/club71.16864.pts" r]
+   set file [open "../../../vtkdata/SampledPoints/cactus.3337.pts" r]
    while { [gets $file line] != -1 } {
       scan $line "%s" firstToken
       if { $firstToken == "p" } {
@@ -28,15 +28,21 @@ proc readPoints {} {
 #
 vtkSurfaceReconstructionFilter surf
     surf SetInput [source GetPolyDataOutput]
-    surf DebugOn
+
 vtkContourFilter cf
     cf SetInput [surf GetOutput]
     cf SetValue 0 0.0
+
 vtkPolyDataMapper map
     map SetInput [cf GetOutput]
+    map ScalarVisibilityOff
+
 vtkActor surfaceActor
     surfaceActor SetMapper map
-    [surfaceActor GetProperty] SetColor 1 0 0
+    [surfaceActor GetProperty] SetDiffuseColor 1.0000 0.3882 0.2784
+    [surfaceActor GetProperty] SetSpecularColor 1 1 1
+    [surfaceActor GetProperty] SetSpecular .4
+    [surfaceActor GetProperty] SetSpecularPower 50
 
 # Create the RenderWindow, Renderer and both Actors
 #
