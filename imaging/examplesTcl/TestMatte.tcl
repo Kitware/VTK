@@ -29,7 +29,7 @@ reader SetPixelMask 0x7fff;
 
 vtkImageMatte matte;
 matte SetInput [reader GetOutput];
-matte SetBorderWidths 10 10 10;
+matte SetBorderWidths 10 20 5;
 matte SetBorderValue 2000;
 matte ReleaseDataFlagOff;
 #matte DebugOn;

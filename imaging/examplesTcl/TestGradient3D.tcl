@@ -29,8 +29,9 @@ reader SetDimensions 256 256 93;
 reader SetFilePrefix "../../data/fullHead/headsq"
 reader SetPixelMask 0x7fff;
 
-vtkImageGradient3D gradient;
+vtkImageGradient gradient;
 gradient SetInput [reader GetOutput];
+gradient SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS;
 gradient ReleaseDataFlagOff;
 
 vtkImageXViewer viewer;
