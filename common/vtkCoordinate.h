@@ -52,18 +52,19 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
 // The coordinate systems in vtk are as follows:
 //<PRE>
-//  DISPLAY -             x-y pixel values in window 
+//  DISPLAY -             x-y pixel values in window
 //  NORMALIZED DISPLAY -  x-y (0,1) normalized values
 //  VIEWPORT -            x-y pixel values in viewport
 //  NORMALIZED VIEWPORT - x-y (0,1) normalized value in viewport
 //  VIEW -                x-y-z (-1,1) values in camera coordinates. (z is depth)
 //  WORLD -               x-y-z global coordinate values
+//  USERDEFINED -         x-y-z in User defined space
 //</PRE>
 //
 // If you cascade vtkCoordinate objects, you refer to another vtkCoordinate
 // object which in turn can refer to others, and so on. This allows you to
 // create composite groups of things like vtkActor2D that are positioned
-// relative to one another. Note that in cascaded sequences, each 
+// relative to one another. Note that in cascaded sequences, each
 // vtkCoordinate object may be specified in different coordinate systems!
 
 // .SECTION See Also
@@ -81,6 +82,7 @@ class vtkViewport;
 #define VTK_NORMALIZED_VIEWPORT 3
 #define VTK_VIEW                4
 #define VTK_WORLD               5
+#define VTK_USERDEFINED         6
 
 class VTK_EXPORT vtkCoordinate : public vtkObject
 {
@@ -143,12 +145,21 @@ public:
   float *GetComputedFloatDisplayValue(vtkViewport *);
 
   // Description:
-  // GetComputedValue() will return either World, Viewport or 
+  // GetComputedValue() will return either World, Viewport or
   // Display based on what has been set as the coordinate system.
   // This is good for objects like vtkLineSource, where the
   // user might want to use them as World or Viewport coordinates
   float *GetComputedValue(vtkViewport *);
-  
+
+  // Description:
+  // GetComputedUserDefinedValue() is to be used only when
+  // the coordinate system is VTK_USERDEFINED. The user
+  // must subclass vtkCoordinate and override this function,
+  // when set as the TransformCoordinate in 2D-Mappers, the user
+  // can customize display of 2D polygons
+  virtual float *GetComputedUserDefinedValue(vtkViewport *)
+    { return Value; }
+
 protected:
   vtkCoordinate();
   ~vtkCoordinate();
@@ -166,7 +177,8 @@ protected:
 
   float ComputedFloatDisplayValue[2];
   float ComputedFloatViewportValue[2];
-  
+  float ComputedUserDefinedValue[3];
+
 };
 
 #endif
