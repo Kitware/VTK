@@ -110,11 +110,14 @@ public:
   // 
   static double* SolveCubic( double c0, double c1, double c2, double c3 );
   static double* SolveQuadratic( double c0, double c1, double c2 );
+  static double* SolveLinear( double c0, double c1 );
 
-  static void SolveCubic( double c0, double c1, double c2, double c3, 
-			   double *r1, double *r2, double *r3, int *num_roots );
-  static void SolveQuadratic( double c0, double c1, double c2, 
-		        double *r1, double *r2, int *num_roots );
+  static int SolveCubic( double c0, double c1, double c2, double c3, 
+			  double *r1, double *r2, double *r3, int *num_roots );
+  static int SolveQuadratic( double c0, double c1, double c2, 
+			      double *r1, double *r2, int *num_roots );
+
+  static int SolveLinear( double c0, double c1, double *r1, int *num_roots );
 
 protected:
   static long Seed;
