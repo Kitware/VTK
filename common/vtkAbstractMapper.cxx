@@ -42,85 +42,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkAbstractMapper.h"
 #include "vtkDataSet.h"
 #include "vtkObjectFactory.h"
-#include "vtkPlanes.h"
 
 // Construct object.
 vtkAbstractMapper::vtkAbstractMapper()
 {
   this->TimeToDraw = 0.0;
   this->LastWindow = NULL;
-  this->ClippingPlanes = NULL;
-}
-
-vtkAbstractMapper::~vtkAbstractMapper()
-{
-  if (this->ClippingPlanes)
-    {
-    this->ClippingPlanes->UnRegister(this);
-    }
-}
-
-void vtkAbstractMapper::ShallowCopy(vtkAbstractMapper *m)
-{
-  this->SetClippingPlanes(m->GetClippingPlanes());
-}
-
-// Description:
-// Override Modifiedtime as we have added a lookuptable
-unsigned long vtkAbstractMapper::GetMTime()
-{
-  unsigned long mTime = vtkProcessObject::GetMTime();
-  unsigned long clipMTime;
-
-  if ( this->ClippingPlanes != NULL )
-    {
-    clipMTime = this->ClippingPlanes->GetMTime();
-    mTime = ( clipMTime > mTime ? clipMTime : mTime );
-    }
-
-  return mTime;
-}
-
-void vtkAbstractMapper::AddClippingPlane(vtkPlane *plane)
-{
-  if (this->ClippingPlanes == NULL)
-    {
-    this->ClippingPlanes = vtkPlaneCollection::New();
-    this->ClippingPlanes->Register(this);
-    this->ClippingPlanes->Delete();
-    }
-
-  this->ClippingPlanes->AddItem(plane);
-}
-
-void vtkAbstractMapper::RemoveClippingPlane(vtkPlane *plane)
-{
-  if (this->ClippingPlanes == NULL)
-    {
-    vtkErrorMacro(<< "Cannot remove clipping plane: mapper has none");
-    }
-  this->ClippingPlanes->RemoveItem(plane);
-}
-
-void vtkAbstractMapper::RemoveAllClippingPlanes()
-{
-  if ( this->ClippingPlanes )
-    {
-    this->ClippingPlanes->RemoveAllItems();
-    }
-}
-
-void vtkAbstractMapper::SetClippingPlanes(vtkPlanes *planes)
-{
-  vtkPlane *plane;
-  int numPlanes = planes->GetNumberOfPlanes();
-
-  this->RemoveAllClippingPlanes();
-  for (int i=0; i<numPlanes && i<6; i++)
-    {
-    plane = planes->GetPlane(i);
-    this->AddClippingPlane(plane);
-    }
 }
 
 void vtkAbstractMapper::PrintSelf(ostream& os, vtkIndent indent)
@@ -129,15 +56,6 @@ void vtkAbstractMapper::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "TimeToDraw: " << this->TimeToDraw << "\n";
 
-  if ( this->ClippingPlanes )
-    {
-    os << indent << "ClippingPlanes:\n";
-    this->ClippingPlanes->PrintSelf(os,indent.GetNextIndent());
-    }
-  else
-    {
-    os << indent << "ClippingPlanes: (none)\n";
-    }
 }
 
 

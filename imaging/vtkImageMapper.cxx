@@ -74,17 +74,6 @@ vtkImageMapper::vtkImageMapper()
 
 vtkImageMapper::~vtkImageMapper()
 {
-  if (this->GetInput())
-    {
-    this->GetInput()->UnRegister(this);
-    this->SetInput(NULL);
-    }
-}
-
-unsigned long int vtkImageMapper::GetMTime()
-{
-  unsigned long mTime=this->vtkMapper2D::GetMTime();
-  return mTime;
 }
 
 //----------------------------------------------------------------------------
@@ -100,7 +89,14 @@ vtkImageData *vtkImageMapper::GetInput()
     {
     return NULL;
     }
+  
   return (vtkImageData *)(this->Inputs[0]);
+}
+
+unsigned long int vtkImageMapper::GetMTime()
+{
+  unsigned long mTime=this->vtkMapper2D::GetMTime();
+  return mTime;
 }
 
 void vtkImageMapper::PrintSelf(ostream& os, vtkIndent indent)
@@ -152,7 +148,7 @@ void vtkImageMapper::RenderStart(vtkViewport* viewport, vtkActor2D* actor)
   if (!actor)
     {
     vtkErrorMacro (<<"vtkImageMapper::Render - Null actor argument");
-    return;
+    return;    
     }
 
 
@@ -262,7 +258,7 @@ void vtkImageMapper::RenderStart(vtkViewport* viewport, vtkActor2D* actor)
 int vtkImageMapper::GetWholeZMin()
 {
   int *extent;
-
+  
   if ( ! this->GetInput())
     {
     return 0;
@@ -276,7 +272,7 @@ int vtkImageMapper::GetWholeZMin()
 int vtkImageMapper::GetWholeZMax()
 {
   int *extent;
-
+  
   if ( ! this->GetInput())
     {
     return 0;

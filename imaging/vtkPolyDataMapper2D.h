@@ -43,7 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // vtkPolyDataMapper2D is a mapper that renders 3D polygonal data 
 // (vtkPolyData) onto the 2D image plane (i.e., the renderer's viewport).
 // By default, the 3D data is transformed into 2D data by ignoring the 
-// z-coordinate of the 3D points in vtkPolyData, and taking the x-y values
+// z-coordinate of the 3D points in vtkPolyData, and taking the x-y values 
 // as local display values (i.e., pixel coordinates). Alternatively, you
 // can provide a vtkCoordinate object that will transform the data into
 // local display coordinates (use the vtkCoordinate::SetCoordinateSystem()
@@ -132,7 +132,7 @@ public:
 
   // Description:
   // Specify a vtkCoordinate object to be used to transform the vtkPolyData
-  // point coordinates. By default (no vtkCoordinate specified), the point
+  // point coordinates. By default (no vtkCoordinate specified), the point 
   // coordinates are taken as local display coordinates.
   vtkSetObjectMacro(TransformCoordinate, vtkCoordinate);
   vtkGetObjectMacro(TransformCoordinate, vtkCoordinate);
@@ -154,7 +154,7 @@ protected:
   vtkTimeStamp BuildTime;
   float ScalarRange[2];
   int ColorMode;
-
+  
   vtkCoordinate *TransformCoordinate;
 
 };
