@@ -9,4 +9,5 @@ INCLUDE(${VTK_USE_FILE})
 SUBDIRS(  
   vtkMDI
   vtkSDI
+  vtkDLG
 )
