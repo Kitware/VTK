@@ -297,7 +297,11 @@ public:
   vtkSetMacro(InAbortCheck,int);
   virtual int CheckAbortStatus();
   virtual int GetEventPending() { return 0;};
-  
+  // Description:
+  // Are we rendering at the moment 
+  virtual int CheckInRenderStatus() { return this->InRender; }
+  virtual int ClearInRenderStatus() { this->InRender = 0; }
+
   // Description:
   // Specify a function to be called to check and see if an abort
   // of the rendering in progress is desired.

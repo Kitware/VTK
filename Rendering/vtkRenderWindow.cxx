@@ -50,7 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 #include <string.h>
 
-vtkCxxRevisionMacro(vtkRenderWindow, "1.120");
+vtkCxxRevisionMacro(vtkRenderWindow, "1.121");
 
 // Construct an instance of  vtkRenderWindow with its screen size 
 // set to 300x300, borders turned on, positioned at (0,0), double 
@@ -245,25 +245,25 @@ void vtkRenderWindow::Render()
   int x,y;
   float *p1;
 
-  // if we are in the middle of an abort check the return now
+  // if we are in the middle of an abort check then return now
+  if (this->InAbortCheck)
+    {
+    return;
+    }
+
+  // if we are in a render already from somewhere else abort now
   if (this->InRender)
     {
     return;
     }
 
+  // reset the Abort flag
+  this->AbortRender = 0;
+  this->InRender = 1;
+
   vtkDebugMacro(<< "Starting Render Method.\n");
   this->InvokeEvent(vtkCommand::StartEvent,NULL);
 
-  // if we are in the middle of an abort check the return now
-  if (this->InAbortCheck)
-    {
-    return;
-    }
-  // reset the Abort flag
-  this->AbortRender = 0;
-
-  this->InRender = 1;
-  
   this->NeverRendered = 0;
 
   if ( this->Interactor && ! this->Interactor->GetInitialized() )
@@ -274,7 +274,7 @@ void vtkRenderWindow::Render()
   // if there is a reason for an AccumulationBuffer
   if ( this->SubFrames || this->AAFrames || this->FDFrames)
     {
-    // check the current size 
+    // check the current size
     size = this->GetSize();
     unsigned int bufferSize = 3*size[0]*size[1];
     // If there is not a buffer or the size is too small
@@ -709,6 +709,7 @@ int vtkRenderWindow::CheckAbortStatus()
       {
       (*this->AbortCheckMethod)(this->AbortCheckMethodArg);
       }
+    this->InvokeEvent(vtkCommand::AbortCheckEvent,NULL);
     this->InAbortCheck = 0;
     }
   return this->AbortRender;
