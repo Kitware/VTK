@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeProVP1000Mapper, "1.10");
+vtkCxxRevisionMacro(vtkVolumeProVP1000Mapper, "1.11");
 
 vtkVolumeProVP1000Mapper::vtkVolumeProVP1000Mapper()
 {
@@ -396,40 +396,41 @@ void vtkVolumeProVP1000Mapper::UpdateProperties( vtkRenderer *vtkNotUsed(ren),
       grayFunc = vol->GetProperty()->GetGrayTransferFunction();
       for ( i= 0; i< 4096; i++)
         {
-        val = 0.5 + grayFunc->GetValue((float)(i)*scale)*255.0;
+        val = 0.5 + grayFunc->GetValue(static_cast<float>(i)*scale)*255.0;
         val = (val < 0)?(0):(val);
         val = (val > 255)?(255):(val);
-        rgbTable[i][0] = rgbTable[i][1] = rgbTable[i][2] = val;
+        rgbTable[i][0] = rgbTable[i][1] = rgbTable[i][2] 
+          = static_cast<unsigned char>( val );
         
-        val = 0.5 + 4095.0 * soFunc->GetValue((float)(i)*scale);
+        val = 0.5 + 4095.0 * soFunc->GetValue(static_cast<float>(i)*scale);
         val = (val < 0)?(0):(val);
         val = (val > 4095)?(4095):(val);
-        aTable[i] = val;
+        aTable[i] = static_cast<unsigned short>( val );
         }
       break;
     case 3:
       rgbFunc = vol->GetProperty()->GetRGBTransferFunction();
       for ( i= 0; i< 4096; i++)
         {
-        val = 0.5 + rgbFunc->GetRedValue((float)(i)*scale)*255.0;
+        val = 0.5 + rgbFunc->GetRedValue(static_cast<float>(i)*scale)*255.0;
         val = (val < 0)?(0):(val);
         val = (val > 255)?(255):(val);
-        rgbTable[i][0] = val;
+        rgbTable[i][0] = static_cast<unsigned char>( val );
 
-        val = 0.5 + rgbFunc->GetGreenValue((float)(i)*scale)*255.0;
+        val = 0.5 + rgbFunc->GetGreenValue(static_cast<float>(i)*scale)*255.0;
         val = (val < 0)?(0):(val);
         val = (val > 255)?(255):(val);
-        rgbTable[i][1] = val;
+        rgbTable[i][1] = static_cast<unsigned char>( val );
 
-        val = 0.5 + rgbFunc->GetBlueValue((float)(i)*scale)*255.0;
+        val = 0.5 + rgbFunc->GetBlueValue(static_cast<float>(i)*scale)*255.0;
         val = (val < 0)?(0):(val);
         val = (val > 255)?(255):(val);
-        rgbTable[i][2] = val;
+        rgbTable[i][2] = static_cast<unsigned char>( val );
 
-        val = 0.5 + 4095.0 * soFunc->GetValue((float)(i)*scale);
+        val = 0.5 + 4095.0 * soFunc->GetValue(static_cast<float>(i)*scale);
         val = (val < 0)?(0):(val);
         val = (val > 4095)?(4095):(val);
-        aTable[i] = val;
+        aTable[i] = static_cast<unsigned short>( val );
         }
       break;
     }
@@ -470,11 +471,11 @@ void vtkVolumeProVP1000Mapper::UpdateProperties( vtkRenderer *vtkNotUsed(ren),
       {
       // Take an average of five values in the region
       gradientTable[i] = 0.2 * ( 
-        goFunc->GetValue(scale*((float)i - 0.4))  +
-        goFunc->GetValue(scale*((float)i-0.2)) +
-        goFunc->GetValue(scale*((float)i)) +
-        goFunc->GetValue(scale*((float)i+0.2)) +
-        goFunc->GetValue(scale*((float)i+0.4)));
+        goFunc->GetValue(scale*(static_cast<float>(i - 0.4)))  +
+        goFunc->GetValue(scale*(static_cast<float>(i-0.2))) +
+        goFunc->GetValue(scale*(static_cast<float>(i))) +
+        goFunc->GetValue(scale*(static_cast<float>(i+0.2))) +
+        goFunc->GetValue(scale*(static_cast<float>(i+0.4))));
       }
     
     this->Context->SetGradientOpacityModulation( VLItrue );
@@ -650,7 +651,7 @@ void vtkVolumeProVP1000Mapper::UpdateVolume( vtkRenderer * vtkNotUsed(ren), vtkV
       case VTK_UNSIGNED_CHAR:
         if ( this->VolumeDataType == VTK_VOLUME_8BIT )
           {
-          uc_data_ptr = (unsigned char *) data_ptr;
+          uc_data_ptr = static_cast<unsigned char *>(data_ptr);
           this->Volume->Update( uc_data_ptr, volumeRange );
           volumeUpdated = 1;
           }
@@ -661,7 +662,7 @@ void vtkVolumeProVP1000Mapper::UpdateVolume( vtkRenderer * vtkNotUsed(ren), vtkV
         if ( this->VolumeDataType == VTK_VOLUME_16BIT ||
              this->VolumeDataType == VTK_VOLUME_12BIT_LOWER)
           {
-          us_data_ptr = (unsigned short *) data_ptr;
+          us_data_ptr = static_cast<unsigned short *>(data_ptr);
           this->Volume->Update(us_data_ptr, volumeRange);
           volumeUpdated = 1;
           }
@@ -704,7 +705,7 @@ void vtkVolumeProVP1000Mapper::UpdateVolume( vtkRenderer * vtkNotUsed(ren), vtkV
     switch ( dataType )
       {
       case VTK_UNSIGNED_CHAR:
-        uc_data_ptr = (unsigned char *) data_ptr;
+        uc_data_ptr = static_cast<unsigned char *>(data_ptr);
         this->Volume = VLIVolume::Create( 8, dataSize[0], dataSize[1],
                                           dataSize[2], 0, 0, uc_data_ptr );
         this->Volume->SetFieldDescriptor(kVLIField0,
@@ -715,7 +716,7 @@ void vtkVolumeProVP1000Mapper::UpdateVolume( vtkRenderer * vtkNotUsed(ren), vtkV
         break;
         
       case VTK_UNSIGNED_SHORT:
-        us_data_ptr = (unsigned short *) data_ptr;
+        us_data_ptr = static_cast<unsigned short *>(data_ptr);
         this->Volume = VLIVolume::Create( 16, dataSize[0], dataSize[1],
                                           dataSize[2], 0, 0, us_data_ptr );
         
@@ -850,6 +851,7 @@ void vtkVolumeProVP1000Mapper::Render( vtkRenderer *ren, vtkVolume *vol )
 {
   int                       size[2];
   VLIStatus                 status;
+  //return;
   
   if ( !this->StatusOK() )
     {
@@ -917,7 +919,8 @@ void vtkVolumeProVP1000Mapper::Render( vtkRenderer *ren, vtkVolume *vol )
     {
     unsigned int width, height;
     this->ImageBuffer->GetSize(width, height);
-    if ((int)width != windowSize[0] || (int)height != windowSize[1])
+    if (static_cast<int>(width) != windowSize[0] || 
+        static_cast<int>(height) != windowSize[1])
       {
       this->ImageBuffer->Release();
       this->ImageBuffer = NULL;
@@ -952,7 +955,8 @@ void vtkVolumeProVP1000Mapper::Render( vtkRenderer *ren, vtkVolume *vol )
       {
       unsigned int width, height;
       this->DepthBuffer->GetSize(width, height);
-      if ((int)width != windowSize[0] || (int)height != windowSize[1])
+      if (static_cast<int>(width) != windowSize[0] || 
+          static_cast<int>(height) != windowSize[1])
         {
         this->DepthBuffer->Release();
         this->DepthBuffer = NULL;
