@@ -109,21 +109,17 @@ static inline int checkForError(int id, int maxId)
 template <class T>
 static int sendMessage(T* data, int length, int tag, int sock, int maxSize)
 {
-  vtkGenericWarningMacro("Sending tag " << tag);
   // Need to check the return value of these
   send(sock, (char *)&tag, sizeof(int), 0);
 
   int totalLength = length*sizeof(T);
   if ( totalLength < maxSize )
     {
-      vtkGenericWarningMacro("<max size, Sending size" << totalLength);
       send(sock, (char *)data, totalLength, 0);
     }
   else
     {
     int num = totalLength/maxSize;
-    vtkGenericWarningMacro(">=max size, Sending size" << maxSize << " "
-		    << num << " times");
     for(int i=0; i<num; i++)
       {
       send(sock, &(((char *)data)[i*maxSize]), 
