@@ -24,7 +24,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkStreamLine, "1.56");
+vtkCxxRevisionMacro(vtkStreamLine, "1.57");
 vtkStandardNewMacro(vtkStreamLine);
 
 // Construct object with step size set to 1.0.
@@ -167,30 +167,43 @@ void vtkStreamLine::Execute()
   if (this->Vorticity)
     {
     // Rotate the normal vectors with stream vorticity
-    int nPts=newPts->GetNumberOfPoints();
+    vtkIdType nPts=0;
+    vtkIdType *linePts=0;
     double normal[3], local1[3], local2[3], length, costheta, sintheta;
 
     lineNormalGenerator->GenerateSlidingNormals(newPts,newLines,normals);
     
-    for(i=0; i<nPts; i++)
+    //  Loop over all lines, from the above code we are know that each line
+    //  will have at least two points and that no points will be shared
+    //  between lines. It is important to loop over the points used by the
+    //  lines because newPts may actually contain points that are not used by
+    //  any lines. The normals are only calculated for points that are used
+    //  in lines so referencing normals for all points can lead to UMRs
+    for (newLines->InitTraversal(); newLines->GetNextCell(nPts,linePts); )
       {
-      normals->GetTuple(i, normal);
-      newVectors->GetTuple(i, v);
-      // obtain two unit orthogonal vectors on the plane perpendicular to
-      // the streamline
-      for(j=0; j<3; j++) { local1[j] = normal[j]; }
-      length = vtkMath::Normalize(local1);
-      vtkMath::Cross(local1, v, local2);
-      vtkMath::Normalize(local2);
-      // Rotate the normal with theta
-      rotation->GetTuple(i, &theta);
-      costheta = cos(theta);
-      sintheta = sin(theta);
-      for(j=0; j<3; j++)
+      for(i=0; i<nPts; i++)
         {
-        normal[j] = length* (costheta*local1[j] + sintheta*local2[j]);
+        normals->GetTuple(linePts[i], normal);
+        newVectors->GetTuple(linePts[i], v);
+        // obtain two unit orthogonal vectors on the plane perpendicular to
+        // the streamline
+        for(j=0; j<3; j++) 
+          { 
+          local1[j] = normal[j]; 
+          }
+        length = vtkMath::Normalize(local1);
+        vtkMath::Cross(local1, v, local2);
+        vtkMath::Normalize(local2);
+        // Rotate the normal with theta
+        rotation->GetTuple(linePts[i], &theta);
+        costheta = cos(theta);
+        sintheta = sin(theta);
+        for(j=0; j<3; j++)
+          {
+          normal[j] = length* (costheta*local1[j] + sintheta*local2[j]);
+          }
+        normals->SetTuple(linePts[i], normal);
         }
-      normals->SetTuple(i, normal);
       }
     output->GetPointData()->SetNormals(normals);
     normals->Delete();

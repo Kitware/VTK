@@ -25,7 +25,7 @@
 #include "vtkPoints.h"
 #include "vtkBox.h"
 
-vtkCxxRevisionMacro(vtkVoxel, "1.83");
+vtkCxxRevisionMacro(vtkVoxel, "1.84");
 vtkStandardNewMacro(vtkVoxel);
 
 // Construct the voxel with eight points.
@@ -414,20 +414,10 @@ int vtkVoxel::IntersectWithLine(double p1[3], double p2[3],
     bounds[2*i+1] = maxPt[i];
     }
 
-  // TODO: clean this once double changes are farther along
-  double dt, dx[3], dp1[3];
-  dt = t;
-  dx[0] = x[0];
-  dx[1] = x[1];
-  dx[2] = x[2];
-  if ( ! vtkBox::IntersectBox(bounds, dp1, p21, dx, dt) )
+  if ( ! vtkBox::IntersectBox(bounds, p1, p21, x, t) )
     {
     return 0;
     }
-  t = (double)dt;
-  x[0] = (double)dx[0];
-  x[1] = (double)dx[1];
-  x[2] = (double)dx[2];
     
   //
   // Evaluate intersection
