@@ -25,7 +25,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDICOMImageReader, "1.21");
+vtkCxxRevisionMacro(vtkDICOMImageReader, "1.22");
 vtkStandardNewMacro(vtkDICOMImageReader);
 
 class vtkDICOMImageReaderVector : public vtkstd::vector<vtkstd::string>
@@ -38,6 +38,10 @@ vtkDICOMImageReader::vtkDICOMImageReader()
   this->Parser = new DICOMParser();
   this->AppHelper = new DICOMAppHelper();
   this->DirectoryName = NULL;
+  this->PatientName = NULL;
+  this->StudyUID = NULL;
+  this->StudyID = NULL;
+  this->TransferSyntaxUID = NULL;
   this->DICOMFileNames = new vtkDICOMImageReaderVector();
 }
 
@@ -50,6 +54,22 @@ vtkDICOMImageReader::~vtkDICOMImageReader()
   if (this->DirectoryName) 
     { 
     delete [] this->DirectoryName; 
+    }
+  if (this->PatientName) 
+    { 
+    delete [] this->PatientName; 
+    }
+  if (this->StudyUID) 
+    { 
+    delete [] this->StudyUID; 
+    }
+  if (this->StudyID) 
+    { 
+    delete [] this->StudyID; 
+    }
+  if (this->TransferSyntaxUID) 
+    { 
+    delete [] this->TransferSyntaxUID; 
     }
 }
 
@@ -456,7 +476,17 @@ int vtkDICOMImageReader::GetNumberOfComponents()
 
 const char* vtkDICOMImageReader::GetTransferSyntaxUID()
 {
-  return this->AppHelper->GetTransferSyntaxUID().c_str();
+  vtkstd::string tmp = this->AppHelper->GetTransferSyntaxUID();
+  
+  if (this->TransferSyntaxUID)
+    {
+    delete [] this->TransferSyntaxUID;
+    }
+  this->TransferSyntaxUID = new char[tmp.length()+1];
+  strcpy(this->TransferSyntaxUID, tmp.c_str());
+  this->TransferSyntaxUID[tmp.length()] = '\0';
+
+  return this->TransferSyntaxUID;
 }
 
 float vtkDICOMImageReader::GetRescaleSlope()
@@ -471,12 +501,47 @@ float vtkDICOMImageReader::GetRescaleOffset()
 
 const char* vtkDICOMImageReader::GetPatientName()
 {
-  return this->AppHelper->GetPatientName().c_str();
+  vtkstd::string tmp = this->AppHelper->GetPatientName();
+  
+  if (this->PatientName)
+    {
+    delete [] this->PatientName;
+    }
+  this->PatientName = new char[tmp.length()+1];
+  strcpy(this->PatientName, tmp.c_str());
+  this->PatientName[tmp.length()] = '\0';
+
+  return this->PatientName;
 }
 
 const char* vtkDICOMImageReader::GetStudyUID()
 {
-  return this->AppHelper->GetStudyUID().c_str();
+  vtkstd::string tmp = this->AppHelper->GetStudyUID();
+  
+  if (this->StudyUID)
+    {
+    delete [] this->StudyUID;
+    }
+  this->StudyUID = new char[tmp.length()+1];
+  strcpy(this->StudyUID, tmp.c_str());
+  this->StudyUID[tmp.length()] = '\0';
+
+  return this->StudyUID;
+}
+
+const char* vtkDICOMImageReader::GetStudyID()
+{
+  vtkstd::string tmp = this->AppHelper->GetStudyID();
+  
+  if (this->StudyID)
+    {
+    delete [] this->StudyID;
+    }
+  this->StudyID = new char[tmp.length()+1];
+  strcpy(this->StudyID, tmp.c_str());
+  this->StudyID[tmp.length()] = '\0';
+
+  return this->StudyID;
 }
 
 float vtkDICOMImageReader::GetGantryAngle()
