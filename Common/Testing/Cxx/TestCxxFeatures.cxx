@@ -33,7 +33,7 @@ int FullySpecializedFunction(T*)
 }
 
 #if 0
-// Fails on kulu.crd IRIX64-6.5-CC-o3 (old SGI compiler).
+// Fails on kulu.crd IRIX64-6.5-CC-o32 (old SGI compiler).
 template <>
 int FullySpecializedFunction<int>(int*)
 {
@@ -72,7 +72,7 @@ int TestFullySpecializedFunction()
 /* Test use of standard "bool" type and values.  */
 
 #if 0
-// Fails on kulu.crd IRIX64-6.5-CC-o3 (old SGI compiler).
+// Fails on kulu.crd IRIX64-6.5-CC-o32 (old SGI compiler).
 bool GetFalse()
 {
   return false;
@@ -106,7 +106,7 @@ int TestBool()
 /* Test full template specialization of classes.  */
 
 #if 0
-// Fails on kulu.crd IRIX64-6.5-CC-o3 (old SGI compiler).
+// Fails on kulu.crd IRIX64-6.5-CC-o32 (old SGI compiler).
 template <class T>
 struct FullySpecializedClass
 {
@@ -189,14 +189,14 @@ int main()
     result = 1;
     }
 #if 0
-  // Fails on kulu.crd IRIX64-6.5-CC-o3 (old SGI compiler).
+  // Fails on kulu.crd IRIX64-6.5-CC-o32 (old SGI compiler).
   if(!TestBool())
     {
     result = 1;
     }
 #endif
 #if 0
-  // Fails on kulu.crd IRIX64-6.5-CC-o3 (old SGI compiler).
+  // Fails on kulu.crd IRIX64-6.5-CC-o32 (old SGI compiler).
   if(!TestFullySpecializedClass())
     {
     result = 1;
