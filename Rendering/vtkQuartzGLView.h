@@ -19,11 +19,11 @@
 - (void) drawRect:(NSRect)theRect;
 - (id)initWithFrame:(NSRect)theFrame;
 
-- (void *)getVTKRenderWindow;
-- (void)setVTKRenderWindow:(void *)theVTKRenderWindow;
+- (vtkQuartzRenderWindow *)getVTKRenderWindow;
+- (void)setVTKRenderWindow:(vtkQuartzRenderWindow *)theVTKRenderWindow;
 
-- (void *)getVTKRenderWindowInteractor;
-- (void)setVTKRenderWindowInteractor:(void *)theVTKRenderWindowInteractor;
+- (vtkQuartzRenderWindowInteractor *)getVTKRenderWindowInteractor;
+- (void)setVTKRenderWindowInteractor:(vtkQuartzRenderWindowInteractor *)theVTKRenderWindowInteractor;
 
 
 @end

@@ -17,6 +17,8 @@
   NSOpenGLPixelFormatAttribute attribs[] = 
     {
         NSOpenGLPFAAccelerated,
+        NSOpenGLPFANoRecovery,
+        NSOpenGLPFADoubleBuffer,
         NSOpenGLPFADepthSize, (enum NSOpenGLPixelFormatAttribute)32,
         (enum NSOpenGLPixelFormatAttribute)nil};
         
@@ -61,8 +63,8 @@
   visibleRect = [self bounds];
   
   // Set proper viewport
-  glViewport((long int)visibleRect.origin.x, (long int)visibleRect.origin.y, 
-	     (long int)visibleRect.size.width, (long int)visibleRect.size.height);
+  //glViewport((long int)visibleRect.origin.x, (long int)visibleRect.origin.y, 
+	//     (long int)visibleRect.size.width, (long int)visibleRect.size.height);
   myVTKRenderWindow->Render();
   [[self openGLContext] flushBuffer];
 }

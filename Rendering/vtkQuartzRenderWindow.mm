@@ -233,7 +233,7 @@ void vtkQuartzRenderWindow::SetPosition(int x, int y)
         NSRect sizeRect = NSMakeRect(this->Position[0],
                                      this->Position[1],
                                      this->Size[0],
-                                     this->Size[1]);
+                                     this->Size[1]+22);
         [(vtkQuartzWindow *)this->WindowId setFrame:sizeRect display:YES];
         resizing = 0;
         }
@@ -252,7 +252,6 @@ void vtkQuartzRenderWindow::SetPosition(int x, int y)
 // End the rendering process and display the image.
 void vtkQuartzRenderWindow::Frame(void)
 {
-  glFlush();
   [[(vtkQuartzWindow *)this->WindowId getvtkQuartzGLView] display];
   if (!this->AbortRender && this->DoubleBuffer)
     {
@@ -422,7 +421,7 @@ void vtkQuartzRenderWindow::WindowInitialize (void)
 	[(vtkQuartzWindow *)this->WindowId setVTKRenderWindowInteractor:0];
 	[glView setVTKRenderWindow:this];
 	[glView setVTKRenderWindowInteractor:0];
-	
+	[[(vtkQuartzWindow *)this->WindowId getvtkQuartzGLView] display];
         this->OwnWindow = 1;
     }
     this->OpenGLInit();
