@@ -34,7 +34,7 @@
 #include "vtkCell.h"
 #include "vtkCellTypes.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality,"1.20");
+vtkCxxRevisionMacro(vtkMeshQuality,"1.21");
 vtkStandardNewMacro(vtkMeshQuality);
 
 typedef double (*CellQualityType)( vtkCell* );
@@ -887,7 +887,9 @@ double vtkMeshQuality::TetRadiusRatio( vtkCell* cell )
 {
   vtkPoints* p;
   double p0[3],p1[3],p2[3],p3[3];
-  double incenter[3],circumcenter[3];
+  double ab[3],bc[3],ac[3],ad[3],bd[3],cd[3],u[3];
+  double abc,abd,acd,bcd,a,b,c,q1,q2,det;
+  static double normal_coeff=1. / 12.;
   
   p = cell->GetPoints();
   p->GetPoint(0, p0);
@@ -895,15 +897,54 @@ double vtkMeshQuality::TetRadiusRatio( vtkCell* cell )
   p->GetPoint(2, p2);
   p->GetPoint(3, p3);
 
-  return sqrt(vtkTetra::Circumsphere(p0,p1,p2,p3,circumcenter)) /
-    (3. * vtkTetra::Insphere(p0,p1,p2,p3,incenter));
+  ab[0] = p1[0]-p0[0];
+  ab[1] = p1[1]-p0[1];
+  ab[2] = p1[2]-p0[2];
+  
+  bc[0] = p2[0]-p1[0];
+  bc[1] = p2[1]-p1[1];
+  bc[2] = p2[2]-p1[2];
+  
+  ac[0] = p2[0]-p0[0];
+  ac[1] = p2[1]-p0[1];
+  ac[2] = p2[2]-p0[2];
+  
+  ad[0] = p3[0]-p0[0];
+  ad[1] = p3[1]-p0[1];
+  ad[2] = p3[2]-p0[2];
+  
+  bd[0] = p3[0]-p1[0];
+  bd[1] = p3[1]-p1[1];
+  bd[2] = p3[2]-p1[2];
+  
+  cd[0] = p3[0]-p2[0];
+  cd[1] = p3[1]-p2[1];
+  cd[2] = p3[2]-p2[2];
+
+  a = sqrt(vtkMath::Dot(ab,ab) * vtkMath::Dot(cd,cd));
+  b = sqrt(vtkMath::Dot(ac,ac) * vtkMath::Dot(bd,bd));
+  c = sqrt(vtkMath::Dot(ad,ad) * vtkMath::Dot(bc,bc));
+
+  vtkMath::Cross(ab,bc,u);
+  abc = vtkMath::Norm(u);
+  vtkMath::Cross(ab,ad,u);
+  abd = vtkMath::Norm(u);
+  vtkMath::Cross(ac,ad,u);
+  acd = vtkMath::Norm(u);
+  vtkMath::Cross(bc,cd,u);
+  bcd = vtkMath::Norm(u);
+
+  det = vtkMath::Determinant3x3(ab,ac,ad);
+
+  return normal_coeff * sqrt((a+b+c) * (a+b-c) * (a+c-b) * (b+c-a)) * (abc + abd + acd + bcd) \
+    / (det * det);
 }
 
 double vtkMeshQuality::TetAspectRatio( vtkCell* cell )
 {
   vtkPoints* p;
   double p0[3],p1[3],p2[3],p3[3];
-  double u[3],v[3],w[3],x[3],y[3],z[3];
+  double ab[3],bc[3],ac[3],ad[3],bd[3],cd[3];
   double t0,t1,t2,t3,t4,t5;
   double ma,mb,mc,hm;
   static double normal_coeff=sqrt(6.) / 12.;
@@ -914,36 +955,36 @@ double vtkMeshQuality::TetAspectRatio( vtkCell* cell )
   p->GetPoint(2, p2);
   p->GetPoint(3, p3);
 
-  u[0] = p1[0]-p0[0];
-  u[1] = p1[1]-p0[1];
-  u[2] = p1[2]-p0[2];
+  ab[0] = p1[0]-p0[0];
+  ab[1] = p1[1]-p0[1];
+  ab[2] = p1[2]-p0[2];
   
-  v[0] = p2[0]-p1[0];
-  v[1] = p2[1]-p1[1];
-  v[2] = p2[2]-p1[2];
+  bc[0] = p2[0]-p1[0];
+  bc[1] = p2[1]-p1[1];
+  bc[2] = p2[2]-p1[2];
   
-  w[0] = p2[0]-p0[0];
-  w[1] = p2[1]-p0[1];
-  w[2] = p2[2]-p0[2];
+  ac[0] = p2[0]-p0[0];
+  ac[1] = p2[1]-p0[1];
+  ac[2] = p2[2]-p0[2];
   
-  x[0] = p3[0]-p0[0];
-  x[1] = p3[1]-p0[1];
-  x[2] = p3[2]-p0[2];
+  ad[0] = p3[0]-p0[0];
+  ad[1] = p3[1]-p0[1];
+  ad[2] = p3[2]-p0[2];
   
-  y[0] = p3[0]-p1[0];
-  y[1] = p3[1]-p1[1];
-  y[2] = p3[2]-p1[2];
+  bd[0] = p3[0]-p1[0];
+  bd[1] = p3[1]-p1[1];
+  bd[2] = p3[2]-p1[2];
   
-  z[0] = p3[0]-p2[0];
-  z[1] = p3[1]-p2[1];
-  z[2] = p3[2]-p2[2];
+  cd[0] = p3[0]-p2[0];
+  cd[1] = p3[1]-p2[1];
+  cd[2] = p3[2]-p2[2];
 
-  t0 = vtkMath::Dot(u,u);
-  t1 = vtkMath::Dot(v,v);
-  t2 = vtkMath::Dot(w,w);
-  t3 = vtkMath::Dot(x,x);
-  t4 = vtkMath::Dot(y,y);
-  t5 = vtkMath::Dot(z,z);
+  t0 = vtkMath::Dot(ab,ab);
+  t1 = vtkMath::Dot(bc,bc);
+  t2 = vtkMath::Dot(ac,ac);
+  t3 = vtkMath::Dot(ad,ad);
+  t4 = vtkMath::Dot(bd,bd);
+  t5 = vtkMath::Dot(cd,cd);
 
   ma = t0 > t1 ? t0 : t1;
   mb = t2 > t3 ? t2 : t3;
@@ -951,16 +992,16 @@ double vtkMeshQuality::TetAspectRatio( vtkCell* cell )
   hm = ma > mb ? ma : mb;
   hm = hm > mc ? sqrt(hm) : sqrt(mc);
 
-  vtkMath::Cross(u,v,y);
-  t0 = vtkMath::Norm(y);
-  vtkMath::Cross(u,x,y);
-  t1 = vtkMath::Norm(y);
-  vtkMath::Cross(w,x,y);
-  t2 = vtkMath::Norm(y);
-  vtkMath::Cross(v,z,y);
-  t3 = vtkMath::Norm(y);
+  vtkMath::Cross(ab,bc,bd);
+  t0 = vtkMath::Norm(bd);
+  vtkMath::Cross(ab,ad,bd);
+  t1 = vtkMath::Norm(bd);
+  vtkMath::Cross(ac,ad,bd);
+  t2 = vtkMath::Norm(bd);
+  vtkMath::Cross(bc,cd,bd);
+  t3 = vtkMath::Norm(bd);
 
-  t4 = fabs(vtkMath::Determinant3x3(u,w,x));
+  t4 = fabs(vtkMath::Determinant3x3(ab,ac,ad));
   
   return normal_coeff * hm * (t0 + t1 + t2 + t3) / t4;
 }
