@@ -107,7 +107,18 @@ AC_SUBST(BUILD_GEMSIO)
 AC_SUBST(DEPEND_GEMSIO)
 AC_SUBST(CLEAN_GEMSIO)
 
-AC_CONFIG_SUBDIRS(common $tcldir $graphicsdir $imagingdir $borescopedir $volumedir $contribdir $geaedir $gemsipdir $gemsiodir)
+AC_ARG_WITH(gemsvolume,
+         [  --with-gemsvolume       include the gemsvolume classes],
+         gemsvolumedir=gemsvolume
+         BUILD_GEMSVOLUME=build_gemsvolume
+         DEPEND_GEMSVOLUME=depend_gemsvolume
+         CLEAN_GEMSVOLUME=clean_gemsvolume,)
+
+AC_SUBST(BUILD_GEMSVOLUME)
+AC_SUBST(DEPEND_GEMSVOLUME)
+AC_SUBST(CLEAN_GEMSVOLUME)
+
+AC_CONFIG_SUBDIRS(common $tcldir $graphicsdir $imagingdir $borescopedir $volumedir $contribdir $geaedir $gemsipdir $gemsiodir $gemsvolumedir)
 
 #------------------------------------------------------------------------------
 #       Some make programs require includes to be 

@@ -33,6 +33,8 @@ ac_help="$ac_help
   --with-gemsip           include the gemsip classes"
 ac_help="$ac_help
   --with-gemsio           include the gemsio classes"
+ac_help="$ac_help
+  --with-gemsvolume       include the gemsvolume classes"
 
 # Initialize some variables set by options.
 # The variables have the same names as the options, with
@@ -682,6 +684,20 @@ fi
 
 
 
+# Check whether --with-gemsvolume or --without-gemsvolume was given.
+if test "${with_gemsvolume+set}" = set; then
+  withval="$with_gemsvolume"
+  gemsvolumedir=gemsvolume
+         BUILD_GEMSVOLUME=build_gemsvolume
+         DEPEND_GEMSVOLUME=depend_gemsvolume
+         CLEAN_GEMSVOLUME=clean_gemsvolume
+fi
+
+
+
+
+
+
 ac_aux_dir=
 for ac_dir in $srcdir $srcdir/.. $srcdir/../..; do
   if test -f $ac_dir/install-sh; then
@@ -701,7 +717,7 @@ ac_config_guess=$ac_aux_dir/config.guess
 ac_config_sub=$ac_aux_dir/config.sub
 ac_configure=$ac_aux_dir/configure # This should be Cygnus configure.
 
-subdirs="common $tcldir $graphicsdir $imagingdir $borescopedir $volumedir $contribdir $geaedir $gemsipdir $gemsiodir"
+subdirs="common $tcldir $graphicsdir $imagingdir $borescopedir $volumedir $contribdir $geaedir $gemsipdir $gemsiodir $gemsvolumedir"
 
 
 #------------------------------------------------------------------------------
@@ -900,6 +916,9 @@ s%@CLEAN_GEMSIP@%$CLEAN_GEMSIP%g
 s%@BUILD_GEMSIO@%$BUILD_GEMSIO%g
 s%@DEPEND_GEMSIO@%$DEPEND_GEMSIO%g
 s%@CLEAN_GEMSIO@%$CLEAN_GEMSIO%g
+s%@BUILD_GEMSVOLUME@%$BUILD_GEMSVOLUME%g
+s%@DEPEND_GEMSVOLUME@%$DEPEND_GEMSVOLUME%g
+s%@CLEAN_GEMSVOLUME@%$CLEAN_GEMSVOLUME%g
 s%@subdirs@%$subdirs%g
 s%@MAKEINCLUDE@%$MAKEINCLUDE%g
 s%@MAKEQUOTE@%$MAKEQUOTE%g
@@ -992,7 +1011,7 @@ if test "$no_recursion" != yes; then
     esac
   done
 
-  for ac_config_dir in common $tcldir $graphicsdir $imagingdir $borescopedir $volumedir $contribdir $geaedir $gemsipdir $gemsiodir; do
+  for ac_config_dir in common $tcldir $graphicsdir $imagingdir $borescopedir $volumedir $contribdir $geaedir $gemsipdir $gemsiodir $gemsvolumedir; do
 
     # Do not complain, so a configure script can configure whichever
     # parts of a large source tree are present.

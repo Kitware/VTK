@@ -491,6 +491,13 @@ AC_ARG_WITH(gemsio,
          USE_GEMSIO_FLAG="-I$(srcdir)/../gemsio -DUSE_GEMSIO",
          [vtk_use_gemsio=no]) 
 
+AC_ARG_WITH(gemsvolume,
+         [  --with-gemsvolume    include the gemsvolume classes],
+         [vtk_use_gemsvolume=yes] 
+         USE_GEMSVOLUME_LIBS="-L../gemsvolume -lVTKGemsvolumeTcl"
+         USE_GEMSVOLUME_FLAG="-I$(srcdir)/../gemsvolume -DUSE_GEMSVOLUME",
+         [vtk_use_gemsvolume=no]) 
+
 USE_GRAPHICS_DEPENDS=""
 USE_IMAGING_DEPENDS=""
 USE_VOLUME_DEPENDS=""
@@ -499,6 +506,7 @@ USE_CONTRIB_DEPENDS=""
 USE_GEAE_DEPENDS=""
 USE_GEMSIP_DEPENDS=""
 USE_GEMSIO_DEPENDS=""
+USE_GEMSVOLUME_DEPENDS=""
 COMMON_DEPENDS=""
 
 if test "$vtk_shared_ok" = "yes"; then
@@ -534,6 +542,9 @@ else
     if test "$vtk_use_gemsio" = "yes"; then
        USE_GEMSIO_DEPENDS="../gemsio/libVTKGemsioTcl.a"
     fi
+    if test "$vtk_use_gemsvolume" = "yes"; then
+       USE_GEMSVOLUME_DEPENDS="../gemsvolume/libVTKGemsvolumeTcl.a"
+    fi
 fi
 
 AC_SUBST(USE_GRAPHICS_FLAG)
@@ -567,6 +578,10 @@ AC_SUBST(USE_GEMSIP_DEPENDS)
 AC_SUBST(USE_GEMSIO_FLAG)
 AC_SUBST(USE_GEMSIO_LIBS)
 AC_SUBST(USE_GEMSIO_DEPENDS)
+
+AC_SUBST(USE_GEMSVOLUME_FLAG)
+AC_SUBST(USE_GEMSVOLUME_LIBS)
+AC_SUBST(USE_GEMSVOLUME_DEPENDS)
 
 AC_SUBST(VTK_SHLIB_CFLAGS)
 AC_SUBST(COMMON_DEPENDS)

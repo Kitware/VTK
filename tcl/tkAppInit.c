@@ -162,6 +162,13 @@ int Tcl_AppInit(Tcl_Interp *interp)
     }
 #endif
 
+#ifdef USE_GEMSVOLUME
+  if (Vtkgemsvolumetcl_Init(interp) == TCL_ERROR) 
+    {
+    return TCL_ERROR;
+    }
+#endif
+
   /*
    * Specify a user-specific startup file to invoke if the application
    * is run interactively.  Typically the startup file is "~/.apprc"

@@ -40,6 +40,9 @@ CLEAN_GEMSIP      = @CLEAN_GEMSIP@
 BUILD_GEMSIO      = @BUILD_GEMSIO@
 DEPEND_GEMSIO     = @DEPEND_GEMSIO@
 CLEAN_GEMSIO      = @CLEAN_GEMSIO@
+BUILD_GEMSVOLUME  = @BUILD_GEMSVOLUME@
+DEPEND_GEMSVOLUME = @DEPEND_GEMSVOLUME@
+CLEAN_GEMSVOLUME  = @CLEAN_GEMSVOLUME@
 
 #------------------------------------------------------------------------------
 # Include user-editable defines.
@@ -51,6 +54,7 @@ CLEAN_GEMSIO      = @CLEAN_GEMSIO@
 all: ${BUILD_TCL} build_common \
 	${BUILD_GRAPHICS} ${BUILD_IMAGING} ${BUILD_BORESCOPE} ${BUILD_VOLUME} \
 	${BUILD_CONTRIB} ${BUILD_GEAE} ${BUILD_GEMSIP} ${BUILD_GEMSIO} \
+	${BUILD_GEMSVOLUME} \
 	${BUILD_TCL}${BUILD_TCL}
 
 build_common:
@@ -74,6 +78,9 @@ build_tcl:
 build_gemsio:
 	cd gemsio;     ${MAKE} -${MAKEFLAGS} all
 
+build_gemsvolume:
+	cd gemsvolume; ${MAKE} -${MAKEFLAGS} all
+
 build_gemsip:
 	cd gemsip;     ${MAKE} -${MAKEFLAGS} all
 
@@ -91,7 +98,7 @@ build_tclbuild_tcl:
 # generate dpend.make files
 
 depend: ${DEPEND_TCL} ${DEPEND_GRAPHICS} ${DEPEND_IMAGING} \
-	${DEPEND_BORESCOPE} ${DEPEND_VOLUME} \
+	${DEPEND_BORESCOPE} ${DEPEND_VOLUME} ${DEPEND_GEMSVOLUME} \
 	${DEPEND_CONTRIB} ${DEPEND_GEAE} ${DEPEND_GEMSIP} ${DEPEND_GEMSIO} 
 	cd common;    ${MAKE} -${MAKEFLAGS} depend
 
@@ -122,10 +129,13 @@ depend_gemsip:
 depend_gemsio:
 	cd gemsio; ${MAKE} -${MAKEFLAGS} depend
 
+depend_gemsvolume:
+	cd gemsvolume; ${MAKE} -${MAKEFLAGS} depend
+
 #------------------------------------------------------------------------------
 # Clean up all files that were built by make.
 clean: ${CLEAN_TCL} ${CLEAN_GRAPHICS} ${CLEAN_IMAGING} \
-	${CLEAN_BORESCOPE} ${CLEAN_VOLUME} \
+	${CLEAN_BORESCOPE} ${CLEAN_VOLUME} ${CLEAN_GEMSVOLUME} \
 	${CLEAN_CONTRIB} ${CLEAN_GEAE} ${CLEAN_GEMSIP} ${CLEAN_GEMSIO} 
 	cd common;    ${MAKE} -${MAKEFLAGS} clean
 	rm -f config.cache
@@ -156,4 +166,7 @@ clean_gemsip:
 
 clean_gemsio:
 	cd gemsio; ${MAKE} -${MAKEFLAGS} clean
+
+clean_gemsvolume:
+	cd gemsvolume; ${MAKE} -${MAKEFLAGS} clean
 
