@@ -17,12 +17,14 @@
 #include "vtkCellArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkLinkEdgels, "1.36");
+vtkCxxRevisionMacro(vtkLinkEdgels, "1.37");
 vtkStandardNewMacro(vtkLinkEdgels);
 
 // Construct instance of vtkLinkEdgels with GradientThreshold set to 
@@ -34,16 +36,27 @@ vtkLinkEdgels::vtkLinkEdgels()
   this->LinkThreshold = 90;
 }
 
-void vtkLinkEdgels::Execute()
+int vtkLinkEdgels::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkImageData *input = vtkImageData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkPointData *pd;
   vtkPoints *newPts;
   vtkCellArray *newLines;
   vtkDoubleArray *inScalars;
   vtkDoubleArray *outScalars;
-  vtkImageData *input = this->GetInput();
   vtkDoubleArray *outVectors;
-  vtkPolyData *output = this->GetOutput();
   int *dimensions;
   double *CurrMap, *inDataPtr;
   vtkDataArray *inVectors;
@@ -58,7 +71,7 @@ void vtkLinkEdgels::Execute()
   if ((input->GetNumberOfPoints()) < 2 || inScalars == NULL)
     {
     vtkErrorMacro(<<"No data to transform (or wrong data type)!");
-    return;
+    return 1;
     }
 
   // set up the input
@@ -95,6 +108,8 @@ void vtkLinkEdgels::Execute()
   newLines->Delete();
   outScalars->Delete();
   outVectors->Delete();
+
+  return 1;
 }
 
 // This method links the edges for one image. 
@@ -330,6 +345,12 @@ void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, double *image,
     }
   delete [] forward;
   delete [] backward;
+}
+
+int vtkLinkEdgels::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+  return 1;
 }
 
 void vtkLinkEdgels::PrintSelf(ostream& os, vtkIndent indent)
