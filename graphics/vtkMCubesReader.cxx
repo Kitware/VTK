@@ -72,6 +72,8 @@ vtkMCubesReader::vtkMCubesReader()
 
   this->Locator = NULL;
 
+  this->SwapBytes = 0;
+  this->HeaderSize = 0;
   this->FlipNormals = 0;
   this->Normals = 1;
 }
@@ -108,6 +110,7 @@ void vtkMCubesReader::Execute()
   int nodes[3], numDegenerate=0;
   float direction, n[3], dummy[2];
   vtkPolyData *output = this->GetOutput();
+  int byteOrder = this->GetDataByteOrder();
   
   vtkDebugMacro(<<"Reading marching cubes file");
   
@@ -142,8 +145,14 @@ void vtkMCubesReader::Execute()
       fread (&bounds[i], sizeof (float), 1, limitp);
       }
     // do swapping if necc
-    vtkByteSwap::Swap4BERange(bounds,6);
-    
+    if (byteOrder == VTK_FILE_BYTE_ORDER_BIG_ENDIAN)
+      {
+      vtkByteSwap::Swap4BERange(bounds,6);
+      }
+    else
+      {
+      vtkByteSwap::Swap4LERange(bounds,6);
+      }
     fclose (limitp);
 
     // calculate the number of triangles and vertices from file size
@@ -152,12 +161,20 @@ void vtkMCubesReader::Execute()
     }
   else // read data to get bounds
     {
+    fseek (fp, this->HeaderSize, 0);
     bounds[0] = bounds[2] = bounds[4] = VTK_LARGE_FLOAT;
     bounds[1] = bounds[3] = bounds[5] = -VTK_LARGE_FLOAT;
     for (i=0; fread(&point, sizeof(pointType), 1, fp); i++) 
       {
       // swap bytes if necc
-      vtkByteSwap::Swap4BERange((float *)(&point),6);
+      if (byteOrder == VTK_FILE_BYTE_ORDER_BIG_ENDIAN)
+	{
+	vtkByteSwap::Swap4BERange((float *) (&point),6);
+	}
+      else
+	{
+	vtkByteSwap::Swap4LERange((float *) (&point),6);
+	}
       for (j=0; j<3; j++) 
         {
         bounds[2*j] = (bounds[2*j] < point.x[j] ? bounds[2*j] : point.x[j]);
@@ -176,6 +193,8 @@ void vtkMCubesReader::Execute()
 // Now re-read and merge
 //
   rewind (fp);
+  fseek (fp, this->HeaderSize, 0);
+
   newPts = vtkPoints::New();
   newPts->Allocate(numPts/3,numPts/3);
   newPolys = vtkCellArray::New();
@@ -207,7 +226,14 @@ void vtkMCubesReader::Execute()
          }
 
       // swap bytes if necc
-      vtkByteSwap::Swap4BERange((float *)(&point),6);
+      if (byteOrder == VTK_FILE_BYTE_ORDER_BIG_ENDIAN)
+	{
+	vtkByteSwap::Swap4BERange((float *) (&point),6);
+	}
+      else
+	{
+	vtkByteSwap::Swap4LERange((float *) (&point),6);
+	}
       if ( this->Locator->InsertUniquePoint(point.x, nodes[j]) )
         {
         if ( this->Normals )
@@ -280,6 +306,82 @@ void vtkMCubesReader::SetLocator(vtkPointLocator *locator)
   this->Modified();
 }
 
+void vtkMCubesReader::SetDataByteOrderToBigEndian()
+{
+#ifndef VTK_WORDS_BIGENDIAN
+  this->SwapBytesOn();
+#else
+  this->SwapBytesOff();
+#endif
+}
+
+void vtkMCubesReader::SetDataByteOrderToLittleEndian()
+{
+#ifdef VTK_WORDS_BIGENDIAN
+  this->SwapBytesOn();
+#else
+  this->SwapBytesOff();
+#endif
+}
+
+void vtkMCubesReader::SetDataByteOrder(int byteOrder)
+{
+  if ( byteOrder == VTK_FILE_BYTE_ORDER_BIG_ENDIAN )
+    {
+    this->SetDataByteOrderToBigEndian();
+    }
+  else
+    {
+    this->SetDataByteOrderToLittleEndian();
+    }
+}
+
+int vtkMCubesReader::GetDataByteOrder()
+{
+#ifdef VTK_WORDS_BIGENDIAN
+  if ( this->SwapBytes )
+    {
+    return VTK_FILE_BYTE_ORDER_LITTLE_ENDIAN;
+    }
+  else
+    {
+    return VTK_FILE_BYTE_ORDER_BIG_ENDIAN;
+    }
+#else
+  if ( this->SwapBytes )
+    {
+    return VTK_FILE_BYTE_ORDER_BIG_ENDIAN;
+    }
+  else
+    {
+    return VTK_FILE_BYTE_ORDER_LITTLE_ENDIAN;
+    }
+#endif
+}
+
+const char *vtkMCubesReader::GetDataByteOrderAsString()
+{
+#ifdef VTK_WORDS_BIGENDIAN
+  if ( this->SwapBytes )
+    {
+    return "LittleEndian";
+    }
+  else
+    {
+    return "BigEndian";
+    }
+#else
+  if ( this->SwapBytes )
+    {
+    return "BigEndian";
+    }
+  else
+    {
+    return "LittleEndian";
+    }
+#endif
+}
+
 void vtkMCubesReader::CreateDefaultLocator()
 {
   if ( this->Locator == NULL )
@@ -298,6 +400,8 @@ void vtkMCubesReader::PrintSelf(ostream& os, vtkIndent indent)
      << (this->LimitsFileName ? this->LimitsFileName : "(none)") << "\n";
   os << indent << "Normals: " << (this->Normals ? "On\n" : "Off\n");
   os << indent << "FlipNormals: " << (this->FlipNormals ? "On\n" : "Off\n");
+  os << indent << "HeaderSize: " << this->HeaderSize << "\n";
+  os << indent << "Swap Bytes: " << (this->SwapBytes ? "On\n" : "Off\n");
 
   if ( this->Locator )
     {

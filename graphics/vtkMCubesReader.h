@@ -79,6 +79,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPoints.h"
 #include "vtkCellArray.h"
 
+#define VTK_FILE_BYTE_ORDER_BIG_ENDIAN 0
+#define VTK_FILE_BYTE_ORDER_LITTLE_ENDIAN 1
+
 class VTK_EXPORT vtkMCubesReader : public vtkPolyDataSource 
 {
 public:
@@ -100,6 +103,11 @@ public:
   vtkGetStringMacro(LimitsFileName);
 
   // Description:
+  // Specify a header size if one exists. The header is skipped and not used at this time.
+  vtkSetClampMacro(HeaderSize,int,0,VTK_LARGE_INTEGER);
+  vtkGetMacro(HeaderSize,int);
+
+  // Description:
   // Specify whether to flip normals in opposite direction. Flipping ONLY
   // changes the direction of the normal vector. Contrast this with flipping
   // in vtkPolyDataNormals which flips both the normal and the cell point
@@ -113,6 +121,30 @@ public:
   vtkSetMacro(Normals,int);
   vtkGetMacro(Normals,int);
   vtkBooleanMacro(Normals,int);
+
+  // Description:
+  // These methods should be used instead of the SwapBytes methods.
+  // They indicate the byte ordering of the file you are trying
+  // to read in. These methods will then either swap or not swap
+  // the bytes depending on the byte ordering of the machine it is
+  // being run on. For example, reading in a BigEndian file on a
+  // BigEndian machine will result in no swapping. Trying to read
+  // the same file on a LittleEndian machine will result in swapping.
+  // As a quick note most UNIX machines are BigEndian while PC's
+  // and VAX tend to be LittleEndian. So if the file you are reading
+  // in was generated on a VAX or PC, SetDataByteOrderToLittleEndian otherwise
+  // SetDataByteOrderToBigEndian. 
+  void SetDataByteOrderToBigEndian();
+  void SetDataByteOrderToLittleEndian();
+  int GetDataByteOrder();
+  void SetDataByteOrder(int);
+  const char *GetDataByteOrderAsString();
+
+  // Description:
+  // Turn on/off byte swapping.
+  vtkSetMacro(SwapBytes,int);
+  vtkGetMacro(SwapBytes,int);
+  vtkBooleanMacro(SwapBytes,int);
 
   // Description:
   // Set / get a spatial locator for merging points. By default, 
@@ -146,6 +178,8 @@ protected:
   char *FileName;
   char *LimitsFileName;
   vtkPointLocator *Locator;
+  int SwapBytes;
+  int HeaderSize;
   int FlipNormals;
   int Normals;
 
