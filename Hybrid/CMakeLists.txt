@@ -10,6 +10,7 @@ vtkEarthSource.cxx
 vtkGridTransform.cxx
 vtkImplicitModeller.cxx
 vtkImageToPolyDataFilter.cxx
+vtkImagePlaneWidget.cxx
 vtkIterativeClosestPointTransform.cxx
 vtkLandmarkTransform.cxx
 vtkLegendBoxActor.cxx
