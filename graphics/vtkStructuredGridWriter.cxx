@@ -42,8 +42,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkStructuredGridWriter.h"
 #include "vtkObjectFactory.h"
 
-
-
 //------------------------------------------------------------------------------
 vtkStructuredGridWriter* vtkStructuredGridWriter::New()
 {
@@ -56,9 +54,6 @@ vtkStructuredGridWriter* vtkStructuredGridWriter::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkStructuredGridWriter;
 }
-
-
-
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.
@@ -91,7 +86,7 @@ void vtkStructuredGridWriter::WriteData()
     {
       return;
     }
-  //
+
   // Write structured grid specific stuff
   //
   *fp << "DATASET STRUCTURED_GRID\n";
@@ -103,12 +98,28 @@ void vtkStructuredGridWriter::WriteData()
   *fp << "DIMENSIONS " << dim[0] << " " << dim[1] << " " << dim[2] << "\n";
 
   this->WritePoints(fp, input->GetPoints());
+  
+  // If blanking, write that information out
+  if ( input->GetBlanking() )
+    {
+    this->WriteBlanking(fp, input);
+    }
 
   this->WriteCellData(fp, input);
   this->WritePointData(fp, input);
 
   this->CloseVTKFile(fp);
 }
+
+void vtkStructuredGridWriter::WriteBlanking(ostream *fp, vtkStructuredGrid *grid)
+{
+  vtkUnsignedCharArray *blanking=grid->GetPointVisibility();
+  
+  *fp << "BLANKING ";
+  int numPts = grid->GetNumberOfPoints();
+  WriteArray(fp, VTK_UNSIGNED_CHAR, blanking, "%s\n", numPts, 1);
+}
+
 
 void vtkStructuredGridWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
