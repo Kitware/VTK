@@ -109,7 +109,6 @@ void vtkIdList::IntersectWith(vtkIdList& otherIds)
 
   if (thisNumIds <= VTK_TMP_ARRAY_SIZE) 
     {//Use fast method if we can fit in temporary storage
-    int  OtherNumIds = otherIds.GetNumberOfIds();
     int  thisIds[VTK_TMP_ARRAY_SIZE];
     int  i, id;
     
@@ -122,7 +121,6 @@ void vtkIdList::IntersectWith(vtkIdList& otherIds)
     } 
   else 
     {//use slower method for extreme cases
-    int  OtherNumIds = otherIds.GetNumberOfIds();
     int  *thisIds = new int [thisNumIds];
     int  i, id;
     
