@@ -39,8 +39,8 @@ for {set i 0} {$i < $npoints} {incr i} {
 
 # create field data to hold the array, and bind it to the sphere
 vtkFieldData fd
-fd AddArray tfarray "weights"
-[$sphereData GetPointData] SetFieldData fd
+tfarray SetName "weights"
+[$sphereData GetPointData] AddArray tfarray
 
 # use an ordinary transform to stretch the shape
 vtkTransform stretch
