@@ -63,17 +63,23 @@ vtkImageThreshold::vtkImageThreshold()
 //----------------------------------------------------------------------------
 void vtkImageThreshold::SetInValue(float val)
 {
-  this->InValue = val;
-  this->ReplaceIn = 1;
-  this->Modified();
+  if (val != this->InValue || this->ReplaceIn != 1)
+    {
+    this->InValue = val;
+    this->ReplaceIn = 1;
+    this->Modified();
+    }
 }
 
 //----------------------------------------------------------------------------
 void vtkImageThreshold::SetOutValue(float val)
 {
-  this->OutValue = val;
-  this->ReplaceOut = 1;
-  this->Modified();
+  if (val != this->OutValue || this->ReplaceOut != 1)
+    {
+    this->OutValue = val;
+    this->ReplaceOut = 1;
+    this->Modified();
+    }
 }
 
 
@@ -83,9 +89,12 @@ void vtkImageThreshold::SetOutValue(float val)
 // The values greater than or equal to the value match.
 void vtkImageThreshold::ThresholdByUpper(float thresh)
 {
-  this->Modified();
-  this->LowerThreshold = thresh;
-  this->UpperThreshold = VTK_LARGE_FLOAT;
+  if (this->LowerThreshold != thresh || this->UpperThreshold < VTK_LARGE_FLOAT)
+    {
+    this->LowerThreshold = thresh;
+    this->UpperThreshold = VTK_LARGE_FLOAT;
+    this->Modified();
+    }
 }
 
 
@@ -94,9 +103,12 @@ void vtkImageThreshold::ThresholdByUpper(float thresh)
 // The values less than or equal to the value match.
 void vtkImageThreshold::ThresholdByLower(float thresh)
 {
-  this->Modified();
-  this->UpperThreshold = thresh;
-  this->LowerThreshold = -VTK_LARGE_FLOAT;
+  if (this->UpperThreshold != thresh || this->LowerThreshold > -VTK_LARGE_FLOAT)
+    {
+    this->UpperThreshold = thresh;
+    this->LowerThreshold = -VTK_LARGE_FLOAT;
+    this->Modified();
+    }
 }
 
 
@@ -105,9 +117,12 @@ void vtkImageThreshold::ThresholdByLower(float thresh)
 // The values in a range (inclusive) match
 void vtkImageThreshold::ThresholdBetween(float lower, float upper)
 {
-  this->Modified();
-  this->LowerThreshold = lower;
-  this->UpperThreshold = upper;
+  if (this->LowerThreshold != lower || this->UpperThreshold != upper)
+    {
+    this->LowerThreshold = lower;
+    this->UpperThreshold = upper;
+    this->Modified();
+    }
 }
 
 
