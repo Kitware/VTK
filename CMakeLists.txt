@@ -90,11 +90,16 @@ ENDIF(CMAKE_COMPILER_IS_GNUCXX AND WIN32)
 #-----------------------------------------------------------------------------
 # Load the VTK CMake extension modules.
 
-# Import the VTK_LOAD_CMAKE_EXTENSIONS macro.
+# Import the VTK_COMPILE_CMAKE_EXTENSIONS and VTK_LOAD_CMAKE_EXTENSIONS macros.
+INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkCompileCMakeExtensions.cmake)
 INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkLoadCMakeExtensions.cmake)
 
 # Compile the extensions into the build tree and load them.
-VTK_LOAD_CMAKE_EXTENSIONS(${VTK_SOURCE_DIR}/CMake ${VTK_BINARY_DIR}/CMake)
+VTK_COMPILE_CMAKE_EXTENSIONS(${VTK_SOURCE_DIR}/CMake ${VTK_BINARY_DIR}/CMake
+                             VTK_CMAKE_EXTENSIONS_COMPILED)
+IF(VTK_CMAKE_EXTENSIONS_COMPILED)
+  VTK_LOAD_CMAKE_EXTENSIONS(${VTK_BINARY_DIR}/CMake)
+ENDIF(VTK_CMAKE_EXTENSIONS_COMPILED)
 
 #-----------------------------------------------------------------------------
 # Choose static or shared libraries.
@@ -642,15 +647,15 @@ IF(VTK_USE_PARALLEL)
   INSTALL_FILES(/include/vtk .h vtkParallelInstantiator)
 ENDIF(VTK_USE_PARALLEL)
 
-# Install cmake extension directory so user projects can build the commands.
+# Install cmake extensions so user projects can load them.
 INSTALL_FILES(/lib/vtk/CMake FILES
-              ${VTK_SOURCE_DIR}/CMake/CMakeLists.txt
-              ${VTK_SOURCE_DIR}/CMake/vtkLoadCMakeExtensions.cmake
-              ${VTK_SOURCE_DIR}/CMake/cmVTKGenerateJavaDependencies.c
-              ${VTK_SOURCE_DIR}/CMake/cmVTKWrapTcl2Command.c
-              ${VTK_SOURCE_DIR}/CMake/cmVTKWrapPython2Command.c
-              ${VTK_SOURCE_DIR}/CMake/cmVTKWrapJava2Command.c
-              ${VTK_SOURCE_DIR}/CMake/cmVTKMakeInstantiator2Command.c)
+              ${VTK_SOURCE_DIR}/CMake/vtkLoadCMakeExtensions.cmake)
+FOREACH(cmd VTK_WRAP_TCL2 VTK_WRAP_PYTHON2 VTK_WRAP_JAVA2
+            VTK_MAKE_INSTANTIATOR2 VTK_GENERATE_JAVA_DEPENDENCIES)
+  INSTALL_FILES(/lib/vtk/CMake FILES
+    "${VTK_BINARY_DIR}/CMake/${CMAKE_SHARED_MODULE_PREFIX}cm${cmd}${CMAKE_SHARED_MODULE_SUFFIX}"
+  )
+ENDFOREACH(cmd)
 
 # Save the compiler settings so another project can import them.
 INCLUDE(${CMAKE_ROOT}/Modules/CMakeExportBuildSettings.cmake)

@@ -26,7 +26,8 @@ SET(VTK_USE_FILE "@VTK_USE_FILE@")
 # The build settings file.
 SET(VTK_BUILD_SETTINGS_FILE "@VTK_BUILD_SETTINGS_FILE@")
 
-# CMake extension module directory.
+# CMake extension module directory and macro file.
+SET(VTK_LOAD_CMAKE_EXTENSIONS_MACRO "@VTK_LOAD_CMAKE_EXTENSIONS_MACRO_CONFIG@")
 SET(VTK_CMAKE_EXTENSIONS_DIR "@VTK_CMAKE_EXTENSIONS_DIR_CONFIG@")
 
 # The list of available kits.
