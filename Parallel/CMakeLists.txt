@@ -162,6 +162,7 @@ vtkFiltering
 vtkCommon 
 )
 
+TARGET_LINK_LIBRARIES(pvtk jpeg)
 
 INSTALL_TARGETS(/lib vtkParallel)
 INSTALL_FILES(/include/vtk .h Parallel_SRCS)
