@@ -10,7 +10,7 @@
  * See the file "license.terms" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * SCCS: @(#) tkWinInt.h 1.33 97/05/20 17:00:35
+ * SCCS: @(#) tkWinInt.h 1.34 97/09/02 13:06:20
  */
 
 #ifndef _TKWININT
@@ -160,7 +160,6 @@ extern HDC		TkWinGetDrawableDC _ANSI_ARGS_((Display *display,
 			    Drawable d, TkWinDCState* state));
 extern int		TkWinGetModifierState _ANSI_ARGS_((void));
 extern HPALETTE		TkWinGetSystemPalette _ANSI_ARGS_((void));
-extern HMODULE		TkWinGetTkModule _ANSI_ARGS_((void));
 extern HWND		TkWinGetWrapperWindow _ANSI_ARGS_((Tk_Window tkwin));
 extern int		TkWinHandleMenuEvent _ANSI_ARGS_((HWND *phwnd,
 			    UINT *pMessage, WPARAM *pwParam, LPARAM *plParam,

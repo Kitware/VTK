@@ -11,7 +11,7 @@
  * See the file "license.terms" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * SCCS: @(#) tk.h 1.209 97/08/08 11:30:28
+ * SCCS: @(#) tk.h 1.211 97/11/20 12:44:45
  */
 
 #ifndef _TK
@@ -40,10 +40,10 @@
 #define TK_MAJOR_VERSION   8
 #define TK_MINOR_VERSION   0
 #define TK_RELEASE_LEVEL   2
-#define TK_RELEASE_SERIAL  0
+#define TK_RELEASE_SERIAL  2
 
 #define TK_VERSION "8.0"
-#define TK_PATCH_LEVEL "8.0"
+#define TK_PATCH_LEVEL "8.0p2"
 
 /* 
  * A special definition used to allow this header file to be included 
