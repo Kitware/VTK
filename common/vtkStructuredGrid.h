@@ -103,6 +103,7 @@ public:
   int GetMaxCellSize() {return 8;}; //hexahedron is the largest
   void GetCellNeighbors(int cellId, vtkIdList *ptIds, vtkIdList *cellIds);
   virtual void GetScalarRange(float range[2]);
+  float *GetScalarRange() {return this->vtkPointSet::GetScalarRange();}
 
   // Description:
   // following methods are specific to structured grid
