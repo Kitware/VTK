@@ -65,6 +65,8 @@ class vtkPolygon;
 class vtkTetra;
 class vtkVoxel;
 class vtkHexahedron;
+class vtkWedge;
+class vtkPyramid;
 
 class VTK_EXPORT vtkUnstructuredGrid : public vtkPointSet {
 public:
@@ -125,6 +127,8 @@ protected:
   vtkTetra *Tetra;
   vtkVoxel *Voxel;
   vtkHexahedron *Hexahedron;
+  vtkWedge *Wedge;
+  vtkPyramid *Pyramid;
   
   // points inherited
   // point data (i.e., scalars, vectors, normals, tcoords) inherited
