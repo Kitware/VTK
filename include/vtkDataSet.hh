@@ -184,6 +184,11 @@ public:
   // Restore data object to initial state,
   virtual void Initialize();
 
+  // Description:
+  // Convieniance method to get the range of the scalar data if there is any.
+  // otherwise it will return 0 to 1.
+  float *GetScalarRange();
+  
 protected:
   vtkSource *Source; // if I am the output of a Source this is a pntr to it
   vtkPointData PointData;   // Scalars, vectors, etc. associated w/ each point
