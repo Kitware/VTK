@@ -29,7 +29,7 @@
 #include "vtkRegressionTestImage.h"
 #include "vtkDebugLeaks.h"
 
-int main( int argc, char *argv[] )
+int RGrid( int argc, char *argv[] )
 {
   vtkDebugLeaks::PromptUserOff();
 

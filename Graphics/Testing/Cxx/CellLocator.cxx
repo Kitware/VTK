@@ -28,7 +28,7 @@
 #include "vtkRegressionTestImage.h"
 #include "vtkDebugLeaks.h"
 
-int main( int argc, char *argv[] )
+int CellLocator( int argc, char *argv[] )
 {
   vtkDebugLeaks::PromptUserOff();
 

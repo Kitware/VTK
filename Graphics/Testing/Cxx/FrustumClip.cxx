@@ -32,7 +32,7 @@
 // Generate a sphere. Create a view frustum looking at the sphere
 // Clip anything inside the frustum, then back away and view result
 
-int main( int argc, char *argv[] )
+int FrustumClip( int argc, char *argv[] )
 {
   vtkDebugLeaks::PromptUserOff();
 

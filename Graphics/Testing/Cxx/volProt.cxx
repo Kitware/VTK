@@ -36,7 +36,7 @@
 
 // Create an 8x7 grid of render windows in a renderer and render a volume
 // using various techniques for testing purposes
-int main( int argc, char *argv[] )
+int volProt( int argc, char *argv[] )
 {
 
   vtkDebugLeaks::PromptUserOff();
