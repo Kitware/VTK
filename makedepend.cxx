@@ -100,10 +100,12 @@ void AddToDepends(const char *filename)
 }
 
 
-int GetFullPath(char *name, const char *vtkHome, char *fullPath)
+int GetFullPath(char *name, const char *vtkHome, char *fullPath, char *argv[],
+		int extra_start, int extra_num)
 {
   struct stat statBuff;
-
+  int i;
+  
   // does the file exist ?
   // search for it in the vtk src code
   sprintf(fullPath,"%s/common/%s",vtkHome,name);
@@ -130,37 +132,26 @@ int GetFullPath(char *name, const char *vtkHome, char *fullPath)
   if (!stat(fullPath,&statBuff))
     return 1;
 
-  // if control reaches here then it hasn't been found yet
-  sprintf(fullPath,"%s/working/%s",vtkHome,name);
+  // check the current directory (stored in argv[2])
+  sprintf(fullPath,"%s/%s",argv[2],name);
   if (!stat(fullPath,&statBuff))
     return 1;
-
-  // if control reaches here then it hasn't been found yet
-  sprintf(fullPath,"%s/gemsvolume/%s",vtkHome,name);
-  if (!stat(fullPath,&statBuff))
-    return 1;
-
-  // if control reaches here then it hasn't been found yet
-  sprintf(fullPath,"%s/gemsio/%s",vtkHome,name);
-  if (!stat(fullPath,&statBuff))
-    return 1;
-
-  // if control reaches here then it hasn't been found yet
-  sprintf(fullPath,"%s/gemsip/%s",vtkHome,name);
-  if (!stat(fullPath,&statBuff))
-    return 1;
-
-  // if control reaches here then it hasn't been found yet
-  sprintf(fullPath,"%s/geae/%s",vtkHome,name);
-  if (!stat(fullPath,&statBuff))
-    return 1;
+  
+  // now do extra directories
+  for (i = 0; i < extra_num; i++)
+    {
+    sprintf(fullPath,"%s/%s",argv[extra_start+i],name);
+    if (!stat(fullPath,&statBuff))
+      return 1;
+    }
 
   return 0;
 }
 
 
 
-void GetIncludes(DEPENDS_STRUCT *dependsEntry, const char *vtkHome )
+void GetIncludes(DEPENDS_STRUCT *dependsEntry, const char *vtkHome,
+		 char *argv[], int extra_start, int extra_num)
 {
   ifstream *IS;
   char line[256];
@@ -206,7 +197,8 @@ void GetIncludes(DEPENDS_STRUCT *dependsEntry, const char *vtkHome )
               name[k] = '\0';
 
               // Get the full name
-              if (!GetFullPath(name, vtkHome, fullPath))
+              if (!GetFullPath(name, vtkHome, fullPath, argv, 
+			       extra_start, extra_num))
                 {
                 fprintf(stderr,"ERROR:  Dependency %s not found!!!", name);
                 exit(-1);
@@ -245,10 +237,12 @@ void GetIncludes(DEPENDS_STRUCT *dependsEntry, const char *vtkHome )
 
 
 
-void BuildDepends(const char *vtkHome)
+void BuildDepends(const char *vtkHome, char *argv[], 
+		  int extra_start, int extra_num)
 {
   int i;
 
   for (i = 0; i < NumInDepends; i++)
-    GetIncludes(DependsStructArray[i],vtkHome);
+    GetIncludes(DependsStructArray[i],vtkHome, argv, 
+		extra_start, extra_num);
 }

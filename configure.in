@@ -1,6 +1,9 @@
 # Process this file with autoconf to produce a configure script.
 AC_INIT()
 
+OBJDIR=`pwd`
+AC_SUBST(OBJDIR)
+
 #
 # check for some programs we use
 #
@@ -114,6 +117,9 @@ AC_CHECK_HEADERS(GL/gl.h, [use_oglr=yes])
 AC_CHECK_HEADERS(/usr/openwin/share/include/GL/glxmd.h, 
 		[use_oglr=yes]
 		OGLR_INCLUDE="-I/usr/openwin/share/include/")
+AC_CHECK_HEADERS(/opt/graphics/OpenGL/include/GL/glxmd.h, 
+		[use_oglr=yes]
+		OGLR_INCLUDE="-I/opt/graphics/OpenGL/include")
 
 if test "$use_oglr" = "yes"; then
 	GRAPHICS_API_OBJ="${GRAPHICS_API_OBJ} \${OGLR_OBJ}"
@@ -220,8 +226,8 @@ AC_ARG_WITH(graphics,
          [  --without-graphics      do not include the graphics classes],
 	 if test "$withval" = yes; then
          graphicsdir=graphics
-         USE_GRAPHICS_LIBS="-L../graphics -lVTKGraphicsTcl"
-         USE_GRAPHICS_JAVA="-L../graphics -lVTKGraphicsJava"
+         USE_GRAPHICS_LIBS="-L${OBJDIR}/graphics -lVTKGraphicsTcl"
+         USE_GRAPHICS_JAVA="-L${OBJDIR}/graphics -lVTKGraphicsJava"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../graphics -DVTK_USE_GRAPHICS"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_graphics"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_graphics"
@@ -230,8 +236,8 @@ AC_ARG_WITH(graphics,
          fi
          ,
          graphicsdir=graphics
-         USE_GRAPHICS_LIBS="-L../graphics -lVTKGraphicsTcl"
-         USE_GRAPHICS_JAVA="-L../graphics -lVTKGraphicsJava"
+         USE_GRAPHICS_LIBS="-L${OBJDIR}/graphics -lVTKGraphicsTcl"
+         USE_GRAPHICS_JAVA="-L${OBJDIR}/graphics -lVTKGraphicsJava"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../graphics -DVTK_USE_GRAPHICS"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_graphics"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_graphics"
@@ -242,8 +248,8 @@ AC_ARG_WITH(imaging,
          [  --without-imaging       do not include the imaging classes],
 	 if test "$withval" = yes; then
          imagingdir=imaging
-         USE_IMAGING_LIBS="-L../imaging -lVTKImagingTcl"
-         USE_IMAGING_JAVA="-L../imaging -lVTKImagingJava"
+         USE_IMAGING_LIBS="-L${OBJDIR}/imaging -lVTKImagingTcl"
+         USE_IMAGING_JAVA="-L${OBJDIR}/imaging -lVTKImagingJava"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../imaging -DVTK_USE_IMAGING"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_imaging"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_imaging"
@@ -251,8 +257,8 @@ AC_ARG_WITH(imaging,
          CLEAN_TOOLKITS="${CLEAN_TOOLKITS} clean_imaging"
          fi,
          imagingdir=imaging
-         USE_IMAGING_LIBS="-L../imaging -lVTKImagingTcl"
-         USE_IMAGING_JAVA="-L../imaging -lVTKImagingJava"
+         USE_IMAGING_LIBS="-L${OBJDIR}/imaging -lVTKImagingTcl"
+         USE_IMAGING_JAVA="-L${OBJDIR}/imaging -lVTKImagingJava"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../imaging -DVTK_USE_IMAGING"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_imaging"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_imaging"
@@ -266,8 +272,8 @@ AC_ARG_WITH(patented,
          [  --with-patented           include the patented classes],
 	 if test "$withval" = yes; then
          patenteddir=patented
-         USE_PATENTED_LIBS="-L../patented -lVTKPatentedTcl"
-         USE_PATENTED_JAVA="-L../patented -lVTKPatentedJava"
+         USE_PATENTED_LIBS="-L${OBJDIR}/patented -lVTKPatentedTcl"
+         USE_PATENTED_JAVA="-L${OBJDIR}/patented -lVTKPatentedJava"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../patented -DVTK_USE_PATENTED"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_patented"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_patented"
@@ -279,8 +285,8 @@ AC_ARG_WITH(working,
          [  --with-working           include development classes],
 	 if test "$withval" = yes; then
          workingdir=working
-         USE_WORKING_LIBS="-L../working -lVTKWorkingTcl"
-         USE_WORKING_JAVA="-L../working -lVTKWorkingJava"
+         USE_WORKING_LIBS="-L${OBJDIR}/working -lVTKWorkingTcl"
+         USE_WORKING_JAVA="-L${OBJDIR}/working -lVTKWorkingJava"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../working -DVTK_USE_WORKING"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_working"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_working"
@@ -292,8 +298,8 @@ AC_ARG_WITH(contrib,
          [  --with-contrib          include the contrib classes],
 	 if test "$withval" = yes; then
          contribdir=contrib
-         USE_CONTRIB_LIBS="-L../contrib -lVTKContribTcl"
-         USE_CONTRIB_JAVA="-L../contrib -lVTKContribJava"
+         USE_CONTRIB_LIBS="-L${OBJDIR}/contrib -lVTKContribTcl"
+         USE_CONTRIB_JAVA="-L${OBJDIR}/contrib -lVTKContribJava"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../contrib -DVTK_USE_CONTRIB"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_contrib"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_contrib"
@@ -305,8 +311,8 @@ AC_ARG_WITH(geae,
          [  --with-geae             include the geae classes],
 	 if test "$withval" = yes; then
          geaedir=geae
-         USE_GEAE_LIBS="-L../geae -lVTKGeaeTcl"
-         USE_GEAE_JAVA="-L../geae -lVTKGeaeJava"
+         USE_GEAE_LIBS="-L${OBJDIR}/geae -lVTKGeaeTcl"
+         USE_GEAE_JAVA="-L${OBJDIR}/geae -lVTKGeaeJava"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../geae -DVTK_USE_GEAE"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_geae"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_geae"
@@ -318,8 +324,8 @@ AC_ARG_WITH(gemsip,
          [  --with-gemsip           include the gemsip classes],
 	 if test "$withval" = yes; then
          gemsipdir=gemsip
-         USE_GEMSIP_LIBS="-L../gemsip -lVTKGemsipTcl"
-         USE_GEMSIP_JAVA="-L../gemsip -lVTKGemsipJava"
+         USE_GEMSIP_LIBS="-L${OBJDIR}/gemsip -lVTKGemsipTcl"
+         USE_GEMSIP_JAVA="-L${OBJDIR}/gemsip -lVTKGemsipJava"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../gemsip -DVTK_USE_GEMSIP"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_gemsip"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_gemsip"
@@ -331,8 +337,8 @@ AC_ARG_WITH(gemsio,
          [  --with-gemsio           include the gemsio classes],
 	 if test "$withval" = yes; then
          gemsiodir=gemsio
-         USE_GEMSIO_LIBS="-L../gemsio -lVTKGemsioTcl"
-         USE_GEMSIO_JAVA="-L../gemsio -lVTKGemsioJava"
+         USE_GEMSIO_LIBS="-L${OBJDIR}/gemsio -lVTKGemsioTcl"
+         USE_GEMSIO_JAVA="-L${OBJDIR}/gemsio -lVTKGemsioJava"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../gemsio -DVTK_USE_GEMSIO"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_gemsio"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_gemsio"
@@ -344,8 +350,8 @@ AC_ARG_WITH(gemsvolume,
          [  --with-gemsvolume       include the gemsvolume classes],
 	 if test "$withval" = yes; then
          gemsvolumedir=gemsvolume
-         USE_GEMSVOLUME_LIBS="-L../gemsvolume -lVTKGemsvolumeTcl"
-         USE_GEMSVOLUME_JAVA="-L../gemsvolume -lVTKGemsvolumeJava"
+         USE_GEMSVOLUME_LIBS="-L${OBJDIR}/gemsvolume -lVTKGemsvolumeTcl"
+         USE_GEMSVOLUME_JAVA="-L${OBJDIR}/gemsvolume -lVTKGemsvolumeJava"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../gemsvolume -DVTK_USE_GEMSVOLUME"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_gemsvolume"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_gemsvolume"
@@ -357,7 +363,6 @@ AC_SUBST(BUILD_TOOLKITS)
 AC_SUBST(INSTALL_TOOLKITS)
 AC_SUBST(DEPEND_TOOLKITS)
 AC_SUBST(CLEAN_TOOLKITS)
-
 
 # option for handling BSD style makefile includes
 #
@@ -618,31 +623,31 @@ else
     VTK_LD_SEARCH_FLAGS=""
     TOOLKIT_DEPENDS="../common/libVTKCommonTcl.a"
     if test "X$graphicsdir" != "X"; then
-       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ../graphics/libVTKGraphicsTcl.a"
+       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ${OBJDIR}/graphics/libVTKGraphicsTcl.a"
     fi
     if test "X$imagingdir" != "X"; then
-       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ../imaging/libVTKImagingTcl.a"
+       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ${OBJDIR}/imaging/libVTKImagingTcl.a"
     fi
     if test "X$patenteddir" != "X"; then
-       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ../patented/libVTKPatentedTcl.a"
+       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ${OBJDIR}/patented/libVTKPatentedTcl.a"
     fi
     if test "X$workingdir" != "X"; then
-       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ../working/libVTKWorkingTcl.a"
+       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ${OBJDIR}/working/libVTKWorkingTcl.a"
     fi
     if test "X$contribdir" != "X"; then
-       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ../contrib/libVTKContribTcl.a"
+       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ${OBJDIR}/contrib/libVTKContribTcl.a"
     fi
     if test "X$geaedir" != "X"; then
-       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ../geae/libVTKGeaeTcl.a"
+       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ${OBJDIR}/geae/libVTKGeaeTcl.a"
     fi
     if test "X$gemsipdir" != "X"; then
-       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ../gemsip/libVTKGemsipTcl.a"
+       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ${OBJDIR}/gemsip/libVTKGemsipTcl.a"
     fi
     if test "X$gemsiodir" != "X"; then
-       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ../gemsio/libVTKGemsioTcl.a"
+       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ${OBJDIR}/gemsio/libVTKGemsioTcl.a"
     fi
     if test "X$gemsvolumedir" != "X"; then
-       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ../gemsvolume/libVTKGemsvolumeTcl.a"
+       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ${OBJDIR}/gemsvolume/libVTKGemsvolumeTcl.a"
     fi
 fi
 

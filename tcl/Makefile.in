@@ -72,7 +72,7 @@ vtk: 	Makefile tkAppInit.o ${TOOLKIT_DEPENDS}
 	-L. ${CXX_FLAGS} ${VTK_SHLIB_LINK_FLAGS} ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 
-vtktcl: Makefile vtktcl.o ${COMMON_DEPENDS}
+vtktcl: Makefile vtktcl.o ${TOOLKIT_DEPENDS}
 	${CXX} -o vtktcl vtktcl.o \
 	-L. ${CXX_FLAGS} ${VTK_SHLIB_BUILD_FLAGS} ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm

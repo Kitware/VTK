@@ -1,3 +1,5 @@
+VTK_OBJ       = @OBJDIR@
+
 RANLIB        = @RANLIB@
 CC            = @CC@
 CFLAGS        = @HAVE_SETMON@ @VTK_SHLIB_CFLAGS@ @BIGENDIAN@ \

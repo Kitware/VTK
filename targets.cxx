@@ -4,29 +4,34 @@
 
 extern void OutputUNIXDepends(char *file, FILE *fp);
 extern void AddToDepends(const char *filename);
-extern void BuildDepends(const char *vtkHome);
+extern void BuildDepends(const char *vtkHome, char *argv[],
+			 int extra_start, int extra_num);
 void SetupDepends(const char *vtkLocal, const char *vtkHome, int argc, char *argv[]);
 
 int concrete_num, concrete_start, concrete_end;
 int abstract_num, abstract_start, abstract_end;
 int concrete_h_num, concrete_h_start, concrete_h_end;
 int abstract_h_num, abstract_h_start, abstract_h_end;
+int extra_num, extra_start, extra_end;
 
 int main (int argc, char *argv[])
 {
   int i;
   FILE *fp;
-  char *vtkLocal = argv[1];
-  char vtkHome[256];
+  char *vtkLocal = argv[2];
+  char *vtkHome = argv[1];
   char filename[1024];
   
-  sprintf(vtkHome,"%s/..",vtkLocal);
-  
   /* start by counting */
-  for (i = 2; i < argc; i++)
+  for (i = 3; i < argc; i++)
     {
+    if (!strcmp(argv[i],"extra"))
+      {
+      extra_start = i + 1;
+      }
     if (!strcmp(argv[i],"concrete"))
       {
+      extra_end = i - 1;
       concrete_start = i+1;
       }
     if (!strcmp(argv[i],"abstract"))   
@@ -46,6 +51,7 @@ int main (int argc, char *argv[])
       abstract_h_end = argc - 1;
       }
     }
+  extra_num = extra_end - extra_start + 1;
   concrete_num = concrete_end - concrete_start + 1;
   abstract_num = abstract_end - abstract_start + 1;
   concrete_h_num = concrete_h_end - concrete_h_start + 1;
@@ -114,9 +120,9 @@ int main (int argc, char *argv[])
     }
 
   // generate depends for all the tcl wrappers
-  for (i = 2; i < argc; i++)
+  for (i = concrete_start; i < argc; i++)
     {
-    if (strcmp(argv[i],"concrete")&&strcmp(argv[i],"abstract")&&
+    if (strcmp(argv[i],"abstract")&&
 	strcmp(argv[i],"concrete_h")&&strcmp(argv[i],"abstract_h"))
       {
       fprintf(fp,"tcl/%sTcl.cxx : %s/%s.h %s/common/vtkTclUtil.h %s/tcl/cpp_parse.y ",
@@ -145,9 +151,9 @@ int main (int argc, char *argv[])
     }
   
   fprintf(fp,"TCL_OBJ = ");
-  for (i = 2; i < argc; i++)
+  for (i = concrete_start; i < argc; i++)
     {
-    if (strcmp(argv[i],"concrete")&&strcmp(argv[i],"abstract")&&
+    if (strcmp(argv[i],"abstract")&&
 	strcmp(argv[i],"concrete_h")&&strcmp(argv[i],"abstract_h"))
       {
       fprintf(fp,"\\\ntcl/%sTcl.o ",argv[i]);
@@ -173,30 +179,30 @@ int main (int argc, char *argv[])
   /* some more tcl rules */
   for (i = concrete_start; i <= concrete_end; i++)
     {
-    fprintf(fp,"tcl/%sTcl.cxx: %s.h ../tcl/cpp_parse ../tcl/hints\n\trm -f tcl/%sTcl.cxx; ../tcl/cpp_parse ${srcdir}/%s.h ${srcdir}/../tcl/hints %i > tcl/%sTcl.cxx\n",
+    fprintf(fp,"tcl/%sTcl.cxx: %s.h ${VTK_OBJ}/tcl/cpp_parse ../tcl/hints\n\trm -f tcl/%sTcl.cxx; ${VTK_OBJ}/tcl/cpp_parse ${srcdir}/%s.h ${srcdir}/../tcl/hints %i > tcl/%sTcl.cxx\n",
 	    argv[i],argv[i],argv[i], argv[i], 1, argv[i]);
     }
   for (i = abstract_start; i <= abstract_end; i++)
     {
-    fprintf(fp,"tcl/%sTcl.cxx: %s.h ../tcl/cpp_parse ../tcl/hints\n\trm -f tcl/%sTcl.cxx; ../tcl/cpp_parse ${srcdir}/%s.h ${srcdir}/../tcl/hints %i > tcl/%sTcl.cxx\n",
+    fprintf(fp,"tcl/%sTcl.cxx: %s.h ${VTK_OBJ}/tcl/cpp_parse ../tcl/hints\n\trm -f tcl/%sTcl.cxx; ${VTK_OBJ}/tcl/cpp_parse ${srcdir}/%s.h ${srcdir}/../tcl/hints %i > tcl/%sTcl.cxx\n",
 	    argv[i],argv[i],argv[i], argv[i], 0, argv[i]);
     }
   for (i = concrete_h_start; i <= concrete_h_end; i++)
     {
-    fprintf(fp,"tcl/%sTcl.cxx: %s.h ../tcl/cpp_parse ../tcl/hints\n\trm -f tcl/%sTcl.cxx; ../tcl/cpp_parse ${srcdir}/%s.h ${srcdir}/../tcl/hints %i > tcl/%sTcl.cxx\n",
+    fprintf(fp,"tcl/%sTcl.cxx: %s.h ${VTK_OBJ}/tcl/cpp_parse ../tcl/hints\n\trm -f tcl/%sTcl.cxx; ${VTK_OBJ}/tcl/cpp_parse ${srcdir}/%s.h ${srcdir}/../tcl/hints %i > tcl/%sTcl.cxx\n",
 	    argv[i],argv[i],argv[i], argv[i], 1, argv[i]);
     }
   for (i = abstract_h_start; i <= abstract_h_end; i++)
     {
-    fprintf(fp,"tcl/%sTcl.cxx: %s.h ../tcl/cpp_parse ../tcl/hints\n\trm -f tcl/%sTcl.cxx; ../tcl/cpp_parse ${srcdir}/%s.h ${srcdir}/../tcl/hints %i > tcl/%sTcl.cxx\n",
+    fprintf(fp,"tcl/%sTcl.cxx: %s.h ${VTK_OBJ}/tcl/cpp_parse ../tcl/hints\n\trm -f tcl/%sTcl.cxx; ${VTK_OBJ}/tcl/cpp_parse ${srcdir}/%s.h ${srcdir}/../tcl/hints %i > tcl/%sTcl.cxx\n",
 	    argv[i],argv[i],argv[i], argv[i], 0, argv[i]);
     }
 
   /* create JAVA_CLASSES */
   fprintf(fp,"JAVA_CLASSES = ");
-  for (i = 2; i < argc; i++)
+  for (i = concrete_start; i < argc; i++)
     {
-    if (strcmp(argv[i],"concrete")&&strcmp(argv[i],"abstract")&&
+    if (strcmp(argv[i],"abstract")&&
 	strcmp(argv[i],"concrete_h")&&strcmp(argv[i],"abstract_h"))
       {
       fprintf(fp,"\\\n../java/vtk/%s.java ",argv[i]);
@@ -206,9 +212,9 @@ int main (int argc, char *argv[])
   
   /* create JAVA_CODE */
   fprintf(fp,"JAVA_CODE = ");
-  for (i = 2; i < argc; i++)
+  for (i = concrete_start; i < argc; i++)
     {
-    if (strcmp(argv[i],"concrete")&&strcmp(argv[i],"abstract")&&
+    if (strcmp(argv[i],"abstract")&&
 	strcmp(argv[i],"concrete_h")&&strcmp(argv[i],"abstract_h"))
       {
       fprintf(fp,"\\\n../java/vtk/%s.class ",argv[i]);
@@ -218,9 +224,9 @@ int main (int argc, char *argv[])
 
   /* create JAVA_WRAP */
   fprintf(fp,"JAVA_WRAP = ");
-  for (i = 2; i < argc; i++)
+  for (i = concrete_start; i < argc; i++)
     {
-    if (strcmp(argv[i],"concrete")&&strcmp(argv[i],"abstract")&&
+    if (strcmp(argv[i],"abstract")&&
 	strcmp(argv[i],"concrete_h")&&strcmp(argv[i],"abstract_h"))
       {
       fprintf(fp,"\\\njava/%sJava.o ",argv[i]);
@@ -228,23 +234,23 @@ int main (int argc, char *argv[])
     }
   fprintf(fp,"\n\n");
 
-  for (i = 2; i < argc; i++)
+  for (i = concrete_start; i < argc; i++)
     {
-    if (strcmp(argv[i],"concrete")&&strcmp(argv[i],"abstract")&&
+    if (strcmp(argv[i],"abstract")&&
 	strcmp(argv[i],"concrete_h")&&strcmp(argv[i],"abstract_h"))
       {
-      fprintf(fp,"../java/vtk/%s.java: %s.h ../java/java_parse ../tcl/hints\n\trm -f ../java/vtk/%s.java; ../java/java_parse ${srcdir}/%s.h ${srcdir}/../tcl/hints > ../java/vtk/%s.java\n",
+      fprintf(fp,"../java/vtk/%s.java: %s.h ${VTK_OBJ}/java/java_parse ../tcl/hints\n\trm -f ../java/vtk/%s.java; ${VTK_OBJ}/java/java_parse ${srcdir}/%s.h ${srcdir}/../tcl/hints > ../java/vtk/%s.java\n",
 	      argv[i],argv[i],argv[i], argv[i], argv[i]);
-      fprintf(fp,"java/%sJava.cxx: %s.h ../java/java_wrap ../tcl/hints\n\trm -f java/%sJava.cxx; ../java/java_wrap ${srcdir}/%s.h ${srcdir}/../tcl/hints > java/%sJava.cxx\n",
+      fprintf(fp,"java/%sJava.cxx: %s.h ${VTK_OBJ}/java/java_wrap ../tcl/hints\n\trm -f java/%sJava.cxx; ${VTK_OBJ}/java/java_wrap ${srcdir}/%s.h ${srcdir}/../tcl/hints > java/%sJava.cxx\n",
 	      argv[i],argv[i],argv[i], argv[i], argv[i]);
       }
     }
 
   /* create PYTHON_WRAP */
   fprintf(fp,"PYTHON_WRAP = ");
-  for (i = 2; i < argc; i++)
+  for (i = concrete_start; i < argc; i++)
     {
-    if (strcmp(argv[i],"concrete")&&strcmp(argv[i],"abstract")&&
+    if (strcmp(argv[i],"abstract")&&
 	strcmp(argv[i],"concrete_h")&&strcmp(argv[i],"abstract_h"))
       {
       fprintf(fp,"\\\npython/%sPython.o ",argv[i]);
@@ -252,12 +258,12 @@ int main (int argc, char *argv[])
     }
   fprintf(fp,"\n\n");
 
-  for (i = 2; i < argc; i++)
+  for (i = concrete_start; i < argc; i++)
     {
-    if (strcmp(argv[i],"concrete")&&strcmp(argv[i],"abstract")&&
+    if (strcmp(argv[i],"abstract")&&
 	strcmp(argv[i],"concrete_h")&&strcmp(argv[i],"abstract_h"))
       {
-      fprintf(fp,"python/%sPython.cxx: %s.h ../python/python_wrap ../tcl/hints\n\trm -f python/%sPython.cxx; ../python/python_wrap ${srcdir}/%s.h ${srcdir}/../tcl/hints > python/%sPython.cxx\n",
+      fprintf(fp,"python/%sPython.cxx: %s.h ${VTK_OBJ}/python/python_wrap ../tcl/hints\n\trm -f python/%sPython.cxx; ${VTK_OBJ}/python/python_wrap ${srcdir}/%s.h ${srcdir}/../tcl/hints > python/%sPython.cxx\n",
 	      argv[i],argv[i],argv[i], argv[i], argv[i]);
       }
     }
@@ -309,9 +315,9 @@ void SetupDepends(const char *vtkLocal, const char *vtkHome, int argc, char *arg
     }
       
   // generate depends for all the tcl wrappers
-  for (i = 2; i < argc; i++)
+  for (i = concrete_start; i < argc; i++)
     {
-    if (strcmp(argv[i],"concrete")&&strcmp(argv[i],"abstract")&&
+    if (strcmp(argv[i],"abstract")&&
 	strcmp(argv[i],"concrete_h")&&strcmp(argv[i],"abstract_h"))
       {
       sprintf(filename,"%s/%s.h",vtkLocal,argv[i]);
@@ -319,5 +325,5 @@ void SetupDepends(const char *vtkLocal, const char *vtkHome, int argc, char *arg
       }
     }
 
-  BuildDepends(vtkHome);
+  BuildDepends(vtkHome, argv, extra_start, extra_num);
 }

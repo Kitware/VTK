@@ -122,6 +122,16 @@ vtkActor2DCollection \
 vtkProperty2D 
 
 #------------------------------------------------------------------------------
+# Autoconfig defines that can be overridden in user.make
+
+@MAKEINCLUDE@ @MAKEQUOTE@../system.make@MAKEQUOTE@
+
+#------------------------------------------------------------------------------
+# Include user-editable defines.
+
+@MAKEINCLUDE@ @MAKEQUOTE@../user.make@MAKEQUOTE@
+
+#------------------------------------------------------------------------------
 # Include the generated targets
 
 @MAKEINCLUDE@ @MAKEQUOTE@targets.make@MAKEQUOTE@
@@ -136,18 +146,10 @@ KIT_OBJ = ${SRC_OBJ}
 KIT_TCL_OBJ = ${TCL_OBJ} ${KIT_OBJ}
 KIT_NEWS = ${TCL_NEWS}
 
-#------------------------------------------------------------------------------
-# Autoconfig defines that can be overridden in user.make
-
-@MAKEINCLUDE@ @MAKEQUOTE@../system.make@MAKEQUOTE@
 
 VTK_LIB_FILE  = libVTK${ME}${VTK_LIB_EXT}
 TCL_LIB_FILE  = libVTK${ME}Tcl${VTK_LIB_EXT}
 
-#------------------------------------------------------------------------------
-# Include user-editable defines.
-
-@MAKEINCLUDE@ @MAKEQUOTE@../user.make@MAKEQUOTE@
 
 #------------------------------------------------------------------------------
 # Include the generic stuff here
