@@ -54,6 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #endif
 
 extern VTKTCL_EXPORT Tcl_Interp *vtkGlobalTclInterp;
+extern VTKTCL_EXPORT Tcl_Interp *vtkTclGetGlobalInterp();
 extern VTKTCL_EXPORT int vtkTclEval(char *str);
 extern VTKTCL_EXPORT char *vtkTclGetResult();
 extern VTKTCL_EXPORT void vtkTclDeleteObjectFromHash(void *cd);

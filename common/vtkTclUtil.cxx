@@ -45,6 +45,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTclUtil.h"
 #include "vtkSetGet.h"
 
+VTKTCL_EXPORT Tcl_Interp *vtkTclGetGlobalInterp()
+{
+  return vtkGlobalTclInterp;
+}
+
 VTKTCL_EXPORT int vtkTclEval(char *str)
 {
   int res;
