@@ -315,6 +315,13 @@ public:
   void *GetVoidPointer2d(int coordinates[2]);
   void *GetVoidPointer1d(int coordinates[1]);
   // Description:
+  // Returns a pointer relative to the current volume, image or line.
+  void *GetVoidPointer5d(int c0, int c1, int c2, int c3, int c4);
+  void *GetVoidPointer4d(int c0, int c1, int c2, int c3);
+  void *GetVoidPointer3d(int c0, int c1, int c2);
+  void *GetVoidPointer2d(int c0, int c1);
+  void *GetVoidPointer1d(int c0);
+  // Description:
   // Returns pointer at origin of current volume, image or line.
   void *GetVoidPointer5d();
   void *GetVoidPointer4d();

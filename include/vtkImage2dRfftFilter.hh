@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageScatterPlotFilter.hh
+  Module:    vtkImage2dRfftFilter.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,57 +37,26 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageScatterPlotFilter - Produces a scatter plot from 1 axis.
+// .NAME vtkImage2dRfftFilter - 2d Reverse Fast Fourier Transform
 // .SECTION Description
-// vtkImageScatterPlotFilter Was written to test the T2Median filter.
-// It converts one axis into a space, all other axis are ignored.
-// For example, it will convert an image with 2 spectral channels (components)
-// into a 2d scatter plot. All pixels become dots in the plot.  The
-// output of this filter is an image of unsigned bytes whose values
-// are 0 or 255. InRegion specifies the region to use from the input
-// that will create the plot.  OutRegion Specifies the dimensions of the
-// scatter plot.  AspectRatio specifies how the components are converted
-// into the OutRegion.  This filter will only work on 4d data 
-// (3d + components).
+// vtkImage2dRfftFilter implements a 2d reverse Fast Fourier Transform.
+// It really consists of two 1d RFFTs.
 
 
-#ifndef __vtkImageScatterPlotFilter_h
-#define __vtkImageScatterPlotFilter_h
+#ifndef __vtkImage2dRfftFilter_h
+#define __vtkImage2dRfftFilter_h
 
 
-#include "vtkImageFilter.hh"
+#include "vtkImage2dDecomposedFilter.hh"
+#include "vtkImage1dRfftFilter.hh"
 
-class vtkImageScatterPlotFilter : public vtkImageFilter
+class vtkImage2dRfftFilter : public vtkImage2dDecomposedFilter
 {
 public:
-  vtkImageScatterPlotFilter();
-  char *GetClassName() {return "vtkImageScatterPlotFilter";};
-  
-  // Description:
-  // You can modify the bounds of InRegion and OutRegions, 
-  // but you nust get them first.
-  vtkImageRegion *GetInRegion(){return &(this->InRegion);};
-  vtkImageRegion *GetImageRegion(){return &(this->ImageRegion);};
-  
-  void SetInput(vtkImageSource *input);
-  void SetAxes(int *axes);
-  
-  // Description:
-  // Set/Get The aspect ratio (same for all axes)
-  vtkSetMacro(AspectRatio,float);
-  vtkGetMacro(AspectRatio,float);
-  
-protected:
-  float AspectRatio;
-  vtkImageRegion InRegion;   // filter is performed over this region.
-  vtkImageRegion ImageRegion;  // Just a way to provide ImageBounds.
-  
-  void ComputeOutputImageInformation(vtkImageRegion *inRegion,
-				     vtkImageRegion *outRegion);
-  void ComputeRequiredInputRegionBounds(vtkImageRegion *outRegion, 
-					vtkImageRegion *inRegion);
+  vtkImage2dRfftFilter();
+  char *GetClassName() {return "vtkImage2dRfftFilter";};
 
-  void UpdateRegion(vtkImageRegion *outRegion);
+protected:
 };
 
 #endif

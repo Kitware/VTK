@@ -76,7 +76,8 @@ void vtkImage3dSpatialFilter::SetKernelSize(int size0, int size1, int size2)
 // This method is passed a region that holds the image bounds of this filters
 // input, and changes the region to hold the image bounds of this filters
 // output.
-void vtkImage3dSpatialFilter::ComputeOutputImageInformation(vtkImageRegion *region)
+void vtkImage3dSpatialFilter::ComputeOutputImageInformation(
+		    vtkImageRegion *inRegion, vtkImageRegion *outRegion)
 {
   int bounds[6];
   int idx;
@@ -88,13 +89,13 @@ void vtkImage3dSpatialFilter::ComputeOutputImageInformation(vtkImageRegion *regi
     }
   
   // shrink output image bounds.
-  region->GetImageBounds3d(bounds);
+  inRegion->GetImageBounds3d(bounds);
   for (idx = 0; idx < 3; ++idx)
     {
     bounds[idx*2] += this->KernelMiddle[idx];
     bounds[idx*2 + 1] -= (this->KernelSize[idx] - 1) - this->KernelMiddle[idx];
-    region->SetBounds3d(bounds);
     }
+  outRegion->SetBounds3d(bounds);
 }
 
 

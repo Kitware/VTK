@@ -94,15 +94,13 @@ void vtkImage2dMagnifyFilter::ComputeRequiredInputRegionBounds(
 //----------------------------------------------------------------------------
 // Description:
 // Computes any global image information associated with regions.
-// The region has the inputs infomation when this method is called, and
-// has the outputs image information when the method returns.
-void 
-vtkImage2dMagnifyFilter::ComputeOutputImageInformation(vtkImageRegion *region)
+void vtkImage2dMagnifyFilter::ComputeOutputImageInformation(
+		    vtkImageRegion *inRegion, vtkImageRegion *outRegion)
 {
   int idx;
   int imageBounds[4];
 
-  region->GetImageBounds2d(imageBounds);
+  inRegion->GetImageBounds2d(imageBounds);
   // Scale the output bounds
   for (idx = 0; idx < 2; ++idx)
     {
@@ -111,7 +109,7 @@ vtkImage2dMagnifyFilter::ComputeOutputImageInformation(vtkImageRegion *region)
       = (imageBounds[2*idx+1]+1) * this->MagnificationFactors[idx] - 1;
     }
 
-  region->SetImageBounds2d(imageBounds);
+  outRegion->SetImageBounds2d(imageBounds);
 }
 
 

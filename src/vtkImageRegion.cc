@@ -92,7 +92,16 @@ void vtkImageRegion::UpdateRegion(vtkImageRegion *region)
 // Returns the bounds of the region as the image bounds.
 void vtkImageRegion::UpdateImageInformation(vtkImageRegion *region)
 {
+  int axesSave[VTK_IMAGE_DIMENSIONS];
+  
+  // Save coordinate system
+  region->GetAxes(axesSave);
+  // convert to this regions coordinate system
+  region->SetAxes(this->GetAxes());
+  // Set the bounds
   region->SetImageBounds(this->GetBounds());
+  // Restore coordinate system to the way it was.
+  region->SetAxes(axesSave);
 }
 
 
@@ -292,6 +301,52 @@ void *vtkImageRegion::GetVoidPointer1d(int coordinates[1])
   coords[4] = this->DefaultCoordinate4;
   
   return this->GetVoidPointer5d(coords);
+}
+
+//----------------------------------------------------------------------------
+void *vtkImageRegion::GetVoidPointer5d(int c0, int c1, int c2, int c3, int c4)
+{
+  int coords[5];
+  coords[0] = c0;
+  coords[1] = c1;
+  coords[2] = c2;
+  coords[3] = c3;
+  coords[4] = c4;
+  return this->GetVoidPointer5d(coords);
+}
+//----------------------------------------------------------------------------
+void *vtkImageRegion::GetVoidPointer4d(int c0, int c1, int c2, int c3)
+{
+  int coords[4];
+  coords[0] = c0;
+  coords[1] = c1;
+  coords[2] = c2;
+  coords[3] = c3;
+  return this->GetVoidPointer4d(coords);
+}
+//----------------------------------------------------------------------------
+void *vtkImageRegion::GetVoidPointer3d(int c0, int c1, int c2)
+{
+  int coords[3];
+  coords[0] = c0;
+  coords[1] = c1;
+  coords[2] = c2;
+  return this->GetVoidPointer3d(coords);
+}
+//----------------------------------------------------------------------------
+void *vtkImageRegion::GetVoidPointer2d(int c0, int c1)
+{
+  int coords[2];
+  coords[0] = c0;
+  coords[1] = c1;
+  return this->GetVoidPointer2d(coords);
+}
+//----------------------------------------------------------------------------
+void *vtkImageRegion::GetVoidPointer1d(int c0)
+{
+  int coords[1];
+  coords[0] = c0;
+  return this->GetVoidPointer1d(coords);
 }
 
 //----------------------------------------------------------------------------

@@ -112,9 +112,10 @@ protected:
   
   void UpdateRegionTiled(vtkImageRegion *outRegion);
   virtual void SplitRegion(vtkImageRegion *region, int *pieceSize);
-  virtual void ComputeOutputImageInformation(vtkImageRegion *region);
+  virtual void ComputeOutputImageInformation(vtkImageRegion *inRegion,
+					     vtkImageRegion *outRegion);
   virtual void ComputeRequiredInputRegionBounds(vtkImageRegion *outRegion,
-					   vtkImageRegion *inRegion);
+						vtkImageRegion *inRegion);
   virtual void Execute5d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
   virtual void Execute4d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
   virtual void Execute3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);

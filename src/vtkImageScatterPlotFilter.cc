@@ -83,9 +83,11 @@ void vtkImageScatterPlotFilter::SetAxes(int *axes)
 // Description:
 // Just sets the ImageBounds to be the bounds of the OutRegion.
 void vtkImageScatterPlotFilter::ComputeOutputImageInformation(
-					      vtkImageRegion *region)
+		    vtkImageRegion *inRegion, vtkImageRegion *outRegion)
 {
-  region->SetImageBounds(this->ImageRegion.GetBounds());
+  // Avoid warnings
+  inRegion = inRegion;
+  outRegion->SetImageBounds(this->ImageRegion.GetBounds());
 }
 
 

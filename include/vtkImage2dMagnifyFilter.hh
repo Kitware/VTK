@@ -65,7 +65,8 @@ public:
 protected:
   int MagnificationFactors[2];
 
-  void ComputeOutputImageInformation(vtkImageRegion *region);
+  void ComputeOutputImageInformation(vtkImageRegion *inRegion,
+				     vtkImageRegion *outRegion);
   void ComputeRequiredInputRegionBounds(vtkImageRegion *outRegion,
 					vtkImageRegion *inRegion);
   void Execute2d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);  

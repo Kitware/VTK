@@ -215,19 +215,25 @@ void vtkImageFilter::UpdateImageInformation(vtkImageRegion *region)
     }
   
   this->Input->UpdateImageInformation(region);
-  this->ComputeOutputImageInformation(region);
+  this->ComputeOutputImageInformation(region, region);
 }
 
 
 
 //----------------------------------------------------------------------------
 // Description:
-// This method is passed a region that holds the boundary of this filters
-// input, and changes the region to hold the boundary of this filters
-// output.  This default method assumes the output is the same as the input.
-void vtkImageFilter::ComputeOutputImageInformation(vtkImageRegion *region)
+// This method is passed an inRegion that holds the image information
+// (image bounds ...) of this filters input, and fills outRegion with
+// the image information after this filter is finished.
+// outImage is identical to inImage when this method is envoked, and
+// outImage may be the same object as in image.
+void vtkImageFilter::ComputeOutputImageInformation(vtkImageRegion *outRegion,
+						   vtkImageRegion *inRegion)
 {
-  region = region;
+  // Default: Image information does not change (do nothing).
+  // Avoid warnings
+  inRegion = inRegion;
+  outRegion = outRegion;
 }
 
 

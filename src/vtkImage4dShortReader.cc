@@ -164,6 +164,14 @@ void vtkImage4dShortReaderGenerateData2d(vtkImage4dShortReader *self,
   unsigned short *pshort;
   int idx0, idx1;
 
+  // Hack try to set initial values for min and max
+  pixelMax = 0;
+  pixelMin = (T)(65000);
+  if (255 > pixelMin)
+    pixelMin = 255;
+  if (-pixelMin < 1)
+    pixelMax = -pixelMin;
+  
   // get the information needed to find a location in the file
   region->GetBounds2d(min0, max0,  min1, max1);
   region->GetIncrements2d(inc0, inc1);

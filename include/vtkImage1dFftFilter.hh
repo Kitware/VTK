@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageScatterPlotFilter.hh
+  Module:    vtkImage1dFftFilter.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,60 +37,57 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageScatterPlotFilter - Produces a scatter plot from 1 axis.
+// .NAME vtkImage1dFftFilter - 1d Fast Fourier Transform.
 // .SECTION Description
-// vtkImageScatterPlotFilter Was written to test the T2Median filter.
-// It converts one axis into a space, all other axis are ignored.
-// For example, it will convert an image with 2 spectral channels (components)
-// into a 2d scatter plot. All pixels become dots in the plot.  The
-// output of this filter is an image of unsigned bytes whose values
-// are 0 or 255. InRegion specifies the region to use from the input
-// that will create the plot.  OutRegion Specifies the dimensions of the
-// scatter plot.  AspectRatio specifies how the components are converted
-// into the OutRegion.  This filter will only work on 4d data 
-// (3d + components).
+// vtkImage1dFftFilter implements a 1d fast Fourier transform.  The input
+// can have real or imaginary data in any components and data types, but
+// the output is always float with real values in component0, and
+// imaginary values in component1.
 
 
-#ifndef __vtkImageScatterPlotFilter_h
-#define __vtkImageScatterPlotFilter_h
+#ifndef __vtkImage1dFftFilter_h
+#define __vtkImage1dFftFilter_h
 
 
-#include "vtkImageFilter.hh"
+#include "vtkImageFourierFilter.hh"
 
-class vtkImageScatterPlotFilter : public vtkImageFilter
+class vtkImage1dFftFilter : public vtkImageFourierFilter
 {
 public:
-  vtkImageScatterPlotFilter();
-  char *GetClassName() {return "vtkImageScatterPlotFilter";};
-  
+  vtkImage1dFftFilter();
+  char *GetClassName() {return "vtkImage1dFftFilter";};
+
+  void SetAxis1d(int axis);
+  void InterceptCacheUpdate(vtkImageRegion *region);
+
   // Description:
-  // You can modify the bounds of InRegion and OutRegions, 
-  // but you nust get them first.
-  vtkImageRegion *GetInRegion(){return &(this->InRegion);};
-  vtkImageRegion *GetImageRegion(){return &(this->ImageRegion);};
-  
-  void SetInput(vtkImageSource *input);
-  void SetAxes(int *axes);
-  
-  // Description:
-  // Set/Get The aspect ratio (same for all axes)
-  vtkSetMacro(AspectRatio,float);
-  vtkGetMacro(AspectRatio,float);
+  // Tell the filter which input component is real and which is imaginary.
+  // If imaginary is out of the image bounds, it is ignored.
+  vtkSetMacro(InputRealComponent, int);
+  vtkGetMacro(InputRealComponent, int);
+  vtkSetMacro(InputImaginaryComponent, int);
+  vtkGetMacro(InputImaginaryComponent, int);
   
 protected:
-  float AspectRatio;
-  vtkImageRegion InRegion;   // filter is performed over this region.
-  vtkImageRegion ImageRegion;  // Just a way to provide ImageBounds.
-  
+  // which input components are real and which are imaginary.
+  int InputRealComponent;
+  int InputImaginaryComponent;
+    
   void ComputeOutputImageInformation(vtkImageRegion *inRegion,
 				     vtkImageRegion *outRegion);
   void ComputeRequiredInputRegionBounds(vtkImageRegion *outRegion, 
 					vtkImageRegion *inRegion);
-
-  void UpdateRegion(vtkImageRegion *outRegion);
+  void Execute2d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 
 #endif
+
+
+
+
+
+
+
 
 
 

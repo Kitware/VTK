@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageScatterPlotFilter.hh
+  Module:    vtkImage2dFftFilter.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,60 +37,18 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageScatterPlotFilter - Produces a scatter plot from 1 axis.
-// .SECTION Description
-// vtkImageScatterPlotFilter Was written to test the T2Median filter.
-// It converts one axis into a space, all other axis are ignored.
-// For example, it will convert an image with 2 spectral channels (components)
-// into a 2d scatter plot. All pixels become dots in the plot.  The
-// output of this filter is an image of unsigned bytes whose values
-// are 0 or 255. InRegion specifies the region to use from the input
-// that will create the plot.  OutRegion Specifies the dimensions of the
-// scatter plot.  AspectRatio specifies how the components are converted
-// into the OutRegion.  This filter will only work on 4d data 
-// (3d + components).
+#include "vtkImage2dFftFilter.hh"
 
-
-#ifndef __vtkImageScatterPlotFilter_h
-#define __vtkImageScatterPlotFilter_h
-
-
-#include "vtkImageFilter.hh"
-
-class vtkImageScatterPlotFilter : public vtkImageFilter
+//----------------------------------------------------------------------------
+// Description:
+// This method sets up the 2 1d filters that perform the convolution.
+vtkImage2dFftFilter::vtkImage2dFftFilter()
 {
-public:
-  vtkImageScatterPlotFilter();
-  char *GetClassName() {return "vtkImageScatterPlotFilter";};
-  
-  // Description:
-  // You can modify the bounds of InRegion and OutRegions, 
-  // but you nust get them first.
-  vtkImageRegion *GetInRegion(){return &(this->InRegion);};
-  vtkImageRegion *GetImageRegion(){return &(this->ImageRegion);};
-  
-  void SetInput(vtkImageSource *input);
-  void SetAxes(int *axes);
-  
-  // Description:
-  // Set/Get The aspect ratio (same for all axes)
-  vtkSetMacro(AspectRatio,float);
-  vtkGetMacro(AspectRatio,float);
-  
-protected:
-  float AspectRatio;
-  vtkImageRegion InRegion;   // filter is performed over this region.
-  vtkImageRegion ImageRegion;  // Just a way to provide ImageBounds.
-  
-  void ComputeOutputImageInformation(vtkImageRegion *inRegion,
-				     vtkImageRegion *outRegion);
-  void ComputeRequiredInputRegionBounds(vtkImageRegion *outRegion, 
-					vtkImageRegion *inRegion);
+  // create the filter chain 
+  this->Filter0 = new vtkImage1dFftFilter;
+  this->Filter1 = new vtkImage1dFftFilter;
 
-  void UpdateRegion(vtkImageRegion *outRegion);
-};
-
-#endif
-
+  this->SetAxes2d(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
+}
 
 

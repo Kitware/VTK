@@ -72,7 +72,8 @@ void vtkImage1dSpatialFilter::SetKernelSize(int size)
 // This method is passed a region that holds the boundary of this filters
 // input, and changes the region to hold the boundary of this filters
 // output.
-void vtkImage1dSpatialFilter::ComputeOutputImageInformation(vtkImageRegion *region)
+void vtkImage1dSpatialFilter::ComputeOutputImageInformation(
+		    vtkImageRegion *inRegion, vtkImageRegion *outRegion)
 {
   int min, max;
 
@@ -83,10 +84,10 @@ void vtkImage1dSpatialFilter::ComputeOutputImageInformation(vtkImageRegion *regi
     }
   
   // shrink output image bounds.
-  region->GetImageBounds1d(min, max);
+  inRegion->GetImageBounds1d(min, max);
   min += this->KernelMiddle;
   max -= (this->KernelSize - 1) - this->KernelMiddle;
-  region->SetImageBounds1d(min, max);
+  outRegion->SetImageBounds1d(min, max);
 }
 
 

@@ -73,7 +73,8 @@ protected:
   int   KernelMiddle;         // Index of kernel origin
   int   HandleBoundaries; // Shrink kernel at boundaries.
 
-  void ComputeOutputImageInformation(vtkImageRegion *region);
+  void ComputeOutputImageInformation(vtkImageRegion *inRegion,
+				     vtkImageRegion *outRegion);
   void ComputeRequiredInputRegionBounds(vtkImageRegion *outRegion, 
 				   vtkImageRegion *inRegion);
 };

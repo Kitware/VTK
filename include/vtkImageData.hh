@@ -85,8 +85,8 @@ public:
   
   // Description:
   // Get the bounds of the data array.
-  vtkSetVectorMacro(Bounds,int,VTK_IMAGE_BOUNDS_DIMENSIONS);
-  vtkGetVectorMacro(Bounds,int,VTK_IMAGE_BOUNDS_DIMENSIONS);
+  vtkSetVectorMacro(Bounds,int,10);
+  vtkGetVectorMacro(Bounds,int,10);
 
   void SetBounds(int min0, int max0, int min1, int max1, 
 		 int min2, int max2, int min3, int max3,

@@ -70,13 +70,14 @@ public:
   vtkBooleanMacro(WholeImage,int);
 
   // Forward these messages to the "Region".
-  void SetBounds(int *bounds){this->Region.SetBounds3d(bounds);};
+  void SetBounds(int *bounds)
+  {this->Region.SetBounds3d(bounds); this->Modified();};
   void SetBounds(int min0, int max0, int min1, int max1, int min2, int max2)
-    {this->Region.SetBounds3d(min0,max0,min1,max1,min2,max2);};
+  {this->Region.SetBounds3d(min0,max0,min1,max1,min2,max2); this->Modified();};
   int *GetBounds(){return this->Region.GetBounds3d();};
   void GetBounds(int *bounds){this->Region.GetBounds3d(bounds);};
   void GetBounds(int &min0,int &max0,int &min1,int &max1,int &min2,int &max2)
-    {this->Region.GetBounds3d(min0,max0,min1,max1,min2,max2);};
+  {this->Region.GetBounds3d(min0,max0,min1,max1,min2,max2);};
   // Description:
   // Get the region to set bounds of higher dimensions
   vtkImageRegion *GetRegion(){return &(this->Region);};
