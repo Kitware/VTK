@@ -69,7 +69,6 @@ vtkFloatTCoords \
 vtkFloatTensors \
 vtkFloatVectors \
 vtkGeneralTransform \
-vtkGeneralTransformConcatenation \
 vtkGenericCell \
 vtkHexahedron \
 vtkIdentityTransform \
@@ -81,7 +80,6 @@ vtkImplicitFunctionCollection \
 vtkIndent \
 vtkIntArray \
 vtkLine \
-vtkLinearTransformConcatenation \
 vtkLogLookupTable \
 vtkLongArray \
 vtkLookupTable \
@@ -90,7 +88,6 @@ vtkMath \
 vtkMatrix4x4 \
 vtkMatrixToHomogenousTransform \
 vtkMatrixToLinearTransform \
-vtkMatrixToPerspectiveTransform \
 vtkMergePoints2D \
 vtkMultiThreader \
 vtkMutexLock \
@@ -98,7 +95,6 @@ vtkNormals \
 vtkObject \
 vtkOutputWindow \
 vtkPerspectiveTransform \
-vtkPerspectiveTransformConcatenation \
 vtkPixel \
 vtkPlane \
 vtkPlaneCollection \
@@ -112,7 +108,6 @@ vtkPolyVertex \
 vtkPolygon \
 vtkPriorityQueue \
 vtkProcessObject \
-vtkProjectionTransform \
 vtkProp \
 vtkPropAssembly \
 vtkPropCollection \
