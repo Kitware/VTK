@@ -31,7 +31,6 @@ vtkTextProperty multiLineTextProp
     multiLineTextProp BoldOn
     multiLineTextProp ItalicOn
     multiLineTextProp ShadowOn
-    multiLineTextProp SetLineSpacing 0.8
 
 # The text is on a single line and bottom-justified.
 vtkTextMapper singleLineTextB
