@@ -200,7 +200,6 @@ int vtkParallelCoordinatesActor::RenderOpaqueGeometry(vtkViewport *viewport)
        viewport->GetMTime() > this->BuildTime ||
        this->GetMTime() > this->BuildTime )
     {
-    int pos[2], pos2[2];
     int *size=viewport->GetSize();
     int stringWidth, stringHeight;
 
@@ -242,7 +241,7 @@ int vtkParallelCoordinatesActor::RenderOpaqueGeometry(vtkViewport *viewport)
 }
 
 
-int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *size)
+int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUsed(size))
 {
   int i, j, id;
   vtkDataObject *input = this->GetInput();
@@ -363,7 +362,7 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *size)
   this->YMax = p2[1];
   for (i=0; i<this->N; i++)
     {
-    this->Xs[i] = p1[0] + (float)i/((float)this->N) * (p2[0]-p1[0]);
+    this->Xs[i] = (int) (p1[0] + (float)i/((float)this->N) * (p2[0]-p1[0]));
     this->Axes[i]->GetPoint1Coordinate()->SetValue(this->Xs[i], YMin);
     this->Axes[i]->GetPoint2Coordinate()->SetValue(this->Xs[i], YMax);
     }

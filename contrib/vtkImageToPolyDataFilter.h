@@ -197,7 +197,7 @@ protected:
   int Smoothing;
   int NumberOfSmoothingIterations;
   int Decimation;
-  int DecimationError;
+  float DecimationError;
   int Error;
   int SubImageSize;
   vtkScalarsToColors *LookupTable;
