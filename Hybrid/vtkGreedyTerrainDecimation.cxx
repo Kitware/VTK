@@ -36,7 +36,7 @@
 #pragma warning(pop)
 #endif
 
-vtkCxxRevisionMacro(vtkGreedyTerrainDecimation, "1.10");
+vtkCxxRevisionMacro(vtkGreedyTerrainDecimation, "1.11");
 vtkStandardNewMacro(vtkGreedyTerrainDecimation);
 
 // Define some constants describing vertices
@@ -58,7 +58,7 @@ public:
 
 //PIMPL STL encapsulation
 //
-//maps input point ids to owning mesh triangle
+// Maps input point ids to owning mesh triangle
 class vtkGreedyTerrainDecimationTerrainInfoType : public vtkstd::vector<vtkTerrainInfo> 
 {
 public:
@@ -67,10 +67,12 @@ public:
   vtkGreedyTerrainDecimationTerrainInfoType(size_type n, const vtkTerrainInfo& value):
     vtkstd::vector<vtkTerrainInfo>(n,value) {}
 };
-//maps mesh point id to input point id
+
+// Maps mesh point id to input point id
 class vtkGreedyTerrainDecimationPointInfoType : public vtkstd::vector<vtkIdType> {};
 
-// Begin vtkGreedyTerrainDecimation class implementation
+
+// Begin vtkGreedyTerrainDecimation class implementation-----------------------------------------
 //
 vtkGreedyTerrainDecimation::vtkGreedyTerrainDecimation()
 {
@@ -600,7 +602,7 @@ void vtkGreedyTerrainDecimation::Execute()
   this->InputPD = input->GetPointData();
   this->OutputPD = this->Mesh->GetPointData();
 
-  // Check input and initialize
+  // Check input and initialize the algorithm.
   //
   vtkDebugMacro(<<"Decimating terrain...");
 
@@ -627,12 +629,22 @@ void vtkGreedyTerrainDecimation::Execute()
     }
   this->Length = input->GetLength();
   this->MaximumNumberOfTriangles = 2 * (this->Dimensions[0]-1) * (this->Dimensions[1]-1);
+  this->NumberOfTriangles = (this->NumberOfTriangles < this->MaximumNumberOfTriangles ?
+                             this->NumberOfTriangles : this->MaximumNumberOfTriangles);
+  
+  // Points within this tolerance are considered coincident...should not happen
+  this->Tolerance = 0.01 * this->Spacing[0];
 
+  // Scratch data structures
+  this->Neighbors = vtkIdList::New(); this->Neighbors->Allocate(2);
+  
+  // Top element of VTK's priority queue returns the minimum error value. Since we want the
+  // maximum error, we use 1/error relationship to insert errors.
   this->TerrainError = vtkPriorityQueue::New();
   this->TerrainError->Allocate(numInputPts, (vtkIdType)((float)0.25*numInputPts));
   
-  // Create the initial Delaunay triangulation (two triangles 
-  // connecting the four corners of the height image).
+  // Initialize the triangle mesh data structures. Double precision point coordinates
+  // are required because of the numerical requirements on the Delaunay algorithm.
   //
   this->EstimateOutputSize(numInputPts, numPts, numTris);
 
@@ -641,7 +653,9 @@ void vtkGreedyTerrainDecimation::Execute()
   newPts->Allocate(numPts);
   this->Points = static_cast<vtkDoubleArray *>(newPts->GetData());
   
-  // Supplemental arrays contain point and triangle information
+  // Supplemental arrays used to accelerate the algorithm.
+  // TerrainInfo contains the "containing" triangle for each point. PointInfo maps the
+  // triangle mesh point id to the input image point id.
   this->TerrainInfo = new vtkGreedyTerrainDecimationTerrainInfoType(numInputPts,vtkTerrainInfo());
 
   this->PointInfo = new vtkGreedyTerrainDecimationPointInfoType;
@@ -650,7 +664,9 @@ void vtkGreedyTerrainDecimation::Execute()
   // Setup the point attributes
   this->OutputPD->CopyAllocate(this->InputPD,numPts);
 
-  // Insert four initial points
+  // Begin the algorithm proper. The image is initially triangulated with two triangles whose
+  // four vertices are located at the corners of the input image.
+  //
   newPts->Allocate(numPts);
 
   inputPtId = 0;
@@ -688,32 +704,33 @@ void vtkGreedyTerrainDecimation::Execute()
   triangles->InsertNextCell(3);
   triangles->InsertCellPoint(1); triangles->InsertCellPoint(2); triangles->InsertCellPoint(3);
 
-  // Construct the topological hierarchy for the output mesh
+  // Construct the topological hierarchy for the output mesh. The alternative BuildLinks(num)
+  // call reallocates the links from the points to the using triangles.
   this->Mesh->SetPoints(newPts);
   this->Mesh->SetPolys(triangles);
   this->Mesh->BuildLinks(numPts); //build cell structure; give it initial size
 
-  // Update all (two) triangles connected to this mesh point. All points contained
-  // by these triangles are inserted into the error queue.
+  // Update all (two) triangles connected to this mesh point. The single point
+  // in each triangle with maximum error are inserted into the error queue.
+  //
   this->UpdateTriangles(3); 
 
-  // Scratch data structures
-  this->Neighbors = vtkIdList::New(); this->Neighbors->Allocate(2);
-
-  // Points within this tolerance are considered coincident
-  //
-  this->Tolerance = 0.01 * this->Spacing[0];
-  
-  // If vertex deletion is not allowed, insert the boundary
+  // If boundary vertex deletion is not allowed, insert the boundary
   // points first.
   if ( ! this->BoundaryVertexDeletion )
     {
     this->InsertBoundaryVertices();
     }
 
-  // While error metric not satisfied, add point with greatest error
+  // While the error metric is not satisfied, add point with greatest error. 
+  // Note that this algorithm can terminate "prematurely" (e.g. compared to
+  // the number of triangles) if the maximum error in the queue becomes zero.
   //
-  while ( (inputPtId = this->TerrainError->Pop(0, error)) >= 0 )
+  int abortExecute=0;
+  vtkIdType numInsertedPoints=0;
+  int tenth=numPts/10+1;
+  
+  while ( !abortExecute && (inputPtId = this->TerrainError->Pop(0, error)) >= 0 )
     {
     if ( this->SatisfiesErrorMeasure((1.0/error)) )
       {
@@ -722,11 +739,21 @@ void vtkGreedyTerrainDecimation::Execute()
     else
       {
       this->AddPointToTriangulation(inputPtId);
+      if ( ! (++numInsertedPoints % tenth) )
+        {
+        this->UpdateProgress( (float)(numInsertedPoints>numPts?numPts:numInsertedPoints)/numPts);
+        abortExecute = this->GetAbortExecute();
+        }
       }
     }
 
-  // Create output poly data
+  vtkDebugMacro(<<"Output TIN contains: " << this->Mesh->GetNumberOfPoints() << " points"
+                <<"and " << this->Mesh->GetNumberOfPolys() << " triangles");
+
+  // The output triangle data was created incrementally by the Delaunay algorithm. 
+  // Here we just clean up the data structures.
   //
+  this->Neighbors->Delete();
   this->TerrainError->Delete();
   delete this->TerrainInfo;
   delete this->PointInfo;
