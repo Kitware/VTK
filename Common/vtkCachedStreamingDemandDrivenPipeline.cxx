@@ -25,7 +25,7 @@
 #include "vtkInformationVector.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkCachedStreamingDemandDrivenPipeline, "1.1");
+vtkCxxRevisionMacro(vtkCachedStreamingDemandDrivenPipeline, "1.2");
 vtkStandardNewMacro(vtkCachedStreamingDemandDrivenPipeline);
 
 
@@ -100,6 +100,7 @@ void vtkCachedStreamingDemandDrivenPipeline
 ::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "CacheSize: " << this->CacheSize << "\n";
 }
 
 //----------------------------------------------------------------------------
