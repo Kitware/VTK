@@ -17,10 +17,12 @@ public class vtkTesting
       lname;
     try
       {
+      System.out.println("Try to load: " + libname);
       Runtime.getRuntime().load(libname);
       }
     catch (UnsatisfiedLinkError e)
       {
+      System.out.println("Failed to load: " + libname + " attempting: " + library);
       System.loadLibrary(library);
       }
     }
