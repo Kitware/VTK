@@ -19,10 +19,6 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Quad.hh"
 #include "CellArr.hh"
 
-static vlMath math;
-static vlLine line;
-static vlQuad theQuad; // using "quad" bothers IBM xlc compiler!
-
 // Description:
 // Deep copy of cell.
 vlHexahedron::vlHexahedron(const vlHexahedron& h)
@@ -48,6 +44,7 @@ int vlHexahedron::EvaluatePosition(float x[3], float closestPoint[3],
   int i, j;
   float  d, *pt;
   float derivs[24];
+  static vlMath math;
 //
 //  set initial position for Newton's method
 //
@@ -342,6 +339,7 @@ void vlHexahedron::Contour(float value, vlFloatScalars *cellScalars,
 vlCell *vlHexahedron::GetEdge(int edgeId)
 {
   int *verts;
+  static vlLine line;
 
   verts = edges[edgeId];
 
@@ -359,6 +357,7 @@ vlCell *vlHexahedron::GetEdge(int edgeId)
 vlCell *vlHexahedron::GetFace(int faceId)
 {
   int *verts, i;
+  static vlQuad theQuad; // using "quad" bothers IBM xlc compiler!
 
   verts = faces[faceId];
 
@@ -382,6 +381,7 @@ int vlHexahedron::IntersectWithLine(float p1[3], float p2[3], float tol,
   float tTemp;
   float pc[3], xTemp[3];
   int faceNum;
+  static vlQuad theQuad; // using "quad" bothers IBM xlc compiler!
 
   t = LARGE_FLOAT;
   for (faceNum=0; faceNum<6; faceNum++)
