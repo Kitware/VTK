@@ -159,7 +159,7 @@ void vtkDownStreamPort::UpdateInformation()
     }
   output->SetPipelineMTime(this->GetMTime());
   // Locality has to be changed too.
-  output->SetLocality(0);
+  output->GetDataInformation()->SetLocality(1.0);
 
   // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   // This would normally be done in the Update method, but since

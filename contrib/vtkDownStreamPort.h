@@ -87,8 +87,9 @@ public:
   // Description:
   // We need special UpdateInformation and Update methods to 
   // communicate with the up-stream process.
-  void InternalUpdate(vtkDataObject *output);
   void UpdateInformation();
+  void PreUpdate(vtkDataObject *output);
+  void InternalUpdate(vtkDataObject *output);
   
   // Description:
   // Access to the global controller.
