@@ -10,7 +10,7 @@ IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.5)
 # VTK version number.  An even minor number corresponds to releases.
 SET(VTK_MAJOR_VERSION 4)
 SET(VTK_MINOR_VERSION 2)
-SET(VTK_BUILD_VERSION 5)
+SET(VTK_BUILD_VERSION 6)
 SET(VTK_VERSION
     "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}.${VTK_BUILD_VERSION}")
 
@@ -486,11 +486,11 @@ IF(VTK_WRAP_TCL)
 
   # Hide useless settings provided by FindTCL.
   FOREACH(entry TCL_LIBRARY_DEBUG
-		TK_LIBRARY_DEBUG
-		TCL_STUB_LIBRARY
-		TCL_STUB_LIBRARY_DEBUG
-		TK_STUB_LIBRARY
-		TK_STUB_LIBRARY_DEBUG
+                TK_LIBRARY_DEBUG
+                TCL_STUB_LIBRARY
+                TCL_STUB_LIBRARY_DEBUG
+                TK_STUB_LIBRARY
+                TK_STUB_LIBRARY_DEBUG
                 TK_WISH)
     SET(${entry} "${${entry}}" CACHE INTERNAL "This value is not used by VTK.")
   ENDFOREACH(entry)
