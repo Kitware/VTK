@@ -167,48 +167,48 @@ void vtkScalars::SetLookupTable(vtkLookupTable *lut)
     }
 }
 
-void vtkScalars::GetDataTypeRange(float range[2])
+void vtkScalars::GetDataTypeRange(double range[2])
 {
   range[0] = this->GetDataTypeMin();
   range[1] = this->GetDataTypeMax();
 }
 
-float vtkScalars::GetDataTypeMin()
+double vtkScalars::GetDataTypeMin()
 {
   int dataType=this->Data->GetDataType();
   switch (dataType)
     {
-    case VTK_BIT:            return (float)VTK_BIT_MIN;
-    case VTK_UNSIGNED_CHAR:  return (float)VTK_UNSIGNED_CHAR_MIN;
-    case VTK_CHAR:           return (float)VTK_CHAR_MIN;
-    case VTK_UNSIGNED_SHORT: return (float)VTK_UNSIGNED_SHORT_MIN;
-    case VTK_SHORT:          return (float)VTK_SHORT_MIN;
-    case VTK_UNSIGNED_INT:   return (float)VTK_UNSIGNED_INT_MIN;
-    case VTK_INT:            return (float)VTK_INT_MIN;
-    case VTK_UNSIGNED_LONG:  return (float)VTK_UNSIGNED_LONG_MIN;
-    case VTK_LONG:           return (float)VTK_LONG_MIN;
-    case VTK_FLOAT:          return (float)VTK_FLOAT_MIN;
-    case VTK_DOUBLE:         return (float)VTK_DOUBLE_MIN;
+    case VTK_BIT:            return (double)VTK_BIT_MIN;
+    case VTK_UNSIGNED_CHAR:  return (double)VTK_UNSIGNED_CHAR_MIN;
+    case VTK_CHAR:           return (double)VTK_CHAR_MIN;
+    case VTK_UNSIGNED_SHORT: return (double)VTK_UNSIGNED_SHORT_MIN;
+    case VTK_SHORT:          return (double)VTK_SHORT_MIN;
+    case VTK_UNSIGNED_INT:   return (double)VTK_UNSIGNED_INT_MIN;
+    case VTK_INT:            return (double)VTK_INT_MIN;
+    case VTK_UNSIGNED_LONG:  return (double)VTK_UNSIGNED_LONG_MIN;
+    case VTK_LONG:           return (double)VTK_LONG_MIN;
+    case VTK_FLOAT:          return (double)VTK_FLOAT_MIN;
+    case VTK_DOUBLE:         return (double)VTK_DOUBLE_MIN;
     default: return 0;
     }
 }
 
-float vtkScalars::GetDataTypeMax()
+double vtkScalars::GetDataTypeMax()
 {
   int dataType=this->Data->GetDataType();
   switch (dataType)
     {
-    case VTK_BIT:            return (float)VTK_BIT_MAX;
-    case VTK_UNSIGNED_CHAR:  return (float)VTK_UNSIGNED_CHAR_MAX;
-    case VTK_CHAR:           return (float)VTK_CHAR_MAX;
-    case VTK_UNSIGNED_SHORT: return (float)VTK_UNSIGNED_SHORT_MAX;
-    case VTK_SHORT:          return (float)VTK_SHORT_MAX;
-    case VTK_UNSIGNED_INT:   return (float)VTK_UNSIGNED_INT_MAX;
-    case VTK_INT:            return (float)VTK_INT_MAX;
-    case VTK_UNSIGNED_LONG:  return (float)VTK_UNSIGNED_LONG_MAX;
-    case VTK_LONG:           return (float)VTK_LONG_MAX;
-    case VTK_FLOAT:          return (float)VTK_FLOAT_MAX;
-    case VTK_DOUBLE:         return (float)VTK_DOUBLE_MAX;
+    case VTK_BIT:            return (double)VTK_BIT_MAX;
+    case VTK_UNSIGNED_CHAR:  return (double)VTK_UNSIGNED_CHAR_MAX;
+    case VTK_CHAR:           return (double)VTK_CHAR_MAX;
+    case VTK_UNSIGNED_SHORT: return (double)VTK_UNSIGNED_SHORT_MAX;
+    case VTK_SHORT:          return (double)VTK_SHORT_MAX;
+    case VTK_UNSIGNED_INT:   return (double)VTK_UNSIGNED_INT_MAX;
+    case VTK_INT:            return (double)VTK_INT_MAX;
+    case VTK_UNSIGNED_LONG:  return (double)VTK_UNSIGNED_LONG_MAX;
+    case VTK_LONG:           return (double)VTK_LONG_MAX;
+    case VTK_FLOAT:          return (double)VTK_FLOAT_MAX;
+    case VTK_DOUBLE:         return (double)VTK_DOUBLE_MAX;
     default: return 1;
     }
 }
@@ -220,7 +220,7 @@ int vtkScalars::InitColorTraversal(float alpha, vtkLookupTable *lut,
   int blend=0;
 
   this->CurrentAlpha = alpha;
-  this->RGBA[3] = alpha * 255.0;
+  this->RGBA[3] = (unsigned char)(alpha * 255.0);
   this->CurrentLookupTable = lut;
   
   // If unsigned char, assume that we have colors
@@ -331,7 +331,7 @@ unsigned char *vtkScalars::CompositeRGBA(int id)
   this->RGBA[0] = *rgba++;
   this->RGBA[1] = *rgba++;
   this->RGBA[2] = *rgba++;
-  this->RGBA[3]  = *rgba * this->CurrentAlpha;
+  this->RGBA[3]  = (unsigned char)(*rgba * this->CurrentAlpha);
   return this->RGBA;
 }
 
@@ -341,7 +341,7 @@ unsigned char *vtkScalars::CompositeIA(int id)
   this->RGBA[0] = *rgba;
   this->RGBA[1] = *rgba;
   this->RGBA[2] = *rgba++;
-  this->RGBA[3]  = *rgba * this->CurrentAlpha;
+  this->RGBA[3]  = (unsigned char)(*rgba * this->CurrentAlpha);
   return this->RGBA;
 }
 
@@ -351,7 +351,7 @@ unsigned char *vtkScalars::CompositeMapThroughLookupTable(int id)
   this->RGBA[0] = *rgba++;
   this->RGBA[1] = *rgba++;
   this->RGBA[2] = *rgba++;
-  this->RGBA[3]  = *rgba * this->CurrentAlpha;
+  this->RGBA[3]  = (unsigned char)(*rgba * this->CurrentAlpha);
   return this->RGBA;
 }
 
@@ -363,7 +363,7 @@ unsigned char *vtkScalars::MapThroughLookupTable(int id)
 unsigned char *vtkScalars::Luminance(int id)
 {
   unsigned char *rgba = this->CompositeMapThroughLookupTable(id);
-  this->RGBA[0] = 0.30*rgba[0] + 0.59*rgba[1] + 0.11*rgba[2];
+  this->RGBA[0] = (unsigned char)(0.30*rgba[0] + 0.59*rgba[1] + 0.11*rgba[2]);
   this->RGBA[1] = this->RGBA[2] = this->RGBA[0];
   this->RGBA[3] = rgba[3];
   

@@ -111,9 +111,9 @@ public:
   void ComputeRange();
   float *GetRange();
   void GetRange(float range[2]);
-  void GetDataTypeRange(float range[2]);
-  float GetDataTypeMin();
-  float GetDataTypeMax();
+  void GetDataTypeRange(double range[2]);
+  double GetDataTypeMin();
+  double GetDataTypeMax();
   
   // Description:
   // Create default lookup table. Generally used to create one when none
