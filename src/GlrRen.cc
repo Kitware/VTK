@@ -24,6 +24,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "GlrTri.hh"
 #include "GlrLine.hh"
 #include "GlrPnt.hh"
+#include "VolRen.hh"
 
 #define MAX_LIGHTS 8
 
@@ -171,6 +172,11 @@ void vlGlrRenderer::Render(void)
   // clean up the model view matrix set up by the camera 
   mmode(MVIEWING);
   popmatrix();
+
+  if (this->VolumeRenderer)
+    {
+    this->VolumeRenderer->Render((vlRenderer *)this);
+    }
 }
 
 // Description:
