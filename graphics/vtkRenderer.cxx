@@ -749,8 +749,9 @@ void vtkRenderer::ResetCameraClippingRange( float bounds[6] )
   range[0] = centerdist - 0.6*diagdist;
   range[1] = centerdist + 0.6*diagdist;
 
-  range[0] = (range[0] < 0.01)?(0.01):(range[0]);
-  range[1] = (range[1] < range[0])?(range[0] + 0.1):(range[1]);
+  range[0] = (range[0] < 0.1)?(0.1):(range[0]);
+  range[0] = (range[0] < 0.0001*range[1])?(0.0001*range[1]):(range[0]);
+  range[1] = (range[1] < range[0]+0.1)?(range[0]+0.1):(range[1]);
 
   this->ActiveCamera->SetClippingRange( range );
 }
