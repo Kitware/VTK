@@ -192,7 +192,7 @@ public:
   // Indicate whether to plot rows or columns. If plotting rows, then
   // the dependent variables is taken from a specified row,
   // versus rows (y). 
-  vtkSetClampMacro(DataObjectPlotMode,int,VTK_XYPLOT_COLUMN,VTK_XYPLOT_ROW);
+  vtkSetClampMacro(DataObjectPlotMode,int,VTK_XYPLOT_ROW,VTK_XYPLOT_COLUMN);
   vtkGetMacro(DataObjectPlotMode,int);
   void SetDataObjectPlotModeToRows()
     {this->SetDataObjectPlotMode(VTK_XYPLOT_ROW);}
