@@ -40,7 +40,7 @@
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLTexture, "1.46");
+vtkCxxRevisionMacro(vtkOpenGLTexture, "1.47");
 vtkStandardNewMacro(vtkOpenGLTexture);
 #endif
 
@@ -289,7 +289,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
       }
     // if we are using OpenGL 1.1, you can force 32 or16 bit textures
 #ifdef GL_VERSION_1_1
-    if (1) //this->Quality == VTK_TEXTURE_QUALITY_32BIT)
+    if (this->Quality == VTK_TEXTURE_QUALITY_32BIT)
       {
       switch (bytesPerPixel)
         {
