@@ -34,7 +34,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkXMLParser, "1.21");
+vtkCxxRevisionMacro(vtkXMLParser, "1.22");
 vtkStandardNewMacro(vtkXMLParser);
 
 //----------------------------------------------------------------------------
@@ -72,10 +72,22 @@ void vtkXMLParser::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
+static int vtkXMLParserFail(istream* stream)
+{
+  // The fail() method returns true if either the failbit or badbit is set.
+#if defined(__HP_aCC)
+  // The HP compiler sets the badbit too often, so we ignore it.
+  return (stream->rdstate() & ios::failbit)? 1:0;
+#else
+  return stream->fail()? 1:0;
+#endif
+}
+
+//----------------------------------------------------------------------------
 long vtkXMLParser::TellG()
 {
   // Standard tellg returns -1 if fail() is true.
-  if(!this->Stream || this->Stream->fail())
+  if(!this->Stream || vtkXMLParserFail(this->Stream))
     {
     return -1;
     }
@@ -124,7 +136,7 @@ long vtkXMLParser::TellG()
 void vtkXMLParser::SeekG(long position)
 {
   // Standard seekg does nothing if fail() is true.
-  if(!this->Stream || this->Stream->fail())
+  if(!this->Stream || vtkXMLParserFail(this->Stream))
     {
     return;
     }
