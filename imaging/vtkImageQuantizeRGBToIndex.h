@@ -37,19 +37,21 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageQuantizeRGBToIndex - Generalized histograms upto 4 dimensions.
+// .NAME vtkImageQuantizeRGBToIndex - generalized histograms upto 4 dimensions
 // .SECTION Description
-// vtkImageQuantizeRGBToIndex - This filter takes a 3 component RGB image as
+// vtkImageQuantizeRGBToIndex takes a 3 component RGB image as
 // input and produces a one component index image as output, along with
 // a lookup table that contains the color definitions for the index values.
 // This filter works on the entire input extent - it does not perform
-// streaming, and it does not supported threaded execution.
-
-
+// streaming, and it does not supported threaded execution (because it has
+// to process the entire image).
+//
+// To use this filter, you typically set the number of colors 
+// (between 2 and 65536), execute it, and then retrieve the lookup table.
+// The colors can then be using the lookup table and the image index.
 
 #ifndef __vtkImageQuantizeRGBToIndex_h
 #define __vtkImageQuantizeRGBToIndex_h
-
 
 #include "vtkImageFilter.h"
 #include "vtkLookupTable.h"
@@ -64,18 +66,18 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Intercepts the caches Update to make the extent larger than requested.
+  // Intercepts the caches Update() to make the extent larger than requested.
   void InterceptCacheUpdate();
 
   // Description:
   // Set / Get the number of color index values to produce - must be 
-  // a number between 2 and 65536
+  // a number between 2 and 65536.
   vtkSetClampMacro( NumberOfColors, int, 2, 65536 );
   vtkGetMacro( NumberOfColors, int );
 
   // Description:
-  // Get the resulting lookup table that contains the color definitions of
-  // the index values in the output image
+  // Get the resulting lookup table that contains the color definitions
+  // corresponding to the index values in the output image.
   vtkGetObjectMacro( LookupTable, vtkLookupTable );
 
   vtkGetMacro( InitializeExecuteTime, float );
@@ -86,7 +88,6 @@ public:
   // Description: 
   // For internal use only - get the type of the image
   vtkGetMacro( InputType, int );
-
 
   // Description: 
   // For internal use only - set the times for execution
