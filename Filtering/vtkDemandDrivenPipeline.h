@@ -120,6 +120,10 @@ public:
   // generate certain outputs for a REQUEST_DATA.
   static vtkInformationIntegerKey* DATA_NOT_GENERATED();
 
+  // Description:
+  // Create (New) and return a data object of the given type.
+  static vtkDataObject* NewDataObject(const char* type);
+
 protected:
   vtkDemandDrivenPipeline();
   ~vtkDemandDrivenPipeline();
@@ -157,8 +161,6 @@ protected:
   // Input port information checkers.
   int InputIsOptional(int port);
   int InputIsRepeatable(int port);
-
-  vtkDataObject* NewDataObject(const char* type);
 
   // Decide whether the output data need to be generated.
   virtual int NeedToExecuteData(int outputPort);
