@@ -217,7 +217,7 @@ void vtkTextMapper::SetInput(const char *input)
 // Determine the number of lines in the Input string (delimited by "\n").
 int vtkTextMapper::GetNumberOfLines(const char *input)
 {
-  if ( input == NULL )
+  if ( input == NULL || input[0] == '\0')
     {
     return 0;
     }
