@@ -62,6 +62,11 @@ bool FTFont::Open( const unsigned char *pBufferBytes, size_t bufferSizeInBytes, 
   }
 }
 
+bool FTFont::Attach( const char* filename) 
+{ 
+  return face.Attach( filename); 
+} 
+
 void FTFont::Close()
 {
   delete glyphList;

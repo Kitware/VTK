@@ -66,6 +66,13 @@ bool FTFace::Open( const unsigned char *pBufferBytes, size_t bufferSizeInBytes )
 }
 
 
+bool FTFace::Attach( const char* filename) 
+{ 
+  err = FT_Attach_File( *ftFace, filename); 
+  return !err; 
+} 
+
+
 void FTFace::Close()
 {
   if( ftFace)
