@@ -50,7 +50,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // orientation=(0,0,0). No user defined matrix and no texture map.
 vtkActor::vtkActor()
 {
-  this->UserMatrix = NULL;
   this->Mapper = NULL;
   this->Property = NULL;
   this->BackfaceProperty = NULL;
@@ -201,41 +200,46 @@ vtkProperty *vtkActor::GetBackfaceProperty()
 // Copy the actor's composite 4x4 matrix into the matrix provided.
 void vtkActor::GetMatrix(vtkMatrix4x4& result)
 {
-  this->GetOrientation();
-  this->Transform.Push();  
-  this->Transform.Identity();  
-  this->Transform.PostMultiply();  
-
-  // shift back to actor's origin
-  this->Transform.Translate(-this->Origin[0],
-			    -this->Origin[1],
-			    -this->Origin[2]);
-
-  // scale
-  this->Transform.Scale(this->Scale[0],
-			this->Scale[1],
-			this->Scale[2]);
-
-  // rotate
-  this->Transform.RotateY(this->Orientation[1]);
-  this->Transform.RotateX(this->Orientation[0]);
-  this->Transform.RotateZ(this->Orientation[2]);
-
-  // move back from origin and translate
-  this->Transform.Translate(this->Origin[0] + this->Position[0],
-			    this->Origin[1] + this->Position[1],
-			    this->Origin[2] + this->Position[2]);
-   
-  // apply user defined matrix last if there is one 
-  if (this->UserMatrix)
+  // check whether or not need to rebuild the matri
+  if ( this->GetMTime() > this->MatrixMTime )
     {
-    this->Transform.Concatenate(*this->UserMatrix);
+    this->GetOrientation();
+    this->Transform.Push();  
+    this->Transform.Identity();  
+    this->Transform.PostMultiply();  
+    
+    // shift back to actor's origin
+    this->Transform.Translate(-this->Origin[0],
+			      -this->Origin[1],
+			      -this->Origin[2]);
+
+    // scale
+    this->Transform.Scale(this->Scale[0],
+			  this->Scale[1],
+			  this->Scale[2]);
+    
+    // rotate
+    this->Transform.RotateY(this->Orientation[1]);
+    this->Transform.RotateX(this->Orientation[0]);
+    this->Transform.RotateZ(this->Orientation[2]);
+    
+    // move back from origin and translate
+    this->Transform.Translate(this->Origin[0] + this->Position[0],
+			      this->Origin[1] + this->Position[1],
+			      this->Origin[2] + this->Position[2]);
+   
+    // apply user defined matrix last if there is one 
+    if (this->UserMatrix)
+      {
+	this->Transform.Concatenate(*this->UserMatrix);
+      }
+
+    this->Transform.PreMultiply();  
+    this->Matrix = this->Transform.GetMatrix();
+    this->MatrixMTime.Modified();
+    this->Transform.Pop();  
     }
-
-  this->Transform.PreMultiply();  
-  result = this->Transform.GetMatrix();
-
-  this->Transform.Pop();  
+  result = this->Matrix;
 } 
 
 // Description:

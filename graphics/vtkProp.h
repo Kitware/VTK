@@ -110,6 +110,17 @@ class VTK_EXPORT vtkProp : public vtkObject
   vtkGetMacro(Dragable,int);
   vtkBooleanMacro(Dragable,int);
 
+  // Description:
+  // In addition to the instance variables such as position and orientation,
+  // you can specify your own 4x4 transformation matrix that will
+  // get concatenated with the actor's 4x4 matrix as determined
+  // by the other instance variables. If the other instance variables such
+  // as position and orientation are left with  their default values then 
+  // they will result in the identity matrix. And the resulting matrix
+  // will be the user defined matrix.
+  vtkSetObjectMacro(UserMatrix,vtkMatrix4x4);
+  vtkGetObjectMacro(UserMatrix,vtkMatrix4x4);
+
   vtkMatrix4x4& GetMatrix();
   virtual void GetMatrix(vtkMatrix4x4& m) = 0;
 
@@ -134,6 +145,8 @@ class VTK_EXPORT vtkProp : public vtkObject
 
 protected:
   vtkMatrix4x4 *UserMatrix;
+  vtkMatrix4x4 Matrix;
+  vtkTimeStamp MatrixMTime;
   float Origin[3];
   float Position[3];
   float Orientation[3];

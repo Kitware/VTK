@@ -115,23 +115,15 @@ class VTK_EXPORT vtkActor : public vtkProp
   vtkGetObjectMacro(Mapper,vtkMapper);
 
   // Description:
-  // In addition to the instance variables such as position and orientation,
-  // you can specify your own 4x4 transformation matrix that will
-  // get concatenated with the actor's 4x4 matrix as determined
-  // by the other instance variables. If the other instance variables such
-  // as position and orientation are left with  their default values then 
-  // they will result in the identity matrix. And the resulting matrix
-  // will be the user defined matrix.
-  vtkSetObjectMacro(UserMatrix,vtkMatrix4x4);
-  vtkGetObjectMacro(UserMatrix,vtkMatrix4x4);
-
-
-  // Description:
   // Set/Get the scale of the actor. Scaling in performed independently on the
   // X, Y and Z axis. A scale of zero is illegal and will be replaced with one.
   vtkSetVector3Macro(Scale,float);
   vtkGetVectorMacro(Scale,float,3);
 
+  // Description:
+  // Get the matrix from the position, origin, scale and orientation
+  // This matrix is cached, so multiple GetMatrix() calls will be
+  // efficient.
   void GetMatrix(vtkMatrix4x4& m);
 
   float *GetBounds();
