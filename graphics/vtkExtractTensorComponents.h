@@ -72,7 +72,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_EXTRACT_EFFECTIVE_STRESS 1
 #define VTK_EXTRACT_DETERMINANT 2
 
-class vtkExtractTensorComponents : public vtkDataSetToDataSetFilter 
+class VTK_EXPORT vtkExtractTensorComponents : public vtkDataSetToDataSetFilter 
 {
 public:
   vtkExtractTensorComponents();
