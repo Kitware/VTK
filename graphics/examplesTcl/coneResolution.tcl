@@ -14,6 +14,8 @@ vtkConeSource cone0
   cone0 SetResolution 0
 vtkConeSource cone1
   cone1 SetResolution 1
+vtkConeSource cone2
+  cone2 SetResolution 2
 vtkConeSource cone8
   cone8 SetResolution 8
 
@@ -27,6 +29,11 @@ vtkPolyDataMapper cone1Mapper
 vtkActor cone1Actor
   cone1Actor SetMapper cone1Mapper
 
+vtkPolyDataMapper cone2Mapper
+  cone2Mapper SetInput [cone2 GetOutput]
+vtkActor cone2Actor
+  cone2Actor SetMapper cone2Mapper
+
 vtkPolyDataMapper cone8Mapper
   cone8Mapper SetInput [cone8 GetOutput]
 vtkActor cone8Actor
@@ -35,12 +42,17 @@ vtkActor cone8Actor
 # assign our actor to the renderer
 ren1 AddActor cone0Actor
 ren1 AddActor cone1Actor
+ren1 AddActor cone2Actor
 ren1 AddActor cone8Actor
 ren1 SetBackground .5 .5 .5
-[ren1 GetActiveCamera] Dolly 1.2
+[ren1 GetActiveCamera] Elevation 30
+[ren1 GetActiveCamera] Dolly 1.3
+
 renWin SetSize 301 91
-cone0Actor SetPosition -2 0 0
-cone8Actor SetPosition 2 0 0
+cone0Actor SetPosition -1.5 0 0
+cone1Actor SetPosition -.5 0 0
+cone2Actor SetPosition .5 0 0
+cone8Actor SetPosition 1.5 0 0
 
 [cone0Actor GetProperty] SetDiffuseColor 1 0 0
 [cone1Actor GetProperty] SetDiffuseColor 0 1 0
