@@ -262,7 +262,5 @@ ENDIF(CMAKE_HAS_X)
 
 
 
-ADD_EXECUTABLE(Mace Mace)
 INSTALL_TARGETS(/lib vtkRendering)
-INSTALL_TARGETS(/bin Mace)
 INSTALL_FILES(/include/vtk .h Rendering_SRCS)
