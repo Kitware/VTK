@@ -43,7 +43,7 @@
 #define VTKI_TIMER_FIRST  0
 #define VTKI_TIMER_UPDATE 1
 
-class vtkInteractorStyle;
+class vtkInteractorObserver;
 
 class VTK_RENDERING_EXPORT vtkRenderWindowInteractor : public vtkObject
 {
@@ -109,8 +109,8 @@ public:
 
   // Description:
   // External switching between joystick/trackball/new? modes.
-  virtual void SetInteractorStyle(vtkInteractorStyle *);
-  vtkGetObjectMacro(InteractorStyle,vtkInteractorStyle);
+  virtual void SetInteractorStyle(vtkInteractorObserver *);
+  vtkGetObjectMacro(InteractorStyle,vtkInteractorObserver);
 
   // Description:
   // Turn on/off the automatic repositioning of lights as the camera moves.
@@ -298,7 +298,7 @@ protected:
   ~vtkRenderWindowInteractor();
 
   vtkRenderWindow    *RenderWindow;
-  vtkInteractorStyle *InteractorStyle;
+  vtkInteractorObserver *InteractorStyle;
 
   // Used as a helper object to pick instances of vtkProp
   vtkAbstractPicker          *Picker;
