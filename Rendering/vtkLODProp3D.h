@@ -187,11 +187,6 @@ public:
   // able to collect all the actors or volumes. These methods
   // are used in that process.
   virtual void GetActors(vtkPropCollection *);
-
-  // Description:
-  // Get the LODProp3D's mtime plus consider its 
-  // usermatrix if set.
-  unsigned long int GetMTime();
   
   // Description:
   // This method is invoked when an instance of vtkProp (or subclass, 

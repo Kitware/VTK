@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkLODProp3D, "1.37");
+vtkCxxRevisionMacro(vtkLODProp3D, "1.38");
 vtkStandardNewMacro(vtkLODProp3D);
 
 #define VTK_INDEX_NOT_IN_USE    -1
@@ -965,33 +965,15 @@ void vtkLODProp3D::SetAllocatedRenderTime( float t, vtkViewport *vp )
 
   // Push the matrix down into the selected LOD
   vtkProp3D *p = this->LODs[this->SelectedLODIndex].Prop3D;
-  if ( p->GetMTime() < this->GetMTime() )
+  // Getting our matrix here triggers a ComputeMatrix, if necessary,
+  // which updates our MatrixMTime
+  vtkMatrix4x4 *mat = this->GetMatrix();
+  if ( p->GetUserTransformMatrixMTime() < this->MatrixMTime )
     {
-    p->SetUserMatrix( this->GetMatrix()) ;
+    p->SetUserMatrix(mat) ;
     }
 
 }
-
-
-unsigned long int vtkLODProp3D::GetMTime()
-{
-  unsigned long mTime=this->vtkObject::GetMTime();
-  unsigned long time;
-
-  if ( this->UserMatrix != NULL )
-    {
-    time = this->UserMatrix->GetMTime();
-    mTime = ( time > mTime ? time : mTime );
-    }
-
-  if ( this->UserTransform != NULL )
-    {
-    time = this->UserTransform->GetMTime();
-    mTime = ( time > mTime ? time : mTime );
-    }
-
-  return mTime;
-  }
 
 
 void vtkLODProp3D::PrintSelf(ostream& os, vtkIndent indent)
