@@ -28,7 +28,7 @@
 #import <Carbon/Carbon.h>
 
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindowInteractor, "1.11");
+vtkCxxRevisionMacro(vtkCarbonRenderWindowInteractor, "1.12");
 vtkStandardNewMacro(vtkCarbonRenderWindowInteractor);
 
 void (*vtkCarbonRenderWindowInteractor::ClassExitMethod)(void *) 
@@ -94,8 +94,12 @@ static pascal OSStatus myWinEvtHndlr(EventHandlerCallRef nextHandler,
           GetEventParameter(event,kEventParamMouseButton,typeMouseButton,NULL,
                             sizeof(buttonNumber),NULL,&buttonNumber);
 
+          UInt32 repeat;
+          GetEventParameter(event, kEventParamClickCount, typeUInt32, NULL, sizeof(UInt32), NULL, &repeat);
+          repeat--;
+
           me->SetEventInformationFlipY(mouseLoc.h,mouseLoc.v,
-                                       controlDown,shiftDown);
+                                       controlDown,shiftDown,0,repeat);
           switch (buttonNumber)
             {
             case 1:
