@@ -141,7 +141,7 @@ void Process1(vtkMultiProcessController *contr, void *arg)
 
   // Test receiving all supported types of arrays
   vtkIntArray* ia = vtkIntArray::New();
-  if (!comm->Receive(ia, 1, 11))
+  if (!contr->Receive(ia, 1, 11))
     {
     cerr << "Server error: Error receiving data." << endl;
     }
@@ -260,7 +260,7 @@ void Process2(vtkMultiProcessController *contr, void *arg)
   // Test sending all supported types of arrays
   vtkIntArray* ia = vtkIntArray::New();
   ia->SetArray(datai, 10, 1);
-  if (!comm->Send(ia, 0, 11))
+  if (!contr->Send(ia, 0, 11))
     {
     cerr << "Client error: Error sending data." << endl;
     }
