@@ -1,23 +1,50 @@
 /*=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    vtkQuadricDecimation.cxx
-  Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
+Program:   Visualization Toolkit
+Module:    vtkQuadricDecimation.cxx
+Language:  C++
+Date:      $Date$
+Version:   $Revision$
 
-  Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen 
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen 
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even 
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
-     PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even 
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkQuadricDecimation.h"
+// Comments from Brad---
+// FIXME: I do not have a very good method for detecting the stability of a
+// matrix
 
+// FIXME: improve the combination of boundary constraints and texture
+// coordinates
+
+// FIXME: I want to turn off copying an attribute by default and then enable
+// it in the ComputeNumberOfComponets function
+
+// ISSUE: CheckPlacement is not really a manifold check, should there be a
+// topological manifold check?
+
+// ISSUE: I know I use to think that there was an error in the way Hugues
+// desribed the area coefficient, but it now seems wrong to me and seems to
+// produce better results with it not squared, may be this should be some
+// kind of user parameter? Both seem useful ie uniform area vs. more
+// curvature dependent
+
+// ISSUE: policy on attributes, normals should be renomrlized, should texture
+// coordinates be clamped?  or just indicate that one might want to use the
+// array calculator to fix these?
+
+// ISSUE: the initial value of the Attribute weights is one, this is generaly
+// not useful, ussually set around .1, but I did this because the the
+// toggling on and off sets it to 1 and 0
+
+#include "vtkQuadricDecimation.h"
 #include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkEdgeTable.h"
 #include "vtkFloatArray.h"
 #include "vtkGenericCell.h"
@@ -27,9 +54,12 @@
 #include "vtkPolyData.h"
 #include "vtkPointData.h"
 #include "vtkPriorityQueue.h"
+#include "vtkVoidArray.h"
+#include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadricDecimation, "1.23");
+vtkCxxRevisionMacro(vtkQuadricDecimation, "1.24");
 vtkStandardNewMacro(vtkQuadricDecimation);
+
 
 //----------------------------------------------------------------------------
 vtkQuadricDecimation::vtkQuadricDecimation()
@@ -39,15 +69,24 @@ vtkQuadricDecimation::vtkQuadricDecimation()
   this->EndPoint1List = vtkIdList::New();
   this->EndPoint2List = vtkIdList::New();
   this->ErrorQuadrics = NULL;
-  this->MaximumCost = 0.1;
-  this->MaximumCollapsedEdges = -1;
-  this->NumberOfCollapsedEdges = 0;
+  this->TargetPoints = vtkFloatArray::New();
+  
+  this->TargetReduction = 0.90f;
+  this->NumberOfEdgeCollapses = 0;
   this->NumberOfComponents = 0;
-  this->Mesh = vtkPolyData::New();
 
-  vtkPolyData *testOutput = vtkPolyData::New();
-  this->SetNthOutput(1, testOutput);
-  testOutput->Delete();
+  this->AttributeErrorMetric = 0;
+  this->ScalarsAttribute = 1;
+  this->VectorsAttribute = 1;
+  this->NormalsAttribute = 1;
+  this->TCoordsAttribute = 1;
+  this->TensorsAttribute = 1;
+
+  this->ScalarsWeight = 0.1f;
+  this->VectorsWeight = 0.1f;
+  this->NormalsWeight = 0.1f;
+  this->TCoordsWeight = 0.1f;
+  this->TensorsWeight = 0.1f;
 }
 
 //----------------------------------------------------------------------------
@@ -57,7 +96,78 @@ vtkQuadricDecimation::~vtkQuadricDecimation()
   this->EdgeCosts->Delete();
   this->EndPoint1List->Delete();
   this->EndPoint2List->Delete();
-  this->Mesh->Delete();
+  this->TargetPoints->Delete();
+}
+
+void vtkQuadricDecimation::SetPointAttributeArray(vtkIdType ptId, 
+                                                  const double *x) 
+{
+  int i;
+  this->Mesh->GetPoints()->SetPoint(ptId, x);
+  
+  for (i = 0; i < this->NumberOfComponents; i++) 
+    {
+    if (i < this->AttributeComponents[0]) 
+      {
+      this->Mesh->GetPointData()->GetScalars()->
+        SetComponent(ptId, i, x[3+i]/this->AttributeScale[0]);
+      }
+    else if (i < this->AttributeComponents[1]) 
+      {
+      this->Mesh->GetPointData()->GetVectors()->
+        SetComponent(ptId, i-this->AttributeComponents[0], x[3+i]/this->AttributeScale[1]);
+      }
+    else if (i < this->AttributeComponents[2])
+      {
+      this->Mesh->GetPointData()->GetNormals()->
+        SetComponent(ptId, i-this->AttributeComponents[1], x[3+i]/this->AttributeScale[2]);
+      }
+    else if (i < this->AttributeComponents[3]) 
+      {
+      this->Mesh->GetPointData()->GetTCoords()->
+        SetComponent(ptId, i-this->AttributeComponents[2], x[3+i]/this->AttributeScale[3]);
+      }
+    else if (i < this->AttributeComponents[4]) 
+      {
+      this->Mesh->GetPointData()->GetTensors()->
+        SetComponent(ptId, i-this->AttributeComponents[3], x[3+i]/this->AttributeScale[4]);
+      }
+    }
+}
+
+void vtkQuadricDecimation::GetPointAttributeArray(vtkIdType ptId, double *x) 
+{
+  int i;
+  this->Mesh->GetPoints()->GetPoint(ptId, x);
+  
+  for (i = 0; i < this->NumberOfComponents; i++) 
+    {
+    if (i < this->AttributeComponents[0]) 
+      {
+      x[3+i] = this->Mesh->GetPointData()->GetScalars()->
+        GetComponent(ptId, i) *  this->AttributeScale[0];
+      }
+    else if (i < this->AttributeComponents[1])
+      {
+      x[3+i] = this->Mesh->GetPointData()->GetVectors()->
+        GetComponent(ptId, i-this->AttributeComponents[0]) *  this->AttributeScale[1];
+      }
+    else if (i < this->AttributeComponents[2])
+      {
+      x[3+i] = this->Mesh->GetPointData()->GetNormals()->
+        GetComponent(ptId, i-this->AttributeComponents[1]) *  this->AttributeScale[2];
+      }
+    else if (i < this->AttributeComponents[3]) 
+      {
+      x[3+i] = this->Mesh->GetPointData()->GetTCoords()->
+        GetComponent(ptId, i-this->AttributeComponents[2]) *  this->AttributeScale[3];
+      }
+    else if (i < this->AttributeComponents[4]) 
+      {
+      x[3+i] = this->Mesh->GetPointData()->GetTensors()->
+        GetComponent(ptId, i-this->AttributeComponents[3]) *  this->AttributeScale[4];
+      }
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -65,436 +175,457 @@ void vtkQuadricDecimation::Execute()
 {
   vtkPolyData *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
-  vtkPolyData *testOutput = this->GetTestOutput();
-  vtkPoints *testPoints = vtkPoints::New();
-  vtkCellArray *testEdges = vtkCellArray::New();
-  vtkIdType testId0, testId1;
-  vtkCellArray *triangles = input->GetPolys();
-  vtkIdType numTris = triangles->GetNumberOfCells();
   vtkIdType numPts = input->GetNumberOfPoints();
-  vtkIdType edgeId, i, newCellPts[3];
+  vtkIdType numTris = input->GetNumberOfPolys();
+  vtkIdType edgeId, i;
   int j;
-  vtkIdType *cellPts = 0;
-  vtkIdType numCellPts;
-  float cost, x[3];
-  vtkPoints *targetPoints = vtkPoints::New();
-  vtkPointData *targetPointData = vtkPointData::New();
-  vtkPointData *outPD = output->GetPointData();
-  vtkIdList *changedEdges = vtkIdList::New();
-  vtkIdType collapsedCell;
-  vtkIdList *collapsedCells = vtkIdList::New();
-  vtkIdType endPtIds[2], edge[2];
-  vtkIdList *changedCells = vtkIdList::New();
-  vtkIdList *newEdges = vtkIdList::New();
-  vtkIdList *outputCellList = vtkIdList::New();
-  vtkCellArray *outputPolys = vtkCellArray::New();
-  vtkGenericCell *cell = vtkGenericCell::New();
-  vtkIdType cellId;
+  float cost;
+  double *x;
+  vtkCellArray *polys;
+  vtkDataArray *attrib;
+  vtkPoints *points;
+  vtkPointData *pointData;
+  vtkIdType endPtIds[2];
+  vtkIdList *outputCellList;
+  vtkIdType npts, *pts;
+  vtkIdType numDeletedTris=0;
 
-  if (input->GetPolys() == NULL)
+  // check some assuptiona about the data
+  if (input->GetPolys() == NULL || input->GetPoints() == NULL || 
+      input->GetPointData() == NULL  || input->GetFieldData() == NULL)
     {
-    vtkErrorMacro("no triangles to decimate");
+    vtkErrorMacro("Nothing to decimate");
     return;
     }
 
-  this->ErrorQuadrics = 
-    new vtkQuadricDecimation::ErrorQuadric[input->GetNumberOfPoints()];
-  this->Mesh->DeepCopy(input);
-  input->BuildLinks();
-  this->Mesh->BuildLinks();
-  if (this->MaximumCollapsedEdges < 0)
+  if (input->GetPolys()->GetMaxCellSize() > 3) 
     {
-    this->MaximumCollapsedEdges = input->GetNumberOfCells() * 3;
+    vtkErrorMacro("Can only decimate triangles");
+    return;
     }
   
-  output->SetPolys(outputPolys);
-  this->Edges->InitEdgeInsertion(numPts, 1); // storing edge id as attribute
-  this->EdgeCosts->Allocate(input->GetPolys()->GetNumberOfCells() * 3);
-  targetPointData->CopyAllocate(input->GetPointData(),
-                                input->GetNumberOfPoints());
-  outPD->CopyAllocate(input->GetPointData(), input->GetNumberOfPoints());
-  triangles->InitTraversal();
-  this->GetAttributeComponents();
-  for (i = 0; i < numTris; i++)
+  polys = vtkCellArray::New();
+  points = vtkPoints::New();
+  pointData = vtkPointData::New();
+  outputCellList = vtkIdList::New();
+  
+  // copy the input (only polys) to our working mesh
+  this->Mesh = vtkPolyData::New();
+  points->DeepCopy(input->GetPoints());
+  this->Mesh->SetPoints(points);
+  points->Delete();
+  polys->DeepCopy(input->GetPolys());
+  this->Mesh->SetPolys(polys);
+  polys->Delete();
+  if (this->AttributeErrorMetric) 
     {
-    triangles->GetNextCell(numCellPts, cellPts);
-    outputCellList->InsertNextId(i);
+    this->Mesh->GetPointData()->DeepCopy(input->GetPointData());
+    }
+  pointData->Delete();
+  this->Mesh->GetFieldData()->PassData(input->GetFieldData());
+  this->Mesh->BuildCells();
+  this->Mesh->BuildLinks();
+  
+  this->ErrorQuadrics = 
+    new vtkQuadricDecimation::ErrorQuadric[input->GetNumberOfPoints()];
+  
+  vtkDebugMacro(<<"Computing Edges");
+  this->Edges->InitEdgeInsertion(numPts, 1); // storing edge id as attribute
+  this->EdgeCosts->Allocate(this->Mesh->GetPolys()->GetNumberOfCells() * 3);
+  for (i = 0; i <  this->Mesh->GetNumberOfCells(); i++) 
+    {
+    this->Mesh->GetCellPoints(i, npts, pts); 
+      
     for (j = 0; j < 3; j++)
       {
-      if (this->Edges->IsEdge(cellPts[j], cellPts[(j+1)%3]) == -1)
+      if (this->Edges->IsEdge(pts[j], pts[(j+1)%3]) == -1)
         {
         // If this edge has not been processed, get an id for it, add it to
         // the edge list (Edges), and add its endpoints to the EndPoint1List
         // and EndPoint2List (the 2 endpoints to different lists).
         edgeId = this->Edges->GetNumberOfEdges();
-        this->Edges->InsertEdge(cellPts[j], cellPts[(j+1)%3], edgeId);
-        this->EndPoint1List->InsertId(edgeId, cellPts[j]);
-        this->EndPoint2List->InsertId(edgeId, cellPts[(j+1)%3]);
+        this->Edges->InsertEdge(pts[j], pts[(j+1)%3], edgeId);
+        this->EndPoint1List->InsertId(edgeId, pts[j]);
+        this->EndPoint2List->InsertId(edgeId, pts[(j+1)%3]);
         }
       }
     }
-
-  // Compute a quadric matrix for each of the initial points.
-  for (i = 0; i < numPts; i++)
-    {
-    this->ComputeQuadric(i);
-    }
   
+  this->NumberOfComponents = 0;  
+  if (this->AttributeErrorMetric) 
+    {
+    this->ComputeNumberOfComponents();
+    }
+  x = new double [3+this->NumberOfComponents];
+  this->CollapseCellIds = vtkIdList::New();
+  this->TempX = new double [3+this->NumberOfComponents];
+  this->TempQuad = new double[11 + 4 * this->NumberOfComponents];
+  
+  this->TempB = new double [3 +  this->NumberOfComponents];
+  this->TempA = new double*[3 +  this->NumberOfComponents];
+  this->TempData = new double [(3 +  this->NumberOfComponents)*(3 +  this->NumberOfComponents)];
+  for (i = 0; i < 3 +  this->NumberOfComponents; i++) 
+    {
+    this->TempA[i] = this->TempData+i*(3 +  this->NumberOfComponents);
+    }
+  this->TargetPoints->SetNumberOfComponents(3+this->NumberOfComponents);
+  
+  vtkDebugMacro(<<"Computing Quadrics");
+  this->InitializeQuadrics();
+  this->AddBoundaryConstraints();
+  
+  vtkDebugMacro(<<"Computing Costs");
   // Compute the cost of and target point for collapsing each edge.
   for (i = 0; i < this->Edges->GetNumberOfEdges(); i++)
     {
-    cost = this->ComputeCost(i, x, targetPointData);
-//    vtkDebugMacro("cost: " << cost << ", point (" << x[0] << ", " << x[1]
-//                  << ", " << x[2] << " )");
+    if (this->AttributeErrorMetric) 
+      {
+      cost = this->ComputeCost2(i, x);
+      }
+    else
+      {
+      cost = this->ComputeCost(i, x);
+      }
     this->EdgeCosts->Insert(cost, i);
-    targetPoints->InsertPoint(i, x);
+    this->TargetPoints->InsertTuple(i, x);
     }
-  
-  this->NumberOfCollapsedEdges = 0;
-  // Get id of edge with minimum cost to collapse.
+
+  // Okay collapse edges until desired reduction is reached
+  this->ActualReduction = 0.00f;
+  this->NumberOfEdgeCollapses = 0;
   edgeId = this->EdgeCosts->Pop(0,cost);
-  while (edgeId >= 0 && cost < this->MaximumCost &&
-         this->NumberOfCollapsedEdges < this->MaximumCollapsedEdges)
+
+  while (edgeId >= 0 && cost < VTK_FLOAT_MAX &&
+         this->ActualReduction < this->TargetReduction ) 
     {
-    this->NumberOfCollapsedEdges++;
-    vtkDebugMacro("cost: " << cost);
     endPtIds[0] = this->EndPoint1List->GetId(edgeId);
     endPtIds[1] = this->EndPoint2List->GetId(edgeId);
-    vtkDebugMacro("pt. 0: " << this->Mesh->GetPoints()->GetPoint(endPtIds[0])[0] << " " << this->Mesh->GetPoints()->GetPoint(endPtIds[0])[1] << " " << this->Mesh->GetPoints()->GetPoint(endPtIds[0])[2]);
-    vtkDebugMacro("pt. 1: " << this->Mesh->GetPoints()->GetPoint(endPtIds[1])[0] << " " << this->Mesh->GetPoints()->GetPoint(endPtIds[1])[1] << " " << this->Mesh->GetPoints()->GetPoint(endPtIds[1])[2]);
-    vtkDebugMacro("***target pt.: " << targetPoints->GetPoint(edgeId)[0] << " " << targetPoints->GetPoint(edgeId)[1] << " " << targetPoints->GetPoint(edgeId)[2]);
-    changedEdges->Reset();
-    changedCells->Reset();
-    collapsedCells->Reset();
-    newEdges->Reset();
+    this->TargetPoints->GetTuple(edgeId, x);
 
-    // Set the new coordinates of point0.
-    this->Mesh->GetPoints()->SetPoint(endPtIds[0],
-                                      targetPoints->GetPoint(edgeId));
-    // Set the new point data for point0.
-    this->Mesh->GetPointData()->CopyData(targetPointData, edgeId,
-                                         endPtIds[0]);
-
-    // Merge the quadrics of the two points.
-    this->AddQuadric(endPtIds[1], endPtIds[0]);
-
-    // Find all edges with either of these 2 endpoints.
-    this->FindAffectedEdges(endPtIds[0], endPtIds[1], changedEdges);
-    // Reset the endpoints for these edges to reflect the new point from the
-    // collapsed edge.
-    // Add these new edges to the edge table.
-    // Remove the the changed edges from the priority queue.
-
-    testPoints->Reset();
-    testEdges->Reset();
-    for (i = 0; i < changedEdges->GetNumberOfIds(); i++)
+    // check for a poorly placed point
+    if ( !this->IsGoodPlacement(endPtIds[0], endPtIds[1], x)) 
       {
-      edge[0] = this->EndPoint1List->GetId(changedEdges->GetId(i));
-      edge[1] = this->EndPoint2List->GetId(changedEdges->GetId(i));
+      vtkDebugMacro(<<"Poor placement detected " << edgeId << " " <<  cost);
+      // return the point to the queue but with the max cost so that 
+      // when it is recomputed it will be reconsidered
+      this->EdgeCosts->Insert(VTK_FLOAT_MAX, edgeId);
 
-      testId0 = testPoints->InsertNextPoint(this->Mesh->GetPoints()->GetPoint(edge[0]));
-      testId1 = testPoints->InsertNextPoint(this->Mesh->GetPoints()->GetPoint(edge[1]));
-      testEdges->InsertNextCell(2);
-      testEdges->InsertCellPoint(testId0);
-      testEdges->InsertCellPoint(testId1);
-
-      // Remove all affected edges from the priority que. 
-      // This does not include collapsed edge.
-      this->EdgeCosts->DeleteId(changedEdges->GetId(i));
-
-      // Determine the new set of edges
-      if (edge[0] == endPtIds[1])
-        {
-        if (this->Edges->IsEdge(edge[1], endPtIds[0]) == -1)
-          { // The edge will be completely new, add it.
-          edgeId = this->Edges->GetNumberOfEdges();
-          this->Edges->InsertEdge(edge[1], endPtIds[0], edgeId);
-          this->EndPoint1List->InsertId(edgeId, edge[1]);
-          this->EndPoint2List->InsertId(edgeId, endPtIds[0]);
-          newEdges->InsertNextId(edgeId);
-          // Compute cost (target point/data) and add to priority cue.
-          cost = this->ComputeCost(edgeId, x, targetPointData);
-          this->EdgeCosts->Insert(cost, edgeId);
-          targetPoints->InsertPoint(edgeId, x);
-          }
-        }
-      else if (edge[1] == endPtIds[1])
-        { // The edge will be completely new, add it.
-        if (this->Edges->IsEdge(edge[0], endPtIds[0]) == -1)
-          {
-          edgeId = this->Edges->GetNumberOfEdges();
-          this->Edges->InsertEdge(edge[0], endPtIds[0], edgeId);
-          this->EndPoint1List->InsertId(edgeId, edge[0]);
-          this->EndPoint2List->InsertId(edgeId, endPtIds[0]);
-          newEdges->InsertNextId(edgeId);
-          // Compute cost (target point/data) and add to priority cue.
-          cost = this->ComputeCost(edgeId, x, targetPointData);
-          this->EdgeCosts->Insert(cost, edgeId);
-          targetPoints->InsertPoint(edgeId, x);
-          }
-        }
-      else
-        { // This edge already has one point as the merged point.
-        // Compute cost (target point/data) and add to priority cue.
-        cost = this->ComputeCost(changedEdges->GetId(i), x, targetPointData);
-        this->EdgeCosts->Insert(cost, changedEdges->GetId(i));
-        targetPoints->InsertPoint(changedEdges->GetId(i), x);
-        }
+      edgeId = this->EdgeCosts->Pop(0, cost);
+      continue;
       }
     
+    this->NumberOfEdgeCollapses++;
+        
+    // Set the new coordinates of point0.
+    this->SetPointAttributeArray(endPtIds[0], x);
+    vtkDebugMacro(<<"Cost: " << cost << " Edge: " 
+                  << endPtIds[0] << " " << endPtIds[1]);
+    
+    // Merge the quadrics of the two points.
+    this->AddQuadric(endPtIds[1], endPtIds[0]);
+    
+    this->UpdateEdgeData(endPtIds[0], endPtIds[1]);
+    
     // Update the output triangles.
-    collapsedCell = this->GetEdgeCellId(endPtIds[0], endPtIds[1]);
-    this->Mesh->GetCellEdgeNeighbors(collapsedCell, endPtIds[0], endPtIds[1],
-                                     collapsedCells);
-    this->Mesh->RemoveCellReference(collapsedCell);
-    outputCellList->DeleteId(collapsedCell);
-    for (i = 0; i < collapsedCells->GetNumberOfIds(); i++)
-      {
-      this->Mesh->RemoveCellReference(collapsedCells->GetId(i));
-      outputCellList->DeleteId(collapsedCells->GetId(i));
-      }
-    this->Mesh->GetPointCells(endPtIds[1], changedCells);
-    for (i = 0; i < changedCells->GetNumberOfIds(); i++)
-      {
-      cellId = changedCells->GetId(i);
-      this->Mesh->GetCell(cellId, cell);
-      newCellPts[0] = cell->GetPointId(0);
-      newCellPts[1] = cell->GetPointId(1);
-      newCellPts[2] = cell->GetPointId(2);
-      // making sure we don't already have the triangle we're about to
-      // change this one to
-      if (newCellPts[0] == endPtIds[1])
-        {
-        if (this->Mesh->IsTriangle(endPtIds[0], newCellPts[1], newCellPts[2]))
-          {
-          this->Mesh->RemoveCellReference(cellId);
-          outputCellList->DeleteId(cellId);
-          }
-        else
-          {
-          this->Mesh->RemoveReferenceToCell(endPtIds[1], cellId);
-          this->Mesh->ResizeCellList(endPtIds[0], 1);
-          this->Mesh->AddReferenceToCell(endPtIds[0], cellId);
-          this->Mesh->ReplaceCellPoint(cellId, endPtIds[1], endPtIds[0]);
-          }
-        }
-      else if (newCellPts[1] == endPtIds[1])
-        {
-        if (this->Mesh->IsTriangle(newCellPts[0], endPtIds[0], newCellPts[2]))
-          {
-          this->Mesh->RemoveCellReference(cellId);
-          outputCellList->DeleteId(cellId);
-          }
-        else
-          {
-          this->Mesh->RemoveReferenceToCell(endPtIds[1], cellId);
-          this->Mesh->ResizeCellList(endPtIds[0], 1);
-          this->Mesh->AddReferenceToCell(endPtIds[0], cellId);
-          this->Mesh->ReplaceCellPoint(cellId, endPtIds[1], endPtIds[0]);
-          }
-        }
-      else
-        {
-        if (this->Mesh->IsTriangle(newCellPts[0], newCellPts[1], endPtIds[0]))
-          {
-          this->Mesh->RemoveCellReference(cellId);
-          outputCellList->DeleteId(cellId);
-          }
-        else
-          {
-          this->Mesh->RemoveReferenceToCell(endPtIds[1], cellId);
-          this->Mesh->ResizeCellList(endPtIds[0], 1);
-          this->Mesh->AddReferenceToCell(endPtIds[0], cellId);
-          this->Mesh->ReplaceCellPoint(cellId, endPtIds[1], endPtIds[0]);
-          }
-        }
-      }
-    edgeId = this->EdgeCosts->Pop(0,cost);
-    if (edgeId == -1)
-      {
-      // tried to pop empty priority queue, so need to exit loop
-      cost = this->MaximumCost;
-      }
+    numDeletedTris += this->CollapseEdge(endPtIds[0], endPtIds[1]);
+    this->ActualReduction = (float) numDeletedTris / numTris;
+    edgeId = this->EdgeCosts->Pop(0, cost);
     }
-  
-  output->CopyCells(this->Mesh, outputCellList);
-  
-  input->DeleteLinks();
-  this->Mesh->DeleteLinks();
-  changedEdges->Delete();
-  collapsedCells->Delete();
-  changedCells->Delete();
-  newEdges->Delete();
-  targetPoints->Delete();
-  targetPointData->Delete();
-  outputCellList->Delete();
-  outputPolys->Delete();
-  cell->Delete();
+
+  vtkDebugMacro(<<"Number Of Edge Collapses: "
+                << this->NumberOfEdgeCollapses << " Cost: " << cost);
+
+  // clean up working data
   for (i = 0; i < input->GetNumberOfPoints(); i++)
     {
     delete [] this->ErrorQuadrics[i].Quadric;
     }
   delete [] this->ErrorQuadrics;
+  delete [] x;
+  this->CollapseCellIds->Delete();
+  delete [] this->TempX;
+  delete [] this->TempQuad;
+  delete [] this->TempB;
+  delete [] this->TempA;
+  delete [] this->TempData;
+  
+  // copy the simplified mesh from the working mesh to the output mesh
+  for (i = 0; i < this->Mesh->GetNumberOfCells(); i++) 
+    {
+    if (this->Mesh->GetCell(i)->GetCellType() != VTK_EMPTY_CELL) 
+      {
+      outputCellList->InsertNextId(i);
+      }
+    } 
 
-  testOutput->SetPoints(testPoints);
-  testOutput->SetLines(testEdges);
-  testPoints->Delete();
-  testEdges->Delete();
+  output->Reset();
+  output->Allocate(this->Mesh, outputCellList->GetNumberOfIds());
+  output->GetPointData()->CopyAllocate(this->Mesh->GetPointData(),1);
+  output->CopyCells(this->Mesh, outputCellList);
+
+  this->Mesh->DeleteLinks();
+  this->Mesh->Delete();
+  outputCellList->Delete();
+
+  // renormalize, clamp attributes
+  if (this->AttributeErrorMetric) 
+    {
+    if (NULL != (attrib = output->GetPointData()->GetNormals())) 
+      {
+      for (i = 0; i < attrib->GetNumberOfTuples(); i++) 
+        {
+        vtkMath::Normalize(attrib->GetTuple3(i));
+        }
+      }
+    // might want to add clamping texture coordinates??
+    }
 }
 
 //----------------------------------------------------------------------------
-void vtkQuadricDecimation::ComputeQuadric(vtkIdType pointId)
+void vtkQuadricDecimation::InitializeQuadrics(void)
 {
-  vtkIdList *cellIds = vtkIdList::New();
-  vtkPolyData *input = this->GetInput();
+  vtkPolyData *input = this->Mesh;
+  vtkIdType numPts = input->GetNumberOfPoints();
+  double *QEM;
+  vtkIdType ptId;
   int i, j;
-  float n[3], d;
-  vtkPoints *cellPts;
-  vtkIdList *cellPtIdList;
-  vtkIdType cellPtIds[3];
-  float point0[3], point1[3], point2[3];
-  float tempP1[3], tempP2[3];
-  float triArea2;
-  int scalars, vectors, normals, tcoords, tensors, fieldData;
-  vtkPointData *pd = input->GetPointData();
-  vtkFloatArray *faceNormals = vtkFloatArray::New();
-  double *A[4], A0[4], A1[4], A2[4], A3[4], b[4];
+  vtkCellArray *polys = NULL;
+  vtkIdType npts, *pts;
+  const float *point0, *point1, *point2;
+  float n[3];
+  float tempP1[3], tempP2[3],  d, triArea2;
+  double data[16];
+  double *A[4], x[4];
+  int index[4];
+  A[0] = data;
+  A[1] = data+4;
+  A[2] = data+8;
+  A[3] = data+12;
 
-  faceNormals->SetNumberOfComponents(3);
-  
-  this->ErrorQuadrics[pointId].Quadric =
-    new float[11 + 4 * this->NumberOfComponents];
-  for (i = 0; i < 11 + 4 * this->NumberOfComponents; i++)
+  // allocate local QEM sparce matrix
+  QEM = new double[11 + 4 * this->NumberOfComponents];
+
+  // clear and allocate global QEM array
+  for (ptId = 0; ptId < numPts; ptId++) 
     {
-    this->ErrorQuadrics[pointId].Quadric[i] = 0.0;
+    this->ErrorQuadrics[ptId].Quadric =
+      new double[11 + 4 * this->NumberOfComponents];
+    for (i = 0; i < 11 + 4 * this->NumberOfComponents; i++)
+      {
+      this->ErrorQuadrics[ptId].Quadric[i] = 0.0;
+      }
     }
   
-  input->GetPointCells(pointId, cellIds);
-
-  // geometric part of quadric
-  for (i = 0; i < cellIds->GetNumberOfIds(); i++)
+  polys = input->GetPolys();
+  polys->InitTraversal();
+  // compute the QEM for each face
+  while (polys->GetNextCell(npts, pts)) 
     {
-    cellPts = input->GetCell(cellIds->GetId(i))->GetPoints();
-    cellPts->GetPoint(0, point0);
-    cellPts->GetPoint(1, point1);
-    cellPts->GetPoint(2, point2);
-    for (j = 0; j < 3; j++)
+    point0 = input->GetPoint(pts[0]);
+    point1 = input->GetPoint(pts[1]);
+    point2 = input->GetPoint(pts[2]);
+    for (i = 0; i < 3; i++)
       {
-      tempP1[j] = point1[j] - point0[j];
-      tempP2[j] = point2[j] - point0[j];
+      tempP1[i] = point1[i] - point0[i];
+      tempP2[i] = point2[i] - point0[i];
       }
     vtkMath::Cross(tempP1, tempP2, n);
     triArea2 = vtkMath::Normalize(n);
-    triArea2 = triArea2 * triArea2 * 0.25;
-    faceNormals->InsertTuple(cellIds->GetId(i), n);
+    //triArea2 = (triArea2 * triArea2 * 0.25);
+    triArea2 = triArea2 * 0.5;
+    // I am unsure whether this should be squared or not??
     d = -vtkMath::Dot(n, point0);
+    // could possible add in angle weights??
 
-    this->ErrorQuadrics[pointId].Quadric[0] += n[0] * n[0] * triArea2;
-    this->ErrorQuadrics[pointId].Quadric[1] += n[1] * n[1] * triArea2;
-    this->ErrorQuadrics[pointId].Quadric[2] += n[2] * n[2] * triArea2;
-    this->ErrorQuadrics[pointId].Quadric[3] += n[0] * n[1] * triArea2;
-    this->ErrorQuadrics[pointId].Quadric[4] += n[1] * n[2] * triArea2;
-    this->ErrorQuadrics[pointId].Quadric[5] += n[0] * n[2] * triArea2;
-    this->ErrorQuadrics[pointId].Quadric[6] += d * n[0] * triArea2;
-    this->ErrorQuadrics[pointId].Quadric[7] += d * n[1] * triArea2;
-    this->ErrorQuadrics[pointId].Quadric[8] += d * n[2] * triArea2;
-    this->ErrorQuadrics[pointId].Quadric[9] += d * d * triArea2;
-    }
-  this->ErrorQuadrics[pointId].Quadric[10] = cellIds->GetNumberOfIds();
-  
-  // attribute part of quadric
-  A[0] = A0;
-  A[1] = A1;
-  A[2] = A2;
-  A[3] = A3;
-  for (i = 0; i < cellIds->GetNumberOfIds(); i++)
-    {
-    scalars = vectors = normals = tcoords = tensors = fieldData = 0;
-    cellPts = input->GetCell(cellIds->GetId(i))->GetPoints();
-    cellPts->GetPoint(0, point0);
-    cellPts->GetPoint(1, point1);
-    cellPts->GetPoint(2, point2);
-    cellPtIdList = input->GetCell(cellIds->GetId(i))->GetPointIds();
-    cellPtIds[0] = cellPtIdList->GetId(0);
-    cellPtIds[1] = cellPtIdList->GetId(1);
-    cellPtIds[2] = cellPtIdList->GetId(2);
-    faceNormals->GetTuple(cellIds->GetId(i), n);
-    for (j = 0; j < 3; j++)
+    // set the geometric part of the QEM
+    QEM[0] = n[0] * n[0];
+    QEM[1] = n[0] * n[1];
+    QEM[2] = n[0] * n[2];
+    QEM[3] = d * n[0];
+
+    QEM[4] = n[1] * n[1];
+    QEM[5] = n[1] * n[2];
+    QEM[6] = d * n[1];
+
+    QEM[7] = n[2] * n[2];
+    QEM[8] = d * n[2];
+
+    QEM[9] = d * d;
+    QEM[10] = 1;
+    
+    if (this->AttributeErrorMetric) 
       {
-      A[0][j] = point0[j];
-      A[1][j] = point1[j];
-      A[2][j] = point2[j];
-      A[3][j] = n[j];
+      for (i = 0; i < 3; i++) 
+        {
+        A[0][i] = point0[i];
+        A[1][i] = point1[i];
+        A[2][i] = point2[i];
+        A[3][i] = n[i];
+        }       
+      A[0][3] =  A[1][3] = A[2][3] = 1;
+      A[3][3] = 0;
+
+      // should handle poorly condition matrix better
+      if (vtkMath::LUFactorLinearSystem(A, index, 4))
+        {
+        for (i = 0; i < this->NumberOfComponents; i++) 
+          {
+          x[3] = 0;
+          if (i < this->AttributeComponents[0]) 
+            {
+            x[0] = input->GetPointData()->GetScalars()->GetComponent(pts[0], i) *  this->AttributeScale[0];
+            x[1] = input->GetPointData()->GetScalars()->GetComponent(pts[1], i) *  this->AttributeScale[0];
+            x[2] = input->GetPointData()->GetScalars()->GetComponent(pts[2], i) *  this->AttributeScale[0];
+            } 
+          else if (i < this->AttributeComponents[1]) 
+            {
+            x[0] = input->GetPointData()->GetVectors()->GetComponent(pts[0], i - this->AttributeComponents[0]) *  this->AttributeScale[1];
+            x[1] = input->GetPointData()->GetVectors()->GetComponent(pts[1], i - this->AttributeComponents[0]) *  this->AttributeScale[1];
+            x[2] = input->GetPointData()->GetVectors()->GetComponent(pts[2], i - this->AttributeComponents[0]) *  this->AttributeScale[1];
+            } 
+          else if (i < this->AttributeComponents[2]) 
+            {
+            x[0] = input->GetPointData()->GetNormals()->GetComponent(pts[0], i - this->AttributeComponents[1]) *  this->AttributeScale[2];
+            x[1] = input->GetPointData()->GetNormals()->GetComponent(pts[1], i - this->AttributeComponents[1]) *  this->AttributeScale[2];
+            x[2] = input->GetPointData()->GetNormals()->GetComponent(pts[2], i - this->AttributeComponents[1]) *  this->AttributeScale[2];
+            } 
+          else if (i < this->AttributeComponents[3]) 
+            {
+            x[0] = input->GetPointData()->GetTCoords()->GetComponent(pts[0], i - this->AttributeComponents[2]) *  this->AttributeScale[3];
+            x[1] = input->GetPointData()->GetTCoords()->GetComponent(pts[1], i - this->AttributeComponents[2])*  this->AttributeScale[3];
+            x[2] = input->GetPointData()->GetTCoords()->GetComponent(pts[2], i - this->AttributeComponents[2])*  this->AttributeScale[3];
+            } 
+          else if (i < this->AttributeComponents[4]) 
+            {
+            x[0] = input->GetPointData()->GetTensors()->GetComponent(pts[0], i - this->AttributeComponents[3])*  this->AttributeScale[4];
+            x[1] = input->GetPointData()->GetTensors()->GetComponent(pts[1], i - this->AttributeComponents[3])*  this->AttributeScale[4];
+            x[2] = input->GetPointData()->GetTensors()->GetComponent(pts[2], i - this->AttributeComponents[3])*  this->AttributeScale[4];
+            }
+          vtkMath::LUSolveLinearSystem(A, index, x, 4);
+
+          // add in the contribution of this element into the QEM
+          QEM[0] += x[0] * x[0];
+          QEM[1] += x[0] * x[1];
+          QEM[2] += x[0] * x[2];
+          QEM[3] += x[3] * x[0];
+          
+          QEM[4] += x[1] * x[1];
+          QEM[5] += x[1] * x[2];
+          QEM[6] += x[3] * x[1];
+          
+          QEM[7] += x[2] * x[2];
+          QEM[8] += x[3] * x[2];
+          
+          QEM[9] += x[3] * x[3];
+          
+          QEM[11+i*4] = -x[0];
+          QEM[12+i*4] = -x[1];
+          QEM[13+i*4] = -x[2];
+          QEM[14+i*4] = -x[3];
+          }
+        }
+      else 
+        {
+        vtkErrorMacro(<<"Unable to factor attribute matrix!");
+        }
       }
-    A[0][3] = A[1][3] = A[2][3] = 1;
-    A[3][3] = 0;
-    for (j = 0; j < this->NumberOfComponents; j++)
+    
+      // add the QEM to all point of the face
+    for (i = 0; i < 3; i++) 
       {
-      b[3] = 0;
-      if (scalars < this->AttributeComponents[0])
+      for (j = 0; j < 11 + 4 * this->NumberOfComponents; j++) 
         {
-        b[0] = pd->GetScalars()->GetComponent(cellPtIds[0],scalars);
-        b[1] = pd->GetScalars()->GetComponent(cellPtIds[1],scalars);
-        b[2] = pd->GetScalars()->GetComponent(cellPtIds[2],scalars);
-        scalars++;
+        this->ErrorQuadrics[pts[i]].Quadric[j] += QEM[j] * triArea2;
         }
-      else if (vectors < this->AttributeComponents[1])
+      }
+    }
+
+  delete [] QEM;
+}
+
+
+void vtkQuadricDecimation::AddBoundaryConstraints(void) 
+{
+  vtkPolyData *input = this->Mesh;
+  double *QEM;
+  vtkIdType  cellId;
+  int i, j;
+  vtkIdType npts, *pts;
+  const float *t0, *t1, *t2;
+  float e0[3], e1[3], n[3], c, d, w;
+  vtkIdList *cellIds = vtkIdList::New();
+  
+  // allocate local QEM space matrix
+  QEM = new double[11 + 4 * this->NumberOfComponents];
+  
+  for (cellId = 0; cellId < input->GetNumberOfCells(); cellId++) 
+    {
+    input->GetCellPoints(cellId, npts, pts);
+
+    for (i = 0; i < 3; i++) 
+      {
+      input->GetCellEdgeNeighbors(cellId, pts[i], pts[(i+1)%3], cellIds);
+      if (cellIds->GetNumberOfIds() == 0) 
         {
-        b[0] = pd->GetVectors()->GetTuple(cellPtIds[0])[vectors];
-        b[1] = pd->GetVectors()->GetTuple(cellPtIds[1])[vectors];
-        b[2] = pd->GetVectors()->GetTuple(cellPtIds[2])[vectors];
-        vectors++;
+        // this is a boundary
+        t0 = input->GetPoint(pts[(i+2)%3]);
+        t1 = input->GetPoint(pts[i]);
+        t2 = input->GetPoint(pts[(i+1)%3]);
+        
+        // computing a plane which is orthogonal to line t1, t2 and incident
+        // with it
+        for (j = 0; j < 3; j++)
+          {
+          e0[j] = t2[j] - t1[j];
+          }
+        for (j = 0; j < 3; j++)
+          {
+          e1[j] = t0[j] - t1[j];
+          }
+        
+        // compute n so that it is orthogonal to e0 and parallel to the
+        // triangle
+        c = vtkMath::Dot(e0,e1)/(e0[0]*e0[0]+e0[1]*e0[1]+e0[2]*e0[2]);
+        for (j = 0; j < 3; j++)
+          {
+          n[j] = e1[j] - c*e0[j];
+          }
+        vtkMath::Normalize(n);
+        d = -vtkMath::Dot(n, t1);
+        w = vtkMath::Norm(e0);
+
+        //w *= w;
+        // area issue ??
+        // could possible add in angle weights??
+        QEM[0] = n[0] * n[0];
+        QEM[1] = n[0] * n[1];
+        QEM[2] = n[0] * n[2];
+        QEM[3] = d * n[0];
+
+        QEM[4] = n[1] * n[1];
+        QEM[5] = n[1] * n[2];
+        QEM[6] = d * n[1];
+
+        QEM[7] = n[2] * n[2];
+        QEM[8] = d * n[2];
+
+        QEM[9] = d * d;
+        
+        QEM[10] = 1;
+
+        // need to add orthogonal plane with the other Attributes, but this
+        // is not clear??
+        // check to interaction with attribute data
+        for (j = 0; j < 11; j++) 
+          {
+          this->ErrorQuadrics[pts[i]].Quadric[j] += QEM[j]*w;
+          this->ErrorQuadrics[pts[(i+1)%3]].Quadric[j] += QEM[j]*w;
+          }
         }
-      else if (normals < this->AttributeComponents[2])
-        {
-        b[0] = pd->GetNormals()->GetTuple(cellPtIds[0])[normals];
-        b[1] = pd->GetNormals()->GetTuple(cellPtIds[1])[normals];
-        b[2] = pd->GetNormals()->GetTuple(cellPtIds[2])[normals];
-        normals++;
-        }
-      else if (tcoords < this->AttributeComponents[3])
-        {
-        b[0] = pd->GetTCoords()->GetTuple(cellPtIds[0])[tcoords];
-        b[1] = pd->GetTCoords()->GetTuple(cellPtIds[1])[tcoords];
-        b[2] = pd->GetTCoords()->GetTuple(cellPtIds[2])[tcoords];
-        tcoords++;
-        }
-      else if (tensors < this->AttributeComponents[4])
-        {
-        b[0] =
-          pd->GetTensors()->GetTuple(cellPtIds[0])[tensors/3+3*(tensors%3)];
-        b[1] =
-          pd->GetTensors()->GetTuple(cellPtIds[1])[tensors/3+3*(tensors%3)];
-        b[2] =
-          pd->GetTensors()->GetTuple(cellPtIds[2])[tensors/3+3*(tensors%3)];
-        tensors++;
-        }
-      else if (fieldData < this->AttributeComponents[5])
-        {
-        b[0] = pd->GetComponent(cellPtIds[0], fieldData);
-        b[1] = pd->GetComponent(cellPtIds[1], fieldData);
-        b[2] = pd->GetComponent(cellPtIds[2], fieldData);
-        fieldData++;
-        }
-      vtkMath::SolveLinearSystem(A, b, 4);
-      this->ErrorQuadrics[pointId].Quadric[0] += b[0] * b[0];
-      this->ErrorQuadrics[pointId].Quadric[1] += b[1] * b[1];
-      this->ErrorQuadrics[pointId].Quadric[2] += b[2] * b[2];
-      this->ErrorQuadrics[pointId].Quadric[3] += b[0] * b[1];
-      this->ErrorQuadrics[pointId].Quadric[4] += b[1] * b[2];
-      this->ErrorQuadrics[pointId].Quadric[5] += b[0] * b[2];
-      this->ErrorQuadrics[pointId].Quadric[6] += b[3] * b[0];
-      this->ErrorQuadrics[pointId].Quadric[7] += b[3] * b[1];
-      this->ErrorQuadrics[pointId].Quadric[8] += b[3] * b[2];
-      this->ErrorQuadrics[pointId].Quadric[9] += b[3] * b[3];
-      this->ErrorQuadrics[pointId].Quadric[11 + 4*j] += -b[0];
-      this->ErrorQuadrics[pointId].Quadric[11 + 4*j+1] += -b[1];
-      this->ErrorQuadrics[pointId].Quadric[11 + 4*j+2] += -b[2];
-      this->ErrorQuadrics[pointId].Quadric[11 + 4*j+3] += -b[3];
       }
     }
   cellIds->Delete();
-  faceNormals->Delete();
+  delete [] QEM;
 }
 
 //----------------------------------------------------------------------------
@@ -510,349 +641,704 @@ void vtkQuadricDecimation::AddQuadric(vtkIdType oldPtId, vtkIdType newPtId)
 }
 
 //----------------------------------------------------------------------------
-float vtkQuadricDecimation::ComputeCost(vtkIdType edgeId, float x[3],
-                                        vtkPointData *pd)
+void vtkQuadricDecimation::FindAffectedEdges(vtkIdType p1Id, vtkIdType p2Id,
+                                              vtkIdList *edges)
 {
-  float C[3][3], BBT[3][3], A[3][3], b1[3], Bb2[3], b[3];
+  unsigned short ncells;
+  vtkIdType *cells, npts, *pts, edgeId;
+  unsigned short i, j;
+ 
+  edges->Reset();
+  this->Mesh->GetPointCells(p2Id, ncells, cells);
+  for (i = 0; i < ncells; i++)
+    {
+    this->Mesh->GetCellPoints(cells[i], npts, pts);
+    for (j = 0; j < 3; j++) 
+      {
+      if (pts[j] != p1Id && pts[j] != p2Id &&
+          (edgeId = this->Edges->IsEdge(pts[j], p2Id)) >= 0 &&
+          edges->IsId(edgeId) == -1) 
+        {
+        edges->InsertNextId(edgeId);
+        }
+      }
+    }
+
+  this->Mesh->GetPointCells(p1Id, ncells, cells);
+  for (i = 0; i < ncells; i++)
+    {
+    this->Mesh->GetCellPoints(cells[i], npts, pts);
+    for (j = 0; j < 3; j++) 
+      {
+      if (pts[j] != p1Id && pts[j] != p2Id &&
+          (edgeId = this->Edges->IsEdge(pts[j], p1Id)) >= 0 &&
+          edges->IsId(edgeId) == -1) 
+        {
+        edges->InsertNextId(edgeId);
+        }
+      }
+    }
+}
+
+// FIXME: memory allocation clean up
+void vtkQuadricDecimation::UpdateEdgeData(vtkIdType pt0Id, vtkIdType pt1Id)
+{
+  vtkIdList *changedEdges = vtkIdList::New();
+  vtkIdType i, edgeId, edge[2];
+  double cost;
+
+  // Find all edges with exactly either of these 2 endpoints.
+  this->FindAffectedEdges(pt0Id, pt1Id, changedEdges);
+
+  // Reset the endpoints for these edges to reflect the new point from the
+  // collapsed edge.
+  // Add these new edges to the edge table.
+  // Remove the the changed edges from the priority queue.
+  for (i = 0; i < changedEdges->GetNumberOfIds(); i++)
+    {
+    edge[0] = this->EndPoint1List->GetId(changedEdges->GetId(i));
+    edge[1] = this->EndPoint2List->GetId(changedEdges->GetId(i));
+
+    // Remove all affected edges from the priority queue. 
+    // This does not include collapsed edge.
+    this->EdgeCosts->DeleteId(changedEdges->GetId(i));
+
+    // Determine the new set of edges
+    if (edge[0] == pt1Id)
+      {
+      if (this->Edges->IsEdge(edge[1], pt0Id) == -1)
+        { // The edge will be completely new, add it.
+        edgeId = this->Edges->GetNumberOfEdges();
+        this->Edges->InsertEdge(edge[1], pt0Id, edgeId);
+        this->EndPoint1List->InsertId(edgeId, edge[1]);
+        this->EndPoint2List->InsertId(edgeId, pt0Id);
+        // Compute cost (target point/data) and add to priority cue.
+        if (this->AttributeErrorMetric) 
+          {
+          cost = this->ComputeCost2(edgeId, this->TempX);
+          }
+        else
+          {
+          cost = this->ComputeCost(edgeId, this->TempX);
+          }
+        this->EdgeCosts->Insert(cost, edgeId);
+        this->TargetPoints->InsertTuple(edgeId, this->TempX);
+        }
+      }
+    else if (edge[1] == pt1Id)
+      { // The edge will be completely new, add it.
+      if (this->Edges->IsEdge(edge[0], pt0Id) == -1)
+        {
+        edgeId = this->Edges->GetNumberOfEdges();
+        this->Edges->InsertEdge(edge[0], pt0Id, edgeId);
+        this->EndPoint1List->InsertId(edgeId, edge[0]);
+        this->EndPoint2List->InsertId(edgeId, pt0Id);
+        // Compute cost (target point/data) and add to priority cue.
+        if (this->AttributeErrorMetric) 
+          {
+          cost = this->ComputeCost2(edgeId, this->TempX);
+          }
+        else
+          {
+          cost = this->ComputeCost(edgeId, this->TempX);
+          }
+        this->EdgeCosts->Insert(cost, edgeId);
+        this->TargetPoints->InsertTuple(edgeId, this->TempX);
+        }
+      }
+    else
+      { // This edge already has one point as the merged point.
+      if (this->AttributeErrorMetric) 
+        {
+        cost = this->ComputeCost2(changedEdges->GetId(i), this->TempX);
+        }
+      else
+        {
+        cost = this->ComputeCost(changedEdges->GetId(i), this->TempX);
+        }
+      this->EdgeCosts->Insert(cost, changedEdges->GetId(i));
+      this->TargetPoints->InsertTuple(changedEdges->GetId(i), this->TempX);
+      }
+    }
+
+  changedEdges->Delete();
+  return; 
+}
+
+//----------------------------------------------------------------------------
+double vtkQuadricDecimation::ComputeCost(vtkIdType edgeId, double *x)
+{
+  static const double errorNumber = 1e-10;
+  double temp[3], A[3][3], b[3];
   vtkIdType pointIds[2];
-  float cost = 0.0;
-  float *quad = new float[11 + 4 * this->NumberOfComponents];
+  double cost = 0.0;
+  double *index;
   int i, j;
-  float *newPoint = new float[3+this->NumberOfComponents];
-  float *BTpmin = new float[this->NumberOfComponents];
-  int components = 0;
-  float normal[3], tcoord[3];
-  
+  double newPoint [4];
+  double v[3],  c, norm, normTemp,  temp2[3];
+  double pt1[3], pt2[3];
+
   pointIds[0] = this->EndPoint1List->GetId(edgeId);
   pointIds[1] = this->EndPoint2List->GetId(edgeId);
   
   for (i = 0; i < 11 + 4 * this->NumberOfComponents; i++)
     {
-    quad[i] = this->ErrorQuadrics[pointIds[0]].Quadric[i] +
+    this->TempQuad[i] = this->ErrorQuadrics[pointIds[0]].Quadric[i] +
       this->ErrorQuadrics[pointIds[1]].Quadric[i];
     }
-  
-  C[0][0] = quad[0];
-  C[1][1] = quad[1];
-  C[2][2] = quad[2];
-  C[0][1] = C[1][0] = quad[3];
-  C[1][2] = C[2][1] = quad[4];
-  C[0][2] = C[2][0] = quad[5];
-  
-  b1[0] = -quad[6];
-  b1[1] = -quad[7];
-  b1[2] = -quad[8];
-  
-  for (i = 0; i < 3; i++)
+
+  A[0][0] = this->TempQuad[0];
+  A[0][1] = A[1][0] = this->TempQuad[1];
+  A[0][2] = A[2][0] = this->TempQuad[2];
+  A[1][1] = this->TempQuad[4];
+  A[1][2] = A[2][1] = this->TempQuad[5];
+  A[2][2] = this->TempQuad[7];
+
+  b[0] = -this->TempQuad[3];
+  b[1] = -this->TempQuad[6];
+  b[2] = -this->TempQuad[8];
+   
+  norm = vtkMath::Norm(A[0]);
+  normTemp = vtkMath::Norm(A[1]);
+  norm = norm > normTemp ? norm : normTemp;
+  normTemp = vtkMath::Norm(A[2]);
+  norm = norm > normTemp ? norm : normTemp;
+   
+  if (fabs(vtkMath::Determinant3x3(A))/(norm*norm*norm) >  errorNumber) 
     {
-    Bb2[i] = 0.0;
-    for (j = 0; j < 3; j++)
+    // it would be better to use the normal of the matrix to test singularity??
+    vtkMath::LinearSolve3x3(A, b, x);
+    vtkMath::Multiply3x3(A,x,temp);
+    // error too high, backup plans
+    } 
+  else  
+    {
+    // cheapest point along the edge
+    this->Mesh->GetPoints()->GetPoint(pointIds[0], pt1);
+    this->Mesh->GetPoints()->GetPoint(pointIds[1], pt2);
+    v[0] = pt2[0] - pt1[0];
+    v[1] = pt2[1] - pt1[1];
+    v[2] = pt2[2] - pt1[2];
+     
+    // equation for the edge pt1 + c * v
+    // attempt least squares fit for c for A*(pt1 + c * v) = b
+    vtkMath::Multiply3x3(A,v,temp2);
+    if (vtkMath::Dot(temp2, temp2) > errorNumber) 
       {
-      BBT[i][j] = 0.0;
+      vtkMath::Multiply3x3(A,pt1,temp);
+      for (i = 0; i < 3; i++)
+        temp[i] = b[i] - temp[i];
+      c = vtkMath::Dot(temp2, temp) / vtkMath::Dot(temp2, temp2);
+      for (i = 0; i < 3; i++) 
+        x[i] = pt1[i]+c*v[i];
+      } 
+    else 
+      {
+      // use mid point
+      // might want to change to best of mid and end points??
+      for (i = 0; i < 3; i++) 
+        {
+        x[i] = 0.5*(pt1[i]+pt2[i]);
+        }
       }
     }
-  
-  for (i = 0; i < this->NumberOfComponents; i++)
-    {
-    BBT[0][0] += quad[11 + 4*i] * quad[11 + 4*i];
-    BBT[0][1] += quad[11 + 4*i] * quad[11 + 4*i+1];
-    BBT[0][2] += quad[11 + 4*i] * quad[11 + 4*i+2];
-    BBT[1][1] += quad[11 + 4*i+1] * quad[11 + 4*i+1];
-    BBT[1][2] += quad[11 + 4*i+1] * quad[11 + 4*i+2];
-    BBT[2][2] += quad[11 + 4*i+2] * quad[11 + 4*i+2];
-    Bb2[0] += quad[11 + 4*i] * -quad[11 + 4*i+3];
-    Bb2[1] += quad[11 + 4*i+1] * -quad[11 + 4*i+3];
-    Bb2[2] += quad[11 + 4*i+2] * -quad[11 + 4*i+3];
-    }
-  BBT[1][0] = BBT[0][1];
-  BBT[2][0] = BBT[0][2];
-  BBT[2][1] = BBT[1][2];
-  
-  for (i = 0; i < 3; i++)
-    {
-    b[i] = b1[i] - (1/quad[10])*Bb2[i];
-    for (j = 0; j < 3; j++)
-      {
-      A[i][j] = C[i][j] - (1/quad[10])*BBT[i][j];
-      }
-    }
-  
-  vtkMath::LinearSolve3x3(A, b, x);
+       
   newPoint[0] = x[0];
   newPoint[1] = x[1];
   newPoint[2] = x[2];
+  newPoint[3] = 1;
   
-  for (i = 0; i < this->NumberOfComponents; i++)
+  // Compute the cost
+  // x'*quad*x
+  index = this->TempQuad;
+  for (i = 0; i < 4; i++) 
     {
-    BTpmin[i] = 0.0;
-    }
-  
-  for (i = 0; i < this->NumberOfComponents; i++)
-    {
-    BTpmin[i] = quad[11 + 4*i] * x[0] + quad[11 + 4*i+1] * x[1] +
-      quad[11 + 4*i+2] * x[2];
-    newPoint[i+3] = (1/quad[10])*(-quad[11 + 4*i+3] - BTpmin[i]);
-    }
-  
-  // adding point data for the new point
-  //
-  // scalars
-  if (this->AttributeComponents[0] > 0)
-    {
-    for (i = 0; i < this->AttributeComponents[0]; i++)
+    cost += (*index++)*newPoint[i]*newPoint[i];
+    for (j = i +1; j < 4; j++) 
       {
-      pd->GetScalars()->InsertComponent(edgeId, components,
-                                        newPoint[3 + components]);
-      components++;
+      cost += 2.0*(*index++)*newPoint[i]*newPoint[j];
       }
     }
-  // vectors
-  if (this->AttributeComponents[1] > 0)
-    {
-    pd->GetVectors()->InsertTuple3(edgeId, newPoint[3 + components],
-                                   newPoint[3 + components+1],
-                                   newPoint[3 + components+2]);
-    components += 3;
-    }
-  // normals
-  if (this->AttributeComponents[2] > 0)
-    {
-    normal[0] = newPoint[3 + components];
-    normal[1] = newPoint[3 + components+1];
-    normal[2] = newPoint[3 + components+2];
-    vtkMath::Normalize(normal);
-    newPoint[3 + components] = normal[0];
-    newPoint[3 + components+1] = normal[1];
-    newPoint[3 + components+2] = normal[2];
-    pd->GetNormals()->InsertTuple(edgeId, normal);
-    components += 3;
-    }
-  // texture coordinates
-  if (this->AttributeComponents[3] > 0)
-    {
-    for (i = 0; i < this->AttributeComponents[3]; i++)
-      {
-      tcoord[i] = newPoint[3 + components];
-      components++;
-      }
-    pd->GetTCoords()->InsertTuple(edgeId, tcoord);
-    }
-  // tensors
-  if (this->AttributeComponents[4] > 0)
-    {
-    pd->GetTensors()->InsertTuple9(edgeId, newPoint[3 + components],
-                                   newPoint[3 + components+1],
-                                   newPoint[3 + components+2],
-                                   newPoint[3 + components+3],
-                                   newPoint[3 + components+4],
-                                   newPoint[3 + components+5],
-                                   newPoint[3 + components+6],
-                                   newPoint[3 + components+7],
-                                   newPoint[3 + components+8]);
-    components += 9;
-    }
-  // field data
-  if (this->AttributeComponents[5] > 0)
-    {
-    for (i = 0; i < this->AttributeComponents[5]; i++)
-      {
-      pd->InsertComponent(edgeId, this->AttributeComponents[5]
-                          - (this->NumberOfComponents - components),
-                          newPoint[3 + components]);
-      components++;
-      }
-    }
-  
-  for (i = 0; i < 3 + this->NumberOfComponents; i++)
-    {
-    for (j = i; j < 3 + this->NumberOfComponents + 1; j++)
-      {
-      if (i == j)
-        {
-        if (i < 3)
-          {
-          cost += quad[i] * newPoint[i] * newPoint[j];
-          }
-        else
-          {
-          cost += quad[10] * newPoint[i] * newPoint[j];
-          }
-        }
-      else
-        {
-        if (i == 0 && j == 1)
-          {
-          cost += 2 * quad[3] * newPoint[i] * newPoint[j];
-          }
-        else if (i == 0 && j == 2)
-          {
-          cost += 2 * quad[5] * newPoint[i] * newPoint[j];
-          }
-        else if (i == 1 && j == 2)
-          {
-          cost += 2 * quad[4] * newPoint[i] * newPoint[j];
-          }
-        else if (j >= 3 && j < 3 + this->NumberOfComponents && i < 3)
-          {
-          cost += 2 * quad[11 + 4*(j-3) + i] * newPoint[i] * newPoint[j];
-          }
-        else if (j == 3 + this->NumberOfComponents)
-          {
-          if (i < 3)
-            {
-            cost += 2 * quad[6+i] * newPoint[i];
-            }
-          else
-            {
-            cost += 2 * quad[11 + 4*(i-3) + 3] * newPoint[i];
-            }
-          }
-        }
-      }
-    }
-  
-  cost += quad[9];
-  
-  delete [] quad;
-  delete [] newPoint;
-  delete [] BTpmin;
   
   return cost;
 }
 
+
 //----------------------------------------------------------------------------
-void vtkQuadricDecimation::FindAffectedEdges(vtkIdType p1Id, vtkIdType p2Id,
-                                             vtkIdList *edges)
+double vtkQuadricDecimation::ComputeCost2(vtkIdType edgeId, double *x)
 {
-  vtkIdList *cellIds = vtkIdList::New();
-  vtkIdType edgeId, pointId;
+  // this function is so ugly because the functionality of converting an QEM
+  // into a dence matrix was not extracted into a separate function and
+  // neither was multiplication and some other matrix and vector primatives
+  static const double errorNumber = 1e-10;
+  vtkIdType pointIds[2];
+  double cost = 0.0;
   int i, j;
-  vtkGenericCell *cell = vtkGenericCell::New();
-  
-  edges->Reset();
-  this->Mesh->GetPointCells(p2Id, cellIds);
-  
-  for (i = 0; i < cellIds->GetNumberOfIds(); i++)
+  int solveOk;
+
+  pointIds[0] = this->EndPoint1List->GetId(edgeId);
+  pointIds[1] = this->EndPoint2List->GetId(edgeId);
+
+  for (i = 0; i < 11 + 4 * this->NumberOfComponents; i++)  
     {
-    this->Mesh->GetCell(cellIds->GetId(i), cell);
-    for (j = 0; j < 3; j++) // assuming we have triangles
+    this->TempQuad[i] = this->ErrorQuadrics[pointIds[0]].Quadric[i] +
+      this->ErrorQuadrics[pointIds[1]].Quadric[i];
+    }
+  
+  // copy the temp quad into TempA
+  // converting from the sparce matrix format into a dence
+  this->TempA[0][0] = this->TempQuad[0];
+  this->TempA[0][1] = this->TempA[1][0] = this->TempQuad[1];
+  this->TempA[0][2] = this->TempA[2][0] = this->TempQuad[2];
+  this->TempA[1][1] = this->TempQuad[4];
+  this->TempA[1][2] = this->TempA[2][1] = this->TempQuad[5];
+  this->TempA[2][2] = this->TempQuad[7];
+  
+  this->TempB[0] = -this->TempQuad[3];
+  this->TempB[1] = -this->TempQuad[6];
+  this->TempB[2] = -this->TempQuad[8];
+
+  for (i = 3; i < 3 +  this->NumberOfComponents; i++) 
+    {
+    this->TempA[0][i] = this->TempA[i][0] = this->TempQuad[11+4*(i-3)];
+    this->TempA[1][i] = this->TempA[i][1] = this->TempQuad[11+4*(i-3)+1];
+    this->TempA[2][i] = this->TempA[i][2] = this->TempQuad[11+4*(i-3)+2];
+    this->TempB[i] = -this->TempQuad[11+4*(i-3)+3];
+    }
+
+  for (i = 3; i < 3 +  this->NumberOfComponents; i++) 
+    {
+    for (j = 3; j < 3 +  this->NumberOfComponents; j++) 
       {
-      pointId = cell->GetPointId(j);
-      if (pointId != p1Id && pointId != p2Id)
+      if (i == j)
         {
-        if ((edgeId = this->Edges->IsEdge(pointId, p2Id)) >= 0)
-          {
-          if (edges->IsId(edgeId) == -1)
-            {
-            edges->InsertNextId(edgeId);
-            }
-          }
+        this->TempA[i][j] = this->TempQuad[10];
+        }
+      else 
+        {
+        this->TempA[i][j] = 0;
         }
       }
     }
+  
+  for (i = 0; i < 3 + this->NumberOfComponents; i++) 
+    {
+    x[i] = this->TempB[i];
+    }
+  
+  // solve A*x = b
+  // this clobers A
+  // need to develop a quality of the solution test??
+  solveOk = vtkMath::SolveLinearSystem(this->TempA, x, 3 +  this->NumberOfComponents);
+  
+  // need to copy back into A
+  this->TempA[0][0] = this->TempQuad[0];
+  this->TempA[0][1] = this->TempA[1][0] = this->TempQuad[1];
+  this->TempA[0][2] = this->TempA[2][0] = this->TempQuad[2];
+  this->TempA[1][1] = this->TempQuad[4];
+  this->TempA[1][2] = this->TempA[2][1] = this->TempQuad[5];
+  this->TempA[2][2] = this->TempQuad[7];
  
-  this->Mesh->GetPointCells(p1Id, cellIds);
-  for (i = 0; i < cellIds->GetNumberOfIds(); i++)
+  for (i = 3; i < 3 +  this->NumberOfComponents; i++) 
     {
-    this->Mesh->GetCell(cellIds->GetId(i), cell);
-    for (j = 0; j < 3; j++) // assuming we have triangles
+    this->TempA[0][i] = this->TempA[i][0] = this->TempQuad[11+4*(i-3)];
+    this->TempA[1][i] = this->TempA[i][1] = this->TempQuad[11+4*(i-3)+1];
+    this->TempA[2][i] = this->TempA[i][2] = this->TempQuad[11+4*(i-3)+2];
+    }
+
+  for (i = 3; i < 3 +  this->NumberOfComponents; i++) 
+    {
+    for (j = 3; j < 3 +  this->NumberOfComponents; j++) 
       {
-      pointId = cell->GetPointId(j);
-      if (pointId != p1Id && pointId != p2Id)
+      if (i == j)
         {
-        if ((edgeId = this->Edges->IsEdge(pointId, p1Id)) >= 0)
+        this->TempA[i][j] = this->TempQuad[10]; 
+        }
+      else 
+        {
+        this->TempA[i][j] = 0;
+        }
+      }
+    }
+  
+  // check for failure to solve the system
+  if (!solveOk) 
+    {
+    // cheapest point along the edge
+    // this should not frequently occour, so I am using dynamic allocation
+    double *pt1 = new double [3+this->NumberOfComponents];
+    double *pt2 = new double [3+this->NumberOfComponents]; 
+    double *v = new double [3+this->NumberOfComponents]; 
+    double *temp = new double [3+this->NumberOfComponents];  
+    double *temp2 = new double [3+this->NumberOfComponents];  
+    float d = 0;
+    float c = 0;
+
+    this->GetPointAttributeArray(pointIds[0], pt1);
+    this->GetPointAttributeArray(pointIds[1], pt2);
+    for (i = 0; i < 3+this->NumberOfComponents; ++i) 
+      {
+      v[i] = pt2[i] - pt2[i];
+      }
+     
+    // equation for the edge pt1 + c * v
+    // attempt least squares fit for c for A*(pt1 + c * v) = b
+    // temp2 = A*v
+    for (i = 0; i < 3 + this->NumberOfComponents; ++i) 
+      {
+      temp2[i] = 0;
+      for (j = 0; j < 3 + this->NumberOfComponents; ++j) 
+        {
+        temp2[i] += this->TempA[i][j]*v[j];
+        }
+      }
+      
+    // c = v dot v
+    for (i = 0; i <  3 + this->NumberOfComponents; ++i) 
+      {
+      d += temp2[i]*temp2[i];
+      }
+      
+    if ( d > errorNumber) 
+      {
+      // temp = A*pt1
+      for (i = 0; i < 3 + this->NumberOfComponents; ++i) 
+        {
+        temp[i] = 0;
+        for (j = 0; j < 3 + this->NumberOfComponents; ++j) 
           {
-          if (edges->IsId(edgeId) == -1)
-            {
-            edges->InsertNextId(edgeId);
-            }
+          temp[i] += this->TempA[i][j]*pt1[j];
+          }
+        }
+          
+      for (i = 0; i < 3 + this->NumberOfComponents; i++)
+        {
+        temp[i] = this->TempB[i] - temp[i];
+        }
+          
+      for (i = 0; i < 3 + this->NumberOfComponents; i++)
+        {
+        c += temp2[i]*temp[i];
+        }
+      c = c/d;
+
+      for (i = 0; i < 3  + this->NumberOfComponents; i++) 
+        {
+        x[i] = pt1[i]+c*v[i];
+        }
+      } 
+    else 
+      {
+      // use mid point
+      // might want to change to best of mid and end points??
+      for (i = 0; i < 3  + this->NumberOfComponents; i++) 
+        {
+        x[i] = 0.5*(pt1[i]+pt2[i]);
+        }
+      }
+    delete[] pt1;
+    delete[] pt2;
+    delete[] v;
+    delete[] temp;
+    delete[] temp2;
+    }
+
+  // Compute the cost
+  // x'*A*x - 2*b*x + d
+  for (i = 0; i < 3+this->NumberOfComponents; i++) 
+    {
+    cost += this->TempA[i][i]*x[i]*x[i];
+    for (j = i+1; j < 3+this->NumberOfComponents; j++) 
+      {
+      cost += 2.0*this->TempA[i][j]*x[i]*x[j];
+      }
+    }
+  for (i = 0; i < 3+this->NumberOfComponents; i++) 
+    {
+    cost -=  2.0 * this->TempB[i]*x[i];
+    }
+      
+  cost += this->TempQuad[9];
+
+  return cost;
+}
+
+
+int vtkQuadricDecimation::CollapseEdge(vtkIdType pt0Id, vtkIdType pt1Id) 
+{
+  int j, numDeleted=0;
+  vtkIdType i, npts, *pts, cellId;
+
+  this->Mesh->GetPointCells(pt0Id, this->CollapseCellIds);
+  for (i = 0; i < this->CollapseCellIds->GetNumberOfIds(); i++) 
+    {
+    cellId = this->CollapseCellIds->GetId(i);
+    this->Mesh->GetCellPoints(cellId, npts, pts);
+    for (j = 0; j < 3; j++) 
+      {
+      if (pts[j] == pt1Id) 
+        {
+        this->Mesh->RemoveCellReference(cellId);
+        this->Mesh->DeleteCell(cellId);       
+        numDeleted++;
+        }
+      }
+    }
+
+  this->Mesh->GetPointCells(pt1Id, this->CollapseCellIds);
+  this->Mesh->ResizeCellList(pt0Id, this->CollapseCellIds->GetNumberOfIds());
+  for (i=0; i < this->CollapseCellIds->GetNumberOfIds(); i++)
+    {
+    cellId = this->CollapseCellIds->GetId(i);
+    this->Mesh->GetCellPoints(cellId, npts, pts);
+    // making sure we don't already have the triangle we're about to
+    // change this one to
+    if (pts[0] == pt1Id && this->Mesh->IsTriangle(pt0Id, pts[1], pts[2]) ||
+        (pts[1] == pt1Id && this->Mesh->IsTriangle(pts[0], pt0Id, pts[2])) ||
+        (pts[2] == pt1Id && this->Mesh->IsTriangle(pts[0], pts[1], pt0Id)))
+      {
+      this->Mesh->RemoveCellReference(cellId);
+      this->Mesh->DeleteCell(cellId);
+      numDeleted++;
+      }
+    else
+      {
+      this->Mesh->AddReferenceToCell(pt0Id, cellId);
+      this->Mesh->ReplaceCellPoint(cellId, pt1Id, pt0Id);
+      }
+    }
+  this->Mesh->DeletePoint(pt1Id);
+  
+  return numDeleted;
+}
+
+
+// triangle t0, t1, t2 and point x
+// determins if t0 and x are on the same side of the plane defined by 
+// t1 and t2, and parallel to the normal of the triangle
+bool vtkQuadricDecimation::TrianglePlaneCheck(const float t0[3], const float t1[3], const float t2[3],  const double *x) {
+  float e0[3], e1[3], n[3], e2[3];
+  float c;
+  int i;
+
+  for (i = 0; i < 3; i++)
+    {
+    e0[i] = t2[i] - t1[i];
+    }
+  for (i = 0; i < 3; i++)
+    {
+    e1[i] = t0[i] - t1[i];
+    }
+  
+  // projection of e0 onto e1
+  c = vtkMath::Dot(e0,e1)/(e0[0]*e0[0]+e0[1]*e0[1]+e0[2]*e0[2]);
+  for (i = 0; i < 3; i++)
+    {
+    n[i] = e1[i] - c*e0[i];
+    }
+  
+  for ( i = 0; i < 3; i++) 
+    {
+    e2[i] = x[i] - t1[i];
+    }
+  
+  vtkMath::Normalize(n);
+  vtkMath::Normalize(e2);
+  if (vtkMath::Dot(n, e2) > 1e-5)
+    {
+    return true;
+    }
+  else 
+    {
+    return false;
+    }
+}
+
+bool vtkQuadricDecimation::IsGoodPlacement(vtkIdType pt0Id, vtkIdType pt1Id, const double *x) 
+{
+  unsigned short ncells, i;
+  vtkIdType npts, *pts,  ptId, *cells;
+
+  this->Mesh->GetPointCells(pt0Id, ncells, cells);
+  for (i = 0; i < ncells; i++) {
+  this->Mesh->GetCellPoints(cells[i], npts, pts);
+  // assume triangle
+  if (pts[0] != pt1Id && pts[1] != pt1Id && pts[2] != pt1Id) 
+    {
+    for (ptId = 0; ptId < 3; ptId++) 
+      {
+      if (pts[ptId] == pt0Id &&
+          ! this->TrianglePlaneCheck(this->Mesh->GetPoint(pts[ptId]), 
+                                     this->Mesh->GetPoint(pts[(ptId+1)%3]), 
+                                     this->Mesh->GetPoint(pts[(ptId+2)%3]), x))
+        {
+        return false;
+        }
+      }
+    }
+  }
+
+  this->Mesh->GetPointCells(pt1Id, ncells, cells);
+  for (i = 0; i < ncells; i++) 
+    {
+    this->Mesh->GetCellPoints(cells[i], npts, pts);
+    // assume triangle
+    if (pts[0] != pt0Id && pts[1] != pt0Id && pts[2] != pt0Id) 
+      {
+      for (ptId = 0; ptId < 3; ptId++) 
+        {
+        if (pts[ptId] == pt1Id &&
+          ! this->TrianglePlaneCheck(this->Mesh->GetPoint(pts[ptId]), 
+                                     this->Mesh->GetPoint(pts[(ptId+1)%3]), 
+                                     this->Mesh->GetPoint(pts[(ptId+2)%3]), x))
+          {
+          return false;
           }
         }
       }
     }
   
-  cellIds->Delete();
-  cell->Delete();
+  return true;
 }
 
-//----------------------------------------------------------------------------
-vtkIdType vtkQuadricDecimation::GetEdgeCellId(vtkIdType p1Id, vtkIdType p2Id)
-{
-  int i;
-  vtkIdType *cells;
-  unsigned short int numCells;
-  
-  this->Mesh->GetPointCells(p1Id, numCells, cells);
-  for (i = 0; i < numCells; i++)
-    {
-    if (this->Mesh->IsPointUsedByCell(p2Id, cells[i]))
-      {
-      return cells[i];
-      }
-    }
-  return -1;
-}
 
-//----------------------------------------------------------------------------
-// Determine which point data attributes the data have and the number of
-// components per attribute.  Fill the AttributeComponents array accordingly.
-//----------------------------------------------------------------------------
-void vtkQuadricDecimation::GetAttributeComponents()
+void vtkQuadricDecimation::ComputeNumberOfComponents(void) 
 {
-  int i;
-  vtkPointData *pd = this->GetInput()->GetPointData();
+  vtkPointData *pd = this->Mesh->GetPointData();
+  int i, j;
+  float range[2], maxRange=0.0f;
+
   this->NumberOfComponents = 0;
-  
+  pd->CopyAllOff();
+   
   for (i = 0; i < 6; i++)
     {
     this->AttributeComponents[i] = 0;
+    this->AttributeScale[i] = 1.0f;
     }
 
-  // Attributes are not working yet.
-  if (0 && pd->GetScalars() != NULL)
+  // Scalar attributes
+  if (pd->GetScalars() != NULL && this->ScalarsAttribute) 
     {
-    this->AttributeComponents[0] = pd->GetScalars()->GetNumberOfComponents();
-    this->NumberOfComponents += this->AttributeComponents[0];
-    vtkDebugMacro("scalars");
+    for (j = 0; j < pd->GetScalars()->GetNumberOfComponents(); j++) 
+      {
+      pd->GetScalars()->GetRange(range, j);
+      maxRange = (maxRange < (range[1] - range[0]) ? 
+                  (range[1] - range[0]) : maxRange);
+      }
+    if (maxRange != 0.0f) 
+      {
+      this->NumberOfComponents +=  pd->GetScalars()->GetNumberOfComponents();
+      pd->CopyScalarsOn();
+      this->AttributeScale[0] = this->ScalarsWeight/maxRange;
+      maxRange = 0.0f;
+      }
+    vtkDebugMacro("scalars "<< this->NumberOfComponents << " " 
+                  << this->AttributeScale[0]);
+    } 
+  this->AttributeComponents[0] = this->NumberOfComponents;
+
+  // Vector attributes
+  if (pd->GetVectors() != NULL && this->VectorsAttribute) 
+    {
+    for (j = 0; j < pd->GetVectors()->GetNumberOfComponents(); j++) 
+      {
+      pd->GetVectors()->GetRange(range, j);
+      maxRange = (maxRange < (range[1] - range[0]) ? 
+                  (range[1] - range[0]) : maxRange);
+      }
+    if (maxRange != 0.0f) 
+      {
+      this->NumberOfComponents += pd->GetVectors()->GetNumberOfComponents();
+      pd->CopyVectorsOn();
+      this->AttributeScale[1] = this->VectorsWeight/maxRange;
+      maxRange = 0.0f;
+      }
+    vtkDebugMacro("vectors "<< this->NumberOfComponents << " " 
+                  << this->AttributeScale[1]);
     }
-  if (0 && pd->GetVectors() != NULL)
+  this->AttributeComponents[1] = this->NumberOfComponents;
+
+  // Normals attributes -- normals are assumed normalized
+  if (pd->GetNormals() != NULL && this->NormalsAttribute) 
     {
-    this->AttributeComponents[1] = 3;
     this->NumberOfComponents += 3;
-    vtkDebugMacro("vectors");
+    pd->CopyNormalsOn();
+    this->AttributeScale[2] = 0.5*this->NormalsWeight;
+    vtkDebugMacro("normals "<< this->NumberOfComponents << " " 
+                  << this->AttributeScale[2]);
     }
-  if (0 && pd->GetNormals() != NULL)
+  this->AttributeComponents[2] = this->NumberOfComponents;
+
+  // Texture coords attributes
+  if (pd->GetTCoords() != NULL && this->TCoordsAttribute) 
     {
-    this->AttributeComponents[2] = 3;
-    this->NumberOfComponents += 3;
-    vtkDebugMacro("normals");
+    for (j = 0; j < pd->GetTCoords()->GetNumberOfComponents(); j++) 
+      {
+      pd->GetTCoords()->GetRange(range, j);
+      maxRange = (maxRange < (range[1] - range[0]) ? 
+                  (range[1] - range[0]) : maxRange);
+      }
+    if (maxRange != 0.0f) 
+      {
+      this->NumberOfComponents += pd->GetTCoords()->GetNumberOfComponents();
+      pd->CopyTCoordsOn();
+      this->AttributeScale[3] = this->TCoordsWeight/maxRange;
+      maxRange = 0.0f;
+      }
+    vtkDebugMacro("tcoords "<< this->NumberOfComponents << " " 
+                  << this->AttributeScale[3]);
     }
-  if (0 && pd->GetTCoords() != NULL)
+  this->AttributeComponents[3] = this->NumberOfComponents;
+
+  // Tensors attributes
+  if (pd->GetTensors() != NULL && this->TensorsAttribute) 
     {
-    this->AttributeComponents[3] = pd->GetTCoords()->GetNumberOfComponents();
-    this->NumberOfComponents += this->AttributeComponents[3];
-    vtkDebugMacro("tcoords");
+    for (j = 0; j < 9; j++) 
+      {
+      pd->GetTensors()->GetRange(range, j);
+      maxRange = (maxRange < (range[1] - range[0]) ? 
+                  (range[1] - range[0]) : maxRange);
+      }
+    if (maxRange != 0.0f) 
+      {
+      this->NumberOfComponents += 9;
+      pd->CopyTensorsOn();
+      this->AttributeScale[4] = this->TensorsWeight/maxRange;
+      maxRange = 0.0f;
+      }
+    vtkDebugMacro("tensors "<< this->NumberOfComponents << " " 
+                  << this->AttributeScale[4]);
     }
-  if (0 && pd->GetTensors() != NULL)
-    {
-    this->AttributeComponents[4] = 9;
-    this->NumberOfComponents += 9;
-    vtkDebugMacro("tensors");
-    }
-  if (0)
-    {
-    this->AttributeComponents[5] = pd->GetNumberOfComponents();
-    this->NumberOfComponents += this->AttributeComponents[5];
-    vtkDebugMacro("field data");
-    }
-  vtkDebugMacro("Num. components: " << this->NumberOfComponents);
+  this->AttributeComponents[4] = this->NumberOfComponents;
+ 
+  vtkDebugMacro("Number of components: " << this->NumberOfComponents);
 }
 
 //----------------------------------------------------------------------------
 void vtkQuadricDecimation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  
+  os << indent << "Target Reduction: " << this->TargetReduction << "\n";
+  os << indent << "Actual Reduction: " << this->ActualReduction << "\n";
 
-  os << indent << "Maximum Cost: " << this->MaximumCost << "\n";
-  os << indent << "MaximumCollapsedEdges: " << this->MaximumCollapsedEdges << "\n";
- }
+  os << indent << "Attribute Error Metric: " 
+     << (this->AttributeErrorMetric ? "On\n" : "Off\n");
+  os << indent << "Scalars Attribute: " 
+     << (this->ScalarsAttribute ? "On\n" : "Off\n");
+  os << indent << "Vectors Attribute: " 
+     << (this->VectorsAttribute ? "On\n" : "Off\n");
+  os << indent << "Normals Attribute: " 
+     << (this->NormalsAttribute ? "On\n" : "Off\n");
+  os << indent << "TCoords Attribute: " 
+     << (this->TCoordsAttribute ? "On\n" : "Off\n");
+  os << indent << "Tensors Attribute: " 
+     << (this->TensorsAttribute ? "On\n" : "Off\n");
+
+  os << indent << "Scalars Weight: " << this->ScalarsWeight << "\n";
+  os << indent << "Vectors Weight: " << this->VectorsWeight << "\n";
+  os << indent << "Normals Weight: " << this->NormalsWeight << "\n";
+  os << indent << "TCoords Weight: " << this->TCoordsWeight << "\n";
+  os << indent << "Tensors Weight: " << this->TensorsWeight << "\n";
+}
