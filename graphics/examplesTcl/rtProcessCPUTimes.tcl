@@ -115,15 +115,29 @@ proc CheckTime { theTest {currentTime -1}} {
     ## If we have less than 5 time samples, this is a recently added test.
     ## If we can't compute a low and a high, then this must be a new test
     ## (this condition should not occur?). Otherwise, test if it is
-    ## slower or faster
+    ## consistently slower or faster, or just slower or faster for today
     if { [llength $timelist] < 5 } {
 	set retCode "Warning: Recently Added Test"
     } elseif { $low == 0 && $high == 0 } {
 	set retCode "Warning: New Test"
     } elseif { $currentTime < $low } {
-	set retCode "Warning: Faster CPU Time"
+	set tmplist [lrange $timelist 1 end]
+	set limits [ComputeLimits $tmplist]
+	set low  [lindex $limits 0]
+	if { [lindex $timelist 0] < $low } {
+	    set retCode "Warning: Consistently Faster CPU Time"
+	} else {
+	    set retCode "Warning: Faster CPU Time"
+	}
     } elseif { $currentTime > $high } {
-	set retCode "Warning: Slower CPU Time"
+	set tmplist [lrange $timelist 1 end]
+	set limits [ComputeLimits $tmplist]
+	set high [lindex $limits 1]
+	if { [lindex $timelist 0] > $high } {
+	    set retCode "Warning: Consistently Slower CPU Time"
+	} else {
+	    set retCode "Warning: Slower CPU Time"
+	}
     } 
 
     ## If we haven't set a return code yet, then look back for 4 days
