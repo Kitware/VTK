@@ -446,22 +446,6 @@ float *vtkCamera::GetOrientationWXYZ()
 // only translation and rotation.
 void vtkCamera::ComputeViewTransform()
 {
-  // shift by left or right to the eye position
-  if (this->Stereo)
-    {
-    double phi = this->EyeAngle*vtkMath::DoubleDegreesToRadians();
-    double eyeSeparation = 2*this->Distance*tan(phi/2);
-
-    if (this->LeftEye)
-      {
-      this->PerspectiveTransform->Translate(+eyeSeparation/2, 0.0, 0.0);
-      }
-    else
-      {
-      this->PerspectiveTransform->Translate(-eyeSeparation/2, 0.0, 0.0);
-      }
-    }
-
   this->PerspectiveTransform->SetupCamera(this->Position, 
 					  this->FocalPoint,
 					  this->ViewUp);
@@ -491,8 +475,7 @@ void vtkCamera::ComputePerspectiveTransform(double aspect,
 				      this->ClippingRange[0],
 				      this->ClippingRange[1]);
     }
-  else if (this->WindowCenter[0] != 0.0 || this->WindowCenter[1] != 0.0 ||
-	   this->Stereo)
+  else if (this->WindowCenter[0] != 0.0 || this->WindowCenter[1] != 0.0)
     {
     // set up an off-axis frustum
 
@@ -505,20 +488,6 @@ void vtkCamera::ComputePerspectiveTransform(double aspect,
     double ymin = (this->WindowCenter[1]-1.0)*height;
     double ymax = (this->WindowCenter[1]+1.0)*height;
 
-    // handle stereo using an asymmetrical frustum
-    if (this->Stereo)
-      {
-      double tmp0 = tan(this->EyeAngle*vtkMath::DoubleDegreesToRadians()/2);
-      double stereoShift = this->ClippingRange[0]*tmp0;
-      
-      if (!this->LeftEye)
-	{
-	stereoShift = -stereoShift;
-	}
-      xmin += stereoShift;
-      xmax += stereoShift;
-      }
-
     this->PerspectiveTransform->Frustum(xmin, xmax, ymin, ymax,
 					this->ClippingRange[0],
 					this->ClippingRange[1]);
@@ -530,6 +499,20 @@ void vtkCamera::ComputePerspectiveTransform(double aspect,
     this->PerspectiveTransform->Perspective(this->ViewAngle,aspect,
 					    this->ClippingRange[0],
 					    this->ClippingRange[1]);
+    }
+
+  if (this->Stereo)
+    {
+    // set up a shear for stereo views
+
+    if (this->LeftEye)
+      {
+      this->PerspectiveTransform->Stereo(-this->EyeAngle/2,this->Distance);
+      }
+    else
+      {
+      this->PerspectiveTransform->Stereo(+this->EyeAngle/2,this->Distance);
+      }
     }
 }
 
