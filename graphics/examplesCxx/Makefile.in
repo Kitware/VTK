@@ -46,7 +46,6 @@ EXAMPLES = VisQuad \
 	RGrid \
 	SGrid \
 	Sample \
-	SampleEx \
 	StrSph \
 	TPlane \
 	UGrid \
@@ -156,9 +155,6 @@ SGrid: SGrid.o ${VTKLIB}
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 Sample: Sample.o ${VTKLIB}
 	${CXX} -o Sample ${CXX_FLAGS} Sample.o ${XLDFLAGS} ${LDLIBS} \
-	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
-SampleEx: SampleEx.o ${VTKLIB}
-	${CXX} -o SampleEx ${CXX_FLAGS} SampleEx.o ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 StrSph: StrSph.o ${VTKLIB}
 	${CXX} -o StrSph ${CXX_FLAGS} StrSph.o ${XLDFLAGS} ${LDLIBS} \
