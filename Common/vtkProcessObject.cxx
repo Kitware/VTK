@@ -25,9 +25,28 @@
 #include "vtkTrivialProducer.h"
 #include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkProcessObject, "1.40");
+#include "vtkDebugLeaks.h"
 
-// Instantiate object with no start, end, or progress methods.
+vtkCxxRevisionMacro(vtkProcessObject, "1.41");
+
+//----------------------------------------------------------------------------
+
+// Fake data object type used to represent NULL connections for the
+// compatibility layer.
+class vtkProcessObjectDummyData: public vtkDataObject
+{
+public:
+  vtkTypeMacro(vtkProcessObjectDummyData, vtkDataObject);
+  static vtkProcessObjectDummyData* New()
+    {
+#ifdef VTK_DEBUG_LEAKS
+    vtkDebugLeaks::ConstructClass("vtkProcessObjectDummyData");
+#endif
+    return new vtkProcessObjectDummyData;
+    }
+};
+
+//----------------------------------------------------------------------------
 vtkProcessObject::vtkProcessObject()
 {
   this->AbortExecute = 0;
@@ -272,14 +291,19 @@ void vtkProcessObject::SetNthInput(int idx, vtkDataObject* input)
     return;
     }
 
-  // Avoid creating holes in input array.
   if(input && num > this->GetNumberOfInputConnections(0))
     {
-    vtkErrorMacro("SetNthInput cannot set input index " << num
-                  << " to " << input->GetClassName() << "(" << input
-                  << ") because there are only "
-                  << this->GetNumberOfInputConnections(0)
-                  << " connections and NULL connections are not allowed.");
+    // Avoid creating holes in input array.  Use dummy data to fill in
+    // the missing connections.
+    for(int i=this->GetNumberOfInputConnections(0); i < num; ++i)
+      {
+      vtkProcessObjectDummyData* d = vtkProcessObjectDummyData::New();
+      this->AddInputInternal(d);
+      d->Delete();
+      }
+
+    // Now add the real input.
+    this->AddInputInternal(input);
     }
   else if(!input && num < this->GetNumberOfInputConnections(0)-1)
     {
@@ -617,8 +641,16 @@ void vtkProcessObject::SetupInputs()
       newInputs[count] = ic->GetProducer()->GetOutputDataObject(ic->GetIndex());
       if(newInputs[count])
         {
-        newInputs[count]->Register(this);
-        newInputs[count]->AddConsumer(this);
+        // If the connection has dummy data, set a NULL input.
+        if(newInputs[count]->IsA("vtkProcessObjectDummyData"))
+          {
+          newInputs[count] = 0;
+          }
+        else
+          {
+          newInputs[count]->Register(this);
+          newInputs[count]->AddConsumer(this);
+          }
         ++count;
         }
       }
