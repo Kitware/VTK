@@ -54,7 +54,7 @@
 #include "vtkMPIController.h"
 #endif
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.20")
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.21")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
@@ -537,7 +537,7 @@ void vtkDistributedDataFilter::Execute()
   // have changed on any of the processing nodes.
 
   int fail = this->PartitionDataAndAssignToProcesses(splitInput);
-  
+
   if (fail)
     {
     if (splitInput != input)
@@ -1703,14 +1703,35 @@ vtkUnstructuredGrid *
     packedGridRecv = NULL;
     }
 
-  // Merge received grids
-
-  const char *globalNodeIds = this->GetGlobalNodeIdArrayName(myGrid);
-  const char *globalElementIds = NULL;
-
-  if (filterOutDuplicateCells)
+  if (numReceivedGrids > 1)
     {
-    globalElementIds = this->GetGlobalElementIdArrayName(myGrid);
+    // Merge received grids
+  
+    const char *globalNodeIds = this->GetGlobalNodeIdArrayName(myGrid);
+    const char *globalElementIds = NULL;
+  
+    if (filterOutDuplicateCells)
+      {
+      globalElementIds = this->GetGlobalElementIdArrayName(myGrid);
+      }
+  
+    // this call will merge the grids and then delete them
+
+    float tolerance = 0.0;
+
+    if (this->Kdtree)
+      {
+      tolerance = (float)this->Kdtree->GetFudgeFactor();
+      }
+
+    mergedGrid = 
+      vtkDistributedDataFilter::MergeGrids(grids, numReceivedGrids, DeleteYes,
+                     globalNodeIds, tolerance, globalElementIds);
+
+    }
+  else if (numReceivedGrids == 1)
+    {
+    mergedGrid = vtkUnstructuredGrid::SafeDownCast(grids[0]);
     }
 
   if (deleteMyGrid)
@@ -1718,20 +1739,8 @@ vtkUnstructuredGrid *
     myGrid->Delete();
     }
 
-  // this call will merge the grids and then delete them
-
-  float tolerance = 0.0;
-
-  if (this->Kdtree)
-    {
-    tolerance = (float)this->Kdtree->GetFudgeFactor();
-    }
-
-  mergedGrid = 
-    vtkDistributedDataFilter::MergeGrids(grids, numReceivedGrids, DeleteYes,
-                     globalNodeIds, tolerance, globalElementIds);
-
   delete [] grids;
+
 #else
   (void)cellIds;       // This is just here for successful compilation,
   (void)numLists;      // it will never execute.  If !VTK_USE_MPI, we
@@ -2317,7 +2326,7 @@ vtkUnstructuredGrid *
 
   delete [] grids;
 
-  if (numReceivedGrids > 0)
+  if (numReceivedGrids > 1)
     {
     const char *globalNodeIds = this->GetGlobalNodeIdArrayName(ds[0]);
     const char *globalCellIds = NULL;
@@ -2330,6 +2339,10 @@ vtkUnstructuredGrid *
     mergedGrid = 
       vtkDistributedDataFilter::MergeGrids(ds, numReceivedGrids, DeleteYes,
                      globalNodeIds, tolerance, globalCellIds);
+    }
+  else if (numReceivedGrids == 1)
+    {
+    mergedGrid = vtkUnstructuredGrid::SafeDownCast(ds[0]);
     }
 
   delete [] ds;
@@ -2401,7 +2414,7 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::MPIRedistribute(vtkDataSet *in)
     }
   
   this->Kdtree->CreateCellLists();  // required by GetCellIdsForProcess
-    
+
   vtkIdList ***procCellLists = new vtkIdList ** [nprocs];
   int *numLists = new int [nprocs];
 
@@ -3681,28 +3694,35 @@ vtkDistributedDataFilter::AddGhostCellsUniqueCellAssignment(
   
           ghostCellsPlease[processId]->InsertNextValue(gid);
 
-          // add the list of cells I already have for this point
-
-          int where = 
-            vtkDistributedDataFilter::FindId(ghostPointIds[i], gid, nextLoc);
-
-          if (where < 0)
+          if (gl > 1)
             {
-            // error
-            cout << "error 1" << endl;
+            // add the list of cells I already have for this point
+
+            int where = 
+              vtkDistributedDataFilter::FindId(ghostPointIds[i], gid, nextLoc);
+
+            if (where < 0)
+              {
+              // error
+              cout << "error 1" << endl;
+              }
+
+            ncells = ghostPointIds[i]->GetValue(where + 1);
+
+            ghostCellsPlease[processId]->InsertNextValue(ncells);
+
+            for (k=0; k <ncells; k++)
+              {
+              int cellId = ghostPointIds[i]->GetValue(where + 2 + k);
+              ghostCellsPlease[processId]->InsertNextValue(cellId);
+              }
+
+            nextLoc = where;
             }
-
-          ncells = ghostPointIds[i]->GetValue(where + 1);
-
-          ghostCellsPlease[processId]->InsertNextValue(ncells);
-
-          for (k=0; k <ncells; k++)
+          else
             {
-            int cellId = ghostPointIds[i]->GetValue(where + 2 + k);
-            ghostCellsPlease[processId]->InsertNextValue(cellId);
+            ghostCellsPlease[processId]->InsertNextValue(0);
             }
-
-          nextLoc = where;
           }
         }
       if ((gl==1) && insideIds[i])   // points you have in my spatial region,
