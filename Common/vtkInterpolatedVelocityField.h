@@ -65,7 +65,11 @@ public:
   virtual int FunctionValues(float* x, float* f);
 
   // Description:
-  // Set / get the dataset used for the implicit function evaluation.
+  // Add a dataset used for the implicit function evaluation.
+  // If more than one dataset is added, the evaluation point is
+  // searched in all until a match is found. THIS FUNCTION
+  // DOES NOT CHANGE THE REFERENCE COUNT OF dataset FOR THREAD
+  // SAFETY REASONS.
   virtual void AddDataSet(vtkDataSet* dataset);
 
   // Description:

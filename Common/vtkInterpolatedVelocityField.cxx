@@ -26,10 +26,10 @@
 
 #include <vector>
 
-vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.22");
+vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.23");
 vtkStandardNewMacro(vtkInterpolatedVelocityField);
 
-typedef vtkstd::vector< vtkSmartPointer<vtkDataSet> > DataSetsTypeBase;
+typedef vtkstd::vector< vtkDataSet* > DataSetsTypeBase;
 class vtkInterpolatedVelocityFieldDataSetsType: public DataSetsTypeBase {};
 
 vtkInterpolatedVelocityField::vtkInterpolatedVelocityField()
@@ -72,7 +72,7 @@ int vtkInterpolatedVelocityField::FunctionValues(float* x, float* f)
   vtkDataSet* ds=0;
   if(!this->LastDataSet && !this->DataSets->empty())
     {
-    ds = (*this->DataSets)[0].GetPointer();
+    ds = (*this->DataSets)[0];
     this->LastDataSet = ds;
     }
   else
@@ -86,7 +86,7 @@ int vtkInterpolatedVelocityField::FunctionValues(float* x, float* f)
     for(DataSetsTypeBase::iterator i = this->DataSets->begin();
         i != this->DataSets->end(); ++i)
       {
-      ds = i->GetPointer();
+      ds = *i;
       if(ds && ds != this->LastDataSet)
         {
         this->ClearLastCellId();
