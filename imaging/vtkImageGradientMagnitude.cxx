@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageGradientMagnitude::vtkImageGradientMagnitude()
 {
   this->Dimensionality = 2;
-  this->HandleBoundariesOn();
+  this->HandleBoundaries = 1;
 }
 
 

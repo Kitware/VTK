@@ -48,12 +48,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageAnisotropicDiffusion3D::vtkImageAnisotropicDiffusion3D()
 {
   this->HandleBoundaries = 1;
+  this->NumberOfIterations = 0;
   this->SetNumberOfIterations(4);
   this->DiffusionThreshold = 5.0;
   this->DiffusionFactor = 1;
+  this->Faces = 0;
   this->FacesOn();
+  this->Edges = 0;
   this->EdgesOn();
+  this->Corners = 0;
   this->CornersOn();
+  this->GradientMagnitudeThreshold = 1;
   this->GradientMagnitudeThresholdOff();
 }
 

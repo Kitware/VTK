@@ -48,6 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct an instance of vtkImageGradient fitler.
 vtkImageGradient::vtkImageGradient()
 {
+  this->HandleBoundaries = 0;
   this->HandleBoundariesOn();
   this->Dimensionality = 2;
 }

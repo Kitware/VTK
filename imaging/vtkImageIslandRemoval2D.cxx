@@ -48,9 +48,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Constructor: Sets default filter to be identity.
 vtkImageIslandRemoval2D::vtkImageIslandRemoval2D()
 {
+  this->AreaThreshold = 0;
   this->SetAreaThreshold(4);
+  this->SquareNeighborhood = 1;
   this->SquareNeighborhoodOff();
+  this->ReplaceValue = 0;
   this->SetReplaceValue(255);
+  this->IslandValue = 255;
   this->SetIslandValue(0);
 }
 
