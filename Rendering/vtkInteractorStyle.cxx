@@ -24,7 +24,7 @@
 #include "vtkOldStyleCallbackCommand.h"
 #include "vtkCallbackCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyle, "1.54");
+vtkCxxRevisionMacro(vtkInteractorStyle, "1.55");
 
 //----------------------------------------------------------------------------
 vtkInteractorStyle *vtkInteractorStyle::New() 
@@ -290,80 +290,27 @@ void vtkInteractorStyle::SetRightButtonReleaseMethodArgDelete(void (*f)(void *))
 //----------------------------------------------------------------------------
 void vtkInteractorStyle::FindPokedRenderer(int x,int y) 
 {
-  vtkRendererCollection *rc;
-  vtkRenderer *aren;
-  vtkRenderer *interactiveren = NULL, *viewportren = NULL;
-  int numRens, i;
+  // Release old renderer, if any
   if (this->CurrentRenderer)
     {
     this->CurrentRenderer->UnRegister(this);
     }
   this->CurrentRenderer = NULL;
 
-  rc = this->Interactor->GetRenderWindow()->GetRenderers();
-  numRens = rc->GetNumberOfItems();
-  
-  for (i = numRens -1; (i >= 0) && !this->CurrentRenderer; i--) 
-    {
-    aren = (vtkRenderer *)rc->GetItemAsObject(i);
-    if (aren->IsInViewport(x,y) && aren->GetInteractive()) 
-      {
-      this->CurrentRenderer = aren;
-      this->CurrentRenderer->Register(this);
-      }
+  this->CurrentRenderer = this->Interactor->FindPokedRenderer(x,y);
 
-    if (interactiveren == NULL && aren->GetInteractive())
-      {
-      // Save this renderer in case we can't find one in the viewport that
-      // is interactive.
-      interactiveren = aren;
-      }
-    if (viewportren == NULL && aren->IsInViewport(x, y))
-      {
-      // Save this renderer in case we can't find one in the viewport that 
-      // is interactive.
-      viewportren = aren;
-      }
-    }
-  
-  // We must have a value.  If we found an interactive renderer before, that's
-  // better than a non-interactive renderer.
-  if (this->CurrentRenderer == NULL)
-    {
-    this->CurrentRenderer = interactiveren;
-    this->CurrentRenderer->Register(this);
-    }
-  
-  // We must have a value.  If we found a renderer that is in the viewport,
-  // that is better than any old viewport (but not as good as an interactive
-  // one).
-  if (this->CurrentRenderer == NULL)
-    {
-    this->CurrentRenderer = viewportren;
-    this->CurrentRenderer->Register(this);
-    }
-
-  // We must have a value - take anything.
-  if (this->CurrentRenderer == NULL) 
-    {
-    rc->InitTraversal();
-    aren = rc->GetNextItem();
-    this->CurrentRenderer = aren;
-    this->CurrentRenderer->Register(this);
-    }
+  this->CurrentRenderer->Register(this);
 }
 
 //----------------------------------------------------------------------------
 void  vtkInteractorStyle::FindPokedCamera(int x,int y) 
 {
-  float *vp;
-  vtkLightCollection *lc;
-  int *Size = this->Interactor->GetSize();
-
-  this->FindPokedRenderer(x,y);
-  vp = this->CurrentRenderer->GetViewport();
-  
+  this->CurrentRenderer = this->Interactor->FindPokedRenderer(x,y);
   this->CurrentCamera = this->CurrentRenderer->GetActiveCamera();
+  
+  // side effect stuff
+  float *vp = this->CurrentRenderer->GetViewport();
+  int *Size = this->Interactor->GetSize();
   this->Center[0] = this->CurrentRenderer->GetCenter()[0];
   this->Center[1] = this->CurrentRenderer->GetCenter()[1];
   this->DeltaElevation = -20.0/((vp[3] - vp[1])*Size[1]);
@@ -371,6 +318,7 @@ void  vtkInteractorStyle::FindPokedCamera(int x,int y)
   
   // as a side effect also set the light
   // in case they are using light follow camera
+  vtkLightCollection *lc;
   lc = this->CurrentRenderer->GetLights();
   lc->InitTraversal();
   this->CurrentLight = lc->GetNextItem();
