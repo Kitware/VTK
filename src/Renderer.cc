@@ -15,9 +15,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
+
 #include "Renderer.hh"
 #include "RenderW.hh"
+#include "vlMath.hh"
 
 // Description:
 // Create object with black background, ambient light white, backlighting 
@@ -141,20 +142,20 @@ void vlRenderer::DoActors()
 }
 
 // Description:
-// Automatically set up the camera if no camera has been initially
-// specified.
+// Automatically set up the camera based on the visible actors.
+// Camera will reposition itself to view the center point of the actors,
+// and move along its initial view plane normal (i.e., vector defined from 
+// camera position to focal point).
 void vlRenderer::ResetCamera()
 {
   vlActor *anActor;
   int num;
   float *bounds;
-  float all_bounds[6];
-  float center[3];
-  float distance;
-  float width;
+  float allBounds[6];
+  int nothingVisible=1;
 
-  all_bounds[0] = all_bounds[2] = all_bounds[4] = LARGE_FLOAT;
-  all_bounds[1] = all_bounds[3] = all_bounds[5] = -LARGE_FLOAT;
+  allBounds[0] = allBounds[2] = allBounds[4] = LARGE_FLOAT;
+  allBounds[1] = allBounds[3] = allBounds[5] = -LARGE_FLOAT;
   
   // loop through actors 
   for (num = 1; num <= this->Actors.GetNumberOfItems(); num++)
@@ -164,35 +165,68 @@ void vlRenderer::ResetCamera()
     // if it's invisible, we can skip the rest 
     if ( anActor->GetVisibility() )
       {
+      nothingVisible = 0;
       bounds = anActor->GetBounds();
  
-      if (bounds[0] < all_bounds[0]) all_bounds[0] = bounds[0]; 
-      if (bounds[1] > all_bounds[1]) all_bounds[1] = bounds[1]; 
-      if (bounds[2] < all_bounds[2]) all_bounds[2] = bounds[2]; 
-      if (bounds[3] > all_bounds[3]) all_bounds[3] = bounds[3]; 
-      if (bounds[4] < all_bounds[4]) all_bounds[4] = bounds[4]; 
-      if (bounds[5] > all_bounds[5]) all_bounds[5] = bounds[5]; 
+      if (bounds[0] < allBounds[0]) allBounds[0] = bounds[0]; 
+      if (bounds[1] > allBounds[1]) allBounds[1] = bounds[1]; 
+      if (bounds[2] < allBounds[2]) allBounds[2] = bounds[2]; 
+      if (bounds[3] > allBounds[3]) allBounds[3] = bounds[3]; 
+      if (bounds[4] < allBounds[4]) allBounds[4] = bounds[4]; 
+      if (bounds[5] > allBounds[5]) allBounds[5] = bounds[5]; 
       }
     }
-  
 
-  // now we have the bounds for all actors
-  center[0] = (all_bounds[0] + all_bounds[1])/2.0;
-  center[1] = (all_bounds[2] + all_bounds[3])/2.0;
-  center[2] = (all_bounds[4] + all_bounds[5])/2.0;
-
-  width = all_bounds[3] - all_bounds[2];
-  if (width < (all_bounds[1] - all_bounds[0]))
+  if ( nothingVisible )
     {
-    width = all_bounds[1] - all_bounds[0];
+    vlErrorMacro(<< "Can't reset camera if no actors are visible");
+    return;
     }
-  distance = 0.8*width/tan(this->ActiveCamera->GetViewAngle()*M_PI/360.0);
-  distance = distance + (all_bounds[5] - all_bounds[4])/2.0;
+
+  this->ResetCamera(allBounds);
+}
+
+// Description:
+// Automatically set up the camera based on a specified bounding box
+// (xmin,xmax, ymin,ymax, zmin,zmax). Camera will reposition itself so
+// that its focal point is the center of the bounding box, and adjust its
+// distance and position to preserve its initial view plane normal 
+// (i.e., vector defined from camera position to focal point).
+void vlRenderer::ResetCamera(float bounds[6])
+{
+  float center[3];
+  float distance;
+  float width;
+  vlMath math;
+  float *vpn, vn[3];
+
+  if ( this->ActiveCamera != NULL )
+    {
+    vpn = this->ActiveCamera->GetViewPlaneNormal();
+    for (int i=0; i<3; i++ ) vn[i] = vpn[i];
+    }
+  else
+    {
+    vlErrorMacro(<< "Trying to reset non-existant camera");
+    return;
+    }
+
+  center[0] = (bounds[0] + bounds[1])/2.0;
+  center[1] = (bounds[2] + bounds[3])/2.0;
+  center[2] = (bounds[4] + bounds[5])/2.0;
+
+  width = bounds[3] - bounds[2];
+  if (width < (bounds[1] - bounds[0]))
+    {
+    width = bounds[1] - bounds[0];
+    }
+  distance = 0.8*width/tan(this->ActiveCamera->GetViewAngle()*math.Pi()/360.0);
+  distance = distance + (bounds[5] - bounds[4])/2.0;
 
   // update the camera
   this->ActiveCamera->SetFocalPoint(center);
   this->ActiveCamera->SetPosition(center[0],center[1],center[2]+distance);
-  this->ActiveCamera->SetViewUp(0,1,0);
+  this->ActiveCamera->SetViewPlaneNormal(vn);
   this->ActiveCamera->SetClippingRange(distance/10.0,distance*5.0);
 }
   

@@ -106,6 +106,7 @@ public:
   void DoLights();
   void DoActors();
   void ResetCamera();
+  void ResetCamera(float bounds[6]);
 
   void SetRenderWindow(vlRenderWindow *);
   vlRenderWindow *GetRenderWindow() {return RenderWindow;};
