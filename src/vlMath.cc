@@ -64,4 +64,14 @@ void vlMath::RandomSeed(long s)
   vlMath::Random();
 }
 
+// Description:
+// Cross product of two 3-vectors. Result vector in z[3].
+void vlMath::Cross(float x[3], float y[3], float z[3])
+{
+  float Zx = x[1]*y[2] - x[2]*y[1]; 
+  float Zy = x[2]*y[0] - x[0]*y[2];
+  float Zz = x[0]*y[1] - x[1]*y[0];
+  z[0] = Zx; z[1] = Zy; z[2] = Zz; 
+}
+
 

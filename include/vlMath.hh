@@ -60,16 +60,7 @@ protected:
 // Dot product of two 3-vectors.
 inline float vlMath::Dot(float x[3], float y[3]) 
 {
-  return x[0]*y[0] + x[1]*y[1] + x[2]*y[2];
-}
-
-// Description:
-// Cross product of two 3-vectors. Result vector in z[3].
-inline void vlMath::Cross(float x[3], float y[3], float z[3])
-{
-  z[0] = x[1]*y[2] - x[2]*y[1]; 
-  z[1] = x[2]*y[0] - x[0]*y[2];
-  z[2] = x[0]*y[1] - x[1]*y[0];
+  return (x[0]*y[0] + x[1]*y[1] + x[2]*y[2]);
 }
 
 // Description:
@@ -91,7 +82,7 @@ inline void vlMath::Normalize(float x[3])
 // Compute determinate of 2x2 matrix. Two columns of matrix are input.
 inline float vlMath::Determinate2x2(float *c1, float *c2)
 {
-  return c1[0]*c2[1] - c2[0]*c1[1];
+  return (c1[0]*c2[1] - c2[0]*c1[1]);
 }
 
 // Description:
@@ -119,24 +110,24 @@ inline double vlMath::Determinate3x3(double a1, double a2, double a3,
                                      double b1, double b2, double b3, 
                                      double c1, double c2, double c3)
 {
-    return   a1 * this->Determinate2x2( b2, b3, c2, c3 )
-           - b1 * this->Determinate2x2( a2, a3, c2, c3 )
-           + c1 * this->Determinate2x2( a2, a3, b2, b3 );
+    return ( a1 * this->Determinate2x2( b2, b3, c2, c3 )
+            - b1 * this->Determinate2x2( a2, a3, c2, c3 )
+            + c1 * this->Determinate2x2( a2, a3, b2, b3 ) );
 }
 
 // Description:
 // Compute distance squared between two points.
 inline float vlMath::Distance2BetweenPoints(float *x, float *y)
 {
-  return (x[0]-y[0])*(x[0]-y[0]) + (x[1]-y[1])*(x[1]-y[1]) +
-         (x[2]-y[2])*(x[2]-y[2]);
+  return ((x[0]-y[0])*(x[0]-y[0]) + (x[1]-y[1])*(x[1]-y[1]) +
+          (x[2]-y[2])*(x[2]-y[2]));
 }
 
 // Description:
 // Generate random number between (min,max)
 inline float vlMath::Random(float min, float max)
 {
-  return min + this->Random()*(max-min);
+  return (min + this->Random()*(max-min));
 }
 
 #endif
