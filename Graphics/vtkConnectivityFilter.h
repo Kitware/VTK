@@ -85,7 +85,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkFloatArray;
 
-class VTK_EXPORT vtkConnectivityFilter : public vtkDataSetToUnstructuredGridFilter
+class VTK_GRAPHICS_EXPORT vtkConnectivityFilter : public vtkDataSetToUnstructuredGridFilter
 {
 public:
   vtkTypeMacro(vtkConnectivityFilter,vtkDataSetToUnstructuredGridFilter);

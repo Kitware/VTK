@@ -60,7 +60,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkImageData;
 
-class VTK_EXPORT vtkBlankStructuredGridWithImage : public vtkStructuredGridToStructuredGridFilter
+class VTK_GRAPHICS_EXPORT vtkBlankStructuredGridWithImage : public vtkStructuredGridToStructuredGridFilter
 {
 public:
   static vtkBlankStructuredGridWithImage *New();

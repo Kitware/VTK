@@ -65,7 +65,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPolyDataToPolyDataFilter.h"
 class vtkFloatArray;
 
-class VTK_EXPORT vtkPolyDataNormals : public vtkPolyDataToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkPolyDataNormals : public vtkPolyDataToPolyDataFilter
 {
 public:
   vtkTypeMacro(vtkPolyDataNormals,vtkPolyDataToPolyDataFilter);

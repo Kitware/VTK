@@ -71,7 +71,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_THICKARROW_GLYPH 10
 #define VTK_HOOKEDARROW_GLYPH 11
 
-class VTK_EXPORT vtkGlyphSource2D : public vtkPolyDataSource 
+class VTK_GRAPHICS_EXPORT vtkGlyphSource2D : public vtkPolyDataSource 
 {
 public:
   vtkTypeMacro(vtkGlyphSource2D,vtkPolyDataSource);

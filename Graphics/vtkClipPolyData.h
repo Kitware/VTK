@@ -86,7 +86,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPolyDataToPolyDataFilter.h"
 #include "vtkImplicitFunction.h"
 
-class VTK_EXPORT vtkClipPolyData : public vtkPolyDataToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkClipPolyData : public vtkPolyDataToPolyDataFilter
 {
 public:
   vtkTypeMacro(vtkClipPolyData,vtkPolyDataToPolyDataFilter);

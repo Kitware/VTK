@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkPolyDataSource.h"
 
-class VTK_EXPORT vtkCylinderSource : public vtkPolyDataSource 
+class VTK_GRAPHICS_EXPORT vtkCylinderSource : public vtkPolyDataSource 
 {
 public:
   static vtkCylinderSource *New();

@@ -55,7 +55,7 @@ class vtkIntArray;
 class vtkIdList;
 class vtkCellArray;
 
-class VTK_EXPORT vtkInterpolatingSubdivisionFilter : public vtkPolyDataToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkInterpolatingSubdivisionFilter : public vtkPolyDataToPolyDataFilter
 {
 public:
   vtkTypeMacro(vtkInterpolatingSubdivisionFilter,vtkPolyDataToPolyDataFilter);

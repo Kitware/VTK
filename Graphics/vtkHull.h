@@ -69,7 +69,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkPlanes;
 
-class VTK_EXPORT vtkHull : public vtkPolyDataToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkHull : public vtkPolyDataToPolyDataFilter
 {
 public:
   static vtkHull *New();

@@ -79,7 +79,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_MIN_SUPERQUADRIC_THICKNESS  1e-4
 #define VTK_MIN_SUPERQUADRIC_ROUNDNESS  1e-24
 
-class VTK_EXPORT vtkSuperquadricSource : public vtkPolyDataSource 
+class VTK_GRAPHICS_EXPORT vtkSuperquadricSource : public vtkPolyDataSource 
 {
 public:
   // Description:

@@ -172,7 +172,7 @@ public:
 //
 
 
-class VTK_EXPORT vtkDecimatePro : public vtkPolyDataToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkDecimatePro : public vtkPolyDataToPolyDataFilter
 {
 public:
   vtkTypeMacro(vtkDecimatePro,vtkPolyDataToPolyDataFilter);

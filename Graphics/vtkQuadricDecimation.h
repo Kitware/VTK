@@ -64,7 +64,7 @@ typedef struct {
   float *Quadric;
 } VTK_ERROR_QUADRIC;
 
-class VTK_EXPORT vtkQuadricDecimation : public vtkPolyDataToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkQuadricDecimation : public vtkPolyDataToPolyDataFilter
 {
 public:
   vtkTypeMacro(vtkQuadricDecimation, vtkPolyDataToPolyDataFilter);

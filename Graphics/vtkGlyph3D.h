@@ -113,7 +113,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_INDEXING_BY_SCALAR 1
 #define VTK_INDEXING_BY_VECTOR 2
 
-class VTK_EXPORT vtkGlyph3D : public vtkDataSetToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkGlyph3D : public vtkDataSetToPolyDataFilter
 {
 public:
   vtkTypeMacro(vtkGlyph3D,vtkDataSetToPolyDataFilter);

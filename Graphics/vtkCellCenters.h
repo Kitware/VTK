@@ -61,7 +61,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkDataSetToPolyDataFilter.h"
 
-class VTK_EXPORT vtkCellCenters : public vtkDataSetToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkCellCenters : public vtkDataSetToPolyDataFilter
 {
 public:
   vtkTypeMacro(vtkCellCenters,vtkDataSetToPolyDataFilter);

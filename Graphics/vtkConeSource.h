@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkPolyDataSource.h"
 
-class VTK_EXPORT vtkConeSource : public vtkPolyDataSource 
+class VTK_GRAPHICS_EXPORT vtkConeSource : public vtkPolyDataSource 
 {
 public:
   vtkTypeMacro(vtkConeSource,vtkPolyDataSource);

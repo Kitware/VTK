@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkDataSetToPolyDataFilter.h"
 class vtkOutlineCornerSource;
 
-class VTK_EXPORT vtkOutlineCornerFilter : public vtkDataSetToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkOutlineCornerFilter : public vtkDataSetToPolyDataFilter
 {
 public:
   vtkTypeMacro(vtkOutlineCornerFilter,vtkDataSetToPolyDataFilter);

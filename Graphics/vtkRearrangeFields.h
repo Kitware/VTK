@@ -86,7 +86,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkFieldData;
 
-class VTK_EXPORT vtkRearrangeFields : public vtkDataSetToDataSetFilter
+class VTK_GRAPHICS_EXPORT vtkRearrangeFields : public vtkDataSetToDataSetFilter
 {
 public:
   vtkTypeMacro(vtkRearrangeFields,vtkDataSetToDataSetFilter);

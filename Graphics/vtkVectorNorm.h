@@ -60,7 +60,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkDataSetToDataSetFilter.h"
 
-class VTK_EXPORT vtkVectorNorm : public vtkDataSetToDataSetFilter 
+class VTK_GRAPHICS_EXPORT vtkVectorNorm : public vtkDataSetToDataSetFilter 
 {
 public:
   vtkTypeMacro(vtkVectorNorm,vtkDataSetToDataSetFilter);

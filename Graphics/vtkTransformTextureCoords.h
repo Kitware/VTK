@@ -61,7 +61,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkDataSetToDataSetFilter.h"
 
-class VTK_EXPORT vtkTransformTextureCoords : public vtkDataSetToDataSetFilter 
+class VTK_GRAPHICS_EXPORT vtkTransformTextureCoords : public vtkDataSetToDataSetFilter 
 {
 public:
   vtkTypeMacro(vtkTransformTextureCoords,vtkDataSetToDataSetFilter);

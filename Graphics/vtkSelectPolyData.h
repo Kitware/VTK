@@ -109,7 +109,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkCharArray;
 
-class VTK_EXPORT vtkSelectPolyData : public vtkPolyDataToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkSelectPolyData : public vtkPolyDataToPolyDataFilter
 {
 public:
   // Description:

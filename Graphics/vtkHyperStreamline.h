@@ -80,7 +80,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkHyperArray;
 
-class VTK_EXPORT vtkHyperStreamline : public vtkDataSetToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkHyperStreamline : public vtkDataSetToPolyDataFilter
 {
 public:
   vtkTypeMacro(vtkHyperStreamline,vtkDataSetToPolyDataFilter);

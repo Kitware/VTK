@@ -62,7 +62,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkSource.h"
 
-class VTK_EXPORT vtkProgrammableDataObjectSource : public vtkSource
+class VTK_GRAPHICS_EXPORT vtkProgrammableDataObjectSource : public vtkSource
 {
 public:
   static vtkProgrammableDataObjectSource *New();

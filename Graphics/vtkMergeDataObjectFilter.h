@@ -66,7 +66,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkDataSetToDataSetFilter.h"
 #include "vtkFieldDataToAttributeDataFilter.h"
 
-class VTK_EXPORT vtkMergeDataObjectFilter : public vtkDataSetToDataSetFilter
+class VTK_GRAPHICS_EXPORT vtkMergeDataObjectFilter : public vtkDataSetToDataSetFilter
 {
 public:
   static vtkMergeDataObjectFilter *New();

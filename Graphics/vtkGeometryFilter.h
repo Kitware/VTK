@@ -73,7 +73,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkDataSetToPolyDataFilter.h"
 
-class VTK_EXPORT vtkGeometryFilter : public vtkDataSetToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkGeometryFilter : public vtkDataSetToPolyDataFilter
 {
 public:
   static vtkGeometryFilter *New();

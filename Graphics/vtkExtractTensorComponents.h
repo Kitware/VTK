@@ -73,7 +73,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_EXTRACT_EFFECTIVE_STRESS 1
 #define VTK_EXTRACT_DETERMINANT 2
 
-class VTK_EXPORT vtkExtractTensorComponents : public vtkDataSetToDataSetFilter 
+class VTK_GRAPHICS_EXPORT vtkExtractTensorComponents : public vtkDataSetToDataSetFilter 
 {
 public:
   vtkTypeMacro(vtkExtractTensorComponents,vtkDataSetToDataSetFilter);

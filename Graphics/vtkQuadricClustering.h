@@ -101,7 +101,7 @@ typedef struct {
   float Quadric[9];
 } VTK_POINT_QUADRIC;
 
-class VTK_EXPORT vtkQuadricClustering : public vtkPolyDataToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkQuadricClustering : public vtkPolyDataToPolyDataFilter
 {
 public:
   vtkTypeMacro(vtkQuadricClustering, vtkPolyDataToPolyDataFilter);

@@ -64,7 +64,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_ATTRIBUTE_MODE_USE_POINT_DATA 1
 #define VTK_ATTRIBUTE_MODE_USE_CELL_DATA 2
 
-class VTK_EXPORT vtkThreshold : public vtkDataSetToUnstructuredGridFilter
+class VTK_GRAPHICS_EXPORT vtkThreshold : public vtkDataSetToUnstructuredGridFilter
 {
 public:
   static vtkThreshold *New();

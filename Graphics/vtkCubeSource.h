@@ -50,7 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkPolyDataSource.h"
 
-class VTK_EXPORT vtkCubeSource : public vtkPolyDataSource 
+class VTK_GRAPHICS_EXPORT vtkCubeSource : public vtkPolyDataSource 
 {
 public:
   static vtkCubeSource *New();

@@ -74,7 +74,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_DICE_MODE_SPECIFIED_NUMBER 1
 #define VTK_DICE_MODE_MEMORY_LIMIT 2
 
-class VTK_EXPORT vtkDicer : public vtkDataSetToDataSetFilter 
+class VTK_GRAPHICS_EXPORT vtkDicer : public vtkDataSetToDataSetFilter 
 {
 public:
   vtkTypeMacro(vtkDicer,vtkDataSetToDataSetFilter);

@@ -88,7 +88,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_CELL_DATA 0
 #define VTK_POINT_DATA 1
 
-class VTK_EXPORT vtkFieldDataToAttributeDataFilter : public vtkDataSetToDataSetFilter
+class VTK_GRAPHICS_EXPORT vtkFieldDataToAttributeDataFilter : public vtkDataSetToDataSetFilter
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent);

@@ -78,7 +78,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_TENSOR_MODE_COMPUTE_GRADIENT 1
 #define VTK_TENSOR_MODE_COMPUTE_STRAIN   2
 
-class VTK_EXPORT vtkCellDerivatives : public vtkDataSetToDataSetFilter 
+class VTK_GRAPHICS_EXPORT vtkCellDerivatives : public vtkDataSetToDataSetFilter 
 {
 public:
   vtkTypeMacro(vtkCellDerivatives,vtkDataSetToDataSetFilter);

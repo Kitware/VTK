@@ -54,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_USE_VECTOR 0
 #define VTK_USE_NORMAL 1
 
-class VTK_EXPORT vtkHedgeHog : public vtkDataSetToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkHedgeHog : public vtkDataSetToPolyDataFilter
 {
 public:
   static vtkHedgeHog *New();

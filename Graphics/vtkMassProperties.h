@@ -63,7 +63,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkProcessObject.h"
 #include "vtkPolyData.h"
 
-class VTK_EXPORT vtkMassProperties : public vtkProcessObject
+class VTK_GRAPHICS_EXPORT vtkMassProperties : public vtkProcessObject
 {
 public:
   // Description:

@@ -82,7 +82,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkScalarTree;
 class vtkEdgeTable;
 
-class VTK_EXPORT vtkContourGrid : public vtkUnstructuredGridToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkContourGrid : public vtkUnstructuredGridToPolyDataFilter
 {
 public:
   vtkTypeMacro(vtkContourGrid,vtkUnstructuredGridToPolyDataFilter);

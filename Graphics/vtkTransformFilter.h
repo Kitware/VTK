@@ -62,7 +62,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPointSetToPointSetFilter.h"
 #include "vtkAbstractTransform.h"
 
-class VTK_EXPORT vtkTransformFilter : public vtkPointSetToPointSetFilter
+class VTK_GRAPHICS_EXPORT vtkTransformFilter : public vtkPointSetToPointSetFilter
 {
 public:
   static vtkTransformFilter *New();

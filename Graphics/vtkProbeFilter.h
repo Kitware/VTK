@@ -54,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkDataSetToDataSetFilter.h"
 #include "vtkIdTypeArray.h"
 
-class VTK_EXPORT vtkProbeFilter : public vtkDataSetToDataSetFilter
+class VTK_GRAPHICS_EXPORT vtkProbeFilter : public vtkDataSetToDataSetFilter
 {
 public:
   static vtkProbeFilter *New();

@@ -101,7 +101,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkDataSetToDataSetFilter.h"
 #include "vtkDataSetCollection.h"
 
-class VTK_EXPORT vtkProgrammableAttributeDataFilter : public vtkDataSetToDataSetFilter 
+class VTK_GRAPHICS_EXPORT vtkProgrammableAttributeDataFilter : public vtkDataSetToDataSetFilter 
 {
 public:
   static vtkProgrammableAttributeDataFilter *New();

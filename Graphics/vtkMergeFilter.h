@@ -53,7 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkFieldList;
 
-class VTK_EXPORT vtkMergeFilter : public vtkDataSetToDataSetFilter
+class VTK_GRAPHICS_EXPORT vtkMergeFilter : public vtkDataSetToDataSetFilter
 {
 public:
   static vtkMergeFilter *New();

@@ -49,7 +49,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkPointSetToPointSetFilter.h"
 
-class VTK_EXPORT vtkWarpTo : public vtkPointSetToPointSetFilter
+class VTK_GRAPHICS_EXPORT vtkWarpTo : public vtkPointSetToPointSetFilter
 {
 public:
   static vtkWarpTo *New();

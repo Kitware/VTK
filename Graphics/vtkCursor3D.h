@@ -56,7 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkPolyDataSource.h"
 
-class VTK_EXPORT vtkCursor3D : public vtkPolyDataSource 
+class VTK_GRAPHICS_EXPORT vtkCursor3D : public vtkPolyDataSource 
 {
 public:
   vtkTypeMacro(vtkCursor3D,vtkPolyDataSource);

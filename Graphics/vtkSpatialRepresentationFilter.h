@@ -85,7 +85,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define VTK_MAX_SPATIAL_REP_LEVEL 24
 
-class VTK_EXPORT vtkSpatialRepresentationFilter : public vtkPolyDataSource
+class VTK_GRAPHICS_EXPORT vtkSpatialRepresentationFilter : public vtkPolyDataSource
 {
 public:
   static vtkSpatialRepresentationFilter *New();

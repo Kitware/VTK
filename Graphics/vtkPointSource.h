@@ -53,7 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_POINT_UNIFORM   1
 #define VTK_POINT_SHELL     0
 
-class VTK_EXPORT vtkPointSource : public vtkPolyDataSource 
+class VTK_GRAPHICS_EXPORT vtkPointSource : public vtkPolyDataSource 
 {
 public:
   static vtkPointSource *New();

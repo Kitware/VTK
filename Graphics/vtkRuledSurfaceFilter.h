@@ -83,7 +83,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_RULED_MODE_RESAMPLE 0
 #define VTK_RULED_MODE_POINT_WALK 1
 
-class VTK_EXPORT vtkRuledSurfaceFilter : public vtkPolyDataToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkRuledSurfaceFilter : public vtkPolyDataToPolyDataFilter
 {
 public:
   vtkTypeMacro(vtkRuledSurfaceFilter,vtkPolyDataToPolyDataFilter);

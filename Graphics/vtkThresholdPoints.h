@@ -53,7 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkDataSetToPolyDataFilter.h"
 
-class VTK_EXPORT vtkThresholdPoints : public vtkDataSetToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkThresholdPoints : public vtkDataSetToPolyDataFilter
 {
 public:
   static vtkThresholdPoints *New();

@@ -62,7 +62,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkPolyDataSource.h"
 
-class VTK_EXPORT vtkTextSource : public vtkPolyDataSource 
+class VTK_GRAPHICS_EXPORT vtkTextSource : public vtkPolyDataSource 
 {
 public:
   vtkTypeMacro(vtkTextSource,vtkPolyDataSource);

@@ -71,7 +71,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_SORT_BY_VALUE 0
 #define VTK_SORT_BY_CELL 1
 
-class VTK_EXPORT vtkCutter : public vtkDataSetToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkCutter : public vtkDataSetToPolyDataFilter
 {
 public:
   vtkTypeMacro(vtkCutter,vtkDataSetToPolyDataFilter);

@@ -81,7 +81,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkScalarTree;
 
-class VTK_EXPORT vtkContourFilter : public vtkDataSetToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkContourFilter : public vtkDataSetToPolyDataFilter
 {
 public:
   vtkTypeMacro(vtkContourFilter,vtkDataSetToPolyDataFilter);

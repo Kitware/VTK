@@ -114,7 +114,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkTetraArray;
 
-class VTK_EXPORT vtkDelaunay3D : public vtkUnstructuredGridSource
+class VTK_GRAPHICS_EXPORT vtkDelaunay3D : public vtkUnstructuredGridSource
 {
 public:
   vtkTypeMacro(vtkDelaunay3D,vtkUnstructuredGridSource);

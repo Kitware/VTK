@@ -81,7 +81,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_NORMAL_EXTRUSION 2
 #define VTK_POINT_EXTRUSION 3
 
-class VTK_EXPORT vtkLinearExtrusionFilter : public vtkPolyDataToPolyDataFilter 
+class VTK_GRAPHICS_EXPORT vtkLinearExtrusionFilter : public vtkPolyDataToPolyDataFilter 
 {
 public:
   vtkTypeMacro(vtkLinearExtrusionFilter,vtkPolyDataToPolyDataFilter);

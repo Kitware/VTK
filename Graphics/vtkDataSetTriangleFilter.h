@@ -58,7 +58,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkOrderedTriangulator;
 
-class VTK_EXPORT vtkDataSetTriangleFilter : public vtkDataSetToUnstructuredGridFilter
+class VTK_GRAPHICS_EXPORT vtkDataSetTriangleFilter : public vtkDataSetToUnstructuredGridFilter
 {
 public:
   static vtkDataSetTriangleFilter *New();

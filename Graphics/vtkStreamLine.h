@@ -73,7 +73,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkStreamer.h"
 
-class VTK_EXPORT vtkStreamLine : public vtkStreamer
+class VTK_GRAPHICS_EXPORT vtkStreamLine : public vtkStreamer
 {
 public:
   vtkTypeMacro(vtkStreamLine,vtkStreamer);

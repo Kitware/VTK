@@ -72,7 +72,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkPolyDataSource.h"
 
-class VTK_EXPORT vtkPlaneSource : public vtkPolyDataSource 
+class VTK_GRAPHICS_EXPORT vtkPlaneSource : public vtkPolyDataSource 
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent);

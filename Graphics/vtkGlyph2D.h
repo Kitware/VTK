@@ -56,7 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkGlyph3D.h"
 
-class VTK_EXPORT vtkGlyph2D : public vtkGlyph3D
+class VTK_GRAPHICS_EXPORT vtkGlyph2D : public vtkGlyph3D
 {
 public:
   vtkTypeMacro(vtkGlyph2D,vtkGlyph3D);

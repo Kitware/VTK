@@ -66,7 +66,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkStructuredGridToStructuredGridFilter.h"
 
-class VTK_EXPORT vtkExtractGrid : public vtkStructuredGridToStructuredGridFilter
+class VTK_GRAPHICS_EXPORT vtkExtractGrid : public vtkStructuredGridToStructuredGridFilter
 {
 public:
   static vtkExtractGrid *New();

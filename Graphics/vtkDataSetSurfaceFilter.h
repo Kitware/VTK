@@ -60,7 +60,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkFastGeomQuad; 
 
 
-class VTK_EXPORT vtkDataSetSurfaceFilter : public vtkDataSetToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkDataSetSurfaceFilter : public vtkDataSetToPolyDataFilter
 {
 public:
   static vtkDataSetSurfaceFilter *New();

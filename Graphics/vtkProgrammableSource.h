@@ -70,7 +70,7 @@ class vtkStructuredGrid;
 class vtkUnstructuredGrid;
 class vtkRectilinearGrid;
 
-class VTK_EXPORT vtkProgrammableSource : public vtkSource
+class VTK_GRAPHICS_EXPORT vtkProgrammableSource : public vtkSource
 {
 public:
   static vtkProgrammableSource *New();

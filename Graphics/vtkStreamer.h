@@ -136,7 +136,7 @@ public:
 //ETX
 //
 
-class VTK_EXPORT vtkStreamer : public vtkDataSetToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkStreamer : public vtkDataSetToPolyDataFilter
 {
 public:
   vtkTypeMacro(vtkStreamer,vtkDataSetToPolyDataFilter);

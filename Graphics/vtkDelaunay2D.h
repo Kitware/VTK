@@ -148,7 +148,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPolyDataSource.h"
 #include "vtkAbstractTransform.h"
 
-class VTK_EXPORT vtkDelaunay2D : public vtkPolyDataSource
+class VTK_GRAPHICS_EXPORT vtkDelaunay2D : public vtkPolyDataSource
 {
 public:
   vtkTypeMacro(vtkDelaunay2D,vtkPolyDataSource);

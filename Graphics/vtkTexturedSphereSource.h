@@ -54,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define VTK_MAX_SPHERE_RESOLUTION 1024
 
-class VTK_EXPORT vtkTexturedSphereSource : public vtkPolyDataSource 
+class VTK_GRAPHICS_EXPORT vtkTexturedSphereSource : public vtkPolyDataSource 
 {
 public:
   vtkTypeMacro(vtkTexturedSphereSource,vtkPolyDataSource);

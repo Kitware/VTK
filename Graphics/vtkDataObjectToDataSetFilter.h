@@ -100,7 +100,7 @@ class vtkRectilinearGrid;
 class vtkUnstructuredGrid;
 class vtkCellArray;
 
-class VTK_EXPORT vtkDataObjectToDataSetFilter : public vtkSource
+class VTK_GRAPHICS_EXPORT vtkDataObjectToDataSetFilter : public vtkSource
 {
 public:
   static vtkDataObjectToDataSetFilter *New();

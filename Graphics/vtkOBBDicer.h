@@ -59,7 +59,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkOBBTree.h"
 class vtkShortArray;
 
-class VTK_EXPORT vtkOBBDicer : public vtkDicer 
+class VTK_GRAPHICS_EXPORT vtkOBBDicer : public vtkDicer 
 {
 public:
   vtkTypeMacro(vtkOBBDicer,vtkDicer);

@@ -87,7 +87,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkDataSetToUnstructuredGridFilter.h"
 #include "vtkImplicitFunction.h"
 
-class VTK_EXPORT vtkClipDataSet : public vtkDataSetToUnstructuredGridFilter
+class VTK_GRAPHICS_EXPORT vtkClipDataSet : public vtkDataSetToUnstructuredGridFilter
 {
 public:
   vtkTypeMacro(vtkClipDataSet,vtkDataSetToUnstructuredGridFilter);

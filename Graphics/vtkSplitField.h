@@ -82,7 +82,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkFieldData;
 
-class VTK_EXPORT vtkSplitField : public vtkDataSetToDataSetFilter
+class VTK_GRAPHICS_EXPORT vtkSplitField : public vtkDataSetToDataSetFilter
 {
 public:
   vtkTypeMacro(vtkSplitField,vtkDataSetToDataSetFilter);

@@ -62,7 +62,7 @@ class vtkFunctionParser;
 #define VTK_ATTRIBUTE_MODE_USE_POINT_DATA 1
 #define VTK_ATTRIBUTE_MODE_USE_CELL_DATA 2
 
-class VTK_EXPORT vtkArrayCalculator : public vtkDataSetToDataSetFilter 
+class VTK_GRAPHICS_EXPORT vtkArrayCalculator : public vtkDataSetToDataSetFilter 
 {
 public:
   vtkTypeMacro(vtkArrayCalculator,vtkDataSetToDataSetFilter);

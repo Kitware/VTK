@@ -53,7 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPolyDataSource.h"
 #include "vtkPolyData.h"
 
-class VTK_EXPORT vtkDiskSource : public vtkPolyDataSource 
+class VTK_GRAPHICS_EXPORT vtkDiskSource : public vtkPolyDataSource 
 {
 public:
   static vtkDiskSource *New();

@@ -83,7 +83,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkMergePoints;
 class vtkOrderedTriangulator;
 
-class VTK_EXPORT vtkClipVolume : public vtkStructuredPointsToUnstructuredGridFilter
+class VTK_GRAPHICS_EXPORT vtkClipVolume : public vtkStructuredPointsToUnstructuredGridFilter
 {
 public:
   vtkTypeMacro(vtkClipVolume,vtkStructuredPointsToUnstructuredGridFilter);

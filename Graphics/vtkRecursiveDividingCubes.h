@@ -63,7 +63,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkStructuredPointsToPolyDataFilter.h"
 
-class VTK_EXPORT vtkRecursiveDividingCubes : public vtkStructuredPointsToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkRecursiveDividingCubes : public vtkStructuredPointsToPolyDataFilter
 {
 public:
   static vtkRecursiveDividingCubes *New();

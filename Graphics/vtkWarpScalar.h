@@ -65,7 +65,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkPointSetToPointSetFilter.h"
 
-class VTK_EXPORT vtkWarpScalar : public vtkPointSetToPointSetFilter
+class VTK_GRAPHICS_EXPORT vtkWarpScalar : public vtkPointSetToPointSetFilter
 {
 public:
   static vtkWarpScalar *New();

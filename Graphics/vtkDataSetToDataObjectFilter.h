@@ -75,7 +75,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkDataSet.h"
 #include "vtkCollection.h"
 
-class VTK_EXPORT vtkDataSetToDataObjectFilter : public vtkDataObjectSource
+class VTK_GRAPHICS_EXPORT vtkDataSetToDataObjectFilter : public vtkDataObjectSource
 {
 public:
   vtkTypeMacro(vtkDataSetToDataObjectFilter,vtkDataObjectSource);

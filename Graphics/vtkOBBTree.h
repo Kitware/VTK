@@ -101,7 +101,7 @@ public:
 //ETX
 //
 
-class VTK_EXPORT vtkOBBTree : public vtkCellLocator
+class VTK_GRAPHICS_EXPORT vtkOBBTree : public vtkCellLocator
 {
 public:
   vtkTypeMacro(vtkOBBTree,vtkCellLocator);

@@ -73,7 +73,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkStructuredPointsToPolyDataFilter.h"
 
-class VTK_EXPORT vtkLinkEdgels : public vtkStructuredPointsToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkLinkEdgels : public vtkStructuredPointsToPolyDataFilter
 {
 public:
   vtkTypeMacro(vtkLinkEdgels,vtkStructuredPointsToPolyDataFilter);

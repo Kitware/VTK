@@ -71,7 +71,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkIdList.h"
 #include "vtkCellArray.h"
 
-class VTK_EXPORT vtkButterflySubdivisionFilter : public vtkInterpolatingSubdivisionFilter
+class VTK_GRAPHICS_EXPORT vtkButterflySubdivisionFilter : public vtkInterpolatingSubdivisionFilter
 {
 public:
   // Description:
