@@ -24,8 +24,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 
 #include "vtkParallelFactory.h"
-#include "vtkPSphereSource.h"
+#include "vtkPImageWriter.h"
 #include "vtkPPolyDataNormals.h"
+#include "vtkPSphereSource.h"
 #include "vtkVersion.h"
 
 void vtkParallelFactory::PrintSelf(ostream& os, vtkIndent indent)
@@ -34,22 +35,28 @@ void vtkParallelFactory::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
-VTK_CREATE_CREATE_FUNCTION(vtkPSphereSource);
+VTK_CREATE_CREATE_FUNCTION(vtkPImageWriter);
 VTK_CREATE_CREATE_FUNCTION(vtkPPolyDataNormals);
+VTK_CREATE_CREATE_FUNCTION(vtkPSphereSource);
 
 
 vtkParallelFactory::vtkParallelFactory()
 {
-  this->RegisterOverride("vtkSphereSource",
-			 "vtkPSphereSource",
+  this->RegisterOverride("vtkImageWriter",
+			 "vtkPImageWriter",
 			 "Parallel",
 			 1,
-			 vtkObjectFactoryCreatevtkPSphereSource);
+			 vtkObjectFactoryCreatevtkPImageWriter);
   this->RegisterOverride("vtkPolyDataNormals",
 			 "vtkPPolyDataNormals",
 			 "Parallel",
 			 1,
 			 vtkObjectFactoryCreatevtkPPolyDataNormals);
+  this->RegisterOverride("vtkSphereSource",
+			 "vtkPSphereSource",
+			 "Parallel",
+			 1,
+			 vtkObjectFactoryCreatevtkPSphereSource);
 }
 
 const char* vtkParallelFactory::GetVTKSourceVersion()

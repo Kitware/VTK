@@ -33,6 +33,7 @@ vtkOutputPort \
 vtkParallelFactory \
 vtkPieceScalars \
 vtkPipelineSize \
+vtkPImageWriter \
 vtkPPolyDataNormals \
 vtkPSphereSource \
 vtkSharedMemoryCommunicator \
