@@ -250,7 +250,7 @@ static int xlib_get_best_depth(Display *display)
       vis = xlib_getpseudocolorvisual(display, DefaultScreen(display), 8); 
       if (vis == NULL) 
 	{
-	fprintf(stderr,"can't get visual info\n");
+	vtkGenericWarningMacro("can't get visual info");
 	exit(1);
 	}
       else 
@@ -288,7 +288,7 @@ static Visual *xlib_get_best_visual(Display *display)
       vis = xlib_getpseudocolorvisual(display, DefaultScreen(display), 8); 
       if (vis == NULL) 
 	{
-	fprintf(stderr,"can't get visual info\n");
+	vtkGenericWarningMacro("can't get visual info");
 	exit(1);
 	}
       else 
@@ -376,13 +376,13 @@ Colormap vtkSbrRenderWindow::GetDesiredColormap ()
       pVisInfo = XGetVisualInfo(dpy, mask, &visInfo, &retVal);
       if (!retVal) 
 	{
-	fprintf(stderr, "Could not get visual info\n");
+	vtkGenericWarningMacro("Could not get visual info");
 	return 0;
 	}
       } 
     else 
       {
-      fprintf(stderr,"Could not get visual info\n");
+      vtkGenericWarningMacro("Could not get visual info");
       return 0;
       }
     }
@@ -398,7 +398,7 @@ Colormap vtkSbrRenderWindow::GetDesiredColormap ()
 		      pVisInfo->visual, AllocNone);
     if (!cmapID) 
       {
-      fprintf(stderr,"Could not create color map\n");
+      vtkGenericWarningMacro("Could not create color map");
       return 0;
       }
     this->ColorMap = cmapID;
@@ -489,17 +489,17 @@ int vtkSbrRenderWindow::CreateXWindow(Display *dpy,int xpos,int ypos,
       visInfo.c_class = PseudoColor;
       pVisInfo = XGetVisualInfo(dpy, mask, &visInfo, &retVal);
       if (!retVal) {
-	fprintf(stderr, "Could not get visual info\n");
+	vtkGenericWarningMacro("Could not get visual info");
 	return 0;
       }
     } else {
-      fprintf(stderr,"Could not get visual info\n");
-        return 0;
+      vtkGenericWarningMacro("Could not get visual info");
+      return 0;
     }
   }
   
   if (retVal != 1) {
-    fprintf(stderr,"Too many visuals match display+depth+class\n");
+    vtkGenericWarningMacro("Too many visuals match display+depth+class");
     return 0;
   }
   
@@ -511,7 +511,7 @@ int vtkSbrRenderWindow::CreateXWindow(Display *dpy,int xpos,int ypos,
 			     pVisInfo->visual, AllocNone);
     if (!cmapID) 
       {
-      fprintf(stderr,"Could not create color map\n");
+      vtkGenericWarningMacro("Could not create color map");
       return 0;
       }
     this->ColorMap = cmapID;
@@ -560,7 +560,7 @@ int vtkSbrRenderWindow::CreateXWindow(Display *dpy,int xpos,int ypos,
 		      CWEventMask | CWOverrideRedirect , &winattr);
   if(! win) 
     {
-    fprintf(stderr,"Could not create window\n");
+    vtkGenericWarningMacro("Could not create window");
     return 0;
     }
 
