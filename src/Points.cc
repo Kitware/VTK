@@ -14,8 +14,6 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include "Points.hh"
-#include "FPoints.hh"
-#include "IdList.hh"
 
 vlPoints::vlPoints()
 {
