@@ -94,6 +94,7 @@ void vtkStructuredPointsToImage::Update()
 {
   // Make sure we have an output
   this->CheckCache();
+  this->UpdateImageInformation();
   
   // Make sure input is up to date
   this->UpdateInput();
@@ -130,8 +131,10 @@ void vtkStructuredPointsToImage::UpdateImageInformation()
   this->Input->GetOrigin(origin);
   origin[3] = 0.0;
   
+  this->CheckCache();
   this->Output->SetSpacing(spacing);
   this->Output->SetOrigin(origin);
+  // If the Scalar type has not been set previously, compute it.
   if (this->Output->GetScalarType() == VTK_VOID)
     {
     this->Output->SetScalarType(this->ComputeDataType());
@@ -177,26 +180,6 @@ unsigned long vtkStructuredPointsToImage::GetPipelineMTime()
 }
 
 
-
-
-//----------------------------------------------------------------------------
-int vtkStructuredPointsToImage::GetScalarType()
-{
-  int type;
-  
-  if ( ! this->Input)
-    {
-    vtkErrorMacro(<< "GetDataType: Input not set");
-    return VTK_VOID;
-    }
-
-  type = this->ComputeDataType();
-  
-  // Release the inputs data, if that is what it wants.
-  // if ( this->Input->ShouldIReleaseData() ) this->Input->ReleaseData();
-
-  return type;
-}
 
 
 //----------------------------------------------------------------------------

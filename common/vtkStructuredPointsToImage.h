@@ -67,7 +67,6 @@ public:
   void Update();
   void UpdateImageInformation();
   unsigned long GetPipelineMTime();
-  int GetScalarType();
   
   // Description:
   // Set/Get the input

@@ -299,10 +299,8 @@ void vtkImageRegion::MakeDataWritable()
 // problem, an execute method that copies the data cound be created.
 void vtkImageRegion::Update()
 {
-  // ... not converted yet ...
-  //this->UpdateImageInformation(region);
-  //region->SetData(this->GetData());
-  //this->Output->CacheRegion(region);
+  this->UpdateImageInformation();
+  this->Output->SetScalarData(this->Data);
 }
 
   
@@ -311,21 +309,21 @@ void vtkImageRegion::Update()
 // Returns the extent of the region as the image extent.
 void vtkImageRegion::UpdateImageInformation()
 {
-  // ... not converted yet ...
-  //int axesSave[VTK_IMAGE_DIMENSIONS];
+  int axesSave[VTK_IMAGE_DIMENSIONS];
   
   // Save coordinate system
-  //region->GetAxes(axesSave);
+  this->GetAxes(axesSave);
   // convert to this regions coordinate system
-  //region->SetAxes(this->GetAxes());
+  this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS, 
+		VTK_IMAGE_TIME_AXIS, VTK_IMAGE_COMPONENT_AXIS);
   // Set the extent
-  //region->SetWholeExtent(this->GetExtent());
-  // Set the data spacing
-  //region->SetSpacing(this->GetSpacing());
-  // Set the origin
-  //region->SetOrigin(this->GetOrigin());
+  this->CheckCache();
+  this->Output->SetWholeExtent(this->GetExtent());
+  this->Output->SetSpacing(this->GetSpacing());
+  this->Output->SetOrigin(this->GetOrigin());
+  
   // Restore coordinate system to the way it was.
-  //region->SetAxes(axesSave);
+  this->SetAxes(5, axesSave);
 }
 
 
@@ -994,6 +992,8 @@ void vtkImageRegion::MakeData()
     }
 
   this->GetAxes(VTK_IMAGE_DIMENSIONS, saveAxes);
+  this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS, 
+		VTK_IMAGE_TIME_AXIS, VTK_IMAGE_COMPONENT_AXIS);
   
   this->Data = vtkImageData::New();
   this->Data->SetScalarType(this->ScalarType);
@@ -1090,7 +1090,7 @@ int vtkImageRegion::GetExtentMemorySize()
       break;
     default:
       vtkWarningMacro(<< "GetExtentMemorySize: "
-        << "Cannot determine input scalar type");
+        << "ScalarType is not set");
     }  
 
   // In case the extent is set improperly

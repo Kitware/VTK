@@ -64,7 +64,7 @@ vtkImageData::vtkImageData()
   this->MemoryOrder[2] = VTK_IMAGE_Y_AXIS;
   this->MemoryOrder[3] = VTK_IMAGE_Z_AXIS;
   this->MemoryOrder[4] = VTK_IMAGE_TIME_AXIS;
-  this->NumberOfScalars = 0;
+  this->NumberOfScalars = 1;
 }
 
 
