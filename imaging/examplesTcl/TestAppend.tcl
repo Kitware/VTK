@@ -18,14 +18,14 @@ reader2 ReleaseDataFlagOff
 reader2 SetFileName "$VTK_DATA/masonry.ppm"
 
 
-vtkImageAppend append
-append SetAppendAxis 0
-append AddInput [reader1 GetOutput]
-append AddInput [reader2 GetOutput]
+vtkImageAppend appendF
+appendF SetAppendAxis 0
+appendF AddInput [reader1 GetOutput]
+appendF AddInput [reader2 GetOutput]
 
 # clip to make sure translation of extents is working correctly
 vtkImageClip clip
-clip SetInput [append GetOutput]
+clip SetInput [appendF GetOutput]
 clip SetOutputWholeExtent 100 700 20 235 0 0
 #clip SetOutputWholeExtent 0 767 20 230 0 0
 clip ReleaseDataFlagOff
@@ -35,6 +35,8 @@ vtkImageViewer viewer
 viewer SetInput [clip GetOutput]
 viewer SetColorWindow 256
 viewer SetColorLevel 127.5
+
+puts [viewer Print]
 
 # Create the GUI: two renderer widgets and a quit button
 #
