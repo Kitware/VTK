@@ -14,7 +14,6 @@ vtkDataSetToStructuredPointsFilter
 vtkDataSetToUnstructuredGridFilter
 vtkImageInPlaceFilter
 vtkImageMultipleInputFilter
-vtkImageMultipleInputOutputFilter
 vtkImageSource 
 vtkImageToImageFilter
 vtkImageToStructuredPoints 
