@@ -16,16 +16,21 @@
 
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
+#include "vtkToolkits.h"
 
 #include <sys/stat.h>
 
 extern "C" {
-#include <tiffio.h>
+#ifdef VTK_USE_SYSTEM_TIFF
+# include <tiffio.h>
+#else
+# include "vtk_tiff.h"
+#endif
 }
 
 //-------------------------------------------------------------------------
 vtkStandardNewMacro(vtkTIFFReader);
-vtkCxxRevisionMacro(vtkTIFFReader, "1.40");
+vtkCxxRevisionMacro(vtkTIFFReader, "1.41");
 
 class vtkTIFFReaderInternal
 {

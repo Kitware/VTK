@@ -1,3 +1,4 @@
+#include "vtk_tiff_mangle.h"
 /* Header */
 
 /*
