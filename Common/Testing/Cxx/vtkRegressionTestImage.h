@@ -269,6 +269,8 @@ int vtkRegressionTester::Test(int argc, char *argv[], vtkRenderWindow *rw,
       delete [] valid;
       delete [] diff_small;
 
+      rt_shrink->Delete();
+      rt_gamma->Delete();
       }
 
     delete [] rt_diffName;
