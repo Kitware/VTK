@@ -88,7 +88,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkExtractVOI.h"
 #include "vtkExtractVectorComponents.h"
 #include "vtkFeatureEdges.h"
-#include "vtkFeatureVertices.h"
 #include "vtkFilter.h"
 #include "vtkFollower.h"
 #include "vtkGaussianSplatter.h"
