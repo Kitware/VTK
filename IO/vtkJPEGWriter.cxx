@@ -22,7 +22,7 @@ extern "C" {
 #include <jpeglib.h>
 }
 
-vtkCxxRevisionMacro(vtkJPEGWriter, "1.5");
+vtkCxxRevisionMacro(vtkJPEGWriter, "1.6");
 vtkStandardNewMacro(vtkJPEGWriter);
 
 vtkJPEGWriter::vtkJPEGWriter()
@@ -103,8 +103,10 @@ void vtkJPEGWriter::WriteSlice(vtkImageData *data)
   void *outPtr;
   unsigned int ui;
 
+  int* uext = data->GetUpdateExtent();
+  
   // Call the correct templated function for the input
-  outPtr = data->GetScalarPointer();
+  outPtr = data->GetScalarPointer(uext[0], uext[2], uext[4]);
   if (data->GetScalarType() != VTK_UNSIGNED_CHAR)
     {
     vtkWarningMacro("JPEGWriter only supports unsigned char input");
