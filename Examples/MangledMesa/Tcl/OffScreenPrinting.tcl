@@ -15,7 +15,7 @@ package require vtkinteraction
 # The OpenGL render window
 vtkRenderWindow rw
 # The Mesa equivalent
-vtkMesaRenderWindow mrw
+vtkXMesaRenderWindow mrw
 mrw OffScreenRenderingOn
 
 # OpenGL
@@ -58,6 +58,9 @@ set openGLCamera [ren GetActiveCamera]
 
 proc PrintWithMesa {} {
     global mesaCamera openGLCamera
+
+    # This is needed to create a default mesa light
+    mrw Render
 
     set mesaLights [mren GetLights]
     eval $mesaLights InitTraversal
