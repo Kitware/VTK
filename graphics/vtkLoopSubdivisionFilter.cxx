@@ -329,7 +329,7 @@ void vtkLoopSubdivisionFilter::ComputeInputUpdateExtents(vtkDataObject *output)
 
   numPieces = output->GetUpdateNumberOfPieces();
   ghostLevel = output->GetUpdateGhostLevel();
-  if (numPieces > 1)
+  if (numPieces > 1 && this->NumberOfSubdivisions > 0)
     {
     this->GetInput()->SetUpdateGhostLevel(ghostLevel + 1);
     }
