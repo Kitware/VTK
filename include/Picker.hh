@@ -36,7 +36,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #define __vlPicker_h
 
 #include "Object.hh"
-#include "RenderW.hh"
+#include "Renderer.hh"
 #include "Actor.hh"
 #include "ActorC.hh"
 #include "Mapper.hh"
@@ -51,9 +51,8 @@ public:
   void PrintSelf(ostream& os, vlIndent indent);
 
   // Description:
-  // Specify the rendering window to pick from.
-  vlSetObjectMacro(RenderWindow,vlRenderWindow);
-  vlGetObjectMacro(RenderWindow,vlRenderWindow);
+  // Get the renderer in which pick event occurred.
+  vlGetObjectMacro(Renderer,vlRenderer);
 
   // Description:
   // Get the selection point in screen (pixel) coordinates. The third
@@ -89,14 +88,16 @@ public:
 
   vlActorCollection *GetActors();
 
-  int Pick(float selectionPt[3]);  
+  int Pick(float selectionX, float selectionY, float selectionZ, 
+           vlRenderer *renderer);  
+  int Pick(float selectionPt[3], vlRenderer *renderer);  
 
 protected:
   void MarkPicked(vlActor *a, vlMapper *m, float tMin, float mapperPos[3]);
   virtual void IntersectWithLine(float p1[3], float p2[3], float tol, vlActor *a, vlMapper *m);
   virtual void Initialize();
 
-  vlRenderWindow *RenderWindow; //pick in this window
+  vlRenderer *Renderer; //pick occurred in this renderer's viewport
   float SelectionPoint[3]; //selection point in window (pixel) coordinates
   float Tolerance; //tolerance for computation (% of window)
   float PickPosition[3]; //selection point in world coordinates
@@ -107,11 +108,14 @@ protected:
   float GlobalTMin; //parametric coordinate along pick ray where hit occured
   vlTransform Transform; //use to perform ray transformation
   vlActorCollection Actors; //candidate actors (based on bounding box)
-
 };
 
 inline vlActorCollection* vlPicker::GetActors() {return &(this->Actors);}
 
+inline int vlPicker::Pick(float selectionPt[3], vlRenderer *renderer)
+{
+  return this->Pick(selectionPt[0], selectionPt[1], selectionPt[2], renderer);
+}
 
 #endif
 

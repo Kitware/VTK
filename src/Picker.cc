@@ -17,6 +17,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Camera.hh"
 #include "vlMath.hh"
 #include "Vertex.hh"
+#include "RenderW.hh"
 
 static vlMath math;
 
@@ -24,7 +25,7 @@ static vlMath math;
 // Construct object with initial tolerance of 1/40th of window.
 vlPicker::vlPicker()
 {
-  this->RenderWindow = NULL;
+  this->Renderer = NULL;
 
   this->SelectionPoint[0] = 0.0;
   this->SelectionPoint[1] = 0.0;
@@ -78,11 +79,10 @@ void vlPicker::MarkPicked(vlActor *actor, vlMapper *mapper, float tMin,
 // Perform pick operation with selection point provided. Normally the 
 // first two values for the selection point are x-y pixel coordinate, and
 // the third value is =0. Return non-zero if something was successfully picked.
-int vlPicker::Pick(float selectionPt[3])
+int vlPicker::Pick(float selectionX, float selectionY, float selectionZ,
+                   vlRenderer *renderer)
 {
   int i;
-  vlRendererCollection *renderers;
-  vlRenderer *renderer;
   vlActorCollection *actors;
   vlActor *actor;
   vlCamera *camera;
@@ -99,41 +99,24 @@ int vlPicker::Pick(float selectionPt[3])
   float ray[3], rayLength;
   float transparency;
   int visible, pickable;
-  float *windowLowerLeft, *windowUpperRight;
+  float windowLowerLeft[4], windowUpperRight[4];
   float *bounds, tol;
   float tF, tB;
   float hitPosition[3];
 //
 //  Initialize picking process
 //
-  for (i=0; i<3; i++) this->SelectionPoint[i] = selectionPt[i];
+  this->Renderer = renderer;
+
+  this->SelectionPoint[0] = selectionX;
+  this->SelectionPoint[1] = selectionY;
+  this->SelectionPoint[2] = selectionZ;
+
   this->Initialize();
 
-  if ( !this->RenderWindow )
+  if ( renderer == NULL )
     {
-    vlErrorMacro(<<"Must specify render window!");
-    return 0;
-    }
-// 
-// Determine which renderer we are dealing with (since more than one renderer
-// may be rendering into renderer window).
-//
-  winSize = this->RenderWindow->GetSize();
-  x = selectionPt[0] / winSize[0];
-  y = selectionPt[1] / winSize[1];
-
-  renderers = this->RenderWindow->GetRenderers();
-  for ( renderers->InitTraversal(); renderer=renderers->GetNextItem(); )
-    {
-    viewport = renderer->GetViewport();
-    if ( viewport[0] <= x && x <= viewport[2] &&
-    viewport[1] <= y && y <= viewport[3] )
-      break;
-    }
-
-  if ( !renderer )
-    {
-    vlErrorMacro(<<"No renderer selected!");
+    vlErrorMacro(<<"Must specify renderer!");
     return 0;
     }
 //
@@ -147,11 +130,11 @@ int vlPicker::Pick(float selectionPt[3])
   renderer->SetWorldPoint(cameraFP);
   renderer->WorldToDisplay();
   displayCoords = renderer->GetDisplayPoint();
-  selectionPt[2] = displayCoords[2];
+  selectionZ = displayCoords[2];
 //
 // Convert the selection point into world coordinates.
 //
-  renderer->SetDisplayPoint(selectionPt);
+  renderer->SetDisplayPoint(selectionX, selectionY, selectionZ);
   renderer->DisplayToWorld();
   worldCoords = renderer->GetWorldPoint();
   for (i=0; i < 3; i++) this->PickPosition[i] = worldCoords[i];
@@ -184,19 +167,21 @@ int vlPicker::Pick(float selectionPt[3])
 // Compute the tolerance in world coordinates.  Do this by
 // determining the world coordinates of the diagonal points of the
 // window, computing the width of the window in world coordinates, and 
-// multiplying by the this tolerance.
+// multiplying by the tolerance.
 //
+  viewport = renderer->GetViewport();
+  winSize = renderer->GetRenderWindow()->GetSize();
   x = winSize[0] * viewport[0];
   y = winSize[1] * viewport[1];
-  renderer->SetDisplayPoint(x, y, selectionPt[2]);
+  renderer->SetDisplayPoint(x, y, selectionZ);
   renderer->DisplayToWorld();
-  windowLowerLeft = renderer->GetWorldPoint();
+  renderer->GetWorldPoint(windowLowerLeft);
 
   x = winSize[0] * viewport[2];
   y = winSize[1] * viewport[3];
-  renderer->SetDisplayPoint(x, y, selectionPt[2]);
+  renderer->SetDisplayPoint(x, y, selectionZ);
   renderer->DisplayToWorld();
-  windowUpperRight = renderer->GetWorldPoint();
+  renderer->GetWorldPoint(windowUpperRight);
 
   for (tol=0.0,i=0; i<3; i++) 
     tol += (windowUpperRight[i] - windowLowerLeft[i])*(windowUpperRight[i] - windowLowerLeft[i]);
@@ -305,7 +290,7 @@ void vlPicker::PrintSelf(ostream& os, vlIndent indent)
 {
   this->vlObject::PrintSelf(os,indent);
 
-  os << indent << "Rendering Window: " << this->RenderWindow << "\n";
+  os << indent << "Renderer: " << this->Renderer << "\n";
   os << indent << "Selection Point: (" <<  this->SelectionPoint[0] << ","
      << this->SelectionPoint[1] << ","
      << this->SelectionPoint[2] << ")\n";
