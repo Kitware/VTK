@@ -38,3 +38,6 @@ IF (VTK_USE_RENDERING)
 
 ENDIF (VTK_USE_RENDERING)
 
+ADD_TEST(PrintSelf-Patented ${TCLSHCOMMAND}
+         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/PrintSelfCheck.tcl  
+         ${VTK_SOURCE_DIR}/Patented)
