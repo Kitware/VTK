@@ -196,6 +196,8 @@ void vtkImageCache::SetUpdateExtent(int xMin, int xMax, int yMin, int yMax,
   extent[2] = yMin; extent[3] = yMax;
   extent[4] = zMin; extent[5] = zMax;
   extent[6] = tMin; extent[7] = tMax;
+  
+  this->SetUpdateExtent(extent);
 }
 //----------------------------------------------------------------------------
 void vtkImageCache::SetAxesUpdateExtent(int num, int *axes, int *extent)
