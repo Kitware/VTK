@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkImplicitTextureCoords.h"
 #include "vtkObjectFactory.h"
-
+#include "vtkFloatArray.h"
 
 
 //------------------------------------------------------------------------------
@@ -82,7 +82,7 @@ vtkImplicitTextureCoords::~vtkImplicitTextureCoords()
 void vtkImplicitTextureCoords::Execute()
 {
   int ptId, numPts, tcoordDim;
-  vtkTCoords *newTCoords;
+  vtkFloatArray *newTCoords;
   float min[3], max[3], scale[3];
   float tCoord[3], *tc, *x;
   int i;
@@ -122,15 +122,16 @@ void vtkImplicitTextureCoords::Execute()
 //
   tCoord[0] = tCoord[1] = tCoord[2] = 0.0;
 
+  newTCoords = vtkFloatArray::New();
   if ( tcoordDim == 1 ) //force 2D map to be created
     {
-    newTCoords = vtkTCoords::New();
-    newTCoords->Allocate(numPts,2);
+    newTCoords->SetNumberOfComponents(2);
+    newTCoords->Allocate(2*numPts);
     }
   else
     {
-    newTCoords = vtkTCoords::New();
-    newTCoords->Allocate(numPts,tcoordDim);
+    newTCoords->SetNumberOfComponents(tcoordDim);
+    newTCoords->Allocate(tcoordDim*numPts);
     }
 //
 // Compute implicit function values -> insert as initial texture coordinate
@@ -165,7 +166,7 @@ void vtkImplicitTextureCoords::Execute()
 	}
       }
 
-    newTCoords->InsertTCoord(ptId,tCoord);
+    newTCoords->InsertTuple(ptId,tCoord);
     }
 //
 // Scale and shift texture coordinates into (0,1) range, with 0.0 implicit 
@@ -204,12 +205,12 @@ void vtkImplicitTextureCoords::Execute()
     }
   for (ptId=0; ptId<numPts; ptId++)
     {
-    tc = newTCoords->GetTCoord(ptId);
+    tc = newTCoords->GetTuple(ptId);
     for (i=0; i<tcoordDim; i++)
       {
       tCoord[i] = 0.5 + scale[i] * tc[i];
       }
-    newTCoords->InsertTCoord(ptId,tCoord);
+    newTCoords->InsertTuple(ptId,tCoord);
     }
 //
 // Update self

@@ -263,17 +263,17 @@ void vtkMergeFilter::Execute()
   int numCells, numCellScalars=0, numCellVectors=0, numCellNormals=0;
   int numCellTCoords=0, numCellTensors=0;
   vtkPointData *pd;
-  vtkScalars *scalars = NULL;
-  vtkVectors *vectors = NULL;
-  vtkNormals *normals = NULL;
-  vtkTCoords *tcoords = NULL;
-  vtkTensors *tensors = NULL;
+  vtkDataArray *scalars = NULL;
+  vtkDataArray *vectors = NULL;
+  vtkDataArray *normals = NULL;
+  vtkDataArray *tcoords = NULL;
+  vtkDataArray *tensors = NULL;
   vtkCellData *cd;
-  vtkScalars *cellScalars = NULL;
-  vtkVectors *cellVectors = NULL;
-  vtkNormals *cellNormals = NULL;
-  vtkTCoords *cellTCoords = NULL;
-  vtkTensors *cellTensors = NULL;
+  vtkDataArray *cellScalars = NULL;
+  vtkDataArray *cellVectors = NULL;
+  vtkDataArray *cellNormals = NULL;
+  vtkDataArray *cellTCoords = NULL;
+  vtkDataArray *cellTensors = NULL;
   vtkDataSet *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
@@ -291,80 +291,80 @@ void vtkMergeFilter::Execute()
   if ( this->GetScalars() ) 
     {
     pd = this->GetScalars()->GetPointData();
-    scalars = pd->GetScalars();
+    scalars = pd->GetActiveScalars();
     if ( scalars != NULL )
       {
-      numScalars = scalars->GetNumberOfScalars();
+      numScalars = scalars->GetNumberOfTuples();
       }
     cd = this->GetScalars()->GetCellData();
-    cellScalars = cd->GetScalars();
+    cellScalars = cd->GetActiveScalars();
     if ( cellScalars != NULL )
       {
-      numCellScalars = cellScalars->GetNumberOfScalars();
+      numCellScalars = cellScalars->GetNumberOfTuples();
       }
     }
 
   if ( this->GetVectors() ) 
     {
     pd = this->GetVectors()->GetPointData();
-    vectors = pd->GetVectors();
+    vectors = pd->GetActiveVectors();
     if ( vectors != NULL )
       {
-      numVectors= vectors->GetNumberOfVectors();
+      numVectors= vectors->GetNumberOfTuples();
       }
     cd = this->GetVectors()->GetCellData();
-    cellVectors = cd->GetVectors();
+    cellVectors = cd->GetActiveVectors();
     if ( cellVectors != NULL )
       {
-      numCellVectors = cellVectors->GetNumberOfVectors();
+      numCellVectors = cellVectors->GetNumberOfTuples();
       }
     }
 
   if ( this->GetNormals() ) 
     {
     pd = this->GetNormals()->GetPointData();
-    normals = pd->GetNormals();
+    normals = pd->GetActiveNormals();
     if ( normals != NULL )
       {
-      numNormals= normals->GetNumberOfNormals();
+      numNormals= normals->GetNumberOfTuples();
       }
     cd = this->GetNormals()->GetCellData();
-    cellNormals = cd->GetNormals();
+    cellNormals = cd->GetActiveNormals();
     if ( cellNormals != NULL )
       {
-      numCellNormals = cellNormals->GetNumberOfNormals();
+      numCellNormals = cellNormals->GetNumberOfTuples();
       }
     }
 
   if ( this->GetTCoords() ) 
     {
     pd = this->GetTCoords()->GetPointData();
-    tcoords = pd->GetTCoords();
+    tcoords = pd->GetActiveTCoords();
     if ( tcoords != NULL )
       {
-      numTCoords= tcoords->GetNumberOfTCoords();
+      numTCoords= tcoords->GetNumberOfTuples();
       }
     cd = this->GetTCoords()->GetCellData();
-    cellTCoords = cd->GetTCoords();
+    cellTCoords = cd->GetActiveTCoords();
     if ( cellTCoords != NULL )
       {
-      numCellTCoords = cellTCoords->GetNumberOfTCoords();
+      numCellTCoords = cellTCoords->GetNumberOfTuples();
       }
     }
 
   if ( this->GetTensors() ) 
     {
     pd = this->GetTensors()->GetPointData();
-    tensors = pd->GetTensors();
+    tensors = pd->GetActiveTensors();
     if ( tensors != NULL )
       {
-      numTensors = tensors->GetNumberOfTensors();
+      numTensors = tensors->GetNumberOfTuples();
       }
     cd = this->GetTensors()->GetCellData();
-    cellTensors = cd->GetTensors();
+    cellTensors = cd->GetActiveTensors();
     if ( cellTensors != NULL )
       {
-      numCellTensors = cellTensors->GetNumberOfTensors();
+      numCellTensors = cellTensors->GetNumberOfTuples();
       }
     }
 

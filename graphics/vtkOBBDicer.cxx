@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkOBBDicer.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-
+#include "vtkShortArray.h"
 
 
 //------------------------------------------------------------------------------
@@ -152,7 +152,7 @@ void vtkOBBDicer::Execute()
 {
   int ptId, numPts;
   vtkIdList *ptIds;
-  vtkScalars *groupIds;
+  vtkShortArray *groupIds;
   vtkOBBNode *root;
   vtkDataSet *input= this->GetInput();
   vtkDataSet *output= this->GetOutput();
@@ -189,8 +189,8 @@ void vtkOBBDicer::Execute()
   //
   this->PointsList->Delete(); 
   this->PointsList = NULL;
-  groupIds = vtkScalars::New(VTK_SHORT,1);
-  groupIds->SetNumberOfScalars(numPts);
+  groupIds = vtkShortArray::New();
+  groupIds->SetNumberOfTuples(numPts);
   this->NumberOfActualPieces = 0;
   this->MarkPoints(root,groupIds);
   this->DeleteTree(root);
@@ -202,8 +202,8 @@ void vtkOBBDicer::Execute()
   //
   if ( this->FieldData )
     {
-    groupIds->GetData()->SetName("vtkOBBDicer_GroupIds");
-    output->GetPointData()->AddArray(groupIds->GetData());
+    groupIds->SetName("vtkOBBDicer_GroupIds");
+    output->GetPointData()->AddArray(groupIds);
     output->GetPointData()->CopyFieldOff("vtkOBBDicer_GroupIds");
     output->GetPointData()->PassData(input->GetPointData());
     }
@@ -219,7 +219,7 @@ void vtkOBBDicer::Execute()
   groupIds->Delete();
 }
 
-void vtkOBBDicer::MarkPoints(vtkOBBNode *OBBptr, vtkScalars *groupIds)
+void vtkOBBDicer::MarkPoints(vtkOBBNode *OBBptr, vtkShortArray *groupIds)
 {
   if ( OBBptr->Kids == NULL ) //leaf OBB
     {
@@ -232,7 +232,7 @@ void vtkOBBDicer::MarkPoints(vtkOBBNode *OBBptr, vtkScalars *groupIds)
       for ( i=0; i < numIds; i++ )
         {
         ptId = ptIds->GetId(i);
-        groupIds->SetScalar(ptId,this->NumberOfActualPieces);
+        groupIds->SetValue(ptId,this->NumberOfActualPieces);
         }
       this->NumberOfActualPieces++;
       }//if any points in this leaf OBB

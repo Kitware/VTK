@@ -41,12 +41,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkPlaneSource.h"
 #include "vtkPoints.h"
-#include "vtkNormals.h"
-#include "vtkTCoords.h"
 #include "vtkMath.h"
 #include "vtkTransform.h"
 #include "vtkObjectFactory.h"
-
+#include "vtkFloatArray.h"
 
 
 //------------------------------------------------------------------------------
@@ -113,8 +111,8 @@ void vtkPlaneSource::Execute()
   int numPts;
   int numPolys;
   vtkPoints *newPoints; 
-  vtkNormals *newNormals;
-  vtkTCoords *newTCoords;
+  vtkFloatArray *newNormals;
+  vtkFloatArray *newTCoords;
   vtkCellArray *newPolys;
   vtkPolyData *output = this->GetOutput();
   
@@ -137,10 +135,12 @@ void vtkPlaneSource::Execute()
 
   newPoints = vtkPoints::New();
   newPoints->Allocate(numPts);
-  newNormals = vtkNormals::New();
-  newNormals->Allocate(numPts);
-  newTCoords = vtkTCoords::New();
-  newTCoords->Allocate(numPts,2);
+  newNormals = vtkFloatArray::New();
+  newNormals->SetNumberOfComponents(3);
+  newNormals->Allocate(3*numPts);
+  newTCoords = vtkFloatArray::New();
+  newTCoords->SetNumberOfComponents(2);
+  newTCoords->Allocate(2*numPts);
 
   newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(numPolys,4));
@@ -160,8 +160,8 @@ void vtkPlaneSource::Execute()
         }
 
       newPoints->InsertPoint(numPts,x);
-      newTCoords->InsertTCoord(numPts,tc);
-      newNormals->InsertNormal(numPts++,this->Normal);
+      newTCoords->InsertTuple(numPts,tc);
+      newNormals->InsertTuple(numPts++,this->Normal);
       }
     }
 //

@@ -1298,7 +1298,7 @@ int vtkDataSetAttributes::SetActiveAttribute(int index, int attributeType)
 
 // Scalars set to NOLIMIT and 1024 (limit is arbitrary, so make it big.)
 int vtkDataSetAttributes::NumberOfAttributeComponents[vtkDataSetAttributes::NUM_ATTRIBUTES] 
-= { 1024, 
+= { 0, 
     3, 
     3, 
     3, 

@@ -57,6 +57,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkDicer.h"
 #include "vtkOBBTree.h"
+class vtkShortArray;
 
 class VTK_EXPORT vtkOBBDicer : public vtkDicer 
 {
@@ -79,7 +80,7 @@ protected:
 
   //implementation ivars and methods
   void BuildTree(vtkIdList *ptIds, vtkOBBNode *OBBptr);
-  void MarkPoints(vtkOBBNode *OBBptr, vtkScalars *groupIds);
+  void MarkPoints(vtkOBBNode *OBBptr, vtkShortArray *groupIds);
   void DeleteTree(vtkOBBNode *OBBptr);
   vtkPoints *PointsList;
   

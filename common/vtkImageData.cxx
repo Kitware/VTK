@@ -1571,8 +1571,6 @@ void vtkImageData::AllocateScalars()
     SetNumberOfScalars((this->Extent[1] - this->Extent[0] + 1)*
 		       (this->Extent[3] - this->Extent[2] + 1)*
 		       (this->Extent[5] - this->Extent[4] + 1));
-  // Give them a default name.
-  this->PointData->GetScalars()->GetData()->SetName("Scalars");
 }
 
 
