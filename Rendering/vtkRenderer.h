@@ -201,11 +201,7 @@ public:
 
   // Description:
   // Wrapper-friendly version of ComputeVisiblePropBounds 
-  float *ComputeVisiblePropBounds()
-    { 
-    static float bounds[6];
-    this->ComputeVisiblePropBounds(bounds);
-    return bounds;};
+  float *ComputeVisiblePropBounds();
 
   // Description:
   // Reset the camera clipping range based on the bounds of the
@@ -381,6 +377,9 @@ protected:
   // Shows what layer this renderer belongs to.  Only of interested when
   // there are layered renderers.
   int                Layer;
+
+  // Holds the result of ComputeVisiblePropBounds so that it is visible from wrapped languages
+  float              ComputedVisiblePropBounds[6];
 
   // Description:
   // Ask all props to update and draw any opaque and translucent

@@ -34,7 +34,7 @@
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.187");
+vtkCxxRevisionMacro(vtkRenderer, "1.188");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -663,6 +663,12 @@ void vtkRenderer::ComputeVisiblePropBounds( float allBounds[6] )
     return;
     }
 }
+
+float *vtkRenderer::ComputeVisiblePropBounds()
+  {
+  this->ComputeVisiblePropBounds(this->ComputedVisiblePropBounds);
+  return this->ComputedVisiblePropBounds;
+  }
 
 // Automatically set up the camera based on the visible actors.
 // The camera will reposition itself to view the center point of the actors,
