@@ -43,6 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkImagingFactory.h"
 #include "vtkToolkits.h"
+#include "vtkDebugLeaks.h"
 
 #ifdef VTK_USE_OGLR
 #include "vtkOpenGLImageMapper.h"
@@ -142,7 +143,12 @@ vtkObject* vtkImagingFactory::CreateInstance(const char* vtkclassname )
     {
     return ret;
     }
-
+  // if the factory failed to create the object,
+  // then destroy it now, as vtkDebugLeaks::ConstructClass was called
+  // with vtkclassname, and not the real name of the class
+#ifdef VTK_DEBUG_LEAKS
+  vtkDebugLeaks::DestructClass(vtkclassname);
+#endif
   const char *rl = vtkImagingFactoryGetRenderLibrary();
 
 #ifdef VTK_USE_OGLR

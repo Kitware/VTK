@@ -15,9 +15,6 @@ vtkObjectFactoryCollection* vtkObjectFactory::RegisteredFactories = 0;
 
 vtkObject* vtkObjectFactory::CreateInstance(const char* vtkclassname)
 {
-#ifdef VTK_DEBUG_LEAKS
-  vtkDebugLeaks::ConstructClass(vtkclassname);
-#endif
   if(!vtkObjectFactory::RegisteredFactories)
     {
     vtkObjectFactory::Init();
@@ -31,9 +28,21 @@ vtkObject* vtkObjectFactory::CreateInstance(const char* vtkclassname)
     vtkObject* newobject = factory->CreateObject(vtkclassname);
     if(newobject)
       {
+      // if the factory created an object, then use that objects
+      // real name as the constructed class
+#ifdef VTK_DEBUG_LEAKS
+      vtkDebugLeaks::ConstructClass(newobject->GetClassName());
+#endif
       return newobject;
       }
     }
+  // if the factory does not create the object, then
+  // the object will be created with the name passed in,
+  // so register the construction
+#ifdef VTK_DEBUG_LEAKS
+  vtkDebugLeaks::ConstructClass(vtkclassname);
+#endif
+
   return 0;
 }
 
