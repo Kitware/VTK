@@ -1,5 +1,5 @@
 //
-// Created Line centered at origin
+// Create line centered at origin
 //
 #ifndef __vlLineSource_h
 #define __vlLineSource_h
