@@ -10,7 +10,7 @@ main ()
 
   // load the texture map
   vtkPNMReader *pnm = vtkPNMReader::New();
-    pnm->SetFileName("../../data/masonry.ppm");
+    pnm->SetFileName("../../../vtkdata/masonry.ppm");
   vtkTexture *atext = vtkTexture::New();
     atext->SetInput(pnm->GetOutput());
     atext->InterpolateOn();

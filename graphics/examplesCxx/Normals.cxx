@@ -9,7 +9,7 @@ main ()
     iren->SetRenderWindow(renWin);
 
   vtkSTLReader *stl = vtkSTLReader::New();
-    stl->SetFileName("../../data/cadPart.stl");
+    stl->SetFileName("../../../vtkdata/cadPart.stl");
     stl->DebugOn();
 
   vtkPolyDataNormals *normals = vtkPolyDataNormals::New();

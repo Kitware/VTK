@@ -16,7 +16,7 @@ main ()
 //
   vtkStructuredGridReader *reader = vtkStructuredGridReader::New();
     reader->DebugOn();
-    reader->SetFileName("../../data/kitchen.vtk");
+    reader->SetFileName("../../../vtkdata/kitchen.vtk");
     reader->Update(); //force a read to occur
 
   length = reader->GetOutput()->GetLength();

@@ -48,7 +48,7 @@ main ()
     outerMapper->SetInput(tcoords->GetOutput());
 
   vtkStructuredPointsReader *tmap = vtkStructuredPointsReader::New();
-    tmap->SetFileName("../../data/texThres.vtk");
+    tmap->SetFileName("../../../vtkdata/texThres.vtk");
 
   vtkTexture *texture = vtkTexture::New();
     texture->SetInput(tmap->GetOutput());

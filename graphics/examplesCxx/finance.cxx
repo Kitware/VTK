@@ -110,7 +110,7 @@ static vtkDataSet *ReadFinancialData(char *x, char *y, char *z, char *s)
   int i, npts;
   char tag[80];
 
-  if ( (file = fopen("../../data/financial.txt","r")) == NULL )
+  if ( (file = fopen("../../../vtkdata/financial.txt","r")) == NULL )
     {
     cerr << "Can't read file!\n";
     return NULL;

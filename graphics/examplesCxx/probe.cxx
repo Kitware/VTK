@@ -11,8 +11,8 @@ main ()
   // read data
   vtkPLOT3DReader *reader = vtkPLOT3DReader::New();
     reader->DebugOn();
-    reader->SetXYZFileName("../../data/combxyz.bin");
-    reader->SetQFileName("../../data/combq.bin");
+    reader->SetXYZFileName("../../../vtkdata/combxyz.bin");
+    reader->SetQFileName("../../../vtkdata/combq.bin");
     reader->SetFileFormat(VTK_WHOLE_SINGLE_GRID_NO_IBLANKING);
     reader->Update(); //force a read to occur
 

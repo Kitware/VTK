@@ -13,8 +13,8 @@ main ()
 
   vtkPLOT3DReader *reader = vtkPLOT3DReader::New();
     reader->DebugOn();
-    reader->SetXYZFileName("../../data/bluntfinxyz.bin");
-    reader->SetQFileName("../../data/bluntfinq.bin");
+    reader->SetXYZFileName("../../../vtkdata/bluntfinxyz.bin");
+    reader->SetQFileName("../../../vtkdata/bluntfinq.bin");
     reader->SetFileFormat(VTK_WHOLE_SINGLE_GRID_NO_IBLANKING);
     reader->Update(); //force a read to occur
     reader->GetOutput()->GetCenter(c);

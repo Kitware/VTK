@@ -22,7 +22,7 @@ main ()
 
   // read data file
   vtkPolyDataReader *plate = vtkPolyDataReader::New();
-    plate->SetFileName("../../data/plate.vtk");
+    plate->SetFileName("../../../vtkdata/plate.vtk");
     plate->DebugOn();
     plateOutput = plate->GetOutput();
   vtkPolyDataMapper *plateMapper = vtkPolyDataMapper::New();

@@ -16,7 +16,7 @@ main ()
   // Read data
   //
   vtkStructuredPointsReader *reader;
-    reader->SetFileName("../../data/ironProt.vtk");
+    reader->SetFileName("../../../vtkdata/ironProt.vtk");
     reader->Update();
     reader->GetOutput()->GetPointData()->GetScalars()->GetRange(range);
 
