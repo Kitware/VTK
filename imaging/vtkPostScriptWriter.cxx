@@ -39,7 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkPostScriptWriter.h"
-#define MARGIN 0.95
+#define VTK_MARGIN 0.95
 
 void vtkPostScriptWriter::WriteFileTrailer(ofstream *file, 
 					   vtkImageData *cache)
@@ -66,17 +66,17 @@ void vtkPostScriptWriter::WriteFileHeader(ofstream *file, vtkImageData *cache)
   float pixfac = 0.96;	/* 1, approx. */
   scols = cols * pixfac;
   srows = rows * pixfac;
-  if ( scols > pagewid * MARGIN || srows > pagehgt * MARGIN )
+  if ( scols > pagewid * VTK_MARGIN || srows > pagehgt * VTK_MARGIN )
     {
-    if ( scols > pagewid * MARGIN )
+    if ( scols > pagewid * VTK_MARGIN )
       {
-      scale *= pagewid / scols * MARGIN;
+      scale *= pagewid / scols * VTK_MARGIN;
       scols = scale * cols * pixfac;
       srows = scale * rows * pixfac;
       }
-    if ( srows > pagehgt * MARGIN )
+    if ( srows > pagehgt * VTK_MARGIN )
       {
-      scale *= pagehgt / srows * MARGIN;
+      scale *= pagehgt / srows * VTK_MARGIN;
       scols = scale * cols * pixfac;
       srows = scale * rows * pixfac;
       }
