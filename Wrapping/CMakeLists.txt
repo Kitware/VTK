@@ -15,6 +15,8 @@ ENDIF (VTK_WRAP_TCL)
 IF (VTK_WRAP_PYTHON)
   ADD_EXECUTABLE(vtkWrapPython vtkWrapPython.c vtkParse.tab.c)
   INSTALL_TARGETS(/bin vtkWrapPython)
+  ADD_EXECUTABLE(vtkWrapPythonInit vtkWrapPythonInit.c)
+  INSTALL_TARGETS(/bin vtkWrapPythonInit)
 ENDIF (VTK_WRAP_PYTHON)
 
 IF (VTK_WRAP_JAVA)
