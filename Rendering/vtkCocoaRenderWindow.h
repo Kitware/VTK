@@ -206,7 +206,7 @@ public:
   
   // Description:
   // Clean up device contexts, rendering contexts, etc.
-  void Clean();
+  void Finalize();
 
   // Description:
   // Register a texture name with this render window

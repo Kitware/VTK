@@ -104,6 +104,10 @@ public:
   virtual void Start() = 0;
   
   // Description:
+  // Finalize the rendering process.
+  virtual void Finalize() = 0;
+  
+  // Description:
   // A termination method performed at the end of the rendering process
   // to do things like swapping buffers (if necessary) or similar actions.
   virtual void Frame() = 0;

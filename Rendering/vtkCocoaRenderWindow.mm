@@ -31,7 +31,7 @@
 #define id Id // since id is a reserved token in ObjC and is used a _lot_ in vtk
 
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.24");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.25");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 
@@ -59,7 +59,7 @@ vtkCocoaRenderWindow::~vtkCocoaRenderWindow()
     {
     this->ShowCursor();
     }
-  this->Clean();
+  this->Finalize();
   // can't set WindowId=NULL, needed for DestroyWindow
   this->DeviceContext = NULL;
   if (this->WindowId && this->OwnWindow)
@@ -69,7 +69,7 @@ vtkCocoaRenderWindow::~vtkCocoaRenderWindow()
 }
 
 //----------------------------------------------------------------------------
-void vtkCocoaRenderWindow::Clean()
+void vtkCocoaRenderWindow::Finalize()
 {
   vtkRenderer *ren;
   GLuint id;
