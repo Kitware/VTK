@@ -56,7 +56,7 @@
 
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkCompressCompositer, "1.8");
+vtkCxxRevisionMacro(vtkCompressCompositer, "1.9");
 vtkStandardNewMacro(vtkCompressCompositer);
 
 
@@ -126,7 +126,10 @@ int vtkCompressCompositerCompress(float *zIn, P *pIn, float *zOut, P *pOut,
   int compressCount;
 
   endZ = zIn+numPixels;
-
+  if (*zIn < 0.0 || *zIn > 1.0)
+    {
+    *zIn = 1.0;
+    } 
   while (zIn < endZ)
     {
     ++length;
@@ -138,6 +141,10 @@ int vtkCompressCompositerCompress(float *zIn, P *pIn, float *zOut, P *pOut,
       {
       ++compressCount;
       ++zIn;
+      if (*zIn < 0.0 || *zIn > 1.0)
+        {
+        *zIn = 1.0;
+        } 
       }
  
     if (compressCount > 0)
@@ -150,6 +157,10 @@ int vtkCompressCompositerCompress(float *zIn, P *pIn, float *zOut, P *pOut,
     else
       { 
       *zOut++ = *zIn++;
+      if (*zIn < 0.0 || *zIn > 1.0)
+        {
+        *zIn = 1.0;
+        } 
       }
     }
   return length;
