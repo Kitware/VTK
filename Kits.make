@@ -50,7 +50,7 @@ libVTK$(ME)$(SHLIB_SUFFIX): ${KIT_OBJ}
 	rm -f libVTK$(ME)$(SHLIB_SUFFIX)
 	$(CXX) ${CXX_FLAGS} ${VTK_SHLIB_BUILD_FLAGS} -o \
 	libVTK$(ME)$(SHLIB_SUFFIX) \
-	   ${KIT_OBJ} ${SHLIB_LD_LIBS}
+	   ${KIT_OBJ} ${KIT_EXTERNAL_LIBS} ${SHLIB_LD_LIBS}
 
 #------------------------------------------------------------------------------
 # rules for the tcl library
