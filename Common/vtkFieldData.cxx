@@ -18,7 +18,7 @@
 #include "vtkFieldData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkFieldData, "1.44");
+vtkCxxRevisionMacro(vtkFieldData, "1.45");
 vtkStandardNewMacro(vtkFieldData);
 
 vtkFieldData::BasicIterator::BasicIterator(const int* list, 
@@ -169,6 +169,10 @@ vtkFieldData::vtkFieldData()
 
   this->CopyFieldFlags = 0;
   this->NumberOfFieldFlags = 0;
+
+  this->DoCopyAllOn = 1;
+  this->DoCopyAllOff = 0;
+
   this->CopyAllOn();
 }
 
@@ -597,7 +601,7 @@ void vtkFieldData::CopyFieldOnOff(const char* field, int onOff)
 // Turn on copying of all data.
 void vtkFieldData::CopyAllOn()
 {
-  if ( !DoCopyAllOn || DoCopyAllOff)
+  if ( !DoCopyAllOn || DoCopyAllOff )
     {
     this->DoCopyAllOn = 1;
     this->DoCopyAllOff = 0;
@@ -608,7 +612,7 @@ void vtkFieldData::CopyAllOn()
 // Turn off copying of all data.
 void vtkFieldData::CopyAllOff()
 {
-  if ( DoCopyAllOn || !DoCopyAllOff)
+  if ( DoCopyAllOn || !DoCopyAllOff )
     {
     this->DoCopyAllOn = 0;
     this->DoCopyAllOff = 1;
