@@ -100,7 +100,7 @@ void vtkGlyph2D::Execute()
   numPts = input->GetNumberOfPoints();
   if (numPts < 1)
     {
-    vtkErrorMacro(<<"No points to glyph!");
+    vtkDebugMacro(<<"No points to glyph!");
     return;
     }
 

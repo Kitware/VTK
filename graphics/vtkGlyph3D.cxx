@@ -116,11 +116,6 @@ void vtkGlyph3D::Execute()
   pts->Allocate(VTK_CELL_SIZE);
 
   pd = input->GetPointData();
-  if (pd == NULL)
-    {
-      vtkErrorMacro(<< "Point data is NULL");
-      return;
-    }
   inScalars = pd->GetScalars();
   inVectors = pd->GetVectors();
   inNormals = pd->GetNormals();
@@ -131,7 +126,7 @@ void vtkGlyph3D::Execute()
   numPts = input->GetNumberOfPoints();
   if (numPts < 1)
     {
-    vtkErrorMacro(<<"No points to glyph!");
+    vtkDebugMacro(<<"No points to glyph!");
     return;
     }
 
