@@ -45,9 +45,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #endif
 #include <GL/gl.h>
 
-#include "vtkOglrRenderWindow.hh"
+#include "vtkRenderWindow.hh"
 #include "vtkOglrRenderer.hh"
 #include "vtkOglrCamera.hh"
+
+#ifndef M_PI
+#define M_PI 3.1415926
+#endif
 
 void oglrlookat(float vx, float vy, float vz, float px, float py, float pz, 
 	    float twist )
@@ -131,10 +135,10 @@ void vtkOglrCamera::Render(vtkCamera *cam, vtkOglrRenderer *ren)
   int  *size;
 
   // get the bounds of the window 
-  size = ((vtkOglrRenderWindow*)(ren->GetRenderWindow()))->GetSize();
+  size = (ren->GetRenderWindow())->GetSize();
   
   // find out if we should stereo render
-  stereo = ((vtkOglrRenderWindow*)(ren->GetRenderWindow()))->GetStereoRender();
+  stereo = (ren->GetRenderWindow())->GetStereoRender();
 
   vport = ren->GetViewport();
 
@@ -240,7 +244,7 @@ void vtkOglrCamera::Render(vtkCamera *cam, vtkOglrRenderer *ren)
   // get the background color
   bg_color = ren->GetBackground();
 
-  if (((vtkOglrRenderWindow*)(ren->GetRenderWindow()))->GetErase()) 
+  if ((ren->GetRenderWindow())->GetErase()) 
     {
     glClearColor( ((GLclampf)(bg_color[0])),
 		  ((GLclampf)(bg_color[1])),
