@@ -224,6 +224,7 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
 //  transformed to actors coordinates!  Reduces overall computation!!!).
 //
   actors = renderer->GetActors();
+  this->Transform.PostMultiply();
   for ( actors->InitTraversal(); (actor=actors->GetNextItem()); )
     {
     for ( actor->InitPartTraversal(); (part=actor->GetNextPart()); )
@@ -241,7 +242,6 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
         {
         this->Transform.SetMatrix(part->vtkProp::GetMatrix());
         this->Transform.Push();
-        this->Transform.Transpose();
         this->Transform.Inverse();
 
         this->Transform.SetPoint(p1World);
