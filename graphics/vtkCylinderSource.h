@@ -40,7 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkCylinderSource - generate a cylinder centered at origin
 // .SECTION Description
-// vtkCylinderSource creates a polygonal cylinder centered at the origin.
+// vtkCylinderSource creates a polygonal cylinder centered at Center;
 // The axis of the cylinder is aligned along the global y-axis.
 // The height and radius of the cylinder can be specified, as well as the
 // number of sides. It is also possible to control whether the cylinder is
@@ -69,6 +69,11 @@ public:
   vtkGetMacro(Radius,float);
 
   // Description:
+  // Set/Get cylinder center
+  vtkSetVector3Macro(Center,float);
+  vtkGetVectorMacro(Center,float,3);
+
+  // Description:
   // Set the number of facets used to define cylinder.
   vtkSetClampMacro(Resolution,int,0,VTK_CELL_SIZE)
   vtkGetMacro(Resolution,int);
@@ -83,6 +88,7 @@ protected:
   void Execute();
   float Height;
   float Radius;
+  float Center[3];
   int Resolution;
   int Capping;
 

@@ -58,6 +58,7 @@ void vtkCylinderSource::Execute()
   int numPolys, numPts;
   float xbot[3], tcbot[2], nbot[3];
   float xtop[3], tctop[2], ntop[3];
+  float *center = this->Center;
   int i, idx;
   int pts[VTK_CELL_SIZE];
   vtkFloatPoints *newPoints; 
@@ -94,17 +95,19 @@ void vtkCylinderSource::Execute()
     {
     // x coordinate
     xbot[0] = xtop[0] = nbot[0] = ntop[0] = this->Radius * cos((double)i*angle);
+    xbot[0] += center[0]; xtop[0] += center[0];
     tcbot[0] = tctop[0] = fabs(2.0*i/this->Resolution - 1.0);
 
     // y coordinate
-    xbot[1] = 0.5 * this->Height;
-    xtop[1] = -0.5 * this->Height;
+    xbot[1] = 0.5 * this->Height + center[1];
+    xtop[1] = -0.5 * this->Height + center[1];
     nbot[1] = ntop[1] = 0.0;
     tcbot[1] = 0.0;
     tctop[1] = 1.0;
 
     // z coordinate
     xbot[2] = xtop[2] = nbot[2] = ntop[2] = -this->Radius * sin((double)i*angle);
+    xbot[2] += center[2]; xtop[2] += center[2];
 
     idx = 2*i;
     newPoints->InsertPoint(idx,xbot);
@@ -136,16 +139,19 @@ void vtkCylinderSource::Execute()
       xbot[0] = xtop[0] = this->Radius * cos((double)i*angle);
       nbot[0] = ntop[0] = 0.0;
       tcbot[0] = tctop[0] = xbot[0];
+      xbot[0] += center[0]; xtop[0] += center[0];
 
       // y coordinate
       xbot[1] = 0.5 * this->Height;
       xtop[1] = -0.5 * this->Height;
       nbot[1] = -1.0;
       ntop[1] =  1.0;
+      xbot[1] += center[1]; xtop[1] += center[1];
 
       // z coordinate
       xbot[2] = xtop[2] = -this->Radius * sin((double)i*angle);
       tcbot[1] = tctop[1] = xbot[2];
+      xbot[2] += center[2]; xtop[2] += center[2];
 
       idx = 2*this->Resolution;
       newPoints->InsertPoint(idx+i,xbot);
