@@ -73,12 +73,12 @@ public:
   // Specify file prefix for the image file(s).You should specify either
   // a FileName or FilePrefix. Use FilePrefix if the data is stored
   // in multiple files.
-  void SetFilePrefix(char *);
+  void SetFilePrefix(const char *);
   vtkGetStringMacro(FilePrefix);
 
   // Description:
   // The sprintf format used to build filename from FilePrefix and number.
-  void SetFilePattern(char *);
+  void SetFilePattern(const char *);
   vtkGetStringMacro(FilePattern);
 
   // Description:
