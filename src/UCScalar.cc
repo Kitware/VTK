@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    CScalars.cc
+  Module:    UCScalar.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -13,22 +13,22 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-#include "CScalars.hh"
+#include "UCScalar.hh"
 
-vtkScalars *vtkCharScalars::MakeObject(int sze, int ext)
+vtkScalars *vtkUnsignedCharScalars::MakeObject(int sze, int ext)
 {
-  return new vtkCharScalars(sze,ext);
+  return new vtkUnsignedCharScalars(sze,ext);
 }
 
 // Description:
 // Deep copy of scalars.
-vtkCharScalars& vtkCharScalars::operator=(const vtkCharScalars& cs)
+vtkUnsignedCharScalars& vtkUnsignedCharScalars::operator=(const vtkUnsignedCharScalars& cs)
 {
   this->S = cs.S;
   return *this;
 }
 
-void vtkCharScalars::GetScalars(vtkIdList& ptId, vtkFloatScalars& fs)
+void vtkUnsignedCharScalars::GetScalars(vtkIdList& ptId, vtkFloatScalars& fs)
 {
   for (int i=0; i<ptId.GetNumberOfIds(); i++)
     {

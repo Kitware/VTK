@@ -45,7 +45,7 @@ public:
 
   // vtkScalars interface
   char *GetScalarType() {return "ColorScalar";};
-  char *GetDataType() {return "char";};
+  char *GetDataType() {return "unsigned char";};
   float GetScalar(int i);
   void SetScalar(int i, float s);
   void InsertScalar(int i, float s);

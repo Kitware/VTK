@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    CArray.cc
+  Module:    UCArray.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -13,15 +13,11 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-//  Dynamic, self adjusting char array
-//
-//
-#include "CArray.hh"
+#include "UCArray.hh"
 
 // Description:
 // Allocate memory for this array. Delete old storage if present.
-int vtkCharArray::Allocate(const int sz, const int ext)
+int vtkUnsignedCharArray::Allocate(const int sz, const int ext)
 {
   if ( this->Array != NULL ) delete [] this->Array;
 
@@ -35,7 +31,7 @@ int vtkCharArray::Allocate(const int sz, const int ext)
 
 // Description:
 // Release storage and reset array to initial state.
-void vtkCharArray::Initialize()
+void vtkUnsignedCharArray::Initialize()
 {
   if ( this->Array != NULL )
     {
@@ -48,7 +44,7 @@ void vtkCharArray::Initialize()
 
 // Description:
 // Construct with specified storage size and extend value.
-vtkCharArray::vtkCharArray(const int sz, const int ext)
+vtkUnsignedCharArray::vtkUnsignedCharArray(const int sz, const int ext)
 {
   this->Size = ( sz > 0 ? sz : 1);
   this->Array = new unsigned char[this->Size];
@@ -56,7 +52,7 @@ vtkCharArray::vtkCharArray(const int sz, const int ext)
   this->MaxId = -1;
 }
 
-vtkCharArray::~vtkCharArray()
+vtkUnsignedCharArray::~vtkUnsignedCharArray()
 {
   if (this->Array)
     {
@@ -66,7 +62,7 @@ vtkCharArray::~vtkCharArray()
 
 // Description:
 // Construct array from another array. Copy each element of other array.
-vtkCharArray::vtkCharArray(const vtkCharArray& ia)
+vtkUnsignedCharArray::vtkUnsignedCharArray(const vtkUnsignedCharArray& ia)
 {
   int i;
 
@@ -82,7 +78,7 @@ vtkCharArray::vtkCharArray(const vtkCharArray& ia)
 
 // Description:
 // Deep copy of another array.
-vtkCharArray& vtkCharArray::operator=(const vtkCharArray& ia)
+vtkUnsignedCharArray& vtkUnsignedCharArray::operator=(const vtkUnsignedCharArray& ia)
 {
   int i;
 
@@ -103,7 +99,7 @@ vtkCharArray& vtkCharArray::operator=(const vtkCharArray& ia)
 
 // Description:
 // Append one array onto the end of this array.
-void vtkCharArray::operator+=(const vtkCharArray& ia)
+void vtkUnsignedCharArray::operator+=(const vtkUnsignedCharArray& ia)
 {
   int i, sz;
 
@@ -116,7 +112,7 @@ void vtkCharArray::operator+=(const vtkCharArray& ia)
   this->MaxId += ia.MaxId + 1;
 }
 
-void vtkCharArray::PrintSelf(ostream& os, vtkIndent indent)
+void vtkUnsignedCharArray::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 
@@ -129,7 +125,7 @@ void vtkCharArray::PrintSelf(ostream& os, vtkIndent indent)
 //
 // Private function does "reallocate"
 //
-unsigned char *vtkCharArray::Resize(const int sz)
+unsigned char *vtkUnsignedCharArray::Resize(const int sz)
 {
   unsigned char *newArray;
   int newSize;

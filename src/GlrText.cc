@@ -79,10 +79,10 @@ void vtkGlrTexture::Load(vtkTexture *txt, vtkGlrRenderer *ren)
     bytesPerPixel = scalars->GetNumberOfValuesPerScalar();
 
     // make sure using unsigned char data of color scalars type
-    if ( strcmp(scalars->GetDataType(),"char") ||
+    if ( strcmp(scalars->GetDataType(),"unsigned char") ||
     strcmp(scalars->GetScalarType(),"ColorScalar") )
       {
-      vtkDebugMacro(<< "Cannot do quick coversion to unsigned char.\n");
+      vtkErrorMacro(<< "Cannot do quick coversion to unsigned char.\n");
       return;
       }
 

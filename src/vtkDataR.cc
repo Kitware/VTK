@@ -17,7 +17,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <ctype.h>
 
 #include "BScalars.hh"
-#include "CScalars.hh"
+#include "UCScalar.hh"
 #include "FScalars.hh"
 #include "SScalars.hh"
 #include "IScalars.hh"
@@ -97,9 +97,9 @@ int vtkDataReader::ReadHeader(FILE *fp)
     vtkErrorMacro(<<"Premature EOF reading first line!");
     return 0;
     }
-  if ( strncmp ("# vtk DataSet Version", line, 20) )
+  if ( strncmp ("# vtk DataFile Version", line, 20) )
     {
-    vtkErrorMacro(<< "Unrecognized header: "<< line);
+    vtkErrorMacro(<< "Unrecognized file type: "<< line);
     return 0;
     }
 //
@@ -353,9 +353,9 @@ int vtkDataReader::ReadScalarData(FILE *fp, vtkDataSet *ds, int numPts)
     else ds->GetPointData()->SetScalars(scalars);
     }
 
-  else if ( ! strncmp(line, "char", 4) )
+  else if ( ! strncmp(line, "unsigned char", 13) )
     {
-    vtkCharScalars *scalars = new vtkCharScalars(numPts);
+    vtkUnsignedCharScalars *scalars = new vtkUnsignedCharScalars(numPts);
     unsigned char *ptr = scalars->WritePtr(0,numPts);
     if ( this->FileType == BINARY)
       {
@@ -680,7 +680,7 @@ int vtkDataReader::ReadTensorData(FILE *fp, vtkDataSet *ds, int numPts)
 // Read color scalar point attributes. Return 0 if error.
 int vtkDataReader::ReadCoScalarData(FILE *fp, vtkDataSet *ds, int numPts)
 {
-  int retStat, i, nValues, skipScalar;
+  int retStat, i, nValues, skipScalar=0;
   char line[257], name[257];
 
   if ((retStat=fscanf(fp, "%256s %d", name, &nValues)) ==  EOF || retStat < 2)

@@ -80,8 +80,8 @@ void vtkStructuredData::SetDimensions(int dim[3])
 {
   vtk_DebugMacro(<< " setting Dimensions to (" << dim[0] << "," << dim[1] << "," << dim[2] << ")");
 
-  if ( dim[0] != this->Dimensions[0] || dim[1] != Dimensions[1] ||
-  dim[2] != Dimensions[2] )
+  if ( dim[0] != this->Dimensions[0] || dim[1] != this->Dimensions[1] ||
+  dim[2] != this->Dimensions[2] )
     {
     if ( dim[0]<1 || dim[1]<1 || dim[2]<1 )
       {

@@ -23,7 +23,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #define __vtkPixmap_h
 
 #include "CoScalar.hh"
-#include "CArray.hh"
+#include "UCArray.hh"
 
 class vtkPixmap : public vtkColorScalars 
 {
@@ -58,7 +58,7 @@ public:
   int InsertNextColor(unsigned char rgba[4]);
 
 protected:
-  vtkCharArray S;
+  vtkUnsignedCharArray S;
 };
 
 // Description:

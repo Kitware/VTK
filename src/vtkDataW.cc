@@ -15,7 +15,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "vtkDataW.hh"
 #include "BScalars.hh"
-#include "CScalars.hh"
+#include "UCScalar.hh"
 #include "FScalars.hh"
 #include "SScalars.hh"
 #include "IScalars.hh"
@@ -102,7 +102,7 @@ int vtkDataWriter::WriteHeader(FILE *fp)
 {
   vtkDebugMacro(<<"Writing header...");
 
-  fprintf (fp, "# vtk DataSet Version 1.0\n");
+  fprintf (fp, "# vtk DataFile Version 1.0\n");
   fprintf (fp, "%s\n", this->Header);
 
   if ( this->FileType == ASCII )
@@ -281,7 +281,7 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int numPts)
       fprintf (fp,"\n");
       }
 
-    else if ( !strcmp(type,"char") )
+    else if ( !strcmp(type,"unsigned char") )
       {
       fprintf (fp, "%s char\nLOOKUP_TABLE %s\n", this->ScalarsName, name);
       if ( this->FileType == ASCII )
@@ -296,7 +296,7 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int numPts)
         }
       else
         {
-        vtkCharScalars *cscalars = (vtkCharScalars *)scalars;
+        vtkUnsignedCharScalars *cscalars = (vtkUnsignedCharScalars *)scalars;
         unsigned char *cptr=cscalars->GetPtr(0);
         fwrite (cptr,sizeof(unsigned char),numPts,fp);
         }
