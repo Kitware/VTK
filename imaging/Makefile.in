@@ -29,6 +29,7 @@ vtkImage2DRobotSpace \
 vtkImageAnisotropicDiffusion2D \
 vtkImageAnisotropicDiffusion3D \
 vtkImageArithmetic \
+vtkImageCast \
 vtkImageConstantPad \
 vtkImageConvolution1D \
 vtkImageDilate1D \
