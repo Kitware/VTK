@@ -52,8 +52,6 @@ main ()
   renWin->SetSize(200,200);
 
   renWin->Render();
-  renWin->SetFileName("/home/sobie/volume_piat1.ppm");
-  renWin->SaveImageAsPPM();
 
   // Interact with the data at 3 frames per second
   iren->SetDesiredUpdateRate(3.0);
