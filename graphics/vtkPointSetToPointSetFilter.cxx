@@ -157,6 +157,19 @@ vtkUnstructuredGrid *vtkPointSetToPointSetFilter::GetUnstructuredGridOutput()
   return NULL;
 }
 
+//----------------------------------------------------------------------------
+// Copy the update information across
+void vtkPointSetToPointSetFilter::ComputeInputUpdateExtents(vtkDataObject *output)
+{
+  vtkDataObject *input = this->GetInput();
+
+  input->SetUpdatePiece( output->GetUpdatePiece() );
+  input->SetUpdateNumberOfPieces( output->GetUpdateNumberOfPieces() );
+  input->SetUpdateGhostLevel( output->GetUpdateGhostLevel() );
+  input->SetUpdateExtent( output->GetUpdateExtent() );
+  input->RequestExactExtentOn();  
+}
+
 
 
 

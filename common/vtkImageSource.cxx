@@ -95,19 +95,6 @@ void vtkImageSource::PropagateUpdateExtent(vtkDataObject *out)
 {
   vtkImageData *output = (vtkImageData*)out;
 
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // ----------------------------------------------
-  // For legacy compatability
-  this->LegacyHack = 1;
-  this->InterceptCacheUpdate();
-  if (this->LegacyHack)
-    {
-    vtkErrorMacro( << "Change your method InterceptCacheUpdate " 
-                   << "to the name EnlargeOutputUpdateExtents.");
-    return;
-    }
-#endif
-
   this->vtkSource::PropagateUpdateExtent(output);
 }
 

@@ -40,6 +40,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 #include "vtkDataSetTriangleFilter.h"
+#include "vtkStructuredPoints.h"
+#include "vtkImageData.h"
 #include "vtkStructuredGrid.h"
 #include "vtkObjectFactory.h"
 

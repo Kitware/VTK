@@ -403,6 +403,7 @@ void vtkDataSetToDataObjectFilter::ComputeInputUpdateExtents(
     {
     // what should we do here?
     this->GetInput()->SetUpdateExtent(0, 1, 0);
+    this->GetInput()->RequestExactExtentOn();
     }
 }
 

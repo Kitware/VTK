@@ -106,6 +106,8 @@ vtkDataObject::vtkDataObject()
   // First update, the update extent will be set to the whole extent.
   this->UpdateExtentInitialized = 0;
 
+  this->RequestExactExtent = 0;
+  
   this->Locality = 0.0;
 
   this->ExtentTranslator = vtkExtentTranslator::New();
@@ -733,6 +735,15 @@ void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Update Number Of Pieces: " << this->UpdateNumberOfPieces << endl;
   os << indent << "Update Piece: " << this->UpdatePiece << endl;
   os << indent << "Update Ghost Level: " << this->UpdateGhostLevel << endl;
+  
+  if (this->RequestExactExtent)
+    {
+    os << indent << "RequestExactExtent: On\n ";  
+    }
+  else
+    {
+    os << indent << "RequestExactExtent: Off\n ";  
+    }    
   
   os << indent << "UpdateExtent: " << this->UpdateExtent[0] << ", "
      << this->UpdateExtent[1] << ", " << this->UpdateExtent[2] << ", "

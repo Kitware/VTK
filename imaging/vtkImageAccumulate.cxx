@@ -212,11 +212,17 @@ static void vtkImageAccumulateExecute(vtkImageAccumulate *self,
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for
 // the Datas data types.
-void vtkImageAccumulate::Execute(vtkImageData *inData, 
-				 vtkImageData *outData)
+void vtkImageAccumulate::Execute()
 {
   void *inPtr;
   void *outPtr;
+  vtkImageData *inData = this->GetInput();
+  vtkImageData *outData = this->GetOutput();
+  
+  // We need to allocate our own scalars since we are overriding
+  // the superclasses "Execute()" method.
+  outData->SetExtent(outData->GetWholeExtent());
+  outData->AllocateScalars();
   
   inPtr = inData->GetScalarPointer();
   outPtr = outData->GetScalarPointer();
@@ -271,14 +277,6 @@ void vtkImageAccumulate::ComputeInputUpdateExtent(int inExt[6],
   memcpy(inExt, wholeExtent, 6*sizeof(int));
 }
 
-//----------------------------------------------------------------------------
-void vtkImageAccumulate::EnlargeOutputUpdateExtents( vtkDataObject *vtkNotUsed(data) )
-{
-  int wholeExtent[8];
-  
-  this->GetOutput()->GetWholeExtent(wholeExtent);
-  this->GetOutput()->SetUpdateExtent(wholeExtent);
-}
 
 void vtkImageAccumulate::PrintSelf(ostream& os, vtkIndent indent)
 {

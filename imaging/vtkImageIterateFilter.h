@@ -95,6 +95,9 @@ protected:
   void Execute(vtkImageData *inData, vtkImageData *outData);
   void Execute(vtkImageData *outData)
     { this->vtkImageToImageFilter::Execute(outData);};
+
+  // Replaces "EnlargeOutputUpdateExtent"
+  virtual void AllocateOutputScalars(vtkImageData *outData);
   
   // Allows subclass to specify the number of iterations  
   virtual void SetNumberOfIterations(int num);

@@ -96,20 +96,6 @@ void vtkImageIslandRemoval2D::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
-//----------------------------------------------------------------------------
-void vtkImageIslandRemoval2D::EnlargeOutputUpdateExtents( vtkDataObject *vtkNotUsed(data) )
-{
-  int wholeExtent[6];
-  int extent[6];
-  
-  memcpy(wholeExtent,this->GetOutput()->GetWholeExtent(),6*sizeof(int));
-  memcpy(extent,this->GetOutput()->GetUpdateExtent(),6*sizeof(int));
-  extent[0] = wholeExtent[0];
-  extent[1] = wholeExtent[1];
-  extent[2] = wholeExtent[2];
-  extent[3] = wholeExtent[3];
-  this->GetOutput()->SetUpdateExtent(extent);
-}
 
 
 //----------------------------------------------------------------------------
@@ -529,11 +515,23 @@ static void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
 // This method uses the input data to fill the output data.
 // It can handle any type data, but the two datas must have the same 
 // data type.  Assumes that in and out have the same lower extent.
-void vtkImageIslandRemoval2D::Execute(vtkImageData *inData, 
-				      vtkImageData *outData)
+void vtkImageIslandRemoval2D::Execute()
 {
   int *outExt;
+  vtkImageData *inData = this->GetInput();
+  vtkImageData *outData = this->GetOutput();
+  int wholeExtent[6];
+  int extent[6];
   
+  // We need to allocate our own scalars.
+  memcpy(wholeExtent, outData->GetWholeExtent(), 6*sizeof(int));
+  memcpy(extent, outData->GetUpdateExtent(), 6*sizeof(int));
+  extent[0] = wholeExtent[0];
+  extent[1] = wholeExtent[1];
+  extent[2] = wholeExtent[2];
+  extent[3] = wholeExtent[3];
+  outData->SetExtent(extent);
+  outData->AllocateScalars();
   
   // this filter expects that input is the same type as output.
   if (inData->GetScalarType() != outData->GetScalarType())

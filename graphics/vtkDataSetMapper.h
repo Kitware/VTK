@@ -82,10 +82,6 @@ public:
   // Description:
   // Set the Input of this mapper.
   void SetInput(vtkDataSet *input);
-  void SetInput(vtkImageData *cache)
-    {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
-    this->SetInput(((vtkDataSet *)tmp->GetOutput())); tmp->Delete();}  
-
   vtkDataSet *GetInput();
   
 protected:

@@ -171,6 +171,7 @@ void vtkImageToImageFilter::ComputeInputUpdateExtents( vtkDataObject *output )
     {
     if (this->Inputs[idx] != NULL)
       {
+      this->Inputs[idx]->RequestExactExtentOff();
       this->Inputs[idx]->SetUpdateExtent( inExt );
       }
     }  

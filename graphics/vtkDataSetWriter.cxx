@@ -100,10 +100,10 @@ void vtkDataSetWriter::WriteData()
     writer = (vtkDataWriter *)pwriter;
     }
 
-  else if ( type == VTK_STRUCTURED_POINTS )
+  else if ( type == VTK_STRUCTURED_POINTS || type == VTK_IMAGE_DATA)
     {
     vtkStructuredPointsWriter *spwriter = vtkStructuredPointsWriter::New();
-    spwriter->SetInput((vtkStructuredPoints *)input);
+    spwriter->SetInput((vtkImageData *)input);
     writer = (vtkDataWriter *)spwriter;
     }
 

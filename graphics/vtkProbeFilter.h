@@ -65,12 +65,6 @@ public:
   // can be used.
   void SetSource(vtkDataSet *source);
   vtkDataSet *GetSource();
-  void SetSource(vtkImageData *cache)
-    {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
-    this->SetSource((vtkDataSet *)tmp->GetOutput()); tmp->Delete();}
-
-  virtual void SetSource(vtkStructuredPoints *sp)
-    { this->SetSource((vtkDataSet *)sp); }
 
   // Description:
   // This flag is used only when a piece is requested to update.  By default

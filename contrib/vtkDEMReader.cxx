@@ -117,22 +117,22 @@ void vtkDEMReader::ExecuteInformation()
 }
 
 
-void vtkDEMReader::EnlargeOutputUpdateExtents(vtkDataObject *vtkNotUsed(data))
+//----------------------------------------------------------------------------
+// Convert to Imaging API
+void vtkDEMReader::Execute()
 {
-  this->GetOutput()->SetUpdateExtent(this->GetOutput()->GetWholeExtent());
-}
+  vtkImageData *output = this->GetOutput();
 
+  output->SetExtent(output->GetWholeExtent());
+  output->AllocateScalars();
 
-
-void vtkDEMReader::Execute(vtkImageData *data)
-{
   if (!this->FileName)
     {
     vtkErrorMacro(<< "A FileName must be specified.");
     return;
     }
 
-  if (data->GetScalarType() != VTK_FLOAT)
+  if (output->GetScalarType() != VTK_FLOAT)
     {
     vtkErrorMacro("Execute: This source only outputs ints");
     return;
@@ -146,7 +146,7 @@ void vtkDEMReader::Execute(vtkImageData *data)
     //
     // Read Profiles
     //
-    this->ReadProfiles (data);
+    this->ReadProfiles (output);
     }
 }
 

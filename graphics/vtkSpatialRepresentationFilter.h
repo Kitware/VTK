@@ -82,7 +82,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkPolyDataSource.h"
 #include "vtkLocator.h"
-#include "vtkImageToStructuredPoints.h"
 
 #define VTK_MAX_SPATIAL_REP_LEVEL 24
 
@@ -117,9 +116,6 @@ public:
   // Description:
   // Set / get the input data or filter.
   virtual void SetInput(vtkDataSet *input);
-  virtual void SetInput(vtkImageData *cache)
-    {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
-    this->SetInput((vtkDataSet *)tmp->GetOutput()); tmp->Delete();}
   vtkDataSet *GetInput();
 
 protected:

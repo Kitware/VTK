@@ -66,19 +66,19 @@ vtkImageMandelbrotSource::vtkImageMandelbrotSource()
 {
   this->MaximumNumberOfIterations = 100;
   this->WholeExtent[0] = 0;
-  this->WholeExtent[1] = 500;
+  this->WholeExtent[1] = 250;
   this->WholeExtent[2] = 0;
-  this->WholeExtent[3] = 500;
+  this->WholeExtent[3] = 250;
   this->WholeExtent[4] = 0;
   this->WholeExtent[5] = 0;
   
-  this->SampleCX[0] = 0.005;
-  this->SampleCX[1] = 0.005;
-  this->SampleCX[2] = 0.005;
-  this->SampleCX[3] = 0.005;
+  this->SampleCX[0] = 0.01;
+  this->SampleCX[1] = 0.01;
+  this->SampleCX[2] = 0.01;
+  this->SampleCX[3] = 0.01;
   
-  this->OriginCX[0] = -3.2;
-  this->OriginCX[1] = -2.5;
+  this->OriginCX[0] = -1.75;
+  this->OriginCX[1] = -1.25;
   this->OriginCX[2] = 0.0;
   this->OriginCX[3] = 0.0;
 
@@ -305,7 +305,7 @@ void vtkImageMandelbrotSource::Execute(vtkImageData *data)
   ptr = (float *)(data->GetScalarPointerForExtent(ext));
 
   vtkDebugMacro("Generating Extent: " << ext[0] << " -> " << ext[1] << ", "
-          << ext[2] << " -> " << ext[3]);
+		<< ext[2] << " -> " << ext[3]);
 
   // Get min and max of axis 0 because it is the innermost loop.
   min0 = ext[0];

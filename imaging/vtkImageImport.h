@@ -124,10 +124,6 @@ protected:
   // This method returns the largest data that can be generated.
   void ExecuteInformation();
   
-  // Generate more than requested.  Called by the superclass before
-  // an execute, and before output memory is allocated.
-  void EnlargeOutputUpdateExtents( vtkDataObject *data );
-
   void *ImportVoidPointer;
   int SaveUserArray;
 
@@ -139,8 +135,8 @@ protected:
   float DataSpacing[3];
   float DataOrigin[3];
   
-  void Execute(vtkImageData *data);
-  void Execute() { this->vtkImageSource::Execute(); };
+  void Execute(vtkImageData *d) {this->vtkImageSource::Execute(d);}
+  void Execute();
 };
 
 

@@ -53,7 +53,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkDataSetToUnstructuredGridFilter_h
 
 #include "vtkUnstructuredGridSource.h"
-#include "vtkImageToStructuredPoints.h"
 
 class VTK_EXPORT vtkDataSetToUnstructuredGridFilter : public vtkUnstructuredGridSource
 {
@@ -63,9 +62,6 @@ public:
   // Description:
   // Set / get the input data or filter.
   virtual void SetInput(vtkDataSet *input);
-  virtual void SetInput(vtkImageData *cache)
-    {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
-    this->SetInput(((vtkDataSet *)tmp->GetOutput())); tmp->Delete();}
   vtkDataSet *GetInput();
   
 protected:

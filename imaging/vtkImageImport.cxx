@@ -168,16 +168,22 @@ void vtkImageImport::ExecuteInformation()
 //----------------------------------------------------------------------------
 // This function reads a data from a file.  The datas extent/axes
 // are assumed to be the same as the file extent/order.
-void vtkImageImport::Execute(vtkImageData *data)
+void vtkImageImport::Execute()
 {
+  vtkImageData *data = this->GetOutput();
   void *ptr = this->GetImportVoidPointer();
   int size = 
     (this->DataExtent[1] - this->DataExtent[0]+1) *
     (this->DataExtent[3] - this->DataExtent[2]+1) *
     (this->DataExtent[5] - this->DataExtent[4]+1) *
     this->NumberOfScalarComponents;    
-  data->GetPointData()->GetScalars()->GetData()->SetVoidArray(ptr,size,1);
+
+  // We do not need to allocate, but we do need to set up the pointer.
   data->SetExtent(this->DataExtent);
+  // Somewhat wasteful.
+  data->AllocateScalars();
+  
+  data->GetPointData()->GetScalars()->GetData()->SetVoidArray(ptr,size,1);
 }
 
 
@@ -213,18 +219,4 @@ void vtkImageImport::SetImportVoidPointer(void *ptr, int save)
 }
 
 
-//----------------------------------------------------------------------------
-void vtkImageImport::EnlargeOutputUpdateExtents( vtkDataObject *vtkNotUsed(data) )
-{
-  int *wholeExtent, updateExtent[6], idx;
-  
-  this->GetOutput()->GetUpdateExtent(updateExtent);
-  wholeExtent = this->GetOutput()->GetWholeExtent();
-  for (idx = 0; idx < 3; ++idx)
-    {
-    updateExtent[idx*2] = wholeExtent[idx*2];
-    updateExtent[idx*2+1] = wholeExtent[idx*2+1];
-    }
-  this->GetOutput()->SetUpdateExtent(updateExtent);
-  this->Modified();
-}
+

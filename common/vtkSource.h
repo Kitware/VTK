@@ -125,14 +125,6 @@ public:
 						 unsigned long size[2] );
 
   // Description:
-  // Give the source a chance to say that it will produce more output
-  // than it was asked to produce. For example, FFT always produces the
-  // whole thing, and many imaging filters must produce the output in
-  // whole slices (whole extent in two dimensions). By default we do not
-  // modify the output update extent.
-  virtual void EnlargeOutputUpdateExtents(vtkDataObject *vtkNotUsed(output)){};
-  
-  // Description:
   // What is the input update extent that is required to produce the
   // desired output? By default, the whole input is always required but
   // this is overridden in many subclasses. 
@@ -166,6 +158,15 @@ public:
   // on to the filter/source.
   void UnRegisterAllOutputs(void);
 
+  // Description:
+  // Legacy method.  This method was used by inmaging filters to change the 
+  // UpdateExtent of their input so that the vtkImmageToImageFilter superclass
+  // would allocate a larger volume.  Changing the UpdateExtent of your input is 
+  // no longer allowed.  The alternative method is to write your own "Execute()" 
+  // method and allocate your own data.
+  virtual void EnlargeOutputUpdateExtents(vtkDataObject *output);
+  int LegacyHack;
+  
 protected:
   vtkSource();
   ~vtkSource();

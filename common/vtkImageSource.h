@@ -78,14 +78,6 @@ public:
   // Description:
   virtual void PropagateUpdateExtent(vtkDataObject *output);
   
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // Legacy compatibility.  Do not use.
-  virtual void InterceptCacheUpdate() 
-    {VTK_LEGACY_METHOD(InterceptCacheUpdate,"3.2");this->LegacyHack = 0;}
-  int LegacyHack;
-#endif
-  
 protected:
   vtkImageSource();
   ~vtkImageSource() {};

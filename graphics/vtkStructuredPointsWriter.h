@@ -50,8 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkStructuredPointsWriter_h
 
 #include "vtkDataWriter.h"
-#include "vtkStructuredPoints.h"
-#include "vtkImageToStructuredPoints.h"
+#include "vtkImageData.h"
 
 class VTK_EXPORT vtkStructuredPointsWriter : public vtkDataWriter
 {
@@ -62,11 +61,8 @@ public:
 
   // Description:
   // Set / get  the input data or filter.
-  void SetInput(vtkStructuredPoints *input);
-  void SetInput(vtkImageData *cache)
-    {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
-    this->SetInput(tmp->GetOutput()); tmp->Delete();}
-  vtkStructuredPoints *GetInput();
+  void SetInput(vtkImageData *input);
+  vtkImageData *GetInput();
                                
 protected:
   vtkStructuredPointsWriter() {};

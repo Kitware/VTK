@@ -43,7 +43,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkLine.h"
 #include "vtkPixel.h"
 #include "vtkVoxel.h"
-#include "vtkImageToStructuredPoints.h"
 #include "vtkObjectFactory.h"
 #include "vtkExtentTranslator.h"
 #include "vtkLargeInteger.h"
@@ -96,8 +95,6 @@ vtkImageData::vtkImageData()
   this->ScalarType = VTK_VOID;
   this->SetScalarType(VTK_FLOAT);
 
-  // for automatic conversion
-  this->ImageToStructuredPoints = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -1065,8 +1062,28 @@ void vtkImageData::UpdateData()
 {
   this->vtkDataObject::UpdateData();
 
-  // This stuff should really be vtkImageToStructuredPoints.
+  // This stuff should really be ImageToStructuredPoints ....
 
+  // Filters, that can't handle more data than they request, set this flag.
+  if (this->RequestExactExtent)
+    { // clip the data down to the UpdateExtent.
+    if (this->Extent[0] == this->UpdateExtent[0]
+	&& this->Extent[1] == this->UpdateExtent[1]
+	&& this->Extent[2] == this->UpdateExtent[2]
+	&& this->Extent[3] == this->UpdateExtent[3]
+	&& this->Extent[4] == this->UpdateExtent[4]
+	&& this->Extent[5] == this->UpdateExtent[5])
+      {
+      return;
+      }
+    vtkImageData *tmp = vtkImageData::New();
+    tmp->ShallowCopy(this);
+    this->SetExtent(this->UpdateExtent);
+    this->AllocateScalars();
+    this->CopyAndCastFrom(tmp, this->UpdateExtent);
+    return;
+    }
+  
   if (this->UpdateNumberOfPieces == 1)
     {
     // Either the piece has not been used to set the update extent,
@@ -1827,15 +1844,6 @@ void vtkImageData::GetAxisUpdateExtent(int idx, int &min, int &max)
   max = this->UpdateExtent[idx*2+1];
 }
 
-//----------------------------------------------------------------------------
-// This method is used transparently by the "SetInput(vtkImageCache *)"
-// method to connect the image pipeline to the visualization pipeline.
-vtkImageToStructuredPoints *vtkImageData::MakeImageToStructuredPoints()
-{
-  vtkImageToStructuredPoints *i2sp = vtkImageToStructuredPoints::New();
-  i2sp->SetInput(this);
-  return i2sp;
-}
 
 //----------------------------------------------------------------------------
 unsigned long vtkImageData::GetActualMemorySize()

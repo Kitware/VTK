@@ -633,4 +633,5 @@ void vtkGlyph3D::ComputeInputUpdateExtents( vtkDataObject *output )
   this->GetInput()->SetUpdateExtent(outPd->GetUpdatePiece(), 
                                     outPd->GetUpdateNumberOfPieces(),
                                     outPd->GetUpdateGhostLevel());
+  this->GetInput()->RequestExactExtentOn();
 }

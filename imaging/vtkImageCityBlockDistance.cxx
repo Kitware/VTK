@@ -67,8 +67,7 @@ vtkImageCityBlockDistance::vtkImageCityBlockDistance()
 
 
 //----------------------------------------------------------------------------
-void vtkImageCityBlockDistance::EnlargeOutputUpdateExtents( vtkDataObject 
-							    *vtkNotUsed(data))
+void vtkImageCityBlockDistance::AllocateOutputScalars(vtkImageData *outData)
 {
   int *wholeExtent, updateExtent[6], idx;
   
@@ -78,14 +77,15 @@ void vtkImageCityBlockDistance::EnlargeOutputUpdateExtents( vtkDataObject
     return;
     }
 
-  this->GetOutput()->GetUpdateExtent(updateExtent);
-  wholeExtent = this->GetOutput()->GetWholeExtent();
+  outData->GetUpdateExtent(updateExtent);
+  wholeExtent = outData->GetWholeExtent();
   for (idx = 0; idx < this->Dimensionality; ++idx)
     {
     updateExtent[idx*2] = wholeExtent[idx*2];
     updateExtent[idx*2+1] = wholeExtent[idx*2+1];
     }
-  this->GetOutput()->SetUpdateExtent(updateExtent);
+  outData->SetExtent(updateExtent);
+  this->GetOutput()->AllocateScalars();
 }
 
 

@@ -210,4 +210,5 @@ void vtkDataSetToDataSetFilter::ComputeInputUpdateExtents(vtkDataObject *output)
   input->SetUpdateNumberOfPieces( output->GetUpdateNumberOfPieces() );
   input->SetUpdateGhostLevel( output->GetUpdateGhostLevel() );
   input->SetUpdateExtent( output->GetUpdateExtent() );
+  input->RequestExactExtentOn();
 }

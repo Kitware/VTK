@@ -65,7 +65,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkImplicitFunction.h"
 #include "vtkStructuredPoints.h"
-#include "vtkImageToStructuredPoints.h"
 
 class VTK_EXPORT vtkImplicitVolume : public vtkImplicitFunction
 {
@@ -97,9 +96,6 @@ public:
   // Specify the volume for the implicit function.
   vtkSetObjectMacro(Volume,vtkStructuredPoints);
   vtkGetObjectMacro(Volume,vtkStructuredPoints);
-  void SetVolume(vtkImageData *cache)
-    {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
-    this->SetVolume(tmp->GetOutput()); tmp->Delete();}
 
   // Description:
   // Set the function value to use for points outside of the dataset.

@@ -55,7 +55,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkPolyDataSource.h"
 #include "vtkPolyData.h"
-#include "vtkImageToStructuredPoints.h"
 
 class VTK_EXPORT vtkDataSetToPolyDataFilter : public vtkPolyDataSource
 {

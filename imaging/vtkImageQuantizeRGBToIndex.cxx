@@ -587,11 +587,15 @@ vtkImageQuantizeRGBToIndex::~vtkImageQuantizeRGBToIndex()
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for
 // the Datas data types.
-void vtkImageQuantizeRGBToIndex::Execute(vtkImageData *inData, 
-					 vtkImageData *outData)
+void vtkImageQuantizeRGBToIndex::Execute()
 {
   void *inPtr;
   void *outPtr;
+  vtkImageData *inData = this->GetInput();
+  vtkImageData *outData = this->GetOutput();
+  
+  outData->SetExtent(outData->GetWholeExtent());
+  outData->AllocateScalars();
   
   inPtr = inData->GetScalarPointer();
   outPtr = outData->GetScalarPointer();
@@ -641,15 +645,6 @@ void vtkImageQuantizeRGBToIndex::ComputeInputUpdateExtent(int inExt[6],
 
   wholeExtent = this->GetInput()->GetWholeExtent();
   memcpy(inExt, wholeExtent, 6*sizeof(int));
-}
-
-void vtkImageQuantizeRGBToIndex::EnlargeOutputUpdateExtents( vtkDataObject 
-							     *vtkNotUsed(data) )
-{
-  int wholeExtent[8];
-  
-  this->GetOutput()->GetWholeExtent(wholeExtent);
-  this->GetOutput()->SetUpdateExtent(wholeExtent);
 }
 
 void vtkImageQuantizeRGBToIndex::PrintSelf(ostream& os, vtkIndent indent)

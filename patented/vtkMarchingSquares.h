@@ -77,16 +77,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkMarchingSquares_h
 #define __vtkMarchingSquares_h
 
-#include "vtkStructuredPointsToPolyDataFilter.h"
+#include "vtkPolyDataSource.h"
+#include "vtkImageData.h"
 #include "vtkContourValues.h"
 
-class VTK_EXPORT vtkMarchingSquares : public vtkStructuredPointsToPolyDataFilter
+class VTK_EXPORT vtkMarchingSquares : public vtkPolyDataSource
 {
 public:
   static vtkMarchingSquares *New();
-  vtkTypeMacro(vtkMarchingSquares,vtkStructuredPointsToPolyDataFilter);
+  vtkTypeMacro(vtkMarchingSquares,vtkPolyDataSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // Set / get the input data or filter.
+  void SetInput(vtkImageData *input);
+  vtkImageData *GetInput();  
+  
   // Description:
   // Set/Get the i-j-k index range which define a plane on which to generate 
   // contour lines. Using this ivar it is possible to input a 3D volume

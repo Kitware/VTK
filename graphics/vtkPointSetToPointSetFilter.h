@@ -102,6 +102,10 @@ public:
   // Get the output as vtkUnstructuredGrid. Performs run-time checking.
   vtkUnstructuredGrid *GetUnstructuredGridOutput();
   
+  // Description:
+  // By default copy the output update extent to the input
+  virtual void ComputeInputUpdateExtents( vtkDataObject *output );
+
 protected:
   vtkPointSetToPointSetFilter();
   ~vtkPointSetToPointSetFilter();

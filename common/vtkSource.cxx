@@ -256,13 +256,19 @@ void vtkSource::PropagateUpdateExtent(vtkDataObject *output)
     return;
     }
 
-  // Give the subclass a chance to indicate that it will provide
-  // more data then require for the output. This can happen, for
-  // example, when a source can only produce the whole output.
-  // Although this is being called for a specific output, the source
-  // may need to enlarge all outputs.
-  this->EnlargeOutputUpdateExtents( output );
-
+  // Make sure the fitler does not implement this legacy method.
+  this->LegacyHack = 1;
+  this->EnlargeOutputUpdateExtents(output);
+  if (this->LegacyHack)
+    {
+    vtkErrorMacro("EnlargeOutputUpdateExtent is no longer being supported."
+	<< " This method was used by inmaging filters to change the"
+	<< "UpdateExtent of their input so that the vtkImmageToImageFilter superclass"
+	<< " would allocate a larger volume.  Changing the UpdateExtent of your input is"
+	<< " no longer allowed.  The alternative method is to write your own 'Execute()'"
+	<< " method and allocate your own data.");  
+    }
+  
   // Give the subclass a chance to request a larger extent on 
   // the inputs. This is necessary when, for example, a filter
   // requires more data at the "internal" boundaries to 
@@ -285,17 +291,16 @@ void vtkSource::PropagateUpdateExtent(vtkDataObject *output)
 }
 
 //----------------------------------------------------------------------------
-
 // By default we require all the input to produce the output. This is
 // overridden in the subclasses since we can often produce the output with
 // just a portion of the input data.
-
 void vtkSource::ComputeInputUpdateExtents( vtkDataObject *vtkNotUsed(output) )
 {
   for (int idx = 0; idx < this->NumberOfInputs; ++idx)
     {
     if (this->Inputs[idx] != NULL)
       {
+      this->Inputs[idx]->RequestExactExtentOn();
       this->Inputs[idx]->SetUpdateExtentToWholeExtent();
       }
     }  
@@ -878,3 +883,10 @@ void vtkSource::UnRegister(vtkObject *o)
   
   this->vtkObject::UnRegister(o);
 }
+
+
+void vtkSource::EnlargeOutputUpdateExtents(vtkDataObject *vtkNotUsed(output))
+{
+  this->LegacyHack = 0;
+}
+

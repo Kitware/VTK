@@ -40,7 +40,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include <math.h>
 #include "vtkStructuredPoints.h"
-#include "vtkImageToStructuredPoints.h"
 #include "vtkObjectFactory.h"
 
 

@@ -55,7 +55,6 @@ class vtkVertex;
 class vtkLine;
 class vtkPixel;
 class vtkVoxel;
-class vtkImageToStructuredPoints;
 
 
 class VTK_EXPORT vtkImageData : public vtkDataSet
@@ -245,11 +244,6 @@ public:
   // the regions data types.
   void CopyAndCastFrom(vtkImageData *inData, int extent[6]);
 
-  // Description:  
-  // This method is used transparently by the "SetInput(vtkImageCache *)"
-  // method to connect the image pipeline to the visualization pipeline.
-  vtkImageToStructuredPoints *MakeImageToStructuredPoints();
-
   // Description:
   // Return the actual size of the data in kilobytes. This number
   // is valid only after the pipeline has updated. The memory size
@@ -313,8 +307,6 @@ protected:
   ~vtkImageData();
   vtkImageData(const vtkImageData&) {};
   void operator=(const vtkImageData&) {};
-
-  vtkImageToStructuredPoints *ImageToStructuredPoints;
 
   // for the GetCell method
   vtkVertex *Vertex;

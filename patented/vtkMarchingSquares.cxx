@@ -112,6 +112,26 @@ vtkMarchingSquares::~vtkMarchingSquares()
     }
 }
 
+
+//----------------------------------------------------------------------------
+void vtkMarchingSquares::SetInput(vtkImageData *input)
+{
+  this->vtkProcessObject::SetNthInput(0, input);
+}
+
+//----------------------------------------------------------------------------
+vtkImageData *vtkMarchingSquares::GetInput()
+{
+  if (this->NumberOfInputs < 1)
+    {
+    return NULL;
+    }
+  
+  return (vtkImageData *)(this->Inputs[0]);
+}
+
+
+
 void vtkMarchingSquares::SetImageRange(int imin, int imax, int jmin, int jmax, 
                                        int kmin, int kmax)
 {
@@ -132,7 +152,7 @@ void vtkMarchingSquares::SetImageRange(int imin, int imax, int jmin, int jmax,
 // then this object is modified as well.
 unsigned long vtkMarchingSquares::GetMTime()
 {
-  unsigned long mTime=this->vtkStructuredPointsToPolyDataFilter::GetMTime();
+  unsigned long mTime=this->vtkPolyDataSource::GetMTime();
   unsigned long mTime2=this->ContourValues->GetMTime();
 
   mTime = ( mTime2 > mTime ? mTime2 : mTime );
@@ -277,7 +297,7 @@ static void ContourImage(T *scalars, vtkScalars *newScalars, int roi[6], int dir
 //
 void vtkMarchingSquares::Execute()
 {
-  vtkStructuredPoints *input = this->GetInput();
+  vtkImageData *input = this->GetInput();
   vtkPointData *pd;
   vtkPoints *newPts;
   vtkCellArray *newLines;
@@ -589,7 +609,7 @@ void vtkMarchingSquares::CreateDefaultLocator()
 
 void vtkMarchingSquares::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkStructuredPointsToPolyDataFilter::PrintSelf(os,indent);
+  vtkPolyDataSource::PrintSelf(os,indent);
 
   this->ContourValues->PrintSelf(os,indent);
 

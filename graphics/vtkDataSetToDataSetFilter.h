@@ -67,7 +67,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkDataSetSource.h"
 #include "vtkDataSet.h"
-#include "vtkImageToStructuredPoints.h"
 
 class vtkPolyData;
 class vtkStructuredPoints;
@@ -84,9 +83,6 @@ public:
   // Description:
   // Specify the input data or filter.
   void SetInput(vtkDataSet *input);
-  void SetInput(vtkImageData *cache)
-    {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
-    this->SetInput(((vtkDataSet *)tmp->GetOutput())); tmp->Delete();}
 
   // Description:
   // Get the output of this filter. If output is NULL then input

@@ -103,15 +103,12 @@ protected:
   float IslandValue;
   float ReplaceValue;
 
-  void Execute(vtkImageData *inData, vtkImageData *outData);
-  void Execute() { this->vtkImageToImageFilter::Execute(); };
+  void Execute();
+  // These are just to avoid warnings.
+  void Execute(vtkImageData *in, vtkImageData *out)
+    { this->vtkImageToImageFilter::Execute(in, out); };
   void Execute(vtkImageData *output)
     { this->vtkImageToImageFilter::Execute(output); };
-
-  // Description:
-  // Generate more than requested.  Called by the superclass before
-  // an execute, and before output memory is allocated.
-  void EnlargeOutputUpdateExtents( vtkDataObject *data );
 
 };
 

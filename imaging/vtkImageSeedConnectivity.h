@@ -110,15 +110,13 @@ protected:
   vtkImageConnector *Connector;
   int Dimensionality;
   
-  void Execute(vtkImageData *inData, vtkImageData *outData);
-  void Execute() { this->vtkImageToImageFilter::Execute(); };
+  void Execute(); 
+  // Get rid of warnings.
+  void Execute(vtkImageData *in, vtkImageData *out)
+    { this->vtkImageToImageFilter::Execute(in, out); };
   void Execute(vtkImageData *outData)
     { this->vtkImageToImageFilter::Execute(outData); };
 
-  // Description:
-  // Generate more than requested.  Called by the superclass before
-  // an execute, and before output memory is allocated.
-  void EnlargeOutputUpdateExtents( vtkDataObject *data );
 };
 
 

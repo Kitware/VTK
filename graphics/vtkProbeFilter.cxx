@@ -199,6 +199,8 @@ void vtkProbeFilter::ComputeInputUpdateExtents( vtkDataObject *output )
     usePiece = 1;
     }
   
+  input->RequestExactExtentOn();
+  
   if ( ! this->SpatialMatch)
     {
     source->SetUpdateExtent(0, 1, 0);
