@@ -58,6 +58,7 @@ vtkRenderer::vtkRenderer()
   this->ViewRays = NULL;
   this->ViewRaysSize[0] = 0;
   this->ViewRaysSize[1] = 0;
+  this->ViewRaysCamMtime = 0;
 
   this->Ambient[0] = 1;
   this->Ambient[1] = 1;
@@ -490,17 +491,91 @@ void vtkRenderer::UpdateViewRays()
   float xpos, ypos, zpos;
   float xinc, yinc;
   float *vr_ptr;
-  int   *size;
 
   float mag;
   float nx, ny, nz;
 
-  int   x, y;
+  int   	x, y;
+  vtkMatrix4x4	mat;
+  float		result[4];
+
+  if( !this->ViewRays )
+    {
+    vtkErrorMacro(<< "No memory allocated to build viewing rays.");
+    return;
+    }
+
+  // Loop through each pixel and compute viewing ray
+
+  // get the perspective transformation from the active camera
+  mat = this->ActiveCamera->GetCompositePerspectiveTransform(1,0,1);
+
+  mat.Invert();
+  mat.Transpose();
+
+  vr_ptr = this->ViewRays;
+
+  xinc = 2.0/(float)this->ViewRaysSize[0];
+  yinc = 2.0/(float)this->ViewRaysSize[1];
+
+  ypos = -1.0;
+  zpos =  1.0;
+ 
+  nx = ny = nz = 0.0;
+
+  for( y=0; y<this->ViewRaysSize[1]; y++ )
+  {
+    xpos = -1.0;
+    for( x=0; x<this->ViewRaysSize[0]; x++ )
+    {
+      result[0] = xpos;
+      result[1] = ypos;
+      result[2] = zpos;
+      result[3] = 1.0;
+
+      mat.PointMultiply(result,result);
+
+      // Normalize view ray
+      mag = sqrt( (double)(result[0]*result[0] + 
+			   result[1]*result[1] + result[2]*result[2]) );
+
+      if( mag != 0.0 )
+      {
+        nx = result[0]/mag;
+        ny = result[1]/mag;
+        nz = result[2]/mag;
+      }
+      else
+        nx = ny = nz = 0.0;
+
+      *(vr_ptr++) = nx;
+      *(vr_ptr++) = ny;
+      *(vr_ptr++) = nz;
+
+      xpos += xinc;
+    }
+    ypos += yinc;
+  }
+}
+
+float *vtkRenderer::GetViewRays()
+{
+  int    size[2];
+  int    *rwin_size;
+  float  *vp_size;
+
+  unsigned long  cam_mtime;
+
+  int    update_rays = false;
 
   // get physical window dimensions
-  size = this->RenderWindow->GetSize();
+  rwin_size = this->RenderWindow->GetSize();
+  vp_size = this->GetViewport();
 
-  // Allocate viewing rays memory
+  size[0] = (int)(rwin_size[0]*(float)(vp_size[2] - vp_size[0]));
+  size[1] = (int)(rwin_size[1]*(float)(vp_size[3] - vp_size[1]));
+
+  // Allocate viewing rays memory if pixel size has changed
   if( (!this->ViewRays) ||
       (size[0] != this->ViewRaysSize[0]) ||
       (size[1] != this->ViewRaysSize[1]) )
@@ -512,47 +587,22 @@ void vtkRenderer::UpdateViewRays()
     this->ViewRaysSize[1] = size[1];
 
     this->ViewRays = new float[(size[0]*size[1]*3)];
+
+    update_rays = true;
   }
 
-  // Loop through each pixel and compute viewing ray
-  vr_ptr = this->ViewRays;
+  // Check to see if camera mtime has changed
+  cam_mtime = this->ActiveCamera->GetMTime();
 
-  xinc = 2.0/size[0];
-  yinc = 2.0/size[1];
-
-  ypos = -1.0;
-  zpos =  1.0;
- 
-  nx = ny = nz = 0.0;
-
-  for( y=0; y<size[1]; y++ )
-  {
-    xpos = -1.0;
-    for( x=0; x<size[0]; x++ )
+  if( cam_mtime != this->ViewRaysCamMtime )
     {
-      // Normalize view ray
-      mag = sqrt( (double)(xpos*xpos + ypos*ypos + zpos*zpos) );
-
-      if( mag != 0.0 )
-      {
-        nx = xpos/mag;
-        ny = ypos/mag;
-        nz = zpos/mag;
-      }
-
-      *(vr_ptr++) = nx;
-      *(vr_ptr++) = ny;
-      *(vr_ptr++) = nz;
-
-      xpos += xinc;
+    this->ViewRaysCamMtime = cam_mtime;
+    update_rays = true;
     }
-    ypos += yinc;
-  }
 
-}
+  if( update_rays )
+    this->UpdateViewRays();
 
-float *vtkRenderer::GetViewRays()
-{
   return( this->ViewRays );
 }
 
