@@ -168,6 +168,8 @@ protected:
   int UseScalarTree;
   vtkScalarTree *ScalarTree;
   
+  //special contouring for structured grids
+  void StructuredGridContour(int dim); 
   //special contouring for structured points
   void StructuredPointsContour(int dim); 
   //special contouring for image data
