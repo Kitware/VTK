@@ -59,6 +59,7 @@ vtkEdgeTable \
 vtkEmptyCell \
 vtkFieldData \
 vtkFloatArray \
+vtkGenericCell \
 vtkHexahedron \
 vtkIdList \
 vtkImageData \
