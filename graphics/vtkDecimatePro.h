@@ -339,6 +339,24 @@ private:
 
   vtkVertexArray *V;
   vtkTriArray *T;
+
+  // Use to be static variables used by object
+  vtkPolyData *Mesh; //operate on this data structure
+  float Pt[3];      //least squares plane point
+  float Normal[3];  //least squares plane normal
+  float LoopArea;   //the total area of all triangles in a loop
+  float CosAngle;   //Cosine of dihedral angle
+  float Tolerance;  //Intersection tolerance
+  float X[3];       //coordinates of current point
+  int NumCollapses; //Number of times edge collapses occur
+  int NumMerges;    //Number of times vertex merges occur
+  int Split;        //Controls whether and when vertex splitting occurs
+  int VertexDegree; //Maximum number of triangles that can use a vertex
+  int NumberOfRemainingTris; //Number of triangles left in the mesh
+  float TheSplitAngle; //Split angle
+  int SplitState;   //State of the splitting process
+  float Error;      //Maximum allowable surface error
+
 };
 
 #endif
