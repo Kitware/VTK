@@ -38,6 +38,10 @@ public:
   float *GetPoint(int i) {return this->DataSet->GetPoint(i);}
   vlCell *GetCell(int cellId) {return this->DataSet->GetCell(cellId);}
   void Initialize();
+  void GetPointCells(int ptId, vlIdList *cellIds)
+    {this->DataSet->GetPointCells(ptId, cellIds);};
+  int FindCell(float x[3], float dist2) 
+    {return this->DataSet->FindCell(x,dist2);};
 
   void ComputeBounds() {this->DataSet->ComputeBounds();};
   vlMapper *MakeMapper();
