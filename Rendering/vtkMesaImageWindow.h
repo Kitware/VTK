@@ -60,8 +60,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mesaglx.h"
 #else
 #include "GL/glx.h"
+#include "GL/osmesa.h"
 #endif
-#include "/opt/include/GL/osmesa.h"
 
 
 class VTK_EXPORT vtkMesaImageWindow : public vtkXImageWindow
