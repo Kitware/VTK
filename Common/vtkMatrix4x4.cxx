@@ -128,13 +128,6 @@ void vtkMatrix4x4::PointMultiply(const double Elements[16],
 }
 
 //----------------------------------------------------------------------------
-void vtkMatrix4x4::PointMultiply(const double in[4],double result[4])
-{
-  vtkMatrix4x4::PointMultiply(&this->Element[0][0], in, result);
-  VTK_LEGACY_METHOD(PointMultiply,"3.2");
-}
-
-//----------------------------------------------------------------------------
 void vtkMatrix4x4::PointMultiply(const double Elements[16], 
 				 const double in[4], double result[4])
 {

@@ -186,10 +186,6 @@ public:
   double GetElement(int i, int j) const 
     {return this->Element[i][j];}
 
-  // Description: 
-  // For legacy compatibility. Do not use.
-  void PointMultiply(const float in[4], float out[4]);
-  void PointMultiply(const double in[4], double out[4]);
 //BTX
   double *operator[](const unsigned int i) 
     {return &(this->Element[i][0]);}
