@@ -90,6 +90,15 @@ if { [info command vtkIVWriter] != "" } {
     iv2 Write
 }
 
+if { [info command vtkIVWriter] != "" } {
+  vtkExtractEdges edges
+    edges SetInput [triangles GetOutput]
+  vtkIVWriter iv3
+    iv3 SetInput [edges GetOutput]
+    iv3 SetFileName brain3.iv
+    iv3 Write
+}
+
 vtkBYUWriter byu
   byu SetGeometryFileName brain.g
   byu SetScalarFileName brain.s
