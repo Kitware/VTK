@@ -90,7 +90,8 @@ void vtkOverrideInformation::PrintSelf(ostream& os,
     }
   else
     {
-    os << indent.GetNextIndent() << "(NULL)\n";
+    vtkIndent n = indent.GetNextIndent();
+    os << n << "(NULL)\n";
     }
 }
 
