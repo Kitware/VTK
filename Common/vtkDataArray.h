@@ -299,6 +299,9 @@ public:
   // Description:
   // Return the range of the array values for the given component. 
   // Range is copied into the array provided.
+  // If comp is equal to -1, it returns the range of the magnitude
+  // (if the number of components is equal to 1 it still returns the range of
+  // component 0).
   void GetRange(double range[2], int comp)
     {
       this->ComputeRange(comp);
