@@ -87,7 +87,7 @@ int vtkActor2D::RenderOverlay(vtkViewport* viewport)
   if (!this->Mapper) 
     {
     vtkErrorMacro(<< "vtkActor2D::Render - No mapper set");
-    return;
+    return 0;
     }
 
   this->Mapper->RenderOverlay(viewport, this); 
@@ -112,7 +112,7 @@ int vtkActor2D::RenderOpaqueGeometry(vtkViewport* viewport)
   if (!this->Mapper) 
     {
     vtkErrorMacro(<< "vtkActor2D::Render - No mapper set");
-    return;
+    return 0;
     }
 
   this->Mapper->RenderOpaqueGeometry(viewport, this);
@@ -137,7 +137,7 @@ int vtkActor2D::RenderTranslucentGeometry(vtkViewport* viewport)
   if (!this->Mapper) 
     {
     vtkErrorMacro(<< "vtkActor2D::Render - No mapper set");
-    return;
+    return 0;
     }
 
   this->Mapper->RenderTranslucentGeometry(viewport, this);
