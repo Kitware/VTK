@@ -526,7 +526,7 @@ SOURCE=.\getclasses.cxx
 ################################################################################
 # Begin Source File
 
-SOURCE=\vtk\tcl\y.tab.c
+SOURCE=..\tcl\y.tab.c
 DEP_CPP_Y_TAB=\
 	"..\tcl\lex.yy.c"\
 	
