@@ -634,7 +634,7 @@ void vtkArrayCalculator::AddVectorVariable(const char* variableName,
     tempComponents[i][1] = this->SelectedVectorComponents[i][1];
     tempComponents[i][2] = this->SelectedVectorComponents[i][2];
     delete [] this->SelectedVectorComponents[i];
-    this->SelectedVectorComponents = NULL;
+    this->SelectedVectorComponents[i] = NULL;
     }
   
   if (this->VectorArrayNames)

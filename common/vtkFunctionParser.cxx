@@ -870,7 +870,7 @@ void vtkFunctionParser::SetVectorVariableValue(const char* variableName,
     delete [] this->VectorVariableNames[i];
     this->VectorVariableNames[i] = NULL;
     delete [] this->VectorVariableValues[i];
-    this->VectorVariableValues = NULL;
+    this->VectorVariableValues[i] = NULL;
     }
 
   if (this->VectorVariableValues)
