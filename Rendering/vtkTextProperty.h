@@ -40,7 +40,7 @@ public:
   // Description:
   // Set the color of the text.
   vtkSetVector3Macro(Color,double);
-  vtkGetVectorMacro(Color,double,3);
+  vtkGetVector3Macro(Color,double);
 
   // Description:
   // Set/Get the text's opacity. 1.0 is totally opaque and 0.0 is completely
