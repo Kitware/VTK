@@ -81,7 +81,7 @@
 #ifndef __vtkDecimate_h
 #define __vtkDecimate_h
 
-#include "vtkPolyDataToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
 #include "vtkCell.h" // Needed for VTK_CELL_SIZE
 
@@ -89,11 +89,11 @@
 
 class vtkIdList;
 
-class VTK_PATENTED_EXPORT vtkDecimate : public vtkPolyDataToPolyDataFilter
+class VTK_PATENTED_EXPORT vtkDecimate : public vtkPolyDataAlgorithm
 {
 public:
   static vtkDecimate *New();
-  vtkTypeRevisionMacro(vtkDecimate,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkDecimate,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -259,7 +259,7 @@ protected:
   vtkDecimate();
   ~vtkDecimate();
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   double InitialFeatureAngle; // dihedral angle constraint
   double FeatureAngleIncrement;
@@ -284,7 +284,7 @@ protected:
   
   void CreateOutput(vtkIdType numPts, vtkIdType numTris,
                     vtkIdType numEliminated, vtkPointData *pd,
-                    vtkPoints *inPts);
+                    vtkPoints *inPts, vtkPolyData *output);
   int BuildLoop(vtkIdType ptId, unsigned short int nTris, vtkIdType* tris);
   void EvaluateLoop(int& vtype, vtkIdType& numFEdges,
                     LocalVertexPtr fedges[]);
@@ -303,5 +303,3 @@ private:
 };
 
 #endif
-
-

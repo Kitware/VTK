@@ -33,13 +33,15 @@
 #include "vtkFloatArray.h"
 #include "vtkLine.h"
 #include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkDecimate, "1.80");
+vtkCxxRevisionMacro(vtkDecimate, "1.81");
 vtkStandardNewMacro(vtkDecimate);
 
 #define VTK_TOLERANCE 1.0e-05
@@ -124,8 +126,21 @@ vtkDecimate::~vtkDecimate()
 //  Reduce triangles in mesh by given amount or until total number of
 //  iterations completes
 //
-void vtkDecimate::Execute()
+int vtkDecimate::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPolyData *input = vtkPolyData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType numPts, numTris = 0;
   vtkPoints *inPts;
   vtkCellArray *inPolys;
@@ -148,24 +163,17 @@ void vtkDecimate::Execute()
   vtkIdType totalEliminated=0;
   int size;
   int abortFlag = 0;
-  vtkPolyData *input=this->GetInput();
-  vtkPolyData *output=this->GetOutput();
 
   vtkDebugMacro(<<"Decimating mesh...");
 
-  if (input == NULL)
-    {
-    vtkErrorMacro(<<"Input is NULL");
-    return;
-    }
   //
   // Check input
   //
   if ( (numPts=input->GetNumberOfPoints()) < 1 || 
-  (numTris=input->GetNumberOfPolys()) < 1 )
+       (numTris=input->GetNumberOfPolys()) < 1 )
     {
     vtkErrorMacro(<<"No data to decimate!");
-    return;
+    return 0;
     }
   //
   //  Get the bounds of the data to compute decimation threshold
@@ -216,7 +224,7 @@ void vtkDecimate::Execute()
     output->CopyStructure(input);
     output->GetPointData()->PassData(input->GetPointData());
     vtkWarningMacro(<<"Maximum iterations == 0: passing data through unchanged");
-    return;
+    return 1;
     }
   //
   // Create array of vertex errors (initially zero)
@@ -428,12 +436,15 @@ void vtkDecimate::Execute()
   //  Update output. This means renumbering points.
   //
   this->CreateOutput(numPts, numTris, totalEliminated, input->GetPointData(), 
-                     inPts);
+                     inPts, output);
+
+  return 1;
 }
 
 void vtkDecimate::CreateOutput(vtkIdType numPts, vtkIdType numTris,
                                vtkIdType numEliminated,
-                               vtkPointData *pd, vtkPoints *inPts)
+                               vtkPointData *pd, vtkPoints *inPts,
+                               vtkPolyData *output)
 {
   vtkIdType *map, numNewPts;
   vtkIdType i;
@@ -445,7 +456,6 @@ void vtkDecimate::CreateOutput(vtkIdType numPts, vtkIdType numTris,
   vtkPoints *newPts;
   vtkCellArray *newPolys;
   vtkFloatArray *newScalars = NULL;
-  vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   
   vtkDebugMacro (<<"Creating output...");
