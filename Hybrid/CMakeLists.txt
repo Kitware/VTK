@@ -38,6 +38,7 @@ vtkAnnotatedCubeActor.cxx
 vtkAxesActor.cxx
 vtkBoxWidget.cxx
 vtkCaptionActor2D.cxx
+vtkCornerAnnotation.cxx
 vtkCubeAxesActor2D.cxx
 vtkDepthSortPolyData.cxx
 vtkEarthSource.cxx
