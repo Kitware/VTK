@@ -5,7 +5,8 @@ source vtkInt.tcl
 source "colors.tcl"
 source vtkInclude.tcl
 
-# create test data by hand
+# create test data by hand. Use an alternative creation method for 
+# polygonal data.
 #
 vtkFloatPoints pts;
     pts InsertPoint 0 0 0 0;
@@ -40,55 +41,58 @@ vtkFloatPoints pts;
     pts InsertPoint 29 3 5 1;
 
 vtkIdList ids;
-vtkUnstructuredGrid ug;
-    ug Allocate 100 100;#initial amount and extend size
-    ug SetPoints pts;
+vtkPolyData data;
+    data Allocate 100 100;#initial amount and extend size
+    data SetPoints pts;
 
 # create polygons
 ids Reset; ids InsertNextId 0; ids InsertNextId 1; ids InsertNextId 5; ids InsertNextId 4;
-ug InsertNextCell $VTK_QUAD ids;
+data InsertNextCell $VTK_QUAD ids;
 
 ids Reset; ids InsertNextId 1; ids InsertNextId 2; ids InsertNextId 6; ids InsertNextId 5;
-ug InsertNextCell $VTK_QUAD ids;
+data InsertNextCell $VTK_QUAD ids;
 
 ids Reset; ids InsertNextId 2; ids InsertNextId 3; ids InsertNextId 7; ids InsertNextId 6;
-ug InsertNextCell $VTK_QUAD ids;
+data InsertNextCell $VTK_QUAD ids;
 
 
 # create a line and poly-line
 ids Reset; ids InsertNextId 8; ids InsertNextId 9;
-ug InsertNextCell $VTK_LINE ids;
+data InsertNextCell $VTK_LINE ids;
 
 ids Reset; ids InsertNextId 9; ids InsertNextId 10; ids InsertNextId 11;
-ug InsertNextCell $VTK_POLY_LINE ids;
+data InsertNextCell $VTK_POLY_LINE ids;
 
 
 # create some points
 ids Reset; ids InsertNextId 12; ids InsertNextId 13;
-ug InsertNextCell $VTK_POLY_VERTEX ids;
+data InsertNextCell $VTK_POLY_VERTEX ids;
 
+# create a triangle strip
+ids Reset;
+ids InsertNextId 14; ids InsertNextId 22; ids InsertNextId 15;
+ids InsertNextId 23;
+ids InsertNextId 16;
+ids InsertNextId 24;
+ids InsertNextId 17;
+ids InsertNextId 25;
+data InsertNextCell $VTK_TRIANGLE_STRIP ids;
 
-# create some hexahedron
+# create two 5-sided polygons
 ids Reset; 
-ids InsertNextId 14; ids InsertNextId 15; ids InsertNextId 23; ids InsertNextId 22;
-ids InsertNextId 18; ids InsertNextId 19; ids InsertNextId 27; ids InsertNextId 26;
-ug InsertNextCell $VTK_HEXAHEDRON ids;
-
+ids InsertNextId 18; ids InsertNextId 19; ids InsertNextId 20;
+ids InsertNextId 27; ids InsertNextId 26;
+data InsertNextCell $VTK_POLYGON ids;
 ids Reset; 
-ids InsertNextId 15; ids InsertNextId 16; ids InsertNextId 24; ids InsertNextId 23;
-ids InsertNextId 19; ids InsertNextId 20; ids InsertNextId 28; ids InsertNextId 27;
-ug InsertNextCell $VTK_HEXAHEDRON ids;
-
-ids Reset; 
-ids InsertNextId 16; ids InsertNextId 17; ids InsertNextId 25; ids InsertNextId 24;
-ids InsertNextId 20; ids InsertNextId 21; ids InsertNextId 29; ids InsertNextId 28;
-ug InsertNextCell $VTK_HEXAHEDRON ids;
+ids InsertNextId 20; ids InsertNextId 21; ids InsertNextId 29;
+ids InsertNextId 28; ids InsertNextId 27;
+data InsertNextCell $VTK_POLYGON ids;
 
 
 # Create pipeline
 #
 vtkDataSetMapper meshMapper;
-    meshMapper SetInput ug;
+    meshMapper SetInput data;
 vtkActor meshActor;
     meshActor SetMapper meshMapper;
     eval [meshActor GetProperty] SetColor $green;
@@ -97,17 +101,11 @@ vtkActor meshActor;
 vtkPlane plane;
     plane SetOrigin 1.75 0 0;
     plane SetNormal 1 0 0;
-## comment out either cutter or clipper to see the different effects
-#vtkCutter clipper;
-#    clipper SetInput ug;
-#    clipper SetCutFunction plane;
-#    clipper SetValue 0 0.0;
-#    clipper SetValue 1 1.2;
-#    clipper DebugOn;
-vtkClipper clipper;
-    clipper SetInput ug;
+vtkClipPolyData clipper;
+    clipper SetInput data;
     clipper SetClipFunction plane;
     clipper SetValue 0.0;
+#    clipper InsideOutOn;
     clipper DebugOn;
 vtkDataSetMapper clippedMapper;
     clippedMapper SetInput [clipper GetOutput];
@@ -149,7 +147,6 @@ vtkActor ballActor
     [ballActor GetProperty] SetSpecularPower 20;
     [ballActor GetProperty] SetAmbient 0.2;
     [ballActor GetProperty] SetDiffuse 0.8;
-
 
 # Create graphics stuff
 #
