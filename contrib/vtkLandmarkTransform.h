@@ -61,6 +61,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define VTK_LANDMARK_RIGIDBODY 6
 #define VTK_LANDMARK_SIMILARITY 7
+#define VTK_LANDMARK_AFFINE 12
 
 class VTK_EXPORT vtkLandmarkTransform : public vtkLinearTransform
 {
@@ -87,6 +88,7 @@ public:
   vtkSetMacro(Mode,int);
   void SetModeToRigidBody() { this->SetMode(VTK_LANDMARK_RIGIDBODY); };
   void SetModeToSimilarity() { this->SetMode(VTK_LANDMARK_SIMILARITY); };
+  void SetModeToAffine() { this->SetMode(VTK_LANDMARK_AFFINE); };
   vtkGetMacro(Mode,int);
   const char *GetModeAsString();
 
@@ -131,6 +133,8 @@ inline const char *vtkLandmarkTransform::GetModeAsString()
       return "RigidBody";
     case VTK_LANDMARK_SIMILARITY:
       return "Similarity";
+    case VTK_LANDMARK_AFFINE:
+      return "Affine";
     default:
       return "Unrecognized";
     }
