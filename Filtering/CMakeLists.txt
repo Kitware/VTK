@@ -122,6 +122,7 @@ vtkParametricFigure8Klein.cxx
 vtkParametricKlein.cxx
 vtkParametricMobius.cxx
 vtkParametricSpline.cxx
+vtkParametricSuperToroid.cxx
 vtkParametricTorus.cxx
 vtkPentagonalPrism.cxx
 vtkPerlinNoise.cxx
