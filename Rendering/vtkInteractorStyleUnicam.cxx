@@ -32,7 +32,7 @@
 #include "vtkSphereSource.h"
 #include "vtkPolyDataMapper.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleUnicam, "1.20");
+vtkCxxRevisionMacro(vtkInteractorStyleUnicam, "1.21");
 vtkStandardNewMacro(vtkInteractorStyleUnicam);
 
 vtkInteractorStyleUnicam::vtkInteractorStyleUnicam()
@@ -269,15 +269,15 @@ void vtkInteractorStyleUnicam::OnLeftButtonMove(int vtkNotUsed(ctrl),
 {
   switch (state) 
     {
-    case VTK_UNICAM_CAM_INT_CHOOSE:   this->Choose(X, Y); break;
-    case VTK_UNICAM_CAM_INT_ROT:      this->Rotate(X, Y); break;
-    case VTK_UNICAM_CAM_INT_PAN:      this->Pan(X, Y); break;
-    case VTK_UNICAM_CAM_INT_DOLLY:    this->Dolly(X, Y); break;
+    case VTK_UNICAM_CAM_INT_CHOOSE:   this->ChooseXY(X, Y); break;
+    case VTK_UNICAM_CAM_INT_ROT:      this->RotateXY(X, Y); break;
+    case VTK_UNICAM_CAM_INT_PAN:      this->PanXY(X, Y); break;
+    case VTK_UNICAM_CAM_INT_DOLLY:    this->DollyXY(X, Y); break;
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleUnicam::Choose( int X, int Y )
+void vtkInteractorStyleUnicam::ChooseXY( int X, int Y )
 {
   int   te[2];  // pixel location
   te[0] = X;
@@ -338,7 +338,7 @@ inline Type clamp(const Type a,
 inline int  Sign (double a)     { return a > 0 ? 1 : a < 0 ? -1 : 0; }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleUnicam::Rotate( int X, int Y )
+void vtkInteractorStyleUnicam::RotateXY( int X, int Y )
 {
   float cpt[3];
   float center[3];
@@ -444,7 +444,7 @@ void vtkInteractorStyleUnicam::Rotate( int X, int Y )
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleUnicam::Dolly( int X, int Y )
+void vtkInteractorStyleUnicam::DollyXY( int X, int Y )
 {
   int i;
   float cn[2], ln[2];
@@ -498,7 +498,7 @@ void vtkInteractorStyleUnicam::Dolly( int X, int Y )
 // Transform mouse horizontal & vertical movements to a world
 // space offset for the camera that maintains pick correlation.
 // 
-void vtkInteractorStyleUnicam::Pan( int X, int Y )
+void vtkInteractorStyleUnicam::PanXY( int X, int Y )
 {
   float delta[2];
   float cn[2], ln[2];
