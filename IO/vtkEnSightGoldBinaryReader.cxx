@@ -31,7 +31,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.45");
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.46");
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 //----------------------------------------------------------------------------
@@ -188,7 +188,7 @@ int vtkEnSightGoldBinaryReader::ReadGeometryFile(char* fileName, int timeStep)
     }
   
   lineRead = this->ReadLine(line); // "extents" or "part"
-  if (strcmp(line, "extents") == 0)
+  if (strncmp(line, "extents", 7) == 0)
     {
     // Skipping the extents.
       this->IFile->seekg(6*sizeof(float), ios::cur);
