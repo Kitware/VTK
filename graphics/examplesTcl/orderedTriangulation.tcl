@@ -9,14 +9,14 @@ wm withdraw .
 source $VTK_TCL/vtkInt.tcl
 source $VTK_TCL/colors.tcl
 
-set i(0) 0
-set i(1) 1
-set i(2) 2
-set i(3) 3
-set i(4) 4
-set i(5) 5
-set i(6) 6
-set i(7) 7
+set ifoo(0) 0
+set ifoo(1) 1
+set ifoo(2) 2
+set ifoo(3) 3
+set ifoo(4) 4
+set ifoo(5) 5
+set ifoo(6) 6
+set ifoo(7) 7
 
 # Define a Single Cube. Everything is inside.
 #
@@ -46,7 +46,7 @@ vtkUnstructuredGrid Grid
 # Procedure to control order of triangulation
 #
 proc tri {i1 i2 i3 i4 i5 i6 i7 i8} {
-    global i
+    global ifoo
 
     set ii(0) $i1
     set ii(1) $i2
@@ -82,14 +82,14 @@ proc tri {i1 i2 i3 i4 i5 i6 i7 i8} {
         set i($j) $ii($j)
     }
     
-    Ids InsertNextId $i(0)
-    Ids InsertNextId $i(1)
-    Ids InsertNextId $i(2)
-    Ids InsertNextId $i(3)
-    Ids InsertNextId $i(4)
-    Ids InsertNextId $i(5)
-    Ids InsertNextId $i(6)
-    Ids InsertNextId $i(7)
+    Ids InsertNextId $ifoo(0)
+    Ids InsertNextId $ifoo(1)
+    Ids InsertNextId $ifoo(2)
+    Ids InsertNextId $ifoo(3)
+    Ids InsertNextId $ifoo(4)
+    Ids InsertNextId $ifoo(5)
+    Ids InsertNextId $ifoo(6)
+    Ids InsertNextId $ifoo(7)
 
     Grid Initialize
     Grid Allocate 10 10
@@ -98,8 +98,8 @@ proc tri {i1 i2 i3 i4 i5 i6 i7 i8} {
     [Grid GetPointData] SetScalars Scalars
 
     #Update the annotation
-    caseLabel SetText "Order: $i(0) $i(1) $i(2) $i(3)\
-            $i(4) $i(5) $i(6) $i(7)"
+    caseLabel SetText "Order: $ifoo(0) $ifoo(1) $ifoo(2) $ifoo(3)\
+            $ifoo(4) $ifoo(5) $ifoo(6) $ifoo(7)"
 
     Grid Modified
     renWin Render
