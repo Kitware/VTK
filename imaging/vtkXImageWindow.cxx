@@ -351,6 +351,7 @@ vtkXImageWindow::vtkXImageWindow()
   this->OwnDisplay = 0;
   this->PixmapWidth = 0;
   this->PixmapHeight = 0;
+  this->WindowCreated = 0;
 }
 
 
@@ -734,7 +735,6 @@ void vtkXImageWindow::MakeDefaultWindow()
   int screen;
   XVisualInfo info;
   XSetWindowAttributes values;
-  Window window;
   XSizeHints xsh;
   int x, y, width, height;
 
@@ -757,70 +757,82 @@ void vtkXImageWindow::MakeDefaultWindow()
   screen = DefaultScreen(this->DisplayId);
   this->GetDefaultVisualInfo(&info);
   
-  // Create a window 
-  // If this is a pseudocolor visual, create a color map.
-  values.colormap = this->GetDesiredColormap();
-  
-  XColor aColor;
-  aColor.red = 0;
-  aColor.green = 0;
-  aColor.blue = 0;
-  XAllocColor(this->DisplayId,values.colormap,&aColor);
-  values.background_pixel = aColor.pixel;
-  values.border_pixel = None;
-  values.event_mask = 0;
   values.override_redirect = False;
-  //  if ((w > 0) && (x >= 0) && (!borders))
-  //  values.override_redirect = True;
-  XFlush(this->DisplayId);
 
-  // get a default parent if one has not been set.
-  if (! this->ParentId)
+  // Create our own window?
+  this->WindowCreated = 0;
+  if (!this->WindowId)
     {
-    this->ParentId = RootWindow(this->DisplayId, screen);
-    }
+    // If this is a pseudocolor visual, create a color map.
+    values.colormap = this->GetDesiredColormap();
+  
+    XColor aColor;
+    aColor.red = 0;
+    aColor.green = 0;
+    aColor.blue = 0;
+    XAllocColor(this->DisplayId,values.colormap,&aColor);
+    values.background_pixel = aColor.pixel;
+    values.border_pixel = None;
+    values.event_mask = 0;
 
-  // if size not set use default of 256
-  if (this->Size[0] == 0) 
-    {
-    this->Size[0] = 256;
-    this->Size[1] = 256;
-    }
+    //  if ((w > 0) && (x >= 0) && (!borders))
+    //  values.override_redirect = True;
+    XFlush(this->DisplayId);
+
+    // get a default parent if one has not been set.
+    if (! this->ParentId)
+      {
+      this->ParentId = RootWindow(this->DisplayId, screen);
+      }
+
+    // if size not set use default of 256
+    if (this->Size[0] == 0) 
+      {
+      this->Size[0] = 256;
+      this->Size[1] = 256;
+      }
     
-  xsh.flags = USSize;
-  if ((this->Position[0] >= 0)&&(this->Position[1] >= 0))
-    {
-    xsh.flags |= USPosition;
-    xsh.x =  (int)(this->Position[0]);
-    xsh.y =  (int)(this->Position[1]);
+    xsh.flags = USSize;
+    if ((this->Position[0] >= 0)&&(this->Position[1] >= 0))
+      {
+      xsh.flags |= USPosition;
+      xsh.x =  (int)(this->Position[0]);
+      xsh.y =  (int)(this->Position[1]);
+      }
+  
+    x = ((this->Position[0] >= 0) ? this->Position[0] : 5);
+    y = ((this->Position[1] >= 0) ? this->Position[1] : 5);
+    width = ((this->Size[0] > 0) ? this->Size[0] : 300);
+    height = ((this->Size[1] > 0) ? this->Size[1] : 300);
+
+    xsh.width  = width;
+    xsh.height = height;
+
+    this->WindowId = XCreateWindow(this->DisplayId, this->ParentId,
+			   x, y, width, height, 0, info.depth, 
+			   InputOutput, info.visual,
+			   CWEventMask | CWBackPixel | CWBorderPixel | 
+			   CWColormap | CWOverrideRedirect, 
+			   &values);
+    XSetStandardProperties(this->DisplayId, this->WindowId,
+			   name, name, None, 0, 0, 0);
+    XSetNormalHints(this->DisplayId,this->WindowId,&xsh);
+
+    XSync(this->DisplayId, False);
+    this->WindowCreated = 1;
     }
-  
-  x = ((this->Position[0] >= 0) ? this->Position[0] : 5);
-  y = ((this->Position[1] >= 0) ? this->Position[1] : 5);
-  width = ((this->Size[0] > 0) ? this->Size[0] : 300);
-  height = ((this->Size[1] > 0) ? this->Size[1] : 300);
-
-  xsh.width  = width;
-  xsh.height = height;
-
-  window = XCreateWindow(this->DisplayId, this->ParentId,
-			 x, y, width, height, 0, info.depth, 
-			 InputOutput, info.visual,
-			 CWEventMask | CWBackPixel | CWBorderPixel | 
-			 CWColormap | CWOverrideRedirect, 
-			 &values);
-  XSetStandardProperties(this->DisplayId, window, name, name, None, 0, 0, 0);
-  XSetNormalHints(this->DisplayId,window,&xsh);
-
-  XSync(this->DisplayId, False);
-  
+  else
+    {
+    XChangeWindowAttributes(this->DisplayId,this->WindowId,
+			    CWOverrideRedirect, &values);
+    }
   // Select event types wanted 
-  XSelectInput(this->DisplayId, window,
+  XSelectInput(this->DisplayId, this->WindowId,
 	       ExposureMask | KeyPressMask | ButtonPressMask |
 	       PointerMotionMask | StructureNotifyMask | PropertyChangeMask);
   
   // Map Window onto Screen and sysc
-  XMapWindow(this->DisplayId, window);
+  XMapWindow(this->DisplayId, this->WindowId);
   
   XSync(this->DisplayId,0);
  
@@ -830,8 +842,6 @@ void vtkXImageWindow::MakeDefaultWindow()
   XVisualInfo *visuals;
   int nvisuals;
   XWindowAttributes attributes;
- 
-  this->WindowId = (Window)(window);
  
   // Create a graphics contect for this window
   this->Gc = XCreateGC(this->DisplayId, this->WindowId, 0, NULL);
@@ -878,8 +888,8 @@ void vtkXImageWindow::MakeDefaultWindow()
     this->AllocateDirectColorMap();
     }
 
+  this->SetBackgroundColor (0.0, 0.0, 0.0);
   this->Mapped = 1;
-  this->WindowCreated = 1;
 
 
 // ####
