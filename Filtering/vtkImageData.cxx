@@ -40,7 +40,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.1.2.1");
+vtkCxxRevisionMacro(vtkImageData, "1.1.2.2");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -110,7 +110,10 @@ void vtkImageData::CopyStructure(vtkDataSet *ds)
 void vtkImageData::Initialize()
 {
   this->Superclass::Initialize();
-  this->SetDimensions(0,0,0);
+  if(this->Information)
+    {
+    this->SetDimensions(0,0,0);
+    }
 }
 
 //----------------------------------------------------------------------------
