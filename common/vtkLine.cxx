@@ -460,3 +460,4 @@ void vtkLine::Clip(float value, vtkFloatScalars *cellScalars,
     if ( pts[0] != pts[1] ) lines->InsertNextCell(2,pts);
     }
 }
+

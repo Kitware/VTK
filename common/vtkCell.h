@@ -170,6 +170,18 @@ public:
                        vtkPointData *inPd, vtkPointData *outPd) = 0;
 
   // Description:
+  // Cut (or clip) the cell based on the input cellScalars and the
+  // specified value. The output of the clip operation will be one or
+  // more simplices (i.e., vertices, lines, triangles, or tetrahedron)
+  // of the same topological dimension as the cell. The flag insideOut
+  // controls what part of the cell is considered inside - normally
+  // cell points whose scalar value is greater than "value" are
+  // considered inside. If insideOut is on, this is reversed.
+  virtual void Clip(float value, vtkFloatScalars *cellScalars, 
+                    vtkPointLocator *locator, vtkCellArray *connectivity,
+                    vtkPointData *inPd, vtkPointData *outPd, int insideOut) = 0;
+
+  // Description:
   // Intersect with a ray. Return parametric coordinates (both line and cell)
   // and global intersection coordinates, given ray definition and tolerance. 
   // The method returns non-zero value if intersection occurs.

@@ -305,3 +305,11 @@ void vtkTriangleStrip::DecomposeStrips(vtkCellArray *strips, vtkCellArray *polys
       }
     }
 }
+
+void vtkTriangleStrip::Clip(float value, vtkFloatScalars *cellScalars, 
+                            vtkPointLocator *locator, vtkCellArray *tris,
+                            vtkPointData *inPd, vtkPointData *outPd,
+                            int insideOut)
+{
+
+}

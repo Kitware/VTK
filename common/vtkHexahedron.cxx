@@ -630,3 +630,11 @@ void vtkHexahedron::JacobianInverse(float pcoords[3], double **inverse,
     return;
     }
 }
+
+void vtkHexahedron::Clip(float value, vtkFloatScalars *cellScalars, 
+                         vtkPointLocator *locator, vtkCellArray *tetras,
+                         vtkPointData *inPd, vtkPointData *outPd,
+                         int insideOut)
+{
+
+}

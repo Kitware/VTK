@@ -1071,3 +1071,10 @@ void vtkPolygon::Derivatives(int vtkNotUsed(subId), float pcoords[3],
   delete [] sample;
 }
 
+void vtkPolygon::Clip(float value, vtkFloatScalars *cellScalars, 
+                      vtkPointLocator *locator, vtkCellArray *tris,
+                      vtkPointData *inPd, vtkPointData *outPd,
+                      int insideOut)
+{
+
+}

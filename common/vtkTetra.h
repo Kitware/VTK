@@ -71,6 +71,9 @@ public:
                vtkPointLocator *locator, vtkCellArray *verts, 
                vtkCellArray *lines, vtkCellArray *polys,
                vtkPointData *inPd, vtkPointData *outPd);
+  void Clip(float value, vtkFloatScalars *cellScalars, 
+            vtkPointLocator *locator, vtkCellArray *tetras,
+            vtkPointData *inPd, vtkPointData *outPd, int insideOut);
   int EvaluatePosition(float x[3], float closestPoint[3],
                        int& subId, float pcoords[3],
                        float& dist2, float *weights);
@@ -94,9 +97,6 @@ public:
   static void InterpolationDerivs(float derivs[12]);
   void JacobianInverse(double **inverse, float derivs[12]);
 
-  void Clip(float value, vtkFloatScalars *cellScalars, 
-            vtkPointLocator *locator, vtkUnstructuredGrid *mesh,
-            vtkPointData *inPd, vtkPointData *outPd, int insideOut);
 };
 
 #endif

@@ -609,25 +609,33 @@ void vtkTetra::JacobianInverse(double **inverse, float derivs[12])
 // support tetra clipping
 typedef int TETRA_EDGE_LIST;
 typedef struct {
-       TETRA_EDGE_LIST edges[7];
+       TETRA_EDGE_LIST edges[13];
 } TETRA_CASES;
  
 static TETRA_CASES tetraCases[] = { 
-{{-1, -1, -1, -1, -1, -1, -1}},	// 0
-{{0, 2, 100, -1, -1, -1, -1}},	// 1
-{{1, 0, 101, -1, -1, -1, -1}},	// 2
-{{1, 2, 100, 1, 100, 101, -1}},	// 3
-{{2, 1, 102, -1, -1, -1, -1}},	// 4
-{{0, 1, 102, 102, 100, 0, -1}},	// 5
-{{0, 101, 2, 2, 101, 102, -1}},	// 6
-{{100, 101, 102, -1, -1, -1, -1}}	// 7
+{{  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 0
+{{  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 1
+{{  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 2
+{{  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 3
+{{  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 4
+{{  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 5
+{{  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 6
+{{  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 7
+{{  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 8
+{{  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 9
+{{  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 10
+{{  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 11
+{{  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 12
+{{  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 13
+{{  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 14
+{{ 100, 101, 102, 103,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1}}, // 15
 };
 
 // Description:
 // Clip this tetra using scalar value provided. Like contouring, except
 // that it cuts the tetra to produce other tetrahedra.
 void vtkTetra::Clip(float value, vtkFloatScalars *cellScalars, 
-                    vtkPointLocator *locator, vtkUnstructuredGrid *mesh,
+                    vtkPointLocator *locator, vtkCellArray *tetras,
                     vtkPointData *inPd, vtkPointData *outPd,
                     int insideOut)
 {
@@ -698,6 +706,6 @@ void vtkTetra::Clip(float value, vtkFloatScalars *cellScalars,
     if ( pts[0] == pts[1] || pts[0] == pts[2] || pts[0] == pts[3] ||
     pts[1] == pts[2] || pts[1] == pts[3] || pts[2] == pts[3] ) continue;
 
-    mesh->InsertNextCell(VTK_TETRA,3,pts);
+    tetras->InsertNextCell(4,pts);
     }
 }

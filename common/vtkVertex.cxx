@@ -190,3 +190,10 @@ void vtkVertex::Derivatives(int vtkNotUsed(subId),
     }
 }
 
+void vtkVertex::Clip(float value, vtkFloatScalars *cellScalars, 
+                     vtkPointLocator *locator, vtkCellArray *pts,
+                     vtkPointData *inPd, vtkPointData *outPd,
+                     int insideOut)
+{
+
+}

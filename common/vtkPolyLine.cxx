@@ -535,3 +535,10 @@ void vtkPolyLine::Derivatives(int subId, float pcoords[3], float *values,
   line.Derivatives(0, pcoords, values, dim, derivs);
 }
 
+void vtkPolyLine::Clip(float value, vtkFloatScalars *cellScalars, 
+                       vtkPointLocator *locator, vtkCellArray *lines,
+                       vtkPointData *inPd, vtkPointData *outPd,
+                       int insideOut)
+{
+
+}

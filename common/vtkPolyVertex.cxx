@@ -189,3 +189,10 @@ void vtkPolyVertex::Derivatives(int vtkNotUsed(subId),
     }
 }
 
+void vtkPolyVertex::Clip(float value, vtkFloatScalars *cellScalars, 
+                         vtkPointLocator *locator, vtkCellArray *pts,
+                         vtkPointData *inPd, vtkPointData *outPd,
+                         int insideOut)
+{
+
+}
