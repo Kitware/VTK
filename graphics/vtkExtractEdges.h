@@ -54,14 +54,26 @@ class VTK_EXPORT vtkExtractEdges : public vtkDataSetToPolyDataFilter
 {
 public:
   vtkExtractEdges();
+  ~vtkExtractEdges();
   static vtkExtractEdges *New() {return new vtkExtractEdges;};
   const char *GetClassName() {return "vtkExtractEdges";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Specify locator (default locator created otherwise).
+  void SetLocator(vtkPointLocator *locator);
+  void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
+  vtkGetObjectMacro(Locator,vtkPointLocator);
+
+  // Description:
+  // Create default locator. Used to create one when none is specified.
+  void CreateDefaultLocator();
 
 protected:
   // Usual data generation method
   void Execute();
 
+  vtkPointLocator *Locator;
+  int SelfCreatedLocator;
 };
 
 #endif

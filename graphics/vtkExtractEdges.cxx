@@ -40,11 +40,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkExtractEdges.h"
 #include "vtkEdgeTable.h"
+#include "vtkMergePoints.h"
 
 // Description:
 // Construct object.
 vtkExtractEdges::vtkExtractEdges()
 {
+  this->Locator = NULL;
+  this->SelfCreatedLocator = 0;
+}
+
+vtkExtractEdges::~vtkExtractEdges()
+{
+  if (this->SelfCreatedLocator) this->Locator->Delete();
 }
 
 // Generate feature edges for mesh
@@ -57,6 +65,7 @@ void vtkExtractEdges::Execute()
   int numCells, cellNum, numEdges, edgeNum, numEdgePts, numCellEdges;
   int numPts, numNewPts, i, pts[2], pt2;
   int pt1 = 0;
+  float *x;
   vtkEdgeTable *edgeTable;
   vtkCell *cell, *edge;
   vtkPointData *pd, *outPD;
@@ -78,7 +87,7 @@ void vtkExtractEdges::Execute()
   numEdges = 0;
   edgeTable = new vtkEdgeTable(numPts);
   newPts = vtkFloatPoints::New();
-  newPts->Allocate(numPts);
+  newPts->Allocate(numPts*6);
   newLines = vtkCellArray::New();
   newLines->EstimateSize(numPts*4,2);
 
@@ -86,6 +95,12 @@ void vtkExtractEdges::Execute()
   outPD = output->GetPointData();
   outPD->CopyAllocate(pd,numPts);
   
+  //
+  // Get our locator for merging points
+  //
+  if ( this->Locator == NULL ) this->CreateDefaultLocator();
+  this->Locator->InitPointInsertion (newPts, input->GetBounds());
+
   //
   // Loop over all cells, extracting non-visited edges. 
   //
@@ -101,8 +116,12 @@ void vtkExtractEdges::Execute()
       for ( i=0; i < numEdgePts; i++, pt1=pt2, pts[0]=pts[1] )
         {
         pt2 = edge->PointIds.GetId(i);
-        pts[1] = newPts->InsertNextPoint(input->GetPoint(pt2));
-	outPD->CopyData (pd,pt2,pts[1]);
+	x = input->GetPoint(pt2);
+        if ( (pts[1]=this->Locator->IsInsertedPoint(x)) < 0 )
+	  {
+          pts[1] = this->Locator->InsertNextPoint(x);
+	  outPD->CopyData (pd,pt2,pts[1]);
+	  }
         if ( i > 0 && !edgeTable->IsEdge(pt1,pt2) )
           {
           edgeTable->InsertEdge(pt1, pt2);
@@ -128,8 +147,24 @@ void vtkExtractEdges::Execute()
   output->Squeeze();
 }
 
+void vtkExtractEdges::CreateDefaultLocator()
+{
+  if ( this->SelfCreatedLocator ) this->Locator->Delete();
+  this->Locator = vtkMergePoints::New();
+  this->SelfCreatedLocator = 1;
+}
+
 void vtkExtractEdges::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
+
+  if ( this->Locator )
+    {
+    os << indent << "Locator: " << this->Locator << "\n";
+    }
+  else
+    {
+    os << indent << "Locator: (none)\n";
+    }
 }
 
