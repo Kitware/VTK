@@ -53,13 +53,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageMirrorPad : public vtkImagePadFilter
 {
 public:
-  vtkImageMirrorPad();
   static vtkImageMirrorPad *New() {return new vtkImageMirrorPad;};
   const char *GetClassName() {return "vtkImageMirrorPad";};
 
 protected:
   void ComputeRequiredInputUpdateExtent();
-  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void ThreadedExecute(vtkImageData *inData, vtkImageData *outRegion, 
+		       int ext[6]);
 };
 
 #endif

@@ -17,8 +17,7 @@ reader SetDataMask 0x7fff
 
 vtkImageMirrorPad pad
 pad SetInput [reader GetOutput]
-pad SetOutputWholeExtent -512 350 -512 350 1 94 0 0
-pad ReleaseDataFlagOff
+pad SetOutputWholeExtent -512 350 -512 350 1 94
 
 vtkImageViewer viewer
 viewer SetInput [pad GetOutput]

@@ -33,6 +33,7 @@ vtkImageCast \
 vtkImageConnector \
 vtkImageConstantPad \
 vtkImageMedian3D \
+vtkImageMirrorPad \
 vtkImagePermute \
 vtkImageReader \
 vtkImageSeedConnectivity \
@@ -93,7 +94,6 @@ vtkTIFFWriter
 #vtkImageMagnitude \
 #vtkImageMask \
 #vtkImageMathematics \
-#vtkImageMirrorPad \
 #vtkImageNoiseSource \
 #vtkImageNonMaximumSuppression \
 #vtkImageOpenClose3D \
