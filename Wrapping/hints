@@ -24,6 +24,7 @@ vtkCoordinate           GetComputedLocalDisplayValue 304 2
 vtkCoordinate           GetComputedViewportValue 304 2
 vtkCoordinate           GetComputedWorldValue   301 3
 vtkCubeAxesActor2D      GetBounds               301 6
+vtkDataArray		GetRange		301 2
 vtkDataArray		GetTuple2		301 2
 vtkDataArray		GetTuple3		301 3
 vtkDataArray		GetTuple4		301 4
