@@ -98,6 +98,7 @@ static void set_window(int buffer,Window W,GLXconfig *conf)
 vlGlrRenderWindow::vlGlrRenderWindow()
 {
   this->Gid = -2;
+  this->MultiSamples = 8;
   this->DisplayId = (Display *)NULL;
   this->WindowId = (Window)NULL;
   this->NextWindowId = (Window)NULL;
