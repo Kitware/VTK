@@ -362,6 +362,7 @@ void vtkColorTransferFunction::AddRGBSegment( float x1, float r1,
                                               float x2, float r2, 
                                               float g2, float b2 )
 {
+  float x;
   this->AddRGBPoint( x1, r1, g1, b1 );
   this->AddRGBPoint( x2, r2, g2, b2 );
 
@@ -371,9 +372,9 @@ void vtkColorTransferFunction::AddRGBSegment( float x1, float r1,
   // swap them if necessary
   if ( x1 > x2 )
     {
-    i = x1;
+    x = x1;
     x1 = x2;
-    x2 = i;
+    x2 = x;
     }
   
   // find the first point
