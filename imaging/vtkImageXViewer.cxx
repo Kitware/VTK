@@ -368,7 +368,7 @@ void vtkImageXViewer::RenderRegion(vtkImageRegion *region)
   void *ptr0, *ptr1, *ptr2;
   int extent[6];
   
-  
+
   if ( ! region)
     {
     // open the window anyhow if not yet open
@@ -402,7 +402,7 @@ void vtkImageXViewer::RenderRegion(vtkImageRegion *region)
       }
     this->SetWindow(this->MakeDefaultWindow(this->Size[0],this->Size[1]));
     }
-  
+
   // Allocate output data
   size = width * height;
   if (this->VisualDepth == 24)
@@ -1002,6 +1002,17 @@ float vtkImageXViewer::GetColorScale()
 }
 
 
+//----------------------------------------------------------------------------
+// Set Window Size.
+void vtkImageXViewer::SetSize(int xsize, int ysize)
+{
+  if ((this->Size[0] != xsize) || (this->Size[1] != ysize))
+     {
+     this->Size[0] = xsize;
+     this->Size[1] = ysize;
+     this->Modified();
+     }
+}
 
 
 

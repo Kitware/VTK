@@ -90,6 +90,10 @@ public:
   float GetColorShift();
   float GetColorScale();
 
+ // Description:
+  // Set the size of window
+  void   SetSize(int,int);
+
   // Description:
   // These are here for using a tk window.
   Window   GetParentId();
