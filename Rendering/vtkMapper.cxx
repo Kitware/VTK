@@ -20,7 +20,7 @@
 #include "vtkLookupTable.h"
 #include "vtkDataSet.h"
 
-vtkCxxRevisionMacro(vtkMapper, "1.101");
+vtkCxxRevisionMacro(vtkMapper, "1.102");
 
 // Initialize static member that controls global immediate mode rendering
 static int vtkMapperGlobalImmediateModeRendering = 0;
@@ -46,6 +46,7 @@ vtkMapper::vtkMapper()
 
   this->ColorMode = VTK_COLOR_MODE_DEFAULT;
   this->ScalarMode = VTK_SCALAR_MODE_DEFAULT;
+  this->ScalarMaterialMode = VTK_MATERIALMODE_DEFAULT;
   
   this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = -1.0;
   this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = 1.0;
@@ -192,6 +193,7 @@ void vtkMapper::ShallowCopy(vtkAbstractMapper *mapper)
     this->SetScalarRange(m->GetScalarRange());
     this->SetColorMode(m->GetColorMode());
     this->SetScalarMode(m->GetScalarMode());
+    this->SetScalarMaterialMode(m->GetScalarMaterialMode());
     this->SetImmediateModeRendering(m->GetImmediateModeRendering());
     this->SetUseLookupTableScalarRange(m->GetUseLookupTableScalarRange());
     if ( m->GetArrayAccessMode() == VTK_GET_ARRAY_BY_ID )
@@ -386,6 +388,26 @@ const char *vtkMapper::GetScalarModeAsString(void)
     }
 }
 
+const char *vtkMapper::GetScalarMaterialModeAsString(void)
+{
+  if ( this->ColorMode == VTK_MATERIALMODE_AMBIENT )
+    {
+    return "Ambient";
+    }
+  else if ( this->ColorMode == VTK_MATERIALMODE_DIFFUSE )
+    {
+    return "Diffuse";
+    }
+  else if ( this->ColorMode == VTK_MATERIALMODE_AMBIENT_AND_DIFFUSE )
+    {
+    return "Ambient and Diffuse";
+    }
+  else
+    {
+    return "Default";
+    }
+}
+
 void vtkMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -417,6 +439,9 @@ void vtkMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Color Mode: " << this->GetColorModeAsString() << endl;
 
   os << indent << "Scalar Mode: " << this->GetScalarModeAsString() << endl;
+
+  os << indent << "LM Color Mode: " 
+     << this->GetScalarMaterialModeAsString() << endl;
 
   os << indent << "RenderTime: " << this->RenderTime << endl;
 
