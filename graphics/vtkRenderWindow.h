@@ -61,12 +61,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdio.h>
 
 class vtkRenderWindowInteractor;
-class vtkLightDevice;
-class vtkCameraDevice;
-class vtkActorDevice;
-class vtkTextureDevice;
-class vtkPropertyDevice;
-class vtkPolyDataMapperDevice;
 
 // lets define the different types of stereo
 #define VTK_STEREO_CRYSTAL_EYES 1
