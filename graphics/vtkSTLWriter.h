@@ -65,11 +65,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Specify the name of the file to write.
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
-
-  // Description:
   // Specify type of file to write (ascii or binary).
   vtkSetClampMacro(FileType,int,VTK_ASCII,VTK_BINARY);
   vtkGetMacro(FileType,int);
@@ -77,7 +72,6 @@ public:
 protected:
   void WriteData();
 
-  char *FileName;
   int FileType;
 
   void WriteBinarySTL(vtkPoints *pts, vtkCellArray *polys);
