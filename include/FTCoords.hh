@@ -14,17 +14,18 @@
 class vlFloatTCoords : public vlObject 
 {
 public:
-  vlFloatTCoords();
-  int Initialize(const int sz, const int dim=2, const int ext=1000) {return this->TC.Initialize(dim*sz,dim*ext);};
-  vlFloatTCoords(const vlFloatTCoords& tc);
-  vlFloatTCoords(const int sz, const int d=2, const int ext=1000);
-  vlFloatTCoords(vlFloatArray& fa);
-  ~vlFloatTCoords();
+  vlFloatTCoords() {};
+  int Initialize(const int sz, const int dim=2, const int ext=1000) 
+    {return this->TC.Initialize(dim*sz,dim*ext);};
+  vlFloatTCoords(const vlFloatTCoords& ftc) 
+    {this->TC = ftc.TC;this->Dimension = ftc.Dimension;};
+  vlFloatTCoords(const int sz, const int d=2, const int ext=1000):Dimension(d), TC(d*sz,d*ext) {};
+  ~vlFloatTCoords() {};
   char *GetClassName() {return "vlFloatTCoords";};
-  int NumTCoords();
-  void Reset();
+  int NumTCoords() {return (this->TC.GetMaxId()+1)/this->Dimension;};
+  void Reset() {this->TC.Reset();};
   vlFloatTCoords &operator=(const vlFloatTCoords& ftc);
-  void operator+=(const vlFloatTCoords& ftc);
+  void operator+=(const vlFloatTCoords& ftc) {this->TC += ftc.TC;};
   void operator+=(const vlFloatTriple& ft) {
     for(int j=0; j<this->Dimension; j++) this->TC += ft.X[j];
   }

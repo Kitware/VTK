@@ -30,9 +30,11 @@ public:
   }
   void InsertNextCell(int npts, int* pts)
   {
+    int id = this->Ia.GetMaxId() + npts + 1;
+    this->Ia.InsertValue(id,pts[npts-1]);
+    this->Ia[id-npts] = npts;
+    for (int i=0; i<npts-1; i++) this->Ia[id-npts+i+1] = pts[i];
     NumCells++;
-    this->Ia.InsertNextValue(npts);
-    for (int i=0; i<npts; i++) this->Ia.InsertNextValue(pts[i]);
   }
   int GetNumCells() {return NumCells;};
   void InitTraversal() {this->Loc=0;};

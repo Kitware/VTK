@@ -14,15 +14,15 @@
 class vlFloatNormals : public vlObject 
 {
 public:
-  vlFloatNormals();
-  int Initialize(const int sz, const int ext=1000) {return this->N.Initialize(3*sz,3*ext);};
-  vlFloatNormals(const vlFloatNormals& fn);
-  vlFloatNormals(const int sz, const int ext=1000);
-  vlFloatNormals(vlFloatArray& fa);
-  ~vlFloatNormals();
+  vlFloatNormals() {};
+  int Initialize(const int sz, const int ext=1000) 
+    {return this->N.Initialize(3*sz,3*ext);};
+  vlFloatNormals(const vlFloatNormals& fn) {this->N = fn.N;};
+  vlFloatNormals(const int sz, const int ext=1000):N(3*sz,3*ext){};
+  ~vlFloatNormals() {};
   char *GetClassName() {return "vlFloatNormals";};
-  int NumNormals();
-  void Reset();
+  int NumNormals() {return (N.GetMaxId()+1)/3;};
+  void Reset() {this->N.Reset();};
   vlFloatNormals &operator=(const vlFloatNormals& fn);
   void operator+=(const vlFloatNormals& fn);
   void operator+=(const vlFloatTriple& ft) {
@@ -42,13 +42,21 @@ public:
       this->N[3*i+1] =  x[1];
   }
   int InsertNextNormal(float *x) {
-    int id = this->N.InsertNextValue(x[0]);
-    this->N.InsertNextValue(x[1]);
-    this->N.InsertNextValue(x[2]);
+    int id = this->N.GetMaxId() + 3;
+    this->N.InsertValue(id,x[2]);
+    this->N[id-2] = x[0];
+    this->N[id-1] = x[1];
+    return id/3;
+  }
+  int InsertNextNormal(vlFloatTriple &ft) {
+    int id = this->N.GetMaxId() + 3;
+    this->N.InsertValue(id,ft.X[2]);
+    this->N[id-2] = ft.X[0];
+    this->N[id-1] = ft.X[1];
     return id/3;
   }
   void GetNormals(vlIdList& ptId, vlFloatNormals& fn);
-  float *GetArray();
+  float *GetArray() {return this->N.GetArray();};
 private:
   vlFloatArray N;
   vlFloatTriple Ft;

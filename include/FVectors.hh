@@ -14,17 +14,17 @@
 class vlFloatVectors : public vlObject 
 {
 public:
-  vlFloatVectors();
-  int Initialize(const int sz, const int ext=1000) {return this->V.Initialize(3*sz,3*ext);};
-  vlFloatVectors(const vlFloatVectors& fp);
-  vlFloatVectors(const int sz, const int ext);
-  vlFloatVectors(vlFloatArray& fa);
-  ~vlFloatVectors();
+  vlFloatVectors() {};
+  int Initialize(const int sz, const int ext=1000) 
+    {return this->V.Initialize(3*sz,3*ext);};
+  vlFloatVectors(const vlFloatVectors& fv) {this->V = fv.V;};
+  vlFloatVectors(const int sz, const int ext=1000):V(3*sz,3*ext){};
+  ~vlFloatVectors() {};
   char *GetClassName() {return "vlFloatVectors";};
-  int NumVectors();
-  void Reset();
-  vlFloatVectors &operator=(const vlFloatVectors& fp);
-  void operator+=(const vlFloatVectors& fp);
+  int NumVectors() {return (V.GetMaxId()+1)/3;};
+  void Reset() {this->V.Reset();};
+  vlFloatVectors &operator=(const vlFloatVectors& fv);
+  void operator+=(const vlFloatVectors& fv){this->V += fv.V;};
   void operator+=(const vlFloatTriple& ft) {
     this->V += ft.X[0];
     this->V += ft.X[1];
@@ -43,13 +43,21 @@ public:
       this->V[3*i+1] =  x[1];
   }
   int InsertNextVector(float *x) {
-    int id = this->V.InsertNextValue(x[0]);
-    this->V.InsertNextValue(x[1]);
-    this->V.InsertNextValue(x[2]);
+    int id = this->V.GetMaxId() + 3;
+    this->V.InsertValue(id,x[2]);
+    this->V[id-2] = x[0];
+    this->V[id-1] = x[1];
+    return id/3;
+  }
+  int InsertNextVector(vlFloatTriple &ft) {
+    int id = this->V.GetMaxId() + 3;
+    this->V.InsertValue(id,ft.X[2]);
+    this->V[id-2] = ft.X[0];
+    this->V[id-1] = ft.X[1];
     return id/3;
   }
   void GetVectors(vlIdList& ptId, vlFloatVectors& fv);
-  float *GetArray();
+  float *GetArray() {return this->V.GetArray();};
 private:
   vlFloatArray V;
   vlFloatTriple Ft;
