@@ -52,7 +52,7 @@ for {set i 0} {$i < [llength $noTest]} {incr i} {
 foreach afile $files {
     #
     # only tcl scripts with valid/ images are tested
-    set validImage $validPath/${afile}${VTK_PLATFORM}.tif
+    set validImage $validPath/${afile}.tif
     if {[catch {set channel [open ${validImage}]}] != 0 } {
      puts "WARNING: There is no valid image for $afile"
      continue
