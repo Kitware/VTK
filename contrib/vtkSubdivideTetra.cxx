@@ -43,9 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 vtkSubdivideTetra* vtkSubdivideTetra::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -57,9 +55,6 @@ vtkSubdivideTetra* vtkSubdivideTetra::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkSubdivideTetra;
 }
-
-
-
 
 // Description:
 // Construct with all types of clipping turned off.
@@ -74,7 +69,7 @@ void vtkSubdivideTetra::Execute()
   int numCells = input->GetNumberOfCells();
   vtkPoints *inPts=input->GetPoints();
   int cellId, i, pts[4];
-  vtkCell *cell;
+  vtkGenericCell *cell;
   vtkPointData *pd = input->GetPointData();
   vtkUnstructuredGrid *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
@@ -91,11 +86,10 @@ void vtkSubdivideTetra::Execute()
   if (input->IsHomogeneous() == 0 ||
       input->GetCellType(0) != VTK_TETRA)
     {
-      vtkErrorMacro(<<"all cells must be tetrahedra.");
-      return;
+    vtkErrorMacro(<<"all cells must be tetrahedra.");
+    return;
     }
-  
-  
+
   // Copy original points and point data
   newPts = vtkPoints::New();
   newPts->Allocate(5*numPts,numPts);
@@ -113,12 +107,13 @@ void vtkSubdivideTetra::Execute()
     outputPD->CopyData(pd,ptId,ptId);
     }
 
+  cell = vtkGenericCell::New();
+
   // loop over tetrahedra, generating sixteen new ones for each. This is
   // done by introducing mid-edge nodes and a single mid-tetra node.
   for(cellId=0; cellId < numCells; cellId++)
     {
-
-    cell = input->GetCell(cellId);
+    input->GetCell(cellId, cell);
 
     // get tetra points
     cell->Points->GetPoint(0,x0);
@@ -131,7 +126,7 @@ void vtkSubdivideTetra::Execute()
     p2 = cell->PointIds->GetId(2);
     p3 = cell->PointIds->GetId(3);
 
-        // compute center point
+    // compute center point
     weights[0] = weights[1] = weights[2] = weights[3] = 0.25;
     for (i=0; i<3; i++)
       {
