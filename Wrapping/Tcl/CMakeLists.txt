@@ -11,11 +11,12 @@ ENDIF (NOT TCL_LIBRARY)
 IF (WIN32)
   VTK_GET_TCL_TK_VERSION ("TCL_TK_MAJOR_VERSION" "TCL_TK_MINOR_VERSION")
   IF (TCL_TK_MAJOR_VERSION AND TCL_TK_MINOR_VERSION)
-    FIND_FILE(TK_RESOURCE_FILE 
-              tk.rc 
-              "${VTK_SOURCE_DIR}/Utilities/TclTk/resources/tk${TCL_TK_MAJOR_VERSION}.${TCL_TK_MINOR_VERSION}/win/rc"
-               DOC "The resource file required to add the proper resources to a static Tk build")
-    MARK_AS_ADVANCED(TK_RESOURCE_FILE)
+    SET (TK_RESOURCE_FILE_TRY 
+         "${VTK_SOURCE_DIR}/Utilities/TclTk/resources/tk${TCL_TK_MAJOR_VERSION}.${TCL_TK_MINOR_VERSION}/win/rc/tk.rc")
+    IF (EXISTS ${TK_RESOURCE_FILE_TRY})
+      SET(TK_RESOURCE_FILE ${TK_RESOURCE_FILE_TRY} CACHE INTERNAL 
+	      "The tk.rc resource file required to add the proper resources to a Tk command-line interpreter (i.e. vtk.exe)")
+    ENDIF (EXISTS ${TK_RESOURCE_FILE_TRY})
   ENDIF (TCL_TK_MAJOR_VERSION AND TCL_TK_MINOR_VERSION)
   IF (TK_RESOURCE_FILE)
     GET_FILENAME_COMPONENT(TK_RESOURCE_PATH ${TK_RESOURCE_FILE} PATH)
