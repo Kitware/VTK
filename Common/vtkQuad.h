@@ -54,7 +54,7 @@ class VTK_COMMON_EXPORT vtkQuad : public vtkCell
 {
 public:
   static vtkQuad *New();
-  vtkTypeMacro(vtkQuad,vtkCell);
+  vtkTypeRevisionMacro(vtkQuad,vtkCell);
 
   // Description:
   // See the vtkCell API for descriptions of these methods.

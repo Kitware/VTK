@@ -39,27 +39,18 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
+#include "vtkWin32VideoSource.h"
+#include "vtkObjectFactory.h"
+
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
-#include "vtkWin32VideoSource.h"
-#include "vtkObjectFactory.h"
 
 // VFW compressed formats are listed at http://www.webartz.com/fourcc/
 #define VTK_BI_UYVY 0x59565955
 
-//----------------------------------------------------------------------------
-vtkWin32VideoSource* vtkWin32VideoSource::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkWin32VideoSource");
-  if(ret)
-    {
-    return (vtkWin32VideoSource*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkWin32VideoSource;
-}
+vtkCxxRevisionMacro(vtkWin32VideoSource, "1.15");
+vtkStandardNewMacro(vtkWin32VideoSource);
 
 //----------------------------------------------------------------------------
 vtkWin32VideoSource::vtkWin32VideoSource()
@@ -98,7 +89,7 @@ vtkWin32VideoSource::~vtkWin32VideoSource()
 //----------------------------------------------------------------------------
 void vtkWin32VideoSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkVideoSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Preview: " << (this->Preview ? "On\n" : "Off\n");
 }

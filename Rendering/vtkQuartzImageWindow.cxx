@@ -50,23 +50,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkQuartzImageWindow.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkQuartzImageWindow* vtkQuartzImageWindow::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkQuartzImageWindow");
-  if(ret)
-    {
-    return (vtkQuartzImageWindow*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkQuartzImageWindow;
-}
-
-
-
+vtkCxxRevisionMacro(vtkQuartzImageWindow, "1.3");
+vtkStandardNewMacro(vtkQuartzImageWindow);
 
 vtkQuartzImageWindow::vtkQuartzImageWindow()
 {
@@ -284,7 +269,7 @@ int *vtkQuartzImageWindow::GetPosition(void)
 
 void vtkQuartzImageWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkImageWindow::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "ContextId: " << this->ContextId << "\n";
   os << indent << "Next Window Id: " << this->NextWindowId << "\n";

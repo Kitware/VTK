@@ -105,7 +105,7 @@ class VTK_GRAPHICS_EXPORT vtkProgrammableAttributeDataFilter : public vtkDataSet
 {
 public:
   static vtkProgrammableAttributeDataFilter *New();
-  vtkTypeMacro(vtkProgrammableAttributeDataFilter,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkProgrammableAttributeDataFilter,vtkDataSetToDataSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -59,7 +59,7 @@ class VTK_IMAGING_EXPORT vtkImageGradient : public vtkImageToImageFilter
 {
 public:
   static vtkImageGradient *New();
-  vtkTypeMacro(vtkImageGradient,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageGradient,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

@@ -39,30 +39,13 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include "vtkImageData.h"
-
 #include "vtkImageDilateErode3D.h"
+#include "vtkImageData.h"
 #include "vtkImageEllipsoidSource.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkImageDilateErode3D* vtkImageDilateErode3D::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageDilateErode3D");
-  if(ret)
-    {
-    return (vtkImageDilateErode3D*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageDilateErode3D;
-}
-
-
-
-
+vtkCxxRevisionMacro(vtkImageDilateErode3D, "1.36");
+vtkStandardNewMacro(vtkImageDilateErode3D);
 
 //----------------------------------------------------------------------------
 // Construct an instance of vtkImageDilateErode3D fitler.
@@ -97,7 +80,7 @@ vtkImageDilateErode3D::~vtkImageDilateErode3D()
 //----------------------------------------------------------------------------
 void vtkImageDilateErode3D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageSpatialFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "DilateValue: " << this->DilateValue << "\n";
   os << indent << "ErodeValue: " << this->ErodeValue << "\n";

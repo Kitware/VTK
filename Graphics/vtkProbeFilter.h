@@ -58,7 +58,7 @@ class VTK_GRAPHICS_EXPORT vtkProbeFilter : public vtkDataSetToDataSetFilter
 {
 public:
   static vtkProbeFilter *New();
-  vtkTypeMacro(vtkProbeFilter,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkProbeFilter,vtkDataSetToDataSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

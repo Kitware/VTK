@@ -42,23 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageSource.h"
 #include "vtkObjectFactory.h"
 
-
-
-//----------------------------------------------------------------------------
-vtkImageSource* vtkImageSource::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageSource");
-  if(ret)
-    {
-    return (vtkImageSource*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageSource;
-}
-
-
-
+vtkCxxRevisionMacro(vtkImageSource, "1.52");
+vtkStandardNewMacro(vtkImageSource);
 
 //----------------------------------------------------------------------------
 vtkImageSource::vtkImageSource()

@@ -50,18 +50,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTransform.h"
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
-vtkLegendBoxActor* vtkLegendBoxActor::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkLegendBoxActor");
-  if(ret)
-    {
-    return (vtkLegendBoxActor*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkLegendBoxActor;
-}
+vtkCxxRevisionMacro(vtkLegendBoxActor, "1.17");
+vtkStandardNewMacro(vtkLegendBoxActor);
 
 vtkLegendBoxActor::vtkLegendBoxActor()
 {
@@ -619,7 +609,7 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
 void vtkLegendBoxActor::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkActor2D::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Number Of Entries: " << this->NumberOfEntries << "\n";
 

@@ -54,7 +54,7 @@ class VTK_COMMON_EXPORT vtkByteSwap : public vtkObject
 {
 public:
   static vtkByteSwap *New();
-  vtkTypeMacro(vtkByteSwap,vtkObject);
+  vtkTypeRevisionMacro(vtkByteSwap,vtkObject);
 
   // Description:
   // Swap 2 byte word to be LE.

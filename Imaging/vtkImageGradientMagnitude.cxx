@@ -39,29 +39,13 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
-
 #include "vtkImageGradientMagnitude.h"
 #include "vtkObjectFactory.h"
 
+#include <math.h>
 
-
-//------------------------------------------------------------------------------
-vtkImageGradientMagnitude* vtkImageGradientMagnitude::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageGradientMagnitude");
-  if(ret)
-    {
-    return (vtkImageGradientMagnitude*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageGradientMagnitude;
-}
-
-
-
-
+vtkCxxRevisionMacro(vtkImageGradientMagnitude, "1.28");
+vtkStandardNewMacro(vtkImageGradientMagnitude);
 
 //----------------------------------------------------------------------------
 // Construct an instance of vtkImageGradientMagnitude fitler.
@@ -75,7 +59,7 @@ vtkImageGradientMagnitude::vtkImageGradientMagnitude()
 //----------------------------------------------------------------------------
 void vtkImageGradientMagnitude::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkImageToImageFilter::PrintSelf(os, indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "HandleBoundaries: " << this->HandleBoundaries << "\n";
   os << indent << "Dimensionality: " << this->Dimensionality << "\n";
 }

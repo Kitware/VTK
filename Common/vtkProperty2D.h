@@ -60,7 +60,7 @@ class vtkViewport;
 class VTK_COMMON_EXPORT vtkProperty2D : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkProperty2D,vtkObject);
+  vtkTypeRevisionMacro(vtkProperty2D,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -42,24 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTensors.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkTensors* vtkTensors::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTensors");
-  if(ret)
-    {
-    return (vtkTensors*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkTensors;
-}
-
-
-
-
+vtkCxxRevisionMacro(vtkTensors, "1.28");
+vtkStandardNewMacro(vtkTensors);
 
 vtkTensors *vtkTensors::New(int dataType)
 {
@@ -156,7 +140,7 @@ void vtkTensors::GetTensors(vtkIdList *ptIds, vtkTensors *t)
 
 void vtkTensors::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkAttributeData::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Number Of Tensors: " << this->GetNumberOfTensors() << "\n";
 }

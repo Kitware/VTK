@@ -56,7 +56,7 @@ class VTK_IO_EXPORT vtkPNGWriter : public vtkImageWriter
 {
 public:
   static vtkPNGWriter *New();
-  vtkTypeMacro(vtkPNGWriter,vtkImageWriter);
+  vtkTypeRevisionMacro(vtkPNGWriter,vtkImageWriter);
 
   // Description:
   // The main interface which triggers the writer to start.

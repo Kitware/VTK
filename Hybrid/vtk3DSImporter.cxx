@@ -46,18 +46,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkStripper.h"
 #include "vtkObjectFactory.h"
 
-//-------------------------------------------------------------------------
-vtk3DSImporter* vtk3DSImporter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtk3DSImporter");
-  if(ret)
-    {
-    return (vtk3DSImporter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtk3DSImporter;
-}
+vtkCxxRevisionMacro(vtk3DSImporter, "1.25");
+vtkStandardNewMacro(vtk3DSImporter);
 
 static Colour Black = {0.0, 0.0, 0.0};
 static char   obj_name[80] = "";
@@ -1308,7 +1298,7 @@ vtk3DSImporter::~vtk3DSImporter()
 
 void vtk3DSImporter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImporter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
   os << indent << "File Name: " 
      << (this->FileName ? this->FileName : "(none)") << "\n";
 

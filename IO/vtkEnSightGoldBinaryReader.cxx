@@ -48,20 +48,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPolyData.h"
 #include "vtkFloatArray.h"
 #include "vtkByteSwap.h"
+
 #include <ctype.h>
 
-//----------------------------------------------------------------------------
-vtkEnSightGoldBinaryReader* vtkEnSightGoldBinaryReader::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkEnSightGoldBinaryReader");
-  if(ret)
-    {
-    return (vtkEnSightGoldBinaryReader*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkEnSightGoldBinaryReader;
-}
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.17");
+vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 //----------------------------------------------------------------------------
 vtkEnSightGoldBinaryReader::vtkEnSightGoldBinaryReader()

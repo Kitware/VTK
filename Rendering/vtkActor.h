@@ -68,7 +68,7 @@ class vtkActorCollection;
 class VTK_RENDERING_EXPORT vtkActor : public vtkProp3D
 {
 public:
-  vtkTypeMacro(vtkActor,vtkProp3D);
+  vtkTypeRevisionMacro(vtkActor,vtkProp3D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -42,24 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageResample.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkImageResample* vtkImageResample::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageResample");
-  if(ret)
-    {
-    return (vtkImageResample*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageResample;
-}
-
-
-
-
+vtkCxxRevisionMacro(vtkImageResample, "1.33");
+vtkStandardNewMacro(vtkImageResample);
 
 // Macro for trilinear interpolation - do four linear interpolations on
 // edges, two linear interpolations between pairs of edges, then a final
@@ -812,7 +796,7 @@ void vtkImageResample::ThreadedExecute(vtkImageData *inData,
 
 void vtkImageResample::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageToImageFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
   os << indent << "Dimensionality: " << this->Dimensionality << "\n";
   os << indent << "Interpolate: " << (this->Interpolate ? "On\n" : "Off\n");
 }

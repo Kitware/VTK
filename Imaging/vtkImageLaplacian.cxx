@@ -39,29 +39,13 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
-
 #include "vtkImageLaplacian.h"
 #include "vtkObjectFactory.h"
 
+#include <math.h>
 
-
-//------------------------------------------------------------------------------
-vtkImageLaplacian* vtkImageLaplacian::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageLaplacian");
-  if(ret)
-    {
-    return (vtkImageLaplacian*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageLaplacian;
-}
-
-
-
-
+vtkCxxRevisionMacro(vtkImageLaplacian, "1.23");
+vtkStandardNewMacro(vtkImageLaplacian);
 
 //----------------------------------------------------------------------------
 // Construct an instance of vtkImageLaplacian fitler.
@@ -74,7 +58,7 @@ vtkImageLaplacian::vtkImageLaplacian()
 //----------------------------------------------------------------------------
 void vtkImageLaplacian::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkImageToImageFilter::PrintSelf(os, indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "Dimensionality: " << this->Dimensionality;
 }
 

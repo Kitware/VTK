@@ -63,7 +63,7 @@ class VTK_RENDERING_EXPORT vtkImageViewer : public vtkObject
 public:
   static vtkImageViewer *New();
   
-  vtkTypeMacro(vtkImageViewer,vtkObject);
+  vtkTypeRevisionMacro(vtkImageViewer,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

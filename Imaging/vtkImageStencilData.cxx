@@ -39,25 +39,14 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
-#include <math.h>
 #include "vtkImageStencilData.h"
 #include "vtkImageStencilSource.h"
 #include "vtkObjectFactory.h"
 
+#include <math.h>
 
-//----------------------------------------------------------------------------
-vtkImageStencilData* vtkImageStencilData::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageStencilData");
-  if(ret)
-    {
-    return (vtkImageStencilData*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageStencilData;
-}
+vtkCxxRevisionMacro(vtkImageStencilData, "1.5");
+vtkStandardNewMacro(vtkImageStencilData);
 
 //----------------------------------------------------------------------------
 vtkImageStencilData::vtkImageStencilData()
@@ -84,7 +73,7 @@ vtkImageStencilData::~vtkImageStencilData()
 //----------------------------------------------------------------------------
 void vtkImageStencilData::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataObject::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Extent: (" 
      << this->Extent[0] << ", "

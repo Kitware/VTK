@@ -57,6 +57,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 
+vtkCxxRevisionMacro(vtkDataSetAttributes, "1.55");
+vtkStandardNewMacro(vtkDataSetAttributes);
+
 //--------------------------------------------------------------------------
 char vtkDataSetAttributes::AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][10] =
   { "Scalars",
@@ -64,18 +67,6 @@ char vtkDataSetAttributes::AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][
     "Normals",
     "TCoords",
     "Tensors" };
-
-vtkDataSetAttributes* vtkDataSetAttributes::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkDataSetAttributes");
-  if(ret)
-    {
-    return (vtkDataSetAttributes*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkDataSetAttributes;
-}
 
 // Construct object with copying turned on for all data.
 vtkDataSetAttributes::vtkDataSetAttributes()
@@ -1528,7 +1519,7 @@ int vtkDataSetAttributes::SetAttribute(vtkDataArray* da, int attributeType)
 
 void vtkDataSetAttributes::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkFieldData::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   // Print the copy flags
   os << indent << "Copy Flags: ( ";

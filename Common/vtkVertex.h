@@ -52,7 +52,7 @@ class VTK_COMMON_EXPORT vtkVertex : public vtkCell
 {
 public:
   static vtkVertex *New();
-  vtkTypeMacro(vtkVertex,vtkCell);
+  vtkTypeRevisionMacro(vtkVertex,vtkCell);
   
   // Description:
   // Make a new vtkVertex object with the same information as this object.

@@ -89,7 +89,7 @@ class vtkFieldData;
 class VTK_GRAPHICS_EXPORT vtkRearrangeFields : public vtkDataSetToDataSetFilter
 {
 public:
-  vtkTypeMacro(vtkRearrangeFields,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkRearrangeFields,vtkDataSetToDataSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -48,21 +48,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifndef VTK_REMOVE_LEGACY_CODE
 
-//------------------------------------------------------------------------------
-vtkXPolyDataMapper2D* vtkXPolyDataMapper2D::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkXPolyDataMapper2D");
-  if(ret)
-    {
-    return (vtkXPolyDataMapper2D*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkXPolyDataMapper2D;
-}
-
-
-
+vtkCxxRevisionMacro(vtkXPolyDataMapper2D, "1.18");
+vtkStandardNewMacro(vtkXPolyDataMapper2D);
 
 void vtkXPolyDataMapper2D::RenderOverlay(vtkViewport* viewport, vtkActor2D* actor)
 {

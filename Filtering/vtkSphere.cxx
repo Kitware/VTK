@@ -42,23 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkSphere.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkSphere* vtkSphere::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkSphere");
-  if(ret)
-    {
-    return (vtkSphere*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkSphere;
-}
-
-
-
+vtkCxxRevisionMacro(vtkSphere, "1.23");
+vtkStandardNewMacro(vtkSphere);
 
 // Construct sphere with center at (0,0,0) and radius=0.5.
 vtkSphere::vtkSphere()
@@ -89,7 +74,7 @@ void vtkSphere::EvaluateGradient(float x[3], float n[3])
 
 void vtkSphere::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImplicitFunction::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Radius: " << this->Radius << "\n";
   os << indent << "Center: (" << this->Center[0] << ", " 

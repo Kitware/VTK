@@ -39,9 +39,11 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
 #include "vtkRungeKutta4.h"
 #include "vtkObjectFactory.h"
+
+vtkCxxRevisionMacro(vtkRungeKutta4, "1.6");
+vtkStandardNewMacro(vtkRungeKutta4);
 
 vtkRungeKutta4::vtkRungeKutta4() 
 {
@@ -60,18 +62,6 @@ vtkRungeKutta4::~vtkRungeKutta4()
     }
 }
 
-
-vtkRungeKutta4* vtkRungeKutta4::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkRungeKutta4");
-  if(ret)
-    {
-    return (vtkRungeKutta4*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkRungeKutta4;
-}
 
 void vtkRungeKutta4::Initialize()
 {
@@ -183,7 +173,7 @@ float vtkRungeKutta4::ComputeNextStep(float* xprev, float* dxprev,
 
 void vtkRungeKutta4::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkInitialValueProblemSolver::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
   os << indent << "Runge-Kutta 4 function derivatives: " 
      << this->NextDerivs[0] << " " << this->NextDerivs[1]  << " "
      << this->NextDerivs[2] << endl;

@@ -40,9 +40,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 #include "vtkSimpleImageToImageFilter.h"
-#include "vtkObjectFactory.h"
 
-
+vtkCxxRevisionMacro(vtkSimpleImageToImageFilter, "1.7");
 
 //----------------------------------------------------------------------------
 vtkSimpleImageToImageFilter::vtkSimpleImageToImageFilter()

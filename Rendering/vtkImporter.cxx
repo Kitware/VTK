@@ -39,9 +39,10 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
 #include "vtkImporter.h"
 #include "vtkRendererCollection.h"
+
+vtkCxxRevisionMacro(vtkImporter, "1.19");
 
 vtkImporter::vtkImporter ()
 {
@@ -106,7 +107,7 @@ void vtkImporter::Read ()
 
 void vtkImporter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Render Window: ";
   if ( this->RenderWindow )

@@ -58,7 +58,7 @@ class VTK_RENDERING_EXPORT vtkCullerCollection : public vtkCollection
 {
  public:
   static vtkCullerCollection *New();
-  vtkTypeMacro(vtkCullerCollection,vtkCollection);
+  vtkTypeRevisionMacro(vtkCullerCollection,vtkCollection);
 
   // Description:
   // Add an Culler to the list.

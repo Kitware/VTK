@@ -44,19 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkCommand.h"
 
-//----------------------------------------------------------------------------
-vtkInteractorStyleImage *vtkInteractorStyleImage::New() 
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkInteractorStyleImage");
-  if(ret)
-    {
-    return (vtkInteractorStyleImage*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkInteractorStyleImage;
-}
-
+vtkCxxRevisionMacro(vtkInteractorStyleImage, "1.6");
+vtkStandardNewMacro(vtkInteractorStyleImage);
 
 //----------------------------------------------------------------------------
 vtkInteractorStyleImage::vtkInteractorStyleImage() 
@@ -345,7 +334,7 @@ void vtkInteractorStyleImage::OnRightButtonUp(int vtkNotUsed(ctrl),
 //----------------------------------------------------------------------------
 void vtkInteractorStyleImage::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkInteractorStyle::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
   
   os << indent << "Window Level Current Position: " <<
     this->WindowLevelCurrentPosition << endl;

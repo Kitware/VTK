@@ -44,18 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkOBBDicer.h"
 #include "vtkUnsignedCharArray.h"
 
-//----------------------------------------------------------------------------
-vtkExtractPolyDataPiece* vtkExtractPolyDataPiece::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkExtractPolyDataPiece");
-  if(ret)
-    {
-    return (vtkExtractPolyDataPiece*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkExtractPolyDataPiece;
-}
+vtkCxxRevisionMacro(vtkExtractPolyDataPiece, "1.10");
+vtkStandardNewMacro(vtkExtractPolyDataPiece);
 
 vtkExtractPolyDataPiece::vtkExtractPolyDataPiece()
 {
@@ -277,7 +267,7 @@ void vtkExtractPolyDataPiece::Execute()
 
 void vtkExtractPolyDataPiece::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
   
   os << indent << "Create Ghost Cells: " << (this->CreateGhostCells ? "On\n" : "Off\n");
 }

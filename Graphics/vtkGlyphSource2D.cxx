@@ -46,18 +46,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkUnsignedCharArray.h"
 
-//--------------------------------------------------------------------------
-vtkGlyphSource2D* vtkGlyphSource2D::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkGlyphSource2D");
-  if(ret)
-    {
-    return (vtkGlyphSource2D*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkGlyphSource2D;
-}
+vtkCxxRevisionMacro(vtkGlyphSource2D, "1.9");
+vtkStandardNewMacro(vtkGlyphSource2D);
 
 //----------------------------------------------------------------------------
 vtkGlyphSource2D::vtkGlyphSource2D()
@@ -537,7 +527,7 @@ void vtkGlyphSource2D::CreateDash(vtkPoints *pts, vtkCellArray *lines,
 //----------------------------------------------------------------------------
 void vtkGlyphSource2D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Center: (" << this->Center[0] << ", " 
      << this->Center[1] << ", " << this->Center[2] << ")\n";

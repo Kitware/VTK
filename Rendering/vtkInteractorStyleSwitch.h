@@ -68,7 +68,7 @@ class VTK_RENDERING_EXPORT vtkInteractorStyleSwitch : public vtkInteractorStyle
 {
 public:
   static vtkInteractorStyleSwitch *New();
-  vtkTypeMacro(vtkInteractorStyleSwitch, vtkInteractorStyle);
+  vtkTypeRevisionMacro(vtkInteractorStyleSwitch, vtkInteractorStyle);
   
   // Description:
   // Event bindings controlling the effects of pressing mouse buttons

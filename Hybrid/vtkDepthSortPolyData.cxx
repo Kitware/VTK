@@ -45,18 +45,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkUnsignedIntArray.h"
 #include "vtkObjectFactory.h"
 
-//---------------------------------------------------------------------------
-vtkDepthSortPolyData* vtkDepthSortPolyData::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkDepthSortPolyData");
-  if(ret)
-    {
-    return (vtkDepthSortPolyData*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkDepthSortPolyData;
-}
+vtkCxxRevisionMacro(vtkDepthSortPolyData, "1.21");
+vtkStandardNewMacro(vtkDepthSortPolyData);
 
 vtkDepthSortPolyData::vtkDepthSortPolyData()
 {
@@ -347,7 +337,7 @@ unsigned long int vtkDepthSortPolyData::GetMTime()
 
 void vtkDepthSortPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   if ( this->Camera )
     {

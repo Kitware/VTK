@@ -119,7 +119,7 @@ class VTK_RENDERING_EXPORT vtkInteractorStyleUnicam : public vtkInteractorStyle
 {
 public:
   static vtkInteractorStyleUnicam *New();
-  vtkTypeMacro(vtkInteractorStyleUnicam,vtkInteractorStyle);
+  vtkTypeRevisionMacro(vtkInteractorStyleUnicam,vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

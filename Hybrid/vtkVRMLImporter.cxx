@@ -4253,17 +4253,8 @@ YY_MALLOC_DECL
 #define YY_BREAK break;
 #endif
 
-vtkVRMLImporter* vtkVRMLImporter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkVRMLImporter");
-  if(ret)
-    {
-    return (vtkVRMLImporter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkVRMLImporter;
-}
+vtkCxxRevisionMacro(vtkVRMLImporter, "1.47");
+vtkStandardNewMacro(vtkVRMLImporter);
 
 vtkPoints* vtkVRMLImporter::PointsNew()
 {
@@ -5558,7 +5549,7 @@ vtkVRMLImporter::~vtkVRMLImporter()
 
 void vtkVRMLImporter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImporter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
   os << indent << "File Name: " 
      << (this->FileName ? this->FileName : "(none)") << "\n";
 

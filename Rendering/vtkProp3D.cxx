@@ -39,14 +39,16 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <stdlib.h>
-#include <math.h>
-
 #include "vtkProp3D.h"
 #include "vtkActor.h"
 #include "vtkMatrixToLinearTransform.h"
 
+#include <stdlib.h>
+#include <math.h>
+
 typedef double (*SqMatPtr)[4];
+
+vtkCxxRevisionMacro(vtkProp3D, "1.26");
 
 // Construct with the following defaults: origin(0,0,0) 
 // position=(0,0,0) and orientation=(0,0,0). No user defined 
@@ -551,7 +553,7 @@ void vtkProp3D::InitPathTraversal()
 
 void vtkProp3D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkProp::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "IsIdentity: " << (this->IsIdentity ? "true" : "false") << "\n";
 

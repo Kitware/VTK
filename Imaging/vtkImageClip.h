@@ -60,7 +60,7 @@ class VTK_IMAGING_EXPORT vtkImageClip : public vtkImageToImageFilter
 {
 public:
   static vtkImageClip *New();
-  vtkTypeMacro(vtkImageClip,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageClip,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

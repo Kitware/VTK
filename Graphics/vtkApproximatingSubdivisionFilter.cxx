@@ -45,6 +45,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkEdgeTable.h"
 #include "vtkUnsignedCharArray.h"
 
+vtkCxxRevisionMacro(vtkApproximatingSubdivisionFilter, "1.21");
+
 // Construct object with number of subdivisions set to 1.
 vtkApproximatingSubdivisionFilter::vtkApproximatingSubdivisionFilter()
 {
@@ -286,7 +288,7 @@ void vtkApproximatingSubdivisionFilter::GenerateSubdivisionCells (
 
 void vtkApproximatingSubdivisionFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Number of subdivisions: " 
      << this->NumberOfSubdivisions << endl;

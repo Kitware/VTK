@@ -78,7 +78,7 @@ class VTK_PATENTED_EXPORT vtkSynchronizedTemplates3D : public vtkPolyDataSource
 public:
   static vtkSynchronizedTemplates3D *New();
 
-  vtkTypeMacro(vtkSynchronizedTemplates3D,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkSynchronizedTemplates3D,vtkPolyDataSource);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

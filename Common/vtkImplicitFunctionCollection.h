@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_COMMON_EXPORT vtkImplicitFunctionCollection : public vtkCollection
 {
 public:
-  vtkTypeMacro(vtkImplicitFunctionCollection,vtkCollection);
+  vtkTypeRevisionMacro(vtkImplicitFunctionCollection,vtkCollection);
   static vtkImplicitFunctionCollection *New();
 
   // Description:

@@ -81,7 +81,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_RENDERING_EXPORT vtkAxisActor2D : public vtkActor2D
 {
 public:
-  vtkTypeMacro(vtkAxisActor2D,vtkActor2D);
+  vtkTypeRevisionMacro(vtkAxisActor2D,vtkActor2D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

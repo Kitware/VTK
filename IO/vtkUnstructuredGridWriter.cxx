@@ -43,23 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkByteSwap.h"
 #include "vtkObjectFactory.h"
 
-
-
-//----------------------------------------------------------------------------
-vtkUnstructuredGridWriter* vtkUnstructuredGridWriter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkUnstructuredGridWriter");
-  if(ret)
-    {
-    return (vtkUnstructuredGridWriter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkUnstructuredGridWriter;
-}
-
-
-
+vtkCxxRevisionMacro(vtkUnstructuredGridWriter, "1.32");
+vtkStandardNewMacro(vtkUnstructuredGridWriter);
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.
@@ -136,5 +121,5 @@ void vtkUnstructuredGridWriter::WriteData()
 
 void vtkUnstructuredGridWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataWriter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 }

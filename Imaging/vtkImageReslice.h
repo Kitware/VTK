@@ -92,7 +92,7 @@ class VTK_IMAGING_EXPORT vtkImageReslice : public vtkImageToImageFilter
 {
 public:
   static vtkImageReslice *New();
-  vtkTypeMacro(vtkImageReslice, vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageReslice, vtkImageToImageFilter);
 
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -58,7 +58,7 @@ class VTK_RENDERING_EXPORT vtkMapperCollection : public vtkCollection
 {
  public:
   static vtkMapperCollection *New();
-  vtkTypeMacro(vtkMapperCollection,vtkCollection);
+  vtkTypeRevisionMacro(vtkMapperCollection,vtkCollection);
 
   // Description:
   // Add an mapper to the list.

@@ -60,7 +60,7 @@ class VTK_COMMON_EXPORT vtkAssemblyPaths : public vtkCollection
 {
 public:
   static vtkAssemblyPaths *New();
-  vtkTypeMacro(vtkAssemblyPaths,vtkCollection);
+  vtkTypeRevisionMacro(vtkAssemblyPaths,vtkCollection);
 
   // Description:
   // Add a path to the list.

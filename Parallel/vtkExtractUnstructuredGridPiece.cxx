@@ -43,18 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkUnsignedCharArray.h"
 
-//----------------------------------------------------------------------------
-vtkExtractUnstructuredGridPiece* vtkExtractUnstructuredGridPiece::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkExtractUnstructuredGridPiece");
-  if(ret)
-    {
-    return (vtkExtractUnstructuredGridPiece*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkExtractUnstructuredGridPiece;
-}
+vtkCxxRevisionMacro(vtkExtractUnstructuredGridPiece, "1.8");
+vtkStandardNewMacro(vtkExtractUnstructuredGridPiece);
 
 vtkExtractUnstructuredGridPiece::vtkExtractUnstructuredGridPiece()
 {
@@ -268,7 +258,7 @@ void vtkExtractUnstructuredGridPiece::Execute()
 
 void vtkExtractUnstructuredGridPiece::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkUnstructuredGridToUnstructuredGridFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
   
   os << indent << "Create Ghost Cells: " << (this->CreateGhostCells ? "On\n" : "Off\n");
 }

@@ -42,20 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
 
-
-
-//----------------------------------------------------------------------------
-vtkDoubleArray* vtkDoubleArray::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkDoubleArray");
-  if(ret)
-    {
-    return (vtkDoubleArray*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkDoubleArray;
-}
+vtkCxxRevisionMacro(vtkDoubleArray, "1.41");
+vtkStandardNewMacro(vtkDoubleArray);
 
 vtkDataArray *vtkDoubleArray::MakeObject()
 {
@@ -182,7 +170,7 @@ void vtkDoubleArray::DeepCopy(vtkDataArray *fa)
 
 void vtkDoubleArray::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataArray::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   if (this->Array)
     {

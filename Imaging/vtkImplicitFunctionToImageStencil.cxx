@@ -39,24 +39,13 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
-#include <math.h>
 #include "vtkImplicitFunctionToImageStencil.h"
 #include "vtkObjectFactory.h"
 
+#include <math.h>
 
-//----------------------------------------------------------------------------
-vtkImplicitFunctionToImageStencil* vtkImplicitFunctionToImageStencil::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImplicitFunctionToImageStencil");
-  if(ret)
-    {
-    return (vtkImplicitFunctionToImageStencil*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImplicitFunctionToImageStencil;
-}
+vtkCxxRevisionMacro(vtkImplicitFunctionToImageStencil, "1.4");
+vtkStandardNewMacro(vtkImplicitFunctionToImageStencil);
 
 //----------------------------------------------------------------------------
 vtkImplicitFunctionToImageStencil::vtkImplicitFunctionToImageStencil()
@@ -75,7 +64,7 @@ vtkImplicitFunctionToImageStencil::~vtkImplicitFunctionToImageStencil()
 void vtkImplicitFunctionToImageStencil::PrintSelf(ostream& os,
                                                   vtkIndent indent)
 {
-  vtkImageStencilSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Input: " << this->Input << "\n";
   os << indent << "Threshold: " << this->Threshold << "\n";

@@ -42,25 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageMedian3D.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkImageMedian3D* vtkImageMedian3D::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageMedian3D");
-  if(ret)
-    {
-    return (vtkImageMedian3D*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageMedian3D;
-}
-
-
-
-
-
+vtkCxxRevisionMacro(vtkImageMedian3D, "1.25");
+vtkStandardNewMacro(vtkImageMedian3D);
 
 //----------------------------------------------------------------------------
 // Construct an instance of vtkImageMedian3D fitler.
@@ -73,7 +56,7 @@ vtkImageMedian3D::vtkImageMedian3D()
 //----------------------------------------------------------------------------
 void vtkImageMedian3D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageSpatialFilter::PrintSelf(os, indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "NumberOfElements: " << this->NumberOfElements << endl;
 }

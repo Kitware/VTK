@@ -46,6 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkOldStyleCallbackCommand.h"
 
+vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.80");
 
 // Construct object so that light follows camera motion.
 vtkRenderWindowInteractor::vtkRenderWindowInteractor()
@@ -360,7 +361,7 @@ void vtkRenderWindowInteractor::FlyTo(vtkRenderer *ren, float x, float y, float 
 
 void vtkRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "InteractorStyle:    " << this->InteractorStyle << "\n";
   os << indent << "RenderWindow:    " << this->RenderWindow << "\n";

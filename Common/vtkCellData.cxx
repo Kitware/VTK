@@ -42,22 +42,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkCellData.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkCellData* vtkCellData::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkCellData");
-  if(ret)
-    {
-    return (vtkCellData*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkCellData;
-}
+vtkCxxRevisionMacro(vtkCellData, "1.11");
+vtkStandardNewMacro(vtkCellData);
 
 void vtkCellData::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetAttributes::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 }

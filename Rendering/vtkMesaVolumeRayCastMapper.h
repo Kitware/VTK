@@ -64,7 +64,7 @@ class VTK_RENDERING_EXPORT vtkMesaVolumeRayCastMapper : public vtkVolumeRayCastM
 {
 public:
   static vtkMesaVolumeRayCastMapper *New();
-  vtkTypeMacro(vtkMesaVolumeRayCastMapper,vtkVolumeRayCastMapper);
+  vtkTypeRevisionMacro(vtkMesaVolumeRayCastMapper,vtkVolumeRayCastMapper);
 
 protected:
   vtkMesaVolumeRayCastMapper();

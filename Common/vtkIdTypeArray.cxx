@@ -42,18 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
-vtkIdTypeArray* vtkIdTypeArray::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkIdTypeArray");
-  if(ret)
-    {
-    return (vtkIdTypeArray*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkIdTypeArray;
-}
+vtkCxxRevisionMacro(vtkIdTypeArray, "1.3");
+vtkStandardNewMacro(vtkIdTypeArray);
 
 vtkDataArray *vtkIdTypeArray::MakeObject()
 {
@@ -178,7 +168,7 @@ void vtkIdTypeArray::DeepCopy(vtkDataArray *ia)
 
 void vtkIdTypeArray::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataArray::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   if (this->Array)
     {

@@ -43,18 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-//-------------------------------------------------------------------------
-vtkExtractPolyDataGeometry* vtkExtractPolyDataGeometry::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkExtractPolyDataGeometry");
-  if(ret)
-    {
-    return (vtkExtractPolyDataGeometry*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkExtractPolyDataGeometry;
-}
+vtkCxxRevisionMacro(vtkExtractPolyDataGeometry, "1.14");
+vtkStandardNewMacro(vtkExtractPolyDataGeometry);
 
 // Construct object with ExtractInside turned on.
 vtkExtractPolyDataGeometry::vtkExtractPolyDataGeometry(vtkImplicitFunction *f)
@@ -285,7 +275,7 @@ void vtkExtractPolyDataGeometry::Execute()
 
 void vtkExtractPolyDataGeometry::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   if (this->ImplicitFunction)
     {

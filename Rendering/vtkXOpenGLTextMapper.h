@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_RENDERING_EXPORT vtkXOpenGLTextMapper : public vtkXTextMapper
 {
 public:
-  vtkTypeMacro(vtkXOpenGLTextMapper,vtkXTextMapper);
+  vtkTypeRevisionMacro(vtkXOpenGLTextMapper,vtkXTextMapper);
   static vtkXOpenGLTextMapper *New();
 
   // Description:

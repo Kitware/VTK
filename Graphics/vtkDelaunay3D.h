@@ -117,7 +117,7 @@ class vtkTetraArray;
 class VTK_GRAPHICS_EXPORT vtkDelaunay3D : public vtkUnstructuredGridSource
 {
 public:
-  vtkTypeMacro(vtkDelaunay3D,vtkUnstructuredGridSource);
+  vtkTypeRevisionMacro(vtkDelaunay3D,vtkUnstructuredGridSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -55,21 +55,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkSource.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkPDataSetReader* vtkPDataSetReader::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPDataSetReader");
-  if(ret)
-    {
-    return (vtkPDataSetReader*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkPDataSetReader;
-}
-
+vtkCxxRevisionMacro(vtkPDataSetReader, "1.10");
+vtkStandardNewMacro(vtkPDataSetReader);
 
 //----------------------------------------------------------------------------
 vtkPDataSetReader::vtkPDataSetReader()
@@ -1357,7 +1344,7 @@ void vtkPDataSetReader::CoverExtent(int ext[6], int *pieceMask)
 //----------------------------------------------------------------------------
 void vtkPDataSetReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   if (this->FileName)
     {

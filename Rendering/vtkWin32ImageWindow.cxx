@@ -46,6 +46,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifndef VTK_REMOVE_LEGACY_CODE
 
+vtkCxxRevisionMacro(vtkWin32ImageWindow, "1.26");
+
 //--------------------------------------------------------------------------
 vtkWin32ImageWindow* vtkWin32ImageWindow::New()
 {

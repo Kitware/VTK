@@ -40,28 +40,14 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
 #include "vtkImageToStructuredPoints.h"
 #include "vtkStructuredPoints.h"
 #include "vtkObjectFactory.h"
 
+#include <math.h>
 
-
-//------------------------------------------------------------------------------
-vtkImageToStructuredPoints* vtkImageToStructuredPoints::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageToStructuredPoints");
-  if(ret)
-    {
-    return (vtkImageToStructuredPoints*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageToStructuredPoints;
-}
-
-
-
+vtkCxxRevisionMacro(vtkImageToStructuredPoints, "1.49");
+vtkStandardNewMacro(vtkImageToStructuredPoints);
 
 //----------------------------------------------------------------------------
 vtkImageToStructuredPoints::vtkImageToStructuredPoints()
@@ -81,8 +67,7 @@ vtkImageToStructuredPoints::~vtkImageToStructuredPoints()
 //----------------------------------------------------------------------------
 void vtkImageToStructuredPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkSource::PrintSelf(os,indent);
-
+  this->Superclass::PrintSelf(os,indent);
 }
 
 //----------------------------------------------------------------------------

@@ -43,6 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkRenderWindow.h"
 #include "vtkGraphicsFactory.h"
 
+vtkCxxRevisionMacro(vtkPolyDataMapper, "1.28");
+
 //----------------------------------------------------------------------------
 // return the correct type of PolyDataMapper 
 vtkPolyDataMapper *vtkPolyDataMapper::New()
@@ -163,7 +165,7 @@ void vtkPolyDataMapper::ShallowCopy(vtkAbstractMapper *mapper)
 
 void vtkPolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkMapper::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Piece : " << this->Piece << endl;
   os << indent << "NumberOfPieces : " << this->NumberOfPieces << endl;

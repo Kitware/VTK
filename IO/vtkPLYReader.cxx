@@ -43,12 +43,17 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <ctype.h>
-#include <string.h>
 #include "vtkPLYReader.h"
 #include "vtkPLY.h"
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
+
+#include <ctype.h>
+#include <string.h>
+
+vtkCxxRevisionMacro(vtkPLYReader, "1.8");
+vtkStandardNewMacro(vtkPLYReader);
+
 #ifndef true
 #define true 1
 #endif
@@ -56,19 +61,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define false 0
 #endif
 
-
-//---------------------------------------------------------------------------
-vtkPLYReader* vtkPLYReader::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPLYReader");
-  if(ret)
-    {
-    return (vtkPLYReader*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkPLYReader;
-}
 
 // Construct object with merging set to true.
 vtkPLYReader::vtkPLYReader()
@@ -277,7 +269,7 @@ void vtkPLYReader::Execute()
 
 void vtkPLYReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "File Name: " 
      << (this->FileName ? this->FileName : "(none)") << "\n";

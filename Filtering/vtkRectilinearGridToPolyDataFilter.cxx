@@ -41,6 +41,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkRectilinearGridToPolyDataFilter.h"
 
+vtkCxxRevisionMacro(vtkRectilinearGridToPolyDataFilter, "1.10");
+
 //----------------------------------------------------------------------------
 // Specify the input data or filter.
 void vtkRectilinearGridToPolyDataFilter::SetInput(vtkRectilinearGrid *input)

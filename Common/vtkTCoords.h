@@ -62,7 +62,7 @@ public:
   static vtkTCoords *New();
 
 
-  vtkTypeMacro(vtkTCoords,vtkAttributeData);
+  vtkTypeRevisionMacro(vtkTCoords,vtkAttributeData);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

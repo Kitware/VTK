@@ -56,7 +56,7 @@ class VTK_IMAGING_EXPORT vtkImageRGBToHSV : public vtkImageToImageFilter
 {
 public:
   static vtkImageRGBToHSV *New();
-  vtkTypeMacro(vtkImageRGBToHSV,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageRGBToHSV,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -39,29 +39,13 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
 #include "vtkImageRGBToHSV.h"
 #include "vtkObjectFactory.h"
 
+#include <math.h>
 
-
-//------------------------------------------------------------------------------
-vtkImageRGBToHSV* vtkImageRGBToHSV::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageRGBToHSV");
-  if(ret)
-    {
-    return (vtkImageRGBToHSV*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageRGBToHSV;
-}
-
-
-
-
-
+vtkCxxRevisionMacro(vtkImageRGBToHSV, "1.20");
+vtkStandardNewMacro(vtkImageRGBToHSV);
 
 //----------------------------------------------------------------------------
 vtkImageRGBToHSV::vtkImageRGBToHSV()
@@ -218,7 +202,7 @@ void vtkImageRGBToHSV::ThreadedExecute(vtkImageData *inData,
 
 void vtkImageRGBToHSV::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageToImageFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Maximum: " << this->Maximum << "\n";
 }

@@ -81,7 +81,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_RENDERING_EXPORT vtkTextMapper : public vtkMapper2D
 {
 public:
-  vtkTypeMacro(vtkTextMapper,vtkMapper2D);
+  vtkTypeRevisionMacro(vtkTextMapper,vtkMapper2D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

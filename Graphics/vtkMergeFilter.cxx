@@ -47,6 +47,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkRectilinearGrid.h"
 #include "vtkObjectFactory.h"
 
+vtkCxxRevisionMacro(vtkMergeFilter, "1.63");
+vtkStandardNewMacro(vtkMergeFilter);
 
 class vtkFieldNode
 {
@@ -160,20 +162,6 @@ private:
 };
 
 //------------------------------------------------------------------------------
-vtkMergeFilter* vtkMergeFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMergeFilter");
-  if(ret)
-    {
-    return (vtkMergeFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkMergeFilter;
-}
-
-
-
 
 // Create object with no input or output.
 vtkMergeFilter::vtkMergeFilter()
@@ -466,7 +454,7 @@ void vtkMergeFilter::ComputeInputUpdateExtents(vtkDataObject *vtkNotUsed(data))
 
 void vtkMergeFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToDataSetFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
 }
 

@@ -39,11 +39,14 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
 #include "vtkCamera.h"
 #include "vtkMath.h"
 #include "vtkTimeStamp.h"
 #include "vtkGraphicsFactory.h"
+
+#include <math.h>
+
+vtkCxxRevisionMacro(vtkCamera, "1.97");
 
 //----------------------------------------------------------------------------
 // Construct camera instance with its focal point at the origin, 
@@ -872,7 +875,7 @@ void vtkCamera::ViewingRaysModified()
 //----------------------------------------------------------------------------
 void vtkCamera::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "ClippingRange: (" << this->ClippingRange[0] << ", " 
      << this->ClippingRange[1] << ")\n";

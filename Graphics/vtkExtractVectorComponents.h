@@ -65,7 +65,7 @@ class VTK_GRAPHICS_EXPORT vtkExtractVectorComponents : public vtkSource
 {
 public:
   static vtkExtractVectorComponents *New();
-  vtkTypeMacro(vtkExtractVectorComponents,vtkSource);
+  vtkTypeRevisionMacro(vtkExtractVectorComponents,vtkSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

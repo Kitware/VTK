@@ -59,7 +59,7 @@ class VTK_RENDERING_EXPORT vtkActorCollection : public vtkPropCollection
 {
 public:
   static vtkActorCollection *New();
-  vtkTypeMacro(vtkActorCollection,vtkPropCollection);
+  vtkTypeRevisionMacro(vtkActorCollection,vtkPropCollection);
 
   // Description:
   // Add an actor to the list.

@@ -45,18 +45,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-//--------------------------------------------------------------------------
-vtkCutMaterial* vtkCutMaterial::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkCutMaterial");
-  if(ret)
-    {
-    return (vtkCutMaterial*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkCutMaterial;
-}
+vtkCxxRevisionMacro(vtkCutMaterial, "1.7");
+vtkStandardNewMacro(vtkCutMaterial);
 
 // Instantiate object with no input and no defined output.
 vtkCutMaterial::vtkCutMaterial()
@@ -227,7 +217,7 @@ void vtkCutMaterial::ComputeMaximumPoint(vtkDataSet *input)
 
 void vtkCutMaterial::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "ArrayName: ";
   if ( this->ArrayName)

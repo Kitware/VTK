@@ -44,18 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-//-------------------------------------------------------------------------
-vtkVectorNorm* vtkVectorNorm::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkVectorNorm");
-  if(ret)
-    {
-    return (vtkVectorNorm*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkVectorNorm;
-}
+vtkCxxRevisionMacro(vtkVectorNorm, "1.37");
+vtkStandardNewMacro(vtkVectorNorm);
 
 // Construct with normalize flag off.
 vtkVectorNorm::vtkVectorNorm()
@@ -207,7 +197,7 @@ const char *vtkVectorNorm::GetAttributeModeAsString(void)
 
 void vtkVectorNorm::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToDataSetFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Normalize: " << (this->Normalize ? "On\n" : "Off\n");
   os << indent << "Attribute Mode: " << this->GetAttributeModeAsString() 

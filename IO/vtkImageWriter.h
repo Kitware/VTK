@@ -58,7 +58,7 @@ class VTK_IO_EXPORT vtkImageWriter : public vtkProcessObject
 {
 public:
   static vtkImageWriter *New();
-  vtkTypeMacro(vtkImageWriter,vtkProcessObject);
+  vtkTypeRevisionMacro(vtkImageWriter,vtkProcessObject);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

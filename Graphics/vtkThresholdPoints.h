@@ -57,7 +57,7 @@ class VTK_GRAPHICS_EXPORT vtkThresholdPoints : public vtkDataSetToPolyDataFilter
 {
 public:
   static vtkThresholdPoints *New();
-  vtkTypeMacro(vtkThresholdPoints,vtkDataSetToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkThresholdPoints,vtkDataSetToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

@@ -48,18 +48,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkUnstructuredGrid.h"
 #include "vtkObjectFactory.h"
 
-//--------------------------------------------------------------------------
-vtkTetra* vtkTetra::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTetra");
-  if(ret)
-    {
-    return (vtkTetra*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkTetra;
-}
+vtkCxxRevisionMacro(vtkTetra, "1.69");
+vtkStandardNewMacro(vtkTetra);
 
 // Construct the tetra with four points.
 vtkTetra::vtkTetra()

@@ -44,20 +44,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkEdgeTable.h"
 #include "vtkObjectFactory.h"
 
+vtkCxxRevisionMacro(vtkLoopSubdivisionFilter, "1.12");
+vtkStandardNewMacro(vtkLoopSubdivisionFilter);
+
 static float LoopWeights[4] =
   {.375, .375, .125, .125};
-
-vtkLoopSubdivisionFilter* vtkLoopSubdivisionFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkLoopSubdivisionFilter");
-  if(ret)
-    {
-    return (vtkLoopSubdivisionFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkLoopSubdivisionFilter;
-}
 
 void vtkLoopSubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inputDS,vtkIntArray *edgeData, vtkPoints *outputPts, vtkPointData *outputPD)
 {

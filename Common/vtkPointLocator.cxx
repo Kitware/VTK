@@ -46,18 +46,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkIdList.h"
 
-//------------------------------------------------------------------------------
-vtkPointLocator* vtkPointLocator::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPointLocator");
-  if(ret)
-    {
-    return (vtkPointLocator*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkPointLocator;
-}
+vtkCxxRevisionMacro(vtkPointLocator, "1.58");
+vtkStandardNewMacro(vtkPointLocator);
 
 static const int VTK_INITIAL_SIZE=1000;
 
@@ -1938,7 +1928,7 @@ float vtkPointLocator::Distance2ToBounds(const float x[3],
 
 void vtkPointLocator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkLocator::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Number of Points Per Bucket: " << this->NumberOfPointsPerBucket << "\n";
   os << indent << "Divisions: (" << this->Divisions[0] << ", " 

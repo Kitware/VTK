@@ -67,7 +67,7 @@ public:
   // and dragable=1.
   static vtkProp* New();
 
-  vtkTypeMacro(vtkProp,vtkObject);
+  vtkTypeRevisionMacro(vtkProp,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description: 

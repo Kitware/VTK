@@ -44,18 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-//-------------------------------------------------------------------------
-vtkBandedPolyDataContourFilter* vtkBandedPolyDataContourFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkBandedPolyDataContourFilter");
-  if(ret)
-    {
-    return (vtkBandedPolyDataContourFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkBandedPolyDataContourFilter;
-}
+vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.5");
+vtkStandardNewMacro(vtkBandedPolyDataContourFilter);
 
 // Construct object.
 vtkBandedPolyDataContourFilter::vtkBandedPolyDataContourFilter()
@@ -336,7 +326,7 @@ unsigned long int vtkBandedPolyDataContourFilter::GetMTime()
 
 void vtkBandedPolyDataContourFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   this->ContourValues->PrintSelf(os,indent);
 }

@@ -50,18 +50,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkGridSynchronizedTemplates3D.h"
 #include "vtkObjectFactory.h"
 
-vtkKitwareContourFilter* vtkKitwareContourFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = 
-    vtkObjectFactory::CreateInstance("vtkKitwareContourFilter");
-  if(ret)
-    {
-    return (vtkKitwareContourFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkKitwareContourFilter;
-}
+vtkCxxRevisionMacro(vtkKitwareContourFilter, "1.22");
+vtkStandardNewMacro(vtkKitwareContourFilter);
 
 // Construct object with initial range (0,1) and single contour value
 // of 0.0.

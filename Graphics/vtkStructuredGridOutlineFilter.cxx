@@ -42,18 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkStructuredGridOutlineFilter.h"
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
-vtkStructuredGridOutlineFilter* vtkStructuredGridOutlineFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkStructuredGridOutlineFilter");
-  if(ret)
-    {
-    return (vtkStructuredGridOutlineFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkStructuredGridOutlineFilter;
-}
+vtkCxxRevisionMacro(vtkStructuredGridOutlineFilter, "1.39");
+vtkStandardNewMacro(vtkStructuredGridOutlineFilter);
 
 //----------------------------------------------------------------------------
 // ComputeDivisionExtents has done most of the work for us.

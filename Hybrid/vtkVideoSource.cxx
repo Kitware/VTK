@@ -39,11 +39,12 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
+#include "vtkVideoSource.h"
+#include "vtkObjectFactory.h"
+
 #include <ctype.h>
 #include <time.h>
 #include <stdlib.h>
-#include "vtkVideoSource.h"
-#include "vtkObjectFactory.h"
 
 //---------------------------------------------------------------
 // Important FrameBufferMutex rules:
@@ -84,18 +85,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Finally, when Execute() is reading from the FrameBuffer it must do
 // so from within a mutex lock.  Otherwise tearing artifacts might result.
 
-//----------------------------------------------------------------------------
-vtkVideoSource* vtkVideoSource::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkVideoSource");
-  if(ret)
-    {
-    return (vtkVideoSource*)ret;
-    }
-
-  return new vtkVideoSource;
-}
+vtkCxxRevisionMacro(vtkVideoSource, "1.25");
+vtkStandardNewMacro(vtkVideoSource);
 
 //----------------------------------------------------------------------------
 // keep a list of all the existing vtkVideoSource objects, to ensure
@@ -260,7 +251,7 @@ void vtkVideoSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   int idx;
   
-  vtkImageSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
   
   os << indent << "FrameSize: (" << this->FrameSize[0] << ", " 
      << this->FrameSize[1] << ", " << this->FrameSize[2] << ")\n";
@@ -341,10 +332,10 @@ void vtkVideoSource::UpdateFrameBuffer()
     {
     oldExt = this->FrameBufferExtent[2*i+1] - this->FrameBufferExtent[2*i] + 1;
     this->FrameBufferExtent[2*i] = ((this->ClipRegion[2*i] > 0) 
-			     ? this->ClipRegion[2*i] : 0);  
+                             ? this->ClipRegion[2*i] : 0);  
     this->FrameBufferExtent[2*i+1] = ((this->ClipRegion[2*i+1] < 
-				       this->FrameSize[i]-1) 
-			     ? this->ClipRegion[2*i+1] : this->FrameSize[i]-1);
+                                       this->FrameSize[i]-1) 
+                             ? this->ClipRegion[2*i+1] : this->FrameSize[i]-1);
 
     ext[i] = this->FrameBufferExtent[2*i+1] - this->FrameBufferExtent[2*i] + 1;
     if (ext[i] < 0)
@@ -363,7 +354,7 @@ void vtkVideoSource::UpdateFrameBuffer()
   // total number of bytes required for the framebuffer
   int bytesPerRow = (ext[0]*this->FrameBufferBitsPerPixel+7)/8;
   bytesPerRow = ((bytesPerRow + this->FrameBufferRowAlignment - 1) /
-		 this->FrameBufferRowAlignment)*this->FrameBufferRowAlignment;
+                 this->FrameBufferRowAlignment)*this->FrameBufferRowAlignment;
   int totalSize = bytesPerRow * ext[1] * ext[2];
 
   i = this->FrameBufferSize;
@@ -372,8 +363,8 @@ void vtkVideoSource::UpdateFrameBuffer()
     {
     buffer = reinterpret_cast<vtkDataArray *>(this->FrameBuffer[i]);
     if (buffer->GetDataType() != VTK_UNSIGNED_CHAR ||
-	buffer->GetNumberOfComponents() != 1 ||
-	buffer->GetNumberOfTuples() != totalSize)
+        buffer->GetNumberOfComponents() != 1 ||
+        buffer->GetNumberOfTuples() != totalSize)
       {
       buffer->Delete();
       buffer = vtkUnsignedCharArray::New();
@@ -458,7 +449,7 @@ void vtkVideoSource::SetFrameRate(float rate)
 
 //----------------------------------------------------------------------------
 void vtkVideoSource::SetClipRegion(int x0, int x1, int y0, int y1, 
-				   int z0, int z1)
+                                   int z0, int z1)
 {
   if (this->ClipRegion[0] != x0 || this->ClipRegion[1] != x1 ||
       this->ClipRegion[2] != y0 || this->ClipRegion[3] != y1 ||
@@ -515,7 +506,7 @@ void vtkVideoSource::InternalGrab()
   int bytesPerRow = ((this->FrameBufferExtent[1]-this->FrameBufferExtent[0]+1)*
                      this->FrameBufferBitsPerPixel + 7)/8;
   bytesPerRow = ((bytesPerRow + this->FrameBufferRowAlignment - 1) /
-		 this->FrameBufferRowAlignment)*this->FrameBufferRowAlignment;
+                 this->FrameBufferRowAlignment)*this->FrameBufferRowAlignment;
   int totalSize = bytesPerRow * 
                    (this->FrameBufferExtent[3]-this->FrameBufferExtent[2]+1) *
                    (this->FrameBufferExtent[5]-this->FrameBufferExtent[4]+1);
@@ -645,7 +636,7 @@ void vtkVideoSource::Record()
     this->Modified();
     this->PlayerThreadId = 
       this->PlayerThreader->SpawnThread((vtkThreadFunctionType)\
-    				&vtkVideoSourceRecordThread,this);
+                                &vtkVideoSourceRecordThread,this);
     }
 }
     
@@ -688,7 +679,7 @@ void vtkVideoSource::Play()
     this->Modified();
     this->PlayerThreadId = 
       this->PlayerThreader->SpawnThread((vtkThreadFunctionType)\
-					&vtkVideoSourcePlayThread,this);
+                                        &vtkVideoSourcePlayThread,this);
     }
 }
     
@@ -911,10 +902,10 @@ void vtkVideoSource::SetFrameBufferSize(int bufsize)
       this->FrameBuffer = new void *[bufsize];
       this->FrameBufferTimeStamps = new double[bufsize];
       for (i = 0; i < bufsize; i++)
-	{
-	this->FrameBuffer[i] = vtkUnsignedCharArray::New();
-	this->FrameBufferTimeStamps[i] = 0.0;
-	} 
+        {
+        this->FrameBuffer[i] = vtkUnsignedCharArray::New();
+        this->FrameBufferTimeStamps[i] = 0.0;
+        } 
       this->FrameBufferSize = bufsize;
       this->Modified();
       }
@@ -966,9 +957,9 @@ void vtkVideoSource::SetFrameBufferSize(int bufsize)
       {
       this->FrameBufferIndex = this->FrameBufferIndex % bufsize;
       if (this->FrameIndex >= bufsize)
-	{
-	this->FrameIndex = bufsize - 1;
-	}
+        {
+        this->FrameIndex = bufsize - 1;
+        }
       }
     else
       {
@@ -1013,7 +1004,7 @@ double vtkVideoSource::GetFrameTimeStamp(int frame)
     }
 
   timeStamp = this->FrameBufferTimeStamps[(this->FrameBufferIndex + frame) \
-					 % this->FrameBufferSize];
+                                         % this->FrameBufferSize];
   this->FrameBufferMutex->Unlock();
 
   return timeStamp;
@@ -1039,7 +1030,7 @@ void vtkVideoSource::ExecuteInformation()
       {
       extent[2*i] = 0; 
       extent[2*i+1] = \
-	this->FrameBufferExtent[2*i+1] - this->FrameBufferExtent[2*i];
+        this->FrameBufferExtent[2*i+1] - this->FrameBufferExtent[2*i];
       }
     this->FrameOutputExtent[2*i] = extent[2*i];
     this->FrameOutputExtent[2*i+1] = extent[2*i+1];
@@ -1077,7 +1068,7 @@ void vtkVideoSource::ExecuteInformation()
 // The version below assumes that the packing of the framebuffer is
 // identical to that of the output.
 void vtkVideoSource::UnpackRasterLine(char *outPtr, char *rowPtr, 
-				      int start, int count)
+                                      int start, int count)
 {
   char *inPtr = rowPtr + start*this->NumberOfScalarComponents;
   memcpy(outPtr,inPtr,count*this->NumberOfScalarComponents);
@@ -1139,7 +1130,7 @@ void vtkVideoSource::ExecuteData(vtkDataObject *output)
 
   int inIncY = (frameExtentX*this->FrameBufferBitsPerPixel + 7)/8;
   inIncY = ((inIncY + this->FrameBufferRowAlignment - 1)/
-	    this->FrameBufferRowAlignment)*this->FrameBufferRowAlignment;
+            this->FrameBufferRowAlignment)*this->FrameBufferRowAlignment;
   int inIncZ = inIncY*frameExtentY;
 
   int outIncX = this->NumberOfScalarComponents;
@@ -1201,9 +1192,9 @@ void vtkVideoSource::ExecuteData(vtkDataObject *output)
   if (this->OutputNeedsInitialization)
     {
     memset(outPtr,0,
-	   (saveOutputExtent[1]-saveOutputExtent[0]+1)*
-	   (saveOutputExtent[3]-saveOutputExtent[2]+1)*
-	   (saveOutputExtent[5]-saveOutputExtent[4]+1)*outIncX);
+           (saveOutputExtent[1]-saveOutputExtent[0]+1)*
+           (saveOutputExtent[3]-saveOutputExtent[2]+1)*
+           (saveOutputExtent[5]-saveOutputExtent[4]+1)*outIncX);
     this->OutputNeedsInitialization = 0;
     } 
 
@@ -1252,21 +1243,21 @@ void vtkVideoSource::ExecuteData(vtkDataObject *output)
       inPtr += inIncZ*inPadZ+inIncY*(frameExtentY-inPadY-outY);
 
       for (i = 0; i < outZ; i++)
-	{
+        {
         inPtrTmp = inPtr;
-	outPtrTmp = outPtr + outIncY*outY;
-	for (j = 0; j < outY; j++)
-	  {
-	  outPtrTmp -= outIncY;
-	  if (outX > 0)
-	    {
-	    this->UnpackRasterLine(outPtrTmp,inPtrTmp,inPadX,outX);
-	    }
-	  inPtrTmp += inIncY;
-	  }
-	outPtr += outIncZ;
-	inPtr += inIncZ;
-	}
+        outPtrTmp = outPtr + outIncY*outY;
+        for (j = 0; j < outY; j++)
+          {
+          outPtrTmp -= outIncY;
+          if (outX > 0)
+            {
+            this->UnpackRasterLine(outPtrTmp,inPtrTmp,inPadX,outX);
+            }
+          inPtrTmp += inIncY;
+          }
+        outPtr += outIncZ;
+        inPtr += inIncZ;
+        }
       }
     else
       { // don't apply a vertical flip
@@ -1274,21 +1265,21 @@ void vtkVideoSource::ExecuteData(vtkDataObject *output)
       inPtr += inIncZ*inPadZ+inIncY*inPadY;
 
       for (i = 0; i < outZ; i++)
-	{
-	inPtrTmp = inPtr;
-	outPtrTmp = outPtr;
-	for (j = 0; j < outY; j++)
-	  {
-	  if (outX > 0) 
-	    {
-	    this->UnpackRasterLine(outPtrTmp,inPtrTmp,inPadX,outX);
-	    }
-	  outPtrTmp += outIncY;
-	  inPtrTmp += inIncY;
-	  }
-	outPtr += outIncZ;
-	inPtr += inIncZ;
-	}
+        {
+        inPtrTmp = inPtr;
+        outPtrTmp = outPtr;
+        for (j = 0; j < outY; j++)
+          {
+          if (outX > 0) 
+            {
+            this->UnpackRasterLine(outPtrTmp,inPtrTmp,inPadX,outX);
+            }
+          outPtrTmp += outIncY;
+          inPtrTmp += inIncY;
+          }
+        outPtr += outIncZ;
+        inPtr += inIncZ;
+        }
       }
     // restore the output extent once the first frame is done
     outputExtent[4] = saveOutputExtent4;

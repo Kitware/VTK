@@ -44,23 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkPointLoad* vtkPointLoad::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPointLoad");
-  if(ret)
-    {
-    return (vtkPointLoad*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkPointLoad;
-}
-
-
-
+vtkCxxRevisionMacro(vtkPointLoad, "1.39");
+vtkStandardNewMacro(vtkPointLoad);
 
 // Construct with ModelBounds=(-1,1,-1,1,-1,1), SampleDimensions=(50,50,50),
 // and LoadValue = 1.
@@ -261,7 +246,7 @@ void vtkPointLoad::Execute()
 
 void vtkPointLoad::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkStructuredPointsSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Load Value: " << this->LoadValue << "\n";
   os << indent << "Sample Dimensions: (" << this->SampleDimensions[0] << ", "

@@ -42,24 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkNormals.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkNormals* vtkNormals::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkNormals");
-  if(ret)
-    {
-    return (vtkNormals*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkNormals;
-}
-
-
-
-
+vtkCxxRevisionMacro(vtkNormals, "1.31");
+vtkStandardNewMacro(vtkNormals);
 
 vtkNormals *vtkNormals::New(int dataType)
 {
@@ -89,7 +73,7 @@ void vtkNormals::GetNormals(vtkIdList *ptIds, vtkNormals *n)
 
 void vtkNormals::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkAttributeData::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Number Of Normals: " << this->GetNumberOfNormals() << "\n";
 }

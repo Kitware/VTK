@@ -60,3 +60,5 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkOpenGLVolumeRayCastMapper.cxx"
 #undef vtkOpenGLVolumeRayCastMapper
 
+vtkCxxRevisionMacro(vtkMesaVolumeRayCastMapper, "1.4");
+vtkStandardNewMacro(vtkMesaVolumeRayCastMapper);

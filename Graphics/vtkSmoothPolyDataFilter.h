@@ -124,7 +124,7 @@ class vtkSmoothPoints;
 class VTK_GRAPHICS_EXPORT vtkSmoothPolyDataFilter : public vtkPolyDataToPolyDataFilter
 {
 public:
-  vtkTypeMacro(vtkSmoothPolyDataFilter,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkSmoothPolyDataFilter,vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

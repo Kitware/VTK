@@ -65,7 +65,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_COMMON_EXPORT vtkCellArray : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkCellArray,vtkObject);
+  vtkTypeRevisionMacro(vtkCellArray,vtkObject);
 
   // Description:
   // Instantiate cell array (connectivity list).

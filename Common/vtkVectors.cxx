@@ -43,23 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkVectors* vtkVectors::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkVectors");
-  if(ret)
-    {
-    return (vtkVectors*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkVectors;
-}
-
-
-
+vtkCxxRevisionMacro(vtkVectors, "1.39");
+vtkStandardNewMacro(vtkVectors);
 
 vtkVectors *vtkVectors::New(int dataType)
 {
@@ -122,7 +107,7 @@ double vtkVectors::GetMaxNorm()
 
 void vtkVectors::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkAttributeData::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Number Of Vectors: " << this->GetNumberOfVectors() << "\n";
   os << indent << "Maximum Euclidean Norm: " << this->GetMaxNorm() << "\n";

@@ -79,7 +79,7 @@ public:
   // Construct object so that light follows camera motion.
   static vtkQuartzRenderWindowInteractor *New();
 
-  vtkTypeMacro(vtkQuartzRenderWindowInteractor,vtkRenderWindowInteractor);
+  vtkTypeRevisionMacro(vtkQuartzRenderWindowInteractor,vtkRenderWindowInteractor);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

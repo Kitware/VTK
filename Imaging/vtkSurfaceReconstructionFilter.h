@@ -60,7 +60,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_IMAGING_EXPORT vtkSurfaceReconstructionFilter : public vtkDataSetToStructuredPointsFilter
 {
 public:
-  vtkTypeMacro(vtkSurfaceReconstructionFilter,vtkDataSetToStructuredPointsFilter);
+  vtkTypeRevisionMacro(vtkSurfaceReconstructionFilter,vtkDataSetToStructuredPointsFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

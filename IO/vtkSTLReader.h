@@ -67,7 +67,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_IO_EXPORT vtkSTLReader : public vtkPolyDataSource 
 {
 public:
-  vtkTypeMacro(vtkSTLReader,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkSTLReader,vtkPolyDataSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

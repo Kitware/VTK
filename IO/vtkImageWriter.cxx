@@ -40,29 +40,15 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <stdio.h>
-#include <ctype.h>
-#include <string.h>
 #include "vtkImageWriter.h"
 #include "vtkObjectFactory.h"
 
+#include <stdio.h>
+#include <ctype.h>
+#include <string.h>
 
-
-//------------------------------------------------------------------------------
-vtkImageWriter* vtkImageWriter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageWriter");
-  if(ret)
-    {
-    return (vtkImageWriter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageWriter;
-}
-
-
-
+vtkCxxRevisionMacro(vtkImageWriter, "1.40");
+vtkStandardNewMacro(vtkImageWriter);
 
 #ifdef write
 #undef write
@@ -113,7 +99,7 @@ vtkImageWriter::~vtkImageWriter()
 //----------------------------------------------------------------------------
 void vtkImageWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkProcessObject::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "FileName: " <<
     (this->FileName ? this->FileName : "(none)") << "\n";

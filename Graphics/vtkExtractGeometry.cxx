@@ -43,18 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-//-------------------------------------------------------------------------
-vtkExtractGeometry* vtkExtractGeometry::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkExtractGeometry");
-  if(ret)
-    {
-    return (vtkExtractGeometry*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkExtractGeometry;
-}
+vtkCxxRevisionMacro(vtkExtractGeometry, "1.44");
+vtkStandardNewMacro(vtkExtractGeometry);
 
 // Construct object with ExtractInside turned on.
 vtkExtractGeometry::vtkExtractGeometry(vtkImplicitFunction *f)
@@ -261,7 +251,7 @@ void vtkExtractGeometry::Execute()
 
 void vtkExtractGeometry::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToUnstructuredGridFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Implicit Function: " 
      << (void *)this->ImplicitFunction << "\n";

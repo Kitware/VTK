@@ -60,7 +60,7 @@ class VTK_FILTERING_EXPORT vtkPolyDataSource : public vtkSource
 {
 public:
   static vtkPolyDataSource *New();
-  vtkTypeMacro(vtkPolyDataSource,vtkSource);
+  vtkTypeRevisionMacro(vtkPolyDataSource,vtkSource);
 
   // Description:
   // Get the output of this source.

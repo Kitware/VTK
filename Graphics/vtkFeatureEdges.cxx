@@ -48,18 +48,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-//-------------------------------------------------------------------------
-vtkFeatureEdges* vtkFeatureEdges::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkFeatureEdges");
-  if(ret)
-    {
-    return (vtkFeatureEdges*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkFeatureEdges;
-}
+vtkCxxRevisionMacro(vtkFeatureEdges, "1.58");
+vtkStandardNewMacro(vtkFeatureEdges);
 
 // Construct object with feature angle = 30; all types of edges, except 
 // manifold edges, are extracted and colored.
@@ -430,7 +420,7 @@ void vtkFeatureEdges::ComputeInputUpdateExtents(vtkDataObject *output)
 
 void vtkFeatureEdges::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Feature Angle: " << this->FeatureAngle << "\n";
   os << indent << "Boundary Edges: " << (this->BoundaryEdges ? "On\n" : "Off\n");

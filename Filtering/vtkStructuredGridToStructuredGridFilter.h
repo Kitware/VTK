@@ -56,7 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_FILTERING_EXPORT vtkStructuredGridToStructuredGridFilter : public vtkStructuredGridSource
 {
 public:
-  vtkTypeMacro(vtkStructuredGridToStructuredGridFilter,vtkStructuredGridSource);
+  vtkTypeRevisionMacro(vtkStructuredGridToStructuredGridFilter,vtkStructuredGridSource);
 
   // Description:
   // Set / get the input Grid or filter.

@@ -42,20 +42,5 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkRenderWindowCollection.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkRenderWindowCollection* vtkRenderWindowCollection::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkRenderWindowCollection");
-  if(ret)
-    {
-    return (vtkRenderWindowCollection*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkRenderWindowCollection;
-}
-
-
-
+vtkCxxRevisionMacro(vtkRenderWindowCollection, "1.5");
+vtkStandardNewMacro(vtkRenderWindowCollection);

@@ -69,7 +69,7 @@ class vtkNeighborCells;
 class VTK_FILTERING_EXPORT vtkCellLocator : public vtkLocator
 {
 public:
-  vtkTypeMacro(vtkCellLocator,vtkLocator);
+  vtkTypeRevisionMacro(vtkCellLocator,vtkLocator);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -113,7 +113,7 @@ typedef struct{
 class VTK_IMAGING_EXPORT vtkImageFourierFilter : public vtkImageDecomposeFilter
 {
 public:
-  vtkTypeMacro(vtkImageFourierFilter,vtkImageDecomposeFilter);
+  vtkTypeRevisionMacro(vtkImageFourierFilter,vtkImageDecomposeFilter);
   
   
   // public for templated functions of this object

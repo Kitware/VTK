@@ -60,7 +60,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_GRAPHICS_EXPORT vtkReverseSense : public vtkPolyDataToPolyDataFilter
 {
 public:
-  vtkTypeMacro(vtkReverseSense,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkReverseSense,vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

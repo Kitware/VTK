@@ -39,27 +39,11 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
 #include "vtkCardinalSpline.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkCardinalSpline* vtkCardinalSpline::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkCardinalSpline");
-  if(ret)
-    {
-    return (vtkCardinalSpline*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkCardinalSpline;
-}
-
-
-
+vtkCxxRevisionMacro(vtkCardinalSpline, "1.15");
+vtkStandardNewMacro(vtkCardinalSpline);
 
 // Construct a Cardinal Spline.
 vtkCardinalSpline::vtkCardinalSpline ()
@@ -85,7 +69,7 @@ float vtkCardinalSpline::Evaluate (float t)
   if (this->ComputeTime < this->GetMTime ())
     {
     this->Compute ();
-    }	
+    }   
 
   intervals = this->Intervals;
   coefficients = this->Coefficients;
@@ -180,9 +164,9 @@ void vtkCardinalSpline::Compute ()
       }
 
     this->Fit1D (size, this->Intervals, dependent,
-		 work, (float (*)[4])coefficients,
-		 this->LeftConstraint, this->LeftValue,
-		 this->RightConstraint, this->RightValue);
+                 work, (float (*)[4])coefficients,
+                 this->LeftConstraint, this->LeftValue,
+                 this->RightConstraint, this->RightValue);
     }
 
   else //add extra "fictitious" point to close loop
@@ -221,7 +205,7 @@ void vtkCardinalSpline::Compute ()
     dependent[size-1] = *xs;
 
     this->FitClosed1D (size, this->Intervals, dependent,
-		 work, (float (*)[4])coefficients);
+                 work, (float (*)[4])coefficients);
     }
 
   // free the work array and dependent variable storage
@@ -232,9 +216,9 @@ void vtkCardinalSpline::Compute ()
 
 // Compute the coefficients for a 1D spline. The spline is open.
 void vtkCardinalSpline::Fit1D (int size, float *x, float *y,
-			float *work, float coefficients[][4],
-			int leftConstraint, float leftValue,
-			int rightConstraint, float rightValue)
+                        float *work, float coefficients[][4],
+                        int leftConstraint, float leftValue,
+                        int rightConstraint, float rightValue)
 {
   float   b = 0.0;
   float   xlk;
@@ -255,16 +239,16 @@ void vtkCardinalSpline::Fit1D (int size, float *x, float *y,
       coefficients[0][1] = 2.0;
       coefficients[0][2] = 1.0;
       work[0]= 3.0 * ((y[1] - y[0]) / (x[1] - x[0])) -
-	 0.5 * (x[1] - x[0]) * leftValue;
+         0.5 * (x[1] - x[0]) * leftValue;
       break;
     case 3:
       // desired second derivative at leftmost point is
       // leftValue times second derivative at first interior point.
       coefficients[0][1] = 2.0;
       coefficients[0][2] = 4.0 * ((0.5 + leftValue) / 
-				(2.0 + leftValue));
+                                (2.0 + leftValue));
       work[0]= 6.0 * ((1.0 + leftValue) / (2.0 + leftValue)) *
-		 ((y[1] - y[0]) / (x[1]-x[0]));
+                 ((y[1] - y[0]) / (x[1]-x[0]));
 
       break;
     }
@@ -278,36 +262,36 @@ void vtkCardinalSpline::Fit1D (int size, float *x, float *y,
       coefficients[k][1] = 2.0 * (xlkp + xlk);
       coefficients[k][2] = xlk;
       work[k] = 3.0 * (((xlkp * (y[k] - y[k-1])) / xlk) +
-		((xlk * (y[k+1] - y[k])) / xlkp));
+                ((xlk * (y[k+1] - y[k])) / xlkp));
       }
 
     // develop constraint at rightmost point.
     switch (rightConstraint) 
       {
       case 1:
-	// desired slope at rightmost point is rightValue
-	coefficients[size - 1][0] = 0.0;
-	coefficients[size - 1][1] = 1.0;
-	work[size - 1] = rightValue;
-	break;
+        // desired slope at rightmost point is rightValue
+        coefficients[size - 1][0] = 0.0;
+        coefficients[size - 1][1] = 1.0;
+        work[size - 1] = rightValue;
+        break;
       case 2:
-	// desired second derivative at rightmost point is rightValue.
-	coefficients[size-1][0] = 1.0;
-	coefficients[size-1][1] = 2.0;
-	work[size-1] = 3.0 * ((y[size-1] - y[size-2]) / 
-	  (x[size-1] - x[size-2])) +
-	  0.5 * (x[size-1]-x[size-2]) * rightValue;
-	break;
+        // desired second derivative at rightmost point is rightValue.
+        coefficients[size-1][0] = 1.0;
+        coefficients[size-1][1] = 2.0;
+        work[size-1] = 3.0 * ((y[size-1] - y[size-2]) / 
+          (x[size-1] - x[size-2])) +
+          0.5 * (x[size-1]-x[size-2]) * rightValue;
+        break;
       case 3:
-	// desired second derivative at rightmost point is
-	// rightValue times second derivative at last interior point.
-	coefficients[size-1][0] = 4.0 * ((0.5 + rightValue) /
-				   (2.0 + rightValue));
-	coefficients[size-1][1] = 2.0;
-	work[size-1] = 6.0 * ((1.0 + rightValue) / (2.0 + rightValue)) *
-		  ((y[size-1] - y[size-2]) /
-		   (x[size-1] - x[size-2]));
-	break;
+        // desired second derivative at rightmost point is
+        // rightValue times second derivative at last interior point.
+        coefficients[size-1][0] = 4.0 * ((0.5 + rightValue) /
+                                   (2.0 + rightValue));
+        coefficients[size-1][1] = 2.0;
+        work[size-1] = 6.0 * ((1.0 + rightValue) / (2.0 + rightValue)) *
+                  ((y[size-1] - y[size-2]) /
+                   (x[size-1] - x[size-2]));
+        break;
       }
 
     // solve resulting set of equations.
@@ -318,10 +302,10 @@ void vtkCardinalSpline::Fit1D (int size, float *x, float *y,
     for (k = 1; k < size; k++)
       {
       coefficients[k][1] = coefficients[k][1] - (coefficients[k][0] *
-			 coefficients[k-1][2]);
+                         coefficients[k-1][2]);
       coefficients[k][2] = coefficients[k][2] / coefficients[k][1];
       work[k]  = (work[k] - (coefficients[k][0] * work[k-1]))
-			   / coefficients[k][1];
+                           / coefficients[k][1];
       }
 
     for (k = size - 2; k >= 0; k--)
@@ -339,9 +323,9 @@ void vtkCardinalSpline::Fit1D (int size, float *x, float *y,
       coefficients[k][0] = y[k];
       coefficients[k][1] = work[k];
       coefficients[k][2] = (3.0 * (y[k+1] - y[k])) / (b * b) - 
-			(work[k+1] + 2.0 * work[k]) / b;
+                        (work[k+1] + 2.0 * work[k]) / b;
       coefficients[k][3] = (2.0 * (y[k] - y[k+1])) / (b * b * b) + 
-			(work[k+1] + work[k]) / (b * b);
+                        (work[k+1] + work[k]) / (b * b);
       }
 
     // the coefficients of a fictitious nth cubic
@@ -351,7 +335,7 @@ void vtkCardinalSpline::Fit1D (int size, float *x, float *y,
     coefficients[size-1][0] = y[size-1];
     coefficients[size-1][1] = work[size-1];
     coefficients[size-1][2] = coefficients[size-2][2] + 
-		3.0 * coefficients[size-2][3] * b;
+                3.0 * coefficients[size-2][3] * b;
     coefficients[size-1][3] = coefficients[size-2][3];
 
 }
@@ -360,14 +344,14 @@ void vtkCardinalSpline::Fit1D (int size, float *x, float *y,
 // (i.e., the first and last point are assumed the same) and the
 // spline is continous in value and derivatives.
 void vtkCardinalSpline::FitClosed1D (int size, float *x, float *y,
-			float *work, float coefficients[][4])
+                        float *work, float coefficients[][4])
 {
   float   b;
   float   xlk;
   float   xlkp;
   int     k;
-  float	aN, bN, cN, dN;
-  int	N;
+  float aN, bN, cN, dN;
+  int   N;
 
   N = size - 1;
 
@@ -381,7 +365,7 @@ void vtkCardinalSpline::FitClosed1D (int size, float *x, float *y,
     coefficients[k][1] = 2.0 * (xlkp + xlk);
     coefficients[k][2] = xlk;
     work[k] = 3.0 * (((xlkp * (y[k] - y[k-1])) / xlk) +
-		     ((xlk * (y[k+1] - y[k])) / xlkp));
+                     ((xlk * (y[k+1] - y[k])) / xlkp));
     }
 
   xlk = x[N] - x[N-1];
@@ -390,7 +374,7 @@ void vtkCardinalSpline::FitClosed1D (int size, float *x, float *y,
   bN = coefficients[N][1] = 2.0 * (xlkp + xlk);
   cN = coefficients[N][2] = xlk;
   dN = work[N] = 3.0 * (((xlkp * (y[N] - y[N-1])) / xlk) +
-			((xlk * (y[1] - y[0])) / xlkp));
+                        ((xlk * (y[1] - y[0])) / xlkp));
 
 
   // solve resulting set of equations.
@@ -407,7 +391,7 @@ void vtkCardinalSpline::FitClosed1D (int size, float *x, float *y,
     work[k]  = (work[k] - (coefficients[k][0] * work[k-1]))
       / coefficients[k][1];
     coefficients[k][3] = (-1.0 * coefficients[k][0] * 
-			  coefficients[k-1][3]) / coefficients[k][1];
+                          coefficients[k-1][3]) / coefficients[k][1];
     }
 
   coefficients[N][0] = 1.0;
@@ -421,8 +405,8 @@ void vtkCardinalSpline::FitClosed1D (int size, float *x, float *y,
     }
 
   work[0] = work[N] = (dN - cN * coefficients[1][1] - 
-		       aN * coefficients[N-1][1]) / ( bN +
-						      cN * coefficients[1][0] + aN * coefficients[N-1][0]);
+                       aN * coefficients[N-1][1]) / ( bN +
+                                                      cN * coefficients[1][0] + aN * coefficients[N-1][0]);
 
   for (k=1; k < N; k++) 
     {
@@ -456,6 +440,6 @@ void vtkCardinalSpline::FitClosed1D (int size, float *x, float *y,
 
 void vtkCardinalSpline::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkSpline::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 }
 

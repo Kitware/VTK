@@ -42,6 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTIFFWriter.h"
 #include "vtkObjectFactory.h"
 
+vtkCxxRevisionMacro(vtkTIFFWriter, "1.19");
+vtkStandardNewMacro(vtkTIFFWriter);
 
 #if (_MIPS_SZLONG == 64)
 typedef int vtkTiffLong;
@@ -50,28 +52,6 @@ typedef unsigned int vtkTiffUnsignedLong;
 typedef long vtkTiffLong;
 typedef unsigned long vtkTiffUnsignedLong;
 #endif
-
-//------------------------------------------------------------------------------
-vtkTIFFWriter* vtkTIFFWriter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTIFFWriter");
-  if(ret)
-    {
-    return (vtkTIFFWriter*)ret;
-    }
-  int longSize = sizeof(vtkTiffLong);
-  if (longSize != 4)
-    {
-    vtkGenericWarningMacro ("vtkTIFFWriter expects sizeof(vtkTiffLong) to be 4,"
-                     << " but sizeof (vtkTiffLong) is " << longSize);
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkTIFFWriter;
-}
-
-
-
 
 #ifdef write
 #undef write

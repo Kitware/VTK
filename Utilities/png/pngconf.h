@@ -1166,7 +1166,7 @@ typedef z_stream FAR *  png_zstreamp;
 #if defined(PNG_DLL) || defined(_DLL) || defined(__DLL__ ) || \
     (( defined(_Windows) || defined(_WINDOWS) || \
        defined(WIN32) || defined(_WIN32) || defined(__WIN32__) \
-	  ) && !defined(__CYGWIN__))
+          ) && !defined(__CYGWIN__))
 
 #  if defined(__GNUC__) || (defined (_MSC_VER) && (_MSC_VER >= 800))
 #    define PNGAPI __cdecl

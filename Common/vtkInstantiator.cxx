@@ -41,6 +41,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkInstantiator.h"
 #include "vtkObjectFactory.h"
 
+vtkCxxRevisionMacro(vtkInstantiator, "1.2");
+vtkStandardNewMacro(vtkInstantiator);
+
 // Node in hash table.
 class vtkInstantiatorHashNode
 {
@@ -64,7 +67,7 @@ private:
 class vtkInstantiatorHashTable : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkInstantiatorHashTable,vtkObject);
+  vtkTypeRevisionMacro(vtkInstantiatorHashTable,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);  
   
   static vtkInstantiatorHashTable* New();
@@ -94,6 +97,8 @@ private:
   vtkInstantiatorHashTable(const vtkInstantiatorHashTable&);  // Not implemented.
   void operator=(const vtkInstantiatorHashTable&);  // Not implemented.
 };
+
+vtkCxxRevisionMacro(vtkInstantiatorHashTable, "1.2");
 
 //----------------------------------------------------------------------------
 vtkInstantiatorHashTable* vtkInstantiatorHashTable::New()
@@ -280,19 +285,6 @@ const char* vtkInstantiatorHashTable::AddClassName(const char* className)
 //----------------------------------------------------------------------------
 // Implementation of actual vtkInstantiator class.
 //----------------------------------------------------------------------------
-vtkInstantiator* vtkInstantiator::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkInstantiator");
-  if(ret)
-    {
-    return static_cast<vtkInstantiator*>(ret);
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkInstantiator;
-}
-
-//----------------------------------------------------------------------------
 vtkInstantiator::vtkInstantiator()
 {
 }
@@ -305,7 +297,7 @@ vtkInstantiator::~vtkInstantiator()
 //----------------------------------------------------------------------------
 void vtkInstantiator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkObject::PrintSelf(os, indent);
+  this->Superclass::PrintSelf(os, indent);
   vtkInstantiator::CreatorTable->PrintSelf(os, indent);
 }
 

@@ -39,26 +39,13 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
-
 #include "vtkImageFFT.h"
 #include "vtkObjectFactory.h"
 
+#include <math.h>
 
-
-//------------------------------------------------------------------------------
-vtkImageFFT* vtkImageFFT::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageFFT");
-  if(ret)
-    {
-    return (vtkImageFFT*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageFFT;
-}
-
+vtkCxxRevisionMacro(vtkImageFFT, "1.30");
+vtkStandardNewMacro(vtkImageFFT);
 
 //----------------------------------------------------------------------------
 // This extent of the components changes to real and imaginary values.

@@ -64,7 +64,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_GRAPHICS_EXPORT vtkCellCenters : public vtkDataSetToPolyDataFilter
 {
 public:
-  vtkTypeMacro(vtkCellCenters,vtkDataSetToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkCellCenters,vtkDataSetToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

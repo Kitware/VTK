@@ -80,7 +80,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_RENDERING_EXPORT vtkImporter : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkImporter,vtkObject);
+  vtkTypeRevisionMacro(vtkImporter,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 

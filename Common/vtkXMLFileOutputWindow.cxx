@@ -42,17 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkXMLFileOutputWindow.h"
 #include "vtkObjectFactory.h"
 
-vtkXMLFileOutputWindow* vtkXMLFileOutputWindow::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkXMLFileOutputWindow");
-  if(ret)
-    {
-    return (vtkXMLFileOutputWindow*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkXMLFileOutputWindow;
-}
+vtkCxxRevisionMacro(vtkXMLFileOutputWindow, "1.4");
+vtkStandardNewMacro(vtkXMLFileOutputWindow);
 
 void vtkXMLFileOutputWindow::Initialize() 
 {

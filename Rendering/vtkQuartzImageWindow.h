@@ -56,7 +56,7 @@ class VTK_RENDERING_EXPORT vtkQuartzImageWindow : public vtkImageWindow
 {
 public:
   static vtkQuartzImageWindow *New();
-  vtkTypeMacro(vtkQuartzImageWindow,vtkImageWindow);
+  vtkTypeRevisionMacro(vtkQuartzImageWindow,vtkImageWindow);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // output to the viewer.

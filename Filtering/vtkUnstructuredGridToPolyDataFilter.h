@@ -57,7 +57,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_FILTERING_EXPORT vtkUnstructuredGridToPolyDataFilter : public vtkPolyDataSource
 {
 public:
-  vtkTypeMacro(vtkUnstructuredGridToPolyDataFilter,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkUnstructuredGridToPolyDataFilter,vtkPolyDataSource);
 
   // Description:
   // Set / get the input data or filter.

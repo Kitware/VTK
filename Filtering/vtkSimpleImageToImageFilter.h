@@ -70,7 +70,7 @@ class VTK_FILTERING_EXPORT vtkSimpleImageToImageFilter : public vtkImageSource
 {
 public:
 
-  vtkTypeMacro(vtkSimpleImageToImageFilter,vtkImageSource);
+  vtkTypeRevisionMacro(vtkSimpleImageToImageFilter,vtkImageSource);
 
   // Description:
   // Set the Input of a filter. 

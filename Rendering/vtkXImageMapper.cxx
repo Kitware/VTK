@@ -7,21 +7,8 @@
 
 #ifndef VTK_REMOVE_LEGACY_CODE
 
-//----------------------------------------------------------------------------
-vtkXImageMapper* vtkXImageMapper::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkXImageMapper");
-  if(ret)
-    {
-    return (vtkXImageMapper*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkXImageMapper;
-}
-
-
-
+vtkCxxRevisionMacro(vtkXImageMapper, "1.28");
+vtkStandardNewMacro(vtkXImageMapper);
 
 vtkXImageMapper::vtkXImageMapper()
 {
@@ -841,7 +828,7 @@ void vtkXImageMapper::RenderData(vtkViewport* viewport, vtkImageData* data, vtkA
 
 void vtkXImageMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageMapper::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "NumberOfColors: " << this->NumberOfColors << "\n";
 }

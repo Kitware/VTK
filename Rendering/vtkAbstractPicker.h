@@ -86,7 +86,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_RENDERING_EXPORT vtkAbstractPicker : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkAbstractPicker,vtkObject);
+  vtkTypeRevisionMacro(vtkAbstractPicker,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

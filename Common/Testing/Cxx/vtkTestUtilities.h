@@ -17,7 +17,7 @@ struct vtkTestUtilities
   // If slash is true, appends a slash to the resulting string.
   // The returned string has to be deleted (with delete[]) by the user.
   static char* ExpandDataFileName(int argc, char* argv[], 
-				  const char* fname,
+                                  const char* fname,
                                   int slash = 0);
   // Description:
   // Function returning either a command line argument, an environment 
@@ -52,7 +52,7 @@ char* vtkTestUtilities::GetDataRoot(int argc, char* argv[])
 }
 
 char* vtkTestUtilities::ExpandDataFileName(int argc, char* argv[], 
-					   const char* fname,
+                                           const char* fname,
                                            int slash)
 {
   return vtkTestUtilities::ExpandFileNameWithArgOrEnvOrDefault(

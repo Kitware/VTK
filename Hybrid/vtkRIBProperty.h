@@ -61,7 +61,7 @@ class VTK_HYBRID_EXPORT vtkRIBProperty : public vtkProperty
 {
 public:
   static vtkRIBProperty *New();
-  vtkTypeMacro(vtkRIBProperty,vtkProperty);
+  vtkTypeRevisionMacro(vtkRIBProperty,vtkProperty);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

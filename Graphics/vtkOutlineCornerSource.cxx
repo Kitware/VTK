@@ -43,23 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkOutlineCornerSource.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkOutlineCornerSource* vtkOutlineCornerSource::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkOutlineCornerSource");
-  if(ret)
-    {
-    return (vtkOutlineCornerSource*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkOutlineCornerSource;
-}
-
-
-
+vtkCxxRevisionMacro(vtkOutlineCornerSource, "1.4");
+vtkStandardNewMacro(vtkOutlineCornerSource);
 
 //----------------------------------------------------------------------------
 vtkOutlineCornerSource::vtkOutlineCornerSource()
@@ -149,6 +134,6 @@ void vtkOutlineCornerSource::Execute()
 //----------------------------------------------------------------------------
 void vtkOutlineCornerSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkOutlineSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
   os << indent << "CornerFactor: " << this->CornerFactor << "\n";
 }

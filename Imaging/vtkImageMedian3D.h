@@ -58,7 +58,7 @@ class VTK_IMAGING_EXPORT vtkImageMedian3D : public vtkImageSpatialFilter
 {
 public:
   static vtkImageMedian3D *New();
-  vtkTypeMacro(vtkImageMedian3D,vtkImageSpatialFilter);
+  vtkTypeRevisionMacro(vtkImageMedian3D,vtkImageSpatialFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

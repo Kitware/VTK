@@ -42,23 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageCityBlockDistance.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkImageCityBlockDistance* vtkImageCityBlockDistance::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageCityBlockDistance");
-  if(ret)
-    {
-    return (vtkImageCityBlockDistance*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageCityBlockDistance;
-}
-
-
-
+vtkCxxRevisionMacro(vtkImageCityBlockDistance, "1.20");
+vtkStandardNewMacro(vtkImageCityBlockDistance);
 
 //----------------------------------------------------------------------------
 vtkImageCityBlockDistance::vtkImageCityBlockDistance()

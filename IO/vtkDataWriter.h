@@ -64,7 +64,7 @@ class vtkDataArray;
 class VTK_IO_EXPORT vtkDataWriter : public vtkWriter
 {
 public:
-  vtkTypeMacro(vtkDataWriter,vtkWriter);
+  vtkTypeRevisionMacro(vtkDataWriter,vtkWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

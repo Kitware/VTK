@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_COMMON_EXPORT vtkPlaneCollection : public vtkCollection
 {
 public:
-  vtkTypeMacro(vtkPlaneCollection,vtkCollection);
+  vtkTypeRevisionMacro(vtkPlaneCollection,vtkCollection);
   static vtkPlaneCollection *New();
 
   // Description:

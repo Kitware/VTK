@@ -39,23 +39,12 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
 #include "vtkIdentityTransform.h"
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
 
-//----------------------------------------------------------------------------
-vtkIdentityTransform *vtkIdentityTransform::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkIdentityTransform");
-  if(ret)
-    {
-    return (vtkIdentityTransform*)ret;
-    }
-
-  return new vtkIdentityTransform;
-}
+vtkCxxRevisionMacro(vtkIdentityTransform, "1.15");
+vtkStandardNewMacro(vtkIdentityTransform);
 
 //----------------------------------------------------------------------------
 vtkIdentityTransform::vtkIdentityTransform()
@@ -70,7 +59,7 @@ vtkIdentityTransform::~vtkIdentityTransform()
 //----------------------------------------------------------------------------
 void vtkIdentityTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkLinearTransform::PrintSelf(os, indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 //------------------------------------------------------------------------

@@ -56,18 +56,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define VTK_MAX_PLOTS 50
 
-//--------------------------------------------------------------------------
-vtkXYPlotActor* vtkXYPlotActor::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkXYPlotActor");
-  if(ret)
-    {
-      return (vtkXYPlotActor*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkXYPlotActor;
-}
+vtkCxxRevisionMacro(vtkXYPlotActor, "1.32");
+vtkStandardNewMacro(vtkXYPlotActor);
 
 // Instantiate object
 vtkXYPlotActor::vtkXYPlotActor()
@@ -782,7 +772,7 @@ void vtkXYPlotActor::PrintSelf(ostream& os, vtkIndent indent)
   int component;
   int idx, num;
 
-  vtkActor2D::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   this->InputList->InitTraversal();
   num = this->InputList->GetNumberOfItems();

@@ -47,18 +47,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkUnstructuredGridReader.h"
 #include "vtkObjectFactory.h"
 
-//--------------------------------------------------------------------------
-vtkDataSetReader* vtkDataSetReader::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkDataSetReader");
-  if(ret)
-    {
-    return (vtkDataSetReader*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkDataSetReader;
-}
+vtkCxxRevisionMacro(vtkDataSetReader, "1.56");
+vtkStandardNewMacro(vtkDataSetReader);
 
 vtkDataSetReader::vtkDataSetReader()
 {
@@ -337,5 +327,5 @@ void vtkDataSetReader::Update()
 
 void vtkDataSetReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataReader::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 }

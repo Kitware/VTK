@@ -41,6 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkImageIterateFilter.h"
 
+vtkCxxRevisionMacro(vtkImageIterateFilter, "1.30");
 
 //----------------------------------------------------------------------------
 vtkImageIterateFilter::vtkImageIterateFilter()
@@ -61,7 +62,7 @@ vtkImageIterateFilter::~vtkImageIterateFilter()
 //----------------------------------------------------------------------------
 void vtkImageIterateFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageToImageFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "NumberOfIterations: " << this->NumberOfIterations << "\n";
 

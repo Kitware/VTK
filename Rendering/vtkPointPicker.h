@@ -58,7 +58,7 @@ class VTK_RENDERING_EXPORT vtkPointPicker : public vtkPicker
 {
 public:
   static vtkPointPicker *New();
-  vtkTypeMacro(vtkPointPicker,vtkPicker);
+  vtkTypeRevisionMacro(vtkPointPicker,vtkPicker);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

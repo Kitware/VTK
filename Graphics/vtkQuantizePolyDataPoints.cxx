@@ -45,18 +45,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 
-//--------------------------------------------------------------------------
-vtkQuantizePolyDataPoints* vtkQuantizePolyDataPoints::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkQuantizePolyDataPoints");
-  if (ret) 
-    {
-    return (vtkQuantizePolyDataPoints*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkQuantizePolyDataPoints;
-}
+vtkCxxRevisionMacro(vtkQuantizePolyDataPoints, "1.6");
+vtkStandardNewMacro(vtkQuantizePolyDataPoints);
 
 //--------------------------------------------------------------------------
 // Construct object with initial QFactor of 0.25
@@ -88,7 +78,7 @@ void vtkQuantizePolyDataPoints::OperateOnBounds(float in[6], float out[6])
 //--------------------------------------------------------------------------
 void vtkQuantizePolyDataPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkCleanPolyData::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "QFactor: " << this->QFactor << "\n";
 }

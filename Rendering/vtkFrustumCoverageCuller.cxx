@@ -44,23 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkRenderer.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkFrustumCoverageCuller* vtkFrustumCoverageCuller::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkFrustumCoverageCuller");
-  if(ret)
-    {
-    return (vtkFrustumCoverageCuller*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkFrustumCoverageCuller;
-}
-
-
-
+vtkCxxRevisionMacro(vtkFrustumCoverageCuller, "1.24");
+vtkStandardNewMacro(vtkFrustumCoverageCuller);
 
 // Create a frustum coverage culler with default values
 vtkFrustumCoverageCuller::vtkFrustumCoverageCuller()
@@ -385,7 +370,7 @@ const char *vtkFrustumCoverageCuller::GetSortingStyleAsString(void)
 
 void vtkFrustumCoverageCuller::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkCuller::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Minimum Coverage: " 
      << this->MinimumCoverage << endl;

@@ -42,22 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkSpatialRepresentationFilter.h"
 #include "vtkObjectFactory.h"
 
-
-//------------------------------------------------------------------------------
-vtkSpatialRepresentationFilter* vtkSpatialRepresentationFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkSpatialRepresentationFilter");
-  if(ret)
-    {
-    return (vtkSpatialRepresentationFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkSpatialRepresentationFilter;
-}
-
-
-
+vtkCxxRevisionMacro(vtkSpatialRepresentationFilter, "1.27");
+vtkStandardNewMacro(vtkSpatialRepresentationFilter);
 
 vtkSpatialRepresentationFilter::vtkSpatialRepresentationFilter()
 {
@@ -182,7 +168,7 @@ void vtkSpatialRepresentationFilter::GenerateOutput()
 
 void vtkSpatialRepresentationFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Level: " << this->Level << "\n";
 

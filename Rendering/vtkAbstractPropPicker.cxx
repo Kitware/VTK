@@ -47,6 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPropAssembly.h"
 #include "vtkObjectFactory.h"
 
+vtkCxxRevisionMacro(vtkAbstractPropPicker, "1.3");
 
 vtkAbstractPropPicker::vtkAbstractPropPicker()
 {
@@ -164,7 +165,7 @@ vtkPropAssembly *vtkAbstractPropPicker::GetPropAssembly()
   
 void vtkAbstractPropPicker::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkAbstractPicker::PrintSelf(os, indent);
+  this->Superclass::PrintSelf(os, indent);
 
   if ( this->Path )
     {

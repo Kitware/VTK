@@ -302,6 +302,11 @@ vtkObject *vtkObject::SafeDownCast(vtkObject *o)
   return (vtkObject *)o;
 }
 
+void vtkObject::CollectRevisions(ostream& os)
+{
+  os << "vtkObject 1.67\n";
+}
+
 //----------------------------------Command/Observer stuff-------------------
 //
 

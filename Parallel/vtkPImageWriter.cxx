@@ -56,18 +56,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       file = NULL; \
       } \
 
-//------------------------------------------------------------------------------
-vtkPImageWriter* vtkPImageWriter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPImageWriter");
-  if(ret)
-    {
-    return (vtkPImageWriter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkPImageWriter;
-}
+vtkCxxRevisionMacro(vtkPImageWriter, "1.4");
+vtkStandardNewMacro(vtkPImageWriter);
 
 #ifdef write
 #undef write
@@ -102,7 +92,7 @@ vtkPImageWriter::~vtkPImageWriter()
 //----------------------------------------------------------------------------
 void vtkPImageWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageWriter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "MemoryLimit: " << this->MemoryLimit << "\n";
 }

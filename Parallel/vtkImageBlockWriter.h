@@ -56,7 +56,7 @@ class VTK_PARALLEL_EXPORT vtkImageBlockWriter : public vtkProcessObject
 {
 public:
   static vtkImageBlockWriter *New();
-  vtkTypeMacro(vtkImageBlockWriter,vtkProcessObject);
+  vtkTypeRevisionMacro(vtkImageBlockWriter,vtkProcessObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

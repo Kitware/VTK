@@ -59,7 +59,7 @@ class VTK_HYBRID_EXPORT vtkPolyDataToImageStencil : public vtkImageStencilSource
 {
 public:
   static vtkPolyDataToImageStencil *New();
-  vtkTypeMacro(vtkPolyDataToImageStencil, vtkImageStencilSource);
+  vtkTypeRevisionMacro(vtkPolyDataToImageStencil, vtkImageStencilSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -79,7 +79,7 @@ protected:
 
   void ExecuteData(vtkDataObject *out);
   void ThreadedExecute(vtkImageStencilData *output,
-		       int extent[6], int threadId);
+                       int extent[6], int threadId);
 
   float Tolerance;
   vtkOBBTree *OBBTree;

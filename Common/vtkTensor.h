@@ -59,7 +59,7 @@ class VTK_COMMON_EXPORT vtkTensor : public vtkObject
 {
 public:
   static vtkTensor *New();
-  vtkTypeMacro(vtkTensor,vtkObject);
+  vtkTypeRevisionMacro(vtkTensor,vtkObject);
 
   // Description:
   // Initialize tensor components to 0.0.

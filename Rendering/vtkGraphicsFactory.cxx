@@ -78,6 +78,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkXOpenGLRenderWindow.h"
 #endif
 
+vtkCxxRevisionMacro(vtkGraphicsFactory, "1.24");
 
 const char *vtkGraphicsFactory::GetRenderLibrary()
 {

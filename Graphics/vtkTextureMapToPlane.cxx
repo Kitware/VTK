@@ -44,18 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-//--------------------------------------------------------------------------
-vtkTextureMapToPlane* vtkTextureMapToPlane::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTextureMapToPlane");
-  if(ret)
-    {
-    return (vtkTextureMapToPlane*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkTextureMapToPlane;
-}
+vtkCxxRevisionMacro(vtkTextureMapToPlane, "1.42");
+vtkStandardNewMacro(vtkTextureMapToPlane);
 
 // Construct with s,t range=(0,1) and automatic plane generation turned on.
 vtkTextureMapToPlane::vtkTextureMapToPlane()
@@ -336,7 +326,7 @@ void vtkTextureMapToPlane::ComputeNormal()
 
 void vtkTextureMapToPlane::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToDataSetFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Origin: (" << this->Origin[0] << ", "
      << this->Origin[1] << ", " << this->Origin[2] << " )\n";

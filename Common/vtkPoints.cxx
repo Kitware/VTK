@@ -54,6 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 
+vtkCxxRevisionMacro(vtkPoints, "1.43");
 
 //----------------------------------------------------------------------------
 vtkPoints* vtkPoints::New(int dataType)
@@ -304,9 +305,9 @@ unsigned long vtkPoints::GetActualMemorySize()
 
 void vtkPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
+  this->Superclass::PrintSelf(os,indent);
+  
   float *bounds;
-
-  vtkObject::PrintSelf(os,indent);
 
   os << indent << "Data: " << this->Data << "\n";
   if ( this->Data )

@@ -39,32 +39,17 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <stdlib.h>
-#include <math.h>
-
 #include "vtkVolume.h"
 #include "vtkVolumeCollection.h"
 #include "vtkRenderer.h"
 #include "vtkVolumeRayCastMapper.h"
 #include "vtkObjectFactory.h"
 
+#include <stdlib.h>
+#include <math.h>
 
-
-//------------------------------------------------------------------------------
-vtkVolume* vtkVolume::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkVolume");
-  if(ret)
-    {
-    return (vtkVolume*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkVolume;
-}
-
-
-
+vtkCxxRevisionMacro(vtkVolume, "1.63");
+vtkStandardNewMacro(vtkVolume);
 
 // Creates a Volume with the following defaults: origin(0,0,0) 
 // position=(0,0,0) scale=1 visibility=1 pickable=1 dragable=1
@@ -739,7 +724,7 @@ void vtkVolume::UpdateScalarOpacityforSampleSize( vtkRenderer *vtkNotUsed(ren),
 
 void vtkVolume::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkProp3D::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   if( this->Property )
     {

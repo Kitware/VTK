@@ -56,7 +56,7 @@ class VTK_IO_EXPORT vtkStructuredPointsWriter : public vtkDataWriter
 {
 public:
   static vtkStructuredPointsWriter *New();
-  vtkTypeMacro(vtkStructuredPointsWriter,vtkDataWriter);
+  vtkTypeRevisionMacro(vtkStructuredPointsWriter,vtkDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

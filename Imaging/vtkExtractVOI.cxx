@@ -42,23 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkExtractVOI.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkExtractVOI* vtkExtractVOI::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkExtractVOI");
-  if(ret)
-    {
-    return (vtkExtractVOI*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkExtractVOI;
-}
-
-
-
+vtkCxxRevisionMacro(vtkExtractVOI, "1.26");
+vtkStandardNewMacro(vtkExtractVOI);
 
 // Construct object to extract all of the input data.
 vtkExtractVOI::vtkExtractVOI()
@@ -271,7 +256,7 @@ void vtkExtractVOI::Execute()
 
 void vtkExtractVOI::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkStructuredPointsToStructuredPointsFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "VOI: \n";
   os << indent << "  Imin,Imax: (" << this->VOI[0] << ", " << this->VOI[1] << ")\n";

@@ -42,23 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkRectilinearGridGeometryFilter.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkRectilinearGridGeometryFilter* vtkRectilinearGridGeometryFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkRectilinearGridGeometryFilter");
-  if(ret)
-    {
-    return (vtkRectilinearGridGeometryFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkRectilinearGridGeometryFilter;
-}
-
-
-
+vtkCxxRevisionMacro(vtkRectilinearGridGeometryFilter, "1.22");
+vtkStandardNewMacro(vtkRectilinearGridGeometryFilter);
 
 // Construct with initial extent (0,100, 0,100, 0,0) (i.e., a k-plane).
 vtkRectilinearGridGeometryFilter::vtkRectilinearGridGeometryFilter()
@@ -441,7 +426,7 @@ void vtkRectilinearGridGeometryFilter::SetExtent(int extent[6])
 
 void vtkRectilinearGridGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkRectilinearGridToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Extent: \n";
   os << indent << "  Imin,Imax: (" << this->Extent[0] << ", " << this->Extent[1] << ")\n";

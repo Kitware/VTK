@@ -54,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_EXPORT vtkSpherePuzzle : public vtkPolyDataSource 
 {
 public:
-  vtkTypeMacro(vtkSpherePuzzle,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkSpherePuzzle,vtkPolyDataSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

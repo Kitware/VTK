@@ -85,7 +85,7 @@ class VTK_PATENTED_EXPORT vtkSweptSurface : public vtkStructuredPointsToStructur
 {
 public:
   static vtkSweptSurface *New();
-  vtkTypeMacro(vtkSweptSurface,vtkStructuredPointsToStructuredPointsFilter);
+  vtkTypeRevisionMacro(vtkSweptSurface,vtkStructuredPointsToStructuredPointsFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -42,18 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkRectilinearGridReader.h"
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
-vtkRectilinearGridReader* vtkRectilinearGridReader::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkRectilinearGridReader");
-  if(ret)
-    {
-    return (vtkRectilinearGridReader*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkRectilinearGridReader;
-}
+vtkCxxRevisionMacro(vtkRectilinearGridReader, "1.26");
+vtkStandardNewMacro(vtkRectilinearGridReader);
 
 //----------------------------------------------------------------------------
 vtkRectilinearGridReader::vtkRectilinearGridReader()
@@ -381,5 +371,5 @@ void vtkRectilinearGridReader::Execute()
 //----------------------------------------------------------------------------
 void vtkRectilinearGridReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataReader::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 }

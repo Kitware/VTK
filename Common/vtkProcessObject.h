@@ -82,7 +82,7 @@ public:
   // Instantiate object with no start, end, or progress methods.
   static vtkProcessObject *New();
 
-  vtkTypeMacro(vtkProcessObject,vtkObject);
+  vtkTypeRevisionMacro(vtkProcessObject,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

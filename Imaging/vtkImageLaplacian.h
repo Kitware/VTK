@@ -60,7 +60,7 @@ class VTK_IMAGING_EXPORT vtkImageLaplacian : public vtkImageToImageFilter
 {
 public:
   static vtkImageLaplacian *New();
-  vtkTypeMacro(vtkImageLaplacian,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageLaplacian,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

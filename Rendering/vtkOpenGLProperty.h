@@ -55,7 +55,7 @@ class VTK_RENDERING_EXPORT vtkOpenGLProperty : public vtkProperty
 {
 public:
   static vtkOpenGLProperty *New();
-  vtkTypeMacro(vtkOpenGLProperty,vtkProperty);
+  vtkTypeRevisionMacro(vtkOpenGLProperty,vtkProperty);
 
   // Description:
   // Implement base class method.

@@ -56,7 +56,7 @@ class VTK_RENDERING_EXPORT vtkOpenGLImager : public vtkImager
 { 
 public:
   static vtkOpenGLImager *New();
-  vtkTypeMacro(vtkOpenGLImager,vtkImager);
+  vtkTypeRevisionMacro(vtkOpenGLImager,vtkImager);
 
   // Description:
   // Renders an imager.  Passes Render message on the 

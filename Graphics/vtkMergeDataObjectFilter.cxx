@@ -42,23 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMergeDataObjectFilter.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkMergeDataObjectFilter* vtkMergeDataObjectFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMergeDataObjectFilter");
-  if(ret)
-    {
-    return (vtkMergeDataObjectFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkMergeDataObjectFilter;
-}
-
-
-
+vtkCxxRevisionMacro(vtkMergeDataObjectFilter, "1.14");
+vtkStandardNewMacro(vtkMergeDataObjectFilter);
 
 //----------------------------------------------------------------------------
 // Create object with no input or output.
@@ -152,7 +137,7 @@ void vtkMergeDataObjectFilter::Execute()
 //----------------------------------------------------------------------------
 void vtkMergeDataObjectFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToDataSetFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Output Field: ";
   if ( this->OutputField == VTK_DATA_OBJECT_FIELD )

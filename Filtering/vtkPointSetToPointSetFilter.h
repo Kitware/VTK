@@ -73,7 +73,7 @@ class vtkUnstructuredGrid;
 class VTK_FILTERING_EXPORT vtkPointSetToPointSetFilter : public vtkPointSetSource
 {
 public:
-  vtkTypeMacro(vtkPointSetToPointSetFilter,vtkPointSetSource);
+  vtkTypeRevisionMacro(vtkPointSetToPointSetFilter,vtkPointSetSource);
   
   // Description:
   // Specify the input data or filter.

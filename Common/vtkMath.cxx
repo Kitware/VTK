@@ -42,20 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-
-//-------------------------------------------------------------------------
-vtkMath* vtkMath::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMath");
-  if(ret)
-    {
-    return (vtkMath*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkMath;
-}
-
+vtkCxxRevisionMacro(vtkMath, "1.72");
+vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
 

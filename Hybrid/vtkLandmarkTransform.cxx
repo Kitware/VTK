@@ -41,18 +41,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
-vtkLandmarkTransform* vtkLandmarkTransform::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkLandmarkTransform");
-  if(ret)
-    {
-    return (vtkLandmarkTransform*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkLandmarkTransform;
-}
+vtkCxxRevisionMacro(vtkLandmarkTransform, "1.19");
+vtkStandardNewMacro(vtkLandmarkTransform);
 
 //----------------------------------------------------------------------------
 vtkLandmarkTransform::vtkLandmarkTransform()
@@ -78,7 +68,7 @@ vtkLandmarkTransform::~vtkLandmarkTransform()
 //----------------------------------------------------------------------------
 void vtkLandmarkTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkLinearTransform::PrintSelf(os, indent);
+  this->Superclass::PrintSelf(os, indent);
   os << "Mode: " << this->GetModeAsString() << "\n";
   os << "SourceLandmarks: " << this->SourceLandmarks << "\n";
   if(this->SourceLandmarks) 
@@ -201,11 +191,11 @@ void vtkLandmarkTransform::InternalUpdate()
       // for the affine transform, compute ((a.a^t)^-1 . a.b^t)^t.
       // a.b^t is already in M.  here we put a.a^t in AAT.
       if (this->Mode == VTK_LANDMARK_AFFINE)
-	{
-	AAT[i][0] += a[i]*a[0];
-	AAT[i][1] += a[i]*a[1];
-	AAT[i][2] += a[i]*a[2];
-	}
+        {
+        AAT[i][0] += a[i]*a[0];
+        AAT[i][1] += a[i]*a[1];
+        AAT[i][2] += a[i]*a[2];
+        }
       }
     // accumulate scale factors (if desired)
     sa += a[0]*a[0]+a[1]*a[1]+a[2]*a[2];
@@ -224,9 +214,9 @@ void vtkLandmarkTransform::InternalUpdate()
     for(i=0;i<3;++i) 
       {
       for(j=0;j<3;++j)
-	{
-	this->Matrix->Element[i][j] = M[j][i];
-	}
+        {
+        this->Matrix->Element[i][j] = M[j][i];
+        }
       }
     }
   else
@@ -289,12 +279,12 @@ void vtkLandmarkTransform::InternalUpdate()
       double ds[3],dt[3];
       double rs = 0, rt = 0;
       for (i = 0; i < 3; i++)
-	{
-	ds[i] = s1[i] - s0[i];      // vector between points
-	rs += ds[i]*ds[i];
-	dt[i] = t1[i] - t0[i];
-	rt += dt[i]*dt[i];
-	}
+        {
+        ds[i] = s1[i] - s0[i];      // vector between points
+        rs += ds[i]*ds[i];
+        dt[i] = t1[i] - t0[i];
+        rt += dt[i]*dt[i];
+        }
 
       // normalize the two vectors
       rs = sqrt(rs);
@@ -314,21 +304,21 @@ void vtkLandmarkTransform::InternalUpdate()
       // construct quaternion
       w = cos(theta/2);
       if (r != 0)
-	{
-	r = sin(theta/2)/r;
-	x = x*r;
-	y = y*r;
-	z = z*r;
-	}
+        {
+        r = sin(theta/2)/r;
+        x = x*r;
+        y = y*r;
+        z = z*r;
+        }
       else // rotation by 180 degrees: special case
-	{
-	// rotate around a vector perpendicular to ds
-	vtkMath::Perpendiculars(ds,dt,0,0);
-	r = sin(theta/2);
-	x = dt[0]*r;
-	y = dt[1]*r;
-	z = dt[2]*r;
-	}
+        {
+        // rotate around a vector perpendicular to ds
+        vtkMath::Perpendiculars(ds,dt,0,0);
+        r = sin(theta/2);
+        x = dt[0]*r;
+        y = dt[1]*r;
+        z = dt[2]*r;
+        }
       }
     else // points are not collinear
       {
@@ -368,11 +358,11 @@ void vtkLandmarkTransform::InternalUpdate()
     if (this->Mode != VTK_LANDMARK_RIGIDBODY)
       { // add in the scale factor (if desired)
       for(i=0;i<3;i++) 
-	{
-	this->Matrix->Element[i][0] *= scale;
-	this->Matrix->Element[i][1] *= scale;
-	this->Matrix->Element[i][2] *= scale;
-	}
+        {
+        this->Matrix->Element[i][0] *= scale;
+        this->Matrix->Element[i][1] *= scale;
+        this->Matrix->Element[i][2] *= scale;
+        }
       }
     }
 

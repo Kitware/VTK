@@ -62,7 +62,7 @@ class VTK_IO_EXPORT vtkRectilinearGridReader : public vtkDataReader
 {
 public:
   static vtkRectilinearGridReader *New();
-  vtkTypeMacro(vtkRectilinearGridReader,vtkDataReader);
+  vtkTypeRevisionMacro(vtkRectilinearGridReader,vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

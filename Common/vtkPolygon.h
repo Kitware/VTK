@@ -58,7 +58,7 @@ class VTK_COMMON_EXPORT vtkPolygon : public vtkCell
 {
 public:
   static vtkPolygon *New();
-  vtkTypeMacro(vtkPolygon,vtkCell);
+  vtkTypeRevisionMacro(vtkPolygon,vtkCell);
 
   // Description:
   // See the vtkCell API for descriptions of these methods.

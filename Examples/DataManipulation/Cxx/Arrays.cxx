@@ -29,7 +29,7 @@ int main( int argc, char *argv[] )
   // SetTuple1 SetTuple2 SetTuple3 SetTuple4 SetTuple9
   // These take 1, 2, 3, 4 and 9 components respectively.
   float pts[4][3] = { {0.0, 0.0, 0.0}, {0.0, 1.0, 0.0},
-		      {1.0, 0.0, 0.0}, {1.0, 1.0, 0.0} };
+                      {1.0, 0.0, 0.0}, {1.0, 1.0, 0.0} };
   for (i=0; i<4; i++)
     {
     pcoords->SetTuple(i, pts[i]);

@@ -39,8 +39,6 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  
  =========================================================================*/
-
-
 #include "vtkOOGLExporter.h"
 #include "vtkGeometryFilter.h"
 #include "vtkPolyDataMapper.h"
@@ -51,18 +49,8 @@
 #include "vtkTriangleStrip.h"
 #include "vtkVersion.h"
 
-//----------------------------------------------------------------------------
-vtkOOGLExporter* vtkOOGLExporter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkOOGLExporter");
-  if(ret)
-    {
-    return (vtkOOGLExporter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkOOGLExporter;
-}
+vtkCxxRevisionMacro(vtkOOGLExporter, "1.7");
+vtkStandardNewMacro(vtkOOGLExporter);
 
 vtkOOGLExporter::vtkOOGLExporter()
 {

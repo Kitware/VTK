@@ -57,7 +57,7 @@ class VTK_IMAGING_EXPORT vtkImageLogarithmicScale : public vtkImageToImageFilter
 {
 public:
   static vtkImageLogarithmicScale *New();
-  vtkTypeMacro(vtkImageLogarithmicScale,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageLogarithmicScale,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -175,7 +175,7 @@ public:
 class VTK_GRAPHICS_EXPORT vtkDecimatePro : public vtkPolyDataToPolyDataFilter
 {
 public:
-  vtkTypeMacro(vtkDecimatePro,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkDecimatePro,vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

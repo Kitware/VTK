@@ -44,18 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-//-------------------------------------------------------------------------
-vtkBrownianPoints* vtkBrownianPoints::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkBrownianPoints");
-  if(ret)
-    {
-    return (vtkBrownianPoints*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkBrownianPoints;
-}
+vtkCxxRevisionMacro(vtkBrownianPoints, "1.32");
+vtkStandardNewMacro(vtkBrownianPoints);
 
 vtkBrownianPoints::vtkBrownianPoints()
 {
@@ -143,7 +133,7 @@ void vtkBrownianPoints::Execute()
 
 void vtkBrownianPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToDataSetFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Minimum Speed: " << this->MinimumSpeed << "\n";
   os << indent << "Maximum Speed: " << this->MaximumSpeed << "\n";

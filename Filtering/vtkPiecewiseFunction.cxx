@@ -43,23 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkSource.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkPiecewiseFunction* vtkPiecewiseFunction::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPiecewiseFunction");
-  if(ret)
-    {
-    return (vtkPiecewiseFunction*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkPiecewiseFunction;
-}
-
-
-
+vtkCxxRevisionMacro(vtkPiecewiseFunction, "1.30");
+vtkStandardNewMacro(vtkPiecewiseFunction);
 
 // Construct a new vtkPiecewiseFunction with default values
 vtkPiecewiseFunction::vtkPiecewiseFunction()
@@ -791,9 +776,9 @@ void vtkPiecewiseFunction::IncreaseArraySize()
 // Print method for tkPiecewiseFunction
 void vtkPiecewiseFunction::PrintSelf(ostream& os, vtkIndent indent)
 {
+  this->Superclass::PrintSelf(os, indent);
+  
   int i;
-
-  this->vtkDataObject::PrintSelf(os, indent);
 
   os << indent << "Clamping: " << this->Clamping << "\n";
   os << indent << "Function Points: " << this->GetSize() << "\n";

@@ -507,8 +507,8 @@ ZEXTERN int ZEXPORT deflateReset OF((z_streamp strm));
 */
 
 ZEXTERN int ZEXPORT deflateParams OF((z_streamp strm,
-				      int level,
-				      int strategy));
+                                      int level,
+                                      int strategy));
 /*
      Dynamically update the compression level and compression strategy.  The
    interpretation of level and strategy is as in deflateInit2.  This can be
@@ -702,7 +702,7 @@ ZEXTERN int ZEXPORT    gzread  OF((gzFile file, voidp buf, unsigned len));
    end of file, -1 for error). */
 
 ZEXTERN int ZEXPORT    gzwrite OF((gzFile file, 
-				   const voidp buf, unsigned len));
+                                   const voidp buf, unsigned len));
 /*
      Writes the given number of uncompressed bytes into the compressed file.
    gzwrite returns the number of uncompressed bytes actually written
@@ -755,7 +755,7 @@ ZEXTERN int ZEXPORT    gzflush OF((gzFile file, int flush));
 */
 
 ZEXTERN z_off_t ZEXPORT    gzseek OF((gzFile file,
-				      z_off_t offset, int whence));
+                                      z_off_t offset, int whence));
 /* 
       Sets the starting position for the next gzread or gzwrite on the
    given compressed file. The offset represents a number of bytes in the

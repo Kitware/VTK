@@ -43,23 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkIdFilter* vtkIdFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkIdFilter");
-  if(ret)
-    {
-    return (vtkIdFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkIdFilter;
-}
-
-
-
+vtkCxxRevisionMacro(vtkIdFilter, "1.16");
+vtkStandardNewMacro(vtkIdFilter);
 
 // Construct object with PointIds and CellIds on; and ids being generated
 // as scalars.
@@ -161,7 +146,7 @@ void vtkIdFilter::Execute()
 
 void vtkIdFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToDataSetFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Point Ids: "    << (this->PointIds ? "On\n" : "Off\n");
   os << indent << "Cell Ids: "     << (this->CellIds ? "On\n" : "Off\n");

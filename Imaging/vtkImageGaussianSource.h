@@ -54,7 +54,7 @@ class VTK_IMAGING_EXPORT vtkImageGaussianSource : public vtkImageSource
 {
 public:
   static vtkImageGaussianSource *New();
-  vtkTypeMacro(vtkImageGaussianSource,vtkImageSource);
+  vtkTypeRevisionMacro(vtkImageGaussianSource,vtkImageSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

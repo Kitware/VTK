@@ -56,7 +56,7 @@ class VTK_IMAGING_EXPORT vtkImageNormalize : public vtkImageToImageFilter
 {
 public:
   static vtkImageNormalize *New();
-  vtkTypeMacro(vtkImageNormalize,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageNormalize,vtkImageToImageFilter);
 
 protected:
   vtkImageNormalize() {};

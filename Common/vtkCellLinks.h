@@ -65,7 +65,7 @@ class VTK_COMMON_EXPORT vtkCellLinks : public vtkObject
 {
 public:
   static vtkCellLinks *New();
-  vtkTypeMacro(vtkCellLinks,vtkObject);
+  vtkTypeRevisionMacro(vtkCellLinks,vtkObject);
 
   // Description:
   // Allocate the specified number of links (i.e., number of points) that

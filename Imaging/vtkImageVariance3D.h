@@ -61,7 +61,7 @@ class VTK_IMAGING_EXPORT vtkImageVariance3D : public vtkImageSpatialFilter
 {
 public:
   static vtkImageVariance3D *New();
-  vtkTypeMacro(vtkImageVariance3D,vtkImageSpatialFilter);
+  vtkTypeRevisionMacro(vtkImageVariance3D,vtkImageSpatialFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

@@ -57,7 +57,7 @@ class VTK_RENDERING_EXPORT vtkOpenGLImageActor : public vtkImageActor
 {
 public:
   static vtkOpenGLImageActor *New();
-  vtkTypeMacro(vtkOpenGLImageActor,vtkImageActor);
+  vtkTypeRevisionMacro(vtkOpenGLImageActor,vtkImageActor);
 
   // Description:
   // Implement base class method.

@@ -68,7 +68,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_COMMON_EXPORT vtkXMLFileOutputWindow : public vtkFileOutputWindow
 {
 public:
-  vtkTypeMacro(vtkXMLFileOutputWindow, vtkFileOutputWindow);
+  vtkTypeRevisionMacro(vtkXMLFileOutputWindow, vtkFileOutputWindow);
 
   static vtkXMLFileOutputWindow* New();
 

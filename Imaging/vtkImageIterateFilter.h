@@ -57,7 +57,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_IMAGING_EXPORT vtkImageIterateFilter : public vtkImageToImageFilter
 {
 public:
-  vtkTypeMacro(vtkImageIterateFilter,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageIterateFilter,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

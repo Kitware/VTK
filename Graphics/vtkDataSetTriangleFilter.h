@@ -62,7 +62,7 @@ class VTK_GRAPHICS_EXPORT vtkDataSetTriangleFilter : public vtkDataSetToUnstruct
 {
 public:
   static vtkDataSetTriangleFilter *New();
-  vtkTypeMacro(vtkDataSetTriangleFilter,vtkDataSetToUnstructuredGridFilter);
+  vtkTypeRevisionMacro(vtkDataSetTriangleFilter,vtkDataSetToUnstructuredGridFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:

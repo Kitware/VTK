@@ -54,23 +54,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkUnsignedCharArray.h"
 #include "vtkStructuredGridGeometryFilter.h"
 
-
-
-
-
-//----------------------------------------------------------------------------
-vtkDataSetSurfaceFilter* vtkDataSetSurfaceFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkDataSetSurfaceFilter");
-  if(ret)
-    {
-    return (vtkDataSetSurfaceFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkDataSetSurfaceFilter;
-}
-
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.13");
+vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
 vtkDataSetSurfaceFilter::vtkDataSetSurfaceFilter()
@@ -686,7 +671,7 @@ void vtkDataSetSurfaceFilter::ComputeInputUpdateExtents(vtkDataObject *output)
 //----------------------------------------------------------------------------
 void vtkDataSetSurfaceFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   if (this->UseStrips)
     {

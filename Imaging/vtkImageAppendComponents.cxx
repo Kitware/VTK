@@ -39,29 +39,11 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
 #include "vtkImageAppendComponents.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkImageAppendComponents* vtkImageAppendComponents::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageAppendComponents");
-  if(ret)
-    {
-    return (vtkImageAppendComponents*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageAppendComponents;
-}
-
-
-
-
-
+vtkCxxRevisionMacro(vtkImageAppendComponents, "1.20");
+vtkStandardNewMacro(vtkImageAppendComponents);
 
 //----------------------------------------------------------------------------
 // This method tells the ouput it will have more components

@@ -70,7 +70,7 @@ class VTK_GRAPHICS_EXPORT vtkProgrammableFilter : public vtkDataSetToDataSetFilt
 {
 public:
   static vtkProgrammableFilter *New();
-  vtkTypeMacro(vtkProgrammableFilter,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkProgrammableFilter,vtkDataSetToDataSetFilter);
 
   // Description:
   // Specify the function to use to operate on the point attribute data. Note

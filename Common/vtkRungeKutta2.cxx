@@ -39,9 +39,11 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
 #include "vtkRungeKutta2.h"
 #include "vtkObjectFactory.h"
+
+vtkCxxRevisionMacro(vtkRungeKutta2, "1.6");
+vtkStandardNewMacro(vtkRungeKutta2);
 
 vtkRungeKutta2::vtkRungeKutta2() 
 {
@@ -50,20 +52,6 @@ vtkRungeKutta2::vtkRungeKutta2()
 vtkRungeKutta2::~vtkRungeKutta2() 
 {
 }
-
-
-vtkRungeKutta2* vtkRungeKutta2::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkRungeKutta2");
-  if(ret)
-    {
-    return (vtkRungeKutta2*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkRungeKutta2;
-}
-
 
 // Calculate next time step
 float vtkRungeKutta2::ComputeNextStep(float* xprev, float* dxprev, 

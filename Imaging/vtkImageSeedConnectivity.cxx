@@ -39,28 +39,11 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
 #include "vtkImageSeedConnectivity.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkImageSeedConnectivity* vtkImageSeedConnectivity::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageSeedConnectivity");
-  if(ret)
-    {
-    return (vtkImageSeedConnectivity*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageSeedConnectivity;
-}
-
-
-
-
+vtkCxxRevisionMacro(vtkImageSeedConnectivity, "1.25");
+vtkStandardNewMacro(vtkImageSeedConnectivity);
 
 //----------------------------------------------------------------------------
 vtkImageSeedConnectivity::vtkImageSeedConnectivity()
@@ -309,7 +292,7 @@ void vtkImageSeedConnectivity::ExecuteData(vtkDataObject *)
 
 void vtkImageSeedConnectivity::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageToImageFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   if ( this->Connector )
     {

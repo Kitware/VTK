@@ -39,27 +39,11 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
 #include "vtkImageCacheFilter.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkImageCacheFilter* vtkImageCacheFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageCacheFilter");
-  if(ret)
-    {
-    return (vtkImageCacheFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageCacheFilter;
-}
-
-
-
+vtkCxxRevisionMacro(vtkImageCacheFilter, "1.16");
+vtkStandardNewMacro(vtkImageCacheFilter);
 
 //----------------------------------------------------------------------------
 vtkImageCacheFilter::vtkImageCacheFilter()
@@ -81,11 +65,11 @@ vtkImageCacheFilter::~vtkImageCacheFilter()
 //----------------------------------------------------------------------------
 void vtkImageCacheFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
+  this->Superclass::PrintSelf(os,indent);
+
   int idx, *ext;
   vtkIndent i2 = indent.GetNextIndent();
   
-  vtkImageToImageFilter::PrintSelf(os,indent);
-
   os << indent << "CacheSize: " << this->CacheSize << endl;
   os << indent << "Caches: \n";
   for (idx = 0; idx < this->CacheSize; ++idx)

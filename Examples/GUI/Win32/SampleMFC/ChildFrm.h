@@ -12,9 +12,9 @@
 
 class CChildFrame : public CMDIChildWnd
 {
-	DECLARE_DYNCREATE(CChildFrame)
+        DECLARE_DYNCREATE(CChildFrame)
 public:
-	CChildFrame();
+        CChildFrame();
 
 // Attributes
 public:
@@ -23,26 +23,26 @@ public:
 public:
 
 // Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(CChildFrame)
-	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
-	//}}AFX_VIRTUAL
+        // ClassWizard generated virtual function overrides
+        //{{AFX_VIRTUAL(CChildFrame)
+        virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
+        //}}AFX_VIRTUAL
 
 // Implementation
 public:
-	virtual ~CChildFrame();
+        virtual ~CChildFrame();
 #ifdef _DEBUG
-	virtual void AssertValid() const;
-	virtual void Dump(CDumpContext& dc) const;
+        virtual void AssertValid() const;
+        virtual void Dump(CDumpContext& dc) const;
 #endif
 
 // Generated message map functions
 protected:
-	//{{AFX_MSG(CChildFrame)
-		// NOTE - the ClassWizard will add and remove member functions here.
-		//    DO NOT EDIT what you see in these blocks of generated code!
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
+        //{{AFX_MSG(CChildFrame)
+                // NOTE - the ClassWizard will add and remove member functions here.
+                //    DO NOT EDIT what you see in these blocks of generated code!
+        //}}AFX_MSG
+        DECLARE_MESSAGE_MAP()
 };
 
 /////////////////////////////////////////////////////////////////////////////

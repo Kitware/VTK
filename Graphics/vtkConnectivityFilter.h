@@ -88,7 +88,7 @@ class vtkFloatArray;
 class VTK_GRAPHICS_EXPORT vtkConnectivityFilter : public vtkDataSetToUnstructuredGridFilter
 {
 public:
-  vtkTypeMacro(vtkConnectivityFilter,vtkDataSetToUnstructuredGridFilter);
+  vtkTypeRevisionMacro(vtkConnectivityFilter,vtkDataSetToUnstructuredGridFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

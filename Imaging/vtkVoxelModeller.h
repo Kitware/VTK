@@ -57,7 +57,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_IMAGING_EXPORT vtkVoxelModeller : public vtkDataSetToStructuredPointsFilter 
 {
 public:
-  vtkTypeMacro(vtkVoxelModeller,vtkDataSetToStructuredPointsFilter);
+  vtkTypeRevisionMacro(vtkVoxelModeller,vtkDataSetToStructuredPointsFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

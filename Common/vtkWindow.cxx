@@ -39,10 +39,13 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
+#include "vtkWindow.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "vtkWindow.h"
+
+vtkCxxRevisionMacro(vtkWindow, "1.21");
 
 // Construct an instance of  vtkRenderWindow with its screen size 
 // set to 300x300, borders turned on, positioned at (0,0), double 
@@ -147,7 +150,7 @@ void vtkWindow::SetPosition(int x, int y)
 
 void vtkWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Erase: " << (this->Erase ? "On\n" : "Off\n");
   if ( this->WindowName )

@@ -81,7 +81,7 @@ public:
   // resolution is 10,000, and the color mode is set to default.
   static vtkCGMWriter *New() {return new vtkCGMWriter;};
 
-  vtkTypeMacro(vtkCGMWriter,vtkPolyDataWriter);
+  vtkTypeRevisionMacro(vtkCGMWriter,vtkPolyDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

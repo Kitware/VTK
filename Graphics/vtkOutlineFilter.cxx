@@ -43,23 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkOutlineSource.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkOutlineFilter* vtkOutlineFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkOutlineFilter");
-  if(ret)
-    {
-    return (vtkOutlineFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkOutlineFilter;
-}
-
-
-
+vtkCxxRevisionMacro(vtkOutlineFilter, "1.28");
+vtkStandardNewMacro(vtkOutlineFilter);
 
 vtkOutlineFilter::vtkOutlineFilter ()
 {

@@ -58,7 +58,7 @@ class VTK_RENDERING_EXPORT vtkLightCollection : public vtkCollection
 {
  public:
   static vtkLightCollection *New();
-  vtkTypeMacro(vtkLightCollection,vtkCollection);
+  vtkTypeRevisionMacro(vtkLightCollection,vtkCollection);
 
   // Description:
   // Add a light to the list.

@@ -70,7 +70,7 @@ protected:
   
 public:
   static vtkXOpenGLRenderWindow *New();
-  vtkTypeMacro(vtkXOpenGLRenderWindow,vtkOpenGLRenderWindow);
+  vtkTypeRevisionMacro(vtkXOpenGLRenderWindow,vtkOpenGLRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

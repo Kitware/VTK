@@ -60,7 +60,7 @@ class VTK_IMAGING_EXPORT vtkImageGradientMagnitude : public vtkImageToImageFilte
 {
 public:
   static vtkImageGradientMagnitude *New();
-  vtkTypeMacro(vtkImageGradientMagnitude,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageGradientMagnitude,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

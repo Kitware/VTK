@@ -63,7 +63,7 @@ class VTK_IMAGING_EXPORT vtkImageSeedConnectivity : public vtkImageToImageFilter
 {
 public:
   static vtkImageSeedConnectivity *New();
-  vtkTypeMacro(vtkImageSeedConnectivity,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageSeedConnectivity,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

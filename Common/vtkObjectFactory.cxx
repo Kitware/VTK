@@ -50,6 +50,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkOverrideInformation.h"
 #include "vtkDebugLeaks.h"
 
+vtkCxxRevisionMacro(vtkObjectFactory, "1.30");
+
 vtkObjectFactoryCollection* vtkObjectFactory::RegisteredFactories = 0;
 
 
@@ -398,7 +400,7 @@ void vtkObjectFactory::RegisterFactory(vtkObjectFactory* factory)
 // print ivars to stream
 void vtkObjectFactory::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os, indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent 
      << "Factory DLL path: " << this->LibraryPath << "\n";
   os << indent << "Library version: " << this->LibraryVTKVersion << "\n";

@@ -39,23 +39,14 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
 #include "vtkLookupTable.h"
 #include "vtkBitArray.h"
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
-vtkLookupTable* vtkLookupTable::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkLookupTable");
-  if(ret)
-    {
-    return (vtkLookupTable*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkLookupTable;
-}
+#include <math.h>
+
+vtkCxxRevisionMacro(vtkLookupTable, "1.80");
+vtkStandardNewMacro(vtkLookupTable);
 
 // Construct with range=(0,1); and hsv ranges set up for rainbow color table 
 // (from red to blue).
@@ -932,7 +923,7 @@ float *vtkLookupTable::GetTableValue(int indx)
 
 void vtkLookupTable::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkScalarsToColors::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "TableRange: (" << this->TableRange[0] << ", "
      << this->TableRange[1] << ")\n";

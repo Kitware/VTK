@@ -23,7 +23,7 @@ class VTK_MY_IMAGING_EXPORT vtkImageFoo : public vtkImageToImageFilter
 {
 public:
   static vtkImageFoo *New();
-  vtkTypeMacro(vtkImageFoo,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageFoo,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

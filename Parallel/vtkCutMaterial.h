@@ -58,7 +58,7 @@ class VTK_PARALLEL_EXPORT vtkCutMaterial : public vtkDataSetToPolyDataFilter
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent);
-  vtkTypeMacro(vtkCutMaterial,vtkDataSetToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkCutMaterial,vtkDataSetToPolyDataFilter);
   static vtkCutMaterial *New();
 
   // Description:

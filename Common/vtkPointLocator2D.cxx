@@ -45,23 +45,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPolyData.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkPointLocator2D* vtkPointLocator2D::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPointLocator2D");
-  if(ret)
-    {
-    return (vtkPointLocator2D*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkPointLocator2D;
-}
-
-
-
+vtkCxxRevisionMacro(vtkPointLocator2D, "1.19");
+vtkStandardNewMacro(vtkPointLocator2D);
 
 class vtkNeighborPoints2D
 {
@@ -1003,7 +988,7 @@ void vtkPointLocator2D::GenerateFace(int face, int i, int j, int k,
 
 void vtkPointLocator2D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkLocator::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Number of Points Per Bucket: " << this->NumberOfPointsPerBucket << "\n";
   os << indent << "Divisions: (" << this->Divisions[0] << ", " 

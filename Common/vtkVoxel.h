@@ -57,7 +57,7 @@ class VTK_COMMON_EXPORT vtkVoxel : public vtkCell3D
 {
 public:
   static vtkVoxel *New();
-  vtkTypeMacro(vtkVoxel,vtkCell);
+  vtkTypeRevisionMacro(vtkVoxel,vtkCell);
 
   // Description:
   // See vtkCell3D API for description of these methods.

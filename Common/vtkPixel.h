@@ -56,7 +56,7 @@ class VTK_COMMON_EXPORT vtkPixel : public vtkCell
 {
 public:
   static vtkPixel *New();
-  vtkTypeMacro(vtkPixel,vtkCell);
+  vtkTypeRevisionMacro(vtkPixel,vtkCell);
 
   // Description:
   // See the vtkCell API for descriptions of these methods.

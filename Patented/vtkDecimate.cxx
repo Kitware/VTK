@@ -57,18 +57,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-//----------------------------------------------------------------------------
-vtkDecimate* vtkDecimate::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkDecimate");
-  if(ret)
-    {
-    return (vtkDecimate*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkDecimate;
-}
+vtkCxxRevisionMacro(vtkDecimate, "1.64");
+vtkStandardNewMacro(vtkDecimate);
 
 #define VTK_TOLERANCE 1.0e-05
 
@@ -1237,7 +1227,7 @@ int vtkDecimate::CheckError ()
 
 void vtkDecimate::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Target Reduction: " << this->TargetReduction << "\n";
   os << indent << "Initial Error: " << this->InitialError << "\n";

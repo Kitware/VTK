@@ -58,23 +58,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkDataWriter* vtkDataWriter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkDataWriter");
-  if(ret)
-    {
-    return (vtkDataWriter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkDataWriter;
-}
-
-
-
+vtkCxxRevisionMacro(vtkDataWriter, "1.87");
+vtkStandardNewMacro(vtkDataWriter);
 
 // this undef is required on the hp. vtkMutexLock ends up including
 // /usr/inclue/dce/cma_ux.h which has the gall to #define write as cma_write
@@ -979,7 +964,7 @@ char *vtkDataWriter::RegisterAndGetOutputString()
 
 void vtkDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkWriter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "File Name: " 
      << (this->FileName ? this->FileName : "(none)") << "\n";

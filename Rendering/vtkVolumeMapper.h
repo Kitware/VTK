@@ -70,7 +70,7 @@ class vtkWindow;
 class VTK_RENDERING_EXPORT vtkVolumeMapper : public vtkAbstractMapper3D
 {
 public:
-  vtkTypeMacro(vtkVolumeMapper,vtkAbstractMapper3D);
+  vtkTypeRevisionMacro(vtkVolumeMapper,vtkAbstractMapper3D);
   void PrintSelf( ostream& os, vtkIndent index );
 
   // Description:

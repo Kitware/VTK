@@ -69,7 +69,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_IO_EXPORT vtkWriter : public vtkProcessObject
 {
 public:
-  vtkTypeMacro(vtkWriter,vtkProcessObject);
+  vtkTypeRevisionMacro(vtkWriter,vtkProcessObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

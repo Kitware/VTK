@@ -77,7 +77,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_GRAPHICS_EXPORT vtkDicer : public vtkDataSetToDataSetFilter 
 {
 public:
-  vtkTypeMacro(vtkDicer,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkDicer,vtkDataSetToDataSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -56,7 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_FILTERING_EXPORT vtkDataSetToStructuredPointsFilter : public vtkStructuredPointsSource
 {
 public:
-  vtkTypeMacro(vtkDataSetToStructuredPointsFilter,vtkStructuredPointsSource);
+  vtkTypeRevisionMacro(vtkDataSetToStructuredPointsFilter,vtkStructuredPointsSource);
 
   // Description:
   // Set / get the input data or filter.

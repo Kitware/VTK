@@ -54,7 +54,7 @@ class VTK_IMAGING_EXPORT vtkImageChangeInformation : public vtkImageToImageFilte
 {
 public:
   static vtkImageChangeInformation *New();
-  vtkTypeMacro(vtkImageChangeInformation, vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageChangeInformation, vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -47,18 +47,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPLY.h"
 #include "vtkObjectFactory.h"
 
-//--------------------------------------------------------------------------
-vtkPLYWriter* vtkPLYWriter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPLYWriter");
-  if(ret)
-    {
-    return (vtkPLYWriter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkPLYWriter;
-}
+vtkCxxRevisionMacro(vtkPLYWriter, "1.9");
+vtkStandardNewMacro(vtkPLYWriter);
 
 vtkPLYWriter::vtkPLYWriter()
 {
@@ -328,7 +318,7 @@ unsigned char *vtkPLYWriter::GetColors(vtkIdType num,
 
 void vtkPLYWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataWriter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Data Byte Order: ";
   if ( this->DataByteOrder == VTK_LITTLE_ENDIAN )

@@ -59,14 +59,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_MINOR_VERSION 1
 #define VTK_BUILD_VERSION 1
 #define VTK_VERSION "4.1.1"
-#define VTK_SOURCE_VERSION "vtk version " VTK_VERSION ", vtk source $Revision: 1.1106 $, $Date: 2002-01-04 03:45:02 $ (GMT)"
+#define VTK_SOURCE_VERSION "vtk version " VTK_VERSION ", vtk source $Revision: 1.1107 $, $Date: 2002-01-04 14:23:03 $ (GMT)"
 
 
 class VTK_COMMON_EXPORT vtkVersion : public vtkObject
 {
 public:
   static vtkVersion *New();
-  vtkTypeMacro(vtkVersion,vtkObject);
+  vtkTypeRevisionMacro(vtkVersion,vtkObject);
 
   // Description: 
   // Return the version of vtk this object is a part of.

@@ -79,7 +79,7 @@ class vtkCellData;
 class VTK_COMMON_EXPORT vtkCell : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkCell,vtkObject);
+  vtkTypeRevisionMacro(vtkCell,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -46,18 +46,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFeatureEdges.h"
 #include "vtkTimerLog.h"
 
-//----------------------------------------------------------------------------
-vtkQuadricClustering* vtkQuadricClustering::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkQuadricClustering");
-  if(ret)
-    {
-    return (vtkQuadricClustering*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkQuadricClustering;
-}
+vtkCxxRevisionMacro(vtkQuadricClustering, "1.38");
+vtkStandardNewMacro(vtkQuadricClustering);
 
 //----------------------------------------------------------------------------
 vtkQuadricClustering::vtkQuadricClustering()
@@ -1318,7 +1308,7 @@ void vtkQuadricClustering::FindFeaturePoints(vtkCellArray *edges,
 //----------------------------------------------------------------------------
 void vtkQuadricClustering::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Bounds: " << this->Bounds[0] << " " << this->Bounds[1]
      << " " << this->Bounds[2] << " " << this->Bounds[3] << " "

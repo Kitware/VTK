@@ -44,6 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkLookupTable.h"
 
+vtkCxxRevisionMacro(vtkPolyDataMapper2D, "1.34");
+
 vtkPolyDataMapper2D::vtkPolyDataMapper2D()
 {
   this->Input = NULL;
@@ -254,7 +256,7 @@ const char *vtkPolyDataMapper2D::GetColorModeAsString(void)
 
 void vtkPolyDataMapper2D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkMapper2D::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   if ( this->Input )
     {

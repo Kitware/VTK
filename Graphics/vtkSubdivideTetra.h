@@ -53,7 +53,7 @@ class VTK_GRAPHICS_EXPORT vtkSubdivideTetra : public vtkUnstructuredGridToUnstru
 {
 public:
   static vtkSubdivideTetra *New();
-  vtkTypeMacro(vtkSubdivideTetra,vtkUnstructuredGridToUnstructuredGridFilter);
+  vtkTypeRevisionMacro(vtkSubdivideTetra,vtkUnstructuredGridToUnstructuredGridFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 

@@ -48,6 +48,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkXMesaTextMapper.h"
 #include "vtkObjectFactory.h"
 
+vtkCxxRevisionMacro(vtkXMesaTextMapper, "1.13");
+vtkStandardNewMacro(vtkXMesaTextMapper);
 
 static void
 vtkFillBitmap (Display *dpy, Window win, GC gc,
@@ -198,22 +200,6 @@ void vtkOSUseXFont( Display *dpy, Font font, int first, int count, int listbase 
   glPixelStorei(GL_UNPACK_SKIP_PIXELS, skippixels);
   glPixelStorei(GL_UNPACK_ALIGNMENT, alignment);
 }
-
-//------------------------------------------------------------------------------
-vtkXMesaTextMapper* vtkXMesaTextMapper::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkXMesaTextMapper");
-  if(ret)
-    {
-    return (vtkXMesaTextMapper*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkXMesaTextMapper;
-}
-
-
-
 
 struct vtkFontStruct
 {

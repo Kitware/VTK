@@ -42,18 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkHedgeHog.h"
 #include "vtkObjectFactory.h"
 
-//------------------------------------------------------------------------
-vtkHedgeHog* vtkHedgeHog::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkHedgeHog");
-  if(ret)
-    {
-    return (vtkHedgeHog*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkHedgeHog;
-}
+vtkCxxRevisionMacro(vtkHedgeHog, "1.37");
+vtkStandardNewMacro(vtkHedgeHog);
 
 vtkHedgeHog::vtkHedgeHog()
 {
@@ -156,7 +146,7 @@ void vtkHedgeHog::Execute()
 
 void vtkHedgeHog::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
   os << indent << "Orient Mode: " << (this->VectorMode == VTK_USE_VECTOR ? 

@@ -40,11 +40,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 #include "vtkHexahedron.h"
+#include "vtkObjectFactory.h"
 #include "vtkMath.h"
 #include "vtkLine.h"
 #include "vtkQuad.h"
 #include "vtkCellArray.h"
 #include "vtkPointLocator.h"
+
+vtkCxxRevisionMacro(vtkHexahedron, "1.77");
+vtkStandardNewMacro(vtkHexahedron);
 
 static const float VTK_DIVERGED = 1.e6;
 
@@ -156,15 +160,15 @@ int vtkHexahedron::EvaluatePosition(float x[3], float* closestPoint,
     //  check for convergence
     //
     if ( ((fabs(pcoords[0]-params[0])) < VTK_HEXADRON_CONVERGED) &&
-	 ((fabs(pcoords[1]-params[1])) < VTK_HEXADRON_CONVERGED) &&
-	 ((fabs(pcoords[2]-params[2])) < VTK_HEXADRON_CONVERGED) )
+         ((fabs(pcoords[1]-params[1])) < VTK_HEXADRON_CONVERGED) &&
+         ((fabs(pcoords[2]-params[2])) < VTK_HEXADRON_CONVERGED) )
       {
       converged = 1;
       }
     // Test for bad divergence (S.Hirschberg 11.12.2001)
     else if ((fabs(pcoords[0]) > VTK_DIVERGED) || 
-	     (fabs(pcoords[1]) > VTK_DIVERGED) || 
-	     (fabs(pcoords[2]) > VTK_DIVERGED))
+             (fabs(pcoords[1]) > VTK_DIVERGED) || 
+             (fabs(pcoords[2]) > VTK_DIVERGED))
       {
       return -1;
       }
@@ -390,25 +394,6 @@ static int faces[6][4] = { {0,4,7,3}, {1,2,6,5},
 // Marching cubes case table
 //
 #include "vtkMarchingCubesCases.h"
-#include "vtkObjectFactory.h"
-
-
-
-//------------------------------------------------------------------------------
-vtkHexahedron* vtkHexahedron::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkHexahedron");
-  if(ret)
-    {
-    return (vtkHexahedron*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkHexahedron;
-}
-
-
-
 
 void vtkHexahedron::Contour(float value, vtkDataArray *cellScalars, 
                             vtkPointLocator *locator,

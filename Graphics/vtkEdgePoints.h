@@ -60,7 +60,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_GRAPHICS_EXPORT vtkEdgePoints : public vtkDataSetToPolyDataFilter
 {
 public:
-  vtkTypeMacro(vtkEdgePoints,vtkDataSetToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkEdgePoints,vtkDataSetToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

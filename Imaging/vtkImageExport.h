@@ -64,7 +64,7 @@ class VTK_IMAGING_EXPORT vtkImageExport : public vtkProcessObject
 {
 public:
   static vtkImageExport *New();
-  vtkTypeMacro(vtkImageExport,vtkProcessObject);
+  vtkTypeRevisionMacro(vtkImageExport,vtkProcessObject);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

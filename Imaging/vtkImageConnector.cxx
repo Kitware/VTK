@@ -42,24 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageConnector.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkImageConnector* vtkImageConnector::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageConnector");
-  if(ret)
-    {
-    return (vtkImageConnector*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageConnector;
-}
-
-
-
-
+vtkCxxRevisionMacro(vtkImageConnector, "1.16");
+vtkStandardNewMacro(vtkImageConnector);
 
 //----------------------------------------------------------------------------
 vtkImageConnector::vtkImageConnector()
@@ -218,7 +202,7 @@ void vtkImageConnector::MarkData(vtkImageData *data, int numberOfAxes, int exten
 
 void vtkImageConnector::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "ConnectedValue: " << this->ConnectedValue << "\n";
   os << indent << "UnconnectedValue: " << this->UnconnectedValue << "\n";

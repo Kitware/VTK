@@ -39,30 +39,16 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
+#include "vtkImageImport.h"
+#include "vtkByteSwap.h"
+#include "vtkObjectFactory.h"
+
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
-#include "vtkByteSwap.h"
-#include "vtkImageImport.h"
-#include "vtkObjectFactory.h"
 
-
-
-//----------------------------------------------------------------------------
-vtkImageImport* vtkImageImport::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageImport");
-  if(ret)
-    {
-    return (vtkImageImport*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageImport;
-}
-
-
-
+vtkCxxRevisionMacro(vtkImageImport, "1.36");
+vtkStandardNewMacro(vtkImageImport);
 
 //----------------------------------------------------------------------------
 vtkImageImport::vtkImageImport()
@@ -110,9 +96,9 @@ vtkImageImport::~vtkImageImport()
 //----------------------------------------------------------------------------
 void vtkImageImport::PrintSelf(ostream& os, vtkIndent indent)
 {
-  int idx;
+  this->Superclass::PrintSelf(os,indent);
   
-  vtkImageSource::PrintSelf(os,indent);
+  int idx;  
 
   os << indent << "ImportVoidPointer: " << this->ImportVoidPointer << "\n";
 

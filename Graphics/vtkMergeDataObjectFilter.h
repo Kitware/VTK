@@ -70,7 +70,7 @@ class VTK_GRAPHICS_EXPORT vtkMergeDataObjectFilter : public vtkDataSetToDataSetF
 {
 public:
   static vtkMergeDataObjectFilter *New();
-  vtkTypeMacro(vtkMergeDataObjectFilter,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkMergeDataObjectFilter,vtkDataSetToDataSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

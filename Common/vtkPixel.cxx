@@ -40,6 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 #include "vtkPixel.h"
+#include "vtkObjectFactory.h"
 #include "vtkQuad.h"
 #include "vtkTriangle.h"
 #include "vtkPlane.h"
@@ -47,6 +48,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkCellArray.h"
 #include "vtkLine.h"
 #include "vtkPointLocator.h"
+
+vtkCxxRevisionMacro(vtkPixel, "1.69");
+vtkStandardNewMacro(vtkPixel);
 
 // Construct the pixel with four points.
 vtkPixel::vtkPixel()
@@ -232,25 +236,6 @@ int vtkPixel::CellBoundary(int vtkNotUsed(subId), float pcoords[3], vtkIdList *p
 // Marching squares
 //
 #include "vtkMarchingSquaresCases.h"
-#include "vtkObjectFactory.h"
-
-
-
-//------------------------------------------------------------------------------
-vtkPixel* vtkPixel::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPixel");
-  if(ret)
-    {
-    return (vtkPixel*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkPixel;
-}
-
-
-
 
 static int edges[4][2] = { {0,1}, {1,3}, {2,3}, {0,2} };
 

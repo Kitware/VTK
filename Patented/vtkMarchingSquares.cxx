@@ -71,23 +71,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkMarchingSquares* vtkMarchingSquares::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMarchingSquares");
-  if(ret)
-    {
-    return (vtkMarchingSquares*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkMarchingSquares;
-}
-
-
-
+vtkCxxRevisionMacro(vtkMarchingSquares, "1.48");
+vtkStandardNewMacro(vtkMarchingSquares);
 
 // Description:
 // Construct object with initial scalar range (0,1) and single contour value
@@ -612,7 +597,7 @@ void vtkMarchingSquares::CreateDefaultLocator()
 
 void vtkMarchingSquares::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   this->ContourValues->PrintSelf(os,indent);
 

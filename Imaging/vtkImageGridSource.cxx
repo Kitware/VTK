@@ -39,23 +39,13 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
-
 #include "vtkImageGridSource.h"
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
-vtkImageGridSource* vtkImageGridSource::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageGridSource");
-  if(ret)
-    {
-    return (vtkImageGridSource*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageGridSource;
-}
+#include <math.h>
+
+vtkCxxRevisionMacro(vtkImageGridSource, "1.6");
+vtkStandardNewMacro(vtkImageGridSource);
 
 //----------------------------------------------------------------------------
 vtkImageGridSource::vtkImageGridSource()
@@ -192,7 +182,7 @@ void vtkImageGridSource::ExecuteData(vtkDataObject *output)
 //----------------------------------------------------------------------------
 void vtkImageGridSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "GridSpacing: (" << this->GridSpacing[0] << ", "
                                    << this->GridSpacing[1] << ", "

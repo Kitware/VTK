@@ -40,25 +40,14 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <ctype.h>
-#include <string.h>
 #include "vtkImageExport.h"
 #include "vtkObjectFactory.h"
 
+#include <ctype.h>
+#include <string.h>
 
-
-//----------------------------------------------------------------------------
-vtkImageExport* vtkImageExport::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageExport");
-  if(ret)
-    {
-    return (vtkImageExport*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageExport;
-}
+vtkCxxRevisionMacro(vtkImageExport, "1.22");
+vtkStandardNewMacro(vtkImageExport);
 
 //----------------------------------------------------------------------------
 vtkImageExport::vtkImageExport()
@@ -78,7 +67,7 @@ vtkImageExport::~vtkImageExport()
 //----------------------------------------------------------------------------
 void vtkImageExport::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkProcessObject::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "ImageLowerLeft: " 
      << (this->ImageLowerLeft ? "On\n" : "Off\n");

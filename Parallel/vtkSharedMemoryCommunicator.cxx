@@ -57,22 +57,12 @@ public:
   vtkSharedMemoryCommunicatorMessage* Previous;
 };
 
-vtkSharedMemoryCommunicator* vtkSharedMemoryCommunicator::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkSharedMemoryCommunicator");
-  if(ret)
-    {
-    return (vtkSharedMemoryCommunicator*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkSharedMemoryCommunicator;
-}
-
+vtkCxxRevisionMacro(vtkSharedMemoryCommunicator, "1.11");
+vtkStandardNewMacro(vtkSharedMemoryCommunicator);
 
 void vtkSharedMemoryCommunicator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkCommunicator::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
   os << indent << "Number of threads: " << this->NumberOfThreads << endl;
   os << indent << "Initialized: " << (this->Initialized ? "(yes)" : "(no)")
      << endl;

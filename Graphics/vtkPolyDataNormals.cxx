@@ -46,18 +46,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTriangleStrip.h"
 #include "vtkObjectFactory.h"
 
-//--------------------------------------------------------------------------
-vtkPolyDataNormals* vtkPolyDataNormals::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPolyDataNormals");
-  if(ret)
-    {
-    return (vtkPolyDataNormals*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkPolyDataNormals;
-}
+vtkCxxRevisionMacro(vtkPolyDataNormals, "1.50");
+vtkStandardNewMacro(vtkPolyDataNormals);
 
 // Construct with feature angle=30, splitting and consistency turned on, 
 // flipNormals turned off, and non-manifold traversal turned on.
@@ -632,7 +622,7 @@ void vtkPolyDataNormals::MarkAndSplit (vtkIdType ptId)
 
 void vtkPolyDataNormals::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Feature Angle: " << this->FeatureAngle << "\n";
   os << indent << "Splitting: " << (this->Splitting ? "On\n" : "Off\n");

@@ -42,18 +42,8 @@ OF THIS EVEN, SOFTWARE IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMatrixToLinearTransform.h"
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
-vtkMatrixToLinearTransform* vtkMatrixToLinearTransform::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMatrixToLinearTransform");
-  if(ret)
-    {
-    return (vtkMatrixToLinearTransform*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkMatrixToLinearTransform;
-}
+vtkCxxRevisionMacro(vtkMatrixToLinearTransform, "1.9");
+vtkStandardNewMacro(vtkMatrixToLinearTransform);
 
 //----------------------------------------------------------------------------
 vtkMatrixToLinearTransform::vtkMatrixToLinearTransform()
@@ -73,7 +63,7 @@ void vtkMatrixToLinearTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Update();
 
-  vtkLinearTransform::PrintSelf(os, indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "Input: " << this->Input << "\n";
   os << indent << "InverseFlag: " << this->InverseFlag << "\n";
 }

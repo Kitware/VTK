@@ -39,26 +39,13 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include "vtkImageData.h"
-
 #include "vtkImageConvolve.h"
+#include "vtkImageData.h"
 #include "vtkImageEllipsoidSource.h"
 #include "vtkObjectFactory.h"
 
-
-
-//----------------------------------------------------------------------------
-vtkImageConvolve* vtkImageConvolve::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageConvolve");
-  if(ret)
-    {
-    return (vtkImageConvolve*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageConvolve;
-}
+vtkCxxRevisionMacro(vtkImageConvolve, "1.10");
+vtkStandardNewMacro(vtkImageConvolve);
 
 //----------------------------------------------------------------------------
 // Construct an instance of vtkImageConvolve fitler.
@@ -92,7 +79,7 @@ vtkImageConvolve::~vtkImageConvolve()
 //----------------------------------------------------------------------------
 void vtkImageConvolve::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkImageToImageFilter::PrintSelf(os, indent);
+  this->Superclass::PrintSelf(os, indent);
   
   os << indent << "KernelSize: (" <<
     this->KernelSize[0] << ", " <<

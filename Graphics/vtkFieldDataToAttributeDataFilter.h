@@ -94,7 +94,7 @@ class VTK_GRAPHICS_EXPORT vtkFieldDataToAttributeDataFilter : public vtkDataSetT
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent);
-  vtkTypeMacro(vtkFieldDataToAttributeDataFilter,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkFieldDataToAttributeDataFilter,vtkDataSetToDataSetFilter);
 
   // Description:
   // Construct object with input field set to the data object field, and the

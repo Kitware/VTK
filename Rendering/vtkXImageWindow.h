@@ -62,7 +62,7 @@ class VTK_RENDERING_EXPORT vtkXImageWindow : public vtkImageWindow
 {
 public:
   static vtkXImageWindow *New();
-  vtkTypeMacro(vtkXImageWindow,vtkImageWindow);
+  vtkTypeRevisionMacro(vtkXImageWindow,vtkImageWindow);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

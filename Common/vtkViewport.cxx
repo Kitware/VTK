@@ -39,15 +39,17 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <stdlib.h>
-#include <string.h>
-
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 #include "vtkActor2DCollection.h"
 #include "vtkPropCollection.h"
 #include "vtkProp.h"
 #include "vtkOldStyleCallbackCommand.h"
+
+#include <stdlib.h>
+#include <string.h>
+
+vtkCxxRevisionMacro(vtkViewport, "1.46");
 
 // Create a vtkViewport with a black background, a white ambient light, 
 // two-sided lighting turned on, a viewport of (0,0,1,1), and backface culling
@@ -379,7 +381,7 @@ void vtkViewport::SetEndRenderMethod(void (*f)(void *), void *arg)
 
 void vtkViewport::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkObject::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Aspect: (" << this->Aspect[0] << ", " 
     << this->Aspect[1] << ")\n";

@@ -45,23 +45,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkImplicitSelectionLoop* vtkImplicitSelectionLoop::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImplicitSelectionLoop");
-  if(ret)
-    {
-    return (vtkImplicitSelectionLoop*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImplicitSelectionLoop;
-}
-
-
-
+vtkCxxRevisionMacro(vtkImplicitSelectionLoop, "1.13");
+vtkStandardNewMacro(vtkImplicitSelectionLoop);
 
 // Instantiate object with no initial loop.
 vtkImplicitSelectionLoop::vtkImplicitSelectionLoop()
@@ -218,7 +203,7 @@ unsigned long int vtkImplicitSelectionLoop::GetMTime()
 
 void vtkImplicitSelectionLoop::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImplicitFunction::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   if ( this->Loop )
     {

@@ -57,7 +57,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_FILTERING_EXPORT vtkDataSetToUnstructuredGridFilter : public vtkUnstructuredGridSource
 {
 public:
-  vtkTypeMacro(vtkDataSetToUnstructuredGridFilter,vtkUnstructuredGridSource);
+  vtkTypeRevisionMacro(vtkDataSetToUnstructuredGridFilter,vtkUnstructuredGridSource);
 
   // Description:
   // Set / get the input data or filter.

@@ -57,7 +57,7 @@ public:
 
   void Initialize();
   int Allocate(const int sz, const int strategy=0);
-  vtkTypeMacro(vtkIdList,vtkObject);
+  vtkTypeRevisionMacro(vtkIdList,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -86,7 +86,7 @@ class vtkOrderedTriangulator;
 class VTK_GRAPHICS_EXPORT vtkClipVolume : public vtkStructuredPointsToUnstructuredGridFilter
 {
 public:
-  vtkTypeMacro(vtkClipVolume,vtkStructuredPointsToUnstructuredGridFilter);
+  vtkTypeRevisionMacro(vtkClipVolume,vtkStructuredPointsToUnstructuredGridFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -168,7 +168,7 @@ protected:
   void Execute();
   void ClipVoxel(float value, vtkDataArray *cellScalars, int flip,
                  float origin[3], float spacing[3], int extent[6], 
-		 int wextent[6], int dims[3], vtkIdList *cellIds,
+                 int wextent[6], int dims[3], vtkIdList *cellIds,
                  vtkPoints *cellPts, vtkPointData *inPD, vtkPointData *outPD,
                  vtkCellData *inCD, vtkIdType cellId, vtkCellData *outCD, 
                  vtkCellData *clippedCD);

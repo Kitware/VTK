@@ -55,7 +55,7 @@ class VTK_FILTERING_EXPORT vtkStructuredPointsCollection : public vtkCollection
 {
 public:
   static vtkStructuredPointsCollection *New();
-  vtkTypeMacro(vtkStructuredPointsCollection,vtkCollection);
+  vtkTypeRevisionMacro(vtkStructuredPointsCollection,vtkCollection);
 
   // Description:
   // Add a pointer to a vtkStructuredPoints to the list.

@@ -59,7 +59,7 @@ class VTK_IMAGING_EXPORT vtkImageSpatialFilter : public vtkImageToImageFilter
 {
 public:
   static vtkImageSpatialFilter *New();
-  vtkTypeMacro(vtkImageSpatialFilter,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageSpatialFilter,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

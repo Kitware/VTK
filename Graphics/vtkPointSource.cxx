@@ -41,23 +41,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkPointSource.h"
 #include "vtkMath.h"
-#include <float.h>
-#include <math.h>
 #include "vtkObjectFactory.h"
 
+#include <float.h>
+#include <math.h>
 
-//----------------------------------------------------------------------------
-vtkPointSource* vtkPointSource::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPointSource");
-  if(ret)
-    {
-    return (vtkPointSource*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkPointSource;
-}
+vtkCxxRevisionMacro(vtkPointSource, "1.39");
+vtkStandardNewMacro(vtkPointSource);
 
 //----------------------------------------------------------------------------
 vtkPointSource::vtkPointSource(vtkIdType numPts)
@@ -140,7 +130,7 @@ void vtkPointSource::ExecuteInformation()
 //----------------------------------------------------------------------------
 void vtkPointSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Number Of Points: " << this->NumberOfPoints << "\n";
   os << indent << "Radius: " << this->Radius << "\n";

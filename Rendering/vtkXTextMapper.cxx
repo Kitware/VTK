@@ -45,6 +45,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef VTK_REMOVE_LEGACY_CODE
 //mark this class for future legacy-related changes
 #endif
+
+vtkCxxRevisionMacro(vtkXTextMapper, "1.31");
+
 //-------------------------------------------------------------------------
 vtkXTextMapper* vtkXTextMapper::New()
 {

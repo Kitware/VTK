@@ -42,18 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkAppendFilter.h"
 #include "vtkObjectFactory.h"
 
-//---------------------------------------------------------------------------
-vtkAppendFilter* vtkAppendFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkAppendFilter");
-  if(ret)
-    {
-    return (vtkAppendFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkAppendFilter;
-}
+vtkCxxRevisionMacro(vtkAppendFilter, "1.57");
+vtkStandardNewMacro(vtkAppendFilter);
 
 //----------------------------------------------------------------------------
 vtkAppendFilter::vtkAppendFilter()
@@ -273,5 +263,5 @@ void vtkAppendFilter::Execute()
 //----------------------------------------------------------------------------
 void vtkAppendFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToUnstructuredGridFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 }

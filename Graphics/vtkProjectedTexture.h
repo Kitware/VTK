@@ -62,7 +62,7 @@ class VTK_GRAPHICS_EXPORT vtkProjectedTexture : public vtkDataSetToDataSetFilter
 {
 public:
   static vtkProjectedTexture *New();
-  vtkTypeMacro(vtkProjectedTexture,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkProjectedTexture,vtkDataSetToDataSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

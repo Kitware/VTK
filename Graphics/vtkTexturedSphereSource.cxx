@@ -45,18 +45,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-//----------------------------------------------------------------------------
-vtkTexturedSphereSource* vtkTexturedSphereSource::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTexturedSphereSource");
-  if(ret)
-    {
-    return (vtkTexturedSphereSource*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkTexturedSphereSource;
-}
+vtkCxxRevisionMacro(vtkTexturedSphereSource, "1.25");
+vtkStandardNewMacro(vtkTexturedSphereSource);
 
 // Construct sphere with radius=0.5 and default resolution 8 in both Phi
 // and Theta directions.
@@ -168,7 +158,7 @@ void vtkTexturedSphereSource::Execute()
 
 void vtkTexturedSphereSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Theta Resolution: " << this->ThetaResolution << "\n";
   os << indent << "Phi Resolution: " << this->PhiResolution << "\n";

@@ -15,7 +15,7 @@ void task3(double data)
   // Synthetic image source.
   vtkRTAnalyticSource* source1 = vtkRTAnalyticSource::New();
   source1->SetWholeExtent (-1*extent, extent, -1*extent, extent, 
-	  -1*extent ,extent );
+          -1*extent ,extent );
   source1->SetCenter(0, 0, 0);
   source1->SetStandardDeviation( 0.5 );
   source1->SetMaximum( 255.0 );
@@ -81,7 +81,7 @@ void task3(double data)
 
   // Tell the other process we are done
   ip->GetController()->TriggerRMI(1, 
-				  vtkMultiProcessController::BREAK_RMI_TAG); 
+                                  vtkMultiProcessController::BREAK_RMI_TAG); 
 
   // Cleanup
   iren->Delete();

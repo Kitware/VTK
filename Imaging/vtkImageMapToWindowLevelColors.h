@@ -62,7 +62,7 @@ class VTK_IMAGING_EXPORT vtkImageMapToWindowLevelColors : public vtkImageMapToCo
 {
 public:
   static vtkImageMapToWindowLevelColors *New();
-  vtkTypeMacro(vtkImageMapToWindowLevelColors,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageMapToWindowLevelColors,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

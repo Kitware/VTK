@@ -77,7 +77,7 @@ class VTK_GRAPHICS_EXPORT vtkGeometryFilter : public vtkDataSetToPolyDataFilter
 {
 public:
   static vtkGeometryFilter *New();
-  vtkTypeMacro(vtkGeometryFilter,vtkDataSetToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkGeometryFilter,vtkDataSetToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

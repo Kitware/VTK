@@ -44,21 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkRTAnalyticSource.h"
 #include "vtkObjectFactory.h"
 
-//------------------------------------------------------------------------------
-vtkRTAnalyticSource* vtkRTAnalyticSource::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkRTAnalyticSource");
-  if(ret)
-    {
-    return (vtkRTAnalyticSource*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkRTAnalyticSource;
-}
-
-
-
+vtkCxxRevisionMacro(vtkRTAnalyticSource, "1.8");
+vtkStandardNewMacro(vtkRTAnalyticSource);
 
 //----------------------------------------------------------------------------
 vtkRTAnalyticSource::vtkRTAnalyticSource()
@@ -210,7 +197,7 @@ void vtkRTAnalyticSource::ExecuteData(vtkDataObject *output)
 
 void vtkRTAnalyticSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Maximum: " << this->Maximum << "\n";
   os << indent << "StandardDeviation: " << this->StandardDeviation << "\n";

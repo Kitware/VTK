@@ -42,6 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTextMapper.h"
 #include "vtkImagingFactory.h"
 
+vtkCxxRevisionMacro(vtkTextMapper, "1.35");
+
 // Creates a new text mapper with Font size 12, bold off, italic off,
 // and Arial font
 vtkTextMapper::vtkTextMapper()
@@ -105,7 +107,7 @@ vtkTextMapper::~vtkTextMapper()
 //----------------------------------------------------------------------------
 void vtkTextMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkMapper2D::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Line Offset: " << this->LineOffset;
   os << indent << "Line Spacing: " << this->LineSpacing;

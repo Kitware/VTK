@@ -22,7 +22,7 @@
 
 
 typedef vtkPolyDataMapper* (*taskFunction)(vtkRenderWindow* renWin,
-					   double data, vtkCamera* cam);
+                                           double data, vtkCamera* cam);
 
 
 vtkPolyDataMapper* task1(vtkRenderWindow* renWin, double data,vtkCamera* cam);

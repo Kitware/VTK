@@ -48,18 +48,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkActor.h"
 #include "vtkVolume.h"
 
-//-----------------------------------------------------------------------------
-vtkAssembly* vtkAssembly::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkAssembly");
-  if(ret)
-    {
-    return (vtkAssembly*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkAssembly;
-}
+vtkCxxRevisionMacro(vtkAssembly, "1.51");
+vtkStandardNewMacro(vtkAssembly);
 
 // Construct object with no children.
 vtkAssembly::vtkAssembly()
@@ -396,7 +386,7 @@ unsigned long int vtkAssembly::GetMTime()
 
 void vtkAssembly::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkProp3D::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "There are: " << this->Parts->GetNumberOfItems()
      << " parts in this assembly\n";

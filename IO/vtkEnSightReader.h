@@ -82,7 +82,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_IO_EXPORT vtkEnSightReader : public vtkDataSetSource
 {
 public:
-  vtkTypeMacro(vtkEnSightReader, vtkDataSetSource);
+  vtkTypeRevisionMacro(vtkEnSightReader, vtkDataSetSource);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

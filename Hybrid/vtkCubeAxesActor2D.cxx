@@ -44,18 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-//--------------------------------------------------------------------------
-vtkCubeAxesActor2D* vtkCubeAxesActor2D::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkCubeAxesActor2D");
-  if(ret)
-    {
-    return (vtkCubeAxesActor2D*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkCubeAxesActor2D;
-}
+vtkCxxRevisionMacro(vtkCubeAxesActor2D, "1.28");
+vtkStandardNewMacro(vtkCubeAxesActor2D);
 
 // Instantiate this object.
 vtkCubeAxesActor2D::vtkCubeAxesActor2D()
@@ -652,7 +642,7 @@ float *vtkCubeAxesActor2D::GetBounds()
 
 void vtkCubeAxesActor2D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkActor2D::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   if ( this->Input )
     {

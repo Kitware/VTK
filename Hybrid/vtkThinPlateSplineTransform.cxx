@@ -7,7 +7,7 @@
   Version:   $Revision$
   Thanks:    Thanks to David G. Gobbi who developed this class 
              based on code from vtkThinPlateSplineMeshWarp.cxx
-	     written by Tim Hutton.
+             written by Tim Hutton.
 
 Copyright (c) 1993-2001 Ken Martin, Will Schroeder, Bill Lorensen 
 All rights reserved.
@@ -45,18 +45,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
-vtkThinPlateSplineTransform* vtkThinPlateSplineTransform::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkThinPlateSplineTransform");
-  if(ret)
-    {
-    return (vtkThinPlateSplineTransform*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkThinPlateSplineTransform;
-}
+vtkCxxRevisionMacro(vtkThinPlateSplineTransform, "1.26");
+vtkStandardNewMacro(vtkThinPlateSplineTransform);
 
 //------------------------------------------------------------------------
 // some dull matrix things
@@ -93,14 +83,14 @@ static inline void ZeroMatrix(double **m, int rows, int cols)
 
 //------------------------------------------------------------------------
 static inline void MatrixMultiply(double **a, double **b, double **c,
-				  int arows, int acols, 
-				  int brows, int bcols) 
+                                  int arows, int acols, 
+                                  int brows, int bcols) 
 {
   if(acols != brows) 
     {
-    return;	// acols must equal br otherwise we can't proceed
+    return;     // acols must equal br otherwise we can't proceed
     }
-	
+        
   // c must have size arows*bcols (we assume this)
 
   for(int i = 0; i < arows; i++) 
@@ -267,7 +257,7 @@ void vtkThinPlateSplineTransform::InternalUpdate()
     // A Decade of the Morphometric Synthesis" Computer Vision and Image 
     // Understanding 66(2):97-118
     // and online work published by Tim Cootes (http://www.wiau.man.ac.uk/~bim)
-	
+        
     // the input matrices
     double **L = NewMatrix(N+D+1,N+D+1);
     double **X = NewMatrix(N+D+1,D);
@@ -292,12 +282,12 @@ void vtkThinPlateSplineTransform::InternalUpdate()
       L[N+3][q] = L[q][N+3] = p[2];
       // fill in the top-left corner of L (K), using symmetry
       for(c = 0; c < q; c++)
-	{
+        {
         this->SourceLandmarks->GetPoint(c,p2);
-	dx = p[0]-p2[0]; dy = p[1]-p2[1]; dz = p[2]-p2[2];
-	r = sqrt(dx*dx + dy*dy + dz*dz);
-	L[q][c] = L[c][q] = phi(r/this->Sigma);
-	}
+        dx = p[0]-p2[0]; dy = p[1]-p2[1]; dz = p[2]-p2[2];
+        r = sqrt(dx*dx + dy*dy + dz*dz);
+        L[q][c] = L[c][q] = phi(r/this->Sigma);
+        }
       }
     
     // build X
@@ -329,22 +319,22 @@ void vtkThinPlateSplineTransform::InternalUpdate()
       {
       double tmp = fabs(values[i]);
       if (tmp > maxValue)
-	{
-	maxValue = tmp;
-	}
+        {
+        maxValue = tmp;
+        }
       } 
 
     for (i = 0; i < N+D+1; i++)
       {
       for (j = 0; j < N+D+1; j++)
-	{
+        {
         w[i][j] = 0.0;
-	}
+        }
       // here's the trick: don't invert the singular values
       if (fabs(values[i]/maxValue) > 1e-16)
-	{
+        {
         w[i][i] = 1.0/values[i];
-	}
+        }
       }
     delete [] values;
     
@@ -362,14 +352,14 @@ void vtkThinPlateSplineTransform::InternalUpdate()
     if (fabs(vtkMath::Determinant3x3((double (*)[3]) *A)) < 1e-16)
       {
       for (i = 0; i < 3; i++)
-	{
-	if (sqrt(A[0][i]*A[0][i] + A[1][i]*A[1][i] + A[2][i]*A[2][i])
-	    < 1e-16)
-	  {
-	  A[0][i] = A[1][i] = A[2][i] = A[i][0] = A[i][1] = A[i][2] = 0;
-	  A[i][i] = 1.0;
-	  }
-	}
+        {
+        if (sqrt(A[0][i]*A[0][i] + A[1][i]*A[1][i] + A[2][i]*A[2][i])
+            < 1e-16)
+          {
+          A[0][i] = A[1][i] = A[2][i] = A[i][0] = A[i][1] = A[i][2] = 0;
+          A[i][i] = 1.0;
+          }
+        }
       }
     }
   // special cases, I added these to ensure that this class doesn't 
@@ -381,9 +371,9 @@ void vtkThinPlateSplineTransform::InternalUpdate()
     for (i = 0; i < N; i++)
       {
       for (j = 0; j < D; j++)
-	{
-	W[i][j] = 0;
-	}
+        {
+        W[i][j] = 0;
+        }
       }
 
     if (N == 2)
@@ -397,14 +387,14 @@ void vtkThinPlateSplineTransform::InternalUpdate()
       double ds[3],dt[3],as[3],at[3];
       double rs = 0, rt = 0;
       for (i = 0; i < 3; i++)
-	{
-	as[i] = (s0[i] + s1[i])/2;  // average of endpoints
-	ds[i] = s1[i] - s0[i];      // vector between points
-	rs += ds[i]*ds[i];
-	at[i] = (t0[i] + t1[i])/2;
-	dt[i] = t1[i] - t0[i];
-	rt += dt[i]*dt[i];
-	}
+        {
+        as[i] = (s0[i] + s1[i])/2;  // average of endpoints
+        ds[i] = s1[i] - s0[i];      // vector between points
+        rs += ds[i]*ds[i];
+        at[i] = (t0[i] + t1[i])/2;
+        dt[i] = t1[i] - t0[i];
+        rt += dt[i]*dt[i];
+        }
 
       // normalize the two vectors
       rs = sqrt(rs);
@@ -425,21 +415,21 @@ void vtkThinPlateSplineTransform::InternalUpdate()
       // construct quaternion
       w = cos(theta/2);
       if (r != 0)
-	{
-	r = sin(theta/2)/r;
-	x = x*r;
-	y = y*r;
-	z = z*r;
-	}
+        {
+        r = sin(theta/2)/r;
+        x = x*r;
+        y = y*r;
+        z = z*r;
+        }
       else // rotation by 180 degrees
-	{
-	// rotate around a vector perpendicular to ds
-	vtkMath::Perpendiculars(ds,dt,0,0);
-	r = sin(theta/2);
-	x = dt[0]*r;
-	y = dt[1]*r;
-	z = dt[2]*r;
-	}
+        {
+        // rotate around a vector perpendicular to ds
+        vtkMath::Perpendiculars(ds,dt,0,0);
+        r = sin(theta/2);
+        x = dt[0]*r;
+        y = dt[1]*r;
+        z = dt[2]*r;
+        }
       
       // now r is scale factor for matrix
       r = rt/rs;
@@ -469,27 +459,27 @@ void vtkThinPlateSplineTransform::InternalUpdate()
       this->TargetLandmarks->GetPoint(0,p2);
       
       for (i = 0; i < D; i++)
-	{
+        {
         for (j = 0; j < D; j++)
-	  {
-	  A[i][j] = 0;
-	  }
-	A[i][i] = 1;
-	C[i] = p2[i] - p[i];
-	}
+          {
+          A[i][j] = 0;
+          }
+        A[i][i] = 1;
+        C[i] = p2[i] - p[i];
+        }
       }
 
     else // if no landmarks, set to identity
       {
       for (i = 0; i < D; i++)
-	{
+        {
         for (j = 0; j < D; j++)
-	  {
-	  A[i][j] = 0;
-	  }
-	A[i][i] = 1;
-	C[i] = 0;
-	}
+          {
+          A[i][j] = 0;
+          }
+        A[i][i] = 1;
+        C[i] = 0;
+        }
       }
     }
 
@@ -517,10 +507,10 @@ void vtkThinPlateSplineTransform::InternalUpdate()
 // perturbations based on the landmarks.
 template<class T>
 static inline void vtkThinPlateSplineForwardTransformPoint(
-					   vtkThinPlateSplineTransform *self,
-					   double **W, int N,
-					   double (*phi)(double),
-					   const T point[3], T output[3])
+                                           vtkThinPlateSplineTransform *self,
+                                           double **W, int N,
+                                           double (*phi)(double),
+                                           const T point[3], T output[3])
 {
   if (N == 0)
     {
@@ -565,32 +555,32 @@ static inline void vtkThinPlateSplineForwardTransformPoint(
 }
 
 void vtkThinPlateSplineTransform::ForwardTransformPoint(const double point[3], 
-							double output[3])
+                                                        double output[3])
 {
   vtkThinPlateSplineForwardTransformPoint(this, this->MatrixW, 
-					  this->NumberOfPoints, 
-					  this->BasisFunction,
-					  point, output);
+                                          this->NumberOfPoints, 
+                                          this->BasisFunction,
+                                          point, output);
 }
 
 void vtkThinPlateSplineTransform::ForwardTransformPoint(const float point[3], 
-							float output[3])
+                                                        float output[3])
 {
   vtkThinPlateSplineForwardTransformPoint(this, this->MatrixW, 
-					  this->NumberOfPoints,
-					  this->BasisFunction,
-					  point, output);
+                                          this->NumberOfPoints,
+                                          this->BasisFunction,
+                                          point, output);
 }
 
 //----------------------------------------------------------------------------
 // calculate the thin plate spline as well as the jacobian
 template<class T>
 static inline void vtkThinPlateSplineForwardTransformDerivative(
-					   vtkThinPlateSplineTransform *self,
-					   double **W, int N,
-					   double (*phi)(double, double&),
-					   const T point[3], T output[3],
-					   T derivative[3][3])
+                                           vtkThinPlateSplineTransform *self,
+                                           double **W, int N,
+                                           double (*phi)(double, double&),
+                                           const T point[3], T output[3],
+                                           T derivative[3][3])
 {
   if (N == 0)
     {
@@ -675,30 +665,30 @@ static inline void vtkThinPlateSplineForwardTransformDerivative(
 
 void vtkThinPlateSplineTransform::ForwardTransformDerivative(
                                                   const double point[3],
-						  double output[3],
-						  double derivative[3][3])
+                                                  double output[3],
+                                                  double derivative[3][3])
 {
   vtkThinPlateSplineForwardTransformDerivative(this, this->MatrixW, 
-					       this->NumberOfPoints,
-					       this->BasisDerivative,
-					       point, output, derivative);
+                                               this->NumberOfPoints,
+                                               this->BasisDerivative,
+                                               point, output, derivative);
 }
 
 void vtkThinPlateSplineTransform::ForwardTransformDerivative(
                                                   const float point[3],
-						  float output[3],
-						  float derivative[3][3])
+                                                  float output[3],
+                                                  float derivative[3][3])
 {
   vtkThinPlateSplineForwardTransformDerivative(this, this->MatrixW, 
-					       this->NumberOfPoints,
-					       this->BasisDerivative,
-					       point, output, derivative);
+                                               this->NumberOfPoints,
+                                               this->BasisDerivative,
+                                               point, output, derivative);
 }
 
 //------------------------------------------------------------------------
 void vtkThinPlateSplineTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkWarpTransform::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
   
   os << indent << "Sigma: " << this->Sigma << "\n";
   os << indent << "Basis: " << this->GetBasisAsString() << "\n";
@@ -722,7 +712,7 @@ vtkAbstractTransform *vtkThinPlateSplineTransform::MakeTransform()
 
 //----------------------------------------------------------------------------
 void vtkThinPlateSplineTransform::InternalDeepCopy(
-				      vtkAbstractTransform *transform)
+                                      vtkAbstractTransform *transform)
 {
   vtkThinPlateSplineTransform *t = (vtkThinPlateSplineTransform *)transform;
 

@@ -44,23 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkProjectedTexture* vtkProjectedTexture::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkProjectedTexture");
-  if(ret)
-    {
-    return (vtkProjectedTexture*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkProjectedTexture;
-}
-
-
-
+vtkCxxRevisionMacro(vtkProjectedTexture, "1.21");
+vtkStandardNewMacro(vtkProjectedTexture);
 
 // Description:
 // Initialize the projected texture filter with a position of (0, 0, 1),
@@ -204,7 +189,7 @@ void vtkProjectedTexture::Execute()
 
 void vtkProjectedTexture::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToDataSetFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "S Range: (" << this->SRange[0] << ", "
                                << this->SRange[1] << ")\n";

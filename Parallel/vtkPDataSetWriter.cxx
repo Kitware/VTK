@@ -45,21 +45,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkSource.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkPDataSetWriter* vtkPDataSetWriter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPDataSetWriter");
-  if(ret)
-    {
-    return (vtkPDataSetWriter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkPDataSetWriter;
-}
-
+vtkCxxRevisionMacro(vtkPDataSetWriter, "1.4");
+vtkStandardNewMacro(vtkPDataSetWriter);
 
 //----------------------------------------------------------------------------
 vtkPDataSetWriter::vtkPDataSetWriter()
@@ -401,7 +388,7 @@ ostream *vtkPDataSetWriter::OpenFile()
 //----------------------------------------------------------------------------
 void vtkPDataSetWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetWriter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
 
   os << indent << "StartPiece: " << this->StartPiece << endl;

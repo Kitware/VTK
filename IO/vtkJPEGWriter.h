@@ -57,7 +57,7 @@ class VTK_IO_EXPORT vtkJPEGWriter : public vtkImageWriter
 {
 public:
   static vtkJPEGWriter *New();
-  vtkTypeMacro(vtkJPEGWriter,vtkImageWriter);
+  vtkTypeRevisionMacro(vtkJPEGWriter,vtkImageWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

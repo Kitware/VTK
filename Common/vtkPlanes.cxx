@@ -39,24 +39,15 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
 #include "vtkPlanes.h"
 #include "vtkPlane.h"
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-//-------------------------------------------------------------------------
-vtkPlanes* vtkPlanes::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPlanes");
-  if(ret)
-    {
-    return (vtkPlanes*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkPlanes;
-}
+#include <math.h>
+
+vtkCxxRevisionMacro(vtkPlanes, "1.6");
+vtkStandardNewMacro(vtkPlanes);
 
 vtkPlanes::vtkPlanes()
 {
@@ -350,9 +341,9 @@ vtkPlane *vtkPlanes::GetPlane(int i)
 
 void vtkPlanes::PrintSelf(ostream& os, vtkIndent indent)
 {
+  this->Superclass::PrintSelf(os,indent);
+  
   int numPlanes;
-
-  vtkImplicitFunction::PrintSelf(os,indent);
 
   if ( this->Points && (numPlanes=this->Points->GetNumberOfPoints()) > 0 )
     {

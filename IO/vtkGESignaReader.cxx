@@ -43,19 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkByteSwap.h"
 #include "vtkObjectFactory.h"
 
-//-------------------------------------------------------------------------
-vtkGESignaReader* vtkGESignaReader::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkGESignaReader");
-  if(ret)
-    {
-    return (vtkGESignaReader*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkGESignaReader;
-}
-
+vtkCxxRevisionMacro(vtkGESignaReader, "1.8");
+vtkStandardNewMacro(vtkGESignaReader);
 
 void vtkGESignaReader::ExecuteInformation()
 {

@@ -55,7 +55,7 @@ class VTK_COMMON_EXPORT vtkLongArray : public vtkDataArray
 public:
   static vtkLongArray *New();
 
-  vtkTypeMacro(vtkLongArray,vtkDataArray);
+  vtkTypeRevisionMacro(vtkLongArray,vtkDataArray);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -49,18 +49,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageWrapPad.h"
 #include "vtkObjectFactory.h"
 
-//-------------------------------------------------------------------------
-vtkPOPReader* vtkPOPReader::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPOPReader");
-  if(ret)
-    {
-    return (vtkPOPReader*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkPOPReader;
-}
+vtkCxxRevisionMacro(vtkPOPReader, "1.8");
+vtkStandardNewMacro(vtkPOPReader);
 
 //----------------------------------------------------------------------------
 vtkPOPReader::vtkPOPReader()
@@ -943,7 +933,7 @@ void vtkPOPReader::ReadFlow()
 //----------------------------------------------------------------------------
 void vtkPOPReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkStructuredGridSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   if (this->FileName)
     {

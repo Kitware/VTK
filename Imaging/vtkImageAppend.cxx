@@ -39,24 +39,11 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
 #include "vtkImageAppend.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkImageAppend* vtkImageAppend::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageAppend");
-  if(ret)
-    {
-    return (vtkImageAppend*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageAppend;
-}
+vtkCxxRevisionMacro(vtkImageAppend, "1.21");
+vtkStandardNewMacro(vtkImageAppend);
 
 //----------------------------------------------------------------------------
 vtkImageAppend::vtkImageAppend()
@@ -387,7 +374,7 @@ void vtkImageAppend::ThreadedExecute(vtkImageData **inData,
 //----------------------------------------------------------------------------
 void vtkImageAppend::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkImageMultipleInputFilter::PrintSelf(os, indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "AppendAxis: " << this->AppendAxis << endl;
   os << indent << "PreserveExtents: " << this->PreserveExtents << endl;
 }

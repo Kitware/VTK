@@ -57,7 +57,7 @@ class VTK_IMAGING_EXPORT vtkImageFourierCenter : public vtkImageDecomposeFilter
 {
 public:
   static vtkImageFourierCenter *New();
-  vtkTypeMacro(vtkImageFourierCenter,vtkImageDecomposeFilter);
+  vtkTypeRevisionMacro(vtkImageFourierCenter,vtkImageDecomposeFilter);
 
   // Description:
   // This is an internal method that should not be called by the user.

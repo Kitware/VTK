@@ -60,7 +60,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_FILTERING_EXPORT vtkCylinder : public vtkImplicitFunction
 {
 public:
-  vtkTypeMacro(vtkCylinder,vtkImplicitFunction);
+  vtkTypeRevisionMacro(vtkCylinder,vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description

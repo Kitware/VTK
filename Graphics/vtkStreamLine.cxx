@@ -46,18 +46,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkFloatArray.h"
 
-//----------------------------------------------------------------------------
-vtkStreamLine* vtkStreamLine::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkStreamLine");
-  if(ret)
-    {
-    return (vtkStreamLine*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkStreamLine;
-}
+vtkCxxRevisionMacro(vtkStreamLine, "1.49");
+vtkStandardNewMacro(vtkStreamLine);
 
 // Construct object with step size set to 1.0.
 vtkStreamLine::vtkStreamLine()
@@ -250,7 +240,7 @@ void vtkStreamLine::Execute()
 
 void vtkStreamLine::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkStreamer::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Step Length: " << this->StepLength << "\n";
 

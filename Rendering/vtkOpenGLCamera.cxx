@@ -54,18 +54,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkgluPickMatrix.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-//------------------------------------------------------------------------------
-vtkOpenGLCamera* vtkOpenGLCamera::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkOpenGLCamera");
-  if(ret)
-    {
-    return (vtkOpenGLCamera*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkOpenGLCamera;
-}
+vtkCxxRevisionMacro(vtkOpenGLCamera, "1.47");
+vtkStandardNewMacro(vtkOpenGLCamera);
 #endif
 
 // Implement base class method.

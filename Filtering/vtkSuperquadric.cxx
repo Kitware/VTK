@@ -47,27 +47,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    in "Graphics Gems III", David Kirk, ed., Academic Press, 1992.
 */
 
-#include <math.h>
 #include "vtkSuperquadric.h"
 #include "vtkObjectFactory.h"
 
+#include <math.h>
 
-
-//------------------------------------------------------------------------------
-vtkSuperquadric* vtkSuperquadric::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkSuperquadric");
-  if(ret)
-    {
-    return (vtkSuperquadric*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkSuperquadric;
-}
-
-
-
+vtkCxxRevisionMacro(vtkSuperquadric, "1.14");
+vtkStandardNewMacro(vtkSuperquadric);
 
 // Construct with superquadric radius of 0.5, toroidal off, center at 0.0,
 // scale (1,1,1), size 0.5, phi roundness 1.0, and theta roundness 0.0.
@@ -176,7 +162,7 @@ void vtkSuperquadric::EvaluateGradient(float vtkNotUsed(xyz)[3], float g[3])
 
 void vtkSuperquadric::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImplicitFunction::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Toroidal: " << (this->Toroidal ? "On\n" : "Off\n");
   os << indent << "Size: " << this->Size << "\n";

@@ -50,18 +50,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkLODProp3D.h"
 #include "vtkCommand.h"
 
-//-----------------------------------------------------------------------------
-vtkPicker* vtkPicker::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPicker");
-  if(ret)
-    {
-    return (vtkPicker*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkPicker;
-}
+vtkCxxRevisionMacro(vtkPicker, "1.71");
+vtkStandardNewMacro(vtkPicker);
 
 // Construct object with initial tolerance of 1/40th of window. There are no
 // pick methods and picking is performed from the renderer's actors.
@@ -458,7 +448,7 @@ void vtkPicker::Initialize()
 
 void vtkPicker::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkAbstractPropPicker::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   if ( this->DataSet )
     {

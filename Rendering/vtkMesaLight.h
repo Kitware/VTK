@@ -55,7 +55,7 @@ class VTK_RENDERING_EXPORT vtkMesaLight : public vtkLight
 {
 public:
   static vtkMesaLight *New();
-  vtkTypeMacro(vtkMesaLight,vtkLight);
+  vtkTypeRevisionMacro(vtkMesaLight,vtkLight);
 
   // Description:
   // Implement base class method.

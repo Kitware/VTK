@@ -47,19 +47,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkRectilinearGrid.h"
 #include "vtkObjectFactory.h"
 
-
-//----------------------------------------------------------------------------
-vtkInterpolateDataSetAttributes* vtkInterpolateDataSetAttributes::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkInterpolateDataSetAttributes");
-  if(ret)
-    {
-    return (vtkInterpolateDataSetAttributes*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkInterpolateDataSetAttributes;
-}
+vtkCxxRevisionMacro(vtkInterpolateDataSetAttributes, "1.21");
+vtkStandardNewMacro(vtkInterpolateDataSetAttributes);
 
 // Create object with no input or output.
 vtkInterpolateDataSetAttributes::vtkInterpolateDataSetAttributes()
@@ -261,7 +250,7 @@ void vtkInterpolateDataSetAttributes::Execute()
 
 void vtkInterpolateDataSetAttributes::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToDataSetFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "T: " << this->T << endl;
 }

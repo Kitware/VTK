@@ -53,6 +53,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 
+vtkCxxRevisionMacro(vtkAttributeData, "1.21");
+
 // Construct object with an initial data array of type dataType (by default
 // dataType is VTK_FLOAT.
 vtkAttributeData::vtkAttributeData(int dataType)
@@ -221,7 +223,7 @@ unsigned long vtkAttributeData::GetActualMemorySize()
 
 void vtkAttributeData::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Data: " << this->Data << "\n";
   if ( this->Data )

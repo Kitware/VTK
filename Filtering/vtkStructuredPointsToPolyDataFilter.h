@@ -59,7 +59,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_FILTERING_EXPORT vtkStructuredPointsToPolyDataFilter : public vtkPolyDataSource
 {
 public:
-  vtkTypeMacro(vtkStructuredPointsToPolyDataFilter,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkStructuredPointsToPolyDataFilter,vtkPolyDataSource);
 
   // Description:
   // Set / get the input data or filter.

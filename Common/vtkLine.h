@@ -52,7 +52,7 @@ class VTK_COMMON_EXPORT vtkLine : public vtkCell
 {
 public:
   static vtkLine *New();
-  vtkTypeMacro(vtkLine,vtkCell);
+  vtkTypeRevisionMacro(vtkLine,vtkCell);
 
   // Description:
   // See the vtkCell API for descriptions of these methods.

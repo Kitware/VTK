@@ -39,26 +39,12 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
 #include "vtkExtentTranslator.h"
 #include "vtkObjectFactory.h"
 #include "vtkLargeInteger.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkExtentTranslator* vtkExtentTranslator::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkExtentTranslator");
-  if(ret)
-    {
-    return (vtkExtentTranslator*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkExtentTranslator;
-}
-
+vtkCxxRevisionMacro(vtkExtentTranslator, "1.18");
+vtkStandardNewMacro(vtkExtentTranslator);
 
 //----------------------------------------------------------------------------
 vtkExtentTranslator::vtkExtentTranslator()
@@ -349,7 +335,7 @@ int vtkExtentTranslator::SplitExtentByPoints(int piece, int numPieces,
 //----------------------------------------------------------------------------
 void vtkExtentTranslator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Piece: " << this->Piece << endl;
   os << indent << "NumberOfPieces: " << this->NumberOfPieces << endl;

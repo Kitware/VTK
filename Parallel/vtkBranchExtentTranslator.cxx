@@ -44,21 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkSource.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkBranchExtentTranslator* vtkBranchExtentTranslator::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkBranchExtentTranslator");
-  if(ret)
-    {
-    return (vtkBranchExtentTranslator*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkBranchExtentTranslator;
-}
-
+vtkCxxRevisionMacro(vtkBranchExtentTranslator, "1.8");
+vtkStandardNewMacro(vtkBranchExtentTranslator);
 
 //----------------------------------------------------------------------------
 vtkBranchExtentTranslator::vtkBranchExtentTranslator()
@@ -167,7 +154,7 @@ int vtkBranchExtentTranslator::PieceToExtent()
 //----------------------------------------------------------------------------
 void vtkBranchExtentTranslator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkExtentTranslator::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Original Source: (" << this->OriginalSource << ")\n";
 

@@ -92,7 +92,7 @@ public:
   // are labeled.
   static vtkLabeledDataMapper *New();
 
-  vtkTypeMacro(vtkLabeledDataMapper,vtkMapper2D);
+  vtkTypeRevisionMacro(vtkLabeledDataMapper,vtkMapper2D);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

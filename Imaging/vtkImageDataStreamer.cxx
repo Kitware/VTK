@@ -38,26 +38,13 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
 #include "vtkImageDataStreamer.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-
-//----------------------------------------------------------------------------
-vtkImageDataStreamer* vtkImageDataStreamer::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageDataStreamer");
-  if(ret)
-    {
-    return (vtkImageDataStreamer*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageDataStreamer;
-}
-
+vtkCxxRevisionMacro(vtkImageDataStreamer, "1.25");
+vtkStandardNewMacro(vtkImageDataStreamer);
 
 //----------------------------------------------------------------------------
 vtkImageDataStreamer::vtkImageDataStreamer()
@@ -80,7 +67,7 @@ vtkImageDataStreamer::~vtkImageDataStreamer()
 //----------------------------------------------------------------------------
 void vtkImageDataStreamer::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageToImageFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "NumberOfStreamDivisions: " << this->NumberOfStreamDivisions << endl;
   if ( this->ExtentTranslator )

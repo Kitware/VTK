@@ -56,7 +56,7 @@ class VTK_IO_EXPORT vtkBMPWriter : public vtkImageWriter
 {
 public:
   static vtkBMPWriter *New();
-  vtkTypeMacro(vtkBMPWriter,vtkImageWriter);
+  vtkTypeRevisionMacro(vtkBMPWriter,vtkImageWriter);
 
 protected:
   vtkBMPWriter();

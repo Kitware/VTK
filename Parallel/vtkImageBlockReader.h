@@ -56,7 +56,7 @@ class VTK_PARALLEL_EXPORT vtkImageBlockReader : public vtkImageSource
 {
 public:
   static vtkImageBlockReader *New();
-  vtkTypeMacro(vtkImageBlockReader,vtkImageSource);
+  vtkTypeRevisionMacro(vtkImageBlockReader,vtkImageSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

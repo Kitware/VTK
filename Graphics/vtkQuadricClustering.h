@@ -104,7 +104,7 @@ typedef struct {
 class VTK_GRAPHICS_EXPORT vtkQuadricClustering : public vtkPolyDataToPolyDataFilter
 {
 public:
-  vtkTypeMacro(vtkQuadricClustering, vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkQuadricClustering, vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkQuadricClustering *New();
 

@@ -73,7 +73,7 @@ class VTK_GRAPHICS_EXPORT vtkHull : public vtkPolyDataToPolyDataFilter
 {
 public:
   static vtkHull *New();
-  vtkTypeMacro(vtkHull,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkHull,vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

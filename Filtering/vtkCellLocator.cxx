@@ -39,25 +39,16 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <stdlib.h>
-#include <math.h>
 #include "vtkCellLocator.h"
 #include "vtkPolyData.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-//-----------------------------------------------------------------------------
-vtkCellLocator* vtkCellLocator::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkCellLocator");
-  if(ret)
-    {
-    return (vtkCellLocator*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkCellLocator;
-}
+#include <stdlib.h>
+#include <math.h>
+
+vtkCxxRevisionMacro(vtkCellLocator, "1.71");
+vtkStandardNewMacro(vtkCellLocator);
 
 #define VTK_CELL_OUTSIDE 0
 #define VTK_CELL_INSIDE 1
@@ -1672,7 +1663,7 @@ float vtkCellLocator::Distance2ToBounds(float x[3], float bounds[6])
 
 void vtkCellLocator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkLocator::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Number of Cells Per Bucket: " 
      << this->NumberOfCellsPerBucket << "\n";

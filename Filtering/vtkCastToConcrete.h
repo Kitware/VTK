@@ -72,7 +72,7 @@ class VTK_FILTERING_EXPORT vtkCastToConcrete : public vtkDataSetToDataSetFilter
 
 public:
   static vtkCastToConcrete *New();
-  vtkTypeMacro(vtkCastToConcrete,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkCastToConcrete,vtkDataSetToDataSetFilter);
 
 protected:
   vtkCastToConcrete() {};

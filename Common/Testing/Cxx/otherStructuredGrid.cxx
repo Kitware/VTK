@@ -38,12 +38,12 @@ void Test(ostream& strm)
   for (k = 0; k < 20; k++)
     {
       for (j = 0; j < 20; j++)
-	{
-	for (i = 0; i < 20; i++)
-	  {
-	  xyzpoints->InsertNextPoint((float) i, (float) j, (float) k);
-	  }
-	}
+        {
+        for (i = 0; i < 20; i++)
+          {
+          xyzpoints->InsertNextPoint((float) i, (float) j, (float) k);
+          }
+        }
     }
   sg3D->SetDimensions(20,20,20);
   sg3D->SetPoints(xyzpoints); xyzpoints->Delete();
@@ -124,12 +124,12 @@ void Test(ostream& strm)
     for (j = 0; j < 20; j++)
       {
       for (i = 0; i < 20; i++)
-	{
-	shortScalars3D->InsertComponent(l,0,i);
-	shortScalars3D->InsertComponent(l,0,j);
-	shortScalars3D->InsertComponent(l,0,k);
-	l++;
-	}
+        {
+        shortScalars3D->InsertComponent(l,0,i);
+        shortScalars3D->InsertComponent(l,0,j);
+        shortScalars3D->InsertComponent(l,0,k);
+        l++;
+        }
       }
     }
   

@@ -39,30 +39,14 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include "vtkImageData.h"
 #include "vtkImageMathematics.h"
-#include <math.h>
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
+#include <math.h>
 
-
-//----------------------------------------------------------------------------
-vtkImageMathematics* vtkImageMathematics::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageMathematics");
-  if(ret)
-    {
-    return (vtkImageMathematics*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageMathematics;
-}
-
-
-
-
-
+vtkCxxRevisionMacro(vtkImageMathematics, "1.34");
+vtkStandardNewMacro(vtkImageMathematics);
 
 //----------------------------------------------------------------------------
 vtkImageMathematics::vtkImageMathematics()
@@ -478,7 +462,7 @@ void vtkImageMathematics::ThreadedExecute(vtkImageData **inData,
 
 void vtkImageMathematics::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageTwoInputFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Operation: " << this->Operation << "\n";
   os << indent << "ConstantK: " << this->ConstantK << "\n";

@@ -42,23 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkUnstructuredGridSource.h"
 #include "vtkObjectFactory.h"
 
-
-
-//----------------------------------------------------------------------------
-vtkUnstructuredGridSource* vtkUnstructuredGridSource::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkUnstructuredGridSource");
-  if(ret)
-    {
-    return (vtkUnstructuredGridSource*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkUnstructuredGridSource;
-}
-
-
-
+vtkCxxRevisionMacro(vtkUnstructuredGridSource, "1.22");
+vtkStandardNewMacro(vtkUnstructuredGridSource);
 
 //----------------------------------------------------------------------------
 vtkUnstructuredGridSource::vtkUnstructuredGridSource()

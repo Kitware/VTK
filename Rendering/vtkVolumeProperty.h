@@ -76,7 +76,7 @@ class VTK_RENDERING_EXPORT vtkVolumeProperty : public vtkObject
 {
 public:
   static vtkVolumeProperty *New();
-  vtkTypeMacro(vtkVolumeProperty,vtkObject);
+  vtkTypeRevisionMacro(vtkVolumeProperty,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

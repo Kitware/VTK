@@ -39,30 +39,14 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include "vtkImageData.h"
 
 #include "vtkImageContinuousErode3D.h"
+#include "vtkImageData.h"
 #include "vtkImageEllipsoidSource.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkImageContinuousErode3D* vtkImageContinuousErode3D::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageContinuousErode3D");
-  if(ret)
-    {
-    return (vtkImageContinuousErode3D*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageContinuousErode3D;
-}
-
-
-
-
+vtkCxxRevisionMacro(vtkImageContinuousErode3D, "1.20");
+vtkStandardNewMacro(vtkImageContinuousErode3D);
 
 //----------------------------------------------------------------------------
 // Construct an instance of vtkImageContinuousErode3D fitler.
@@ -94,7 +78,7 @@ vtkImageContinuousErode3D::~vtkImageContinuousErode3D()
 //----------------------------------------------------------------------------
 void vtkImageContinuousErode3D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageSpatialFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 }
 
 //----------------------------------------------------------------------------

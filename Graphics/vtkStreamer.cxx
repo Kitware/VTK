@@ -46,22 +46,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkInterpolatedVelocityField.h"
 #include "vtkRungeKutta2.h"
 
-
-//----------------------------------------------------------------------------
-vtkStreamer* vtkStreamer::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkStreamer");
-  if(ret)
-    {
-    return (vtkStreamer*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkStreamer;
-}
-
-
-
+vtkCxxRevisionMacro(vtkStreamer, "1.72");
+vtkStandardNewMacro(vtkStreamer);
 
 #define VTK_START_FROM_POSITION 0
 #define VTK_START_FROM_LOCATION 1
@@ -706,7 +692,7 @@ void vtkStreamer::ComputeVorticity()
 
 void vtkStreamer::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   if ( this->StartFrom == VTK_START_FROM_POSITION && !this->GetSource())
     {

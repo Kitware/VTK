@@ -54,7 +54,7 @@ class VTK_COMMON_EXPORT vtkDataSetCollection : public vtkCollection
 {
 public:
   static vtkDataSetCollection *New();
-  vtkTypeMacro(vtkDataSetCollection,vtkCollection);
+  vtkTypeRevisionMacro(vtkDataSetCollection,vtkCollection);
 
   // Description:
   // Add a dataset to the list.

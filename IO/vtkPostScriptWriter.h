@@ -56,7 +56,7 @@ class VTK_IO_EXPORT vtkPostScriptWriter : public vtkImageWriter
 {
 public:
   static vtkPostScriptWriter *New();
-  vtkTypeMacro(vtkPostScriptWriter,vtkImageWriter);
+  vtkTypeRevisionMacro(vtkPostScriptWriter,vtkImageWriter);
 
 protected:
   vtkPostScriptWriter() {};

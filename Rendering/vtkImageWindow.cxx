@@ -39,12 +39,19 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
 #include "vtkImageWindow.h"
 #include "vtkImagingFactory.h"
-
-
 #include "vtkImagerCollection.h"
+
+vtkCxxRevisionMacro(vtkImageWindow, "1.25");
+
+vtkImageWindow* vtkImageWindow::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkGenericWarningMacro("vtkImageWindow is being deprecated in version 4.1 please use vtkRenderWindow instead.");
+  vtkObject* ret = vtkImagingFactory::CreateInstance("vtkImageWindow");
+  return (vtkImageWindow*)ret;
+}
 
 // Creates a vtkImageWindow with 
 // background erasing disabled and gray scale hint off
@@ -154,17 +161,11 @@ void vtkImageWindow::GetSize(int *x, int *y)
   *y = tmp[1];
 }
   
-vtkImageWindow* vtkImageWindow::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkGenericWarningMacro("vtkImageWindow is being deprecated in version 4.1 please use vtkRenderWindow instead.");
-  vtkObject* ret = vtkImagingFactory::CreateInstance("vtkImageWindow");
-  return (vtkImageWindow*)ret;
-}
+
 
 void vtkImageWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkWindow::PrintSelf(os, indent);
+  this->Superclass::PrintSelf(os, indent);
 
   if ( this->FileName )
     {

@@ -43,21 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkLookupTable.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkScalars* vtkScalars::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkScalars");
-  if(ret)
-    {
-    return (vtkScalars*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkScalars;
-}
-
+vtkCxxRevisionMacro(vtkScalars, "1.54");
+vtkStandardNewMacro(vtkScalars);
 
 vtkScalars::vtkScalars() 
 {
@@ -403,9 +390,9 @@ unsigned char *vtkScalars::Luminance(vtkIdType id)
 
 void vtkScalars::PrintSelf(ostream& os, vtkIndent indent)
 {
-  float *range;
+  this->Superclass::PrintSelf(os,indent);
 
-  this->vtkAttributeData::PrintSelf(os,indent);
+  float *range;
 
   os << indent << "Number Of Scalars: " << this->GetNumberOfScalars() << "\n";
   range = this->GetRange();

@@ -39,26 +39,13 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
-
 #include "vtkImageDivergence.h"
 #include "vtkObjectFactory.h"
 
+#include <math.h>
 
-
-//------------------------------------------------------------------------------
-vtkImageDivergence* vtkImageDivergence::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageDivergence");
-  if(ret)
-    {
-    return (vtkImageDivergence*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageDivergence;
-}
-
+vtkCxxRevisionMacro(vtkImageDivergence, "1.21");
+vtkStandardNewMacro(vtkImageDivergence);
 
 //----------------------------------------------------------------------------
 // This method tells the superclass that the first axis will collapse.

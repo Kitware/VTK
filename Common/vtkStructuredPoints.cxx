@@ -38,39 +38,14 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
 #include "vtkStructuredPoints.h"
 #include "vtkObjectFactory.h"
 
+#include <math.h>
 
-
-//------------------------------------------------------------------------------
-vtkStructuredPoints* vtkStructuredPoints::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkStructuredPoints");
-  if(ret)
-    {
-    return (vtkStructuredPoints*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkStructuredPoints;
-}
-
+vtkCxxRevisionMacro(vtkStructuredPoints, "1.87");
+vtkStandardNewMacro(vtkStructuredPoints);
 
 vtkStructuredPoints::vtkStructuredPoints()
 {
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -77,7 +77,7 @@ class VTK_PATENTED_EXPORT vtkGridSynchronizedTemplates3D : public vtkStructuredG
 {
 public:
   static vtkGridSynchronizedTemplates3D *New();
-  vtkTypeMacro(vtkGridSynchronizedTemplates3D,vtkStructuredGridToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkGridSynchronizedTemplates3D,vtkStructuredGridToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

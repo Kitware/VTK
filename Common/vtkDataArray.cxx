@@ -57,6 +57,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkIdList.h"
 #include "vtkMath.h"
 
+vtkCxxRevisionMacro(vtkDataArray, "1.45");
+
 // Construct object with default tuple dimension (number of components) of 1.
 vtkDataArray::vtkDataArray(vtkIdType numComp)
 {
@@ -923,7 +925,7 @@ double vtkDataArray::GetDataTypeMax()
 
 void vtkDataArray::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   const char* name = this->GetName();
   if (name)

@@ -59,7 +59,7 @@ class VTK_HYBRID_EXPORT vtkWin32VideoSource : public vtkVideoSource
 {
 public:
   static vtkWin32VideoSource *New();
-  vtkTypeMacro(vtkWin32VideoSource,vtkVideoSource);
+  vtkTypeRevisionMacro(vtkWin32VideoSource,vtkVideoSource);
   void PrintSelf(ostream& os, vtkIndent indent);   
 
   // Description:
@@ -136,7 +136,7 @@ protected:
 
   void CheckBuffer();
   void UnpackRasterLine(char *outptr, char *inptr, 
-			int start, int count);
+                        int start, int count);
 
   void DoVFWFormatSetup();
   void DoVFWFormatCheck();

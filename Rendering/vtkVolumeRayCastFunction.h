@@ -167,7 +167,7 @@ typedef struct
 class VTK_RENDERING_EXPORT vtkVolumeRayCastFunction : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkVolumeRayCastFunction,vtkObject);
+  vtkTypeRevisionMacro(vtkVolumeRayCastFunction,vtkObject);
 
   // Description:
   // Do the basic initialization. This includes saving the parameters

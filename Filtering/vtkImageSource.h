@@ -58,7 +58,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_FILTERING_EXPORT vtkImageSource : public vtkSource
 {
 public:
-  vtkTypeMacro(vtkImageSource,vtkSource);
+  vtkTypeRevisionMacro(vtkImageSource,vtkSource);
   static vtkImageSource *New();
 
   // Description:

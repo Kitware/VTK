@@ -29,17 +29,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPSphereSource.h"
 #include "vtkVersion.h"
 
-vtkParallelFactory* vtkParallelFactory::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkParallelFactory");
-  if(ret)
-    {
-    return (vtkParallelFactory*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkParallelFactory;
-}
+vtkCxxRevisionMacro(vtkParallelFactory, "1.7");
+vtkStandardNewMacro(vtkParallelFactory);
 
 void vtkParallelFactory::PrintSelf(ostream& os, vtkIndent indent)
 {

@@ -44,18 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-//----------------------------------------------------------------------------
-vtkTransformFilter* vtkTransformFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTransformFilter");
-  if(ret)
-    {
-    return (vtkTransformFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkTransformFilter;
-}
+vtkCxxRevisionMacro(vtkTransformFilter, "1.38");
+vtkStandardNewMacro(vtkTransformFilter);
 
 vtkTransformFilter::vtkTransformFilter()
 {
@@ -217,7 +207,7 @@ unsigned long vtkTransformFilter::GetMTime()
 
 void vtkTransformFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPointSetToPointSetFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Transform: " << this->Transform << "\n";
 }

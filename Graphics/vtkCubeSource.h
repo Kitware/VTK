@@ -54,7 +54,7 @@ class VTK_GRAPHICS_EXPORT vtkCubeSource : public vtkPolyDataSource
 {
 public:
   static vtkCubeSource *New();
-  vtkTypeMacro(vtkCubeSource,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkCubeSource,vtkPolyDataSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

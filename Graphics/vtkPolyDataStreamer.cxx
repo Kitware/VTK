@@ -44,22 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-
-//------------------------------------------------------------------------------
-vtkPolyDataStreamer* vtkPolyDataStreamer::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPolyDataStreamer");
-  if(ret)
-    {
-    return (vtkPolyDataStreamer*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkPolyDataStreamer;
-}
-
-
-
+vtkCxxRevisionMacro(vtkPolyDataStreamer, "1.11");
+vtkStandardNewMacro(vtkPolyDataStreamer);
 
 //----------------------------------------------------------------------------
 vtkPolyDataStreamer::vtkPolyDataStreamer()
@@ -163,7 +149,7 @@ void vtkPolyDataStreamer::Execute()
 //----------------------------------------------------------------------------
 void vtkPolyDataStreamer::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "NumberOfStreamDivisions: " << this->NumberOfStreamDivisions << endl;
   os << indent << "ColorByPiece: " << this->ColorByPiece << endl;

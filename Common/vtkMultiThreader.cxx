@@ -42,7 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMultiThreader.h"
 #include "vtkObjectFactory.h"
 
-
+vtkCxxRevisionMacro(vtkMultiThreader, "1.36");
+vtkStandardNewMacro(vtkMultiThreader);
 
 // These are the includes necessary for multithreaded rendering on an SGI
 // using the sproc() call
@@ -56,22 +57,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef VTK_USE_PTHREADS
 #include <pthread.h>
 #endif
-
-
-//----------------------------------------------------------------------------
-vtkMultiThreader* vtkMultiThreader::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMultiThreader");
-  if(ret)
-    {
-    return (vtkMultiThreader*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkMultiThreader;
-}
-
-
 
 // Initialize static member that controls global maximum number of threads
 static int vtkMultiThreaderGlobalMaximumNumberOfThreads = 0;
@@ -734,7 +719,7 @@ void vtkMultiThreader::TerminateThread( int ThreadID )
 // Print method for the multithreader
 void vtkMultiThreader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkObject::PrintSelf(os,indent); 
+  this->Superclass::PrintSelf(os,indent); 
 
   os << indent << "Thread Count: " << this->NumberOfThreads << "\n";
   os << indent << "Global Maximum Number Of Threads: " << 

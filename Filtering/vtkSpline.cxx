@@ -39,8 +39,9 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
 #include "vtkSpline.h"
+
+vtkCxxRevisionMacro(vtkSpline, "1.15");
 
 // Construct a spline wth the folloing defaults:
 // ClampValueOff
@@ -110,7 +111,7 @@ unsigned long vtkSpline::GetMTime()
 
 void vtkSpline::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Clamp Value: " << (this->ClampValue ? "On\n" : "Off\n");
   os << indent << "Left Constraint: " << this->LeftConstraint << "\n";

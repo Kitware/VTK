@@ -5,21 +5,8 @@
 
 #ifndef VTK_REMOVE_LEGACY_CODE
 
-//----------------------------------------------------------------------------
-vtkWin32ImageMapper* vtkWin32ImageMapper::New()
-{
-  vtkGenericWarningMacro(<<"Obsolete native imaging class: " 
-                         <<"use OpenGL version instead");
-
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkWin32ImageMapper");
-  if(ret)
-    {
-    return (vtkWin32ImageMapper*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkWin32ImageMapper;
-}
+vtkCxxRevisionMacro(vtkWin32ImageMapper, "1.31");
+vtkStandardNewMacro(vtkWin32ImageMapper);
 
 vtkWin32ImageMapper::vtkWin32ImageMapper()
 {
@@ -43,7 +30,7 @@ vtkWin32ImageMapper::~vtkWin32ImageMapper()
 
 void vtkWin32ImageMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkImageMapper::PrintSelf(os, indent);
+  this->Superclass::PrintSelf(os, indent);
 
   if ( this->LookupTable )
     {

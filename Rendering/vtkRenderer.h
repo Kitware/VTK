@@ -74,7 +74,7 @@ class vtkCuller;
 class VTK_RENDERING_EXPORT vtkRenderer : public vtkViewport
 {
 public:
-  vtkTypeMacro(vtkRenderer,vtkViewport);
+  vtkTypeRevisionMacro(vtkRenderer,vtkViewport);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

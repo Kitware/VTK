@@ -83,7 +83,7 @@ class VTK_IO_EXPORT vtkTIFFReader : public vtkImageReader
 {
 public:
   static vtkTIFFReader *New();
-  vtkTypeMacro(vtkTIFFReader,vtkImageReader);
+  vtkTypeRevisionMacro(vtkTIFFReader,vtkImageReader);
   
 protected:
   vtkTIFFReader() {};

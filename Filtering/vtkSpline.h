@@ -72,7 +72,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_FILTERING_EXPORT vtkSpline : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkSpline,vtkObject);
+  vtkTypeRevisionMacro(vtkSpline,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -39,7 +39,6 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
 #include "vtkContourGrid.h"
 #include "vtkCell.h"
 #include "vtkMergePoints.h"
@@ -49,18 +48,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkUnstructuredGrid.h"
 #include "vtkFloatArray.h"
 
-//---------------------------------------------------------------------------
-vtkContourGrid* vtkContourGrid::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkContourGrid");
-  if(ret)
-    {
-    return (vtkContourGrid*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkContourGrid;
-}
+#include <math.h>
+
+vtkCxxRevisionMacro(vtkContourGrid, "1.14");
+vtkStandardNewMacro(vtkContourGrid);
 
 // Construct object with initial range (0,1) and single contour value
 // of 0.0.
@@ -370,7 +361,7 @@ void vtkContourGrid::CreateDefaultLocator()
 
 void vtkContourGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkUnstructuredGridToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Compute Gradients: " 
      << (this->ComputeGradients ? "On\n" : "Off\n");

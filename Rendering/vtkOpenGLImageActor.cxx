@@ -63,18 +63,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-//-----------------------------------------------------------------------------
-vtkOpenGLImageActor* vtkOpenGLImageActor::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkOpenGLImageActor");
-  if(ret)
-    {
-    return (vtkOpenGLImageActor*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkOpenGLImageActor;
-}
+vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.9");
+vtkStandardNewMacro(vtkOpenGLImageActor);
 #endif
 
 // Initializes an instance, generates a unique index.

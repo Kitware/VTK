@@ -53,7 +53,7 @@ class VTK_GRAPHICS_EXPORT vtkOutlineSource : public vtkPolyDataSource
 {
 public:
   static vtkOutlineSource *New();
-  vtkTypeMacro(vtkOutlineSource,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkOutlineSource,vtkPolyDataSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -56,7 +56,7 @@ class VTK_FILTERING_EXPORT vtkImageTwoInputFilter : public vtkImageMultipleInput
 {
 public:
   static vtkImageTwoInputFilter *New();
-  vtkTypeMacro(vtkImageTwoInputFilter,vtkImageMultipleInputFilter);
+  vtkTypeRevisionMacro(vtkImageTwoInputFilter,vtkImageMultipleInputFilter);
   
   // Description:
   // Set the Input1 of this filter. If a ScalarType has not been set,

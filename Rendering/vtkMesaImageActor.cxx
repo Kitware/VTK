@@ -67,15 +67,5 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #undef vtkOpenGLImageActor
 #undef vtkOpenGLRenderWindow
 
-//-----------------------------------------------------------------------------
-vtkMesaImageActor* vtkMesaImageActor::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMesaImageActor");
-  if(ret)
-    {
-    return (vtkMesaImageActor*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkMesaImageActor;
-}
+vtkCxxRevisionMacro(vtkMesaImageActor, "1.9");
+vtkStandardNewMacro(vtkMesaImageActor);

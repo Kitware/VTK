@@ -39,14 +39,15 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
 #include "vtkWarpTransform.h"
 #include "vtkMath.h"
+
+vtkCxxRevisionMacro(vtkWarpTransform, "1.8");
 
 //----------------------------------------------------------------------------
 void vtkWarpTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkAbstractTransform::PrintSelf(os, indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "InverseFlag: " << this->InverseFlag << "\n";
   os << indent << "InverseTolerance: " << this->InverseTolerance << "\n";

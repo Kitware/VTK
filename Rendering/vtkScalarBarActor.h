@@ -84,7 +84,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_RENDERING_EXPORT vtkScalarBarActor : public vtkActor2D
 {
 public:
-  vtkTypeMacro(vtkScalarBarActor,vtkActor2D);
+  vtkTypeRevisionMacro(vtkScalarBarActor,vtkActor2D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -42,18 +42,5 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkProp3DCollection.h"
 #include "vtkObjectFactory.h"
 
-//-----------------------------------------------------------------------------
-vtkProp3DCollection* vtkProp3DCollection::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkProp3DCollection");
-  if(ret)
-    {
-    return (vtkProp3DCollection*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkProp3DCollection;
-}
-
-
-
+vtkCxxRevisionMacro(vtkProp3DCollection, "1.4");
+vtkStandardNewMacro(vtkProp3DCollection);

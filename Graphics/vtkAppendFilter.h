@@ -62,7 +62,7 @@ class VTK_GRAPHICS_EXPORT vtkAppendFilter : public vtkDataSetToUnstructuredGridF
 public:
   static vtkAppendFilter *New();
 
-  vtkTypeMacro(vtkAppendFilter,vtkDataSetToUnstructuredGridFilter);
+  vtkTypeRevisionMacro(vtkAppendFilter,vtkDataSetToUnstructuredGridFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

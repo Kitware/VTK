@@ -43,26 +43,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPoints.h"
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkPolyDataReader.h"
-#include <stdlib.h>
 #include "vtkObjectFactory.h"
 
+#include <stdlib.h>
 
-
-//------------------------------------------------------------------------------
-vtkVectorText* vtkVectorText::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkVectorText");
-  if(ret)
-    {
-    return (vtkVectorText*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkVectorText;
-}
-
-
-
+vtkCxxRevisionMacro(vtkVectorText, "1.28");
+vtkStandardNewMacro(vtkVectorText);
 
 char *VTK_VECTOR_TEXT_33 = (char *) "11 0.438482 "
 "0.28000 -0.07186 0.43164 -0.07143 0.27689 0.07714 0.43472 0.07714 0.32000 0.20134 "
@@ -1714,45 +1700,45 @@ void vtkVectorText::Execute()
     switch (this->Text[pos])
       {
       case 32: 
-	xpos += 0.4;
-	break;
-	
+        xpos += 0.4;
+        break;
+        
       case 10:
-	ypos -= 1.4;
-	xpos = 0;
-	break;
-	
+        ypos -= 1.4;
+        xpos = 0;
+        break;
+        
       default:
-	// if we have a valid character
-	if ((this->Text[pos] > 32)&&(this->Text[pos] < 127))
-	  {
-	  // add the result to our output
-	  aLetter = this->Letters[this->Text[pos]];
-	  ptCount = strtol(aLetter,&aLetter,10);
-	  width = strtod(aLetter,&aLetter);
-	  for (i = 0; i < ptCount; i++)
-	    {
-	    ftmp[0] = strtod(aLetter,&aLetter);
-	    ftmp[1] = strtod(aLetter,&aLetter);
-	    ftmp[0] += xpos;
-	    ftmp[1] += ypos;
-	    newPoints->InsertNextPoint(ftmp);
-	    }
-	  triCount = strtol(aLetter,&aLetter,10);
-	  for (i = 0; i < triCount; i++)
-	    {
-	    newPolys->InsertNextCell(3);
-	    aPoint = strtol(aLetter,&aLetter,10); 
-	    newPolys->InsertCellPoint(aPoint + ptOffset);
-	    aPoint = strtol(aLetter,&aLetter,10); 
-	    newPolys->InsertCellPoint(aPoint + ptOffset);
-	    aPoint = strtol(aLetter,&aLetter,10); 
-	    newPolys->InsertCellPoint(aPoint + ptOffset);
-	    }
-	  ptOffset += ptCount;
-	  xpos += width;
-	  }
-	break;
+        // if we have a valid character
+        if ((this->Text[pos] > 32)&&(this->Text[pos] < 127))
+          {
+          // add the result to our output
+          aLetter = this->Letters[this->Text[pos]];
+          ptCount = strtol(aLetter,&aLetter,10);
+          width = strtod(aLetter,&aLetter);
+          for (i = 0; i < ptCount; i++)
+            {
+            ftmp[0] = strtod(aLetter,&aLetter);
+            ftmp[1] = strtod(aLetter,&aLetter);
+            ftmp[0] += xpos;
+            ftmp[1] += ypos;
+            newPoints->InsertNextPoint(ftmp);
+            }
+          triCount = strtol(aLetter,&aLetter,10);
+          for (i = 0; i < triCount; i++)
+            {
+            newPolys->InsertNextCell(3);
+            aPoint = strtol(aLetter,&aLetter,10); 
+            newPolys->InsertCellPoint(aPoint + ptOffset);
+            aPoint = strtol(aLetter,&aLetter,10); 
+            newPolys->InsertCellPoint(aPoint + ptOffset);
+            aPoint = strtol(aLetter,&aLetter,10); 
+            newPolys->InsertCellPoint(aPoint + ptOffset);
+            }
+          ptOffset += ptCount;
+          xpos += width;
+          }
+        break;
       }
     pos++;
     }
@@ -1769,7 +1755,7 @@ void vtkVectorText::Execute()
   
 void vtkVectorText::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Text: " << (this->Text ? this->Text : "(none)") << "\n";
 }

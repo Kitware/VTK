@@ -42,25 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageSkeleton2D.h"
 #include "vtkObjectFactory.h"
 
-
-
-//----------------------------------------------------------------------------
-vtkImageSkeleton2D* vtkImageSkeleton2D::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageSkeleton2D");
-  if(ret)
-    {
-    return (vtkImageSkeleton2D*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageSkeleton2D;
-}
-
-
-
-
-
+vtkCxxRevisionMacro(vtkImageSkeleton2D, "1.29");
+vtkStandardNewMacro(vtkImageSkeleton2D);
 
 //----------------------------------------------------------------------------
 // Construct an instance of vtkImageSkeleton2D fitler.
@@ -390,7 +373,7 @@ void vtkImageSkeleton2D::ThreadedExecute(vtkImageData *inData,
 
 void vtkImageSkeleton2D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageIterateFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Prune: " << (this->Prune ? "On\n" : "Off\n");
 

@@ -44,19 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkCommand.h"
 
-//----------------------------------------------------------------------------
-vtkInteractorStyleJoystickActor *vtkInteractorStyleJoystickActor::New() 
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkInteractorStyleJoystickActor");
-  if(ret)
-    {
-    return (vtkInteractorStyleJoystickActor*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkInteractorStyleJoystickActor;
-}
-
+vtkCxxRevisionMacro(vtkInteractorStyleJoystickActor, "1.12");
+vtkStandardNewMacro(vtkInteractorStyleJoystickActor);
 
 //----------------------------------------------------------------------------
 vtkInteractorStyleJoystickActor::vtkInteractorStyleJoystickActor() 
@@ -594,7 +583,7 @@ void vtkInteractorStyleJoystickActor::OnRightButtonUp(int vtkNotUsed(ctrl),
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickActor::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkInteractorStyle::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 }
 
 //----------------------------------------------------------------------------

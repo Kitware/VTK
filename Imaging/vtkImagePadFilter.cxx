@@ -39,29 +39,11 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
 #include "vtkImagePadFilter.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkImagePadFilter* vtkImagePadFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImagePadFilter");
-  if(ret)
-    {
-    return (vtkImagePadFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImagePadFilter;
-}
-
-
-
-
-
+vtkCxxRevisionMacro(vtkImagePadFilter, "1.25");
+vtkStandardNewMacro(vtkImagePadFilter);
 
 //----------------------------------------------------------------------------
 // Constructor sets default values
@@ -181,7 +163,7 @@ void vtkImagePadFilter::ComputeInputUpdateExtent(int inExt[6],
 
 void vtkImagePadFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageToImageFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "OutputNumberOfScalarComponents: " 
      << this->OutputNumberOfScalarComponents << "\n";

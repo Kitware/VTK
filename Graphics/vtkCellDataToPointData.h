@@ -66,7 +66,7 @@ class VTK_GRAPHICS_EXPORT vtkCellDataToPointData : public vtkDataSetToDataSetFil
 {
 public:
   static vtkCellDataToPointData *New();
-  vtkTypeMacro(vtkCellDataToPointData,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkCellDataToPointData,vtkDataSetToDataSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

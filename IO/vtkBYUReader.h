@@ -57,7 +57,7 @@ class VTK_IO_EXPORT vtkBYUReader : public vtkPolyDataSource
 public:
   static vtkBYUReader *New();
 
-  vtkTypeMacro(vtkBYUReader,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkBYUReader,vtkPolyDataSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

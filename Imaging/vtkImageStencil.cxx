@@ -41,20 +41,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkImageStencil.h"
 #include "vtkObjectFactory.h"
+
 #include <math.h>
 
-//----------------------------------------------------------------------------
-vtkImageStencil* vtkImageStencil::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageStencil");
-  if(ret)
-    {
-    return (vtkImageStencil*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageStencil;
-}
+vtkCxxRevisionMacro(vtkImageStencil, "1.5");
+vtkStandardNewMacro(vtkImageStencil);
 
 //----------------------------------------------------------------------------
 vtkImageStencil::vtkImageStencil()
@@ -374,7 +365,7 @@ void vtkImageStencil::ThreadedExecute(vtkImageData *inData,
 
 void vtkImageStencil::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkImageToImageFilter::PrintSelf(os, indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Stencil: " << this->GetStencil() << "\n";
   os << indent << "ReverseStencil: " << (this->ReverseStencil ?

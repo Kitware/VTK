@@ -54,18 +54,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-//------------------------------------------------------------------------------
-vtkOpenGLLight* vtkOpenGLLight::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkOpenGLLight");
-  if(ret)
-    {
-    return (vtkOpenGLLight*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkOpenGLLight;
-}
+vtkCxxRevisionMacro(vtkOpenGLLight, "1.16");
+vtkStandardNewMacro(vtkOpenGLLight);
 #endif
 
 

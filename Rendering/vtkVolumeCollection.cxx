@@ -42,20 +42,5 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkVolumeCollection.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkVolumeCollection* vtkVolumeCollection::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkVolumeCollection");
-  if(ret)
-    {
-    return (vtkVolumeCollection*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkVolumeCollection;
-}
-
-
-
+vtkCxxRevisionMacro(vtkVolumeCollection, "1.5");
+vtkStandardNewMacro(vtkVolumeCollection);

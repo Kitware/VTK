@@ -66,21 +66,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkSynchronizedTemplates2D.h"
 #include "vtkObjectFactory.h"
 
-
-
-//----------------------------------------------------------------------------
-vtkSynchronizedTemplates2D* vtkSynchronizedTemplates2D::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkSynchronizedTemplates2D");
-  if(ret)
-    {
-    return (vtkSynchronizedTemplates2D*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkSynchronizedTemplates2D;
-}
-
+vtkCxxRevisionMacro(vtkSynchronizedTemplates2D, "1.21");
+vtkStandardNewMacro(vtkSynchronizedTemplates2D);
 
 //----------------------------------------------------------------------------
 // Description:
@@ -525,7 +512,7 @@ void vtkSynchronizedTemplates2D::Execute()
 //----------------------------------------------------------------------------
 void vtkSynchronizedTemplates2D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   this->ContourValues->PrintSelf(os,indent);
   if (this->ComputeScalars)

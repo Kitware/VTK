@@ -56,23 +56,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkOldStyleCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkXRenderWindowTclInteractor* vtkXRenderWindowTclInteractor::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkXRenderWindowTclInteractor");
-  if(ret)
-    {
-    return (vtkXRenderWindowTclInteractor*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkXRenderWindowTclInteractor;
-}
-
-
-
+vtkCxxRevisionMacro(vtkXRenderWindowTclInteractor, "1.31");
+vtkStandardNewMacro(vtkXRenderWindowTclInteractor);
 
 // steal the first three elements of the TkMainInfo stuct
 // we don't care about the rest of the elements.
@@ -301,7 +286,7 @@ void vtkXRenderWindowTclInteractor::Disable()
 
 void vtkXRenderWindowTclInteractor::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkRenderWindowInteractor::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
   if (this->App)
     {
     os << indent << "App: " << this->App << "\n";

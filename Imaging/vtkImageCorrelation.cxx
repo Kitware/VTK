@@ -39,29 +39,11 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
 #include "vtkImageCorrelation.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkImageCorrelation* vtkImageCorrelation::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageCorrelation");
-  if(ret)
-    {
-    return (vtkImageCorrelation*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageCorrelation;
-}
-
-
-
-
-
+vtkCxxRevisionMacro(vtkImageCorrelation, "1.24");
+vtkStandardNewMacro(vtkImageCorrelation);
 
 //----------------------------------------------------------------------------
 vtkImageCorrelation::vtkImageCorrelation()
@@ -288,7 +270,7 @@ void vtkImageCorrelation::ThreadedExecute(vtkImageData **inData,
 
 void vtkImageCorrelation::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageTwoInputFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Dimensionality: " << this->Dimensionality << "\n";
 }

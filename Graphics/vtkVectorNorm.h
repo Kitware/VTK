@@ -63,7 +63,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_GRAPHICS_EXPORT vtkVectorNorm : public vtkDataSetToDataSetFilter 
 {
 public:
-  vtkTypeMacro(vtkVectorNorm,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkVectorNorm,vtkDataSetToDataSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

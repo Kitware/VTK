@@ -42,18 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkSimpleImageFilterExample.h"
 #include "vtkObjectFactory.h"
 
-//------------------------------------------------------------------------------
-vtkSimpleImageFilterExample* vtkSimpleImageFilterExample::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkSimpleImageFilterExample");
-  if(ret)
-    {
-    return (vtkSimpleImageFilterExample*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkSimpleImageFilterExample;
-}
+vtkCxxRevisionMacro(vtkSimpleImageFilterExample, "1.6");
+vtkStandardNewMacro(vtkSimpleImageFilterExample);
 
 // The switch statement in Execute will call this method with
 // the appropriate input type (IT). Note that this example assumes

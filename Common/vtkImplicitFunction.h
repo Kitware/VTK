@@ -76,7 +76,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_COMMON_EXPORT vtkImplicitFunction : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkImplicitFunction,vtkObject);
+  vtkTypeRevisionMacro(vtkImplicitFunction,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

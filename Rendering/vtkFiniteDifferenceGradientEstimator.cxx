@@ -39,7 +39,6 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
 #include "vtkFiniteDifferenceGradientEstimator.h"
 #include "vtkCharArray.h"
 #include "vtkUnsignedCharArray.h"
@@ -53,23 +52,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
 
+#include <math.h>
 
-
-//------------------------------------------------------------------------------
-vtkFiniteDifferenceGradientEstimator* vtkFiniteDifferenceGradientEstimator::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkFiniteDifferenceGradientEstimator");
-  if(ret)
-    {
-    return (vtkFiniteDifferenceGradientEstimator*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkFiniteDifferenceGradientEstimator;
-}
-
-
-
+vtkCxxRevisionMacro(vtkFiniteDifferenceGradientEstimator, "1.29");
+vtkStandardNewMacro(vtkFiniteDifferenceGradientEstimator);
 
 // This is the templated function that actually computes the EncodedNormal
 // and the GradientMagnitude
@@ -463,7 +449,7 @@ void vtkFiniteDifferenceGradientEstimator::UpdateNormals( )
 void vtkFiniteDifferenceGradientEstimator::PrintSelf(ostream& os, 
                                                      vtkIndent indent)
 {
-  this->vtkEncodedGradientEstimator::PrintSelf(os, indent);
+  this->Superclass::PrintSelf(os, indent);
   
   os << indent << "Sample spacing in voxels: " << 
     this->SampleSpacingInVoxels << endl;

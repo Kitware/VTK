@@ -50,6 +50,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 
+#ifndef VTK_IMPLEMENT_MESA_CXX
+vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.55");
+#endif
 
 #define MAX_LIGHTS 8
 
@@ -164,7 +167,7 @@ void vtkOpenGLRenderWindow::OpenGLInit()
 
 void vtkOpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkRenderWindow::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "MultiSamples: " << this->MultiSamples << "\n";
 }

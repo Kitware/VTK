@@ -73,7 +73,7 @@ class vtkFloatArray;
 class VTK_FILTERING_EXPORT vtkScalarTree : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkScalarTree,vtkObject);
+  vtkTypeRevisionMacro(vtkScalarTree,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -70,7 +70,7 @@ protected:
   
 public:
   static vtkXMesaRenderWindow *New();
-  vtkTypeMacro(vtkXMesaRenderWindow,vtkMesaRenderWindow);
+  vtkTypeRevisionMacro(vtkXMesaRenderWindow,vtkMesaRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -39,27 +39,13 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
 #include "vtkImageCanvasSource2D.h"
 #include "vtkObjectFactory.h"
 
+#include <math.h>
 
-
-//------------------------------------------------------------------------------
-vtkImageCanvasSource2D* vtkImageCanvasSource2D::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageCanvasSource2D");
-  if(ret)
-    {
-    return (vtkImageCanvasSource2D*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageCanvasSource2D;
-}
-
-
-
+vtkCxxRevisionMacro(vtkImageCanvasSource2D, "1.26");
+vtkStandardNewMacro(vtkImageCanvasSource2D);
 
 //----------------------------------------------------------------------------
 // Construct an instance of vtkImageCanvasSource2D with no data.
@@ -96,9 +82,10 @@ vtkImageCanvasSource2D::~vtkImageCanvasSource2D()
 //----------------------------------------------------------------------------
 void vtkImageCanvasSource2D::PrintSelf(ostream& os, vtkIndent indent)
 {
+  this->Superclass::PrintSelf(os,indent);
+
   int idx;
   
-  vtkStructuredPoints::PrintSelf(os,indent);
   os << indent << "ImageData: (" << this->ImageData << ")\n";
   os << indent << "DefaultZ: " << this->DefaultZ << endl;
   os << indent << "DrawColor: (" << this->DrawColor[0];

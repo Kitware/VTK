@@ -54,7 +54,7 @@ class VTK_IMAGING_EXPORT vtkImageShrink3D : public vtkImageToImageFilter
 {
 public:
   static vtkImageShrink3D *New();
-  vtkTypeMacro(vtkImageShrink3D,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageShrink3D,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

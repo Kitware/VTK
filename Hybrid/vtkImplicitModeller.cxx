@@ -39,7 +39,6 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
 #include "vtkMath.h"
 #include "vtkImplicitModeller.h"
 #include "vtkCellLocator.h"
@@ -54,21 +53,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkCommand.h"
 #include "vtkFloatArray.h"
 
-//------------------------------------------------------------------------------
-vtkImplicitModeller* vtkImplicitModeller::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImplicitModeller");
-  if(ret)
-    {
-    return (vtkImplicitModeller*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImplicitModeller;
-}
+#include <math.h>
 
-
-
+vtkCxxRevisionMacro(vtkImplicitModeller, "1.74");
+vtkStandardNewMacro(vtkImplicitModeller);
 
 struct vtkImplicitModellerAppendInfo
 {
@@ -584,8 +572,8 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
           minClipper[i] = vtkClipPolyData::New();
           minClipper[i]->SetInput((vtkPolyData *)input);
           minClipper[i]->SetClipFunction(minPlane[i]);
-    	    minClipper[i]->SetValue( 0.0f );
-	        minClipper[i]->InsideOutOn();
+            minClipper[i]->SetValue( 0.0f );
+                minClipper[i]->InsideOutOn();
           minClipper[i]->Update();
 
           if ( minClipper[i]->GetOutput()->GetNumberOfCells() == 0 )
@@ -616,8 +604,8 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
           maxClipper[i] = vtkClipPolyData::New();
           maxClipper[i]->SetInput(minClipper[i]->GetOutput());
           maxClipper[i]->SetClipFunction(maxPlane[i]);
-    	    maxClipper[i]->SetValue( 0.0f );
-	        maxClipper[i]->InsideOutOn();
+            maxClipper[i]->SetValue( 0.0f );
+                maxClipper[i]->InsideOutOn();
           maxClipper[i]->Update();
 
           if ( maxClipper[i]->GetOutput()->GetNumberOfCells() == 0 )
@@ -728,8 +716,8 @@ void vtkImplicitModeller::ExecuteInformation()
   output->SetNumberOfScalarComponents(1);
   
   output->SetWholeExtent(0, this->SampleDimensions[0]-1,
-			 0, this->SampleDimensions[1]-1,
-			 0, this->SampleDimensions[2]-1);
+                         0, this->SampleDimensions[1]-1,
+                         0, this->SampleDimensions[2]-1);
 
   for (i=0; i < 3; i++)
     {
@@ -786,14 +774,14 @@ float vtkImplicitModeller::ComputeModelBounds(vtkDataSet *input)
     else
       {
       if (this->GetInput() != NULL)
-	{
-	bounds = this->GetInput()->GetBounds();
-	}
+        {
+        bounds = this->GetInput()->GetBounds();
+        }
       else
-	{
-	vtkErrorMacro( << "An input must be specified to Compute the model bounds.");
-	return VTK_LARGE_FLOAT;
-	}
+        {
+        vtkErrorMacro( << "An input must be specified to Compute the model bounds.");
+        return VTK_LARGE_FLOAT;
+        }
       }
     }
   else
@@ -832,7 +820,7 @@ float vtkImplicitModeller::ComputeModelBounds(vtkDataSet *input)
 
   // Set volume origin and data spacing
   output->SetOrigin(this->ModelBounds[0],this->ModelBounds[2],
-		    this->ModelBounds[4]);
+                    this->ModelBounds[4]);
   
   for (i=0; i<3; i++)
     {
@@ -880,9 +868,9 @@ void vtkImplicitModeller::SetSampleDimensions(int dim[3])
     for (dataDim=0, i=0; i<3 ; i++)
       {
       if (dim[i] > 1)
-	{
-	dataDim++;
-	}
+        {
+        dataDim++;
+        }
       }
 
     if ( dataDim  < 3 )
@@ -977,7 +965,7 @@ const char *vtkImplicitModeller::GetProcessModeAsString()
 
 void vtkImplicitModeller::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToStructuredPointsFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Maximum Distance: " << this->MaximumDistance << "\n";
   os << indent << "Sample Dimensions: (" << this->SampleDimensions[0] << ", "

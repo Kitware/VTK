@@ -38,7 +38,6 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
 #include "vtkCommunicator.h"
 #include "vtkDataSetReader.h"
 #include "vtkDataSetWriter.h"
@@ -52,6 +51,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFloatArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
+
+vtkCxxRevisionMacro(vtkCommunicator, "1.8");
 
 template <class T>
 static int SendDataArray(T* data, int length, int handle, int tag, vtkCommunicator *self)

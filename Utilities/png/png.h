@@ -838,7 +838,7 @@ typedef png_info FAR * FAR * png_infopp;
 #define PNG_KEYWORD_MAX_LENGTH     79
 
 /* Maximum number of entries in PLTE/sPLT/tRNS arrays */
-#define PNG_MAX_PALETTE_LENGTH	   256
+#define PNG_MAX_PALETTE_LENGTH     256
 
 /* These determine if an ancillary chunk's data has been successfully read
  * from the PNG header, or if the application has filled in the corresponding

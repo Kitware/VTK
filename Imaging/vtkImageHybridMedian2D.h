@@ -60,7 +60,7 @@ class VTK_IMAGING_EXPORT vtkImageHybridMedian2D : public vtkImageSpatialFilter
 {
 public:
   static vtkImageHybridMedian2D *New();
-  vtkTypeMacro(vtkImageHybridMedian2D,vtkImageSpatialFilter);
+  vtkTypeRevisionMacro(vtkImageHybridMedian2D,vtkImageSpatialFilter);
 
 protected:
   vtkImageHybridMedian2D();

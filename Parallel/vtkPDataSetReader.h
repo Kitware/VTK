@@ -57,7 +57,7 @@ class VTK_PARALLEL_EXPORT vtkPDataSetReader : public vtkSource
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent);
-  vtkTypeMacro(vtkPDataSetReader,vtkSource);
+  vtkTypeRevisionMacro(vtkPDataSetReader,vtkSource);
   static vtkPDataSetReader *New();
   
   // Description:

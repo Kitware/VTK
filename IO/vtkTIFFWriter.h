@@ -53,7 +53,7 @@ class VTK_IO_EXPORT vtkTIFFWriter : public vtkImageWriter
 {
 public:
   static vtkTIFFWriter *New();
-  vtkTypeMacro(vtkTIFFWriter,vtkImageWriter);
+  vtkTypeRevisionMacro(vtkTIFFWriter,vtkImageWriter);
 
 protected:
   vtkTIFFWriter() {};

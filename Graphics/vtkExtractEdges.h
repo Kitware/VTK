@@ -56,7 +56,7 @@ class VTK_GRAPHICS_EXPORT vtkExtractEdges : public vtkDataSetToPolyDataFilter
 {
 public:
   static vtkExtractEdges *New();
-  vtkTypeMacro(vtkExtractEdges,vtkDataSetToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkExtractEdges,vtkDataSetToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

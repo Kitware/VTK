@@ -56,7 +56,7 @@ class VTK_GRAPHICS_EXPORT vtkAxes : public vtkPolyDataSource
 public:
   static vtkAxes *New();
 
-  vtkTypeMacro(vtkAxes,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkAxes,vtkPolyDataSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

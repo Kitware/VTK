@@ -44,18 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-//----------------------------------------------------------------------------
-vtkTextureMapToSphere* vtkTextureMapToSphere::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTextureMapToSphere");
-  if(ret)
-    {
-    return (vtkTextureMapToSphere*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkTextureMapToSphere;
-}
+vtkCxxRevisionMacro(vtkTextureMapToSphere, "1.26");
+vtkStandardNewMacro(vtkTextureMapToSphere);
 
 // Create object with Center (0,0,0) and the PreventSeam ivar is set to true. The 
 // sphere center is automatically computed.
@@ -209,7 +199,7 @@ void vtkTextureMapToSphere::Execute()
 
 void vtkTextureMapToSphere::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToDataSetFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Automatic Sphere Generation: " << 
                   (this->AutomaticSphereGeneration ? "On\n" : "Off\n");

@@ -85,7 +85,7 @@ class vtkFieldData;
 class VTK_GRAPHICS_EXPORT vtkSplitField : public vtkDataSetToDataSetFilter
 {
 public:
-  vtkTypeMacro(vtkSplitField,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkSplitField,vtkDataSetToDataSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -59,7 +59,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_FILTERING_EXPORT vtkDataSetToPolyDataFilter : public vtkPolyDataSource
 {
 public:
-  vtkTypeMacro(vtkDataSetToPolyDataFilter,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkDataSetToPolyDataFilter,vtkPolyDataSource);
 
   // Description:
   // Set / get the input data or filter.

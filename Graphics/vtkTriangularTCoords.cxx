@@ -41,21 +41,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkTriangularTCoords.h"
 #include "vtkFloatArray.h"
-#include <math.h>
 #include "vtkObjectFactory.h"
 
-//--------------------------------------------------------------------------
-vtkTriangularTCoords* vtkTriangularTCoords::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTriangularTCoords");
-  if(ret)
-    {
-    return (vtkTriangularTCoords*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkTriangularTCoords;
-}
+#include <math.h>
+
+vtkCxxRevisionMacro(vtkTriangularTCoords, "1.21");
+vtkStandardNewMacro(vtkTriangularTCoords);
 
 void vtkTriangularTCoords::Execute()
 {
@@ -217,5 +208,5 @@ void vtkTriangularTCoords::Execute()
 
 void vtkTriangularTCoords::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 }

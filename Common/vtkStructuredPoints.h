@@ -60,7 +60,7 @@ class VTK_COMMON_EXPORT vtkStructuredPoints : public vtkImageData
 {
 public:
   static vtkStructuredPoints *New();
-  vtkTypeMacro(vtkStructuredPoints,vtkImageData);
+  vtkTypeRevisionMacro(vtkStructuredPoints,vtkImageData);
   
   // Description:
   // Create a similar type object

@@ -39,8 +39,9 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
 #include "vtkFunctionSet.h"
+
+vtkCxxRevisionMacro(vtkFunctionSet, "1.3");
 
 vtkFunctionSet::vtkFunctionSet() 
 {
@@ -50,7 +51,7 @@ vtkFunctionSet::vtkFunctionSet()
 
 void vtkFunctionSet::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkObject::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
   os << indent << "Number of functions: " << this->NumFuncs
      << "\n";
   os << indent << "Number of independant variables: " << this->NumIndepVars

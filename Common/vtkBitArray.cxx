@@ -42,20 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkBitArray.h"
 #include "vtkObjectFactory.h"
 
-
-
-//----------------------------------------------------------------------------
-vtkBitArray* vtkBitArray::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkBitArray");
-  if(ret)
-    {
-    return (vtkBitArray*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkBitArray;
-}
+vtkCxxRevisionMacro(vtkBitArray, "1.50");
+vtkStandardNewMacro(vtkBitArray);
 
 vtkDataArray *vtkBitArray::MakeObject()
 {
@@ -190,7 +178,7 @@ void vtkBitArray::DeepCopy(vtkDataArray *ia)
 
 void vtkBitArray::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataArray::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   if (this->Array)
     {

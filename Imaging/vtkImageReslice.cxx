@@ -39,26 +39,17 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <limits.h>
-#include <float.h>
-#include <math.h>
 #include "vtkImageReslice.h"
 #include "vtkMath.h"
 #include "vtkTransform.h"
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
-vtkImageReslice* vtkImageReslice::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageReslice");
-  if(ret)
-    {
-    return (vtkImageReslice*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageReslice;
-}
+#include <limits.h>
+#include <float.h>
+#include <math.h>
+
+vtkCxxRevisionMacro(vtkImageReslice, "1.18");
+vtkStandardNewMacro(vtkImageReslice);
 
 //----------------------------------------------------------------------------
 vtkImageReslice::vtkImageReslice()
@@ -142,7 +133,7 @@ vtkImageReslice::~vtkImageReslice()
 //----------------------------------------------------------------------------
 void vtkImageReslice::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageToImageFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "ResliceAxes: " << this->ResliceAxes << "\n";
   if (this->ResliceAxes)

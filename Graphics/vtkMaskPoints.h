@@ -58,7 +58,7 @@ class VTK_GRAPHICS_EXPORT vtkMaskPoints : public vtkDataSetToPolyDataFilter
 {
 public:
   static vtkMaskPoints *New();
-  vtkTypeMacro(vtkMaskPoints,vtkDataSetToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkMaskPoints,vtkDataSetToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

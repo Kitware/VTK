@@ -39,24 +39,15 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
-#include <stdio.h>
 #include "vtkVoxelModeller.h"
 #include "vtkObjectFactory.h"
 #include "vtkBitArray.h"
 
-//----------------------------------------------------------------------------
-vtkVoxelModeller* vtkVoxelModeller::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkVoxelModeller");
-  if(ret)
-    {
-    return (vtkVoxelModeller*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkVoxelModeller;
-}
+#include <math.h>
+#include <stdio.h>
+
+vtkCxxRevisionMacro(vtkVoxelModeller, "1.48");
+vtkStandardNewMacro(vtkVoxelModeller);
 
 // Construct an instance of vtkVoxelModeller with its sample dimensions
 // set to (50,50,50), and so that the model bounds are
@@ -380,7 +371,7 @@ void vtkVoxelModeller::Write(char *fname)
 
 void vtkVoxelModeller::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToStructuredPointsFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Maximum Distance: " << this->MaximumDistance << "\n";
   os << indent << "Sample Dimensions: (" << this->SampleDimensions[0] << ", "

@@ -45,7 +45,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "MangleMesaInclude/gl_mangle.h"
 #include "MangleMesaInclude/gl.h"
 
-#include <math.h>
 #include "vtkToolkits.h"
 #include "vtkMesaProperty.h"
 #include "vtkRenderWindow.h"
@@ -54,6 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMesaLight.h"
 #include "vtkCuller.h"
 
+#include <math.h>
 
 // make sure this file is included before the #define takes place
 // so we don't get two vtkMesaMesaProperty classes defined.
@@ -65,15 +65,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define vtkOpenGLProperty vtkMesaProperty
 #include "vtkOpenGLProperty.cxx"
 #undef vtkOpenGLProperty
-//------------------------------------------------------------------------------
-vtkMesaProperty* vtkMesaProperty::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMesaProperty");
-  if(ret)
-    {
-    return (vtkMesaProperty*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkMesaProperty;
-}
+
+vtkCxxRevisionMacro(vtkMesaProperty, "1.13");
+vtkStandardNewMacro(vtkMesaProperty);

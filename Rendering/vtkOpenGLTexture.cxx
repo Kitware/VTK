@@ -64,18 +64,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-//------------------------------------------------------------------------------
-vtkOpenGLTexture* vtkOpenGLTexture::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkOpenGLTexture");
-  if(ret)
-    {
-    return (vtkOpenGLTexture*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkOpenGLTexture;
-}
+vtkCxxRevisionMacro(vtkOpenGLTexture, "1.44");
+vtkStandardNewMacro(vtkOpenGLTexture);
 #endif
 
 // Initializes an instance, generates a unique index.

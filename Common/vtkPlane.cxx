@@ -43,24 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkPlane* vtkPlane::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPlane");
-  if(ret)
-    {
-    return (vtkPlane*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkPlane;
-}
-
-
-
-
+vtkCxxRevisionMacro(vtkPlane, "1.36");
+vtkStandardNewMacro(vtkPlane);
 
 // Construct plane passing through origin and normal to z-axis.
 vtkPlane::vtkPlane()
@@ -223,7 +207,7 @@ int vtkPlane::IntersectWithLine(float p1[3], float p2[3], float n[3],
 
 void vtkPlane::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImplicitFunction::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Normal: (" << this->Normal[0] << ", " 
     << this->Normal[1] << ", " << this->Normal[2] << ")\n";

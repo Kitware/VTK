@@ -68,23 +68,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkExtentTranslator.h"
 
-
-
-//----------------------------------------------------------------------------
-vtkSynchronizedTemplates3D* vtkSynchronizedTemplates3D::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkSynchronizedTemplates3D");
-  if(ret)
-    {
-    return (vtkSynchronizedTemplates3D*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkSynchronizedTemplates3D;
-}
-
-
-
+vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.58");
+vtkStandardNewMacro(vtkSynchronizedTemplates3D);
 
 //----------------------------------------------------------------------------
 // Description:
@@ -1037,7 +1022,7 @@ vtkImageData *vtkSynchronizedTemplates3D::GetInput()
 //----------------------------------------------------------------------------
 void vtkSynchronizedTemplates3D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   this->ContourValues->PrintSelf(os,indent);
 

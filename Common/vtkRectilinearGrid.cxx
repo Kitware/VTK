@@ -47,19 +47,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-
-//----------------------------------------------------------------------------
-vtkRectilinearGrid* vtkRectilinearGrid::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkRectilinearGrid");
-  if(ret)
-    {
-    return (vtkRectilinearGrid*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkRectilinearGrid;
-}
+vtkCxxRevisionMacro(vtkRectilinearGrid, "1.49");
+vtkStandardNewMacro(vtkRectilinearGrid);
 
 //----------------------------------------------------------------------------
 vtkRectilinearGrid::vtkRectilinearGrid()
@@ -1121,7 +1110,7 @@ void vtkRectilinearGrid::Crop()
 //----------------------------------------------------------------------------
 void vtkRectilinearGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSet::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Dimensions: (" << this->Dimensions[0] << ", "
                                   << this->Dimensions[1] << ", "

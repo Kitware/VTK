@@ -48,23 +48,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPointLocator.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkTriangle* vtkTriangle::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTriangle");
-  if(ret)
-    {
-    return (vtkTriangle*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkTriangle;
-}
-
-
-
+vtkCxxRevisionMacro(vtkTriangle, "1.88");
+vtkStandardNewMacro(vtkTriangle);
 
 // Construct the triangle with three points.
 vtkTriangle::vtkTriangle()

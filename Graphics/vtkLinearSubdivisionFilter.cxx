@@ -44,17 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkEdgeTable.h"
 #include "vtkObjectFactory.h"
 
-vtkLinearSubdivisionFilter* vtkLinearSubdivisionFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkLinearSubdivisionFilter");
-  if(ret)
-    {
-    return (vtkLinearSubdivisionFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkLinearSubdivisionFilter;
-}
+vtkCxxRevisionMacro(vtkLinearSubdivisionFilter, "1.10");
+vtkStandardNewMacro(vtkLinearSubdivisionFilter);
 
 void vtkLinearSubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inputDS, vtkIntArray *edgeData, vtkPoints *outputPts, vtkPointData *outputPD)
 {

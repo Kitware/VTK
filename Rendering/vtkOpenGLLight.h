@@ -55,7 +55,7 @@ class VTK_RENDERING_EXPORT vtkOpenGLLight : public vtkLight
 {
 public:
   static vtkOpenGLLight *New();
-  vtkTypeMacro(vtkOpenGLLight,vtkLight);
+  vtkTypeRevisionMacro(vtkOpenGLLight,vtkLight);
 
   // Description:
   // Implement base class method.

@@ -56,7 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_RENDERING_EXPORT vtkWin32PolyDataMapper2D : public vtkPolyDataMapper2D
 {
 public:
-  vtkTypeMacro(vtkWin32PolyDataMapper2D,vtkPolyDataMapper2D);
+  vtkTypeRevisionMacro(vtkWin32PolyDataMapper2D,vtkPolyDataMapper2D);
   static vtkWin32PolyDataMapper2D *New();
 
   // Description:

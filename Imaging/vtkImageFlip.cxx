@@ -42,25 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageFlip.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkImageFlip* vtkImageFlip::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageFlip");
-  if(ret)
-    {
-    return (vtkImageFlip*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageFlip;
-}
-
-
-
-
-
+vtkCxxRevisionMacro(vtkImageFlip, "1.29");
+vtkStandardNewMacro(vtkImageFlip);
 
 //----------------------------------------------------------------------------
 vtkImageFlip::vtkImageFlip()
@@ -236,7 +219,7 @@ void vtkImageFlip::ThreadedExecute(vtkImageData *inData,
 
 void vtkImageFlip::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageToImageFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "FilteredAxis: " << this->FilteredAxis << "\n";
 

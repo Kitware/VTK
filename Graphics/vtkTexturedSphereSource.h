@@ -57,7 +57,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_GRAPHICS_EXPORT vtkTexturedSphereSource : public vtkPolyDataSource 
 {
 public:
-  vtkTypeMacro(vtkTexturedSphereSource,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkTexturedSphereSource,vtkPolyDataSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -79,7 +79,7 @@ class vtkIdList;
 class VTK_COMMON_EXPORT vtkDataArray : public vtkObject 
 {
 public:
-  vtkTypeMacro(vtkDataArray,vtkObject);
+  vtkTypeRevisionMacro(vtkDataArray,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

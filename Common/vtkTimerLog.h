@@ -108,7 +108,7 @@ class VTK_COMMON_EXPORT vtkTimerLog : public vtkObject
 public:
   static vtkTimerLog *New();
 
-  vtkTypeMacro(vtkTimerLog,vtkObject);
+  vtkTypeRevisionMacro(vtkTimerLog,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

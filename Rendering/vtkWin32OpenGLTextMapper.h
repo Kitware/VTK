@@ -56,7 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_RENDERING_EXPORT vtkWin32OpenGLTextMapper : public vtkWin32TextMapper
 {
 public:
-  vtkTypeMacro(vtkWin32OpenGLTextMapper,vtkWin32TextMapper);
+  vtkTypeRevisionMacro(vtkWin32OpenGLTextMapper,vtkWin32TextMapper);
   static vtkWin32OpenGLTextMapper *New();
 
   // Description:

@@ -54,7 +54,7 @@ class VTK_IMAGING_EXPORT vtkImageMagnitude : public vtkImageToImageFilter
 {
 public:
   static vtkImageMagnitude *New();
-  vtkTypeMacro(vtkImageMagnitude,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageMagnitude,vtkImageToImageFilter);
 
 protected:
   vtkImageMagnitude() {};

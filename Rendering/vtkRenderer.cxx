@@ -39,9 +39,6 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <stdlib.h>
-#include <string.h>
-
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkMath.h"
@@ -55,6 +52,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPicker.h"
 #include "vtkCommand.h"
 #include "vtkRayCaster.h"
+
+#include <stdlib.h>
+#include <string.h>
+
+vtkCxxRevisionMacro(vtkRenderer, "1.176");
 
 // Create a vtkRenderer with a black background, a white ambient light, 
 // two-sided lighting turned on, a viewport of (0,0,1,1), and backface culling
@@ -1072,7 +1074,7 @@ void vtkRenderer::WorldToView(float &x, float &y, float &z)
 
 void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkViewport::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Ambient: (" << this->Ambient[0] << ", " 
      << this->Ambient[1] << ", " << this->Ambient[2] << ")\n";

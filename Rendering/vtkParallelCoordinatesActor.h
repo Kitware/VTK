@@ -79,7 +79,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_RENDERING_EXPORT vtkParallelCoordinatesActor : public vtkActor2D
 {
 public:
-  vtkTypeMacro(vtkParallelCoordinatesActor,vtkActor2D);
+  vtkTypeRevisionMacro(vtkParallelCoordinatesActor,vtkActor2D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

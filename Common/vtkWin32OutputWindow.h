@@ -59,7 +59,7 @@ class VTK_COMMON_EXPORT vtkWin32OutputWindow : public vtkOutputWindow
 {
 public:
 // Methods from vtkObject
-  vtkTypeMacro(vtkWin32OutputWindow,vtkOutputWindow);
+  vtkTypeRevisionMacro(vtkWin32OutputWindow,vtkOutputWindow);
   // Description:
   // Create a vtkWin32OutputWindow.
   static vtkWin32OutputWindow* New();

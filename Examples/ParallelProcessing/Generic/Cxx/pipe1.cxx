@@ -21,7 +21,7 @@ void pipe1(vtkMultiProcessController* controller, void* arg)
   // Synthetic image source.
   vtkRTAnalyticSource* source1 = vtkRTAnalyticSource::New();
   source1->SetWholeExtent (-1*extent, extent, -1*extent, extent, 
-	  -1*extent ,extent );
+          -1*extent ,extent );
   source1->SetCenter(0, 0, 0);
   source1->SetStandardDeviation( 0.5 );
   source1->SetMaximum( 255.0 );

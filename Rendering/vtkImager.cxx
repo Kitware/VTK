@@ -45,6 +45,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImagingFactory.h"
 #include "vtkCommand.h"
 
+vtkCxxRevisionMacro(vtkImager, "1.29");
+
 vtkImager* vtkImager::New()
 {
   vtkGenericWarningMacro("vtkImager is being deprecated in version 4.1 please use vtkRenderer instead.");

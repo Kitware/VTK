@@ -41,6 +41,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkVolumeReader.h"
 
+vtkCxxRevisionMacro(vtkVolumeReader, "1.19");
+
 // Construct object with NULL file prefix; file pattern "%s.%d"; image range 
 // set to (1,1); 
 vtkVolumeReader::vtkVolumeReader()
@@ -65,7 +67,7 @@ vtkVolumeReader::~vtkVolumeReader ()
 
 void vtkVolumeReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkStructuredPointsSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Data Origin: (" << this->DataOrigin[0] << ", "
                                    << this->DataOrigin[1] << ", "

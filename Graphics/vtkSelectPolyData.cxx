@@ -48,18 +48,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-//----------------------------------------------------------------------------
-vtkSelectPolyData* vtkSelectPolyData::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkSelectPolyData");
-  if(ret)
-    {
-    return (vtkSelectPolyData*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkSelectPolyData;
-}
+vtkCxxRevisionMacro(vtkSelectPolyData, "1.21");
+vtkStandardNewMacro(vtkSelectPolyData);
 
 // Description:
 // Instantiate object with InsideOut turned off.
@@ -595,7 +585,7 @@ unsigned long int vtkSelectPolyData::GetMTime()
 
 void vtkSelectPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Generate Unselected Output: " 
      << (this->GenerateUnselectedOutput ? "On\n" : "Off\n");

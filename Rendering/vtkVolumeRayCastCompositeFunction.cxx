@@ -39,31 +39,16 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
-
 #include "vtkVolumeRayCastCompositeFunction.h"
 #include "vtkVolumeProperty.h"
 #include "vtkVolumeRayCastMapper.h"
 #include "vtkVolume.h"
 #include "vtkObjectFactory.h"
 
+#include <math.h>
 
-
-//------------------------------------------------------------------------------
-vtkVolumeRayCastCompositeFunction* vtkVolumeRayCastCompositeFunction::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkVolumeRayCastCompositeFunction");
-  if(ret)
-    {
-    return (vtkVolumeRayCastCompositeFunction*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkVolumeRayCastCompositeFunction;
-}
-
-
-
+vtkCxxRevisionMacro(vtkVolumeRayCastCompositeFunction, "1.31");
+vtkStandardNewMacro(vtkVolumeRayCastCompositeFunction);
 
 #define VTK_REMAINING_OPACITY           0.02
 
@@ -2568,7 +2553,7 @@ const char *vtkVolumeRayCastCompositeFunction::GetCompositeMethodAsString(void)
 // Since there is nothing local to print, just print the object stuff.
 void vtkVolumeRayCastCompositeFunction::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkVolumeRayCastFunction::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Composite Method: " << this->GetCompositeMethodAsString()
      << "\n";

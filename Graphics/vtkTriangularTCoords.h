@@ -62,7 +62,7 @@ class VTK_GRAPHICS_EXPORT vtkTriangularTCoords : public vtkPolyDataToPolyDataFil
 {
 public:
   static vtkTriangularTCoords *New();
-  vtkTypeMacro(vtkTriangularTCoords,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkTriangularTCoords,vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:

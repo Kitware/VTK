@@ -54,22 +54,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkObjectFactory.h"
 
-
-//----------------------------------------------------------------------------
-vtkWinCEOpenGLRenderWindow* vtkWinCEOpenGLRenderWindow::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkWinCEOpenGLRenderWindow");
-  if(ret)
-    {
-    return (vtkWinCEOpenGLRenderWindow*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkWinCEOpenGLRenderWindow;
-}
-
-
-
+vtkCxxRevisionMacro(vtkWinCEOpenGLRenderWindow, "1.2");
+vtkStandardNewMacro(vtkWinCEOpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
 
@@ -679,7 +665,7 @@ void vtkWinCEOpenGLRenderWindow::WindowRemap()
 
 void vtkWinCEOpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkOpenGLRenderWindow::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Next Window Id: " << this->NextWindowId << "\n";
   os << indent << "Window Id: " << this->WindowId << "\n";

@@ -38,25 +38,12 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
 #include "vtkCoordinate.h"
 #include "vtkViewport.h"
 #include "vtkObjectFactory.h"
 
-//------------------------------------------------------------------------------
-vtkCoordinate* vtkCoordinate::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkCoordinate");
-  if(ret)
-    {
-    return (vtkCoordinate*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkCoordinate;
-}
-
-
+vtkCxxRevisionMacro(vtkCoordinate, "1.26");
+vtkStandardNewMacro(vtkCoordinate);
 
 #define VTK_RINT(x) ((x > 0.0) ? (int)(x + 0.5) : (int)(x - 0.5))
 
@@ -106,7 +93,7 @@ const char *vtkCoordinate::GetCoordinateSystemAsString()
 
 void vtkCoordinate::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkObject::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
 
   os << indent << "Coordinate System: " << this->GetCoordinateSystemAsString() << "\n";

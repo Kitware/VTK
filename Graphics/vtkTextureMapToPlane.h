@@ -69,7 +69,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_GRAPHICS_EXPORT vtkTextureMapToPlane : public vtkDataSetToDataSetFilter 
 {
 public:
-  vtkTypeMacro(vtkTextureMapToPlane,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkTextureMapToPlane,vtkDataSetToDataSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

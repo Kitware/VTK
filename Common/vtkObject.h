@@ -76,26 +76,26 @@ class VTK_COMMON_EXPORT vtkObject
 public:
   // Description:
   // Return the class name as a string. This method is defined
-  // in all subclasses of vtkObject with the vtkTypeMacro found
+  // in all subclasses of vtkObject with the vtkTypeRevisionMacro found
   // in vtkSetGet.h.
   virtual const char *GetClassName() {return "vtkObject";};
 
   // Description:
   // Return 1 if this class type is the same type of (or a subclass of)
   // the named class. Returns 0 otherwise. This method works in
-  // combination with vtkTypeMacro found in vtkSetGet.h.
+  // combination with vtkTypeRevisionMacro found in vtkSetGet.h.
   static int IsTypeOf(const char *name);
 
   // Description:
   // Return 1 if this class is the same type of (or a subclass of)
   // the named class. Returns 0 otherwise. This method works in
-  // combination with vtkTypeMacro found in vtkSetGet.h.
+  // combination with vtkTypeRevisionMacro found in vtkSetGet.h.
   virtual int IsA(const char *name);
 
   // Description:
   // Will cast the supplied object to vtkObject* is this is a safe operation
   // (i.e., a safe downcast); otherwise NULL is returned. This method is
-  // defined in all subclasses of vtkObject with the vtkTypeMacro found in
+  // defined in all subclasses of vtkObject with the vtkTypeRevisionMacro found in
   // vtkSetGet.h.
   static vtkObject *SafeDownCast(vtkObject *o);
 
@@ -213,6 +213,8 @@ protected:
   vtkObject(); 
   virtual ~vtkObject(); 
 
+  virtual void CollectRevisions(ostream& os);
+  
   unsigned char Debug;     // Enable debug messages
   vtkTimeStamp MTime;      // Keep track of modification time
   int ReferenceCount;      // Number of uses of this object by other objects

@@ -39,30 +39,14 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
-#include "vtkImageData.h"
 #include "vtkImageIdealHighPass.h"
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
+#include <math.h>
 
-
-//------------------------------------------------------------------------------
-vtkImageIdealHighPass* vtkImageIdealHighPass::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageIdealHighPass");
-  if(ret)
-    {
-    return (vtkImageIdealHighPass*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageIdealHighPass;
-}
-
-
-
-
-
+vtkCxxRevisionMacro(vtkImageIdealHighPass, "1.14");
+vtkStandardNewMacro(vtkImageIdealHighPass);
 
 //----------------------------------------------------------------------------
 vtkImageIdealHighPass::vtkImageIdealHighPass()
@@ -262,7 +246,7 @@ void vtkImageIdealHighPass::ThreadedExecute(vtkImageData *inData,
 
 void vtkImageIdealHighPass::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageToImageFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "CutOff: ( "
      << this->CutOff[0] << ", "

@@ -44,23 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkBYUReader* vtkBYUReader::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkBYUReader");
-  if(ret)
-    {
-    return (vtkBYUReader*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkBYUReader;
-}
-
-
-
+vtkCxxRevisionMacro(vtkBYUReader, "1.45");
+vtkStandardNewMacro(vtkBYUReader);
 
 vtkBYUReader::vtkBYUReader()
 {
@@ -364,7 +349,7 @@ int vtkBYUReader::ComputeDivisionExtents(vtkDataObject *vtkNotUsed(output),
 
 void vtkBYUReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Geometry File Name: " 
      << (this->GeometryFileName ? this->GeometryFileName : "(none)") << "\n";

@@ -64,7 +64,7 @@ public:
   HWND      ParentId;
 
   static vtkWin32ImageWindow *New();
-  vtkTypeMacro(vtkWin32ImageWindow,vtkImageWindow);
+  vtkTypeRevisionMacro(vtkWin32ImageWindow,vtkImageWindow);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -58,7 +58,7 @@ class VTK_RENDERING_EXPORT vtkRenderWindowCollection : public vtkCollection
 {
  public:
   static vtkRenderWindowCollection *New();
-  vtkTypeMacro(vtkRenderWindowCollection,vtkCollection);
+  vtkTypeRevisionMacro(vtkRenderWindowCollection,vtkCollection);
 
   // Description:
   // Add a RenderWindow to the list.

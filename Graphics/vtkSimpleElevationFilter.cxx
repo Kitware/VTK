@@ -44,19 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-//------------------------------------------------------------------------------
-vtkSimpleElevationFilter* vtkSimpleElevationFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkSimpleElevationFilter");
-  if(ret)
-    {
-    return (vtkSimpleElevationFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkSimpleElevationFilter;
-}
-
+vtkCxxRevisionMacro(vtkSimpleElevationFilter, "1.12");
+vtkStandardNewMacro(vtkSimpleElevationFilter);
 
 // Construct object with LowPoint=(0,0,0) and HighPoint=(0,0,1). Scalar
 // range is (0,1).
@@ -135,7 +124,7 @@ void vtkSimpleElevationFilter::Execute()
 
 void vtkSimpleElevationFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToDataSetFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Vector: (" << this->Vector[0] << ", "
      << this->Vector[1] << ", " << this->Vector[2] << ")\n";

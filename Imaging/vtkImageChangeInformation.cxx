@@ -39,24 +39,11 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
 #include "vtkImageChangeInformation.h"
 #include "vtkObjectFactory.h"
 
-
-
-//----------------------------------------------------------------------------
-vtkImageChangeInformation* vtkImageChangeInformation::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageChangeInformation");
-  if(ret)
-    {
-    return (vtkImageChangeInformation*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageChangeInformation;
-}
+vtkCxxRevisionMacro(vtkImageChangeInformation, "1.5");
+vtkStandardNewMacro(vtkImageChangeInformation);
 
 //----------------------------------------------------------------------------
 vtkImageChangeInformation::vtkImageChangeInformation()
@@ -91,7 +78,7 @@ vtkImageChangeInformation::~vtkImageChangeInformation()
 //----------------------------------------------------------------------------
 void vtkImageChangeInformation::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageToImageFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "InformationInput: (" 
      << this->InformationInput << ")" << endl;

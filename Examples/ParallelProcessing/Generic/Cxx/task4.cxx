@@ -12,7 +12,7 @@ void task4(double data)
   // Synthetic image source.
   vtkRTAnalyticSource* source1 = vtkRTAnalyticSource::New();
   source1->SetWholeExtent (-1*extent, extent, -1*extent, extent, 
-	  -1*extent ,extent );
+          -1*extent ,extent );
   source1->SetCenter(0, 0, 0);
   source1->SetStandardDeviation( 0.5 );
   source1->SetMaximum( 255.0 );
@@ -38,7 +38,7 @@ void task4(double data)
   vtkAssignAttribute* aa = vtkAssignAttribute::New();
   aa->SetInput(mask->GetOutput());
   aa->Assign(vtkDataSetAttributes::SCALARS, vtkDataSetAttributes::VECTORS,
-	     vtkAssignAttribute::POINT_DATA);
+             vtkAssignAttribute::POINT_DATA);
 
   vtkGlyphSource2D* arrow = vtkGlyphSource2D::New();
   arrow->SetGlyphTypeToArrow();

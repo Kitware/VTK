@@ -69,7 +69,7 @@ class VTK_PARALLEL_EXPORT vtkSharedMemoryCommunicator : public vtkCommunicator
 
 public:
 
-  vtkTypeMacro( vtkSharedMemoryCommunicator,vtkObject);
+  vtkTypeRevisionMacro( vtkSharedMemoryCommunicator,vtkObject);
   
   // Description:
   // Creates an empty communicator.

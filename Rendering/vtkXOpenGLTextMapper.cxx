@@ -44,18 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkgluPickMatrix.h"
 
-//--------------------------------------------------------------------------
-vtkXOpenGLTextMapper* vtkXOpenGLTextMapper::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkXOpenGLTextMapper");
-  if(ret)
-    {
-    return (vtkXOpenGLTextMapper*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkXOpenGLTextMapper;
-}
+vtkCxxRevisionMacro(vtkXOpenGLTextMapper, "1.29");
+vtkStandardNewMacro(vtkXOpenGLTextMapper);
 
 struct vtkFontStruct
 {

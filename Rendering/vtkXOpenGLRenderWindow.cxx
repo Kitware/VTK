@@ -56,18 +56,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-//-----------------------------------------------------------------------------
-vtkXOpenGLRenderWindow* vtkXOpenGLRenderWindow::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkXOpenGLRenderWindow");
-  if(ret)
-    {
-    return (vtkXOpenGLRenderWindow*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkXOpenGLRenderWindow;
-}
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.11");
+vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
 
@@ -796,7 +786,7 @@ Colormap vtkXOpenGLRenderWindow::GetDesiredColormap ()
 
 void vtkXOpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkOpenGLRenderWindow::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "ContextId: " << this->ContextId << "\n";
 #ifdef VTK_OPENGL_HAS_OSMESA

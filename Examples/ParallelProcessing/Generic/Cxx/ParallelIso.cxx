@@ -32,7 +32,7 @@ static const int PORT_TAG=999;
 
 // call back to set the iso surface value.
 void SetIsoValueRMI(void *localArg, void *remoteArg, 
-		  int remoteArgLen, int id)
+                  int remoteArgLen, int id)
 { 
   float val;
 
@@ -181,10 +181,10 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
       // set the local value
       SetIsoValueRMI((void*)iso, NULL, 0, 0);
       for (i = 1; i < numProcs; ++i)
-	{
-	// trigger the RMI to change the iso surface value.
-	controller->TriggerRMI(i, ISO_VALUE_RMI_TAG);      
-	}
+        {
+        // trigger the RMI to change the iso surface value.
+        controller->TriggerRMI(i, ISO_VALUE_RMI_TAG);      
+        }
       
       // Time the rendering. Note that the execution on all processes
       // start only after Update()
@@ -194,7 +194,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
       numTris = iso->GetOutput()->GetNumberOfCells();
       val = iso->GetValue(0);
       cerr << "Update " << val << " took " << timer->GetElapsedTime() 
-	   << " seconds to produce " << numTris << " triangles\n";
+           << " seconds to produce " << numTris << " triangles\n";
       
       // now render the results
       renWindow->Render();
@@ -237,7 +237,7 @@ int main( int argc, char* argv[] )
 
   // Use this method to get the place of the data directory.
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, 
-						     "Data/headsq/quarter");
+                                                     "Data/headsq/quarter");
 
   controller->SetSingleMethod(MyMain, reinterpret_cast<void*>(fname));
 

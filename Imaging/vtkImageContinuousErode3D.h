@@ -61,7 +61,7 @@ public:
   // Construct an instance of vtkImageContinuousErode3D filter.
   // By default zero values are eroded.
   static vtkImageContinuousErode3D *New();
-  vtkTypeMacro(vtkImageContinuousErode3D,vtkImageSpatialFilter);
+  vtkTypeRevisionMacro(vtkImageContinuousErode3D,vtkImageSpatialFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

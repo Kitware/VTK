@@ -42,20 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageMapToColors.h"
 #include "vtkObjectFactory.h"
 
-
-
-//----------------------------------------------------------------------------
-vtkImageMapToColors* vtkImageMapToColors::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageMapToColors");
-  if(ret)
-    {
-    return (vtkImageMapToColors*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageMapToColors;
-}
+vtkCxxRevisionMacro(vtkImageMapToColors, "1.16");
+vtkStandardNewMacro(vtkImageMapToColors);
 
 //----------------------------------------------------------------------------
 // Constructor sets default values
@@ -268,7 +256,7 @@ void vtkImageMapToColors::ThreadedExecute(vtkImageData *inData,
 
 void vtkImageMapToColors::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageToImageFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "OutputFormat: " << 
     (this->OutputFormat == VTK_RGBA ? "RGBA" : 

@@ -57,7 +57,7 @@ class VTK_GRAPHICS_EXPORT vtkDiskSource : public vtkPolyDataSource
 {
 public:
   static vtkDiskSource *New();
-  vtkTypeMacro(vtkDiskSource,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkDiskSource,vtkPolyDataSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

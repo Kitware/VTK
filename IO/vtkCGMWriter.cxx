@@ -45,6 +45,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMath.h"
 #include "vtkUnsignedCharArray.h"
 
+vtkCxxRevisionMacro(vtkCGMWriter, "1.6");
+
 vtkCGMWriter::vtkCGMWriter()
 {
   this->Viewport = NULL;
@@ -788,7 +790,7 @@ void vtkCGMWriter::WriteData()
 
 void vtkCGMWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataWriter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   if ( this->Viewport )
     {

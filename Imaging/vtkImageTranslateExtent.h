@@ -53,7 +53,7 @@ class VTK_IMAGING_EXPORT vtkImageTranslateExtent : public vtkImageToImageFilter
 {
 public:
   static vtkImageTranslateExtent *New();
-  vtkTypeMacro(vtkImageTranslateExtent,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageTranslateExtent,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

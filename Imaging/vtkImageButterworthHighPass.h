@@ -62,7 +62,7 @@ class VTK_IMAGING_EXPORT vtkImageButterworthHighPass : public vtkImageToImageFil
 {
 public:
   static vtkImageButterworthHighPass *New();
-  vtkTypeMacro(vtkImageButterworthHighPass,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageButterworthHighPass,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -44,19 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkVolumeMapper.h"
 #include "vtkObjectFactory.h"
 
-//---------------------------------------------------------------------------
-vtkPointPicker* vtkPointPicker::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPointPicker");
-  if(ret)
-    {
-    return (vtkPointPicker*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkPointPicker;
-}
-
+vtkCxxRevisionMacro(vtkPointPicker, "1.26");
+vtkStandardNewMacro(vtkPointPicker);
 
 vtkPointPicker::vtkPointPicker()
 {
@@ -159,7 +148,7 @@ void vtkPointPicker::Initialize()
 
 void vtkPointPicker::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkPicker::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Point Id: " << this->PointId << "\n";
 }

@@ -44,18 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-//-----------------------------------------------------------------------
-vtkRuledSurfaceFilter* vtkRuledSurfaceFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkRuledSurfaceFilter");
-  if(ret)
-    {
-    return (vtkRuledSurfaceFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkRuledSurfaceFilter;
-}
+vtkCxxRevisionMacro(vtkRuledSurfaceFilter, "1.14");
+vtkStandardNewMacro(vtkRuledSurfaceFilter);
 
 vtkRuledSurfaceFilter::vtkRuledSurfaceFilter()
 {
@@ -504,7 +494,7 @@ const char *vtkRuledSurfaceFilter::GetRuledModeAsString(void)
 
 void vtkRuledSurfaceFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Distance Factor: " << this->DistanceFactor << "\n";
   os << indent << "On Ratio: " << this->OnRatio << "\n";

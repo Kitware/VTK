@@ -57,7 +57,7 @@ class VTK_IMAGING_EXPORT vtkImageCheckerboard : public vtkImageTwoInputFilter
 {
 public:
   static vtkImageCheckerboard *New();
-  vtkTypeMacro(vtkImageCheckerboard,vtkImageTwoInputFilter);
+  vtkTypeRevisionMacro(vtkImageCheckerboard,vtkImageTwoInputFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

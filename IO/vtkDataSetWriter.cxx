@@ -47,23 +47,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkRectilinearGridWriter.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkDataSetWriter* vtkDataSetWriter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkDataSetWriter");
-  if(ret)
-    {
-    return (vtkDataSetWriter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkDataSetWriter;
-}
-
-
-
+vtkCxxRevisionMacro(vtkDataSetWriter, "1.32");
+vtkStandardNewMacro(vtkDataSetWriter);
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.
@@ -163,5 +148,5 @@ void vtkDataSetWriter::WriteData()
 
 void vtkDataSetWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataWriter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 }

@@ -54,7 +54,7 @@ class VTK_COMMON_EXPORT vtkPolyVertex : public vtkCell
 {
 public:
   static vtkPolyVertex *New();
-  vtkTypeMacro(vtkPolyVertex,vtkCell);
+  vtkTypeRevisionMacro(vtkPolyVertex,vtkCell);
 
   // Description:
   // See the vtkCell API for descriptions of these methods.

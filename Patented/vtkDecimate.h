@@ -175,7 +175,7 @@ class VTK_PATENTED_EXPORT vtkDecimate : public vtkPolyDataToPolyDataFilter
 {
 public:
   static vtkDecimate *New();
-  vtkTypeMacro(vtkDecimate,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkDecimate,vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -58,7 +58,7 @@ class VTK_PARALLEL_EXPORT vtkTransmitPolyDataPiece : public vtkPolyDataToPolyDat
 {
 public:
   static vtkTransmitPolyDataPiece *New();
-  vtkTypeMacro(vtkTransmitPolyDataPiece, vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkTransmitPolyDataPiece, vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

@@ -58,7 +58,7 @@ class VTK_IMAGING_EXPORT vtkImageAppendComponents : public vtkImageMultipleInput
 {
 public:
   static vtkImageAppendComponents *New();
-  vtkTypeMacro(vtkImageAppendComponents,vtkImageMultipleInputFilter);
+  vtkTypeRevisionMacro(vtkImageAppendComponents,vtkImageMultipleInputFilter);
 
 #ifndef VTK_REMOVE_LEGACY_CODE
   // Description:

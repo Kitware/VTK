@@ -67,7 +67,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_GRAPHICS_EXPORT vtkRectilinearGridGeometryFilter : public vtkRectilinearGridToPolyDataFilter
 {
 public:
-  vtkTypeMacro(vtkRectilinearGridGeometryFilter,vtkRectilinearGridToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkRectilinearGridGeometryFilter,vtkRectilinearGridToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

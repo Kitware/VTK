@@ -139,7 +139,7 @@ public:
 class VTK_GRAPHICS_EXPORT vtkStreamer : public vtkDataSetToPolyDataFilter
 {
 public:
-  vtkTypeMacro(vtkStreamer,vtkDataSetToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkStreamer,vtkDataSetToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -62,7 +62,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_RENDERING_EXPORT vtkVolumeRayCastIsosurfaceFunction : public vtkVolumeRayCastFunction
 {
 public:
-  vtkTypeMacro(vtkVolumeRayCastIsosurfaceFunction,vtkVolumeRayCastFunction);
+  vtkTypeRevisionMacro(vtkVolumeRayCastIsosurfaceFunction,vtkVolumeRayCastFunction);
   void PrintSelf( ostream& os, vtkIndent index );
 
   // Description:

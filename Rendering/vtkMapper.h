@@ -97,7 +97,7 @@ class vtkActor;
 class VTK_RENDERING_EXPORT vtkMapper : public vtkAbstractMapper3D
 {
 public:
-  vtkTypeMacro(vtkMapper,vtkAbstractMapper3D);
+  vtkTypeRevisionMacro(vtkMapper,vtkAbstractMapper3D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -61,7 +61,7 @@ class VTK_COMMON_EXPORT vtkMatrixToHomogeneousTransform :
 {
  public:
   static vtkMatrixToHomogeneousTransform *New();
-  vtkTypeMacro(vtkMatrixToHomogeneousTransform,vtkHomogeneousTransform);
+  vtkTypeRevisionMacro(vtkMatrixToHomogeneousTransform,vtkHomogeneousTransform);
   void PrintSelf (ostream& os, vtkIndent indent);
 
   // Set the input matrix.  Any modifications to the matrix will be

@@ -47,18 +47,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPolyData.h"
 #include "vtkObjectFactory.h"
 
-//-------------------------------------------------------------------------
-vtkDelaunay3D* vtkDelaunay3D::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkDelaunay3D");
-  if(ret)
-    {
-    return (vtkDelaunay3D*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkDelaunay3D;
-}
+vtkCxxRevisionMacro(vtkDelaunay3D, "1.59");
+vtkStandardNewMacro(vtkDelaunay3D);
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.
@@ -986,7 +976,7 @@ void vtkDelaunay3D::InsertTetra(vtkUnstructuredGrid *Mesh, vtkPoints *points,
 
 void vtkDelaunay3D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkUnstructuredGridSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Alpha: " << this->Alpha << "\n";
   os << indent << "Tolerance: " << this->Tolerance << "\n";

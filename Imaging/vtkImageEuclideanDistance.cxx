@@ -41,22 +41,13 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
 #include "vtkImageEuclideanDistance.h"
 #include "vtkObjectFactory.h"
 
-//--------------------------------------------------------------------------
-vtkImageEuclideanDistance* vtkImageEuclideanDistance::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageEuclideanDistance");
-  if(ret)
-    {
-    return (vtkImageEuclideanDistance*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageEuclideanDistance;
-}
+#include <math.h>
+
+vtkCxxRevisionMacro(vtkImageEuclideanDistance, "1.11");
+vtkStandardNewMacro(vtkImageEuclideanDistance);
 
 //----------------------------------------------------------------------------
 // This defines the default values for the EDT parameters 
@@ -742,7 +733,7 @@ int vtkImageEuclideanDistance::SplitExtent(int splitExt[6], int startExt[6],
 
 void vtkImageEuclideanDistance::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageDecomposeFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Initialize: " 
      << (this->Initialize ? "On\n" : "Off\n");

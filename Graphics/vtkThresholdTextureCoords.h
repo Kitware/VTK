@@ -68,7 +68,7 @@ class VTK_GRAPHICS_EXPORT vtkThresholdTextureCoords : public vtkDataSetToDataSet
 {
 public:
   static vtkThresholdTextureCoords *New();
-  vtkTypeMacro(vtkThresholdTextureCoords,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkThresholdTextureCoords,vtkDataSetToDataSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

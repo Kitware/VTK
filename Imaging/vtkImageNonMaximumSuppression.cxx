@@ -39,29 +39,13 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
-
 #include "vtkImageNonMaximumSuppression.h"
 #include "vtkObjectFactory.h"
 
+#include <math.h>
 
-
-//------------------------------------------------------------------------------
-vtkImageNonMaximumSuppression* vtkImageNonMaximumSuppression::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageNonMaximumSuppression");
-  if(ret)
-    {
-    return (vtkImageNonMaximumSuppression*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageNonMaximumSuppression;
-}
-
-
-
-
+vtkCxxRevisionMacro(vtkImageNonMaximumSuppression, "1.43");
+vtkStandardNewMacro(vtkImageNonMaximumSuppression);
 
 //----------------------------------------------------------------------------
 // Construct an instance of vtkImageNonMaximumSuppression fitler.
@@ -365,7 +349,7 @@ void vtkImageNonMaximumSuppression::ThreadedExecute(vtkImageData **inData,
 
 void vtkImageNonMaximumSuppression::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageTwoInputFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Dimensionality: " << this->Dimensionality << "\n";
 

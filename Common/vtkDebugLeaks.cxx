@@ -45,6 +45,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkOutputWindow.h"
 #include "vtkCriticalSection.h"
 
+vtkCxxRevisionMacro(vtkDebugLeaks, "1.16");
+vtkStandardNewMacro(vtkDebugLeaks);
+
 int vtkDebugLeaks::PromptUser = 1;
 
 void vtkDebugLeaks::PromptUserOn()
@@ -137,21 +140,6 @@ vtkDebugLeaksHashTable::vtkDebugLeaksHashTable()
     this->Nodes[i] = NULL;
     }
 }
-
-
-
-vtkDebugLeaks* vtkDebugLeaks::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkDebugLeaks");
-  if(ret)
-    {
-    return (vtkDebugLeaks*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkDebugLeaks;
-}
-
 
 void vtkDebugLeaksHashTable::IncrementCount(const char * name)
 {

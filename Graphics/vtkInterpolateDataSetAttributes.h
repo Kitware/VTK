@@ -64,7 +64,7 @@ class VTK_GRAPHICS_EXPORT vtkInterpolateDataSetAttributes : public vtkDataSetToD
 {
 public:
   static vtkInterpolateDataSetAttributes *New();
-  vtkTypeMacro(vtkInterpolateDataSetAttributes,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkInterpolateDataSetAttributes,vtkDataSetToDataSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

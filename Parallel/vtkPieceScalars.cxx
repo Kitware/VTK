@@ -45,18 +45,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
 
-//----------------------------------------------------------------------------
-vtkPieceScalars* vtkPieceScalars::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPieceScalars");
-  if(ret)
-    {
-    return (vtkPieceScalars*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkPieceScalars;
-}
+vtkCxxRevisionMacro(vtkPieceScalars, "1.9");
+vtkStandardNewMacro(vtkPieceScalars);
 
 //----------------------------------------------------------------------------
 vtkPieceScalars::vtkPieceScalars()
@@ -152,7 +142,7 @@ vtkFloatArray *vtkPieceScalars::MakeRandomScalars(int piece, vtkIdType num)
 //----------------------------------------------------------------------------
 void vtkPieceScalars::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToDataSetFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
   
   os << indent << "RandomMode: " << this->RandomMode << endl;
   if (this->CellScalarsFlag)

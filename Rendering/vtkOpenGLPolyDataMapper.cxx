@@ -65,18 +65,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkCommand.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-//--------------------------------------------------------------------------
-vtkOpenGLPolyDataMapper* vtkOpenGLPolyDataMapper::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkOpenGLPolyDataMapper");
-  if(ret)
-    {
-    return (vtkOpenGLPolyDataMapper*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkOpenGLPolyDataMapper;
-}
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.65");
+vtkStandardNewMacro(vtkOpenGLPolyDataMapper);
 #endif
 
 // Construct empty object.

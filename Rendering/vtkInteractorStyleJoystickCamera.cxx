@@ -43,19 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-//----------------------------------------------------------------------------
-vtkInteractorStyleJoystickCamera *vtkInteractorStyleJoystickCamera::New() 
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkInteractorStyleJoystickCamera");
-  if(ret)
-    {
-    return (vtkInteractorStyleJoystickCamera*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkInteractorStyleJoystickCamera;
-}
-
+vtkCxxRevisionMacro(vtkInteractorStyleJoystickCamera, "1.12");
+vtkStandardNewMacro(vtkInteractorStyleJoystickCamera);
 
 //----------------------------------------------------------------------------
 vtkInteractorStyleJoystickCamera::vtkInteractorStyleJoystickCamera() 
@@ -260,6 +249,6 @@ void vtkInteractorStyleJoystickCamera::OnRightButtonUp(int vtkNotUsed(ctrl),
 //----------------------------------------------------------------------------
 void vtkInteractorStyleJoystickCamera::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkInteractorStyle::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 }
 

@@ -43,23 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-
-
-//----------------------------------------------------------------------------
-vtkAxes* vtkAxes::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkAxes");
-  if(ret)
-    {
-    return (vtkAxes*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkAxes;
-}
-
-
-
+vtkCxxRevisionMacro(vtkAxes, "1.38");
+vtkStandardNewMacro(vtkAxes);
 
 // Construct with origin=(0,0,0) and scale factor=1.
 vtkAxes::vtkAxes()
@@ -200,7 +185,7 @@ int vtkAxes::ComputeDivisionExtents(vtkDataObject *vtkNotUsed(output),
 
 void vtkAxes::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
   os << indent << "Origin: (" << this->Origin[0] << ", "
                << this->Origin[1] << ", "
                << this->Origin[2] << ")\n";

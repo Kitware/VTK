@@ -43,6 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkLight.h"
 #include "vtkGraphicsFactory.h"
 
+vtkCxxRevisionMacro(vtkLight, "1.45");
+
 // Create a light with the focal point at the origin and its position
 // set to (0,0,1). The lights color is white, intensity=1, and the light 
 // is turned on. 
@@ -231,7 +233,7 @@ void vtkLight::DeepCopy(vtkLight *light)
 
 void vtkLight::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "AttenuationValues: (" << this->AttenuationValues[0] << ", " 
     << this->AttenuationValues[1] << ", " << this->AttenuationValues[2] << ")\n";

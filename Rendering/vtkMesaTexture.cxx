@@ -67,15 +67,5 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #undef vtkOpenGLTexture
 #undef vtkOpenGLRenderWindow
 
-//------------------------------------------------------------------------------
-vtkMesaTexture* vtkMesaTexture::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMesaTexture");
-  if(ret)
-    {
-    return (vtkMesaTexture*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkMesaTexture;
-}
+vtkCxxRevisionMacro(vtkMesaTexture, "1.13");
+vtkStandardNewMacro(vtkMesaTexture);

@@ -104,7 +104,7 @@ public:
 class VTK_GRAPHICS_EXPORT vtkOBBTree : public vtkCellLocator
 {
 public:
-  vtkTypeMacro(vtkOBBTree,vtkCellLocator);
+  vtkTypeRevisionMacro(vtkOBBTree,vtkCellLocator);
 
   // Description:
   // Construct with automatic computation of divisions, averaging

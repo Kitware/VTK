@@ -39,29 +39,13 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
-
 #include "vtkImageNormalize.h"
 #include "vtkObjectFactory.h"
 
+#include <math.h>
 
-
-//------------------------------------------------------------------------------
-vtkImageNormalize* vtkImageNormalize::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageNormalize");
-  if(ret)
-    {
-    return (vtkImageNormalize*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageNormalize;
-}
-
-
-
-
+vtkCxxRevisionMacro(vtkImageNormalize, "1.8");
+vtkStandardNewMacro(vtkImageNormalize);
 
 //----------------------------------------------------------------------------
 // This method tells the superclass that the first axis will collapse.

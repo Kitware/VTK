@@ -53,7 +53,7 @@ class VTK_IMAGING_EXPORT vtkImageGridSource : public vtkImageSource
 {
 public:
   static vtkImageGridSource *New();
-  vtkTypeMacro(vtkImageGridSource,vtkImageSource);
+  vtkTypeRevisionMacro(vtkImageGridSource,vtkImageSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

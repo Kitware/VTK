@@ -70,7 +70,7 @@ class vtkScalarTree;
 class VTK_GRAPHICS_EXPORT vtkBandedPolyDataContourFilter : public vtkPolyDataToPolyDataFilter
 {
 public:
-  vtkTypeMacro(vtkBandedPolyDataContourFilter,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkBandedPolyDataContourFilter,vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

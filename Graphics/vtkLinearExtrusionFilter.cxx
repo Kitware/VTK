@@ -42,18 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkLinearExtrusionFilter.h"
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
-vtkLinearExtrusionFilter* vtkLinearExtrusionFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkLinearExtrusionFilter");
-  if(ret)
-    {
-    return (vtkLinearExtrusionFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkLinearExtrusionFilter;
-}
+vtkCxxRevisionMacro(vtkLinearExtrusionFilter, "1.52");
+vtkStandardNewMacro(vtkLinearExtrusionFilter);
 
 // Create object with normal extrusion type, capping on, scale factor=1.0,
 // vector (0,0,1), and extrusion point (0,0,0).
@@ -418,7 +408,7 @@ void vtkLinearExtrusionFilter::Execute()
 
 void vtkLinearExtrusionFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   if ( this->ExtrusionType == VTK_VECTOR_EXTRUSION )
     {

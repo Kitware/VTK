@@ -43,6 +43,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkDataSetAttributes.h"
 
+vtkCxxRevisionMacro(vtkAssignAttribute, "1.4");
+vtkStandardNewMacro(vtkAssignAttribute);
+
 char vtkAssignAttribute::AttributeLocationNames[2][12] 
 = { "POINT_DATA",
     "CELL_DATA" };
@@ -53,19 +56,6 @@ char vtkAssignAttribute::AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][10
      "NORMALS",
      "TCOORDS",
      "TENSORS" };
-
-//--------------------------------------------------------------------------
-vtkAssignAttribute* vtkAssignAttribute::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkAssignAttribute");
-  if(ret)
-    {
-    return (vtkAssignAttribute*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkAssignAttribute;
-}
 
 vtkAssignAttribute::vtkAssignAttribute()
 {
@@ -254,7 +244,7 @@ void vtkAssignAttribute::Execute()
 
 void vtkAssignAttribute::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkDataSetToDataSetFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
   os << indent << "Field name: ";
   if (this->FieldName)
     {

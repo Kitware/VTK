@@ -43,18 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkImageData.h"
 
-//----------------------------------------------------------------------------
-vtkProbeFilter* vtkProbeFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkProbeFilter");
-  if(ret)
-    {
-    return (vtkProbeFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkProbeFilter;
-}
+vtkCxxRevisionMacro(vtkProbeFilter, "1.70");
+vtkStandardNewMacro(vtkProbeFilter);
 
 //----------------------------------------------------------------------------
 vtkProbeFilter::vtkProbeFilter()
@@ -274,7 +264,7 @@ void vtkProbeFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSet *source = this->GetSource();
 
-  vtkDataSetToDataSetFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
   os << indent << "Source: " << source << "\n";
   if (this->SpatialMatch)
     {

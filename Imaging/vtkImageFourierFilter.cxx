@@ -39,17 +39,16 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
 #include "vtkImageFourierFilter.h"
+
+#include <math.h>
+
+vtkCxxRevisionMacro(vtkImageFourierFilter, "1.15");
 
 
 /*=========================================================================
         Vectors of complex numbers.
 =========================================================================*/
-
-
-
-
 
 //----------------------------------------------------------------------------
 // This function calculates one step of a FFT.

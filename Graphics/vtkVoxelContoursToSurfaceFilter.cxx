@@ -45,23 +45,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkAppendPolyData.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkVoxelContoursToSurfaceFilter* vtkVoxelContoursToSurfaceFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkVoxelContoursToSurfaceFilter");
-  if(ret)
-    {
-    return (vtkVoxelContoursToSurfaceFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkVoxelContoursToSurfaceFilter;
-}
-
-
-
+vtkCxxRevisionMacro(vtkVoxelContoursToSurfaceFilter, "1.17");
+vtkStandardNewMacro(vtkVoxelContoursToSurfaceFilter);
 
 vtkVoxelContoursToSurfaceFilter::vtkVoxelContoursToSurfaceFilter()
 {
@@ -709,7 +694,7 @@ void vtkVoxelContoursToSurfaceFilter::Execute()
 
 void vtkVoxelContoursToSurfaceFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Memory Limit (in bytes): " << 
     this->MemoryLimitInBytes << endl;

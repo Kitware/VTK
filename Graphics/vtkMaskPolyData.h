@@ -53,7 +53,7 @@ class VTK_GRAPHICS_EXPORT vtkMaskPolyData : public vtkPolyDataToPolyDataFilter
 {
 public:
   static vtkMaskPolyData *New();
-  vtkTypeMacro(vtkMaskPolyData,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkMaskPolyData,vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -38,24 +38,13 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
 #include "vtkWindowLevelLookupTable.h"
 #include "vtkObjectFactory.h"
 
+#include <math.h>
 
-
-//----------------------------------------------------------------------------
-vtkWindowLevelLookupTable* vtkWindowLevelLookupTable::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkWindowLevelLookupTable");
-  if(ret)
-    {
-    return (vtkWindowLevelLookupTable*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkWindowLevelLookupTable;
-}
+vtkCxxRevisionMacro(vtkWindowLevelLookupTable, "1.17");
+vtkStandardNewMacro(vtkWindowLevelLookupTable);
 
 vtkWindowLevelLookupTable::vtkWindowLevelLookupTable(int sze, int ext)
   : vtkLookupTable(sze, ext)
@@ -168,7 +157,7 @@ void vtkWindowLevelLookupTable::SetInverseVideo(int iv)
 
 void vtkWindowLevelLookupTable::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkLookupTable::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Window: " << this->Window << "\n";
   os << indent << "Level: " << this->Level << "\n";

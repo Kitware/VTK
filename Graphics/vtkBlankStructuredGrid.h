@@ -63,7 +63,7 @@ class VTK_GRAPHICS_EXPORT vtkBlankStructuredGrid : public vtkStructuredGridToStr
 {
 public:
   static vtkBlankStructuredGrid *New();
-  vtkTypeMacro(vtkBlankStructuredGrid,vtkStructuredGridToStructuredGridFilter);
+  vtkTypeRevisionMacro(vtkBlankStructuredGrid,vtkStructuredGridToStructuredGridFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

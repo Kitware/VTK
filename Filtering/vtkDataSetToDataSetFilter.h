@@ -78,7 +78,7 @@ class VTK_FILTERING_EXPORT vtkDataSetToDataSetFilter : public vtkDataSetSource
 {
 
 public:
-  vtkTypeMacro(vtkDataSetToDataSetFilter,vtkDataSetSource);
+  vtkTypeRevisionMacro(vtkDataSetToDataSetFilter,vtkDataSetSource);
 
   // Description:
   // Specify the input data or filter.

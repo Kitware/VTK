@@ -89,7 +89,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_GRAPHICS_EXPORT vtkClipPolyData : public vtkPolyDataToPolyDataFilter
 {
 public:
-  vtkTypeMacro(vtkClipPolyData,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkClipPolyData,vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

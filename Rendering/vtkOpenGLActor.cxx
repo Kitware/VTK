@@ -52,18 +52,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-//-------------------------------------------------------------------------
-vtkOpenGLActor* vtkOpenGLActor::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkOpenGLActor");
-  if(ret)
-    {
-    return (vtkOpenGLActor*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkOpenGLActor;
-}
+vtkCxxRevisionMacro(vtkOpenGLActor, "1.22");
+vtkStandardNewMacro(vtkOpenGLActor);
 #endif
 
 // Actual actor render method.

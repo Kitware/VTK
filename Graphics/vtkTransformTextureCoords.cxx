@@ -44,18 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-//-------------------------------------------------------------------------
-vtkTransformTextureCoords* vtkTransformTextureCoords::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTransformTextureCoords");
-  if(ret)
-    {
-    return (vtkTransformTextureCoords*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkTransformTextureCoords;
-}
+vtkCxxRevisionMacro(vtkTransformTextureCoords, "1.28");
+vtkStandardNewMacro(vtkTransformTextureCoords);
 
 // Create instance with Origin (0.5,0.5,0.5); Position (0,0,0); and Scale
 // set to (1,1,1). Rotation of the texture coordinates is turned off.
@@ -188,7 +178,7 @@ void vtkTransformTextureCoords::Execute()
 
 void vtkTransformTextureCoords::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToDataSetFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Scale: (" 
      << this->Scale[0] << ", " 

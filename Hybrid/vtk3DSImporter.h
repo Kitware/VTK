@@ -60,7 +60,7 @@ class VTK_HYBRID_EXPORT vtk3DSImporter : public vtkImporter
 public:
   static vtk3DSImporter *New();
 
-  vtkTypeMacro(vtk3DSImporter,vtkImporter);
+  vtkTypeRevisionMacro(vtk3DSImporter,vtkImporter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

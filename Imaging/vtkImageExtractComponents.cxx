@@ -39,29 +39,13 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
-
 #include "vtkImageExtractComponents.h"
 #include "vtkObjectFactory.h"
 
+#include <math.h>
 
-
-//------------------------------------------------------------------------------
-vtkImageExtractComponents* vtkImageExtractComponents::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageExtractComponents");
-  if(ret)
-    {
-    return (vtkImageExtractComponents*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageExtractComponents;
-}
-
-
-
-
+vtkCxxRevisionMacro(vtkImageExtractComponents, "1.24");
+vtkStandardNewMacro(vtkImageExtractComponents);
 
 //----------------------------------------------------------------------------
 vtkImageExtractComponents::vtkImageExtractComponents()
@@ -289,7 +273,7 @@ void vtkImageExtractComponents::ThreadedExecute(vtkImageData *inData,
 
 void vtkImageExtractComponents::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageToImageFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "NumberOfComponents: " << this->NumberOfComponents << endl;
   os << indent << "Components: ( "

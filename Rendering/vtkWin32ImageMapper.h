@@ -61,7 +61,7 @@ class VTK_RENDERING_EXPORT vtkWin32ImageMapper : public vtkImageMapper
 {
 public:
   static vtkWin32ImageMapper *New();
-  vtkTypeMacro(vtkWin32ImageMapper,vtkImageMapper);
+  vtkTypeRevisionMacro(vtkWin32ImageMapper,vtkImageMapper);
 
   // Description:
   // Handle the render method.

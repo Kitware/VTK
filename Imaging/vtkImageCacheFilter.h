@@ -57,7 +57,7 @@ class VTK_IMAGING_EXPORT vtkImageCacheFilter : public vtkImageToImageFilter
 {
 public:
   static vtkImageCacheFilter *New();
-  vtkTypeMacro(vtkImageCacheFilter,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageCacheFilter,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

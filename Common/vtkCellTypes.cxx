@@ -42,19 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkCellTypes.h"
 #include "vtkObjectFactory.h"  
 
-
-//------------------------------------------------------------------------------
-vtkCellTypes* vtkCellTypes::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkCellTypes");
-  if(ret)
-    {
-    return (vtkCellTypes*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkCellTypes;
-}
+vtkCxxRevisionMacro(vtkCellTypes, "1.18");
+vtkStandardNewMacro(vtkCellTypes);
 
 vtkCellTypes::vtkCellTypes ()
 {

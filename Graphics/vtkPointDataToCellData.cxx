@@ -42,18 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPointDataToCellData.h"
 #include "vtkObjectFactory.h"
 
-//--------------------------------------------------------------------------
-vtkPointDataToCellData* vtkPointDataToCellData::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPointDataToCellData");
-  if(ret)
-    {
-    return (vtkPointDataToCellData*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkPointDataToCellData;
-}
+vtkCxxRevisionMacro(vtkPointDataToCellData, "1.20");
+vtkStandardNewMacro(vtkPointDataToCellData);
 
 // Instantiate object so that point data is not passed to output.
 vtkPointDataToCellData::vtkPointDataToCellData()
@@ -132,7 +122,7 @@ void vtkPointDataToCellData::Execute()
 
 void vtkPointDataToCellData::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToDataSetFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Pass Point Data: " << (this->PassPointData ? "On\n" : "Off\n");
 }

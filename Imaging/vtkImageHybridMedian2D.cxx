@@ -42,25 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageHybridMedian2D.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkImageHybridMedian2D* vtkImageHybridMedian2D::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageHybridMedian2D");
-  if(ret)
-    {
-    return (vtkImageHybridMedian2D*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageHybridMedian2D;
-}
-
-
-
-
-
+vtkCxxRevisionMacro(vtkImageHybridMedian2D, "1.13");
+vtkStandardNewMacro(vtkImageHybridMedian2D);
 
 //----------------------------------------------------------------------------
 vtkImageHybridMedian2D::vtkImageHybridMedian2D()

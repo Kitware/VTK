@@ -42,6 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkCell.h"
 #include "vtkMarchingSquaresCases.h"
 
+vtkCxxRevisionMacro(vtkCell, "1.51");
+
 // Construct cell.
 vtkCell::vtkCell()
 {
@@ -268,10 +270,10 @@ int vtkCell::GetParametricCenter(float pcoords[3])
 
 void vtkCell::PrintSelf(ostream& os, vtkIndent indent)
 {
+  this->Superclass::PrintSelf(os,indent);
+  
   int numIds=this->PointIds->GetNumberOfIds();
-
-  vtkObject::PrintSelf(os,indent);
-
+  
   os << indent << "Number Of Points: " << numIds << "\n";
 
   if ( numIds > 0 )

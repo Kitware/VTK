@@ -43,18 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
-vtkSubPixelPositionEdgels* vtkSubPixelPositionEdgels::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkSubPixelPositionEdgels");
-  if(ret)
-    {
-    return (vtkSubPixelPositionEdgels*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkSubPixelPositionEdgels;
-}
+vtkCxxRevisionMacro(vtkSubPixelPositionEdgels, "1.38");
+vtkStandardNewMacro(vtkSubPixelPositionEdgels);
 
 vtkSubPixelPositionEdgels::vtkSubPixelPositionEdgels()
 {
@@ -419,7 +409,7 @@ vtkStructuredPoints *vtkSubPixelPositionEdgels::GetGradMaps()
 // Print the state of the class.
 void vtkSubPixelPositionEdgels::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   if ( this->GetGradMaps() )
     {

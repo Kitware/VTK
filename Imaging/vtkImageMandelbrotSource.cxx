@@ -39,27 +39,12 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include "vtkImageData.h"
 #include "vtkImageMandelbrotSource.h"
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkImageMandelbrotSource* vtkImageMandelbrotSource::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageMandelbrotSource");
-  if(ret)
-    {
-    return (vtkImageMandelbrotSource*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageMandelbrotSource;
-}
-
-
-
+vtkCxxRevisionMacro(vtkImageMandelbrotSource, "1.29");
+vtkStandardNewMacro(vtkImageMandelbrotSource);
 
 //----------------------------------------------------------------------------
 vtkImageMandelbrotSource::vtkImageMandelbrotSource()
@@ -95,7 +80,7 @@ vtkImageMandelbrotSource::~vtkImageMandelbrotSource()
 //----------------------------------------------------------------------------
 void vtkImageMandelbrotSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "OriginC: (" << this->OriginCX[0] << ", "
      << this->OriginCX[1] << ")\n";

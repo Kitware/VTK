@@ -42,18 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageDataGeometryFilter.h"
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
-vtkImageDataGeometryFilter* vtkImageDataGeometryFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageDataGeometryFilter");
-  if(ret)
-    {
-    return (vtkImageDataGeometryFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageDataGeometryFilter;
-}
+vtkCxxRevisionMacro(vtkImageDataGeometryFilter, "1.3");
+vtkStandardNewMacro(vtkImageDataGeometryFilter);
 
 // Construct with initial extent of all the data
 vtkImageDataGeometryFilter::vtkImageDataGeometryFilter()
@@ -433,7 +423,7 @@ void vtkImageDataGeometryFilter::SetExtent(int extent[6])
 void vtkImageDataGeometryFilter::PrintSelf(ostream& os,
                                                   vtkIndent indent)
 {
-  vtkStructuredPointsToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Extent: \n";
   os << indent << "  Imin,Imax: (" << this->Extent[0] << ", " << this->Extent[1] << ")\n";

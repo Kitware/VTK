@@ -68,7 +68,7 @@ class vtkWindow;
 class VTK_RENDERING_EXPORT vtkVolume : public vtkProp3D
 {
 public:
-  vtkTypeMacro(vtkVolume,vtkProp3D);
+  vtkTypeRevisionMacro(vtkVolume,vtkProp3D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

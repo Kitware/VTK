@@ -39,30 +39,16 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
 #include "vtkEncodedGradientShader.h"
 #include "vtkVolume.h"
 #include "vtkRenderer.h"
 #include "vtkEncodedGradientEstimator.h"
 #include "vtkObjectFactory.h"
 
+#include <math.h>
 
-
-//------------------------------------------------------------------------------
-vtkEncodedGradientShader* vtkEncodedGradientShader::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkEncodedGradientShader");
-  if(ret)
-    {
-    return (vtkEncodedGradientShader*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkEncodedGradientShader;
-}
-
-
-
+vtkCxxRevisionMacro(vtkEncodedGradientShader, "1.21");
+vtkStandardNewMacro(vtkEncodedGradientShader);
 
 vtkEncodedGradientShader::vtkEncodedGradientShader()
 {
@@ -578,7 +564,7 @@ void vtkEncodedGradientShader::BuildShadingTable( int index,
 // Print the vtkEncodedGradientShader
 void vtkEncodedGradientShader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
   
   os << indent << "Zero Normal Diffuse Intensity: " <<
     this->ZeroNormalDiffuseIntensity << endl;

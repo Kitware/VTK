@@ -43,19 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkAxisActor2D.h"
 #include "vtkObjectFactory.h"
 
-
-//--------------------------------------------------------------------------
-vtkAxisActor2D* vtkAxisActor2D::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkAxisActor2D");
-  if(ret)
-    {
-      return (vtkAxisActor2D*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkAxisActor2D;
-}
+vtkCxxRevisionMacro(vtkAxisActor2D, "1.21");
+vtkStandardNewMacro(vtkAxisActor2D);
 
 // Instantiate this object.
 vtkAxisActor2D::vtkAxisActor2D()
@@ -231,7 +220,7 @@ void vtkAxisActor2D::ReleaseGraphicsResources(vtkWindow *win)
 
 void vtkAxisActor2D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkActor2D::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Title: " << (this->Title ? this->Title : "(none)") << "\n";
   os << indent << "Number Of Labels: " << this->NumberOfLabels << "\n";

@@ -59,7 +59,7 @@ class VTK_HYBRID_EXPORT vtkEarthSource : public vtkPolyDataSource
 {
 public:
   static vtkEarthSource *New();
-  vtkTypeMacro(vtkEarthSource,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkEarthSource,vtkPolyDataSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

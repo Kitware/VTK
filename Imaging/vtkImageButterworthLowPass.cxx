@@ -39,29 +39,13 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
 #include "vtkImageButterworthLowPass.h"
 #include "vtkObjectFactory.h"
 
+#include <math.h>
 
-
-//------------------------------------------------------------------------------
-vtkImageButterworthLowPass* vtkImageButterworthLowPass::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageButterworthLowPass");
-  if(ret)
-    {
-    return (vtkImageButterworthLowPass*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageButterworthLowPass;
-}
-
-
-
-
-
+vtkCxxRevisionMacro(vtkImageButterworthLowPass, "1.17");
+vtkStandardNewMacro(vtkImageButterworthLowPass);
 
 //----------------------------------------------------------------------------
 vtkImageButterworthLowPass::vtkImageButterworthLowPass()
@@ -256,7 +240,7 @@ void vtkImageButterworthLowPass::ThreadedExecute(vtkImageData *inData,
 
 void vtkImageButterworthLowPass::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageToImageFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Order: " << this->Order << "\n";
 

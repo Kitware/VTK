@@ -71,7 +71,7 @@ class vtkDataArray;
 class VTK_COMMON_EXPORT vtkScalarsToColors : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkScalarsToColors,vtkObject);
+  vtkTypeRevisionMacro(vtkScalarsToColors,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

@@ -39,31 +39,16 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
+#include "vtkImageReader.h"
+#include "vtkObjectFactory.h"
+#include "vtkByteSwap.h"
+
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
-#include "vtkByteSwap.h"
 
-#include "vtkImageReader.h"
-#include "vtkObjectFactory.h"
-
-
-
-//------------------------------------------------------------------------------
-vtkImageReader* vtkImageReader::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageReader");
-  if(ret)
-    {
-    return (vtkImageReader*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageReader;
-}
-
-
-
+vtkCxxRevisionMacro(vtkImageReader, "1.92");
+vtkStandardNewMacro(vtkImageReader);
 
 #ifdef read
 #undef read
@@ -103,7 +88,7 @@ void vtkImageReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   int idx;
   
-  vtkImageReader2::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Data Mask: " << this->DataMask << "\n";
   os << indent << "DataVOI: (" << this->DataVOI[0];

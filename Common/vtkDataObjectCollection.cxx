@@ -42,18 +42,5 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkDataObjectCollection.h"
 #include "vtkObjectFactory.h"
 
-//-------------------------------------------------------------------------
-vtkDataObjectCollection* vtkDataObjectCollection::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkDataObjectCollection");
-  if(ret)
-    {
-    return (vtkDataObjectCollection*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkDataObjectCollection;
-}
-
-
-
+vtkCxxRevisionMacro(vtkDataObjectCollection, "1.3");
+vtkStandardNewMacro(vtkDataObjectCollection);

@@ -57,7 +57,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_COMMON_EXPORT vtkTransformCollection : public vtkCollection
 {
 public:
-  vtkTypeMacro(vtkTransformCollection,vtkCollection);
+  vtkTypeRevisionMacro(vtkTransformCollection,vtkCollection);
   static vtkTransformCollection *New();
 
   // Description:

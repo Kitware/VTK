@@ -84,7 +84,7 @@ class VTK_PARALLEL_EXPORT vtkTreeComposite : public vtkCompositeManager
 {
 public:
   static vtkTreeComposite *New();
-  vtkTypeMacro(vtkTreeComposite,vtkCompositeManager);
+  vtkTypeRevisionMacro(vtkTreeComposite,vtkCompositeManager);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:

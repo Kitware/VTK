@@ -64,7 +64,7 @@ class VTK_GRAPHICS_EXPORT vtkPolyDataStreamer : public vtkPolyDataToPolyDataFilt
 public:
   static vtkPolyDataStreamer *New();
 
-  vtkTypeMacro(vtkPolyDataStreamer,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkPolyDataStreamer,vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

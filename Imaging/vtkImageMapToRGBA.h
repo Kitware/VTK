@@ -57,7 +57,7 @@ class VTK_IMAGING_EXPORT vtkImageMapToRGBA : public vtkImageMapToColors
 {
 public:
   static vtkImageMapToRGBA *New();
-  vtkTypeMacro(vtkImageMapToRGBA,vtkImageMapToColors);
+  vtkTypeRevisionMacro(vtkImageMapToRGBA,vtkImageMapToColors);
 
 protected:
   vtkImageMapToRGBA() {};

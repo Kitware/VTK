@@ -46,19 +46,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkOrderedTriangulator.h"
 #include "vtkObjectFactory.h"
 
-//------------------------------------------------------------------------
-vtkDataSetTriangleFilter* vtkDataSetTriangleFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret =
-    vtkObjectFactory::CreateInstance("vtkDataSetTriangleFilter");
-  if(ret)
-    {
-    return (vtkDataSetTriangleFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkDataSetTriangleFilter;
-}
+vtkCxxRevisionMacro(vtkDataSetTriangleFilter, "1.11");
+vtkStandardNewMacro(vtkDataSetTriangleFilter);
 
 vtkDataSetTriangleFilter::~vtkDataSetTriangleFilter()
 {
@@ -292,6 +281,6 @@ void vtkDataSetTriangleFilter::UnstructuredExecute()
 
 void vtkDataSetTriangleFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToUnstructuredGridFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 }
 

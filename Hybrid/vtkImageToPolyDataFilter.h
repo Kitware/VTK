@@ -103,7 +103,7 @@ class vtkAppendPolyData;
 class VTK_HYBRID_EXPORT vtkImageToPolyDataFilter : public vtkStructuredPointsToPolyDataFilter
 {
 public:
-  vtkTypeMacro(vtkImageToPolyDataFilter,vtkStructuredPointsToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkImageToPolyDataFilter,vtkStructuredPointsToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

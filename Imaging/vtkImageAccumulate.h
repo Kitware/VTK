@@ -66,7 +66,7 @@ class VTK_IMAGING_EXPORT vtkImageAccumulate : public vtkImageToImageFilter
 {
 public:
   static vtkImageAccumulate *New();
-  vtkTypeMacro(vtkImageAccumulate,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageAccumulate,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -39,27 +39,11 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
 #include "vtkKochanekSpline.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkKochanekSpline* vtkKochanekSpline::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkKochanekSpline");
-  if(ret)
-    {
-    return (vtkKochanekSpline*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkKochanekSpline;
-}
-
-
-
+vtkCxxRevisionMacro(vtkKochanekSpline, "1.17");
+vtkStandardNewMacro(vtkKochanekSpline);
 
 // Construct a KochanekSpline wth the following defaults:
 // DefaultBias = 0,
@@ -400,7 +384,7 @@ void vtkKochanekSpline::Fit1D (int size, float *x, float *y,
 
 void vtkKochanekSpline::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkSpline::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
   os << indent << "DefaultBias: " << this->DefaultBias << "\n";
   os << indent << "DefaultTension: " << this->DefaultTension << "\n";
   os << indent << "DefaultContinuity: " << this->DefaultContinuity << "\n";

@@ -39,27 +39,14 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
 #include "vtkTIFFReader.h"
 #include "vtkByteSwap.h"
-#include <stdio.h>
 #include "vtkObjectFactory.h"
 
-//------------------------------------------------------------------------------
-vtkTIFFReader* vtkTIFFReader::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTIFFReader");
-  if(ret)
-    {
-    return (vtkTIFFReader*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkTIFFReader;
-}
+#include <stdio.h>
 
-
-
+vtkCxxRevisionMacro(vtkTIFFReader, "1.20");
+vtkStandardNewMacro(vtkTIFFReader);
 
 void vtkTIFFReader::Swap2(short *stmp)
 {

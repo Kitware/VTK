@@ -45,23 +45,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-
-//------------------------------------------------------------------------------
-vtkTriangleStrip* vtkTriangleStrip::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTriangleStrip");
-  if(ret)
-    {
-    return (vtkTriangleStrip*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkTriangleStrip;
-}
-
-
-
-
+vtkCxxRevisionMacro(vtkTriangleStrip, "1.67");
+vtkStandardNewMacro(vtkTriangleStrip);
 
 vtkTriangleStrip::vtkTriangleStrip()
 {

@@ -42,19 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkActorCollection.h"
 #include "vtkObjectFactory.h"
 
-
-//---------------------------------------------------------------------------
-vtkActorCollection* vtkActorCollection::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkActorCollection");
-  if(ret)
-    {
-    return (vtkActorCollection*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkActorCollection;
-}
+vtkCxxRevisionMacro(vtkActorCollection, "1.7");
+vtkStandardNewMacro(vtkActorCollection);
 
 void vtkActorCollection::ApplyProperties(vtkProperty *p)
 {

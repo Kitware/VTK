@@ -43,18 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 
-//--------------------------------------------------------------------------
-vtkRotationalExtrusionFilter* vtkRotationalExtrusionFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkRotationalExtrusionFilter");
-  if(ret)
-    {
-    return (vtkRotationalExtrusionFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkRotationalExtrusionFilter;
-}
+vtkCxxRevisionMacro(vtkRotationalExtrusionFilter, "1.43");
+vtkStandardNewMacro(vtkRotationalExtrusionFilter);
 
 // Create object with capping on, angle of 360 degrees, resolution = 12, and
 // no translation along z-axis.
@@ -349,7 +339,7 @@ void vtkRotationalExtrusionFilter::Execute()
 
 void vtkRotationalExtrusionFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Resolution: " << this->Resolution << "\n";
   os << indent << "Capping: " << (this->Capping ? "On\n" : "Off\n");

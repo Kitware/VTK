@@ -44,20 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-
-
-//----------------------------------------------------------------------------
-vtkExtractTensorComponents* vtkExtractTensorComponents::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkExtractTensorComponents");
-  if(ret)
-    {
-    return (vtkExtractTensorComponents*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkExtractTensorComponents;
-}
+vtkCxxRevisionMacro(vtkExtractTensorComponents, "1.21");
+vtkStandardNewMacro(vtkExtractTensorComponents);
 
 // Construct object to extract nothing and to not pass tensor data
 // through the pipeline.
@@ -249,7 +237,7 @@ void vtkExtractTensorComponents::Execute()
 
 void vtkExtractTensorComponents::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToDataSetFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Pass Tensors To Output: " << (this->PassTensorsToOutput ? "On\n" : "Off\n");
 

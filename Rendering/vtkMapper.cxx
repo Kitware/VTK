@@ -42,6 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMapper.h"
 #include "vtkLookupTable.h"
 
+vtkCxxRevisionMacro(vtkMapper, "1.94");
+
 // Initialize static member that controls global immediate mode rendering
 static int vtkMapperGlobalImmediateModeRendering = 0;
 
@@ -394,7 +396,7 @@ const char *vtkMapper::GetScalarModeAsString(void)
 
 void vtkMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkAbstractMapper3D::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   if ( this->LookupTable )
     {

@@ -43,19 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-//----------------------------------------------------------------------------
-vtkInteractorStyleSwitch *vtkInteractorStyleSwitch::New() 
-{
-// First try to create the object from the vtkObjectFactory
-  vtkObject* ret =
-    vtkObjectFactory::CreateInstance("vtkInteractorStyleSwitch");
-  if(ret)
-    {
-    return (vtkInteractorStyleSwitch*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkInteractorStyleSwitch;
-}
+vtkCxxRevisionMacro(vtkInteractorStyleSwitch, "1.8");
+vtkStandardNewMacro(vtkInteractorStyleSwitch);
 
 //----------------------------------------------------------------------------
 vtkInteractorStyleSwitch::vtkInteractorStyleSwitch() 

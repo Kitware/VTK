@@ -39,25 +39,16 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <ctype.h>
-#include <math.h>
 #include "vtkPLOT3DReader.h"
 #include "vtkByteSwap.h"
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-//-------------------------------------------------------------------------
-vtkPLOT3DReader* vtkPLOT3DReader::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPLOT3DReader");
-  if(ret)
-    {
-    return (vtkPLOT3DReader*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkPLOT3DReader;
-}
+#include <ctype.h>
+#include <math.h>
+
+vtkCxxRevisionMacro(vtkPLOT3DReader, "1.63");
+vtkStandardNewMacro(vtkPLOT3DReader);
 
 #define VTK_BINARY 0
 #define VTK_ASCII 1
@@ -1653,7 +1644,7 @@ int vtkPLOT3DReader::GetFileType(FILE *fp)
 
 void vtkPLOT3DReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkStructuredGridSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "XYZ File Name: " << 
     (this->XYZFileName ? this->XYZFileName : "(none)") << "\n";

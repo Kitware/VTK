@@ -122,7 +122,7 @@ class VTK_RENDERING_EXPORT vtkLightKit : public vtkObject
 {
 public:
   static vtkLightKit *New();
-  vtkTypeMacro(vtkLightKit, vtkObject);
+  vtkTypeRevisionMacro(vtkLightKit, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -69,7 +69,7 @@ class VTK_COMMON_EXPORT vtkCellTypes : public vtkObject
 {
 public:
   static vtkCellTypes *New();
-  vtkTypeMacro(vtkCellTypes,vtkObject);
+  vtkTypeRevisionMacro(vtkCellTypes,vtkObject);
 
   // Description:
   // Allocate memory for this array. Delete old storage only if necessary.

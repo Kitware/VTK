@@ -45,21 +45,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkCommand.h"
 #include "vtkErrorCode.h"
 
-//----------------------------------------------------------------------------
-vtkSource* vtkSource::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkSource");
-  if(ret)
-    {
-    return (vtkSource*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkSource;
-}
-
-
-
+vtkCxxRevisionMacro(vtkSource, "1.90");
+vtkStandardNewMacro(vtkSource);
 
 #ifndef NULL
 #define NULL 0
@@ -696,7 +683,7 @@ void vtkSource::ExecuteInformation()
 //----------------------------------------------------------------------------
 void vtkSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkProcessObject::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   if ( this->NumberOfOutputs)
     {

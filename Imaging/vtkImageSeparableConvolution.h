@@ -61,7 +61,7 @@ class VTK_IMAGING_EXPORT vtkImageSeparableConvolution : public vtkImageDecompose
 {
 public:
   static vtkImageSeparableConvolution *New();
-  vtkTypeMacro(vtkImageSeparableConvolution,vtkImageDecomposeFilter);
+  vtkTypeRevisionMacro(vtkImageSeparableConvolution,vtkImageDecomposeFilter);
 
 
   // Set the X convolution kernel, a null value indicates no convolution to be done.

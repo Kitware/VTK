@@ -57,7 +57,7 @@ class VTK_IMAGING_EXPORT vtkImageDivergence : public vtkImageToImageFilter
 {
 public:
   static vtkImageDivergence *New();
-  vtkTypeMacro(vtkImageDivergence,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageDivergence,vtkImageToImageFilter);
 
 protected:
   vtkImageDivergence() {};

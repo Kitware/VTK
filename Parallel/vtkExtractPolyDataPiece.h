@@ -51,7 +51,7 @@ class VTK_PARALLEL_EXPORT vtkExtractPolyDataPiece : public vtkPolyDataToPolyData
 {
 public:
   static vtkExtractPolyDataPiece *New();
-  vtkTypeMacro(vtkExtractPolyDataPiece, vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkExtractPolyDataPiece, vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

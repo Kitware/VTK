@@ -73,17 +73,5 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // now include the source for vtkXOpenGLRenderWindow
 #include "vtkXOpenGLRenderWindow.cxx"
 
-//-----------------------------------------------------------------------------
-vtkXMesaRenderWindow* vtkXMesaRenderWindow::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkXMesaRenderWindow");
-  if(ret)
-    {
-    return (vtkXMesaRenderWindow*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkXMesaRenderWindow;
-}
-
-
+vtkCxxRevisionMacro(vtkXMesaRenderWindow, "1.3");
+vtkStandardNewMacro(vtkXMesaRenderWindow);

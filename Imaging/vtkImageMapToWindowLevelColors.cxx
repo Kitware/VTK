@@ -42,22 +42,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageMapToWindowLevelColors.h"
 #include "vtkObjectFactory.h"
 
+vtkCxxRevisionMacro(vtkImageMapToWindowLevelColors, "1.9");
+vtkStandardNewMacro(vtkImageMapToWindowLevelColors);
 
-
-//----------------------------------------------------------------------------
-vtkImageMapToWindowLevelColors* vtkImageMapToWindowLevelColors::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageMapToWindowLevelColors");
-  if(ret)
-    {
-    return (vtkImageMapToWindowLevelColors*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageMapToWindowLevelColors;
-}
-
-//----------------------------------------------------------------------------
 // Constructor sets default values
 vtkImageMapToWindowLevelColors::vtkImageMapToWindowLevelColors()
 {
@@ -434,7 +421,7 @@ void vtkImageMapToWindowLevelColors::ThreadedExecute(vtkImageData *inData,
 
 void vtkImageMapToWindowLevelColors::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageMapToColors::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Window: " << this->Window << endl;
   os << indent << "Level: " << this->Level << endl;

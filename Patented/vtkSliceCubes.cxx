@@ -71,23 +71,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkSliceCubes* vtkSliceCubes::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkSliceCubes");
-  if(ret)
-    {
-    return (vtkSliceCubes*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkSliceCubes;
-}
-
-
-
+vtkCxxRevisionMacro(vtkSliceCubes, "1.51");
+vtkStandardNewMacro(vtkSliceCubes);
 
 // Description:
 // Construct with NULL reader, output FileName specification, and limits 
@@ -646,7 +631,7 @@ void vtkSliceCubes::Execute()
 
 void vtkSliceCubes::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Iso Value: " << this->Value << "\n";
 

@@ -56,7 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_RENDERING_EXPORT vtkVolumeTextureMapper2D : public vtkVolumeTextureMapper
 {
 public:
-  vtkTypeMacro(vtkVolumeTextureMapper2D,vtkVolumeTextureMapper);
+  vtkTypeRevisionMacro(vtkVolumeTextureMapper2D,vtkVolumeTextureMapper);
   void PrintSelf( ostream& os, vtkIndent index );
 
   static vtkVolumeTextureMapper2D *New();

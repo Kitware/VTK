@@ -38,28 +38,13 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
-
 #include "vtkImageMaskBits.h"
 #include "vtkObjectFactory.h"
 
+#include <math.h>
 
-
-//------------------------------------------------------------------------------
-vtkImageMaskBits* vtkImageMaskBits::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageMaskBits");
-  if(ret)
-    {
-    return (vtkImageMaskBits*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageMaskBits;
-}
-
-
-
+vtkCxxRevisionMacro(vtkImageMaskBits, "1.11");
+vtkStandardNewMacro(vtkImageMaskBits);
 
 vtkImageMaskBits::vtkImageMaskBits()
 {
@@ -257,7 +242,7 @@ void vtkImageMaskBits::ThreadedExecute(vtkImageData *inData,
 
 void vtkImageMaskBits::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageToImageFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Operation: " << this->Operation << "\n";
   os << indent << "Masks: (" << this->Masks[0] << ", " << this->Masks[1] << ", "

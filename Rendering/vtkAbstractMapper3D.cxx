@@ -42,6 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkAbstractMapper3D.h"
 #include "vtkDataSet.h"
 
+vtkCxxRevisionMacro(vtkAbstractMapper3D, "1.12");
+
 // Construct with initial range (0,1).
 vtkAbstractMapper3D::vtkAbstractMapper3D()
 {
@@ -87,6 +89,6 @@ float vtkAbstractMapper3D::GetLength()
 
 void vtkAbstractMapper3D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkAbstractMapper::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 }
 

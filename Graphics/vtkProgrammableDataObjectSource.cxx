@@ -42,23 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkProgrammableDataObjectSource.h"
 #include "vtkObjectFactory.h"
 
-
-
-//----------------------------------------------------------------------------
-vtkProgrammableDataObjectSource* vtkProgrammableDataObjectSource::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkProgrammableDataObjectSource");
-  if(ret)
-    {
-    return (vtkProgrammableDataObjectSource*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkProgrammableDataObjectSource;
-}
-
-
-
+vtkCxxRevisionMacro(vtkProgrammableDataObjectSource, "1.13");
+vtkStandardNewMacro(vtkProgrammableDataObjectSource);
 
 // Construct programmable filter with empty execute method.
 vtkProgrammableDataObjectSource::vtkProgrammableDataObjectSource()
@@ -134,7 +119,7 @@ void vtkProgrammableDataObjectSource::Execute()
 
 void vtkProgrammableDataObjectSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
   
   if ( this->ExecuteMethod )
     {

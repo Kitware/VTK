@@ -41,6 +41,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkUnstructuredGridToPolyDataFilter.h"
 
+vtkCxxRevisionMacro(vtkUnstructuredGridToPolyDataFilter, "1.3");
+
 //----------------------------------------------------------------------------
 // Specify the input data or filter.
 void vtkUnstructuredGridToPolyDataFilter::SetInput(vtkUnstructuredGrid *input)

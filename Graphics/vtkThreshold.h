@@ -68,7 +68,7 @@ class VTK_GRAPHICS_EXPORT vtkThreshold : public vtkDataSetToUnstructuredGridFilt
 {
 public:
   static vtkThreshold *New();
-  vtkTypeMacro(vtkThreshold,vtkDataSetToUnstructuredGridFilter);
+  vtkTypeRevisionMacro(vtkThreshold,vtkDataSetToUnstructuredGridFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

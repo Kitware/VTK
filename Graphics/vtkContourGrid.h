@@ -85,7 +85,7 @@ class vtkEdgeTable;
 class VTK_GRAPHICS_EXPORT vtkContourGrid : public vtkUnstructuredGridToPolyDataFilter
 {
 public:
-  vtkTypeMacro(vtkContourGrid,vtkUnstructuredGridToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkContourGrid,vtkUnstructuredGridToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

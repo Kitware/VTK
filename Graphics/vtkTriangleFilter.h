@@ -54,7 +54,7 @@ class VTK_GRAPHICS_EXPORT vtkTriangleFilter : public vtkPolyDataToPolyDataFilter
 {
 public:
   static vtkTriangleFilter *New();
-  vtkTypeMacro(vtkTriangleFilter,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkTriangleFilter,vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

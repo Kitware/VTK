@@ -43,23 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkMergePoints* vtkMergePoints::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMergePoints");
-  if(ret)
-    {
-    return (vtkMergePoints*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkMergePoints;
-}
-
-
-
+vtkCxxRevisionMacro(vtkMergePoints, "1.34");
+vtkStandardNewMacro(vtkMergePoints);
 
 // Determine whether point given by x[3] has been inserted into points list.
 // Return id of previously inserted point if this is true, otherwise return

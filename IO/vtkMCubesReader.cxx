@@ -39,30 +39,17 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <sys/types.h>
-#include <sys/stat.h>
 #include "vtkMCubesReader.h"
 #include "vtkMergePoints.h"
 #include "vtkByteSwap.h"
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
+#include <sys/types.h>
+#include <sys/stat.h>
 
-//------------------------------------------------------------------------------
-vtkMCubesReader* vtkMCubesReader::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMCubesReader");
-  if(ret)
-    {
-    return (vtkMCubesReader*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkMCubesReader;
-}
-
-
-
+vtkCxxRevisionMacro(vtkMCubesReader, "1.55");
+vtkStandardNewMacro(vtkMCubesReader);
 
 // Construct object with FlipNormals turned off and Normals set to true.
 vtkMCubesReader::vtkMCubesReader()
@@ -398,7 +385,7 @@ void vtkMCubesReader::CreateDefaultLocator()
 
 void vtkMCubesReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "File Name: " 
      << (this->FileName ? this->FileName : "(none)") << "\n";

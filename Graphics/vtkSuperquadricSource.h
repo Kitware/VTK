@@ -87,7 +87,7 @@ public:
   // spherical, and centered at the origin.
   static vtkSuperquadricSource *New();
 
-  vtkTypeMacro(vtkSuperquadricSource,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkSuperquadricSource,vtkPolyDataSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -44,6 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkRenderer.h"
 #include "vtkFiniteDifferenceGradientEstimator.h"
 
+vtkCxxRevisionMacro(vtkVolumeTextureMapper, "1.20");
+
 vtkVolumeTextureMapper::vtkVolumeTextureMapper()
 {
   this->GradientOpacityArray    = NULL;
@@ -258,7 +260,7 @@ float vtkVolumeTextureMapper::GetGradientMagnitudeBias()
 // Print the vtkVolumeTextureMapper
 void vtkVolumeTextureMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkVolumeMapper::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   if ( this->GradientEstimator )
     {

@@ -64,7 +64,7 @@ class VTK_PARALLEL_EXPORT vtkBranchExtentTranslator : public vtkExtentTranslator
 public:
   static vtkBranchExtentTranslator *New();
 
-  vtkTypeMacro(vtkBranchExtentTranslator,vtkExtentTranslator);
+  vtkTypeRevisionMacro(vtkBranchExtentTranslator,vtkExtentTranslator);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

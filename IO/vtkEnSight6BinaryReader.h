@@ -68,7 +68,7 @@ class VTK_IO_EXPORT vtkEnSight6BinaryReader : public vtkEnSightReader
 {
 public:
   static vtkEnSight6BinaryReader *New();
-  vtkTypeMacro(vtkEnSight6BinaryReader, vtkEnSightReader);
+  vtkTypeRevisionMacro(vtkEnSight6BinaryReader, vtkEnSightReader);
   
 protected:
   vtkEnSight6BinaryReader();

@@ -52,22 +52,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkCriticalSection.h"
 
-
-//----------------------------------------------------------------------------
-vtkPolyData* vtkPolyData::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPolyData");
-  if(ret)
-    {
-    return (vtkPolyData*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkPolyData;
-}
-
-
-
+vtkCxxRevisionMacro(vtkPolyData, "1.143");
+vtkStandardNewMacro(vtkPolyData);
 
 //----------------------------------------------------------------------------
 // Initialize static member.  This member is used to simplify traversal
@@ -1911,7 +1897,7 @@ void vtkPolyData::RemoveGhostCells(int level)
 
 void vtkPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPointSet::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Number Of Vertices: " << this->GetNumberOfVerts() << "\n";
   os << indent << "Number Of Lines: " << this->GetNumberOfLines() << "\n";

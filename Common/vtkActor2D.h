@@ -62,7 +62,7 @@ class VTK_COMMON_EXPORT vtkActor2D : public vtkProp
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent);
-  vtkTypeMacro(vtkActor2D,vtkProp);
+  vtkTypeRevisionMacro(vtkActor2D,vtkProp);
 
   // Description:
   // Creates an actor2D with the following defaults: 

@@ -68,7 +68,7 @@ class VTK_RENDERING_EXPORT vtkXImageMapper : public vtkImageMapper
 public:
   static vtkXImageMapper *New();
 
-  vtkTypeMacro(vtkXImageMapper,vtkImageMapper);
+  vtkTypeRevisionMacro(vtkXImageMapper,vtkImageMapper);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

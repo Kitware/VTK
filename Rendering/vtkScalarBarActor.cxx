@@ -41,23 +41,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkScalarBarActor.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkScalarBarActor* vtkScalarBarActor::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkScalarBarActor");
-  if(ret)
-    {
-    return (vtkScalarBarActor*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkScalarBarActor;
-}
-
-
-
+vtkCxxRevisionMacro(vtkScalarBarActor, "1.38");
+vtkStandardNewMacro(vtkScalarBarActor);
 
 // Instantiate object with 64 maximum colors; 5 labels; font size 12
 // of font Arial (bolding, italic, shadows on); %%-#6.3g label
@@ -404,7 +389,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
 void vtkScalarBarActor::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkActor2D::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   if ( this->LookupTable )
     {

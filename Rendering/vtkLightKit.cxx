@@ -40,27 +40,16 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-/* vtkLightKit
-*/
-
-#include <math.h>
 #include "vtkLightKit.h"
 #include "vtkLight.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
 
-//------------------------------------------------------------------------------
-vtkLightKit* vtkLightKit::New() {
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkLightKit");
-  if(ret)
-    {
-    return (vtkLightKit*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkLightKit;
-}
+#include <math.h>
+
+vtkCxxRevisionMacro(vtkLightKit, "1.7");
+vtkStandardNewMacro(vtkLightKit);
 
 vtkLightKit::vtkLightKit() {
   // create members
@@ -216,7 +205,7 @@ void vtkLightKit::Update() {
 }
 
 void vtkLightKit::PrintSelf(ostream& os, vtkIndent indent) {
-  vtkObject::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "KeyLightIntensity: " << this->KeyLightIntensity << "\n";
   os << indent << "KeyToFillRatio: " << this->KeyToFillRatio << "\n";

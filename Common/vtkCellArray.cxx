@@ -42,23 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkCellArray.h"
 #include "vtkObjectFactory.h"
 
-
-
-//----------------------------------------------------------------------------
-vtkCellArray* vtkCellArray::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkCellArray");
-  if(ret)
-    {
-    return (vtkCellArray*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkCellArray;
-}
-
-
-
+vtkCxxRevisionMacro(vtkCellArray, "1.38");
+vtkStandardNewMacro(vtkCellArray);
 
 vtkCellArray::vtkCellArray()
 {

@@ -42,20 +42,5 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTransformCollection.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkTransformCollection* vtkTransformCollection::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTransformCollection");
-  if(ret)
-    {
-    return (vtkTransformCollection*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkTransformCollection;
-}
-
-
-
+vtkCxxRevisionMacro(vtkTransformCollection, "1.5");
+vtkStandardNewMacro(vtkTransformCollection);

@@ -116,7 +116,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_GRAPHICS_EXPORT vtkGlyph3D : public vtkDataSetToPolyDataFilter
 {
 public:
-  vtkTypeMacro(vtkGlyph3D,vtkDataSetToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkGlyph3D,vtkDataSetToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description

@@ -53,7 +53,7 @@ class VTK_GRAPHICS_EXPORT vtkWarpLens : public vtkPointSetToPointSetFilter
 {
 public:
   static vtkWarpLens *New();
-  vtkTypeMacro(vtkWarpLens,vtkPointSetToPointSetFilter);
+  vtkTypeRevisionMacro(vtkWarpLens,vtkPointSetToPointSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -78,7 +78,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_GRAPHICS_EXPORT vtkTubeFilter : public vtkPolyDataToPolyDataFilter
 {
 public:
-  vtkTypeMacro(vtkTubeFilter,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkTubeFilter,vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

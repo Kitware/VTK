@@ -85,7 +85,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_PATENTED_EXPORT vtkKitwareContourFilter : public vtkContourFilter
 {
 public:
-  vtkTypeMacro(vtkKitwareContourFilter,vtkContourFilter);
+  vtkTypeRevisionMacro(vtkKitwareContourFilter,vtkContourFilter);
 
   // Description:
   // Construct object with initial range (0,1) and single contour value

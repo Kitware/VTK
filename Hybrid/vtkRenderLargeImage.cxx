@@ -38,30 +38,16 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <stdio.h>
-#include <ctype.h>
-#include <string.h>
 #include "vtkRenderLargeImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkObjectFactory.h"
 
+#include <stdio.h>
+#include <ctype.h>
+#include <string.h>
 
-
-//----------------------------------------------------------------------------
-vtkRenderLargeImage* vtkRenderLargeImage::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkRenderLargeImage");
-  if(ret)
-    {
-    return (vtkRenderLargeImage*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkRenderLargeImage;
-}
-
-
-
+vtkCxxRevisionMacro(vtkRenderLargeImage, "1.17");
+vtkStandardNewMacro(vtkRenderLargeImage);
 
 //----------------------------------------------------------------------------
 vtkRenderLargeImage::vtkRenderLargeImage()
@@ -83,7 +69,7 @@ vtkRenderLargeImage::~vtkRenderLargeImage()
 //----------------------------------------------------------------------------
 void vtkRenderLargeImage::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
   
   if ( this->Input )
     {
@@ -112,12 +98,12 @@ void vtkRenderLargeImage::ExecuteInformation()
 
   // set the extent, if the VOI has not been set then default to
   this->GetOutput()->SetWholeExtent(0, 
-		       this->Magnification*
-		       this->Input->GetRenderWindow()->GetSize()[0] - 1,
-		       0, 
-		       this->Magnification*
-		       this->Input->GetRenderWindow()->GetSize()[1] - 1,
-		       0, 0);
+                       this->Magnification*
+                       this->Input->GetRenderWindow()->GetSize()[0] - 1,
+                       0, 
+                       this->Magnification*
+                       this->Input->GetRenderWindow()->GetSize()[1] - 1,
+                       0, 0);
 
   // set the spacing
   this->GetOutput()->SetSpacing(1.0, 1.0, 1.0);
@@ -176,7 +162,7 @@ void vtkRenderLargeImage::ExecuteData(vtkDataObject *output)
   viewAngle = cam->GetViewAngle();
   parallelScale = cam->GetParallelScale();
   cam->SetViewAngle(asin(sin(viewAngle*3.1415926/360.0)/this->Magnification) 
-		    * 360.0 / 3.1415926);
+                    * 360.0 / 3.1415926);
   cam->SetParallelScale(parallelScale/this->Magnification);
   
   // render each of the tiles required to fill this request
@@ -185,45 +171,45 @@ void vtkRenderLargeImage::ExecuteData(vtkDataObject *output)
     for (x = inWindowExtent[0]; x <= inWindowExtent[1]; x++)
       {
       cam->SetWindowCenter(x*2 - this->Magnification*(1-windowCenter[0]) + 1, 
-			   y*2 - this->Magnification*(1-windowCenter[1]) + 1);
+                           y*2 - this->Magnification*(1-windowCenter[1]) + 1);
       this->Input->GetRenderWindow()->Render();
       pixels = this->Input->GetRenderWindow()->GetPixelData(0,0,size[0] - 1,
-							    size[1] - 1, 1);
+                                                            size[1] - 1, 1);
 
       // now stuff the pixels into the data row by row
       colStart = inExtent[0] - x*size[0];
       if (colStart < 0)
-	{
-	colStart = 0;
-	}
+        {
+        colStart = 0;
+        }
       colEnd = size[0] - 1;
       if (colEnd > (inExtent[1] - x*size[0]))
-	{
-	colEnd = inExtent[1] - x*size[0];
-	}
+        {
+        colEnd = inExtent[1] - x*size[0];
+        }
       rowSize = colEnd - colStart + 1;
-	  
+          
       // get the output pointer and do arith on it if necc
       outPtr = 
-	(unsigned char *)data->GetScalarPointer(inExtent[0],inExtent[2],0);
+        (unsigned char *)data->GetScalarPointer(inExtent[0],inExtent[2],0);
       outPtr = outPtr + (x*size[0] - inExtent[0])*inIncr[0] + 
-	(y*size[1] - inExtent[2])*inIncr[1];
+        (y*size[1] - inExtent[2])*inIncr[1];
 
       rowStart = inExtent[2] - y*size[1];
       if (rowStart < 0)
-	{
-	rowStart = 0;
-	}
+        {
+        rowStart = 0;
+        }
       rowEnd = size[1] - 1;
       if (rowEnd > (inExtent[3] - y*size[1]))
-	{
-	rowEnd = (inExtent[3] - y*size[1]);
-	}
+        {
+        rowEnd = (inExtent[3] - y*size[1]);
+        }
       for (row = rowStart; row <= rowEnd; row++)
-	{
-	memcpy(outPtr + row*inIncr[1] + colStart*inIncr[0], 
-	       pixels + row*size[0]*3 + colStart*3, rowSize*3);
-	}
+        {
+        memcpy(outPtr + row*inIncr[1] + colStart*inIncr[0], 
+               pixels + row*size[0]*3 + colStart*3, rowSize*3);
+        }
       // free the memory
       delete [] pixels;
       }

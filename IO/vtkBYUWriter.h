@@ -62,7 +62,7 @@ class VTK_IO_EXPORT vtkBYUWriter : public vtkPolyDataWriter
 public:
   static vtkBYUWriter *New();
 
-  vtkTypeMacro(vtkBYUWriter,vtkPolyDataWriter);
+  vtkTypeRevisionMacro(vtkBYUWriter,vtkPolyDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

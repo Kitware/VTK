@@ -67,7 +67,7 @@ class VTK_IMAGING_EXPORT vtkImageLogic : public vtkImageTwoInputFilter
 {
 public:
   static vtkImageLogic *New();
-  vtkTypeMacro(vtkImageLogic,vtkImageTwoInputFilter);
+  vtkTypeRevisionMacro(vtkImageLogic,vtkImageTwoInputFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

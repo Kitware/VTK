@@ -156,7 +156,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_GRAPHICS_EXPORT vtkDelaunay2D : public vtkPolyDataSource
 {
 public:
-  vtkTypeMacro(vtkDelaunay2D,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkDelaunay2D,vtkPolyDataSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

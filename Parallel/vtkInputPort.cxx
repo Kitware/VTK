@@ -50,20 +50,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-
-//----------------------------------------------------------------------------
-vtkInputPort* vtkInputPort::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkInputPort");
-  if(ret)
-    {
-    return (vtkInputPort*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkInputPort;
-}
-
+vtkCxxRevisionMacro(vtkInputPort, "1.8");
+vtkStandardNewMacro(vtkInputPort);
 
 //----------------------------------------------------------------------------
 vtkInputPort::vtkInputPort()
@@ -92,7 +80,7 @@ vtkInputPort::~vtkInputPort()
 //----------------------------------------------------------------------------
 void vtkInputPort::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
   os << indent << "RemoteProcessId: " << this->RemoteProcessId << endl;
   os << indent << "Tag: " << this->Tag << endl;
   os << indent << "Controller: (" << this->Controller << ")\n";

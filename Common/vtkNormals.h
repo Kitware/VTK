@@ -59,7 +59,7 @@ public:
   static vtkNormals *New(int dataType);
   static vtkNormals *New();
 
-  vtkTypeMacro(vtkNormals,vtkAttributeData);
+  vtkTypeRevisionMacro(vtkNormals,vtkAttributeData);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -62,7 +62,7 @@ class vtkShortArray;
 class VTK_GRAPHICS_EXPORT vtkOBBDicer : public vtkDicer 
 {
 public:
-  vtkTypeMacro(vtkOBBDicer,vtkDicer);
+  vtkTypeRevisionMacro(vtkOBBDicer,vtkDicer);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

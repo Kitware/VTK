@@ -41,6 +41,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkDataSetToUnstructuredGridFilter.h"
 
+vtkCxxRevisionMacro(vtkDataSetToUnstructuredGridFilter, "1.21");
+
 //----------------------------------------------------------------------------
 // Specify the input data or filter.
 void vtkDataSetToUnstructuredGridFilter::SetInput(vtkDataSet *input)

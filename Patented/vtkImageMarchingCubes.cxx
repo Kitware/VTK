@@ -60,21 +60,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMarchingCubesCases.h"
 #include "vtkFloatArray.h"
 
-//------------------------------------------------------------------------------
-vtkImageMarchingCubes* vtkImageMarchingCubes::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageMarchingCubes");
-  if(ret)
-    {
-    return (vtkImageMarchingCubes*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageMarchingCubes;
-}
-
-
-
+vtkCxxRevisionMacro(vtkImageMarchingCubes, "1.45");
+vtkStandardNewMacro(vtkImageMarchingCubes);
 
 //----------------------------------------------------------------------------
 // Description:
@@ -926,7 +913,7 @@ vtkImageData *vtkImageMarchingCubes::GetInput()
 //----------------------------------------------------------------------------
 void vtkImageMarchingCubes::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   this->ContourValues->PrintSelf(os,indent);
 

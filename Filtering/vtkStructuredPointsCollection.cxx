@@ -42,20 +42,5 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkStructuredPointsCollection.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkStructuredPointsCollection* vtkStructuredPointsCollection::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkStructuredPointsCollection");
-  if(ret)
-    {
-    return (vtkStructuredPointsCollection*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkStructuredPointsCollection;
-}
-
-
-
+vtkCxxRevisionMacro(vtkStructuredPointsCollection, "1.5");
+vtkStandardNewMacro(vtkStructuredPointsCollection);

@@ -75,7 +75,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_IO_EXPORT vtkVolumeReader : public vtkStructuredPointsSource
 {
 public:
-  vtkTypeMacro(vtkVolumeReader,vtkStructuredPointsSource);
+  vtkTypeRevisionMacro(vtkVolumeReader,vtkStructuredPointsSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

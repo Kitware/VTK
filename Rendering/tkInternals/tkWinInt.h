@@ -1,9 +1,9 @@
 /*
  * tkWinInt.h --
  *
- *	This file contains declarations that are shared among the
- *	Windows-specific parts of Tk, but aren't used by the rest of
- *	Tk.
+ *      This file contains declarations that are shared among the
+ *      Windows-specific parts of Tk, but aren't used by the rest of
+ *      Tk.
  *
  * Copyright (c) 1995-1997 Sun Microsystems, Inc.
  *
@@ -38,7 +38,7 @@
  */
 
 #ifndef WS_EX_TOOLWINDOW
-#define WS_EX_TOOLWINDOW	0x00000080L 
+#define WS_EX_TOOLWINDOW        0x00000080L 
 #endif
 
 typedef struct TkFontAttributes TkFontAttributes;
@@ -58,9 +58,9 @@ typedef struct TkWinDCState {
  * types.
  */
 
-#define TWD_BITMAP	1
-#define TWD_WINDOW	2
-#define TWD_WINDC	3
+#define TWD_BITMAP      1
+#define TWD_WINDOW      2
+#define TWD_WINDC       3
 
 typedef struct {
     int type;
@@ -102,14 +102,14 @@ typedef union {
  */
 
 typedef struct {
-    HPALETTE palette;		/* Palette handle used when drawing. */
-    UINT size;			/* Number of entries in the palette. */
-    int stale;			/* 1 if palette needs to be realized,
-				 * otherwise 0.  If the palette is stale,
-				 * then an idle handler is scheduled to
-				 * realize the palette. */
-    Tcl_HashTable refCounts;	/* Hash table of palette entry reference counts
-				 * indexed by pixel value. */
+    HPALETTE palette;           /* Palette handle used when drawing. */
+    UINT size;                  /* Number of entries in the palette. */
+    int stale;                  /* 1 if palette needs to be realized,
+                                 * otherwise 0.  If the palette is stale,
+                                 * then an idle handler is scheduled to
+                                 * realize the palette. */
+    Tcl_HashTable refCounts;    /* Hash table of palette entry reference counts
+                                 * indexed by pixel value. */
 } TkWinColormap;
 
 /*
@@ -153,8 +153,8 @@ extern int tkpWinRopModes[];
 
 #include "tkIntPlatDecls.h"
 
-extern LRESULT CALLBACK	TkWinChildProc _ANSI_ARGS_((HWND hwnd, UINT message,
-			    WPARAM wParam, LPARAM lParam));
+extern LRESULT CALLBACK TkWinChildProc _ANSI_ARGS_((HWND hwnd, UINT message,
+                            WPARAM wParam, LPARAM lParam));
 
 #endif /* _TKWININT */
 

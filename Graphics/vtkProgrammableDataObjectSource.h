@@ -66,7 +66,7 @@ class VTK_GRAPHICS_EXPORT vtkProgrammableDataObjectSource : public vtkSource
 {
 public:
   static vtkProgrammableDataObjectSource *New();
-  vtkTypeMacro(vtkProgrammableDataObjectSource,vtkSource);
+  vtkTypeRevisionMacro(vtkProgrammableDataObjectSource,vtkSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

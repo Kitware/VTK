@@ -39,23 +39,13 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
 #include "vtkLogLookupTable.h"
 #include "vtkObjectFactory.h"
 
+#include <math.h>
 
-//----------------------------------------------------------------------------
-vtkLogLookupTable* vtkLogLookupTable::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkLogLookupTable");
-  if(ret)
-    {
-    return (vtkLogLookupTable*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkLogLookupTable;
-}
+vtkCxxRevisionMacro(vtkLogLookupTable, "1.28");
+vtkStandardNewMacro(vtkLogLookupTable);
 
 // Construct with (minimum,maximum) range 1 to 10 (based on 
 // logarithmic values).
@@ -70,5 +60,5 @@ vtkLogLookupTable::vtkLogLookupTable(int sze, int ext)
 
 void vtkLogLookupTable::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkLookupTable::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 }

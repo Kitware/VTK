@@ -42,18 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkStructuredGridReader.h"
 #include "vtkObjectFactory.h"
 
-//-------------------------------------------------------------------------
-vtkStructuredGridReader* vtkStructuredGridReader::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkStructuredGridReader");
-  if(ret)
-    {
-    return (vtkStructuredGridReader*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkStructuredGridReader;
-}
+vtkCxxRevisionMacro(vtkStructuredGridReader, "1.50");
+vtkStandardNewMacro(vtkStructuredGridReader);
 
 vtkStructuredGridReader::vtkStructuredGridReader()
 {
@@ -361,5 +351,5 @@ void vtkStructuredGridReader::Execute()
 
 void vtkStructuredGridReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataReader::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 }

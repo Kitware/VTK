@@ -39,26 +39,15 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <stdlib.h>
-#include <math.h>
-
 #include "vtkMatrix4x4.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
+#include <stdlib.h>
+#include <math.h>
 
-//----------------------------------------------------------------------------
-vtkMatrix4x4* vtkMatrix4x4::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMatrix4x4");
-  if(ret)
-    {
-    return (vtkMatrix4x4*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkMatrix4x4;
-}
+vtkCxxRevisionMacro(vtkMatrix4x4, "1.54");
+vtkStandardNewMacro(vtkMatrix4x4);
 
 // Useful for viewing a double[16] as a double[4][4]
 typedef double (*SqMatPtr)[4];
@@ -354,9 +343,9 @@ void vtkMatrix4x4::Transpose(const double inElements[16],
 //----------------------------------------------------------------------------
 void vtkMatrix4x4::PrintSelf(ostream& os, vtkIndent indent)
 {
-  int i, j;
+  this->Superclass::PrintSelf(os, indent);
 
-  vtkObject::PrintSelf(os, indent);
+  int i, j;
 
   os << indent << "Elements:\n";
   for (i = 0; i < 4; i++) 

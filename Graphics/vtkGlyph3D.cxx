@@ -46,18 +46,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkUnsignedCharArray.h"
 #include "vtkFloatArray.h"
 
-//------------------------------------------------------------------------
-vtkGlyph3D* vtkGlyph3D::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkGlyph3D");
-  if(ret)
-    {
-    return (vtkGlyph3D*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkGlyph3D;
-}
+vtkCxxRevisionMacro(vtkGlyph3D, "1.99");
+vtkStandardNewMacro(vtkGlyph3D);
 
 // Construct object with scaling on, scaling mode is by scalar value,
 // scale factor = 1.0, the range is (0,1), orient geometry is on, and
@@ -636,7 +626,7 @@ vtkPolyData *vtkGlyph3D::GetSource(int id)
 
 void vtkGlyph3D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Generate Point Ids "
      << (this->GeneratePointIds ? "On\n" : "Off\n");

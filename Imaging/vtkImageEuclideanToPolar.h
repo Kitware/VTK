@@ -54,7 +54,7 @@ class VTK_IMAGING_EXPORT vtkImageEuclideanToPolar : public vtkImageToImageFilter
 {
 public:
   static vtkImageEuclideanToPolar *New();
-  vtkTypeMacro(vtkImageEuclideanToPolar,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageEuclideanToPolar,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

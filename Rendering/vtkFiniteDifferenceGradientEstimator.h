@@ -68,7 +68,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_RENDERING_EXPORT vtkFiniteDifferenceGradientEstimator : public vtkEncodedGradientEstimator
 {
 public:
-  vtkTypeMacro(vtkFiniteDifferenceGradientEstimator,vtkEncodedGradientEstimator);
+  vtkTypeRevisionMacro(vtkFiniteDifferenceGradientEstimator,vtkEncodedGradientEstimator);
   void PrintSelf( ostream& os, vtkIndent index );
 
   // Description:

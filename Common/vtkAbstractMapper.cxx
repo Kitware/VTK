@@ -44,6 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkPlanes.h"
 
+vtkCxxRevisionMacro(vtkAbstractMapper, "1.22");
+
 // Construct object.
 vtkAbstractMapper::vtkAbstractMapper()
 {
@@ -122,7 +124,7 @@ void vtkAbstractMapper::SetClippingPlanes(vtkPlanes *planes)
 
 vtkDataArray *vtkAbstractMapper::GetScalars(vtkDataSet *input,
                                             int scalarMode,
-											int arrayAccessMode,
+                                                                                        int arrayAccessMode,
                                             int arrayId, 
                                             const char *arrayName,
                                             int& offset)
@@ -205,7 +207,7 @@ void vtkAbstractMapper::ShallowCopy(vtkAbstractMapper *mapper)
 
 void vtkAbstractMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkProcessObject::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "TimeToDraw: " << this->TimeToDraw << "\n";
 

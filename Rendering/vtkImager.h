@@ -63,7 +63,7 @@ class VTK_RENDERING_EXPORT vtkImager : public vtkViewport
 { 
 public:
   static vtkImager *New();
-  vtkTypeMacro(vtkImager,vtkViewport);
+  vtkTypeRevisionMacro(vtkImager,vtkViewport);
 
   // Description:
   // Renders an imager.  Passes Render message on the 

@@ -53,19 +53,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkgluPickMatrix.h"
 
-
-//------------------------------------------------------------------------------
-vtkOpenGLImageMapper* vtkOpenGLImageMapper::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkOpenGLImageMapper");
-  if(ret)
-    {
-    return (vtkOpenGLImageMapper*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkOpenGLImageMapper;
-}
+#ifndef VTK_IMPLEMENT_MESA_CXX
+vtkCxxRevisionMacro(vtkOpenGLImageMapper, "1.46");
+vtkStandardNewMacro(vtkOpenGLImageMapper);
+#endif
 
 vtkOpenGLImageMapper::vtkOpenGLImageMapper()
 {
@@ -687,13 +678,3 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
   glEnable(GL_BLEND);
 #endif
 }
-
-
-
-
-
-
-
-
-
-

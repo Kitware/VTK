@@ -62,7 +62,7 @@ class VTK_COMMON_EXPORT vtkDebugLeaks : public vtkObject
 {
 public: 
   static vtkDebugLeaks *New();
-  vtkTypeMacro(vtkDebugLeaks,vtkObject);
+  vtkTypeRevisionMacro(vtkDebugLeaks,vtkObject);
 
   // Description:
   // Call this when creating a class of a given name.

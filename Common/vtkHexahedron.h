@@ -55,7 +55,7 @@ class VTK_COMMON_EXPORT vtkHexahedron : public vtkCell3D
 {
 public:
   static vtkHexahedron *New();
-  vtkTypeMacro(vtkHexahedron,vtkCell);
+  vtkTypeRevisionMacro(vtkHexahedron,vtkCell);
 
   // Description:
   // See vtkCell3D API for description of these methods.

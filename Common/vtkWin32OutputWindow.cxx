@@ -42,20 +42,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkWin32OutputWindow.h"
 #include "vtkObjectFactory.h"
 
+vtkCxxRevisionMacro(vtkWin32OutputWindow, "1.16");
+vtkStandardNewMacro(vtkWin32OutputWindow);
+
 HWND vtkWin32OutputWindow::OutputWindow = 0;
-
-vtkWin32OutputWindow* vtkWin32OutputWindow::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkWin32OutputWindow");
-  if(ret)
-    {
-    return (vtkWin32OutputWindow*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkWin32OutputWindow;
-}
-
 
 LRESULT APIENTRY vtkWin32OutputWindow::WndProc(HWND hWnd, UINT message,
                                                WPARAM wParam,

@@ -42,23 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImplicitDataSet.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkImplicitDataSet* vtkImplicitDataSet::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImplicitDataSet");
-  if(ret)
-    {
-    return (vtkImplicitDataSet*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImplicitDataSet;
-}
-
-
-
+vtkCxxRevisionMacro(vtkImplicitDataSet, "1.18");
+vtkStandardNewMacro(vtkImplicitDataSet);
 
 // Construct an vtkImplicitDataSet with no initial dataset; the OutValue
 // set to a large negative number; and the OutGradient set to (0,0,1).
@@ -205,7 +190,7 @@ void vtkImplicitDataSet::EvaluateGradient(float x[3], float n[3])
 
 void vtkImplicitDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImplicitFunction::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Out Value: " << this->OutValue << "\n";
   os << indent << "Out Gradient: (" << this->OutGradient[0] << ", " 

@@ -56,7 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_RENDERING_EXPORT vtkScaledTextActor : public vtkActor2D
 {
 public:
-  vtkTypeMacro(vtkScaledTextActor,vtkActor2D);
+  vtkTypeRevisionMacro(vtkScaledTextActor,vtkActor2D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

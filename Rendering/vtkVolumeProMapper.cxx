@@ -53,6 +53,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkObjectFactory.h"
 
+vtkCxxRevisionMacro(vtkVolumeProMapper, "1.27");
+
 // Create the mapper. No context has been created, no volume has
 // been created yet.
 vtkVolumeProMapper::vtkVolumeProMapper()
@@ -213,7 +215,7 @@ void vtkVolumeProMapper::SetSuperSamplingFactor( double x, double y, double z )
 
 void vtkVolumeProMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkVolumeMapper::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   // don't print this->SubVolume 
   os << indent << "Number Of Boards: " << this->NumberOfBoards << endl;

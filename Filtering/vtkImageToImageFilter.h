@@ -60,7 +60,7 @@ class VTK_FILTERING_EXPORT vtkImageToImageFilter : public vtkImageSource
 {
 public:
   static vtkImageToImageFilter *New();
-  vtkTypeMacro(vtkImageToImageFilter,vtkImageSource);
+  vtkTypeRevisionMacro(vtkImageToImageFilter,vtkImageSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

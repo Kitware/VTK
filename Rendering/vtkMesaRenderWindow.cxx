@@ -53,16 +53,4 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkOpenGLRenderWindow.cxx"
 #undef vtkOpenGLRenderWindow
 
-//-------------------------------------------------------------------------
-vtkMesaRenderWindow* vtkMesaRenderWindow::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMesaRenderWindow");
-  if(ret)
-    {
-    return (vtkMesaRenderWindow*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return vtkXMesaRenderWindow::New();
-}
-
+vtkCxxRevisionMacro(vtkMesaRenderWindow, "1.27");

@@ -43,17 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkHeap.h"
 #include "vtkObjectFactory.h"
 
-vtkHeap* vtkHeap::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkHeap");
-  if(ret)
-    {
-    return (vtkHeap*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkHeap;
-}
+vtkCxxRevisionMacro(vtkHeap, "1.5");
+vtkStandardNewMacro(vtkHeap);
 
 vtkHeap::vtkHeap()
 {
@@ -133,7 +124,7 @@ char* vtkHeap::vtkStrDup(const char* str)
 
 void vtkHeap::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Number of Allocations: " << this->NumberOfAllocations << "\n";
 }

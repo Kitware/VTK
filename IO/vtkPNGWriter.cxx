@@ -44,19 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <png.h>
 
-
-//----------------------------------------------------------------------------
-vtkPNGWriter* vtkPNGWriter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPNGWriter");
-  if(ret)
-    {
-    return (vtkPNGWriter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkPNGWriter;
-}
+vtkCxxRevisionMacro(vtkPNGWriter, "1.6");
+vtkStandardNewMacro(vtkPNGWriter);
 
 vtkPNGWriter::vtkPNGWriter()
 {

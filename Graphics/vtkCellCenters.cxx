@@ -42,23 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkCellCenters.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkCellCenters* vtkCellCenters::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkCellCenters");
-  if(ret)
-    {
-    return (vtkCellCenters*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkCellCenters;
-}
-
-
-
+vtkCxxRevisionMacro(vtkCellCenters, "1.17");
+vtkStandardNewMacro(vtkCellCenters);
 
 // Construct object with vertex cell generation turned off.
 vtkCellCenters::vtkCellCenters()
@@ -156,7 +141,7 @@ void vtkCellCenters::Execute()
 
 void vtkCellCenters::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Vertex Cells: " << (this->VertexCells ? "On\n" : "Off\n");
 }

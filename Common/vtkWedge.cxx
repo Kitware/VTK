@@ -46,23 +46,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkUnstructuredGrid.h"
 #include "vtkObjectFactory.h"
 
+vtkCxxRevisionMacro(vtkWedge, "1.23");
+vtkStandardNewMacro(vtkWedge);
+
 static const float VTK_DIVERGED = 1.e6;
-
-//------------------------------------------------------------------------------
-vtkWedge* vtkWedge::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkWedge");
-  if(ret)
-    {
-    return (vtkWedge*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkWedge;
-}
-
-
-
 
 // Construct the wedge with six points.
 vtkWedge::vtkWedge()
@@ -166,8 +153,8 @@ int vtkWedge::EvaluatePosition(float x[3], float* closestPoint,
       }
     // Test for bad divergence (S.Hirschberg 11.12.2001)
     else if ((fabs(pcoords[0]) > VTK_DIVERGED) || 
-	     (fabs(pcoords[1]) > VTK_DIVERGED) || 
-	     (fabs(pcoords[2]) > VTK_DIVERGED))
+             (fabs(pcoords[1]) > VTK_DIVERGED) || 
+             (fabs(pcoords[2]) > VTK_DIVERGED))
       {
       return -1;
       }

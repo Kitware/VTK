@@ -55,7 +55,7 @@ class VTK_FILTERING_EXPORT vtkPiecewiseFunction : public vtkDataObject
 {
 public:
   static vtkPiecewiseFunction *New();
-  vtkTypeMacro(vtkPiecewiseFunction,vtkDataObject);
+  vtkTypeRevisionMacro(vtkPiecewiseFunction,vtkDataObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   vtkDataObject *MakeObject();

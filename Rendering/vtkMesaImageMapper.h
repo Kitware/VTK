@@ -58,7 +58,7 @@ class VTK_RENDERING_EXPORT vtkMesaImageMapper : public vtkImageMapper
 {
 public:
   static vtkMesaImageMapper *New();
-  vtkTypeMacro(vtkMesaImageMapper,vtkImageMapper);
+  vtkTypeRevisionMacro(vtkMesaImageMapper,vtkImageMapper);
   
   // Description:
   // Handle the render method.

@@ -46,18 +46,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkUnsignedCharArray.h"
 #include "vtkFloatArray.h"
 
-//------------------------------------------------------------------------
-vtkGlyph2D* vtkGlyph2D::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkGlyph2D");
-  if(ret)
-    {
-    return (vtkGlyph2D*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkGlyph2D;
-}
+vtkCxxRevisionMacro(vtkGlyph2D, "1.13");
+vtkStandardNewMacro(vtkGlyph2D);
 
 void vtkGlyph2D::Execute()
 {
@@ -482,5 +472,5 @@ void vtkGlyph2D::Execute()
 
 void vtkGlyph2D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkGlyph3D::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 }

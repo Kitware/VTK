@@ -24,18 +24,8 @@
 #include "vtkSphereSource.h"
 #include "vtkPolyDataMapper.h"
 
-//--------------------------------------------------------------------------
-vtkInteractorStyleUnicam* vtkInteractorStyleUnicam::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret=vtkObjectFactory::CreateInstance("vtkInteractorStyleUnicam");
-  if(ret)
-    {
-    return (vtkInteractorStyleUnicam*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkInteractorStyleUnicam;
-}
+vtkCxxRevisionMacro(vtkInteractorStyleUnicam, "1.17");
+vtkStandardNewMacro(vtkInteractorStyleUnicam);
 
 vtkInteractorStyleUnicam::vtkInteractorStyleUnicam()
 {
@@ -78,7 +68,7 @@ vtkInteractorStyleUnicam::~vtkInteractorStyleUnicam()
 
 void vtkInteractorStyleUnicam::PrintSelf(ostream& os, vtkIndent indent) 
 {
-  this->vtkInteractorStyle::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Interaction Picker: " << this->InteractionPicker;
 //   os << indent << "WorldUpVector: " << this->WorldUpVector;

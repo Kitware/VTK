@@ -86,7 +86,7 @@ class VTK_PATENTED_EXPORT vtkImageMarchingCubes : public vtkPolyDataSource
 {
 public:
   static vtkImageMarchingCubes *New();
-  vtkTypeMacro(vtkImageMarchingCubes,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkImageMarchingCubes,vtkPolyDataSource);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

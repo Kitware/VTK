@@ -57,7 +57,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_GRAPHICS_EXPORT vtkApproximatingSubdivisionFilter : public vtkPolyDataToPolyDataFilter
 {
 public:
-  vtkTypeMacro(vtkApproximatingSubdivisionFilter,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkApproximatingSubdivisionFilter,vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

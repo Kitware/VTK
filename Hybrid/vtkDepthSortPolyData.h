@@ -76,7 +76,7 @@ public:
   // Instantiate object.
   static vtkDepthSortPolyData *New();
 
-  vtkTypeMacro(vtkDepthSortPolyData,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkDepthSortPolyData,vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -61,7 +61,7 @@ class VTK_COMMON_EXPORT vtkMapper2D : public vtkAbstractMapper
 public:
   static vtkMapper2D* New();
 
-  vtkTypeMacro(vtkMapper2D,vtkAbstractMapper);
+  vtkTypeRevisionMacro(vtkMapper2D,vtkAbstractMapper);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   virtual void RenderOverlay(vtkViewport*, vtkActor2D*) {};

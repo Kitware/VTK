@@ -39,8 +39,6 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
-#include <math.h>
 #include "vtkVolumeProVG500Mapper.h"
 #include "vtkOpenGLVolumeProVG500Mapper.h"
 #include "vtkRenderWindow.h"
@@ -50,6 +48,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkGraphicsFactory.h"
 #include "vtkToolkits.h"
 #include "vtkDebugLeaks.h"
+
+#include <math.h>
+
+vtkCxxRevisionMacro(vtkVolumeProVG500Mapper, "1.29");
 
 vtkVolumeProVG500Mapper::vtkVolumeProVG500Mapper()
 {

@@ -62,7 +62,7 @@ class VTK_HYBRID_EXPORT vtkGridTransform : public vtkWarpTransform
 {
 public:
   static vtkGridTransform *New();
-  vtkTypeMacro(vtkGridTransform,vtkWarpTransform);
+  vtkTypeRevisionMacro(vtkGridTransform,vtkWarpTransform);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -126,23 +126,23 @@ protected:
   void ForwardTransformPoint(const double in[3], double out[3]);
 
   void ForwardTransformDerivative(const float in[3], float out[3],
-				  float derivative[3][3]);
+                                  float derivative[3][3]);
   void ForwardTransformDerivative(const double in[3], double out[3],
-				  double derivative[3][3]);
+                                  double derivative[3][3]);
 
   void InverseTransformPoint(const float in[3], float out[3]);
   void InverseTransformPoint(const double in[3], double out[3]);
 
   void InverseTransformDerivative(const float in[3], float out[3],
-				  float derivative[3][3]);
+                                  float derivative[3][3]);
   void InverseTransformDerivative(const double in[3], double out[3],
-				  double derivative[3][3]);
+                                  double derivative[3][3]);
 
 //BTX
   void (*InterpolationFunction)(float point[3], float displacement[3],
-				float derivatives[3][3],
-				void *gridPtr, int gridType,
-				int inExt[6], int inInc[3]);
+                                float derivatives[3][3],
+                                void *gridPtr, int gridType,
+                                int inExt[6], int inInc[3]);
 //ETX
   int InterpolationMode;
   vtkImageData *DisplacementGrid;

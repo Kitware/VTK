@@ -53,7 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_IMAGING_EXPORT vtkImageGaussianSmooth : public vtkImageToImageFilter
 {
 public:
-  vtkTypeMacro(vtkImageGaussianSmooth,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageGaussianSmooth,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

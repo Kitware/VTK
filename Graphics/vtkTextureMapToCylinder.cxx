@@ -46,18 +46,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-//----------------------------------------------------------------------------
-vtkTextureMapToCylinder* vtkTextureMapToCylinder::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTextureMapToCylinder");
-  if(ret)
-    {
-    return (vtkTextureMapToCylinder*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkTextureMapToCylinder;
-}
+vtkCxxRevisionMacro(vtkTextureMapToCylinder, "1.25");
+vtkStandardNewMacro(vtkTextureMapToCylinder);
 
 // Create object with cylinder axis parallel to z-axis (points (0,0,-0.5) 
 // and (0,0,0.5)). The PreventSeam ivar is set to true. The cylinder is 
@@ -198,7 +188,7 @@ void vtkTextureMapToCylinder::Execute()
 
 void vtkTextureMapToCylinder::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToDataSetFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Automatic Cylinder Generation: " << 
                   (this->AutomaticCylinderGeneration ? "On\n" : "Off\n");

@@ -39,24 +39,15 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <stdio.h>
 #include "vtkIVWriter.h"
 #include "vtkLookupTable.h"
 #include "vtkAbstractMapper.h"
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------
-vtkIVWriter* vtkIVWriter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkIVWriter");
-  if(ret)
-    {
-    return (vtkIVWriter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkIVWriter;
-}
+#include <stdio.h>
+
+vtkCxxRevisionMacro(vtkIVWriter, "1.22");
+vtkStandardNewMacro(vtkIVWriter);
 
 void vtkIVWriter::WriteData()
 {

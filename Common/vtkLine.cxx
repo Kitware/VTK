@@ -45,18 +45,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPointLocator.h"
 #include "vtkObjectFactory.h"
 
-//-------------------------------------------------------------------------
-vtkLine* vtkLine::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkLine");
-  if(ret)
-    {
-    return (vtkLine*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkLine;
-}
+vtkCxxRevisionMacro(vtkLine, "1.73");
+vtkStandardNewMacro(vtkLine);
 
 // Construct the line with two points.
 vtkLine::vtkLine()

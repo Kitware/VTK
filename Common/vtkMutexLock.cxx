@@ -42,21 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMutexLock.h"
 #include "vtkObjectFactory.h"
 
-
-
-//----------------------------------------------------------------------------
-vtkMutexLock* vtkMutexLock::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMutexLock");
-  if(ret)
-    {
-    return (vtkMutexLock*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkMutexLock;
-}
-
+vtkCxxRevisionMacro(vtkMutexLock, "1.20");
+vtkStandardNewMacro(vtkMutexLock);
 
 // New for the SimpleMutex
 vtkSimpleMutexLock *vtkSimpleMutexLock::New()
@@ -145,6 +132,6 @@ vtkSimpleMutexLock *vtkSimpleMutexLock::SafeDownCast(vtkSimpleMutexLock *o)
   
 void vtkMutexLock::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os, indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 

@@ -39,17 +39,19 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <stdio.h>
-#include <ctype.h>
-#include <string.h>
-#include "vtkByteSwap.h"
-
 #include "vtkParticleReader.h"
 #include "vtkFloatArray.h"
 #include "vtkCellArray.h"
 #include "vtkPoints.h"
 #include "vtkObjectFactory.h"
+#include "vtkByteSwap.h"
 
+#include <stdio.h>
+#include <ctype.h>
+#include <string.h>
+
+vtkCxxRevisionMacro(vtkParticleReader, "1.9");
+vtkStandardNewMacro(vtkParticleReader);
 
 // These are copied right from vtkImageReader.
 // I do not know what they do.
@@ -60,22 +62,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef close
 #undef close
 #endif
-
-
-
-//----------------------------------------------------------------------------
-vtkParticleReader* vtkParticleReader::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkParticleReader");
-  if(ret)
-    {
-    return (vtkParticleReader*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkParticleReader;
-}
-
 
 //----------------------------------------------------------------------------
 vtkParticleReader::vtkParticleReader()
@@ -355,7 +341,7 @@ const char *vtkParticleReader::GetDataByteOrderAsString()
 //----------------------------------------------------------------------------
 void vtkParticleReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   // this->File, this->Colors need not be printed  
   os << indent << "FileName: " <<

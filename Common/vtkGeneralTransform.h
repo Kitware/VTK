@@ -60,7 +60,7 @@ class VTK_COMMON_EXPORT vtkGeneralTransform : public vtkAbstractTransform
 public:
   static vtkGeneralTransform *New();
 
-  vtkTypeMacro(vtkGeneralTransform,vtkAbstractTransform);
+  vtkTypeRevisionMacro(vtkGeneralTransform,vtkAbstractTransform);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

@@ -43,18 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
-vtkWarpTo* vtkWarpTo::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkWarpTo");
-  if(ret)
-    {
-    return (vtkWarpTo*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkWarpTo;
-}
+vtkCxxRevisionMacro(vtkWarpTo, "1.35");
+vtkStandardNewMacro(vtkWarpTo);
 
 vtkWarpTo::vtkWarpTo() 
 {
@@ -143,7 +133,7 @@ void vtkWarpTo::Execute()
 
 void vtkWarpTo::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPointSetToPointSetFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
   
   os << indent << "Absolute: " << (this->Absolute ? "On\n" : "Off\n");
 

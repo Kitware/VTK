@@ -60,7 +60,7 @@ class VTK_COMMON_EXPORT vtkMatrixToLinearTransform : public vtkLinearTransform
 {
  public:
   static vtkMatrixToLinearTransform *New();
-  vtkTypeMacro(vtkMatrixToLinearTransform,vtkLinearTransform);
+  vtkTypeRevisionMacro(vtkMatrixToLinearTransform,vtkLinearTransform);
   void PrintSelf (ostream& os, vtkIndent indent);
 
   // Description:

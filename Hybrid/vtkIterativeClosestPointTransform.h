@@ -78,7 +78,7 @@ class VTK_HYBRID_EXPORT vtkIterativeClosestPointTransform : public vtkLinearTran
 {
 public:
   static vtkIterativeClosestPointTransform *New();
-  vtkTypeMacro(vtkIterativeClosestPointTransform,vtkLinearTransform);
+  vtkTypeRevisionMacro(vtkIterativeClosestPointTransform,vtkLinearTransform);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

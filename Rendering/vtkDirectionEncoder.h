@@ -64,7 +64,7 @@ class VTK_RENDERING_EXPORT vtkDirectionEncoder : public vtkObject
 public:
   // Description:
   // Get the name of this class
-  vtkTypeMacro(vtkDirectionEncoder,vtkObject);
+  vtkTypeRevisionMacro(vtkDirectionEncoder,vtkObject);
 
   // Description:
   // Given a normal vector n, return the encoded direction

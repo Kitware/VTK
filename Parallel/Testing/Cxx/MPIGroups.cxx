@@ -171,7 +171,7 @@ void proc2( vtkMultiProcessController *contr, void *arg )
     int vali;
     vtkMPICommunicator::Request req1;
     controller->NoBlockReceive(&vali, 1, vtkMultiProcessController::ANY_SOURCE,
-			       95, req1);
+                               95, req1);
     if (req1.Test() && (vali == 12))
       cout << "Receive (int) succeeded." << endl;
     else
@@ -179,7 +179,7 @@ void proc2( vtkMultiProcessController *contr, void *arg )
     int valul;
     vtkMPICommunicator::Request req2;
     controller->NoBlockReceive(&valul, 1, vtkMultiProcessController::ANY_SOURCE,
-			       96, req2);
+                               96, req2);
     if (req2.Test() && (valul == 12))
       cout << "Receive (unsigned long) succeeded." << endl;
     else
@@ -187,7 +187,7 @@ void proc2( vtkMultiProcessController *contr, void *arg )
     int valc;
     vtkMPICommunicator::Request req3;
     controller->NoBlockReceive(&valc, 1, vtkMultiProcessController::ANY_SOURCE,
-			       97, req3);
+                               97, req3);
     if (req3.Test() && (valc == 12))
       cout << "Receive (char) succeeded." << endl;
     else
@@ -195,7 +195,7 @@ void proc2( vtkMultiProcessController *contr, void *arg )
     int valf;
     vtkMPICommunicator::Request req4;
     controller->NoBlockReceive(&valf, 1, vtkMultiProcessController::ANY_SOURCE,
-			       98, req4);
+                               98, req4);
     if (req4.Test() && (valf == 12))
       cout << "Receive (float) succeeded." << endl;
     else

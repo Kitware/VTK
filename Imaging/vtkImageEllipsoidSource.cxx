@@ -39,28 +39,13 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include "vtkImageData.h"
-
 #include "vtkImageEllipsoidSource.h"
 #include "vtkObjectFactory.h"
 
+#include "vtkImageData.h"
 
-
-//------------------------------------------------------------------------------
-vtkImageEllipsoidSource* vtkImageEllipsoidSource::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageEllipsoidSource");
-  if(ret)
-    {
-    return (vtkImageEllipsoidSource*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageEllipsoidSource;
-}
-
-
-
+vtkCxxRevisionMacro(vtkImageEllipsoidSource, "1.23");
+vtkStandardNewMacro(vtkImageEllipsoidSource);
 
 //----------------------------------------------------------------------------
 vtkImageEllipsoidSource::vtkImageEllipsoidSource()
@@ -91,6 +76,7 @@ vtkImageEllipsoidSource::~vtkImageEllipsoidSource()
 //----------------------------------------------------------------------------
 void vtkImageEllipsoidSource::PrintSelf(ostream& os, vtkIndent indent)
 {
+  this->Superclass::PrintSelf(os,indent);
   os << indent << "Center: (" << this->Center[0] << ", "
      << this->Center[1] << ", " << this->Center[2] << ")\n";
   
@@ -100,8 +86,6 @@ void vtkImageEllipsoidSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "InValue: " << this->InValue << "\n";
   os << indent << "OutValue: " << this->OutValue << "\n";
   os << indent << "OutputScalarType: " << this->OutputScalarType << "\n";
-  
-  vtkImageSource::PrintSelf(os,indent);
 }
 //----------------------------------------------------------------------------
 void vtkImageEllipsoidSource::SetWholeExtent(int extent[6])

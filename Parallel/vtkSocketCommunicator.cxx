@@ -71,18 +71,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     return 0; \
     }
 
-//------------------------------------------------------------------------------
-vtkSocketCommunicator* vtkSocketCommunicator::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkSocketCommunicator");
-  if(ret)
-    {
-    return (vtkSocketCommunicator*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkSocketCommunicator;
-}
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.29");
+vtkStandardNewMacro(vtkSocketCommunicator);
 
 //----------------------------------------------------------------------------
 vtkSocketCommunicator::vtkSocketCommunicator()
@@ -106,7 +96,7 @@ vtkSocketCommunicator::~vtkSocketCommunicator()
 //----------------------------------------------------------------------------
 void vtkSocketCommunicator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkCommunicator::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "SwapBytesInReceivedData: " << this->SwapBytesInReceivedData
      << endl;

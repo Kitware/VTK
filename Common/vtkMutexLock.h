@@ -111,7 +111,7 @@ class VTK_COMMON_EXPORT vtkMutexLock : public vtkObject
 public:
   static vtkMutexLock *New();
 
-  vtkTypeMacro(vtkMutexLock,vtkObject);
+  vtkTypeRevisionMacro(vtkMutexLock,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

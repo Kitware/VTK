@@ -75,7 +75,7 @@ class VTK_COMMON_EXPORT vtkFieldData : public vtkObject
 public:
   static vtkFieldData *New();
 
-  vtkTypeMacro(vtkFieldData,vtkObject);
+  vtkTypeRevisionMacro(vtkFieldData,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

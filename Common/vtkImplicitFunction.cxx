@@ -42,6 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImplicitFunction.h"
 #include "vtkMath.h"
 
+vtkCxxRevisionMacro(vtkImplicitFunction, "1.29");
+
 vtkImplicitFunction::vtkImplicitFunction()
 {
   this->Transform = NULL;
@@ -150,7 +152,7 @@ unsigned long vtkImplicitFunction::GetMTime()
 
 void vtkImplicitFunction::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   if ( this->Transform )
     {

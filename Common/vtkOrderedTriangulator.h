@@ -100,7 +100,7 @@ class vtkMemoryPool;
 class VTK_COMMON_EXPORT vtkOrderedTriangulator : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkOrderedTriangulator,vtkObject);
+  vtkTypeRevisionMacro(vtkOrderedTriangulator,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

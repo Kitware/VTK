@@ -59,7 +59,7 @@ public:
   static vtkTensors *New(int dataType);
   static vtkTensors *New();
 
-  vtkTypeMacro(vtkTensors,vtkAttributeData);
+  vtkTypeRevisionMacro(vtkTensors,vtkAttributeData);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

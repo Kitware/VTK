@@ -44,19 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkCommand.h"
 
-//----------------------------------------------------------------------------
-vtkInteractorStyleTrackballCamera *vtkInteractorStyleTrackballCamera::New() 
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkInteractorStyleTrackballCamera");
-  if(ret)
-    {
-    return (vtkInteractorStyleTrackballCamera*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkInteractorStyleTrackballCamera;
-}
-
+vtkCxxRevisionMacro(vtkInteractorStyleTrackballCamera, "1.12");
+vtkStandardNewMacro(vtkInteractorStyleTrackballCamera);
 
 //----------------------------------------------------------------------------
 vtkInteractorStyleTrackballCamera::vtkInteractorStyleTrackballCamera() 
@@ -356,6 +345,6 @@ void vtkInteractorStyleTrackballCamera::OnRightButtonUp(int vtkNotUsed(ctrl),
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackballCamera::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkInteractorStyle::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
 }

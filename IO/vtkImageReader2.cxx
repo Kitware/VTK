@@ -39,28 +39,16 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
+#include "vtkImageReader2.h"
+#include "vtkObjectFactory.h"
+#include "vtkByteSwap.h"
+
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
-#include "vtkByteSwap.h"
 
-#include "vtkImageReader2.h"
-#include "vtkObjectFactory.h"
-
-
-
-//-----------------------------------------------------------------------------
-vtkImageReader2* vtkImageReader2::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageReader2");
-  if(ret)
-    {
-    return (vtkImageReader2*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageReader2;
-}
+vtkCxxRevisionMacro(vtkImageReader2, "1.6");
+vtkStandardNewMacro(vtkImageReader2);
 
 #ifdef read
 #undef read
@@ -356,7 +344,7 @@ void vtkImageReader2::PrintSelf(ostream& os, vtkIndent indent)
 {
   int idx;
   
-  vtkImageSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   // this->File, this->Colors need not be printed  
   os << indent << "FileName: " <<

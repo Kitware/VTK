@@ -39,14 +39,15 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
 #include "vtkLinearTransform.h"
 #include "vtkMath.h"
+
+vtkCxxRevisionMacro(vtkLinearTransform, "1.30");
 
 //------------------------------------------------------------------------
 void vtkLinearTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkHomogeneousTransform::PrintSelf(os, indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 //------------------------------------------------------------------------

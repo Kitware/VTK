@@ -60,7 +60,7 @@ class VTK_IMAGING_EXPORT vtkImageNoiseSource : public vtkImageSource
 {
 public:
   static vtkImageNoiseSource *New();
-  vtkTypeMacro(vtkImageNoiseSource,vtkImageSource);
+  vtkTypeRevisionMacro(vtkImageNoiseSource,vtkImageSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

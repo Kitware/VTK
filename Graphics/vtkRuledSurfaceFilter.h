@@ -86,7 +86,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_GRAPHICS_EXPORT vtkRuledSurfaceFilter : public vtkPolyDataToPolyDataFilter
 {
 public:
-  vtkTypeMacro(vtkRuledSurfaceFilter,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkRuledSurfaceFilter,vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

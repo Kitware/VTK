@@ -68,7 +68,7 @@ class VTK_IO_EXPORT vtkEnSightGoldReader : public vtkEnSightReader
 {
 public:
   static vtkEnSightGoldReader *New();
-  vtkTypeMacro(vtkEnSightGoldReader, vtkEnSightReader);
+  vtkTypeRevisionMacro(vtkEnSightGoldReader, vtkEnSightReader);
   
 protected:
   vtkEnSightGoldReader() {};

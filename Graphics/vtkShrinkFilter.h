@@ -63,7 +63,7 @@ class VTK_GRAPHICS_EXPORT vtkShrinkFilter : public vtkDataSetToUnstructuredGridF
 {
 public:
   static vtkShrinkFilter *New();
-  vtkTypeMacro(vtkShrinkFilter,vtkDataSetToUnstructuredGridFilter);
+  vtkTypeRevisionMacro(vtkShrinkFilter,vtkDataSetToUnstructuredGridFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

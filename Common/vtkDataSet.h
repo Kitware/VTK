@@ -73,7 +73,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_COMMON_EXPORT vtkDataSet : public vtkDataObject
 {
 public:
-  vtkTypeMacro(vtkDataSet,vtkDataObject);
+  vtkTypeRevisionMacro(vtkDataSet,vtkDataObject);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

@@ -91,7 +91,7 @@ class VTK_GRAPHICS_EXPORT vtkCleanPolyData : public vtkPolyDataToPolyDataFilter
 public:
   static vtkCleanPolyData *New();
   void PrintSelf(ostream& os, vtkIndent indent);
-  vtkTypeMacro(vtkCleanPolyData,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkCleanPolyData,vtkPolyDataToPolyDataFilter);
 
   // Description:
   // By default ToleranceIsAbsolute is false and Tolerance is

@@ -58,7 +58,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_GRAPHICS_EXPORT vtkConeSource : public vtkPolyDataSource 
 {
 public:
-  vtkTypeMacro(vtkConeSource,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkConeSource,vtkPolyDataSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -42,18 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkStructuredPointsGeometryFilter.h"
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
-vtkStructuredPointsGeometryFilter* vtkStructuredPointsGeometryFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkStructuredPointsGeometryFilter");
-  if(ret)
-    {
-    return (vtkStructuredPointsGeometryFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkStructuredPointsGeometryFilter;
-}
+vtkCxxRevisionMacro(vtkStructuredPointsGeometryFilter, "1.38");
+vtkStandardNewMacro(vtkStructuredPointsGeometryFilter);
 
 vtkStructuredPointsGeometryFilter::vtkStructuredPointsGeometryFilter()
 {

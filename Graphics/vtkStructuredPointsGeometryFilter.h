@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_GRAPHICS_EXPORT vtkStructuredPointsGeometryFilter : public vtkImageDataGeometryFilter
 {
 public:
-  vtkTypeMacro(vtkStructuredPointsGeometryFilter,vtkImageDataGeometryFilter);
+  vtkTypeRevisionMacro(vtkStructuredPointsGeometryFilter,vtkImageDataGeometryFilter);
   
   // Description:
   // Construct with initial extent of all the data

@@ -39,12 +39,12 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-//
-// DataSet methods
-//
-#include <math.h>
 #include "vtkDataSet.h"
 #include "vtkSource.h"
+
+#include <math.h>
+
+vtkCxxRevisionMacro(vtkDataSet, "1.88");
 
 //----------------------------------------------------------------------------
 // Constructor with default bounds (0,1, 0,1, 0,1).
@@ -436,9 +436,9 @@ int vtkDataSet::CheckAttributes()
 //----------------------------------------------------------------------------
 void vtkDataSet::PrintSelf(ostream& os, vtkIndent indent)
 {
-  float *bounds;
+  this->Superclass::PrintSelf(os,indent);
 
-  vtkDataObject::PrintSelf(os,indent);
+  float *bounds;
 
   os << indent << "Number Of Points: " << this->GetNumberOfPoints() << "\n";
   os << indent << "Number Of Cells: " << this->GetNumberOfCells() << "\n";

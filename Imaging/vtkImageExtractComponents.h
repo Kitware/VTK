@@ -57,7 +57,7 @@ class VTK_IMAGING_EXPORT vtkImageExtractComponents : public vtkImageToImageFilte
 {
 public:
   static vtkImageExtractComponents *New();
-  vtkTypeMacro(vtkImageExtractComponents,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageExtractComponents,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -49,6 +49,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageData.h"
 #include "vtkImagingFactory.h"
 
+vtkCxxRevisionMacro(vtkImageMapper, "1.40");
+
 #define VTK_RINT(x) ((x > 0.0) ? (int)(x + 0.5) : (int)(x - 0.5))
 
 vtkImageMapper::vtkImageMapper()
@@ -101,7 +103,7 @@ unsigned long int vtkImageMapper::GetMTime()
 
 void vtkImageMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkMapper2D::PrintSelf(os, indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Color Window: " << this->ColorWindow << "\n";
   os << indent << "Color Level: " << this->ColorLevel << "\n";

@@ -66,7 +66,7 @@ class VTK_GRAPHICS_EXPORT vtkGraphLayoutFilter : public vtkPolyDataToPolyDataFil
 public:
   static vtkGraphLayoutFilter *New();
 
-  vtkTypeMacro(vtkGraphLayoutFilter,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkGraphLayoutFilter,vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -39,8 +39,6 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
-#include <math.h>
 #include "vtkVolumeRayCastIsosurfaceFunction.h"
 #include "vtkCamera.h"
 #include "vtkRenderWindow.h"
@@ -50,23 +48,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkVolume.h"
 #include "vtkObjectFactory.h"
 
+#include <math.h>
 
-
-//------------------------------------------------------------------------------
-vtkVolumeRayCastIsosurfaceFunction* vtkVolumeRayCastIsosurfaceFunction::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkVolumeRayCastIsosurfaceFunction");
-  if(ret)
-    {
-    return (vtkVolumeRayCastIsosurfaceFunction*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkVolumeRayCastIsosurfaceFunction;
-}
-
-
-
+vtkCxxRevisionMacro(vtkVolumeRayCastIsosurfaceFunction, "1.19");
+vtkStandardNewMacro(vtkVolumeRayCastIsosurfaceFunction);
 
 /*    Is x between y and z?                                     */
 #define VTK_In_Range(x,y,z)      ((x) >= (y) && (x) <= (z))
@@ -1329,7 +1314,7 @@ void vtkVolumeRayCastIsosurfaceFunction::SpecificFunctionInitialize(
 // Print method for vtkVolumeRayCastIsosurfaceFunction
 void vtkVolumeRayCastIsosurfaceFunction::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkVolumeRayCastFunction::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Isosurface Value: " << this->IsoValue << "\n";
 }

@@ -39,22 +39,11 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
 #include "vtkImageBlend.h"
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
-vtkImageBlend* vtkImageBlend::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageBlend");
-  if(ret)
-    {
-    return (vtkImageBlend*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageBlend;
-}
+vtkCxxRevisionMacro(vtkImageBlend, "1.23");
+vtkStandardNewMacro(vtkImageBlend);
 
 //----------------------------------------------------------------------------
 vtkImageBlend::vtkImageBlend()
@@ -1069,7 +1058,7 @@ void vtkImageBlend::ThreadedExecute(vtkImageData **inData,
 //----------------------------------------------------------------------------
 void vtkImageBlend::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkImageMultipleInputFilter::PrintSelf(os, indent);
+  this->Superclass::PrintSelf(os, indent);
   int i;
   for (i = 0; i < this->GetNumberOfInputs(); i++)
     {

@@ -67,7 +67,7 @@ class vtkTimerLog;
 class VTK_PARALLEL_EXPORT vtkCompositeManager : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkCompositeManager,vtkObject);
+  vtkTypeRevisionMacro(vtkCompositeManager,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -46,13 +46,13 @@ int main( int argc, char *argv[] )
      for (k = 0; k < dimensions[0]; k++)
        {
        if (k % 10 == 0)
-	 {
-	 data[k + dimensions[0]*(j + dimensions[1]*i)] = 0;
-	 }
+         {
+         data[k + dimensions[0]*(j + dimensions[1]*i)] = 0;
+         }
        if (j % 10 == 0)
-	 {
-	 data[k + dimensions[0]*(j + dimensions[1]*i)] = 1000;
-	 }
+         {
+         data[k + dimensions[0]*(j + dimensions[1]*i)] = 1000;
+         }
        }
      }
    }

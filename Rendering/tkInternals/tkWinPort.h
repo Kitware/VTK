@@ -1,9 +1,9 @@
 /*
  * tkWinPort.h --
  *
- *	This header file handles porting issues that occur because of
- *	differences between Windows and Unix. It should be the only
- *	file that contains #ifdefs to handle different flavors of OS.
+ *      This header file handles porting issues that occur because of
+ *      differences between Windows and Unix. It should be the only
+ *      file that contains #ifdefs to handle different flavors of OS.
  *
  * Copyright (c) 1995-1996 Sun Microsystems, Inc.
  *
@@ -100,7 +100,7 @@
  */
 
 #define TkpGetPixel(p) (((((p)->red >> 8) & 0xff) \
-	| ((p)->green & 0xff00) | (((p)->blue << 8) & 0xff0000)) | 0x20000000)
+        | ((p)->green & 0xff00) | (((p)->blue << 8) & 0xff0000)) | 0x20000000)
 
 /*
  * These calls implement native bitmaps which are not currently 

@@ -64,7 +64,7 @@ class VTK_GRAPHICS_EXPORT vtkDataSetSurfaceFilter : public vtkDataSetToPolyDataF
 {
 public:
   static vtkDataSetSurfaceFilter *New();
-  vtkTypeMacro(vtkDataSetSurfaceFilter,vtkDataSetToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkDataSetSurfaceFilter,vtkDataSetToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

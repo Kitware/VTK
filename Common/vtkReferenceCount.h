@@ -55,7 +55,7 @@ class VTK_COMMON_EXPORT vtkReferenceCount : public vtkObject
 public:
   static vtkReferenceCount *New();
 
-  vtkTypeMacro(vtkReferenceCount,vtkObject);
+  vtkTypeRevisionMacro(vtkReferenceCount,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
   
 protected:  

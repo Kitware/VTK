@@ -57,7 +57,7 @@ protected:
   
 public:
   static vtkOpenGLActor *New();
-  vtkTypeMacro(vtkOpenGLActor,vtkActor);
+  vtkTypeRevisionMacro(vtkOpenGLActor,vtkActor);
 
   // Description:
   // Actual actor render method.

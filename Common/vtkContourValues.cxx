@@ -43,23 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkContourValues* vtkContourValues::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkContourValues");
-  if(ret)
-    {
-    return (vtkContourValues*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkContourValues;
-}
-
-
-
+vtkCxxRevisionMacro(vtkContourValues, "1.17");
+vtkStandardNewMacro(vtkContourValues);
 
 // Construct object with a single contour value at 0.0.
 vtkContourValues::vtkContourValues()
@@ -205,6 +190,8 @@ int vtkContourValues::GetNumberOfContours()
 
 void vtkContourValues::PrintSelf(ostream& os, vtkIndent indent)
 {
+  this->Superclass::PrintSelf(os, indent);
+  
   int i, numContours=this->Contours->GetMaxId() + 1;
 
   os << indent << "Contour Values: \n";

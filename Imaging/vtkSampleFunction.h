@@ -60,7 +60,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_IMAGING_EXPORT vtkSampleFunction : public vtkStructuredPointsSource
 {
 public:
-  vtkTypeMacro(vtkSampleFunction,vtkStructuredPointsSource);
+  vtkTypeRevisionMacro(vtkSampleFunction,vtkStructuredPointsSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

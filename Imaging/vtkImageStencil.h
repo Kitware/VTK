@@ -55,7 +55,7 @@ class VTK_IMAGING_EXPORT vtkImageStencil : public vtkImageToImageFilter
 {
 public:
   static vtkImageStencil *New();
-  vtkTypeMacro(vtkImageStencil, vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageStencil, vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

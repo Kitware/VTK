@@ -42,29 +42,16 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
 #include "vtkEarthSource.h"
 #include "vtkPoints.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
+#include <math.h>
 
-//------------------------------------------------------------------------------
-vtkEarthSource* vtkEarthSource::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkEarthSource");
-  if(ret)
-    {
-    return (vtkEarthSource*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkEarthSource;
-}
-
-
-
+vtkCxxRevisionMacro(vtkEarthSource, "1.21");
+vtkStandardNewMacro(vtkEarthSource);
 
 // Description:
 // Construct an Earth with radius = 1.0 and OnRatio set at 10. The outlines are drawn
@@ -78,7 +65,7 @@ vtkEarthSource::vtkEarthSource()
 
 void vtkEarthSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
   
   os << indent << "Radius: " << this->Radius << "\n";
   os << indent << "OnRatio: " << this->OnRatio << "\n";
@@ -6911,16 +6898,16 @@ void vtkEarthSource::Execute()
       x[2] = base[1] * this->Radius;
       
       if ((land == 1) && (npts > this->OnRatio * 3))
-	{
-	// use only every OnRatioth point in the polygon
-	if ((i % this->OnRatio) == 0)
-	  {
-	  newPoints->InsertNextPoint(x);
-	  vtkMath::Normalize(x);
-	  newNormals->InsertNextTuple(x);
-	  actualpts++;
-	  }
-	}
+        {
+        // use only every OnRatioth point in the polygon
+        if ((i % this->OnRatio) == 0)
+          {
+          newPoints->InsertNextPoint(x);
+          vtkMath::Normalize(x);
+          newNormals->InsertNextTuple(x);
+          actualpts++;
+          }
+        }
       }
     
     if ((land == 1) && (npts > this->OnRatio * 3))
@@ -6930,9 +6917,9 @@ void vtkEarthSource::Execute()
       //
       
       for (i = 0; i < (npts/this->OnRatio); i++)
-	{
-	Pts[i] = (actualpts - npts/this->OnRatio) + i;
-	}
+        {
+        Pts[i] = (actualpts - npts/this->OnRatio) + i;
+        }
       
       if ( this->Outline ) // close the loop in the line
         {

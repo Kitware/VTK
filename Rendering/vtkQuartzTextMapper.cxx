@@ -43,23 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkQuartzImageWindow.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkQuartzTextMapper* vtkQuartzTextMapper::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkQuartzTextMapper");
-  if(ret)
-    {
-    return (vtkQuartzTextMapper*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkQuartzTextMapper;
-}
-
-
-
+vtkCxxRevisionMacro(vtkQuartzTextMapper, "1.3");
+vtkStandardNewMacro(vtkQuartzTextMapper);
 
 vtkQuartzTextMapper::vtkQuartzTextMapper()
 {

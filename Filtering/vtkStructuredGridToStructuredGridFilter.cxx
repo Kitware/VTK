@@ -41,6 +41,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkStructuredGridToStructuredGridFilter.h"
 
+vtkCxxRevisionMacro(vtkStructuredGridToStructuredGridFilter, "1.15");
+
 //----------------------------------------------------------------------------
 // Specify the input data or filter.
 void vtkStructuredGridToStructuredGridFilter::SetInput(vtkStructuredGrid *input)

@@ -73,7 +73,7 @@ class vtkDataSet;
 class VTK_COMMON_EXPORT vtkAbstractMapper : public vtkProcessObject
 {
 public:
-  vtkTypeMacro(vtkAbstractMapper,vtkProcessObject);
+  vtkTypeRevisionMacro(vtkAbstractMapper,vtkProcessObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

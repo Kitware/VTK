@@ -50,7 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_PARALLEL_EXPORT vtkPPolyDataNormals : public vtkPolyDataNormals
 {
 public:
-  vtkTypeMacro(vtkPPolyDataNormals,vtkPolyDataNormals);
+  vtkTypeRevisionMacro(vtkPPolyDataNormals,vtkPolyDataNormals);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

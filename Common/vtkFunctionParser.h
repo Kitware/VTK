@@ -94,7 +94,7 @@ class VTK_COMMON_EXPORT vtkFunctionParser : public vtkObject
 {
 public:
   static vtkFunctionParser *New();
-  vtkTypeMacro(vtkFunctionParser, vtkObject);
+  vtkTypeRevisionMacro(vtkFunctionParser, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Decription:

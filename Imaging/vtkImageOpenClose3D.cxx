@@ -39,31 +39,14 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include<math.h>
-#include "vtkImageData.h"
-
 #include "vtkImageOpenClose3D.h"
 #include "vtkObjectFactory.h"
+#include "vtkImageData.h"
 
+#include <math.h>
 
-
-//------------------------------------------------------------------------------
-vtkImageOpenClose3D* vtkImageOpenClose3D::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageOpenClose3D");
-  if(ret)
-    {
-    return (vtkImageOpenClose3D*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageOpenClose3D;
-}
-
-
-
-
-
+vtkCxxRevisionMacro(vtkImageOpenClose3D, "1.20");
+vtkStandardNewMacro(vtkImageOpenClose3D);
 
 //----------------------------------------------------------------------------
 // functions to convert progress calls.
@@ -117,7 +100,7 @@ vtkImageOpenClose3D::~vtkImageOpenClose3D()
 //----------------------------------------------------------------------------
 void vtkImageOpenClose3D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageToImageFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
   os << indent << "Filter0: \n";
   this->Filter0->PrintSelf(os, indent.GetNextIndent());
   os << indent << "Filter1: \n";

@@ -60,7 +60,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_IMAGING_EXPORT vtkTriangularTexture : public vtkStructuredPointsSource
 {
 public:
-  vtkTypeMacro(vtkTriangularTexture,vtkStructuredPointsSource);
+  vtkTypeRevisionMacro(vtkTriangularTexture,vtkStructuredPointsSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

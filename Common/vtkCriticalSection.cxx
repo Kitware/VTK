@@ -42,20 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkCriticalSection.h"
 #include "vtkObjectFactory.h"
 
-
-
-//----------------------------------------------------------------------------
-vtkCriticalSection* vtkCriticalSection::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkCriticalSection");
-  if(ret)
-    {
-    return (vtkCriticalSection*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkCriticalSection;
-}
+vtkCxxRevisionMacro(vtkCriticalSection, "1.8");
+vtkStandardNewMacro(vtkCriticalSection);
 
 // New for the SimpleCriticalSection
 vtkSimpleCriticalSection *vtkSimpleCriticalSection::New()
@@ -147,6 +135,6 @@ vtkSimpleCriticalSection *vtkSimpleCriticalSection::SafeDownCast(vtkSimpleCritic
   
 void vtkCriticalSection::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os, indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 

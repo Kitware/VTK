@@ -43,20 +43,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkObjectFactory.h"
 #include <iomanip.h>
 
-
-//----------------------------------------------------------------------------
-vtkThreadSafeLog* vtkThreadSafeLog::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkThreadSafeLog");
-  if(ret)
-    {
-    return (vtkThreadSafeLog*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkThreadSafeLog;
-}
-
+vtkCxxRevisionMacro(vtkThreadSafeLog, "1.2");
+vtkStandardNewMacro(vtkThreadSafeLog);
 
 //----------------------------------------------------------------------------
 vtkThreadSafeLog::vtkThreadSafeLog()

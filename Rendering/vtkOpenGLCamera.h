@@ -55,7 +55,7 @@ class VTK_RENDERING_EXPORT vtkOpenGLCamera : public vtkCamera
 {
 public:
   static vtkOpenGLCamera *New();
-  vtkTypeMacro(vtkOpenGLCamera,vtkCamera);
+  vtkTypeRevisionMacro(vtkOpenGLCamera,vtkCamera);
 
   // Description:
   // Implement base class method.

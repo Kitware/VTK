@@ -87,7 +87,7 @@ class VTK_FILTERING_EXPORT vtkDataObjectSource : public vtkSource
 {
 public:
   static vtkDataObjectSource *New();
-  vtkTypeMacro(vtkDataObjectSource,vtkSource);
+  vtkTypeRevisionMacro(vtkDataObjectSource,vtkSource);
 
   // Description:
   // Get the output field of this source.

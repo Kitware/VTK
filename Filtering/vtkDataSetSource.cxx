@@ -42,23 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkDataSetSource.h"
 #include "vtkObjectFactory.h"
 
-
-
-//----------------------------------------------------------------------------
-vtkDataSetSource* vtkDataSetSource::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkDataSetSource");
-  if(ret)
-    {
-    return (vtkDataSetSource*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkDataSetSource;
-}
-
-
-
+vtkCxxRevisionMacro(vtkDataSetSource, "1.8");
+vtkStandardNewMacro(vtkDataSetSource);
 
 vtkDataSetSource::vtkDataSetSource()
 {

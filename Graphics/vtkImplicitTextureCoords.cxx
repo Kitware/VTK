@@ -43,22 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-
-//------------------------------------------------------------------------------
-vtkImplicitTextureCoords* vtkImplicitTextureCoords::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImplicitTextureCoords");
-  if(ret)
-    {
-    return (vtkImplicitTextureCoords*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImplicitTextureCoords;
-}
-
-
-
+vtkCxxRevisionMacro(vtkImplicitTextureCoords, "1.39");
+vtkStandardNewMacro(vtkImplicitTextureCoords);
 
 // Create object with texture dimension=2 and no r-s-t implicit functions
 // defined and FlipTexture turned off.
@@ -225,7 +211,7 @@ void vtkImplicitTextureCoords::Execute()
 
 void vtkImplicitTextureCoords::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToDataSetFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Flip Texture: " << this->FlipTexture << "\n";
 

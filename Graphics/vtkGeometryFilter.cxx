@@ -51,22 +51,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPyramid.h"
 #include "vtkUnsignedCharArray.h"
 
-
-//----------------------------------------------------------------------------
-vtkGeometryFilter* vtkGeometryFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkGeometryFilter");
-  if(ret)
-    {
-    return (vtkGeometryFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkGeometryFilter;
-}
-
-
-
+vtkCxxRevisionMacro(vtkGeometryFilter, "1.84");
+vtkStandardNewMacro(vtkGeometryFilter);
 
 // Construct with all types of clipping turned off.
 vtkGeometryFilter::vtkGeometryFilter()
@@ -415,7 +401,7 @@ void vtkGeometryFilter::CreateDefaultLocator()
 
 void vtkGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Point Minimum : " << this->PointMinimum << "\n";
   os << indent << "Point Maximum : " << this->PointMaximum << "\n";

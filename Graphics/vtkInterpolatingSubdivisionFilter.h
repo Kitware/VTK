@@ -58,7 +58,7 @@ class vtkCellArray;
 class VTK_GRAPHICS_EXPORT vtkInterpolatingSubdivisionFilter : public vtkPolyDataToPolyDataFilter
 {
 public:
-  vtkTypeMacro(vtkInterpolatingSubdivisionFilter,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkInterpolatingSubdivisionFilter,vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

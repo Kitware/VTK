@@ -56,7 +56,7 @@ class VTK_COMMON_EXPORT vtkTriangle : public vtkCell
 {
 public:
   static vtkTriangle *New();
-  vtkTypeMacro(vtkTriangle,vtkCell);
+  vtkTypeRevisionMacro(vtkTriangle,vtkCell);
 
   // Description:
   // Create a new cell and copy this triangle's information into the

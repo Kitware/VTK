@@ -76,7 +76,7 @@ class vtkFieldData;
 class VTK_GRAPHICS_EXPORT vtkMergeFields : public vtkDataSetToDataSetFilter
 {
 public:
-  vtkTypeMacro(vtkMergeFields,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkMergeFields,vtkDataSetToDataSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -63,7 +63,7 @@ class VTK_IO_EXPORT vtkGESignaReader : public vtkImageReader2
 {
 public:
   static vtkGESignaReader *New();
-  vtkTypeMacro(vtkGESignaReader,vtkImageReader2);
+  vtkTypeRevisionMacro(vtkGESignaReader,vtkImageReader2);
 
 protected:
   vtkGESignaReader() {};

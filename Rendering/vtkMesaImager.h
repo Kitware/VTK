@@ -56,7 +56,7 @@ class VTK_RENDERING_EXPORT vtkMesaImager : public vtkImager
 { 
 public:
   static vtkMesaImager *New();
-  vtkTypeMacro(vtkMesaImager,vtkImager);
+  vtkTypeRevisionMacro(vtkMesaImager,vtkImager);
 
   // Description:
   // Renders an imager.  Passes Render message on the 

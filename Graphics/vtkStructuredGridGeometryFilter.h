@@ -74,7 +74,7 @@ class VTK_GRAPHICS_EXPORT vtkStructuredGridGeometryFilter : public vtkStructured
 {
 public:
   static vtkStructuredGridGeometryFilter *New();
-  vtkTypeMacro(vtkStructuredGridGeometryFilter,vtkStructuredGridToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkStructuredGridGeometryFilter,vtkStructuredGridToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

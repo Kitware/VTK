@@ -67,7 +67,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_GRAPHICS_EXPORT vtkStripper : public vtkPolyDataToPolyDataFilter
 {
 public:
-  vtkTypeMacro(vtkStripper,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkStripper,vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

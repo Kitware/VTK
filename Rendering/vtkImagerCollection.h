@@ -57,7 +57,7 @@ class VTK_RENDERING_EXPORT vtkImagerCollection : public vtkCollection
 {
  public:
   static vtkImagerCollection *New();
-  vtkTypeMacro(vtkImagerCollection,vtkCollection);
+  vtkTypeRevisionMacro(vtkImagerCollection,vtkCollection);
 
   // Description:
   // Standard methods for manipulating the collection.

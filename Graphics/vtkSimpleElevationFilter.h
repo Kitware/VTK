@@ -56,7 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_GRAPHICS_EXPORT vtkSimpleElevationFilter : public vtkDataSetToDataSetFilter 
 {
 public:
-  vtkTypeMacro(vtkSimpleElevationFilter,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkSimpleElevationFilter,vtkDataSetToDataSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

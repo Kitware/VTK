@@ -77,7 +77,7 @@ class vtkRenderWindowInteractor;
 class VTK_RENDERING_EXPORT vtkRenderWindow : public vtkWindow
 {
 public:
-  vtkTypeMacro(vtkRenderWindow,vtkWindow);
+  vtkTypeRevisionMacro(vtkRenderWindow,vtkWindow);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -21,7 +21,7 @@ class VTK_MY_COMMON_EXPORT vtkBar : public vtkObject
 {
 public:
   static vtkBar *New();
-  vtkTypeMacro(vtkBar,vtkObject);
+  vtkTypeRevisionMacro(vtkBar,vtkObject);
 
 protected:
   vtkBar() {};

@@ -42,20 +42,5 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkCullerCollection.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkCullerCollection* vtkCullerCollection::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkCullerCollection");
-  if(ret)
-    {
-    return (vtkCullerCollection*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkCullerCollection;
-}
-
-
-
+vtkCxxRevisionMacro(vtkCullerCollection, "1.5");
+vtkStandardNewMacro(vtkCullerCollection);

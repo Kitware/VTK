@@ -73,7 +73,7 @@ class VTK_RENDERING_EXPORT vtkInteractorStyleJoystickCamera : public vtkInteract
 {
 public:
   static vtkInteractorStyleJoystickCamera *New();
-  vtkTypeMacro(vtkInteractorStyleJoystickCamera, vtkObject);
+  vtkTypeRevisionMacro(vtkInteractorStyleJoystickCamera, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

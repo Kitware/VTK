@@ -41,6 +41,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkStructuredPointsToPolyDataFilter.h"
 
+vtkCxxRevisionMacro(vtkStructuredPointsToPolyDataFilter, "1.23");
+
 //----------------------------------------------------------------------------
 // Specify the input data or filter.
 void vtkStructuredPointsToPolyDataFilter::SetInput(vtkImageData *input)

@@ -88,7 +88,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_EXPORT vtkVolumeProVP1000Mapper : public vtkVolumeProMapper
 {
 public:
-  vtkTypeMacro(vtkVolumeProVP1000Mapper,vtkVolumeProMapper);
+  vtkTypeRevisionMacro(vtkVolumeProVP1000Mapper,vtkVolumeProMapper);
   static vtkVolumeProVP1000Mapper *New();
  // Description:
   // Render the image using the hardware and place it in the frame buffer

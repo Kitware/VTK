@@ -47,22 +47,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-
-//------------------------------------------------------------------------------
-vtkPVGeometryFilter* vtkPVGeometryFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPVGeometryFilter");
-  if(ret)
-    {
-    return (vtkPVGeometryFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkPVGeometryFilter;
-}
-
-
-
+vtkCxxRevisionMacro(vtkPVGeometryFilter, "1.5");
+vtkStandardNewMacro(vtkPVGeometryFilter);
 
 //----------------------------------------------------------------------------
 vtkPVGeometryFilter::vtkPVGeometryFilter ()
@@ -288,7 +274,7 @@ void vtkPVGeometryFilter::UnstructuredGridExecute(vtkUnstructuredGrid *input)
 //----------------------------------------------------------------------------
 void vtkPVGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetSurfaceFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   if (this->OutlineFlag)
     {

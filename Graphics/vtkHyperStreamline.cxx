@@ -43,22 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-
-//------------------------------------------------------------------------------
-vtkHyperStreamline* vtkHyperStreamline::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkHyperStreamline");
-  if(ret)
-    {
-    return (vtkHyperStreamline*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkHyperStreamline;
-}
-
-
-
+vtkCxxRevisionMacro(vtkHyperStreamline, "1.50");
+vtkStandardNewMacro(vtkHyperStreamline);
 
 //
 // Special classes for manipulating data
@@ -857,7 +843,7 @@ void vtkHyperStreamline::BuildTube()
 
 void vtkHyperStreamline::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   if ( this->StartFrom == VTK_START_FROM_POSITION )
     {

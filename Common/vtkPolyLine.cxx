@@ -45,22 +45,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-
-//------------------------------------------------------------------------------
-vtkPolyLine* vtkPolyLine::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPolyLine");
-  if(ret)
-    {
-    return (vtkPolyLine*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkPolyLine;
-}
-
-
-
+vtkCxxRevisionMacro(vtkPolyLine, "1.68");
+vtkStandardNewMacro(vtkPolyLine);
 
 vtkPolyLine::vtkPolyLine()
 {

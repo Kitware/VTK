@@ -39,28 +39,11 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
 #include "vtkImageDotProduct.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkImageDotProduct* vtkImageDotProduct::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageDotProduct");
-  if(ret)
-    {
-    return (vtkImageDotProduct*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageDotProduct;
-}
-
-
-
-
+vtkCxxRevisionMacro(vtkImageDotProduct, "1.22");
+vtkStandardNewMacro(vtkImageDotProduct);
 
 //----------------------------------------------------------------------------
 // Colapse the first axis

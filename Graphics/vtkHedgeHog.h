@@ -58,7 +58,7 @@ class VTK_GRAPHICS_EXPORT vtkHedgeHog : public vtkDataSetToPolyDataFilter
 {
 public:
   static vtkHedgeHog *New();
-  vtkTypeMacro(vtkHedgeHog,vtkDataSetToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkHedgeHog,vtkDataSetToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

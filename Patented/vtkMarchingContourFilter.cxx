@@ -68,18 +68,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageMarchingCubes.h"
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
-vtkMarchingContourFilter* vtkMarchingContourFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMarchingContourFilter");
-  if(ret)
-    {
-    return (vtkMarchingContourFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkMarchingContourFilter;
-}
+vtkCxxRevisionMacro(vtkMarchingContourFilter, "1.18");
+vtkStandardNewMacro(vtkMarchingContourFilter);
 
 // Construct object with initial range (0,1) and single contour value
 // of 0.0.
@@ -352,7 +342,7 @@ void vtkMarchingContourFilter::CreateDefaultLocator()
 
 void vtkMarchingContourFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Compute Gradients: " << (this->ComputeGradients ? "On\n" : "Off\n");
   os << indent << "Compute Normals: " << (this->ComputeNormals ? "On\n" : "Off\n");

@@ -57,7 +57,7 @@ class VTK_FILTERING_EXPORT vtkPolyDataCollection : public vtkCollection
 {
 public:
   static vtkPolyDataCollection *New();
-  vtkTypeMacro(vtkPolyDataCollection,vtkCollection);
+  vtkTypeRevisionMacro(vtkPolyDataCollection,vtkCollection);
 
   // Description:
   // Add a poly data to the list.

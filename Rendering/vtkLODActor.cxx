@@ -38,25 +38,16 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <stdlib.h>
-#include <math.h>
 #include "vtkLODActor.h"
 #include "vtkRenderWindow.h"
 #include "vtkTimerLog.h"
 #include "vtkObjectFactory.h"
 
-//-----------------------------------------------------------------------------
-vtkLODActor* vtkLODActor::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkLODActor");
-  if(ret)
-    {
-    return (vtkLODActor*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkLODActor;
-}
+#include <stdlib.h>
+#include <math.h>
+
+vtkCxxRevisionMacro(vtkLODActor, "1.57");
+vtkStandardNewMacro(vtkLODActor);
 
 //----------------------------------------------------------------------------
 vtkLODActor::vtkLODActor()
@@ -90,7 +81,7 @@ vtkLODActor::~vtkLODActor()
 //----------------------------------------------------------------------------
 void vtkLODActor::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkActor::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Cloud Points: " << this->NumberOfCloudPoints << endl;
 

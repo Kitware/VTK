@@ -46,7 +46,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkRectilinearGrid.h"
 #include "vtkStructuredPoints.h"
 #include "vtkFloatArray.h"
+
 #include <ctype.h>
+
+vtkCxxRevisionMacro(vtkEnSightReader, "1.27");
 
 //----------------------------------------------------------------------------
 vtkEnSightReader::vtkEnSightReader()
@@ -1935,7 +1938,7 @@ void vtkEnSightReader::ReplaceWildcards(char* filename, int num)
 
 void vtkEnSightReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "CaseFileName: "
      << (this->CaseFileName ? this->CaseFileName : "(none)") << endl;

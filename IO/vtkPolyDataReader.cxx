@@ -42,18 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPolyDataReader.h"
 #include "vtkObjectFactory.h"
 
-//-------------------------------------------------------------------------
-vtkPolyDataReader* vtkPolyDataReader::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPolyDataReader");
-  if(ret)
-    {
-    return (vtkPolyDataReader*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkPolyDataReader;
-}
+vtkCxxRevisionMacro(vtkPolyDataReader, "1.21");
+vtkStandardNewMacro(vtkPolyDataReader);
 
 vtkPolyDataReader::vtkPolyDataReader()
 {
@@ -379,5 +369,5 @@ void vtkPolyDataReader::Execute()
 
 void vtkPolyDataReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataReader::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 }

@@ -53,21 +53,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-//----------------------------------------------------------------------------
-vtkXRenderWindowInteractor* vtkXRenderWindowInteractor::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkXRenderWindowInteractor");
-  if(ret)
-    {
-    return (vtkXRenderWindowInteractor*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkXRenderWindowInteractor;
-}
-
-
-
+vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.102");
+vtkStandardNewMacro(vtkXRenderWindowInteractor);
 
 typedef struct
 {
@@ -388,7 +375,7 @@ void vtkXRenderWindowInteractor::Disable()
 
 void vtkXRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkRenderWindowInteractor::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
   if (this->App)
     {
     os << indent << "App: " << this->App << "\n";

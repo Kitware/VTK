@@ -49,7 +49,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_PARALLEL_EXPORT vtkPSphereSource : public vtkSphereSource
 {
 public:
-  vtkTypeMacro(vtkPSphereSource,vtkSphereSource);
+  vtkTypeRevisionMacro(vtkPSphereSource,vtkSphereSource);
 
   // Description:
   // Construct sphere with radius=0.5 and default resolution 8 in both Phi

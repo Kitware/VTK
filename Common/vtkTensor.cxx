@@ -42,23 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTensor.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkTensor* vtkTensor::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTensor");
-  if(ret)
-    {
-    return (vtkTensor*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkTensor;
-}
-
-
-
+vtkCxxRevisionMacro(vtkTensor, "1.12");
+vtkStandardNewMacro(vtkTensor);
 
 // Construct tensor initially pointing to internal storage.
 vtkTensor::vtkTensor()
@@ -72,4 +57,3 @@ vtkTensor::vtkTensor()
       }
     }
 }
-

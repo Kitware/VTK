@@ -82,7 +82,7 @@ class vtkDataArray;
 class VTK_GRAPHICS_EXPORT vtkPolyDataConnectivityFilter : public vtkPolyDataToPolyDataFilter
 {
 public:
-  vtkTypeMacro(vtkPolyDataConnectivityFilter,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkPolyDataConnectivityFilter,vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

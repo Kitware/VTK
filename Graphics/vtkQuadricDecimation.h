@@ -67,7 +67,7 @@ typedef struct {
 class VTK_GRAPHICS_EXPORT vtkQuadricDecimation : public vtkPolyDataToPolyDataFilter
 {
 public:
-  vtkTypeMacro(vtkQuadricDecimation, vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkQuadricDecimation, vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   static vtkQuadricDecimation *New();

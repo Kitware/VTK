@@ -79,7 +79,7 @@ class VTK_COMMON_EXPORT vtkSource : public vtkProcessObject
 public:
   static vtkSource *New();
 
-  vtkTypeMacro(vtkSource,vtkProcessObject);
+  vtkTypeRevisionMacro(vtkSource,vtkProcessObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

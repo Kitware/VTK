@@ -46,22 +46,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMesaImager.h"
 #include "vtkObjectFactory.h"
 
-
-//------------------------------------------------------------------------------
-vtkMesaImageWindow* vtkMesaImageWindow::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMesaImageWindow");
-  if(ret)
-    {
-    return (vtkMesaImageWindow*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkMesaImageWindow;
-}
-
-
-
+vtkCxxRevisionMacro(vtkMesaImageWindow, "1.12");
+vtkStandardNewMacro(vtkMesaImageWindow);
 
 // a couple of routines for offscreen rendering
 void vtkOSMesaDestroyImageWindow(void *Window) 
@@ -416,7 +402,7 @@ Colormap vtkMesaImageWindow::GetDesiredColormap ()
 
 void vtkMesaImageWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkImageWindow::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "ContextId: " << this->ContextId << "\n";
   os << indent << "OffScreenContextId: " << this->OffScreenContextId << "\n";

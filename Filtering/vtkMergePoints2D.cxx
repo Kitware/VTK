@@ -42,23 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMergePoints2D.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkMergePoints2D* vtkMergePoints2D::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMergePoints2D");
-  if(ret)
-    {
-    return (vtkMergePoints2D*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkMergePoints2D;
-}
-
-
-
+vtkCxxRevisionMacro(vtkMergePoints2D, "1.9");
+vtkStandardNewMacro(vtkMergePoints2D);
 
 // Determine whether point given by x[2] has been inserted into points list.
 // Return id of previously inserted point if this is true, otherwise return

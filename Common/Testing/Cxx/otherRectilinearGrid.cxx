@@ -83,12 +83,12 @@ void Test(ostream& strm)
     for (j = 0; j < 20; j++)
       {
       for (i = 0; i < 20; i++)
-	{
-	shortScalars3D->InsertComponent(l,0,i);
-	shortScalars3D->InsertComponent(l,0,j);
-	shortScalars3D->InsertComponent(l,0,k);
-	l++;
-	}
+        {
+        shortScalars3D->InsertComponent(l,0,i);
+        shortScalars3D->InsertComponent(l,0,j);
+        shortScalars3D->InsertComponent(l,0,k);
+        l++;
+        }
       }
     }
   

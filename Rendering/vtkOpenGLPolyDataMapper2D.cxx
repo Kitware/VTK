@@ -53,18 +53,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkgluPickMatrix.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-//------------------------------------------------------------------------------
-vtkOpenGLPolyDataMapper2D* vtkOpenGLPolyDataMapper2D::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkOpenGLPolyDataMapper2D");
-  if(ret)
-    {
-    return (vtkOpenGLPolyDataMapper2D*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkOpenGLPolyDataMapper2D;
-}
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.31");
+vtkStandardNewMacro(vtkOpenGLPolyDataMapper2D);
 #endif
 
 

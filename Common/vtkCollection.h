@@ -70,7 +70,7 @@ class vtkCollectionElement //;prevents pick-up by man page generator
 class VTK_COMMON_EXPORT vtkCollection : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkCollection,vtkObject);
+  vtkTypeRevisionMacro(vtkCollection,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

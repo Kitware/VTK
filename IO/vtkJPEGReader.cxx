@@ -47,19 +47,8 @@ extern "C" {
 #include <setjmp.h>
 }
 
-//-------------------------------------------------------------------------
-vtkJPEGReader* vtkJPEGReader::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkJPEGReader");
-  if(ret)
-    {
-    return (vtkJPEGReader*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkJPEGReader;
-}
-
+vtkCxxRevisionMacro(vtkJPEGReader, "1.4");
+vtkStandardNewMacro(vtkJPEGReader);
 
 void vtkJPEGReader::ExecuteInformation()
 {

@@ -39,29 +39,13 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
-
 #include "vtkImageFourierCenter.h"
 #include "vtkObjectFactory.h"
 
+#include <math.h>
 
-
-//------------------------------------------------------------------------------
-vtkImageFourierCenter* vtkImageFourierCenter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageFourierCenter");
-  if(ret)
-    {
-    return (vtkImageFourierCenter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageFourierCenter;
-}
-
-
-
-
+vtkCxxRevisionMacro(vtkImageFourierCenter, "1.14");
+vtkStandardNewMacro(vtkImageFourierCenter);
 
 //----------------------------------------------------------------------------
 // Construct an instance of vtkImageFourierCenter fitler.

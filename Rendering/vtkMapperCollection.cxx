@@ -42,20 +42,5 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMapperCollection.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkMapperCollection* vtkMapperCollection::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMapperCollection");
-  if(ret)
-    {
-    return (vtkMapperCollection*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkMapperCollection;
-}
-
-
-
+vtkCxxRevisionMacro(vtkMapperCollection, "1.5");
+vtkStandardNewMacro(vtkMapperCollection);

@@ -41,6 +41,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkLocator.h"
 
+vtkCxxRevisionMacro(vtkLocator, "1.41");
+
 // Construct with automatic computation of divisions, averaging
 // 25 points per bucket.
 vtkLocator::vtkLocator()
@@ -82,7 +84,7 @@ void vtkLocator::Update()
 
 void vtkLocator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   if ( this->DataSet )
     {

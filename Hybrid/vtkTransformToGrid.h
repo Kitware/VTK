@@ -58,7 +58,7 @@ class VTK_HYBRID_EXPORT vtkTransformToGrid : public vtkImageSource
 {
 public:
   static vtkTransformToGrid *New();
-  vtkTypeMacro(vtkTransformToGrid,vtkImageSource);
+  vtkTypeRevisionMacro(vtkTransformToGrid,vtkImageSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

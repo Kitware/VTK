@@ -42,18 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkByteSwap.h"
 #include "vtkObjectFactory.h"
 
-//--------------------------------------------------------------------------
-vtkMCubesWriter* vtkMCubesWriter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMCubesWriter");
-  if(ret)
-    {
-    return (vtkMCubesWriter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkMCubesWriter;
-}
+vtkCxxRevisionMacro(vtkMCubesWriter, "1.26");
+vtkStandardNewMacro(vtkMCubesWriter);
 
 // Create object.
 vtkMCubesWriter::vtkMCubesWriter()
@@ -153,7 +143,7 @@ void WriteLimits(FILE *fp, float *bounds)
 
 void vtkMCubesWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataWriter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Limits File Name: " 
      << (this->LimitsFileName ? this->LimitsFileName : "(none)") << "\n";

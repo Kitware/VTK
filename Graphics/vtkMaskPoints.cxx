@@ -43,18 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
-vtkMaskPoints* vtkMaskPoints::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMaskPoints");
-  if(ret)
-    {
-    return (vtkMaskPoints*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkMaskPoints;
-}
+vtkCxxRevisionMacro(vtkMaskPoints, "1.38");
+vtkStandardNewMacro(vtkMaskPoints);
 
 //----------------------------------------------------------------------------
 vtkMaskPoints::vtkMaskPoints()
@@ -186,7 +176,7 @@ void vtkMaskPoints::Execute()
 //----------------------------------------------------------------------------
 void vtkMaskPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Generate Vertices: " 
      << (this->GenerateVertices ? "On\n" : "Off\n");

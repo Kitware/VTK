@@ -54,7 +54,7 @@ class VTK_PARALLEL_EXPORT vtkPipelineSize : public vtkObject
 public:
   // Description:
   static vtkPipelineSize* New();
-  vtkTypeMacro(vtkPipelineSize,vtkObject);
+  vtkTypeRevisionMacro(vtkPipelineSize,vtkObject);
 
   // Description:
   // Compute an estimate of how much memory a pipline will require in 

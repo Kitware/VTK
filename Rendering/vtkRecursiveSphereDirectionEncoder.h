@@ -58,7 +58,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_RENDERING_EXPORT vtkRecursiveSphereDirectionEncoder : public vtkDirectionEncoder
 {
 public:
-  vtkTypeMacro(vtkRecursiveSphereDirectionEncoder,vtkDirectionEncoder);
+  vtkTypeRevisionMacro(vtkRecursiveSphereDirectionEncoder,vtkDirectionEncoder);
   void PrintSelf( ostream& os, vtkIndent index );
 
 // Description:

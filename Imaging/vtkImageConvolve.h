@@ -56,7 +56,7 @@ public:
   // Description:
   // Construct an instance of vtkImageConvolve filter.
   static vtkImageConvolve *New();
-  vtkTypeMacro(vtkImageConvolve,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageConvolve,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -42,20 +42,5 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkOverrideInformationCollection.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkOverrideInformationCollection* vtkOverrideInformationCollection::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkOverrideInformationCollection");
-  if(ret)
-    {
-    return (vtkOverrideInformationCollection*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkOverrideInformationCollection;
-}
-
-
-
+vtkCxxRevisionMacro(vtkOverrideInformationCollection, "1.2");
+vtkStandardNewMacro(vtkOverrideInformationCollection);

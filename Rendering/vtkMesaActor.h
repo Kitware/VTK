@@ -57,7 +57,7 @@ protected:
   
 public:
   static vtkMesaActor *New();
-  vtkTypeMacro(vtkMesaActor,vtkActor);
+  vtkTypeRevisionMacro(vtkMesaActor,vtkActor);
 
   // Description:
   // Actual actor render method.

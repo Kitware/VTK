@@ -58,7 +58,7 @@ class vtkOrderedTriangulator;
 class VTK_COMMON_EXPORT vtkCell3D : public vtkCell
 {
 public:
-  vtkTypeMacro(vtkCell3D,vtkCell);
+  vtkTypeRevisionMacro(vtkCell3D,vtkCell);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

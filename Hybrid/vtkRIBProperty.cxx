@@ -42,23 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkRIBProperty.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkRIBProperty* vtkRIBProperty::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkRIBProperty");
-  if(ret)
-    {
-    return (vtkRIBProperty*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkRIBProperty;
-}
-
-
-
+vtkCxxRevisionMacro(vtkRIBProperty, "1.15");
+vtkStandardNewMacro(vtkRIBProperty);
 
 vtkRIBProperty::vtkRIBProperty ()
 {
@@ -118,9 +103,9 @@ void vtkRIBProperty::SetVariable (char *variable, char *value)
 
   // format of line is: Declare "variable" "type"\n
   this->Declarations = new char [strlen ("Declare ") +
-	                      strlen (variable) +
-			      strlen (value) + 
-			      8];
+                              strlen (variable) +
+                              strlen (value) + 
+                              8];
 
   sprintf (this->Declarations, "Declare \"%s\" \"%s\"\n", variable, value);
   this->Modified ();
@@ -135,9 +120,9 @@ void vtkRIBProperty::AddVariable (char *variable, char *value)
   else
     {
     char *newVariable = new char [strlen ("Declare ") +
-	                          strlen (variable) +
-		   	          strlen (value) + 
-			          8];
+                                  strlen (variable) +
+                                  strlen (value) + 
+                                  8];
 
     sprintf (newVariable, "Declare \"%s\" \"%s\"\n", variable, value);
     char *oldDeclarations = this->Declarations;
@@ -160,8 +145,8 @@ void vtkRIBProperty::SetParameter (char *parameter, char *value)
 
   // format of line is: "parameter" "value"
   this->Parameters = new char [strlen (parameter) +
-			      strlen (value) + 
-			      7];
+                              strlen (value) + 
+                              7];
 
   sprintf (this->Parameters, " \"%s\" [%s]", parameter, value);
   this->Modified ();
@@ -176,8 +161,8 @@ void vtkRIBProperty::AddParameter (char *Parameter, char *value)
   else
     {
     char *newParameter = new char [strlen (Parameter) +
-		   	          strlen (value) + 
-			          7];
+                                  strlen (value) + 
+                                  7];
 
     sprintf (newParameter, " \"%s\" [%s]", Parameter, value);
     char *oldParameters = this->Parameters;
@@ -203,7 +188,7 @@ char *vtkRIBProperty::GetDeclarations ()
 
 void vtkRIBProperty::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkProperty::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
  
   if (this->SurfaceShader)
     {

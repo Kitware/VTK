@@ -42,18 +42,8 @@ OF THIS EVEN, SOFTWARE IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMatrixToHomogeneousTransform.h"
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
-vtkMatrixToHomogeneousTransform* vtkMatrixToHomogeneousTransform::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMatrixToHomogeneousTransform");
-  if(ret)
-    {
-    return (vtkMatrixToHomogeneousTransform*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkMatrixToHomogeneousTransform;
-}
+vtkCxxRevisionMacro(vtkMatrixToHomogeneousTransform, "1.4");
+vtkStandardNewMacro(vtkMatrixToHomogeneousTransform);
 
 //----------------------------------------------------------------------------
 vtkMatrixToHomogeneousTransform::vtkMatrixToHomogeneousTransform()
@@ -73,7 +63,7 @@ void vtkMatrixToHomogeneousTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Update();
 
-  vtkHomogeneousTransform::PrintSelf(os, indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "Input: " << this->Input << "\n";
   os << indent << "InverseFlag: " << this->InverseFlag << "\n";
 }

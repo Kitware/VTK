@@ -46,18 +46,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkAssemblyNode.h"
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
-vtkVRMLExporter* vtkVRMLExporter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkVRMLExporter");
-  if(ret)
-    {
-    return (vtkVRMLExporter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkVRMLExporter;
-}
+vtkCxxRevisionMacro(vtkVRMLExporter, "1.57");
+vtkStandardNewMacro(vtkVRMLExporter);
 
 vtkVRMLExporter::vtkVRMLExporter()
 {
@@ -705,7 +695,7 @@ void vtkVRMLExporter::WritePointData(vtkPoints *points, vtkDataArray *normals,
 
 void vtkVRMLExporter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkExporter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
  
   if (this->FileName)
     {

@@ -65,7 +65,7 @@ class VTK_HYBRID_EXPORT vtkVectorText : public vtkPolyDataSource
 {
 public:
   static vtkVectorText *New();
-  vtkTypeMacro(vtkVectorText,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkVectorText,vtkPolyDataSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -51,23 +51,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkWin32OpenGLImageWindow.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkWin32OpenGLImageWindow* vtkWin32OpenGLImageWindow::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkWin32OpenGLImageWindow");
-  if(ret)
-    {
-    return (vtkWin32OpenGLImageWindow*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkWin32OpenGLImageWindow;
-}
-
-
-
+vtkCxxRevisionMacro(vtkWin32OpenGLImageWindow, "1.26");
+vtkStandardNewMacro(vtkWin32OpenGLImageWindow);
 
 vtkWin32OpenGLImageWindow::vtkWin32OpenGLImageWindow()
 {
@@ -581,7 +566,7 @@ int *vtkWin32OpenGLImageWindow::GetPosition(void)
 
 void vtkWin32OpenGLImageWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkImageWindow::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "ContextId: " << this->ContextId << "\n";
   os << indent << "Next Window Id: " << this->NextWindowId << "\n";

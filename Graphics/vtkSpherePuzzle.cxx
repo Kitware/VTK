@@ -48,18 +48,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
-vtkSpherePuzzle* vtkSpherePuzzle::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkSpherePuzzle");
-  if(ret)
-    {
-    return (vtkSpherePuzzle*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkSpherePuzzle;
-}
+vtkCxxRevisionMacro(vtkSpherePuzzle, "1.6");
+vtkStandardNewMacro(vtkSpherePuzzle);
 
 //----------------------------------------------------------------------------
 // Construct a new puzzle.
@@ -479,7 +469,7 @@ void vtkSpherePuzzle::MovePoint(int percentage)
 void vtkSpherePuzzle::PrintSelf(ostream& os, vtkIndent indent)
 {
   int idx;
-  vtkPolyDataSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "State: " << this->State[0];
   for (idx = 1; idx < 16; ++idx)

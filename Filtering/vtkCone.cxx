@@ -43,23 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkCone* vtkCone::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkCone");
-  if(ret)
-    {
-    return (vtkCone*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkCone;
-}
-
-
-
+vtkCxxRevisionMacro(vtkCone, "1.23");
+vtkStandardNewMacro(vtkCone);
 
 // Construct cone with angle of 45 degrees.
 vtkCone::vtkCone()
@@ -87,7 +72,7 @@ void vtkCone::EvaluateGradient(float x[3], float g[3])
 
 void vtkCone::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImplicitFunction::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Angle: " << this->Angle << "\n";
 }

@@ -63,7 +63,7 @@ class VTK_PARALLEL_EXPORT vtkOutputPort : public vtkProcessObject
 {
 public:
   static vtkOutputPort *New();
-  vtkTypeMacro(vtkOutputPort,vtkProcessObject);
+  vtkTypeRevisionMacro(vtkOutputPort,vtkProcessObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

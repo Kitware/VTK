@@ -42,18 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkLongArray.h"
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
-vtkLongArray* vtkLongArray::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkLongArray");
-  if(ret)
-    {
-    return (vtkLongArray*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkLongArray;
-}
+vtkCxxRevisionMacro(vtkLongArray, "1.30");
+vtkStandardNewMacro(vtkLongArray);
 
 vtkDataArray *vtkLongArray::MakeObject()
 {
@@ -178,7 +168,7 @@ void vtkLongArray::DeepCopy(vtkDataArray *sa)
 
 void vtkLongArray::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataArray::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   if (this->Array)
     {

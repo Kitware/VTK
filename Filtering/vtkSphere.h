@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_FILTERING_EXPORT vtkSphere : public vtkImplicitFunction
 {
 public:
-  vtkTypeMacro(vtkSphere,vtkImplicitFunction);
+  vtkTypeRevisionMacro(vtkSphere,vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description

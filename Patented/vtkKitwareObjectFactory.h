@@ -57,7 +57,7 @@ class VTK_PATENTED_EXPORT vtkKitwareObjectFactory : public vtkObjectFactory
 {
 public:
   static vtkKitwareObjectFactory *New() {return new vtkKitwareObjectFactory;};
-  vtkTypeMacro(vtkKitwareObjectFactory,vtkObjectFactory);
+  vtkTypeRevisionMacro(vtkKitwareObjectFactory,vtkObjectFactory);
   void PrintSelf(ostream& os, vtkIndent indent);  
   virtual const char* GetVTKSourceVersion();
 protected:

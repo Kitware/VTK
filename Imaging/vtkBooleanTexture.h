@@ -75,7 +75,7 @@ class VTK_IMAGING_EXPORT vtkBooleanTexture : public vtkStructuredPointsSource
 public:
   static vtkBooleanTexture *New();
 
-  vtkTypeMacro(vtkBooleanTexture,vtkStructuredPointsSource);
+  vtkTypeRevisionMacro(vtkBooleanTexture,vtkStructuredPointsSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -60,7 +60,7 @@ class vtkRenderer;
 class VTK_RENDERING_EXPORT vtkCuller : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkCuller,vtkObject);
+  vtkTypeRevisionMacro(vtkCuller,vtkObject);
 
   // Description:
   // This is called outside the render loop by vtkRenderer
@@ -68,8 +68,8 @@ public:
                       int& listLength, int& initialized )=0;
 
 protected:
-  vtkCuller() {};
-  ~vtkCuller() {};
+  vtkCuller();
+  ~vtkCuller();
 private:
   vtkCuller(const vtkCuller&);  // Not implemented.
   void operator=(const vtkCuller&);    // Not implemented.

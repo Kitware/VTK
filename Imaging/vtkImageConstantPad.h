@@ -58,7 +58,7 @@ class VTK_IMAGING_EXPORT vtkImageConstantPad : public vtkImagePadFilter
 {
 public:
   static vtkImageConstantPad *New();
-  vtkTypeMacro(vtkImageConstantPad,vtkImagePadFilter);
+  vtkTypeRevisionMacro(vtkImageConstantPad,vtkImagePadFilter);
 
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -42,22 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPostScriptWriter.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkPostScriptWriter* vtkPostScriptWriter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPostScriptWriter");
-  if(ret)
-    {
-    return (vtkPostScriptWriter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkPostScriptWriter;
-}
-
-
+vtkCxxRevisionMacro(vtkPostScriptWriter, "1.15");
+vtkStandardNewMacro(vtkPostScriptWriter);
 
 #define VTK_MARGIN 0.95
 

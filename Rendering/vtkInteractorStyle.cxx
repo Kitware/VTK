@@ -47,6 +47,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkAssemblyNode.h"
 #include "vtkOldStyleCallbackCommand.h"
 
+vtkCxxRevisionMacro(vtkInteractorStyle, "1.49");
+
 //----------------------------------------------------------------------------
 vtkInteractorStyle *vtkInteractorStyle::New() 
 {
@@ -1330,7 +1332,7 @@ void vtkInteractorStyle::DollyCamera(int vtkNotUsed(x), int y)
 //----------------------------------------------------------------------------
 void vtkInteractorStyle::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Auto Adjust Camera Clipping Range " 
      << (this->AutoAdjustCameraClippingRange  ? "On\n" : "Off\n");

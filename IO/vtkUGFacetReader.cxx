@@ -45,22 +45,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-
-//------------------------------------------------------------------------------
-vtkUGFacetReader* vtkUGFacetReader::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkUGFacetReader");
-  if(ret)
-    {
-    return (vtkUGFacetReader*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkUGFacetReader;
-}
-
-
-
+vtkCxxRevisionMacro(vtkUGFacetReader, "1.39");
+vtkStandardNewMacro(vtkUGFacetReader);
 
 // Construct object to extract all parts, and with point merging
 // turned on.
@@ -388,7 +374,7 @@ void vtkUGFacetReader::CreateDefaultLocator()
 
 void vtkUGFacetReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "File Name: " 
      << (this->FileName ? this->FileName : "(none)") << "\n";

@@ -56,7 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_COMMON_EXPORT vtkWindow : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkWindow,vtkObject);
+  vtkTypeRevisionMacro(vtkWindow,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

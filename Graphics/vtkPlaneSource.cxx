@@ -46,23 +46,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-
-//------------------------------------------------------------------------------
-vtkPlaneSource* vtkPlaneSource::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPlaneSource");
-  if(ret)
-    {
-    return (vtkPlaneSource*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkPlaneSource;
-}
-
-
-
-
+vtkCxxRevisionMacro(vtkPlaneSource, "1.55");
+vtkStandardNewMacro(vtkPlaneSource);
 
 // Construct plane perpendicular to z-axis, resolution 1x1, width and height 1.0,
 // and centered at the origin.
@@ -419,7 +404,7 @@ int vtkPlaneSource::UpdatePlane(float v1[3], float v2[3])
 
 void vtkPlaneSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "X Resolution: " << this->XResolution << "\n";
   os << indent << "Y Resolution: " << this->YResolution << "\n";

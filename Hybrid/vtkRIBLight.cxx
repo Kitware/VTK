@@ -42,23 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkRIBLight.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkRIBLight* vtkRIBLight::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkRIBLight");
-  if(ret)
-    {
-    return (vtkRIBLight*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkRIBLight;
-}
-
-
-
+vtkCxxRevisionMacro(vtkRIBLight, "1.15");
+vtkStandardNewMacro(vtkRIBLight);
 
 vtkRIBLight::vtkRIBLight ()
 {
@@ -91,7 +76,7 @@ void vtkRIBLight::Render(vtkRenderer *ren, int index)
 
 void vtkRIBLight::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkLight::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
  
 
   os << indent << "Shadows: " << (this->Shadows ? "On\n" : "Off\n");

@@ -58,7 +58,7 @@ class VTK_IO_EXPORT vtkGenericEnSightReader : public vtkDataSetSource
 {
 public:
   static vtkGenericEnSightReader *New();
-  vtkTypeMacro(vtkGenericEnSightReader, vtkDataSetSource);
+  vtkTypeRevisionMacro(vtkGenericEnSightReader, vtkDataSetSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

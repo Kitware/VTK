@@ -101,7 +101,7 @@ class vtkScalarTree;
 class VTK_PATENTED_EXPORT vtkMarchingContourFilter : public vtkDataSetToPolyDataFilter
 {
 public:
-  vtkTypeMacro(vtkMarchingContourFilter,vtkDataSetToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkMarchingContourFilter,vtkDataSetToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

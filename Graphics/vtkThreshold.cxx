@@ -42,18 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkThreshold.h"
 #include "vtkObjectFactory.h"
 
-//---------------------------------------------------------------------------
-vtkThreshold* vtkThreshold::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkThreshold");
-  if(ret)
-    {
-    return (vtkThreshold*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkThreshold;
-}
+vtkCxxRevisionMacro(vtkThreshold, "1.57");
+vtkStandardNewMacro(vtkThreshold);
 
 // Construct with lower threshold=0, upper threshold=1, and threshold 
 // function=upper AllScalars=1.
@@ -290,7 +280,7 @@ const char *vtkThreshold::GetAttributeModeAsString(void)
 
 void vtkThreshold::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToUnstructuredGridFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Attribute Mode: " << this->GetAttributeModeAsString() << endl;
   if (this->InputScalarsSelection)

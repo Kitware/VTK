@@ -58,7 +58,7 @@ class VTK_RENDERING_EXPORT vtkVolumeCollection : public vtkPropCollection
 {
  public:
   static vtkVolumeCollection *New();
-  vtkTypeMacro(vtkVolumeCollection,vtkPropCollection);
+  vtkTypeRevisionMacro(vtkVolumeCollection,vtkPropCollection);
 
   // Description:
   // Add a Volume to the list.

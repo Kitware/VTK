@@ -60,7 +60,7 @@ class VTK_COMMON_EXPORT vtkExtentTranslator : public vtkObject
 public:
   static vtkExtentTranslator *New();
 
-  vtkTypeMacro(vtkExtentTranslator,vtkObject);
+  vtkTypeRevisionMacro(vtkExtentTranslator,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -39,29 +39,14 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <stdlib.h>
-#include <math.h>
-
 #include "vtkLightCollection.h"
 #include "vtkObjectFactory.h"
 
+#include <stdlib.h>
+#include <math.h>
 
-
-//------------------------------------------------------------------------------
-vtkLightCollection* vtkLightCollection::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkLightCollection");
-  if(ret)
-    {
-    return (vtkLightCollection*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkLightCollection;
-}
-
-
-
+vtkCxxRevisionMacro(vtkLightCollection, "1.11");
+vtkStandardNewMacro(vtkLightCollection);
 
 // Add a light to the list.
 void vtkLightCollection::AddItem(vtkLight *a) 

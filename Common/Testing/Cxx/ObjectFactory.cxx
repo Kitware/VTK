@@ -16,10 +16,13 @@ public:
     {
     }
   
-  vtkTypeMacro(vtkTestVertex,vtkVertex);
+  vtkTypeRevisionMacro(vtkTestVertex,vtkVertex);
   static vtkTestVertex* New() { return new vtkTestVertex; }
   vtkTestVertex() {  }
 };
+
+vtkCxxRevisionMacro(vtkTestVertex, "1.13");
+
 class vtkTestVertex2 : public vtkVertex
 {
 public:
@@ -28,10 +31,12 @@ public:
     }
 
   // Methods from vtkObject
-  vtkTypeMacro(vtkTestVertex2,vtkVertex);
+  vtkTypeRevisionMacro(vtkTestVertex2,vtkVertex);
   static vtkTestVertex2* New() { return new vtkTestVertex2; }
   vtkTestVertex2() { }
 };
+
+vtkCxxRevisionMacro(vtkTestVertex2, "1.13");
 
 VTK_CREATE_CREATE_FUNCTION(vtkTestVertex);
 VTK_CREATE_CREATE_FUNCTION(vtkTestVertex2);

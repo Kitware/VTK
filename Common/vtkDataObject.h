@@ -74,7 +74,7 @@ class VTK_COMMON_EXPORT vtkDataObject : public vtkObject
 public:
   static vtkDataObject *New();
 
-  vtkTypeMacro(vtkDataObject,vtkObject);
+  vtkTypeRevisionMacro(vtkDataObject,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

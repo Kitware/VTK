@@ -39,28 +39,13 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
 #include "vtkRecursiveSphereDirectionEncoder.h"
 #include "vtkObjectFactory.h"
 
+#include <math.h>
 
-
-//------------------------------------------------------------------------------
-vtkRecursiveSphereDirectionEncoder* vtkRecursiveSphereDirectionEncoder::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkRecursiveSphereDirectionEncoder");
-  if(ret)
-    {
-    return (vtkRecursiveSphereDirectionEncoder*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkRecursiveSphereDirectionEncoder;
-}
-
-
-
-
+vtkCxxRevisionMacro(vtkRecursiveSphereDirectionEncoder, "1.18");
+vtkStandardNewMacro(vtkRecursiveSphereDirectionEncoder);
 
 // Construct the object. Initialize the index table which will be
 // used to map the normal into a patch on the recursively subdivided
@@ -415,7 +400,7 @@ void vtkRecursiveSphereDirectionEncoder::InitializeIndexTable( void )
 // Print the vtkRecursiveSphereDirectionEncoder
 void vtkRecursiveSphereDirectionEncoder::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkDirectionEncoder::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Number of encoded directions: " << 
     this->GetNumberOfEncodedDirections() << endl;

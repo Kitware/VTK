@@ -76,7 +76,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_GRAPHICS_EXPORT vtkExtractTensorComponents : public vtkDataSetToDataSetFilter 
 {
 public:
-  vtkTypeMacro(vtkExtractTensorComponents,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkExtractTensorComponents,vtkDataSetToDataSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

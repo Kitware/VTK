@@ -48,22 +48,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-
-//------------------------------------------------------------------------------
-vtkProgrammableSource* vtkProgrammableSource::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkProgrammableSource");
-  if(ret)
-    {
-    return (vtkProgrammableSource*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkProgrammableSource;
-}
-
-
-
+vtkCxxRevisionMacro(vtkProgrammableSource, "1.21");
+vtkStandardNewMacro(vtkProgrammableSource);
 
 // Construct programmable filter with empty execute method.
 vtkProgrammableSource::vtkProgrammableSource()

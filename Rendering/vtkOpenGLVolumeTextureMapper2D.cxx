@@ -53,18 +53,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-//------------------------------------------------------------------------------
-vtkOpenGLVolumeTextureMapper2D* vtkOpenGLVolumeTextureMapper2D::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkOpenGLVolumeTextureMapper2D");
-  if(ret)
-    {
-    return (vtkOpenGLVolumeTextureMapper2D*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkOpenGLVolumeTextureMapper2D;
-}
+vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper2D, "1.26");
+vtkStandardNewMacro(vtkOpenGLVolumeTextureMapper2D);
 #endif
 
 
@@ -234,6 +224,6 @@ void vtkOpenGLVolumeTextureMapper2D::RenderQuads( int numQuads,
 // Print the vtkOpenGLVolumeTextureMapper2D
 void vtkOpenGLVolumeTextureMapper2D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkVolumeTextureMapper2D::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 }
 

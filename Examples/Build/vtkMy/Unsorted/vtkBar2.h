@@ -21,7 +21,7 @@ class VTK_MY_UNSORTED_EXPORT vtkBar2 : public vtkObject
 {
 public:
   static vtkBar2 *New();
-  vtkTypeMacro(vtkBar2,vtkObject);
+  vtkTypeRevisionMacro(vtkBar2,vtkObject);
 
 protected:
   vtkBar2() {};

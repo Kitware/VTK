@@ -39,30 +39,14 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
 #include "vtkImageAccumulate.h"
-#include <math.h>
-#include <stdlib.h>
 #include "vtkObjectFactory.h"
 
+#include <math.h>
+#include <stdlib.h>
 
-
-//----------------------------------------------------------------------------
-vtkImageAccumulate* vtkImageAccumulate::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageAccumulate");
-  if(ret)
-    {
-    return (vtkImageAccumulate*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageAccumulate;
-}
-
-
-
-
+vtkCxxRevisionMacro(vtkImageAccumulate, "1.40");
+vtkStandardNewMacro(vtkImageAccumulate);
 
 //----------------------------------------------------------------------------
 // Constructor sets default values
@@ -388,7 +372,7 @@ void vtkImageAccumulate::ComputeInputUpdateExtent(int inExt[6],
 
 void vtkImageAccumulate::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageToImageFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Mean: " << this->Mean << "\n";
   os << indent << "Min: " << this->Min << "\n";

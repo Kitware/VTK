@@ -39,27 +39,11 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
 #include "vtkImagePermute.h"
 #include "vtkObjectFactory.h"
 
-
-
-//----------------------------------------------------------------------------
-vtkImagePermute* vtkImagePermute::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImagePermute");
-  if(ret)
-    {
-    return (vtkImagePermute*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImagePermute;
-}
-
-
-
+vtkCxxRevisionMacro(vtkImagePermute, "1.28");
+vtkStandardNewMacro(vtkImagePermute);
 
 //----------------------------------------------------------------------------
 vtkImagePermute::vtkImagePermute()
@@ -241,7 +225,7 @@ void vtkImagePermute::ThreadedExecute(vtkImageData *inData,
 
 void vtkImagePermute::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageToImageFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
     os << indent << "FilteredAxes: ( "
      << this->FilteredAxes[0] << ", "

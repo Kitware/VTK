@@ -41,6 +41,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkDataSetToStructuredPointsFilter.h"
 
+vtkCxxRevisionMacro(vtkDataSetToStructuredPointsFilter, "1.25");
+
 //----------------------------------------------------------------------------
 // Specify the input data or filter.
 void vtkDataSetToStructuredPointsFilter::SetInput(vtkDataSet *input)

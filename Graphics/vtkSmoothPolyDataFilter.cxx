@@ -47,18 +47,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-//----------------------------------------------------------------------------
-vtkSmoothPolyDataFilter* vtkSmoothPolyDataFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkSmoothPolyDataFilter");
-  if(ret)
-    {
-    return (vtkSmoothPolyDataFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkSmoothPolyDataFilter;
-}
+vtkCxxRevisionMacro(vtkSmoothPolyDataFilter, "1.31");
+vtkStandardNewMacro(vtkSmoothPolyDataFilter);
 
 // The following code defines a helper class for performing mesh smoothing
 // across the surface of another mesh.
@@ -696,7 +686,7 @@ void vtkSmoothPolyDataFilter::Execute()
 
 void vtkSmoothPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Convergence: " << this->Convergence << "\n";
   os << indent << "Number of Iterations: " << this->NumberOfIterations << "\n";

@@ -43,18 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-//------------------------------------------------------------------------------
-vtkWorldPointPicker* vtkWorldPointPicker::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkWorldPointPicker");
-  if(ret)
-    {
-    return (vtkWorldPointPicker*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkWorldPointPicker;
-}
+vtkCxxRevisionMacro(vtkWorldPointPicker, "1.14");
+vtkStandardNewMacro(vtkWorldPointPicker);
 
 vtkWorldPointPicker::vtkWorldPointPicker()
 {
@@ -129,5 +119,5 @@ int vtkWorldPointPicker::Pick(float selectionX, float selectionY,
 
 void vtkWorldPointPicker::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkAbstractPicker::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 }

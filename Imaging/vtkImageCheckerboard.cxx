@@ -43,18 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageCheckerboard.h"
 #include "vtkObjectFactory.h"
 
-//------------------------------------------------------------------------------
-vtkImageCheckerboard* vtkImageCheckerboard::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageCheckerboard");
-  if(ret)
-    {
-    return (vtkImageCheckerboard*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageCheckerboard;
-}
+vtkCxxRevisionMacro(vtkImageCheckerboard, "1.5");
+vtkStandardNewMacro(vtkImageCheckerboard);
 
 //----------------------------------------------------------------------------
 vtkImageCheckerboard::vtkImageCheckerboard()
@@ -251,7 +241,7 @@ void vtkImageCheckerboard::ThreadedExecute(vtkImageData **inData,
 
 void vtkImageCheckerboard::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageTwoInputFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
   os << indent << "NumberOfDivisions: (" << this->NumberOfDivisions[0] << ", "
      << this->NumberOfDivisions[1] << ", "
      << this->NumberOfDivisions[2] << ")\n";

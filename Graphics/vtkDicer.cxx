@@ -42,6 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkDicer.h"
 #include "vtkMath.h"
 
+vtkCxxRevisionMacro(vtkDicer, "1.29");
+
 // Instantiate object.
 vtkDicer::vtkDicer()
 {
@@ -82,7 +84,7 @@ void vtkDicer::UpdatePieceMeasures()
 
 void vtkDicer::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToDataSetFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Number of Points per Piece: " 
      << this->NumberOfPointsPerPiece << "\n";

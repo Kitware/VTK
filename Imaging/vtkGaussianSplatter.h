@@ -102,7 +102,7 @@ class vtkFloatAray;
 class VTK_IMAGING_EXPORT vtkGaussianSplatter : public vtkDataSetToStructuredPointsFilter 
 {
 public:
-  vtkTypeMacro(vtkGaussianSplatter,vtkDataSetToStructuredPointsFilter);
+  vtkTypeRevisionMacro(vtkGaussianSplatter,vtkDataSetToStructuredPointsFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -43,18 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
-vtkTransformPolyDataFilter* vtkTransformPolyDataFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTransformPolyDataFilter");
-  if(ret)
-    {
-    return (vtkTransformPolyDataFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkTransformPolyDataFilter;
-}
+vtkCxxRevisionMacro(vtkTransformPolyDataFilter, "1.24");
+vtkStandardNewMacro(vtkTransformPolyDataFilter);
 
 vtkTransformPolyDataFilter::vtkTransformPolyDataFilter()
 {
@@ -219,7 +209,7 @@ unsigned long vtkTransformPolyDataFilter::GetMTime()
 
 void vtkTransformPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Transform: " << this->Transform << "\n";
 }

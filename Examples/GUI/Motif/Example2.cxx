@@ -67,29 +67,29 @@ main (int argc, char *argv[])
   
   toplevel2 = XtVaCreateWidget("top2",
        topLevelShellWidgetClass,toplevel,
-			       XmNdepth, depth,
-			       XmNvisual, vis,
-			       XmNcolormap, col,
-			       NULL);
+                               XmNdepth, depth,
+                               XmNvisual, vis,
+                               XmNcolormap, col,
+                               NULL);
 
 
   form     = XtVaCreateWidget("form",xmFormWidgetClass, toplevel2, NULL);
   vtk      = XtVaCreateManagedWidget("vtk",
      xmPrimitiveWidgetClass, form, 
-				     XmNwidth, 300, XmNheight, 300,
-				     XmNleftAttachment, XmATTACH_FORM,
-				     XmNrightAttachment, XmATTACH_FORM,
-				     XmNtopAttachment, XmATTACH_FORM,
-				     NULL);
+                                     XmNwidth, 300, XmNheight, 300,
+                                     XmNleftAttachment, XmATTACH_FORM,
+                                     XmNrightAttachment, XmATTACH_FORM,
+                                     XmNtopAttachment, XmATTACH_FORM,
+                                     NULL);
   button    = XtVaCreateManagedWidget("Exit",
       xmPushButtonWidgetClass, form,
-				      XmNheight, 40,
-				      XmNbottomAttachment, XmATTACH_FORM,
-				      XmNtopAttachment, XmATTACH_WIDGET,
-				      XmNtopWidget, vtk,
-				      XmNleftAttachment, XmATTACH_FORM,
-				      XmNrightAttachment, XmATTACH_FORM,
-				      NULL);
+                                      XmNheight, 40,
+                                      XmNbottomAttachment, XmATTACH_FORM,
+                                      XmNtopAttachment, XmATTACH_WIDGET,
+                                      XmNtopWidget, vtk,
+                                      XmNleftAttachment, XmATTACH_FORM,
+                                      XmNrightAttachment, XmATTACH_FORM,
+                                      NULL);
   XtAddCallback(button,XmNactivateCallback,quit_cb,NULL);
   XtManageChild(form);
   XtRealizeWidget(toplevel2);

@@ -44,21 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 
-//------------------------------------------------------------------------------
-vtkEdgeTable* vtkEdgeTable::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkEdgeTable");
-  if(ret)
-    {
-    return (vtkEdgeTable*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkEdgeTable;
-}
-
-
-
+vtkCxxRevisionMacro(vtkEdgeTable, "1.28");
+vtkStandardNewMacro(vtkEdgeTable);
 
 // Instantiate object based on maximum point id.
 vtkEdgeTable::vtkEdgeTable()
@@ -466,7 +453,7 @@ int vtkEdgeTable::InsertUniquePoint(vtkIdType p1, vtkIdType p2, float x[3],
 
 void vtkEdgeTable::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "NumberOfEdges: " << this->GetNumberOfEdges() << "\n";
 }

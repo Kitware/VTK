@@ -56,7 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_FILTERING_EXPORT vtkStructuredGridToPolyDataFilter : public vtkPolyDataSource
 {
 public:
-  vtkTypeMacro(vtkStructuredGridToPolyDataFilter,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkStructuredGridToPolyDataFilter,vtkPolyDataSource);
 
   // Description:
   // Set / get the input Grid or filter.

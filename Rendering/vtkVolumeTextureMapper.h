@@ -62,7 +62,7 @@ class vtkRenderWindow;
 class VTK_RENDERING_EXPORT vtkVolumeTextureMapper : public vtkVolumeMapper
 {
 public:
-  vtkTypeMacro(vtkVolumeTextureMapper,vtkVolumeMapper);
+  vtkTypeRevisionMacro(vtkVolumeTextureMapper,vtkVolumeMapper);
   void PrintSelf( ostream& os, vtkIndent index );
 
   // Description:

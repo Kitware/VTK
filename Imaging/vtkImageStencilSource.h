@@ -64,7 +64,7 @@ class VTK_IMAGING_EXPORT vtkImageStencilSource : public vtkSource
 {
 public:
   static vtkImageStencilSource *New();
-  vtkTypeMacro(vtkImageStencilSource, vtkSource);
+  vtkTypeRevisionMacro(vtkImageStencilSource, vtkSource);
 
   void PrintSelf(ostream& os, vtkIndent indent);
 

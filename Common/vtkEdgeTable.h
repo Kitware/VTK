@@ -61,7 +61,7 @@ public:
   // Instantiate object assuming that 1000 edges are to be inserted.
   static vtkEdgeTable *New();
 
-  vtkTypeMacro(vtkEdgeTable,vtkObject);
+  vtkTypeRevisionMacro(vtkEdgeTable,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

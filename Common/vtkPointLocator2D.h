@@ -80,7 +80,7 @@ public:
   // 25 points per bucket.
   static vtkPointLocator2D *New();
 
-  vtkTypeMacro(vtkPointLocator2D,vtkLocator);
+  vtkTypeRevisionMacro(vtkPointLocator2D,vtkLocator);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

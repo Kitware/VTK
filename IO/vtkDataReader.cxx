@@ -39,7 +39,6 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <ctype.h>
 #include "vtkDataReader.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkPointSet.h"
@@ -60,18 +59,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkErrorCode.h"
 
-//----------------------------------------------------------------------------
-vtkDataReader* vtkDataReader::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkDataReader");
-  if(ret)
-    {
-    return (vtkDataReader*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkDataReader;
-}
+#include <ctype.h>
+
+vtkCxxRevisionMacro(vtkDataReader, "1.115");
+vtkStandardNewMacro(vtkDataReader);
 
 // this undef is required on the hp. vtkMutexLock ends up including
 // /usr/inclue/dce/cma_ux.h which has the gall to #define read as cma_read
@@ -2023,7 +2014,7 @@ const char *vtkDataReader::GetFieldDataNameInFile(int i)
 
 void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "File Name: " 
      << (this->FileName ? this->FileName : "(none)") << "\n";

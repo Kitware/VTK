@@ -48,22 +48,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
 
-//--------------------------------------------------------------------------
-
-vtkIterativeClosestPointTransform* vtkIterativeClosestPointTransform::New()
-{
-  // First try to create the object from the vtkObjectFactory
-
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkIterativeClosestPointTransform");
-  if(ret)
-    {
-    return (vtkIterativeClosestPointTransform*)ret;
-    }
-
-  // If the factory was unable to create the object, then create it here.
-
-  return new vtkIterativeClosestPointTransform;
-}
+vtkCxxRevisionMacro(vtkIterativeClosestPointTransform, "1.7");
+vtkStandardNewMacro(vtkIterativeClosestPointTransform);
 
 //----------------------------------------------------------------------------
 
@@ -506,7 +492,7 @@ void vtkIterativeClosestPointTransform::InternalUpdate()
 
 void vtkIterativeClosestPointTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkLinearTransform::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   if ( this->Source ) 
     {

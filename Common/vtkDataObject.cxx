@@ -44,23 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkExtentTranslator.h"
 
-
-
-//----------------------------------------------------------------------------
-vtkDataObject* vtkDataObject::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkDataObject");
-  if(ret)
-    {
-    return (vtkDataObject*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkDataObject;
-}
-
-
-
+vtkCxxRevisionMacro(vtkDataObject, "1.79");
+vtkStandardNewMacro(vtkDataObject);
 
 // Initialize static member that controls global data release 
 // after use by filter
@@ -787,7 +772,7 @@ void vtkDataObject::Crop()
 //----------------------------------------------------------------------------
 void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   if ( this->Source )
     {

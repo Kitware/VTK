@@ -78,7 +78,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_GRAPHICS_EXPORT vtkTensorGlyph : public vtkDataSetToPolyDataFilter
 {
 public:
-  vtkTypeMacro(vtkTensorGlyph,vtkDataSetToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkTensorGlyph,vtkDataSetToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description

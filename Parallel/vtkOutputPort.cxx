@@ -44,21 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-//----------------------------------------------------------------------------
-vtkOutputPort* vtkOutputPort::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkOutputPort");
-  if(ret)
-    {
-    return (vtkOutputPort*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkOutputPort;
-}
-
-
-
+vtkCxxRevisionMacro(vtkOutputPort, "1.4");
+vtkStandardNewMacro(vtkOutputPort);
 
 //----------------------------------------------------------------------------
 vtkOutputPort::vtkOutputPort()
@@ -90,7 +77,7 @@ vtkOutputPort::~vtkOutputPort()
 //----------------------------------------------------------------------------
 void vtkOutputPort::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkProcessObject::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
   os << indent << "Tag: " << this->Tag << endl;
   os << indent << "Controller: (" << this->Controller << ")\n";
   os << indent << "Pipeline Flag: " 

@@ -68,7 +68,7 @@ class VTK_PARALLEL_EXPORT vtkSocketController : public vtkMultiProcessController
 {
 public:
   static vtkSocketController *New();
-  vtkTypeMacro(vtkSocketController,vtkMultiProcessController);
+  vtkTypeRevisionMacro(vtkSocketController,vtkMultiProcessController);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

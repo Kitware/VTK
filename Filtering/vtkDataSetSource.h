@@ -53,7 +53,7 @@ class VTK_FILTERING_EXPORT vtkDataSetSource : public vtkSource
 {
 public:
   static vtkDataSetSource *New();
-  vtkTypeMacro(vtkDataSetSource,vtkSource);
+  vtkTypeRevisionMacro(vtkDataSetSource,vtkSource);
 
   // Description:
   // Get the output of this source.

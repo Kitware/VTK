@@ -109,7 +109,7 @@ class VTK_IMAGING_EXPORT vtkImageBlend : public vtkImageMultipleInputFilter
 {
 public:
   static vtkImageBlend *New();
-  vtkTypeMacro(vtkImageBlend,vtkImageMultipleInputFilter);
+  vtkTypeRevisionMacro(vtkImageBlend,vtkImageMultipleInputFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

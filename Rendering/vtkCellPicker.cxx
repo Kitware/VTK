@@ -43,18 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkVolumeMapper.h"
 
-//----------------------------------------------------------------------------
-vtkCellPicker* vtkCellPicker::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkCellPicker");
-  if(ret)
-    {
-    return (vtkCellPicker*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkCellPicker;
-}
+vtkCxxRevisionMacro(vtkCellPicker, "1.28");
+vtkStandardNewMacro(vtkCellPicker);
 
 vtkCellPicker::vtkCellPicker()
 {
@@ -155,7 +145,7 @@ void vtkCellPicker::Initialize()
 
 void vtkCellPicker::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkPicker::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Cell Id: " << this->CellId << "\n";
   os << indent << "SubId: " << this->SubId << "\n";

@@ -39,23 +39,12 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
 #include "vtkGeneralTransform.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
-vtkGeneralTransform *vtkGeneralTransform::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkGeneralTransform");
-  if(ret)
-    {
-    return (vtkGeneralTransform*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkGeneralTransform;
-}
+vtkCxxRevisionMacro(vtkGeneralTransform, "1.35");
+vtkStandardNewMacro(vtkGeneralTransform);
 
 //----------------------------------------------------------------------------
 vtkGeneralTransform::vtkGeneralTransform()
@@ -87,7 +76,7 @@ vtkGeneralTransform::~vtkGeneralTransform()
 //----------------------------------------------------------------------------
 void vtkGeneralTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkAbstractTransform::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
   os << indent << "Input: (" << this->Input << ")\n";
   os << indent << "InverseFlag: " << this->GetInverseFlag() << "\n";
   os << indent << "NumberOfConcatenatedTransforms: " <<

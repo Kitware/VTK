@@ -68,7 +68,7 @@ class VTK_IO_EXPORT vtkEnSight6Reader : public vtkEnSightReader
 {
 public:
   static vtkEnSight6Reader *New();
-  vtkTypeMacro(vtkEnSight6Reader, vtkEnSightReader);
+  vtkTypeRevisionMacro(vtkEnSight6Reader, vtkEnSightReader);
   
 protected:
   vtkEnSight6Reader();

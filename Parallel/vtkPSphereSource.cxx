@@ -47,18 +47,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkLargeInteger.h"
 
-//-----------------------------------------------------------------------------
-vtkPSphereSource* vtkPSphereSource::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPSphereSource");
-  if(ret)
-    {
-    return (vtkPSphereSource*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkPSphereSource;
-}
+vtkCxxRevisionMacro(vtkPSphereSource, "1.7");
+vtkStandardNewMacro(vtkPSphereSource);
 
 //----------------------------------------------------------------------------
 void vtkPSphereSource::Execute()

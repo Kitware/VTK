@@ -78,6 +78,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  #endif
 #endif
 
+vtkCxxRevisionMacro(vtkImagingFactory, "1.18");
+
 const char *vtkImagingFactoryGetRenderLibrary()
 {
   const char *temp;

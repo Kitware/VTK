@@ -62,7 +62,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_RENDERING_EXPORT vtkFollower : public vtkActor
 {
  public:
-  vtkTypeMacro(vtkFollower,vtkActor);
+  vtkTypeRevisionMacro(vtkFollower,vtkActor);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

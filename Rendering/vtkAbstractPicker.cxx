@@ -42,6 +42,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkObjectFactory.h"
 #include "vtkOldStyleCallbackCommand.h"
 
+vtkCxxRevisionMacro(vtkAbstractPicker, "1.7");
+
 // Construct object with initial tolerance of 1/40th of window. There are no
 // pick methods and picking is performed from the renderer's actors.
 vtkAbstractPicker::vtkAbstractPicker()
@@ -195,7 +197,7 @@ void vtkAbstractPicker::DeletePickList(vtkProp *a)
 
 void vtkAbstractPicker::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkObject::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   if ( this->PickFromList )
     {

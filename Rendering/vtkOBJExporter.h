@@ -60,7 +60,7 @@ class VTK_RENDERING_EXPORT vtkOBJExporter : public vtkExporter
 {
 public:
   static vtkOBJExporter *New();
-  vtkTypeMacro(vtkOBJExporter,vtkExporter);
+  vtkTypeRevisionMacro(vtkOBJExporter,vtkExporter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

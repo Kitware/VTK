@@ -486,6 +486,8 @@ VolumeTextureMapper2D_TraverseVolume( T *data_ptr,
 
 }
 
+vtkCxxRevisionMacro(vtkVolumeTextureMapper2D, "1.38");
+
 vtkVolumeTextureMapper2D::vtkVolumeTextureMapper2D()
 {
   this->TargetTextureSize[0]  = 512;
@@ -1152,7 +1154,7 @@ void vtkVolumeTextureMapper2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Maximum Storage Size: " 
      << this->MaximumStorageSize << endl;
   
-  this->vtkVolumeTextureMapper::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 }
 
 

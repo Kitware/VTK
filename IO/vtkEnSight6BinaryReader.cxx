@@ -50,18 +50,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkByteSwap.h"
 #include <ctype.h>
 
-//----------------------------------------------------------------------------
-vtkEnSight6BinaryReader* vtkEnSight6BinaryReader::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkEnSight6BinaryReader");
-  if(ret)
-    {
-    return (vtkEnSight6BinaryReader*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkEnSight6BinaryReader;
-}
+vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.16");
+vtkStandardNewMacro(vtkEnSight6BinaryReader);
 
 //----------------------------------------------------------------------------
 vtkEnSight6BinaryReader::vtkEnSight6BinaryReader()

@@ -42,18 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkDataObjectReader.h"
 #include "vtkObjectFactory.h"
 
-//-------------------------------------------------------------------------
-vtkDataObjectReader* vtkDataObjectReader::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkDataObjectReader");
-  if(ret)
-    {
-    return (vtkDataObjectReader*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkDataObjectReader;
-}
+vtkCxxRevisionMacro(vtkDataObjectReader, "1.14");
+vtkStandardNewMacro(vtkDataObjectReader);
 
 vtkDataObjectReader::vtkDataObjectReader()
 {
@@ -132,5 +122,5 @@ void vtkDataObjectReader::Execute()
 
 void vtkDataObjectReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataReader::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 }

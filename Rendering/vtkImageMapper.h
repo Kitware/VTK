@@ -61,7 +61,7 @@ class vtkActor2D;
 class VTK_RENDERING_EXPORT vtkImageMapper : public vtkMapper2D
 {
 public:
-  vtkTypeMacro(vtkImageMapper,vtkMapper2D);
+  vtkTypeRevisionMacro(vtkImageMapper,vtkMapper2D);
   static vtkImageMapper *New();
   void PrintSelf(ostream& os, vtkIndent indent);
 

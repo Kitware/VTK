@@ -39,28 +39,13 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
-
 #include "vtkImageGaussianSource.h"
 #include "vtkObjectFactory.h"
 
+#include <math.h>
 
-
-//------------------------------------------------------------------------------
-vtkImageGaussianSource* vtkImageGaussianSource::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageGaussianSource");
-  if(ret)
-    {
-    return (vtkImageGaussianSource*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageGaussianSource;
-}
-
-
-
+vtkCxxRevisionMacro(vtkImageGaussianSource, "1.22");
+vtkStandardNewMacro(vtkImageGaussianSource);
 
 //----------------------------------------------------------------------------
 vtkImageGaussianSource::vtkImageGaussianSource()
@@ -197,7 +182,7 @@ void vtkImageGaussianSource::ExecuteData(vtkDataObject *output)
 
 void vtkImageGaussianSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Maximum: " << this->Maximum << "\n";
 

@@ -62,7 +62,7 @@ class VTK_RENDERING_EXPORT vtkVolumeRayCastCompositeFunction : public vtkVolumeR
 {
 public:
   static vtkVolumeRayCastCompositeFunction *New();
-  vtkTypeMacro(vtkVolumeRayCastCompositeFunction,vtkVolumeRayCastFunction);
+  vtkTypeRevisionMacro(vtkVolumeRayCastCompositeFunction,vtkVolumeRayCastFunction);
   void PrintSelf( ostream& os, vtkIndent index );
 
   // Description:

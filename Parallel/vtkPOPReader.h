@@ -55,7 +55,7 @@ class VTK_PARALLEL_EXPORT vtkPOPReader : public vtkStructuredGridSource
 {
 public:
   static vtkPOPReader *New();
-  vtkTypeMacro(vtkPOPReader,vtkStructuredGridSource);
+  vtkTypeRevisionMacro(vtkPOPReader,vtkStructuredGridSource);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

@@ -45,23 +45,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPointLocator.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkVertex* vtkVertex::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkVertex");
-  if(ret)
-    {
-    return (vtkVertex*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkVertex;
-}
-
-
-
+vtkCxxRevisionMacro(vtkVertex, "1.54");
+vtkStandardNewMacro(vtkVertex);
 
 // Construct the vertex with a single point.
 vtkVertex::vtkVertex()

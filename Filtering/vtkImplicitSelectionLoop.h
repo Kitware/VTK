@@ -78,7 +78,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_FILTERING_EXPORT vtkImplicitSelectionLoop : public vtkImplicitFunction
 {
 public:
-  vtkTypeMacro(vtkImplicitSelectionLoop,vtkImplicitFunction);
+  vtkTypeRevisionMacro(vtkImplicitSelectionLoop,vtkImplicitFunction);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

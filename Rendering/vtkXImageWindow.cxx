@@ -47,6 +47,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //mark this class for future legacy-related changes
 #endif
 
+vtkCxxRevisionMacro(vtkXImageWindow, "1.43");
+
 //--------------------------------------------------------------------------
 vtkXImageWindow* vtkXImageWindow::New()
 {

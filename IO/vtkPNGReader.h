@@ -57,7 +57,7 @@ class VTK_IO_EXPORT vtkPNGReader : public vtkImageReader2
 {
 public:
   static vtkPNGReader *New();
-  vtkTypeMacro(vtkPNGReader,vtkImageReader2);
+  vtkTypeRevisionMacro(vtkPNGReader,vtkImageReader2);
 
 protected:
   vtkPNGReader() {};

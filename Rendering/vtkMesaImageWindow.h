@@ -65,7 +65,7 @@ class VTK_RENDERING_EXPORT vtkMesaImageWindow : public vtkXImageWindow
 {
 public:
   static vtkMesaImageWindow *New();
-  vtkTypeMacro(vtkMesaImageWindow,vtkXImageWindow);
+  vtkTypeRevisionMacro(vtkMesaImageWindow,vtkXImageWindow);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

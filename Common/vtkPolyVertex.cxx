@@ -45,24 +45,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPointLocator.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkPolyVertex* vtkPolyVertex::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPolyVertex");
-  if(ret)
-    {
-    return (vtkPolyVertex*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkPolyVertex;
-}
-
-
-
-
+vtkCxxRevisionMacro(vtkPolyVertex, "1.56");
+vtkStandardNewMacro(vtkPolyVertex);
 
 vtkPolyVertex::vtkPolyVertex()
 {

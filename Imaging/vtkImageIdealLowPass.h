@@ -64,7 +64,7 @@ class VTK_IMAGING_EXPORT vtkImageIdealLowPass : public vtkImageToImageFilter
 {
 public:
   static vtkImageIdealLowPass *New();
-  vtkTypeMacro(vtkImageIdealLowPass,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageIdealLowPass,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

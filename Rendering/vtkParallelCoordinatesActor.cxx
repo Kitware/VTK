@@ -44,20 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-
-//------------------------------------------------------------------------
-vtkParallelCoordinatesActor* vtkParallelCoordinatesActor::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = 
-    vtkObjectFactory::CreateInstance("vtkParallelCoordinatesActor");
-  if(ret)
-    {
-    return (vtkParallelCoordinatesActor*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkParallelCoordinatesActor;
-}
+vtkCxxRevisionMacro(vtkParallelCoordinatesActor, "1.17");
+vtkStandardNewMacro(vtkParallelCoordinatesActor);
 
 // Instantiate object
 vtkParallelCoordinatesActor::vtkParallelCoordinatesActor()
@@ -450,7 +438,7 @@ void vtkParallelCoordinatesActor::ReleaseGraphicsResources(vtkWindow *win)
 
 void vtkParallelCoordinatesActor::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkActor2D::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Input: " << this->Input << "\n";
   os << indent << "Position2 Coordinate: " 

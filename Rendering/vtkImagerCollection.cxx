@@ -42,20 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImagerCollection.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkImagerCollection* vtkImagerCollection::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImagerCollection");
-  if(ret)
-    {
-    return (vtkImagerCollection*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImagerCollection;
-}
-
+vtkCxxRevisionMacro(vtkImagerCollection, "1.5");
+vtkStandardNewMacro(vtkImagerCollection);
 
 

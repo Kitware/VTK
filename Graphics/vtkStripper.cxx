@@ -42,21 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkStripper.h"
 #include "vtkObjectFactory.h"
 
-//-------------------------------------------------------------------------
-vtkStripper* vtkStripper::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkStripper");
-  if(ret)
-    {
-    return (vtkStripper*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkStripper;
-}
-
-
-
+vtkCxxRevisionMacro(vtkStripper, "1.53");
+vtkStandardNewMacro(vtkStripper);
 
 // Construct object with MaximumLength set to 1000.
 vtkStripper::vtkStripper()
@@ -367,7 +354,7 @@ void vtkStripper::Execute()
 
 void vtkStripper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Maximum Length: " << this->MaximumLength << "\n";
 }

@@ -94,7 +94,7 @@ class vtkActor;
 class VTK_HYBRID_EXPORT vtkCaptionActor2D : public vtkActor2D
 {
 public:
-  vtkTypeMacro(vtkCaptionActor2D,vtkActor2D);
+  vtkTypeRevisionMacro(vtkCaptionActor2D,vtkActor2D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   static vtkCaptionActor2D *New();

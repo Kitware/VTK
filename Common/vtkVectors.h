@@ -58,7 +58,7 @@ public:
   static vtkVectors *New(int dataType);
   static vtkVectors *New();
 
-  vtkTypeMacro(vtkVectors,vtkAttributeData);
+  vtkTypeRevisionMacro(vtkVectors,vtkAttributeData);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

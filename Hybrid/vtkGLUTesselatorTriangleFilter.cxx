@@ -45,6 +45,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTriangleStrip.h"
 #include "vtkObjectFactory.h"
 
+vtkCxxRevisionMacro(vtkGLUTesselatorTriangleFilter, "1.3");
+vtkStandardNewMacro(vtkGLUTesselatorTriangleFilter);
 
 // GLU support methods
 static void _stdcall GluError(GLenum err) 
@@ -57,21 +59,6 @@ static void _stdcall GlVertex3dv(void * vertex_data , void * polygon_data);
 static void _stdcall GLCombineData(GLdouble coords[3], void *vertex_data[4], 
                                    GLfloat weight[4], void **outData, 
                                    void * polygon_data); 
-
-//--------------------------------------------------------------------------
-vtkGLUTesselatorTriangleFilter* vtkGLUTesselatorTriangleFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = 
-    vtkObjectFactory::CreateInstance("vtkGLUTesselatorTriangleFilter");
-  if(ret)
-    {
-    return (vtkGLUTesselatorTriangleFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkGLUTesselatorTriangleFilter;
-}
-
 
 vtkGLUTesselatorTriangleFilter::vtkGLUTesselatorTriangleFilter()
  : PassVerts(1), 
@@ -202,7 +189,7 @@ void vtkGLUTesselatorTriangleFilter::Execute()
 
 void vtkGLUTesselatorTriangleFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Pass Verts: " << (this->PassVerts ? "On\n" : "Off\n");
   os << indent << "Pass Lines: " << (this->PassLines ? "On\n" : "Off\n");

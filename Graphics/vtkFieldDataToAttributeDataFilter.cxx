@@ -42,18 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFieldDataToAttributeDataFilter.h"
 #include "vtkObjectFactory.h"
 
-//--------------------------------------------------------------------------
-vtkFieldDataToAttributeDataFilter* vtkFieldDataToAttributeDataFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkFieldDataToAttributeDataFilter");
-  if(ret)
-    {
-    return (vtkFieldDataToAttributeDataFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkFieldDataToAttributeDataFilter;
-}
+vtkCxxRevisionMacro(vtkFieldDataToAttributeDataFilter, "1.33");
+vtkStandardNewMacro(vtkFieldDataToAttributeDataFilter);
 
 // Instantiate object with no input and no defined output.
 vtkFieldDataToAttributeDataFilter::vtkFieldDataToAttributeDataFilter()
@@ -230,7 +220,7 @@ void vtkFieldDataToAttributeDataFilter::Execute()
 void vtkFieldDataToAttributeDataFilter::PrintSelf(ostream& os, 
                                                   vtkIndent indent)
 {
-  vtkDataSetToDataSetFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Input Field: ";
   if ( this->InputField == VTK_DATA_OBJECT_FIELD )

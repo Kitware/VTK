@@ -42,23 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPolyDataWriter.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkPolyDataWriter* vtkPolyDataWriter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPolyDataWriter");
-  if(ret)
-    {
-    return (vtkPolyDataWriter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkPolyDataWriter;
-}
-
-
-
+vtkCxxRevisionMacro(vtkPolyDataWriter, "1.16");
+vtkStandardNewMacro(vtkPolyDataWriter);
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.
@@ -126,5 +111,5 @@ void vtkPolyDataWriter::WriteData()
 
 void vtkPolyDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataWriter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 }

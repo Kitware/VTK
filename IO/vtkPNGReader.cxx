@@ -44,19 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <png.h>
 
-//-------------------------------------------------------------------------
-vtkPNGReader* vtkPNGReader::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPNGReader");
-  if(ret)
-    {
-    return (vtkPNGReader*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkPNGReader;
-}
-
+vtkCxxRevisionMacro(vtkPNGReader, "1.8");
+vtkStandardNewMacro(vtkPNGReader);
 
 void vtkPNGReader::ExecuteInformation()
 {

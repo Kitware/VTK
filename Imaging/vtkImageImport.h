@@ -62,7 +62,7 @@ class VTK_IMAGING_EXPORT vtkImageImport : public vtkImageSource
 {
 public:
   static vtkImageImport *New();
-  vtkTypeMacro(vtkImageImport,vtkImageSource);
+  vtkTypeRevisionMacro(vtkImageImport,vtkImageSource);
   void PrintSelf(ostream& os, vtkIndent indent);   
 
   // Description:

@@ -42,18 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMaskPolyData.h"
 #include "vtkObjectFactory.h"
 
-//--------------------------------------------------------------------------
-vtkMaskPolyData* vtkMaskPolyData::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMaskPolyData");
-  if(ret)
-    {
-    return (vtkMaskPolyData*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkMaskPolyData;
-}
+vtkCxxRevisionMacro(vtkMaskPolyData, "1.36");
+vtkStandardNewMacro(vtkMaskPolyData);
 
 vtkMaskPolyData::vtkMaskPolyData()
 {
@@ -216,7 +206,7 @@ void vtkMaskPolyData::Execute()
 
 void vtkMaskPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "On Ratio: " << this->OnRatio << "\n";
   os << indent << "Offset: " << this->Offset << "\n";

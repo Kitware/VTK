@@ -43,18 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkExtentTranslator.h"
 #include "vtkObjectFactory.h"
 
-//--------------------------------------------------------------------------
-vtkStructuredGridGeometryFilter* vtkStructuredGridGeometryFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkStructuredGridGeometryFilter");
-  if(ret)
-    {
-    return (vtkStructuredGridGeometryFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkStructuredGridGeometryFilter;
-}
+vtkCxxRevisionMacro(vtkStructuredGridGeometryFilter, "1.53");
+vtkStandardNewMacro(vtkStructuredGridGeometryFilter);
 
 // Construct with initial extent of all the data
 vtkStructuredGridGeometryFilter::vtkStructuredGridGeometryFilter()
@@ -534,7 +524,7 @@ void vtkStructuredGridGeometryFilter::ComputeInputUpdateExtents( vtkDataObject *
 
 void vtkStructuredGridGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkStructuredGridToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Extent: \n";
   os << indent << "  Imin,Imax: (" 

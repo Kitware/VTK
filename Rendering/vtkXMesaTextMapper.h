@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_RENDERING_EXPORT vtkXMesaTextMapper : public vtkXTextMapper
 {
 public:
-  vtkTypeMacro(vtkXMesaTextMapper,vtkXTextMapper);
+  vtkTypeRevisionMacro(vtkXMesaTextMapper,vtkXTextMapper);
   static vtkXMesaTextMapper *New();
 
   // Description:

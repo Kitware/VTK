@@ -44,18 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTransform.h"
 #include "vtkObjectFactory.h"
 
-//-----------------------------------------------------------------------------
-vtkAssemblyPath* vtkAssemblyPath::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkAssemblyPath");
-  if(ret)
-    {
-    return (vtkAssemblyPath*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkAssemblyPath;
-}
+vtkCxxRevisionMacro(vtkAssemblyPath, "1.4");
+vtkStandardNewMacro(vtkAssemblyPath);
 
 vtkAssemblyPath::vtkAssemblyPath()
 {
@@ -164,7 +154,7 @@ unsigned long vtkAssemblyPath::GetMTime()
 
 void vtkAssemblyPath::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkCollection::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 }
 
 

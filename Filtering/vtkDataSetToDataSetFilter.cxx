@@ -46,6 +46,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkUnstructuredGrid.h"
 #include "vtkRectilinearGrid.h"
 
+vtkCxxRevisionMacro(vtkDataSetToDataSetFilter, "1.60");
+
 // Construct object.
 vtkDataSetToDataSetFilter::vtkDataSetToDataSetFilter()
 {

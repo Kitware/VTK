@@ -77,7 +77,7 @@ public:
   // 25 points per bucket.
   static vtkPointLocator *New();
 
-  vtkTypeMacro(vtkPointLocator,vtkLocator);
+  vtkTypeRevisionMacro(vtkPointLocator,vtkLocator);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

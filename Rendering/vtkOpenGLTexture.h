@@ -57,7 +57,7 @@ class VTK_RENDERING_EXPORT vtkOpenGLTexture : public vtkTexture
 {
 public:
   static vtkOpenGLTexture *New();
-  vtkTypeMacro(vtkOpenGLTexture,vtkTexture);
+  vtkTypeRevisionMacro(vtkOpenGLTexture,vtkTexture);
 
   // Description:
   // Implement base class method.

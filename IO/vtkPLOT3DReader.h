@@ -116,7 +116,7 @@ class VTK_IO_EXPORT vtkPLOT3DReader : public vtkStructuredGridSource
 {
 public:
   static vtkPLOT3DReader *New();
-  vtkTypeMacro(vtkPLOT3DReader,vtkStructuredGridSource);
+  vtkTypeRevisionMacro(vtkPLOT3DReader,vtkStructuredGridSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

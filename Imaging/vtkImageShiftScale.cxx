@@ -42,25 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageShiftScale.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkImageShiftScale* vtkImageShiftScale::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageShiftScale");
-  if(ret)
-    {
-    return (vtkImageShiftScale*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageShiftScale;
-}
-
-
-
-
-
+vtkCxxRevisionMacro(vtkImageShiftScale, "1.40");
+vtkStandardNewMacro(vtkImageShiftScale);
 
 //----------------------------------------------------------------------------
 // Constructor sets default values
@@ -225,7 +208,7 @@ void vtkImageShiftScale::ThreadedExecute(vtkImageData *inData,
 
 void vtkImageShiftScale::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageToImageFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Shift: " << this->Shift << "\n";
   os << indent << "Scale: " << this->Scale << "\n";

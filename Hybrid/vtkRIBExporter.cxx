@@ -53,23 +53,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkAssemblyNode.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkRIBExporter* vtkRIBExporter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkRIBExporter");
-  if(ret)
-    {
-    return (vtkRIBExporter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkRIBExporter;
-}
-
-
-
+vtkCxxRevisionMacro(vtkRIBExporter, "1.38");
+vtkStandardNewMacro(vtkRIBExporter);
 
 typedef float RtColor[3];
 typedef float RtPoint[3];
@@ -987,7 +972,7 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData,
 
 void vtkRIBExporter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkExporter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
  
   if (this->FilePrefix)
     {

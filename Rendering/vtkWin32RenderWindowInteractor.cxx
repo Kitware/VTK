@@ -63,18 +63,8 @@ VTK_RENDERING_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND,UINT,WPARAM,LPARAM,
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-//----------------------------------------------------------------------------
-vtkWin32RenderWindowInteractor* vtkWin32RenderWindowInteractor::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkWin32RenderWindowInteractor");
-  if(ret)
-    {
-    return (vtkWin32RenderWindowInteractor*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkWin32RenderWindowInteractor;
-}
+vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.78");
+vtkStandardNewMacro(vtkWin32RenderWindowInteractor);
 #endif
 
 
@@ -710,7 +700,7 @@ vtkWin32RenderWindowInteractor::SetClassExitMethodArgDelete(void (*f)(void *))
 
 void vtkWin32RenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkRenderWindowInteractor::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
   os << indent << "InstallMessageProc: " << this->InstallMessageProc << endl;
 }
 

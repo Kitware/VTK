@@ -46,18 +46,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-//--------------------------------------------------------------------------
-vtkRibbonFilter* vtkRibbonFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkRibbonFilter");
-  if(ret)
-    {
-    return (vtkRibbonFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkRibbonFilter;
-}
+vtkCxxRevisionMacro(vtkRibbonFilter, "1.56");
+vtkStandardNewMacro(vtkRibbonFilter);
 
 // Construct ribbon so that width is 0.1, the width does 
 // not vary with scalar values, and the width factor is 2.0.
@@ -321,7 +311,7 @@ void vtkRibbonFilter::Execute()
 
 void vtkRibbonFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Width: " << this->Width << "\n";
   os << indent << "Angle: " << this->Angle << "\n";

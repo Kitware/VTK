@@ -60,7 +60,7 @@ class VTK_RENDERING_EXPORT vtkQuartzRenderWindow : public vtkRenderWindow
 {
 public:
   static vtkQuartzRenderWindow *New();
-  vtkTypeMacro(vtkQuartzRenderWindow,vtkRenderWindow);
+  vtkTypeRevisionMacro(vtkQuartzRenderWindow,vtkRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

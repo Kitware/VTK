@@ -53,7 +53,7 @@ class VTK_COMMON_EXPORT vtkEmptyCell : public vtkCell
 {
 public:
   static vtkEmptyCell *New();
-  vtkTypeMacro(vtkEmptyCell,vtkCell);
+  vtkTypeRevisionMacro(vtkEmptyCell,vtkCell);
 
   // Description:
   // See the vtkCell API for descriptions of these methods.

@@ -54,7 +54,7 @@ class VTK_PARALLEL_EXPORT vtkRTAnalyticSource : public vtkImageSource
 {
 public:
   static vtkRTAnalyticSource *New();
-  vtkTypeMacro(vtkRTAnalyticSource,vtkImageSource);
+  vtkTypeRevisionMacro(vtkRTAnalyticSource,vtkImageSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

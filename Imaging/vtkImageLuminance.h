@@ -52,7 +52,7 @@ class VTK_IMAGING_EXPORT vtkImageLuminance : public vtkImageToImageFilter
 {
 public:
   static vtkImageLuminance *New();
-  vtkTypeMacro(vtkImageLuminance,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageLuminance,vtkImageToImageFilter);
 
 protected:
   vtkImageLuminance() {};

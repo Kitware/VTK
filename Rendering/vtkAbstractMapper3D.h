@@ -64,7 +64,7 @@ class vtkDataSet;
 class VTK_RENDERING_EXPORT vtkAbstractMapper3D : public vtkAbstractMapper
 {
 public:
-  vtkTypeMacro(vtkAbstractMapper3D,vtkAbstractMapper);
+  vtkTypeRevisionMacro(vtkAbstractMapper3D,vtkAbstractMapper);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

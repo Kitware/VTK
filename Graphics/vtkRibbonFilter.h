@@ -63,7 +63,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_GRAPHICS_EXPORT vtkRibbonFilter : public vtkPolyDataToPolyDataFilter 
 {
 public:
-  vtkTypeMacro(vtkRibbonFilter,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkRibbonFilter,vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

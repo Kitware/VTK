@@ -42,18 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkAssemblyPaths.h"
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
-vtkAssemblyPaths* vtkAssemblyPaths::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkAssemblyPaths");
-  if(ret)
-    {
-    return (vtkAssemblyPaths*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkAssemblyPaths;
-}
+vtkCxxRevisionMacro(vtkAssemblyPaths, "1.4");
+vtkStandardNewMacro(vtkAssemblyPaths);
 
 unsigned long vtkAssemblyPaths::GetMTime()
 {

@@ -68,7 +68,7 @@ class vtkFloatArray;
 class VTK_GRAPHICS_EXPORT vtkPolyDataNormals : public vtkPolyDataToPolyDataFilter
 {
 public:
-  vtkTypeMacro(vtkPolyDataNormals,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkPolyDataNormals,vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

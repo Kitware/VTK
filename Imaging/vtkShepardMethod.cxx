@@ -45,18 +45,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-//-------------------------------------------------------------------------
-vtkShepardMethod* vtkShepardMethod::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkShepardMethod");
-  if(ret)
-    {
-    return (vtkShepardMethod*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkShepardMethod;
-}
+vtkCxxRevisionMacro(vtkShepardMethod, "1.37");
+vtkStandardNewMacro(vtkShepardMethod);
 
 // Construct with sample dimensions=(50,50,50) and so that model bounds are
 // automatically computed from input. Null value for each unvisited output 
@@ -347,7 +337,7 @@ void vtkShepardMethod::SetSampleDimensions(int dim[3])
 
 void vtkShepardMethod::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToStructuredPointsFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Maximum Distance: " << this->MaximumDistance << "\n";
 

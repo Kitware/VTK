@@ -39,29 +39,13 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
-
 #include "vtkImageMagnitude.h"
 #include "vtkObjectFactory.h"
 
+#include <math.h>
 
-
-//----------------------------------------------------------------------------
-vtkImageMagnitude* vtkImageMagnitude::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageMagnitude");
-  if(ret)
-    {
-    return (vtkImageMagnitude*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageMagnitude;
-}
-
-
-
-
+vtkCxxRevisionMacro(vtkImageMagnitude, "1.30");
+vtkStandardNewMacro(vtkImageMagnitude);
 
 //----------------------------------------------------------------------------
 // This method tells the superclass that the first axis will collapse.

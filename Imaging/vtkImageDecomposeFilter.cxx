@@ -39,11 +39,11 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
+#include "vtkImageDecomposeFilter.h"
+
 #include <math.h>
 
-#include "vtkImageDecomposeFilter.h"
-#include "vtkObjectFactory.h"
-
+vtkCxxRevisionMacro(vtkImageDecomposeFilter, "1.16");
 
 //----------------------------------------------------------------------------
 // Construct an instance of vtkImageDecomposeFilter fitler.
@@ -57,7 +57,7 @@ vtkImageDecomposeFilter::vtkImageDecomposeFilter()
 //----------------------------------------------------------------------------
 void vtkImageDecomposeFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageIterateFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Dimensionality: " << this->Dimensionality << "\n";
 }

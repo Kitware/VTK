@@ -63,7 +63,7 @@ class VTK_HYBRID_EXPORT vtkGLUTesselatorTriangleFilter : public vtkPolyDataToPol
 {
 public:
   static vtkGLUTesselatorTriangleFilter *New();
-  vtkTypeMacro(vtkGLUTesselatorTriangleFilter,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkGLUTesselatorTriangleFilter,vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

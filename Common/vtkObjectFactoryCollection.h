@@ -58,13 +58,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_COMMON_EXPORT vtkObjectFactoryCollection : public vtkCollection
 {
 public:
-  vtkTypeMacro(vtkObjectFactoryCollection,vtkCollection);
-  static vtkObjectFactoryCollection *New() 
-    {
-#ifdef VTK_DEBUG_LEAKS
-    vtkDebugLeaks::ConstructClass("vtkObjectFactoryCollection");
-#endif    
-return new vtkObjectFactoryCollection;};
+  vtkTypeRevisionMacro(vtkObjectFactoryCollection,vtkCollection);
+  static vtkObjectFactoryCollection *New();
 
   // Description:
   // Add an ObjectFactory from the list.

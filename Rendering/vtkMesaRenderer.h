@@ -58,7 +58,7 @@ protected:
 
 public:
   static vtkMesaRenderer *New();
-  vtkTypeMacro(vtkMesaRenderer,vtkRenderer);
+  vtkTypeRevisionMacro(vtkMesaRenderer,vtkRenderer);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -46,18 +46,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-//------------------------------------------------------------------------
-vtkClipVolume* vtkClipVolume::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkClipVolume");
-  if(ret)
-    {
-    return (vtkClipVolume*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkClipVolume;
-}
+vtkCxxRevisionMacro(vtkClipVolume, "1.42");
+vtkStandardNewMacro(vtkClipVolume);
 
 // Construct with user-specified implicit function; InsideOut turned off; value
 // set to 0.0; and generate clip scalars turned off. The merge tolerance is set
@@ -371,7 +361,7 @@ void vtkClipVolume::Execute()
         else if (above == below ) // clipped voxel, have to triangulate 
           {
           this->ClipVoxel(value, cellScalars, flip, origin, spacing, extent,
-			  wextent, dims2,
+                          wextent, dims2,
                           cellIds, cellPts, inPD, outPD, inCD, cellId, 
                           outCD, clippedCD);
           }
@@ -425,8 +415,8 @@ void vtkClipVolume::Execute()
 // Delaunay problems.
 void vtkClipVolume::ClipVoxel(float value, vtkDataArray *cellScalars, 
                               int flip, float vtkNotUsed(origin)[3],
-			      float spacing[3], int extent[6],
-			      int wextent[6], int dims[3],
+                              float spacing[3], int extent[6],
+                              int wextent[6], int dims[3],
                               vtkIdList *cellIds, vtkPoints *cellPts,
                               vtkPointData *inPD, vtkPointData *outPD,
                               vtkCellData *vtkNotUsed(inCD),
@@ -582,7 +572,7 @@ void vtkClipVolume::CreateDefaultLocator()
 
 void vtkClipVolume::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkStructuredPointsToUnstructuredGridFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   if ( this->ClipFunction )
     {

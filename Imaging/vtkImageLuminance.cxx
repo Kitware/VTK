@@ -38,29 +38,13 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
-
 #include "vtkImageLuminance.h"
 #include "vtkObjectFactory.h"
 
+#include <math.h>
 
-
-//------------------------------------------------------------------------------
-vtkImageLuminance* vtkImageLuminance::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageLuminance");
-  if(ret)
-    {
-    return (vtkImageLuminance*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageLuminance;
-}
-
-
-
-
+vtkCxxRevisionMacro(vtkImageLuminance, "1.17");
+vtkStandardNewMacro(vtkImageLuminance);
 
 //----------------------------------------------------------------------------
 // This method overrides information set by parent's ExecuteInformation.

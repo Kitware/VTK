@@ -71,7 +71,7 @@ class VTK_GRAPHICS_EXPORT vtkAttributeDataToFieldDataFilter : public vtkDataSetT
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent);
-  vtkTypeMacro(vtkAttributeDataToFieldDataFilter,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkAttributeDataToFieldDataFilter,vtkDataSetToDataSetFilter);
 
   // Description:
   // Construct this object.

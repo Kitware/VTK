@@ -47,18 +47,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-//----------------------------------------------------------------------------
-vtkWindowedSincPolyDataFilter* vtkWindowedSincPolyDataFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkWindowedSincPolyDataFilter");
-  if(ret)
-    {
-    return (vtkWindowedSincPolyDataFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkWindowedSincPolyDataFilter;
-}
+vtkCxxRevisionMacro(vtkWindowedSincPolyDataFilter, "1.26");
+vtkStandardNewMacro(vtkWindowedSincPolyDataFilter);
 
 // Construct object with number of iterations 20; passband .1;
 // feature edge smoothing turned off; feature 
@@ -763,7 +753,7 @@ void vtkWindowedSincPolyDataFilter::Execute()
 
 void vtkWindowedSincPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Number of Iterations: " << this->NumberOfIterations << "\n";
   os << indent << "Passband: " << this->PassBand << "\n";

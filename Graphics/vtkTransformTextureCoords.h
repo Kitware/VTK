@@ -64,7 +64,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_GRAPHICS_EXPORT vtkTransformTextureCoords : public vtkDataSetToDataSetFilter 
 {
 public:
-  vtkTypeMacro(vtkTransformTextureCoords,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkTransformTextureCoords,vtkDataSetToDataSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -70,7 +70,7 @@ public:
   // Constructs with initial values of zero.
   static vtkMassProperties *New();
 
-  vtkTypeMacro(vtkMassProperties,vtkProcessObject);
+  vtkTypeRevisionMacro(vtkMassProperties,vtkProcessObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

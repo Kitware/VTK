@@ -64,7 +64,7 @@ class VTK_HYBRID_EXPORT vtkVideoSource : public vtkImageSource
 {
 public:
   static vtkVideoSource *New();
-  vtkTypeMacro(vtkVideoSource,vtkImageSource);
+  vtkTypeRevisionMacro(vtkVideoSource,vtkImageSource);
   void PrintSelf(ostream& os, vtkIndent indent);   
 
   // Description:
@@ -311,7 +311,7 @@ protected:
   virtual void ExecuteData(vtkDataObject *data);
   // if some component conversion is required, it is done here:
   virtual void UnpackRasterLine(char *outPtr, char *rowPtr, 
-				int start, int count);
+                                int start, int count);
 
 private:
   vtkVideoSource(const vtkVideoSource&);  // Not implemented.

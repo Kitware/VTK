@@ -66,7 +66,7 @@ class VTK_GRAPHICS_EXPORT vtkTransformFilter : public vtkPointSetToPointSetFilte
 {
 public:
   static vtkTransformFilter *New();
-  vtkTypeMacro(vtkTransformFilter,vtkPointSetToPointSetFilter);
+  vtkTypeRevisionMacro(vtkTransformFilter,vtkPointSetToPointSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

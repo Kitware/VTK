@@ -42,18 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkExtractGrid.h"
 #include "vtkObjectFactory.h"
 
-//------------------------------------------------------------------------
-vtkExtractGrid* vtkExtractGrid::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkExtractGrid");
-  if(ret)
-    {
-    return (vtkExtractGrid*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkExtractGrid;
-}
+vtkCxxRevisionMacro(vtkExtractGrid, "1.35");
+vtkStandardNewMacro(vtkExtractGrid);
 
 // Construct object to extract all of the input data.
 vtkExtractGrid::vtkExtractGrid()
@@ -402,7 +392,7 @@ void vtkExtractGrid::Execute()
 
 void vtkExtractGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkStructuredGridToStructuredGridFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "VOI: \n";
   os << indent << "  Imin,Imax: (" << this->VOI[0] << ", " 

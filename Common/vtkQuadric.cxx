@@ -39,27 +39,13 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
 #include "vtkQuadric.h"
 #include "vtkObjectFactory.h"
 
+#include <math.h>
 
-
-//------------------------------------------------------------------------------
-vtkQuadric* vtkQuadric::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkQuadric");
-  if(ret)
-    {
-    return (vtkQuadric*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkQuadric;
-}
-
-
-
+vtkCxxRevisionMacro(vtkQuadric, "1.3");
+vtkStandardNewMacro(vtkQuadric);
 
 // Construct quadric with all coefficients = 1.
 vtkQuadric::vtkQuadric()
@@ -133,7 +119,7 @@ void vtkQuadric::SetCoefficients(float a0,float a1,float a2,float a3, float a4,
 }
 void vtkQuadric::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImplicitFunction::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Coefficients: " 
      << "\n\ta0: " << this->Coefficients[0]

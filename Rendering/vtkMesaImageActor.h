@@ -57,7 +57,7 @@ class VTK_RENDERING_EXPORT vtkMesaImageActor : public vtkImageActor
 {
 public:
   static vtkMesaImageActor *New();
-  vtkTypeMacro(vtkMesaImageActor,vtkImageActor);
+  vtkTypeRevisionMacro(vtkMesaImageActor,vtkImageActor);
 
   // Description:
   // Implement base class method.

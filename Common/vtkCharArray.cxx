@@ -42,20 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkCharArray.h"
 #include "vtkObjectFactory.h"
 
-
-
-//---------------------------------------------------------------------------
-vtkCharArray* vtkCharArray::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkCharArray");
-  if(ret)
-    {
-    return (vtkCharArray*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkCharArray;
-}
+vtkCxxRevisionMacro(vtkCharArray, "1.33");
+vtkStandardNewMacro(vtkCharArray);
 
 vtkDataArray *vtkCharArray::MakeObject()
 {
@@ -173,7 +161,7 @@ void vtkCharArray::DeepCopy(vtkDataArray *ia)
 
 void vtkCharArray::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataArray::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   if (this->Array)
     {

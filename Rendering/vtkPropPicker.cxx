@@ -45,18 +45,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-
-vtkPropPicker* vtkPropPicker::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPropPicker");
-  if(ret)
-    {
-    return (vtkPropPicker*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkPropPicker;
-}
+vtkCxxRevisionMacro(vtkPropPicker, "1.18");
+vtkStandardNewMacro(vtkPropPicker);
 
 vtkPropPicker::vtkPropPicker()
 {

@@ -39,30 +39,14 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
-#include "vtkImageData.h"
-
 #include "vtkImageSobel3D.h"
 #include "vtkObjectFactory.h"
+#include "vtkImageData.h"
 
+#include <math.h>
 
-
-//------------------------------------------------------------------------------
-vtkImageSobel3D* vtkImageSobel3D::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageSobel3D");
-  if(ret)
-    {
-    return (vtkImageSobel3D*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageSobel3D;
-}
-
-
-
-
+vtkCxxRevisionMacro(vtkImageSobel3D, "1.26");
+vtkStandardNewMacro(vtkImageSobel3D);
 
 //----------------------------------------------------------------------------
 // Construct an instance of vtkImageSobel3D fitler.
@@ -81,7 +65,7 @@ vtkImageSobel3D::vtkImageSobel3D()
 //----------------------------------------------------------------------------
 void vtkImageSobel3D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkImageToImageFilter::PrintSelf(os, indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------

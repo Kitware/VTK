@@ -38,29 +38,15 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <stdlib.h>
 #include "vtkLinkEdgels.h"
 #include "vtkMath.h"
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
+#include <stdlib.h>
 
-
-//------------------------------------------------------------------------------
-vtkLinkEdgels* vtkLinkEdgels::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkLinkEdgels");
-  if(ret)
-    {
-    return (vtkLinkEdgels*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkLinkEdgels;
-}
-
-
-
+vtkCxxRevisionMacro(vtkLinkEdgels, "1.30");
+vtkStandardNewMacro(vtkLinkEdgels);
 
 // Construct instance of vtkLinkEdgels with GradientThreshold set to 
 // 0.1, PhiThreshold set to 90 degrees and LinkThreshold set to 90 degrees.
@@ -371,7 +357,7 @@ void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, float *image,
 
 void vtkLinkEdgels::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkStructuredPointsToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "GradientThreshold:" << this->GradientThreshold << "\n";
   os << indent << "LinkThreshold:" << this->LinkThreshold << "\n";

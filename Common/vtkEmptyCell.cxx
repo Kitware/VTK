@@ -45,18 +45,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPointLocator.h"
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
-vtkEmptyCell* vtkEmptyCell::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkEmptyCell");
-  if(ret)
-    {
-    return (vtkEmptyCell*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkEmptyCell;
-}
+vtkCxxRevisionMacro(vtkEmptyCell, "1.16");
+vtkStandardNewMacro(vtkEmptyCell);
 
 int vtkEmptyCell::EvaluatePosition(float  vtkNotUsed(x)[3], 
                                   float  vtkNotUsed(closestPoint)[3],

@@ -39,27 +39,13 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
 #include "vtkCursor3D.h"
 #include "vtkObjectFactory.h"
 
+#include <math.h>
 
-
-//------------------------------------------------------------------------------
-vtkCursor3D* vtkCursor3D::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkCursor3D");
-  if(ret)
-    {
-    return (vtkCursor3D*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkCursor3D;
-}
-
-
-
+vtkCxxRevisionMacro(vtkCursor3D, "1.35");
+vtkStandardNewMacro(vtkCursor3D);
 
 // Construct with model bounds = (-1,1,-1,1,-1,1), focal point = (0,0,0),
 // all parts of cursor visible, and wrapping off.
@@ -478,7 +464,7 @@ void vtkCursor3D::AllOff()
 
 void vtkCursor3D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "ModelBounds: \n";
   os << indent << "  Xmin,Xmax: (" << this->ModelBounds[0] << ", " << this->ModelBounds[1] << ")\n";

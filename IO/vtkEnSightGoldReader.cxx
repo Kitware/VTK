@@ -47,20 +47,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageData.h"
 #include "vtkPolyData.h"
 #include "vtkFloatArray.h"
+
 #include <ctype.h>
 
-//----------------------------------------------------------------------------
-vtkEnSightGoldReader* vtkEnSightGoldReader::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkEnSightGoldReader");
-  if(ret)
-    {
-    return (vtkEnSightGoldReader*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkEnSightGoldReader;
-}
+vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.25");
+vtkStandardNewMacro(vtkEnSightGoldReader);
 
 //----------------------------------------------------------------------------
 int vtkEnSightGoldReader::ReadGeometryFile(char* fileName, int timeStep)

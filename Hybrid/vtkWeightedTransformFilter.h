@@ -102,7 +102,7 @@ class VTK_HYBRID_EXPORT vtkWeightedTransformFilter : public vtkPointSetToPointSe
 {
 public:
   static vtkWeightedTransformFilter *New();
-  vtkTypeMacro(vtkWeightedTransformFilter,vtkPointSetToPointSetFilter);
+  vtkTypeRevisionMacro(vtkWeightedTransformFilter,vtkPointSetToPointSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -42,23 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTCoords.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkTCoords* vtkTCoords::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTCoords");
-  if(ret)
-    {
-    return (vtkTCoords*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkTCoords;
-}
-
-
-
+vtkCxxRevisionMacro(vtkTCoords, "1.34");
+vtkStandardNewMacro(vtkTCoords);
 
 vtkTCoords *vtkTCoords::New(int dataType, int numComp)
 {
@@ -107,7 +92,7 @@ void vtkTCoords::GetTCoords(vtkIdList *ptIds, vtkTCoords *tc)
 
 void vtkTCoords::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkAttributeData::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Number Of Texture Coordinates: " << this->GetNumberOfTCoords() << "\n";
   os << indent << "Number Of Texture Components: " << this->GetNumberOfComponents() << "\n";

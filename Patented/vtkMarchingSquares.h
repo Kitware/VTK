@@ -86,7 +86,7 @@ class VTK_PATENTED_EXPORT vtkMarchingSquares : public vtkPolyDataSource
 {
 public:
   static vtkMarchingSquares *New();
-  vtkTypeMacro(vtkMarchingSquares,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkMarchingSquares,vtkPolyDataSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -44,6 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPointLocator.h"
 #include "vtkMarchingCubesCases.h"
 
+vtkCxxRevisionMacro(vtkCell3D, "1.19");
+
 vtkCell3D::~vtkCell3D()
 {
   if ( this->Triangulator )
@@ -163,7 +165,7 @@ void vtkCell3D::Clip(float value, vtkDataArray *cellScalars,
 
 void vtkCell3D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkCell::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 }
 
 // Note: the following code is placed here to deal with cross-library

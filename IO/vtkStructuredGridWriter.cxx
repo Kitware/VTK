@@ -42,18 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkStructuredGridWriter.h"
 #include "vtkObjectFactory.h"
 
-//------------------------------------------------------------------------------
-vtkStructuredGridWriter* vtkStructuredGridWriter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkStructuredGridWriter");
-  if(ret)
-    {
-    return (vtkStructuredGridWriter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkStructuredGridWriter;
-}
+vtkCxxRevisionMacro(vtkStructuredGridWriter, "1.30");
+vtkStandardNewMacro(vtkStructuredGridWriter);
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.
@@ -123,5 +113,5 @@ void vtkStructuredGridWriter::WriteBlanking(ostream *fp, vtkStructuredGrid *grid
 
 void vtkStructuredGridWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataWriter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 }

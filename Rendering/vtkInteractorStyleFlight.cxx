@@ -47,18 +47,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkRenderWindowInteractor.h"
 #include "vtkObjectFactory.h"
 
-//------------------------------------------------------------------------------
-vtkInteractorStyleFlight* vtkInteractorStyleFlight::New()
-{
-  // irst try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkInteractorStyleFlight");
-  if(ret)
-    {
-    return (vtkInteractorStyleFlight*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkInteractorStyleFlight;
-}
+vtkCxxRevisionMacro(vtkInteractorStyleFlight, "1.14");
+vtkStandardNewMacro(vtkInteractorStyleFlight);
+
 //---------------------------------------------------------------------------
 vtkInteractorStyleFlight::vtkInteractorStyleFlight()
 {
@@ -559,7 +550,7 @@ void vtkInteractorStyleFlight::FlyByKey(void) {
 }
 //---------------------------------------------------------------------------
 void vtkInteractorStyleFlight::PrintSelf(ostream& os, vtkIndent indent) {
-  vtkInteractorStyle::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
   os << indent << "MotionStepSize: "
      << this->MotionStepSize << "\n";
   os << indent << "MotionAccelerationFactor: "

@@ -67,7 +67,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_GRAPHICS_EXPORT vtkImageDataGeometryFilter : public vtkStructuredPointsToPolyDataFilter
 {
 public:
-  vtkTypeMacro(vtkImageDataGeometryFilter,vtkStructuredPointsToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkImageDataGeometryFilter,vtkStructuredPointsToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

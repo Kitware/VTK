@@ -58,7 +58,7 @@ class VTK_RENDERING_EXPORT vtkOpenGLImageMapper : public vtkImageMapper
 {
 public:
   static vtkOpenGLImageMapper *New();
-  vtkTypeMacro(vtkOpenGLImageMapper,vtkImageMapper);
+  vtkTypeRevisionMacro(vtkOpenGLImageMapper,vtkImageMapper);
   
   // Description:
   // Handle the render method.

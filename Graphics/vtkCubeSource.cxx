@@ -39,29 +39,15 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
 #include "vtkCubeSource.h"
 #include "vtkPoints.h"
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
+#include <math.h>
 
-
-//----------------------------------------------------------------------------
-vtkCubeSource* vtkCubeSource::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkCubeSource");
-  if(ret)
-    {
-    return (vtkCubeSource*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkCubeSource;
-}
-
-
-
+vtkCxxRevisionMacro(vtkCubeSource, "1.45");
+vtkStandardNewMacro(vtkCubeSource);
 
 vtkCubeSource::vtkCubeSource(float xL, float yL, float zL)
 {
@@ -217,7 +203,7 @@ void vtkCubeSource::SetBounds(float bounds[6])
 
 void vtkCubeSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "X Length: " << this->XLength << "\n";
   os << indent << "Y Length: " << this->YLength << "\n";

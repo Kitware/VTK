@@ -39,12 +39,15 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <stdlib.h>
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkActor.h"
 #include "vtkGraphicsFactory.h"
+
+#include <stdlib.h>
+
+vtkCxxRevisionMacro(vtkProperty, "1.51");
 
 // Construct object with object color, ambient color, diffuse color,
 // specular color, and edge color white; ambient coefficient=0; diffuse 
@@ -167,7 +170,7 @@ void vtkProperty::GetColor(float rgb[3])
  
 void vtkProperty::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Ambient: " << this->Ambient << "\n";
   os << indent << "Ambient Color: (" << this->AmbientColor[0] << ", " 

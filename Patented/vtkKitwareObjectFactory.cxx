@@ -44,6 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkKitwareContourFilter.h"
 #include "vtkVersion.h"
 
+vtkCxxRevisionMacro(vtkKitwareObjectFactory, "1.7");
+
 void vtkKitwareObjectFactory::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "Kitware object factory" << endl;

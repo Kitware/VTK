@@ -71,7 +71,7 @@ public:
   // Construct a 4x4 identity matrix.
   static vtkMatrix4x4 *New();
 
-  vtkTypeMacro(vtkMatrix4x4,vtkObject);
+  vtkTypeRevisionMacro(vtkMatrix4x4,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

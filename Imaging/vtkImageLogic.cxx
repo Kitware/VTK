@@ -43,25 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <math.h>
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkImageLogic* vtkImageLogic::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageLogic");
-  if(ret)
-    {
-    return (vtkImageLogic*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageLogic;
-}
-
-
-
-
-
+vtkCxxRevisionMacro(vtkImageLogic, "1.24");
+vtkStandardNewMacro(vtkImageLogic);
 
 //----------------------------------------------------------------------------
 vtkImageLogic::vtkImageLogic()
@@ -355,7 +338,7 @@ void vtkImageLogic::ThreadedExecute(vtkImageData **inData,
 
 void vtkImageLogic::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageTwoInputFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Operation: " << this->Operation << "\n";
 

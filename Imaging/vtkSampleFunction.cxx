@@ -44,23 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkSampleFunction* vtkSampleFunction::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkSampleFunction");
-  if(ret)
-    {
-    return (vtkSampleFunction*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkSampleFunction;
-}
-
-
-
+vtkCxxRevisionMacro(vtkSampleFunction, "1.57");
+vtkStandardNewMacro(vtkSampleFunction);
 
 // Construct with ModelBounds=(-1,1,-1,1,-1,1), SampleDimensions=(50,50,50),
 // Capping turned off, and normal generation on.
@@ -317,8 +302,8 @@ void vtkSampleFunction::Cap(vtkDataArray *s)
 
 void vtkSampleFunction::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkStructuredPointsSource::PrintSelf(os,indent);
-
+  this->Superclass::PrintSelf(os,indent);
+  
   os << indent << "Sample Dimensions: (" << this->SampleDimensions[0] << ", "
                << this->SampleDimensions[1] << ", "
                << this->SampleDimensions[2] << ")\n";

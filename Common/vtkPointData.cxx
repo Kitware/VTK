@@ -42,20 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPointData.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkPointData* vtkPointData::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPointData");
-  if(ret)
-    {
-    return (vtkPointData*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkPointData;
-}
+vtkCxxRevisionMacro(vtkPointData, "1.65");
+vtkStandardNewMacro(vtkPointData);
 
 void vtkPointData::NullPoint (vtkIdType ptId)
 {
@@ -79,5 +67,5 @@ void vtkPointData::NullPoint (vtkIdType ptId)
 
 void vtkPointData::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetAttributes::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 }

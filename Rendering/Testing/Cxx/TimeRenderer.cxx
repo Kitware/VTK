@@ -108,7 +108,7 @@ int main( int argc, char *argv[] )
       {
       if (pnts)
         {
- 	pnts->Delete();
+        pnts->Delete();
         }
       
       pnts = vtkPoints::New();

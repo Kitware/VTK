@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_GRAPHICS_EXPORT vtkVectorDot : public vtkDataSetToDataSetFilter 
 {
 public:
-  vtkTypeMacro(vtkVectorDot,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkVectorDot,vtkDataSetToDataSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -44,18 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-//-------------------------------------------------------------------------
-vtkHull* vtkHull::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkHull");
-  if(ret)
-    {
-    return (vtkHull*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkHull;
-}
+vtkCxxRevisionMacro(vtkHull, "1.29");
+vtkStandardNewMacro(vtkHull);
 
 // Construct an the hull object with no planes
 vtkHull::vtkHull()
@@ -850,7 +840,7 @@ void vtkHull::PrintSelf(ostream& os, vtkIndent indent)
 {
   int i;
 
-  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Number Of Planes: " << this->NumberOfPlanes << endl;
 

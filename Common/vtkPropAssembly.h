@@ -73,7 +73,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_COMMON_EXPORT vtkPropAssembly : public vtkProp
 {
 public:
-  vtkTypeMacro(vtkPropAssembly,vtkProp);
+  vtkTypeRevisionMacro(vtkPropAssembly,vtkProp);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -58,7 +58,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_COMMON_EXPORT vtkRungeKutta4 : public vtkInitialValueProblemSolver
 {
 public:
-  vtkTypeMacro(vtkRungeKutta4,vtkInitialValueProblemSolver);
+  vtkTypeRevisionMacro(vtkRungeKutta4,vtkInitialValueProblemSolver);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

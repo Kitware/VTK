@@ -47,20 +47,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkStructuredPoints.h"
 #include "vtkPolyData.h"
 #include "vtkFloatArray.h"
+
 #include <ctype.h>
 
-//----------------------------------------------------------------------------
-vtkEnSight6Reader* vtkEnSight6Reader::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkEnSight6Reader");
-  if(ret)
-    {
-    return (vtkEnSight6Reader*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkEnSight6Reader;
-}
+vtkCxxRevisionMacro(vtkEnSight6Reader, "1.27");
+vtkStandardNewMacro(vtkEnSight6Reader);
 
 //----------------------------------------------------------------------------
 vtkEnSight6Reader::vtkEnSight6Reader()

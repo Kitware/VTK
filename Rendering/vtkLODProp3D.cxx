@@ -39,31 +39,17 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <stdlib.h>
-#include <math.h>
-
 #include "vtkLODProp3D.h"
 #include "vtkActor.h"
 #include "vtkVolume.h"
 #include "vtkObjectFactory.h"
 #include "vtkPropCollection.h"
 
+#include <stdlib.h>
+#include <math.h>
 
-//------------------------------------------------------------------------------
-vtkLODProp3D* vtkLODProp3D::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkLODProp3D");
-  if(ret)
-    {
-    return (vtkLODProp3D*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkLODProp3D;
-}
-
-
-
+vtkCxxRevisionMacro(vtkLODProp3D, "1.30");
+vtkStandardNewMacro(vtkLODProp3D);
 
 #define VTK_INDEX_NOT_IN_USE    -1
 
@@ -995,7 +981,7 @@ void vtkLODProp3D::SetAllocatedRenderTime( float t, vtkViewport *vp )
 
 void vtkLODProp3D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkProp3D::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Number Of LODs: " << this->NumberOfLODs << endl;
 

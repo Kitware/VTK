@@ -39,8 +39,9 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
 #include "vtkInitialValueProblemSolver.h"
+
+vtkCxxRevisionMacro(vtkInitialValueProblemSolver, "1.5");
 
 vtkInitialValueProblemSolver::vtkInitialValueProblemSolver() 
 {
@@ -81,7 +82,7 @@ void vtkInitialValueProblemSolver::SetFunctionSet(vtkFunctionSet* fset)
 
 void vtkInitialValueProblemSolver::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkObject::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
   os << indent << "Function set : " << this->FunctionSet << endl;
   os << indent << "Function values : " << this->Vals << endl;
   os << indent << "Function derivatives: " << this->Derivs << endl;

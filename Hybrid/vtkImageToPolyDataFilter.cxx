@@ -45,6 +45,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkEdgeTable.h"
 #include "vtkAppendPolyData.h"
 
+vtkCxxRevisionMacro(vtkImageToPolyDataFilter, "1.16");
+
 vtkImageToPolyDataFilter::vtkImageToPolyDataFilter()
 {
   this->OutputStyle = VTK_STYLE_POLYGONALIZE;
@@ -559,7 +561,7 @@ void vtkImageToPolyDataFilter::BuildTable(unsigned char *vtkNotUsed(inPixels))
 
 void vtkImageToPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkStructuredPointsToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
  
   os << indent << "Output Style: ";
   if ( this->OutputStyle == VTK_STYLE_PIXELIZE )

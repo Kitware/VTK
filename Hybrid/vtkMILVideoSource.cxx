@@ -39,25 +39,16 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <ctype.h>
-#include <string.h>
-#include "vtkTimerLog.h"
 #include "vtkMILVideoSource.h"
-#include <mil.h>
+#include "vtkTimerLog.h"
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
-vtkMILVideoSource* vtkMILVideoSource::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMILVideoSource");
-  if(ret)
-    {
-    return (vtkMILVideoSource*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkMILVideoSource;
-}
+#include <mil.h>
+#include <ctype.h>
+#include <string.h>
+
+vtkCxxRevisionMacro(vtkMILVideoSource, "1.15");
+vtkStandardNewMacro(vtkMILVideoSource);
 
 //----------------------------------------------------------------------------
 vtkMILVideoSource::vtkMILVideoSource()
@@ -118,7 +109,7 @@ vtkMILVideoSource::~vtkMILVideoSource()
 //----------------------------------------------------------------------------
 void vtkMILVideoSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkVideoSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
   
   os << indent << "VideoChannel: " << this->VideoChannel << "\n";
 
@@ -361,8 +352,8 @@ static void vtkMILVideoSourceSetSize(long digID, int size[3], int maxSize[2])
 void vtkMILVideoSource::Initialize()
 {
   static int system_types[] = { VTK_MIL_METEOR, VTK_MIL_METEOR_II, 
-				VTK_MIL_CORONA, VTK_MIL_PULSAR, 
-				VTK_MIL_METEOR_II_DIG, VTK_MIL_GENESIS, 0 };
+                                VTK_MIL_CORONA, VTK_MIL_PULSAR, 
+                                VTK_MIL_METEOR_II_DIG, VTK_MIL_GENESIS, 0 };
 
   if (this->Initialized || this->FatalMILError)
     {
@@ -393,36 +384,36 @@ void vtkMILVideoSource::Initialize()
       { // asked for a particular system by name
       systemType = this->MILInterpreterForSystem(this->MILSystemType);
       if (systemType)
-	{
-	this->MILSysID = MsysAlloc(systemType, this->MILSystemNumber,
-				   M_DEFAULT,M_NULL);
-	}
+        {
+        this->MILSysID = MsysAlloc(systemType, this->MILSystemNumber,
+                                   M_DEFAULT,M_NULL);
+        }
       else
-	{
-	this->ReleaseSystemResources();
-	vtkErrorMacro(<< "Initialize: couldn't find " << this->MILInterpreterDLL << ".dll\n");
-	return;
-	}
+        {
+        this->ReleaseSystemResources();
+        vtkErrorMacro(<< "Initialize: couldn't find " << this->MILInterpreterDLL << ".dll\n");
+        return;
+        }
       }
     else
       { // try for any known MIL system
       MappControl(M_ERROR,M_PRINT_DISABLE);
       int i;
       for (i = 0; this->MILSysID == 0 && system_types[i] != 0; i++)
-	{
-	systemType = this->MILInterpreterForSystem(system_types[i]);
-	if (systemType)
-	  {
-	  this->MILSysID = MsysAlloc(systemType,this->MILSystemNumber,
-				     M_DEFAULT,M_NULL);
-	  }
-	}
+        {
+        systemType = this->MILInterpreterForSystem(system_types[i]);
+        if (systemType)
+          {
+          this->MILSysID = MsysAlloc(systemType,this->MILSystemNumber,
+                                     M_DEFAULT,M_NULL);
+          }
+        }
       if (system_types[i] == 0)
-	{
-	this->ReleaseSystemResources();
-	vtkErrorMacro(<< "Initialize: Couldn't find a Matrox frame grabber on the system\n");
-	return;
-	}
+        {
+        this->ReleaseSystemResources();
+        vtkErrorMacro(<< "Initialize: Couldn't find a Matrox frame grabber on the system\n");
+        return;
+        }
       MappControl(M_ERROR,M_PRINT_ENABLE);
       }
     this->MILSysInternallyAllocated = 1;
@@ -433,7 +424,7 @@ void vtkMILVideoSource::Initialize()
   this->AllocateMILDigitizer();
 
   MappControl(M_ERROR,
-	      ( this->MILErrorMessages ? M_PRINT_ENABLE : M_PRINT_DISABLE ));
+              ( this->MILErrorMessages ? M_PRINT_ENABLE : M_PRINT_DISABLE ));
 
   // update frame buffer again to reflect any changes
   this->UpdateFrameBuffer();
@@ -503,14 +494,14 @@ long MFTYPE vtkMILVideoSourceHook(long HookType, MIL_ID EventID, void *UserPtr)
       {
       frame_stride = (int)(30/rate);
       if (format == VTK_MIL_CCIR || 
-	  format == VTK_MIL_PAL ||
-	  format == VTK_MIL_SECAM)
-	{
-	frame_stride = (int)(25/rate);
-	}
+          format == VTK_MIL_PAL ||
+          format == VTK_MIL_SECAM)
+        {
+        frame_stride = (int)(25/rate);
+        }
       }
     if ((rate > 0 && ++(self->FrameCounter) >= frame_stride) || 
-	self->ForceGrab)
+        self->ForceGrab)
       {
       self->InternalGrab();
       self->FrameCounter = 0;
@@ -520,7 +511,7 @@ long MFTYPE vtkMILVideoSourceHook(long HookType, MIL_ID EventID, void *UserPtr)
   if (self->OldHookFunction)
     {
     return ((MDIGHOOKFCTPTR)self->OldHookFunction)(HookType,EventID,
-					     self->OldUserDataPtr);
+                                             self->OldUserDataPtr);
     }
   else
     {
@@ -569,12 +560,12 @@ void vtkMILVideoSource::InternalGrab()
     else if (depth == 3)
       {
       MbufGetColor2d(this->MILBufID,M_RGB24+M_PACKED,M_ALL_BAND,
-		     offsetX,offsetY,sizeX,sizeY,ptr);
+                     offsetX,offsetY,sizeX,sizeY,ptr);
       }
     else if (depth == 4) 
       {
       MbufGetColor2d(this->MILBufID,M_RGB32+M_PACKED,M_ALL_BAND,
-		     offsetX,offsetY,sizeX,sizeY,ptr);
+                     offsetX,offsetY,sizeX,sizeY,ptr);
       }
     }
 
@@ -639,12 +630,12 @@ void vtkMILVideoSource::Record()
   this->FrameCount = 0;
 
   MdigInquire(this->MILDigID,M_GRAB_FRAME_END_HANDLER_PTR,
-	      &this->OldHookFunction);
+              &this->OldHookFunction);
   MdigInquire(this->MILDigID,M_GRAB_FRAME_END_HANDLER_USER_PTR,
-	      &this->OldUserDataPtr);
+              &this->OldUserDataPtr);
   MdigHookFunction(this->MILDigID,M_GRAB_FRAME_END,
-		   &vtkMILVideoSourceHook,
-		   (void *)this);
+                   &vtkMILVideoSourceHook,
+                   (void *)this);
   this->FrameCounter = 0;
   this->ForceGrab = 0;
 
@@ -671,8 +662,8 @@ void vtkMILVideoSource::Stop()
 
   MdigHalt(this->MILDigID);
   MdigHookFunction(this->MILDigID,M_GRAB_FRAME_END,
-		   (MDIGHOOKFCTPTR)this->OldHookFunction,
-		   OldUserDataPtr);
+                   (MDIGHOOKFCTPTR)this->OldHookFunction,
+                   OldUserDataPtr);
   this->OldHookFunction = 0;
   MdigGrabWait(this->MILDigID,M_GRAB_END);
 
@@ -721,7 +712,7 @@ void vtkMILVideoSource::SetFrameSize(int x, int y, int z)
     this->FrameBufferMutex->Lock();
     this->UpdateFrameBuffer();
     vtkMILVideoSourceSetSize(this->MILDigID,
-			     this->FrameSize,this->FrameMaxSize);
+                             this->FrameSize,this->FrameMaxSize);
     this->AllocateMILBuffer();
     this->FrameBufferMutex->Unlock();
     }
@@ -935,27 +926,27 @@ void vtkMILVideoSource::AllocateMILDigitizer()
     case VTK_MIL_RS170:
       format = "M_RS170";
       if (this->VideoInput == VTK_MIL_RGB)
-	{
-	format = "M_RS170_VIA_RGB";
-	}
+        {
+        format = "M_RS170_VIA_RGB";
+        }
       break;
     case VTK_MIL_NTSC:
       format = "M_NTSC";
       if (this->VideoInput == VTK_MIL_YC)
-	{
-	format = "M_NTSC_YC";
-	}
+        {
+        format = "M_NTSC_YC";
+        }
       if (this->VideoInput == VTK_MIL_RGB)
-	{
-	format = "M_NTSC_RGB";
-	}
+        {
+        format = "M_NTSC_RGB";
+        }
       break;
     case VTK_MIL_CCIR:
       format = "M_CCIR";
       if (this->VideoInput == VTK_MIL_RGB)
-	{
-	format = "M_CCIR_VIA_RGB";
-	}
+        {
+        format = "M_CCIR_VIA_RGB";
+        }
       this->FrameMaxSize[0] = 768;
       this->FrameMaxSize[1] = 576;
       break;
@@ -963,13 +954,13 @@ void vtkMILVideoSource::AllocateMILDigitizer()
     case VTK_MIL_SECAM:
       format = "M_PAL";
       if (this->VideoInput == VTK_MIL_YC)
-	{
-	format = "M_PAL_YC";
-	}
+        {
+        format = "M_PAL_YC";
+        }
       if (this->VideoInput == VTK_MIL_RGB)
-	{
-	format = "M_PAL_RGB";
-	}
+        {
+        format = "M_PAL_RGB";
+        }
       this->FrameMaxSize[0] = 768;
       this->FrameMaxSize[1] = 576;
       break;
@@ -987,7 +978,7 @@ void vtkMILVideoSource::AllocateMILDigitizer()
     }
 
   this->MILDigID = MdigAlloc(this->MILSysID,this->MILDigitizerNumber,format,
-			     M_DEFAULT,M_NULL);
+                             M_DEFAULT,M_NULL);
 
   if (this->MILDigID == 0)
     {
@@ -1002,22 +993,22 @@ void vtkMILVideoSource::AllocateMILDigitizer()
   if (this->BrightnessLevel != 128)
     {
     vtkMILVideoSourceSetLevel(this->MILDigID,M_BRIGHTNESS_REF,
-			      this->BrightnessLevel/255);
+                              this->BrightnessLevel/255);
     }
   if (this->ContrastLevel != 1.0)
     {
     vtkMILVideoSourceSetLevel(this->MILDigID,M_CONTRAST_REF,
-			      this->ContrastLevel/2.0);
+                              this->ContrastLevel/2.0);
     }
   if (this->HueLevel != 0.0)
     {
     vtkMILVideoSourceSetLevel(this->MILDigID,M_HUE_REF,
-			      0.5+this->HueLevel);
+                              0.5+this->HueLevel);
     }
   if (this->SaturationLevel != 1.0)
     {
     vtkMILVideoSourceSetLevel(this->MILDigID,M_SATURATION_REF,
-			      this->SaturationLevel/2.0);
+                              this->SaturationLevel/2.0);
     }
 
   if (this->MILDigID && this->MILBufID)
@@ -1058,24 +1049,24 @@ void vtkMILVideoSource::AllocateMILBuffer()
   if (this->OutputFormat == VTK_LUMINANCE)
     {
      this->MILBufID = MbufAlloc2d(this->MILSysID,this->FrameSize[0],
-				  this->FrameSize[1],
-				  8+M_UNSIGNED,M_IMAGE+M_GRAB,M_NULL);
+                                  this->FrameSize[1],
+                                  8+M_UNSIGNED,M_IMAGE+M_GRAB,M_NULL);
     }
   else if (this->OutputFormat == VTK_RGB)
     {
     this->MILBufID = MbufAllocColor(this->MILSysID,3,this->FrameSize[0],
-				    this->FrameSize[1],
-				    8+M_UNSIGNED,M_IMAGE+M_GRAB+ \
-				    M_RGB24+M_PACKED,
-				    M_NULL);
+                                    this->FrameSize[1],
+                                    8+M_UNSIGNED,M_IMAGE+M_GRAB+ \
+                                    M_RGB24+M_PACKED,
+                                    M_NULL);
     }
   else if (this->OutputFormat == VTK_RGBA)
     {
     this->MILBufID = MbufAllocColor(this->MILSysID,3,this->FrameSize[0],
-				    this->FrameSize[1],
-				    8+M_UNSIGNED,M_IMAGE+M_GRAB+M_RGB32+ \
-				    M_PACKED,
-				    M_NULL);
+                                    this->FrameSize[1],
+                                    8+M_UNSIGNED,M_IMAGE+M_GRAB+M_RGB32+ \
+                                    M_PACKED,
+                                    M_NULL);
     }
 
   if (this->MILBufID == 0)

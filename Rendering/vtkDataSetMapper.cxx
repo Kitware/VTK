@@ -43,18 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPolyDataMapper.h"
 #include "vtkObjectFactory.h"
 
-//------------------------------------------------------------------------
-vtkDataSetMapper* vtkDataSetMapper::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkDataSetMapper");
-  if(ret)
-    {
-    return (vtkDataSetMapper*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkDataSetMapper;
-}
+vtkCxxRevisionMacro(vtkDataSetMapper, "1.60");
+vtkStandardNewMacro(vtkDataSetMapper);
 
 vtkDataSetMapper::vtkDataSetMapper()
 {
@@ -179,7 +169,7 @@ void vtkDataSetMapper::Render(vtkRenderer *ren, vtkActor *act)
 
 void vtkDataSetMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkMapper::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   if ( this->PolyDataMapper )
     {

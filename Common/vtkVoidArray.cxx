@@ -42,23 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkVoidArray.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkVoidArray* vtkVoidArray::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkVoidArray");
-  if(ret)
-    {
-    return (vtkVoidArray*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkVoidArray;
-}
-
-
-
+vtkCxxRevisionMacro(vtkVoidArray, "1.40");
+vtkStandardNewMacro(vtkVoidArray);
 
 typedef void *voidPtr;
 
@@ -139,7 +124,7 @@ void vtkVoidArray::DeepCopy(vtkDataArray *da)
 
 void vtkVoidArray::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataArray::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   if (this->Array)
     {

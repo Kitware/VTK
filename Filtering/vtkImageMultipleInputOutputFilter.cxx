@@ -41,22 +41,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageMultipleInputOutputFilter.h"
 #include "vtkObjectFactory.h"
 
-
-
-//----------------------------------------------------------------------------
-vtkImageMultipleInputOutputFilter* vtkImageMultipleInputOutputFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageMultipleInputOutputFilter");
-  if(ret)
-    {
-    return (vtkImageMultipleInputOutputFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageMultipleInputOutputFilter;
-}
-
-
+vtkCxxRevisionMacro(vtkImageMultipleInputOutputFilter, "1.6");
+vtkStandardNewMacro(vtkImageMultipleInputOutputFilter);
 
 //----------------------------------------------------------------------------
 vtkImageMultipleInputOutputFilter::vtkImageMultipleInputOutputFilter()
@@ -71,7 +57,7 @@ vtkImageMultipleInputOutputFilter::~vtkImageMultipleInputOutputFilter()
 //----------------------------------------------------------------------------
 void vtkImageMultipleInputOutputFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageMultipleInputFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 }
 
 //----------------------------------------------------------------------------
@@ -253,16 +239,3 @@ ThreadedExecute(vtkImageData **vtkNotUsed(inData),
   extent = extent;
   vtkErrorMacro("This method should not be called!");
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

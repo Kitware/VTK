@@ -46,6 +46,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkDebugLeaks.h"
 #include "vtkCriticalSection.h"
 
+vtkCxxRevisionMacro(vtkAbstractTransform, "1.20");
+
 //----------------------------------------------------------------------------
 vtkAbstractTransform::vtkAbstractTransform()
 {
@@ -76,7 +78,7 @@ vtkAbstractTransform::~vtkAbstractTransform()
 //----------------------------------------------------------------------------
 void vtkAbstractTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os, indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "Inverse: (" << this->MyInverse << ")\n";
 }
 
@@ -388,7 +390,7 @@ void vtkAbstractTransform::UnRegister(vtkObject *o)
 class vtkSimpleTransform : public vtkHomogeneousTransform
 {
 public:
-  vtkTypeMacro(vtkSimpleTransform,vtkHomogeneousTransform);
+  vtkTypeRevisionMacro(vtkSimpleTransform,vtkHomogeneousTransform);
   static vtkSimpleTransform *New() {
 #ifdef VTK_DEBUG_LEAKS
     vtkDebugLeaks::ConstructClass("vtkSimpleTransform");
@@ -401,6 +403,8 @@ protected:
   vtkSimpleTransform(const vtkSimpleTransform&);
   void operator=(const vtkSimpleTransform&);
 };
+
+vtkCxxRevisionMacro(vtkSimpleTransform, "1.20");
 
 //----------------------------------------------------------------------------
 vtkTransformConcatenation::vtkTransformConcatenation()

@@ -56,7 +56,7 @@ class VTK_GRAPHICS_EXPORT vtkWarpVector : public vtkPointSetToPointSetFilter
 {
 public:
   static vtkWarpVector *New();
-  vtkTypeMacro(vtkWarpVector,vtkPointSetToPointSetFilter);
+  vtkTypeRevisionMacro(vtkWarpVector,vtkPointSetToPointSetFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -43,6 +43,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkDataSetAttributes.h"
 
+vtkCxxRevisionMacro(vtkRearrangeFields, "1.6");
+vtkStandardNewMacro(vtkRearrangeFields);
+
 typedef vtkRearrangeFields::Operation Operation;
 
 // Used by AddOperation() and RemoveOperation() designed to be used 
@@ -63,17 +66,7 @@ char vtkRearrangeFields::FieldLocationNames[3][12]
 
 
 //--------------------------------------------------------------------------
-vtkRearrangeFields* vtkRearrangeFields::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkRearrangeFields");
-  if(ret)
-    {
-    return (vtkRearrangeFields*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkRearrangeFields;
-}
+
 
 vtkRearrangeFields::vtkRearrangeFields()
 {
@@ -679,7 +672,7 @@ int vtkRearrangeFields::CompareOperationsByType(const Operation* op1,
 
 void vtkRearrangeFields::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkDataSetToDataSetFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
   os << indent << "Linked list head: " << this->Head << endl;
   os << indent << "Linked list tail: " << this->Tail << endl;
   os << indent << "Last id: " << this->LastId << endl;

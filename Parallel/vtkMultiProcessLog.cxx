@@ -47,20 +47,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // A log for each process.
 vtkThreadSafeLog *VTK_TIMER_LOGS[VTK_MULTI_PROCESS_LOG_MAX];
 
-
-//----------------------------------------------------------------------------
-vtkMultiProcessLog* vtkMultiProcessLog::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMultiProcessLog");
-  if(ret)
-    {
-    return (vtkMultiProcessLog*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkMultiProcessLog;
-}
-
+vtkCxxRevisionMacro(vtkMultiProcessLog, "1.3");
+vtkStandardNewMacro(vtkMultiProcessLog);
 
 //----------------------------------------------------------------------------
 void vtkMultiProcessLog::SetTimerLog(vtkThreadSafeLog *log)

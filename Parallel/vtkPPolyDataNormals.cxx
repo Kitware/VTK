@@ -42,18 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPPolyDataNormals.h"
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
-vtkPPolyDataNormals* vtkPPolyDataNormals::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPPolyDataNormals");
-  if(ret)
-    {
-    return (vtkPPolyDataNormals*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkPPolyDataNormals;
-}
+vtkCxxRevisionMacro(vtkPPolyDataNormals, "1.7");
+vtkStandardNewMacro(vtkPPolyDataNormals);
 
 //----------------------------------------------------------------------------
 vtkPPolyDataNormals::vtkPPolyDataNormals()
@@ -104,7 +94,7 @@ void vtkPPolyDataNormals::ComputeInputUpdateExtents(vtkDataObject *output)
 //----------------------------------------------------------------------------
 void vtkPPolyDataNormals::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataNormals::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "PieceInvariant: "
      << this->PieceInvariant << "\n";

@@ -47,18 +47,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
 
-//---------------------------------------------------------------------------
-vtkDelaunay2D* vtkDelaunay2D::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkDelaunay2D");
-  if(ret)
-    {
-    return (vtkDelaunay2D*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkDelaunay2D;
-}
+vtkCxxRevisionMacro(vtkDelaunay2D, "1.50");
+vtkStandardNewMacro(vtkDelaunay2D);
 
 // Construct object with Alpha = 0.0; Tolerance = 0.00001; Offset = 1.25;
 // BoundingTriangulation turned off.
@@ -1136,7 +1126,7 @@ void vtkDelaunay2D::FillPolygons(vtkCellArray *polys, int *triUse)
 
 void vtkDelaunay2D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Alpha: " << this->Alpha << "\n";
   os << indent << "Transform: " << (this->Transform ? "specified" : "none") << "\n";

@@ -56,7 +56,7 @@ class VTK_COMMON_EXPORT vtkWarpTransform : public vtkAbstractTransform
 {
 public:
 
-  vtkTypeMacro(vtkWarpTransform,vtkAbstractTransform);
+  vtkTypeRevisionMacro(vtkWarpTransform,vtkAbstractTransform);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

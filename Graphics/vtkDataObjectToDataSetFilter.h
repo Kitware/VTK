@@ -104,7 +104,7 @@ class VTK_GRAPHICS_EXPORT vtkDataObjectToDataSetFilter : public vtkSource
 {
 public:
   static vtkDataObjectToDataSetFilter *New();
-  vtkTypeMacro(vtkDataObjectToDataSetFilter,vtkSource);
+  vtkTypeRevisionMacro(vtkDataObjectToDataSetFilter,vtkSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

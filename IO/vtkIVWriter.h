@@ -57,7 +57,7 @@ class VTK_IO_EXPORT vtkIVWriter : public vtkPolyDataWriter
 {
 public:
   static vtkIVWriter *New();
-  vtkTypeMacro(vtkIVWriter,vtkPolyDataWriter);
+  vtkTypeRevisionMacro(vtkIVWriter,vtkPolyDataWriter);
 
 protected:
   vtkIVWriter() {};

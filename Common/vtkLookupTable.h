@@ -68,7 +68,7 @@ public:
   // (from red to blue).
   static vtkLookupTable *New();
   
-  vtkTypeMacro(vtkLookupTable,vtkScalarsToColors);
+  vtkTypeRevisionMacro(vtkLookupTable,vtkScalarsToColors);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

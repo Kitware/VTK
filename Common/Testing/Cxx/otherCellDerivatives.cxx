@@ -70,9 +70,9 @@ void Test(ostream& strm)
       polyVertex->CellBoundary (k, polyVertexCoords[j], ids);
       strm << "vtkPolyVertex \t(" << polyVertexCoords[j][0] << ") \t= ";
       for (i = 0; i < ids->GetNumberOfIds(); i++)
-	{
-	strm << ids->GetId(i) << ", ";
-	}
+        {
+        strm << ids->GetId(i) << ", ";
+        }
       strm << endl;
       }
     }
@@ -115,9 +115,9 @@ void Test(ostream& strm)
       polyLine->CellBoundary (k, polyLineCoords[j], ids);
       strm << "vtkPolyLine \t(" << polyLineCoords[j][0] << ") = \t";
       for (i = 0; i < ids->GetNumberOfIds(); i++)
-	{
-	strm << ids->GetId(i) << ", ";
-	}
+        {
+        strm << ids->GetId(i) << ", ";
+        }
       strm << endl;
       }
     }
@@ -164,9 +164,9 @@ void Test(ostream& strm)
       triangleStrip->CellBoundary (k, triangleStripCoords[j], ids);
       strm << "vtkTriangleStrip \t(" << triangleStripCoords[j][0] << ", " << triangleStripCoords[j][1] << ") = \t";
       for (i = 0; i < ids->GetNumberOfIds(); i++)
-	{
-	strm << ids->GetId(i) << ", ";
-	}
+        {
+        strm << ids->GetId(i) << ", ";
+        }
       strm << endl;
       }
     }

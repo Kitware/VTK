@@ -61,7 +61,7 @@ public:
 //ETX
   static vtkPoints *New();
 
-  vtkTypeMacro(vtkPoints,vtkObject);
+  vtkTypeRevisionMacro(vtkPoints,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

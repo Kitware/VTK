@@ -1,8 +1,8 @@
 /* 
  * tkAppInit.c --
  *
- *	Provides a default version of the Tcl_AppInit procedure for
- *	use in wish and similar Tk-based applications.
+ *      Provides a default version of the Tcl_AppInit procedure for
+ *      use in wish and similar Tk-based applications.
  *
  * Copyright (c) 1993 The Regents of the University of California.
  * Copyright (c) 1994 Sun Microsystems, Inc.
@@ -22,14 +22,14 @@
  *
  * main --
  *
- *	This is the main program for the application.
+ *      This is the main program for the application.
  *
  * Results:
- *	None: Tk_Main never returns here, so this procedure never
- *	returns either.
+ *      None: Tk_Main never returns here, so this procedure never
+ *      returns either.
  *
  * Side effects:
- *	Whatever the application does.
+ *      Whatever the application does.
  *
  *----------------------------------------------------------------------
  */
@@ -42,7 +42,7 @@ main(int argc, char **argv)
   vtkMultiProcessController::SetGlobalController(controller);
   Tk_Main(argc, argv, Tcl_AppInit);
   controller->Delete();
-  return 0;			/* Needed only to prevent compiler warning. */
+  return 0;                     /* Needed only to prevent compiler warning. */
 }
 
 /*
@@ -50,16 +50,16 @@ main(int argc, char **argv)
  *
  * Tcl_AppInit --
  *
- *	This procedure performs application-specific initialization.
- *	Most applications, especially those that incorporate additional
- *	packages, will have their own version of this procedure.
+ *      This procedure performs application-specific initialization.
+ *      Most applications, especially those that incorporate additional
+ *      packages, will have their own version of this procedure.
  *
  * Results:
- *	Returns a standard Tcl completion code, and leaves an error
- *	message in interp->result if an error occurs.
+ *      Returns a standard Tcl completion code, and leaves an error
+ *      message in interp->result if an error occurs.
  *
  * Side effects:
- *	Depends on the startup script.
+ *      Depends on the startup script.
  *
  *----------------------------------------------------------------------
  */
@@ -173,9 +173,9 @@ int Tcl_AppInit(Tcl_Interp *interp)
   
 #if (((TK_MAJOR_VERSION == 4)&&(TK_MINOR_VERSION >= 1))||((TK_MAJOR_VERSION == 8)&&(TK_MINOR_VERSION >= 0)))
   Tcl_SetVar(interp,
-	     (char *) "tcl_rcFileName",
-	     (char *) "~/.vtkrc",
-	     TCL_GLOBAL_ONLY);
+             (char *) "tcl_rcFileName",
+             (char *) "~/.vtkrc",
+             TCL_GLOBAL_ONLY);
 #else
     tcl_RcFileName = (char *) "~/.vtkrc";
 #endif

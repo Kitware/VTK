@@ -39,21 +39,11 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
 #include "vtkInterpolatedVelocityField.h"
 #include "vtkObjectFactory.h"
 
-vtkInterpolatedVelocityField* vtkInterpolatedVelocityField::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkInterpolatedVelocityField");
-  if(ret)
-    {
-    return (vtkInterpolatedVelocityField*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkInterpolatedVelocityField;
-}
+vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.11");
+vtkStandardNewMacro(vtkInterpolatedVelocityField);
 
 vtkInterpolatedVelocityField::vtkInterpolatedVelocityField()
 {
@@ -84,7 +74,7 @@ vtkInterpolatedVelocityField::~vtkInterpolatedVelocityField()
 
 void vtkInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkFunctionSet::PrintSelf(os, indent);
+  this->Superclass::PrintSelf(os, indent);
   if ( this->DataSet )
     {
     os << indent << "Data Set: " << this->DataSet << endl;

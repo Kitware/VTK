@@ -44,6 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkInterpolatingSubdivisionFilter.h"
 #include "vtkEdgeTable.h"
 
+vtkCxxRevisionMacro(vtkInterpolatingSubdivisionFilter, "1.17");
+
 // Construct object with number of subdivisions set to 1.
 vtkInterpolatingSubdivisionFilter::vtkInterpolatingSubdivisionFilter()
 {
@@ -256,7 +258,7 @@ void vtkInterpolatingSubdivisionFilter::GenerateSubdivisionCells (vtkPolyData *i
 
 void vtkInterpolatingSubdivisionFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Number of subdivisions: " << this->NumberOfSubdivisions << endl;
 }

@@ -42,6 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageSeparableConvolution.h"
 #include "vtkObjectFactory.h"
 
+vtkCxxRevisionMacro(vtkImageSeparableConvolution, "1.8");
+vtkStandardNewMacro(vtkImageSeparableConvolution);
 
 // Actually do the convolution
 void ExecuteConvolve ( float* kernel, int kernelSize, float* image, float* outImage, int imageSize )
@@ -126,22 +128,6 @@ unsigned long vtkImageSeparableConvolution::GetMTime()
     }
   return mTime;
 }
-
-
-//------------------------------------------------------------------------------
-vtkImageSeparableConvolution* vtkImageSeparableConvolution::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageSeparableConvolution");
-  if(ret)
-    {
-    return (vtkImageSeparableConvolution*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageSeparableConvolution;
-}
-
-
 
 
 //----------------------------------------------------------------------------
@@ -408,7 +394,7 @@ void vtkImageSeparableConvolution::IterativeExecuteData(vtkImageData *inData,
 
 void vtkImageSeparableConvolution::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageDecomposeFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   if ( this->XKernel )
     {

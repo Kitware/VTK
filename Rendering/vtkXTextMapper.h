@@ -63,7 +63,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_RENDERING_EXPORT vtkXTextMapper : public vtkTextMapper
 {
 public:
-  vtkTypeMacro(vtkXTextMapper,vtkTextMapper);
+  vtkTypeRevisionMacro(vtkXTextMapper,vtkTextMapper);
   static vtkXTextMapper *New();
 
   // Description:

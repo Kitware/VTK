@@ -45,18 +45,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-//-------------------------------------------------------------------------
-vtkOBJExporter* vtkOBJExporter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkOBJExporter");
-  if(ret)
-    {
-    return (vtkOBJExporter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkOBJExporter;
-}
+vtkCxxRevisionMacro(vtkOBJExporter, "1.41");
+vtkStandardNewMacro(vtkOBJExporter);
 
 vtkOBJExporter::vtkOBJExporter()
 {
@@ -404,7 +394,7 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
 
 void vtkOBJExporter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkExporter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
  
   if (this->FilePrefix)
     {

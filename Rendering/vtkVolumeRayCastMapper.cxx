@@ -39,8 +39,6 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
-
 #include "vtkVolumeRayCastMapper.h"
 #include "vtkRenderer.h"
 #include "vtkMath.h"
@@ -50,6 +48,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPlaneCollection.h"
 #include "vtkObjectFactory.h"
 #include "vtkMultiThreader.h"
+
+#include <math.h>
+
+vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.79");
 
 #define vtkVRCMultiplyPointMacro( A, B, M ) \
   B[0] = A[0]*M[0]  + A[1]*M[1]  + A[2]*M[2]  + M[3]; \
@@ -69,14 +71,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   B[1] = A[0]*M[1]  + A[1]*M[5]  + A[2]*M[9]; \
   B[2] = A[0]*M[2]  + A[1]*M[6]  + A[2]*M[10]
 
-//------------------------------------------------------------------------------
 vtkVolumeRayCastMapper* vtkVolumeRayCastMapper::New()
 {
   // First try to create the object from the vtkObjectFactory
   vtkObject* ret=vtkGraphicsFactory::CreateInstance("vtkVolumeRayCastMapper");
   return (vtkVolumeRayCastMapper*)ret;
 }
-
 
 // Construct a new vtkVolumeRayCastMapper with default values
 vtkVolumeRayCastMapper::vtkVolumeRayCastMapper()
@@ -1937,7 +1937,7 @@ float vtkVolumeRayCastMapper::GetZeroOpacityThreshold( vtkVolume *vol )
 // Print method for vtkVolumeRayCastMapper
 void vtkVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkVolumeMapper::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Sample Distance: " << this->SampleDistance << "\n";
   os << indent << "Image Sample Distance: " 

@@ -56,7 +56,7 @@ class VTK_COMMON_EXPORT vtkMath : public vtkObject
 {
 public:
   static vtkMath *New();
-  vtkTypeMacro(vtkMath,vtkObject);
+  vtkTypeRevisionMacro(vtkMath,vtkObject);
   
   // Description:
   // Useful constants.

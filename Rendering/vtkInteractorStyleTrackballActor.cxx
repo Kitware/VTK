@@ -44,19 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkCommand.h"
 
-//----------------------------------------------------------------------------
-vtkInteractorStyleTrackballActor *vtkInteractorStyleTrackballActor::New() 
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkInteractorStyleTrackballActor");
-  if(ret)
-    {
-    return (vtkInteractorStyleTrackballActor*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkInteractorStyleTrackballActor;
-}
-
+vtkCxxRevisionMacro(vtkInteractorStyleTrackballActor, "1.14");
+vtkStandardNewMacro(vtkInteractorStyleTrackballActor);
 
 //----------------------------------------------------------------------------
 vtkInteractorStyleTrackballActor::vtkInteractorStyleTrackballActor() 
@@ -539,7 +528,7 @@ void vtkInteractorStyleTrackballActor::OnRightButtonUp(int vtkNotUsed(ctrl),
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackballActor::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkInteractorStyle::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 }
 
 //----------------------------------------------------------------------------

@@ -45,18 +45,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-//--------------------------------------------------------------------------
-vtkGraphLayoutFilter* vtkGraphLayoutFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkGraphLayoutFilter");
-  if(ret)
-    {
-    return (vtkGraphLayoutFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkGraphLayoutFilter;
-}
+vtkCxxRevisionMacro(vtkGraphLayoutFilter, "1.5");
+vtkStandardNewMacro(vtkGraphLayoutFilter);
 
 vtkGraphLayoutFilter::vtkGraphLayoutFilter()
 {
@@ -292,7 +282,7 @@ void vtkGraphLayoutFilter::Execute()
 
 void vtkGraphLayoutFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "AutomaticBoundsComputation: " 
      << (this->AutomaticBoundsComputation ? "On\n" : "Off\n");

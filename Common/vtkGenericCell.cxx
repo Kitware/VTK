@@ -57,23 +57,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPyramid.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkGenericCell* vtkGenericCell::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkGenericCell");
-  if(ret)
-    {
-    return (vtkGenericCell*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkGenericCell;
-}
-
-
-
+vtkCxxRevisionMacro(vtkGenericCell, "1.10");
+vtkStandardNewMacro(vtkGenericCell);
 
 // Construct cell.
 vtkGenericCell::vtkGenericCell()

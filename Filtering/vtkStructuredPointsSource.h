@@ -57,7 +57,7 @@ class VTK_FILTERING_EXPORT vtkStructuredPointsSource : public vtkSource
 {
 public:
   static vtkStructuredPointsSource *New();
-  vtkTypeMacro(vtkStructuredPointsSource,vtkSource);
+  vtkTypeRevisionMacro(vtkStructuredPointsSource,vtkSource);
 
   // Description:
   // Set/Get the output of this source.

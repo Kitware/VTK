@@ -39,26 +39,15 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
-#include <math.h>
 #include "vtkPolyDataToImageStencil.h"
 #include "vtkPolyData.h"
 #include "vtkOBBTree.h"
 #include "vtkObjectFactory.h"
 
+#include <math.h>
 
-//----------------------------------------------------------------------------
-vtkPolyDataToImageStencil* vtkPolyDataToImageStencil::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPolyDataToImageStencil");
-  if(ret)
-    {
-    return (vtkPolyDataToImageStencil*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkPolyDataToImageStencil;
-}
+vtkCxxRevisionMacro(vtkPolyDataToImageStencil, "1.2");
+vtkStandardNewMacro(vtkPolyDataToImageStencil);
 
 //----------------------------------------------------------------------------
 vtkPolyDataToImageStencil::vtkPolyDataToImageStencil()
@@ -79,7 +68,7 @@ vtkPolyDataToImageStencil::~vtkPolyDataToImageStencil()
 //----------------------------------------------------------------------------
 void vtkPolyDataToImageStencil::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageStencilSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Input: " << this->GetInput() << "\n";
   os << indent << "Tolerance: " << this->Tolerance << "\n";
@@ -148,8 +137,8 @@ void vtkAddEntryToList(int *&clist, int &clistlen, int &clistmaxlen, int r)
 //----------------------------------------------------------------------------
 static
 void vtkTurnPointsIntoList(vtkPoints *points, int *&clist, int &clistlen,
-			   int extent[6], float origin[3], float spacing[3],
-			   int dim)
+                           int extent[6], float origin[3], float spacing[3],
+                           int dim)
 {
   int clistmaxlen = 2;
   clistlen = 0;
@@ -174,8 +163,8 @@ void vtkTurnPointsIntoList(vtkPoints *points, int *&clist, int &clistlen,
 
 //----------------------------------------------------------------------------
 void vtkPolyDataToImageStencil::ThreadedExecute(vtkImageStencilData *data,
-						int extent[6],
-						int vtkNotUsed(id))
+                                                int extent[6],
+                                                int vtkNotUsed(id))
 {
   float *spacing = data->GetSpacing();
   float *origin = data->GetOrigin();
@@ -202,7 +191,7 @@ void vtkPolyDataToImageStencil::ThreadedExecute(vtkImageStencilData *data,
     {
     tree->IntersectWithLine(p0, p1, points, 0);
     vtkTurnPointsIntoList(points, zlist, zlistlen,
-			  extent, origin, spacing, 2);
+                          extent, origin, spacing, 2);
     }
 
   for (int idZ = extent[4]; idZ <= extent[5]; idZ++)
@@ -226,16 +215,16 @@ void vtkPolyDataToImageStencil::ThreadedExecute(vtkImageStencilData *data,
       {
       tree->IntersectWithLine(p0, p1, points, 0);
       vtkTurnPointsIntoList(points, ylist, ylistlen,
-			    extent, origin, spacing, 1);
+                            extent, origin, spacing, 1);
       }
 
     for (int idY = extent[2]; idY <= extent[3]; idY++)
       {
       if (ylistidx < ylistlen && idY >= ylist[ylistidx])
-	{
-	ystate = -ystate;
-	ylistidx++;
-	}
+        {
+        ystate = -ystate;
+        ylistidx++;
+        }
 
       p0[1] = p1[1] = idY*spacing[1] + origin[1];
       p0[2] = p1[2] = idZ*spacing[2] + origin[2];
@@ -248,33 +237,33 @@ void vtkPolyDataToImageStencil::ThreadedExecute(vtkImageStencilData *data,
       int xlistidx = 0;
       tree->IntersectWithLine(p0, p1, points, 0);
       vtkTurnPointsIntoList(points, xlist, xlistlen,
-			    extent, origin, spacing, 0);
+                            extent, origin, spacing, 0);
 
       // now turn 'xlist' into sub-extents:
       int r1 = extent[0];
       int r2 = extent[1];
       for (xlistidx = 0; xlistidx < xlistlen; xlistidx++)
-	{
-	xstate = -xstate;
+        {
+        xstate = -xstate;
         if (xstate < 0)
-	  { // sub extent starts
-	  r1 = xlist[xlistidx];
-	  }
-	else
-	  { // sub extent ends
-	  r2 = xlist[xlistidx] - 1;
-	  data->InsertNextExtent(r1, r2, idY, idZ);
-	  }
-	}
+          { // sub extent starts
+          r1 = xlist[xlistidx];
+          }
+        else
+          { // sub extent ends
+          r2 = xlist[xlistidx] - 1;
+          data->InsertNextExtent(r1, r2, idY, idZ);
+          }
+        }
       if (xstate < 0)
-	{ // if inside at end, cap off the sub extent
-	data->InsertNextExtent(r1, extent[1], idY, idZ);
-	}      
+        { // if inside at end, cap off the sub extent
+        data->InsertNextExtent(r1, extent[1], idY, idZ);
+        }      
 
       if (xlist)
-	{
-	delete [] xlist;
-	}
+        {
+        delete [] xlist;
+        }
 
       } // for idY
 

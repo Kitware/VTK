@@ -59,7 +59,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_COMMON_EXPORT vtkPointSet : public vtkDataSet
 {
 public:
-  vtkTypeMacro(vtkPointSet,vtkDataSet);
+  vtkTypeRevisionMacro(vtkPointSet,vtkDataSet);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -55,7 +55,7 @@ class VTK_GRAPHICS_EXPORT vtkOutlineFilter : public vtkDataSetToPolyDataFilter
 {
 public:
   static vtkOutlineFilter *New();
-  vtkTypeMacro(vtkOutlineFilter,vtkDataSetToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkOutlineFilter,vtkDataSetToPolyDataFilter);
 
 protected:
   vtkOutlineFilter();

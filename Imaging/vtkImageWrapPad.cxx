@@ -39,28 +39,11 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
 #include "vtkImageWrapPad.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkImageWrapPad* vtkImageWrapPad::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageWrapPad");
-  if(ret)
-    {
-    return (vtkImageWrapPad*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageWrapPad;
-}
-
-
-
-
+vtkCxxRevisionMacro(vtkImageWrapPad, "1.22");
+vtkStandardNewMacro(vtkImageWrapPad);
 
 //----------------------------------------------------------------------------
 // Just clip the request.

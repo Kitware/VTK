@@ -46,19 +46,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkOldStyleCallbackCommand.h"
 
-
-//----------------------------------------------------------------------------
-vtkInteractorStyleUser* vtkInteractorStyleUser::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkInteractorStyleUser");
-  if(ret)
-    {
-    return (vtkInteractorStyleUser*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkInteractorStyleUser;
-}
+vtkCxxRevisionMacro(vtkInteractorStyleUser, "1.21");
+vtkStandardNewMacro(vtkInteractorStyleUser);
 
 //----------------------------------------------------------------------------
 vtkInteractorStyleUser::vtkInteractorStyleUser()
@@ -88,7 +77,7 @@ vtkInteractorStyleUser::~vtkInteractorStyleUser()
 //----------------------------------------------------------------------------
 void vtkInteractorStyleUser::PrintSelf(ostream& os, vtkIndent indent) 
 {
-  this->vtkInteractorStyleSwitch::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "LastPos: (" << this->LastPos[0] << ", " 
                                << this->LastPos[1] << ")\n";  

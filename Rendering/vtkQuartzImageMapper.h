@@ -59,7 +59,7 @@ class VTK_RENDERING_EXPORT vtkQuartzImageMapper : public vtkImageMapper
 {
 public:
   static vtkQuartzImageMapper *New();
-  vtkTypeMacro(vtkQuartzImageMapper,vtkImageMapper);
+  vtkTypeRevisionMacro(vtkQuartzImageMapper,vtkImageMapper);
   
   // Description:
   // Handle the render method.

@@ -42,25 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageMagnify.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkImageMagnify* vtkImageMagnify::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageMagnify");
-  if(ret)
-    {
-    return (vtkImageMagnify*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageMagnify;
-}
-
-
-
-
-
+vtkCxxRevisionMacro(vtkImageMagnify, "1.37");
+vtkStandardNewMacro(vtkImageMagnify);
 
 //----------------------------------------------------------------------------
 // Constructor: Sets default filter to be identity.
@@ -340,7 +323,7 @@ void vtkImageMagnify::ThreadedExecute(vtkImageData *inData,
 
 void vtkImageMagnify::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageToImageFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "MagnificationFactors: ( "
      << this->MagnificationFactors[0] << ", "

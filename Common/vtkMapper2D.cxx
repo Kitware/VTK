@@ -44,26 +44,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkActor2D.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkMapper2D* vtkMapper2D::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMapper2D");
-  if(ret)
-    {
-    return (vtkMapper2D*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkMapper2D;
-}
-
-
-
+vtkCxxRevisionMacro(vtkMapper2D, "1.15");
+vtkStandardNewMacro(vtkMapper2D);
 
 void vtkMapper2D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkAbstractMapper::PrintSelf(os, indent);
+  this->Superclass::PrintSelf(os, indent);
 }
 

@@ -39,10 +39,11 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
 #include "vtkImageActor.h"
 #include "vtkGraphicsFactory.h"
 #include "vtkRenderer.h"
+
+vtkCxxRevisionMacro(vtkImageActor, "1.9");
 
 vtkImageActor* vtkImageActor::New()
 {
@@ -220,7 +221,7 @@ void vtkImageActor::GetBounds(float bounds[6])
 
 void vtkImageActor::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkProp::PrintSelf(os, indent);
+  this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Input: " << this->Input << "\n";
   os << indent << "Interpolate: " << (this->Interpolate ? "On\n" : "Off\n");

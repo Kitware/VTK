@@ -57,7 +57,7 @@ class VTK_COMMON_EXPORT vtkLogLookupTable : public vtkLookupTable
 public:
   static vtkLogLookupTable *New();
 
-  vtkTypeMacro(vtkLogLookupTable,vtkLookupTable);
+  vtkTypeRevisionMacro(vtkLogLookupTable,vtkLookupTable);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:

@@ -78,7 +78,7 @@ class vtkRenderer;
 class VTK_RENDERING_EXPORT vtkLight : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkLight,vtkObject);
+  vtkTypeRevisionMacro(vtkLight,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

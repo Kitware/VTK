@@ -72,7 +72,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_VOLUMEPRO_EXPORT vtkOpenGLVolumeProVG500Mapper : public vtkVolumeProVG500Mapper
 {
 public:
-  vtkTypeMacro(vtkOpenGLVolumeProVG500Mapper,vtkVolumeProVG500Mapper);
+  vtkTypeRevisionMacro(vtkOpenGLVolumeProVG500Mapper,vtkVolumeProVG500Mapper);
   static vtkOpenGLVolumeProVG500Mapper *New();
 
 protected:

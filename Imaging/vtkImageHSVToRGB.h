@@ -58,7 +58,7 @@ class VTK_IMAGING_EXPORT vtkImageHSVToRGB : public vtkImageToImageFilter
 {
 public:
   static vtkImageHSVToRGB *New();
-  vtkTypeMacro(vtkImageHSVToRGB,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageHSVToRGB,vtkImageToImageFilter);
 
   void PrintSelf(ostream& os, vtkIndent indent);
 

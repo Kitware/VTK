@@ -51,7 +51,7 @@ class VTK_RENDERING_EXPORT vtkImagingFactory : public vtkObject
 {
 public:
   static vtkImagingFactory *New() {return new vtkImagingFactory;};
-  vtkTypeMacro(vtkImagingFactory,vtkObject);
+  vtkTypeRevisionMacro(vtkImagingFactory,vtkObject);
 
   // Description:
   // Create and return an instance of the named vtk object.

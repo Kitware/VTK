@@ -83,7 +83,7 @@ class vtkHyperArray;
 class VTK_GRAPHICS_EXPORT vtkHyperStreamline : public vtkDataSetToPolyDataFilter
 {
 public:
-  vtkTypeMacro(vtkHyperStreamline,vtkDataSetToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkHyperStreamline,vtkDataSetToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

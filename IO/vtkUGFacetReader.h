@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_IO_EXPORT vtkUGFacetReader : public vtkPolyDataSource 
 {
 public:
-  vtkTypeMacro(vtkUGFacetReader,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkUGFacetReader,vtkPolyDataSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -39,28 +39,13 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <ctype.h>
-
 #include "vtkSLCReader.h"
 #include "vtkObjectFactory.h"
 
+#include <ctype.h>
 
-
-//------------------------------------------------------------------------------
-vtkSLCReader* vtkSLCReader::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkSLCReader");
-  if(ret)
-    {
-    return (vtkSLCReader*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkSLCReader;
-}
-
-
-
+vtkCxxRevisionMacro(vtkSLCReader, "1.37");
+vtkStandardNewMacro(vtkSLCReader);
 
 // Constructor for a vtkSLCReader.
 vtkSLCReader::vtkSLCReader()
@@ -350,7 +335,7 @@ void vtkSLCReader::Execute()
 
 void vtkSLCReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkStructuredPointsSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Error: " << this->Error << "\n";
   os << indent << "File Name: " 

@@ -92,7 +92,7 @@ class VTK_RENDERING_EXPORT vtkVolumeRayCastMapper : public vtkVolumeMapper
 {
 public:
   static vtkVolumeRayCastMapper *New();
-  vtkTypeMacro(vtkVolumeRayCastMapper,vtkVolumeMapper);
+  vtkTypeRevisionMacro(vtkVolumeRayCastMapper,vtkVolumeMapper);
   void PrintSelf( ostream& os, vtkIndent index );
 
   // Description:

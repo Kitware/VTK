@@ -79,7 +79,7 @@ class VTK_PATENTED_EXPORT vtkMarchingCubes : public vtkStructuredPointsToPolyDat
 {
 public:
   static vtkMarchingCubes *New();
-  vtkTypeMacro(vtkMarchingCubes,vtkStructuredPointsToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkMarchingCubes,vtkStructuredPointsToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Methods to set contour values

@@ -42,25 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageConstantPad.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkImageConstantPad* vtkImageConstantPad::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageConstantPad");
-  if(ret)
-    {
-    return (vtkImageConstantPad*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageConstantPad;
-}
-
-
-
-
-
+vtkCxxRevisionMacro(vtkImageConstantPad, "1.30");
+vtkStandardNewMacro(vtkImageConstantPad);
 
 //----------------------------------------------------------------------------
 // Constructor sets default values
@@ -215,7 +198,7 @@ void vtkImageConstantPad::ThreadedExecute(vtkImageData *inData,
 
 void vtkImageConstantPad::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImagePadFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Constant: " << this->Constant << "\n";
 

@@ -42,18 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPLinearExtrusionFilter.h"
 #include "vtkObjectFactory.h"
 
-//----------------------------------------------------------------------------
-vtkPLinearExtrusionFilter *vtkPLinearExtrusionFilter::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPLinearExtrusionFilter");
-  if(ret)
-    {
-    return (vtkPLinearExtrusionFilter*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkPLinearExtrusionFilter;
-}
+vtkCxxRevisionMacro(vtkPLinearExtrusionFilter, "1.2");
+vtkStandardNewMacro(vtkPLinearExtrusionFilter);
 
 //----------------------------------------------------------------------------
 vtkPLinearExtrusionFilter::vtkPLinearExtrusionFilter()
@@ -109,7 +99,7 @@ vtkPLinearExtrusionFilter::ComputeInputUpdateExtents(vtkDataObject *output)
 //----------------------------------------------------------------------------
 void vtkPLinearExtrusionFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkLinearExtrusionFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "PieceInvariant: "
      << this->PieceInvariant << "\n";

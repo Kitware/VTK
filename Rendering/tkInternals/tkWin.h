@@ -1,8 +1,8 @@
 /*
  * tkWin.h --
  *
- *	Declarations of public types and interfaces that are only
- *	available under Windows.
+ *      Declarations of public types and interfaces that are only
+ *      available under Windows.
  *
  * Copyright (c) 1996-1997 by Sun Microsystems, Inc.
  *
@@ -33,10 +33,10 @@
  * and its container window.
  */
 
-#define TK_CLAIMFOCUS	(WM_USER)
-#define TK_GEOMETRYREQ	(WM_USER+1)
-#define TK_ATTACHWINDOW	(WM_USER+2)
-#define TK_DETACHWINDOW	(WM_USER+3)
+#define TK_CLAIMFOCUS   (WM_USER)
+#define TK_GEOMETRYREQ  (WM_USER+1)
+#define TK_ATTACHWINDOW (WM_USER+2)
+#define TK_DETACHWINDOW (WM_USER+3)
 
 
 /*

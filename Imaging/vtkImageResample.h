@@ -57,7 +57,7 @@ class VTK_IMAGING_EXPORT vtkImageResample : public vtkImageToImageFilter
 {
 public:
   static vtkImageResample *New();
-  vtkTypeMacro(vtkImageResample,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageResample,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

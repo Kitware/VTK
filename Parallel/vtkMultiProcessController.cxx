@@ -58,9 +58,7 @@ class VTK_PARALLEL_EXPORT vtkMultiProcessControllerRMI : public vtkObject
 {
 public:
   static vtkMultiProcessControllerRMI *New(); 
-
-  const char *GetClassName() 
-    {return "vtkMultiProcessControllerRMI";};
+  vtkTypeRevisionMacro(vtkMultiProcessControllerRMI, vtkObject);
   
   int Tag;
   vtkRMIFunctionType Function;
@@ -72,17 +70,10 @@ protected:
   void operator=(const vtkMultiProcessControllerRMI&);
 };
 
-vtkMultiProcessControllerRMI* vtkMultiProcessControllerRMI::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMultiProcessControllerRMI");
-  if(ret)
-    {
-    return (vtkMultiProcessControllerRMI*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkMultiProcessControllerRMI;
-}
+vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.8");
+vtkStandardNewMacro(vtkMultiProcessControllerRMI);
+
+vtkCxxRevisionMacro(vtkMultiProcessController, "1.8");
 
 //----------------------------------------------------------------------------
 // An RMI function that will break the "ProcessRMIs" loop.
@@ -184,7 +175,7 @@ vtkMultiProcessController *vtkMultiProcessController::New()
 //----------------------------------------------------------------------------
 void vtkMultiProcessController::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
   vtkMultiProcessControllerRMI *rmi;
   vtkIndent nextIndent = indent.GetNextIndent();
   

@@ -46,22 +46,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-
-//------------------------------------------------------------------------------
-vtkRecursiveDividingCubes* vtkRecursiveDividingCubes::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkRecursiveDividingCubes");
-  if(ret)
-    {
-    return (vtkRecursiveDividingCubes*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkRecursiveDividingCubes;
-}
-
-
-
+vtkCxxRevisionMacro(vtkRecursiveDividingCubes, "1.34");
+vtkStandardNewMacro(vtkRecursiveDividingCubes);
 
 vtkRecursiveDividingCubes::vtkRecursiveDividingCubes()
 {
@@ -358,7 +344,7 @@ void vtkRecursiveDividingCubes::SubDivide(float origin[3], float h[3],
 
 void vtkRecursiveDividingCubes::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkStructuredPointsToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Value: " << this->Value << "\n";
   os << indent << "Distance: " << this->Distance << "\n";

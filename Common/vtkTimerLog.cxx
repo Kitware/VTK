@@ -62,23 +62,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 #include "vtkObjectFactory.h"
 
-
-
-//----------------------------------------------------------------------------
-vtkTimerLog* vtkTimerLog::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTimerLog");
-  if(ret)
-    {
-    return (vtkTimerLog*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkTimerLog;
-}
-
-
-
+vtkCxxRevisionMacro(vtkTimerLog, "1.28");
+vtkStandardNewMacro(vtkTimerLog);
 
 // initialze the class variables
 int vtkTimerLog::MaxEntries = 100;
@@ -311,9 +296,9 @@ void vtkTimerLog::DumpLog(char *filename)
 // Print method for vtkTimerLog.
 void vtkTimerLog::PrintSelf(ostream& os, vtkIndent indent)
 {
-  int i;
+  this->Superclass::PrintSelf(os, indent);
 
-  vtkObject::PrintSelf(os, indent);
+  int i;
 
   os << indent << "MaxEntries: " << vtkTimerLog::MaxEntries << "\n";
   os << indent << "NextEntry: " << vtkTimerLog::NextEntry << "\n";

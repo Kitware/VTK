@@ -70,7 +70,7 @@ class VTK_IMAGING_EXPORT vtkImageAnisotropicDiffusion2D : public vtkImageSpatial
 {
 public:
   static vtkImageAnisotropicDiffusion2D *New();
-  vtkTypeMacro(vtkImageAnisotropicDiffusion2D,vtkImageSpatialFilter);
+  vtkTypeRevisionMacro(vtkImageAnisotropicDiffusion2D,vtkImageSpatialFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

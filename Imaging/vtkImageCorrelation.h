@@ -59,7 +59,7 @@ class VTK_IMAGING_EXPORT vtkImageCorrelation : public vtkImageTwoInputFilter
 {
 public:
   static vtkImageCorrelation *New();
-  vtkTypeMacro(vtkImageCorrelation,vtkImageTwoInputFilter);
+  vtkTypeRevisionMacro(vtkImageCorrelation,vtkImageTwoInputFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

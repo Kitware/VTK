@@ -57,7 +57,7 @@ class VTK_FILTERING_EXPORT vtkStructuredGridSource : public vtkSource
 {
 public:
   static vtkStructuredGridSource *New();
-  vtkTypeMacro(vtkStructuredGridSource,vtkSource);
+  vtkTypeRevisionMacro(vtkStructuredGridSource,vtkSource);
 
   // Description:
   // Get the output of this source.

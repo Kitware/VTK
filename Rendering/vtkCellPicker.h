@@ -60,7 +60,7 @@ class VTK_RENDERING_EXPORT vtkCellPicker : public vtkPicker
 {
 public:
   static vtkCellPicker *New();
-  vtkTypeMacro(vtkCellPicker,vtkPicker);
+  vtkTypeRevisionMacro(vtkCellPicker,vtkPicker);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -43,18 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 
-//--------------------------------------------------------------------------
-vtkCleanPolyData* vtkCleanPolyData::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkCleanPolyData");
-  if (ret)
-    {
-    return (vtkCleanPolyData*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkCleanPolyData;
-}
+vtkCxxRevisionMacro(vtkCleanPolyData, "1.65");
+vtkStandardNewMacro(vtkCleanPolyData);
 
 //---------------------------------------------------------------------------
 // Construct object with initial Tolerance of 0.0
@@ -674,7 +664,7 @@ void vtkCleanPolyData::ReleaseLocator(void)
 //--------------------------------------------------------------------------
 void vtkCleanPolyData::PrintSelf(ostream& os, vtkIndent indent) 
 {
-  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Point Merging: "
      << (this->PointMerging ? "On\n" : "Off\n");

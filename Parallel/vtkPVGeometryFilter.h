@@ -57,7 +57,7 @@ class VTK_PARALLEL_EXPORT vtkPVGeometryFilter : public vtkDataSetSurfaceFilter
 {
 public:
   static vtkPVGeometryFilter *New();
-  vtkTypeMacro(vtkPVGeometryFilter,vtkDataSetSurfaceFilter);
+  vtkTypeRevisionMacro(vtkPVGeometryFilter,vtkDataSetSurfaceFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

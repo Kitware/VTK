@@ -68,7 +68,7 @@ class VTK_HYBRID_EXPORT vtkLandmarkTransform : public vtkLinearTransform
 public:
   static vtkLandmarkTransform *New();
 
-  vtkTypeMacro(vtkLandmarkTransform,vtkLinearTransform);
+  vtkTypeRevisionMacro(vtkLandmarkTransform,vtkLinearTransform);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -61,7 +61,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_COMMON_EXPORT vtkInitialValueProblemSolver : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkInitialValueProblemSolver,vtkObject);
+  vtkTypeRevisionMacro(vtkInitialValueProblemSolver,vtkObject);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -78,7 +78,7 @@ public:
   static vtkScalars *New();
   static vtkScalars *New(int dataType, int numComp=1);
 
-  vtkTypeMacro(vtkScalars,vtkAttributeData);
+  vtkTypeRevisionMacro(vtkScalars,vtkAttributeData);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

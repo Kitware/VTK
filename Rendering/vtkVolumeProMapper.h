@@ -111,7 +111,7 @@ class VTK_RENDERING_EXPORT vtkVolumeProMapper : public vtkVolumeMapper
 #endif
 {
 public:
-  vtkTypeMacro(vtkVolumeProMapper,vtkVolumeMapper);
+  vtkTypeRevisionMacro(vtkVolumeProMapper,vtkVolumeMapper);
   void PrintSelf( ostream& os, vtkIndent index );
 
   // Description:

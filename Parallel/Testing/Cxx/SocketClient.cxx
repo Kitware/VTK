@@ -43,9 +43,9 @@ int main(int argc, char** argv)
     if ( strcmp("-H", argv[i]) == 0 )
       {
       if ( i < argc-1 )
-	{
-	dataIndex = i+1;
-	}
+        {
+        dataIndex = i+1;
+        }
       }
     }
   if (dataIndex != -1)
@@ -64,9 +64,9 @@ int main(int argc, char** argv)
     if ( strcmp("-P", argv[i]) == 0 )
       {
       if ( i < argc-1 )
-	{
-	dataIndex = i+1;
-	}
+        {
+        dataIndex = i+1;
+        }
       }
     }
   if (dataIndex != -1)
@@ -78,7 +78,7 @@ int main(int argc, char** argv)
   if (!comm->ConnectTo(hostname, port))
     {
     cerr << "Client error: Could not connect to the server."
-	 << endl;
+         << endl;
     comm->Delete();
     contr->Delete();
     delete[] hostname;

@@ -44,6 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPlane.h"
 #include "vtkFloatArray.h"
 
+vtkCxxRevisionMacro(vtkArcPlotter, "1.14");
+
 vtkArcPlotter::vtkArcPlotter()
 {
   this->Camera = NULL;
@@ -302,7 +304,7 @@ int vtkArcPlotter::ProcessComponents(vtkIdType numPts, vtkPointData *pd)
       break;
     case VTK_PLOT_FIELD_DATA:
       int arrayNum = (this->FieldDataArray < pd->GetNumberOfArrays() ?
-		      this->FieldDataArray : pd->GetNumberOfArrays() - 1);
+                      this->FieldDataArray : pd->GetNumberOfArrays() - 1);
       this->Data = pd->GetArray(arrayNum);
       break;
     }
@@ -404,7 +406,7 @@ unsigned long vtkArcPlotter::GetMTime()
 
 void vtkArcPlotter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   if ( this->Camera )
     {

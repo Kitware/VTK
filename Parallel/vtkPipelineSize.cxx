@@ -50,18 +50,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPSphereSource.h"
 #include "vtkPolyDataMapper.h"
 
-//-------------------------------------------------------------------------
-vtkPipelineSize* vtkPipelineSize::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPipelineSize");
-  if(ret)
-    {
-    return (vtkPipelineSize*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkPipelineSize;
-}
+vtkCxxRevisionMacro(vtkPipelineSize, "1.9");
+vtkStandardNewMacro(vtkPipelineSize);
 
 unsigned long 
 vtkPipelineSize::GetEstimatedSize(vtkDataObject *input)

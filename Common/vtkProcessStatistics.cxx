@@ -41,6 +41,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkProcessStatistics.h"
 
+vtkCxxRevisionMacro(vtkProcessStatistics, "1.10");
+
 #ifndef _WIN32
 #include <sys/procfs.h>
 #include <sys/types.h>
@@ -48,24 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <fcntl.h>
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkProcessStatistics* vtkProcessStatistics::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkProcessStatistics");
-  if(ret)
-    {
-    return (vtkProcessStatistics*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkProcessStatistics;
-}
-
-
-
-
+vtkStandardNewMacro(vtkProcessStatistics);
 
 /* This mess was copied from the GNU getpagesize.h.  */
 #ifndef HAVE_GETPAGESIZE

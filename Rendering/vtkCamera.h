@@ -63,7 +63,7 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
 {
  public:
   void PrintSelf(ostream& os, vtkIndent indent);
-  vtkTypeMacro(vtkCamera,vtkObject);
+  vtkTypeRevisionMacro(vtkCamera,vtkObject);
 
   // Description:
   // Construct camera instance with its focal point at the origin, 

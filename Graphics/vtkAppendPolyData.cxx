@@ -42,19 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkAppendPolyData.h"
 #include "vtkObjectFactory.h"
 
-
-//-----------------------------------------------------------------------
-vtkAppendPolyData* vtkAppendPolyData::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkAppendPolyData");
-  if(ret)
-    {
-    return (vtkAppendPolyData*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkAppendPolyData;
-}
+vtkCxxRevisionMacro(vtkAppendPolyData, "1.87");
+vtkStandardNewMacro(vtkAppendPolyData);
 
 //----------------------------------------------------------------------------
 vtkAppendPolyData::vtkAppendPolyData()
@@ -570,7 +559,7 @@ vtkPolyData *vtkAppendPolyData::GetInput(int idx)
 //----------------------------------------------------------------------------
 void vtkAppendPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   if ( this->ParallelStreaming )
     {

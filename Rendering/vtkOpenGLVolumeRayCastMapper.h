@@ -66,7 +66,7 @@ class VTK_RENDERING_EXPORT vtkOpenGLVolumeRayCastMapper : public vtkVolumeRayCas
 {
 public:
   static vtkOpenGLVolumeRayCastMapper *New();
-  vtkTypeMacro(vtkOpenGLVolumeRayCastMapper,vtkVolumeRayCastMapper);
+  vtkTypeRevisionMacro(vtkOpenGLVolumeRayCastMapper,vtkVolumeRayCastMapper);
 
 protected:
   vtkOpenGLVolumeRayCastMapper();

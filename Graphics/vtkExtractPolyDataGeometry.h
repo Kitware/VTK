@@ -68,7 +68,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_GRAPHICS_EXPORT vtkExtractPolyDataGeometry : public vtkPolyDataToPolyDataFilter
 {
 public:
-  vtkTypeMacro(vtkExtractPolyDataGeometry,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkExtractPolyDataGeometry,vtkPolyDataToPolyDataFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

@@ -39,9 +39,9 @@ int main(int argc, char** argv)
     if ( strcmp("-P", argv[i]) == 0 )
       {
       if ( i < argc-1 )
-	{
-	dataIndex = i+1;
-	}
+        {
+        dataIndex = i+1;
+        }
       }
     }
   if (dataIndex != -1)
@@ -53,7 +53,7 @@ int main(int argc, char** argv)
   if (!comm->WaitForConnection(port))
     {
     cerr << "Server error: Wait timed out or could not initialize socket."
-	 << endl;
+         << endl;
     comm->Delete();
     contr->Delete();
     return 1;
@@ -185,7 +185,7 @@ int main(int argc, char** argv)
   // Test sending vtkDataObject
   vtkUnstructuredGridReader* ugrid = vtkUnstructuredGridReader::New();
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, 
-						     "Data/blow.vtk");
+                                                     "Data/blow.vtk");
   ugrid->SetFileName(fname);
   delete[] fname;
 
@@ -236,7 +236,7 @@ int main(int argc, char** argv)
 
   vtkRectilinearGridReader* rgrid = vtkRectilinearGridReader::New();
   fname = vtkTestUtilities::ExpandDataFileName(argc, argv, 
-					       "Data/RectGrid2.vtk");
+                                               "Data/RectGrid2.vtk");
   rgrid->SetFileName(fname);
   delete[] fname;
 
@@ -248,7 +248,7 @@ int main(int argc, char** argv)
 
   vtkStructuredPointsReader* spgrid = vtkStructuredPointsReader::New();
   fname = vtkTestUtilities::ExpandDataFileName(argc, argv, 
-					       "Data/ironProt.vtk");
+                                               "Data/ironProt.vtk");
   spgrid->SetFileName(fname);
   delete[] fname;
 

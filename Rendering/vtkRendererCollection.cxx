@@ -39,28 +39,14 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <stdlib.h>
 #include "vtkRendererCollection.h"
 #include "vtkRenderWindow.h"
 #include "vtkObjectFactory.h"
 
+#include <stdlib.h>
 
-
-//------------------------------------------------------------------------------
-vtkRendererCollection* vtkRendererCollection::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkRendererCollection");
-  if(ret)
-    {
-    return (vtkRendererCollection*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkRendererCollection;
-}
-
-
-
+vtkCxxRevisionMacro(vtkRendererCollection, "1.27");
+vtkStandardNewMacro(vtkRendererCollection);
 
 // Forward the Render() method to each renderer in the list.
 void vtkRendererCollection::Render()
