@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -66,24 +67,24 @@ void vtkImageSimpleCache::GenerateCachedRegionData(vtkImageRegion *region)
   if (this->CachedData)
     {
     int saveAxes[VTK_IMAGE_DIMENSIONS];
-    int *cacheBounds, regionBounds[VTK_IMAGE_BOUNDS_DIMENSIONS];
-    cacheBounds = this->CachedData->GetBounds();
+    int *cacheExtent, regionExtent[VTK_IMAGE_BOUNDS_DIMENSIONS];
+    cacheExtent = this->CachedData->GetExtent();
 
     region->GetAxes(saveAxes);
     region->SetAxes(this->CachedData->GetAxes());
-    region->GetBounds(regionBounds);
+    region->GetExtent(regionExtent);
     region->SetAxes(saveAxes);
     // Is the new region contained in the cache?
-    if (regionBounds[0] >= cacheBounds[0] &&
-	regionBounds[1] <= cacheBounds[1] &&
-	regionBounds[2] >= cacheBounds[2] &&
-	regionBounds[3] <= cacheBounds[3] &&
-	regionBounds[4] >= cacheBounds[4] &&
-	regionBounds[5] <= cacheBounds[5] &&
-	regionBounds[6] >= cacheBounds[6] &&
-	regionBounds[7] <= cacheBounds[7] &&
-	regionBounds[8] >= cacheBounds[8] &&
-	regionBounds[9] <= cacheBounds[9])
+    if (regionExtent[0] >= cacheExtent[0] &&
+	regionExtent[1] <= cacheExtent[1] &&
+	regionExtent[2] >= cacheExtent[2] &&
+	regionExtent[3] <= cacheExtent[3] &&
+	regionExtent[4] >= cacheExtent[4] &&
+	regionExtent[5] <= cacheExtent[5] &&
+	regionExtent[6] >= cacheExtent[6] &&
+	regionExtent[7] <= cacheExtent[7] &&
+	regionExtent[8] >= cacheExtent[8] &&
+	regionExtent[9] <= cacheExtent[9])
       {
       // check the gtime of cache to see if it is more recent than mtime */
       if (this->GenerateTime.GetMTime() >= this->GetPipelineMTime())

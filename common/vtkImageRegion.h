@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -143,7 +144,7 @@ void Get##name##1d(type &_name0) \
   this->Get##name (_tmp,1); \
   _name0 = _tmp[0]; \
 } 
-#define vtkImageRegionSetBoundsMacro(name) \
+#define vtkImageRegionSetExtentMacro(name) \
 void Set##name (int *_tmp) { this->Set##name (_tmp, 5);} \
 void Set##name##5d(int *_tmp) { this->Set##name (_tmp, 5);} \
 void Set##name##4d(int *_tmp) { this->Set##name (_tmp, 4);} \
@@ -194,7 +195,7 @@ void Set##name##1d(int _min0,int _max0) \
   _tmp[0] = _min0; _tmp[1] = _max0; \
   this->Set##name (_tmp,1); \
 } 
-#define vtkImageRegionGetBoundsMacro(name) \
+#define vtkImageRegionGetExtentMacro(name) \
 int *Get##name () { return this->##name ;}  \
 int *Get##name##5d() { return this->##name ;} \
 int *Get##name##4d() { return this->##name ;} \
@@ -286,49 +287,49 @@ public:
   
   // Description:
   // Returns a pointer relative to the current volume, image or line.
-  void *GetVoidPointer(int coords[5]){return this->GetVoidPointer5d(coords);};
-  void *GetVoidPointer5d(int coordinates[5]);
-  void *GetVoidPointer4d(int coordinates[4]);
-  void *GetVoidPointer3d(int coordinates[3]);
-  void *GetVoidPointer2d(int coordinates[2]);
-  void *GetVoidPointer1d(int coordinates[1]);
+  void *GetScalarPointer(int coords[5]){return this->GetScalarPointer5d(coords);};
+  void *GetScalarPointer5d(int coordinates[5]);
+  void *GetScalarPointer4d(int coordinates[4]);
+  void *GetScalarPointer3d(int coordinates[3]);
+  void *GetScalarPointer2d(int coordinates[2]);
+  void *GetScalarPointer1d(int coordinates[1]);
   // Description:
   // Returns a pointer relative to the current volume, image or line.
-  void *GetVoidPointer5d(int c0, int c1, int c2, int c3, int c4);
-  void *GetVoidPointer4d(int c0, int c1, int c2, int c3);
-  void *GetVoidPointer3d(int c0, int c1, int c2);
-  void *GetVoidPointer2d(int c0, int c1);
-  void *GetVoidPointer1d(int c0);
+  void *GetScalarPointer5d(int c0, int c1, int c2, int c3, int c4);
+  void *GetScalarPointer4d(int c0, int c1, int c2, int c3);
+  void *GetScalarPointer3d(int c0, int c1, int c2);
+  void *GetScalarPointer2d(int c0, int c1);
+  void *GetScalarPointer1d(int c0);
   // Description:
   // Returns pointer at origin of current volume, image or line.
-  void *GetVoidPointer();
-  void *GetVoidPointer5d(){return this->GetVoidPointer();};
-  void *GetVoidPointer4d(){return this->GetVoidPointer();};
-  void *GetVoidPointer3d(){return this->GetVoidPointer();};
-  void *GetVoidPointer2d(){return this->GetVoidPointer();};
-  void *GetVoidPointer1d(){return this->GetVoidPointer();};
+  void *GetScalarPointer();
+  void *GetScalarPointer5d(){return this->GetScalarPointer();};
+  void *GetScalarPointer4d(){return this->GetScalarPointer();};
+  void *GetScalarPointer3d(){return this->GetScalarPointer();};
+  void *GetScalarPointer2d(){return this->GetScalarPointer();};
+  void *GetScalarPointer1d(){return this->GetScalarPointer();};
   
   // Description:
-  // Different methods for setting the bounds.
-  // The 2d and 1d functions do not modify bounds of the higher dimensions.
-  void SetBounds(int *bounds, int dim);
-  vtkImageRegionSetBoundsMacro(Bounds);
+  // Different methods for setting the extent.
+  // The 2d and 1d functions do not modify extent of the higher dimensions.
+  void SetExtent(int *extent, int dim);
+  vtkImageRegionSetExtentMacro(Extent);
 
   // Description:
-  // Different methods for getting the bounds.
-  void GetBounds(int *bounds, int dim);
-  vtkImageRegionGetBoundsMacro(Bounds);
+  // Different methods for getting the extent.
+  void GetExtent(int *extent, int dim);
+  vtkImageRegionGetExtentMacro(Extent);
   
   // Description:
-  // Different methods for setting the ImageBounds.
-  // The 2d and 1d functions do not modify ImageBounds of the higher
+  // Different methods for setting the ImageExtent.
+  // The 2d and 1d functions do not modify ImageExtent of the higher
   // dimensions.
-  void SetImageBounds(int *bounds, int dim);
-  vtkImageRegionSetBoundsMacro(ImageBounds);
+  void SetImageExtent(int *extent, int dim);
+  vtkImageRegionSetExtentMacro(ImageExtent);
   // Description:
-  // Different methods for getting the ImageBounds.
-  void GetImageBounds(int *bounds, int dim);
-  vtkImageRegionGetBoundsMacro(ImageBounds);
+  // Different methods for getting the ImageExtent.
+  void GetImageExtent(int *extent, int dim);
+  vtkImageRegionGetExtentMacro(ImageExtent);
 
   
   // Description:
@@ -365,19 +366,19 @@ public:
 
   // Description:
   // This method returns the number of pixels enclosed in this bounding box.
-  int GetVolume(){return ((Bounds[1]-Bounds[0]+1) 
-			  * (Bounds[3]-Bounds[2]+1)
-			  * (Bounds[5]-Bounds[4]+1)
-			  * (Bounds[7]-Bounds[6]+1)
-			  * (Bounds[9]-Bounds[8]+1));};
+  int GetVolume(){return ((Extent[1]-Extent[0]+1) 
+			  * (Extent[3]-Extent[2]+1)
+			  * (Extent[5]-Extent[4]+1)
+			  * (Extent[7]-Extent[6]+1)
+			  * (Extent[9]-Extent[8]+1));};
   
     // Description:
   // This method returns 1 if this bounding box has zero volume.
-  int IsEmpty() {return (Bounds[1] < Bounds[0] 
-			 || Bounds[3] < Bounds[2] 
-			 || Bounds[5] < Bounds[4] 
-			 || Bounds[7] < Bounds[6]
-			 || Bounds[9] < Bounds[8]);};
+  int IsEmpty() {return (Extent[1] < Extent[0] 
+			 || Extent[3] < Extent[2] 
+			 || Extent[5] < Extent[4] 
+			 || Extent[7] < Extent[6]
+			 || Extent[9] < Extent[8]);};
 
   // Description:
   // This method returns 1 if the region has associated data.
@@ -406,7 +407,7 @@ public:
   // but Set is not in the name.
   // Description:
   // These functions will change the "origin" of the region.
-  // The bounds change, but the data does not.
+  // The extent change, but the data does not.
   void Translate(int *vector, int dim);
   void Translate (int *vector) { this->Translate(vector, 5);};
   void Translate5d(int *vector) { this->Translate(vector, 5);};
@@ -433,19 +434,19 @@ protected:
   // Defines the relative coordinate system
   int Axes[VTK_IMAGE_DIMENSIONS]; // Coordinate system of this region.
 
-  // Bounds reordered to match Axes (relative coordinate system).
-  int Bounds[VTK_IMAGE_BOUNDS_DIMENSIONS];         // Min/Max for each axis.
+  // Extent reordered to match Axes (relative coordinate system).
+  int Extent[VTK_IMAGE_BOUNDS_DIMENSIONS];         // Min/Max for each axis.
   // Increments in relative coordinate system
   int Increments[VTK_IMAGE_DIMENSIONS];
 
-  // Possibly make a new object to hold global information like ImageBounds.
-  int ImageBounds[VTK_IMAGE_BOUNDS_DIMENSIONS];
+  // Possibly make a new object to hold global information like ImageExtent.
+  int ImageExtent[VTK_IMAGE_BOUNDS_DIMENSIONS];
   float AspectRatio[VTK_IMAGE_DIMENSIONS];
   float Origin[VTK_IMAGE_DIMENSIONS];
 
   // Helper methods.
-  void ChangeBoundsCoordinateSystem(int *boundsIn, int *axesIn,
-				    int *boundsOut, int *axesOut);
+  void ChangeExtentCoordinateSystem(int *extentIn, int *axesIn,
+				    int *extentOut, int *axesOut);
 };
 
 

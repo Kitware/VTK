@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -115,11 +116,11 @@ public:
   vtkGetObjectMacro(Scalars,vtkScalars);
   
   // Description:
-  // Get the bounds of the data array.
-  vtkSetVectorMacro(Bounds,int,10);
-  vtkGetVectorMacro(Bounds,int,10);
+  // Get the extent of the data array.
+  vtkSetVectorMacro(Extent,int,10);
+  vtkGetVectorMacro(Extent,int,10);
 
-  void SetBounds(int min0, int max0, int min1, int max1, 
+  void SetExtent(int min0, int max0, int min1, int max1, 
 		 int min2, int max2, int min3, int max3,
 		 int min4, int max4);
 
@@ -137,8 +138,8 @@ public:
 
   int IsAllocated();
   int Allocate();
-  void *GetVoidPointer(int coordinates[VTK_IMAGE_DIMENSIONS]);
-  void *GetVoidPointer();
+  void *GetScalarPointer(int coordinates[VTK_IMAGE_DIMENSIONS]);
+  void *GetScalarPointer();
   void Translate(int vector[VTK_IMAGE_DIMENSIONS]);
   
   
@@ -154,7 +155,7 @@ public:
   vtkBooleanMacro(PrintScalars,int);
   
   void CopyData(vtkImageData *data);
-  void CopyData(vtkImageData *data, int *bounds);
+  void CopyData(vtkImageData *data, int *extent);
   
 
 protected:
@@ -162,7 +163,7 @@ protected:
   vtkScalars *Scalars;  // Store the data in native VTK format.
   int Axes[VTK_IMAGE_DIMENSIONS];   
   int Type;             // What type of data is in this object.
-  int Bounds[VTK_IMAGE_BOUNDS_DIMENSIONS]; // bounds of data.
+  int Extent[VTK_IMAGE_BOUNDS_DIMENSIONS]; // extent of data.
   int Increments[VTK_IMAGE_DIMENSIONS];    // Values used to move around data.
   int Allocated;
 };

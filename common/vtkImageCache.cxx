@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -140,12 +141,12 @@ void vtkImageCache::UpdateImageInformation(vtkImageRegion *region)
 
     // Translate region into the sources coordinate system. (save old)
     region->SetAxes(this->Source->GetAxes());
-    // Get the ImageBounds
+    // Get the ImageExtent
     this->Source->UpdateImageInformation(region);
-    // Save the ImageBounds to satisfy later calls.
+    // Save the ImageExtent to satisfy later calls.
     // Choose some constant coordinate system.
     region->SetAxes5d(0, 1, 2, 3, 4);
-    region->GetImageBounds(this->ImageBounds);
+    region->GetImageExtent(this->ImageExtent);
     region->GetAspectRatio(this->AspectRatio);
     this->ImageInformationTime.Modified();
 
@@ -157,9 +158,9 @@ void vtkImageCache::UpdateImageInformation(vtkImageRegion *region)
   
   // No modifications have been made, so return our own copy.
   vtkDebugMacro(<< "UpdateImageInformation: Using own copy of ImageInfo");
-  // Image bounds Are saved in some constant coordinate system.
+  // Image extent Are saved in some constant coordinate system.
   region->SetAxes5d(0, 1, 2, 3, 4);
-  region->SetImageBounds(this->ImageBounds);
+  region->SetImageExtent(this->ImageExtent);
   region->SetAspectRatio(this->AspectRatio);
 
   // Leave the region in the original (before this method) coordinate system.
@@ -194,7 +195,7 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
 {
   long memory;
   int saveAxes[VTK_IMAGE_DIMENSIONS];
-  int saveBounds[VTK_IMAGE_BOUNDS_DIMENSIONS];
+  int saveExtent[VTK_IMAGE_BOUNDS_DIMENSIONS];
 
   vtkDebugMacro(<< "UpdateRegion: ");
   
@@ -204,8 +205,8 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
   // Just in case the region already has data
   region->ReleaseData();
   
-  // Save the bounds to restore later.
-  region->GetBounds(saveBounds);
+  // Save the extent to restore later.
+  region->GetExtent(saveExtent);
   
   // Translate region into the sources coordinate system. (save old)
   region->GetAxes(saveAxes);
@@ -225,10 +226,10 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
       }
     }
   
-  // Allow the source to modify the bounds of the region  
+  // Allow the source to modify the extent of the region  
   this->Source->InterceptCacheUpdate(region);
   
-  // Check if bounds exceeds memory limit
+  // Check if extent exceeds memory limit
   memory = region->GetVolume();
   if ( memory > this->MemoryLimit)
     {
@@ -239,7 +240,7 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
     return;
     }
   
-  // If the region bounds has no "volume", allocate and return.
+  // If the region extent has no "volume", allocate and return.
   if (memory <= 0)
     {
     this->AllocateRegion(region);
@@ -270,7 +271,7 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
 
   // Leave the region in the original (before this method) coordinate system.
   region->SetAxes(saveAxes);
-  region->SetBounds(saveBounds);
+  region->SetExtent(saveExtent);
 }
 
 
@@ -303,15 +304,15 @@ void vtkImageCache::GenerateUnCachedRegionData(vtkImageRegion *region)
   
   // Create the data object for this region, but delay allocating the
   // memory for as long as possible.
-  // Note: This step is simply to save the bounds of the region.
+  // Note: This step is simply to save the extent of the region.
   this->Data = new vtkImageData;
   region->SetAxes(this->Data->GetAxes());
-  this->Data->SetBounds(region->GetBounds());
+  this->Data->SetExtent(region->GetExtent());
   this->Data->SetType(this->DataType);
   region->SetAxes(saveAxes);
   
   // Tell the filter to generate the data for this region
-  // IMPORTANT: Region is just to communicate bounds, and does not
+  // IMPORTANT: Region is just to communicate extent, and does not
   // return any infomation!
   this->Source->UpdateRegion(region);
 
@@ -354,7 +355,7 @@ void vtkImageCache::AllocateRegion(vtkImageRegion *region)
     this->Data = new vtkImageData;
     region->GetAxes(saveAxes);
     region->SetAxes(this->Data->GetAxes());
-    this->Data->SetBounds(region->GetBounds());
+    this->Data->SetExtent(region->GetExtent());
     region->SetAxes(saveAxes);
     this->Data->SetType(this->DataType);
     }

@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -111,8 +112,8 @@ protected:
   // Upperlimit on memory that can be allocated by UpdateRegion call
   long MemoryLimit;
 
-  // Cache the ImageBounds, to avoid recomputing the ImageBounds on each pass.
-  int ImageBounds[VTK_IMAGE_BOUNDS_DIMENSIONS];
+  // Cache the ImageExtent, to avoid recomputing the ImageExtent on each pass.
+  int ImageExtent[VTK_IMAGE_BOUNDS_DIMENSIONS];
   float AspectRatio[VTK_IMAGE_DIMENSIONS];
   vtkTimeStamp ImageInformationTime;
 

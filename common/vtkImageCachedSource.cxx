@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -93,7 +94,7 @@ void vtkImageCachedSource::PrintSelf(ostream& os, vtkIndent indent)
 // Description:
 // This method can be used to intercept a generate call made to a cache.
 // It allows a source to generate a larger region than was originally 
-// specified.  The default method does not alter the specified region bounds.
+// specified.  The default method does not alter the specified region extent.
 void vtkImageCachedSource::InterceptCacheUpdate(vtkImageRegion *region)
 {
   region = region;
@@ -137,23 +138,23 @@ void vtkImageCachedSource::UpdateRegion(vtkImageRegion *region)
 void vtkImageCachedSource::UpdateRegion5d(vtkImageRegion *region)
 {
   int coordinate4;
-  int bounds[10];
+  int extent[10];
   int min4, max4;
   
-  region->GetBounds5d(bounds);
-  min4 = bounds[8];
-  max4 = bounds[9];
+  region->GetExtent5d(extent);
+  min4 = extent[8];
+  max4 = extent[9];
   
   for (coordinate4 = min4; coordinate4 <= max4; ++coordinate4)
     {
-    bounds[8] = bounds[9] = coordinate4;
-    region->SetBounds5d(bounds);
+    extent[8] = extent[9] = coordinate4;
+    region->SetExtent5d(extent);
     this->UpdateRegion4d(region);
     }
-  // restore original bounds
-  bounds[8] = min4;
-  bounds[9] = max4;
-  region->SetBounds5d(bounds);  
+  // restore original extent
+  extent[8] = min4;
+  extent[9] = max4;
+  region->SetExtent5d(extent);  
 }
 
 
@@ -164,23 +165,23 @@ void vtkImageCachedSource::UpdateRegion5d(vtkImageRegion *region)
 void vtkImageCachedSource::UpdateRegion4d(vtkImageRegion *region)
 {
   int coordinate3;
-  int bounds[8];
+  int extent[8];
   int min3, max3;
   
-  region->GetBounds4d(bounds);
-  min3 = bounds[6];
-  max3 = bounds[7];
+  region->GetExtent4d(extent);
+  min3 = extent[6];
+  max3 = extent[7];
   
   for (coordinate3 = min3; coordinate3 <= max3; ++coordinate3)
     {
-    bounds[6] = bounds[7] = coordinate3;
-    region->SetBounds4d(bounds);
+    extent[6] = extent[7] = coordinate3;
+    region->SetExtent4d(extent);
     this->UpdateRegion3d(region);
     }
-  // restore original bounds
-  bounds[6] = min3;
-  bounds[7] = max3;
-  region->SetBounds4d(bounds);  
+  // restore original extent
+  extent[6] = min3;
+  extent[7] = max3;
+  region->SetExtent4d(extent);  
 }
 
 
@@ -191,23 +192,23 @@ void vtkImageCachedSource::UpdateRegion4d(vtkImageRegion *region)
 void vtkImageCachedSource::UpdateRegion3d(vtkImageRegion *region)
 {
   int coordinate2;
-  int bounds[6];
+  int extent[6];
   int min2, max2;
   
-  region->GetBounds3d(bounds);
-  min2 = bounds[4];
-  max2 = bounds[5];
+  region->GetExtent3d(extent);
+  min2 = extent[4];
+  max2 = extent[5];
   
   for (coordinate2 = min2; coordinate2 <= max2; ++coordinate2)
     {
-    bounds[4] = bounds[5] = coordinate2;
-    region->SetBounds3d(bounds);
+    extent[4] = extent[5] = coordinate2;
+    region->SetExtent3d(extent);
     this->UpdateRegion2d(region);
     }
-  // restore original bounds
-  bounds[4] = min2;
-  bounds[5] = max2;
-  region->SetBounds3d(bounds);  
+  // restore original extent
+  extent[4] = min2;
+  extent[5] = max2;
+  region->SetExtent3d(extent);  
 }
 
 
@@ -218,23 +219,23 @@ void vtkImageCachedSource::UpdateRegion3d(vtkImageRegion *region)
 void vtkImageCachedSource::UpdateRegion2d(vtkImageRegion *region)
 {
   int coordinate1;
-  int bounds[4];
+  int extent[4];
   int min1, max1;
   
-  region->GetBounds2d(bounds);
-  min1 = bounds[2];
-  max1 = bounds[3];
+  region->GetExtent2d(extent);
+  min1 = extent[2];
+  max1 = extent[3];
   
   for (coordinate1 = min1; coordinate1 <= max1; ++coordinate1)
     {
-    bounds[2] = bounds[3] = coordinate1;
-    region->SetBounds2d(bounds);
+    extent[2] = extent[3] = coordinate1;
+    region->SetExtent2d(extent);
     this->UpdateRegion1d(region);
     }
-  // restore original bounds
-  bounds[2] = min1;
-  bounds[3] = max1;
-  region->SetBounds2d(bounds);  
+  // restore original extent
+  extent[2] = min1;
+  extent[3] = max1;
+  region->SetExtent2d(extent);  
 }
 
 

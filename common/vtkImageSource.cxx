@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -93,7 +94,7 @@ vtkImageRegion *vtkImageSource::Update()
   
   region = new vtkImageRegion;
   this->UpdateImageInformation(region);
-  region->SetBounds(region->GetImageBounds());
+  region->SetExtent(region->GetImageExtent());
   this->UpdateRegion(region);
   
   return region;

@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -55,8 +56,8 @@ vtkImageData::vtkImageData()
     {
     this->Axes[idx] = idx;
     this->Increments[idx] = 0;
-    this->Bounds[idx*2] = 0;
-    this->Bounds[idx*2 + 1] = 0;
+    this->Extent[idx*2] = 0;
+    this->Extent[idx*2 + 1] = 0;
     }
 }
 
@@ -90,7 +91,7 @@ void vtkImageDataPrintScalars(vtkImageData *self, T *ptr,
   
   temp = self->GetIncrements();
   inc0 = temp[0];  inc1 = temp[1];  inc2 = temp[2];  inc3 = temp[2]; 
-  temp = self->GetBounds();
+  temp = self->GetExtent();
   min0 = temp[0]; max0 = temp[1];  min1 = temp[2]; max1 = temp[3]; 
   min2 = temp[4]; max2 = temp[5];  min3 = temp[6]; max3 = temp[7]; 
   temp = self->GetAxes();
@@ -168,11 +169,11 @@ void vtkImageData::PrintSelf(ostream& os, vtkIndent indent)
   os << vtkImageAxisNameMacro(this->Axes[2]) << ", ";
   os << vtkImageAxisNameMacro(this->Axes[3]) << ")\n";
   
-  os << indent << "Bounds: (";
-  os << this->Bounds[0] << ", " << this->Bounds[1] << ", ";
-  os << this->Bounds[2] << ", " << this->Bounds[3] << ", ";
-  os << this->Bounds[4] << ", " << this->Bounds[5] << ", ";
-  os << this->Bounds[6] << ", " << this->Bounds[7] << ")\n";
+  os << indent << "Extent: (";
+  os << this->Extent[0] << ", " << this->Extent[1] << ", ";
+  os << this->Extent[2] << ", " << this->Extent[3] << ", ";
+  os << this->Extent[4] << ", " << this->Extent[5] << ", ";
+  os << this->Extent[6] << ", " << this->Extent[7] << ")\n";
 
   os << indent << "Increments: (";
   os << this->Increments[0] << ", ";
@@ -191,7 +192,7 @@ void vtkImageData::PrintSelf(ostream& os, vtkIndent indent)
     // Adding this onto scalars (but in this class).
     if ( this->PrintScalars) 
       {
-      void *ptr = this->GetVoidPointer();
+      void *ptr = this->GetScalarPointer();
       os << nextIndent << "Scalar Values:\n";
       switch (this->GetType())
 	{
@@ -223,41 +224,41 @@ void vtkImageData::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // Description:
-// This method sets the bounds of the data, and 
+// This method sets the extent of the data, and 
 // should be called before the data object is allocated.
-void vtkImageData::SetBounds(int min0, int max0, int min1, int max1, 
+void vtkImageData::SetExtent(int min0, int max0, int min1, int max1, 
 			     int min2, int max2, int min3, int max3,
 			     int min4, int max4)
 {
-  vtkDebugMacro(<< "SetBounds: ...");
+  vtkDebugMacro(<< "SetExtent: ...");
 
   if (this->GetRefCount() > 1)
     {
-    vtkWarningMacro(<< "SetBounds: This object has more than one reference!");
+    vtkWarningMacro(<< "SetExtent: This object has more than one reference!");
     }
   
   if (this->Scalars)
     {
-    vtkErrorMacro(<< "SetBounds: Data object has already been allocated.");
+    vtkErrorMacro(<< "SetExtent: Data object has already been allocated.");
     return;
     }
   
   this->Modified();
-  this->Bounds[0] = min0;
-  this->Bounds[1] = max0;
-  this->Bounds[2] = min1;
-  this->Bounds[3] = max1;
-  this->Bounds[4] = min2;
-  this->Bounds[5] = max2;
-  this->Bounds[6] = min3;
-  this->Bounds[7] = max3;
-  this->Bounds[8] = min4;
-  this->Bounds[9] = max4;
+  this->Extent[0] = min0;
+  this->Extent[1] = max0;
+  this->Extent[2] = min1;
+  this->Extent[3] = max1;
+  this->Extent[4] = min2;
+  this->Extent[5] = max2;
+  this->Extent[6] = min3;
+  this->Extent[7] = max3;
+  this->Extent[8] = min4;
+  this->Extent[9] = max4;
 }
 
 //----------------------------------------------------------------------------
 // Description:
-// This Method translates the bounds of the data without modifying the data
+// This Method translates the extent of the data without modifying the data
 // itself.  The result is to change the origin of the data.
 void vtkImageData::Translate(int vector[VTK_IMAGE_DIMENSIONS])
 {
@@ -270,8 +271,8 @@ void vtkImageData::Translate(int vector[VTK_IMAGE_DIMENSIONS])
   
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
-    this->Bounds[idx*2] += vector[idx];
-    this->Bounds[1+idx*2] += vector[idx];
+    this->Extent[idx*2] += vector[idx];
+    this->Extent[1+idx*2] += vector[idx];
     }
 }
 
@@ -366,7 +367,7 @@ int vtkImageData::Allocate()
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
     this->Increments[idx] = inc;
-    inc *= (this->Bounds[idx*2+1] - this->Bounds[idx*2] + 1);
+    inc *= (this->Extent[idx*2+1] - this->Extent[idx*2] + 1);
     }
   
   // special case zero length array
@@ -417,7 +418,7 @@ int vtkImageData::Allocate()
 //----------------------------------------------------------------------------
 // Description:
 // You can set the scalars directly (instead of allocating), but
-// you better make sure that the bounds are set properly 
+// you better make sure that the extent are set properly 
 // before this method is called. Old scalars are released, and
 // the new scalars are registered by this object.  The type and
 // increments are calculate as a side action of this call.
@@ -472,12 +473,12 @@ void vtkImageData::SetScalars(vtkScalars *scalars)
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
     this->Increments[idx] = inc;
-    inc *= (this->Bounds[idx*2+1] - this->Bounds[idx*2] + 1);
+    inc *= (this->Extent[idx*2+1] - this->Extent[idx*2] + 1);
     }
   
   if (inc != num)
     {
-    vtkWarningMacro(<< "SetScalars: Bounds (" << inc 
+    vtkWarningMacro(<< "SetScalars: Extent (" << inc 
                     << " pixels) does not match "
                     << num << " scalars.");
     }
@@ -489,7 +490,7 @@ void vtkImageData::SetScalars(vtkScalars *scalars)
 // This Method returns a pointer to a location in the vtkImageData.
 // Coordinates are in pixel units and are relative to the whole
 // image origin.
-void *vtkImageData::GetVoidPointer(int coordinates[VTK_IMAGE_DIMENSIONS])
+void *vtkImageData::GetScalarPointer(int coordinates[VTK_IMAGE_DIMENSIONS])
 {
   int idx;
     
@@ -497,10 +498,10 @@ void *vtkImageData::GetVoidPointer(int coordinates[VTK_IMAGE_DIMENSIONS])
   // this should not waste much time.
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
-    if (coordinates[idx] < this->Bounds[idx*2] ||
-	coordinates[idx] > this->Bounds[idx*2+1])
+    if (coordinates[idx] < this->Extent[idx*2] ||
+	coordinates[idx] > this->Extent[idx*2+1])
       {
-      vtkErrorMacro(<< "GetVoidPointer: Pixel (" << coordinates[0] << ", " 
+      vtkErrorMacro(<< "GetScalarPointer: Pixel (" << coordinates[0] << ", " 
                     << coordinates[1] << ", " << coordinates[2] << ", "
                     << coordinates[3] << ") not in memory.");
       return NULL;
@@ -509,11 +510,11 @@ void *vtkImageData::GetVoidPointer(int coordinates[VTK_IMAGE_DIMENSIONS])
   
   // Note the VTK data model (Scalars) does not exactly fit with
   // Image data model. We need a switch to get a void pointer.
-  idx = ((coordinates[0] - this->Bounds[0]) * this->Increments[0]
-	 + (coordinates[1] - this->Bounds[2]) * this->Increments[1]
-	 + (coordinates[2] - this->Bounds[4]) * this->Increments[2]
-	 + (coordinates[3] - this->Bounds[6]) * this->Increments[3]
-	 + (coordinates[4] - this->Bounds[8]) * this->Increments[4]);
+  idx = ((coordinates[0] - this->Extent[0]) * this->Increments[0]
+	 + (coordinates[1] - this->Extent[2]) * this->Increments[1]
+	 + (coordinates[2] - this->Extent[4]) * this->Increments[2]
+	 + (coordinates[3] - this->Extent[6]) * this->Increments[3]
+	 + (coordinates[4] - this->Extent[8]) * this->Increments[4]);
   
   return this->Scalars->GetVoidPtr(idx);
 }
@@ -522,7 +523,7 @@ void *vtkImageData::GetVoidPointer(int coordinates[VTK_IMAGE_DIMENSIONS])
 //----------------------------------------------------------------------------
 // Description:
 // This Method returns a pointer to the origin of the vtkImageData.
-void *vtkImageData::GetVoidPointer()
+void *vtkImageData::GetScalarPointer()
 {
   return this->Scalars->GetVoidPtr(0);
 }
@@ -602,26 +603,26 @@ void vtkImageDataCopyData2(vtkImageData *outData, OT *outPtr,
 // First templated function for copying.
 template <class T>
 void vtkImageDataCopyData(vtkImageData *self, void *outPtr, 
-			  vtkImageData *inData, T *inPtr, int *bounds)
+			  vtkImageData *inData, T *inPtr, int *extent)
 {
   switch (self->GetType())
     {
     case VTK_IMAGE_FLOAT:
-      vtkImageDataCopyData2(self, (float *)(outPtr), inData, inPtr, bounds);
+      vtkImageDataCopyData2(self, (float *)(outPtr), inData, inPtr, extent);
       break;
     case VTK_IMAGE_INT:
-      vtkImageDataCopyData2(self, (int *)(outPtr), inData, inPtr, bounds);
+      vtkImageDataCopyData2(self, (int *)(outPtr), inData, inPtr, extent);
       break;
     case VTK_IMAGE_SHORT:
-      vtkImageDataCopyData2(self, (short *)(outPtr), inData, inPtr, bounds);
+      vtkImageDataCopyData2(self, (short *)(outPtr), inData, inPtr, extent);
       break;
     case VTK_IMAGE_UNSIGNED_SHORT:
       vtkImageDataCopyData2(self, (unsigned short *)(outPtr), inData, inPtr, 
-			   bounds);
+			   extent);
       break;
     case VTK_IMAGE_UNSIGNED_CHAR:
       vtkImageDataCopyData2(self, (unsigned char *)(outPtr), inData, inPtr, 
-			   bounds);
+			   extent);
       break;
     default:
       cerr << "vtkImageDataCopyData: Cannot handle DataType.\n\n";
@@ -633,12 +634,12 @@ void vtkImageDataCopyData(vtkImageData *self, void *outPtr,
 // Copies data into this object.  If Type is not set, the default type
 // is set to the incoming type.  Otherwise, the dat is converted
 // with a simple type cast.  It will not deal with reducing precision
-// intelligently.  Bounds specify the data to copy and must be contained
-// in both data objects.  Bounds is in coordinate system of this data object.
-void vtkImageData::CopyData(vtkImageData *data, int *bounds)
+// intelligently.  Extent specify the data to copy and must be contained
+// in both data objects.  Extent is in coordinate system of this data object.
+void vtkImageData::CopyData(vtkImageData *data, int *extent)
 {
   void *inPtr, *outPtr;
-  int *inBounds, *outBounds;
+  int *inExtent, *outExtent;
   int inTemp, outTemp, temp;
   int origin[VTK_IMAGE_DIMENSIONS];
   int *axes;
@@ -654,29 +655,29 @@ void vtkImageData::CopyData(vtkImageData *data, int *bounds)
     }
   
   
-  // Make sure our bounds are contained in the data objects.
-  inBounds = data->GetBounds();
-  outBounds = this->GetBounds();
+  // Make sure our extent are contained in the data objects.
+  inExtent = data->GetExtent();
+  outExtent = this->GetExtent();
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
     // Check min first
-    inTemp = inBounds[idx*2];
-    outTemp = outBounds[idx*2];
-    temp = bounds[idx*2];
+    inTemp = inExtent[idx*2];
+    outTemp = outExtent[idx*2];
+    temp = extent[idx*2];
     if (temp < inTemp || temp < outTemp)
       {
-      vtkErrorMacro(<< "CopyData: Bounds mismatch.");
+      vtkErrorMacro(<< "CopyData: Extent mismatch.");
       return;
       }
     // Save the offset
     origin[idx] = temp;
     // Check max
-    inTemp = inBounds[idx*2 + 1];
-    outTemp = outBounds[idx*2 + 1];
-    temp = bounds[idx*2 + 1];
+    inTemp = inExtent[idx*2 + 1];
+    outTemp = outExtent[idx*2 + 1];
+    temp = extent[idx*2 + 1];
     if (temp > inTemp || temp > outTemp)
       {
-      vtkErrorMacro(<< "CopyData: Bounds mismatch.");
+      vtkErrorMacro(<< "CopyData: Extent mismatch.");
       return;
       }    
     }
@@ -698,25 +699,25 @@ void vtkImageData::CopyData(vtkImageData *data, int *bounds)
     return;
     }
   
-  inPtr = data->GetVoidPointer(origin);
-  outPtr = this->GetVoidPointer(origin);
+  inPtr = data->GetScalarPointer(origin);
+  outPtr = this->GetScalarPointer(origin);
   
   switch (data->GetType())
     {
     case VTK_IMAGE_FLOAT:
-      vtkImageDataCopyData(this,outPtr, data,(float *)(inPtr), bounds);
+      vtkImageDataCopyData(this,outPtr, data,(float *)(inPtr), extent);
       break;
     case VTK_IMAGE_INT:
-      vtkImageDataCopyData(this,outPtr, data,(int *)(inPtr), bounds);
+      vtkImageDataCopyData(this,outPtr, data,(int *)(inPtr), extent);
       break;
     case VTK_IMAGE_SHORT:
-      vtkImageDataCopyData(this,outPtr, data,(short *)(inPtr), bounds);
+      vtkImageDataCopyData(this,outPtr, data,(short *)(inPtr), extent);
       break;
     case VTK_IMAGE_UNSIGNED_SHORT:
-      vtkImageDataCopyData(this,outPtr, data,(unsigned short *)(inPtr),bounds);
+      vtkImageDataCopyData(this,outPtr, data,(unsigned short *)(inPtr),extent);
       break;
     case VTK_IMAGE_UNSIGNED_CHAR:
-      vtkImageDataCopyData(this,outPtr, data,(unsigned char *)(inPtr), bounds);
+      vtkImageDataCopyData(this,outPtr, data,(unsigned char *)(inPtr), extent);
       break;
     default:
       vtkErrorMacro(<< "CopyData: Cannot handle Type.");
@@ -731,7 +732,7 @@ void vtkImageData::CopyData(vtkImageData *data, int *bounds)
 // Copies data into this object.  It tries to copy into every pixel.
 void vtkImageData::CopyData(vtkImageData *data)
 {
-  this->CopyData(data, this->Bounds);
+  this->CopyData(data, this->Extent);
 }
 
 

@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -56,8 +57,8 @@ vtkImageRegion::vtkImageRegion()
   this->Increments[0] = this->Increments[1] = this->Increments[2]
     = this->Increments[3] = this->Increments[4] = 0;
   
-  this->SetBounds5d(0,0, 0,0, 0,0, 0,0, 0,0);
-  this->SetImageBounds5d(0,0, 0,0, 0,0, 0,0, 0,0);
+  this->SetExtent5d(0,0, 0,0, 0,0, 0,0, 0,0);
+  this->SetImageExtent5d(0,0, 0,0, 0,0, 0,0, 0,0);
   this->SetAspectRatio5d(0.0, 0.0, 0.0, 0.0, 0.0);
   this->SetOrigin5d(0.0, 0.0, 0.0, 0.0, 0.0);
 }
@@ -85,17 +86,17 @@ void vtkImageRegion::PrintSelf(ostream& os, vtkIndent indent)
   os << vtkImageAxisNameMacro(this->Axes[2]) << ", ";
   os << vtkImageAxisNameMacro(this->Axes[3]) << ")\n";
   
-  os << indent << "Bounds: (";
-  os << this->Bounds[0] << ", " << this->Bounds[1] << ", ";
-  os << this->Bounds[2] << ", " << this->Bounds[3] << ", ";
-  os << this->Bounds[4] << ", " << this->Bounds[5] << ", ";
-  os << this->Bounds[6] << ", " << this->Bounds[7] << ")\n";
+  os << indent << "Extent: (";
+  os << this->Extent[0] << ", " << this->Extent[1] << ", ";
+  os << this->Extent[2] << ", " << this->Extent[3] << ", ";
+  os << this->Extent[4] << ", " << this->Extent[5] << ", ";
+  os << this->Extent[6] << ", " << this->Extent[7] << ")\n";
   
-  os << indent << "ImageBounds: (";
-  os << this->ImageBounds[0] << ", " << this->ImageBounds[1] << ", ";
-  os << this->ImageBounds[2] << ", " << this->ImageBounds[3] << ", ";
-  os << this->ImageBounds[4] << ", " << this->ImageBounds[5] << ", ";
-  os << this->ImageBounds[6] << ", " << this->ImageBounds[7] << ")\n";
+  os << indent << "ImageExtent: (";
+  os << this->ImageExtent[0] << ", " << this->ImageExtent[1] << ", ";
+  os << this->ImageExtent[2] << ", " << this->ImageExtent[3] << ", ";
+  os << this->ImageExtent[4] << ", " << this->ImageExtent[5] << ", ";
+  os << this->ImageExtent[6] << ", " << this->ImageExtent[7] << ")\n";
 
   os << indent << "AspectRatio: (";
   os << this->AspectRatio[0] << ", ";
@@ -174,10 +175,10 @@ void vtkImageRegion::MakeWritable()
     newData = new vtkImageData;
     newData->SetAxes(this->Data->GetAxes());
     
-    // Set the bounds (the same as region)
+    // Set the extent (the same as region)
     this->GetAxes(axesSave);
     this->SetAxes(newData->GetAxes());
-    newData->SetBounds(this->GetBounds());
+    newData->SetExtent(this->GetExtent());
     this->SetAxes(axesSave);
     
     // Replace the data object with a copy
@@ -193,14 +194,14 @@ void vtkImageRegion::MakeWritable()
 // Description:
 // Copies data from a region into this region (converting data type).
 // It is a simple cast, and will not deal with float to unsigned char
-// inteligently.  The the regions do not have the same bounds,
+// inteligently.  The the regions do not have the same extent,
 // the intersection is copied.
 void vtkImageRegion::CopyRegionData(vtkImageRegion *region)
 {
   int thisAxesSave[VTK_IMAGE_DIMENSIONS];
   int regionAxesSave[VTK_IMAGE_DIMENSIONS];  
   int overlap[VTK_IMAGE_BOUNDS_DIMENSIONS];
-  int *inBounds, *outBounds;
+  int *inExtent, *outExtent;
   int inTemp, outTemp;
   int idx;
 
@@ -221,16 +222,16 @@ void vtkImageRegion::CopyRegionData(vtkImageRegion *region)
   this->SetAxes(this->Data->GetAxes());
   region->SetAxes(this->Data->GetAxes());
   
-  // Compute intersection of bounds
-  inBounds = region->GetBounds();
-  outBounds = this->GetBounds();
+  // Compute intersection of extent
+  inExtent = region->GetExtent();
+  outExtent = this->GetExtent();
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
-    inTemp = inBounds[2*idx];
-    outTemp = outBounds[2*idx];
+    inTemp = inExtent[2*idx];
+    outTemp = outExtent[2*idx];
     overlap[2*idx] = (inTemp > outTemp) ? inTemp : outTemp;  // Max
-    inTemp = inBounds[2*idx + 1];
-    outTemp = outBounds[2*idx + 1];
+    inTemp = inExtent[2*idx + 1];
+    outTemp = outExtent[2*idx + 1];
     overlap[2*idx + 1] = (inTemp < outTemp) ? inTemp : outTemp;  // Min
     }
   
@@ -271,7 +272,7 @@ void vtkImageRegion::UpdateRegion(vtkImageRegion *region)
   
 //----------------------------------------------------------------------------
 // Description:
-// Returns the bounds of the region as the image bounds.
+// Returns the extent of the region as the image extent.
 void vtkImageRegion::UpdateImageInformation(vtkImageRegion *region)
 {
   int axesSave[VTK_IMAGE_DIMENSIONS];
@@ -280,8 +281,8 @@ void vtkImageRegion::UpdateImageInformation(vtkImageRegion *region)
   region->GetAxes(axesSave);
   // convert to this regions coordinate system
   region->SetAxes(this->GetAxes());
-  // Set the bounds
-  region->SetImageBounds(this->GetBounds());
+  // Set the extent
+  region->SetImageExtent(this->GetExtent());
   // Set the aspect Ratio
   region->SetAspectRatio(this->GetAspectRatio());
   // Set the origin
@@ -317,7 +318,7 @@ unsigned long vtkImageRegion::GetPipelineMTime()
 
 //----------------------------------------------------------------------------
 // Description:
-// Convert 4d vector (not bounds!) from one coordinate system into another
+// Convert 4d vector (not extent!) from one coordinate system into another
 // coordinate system.  "vectIn" and "vectOut" may be the same array.
 template <class T>
 void
@@ -342,10 +343,10 @@ vtkImageRegionChangeVectorCoordinateSystem(T *vectIn, int *axesIn,
 
 //----------------------------------------------------------------------------
 // Description:
-// Convert 4d bounds from one coordinate system into another.
-// "boundsIn" and "boundsOut" may be the same array.
-void vtkImageRegion::ChangeBoundsCoordinateSystem(int *boundsIn, int *axesIn,
-						  int *boundsOut, int *axesOut)
+// Convert 4d extent from one coordinate system into another.
+// "extentIn" and "extentOut" may be the same array.
+void vtkImageRegion::ChangeExtentCoordinateSystem(int *extentIn, int *axesIn,
+						  int *extentOut, int *axesOut)
 {
   int idx;
   int absolute[VTK_IMAGE_BOUNDS_DIMENSIONS];
@@ -353,15 +354,15 @@ void vtkImageRegion::ChangeBoundsCoordinateSystem(int *boundsIn, int *axesIn,
   // Change into a known coordinate system (0,1,2,...)
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
-    absolute[axesIn[idx]*2] = boundsIn[idx*2];
-    absolute[axesIn[idx]*2+1] = boundsIn[idx*2+1];
+    absolute[axesIn[idx]*2] = extentIn[idx*2];
+    absolute[axesIn[idx]*2+1] = extentIn[idx*2+1];
     }
 
   // Change into the desired coordinate system.
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
-    boundsOut[idx*2] = absolute[axesOut[idx]*2];
-    boundsOut[idx*2+1] = absolute[axesOut[idx]*2+1];
+    extentOut[idx*2] = absolute[axesOut[idx]*2];
+    extentOut[idx*2+1] = absolute[axesOut[idx]*2+1];
     }
 }
 
@@ -374,7 +375,7 @@ void vtkImageRegion::ChangeBoundsCoordinateSystem(int *boundsIn, int *axesIn,
 // object and setting it explicitley.
 void vtkImageRegion::Allocate()
 {
-  int bounds[VTK_IMAGE_BOUNDS_DIMENSIONS];
+  int extent[VTK_IMAGE_BOUNDS_DIMENSIONS];
   
   this->Modified();
 
@@ -386,10 +387,10 @@ void vtkImageRegion::Allocate()
 
   this->Data = new vtkImageData;
   this->Data->SetType(this->DataType);
-  this->GetBounds(bounds);
-  this->ChangeBoundsCoordinateSystem(this->Bounds, this->Axes,
-				     bounds, this->Data->GetAxes());
-  this->Data->SetBounds(bounds);
+  this->GetExtent(extent);
+  this->ChangeExtentCoordinateSystem(this->Extent, this->Axes,
+				     extent, this->Data->GetAxes());
+  this->Data->SetExtent(extent);
   this->Data->Allocate();
   
   // Compute the increments.
@@ -481,7 +482,7 @@ void vtkImageRegion::GetIncrements(int *increments, int dim)
 // of the location are in pixel units and are relative to the
 // origin of the whole image. The region just forwards the message
 // to its vtkImageData object.
-void *vtkImageRegion::GetVoidPointer5d(int coordinates[5])
+void *vtkImageRegion::GetScalarPointer5d(int coordinates[5])
 {
   int temp[VTK_IMAGE_DIMENSIONS];
   
@@ -494,10 +495,10 @@ void *vtkImageRegion::GetVoidPointer5d(int coordinates[5])
   vtkImageRegionChangeVectorCoordinateSystem(coordinates, this->Axes,
 					     temp, this->Data->GetAxes());
   
-  return this->Data->GetVoidPointer(temp);
+  return this->Data->GetScalarPointer(temp);
 }
 //----------------------------------------------------------------------------
-void *vtkImageRegion::GetVoidPointer4d(int coordinates[4])
+void *vtkImageRegion::GetScalarPointer4d(int coordinates[4])
 {
   int coords[VTK_IMAGE_DIMENSIONS];
   
@@ -505,52 +506,52 @@ void *vtkImageRegion::GetVoidPointer4d(int coordinates[4])
   coords[1] = coordinates[1];
   coords[2] = coordinates[2];
   coords[3] = coordinates[3];
-  coords[4] = this->Bounds[8];
+  coords[4] = this->Extent[8];
   
-  return this->GetVoidPointer5d(coords);
+  return this->GetScalarPointer5d(coords);
 }
 //----------------------------------------------------------------------------
-void *vtkImageRegion::GetVoidPointer3d(int coordinates[3])
+void *vtkImageRegion::GetScalarPointer3d(int coordinates[3])
 {
   int coords[VTK_IMAGE_DIMENSIONS];
   
   coords[0] = coordinates[0];
   coords[1] = coordinates[1];
   coords[2] = coordinates[2];
-  coords[3] = this->Bounds[6];
-  coords[4] = this->Bounds[8];
+  coords[3] = this->Extent[6];
+  coords[4] = this->Extent[8];
   
-  return this->GetVoidPointer5d(coords);
+  return this->GetScalarPointer5d(coords);
 }
 //----------------------------------------------------------------------------
-void *vtkImageRegion::GetVoidPointer2d(int coordinates[2])
+void *vtkImageRegion::GetScalarPointer2d(int coordinates[2])
 {
   int coords[VTK_IMAGE_DIMENSIONS];
   
   coords[0] = coordinates[0];
   coords[1] = coordinates[1];
-  coords[2] = this->Bounds[4];
-  coords[3] = this->Bounds[6];
-  coords[4] = this->Bounds[8];
+  coords[2] = this->Extent[4];
+  coords[3] = this->Extent[6];
+  coords[4] = this->Extent[8];
   
-  return this->GetVoidPointer5d(coords);
+  return this->GetScalarPointer5d(coords);
 }
 //----------------------------------------------------------------------------
-void *vtkImageRegion::GetVoidPointer1d(int coordinates[1])
+void *vtkImageRegion::GetScalarPointer1d(int coordinates[1])
 {
   int coords[VTK_IMAGE_DIMENSIONS];
   
   coords[0] = coordinates[0];
-  coords[1] = this->Bounds[2];
-  coords[2] = this->Bounds[4];
-  coords[3] = this->Bounds[6];
-  coords[4] = this->Bounds[8];
+  coords[1] = this->Extent[2];
+  coords[2] = this->Extent[4];
+  coords[3] = this->Extent[6];
+  coords[4] = this->Extent[8];
   
-  return this->GetVoidPointer5d(coords);
+  return this->GetScalarPointer5d(coords);
 }
 
 //----------------------------------------------------------------------------
-void *vtkImageRegion::GetVoidPointer5d(int c0, int c1, int c2, int c3, int c4)
+void *vtkImageRegion::GetScalarPointer5d(int c0, int c1, int c2, int c3, int c4)
 {
   int coords[5];
   coords[0] = c0;
@@ -558,55 +559,55 @@ void *vtkImageRegion::GetVoidPointer5d(int c0, int c1, int c2, int c3, int c4)
   coords[2] = c2;
   coords[3] = c3;
   coords[4] = c4;
-  return this->GetVoidPointer5d(coords);
+  return this->GetScalarPointer5d(coords);
 }
 //----------------------------------------------------------------------------
-void *vtkImageRegion::GetVoidPointer4d(int c0, int c1, int c2, int c3)
+void *vtkImageRegion::GetScalarPointer4d(int c0, int c1, int c2, int c3)
 {
   int coords[4];
   coords[0] = c0;
   coords[1] = c1;
   coords[2] = c2;
   coords[3] = c3;
-  return this->GetVoidPointer4d(coords);
+  return this->GetScalarPointer4d(coords);
 }
 //----------------------------------------------------------------------------
-void *vtkImageRegion::GetVoidPointer3d(int c0, int c1, int c2)
+void *vtkImageRegion::GetScalarPointer3d(int c0, int c1, int c2)
 {
   int coords[3];
   coords[0] = c0;
   coords[1] = c1;
   coords[2] = c2;
-  return this->GetVoidPointer3d(coords);
+  return this->GetScalarPointer3d(coords);
 }
 //----------------------------------------------------------------------------
-void *vtkImageRegion::GetVoidPointer2d(int c0, int c1)
+void *vtkImageRegion::GetScalarPointer2d(int c0, int c1)
 {
   int coords[2];
   coords[0] = c0;
   coords[1] = c1;
-  return this->GetVoidPointer2d(coords);
+  return this->GetScalarPointer2d(coords);
 }
 //----------------------------------------------------------------------------
-void *vtkImageRegion::GetVoidPointer1d(int c0)
+void *vtkImageRegion::GetScalarPointer1d(int c0)
 {
   int coords[1];
   coords[0] = c0;
-  return this->GetVoidPointer1d(coords);
+  return this->GetScalarPointer1d(coords);
 }
 
 //----------------------------------------------------------------------------
-void *vtkImageRegion::GetVoidPointer()
+void *vtkImageRegion::GetScalarPointer()
 {
   int coords[VTK_IMAGE_DIMENSIONS];
 
-  coords[0] = this->Bounds[0];
-  coords[1] = this->Bounds[2];
-  coords[2] = this->Bounds[4];
-  coords[3] = this->Bounds[6];
-  coords[4] = this->Bounds[8];
+  coords[0] = this->Extent[0];
+  coords[1] = this->Extent[2];
+  coords[2] = this->Extent[4];
+  coords[3] = this->Extent[6];
+  coords[4] = this->Extent[8];
   
-  return this->GetVoidPointer5d(coords);
+  return this->GetScalarPointer5d(coords);
 }
 
 
@@ -683,10 +684,10 @@ void vtkImageRegion::SetAxes(int *axes, int dim)
 					     this->Origin, allAxes);
   vtkImageRegionChangeVectorCoordinateSystem(this->Increments, this->Axes,
 					     this->Increments, allAxes);
-  this->ChangeBoundsCoordinateSystem(this->Bounds, this->Axes,
-				     this->Bounds, allAxes);
-  this->ChangeBoundsCoordinateSystem(this->ImageBounds, this->Axes,
-				     this->ImageBounds, allAxes);
+  this->ChangeExtentCoordinateSystem(this->Extent, this->Axes,
+				     this->Extent, allAxes);
+  this->ChangeExtentCoordinateSystem(this->ImageExtent, this->Axes,
+				     this->ImageExtent, allAxes);
 
   // Actually change the regions axes.
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
@@ -711,31 +712,31 @@ void vtkImageRegion::GetAxes(int *axes, int dim)
 
 //----------------------------------------------------------------------------
 // Description:
-// These methods set the bounds of the region.  Don't forget that
-// bounds are relative to the coordinate system of the region (Axes).
-void vtkImageRegion::SetBounds(int *bounds, int dim)
+// These methods set the extent of the region.  Don't forget that
+// extent are relative to the coordinate system of the region (Axes).
+void vtkImageRegion::SetExtent(int *extent, int dim)
 {
   int idx;
-  int boundsDim = dim * 2;
+  int extentDim = dim * 2;
   
-  for (idx = 0; idx < boundsDim; ++idx)
+  for (idx = 0; idx < extentDim; ++idx)
     {
-    this->Bounds[idx] = bounds[idx];
+    this->Extent[idx] = extent[idx];
     }
   this->Modified();
 }
 
 //----------------------------------------------------------------------------
 // Description:
-// These methods get the bounds of the region.
-void vtkImageRegion::GetBounds(int *bounds, int dim)
+// These methods get the extent of the region.
+void vtkImageRegion::GetExtent(int *extent, int dim)
 {
   int idx;
   
   dim *= 2;
   for (idx = 0; idx < dim; ++idx)
     {
-    bounds[idx] = this->Bounds[idx];
+    extent[idx] = this->Extent[idx];
     }
 }
 
@@ -743,31 +744,31 @@ void vtkImageRegion::GetBounds(int *bounds, int dim)
 
 //----------------------------------------------------------------------------
 // Description:
-// These methods set the image bounds of the region.  Don't forget that
-// image bounds are relative to the coordinate system of the region (Axes).
-void vtkImageRegion::SetImageBounds(int *bounds, int dim)
+// These methods set the image extent of the region.  Don't forget that
+// image extent are relative to the coordinate system of the region (Axes).
+void vtkImageRegion::SetImageExtent(int *extent, int dim)
 {
   int idx;
-  int boundsDim = dim * 2;
+  int extentDim = dim * 2;
   
-  for (idx = 0; idx < boundsDim; ++idx)
+  for (idx = 0; idx < extentDim; ++idx)
     {
-    this->ImageBounds[idx] = bounds[idx];
+    this->ImageExtent[idx] = extent[idx];
     }  
   this->Modified();
 }
 
 //----------------------------------------------------------------------------
 // Description:
-// These methods get the ImageBounds of the region.
-void vtkImageRegion::GetImageBounds(int *boundary, int dim)
+// These methods get the ImageExtent of the region.
+void vtkImageRegion::GetImageExtent(int *boundary, int dim)
 {
   int idx;
   
   dim *= 2;
   for (idx = 0; idx < dim; ++idx)
     {
-    boundary[idx] = this->ImageBounds[idx];
+    boundary[idx] = this->ImageExtent[idx];
     }
 }
 
@@ -831,13 +832,13 @@ void vtkImageRegion::Translate(int *vector, int dim)
   vtkImageData *newData;
   int allVector[VTK_IMAGE_DIMENSIONS];
   
-  // Change bounds and image bounds of this region.
+  // Change extent and image extent of this region.
   for (idx = 0; idx < dim; ++idx)
     {
-    this->Bounds[idx*2] += vector[idx];
-    this->Bounds[1+idx*2] += vector[idx];
-    this->ImageBounds[idx*2] += vector[idx];
-    this->ImageBounds[1+idx*2] += vector[idx];
+    this->Extent[idx*2] += vector[idx];
+    this->Extent[1+idx*2] += vector[idx];
+    this->ImageExtent[idx*2] += vector[idx];
+    this->ImageExtent[1+idx*2] += vector[idx];
     }
 
   // Since the data might have multiple references, we can not just modify it.
@@ -845,7 +846,7 @@ void vtkImageRegion::Translate(int *vector, int dim)
     {
     newData = new vtkImageData;
     newData->SetAxes(this->Data->GetAxes());
-    newData->SetBounds(this->Data->GetBounds());
+    newData->SetExtent(this->Data->GetExtent());
     newData->SetScalars(this->Data->GetScalars());
     this->Data->UnRegister(this);
     this->Data = newData;
@@ -882,7 +883,7 @@ void vtkImageRegion::Translate(int *vector, int dim)
 
 
 //----------------------------------------------------------------------------
-// since data in region has same bounds as region, 5 nested loops are not
+// since data in region has same extent as region, 5 nested loops are not
 // actually necessary.  But to keep this method tolerent to future changes ...
 template <class T>
 void vtkImageRegionImportMemory(vtkImageRegion *self, T *memPtr)
@@ -893,10 +894,10 @@ void vtkImageRegionImportMemory(vtkImageRegion *self, T *memPtr)
   T *ptr0, *ptr1, *ptr2, *ptr3, *ptr4;
   
   self->GetIncrements5d(inc0, inc1, inc2, inc3, inc4);
-  self->GetBounds5d(min0,max0, min1,max1, min2,max2, min3,max3, min4,max4);
+  self->GetExtent5d(min0,max0, min1,max1, min2,max2, min3,max3, min4,max4);
   
   // loop over 5d space.
-  ptr4 = (T *)(self->GetVoidPointer5d());
+  ptr4 = (T *)(self->GetScalarPointer5d());
   for (idx4 = min4; idx4 <= max4; ++idx4)
     {
     ptr3 = ptr4;
@@ -927,7 +928,7 @@ void vtkImageRegionImportMemory(vtkImageRegion *self, T *memPtr)
 //----------------------------------------------------------------------------
 // Description:
 // This method will copy your memory into the region.  It is important that
-// you SetBounds and SetDataType of this region before this method is called.
+// you SetExtent and SetDataType of this region before this method is called.
 void vtkImageRegion::ImportMemory(void *ptr)
 {
   // Get rid of old data, and allocate new
@@ -961,7 +962,7 @@ void vtkImageRegion::ImportMemory(void *ptr)
 // This should probably copy the data.
 void *vtkImageRegion::ExportMemory()
 {
-  return (void *)(this->Data->GetVoidPointer());
+  return (void *)(this->Data->GetScalarPointer());
 }
 
 
