@@ -56,6 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPixmap.hh"
 #include "vtkAPixmap.hh"
 #include "vtkLookupTable.hh"
+#include "vtkByteSwap.hh"
 
 // Description:
 // Construct object.
@@ -151,7 +152,7 @@ int vtkDataReader::ReadHeader(FILE *fp)
   else
     {
     vtkErrorMacro(<< "Unrecognized file type: "<< line);
-    this->FileType = NULL;
+    this->FileType = 0;
     return 0;
     }
 
@@ -166,58 +167,58 @@ int vtkDataReader::ReadPointData(FILE *fp, vtkDataSet *ds, int numPts)
 {
   int retStat;
   char line[257];
-
+  
   vtkDebugMacro(<< "Reading vtk point data");
-//
-// Read keywords until end-of-file
-//
+  //
+  // Read keywords until end-of-file
+  //
   while ( (retStat=fscanf(fp, "%256s", line)) != EOF && retStat == 1 ) 
     {
-//
-// read scalar data
-//
+    //
+    // read scalar data
+    //
     if ( ! strncmp(this->LowerCase(line), "scalars", 7) )
       {
       if ( ! this->ReadScalarData(fp, ds, numPts) ) return 0;
       }
-//
-// read vector data
-//
+    //
+    // read vector data
+    //
     else if ( ! strncmp(line, "vectors", 7) )
       {
       if ( ! this->ReadVectorData(fp, ds, numPts) ) return 0;
       }
-//
-// read 3x3 tensor data
-//
+    //
+    // read 3x3 tensor data
+    //
     else if ( ! strncmp(line, "tensors", 7) )
       {
       if ( ! this->ReadTensorData(fp, ds, numPts) ) return 0;
       }
-//
-// read normals data
-//
+    //
+    // read normals data
+    //
     else if ( ! strncmp(line, "normals", 7) )
       {
       if ( ! this->ReadNormalData(fp, ds, numPts) ) return 0;
       }
-//
-// read texture coordinates data
-//
+    //
+    // read texture coordinates data
+    //
     else if ( ! strncmp(line, "texture_coordinates", 19) )
       {
       if ( ! this->ReadTCoordsData(fp, ds, numPts) ) return 0;
       }
-//
-// read color scalars data
-//
+    //
+    // read color scalars data
+    //
     else if ( ! strncmp(line, "color_scalars", 13) )
       {
       if ( ! this->ReadCoScalarData(fp, ds, numPts) ) return 0;
       }
-//
-// read lookup table. Associate with scalar data.
-//
+    //
+    // read lookup table. Associate with scalar data.
+    //
     else if ( ! strncmp(line, "lookup_table", 12) )
       {
       if ( ! this->ReadLutData(fp, ds) ) return 0;
@@ -239,6 +240,7 @@ int vtkDataReader::ReadPoints(FILE *fp, vtkPointSet *ps, int numPts)
 {
   int retStat, i;
   char line[257];
+  vtkByteSwap swap;
 
   if ((retStat=fscanf(fp, "%256s", line)) ==  EOF || retStat < 1) 
     {
@@ -258,6 +260,7 @@ int vtkDataReader::ReadPoints(FILE *fp, vtkPointSet *ps, int numPts)
         vtkErrorMacro(<<"Error reading binary points!");
         return 0;
         }
+      swap.Swap4BERange(ptr,3*numPts);
       points->WrotePtr();
       }
     else // ascii
@@ -289,6 +292,7 @@ int vtkDataReader::ReadPoints(FILE *fp, vtkPointSet *ps, int numPts)
         vtkErrorMacro(<<"Error reading binary points!");
         return 0;
         }
+      swap.Swap4BERange(ptr,3*numPts);
       points->WrotePtr();
       }
     else // ascii
@@ -324,6 +328,7 @@ int vtkDataReader::ReadScalarData(FILE *fp, vtkDataSet *ds, int numPts)
 {
   char line[257], name[257], key[128], tableName[257];
   int retStat, i, skipScalar=0;
+  vtkByteSwap swap;
 
   if ( (retStat=fscanf(fp, "%256s %256s", name, line)) == EOF || retStat < 2 ||
   ((retStat=fscanf(fp, "%256s %256s", key, tableName)) == EOF || retStat < 2) )
@@ -392,6 +397,7 @@ int vtkDataReader::ReadScalarData(FILE *fp, vtkDataSet *ds, int numPts)
         vtkErrorMacro(<<"Error reading binary char scalars!");
         return 0;
         }
+      swap.Swap4BERange(ptr,numPts);
       scalars->WrotePtr();
       }
     else // ascii
@@ -423,6 +429,7 @@ int vtkDataReader::ReadScalarData(FILE *fp, vtkDataSet *ds, int numPts)
         vtkErrorMacro(<<"Error reading binary short scalars!");
         return 0;
         }
+      swap.Swap4BERange(ptr,numPts);
       scalars->WrotePtr();
       }
     else // ascii
@@ -454,6 +461,7 @@ int vtkDataReader::ReadScalarData(FILE *fp, vtkDataSet *ds, int numPts)
         vtkErrorMacro(<<"Error reading binary int scalars!");
         return 0;
         }
+      swap.Swap4BERange(ptr,numPts);
       scalars->WrotePtr();
       }
     else // ascii
@@ -485,6 +493,7 @@ int vtkDataReader::ReadScalarData(FILE *fp, vtkDataSet *ds, int numPts)
         vtkErrorMacro(<<"Error reading binary int scalars!");
         return 0;
         }
+      swap.Swap4BERange(ptr,numPts);
       scalars->WrotePtr();
       }
     else // ascii
@@ -519,6 +528,7 @@ int vtkDataReader::ReadVectorData(FILE *fp, vtkDataSet *ds, int numPts)
 {
   int retStat, i, skipVector=0;
   char line[257], name[257];
+  vtkByteSwap swap;
 
   if ((retStat=fscanf(fp, "%256s %256s", name, line)) == EOF || retStat < 2) 
     {
@@ -548,6 +558,7 @@ int vtkDataReader::ReadVectorData(FILE *fp, vtkDataSet *ds, int numPts)
         vtkErrorMacro(<<"Error reading binary vectors!");
         return 0;
         }
+      swap.Swap4BERange(ptr,3*numPts);
       vectors->WrotePtr();
       }
     else // ascii
@@ -582,6 +593,7 @@ int vtkDataReader::ReadNormalData(FILE *fp, vtkDataSet *ds, int numPts)
 {
   int retStat, i, skipNormal;
   char line[257], name[257];
+  vtkByteSwap swap;
 
   if ((retStat=fscanf(fp, "%256s %256s", name, line)) == EOF || retStat < 2) 
     {
@@ -610,6 +622,7 @@ int vtkDataReader::ReadNormalData(FILE *fp, vtkDataSet *ds, int numPts)
         vtkErrorMacro(<<"Error reading binary normals!");
         return 0;
         }
+      swap.Swap4BERange(ptr,3*numPts);
       normals->WrotePtr();
       }
     else // ascii
@@ -644,6 +657,7 @@ int vtkDataReader::ReadTensorData(FILE *fp, vtkDataSet *ds, int numPts)
 {
   int retStat, i, skipTensor;
   char line[257], name[257];
+  vtkByteSwap swap;
 
   if ((retStat=fscanf(fp, "%256s %256s", name, line)) == EOF || retStat < 2) 
     {
@@ -673,6 +687,7 @@ int vtkDataReader::ReadTensorData(FILE *fp, vtkDataSet *ds, int numPts)
         vtkErrorMacro(<<"Error reading binary tensors!");
         return 0;
         }
+      swap.Swap4BERange(ptr,3*numPts);
       tensors->WrotePtr();
       }
     else // ascii
@@ -881,6 +896,7 @@ int vtkDataReader::ReadTCoordsData(FILE *fp, vtkDataSet *ds, int numPts)
 {
   int retStat, i, dim, skipTCoord;
   char line[257], name[257];
+  vtkByteSwap swap;
 
   if ((retStat=fscanf(fp, "%256s %d %256s", name, &dim, line)) == EOF || retStat < 3) 
     {
@@ -917,6 +933,7 @@ int vtkDataReader::ReadTCoordsData(FILE *fp, vtkDataSet *ds, int numPts)
         vtkErrorMacro(<<"Error reading binary tensors!");
         return 0;
         }
+      swap.Swap4BERange(ptr,dim*numPts);
       tcoords->WrotePtr();
       }
     else // ascii
@@ -1011,6 +1028,7 @@ int vtkDataReader::ReadCells(FILE *fp, int size, int *data)
 {
   char line[257];
   int i, retStat;
+  vtkByteSwap swap;
 
   if ( this->FileType == VTK_BINARY)
     {
@@ -1020,6 +1038,7 @@ int vtkDataReader::ReadCells(FILE *fp, int size, int *data)
       vtkErrorMacro(<<"Error reading binary cell data!");
       return 0;
       }
+    swap.Swap4BERange(data,size);
     }
   else // ascii
     {
