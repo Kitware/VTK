@@ -209,34 +209,6 @@ void vtkXglrRenderWindow::Frame(void)
 }
 
 /*
- * get the visual type which matches the depth argument
- */
-static Visual * xlib_getvisual(Display *display,int screen,int depth)
-{
-    XVisualInfo templ;
-    XVisualInfo *visuals, *v;
-    Visual	*vis = NULL;
-    int		nvisuals;
-    int		i;
-
-	templ.screen = screen;
-	templ.depth = depth;
-
-	vis = DefaultVisual(display, screen);
-
-	visuals = XGetVisualInfo(display, VisualScreenMask | VisualDepthMask,
-			&templ, &nvisuals);
-
-	for (v = visuals, i = 0; i < nvisuals; v++, i++)
-		if (v->c_class == vis->c_class) {
-			vis = v->visual;
-			break;						
-		}
-
-	return(vis);
-}
-
-/*
  * get a PseudoColor visual
  */
 static Visual * xlib_getpseudocolorvisual(Display *display,int screen,
@@ -482,7 +454,6 @@ XlibWindowCreate(Display *display, Visual *vis, int depth, char *name,
 		 int w, int h, int x, int y, int borders)
 {
   Window	win;
-  XEvent	event;
   XSetWindowAttributes values;
   
   values.colormap = 
@@ -521,8 +492,6 @@ void vtkXglrRenderWindow::WindowInitialize (void)
   Visual *vis;
   Xgl_X_window        xglr_x_win;      /* XGLR-X data structure */
   Xgl_obj_desc        win_desc;       /* XGLR window raster structure */
-  XSetWindowAttributes attrs;	      /* X create window attributes */
-  XEvent		event;	      /* X event */
   int                   temp_int;
   XWindowAttributes     winattr;
   XSizeHints           *size_hints;
@@ -974,7 +943,7 @@ void vtkXglrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
   int     y_low, y_hi;
   int     x_low, x_hi;
   int     xloop,yloop;
-  Xgl_usgn32 *input, *xglData, *bptr;
+  Xgl_usgn32 *input, *bptr;
   Xgl_bounds_i2d  rect;
   Xgl_pt_i2d      pos;
 
