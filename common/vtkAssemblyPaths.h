@@ -60,7 +60,7 @@ class VTK_EXPORT vtkAssemblyPaths : public vtkCollection
 {
 public:
   static vtkAssemblyPaths *New();
-  const char *GetClassName() {return "vtkAssemblyPaths";};
+  vtkTypeMacro(vtkAssemblyPaths,vtkCollection);
 
   // Description:
   // Add a path to the list.

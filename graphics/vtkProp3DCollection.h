@@ -58,7 +58,7 @@ class VTK_EXPORT vtkProp3DCollection : public vtkPropCollection
 {
 public:
   static vtkProp3DCollection *New();
-  const char *GetClassName() {return "vtkProp3DCollection";};
+  vtkTypeMacro(vtkProp3DCollection,vtkPropCollection);
 
   // Description:
   // Add an actor to the list.

@@ -68,7 +68,7 @@ class VTK_EXPORT vtkQuantizePolyDataPoints : public vtkCleanPolyData
 {
 public:
   static vtkQuantizePolyDataPoints *New();
-  const char *GetClassName() {return "vtkQuantizePolyDataPoints";};
+  vtkTypeMacro(vtkQuantizePolyDataPoints,vtkCleanPolyData);
   void PrintSelf(ostream& os, vtkIndent indent);
   // Description:
   // Specify quantization grain size
