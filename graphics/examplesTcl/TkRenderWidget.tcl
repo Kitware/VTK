@@ -9,8 +9,9 @@ source TkInteractor.tcl
 # Create the GUI: two renderer widgets and a quit button
 #
 wm withdraw .
-toplevel .top -visual {truecolor 24}
-frame .top.f1
+toplevel .top 
+
+frame .top.f1 
 
 vtkTkRenderWidget .top.f1.r1 -width 300 -height 300 
     BindTkRenderWidget .top.f1.r1

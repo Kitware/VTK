@@ -8,6 +8,8 @@ proc BindTkRenderWidget {widget} {
     bind $widget <B3-Motion> {Zoom %W %x %y}
     bind $widget <Shift-B1-Motion> {Pan %W %x %y}
     bind $widget <KeyPress-r> {Reset %W %x %y}
+    bind $widget <Enter> {set oldFocus [focus]; focus %W}
+    bind $widget <Leave> {focus $oldFocus}
 }
 
 # Create event bindings
@@ -46,6 +48,7 @@ proc EndMotion {widget x y} {
     global CurrentRenderWindow
 
     $CurrentRenderWindow SetDesiredUpdateRate 0.01
+    Render
 }
 
 proc Rotate {widget x y} {
@@ -132,6 +135,7 @@ proc Zoom {widget x y} {
 }
 
 proc Reset {widget x y} {
+    global CurrentRenderWindow
     set CurrentRenderWindow [$widget GetRenderWindow]
 
     set renderers [$CurrentRenderWindow GetRenderers]
