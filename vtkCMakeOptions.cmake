@@ -5,7 +5,7 @@
 
 OPTION (VTK_USE_RENDERING "Build the rendering classes used for displaying")
 IF (VTK_USE_RENDERING)
-  INCLUDE (${CMAKE_SOURCE_DIR}/CMake/Modules/FindOpenGL.cmake)
+  INCLUDE (${CMAKE_ROOT}/Modules/FindOpenGL.cmake)
   INCLUDE_DIRECTORIES(${VTK_SOURCE_DIR}/Rendering)
   LINK_DIRECTORIES(${VTK_BINARY_DIR}/Rendering) 
 ENDIF (VTK_USE_RENDERING)
@@ -48,7 +48,7 @@ ENDIF (WIN32)
 #
 OPTION(VTK_WRAP_TCL "wrap classes into the TCL intepreted language")
 IF (VTK_WRAP_TCL)
-  INCLUDE (${CMAKE_SOURCE_DIR}/CMake/Modules/FindTCL.cmake)
+  INCLUDE (${CMAKE_ROOT}/Modules/FindTCL.cmake)
 
   # add in the Tcl values if found
   IF (TCL_INCLUDE_PATH)
