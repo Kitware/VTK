@@ -60,7 +60,6 @@ set rtCPUTime [expr $rtEndCPU - $rtStartCPU]
 set rtWallTime [expr [lindex $rtRawWallTimeResult 0] / 1000000.0]
 
 # output measurements for Dart
-puts ""
 puts -nonewline "<DartMeasurement name=\"WallTime\" type=\"numeric/double\">"
 puts -nonewline "$rtWallTime"
 puts "</DartMeasurement>"
