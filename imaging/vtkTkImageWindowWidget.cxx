@@ -690,7 +690,6 @@ vtkTkImageWindowWidget_MakeImageWindow(struct vtkTkImageWindowWidget *self)
     }
 
   self->ImageWindow->Render();  
-  XSelectInput(dpy, Tk_WindowId(self->TkWin), VTK_ALL_EVENTS_MASK);
   return TCL_OK;
 }
 #endif
