@@ -27,7 +27,7 @@
 #include "vtkTimerLog.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadricClustering, "1.52");
+vtkCxxRevisionMacro(vtkQuadricClustering, "1.53");
 vtkStandardNewMacro(vtkQuadricClustering);
 
 //----------------------------------------------------------------------------
@@ -101,7 +101,7 @@ vtkQuadricClustering::~vtkQuadricClustering()
 void vtkQuadricClustering::Execute()
 {
   vtkPolyData *input = this->GetInput();
-  vtkTimerLog *tlog;
+  vtkTimerLog *tlog=NULL;
 
   if (input == NULL)
     {
