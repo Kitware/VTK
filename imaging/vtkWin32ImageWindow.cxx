@@ -248,6 +248,7 @@ vtkWin32ImageWindow::vtkWin32ImageWindow()
 //----------------------------------------------------------------------------
 vtkWin32ImageWindow::~vtkWin32ImageWindow()
 {
+  if (this->WindowId && this->OwnWindow) DestroyWindow(this->WindowId);
 }
 
 
