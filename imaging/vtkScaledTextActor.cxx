@@ -134,7 +134,8 @@ int vtkScaledTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
     }
   
   // Check to see whether we have to rebuild everything
-  if ( this->GetMTime() > this->BuildTime)
+  if ( this->GetMTime() > this->BuildTime ||
+       this->TextActor->GetMapper()->GetMTime() > this->BuildTime)
     {
     vtkDebugMacro(<<"Rebuilding text");
     
