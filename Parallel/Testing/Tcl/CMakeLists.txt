@@ -1,4 +1,10 @@
 IF (VTK_DATA_ROOT)
+  ADD_TEST(ExtrudePiece-image ${VTK_EXECUTABLE}
+           ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+           ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/TestExtrudePiece.tcl
+           -D ${VTK_DATA_ROOT}
+           -V Baseline/Parallel/TestExtrudePiece.tcl.png
+           -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
   ADD_TEST(PolyDataPieces-image ${VTK_EXECUTABLE}
            ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
            ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/TestPolyDataPieces.tcl
