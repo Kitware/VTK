@@ -17,10 +17,11 @@ This file is part of the vis library
 #define __vlProperty_hh
 
 #include "Render.hh"
+#include "Object.hh"
 
 class vlRenderer;
 
-class vlProperty
+class vlProperty : public vlObject
 {
  public:
   float Color[3];
@@ -42,16 +43,16 @@ class vlProperty
  public:
   vlProperty();
   virtual void Render(vlRenderer *ren) = 0;
-  void Property::SetFlat (void);
-  void Property::SetGouraud (void);
-  void Property::SetPhong (void);
-  void Property::SetPoints (void);
-  void Property::SetWireframe (void);
-  void Property::SetSurface (void);
-  void Property::SetColor(float R,float G,float B);
-  float Property::GetTransparency();
-  int   Property::GetRepresentation();
-  int   Property::GetInterpolation();
+  void SetFlat (void);
+  void SetGouraud (void);
+  void SetPhong (void);
+  void SetPoints (void);
+  void SetWireframe (void);
+  void SetSurface (void);
+  void SetColor(float R,float G,float B);
+  float GetTransparency();
+  int   GetRepresentation();
+  int   GetInterpolation();
 };
 
 #endif

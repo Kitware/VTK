@@ -13,9 +13,9 @@ This file is part of the vis library
 - Ken Martin
 
 =========================================================================*/
-#include "Camera.h"
+#include "Camera.hh"
 
-Camera::Camera()
+vlCamera::vlCamera()
 {
   this->FocalPoint[0] = 0.0;
   this->FocalPoint[1] = 0.0;
@@ -35,53 +35,53 @@ Camera::Camera()
   this->ClippingRange[1] = 1000.01;
 }
 
-void Camera::SetPosition(float X, float Y, float Z)
+void vlCamera::SetPosition(float X, float Y, float Z)
 {
   this->Position[0] = X;
   this->Position[1] = Y;
   this->Position[2] = Z;
 }
-void Camera::SetPosition(float a[3])
+void vlCamera::SetPosition(float a[3])
 {
   this->Position[0] = a[0];
   this->Position[1] = a[1];
   this->Position[2] = a[2];
 }
-float *Camera::GetPosition()
+float *vlCamera::GetPosition()
 {
   return (this->Position);
 }
 
-void Camera::SetFocalPoint(float X, float Y, float Z)
+void vlCamera::SetFocalPoint(float X, float Y, float Z)
 {
   this->FocalPoint[0] = X; 
   this->FocalPoint[1] = Y; 
   this->FocalPoint[2] = Z;
 }
-void Camera::SetFocalPoint(float a[3])
+void vlCamera::SetFocalPoint(float a[3])
 {
   this->FocalPoint[0] = a[0];
   this->FocalPoint[1] = a[1];
   this->FocalPoint[2] = a[2];
 }
-float *Camera::GetFocalPoint()
+float *vlCamera::GetFocalPoint()
 {
   return (this->FocalPoint);
 }
 
-void Camera::SetViewUp(float X, float Y, float Z)
+void vlCamera::SetViewUp(float X, float Y, float Z)
 {
   this->ViewUp[0] = X;
   this->ViewUp[1] = Y;
   this->ViewUp[2] = Z;
 }
-void Camera::SetViewUp(float a[3])
+void vlCamera::SetViewUp(float a[3])
 {
   this->ViewUp[0] = a[0];
   this->ViewUp[1] = a[1];
   this->ViewUp[2] = a[2];
 }
-float *Camera::GetViewUp()
+float *vlCamera::GetViewUp()
 {
   return (this->ViewUp);
 }

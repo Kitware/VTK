@@ -16,9 +16,11 @@ This file is part of the vis library
 #ifndef __vlCamera_hh
 #define __vlCamera_hh
 
+#include "Object.hh"
+
 class vlRenderer;
 
-class vlCamera
+class vlCamera : public vlObject
 {
  public:
   float FocalPoint[3];

@@ -16,10 +16,10 @@ This file is part of the vis library
 #include <stdlib.h>
 #include <iostream.h>
 #include <string.h>
-#include "RenderM.h"
+#include "RenderM.hh"
 
 #ifdef USE_KGLR
-#include "kglrRen.h"
+#include "KglrRen.hh"
 #endif
 
 vlRenderMaster::vlRenderMaster()

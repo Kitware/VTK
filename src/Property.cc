@@ -14,9 +14,9 @@ This file is part of the vis library
 
 =========================================================================*/
 #include <stdlib.h>
-#include "Property.h"
+#include "Property.hh"
 
-Property::Property()
+vlProperty::vlProperty()
 {
   this->Color[0] = 1;
   this->Color[1] = 1;
@@ -51,39 +51,39 @@ Property::Property()
 }
 
 
-void Property::SetFlat (void)
+void vlProperty::SetFlat (void)
 {
   this->Interpolation= FLAT;
 }
 
-void Property::SetGouraud (void)
+void vlProperty::SetGouraud (void)
 {
   this->Interpolation = GOURAUD;
 }
 
-void Property::SetPhong (void)
+void vlProperty::SetPhong (void)
 {
   this->Interpolation = PHONG;
 }
 
-void Property::SetPoints (void)
+void vlProperty::SetPoints (void)
 {
   this->Interpolation = POINTS;
 }
 
-void Property::SetWireframe (void)
+void vlProperty::SetWireframe (void)
 {
   this->Representation = WIREFRAME;
 }
 
-void Property::SetSurface (void)
+void vlProperty::SetSurface (void)
 {
   this->Representation = SURFACE;
 }
 
 /* this is a standard vector set method except that it sets the */
 /* ambient diffuse and specular colors as well                  */
-void Property::SetColor(float R,float G,float B)
+void vlProperty::SetColor(float R,float G,float B)
 {
   /* store the coordinates */
   this->Color[0] = R;
@@ -104,17 +104,17 @@ void Property::SetColor(float R,float G,float B)
 
 
 
-float Property::GetTransparency (void)
+float vlProperty::GetTransparency (void)
 {
   return this->Transparency;
 }
 
-int Property::GetRepresentation (void)
+int vlProperty::GetRepresentation (void)
 {
   return this->Representation;
 }
 
-int Property::GetInterpolation (void)
+int vlProperty::GetInterpolation (void)
 {
   return this->Interpolation;
 }

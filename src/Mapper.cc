@@ -1,7 +1,7 @@
 //
 // Methods for abstract class mapper
 //
-#include "Mapper.h"
+#include "Mapper.hh"
 
 vlMapper::~vlMapper()
 {

@@ -16,12 +16,13 @@ This file is part of the vis library
 #ifndef __vlRenderer_hh
 #define __vlRenderer_hh
 
-#include "Light.h"
-#include "Camera.h"
-#include "Actor.h"
-#include "GeomPrim.h"
+#include "Object.hh"
+#include "LightC.hh"
+#include "Camera.hh"
+#include "ActorC.hh"
+#include "GeomPrim.hh"
 
-class vlRenderer
+class vlRenderer : public vlObject
 {
 public:
   vlCamera *ActiveCamera;

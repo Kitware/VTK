@@ -16,10 +16,12 @@ This file is part of the vis library
 #ifndef __vlLight_hh
 #define __vlLight_hh
 
+#include "Object.hh"
+
 /* need for virtual function */
 class vlRenderer;
 
-class vlLight
+class vlLight : public vlObject
 {
  public:
   float FocalPoint[3];

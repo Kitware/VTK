@@ -15,9 +15,9 @@ This file is part of the vis library
 =========================================================================*/
 #include <stdlib.h>
 #include <string.h>
-#include "Renderer.h"
+#include "Renderer.hh"
 
-Renderer::Renderer()
+vlRenderer::vlRenderer()
 {
   this->ActiveCamera = NULL;
 
@@ -31,32 +31,32 @@ Renderer::Renderer()
 
   this->BackLight = 1;
 
-  strcpy(this->name,"oscar");
+  strcpy(this->name,"Visualization Library");
 }
 
-void Renderer::SetBackground(float R, float G, float B)
+void vlRenderer::SetBackground(float R, float G, float B)
 {
   this->Background[0] = R;
   this->Background[1] = G;
   this->Background[2] = B;
 }
 
-void Renderer::SetActiveCamera(Camera *cam)
+void vlRenderer::SetActiveCamera(vlCamera *cam)
 {
   this->ActiveCamera = cam;
 }
 
-void Renderer::AddLights(Light *light)
+void vlRenderer::AddLights(vlLight *light)
 {
   this->Lights.AddMember(light);
 }
 
-void Renderer::AddActors(Actor *actor)
+void vlRenderer::AddActors(vlActor *actor)
 {
   this->Actors.AddMember(actor);
 }
 
-void Renderer::GetBackground(float *result)
+void vlRenderer::GetBackground(float *result)
 {
   result[0] = this->Background[0];
   result[1] = this->Background[1];

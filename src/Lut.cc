@@ -2,7 +2,7 @@
 // Methods for lookup table
 //
 #include <math.h>
-#include "Lut.h"
+#include "Lut.hh"
 
 vlLookupTable::vlLookupTable()
 {

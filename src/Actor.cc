@@ -16,10 +16,10 @@ This file is part of the vis library
 #include <stdlib.h>
 #include <iostream.h>
 #include <math.h>
-#include <kgl.h>
-#include "Actor.h"
 
-Actor::Actor()
+#include "Actor.hh"
+
+vlActor::vlActor()
 {
   this->Mapper = 0;
   this->MyProperty = 0;
@@ -43,12 +43,12 @@ Actor::Actor()
   this->Visibility = 1;
 }
 
-int Actor::GetVisibility()
+int vlActor::GetVisibility()
 {
   return this->Visibility;
 }
 
-void Actor::Render(Renderer *ren)
+void vlActor::Render(vlRenderer *ren)
 {
   /* render my property */
   this->MyProperty->Render(ren);
@@ -58,7 +58,7 @@ void Actor::Render(Renderer *ren)
 
 }
   
-void Actor::GetCompositeMatrix(float mat[4][4])
+void vlActor::GetCompositeMatrix(float mat[4][4])
 {
   mat[0][0] = 1; mat[0][1] = 0; mat[0][2] = 0; mat[0][3] = 0;
   mat[1][0] = 0; mat[1][1] = 1; mat[1][2] = 0; mat[1][3] = 0;
@@ -66,62 +66,7 @@ void Actor::GetCompositeMatrix(float mat[4][4])
   mat[3][0] = 0; mat[3][1] = 0; mat[3][2] = 0; mat[3][3] = 1;
 }
 
-ActorCollection::ActorCollection()
-{
-  this->NumberOfItems = 0;
-  this->Top = NULL;
-  this->Bottom = NULL;
-}
-
-void ActorCollection::AddMember(Actor *actor)
-{
-  ActorListElement *elem;
-
-  elem = new ActorListElement;
-  
-  if (!this->Top)
-    {
-    this->Top = elem;
-    }
-  else
-    {
-    this->Bottom->Next = elem;
-    }
-  this->Bottom = elem;
-
-  elem->Actor = actor;
-  elem->Next = NULL;
-
-  this->NumberOfItems++;
-}
-
-
-int ActorCollection::GetNumberOfMembers()
-{
-  return this->NumberOfItems;
-}
-
-Actor *ActorCollection::GetMember(int num)
-{
-  int i;
-  ActorListElement *elem;
-
-  if (num > this->NumberOfItems)
-    {
-    cerr << "Actor: Requesting illegal index\n";
-    return this->Top->Actor;
-    }
-
-  elem = this->Top;
-  for (i = 1; i < num; i++)
-    {
-    elem = elem->Next;
-    }
-  
-  return (elem->Actor);
-}
-
-void Actor::SetMapper(vlMapper *m)
+void vlActor::SetMapper(vlMapper *m)
 {
   if ( this->Mapper != m )
   {
@@ -132,7 +77,8 @@ void Actor::SetMapper(vlMapper *m)
   }
 }
 
-vlMapper *Actor::GetMapper()
+vlMapper *vlActor::GetMapper()
 {
   return this->Mapper;
 }
+

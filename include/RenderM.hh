@@ -16,9 +16,10 @@ This file is part of the vis library
 #ifndef __vlRenderMaster_hh
 #define __vlRenderMaster_hh
 
+#include "Object.hh"
 #include "Renderer.hh"
 
-class vlRenderMaster
+class vlRenderMaster : public vlObject
 {
  public:
   vlRenderMaster();
