@@ -680,9 +680,21 @@ void vtkMesaRenderWindow::SetSize(int x,int y)
   this->Size[0] = x;
   this->Size[1] = y;
   
-
+  
   if (this->OffScreenRendering && this->OffScreenWindow)
     {
+    vtkRenderer *ren;
+    // Disconnect renderers from this render window.
+    vtkRendererCollection *renderers = this->Renderers;
+    renderers->Register(this);
+    this->Renderers->Delete();
+    this->Renderers = vtkRendererCollection::New();
+    renderers->InitTraversal();
+    while ( (ren = renderers->GetNextItem()) )
+      {
+      ren->SetRenderWindow(NULL);
+      }
+    
 #ifdef MESA
     OSMesaDestroyContext(this->OffScreenContextId);
 #endif
@@ -690,6 +702,14 @@ void vtkMesaRenderWindow::SetSize(int x,int y)
     vtkOSMesaDestroyWindow(this->OffScreenWindow);
     this->OffScreenWindow = NULL;      
     this->WindowInitialize();
+    
+    // Add the renders back into the render window.
+    renderers->InitTraversal();
+    while ( (ren = renderers->GetNextItem()) )
+      {
+      this->AddRenderer(ren);
+      }
+    renderers->Delete();
     }
   else
     {
