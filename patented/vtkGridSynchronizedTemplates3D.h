@@ -169,12 +169,6 @@ public:
   // from the input will be larger than this value (KiloBytes).
   void SetInputMemoryLimit(long limit);
 
-  // Description:
-  // Set the point-data field-array name that you want to contour.  
-  // An empty string means use the default scalars.
-  vtkSetStringMacro(ActiveArray);
-  vtkGetStringMacro(ActiveArray);  
-  
 protected:
   vtkGridSynchronizedTemplates3D();
   ~vtkGridSynchronizedTemplates3D();
@@ -199,8 +193,6 @@ protected:
   vtkPolyData *Threads[VTK_MAX_THREADS];
   void InitializeOutput(int *ext,vtkPolyData *o);
 
-  char *ActiveArray;
-  
 private:
   //BTX
   friend VTK_EXPORT vtkKitwareContourFilter;
