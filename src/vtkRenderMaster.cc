@@ -39,9 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <stdlib.h>
-#include <iostream.h>
 #include <string.h>
-#include "vtkRenderMaster.hh"
 
 #ifdef USE_SBR
 #include "vtkSbrRenderWindow.hh"
@@ -58,6 +56,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifdef USE_XGLR
 #include "vtkXglrRenderWindow.hh"
 #endif
+
+#ifdef _WIN32
+#include "vtkWin32RenderWindow.hh"
+#endif
+
+#include "vtkRenderMaster.hh"
 
 vtkRenderMaster::vtkRenderMaster()
 {
@@ -92,6 +96,15 @@ vtkRenderWindow *vtkRenderMaster::MakeRenderWindow(char *type)
     {
     vtkOglrRenderWindow *ren;
     ren = new vtkOglrRenderWindow;
+    return (vtkRenderWindow *)ren;
+    }
+#endif
+
+#ifdef _WIN32
+  if (!strncmp("woglr",type,5))
+    {
+    vtkWin32OglrRenderWindow *ren;
+    ren = new vtkWin32OglrRenderWindow;
     return (vtkRenderWindow *)ren;
     }
 #endif
@@ -131,6 +144,9 @@ vtkRenderWindow *vtkRenderMaster::MakeRenderWindow(void)
 #endif
 #ifdef USE_XGLR
     temp = "xglr";
+#endif
+#ifdef _WIN32
+    temp = "woglr";
 #endif
     if (!temp)
       {
