@@ -151,8 +151,8 @@ printf("Calculating New Perspective View Rays\n");
   mat.Transpose();
   
   // This is the increment between pixel locations in screen space
-  xinc = 2.0/(float)(size[0]-1);
-  yinc = 2.0/(float)(size[1]-1);
+  xinc = 2.0/(float)(size[0]);
+  yinc = 2.0/(float)(size[1]);
   
   // This is the initial y and z positions in screen space
   ypos = -1.0 + yinc/2.0;
@@ -327,8 +327,8 @@ printf("Calculating New Parallel View Rays\n");
   p_scale = this->Renderer->GetActiveCamera()->GetParallelScale();
 
   // This is the increment between pixel locations in screen space
-  this->Increments[0] = 2.0/(float)(size[0]-1) * p_scale * aspect;
-  this->Increments[1] = 2.0/(float)(size[1]-1) * p_scale;
+  this->Increments[0] = 2.0/(float)(size[0]) * p_scale * aspect;
+  this->Increments[1] = 2.0/(float)(size[1]) * p_scale;
 
   x_half_inc = this->Increments[0]/2.0;
   y_half_inc = this->Increments[1]/2.0;
