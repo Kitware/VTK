@@ -152,23 +152,23 @@ void vtkImageMagnitudeExecute(vtkImageMagnitude *self,
   switch (inRegion->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImageMagnitudeExecute(self, inRegion, (float *)(outPtr), 
+      vtkImageMagnitudeExecute(self, inRegion, (float *)(inPtr), 
 			       outRegion, outPtr);
       break;
     case VTK_INT:
-      vtkImageMagnitudeExecute(self, inRegion, (int *)(outPtr),
+      vtkImageMagnitudeExecute(self, inRegion, (int *)(inPtr),
 			       outRegion, outPtr);
       break;
     case VTK_SHORT:
-      vtkImageMagnitudeExecute(self, inRegion, (short *)(outPtr),
+      vtkImageMagnitudeExecute(self, inRegion, (short *)(inPtr),
 			       outRegion, outPtr);
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImageMagnitudeExecute(self, inRegion, (unsigned short *)(outPtr),
+      vtkImageMagnitudeExecute(self, inRegion, (unsigned short *)(inPtr),
 			       outRegion, outPtr);
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImageMagnitudeExecute(self, inRegion, (unsigned char *)(outPtr),
+      vtkImageMagnitudeExecute(self, inRegion, (unsigned char *)(inPtr),
 			       outRegion, outPtr);
       break;
     default:
@@ -199,7 +199,6 @@ void vtkImageMagnitude::Execute(vtkImageRegion *inRegion,
       break;
     case VTK_SHORT:
       vtkImageMagnitudeExecute(this, inRegion, outRegion, (short *)(outPtr));
-      
       break;
     case VTK_UNSIGNED_SHORT:
       vtkImageMagnitudeExecute(this, inRegion,outRegion, 

@@ -36,11 +36,15 @@ gradient ReleaseDataFlagOff;
 
 vtkImageXViewer viewer;
 #viewer DebugOn;
-viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS;
+viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_COMPONENT_AXIS $VTK_IMAGE_Z_AXIS;
 viewer SetInput [gradient GetOutput];
-viewer SetCoordinate2 $sliceNumber;
-viewer SetColorWindow 1000
-viewer SetColorLevel 500
+viewer SetCoordinate3 $sliceNumber;
+viewer SetColorWindow 400;
+viewer SetColorLevel 0;
+viewer ColorFlagOn;
+viewer SetRed 0;
+viewer SetGreen 1;
+viewer SetBlue 2;
 viewer Render;
 
 
@@ -57,12 +61,12 @@ label .wl.f1.windowLabel -text Window;
 scale .wl.f1.window -from 1 -to 2000 -orient horizontal -command SetWindow
 frame .wl.f2;
 label .wl.f2.levelLabel -text Level;
-scale .wl.f2.level -from 1 -to 1000 -orient horizontal -command SetLevel
+scale .wl.f2.level -from -1000 -to 1000 -orient horizontal -command SetLevel
 checkbutton .wl.video -text "Inverse Video" -variable inverseVideo -command SetInverseVideo
 
 
-.wl.f1.window set 1000
-.wl.f2.level set 500
+.wl.f1.window set 400
+.wl.f2.level set 0
 
 
 pack .slice .wl -side left
@@ -76,7 +80,7 @@ proc SliceUp {} {
    global sliceNumber viewer
    if {$sliceNumber < 92} {set sliceNumber [expr $sliceNumber + 1]}
    puts $sliceNumber
-   viewer SetCoordinate2 $sliceNumber;
+   viewer SetCoordinate3 $sliceNumber;
    viewer Render;
 }
 
@@ -84,7 +88,7 @@ proc SliceDown {} {
    global sliceNumber viewer
    if {$sliceNumber > 0} {set sliceNumber [expr $sliceNumber - 1]}
    puts $sliceNumber
-   viewer SetCoordinate2 $sliceNumber;
+   viewer SetCoordinate3 $sliceNumber;
    viewer Render;
 }
 

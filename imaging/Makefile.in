@@ -32,6 +32,7 @@ vtkImageFourierWavelet2D.o \
 vtkImageGaussianSmooth.o \
 vtkImageGaussianSmooth1D.o \
 vtkImageGradient.o \
+vtkImageGradientMagnitude.o \
 vtkImageHarrWavelet2D.o \
 vtkImageInPlaceFilter.o \
 vtkImageIslandRemoval2D.o \
@@ -42,8 +43,7 @@ vtkImageMarkBoundary.o \
 vtkImageMatte.o \
 vtkImageMedian.o \
 vtkImageMIPFilter.o \
-vtkImageNonMaximalSuppression2D.o \
-vtkImageNonMaximalSuppression3D.o \
+vtkImageNonMaximumSuppression.o \
 vtkImageRFFT.o \
 vtkImageRFFT1D.o \
 vtkImageScatterPlot.o \
@@ -78,6 +78,7 @@ tcl/vtkImageFourierWavelet2DTcl.o \
 tcl/vtkImageGaussianSmoothTcl.o \
 tcl/vtkImageGaussianSmooth1DTcl.o \
 tcl/vtkImageGradientTcl.o \
+tcl/vtkImageGradientMagnitudeTcl.o \
 tcl/vtkImageHarrWavelet2DTcl.o \
 tcl/vtkImageInPlaceFilterTcl.o \
 tcl/vtkImageIslandRemoval2DTcl.o \
@@ -88,8 +89,7 @@ tcl/vtkImageMarkBoundaryTcl.o \
 tcl/vtkImageMatteTcl.o \
 tcl/vtkImageMedianTcl.o \
 tcl/vtkImageMIPFilterTcl.o \
-tcl/vtkImageNonMaximalSuppression2DTcl.o \
-tcl/vtkImageNonMaximalSuppression3DTcl.o \
+tcl/vtkImageNonMaximumSuppressionTcl.o \
 tcl/vtkImageRFFTTcl.o \
 tcl/vtkImageRFFT1DTcl.o \
 tcl/vtkImageScatterPlotTcl.o \
@@ -122,6 +122,7 @@ vtkImageFourierWavelet2D.h \
 vtkImageGaussianSmooth.h \
 vtkImageGaussianSmooth1D.h \
 vtkImageGradient.h \
+vtkImageGradientMagnitude.h \
 vtkImageHarrWavelet2D.h \
 vtkImageInPlaceFilter.h \
 vtkImageIslandRemoval2D.h \
@@ -132,8 +133,7 @@ vtkImageMarkBoundary.h \
 vtkImageMatte.h \
 vtkImageMedian.h \
 vtkImageMIPFilter.h \
-vtkImageNonMaximalSuppression2D.h \
-vtkImageNonMaximalSuppression3D.h \
+vtkImageNonMaximumSuppression.h \
 vtkImageRFFT.h \
 vtkImageRFFT1D.h \
 vtkImageScatterPlot.h \
@@ -262,6 +262,9 @@ tcl/vtkImageGaussianSmooth1DTcl.cxx: vtkImageGaussianSmooth1D.h ../tcl/cpp_parse
 tcl/vtkImageGradientTcl.cxx: vtkImageGradient.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageGradientTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageGradient.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageGradientTcl.cxx
 
+tcl/vtkImageGradientMagnitudeTcl.cxx: vtkImageGradientMagnitude.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageGradientMagnitudeTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageGradientMagnitude.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageGradientMagnitudeTcl.cxx
+
 tcl/vtkImageHarrWavelet2DTcl.cxx: vtkImageHarrWavelet2D.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageHarrWavelet2DTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageHarrWavelet2D.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageHarrWavelet2DTcl.cxx
 
@@ -292,11 +295,8 @@ tcl/vtkImageMedianTcl.cxx: vtkImageMedian.h ../tcl/cpp_parse
 tcl/vtkImageMIPFilterTcl.cxx: vtkImageMIPFilter.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageMIPFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageMIPFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageMIPFilterTcl.cxx
 
-tcl/vtkImageNonMaximalSuppression2DTcl.cxx: vtkImageNonMaximalSuppression2D.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImageNonMaximalSuppression2DTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageNonMaximalSuppression2D.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageNonMaximalSuppression2DTcl.cxx
-
-tcl/vtkImageNonMaximalSuppression3DTcl.cxx: vtkImageNonMaximalSuppression3D.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImageNonMaximalSuppression3DTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageNonMaximalSuppression3D.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageNonMaximalSuppression3DTcl.cxx
+tcl/vtkImageNonMaximumSuppressionTcl.cxx: vtkImageNonMaximumSuppression.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageNonMaximumSuppressionTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageNonMaximumSuppression.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageNonMaximumSuppressionTcl.cxx
 
 tcl/vtkImageRFFTTcl.cxx: vtkImageRFFT.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageRFFTTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageRFFT.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageRFFTTcl.cxx

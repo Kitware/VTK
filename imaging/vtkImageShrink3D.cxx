@@ -216,7 +216,7 @@ void vtkImageShrink3DExecute(vtkImageShrink3D *self,
 // It can handle any type data, but the two regions must have the same 
 // data type.
 void vtkImageShrink3D::Execute(vtkImageRegion *inRegion, 
-				       vtkImageRegion *outRegion)
+			       vtkImageRegion *outRegion)
 {
   void *inPtr = inRegion->GetScalarPointer();
   void *outPtr = outRegion->GetScalarPointer();

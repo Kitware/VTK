@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageNonMaximalSuppression3D.h
+  Module:    vtkImageGradientMagnitude.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,32 +38,43 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageNonMaximalSuppression3D - Thins Gradient images..
+// .NAME vtkImageGradientMagnitude - Computes magnitude of the gradient.
 // .SECTION Description
-// vtkImageNonMaximalSuppression3D Sets to zero any gradient
-// that is not a peak.  If a pixel has a neighbor along the gradient
-// that has larger magnitude, the smaller pixel is set to zero.
-// The vector of the image is just passed along.  
-// The input and output must be float.
+// vtkImageGradientMagnitude computes the gradient magnitude 
+// of an image.  Setting the axes determines whether the gradient
+// computed on 1D lines, 2D images, 3D volumes or higher dimensional 
+// images.  The default is two dimensional XY images.  OutputScalarType
+// is always float.
 
 
-#ifndef __vtkImageNonMaximalSuppression3D_h
-#define __vtkImageNonMaximalSuppression3D_h
+
+#ifndef __vtkImageGradientMagnitude_h
+#define __vtkImageGradientMagnitude_h
 
 
 #include "vtkImageSpatialFilter.h"
 
-class vtkImageNonMaximalSuppression3D : public vtkImageSpatialFilter
+class vtkImageGradientMagnitude : public vtkImageFilter
 {
 public:
-  vtkImageNonMaximalSuppression3D();
-  char *GetClassName() {return "vtkImageNonMaximalSuppression3D";};
+  vtkImageGradientMagnitude();
+  char *GetClassName() {return "vtkImageGradientMagnitude";};
+  void PrintSelf(ostream& os, vtkIndent indent);
   
-  void SetAxes(int axis0, int axis1, int axis2);
-  void InterceptCacheUpdate(vtkImageRegion *region);
-
+  // Description:
+  // If "HandleBoundariesOn" then boundary pixels are duplicated
+  // So central differences can get values.
+  vtkSetMacro(HandleBoundaries, int);
+  vtkGetMacro(HandleBoundaries, int);
+  vtkBooleanMacro(HandleBoundaries, int);
+  
 protected:
-  void ExecuteCenter(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  int HandleBoundaries;
+  
+  void ComputeOutputImageInformation(vtkImageRegion *inRegion,
+				     vtkImageRegion *outRegion);
+  void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion, 
+					vtkImageRegion *inRegion);
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 
 };

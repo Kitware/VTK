@@ -1,6 +1,6 @@
-# This script is for testing the 3dNonMaximalSuppressionFilter.
-# The filter works exclusively on the output of the 3d gradient filter.
-# The effect is to pick the peaks of the gradient creating thin surfaces.
+# This script is for testing the 2d Gradient filter.
+# It only displays the first component (0) which contains
+# the magnitude of the gradient.
 
 
 set sliceNumber 22
@@ -18,7 +18,10 @@ set VTK_IMAGE_TIME_AXIS          3
 set VTK_IMAGE_COMPONENT_AXIS     4
 
 
+
+
 # Image pipeline
+
 vtkImageShortReader reader;
 #reader DebugOn
 reader SwapBytesOn;
@@ -26,16 +29,15 @@ reader SetDimensions 256 256 93;
 reader SetFilePrefix "../../data/fullHead/headsq"
 reader SetPixelMask 0x7fff;
 
-vtkImageGradient3D gradient;
+vtkImageGradientMagnitude gradient;
 gradient SetInput [reader GetOutput];
-
-vtkImageNonMaximalSuppression3D suppress;
-suppress SetInput [gradient GetOutput];
-suppress ReleaseDataFlagOff;
+gradient SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS;
+gradient ReleaseDataFlagOff;
 
 vtkImageXViewer viewer;
 #viewer DebugOn;
-viewer SetInput [suppress GetOutput];
+viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS;
+viewer SetInput [gradient GetOutput];
 viewer SetCoordinate2 $sliceNumber;
 viewer SetColorWindow 1000
 viewer SetColorLevel 500
@@ -44,6 +46,7 @@ viewer Render;
 
 #make interface
 #
+
 frame .slice
 button .slice.up -text "Slice Up" -command SliceUp
 button .slice.down -text "Slice Down" -command SliceDown
@@ -68,36 +71,52 @@ pack .wl.f1 .wl.f2 .wl.video -side top
 pack .wl.f1.windowLabel .wl.f1.window -side left
 pack .wl.f2.levelLabel .wl.f2.level -side left
 
-#$renWin SetTkWindow .renwin
 
 proc SliceUp {} {
-        global sliceNumber viewer
-        if {$sliceNumber < 92} {set sliceNumber [expr $sliceNumber + 1]}
-        viewer SetCoordinate2 $sliceNumber;
-	viewer Render
-        puts $sliceNumber;
+   global sliceNumber viewer
+   if {$sliceNumber < 92} {set sliceNumber [expr $sliceNumber + 1]}
+   puts $sliceNumber
+   viewer SetCoordinate2 $sliceNumber;
+   viewer Render;
 }
 
 proc SliceDown {} {
-        global sliceNumber tform renWin
-        if {$sliceNumber > 0} {set sliceNumber [expr $sliceNumber - 1]}
-        viewer SetCoordinate2 $sliceNumber;
-	viewer Render
-        puts $sliceNumber;
+   global sliceNumber viewer
+   if {$sliceNumber > 0} {set sliceNumber [expr $sliceNumber - 1]}
+   puts $sliceNumber
+   viewer SetCoordinate2 $sliceNumber;
+   viewer Render;
 }
 
 proc SetWindow window {
-	global viewer
-        viewer SetColorWindow $window;
-        viewer Render;  
+   global viewer
+   viewer SetColorWindow $window;
+   viewer Render;
 }
+
 proc SetLevel level {
-	global viewer
-        viewer SetColorLevel $level;
-        viewer Render;  
+   global viewer
+   viewer SetColorLevel $level;
+   viewer Render;
 }
+
 proc SetInverseVideo {} {
+   global viewer
+   if { $inverseVideo == 0 } {
+      viewer SetWindow -255;
+   } else {
+      viewer SetWindow 255;
+   }		
+   viewer Render;
 }
+
+
+puts "Done";
+
+
+#$renWin Render
+#wm withdraw .
+
 
 
 

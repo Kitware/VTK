@@ -88,7 +88,10 @@ public:
   
 protected:
   vtkImageSource *Input;     
-  int UseExecuteMethod;      
+  // Flag toggles between use of execute and update methods.
+  int UseExecuteMethod; 
+  // Flag tells this superclass to loop over component axis (or not).
+  int ComponentAxisLoop;
   
   long InputMemoryLimit;
 

@@ -1,4 +1,4 @@
-# This script is for testing the 2dNonMaximalSuppressionFilter.
+# This script is for testing the 2dNonMaximumSuppressionFilter.
 # The filter works exclusively on the output of the gradient filter.
 # The effect is to pick the peaks of the gradient creating thin lines.
 
@@ -20,25 +20,32 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 
 # Image pipeline
 vtkImageShortReader reader;
-#reader DebugOn
 reader SwapBytesOn;
 reader SetDimensions 256 256 93;
 reader SetFilePrefix "../../data/fullHead/headsq"
 reader SetPixelMask 0x7fff;
+#reader DebugOn
 
-vtkImageGradient2D gradient;
+vtkImageGradient gradient;
 gradient SetInput [reader GetOutput];
+gradient SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS;
+gradient ReleaseDataFlagOff;
 
-vtkImageNonMaximalSuppression2D suppress;
-suppress SetInput [gradient GetOutput];
+vtkImageMagnitude magnitude;
+magnitude SetInput [gradient GetOutput];
+
+vtkImageNonMaximumSuppression suppress;
+suppress SetVectorInput [gradient GetOutput];
+suppress SetMagnitudeInput [magnitude GetOutput];
+suppress SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS;
 suppress ReleaseDataFlagOff;
 
 vtkImageXViewer viewer;
-#viewer DebugOn;
 viewer SetInput [suppress GetOutput];
 viewer SetCoordinate2 $sliceNumber;
 viewer SetColorWindow 1000
 viewer SetColorLevel 500
+#viewer DebugOn;
 viewer Render;
 
 
