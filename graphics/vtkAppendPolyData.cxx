@@ -477,13 +477,16 @@ void vtkAppendPolyData::Execute()
   for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {
     ds = (vtkPolyData *)(this->Inputs[idx]);
-    ttype = ds->GetPoints()->GetData()->GetDataType();
-    if (ttype!=pointtype)
+    if (ds != NULL && ds->GetNumberOfPoints()>0)
       {
-      AllSame = 0;
-      vtkDebugMacro(<<"Different point data types");
+      ttype = ds->GetPoints()->GetData()->GetDataType();
+      if (ttype!=pointtype)
+        {
+        AllSame = 0;
+        vtkDebugMacro(<<"Different point data types");
+        }
+      pointtype = pointtype>ttype ? pointtype : ttype;
       }
-    pointtype = pointtype>ttype ? pointtype : ttype;
     }
   //
 
@@ -522,13 +525,13 @@ void vtkAppendPolyData::Execute()
 
       pd = ds->GetPointData();
       cd = ds->GetCellData();
-      
+
       inPts = ds->GetPoints();
       inVerts = ds->GetVerts();
       inLines = ds->GetLines();
       inPolys = ds->GetPolys();
       inStrips = ds->GetStrips();
-      
+
       if (ds->GetNumberOfPoints() > 0)
         {
         // copy points directly
@@ -545,13 +548,13 @@ void vtkAppendPolyData::Execute()
         // copy scalars directly
         if (newPtScalars)
           {
-          this->AppendData(newPtScalars->GetData(), 
+          this->AppendData(newPtScalars->GetData(),
                            pd->GetScalars()->GetData(), ptOffset);
           }
         // copy normals directly
         if (newPtNormals)
           {
-          this->AppendData(newPtNormals->GetData(), 
+          this->AppendData(newPtNormals->GetData(),
                            pd->GetNormals()->GetData(), ptOffset);
           }
         // copy vectors directly
@@ -563,13 +566,13 @@ void vtkAppendPolyData::Execute()
         // copy tcoords directly
         if (newPtTCoords)
           {
-          this->AppendData(newPtTCoords->GetData(), 
+          this->AppendData(newPtTCoords->GetData(),
                            pd->GetTCoords()->GetData(), ptOffset);
           }
         // copy tensors directly
         if (newPtTensors)
           {
-          this->AppendData(newPtTensors->GetData(), 
+          this->AppendData(newPtTensors->GetData(),
                            pd->GetTensors()->GetData(), ptOffset);
           }
         // copy field directly
@@ -577,12 +580,12 @@ void vtkAppendPolyData::Execute()
           {
           for (i = 0; i < newPtField->GetNumberOfArrays(); ++i)
             {
-            this->AppendData(newPtField->GetArray(i), 
+            this->AppendData(newPtField->GetArray(i),
                              pd->GetFieldData()->GetArray(i), ptOffset);
             }
           }
         }
-      
+
       if (ds->GetNumberOfPoints() > 0)
         {
         // cell data could be made efficient like the point data,
