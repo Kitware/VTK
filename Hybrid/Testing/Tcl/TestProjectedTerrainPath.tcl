@@ -41,11 +41,23 @@ vtkPoints pts
   pts InsertNextPoint 562669 5.1198e+006 1992.77
   pts InsertNextPoint 562801 5.11618e+006 2534.97
   pts InsertNextPoint 562913 5.11157e+006 1911.1
+  pts InsertNextPoint 559849 5.11083e+006 1681.34
+  pts InsertNextPoint 562471 5.11633e+006 2593.57
+  pts InsertNextPoint 563223 5.11616e+006 2598.31
+  pts InsertNextPoint 566579 5.11127e+006 1697.83
+  pts InsertNextPoint 569000 5.11127e+006 1697.83
 vtkCellArray lines
   lines InsertNextCell 3
   lines InsertCellPoint 0
   lines InsertCellPoint 1
   lines InsertCellPoint 2
+  lines InsertNextCell 5
+  lines InsertCellPoint 3
+  lines InsertCellPoint 4
+  lines InsertCellPoint 5
+  lines InsertCellPoint 6
+  lines InsertCellPoint 7
+
 vtkPolyData terrainPaths
   terrainPaths SetPoints pts
   terrainPaths SetLines lines
@@ -54,8 +66,9 @@ vtkProjectedTerrainPath projectedPaths
   projectedPaths SetInput terrainPaths
   projectedPaths SetSource [demReader GetOutput]
   projectedPaths SetHeightOffset 25
-  projectedPaths SetHeightTolerance 1
-  projectedPaths SetProjectionModeToHug
+  projectedPaths SetHeightTolerance 10
+  projectedPaths SetProjectionModeToNonOccluded
+#  projectedPaths SetProjectionModeToHug
 
 vtkPolyDataMapper pathMapper
   pathMapper SetInput [projectedPaths GetOutput]
