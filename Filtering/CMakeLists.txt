@@ -322,9 +322,9 @@ INCLUDE (${VTK_SOURCE_DIR}/${KIT}/LocalUserOptions.cmake OPTIONAL)
 # source files
 #
 IF (VTK_WRAP_TCL)
-  VTK_WRAP_TCL2(vtk${KIT}TCL SOURCES KitTCL_SRCS 
-                ${Kit_SRCS}
-                COMMANDS ${Kit_TCL_EXTRA_CMDS})
+  VTK_WRAP_TCL3(vtk${KIT}TCL KitTCL_SRCS 
+                "${Kit_SRCS}"
+                "${Kit_TCL_EXTRA_CMDS}")
   ADD_LIBRARY(vtk${KIT}TCL ${KitTCL_SRCS} ${Kit_TCL_EXTRA_SRCS})
   TARGET_LINK_LIBRARIES (vtk${KIT}TCL vtk${KIT} ${KIT_TCL_LIBS})
   INSTALL_TARGETS(/lib/vtk vtk${KIT}TCL)
@@ -334,7 +334,7 @@ ENDIF (VTK_WRAP_TCL)
 # source files
 #
 IF (VTK_WRAP_PYTHON)
-  VTK_WRAP_PYTHON2(vtk${KIT}Python KitPython_SRCS ${Kit_SRCS})
+  VTK_WRAP_PYTHON3(vtk${KIT}Python KitPython_SRCS "${Kit_SRCS}")
   IF (APPLE)
     ADD_LIBRARY(vtk${KIT}PythonD ${KitPython_SRCS} ${Kit_PYTHON_EXTRA_SRCS})
     ADD_LIBRARY(vtk${KIT}Python MODULE vtk${KIT}PythonInit.cxx)
@@ -356,7 +356,7 @@ ENDIF (VTK_WRAP_PYTHON)
 # source files
 #
 IF (VTK_WRAP_JAVA)
-  VTK_WRAP_JAVA2(vtk${KIT}Java KitJava_SRCS ${Kit_SRCS})
+  VTK_WRAP_JAVA3(vtk${KIT}Java KitJava_SRCS "${Kit_SRCS}")
   ADD_LIBRARY(vtk${KIT}Java SHARED ${KitJava_SRCS} ${Kit_JAVA_EXTRA_SRCS})
   TARGET_LINK_LIBRARIES(vtk${KIT}Java vtk${KIT} ${KIT_JAVA_LIBS})
   INSTALL_TARGETS(/lib/vtk vtk${KIT}Java)
