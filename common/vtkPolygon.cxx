@@ -983,9 +983,9 @@ void vtkPolygon::ComputeWeights(float x[3], float *weights)
 {
   int i;
   int numPts=this->Points->GetNumberOfPoints();
-  float maxDist2, sum, *pt;
+  float sum, *pt;
 
-  for (sum=0.0, maxDist2=0.0, i=0; i<numPts; i++)
+  for (sum=0.0, i=0; i<numPts; i++)
     {
     pt = this->Points->GetPoint(i);
     weights[i] = vtkMath::Distance2BetweenPoints(x,pt);
