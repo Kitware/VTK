@@ -59,7 +59,7 @@
 #include "vtkMPIController.h"
 #endif
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.14")
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.15")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
@@ -580,6 +580,21 @@ void vtkDistributedDataFilter::Execute()
 
   if (this->GhostLevel > 0)
     {
+    // Create global nodes IDs if we don't have them
+        
+    if (this->GetGlobalNodeIdArrayName(redistributedInput) == NULL)
+      {
+      int rc = this->AssignGlobalNodeIds(redistributedInput);
+      if (rc)
+        {
+        redistributedInput->Delete();
+        this->Kdtree->Delete();
+        this->Kdtree = NULL;
+        vtkErrorMacro(<< "vtkDistributedDataFilter::Execute global node id creation");
+        return;
+        }
+      }
+
     // redistributedInput will be deleted by AcquireGhostCells
 
     expandedGrid = this->AcquireGhostCells(redistributedInput);
@@ -639,23 +654,6 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::RedistributeDataSet(vtkDataSet *s
   // next call deletes inputPlus at the earliest opportunity
 
   vtkUnstructuredGrid *finalGrid = this->MPIRedistribute(inputPlus);
-
-  if (finalGrid == NULL)
-    {
-    return NULL;
-    }
-
-  // Create global nodes IDs if we don't have them
-
-  if (this->GetGlobalNodeIdArrayName(finalGrid) == NULL)
-    {
-    int rc = this->AssignGlobalNodeIds(finalGrid);
-    if (rc)
-      {
-      finalGrid->Delete();
-      return NULL;
-      }
-    }
 
   return finalGrid;
 }
@@ -4247,6 +4245,7 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::SetMergeGhostGrid(
 
   return mergedGrid;
 }
+#include <unistd.h>
 vtkUnstructuredGrid *vtkDistributedDataFilter::MergeGrids(
          vtkDataSet **sets, int nsets, int deleteDataSets,
          const char *globalNodeIdArrayName, float pointMergeTolerance, 
