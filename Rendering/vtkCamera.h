@@ -80,6 +80,10 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   // Move the focal point so that it is the specified distance from
   // the camera position.  This distance must be positive.
   void SetDistance(double);
+
+  // Description:
+  // Return the distance from the camera position to the focal point.
+  // This distance is positive.
   vtkGetMacro(Distance,double);
 
   // Description:
