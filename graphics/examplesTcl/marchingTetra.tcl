@@ -43,7 +43,7 @@ vtkUnstructuredGrid Grid
         Grid SetPoints Points
         [Grid GetPointData] SetScalars Scalars
 
-#extract the triangles for the cube
+#extract the triangles for the tetra
 
 vtkContourFilter Marching
 	Marching SetInput Grid
@@ -97,11 +97,11 @@ vtkTubeFilter Tubes
 vtkPolyDataMapper TubeMapper
 	TubeMapper SetInput [Tubes GetOutput]
         TubeMapper ScalarVisibilityOff
-vtkActor CubeEdges
-	CubeEdges SetMapper TubeMapper
-	eval [CubeEdges GetProperty] SetDiffuseColor $khaki
-	[CubeEdges GetProperty] SetSpecular .4
-	[CubeEdges GetProperty] SetSpecularPower 10
+vtkActor tetraEdges
+	tetraEdges SetMapper TubeMapper
+	eval [tetraEdges GetProperty] SetDiffuseColor $khaki
+	[tetraEdges GetProperty] SetSpecular .4
+	[tetraEdges GetProperty] SetSpecularPower 10
 
 #
 # build the vertices of the cube
@@ -120,10 +120,10 @@ vtkGlyph3D Vertices
 vtkPolyDataMapper SphereMapper
   SphereMapper SetInput [Vertices GetOutput]
   SphereMapper ScalarVisibilityOff
-vtkActor CubeVertices
-  CubeVertices SetMapper SphereMapper
-  eval [CubeVertices GetProperty] SetDiffuseColor $tomato
-  eval [CubeVertices GetProperty] SetDiffuseColor $tomato
+vtkActor tetraVertices
+  tetraVertices SetMapper SphereMapper
+  eval [tetraVertices GetProperty] SetDiffuseColor $tomato
+  eval [tetraVertices GetProperty] SetDiffuseColor $tomato
 
 #define the text for the labels
 vtkVectorText caseLabel
@@ -160,8 +160,8 @@ base SetPosition .5 -.09 .5
 
 ren1 AddActor base
 ren1 AddActor labelActor
-ren1 AddActor CubeEdges
-ren1 AddActor CubeVertices
+ren1 AddActor tetraEdges
+ren1 AddActor tetraVertices
 ren1 AddActor Triangles
 eval ren1 SetBackground $slate_grey
 iren SetUserMethod {wm deiconify .vtkInteract}
