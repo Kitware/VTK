@@ -16,11 +16,13 @@
 
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkAxes, "1.43");
+vtkCxxRevisionMacro(vtkAxes, "1.44");
 vtkStandardNewMacro(vtkAxes);
 
 // Construct with origin=(0,0,0) and scale factor=1.
@@ -34,10 +36,22 @@ vtkAxes::vtkAxes()
   
   this->Symmetric = 0;
   this->ComputeNormals = 1;
+
+  this->SetNumberOfInputPorts(0);
 }
 
-void vtkAxes::Execute()
+int vtkAxes::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the ouptut
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   int numPts=6, numLines=3;
   vtkPoints *newPts;
   vtkCellArray *newLines;
@@ -45,7 +59,6 @@ void vtkAxes::Execute()
   vtkFloatArray *newNormals;
   double x[3], n[3];
   vtkIdType ptIds[2];
-  vtkPolyData *output = this->GetOutput();
   
   vtkDebugMacro(<<"Creating x-y-z axes");
 
@@ -141,6 +154,8 @@ void vtkAxes::Execute()
 
   output->SetLines(newLines);
   newLines->Delete();
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------

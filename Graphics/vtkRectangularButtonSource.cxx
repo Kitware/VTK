@@ -16,6 +16,8 @@
 
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -23,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkRectangularButtonSource, "1.1");
+vtkCxxRevisionMacro(vtkRectangularButtonSource, "1.2");
 vtkStandardNewMacro(vtkRectangularButtonSource);
 
 // Construct 
@@ -48,10 +50,16 @@ static vtkIdType vtkRButtonPolys[72] = {
 
 // Generate the button.
 //
-void vtkRectangularButtonSource::Execute()
+int vtkRectangularButtonSource::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
   int i;
-  vtkPolyData *output = this->GetOutput();
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkDebugMacro(<<"Generating rectangular button");
   
@@ -59,7 +67,7 @@ void vtkRectangularButtonSource::Execute()
   if ( this->Width <= 0.0 || this->Height <= 0.0 )
     {
     vtkErrorMacro(<<"Button must have non-zero height and width");
-    return;
+    return 0;
     }
   
   // Create the button in several steps. First, create the button in
@@ -217,6 +225,8 @@ void vtkRectangularButtonSource::Execute()
   newPts->Delete();
   tcoords->Delete();
   newPolys->Delete();
+
+  return 1;
 }
 
 void vtkRectangularButtonSource::PrintSelf(ostream& os, vtkIndent indent)

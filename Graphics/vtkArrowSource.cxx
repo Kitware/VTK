@@ -17,12 +17,14 @@
 #include "vtkAppendPolyData.h"
 #include "vtkConeSource.h"
 #include "vtkCylinderSource.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkTransform.h"
 #include "vtkTransformFilter.h"
 
-vtkCxxRevisionMacro(vtkArrowSource, "1.5");
+vtkCxxRevisionMacro(vtkArrowSource, "1.6");
 vtkStandardNewMacro(vtkArrowSource);
 
 vtkArrowSource::vtkArrowSource()
@@ -32,13 +34,23 @@ vtkArrowSource::vtkArrowSource()
   this->TipLength = 0.35;
   this->ShaftResolution = 6;
   this->ShaftRadius = 0.03;
+
+  this->SetNumberOfInputPorts(0);
 }
 
-
-void vtkArrowSource::Execute()
+int vtkArrowSource::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the ouptut
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   int piece, numPieces, ghostLevel;
-  vtkPolyData *output = this->GetOutput();
   vtkCylinderSource *cyl = vtkCylinderSource::New();
   vtkTransform *trans0 = vtkTransform::New();
   vtkTransformFilter *tf0 = vtkTransformFilter::New();
@@ -87,9 +99,10 @@ void vtkArrowSource::Execute()
   cyl->Delete();
   trans1->Delete();
   tf1->Delete();
-  append->Delete();  
-}
+  append->Delete();
 
+  return 1;
+}
 
 void vtkArrowSource::PrintSelf(ostream& os, vtkIndent indent)
 {

@@ -97,7 +97,7 @@ protected:
   vtkEllipticalButtonSource();
   ~vtkEllipticalButtonSource() {}
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   double Width;
   double Height;

@@ -24,16 +24,16 @@
 #ifndef __vtkArrowSource_h
 #define __vtkArrowSource_h
 
-#include "vtkPolyDataSource.h"
+#include "vtkPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkArrowSource : public vtkPolyDataSource
+class VTK_GRAPHICS_EXPORT vtkArrowSource : public vtkPolyDataAlgorithm
 {
 public:
   // Description
   // Construct cone with angle of 45 degrees.
   static vtkArrowSource *New();
 
-  vtkTypeRevisionMacro(vtkArrowSource,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkArrowSource,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
     
   // Description:
@@ -65,7 +65,7 @@ protected:
   vtkArrowSource();
   ~vtkArrowSource() {};
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   int TipResolution;
   double TipLength;

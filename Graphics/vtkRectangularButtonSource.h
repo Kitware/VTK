@@ -104,7 +104,7 @@ protected:
   vtkRectangularButtonSource();
   ~vtkRectangularButtonSource() {}
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   double Width;
   double Height;

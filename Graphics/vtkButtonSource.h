@@ -42,16 +42,16 @@
 #ifndef __vtkButtonSource_h
 #define __vtkButtonSource_h
 
-#include "vtkPolyDataSource.h"
+#include "vtkPolyDataAlgorithm.h"
 
 #define VTK_TEXTURE_STYLE_FIT_IMAGE    0
 #define VTK_TEXTURE_STYLE_PROPORTIONAL 1
 
-class VTK_GRAPHICS_EXPORT vtkButtonSource : public vtkPolyDataSource 
+class VTK_GRAPHICS_EXPORT vtkButtonSource : public vtkPolyDataAlgorithm 
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent);
-  vtkTypeRevisionMacro(vtkButtonSource,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkButtonSource,vtkPolyDataAlgorithm);
 
   // Description:
   // Specify a point defining the origin (center) of the button.

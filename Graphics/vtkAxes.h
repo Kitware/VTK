@@ -22,14 +22,14 @@
 #ifndef __vtkAxes_h
 #define __vtkAxes_h
 
-#include "vtkPolyDataSource.h"
+#include "vtkPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkAxes : public vtkPolyDataSource 
+class VTK_GRAPHICS_EXPORT vtkAxes : public vtkPolyDataAlgorithm 
 {
 public:
   static vtkAxes *New();
 
-  vtkTypeRevisionMacro(vtkAxes,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkAxes,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -58,7 +58,7 @@ protected:
   vtkAxes();
   ~vtkAxes() {};
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   // This source does not know how to generate pieces yet.
   int ComputeDivisionExtents(vtkDataObject *output, 
                              int idx, int numDivisions);
