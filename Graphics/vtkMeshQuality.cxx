@@ -35,7 +35,7 @@
 #include "vtkMath.h"
 #include "vtkTetra.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality,"1.29");
+vtkCxxRevisionMacro(vtkMeshQuality,"1.30");
 vtkStandardNewMacro(vtkMeshQuality);
 
 typedef double (*CellQualityType)( vtkCell* );
@@ -1294,7 +1294,7 @@ double vtkMeshQuality::TetMinAngle( vtkCell* cell )
 
   alpha = alpha < beta    ? alpha : beta;
   alpha = alpha < gamma   ? alpha : gamma;
-  alpha = alpha < gamma   ? alpha : gamma;
+  alpha = alpha < delta   ? alpha : delta;
   alpha = alpha < epsilon ? alpha : epsilon;
   
   return  (alpha < zeta ? alpha : zeta) * 180. * normal_coeff;
