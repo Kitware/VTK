@@ -1,0 +1,121 @@
+SOURCE_FILES ( Rendering_SRCS
+vtkAbstractMapper3D
+vtkAbstractPicker
+vtkAbstractPropPicker
+vtkActor
+vtkActorCollection
+vtkAssembly
+vtkCamera
+vtkCellPicker
+vtkCuller
+vtkCullerCollection
+vtkDataSetMapper
+vtkDirectionEncoder
+vtkEncodedGradientEstimator
+vtkEncodedGradientShader
+vtkExporter
+vtkFiniteDifferenceGradientEstimator
+vtkFollower
+vtkFrustumCoverageCuller
+vtkGraphicsFactory
+vtkHull
+vtkImageActor
+vtkImporter
+vtkInteractorStyle
+vtkInteractorStyleFlight
+vtkInteractorStyleJoystickActor
+vtkInteractorStyleJoystickCamera
+vtkInteractorStyleSwitch
+vtkInteractorStyleTrackball
+vtkInteractorStyleTrackballActor
+vtkInteractorStyleTrackballCamera
+vtkInteractorStyleUnicam
+vtkInteractorStyleUser
+vtkLODActor
+vtkLODProp3D
+vtkLight
+vtkLightCollection
+vtkMapper
+vtkMapperCollection
+vtkOpenGLActor
+vtkOpenGLCamera
+vtkOpenGLImageActor
+vtkOpenGLLight
+vtkOpenGLPolyDataMapper
+vtkOpenGLProjectedPolyDataRayBounder
+vtkOpenGLProperty
+vtkOpenGLRenderer
+vtkOpenGLTexture
+vtkOpenGLVolumeTextureMapper2D
+vtkPicker
+vtkPointPicker
+vtkPolyDataMapper
+vtkProjectedPolyDataRayBounder
+vtkProp3D
+vtkProp3DCollection
+vtkPropPicker
+vtkProperty
+vtkRayBounder
+vtkRayCaster
+vtkRecursiveSphereDirectionEncoder
+vtkRenderWindow
+vtkRenderWindowCollection
+vtkRenderWindowInteractor
+vtkRenderer
+vtkRendererCollection
+vtkRendererSource
+vtkSelectVisiblePoints
+vtkTexture
+vtkViewRays
+vtkVolume
+vtkVolumeCollection
+vtkVolumeMapper
+vtkVolumeProperty
+vtkVolumeRayCastCompositeFunction
+vtkVolumeRayCastFunction
+vtkVolumeRayCastIsosurfaceFunction
+vtkVolumeRayCastMIPFunction
+vtkVolumeRayCastMapper
+vtkVolumeTextureMapper
+vtkVolumeTextureMapper2D
+vtkWorldPointPicker
+)
+
+ABSTRACT_FILES(
+vtkAbstractMapper3D
+vtkAbstractPicker 
+vtkAbstractPropPicker 
+vtkCuller
+vtkDirectionEncoder
+vtkEncodedGradientEstimator 
+vtkExporter
+vtkGraphicsFactory
+vtkImporter
+vtkMapper
+vtkProp3D
+vtkRayBounder
+vtkVolumeMapper 
+vtkVolumeRayCastFunction 
+vtkVolumeReader 
+vtkVolumeTextureMapper 
+)
+
+IF (WIN32)
+  SOURCE_FILES(Rendering_SRCS 
+     vtkWin32OpenGLRenderWindow 
+     vtkWin32RenderWindowInteractor)
+ENDIF (WIN32)
+
+IF (VTK_WRAP_TCL)
+  VTK_WRAP_TCL(vtkRenderingTCL RenderingTCL_SRCS Rendering_SRCS)
+  ADD_LIBRARY(vtkRenderingTCL RenderingTCL_SRCS)
+  TARGET_LINK_LIBRARIES (vtkRenderingTCL vtkCommonTCL vtkFilteringTCL)
+ENDIF (VTK_WRAP_TCL)
+
+LINK_LIBRARIES (
+vtkCommon 
+vtkFiltering 
+vtkRendering
+)
+
+
