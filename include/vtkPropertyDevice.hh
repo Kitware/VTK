@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -63,13 +63,7 @@ public:
 
   // Description:
   // This is the only method that the subclasses must supply.
-  virtual void Render(vtkProperty *prp, vtkRenderer *ren) = 0;
-
-  // Description:
-  // Subclasses that need to know the actor can supply this method.
-  virtual void Render(vtkProperty *prp, vtkActor *vtkNotUsed(anActor), vtkRenderer *ren) {
-    Render (prp, ren);
-  }
+  virtual void Render(vtkProperty *prp, vtkActor *a, vtkRenderer *ren) = 0;
 
 };
 

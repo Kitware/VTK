@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -55,8 +55,7 @@ class vtkSbrProperty : public vtkPropertyDevice
  public:
   char *GetClassName() {return "vtkSbrProperty";};
 
-  void Render(vtkProperty *prop, vtkRenderer *ren);
-  void Render(vtkProperty *prop, vtkSbrRenderer *ren);
+  void Render(vtkProperty *prop, vtkActor *a, vtkRenderer *ren);
 };
 
 #endif

@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -80,7 +80,7 @@ public:
 
   // For ImageData
   virtual int Allocate(const int sz, const int ext=1000) = 0;
-  virtual void *GetVoidPtr(int id) {id = id; return NULL;};
+  virtual void *GetVoidPtr(const int id) {(void)(id); return NULL;};
   
   // Description:
   // Create a copy of this object.

@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -67,7 +67,7 @@ public:
 
 protected:
   float *AddVertexComputeNormal(int npts, int pointSize, int *pts, 
-				vtkPoints *p, vtkColorScalars *c, 
+				vtkPoints *pt, vtkColorScalars *c, 
 				vtkTCoords *t, vtkPolygon *p, float *polyNorm);
   float *AddVertexWithNormal(int npts, int pointSize, int *pts, 
 			     vtkPoints *p, vtkColorScalars *c, 

@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -56,36 +56,36 @@ class vtkMath
 public:
   vtkMath() {};
 
-  float Pi() {return 3.14159265358979;};
-  float DegreesToRadians() {return 0.017453292;};
+  static float Pi() {return 3.14159265358979;};
+  static float DegreesToRadians() {return 0.017453292;};
 
   // some common operations
-  float Dot(float x[3], float y[3]);
-  void Cross(float x[3], float y[3], float z[3]);
-  float Norm(float x[3]);
-  float Normalize(float x[3]);
-  float Distance2BetweenPoints(float x[3], float y[3]);
+  static float Dot(float x[3], float y[3]);
+  static void Cross(float x[3], float y[3], float z[3]);
+  static float Norm(float x[3]);
+  static float Normalize(float x[3]);
+  static float Distance2BetweenPoints(float x[3], float y[3]);
 
   // matrix stuff
-  float Determinant2x2(float c1[2], float c2[2]);
-  double Determinant2x2(double a, double b, double c, double d);
-  float Determinant3x3(float c1[3], float c2[3], float c3[3]);
-  double Determinant3x3(double a1, double a2, double a3, 
-                        double b1, double b2, double b3, 
-                        double c1, double c2, double c3);
-  int SolveLinearSystem(double **A, double *x, int size);
-  int InvertMatrix(double **A, double **AI, int size);
-  int LUFactorLinearSystem(double **A, int *index, int size);
-  void LUSolveLinearSystem(double **A, int *index, double *x, int size);
-  double EstimateMatrixCondition(double **A, int size);
+  static float Determinant2x2(float c1[2], float c2[2]);
+  static double Determinant2x2(double a, double b, double c, double d);
+  static float Determinant3x3(float c1[3], float c2[3], float c3[3]);
+  static double Determinant3x3(double a1, double a2, double a3, 
+			       double b1, double b2, double b3, 
+			       double c1, double c2, double c3);
+  static int SolveLinearSystem(double **A, double *x, int size);
+  static int InvertMatrix(double **A, double **AI, int size);
+  static int LUFactorLinearSystem(double **A, int *index, int size);
+  static void LUSolveLinearSystem(double **A, int *index, double *x, int size);
+  static double EstimateMatrixCondition(double **A, int size);
 
   // Random number generation
-  void RandomSeed(long s);  
-  float Random();  
-  float Random(float min, float max);
+  static void RandomSeed(long s);  
+  static float Random();  
+  static float Random(float min, float max);
 
   // Eigenvalue/vector extraction for 3x3 matrices
-  int Jacobi(float **a, float *d, float **v);
+  static int Jacobi(float **a, float *d, float **v);
 
 protected:
   static long Seed;
@@ -110,7 +110,7 @@ inline float vtkMath::Norm(float x[3])
 inline float vtkMath::Normalize(float x[3])
 {
   float den; 
-  if ( (den = this->Norm(x)) != 0.0 ) for (int i=0; i < 3; i++) x[i] /= den;
+  if ( (den = vtkMath::Norm(x)) != 0.0 ) for (int i=0; i < 3; i++) x[i] /= den;
   return den;
 }
 
@@ -146,9 +146,9 @@ inline double vtkMath::Determinant3x3(double a1, double a2, double a3,
                                      double b1, double b2, double b3, 
                                      double c1, double c2, double c3)
 {
-    return ( a1 * this->Determinant2x2( b2, b3, c2, c3 )
-            - b1 * this->Determinant2x2( a2, a3, c2, c3 )
-            + c1 * this->Determinant2x2( a2, a3, b2, b3 ) );
+    return ( a1 * vtkMath::Determinant2x2( b2, b3, c2, c3 )
+            - b1 * vtkMath::Determinant2x2( a2, a3, c2, c3 )
+            + c1 * vtkMath::Determinant2x2( a2, a3, b2, b3 ) );
 }
 
 // Description:
@@ -163,7 +163,7 @@ inline float vtkMath::Distance2BetweenPoints(float x[3], float y[3])
 // Generate random number between (min,max).
 inline float vtkMath::Random(float min, float max)
 {
-  return (min + this->Random()*(max-min));
+  return (min + vtkMath::Random()*(max-min));
 }
 
 #endif

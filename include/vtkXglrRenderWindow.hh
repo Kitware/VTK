@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -77,6 +77,7 @@ public:
   void WindowRemap(void);
   void PrefFullScreen(void);
   void SetSize(int,int);
+  void SetSize(int a[2]) {this->SetSize(a[0],a[1]);};
 
   // stereo rendering stuff
   virtual void StereoUpdate();

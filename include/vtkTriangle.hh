@@ -7,7 +7,7 @@
   Version:   $Revision$
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -105,11 +105,10 @@ inline void vtkTriangle::TriangleCenter(float p1[3], float p2[3], float p3[3],
 // Compute the area of a triangle in 3D.
 inline float vtkTriangle::TriangleArea(float p1[3], float p2[3], float p3[3])
 {
-  static vtkMath math;
   float a,b,c;
-  a = math.Distance2BetweenPoints(p1,p2);
-  b = math.Distance2BetweenPoints(p2,p3);
-  c = math.Distance2BetweenPoints(p3,p1);
+  a = vtkMath::Distance2BetweenPoints(p1,p2);
+  b = vtkMath::Distance2BetweenPoints(p2,p3);
+  c = vtkMath::Distance2BetweenPoints(p3,p1);
   return (0.25* sqrt(fabs((double)4.0*a*c - (a-b+c)*(a-b+c))));
 } 
 
