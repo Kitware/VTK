@@ -64,8 +64,6 @@ vtkRenderer::vtkRenderer()
 
   this->AllocatedRenderTime = 0;
   
-  this->SelfCreatedCamera = 0;
-  this->SelfCreatedLight = 0;
   this->CreatedLight = NULL;
   
   this->TwoSidedLighting = 1;
@@ -75,10 +73,18 @@ vtkRenderer::vtkRenderer()
 
 vtkRenderer::~vtkRenderer()
 {
-  if ( this->SelfCreatedCamera && this->ActiveCamera != NULL) 
-    this->ActiveCamera->Delete();
-  if ( this->SelfCreatedLight && this->CreatedLight != NULL) 
-    this->CreatedLight->Delete();
+  if (this->ActiveCamera)
+    {
+    this->ActiveCamera->UnRegister(this);
+    this->ActiveCamera = NULL;
+    }
+
+  if (this->CreatedLight)
+    {
+    this->CreatedLight->UnRegister(this);
+    this->CreatedLight = NULL;
+    }
+
   this->RayCaster->Delete();
   if (this->BackingImage) delete [] this->BackingImage;
 }
@@ -218,13 +224,23 @@ vtkWindow *vtkRenderer::GetVTKWindow()
 // Specify the camera to use for this renderer.
 void vtkRenderer::SetActiveCamera(vtkCamera *cam)
 {
-  if ( this->ActiveCamera != cam ) 
+  if (this->ActiveCamera == cam)
     {
-    if ( this->SelfCreatedCamera ) this->ActiveCamera->Delete();
-    this->SelfCreatedCamera = 0;
-    this->ActiveCamera = cam;
-    this->Modified();
+    return;
     }
+
+  if (this->ActiveCamera)
+    {
+    this->ActiveCamera->UnRegister(this);
+    this->ActiveCamera = NULL;
+    }
+  if (cam)
+    {
+    cam->Register(this);
+    }
+
+  this->ActiveCamera = cam;
+  this->Modified();
 }
 
 // Description:
@@ -234,7 +250,6 @@ vtkCamera *vtkRenderer::GetActiveCamera()
   if ( this->ActiveCamera == NULL )
     {
     this->ActiveCamera = vtkCamera::New();
-    this->SelfCreatedCamera = 1;
     this->ResetCamera();
     }
 
@@ -285,11 +300,16 @@ void vtkRenderer::RemoveVolume(vtkVolume *volume)
 
 void vtkRenderer::CreateLight(void)
 {
-    this->CreatedLight = vtkLight::New();
-    this->SelfCreatedLight = 1;
-    this->AddLight(this->CreatedLight);
-    this->CreatedLight->SetPosition(this->ActiveCamera->GetPosition());
-    this->CreatedLight->SetFocalPoint(this->ActiveCamera->GetFocalPoint());
+  if (this->CreatedLight)
+    {
+    this->CreatedLight->UnRegister(this);
+    this->CreatedLight = NULL;
+    }
+
+  this->CreatedLight = vtkLight::New();
+  this->AddLight(this->CreatedLight);
+  this->CreatedLight->SetPosition(this->ActiveCamera->GetPosition());
+  this->CreatedLight->SetFocalPoint(this->ActiveCamera->GetFocalPoint());
 }
 
 // Description:

@@ -167,7 +167,6 @@ protected:
   vtkTexture *Texture; 
   vtkMapper *Mapper;
   float Scale[3];
-  int SelfCreatedProperty;
 
   // this stuff supports multiple-part actors (e.g. assemblies)
   int TraversalLocation;

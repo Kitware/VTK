@@ -148,7 +148,6 @@ vtkGeometryFilter \
 vtkGlyph3D \
 vtkHedgeHog \
 vtkHyperStreamline \
-vtkImageDifference \
 vtkImplicitBoolean \
 vtkImplicitDataSet \
 vtkImplicitModeller \

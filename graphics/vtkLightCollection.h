@@ -63,12 +63,15 @@ class VTK_EXPORT vtkLightCollection : public vtkCollection
   void RemoveItem(vtkLight *a);
   int IsItemPresent(vtkLight *a);
   vtkLight *GetNextItem();
+protected:
+  virtual void DeleteElement(vtkCollectionElement *); 
 };
 
 // Description:
 // Add a light to the list.
 inline void vtkLightCollection::AddItem(vtkLight *a) 
 {
+  a->Register(this);
   this->vtkCollection::AddItem((vtkObject *)a);
 }
 
@@ -94,6 +97,15 @@ inline vtkLight *vtkLightCollection::GetNextItem()
 { 
   return (vtkLight *)(this->GetNextItemAsObject());
 }
+
+// Description:
+// protected function to delete an element. Internal use only.
+inline void vtkLightCollection::DeleteElement(vtkCollectionElement *e)
+{
+  ((vtkLight *)(e->Item))->UnRegister(this); 
+  vtkCollection::DeleteElement(e);
+}
+
 
 #endif
 

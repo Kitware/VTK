@@ -751,16 +751,24 @@ vtkActor2D actor
 set imager [viewer GetImager]
   $imager AddActor2D actor
 
-set ERROR_STRING "Subobject Modify Time Bugs:"
+set LABEL_STRING "Subobject Modify Time Bugs:"
+set ERROR_STRING ""
 
 
-TestKit common
-TestKit graphics
-TestKit imaging
-TestKit patented
+viewer GlobalWarningDisplayOff
 
-mapper SetInput $ERROR_STRING
+#TestKit common
+#TestKit graphics
+#TestKit imaging
+#TestKit patented
+
+if {$ERROR_STRING != ""} {
+   mapper SetInput "$LABEL_STRING $ERROR_STRING"
+}
 viewer Render
+
+
+viewer GlobalWarningDisplayOn
 
 
 

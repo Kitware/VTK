@@ -54,6 +54,11 @@ vtkFollower::vtkFollower()
 
 vtkFollower::~vtkFollower()
 {
+  if (this->Camera)
+    {
+    this->Camera->UnRegister(this);
+    }
+  
   this->Device->Delete();
 }
 

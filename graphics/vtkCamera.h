@@ -50,12 +50,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkCamera_h
 #define __vtkCamera_h
 
-#include "vtkObject.h"
+#include "vtkReferenceCount.h"
 #include "vtkTransform.h"
 
 class vtkRenderer;
 
-class VTK_EXPORT vtkCamera : public vtkObject
+class VTK_EXPORT vtkCamera : public vtkReferenceCount
 {
  public:
   vtkCamera();

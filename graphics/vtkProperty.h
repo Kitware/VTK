@@ -54,18 +54,18 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkProperty_h
 
 #include "vtkRender.h"
-#include "vtkObject.h"
+#include "vtkReferenceCount.h"
 #include "vtkStructuredPoints.h"
 
 class vtkRenderer;
 class vtkActor;
 
-class VTK_EXPORT vtkProperty : public vtkObject
+class VTK_EXPORT vtkProperty : public vtkReferenceCount
 {
 public:
   vtkProperty();
   static vtkProperty *New();
-  const char *GetClassName() {return "vtkProperty";};
+  const char *GetClassName() {return "ovtkProperty";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   vtkProperty &operator=(const vtkProperty& p);

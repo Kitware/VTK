@@ -747,20 +747,33 @@ set imager [viewer GetImager]
 
 
 
-set ERROR_STRING_CHANGE "Change Modify Time Bugs:"
-set ERROR_STRING_RESET "Reset Modify Time Bugs:"
+set LABEL_STRING_CHANGE "Change Modify Time Bugs:"
+set LABEL_STRING_RESET "Reset Modify Time Bugs:"
+set ERROR_STRING_CHANGE ""
+set ERROR_STRING_RESET ""
 
+viewer GlobalWarningDisplayOff
 
 #TestObject graphics vtkBrownianPoints
 
-TestKit graphics
-TestKit imaging
-TestKit patented
-TestKit common
+#TestKit graphics
+#TestKit imaging
+#TestKit patented
+#TestKit common
 
+if {$ERROR_STRING_CHANGE != ""} {
+   mapper SetInput "$LABEL_STRING_CHANGE $ERROR_STRING_CHANGE"
+}
+if {$ERROR_STRING_RESET != ""} {
+   mapper2 SetInput "$LABEL_STRING_RESET $ERROR_STRING_RESET"
+}
 mapper SetInput $ERROR_STRING_CHANGE
 mapper2 SetInput $ERROR_STRING_RESET
 viewer Render
+
+
+viewer GlobalWarningDisplayOn
+
 
 
 

@@ -56,7 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkFollower_h
 
 #include "vtkActor.h"
-class vtkCamera;
+#include "vtkCamera.h"
 
 class VTK_EXPORT vtkFollower : public vtkActor
 {
@@ -73,7 +73,7 @@ class VTK_EXPORT vtkFollower : public vtkActor
   // Description:
   // Set/Get the camera to follow. If this is not set, then the follower
   // won't know who to follow.
-  vtkSetObjectMacro(Camera,vtkCamera);
+  vtkSetReferenceCountedObjectMacro(Camera,vtkCamera);
   vtkGetObjectMacro(Camera,vtkCamera);
 
 protected:
@@ -82,4 +82,6 @@ protected:
 };
 
 #endif
+
+
 

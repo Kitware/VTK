@@ -46,6 +46,7 @@ foreach afile $files {
    rtExMath RandomSeed 6
    
    puts -nonewline "$afile took "
+   flush stdout
    puts -nonewline "[expr [lindex [time {source $afile} 1] 0] / 1000000.0] seconds "
    
    vtkWindowToImageFilter w2if

@@ -59,15 +59,23 @@ vtkActor::vtkActor()
   this->Scale[1] = 1.0;
   this->Scale[2] = 1.0;
 
-  this->SelfCreatedProperty = 0;
   this->TraversalLocation = 0;
 }
 
 vtkActor::~vtkActor()
 {
-  if ( this->SelfCreatedProperty && this->Property != NULL) 
-    this->Property->Delete();
-
+  if ( this->Property != NULL) 
+    {
+    this->Property->UnRegister(this);
+    this->Property = NULL;
+    }
+  
+  if ( this->BackfaceProperty != NULL) 
+    {
+    this->BackfaceProperty->UnRegister(this);
+    this->BackfaceProperty = NULL;
+    }
+  
 }
 
 // Description:
@@ -79,7 +87,16 @@ vtkActor& vtkActor::operator=(const vtkActor& actor)
   this->UserMatrix = actor.UserMatrix;
   this->Mapper = actor.Mapper;
   this->Property = actor.Property;
+  if (this->Property)
+    {
+    this->Property->Register(this);
+    }
+  
   this->BackfaceProperty = actor.BackfaceProperty;
+  if (this->BackfaceProperty)
+    {
+    this->BackfaceProperty->Register(this);
+    }
   this->Texture = actor.Texture;
 
   *((vtkProp *)this) = actor;
@@ -163,13 +180,22 @@ void vtkActor::Render(vtkRenderer *ren)
 
 void vtkActor::SetProperty(vtkProperty *lut)
 {
-  if ( this->Property != lut ) 
+  if ( this->Property == lut) 
     {
-    if ( this->SelfCreatedProperty ) this->Property->Delete();
-    this->SelfCreatedProperty = 0;
-    this->Property = lut;
-    this->Modified();
+    return;
     }
+  if ( this->Property != NULL) 
+    {
+    this->Property->UnRegister(this);
+    this->Property = NULL;
+    }
+  if ( lut != NULL) 
+    {
+    lut->Register(this);
+    }
+  
+  this->Property = lut;
+  this->Modified();
 }
 
 vtkProperty *vtkActor::GetProperty()
@@ -177,18 +203,28 @@ vtkProperty *vtkActor::GetProperty()
   if ( this->Property == NULL )
     {
     this->Property = vtkProperty::New();
-    this->SelfCreatedProperty = 1;
     }
   return this->Property;
 }
 
 void vtkActor::SetBackfaceProperty(vtkProperty *lut)
 {
-  if ( this->BackfaceProperty != lut ) 
+  if ( this->BackfaceProperty == lut) 
     {
-    this->BackfaceProperty = lut;
-    this->Modified();
+    return;
     }
+  if ( this->BackfaceProperty != NULL) 
+    {
+    this->BackfaceProperty->UnRegister(this);
+    this->BackfaceProperty = NULL;
+    }
+  if ( lut != NULL) 
+    {
+    lut->Register(this);
+    }
+  
+  this->BackfaceProperty = lut;
+  this->Modified();
 }
 
 vtkProperty *vtkActor::GetBackfaceProperty()
@@ -325,7 +361,7 @@ unsigned long int vtkActor::GetMTime()
     mTime = ( time > mTime ? time : mTime );
     }
 
-if ( this->BackfaceProperty != NULL )
+  if ( this->BackfaceProperty != NULL )
     {
     time = this->BackfaceProperty->GetMTime();
     mTime = ( time > mTime ? time : mTime );

@@ -194,8 +194,6 @@ protected:
 
   float Ambient[3];  
   vtkRenderWindow *RenderWindow;
-  int   SelfCreatedCamera;
-  int   SelfCreatedLight;
   float AllocatedRenderTime;
   int   TwoSidedLighting;
   int   BackingStore;

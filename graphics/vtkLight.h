@@ -53,12 +53,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkLight_h
 #define __vtkLight_h
 
-#include "vtkObject.h"
+#include "vtkReferenceCount.h"
 
 /* need for virtual function */
 class vtkRenderer;
 
-class VTK_EXPORT vtkLight : public vtkObject
+class VTK_EXPORT vtkLight : public vtkReferenceCount
 {
 public:
   vtkLight();
