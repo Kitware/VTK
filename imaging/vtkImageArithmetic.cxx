@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageDifference.cxx
+  Module:    vtkImageArithmetic.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,12 +37,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageDifference.h"
+#include "vtkImageArithmetic.h"
 
 
 
 //----------------------------------------------------------------------------
-vtkImageDifference::vtkImageDifference()
+vtkImageArithmetic::vtkImageArithmetic()
 {
   this->SetAxes2d(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
 }
@@ -53,7 +53,7 @@ vtkImageDifference::vtkImageDifference()
 // Description:
 // This templated function executes the filter for any type of data.
 template <class T>
-void vtkImageDifferenceExecute2d(vtkImageDifference *self,
+void vtkImageArithmeticExecute2d(vtkImageArithmetic *self,
 				       vtkImageRegion *in1Region, T *in1Ptr,
 				       vtkImageRegion *in2Region, T *in2Ptr,
 				       vtkImageRegion *outRegion, T *outPtr)
@@ -108,7 +108,7 @@ void vtkImageDifferenceExecute2d(vtkImageDifference *self,
 // algorithm to fill the output from the inputs.
 // It just executes a switch statement to call the correct function for
 // the regions data types.
-void vtkImageDifference::Execute2d(vtkImageRegion *inRegion1, 
+void vtkImageArithmetic::Execute2d(vtkImageRegion *inRegion1, 
 					 vtkImageRegion *inRegion2, 
 					 vtkImageRegion *outRegion)
 {
@@ -129,31 +129,31 @@ void vtkImageDifference::Execute2d(vtkImageRegion *inRegion1,
   switch (inRegion1->GetDataType())
     {
     case VTK_IMAGE_FLOAT:
-      vtkImageDifferenceExecute2d(this, 
+      vtkImageArithmeticExecute2d(this, 
 			  inRegion1, (float *)(inPtr1), 
 			  inRegion2, (float *)(inPtr2), 
 			  outRegion, (float *)(outPtr));
       break;
     case VTK_IMAGE_INT:
-      vtkImageDifferenceExecute2d(this, 
+      vtkImageArithmeticExecute2d(this, 
 			  inRegion1, (int *)(inPtr1), 
 			  inRegion2, (int *)(inPtr2), 
 			  outRegion, (int *)(outPtr));
       break;
     case VTK_IMAGE_SHORT:
-      vtkImageDifferenceExecute2d(this, 
+      vtkImageArithmeticExecute2d(this, 
 			  inRegion1, (short *)(inPtr1), 
 			  inRegion2, (short *)(inPtr2), 
 			  outRegion, (short *)(outPtr));
       break;
     case VTK_IMAGE_UNSIGNED_SHORT:
-      vtkImageDifferenceExecute2d(this, 
+      vtkImageArithmeticExecute2d(this, 
 			  inRegion1, (unsigned short *)(inPtr1), 
 			  inRegion2, (unsigned short *)(inPtr2), 
 			  outRegion, (unsigned short *)(outPtr));
       break;
     case VTK_IMAGE_UNSIGNED_CHAR:
-      vtkImageDifferenceExecute2d(this, 
+      vtkImageArithmeticExecute2d(this, 
 			  inRegion1, (unsigned char *)(inPtr1), 
 			  inRegion2, (unsigned char *)(inPtr2), 
 			  outRegion, (unsigned char *)(outPtr));

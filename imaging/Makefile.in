@@ -50,7 +50,7 @@ vtkImageSpatial3d.o \
 vtkImageMat4d.o \
 vtkImageShortReader4d.o \
 vtkImageTranslate4d.o \
-vtkImageDifference.o \
+vtkImageArithmetic.o \
 vtkImageDyadicFilter.o \
 vtkImageFilter.o \
 vtkImageFourierFilter.o \
@@ -104,7 +104,7 @@ tcl/vtkImageSpatial3dTcl.o \
 tcl/vtkImageMat4dTcl.o \
 tcl/vtkImageShortReader4dTcl.o \
 tcl/vtkImageTranslate4dTcl.o \
-tcl/vtkImageDifferenceTcl.o \
+tcl/vtkImageArithmeticTcl.o \
 tcl/vtkImageDyadicFilterTcl.o \
 tcl/vtkImageFilterTcl.o \
 tcl/vtkImageFourierFilterTcl.o \
@@ -158,7 +158,7 @@ vtkImageSpatial3d.h \
 vtkImageMat4d.h \
 vtkImageShortReader4d.h \
 vtkImageTranslate4d.h \
-vtkImageDifference.h \
+vtkImageArithmetic.h \
 vtkImageDyadicFilter.h \
 vtkImageFilter.h \
 vtkImageFourierFilter.h \
@@ -343,8 +343,8 @@ tcl/vtkImageShortReader4dTcl.cxx: vtkImageShortReader4d.h ../tcl/cpp_parse
 tcl/vtkImageTranslate4dTcl.cxx: vtkImageTranslate4d.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageTranslate4dTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageTranslate4d.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageTranslate4dTcl.cxx
 
-tcl/vtkImageDifferenceTcl.cxx: vtkImageDifference.h ../tcl/cpp_parse
-	 rm -f tcl/vtkImageDifferenceTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageDifference.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageDifferenceTcl.cxx
+tcl/vtkImageArithmeticTcl.cxx: vtkImageArithmetic.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageArithmeticTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageArithmetic.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageArithmeticTcl.cxx
 
 tcl/vtkImageDyadicFilterTcl.cxx: vtkImageDyadicFilter.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageDyadicFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageDyadicFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageDyadicFilterTcl.cxx

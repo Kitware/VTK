@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageDifference.h
+  Module:    vtkImageArithmetic.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,24 +37,24 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageDifference - Subtracts two images.
+// .NAME vtkImageArithmetic - Subtracts two images.
 // .SECTION Description
-// vtkImageDifference subtracts two images pixel by pixel.
+// vtkImageArithmetic subtracts two images pixel by pixel.
 // The two input and oputput data types all have to be the same.
 //  (output = input1 - input2)
 
 
-#ifndef __vtkImageDifference_h
-#define __vtkImageDifference_h
+#ifndef __vtkImageArithmetic_h
+#define __vtkImageArithmetic_h
 
 
 #include "vtkImageDyadicFilter.h"
 
-class vtkImageDifference : public vtkImageDyadicFilter
+class vtkImageArithmetic : public vtkImageDyadicFilter
 {
 public:
-  vtkImageDifference();
-  char *GetClassName() {return "vtkImageDifference";};
+  vtkImageArithmetic();
+  char *GetClassName() {return "vtkImageArithmetic";};
 
 protected:
   void Execute2d(vtkImageRegion *inRegion1, 
