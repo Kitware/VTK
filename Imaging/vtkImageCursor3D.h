@@ -31,13 +31,13 @@ public:
 
   // Description:
   // Sets/Gets the center point of the 3d cursor.
-  vtkSetVector3Macro(CursorPosition, float);
-  vtkGetVector3Macro(CursorPosition, float);
+  vtkSetVector3Macro(CursorPosition, double);
+  vtkGetVector3Macro(CursorPosition, double);
 
   // Description:
   // Sets/Gets what pixel value to draw the cursor in.
-  vtkSetMacro(CursorValue, float);
-  vtkGetMacro(CursorValue, float);
+  vtkSetMacro(CursorValue, double);
+  vtkGetMacro(CursorValue, double);
   
   // Description:
   // Sets/Gets the radius of the cursor. The radius determines
@@ -50,8 +50,8 @@ protected:
   vtkImageCursor3D();
   ~vtkImageCursor3D() {};
 
-  float CursorPosition[3];
-  float CursorValue;
+  double CursorPosition[3];
+  double CursorValue;
   int CursorRadius;
   
   // not threaded because it's too simple a filter

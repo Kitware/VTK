@@ -112,8 +112,8 @@ public:
   // Description:
   // Specify a threshold in compound mode. Pixels with opacity*alpha less
   // or equal the threshold are ignored.
-  vtkSetMacro(CompoundThreshold,float);
-  vtkGetMacro(CompoundThreshold,float);
+  vtkSetMacro(CompoundThreshold,double);
+  vtkGetMacro(CompoundThreshold,double);
 
 protected:
   vtkImageBlend();
@@ -138,7 +138,7 @@ protected:
   double *Opacity;
   int OpacityArrayLength;
   int BlendMode;
-  float CompoundThreshold;
+  double CompoundThreshold;
   int DataWasPassed;  
 private:
   vtkImageBlend(const vtkImageBlend&);  // Not implemented.

@@ -37,15 +37,15 @@ public:
 
   // Description:
   // Set/Get the pad value.
-  vtkSetMacro(Constant, float);
-  vtkGetMacro(Constant, float);
+  vtkSetMacro(Constant, double);
+  vtkGetMacro(Constant, double);
   
   
 protected:
   vtkImageConstantPad();
   ~vtkImageConstantPad() {};
 
-  float Constant;
+  double Constant;
   
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
                        int outExt[6], int id);
