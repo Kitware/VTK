@@ -112,7 +112,7 @@ public:
   
   // Description:
   // This method returns the largest data that can be generated.
-  void UpdateImageInformation();
+  void UpdateInformation();
   
 protected:
   void *ImportVoidPointer;
