@@ -33,11 +33,11 @@
 #include <stdio.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeProVP1000Mapper, "1.18");
+vtkCxxRevisionMacro(vtkVolumeProVP1000Mapper, "1.19");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
-vtkInstantiatorNewMacro(vtkVolumeProMapper);
+vtkInstantiatorNewMacro(vtkVolumeProVP1000Mapper);
 //----------------------------------------------------------------------------
 
 vtkVolumeProVP1000Mapper::vtkVolumeProVP1000Mapper()
