@@ -26,7 +26,7 @@
 #include "vtkGridSynchronizedTemplates3D.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkKitwareContourFilter, "1.23");
+vtkCxxRevisionMacro(vtkKitwareContourFilter, "1.24");
 vtkStandardNewMacro(vtkKitwareContourFilter);
 
 // Construct object with initial range (0,1) and single contour value
@@ -137,7 +137,7 @@ void vtkKitwareContourFilter::Execute()
   vtkDebugMacro(<< "Executing contour filter");
 
   numCells = input->GetNumberOfCells();
-  inScalars = input->GetPointData()->GetScalars();
+  inScalars = input->GetPointData()->GetScalars(this->InputScalarsSelection);
   if ( ! inScalars || numCells < 1 )
     {
     // vtkErrorMacro(<<"No data to contour");
