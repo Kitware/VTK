@@ -71,7 +71,6 @@ vtkImageViewer::vtkImageViewer()
   
   this->ColorWindow = 255.0;
   this->ColorLevel = 127.0;
-  this->ColorFlag = 0;
   this->RedComponent = 0;
   this->GreenComponent = 1;
   this->BlueComponent = 2;
@@ -79,10 +78,8 @@ vtkImageViewer::vtkImageViewer()
   this->XOffset = 0;
   this->YOffset = 0;
   this->GrayScaleHint = 0;
-  
-#if 0
-  this->OriginLocation = VTK_IMAGE_VIEWER_LOWER_LEFT;
-#endif
+
+
 }
 
 
@@ -116,17 +113,7 @@ void vtkImageViewer::PrintSelf(ostream& os, vtkIndent indent)
      << this->DisplayExtent[3] << ")\n";
   os << indent << "ColorWindow: " << this->ColorWindow << "\n";
   os << indent << "ColorLevel: " << this->ColorLevel << "\n";
-  if (this->ColorFlag)
-    {
-    os << indent << "ColorFlag: On \n";
-    os << indent << "RedComponent: " << this->RedComponent << "\n";
-    os << indent << "GreenComponent: " << this->GreenComponent << "\n";
-    os << indent << "BlueComponent: " << this->BlueComponent << "\n";
-    }
-  else
-    {
-    os << indent << "ColorFlag: Off \n";
-    }
+
 }
 
 

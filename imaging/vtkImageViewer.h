@@ -61,6 +61,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStructuredPoints.h"
 #include "vtkStructuredPointsToImage.h"
 
+// For placement of origin in the viewer.
+#define VTK_IMAGE_VIEWER_UPPER_LEFT 0
+#define VTK_IMAGE_VIEWER_LOWER_LEFT 1
 
 class VTK_EXPORT vtkImageViewer : public vtkObject {
 public:
@@ -78,8 +81,12 @@ public:
   // Description:
   // Subclass must define these methods.
   virtual void RenderRegion(vtkImageRegion *region) {region = region;};
-
-
+  
+  // Description:
+  // Set/Get the position of the origin in the viewer.
+  vtkSetMacro(OriginLocation, int);
+  vtkGetMacro(OriginLocation, int);
+  
   // Description:
   // Set/Get the input to the viewer.
   vtkSetObjectMacro(Input,vtkImageCache);
@@ -111,9 +118,8 @@ public:
 
   // Description:
   // Turn color interpretation on/off.
-  vtkSetMacro(ColorFlag, int);
-  vtkGetMacro(ColorFlag, int);
-  vtkBooleanMacro(ColorFlag, int);
+
+
   // Description:
   // Which components should be used for RGB.
   vtkSetMacro(RedComponent, int);
@@ -169,6 +175,8 @@ public:
   vtkGetVector4Macro(PermutationAxes, int);
 
 protected:
+  // Placement of origin that determines orientation of image in viewer.
+  int OriginLocation;
   // location of upper left corner in window.
   int XOffset;
   int YOffset;
@@ -186,8 +194,7 @@ protected:
   float ColorWindow;
   float ColorLevel;
   
-  // Stuff for mapping color (i.e. Components to RGB)
-  int ColorFlag;
+
   int RedComponent;
   int GreenComponent;
   int BlueComponent;
@@ -201,24 +208,3 @@ protected:
 #endif
 
 
-#if 0
-  // Description:
-  // Set/Get the position of the origin in the viewer.
-  vtkSetMacro(OriginLocation, int);
-  vtkGetMacro(OriginLocation, int);
-  void SetOriginLocationToUpperLeft()
-    {this->SetOriginLocation(VTK_IMAGE_VIEWER_UPPER_LEFT);}
-  void SetOriginLocationToLowerLeft()
-    {this->SetOriginLocation(VTK_IMAGE_VIEWER_LOWER_LEFT);}
-#endif   
-
-#if 0
-	// For placement of origin in the viewer.
-	#define VTK_IMAGE_VIEWER_UPPER_LEFT 0
-	#define VTK_IMAGE_VIEWER_LOWER_LEFT 1
-#endif 
-
-#if 0
-    // Placement of origin that determines orientation of image in viewer.
-  int OriginLocation;
-#endif
