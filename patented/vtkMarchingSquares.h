@@ -124,13 +124,6 @@ public:
   // The locator is used to merge coincident points.
   void CreateDefaultLocator();
 
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // Obsolete method for legacy compatibility. Do not use.
-  void SetLocator(vtkPointLocator& locator) 
-    {VTK_LEGACY_METHOD(SetLocator,"3.2"); this->SetLocator(&locator);}
-#endif
-  
 protected:
   vtkMarchingSquares();
   ~vtkMarchingSquares();
