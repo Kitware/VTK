@@ -15,6 +15,7 @@ set iren [$renWin MakeRenderWindowInteractor];
 #
 vtkMCubesReader reader;
     reader SetFilename "../../data/pineRoot/pine_root.tri";
+    reader FlipNormalsOff;
     reader DebugOn;
 vtkDecimate deci;
     deci SetInput [reader GetOutput];
