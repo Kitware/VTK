@@ -135,7 +135,6 @@ IF (VTK_USE_RENDERING)
       TenEllip
       TestBandedContourFilter
       TestBoxFunction
-      TestButtonSource
       TestCellDerivs
       TestCurvatures
       testDataSetTriangleFilter
