@@ -149,7 +149,6 @@ int vtkTriangleStrip::CellBoundary(int subId, float pcoords[3], vtkIdList *pts)
   static int idx[2][3]={{0,1,2},{1,0,2}};
   int order;
   int numPts=this->PointIds->GetNumberOfIds();
-  int retStatus;
 
   order = subId % 2;
 
