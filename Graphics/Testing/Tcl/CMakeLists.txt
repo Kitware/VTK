@@ -137,8 +137,10 @@ IF (VTK_USE_RENDERING)
       TestRuledSurface
       TestSpherePuzzle
       TestSpherePuzzleArrows
+      TestSplineFilter
       TestStructuredGrid
       TestTriangleFilter
+      TestRibbonAndTube
       TransformConcatenation
       TransformCoverage
       TransformPolyData
