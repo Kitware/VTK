@@ -47,6 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkAssemblyNode.h"
 #include "vtkVolume.h"
 #include "vtkObjectFactory.h"
+#include "vtkLODProp3D.h"
 
 //-----------------------------------------------------------------------------
 vtkPicker* vtkPicker::New()
@@ -150,6 +151,7 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
   double *clipRange;
   float ray[3], rayLength;
   int pickable;
+  int LODId;
   float windowLowerLeft[4], windowUpperRight[4];
   float bounds[6], tol;
   float tF, tB;
@@ -291,8 +293,10 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
     }
 
   vtkActor *actor;
+  vtkLODProp3D *prop3D;
   vtkVolume *volume;
   vtkAssemblyPath *path;
+  vtkProperty *tempProperty;
   this->Transform->PostMultiply();
   for ( props->InitTraversal(); (prop=props->GetNextProp()); )
     {
@@ -310,6 +314,22 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
           if ( actor->GetProperty()->GetOpacity() <= 0.0 )
             {
             pickable = 0;
+            }
+          }
+        else if ( (prop3D=vtkLODProp3D::SafeDownCast(propCandidate)) != NULL )
+          {
+		  LODId = prop3D->GetPickLODID();
+          mapper = prop3D->GetLODMapper(LODId);
+
+          // if the mapper is a vtkMapper (as opposed to a vtkVolumeMapper), then
+          // check the transparency to see if the object is pickable
+		  if ( vtkMapper::SafeDownCast(mapper) != NULL)
+		    {
+		    prop3D->GetLODProperty(LODId, &tempProperty);
+            if ( tempProperty->GetOpacity() <= 0.0 )
+			  {
+              pickable = 0;
+              }
             }
           }
         else if ( (volume=vtkVolume::SafeDownCast(propCandidate)) != NULL )
