@@ -24,7 +24,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticQuad, "1.9");
+vtkCxxRevisionMacro(vtkQuadraticQuad, "1.10");
 vtkStandardNewMacro(vtkQuadraticQuad);
 
 // Construct the line with two points.
@@ -414,16 +414,11 @@ void vtkQuadraticQuad::Derivatives(int vtkNotUsed(subId),
 
 // Clip this quadratic quad using scalar value provided. Like contouring, 
 // except that it cuts the quad to produce other quads and triangles.
-void vtkQuadraticQuad::Clip(float value, 
-                            vtkDataArray* vtkNotUsed(cellScalars), 
-                            vtkPointLocator* locator,
-                            vtkCellArray* polys,
-                            vtkPointData* inPd, 
-                            vtkPointData* outPd,
-                            vtkCellData* inCd, 
-                            vtkIdType cellId, 
-                            vtkCellData* outCd,
-                            int insideOut)
+void vtkQuadraticQuad::Clip(float value, vtkDataArray* cellScalars, 
+                            vtkPointLocator* locator, vtkCellArray* polys,
+                            vtkPointData* inPd, vtkPointData* outPd,
+                            vtkCellData* inCd, vtkIdType cellId, 
+                            vtkCellData* outCd, int insideOut)
 {
   float weights[8];
 
@@ -436,6 +431,13 @@ void vtkQuadraticQuad::Clip(float value,
   //contour each linear quad separately
   for (int i=0; i<4; i++)
     {
+    for ( int j=0; j<4; j++) //for each of the four vertices of the linear quad
+      {
+      this->Quad->Points->SetPoint(j,this->Points->GetPoint(LinearQuads[i][j]));
+      this->Quad->PointIds->SetId(j,this->PointIds->GetId(LinearQuads[i][j]));
+      this->Scalars->SetTuple(j,cellScalars->GetTuple(LinearQuads[i][j]));
+      }
+
     this->Quad->Clip(value,this->Scalars,locator,polys,this->PointData,
                      outPd,this->CellData,0,outCd,insideOut);
     }
