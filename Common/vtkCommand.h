@@ -115,6 +115,7 @@ public:
     WindowLevelEvent,
     NextDataEvent,
     PushDataStartEvent,
+    EndOfDataEvent,
     UserEvent = 1000
   };
 //ETX
